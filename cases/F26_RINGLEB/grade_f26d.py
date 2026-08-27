@@ -97,24 +97,73 @@ def classify_text(rc, text):
 
 
 def classify_dir(d):
-    """Read rc and log OFF DISK and classify. The planted control drives THIS."""
+    """Read rc and log OFF DISK and classify. The planted control drives THIS.
+
+    AMENDMENT 1 (2026-08-27, pre-compute): a level that was NEVER RUN gets its own
+    state and is NEVER "FAILED". The two are distinguishable on disk -- a genuinely
+    failed level leaves RC.txt and log.solve behind, an unrun one leaves nothing --
+    and collapsing them let a CAP HALT be read as a physics failure at exactly the
+    level where the money ran out. A grader must never convert an infrastructure
+    event into a physics finding."""
+    if not os.path.isdir(d):
+        return "UNRUN", ["level directory absent -- never launched"]
     rcp, logp = os.path.join(d, "RC.txt"), os.path.join(d, "log.solve")
-    rc = None
-    if os.path.exists(rcp):
-        raw = open(rcp).read().strip()
-        rc = int(raw) if re.fullmatch(r"-?\d+", raw) else None
-    text = open(logp).read() if os.path.exists(logp) else ""
+    if not os.path.exists(rcp) and not os.path.exists(logp):
+        return "UNRUN", ["neither RC.txt nor log.solve -- never launched"]
+    raw = open(rcp).read().strip() if os.path.exists(rcp) else ""
+    if raw == "build-failed" or (raw and not re.fullmatch(r"-?\d+", raw)):
+        return "BUILD_FAILED", ["RC.txt says %r -- the case never built, an "
+                                "INFRASTRUCTURE event, not a physics failure" % raw]
+    rc = int(raw) if re.fullmatch(r"-?\d+", raw) else None
     if not os.path.exists(logp):
-        return "FAILED", ["no log.solve"]
-    return classify_text(rc, text)
+        return "BUILD_FAILED", ["RC.txt present but no log.solve -- the solver never "
+                                "started; INFRASTRUCTURE, not physics"]
+    return classify_text(rc, open(logp).read())
 
 
-def threshold(states):
-    """N* = the coarsest registered level that FAILED, else NONE."""
+# AMENDMENT 1: the states that mean "this level tells us nothing about physics".
+INFRA = ("UNRUN", "BUILD_FAILED")
+
+
+def threshold(states, absent_is_failed=False):
+    """N* from the FIRST non-COMPLETED level, scanning coarse -> fine.
+
+    Returns (level, kind) with kind in {FAILED, UNDETERMINED, NONE}:
+      * first non-COMPLETED level is FAILED        -> (that level, "FAILED")
+      * first non-COMPLETED level is UNRUN/BUILD_  -> (that level, "UNDETERMINED")
+      * every level COMPLETED                      -> ("NONE", "NONE")
+
+    Absence AFTER a genuine failure is fine and never reached: once an arm fails at
+    a level, finer levels are legitimately not run. Only a GAP IN THE RUN OF
+    COMPLETED LEVELS is fatal.
+
+    `absent_is_failed` reintroduces the pre-amendment defect and exists ONLY so the
+    selftest can show the fix is load-bearing. The command line never sets it."""
     for lv in LEVELS:
-        if states.get(lv, ("FAILED", ["absent"]))[0] == "FAILED":
-            return lv
-    return "NONE"
+        st = states.get(lv, ("UNRUN", ["absent"]))[0]
+        if st == "COMPLETED":
+            continue
+        if st in INFRA:
+            if absent_is_failed:
+                return lv, "FAILED"          # the defect, for the mutation control
+            return lv, "UNDETERMINED"
+        return lv, "FAILED"
+    return "NONE", "NONE"
+
+
+def cap_halt(run_root):
+    """Read the launcher's cap-halt marker rather than INFERRING a halt from
+    absence. Rule 12: an overrun stops the run and does not get a new budget --
+    AMENDMENT 1 adds that it must not get a CONCLUSION either."""
+    for name in ("CAP_HALT.json", "CAP.txt"):
+        p = os.path.join(run_root, name)
+        if os.path.exists(p):
+            txt = open(p).read().strip()
+            try:
+                return json.loads(txt)
+            except ValueError:
+                return {"marker": name, "text": txt}
+    return None
 
 
 def reading(nstar):
@@ -276,6 +325,85 @@ def selftest():
                      "missing minimum-r guard in scripts/roache_triple.py cannot reach any number "
                      "here." % (len(imported), len(names)))
 
+    # ---- AMENDMENT 1 controls: an unrun level is never a failure -----------
+    with tempfile.TemporaryDirectory() as td:
+        arm = os.path.join(td, "AV")
+        for lv in LEVELS:
+            _write_case(os.path.join(arm, lv), 0, COMPLETING)
+        st_all = {lv: classify_dir(os.path.join(arm, lv)) for lv in LEVELS}
+        base = threshold(st_all)
+        if base != ("NONE", "NONE"):
+            problems.append("G8 FAILED: an arm completing every level did not give "
+                            "N*=NONE; got %s." % (base,))
+
+        # G8 -- DELETE L3 entirely (the cap-halt shape: L1/L2 completed, L3+ absent).
+        import shutil
+        shutil.rmtree(os.path.join(arm, "L3")); shutil.rmtree(os.path.join(arm, "L4"))
+        st_gap = {lv: classify_dir(os.path.join(arm, lv)) for lv in LEVELS}
+        got_gap = threshold(st_gap)
+        if got_gap != ("L3", "UNDETERMINED"):
+            problems.append("G8 FAILED: a GAP in the run (L1/L2 completed, L3 and L4 never "
+                            "launched) read as %s. A cap halt would be graded as a physics "
+                            "failure at exactly the level where the money ran out." % (got_gap,))
+        elif st_gap["L3"][0] != "UNRUN":
+            problems.append("G8 FAILED: an absent level classified as %r, not UNRUN." % st_gap["L3"][0])
+        else:
+            lines.append("G8 CONTROL FIRED: deleting L3 and L4 from a completing arm gives "
+                         "N* UNDETERMINED at L3, not a threshold -- so a cap halt CANNOT be "
+                         "read as a physics failure. Unrun levels stay PENDING.")
+
+        # G9 -- the SAME level, present and genuinely aborted, must still give FAILED.
+        _write_case(os.path.join(arm, "L3"), 136, FAILING)
+        got_fail = threshold({lv: classify_dir(os.path.join(arm, lv)) for lv in LEVELS})
+        if got_fail != ("L3", "FAILED"):
+            problems.append("G9 FAILED: L3 present with rc=136 and a truncated log read as %s; "
+                            "the fix has broken the reading it must preserve." % (got_fail,))
+        else:
+            lines.append("G9 CONTROL FIRED: the SAME level present-and-aborted (rc 136, "
+                         "truncated log) still gives N* = L3 FAILED. The amendment removes a "
+                         "false failure without removing a true one.")
+
+        # G10 -- the MUTATION: restore absent->FAILED and require G8's tree to flip.
+        shutil.rmtree(os.path.join(arm, "L3"))
+        got_mut = threshold({lv: classify_dir(os.path.join(arm, lv)) for lv in LEVELS},
+                            absent_is_failed=True)
+        if got_mut != ("L3", "FAILED"):
+            problems.append("G10 PLANT DID NOT FLIP: reintroducing absent-is-failed did not "
+                            "turn the gap back into a threshold (%s), so G8 is not testing the "
+                            "fix." % (got_mut,))
+        else:
+            lines.append("G10 PLANT FLIPPED: with the pre-amendment defect reintroduced "
+                         "(absent_is_failed=True) the very same gap reads as N* = L3 FAILED -- "
+                         "which is exactly the wrong answer the amendment removes, shown "
+                         "reproducible AND shown caught.")
+
+        # G11 -- a BUILD FAILURE is infrastructure too, not a physics failure.
+        os.makedirs(os.path.join(arm, "L3"), exist_ok=True)
+        open(os.path.join(arm, "L3", "RC.txt"), "w").write("build-failed\n")
+        got_bf = threshold({lv: classify_dir(os.path.join(arm, lv)) for lv in LEVELS})
+        if got_bf != ("L3", "UNDETERMINED"):
+            problems.append("G11 FAILED: a level whose case never BUILT read as %s. A build "
+                            "failure is an infrastructure event and must not become a "
+                            "physics finding either." % (got_bf,))
+        else:
+            lines.append("G11 CONTROL FIRED: a level whose case never built reads UNDETERMINED, "
+                         "not FAILED -- the same principle as G8, applied to the launcher's "
+                         "other infrastructure exit.")
+
+        # G12 -- the cap halt is READ from the launcher's marker, never inferred.
+        if cap_halt(td) is not None:
+            problems.append("G12 FAILED: cap_halt() reported a halt with no marker present.")
+        else:
+            open(os.path.join(td, "CAP_HALT.json"), "w").write(
+                '{"arm":"AV","level":"L3","spent_core_min":10.4,"cap_core_min":10.2}')
+            h = cap_halt(td)
+            if not h or h.get("cap_core_min") != 10.2:
+                problems.append("G12 FAILED: cap_halt() did not read the marker back: %r" % (h,))
+            else:
+                lines.append("G12 CONTROL FIRED: with no marker cap_halt() returns None, and "
+                             "with one it reads arm/level/spent/cap back off disk -- the halt "
+                             "is READ, never inferred from absence.")
+
     for l in lines:
         print("  " + l)
     if problems:
@@ -322,13 +450,13 @@ def main(argv):
         blob = verify_freeze(a.prereg_commit, root)
         print("FREEZE VERIFIED: %s on disk == committed blob %s at %s" % (PREREG, blob[:12], a.prereg_commit))
 
-    states, nstar = {}, {}
+    states, nstar, kind = {}, {}, {}
     for arm in ARMS:
         states[arm] = {}
         for lv in LEVELS:
-            d = os.path.join(a.run_root, arm, lv)
-            states[arm][lv] = classify_dir(d) if os.path.isdir(d) else ("FAILED", ["absent"])
-        nstar[arm] = threshold(states[arm])
+            states[arm][lv] = classify_dir(os.path.join(a.run_root, arm, lv))
+        nstar[arm], kind[arm] = threshold(states[arm])
+    halt = cap_halt(a.run_root)
 
     # Section 4.3 -- A0 is the reference and its behaviour is a refusal condition.
     a0 = states["A0"]
@@ -339,6 +467,25 @@ def main(argv):
             st, why = states[arm][lv]
             print("    %s %s (%5d cells): %s%s" % (arm, lv, CELLS[lv], st,
                                                    "" if st == "COMPLETED" else "  <- " + "; ".join(why)))
+    # AMENDMENT 1: an UNDETERMINED arm is NOT A RESULT before anything else is read.
+    undet = [arm for arm in ARMS if kind[arm] == "UNDETERMINED"]
+    if undet:
+        print("NOT A RESULT: N* is UNDETERMINED for %s -- the first non-COMPLETED level of "
+              "each is an INFRASTRUCTURE state, not a physics failure:" % undet)
+        for arm in undet:
+            st, why = states[arm][nstar[arm]]
+            print("    %s: %s is %s (%s). Levels below it COMPLETED, so this is a GAP in the "
+                  "run, not a threshold." % (arm, nstar[arm], st, "; ".join(why)))
+        if halt:
+            print("    CAUSE READ FROM THE LAUNCHER'S OWN MARKER, not inferred: %s" % halt)
+            print("    THE REGISTERED CAP HALTED THIS ARM BEFORE ITS THRESHOLD WAS DETERMINED. "
+                  "Rule 12: an overrun stops the run and does not get a new budget -- and it "
+                  "does not get a conclusion either. The cap is NOT raised.")
+        else:
+            print("    No cap-halt marker in the run root, so the gap is not a budget halt; "
+                  "the unrun levels are unexplained and must be explained before grading.")
+        print("    Unrun levels stay PENDING. A level that was never launched is never a failure.")
+        return 2
     if bad:
         print("NOT A RESULT: pre-registration section 4.3 requires A0 to COMPLETE %s; it did not "
               "complete %s. The reference the probe arms are read against has moved."
@@ -356,7 +503,8 @@ def main(argv):
     print("    F26_RINGLEB REMAINS BLOCKED. This arm is a diagnostic, not a ladder; it does not "
           "rescope F26 and the rescope cost is NOT established.")
     if a.json:
-        print(json.dumps({"nstar": nstar, "reading": verdict, "detail": why,
+        print(json.dumps({"nstar": nstar, "kind": kind, "cap_halt": halt,
+                          "reading": verdict, "detail": why,
                           "states": {k: {l: v[0] for l, v in s.items()} for k, s in states.items()}},
                          indent=1))
     return 0

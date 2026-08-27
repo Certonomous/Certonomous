@@ -227,3 +227,75 @@ directions through the real reader** (standing rule 3) — a completing log is m
 an abort signature and must be read as FAILED, and a failing log is mutated to carry a
 completion signature and must be read as COMPLETED. A reader never shown able to return the
 other answer is not evidence. Every refusal is a `raise` or `sys.exit`, never an `assert`.
+
+---
+
+## AMENDMENT 1 — 2026-08-27, BEFORE FIRST COMPUTE. A grader defect found by the supervisor's check 1.
+
+**THE CONDITION UNDER WHICH THIS AMENDMENT IS LEGAL, AND HOW IT WAS CHECKED (rule 2).**
+Amendments before first compute are legal; after first compute gates are closed. **No compute
+has occurred.** Checked at **2026-08-27T19:47:58Z** by `date -u`, immediately before this
+section was written:
+
+- `test -e /home/ubuntu/Certonomous/verification/runs/F26D_runs` -> **ABSENT** — the run
+  directory that would exist if this arm had run **does not exist**.
+- `test -e /home/ubuntu/Certonomous/verification/runs/F26_RINGLEB_runs` -> **ABSENT**.
+- `find cases/F26_RINGLEB -maxdepth 3 \( -name RC.txt -o -name 'log.*' \)` -> **0 files**.
+- Spend against this registration: **0 core-minutes**.
+
+**No gate, threshold, cap or label is altered by this amendment.** The ladder, `r`, the arms,
+the four-row reading table, §4.3's refusal condition, the estimate 6.8 and the cap 10.2 are all
+exactly as frozen at `6ab2e257`. What changes is a **comparator defect** and the launcher
+marker it reads.
+
+### The defect
+
+`grade_f26d.py` classified a level directory that **did not exist** as **FAILED**. Never-run
+and failed were the same state to the grader.
+
+Put beside `run_f26d.sh`, which on a cap crossing HALTS at exit 3 leaving later levels unrun
+and their directories absent, the consequence is that **a budget halt was read as a physics
+failure at exactly the level where the money ran out**, `N*` was set from it, and §4.2 mapped
+it onto a scientific conclusion. **Demonstrated before fixing:** an arm completing L1 and L2
+with L3/L4 unrun returned `N* = L3` and the reading **"NONE of the three"** — a registered
+conclusion manufactured from an infrastructure event.
+
+**This was not hypothetical.** §6's estimate rate — 3.55 us/cell-iteration — is **imported from
+a different case**, and this team's measured, repeated failure is exactly that: F21 +110/+113 %,
+F22 +136/+123 %, F18b +137/+111 %. If an imported rate is optimistic by more than 50 % the cap
+halts. The cost of that is not six-tenths of a cent; it is **a wrong scientific answer that
+looks like a right one.** The grader must not depend on the estimate being right.
+
+### The fix
+
+1. **An absent level gets its own state, `UNRUN`, and is never `FAILED`.** The two are
+   distinguishable on disk: a genuinely failed level leaves `RC.txt` and `log.solve`; an unrun
+   one leaves nothing. A level whose case never built gets `BUILD_FAILED` — the launcher's
+   other infrastructure exit, treated the same way.
+2. **`N*` comes from the FIRST non-COMPLETED level, scanning coarse -> fine.** If that level is
+   `FAILED`, `N*` is that level as before. If it is `UNRUN` or `BUILD_FAILED`, `N*` is
+   **UNDETERMINED** and the arm is **`NOT A RESULT`**, naming the arm and the levels. Absence
+   *after* a genuine failure is legitimate and never reached — only a **gap in the run of
+   COMPLETED levels** is fatal.
+3. **The cap halt is READ, never inferred.** `run_f26d.sh` writes `CAP_HALT.json` (arm, level,
+   spent, cap) and the grader reports it in the verdict. **Rule 12: an overrun stops the run and
+   does not get a new budget — and it does not get a conclusion either.** The cap is not raised.
+4. **Unrun levels stay `PENDING`.** A level that was never launched is never a failure — the
+   ruling already made on F24's unbought fine level.
+
+### Controls added (grader 8 -> 13)
+
+- **G8** — deleting L3 and L4 from a completing arm gives `UNDETERMINED` at L3, not a threshold.
+- **G9** — the **same** level present-and-aborted (rc 136, truncated log) still gives `L3 FAILED`:
+  the fix removes a false failure **without removing a true one**.
+- **G10** — **the mutation**: reintroducing `absent_is_failed` makes G8's tree read `L3 FAILED`
+  again, so G8 is shown to be testing the fix and not passing for another reason.
+- **G11** — a level whose case never built reads `UNDETERMINED`, not `FAILED`.
+- **G12** — `cap_halt()` returns `None` with no marker and reads arm/level/spent/cap back off
+  disk with one.
+
+### The principle, recorded because it outlives this rung
+
+**A grader must never convert an infrastructure event into a physics finding.** That is Sanaa's
+universal rule — bookkeeping never voids physics — running in the other direction: **bookkeeping
+must not create physics either.** It is also why rule 4's comparators refuse rather than degrade.

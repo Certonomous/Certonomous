@@ -59,6 +59,11 @@ for ARM in $ARMS; do
     # unrun levels are simply absent and the grader reads them as such.
     OVER=$(python3 -c "print(1 if $SPENT >= $CAP_CORE_MIN else 0)")
     if [ "$OVER" = "1" ]; then
+      # AMENDMENT 1 (2026-08-27, pre-compute): write a MACHINE-READABLE halt marker
+      # so the grader READS the cause instead of inferring it from absence. Unrun
+      # levels stay PENDING; a budget event must never become a physics finding.
+      printf '{"arm":"%s","level":"%s","spent_core_min":%s,"cap_core_min":%s,"note":"registered cap halted the run; unrun levels are PENDING, never FAILED; the cap is not raised (rule 12)"}\n' \
+        "$ARM" "$LV" "$SPENT" "$CAP_CORE_MIN" > "$RUN_ROOT/CAP_HALT.json"
       echo "CAP REACHED: $SPENT core-min >= $CAP_CORE_MIN. HALTING; $ARM/$LV and later are unrun." \
         | tee -a "$RUN_ROOT/CAP.txt"
       exit 3
