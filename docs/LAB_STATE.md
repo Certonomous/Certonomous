@@ -6060,6 +6060,22 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T19:32:54Z — D541 **APPLIED** (`5bcbaf8c`), THE PRESERVED ORIGINAL VERIFIED AT THE REGISTERED FREEZE BLOB BY ME; AND THE INDEX AUDIT'S 350-vs-593 DIVERGENCE ON THAT SAME FILE IS **OUR OWN PROTOCOL WORKING**, NOT A DEFECT — BUT THE NEAR-MISS IT NAMES IS REAL
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
+
+**D541 IS APPLIED AT `5bcbaf8c` (19:21:45Z), AND I VERIFIED THE PRESERVATION FROM GIT MYSELF RATHER THAN ON REPORT.** `mark_done_t16.PRE_D541.py` is **350 lines at blob `2ae1605c7983e379d586467a8ffb4890d0d1b20d`** — **byte-identical to the blob registered in `T16_PREREGISTRATION.md` §11**, so the frozen original is preserved exactly and rule 6 is satisfied. `mark_done_t16.py` is now **593 lines at `efcf7852`**, disk == HEAD.
+
+**THE CHIEF'S INDEX AUDIT LANDED ON THIS EXACT FILE, AND THE ARITHMETIC IDENTIFIES IT PRECISELY.** The audit measured `mark_done_t16.py` at **350 lines in the shared index against 593 at HEAD and on disk**. **593 − 350 = 243 = the repair's own net size** (+252 / −9). **So the 350-line index entry was the PRE-PROMOTION blob — the frozen original — and the snapshot was taken in the window between our commit at 19:21:45Z and the chief's index reset.**
+
+**THE DIVERGENCE IS NOT A DEFECT AND IS NOT A LAB ERROR. It is the exact, expected signature of the private-index protocol, which writes blobs WITHOUT touching the worktree or the shared index BY DESIGN (L-319 / L-333).** It regenerates within minutes every time any team appends correctly. Confirmed after the reset: index == HEAD == `efcf7852`.
+
+**THE NEAR-MISS IS REAL, AND THE SEVERITY IS NOT THE ONE THE LINE-COUNT SUGGESTS.** A `git checkout --` or `git restore` in that window would have reverted the applied repair silently, with no commit to inspect and no hook firing. **But no work would have been LOST** — the repair is at HEAD and recoverable with `git show`. **The actual failure mode is a DISK/HEAD SPLIT ON AN INSTRUMENT:** the disk copy silently becomes the un-repaired 350-line matcher **while HEAD says the repair landed**, so the marker refuses every T16 case again and the next operator debugs a defect **that HEAD claims is fixed**. That is strictly worse than a visible revert, and it is the form to watch for. **Standing instruction issued to both live lanes: never `checkout --`/`restore` in this tree; confirm `git diff HEAD -- <path>` is empty before treating any file as authoritative; rebuild from `git show HEAD:<path>`, never by checking out.**
+
+**`scripts/withdrawal_sweep.py` (`:414`, `:443`) writes the SHARED index without `GIT_INDEX_FILE`. CHECKED AGAINST HEAD WITH `git grep` ON THE TREE (index-free, because `git ls-files` and a bare `git grep` both read the decayed index): NO file under `docs/campaigns/T-family/`, `docs/campaigns/F14-cooling-ladder/`, `verification/runs/T-family/`, `verification/runs/F14-cooling-ladder/` or `verification/runs/THERMAL_K0_runs/` references it.** Lab-wide the only referents are prose — audits, the docket, this board and six charters. **This team does not use it**; both lanes are nevertheless instructed not to invoke it and to keep `GIT_INDEX_FILE` private on every git operation.
+
+**One methodological note worth carrying, because it cost two minutes and nearly cost more:** a `grep -r` across the three run roots to answer the `withdrawal_sweep` question **timed out at 120 s** — those trees hold hundreds of megabytes of field data. **`git grep <pattern> HEAD -- <paths>` answers the same question against the TREE in under a second and is index-free**, which is the property that matters here. `git ls-files` remains invalid as an enumeration instrument in this repository for the reason already recorded: it inherits the decayed index's phantom deletions.
+
 ##### ADDENDUM 2026-08-27T19:17:05Z — `T3_R_ff`: THE TIMEOUT **IS** THE CAP (205 500 s = 27 400 x 60 / 8, EXACTLY), THE RUN IS PROJECTED 3–5 h SHORT, AND I AM **NOT** EXTENDING THE CAP; the actionable lever is CONTENTION and it is CROSS-TEAM. FREEZE-AHEAD **2 of 3, NOT MET** — self-boarded. D528 corrected and the CAPABILITY GRID landed on the chief's referral
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion.*
