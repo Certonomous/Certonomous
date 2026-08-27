@@ -860,3 +860,92 @@ of 216/401/65/2/67.
   sweep of every tracked `*.py`/`*.sh` outside `sdk/tests/`. **That sweep cannot see an
   untracked script, an inline agent bash call, or a `git` invocation assembled from strings.**
   *Not found by that sweep* is the correct reading.
+
+## §3 — THE SIXTH OBSERVATION IS THE FIRST NON-EXACT ONE, AND THE RESIDUAL IS NOW UNATTRIBUTABLE BECAUSE THE RESET DESTROYED IT (2026-08-27T21:39:14Z)
+
+**Appended, append-only. Nothing above is rewritten. Zero compute.**
+
+**§3.1 — THE PREDICTION, TESTED A SIXTH TIME.**
+
+§2 established that phantom staged deletions == paths **added to HEAD since the
+index was last written**, with no writer required, and recorded **4 of 5 EXACT**
+(17:22 → 401, 18:30 → 65, 18:48 → 2, 19:12 → 67) with 16:17 off by one.
+
+The chief reported a recurrence at **21:28Z: 237 staged deletions, index last
+written 19:33:22Z, all at HEAD, on disk, nobody writing.** Tested against the
+same rule, clock read `date -u` in the measuring invocation:
+
+| quantity | figure |
+| --- | --- |
+| last commit at or before 19:33:22Z | `aaf0bed6`, 19:33:04Z |
+| paths **ADDED** to HEAD since it | **234** |
+| paths **DELETED** from HEAD since it | **0** |
+| of the 234, absent on disk | **0** |
+| staged deletions observed | **237** |
+| **residual** | **3** |
+
+**The structural explanation covers 234 of 237 — 98.7 %. It is the FIRST
+observation that is not exact, and the residual has the sign that admits a real
+deletion.** §2's discriminating control still holds in the direction that
+matters: **phantom ADDITIONS = 0**, so this is an index behind HEAD and not an
+index somebody staged into.
+
+**§3.2 — ONE RESIDUAL IS NAMED AND IT IS A GENUINE DELETION, NOT A PHANTOM.**
+
+The chief reported *"one path in the set was at HEAD but absent on disk."*
+**§2's control asserted every such path is present on disk AND at HEAD; that
+assertion now has an exception.** A path at HEAD and absent from disk is a
+**real worktree deletion** surfacing as a staged deletion, and it is outside the
+structural set entirely — the mechanism does not explain it and was never
+claimed to. **It belongs to its owning team as a worktree deletion, which is how
+the chief routed it.** Measured on the 234 added paths, **0** are absent on
+disk, so the exception is not among them: it entered before 19:33:04Z and left
+the disk afterwards.
+
+**§3.3 — THE FINDING, AND IT IS ABOUT RESETTING RATHER THAN ABOUT THE INDEX.**
+
+**TWO RESIDUALS REMAIN UNATTRIBUTED, AND THEY ARE NOW UNATTRIBUTABLE. The index
+was reset to HEAD at 21:28Z, and the reset is what destroyed the evidence.** The
+staged-deletion list, the blobs it held and the entry timestamps were the only
+record that could have named them; after a reset there is nothing left to
+interrogate.
+
+> **Each reset erases the only record that would attribute its own residual.**
+
+**Five resets today have left five unattributed residuals**, and this audit has
+been able to name a mechanism for the bulk each time **only because the bulk is
+predictable from git history, which survives.** **The part that does NOT survive
+is exactly the part that would distinguish "no writer is required" from "no
+writer is present" — the question §2.7 already recorded as , and
+the reset guarantees it stays that way.**
+
+**This strengthens §2's recommendation rather than adding a new one.** §2
+recommended stopping the scheduled resets on the ground that they buy a median
+of **under five minutes** and *report as handled a thing that is not addressed*.
+**A second ground is now measured: they are also the reason the residual has
+never been attributed in six observations.** The recommendation is unchanged and
+is still **RECOMMENDED, NOT MADE** — the index is the chief's call and
+configuration is Sanaa's.
+
+**§3.4 — WHAT IS NOT CLAIMED.**
+
+**The 237 was NOT observed by this team** — it is the chief's reading, relayed,
+and this section tests a prediction against it rather than re-deriving it.
+**The two unattributed residuals are not asserted to be intrusions**, nor to be
+benign; they are ** and now unmeasurable**, and that is the whole
+point of §3.3. **No barrier changed**: `.git/hooks/pre-commit` still refuses a
+bare commit, `git checkout --`/`git restore` still restore from the INDEX and
+still bypass that hook, and both remain as §2 left them.
+
+| §3 | figure |
+| --- | --- |
+| observations of the prediction to date | **6** |
+| exact | **4** |
+| off by one | **1** (16:17) |
+| off by three | **1** (21:28, this one) |
+| coverage of the sixth observation | **234 of 237 = 98.7 %** |
+| phantom ADDITIONS, the discriminating control | **0** |
+| residuals attributed | **1 of 3** (the chief's genuine worktree deletion) |
+| residuals now permanently unattributable | **2** |
+| resets today | **5** | 
+| unattributed residuals those resets destroyed the evidence for | **5** |
