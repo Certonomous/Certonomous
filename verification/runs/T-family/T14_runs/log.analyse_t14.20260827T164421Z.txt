@@ -1,0 +1,14 @@
+verifying the analytic reference before any comparison:
+  exact_t14.verify: PDE residual 7.60e-06; symmetry grads 0.0e+00; Robin 9.5e-08; IC 3.6e-05; theta(x,y)=theta(y,x); Simpson agrees to 3.7e-12; cross-check vs T11 registered values PASS (Bi=1 Fo=0.2)
+  level c: reached endTime, every step converged: True
+  level m: reached endTime, every step converged: True
+  level f: reached endTime, every step converged: True
+  W0 symmetry witness: c 3.01e-14, m 3.01e-14, f 6.01e-14
+planted-zero control G1  PASS: plant 0.001234 in 40000 cell(s), recovered 0.001234, floor 1e-07
+planted-zero control G2  PASS: plant 0.001234 in 1 cell(s), recovered 0.0027765, floor 1e-07
+planted-zero control G3  PASS: plant 0.001234 in 1 cell(s), recovered 0.0027765, floor 1e-07
+G1  fine=0.7252180490 ref=0.7252148236 dev=+4.448e-06 band=[0.7251786, 0.7252511] triple=(7.25237920e-01, 7.25222023e-01, 7.25218049e-01) CONVERGING p=1.9999 GCI=2.2836e-04% -> PASS
+G2  fine=0.9037256580 ref=0.9037197910 dev=+6.492e-06 band=[0.9036294, 0.9038102] triple=(9.03846108e-01, 9.03749748e-01, 9.03725658e-01) CONVERGING p=2.0000 GCI=1.1106e-03% -> PASS
+G3  fine=0.6116455064 ref=0.6116341596 dev=+1.855e-05 band=[0.6115730, 0.6116953] triple=(6.11787749e-01, 6.11673851e-01, 6.11645506e-01) CONVERGING p=2.0066 GCI=1.9192e-03% -> PASS
+C-T temporal-bias control (REPORTED, never gated): G1 moves -1.310e-06 relative = 0.026 of the band
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T14_runs/gate_t14.json
