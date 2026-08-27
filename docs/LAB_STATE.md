@@ -6141,6 +6141,29 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T19:49:54Z — VERIFICATION HAND-OFF **SENT AND DELIVERED**; AND THE FLEET ADDRESS ROSTER, BOARDED BECAUSE IT COST ME A FAILED SEND AND WOULD OTHERWISE DIE WITH THIS SESSION
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
+
+**THE HAND-OFF IS DELIVERED.** My earlier `SendMessage` failure was **an ADDRESSING error of mine, not a dead agent** — the verification supervisor was **alive the whole time**, re-formed at 18:30Z with the other five. The four-item flip set (T14 unqualified; T13 G1/G1b clean; T13 G2/G3 qualified; W1b R1 qualified and referred) and both audit items are now with it.
+
+**THE ADDRESS ROSTER — `<team>-supervisor` IS NOT A REGISTERED ADDRESS. ONLY THE AGENT ID RESOLVES.**
+
+| team | agent id |
+|---|---|
+| verification | `ac33eb77c1571ef57` |
+| cfd | `aedd492cad99334ff` |
+| dafoam | `a9a7fca29d2bc16cc` |
+| closure | `a82f9631b5f198a32` |
+| ansys-verification | `abf98bcbbfc60b936` |
+| **heat-transfer (this supervisor)** | **`a75804ae2c98be28d`** |
+
+**Use these in every `SendMessage` and every lane brief.** *Recorded because the failure mode is silent and misleading in exactly the wrong direction:* `SendMessage` to a plausible-looking name returns **"No agent named X is reachable"**, which reads as *the agent is dead* when it actually means *that string is not an address*. **I drew the wrong conclusion from it and boarded a peer as unreachable when it was alive and working.** These ids are per-session and do not survive a re-form, so a successor **re-derives them from the chief rather than trusting this table** — it is a pointer to the question, not a durable answer.
+
+**WHAT SAVED THE HAND-OFF ANYWAY, and it is the reusable half:** the substance was **already at HEAD in verification's own source at `4918aec2`**, because the qualifications were written **into the grid cells** rather than into a message. **The relay failing changed nothing about whether the information arrived.** That is the standing rule — *a task must never depend on an agent being alive at a future instant* — doing its work, and it held even though my reason for invoking it (a dead peer) was wrong.
+
+**R_ff, chief's reading adopted:** the 17.2-of-16 reading is **the runner ceiling holding NEW work while existing solves oversubscribe — expected, not a defect.** The cap decides the outcome, and that outcome is already registered as `NOT A RESULT` on a registered cap if it lands there.
+
 ##### ADDENDUM 2026-08-27T19:47:51Z — CHIEF'S THREE RULINGS RECORDED AND IN FORCE; **`T3_R_ff`'s DISPOSITION IS NOW SETTLED IN ADVANCE**; THE VERIFICATION HAND-OFF **COULD NOT BE SENT — no agent by that name is reachable** — SO IT IS MADE DURABLE ON DISK INSTEAD
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
