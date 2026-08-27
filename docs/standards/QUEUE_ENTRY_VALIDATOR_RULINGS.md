@@ -619,3 +619,72 @@ MOVE rather than a deletion** — so the cleanup commit is a `git mv` **naming b
 old and the new path**, and it must never be recorded as a removal of work.
 **Still a deletion at the tree level, still the owning supervisor's call, still never
 a tidy-up.**
+
+### R-QCOMMIT.9 — THE LAUNCHED RECORD LANDS AS A **RENAME**, NOT AS AN ADDITION — and two corrections to the referral that reached me with it
+
+**Appended; nothing above rewritten. From heat-transfer's lane via the chief.
+Verified here by execution, and two of the referral's claims did not survive.**
+
+**§9.1 THE CLAUSE, ADOPTED.**
+
+> **The launched record lands at the next board write AS A RENAME of the committed
+> root entry — git's `R100`, same blob, new path — never as an ADDITION beside it.**
+> **A rename is not the pure-deletion reversion signature rule 10 and `L-350`
+> forbid, because the blob survives at the new path and the content diff is 0/0.**
+
+**Verified on the exemplar:** `commit:ee4c331c` reports **three `R100` rows, 0
+insertions, 0 deletions**, and `held/W1c_*` is now **absent from HEAD and absent from
+disk — stranding nothing.** **The fossil class is retired going forward.**
+
+**AND THE FOSSILS ARE NOT A PROPERTY OF GIT.** They are the residue of committing the
+launched path as an **addition** while the root path stays at HEAD. **The count grows
+by one per launch under current practice** — measured **17 at 22:25:34Z** and **19 at
+22:44:16Z**, nineteen minutes apart. **A clock-stamped census again (`L-388`).**
+
+**§9.2 ⚠ CORRECTION 1 — THE PAIRING PROOF IS *NOT* CONTENT IDENTITY, AND A CHECK
+BUILT ON IT WOULD FAIL ON EVERY PAIR.**
+
+The referral states each root fossil has a same-basename `launched/` counterpart
+**"with identical content — the pairing is the deletion's proof."** **Measured: of
+the 19 fossils, 18 have a counterpart at HEAD and ZERO of the 18 are byte-identical.**
+
+**The differences reduce to exactly two keys — `_field_classes` and `_launch` —**
+sampled across three pairs and identical in each: **runner-added launch metadata,
+which is precisely what clause (b) calls infrastructure.**
+
+> **So the pairing test is NOT byte equality. It is: SAME BASENAME across the
+> `launched/` boundary, WITH ALL DIFFERENCES CONFINED TO A NAMED RUNNER-KEY SET
+> (`_launch`, `_field_classes`, `status_seen_utc`).** **A content-identity check
+> would refuse all eighteen genuine pairs** — `R-QCOMMIT.6`'s discriminating-limb
+> hazard, arriving in the very test proposed as the proof.
+
+**AND THE NINETEENTH HAS NO COUNTERPART AT HEAD AT ALL.** It is **named as unpaired
+rather than assumed into the class**; the pairing is **18 of 19**, not 19 of 19, and
+that one must be resolved by its owner before any cleanup touches it.
+
+**§9.3 ⚠⚠ CORRECTION 2 — THE MANDATED SHAPE COLLIDED WITH THIS TEAM'S OWN COMMIT
+GUARD, AND THE GUARD WOULD HAVE REFUSED IT.**
+
+`COMMIT_INTEGRITY_STANDARD` clause 3 asserted the diff is **"NON-EMPTY and
+single-path."** **A rename is TWO paths:** `ee4c331c` returns **6 paths** under
+`git diff-tree -r` without rename detection. **This team's own guard would have
+refused the exact commit shape this clause mandates** — `L-362` again, **inside one
+team's own standards.**
+
+**Fixed at `commit:90ae7ea2` (`COMMIT_INTEGRITY_STANDARD` v1.3):** the assertion is
+now against a **declared EXPECTED PATH SET**, and a rename declares **two** members
+plus a matched **`R100`, 0/0** check. **A rename that is not `R100` is a rename plus
+an edit and is not a rename for that clause's purposes.** **R-QCOMMIT.9 is not
+executable without that fix, and the two clauses are to be read together.**
+
+**§9.4 THE NAIVE ESTIMATOR STAYS WRONG ON ITS OWN SEPARATE GROUND.** Retiring the
+fossil class does **not** repair the subtraction estimator: **it assumes
+`tracked ⊆ disk`**, which a move violates regardless of how the move is committed.
+**Two independent defects; fixing one does not fix the other**, and `R-QCOMMIT.2`'s
+set-difference method stands unchanged.
+
+**§9.5 NOT CLAIMED.** **The existing fossils are a ONE-TIME PAIRED CLEAN, and the
+deletions themselves remain on Sanaa's desk** — this clause governs **future**
+launches and authorises nothing retrospective. **The cleanup remains an explicit
+`git mv` naming both paths, the owning supervisor's call, never a lane's
+initiative.**
