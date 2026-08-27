@@ -15325,3 +15325,72 @@ The measurement stands in full: **19 modified tracked files, pure deletion, 2,05
 teams**, including `docs/charters/ANSYS_VERIFICATION_CHARTER.md` at −373. The near-miss stands:
 a two-call splice would have committed a foreign 698-line document as `docs/LAB_STATE.md`. And
 the three rules of each lesson stand as written.
+
+---
+
+## L-352 — a registered falsifier that names a COMPONENT can read MISS while the effect it was built to detect is still there: name the EFFECT, and the component only as its expected locus
+
+**Found** 2026-08-27 by dafoam-supervisor, in the check-3 sweep over `curriculum_D15`,
+`curriculum_D16` and `curriculum_D17_cone_supersonic` (`SUPERVISION_CHARTER.md` §3, the
+verify-a-big-claim-before-believing-it duty). **Class:** pre-registration / prediction
+specification. **Affects:** every pre-registration whose prediction text names a specific
+component, index, cell, station or channel as the thing that must move — grep
+`PREREGISTRATION.md` for `shape[` and `idx` inside a `P` numbered claim.
+
+**The construction.** D15, D16 and D17 registered **one** prediction, P5, at three Mach
+numbers: *does the IDWarp rotation defect reach the compressible solvers?* Each item's
+frozen text cashed it as a claim about a named FFD component:
+
+    P5 — SHIPPED `shape[6]` outside band D or sign-flipped      (D15, D16)
+    P5 — SHIPPED `shape[0]` outside band D or sign-flipped      (D17)
+
+**What happened.** D16's SHIPPED row **`GATE FAIL`ed**. The defect was present, large
+against its own control (worst shipped-vs-patched divergence 5.487 % against a patched-row
+FD error of 0.528 %, S/N 10.4), and the comparator scored **P5 MISS** — because the row
+failed on **`shape[0]`** at 5.15 % while the named `shape[6]` passed at 1.95 %. The defect
+had simply moved component between M 0.288 and M 0.685.
+
+| item | M | solver | row verdict | registered P5 component | P5 | where it actually landed |
+|---|---|---|---|---|---|---|
+| D15 | 0.288 | `DARhoSimpleFoam` | **GATE FAIL** | `shape[6]` | **HIT** | `shape[6]`, 44.87 % |
+| D16 | 0.685 | `DARhoSimpleCFoam` | **GATE FAIL** | `shape[6]` | **MISS** | `shape[0]`, 5.15 % |
+| D17 | 1.958 | `DAHisaFoam` | `PASS` | `shape[0]` | MISS | nowhere; S/N 0.82, not discriminating |
+
+**A `MISS` on a row that `GATE FAIL`ed is the tell.** Read off the prediction table alone,
+D15/D16/D17 score HIT / MISS / MISS, which invites *"the defect is bounded to the
+incompressible path"*. Read off the row verdicts, the defect **`GATE FAIL`s at both
+compressible Mach numbers measured**. The two readings point opposite ways, and the
+prediction is the one that is wrong.
+
+**The rule.** **A registered falsifier names the EFFECT. The component is named as its
+EXPECTED LOCUS and is scored separately.** Write the claim in two parts, both frozen:
+
+    P5   the SHIPPED row's graded objective is outside band D on AT LEAST ONE component
+         (the effect — this is what HIT/MISS means)
+    P5a  and that component is `shape[6]`
+         (the expected locus — scored beside it, and a MISS here is a finding about the
+          defect's structure, never about its presence)
+
+Then D16 reads **P5 HIT, P5a MISS**, which is exactly what the artefacts say: the defect
+reached the transonic solver, and its locus is not transferable across Mach number.
+
+**Why this is not "widen the prediction until it cannot fail".** P5-as-effect is still
+falsifiable and still cheap to falsify: a SHIPPED row that passes on every component
+refutes it outright, and D17's rows do pass. The locus half keeps the sharpness the
+component name was there for, at the price of one extra scored line. What the split
+removes is only the case where **an item's own failing verdict and its own prediction
+disagree** — and that case is never informative, because the record then has to be read
+twice to find out which half to believe.
+
+**The boundary.** This does not reach a prediction whose subject genuinely IS the
+component — *"the defect is confined to `shape[6]` and to no other component"* is a claim
+about locus, and a MISS on it is a real refutation. The test is one question asked at
+freeze time: **if the effect appeared somewhere else, would I want this prediction to read
+MISS?** If no, the component belongs in a P*a*, not in the P.
+
+**Where it was paid for.** `cases/dafoam/ladder-a/A1/curriculum_D16/RESULTS.md` §5–§6 and
+its appended check-3 sweep section; `cases/dafoam/ladder-a/A1/curriculum_D15/RESULTS.md`;
+`cases/dafoam/curriculum_D17_cone_supersonic/RESULTS.md` §6 and its appended section;
+`docs/dafoam/README.md` §3a. Grade jsons still on disk under
+`/home/ubuntu/certonomous-runs/CURRICULUM-D1{5,6,7}-*`. **Cost of the lesson: 0.000
+core-min** — it was read out of runs already bought.
