@@ -1,9 +1,9 @@
 {
  "rung": "attempt2_coarse_workshop_M0.734_a2.79",
- "graded_utc": "2026-08-25T17:08:49.683534+00:00",
+ "graded_utc": "2026-08-25T17:18:32.656255+00:00",
  "frozen_evidence": {
-  "checked_utc": "2026-08-25T17:08:49.661016+00:00",
-  "launcher_sha256": "d25295ad9c0dcb71c216e582e7d7ce73a6168e9668523bb4b5c75d2d3905300d",
+  "checked_utc": "2026-08-25T17:18:32.630947+00:00",
+  "launcher_sha256": "24c6a6332be3b9068697f6756cd5394faced804c21a90917e791a26b372f9506",
   "prereg_blob": "462492a82b6cf848eaaff25661ded45e623e723f",
   "frozen_sentences_found": 7,
   "rae_module_blob": "a18314f77160b7a58f443073850a44b4d8fada7d",
@@ -32,7 +32,7 @@
   },
   "age_guard_all_fields_newer_than_0_T": {
    "pass": false,
-   "detail": "all newer"
+   "detail": "no fields exist at endTime \u2014 nothing to compare against 0/T"
   }
  },
  "complete": false,
