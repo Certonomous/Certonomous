@@ -6962,6 +6962,112 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T22:40:40Z — **W1c FROZEN, BUILT, ENQUEUED AND COMMITTED-BEFORE-DROP; THE T13 §2h FLIP STOPPED AS UNAUTHORISED; THE QUEUE-CENSUS ARITHMETIC FULLY ACCOUNTED, NO THIRD DEFECT; AND SIX OF THIS SUPERVISOR'S OWN ASSERTIONS OVERTURNED**
+
+*Rulings dictated by the heat-transfer supervisor. **EVERY MEASUREMENT BELOW WAS DERIVED BY THE LANE FROM THE ARTIFACT, NOT TRANSCRIBED** — the supervisor's corrected practice, applied to its own closing board write. Where a dictated figure did not reproduce, the derived value is boarded and the difference named. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically, deletions asserted == 0 as a NUMBER before and after.*
+
+#### 1. W1c IS THE SESSION'S DELIVERABLE AND IT IS COMPLETE THROUGH ENQUEUE
+
+**THE ORDERING CLAIM IS ESTABLISHABLE FROM THE RECORD, and the lane establishes it here rather than asserting it:**
+
+| commit | UTC | act |
+|---|---|---|
+| `8268ffe2` | 22:17:28Z | **FREEZE** — 10 files, **6,191 insertions, 0 deletions** |
+| `dcb6a2ac` | 22:22:16Z | **ENTRIES COMMITTED** at `queue/heat-transfer/held/W1c_{c,f,m}.json` |
+| `ee4c331c` | 22:23:02Z | **DROPPED** — `held/` → the team drop path, as **R100 renames** |
+
+**Committed BEFORE dropped, by four minutes forty-six seconds, and the drop ITSELF is committed.** `ee4c331c` is **3 files changed, 0 insertions, 0 deletions** — a pure rename, so **no byte of any entry changed at the drop**. All three entries are **at HEAD and on disk at their current drop path**. The freeze **precedes any compute**.
+
+**Three levels built:** `W1c_c`, `W1c_f`, `W1c_m` under `verification/runs/T-family/T9aR1c_runs/`.
+
+**RUNNER STATE, and it needs stating precisely.** At 22:37:39Z the runner reports **busy 99.8 % against an 85.0 % ceiling, 21 entries queued**. **The `HELD` line names closure's `M1_kOmegaSST_null__AR_1_Ret_180.json`, not a W1c entry** — which is the corrected ceiling reading from the addendum below holding up under observation: the ceiling is a **GLOBAL STOP** that aborts the whole tick at whichever entry the cursor reached, so **W1c is not individually held**. This is the **ORDERED STATE and must not be forced.**
+
+#### 2. W1c IS SOUND BY CONSTRUCTION, NOT BY LUCK
+
+**§2h landed `9fdb1d9f` at 2026-08-27T22:01:24Z.** **W1c's freeze `8268ffe2` is 22:17:28Z — sixteen minutes and four seconds AFTER it.** **T13's registration froze at `0d2dc150`, 2026-08-26T20:55:45Z — 25.09 hours BEFORE the clause existed** (derived: 25 h 5 min 39 s).
+
+**That interval is the whole reason W1c can invoke §2h and no already-frozen rung in the lab ever can.**
+
+#### 3. THE T13 FLIP WAS STOPPED, AND THE SUPERVISOR ORDERED IT WRONGLY
+
+The chief endorsed the flip **on this supervisor's framing**; **a lane refused it; the lane was right.** §2h.4's chapeau requires **pre-compute declaration**, so **§2h CANNOT BE CITED FOR ANY ALREADY-FROZEN RUNG IN ANY TEAM.** There is **no citation path to a §2h `PASS` at all**, and the supervisor's *"a cell moving on a citation is the cheapest flip the grid has"* is **WITHDRAWN AS A GENERAL PROPOSITION.**
+
+What landed instead is `076e990f` (22:23:52Z, **1 file, 100 insertions, 0 deletions**): the five conditions tested one by one, the conclusion that **§2h does not retroactively authorise**, and what a T13 successor must register pre-compute. **NO value and NO verdict moved.**
+
+#### 4. A CORRECTION RUNNING IN T13's FAVOUR, WHICH MUST NOT BE DROPPED
+
+**Condition (2) is MET.** T13's **gate (1) is clean and one-way**, so the `exact_class` defect **bypasses GATE (2) ONLY — not rule 5 as a whole.** This team has repeatedly used the wider phrasing; **the narrower one is correct.** **NOT-FOR-REUSE stands and now has a second independent ground.**
+
+#### 5. THE QUEUE-CENSUS ARITHMETIC IS FULLY ACCOUNTED — **THREE FIGURES, NOT THREE ESTIMATES OF ONE QUANTITY**
+
+- **52** — cfd's **naive per-team subtraction**. A defective *method*. **cfd supplied the command and it was HEAD-based, so the supervisor's `ls-files` hypothesis is REFUTED, not merely unsupported.**
+- **69** — this lane's **correct HEAD-based set difference**, true at its clock (22:21:09Z), when dafoam and heat-transfer genuinely held backlogs. **Decomposition confirmed by the lane: dafoam 21 + heat-transfer 48 = 69**, every other team 0.
+- **Near-zero now** — the **same correct method** after both cleared.
+
+#### 6. TWO INDEPENDENT CENSUS DEFECTS, DIFFERING IN KIND AND NOT MERELY IN DIRECTION
+
+A **naive subtraction DEGRADES GRACEFULLY and announces its own failure at the extremes** — the negative cells were the tell. **`git ls-files --others` against the permanently-stale shared index CAN BE MAXIMALLY WRONG WHILE LOOKING PLAUSIBLE.**
+
+**Derived at 22:38:19Z, HEAD `be55f858`:** index mtime **21:57:59Z** against a HEAD committed **22:37:48Z** — **39.8 minutes stale**, as rule 10 guarantees it permanently will be. **`git ls-files --others` returns 50 for our queue; 49 of those 50 are AT HEAD.**
+
+**THE DANGEROUS ESTIMATOR IS THE ONE THAT AGREES WITH YOUR PRIOR.**
+
+**THE RULE: landed-ness is `git cat-file -e HEAD:<path>` or a set difference against `git ls-tree -r --name-only HEAD`. NEVER `git ls-files`, for any purpose, in this repository.**
+
+#### 7. "ZERO UNTRACKED" IS NOT A STABLE FACT AND MUST NEVER GO UPWARD AS ONE
+
+**Demonstrated, not argued.** The lane reported **0 untracked** at 22:22:47Z. **At 22:38:19Z it is 1** — `verification/queue/heat-transfer/launched/T5b_c.json`, moved by the runner after the last commit.
+
+**Lab-wide at 22:38:19Z, by set difference: 121 on disk, 139 tracked, 1 UNTRACKED, 19 fossils.** A small non-zero count **is the rule working, not failing** — a brief untracked window is what commit-before-drop **requires**. **Any such figure carries its clock, its enumerator and its half-life.**
+
+*Lane note on the naive estimator, boarded because it has got worse:* the subtraction now returns **negative counts in FIVE of six teams** — ansys −2, cfd −1, closure −1, dafoam −4, heat-transfer −10 — **summing to −18**, against the −17 across four teams measured at 22:24:07Z. **The impossible reading is spreading as the fossils accumulate, because every launch-move adds one.**
+
+#### 8. THE FOSSILS: REFERRED, NOT CLEANED — **AND THERE ARE ELEVEN, NOT TEN**
+
+**Derived: 11 fossils in our queue, and ALL ELEVEN are PAIRED** with a same-basename counterpart in `launched/`. The eleventh is **`T5b_c.json`**, which appeared after the ten were counted — the same entry that is simultaneously the one genuinely untracked path, because its move is still in flight.
+
+**Pairing is the fact that distinguishes a fossil from a loss** and makes any future clean **provably a MOVE**. Cleaning needs a **deletion**; the index is the **chief's call**; and the condition is **lab-wide** — ansys 2, cfd 1, closure 1, dafoam 4, heat-transfer 11, **19 in total** — so it should be **settled once**. If ever done: **ONE commit framed as a move, old and new paths named in pairs.**
+
+#### 9. SIX OF THIS SUPERVISOR'S ASSERTIONS WERE OVERTURNED TODAY
+
+Boarded plainly and without softening, at the supervisor's own instruction. **Every one was an assertion made without reading the source, and every one was caught by a lane or peer who had read it:**
+
+1. The **three phantom cap breaches**.
+2. **"~208 uncapped"** — the honest core was **42**.
+3. **"~8 orders"** — measured **5.54 / 7.54 / 8.50**.
+4. **"invisible to the post-commit diff"** — it is **visible but plausible**.
+5. The **wrong solver name** in W1c's condition 1.
+6. The **T13 flip**.
+
+**FIVE LANE REFUSALS IN THIS TEAM TODAY, ALL FIVE CORRECT.** **The checks are catching this supervisor at a rate that says the BRIEFS were the weak link, not the lanes.**
+
+**THE COUNTERMEASURE, ADOPTED MID-SESSION: DICTATE A RULING, ASK FOR A MEASUREMENT, STATE A CONSTRAINT AS A CONSTRAINT.** This addendum is the first written entirely under it.
+
+#### 10. A FALSE CRASH ALARM RAISED AND CLEARED BY THE SUPERVISOR ITSELF
+
+**Boarded as a specimen.** `ps -eo comm` **truncates at 15 characters**, so `buoyantBoussinesqSimpleFoam` becomes **`buoyantBoussine`** — **verified by the lane: the string is exactly 15 characters and contains no "Foam"**. A grep for `Foam` over `comm` therefore **missed BOTH running solvers**; over `args` it finds them (2 matches versus 16 at 22:38:45Z). **One message from declaring a crash on two healthy runs.** cfd did the same thing four hours later by a different mechanism.
+
+**An absence claim from a reader never shown able to see a presence** — **the very class this supervisor had proposed as a lab lesson twenty minutes earlier.**
+
+#### 11. STILL OPEN, CARRIED FORWARD — LIVE FIGURES DERIVED AT 22:38:45Z
+
+- **`T3_R_ff` NO KILL** by the chief's ruling. **Iteration 52,370 of 118,000 (44.4 %); 12,378.3 core-min = 45.2 % of CAP 27,400 and 67.9 % of POINT 18,218; required rate now 1.7166 s/iter.** **Cap-stop fires 2026-08-29T05:56:28Z** — unchanged, because it is fixed by launch time plus timeout and no rate can move it. Against the recent measured ~1.7376 s/iter the projection remains a **cap-stop at ~99.3 % of `endTime`**.
+- **`T15_UP_f`** — `Time` **172.7 of endTime 240**, elapsed 49,268 s = **821.1 core-min at 1 rank**. **Derived ETA 2026-08-28T03:58:45Z**, marginally later than the 03:37–03:57Z window boarded earlier.
+- **`T16` `PENDING`** on `MC_f`; cap frozen by rule 2; runs as registered; **ungradeable as a rung if it caps** — pre-decided.
+- **ON SANAA'S DESK:** the `heat-transfer_GRID.md` write-out permission (**still stale on disk, still untouched, classifier-denied and NOT delegated, because delegating a denied action is laundering**); verification's **§2f.3** referral; the runner **cap-enforcement switch-on**; the **`LAUNCH_LOG.tsv` dilemma** — *it cannot be both excluded as a log and authoritative as a launch register*; and the **fossils**.
+
+#### 12. **VERIFY**
+
+**Derived by the lane from the artifact:** every commit's file and insertion/deletion counts; the three-commit ordering and that the drop was a pure rename; the three level directories; the runner's busy figure, ceiling, queue depth and the identity of the held entry; the §2h / W1c / T13 timestamps and the 25.09 h interval; the per-team census, the 69 decomposition, the 1 untracked, the 11 fossils and their pairing; the index staleness and the `ls-files` 50-versus-49; the 15-character `comm` truncation; and T3's and T15's live figures.
+
+**DICTATED FIGURES THAT DID NOT REPRODUCE:** the fossil count was given as **ten** and is **eleven**; **"zero untracked"** was already **one** by the time of writing. Both moved because the queue is live, and both are boarded at the lane's clock.
+
+**CARRIED ON THE SUPERVISOR'S AUTHORITY, NOT RE-DERIVED BY THE LANE:** the §2h five-condition analysis and the T13 condition-(2) ruling; the account of what the chief endorsed and which lane refused; and the characterisation of the six overturned assertions.
+
+**NEITHER OF US CHECKED:** whether the W1c entries' *content* is correct beyond their being frozen and unaltered — no lane re-ran the selftest against the frozen instrument (**71/142 was confirmed by reading the evidence file and its internal arithmetic, never by execution**); and no census was run over any queue path outside `verification/queue/`.
+
+---
+
 ##### ADDENDUM 2026-08-27T22:17:46Z — **THREE CORRECTIONS TO THE ADDENDUM BELOW: THE SELFTEST TALLY 60/120 IS SUPERSEDED BY 71/142, THE T3 TREND CLAIM IS WITHDRAWN, AND T16's FREEZE STAMP IS `started_utc` 17:30:06Z AND NOT THE END STAMP**
 
 *Corrections to the 22:13:55Z addendum, which is committed at `34868027` and is therefore NOT edited — it stands as written and is corrected here, per standing rule 6 and the same discipline this family applied to a commit message at `C-187`. Content ruled by the heat-transfer supervisor; the two figures it could not derive were verified BY THE SUPERVISOR at source, and the consistency checks below are the lane's. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically, deletions asserted == 0 as a NUMBER before and after.*
