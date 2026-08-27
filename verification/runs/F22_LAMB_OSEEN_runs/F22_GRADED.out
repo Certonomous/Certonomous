@@ -1,0 +1,10 @@
+F22 -- 2-D DECAYING LAMB-OSEEN VORTEX -- TALLY
+==============================================================================
+G-F22-1_E2_velocity_L2_at_T              PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.9463, GCI 129.5992 % = 4.77262e-06 absolute at Fs = 1.25
+G-F22-2_peak_vorticity_at_T              PASS
+    finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.1188, GCI 0.0134 % = 0.000177723 absolute at Fs = 1.25
+==============================================================================
+cost actual: 813.033 core-min of cap 1100.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/F22_GRADED.json

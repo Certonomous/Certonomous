@@ -1,0 +1,534 @@
+{
+  "rung": "F22-LAMB-OSEEN",
+  "prereg_commit": "29a47d994c708fddd856506fdaeea6025b44a166",
+  "prereg": "verification/campaign/F22_LAMB_OSEEN_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 4,
+    "assert_nodes": 0,
+    "planted_assert_seen": true
+  },
+  "controls": [
+    {
+      "control": "symbolic_substitution_vorticity_transport_curl_continuity_radial_momentum",
+      "residuals": {
+        "vorticity_transport": "0",
+        "curl_u_is_omega": "0",
+        "continuity": "0",
+        "radial_momentum_dp_dr": "0"
+      },
+      "far_field_datum_rel_error": 4.9006732314832524e-12,
+      "omega_peak_T": 1.326291192432461,
+      "passed": true
+    },
+    {
+      "control": "PZ-F22-DECAY_planted_1.1tprime_must_be_nonzero",
+      "planted_factor": 1.1,
+      "residual_is_zero": false,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement_h_and_dt_and_far_field_datum",
+      "h_ratios": [
+        2.0,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "far_field_correction": 4.900584331150309e-12,
+      "passed": true
+    },
+    {
+      "control": "model_forced_and_second_order",
+      "model_orders": {
+        "E2": 2.020035813057424,
+        "peak_vorticity": 1.7982462325777777
+      },
+      "peak_err_pred": [
+        0.001375941522100904,
+        0.00039561606694957766,
+        0.0001137490728455355
+      ],
+      "passed": true
+    },
+    {
+      "control": "PZ-F22-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        585
+      ],
+      "passed": true
+    },
+    {
+      "control": "solver_dictionaries_agree_with_registration",
+      "nu": 0.01,
+      "p_tol": 1e-09,
+      "endTime": 4.0,
+      "ddt": "backward",
+      "far_field": "fixedValue U (potential vortex) / fixedFluxPressure p",
+      "box_half_width": 2.5,
+      "passed": true
+    },
+    {
+      "control": "reader_parses_real_solver_written_U_on_this_box",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL019/L1_30/5/U",
+      "cells": 120,
+      "passed": true
+    },
+    {
+      "control": "PZ-F22-L342_infrastructure_vs_physics_fields_driven_both_ways",
+      "infrastructure_deleted": "verdict channel unchanged, cost claim refused, defect lines printed",
+      "physics_corrupted": "NOT A RESULT",
+      "passed": true
+    },
+    {
+      "control": "PZ-F22-PEAK_reference_same_stencil_zero_error_and_ramp_read_back",
+      "reference": 1.3260569937248692,
+      "pointwise_exact": 1.326291192432461,
+      "stencil_error": -0.00023419870759178174,
+      "zero_error_readback": 0.0,
+      "planted_readback": -0.00024679999999999147,
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F22-1_E2_velocity_L2_at_T",
+      "construction": "exact(T) + 1 x scaled model error field",
+      "value": 3.5181483808834765e-06,
+      "band": [
+        1.172716126961115e-06,
+        1.0554445142650037e-05
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F22-2_peak_vorticity_at_T",
+      "construction": "exact(T) + 1 x Gaussian vorticity bump of the model's predicted peak error",
+      "value": 1.3261707227117139,
+      "band": [
+        1.3257157465063325,
+        1.3263982409434059
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F22-1_E2_velocity_L2_at_T",
+      "construction": "exact(T) + 40 x scaled model error field",
+      "value": 0.00014072593523533386,
+      "band": [
+        1.172716126961115e-06,
+        1.0554445142650037e-05
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F22-2_peak_vorticity_at_T",
+      "construction": "exact(T) + 40 x Gaussian vorticity bump of the model's predicted peak error",
+      "value": 1.3306061531986615,
+      "band": [
+        1.3257157465063325,
+        1.3263982409434059
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM ascii volVectorField `U` at endTime: `internalField nonuniform List<vector>` NEWLINE N NEWLINE `(` one `(ux uy uz)` per line `)`; pinned against REAL icoFoam output on this box, verification/runs/ansys_verification/VMFL019/L1_30/5/U, parsed at selftest.",
+  "cap_core_min": 1100.0,
+  "field_classes": {
+    "PHYSICS_CRITICAL": [
+      "log.icoFoam `End` line and `Time =` count (fixed-deltaT identity)",
+      "RC.txt (solver rc, written by the launcher in the shell that ran the solver)",
+      "<endTime>/U and <endTime>/p present and NEWER than 0/U (age guard)",
+      "0/C cell centres",
+      "every time step's final p residual in log.icoFoam (rule 5 limb 1 census)"
+    ],
+    "INFRASTRUCTURE": [
+      "ClockTime in log.icoFoam (cost actual)",
+      "box_before.txt / box_after.txt",
+      "MESH_LINE.txt",
+      "STATUS.* / launcher.queue.out / LAUNCH_LOG rows written by a queue runner",
+      "calibration figures derived from any of the above"
+    ]
+  },
+  "cost_claim": {
+    "fields": "INFRASTRUCTURE",
+    "core_min_claim": 813.0333333333334,
+    "partial_sum_core_min": 813.0333333333334,
+    "cap_core_min": 1100.0,
+    "defects": [],
+    "note": "ClockTime x ranks / 60; dollars at $0.0513/core-h DERIVED, NOT MEASURED"
+  },
+  "rows": [
+    {
+      "quantity": "G-F22-1_E2_velocity_L2_at_T",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 3.682601646252679e-06,
+      "reference": 0.0,
+      "band": [
+        1.172716126961115e-06,
+        1.0554445142650037e-05
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 36864,
+          "value": 5.657177066141094e-05
+        },
+        {
+          "name": "medium",
+          "cells": 147456,
+          "value": 1.4578913535300666e-05
+        },
+        {
+          "name": "fine",
+          "cells": 589824,
+          "value": 3.682601646252679e-06
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 1.9463040463187322,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            5.657177066141094e-05,
+            1.4578913535300666e-05,
+            3.682601646252679e-06
+          ],
+          "cells": [
+            36864,
+            147456,
+            589824
+          ],
+          "e21": 1.0896311889047987e-05,
+          "e32": 4.1992857126110275e-05,
+          "GCI_pct": 129.59915771418102,
+          "GCI_abs": 4.772620715512036e-06,
+          "richardson": -1.3549492615694994e-07,
+          "richardson_parent_convention": 7.500698218662308e-06
+        }
+      ],
+      "orders": [
+        1.9463040463187322
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.00218932750863457,
+        "read_back_delta": 0.0021893275086345703,
+        "reader_delta": 0.0021893275086345703,
+        "reader": "e2_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/4/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": null,
+      "verdict": "PASS",
+      "order": 1.9463040463187322,
+      "GCI_pct": 129.59915771418102,
+      "GCI_abs": 4.772620715512036e-06,
+      "richardson": -1.3549492615694994e-07,
+      "richardson_parent_convention": 7.500698218662308e-06,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 1.9463, GCI 129.5992 % = 4.77262e-06 absolute at Fs = 1.25",
+      "gate": "G-F22-1_E2_velocity_L2_at_T",
+      "band_principle": "discretisation-model prediction E2(T) = 3.518148381e-06 at h_fine = 0.00651042, dt = 0.0025 (linearised discrete equations with Dirichlet boundaries forced by the exact field's truncation residual, integrated with BDF2 on 48^2 and 96^2, extrapolated with the model order), times [1/3, 3]",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 36864,
+          "value": 5.657177066141094e-05,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse/4/U",
+          "h": 0.026041666666666668,
+          "dt": 0.01,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse/log.icoFoam",
+            "rc": "0",
+            "n_times": 400,
+            "latest": 4.0,
+            "dt": 0.01,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse/4",
+            "why": "rc 0; End; latest + dt > endTime; 400 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 800,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99882672397e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test",
+          "n": 192
+        },
+        {
+          "name": "medium",
+          "cells": 147456,
+          "value": 1.4578913535300666e-05,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium/4/U",
+          "h": 0.013020833333333334,
+          "dt": 0.005,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium/log.icoFoam",
+            "rc": "0",
+            "n_times": 800,
+            "latest": 4.0,
+            "dt": 0.005,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium/4",
+            "why": "rc 0; End; latest + dt > endTime; 800 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 1600,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99973543187e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test",
+          "n": 384
+        },
+        {
+          "name": "fine",
+          "cells": 589824,
+          "value": 3.682601646252679e-06,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/4/U",
+          "h": 0.006510416666666667,
+          "dt": 0.0025,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/log.icoFoam",
+            "rc": "0",
+            "n_times": 1600,
+            "latest": 4.0,
+            "dt": 0.0025,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/4",
+            "why": "rc 0; End; latest + dt > endTime; 1600 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 3200,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99997023413e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test",
+          "n": 768
+        }
+      ],
+      "plateau_note": "ABSENT by construction (transient value at t = T); reported as absent, not as a pass",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F22-2_peak_vorticity_at_T",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 1.326137342509056,
+      "reference": 1.3260569937248692,
+      "band": [
+        1.3257157465063325,
+        1.3263982409434059
+      ],
+      "band_verdict": "PASS",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 36864,
+          "value": 1.3235973752382717
+        },
+        {
+          "name": "medium",
+          "cells": 147456,
+          "value": 1.325661991006464
+        },
+        {
+          "name": "fine",
+          "cells": 589824,
+          "value": 1.326137342509056
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "CONVERGING",
+          "order": 2.1188066903792118,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            1.3235973752382717,
+            1.325661991006464,
+            1.326137342509056
+          ],
+          "cells": [
+            36864,
+            147456,
+            589824
+          ],
+          "e21": -0.00047535150259192527,
+          "e32": -0.0020646157681922794,
+          "GCI_pct": 0.013401553122785062,
+          "GCI_abs": 0.00017772300043744123,
+          "richardson": 1.3262795209094058,
+          "richardson_parent_convention": 1.325995164108706
+        }
+      ],
+      "orders": [
+        2.1188066903792118
+      ],
+      "states": [
+        "CONVERGING"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": -0.00024680000000000004,
+        "read_back_delta": -0.0002467999999995474,
+        "reader_delta": -0.0002467999999995474,
+        "reader": "peak_vorticity_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/4/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": null,
+      "verdict": "PASS",
+      "order": 2.1188066903792118,
+      "GCI_pct": 0.013401553122785062,
+      "GCI_abs": 0.00017772300043744123,
+      "richardson": 1.3262795209094058,
+      "richardson_parent_convention": 1.325995164108706,
+      "why": "finest triple ('coarse', 'medium', 'fine') CONVERGING at dim = 2, observed order 2.1188, GCI 0.0134 % = 0.000177723 absolute at Fs = 1.25",
+      "gate": "G-F22-2_peak_vorticity_at_T",
+      "band_principle": "exact velocity at the fine level's cell centres through the grader's own central-difference curl, max over interior cells = 1.326056993725 (pointwise exact Gamma/(4 pi nu t') = 1.326291192432; the stencil under-reads the Gaussian peak by -2.342e-04 and that is removed from the reference) +/- 3 x the model's predicted peak error (1.137490728e-04) = +/- 3.412472185e-04",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 36864,
+          "value": 1.3235973752382717,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse/4/U",
+          "h": 0.026041666666666668,
+          "dt": 0.01,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse/log.icoFoam",
+            "rc": "0",
+            "n_times": 400,
+            "latest": 4.0,
+            "dt": 0.01,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/coarse/4",
+            "why": "rc 0; End; latest + dt > endTime; 400 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 800,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99882672397e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test",
+          "n": 192
+        },
+        {
+          "name": "medium",
+          "cells": 147456,
+          "value": 1.325661991006464,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium/4/U",
+          "h": 0.013020833333333334,
+          "dt": 0.005,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium/log.icoFoam",
+            "rc": "0",
+            "n_times": 800,
+            "latest": 4.0,
+            "dt": 0.005,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/medium/4",
+            "why": "rc 0; End; latest + dt > endTime; 800 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 1600,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99973543187e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test",
+          "n": 384
+        },
+        {
+          "name": "fine",
+          "cells": 589824,
+          "value": 1.326137342509056,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/4/U",
+          "h": 0.006510416666666667,
+          "dt": 0.0025,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/log.icoFoam",
+            "rc": "0",
+            "n_times": 1600,
+            "latest": 4.0,
+            "dt": 0.0025,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F22_LAMB_OSEEN_runs/fine/4",
+            "why": "rc 0; End; latest + dt > endTime; 1600 `Time` lines == endTime/dt; U, p at endTime newer than 0/U"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p residual, census over ALL steps and correctors",
+            "n_readings": 3200,
+            "tolerance": 1e-09,
+            "n_above_tolerance": 0,
+            "worst": 9.99997023413e-10
+          },
+          "plateau": "ABSENT: value at a fixed instant of a transient; no plateau exists to test",
+          "n": 768
+        }
+      ],
+      "plateau_note": "ABSENT by construction (transient value at t = T); reported as absent, not as a pass",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}
