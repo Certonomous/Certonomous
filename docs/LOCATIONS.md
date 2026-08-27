@@ -754,3 +754,55 @@ by this note and kept as the record of what they said.** The
 Pre-registrations cite archive paths under `/home/ubuntu/ansys-vm2026r1/` only
 (ruling clause g). Counts are readings: re-derive with `find … -type f | wc -l`,
 `du -sh`, `sha256sum`.
+
+## Sub-note appended 2026-08-27T22:03:40Z — A CROSS-REFERENCE THAT POINTS AT NOTHING, AND THE LARGEST OMITTED STORE IS BIGGER THAN THE SECTION THAT OMITS IT
+
+**Nothing above this line was edited; no line above changed number. Raised by
+closure-supervisor, routed by the chief, measured here. Zero compute.**
+
+**§1 — THE DEFECT: THE ASSERTION IS FALSE AS WRITTEN.**
+
+The §9 recommendation above reads that data too large for git lives *"under
+`/home/ubuntu/` beside `closure-data/` and `certonomous-runs/`, **enumerated in
+§4.3 above**."*
+
+**Measured: §4.3 contains ZERO occurrences of `closure-data`.** It is not a row of
+that table, it is not in its total, and it is nowhere in that section in any form.
+**`certonomous-runs/` IS present in §4.3 and the sentence is correct about it** —
+so the defect is precisely one of the two exemplars, which is why it survived
+reading.
+
+**§2 — THE SIZE OF THE OMISSION, AND IT IS LARGER THAN THE TABLE THAT OMITS IT.**
+
+Re-derived with `find … -type f | wc -l` and `du`, as this page requires — these
+are **readings, not constants**:
+
+| store | files | size |
+| --- | --- | --- |
+| **`/home/ubuntu/closure-data/`** — **absent from §4.3** | **18,192** | **11,851,197,651 B (11.85 GB)** |
+| §4.3's stated total, for comparison | 17,558 | 2.06 GB |
+
+**The omitted store holds MORE FILES than §4.3's entire stated total and roughly
+5.8× its bytes.** §4.3 carries the sentence *"A total that silently included a row
+the table did not show is the defect this arrangement closes."* **The converse
+defect — a total that silently EXCLUDES a store the page elsewhere says it
+enumerates — was open at the same time.**
+
+**§3 — A SEPARATE, DIFFERENT-CLASS OBSERVATION, NOT A DEFECT.**
+
+Line 591's run-tree reading is **132,049 regular files**; the same command returns
+**445,067** now. **That is not an error.** This page states its figures are
+readings taken at a named frame and re-derived rather than trusted, and a store
+that grows is a store that grows. **What is owed there is a fresh dated reading,
+not a correction, and the two must not be conflated** — §1 is a false
+cross-reference and §3 is an ageing measurement.
+
+**§4 — WHAT IS AND IS NOT CLAIMED.**
+
+**No row above is edited and no total is restated**, because restating §4.3's total
+would mix two frames in one figure — the defect §4.3's own mirror note exists to
+prevent. **What is owed is a NEW dated row for `closure-data/` in §4.3, taken at a
+single stated frame together with a re-reading of the other rows**, and that is a
+larger act than this sub-note. **Named, dated and left visible rather than
+half-done.** Whether `closure-data/` should instead be enumerated in §4.2 with the
+other closure stores is **not settled here.**
