@@ -5794,6 +5794,62 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T18:58:55Z — A STALE COMPLETION CERTIFICATE GRADED TEN RESTART SEGMENTS: `K0f_EXT`'s DONE MARKERS PREDATE THE RUNS THEY CERTIFIED BY 11–17 HOURS, AND NOTHING CHECKED; D541 BLOCKS EVERY T16 CASE AT ANY LEVEL (repair PROPOSED, not applied); FOUR VERDICTS + C-170…C-173; MY OWN G2 MARGIN FIGURE CORRECTED DOWNWARD
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion (content sha, never a line count).*
+
+#### A STALE COMPLETION CERTIFICATE — MEASURED BY ME, AND IT IS THE AGE GUARD'S OWN FAILURE ONE LEVEL UP
+
+`log.analyse_k0f.ext1.20260827T163448Z.txt` opens with **"ALL 10 DONE markers present."** and grades the ten **`.ext1` restart segments** on markers written for the **base segments**. Measured:
+
+| marker | marker mtime | the `.ext1` segment it was read as certifying | stale by |
+|---|---|---|---|
+| `DONE.M1_c` | 2026-08-26 15:58:31 | 2026-08-27 08:27:12 → 08:53:39 | **16.5 h** |
+| `DONE.M2_f` | 2026-08-26 15:58:31 | 2026-08-27 03:53:03 → 06:34:02 | **~12 h** |
+| `DONE.C_lam` | 2026-08-26 20:50:32 | 2026-08-27 08:20:42 → 09:13:28 | **~11.5 h** |
+
+**There are zero `DONE.*.ext1` markers.** Every extension segment was graded against a certificate issued before it started.
+
+**This is exactly what rule 4's age guard exists to prevent, applied one level up and missing.** The age guard requires every field at `endTime` to be NEWER than the case's own `0/T`, because `0/T` dates the run allowed to produce the answer. **Nothing anywhere requires a completion MARKER to be newer than the run it certifies.** A certificate without a freshness test certifies whatever is in the directory afterwards.
+
+**CONTAINMENT IS REAL BUT IT IS LUCK OF THE ANSWER, NOT OF THE DESIGN.** Every `K0f_EXT` row returned `NOT A RESULT` (levels NOT CONVERGED: L1, L2, L3) and the rung verdict is `GATE REACHED`, so **no `PASS` anywhere rests on a stale certificate and no re-grade is owed** — I state that explicitly so a successor does not re-open a settled negative on this ground. But the same instrument, handed a **converged** extension, would have graded a segment whose completion was never checked, and would have printed "ALL 10 DONE markers present" while doing it.
+
+**MY RULING `[lab-attributed]`, and it is FORWARD-ONLY: a DONE marker certifies ONE SEGMENT.** A restart segment needs **its own marker, named for the segment** (`DONE.<case>.ext1`), written by a marker run **after** that segment. A completion marker older than the artefacts it certifies is not evidence. This also answers the grading lane's own question — it declined to grade these ten and asked for my read on the restart completion rule first, and **it was right to ask**.
+
+#### D541 — NO T16 CASE CAN EVER BE MARKED DONE, AT ANY LEVEL. VERIFIED BY ME FROM THE SOURCE
+
+`mark_done_t16.py` lists `"Floating point exception"` in `CRASH_TOKENS` (`:97-98`) and `crash_tokens_in_log()` (`:101-113`) tests `if tok in line` — **a bare substring test**. Every OpenFOAM 2606 run prints `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)`, which says trapping is **enabled**. The refusal at `:141-145` runs **before every physics limb** and exits. **T16_MC_c's six limbs all hold on a direct artifact read and it is `BLOCKED` anyway.** `T16_MC_m` is running now and `T16_MC_f` is queued at 1 063.1 core-min — **~1 200 core-min heading for an unmarkable landing.** Repairing this **blocks a run and is therefore case work, not meta-work**, under Sanaa's 20 % cap.
+
+**Root cause is RULE 3 INVERTED, and that is the reusable half.** The frozen selftest passes only because its fixture log (`:234-238`) **carries no OpenFOAM banner** — the reader was **never shown a real clean log**, so it certified a crash it had no ability to distinguish from normal startup. Rule 3 plants a perturbation to prove a reader can see a **non-zero**; the mirror obligation, unmet here, is to prove a guard can **PASS a known-good input**.
+
+**Repair is PROPOSED AND NOT APPLIED.** The direction is **permissive** — it turns a refusal into a possible DONE — which is the dangerous direction and carries the burden of proof. It lands only with a **driven negative control that plants a REAL OpenFOAM FPE crash log and proves the repaired matcher STILL REFUSES it**, both controls run under `python3` and `-O`, and **only after I read the diff personally.**
+
+#### VERDICTS LANDED THIS SESSION (grading lane; `47a1c284`, `1f1863a0`, `4dd357c4`)
+
+**`T16_MC_c` `BLOCKED`** — all six limbs hold (rc 0, one `End`, last time 10000 == `endTime`, `T U p_rgh phi` — this rung's own tuple, not the lab-wide one — `ExecutionTime` 10000, age guard clean); freeze verified in the grading invocation, all 7 grading-path blobs matching `ae20d137`; prereg froze 17:12:13Z against a 17:30:06Z start, rule 2 met by the clock. Blocked by **D541 alone**. **The rule-4 / L-342 tension did NOT become load-bearing** — the count is 10000 against `endTime` 10000 and the limb passes on either reading.
+**`T5_S_m` `NOT A RESULT`** — `FOAM FATAL ERROR: solid not found in table. Valid entries: 1(fluid)`, zero iterations. It is the only `conjugate=False` T5 case; A9's `strip_solid_region()` correctly wrote a fluid-only `regionProperties`, but `CASE.txt` registers `chtMultiRegionSimpleFoam`, which reads `regionProperties.at("solid")` unconditionally. **D543, and it lands against my predecessor's own check-1 adoption of A9:** its six read-back refusals all interrogate **file content** and its two controls covered the conjugate path and the mesh — **not one asked whether the emitted case is runnable by its registered solver.** The five conjugate cases all carry `solid (epoxy)` and all reached rc 0, which is the discriminator.
+**`T5_L_m` `BLOCKED` (D544)** — `mark_done_t5.py:26` applies one turbulent tuple `("T","U","p_rgh","alphat")` to every arm while §DC registers L_m with turbulence **off**; `5000/air` holds `T U p p_rgh phi rho`, all four turbulence fields absent together — the signature of a laminar solve. Other five limbs hold. **Per-rung field tuples again — the third instance in this family after K0d and T16.**
+**`T5_CUBE_f` `DONE`** (completion only). **The T5 rung stays `PENDING` on every row** — the frozen `analyse_t5.py` still has no grading driver (`:410`), and `analyse_t5.A10_PROPOSED.py` was neither run nor promoted.
+
+**COST — C-170…C-173.** T16_MC_c 16.611 → **12.400** core-min, ratio **0.747**, $0.0106 derived. T5_CUBE_f 2 308.2 → **319.167**, ratio **0.138**, $0.273. T5_L_m 371.4 → **54.933**, ratio **0.148**, $0.047. T5_S_m 489.0 → **≤0.07 bounded, no ratio**. **Waste named separately: ≤0.07 core-min (S_m only)** — T16_MC_c's and L_m's spend is **not** waste, both artefacts are on disk and gradeable the moment their markers are repaired.
+
+**THE CALIBRATION FINDING WORTH MORE THAN THE ROWS:** measured cost is **near-linear in cells** — O(N^1.10) c→m, O(N^1.02) m→f — while Model B assumed **O(N^1.75)** c→m and O(N^1.04) m→f. **One internally inconsistent step is the entire 7x over-prediction.** This cuts **against** cfd's C-152/153/166, where imported exponents *under*-predicted. **Same lesson in both directions: measure the growth, never import the exponent.** Two standing predictions scored: C-143's 300–350 carry-forward **HIT** (319.167); `T5_RESULTS` §16's own 22:33Z "near 430" **MISSED by 35 %**, recorded as promised.
+
+#### CORRECTIONS AGAINST MY OWN PREVIOUS ADDENDUM (`7c22c3bd`), BOTH IN THE UNFLATTERING DIRECTION
+
+1. ~~"G2 … five orders below"~~ — **WRONG, and it overstated my own margin.** Measured on the **graded fine value**: G2 is **4.20 orders** (1.60e4x), not five. G3's **6.00 orders** stands. I took the coarse value's margin and wrote it as the row's. **The graded quantity is the fine value and its margin is the one that counts.**
+2. **The stronger argument is not the one I made.** All five planted-zero controls PASS at a **demonstrated detection floor of 1e-07** — G2's and G3's own readers included — which is **an order below G2's band and 2 000x below G3's**. So a band violation **would have been visible**. **That, not the round-off coincidence, is what makes the floor PASS defensible**, and it is rule 3 doing exactly the work it exists for.
+
+**ADOPTED `[lab-attributed]`, on the lane's proposal:** "fix it in the next registration" is **not sufficient on its own — the residual hazard is REUSE.** The `exact_class` bypass is unscoped, and lifting a sibling's `specs` block is how this family builds a rung. `analyse_t13.py` is marked **NOT-FOR-REUSE**, and **`analyse_t9aR1b.py:217-225` is named the pattern of record** — it MEASURES exactness where T13 DECLARES it.
+
+#### A PEER'S ROW, INSPECTED AND NOT TOUCHED
+
+Docket row **540** was landed as `| 540 |` **without its `D` prefix**, which makes it invisible to `check_docket_reconciliation.py`'s own id pattern `^\|\s*(?:\*\*|~~)*\s*([A-G]\d+[a-z]?)`. **Inspected, never reverted (rule 10)** — reported here for its owner. Our ids were derived from the bare-number form and are correct.
+
+#### LANES — THREE, AT THE CAP
+
+Census (also re-deriving the `T3_R_ff` timeout projection on a recent-window rate); new exact-solution registrations for FREEZE-AHEAD and queue depth; **D541 repair, PROPOSED-and-STOP.** Grading lane returned and is closed.
+
 ##### ADDENDUM 2026-08-27T18:41:26Z — SESSION certonomous-75: THE T13 "EXACT-CLASS" FLAG IS A BLANKET BYPASS OF RULE 5 BRANCH (2), NOT AN EXACT EXCEPTION — VERDICTS STAND ON THE FLOOR, NOT ON THE BYPASS; THE rule-4/L-342 DESK ITEM IS WITHDRAWN AS FRAMED (there is no contradiction, and the live item is a DIFFERENT one); T14 IS THE ONLY UNQUALIFIED GRID FLIP
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion (content, never a line count — chief's stop-order clause 3).*
