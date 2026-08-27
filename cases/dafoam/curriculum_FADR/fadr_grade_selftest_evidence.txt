@@ -1,8 +1,9 @@
 FADR grader planted controls -- DRIVEN under python3 AND python3 -O. Zero compute.
-Run 2026-08-27T18:50:19Z by dafoam lane C, before the freeze.
+Regenerated 2026-08-27T19:09:53Z by dafoam lane C after AMENDMENT 3 (v1.0c),
+which makes the gate's DISCRIMINATING POWER travel beside every verdict.
 Standing rule 3: a zero from a reader not shown able to see a non-zero is not evidence.
-L-332: no refusal is written as an assert; --selftest parses its own AST and refuses
-if a single ast.Assert node exists, because python3 -O deletes every assert.
+L-332: no refusal is written as an assert; --selftest parses its own AST and refuses if a
+single ast.Assert node exists, because python3 -O deletes every assert.
 
 === python3 fadr_grade.py --selftest ===
   SEEN   AST: 0 ast.Assert nodes in this file
@@ -42,3 +43,20 @@ rc=0
 
 === ast.Assert node count in fadr_grade.py ===
 ast.Assert nodes: 0
+
+=== POWER CONTROL (AMENDMENT 3) -- driven against the REAL upstream reference ===
+The reference was read out of the SHIPPED image at
+/home/dafoamuser/dafoam/repos/dafoam/tests/refs/DAFoam_Test_DASimpleFoamForwardRef.txt
+md5 ac46aca2f10e68da43dbe74be0dd3c29 (registered ac46aca2f10e68da43dbe74be0dd3c29).
+PREREGISTRATION.md section 4.2 registered, BEFORE the run, that 8 of the 24 values are
+REL-GOVERNED and 16 are ABS-GOVERNED. That claim is falsifiable NOW, at zero compute, by
+reading the reference against itself. If the counts came out otherwise, section 4.2 would
+be wrong and would have to be corrected before the run rather than after it.
+  values read            : 24  (registered 24)
+  REL-GOVERNED values    : 8  (registered 8)
+  ABS-GOVERNED values    : 16 (registered 16)
+  the rel-governed keys   : ['cruise.aero_post.functionals.CD/shape0-Adjoint', 'cruise.aero_post.functionals.CD/shape0-ForwardAD', 'cruise.aero_post.functionals.CD/u_in0-Adjoint', 'cruise.aero_post.functionals.CD/u_in0-ForwardAD', 'cruise.aero_post.functionals.HFX/shape0-Adjoint', 'cruise.aero_post.functionals.HFX/shape0-ForwardAD', 'cruise.aero_post.functionals.HFX/u_in0-Adjoint', 'cruise.aero_post.functionals.HFX/u_in0-ForwardAD']
+  smallest abs-governed  : |1.250934e-09| -> abs_tol 1e-12 is 7.994e-04 RELATIVE there
+  duality PAIRS          : 12, of which 4 rel-governed
+                           (PAIRS is HALF the value count -- the two must never be confused)
+  POWER CONTROL: SEEN -- section 4.2's registered 8/16 split is CONFIRMED against the real reference

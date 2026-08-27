@@ -461,3 +461,95 @@ reason; Amendment 2's arm could not have started a single rank. **Neither would 
 a run report: the first would have read as branch P-C, the second as a toolchain failure — and both
 readings would have been wrong.** The pre-registration's value here is not the prediction; it is
 that the instrument was made to fail on purpose, twice, while failing was still free.
+
+---
+
+## AMENDMENT 3 — 2026-08-27, dafoam lane C — PRE-COMPUTE, on the supervisor's three orders after check 1 and check 4
+
+**Version 1.0b → 1.0c. Appended at the foot. Lines whose number changed above this section: 0.**
+**Condition, named and checked as rule 2 requires:** the run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-FADR-forward-ad-regression` **does not exist** — verified
+immediately before this amendment was written, as it was after every control. No container has
+started, no core-second of solver time has been spent, no gate has closed.
+
+### 3.1 `INSTRUMENT_MD5.txt` IS **DESCRIPTIVE**, AND NOW SAYS SO ON ITS FIRST LINE
+
+The supervisor established that no check reads it, and offered the choice: make it binding, or label
+it. **It is labelled descriptive, deliberately, and the reason is the stronger half of the answer.**
+
+`G-PATH` already pins the four **executable** instruments — `PREREGISTRATION.md`,
+`fadr_chain_driver.sh`, `fadr_grade.py`, `fadr_fetch_fixture.sh` — by hashing each against its
+**git blob** at the commit named on the launch line, and refusing on any difference. That is
+**strictly stronger** than a manifest: a git blob is immutable and lives outside the working tree,
+whereas a manifest is a file in the same directory as the things it pins and **can be edited in the
+same breath as them**. A pin that moves with what it pins is not a pin.
+
+Making the manifest binding would also add a **second source of truth that can abort the item at zero
+compute for a non-substantive reason** — precisely the `D8R-DRIVER-DEF-1` / `W3-LAUNCHER-DEF-1`
+class, and precisely the failure the supervisor's own alarm walked into and then refuted from disk.
+Worse, the manifest necessarily covers **evidence** files, which legitimately change after the freeze
+whenever a control is re-driven; a binding manifest over those would freeze the evidence, which is
+the one thing that must stay free to improve.
+
+**So it is labelled, not promoted.** Its first line now reads that it is a descriptive record and
+names `G-PATH` as the binding check. A hash manifest that looks load-bearing and binds nothing is
+the "evidence annotated as non-binding" hazard pointed the other way, and a label is the honest fix.
+
+### 3.2 THE FAMILY RULE THIS ITEM PAID FOR — adopted, and stated generally
+
+**A control that demonstrates a guard's POSITIVE branch by invoking the thing the guard protects is
+not a control, it is a run.** The positive branch is proved instead by the **ORDER OF REFUSALS**: in
+a driver whose guards run in a fixed sequence, a probe that refuses at guard *n* has, **by
+construction**, passed guards 1…*n*−1, and the driver prints each as it passes. Reading *which*
+guard refused therefore yields the positive reading of every earlier guard **with no execution at
+all** — which is not merely safer than running the protected path, it is cheaper and it is evidence
+of the same fact.
+
+**Effective now for this family**, on the supervisor's instruction, and written here in the section
+that owns the incident it came from (§Amendment 2.1). No lesson number is assigned; the supervisor
+carries it up.
+
+### 3.3 THE GATE'S DISCRIMINATING POWER NOW TRAVELS BESIDE EVERY VERDICT
+
+**This is the first change to `fadr_grade.py` since the freeze.** Amendments 1 and 2 asserted it
+byte-unchanged and those assertions were true when made and remain true of *those* amendments; this
+one changes it, and says so. **New md5: `c8fbc151be74b97fb92313974371b28d`** (was `2ec89e0e7ffef79968486ce0c69946ce`).
+
+**What changed, and nothing else did:** each row now carries `n_rel_governed_values` and
+`n_abs_governed_values`; both ride **inside the verdict's own `reason` string**, so they cannot be
+separated from it; and a `POWER` line prints directly under the verdict. The duality line is
+relabelled to say **PAIRS**, because the pair count is **half** the value count and the two were
+one careless reading away from being confused. **No comparison, tolerance, band, refusal, control or
+verdict mapping was touched**; the 13 planted controls still pass 13/13 under `python3` **and**
+`python3 -O`, with `ast.Assert` still 0.
+
+**A PASS on this item will read "8 tight agreements, not 24" in its own reason string.**
+
+**And §4.2's registered claim has now been FALSIFIABLY CHECKED, before the run, at zero compute.**
+The real reference was read out of the SHIPPED image (md5 `ac46aca2f10e68da43dbe74be0dd3c29`,
+as registered) and compared against itself: **24 values, 8 REL-GOVERNED, 16 ABS-GOVERNED, 12 duality
+pairs of which 4 are rel-governed** — exactly the split §4.2 registered. The eight are `shape0` and
+`u_in0`, Adjoint and ForwardAD, on `CD` and on `HFX`. The smallest abs-governed value is
+`1.250934e-09`, where `abs_tol = 1e-12` is **7.994e-04 relative**. Had the counts come out
+otherwise, §4.2 would have been wrong and would have had to be corrected **before** the run instead
+of explained after it. Evidence: `fadr_grade_selftest_evidence.txt`.
+
+### 3.4 HOW THE 9.4e-13 DATUM MAY TRAVEL — and one correction to where it lives
+
+Upstream's stored `CD/shape0` pair — `1.7436786358470828` (Adjoint) against
+`1.7436786358487191` (ForwardAD), **9.4e-13 relative** — is the crux datum of the forward-AD line
+and it is **a reading of a fetched reference file, not a measurement by this lab**. It is quoted
+**only** with that label and with its path. **Correction to how the order stated it:** that reference
+is **not in the fixture**. It ships **inside both images** at
+`/home/dafoamuser/dafoam/repos/dafoam/tests/refs/DAFoam_Test_DASimpleFoamForwardRef.txt`, md5
+`ac46aca2f10e68da43dbe74be0dd3c29` on **both** — which is why the two rows can diverge only in the
+toolchain. The **fixture** supplies the ConvergentChannel **case**; the **image** supplies the
+**reference**. Conflating them would misattribute the drift risk: the reference cannot drift (it is
+pinned by the image digest), **only the fixture can** (upstream publishes a moving `main`).
+
+### 3.5 WHAT THIS AMENDMENT DOES NOT TOUCH
+
+No gate, threshold, band, cap, label, verdict mapping, prediction, cost, cpuset, image, arm, planted
+control or branch. §4.3's mapping, §5's 240.0 core-min ceiling, §7's P1–P7 and §8's P-A / P-B / P-C
+stand exactly as frozen at `eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`, which **remains the
+freeze**. Nothing was sent anywhere; **submissions remain parked.**

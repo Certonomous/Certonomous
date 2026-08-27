@@ -224,6 +224,14 @@ def grade_arm(arm_dir: Path, arm: str) -> dict:
 
     out["n_values"] = cmpres["n_values"]
     out["n_mismatch"] = cmpres["n_mismatch"]
+    # AMENDMENT 3 (v1.0c, 2026-08-27, PRE-COMPUTE, on the supervisor's order): the
+    # DISCRIMINATING POWER of this gate travels beside every verdict, so a PASS can
+    # never be oversold as 24 tight agreements.  Upstream's tolerance is a
+    # DISJUNCTION (rel<1e-8 OR abs<1e-12), so abs_tol governs wherever |value|<1e-4.
+    # These are counts of VALUES, not of Adjoint/ForwardAD PAIRS -- the pair count in
+    # the duality block is half the value count and must never be read as this one.
+    out["n_rel_governed_values"] = sum(1 for r in cmpres["rows"] if r["governed_by"] == "rel_tol")
+    out["n_abs_governed_values"] = sum(1 for r in cmpres["rows"] if r["governed_by"] == "abs_tol")
     out["independent_match"] = cmpres["match"]
     out["mismatched_keys"] = [r["key"] for r in cmpres["rows"] if not r["match"]]
     out["duality"] = duality(cmpres["rows"])
@@ -251,11 +259,18 @@ def grade_arm(arm_dir: Path, arm: str) -> dict:
     if cmpres["match"]:
         out["verdict"] = "PASS"
         out["reason"] = (f"{cmpres['n_values']}/{EXPECTED_VALUES} values inside upstream's own "
-                         f"disjunction (rel<1e-8 OR abs<1e-12), read twice and agreeing")
+                         f"disjunction (rel<1e-8 OR abs<1e-12), read twice and agreeing -- "
+                         f"of which {out['n_rel_governed_values']} are REL-GOVERNED (the tight "
+                         f"agreements) and {out['n_abs_governed_values']} are ABS-GOVERNED, where "
+                         f"1e-12 absolute is as loose as 8e-4 relative on the smallest value. "
+                         f"This PASS is {out['n_rel_governed_values']} tight agreements, "
+                         f"not {cmpres['n_values']}.")
     else:
         out["verdict"] = "GATE FAIL"
         out["reason"] = (f"{cmpres['n_mismatch']} of {cmpres['n_values']} values outside "
-                         f"upstream's own tolerances: {out['mismatched_keys']}")
+                         f"upstream's own tolerances: {out['mismatched_keys']} "
+                         f"({out['n_rel_governed_values']} of the {cmpres['n_values']} values are "
+                         f"REL-GOVERNED, {out['n_abs_governed_values']} ABS-GOVERNED)")
     return out
 
 
@@ -492,7 +507,12 @@ def main(argv: list[str]) -> int:
         if r.get("n_values") is not None:
             d = r.get("duality", {})
             print(f"  values   {r['n_values']} read, {r['n_mismatch']} outside tolerance")
-            print(f"  duality  {d.get('n_pairs')} pairs, {d.get('n_rel_governed')} rel-governed; "
+            print(f"  POWER    {r['n_rel_governed_values']} of {r['n_values']} values are "
+                  f"REL-GOVERNED (rel<1e-8); {r['n_abs_governed_values']} are ABS-GOVERNED "
+                  f"(abs<1e-12, as loose as 8e-4 relative on the smallest). The verdict above "
+                  f"rests on {r['n_rel_governed_values']} tight agreements, not {r['n_values']}.")
+            print(f"  duality  {d.get('n_pairs')} PAIRS, {d.get('n_rel_governed')} of them "
+                  f"rel-governed (PAIRS, not values -- half the POWER count above); "
                   f"worst rel-governed {d.get('worst_rel_governed')}, worst all {d.get('worst_all')}")
     print("\nPREDICTIONS (frozen; a MISS never changes a verdict)")
     for p in preds:
