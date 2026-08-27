@@ -1,0 +1,405 @@
+{
+  "ansys_fluent_gpu_context_only": 0.884,
+  "case": "VMFLGPU002",
+  "cpu_parent": "VMFL010",
+  "freeze": {
+    "comparator_sha_head": "8172a0d32d5ab2a433319382f25f24f41dbef2c2",
+    "head": "8dfb4598c2810f136d6d2fb69983fe77e2455a7d",
+    "launched_utc": "2026-08-26T22:46:13Z",
+    "prereg_sha_head": "790a3bbdc621250049cb64d67aae80f3431bddab"
+  },
+  "infrastructure": {
+    "cost": {
+      "cap_cpu_arm_core_min": "60",
+      "cap_gpu_h": "1.0",
+      "case_id": "VMFLGPU002",
+      "cost_basis": "GPU-hours at the AWS PUBLISHED PRICE LIST $0.8048/GPU-h for g6.xlarge us-east-2 (retrieved 2026-08-23, GPU_CAPABILITY_STATE.md section 9); dollars DERIVED, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). The CONSOLE figure is STILL OWED and supersedes. The CPU arm runs on the same billed instance, so its core-minutes are work, not a separate charge.",
+      "cpu_arm_core_min": "30.5667",
+      "ranks": "1",
+      "total_gpu_h": "0.896944",
+      "total_wall_s": "3229",
+      "utc": "2026-08-26T23:40:01Z",
+      "vcpu_on_instance": "4"
+    }
+  },
+  "levels": {
+    "L1_N20": {
+      "cpu": {
+        "completion": {
+          "arm": "cpu",
+          "completed": true,
+          "endtime": 1200,
+          "execution_lines": 1202,
+          "execution_note": "INFRA: ExecutionTime lines 1202 != endTime 1200",
+          "latest_time": "1200",
+          "level": "L1_N20",
+          "rc": 0,
+          "rc_source": "verification/runs/ansys_verification/VMFLGPU002/RUN_RC.L1_N20.cpu",
+          "rc_status": "MEASURED",
+          "time_lines": 1200
+        },
+        "convergence": {
+          "converged": true,
+          "final_residuals": {
+            "Ux": 8.16182098793e-10,
+            "Uy": 1.06006864123e-10,
+            "p": 9.55109531067e-10
+          },
+          "level": "L1_N20",
+          "n_available": 1200,
+          "n_window": 400,
+          "plateau_ptp": 3.7511535588841127e-07,
+          "plateau_tol": 1e-06,
+          "plateau_window": 400,
+          "residual_tol": 1e-06
+        },
+        "fluxes": {
+          "qBranch": 0.07612777501852,
+          "qInlet": -0.6675,
+          "qMain": 0.5913722239258
+        },
+        "mass_balance": 1.5815430114094327e-09,
+        "mesh": {
+          "cells": 3600,
+          "level": "L1_N20",
+          "mesh_ok": true
+        },
+        "series_files": {
+          "qBranch": "verification/runs/ansys_verification/VMFLGPU002/cpu/L1_N20/postProcessing/qBranch/0/surfaceFieldValue.dat",
+          "qInlet": "verification/runs/ansys_verification/VMFLGPU002/cpu/L1_N20/postProcessing/qInlet/0/surfaceFieldValue.dat",
+          "qMain": "verification/runs/ansys_verification/VMFLGPU002/cpu/L1_N20/postProcessing/qMain/0/surfaceFieldValue.dat"
+        },
+        "split": 0.8859508972671162
+      },
+      "gpu": {
+        "completion": {
+          "arm": "gpu",
+          "completed": true,
+          "endtime": 1200,
+          "execution_lines": 1202,
+          "execution_note": "INFRA: ExecutionTime lines 1202 != endTime 1200",
+          "latest_time": "1200",
+          "level": "L1_N20",
+          "rc": 0,
+          "rc_source": "verification/runs/ansys_verification/VMFLGPU002/RUN_RC.L1_N20.gpu",
+          "rc_status": "MEASURED",
+          "time_lines": 1200
+        },
+        "convergence": {
+          "converged": true,
+          "final_residuals": {
+            "Ux": 8.66701058296e-10,
+            "Uy": 9.11475755094e-11,
+            "p": 9.88473814186e-10
+          },
+          "level": "L1_N20",
+          "n_available": 1200,
+          "n_window": 400,
+          "plateau_ptp": 3.7573543076874216e-07,
+          "plateau_tol": 1e-06,
+          "plateau_window": 400,
+          "residual_tol": 1e-06
+        },
+        "fluxes": {
+          "qBranch": 0.07612777543958,
+          "qInlet": -0.6675,
+          "qMain": 0.5913722240414
+        },
+        "mass_balance": 7.775580221306626e-10,
+        "mesh": {
+          "cells": 3600,
+          "level": "L1_N20",
+          "mesh_ok": true
+        },
+        "series_files": {
+          "qBranch": "verification/runs/ansys_verification/VMFLGPU002/gpu/L1_N20/postProcessing/qBranch/0/surfaceFieldValue.dat",
+          "qInlet": "verification/runs/ansys_verification/VMFLGPU002/gpu/L1_N20/postProcessing/qInlet/0/surfaceFieldValue.dat",
+          "qMain": "verification/runs/ansys_verification/VMFLGPU002/gpu/L1_N20/postProcessing/qMain/0/surfaceFieldValue.dat"
+        },
+        "split": 0.8859508974402996
+      },
+      "limb_A": {
+        "forced_cpu_control_discriminated": true,
+        "gpu_flops_on_device": true,
+        "level": "L1_N20",
+        "tell1_note": "tell1 (legend) NOT USED in limb A: loose on a CUDA build",
+        "tell2_pid_on_gpu": true,
+        "tell3_note": "tell3 (ksp_view type) DROPPED: this build echoes the matrix type in the options block, not as a `type:` line"
+      }
+    },
+    "L2_N40": {
+      "cpu": {
+        "completion": {
+          "arm": "cpu",
+          "completed": true,
+          "endtime": 1600,
+          "execution_lines": 1602,
+          "execution_note": "INFRA: ExecutionTime lines 1602 != endTime 1600",
+          "latest_time": "1600",
+          "level": "L2_N40",
+          "rc": 0,
+          "rc_source": "verification/runs/ansys_verification/VMFLGPU002/RUN_RC.L2_N40.cpu",
+          "rc_status": "MEASURED",
+          "time_lines": 1600
+        },
+        "convergence": {
+          "converged": true,
+          "final_residuals": {
+            "Ux": 9.021378027e-10,
+            "Uy": 4.1470603732e-10,
+            "p": 9.57199770239e-10
+          },
+          "level": "L2_N40",
+          "n_available": 1600,
+          "n_window": 400,
+          "plateau_ptp": 8.14370009427634e-07,
+          "plateau_tol": 1e-06,
+          "plateau_window": 400,
+          "residual_tol": 1e-06
+        },
+        "fluxes": {
+          "qBranch": 0.07705386681997,
+          "qInlet": -0.666875,
+          "qMain": 0.5898211333259
+        },
+        "mass_balance": 2.1873668137629015e-10,
+        "mesh": {
+          "cells": 14400,
+          "level": "L2_N40",
+          "mesh_ok": true
+        },
+        "series_files": {
+          "qBranch": "verification/runs/ansys_verification/VMFLGPU002/cpu/L2_N40/postProcessing/qBranch/0/surfaceFieldValue.dat",
+          "qInlet": "verification/runs/ansys_verification/VMFLGPU002/cpu/L2_N40/postProcessing/qInlet/0/surfaceFieldValue.dat",
+          "qMain": "verification/runs/ansys_verification/VMFLGPU002/cpu/L2_N40/postProcessing/qMain/0/surfaceFieldValue.dat"
+        },
+        "split": 0.8844553077051922
+      },
+      "gpu": {
+        "completion": {
+          "arm": "gpu",
+          "completed": true,
+          "endtime": 1600,
+          "execution_lines": 1602,
+          "execution_note": "INFRA: ExecutionTime lines 1602 != endTime 1600",
+          "latest_time": "1600",
+          "level": "L2_N40",
+          "rc": 0,
+          "rc_source": "verification/runs/ansys_verification/VMFLGPU002/RUN_RC.L2_N40.gpu",
+          "rc_status": "MEASURED",
+          "time_lines": 1600
+        },
+        "convergence": {
+          "converged": true,
+          "final_residuals": {
+            "Ux": 1.05740124021e-09,
+            "Uy": 4.07563619166e-10,
+            "p": 9.36626495307e-10
+          },
+          "level": "L2_N40",
+          "n_available": 1600,
+          "n_window": 400,
+          "plateau_ptp": 8.141149392404401e-07,
+          "plateau_tol": 1e-06,
+          "plateau_window": 400,
+          "residual_tol": 1e-06
+        },
+        "fluxes": {
+          "qBranch": 0.07705386659431,
+          "qInlet": -0.666875,
+          "qMain": 0.5898211332442
+        },
+        "mass_balance": 2.4215924485892276e-10,
+        "mesh": {
+          "cells": 14400,
+          "level": "L2_N40",
+          "mesh_ok": true
+        },
+        "series_files": {
+          "qBranch": "verification/runs/ansys_verification/VMFLGPU002/gpu/L2_N40/postProcessing/qBranch/0/surfaceFieldValue.dat",
+          "qInlet": "verification/runs/ansys_verification/VMFLGPU002/gpu/L2_N40/postProcessing/qInlet/0/surfaceFieldValue.dat",
+          "qMain": "verification/runs/ansys_verification/VMFLGPU002/gpu/L2_N40/postProcessing/qMain/0/surfaceFieldValue.dat"
+        },
+        "split": 0.8844553075826805
+      },
+      "limb_A": {
+        "forced_cpu_control_discriminated": true,
+        "gpu_flops_on_device": true,
+        "level": "L2_N40",
+        "tell1_note": "tell1 (legend) NOT USED in limb A: loose on a CUDA build",
+        "tell2_pid_on_gpu": true,
+        "tell3_note": "tell3 (ksp_view type) DROPPED: this build echoes the matrix type in the options block, not as a `type:` line"
+      }
+    },
+    "L3_N80": {
+      "cpu": {
+        "completion": {
+          "arm": "cpu",
+          "completed": true,
+          "endtime": 2200,
+          "execution_lines": 2202,
+          "execution_note": "INFRA: ExecutionTime lines 2202 != endTime 2200",
+          "latest_time": "2200",
+          "level": "L3_N80",
+          "rc": 0,
+          "rc_source": "verification/runs/ansys_verification/VMFLGPU002/RUN_RC.L3_N80.cpu",
+          "rc_status": "MEASURED",
+          "time_lines": 2200
+        },
+        "convergence": {
+          "converged": true,
+          "final_residuals": {
+            "Ux": 1.05242274837e-09,
+            "Uy": 5.59845249959e-10,
+            "p": 9.58487933455e-10
+          },
+          "level": "L3_N80",
+          "n_available": 2200,
+          "n_window": 400,
+          "plateau_ptp": 1.1636030949890852e-07,
+          "plateau_tol": 1e-06,
+          "plateau_window": 400,
+          "residual_tol": 1e-06
+        },
+        "fluxes": {
+          "qBranch": 0.0768389716819,
+          "qInlet": -0.66671875,
+          "qMain": 0.5898797782632
+        },
+        "mass_balance": 8.234354791130365e-11,
+        "mesh": {
+          "cells": 57600,
+          "level": "L3_N80",
+          "mesh_ok": true
+        },
+        "series_files": {
+          "qBranch": "verification/runs/ansys_verification/VMFLGPU002/cpu/L3_N80/postProcessing/qBranch/0/surfaceFieldValue.dat",
+          "qInlet": "verification/runs/ansys_verification/VMFLGPU002/cpu/L3_N80/postProcessing/qInlet/0/surfaceFieldValue.dat",
+          "qMain": "verification/runs/ansys_verification/VMFLGPU002/cpu/L3_N80/postProcessing/qMain/0/surfaceFieldValue.dat"
+        },
+        "split": 0.8847505462583736
+      },
+      "gpu": {
+        "completion": {
+          "arm": "gpu",
+          "completed": true,
+          "endtime": 2200,
+          "execution_lines": 2202,
+          "execution_note": "INFRA: ExecutionTime lines 2202 != endTime 2200",
+          "latest_time": "2200",
+          "level": "L3_N80",
+          "rc": 0,
+          "rc_source": "verification/runs/ansys_verification/VMFLGPU002/RUN_RC.L3_N80.gpu",
+          "rc_status": "MEASURED",
+          "time_lines": 2200
+        },
+        "convergence": {
+          "converged": true,
+          "final_residuals": {
+            "Ux": 1.0319068424e-09,
+            "Uy": 5.60290470819e-10,
+            "p": 9.34558189884e-10
+          },
+          "level": "L3_N80",
+          "n_available": 2200,
+          "n_window": 400,
+          "plateau_ptp": 1.1251056009076166e-07,
+          "plateau_tol": 1e-06,
+          "plateau_window": 400,
+          "residual_tol": 1e-06
+        },
+        "fluxes": {
+          "qBranch": 0.07683897150092,
+          "qInlet": -0.66671875,
+          "qMain": 0.5898797785032
+        },
+        "mass_balance": 6.179407166937323e-12,
+        "mesh": {
+          "cells": 57600,
+          "level": "L3_N80",
+          "mesh_ok": true
+        },
+        "series_files": {
+          "qBranch": "verification/runs/ansys_verification/VMFLGPU002/gpu/L3_N80/postProcessing/qBranch/0/surfaceFieldValue.dat",
+          "qInlet": "verification/runs/ansys_verification/VMFLGPU002/gpu/L3_N80/postProcessing/qInlet/0/surfaceFieldValue.dat",
+          "qMain": "verification/runs/ansys_verification/VMFLGPU002/gpu/L3_N80/postProcessing/qMain/0/surfaceFieldValue.dat"
+        },
+        "split": 0.8847505466183453
+      },
+      "limb_A": {
+        "forced_cpu_control_discriminated": true,
+        "gpu_flops_on_device": true,
+        "level": "L3_N80",
+        "tell1_note": "tell1 (legend) NOT USED in limb A: loose on a CUDA build",
+        "tell2_pid_on_gpu": true,
+        "tell3_note": "tell3 (ksp_view type) DROPPED: this build echoes the matrix type in the options block, not as a `type:` line"
+      }
+    }
+  },
+  "limb_B": {
+    "rel": {
+      "L1_N20": 1.9547750118081099e-10,
+      "L2_N40": 1.385165156567637e-10,
+      "L3_N80": 4.068623869425486e-10
+    },
+    "tol": 0.0001,
+    "worst": 4.068623869425486e-10,
+    "worst_at": "L3_N80"
+  },
+  "limb_C": {
+    "reference": 0.887,
+    "reference_kind": "code-to-code / numerical benchmark -- buys NEITHER V nor P",
+    "reference_source": "Hayes, Nandkumar & Nasr-El-Din, Computers and Fluids 17, 537-553 (1989), via manual Table .gpu002.2 column 'Target'",
+    "rel": {
+      "L3_N80": 0.00253602410558593
+    },
+    "tol": 0.02,
+    "worst": 0.00253602410558593,
+    "worst_at": "L3_N80"
+  },
+  "manual_page": "227",
+  "planted_zero": {
+    "channels": 2,
+    "min_gain_over_plant": 1.3294828267940635,
+    "passed": true,
+    "per_channel": {
+      "qInlet": {
+        "channel_seen": 0.0012339999999999574,
+        "gain_over_plant": 1.3294828267940635,
+        "split_moved": 0.0016405818082638746
+      },
+      "qMain": {
+        "channel_seen": 0.0012339999999999574,
+        "gain_over_plant": 1.4998828216544953,
+        "split_moved": 0.0018508554019216472
+      }
+    },
+    "planted": 0.001234,
+    "reader_kind": "integrated patch flux per channel; the GATE is their ratio, so the sizing (gain > 0.1) is measured, not assumed (L-340)",
+    "sizing_floor": 0.1
+  },
+  "roache": {
+    "R": -0.19740641738153755,
+    "d21": -0.0002952390356647516,
+    "d32": 0.0014955898576191062,
+    "f_coarse": 0.8859508974402996,
+    "f_extrapolated": null,
+    "f_fine": 0.8847505466183453,
+    "f_med": 0.8844553075826805,
+    "fs": 1.25,
+    "gci_fine": null,
+    "p": null,
+    "ratio": 2.0,
+    "state": "OSCILLATORY"
+  },
+  "tier_ceiling": "GATE REACHED",
+  "tol_A": "binary",
+  "tol_B": 0.0001,
+  "tol_C": 0.02,
+  "triple_values": [
+    0.8859508974402996,
+    0.8844553075826805,
+    0.8847505466183453
+  ],
+  "verdict": "NOT A RESULT"
+}

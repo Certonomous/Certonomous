@@ -1,0 +1,16 @@
+generated: 2026-08-26T17:41:19Z
+driver:    595.91.07
+gpu:       GPU 0: NVIDIA L4 (UUID: GPU-4d81b3ea-475c-3eba-d5d1-0bfde0963615)
+cuda_arch: sm_89
+nvcc:      nvcc: NVIDIA (R) Cuda compiler driver Copyright (c) 2005-2024 NVIDIA Corporation Built on Thu_Mar_28_02:18:24_PDT_2024 Cuda compilation tools, release 12.4, V12.4.131 Build cuda_12.4.r12.4/compiler.34097967_0 
+openfoam:  v2606 (/usr/lib/openfoam/openfoam2606/etc/bashrc)
+petsc_tag: v3.24.6  PETSC_ARCH=arch-cuda-opt
+petsc_sha: 1467453aedb62826efc970ceafc4bd6dab8229ab
+p4f_tag:   main
+p4f_sha:   090b5a74521214664ea91bb4128c2f4ad62c761c
+libpetscFoam.so sha256: 477b7ac2618c9e85338b8dea72ed0c5ec82edf82527ac62b3bc2a7e46363a705
+mpicc:     /usr/bin/mpicc -- mpicc: Open MPI 5.0.10 (Language: C)
+libmpi (petsc):      /usr/lib/x86_64-linux-gnu/libmpi.so.40
+libmpi (petscFoam):  /usr/lib/x86_64-linux-gnu/libmpi.so.40
+libmpi (simpleFoam): /usr/lib/x86_64-linux-gnu/libmpi.so.40
+LD_LIBRARY_PATH: /home/ubuntu/gpu_build/petsc/arch-cuda-opt/lib:/home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib/sys-openmpi:/home/ubuntu/OpenFOAM/ubuntu-v2606/platforms/linux64GccDPInt32Opt/lib:/usr/lib/openfoam/openfoam2606/site/2606/platforms/linux64GccDPInt32Opt/lib:/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/sys-openmpi:/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib:/usr/lib/x86_64-linux-gnu/openmpi/lib:/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/dummy:/usr/lib/x86_64-linux-gnu:/opt/amazon/openmpi/lib:/usr/local/lib:/usr/lib

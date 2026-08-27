@@ -1,0 +1,25 @@
+VMFLGPU002 -- GPU SOLVER PATH on the concentric-cylinder case (manual p.227, CPU parent VMFL010)
+  tier ceiling GATE REACHED (closed-form/exact reference buys V, NEVER P)
+  FREEZE PROVEN AT LAUNCH: prereg 790a3bbdc621250049cb64d67aae80f3431bddab ; comparator 8172a0d32d5ab2a433319382f25f24f41dbef2c2
+  WARNING(INFRASTRUCTURE): L1_N20: INFRA: ExecutionTime lines 1202 != endTime 1200 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+  WARNING(INFRASTRUCTURE): L1_N20: INFRA: ExecutionTime lines 1202 != endTime 1200 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+  LIMB A HELD at L1_N20: the GPU arm shows GPU %F > 0 on -log_view event rows and holds device memory (tell2), and the forced-CPU control showed GPU-ABSENT (Post-compute Amendment 5)
+  WARNING(INFRASTRUCTURE): L2_N40: INFRA: ExecutionTime lines 1602 != endTime 1600 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+  WARNING(INFRASTRUCTURE): L2_N40: INFRA: ExecutionTime lines 1602 != endTime 1600 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+  LIMB A HELD at L2_N40: the GPU arm shows GPU %F > 0 on -log_view event rows and holds device memory (tell2), and the forced-CPU control showed GPU-ABSENT (Post-compute Amendment 5)
+  WARNING(INFRASTRUCTURE): L3_N80: INFRA: ExecutionTime lines 2202 != endTime 2200 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+  WARNING(INFRASTRUCTURE): L3_N80: INFRA: ExecutionTime lines 2202 != endTime 2200 (L-342: a count of TIMING-REPORT lines is a property of what the libraries print, not of the physics. It does not touch the verdict.)
+  LIMB A HELD at L3_N80: the GPU arm shows GPU %F > 0 on -log_view event rows and holds device memory (tell2), and the forced-CPU control showed GPU-ABSENT (Post-compute Amendment 5)
+  PLANT SEEN ON ALL 2 GATE CHANNELS (L-340; the gate is DERIVED, so the sizing is MEASURED, not assumed): 0.001234 planted into each of ['qInlet', 'qMain'] moved the SPLIT by ['0.00164058', '0.00185086'] -- gain ['1.329', '1.5'] x the plant, floor 0.1
+  split(GPU) L1/L2/L3 = ['0.8859508974', '0.8844553076', '0.8847505466']
+  split(CPU) L1/L2/L3 = ['0.8859508973', '0.8844553077', '0.8847505463']
+  mass balance |q_in+q_main+q_branch|/|q_in| (GPU, L3_N80) = 6.18e-12 (tol 1e-06)
+  limb B worst |GPU-CPU|/|CPU| = 4.07e-10 at L3_N80 (tol 0.0001)
+  reference split = 0.887 (code-to-code / numerical benchmark -- buys NEITHER V nor P)
+  Ansys Fluent GPU = 0.884 (CONTEXT ONLY, never the gate)
+  limb C |GPU-ref|/|ref| at L3_N80 = 0.002536 (tol 0.02)
+  triple split = ['0.8859508974', '0.8844553076', '0.8847505466'] ; state=OSCILLATORY R=-0.197406 p=None
+  the grid triple is OSCILLATORY -- rule 5 step 2. 
+  NO GCI IS QUOTED off a non-CONVERGING triple.
+VERDICT: NOT A RESULT
+  grading record written to verification/runs/ansys_verification/VMFLGPU002/GRADING_VMFLGPU002_regrade.json
