@@ -351,3 +351,99 @@ is the one that matters.**
 `cost_core_min_estimate` against a registration whose cap line is real — because
 that is the shape production actually holds (`COMMIT_INTEGRITY_STANDARD` G1: a
 control whose scenario production never takes has not tested the clause).
+
+### R-CAP.8 — AMENDMENT, 2026-08-27: THE REFUSE BRANCH REQUIRES AN UNAMBIGUOUS PARSE, AND A FIRST-MATCH READER WOULD REFUSE PRECISELY THE ENTRIES THAT OBEYED RULE 2
+
+**Appended; nothing above is rewritten. cfd built a naive cap parser BEFORE writing
+anything and measured THREE FALSE DISAGREEMENTS IN FIVE on its own well-disciplined
+entries — all three would have become FALSE REFUSALS under R-CAP.1's REFUSE branch.
+All three verified here at source.**
+
+**§8.1 THE THREE CAUSES, EACH WITH ITS SPECIMEN.**
+
+1. **THOUSANDS SEPARATOR.** `F23_HP_WEDGE_PREREGISTRATION.md:249` reads
+   **"REGISTERED CAP: 1,100 core-minutes"**. Driven here: a naive `\d+` extraction
+   returns **`['1', '100']`**, matching neither each other nor 1100; a
+   separator-aware read returns **`['1100']`**. **F23 is CORRECT and would have been
+   refused.**
+2. **⚠⚠ FIRST-MATCH-WINS ON AN AMENDED REGISTRATION — THE ONE THAT MATTERS.**
+   `F25_DUCT3D_PREREGISTRATION.md:335` carries the **superseded** "REGISTERED CAP:
+   1,400 core-minutes"; the live value **2000** sits in its **pre-compute
+   amendment** at `:473`, is named as `cap_core_min_registered` at `:491` and
+   reaffirmed at `:582`. **A reader taking the FIRST cap line refuses the entry for
+   AGREEING WITH THE AMENDED VALUE.**
+3. **PHRASING AND LOCATION VARIANCE.**
+   `cases/F26_RINGLEB/PREREGISTRATION_F26D_2026-08-27.md:183` reads **"Cap: 10.2
+   core-minutes = 1.5 x the estimate"** — not "REGISTERED CAP" — **and lives under
+   `cases/`, not `verification/campaign/`.** Both conventions are usual; neither is
+   guaranteed.
+
+**§8.2 WHY CAUSE 2 IS A DIFFERENT KIND OF DEFECT FROM THE OTHER TWO.**
+
+Causes 1 and 3 are ordinary parser brittleness. **Cause 2 is not random: it
+systematically refuses exactly those entries whose caps were LEGITIMATELY AMENDED
+PRE-COMPUTE under standing rule 2, and passes registrations nobody ever corrected.**
+
+> **A freeze check that reads a superseded number is not a freeze check — it is a
+> check that PUNISHES CORRECT BEHAVIOUR AND REWARDS NEGLECT.** It inverts the
+> incentive of the very rule it exists to enforce.
+
+**This is `L-377`'s shape in a second place on the same day** — a metric whose
+construction penalises the teams that obeyed the filing or amendment rule. **Named
+here as a class, not as an F25 fact.**
+
+**§8.3 THE CLAUSES, ADOPTED.**
+
+- **(a) REFUSE REQUIRES AN UNAMBIGUOUS PARSE; AMBIGUITY WARNS.** No cap line found,
+  more than one unresolved candidate, or a value not resolvable to a single number →
+  **WARN, naming what it found and where it looked. NEVER REFUSE.**
+- **(b) RESOLVE THE LAST BINDING CAP STATEMENT, NOT THE FIRST, AND RECORD THE LINE
+  USED.** The refusal message **quotes the line it parsed and the value it got**, so
+  a human checks the refusal in one glance rather than re-deriving it.
+- **(c) THE PARSE IS SEPARATOR-AWARE AND PHRASE-TOLERANT**, and it must search the
+  registration **wherever it lives** — `verification/campaign/` **and** `cases/`.
+- **(d) THE `UNCAPPED-LEGACY` TEST IS A PROPERTY OF THE REGISTRATION, NEVER OF THE
+  ENTRY.** Already ruled at R-CAP.7 and restated because cfd reached it
+  independently from `F16b_SL2`: **a label asserting an absence must carry the search
+  that established it — the same standard this lab holds a planted-zero control to.**
+
+**§8.4 THE ASYMMETRY IS THE GROUND, AND IT IS THE THIRD TIME THIS TEAM HAS USED IT
+TODAY.** A missed transcription miss costs **a warning nobody acted on**. A false
+refusal **blocks real work at the queue and creates pressure to route around the
+validator — and a validator people route around is worse than none.**
+
+**So a check resting on a FREE-TEXT PARSE — evidence of a lesser kind than a
+committed number — may only move toward the SAFER outcome.** Identical in form to
+`COMMIT_INTEGRITY_STANDARD` §A1.2's *"(iii) may only refuse, never authorise"* and
+to rule 5's one-way gate. **Here the safe direction is the opposite one — toward
+WARN rather than toward REFUSE — because here a refusal is the destructive act.**
+**The principle is not "always refuse" or "always warn"; it is that weaker evidence
+may only push toward whichever outcome cannot destroy work.**
+
+**§8.5 AND cfd's LIMIT ON ITS OWN EVIDENCE IS THE ARGUMENT FOR (a) BEING THE
+DEFAULT.** cfd disclosed unprompted that this is **five registrations in one team,
+all written under similar conventions, and that the three causes are certainly not
+exhaustive.** **Exactly so — and that is why (a) is the DEFAULT POSTURE and not a
+fallback.** A parser whose known failure list is admittedly incomplete must not hold
+a refusal power; **the unknown fourth cause is the one that will produce the false
+refusal nobody predicted.**
+
+**§8.6 THE CONTROL SET, EXTENDED. Each limb driven to FIRE and to NOT-FIRE.**
+
+| control | scenario | required |
+| --- | --- | --- |
+| **C6** | cap written with a **thousands separator** (`1,100`) | **PASS, SILENT** — no false disagreement |
+| **C7** | **amended registration, first ≠ last** cap line (the F25 shape) | **MUST NOT REFUSE** — resolves to the LAST binding value |
+| **C8** | phrase variant (`Cap:` not `REGISTERED CAP`) and a registration under `cases/` | found, **PASS SILENT** |
+| **C9** | **two unresolved candidates** | **WARN**, naming both and where it looked — **never REFUSE** |
+| **C10** | no cap line at all in a registration | **WARN**, naming where it looked |
+
+**C7 is the one that must exist or cause 2 ships.** **C9 and C10 are the limbs that
+prove (a): without them the clause is consistent with a parser that refuses whenever
+it is confused.**
+
+**§8.7 ONE RULE ON THE BY-HAND EVIDENCE, AND IT BINDS THIS TEAM TOO.** Until the
+clause is built (R-CAP.7 §7.4), compliance is evidenced by hand — **and a by-hand
+comparison counts ONLY WITH THE LINE NAMED.** *"I checked and it matches"* **is not
+evidence**; it is the human form of a validator `rc 0` from a reader shown unable to
+see a non-zero. **cfd's five-entry comparison named its lines and therefore counts.**
