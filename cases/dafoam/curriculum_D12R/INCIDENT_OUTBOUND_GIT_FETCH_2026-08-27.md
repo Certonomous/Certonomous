@@ -126,3 +126,67 @@ verbatim; boarded and escalated lab-wide, because it binds every team and not on
 **Lesson candidate, in one line for whoever assigns the number:** *a repository with a configured
 push-capable remote is one reflexive command away from exfiltrating a private lab, and the reflex
 that suppresses a command's stderr is the same reflex that hides the moment it happens.*
+
+---
+
+## 8. AMENDMENT 1 — 2026-08-27 — THE RESIDUE, STATED AT EXACTLY THE STRENGTH THE EVIDENCE SUPPORTS
+
+**Appended at the foot the same day. §§1–7 are byte-unchanged; lines whose number changed above
+this section: 0 — proved on BYTES by `cmp` against the HEAD blob inside the committing invocation.**
+Added on `dafoam-supervisor`'s order after that supervisor **struck their own boarded account** of
+this incident (S-17d), which had asserted that the client "had nothing to `want` and sent no `have`
+negotiation" while claiming to be *"stating the mechanism rather than asserting the conclusion."*
+**That mechanism was false. The correction must not repeat the error in the opposite direction by
+asserting a leak nobody captured either.** Hence the two-column discipline below.
+
+### 8.1 WHAT IS MEASURED
+
+- **Objects genuinely came inbound.** `git merge-base --is-ancestor refs/remotes/origin/main HEAD`
+  returns **false**; `refs/remotes/origin/main` is `8a5cdf043341a881604038b8bf562bcc86df66f3` with
+  **2,245 commits reachable**; a packfile pair was written at **18:56:43Z**, 86 s after the fetch
+  (`pack-1a5eedf3….idx`, **237,196 bytes**, indexing ~8,400 objects).
+- **The decisive fact, and it does not rest on a file mtime.** The two commits the remote held and
+  this box lacked — `8a5cdf04` and `c9a63793` — are **present in the local object store and
+  reachable from NO local branch**. Objects that are in the store and on no branch of ours can only
+  have arrived over the wire. **A real bidirectional negotiation took place.**
+- **NO repository content, dataset, ledger, figure or link was uploaded.** The fetch half of the
+  pack protocol transmits objects server → client only, and `git pull` never pushes.
+  **`CLAUDE.md` rule 8 is NOT breached.**
+
+### 8.2 WHAT IS INFERRED FROM PROTOCOL BEHAVIOUR AND **NOT CAPTURED ON THE WIRE**
+
+Because objects were genuinely wanted, git's fetch negotiation will have sent `want` and `have`
+lines, so **object identifiers of our own commits are likely to have reached `github.com`** — SHA-1
+hashes, which are **lab metadata revealing the existence and shape of our history, not its
+content**.
+
+> **This is INFERRED, NOT CAPTURED.** There is no packet capture on this box and none was taken.
+> The statement above is what the protocol does given the divergence measured in §8.1; it is not an
+> observation of bytes on the wire, and it must never be quoted as one.
+
+### 8.3 TWO DATES, RECORDED AS MEASUREMENTS, WITH NOTHING ATTACHED
+
+| measurement | value |
+|---|---|
+| committer date of the remote-tracking ref this fetch updated (`refs/remotes/origin/main`, `8a5cdf04`) | **2026-08-25T11:39:20−04:00** |
+| date Sanaa ruled this repository permanently private | **2026-08-18** |
+
+**So an off-box mirror of this repository held lab history as of 2026-08-25.**
+
+> **THAT IS THE WHOLE OF IT, AND THIS RECORD STOPS THERE.** How the mirror came to exist, who wrote
+> to it, what it contains and whether it should exist are **not characterised, not speculated about
+> and not investigated.** No `ls-remote` was run, no second connection was made, `.git/config` was
+> not touched. **It is Sanaa's question, and probing it would be a second connection asked in order
+> to answer it** (`dafoam-supervisor`, 2026-08-27; `CLAUDE.md` rule 9).
+
+### 8.4 THE PROMOTED FINDING
+
+`dafoam-supervisor` promoted §4's observation on the ground that **naming the habit that hid the
+connection is worth more than the connection itself, because it generalises.** It joins this
+session's lesson batch, still **unnumbered** (rule 11):
+
+> **SUPPRESSING `stderr` ON A GIT COMMAND HIDES EXACTLY THE CLASS OF EVENT YOU MOST NEED TO SEE.**
+> The `2>/dev/null` on this `git pull` discarded the one artefact — the fast-forward abort message —
+> that would have surfaced the mistake in the second it was made. The reflex was tidiness; the
+> effect was concealment; and the same reflex is applied across this lab every day to keep output
+> clean.
