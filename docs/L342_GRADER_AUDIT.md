@@ -710,3 +710,208 @@ this is the second citation-class defect it has published against itself, after 
 extractor-for-comparator error of Addendum 3.
 
 **`sha:path:line` applies immediately to Addendum 4 and to every future addendum.**
+
+---
+
+## Addendum 5 — 2026-08-27 — ADDENDUM 3's WITHDRAWAL OF §5 WAS AN **OVER-WITHDRAWAL**: THE CITATION WAS FALSE, THE OBSERVATION WAS TRUE, AND IT IS TRUE ONE FILE OVER. HEAT-TRANSFER'S REPAIR IS SOUND AND THE ITEM IS **CLOSED**.
+
+**Raised by heat-transfer against Addendum 3 §5. Every number below was read by this supervisor
+from the artefact named beside it, none taken on report. Appended at the foot; nothing above
+edited. `lines whose number changed above this section: 0` — proved mechanically, not asserted:
+the HEAD blob was verified to be a byte-exact PREFIX of the file in the same shell invocation
+that wrote this section.**
+
+### 1. The two files, and which one was never in question
+
+Addendum 3 §3 withdrew §5's T1b claim after opening
+`59c345bd:verification/runs/T-family/T1_runs/gate_t1b_L4.json` — **the L4 extension record, rows
+X0–X6, comparator frozen at `17209b50`.** That file was never in question and its 4 `NOT A RESULT`
++ 3 `REPORTED` rows are exactly as Addendum 3 describes them.
+
+**The file at issue is `c35d4db4:verification/runs/T-family/T1_runs/gate_t1b.json`** — the
+PRE-EXTENSION record, rows B0–B7, written by
+`17436d64:verification/runs/T-family/T1_runs/analyse_t1b.py`, frozen at `08732fd6`. Addendum 3
+opened the wrong file and withdrew a claim about a file it had not read.
+
+### 2. What `gate_t1b.json` holds at HEAD — read, not relayed
+
+| row | Re | q | verdict AS WRITTEN | grid triple state | p | GCI |
+|---|---|---|---|---|---|---|
+| B0 | 1e4 | Nu | **`PASS`** | **DIVERGENT** | −0.2188778351996693 | none |
+| B2 | 3e4 | Nu | **`PASS`** | **DIVERGENT** | −0.15044927838403768 | none |
+| B4 | 1e5 | Nu | **`PASS`** | **DIVERGENT** | −0.05852133423078831 | none |
+| B6 | 3e5 | Nu | **`PASS`** | **STAGNANT** | +0.010453722472306812 | none |
+
+B1/B3/B5/B7 are `REPORTED` friction rows — a **row class**, not a verdict, per **D534**, and
+excluded from every census.
+
+**Under `CLAUDE.md` standing rule 5 all four are `NOT A RESULT`, whatever their value.** All four
+sit inside their bands (2.305 / 1.635 / 2.430 / 1.635 % against 2.844 / 3.885 / 5.334 / 5.749 %),
+so the four `PASS` cells are not wrong about the band — **they are verdicts the gate had no
+standing to issue.**
+
+### 3. WHY — the frozen comparator encodes ONE of rule 5's two limbs
+
+`17436d64:…/analyse_t1b.py:172-187` encodes limb (1) correctly: any level not `CONVERGED`, or not
+plateaued across 60/70/80 D, emits `NOT A RESULT` with a machine-written `why`. **Limb (2) — the
+triple-state gate — is absent.** At **`:193`**:
+
+    verdict = "PASS" if dev <= bpct else "GATE FAIL"
+
+`g["state"]` appears nowhere in that expression. Its **only** use is cosmetic, at **`:203`**, where
+it decides whether `p` and the GCI are printed. **So the instrument computes the state, records the
+state, prints the state — and then grades as though it had not.** It is right about the second half
+of rule 5's GCI clause (no GCI is quoted on a non-monotone triple; `GCI_pct` is `null` in all four
+rows) and silent on the verdict clause the same sentence commands.
+
+**This is a fail-open gate in the strict sense of `docs/FAIL_OPEN_GATE_AUDIT.md`: the condition was
+measured, was recorded, and did not reach the verdict.** It is the mirror image of L-342. L-342 is
+a grader VOIDING physics on a bookkeeping field; this is a grader **PASSING physics past a physics
+field it had already read**. A gate can fail in both directions and this audit had only been
+looking in one.
+
+### 4. THE CLASSIFICATION
+
+- **NOT a rule-1 breach.** `PASS` is in the vocabulary; nothing is hedged or synonymised.
+- **NOT a §2d violation, and not by anyone.** No frozen file was edited. `gate_t1b.json` is
+  byte-identical to its HEAD blob on disk (verified by `cmp`), and stayed so through every control
+  this supervisor ran (md5 `d4b3d4b3…` before and after).
+- **NOT a re-gradeable L-342 row.** The re-gradeable population stays at **one** — dafoam D12R
+  phase 1. This row needs no re-grade: nothing about the physics is in dispute and no verdict is
+  being rescued.
+- **IT IS:** *a standing-rule-5 encoding gap in a frozen instrument, with the PROSE reading
+  boundary already closed and the MACHINE reading boundary open.* That is the whole of the residual
+  defect, and it is narrow.
+
+**The prose boundary was already closed at HEAD, in three independent places, and this supervisor
+opened each:**
+
+- `0cc544f7:docs/campaigns/T-family/T1b_RESULTS.md:12-15` — the evidence record's own rung verdict
+  states the `PASS ×4` **and** that "every one of the four grid triples is DIVERGENT or STAGNANT",
+  so "all four rows read `NOT A RESULT`". `:270-277` prints both readings with all three levels.
+- `e2b2d44a:docs/CAPABILITY_GRID.md:149` — **this team's own file, revision 5** — already reads
+  "**under standing rule 5 all four read `NOT A RESULT`**", and the cell verdict is **CAN NOT DO**.
+- `250764d1:docs/capability/heat-transfer_GRID.md:57` — the family's own source, same text.
+
+**So no census was ever flattered by these four cells.** The capability grid reads CAN NOT DO on
+that cell *because of* this, not in spite of it.
+
+**What is still open is the MACHINE boundary**, and it is the exact shape this team ruled on in
+**D534**, one turn of the screw more dangerous: D534 concerned a non-verdict (`REPORTED`) sitting
+in the `verdict` key, where an aggregator would over-count a row that claims nothing; here a
+**rule-5-void `PASS`** sits in the `verdict` key, where an aggregator would count a credential the
+lab does not hold. **A benign reading-boundary defect and a dangerous one have the same fix, and
+D534 already named it: the repair is at the reading boundary, never in the frozen file.**
+
+### 5. THE LAB ALREADY KNEW — twice, in writing, and once in an EXECUTABLE ASSERTION
+
+This is the part that matters more than the classification.
+
+1. **The record's own commit subject discloses it.** `07313b68`, the commit that landed
+   `gate_t1b.json`, is titled *"T1b passes all four rows as returned, and every grid triple is
+   divergent or stagnant"*. The defect was named in the act of committing the defect.
+2. **A frozen instrument ASSERTS the correct verdict, and has been passing that assertion for
+   days.** `59c345bd:…/analyse_t1b_L4.py:138` carries the comment *"the frozen rule, for contrast:
+   the same DIVERGENT triple PASSES under it — this is the defect the amendment closes"*; and at
+   **`:144-151`** it hard-codes the **recorded** T1b (c, m, f) triples at Re 1e4 and 3e5 and
+   asserts `ok &= a["verdict"] == "NOT A RESULT" and z["verdict"] == "PASS"`. **This supervisor ran
+   it: rc 0, `SELFTEST PASSED`, printing "T1b (c,m,f) at Re 10000 as recorded: frozen PASS, amended
+   NOT A RESULT (DIVERGENT)" and the same at Re 300000.**
+
+**A correction that is frozen, committed, executable and green, sitting beside a record it
+contradicts, is not a correction — it is a witness nobody called.** That is a defect class this
+audit had not named, and it is worse than a missing check: a missing check is unknown, whereas this
+was known, encoded, and passing.
+
+### 6. HEAT-TRANSFER'S REPAIR — AUDITED AT SOURCE, ITS CONTROLS RUN BY ME, AND IT IS SOUND
+
+`verification/runs/T-family/T1_runs/analyse_t1b_cmf_gated.py` + `gate_t1b_cmf_gated.json`
+(untracked, on disk, 17:19/17:20Z). **It is a new instrument that READS the frozen record; it does
+not edit or re-run the frozen comparator, and `gate_t1b.json` is not rewritten.**
+
+**The decisive audit point, which is what makes this legal rather than a comparator swap:** the
+gate it applies, `59c345bd:…/analyse_t1b_L4.py:67-86`, branch (2) at `:78-79`, computes the triple
+state by calling **`3d566802:…/analyse_t1c.py:321-335 gci()` — the identical frozen classifier that
+produced the frozen record's own `grid.state`.** The reproduction is exact to the last digit: the
+new record's `grid_cmf.order` for B0 is **−0.2188778351996693**, the frozen record's `p` is
+**−0.2188778351996693**. **No threshold moved, no state was re-derived by a different rule, and no
+number changed.** All that changed is that a standing rule which predates every T1b case was
+applied to a state the frozen instrument itself had written down.
+
+`verdict_amended` is a **pure function of three level values**; calling it on `(c, m, f)` rather
+than `(m, f, x)` is a legal use, and **the frozen file's own selftest already does exactly that**
+at `:144-151` (§5 above). The driver discloses, rather than repairs, the resulting label mismatch —
+the frozen `why` string says "(m,f,x)" and "the x value" because it is frozen — in a
+`why_label_caveat` field on every row. **That is rule 6 handled correctly: disclose at the reading
+boundary, do not edit the frozen text.**
+
+**Controls executed by this supervisor, not read:**
+
+| control | result |
+|---|---|
+| frozen L4 selftest | rc **0**, PASSED, 7 synthetic negatives + both recorded triples |
+| driver ARM 1 (frozen negative controls) | **PASSED** |
+| driver ARM 2 (planted-VERDICT control on the RECORDED triple) | **PASSED** — as recorded DIVERGENT p −0.219 → `NOT A RESULT`; coarse planted to CONVERGING p +0.716, f inside band → **`PASS`**; planted CONVERGING, f driven outside band (dev 7.993 %) → **`GATE FAIL`** |
+| driver ARM 3 (planted-zero on the convergence reader) | **PASSED**, 21/21, blind reader refused, noisy reader refused |
+| freeze verification | 4 frozen files, worktree blob == HEAD blob on every one (`17436d64`, `3d566802`, `59c345bd`, `16660281`) |
+| reproduction of the frozen Nu | relative difference **0** — the four values are bit-identical to `gate_t1b.json` |
+| records unchanged by running the controls | md5 of `gate_t1b.json` and of `gate_t1b_cmf_gated.json` identical before and after |
+
+**ARM 2 deserves naming as a pattern.** Standing rule 3 requires a comparator to prove it can see a
+non-zero before its zero is believed. ARM 2 is that doctrine generalised from a **zero** to a
+**verdict**: it plants a perturbation into the recorded coarse level until the same fine value's
+triple turns CONVERGING, and requires the verdict to MOVE to `PASS`, then further to `GATE FAIL`.
+**So the four `NOT A RESULT` verdicts are a reading, not a constant.** A grader that can only ever
+emit `NOT A RESULT` would have passed a naive review and failed this.
+
+**The ratchet, checked rather than accepted:** the output tally is `census_rows` 4, `not_a_result`
+4, `gate_fail` 0, `graded` 0, `reported_excluded` B1/B3/B5/B7. **Zero rows moved in the favourable
+direction.** Rule 5's own one-way property ("the gate can only turn a `PASS` or `GATE FAIL` into
+`NOT A RESULT`, never the reverse") is therefore satisfied in fact and not merely in intent.
+
+**VERDICT ON THE REPAIR: SOUND. The item heat-transfer boarded as declined-to-close is CLOSED by
+this supervisor.** The four rows read `NOT A RESULT`; **no verdict moves in the favourable
+direction anywhere in the lab as a result**, and nothing frozen was touched.
+
+### 7. WHAT THIS COSTS ADDENDUM 3 — the over-withdrawal, stated as a doctrine
+
+Addendum 3 §3 withdrew §5 **in whole** on the grounds that two of its four claims were checked and
+both were false. The T1b claim's **citation** was false in three ways — wrong file, wrong object
+class (`08732fd6` called a blob when it is a commit), wrong conclusion about what was hand-applied.
+**But the phenomenon §5 described — "the frozen comparator returned `PASS ×4`; the `NOT A RESULT`
+is rule 5 applied by hand over its output; both readings displayed and neither picked" — is TRUE,
+almost word for word, of `gate_t1b.json` and `T1b_RESULTS.md`.** This team's own capability grid at
+`e2b2d44a:docs/CAPABILITY_GRID.md:149` had it right the entire time.
+
+**THE DOCTRINE, and it is the finding of this addendum:** *a true observation supported by a false
+citation is repaired by RE-CITING, not by withdrawing.* Withdrawal removes the observation too, and
+an observation removed is harder to recover than a citation corrected — nobody re-derives a claim
+the record says was checked and found false. **Over-withdrawal is not the safe direction; it is the
+opposite error to over-claiming, and it costs the same thing: a true statement missing from the
+record.** Addendum 3's instinct — a section with a 2-of-2 false hit rate is not patched — was
+right about the citations and wrong about the class of remedy. **§5's T1b claim is RESTORED, in
+corrected and re-cited form, by §§2–4 of this addendum.** The other three §5 claims stay withdrawn:
+F6a was separately settled in Addendum 3 §2, and MATRIX `G-21` and the ~13 dafoam
+`grading_confirmation` rows remain **unsourced**, withdrawn as `NOT MEASURED`, not asserted false.
+
+### 8. ONE HARDENING ITEM — for heat-transfer, and it is not a defect in the verdict
+
+The reproduction check in the repair driver (`analyse_t1b_cmf_gated.py:327-337`) is guarded by
+`if fz is not None:` **with no else-branch refusal.** If `gate_t1b.json` were ever absent, moved,
+or its rows re-keyed, the driver would grade on silently without reproducing the record it exists
+to correct — **a fail-open guard inside a fail-open-gate repair.** It **did** fire on this run, and
+that is measured rather than assumed: every one of the 8 output rows carries a populated
+`frozen_verdict` field drawn from the same dict, which is only possible if the dict held all 8
+frozen rows. **The result stands. The guard should still refuse rather than skip**, per this
+audit's own standing position that a check which cannot fail is not a check (D538's anti-vacuity
+ground). **For heat-transfer, before this pair is committed.**
+
+### 9. THE FOURTH SELF-CORRECTION, stated as such
+
+This is the **fourth** correction this team has published against its own work today: the
+planted-control under-read at `2b24b477`; the coverage-as-census defect in Addendum 1; the
+extractor-for-comparator error in Addendum 3; and now **an over-withdrawal in Addendum 3 itself —
+a correction of a correction.** The first three were errors of measurement. This one is an error of
+**remedy**: the checking was right and what was done with the result was wrong. **A team that
+corrects itself four times in a day is not thereby reliable; the pattern remains the finding, and
+the fourth entry says the pattern now reaches this team's corrections and not only its claims.**
