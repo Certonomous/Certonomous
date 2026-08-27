@@ -1,0 +1,31 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFLGPU001-R2",
+  "prereg_commit": "1614f86f56a02b3b8bf72381061366cb1943e378",
+  "prereg_path": "cases/ansys_verification/VMFLGPU001-R2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFLGPU001-R2/run_vmflgpu001_r2.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001-R2"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU001-R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 40.0,
+  "cost_basis": "DERIVED, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). GPU: 0.44 GPU-h estimated for the whole case (both arms), from R1's MEASURED 0.441667 GPU-h (register row #33); $0.3555 derived at the AWS PUBLISHED PRICE LIST $0.8048/GPU-h for g6.xlarge us-east-2 (retrieved 2026-08-23, GPU_CAPABILITY_STATE.md section 9) -- published list, NOT a console reading; the CONSOLE figure is STILL OWED and supersedes. CAP 2.0 GPU-h, ENFORCED in the executable path by `timeout` per solve with the rc captured inside the launcher (CLAUDE.md rule 12: an overrun STOPS the run) -- ~4.5x headroom over the estimate, deliberately not a tight cap (VMFLGPU002 came within 10.3% of its cap and that is not repeated). CPU: 40.0 core-min running-total cap across the six solves (R1 measured 9.15 core-min, 23%), $0.0103 derived at the owner-stated $0.0513/core-h (Sanaa 2026-08-21/22, reported-by-owner); CPU-arm cap 40 core-min enforced. The one-time toolchain build is a FAMILY line in COST_BASIS.md, amortised, NOT charged here.",
+  "memory_floor_gb": 2.0,
+  "host": "ip-172-31-44-162",
+  "enqueued_by": "ansys-verification-supervisor via ansys-lane-opus48 (lane H)",
+  "_schema_note": "Fields above are scripts/queue_entry_check.py REQUIRED_FIELDS plus host. Fields below are annotations the validator ignores.",
+  "_successor": "VMFLGPU001-R2 is the successor to VMFLGPU001 (R1), register row #33 (NOT A RESULT, refused at the frozen plateau clause I5). GATE-IDENTICAL to R1 apart from two CONTROLS: a liveness plateau floor (LIVENESS_FLOOR = 4.547810e-4 m/s = 0.1*v_exact(0.035), derived from physics not R1's measured range) and a limb-A GPU tell re-based on PETSc's GPU %F table value. Case inputs byte-identical to R1; every gate constant identical. Sanaa 2026-08-27 \u00a73 anti-gaming: frozen gates never edited post-compute, so R2 is a fresh registration.",
+  "_comparator": "cases/ansys_verification/VMFLGPU001-R2/grade_vmflgpu001_r2.py, blob 6a5d0fe7b68e5f184edb97114a2dae31dcf7512c, frozen at commit 1614f86f56a02b3b8bf72381061366cb1943e378. --selftest 43/43 GREEN, IDENTICAL under python3 and python3 -O, zero ast.Assert nodes; every guard ships its planted-failure proof (L-314): dead-channel REFUSES on the liveness floor, live-converged GRADES (resolving R1's I5), forged GPU %F=0 REFUSES, R-RC conjunction (norc-noend) REFUSES.",
+  "_ceiling": "GATE REACHED. A closed-form reference buys V, never P. PASS is unreachable.",
+  "_authorisation": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD.md section 1). SUPERVISION_CHARTER.md section 3 check 4 -- pre-registration committed before compute -- is the supervisor's own personal check and is NOT discharged by this file. The freeze commit 1614f86f is verified by the supervisor before release.",
+  "verdict_state": "PENDING -- the R2 run has not been graded.",
+  "cap_core_min_registered": 40.0,
+  "cap_core_min_shape": "cpu-arm total core-min alongside a GPU-h cap",
+  "cap_gpu_h": 2.0,
+  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
+  "cap_source": "cases/ansys_verification/VMFLGPU001-R2/PREREGISTRATION.md:50,123,125",
+  "cap_annotation_added": "2026-08-27",
+  "cap_annotation_note": "Cap transcribed from the pre-registration on the chief's 2026-08-27 lab-wide order. NO pre-existing dispatch field was altered and no value was moved; this entry is in 'held'."
+}

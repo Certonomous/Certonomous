@@ -1,0 +1,50 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL064-R2",
+  "prereg_commit": "3e7c792cbde23a7cc105d63d01487dc5d01c8040",
+  "prereg_path": "cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL064-R2/run_vmfl064_r2.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 5.4,
+  "cost_basis": "derived: estimate 5.4 core-min from attempt 1's MEASURED 5.383 core-min (register row #29, same mesh family, same solver, only the reader changed); cap 90 core-min running total (prereg line 12); $0.0046 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-verification-supervisor (personal check 4 on 3e7c792c: commit exists, prereg at commit, comparator selftest 37/37 both interpreters, 0 asserts; lane E1 drafted); RE-FILED 2026-08-26T20:5xZ by the supervisor: attempt-1 entry (17:49:13Z, pid 326419) omitted the launcher's required <run_root> argv and the launcher refused at zero compute (usage line, launcher_rc=1) -- VMFL064R2-ENTRY-DEF-1; only the argv changed, prereg/comparator untouched",
+  "_launch": {
+    "utc": "2026-08-26T20:45:43Z",
+    "pid": 390178,
+    "sid": 390178,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/STATUS.VMFL064-R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL064-R2/launcher.queue.out",
+    "started_epoch": 1787777143.5279887,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL064-R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "cap_core_min_registered": 90.0,
+  "cap_core_min_shape": "RUNNING TOTAL across the three levels",
+  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
+  "cap_source": "cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md:88",
+  "cap_annotation_added": "2026-08-27",
+  "cap_annotation_note": "Cap transcribed from the pre-registration on the chief's 2026-08-27 lab-wide order. NO pre-existing dispatch field was altered and no value was moved; this entry is in 'launched'. ENTRY IS HISTORICAL: the run has already launched, so this is a record annotation, NOT a live pre-compute control."
+}

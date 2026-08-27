@@ -1,0 +1,54 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL017-R2",
+  "prereg_commit": "45328f8a4268e3d425a34be42f20ccc378c3e62f",
+  "prereg_path": "cases/ansys_verification/VMFL017/R2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL017/R2/run_vmfl017_r2.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL017/R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 300.0,
+  "cost_basis": "derived, not measured for this run. 300.0 core-min = L1's per-level cap frozen at PREREGISTRATION.md line 12 (L1 300 / L2 600 / L3 1500, PER LEVEL, not a shared drawdown; family ceiling 2400 core-min if all three ran). 300 core-min x 1 rank = 18000 wall-s = 5.00 core-h; at the owner-stated c7a.4xlarge rate of $0.0513/core-h that is $0.2565, DERIVED from a rate the owner stated and NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5). Why 300 and not 2400: the PRE-COMPUTE AMENDMENT 2 section E smoke measurement (deltaT 1.806e-9 s at maxCo 0.2, ~27.7 steps per wall-second at RANKS=1 on a ~50%-busy box) projects that L1 needs ~16700 core-min to reach the registered endTime 0.05 s -- about 55x its cap -- so L1 is expected to stop at rc 124 and the launcher breaks without launching L2 or L3. 300 core-min is therefore the honest expected spend, and it is a cap enforced in the executable path by timeout_s = cap_core_min x 60 / RANKS, not a hope. An overrun STOPS the level and does not get a new budget (CLAUDE.md rule 12); endTime is never reduced to fit a cap.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "ansys-verification-supervisor via ansys-lane-opus (lane B)",
+  "_launch": {
+    "utc": "2026-08-26T17:18:52Z",
+    "pid": 256656,
+    "sid": 256656,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL017/R2/STATUS.VMFL017-R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL017/R2/launcher.queue.out",
+    "started_epoch": 1787764732.5943232,
+    "status_seen_utc": "2026-08-26T22:19:11Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL017-R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "cap_core_min_registered": null,
+  "cap_core_min_shape": "PER-LEVEL ONLY; the registration states NO family total",
+  "cap_core_min_per_level": [
+    300.0,
+    600.0,
+    1500.0
+  ],
+  "cap_status": "REGISTERED-PER-LEVEL-NO-TOTAL",
+  "cap_source": "cases/ansys_verification/VMFL017/R2/PREREGISTRATION.md:218,347",
+  "cap_annotation_added": "2026-08-27",
+  "cap_annotation_note": "Cap transcribed from the pre-registration on the chief's 2026-08-27 lab-wide order. NO pre-existing dispatch field was altered and no value was moved; this entry is in 'launched'. ENTRY IS HISTORICAL: the run has already launched, so this is a record annotation, NOT a live pre-compute control."
+}

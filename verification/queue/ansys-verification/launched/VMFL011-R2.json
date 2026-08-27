@@ -1,0 +1,52 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL011-R2",
+  "prereg_commit": "9f9d69258dc7bb4ed981490cd90a85d7362ebed4",
+  "prereg_path": "cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL011-R2/run_vmfl011_r2.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2",
+  "ranks": 1,
+  "cost_core_min_estimate": 8.3,
+  "cost_basis": "derived: estimate 8.3 core-min from attempt 1's MEASURED 8.2167 core-min on these byte-identical inputs (0.25 + 0.9667 + 7.0 at ranks 1, from each level's own RUN_RC.txt and COST.txt under verification/runs/ansys_verification/VMFL011/, register row #26), rounded up; nothing in this R2 changes a mesh, a scheme or an iteration count. Cap 50 core-min running total, byte-identical to attempt 1 (prereg line 12). $0.0071 at the owner-stated $0.0513/core-h (c7a.4xlarge), reported-by-owner, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5).",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "ansys-lane-opus (lane B of the ansys-verification team) -- THIS FIELD NAMES THE LANE THAT DROPPED THE FILE AND NOTHING MORE. The supervisor's SUPERVISION_CHARTER section 3 check 4 is undelegable and is NOT recorded by this field; a lane cannot perform it and does not claim to (CLAUDE.md rule 9). What the lane DID do, and what it measured: freeze committed at 9f9d6925 with the run root ABSENT at 2026-08-26T21:01:02Z; comparator --selftest 33/33 exit 0, byte-identical under python3 and python3 -O, ast.Assert 0; four mutants each rc 2 with no green line under both interpreters; the L-340 repair driven on the real attempt-1 L1 bytes (parent pair delta 3.677091e-07 REFUSES, all-row plant at the parent magnitude 1.063654e-04 STILL REFUSES, sized plant delta 1.185698e-01 > 3.221137e-02 PASSES); the launcher's argv usage guard DRIVEN -- no argument exits rc 1 with 'usage: run_vmfl011_r2.sh <run_root> [levels...]' -- and the exact argv of this entry driven end to end as a registered VMFL_SMOKE in a scratchpad root (L1, endTime 20, rc 0, End line, last time == endTime, age guard yes, 0.0 core-min, grades nothing, nothing written under verification/runs/). VMFL064R2-ENTRY-DEF-1 is therefore not repeated: launch_cmd[2] IS the run root and equals cwd.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL011-R2 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_note": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD section 1). Presence in this directory causes nothing to happen. PREDICTED VERDICT: GATE FAIL -- attempt 1 published rms 0.0403/0.0348/0.0341 against the byte-identical 0.030 band, and prereg line 9 says so in advance. This run buys a GRADED verdict where the frozen instrument previously produced no number; it cannot buy a credential (tier ceiling GATE REACHED, code-to-code reference).",
+  "_launch": {
+    "utc": "2026-08-26T21:11:26Z",
+    "pid": 452949,
+    "sid": 452949,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/STATUS.VMFL011-R2",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL011-R2/launcher.queue.out",
+    "started_epoch": 1787778686.8647642,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "cap_core_min_registered": 50.0,
+  "cap_core_min_shape": "RUNNING TOTAL across the three levels",
+  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
+  "cap_source": "cases/ansys_verification/VMFL011-R2/PREREGISTRATION.md:80",
+  "cap_annotation_added": "2026-08-27",
+  "cap_annotation_note": "Cap transcribed from the pre-registration on the chief's 2026-08-27 lab-wide order. NO pre-existing dispatch field was altered and no value was moved; this entry is in 'launched'. ENTRY IS HISTORICAL: the run has already launched, so this is a record annotation, NOT a live pre-compute control."
+}
