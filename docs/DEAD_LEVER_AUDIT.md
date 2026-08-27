@@ -1037,3 +1037,133 @@ private-index protocol is `CLAUDE.md` rule 10 and its wording is Sanaa's.
 | guards CAPABLE of catching it | **0** |
 | minutes between commit and discovery | **~3** |
 | lines whose number changed above this section | **0** |
+
+## §4 — THE FILING GATE IS BLIND TO EXACTLY THE FILES IT EXISTS TO CATCH, THE INSTRUMENT ARGUES THE POINT AGAINST ITSELF IN ITS OWN VIOLATION TEXT, AND A FIGURE I PUBLISHED TODAY INHERITED THE BLINDNESS (2026-08-27)
+
+**Appended, append-only. Nothing above is rewritten. Zero compute. Raised by
+closure-supervisor, routed by the chief, verified here at source; no patch made —
+`scripts/check_filing.py` is outside this team's folder scope and the diff read
+belongs to its owner.**
+
+**§4.1 — THE MEASUREMENT.**
+
+`docs/papers/closure/.gitignore` is **tracked at HEAD** and contains `*.pdf` and
+`*.txt`. Measured:
+
+| quantity | figure |
+| --- | --- |
+| files in `docs/papers/closure/` **on disk** | **73** |
+| files in `docs/papers/closure/` **at HEAD** | **2** |
+| **PDFs on disk** | **35** |
+| **PDFs at HEAD** | **0** |
+
+`scripts/check_filing.py:100` enumerates via
+`git ls-tree -r HEAD --name-only`. **So rules R8 (paper naming) and R9 (missing
+`.txt` sidecar) evaluate ZERO of the 35 closure PDFs.**
+
+**The silence is BLINDNESS, NOT A CLEAN BILL, and closure planted the control that
+proves it:** the same run emits **12 R8 and 9 R9 findings elsewhere**, so the
+reader is not inert — it simply cannot see that directory. **Two genuine R9
+violations are concealed**, verified here: `Emory2013_structural_uncertainty_rans.pdf`
+and `Iaccarino2017_eigenspace_perturbations.pdf` are both on disk, **neither has a
+`.txt` sidecar, and neither is at HEAD** — so their contents are invisible to every
+text sweep of this library, **which is the precise harm R9 exists to prevent.**
+
+**§4.2 — THE INSTRUMENT MAKES THIS ARGUMENT ITSELF, AT ONE CALL SITE, AND THEN
+DOES NOT MAKE IT AT THE OTHER. THAT IS `CLAUDE.md` RULE 14 VERBATIM.**
+
+`_loose_root_files()` is documented *"Every FILE sitting directly at the
+repository root, **read from the disk**. This **deliberately does NOT ask git**"*,
+and gives the reason: *"git status is blind to ignored files by design."* **R1
+even carries an `include_untracked` switch, so the disk-reading capability already
+EXISTS inside the instrument.**
+
+**And R1's violation text states the principle in the instrument's own words:**
+
+> *"Being matched by `.gitignore` does NOT excuse it — **ignored means invisible
+> to git, not filed**."*
+
+**The script prints that sentence for R1 and then, two rules later, asks git for
+the papers census.** `CLAUDE.md` rule 14: *a lesson is not applied until EVERY
+call site asserts it.* **This is that rule with the instrument's own prose as the
+evidence.** The lab's standing note *"gitignored is not filed — a cleanliness
+check that asks git is blind to exactly the clutter it hunts; read the disk"*
+**already existed and the gate still asks git.** **A documented lesson with a live
+counter-example in the instrument that documents it is a dead lever, which is why
+this section is in this audit.**
+
+**§4.3 — THE SPEC THE CHIEF ASKED FOR, AND THE SPLIT RESOLVES MORE SIMPLY THAN IT
+LOOKS.**
+
+The proposed split is *disk for filing rules, HEAD for citation rules.* **Applied
+to this instrument the split has nothing on one side of it.** Every rule it
+carries — **R0** portable name, **R1** root clean, **R2** docs upper, **R3**
+scripts lower, **R5** asset subdir, **R6** run tree, **R7** campaign record,
+**R8** paper name, **R9** sidecar — asks **where a file sits, what it is called,
+or whether its companion exists.** **Not one is a citation-resolution rule.**
+
+> **THE TEST: a rule about WHERE A FILE SITS, WHAT IT IS NAMED, or WHETHER ITS
+> COMPANION EXISTS is a DISK question. A rule about whether a RECORD RESOLVES —
+> does this sha exist, does this cited path exist at the commit that cited it —
+> is a HEAD question.** `check_filing.py` contains **ten of the first kind and
+> none of the second**, so **it should enumerate DISK throughout**, and
+> `_tracked()` should survive only for any rule later added of the second kind.
+
+**THE FIX IS NOT "WALK THE DISK", AND SAYING SO IS THE POINT:** an unbounded walk
+pulls in `.git/`, virtualenvs and run trees. **Each rule walks the DISK UNDER THE
+ROOT IT GOVERNS**, with an exclusion list — and **R8/R9's root is exactly
+`docs/papers/`, which is small, bounded and the entire subject of the defect.**
+
+**THE PLANTED CONTROL, and both limbs are required (charter v1.13):**
+**POSITIVE** — a PDF placed under a scratch papers directory **matched by a
+`.gitignore`** and carrying **no `.txt` sidecar** must be **FOUND by the fixed
+enumerator and MISSED by the current one**; a fix that does not demonstrate the
+current instrument missing it has not been shown to change anything.
+**NEGATIVE** — a correctly named, correctly sidecarred PDF must be flagged by
+**neither**, so the fix is shown to discriminate rather than to flag everything it
+can now see. **And a MUTATION limb**: removing the sidecar from the negative
+control must **move** its verdict.
+
+**§4.4 — ⚠ A FIGURE I PUBLISHED TODAY INHERITED THIS BLINDNESS, AND THE
+DISTINCTION MATTERS.**
+
+At `commit:aaf0bed6` this team recorded *"`scripts/check_filing.py` reads **FAIL,
+34 violations across 7 rules**… 21 of the 34 are missing paper `.txt` sidecars"*,
+offered as evidence of *a standing FAIL in the lab's own filing gate.* **The
+reading reproduces at HEAD — still `FAIL: 34 filing violations across 7 rules`.**
+
+**But 34 is a FLOOR, not a count.** It excludes **35 closure PDFs entirely**, at
+least two of which are genuine R9 violations. **The true figure is `NOT
+MEASURED`, and the direction of the error is known: upward.**
+
+**This is the sixth coverage-as-census instance this team has published against
+itself today — and it is the first one this team did not author.** The previous
+five were defective scans of its own making. **This one was a number taken from
+somebody else's instrument without asking what its census was** — which is `L-92`
+(*`git ls-files` answers what is in the INDEX; only the repository answers what is
+in the repository*) **applied to a script rather than to a command.** **Quoting an
+instrument's output is inheriting its denominator, and the denominator is the part
+that does not appear in the output.**
+
+**§4.5 — NOT CLAIMED.**
+
+**No patch is made and no diff is read as a supervisor check** — the instrument
+belongs to another team's scope and `check_filing.py --selftest` is required on
+any rule edit. **Closure reported 108 files on disk and 71 PDFs; I measure 73 and
+35.** The discrepancy is **not resolved here** and I do not adopt either figure
+over the other — closure's sweep may carry a wider frame — **but the finding is
+identical under both, and the defect does not depend on which is right.** **How
+many additional R8/R9 violations the fix would surface is `NOT MEASURED`;
+naming two is a floor, not a count**, and this section refuses to repeat in its own
+correction the error it is correcting.
+
+| §4 | figure |
+| --- | --- |
+| closure PDFs on disk / at HEAD | **35 / 0** |
+| R8+R9 rules evaluating them today | **0** |
+| concealed R9 violations named | **2** (a floor) |
+| control proving blindness, not cleanliness | **12 R8 + 9 R9 findings elsewhere in the same run** |
+| enumeration call sites | **2** — one reads DISK and says why, one reads HEAD |
+| rules wanting DISK / wanting HEAD | **10 / 0** |
+| gate reading, unchanged and now known to be a floor | **FAIL, 34 across 7 rules** |
+| coverage-as-census instances published by this team today | **6** — the first not of its own authorship |
