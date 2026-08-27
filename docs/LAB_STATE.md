@@ -1369,7 +1369,9 @@ addendum with a version bump and `lines whose number changed above this section:
 **⚠ A CORRECTION I OWE AGAINST MY OWN COMMIT MESSAGE.** `6b5a9239` says the lane's
 premise "was wrong twice" and that "all three patches were unapplied, not two". The
 measured half is true (all three still `git apply --check` clean). **The framing is not:
-the board's word at `LAB_STATE.md:1429` is *applicable*, not *unapplied*, and those are
+the board's word -- cited by CONTENT because a line number into this file is stale on
+arrival (L-356): the sentence beginning *"The two applicable instrument patches from
+`66688b0c`"* -- is *applicable*, not *unapplied*, and those are
 different claims.** The lane withdrew its own overreach after I had already repeated it
 into a commit message. **Why the Kaandorp banner patch sits outside the applicable set is
 UNEXAMINED, not refuted.** A commit message is not rewritten; the correction is recorded

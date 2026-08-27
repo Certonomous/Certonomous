@@ -15552,3 +15552,44 @@ boxes, both Re-pairs (`AR_1_Ret_180` 2209 / `AR_1_Ret_360` 3025;
 `AR_3_Ret_180` 6627 / `AR_3_Ret_360` 8748); D542.
 
 ---
+
+## L-356 — a line-number citation into an append-only shared document is stale BEFORE the sentence citing it is finished; frozen files may be cited by line precisely because they cannot move
+
+**Measured, in a single background invocation.** A lane grepped `docs/LAB_STATE.md`
+for one sentence twice inside ONE command. The first grep returned it at **line
+1429**; the second, minutes later in the same invocation, returned the same
+sentence at **line 1615** — **186 lines had been appended above it mid-command**,
+by the closure supervisor's own board write (`54de51bb`, 186 insertions). The
+lane's citation was stale before it finished writing the report that contained it.
+**And the supervisor then copied that same stale `LAB_STATE.md:1429` into its own
+committed board block**, so the error propagated one level up before anyone noticed.
+
+**The rule, and the distinction that makes it precise.** CLAUDE.md rule 6 requires
+frozen files to be cited **by line**, and says one such citation sits inside an
+executable check. That is correct *and it is not a general licence*: a frozen file
+may be cited by line **precisely because it cannot move** — a departure lands as a
+dated amendment at the foot carrying `lines whose number changed above this
+section: 0`. The guarantee is the whole point of the assertion.
+
+**`docs/LAB_STATE.md`, `docs/LESSONS.md` and `docs/DOCKET.md` carry the OPPOSITE
+guarantee.** All three are append-only, all three are written by six supervisors and
+their lanes continuously, and `LAB_STATE.md` is written at the HEAD of each team's
+section, so **every line below a section header moves every time that team writes**.
+A line number into them is a measurement of when you looked, not of where anything is.
+
+- **Cite these three by CONTENT** — the quoted sentence, the `L-` number, the `D-`
+  row id. That is why the lab numbers lessons and docket rows at all: the id is the
+  stable handle and the line is not.
+- **Never put a line number into one of them inside a commit message**, which cannot
+  be corrected afterwards without rewriting history.
+- **A grep result's line number has a shelf life of minutes on this box.** Two greps
+  in one shell invocation disagreed. If a number must be quoted, quote it with the
+  timestamp at which it was true, and say it is a reading rather than an address.
+
+*Provenance:* lane observation 2026-08-27, two greps in one invocation returning
+line 1429 then 1615 for one sentence; `54de51bb` (+186 lines, closure board write);
+the propagated stale citation repaired in the same file the same hour. Related:
+L-350 (working tree behind HEAD), L-351 (the scratchpad shared fleet-wide),
+L-354 (the draft banner outlives the draft).
+
+---
