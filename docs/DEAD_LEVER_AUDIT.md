@@ -725,3 +725,138 @@ would SUCCEED if anyone ran it.** Staleness only sets the price.
   requires one invocation — but for a **different stated reason** (HEAD moving between calls,
   `L-223`). **The environment-loss consequence is a second, unstated reason for the same rule,
   and it is the more immediate one.** Recommended for the rule's next restatement.
+
+---
+
+## DATED SECTION 2, 2026-08-27 — THE INDEX AUDIT CLOSES: THE CHAIN CLOSES **EXACTLY** ON FOUR OF FIVE RESETS, THE EXPOSURE IS **ALREADY BLOCKED** BY ONE UNTRACKED HOOK — AND **§4/§5 OF THE PREVIOUS SECTION UNDERSTATED THE DANGER, WHICH IS CORRECTED HERE**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section:
+0`, proved by a byte-prefix check against the HEAD blob in the same invocation. Lane evidence
+re-checked against my own measurements before acceptance; the two corrections in §2.4 and §2.5
+are against THIS TEAM'S OWN previous section.**
+
+### 2.1 THE STRUCTURAL EXPLANATION IS CONFIRMED, AND NOT BY ONE SAMPLE
+
+The count inversion closes **exactly** on four of the five resets — phantom deletions == files
+added between the previous reset's baseline and this one's:
+
+| reset | reported | measured | |
+|---|---|---|---|
+| 16:17Z | 216 | 217 (from `e8650668` @ 2026-08-26T22:46:38Z) | off by **1** |
+| 17:22Z | 401 | **401** | exact |
+| 18:30Z | 65 | **65** | exact |
+| 18:48Z | 2 | **2** | exact |
+| 19:12Z | 67 | **67** | exact |
+
+**And it was reproduced with no writer present at all:** in a throwaway repo, landing four files
+by the rule-10 protocol alone produced **4 phantom deletions, 0 phantom additions**, all four
+paths on disk and at HEAD. **The 16:17 count also dates the shared index's previous sync to
+2026-08-26T22:46:38Z — it entered today already ~17.5 h stale, with no earlier reset to
+explain it.**
+
+**The `mtime` mover is now named exactly:** `scripts/session_log.py:77,79` runs
+`git diff --cached` from the **`SessionStart` hook** (`.claude/settings.json:9`), rewriting
+`.git/index` at every session start. Benign, tree-neutral, and **it will keep producing the
+observation that was read as intrusion.**
+
+### 2.2 RESETTING BUYS A MEDIAN OF UNDER FIVE MINUTES — measured, not asserted
+
+Time from each reset until the index was stale by ≥ 1 path: **7.3 / 0.1 / 13.2 / 1.3 / 4.6
+minutes** — **median 4.6, worst case 8 SECONDS.** Day mean add-rate **3.06 files/min** (535
+files / 175 min). **A reset is a cosmetic operation on a counter that re-arms itself within one
+commit.**
+
+### 2.3 THE EXPOSURE IS REAL AND IS **ALREADY BLOCKED** — two independent barriers, both holding
+
+Tested in throwaway clones with the byte-identical real hook (`sha256` prefix `8f4a264fc41ba560`
+on both copies):
+
+- **Without the hook:** with the index stale by 4 paths, a bare `git commit -m x` returned
+  **rc 0** and committed all four deletions. **HEAD went from 5 tracked files to 1, with all
+  four still on disk.** Silent, clean-looking, catastrophic — the `c46309f5` / `L-223` shape.
+- **With the real hook: rc 1, REFUSED.** `.git/hooks/pre-commit:170` is the predicate
+  (`if [ -e "$path" ]` — the index deletes it and the file is still in the tree), `:173` the
+  message — *"Nobody deleted it here; the index is carrying someone else's removal"* — `:255`
+  the banner, `:274` `exit 1`.
+- **The lawful pathspec form is structurally safe:** `git commit -m x -- <path>` returned rc 0
+  and committed **only** the named path; git builds a temporary index from HEAD plus the
+  pathspec, so the shared index's staleness is **unreachable** through it.
+
+### 2.4 ⚠ CORRECTION TO §5 OF THE PREVIOUS SECTION: READ-ONLY `.git/index` IS **NOT** THE PRIMARY CONTROL, AND THE REAL RECOMMENDATION IS DIFFERENT
+
+The previous section recommended read-only `.git/index` as *"the right shape … converts a rule
+agents can violate into a mechanism they cannot."* **That was written without knowing the D242
+hook already refuses the exact commit in question. It is now belt-and-braces, not the control**,
+and it is **downgraded** accordingly.
+
+**THE RECOMMENDATION THAT REPLACES IT, and it is stronger:**
+
+> **`.git/hooks/pre-commit` is the ONLY thing standing between a stale index and a silent mass
+> revert, and it is UNTRACKED.** `.git/hooks/` never travels with a clone, is not in any commit,
+> and is not covered by any freeze. **It should be treated as a FROZEN INSTRUMENT — hashed,
+> registered, and checked — not as an installed convenience.** The tracked copy at
+> `scripts/installed/pre-commit` and `scripts/installed_registry.py` are the only evidence a
+> reader has that the hook on this box is the reviewed one, and **nothing verifies that today.**
+
+**Two gaps disclosed rather than glossed:** `.git/hooks/pre-commit:107` honours
+`CERTONOMOUS_INDEX_GUARD=off`, and **the hook is not invoked by `commit-tree` at all** — so the
+protocol this lab actually uses runs *outside* its only barrier. Neither is reachable by
+accident; both are reachable on purpose.
+
+### 2.5 ⚠⚠ AND A SECOND EXPOSURE CLASS THE PREVIOUS SECTION MISSED ENTIRELY — `git checkout -- <path>`
+
+The previous section stated the exposure as *"a command rule 10 absolutely forbids would
+SUCCEED"* and named only a bare `git commit`. **That is incomplete, and the missing class is
+worse.**
+
+**`git checkout -- <path>` and `git restore <path>` restore from the INDEX, not from HEAD.** So
+where the index holds a **stale blob** — not a missing entry, but an older version — either
+command **silently writes old content over current work.** Measured on the live repo,
+read-only, right now:
+
+| path | index blob | HEAD blob | lines idx / HEAD / disk | effect of `git checkout -- <path>` |
+|---|---|---|---|---|
+| `verification/runs/T-family/T16_runs/mark_done_t16.py` | `2ae1605c` | `efcf7852` | **350 / 593 / 593** | **−243 lines** |
+| `docs/LAB_STATE.md` | `ee5d8e15` | `dcdd45d3` | 16197 / 16216 / 16216 | −19 lines |
+| `docs/COST_CALIBRATION.md` | `23a3b6b9` | `660bc137` | 258 / 260 / 260 | −2 lines |
+
+**`mark_done_t16.py` is armed for a 243-line regression right now. For heat-transfer** — it is
+the file D541 is about.
+
+**Why this class is worse than the bare commit, in three ways the previous section did not
+weigh:** it **leaves no commit to inspect** — the file simply changes on disk; **the D242 hook
+does not fire**, because no commit occurs; and **read-only `.git/index` would NOT block it**,
+because `checkout` *reads* the index rather than writing it. **The control recommended in the
+previous section does not defend against the exposure found in this one.**
+
+**On the referred 248-line `COST_CALIBRATION.md` loss: the MECHANISM is confirmed and the
+SPECIFIC ATTRIBUTION is `NOT MEASURED`.** The current index would cost that file **2** lines,
+not 248; the index blob it held ~40 minutes earlier is not recoverable. **The nearest live
+match is `mark_done_t16.py` at −243, a different file.** The hypothesis is sound, its instance
+is unproven, and a mechanism that explains a defect is not evidence that it caused *that* one.
+
+### 2.6 ONE LIVE RULE-10 VIOLATION, FOUND OUTSIDE THE BRIEF AND PROVEN BY EXECUTION
+
+**`scripts/withdrawal_sweep.py` writes the SHARED index.** `:414`
+`git add --intent-to-add <plant>`; `:443` `git rm --cached --force <plant>`; the `_git` helper
+at `:381` sets **no `GIT_INDEX_FILE`, no `--index-output`, no temp-repo assertion**; `--root`
+at `:477` **defaults to the real repository** and `--frame` at `:478` defaults to `"tracked"`,
+the branch reaching both writes. **Its own documented invocation at `:144` —
+`python3 scripts/withdrawal_sweep.py`, no arguments — writes `.git/index`.** Proven in an
+isolated reproduction: index content sha `1f3f87c1…` → `3e7e0253…`.
+
+**Severity stated honestly: this is NOT the culprit.** Its `finally` block cleans up — 0
+leftover entries, 0 staged deletions after a run. **The residue window is real but narrow:
+`--intent-to-add` at `:414` sits outside the cleanup guarantee under SIGKILL, which is exactly
+how this fleet dies at a session limit.** A docket line on its own terms; not an explanation
+of 216/401/65/2/67.
+
+### 2.7 WHAT REMAINS `NOT MEASURED`
+
+- **The 16:17 off-by-one** (216 reported, 217 measured). Candidates — a single `update-index
+  --add`, or an add-then-remove inside the window — were **not distinguished, and no fit was
+  forced.**
+- **No writer can be proven absent**, only that none is *required* and none was found by a
+  sweep of every tracked `*.py`/`*.sh` outside `sdk/tests/`. **That sweep cannot see an
+  untracked script, an inline agent bash call, or a `git` invocation assembled from strings.**
+  *Not found by that sweep* is the correct reading.
