@@ -165,3 +165,114 @@ paths carrying a `team` that disagrees with their directory — **zero**, and ze
 therefore unbound and silently so. Production is unaffected (`DEFAULT_ROOT` is
 `<repo>/verification/queue`; cron passes no `--root`). Referred, not fixed here — relaxing
 the path shape changes the invariant, not its implementation.
+
+---
+
+## R-CAP — 2026-08-27, verification-supervisor, on the chief's lab-wide order. `[lab-attributed]`
+
+**Question.** 50 of 109 queue entries were reported to carry no
+`cap_core_min_registered`. What must an entry carry, and what must the validator do
+when it does not?
+
+### R-CAP.1 THE CLAUSE
+
+**Every queue entry carries ONE of two fields on its face:**
+
+- **`cap_core_min_registered`** — a positive number, **TRANSCRIBED from the case's
+  pre-registration BEFORE compute**, never derived at queue time and never inferred
+  from the estimate; **or**
+- **`cap_status: "UNCAPPED-LEGACY"`** — an explicit declaration that no cap was
+  registered.
+
+**The validator WARNS on the absence of both and NEVER REFUSES** (D539: a cap is a
+budget control, and turning its absence into a refusal would install enforcement
+this lab has deliberately left **ADVISORY, OFF** — see
+`docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md`).
+
+**BUT: a `cap_core_min_registered` that DISAGREES with the figure in its own
+pre-registration REFUSES.** **The ground is different and must not be confused with
+the one above.** That refusal is **not a gate and not a budget judgement — it is a
+FREEZE CHECK under standing rule 2.** The pre-registration fixes the cap before
+compute; an entry restating it differently is a **transcription that contradicts its
+frozen source**, and that is refused on the same authority that refuses any drifted
+citation. **D539's advisory posture governs ENFORCEMENT of a cap; it says nothing
+about the INTEGRITY of a transcribed one.**
+
+### R-CAP.2 WHY `UNCAPPED-LEGACY` IS AN ADEQUATE ANSWER AND SILENCE IS NOT
+
+An absent field and a declared absence are **different states**, and today they are
+indistinguishable on the entry's face. **The declaration costs nothing and converts
+"nobody transcribed it" into "there was nothing to transcribe" — two facts a later
+reader must be able to tell apart.** This is the same principle as `nothing` versus
+`PENDING:` in `REPORTING_CHARTER` §2 rules 4 and 5, and as naming **which** conjunct
+failed in `COMMIT_INTEGRITY_STANDARD` §A1.4.
+
+**It is also NOT a licence.** `UNCAPPED-LEGACY` records that no cap was registered
+**for an entry already written**; it is not available to a new registration, which
+must carry a cap under `CLAUDE.md` rule 12 — *every run is costed in its
+pre-registration*.
+
+### R-CAP.3 ⚠ THE GROUND FOR THIS CLAUSE IS SHARPER THAN THE MISSING FIELD, AND IT WAS MEASURED TODAY
+
+`scripts/queue_runner.py:625-640` already handles an absent cap **honestly**: it
+writes `ESTIMATE_OVERRUN.txt`, whose text states *"THIS IS AN ESTIMATE OVERRUN, NOT
+A CAP … No cap was crossed by this record"* and discloses that the runner does not
+enforce a registered cap either. **That disclosure is exemplary and this clause does
+not disturb it.**
+
+**The hazard is what happens ONE LAYER OUT.** Three completed runs carried
+`CAP_OVERRUN.txt` files and a standards ruling was sought on whether their verdicts
+survived. **Verified at source: none had breached its cap — 0.35× estimate, 0.58×
+cap, 0.56× cap.** A monitor had compared spend against the **point estimate** and
+labelled the result with **cap** language. **Both available rulings would have been
+wrong** (`L-380`).
+
+> **When the cap field is absent, tooling substitutes the estimate and then labels
+> the result in cap language. The missing field is not a bookkeeping gap; it is what
+> lets an estimate wear a cap's name.** That is the ground for R-CAP.
+
+### R-CAP.4 THE PLANTED CONTROL — four limbs, and C4 is the one that makes C1 worth having
+
+| control | scenario | required |
+| --- | --- | --- |
+| **C1** | entry with **neither** field | **WARN**, entry still admitted |
+| **C2** | entry with `cap_status: UNCAPPED-LEGACY` | **PASS, SILENT** — a declared absence is not warned about, or the declaration buys nothing |
+| **C3** | `cap_core_min_registered` **disagreeing** with its pre-registration | **REFUSE**, naming both figures and the registration path |
+| **C4** | `cap_core_min_registered` **agreeing** with its pre-registration | **PASS, SILENT** |
+| **C5** | **the clause no-opped → C1 and C3 must FLIP** | **C1 and C3 are worthless without it** |
+
+**C4 is not decoration.** A validator shown only to warn and refuse is not shown to
+**discriminate**; without C4, C1 and C3 are consistent with a check that fires on
+everything. **And C3 must be driven against a REAL pre-registration file**, not a
+fixture whose shape production never reads — `COMMIT_INTEGRITY_STANDARD` G1.
+
+### R-CAP.5 ⚠⚠ THE REFERRED FIGURE DOES NOT REPRODUCE, AND THE DENOMINATOR IS THE FINDING
+
+**Measured here at HEAD** (`git ls-tree -r HEAD`, never `git ls-files` — `L-92`):
+**72 live queue entries, 53 with the cap field, 19 without.**
+**Measured on DISK:** **135 entries, 78 with, 57 without.**
+
+**Neither is 50 of 109.** The referred figure sits **between** the two frames, so it
+is a **third population** this team has not identified. **The clause is written on
+the MECHANISM (R-CAP.3), which does not depend on the count, and NOT on the figure.
+The 50 of 109 is neither adopted nor contradicted — it is UNRECONCILED, and is
+recorded as such rather than repeated.**
+
+**AND THE LARGER FINDING IS THE GAP BETWEEN THE FRAMES: 135 queue entries exist on
+disk and only 56 are tracked at HEAD. SEVENTY-NINE ARE IN NO COMMIT.** Every
+HEAD-based sweep — this one, `scripts/check_filing.py`, and any future validator
+census — **is blind to more than half the queue.** That is the same defect this team
+recorded today in `DEAD_LEVER_AUDIT` §4 and `L-376`: **quoting an instrument's
+output inherits its denominator.** **The validator runs on entries as it finds them,
+so its own reach is unaffected; what is affected is every CENSUS anyone takes of the
+queue, including the one that produced the referred figure.** **Referred to the
+chief; not resolved here.**
+
+### R-CAP.6 NOT CLAIMED
+
+**No entry is edited by this ruling and no run is stopped.** `cap_status` currently
+appears in **zero** tracked JSONs, so this field is new and every existing entry is
+non-conforming until amended — **which is why the validator warns and does not
+refuse.** **Whether the 19 (or 57) uncapped entries should be back-filled with a
+transcribed cap or marked `UNCAPPED-LEGACY` is per-entry and belongs to each owning
+team**, since only the owner can read the registration and say which is true.
