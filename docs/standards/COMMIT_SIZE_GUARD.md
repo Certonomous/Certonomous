@@ -509,3 +509,92 @@ invisible to the sweep entirely, and AMENDMENT 3's authors measured tracked path
 (1,395 total, 1,187 exempt, 208 live) precisely because the sample could not see it. **The
 sweep is a floor, not a ceiling.** An amender who has run it has done the minimum, not the
 whole job.
+
+---
+
+## AMENDMENT 5 — 2026-08-27, cfd-supervisor as named Owner, `[lab-attributed]`. AMENDMENT 4 VIOLATED AMENDMENT 4; THE RULE IS STRENGTHENED RATHER THAN NARROWED. v1.4 → v1.5
+
+**lines whose number changed above this section: 0** (511 lines before this heading: the 74
+original lines byte-identical to HEAD, plus AMENDMENTS 1–4 untouched — verified by comparing
+the md5 of the first 511 lines of the pre-amendment blob against the md5 of the first 511
+lines of this file, and separately by asserting the new file's bytes begin with the whole old
+blob. Not verified by writing the words.)
+
+**D539 unchanged: the guard is ADVISORY.** Nothing here moves it toward blocking.
+
+### The near-miss, recorded plainly because a standard that hides one teaches nothing
+
+AMENDMENT 4 made re-running the 200-commit sweep a binding precondition on every amendment
+to this guard. **AMENDMENT 4 then shipped without re-running it.** Its commit `f6bb721d`
+touches `docs/standards/COMMIT_SIZE_GUARD.md` and `docs/standards/SWEEP_PRECONDITION_PROPOSAL.md`
+and no guard code at all, and it recorded no rows. **Read literally, AMENDMENT 4 violated
+AMENDMENT 4 on the day it shipped.**
+
+**The gap was found by the chief**, not by its author and not by the Owner. It is recorded
+here with that attribution because the alternative — a standard whose own history is tidied —
+would misrepresent how much scrutiny this document has actually survived.
+
+### The obvious fix was offered and is REJECTED
+
+The natural repair is to narrow the clause to *"any amendment that changes guard behaviour"*.
+**That repairs the sentence and ruins the rule.** It makes the precondition fire only when
+the amender **classifies their own change** as behaviour-changing, and *"my change is
+text-only"* is exactly the kind of self-assessment this lab refuses everywhere else: a
+delegate's test is evidence and not the supervisor's read; a zero needs a planted control; a
+relayed check is a summary and not a check. An amender who miscategorised a behaviour change
+as a comment tidy-up would be exempted **by the very clause meant to catch them**, and
+nothing downstream would ever notice.
+
+### THE RULING: the precondition applies to EVERY amendment, without exception
+
+What varies is not **whether** the sweep runs, but **what it must show**.
+
+1. **An amendment that changes guard behaviour** records the before/after rows with the
+   per-clause split and an explicit statement of which outcomes moved and which did not —
+   AMENDMENT 3's form, unchanged.
+2. **An amendment that claims to change no behaviour records the rows too, and THEY MUST BE
+   IDENTICAL — commit-for-commit, clause-for-clause. That identity IS the evidence for the
+   "text-only" claim.** A differing row means the amendment changed behaviour its author did
+   not know it was changing, and **that is precisely the event worth catching.**
+
+This is strictly stronger than AMENDMENT 4, not a relaxation of it, and it costs one command
+now that `scripts/sweep_commit_size_guard.py` is filed. **It converts an amender's
+self-classification into a measurement**, which is the move this lab makes everywhere else.
+
+Everything else in AMENDMENT 4 stands: both rows from **committed blobs** via `--guard-blob`,
+never a worktree; the same frozen sample in one process; a refusal on window drift means no
+delta may be claimed; the rate is a **delta** measurement with no threshold implied; and the
+sweep remains a **floor, not a ceiling**.
+
+### AMENDMENT 4's own gap, CLOSED BY MEASUREMENT AND NOT BY EXCUSE
+
+The sweep was run under AMENDMENT 4's own guard blob, from the committed object.
+
+- `git rev-parse abe1a634:scripts/check_commit_size.py` → `7f2abff6d48506f202557281d1dbe9bcd18a9eae`
+- `git rev-parse f6bb721d:scripts/check_commit_size.py` → `7f2abff6d48506f202557281d1dbe9bcd18a9eae`
+- **Byte-identical.** AMENDMENT 4 changed no guard code.
+
+| row | commits | accepted | refused | rate | clauses |
+|---|---|---|---|---|---|
+| v1.3, guard blob at `abe1a634` | 200 | 194 | 6 | 3.0 % | LOGS 0, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+| v1.4, guard blob at `f6bb721d` | 200 | 194 | 6 | 3.0 % | LOGS 0, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+
+**Identical, and checked at the strength clause 2 demands rather than on the totals:** the
+same 200 commits, and **zero commits differ in ANY recorded field** — clause set, files
+added/modified, added bytes, or log-path counts. Log-pattern paths across the window: 178, of
+which 178 under `verification/runs/` and 0 outside, on both sides.
+
+**Which outcomes moved: none. Which did not: all of them.** That statement is the deliverable,
+and it is what clause 2 exists to obtain.
+
+**AMENDMENT 4 therefore satisfies the precondition retrospectively BECAUSE IT WAS MEASURED TO
+HAVE CHANGED NOTHING — not because it was excused.** The distinction is the whole content of
+this amendment: the rule was not bent to fit the amendment, the amendment was measured against
+the rule and passed.
+
+### This amendment's own rows, under clause 2
+
+AMENDMENT 5 likewise changes no guard code. Its rows are the two above, produced from
+committed blobs over the frozen window, identical commit-for-commit. The obligation clause 2
+imposes is discharged here in the same breath as it is written, which is the least this
+document can do having just recorded an amendment that did not.
