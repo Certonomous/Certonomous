@@ -1,0 +1,196 @@
+{
+  "rung": "T16",
+  "title": "developing laminar MIXED CONVECTION in a vertical parallel-plate channel with asymmetric isothermal walls, EXACT tier (referent DERIVED in exact_t16.py from the Boussinesq equations; NO paper is used and none is on disk)",
+  "capability_grid_cell": "mixed convection x laminar x 2D (docs/capability/heat-transfer_GRID.md) -- registered as CAN NOT DO / not attempted at HEAD c9ff33d9",
+  "solver": "buoyantBoussinesqSimpleFoam",
+  "turbulence": "laminar",
+  "dimensionality": 2,
+  "ranks": 1,
+  "physics": {
+    "b_m": 0.02,
+    "H_m": 1.28,
+    "aspect": 64,
+    "depth_m": 0.001,
+    "nu": 1.5e-05,
+    "Pr": 0.71,
+    "beta": 0.0033333333333333335,
+    "TRef": 300.0,
+    "g": 9.81,
+    "Re": 100.0,
+    "U0": 0.075,
+    "G_mix": 48.0,
+    "G_reversal": 72.0,
+    "reversal_margin": 1.5,
+    "dT_K": 4.128440366972477,
+    "T_hot": 304.1284403669725,
+    "T_cold": 300.0,
+    "station_gaps": 48,
+    "witness_gaps": [
+      -8,
+      -4,
+      4,
+      8
+    ],
+    "U_at_0p25": 1.5,
+    "U_at_0p75": 0.75,
+    "Y_max": 0.36811869208701337,
+    "shear_ratio": 5.0,
+    "P_dimensionless": -12.0
+  },
+  "cases": {
+    "T16_MC_c": {
+      "level": "c",
+      "N": 20,
+      "Ny": 1280,
+      "cells": 25600,
+      "dx_m": 0.001,
+      "endTime": 10000,
+      "writeInterval": 1000,
+      "cap_core_min": 40,
+      "timeout_s": 2400,
+      "point_core_min": 16.611,
+      "ceiling_core_min": 25.062,
+      "expected_G1_rel_error": 0.001256218905475522,
+      "expected_Ymax_error": -0.0012498854916011548,
+      "expected_G3_rel_error": 0.00599984925002417
+    },
+    "T16_MC_m": {
+      "level": "m",
+      "N": 40,
+      "Ny": 2560,
+      "cells": 102400,
+      "dx_m": 0.0005,
+      "endTime": 20000,
+      "writeInterval": 2000,
+      "cap_core_min": 300,
+      "timeout_s": 18000,
+      "point_core_min": 132.888,
+      "ceiling_core_min": 200.499,
+      "expected_G1_rel_error": 0.0003128901373307495,
+      "expected_Ymax_error": -0.00031249803771687956,
+      "expected_G3_rel_error": 0.0014999976533401238
+    },
+    "T16_MC_f": {
+      "level": "f",
+      "N": 80,
+      "Ny": 5120,
+      "cells": 409600,
+      "dx_m": 0.00025,
+      "endTime": 40000,
+      "writeInterval": 4000,
+      "cap_core_min": 2400,
+      "timeout_s": 144000,
+      "point_core_min": 1063.103,
+      "ceiling_core_min": 1603.994,
+      "expected_G1_rel_error": 7.81494064325076e-05,
+      "expected_Ymax_error": -7.812035268722761e-05,
+      "expected_G3_rel_error": 0.00037499996332162054
+    }
+  },
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines neither and REFUSES if these numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "graded_rows": {
+    "G1": {
+      "quantity": "v(Y = 0.25)/U0 on the station row, 4-point Lagrange at cell centres",
+      "reference": 1.5,
+      "band_rel": 0.00024,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "3.0x the DERIVED fine-level discretisation error 7.815e-05 (exact_t16.discrete_expectation); the coarse (1.256e-03) and medium (3.129e-04) levels are predicted OUTSIDE it"
+    },
+    "G1b": {
+      "quantity": "Y_max, location of the maximum upflow on the station row, from the cubic through the 4 cells around it",
+      "reference": 0.36811869208701337,
+      "band_abs": 0.00024,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "3.0x the DERIVED fine-level error 7.812e-05; coarse (1.250e-03) and medium (3.125e-04) predicted OUTSIDE"
+    },
+    "G3": {
+      "quantity": "tau_hot / tau_cold from the half-cell wall gradients of v on the station row",
+      "reference": 5.0,
+      "band_rel": 0.0012,
+      "grading": "Roache triple, rule 5",
+      "band_ground": "3.0x the DERIVED fine-level error 3.750e-04; coarse (6.000e-03) and medium (1.500e-03) predicted OUTSIDE"
+    },
+    "G2": {
+      "quantity": "RMS over the station row of (T - T_lin)/dT",
+      "reference": 0.0,
+      "floor_abs": 1e-06,
+      "grading": "ABSOLUTE FLOOR (EXACT-class row): the linear T is an exact solution of the continuous problem for ANY velocity field and is in the null space of the scheme's truncation error, so its triple is EXACT/DEGENERATE by construction and rule 5 (2) would return NOT A RESULT for a row that cannot be wrong by discretisation; the triple states are PRINTED, the verdict is the floor"
+    }
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "iterative convergence: initial residuals of Uy, T and p_rgh <= 1e-6 at EVERY iteration of the final 10 percent; Ux is a near-degenerate cross-channel component and is REPORTED, never gated (L-338). The floor is the FAMILY'S 1e-6, unweakened, and it is registered because it was MEASURED REACHABLE on the disclosed scratch probe of this exact case: p_rgh fell 5.3e-03 -> 2.0e-05 -> 6.4e-06 -> 2.7e-06 -> 1.1e-06 -> 4.7e-07 by 3 400 of the registered 10 000 iterations at N = 20, once the outlet carried the CONSISTENT prghPressure condition",
+      "floor": 1e-06
+    },
+    "C_PLAT": {
+      "what": "plateau: |G1(endTime) - G1(endTime - writeInterval)| / G1 <= 1e-7",
+      "floor": 1e-07
+    },
+    "W1": {
+      "what": "DEVELOPMENT witness and gate-(1) precondition: the rows at station -16b, -8b, -4b, +4b, +8b must agree with the graded station row in v/U0 to 2e-4 and in T/dT to 1e-6.  Exceeding it means the station is NOT in the fully developed regime the referent describes -> the level is NOT A RESULT under rule 5 clause (1).  This witness, not an assumed entrance-length correlation, is what entitles the rung to compare against a FULLY DEVELOPED closed form",
+      "floor_row_max_v": 0.0002,
+      "floor_graded_reader": 2e-05,
+      "floor_T": 1e-06
+    },
+    "C_G": {
+      "what": "operand identity (L-331): nu, Pr, beta, TRef, g, T_hot, T_cold, b, U0, N are READ FROM THE CASE FILES, printed, and G = Gr/Re recomputed from them must equal 48 to 1e-9; the DERIVED reversal threshold 72 is recomputed and the margin printed",
+      "floor": 1e-09
+    },
+    "C_MASS": {
+      "what": "the station row's cell-volume-weighted mean of v must equal U0 to 1e-6 relative -- the referent normalises on the MEAN velocity, so a station row whose mean is not U0 is not the profile the closed form describes",
+      "floor": 1e-06
+    },
+    "C_ORDER": {
+      "what": "cell-ordering control: the station row's T must fall monotonically from hot to cold with the registered slope -dT/b to 1e-6 relative; a transposed ordering (y-fastest) shows a constant row and REFUSES"
+    },
+    "C_PZ": {
+      "what": "planted-zero control per reader (rule 3, L-340 sizing): a POINT plant for the point readers G1/G1b/G3/W1, and an ALL-ROW ALTERNATING-SIGN plant for the RMS reader G2 -- a constant offset is invisible to an RMS-about-the-linear-fit reader BY CONSTRUCTION, so the plant is shaped to the reader; both arms, a measured detection ladder, and REFUSAL on a blind reader"
+    }
+  },
+  "predictions": {
+    "P1": "G1, G1b and G3 triples CONVERGING with observed order p in [1.5, 2.5]; the derived expectation is p = 2.000 on all three",
+    "P2": "G1 relative deviation at f in [+5.47e-05, +1.02e-04] (the derived +7.815e-05 within 30 percent), POSITIVE sign; c and m OUTSIDE the +-2.4e-4 band",
+    "P2b": "Y_max error at f in [-1.02e-04, -5.47e-05] (the derived -7.812e-05 within 30 percent), NEGATIVE sign",
+    "P2c": "tau_hot/tau_cold relative deviation at f in [+2.62e-04, +4.87e-04] (the derived +3.750e-04 within 30 percent), POSITIVE sign",
+    "P3": "NO FLOW REVERSAL anywhere on the station row: v > 0 in every cell, and the cold-wall shear is POSITIVE.  G = 48 is exactly 2/3 of the DERIVED reversal threshold 72.  A reversed cell at the station FALSIFIES either the derivation or the solve and the rung reports it as such",
+    "P4": "W1 development witness under 2e-5 ON THE GRADED READER and under 2e-4 in the row max-norm of v/U0 on every level at the registered station",
+    "P5": "G2 RMS < 1e-7 at f -- the linear temperature field is exact for any velocity field",
+    "P6": "all three levels meet C_CONV and C_PLAT within their registered endTime"
+  },
+  "cost": {
+    "rate_point_core_s_per_cell_it": 3.8932e-06,
+    "rate_point_source": "MEASURED on a SCRATCH COPY of this exact case on this box, outside the repository (T16_PREREGISTRATION.md section 8)",
+    "rate_ceiling_core_s_per_cell_it": 5.874e-06,
+    "rate_ceiling_source": "T4 level c, kOmegaSST on the same solver, MEASURED (STATUS.T4_IJ_c, C-119); carried as the CEILING only",
+    "usd_per_core_h": 0.0513,
+    "usd_basis": "derived, not measured, reported-by-owner rate (COMPUTE_BUDGET_CHARTER section 5)"
+  },
+  "completion": {
+    "needed_fields": [
+      "T",
+      "U",
+      "p_rgh",
+      "phi"
+    ],
+    "infrastructure_fields": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc"
+    ],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  }
+}

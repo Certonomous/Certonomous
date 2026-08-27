@@ -1,0 +1,294 @@
+# T16 exact_t16.py -- REPAIR DIFF, 2026-08-27
+#
+# LEFT  = the module AS FOUND UNTRACKED on disk (sha256 38206511a343795373ff9078f2020ae197994aa1ad2f5d594cb8a81baf5c5edb,
+#         mtime 2026-08-26 22:57, written by a registration lane killed before it registered anything).
+# RIGHT = the module frozen by docs/campaigns/T-family/T16_PREREGISTRATION.md.
+# The as-found module FAILED ITS OWN ROUTE B: python3 exact_t16.py --selftest returned rc 1.
+# Three defects, R1/R2/R3, repaired BEFORE any freeze and BEFORE any solver ran; the module was
+# UNTRACKED and UNFROZEN at the time, so CLAUDE.md rule 6 does not apply and no amendment is owed.
+# See the module docstring and T16_PREREGISTRATION.md section 9.
+#
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/heat-transfer-lane3-registration/exact_t16.as_found.py	2026-08-27 16:31:01.821062315 +0000
++++ /home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/exact_t16.py	2026-08-27 16:42:20.118802618 +0000
+@@ -45,11 +45,41 @@
+  (B3) THE TABULATED VALUES: U(0.25) = 1.5, U(0.75) = 0.75,
+       tau_hot/tau_cold = 5, all to 1e-13, and Y_max against the closed-form root
+       of the quadratic 24Y^2 - 36Y + 10;
+- (B4) INDEPENDENT NUMERICAL ROUTE: the two-point boundary-value problem solved
+-      by a tridiagonal FINITE-VOLUME discretisation at N = 2000 with the mass
+-      constraint, agreeing with the closed form to 1e-9;
++ (B4) INDEPENDENT NUMERICAL ROUTE: RK4 SHOOTING on y1' = y2, y2' = -(P+G theta),
++      shooting on U'(0) for U(1) = 0.  The right-hand side is LINEAR in Y, so
++      RK4 is exact to round-off on the cubic and the route is held to 1e-12 in
++      both the profile and the mass constraint;
++ (B4b) THE BAND MODEL IS SECOND ORDER AND CONVERGES ON THE CLOSED FORM: the
++      tridiagonal finite-volume model that `discrete_expectation` uses to GROUND
++      the pre-registered bands is run at N = 250/500/1000; its G1 error must
++      fall at ratio ~4 per halving of h (required in [3.5, 4.5]) and Richardson-
++      extrapolate onto the closed form to better than 1e-9.  This is what
++      entitles the discrete model to set a band;
+  (B5) PLANTED MUTATION: G perturbed by 1 percent is REFUSED by B3.
+ 
++THREE REPAIRS, 2026-08-27, DISCLOSED IN FULL IN `T16_PREREGISTRATION.md` §9.
++This module was found UNTRACKED on disk, left by a lane that was killed before
++it registered anything.  It was read in full, its derivation was re-derived
++independently line by line, and it FAILED its own Route B (`--selftest` rc 1).
++Three defects were repaired BEFORE the freeze, while nothing was frozen and no
++solver had run:
++  R1  `dUdY` carried a MINUS on the (G/12) group, giving U'(0) = 6 - G/12 = 2
++      instead of 6 + G/12 = 10 -- it SWAPPED THE TWO WALLS and put the steeper
++      shear at the COLD wall, which is the wrong physics.
++  R2  `Y_max` built its quadratic from R1's wrong derivative and returned
++      0.6319 (peak displaced toward the COLD wall) instead of 0.3681 (peak
++      toward the HOT wall).  Its own docstring's quadratic 24Y^2-36Y+10 was
++      right; only the code disagreed with it.
++  R3  B4 compared the SECOND-ORDER finite-volume model against the closed form
++      at a 1e-9 tolerance that is unreachable by construction (the truncation
++      error at N = 2000 is ~1e-7), so `verify()` refused every call it was ever
++      given.  B4 is now the RK4 route; the FV model's convergence became B4b.
++The independent confirmation that R1/R2 are right, and not merely different:
++after the repair the DISCRETE model's own Y_max error falls 1.250e-03 ->
++3.125e-04 -> 7.812e-05 at N = 20/40/80, i.e. exactly h^2 onto the repaired
++reference; against the as-found reference it sat at a constant -2.64e-01 and
++converged onto nothing.
++
+ `discrete_expectation(N)` returns what the SAME finite-volume discretisation the
+ solver uses (half-cell wall treatment, cell-centred, mass-constrained) predicts
+ for each graded row at N cells -- the bands in the pre-registration are derived
+@@ -85,8 +115,15 @@
+ 
+ 
+ def dUdY(Y, G=G_REG):
+-    # d/dY [ 6Y - 6Y^2 - (G/12)(2Y^3 - 3Y^2 + Y) ]
+-    return 6.0 - 12.0 * Y - (G / 12.0) * (6.0 * Y * Y - 6.0 * Y + 1.0)
++    # U(Y) = Y(1-Y)[6 - (G/12)(2Y-1)] = 6Y - 6Y^2 + (G/12)(2Y^3 - 3Y^2 + Y),
++    # so dU/dY = 6 - 12Y + (G/12)(6Y^2 - 6Y + 1).
++    # REPAIR R1 (2026-08-27, disclosed in T16_PREREGISTRATION.md section 9): the
++    # module as found UNTRACKED on disk carried a MINUS on the (G/12) group.
++    # That put U'(0) at 6 - G/12 = 2 instead of 6 + G/12 = 10 and so SWAPPED THE
++    # TWO WALLS -- it made the shear steeper at the COLD wall, which is the
++    # wrong physics.  Verified against a central difference of U() at
++    # Y = 0, 0.25, 0.5, 0.75, 1: +10, +2.5, -2, -3.5, -2.
++    return 6.0 - 12.0 * Y + (G / 12.0) * (6.0 * Y * Y - 6.0 * Y + 1.0)
+ 
+ 
+ def shear_ratio(G=G_REG):
+@@ -99,9 +136,14 @@
+ 
+ def Y_max(G=G_REG):
+     """dU/dY = 0.  At G = 48 this is 24Y^2 - 36Y + 10 = 0, root in (0, 1)."""
+-    a = -(G / 12.0) * 6.0
+-    b = -12.0 + (G / 12.0) * 6.0
+-    c = 6.0 - G / 12.0
++    # coefficients of dU/dY = a Y^2 + b Y + c from the REPAIRED derivative; at
++    # G = 48 they are 24, -36, +10 -- exactly this docstring's quadratic.
++    # REPAIR R2 (2026-08-27): the module as found built them from the R1 sign
++    # error and returned the root 0.6319 (peak displaced toward the COLD wall)
++    # instead of 0.3681 (peak toward the HOT wall, which is the physics).
++    a = (G / 12.0) * 6.0
++    b = -12.0 - (G / 12.0) * 6.0
++    c = 6.0 + G / 12.0
+     if a == 0.0:
+         return 0.5
+     disc = b * b - 4.0 * a * c
+@@ -123,6 +165,52 @@
+     return s * h / 3.0
+ 
+ 
++# --------------------------------------- INDEPENDENT ROUTE: RK4 shooting (B4)
++def _rk4_march(G, P, s, n):
++    """Integrate y1' = y2, y2' = -(P + G theta(Y)) from Y = 0 with y1(0) = 0,
++    y2(0) = s.  The right-hand side is LINEAR in Y, so RK4 is exact to
++    round-off on the resulting cubic.  Returns the node values of y1."""
++    h = 1.0 / n
++    y1, y2 = 0.0, s
++    out = [0.0]
++    for i in range(n):
++        Y = i * h
++
++        def f2(t):
++            return -(P + G * theta(t))
++
++        k1a, k1b = y2, f2(Y)
++        k2a, k2b = y2 + 0.5 * h * k1b, f2(Y + 0.5 * h)
++        k3a, k3b = y2 + 0.5 * h * k2b, f2(Y + 0.5 * h)
++        k4a, k4b = y2 + h * k3b, f2(Y + h)
++        y1 = y1 + (h / 6.0) * (k1a + 2.0 * k2a + 2.0 * k3a + k4a)
++        y2 = y2 + (h / 6.0) * (k1b + 2.0 * k2b + 2.0 * k3b + k4b)
++        out.append(y1)
++    return out
++
++
++def rk4_shoot(G=G_REG, P=None, n=4000):
++    """Shoot for U'(0) so that U(1) = 0, then report the worst node deviation
++    from the closed form and |mean - 1| by composite Simpson on the RK4 nodes.
++    Returns (worst_dev, mean_dev, s_star)."""
++    if P is None:
++        P = P_of(G)
++    a = _rk4_march(G, P, 0.0, n)[-1]
++    b = _rk4_march(G, P, 1.0, n)[-1] - a
++    if b == 0.0:
++        refuse("the shooting map is degenerate: U(1) does not depend on U'(0)")
++    s_star = -a / b
++    y = _rk4_march(G, P, s_star, n)
++    h = 1.0 / n
++    worst = max(abs(y[i] - U(i * h, G)) for i in range(n + 1))
++    # composite Simpson over the RK4 nodes (n is even)
++    s = y[0] + y[n]
++    for i in range(1, n):
++        s += (4.0 if i % 2 else 2.0) * y[i]
++    mean = s * h / 3.0
++    return worst, abs(mean - 1.0), s_star
++
++
+ # ------------------------------------------- the discrete (finite-volume) model
+ def _tridiag(a, b, c, d):
+     n = len(b)
+@@ -170,6 +258,52 @@
+     return u, P
+ 
+ 
++def lagrange4(xs, ys, xstar):
++    """THE COMPARATOR'S POINT READER, shared with `interp_at` so the band model
++    and the graded number come off the SAME interpolation.  `xs` are the cell
++    centres of one row and `ys` the values on it; the four centres bracketing
++    `xstar` are used."""
++    n = len(xs)
++    if n < 4:
++        refuse("lagrange4 needs at least 4 points, got %d" % n)
++    k = 0
++    while k < n - 4 and xs[k + 3] < xstar:
++        k += 1
++    while k > 0 and xs[k + 1] > xstar:
++        k -= 1
++    return _lagrange4(xs[k:k + 4], ys[k:k + 4], xstar)
++
++
++def cubic_max_location(xs, ys):
++    """THE COMPARATOR'S LOCATION READER: the argmax of the cubic through the
++    four cells around the largest value, by bisection on its derivative.  Same
++    routine `discrete_expectation` uses, so the pre-registered band for G1b is
++    the band of THIS reader and not of an idealised one."""
++    n = len(xs)
++    if n < 4:
++        refuse("cubic_max_location needs at least 4 points, got %d" % n)
++    i = max(range(n), key=lambda k: ys[k])
++    i = min(max(i, 1), n - 3)
++    xs4, ys4 = xs[i - 1:i + 3], ys[i - 1:i + 3]
++    lo, hi = xs4[0], xs4[-1]
++    for _ in range(200):
++        mid = 0.5 * (lo + hi)
++        e = 1e-9
++        if _lagrange4(xs4, ys4, mid + e) > _lagrange4(xs4, ys4, mid - e):
++            lo = mid
++        else:
++            hi = mid
++    return 0.5 * (lo + hi)
++
++
++# The registered station on the profile and the three closed-form values the
++# comparator grades against.  They are COMPUTED here, never typed in.
++Y_STAR      = 0.25
++U_STAR      = U(Y_STAR)          # 1.5 exactly at G = 48
++SHEAR_RATIO = shear_ratio()      # 5   exactly at G = 48
++Y_MAX       = Y_max()            # (36 - sqrt(336))/48
++
++
+ def _lagrange4(xs, ys, x):
+     s = 0.0
+     for i in range(4):
+@@ -216,6 +350,43 @@
+                 G3=g3, G3_rel_err=(g3 - shear_ratio(G)) / shear_ratio(G))
+ 
+ 
++def discrete_profile(N, G=G_REG):
++    """(cell centres, U at them) from the SAME finite-volume model the bands come
++    from.  The comparator's selftest forges its synthetic ladder out of this, so
++    the forged ladder carries a REAL second-order error law rather than an
++    invented one."""
++    u, _ = fv_profile(N, G)
++    return [(i + 0.5) / N for i in range(N)], u
++
++
++def selfcheck_readers(G=G_REG):
++    """The comparator's two point readers, exercised on the ANALYTIC profile
++    sampled at cell centres, where the answer is known exactly.  REFUSES (exit 2)
++    if either reader cannot recover the closed form -- a reader that cannot read
++    a profile it was handed exactly is not allowed to grade one off a solver."""
++    worst_val, worst_loc = 0.0, 0.0
++    for N in (20, 40, 80):
++        xs = [(i + 0.5) / N for i in range(N)]
++        ys = [U(x, G) for x in xs]
++        worst_val = max(worst_val, abs(lagrange4(xs, ys, Y_STAR) - U(Y_STAR, G)))
++        worst_loc = max(worst_loc, abs(cubic_max_location(xs, ys) - Y_max(G)))
++    if worst_val > 1e-12 or worst_loc > 1e-8:
++        refuse("reader self-check FAILED on the ANALYTIC profile: worst value error %.3e "
++               "(floor 1e-12), worst location error %.3e (floor 1e-8)" % (worst_val, worst_loc))
++    print("  reader self-check: on the analytic profile at N = 20/40/80 the 4-point Lagrange "
++          "reader recovers U(%.2f) to %.3e and the cubic-max reader recovers Y_max to %.3e "
++          "-- both readers are EXACT on a cubic, so every error they report on a solve is the "
++          "SOLVE's" % (Y_STAR, worst_val, worst_loc))
++    return worst_val, worst_loc
++
++
++def expectation_table(Ns, G=G_REG):
++    """The discrete expectation at each registered level, in the order given.
++    `build_t16.py` calls this to GROUND the pre-registered bands, and the
++    pre-registration quotes the numbers it returns."""
++    return [discrete_expectation(N, G) for N in Ns]
++
++
+ # ------------------------------------------------------------------ ROUTE B
+ def verify(G=G_REG, quiet=False, mutate_G=1.0):
+     fails = []
+@@ -261,16 +432,42 @@
+         fails.append("B3 tabulated values (worst U dev %.3e, shear-ratio dev %.3e, Y_max dev %.3e)"
+                      % (d, dsr, dym))
+ 
+-    # B4 -- an INDEPENDENT numerical route
+-    u, Pn = fv_profile(2000, Gm)
+-    dP = abs(Pn - P) / abs(P)
+-    du = max(abs(u[i] - U((i + 0.5) / 2000.0, Gm)) for i in range(2000))
+-    okB4 = (dP < 1e-9 and du < 1e-9)
++    # B4 -- an INDEPENDENT numerical route: RK4 SHOOTING on the first-order
++    # system.  REPAIR R3 (2026-08-27): the module as found compared the SECOND-
++    # ORDER finite-volume model of B4b below against the closed form at a 1e-9
++    # tolerance.  That tolerance is unreachable BY CONSTRUCTION -- at N = 2000
++    # the FV truncation error is ~1e-7 -- so B4 as found could never pass and
++    # verify() refused every call.  RK4 is exact to round-off here because the
++    # ODE's right-hand side is LINEAR in Y (the solution is a cubic), so it is a
++    # genuinely independent route that can be held to 1e-12.
++    du, dm, s_star = rk4_shoot(Gm, P)
++    okB4 = (du < 1e-12 and dm < 1e-12)
+     if okB4:
+-        say("B4 independent tridiagonal finite-volume route at N = 2000: P %.12f vs closed %.12f "
+-            "(rel %.2e), worst |U_num - U_closed| %.3e -> PASS" % (Pn, P, dP, du))
++        say("B4 INDEPENDENT RK4 shooting route (n = 4000 steps, exact on a cubic): "
++            "U'(0) recovered %.15f (closed %.15f), worst |U_rk4 - U_closed| %.3e, "
++            "|mean - 1| %.3e -> PASS" % (s_star, dUdY(0.0, Gm), du, dm))
++    else:
++        fails.append("B4 RK4 route (worst profile dev %.3e, mean dev %.3e)" % (du, dm))
++
++    # B4b -- the FV model that GROUNDS THE BANDS is second-order and converges
++    # ON the closed form.  This is the check that entitles discrete_expectation
++    # to set a pre-registered band: the error must fall at ratio ~4 per halving
++    # of h, and Richardson extrapolation of the two must land on the closed form.
++    e = []
++    for N in (250, 500, 1000):
++        uN, _ = fv_profile(N, Gm)
++        e.append(interp_at(uN, N, 0.25) - U(0.25, Gm))
++    r1 = e[0] / e[1] if e[1] else float("inf")
++    r2 = e[1] / e[2] if e[2] else float("inf")
++    rich = e[2] - (e[1] - e[2]) / 3.0          # Richardson remainder at N = 1000
++    okB4b = (3.5 < r1 < 4.5 and 3.5 < r2 < 4.5 and abs(rich) < 1e-9)
++    if okB4b:
++        say("B4b FV band model is SECOND ORDER and converges on the closed form: "
++            "errors %.3e / %.3e / %.3e at N = 250/500/1000, ratios %.4f and %.4f "
++            "(required in [3.5, 4.5]), Richardson remainder %.3e < 1e-9 -> PASS"
++            % (e[0], e[1], e[2], r1, r2, rich))
+     else:
+-        fails.append("B4 numerical route (P rel %.3e, worst profile dev %.3e)" % (dP, du))
++        fails.append("B4b FV order (ratios %.4f, %.4f; Richardson remainder %.3e)" % (r1, r2, rich))
+ 
+     if fails:
+         return None, fails

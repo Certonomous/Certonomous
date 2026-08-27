@@ -1,0 +1,19 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0.074999999999999997 0);
+
+boundaryField
+{
+    "(hot|cold)"  { type noSlip; }
+    inlet        { type fixedValue; value uniform (0 0.074999999999999997 0); }
+    outlet       { type zeroGradient; }
+    frontAndBack { type empty; }
+}
