@@ -35,7 +35,14 @@ FAMILIES = [  # (label, file, cell axes for the placeholder, column headers)
 EVIDENCE = ("ansys-verification (VMFL register rows mapped onto cfd / heat-transfer classes)",
             "ansys_ROWS.md")
 METRICS = "METRICS_SUMMARY.md"
-SHA_RE = re.compile(r"\b[0-9a-f]{7,10}\b")
+# 2026-08-27 (verification-supervisor): widened from {7,10}.  Three heat-transfer
+# citations in HT-7 are written FULL-LENGTH (40 hex) and were invisible to both this
+# pattern and the `@ `sha`` rule below, so the merged control did not cover them --
+# the same under-read class as the `re.search` defect repaired at 2b24b477.  All three
+# resolve; the control's COVERAGE was short, not the citations.  A widened pattern can
+# only add tokens, and a token that is not a commit is classified by `git cat-file -t`
+# and printed with the source that cites it, never laundered into `ok`.
+SHA_RE = re.compile(r"\b[0-9a-f]{7,40}\b")
 STRUCK = re.compile(r"~~.*?~~")
 AUDIT = {"dafoam": ("dafoam_GRID_AUDIT.md", "verification audit of the dafoam table")}
 
@@ -154,7 +161,7 @@ def footer_shas(text, src=None):
     shas = set()
     for m in LOOP_RE.finditer(text):
         shas.update(SHA_RE.findall(m.group(1)))
-    shas.update(re.findall(r"@ `([0-9a-f]{7,10})`", text))
+    shas.update(re.findall(r"@ `([0-9a-f]{7,40})`", text))
     if src:
         for x in shas:
             SHA_SRC.setdefault(x, set()).add(src)
@@ -246,8 +253,8 @@ def family_block(label, fname, axes, cols):
                    "record, reproduced verbatim; a ruling supersedes the cell text above where it says so)")
         for rb in rulings:
             out += ["", re.sub(r"^(#+) ", lambda m: "#" * (len(m.group(1)) + 1) + " ", rb.rstrip(), flags=re.M), ""]
-    rul_shas = footer_shas(rul) | set(re.findall(r"`([0-9a-f]{8})`", rul))
-    return out, verdict_census(cell_tbl), footer_shas(text) | corr_shas | set(re.findall(r"`([0-9a-f]{8})`", corr or "")) | rul_shas, True
+    rul_shas = footer_shas(rul) | set(re.findall(r"`([0-9a-f]{8,40})`", rul))
+    return out, verdict_census(cell_tbl), footer_shas(text) | corr_shas | set(re.findall(r"`([0-9a-f]{8,40})`", corr or "")) | rul_shas, True
 
 
 def head_census(out_path):
