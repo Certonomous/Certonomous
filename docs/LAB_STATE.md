@@ -1278,6 +1278,162 @@ Chief dispatch at 16:54Z: relayed to all six supervisors by team name; each boar
 
 ## closure
 
+**NINTH SESSION, SECOND WRITE, 2026-08-27T17:43:35Z (closure-supervisor). NEWEST FIRST.**
+Stamp from `date -u` in the writing invocation. **The block below this one is still
+accurate where this one is silent**; this one supersedes it on the queue, which is no
+longer empty.
+
+**═══ CLOSURE HAS COMPUTE IN THE QUEUE, A REAL LAUNCH BEHIND IT, AND A CRASH IT
+ROOT-CAUSED RATHER THAN RETRIED. ═══**
+
+**HEADLINE METRICS (Sanaa §2, 2026-08-27T16:54Z):** **CPU 88.2%** of 16 cores ·
+**GPU 0 %**, none attached to this box · **closure queue 1 pending / 1
+launched** · **closure idle-minutes ~4,430**, because the one launch died in under a
+second and produced **zero physics**.
+
+**FREEZE-AHEAD (Sanaa §2, ">= 3 frozen queue-ready registrations at all times"): 2 of
+3.** Closure went from **never having filed a queue entry** to two frozen rungs in one
+session. The third is in draft.
+
+| # | rung | frozen at | scope | cost | state |
+|---|---|---|---|---|---|
+| 1 | **G1_grid_triple** | `03be2015`, amended `a90077df` | 3 mesh levels, one model, no truth data | 320.0 core-min est / 600.0 cap | **FILED, armed** (`c1435c7e`) |
+| 2 | **M1_multimodel_sweep** | `7b00b3ec` | 2 arms x 39 cases = **78 runs** | 1,298.1 core-min = **21.63 core-h** est / 1,900.0 cap | frozen; **staging in flight**, entries not yet filed |
+| 3 | **M2_kepsilon_family** or **G2** | — | k-epsilon pair if the wall BC is derivable from source; else a second-geometry triple | — | lane live |
+
+**G1 — WHY IT EXISTS, AND WHAT IT ANSWERS.** Closure ruled `G = NO` on every row of
+its capability-matrix contribution and verification's independent audit agreed:
+`GCI`/`Roache`/`CONVERGING` appear in **ZERO** files under
+`cases/RANS_LES_closure_models/`. Measured reason: **266 polyMesh directories, 40
+geometries, ZERO at more than one cell count** -- the disk cannot supply a PAIR.
+**G1 is the family's first refinement family.** Substrate
+`Parm_PH_29/alpha_10_9000_3036`, the **only** closure geometry with a parameterisable
+mesh dictionary (`CBFS`, `PH_Breuer` and every `DUCT` ship frozen `polyMesh` only).
+Levels **3,840 / 15,360 / 61,440** cells, **r21 = r32 = 2.0000 exactly**, **D = 2**.
+Primary `gradP`, band `p` in [1.0, 3.0], GCI ceiling 5.0 % at Fs = 1.25. **It reads no
+LES field at all** -- a Roache triple compares the solver against ITSELF, so the
+reference-interpolation blocker a lane raised bears on **validation (P)**, not on
+**grid convergence (G)**.
+
+**⚠ THE LANE CORRECTED MY ARITHMETIC AND I ADOPTED IT.** **65 is odd**, so my briefed
+`(60 33 1)`/`(120 65 1)` pair gives **r32 = 1.98479, not 2** -- which forfeits the
+closed form for `p` on a rung whose entire product IS a defensible `p`. Re-registered
+at 32/64/128 for an exact ×4/×4. Recorded because a supervisor's brief being wrong is
+worth more on this board than a lane's agreement.
+
+**⚠ AND I CORRECTED MY OWN BRIEF BEFORE THE FREEZE.** I had told the lane a run
+directory "can never be a legal `cwd`". **False** -- nothing prevents creating it
+empty before enqueue, and `AGE-GUARD` iterates **immediate children only**
+(`queue_entry_check.py:277-283`). The load-bearing reason to move it: the runner
+launches as `cd <cwd> && <argv> > <cwd>/launcher.queue.out` and writes
+`<cwd>/STATUS.<case_id>` (`queue_runner.py:280-281`), so a **repository `cwd` drops
+run output inside the tracked tree on every launch**. Verified in the builder rather
+than assumed that pre-creating the root is safe: `guard_dest` is called on
+`dest_root/<LEVEL>`, **not** on `dest_root` (`build_g1.py:275-289`).
+
+**═══ THE LAUNCH, THE CRASH, AND THE TRIAGE (D540 + L-353) ═══**
+**The runner fired G1 at 2026-08-27T17:28:58Z, pid 1109265**, against `03be2015`.
+`run_g1.sh` wrote `CHAIN START` and **exited rc 1 in the same second with NO
+`CHAIN ABORT` line** -- it died **outside its own error handling**, which is what made
+it a finding to triage rather than a retry.
+**ROOT CAUSE, by reproduction with a FIRED CONTROL:**
+`bash -c 'set -u; source /usr/lib/openfoam/openfoam2606/etc/bashrc'` dies at
+**`bashrc:184: WM_PROJECT_DIR: unbound variable`** -- under `set -u` a non-interactive
+shell treats an unbound expansion as **fatal**, so the shell terminated **before
+`die()` could log**. **CONTROL:** the identical source **without** `set -u` returns
+**0 with `simpleFoam` on PATH**. The line also sent the source to `/dev/null 2>&1`, so
+**the one message naming the cause was discarded**.
+**REPAIRED PRE-COMPUTE (`a90077df`), condition stated and CHECKED on the run root in
+the writing invocation: 0 staged levels, 0 `log.run`, 0 numeric time directories, 0
+field files.** The root held only `CHAIN.log`, `STATUS`, `launcher.queue.out` -- **all
+three INFRASTRUCTURE under L-342**. No solver ran, no mesh was built, **no number
+exists that any band could have been fitted to**, so no gate, threshold, cap or label
+moved and `build_g1.py`/`grade_g1.py` are untouched. **Re-filed `c1435c7e`.** The
+failed launch's records are **deliberately preserved** -- they are the evidence for
+the amendment.
+**⚠ THE PART THAT GENERALISES, AND IT IS L-353:** the **M1 lane, working in parallel
+and never told, had ALREADY GUARDED THE IDENTICAL HAZARD** -- `run_m1.sh` lifts
+nounset across the source and restores it immediately, with a comment naming the
+failure mode. **The knowledge existed inside the fleet and was not in a lesson, so a
+second lane rediscovered it by crashing a real launch.** I checked M1 for the same
+defect **before** freezing it, because **78 entries carrying it would have been 78
+failures that each looked independent.**
+
+**═══ M1, AND THE ONE GATE I OVERRULED ═══**
+2 arms (`kOmegaSST` null + `kOmega`) x 39 cases. **NASA excluded** on two blockers
+(`AugmentedkOmegaSST` from a library absent from this box; and it is the **one case of
+40** whose `0/nut` is the unexpanded `uniform $nut`). **SpalartAllmaras cut**: every
+case ships `0/nut uniform 0` and **`nuTilda = 0` is a FIXED POINT**, so the derivable
+IC inverts to zero and stays -- the arm would satisfy the strict completion rule **and
+mean nothing**. **k-epsilon pair held** on the underivable epsilon wall BC.
+**THE NULL ARM IS THE PLANTED CONTROL, not padding**: without it a uniform two-arm
+result is indistinguishable from a staging bug.
+**MY RULING ON G2, which the lane asked for and was right to ask for.** Its null-arm
+identity gate read **">= 37 of 39 in band"**. That is a **LOTTERY** over *which* two
+cases may miss, and a gate that does not say in advance which rows may fail can absorb
+the wrong failure. **Replaced by a STRUCTURAL PARTITION at the same headline count and
+strictly stronger:** the **29 hills are ITERATION-MATCHED** -- their reference was
+written at `endTime 20000`, exactly this sweep's cap -- so **ALL 29 must meet the 1e-3
+band**; the **10 unmatched** cases (8 ducts at 334-7,009 under a criterion we do not
+use, CBFS 30,000, PH_Breuer 10,000) may contribute **at most 2** outliers, still under
+the hard 1e-2 ceiling. **The two permitted outliers can no longer hide among the
+hills.** **It ships with its planted-failure proof (L-314):** at the SAME 37-of-39
+count, both outliers unmatched -> **PASS**; move one onto a hill -> **GATE FAIL**,
+naming it. A third control asserts the rule is a **no-op on fixtures with no hill**, so
+it cannot silently have changed the controls that predate it. All fire under `-O`.
+**CAP 20,000 iterations is MEASURED:** CBFS plateaus by ~5,000, PH_Breuer by 10,000,
+the duct converged cold in **405**. **`residualControl` removed from all 78 and that is
+FORCED, not chosen** -- rule 4 requires `last time == endTime` and `ExecutionTime count
+== endTime`, so any solver-enforced early stop violates both on every row. Named waste
+**~206 core-min (16 %)**, reported separately, never folded into the calibration ratio.
+**A finding that decides the criterion:** on all eight ducts `p`/`Uy`/`Uz` residuals
+**never decrease at all** -- a linear eddy-viscosity model makes no secondary flow, so
+the in-plane variation is machine noise and the ratio stays O(1) forever. **Whoever
+built the benchmark had already found this**: the shipped duct `residualControl` names
+`k` and `omega` and **not** `p`.
+
+**COMMITS THIS SESSION (10):** `49e06519` (D535+L-348), `2bba28c8` (board),
+`c8217d4b` (D536 + sweep memo), `03be2015` (**G1 FROZEN**), `14fbdadc` (**first queue
+entry ever**), `a90077df` (**G1 AMENDMENT 1** + repair), `c1435c7e` (re-filed),
+`7b00b3ec` (**M1 FROZEN**), `5b5fd91a` (D540+L-353), and this board write.
+
+**COST CALIBRATION (rule 12): NO ROW OWED, and that is a recorded decision.** **Closure
+physics compute this session: 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No rung
+graded, no case closed. The one launch consumed **under one second of launcher
+lifetime** and produced no physics artefact. A finer datum measured in passing, recorded
+here rather than as a duplicate row: the Kaandorp prereg registered **0.126 s/it on
+CBFS** against a measured **0.086891** (**0.690x**) and **0.004 s/it on `AR_1_Ret_360`**
+against **0.010814** (**2.70x**); whole lane **6.168 core-h** against 7.1 registered.
+**That process completed in an earlier session and carries C-18; a second row would
+double-count it.**
+
+**LIVE: two lanes**, both zero-compute -- M1 staging (78 trees; **may not launch a
+solver and may not write into the queue**), and the third-registration lane. **No
+closure solver is running.**
+
+**NEXT ACTIONS.** (1) Rule on the staging lane's verification counts, then **file M1's
+78 entries personally** with a `COMMIT_MANIFEST.md` (Sanaa §1: >50 files needs one).
+(2) Rule on M2-vs-G2 when that lane reports; **freeze the third** to reach FREEZE-AHEAD
+3 of 3. (3) **Watch G1**: it is armed and will fire unattended when the box drops under
+85 %; its first real physics is the L1 level at **5.76 core-min**, which is the
+fail-fast. (4) The two applicable instrument patches from `66688b0c` still await their
+fixes -- `fs2_d491_guard`'s rule-3 control is **CIRCULAR** (plants `.2e`, searches
+`.2e`) and neither lands without a re-read.
+
+**ON SANAA'S DESK,** unchanged and none of it unblocked by any agent message: (1) the
+**four withdrawn attributions**, chief among them the GPU cost approval -- one line
+restores all four; (2) the two 2026-08-24 R3 quotations, and whether **§22.7 is marked
+closed in the charter itself**; (3) direction on the next R4 increment; (4) R6's
+phrasing; (5) per-item sign-off on GPU drafts 2-5; (6) **D535** -- `QUEUE_ENTRY_STANDARD.md`
+says there is no daemon and there is one; amending a standard is hers.
+
+**BLOCKED.** Arm 2 -- on her four-part line, and **NOT FILED on purpose**: the validator
+has **zero** hits for gpu/cuda/nvidia and `host` omitted defaults to `"local"`, so
+filing it would **fire** it. R4b -- untracked **and** its named runner `run_r4b.sh` does
+not exist. **SUBMISSIONS REMAIN PARKED (rule 7); nothing is sent.**
+
+
+
 **NINTH SESSION, FIRST WRITE, 2026-08-27T16:36:22Z (closure-supervisor). NEWEST FIRST.**
 Stamp from `date -u` in the writing invocation. **Closure was RE-FORMED today after the
 deliberate 2026-08-25 stand-down.** The gap between that block and this one is a stand-down,
