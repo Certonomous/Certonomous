@@ -15456,3 +15456,99 @@ and `STATUS.G1_grid_triple` (`launcher_rc=1`); the repair and its condition chec
 `7b00b3ec`); `/usr/lib/openfoam/openfoam2606/etc/bashrc:184`.
 
 ---
+
+## L-354 — a freeze updates the sha and never the text that says "NOT FROZEN": the draft banner outlives the draft, and it is a false provenance line at the head of the record
+
+Measured **three times in closure territory in a single day**, by three different
+authors who never spoke to each other.
+
+1. **`cases/RANS_LES_closure_models/G1_grid_triple/grade_g1.py:611`** prints
+   `"G1 GRID TRIPLE -- comparator  (DRAFT, NOT FROZEN)"` as the FIRST line of its
+   output. It is frozen: **one commit only, `03be2015`**, disk sha256
+   `253d5942…6bb0` equal to the HEAD blob, verified by the supervisor. This
+   banner would have sat at the top of closure's first grid-convergence verdict.
+2. **`M1_multimodel_sweep/QUEUE_ENTRIES/README.md`**, emitted by the frozen
+   generator beside 78 frozen, validator-ACCEPTED queue entries, opens
+   `# DRAFT -- NOT FROZEN, NOT COMMITTED, NO COMPUTE AUTHORISED` and asserts
+   `prereg_commit` is `PENDING_SUPERVISOR_FREEZE` and that *"Nothing here can
+   launch"*. All three false. The generator writes the same README whatever sha
+   it is handed.
+3. **`docs/standards/QUEUE_ENTRY_STANDARD.md:22`** (D535/L-348) still reads
+   *"There is no daemon and there will be none under this standard"* thirteen
+   hours after `scripts/queue_runner.py` landed on Sanaa's order — and the clause
+   is mirrored verbatim into all six `verification/queue/<team>/README.md` files,
+   i.e. exactly where a supervisor decides whether filing is safe.
+
+**The mechanism is the same each time and it is structural, not careless.** The
+act of freezing changes a *sha*, and the sha lives in a different place from the
+prose that describes the artefact's status. Nothing in the freeze touches the
+prose, so the prose keeps describing the draft. **The banner is at its most
+wrong at exactly the moment the artefact is at its most authoritative.**
+
+**What to do, and the asymmetry that decides it.** A stale banner is worse in a
+generator's OUTPUT than in the generator's source, because the output is what a
+reader cites. So: (a) never write a freeze-status claim into text a freeze cannot
+update — say what the file IS, not what its lifecycle state is; (b) where a
+generator emits a status line, that line must be **derived** from the value it
+describes (render the `prereg_commit` it was actually handed, and let
+`PENDING_SUPERVISOR_FREEZE` render itself); (c) **when the banner is inside a
+file that is already frozen, DO NOT FIX IT.** Correcting `grade_g1.py:611` would
+move the frozen grading path and put a third commit on the freeze chain for zero
+numeric reason — the exact confusion rule 2 exists to prevent. Record the
+discrepancy beside the verdict instead. A display string is not a gate,
+threshold, cap or label.
+
+*Provenance:* `grade_g1.py:611` frozen at `03be2015`; M1's generated README at
+`7b00b3ec`; `QUEUE_ENTRY_STANDARD.md:22` at `bb469c0d` vs `queue_runner.py` at
+`29223b1b`; D535, L-348.
+
+---
+
+## L-355 — a "ZERO" claim about a corpus is only as strong as its KEY, and a key that reads directory names reads ARM names: the same sweep called 40 geometries 111
+
+Closure's board, and `docs/COVERAGE_MATRIX.md:350` repeating it, carried
+*"266 polyMesh directories, 40 geometries, ZERO at more than one cell count"* —
+the load-bearing justification for building G1, the family's first refinement
+family. Re-measuring it under `SUPERVISION_CHARTER` §3 check 3 took **three
+keys**, and the first two were both wrong in opposite directions.
+
+**Key 1 — the directory name.** `basename` of the case directory: for
+`.../CBFS13700/ceiling/constant/polyMesh` it yields `ceiling`, and so does
+`.../AR_5_Ret_180/ceiling/...`. The sweep reported **111 distinct "geometries"**
+and **22 of them at more than one cell count** — apparently a flat refutation.
+It is nothing of the kind: `ceiling`, `truth`, `null`, `mean`, `ml_s0`,
+`discovered`, `stock` are **ARM names**, shared across every geometry the arm was
+run on. The key conflated ~40 geometries into 111 name-buckets and then found
+"multi-resolution geometries" that were different geometries wearing the same arm
+name. **The recognition control FIRED on this key** — an injected synthetic pair
+was seen — which is precisely the trap: *the instrument worked and the key was
+the defect, so the control could not catch it.*
+
+**Key 2 — the boundary patch-name set.** Too coarse in the other direction: only
+4 distinct patchsets across 344 meshes, because every periodic hill shares
+`inflow, outflow, wallTop, …`. One "multi-count" hit, again a name collision.
+
+**Key 3, the one that is actually resolution-independent — the point cloud's
+BOUNDING BOX.** A refinement family shares it exactly; two geometries do not. It
+resolves 344 meshes into **38 distinct boxes with 0 skipped**, and the arithmetic
+closes against the original claim: **40 geometries − 2 Re-pairs sharing a box =
+38.** The disputed figure was corroborated by the key that could have refuted it.
+
+**Three transferable rules.**
+1. **State the key with the count.** "40 geometries" is not a measurement until
+   the reader knows what made two directories the same geometry. Every corpus
+   census in this lab should carry its key.
+2. **A recognition control proves the DETECTOR sees, never that the KEY means.**
+   Both wrong keys passed a firing control. A control that plants into the same
+   key it searches is the corpus-scale form of the circular plant in L-354.
+3. **A key is resolution-independent or it cannot answer a refinement question.**
+   Names, cell counts and file hashes all move with resolution. Geometry does
+   not — so fingerprint the geometry.
+
+*Provenance:* supervisor sweep 2026-08-27 over `/home/ubuntu/closure-data`,
+`/home/ubuntu/closure-challenge-benchmark` and
+`cases/RANS_LES_closure_models/`; 344 polyMesh dirs, 38 boxes, 2 multi-count
+boxes, both Re-pairs (`AR_1_Ret_180` 2209 / `AR_1_Ret_360` 3025;
+`AR_3_Ret_180` 6627 / `AR_3_Ret_360` 8748); D542.
+
+---
