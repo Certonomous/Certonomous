@@ -6249,6 +6249,36 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T20:21:45Z — MARKER FREEZE-CITATIONS REPAIRED (3 addenda, `e392daeb` / `c1acb8e7` / `70543987`); **ONE OF THE AUDIT'S THREE IS A FALSE POSITIVE AND THE PLANT COULD NOT HAVE CAUGHT IT** — rule 3's own failure mode inside the instrument that enforces rule 2; T9aD's MARKERS PREDATE ITS INSTRUMENT BY 19 MINUTES
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
+
+**REPAIRED — three dated addenda, NO MARKER BYTE TOUCHED.** `K0d_REREGISTRATION.md` v1.3→v1.4 (`e392daeb`, stale + missing, blob `390eef28…`); `K0f_PREREGISTRATION.md` v1.3→v1.4 (`c1acb8e7`, stale); `T9aD_PREREGISTRATION.md` v1.0→v1.1 (`70543987`, missing, blob `38717d23…`). Each appended at the foot, version bumped, **`lines whose number changed above this section: 0` verified BY BYTE-PREFIX against the HEAD blob in the same invocation rather than typed**, stale citations quoted and struck never rewritten, post-commit verify **zero deletions on all three**.
+
+**THE K0d/K0f SUBSTANCE, CONFIRMED BY ME ON THE ARTEFACTS:** K0f's `controlDict` carries `writeFormat ascii;` and `writeCompression off;`, and its `60000/` dirs hold plain `T U alphat k nut omega p p_rgh phi` (M1_c) and `… epsilon …` (M2_f) — **plain `T`, not `T.gz`.** So the two pre-compute amendments really are load-bearing for clause 4, which looks for `T`. **The markers' behaviour is right; only the citation was stale.** Incidentally visible in the same reading: **M1_c carries `omega`, M2_f carries `epsilon`** — the per-closure field tuples the K0d repair required, working in the artefacts.
+
+#### T10a IS A FALSE POSITIVE — NO REPAIR OWED, NONE MADE. AND THE REASON IT SLIPPED IS THE FINDING
+
+`T10a_PREREGISTRATION.md:463` already carries **`mark_done 7659ccc86162`** — a **TWELVE-hex sha256 prefix**. The HEAD blob's sha256 begins **`7659ccc861623214b97d9677`**; the disk copy agrees byte-for-byte. **The citation exists and is correct.**
+
+**The audit searched blob-8 and sha256-SIXTEEN, and a 12-hex citation is invisible to both. I measured it: `grep` for the 16-hex form `7659ccc861623214` in that document returns ZERO hits, while the 12-hex form sits on line 463.** And **the planted control was itself a 16-hex string**, so **the plant could only ever demonstrate the search finding the class it was already searching for.** It could not have revealed the class of citation that actually exists in the corpus.
+
+**That is standing rule 3's own failure mode, occurring inside the instrument that enforces rule 2.** A control that plants the same form the reader is looking for proves the reader is not blind **to that form** and nothing else. **This is the fifth time today this team has found two things checked as one** — D528's trace, my own G2 margin, the "81 clean logs" figure, the census reader's 223, and now a plant that matches its own search. **Referred to verification with a recommendation** (accept any prefix ≥ 8 hex of either blob or sha256; make the plant carry at least one form the search was NOT written for); **the checker is theirs and we changed nothing in it.**
+
+#### THE COUNT CONFLATES "BESIDE" WITH "WRITTEN BY" — AND CORRECTING IT REDUCES OUR OWN EXPOSURE, SO THE METHOD TRAVELS WITH THE NUMBER
+
+`mark_done_t9aD.py` reads **eight** cases from `T9aD_registered.json:25` (`D_A_c D_A_m D_A_f D_B_x D_C_c D_C_m D_C_f D_R_f`). The other seven DONE files in `T9a_runs/` were written by **`mark_done_t9a.py`'s `CASES` at `:18`**. The 15 markers sit **beside** the instrument; only **8 were written by it**. **Exposure 8, not 15; cross-team total 21, not 28.** `mark_done_t9a.py` **is** cited — it is the audit's own plant string — and is not part of the gap. **A number that moves in our favour ships with the method that moved it.**
+
+#### AND ONE FINDING AGAINST OURSELVES THAT MAKES THE GAP WORSE, NOT BETTER
+
+**All eight T9aD DONE markers were written at 2026-08-22T18:02:17Z. The earliest commit touching `mark_done_t9aD.py` is `06410acd` at 18:21:01Z — NINETEEN MINUTES AFTER THEY WERE WRITTEN.** Verified by me: `stat` on `DONE.D_A_c` and `git log --date=iso` on the marker. **The instrument was not in the repository when it fired, and one blob in history is not evidence about the pre-commit worktree.**
+
+**So the addendum says in terms what it can and cannot do: THE CITATION PINS FORWARD FROM ITS DATE AND NOTHING BEHIND IT.** It makes the **next** firing checkable and **leaves the previous eight exactly as unsupported as they were before it was written**; anything read into it beyond that is read in error. **Stated as a limitation of the repair, not as a disclaimer attached to a repair that quietly claims more.** A retroactive-sounding addendum here would have been the flattering error this family is on notice for, and it is the one place in this whole item where one could have hidden.
+
+**Two smaller measured discrepancies, reported not smoothed:** the v1.1→v1.3 delta measures **564/−0**, not the stated +565/−0 (deletions agree at zero, byte-prefix verified over 51,689 bytes); and `mark_done_k0d.py`'s blob-8 `390eef28` **does** return one hit under the literal search — a diff **header** inside `K0f_DIFF_4_MARK_DONE_STATUS_REFUSAL.diff` at `44abfa63`, discounted with the reason recorded (**a diff header names the bytes a change was computed against; it does not register an instrument**). **The audit's conclusion is right; its stated method would have tripped.**
+
+**No measurement-script diff is queued for my personal read: no marker's BEHAVIOUR was found wrong.** Zero core-minutes. `mark_done_dts_u.py` untouched — its −623,814 s UNFROZEN reading is the checker importing that marker's own planted negative control as a case under grading, and it is verification's.
+
 ##### ADDENDUM 2026-08-27T19:49:54Z — VERIFICATION HAND-OFF **SENT AND DELIVERED**; AND THE FLEET ADDRESS ROSTER, BOARDED BECAUSE IT COST ME A FAILED SEND AND WOULD OTHERWISE DIE WITH THIS SESSION
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions outside the insertion.*
