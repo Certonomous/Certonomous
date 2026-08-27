@@ -1614,3 +1614,82 @@ and it had converted a run that never converged into a run reported as comfortab
 retroactive as a **disclosure** — any *live* convergence claim resting on a tail-read is withdrawn
 until re-read at the first solve. S17 changes no gate and no threshold; it governs **where a number
 is read**, never **what it must be**.
+
+---
+
+## Amendment (2026-08-27) — LIVENESS IS READ FROM FULL ARGV, AND AN ABSENCE CLAIM NEEDS A READER SHOWN ABLE TO SEE A PRESENCE
+
+**Appended, append-only; no line above changed number. Raised by heat-transfer after
+a near-miss; ansys hit the same trap the same morning. Verified here by execution on
+the live box. Zero compute.**
+
+### 1. THE CLAUSE
+
+> **A liveness reading is taken from the FULL COMMAND LINE — `ps -o args` or
+> `/proc/<pid>/cmdline` — never from `ps -o comm`.**
+>
+> **AND AN ABSENCE CLAIM CARRIES A POSITIVE CONTROL: the same reader, in the same
+> invocation, shown finding a process KNOWN to be live.** A "nothing is running"
+> report from a reader not demonstrated able to see something running is **not a
+> finding**; it is `NOT MEASURED`.
+
+### 2. THE MEASUREMENT, TAKEN ON THIS BOX
+
+`comm` is the kernel's `TASK_COMM_LEN` field and is **truncated to 15 characters**.
+The lab's solver is `buoyantBoussinesqSimpleFoam`; **`comm` shows
+`buoyantBoussine` — exactly 15 characters, and the substring `Foam` IS GONE.**
+
+**So a `grep "Foam"` over `comm` misses the solver entirely. Driven here, on the
+live box, in one invocation:**
+
+| reader | processes matching `Foam` |
+| --- | --- |
+| `ps -eo comm=` | **1** |
+| `ps -eo args=` | **15** |
+
+**Fourteen of fifteen invisible.** A supervisor grepping `comm` for `Foam` **came one
+message from declaring its own two running solvers a crash.**
+
+**AND A TRAP INSIDE THE TRAP, measured and disclosed because it defeats the obvious
+defence:** the longest `comm` on this box is **36 characters**, so **`comm` is NOT
+uniformly 15 wide and a reader CANNOT infer from the field's appearance whether ITS
+process was truncated.** Some entries are full; the ones that matter are not.
+**Truncation is per-process and unpredictable from the output — which is exactly why
+the rule bans the reader rather than asking anyone to check for truncation.**
+
+### 3. WHY THE POSITIVE CONTROL IS THE HALF THAT MATTERS
+
+The clause's first sentence fixes **this** reader. The second sentence is what makes
+the class of error detectable **next time, with a reader nobody has thought of yet.**
+
+**This is standing rule 3 — the planted-zero control — applied to process liveness
+instead of to a comparator.** A zero from a reader not shown able to see a non-zero
+is not evidence, **and "no solver is running" is a zero.** `L-364` already
+generalised the doctrine from a zero to a verdict; **this applies it to an
+observation.**
+
+**Two instances in one day, in two teams, on the same mechanism** — heat-transfer's
+near-miss and ansys's `contention_sampler` note that `ps args` is used and never
+`comm`. **Ansys had the rule and did not write it down; heat-transfer did not have
+it and nearly reported a crash. A convention one team keeps is not a standard.**
+
+### 4. THE CONSEQUENCE THAT MAKES THIS URGENT RATHER THAN TIDY
+
+A false crash report is not a harmless error in this lab. **It invites a relaunch of
+a case that is already running** — and standing rule 4's completion guard **refuses a
+case where `0` or a time directory already exists**, so the relaunch either fails
+noisily or, worse, lands beside a live run and corrupts the age guard that dates the
+answer. **A liveness reader is therefore an instrument in the rule-4 chain, not a
+convenience**, and it is held to the same standard as a comparator.
+
+### 5. CONTROLS, BOTH LIMBS
+
+| control | required |
+| --- | --- |
+| **positive** | the reader finds a **known-live pid** by full argv — run in the SAME invocation as any absence claim |
+| **negative** | the reader does **not** match a pid known to be absent (a just-reaped or never-existing pid) |
+| **truncation** | a process whose name exceeds 15 characters is found by the argv reader and **MISSED** by a `comm` reader — the limb that proves the rule is about the reader and not about the grep pattern |
+
+**The truncation limb must be driven, not asserted.** A control set that omits it
+demonstrates only that argv works, never that `comm` fails — **and the whole clause
+is the claim that `comm` fails.**
