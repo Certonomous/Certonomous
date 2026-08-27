@@ -1,6 +1,6 @@
 # Certonomous Reporting Charter
 
-Version 2.2, dated 2026-08-17. Freezes the morning report. It is the one
+Version 2.3, dated 2026-08-17. Freezes the morning report. It is the one
 document the owner reads every day, so its shape is fixed and its sections do
 not get reordered, merged or skipped.
 
@@ -948,4 +948,83 @@ writer's to repair.
 | approximated stamps written AFTER the clause landed | **10**, in 8 of 21 commits |
 | teams writing zero approximated stamps post-clause | **4 of 6** |
 | version | 2.1 -> **2.2** |
+| lines whose number changed above this section | **0** |
+
+## Amendment record, continued: A COMMIT MESSAGE IS A RECORD, AND IT IS THE ONE RECORD THAT CANNOT BE CORRECTED (2026-08-27)
+
+**Dated addendum, appended at the foot; append-only. ONE reporting requirement
+WIDENED — from documents, board blocks and messages to **commit messages** — on
+the chief's referral with its own provenance. No other clause is altered; no line
+above this section changed number. Version 2.2 -> 2.3.**
+
+**§1 — THE PROVENANCE, AND IT IS THE STRONGEST INSTANCE YET BECAUSE THE SAME LANE
+GOT IT RIGHT AND WRONG IN ONE ACT.**
+
+A cfd lane on F12 Arm E (`commit:6b011629`, `commit:2b7cd6eb`) wrote **every stamp
+inside its pre-registration by shell substitution from `date -u`** — all correct —
+and **hand-typed the stamps in both COMMIT MESSAGES**: **21:47Z against a real
+21:39:54Z**, and **21:52:12Z against a real 21:48:33Z.** The second was **in the
+future of the clock a minute later, which is how the lane caught itself.**
+
+**The discipline was present and the channel was not covered.** The clause as it
+stood named *"a report, board block or message"* and a commit message is none of
+those three by name — **so the lane was compliant with the letter and produced two
+fabricated measurements anyway.**
+
+**§2 — WHY THE COMMIT MESSAGE IS THE STRICTEST CASE, NOT MERELY ANOTHER ONE.**
+
+Every other record this charter governs can carry a **dated correction**. A
+document gets an amendment; a board block gets a later block; a message can be
+followed by another message. **A commit message cannot.** It is sealed into the
+object graph by the sha that names it, and rewriting it rewrites history — which
+this lab's git rules forbid outright.
+
+> **So the one channel the clause did not name is the one channel where the error
+> is PERMANENT.** A wrong stamp in a document is a defect with a remedy; a wrong
+> stamp in a commit message is a defect with none.
+
+**§3 — THE CLAUSE, WIDENED, ADOPTED AS THE CHIEF WORDED IT.**
+
+> **A time stamp reaches a document, a board block, a message OR A COMMIT MESSAGE
+> only by substitution from `date -u` in the writing invocation. A typed stamp is
+> a fabricated measurement.**
+
+**Read together with v2.2 §2's measurement/projection split, which stays
+RECOMMENDED AND NOT ADOPTED**: a projection — an ETA, a timeout bound — is not a
+clock reading and must still be written, with its derivation shown. **Nothing in
+this widening resolves that; it is still Sanaa's.**
+
+**§4 — THE MECHANISM, SPECIFIED, BECAUSE A RULE AGENTS MUST REMEMBER IS WEAKER
+THAN ONE THE TOOL PERFORMS.**
+
+`.git/hooks/pre-commit`, `commit_private.sh` and `append_record.py` all sit on the
+commit path. **Where a helper composes or accepts a commit message it should stamp
+it itself, by substitution, so the correct behaviour is the DEFAULT rather than a
+thing each lane must remember.** **Specified, NOT built** — those instruments are
+not in this team's folder scope, and `.git/hooks/pre-commit` is separately on
+Sanaa's desk as an **untracked** file that should be a frozen instrument.
+
+**A planted control is required of any such change and both limbs must fire:** a
+message carrying a **typed** stamp must be **refused**, and a message carrying a
+**substituted** stamp must **pass** — a guard shown only to reject is not shown to
+discriminate.
+
+**§5 — WHAT IS NOT CLAIMED.**
+
+**This team did NOT re-derive the two cfd figures**; they are the lane's own
+disclosure, relayed, and the mechanism is what is adopted rather than the numbers.
+**No commit message anywhere is corrected by this amendment and none can be** —
+§2 is the reason. **How many typed stamps exist in the lab's commit history is
+`NOT MEASURED`**, and quoting a figure here would repeat the coverage-as-census
+defect this team has published against itself six times today.
+
+| what this amendment did | figure |
+| --- | --- |
+| reporting requirements widened | **1** — messages -> **commit messages** |
+| clauses altered, narrowed or retired | **0** |
+| channels the clause now names | **4** |
+| channels where a wrong stamp is PERMANENT | **1 — the commit message** |
+| mechanism | **specified, NOT built** |
+| typed stamps in lab commit history | **NOT MEASURED** |
+| version | 2.2 -> **2.3** |
 | lines whose number changed above this section | **0** |
