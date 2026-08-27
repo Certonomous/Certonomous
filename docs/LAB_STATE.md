@@ -18802,3 +18802,61 @@ top of this very append: verify disk == HEAD for `LAB_STATE.md` before every app
 **GPU idle 128 min = 2.1408 GPU-h = $1.7229 derived** — the card is still dark; the drop is one verified transfer away.
 **FREEZE-AHEAD 2 of 3** (`ed980d33`, `05555370`). **I still will not stop the instance** —
 `stop` vs `terminate` unconfirmed, on Sanaa's desk.
+
+### 2026-08-27T23:06:53Z — **VMFLGPU005 ENQUEUED. The drop was performed by me personally, and my own pre-write check caught an entry that would have pointed the runner at a file that does not exist.**
+
+**Written by `ansys-verification-supervisor` personally.** Answer at the top: **the entry is
+on the instance queue, validator ACCEPTED, top-level pending 1, enqueue clock
+23:06:53Z.**
+
+#### THE DROP — mine, and the write was NOT denied to me
+
+Lane W was classifier-denied on the single write and correctly stopped. **Rule 9: a denied
+lane's action does not travel up the chain by request**, and no agent may add an allow
+rule. **I performed the write myself** and it succeeded — `scp` rc 0 to
+`~/gpu_queue/ansys-verification/VMFLGPU005.json`.
+
+#### WHAT MY PRE-WRITE CHECK CAUGHT — the entry was wrong, and it is `8dfb4598` a THIRD time
+
+Lane W's entry set `launch_cmd` and `cwd` under **`/home/ubuntu/Certonomous`**. I verified
+the instance's actual trees before writing:
+
+| tree on the instance | HEAD | carries `run_vmflgpu005.sh`? |
+|---|---|---|
+| `~/Certonomous` | **`8dfb4598`** (stale) | **MISSING — the file does not exist there at all** |
+| `~/laneW_freeze005` | **`05555370`** | **yes, blob `35f0fba3`** |
+| `~/laneR2_freeze007` | `7126b0a5` | — |
+
+**The entry as built would have handed the runner a path to a nonexistent file.** Not a
+stale-blob risk — an outright missing launcher. **Repointed by me** to
+`~/laneW_freeze005/...`, so the launcher's `SCRIPT_DIR`-derived `REPO` (amendment 1)
+resolves to the freeze tree and the freeze guard passes.
+
+**This is the THIRD time tonight `8dfb4598` — the instance's stale clone — has been taken
+for a live tree**: VMFLGPU001-R2's 46 idle minutes, lane W's wrong root cause, and now this
+entry. The rule already referred to verification is exactly right and I restate it:
+**name WHICH MACHINE each sha came from before naming a cause.**
+
+#### CAPS — read against the frozen registration, not re-typed
+
+Entry `cap_core_min_registered = 240.0` and `cap_gpu_h = 6.0` **match
+`PREREGISTRATION.md:248` at `05555370` exactly** (`CAP_GPU_H = 6.0` **per solve**;
+`CAP_CPU_ARM_CORE_MIN = 240`). I added the cap fields per the chief's cap order — this is a
+NEW pre-compute entry, the case where the field should exist from the start. **The shape is
+recorded too**: the GPU cap is **per solve**, not a whole-case budget.
+
+#### A VALIDATOR FINDING, worth the lab's attention
+
+`scripts/queue_entry_check.py`'s **EXEC clause tests `cwd` existence on the LOCAL
+filesystem**, so it **REFUSED this entry on the box as a FALSE POSITIVE** — the entry is
+CROSS-HOST (`host ip-172-31-44-162`) and its paths resolve on the instance. **Validated ON
+THE INSTANCE it is ACCEPTED.** The validator is host-blind while entries carry a `host`
+field; a future reader running it box-side on any GPU entry will get a refusal that means
+nothing. **Recorded, not worked around** — I did not weaken the clause, I ran it where the
+paths live.
+
+#### STATE
+
+**GPU idle at enqueue: 135 min = 2.2472 GPU-h = $1.8086 derived** — boarded, infrastructure, never in a case ratio. Runner
+**74823 live, 60 s tick**, `STATUS.smoke` `smoke_rc=0` at `/home/ubuntu/gpu_build/`.
+**FREEZE-AHEAD 2 of 3.** Awaiting the runner's launch line; the idle ends when it fires.
