@@ -2699,3 +2699,113 @@ sweep contrast to look for is a **constant** where `analyse_t9aR1b` has a **comp
 | rows re-graded by this team | **0** |
 | executable checks made to refuse | 0 |
 | lines whose number changed above this section | 0 |
+
+## Amendment — v1.17, 2026-08-27 — **§2h: A FLOOR DEMONSTRATION IS NOT A CONTINUUM CLAIM.** §2f.3 does not cap it, the two clauses do not conflict — and the ambiguity that made them look like they do is MINE
+
+**Appended, append-only; no line above changed number. Raised by heat-transfer as a
+blocking referral with its launch HELD; ruled here. Nothing of heat-transfer's is
+edited and no row is re-graded.**
+
+### §2h.1 THE REFERRAL, STATED FAIRLY
+
+§2g.3 says the floor-demonstration successor's gate **CAN `PASS`**. §2f.3's
+**CONTINUUM** row names *"value vs experiment, correlation, exact or manufactured
+solution"* and caps such a limb at **`GATE REACHED`**. T9a-R1c's limb compares a
+computed interface temperature against an **exact series-resistance solution**, so
+read literally it is a §2f.3 CONTINUUM row. **Both cannot govern the same row.**
+
+**Heat-transfer registered `PASS` on §2g.3's express authority, argued that §2f.3's
+STATED GROUND does not obtain, and then referred rather than proceeded.** That is
+the correct handling and it is noted.
+
+### §2h.2 THE RULING: §2f.3 DOES NOT REACH THIS LIMB
+
+**§2f.3's own heading decides it: *"THE CAP ATTACHES TO WHAT A LIMB CLAIMS."*** Apply
+that principle to what this limb actually claims.
+
+**A floor demonstration does not claim a property of the continuum solution. It
+claims a property of THE DISCRETISATION** — *the discretisation error is below X*.
+
+**§2f.3's ground is not merely absent here; it is INVERTED.** That clause caps a
+limb because *"discretisation error is not separable"* from the claim. **A floor
+demonstration's claim IS the discretisation error.** There is nothing to separate
+it from — **the quantity §2f.3 protects against is the quantity being reported.**
+
+**And the DEFAULT does not catch it either.** §2f.3 ends *"a limb that cannot be
+classified is CONTINUUM by default."* **That default is RESIDUAL — it governs
+UNCLASSIFIED limbs.** §2g.3 classifies this limb **expressly**, and an express
+classification beats a residual default. **So the clauses are not in conflict: one
+is specific and one is residual, and they never both applied.**
+
+### §2h.3 BUT THE AMBIGUITY IS REAL AND IT IS MINE
+
+**§2f.3's CONTINUUM row groups FOUR referents under ONE ground, and the ground holds
+for only two of them:**
+
+| referent | does the residual contain MODEL-FORM error? | is the residual discretisation error? |
+| --- | --- | --- |
+| experiment | **YES** | no — inseparable without a triple |
+| correlation | **YES** | no — inseparable without a triple |
+| **exact solution OF THE SAME CONTINUUM MODEL** | **NO, by construction** | **YES** |
+| **manufactured solution OF THE SAME MODEL** | **NO, by construction** | **YES** |
+
+**My own table row put all four in one class under a ground that distinguishes
+them.** A reader applying §2f.3 literally reaches the wrong answer on the bottom two
+rows, which is exactly what happened. **The defect is in the drafting, not in
+heat-transfer's reading — their reading of the words was correct.**
+
+**§2f.3's row is NOT amended here.** Narrowing a cap makes a gate weaker, and
+**weakening a charter clause is Sanaa's, exactly as retiring one is (D539).**
+**REFERRED, WITH RECOMMENDED WORDING: split the CONTINUUM row so that *exact or
+manufactured solution of the same continuum model* is named separately and is
+`PASS`-capable when §2h.4's conditions are met.** Until she rules, **§2h governs by
+express classification and §2f.3's cap stands untouched for everything else.**
+
+### §2h.4 THE CONDITIONS, WHICH ARE THE WHOLE RULING — a floor demonstration may `PASS` ONLY where ALL FIVE hold, declared in the registration BEFORE compute
+
+1. **THE REFERENCE IS THE EXACT OR MANUFACTURED SOLUTION OF THE SAME CONTINUUM MODEL
+   THE SOLVER DISCRETISES.** Not an experiment, not a correlation, not a different
+   model. **This is the load-bearing condition:** it is what makes model-form error
+   **zero by construction** and the residual **discretisation error**. If the
+   reference is anything else, **§2f.3's CONTINUUM cap applies in full** and this
+   clause does not fire.
+2. **ITERATIVE ERROR IS SEPARATELY GATED BY RULE 5 LIMB (1), ONE-WAY.** A level not
+   iteratively converged or not plateaued is `NOT A RESULT` **regardless of the floor
+   result**, and no verdict-writing path may turn that into a `PASS`. **"No triple"
+   never means "no rule 5" (§2f.2).**
+3. **ROUND-OFF IS STATED WITH ITS MAGNITUDE AND SHOWN NEGLIGIBLE AGAINST THE BAND** —
+   a number in the registration, not an assurance.
+4. **THE LIMB'S WORDING MAKES NO CONTINUUM CLAIM.** It reads *"the discretisation
+   error is below X at N cells"*, **never** *"the solution is correct to X"*. **A
+   floor demonstration WORDED as a continuum claim IS a continuum claim and §2f.3
+   catches it.** The registration's own sentence is the test.
+5. **THE CLAIM IS BOUNDED BY THE LEVELS ACTUALLY RUN.** *"Below X at every level
+   run"* is measured; *"so the answer does not depend on the mesh"* is a claim about
+   meshes **not** run and is not supported by this instrument. **§2g.3's phrase *"so
+   the answer does not depend on the mesh at the resolution that matters"* OVERREACHES
+   and is NARROWED here, against this team's own drafting** — a floor demonstration
+   establishes the error at the meshes measured and nothing about finer ones, because
+   establishing behaviour across meshes is what a triple is for **and this instrument
+   deliberately has none.**
+
+### §2h.5 T9a-R1c ON THESE CONDITIONS — the ruling heat-transfer is holding for
+
+**On the design as reported, conditions 1, 2 and 5 are met** — an exact
+series-resistance referent; limb (1) applied in full and one-way with a single
+verdict-writing function that cannot turn `NOT A RESULT` into `PASS`; and three
+levels run. **Condition 3 is OWED: state the round-off magnitude against the
+1.0e-04 K band as a number.** **Condition 4 is OWED as a WORDING CHECK: the
+registered sentence must read as a discretisation-error claim.**
+
+**RULING: `PASS` IS AVAILABLE TO T9a-R1c's FLOOR LIMB**, on §2g.3's express
+authority as narrowed by §2h.4, **once conditions 3 and 4 are discharged in the
+pre-compute registration.** Both are one-field, pre-compute, and reversible before
+launch. **The AST guard over a forbidden-name list, with a planted `gci_unequal()`
+control proving the guard can see one, is the right instrument for condition 4's
+machine half** and is noted approvingly — **but it proves the ABSENCE OF A TRIPLE,
+not the wording of the claim, and condition 4 is about the wording.**
+
+**NOT RULED, and named so it is not read in:** nothing here touches W1b's refused
+exception, which stands refused; **nothing licenses a `PASS` on any limb whose
+reference is experimental or correlative**; and **whether §2f.3's row should be
+split is Sanaa's, not settled by this.**
