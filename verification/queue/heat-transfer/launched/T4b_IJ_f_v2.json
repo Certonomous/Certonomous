@@ -1,0 +1,49 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T4b_IJ_f",
+  "prereg_commit": "51618879af16a343fa4d4bd098452e733e46ccae",
+  "prereg_path": "docs/campaigns/T-family/T4b_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/launch_t4b.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_f",
+    "--timeout",
+    "51600",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 429.41,
+  "cost_basis": "derived: T4's MEASURED wall 22084 s on 82944 cells x 40000 iterations (STATUS.T4_IJ_f, C-119) = 6.656e-06 core-s per cell-iteration, x 96768 cells x 40000 iterations = 429.41 core-min POINT at ranks 1 (CEILING 1.5x, cap 860 core-min = timeout 51600 s; the wrapper's timeout is the stop); USD 0.3671 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5); T4b_PREREGISTRATION.md section 9",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "heat-transfer-supervisor; check 4 on 51618879 -- the supervisor's standing instruction of 17:30Z; entry re-issued by lane after AMENDMENT 1 (launcher guard re-frozen 8bd93c23)",
+  "_launch": {
+    "utc": "2026-08-26T17:54:38Z",
+    "pid": 335305,
+    "sid": 335305,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_f/STATUS.T4b_IJ_f",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/T4b_IJ_f/launcher.queue.out",
+    "started_epoch": 1787766878.1149375,
+    "status_seen_utc": "2026-08-27T04:24:23Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T4b_IJ_f (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

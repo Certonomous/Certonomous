@@ -1,0 +1,51 @@
+{
+  "team": "heat-transfer",
+  "case_id": "W1b_c",
+  "prereg_commit": "3c39d08df63557beeb61968ee948af930e19b737",
+  "prereg_path": "docs/campaigns/T-family/T9aR1b_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1b_runs/run_one_t9aR1b.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1b_runs/W1b_c",
+    "--timeout",
+    "60",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1b_runs/W1b_c",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.0015,
+  "cap_core_min_registered": 1,
+  "cost_basis": "derived from the parent T9a's MEASURED wall 0.09 s per level (STATUS.W_c, STATUS.W_f), serial -> 0.0015 core-min POINT; cap 1 core-min = timeout 60 s, the wrapper's stop (rule 12); USD 0.0000 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5); T9aR1b_PREREGISTRATION.md section 5",
+  "memory_floor_gb": 0.5,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]",
+  "_launch": {
+    "utc": "2026-08-27T08:54:17Z",
+    "pid": 705199,
+    "sid": 705199,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1b_runs/W1b_c/STATUS.W1b_c",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1b_runs/W1b_c/launcher.queue.out",
+    "started_epoch": 1787820857.339125,
+    "status_seen_utc": "2026-08-27T08:55:17Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.W1b_c (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

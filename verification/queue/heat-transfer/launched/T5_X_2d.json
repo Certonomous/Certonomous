@@ -1,0 +1,52 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T5_X_2d",
+  "prereg_commit": "0fcbb92e80ae7b81e5ee0cf8d7404be6489cf876",
+  "prereg_path": "docs/campaigns/T-family/T5_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/run_one_t5.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/X_2d",
+    "--timeout",
+    "4752",
+    "--ranks",
+    "1",
+    "--solver",
+    "simpleFoam",
+    "--foam-bashrc",
+    "/usr/lib/openfoam/openfoam2606/etc/bashrc"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/X_2d",
+  "ranks": 1,
+  "cost_core_min_estimate": 26.4,
+  "cost_basis": "derived: T5_PREREGISTRATION.md section 11.1 Model B 0.44 core-h = 26.4 core-min for X_2d at 1 rank; timeout 4752 s = per-case guard 3x Model B (section 11.3) = 79.2 core-min x 60 / 1 rank; $0.023 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer-supervisor via lane a442775b; supervisor check 4 performed on commit 0fcbb92e at 15:56Z (board df2719f9)",
+  "_launch": {
+    "utc": "2026-08-26T16:28:57Z",
+    "pid": 158670,
+    "sid": 158670,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/X_2d/STATUS.T5_X_2d",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/X_2d/launcher.queue.out",
+    "started_epoch": 1787761737.0731635,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T5_X_2d (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

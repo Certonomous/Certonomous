@@ -1,0 +1,51 @@
+{
+  "team": "heat-transfer",
+  "case_id": "K0f_EXT_I_hi",
+  "prereg_commit": "c18ab05f9224f618b41c806c001f731d15c1b567",
+  "prereg_path": "docs/campaigns/F14-cooling-ladder/K0f_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/scripts/launch_k0f_ext1.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0f_runs/I_hi",
+    "--timeout",
+    "6540",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0f_runs/ext/I_hi",
+  "ranks": 1,
+  "cost_core_min_estimate": 57.12,
+  "cap_core_min_registered": 109,
+  "cost_basis": "derived: 0.5 x the case's MEASURED segment-1 core-minutes (C-137; +20000 of 40000 iterations at the same rate) = 57.12 core-min POINT; cap 109 core-min = 1.9 x POINT (timeout 6540 s at 1 rank), inside the registered rung CEILING 2750.70 (A3.5); USD at $0.0513/core-h reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]; K0f AMENDMENT 3 (this prereg_commit) registers the extension form, caps and cwd; --no-detach so the runner cap watch sees the real end (supervisor 21:12Z)",
+  "_launch": {
+    "utc": "2026-08-27T07:24:20Z",
+    "pid": 691651,
+    "sid": 691651,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0f_runs/ext/I_hi/STATUS.K0f_EXT_I_hi",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K0f_runs/ext/I_hi/launcher.queue.out",
+    "started_epoch": 1787815460.8500984,
+    "status_seen_utc": "2026-08-27T08:27:06Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.K0f_EXT_I_hi (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

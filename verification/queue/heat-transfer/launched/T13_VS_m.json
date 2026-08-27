@@ -1,0 +1,50 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T13_VS_m",
+  "prereg_commit": "0d2dc1504251f0436830bca49e76f396cc2789dd",
+  "prereg_path": "docs/campaigns/T-family/T13_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/run_one_t13.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/T13_VS_m",
+    "--timeout",
+    "3840",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/T13_VS_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 15.267,
+  "cost_basis": "derived from the scratch-MEASURED rate 1.789e-06 core-s per cell-iteration (T13_VS_c copy, 400 iterations, ExecutionTime 4.58 s, 2026-08-26T20:52Z): 25600 cells x 20000 iterations, serial -> 15.267 core-min POINT; cap 64 core-min = timeout 3840 s, the wrapper's stop (rule 12); USD 0.0131 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5); T13_PREREGISTRATION.md section 7",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]",
+  "_launch": {
+    "utc": "2026-08-26T22:39:52Z",
+    "pid": 551511,
+    "sid": 551511,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/T13_VS_m/STATUS.T13_VS_m",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T13_runs/T13_VS_m/launcher.queue.out",
+    "started_epoch": 1787783992.1670034,
+    "status_seen_utc": "2026-08-26T23:01:28Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T13_VS_m (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

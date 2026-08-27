@@ -1,0 +1,51 @@
+{
+  "team": "heat-transfer",
+  "case_id": "D_Ts_Re25_U_f",
+  "prereg_commit": "994daa49905f7826d8dc5bb47f28e574c8588f70",
+  "prereg_path": "verification/runs/T-family/T1_runs/DIAGNOSTIC_PREDICTION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/run_one_dts_u.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/D_Ts_Re25_U_f",
+    "--timeout",
+    "16200",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/D_Ts_Re25_U_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 86.807,
+  "cap_core_min_registered": 270,
+  "cost_basis": "derived from the PARENT-MEASURED rate 4.1718e-06 core-s per cell-iteration, taken from the parent level D_Ts_Re25_f's own completed run (verification/runs/T-family/T1_runs/dts.json completion block: wall_seconds / (cells x endTime)): 31212 cells x 40000 iterations, serial -> 86.807 core-min POINT; cap 270 core-min = timeout 16200 s, the wrapper's stop (rule 12). A scratch probe of this arm's own c case measured 6.494e-06 core-s per cell-iteration, 2.27x the parent rate on a contended box; the POINT stays the parent figure and the cap absorbs the contention. USD 0.0742 POINT at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5). Registered at DIAGNOSTIC_PREDICTION.md:786 (frozen 6a0d7f45d5bc19a3fa06fffac4a20c2a3ecbf82c); build/run specification in the pre-first-compute amendment at the foot of the same file, this sha.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]",
+  "_launch": {
+    "utc": "2026-08-27T09:12:42Z",
+    "pid": 711800,
+    "sid": 711800,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/D_Ts_Re25_U_f/STATUS.D_Ts_Re25_U_f",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T1_runs/D_Ts_Re25_U_f/launcher.queue.out",
+    "started_epoch": 1787821962.9557977,
+    "status_seen_utc": "2026-08-27T11:02:04Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D_Ts_Re25_U_f (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

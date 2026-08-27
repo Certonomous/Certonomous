@@ -1,0 +1,53 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T5_H_c",
+  "prereg_commit": "299296a29b30def2c9fec910b66a554b4f4f11cd",
+  "prereg_path": "docs/campaigns/T-family/T5_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/run_one_t5.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/H_c",
+    "--timeout",
+    "8208",
+    "--ranks",
+    "1",
+    "--solver",
+    "chtMultiRegionSimpleFoam",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/H_c",
+  "ranks": 1,
+  "cost_core_min_estimate": 45.6,
+  "cost_basis": "derived: Model B POINT 0.76 core-h x 60 = 45.6 core-min at ranks 1 (T5_PREREGISTRATION.md H_c Gauss-linear interface twin, S11.1 row `H_c` 0.76 core-h; AMENDMENT 2 row `T5_CUBE_c, H_c` 45.6 / cap 136.8 / timeout 8208 s); USD 0.0390 = 0.76 core-h x $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 2.0,
+  "memory_basis": "estimated, not measured: 53553 cells (air+epoxy, read from log.checkMesh) at ~1 GB per 100k cells with a 2 GB floor",
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]",
+  "_launch": {
+    "utc": "2026-08-26T20:55:11Z",
+    "pid": 421111,
+    "sid": 421111,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/H_c/STATUS.T5_H_c",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/H_c/launcher.queue.out",
+    "started_epoch": 1787777711.5267303,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T5_H_c (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

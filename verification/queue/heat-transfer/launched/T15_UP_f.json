@@ -1,0 +1,50 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T15_UP_f",
+  "prereg_commit": "de0683c7e3beb7e503e5bf4787c43481323f9fb7",
+  "prereg_path": "docs/campaigns/T-family/T15_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T15_runs/run_one_t15.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T15_runs/T15_UP_f",
+    "--timeout",
+    "156000",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T15_runs/T15_UP_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 1307.0,
+  "cap_core_min_registered": 2600,
+  "cost_basis": "derived from the scratch-MEASURED rate 3.267 core-s per timestep (copy of the registered T15_UP_f, registered fvSolution, 20 steps, mean ExecutionTime delta over steps 6-20, 2026-08-26): 24000 steps serial -> 1307 core-min POINT; cross-checked against the parent's MEASURED rate at verification/runs/T-family/T8_runs/STATUS.T8_MTT_f (core_min 218.350 over 20000 iterations on 102400 cells = 6.397e-06 core-s per cell-iteration), PIMPLE/SIMPLE ratio 4.99 measured; cap 2600 core-min = timeout 156000 s, the wrapper's stop (rule 12); USD 1.117 POINT / 2.223 CAP at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5); T15_PREREGISTRATION.md section 7",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "heat-transfer-supervisor via lane [lab-attributed]",
+  "_launch": {
+    "utc": "2026-08-27T08:57:32Z",
+    "pid": 708451,
+    "sid": 708451,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T15_runs/T15_UP_f/STATUS.T15_UP_f",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T15_runs/T15_UP_f/launcher.queue.out",
+    "started_epoch": 1787821052.598681
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T15_UP_f (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

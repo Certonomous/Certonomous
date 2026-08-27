@@ -1,0 +1,48 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T3_R_ff",
+  "prereg_commit": "32980e09046da9e53945432bbcc78de71eca1fd7",
+  "prereg_path": "docs/campaigns/T-family/T3_R_FF_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/launch_t3_rff.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_ff",
+    "--timeout",
+    "205500",
+    "--ranks",
+    "8"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_ff",
+  "ranks": 8,
+  "cost_core_min_estimate": 18218.0,
+  "cost_basis": "derived: 602128 cells x 118000 iterations / 6.50e4 cell-it per core-s = 1.093e6 core-s = 18218 core-min POINT (cap 27400 core-min, timeout 205500 s at 8 ranks); USD 15.58 at the owner-stated $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5)",
+  "memory_floor_gb": 3.0,
+  "enqueued_by": "heat-transfer-supervisor; check 4 performed personally on commit 32980e09 (prereg blob, analyse_t3_rff 44e3e2b8, mark_done_t3_rff 9436399f verified at that sha) at 2026-08-26T16:29:14Z",
+  "_launch": {
+    "utc": "2026-08-26T17:43:48Z",
+    "pid": 313461,
+    "sid": 313461,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_ff/STATUS.T3_R_ff",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T3_runs/R_ff/launcher.queue.out",
+    "started_epoch": 1787766228.0159347,
+    "status_seen_utc": "2026-08-26T22:17:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T3_R_ff (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
