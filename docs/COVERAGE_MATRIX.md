@@ -2295,3 +2295,73 @@ W1b are absent from `heat-transfer_GRID.md` (which still reads them `PENDING`), 
 D17 is absent from `dafoam_GRID.md`, and **D7FR is already in revision 5**. Heat-transfer
 records a **deliberate, disclosed hold** on part of that set. **The grid is not behind the
 lab; the family sources are, and that is the owning teams' call, not this team's.**
+
+---
+
+## DATED SECTION, 2026-08-27 — RULING: CLOSURE ENTERS THE CAPABILITY GRID AS **EVIDENCE**, NOT AS A FOURTH FAMILY TABLE — AND THE BLIND SPOT IS NOT THAT CLOSURE HAS NO FILE, IT IS THAT **MY ASSEMBLER HAS ROOM FOR EXACTLY ONE NON-FAMILY TEAM AND ANSYS IS IN IT**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`,
+proved by a byte-prefix check against the HEAD blob in the same invocation. Ruled on the chief's
+referral, after closure (`a82f9631b5f198a32`) reported that `docs/capability/` holds no
+`closure_GRID.md` and correctly declined to create one uninvited.**
+
+### 1. THE RULING
+
+**Closure's R-ladder and FS-ladder verdicts enter the grid as an EVIDENCE section, on the
+`ansys_ROWS.md` precedent — NOT as a fourth family table.** Sanaa's taxonomy is three family
+tables (cfd, heat-transfer, dafoam), and the grid's own line 9 says so: *"Order (Sanaa's): cfd
+table, heat-transfer table, dafoam table, then the metrics summary."* **Adding a fourth family
+table changes her taxonomy and is hers, not this team's** — the same boundary this team applied
+to the sweep precondition and to §2f.
+
+**The precedent is exact.** ansys-verification is also a sixth team outside Sanaa's three, and it
+already enters at `docs/CAPABILITY_GRID.md:365` as *"Evidence: ansys-verification (VMFL register
+rows mapped onto cfd / heat-transfer classes)"*. **A team that runs the same physics classes
+contributes rows mapped onto those classes; it does not get a table of its own.**
+
+### 2. ⚠ BUT IT CANNOT HAPPEN TODAY, AND THE REASON IS A DEFECT IN THIS TEAM'S INSTRUMENT
+
+`scripts/assemble_capability_grid.py:35-36` reads:
+
+    EVIDENCE = ("ansys-verification (VMFL register rows mapped onto cfd / heat-transfer classes)",
+                "ansys_ROWS.md")
+
+and `:331` unpacks it as `ev_label, ev_file = EVIDENCE`. **`EVIDENCE` is a two-tuple, not a list.
+The assembler can carry EXACTLY ONE evidence source, by construction, and ansys occupies it.**
+
+**So the structural blind spot the chief asked me to rule on is real and is NOT the one that was
+described.** It is not that absence reads as *"closure contributed nothing"* — the grid never
+renders a closure row at all, and its line 9 does declare the three-table order, so it does not
+falsely claim to be lab-complete. **The defect is that the grid offers a slot for a non-family
+team, fills it once, and gives a reader no way to learn that the slot is singular.** A second
+team could not be added even if it had perfect rows ready. **That is mine to fix, it is
+pre-requisite to inviting closure to author anything, and it is recorded here rather than
+repaired silently.**
+
+### 3. WHICH CLOSURE ROWS MAY MAP, AND WHICH MAY NOT — decided now so the invitation is not open-ended
+
+- **ELIGIBLE: rows backed by a lab solve.** Closure's rows 2 and 6 have one. A periodic-hill or
+  duct solve occupies a real physics cell and can carry `V`, `G` and `P` in the grid's sense.
+- **NOT ELIGIBLE, and excluded BY NAME rather than by omission: the a-priori rows 1, 4 and 5.**
+  These are evaluated cellwise on a reference dataset's own grid **with no PDE solved**. **`G` is
+  not merely absent for them — it is UNDEFINED**: with no solve there is no refinement family, so
+  no triple exists to be `CONVERGING`, and standing rule 5 has nothing to gate. **A cell that
+  cannot in principle carry `G` must not be given a grid row that implies it could**, and closure
+  said the same thing unprompted: a future `PASS` on rows 2/6 must not be read across the family.
+- **NOTHING IS AUTHORED YET.** The file, when it is wanted, is **`closure_ROWS.md`** — the
+  evidence form — **not `closure_GRID.md`**, and this team will specify the format and ask for it
+  **only when (a) `G1` or `G2` grades with a real solve, a `CONVERGING` triple and its frozen
+  band, and (b) §2's one-slot limit is repaired.** **Closure was right not to create a file
+  uninvited, and it should not create one now.**
+
+### 4. WHAT THIS RULING DOES NOT DO
+
+- **It creates no gate and moves no cell.** No census changes, no verdict changes, and
+  `docs/CAPABILITY_GRID.md` is not touched by this section.
+- **It does not decide that closure has no capability.** It decides where closure's evidence
+  belongs when it exists. **G1 (`commit:a90077df`, armed, zero numbers produced) and G2 (in
+  freeze) are what would produce it.**
+- **It does not repair §2's one-slot limit.** That is a change to a measurement-adjacent script
+  and lands as its own commit with its own planted control — under `VERIFICATION_CHARTER` v1.13,
+  the assembler carries a measured sha-resolution rate, so amending it re-measures that rate from
+  committed blobs over the same sample, with a mutation shown to move the rows.
