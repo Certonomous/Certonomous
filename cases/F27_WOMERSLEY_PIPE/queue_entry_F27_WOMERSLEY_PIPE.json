@@ -1,12 +1,12 @@
 {
   "team": "cfd",
   "case_id": "F27_WOMERSLEY_PIPE",
-  "prereg_commit": "4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e",
+  "prereg_commit": "05ec72c41ee762b49c3dc1d25a6780689b9b9044",
   "prereg_path": "verification/campaign/F27_WOMERSLEY_PIPE_PREREGISTRATION.md",
   "launch_cmd": [
     "bash",
     "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE/run_f27.sh",
-    "--prereg-commit=4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e"
+    "--prereg-commit=05ec72c41ee762b49c3dc1d25a6780689b9b9044"
   ],
   "cwd": "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE",
   "ranks": 4,
@@ -26,11 +26,12 @@
   "cap_core_min_registered": 680.0,
   "cap_behaviour": "checked incrementally after each level in ClockTime x ranks / 60; a crossing HALTS at exit 3, unlaunched levels stay PENDING, the cap is NEVER raised (rule 12). The PRE-SPEND projector is proj_f27.py and is NOT the F23/F24/F25 form: it projects the FIRST level from the frozen measured rate and every LATER level from THIS RUN's own completed levels, with NO contention multiplier (CONTENTION_MULTIPLIER = 1.0) because the frozen rates were themselves measured under load 19.66/16. The F23/F24/F25 max(1, ranks / max(free_cores, 0.5)) form pins at 8.0x on a busy box and halted F24 before its fine level against a measured 1.86x; its absence here is checked STRUCTURALLY by AST (no max() call node in any projection function) and BEHAVIOURALLY (the projection is a pure function of level and completed levels). The halt path is driven in BOTH directions by proj_f27.py --selftest on INJECTED numbers, which never reads /proc.",
   "registered_prediction": "TWO GATED quantities, both CONVERGING with observed order ~2 in the registered model (E2 1.9666, Einf 1.8194, both classified before compute through scripts/roache_triple.py::triple_from_cells at dim 3 -- L-345). G-F27-1 E2 (volume-weighted L2 of the full velocity error / U_REF at t = 5.25) fine value in [6.052738e-05, 1.513185e-03] about a prediction of 3.026369e-04. G-F27-2 Einf (max over cells of |u_z - u_exact(r)| / U_REF) fine value in [1.139784e-04, 2.849461e-03] about a prediction of 5.698921e-04. Both bands are the composite model's fine-level prediction times BAND_FACTOR 5.0, one declared parameter. R-F27-W bulk mean axial velocity is REPORTED-NOT-GATED (no verdict): a zero-compute coarse pilot measured its error at -7.27e-03 where the radial model predicted +9.57e-04, wrong sign and 7.6x, so L-345's remedy is applied rather than banding around a prediction already known to be wrong. R-F27-E_perp, R-F27-A_z and R-F27-A_theta are REPORTED. Rule 5 limb 1 carries THREE measured states per level: iterative census over every step's final Ux, Uy, Uz and p residuals (p <= 1e-10, U <= 1e-12); periodicity ||U(5.25) - U(4.25)||_2,V / U_REF <= 1e-6 (model predicts 1.17e-8 worst); and UNIFORMITY, A_z and A_theta <= 0.1 x that level's own predicted E2 -- the instrument that would catch F21's wall-localized mode directly.",
-  "smoke_arm": "ALL THREE mesh levels built and checkMesh'd (above) plus a FULL coarse-level physics pilot run to t = 5.25 on 4 ranks in scratch, OUTSIDE the run root, 0.88 core-min (ClockTime 13 s x 4 ranks): rc 0, End written, 672 Time lines, fields at 5.25 and 4.25. Measured E2 7.663017e-03 against the composite model's 4.732636e-03 (ratio 1.619) and Einf 1.174077e-02 against 7.831765e-03 (ratio 1.499); E_perp 4.375e-15, A_z 3.075e-14, A_theta 2.476e-12 (the solver holds the flow exactly axial, z-invariant and 4-fold symmetric to machine precision); periodicity 1.587e-07 against the 1e-6 tolerance. The pilot is DISCLOSED IN FULL in prereg section 10; it moved W to REPORTED-NOT-GATED and adopted the R_eff composite step, and it did NOT change BAND_FACTOR, which stays at the 5.0 fixed before the pilot was read. Not a level, not in the run root, and no verdict cites it. scripts/check_launcher_can_launch.py rc 0 (ARM 1 and ARM 3); run_f27.sh --preflight rc 0 at zero compute printing CAP AGREES 680.",
+  "smoke_arm": "ALL THREE mesh levels built and checkMesh'd (above) plus a FULL coarse-level physics pilot run to t = 5.25 on 4 ranks in scratch, OUTSIDE the run root, 1.20 core-min (ClockTime 18 s x 4 ranks; ExecutionTime 13.23 s -- the lab's unit is ClockTime x ranks): rc 0, End written, 672 Time lines, fields at 5.25 and 4.25. Measured E2 7.663017e-03 against the composite model's 4.732636e-03 (ratio 1.619) and Einf 1.174077e-02 against 7.831765e-03 (ratio 1.499); E_perp 4.375e-15, A_z 3.075e-14, A_theta 2.476e-12 (the solver holds the flow exactly axial, z-invariant and 4-fold symmetric to machine precision); periodicity 1.587e-07 against the 1e-6 tolerance. The pilot is DISCLOSED IN FULL in prereg section 10; it moved W to REPORTED-NOT-GATED and adopted the R_eff composite step, and it did NOT change BAND_FACTOR, which stays at the 5.0 fixed before the pilot was read. Not a level, not in the run root, and no verdict cites it. scripts/check_launcher_can_launch.py rc 0 (ARM 1 and ARM 3); run_f27.sh --preflight rc 0 at zero compute printing CAP AGREES 680.",
   "grade_cmd": [
     "python3",
     "/home/ubuntu/Certonomous/cases/F27_WOMERSLEY_PIPE/grade_f27.py",
-    "--prereg-commit=4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e"
+    "--prereg-commit=05ec72c41ee762b49c3dc1d25a6780689b9b9044"
   ],
-  "verdict_state": "PENDING"
+  "verdict_state": "PENDING",
+  "superseded_prereg_commit": "4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e -- STRUCK, not rewritten, by AMENDMENT 1 (pre-compute, run root absent, 0 core-min spent): a mislabelled scratch-pilot cost corrected from 0.88 core-min on an ExecutionTime basis to 1.20 core-min on the lab's ClockTime x ranks basis. NO gate, threshold, band, cap or label moved. No run ever cited the superseded sha."
 }
