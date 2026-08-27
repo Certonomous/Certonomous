@@ -112,12 +112,56 @@ that is her call (`FAMILY_SUPERVISION_GUIDELINES.md` §3.4; `SUPERVISOR_RULINGS.
 | | B3 **Stage 4** (the inversion the rung exists for), shipped | **BLOCKED** | Blocked by construction until the fix ships upstream or Sanaa adopts a forked toolchain. `FAMILY_SUPERVISION_GUIDELINES.md` §3.4 |
 | **S1** CBFS inversion line (all on the patched image) | PATCHED | **G1 PASS, G2 FAIL** (re-inversion); **both FAIL** (first inversion) | J_qoi **74.2 %** reduction after the objective repair; G2 **26.9 %** against a >50 % bar. **G2 was then measured at 35.38 % on the baseline gradient alone**, so as defined it scores the sensitivity map, not the closure's error location. `ladder-b/S1_CBFS_{INVERSION,REINVERSION}_RESULT.md`, `S1_SENSITIVITY_VS_ERROR.md` §3 |
 | **NASA hump** adjoint | either | **uncharacterised** | Headline 3 **withdrawn as a causal claim** — the run was ended by a `docker stop` at `MemAvailable` 1.62 GB and `hump_sublu_computetotals.log` contains `ConvergedReason` **zero times**. M1+M2 at **40 core-min** are the decisive-cheapest repair and are unbought. `ladder-b/W4_ADJOINT_PC_UNBLOCK.md` §5b.1 |
+| **D15** NACA0012 subsonic M 0.288, 4,032 cells (`DARhoSimpleFoam`) | SHIPPED | **GATE FAIL** | `CD` band D 5.0 %/component: 3 of 5 outside, worst **44.87 %** (`shape[6]`); `CL` `shape[6]` 30.07 %. Registered P5 **HIT**. `ladder-a/A1/curriculum_D15/RESULTS.md` (graded 2026-08-27, `5582a5a0`) |
+| | PATCHED `dafoam-idwarp-rot:v1` | **PASS** | 5 of 5 in band, 0.0072–1.657 %; `patchV[1]` control identical on both rows, divergence exactly 0.000 %. Item **GATE FAIL**, 10.100 core-min. Same file |
+| **D16** NACA0012 transonic M 0.685, 4,032 cells (`DARhoSimpleCFoam`) | SHIPPED | **GATE FAIL** | Fails on **`shape[0]`** at 5.15 % against the 5.0 % band — **not `shape[6]`**, which passes at 1.95 %; `CL` `shape[6]` 41.80 %. **Registered P5 MISS while the row still failed.** `ladder-a/A1/curriculum_D16/RESULTS.md` (`dd9bf92f`) |
+| | PATCHED `dafoam-idwarp-rot:v1` | **PASS** | 5 of 5 in band, worst 0.528 % on `CD` (1.630 % on `CL`). Item **GATE FAIL**, 15.935 core-min. Same file |
+| **D17** planar wedge M 1.958, 40,000 cells (`DAHisaFoam`, inviscid) | SHIPPED **and** PATCHED | **PASS** on both rows — **but NOT DISCRIMINATING** | First `DAHisaFoam` result in this lab; primal cleared DAFoam's own guard. **The item's worst shipped-vs-patched divergence (2.268 %) is SMALLER than its own patched control row's FD error (2.777 %), S/N 0.82**, so its P5 MISS carries no information about the defect in either direction. 172.833 core-min. `curriculum_D17_cone_supersonic/RESULTS.md` (`e733f5d4`) |
 
 **Two integrity flags on the records above, neither quoted from.** `ladder-a/A1_naca0012_incompressible.md:167-172`
 still names a refuted mechanism (`forceMeshWaveFrozen=True`) with zero strike and zero amendment
 marker; `ladder-a/A5_ubend_internal.md:194-196` names the in-band component set as {1,2,16,24,25}
 where the measured membership at np=4 is {1,2,24,25,26}. Both are frozen records, so both
 corrections are the owner's and go in as dated notes.
+
+### 3a. The supervisor's check-3 sweep on the P5 reach claim (2026-08-27)
+
+**This is the DAFoam supervisor's own sweep** (`SUPERVISION_CHARTER.md` §3: verifying a big claim
+before believing it is a personal duty and is not delegated), re-derived independently by the lane
+that wrote it up. The full text is appended as a dated section at the foot of each of the three
+`RESULTS.md` above; this is the map entry.
+
+D15/D16/D17 registered **one** P5 at three Mach numbers — *does the IDWarp rotation defect reach the
+compressible solvers?* — and scored **HIT / MISS / MISS**. **The naive reading of that pattern
+("bounded to the incompressible path") is wrong, and so is a clean monotone-in-Mach story.**
+
+Signal = worst `divergence_pct = |J_shipped − J_patched| / |J_shipped|` on the adjoint `CD` totals.
+Noise = worst **PATCHED**-row FD relative error on the same objective — the common-mode error both
+rows share against one FD reference. Both columns are the `CD` channel.
+
+| item | M | worst shipped-vs-patched divergence (SIGNAL) | worst PATCHED-row FD error (COMMON-MODE NOISE) | S/N |
+|---|---|---|---|---|
+| D15 | 0.288 | **44.878 %** | 1.657 % | **27.1** |
+| D16 | 0.685 | **5.487 %** | 0.528 % | **10.4** |
+| D17 | 1.958 | 2.268 % | 2.777 % | **0.82** |
+
+1. **The defect PERSISTS into the compressible solvers** — the SHIPPED row `GATE FAIL`s at both
+   M 0.288 (`DARhoSimpleFoam`) and M 0.685 (`DARhoSimpleCFoam`).
+2. **Its magnitude falls about 8x across that step** (44.878 % → 5.487 %, ratio 8.18).
+3. **The component it lands on MOVES** — `shape[6]` at M 0.288, `shape[0]` at M 0.685. **That is why
+   P5 read MISS at D16 while the row still failed: P5 was a prediction about a COMPONENT, not about
+   the DEFECT, and the registered falsifier was mis-specified.** Carried as `L-352`.
+4. **D17 is uninformative and is reported as such** — S/N 0.82, its divergence smaller than its own
+   control row's error, its SHIPPED `PASS` resting on `shape[3]` at 4.982 % clearing a 5.0 % band by
+   0.018 percentage points. **Its P5 MISS is a statement about D17's FD quality on a shock-containing
+   inviscid case, not about the toolchain, and is not evidence of absence.**
+
+**Not overstated.** Three points on three different geometries is **not a Mach sweep**: D17 changes
+geometry, FFD block, DV definition, solver class and physics at once. **The D15 → D16 pair is the
+only clean comparison — only the Mach number and the solver variant change — and finding 2's 8x is a
+statement about that pair and nothing else.** No monotone-in-Mach claim is made; two points cannot
+support one. No compute was spent on the sweep: **0.000 core-min**, every number read from the three
+grade jsons already on disk.
 
 ---
 

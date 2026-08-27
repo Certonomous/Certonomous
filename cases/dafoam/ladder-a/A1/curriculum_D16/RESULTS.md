@@ -158,3 +158,98 @@ Run root `/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic/`:
 `D16_grade_20260827T114714Z.json`, `ledger.txt` (5 `ARM=` rows), `STATUS.chain` and the five per-arm
 `STATUS.*`, per-arm `*.inspect.txt` kernel records, `{X,F}-{S,P}/d16_{X,F}.json`,
 `grader_controls/F_{S,P}_planted.json`, per-arm solver logs and memory windows.
+
+---
+
+## The supervisor's check-3 sweep on the P5 reach claim — added 2026-08-27, dated section, appended
+
+**Lines whose number changed above this section: 0** — this section is appended at the foot and
+nothing above it is edited. Proved by byte comparison: the file's first N lines are byte-identical to
+the committed blob this section was appended to, N being the blob's own line count.
+
+**This is the DAFoam supervisor's check-3 sweep, not this lane's reading.** `SUPERVISION_CHARTER.md`
+§3 makes verification of a big claim before belief a personal supervisor duty that may not be
+delegated. The supervisor read every number below from the graded jsons before this text was
+written; this lane re-derived each one independently from the same jsons and from the three
+`RESULTS.md` tables, and reports the arithmetic as reproduced. **No gate, threshold, band, cap,
+label or verdict moves here.** D15 stays `GATE FAIL`, D16 stays `GATE FAIL`, D17 stays `PASS`, and
+every registered prediction keeps the outcome its comparator scored.
+
+### The claim under test
+
+The three items registered **one** P5 at three Mach numbers: *does the IDWarp rotation defect reach
+the compressible solvers?* The scored outcomes were **HIT / MISS / MISS** at M 0.288 / 0.685 / 1.958.
+**The naive reading of that pattern — "bounded to the incompressible path" — is wrong, and so is a
+clean monotone-in-Mach story.** Both are refused below by the items' own evidence.
+
+### The signal-to-noise table
+
+**Signal** is the worst shipped-versus-patched divergence on the adjoint `CD` totals,
+`divergence_pct = |J_shipped − J_patched| / |J_shipped|`, read from
+`divergence_shipped_vs_patched_CD` in each item's grade json. **Noise** is the worst
+**PATCHED**-row FD relative error on the same graded objective `CD` — the common-mode error the two
+rows share, since both rows are graded against the same FD reference. Both columns are the `CD`
+channel; the `CL` channel is stated separately below and is not folded in.
+
+| item | M | solver | worst shipped-vs-patched divergence (SIGNAL) | worst PATCHED-row FD error (COMMON-MODE NOISE) | S/N |
+|---|---|---|---|---|---|
+| D15 | 0.288 | `DARhoSimpleFoam` | **44.878 %** (`shape[6]`) | 1.657 % (`shape[7]`) | **27.1** |
+| D16 | 0.685 | `DARhoSimpleCFoam` | **5.487 %** (`shape[0]`) | 0.528 % (`shape[7]`) | **10.4** |
+| D17 | 1.958 | `DAHisaFoam` | 2.268 % (`shape[3]`) | 2.777 % (`shape[3]`) | **0.82** |
+
+`CL`, stated so the `CD` numbers are not reused where they do not reach: D15's patched `CL` worst is
+0.0262 %, D16's is **1.6303 %** (`shape[6]`), D17 grades no `CL` at all (symmetry reading).
+
+### The four findings, and nothing beyond them
+
+1. **The defect PERSISTS into the compressible solvers.** The SHIPPED row `GATE FAIL`s at both
+   M 0.288 (`DARhoSimpleFoam`) and M 0.685 (`DARhoSimpleCFoam`). This is not an inference from a
+   component; it is the two items' own row verdicts.
+
+2. **Its magnitude falls about 8x across that step** — 44.878 % → 5.487 % worst divergence
+   (ratio 8.18). Stated as a ratio between two measured points, not as a rate or a trend.
+
+3. **The component it lands on MOVES**: `shape[6]` at M 0.288, `shape[0]` at M 0.685. **This is why
+   P5 read MISS at D16 while the row still failed.** P5 was a prediction about a *component*, not
+   about the *defect*: the registered falsifier was mis-specified. The row failed, the defect was
+   present, and the prediction that was supposed to detect it scored MISS. This is a defect of the
+   prediction, not of the item, and it is carried as a lesson rather than as a repaired band.
+
+4. **D17 is NOT DISCRIMINATING and is reported as uninformative.** Its worst divergence (2.268 %) is
+   **smaller than its own PATCHED control row's worst FD error** (2.777 %) — S/N **0.82**. Component
+   by component, SHIPPED-minus-PATCHED relative error in percentage points reads
+   **+0.271 / −0.100 / +2.205 / +0.043 / −0.002** on `shape[0]/[1]/[3]/[4]/[5]`, against a patched row
+   that itself carries 2.371 % and 2.777 % on two of those five components. Its SHIPPED `PASS` rests
+   on `shape[3]` at **4.982 %** clearing a 5.0 % band by **0.018 percentage points** — a 0.36 %
+   relative margin, decided in the third decimal, on a case whose control row is equally elevated.
+   **D17's P5 MISS is a statement about D17's FD quality on a shock-containing inviscid case, not
+   about the toolchain, and it must not be counted as evidence of absence.**
+
+### What this sweep is not
+
+**Three points on three different geometries is not a Mach sweep.** D17 changes geometry (planar
+wedge, not the A1 airfoil), FFD block, DV definition, solver class and physics all at once; D15 and
+D16 share the mesh, the FFD, the DV set and the design point. **The D15 → D16 pair is the only clean
+comparison in the set — only the Mach number and the solver variant change between them** — and
+finding 2's 8x is a statement about that pair and about nothing else. No monotone-in-Mach claim is
+made or implied, and two points cannot support one.
+
+**No new compute was spent on this sweep.** Every number is read from artefacts already on disk:
+`/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic/D15_grade_20260827T114315Z.json`,
+`.../CURRICULUM-D16-a1-naca0012-transonic/D16_grade_20260827T114714Z.json`,
+`.../CURRICULUM-D17-cone-supersonic/D17_grade_20260827T130641Z.json`. **0.000 core-min.**
+
+### What the sweep changes for D16, specifically
+
+**Nothing in this item's verdict, and everything in how its P5 MISS is read.** §6 above already
+declined to promote the MISS into a statement about the defect's reach; the sweep settles why that
+was right. **D16's row failed and the defect was present — 5.487 % worst divergence against a
+0.528 % patched control, S/N 10.4 — and the registered falsifier still scored MISS, because it named
+`shape[6]` and the defect had moved to `shape[0]`.** The MISS is a defect of the prediction's
+specification, not evidence about the toolchain, and it is the case that earns the lesson in
+`docs/LESSONS.md`: **a registered falsifier should name the EFFECT, and the component only as its
+expected locus.**
+
+D16 is also half of the sweep's only clean comparison. Against D15 it holds the mesh (4,032 cells),
+the FFD, the DV set and the design point fixed and changes the Mach number and the solver variant —
+so the 8x fall in worst divergence between them is the one quantitative statement this set supports.
