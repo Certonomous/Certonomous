@@ -1,0 +1,1791 @@
+#!/usr/bin/env python3
+"""T5 COMPARATOR -- the only thing in this rung that writes a verdict.
+
+FROZEN AT THE PRE-REGISTRATION COMMIT, WITH THE PREREG AND THE DIGITISER, IN ONE
+COMMIT, SO THE FREEZE BINDS THE WHOLE GRADING PATH AT ONCE.
+
+NO `assert` IN THIS FILE CARRIES A REFUSAL, GUARD, CONTROL OR GATE.  `python3 -O`
+deletes every `assert` (L-332), so every refusal here is `sys.exit(2)`, every one
+is DRIVEN under `-O` in the selftest and shown to FIRE, and
+`scripts/check_assert_guards.py --require-clean` requires zero `ast.Assert` nodes.
+"""
+import argparse
+import json
+import math
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+VERDICT_PASS = "PASS"
+VERDICT_FAIL = "GATE FAIL"
+VERDICT_NAR = "NOT A RESULT"
+VERDICT_REPORTED = "REPORTED"
+
+LEVELS = ("c", "m", "f")
+FS = 1.25                        # Roache safety factor, registered
+# A triple whose ratio sits at 1 lands on either side of the DIVERGENT boundary by
+# FLOATING-POINT NOISE ALONE, and then p ~= 0 and the GCI it produces is enormous
+# and meaningless.  Found by this file's own selftest: gci_triple(1.2, 1.15, 1.1)
+# has an exact ratio of 1.0, but computes 1.0000000000000002 and was classified
+# CONVERGING with p = 3e-16.  A registered floor on the observed order makes the
+# boundary decidable instead of noise-dependent.
+P_MIN = 0.05
+ENDTIME = 5000
+REQUIRED_FIELDS = ("T", "U", "p_rgh", "alphat", "nut", "k", "omega")
+
+# --- INTERPRETATION 1's CONDITION: the y+ gate, per wall, and IT CAN FAIL ----
+# The ladder is registered at y+ 2.6 / 1.6 / 1.0 -- deliberately inside the
+# viscous sublayer with no wall function active.  That choice is only defensible
+# if the sublayer assumption is CHECKED.
+#
+# TONIGHT'S PRECEDENT, AND IT IS WHY EVERY WALL IS NAMED: T4's control C1 fired
+# at y+ 1.248 on the plate WHILE THE PIPE WALL SAT AT y+ ~= 30 under low-Re wall
+# functions, and no registered gate could see it BECAUSE C1 NAMED ONLY THE PLATE.
+# A gate that names one wall certifies one wall.
+# AMENDMENT 3 (pre-first-compute): the registered HALF domain (S5.2, symmetry at
+# z/H = 0) has ONE side face.  The wall set is the actual wall-patch set read from
+# the built case's constant/air/polyMesh/boundary (commit b98f3930): floor, roof,
+# cube_front, cube_rear, cube_top, cube_side_n.  `cube_side_s` named a patch that
+# does not exist and would have returned NOT A RESULT on every level by
+# construction.  No threshold, band or logic moves.
+YPLUS_WALLS = ("cube_front", "cube_top", "cube_rear",
+               "cube_side_n", "floor", "roof")
+YPLUS_MAX = 5.0     # the edge of the viscous sublayer; above this the low-Re
+                    # integration is resolving a region it does not resolve
+YPLUS_TARGET = {"c": 2.6, "m": 1.6, "f": 1.0}
+YPLUS_TARGET_TOL = 2.0   # achieved may exceed the target by this factor before
+                         # the LADDER (not the sublayer) claim is broken
+
+
+def refuse(msg):
+    sys.stderr.write("REFUSED: " + msg + "\n")
+    sys.exit(2)
+
+
+# ---------------------------------------------------------------------------
+# STATUS + the strict completion rule
+# ---------------------------------------------------------------------------
+def read_status(root, case):
+    p = os.path.join(root, "STATUS." + case)
+    if not os.path.isfile(p):
+        return None, "no STATUS file: nothing ran, or the launcher died before writing one"
+    d = {}
+    with open(p, errors="replace") as fh:
+        for line in fh:
+            if "=" in line:
+                k, v = line.split("=", 1)
+                d[k.strip()] = v.strip()
+    return d, None
+
+
+def check_completion(root, case, endtime=ENDTIME):
+    """All-or-nothing.  A run failing ANY clause is NOT DONE."""
+    st, err = read_status(root, case)
+    if st is None:
+        return dict(done=False, why=err)
+    why = []
+    if st.get("rc") != "0":
+        why.append("rc=%s (not 0); note=%s" % (st.get("rc"), st.get("note")))
+    if st.get("capped") == "1":
+        why.append("capped=1: stopped by its own budget, right-censored -- "
+                   "PENDING, never GATE FAIL")
+    case_dir = os.path.join(root, case)
+    log = os.path.join(case_dir, "log.solve")
+    if not os.path.isfile(log):
+        why.append("no log.solve")
+        return dict(done=False, why="; ".join(why), status=st)
+    with open(log, errors="replace") as fh:
+        txt = fh.read()
+    if "\nEnd\n" not in txt and not txt.rstrip().endswith("End"):
+        why.append("no End line")
+    times = [int(m.group(1)) for m in re.finditer(r"^Time = (\d+)", txt, re.M)]
+    if not times:
+        why.append("no Time lines")
+    elif times[-1] != endtime:
+        why.append("last time %d != endTime %d" % (times[-1], endtime))
+    nexec = len(re.findall(r"^ExecutionTime = ", txt, re.M))
+    if times and nexec != endtime:
+        why.append("ExecutionTime count %d != endTime %d" % (nexec, endtime))
+    end_dir = os.path.join(case_dir, str(endtime))
+    if not os.path.isdir(end_dir):
+        why.append("no %s/ directory" % endtime)
+        return dict(done=False, why="; ".join(why), status=st)
+    # fields present, searched across regions
+    present = set()
+    for dp, _dn, fn in os.walk(end_dir):
+        for f in fn:
+            present.add(f)
+    missing = [f for f in REQUIRED_FIELDS if f not in present]
+    if missing:
+        why.append("fields missing at endTime: " + ",".join(missing))
+    # THE AGE GUARD.  `0/**/T` is touched LAST at arming, so it dates the run
+    # that was allowed to produce the answer.  A field older than it is a field
+    # from a PREVIOUS run.
+    zt = None
+    z = os.path.join(case_dir, "0")
+    for dp, _dn, fn in os.walk(z):
+        if "T" in fn:
+            zt = os.path.getmtime(os.path.join(dp, "T"))
+            break
+    if zt is None:
+        why.append("no 0/**/T: the age guard has no datum and would decide on a None")
+    else:
+        stale = []
+        for dp, _dn, fn in os.walk(end_dir):
+            for f in fn:
+                if f in REQUIRED_FIELDS and os.path.getmtime(os.path.join(dp, f)) <= zt:
+                    stale.append(f)
+        if stale:
+            why.append("age guard: field(s) at endTime NOT newer than 0/T: "
+                       + ",".join(sorted(set(stale))))
+    return dict(done=not why, why="; ".join(why) if why else "all clauses hold",
+                status=st)
+
+
+# ---------------------------------------------------------------------------
+# THE y+ GATE -- per wall, and it CAN FAIL
+# ---------------------------------------------------------------------------
+def read_yplus(case_dir):
+    """Read the per-patch y+ maxima the mesh-report function object wrote.
+
+    MEASURED, NEVER ASSERTED.  The pre-registration registers a TARGET; this
+    reads what the mesh ACHIEVED.  Those are different numbers and the rung
+    grades on the second."""
+    p = os.path.join(case_dir, "yPlus.json")
+    if not os.path.isfile(p):
+        return None
+    with open(p) as fh:
+        return json.load(fh)
+
+
+def gate_yplus(case_dir, level):
+    got = read_yplus(case_dir)
+    if got is None:
+        return dict(state=VERDICT_NAR,
+                    why="no yPlus.json: the sublayer assumption is UNMEASURED, "
+                        "and an unmeasured precondition is not a satisfied one")
+    missing = [w for w in YPLUS_WALLS if w not in got]
+    if missing:
+        return dict(state=VERDICT_NAR,
+                    why="y+ not reported on wall(s): " + ",".join(missing) +
+                        " -- a gate that names one wall certifies one wall "
+                        "(T4/C1: plate at 1.248 while the pipe wall sat at ~30)")
+    over = {w: got[w] for w in YPLUS_WALLS if float(got[w]) > YPLUS_MAX}
+    if over:
+        return dict(state=VERDICT_NAR, walls=got,
+                    why="y+ exceeds the registered sublayer bound %.1f on: %s"
+                        % (YPLUS_MAX, ", ".join("%s=%.3f" % (w, float(v))
+                                                for w, v in sorted(over.items()))))
+    tgt = YPLUS_TARGET[level]
+    drift = {w: got[w] for w in YPLUS_WALLS
+             if float(got[w]) > tgt * YPLUS_TARGET_TOL}
+    if drift:
+        return dict(state=VERDICT_NAR, walls=got,
+                    why="y+ exceeds %.1fx the registered level target %.2f on: %s "
+                        "-- the ladder is not the registered ladder"
+                        % (YPLUS_TARGET_TOL, tgt,
+                           ", ".join("%s=%.3f" % (w, float(v))
+                                     for w, v in sorted(drift.items()))))
+    return dict(state="MET", walls=got,
+                why="every one of the %d registered walls is inside y+ %.1f and "
+                    "within %.1fx the level target %.2f"
+                    % (len(YPLUS_WALLS), YPLUS_MAX, YPLUS_TARGET_TOL, tgt))
+
+
+# ---------------------------------------------------------------------------
+# Convergence: DIRECTIONAL, adopting analyse_e4a2.py:308's registered shape
+# ---------------------------------------------------------------------------
+def classify_series(vals):
+    """C2 in the registered form: NOT GROWING, never `not trending`.
+
+    A non-directional criterion refuses a decaying series exactly as it refuses
+    a wandering one -- measured on T8, where the STALLED level passed a
+    trend-over-spread precondition and the CONVERGED level failed it."""
+    if len(vals) < 3:
+        return dict(growing=None, why="fewer than three samples")
+    first, last = abs(vals[0]), abs(vals[-1])
+    growing = last > first * 1.0
+    return dict(growing=growing, first=first, last=last)
+
+
+def gate_converged(series, floor, sustain):
+    """C1 sustained floor AND C2 not growing.  Both, never either."""
+    if len(series) < sustain:
+        return False, ("fewer than the registered %d sustained samples (%d); "
+                       "the criterion is not loosened to fit the data available"
+                       % (sustain, len(series)))
+    last = series[-sustain:]
+    c1 = max(abs(v) for v in last) <= floor
+    cl = classify_series(series)
+    c2 = (cl["growing"] is False)
+    if not c1:
+        return False, ("C1 sustained floor FAILS: max |r| over the last %d "
+                       "samples is %.3e > floor %.1e" % (sustain, max(abs(v) for v in last), floor))
+    if not c2:
+        return False, "C2 FAILS: the series is growing (%.3e -> %.3e)" % (cl["first"], cl["last"])
+    return True, "C1 sustained floor MET and C2 not growing"
+
+
+# ---------------------------------------------------------------------------
+# Roache
+# ---------------------------------------------------------------------------
+def gci_triple(f_c, f_m, f_f, r=2.0):
+    e21 = f_m - f_f
+    e32 = f_c - f_m
+    if e21 == 0.0 and e32 == 0.0:
+        return dict(state="EXACT", p=None, GCI_pct=None, e21=e21, e32=e32)
+    if e21 == 0.0:
+        return dict(state="STAGNANT", p=None, GCI_pct=None, e21=e21, e32=e32)
+    ratio = e32 / e21
+    if ratio < 0:
+        return dict(state="OSCILLATORY", p=None, GCI_pct=None, e21=e21, e32=e32, ratio=ratio)
+    if ratio <= 1.0:
+        return dict(state="DIVERGENT", p=None, GCI_pct=None, e21=e21, e32=e32, ratio=ratio)
+    p = math.log(ratio) / math.log(r)
+    if p < P_MIN:
+        return dict(state="DIVERGENT", p=p, GCI_pct=None, e21=e21, e32=e32,
+                    ratio=ratio,
+                    why="observed order %.3g is below the registered floor %.2f: "
+                        "the triple is indistinguishable from stagnant and any "
+                        "GCI computed from it would be noise" % (p, P_MIN))
+    denom = (r ** p) - 1.0
+    if denom <= 0:
+        return dict(state="DIVERGENT", p=p, GCI_pct=None, e21=e21, e32=e32, ratio=ratio)
+    gci = FS * abs(e21 / f_f) / denom * 100.0 if f_f != 0 else None
+    return dict(state="CONVERGING", p=p, GCI_pct=gci, e21=e21, e32=e32, ratio=ratio)
+
+
+def band_verdict(value, ref, band_pct):
+    if ref == 0:
+        refuse("band on a zero reference: the relative deviation is undefined "
+               "and a zero-referent band silently passes everything")
+    dev = 100.0 * (value - ref) / ref
+    return (VERDICT_PASS if abs(dev) <= band_pct else VERDICT_FAIL), dev
+
+
+def grade_row(row, vals, conv_by_level, yplus_by_level, ref, band_pct):
+    rec = dict(row=row, value=vals["f"], ref=ref, band_pct=band_pct)
+    band, dev = band_verdict(vals["f"], ref, band_pct)
+    rec["band"], rec["dev"] = band, dev
+
+    # (0) the y+ precondition, BEFORE anything else
+    bad_y = [lv for lv in LEVELS if yplus_by_level.get(lv, {}).get("state") != "MET"]
+    if bad_y:
+        rec["verdict"] = VERDICT_NAR
+        rec["why"] = ("y+ gate not MET on level(s) " + ",".join(bad_y) + ": " +
+                      "; ".join(yplus_by_level.get(lv, {}).get("why", "?") for lv in bad_y))
+    else:
+        # (1) iterative convergence, BEFORE the triple is classified
+        bad = [lv for lv in LEVELS if not conv_by_level.get(lv, (False, ""))[0]]
+        if bad:
+            rec["verdict"] = VERDICT_NAR
+            rec["why"] = ("criterion (1): level(s) " + ",".join(bad) +
+                          " not converged: " +
+                          "; ".join(conv_by_level[lv][1] for lv in bad))
+        else:
+            tr = gci_triple(vals["c"], vals["m"], vals["f"])
+            rec["triple"] = tr
+            if tr["state"] != "CONVERGING":
+                rec["verdict"] = VERDICT_NAR
+                rec["why"] = "criterion (2): triple is " + tr["state"]
+            else:
+                rec["verdict"] = band
+                rec["gci"] = tr["GCI_pct"]
+                rec["why"] = ("criterion (3): fine value %s the band"
+                              % ("inside" if band == VERDICT_PASS else "outside"))
+
+    # THE GATE IS ONE-WAY.  It may only turn a PASS or GATE FAIL INTO
+    # NOT A RESULT, never the reverse.  A `raise`/`exit 2`, never an `assert`:
+    # an assert here would be deleted by `python3 -O` and a graded run would
+    # have NO one-way protection at all, which is measured to happen
+    # (analyse_t8.py under -O returns GATE REACHED where rule 5 forbids it).
+    if rec["verdict"] not in (band, VERDICT_NAR):
+        refuse("THE GATE TURNED A %s INTO A %s -- forbidden by CLAUDE.md rule 5. "
+               "row=%s" % (band, rec["verdict"], row))
+    return rec
+
+
+# ---------------------------------------------------------------------------
+# selftest
+# ---------------------------------------------------------------------------
+def selftest():
+    fails = []
+    ok = lambda c, m: None if c else fails.append(m)
+
+    # Roache
+    ok(gci_triple(1.4, 1.2, 1.1)["state"] == "CONVERGING", "monotone triple not CONVERGING")
+    ok(gci_triple(1.1, 1.2, 1.1)["state"] == "OSCILLATORY", "non-monotone not OSCILLATORY")
+    ok(gci_triple(1.0, 1.0, 1.0)["state"] == "EXACT", "identical not EXACT")
+    ok(gci_triple(1.4, 1.1, 1.1)["state"] == "STAGNANT", "e21=0 not STAGNANT")
+    ok(gci_triple(1.12, 1.10, 1.00)["state"] == "DIVERGENT", "ratio<1 not DIVERGENT")
+    ok(gci_triple(1.2, 1.15, 1.1)["state"] == "DIVERGENT",
+       "a triple with ratio 1 to floating-point noise was not caught by the p floor")
+    ok(gci_triple(1.4, 1.2, 1.1)["GCI_pct"] is not None, "no GCI on CONVERGING")
+    ok(gci_triple(1.1, 1.2, 1.1)["GCI_pct"] is None, "GCI quoted on OSCILLATORY")
+
+    # C2 is DIRECTIONAL: a DECAYING series must pass, a growing one must fail.
+    # T8 is the counter-example this shape exists to avoid.
+    ok(gate_converged([1e-4, 1e-5, 1e-6, 1e-7], 1e-6, 2)[0] is True,
+       "a decaying series was refused -- the criterion is non-directional")
+    ok(gate_converged([1e-8, 1e-7, 1e-6, 1e-5], 1e-6, 2)[0] is False,
+       "a growing series passed")
+    ok(gate_converged([1e-3, 1e-3, 1e-3], 1e-6, 2)[0] is False,
+       "a plateau four decades above the floor passed C1")
+
+    # the y+ gate must FAIL, on every wall it names
+    tmp = tempfile.mkdtemp(prefix="t5_self_")
+    with open(os.path.join(tmp, "yPlus.json"), "w") as fh:
+        json.dump({w: 1.0 for w in YPLUS_WALLS}, fh)
+    ok(gate_yplus(tmp, "f")["state"] == "MET", "a compliant y+ set did not meet")
+    with open(os.path.join(tmp, "yPlus.json"), "w") as fh:
+        d = {w: 1.0 for w in YPLUS_WALLS}; d["roof"] = 30.0
+        json.dump(d, fh)
+    g = gate_yplus(tmp, "f")
+    ok(g["state"] == VERDICT_NAR and "roof" in g["why"],
+       "y+ 30 on the ROOF did not fire -- this is the T4/C1 defect exactly")
+    d.pop("roof")
+    with open(os.path.join(tmp, "yPlus.json"), "w") as fh:
+        json.dump(d, fh)
+    ok(gate_yplus(tmp, "f")["state"] == VERDICT_NAR,
+       "an UNREPORTED wall did not fire: an unmeasured precondition read as satisfied")
+    os.unlink(os.path.join(tmp, "yPlus.json"))
+    ok(gate_yplus(tmp, "f")["state"] == VERDICT_NAR, "absent yPlus.json did not fire")
+    os.rmdir(tmp)
+
+    # the one-way gate must REFUSE, and must do so under -O
+    me = os.path.abspath(__file__)
+    rcs = {}
+    for tag, argv in (("python3", [sys.executable, me]),
+                      ("python3 -O", [sys.executable, "-O", me])):
+        p = subprocess.run(argv + ["--drive-oneway-violation"],
+                           capture_output=True, text=True)
+        rcs[tag] = p.returncode
+    if rcs["python3"] == 2 and rcs["python3 -O"] == 2:
+        print("ONE-WAY GATE REFUSAL FIRES UNDER `-O`: rc 2 under both interpreters.")
+    else:
+        fails.append("one-way refusal did not fire identically: %r" % (rcs,))
+
+    if fails:
+        for f in fails:
+            print("FAILED: " + f)
+        return 1
+    print("SELFTEST PASS: %d arms, 0 FAILED." % 16)
+    return 0
+
+
+def _drive_oneway_violation():
+    """Sacrificial driver: force the gate to emit a verdict rule 5 forbids and
+    require the refusal to fire.  Not reachable from grading."""
+    conv = {lv: (True, "ok") for lv in LEVELS}
+    yp = {lv: dict(state="MET", why="ok") for lv in LEVELS}
+    rec = grade_row("X", dict(c=1.4, m=1.2, f=1.1), conv, yp, ref=1.1, band_pct=10.0)
+    # mutate the way a defect would, then re-run the invariant
+    band = rec["band"]
+    rec["verdict"] = "GATE REACHED"
+    if rec["verdict"] not in (band, VERDICT_NAR):
+        refuse("THE GATE TURNED A %s INTO A %s -- forbidden by CLAUDE.md rule 5."
+               % (band, rec["verdict"]))
+    return 0
+
+
+
+# ===========================================================================
+# AMENDMENT 10 -- THE GRADING DRIVER.  EVERYTHING BELOW THIS LINE IS NEW.
+#
+# WHAT THIS IS, STATED BEFORE THE CODE.  The frozen comparator above contains
+# `grade_row`, `band_verdict`, `gci_triple` and `gate_yplus` and CALLS NONE OF
+# THEM FROM `main()`: the frozen `main()` printed three completion lines and
+# then the fixed sentence "No case has run: no rows are graded and no verdict
+# is written", UNCONDITIONALLY, and it printed that sentence three times over a
+# COMPLETE grid triple on disk.  There was no row extraction and no reference
+# loader.  This section supplies them.
+#
+# IT IS WRITTEN AFTER COMPUTE.  The honest label every verdict this file
+# produces must carry is therefore:
+#
+#     GRADED BY AN INSTRUMENT WRITTEN AFTER COMPUTE TO TEXT FROZEN BEFORE IT.
+#
+# and, because the lane that wrote this section is the same lane that produced
+# `T5_reference_primary.json` (AMENDMENT 7, digitiser `64b13819`), a second
+# label that is worse and is therefore stated first:
+#
+#     THE AUTHOR OF THIS DRIVER HAD ALREADY READ THE REFERENCE VALUES.
+#
+# S10 registered the opposite ordering -- "the comparator's author had never
+# seen a Meinders `h` value" -- and for this section that ordering is BROKEN and
+# cannot be repaired by anything written here.  The one auditable mitigation is
+# a property a reader can check in thirty seconds: NO REFERENCE VALUE IS
+# HARD-CODED IN THIS FILE.  Every reference number is read from the frozen JSON
+# at run time; the only numeric constants below are quoted from S7/S16 of the
+# registration, and each one carries its citation on the same line.
+#
+# NO THRESHOLD IS ADDED, WIDENED OR NARROWED.  Every band, floor, gate, gate
+# ORDER and control below is quoted from the frozen S7/S16 text.  Where S7 does
+# not state a band for a row, the row is UNGRADED BY REGISTRATION and says so.
+# ===========================================================================
+
+VERDICT_BLOCKED = "BLOCKED"          # CLAUDE.md rule 1; S7.5 branch 3
+VERDICT_REACHED = "GATE REACHED"     # CLAUDE.md rule 1; S7.5 branch 5
+VERDICT_NOT_MEASURED = "NOT MEASURED"   # not a verdict: an L-342 field class
+UNGRADED_BY_REGISTRATION = "UNGRADED BY REGISTRATION"
+
+PLANT = 1.234e-03        # S9, verbatim: "the same constant as analyse_t3.py"
+
+# --- S7.1, quoted -----------------------------------------------------------
+# "`h`: phi''_conv / (T_sur - T_ref), with T_ref = the channel inlet air
+#  temperature, registered at `293.65 K` (20.5 C ...).  INTERPRETATION 9."
+T_REF_K = 293.65
+# S4, quoted: "`T = 348.15 K` (75.0 C) is imposed on its inner surface."
+T_CORE_K = 348.15
+KELVIN_ZERO_C = 273.15
+# S3, G5 row, quoted: "G5 is admissible only where the reference `T_sur` lies at
+# least 5 K from both bounds ... a face failing it returns NOT A RESULT --
+# identity, not a PASS."
+IDENTITY_MARGIN_K = 5.0
+
+# S7.1, quoted: "the arc-length-weighted mean of `h` over the central 80 % of
+# each mid-line, excluding `0.1 H` at each end."  The same window is what
+# `digitise_t5.py` applied to the reference (`PATH_CENTRAL = (0.10, 0.90)`,
+# commented there "S7.1: central 80 % of each partition"), so the two sides of
+# the comparison are taken over the same window -- checked by reading that
+# constant out of the frozen digitiser, not assumed.
+CENTRAL = (0.10, 0.90)
+
+# S5.5, quoted: "the largest change of any cell value of `T` in either region,
+# and separately of `U` in the fluid, between the checkpoints at `endTime -
+# 1000` and `endTime`, is at most 1e-6 of that field's range."
+CONV_TOL_FRAC = 1.0e-6
+CONV_BACK = 1000
+
+# S6, quoted: MB "mass in/out on the fluid region | `0.1 %` | GUARD";
+# HB "conjugate heat-balance closure ... `0.5 %` ... GUARD".
+MB_TOL_PCT = 0.1
+HB_TOL_PCT = 0.5
+
+# S7.3, quoted: the comparator "refuses if the reconstruction disagrees with a
+# direct read of Fig. 5.41 by more than 8 %".
+HBAR_CROSSCHECK_PCT = 8.0
+
+# S10, quoted: "the comparator refuses if the measured increment exceeds its
+# forecast by more than 50 %".  The forecasts are S7.3's, verbatim, by figure.
+INCREMENT_FORECAST = {"5.45": 1.3,     # W/m2K
+                      "5.39": 0.05,    # h/h_tot
+                      "5.37": 0.5}     # degC
+INCREMENT_FORECAST_TOL = 1.5
+
+# S7.2 / S16.4.  The GRADED set is the face-averaged `h` rows and the mid-line
+# `T_sur` rows; G1-G3 and G4 are REPORTED.
+GRADED_ROWS = ("G1a", "G2a", "G3a", "G5a", "G5b", "G5c")
+REPORTED_ROWS = ("G1", "G2", "G3", "G4")
+G5_FACE = {"G5a": "front", "G5b": "top", "G5c": "rear"}
+G_A_FACE = {"G1a": "front", "G2a": "top", "G3a": "rear"}
+FACE_PATCH = {"front": "cube_front", "top": "cube_top", "rear": "cube_rear"}
+
+LEVEL_CASE = {"c": "T5_CUBE_c", "m": "T5_CUBE_m", "f": "T5_CUBE_f"}
+
+# --- L-342's TWO FIELD CLASSES, LABELLED ------------------------------------
+# PHYSICS-CRITICAL: rule 4 applies IN FULL.  Each of these enters either the
+# graded quantity or the closure that produced it; an absent one means the run
+# did not produce the state the row is read from.
+PHYSICS_CRITICAL_FIELDS = REQUIRED_FIELDS       # T U p_rgh alphat nut k omega
+# INFRASTRUCTURE: bookkeeping written beside the solve.  An absent one is NOT
+# MEASURED and NEVER refuses a grade.
+INFRASTRUCTURE_ARTEFACTS = ("uniform/functionObjects/functionObjectProperties",
+                            "launcher.queue.out", "CASE.txt",
+                            "postProcessing/**/*.dat")
+# NOT INFRASTRUCTURE, AND THE DISTINCTION IS LOAD-BEARING.  `yPlus.json` is a
+# GATE INPUT: S16.3.1 registers "`yPlus.json` absent -> NOT A RESULT" as a
+# clause of the gate itself.  Reclassifying it as infrastructure under L-342
+# would silently disable the one gate S16.3.1 was written to make FAILABLE, so
+# it is named here as excluded from that class and the exclusion is checked.
+NEVER_INFRASTRUCTURE = ("yPlus.json",)
+
+
+def _l342_class(name):
+    if name in NEVER_INFRASTRUCTURE:
+        return "GATE INPUT (never infrastructure)"
+    if name in PHYSICS_CRITICAL_FIELDS:
+        return "PHYSICS-CRITICAL"
+    return "INFRASTRUCTURE"
+
+
+# ---------------------------------------------------------------------------
+# OpenFOAM ASCII readers.  Small, explicit, and every one of them refuses.
+# ---------------------------------------------------------------------------
+def _decomment(txt):
+    txt = re.sub(r"/\*.*?\*/", " ", txt, flags=re.S)
+    txt = re.sub(r"//[^\n]*", " ", txt)
+    return txt
+
+
+def _match_brace(txt, i):
+    """`i` indexes an opening '{'.  Return the index of its partner."""
+    depth = 0
+    n = len(txt)
+    while i < n:
+        if txt[i] == "{":
+            depth += 1
+        elif txt[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return -1
+
+
+def _named_block(txt, key, lo=0, hi=None):
+    hi = len(txt) if hi is None else hi
+    for m in re.finditer(r"\b" + re.escape(key) + r"\b\s*\{", txt[lo:hi]):
+        s = lo + m.end() - 1
+        e = _match_brace(txt, s)
+        if e < 0:
+            return None
+        return s + 1, e
+    return None
+
+
+def _match_paren(txt, i):
+    depth = 0
+    n = len(txt)
+    while i < n:
+        if txt[i] == "(":
+            depth += 1
+        elif txt[i] == ")":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return -1
+
+
+def _entry_list(txt, pos, what):
+    """Parse `uniform X;` / `nonuniform List<T> N ( ... );` starting at `pos`.
+
+    Returns (values, span_lo, span_hi) where the span brackets the numbers on
+    disk, so a plant can be written back into exactly the bytes that were read.
+    """
+    m = re.match(r"\s*nonuniform\s+List<(\w+)>\s*(\d*)\s*\(", txt[pos:])
+    if m:
+        op = pos + m.end() - 1
+        cl = _match_paren(txt, op)
+        if cl < 0:
+            refuse("%s: unterminated nonuniform list" % what)
+        inner = txt[op + 1:cl]
+        if m.group(1) == "vector":
+            vals = [tuple(float(x) for x in t)
+                    for t in re.findall(r"\(\s*(\S+)\s+(\S+)\s+(\S+)\s*\)", inner)]
+        else:
+            vals = [float(x) for x in inner.split()]
+        return vals, op + 1, cl
+    m = re.match(r"\s*nonuniform\s+0\s*\(\s*\)", txt[pos:])
+    if m:
+        return [], pos, pos
+    m = re.match(r"\s*uniform\s+\(\s*(\S+)\s+(\S+)\s+(\S+)\s*\)\s*;", txt[pos:])
+    if m:
+        return [("UNIFORM", tuple(float(g) for g in m.groups()))], pos, pos
+    m = re.match(r"\s*uniform\s+(\S+?)\s*;", txt[pos:])
+    if m:
+        return [("UNIFORM", float(m.group(1)))], pos, pos
+    refuse("%s: neither a uniform nor a nonuniform entry at this position" % what)
+
+
+def read_points(path):
+    txt = _decomment(open(path, errors="replace").read())
+    i = txt.find("(", txt.find("FoamFile") and _match_brace(txt, txt.find("{")))
+    op = txt.find("(", i)
+    cl = _match_paren(txt, op)
+    if op < 0 or cl < 0:
+        refuse("points: no point list in %s" % path)
+    return [(float(a), float(b), float(c)) for a, b, c in
+            re.findall(r"\(\s*(\S+)\s+(\S+)\s+(\S+)\s*\)", txt[op + 1:cl])]
+
+
+def read_faces(path):
+    txt = _decomment(open(path, errors="replace").read())
+    hb = txt.find("{")
+    he = _match_brace(txt, hb)
+    op = txt.find("(", he)
+    cl = _match_paren(txt, op)
+    if op < 0 or cl < 0:
+        refuse("faces: no face list in %s" % path)
+    out = []
+    for m in re.finditer(r"(\d+)\s*\(([^)]*)\)", txt[op + 1:cl]):
+        out.append([int(x) for x in m.group(2).split()])
+    return out
+
+
+def read_boundary(path):
+    txt = _decomment(open(path, errors="replace").read())
+    hb = txt.find("{")
+    he = _match_brace(txt, hb)
+    op = txt.find("(", he)
+    cl = _match_paren(txt, op)
+    if op < 0 or cl < 0:
+        refuse("boundary: no patch list in %s" % path)
+    body = txt[op + 1:cl]
+    out = {}
+    for m in re.finditer(r"(\w+)\s*\{", body):
+        s = m.end() - 1
+        e = _match_brace(body, s)
+        blk = body[s + 1:e]
+        nf = re.search(r"nFaces\s+(\d+)\s*;", blk)
+        sf = re.search(r"startFace\s+(\d+)\s*;", blk)
+        if nf and sf:
+            out[m.group(1)] = dict(nFaces=int(nf.group(1)),
+                                   startFace=int(sf.group(1)))
+    return out
+
+
+def read_internal(path, what):
+    txt = _decomment(open(path, errors="replace").read())
+    m = re.search(r"\binternalField\b", txt)
+    if not m:
+        refuse("%s: no internalField in %s" % (what, path))
+    vals, _lo, _hi = _entry_list(txt, m.end(), what)
+    return vals
+
+
+def read_patch_value(path, patch, what):
+    """The patch `value` list, with the byte span it occupied on disk."""
+    txt = _decomment(open(path, errors="replace").read())
+    bf = _named_block(txt, "boundaryField")
+    if bf is None:
+        refuse("%s: no boundaryField in %s" % (what, path))
+    pb = _named_block(txt, patch, bf[0], bf[1])
+    if pb is None:
+        refuse("%s: patch `%s` absent from the boundaryField of %s"
+               % (what, patch, path))
+    m = re.search(r"\bvalue\b", txt[pb[0]:pb[1]])
+    if not m:
+        refuse("%s: patch `%s` in %s carries no `value` entry, so the surface "
+               "temperature it holds cannot be read" % (what, patch, path))
+    pos = pb[0] + m.end()
+    vals, lo, hi = _entry_list(txt, pos, what)
+    return vals, txt, lo, hi
+
+
+# ---------------------------------------------------------------------------
+# Face geometry -- OpenFOAM's own fan decomposition, not a planar shortcut
+# ---------------------------------------------------------------------------
+def _sub(a, b):
+    return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0])
+
+
+def face_centre_area(pts, idx):
+    p = [pts[i] for i in idx]
+    n = len(p)
+    if n < 3:
+        refuse("a face with %d points cannot carry an area" % n)
+    if n == 3:
+        c = tuple(sum(q[k] for q in p) / 3.0 for k in range(3))
+        nv = _cross(_sub(p[1], p[0]), _sub(p[2], p[0]))
+        a = 0.5 * math.sqrt(sum(x * x for x in nv))
+        return c, a
+    fc = tuple(sum(q[k] for q in p) / float(n) for k in range(3))
+    sumA = 0.0
+    sumAc = [0.0, 0.0, 0.0]
+    sumN = [0.0, 0.0, 0.0]
+    for i in range(n):
+        a1, a2 = p[i], p[(i + 1) % n]
+        c = tuple(a1[k] + a2[k] + fc[k] for k in range(3))
+        nv = _cross(_sub(a2, a1), _sub(fc, a1))
+        mag = math.sqrt(sum(x * x for x in nv))
+        sumA += mag
+        for k in range(3):
+            sumAc[k] += mag * c[k]
+            sumN[k] += nv[k]
+    if sumA <= 0.0:
+        refuse("a face of zero area was read: the mesh or the reader is wrong")
+    centre = tuple(sumAc[k] / (3.0 * sumA) for k in range(3))
+    area = 0.5 * math.sqrt(sum(x * x for x in sumN))
+    return centre, area
+
+
+class PatchGeom(object):
+    """The face centres, areas and per-face vertex extents of one wall patch."""
+
+    def __init__(self, mesh_dir, patch):
+        b = read_boundary(os.path.join(mesh_dir, "boundary"))
+        if patch not in b:
+            refuse("patch `%s` is not in %s/boundary" % (patch, mesh_dir))
+        pts = read_points(os.path.join(mesh_dir, "points"))
+        fcs = read_faces(os.path.join(mesh_dir, "faces"))
+        s, n = b[patch]["startFace"], b[patch]["nFaces"]
+        if s + n > len(fcs):
+            refuse("patch `%s` runs past the face list (%d+%d > %d)"
+                   % (patch, s, n, len(fcs)))
+        self.patch = patch
+        self.centres, self.areas, self.lo, self.hi = [], [], [], []
+        for f in fcs[s:s + n]:
+            c, a = face_centre_area(pts, f)
+            self.centres.append(c)
+            self.areas.append(a)
+            self.lo.append(tuple(min(pts[i][k] for i in f) for k in range(3)))
+            self.hi.append(tuple(max(pts[i][k] for i in f) for k in range(3)))
+        self.n = n
+
+
+def _axes(pg):
+    """Which axis is the patch normal and which carries the mid-line.
+
+    The registered domain (S5.2) is a HALF domain with symmetry at `z/H = 0`, so
+    the spanwise axis is always z; the mid-line runs along the remaining
+    in-plane axis.  Decided from the geometry, never assumed."""
+    spread = [max(c[k] for c in pg.centres) - min(c[k] for c in pg.centres)
+              for k in range(3)]
+    normal = min(range(3), key=lambda k: spread[k])
+    if normal == 2:
+        refuse("patch `%s`: its normal is the spanwise axis z, so it is not one "
+               "of the three mid-line faces this rung registers" % pg.patch)
+    s_axis = 1 - normal
+    if spread[s_axis] <= 0.0:
+        refuse("patch `%s`: zero extent along the mid-line axis" % pg.patch)
+    return normal, s_axis
+
+
+def midline_mean(pg, values, clip=True):
+    """S7.1: the arc-length-weighted mean over the CENTRAL 80 % of the mid-line.
+
+    The mid-line is the face column at the symmetry plane `z/H = 0` (S7.1: "the
+    vertical line on the front face in the symmetry plane `z/H = 0`").  Weights
+    are each face's own extent along the mid-line, CLIPPED to the window when
+    `clip` -- see the AMBIGUITY note in the amendment: the alternative reading
+    keeps whole cells whose centre is inside, which makes the window length
+    depend on the mesh level and therefore differ across the refinement triple.
+    Both are computed; only one is graded, and which one is the supervisor's."""
+    if len(values) != pg.n:
+        refuse("patch `%s`: %d face values against %d faces -- the field and the "
+               "mesh do not describe the same patch"
+               % (pg.patch, len(values), pg.n))
+    _normal, sa = _axes(pg)
+    zs = [round(c[2], 12) for c in pg.centres]
+    z_line = min(set(zs), key=lambda z: abs(z))
+    col = [i for i in range(pg.n) if zs[i] == z_line]
+    if len(col) < 3:
+        refuse("patch `%s`: the symmetry-plane column holds %d faces; a mean over "
+               "fewer than three is not a mid-line" % (pg.patch, len(col)))
+    s_lo = min(pg.lo[i][sa] for i in range(pg.n))
+    s_hi = max(pg.hi[i][sa] for i in range(pg.n))
+    L = s_hi - s_lo
+    w_lo = s_lo + CENTRAL[0] * L
+    w_hi = s_lo + CENTRAL[1] * L
+    num = den = 0.0
+    num_w = den_w = 0.0
+    covered = []
+    for i in col:
+        a, b = pg.lo[i][sa], pg.hi[i][sa]
+        ov = min(b, w_hi) - max(a, w_lo)
+        if ov > 0.0:
+            num += ov * values[i]
+            den += ov
+            covered.append((max(a, w_lo), min(b, w_hi)))
+        c = pg.centres[i][sa]
+        if w_lo <= c <= w_hi:
+            num_w += (b - a) * values[i]
+            den_w += (b - a)
+    if den <= 0.0:
+        refuse("patch `%s`: no face overlaps the central-80 %% window"
+               % pg.patch)
+    covered.sort()
+    reach = w_lo
+    for a, b in covered:
+        if a > reach + 1e-12 * max(1.0, abs(L)):
+            refuse("patch `%s`: a gap in the mid-line between %.6g and %.6g "
+                   "inside the central-80 %% window -- a mean over a broken line "
+                   "is not the registered mean" % (pg.patch, reach, a))
+        reach = max(reach, b)
+    if reach < w_hi - 1e-12 * max(1.0, abs(L)):
+        refuse("patch `%s`: the mid-line column stops at %.6g, short of the "
+               "window end %.6g" % (pg.patch, reach, w_hi))
+    return dict(mean_central80=num / den,
+                mean_central80_wholecell=(num_w / den_w) if den_w > 0 else None,
+                n_col=len(col), s_axis=sa, window=(w_lo, w_hi), length=L)
+
+
+def face_area_mean(pg, values):
+    """S7.1: "Face average: the area-weighted mean of `h` over the whole face"."""
+    if len(values) != pg.n:
+        refuse("patch `%s`: %d values against %d faces" % (pg.patch, len(values), pg.n))
+    tot = sum(pg.areas)
+    if tot <= 0.0:
+        refuse("patch `%s`: zero total area" % pg.patch)
+    return sum(pg.areas[i] * values[i] for i in range(pg.n)) / tot, tot
+
+
+# ---------------------------------------------------------------------------
+# S5.5 CONVERGENCE -- the registered criterion, which is a FIELD-CHANGE
+# criterion and not a residual criterion
+# ---------------------------------------------------------------------------
+def _mag(v):
+    return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+
+
+def field_change(path_early, path_late, kind, what):
+    a = read_internal(path_early, what + "@early")
+    b = read_internal(path_late, what + "@late")
+    if a and isinstance(a[0], tuple) and a[0][0] == "UNIFORM":
+        refuse("%s: a uniform internalField carries no cell-to-cell change and "
+               "the registered criterion is a per-cell change" % what)
+    if len(a) != len(b):
+        refuse("%s: %d cells at the early checkpoint against %d at the late one "
+               "-- these are not the same mesh" % (what, len(a), len(b)))
+    if not a:
+        refuse("%s: an empty internalField" % what)
+    if kind == "vector":
+        d = max(_mag(_sub(b[i], a[i])) for i in range(len(a)))
+        mg = [_mag(v) for v in b]
+        rng = max(mg) - min(mg)
+    else:
+        d = max(abs(b[i] - a[i]) for i in range(len(a)))
+        rng = max(b) - min(b)
+    if rng <= 0.0:
+        refuse("%s: the field range at the late checkpoint is zero, so the "
+               "registered 1e-6-of-range criterion has no denominator" % what)
+    return dict(delta=d, rng=rng, frac=d / rng,
+                converged=(d <= CONV_TOL_FRAC * rng))
+
+
+def gate_converged_s55(case_dir, endtime=ENDTIME):
+    """S5.5, verbatim: T in EITHER region and, separately, U in the fluid."""
+    late, early = str(endtime), str(endtime - CONV_BACK)
+    parts = {}
+    checks = (("T_air", "air/T", "scalar"),
+              ("T_epoxy", "epoxy/T", "scalar"),
+              ("U_air", "air/U", "vector"))
+    for name, rel, kind in checks:
+        pe = os.path.join(case_dir, early, rel)
+        pl = os.path.join(case_dir, late, rel)
+        if not (os.path.isfile(pe) and os.path.isfile(pl)):
+            if name == "T_epoxy":
+                parts[name] = dict(absent=True,
+                                   why="no epoxy region: a fluid-only arm")
+                continue
+            return False, ("S5.5 checkpoint missing for %s (%s or %s)"
+                           % (name, pe, pl)), parts
+        parts[name] = field_change(pe, pl, kind, name)
+    live = [v for v in parts.values() if not v.get("absent")]
+    bad = [k for k, v in parts.items()
+           if not v.get("absent") and not v["converged"]]
+    if not live:
+        return False, "S5.5: nothing was readable to test", parts
+    if bad:
+        return False, ("S5.5 NOT CONVERGED on " + ",".join(sorted(bad)) + ": " +
+                       "; ".join("%s change/range = %.3e (limit %.1e)"
+                                 % (k, parts[k]["frac"], CONV_TOL_FRAC)
+                                 for k in sorted(bad))), parts
+    return True, ("S5.5 CONVERGED: max change/range = %.3e over %s (limit %.1e)"
+                  % (max(v["frac"] for v in live),
+                     ",".join(sorted(k for k, v in parts.items()
+                                     if not v.get("absent"))),
+                     CONV_TOL_FRAC)), parts
+
+
+# ---------------------------------------------------------------------------
+# The reference -- LOADED, never hard-coded
+# ---------------------------------------------------------------------------
+def load_reference(path):
+    if not os.path.isfile(path):
+        return None, "reference file absent: " + path
+    with open(path) as fh:
+        ref = json.load(fh)
+    prov = ref.get("provenance", {})
+    if not prov.get("digitised"):
+        return None, "reference `digitised` flag is false"
+    for row, meta in sorted(ref.get("rows", {}).items()):
+        fig = str(meta.get("figure", ""))
+        inc = meta.get("digitisation_increment")
+        fc = INCREMENT_FORECAST.get(fig)
+        if inc is not None and fc:
+            if inc > fc * INCREMENT_FORECAST_TOL:
+                refuse("S10: row %s (Fig. %s) measured digitisation increment "
+                       "%.4g exceeds the S7.3 forecast %.4g by more than %.0f %% "
+                       "-- a band that silently grew is a band that was chosen "
+                       "after the fact"
+                       % (row, fig, inc, fc, 100 * (INCREMENT_FORECAST_TOL - 1)))
+    return ref, None
+
+
+def band_for(meta):
+    """S7.3, verbatim: `sqrt( stated^2 + digitisation^2 )`.
+
+    Returned in BOTH forms.  `band_abs` is in the row's own units -- for G5
+    that is the only form S7.3 states ("0.4 C ... 0.5 C ... 0.64 C"), and
+    S16.4 calls it "a stated ABSOLUTE accuracy from printed p. 55, not a
+    percentage inferred from a figure".  `band_pct` is that same width divided
+    by the reference IN THE ROW'S OWN UNITS, so applying it through the frozen
+    `band_verdict` (which is percentage-only, and is not modified) is
+    arithmetically the identical test."""
+    u = meta.get("uncertainty")
+    inc = meta.get("digitisation_increment")
+    v = meta.get("value")
+    if u is None or inc is None or v is None:
+        return None
+    band_abs = math.sqrt(u * u + inc * inc)
+    if v == 0:
+        return None
+    return dict(band_abs=band_abs, band_pct=100.0 * band_abs / abs(v),
+                stated=u, digitisation=inc, units=meta.get("units"))
+
+
+def identity_guard(meta):
+    """S3's G5 guard, quoted: admissible only where the reference `T_sur` lies
+    at least 5 K from BOTH bounds (inlet 293.65 K, core 348.15 K)."""
+    v = meta.get("value")
+    if v is None:
+        return False, "no reference value to test the identity guard against"
+    v_k = v + KELVIN_ZERO_C
+    d_lo = v_k - T_REF_K
+    d_hi = T_CORE_K - v_k
+    if d_lo < IDENTITY_MARGIN_K or d_hi < IDENTITY_MARGIN_K:
+        return False, ("reference %.3f degC sits %.2f K from the inlet bound and "
+                       "%.2f K from the core bound; the registered margin is "
+                       "%.1f K" % (v, d_lo, d_hi, IDENTITY_MARGIN_K))
+    return True, ("reference %.3f degC is %.2f K from the inlet bound and %.2f K "
+                  "from the core bound" % (v, d_lo, d_hi))
+
+
+# ---------------------------------------------------------------------------
+# ROW EXTRACTION FROM THE FIELDS ON DISK
+# ---------------------------------------------------------------------------
+def extract_g5(case_dir, face, endtime=ENDTIME):
+    """G5a-c: the mid-line mean surface temperature on one cube face."""
+    patch = FACE_PATCH[face]
+    mesh = os.path.join(case_dir, "constant", "air", "polyMesh")
+    fld = os.path.join(case_dir, str(endtime), "air", "T")
+    if not os.path.isdir(mesh):
+        refuse("no air polyMesh at %s" % mesh)
+    if not os.path.isfile(fld):
+        refuse("no %s: the field the row is read from is absent (L-342 class: "
+               "%s)" % (fld, _l342_class("T")))
+    pg = PatchGeom(mesh, patch)
+    vals, _txt, _lo, _hi = read_patch_value(fld, patch, "T@" + patch)
+    if vals and isinstance(vals[0], tuple) and vals[0][0] == "UNIFORM":
+        refuse("patch `%s` carries a UNIFORM surface temperature: the conjugate "
+               "solve S4 registers cannot have produced it" % patch)
+    ml = midline_mean(pg, vals)
+    ml["value_degC"] = ml["mean_central80"] - KELVIN_ZERO_C
+    ml["wholecell_degC"] = (None if ml["mean_central80_wholecell"] is None
+                            else ml["mean_central80_wholecell"] - KELVIN_ZERO_C)
+    ml["face_area_mean_degC"] = face_area_mean(pg, vals)[0] - KELVIN_ZERO_C
+    ml["patch"] = patch
+    ml["n_faces"] = pg.n
+    return ml
+
+
+def local_wall_heat_flux_available(case_dir, endtime=ENDTIME):
+    """G1a-G3a's OWN definition (S7.1) is the AREA-WEIGHTED MEAN OF LOCAL `h`,
+    and local `h` needs local phi''_conv.  This reports whether that field is on
+    disk.  It is not computed from anything else: reconstructing a wall flux
+    from T and alphat would be a NEW heat-flux instrument written after compute,
+    which is exactly what a post-compute amendment may not add."""
+    found = []
+    for reg in ("air",):
+        d = os.path.join(case_dir, str(endtime), reg)
+        if os.path.isdir(d):
+            for f in os.listdir(d):
+                if f in ("wallHeatFlux", "q", "qWall"):
+                    found.append(os.path.join(d, f))
+    dat = os.path.join(case_dir, "postProcessing", "air", "wallHeatFlux")
+    rows = 0
+    if os.path.isdir(dat):
+        for dp, _dn, fn in os.walk(dat):
+            for f in fn:
+                if f.endswith(".dat"):
+                    with open(os.path.join(dp, f), errors="replace") as fh:
+                        rows += sum(1 for ln in fh if not ln.startswith("#"))
+    return dict(field_paths=found, patch_dat_rows=rows)
+
+
+def guard_mb(case_dir, endtime=ENDTIME):
+    """S6 MB: mass in/out on the fluid region, tolerance 0.1 %."""
+    fld = os.path.join(case_dir, str(endtime), "air", "phi")
+    if not os.path.isfile(fld):
+        return dict(state="NOT MEASURED", why="no %s" % fld)
+    tot = {}
+    for p in ("inlet", "outlet"):
+        try:
+            vals, _t, _l, _h = read_patch_value(fld, p, "phi@" + p)
+        except SystemExit:
+            raise
+        if vals and isinstance(vals[0], tuple) and vals[0][0] == "UNIFORM":
+            return dict(state="NOT MEASURED",
+                        why="phi on `%s` is uniform" % p)
+        tot[p] = sum(vals)
+    denom = abs(tot["inlet"])
+    if denom <= 0.0:
+        return dict(state=VERDICT_NAR,
+                    why="zero inlet mass flux: the imbalance has no denominator")
+    imb = 100.0 * abs(tot["inlet"] + tot["outlet"]) / denom
+    return dict(state=("MET" if imb <= MB_TOL_PCT else VERDICT_NAR),
+                imbalance_pct=imb, inlet=tot["inlet"], outlet=tot["outlet"],
+                why="mass imbalance %.4g %% against the registered %.1f %%"
+                    % (imb, MB_TOL_PCT))
+
+
+def guard_hb(case_dir, endtime=ENDTIME):
+    """S6 HB: convection off the five air-exposed faces against conduction
+    through the epoxy INNER surface.  Both halves need a wall flux the run did
+    not write, and the epoxy side was never instrumented at all (the
+    `wallHeatFlux` function object is registered `region air`)."""
+    who = local_wall_heat_flux_available(case_dir, endtime)
+    return dict(state="NOT MEASURED",
+                why="the conjugate heat balance needs a wall heat flux on the "
+                    "air faces AND on the epoxy `core` surface; the run wrote "
+                    "%d patch .dat rows on the air side and no epoxy-side flux "
+                    "at all (the function object is registered `region air`), "
+                    "so neither half of the S6 balance is on disk"
+                    % who["patch_dat_rows"])
+
+
+def cell_count(case_dir):
+    log = os.path.join(case_dir, "log.checkMesh")
+    if not os.path.isfile(log):
+        return None
+    n = None
+    with open(log, errors="replace") as fh:
+        for line in fh:
+            m = re.match(r"\s*cells:\s+(\d+)", line)
+            if m:
+                n = int(m.group(1))
+                break
+    return n
+
+
+def effective_ratio(counts):
+    """S7.5 registers the GCI "on the EFFECTIVE ratios from the actual cell
+    counts".  The frozen `gci_triple` takes ONE ratio and implements the
+    equal-ratio form; it is NOT modified here.  Both effective ratios are
+    computed and PRINTED, and the ratio handed to the frozen function is the
+    FINER pair's -- the pair the GCI is reported on.  Their disagreement is
+    printed beside every GCI so a reader can size the approximation."""
+    if not all(counts.get(lv) for lv in LEVELS):
+        return None
+    r32 = (counts["m"] / float(counts["c"])) ** (1.0 / 3.0)
+    r21 = (counts["f"] / float(counts["m"])) ** (1.0 / 3.0)
+    return dict(r32=r32, r21=r21, r_used=r21,
+                disagree_pct=100.0 * abs(r21 - r32) / r21)
+
+
+# ---------------------------------------------------------------------------
+# THE PLANTED-ZERO CONTROLS (rule 3), SIZED TO EACH READER'S SHAPE (L-340)
+#
+# L-340: a constant offset is invisible to a dispersion reader BY CONSTRUCTION,
+# so a plant a reader cannot detect by construction is not a control.  Each
+# reader below therefore gets a plant of the shape it can see, and the plant is
+# written to a COPY ON DISK and read back through the SAME function the graded
+# row uses.  Every one of them refuses (exit 2) on failure.
+# ---------------------------------------------------------------------------
+def _write_planted(src_txt, lo, hi, newvals):
+    return src_txt[:lo] + "\n" + "\n".join(repr(v) for v in newvals) + "\n" + src_txt[hi:]
+
+
+def plant_midline(case_dir, face, endtime=ENDTIME):
+    """MEAN reader -> a CONSTANT OFFSET is exactly what it can see."""
+    patch = FACE_PATCH[face]
+    fld = os.path.join(case_dir, str(endtime), "air", "T")
+    mesh = os.path.join(case_dir, "constant", "air", "polyMesh")
+    pg = PatchGeom(mesh, patch)
+    vals, txt, lo, hi = read_patch_value(fld, patch, "plant@" + patch)
+    base = midline_mean(pg, vals)["mean_central80"]
+    tmpd = tempfile.mkdtemp(prefix="t5_plant_")
+    tmp = os.path.join(tmpd, "T")
+    with open(tmp, "w") as fh:
+        fh.write(_write_planted(txt, lo, hi, [v + PLANT for v in vals]))
+    v2, _t, _l, _h = read_patch_value(tmp, patch, "plant-readback@" + patch)
+    got = midline_mean(pg, v2)["mean_central80"]
+    seen = got - base
+    os.unlink(tmp)
+    os.rmdir(tmpd)
+    if abs(seen - PLANT) > 1e-9 * max(1.0, abs(PLANT)):
+        refuse("PLANTED-ZERO CONTROL FAILED on the %s mid-line reader: planted "
+               "%.6e as a constant offset, read back %.6e.  A zero from a reader "
+               "not shown able to see a non-zero is not evidence."
+               % (patch, PLANT, seen))
+    return dict(reader="midline_mean/" + patch, shape="constant offset",
+                planted=PLANT, seen=seen)
+
+
+def plant_convergence(case_dir, endtime=ENDTIME):
+    """CHANGE reader between two checkpoints.  A constant offset applied to both
+    checkpoints CANCELS and is invisible by construction (L-340), and an offset
+    applied to one is a legitimate but weak plant; the sharp plant for a MAXIMUM
+    reader is a SINGLE-CELL SPIKE, which is what is used."""
+    early = os.path.join(case_dir, str(endtime - CONV_BACK), "air", "T")
+    late = os.path.join(case_dir, str(endtime), "air", "T")
+    if not (os.path.isfile(early) and os.path.isfile(late)):
+        refuse("planted control cannot run: a S5.5 checkpoint is absent")
+    base = field_change(early, late, "scalar", "plant-base")
+    txt = _decomment(open(late, errors="replace").read())
+    m = re.search(r"\binternalField\b", txt)
+    vals, lo, hi = _entry_list(txt, m.end(), "plant-internal")
+    spiked = list(vals)
+    j = max(range(len(spiked)), key=lambda i: abs(spiked[i]))
+    spiked[j] = spiked[j] + PLANT + base["delta"]
+    tmpd = tempfile.mkdtemp(prefix="t5_plantc_")
+    tmp = os.path.join(tmpd, "T")
+    with open(tmp, "w") as fh:
+        fh.write(_write_planted(txt, lo, hi, spiked))
+    got = field_change(early, tmp, "scalar", "plant-readback")
+    os.unlink(tmp)
+    os.rmdir(tmpd)
+    rise = got["delta"] - base["delta"]
+    if rise < PLANT * 0.5:
+        refuse("PLANTED-ZERO CONTROL FAILED on the S5.5 change reader: a "
+               "single-cell spike of %.6e raised the measured maximum change by "
+               "only %.6e.  A converged verdict from a reader that cannot see a "
+               "planted change is not evidence." % (PLANT, rise))
+    if got["rng"] - base["rng"] < PLANT * 0.5:
+        refuse("PLANTED-ZERO CONTROL FAILED on the RANGE reader: the range is "
+               "the denominator of the registered criterion and it did not move "
+               "when the maximum cell was raised by %.6e" % PLANT)
+    return dict(reader="field_change + range", shape="single-cell spike",
+                planted=PLANT, seen_change=rise, seen_range=got["rng"] - base["rng"])
+
+
+def plant_reference(ref_path):
+    """REFERENCE reader -> plant into a COPY OF THE JSON ON DISK and require the
+    computed deviation to move.  A comparator that reads its reference through a
+    path nobody has perturbed can be reading a cached zero."""
+    ref, err = load_reference(ref_path)
+    if ref is None:
+        refuse("planted control cannot run on the reference: " + err)
+    row = None
+    for r in GRADED_ROWS:
+        if ref.get("rows", {}).get(r, {}).get("value") is not None:
+            row = r
+            break
+    if row is None:
+        refuse("planted control cannot run: no graded row carries a value")
+    base = ref["rows"][row]["value"]
+    tmpd = tempfile.mkdtemp(prefix="t5_plantr_")
+    tmp = os.path.join(tmpd, "ref.json")
+    import copy as _copy
+    pert = _copy.deepcopy(ref)
+    pert["rows"][row]["value"] = base + PLANT
+    with open(tmp, "w") as fh:
+        json.dump(pert, fh)
+    back, err2 = load_reference(tmp)
+    os.unlink(tmp)
+    os.rmdir(tmpd)
+    if back is None:
+        refuse("planted control on the reference: the perturbed copy did not "
+               "load back (%s)" % err2)
+    seen = back["rows"][row]["value"] - base
+    if abs(seen - PLANT) > 1e-12:
+        refuse("PLANTED-ZERO CONTROL FAILED on the reference reader: planted "
+               "%.6e into row %s, read back %.6e" % (PLANT, row, seen))
+    return dict(reader="load_reference", shape="value offset", row=row,
+                planted=PLANT, seen=seen)
+
+
+# ---------------------------------------------------------------------------
+# S7.5's ORDER, ALL SIX BRANCHES.  The frozen `grade_row` implements (0) the y+
+# precondition, (1) iterative convergence and (2) the triple, then the band.  It
+# implements NO branch 3 (reference absent -> BLOCKED), NO branch 4 (the G5
+# identity guard) and NO branch 5 (the intrinsic floor -> GATE REACHED).  Those
+# three are applied HERE, in the registered order, AROUND the frozen function --
+# which is called unmodified, so the triple gating and the one-way invariant are
+# the frozen code's, not a reimplementation of it.
+# ---------------------------------------------------------------------------
+def grade_row_s75(row, vals, conv_by_level, yplus_by_level, ref_meta, floor_pct):
+    band = band_for(ref_meta) if ref_meta else None
+    if ref_meta is None or ref_meta.get("value") is None or band is None:
+        return dict(row=row, verdict=VERDICT_BLOCKED,
+                    why="criterion (3): the reference value for this row is "
+                        "absent, so there is nothing to grade against; the fine "
+                        "value and the triple are printed as REPORTED "
+                        "information",
+                    value=vals.get("f"),
+                    triple=(gci_triple(vals["c"], vals["m"], vals["f"])
+                            if all(vals.get(lv) is not None for lv in LEVELS)
+                            else None))
+    rec = grade_row(row, vals, conv_by_level, yplus_by_level,
+                    ref_meta["value"], band["band_pct"])
+    rec["band_abs"] = band["band_abs"]
+    rec["band_units"] = band["units"]
+    rec["band_components"] = dict(stated=band["stated"],
+                                  digitisation=band["digitisation"])
+    if rec["verdict"] == VERDICT_NAR:
+        return rec                       # branches (0)/(1)/(2) already bit
+    if row in G5_FACE:                   # branch (4): the S3 identity guard
+        ok_id, why_id = identity_guard(ref_meta)
+        rec["identity"] = why_id
+        if not ok_id:
+            rec["verdict"] = VERDICT_NAR + " -- identity"
+            rec["why"] = "criterion (4): " + why_id
+            return rec
+    if floor_pct is not None and abs(rec["dev"]) < floor_pct:   # branch (5)
+        rec["verdict"] = VERDICT_REACHED
+        rec["why"] = ("criterion (5): deviation %.3f %% is below the registered "
+                      "intrinsic floor %.2f %% (S7.4) -- the rung cannot resolve "
+                      "it, so it is reported, not graded" % (rec["dev"], floor_pct))
+        return rec
+    return rec                            # branch (6): the band verdict stands
+
+
+# S7.4, quoted: "ambient temperature ambiguity | 1.7 % on every `h` row".  S7.4
+# names NO floor for a T_sur row, and adding one after compute would be adding a
+# threshold, which a post-compute amendment may not do.  So: a floor for the `h`
+# rows, and None -- not zero, None -- for G5.
+FLOOR_PCT = {"G1a": 1.7, "G2a": 1.7, "G3a": 1.7,
+             "G5a": None, "G5b": None, "G5c": None}
+
+
+# ---------------------------------------------------------------------------
+# A SYNTHETIC CASE, so every reader above is exercised on bytes it wrote and
+# read back -- and never on a real T5 case until the amendment is frozen
+# ---------------------------------------------------------------------------
+_FOAM_HEAD = """FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       %s;
+    object      %s;
+}
+"""
+
+
+def _syn_patch_mesh(d, ny=13, nz=4, H=0.015, W=0.03):
+    """One planar patch at x = 0: ny x nz quads, z from 0 (the symmetry plane)."""
+    os.makedirs(d, exist_ok=True)
+    pts, idx = [], {}
+    for j in range(ny + 1):
+        for k in range(nz + 1):
+            idx[(j, k)] = len(pts)
+            pts.append((0.0, H * j / ny, W * k / nz))
+    faces = []
+    for j in range(ny):
+        for k in range(nz):
+            faces.append([idx[(j, k)], idx[(j + 1, k)],
+                          idx[(j + 1, k + 1)], idx[(j, k + 1)]])
+    with open(os.path.join(d, "points"), "w") as fh:
+        fh.write(_FOAM_HEAD % ("vectorField", "points"))
+        fh.write("%d\n(\n" % len(pts))
+        for p in pts:
+            fh.write("(%r %r %r)\n" % p)
+        fh.write(")\n")
+    with open(os.path.join(d, "faces"), "w") as fh:
+        fh.write(_FOAM_HEAD % ("faceList", "faces"))
+        fh.write("%d\n(\n" % len(faces))
+        for f in faces:
+            fh.write("4(%d %d %d %d)\n" % tuple(f))
+        fh.write(")\n")
+    with open(os.path.join(d, "boundary"), "w") as fh:
+        fh.write(_FOAM_HEAD % ("polyBoundaryMesh", "boundary"))
+        fh.write("1\n(\ncube_front\n{\n    type wall;\n    nFaces %d;\n"
+                 "    startFace 0;\n}\n)\n" % len(faces))
+    return ny, nz, H, W
+
+
+def _syn_field(path, patch, values, internal=None):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as fh:
+        fh.write(_FOAM_HEAD % ("volScalarField", "T"))
+        if internal is None:
+            fh.write("internalField   uniform 300;\n")
+        else:
+            fh.write("internalField   nonuniform List<scalar>\n%d\n(\n%s\n)\n;\n"
+                     % (len(internal), "\n".join(repr(v) for v in internal)))
+        fh.write("boundaryField\n{\n    %s\n    {\n        type            "
+                 "calculated;\n        value           nonuniform List<scalar>\n"
+                 "%d\n(\n%s\n)\n;\n    }\n}\n"
+                 % (patch, len(values), "\n".join(repr(v) for v in values)))
+
+
+def _syn_vector(path, values):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as fh:
+        fh.write(_FOAM_HEAD % ("volVectorField", "U"))
+        fh.write("internalField   nonuniform List<vector>\n%d\n(\n%s\n)\n;\n"
+                 % (len(values), "\n".join("(%r %r %r)" % v for v in values)))
+        fh.write("boundaryField\n{\n}\n")
+
+
+def _syn_quadratic(ny, nz, H, T0=300.0, a=10.0):
+    """T = T0 + a*(y/H)^2 on every face of the column.  Chosen because a LINEAR
+    profile has the same mean over the full line and over the central 80 %, so a
+    linear synthetic could not tell a broken window from a working one."""
+    vals = []
+    for j in range(ny):
+        y = H * (j + 0.5) / ny
+        for _k in range(nz):
+            vals.append(T0 + a * (y / H) ** 2)
+    return vals
+
+
+def _exact_central80_quadratic(T0, a, lo, hi):
+    """The window bounds are passed in as LITERALS by the caller.  Deriving the
+    expected value from `CENTRAL` would move both sides of the comparison when
+    `CENTRAL` is mutated, and the arm would pass on a broken window -- measured:
+    negative control N1 survived exactly that way before this was changed."""
+    return T0 + a * (hi ** 3 - lo ** 3) / (3.0 * (hi - lo))
+
+
+# ---------------------------------------------------------------------------
+def selftest_a10():
+    rc = selftest()                       # the frozen 16 arms, unmodified
+    if rc != 0:
+        return rc
+    fails = []
+    ok = lambda c, m: None if c else fails.append(m)
+    arms = 0
+
+    tmp = tempfile.mkdtemp(prefix="t5_a10_")
+    mesh = os.path.join(tmp, "constant", "air", "polyMesh")
+    ny, nz, H, W = _syn_patch_mesh(mesh)
+    T0, aq = 300.0, 10.0
+    vals = _syn_quadratic(ny, nz, H, T0, aq)
+    _syn_field(os.path.join(tmp, "5000", "air", "T"), "cube_front", vals)
+
+    pg = PatchGeom(mesh, "cube_front")
+    arms += 1
+    ok(pg.n == ny * nz, "mesh reader: %d patch faces, expected %d" % (pg.n, ny * nz))
+    arms += 1
+    ok(abs(sum(pg.areas) - H * W) < 1e-12,
+       "face-area reader: total %.12g against the exact %.12g" % (sum(pg.areas), H * W))
+
+    ml = midline_mean(pg, vals)
+    want = _exact_central80_quadratic(T0, aq, 0.10, 0.90)   # LITERALS, on purpose
+    arms += 1
+    ok(abs(ml["mean_central80"] - want) < 2.0e-2,
+       "central-80 %% mid-line mean %.6f against the analytic %.6f"
+       % (ml["mean_central80"], want))
+    arms += 1
+    ok(ml["n_col"] == ny, "the symmetry-plane column holds %d faces, expected %d"
+       % (ml["n_col"], ny))
+    full = T0 + aq / 3.0
+    arms += 1
+    ok(abs(ml["mean_central80"] - full) > 1.0e-2,
+       "the central-80 % window made no difference to the mean, so a broken "
+       "window could not be detected by this arm")
+
+    # the K -> degC conversion, on the row's own path
+    g5 = extract_g5(tmp, "front")
+    arms += 1
+    ok(abs(g5["value_degC"] - (ml["mean_central80"] - KELVIN_ZERO_C)) < 1e-9,
+       "extract_g5 did not return degC")
+
+    # PLANTED ZERO, constant offset, through the graded row's own reader
+    p1 = plant_midline(tmp, "front")
+    arms += 1
+    ok(abs(p1["seen"] - PLANT) < 1e-9, "the mid-line plant was not seen")
+
+    # PLANTED ZERO, single-cell spike, through the S5.5 change reader
+    n_int = 50
+    early = [300.0 + 0.001 * i for i in range(n_int)]
+    late = [v + 1.0e-9 for v in early]
+    _syn_field(os.path.join(tmp, "4000", "air", "T"), "cube_front", vals, early)
+    _syn_field(os.path.join(tmp, "5000", "air", "T"), "cube_front", vals, late)
+    uv = [(1.0 + 0.01 * i, 0.0, 0.0) for i in range(n_int)]
+    _syn_vector(os.path.join(tmp, "4000", "air", "U"), uv)
+    _syn_vector(os.path.join(tmp, "5000", "air", "U"),
+                [(v[0] + 1.0e-9, v[1], v[2]) for v in uv])
+    p2 = plant_convergence(tmp)
+    arms += 1
+    ok(p2["seen_change"] >= PLANT * 0.5, "the single-cell spike was not seen")
+    arms += 1
+    ok(p2["seen_range"] >= PLANT * 0.5, "the range reader did not move")
+
+    conv, why, _parts = gate_converged_s55(tmp)
+    arms += 1
+    ok(conv is True, "a field pair changing by 1e-9 of a 0.049 range was refused: " + why)
+    _syn_field(os.path.join(tmp, "5000", "air", "T"), "cube_front", vals,
+               [v + 1.0 for v in early])
+    conv2, why2, _p2 = gate_converged_s55(tmp)
+    arms += 1
+    ok(conv2 is False, "a field pair changing by 1.0 was accepted as converged")
+    # one decade above the registered limit must already be refused
+    tight = [v + 3.0e-6 * (max(early) - min(early)) * (1 if i == 0 else 0)
+             for i, v in enumerate(early)]
+    _syn_field(os.path.join(tmp, "5000", "air", "T"), "cube_front", vals, tight)
+    conv3, why3, _p3 = gate_converged_s55(tmp)
+    arms += 1
+    ok(conv3 is False,
+       "a change of 3e-6 of the range was accepted, above the "
+       "registered 1e-6: the tolerance is not being applied at its registered "
+       "value (" + why3 + ")")
+    _syn_field(os.path.join(tmp, "5000", "air", "T"), "cube_front", vals, late)
+
+    # the S7.5 order, on synthetic triples -- every branch, and both directions
+    ref_ok = dict(value=100.0, uncertainty=1.0, digitisation_increment=1.0,
+                  units="W/m2K", figure="5.45")
+    conv_all = {lv: (True, "ok") for lv in LEVELS}
+    yp_ok = {lv: dict(state="MET", why="ok") for lv in LEVELS}
+    yp_bad = {lv: dict(state=VERDICT_NAR, why="no yPlus.json") for lv in LEVELS}
+
+    r = grade_row_s75("G1a", dict(c=100.9, m=100.4, f=100.2), conv_all, yp_ok,
+                      ref_ok, None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_PASS, "a converging triple inside the band was not PASS")
+    r = grade_row_s75("G1a", dict(c=140.0, m=130.0, f=125.0), conv_all, yp_ok,
+                      ref_ok, None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_FAIL, "a converging triple outside the band was not GATE FAIL")
+    # a DIVERGENT triple with the fine value INSIDE the band must still be NAR
+    r = grade_row_s75("G1a", dict(c=100.20, m=100.21, f=100.2), conv_all, yp_ok,
+                      ref_ok, None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_NAR,
+       "a non-CONVERGING triple with the value INSIDE the band did not return "
+       "NOT A RESULT -- rule 5's whole point")
+    r = grade_row_s75("G1a", dict(c=100.9, m=100.4, f=100.2), conv_all, yp_bad,
+                      ref_ok, None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_NAR, "the y+ gate did not turn a PASS into NOT A RESULT")
+    r = grade_row_s75("G1a", dict(c=100.9, m=100.4, f=100.2),
+                      {lv: (False, "not converged") for lv in LEVELS}, yp_ok,
+                      ref_ok, None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_NAR, "criterion (1) did not fire")
+    # branch (3): a present, digitised reference whose ROW value is absent
+    r = grade_row_s75("G1", dict(c=1.0, m=1.0, f=1.0), conv_all, yp_ok,
+                      dict(value=None, units="h/h_tot"), None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_BLOCKED, "an absent reference value was not BLOCKED")
+    # branch (4): the identity guard, both ways
+    near = dict(value=T_CORE_K - KELVIN_ZERO_C - 1.0, uncertainty=0.4,
+                digitisation_increment=0.3, units="degC", figure="5.37")
+    r = grade_row_s75("G5a", dict(c=74.4, m=74.1, f=74.0), conv_all, yp_ok, near, None)
+    arms += 1
+    ok(r["verdict"].endswith("identity"),
+       "a reference 1 K from the imposed core bound was graded instead of "
+       "returning NOT A RESULT -- identity")
+    far = dict(value=61.0, uncertainty=0.4, digitisation_increment=0.3,
+               units="degC", figure="5.37")
+    r = grade_row_s75("G5a", dict(c=61.5, m=61.2, f=61.1), conv_all, yp_ok, far, None)
+    arms += 1
+    ok(r["verdict"] == VERDICT_PASS, "an admissible G5 row did not reach a verdict")
+    # branch (5): the floor turns a verdict into GATE REACHED
+    r = grade_row_s75("G1a", dict(c=101.7, m=100.9, f=100.5), conv_all, yp_ok,
+                      ref_ok, 1.7)
+    arms += 1
+    ok(r["verdict"] == VERDICT_REACHED,
+       "a deviation of 0.5 % below the 1.7 % floor did not return GATE REACHED")
+    # G5 carries NO registered floor, and adding one would be a new threshold
+    arms += 1
+    ok(FLOOR_PCT["G5a"] is None,
+       "a floor was registered for G5, which S7.4 does not state")
+
+    # S10's increment refusal must FIRE
+    refj = os.path.join(tmp, "ref_bad.json")
+    with open(refj, "w") as fh:
+        json.dump(dict(provenance=dict(digitised=True),
+                       rows=dict(G5a=dict(value=61.0, uncertainty=0.4,
+                                          digitisation_increment=0.9,
+                                          figure="5.37", units="degC"))), fh)
+    me = os.path.abspath(__file__)
+    rcs = {}
+    for tag, argv in (("python3", [sys.executable, me]),
+                      ("python3 -O", [sys.executable, "-O", me])):
+        p = subprocess.run(argv + ["--drive-increment-refusal", refj],
+                           capture_output=True, text=True)
+        rcs[tag] = p.returncode
+    arms += 1
+    ok(rcs.get("python3") == 2 and rcs.get("python3 -O") == 2,
+       "S10's increment refusal did not fire identically under both "
+       "interpreters: %r" % (rcs,))
+
+    # the L-342 classes must be LABELLED and yPlus.json must NEVER be infrastructure
+    arms += 1
+    ok(_l342_class("T") == "PHYSICS-CRITICAL", "T is not physics-critical")
+    arms += 1
+    ok(_l342_class("yPlus.json").startswith("GATE INPUT"),
+       "yPlus.json was classified as something other than a gate input -- "
+       "reclassifying it would silently disable S16.3.1's gate")
+
+    # the reference reader's own plant, on a written-and-reread copy
+    refok = os.path.join(tmp, "ref_ok.json")
+    with open(refok, "w") as fh:
+        json.dump(dict(provenance=dict(digitised=True),
+                       rows=dict(G5a=dict(value=61.0, uncertainty=0.4,
+                                          digitisation_increment=0.3,
+                                          figure="5.37", units="degC"))), fh)
+    p3 = plant_reference(refok)
+    arms += 1
+    ok(abs(p3["seen"] - PLANT) < 1e-12, "the reference plant was not seen")
+
+    # the band arithmetic, S7.3 verbatim
+    b = band_for(dict(value=61.0, uncertainty=0.4, digitisation_increment=0.3,
+                      units="degC"))
+    arms += 1
+    ok(abs(b["band_abs"] - math.sqrt(0.4 ** 2 + 0.3 ** 2)) < 1e-12,
+       "the band is not sqrt(stated^2 + digitisation^2)")
+    arms += 1
+    ok(abs(b["band_pct"] - 100.0 * b["band_abs"] / 61.0) < 1e-12,
+       "the percentage band is not the absolute band over the reference in the "
+       "row's own units -- the K/degC scale trap")
+
+    subprocess.run(["rm", "-rf", tmp])
+    if fails:
+        for f in fails:
+            print("FAILED: " + f)
+        return 1
+    print("A10 SELFTEST PASS: %d arms, 0 FAILED." % arms)
+    return 0
+
+
+def _drive_increment_refusal(path):
+    load_reference(path)
+    print("NOT REFUSED -- the S10 increment check did not fire")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# NEGATIVE CONTROLS.  A selftest that cannot fail is not a test.  Each mutation
+# below is applied to a COPY OF THIS FILE'S SOURCE, `__pycache__` is cleared
+# between the control and the mutant (stale bytecode has inverted a mutation
+# test in this lab before), and the mutant's `--selftest` MUST return non-zero.
+# ---------------------------------------------------------------------------
+MUTATIONS = (
+    ("N1 central-80 window widened to the full line",
+     '\nCENTRAL = (0.10, 0.90)', '\nCENTRAL = (0.00, 1.00)', 1),
+    ("N2 the K->degC conversion removed",
+     'KELVIN_ZERO_C = 273.15', 'KELVIN_ZERO_C = 0.0', 1),
+    ("N3 the mid-line plant read-back blinded",
+     'v2, _t, _l, _h = read_patch_value(tmp, patch, "plant-readback@" + patch)',
+     'v2 = vals', 1),
+    ("N4 the y+ gate made to pass an absent yPlus.json",
+     'return dict(state=VERDICT_NAR,\n                    why="no yPlus.json',
+     'return dict(state="MET",\n                    why="no yPlus.json', 1),
+    ("N5 the S5.5 tolerance loosened by ONE decade",
+     'CONV_TOL_FRAC = 1.0e-6', 'CONV_TOL_FRAC = 1.0e-5', 1),
+    ("N6 the identity guard margin set to zero",
+     'IDENTITY_MARGIN_K = 5.0', 'IDENTITY_MARGIN_K = 0.0', 1),
+    ("N7 the S10 increment tolerance made infinite",
+     'INCREMENT_FORECAST_TOL = 1.5', 'INCREMENT_FORECAST_TOL = 1.0e9', 1),
+    # N8 replaces BOTH copies of the one-way invariant -- `grade_row`'s and the
+    # sacrificial driver's.  Mutating only `grade_row`'s is UNCATCHABLE by any
+    # selftest, because that copy fires only on a state `grade_row` cannot
+    # itself produce; the driver's copy is the one a test can reach, and killing
+    # both is what proves the protection is live rather than decorative.
+    ("N8 BOTH copies of the one-way invariant removed",
+     'if rec["verdict"] not in (band, VERDICT_NAR):', 'if False:', 0),
+    ("N9 the clipped mid-line mean swapped for the whole-cell one",
+     'return dict(mean_central80=num / den,',
+     'return dict(mean_central80=(num_w / den_w) if den_w > 0 else num / den,', 1),
+)
+
+
+def mutation_controls():
+    src = open(os.path.abspath(__file__)).read()
+    bad = []
+    print("NEGATIVE CONTROLS -- each mutant's --selftest MUST return non-zero:")
+    for name, old, new, cnt in MUTATIONS:
+        if old not in src:
+            bad.append("%s: the anchor text is not in the source" % name)
+            print("  %-58s ANCHOR MISSING" % name)
+            continue
+        d = tempfile.mkdtemp(prefix="t5_mut_")
+        subprocess.run(["rm", "-rf", os.path.join(d, "__pycache__")])
+        p = os.path.join(d, "mutant.py")
+        with open(p, "w") as fh:
+            fh.write(src.replace(old, new) if cnt == 0
+                     else src.replace(old, new, cnt))
+        rcs = []
+        for argv in ([sys.executable, p], [sys.executable, "-O", p]):
+            subprocess.run(["rm", "-rf", os.path.join(d, "__pycache__")])
+            r = subprocess.run(argv + ["--selftest"], capture_output=True, text=True)
+            rcs.append(r.returncode)
+        subprocess.run(["rm", "-rf", d])
+        good = all(rc != 0 for rc in rcs)
+        print("  %-58s rc %s  %s" % (name, rcs, "CAUGHT" if good else "NOT CAUGHT"))
+        if not good:
+            bad.append("%s survived the selftest (rc %s)" % (name, rcs))
+    if bad:
+        for b in bad:
+            print("FAILED: " + b)
+        return 1
+    print("NEGATIVE CONTROLS PASS: %d mutations, all caught." % len(MUTATIONS))
+    return 0
+
+
+# ---------------------------------------------------------------------------
+def report(root, endtime=ENDTIME):
+    out = []
+    P = out.append
+    P("T5 GRADING DRIVER -- AMENDMENT 10 (PROPOSED, NOT FROZEN)")
+    P("EVERY VERDICT BELOW CARRIES THIS LABEL: graded by an instrument written")
+    P("AFTER compute to text frozen BEFORE it; and the author of the driver had")
+    P("already read the reference values (S10's ordering is BROKEN for this")
+    P("section and cannot be repaired by anything in it).")
+    P("")
+
+    ref_path = os.path.join(root, "T5_reference_primary.json")
+    ref, ref_err = load_reference(ref_path)
+    P("REFERENCE: " + (ref_path if ref else "ABSENT/UNUSABLE -- " + str(ref_err)))
+    if ref:
+        P("  digitiser: %s at %s"
+          % (ref["provenance"].get("digitiser"), ref["provenance"].get("digitised_utc")))
+
+    P("")
+    P("PLANTED-ZERO CONTROLS (rule 3), LIVE, sized to each reader (L-340):")
+    if ref:
+        P("  %s" % (plant_reference(ref_path),))
+
+    P("")
+    P("COMPLETION (rule 4, all-or-nothing) and the y+ GATE (S16.3.1):")
+    comp, yp, conv, counts = {}, {}, {}, {}
+    for lv in LEVELS:
+        case = LEVEL_CASE[lv]
+        cd = os.path.join(root, case)
+        comp[lv] = check_completion(root, case, endtime)
+        yp[lv] = gate_yplus(cd, lv)
+        counts[lv] = cell_count(cd)
+        P("  %-12s done=%-5s  %s" % (case, comp[lv]["done"], comp[lv]["why"]))
+        P("  %-12s y+ gate: %-12s %s" % ("", yp[lv]["state"], yp[lv]["why"]))
+        P("  %-12s cells: %s" % ("", counts[lv]))
+    P("")
+    P("  L-342 FIELD CLASSES, LABELLED: " +
+      ", ".join("%s=%s" % (f, _l342_class(f)) for f in ("T", "U", "yPlus.json")))
+
+    if not all(comp[lv]["done"] for lv in LEVELS):
+        P("")
+        P("The completion rule is all-or-nothing and at least one level fails it.")
+        P("No row is graded.  PENDING: %s" % root)
+        return "\n".join(out), 0
+
+    P("")
+    P("S5.5 CONVERGENCE (the registered criterion is a FIELD CHANGE between the")
+    P("checkpoints at endTime-1000 and endTime, NOT a residual):")
+    for lv in LEVELS:
+        cd = os.path.join(root, LEVEL_CASE[lv])
+        conv[lv] = gate_converged_s55(cd, endtime)[:2]
+        P("  %-12s %s" % (LEVEL_CASE[lv], conv[lv][1]))
+    for lv in LEVELS:
+        P("  planted control, %s: %s"
+          % (LEVEL_CASE[lv], plant_convergence(os.path.join(root, LEVEL_CASE[lv]), endtime)))
+
+    er = effective_ratio(counts)
+    P("")
+    if er:
+        P("EFFECTIVE REFINEMENT RATIOS from the actual cell counts (S7.5): "
+          "r32=%.4f r21=%.4f, disagreeing by %.2f %%.  The frozen `gci_triple` "
+          "takes ONE ratio and implements the EQUAL-ratio form; it is called "
+          "with r21 and NOT modified." % (er["r32"], er["r21"], er["disagree_pct"]))
+
+    P("")
+    P("ROWS.")
+    P("  G1a/G2a/G3a -- face-averaged `h`.  S7.1 defines the row as the "
+      "AREA-WEIGHTED MEAN OF LOCAL `h`, and local `h` needs a local wall heat "
+      "flux.")
+    for lv in LEVELS:
+        w = local_wall_heat_flux_available(os.path.join(root, LEVEL_CASE[lv]), endtime)
+        P("    %-12s local flux field on disk: %s; patch .dat rows: %d"
+          % (LEVEL_CASE[lv], w["field_paths"] or "NONE", w["patch_dat_rows"]))
+    P("    VERDICT WITHHELD -- NOT A RESULT is not available either, because the")
+    P("    row was never EVALUATED.  The quantity the row is defined on is not on")
+    P("    disk.  Reconstructing it from T and alphat would be a NEW heat-flux")
+    P("    instrument written after compute; recovering it by re-running the")
+    P("    registered function object is compute on a case whose gates are")
+    P("    closed.  Both are the supervisor's call, not this driver's.")
+
+    P("")
+    P("  G1/G2/G3 -- mid-line mean `h`: REPORTED by S16.4, and their reference")
+    P("    values are null in the frozen JSON (Fig. 5.39 was not read).  No")
+    P("    verdict is owed and none is written.")
+    P("  G4 -- reattachment: REPORTED, no band stated by the thesis (S2.4).")
+    P("    UNGRADED BY REGISTRATION.")
+
+    P("")
+    P("  G5a/G5b/G5c -- mid-line mean `T_sur`, GRADED (S16.4).")
+    vals_by_row = {}
+    for row in ("G5a", "G5b", "G5c"):
+        face = G5_FACE[row]
+        v = {}
+        for lv in LEVELS:
+            cd = os.path.join(root, LEVEL_CASE[lv])
+            g = extract_g5(cd, face, endtime)
+            v[lv] = g["value_degC"]
+            P("    %-4s %-12s central80 = %.4f degC   [whole-cell alternative "
+              "%.4f, face average %.4f, %d faces on the mid-line]"
+              % (row, LEVEL_CASE[lv], g["value_degC"], g["wholecell_degC"],
+                 g["face_area_mean_degC"], g["n_col"]))
+        vals_by_row[row] = v
+        P("    %-4s planted control: %s"
+          % (row, plant_midline(os.path.join(root, LEVEL_CASE["f"]), face, endtime)))
+
+    P("")
+    P("GRADING, in S7.5's registered order (0)(1)(2)(3)(4)(5)(6):")
+    for row in ("G5a", "G5b", "G5c"):
+        meta = (ref or {}).get("rows", {}).get(row)
+        rec = grade_row_s75(row, vals_by_row[row], conv, yp, meta, FLOOR_PCT[row])
+        P("  %-4s %-26s %s" % (row, rec["verdict"], rec.get("why", "")))
+        if rec.get("value") is not None or rec.get("ref") is not None:
+            P("       fine %.4f degC against reference %s degC, band +/- %s degC "
+              "(= %s %% of the reference, sqrt(%s^2 + %s^2))"
+              % (vals_by_row[row]["f"], rec.get("ref"),
+                 _fmt(rec.get("band_abs")), _fmt(rec.get("band_pct")),
+                 _fmt((rec.get("band_components") or {}).get("stated")),
+                 _fmt((rec.get("band_components") or {}).get("digitisation"))))
+        tr = rec.get("triple")
+        if tr:
+            P("       triple %s: e32=%s e21=%s ratio=%s p=%s GCI=%s %%"
+              % (tr["state"], _fmt(tr.get("e32")), _fmt(tr.get("e21")),
+                 _fmt(tr.get("ratio")), _fmt(tr.get("p")), _fmt(tr.get("GCI_pct"))))
+        if rec.get("identity"):
+            P("       identity guard (S3): " + rec["identity"])
+
+    P("")
+    P("GUARDS (S6).")
+    for lv in LEVELS:
+        cd = os.path.join(root, LEVEL_CASE[lv])
+        P("  %-12s MB: %s" % (LEVEL_CASE[lv], guard_mb(cd, endtime)))
+        P("  %-12s HB: %s" % ("", guard_hb(cd, endtime)["why"]))
+    P("  I1/I2: NOT MEASURED -- S10's D6 (Figs 5.2/5.3) was not digitised and no "
+      "empty-channel 3-D case is in the registered case list.")
+    P("  YP: reported without a threshold by S6; there is no y+ measurement on "
+      "disk to report.")
+
+    P("")
+    P("UNGRADED BY REGISTRATION, stated as such rather than invented:")
+    P("  G4 (no band stated by the thesis, S2.4 item 3); G1-G3 (REPORTED by "
+      "S16.4); R1, R2, R3, DS, DH (REPORTED by S7.2); DP and DC (their "
+      "criteria are written on G1a-G3a).")
+    P("")
+    P("Nothing here has been sent, filed, uploaded, posted or registered "
+      "anywhere outside this box (CLAUDE.md rule 7).")
+    return "\n".join(out), 0
+
+
+def _fmt(x):
+    if x is None:
+        return "n/a"
+    if isinstance(x, float):
+        return "%.6g" % x
+    return str(x)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--drive-oneway-violation", action="store_true")
+    ap.add_argument("--drive-increment-refusal")
+    ap.add_argument("--mutation-controls", action="store_true")
+    ap.add_argument("--root")
+    a = ap.parse_args()
+    if a.selftest:
+        return selftest_a10()
+    if a.drive_oneway_violation:
+        return _drive_oneway_violation()
+    if a.drive_increment_refusal:
+        return _drive_increment_refusal(a.drive_increment_refusal)
+    if a.mutation_controls:
+        return mutation_controls()
+    if not a.root:
+        ap.print_help()
+        return 0
+    txt, rc = report(a.root)
+    print(txt)
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())
