@@ -1,0 +1,295 @@
+VMFLGPU007 -- FREEZE-TIME GUARD DRIVE
+=====================================
+ansys-lane-opus (lane R2), 2026-08-27. Committed BESIDE THE CASE (L-186). Zero compute: no
+solver ran in any arm below and no VMFLGPU007 run root exists on either box.
+
+L-357 IS APPLIED THROUGHOUT: every planted failure asserts THE EXPECTED REFUSAL TEXT, never
+merely a non-zero exit. That lesson came from this lane, and it presented itself AGAIN twice
+while producing this very file -- see "TWO SELF-INFLICTED TRAPS" at the foot. A non-zero rc is
+not evidence a guard fired.
+
+Reproduce:  python3 grade_vmflgpu007.py --selftest   (and under python3 -O)
+            python3 field_completeness.py --selftest (and under python3 -O)
+            python3 resolve_blockmesh.py <template> <NXI> <NXD> <NYU> <NYL> <H1> <out>
+
+-------------------------------------------------------------------------------
+1. COMPARATOR -- grade_vmflgpu007.py, 26/26, python3 AND python3 -O, 0 ast.Assert
+-------------------------------------------------------------------------------
+VMFLGPU007-comparator-1.0  run_root=<FIX>/control
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 cells=3648  peak Nu gpu=64.500000 @ x/H=5.8209 | cpu=64.500000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 cells=7776  peak Nu gpu=64.700000 @ x/H=5.8209 | cpu=64.700000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 cells=16128  peak Nu gpu=64.853000 @ x/H=5.8209 | cpu=64.853000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+BIRTH CERTIFICATE (measured pre-freeze, MESH_PREFREEZE_RECORD.md): L1=3648, L2=7776, L3=16128
+MESH-SENSITIVITY SPREAD (the registered uncertainty channel for this family): peak Nu over L1/L2/L3 = 64.500000 .. 64.853000, spread 0.353000 (0.544 % of the finest), peak location spread 0.0000 x/H
+LIMB A: GPU execution established at every level; forced-CPU control reported no GPU work at any level.
+LIMB B (HOLDS, PASS-CAPABLE -- identical mesh and scheme): worst |dq|/|q| = 0.000e+00 against band 1.0e-04
+LIMB C (HOLDS, CEILING GATE REACHED -- never PASS): finest-level peak Nu = 64.853000 vs reference 64.853000 (rel 0.0000, band 0.2000); location 5.8209 vs 5.8209 (abs 0.0000 x/H, band 1.5000)
+VERDICT: GATE REACHED -- limb B holds and limb C is inside its band. The ceiling is GATE REACHED: without systematic refinement this case cannot claim a discretisation-converged physics result and does not.
+NOT CLAIMED: nothing about Ansys (this box has no Fluent); nothing about GPU performance (a GPU arm SLOWER than the CPU arm passes every limb); no PASS on limb C; no discretisation-converged result.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c1_rc
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c2_end
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c3_lasttime
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c4_timecount
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c5_field
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c6_ageguard
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/i2_short
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/i3_unsettled
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/i4_dead
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/a1_nolog
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/a2_leak
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/a3_pctf
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/a4_noh2d
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/y3_band
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/r_ambiguous
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/e1_noendtime
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/d2_endtimes
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/r2_singular
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/b_miss
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 cells=3648  peak Nu gpu=64.500000 @ x/H=5.8209 | cpu=64.500000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 cells=7776  peak Nu gpu=64.700000 @ x/H=5.8209 | cpu=64.700000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 cells=16128  peak Nu gpu=64.853000 @ x/H=5.8209 | cpu=68.095650 @ x/H=5.8209 | limb B rel=4.762e-02 MISSES | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+BIRTH CERTIFICATE (measured pre-freeze, MESH_PREFREEZE_RECORD.md): L1=3648, L2=7776, L3=16128
+MESH-SENSITIVITY SPREAD (the registered uncertainty channel for this family): peak Nu over L1/L2/L3 = 64.500000 .. 64.853000, spread 0.353000 (0.544 % of the finest), peak location spread 0.0000 x/H
+LIMB A: GPU execution established at every level; forced-CPU control reported no GPU work at any level.
+LIMB B (MISSES, PASS-CAPABLE -- identical mesh and scheme): worst |dq|/|q| = 4.762e-02 against band 1.0e-04
+LIMB C (HOLDS, CEILING GATE REACHED -- never PASS): finest-level peak Nu = 64.853000 vs reference 64.853000 (rel 0.0000, band 0.2000); location 5.8209 vs 5.8209 (abs 0.0000 x/H, band 1.5000)
+VERDICT: GATE FAIL -- limb B missed: the GPU and forced-CPU arms disagree by 4.762e-02 at identical mesh and scheme, which is a statement about the LINEAR ALGEBRA and is the object under verification.
+NOT CLAIMED: nothing about Ansys (this box has no Fluent); nothing about GPU performance (a GPU arm SLOWER than the CPU arm passes every limb); no PASS on limb C; no discretisation-converged result.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/c_miss_model
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 cells=3648  peak Nu gpu=30.000000 @ x/H=5.8209 | cpu=30.000000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 cells=7776  peak Nu gpu=30.000000 @ x/H=5.8209 | cpu=30.000000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 cells=16128  peak Nu gpu=30.000000 @ x/H=5.8209 | cpu=30.000000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+BIRTH CERTIFICATE (measured pre-freeze, MESH_PREFREEZE_RECORD.md): L1=3648, L2=7776, L3=16128
+MESH-SENSITIVITY SPREAD (the registered uncertainty channel for this family): peak Nu over L1/L2/L3 = 30.000000 .. 30.000000, spread 0.000000 (0.000 % of the finest), peak location spread 0.0000 x/H
+LIMB A: GPU execution established at every level; forced-CPU control reported no GPU work at any level.
+LIMB B (HOLDS, PASS-CAPABLE -- identical mesh and scheme): worst |dq|/|q| = 0.000e+00 against band 1.0e-04
+LIMB C (MISSES, CEILING GATE REACHED -- never PASS): finest-level peak Nu = 30.000000 vs reference 64.853000 (rel 0.5374, band 0.2000); location 5.8209 vs 5.8209 (abs 0.0000 x/H, band 1.5000)
+VERDICT: GATE FAIL -- limb C missed WHILE LIMB B HELD (0.000e+00 <= 1.0e-04). THIS IS A **MODEL** MISS, NOT A GPU-PATH FAILURE: the GPU path is VERIFIED, because limb B compares the two arms at an identical mesh with an identical scheme and is unaffected by turbulence-model bias. Standard k-epsilon under-predicting backward-facing-step reattachment is the best-documented deficiency of this exact model on this exact flow.
+NOT CLAIMED: nothing about Ansys (this box has no Fluent); nothing about GPU performance (a GPU arm SLOWER than the CPU arm passes every limb); no PASS on limb C; no discretisation-converged result.
+VMFLGPU007-comparator-1.0  run_root=<FIX>/gcicheck
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 cells=3648  peak Nu gpu=64.500000 @ x/H=5.8209 | cpu=64.500000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 cells=7776  peak Nu gpu=64.700000 @ x/H=5.8209 | cpu=64.700000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 INFRA: 1002 ExecutionTime lines against 1000 'Time =' lines (petsc4Foam prints initialisation timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 cells=16128  peak Nu gpu=64.853000 @ x/H=5.8209 | cpu=64.853000 @ x/H=5.8209 | limb B rel=0.000e+00 HOLDS | y+(attached)=37 [min 0.01 reported, not gated] | plant fired
+BIRTH CERTIFICATE (measured pre-freeze, MESH_PREFREEZE_RECORD.md): L1=3648, L2=7776, L3=16128
+MESH-SENSITIVITY SPREAD (the registered uncertainty channel for this family): peak Nu over L1/L2/L3 = 64.500000 .. 64.853000, spread 0.353000 (0.544 % of the finest), peak location spread 0.0000 x/H
+LIMB A: GPU execution established at every level; forced-CPU control reported no GPU work at any level.
+LIMB B (HOLDS, PASS-CAPABLE -- identical mesh and scheme): worst |dq|/|q| = 0.000e+00 against band 1.0e-04
+LIMB C (HOLDS, CEILING GATE REACHED -- never PASS): finest-level peak Nu = 64.853000 vs reference 64.853000 (rel 0.0000, band 0.2000); location 5.8209 vs 5.8209 (abs 0.0000 x/H, band 1.5000)
+VERDICT: GATE REACHED -- limb B holds and limb C is inside its band. The ceiling is GATE REACHED: without systematic refinement this case cannot claim a discretisation-converged physics result and does not.
+NOT CLAIMED: nothing about Ansys (this box has no Fluent); nothing about GPU performance (a GPU arm SLOWER than the CPU arm passes every limb); no PASS on limb C; no discretisation-converged result.
+PASS  control                      GATE REACHED
+PASS  c1_rc                        solver rc = 3 in <FIX>/c1_rc/gpu/L1
+PASS  c2_end                       no 'End' line in <FIX>/c2_end/gpu/L1/log.buoyantSimpleFoam -- the solver did not f
+PASS  c3_lasttime                  last time 999 != registered endTime 1000 in <FIX>/c3_lasttime/gpu/L1/log.buoyantSi
+PASS  c4_timecount                 900 'Time =' lines against a registered endTime of 1000 in <FIX>/c4_timecount/gpu/
+PASS  c5_field                     field(s) k absent from <FIX>/c5_field/gpu/L1/1000 -- neither X nor X.gz
+PASS  c6_ageguard                  AGE GUARD: field(s) T, U, p_rgh, alphat, nut, k, epsilon at <FIX>/c6_ageguard/gpu/
+PASS  i2_short                     the plateau channel has 50 samples, fewer than the registered minimum 200, so no window statement can be made
+PASS  i3_unsettled                 the plateau window peak-to-peak is 1 K, above the registered 0.0001 K: the channel has not settled
+PASS  i4_dead                      LIVENESS: the plateau window is flat (ptp 0) but the channel moved only 0 K over its ENTIRE history, below the
+PASS  a1_nolog                     no PETSc -log_view table in <FIX>/a1_nolog/gpu/L1/log.buoyantSimpleFoam. An ABSENT
+PASS  a2_leak                      L1: the FORCED-CPU CONTROL (mat_type aij, vec_type standard) REPORTED GPU WORK (GPU %F = 100, host-to-device t
+PASS  a3_pctf                      L1: the GPU arm reports GPU %F = 0, below the registered floor 99. The object under verification did not run o
+PASS  a4_noh2d                     L1: the GPU arm reports ZERO host-to-device transfers. A solve that never staged a buffer to the device did no
+PASS  y3_band                      L1: the attached-region y+ (upper-quartile representative) is 4, outside the registered band [11, 300]. Standa
+PASS  r_ambiguous                  2 files match <FIX>/r_ambiguous/gpu/L1/postProcessing/wallT/1000/*heatedWall*.raw 
+PASS  e1_noendtime                 cannot determine the registered endTime for L1/gpu: no 'endtime =' line in <FIX>/e
+PASS  d2_endtimes                  L1: the two arms registered different endTimes (900 vs 1000). Limb B is a statement about the linear algebra O
+PASS  r2_singular                  wall temperature rise is -1 K at x/H = 0.5000, which is not positive. Nu = q''H/(kappa*dT) is singular there a
+PASS  b_miss                       GATE FAIL
+PASS  c_miss_model                 GATE FAIL
+PASS  ceiling_is_gate_reached      TIER_CEILING_C = 'GATE REACHED' (limb C can never earn PASS); limb B PASS-capable = True
+PASS  vocabulary_rejects_a_synonym a non-vocabulary verdict is refused
+PASS  no_gci_selfcheck_fires       a GCI or observed order reaching a reader is refused
+PASS  clean_grade_emits_no_gci     a full clean grade emits no GCI and no observed order
+PASS  zero_assert_statements       ast.Assert nodes = 0 (python3 -O strips assert; a guard built on one evaporates)
+
+26/26 arms behaved as registered  (__debug__=True)
+
+   SAME FILE UNDER python3 -O (assert statements are stripped there; this comparator has
+   none, so the arms are identical):
+PASS  zero_assert_statements       ast.Assert nodes = 0 (python3 -O strips assert; a guard built on one evaporates)
+
+26/26 arms behaved as registered  (__debug__=False)
+
+  THE NO-GCI GUARD IS NOT DECORATIVE, AND HERE IS HOW THAT IS KNOWN. On its first drive it
+  REFUSED THE CLEAN CONTROL, because the comparator's own explanatory line said "the
+  uncertainty channel that REPLACES a GCI" -- the forbidden token reached a reader inside a
+  disclaimer. The output was reworded so the tokens never appear at all, rather than teaching
+  the guard an exception for negated forms. A guard with a clever exception is a guard with a
+  hole. Arm `clean_grade_emits_no_gci` now scans a full clean grade's emitted output and
+  confirms silence.
+
+-------------------------------------------------------------------------------
+2. LAUNCHER FREEZE CHECK -- five frozen paths, driven END TO END
+-------------------------------------------------------------------------------
+  A disposable sandbox git repository holds the post-freeze bytes; BUILD_ROOT is a fixture
+  carrying STATUS.smoke / TOOLCHAIN_MANIFEST.txt / env.sh and DELIBERATELY NO OF_BASHRC, so the
+  control passes the freeze check and stops at STEP 2 -- the very next step -- at zero compute.
+  In every planted arm the run root was NEVER CREATED.
+
+  CONTROL (clean tree, REPO unset) -- all FIVE blobs named:
+    REPO DERIVED FROM SCRIPT_DIR: <SB>/repo (script_dir == $REPO/cases/ansys_verification/VMFLGPU007; env REPO <unset>)
+    FREEZE VERIFIED: PREREGISTRATION.md=2992b343... grade_vmflgpu007.py=71d05b25...
+                     run_vmflgpu007.sh=8747b42c... field_completeness.py=195fcc00...
+                     resolve_blockmesh.py=76ee0d3a... ; HEAD <sandbox>
+    then: ABORT: <SB>/build_root/OF_BASHRC absent  <-- STEP 2, at zero compute
+
+  (a) SCRIPT_DIR outside any git worktree -> rc 1
+      "ABORT (freeze a): SCRIPT_DIR=... is NOT inside a git worktree, so there is no HEAD that
+       could certify the pre-registration, the comparator or this launcher. The repository is
+       NEVER taken from the environment."
+  (b) inside a repo CARRYING all five correct blobs, launched from a MIRROR at a different
+      subpath -> rc 1.  THIS IS THE LATENT DEFECT FIRING; before VMFLGPU001-R2 Amendment 1 this
+      invocation printed FREEZE VERIFIED over inputs nothing verified.
+      "ABORT (freeze b): SCRIPT_DIR=<decoy>/mirror/... is NOT <decoy>/cases/ansys_verification/
+       VMFLGPU007 ... The case inputs and the blobs the freeze check would certify are IN
+       DIFFERENT TREES."
+  (c) clean tree but REPO set in the environment to another repo -> rc 1
+      "ABORT (freeze c): REPO=<decoy> resolves to <decoy>, which is NOT the repository derived
+       from this script's own location ... The environment does not select the tree a freeze is
+       proved against."
+  (d) the COMPARATOR tampered on disk while the launcher itself is clean -> rc 1
+      "ABORT (freeze d): cases/ansys_verification/VMFLGPU007/grade_vmflgpu007.py on disk
+       (ea5f7a2e...) differs from HEAD (71d05b25...)"
+      -- the launcher freeze-checks ITSELF and its two instruments as well; a launcher that
+      verifies everything except itself is the same hole one level up.
+
+-------------------------------------------------------------------------------
+3. THE BIRTH CERTIFICATE -- the guard's OWN BYTES, extracted from the launcher on
+   disk, driven against the REAL checkMesh logs from the pre-freeze mesh build
+-------------------------------------------------------------------------------
+  |     grep -q '^Mesh OK' "$D/log.checkMesh" \
+  |         || { echo "ABORT ($NAME/$arm): checkMesh did not report 'Mesh OK'. A mesh defect found now costs minutes; found at grade time it costs a GPU-hour and yields no verdict."; exit 1; }
+  | 
+  |     # ---- THE BIRTH CERTIFICATE, against the PRE-FREEZE MEASURED count -------
+  |     GOT_CELLS="$(grep -oP '^\s+cells:\s+\K[0-9]+' "$D/log.checkMesh" | head -1)"
+  |     [ -n "$GOT_CELLS" ] \
+  |         || { echo "ABORT ($NAME/$arm): could not read a cell count from $D/log.checkMesh, so the birth certificate cannot be checked"; exit 1; }
+  |     [ "$GOT_CELLS" = "$EXPECT_CELLS" ] \
+  |         || { echo "ABORT ($NAME/$arm): BIRTH CERTIFICATE MISMATCH -- checkMesh reports $GOT_CELLS cells, the pre-freeze MEASURED count registered in PREREGISTRATION.md is $EXPECT_CELLS. The mesh that would run is not the mesh that was registered."; exit 1; }
+  |     log "$NAME/$arm BIRTH CERTIFICATE OK: $GOT_CELLS cells == registered $EXPECT_CELLS"
+
+  CONTROL   real L1 log, registered 3648  -> rc 0
+            "L1/gpu BIRTH CERTIFICATE OK: 3648 cells == registered 3648"
+  PLANTED   real L1 log (3648) against a registered 7776 -> rc 1
+            "ABORT (L1/gpu): BIRTH CERTIFICATE MISMATCH -- checkMesh reports 3648 cells, the
+             pre-freeze MEASURED count registered in PREREGISTRATION.md is 7776. The mesh that
+             would run is not the mesh that was registered."
+  PLANTED   checkMesh log with the 'Mesh OK' line removed -> rc 1
+            "ABORT (L1/gpu): checkMesh did not report 'Mesh OK'. A mesh defect found now costs
+             minutes; found at grade time it costs a GPU-hour and yields no verdict."
+  PLANTED   empty checkMesh log -> rc 1, and REPORTED HONESTLY: this arm is caught by the
+            'Mesh OK' clause FIRST, not by the cell-count-unreadable branch. The ordering is
+            correct, but the arm does NOT drive the branch I built it for, and saying so is the
+            point of this file.
+
+-------------------------------------------------------------------------------
+4. FIELD COMPLETENESS and the MESH GENERATOR (driven when they were committed)
+-------------------------------------------------------------------------------
+  field_completeness.py --selftest: 17/17 under python3 and python3 -O, 0 ast.Assert nodes.
+  On THIS case's real inputs it returns required={T, U, epsilon, k, p_rgh} -- the first
+  NON-EMPTY required set this family has had. Three defects, each shown to FLIP on the same
+  fixture: the newline-clearing parser; the {p,U} base set blind to p_rgh; and a line-anchored
+  closure lookup that missed the INLINE `RAS { RASModel kEpsilon; ... }` form this case carries,
+  under which the ancestor ABORTED THIS CASE AT LAUNCH FOR A FALSE REASON. An empty required
+  set now REFUSES instead of being certified. Full record: FIELD_COMPLETENESS_REPAIR_DRIVE.txt.
+
+  resolve_blockmesh.py: control (three registered levels, d1 == 0.070000000 exactly) plus three
+  driven refusals -- inadmissible level, odd NYU, unresolved placeholder. Its placeholder guard
+  FAILED ON ITS FIRST DRIVE (the regex class excluded the underscore) and was repaired and
+  re-driven. Full record: MESH_PREFREEZE_RECORD.md.
+
+-------------------------------------------------------------------------------
+TWO SELF-INFLICTED TRAPS WHILE PRODUCING THIS FILE, both recorded because both
+are the exact failure L-357 names
+-------------------------------------------------------------------------------
+  1. The comparator's first selftest run reported 21 arms failing with "FIXTURE ERROR: not
+     enough arguments for format string". The cause was in the FIXTURE, not the instrument: the
+     fake -log_view header contains the literal text "GPU %F", which Python's % operator read as
+     a third format specifier. Escaped to "GPU %%F".
+  2. The first attempt at section 3 extracted the guard's bytes starting one line too late, on a
+     line CONTINUATION, so the snippet began with an orphan "||". ALL FOUR ARMS RETURNED rc=2
+     AND LOOKED LIKE CLEAN REFUSALS. They were a bash syntax error. The extraction was fixed to
+     start at the `grep -q '^Mesh OK'` line and every arm above is quoted with its refusal TEXT.
+
+  Both are the same lesson at two levels: a harness can fail in a way that mimics the guard
+  succeeding. Only the message discriminates.
+
+WHAT THIS DRIVE DOES NOT SHOW
+-----------------------------
+  * Nothing about the physics, and no verdict. No solver ran anywhere in it.
+  * The GATE READER PATHS ARE NOT YET PROVEN ON REAL SOLVER OUTPUT. The comparator's readers
+    (postProcessing/wallT, wallTmin, yPlusFO) are exercised only against synthetic fixtures,
+    because no run of this case exists. The function-object output paths and file names are
+    read from OpenFOAM's documented behaviour, NOT confirmed on this build. THIS IS THE LARGEST
+    RESIDUAL RISK IN THE FREEZE and it is named here rather than discovered at grade time.
+  * The smoke gate ran against a FIXTURE STATUS.smoke; on the instance the real one governs.
