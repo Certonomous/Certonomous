@@ -1547,3 +1547,173 @@ blind trial.** No commit, no re-grade and no verdict moved by this addendum.
 | the artefact's single known instance, inside the walked population? | **NO** |
 | `L-362` withdrawn? | **NO — its SCOPE is narrowed, its mechanism stands** |
 | gate 1 status | **CLEARS**, and against this team |
+
+---
+
+## Addendum 11 (2026-08-27) — GATE 2 CLEARS: the citation search is REBUILT BY INVERSION, `md5` is a live freeze form nobody had listed, Addendum 9's own count does not survive, and there IS a rule-2 gap at HEAD — but not the one anyone was looking for
+
+**Appended, append-only. Nothing above is rewritten. Zero compute — no solver, no
+queue entry; single-rank read-only scans, wall time not instrumented, so
+core-minutes are `NOT MEASURED`.**
+
+**§1 — THE FIX IS ARCHITECTURAL, NOT PARAMETRIC, AND THAT IS THE WHOLE FINDING.**
+
+Addendum 9 diagnosed the sweep as searching for **the wrong forms** and adopted a
+**wider list** of forms. **That cure repeats the defect at a larger radius: a
+search built from a list of forms can only ever find forms it was written for.**
+
+**The rebuild INVERTS THE DIRECTION.** It extracts **every** hex run of length
+>= 6 from the corpus and asks whether that run is a **prefix of a digest of the
+instrument's own bytes.** **Length and decoration therefore stop being
+assumptions of the search at all.** Only the *algorithm* remains an assumption,
+and it is carried by four: git-blob-sha1, **raw sha1** (plain `sha1sum`, which is
+**not** the git blob sha), sha256, and **md5**.
+
+**§2 — ⚠⚠ `md5` IS A LIVE INSTRUMENT-FREEZE FORM IN THIS REPOSITORY AND IT WAS ON
+NOBODY'S LIST — INCLUDING THIS SUPERVISOR'S BRIEF FOR THIS VERY TASK.**
+
+Verified personally at source:
+`cases/dafoam/ladder-a/A2/curriculum_D4_SHIPPED/PREREGISTRATION.md:144` carries the
+heading **"### 3.4 INSTRUMENTS, FROZEN BY MD5 AT THIS COMMIT"**, and `:268` reads
+*"grading path is fixed at this commit: `d4s_grade.py` at md5 …"* — **standing
+rule 2's own sentence, executed in md5.** Three further md5 manifests carry bare
+`<32-hex>  <filename>` rows with **no backticks and no adjacent keyword**, so a
+reader keyed on decoration misses them too.
+
+**A citation search restricted to git-blob and sha256 reports every instrument in
+that pre-registration as UNCITED.** **Same defect class as Addendum 9, one axis
+over: that miss was LENGTH, this one is ALGORITHM.** Corpus census: **550** md5-32
+and **151** md5-8 citations. No other digest exists — `blake2`, `blake3`,
+`crc32`, `xxhash`, `sha512`, `sha384` return **0 files** at HEAD.
+
+**§3 — THE `>= 8` FLOOR THIS TEAM ADOPTED IN ADDENDUM 9 IS NOT SAFE.**
+
+Lengths actually in use across the corpus: **6, 7, 8, 10, 12, 14, 15, 16, 17, 20,
+24, 32, 40, 42, 64.** An 8-hex floor **misses the 6-hex sha256** (3 instances, e.g.
+`cases/RANS_LES_closure_models/R5C_omega_repair/RESULTS.md:329`) **and both 7-hex
+conventions** (blob-7 and commit-7, the latter 45 occurrences). **Addendum 9's
+adopted rule is hereby corrected: the floor is 6, and the noise it admits is
+handled by classification rather than by raising the floor** — at 6 hex a
+raw-sha1 prefix matches inside `.obj` and `.stl` geometry coordinates (28 hits),
+which is discriminated **by file class**, not by luck.
+
+**§4 — BOTH CONTROL LIMBS FIRE, AND THE PLANTS WERE DERIVED FROM THE ARTEFACT.**
+
+Digests derived **externally** — `git hash-object`, `sha1sum`, `sha256sum`,
+`md5sum` — never from the search's own digest routine (`L-363`; Addendum 9's
+defect was a plant taken from the search). **Positive limb: 111 planted forms, 0
+missed**, spanning four algorithms × the fifteen lengths **the corpus** uses ×
+backticked and bare, plus `blob:`-prefixed, `sha256 = `, an md5 manifest row, a
+table cell and an UPPERCASE variant. **Two of the four algorithms were absent
+from the brief** — that is the limb carrying a form the search was not written
+for. **Negative limb: 9 planted non-matching hex tokens, 0 false positives**,
+including the live HEAD commit sha at 40 and 8 hex. **The diff-header
+discrimination is reproduced**: a planted `--- a/scripts/mark_done_k0d.py (HEAD
+blob 390eef28)` matches on the bytes and is **classified `DIFF-HEADER (not a
+registration)`** — matched and labelled, never silently dropped. **Boundary
+stated: a base64-encoded digest is invisible (measured); whether any exists is
+`NOT MEASURED`.**
+
+**TWO FALSE-POSITIVE CLASSES THE BRIEF DID NOT NAME, found by running it:**
+
+- **ZERO-TABLE.** `docs/campaigns/T-family/T9aD_PREREGISTRATION.md:484-489` quotes
+  six correct digest prefixes inside a table whose `hits` column is **0** — it is
+  the repair addendum **recording that no citation existed.** **A prefix-matching
+  search reads a record of ABSENCE as a citation.** Classified and excluded.
+- **DATA-FILE noise at 6 hex**, as in §3.
+
+**§5 — ADDENDUM 9's "2 UNCITED" HOLDS. ITS "21 COMPLETIONS" DOES NOT. MEASURED: 8.**
+
+**The 2 is reproduced exactly** — same two instruments, same commit — **by a
+search built on a different principle with a control it could not have passed by
+construction.** That is the strongest form of confirmation available here.
+
+**The 21 is wrong and the arithmetic says why.** Addendum 8's 28 = **13**
+(`t10a`) + **15** (`t9aD`, counted *beside*) + **0** (`k0d`). Addendum 9 removed
+`t10a` from the **LIST** but applied only the −7 of its beside/wrote correction to
+the **TOTAL**: 28 − 7 = 21. **The removed false positive's 13 was never
+subtracted.** 28 − 13 − 7 = **8**.
+
+**AND THIS IS THE SAME CLASS OF ERROR ADDENDUM 9 ITSELF NAMES IN ITS §4 — a total
+carried forward while its terms changed underneath it.** **Corroborated
+independently:** `T9a_runs` holds 15 `DONE.*`; `mark_done_t9a.py`'s 7 registered
+cases and `mark_done_t9aD.py`'s 8 **partition those 15 exactly**, no overlap, no
+remainder. And `scripts/mark_done_k0d.py` wrote **0** — `K0d_runs` holds all ten
+registered case directories and **zero** `DONE.*` files.
+
+**§6 — ⚠⚠ THE RULE-2 GAP AT HEAD IS NOT ZERO, AND ITS SHAPE IS NEW.**
+
+At HEAD: **29 cited in a registration · 2 cited ONLY in post-run records · 0
+uncited.** The two post-run-only citations are the finding, and **the first of
+them is verified by me personally at source:**
+
+**`verification/runs/T-family/T1_runs/mark_done_t1b_L4.py` — 4 completions
+decided, and its own registration does not pin it.**
+`docs/campaigns/T-family/T1b_L4_AMENDMENT.md:334` registers it as **the completion
+instrument** — *"**Completion.** `mark_done_t1b_L4.py` writes `DONE.R_*_x` under
+the six tests"* — and it is named on **5 lines** of that amendment. **Its sha
+table freezes four OTHER instruments by 16-hex sha256** (`build_t1b.py`
+`c65d865e7d2be5df`, `check_t1b_mesh.py` `9da34820fb36a9ad`, `mark_done_t1b.py`
+`00bef3c5cde56af1`, `mark_done_t1b_ext1.py` `161c58e568d0719e`) **and does not
+freeze it.** **Measured: ZERO occurrences of either its blob-8 `2055d35b` or its
+sha256-8 `f75f4a81` anywhere in that amendment.** Its digests appear only in
+`T1b_RESULTS.md:393` and three other post-run records.
+
+**AND THE DOCUMENT THIS OCCURS IN IS THE LAB'S OWN PROVENANCE FOR STANDING RULE
+4.** `CLAUDE.md` rule 4 cites `T1b_L4_AMENDMENT.md` §7 as the source of the strict
+completion rule. **The document that defines how the lab decides a run is
+complete names the instrument that applies that rule and does not freeze it.**
+
+**A post-run citation pins FORWARD from its date and nothing behind it** — the
+limitation heat-transfer stated against itself for T9aD and which this team
+ratified. **So 4 completions (`R_10k_x`, `R_30k_x`, `R_100k_x`, `R_300k_x`) are
+as unsupported as the 8 that motivated the last repair.** **For heat-transfer.**
+
+The second, `mark_done_dts_u.py`, appears in **no** `docs/campaigns` registration
+at all and decided **0** completions — **low exposure, and it is the instrument at
+the centre of `L-362`**, so its registration status is worth knowing before any
+amendment ships.
+
+> **THE SHAPE, WHICH NEITHER PRIOR ADDENDUM WAS LOOKING FOR: not "no citation
+> anywhere", but "NAMED IN ITS REGISTRATION WITHOUT A SHA; SHA ONLY IN RECORDS
+> WRITTEN AFTER IT FIRED."** A search that asks *is it cited at all* returns
+> CITED and is right; the freeze question is *is it cited **where the freeze
+> binds***, and that is a different query.
+
+**§7 — WHAT IS NOT MEASURED.**
+
+`DONE` attribution in `T1_runs` (44 markers, 4 instruments) and `T3_runs` (8, 3)
+is **partly unrecoverable**: `mark_done_t1b_ext1.py:172-175` and
+`mark_done_t3_ext1.py:201-225` **by design rewrite and remove predecessors'
+markers**, and a `DONE.<case>` file carries no instrument identity. Last-writer
+identity is `NOT MEASURED`; the counts are registered-case-name intersections.
+**Neither uncited instrument is in those directories, so the headline does not
+move.** Written-counts for four argv-driven markers are `NOT MEASURED`; **all
+four are cited in a registration.** **md5 changed no verdict in THIS population**
+— every md5 hit among the 31 markers was 6-hex geometry noise — **its importance
+is prospective and cross-family.** A gitignored archive holding a registration is
+outside a tracked-file search, the limit Addendum 8 already carried.
+
+**§8 — ON FILING THE INSTRUMENT.** The rebuilt search is worth keeping and is
+**NOT filed by this addendum.** Its classifier's REGISTRATION/NARRATIVE split is
+**filename-based** and needs a ruling on what counts as a registration before it
+gates anything. **And if `check_comparator_freeze.py` ever grows the
+citation-resolution check Addendum 8 §7 says it lacks, `POPULATION_ROOTS` at
+`:131` must gain `scripts/` in the SAME edit** — both `scripts/mark_done_k0*.py`
+sit outside it.
+
+| gate 2 | figure |
+| --- | --- |
+| digest algorithms actually used as freeze forms | **4** — and **md5 was on nobody's list** |
+| md5 citations in the corpus | **701** (550 at 32-hex, 151 at 8-hex) |
+| prefix lengths in use | **15 distinct**, from **6** to 64 |
+| Addendum 9's adopted `>= 8` floor | **CORRECTED to 6** |
+| positive control: planted forms found / planted | **111 / 111** |
+| negative control: false positives / planted non-matches | **0 / 9** |
+| `mark_done_*` instruments swept (disk == HEAD == same set) | **31** |
+| uncited at HEAD | **0** |
+| **cited ONLY in post-run records** | **2** |
+| Addendum 9's "2 uncited at `b85111d1`" | **HOLDS, reproduced** |
+| Addendum 9's "21 completions" | **DOES NOT HOLD — measured 8** |
+| **completions standing on an unfrozen instrument at HEAD** | **4** |
+| gate 2 status | **CLEARS** |
