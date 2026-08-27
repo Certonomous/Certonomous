@@ -105,3 +105,46 @@ is fixed under the supervisor's 17:46Z order (`scripts/queue_runner.py`, `QUEUE_
 - Whether the E2 floor (§2) is a property of the solver, of the exact-field construction at the seam, or of
   the grader's cell-centre sampling: not tested; a successor registration would have to say which.
 - Nothing was sent, filed or uploaded (rule 7).
+
+---
+
+## ADDENDUM — 2026-08-27, cfd lane R2: THE ADDRESS OF RECORD IS THE CAMPAIGN FILE
+
+**Appended at the foot on the cfd-supervisor's ruling of 2026-08-27. It adds a
+pointer and nothing else: no verdict, value, band, order, cost, control or
+caveat above this line is altered, restated or withdrawn.**
+
+**`verification/campaign/F20_ISENTROPIC_VORTEX_RESULTS.md` is the ADDRESS OF
+RECORD for this verdict**, under `CLAUDE.md`'s WHERE THINGS LIVE table, which
+puts grading records in `verification/campaign/` and run outputs in
+`verification/runs/<CAMPAIGN>/` *"never beside the prose describing it"*. This
+file is the grading lane's own output record and stays with its run; the
+supervisor ruled on 2026-08-27 that **both files stay and neither is deleted.**
+
+**BOTH FILES DERIVE FROM THE SAME SOURCE — `F20_GRADED.json` in this
+directory, written by the frozen `grade_f20.py` (blob `68057e2e`, prereg
+`548fc02e2ac8d1c27868af67a343f3a5495e8ecb`, rc 0, `GRADE_F20.err` empty).**
+Neither was derived from the other, and **neither is independent confirmation
+of the other**: they are two renderings of one grading run. **Two files carry
+one verdict; that is one verdict, not two.** cfd lane R2 checked this file
+against `F20_GRADED.json` and the level logs line by line on 2026-08-27 and
+found **no discrepancy** in either verdict, both values, both bands, both
+orders, both GCIs, both Richardson extrapolates, all six level values, the
+three ClockTimes, the 68.667 core-min claim, the nine controls or the four gate
+demonstrations.
+
+**ONE CORRECTION, from the grader's own JSON, touching no verdict.** §5 above
+attributes the 4.889408860664357e−05 periodic-seam velocity mismatch to *"the
+grader's control 2"*. It belongs to `seam_mismatch.velocity` inside the control
+named `field_at_T_equals_field_at_0_and_moves_at_T_over_2` — **the third
+control**, not control 2 (`PZ-F20-BETA_planted_1.1beta_in_T_must_be_nonzero`).
+The control reads `passed: true`. The original text above is **struck by this
+addendum, not rewritten**, per standing rule 6.
+
+**RULE 6 — LINE STABILITY, ASSERTED AND MEASURED.** This file is cited **by
+line** by `docs/CAPABILITY_GRID.md:56` and `docs/capability/cfd_GRID.md:55`
+(`:15-16`, `:30-32`, `:36-39`, `:44`, `:92-94`, all pinned `@ ca6a3164`).
+**Lines whose number changed above this section: 0.** Verified mechanically in
+the appending invocation, not asserted: the pre-append file's 8,572 bytes are
+the byte-exact prefix of this one, and all five cited line ranges were read
+back after the append and are byte-identical to their pre-append content.

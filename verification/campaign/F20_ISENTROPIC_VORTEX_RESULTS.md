@@ -232,3 +232,42 @@ control 2 (`PZ-F20-BETA…`). Corrected here from the grader's own JSON; the
 control itself reads `passed: true` and the correction touches no verdict. **Nothing is sent, filed, uploaded, registered,
 posted or submitted** (rule 7). Field data stays on disk under
 `verification/runs/F20_ISENTROPIC_VORTEX_runs/` and is not committed.
+
+---
+
+## ADDENDUM — 2026-08-27: THE SUPERVISOR'S RULING ON THE DOUBLE RECORD
+
+§7 above was written while the disposition was open and says *"until the
+supervisor rules"*. **The cfd-supervisor has now ruled, 2026-08-27, and this
+addendum records it. No verdict, value, band, order, cost or control above is
+altered.**
+
+**RULING: BOTH FILES STAY. NEITHER IS DELETED.**
+`verification/runs/F20_ISENTROPIC_VORTEX_runs/RESULTS.md` is the grading
+lane's own output record and stays with its run; **this file is the address of
+record** under WHERE THINGS LIVE. The supervisor's stated reasoning: *"the
+danger is not duplication, it is that two files carrying one verdict get
+counted as two verdicts, or as independent confirmation of each other"* — which
+§7 already names, and that naming is the fix.
+
+**A pointer line was appended to the run-root record** on the same ruling,
+stating that this file is the address of record and that **both derive from the
+same `F20_GRADED.json`**, so neither is independent confirmation of the other.
+That append was verified **clean**: the pre-append file's 8,572 bytes are the
+byte-exact prefix of the 11,162-byte result, and — because the run-root file is
+cited **by line** by `docs/CAPABILITY_GRID.md:56` and
+`docs/capability/cfd_GRID.md:55` (`:15-16`, `:30-32`, `:36-39`, `:44`,
+`:92-94`) — **all five cited ranges were read back after the append and are
+byte-identical**, so rule 6's *"lines whose number changed above this section:
+0"* is **measured, not asserted**. Blob `e0edeefc` → `3dfccf2f`.
+
+**The correction of the mislabelled control is ACCEPTED by the supervisor**
+(the 4.889408860664357e−05 seam mismatch belongs to
+`field_at_T_equals_field_at_0_and_moves_at_T_over_2`, the third control, not
+control 2); it touches no verdict.
+
+**§7's second item — that `scripts/check_filing.py` cannot detect a verdict
+record filed under `verification/runs/` instead of `verification/campaign/` —
+is TAKEN BY THE SUPERVISOR and boarded as a defect in cfd's own tooling.** It
+is deliberately **NOT built here**: a new instrument needs a spec before code.
+**No filing rule was written, changed or proposed by this record.**
