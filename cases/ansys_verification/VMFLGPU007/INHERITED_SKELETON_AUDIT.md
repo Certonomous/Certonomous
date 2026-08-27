@@ -136,3 +136,120 @@ on. **`.gitignore` is NOT edited by this lane.**
 
 `reference/VMFL013_step_ve.set.prof` is **not** matched by any ignore rule and is committed
 under its own name.
+
+---
+
+## AUDIT CLOSURE — 2026-08-27, second pass: the gaps above are now closed except the mesh
+
+Everything listed as *NOT VERIFIED* above has now been read and, where it made a checkable
+claim, **checked against the data rather than against its own comments.** Still at zero
+compute. Results below; two discrepancies found, one of them in a comment and one in my own
+first framing.
+
+### The inlet profile — VERIFIED, and it pins Re_H exactly
+
+`reference/VMFL013_step_ve.set.prof` parsed directly: **101 points**, blocks `x y z
+u-velocity v-velocity k epsilon`.
+
+| claim in `blockMeshDict.template` | measured | verdict |
+|---|---|---|
+| inlet at x = −3.8 H at all points | `x` is −3.8 at all 101 points | **holds** |
+| inlet duct spans y = 1..5 | `y` min 1.000000, max 5.000000 — duct height exactly 4 H | **holds** |
+| outlet at x = 30 H | `vmfl013_fluent_wall4_nu.csv` carries 101 positions spanning exactly 0.000000..30.000000 | **holds** |
+| expansion ratio 5/4 = 1.25 | downstream channel 5 H (y = 0..5) over inlet duct 4 H (y = 1..5) = **1.25** | **holds** — and it is Vogel & Eaton's rig |
+| 2-D | `z` ≡ 0 and `v-velocity` ≡ 0 at every point | **holds** |
+
+**A numerics fact worth recording, and it is an exact hit rather than an approximate one.**
+The manual says only *"the Reynolds number, ReH is about 28,000"* and never says which
+velocity scale defines it. Measured from the archive's own profile with the manual's own
+properties (ρ = 1, H = 1, μ = 1e-4, so Re = U × 1e4):
+
+- from **u_max = 2.800000 m/s** → Re_H = **28,000 exactly**
+- from the bulk mean (trapezoid over the duct) u_bulk = 2.570882 m/s → Re_H = 25,709
+
+**So Re_H is defined on the FREE-STREAM/MAXIMUM velocity, not the bulk mean.** The exactness
+is itself the evidence: 2.8 × 1e4 lands on the manual's figure to the digit, and the bulk
+value misses it by 8.2 %. This also confirms the inherited profile really is this case's
+profile and not a plausible substitute. The pre-registration must state the velocity scale,
+because a reader who assumed "bulk" would compute a different Reynolds number from the same
+file and think the case was set up wrongly.
+
+`0/U` applies it with `timeVaryingMappedFixedValue`, **`setAverage false`** — the profile is
+used as given, not rescaled to a target mean, which is what makes the u_max identity above
+survive into the run.
+
+### `constant/boundaryData/inlet/points` — a COMMENT DISCREPANCY, not a data error
+
+The file's own header says *"101 points"*. **It contains 202.** Measured: **101 distinct y
+values spanning 1..5, duplicated across exactly 2 distinct z planes (z = 0.0 and z = 0.1)** —
+101 × 2 = 202. `0/U` likewise carries 202 vectors with `ux` max exactly **2.800000**,
+matching the `.prof`.
+
+**The data is correct and the duplication is necessary, not sloppy.**
+`timeVaryingMappedFixedValue` interpolates from the sample cloud to the patch face centres,
+and this 2-D mesh is one cell thick in z with its face centres at z = 0.05; a single plane of
+samples at one z would leave the face centres outside the cloud. Bracketing them with two
+planes is the standard way to make the mapping well-posed. **Only the header comment is
+wrong** — it describes the source profile's point count, not the file's. Recorded here rather
+than silently corrected, because the file is inherited and I would rather the discrepancy be
+on the record than tidied away.
+
+### The gate reader and the controls — read, and they are named before any run
+
+`system/controlDict.template` (`buoyantSimpleFoam`, `deltaT 1`, `writeControl timeStep`,
+`writeInterval = __ENDTIME__`, **no `residualControl`** so the run always reaches `endTime`
+and rule 4's *last time == endTime* clause bites):
+
+- **`wallT`** — the GATE READER, and the only one: raw face-centre `T` on `heatedWall` at
+  write time. The comparator is to derive `Nu(x) = q''·H / (κ·(T_w(x) − T_inlet))` itself from
+  the frozen constants rather than trusting a solver-side Nusselt number. Correct: with a
+  fixed wall flux the wall temperature carries the whole gate.
+- **`wallTmin`** — the plateau channel, `min(T)` on the heated wall once per SIMPLE iteration.
+  Peak Nu occurs where `(T_w − T_in)` is minimum, so this is a **monotone map of the graded
+  number, not a proxy for it** — the right choice, and the same liveness lesson VMFLGPU001-R2
+  was re-registered for applies to it.
+- **`wallFlux`** (`wallHeatFlux`) — control on the flux **actually applied**. The gate divides
+  by `q''`; if the BC delivered something else every Nu would be wrong by that ratio and
+  nothing else in the run would reveal it.
+- **`yPlusFO`** — control on wall-function validity. The manual specifies *standard* wall
+  functions, which are only valid in the log layer.
+- **`resid`** (`solverInfo` on `U p_rgh h k epsilon`) — per-iteration residuals.
+
+### Schemes and the remaining boundary conditions — read, coherent
+
+`fvSchemes`: `div(phi,U) bounded Gauss linearUpwind grad(U)`; energy, `k` and `epsilon` on
+`bounded Gauss limitedLinear 1`. Second-order upwind-biased throughout, with the turbulence
+discretisation capping the observed order — consistent with the committed draft's *"p_f ≤ 2;
+turbulence caps observed order"*.
+
+`0/k`, `0/epsilon`: `timeVaryingMappedFixedValue` inlet, `kqRWallFunction` /
+`epsilonWallFunction` on all four walls. `0/nut`: `nutkWallFunction`. `0/alphat`:
+`compressible::alphatJayatillekeWallFunction`, `Prt 0.85`. `0/p_rgh`, `0/p`:
+`fixedFluxPressure` walls, `fixedValue 1e5` outlet. **A standard k-ε high-Re wall-function
+set, internally consistent, and the closure the manual specifies.**
+
+*Minor observation, not a blocker:* `0/p` carries explicit `fixedFluxPressure` /
+`fixedValue` entries where buoyantSimpleFoam normally leaves `p` as `calculated` from
+`p_rgh`. With `g = (0 0 0)` the two fields are identical, so this cannot move a number here;
+it is noted so nobody later reads it as significant.
+
+### STILL OPEN — the one gap that remains, and it is a real one
+
+- **No mesh has ever been built.** `blockMeshDict.template` is a template: `__NXI__`,
+  `__NXD__`, `__NYU__`, `__NYL__`, `__GU__`, `__GUINV__`, `__GC__` and `__H1__` are all
+  unresolved, and **no `blockMesh` has run, no cell counts are confirmed, no `checkMesh` has
+  passed and no mesh birth certificate exists.** Every geometric dimension the template hard-
+  codes is now verified against the archive data, but *the mesh generated from it is not.*
+- **The three-level family is NOT a Roache `r = 2` family, and this is load-bearing for the
+  gate.** The template holds the first-cell height fixed at a registered `__H1__` across all
+  three meshes by solving the grading for it. That is the correct thing to do with standard
+  wall functions — refining a wall-function mesh uniformly changes **the model**, not only the
+  discretisation, because `y+` moves out of the log layer. But it means **CLAUDE.md rule 5's
+  grid triple does not apply in its usual form**: this is a mesh-**sensitivity** family. The
+  pre-registration must say so explicitly and must register what the three levels are for,
+  because a reader who assumes a Roache triple will expect a GCI that cannot honestly be
+  computed here.
+
+**Consequence: the skeleton's INPUTS are now audited and sound; its MESH is not yet real.**
+VMFLGPU007 still cannot be frozen — a pre-registration, a launcher and a comparator do not
+exist, and the mesh must be built and certified before any of them can cite it.
