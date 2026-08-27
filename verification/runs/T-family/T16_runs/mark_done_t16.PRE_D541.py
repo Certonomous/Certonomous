@@ -54,57 +54,6 @@ anywhere in log.solve **still REFUSES**, absent record or not: the K0d L1
 defect was inferring success from an End line past evidence of a crash, and
 that inference is still forbidden.
 
-D541 REPAIR, PROPOSED 2026-08-27 (this file is a PROPOSAL beside the frozen
-`mark_done_t16.py`; it replaces nothing until a supervisor reads the diff):
-
-  THE DEFECT.  `CRASH_TOKENS` carried the bare string "Floating point
-  exception" and `crash_tokens_in_log()` tested `tok in line`.  EVERY OpenFOAM
-  2606 run prints, at startup, before a single equation is assembled:
-
-      trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
-
-  which asserts that trapping is ENABLED -- the OPPOSITE of a crash.  The
-  refusal at the head of `check()` runs BEFORE every physics limb, so NO T16
-  case could be marked DONE at any level however clean.  Measured: 81 of 81
-  clean OpenFOAM 2606 logs under `verification/runs/` (End line present, no
-  FOAM FATAL) carry that string, all on the banner line.
-
-  THE ROOT CAUSE, WHICH IS RULE 3 INVERTED.  The frozen `--selftest` passed
-  only because its fixture log (`_forge`, the `body`/`fatal` lines) carries NO
-  OpenFOAM BANNER at all.  The guard was therefore NEVER SHOWN A REAL CLEAN
-  LOG.  It certified a crash detector it had no demonstrated ability to
-  distinguish from normal startup.  Standing rule 3 plants a perturbation to
-  prove a reader can see a NON-ZERO; THE MIRROR OBLIGATION, UNMET HERE, IS TO
-  PROVE A GUARD CAN PASS A KNOWN-GOOD INPUT.  A refusal from a guard never
-  shown able to accept is worth exactly as little as a zero from a reader
-  never shown able to see.  Both controls are now driven below, from VERBATIM
-  excerpts of real artifacts on this box, cited by path and line range.
-
-  THE REPAIR, AND WHY IT DOES NOT WEAKEN DETECTION.  The FPE limb now matches
-  the crash FORM -- a SIGNAL-DELIVERY REPORT, which a startup banner cannot
-  produce -- and not a substring anywhere in a line.  Deleting the token, or
-  merely excluding the banner line, WOULD have weakened detection, and that is
-  measured rather than argued: the three real SERIAL FPE crashes on this box
-  (`verification/runs/FPE_DIAG_runs/{BP1,BP2,HP1}/log.simpleFoam`) carry ZERO
-  of the frozen crash tokens other than the banner itself -- 0 FOAM FATAL, 0
-  "Segmentation fault", 0 "Aborted", 0 "signal ", and exactly 1 "Floating
-  point exception" WHICH IS THE trapFpe BANNER.  The frozen matcher caught
-  that whole crash class only by accident of its own false positive.  So
-  `Foam::sigFpe::sigHandler` -- OpenFOAM's own FPE signal handler frame, which
-  appears in a stack trace and nowhere else -- is LOAD-BEARING, not widening.
-  The three FPE patterns score 0 false positives on the 81 clean logs and at
-  least one true positive on all five real FPE crash logs on this box.
-
-  WHAT IS DELIBERATELY NOT REPAIRED, AND WHY.  "Aborted" and "signal " sit in
-  the same tuple and were matched the same loose way -- the SAME DEFECT CLASS.
-  They are NAMED here and left BYTE-BEHAVIOURALLY UNCHANGED (their patterns
-  are unanchored and match exactly what `tok in line` matched).  Measured: 0
-  of the same 81 clean logs contain either.  Anchoring them would be a SECOND
-  PERMISSIVE CHANGE with NO DEMONSTRATED NEED, and permissive is the dangerous
-  direction.  They are a standing finding for the docket, not a repair.
-  "FOAM FATAL ERROR", "FOAM FATAL IO ERROR" and "Segmentation fault" are also
-  unchanged (0 false positives on the same 81).
-
 NO `assert` STATEMENT IN THIS FILE (L-332).  --selftest forges cases in a
 scratch root and DRIVES every clause, BOTH class halves, and the R-RC arms,
 under python3 and python3 -O alike; --root DIR points the reader at another
@@ -145,47 +94,22 @@ def control_end_time(case):
     return float(m.group(1))
 
 
-# D541: each entry is (LABEL, compiled pattern).  A pattern matches the crash
-# FORM, never a bare substring that normal startup can also print.
-CRASH_PATTERNS = (
-    # unchanged from the frozen file; each is an error banner, not a state report
-    ("FOAM FATAL ERROR",          re.compile(r"FOAM FATAL ERROR")),
-    ("FOAM FATAL IO ERROR",       re.compile(r"FOAM FATAL IO ERROR")),
-    ("Segmentation fault",        re.compile(r"Segmentation fault")),
-    # D541 REPAIR: the frozen bare token "Floating point exception" matched the
-    # trapFpe STARTUP BANNER, which says trapping is ENABLED.  Replaced by the
-    # three forms in which an FPE is actually DELIVERED and REPORTED on this
-    # box.  A banner cannot produce any of them.
-    ("FPE: OpenFOAM sigFpe handler frame",
-     re.compile(r"Foam::sigFpe::sigHandler")),
-    ("FPE: signal report",
-     re.compile(r"Signal:\s+Floating point exception")),
-    ("FPE: mpirun exit-on-signal",
-     re.compile(r"exited on signal\s+\d+\s*\(Floating point exception\)")),
-    # NAMED, NOT REPAIRED (see the docstring): the same loose form, but no
-    # false positive is demonstrated, so the pattern is left unanchored and
-    # matches exactly what `tok in line` matched.
-    ("Aborted",                   re.compile(r"Aborted")),
-    ("signal ",                   re.compile(r"signal ")),
-)
-CRASH_TOKENS = tuple(label for label, _ in CRASH_PATTERNS)
+CRASH_TOKENS = ("FOAM FATAL ERROR", "FOAM FATAL IO ERROR", "Segmentation fault",
+                "Floating point exception", "Aborted", "signal ")
 
 
 def crash_tokens_in_log(case):
     """R-RC's hard limit on inference: a crash token in log.solve REFUSES, absent
-    rc record or not.  Streamed, never loaded whole.
-
-    D541: matched by FORM.  `tok in line` is gone; a startup banner is not a
-    crash and must not be able to impersonate one."""
+    rc record or not.  Streamed, never loaded whole."""
     p = os.path.join(ROOT, case, "log.solve")
     if not os.path.isfile(p):
         return []
     hits = []
     with open(p, errors="replace") as fh:
         for line in fh:
-            for label, pat in CRASH_PATTERNS:
-                if pat.search(line):
-                    hits.append(label)
+            for tok in CRASH_TOKENS:
+                if tok in line:
+                    hits.append(tok)
     return sorted(set(hits))
 
 
@@ -288,8 +212,7 @@ def check(case):
 
 
 def _forge(root, case, rc="0", end=40, n_exec=None, with_end=True, stale=False,
-           status=True, infra=True, missing_field=None, capped="no", fatal=False,
-           banner="", crash=""):
+           status=True, infra=True, missing_field=None, capped="no", fatal=False):
     """A synthetic case shaped exactly like a finished run, in a scratch root."""
     import time
     d = os.path.join(root, case)
@@ -309,10 +232,9 @@ def _forge(root, case, rc="0", end=40, n_exec=None, with_end=True, stale=False,
         if stale:
             os.utime(p, (t0 - 100, t0 - 100))
     n = end if n_exec is None else n_exec
-    body = banner + "ExecutionTime = 1 s\n" * n
+    body = "ExecutionTime = 1 s\n" * n
     if fatal:
         body += "--> FOAM FATAL ERROR: (openfoam-2606)\n"
-    body += crash
     open(os.path.join(d, "log.solve"), "w").write(body + ("End\n" if with_end else ""))
     if status:
         lines = ["case=%s" % case, "rc=%s" % rc]
@@ -320,94 +242,6 @@ def _forge(root, case, rc="0", end=40, n_exec=None, with_end=True, stale=False,
             lines += ["wall_s=10", "ranks=1", "core_min=0.167", "timeout_s=600", "capped=%s" % capped,
                       "checkmesh_rc=0", "solver=x", "solver_path=/x", "note=clean", "started_utc=x", "ended_utc=y"]
         open(os.path.join(root, "STATUS.%s" % case), "w").write("\n".join(lines) + "\n")
-
-
-# --------------------------------------------------------------- D541 ----
-# VERBATIM excerpts of REAL artifacts on this box, cited by path and line
-# range.  `_d541_provenance()` re-reads each source and refuses if the
-# embedded text is not a byte-exact substring of it, so these cannot silently
-# drift into fabrications.  A source outside the repo may be absent; that is
-# reported NOT MEASURED and is never a pass.
-CLEAN_BANNER_2606 = r"""/*---------------------------------------------------------------------------*\
-| =========                 |                                                 |
-| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2606                                  |
-|   \\  /    A nd           | Website:  www.openfoam.com                      |
-|    \\/     M anipulation  |                                                 |
-\*---------------------------------------------------------------------------*/
-Build  : _481094f-20260618 OPENFOAM=2606 version=2606
-Arch   : "LSB;label=32;scalar=64"
-Exec   : /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqSimpleFoam -case /home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/T16_MC_c
-Date   : Aug 27 2026
-Time   : 17:30:06
-Host   : ip-172-31-43-247
-PID    : 1112110
-I/O    : uncollated
-Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/T16_MC_c
-nProcs : 1
-trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
-memory pool : not available
-fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
-
---> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
-                   This can be a security risk if running untrusted cases
-                   through e.g. 'coded' on-the-fly-compilation functionality.
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-"""
-CLEAN_BANNER_SRC = ("verification/runs/T-family/T16_runs/T16_MC_c/log.solve", "1-26")
-
-# Form A -- SERIAL crash, OpenFOAM's own sigFpe handler and stack trace.
-# This form carries NO other frozen crash token: the frozen matcher caught it
-# ONLY via its own trapFpe false positive.
-REAL_FPE_CRASH_A = r"""smoothSolver:  Solving for Uy, Initial residual = 0.3754906468, Final residual = 0.00257452692, No Iterations 25
-[stack trace]
-=============
-#1  Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
-#2  ? in /lib/x86_64-linux-gnu/libc.so.6
-#3  Foam::GAMGSolver::scale(Foam::Field<double>&, Foam::Field<double>&, Foam::lduMatrix const&, Foam::FieldField<Foam::Field, double> const&, Foam::UPtrList<Foam::lduInterfaceField const> const&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
-#4  Foam::GAMGSolver::Vcycle(Foam::PtrList<Foam::lduMatrix::smoother> const&, Foam::Field<double>&, Foam::Field<double> const&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::PtrList<Foam::Field<double>>&, Foam::PtrList<Foam::Field<double>>&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
-#5  Foam::GAMGSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
-#6  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
-#7  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
-"""
-REAL_FPE_CRASH_A_SRC = ("verification/runs/FPE_DIAG_runs/BP1/log.simpleFoam", "2035-2044")
-
-# Form B -- MPI crash, the OpenMPI process-signal report plus mpirun summary.
-REAL_FPE_CRASH_B = r"""[ip-172-31-43-247:3219838] *** Process received signal ***
-[ip-172-31-43-247:3219838] Signal: Floating point exception (8)
-[ip-172-31-43-247:3219838] Signal code:  (-6)
-[ip-172-31-43-247:3219838] Failing at address: 0x3e80031217e
-[ip-172-31-43-247:3219838] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7bd25d645330]
-[ip-172-31-43-247:3219838] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7bd25d69ec0c]
-[ip-172-31-43-247:3219838] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7bd25d64527e]
-[ip-172-31-43-247:3219838] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7bd25d645330]
-[ip-172-31-43-247:3219838] [ 4] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam6divideERNS_5FieldIdEERKdRKNS_5UListIdEE+0x24)[0x7bd25e40ba44]
-mpirun noticed that process rank 2 with PID 0 on node ip-172-31-43-247 exited on signal 8 (Floating point exception).
-"""
-REAL_FPE_CRASH_B_SRC = ("/home/ubuntu/certonomous-runs/dpw5-committee-probe/logs/hybrid_base_incompressible_a2.11_solve.log", "435-443,512")
-REPO = "/home/ubuntu/Certonomous"
-
-
-def _d541_provenance():
-    """Each embedded excerpt must be a byte-exact substring of its cited source.
-    Returns (list of failures, list of NOT MEASURED)."""
-    bad, nm = [], []
-    for blob, (path, lines) in ((CLEAN_BANNER_2606, CLEAN_BANNER_SRC),
-                                (REAL_FPE_CRASH_A, REAL_FPE_CRASH_A_SRC),
-                                (REAL_FPE_CRASH_B, REAL_FPE_CRASH_B_SRC)):
-        p = path if os.path.isabs(path) else os.path.join(REPO, path)
-        if not os.path.isfile(p):
-            nm.append("%s:%s (source absent)" % (path, lines))
-            continue
-        with open(p, errors="replace") as fh:
-            txt = fh.read()
-        # form B is two disjoint ranges; check each line is present verbatim
-        for ln in blob.splitlines():
-            if ln and ln not in txt:
-                bad.append("%s:%s -- embedded line not found verbatim: %r" % (path, lines, ln[:70]))
-                break
-    return bad, nm
 
 
 def selftest():
@@ -463,83 +297,6 @@ def selftest():
            status=False, fatal=True)
     expect("STATUS present with rc=0 but `FOAM FATAL ERROR` in log.solve -> REFUSE exit 2",
            2, False, fatal=True)
-    # ------------------------------------------------------------ D541 ----
-    print("  -- D541: the guard is shown able to PASS a known-good input, and")
-    print("     still able to REFUSE two REAL FPE crashes (rule 3, inverted) --")
-    bad, nm = _d541_provenance()
-    for b in bad:
-        print("  [FAIL] D541 provenance: %s" % b)
-        fails.append("d541-provenance")
-    for m in nm:
-        print("  [ -- ] D541 provenance NOT MEASURED: %s" % m)
-    if not bad and not nm:
-        print("  [ok ] D541 provenance: all three excerpts verbatim in their cited sources")
-
-    # (b) POSITIVE CONTROL -- a real clean OpenFOAM 2606 banner, trapFpe line
-    #     included.  The FROZEN matcher REFUSED this (exit 2, no marker).
-    expect("POSITIVE CONTROL: real OpenFOAM 2606 banner (trapFpe line) + clean body "
-           "-> DONE, marker written (the frozen matcher REFUSED this)", 0, True,
-           banner=CLEAN_BANNER_2606)
-    # (a) NEGATIVE CONTROL -- the one that matters.  A real crash, WITH the
-    #     banner above it, must still REFUSE.
-    expect("NEGATIVE CONTROL A: banner + REAL SERIAL FPE crash "
-           "(Foam::sigFpe::sigHandler stack trace) -> REFUSE exit 2, no marker", 2, False,
-           banner=CLEAN_BANNER_2606, crash=REAL_FPE_CRASH_A)
-    expect("NEGATIVE CONTROL B: banner + REAL MPI FPE crash "
-           "(Signal: Floating point exception (8) + mpirun exit-on-signal) -> REFUSE exit 2", 2, False,
-           banner=CLEAN_BANNER_2606, crash=REAL_FPE_CRASH_B)
-
-    # which pattern fired, printed, so a reader can see it was not the banner
-    import shutil as _sh
-    import tempfile as _tf
-    for name, kw, want_nonempty in (
-            ("clean banner", dict(banner=CLEAN_BANNER_2606), False),
-            ("banner + real serial FPE crash", dict(banner=CLEAN_BANNER_2606, crash=REAL_FPE_CRASH_A), True),
-            ("banner + real MPI FPE crash", dict(banner=CLEAN_BANNER_2606, crash=REAL_FPE_CRASH_B), True)):
-        tmp = _tf.mkdtemp(prefix="md16_d541_")
-        try:
-            _forge(tmp, case, **kw)
-            ROOT = tmp
-            globals()["ROOT"] = tmp
-            hits = crash_tokens_in_log(case)
-        finally:
-            globals()["ROOT"] = HERE
-            _sh.rmtree(tmp, ignore_errors=True)
-        ok = bool(hits) == want_nonempty
-        print("  [%s] D541 repaired matcher on %-34s -> %s" %
-              ("ok " if ok else "FAIL", name, hits if hits else "no crash token"))
-        if not ok:
-            fails.append("d541-hits-" + name)
-
-    # the FROZEN matcher, driven on the same three sacrificial cases, for contrast
-    frozen = os.path.join(HERE, "mark_done_t16.py")
-    if not os.path.isfile(frozen):
-        print("  [ -- ] D541 frozen contrast NOT MEASURED: %s absent" % frozen)
-    else:
-        import importlib.util as _ilu
-        spec = _ilu.spec_from_file_location("_frozen_t16", frozen)
-        fz = _ilu.module_from_spec(spec)
-        spec.loader.exec_module(fz)
-        for name, kw, want_frozen_nonempty in (
-                ("clean banner", dict(banner=CLEAN_BANNER_2606), True),
-                ("banner + real serial FPE crash", dict(banner=CLEAN_BANNER_2606, crash=REAL_FPE_CRASH_A), True),
-                ("banner + real MPI FPE crash", dict(banner=CLEAN_BANNER_2606, crash=REAL_FPE_CRASH_B), True)):
-            tmp = _tf.mkdtemp(prefix="md16_d541_frozen_")
-            try:
-                _forge(tmp, case, **kw)
-                fz.ROOT = tmp
-                hits = fz.crash_tokens_in_log(case)
-            finally:
-                fz.ROOT = os.path.dirname(frozen)
-                _sh.rmtree(tmp, ignore_errors=True)
-            ok = bool(hits) == want_frozen_nonempty
-            print("  [%s] D541 FROZEN matcher on %-34s -> %s" %
-                  ("ok " if ok else "FAIL", name, hits if hits else "no crash token"))
-            if not ok:
-                fails.append("d541-frozen-" + name)
-        print("     ^ the frozen matcher refuses the CLEAN case: that is D541.")
-        print("     ^ and it catches the SERIAL crash only via the same banner string.")
-
     # an unregistered case name is refused
     code = None
     try:
