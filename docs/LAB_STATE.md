@@ -18067,3 +18067,87 @@ The **archive sweep is running and its result is NOT yet in hand** — the "FLUE
 correction is proven on **one** archive (VMFL052) and must not be generalised to 77 until the sweep
 lands. **Row #39's missing C-181** is measured but its cause is unestablished. **VMFLGPU005's real
 `p_rgh` matrix has not been run through GAMG.**
+
+### 2026-08-27T22:2xZ — **VMFLGPU007-R2 FROZEN (`ed980d33`). FREEZE-AHEAD 0 → 1. Queue census reconciled: the two phantoms are MOVED, not deleted.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### THE FREEZE — `ed980d33`, zero compute, 34 files
+
+**endTime moved; THE PLATEAU TOLERANCE DID NOT.** R1 died at `IG3` on a 1.0e-4 K
+tolerance. The tempting repair was to widen it. **It was not widened**, and I verified
+that constant by constant myself: `PLATEAU_PTP_TOL` 1.0e-4, `PLATEAU_WINDOW` 200,
+`BAND_B` 1e-4, `BAND_C1` 0.20, `BAND_C2` 1.5, `REF_PEAK_NU` 64.8530, `GPU_PCTF_MIN`
+99.0, `H1_WALL` 0.07, `TIER_CEILING_C` — all byte-identical to R1.
+
+**What moved is `endTime` and only `endTime`: 1200/1800/3000 → 3200/4400/6200.** endTime
+is a COST parameter; choosing it from data is legitimate where choosing the tolerance
+from data is not.
+
+**The measurement that makes the tolerance DEFENSIBLE rather than merely unmoved:** the
+200-sample residual peak-to-peak after a cubic detrend is **1.31e-05 / 8.86e-06 /
+2.13e-07 K — every arm 7.5× to 470× BELOW the tolerance.** A settling criterion is wrong
+only if it sits beneath the channel's own noise floor. This one sits well above it, so
+the "1e-4 K is physically wrong" argument **is not available** — only a cost argument,
+and cost is what endTime is for.
+
+**Limb A rebuilt.** R1's reader took GPU %F as `max()` of trailing tokens, returning the
+**CpuToGpu size in MBytes** (210/672/2320) — its 99.0 floor was cleared by a megabyte
+count, **a silent false pass**. R2 locates columns by position against the table's own
+header via **two independent derivations that must agree or it refuses**. Driven on R1's
+**real frozen bytes**: GPU %F 100/100, CpuToGpu 7200/3601 (gpu/L1) vs 0/0 on all
+forced-CPU arms. **New refusal `GPU_PCTF_MAX = 100.0`** — a percentage above 100 refuses.
+
+**Three changes beyond a pure repair, all RATIFIED BY ME and all in the STRICT
+direction** (none can make a verdict more favourable): limb A's floor on `min()` over
+rows; **new `E2`** requiring the run's declared endTime to equal the registered one (R1
+graded against whatever `RUN_RC` declared — **any endTime would have passed**); and the
+launcher `set --` hardening.
+
+**A LIVE ARGUMENT-TO-CODE-EXECUTION PATH IN THE TOOLCHAIN, found by the launcher smoke.**
+OpenFOAM v2606's `etc/bashrc` sources `etc/config.sh/setup "$@"`, reaching
+`_foamEtc -config paraview -- "$@"`, which **sources any positional argument resolving to
+a `*.sh` file**. Driven both ways: a directory argument is harmless; a `*.sh` argument is
+**executed inside the bashrc**. Silent in the worst way — the customary `>/dev/null 2>&1`
+on the sourcing puts the caller's stdout on `/dev/null`, so later ABORT echoes vanish.
+**Our launcher was never exposed** (its only positional is `RUN_ROOT`, a directory —
+which is why R1 completed), but the path is real. `set --` closes it. **Candidate LESSONS
+entry, referred not filed.**
+
+**Instrument health, my own run after clearing `__pycache__`:** `--selftest` **40/40 under
+`python3` AND 40/40 under `python3 -O`**, rc 0 both; **`ast.Assert` = 0** by my own AST
+walk. The four `FAIL` strings are expected-refusal **arm labels** (`b_miss`,
+`c_miss_model` → GATE FAIL) — checked, not assumed.
+
+**Disclosed uncertainty, not smoothed:** `p_rgh` and `epsilon` initial residuals have
+**stalled**, so if a slower mode sits below the current increment the single-exponential
+extrapolation is optimistic. Flagged; the 3τ margin (20.1× headroom) is the hedge.
+
+**Cost:** estimate 0.6780 GPU-h / 13.5104 core-min; **caps 1.5 GPU-h and 90 core-min
+carried BYTE-IDENTICAL from R1** (2.21× and 6.66× headroom) — a cap is a runaway guard
+and tightening it from a prediction converts it into one. $0.546 derived, not measured.
+
+#### QUEUE CENSUS RECONCILED — the chief's 9-at-HEAD vs 7-on-disk
+
+**The two phantoms, named: `verification/queue/ansys-verification/VMFL011-R3.json` and
+`VMFL076-R2.json`, both at the queue TOP LEVEL.**
+
+**Answer: LAUNCHED/CONSUMED AND MOVED TO `launched/`, THE MOVE NEVER COMMITTED. NOT
+DELETED.** Established, not assumed: the `launched/` copy of each is a **strict superset**
+— it carries a `_launch` key the top-level lacks (runner enrichment at launch) plus a
+revised `_field_classes`. Nothing was lost; the top-level path is a **stale duplicate**
+whose deletion sits in the shared index as part of the 253 staged deletions.
+
+**A HEAD census counts them live and the runner cannot see them** — exactly the chief's
+diagnosis. **I have NOT deleted them.** The chief reserved the index; my instruction was
+to name and reconcile, which is done. **The deletion is ready and awaits his word.**
+
+All 7 disk entries are tracked; **nothing on disk is uncommitted.**
+
+#### STATE AT THIS WRITE
+
+**GPU idle 88.7 min = 1.4780 GPU-h = $1.1895** — boarded as infrastructure, never in a case ratio. **FREEZE-AHEAD 1
+of 3** (007-R2 frozen; VMFLGPU005 drafting). The 23:00Z stop deadline is **superseded for
+007-R2's sake**: a frozen case now exists, which is the condition Sanaa's rule names.
+**I still will not stop the instance myself** — `stop` vs `terminate` is unconfirmed and
+`terminate` destroys the root volume and the toolchain build.
