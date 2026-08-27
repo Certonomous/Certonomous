@@ -137,7 +137,7 @@ def repo_root(start: Path) -> Path:
 
 
 # --------------------------------------------------------------------------
-# The five checks. Each returns a list of failure strings, each string opening
+# The six checks. Each returns a list of failure strings, each string opening
 # with the NAME of the check that failed, so a refusal always names its cause.
 # They are registered in CHECKS so --selftest can mutate one at a time.
 # --------------------------------------------------------------------------
@@ -262,18 +262,29 @@ def check_age_guard(entry: dict, root: Path) -> list[str]:
     A run must never be launched into a tree that already holds an answer: the
     completion rule requires every field at endTime to be NEWER than the case's
     own 0/T, and a pre-existing time directory makes that unprovable for the
-    run that follows. The directory must also EXIST -- a directory that is not
-    there cannot be shown clean, and an argv cannot run in it.
+    run that follows.
+
+    R-AGE-CWD (docs/standards/QUEUE_ENTRY_VALIDATOR_RULINGS.md, 2026-08-27,
+    cfd-supervisor on Sanaa's section 1(b) delegation): THIS CLAUSE APPLIES
+    ONLY TO A cwd THAT EXISTS. The previous text here claimed an absent
+    directory "cannot be shown free of a prior answer"; that stated the
+    opposite of the truth. An absent directory is the STRONGEST available
+    proof that it holds no prior answer, and it is how CLAUDE.md rule 2's
+    pre-compute condition is proven everywhere else in this lab -- name the
+    run directory that does not exist. Absence therefore returns CLEAN from
+    this clause. The real and separate problem with an absent cwd is that it
+    cannot be EXECUTED in; that is check_cwd_launchable() below, refusing
+    under its own word EXEC. Neither half is loosened: the refusal is
+    re-labelled and correctly attributed, not removed.
     """
     cwd = entry.get("cwd")
     if not isinstance(cwd, str) or not cwd.startswith("/"):
         return []  # already refused by SCHEMA
     target = Path(cwd)
     if not target.is_dir():
-        return [
-            f"AGE-GUARD: cwd {cwd} does not exist as a directory, so it cannot "
-            f"be shown free of a prior answer."
-        ]
+        # R-AGE-CWD ruling clause 1. Absence is EXEC's finding, never this
+        # clause's. Not a silent pass: check_cwd_launchable refuses it below.
+        return []
     dirty: list[str] = []
     try:
         for child in sorted(target.iterdir()):
@@ -290,8 +301,37 @@ def check_age_guard(entry: dict, root: Path) -> list[str]:
     return []
 
 
+def check_cwd_launchable(entry: dict, root: Path) -> list[str]:
+    """5. R-AGE-CWD clause 2: an absent cwd cannot be EXECUTED in.
+
+    This is a launchability finding, not an age finding, and it carries its own
+    word so a reader is never sent hunting for a rule-4 problem that does not
+    exist. It is kept -- ansys's premise was right and its remedy was wrong --
+    because deleting it would let an entry be ACCEPTED that cannot launch at
+    all. Measured, not recalled: scripts/queue_runner.py:286 builds
+    `cd '<cwd>' && <argv>` and :293 calls Popen(..., cwd=str(cwd)); Popen with
+    an absent cwd raises FileNotFoundError [Errno 2] and `bash -c "cd
+    <absent>"` returns rc 1. The runner writes its LAUNCHED record FIRST, so
+    accepting such an entry converts a filing-time refusal into a launch-time
+    death behind a stale LAUNCHED record -- exactly the class L-344 exists to
+    kill. Refusing at filing time is strictly better.
+    """
+    cwd = entry.get("cwd")
+    if not isinstance(cwd, str) or not cwd.startswith("/"):
+        return []  # already refused by SCHEMA
+    if Path(cwd).is_dir():
+        return []
+    return [
+        f"EXEC: cwd {cwd} does not exist; queue_runner.py chdirs into it "
+        f"(:286) and Popen(cwd=) raises FileNotFoundError (:293), so this "
+        f"entry would be recorded LAUNCHED and die. Fix: name an existing "
+        f"directory as cwd -- the CASE directory is the lab convention -- or "
+        f"mkdir -p it before filing."
+    ]
+
+
 def check_ranks(entry: dict, root: Path) -> list[str]:
-    """5. ranks >= 1."""
+    """6. ranks >= 1."""
     r = entry.get("ranks")
     if isinstance(r, bool) or not isinstance(r, int):
         return []  # already refused by SCHEMA
@@ -305,8 +345,48 @@ CHECKS: dict[str, object] = {
     "COMMIT-EXISTS": check_commit_exists,
     "PREREG-AT-COMMIT": check_prereg_at_commit,
     "AGE-GUARD": check_age_guard,
+    "EXEC": check_cwd_launchable,
     "RANKS": check_ranks,
 }
+
+
+# --------------------------------------------------------------------------
+# MUTANT clauses, used ONLY by --selftest. Each is a deliberate reintroduction
+# of a defect, so the control that catches it can be shown to FLIP. A clause
+# that has never been seen to fail is not known to be load-bearing (L-314).
+# None of these is registered in CHECKS; they are handed to validate() as a
+# one-off override and never reach a live entry.
+# --------------------------------------------------------------------------
+
+def _mutant_noop(entry: dict, root: Path) -> list[str]:
+    """A clause deleted outright."""
+    return []
+
+
+def _mutant_age_guard_without_scan(entry: dict, root: Path) -> list[str]:
+    """check_age_guard with its TIME-DIRECTORY SCAN removed, nothing else."""
+    cwd = entry.get("cwd")
+    if not isinstance(cwd, str) or not cwd.startswith("/"):
+        return []
+    if not Path(cwd).is_dir():
+        return []
+    return []  # the scan that would have run here is the planted deletion
+
+
+def _mutant_age_guard_pointed_at_absence(entry: dict, root: Path) -> list[str]:
+    """The PRE-RULING defect, reintroduced verbatim: AGE-GUARD refusing on
+    absence with the wording R-AGE-CWD found to state the opposite of the
+    truth. Present so the selftest can show the defect is catchable, never so
+    it can run."""
+    cwd = entry.get("cwd")
+    if not isinstance(cwd, str) or not cwd.startswith("/"):
+        return []
+    if not Path(cwd).is_dir():
+        return [
+            f"AGE-GUARD: cwd {cwd} does not exist as a directory, so it cannot "
+            f"be shown free of a prior answer."
+        ]
+    return check_age_guard(entry, root)
 
 
 def validate(entry: dict, root: Path, checks: dict | None = None) -> list[str]:
@@ -381,6 +461,17 @@ def _base_entry(sha: str, prereg: str, cwd: str) -> dict:
 
 
 def selftest() -> int:
+    # `python3 -O` refusal, at the entry of the only path whose verdict depends
+    # on the interpreter executing this source as written. The controls below
+    # mutate guards and take an AST reading of this file; under -O that reading
+    # is of source the interpreter is NOT running as written, so a PASS printed
+    # here would not be a reading of the shipped behaviour. Same idiom as
+    # cases/F25_DUCT3D/grade_f25.py:918. Returns a real exit code -- `set -e` is
+    # not in force in this harness and a printed refusal is not a gate (L-314).
+    if not __debug__:
+        print("REFUSED: --selftest must not run under `python3 -O` or "
+              "PYTHONOPTIMIZE (L-332). Re-run under plain `python3`.")
+        return 2
     root = repo_root(Path(__file__).resolve().parent)
     problems: list[str] = []
     lines: list[str] = []
@@ -524,6 +615,160 @@ def selftest() -> int:
                 f"{head[:12]} and prereg_path {live_prereg!r} both verified "
                 f"present in git, and cwd {clean} free of any time directory."
             )
+
+        # ==================================================================
+        # R-AGE-CWD controls A / B / C, and the three planted failures the
+        # ruling requires. Every planted failure must FLIP its control: that
+        # is what distinguishes a clause that is load-bearing and REACHABLE
+        # from a clause that is merely present in the file.
+        # ==================================================================
+        absent = Path(td) / "run_root_that_does_not_exist"   # never created
+        b_dir = Path(td) / "holds_a_time_dir"
+        (b_dir / "0.1").mkdir(parents=True)
+
+        entry_a = _base_entry(head, live_prereg, str(absent))
+        entry_b = _base_entry(head, live_prereg, str(b_dir))
+        entry_c = _base_entry(head, live_prereg, str(clean))
+
+        def _clauses(fails: list[str]) -> set:
+            return {f.split(":", 1)[0] for f in fails}
+
+        if absent.exists():
+            problems.append("CONTROL FAILED (A setup): the absent cwd exists")
+
+        fa = validate(entry_a, root)
+        ca = _clauses(fa)
+        if "EXEC" not in ca:
+            problems.append(
+                f"CONTROL A FAILED (cwd absent): expected an EXEC refusal, got {fa or 'NO REFUSAL'}")
+        elif "AGE-GUARD" in ca:
+            problems.append(
+                f"CONTROL A FAILED (cwd absent): AGE-GUARD also refused it. "
+                f"R-AGE-CWD clause 1 forbids this: absence is not an age finding. Got {fa}")
+        else:
+            lines.append(
+                "CONTROL A FIRED (cwd absent): refused under EXEC and NOT under "
+                "AGE-GUARD, naming queue_runner.py:286/:293 and FileNotFoundError.")
+
+        fb = validate(entry_b, root)
+        cb = _clauses(fb)
+        if "AGE-GUARD" not in cb:
+            problems.append(
+                f"CONTROL B FAILED (cwd holds 0.1/): expected AGE-GUARD, got {fb or 'NO REFUSAL'}")
+        elif "EXEC" in cb:
+            problems.append(
+                f"CONTROL B FAILED (cwd holds 0.1/): EXEC also refused a cwd that EXISTS. Got {fb}")
+        else:
+            lines.append(
+                "CONTROL B FIRED (cwd exists and holds 0.1/): refused under "
+                "AGE-GUARD and NOT under EXEC.")
+
+        fc = validate(entry_c, root)
+        if fc:
+            problems.append(f"CONTROL C FAILED (cwd exists, clean): expected ACCEPTED, got {fc}")
+        else:
+            lines.append("CONTROL C FIRED (cwd exists, clean): ACCEPTED, zero refusals.")
+
+        # --- planted failure 1: delete check_cwd_launchable -> A ACCEPTS ---
+        m1 = dict(CHECKS); m1["EXEC"] = _mutant_noop
+        f1 = validate(entry_a, root, m1)
+        if f1:
+            problems.append(
+                f"PLANT 1 DID NOT FLIP: with check_cwd_launchable deleted, control A "
+                f"was still refused by {f1}. A's refusal is not coming from that clause.")
+        else:
+            lines.append(
+                "PLANT 1 FLIPPED control A: deleting check_cwd_launchable made the "
+                "absent-cwd entry ACCEPTED, so EXEC is the clause that catches it.")
+
+        # --- planted failure 2: delete the time-dir scan -> B ACCEPTS ------
+        m2 = dict(CHECKS); m2["AGE-GUARD"] = _mutant_age_guard_without_scan
+        f2 = validate(entry_b, root, m2)
+        if f2:
+            problems.append(
+                f"PLANT 2 DID NOT FLIP: with the time-directory scan deleted, control B "
+                f"was still refused by {f2}.")
+        else:
+            lines.append(
+                "PLANT 2 FLIPPED control B: deleting the time-directory scan made the "
+                "0.1/-bearing entry ACCEPTED, so the scan is the clause that catches it.")
+
+        # --- planted failure 3: re-point AGE-GUARD at absence -> A refuses
+        #     under AGE-GUARD. This is the DEFECT R-AGE-CWD removes, shown
+        #     reintroducible and shown caught.
+        m3 = dict(CHECKS); m3["AGE-GUARD"] = _mutant_age_guard_pointed_at_absence
+        f3 = validate(entry_a, root, m3)
+        if "AGE-GUARD" not in _clauses(f3):
+            problems.append(
+                f"PLANT 3 DID NOT FLIP: the pre-ruling defect was reintroduced and "
+                f"control A did NOT pick up an AGE-GUARD refusal. Got {f3}. The "
+                f"selftest cannot detect a regression it cannot reproduce.")
+        else:
+            lines.append(
+                "PLANT 3 FLIPPED control A: re-pointing check_age_guard at absence "
+                "reintroduced the pre-ruling AGE-GUARD refusal and the control saw "
+                "it, so a regression to that defect is detectable, not silent.")
+        # And the shipped code must NOT be the mutant.
+        if "AGE-GUARD" in _clauses(validate(entry_a, root)):
+            problems.append(
+                "PLANT 3 RESIDUE: the SHIPPED code still refuses an absent cwd under "
+                "AGE-GUARD. The mutant was not confined to the selftest.")
+
+        # --- L-314 Instance 1, MEASURED IN THIS HARNESS, NOT RECALLED ------
+        #     `set -e` is NOT in force here. Measured at the harness top level:
+        #     `python3 -c "raise SystemExit(1)"; echo REACHED` prints REACHED,
+        #     and `bash -c 'python3 -c "raise SystemExit(1)"; echo REACHED_D'`
+        #     exits 0 -- the failure is swallowed whole. So a refusal that is
+        #     only PRINTED is not a gate. Two shapes are driven below: the
+        #     hazard shape, shown live to swallow the rc, and the correct
+        #     shape, in which a caller with no `set -e` still detects the
+        #     refusal because it tests rc explicitly and the refusal line is
+        #     greppable in the output.
+        planted_file = Path(td) / "planted_absent_cwd_entry.json"
+        planted_file.write_text(json.dumps(entry_a))
+        me = Path(__file__).resolve()
+
+        hazard = subprocess.run(
+            ["bash", "-c", f"python3 {me} {planted_file} > {td}/hz.txt 2>&1\necho SWALLOWED\n"],
+            capture_output=True, text=True)
+        if hazard.returncode != 0 or "SWALLOWED" not in hazard.stdout:
+            problems.append(
+                f"L-314 HAZARD CONTROL FAILED: the ignoring caller was expected to run "
+                f"on and exit 0 (that is the hazard being demonstrated); got rc "
+                f"{hazard.returncode}, stdout {hazard.stdout!r}.")
+        else:
+            lines.append(
+                "L-314 HAZARD SHOWN LIVE: a caller that does not test rc ran the "
+                "refusing guard, continued past it and exited 0. `set -e` is not in "
+                "force in this harness; a printed refusal alone would have been lost.")
+
+        checked = subprocess.run(
+            ["bash", "-c",
+             f"rc=0\npython3 {me} {planted_file} > {td}/ck.txt 2>&1 || rc=$?\n"
+             f"echo RC=$rc\necho REACHED_ANYWAY\n"],
+            capture_output=True, text=True)
+        out_txt = (Path(td) / "ck.txt").read_text() if (Path(td) / "ck.txt").exists() else ""
+        rc_line = [l for l in checked.stdout.splitlines() if l.startswith("RC=")]
+        greppable = "REFUSED" in out_txt and "EXEC:" in out_txt
+        if not rc_line or rc_line[0] != "RC=2":
+            problems.append(
+                f"L-314 CONTROL FAILED: the refusing invocation did not return rc 2 to "
+                f"a caller that tested it; saw {rc_line or 'no RC line'}.")
+        elif "REACHED_ANYWAY" not in checked.stdout:
+            problems.append(
+                "L-314 CONTROL FAILED: the caller did not reach the line after the rc "
+                "test, so the rc could not have been acted on.")
+        elif not greppable:
+            problems.append(
+                "L-314 CONTROL FAILED: rc 2 was returned but the output carries no "
+                "greppable 'REFUSED' / 'EXEC:' line. A gate whose failure is invisible "
+                "in the log is not a gate.")
+        else:
+            lines.append(
+                "L-314 CONTROL FIRED: with NO `set -e`, a caller that tested rc "
+                "explicitly read RC=2 from the refusing guard, reached the line after "
+                "it, and the output carries a greppable 'REFUSED' + 'EXEC:' line. The "
+                "refusal survives the exact shell shape that swallowed it above.")
 
     return _selftest_verdict(lines, problems)
 
