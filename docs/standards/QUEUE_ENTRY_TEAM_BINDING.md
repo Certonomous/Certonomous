@@ -267,3 +267,81 @@ selftest uses. **Not fixed here, because fixing it means relaxing §1's path sha
 change to the invariant and not to its implementation.** Referred to the cfd-supervisor as a
 follow-up: either bind on `parent.name in TEAMS` alone, or have the runner tell the validator
 what its root is.
+
+---
+
+## AMENDMENT 2 — 2026-08-27, v1.1 → v1.2. cfd-supervisor's ruling on the C9 finding.
+
+**Appended, never rewritten (`CLAUDE.md` rule 6). Lines whose number changed above this
+section: 0.** This is the second, separate amendment amendment 1 said any further edit to
+`scripts/queue_runner.py` would require. That was not a formality.
+
+### The question C9 actually posed
+
+Amendment 1 §5 recorded that a queue root not of the shape `.../verification/queue/<team>/`
+leaves `TEAM-BINDING` silently inert, found when control C9's first draft used a root named
+`c9root/cfd/` and the deliberately mismatched entry **launched**. Two fixes were referred.
+**Both are refused, and the referral itself asked the wrong question.**
+
+C9's root was `c9root/cfd/`; production's is `<repo>/verification/queue/cfd/`. **The test was
+exercising a path shape production never takes.** The question is not how to make the
+validator tolerate `c9root/` — it is why a test ran against a shape the daemon never uses.
+
+- **Binding on `parent.name in TEAMS` alone: REFUSED.** It **relaxes the invariant** so that
+  any directory anywhere named `cfd` binds, making the clause fire in places nobody has
+  reasoned about — to accommodate a test.
+- **Threading the root through from the runner: REFUSED.** Semantically exact, but it buys
+  correctness for a configuration production never uses, at the price of a second signature
+  change amendment 1 was written narrowly to forbid.
+
+**Do not relax an invariant to make a test pass; make the test exercise what production
+does.**
+
+### What changes — two things, and nothing else
+
+1. **The runner asserts its root's shape at startup and REFUSES otherwise.**
+   `recognised_queue_root()` is true only for `<...>/verification/queue`;
+   `require_recognised_root()` refuses anything else and is called in `main()` **before the
+   log and before the lock**, so a runner that must not run does not take the pidfile either.
+   Fail-closed, loud, at the point where the ambiguity is introduced. **If the runner can only
+   ever operate on a recognised root, the validator's existing shape match is exactly correct
+   everywhere it matters and needs no change at all** — §1's invariant does not move and
+   `queue_entry_check.py` is not touched by this amendment.
+2. **Every selftest root in `queue_runner.py` adopts production's shape** —
+   `<scratch>/…/verification/queue/<team>/` for all four (`root`, `droot`, `oroot`, `groot`).
+   This is the part that matters: it makes every existing runner control exercise the shape
+   the daemon actually uses.
+
+**The silently-unbound configuration stops existing rather than being accommodated.**
+
+### Controls — S1 / S1b / S2, added to `queue_runner.py --selftest`
+
+| # | control | outcome |
+|---|---|---|
+| **S1** | the guard refuses an unrecognised root **and passes the production shape** | both required — a guard that refuses everything is not a guard |
+| **S1b** | **the planted failure, end to end:** a real `--once` process on an unrecognised root | exits **2**, names the root in a greppable `REFUSED` line, and **takes no pidfile** |
+| **S2** | **mutation:** the shape predicate forced always-true | S1 **FLIPS** — the unrecognised root is accepted, proving S1's refusal comes from that predicate and nothing else |
+
+### Did any launch or refusal decision move on a production root? NO — demonstrated, not asserted
+
+- **The 38 pre-existing runner controls return an IDENTICAL outcome set** after the root-shape
+  change: 38 of 38 `ok`, zero `FAIL`, zero missing, and the sorted check-name-plus-status sets
+  differ by nothing. The three new rows are S1/S1b/S2. Total **41/41 PASS, 0 asserts**.
+- **The clause is now LIVE in those controls rather than quietly inert**, which is what makes
+  the identical outcome meaningful. Driven: under the old selftest shape
+  `containing_team_dir()` returned `None` and a planted mismatched entry drew **no**
+  `TEAM-BINDING` failure; under the new shape it returns `cfd` and the same entry **is
+  refused**. The 38 controls therefore pass *with the clause binding*, not because it is
+  absent.
+- **Production is unaffected.** `queue_runner.DEFAULT_ROOT` is
+  `/home/ubuntu/Certonomous/verification/queue`, `recognised_queue_root()` returns **True**
+  for it, and cron passes no `--root`. No live launch or refusal decision changes.
+- `queue_entry_check.py --selftest` is unchanged at **31 controls, rc 0**.
+
+### Still true, and stated because a half-in-force clause is worse than one plainly not in force
+
+`TEAM-BINDING` is **in force for the CLI and NOT in force for the running daemon**, which
+holds the previous validator in memory (pid 1120800, started 2026-08-27T17:33:00Z). It binds
+at that daemon's next restart. The restart is the cfd-supervisor's and is blocked. The
+mismatch count is **zero** across the live drop paths and the launched records, so nothing is
+currently at risk.

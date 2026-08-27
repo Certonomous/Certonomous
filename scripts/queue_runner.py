@@ -346,6 +346,43 @@ def gpu_gate_action(path: Path, message: str, log: Log) -> str:
     return "HOLD"
 
 
+# --------------------------------------------------------------- root precondition
+def recognised_queue_root(root: Path) -> bool:
+    """True only for a root of the shape `<...>/verification/queue`.
+
+    That is the shape queue_entry_check.containing_team_dir() recognises, and
+    therefore the ONLY shape under which the TEAM-BINDING clause can bind. A root
+    of any other shape leaves the clause silently inert.
+    """
+    r = Path(root).resolve()
+    return r.name == "queue" and r.parent.name == "verification"
+
+
+def require_recognised_root(root: Path) -> None:
+    """FAIL-CLOSED at startup, at the point where the ambiguity is introduced.
+
+    QUEUE_ENTRY_TEAM_BINDING.md amendment 2 (2026-08-27, cfd-supervisor):
+    control C9 found that a queue root not of the recognised shape leaves
+    TEAM-BINDING inert -- and found it by watching a deliberately mismatched entry
+    LAUNCH. The ruling was NOT to relax the invariant so the validator tolerates
+    other shapes, and NOT to thread the root through a second signature, but to
+    stop the silently-unbound configuration EXISTING: if this runner can only ever
+    operate on a recognised root, the validator's shape match is exactly correct
+    everywhere it matters and needs no change at all.
+
+    Do not relax an invariant to make a test pass; make the test exercise what
+    production does.
+    """
+    if not recognised_queue_root(root):
+        refuse(
+            f"--root {root} is not of the recognised shape <...>/verification/queue. "
+            f"On such a root queue_entry_check's TEAM-BINDING clause cannot bind, so "
+            f"an entry whose `team` disagrees with its directory would LAUNCH "
+            f"unnoticed. Refusing to run rather than running half-checked "
+            f"(QUEUE_ENTRY_TEAM_BINDING.md amendment 2)."
+        )
+
+
 # ---------------------------------------------------------------------------- lock
 def acquire_lock(pidfile: Path) -> None:
     if pidfile.exists():
@@ -708,7 +745,10 @@ def selftest() -> int:
     head = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
                           capture_output=True, text=True).stdout.strip()
     tmp = Path(tempfile.mkdtemp(prefix="queue_runner_selftest_"))
-    root = tmp / "queue"
+    # PRODUCTION'S SHAPE, not a convenient one: every control below now exercises
+    # <...>/verification/queue/<team>/, which is what the daemon actually uses and
+    # what makes TEAM-BINDING bind. Amendment 2.
+    root = tmp / "prod" / "verification" / "queue"
     for t in TEAMS:
         (root / t).mkdir(parents=True)
     log = Log(tmp / "runner.log", echo=False)
@@ -999,7 +1039,7 @@ def selftest() -> int:
     # pidfile, its own log; the live runner is untouched) is sent SIGTERM and must leave
     # `EXIT reason=SIGTERM pid=<its pid>` in its runner.log and exit 128+15. The zero is
     # planted: the EXIT line must be ABSENT before the signal and PRESENT after it.
-    droot = tmp / "daemon_root"
+    droot = tmp / "daemon" / "verification" / "queue"
     for t in TEAMS:
         (droot / t).mkdir(parents=True)
     dlog = droot / "runner.log"
@@ -1029,7 +1069,7 @@ def selftest() -> int:
           f"started={started} absent_before={exit_absent_before} rc={rc_d} "
           f"tail={after_exit.strip().splitlines()[-1][-70:] if after_exit.strip() else ''!r}")
     # control 8b: a normal --once exit logs `EXIT reason=normal` (the word set is closed)
-    oroot = tmp / "once_root"
+    oroot = tmp / "once" / "verification" / "queue"
     for t in TEAMS:
         (oroot / t).mkdir(parents=True)
     po = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--once",
@@ -1044,7 +1084,7 @@ def selftest() -> int:
     # nothing here shells out to a live nvidia-smi (L-339), and nothing here touches a real
     # queue: these controls run in their own scratch root so the accumulated launched/
     # records of the controls above cannot make a launch read as "live".
-    groot = tmp / "gpu_queue"
+    groot = tmp / "gpu" / "verification" / "queue"
     for t in TEAMS:
         (groot / t).mkdir(parents=True)
     glog = Log(tmp / "gpu_runner.log", echo=False)
@@ -1257,6 +1297,57 @@ def selftest() -> int:
           m4r == "HELD" and pm4.exists(), f"tick={m4r} entry_still_there={pm4.exists()}")
     pm4.unlink()
 
+    # ------------------------------------------------------------------ amendment 2
+    # ROOT PRECONDITION controls S1 / S1b / S2. C9 found that a queue root not of the
+    # shape <...>/verification/queue leaves TEAM-BINDING inert -- it found it by
+    # watching a mismatched entry LAUNCH. The fix is fail-closed at startup, so the
+    # silently-unbound configuration stops existing rather than being accommodated.
+    badroot = tmp / "unrecognised_root"
+    for t in TEAMS:
+        (badroot / t).mkdir(parents=True)
+
+    # S1: the guard itself refuses an unrecognised root, and accepts a recognised one.
+    raised = ""
+    try:
+        require_recognised_root(badroot)
+    except Refusal as exc:
+        raised = str(exc)
+    ok_root_raised = ""
+    try:
+        require_recognised_root(root)
+    except Refusal as exc:
+        ok_root_raised = str(exc)
+    check("root precondition REFUSES an unrecognised root and PASSES the production shape "
+          "(a guard that refuses everything is not a guard)",
+          bool(raised) and "verification/queue" in raised and ok_root_raised == "",
+          f"bad_refused={bool(raised)} good_refused={bool(ok_root_raised)}")
+
+    # S1b: the PLANTED FAILURE, end to end -- a real `--once` process on that root must
+    # exit non-zero and say so loudly, not merely return a value some caller may drop.
+    pr = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--once",
+                         "--root", str(badroot)], capture_output=True, text=True)
+    said = "REFUSED" in (pr.stdout + pr.stderr) and str(badroot) in (pr.stdout + pr.stderr)
+    no_pidfile = not (badroot / "runner.pid").exists()
+    check("planted: a real --once run on an unrecognised root exits 2, names the root in a "
+          "greppable REFUSED line, and takes NO pidfile",
+          pr.returncode == EXIT_REFUSE and said and no_pidfile,
+          f"rc={pr.returncode} said={said} no_pidfile={no_pidfile}")
+
+    # S2: MUTATION -- the shape predicate always true. S1 and S1b must FLIP.
+    _real_pred = recognised_queue_root
+    try:
+        globals()["recognised_queue_root"] = lambda r: True
+        mut_raised = ""
+        try:
+            require_recognised_root(badroot)
+        except Refusal as exc:
+            mut_raised = str(exc)
+    finally:
+        globals()["recognised_queue_root"] = _real_pred
+    check("mutation: with the shape predicate always-true the unrecognised root is ACCEPTED "
+          "-- S1's refusal comes from that predicate and nothing else",
+          mut_raised == "", f"still_raised={mut_raised[:60]!r}")
+
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
     if n_fail:
@@ -1292,6 +1383,8 @@ def main(argv: list[str]) -> int:
     root = Path(a.root)
     if not root.is_dir():
         refuse(f"queue root {root} is not a directory")
+    require_recognised_root(root)      # BEFORE the log and the lock: a runner that
+                                       # must not run must not take the pidfile either
     log = Log(root / "runner.log", echo=True)
     acquire_lock(root / "runner.pid")
     pid = os.getpid()
