@@ -552,3 +552,70 @@ wording, hers because it touches §1:** *LAUNCH_LOG.tsv, and the GPU instance's
 equivalent, is a **REGISTER**, tracked and committed by the runner owner at each
 board write — or replaced by a tracked per-launch record.* **Recommended, NOT
 adopted.**
+
+### R-QCOMMIT.8 — AMENDMENT: `git ls-files` IS NOT A CENSUS INSTRUMENT IN THIS REPOSITORY, IN ANY FORM — AND THAT DOES **NOT** EXPLAIN AWAY §3's COMPLIANCE FINDING
+
+**Appended; nothing above rewritten. From heat-transfer's calibration lane via the
+chief. Both mechanisms verified here, and the point of this section is that they are
+SEPARABLE.**
+
+**§8.1 THE INSTRUMENT DEFECT, MEASURED.** `git ls-files --others` compares the disk
+against the **SHARED INDEX**, and the private-index protocol **never updates it**
+(`commit-tree` + `update-ref` do not touch `.git/index`, by design). **So every file
+landed through a private index reads "untracked" to that command PERMANENTLY.**
+
+Measured now over `verification/queue`: **`git ls-files --others` reports 80 JSON
+files as untracked, and ALL 80 ARE AT HEAD.** **An 80-of-80 false-positive rate — the
+instrument is not noisy, it is inverted.**
+
+> **`git ls-files`, IN ANY FORM, IS NOT A CENSUS INSTRUMENT IN THIS REPOSITORY.**
+> The untracked census **enumerates DISK with `find`** and tests each path with
+> **`git cat-file -e HEAD:<path>`**, or set-differences against
+> **`git ls-tree -r HEAD`**. This is `L-92` — *`ls-files` answers the INDEX* —
+> reaching the `--others` flag, where it is worse: **`--others` inverts rather than
+> lags.**
+
+**THE FORWARD HAZARD IS THE REASON THIS IS URGENT:** the next `ls-files`-based run
+will report **~80 untracked**, all of them at HEAD, and **read as a REGRESSION THAT
+NEVER HAPPENED** — a fleet-wide alarm about compliance that was already achieved.
+
+**§8.2 ⚠ AND IT DOES NOT EXPLAIN AWAY §3. BOTH MECHANISMS ARE REAL AND THEY ARE
+SEPARABLE — checked, because the tempting move is to let the artefact swallow the
+finding.**
+
+The natural inference is that the chief's **69** was the artefact and no compliance
+occurred. **That inference is WRONG, and it is refuted by the commit graph.** Between
+**22:21:53Z** and **22:25:34Z** five commits landed queue files:
+
+| commit | team | what landed |
+| --- | --- | --- |
+| `dcb6a2ac` | heat-transfer | W1c queue entries frozen — *the third leg of the freeze* |
+| `e1818f16` | heat-transfer | **45 untracked entries landed** |
+| `ce00f57e` | dafoam | **the 20 untracked `launched/` records landed** |
+| `ee4c331c` | heat-transfer | W1c dropped, three frozen entries moved |
+| `09fdff24` | dafoam | `held/D6_chain.json` landed |
+
+**45 + 20 = 65, against the chief's heat-transfer 48 / dafoam 21 = 69. The
+compliance was REAL and is the dominant term.**
+
+**So §R-QCOMMIT.3 stands and so does its lesson: two honest readings four minutes
+apart differed because the quantity moved.** **What §8.1 adds is a SECOND defect that
+will corrupt the NEXT reading, not a refutation of the last one.** **A newly found
+instrument defect is not automatically the explanation for every prior number the
+instrument was near** — that inference is as unearned as the one it replaces.
+
+**§8.3 CONTROLS, ADDED.**
+
+| control | required |
+| --- | --- |
+| a file landed **via a private index and never written to the index** | **counts as TRACKED** — the limb that catches `ls-files --others` |
+| a genuinely untracked file | counts as **UNTRACKED** — or the census cannot see the thing it exists for |
+| the census re-run after a private-index commit | the new path counts **tracked once**, and the count **does not regress** |
+
+**§8.4 THE FOSSILS ARE PROVEN MOVES, WHICH SETTLES THE `git mv` WORDING.** Measured:
+**every one of the 17 "tracked-but-absent" paths is paired with a same-named
+counterpart on disk across the `launched/` boundary.** **That is direct evidence of a
+MOVE rather than a deletion** — so the cleanup commit is a `git mv` **naming both the
+old and the new path**, and it must never be recorded as a removal of work.
+**Still a deletion at the tree level, still the owning supervisor's call, still never
+a tidy-up.**
