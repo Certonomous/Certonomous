@@ -18476,3 +18476,54 @@ never folded into a case ratio. **FREEZE-AHEAD 1 of 3** (VMFLGPU007-R2 frozen at
 `ed980d33`; 005 in build). **I still will not stop the instance myself:** `stop` vs
 `terminate` is unconfirmed and on Sanaa's desk, and `terminate` destroys the root volume
 and the whole GPU toolchain build — irreversible, and hers.
+
+### 2026-08-27T22:4xZ — **005 FREEZE HELD BY MY OWN CHECK 1 — a real false-pass defect found in the limb-A reader, NOT a stall. One-line fix out to the lane; freeze on its return.**
+
+**Written by `ansys-verification-supervisor` personally.** Answer at the top, as asked.
+
+#### THE CHECK CAUGHT A DEFECT, WHICH IS THE CHECK WORKING — the freeze is HELD, not stalled
+
+I read the three named diffs as code (SUPERVISION §3 check 1, non-delegable). **Diffs 2
+(blender-refusal control) and 3 (rule-5 triple gating) are CORRECT AS BUILT.** **Diff 1,
+the limb-A reader, carries a FALSE-PASS DEFECT that is load-bearing for THIS case**, and I
+will not freeze an instrument that can certify the case's own central claim falsely.
+
+**The defect, precisely:** `logview_gpu()` returns `gpu_pctf` as the **max()** over both
+the MatMult and the KSPSolve `-log_view` rows, and the GPU-arm floor tests that max. **This
+case's object is the p_rgh Poisson solve — the KSPSolve event.** If MatMult runs on the GPU
+(%F = 100) while KSPSolve silently falls back to the CPU (%F = 0), **max = 100 clears the
+99.0 floor and the comparator certifies a GPU claim that is FALSE for the exact operation
+the case exists to verify** — the very operation GAMG-on-GPU was needed to place on the
+device. It is the same *shape* as R1's silent false pass (a reader passing for the wrong
+reason), in a different mechanism.
+
+**The fix is the exact asymmetry VMFLGPU007-R2 already built, so it is known-good, not
+invented:** GPU-arm floor aggregated with **MIN** over rows (every qualifying row >= 99.0);
+forced-CPU control leak kept on **MAX** (any leak on any row refuses). Plus a selftest arm
+driving a MatMult-100 / KSPSolve-0 fixture to REFUSE, proving min catches what max passed.
+**Out to lane S now; I freeze on its return, re-verified under both interpreters.** Minutes,
+not hours.
+
+**Everything else in the package verified clean, by my own hand:** `--selftest` **28/28
+under python3 AND python3 -O** (cleared `__pycache__` first), **ast.Assert = 0** by my own
+walk; tiers hard-coded `TIER_CEILING_C1`/`C2` = "GATE REACHED", `LIMB_B_PASS_CAPABLE` =
+True; the blender control reads all wall patches and refuses STEPWISE/unset; the triple
+classifier gives CONVERGING/DIVERGENT/OSCILLATORY/STAGNANT/EXACT with GCI only when
+monotone and NOT A RESULT unless CONVERGING. The two reader-smoke repairs are correct and
+were caught pre-freeze (the `sets` alphabetical field order that would have read
+temperature as Uy; Nu re-based on grad(T) because wallHeatFlux refuses under Boussinesq).
+
+**FORMAT RULING (register): ONE row, not three.** Whole-row headline is the ceiling-limited
+weakest link — GATE REACHED when all hold — per the row #39 precedent; limb B's identity
+result recorded per-limb within the row; **the PASS count does not move on limb B alone**,
+because a GPU==CPU identity PASS is not the physics-verification credential the headline
+tracks.
+
+#### STATE
+
+**GPU idle 109 min = 1.8142 GPU-h = $1.4601 derived** — dark since 20:52:03Z. **This is the last gate before the freeze**, and
+holding it on a proven false-pass defect is the correct trade against the idle cost: a
+freeze is the document's whole evidentiary content, and freezing a known-gapped instrument
+would be the failure, not the delay. **FREEZE-AHEAD 1 of 3** (007-R2 at `ed980d33`; 005 one
+fix away). I still will not stop the instance — `stop` vs `terminate` unconfirmed, on
+Sanaa's desk, and `terminate` destroys the toolchain build.
