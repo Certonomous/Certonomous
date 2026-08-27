@@ -1,0 +1,183 @@
+T18 INSTRUMENT DIFFS -- for the supervisor's SUPERVISION_CHARTER section 3 check 1
+(measurement-script diffs read AS DIFFS, personally, never delegated).
+
+Generated 2026-08-27T19:33:34Z by the heat-transfer lane that wrote
+docs/campaigns/T-family/T18_PREREGISTRATION.md.  Every parent below was confirmed
+IDENTICAL ON DISK AND AT HEAD before the diff was taken (git diff HEAD -- <path>
+empty on all of them), so these diffs are against the committed artifact and not
+against a stale worktree copy.
+
+STATUS: THESE INSTRUMENTS ARE PROPOSED.  Their output has not been believed by
+anyone and no solver has run.  No launch may occur before this file is read.
+
+================================================================================
+
+--- DIFF: T14_runs/mark_done_t14.py  ->  T18_runs/mark_done_t18.py
+================================================================================
+--- T14_runs/mark_done_t14.py	2026-08-26 21:00:26.817398042 +0000
++++ T18_runs/mark_done_t18.py	2026-08-27 18:50:39.179811206 +0000
+@@ -1,9 +1,9 @@
+ #!/usr/bin/env python3
+-"""Turn T14 STATUS files into DONE markers under the STRICT COMPLETION RULE
++"""Turn T18 STATUS files into DONE markers under the STRICT COMPLETION RULE
+ (CLAUDE.md rule 4), all-or-nothing:
+ 
+   1. STATUS.<case> EXISTS in the run root and carries the solver's own rc,
+-     written INSIDE the launcher wrapper (run_one_t14.sh), and rc == 0
++     written INSIDE the launcher wrapper (run_one_t18.sh), and rc == 0
+   2. log.solve carries an `End` line
+   3. the last written time == endTime from the case's own controlDict
+   4. the registered field T is present at that time (pure conduction)
+@@ -22,7 +22,7 @@
+ LINE (K0d L1).  NO `assert` (L-332).  --selftest forges cases in scratch and
+ drives every clause under python3 and python3 -O.
+ 
+-Usage: python3 mark_done_t14.py [CASE ...] [--root DIR] | --selftest
++Usage: python3 mark_done_t18.py [CASE ...] [--root DIR] | --selftest
+ Exit: 0 all DONE, 1 at least one NOT DONE, 2 REFUSAL.
+ """
+ import os
+@@ -30,7 +30,7 @@
+ import sys
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+-CASES = ("T14_SQ_c", "T14_SQ_m", "T14_SQ_f", "T14_SQ_f_CT")
++CASES = ("T18_CU_c", "T18_CU_m", "T18_CU_f", "T18_CU_f_CT")
+ NEEDED = ("T",)
+ INFRA = ("wall_s", "timeout_s", "ranks", "core_min", "capped", "checkmesh_rc",
+          "solver", "solver_path", "note", "started_utc", "ended_utc")
+@@ -120,7 +120,7 @@
+     rc = EXIT_OK
+     for case in want:
+         if case not in CASES:
+-            refuse("%r is not a registered T14 case: %s" % (case, " ".join(CASES)))
++            refuse("%r is not a registered T18 case: %s" % (case, " ".join(CASES)))
+         fails, notes = check(root, case)
+         for n in notes:
+             print("NOTE      %-12s - %s" % (case, n))
+@@ -167,15 +167,15 @@
+     fails = []
+ 
+     def drive(label, want_rc, want_marker, **kw):
+-        tmp = tempfile.mkdtemp(prefix="t14md_")
++        tmp = tempfile.mkdtemp(prefix="t18md_")
+         try:
+-            _forge(tmp, "T14_SQ_c", **kw)
++            _forge(tmp, "T18_CU_c", **kw)
+             code = None
+             try:
+-                code = run(tmp, ["T14_SQ_c"])
++                code = run(tmp, ["T18_CU_c"])
+             except SystemExit as e:
+                 code = e.code
+-            marker = os.path.exists(os.path.join(tmp, "DONE.T14_SQ_c"))
++            marker = os.path.exists(os.path.join(tmp, "DONE.T18_CU_c"))
+             ok = (code == want_rc and marker == want_marker)
+             print("  [%s] %-58s -> exit %s, DONE marker %s" % ("ok " if ok else "FAIL", label, code, marker))
+             if not ok:
+
+--- DIFF: T14_runs/run_one_t14.sh  ->  T18_runs/run_one_t18.sh
+================================================================================
+--- T14_runs/run_one_t14.sh	2026-08-26 21:00:37.055375781 +0000
++++ T18_runs/run_one_t18.sh	2026-08-27 19:09:26.394589207 +0000
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ # ==========================================================================
+-# T14 CASE LAUNCHER (2-D transient conduction, laplacianFoam) -- run ONE registered level, capture the SOLVER's rc in
++# T18 CASE LAUNCHER (3-D transient conduction, laplacianFoam) -- run ONE registered level, capture the SOLVER's rc in
+ # this wrapper, write STATUS.<case>.  Modelled line-for-line on
+ # run_one_t11.sh's rc-in-wrapper pattern and launch_t4b.sh's queue interface:
+ #
+@@ -9,14 +9,14 @@
+ #     box: `setsid timeout ... bash -c 'exit 7'` returns 0, `setsid --wait`
+ #     returns 7 -- K0f header);
+ #   * rc is captured INSIDE and written to STATUS.<case> in the run root (the
+-#     file mark_done_t14.py reads);
++#     file mark_done_t18.py reads);
+ #   * `capped` = (wall_s >= timeout_s) is the INDEPENDENT expiry witness -- rc
+ #     124 collides with a solver that itself exits 124, and 137 with an OOM
+ #     kill (measured, GNU coreutils 9.4); it is an INFRASTRUCTURE field
+ #     (L-342): it labels a non-zero rc, it never voids a run;
+ #   * a PRE-FLIGHT REFUSAL writes NO STATUS: nothing ran, so there is no rc,
+ #     and inventing one is the back-dating this file exists to prevent;
+-#   * the registered cap is READ from T14_registered.json and a --timeout that
++#   * the registered cap is READ from T18_registered.json and a --timeout that
+ #     is not EQUAL to it is REFUSED: a caller can neither widen a cap that rule
+ #     12 says stops the run nor narrow one into a manufactured cap-stop;
+ #     --ranks must equal the registered 1;
+@@ -27,7 +27,7 @@
+ #   * `exit "$RC"` is the LAST line: the wrapper reports the solver's own
+ #     status to its caller, never 0.
+ #
+-# usage: run_one_t14.sh --case-dir DIR --timeout SECONDS [--ranks 1]
++# usage: run_one_t18.sh --case-dir DIR --timeout SECONDS [--ranks 1]
+ #                       [--solver laplacianFoam] [--foam-bashrc F]
+ #                       [--no-detach]
+ #   --timeout   registered per-case cap in wall seconds = cap_core_min*60/ranks
+@@ -36,7 +36,7 @@
+ # ==========================================================================
+ set -u
+ SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+-REGJSON="$SELF/T14_registered.json"
++REGJSON="$SELF/T18_registered.json"
+ 
+ usage() { sed -n '/^# usage:/,/^# ====/p' "$0" >&2; exit 2; }
+ 
+@@ -58,7 +58,7 @@
+ [ -d "$CASE_DIR" ] || { echo "REFUSE: no case directory $CASE_DIR" >&2; exit 2; }
+ case "$RANKS" in ''|*[!0-9]*) echo "REFUSE: --ranks must be an integer" >&2; exit 2;; esac
+ case "$TIMEOUT_S" in ''|*[!0-9]*) echo "REFUSE: --timeout must be integer seconds" >&2; exit 2;; esac
+-[ "$RANKS" = "1" ] || { echo "REFUSE: T14 is registered SERIAL (ranks 1 on every level); --ranks=$RANKS" >&2; exit 2; }
++[ "$RANKS" = "1" ] || { echo "REFUSE: T18 is registered SERIAL (ranks 1 on every level); --ranks=$RANKS" >&2; exit 2; }
+ 
+ CASE_DIR="$(cd "$CASE_DIR" && pwd)"
+ ROOT="$(dirname "$CASE_DIR")"
+@@ -69,7 +69,7 @@
+ if [ -f "$REGJSON" ]; then
+     REG_T=$(python3 -c "import json,sys; c=json.load(open(sys.argv[1]))['cases'].get(sys.argv[2]); print(c['timeout_s'] if c else 'UNREGISTERED')" "$REGJSON" "$CASE" 2>/dev/null || echo UNREADABLE)
+     case "$REG_T" in
+-        UNREGISTERED) echo "REFUSE: $CASE is not a registered T14 case in $REGJSON" >&2; exit 2 ;;
++        UNREGISTERED) echo "REFUSE: $CASE is not a registered T18 case in $REGJSON" >&2; exit 2 ;;
+         UNREADABLE)   echo "REFUSE: cannot read the registered cap from $REGJSON" >&2; exit 2 ;;
+     esac
+     [ "$TIMEOUT_S" -eq "$REG_T" ] || { echo "REFUSE: --timeout $TIMEOUT_S is not the registered timeout_s=$REG_T for $CASE (rule 12: a cap is neither widened nor narrowed at launch -- a narrower one manufactures a cap-stop)" >&2; exit 2; }
+@@ -81,8 +81,8 @@
+ [ -e "$STATUS" ] && { echo "REFUSE: $STATUS exists -- a completed run's record is never overwritten; nothing ran, nothing written" >&2; exit 2; }
+ 
+ # --- detach ONCE by re-executing this file in a new session ------------------
+-if [ "$DETACH" = "1" ] && [ "${T14_DETACHED:-}" != "1" ]; then
+-    T14_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
++if [ "$DETACH" = "1" ] && [ "${T18_DETACHED:-}" != "1" ]; then
++    T18_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
+         --ranks "$RANKS" --solver "$SOLVER" --foam-bashrc "$FOAM_BASHRC" \
+         --no-detach </dev/null >>"$CASE_DIR/log.launch" 2>&1 &
+     echo "launched $CASE detached; STATUS will appear at $STATUS"
+@@ -128,7 +128,7 @@
+     [ -n "$d" ] && { echo "REFUSE: $CASE already has time directory $(basename "$d")" >&2; exit 2; }
+ done < <(find "$CASE_DIR" -maxdepth 1 -mindepth 1 -type d -regextype posix-extended -regex '.*/[0-9]+(\.[0-9]+)?' 2>/dev/null)
+ [ -d "$CASE_DIR/0.orig" ] || { echo "REFUSE: $CASE has no 0.orig to arm from" >&2; exit 2; }
+-[ -f "$CASE_DIR/constant/polyMesh/owner" ] || { echo "REFUSE: $CASE has no mesh (constant/polyMesh/owner) -- run build_t14.py" >&2; exit 2; }
++[ -f "$CASE_DIR/constant/polyMesh/owner" ] || { echo "REFUSE: $CASE has no mesh (constant/polyMesh/owner) -- run build_t18.py" >&2; exit 2; }
+ for f in T; do
+     [ -f "$CASE_DIR/0.orig/$f" ] || { echo "REFUSE: 0.orig/$f missing -- the registered field set is incomplete" >&2; exit 2; }
+ done
+
+--- T18_runs/exact_t18.py : NEW FILE.  Its structural parent is T14_runs/exact_t14.py but the
+    physics, the referent and the readers are different, so a line diff would be
+    310 lines of noise and is NOT the right reading.  Read it whole.
+================================================================================
+
+--- T18_runs/build_t18.py : NEW FILE.  Its structural parent is T14_runs/build_t14.py but the
+    physics, the referent and the readers are different, so a line diff would be
+    157 lines of noise and is NOT the right reading.  Read it whole.
+================================================================================
+
+--- T18_runs/analyse_t18.py : NEW FILE.  Its structural parent is T14_runs/analyse_t14.py but the
+    physics, the referent and the readers are different, so a line diff would be
+    437 lines of noise and is NOT the right reading.  Read it whole.
+================================================================================
+
+--- T18_runs/T18_registered.json : NEW FILE.  Its structural parent is T14_runs/T14_registered.json but the
+    physics, the referent and the readers are different, so a line diff would be
+    261 lines of noise and is NOT the right reading.  Read it whole.
+================================================================================

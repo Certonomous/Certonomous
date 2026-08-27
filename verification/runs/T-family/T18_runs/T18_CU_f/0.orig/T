@@ -1,0 +1,39 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+}
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    symX  { type zeroGradient; }
+    symY  { type zeroGradient; }
+    symZ  { type zeroGradient; }
+    faceX
+    {
+        type            mixed;
+        refValue        uniform 0;
+        refGradient     uniform 0;
+        valueFraction   uniform 0.0062111801242236021;
+    }
+    faceY
+    {
+        type            mixed;
+        refValue        uniform 0;
+        refGradient     uniform 0;
+        valueFraction   uniform 0.0062111801242236021;
+    }
+    faceZ
+    {
+        type            mixed;
+        refValue        uniform 0;
+        refGradient     uniform 0;
+        valueFraction   uniform 0.0062111801242236021;
+    }
+}

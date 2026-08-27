@@ -1,0 +1,9 @@
+case            T18_CU_m
+date            2026-08-27T18:50:49Z
+blockMesh_rc    0   wall 0.533 s
+checkMesh_rc    0   wall 0.565 s
+checkMesh       cells:            64000
+checkMesh       Max aspect ratio = 1 OK.
+checkMesh       Mesh non-orthogonality Max: 0 average: 0
+checkMesh       Max skewness = 4.1633363423443e-14 OK.
+checkMesh       Mesh OK.

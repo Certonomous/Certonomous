@@ -1,0 +1,186 @@
+{
+  "rung": "T18",
+  "title": "3-D transient conduction in a cube (T11c), Robin faces on all three, EXACT tier",
+  "capability_grid_cell": "conduction x laminar (no flow) x 3D -- reads `CAN NOT DO -- not attempted` at HEAD cbcb1127 (docs/capability/heat-transfer_GRID.md:49)",
+  "ceiling": "GATE REACHED at best. The reference is an EXACT series solution, so under the upheld V/P ruling this rung scores V and NEVER P; it can never reach HOLDS. Stated here so a reader does not discover it at grading.",
+  "solver": "laplacianFoam",
+  "turbulence": "NONE -- this is a solid-conduction case with no fluid and no closure. The registered closure was checked against the required field set explicitly: laplacianFoam solves for T alone, writes T alone, and reads no turbulenceProperties; the field tuple is therefore ('T',) and requires no k, epsilon, omega, nut or alphat. A registration that required omega here could never complete (the K0d defect, 829 core-min).",
+  "dimensionality": 3,
+  "ranks": 1,
+  "decomposition_seed": "serial, 1 rank, no decomposition",
+  "physics": {
+    "L_half_side_m": 0.01,
+    "alpha_m2_s": 1e-05,
+    "Bi": 1.0,
+    "T_init": 1.0,
+    "T_inf": 0.0,
+    "endTime_s": 2.0,
+    "Fo_end": 0.2,
+    "referent": "theta(x,y,z,Fo) = f(x,Fo) f(y,Fo) f(z,Fo), f the plane-wall series (exact_t18.py); cross-checked against T11's registered 1-D values AND T14's registered 2-D values, neither of which this module computed"
+  },
+  "cases": {
+    "T18_CU_c": {
+      "level": "c",
+      "N": 20,
+      "cells": 8000,
+      "dx_m": 0.0005,
+      "endTime": 2.0,
+      "deltaT": 0.0001,
+      "steps": 20000,
+      "cell_steps": 160000000,
+      "point_core_min": 0.437,
+      "cap_core_min": 3,
+      "timeout_s": 180,
+      "ranks": 1,
+      "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "graded level"
+    },
+    "T18_CU_m": {
+      "level": "m",
+      "N": 40,
+      "cells": 64000,
+      "dx_m": 0.00025,
+      "endTime": 2.0,
+      "deltaT": 0.0001,
+      "steps": 20000,
+      "cell_steps": 1280000000,
+      "point_core_min": 3.499,
+      "cap_core_min": 20,
+      "timeout_s": 1200,
+      "ranks": 1,
+      "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "graded level"
+    },
+    "T18_CU_f": {
+      "level": "f",
+      "N": 80,
+      "cells": 512000,
+      "dx_m": 0.000125,
+      "endTime": 2.0,
+      "deltaT": 0.0001,
+      "steps": 20000,
+      "cell_steps": 10240000000,
+      "point_core_min": 27.989,
+      "cap_core_min": 120,
+      "timeout_s": 7200,
+      "ranks": 1,
+      "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "graded level -- THE GRADED VALUE IS THIS LEVEL'S, never the Richardson extrapolate"
+    },
+    "T18_CU_f_CT": {
+      "level": "f_CT",
+      "N": 80,
+      "cells": 512000,
+      "dx_m": 0.000125,
+      "endTime": 2.0,
+      "deltaT": 5e-05,
+      "steps": 40000,
+      "cell_steps": 20480000000,
+      "point_core_min": 55.977,
+      "cap_core_min": 240,
+      "timeout_s": 14400,
+      "ranks": 1,
+      "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "C-T temporal-bias control, REPORTED never gated"
+    }
+  },
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "dim": 3,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines neither and REFUSES if these numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "graded_rows": {
+    "G1": {
+      "quantity": "theta_mean, arithmetic mean over the octant's equal-volume cell centres (the midpoint rule; NOT mesh-independent -- its own quadrature error is computed below)",
+      "reference": 0.6175896496,
+      "band_rel": 5e-05,
+      "grading": "Roache triple, rule 5; the FINE value is graded, the extrapolate is reported beside it and gated on never",
+      "band_ground": "Two components, both computed BEFORE compute. (a) READER: applying this comparator's own reader to the EXACT field at each level's cell centres gives +2.361e-04 (N=20), +5.903e-05 (N=40), +1.476e-05 (N=80) -- exactly O(1/N^2), ratio 4.000. (b) FINITE VOLUME: T11 measured +4.4e-06 total at N=100 on the 1-D mean (T11_PREREGISTRATION.md 6.1); this module computes the 1-D midpoint-reader component at N=100 as +3.148e-06, leaving +1.25e-06 as T11's FV component, which scales to +1.95e-06 at N=80 and triples across the product to +5.9e-06. PREDICTED FINE DEVIATION +2.06e-05. The band 5e-05 is cleared by the fine level by 2.4x and is FAILED by the medium level (predicted +8.2e-05) -- a 1e-03 band would be cleared by every level and would not be a gate."
+    },
+    "G2": {
+      "quantity": "theta at (x*,y*,z*) = (0,0,0), the centre of the full cube, separable linear extrapolation from the nearest cell centres in each direction",
+      "reference": 0.8591137894,
+      "band_rel": 0.00025,
+      "grading": "Roache triple, rule 5; FINE value graded",
+      "band_ground": "READER component on the EXACT field: +1.615e-03 (N=20), +4.030e-04 (N=40), +1.007e-04 (N=80) -- the linear extrapolation to a symmetry plane is O(1/N^2) and dominates. FV component estimated at the same order as G1's (~2e-05; the pointwise FV error is NOT separately measured anywhere in this family and this estimate is the weakest number in this registration -- it is named as such). PREDICTED FINE DEVIATION ~+1.2e-04; band 2.5e-04 clears the fine level by ~2.1x and is FAILED by the medium level (~+4.5e-04)."
+    },
+    "G3": {
+      "quantity": "theta at (x*,y*,z*) = (1,0,0), the centre of one Robin face on the two symmetry planes, separable linear extrapolation",
+      "reference": 0.5814449853,
+      "band_rel": 0.0003,
+      "grading": "Roache triple, rule 5; FINE value graded",
+      "band_ground": "READER component on the EXACT field: +2.023e-03 (N=20), +5.018e-04 (N=40), +1.250e-04 (N=80). FV component estimated as for G2. PREDICTED FINE DEVIATION ~+1.45e-04; band 3.0e-04 clears the fine level by ~2.1x and is FAILED by the medium level (~+5.6e-04)."
+    }
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "every timestep's T solve final residual <= 1e-10 and an End line (gate (1) for a transient rung, T11/T14 form)",
+      "floor": 1e-10
+    },
+    "W0": {
+      "what": "permutation-symmetry witness: max |theta(i,j,k) - theta(j,i,k)|, |theta(i,j,k) - theta(i,k,j)|, |theta(i,j,k) - theta(k,j,i)| <= the floor on every level. The continuous and the discrete problem are both invariant under any permutation of the axes; exceeding the floor means solver or reader asymmetry -> gate (1) NOT A RESULT. THE FLOOR IS 1e-07, NOT 1e-09: the DIC preconditioner factorises in lexicographic cell order, which is not axis-symmetric, so a benign round-off drift over 20 000 timesteps is expected and must not void a rung. On fields of order 0.3-0.9 a floor of 1e-07 is still a 3e-07 relative check and catches any real asymmetry. The SHARP expectation is registered as prediction P4, which can lose.",
+      "floor": 1e-07
+    },
+    "C_VF": {
+      "what": "valueFraction on each level READ FROM CASE.txt must equal Bi/(Bi+2N) (L-341); refuses otherwise. The three registered levels give 2.439024e-02 / 1.234568e-02 / 6.211180e-03 -- all different, as L-341 requires."
+    },
+    "C_REF": {
+      "what": "Route B on the referent (3-D PDE residual at two stencil widths falling as h^2, three symmetry planes, three Robin faces, initial condition, permutation symmetry, Simpson mean) plus TWO CROSS-CHECKS to 1e-9 against numbers this module did not compute: T11's registered 1-D values and T14's registered 2-D values. A 1e-7 mutation of C_n is REFUSED by the cross-checks (exact_t18.py --selftest)."
+    },
+    "C_PZ": {
+      "what": "planted-zero control per reader (rule 3, L-340): ALL-CELL plant for the averaging reader G1 (N_f^3 = 512 000 cells), one-cell plant for the point readers G2 (index 0) and G3 (index N_f-1); both arms; measured detection ladder; refuses a blind or noisy reader or a read below 0.1 x plant"
+    },
+    "C_T": {
+      "what": "temporal-bias control: T18_CU_f_CT, deltaT halved at the fine level; movement of G1 REPORTED as a fraction of the band, never gated"
+    }
+  },
+  "predictions": {
+    "P1": "G1, G2, G3 all PASS: G1 inside +-5e-05 relative, G2 inside +-2.5e-04, G3 inside +-3.0e-04. CAN LOSE -- the FV component of G2/G3 is an estimate, not a measurement.",
+    "P2": "all three triples CONVERGING with observed order p in [1.7, 2.3]. CAN LOSE -- the reader error and the FV error are both nominally second order but they are not the same error and their sum need not be a clean power law.",
+    "P3": "C-T moves G1 by less than 20 percent of the G1 band (|move| < 1e-05 relative). Ground: implicit-Euler global relative error on a mode decaying at rate lambda per unit Fo is lambda^2 dFo Fo / 2; with lambda = zeta_1^2 = 0.7401, dFo = 1e-05, Fo = 0.2 that is 5.5e-07 per factor, 1.6e-06 across the product; halving deltaT halves it, so the measured move should be about 8e-07. CAN LOSE.",
+    "P4": "W0 < 1e-09 on every level (sharper than the 1e-07 gate floor). CAN LOSE -- DIC's lexicographic ordering is not axis-symmetric and 20 000 timesteps of round-off may exceed it; a loss here is REPORTED as a wrong prediction and does not by itself void the rung, because the gate floor is 1e-07."
+  },
+  "cost": {
+    "unit": "core-minutes (wall s x ranks / 60)",
+    "rate_core_s_per_cell_step": 1.64e-07,
+    "rate_provenance": "BORROWED, NOT MEASURED ON THIS RUNG. The number is T14's rate, MEASURED 2026-08-26T21:03Z on a scratch copy of T14_SQ_c: laplacianFoam, Euler, Gauss linear corrected, PCG/DIC 1e-12, serial, 2 500 cells, 2 000 steps, ExecutionTime 0.82 s (T14_registered.json cost.rate_scratch_measured_core_s_per_cell_step, and T14_PREREGISTRATION.md section 7). SAME SOLVER FAMILY (laplacianFoam, identical schemes and linear solver), SAME steady/transient class.",
+    "misprediction_risk": "NAMED AND ONE-SIDED. The rate is borrowed across (a) a dimension change 2-D -> 3-D, which raises the stencil from 4 neighbours to 6 and roughly doubles the flux work per cell, and (b) a mesh jump 2 500 -> 512 000 cells, which leaves cache and raises the PCG iteration count as the condition number grows with N. A rate borrowed across a mesh jump made T1b L4 miss by 31.4 percent. The expected miss here is an UNDER-prediction by a factor of up to about 3; the caps are set at 4.3x to 6.9x the point precisely to absorb it. If the actual exceeds the cap the run STOPS and does not get a new budget (rule 12). No scratch rate probe was run for this registration because the lane that wrote it was instructed to launch no solver.",
+    "point_total_core_min": 87.902,
+    "cap_total_core_min": 383,
+    "usd_per_core_h": 0.0513,
+    "point_total_usd_derived": 0.0752,
+    "cap_total_usd_derived": 0.3274,
+    "usd_basis": "DERIVED, NOT MEASURED. The box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5); the rate is owner-stated 2026-08-21/22.",
+    "calibration": "a row in docs/COST_CALIBRATION.md is owed at completion, stating actual/predicted and attributing the gap (rule 12)"
+  },
+  "completion": {
+    "rule": "CLAUDE.md rule 4, all-or-nothing: rc=0 in the wrapper-written STATUS; an End line; last written time == endTime; the registered field present at that time; ExecutionTime line count == endTime/deltaT; every field at endTime NEWER than the case's own 0/T (age guard)",
+    "needed_fields": [
+      "T"
+    ],
+    "field_tuple_check": "CHECKED EXPLICITLY against the registered closure for THIS rung: the closure is NONE (solid conduction, laplacianFoam), the solver writes T and nothing else, so the tuple is ('T',). It is NOT copied from T1b's thermal-family tuple, which requires U, p_rgh, alphat, nut, k and omega -- none of which this solver writes.",
+    "infrastructure_fields": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc"
+    ],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  },
+  "launcher": {
+    "file": "run_one_t18.sh",
+    "descends_from": "run_one_t14.sh (freeze 8b7c...; T14_PREREGISTRATION.md section 8) with the rung name, case set and registered-JSON path changed",
+    "guard": "lineage-aware foreign-process scan (T10aR2 AMENDMENT 1, 9fa66065); NOT YET DRIVEN on either arm -- the lane that wrote this registration was instructed to launch no solver, so the launcher's ARM A (a real launch) is UNDRIVEN and is named as such",
+    "queue_mode": "--no-detach"
+  }
+}
