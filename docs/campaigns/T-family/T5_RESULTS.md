@@ -317,3 +317,216 @@ build, i.e. of order 5 s per iteration. Carried forward at that rate the level
 would land near 430 core-min against its registered POINT of 2 308.2 — **above
 C-143's carry-forward prediction of 300–350 core-min**, which will be scored
 honestly against the measured figure when `STATUS.T5_CUBE_f` exists, not before.
+
+---
+
+# APPENDED 2026-08-27T18:50Z — `T5_CUBE_f` and `L_m` landed; `S_m` CRASHED AT SOLVER START-UP. One `DONE`, one `BLOCKED`, one `NOT A RESULT`. Still no graded row: the frozen comparator has no grading driver.
+
+**Lines whose number changed above this section: 0.** Nothing above is edited;
+no gate, band, threshold, floor, cap, label or control moves. Drafted by a
+heat-transfer grading lane. Pre-registration `T5_PREREGISTRATION.md` at
+document version 1.9 (AMENDMENT 9, `ad663118`); original freeze `0fcbb92e`.
+
+## 17. Freeze verification — taken in the invocation that graded
+
+Hashed on disk with `git hash-object` against AMENDMENT 7's restatement of the
+§16.9 freeze set and AMENDMENT 9's declared values, in the same shell
+invocation as the grading, not carried over from an earlier one:
+
+| file | declared | on disk | |
+|---|---|---|---|
+| `analyse_t5.py` | `9c2c1d44` | `9c2c1d44` | MATCH |
+| `run_one_t5.sh` | `313df45c` | `313df45c` | MATCH |
+| `digitise_t5.py` | `9a465d7b` | `9a465d7b` | MATCH |
+| `T5_reference_primary.json` | `04dfd7e2` | `04dfd7e2` | MATCH |
+| `mark_done_t5.py` | `a74ce20d` | `a74ce20d` | MATCH |
+| `build_t5.py` | `9d7be1cb` | `9d7be1cb` | MATCH |
+
+**6 of 6 MATCH.** In particular `build_t5.py` still carries AMENDMENT 9's
+promoted blob, so §19's finding is against the file the amendment actually
+landed and not against later drift.
+
+## 18. Completion — the strict rule, three cases, three different answers
+
+Run as registered: `python3 mark_done_t5.py L_m T5_CUBE_f S_m`. The marker's
+own `--selftest` was driven first and returns **PASS, 5 arms, 0 FAILED** under
+`python3` and again under `python3 -O`.
+
+| case | marker | verdict | why |
+|---|---|---|---|
+| `T5_CUBE_f` | **DONE** | completion established | all six limbs; `DONE.T5_CUBE_f` written 18:40:45Z |
+| `L_m` | NOT DONE | **`BLOCKED`** | `fields missing at endTime: air/alphat` — see §20 |
+| `S_m` | NOT DONE | **`NOT A RESULT`** | `rc=1`; no `End` line; no `Time` lines; `ExecutionTime` count 0 != `endTime` 5000; no `5000/` directory — see §19 |
+
+**`T5_CUBE_f` — six of six, read from artifacts.** `rc=0` from
+`STATUS.T5_CUBE_f`; one `End` line; last written time `5000` == `endTime 5000`;
+`5000/air` holds `T U alphat k nut omega p p_rgh phi rho`; `ExecutionTime`
+count 5000; age guard clean.
+
+**No row is graded for any of them.** AMENDMENT 8 already recorded, and this
+lane re-verified by reading the file, that **the frozen `analyse_t5.py`
+contains no reference reader and no grading driver at all** — `main()` prints
+the completion lines and then the fixed sentence at `analyse_t5.py:410`,
+*"No case has run: no rows are graded and no verdict is written."* The rung
+therefore remains **`PENDING`** on every §7 row, for the reason already on
+record, and `T5_CUBE_f`'s `DONE` is a **completion** finding only. A grading
+driver is what AMENDMENT 10 would supply; `analyse_t5.A10_PROPOSED.py` and
+`analyse_t5.A10.diff` are on disk and are **PROPOSED, NOT ADOPTED** — this lane
+neither ran nor promoted them, and a measurement-script diff is the
+supervisor's own non-delegable read.
+
+## 19. `S_m` — `NOT A RESULT`. The registered solver cannot start a fluid-only case, and no AMENDMENT 9 control could have caught it
+
+**The crash, from `S_m/log.solve` (1,930 bytes, the whole run):**
+
+> `--> FOAM FATAL ERROR: (openfoam-2606)`
+> `solid not found in table.  Valid entries: 1(fluid)`
+> `From T& Foam::HashTable<T, Key, Hash>::at(const Key&) … HashTableI.H at line 51`
+
+The solver started at `17:27:56`, failed while creating meshes — before
+`Create fluid mesh for region air` was followed by any solid region — and
+exited. **Zero iterations, zero time directories beyond `0`.**
+
+**Cause, and it is a registration/build mismatch rather than a physics fault.**
+`S_m` is the §8 `DS` constant-`T` arm and is the **only** T5 case registered
+`conjugate=False` (`S_m/CASE.txt`). AMENDMENT 9's new `strip_solid_region()`
+did exactly what the amendment says: it rewrote `constant/regionProperties` to
+the fluid-only form `regions ( fluid (air) );`, and all six of its read-back
+refusals passed cleanly. **But `CASE.txt` also records
+`solver=chtMultiRegionSimpleFoam`, and that solver reads `regionProperties.at("solid")`
+unconditionally at start-up.** A fluid-only `regionProperties` is not a
+configuration `chtMultiRegionSimpleFoam` can run at all. Verified as the
+discriminator, not assumed: the five conjugate cases (`H_c`, `P_m`, `L_m`,
+`T5_CUBE_c/m/f`) all carry `regions ( fluid (air) solid (epoxy) );` and all
+ran to `rc=0`; `S_m` alone carries the fluid-only form and alone failed.
+
+**What AMENDMENT 9's controls covered, and the gap they leave — stated against
+the amendment.** A9 drove two controls and both were sound: CONTROL 1 proved
+the conjugate build path byte-for-byte unchanged, CONTROL 2 proved the mesh
+identical to the conjugate case's. `strip_solid_region()`'s six refusals all
+read **file content** back from disk. **Nothing in that set asks whether the
+resulting case is runnable by the solver the case is registered to use** — a
+question a three-second start-up would have answered, and which cost 489.0
+core-min of queue commitment to discover instead. **The lesson is the shape of
+the gap, not the size of it:** read-back refusals confirm that the files say
+what the builder intended; they cannot confirm that what the builder intended
+is executable.
+
+**NOT REPAIRED, and the choice is deliberately not this lane's.** The repair is
+gate-adjacent: either the arm is registered to a different solver (a
+single-region buoyant solver), or `regionProperties` carries an empty
+`solid ()` list, or the arm's registration changes. **Which of those is correct
+is a registration question about what §8 `DS` actually registers, and it is the
+supervisor's with Sanaa, not a lane's.** No frozen file was edited, no builder
+patched, no solver launched, and **no queue entry dropped** — this lane may not
+arm a run. Docketed.
+
+## 20. `L_m` — `BLOCKED`. The laminar arm is judged by a turbulent field tuple
+
+`mark_done_t5.py` refuses `L_m` with `fields missing at endTime: air/alphat`.
+**`alphat` is absent because the registration says it must be.** The
+pre-registration registers this arm at §DC as *"the medium level, identical
+mesh, identical boundary conditions, **turbulence model off** (`laminar`)"*,
+and `L_m/CASE.txt` records `laminar=True`. A run with no turbulence model
+never creates `alphat`, `nut`, `k` or `omega`, and `L_m/5000/air` accordingly
+holds exactly `T U p p_rgh phi rho` — **all four turbulence fields absent
+together**, which is the signature of a laminar solve and not of a truncated
+one. The turbulent medium case `T5_CUBE_m` on the same mesh holds all four.
+
+**The defect is that the marker's field tuple is not per-arm.**
+`mark_done_t5.py:26` declares a single `FIELDS_CUBE = ("T", "U", "p_rgh", "alphat")`
+and applies it to every T5 case, laminar and turbulent alike. `L_m` can
+therefore never be marked `DONE` by its own registered marker however well it
+runs. *(This is the same hazard `CLAUDE.md` rule 4's parenthetical tuple warns
+about by being per-rung rather than lab-wide — here the per-rung tuple was
+written for the turbulent arm and then applied across the arms.)*
+
+**The other five limbs hold**, read directly from artifacts and offered as
+evidence of what the block is hiding, **not** as a substitute for the
+registered path: `rc=0`; one `End` line; last time `5000` == `endTime 5000`;
+`ExecutionTime` count 5000; age guard clean (`0/air/T` 22:20:21, fields at
+`5000/` 23:15:19, all NEWER). **`L_m` is `BLOCKED`, not `DONE`, and no marker
+was written for it.** Docketed. Not repaired: frozen file, rule 6.
+
+## 21. Cost — rule 12, three rows, and Model B's `c → m` step is the whole miss
+
+`nProcs` is 1 throughout by AMENDMENT 2; core-minutes are work and are
+comparable to §11.1's core-hour model regardless of rank count.
+
+| case | predicted (Model B) | actual MEASURED | ratio | note |
+|---|---|---|---|---|
+| `T5_CUBE_f` | 2 308.2 core-min (38.47 core-h) | **319.167** (`wall_s=19150` × 1 ÷ 60) | **0.138** | $0.273 derived vs $1.974 predicted |
+| `L_m` | 371.4 core-min (6.19 core-h) | **54.933** (`wall_s=3296` × 1 ÷ 60) | **0.148** | $0.047 derived vs $0.317 predicted |
+| `S_m` | 489.0 core-min (AMENDMENT 9(h)) | **0.000** recorded; ≤ 0.07 bounded | **NO RATIO** | nothing was bought |
+
+Dollars throughout are **DERIVED, NOT MEASURED** at the owner-stated
+$0.0513/core-h (`COMPUTE_BUDGET_CHARTER` §5 — this box cannot read its own
+billing). Gross == cleaned on both completed rows: each is one continuous solve
+with `ExecutionTime` count == `endTime` == 5000, so the 3,600-s stall
+convention does not apply to `T5_CUBE_f`'s 19,150 wall s.
+
+**TWO REGISTERED PREDICTIONS, SCORED HONESTLY — one HIT, one MISS, and the MISS
+is this record's own.**
+- **C-143's carry-forward of 300–350 core-min for `T5_CUBE_f`: HIT.**
+  Measured **319.167**, inside the range and near its middle.
+- **§16's 22:33Z indication of "near 430 core-min": MISS, high by 35 %.** It
+  was extrapolated from `Time = 121` reached in ≈ 630 s *including the mesh
+  build*, which loads start-up cost onto a per-iteration rate. It was labelled
+  an indication and not a result, and it is scored here as promised rather than
+  quietly dropped.
+
+**Gap attribution: misprediction in Model B's per-level GROWTH, with the miss
+localised to one step.** Measured across the ladder, cost is very nearly linear
+in cell count — `c → m` is ×4.704 on ×4.074 cells (**O(N^1.10)**) and `m → f`
+is ×4.219 on ×4.105 cells (**O(N^1.02)**). Model B assumed **×11.63 for
+`c → m`** (O(N^1.75)) but **×4.35 for `m → f`** (O(N^1.04)) — internally
+inconsistent, right at the top of the ladder and wrong by 2.5× at the bottom of
+it. **That single step is the entire over-prediction**, and it propagates: the
+per-level ratios actual/Model B are 0.353 (`c`), 0.363 (`H_c`), 0.143
+(`T5_CUBE_m`), 0.130 (`P_m`), 0.148 (`L_m`), 0.138 (`f`) — a clean break
+between the coarse level and everything above it.
+
+**Direction disclosed, because it cuts against the lab's recent finding.**
+C-152, C-153 and C-166 (cfd) each found an *imported* growth exponent
+**under**-predicting. Here an *a priori* model **over**-predicts, by 7×. The
+two are the same lesson seen from opposite sides and the lesson is not "models
+run high" or "models run low" — it is **measure the growth on this solver and
+this mesh family, and do not carry an exponent in from anywhere, including from
+a cost model's own coarse level.**
+
+**Contention: NOT separable and NOT claimed** on any of these rows — the box
+carried many T-family solvers across this window and no per-level free-core
+reading was taken beside the wall times.
+
+**WASTE, named separately and NOT absorbed into any ratio (charter §6):
+≤ 0.07 core-min, the whole `S_m` row.** `STATUS.S_m` records `wall_s=0`; the
+solver's own life was under one second (`log.solve` 17:27:56.888,
+`launcher.queue.out` 17:27:56.918) and the launch including its `checkMesh` step
+spans ≈ 4 wall s from 17:27:53. The figure is **bounded, not measured** — the
+wrapper records whole seconds and recorded zero. **The 489.0 core-min estimate
+is NOT invalidated and is carried unchanged into any re-fire**: it remains the
+price of the `S_m` arm, and what this row calibrates is a build/registration
+mechanism, not a rate (the C-164 precedent).
+
+## 22. Rung state at 18:50Z
+
+| case | state | graded core-min |
+|---|---|---|
+| `X_2d` | DONE, **UNGRADED BY REGISTRATION** | 5.217 |
+| `T5_CUBE_c` | DONE | 16.083 |
+| `H_c` | DONE | 16.567 |
+| `T5_CUBE_m` | DONE | 75.650 |
+| `P_m` | DONE | 68.883 |
+| **`T5_CUBE_f`** | **DONE** (this session) | **319.167** |
+| **`L_m`** | **`BLOCKED`** — §20, laminar arm vs turbulent field tuple | 54.933 |
+| **`S_m`** | **`NOT A RESULT`** — §19, solver cannot start a fluid-only case | ≤ 0.07 (waste) |
+
+**Rung total: 551.283 core-min spent + ≤ 0.07 waste.** **Rows graded: still
+ZERO**, and the reason is unchanged and is not any of the above — the frozen
+comparator has no grading driver (§18).
+
+**Disclosures.** No frozen file was edited (rule 6); `analyse_t5.A10_PROPOSED.py`
+was neither run nor promoted; no solver was launched; nothing was placed in
+`verification/queue/`; nothing was sent, filed, uploaded, posted or registered
+outside this box (rule 7). Ledger rows: `docs/COST_CALIBRATION.md`, ids
+assigned at commit from the tail maximum.
