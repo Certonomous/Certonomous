@@ -50,3 +50,110 @@ newline are both load-bearing.
 
 *Nothing here was sent, filed, uploaded, posted or registered outside this box
 (`CLAUDE.md` rule 7).*
+
+---
+
+## AMENDMENT 1 — 2026-08-27, remediation of `05241ab2` under Sanaa's standing directive §1
+
+*Appended, not rewritten. **Lines whose number changed above this section: 0.***
+
+Sanaa's standing directive of 2026-08-27T16:54Z (`etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md`),
+§1 COMMIT HYGIENE, verbatim: *"explicit path lists, no directory sweeps; **logs and attempt
+dirs stay out of git**; pre-commit guard blocks >50 files or >5 MB without a manifest."*
+
+`05241ab2` predates that directive, so this is **remediation, not misconduct**. It was an
+explicit path list, not a directory sweep — established by exclusion: the two trees hold
+~210 MB of `constant/polyMesh` and numeric time directories and that commit landed **zero**
+of either. The half of §1 it did breach is the log-and-attempt-dir half.
+
+**FORWARD-ONLY. No history rewrite.** The blobs remain reachable in history; `.git`
+`size-pack` is unchanged (~2.12 GiB). Only a history rewrite would reclaim that, a rewrite
+is irreversible, and it is reserved to Sanaa. **It is not being requested here.**
+
+### Struck
+
+The following sentence of "Why these are not at HEAD" (lines 19-21 above) is **STRUCK**:
+
+> *"The values a gate reads are not taken from these directories: they come from
+> `postProcessing/` and `log.solve`, both of which ARE at HEAD."*
+
+It was wrong on **both** halves, and the correction is measured, not inferred:
+
+- `log.solve` **was** at HEAD when written; under this amendment it no longer is.
+- `postProcessing/` was **never** at HEAD and could not have been: it is excluded
+  repo-wide by `.gitignore:67` (`**/postProcessing/`), verified with
+  `git check-ignore -v`. Zero `postProcessing` paths appear in `git ls-tree -r HEAD`
+  for either run root. The original sentence asserted a tracking state nobody checked.
+
+The sentence in "What IS at HEAD" (lines 25-26) reading *"all of `postProcessing/`"* is
+**STRUCK** for the same reason, and `log.*` there is **narrowed**: every `log.*` except
+`log.solve` remains at HEAD (`log.blockMesh`, `log.checkMesh`, `log.cellCentres`, and
+`CRASHED_ATTEMPT_1/*/log.solve.tail`, which is a different file from `log.solve`).
+
+### Now untracked by this amendment — ON DISK, NOT AT HEAD
+
+Removed from the index with `git update-index --force-remove` under the private-index
+protocol. **The working tree was not touched**: no `git rm`, no `git reset`, no
+`git clean`, no `git checkout --`. Every path below was confirmed present on disk with
+its original byte count *after* the commit.
+
+| Path | Bytes | Files | SHA-256 | Why not at HEAD |
+| --- | ---: | ---: | --- | --- |
+| `.../K0cG_runs/S_KE_x/log.solve` | 39,426,235 | 1 | `588e2ba99081a19ccfbaf49faf66887670ef06d705dfc1763b988afdb02e4c61` | solver log — Sanaa §1 "logs ... stay out of git" |
+| `.../K0cG_runs/S_SST_x/log.solve` | 40,897,193 | 1 | `68b18348127f139d560fc9760d6d65bb06052acfd194332a84d284d846b3054d` | solver log — Sanaa §1 "logs ... stay out of git" |
+| `.../K0cG_runs/.attempt1_stale/` | 59,477,123 | 34 | `08bba8acd28cde2caf00d961e795078c817c07c3160dbc3745fa40a052650107` | attempt directory — Sanaa §1 "... and attempt dirs stay out of git" |
+
+Single files are hashed directly (`sha256sum`); the directory row uses the digest method
+of the "Digest method" section above, unchanged.
+
+`.attempt1_stale/` holds **34** files on disk totalling 59,477,123 bytes; **20** of them
+(58,742,182 bytes) were the ones at HEAD, the other 14 (734,941 bytes) never were. The
+digest above covers the full on-disk directory, which is what a later reader can check.
+
+**Untracked by this amendment, in this run root: 22 index entries removed** (2
+`log.solve` + the 20 `.attempt1_stale/` paths that were at HEAD), carrying **139,800,551
+bytes on disk** across the three rows above. Across BOTH K0c run roots the totals are
+**26 index entries, 276,691,303 bytes at HEAD / 277,426,244 bytes on disk** (the 734,941 B
+difference is the 14 `.attempt1_stale` files that were on disk but never at HEAD).
+
+### Now filed by digest that never was — `postProcessing/`
+
+These were always on disk and never at HEAD, and the previous text wrongly said otherwise.
+They are the directories the gate values are actually read from, so filing them by digest
+is what makes this an evidence chain rather than an assertion. They are **not** force-added:
+`.gitignore:67` is a repo-wide standing policy this lane did not write and may not retire.
+
+| Directory | Bytes | Files | SHA-256 directory digest |
+| --- | ---: | ---: | --- |
+| `.../K0cG_runs/S_KE_x/postProcessing` | 504,907 | 7 | `10883bee0c6583d8862d678dfd6f19508465bd429d3bdeae2ae1252dafcb04e6` |
+| `.../K0cG_runs/S_SST_x/postProcessing` | 504,907 | 7 | `242e09bfb96e4bf559b3beb6a49d5b71ae2d9adb09783a6edd2cb74b8f14eabf` |
+| `.../K0cG_runs/CRASHED_ATTEMPT_1/S_KE_x/postProcessing` | 303,627 | 7 | `01ba3c89f8986be5dd0d6c5bb86791feb3f7e32fd05fdd0387cba6898423ab80` |
+| `.../K0cG_runs/CRASHED_ATTEMPT_1/S_SST_x/postProcessing` | 431,314 | 7 | `f5bc2d6357299d7b8ae53c8f5d325c22ede8e06061bb9d463edc81f4852d578a` |
+
+### What remains at HEAD in this run root — MEASURED, not inferred from a sibling
+
+`git ls-tree -r -l HEAD` after this amendment, over both K0c run roots: **172 files,
+345,091 bytes.** Per subtree in this root, measured individually:
+`S_KE_x` 44,840 B / 25 files · `S_SST_x` 44,882 B / 25 files ·
+`CRASHED_ATTEMPT_1` 17,925 B / 7 files · `build_cases.py` 27,874 B ·
+`gate_k0cg.json` 9,427 B · `analyse_k0cg.py` 6,404 B · `PREREG_TIMESTAMP.txt` 310 B ·
+`launch_all.sh` 1,036 B · `LAUNCH.log` 88 B · `ALL_DONE` 65 B · `DONE.*` 85 B each ·
+`relaunch.out` 0 B.
+
+`CRASHED_ATTEMPT_1` is **17,925 bytes across 7 files at HEAD** — not the 752,866 bytes
+across 21 files it occupies on disk; the difference is its gitignored `postProcessing/`,
+now filed by digest two tables above. Every subtree here was measured on its own. Inferring
+one directory's size from a sibling's is the error that let 56 MB land in `05241ab2`, and
+it is not repeated.
+
+### What this does NOT do
+
+- It does **not** re-grade anything. `K0cG_RESULTS.md` is at HEAD with its verdict landed
+  and was **not touched**. No gate, threshold, cap or label moved.
+- It does **not** reclaim `.git` space (see FORWARD-ONLY above).
+- It does **not** add a `.gitignore` entry: the untracked paths stay visible to
+  `git status` deliberately, so their absence from HEAD is a decision a reader can see
+  rather than a rule that hides them.
+
+*Nothing here was sent, filed, uploaded, posted or registered outside this box
+(`CLAUDE.md` rule 7).*
