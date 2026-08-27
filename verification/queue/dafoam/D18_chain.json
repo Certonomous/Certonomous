@@ -1,0 +1,76 @@
+{
+  "team": "dafoam",
+  "case_id": "D18_chain",
+  "prereg_commit": "dae3dc9d17dab4ecda7d44e30c9a3016637f9987",
+  "prereg_path": "cases/dafoam/curriculum_D18_cone_hypersonic/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D18_cone_hypersonic/d18_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "F-S",
+    "X-P",
+    "F-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D18_cone_hypersonic",
+  "ranks": 2,
+  "cost_core_min_estimate": 182.2,
+  "cap_core_min_registered": 785.0,
+  "cost_basis": "MEASURED anchor, not derived: D17 ran THE SAME MESH, THE SAME SOLVER and THE SAME FIXED 500 pseudo-steps per primal, so the wall per primal is bounded by the step count and not by the Mach. D17's own arms (curriculum_D17_cone_supersonic/RESULTS.md section 8): MESH 0.167, X-S 7.833, F-S 75.733, X-P 7.100, F-P 82.000 = 172.833 core-min against 180.3 predicted, ratio 0.959, waste 0.000. D18 point 182.2 = MESH 0.2 + X 9.0 x2 + F 82.0 x2, ABOVE D17's measured because a stiffer shock may need more GMRES work per pseudo-step while the step count that bounds it does not move; band [60, 450]; ceiling 785.0 = sum of caps, UNCHANGED. $0.1558 point / $0.6712 ceiling, DERIVED at the owner-stated c7a.4xlarge $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). D17's two image-identity probes are RE-USED rather than re-bought: 3.05 core-min saved and named rather than hidden.",
+  "memory_floor_gb": 12.0,
+  "enqueued_by": "dafoam-supervisor via lane B. Supervisor check 1 is owed on the instruments; check 4 is the supervisor's own on the sha. ENQUEUEING IS NOT AUTHORISATION.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered the runner's cap watch reads. Fields below are dafoam annotations the validator ignores.",
+  "capability_grid_cell": "2D . steady . hypersonic -- gradients computed + FD-verified. HYPERSONIC IN THE MACH NUMBER ONLY: perfect gas, calorically perfect, mu 0; no vibrational excitation, no dissociation, no viscous or radiative heating. Post-shock static T 450.7 K on the perfect-gas relations, where the assumption is still defensible; no stagnation quantity is graded. The grader writes real_gas_caveat into every artefact so it cannot be separated from the verdict. Only the gradient column moves; no optimiser runs.",
+  "regime": "2D steady hypersonic inviscid: DAHisaFoam (HiSA density-based, JST, dual-time steadyState, 500 pseudo-steps), Cone_Supersonic as a 2D WEDGE half-angle 11.3099 deg, 40,000 cells, M 5.0002, aoa 0, np=2",
+  "precondition_artifact": "none at enqueue -- the run root /home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic must be ABSENT. CHECKED not asserted at 2026-08-27T17:34:55Z: test -e -> FALSE, driven TWICE inside d18_groot5_selftest.sh (18/18), and no d18_ container survives. D17's run root is in this item's FORBIDDEN_ROOTS.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (MESH, X-S, F-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (X-P, F-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 11; D7FR section 8): X and F are bought on both images on one mesh",
+  "container_memory_cap": "X-S/X-P 8g (they carry the adjoint; derived from A6's 9.787 GiB at 41,760 cells scaled to 5 states and a 2D stencil, PREREGISTRATION.md section 5); MESH/F-S/F-P 4g",
+  "cpuset": "12,15 -- REGISTERED (PREREGISTRATION.md section 5), the supervisor's FIFTEENTH-session placement; disjoint from D5 8,10,11,13, D4-SHIPPED 5,6,7,9, D15 2,3, D16 4,14, D6 2,3,4,14; OVERLAPS D8R's 0,1,12,15 (same dispatch) -- disclosed; G-CPUSET wait-and-retry in both drivers (poll 30 s, bound 14,400 s, BLOCK rc=6 at the bound, zero compute) so neither item's G12 delivered-cores floor is failed by the overlap",
+  "deadline_in_container_s": "MESH 300 s at 1 rank; X 2,700 s and F 9,000 s at 2 ranks",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D17-cone-supersonic (asserted absent at freeze, 22:05:56Z and 22:26:27Z; the driver creates it on the first fire and stages nothing on a second)",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled) BEFORE docker rm (no --rm), writes the ledger row and <ARM>_<stamp>.inspect.txt, and the driver appends rc=<n> ... source=launcher_exit=docker_inspect_ExitCode to STATUS.<arm>; CHAIN_DONE receives one line on every exit of a started chain; at chain end the frozen grader d17_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). Never the $? of the runner's setsid line; STATUS.D17_chain launcher_rc is the driver's exit, not the verdict.",
+  "guards_before_launch": "G-ROOT.1 registered root; G-ROOT.2 forbidden roots named (D4, D4-SHIPPED, D4-SHIPPED-R, D5, D6, D14, D14M, D7R, D7FR, D12R*, D13, D15, D16, D8, D8R, A2-mach-wing, the tutorial checkout, the repo); G-ROOT.3 ledger ITEM; G-ROOT.4 ALREADY_BOUGHT; G-ROOT.5 live d17_<ARM>_ container / live driver pid holding the root (both DRIVEN, d17_groot5_selftest_evidence.txt 18/18); G-ROW arm-suffix vs image row (driven); md5s of the producer, instrument, decomposeParDict and 19 tutorial inputs; image digest; H5 45 samples/60 s per-arm floor; aggregate caps + this cap + host RSS < 30.6 GiB wait-and-retry bounded 14,400 s; G-CPUSET overlap wait-and-retry bounded 14,400 s.",
+  "registered_exposures": "DAHisaFoam is a solver class this lab has never run: a primal that fails DAFoam's convergence guard exits X-S non-zero, the chain stops and the item is NOT A RESULT with at most one X cap spent (PREREGISTRATION.md section 3 (a)); the 40,000-cell count is derived from blockMeshDict + mirrorMeshDict, never measured -- a G-M2 mismatch is a defect of the derivation, disclosed as such.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D17_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "verdict_state": "PENDING",
+  "the_one_registered_delta": "U0 680.0 -> 1736.0 m/s (M 1.9586 -> 5.0002). Mesh, FFD, DVs, objective, steps, arms, images, caps, cpuset, every gate and every band are D17's. THE DELTA IS CARRIED BY TWO FILES: 0.orig/include/freestreamConditions, where the solver reads its ACTUAL BC (the runScript primalBC block that would override it is COMMENTED OUT in the tutorial), and runScript.py's U0, which ONLY normalises CD/CL and normalizeStates. Change one alone and CD is wrong by the SQUARE OF A RATIO with every other check in this family passing. Both are staged as registered overlays, the tutorial's own bytes md5-asserted then replaced.",
+  "new_gate_G_MACH": "d18_mach_agreement.py (NEW). Asserts both carriers of U0/p0/T0 agree WITH EACH OTHER and with the registered value at ZERO tolerance (typed constants, not measurements); refuses a non-zero freestream v/w (it would break the CL symmetry reading silently); refuses more than one top-level U0 assignment; refuses anything it cannot read -- a value this gate cannot read is a REFUSAL, never a pass. Runs BEFORE EVERY ARM in the launcher, after staging in the driver, and is RE-READ AT GRADE TIME from the staged bytes through the STAGED COPY of the instrument whose md5 is asserted first. The ledger line is corroboration only; its absence is INFRASTRUCTURE (L-342) and the staged bytes are the physics.",
+  "what_this_item_cannot_resolve": "REGISTERED BEFORE THE RUN (PREREGISTRATION.md section 7). D17 was NOT DISCRIMINATING: worst shipped-vs-patched divergence 2.268 % against its own PATCHED row's worst FD error 2.777 %, S/N 0.82. At M 5 that common-mode error will very likely be WORSE, so P7 predicts S/N <= 1.0 (HIT = the rows do NOT discriminate). IF BOTH ROWS PASS THAT IS NOT EVIDENCE THE TOOLCHAINS AGREE -- it is evidence they cannot be told apart, and a PASS here must never imply a discrimination the item did not have. The grader prints _P7_signal_to_noise beside every verdict so the two cannot be separated. What D18 CAN establish is the CELL and the solver's behaviour at hypersonic Mach, including a common-mode-error magnitude this family has never had above M 2.",
+  "nonconvergence": "NONCONVERGENCE_STANDARD.md (7ffd6c73) carried BY NAME with its anti-gaming clause quoted. DAHisaFoam cleared its own primal guard at M 1.958 unmodified; at M 5 it may not. REGISTERED: if the primal fails, X-S exits non-zero, the chain STOPS, the item is NOT A RESULT with <= one X cap spent, and the finding is 'the tutorial as shipped does not clear its own primal guard at M 5 on this box'. A named BLOCKED / GATE FAIL / NOT A RESULT in an EMPTY grid cell is still a result, and predicting it in advance is what makes it one. NOTHING IS TUNED IN THIS ITEM AT ALL: the tutorial's options unmodified, no L1-L5 arm; any diagnostic ladder is a SEPARATE, separately frozen item with one change per run. P3's band and the grader's md5 are frozen at this commit so no scheme, limiter or CFL choice can be selected by how close it lands to 0.078842.",
+  "predictions": "P1 cells 40,000; P2 abs(CL) <= 1.0e-3; P3 CD_baseline in [0.055, 0.105] point 0.078842 -- the oblique-shock model CALIBRATED ON D17'S OWN MEASUREMENT (it reproduces D17's measured 0.269886 to 0.014 %) and re-evaluated at M 5.0002 (beta 20.615 deg, Mn1 1.7605, p2/p1 3.4491, q 1.7733e6 Pa, shock ATTACHED); P4 PATCHED row PASS with >= 4 of 5; P5 SHIPPED shape[0] outside band D or flipped; P6 total core-min in [60, 450] and MESH wall <= 120 s; P7 THE TWO ROWS ARE NOT DISCRIMINATING, S/N <= 1.0.",
+  "instrument_md5s_at_this_commit": {
+    "d18_run_arm.sh": "1fd05704a7ef0ede0057c9b18283c775",
+    "d18_chain_driver.sh": "f41bd1a74b098de34e2a80f008b99bea",
+    "d18_xf.py": "3e63a9fa945bc6d7b3196e1e3e084a7f",
+    "d18_grade.py": "e4ade11ed9e3db18d2c4988b30e929b4 -- THE GRADING PATH",
+    "d18_mach_agreement.py": "d6a5b389f0976801416bfd81909e0176 -- NEW, G-MACH",
+    "d18_pin_sweep.py": "7293bc885a8003a835a2c7c3226c881a -- NEW, the pin discipline",
+    "d18_runScript.py": "e6f0baf0e07a4ede7bff555e5e0ed332",
+    "d18_freestreamConditions": "2c18bb481b762706ab03bbbac3a91a4d",
+    "d18_groot5_selftest.sh": "568575353978a44dfaaaef98efb51e3b"
+  },
+  "controls_at_this_commit": "ALL ZERO SOLVER COMPUTE, all re-driven in the commit invocation, evidence committed. Grader 29/29 plain and -O (22 -> 29: five G-MACH legs including the producer-stale and BC-stale plants that are the defect itself, plus P3 and P7). G-MACH 10/10 plain and -O, plus a live positive on the registered pair and a live negative against the tutorial's unmodified BC. Pin sweep 5/5 plain and -O. G-ROOT.5 18/18 with the run root ABSENT driven twice as the freeze condition. ast.Assert 0 in all six python files. FOUR STALE PINS were found and repaired BEFORE the freeze (D8R-DRIVER-DEF-1's class: copy-and-delta from D17 left MD5_LAUNCHER, MD5_GRADER and MD5_XF stale in the driver and MD5_XF in the launcher, which would have aborted the chain at staging, exit 4, buying nothing); d18_pin_sweep.py was written to catch all nine at once, is driven with a PLANTED stale pin, and REFUSES rather than reporting a clean zero over an empty population."
+}
