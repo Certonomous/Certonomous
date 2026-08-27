@@ -1173,3 +1173,97 @@ because they are the only ones that can be recomputed.
    is made about whether they have since been landed or restored.
 4. Per §11.5 item 5, **this section is now part of the corpus it counts** and
    will appear in the next re-run's denominator.
+
+---
+
+## 13. DATED SECTION, 2026-08-27 — THE MACHINE DOCKET: MY FINDING WAS A DUPLICATE OF **D516**, THE LEVER IS **NOT** DEAD, AND THE REAL RESIDUE IS **FOUR LIVE POINTERS D516 DID NOT SWEEP** — ONE OF THEM IN A CHARTER I AMENDED THE SAME AFTERNOON
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this
+section: 0`, proved by a byte-prefix check against the HEAD blob in the same invocation
+that wrote this section. Routed to this team by the chief after this supervisor reported
+`demo-output/website/agenda/docket.json` as "named in `CLAUDE.md` and not on disk".**
+
+### 13.1 THE FINDING WAS ALREADY DOCKETED, AND SAYING SO IS THE FIRST OBLIGATION
+
+**`docs/DOCKET.md` D516 (measured 2026-08-25 by a chief-routed bookkeeping lane) records
+this exact defect**, names the same dead path, dates the move to 2026-08-18, identifies
+the successor as `research/agenda/docket.json`, refuses a D-row mirror on the merits, and
+places the one-line `CLAUDE.md` correction on Sanaa's desk because **no agent edits
+`CLAUDE.md`**. **My report added nothing to it and should have found it first.**
+
+**This is the third time today the answer was "the lab already knew, in writing"** — after
+`07313b68`'s commit subject naming its own defect, and `analyse_t1b_L4.py:144-151`'s frozen
+selftest asserting the verdict the record contradicted. **The recurring failure in this lab
+is not missing knowledge; it is knowledge that is recorded and not consulted**, and this
+audit has now supplied its own instance.
+
+### 13.2 THE DEAD-LEVER QUESTION, ASKED AND ANSWERED **NO** — measured by running it
+
+`scripts/check_docket_surface_agreement.py:11` names the dead path in its **docstring**, so
+the obvious hypothesis is a checker reading an absent input and passing vacuously — the
+`FAIL_OPEN_GATE_AUDIT` shape. **Executed rather than reasoned about: it resolves its path at
+runtime through `lab_paths.AGENDA` (`:81`, `:95`, `:286`), loads the successor, reports 75
+shared ids and 245 one-sided, and returns `VERDICT: PASS`, rc 0.** **The lever is alive; only
+its self-documentation is stale.** A negative result, recorded because an unrecorded negative
+gets re-investigated.
+
+### 13.3 A NAIVE PARSE OF MINE, CAUGHT BEFORE IT WAS REPORTED
+
+Checking D516's "264 proposals", this supervisor's first read of the successor returned
+**"records: 2"**, which read as a contradiction of the docket row. **It was a naive parse:**
+the file is a dict of two keys — `generated_at` and `proposals`, the latter a list of
+**264**. **D516's number is right and mine was an artefact of the reader.** Recorded because
+the alternative was reporting a false contradiction against a peer's measurement, and because
+it is `VERIFICATION_CHARTER` **v1.13** working one commit after it was written: *derive the
+pattern from the artefact, never from the claim.*
+
+### 13.4 WHAT IS ACTUALLY NEW — D516 REPAIRED THE CONSTITUTION'S ROW AND SWEPT NO OTHERS
+
+D516 names **one** live pointer, `CLAUDE.md:279`. A census of every tracked citation of the
+dead path finds **five live pointers plus one stale docstring.** The rest of the ~50 hits are
+**historical records** — MOVE_MAP execution logs, morning reports, campaign records — which
+cite the old path *as it then was* and are correct as history. **The distinction is the
+finding: a raw count of citations is not a count of defects, and sweeping on the string alone
+would have "repaired" dozens of correct historical records.**
+
+| live pointer | what it tells a reader | owner |
+|---|---|---|
+| `CLAUDE.md:279` | the machine docket's location | **Sanaa's alone** — D516's item, on her desk |
+| `docs/MEMORY_ARCHITECTURE.md:80` | *"Costed queue snapshot — **AUTHORITATIVE FOR `status`**"* | **the worst of the five** — it asserts authority for the field D218 measured 45.3 % disagreement on |
+| `docs/MEMORY_ARCHITECTURE.md:425-426` | an **executable** one-liner (`json.load(open(...))`) and a `stat` | both now **throw**; a copy-pasteable command that cannot run |
+| `docs/charters/ESCALATION_CHARTER.md:91` | where escalations go | charter owner |
+| `docs/charters/REPORTING_CHARTER.md:118` | the **`## 5. REFILLED QUEUE`** section's `Source:` artifact | **see §13.5** |
+| `scripts/check_docket_surface_agreement.py:11` | docstring only; runtime is correct (§13.2) | cosmetic, but it is an instrument's own description |
+
+### 13.5 DISCLOSED AGAINST THIS TEAM: I AMENDED THAT CHARTER TODAY AND DID NOT NOTICE
+
+`docs/charters/REPORTING_CHARTER.md:118` names the dead path as the source artifact for the
+morning report's **Refilled queue** section. **This supervisor amended that same file at
+`4a8ab0d7` this afternoon** — adding headline metrics whose §2 clause 1 states that *"a value
+carries how it was obtained"* — **without noticing that a section of the same document points
+its `Source:` line at a file that has not existed for nine days.** §2 rule 7 of that charter
+says *"a cited artifact that is not on disk is a finding inside the report."* **The charter
+that mandates that check contains an instance of what it forbids.**
+
+### 13.6 RECOMMENDATION — one sweep, not six edits, and NOTHING IS EDITED HERE
+
+**Nothing in this section is repaired by this team.** `CLAUDE.md` is Sanaa's; the other
+pointers sit in files with their own owners, and a pointer repair inside a charter is a
+**dated amendment**, not an in-line edit (rule 6). Recommended:
+
+1. **`CLAUDE.md:279` — Sanaa's one-line re-point**, exactly as D516 already proposed and
+   already has on her desk. **This section adds no new ask there.**
+2. **The other four live pointers are re-pointed by their owners as dated amendments**, each
+   naming `research/agenda/docket.json` and stating that the artifact is **dormant, not
+   rotten** (D516 §3: `generated_at` 2026-08-08, idle because the research-wells workflow is
+   idle; any repair is to **run the generator**, never to hand-edit the JSON).
+3. **THE STANDING RECOMMENDATION, which is the only genuinely new lab-level ask:
+   A REORGANISATION THAT MOVES A TRACKED ARTIFACT RE-POINTS ITS LIVE CITERS IN THE SAME
+   COMMIT, OR FILES THE UNSWEPT LIST.** This lab has now recorded the same class **three
+   times** — `D408` (the paper-library move re-pointed nothing, three dead paper paths),
+   `D516` (this one), and this section's four survivors of D516's own repair. **The repeat
+   is the evidence: a move is measured for what it would destroy — `0869284e`'s subject
+   boasts of "measuring the 18 files a flat merge would destroy" — and never for what it
+   would leave pointing at nothing.** **A move is code-coupled and document-coupled; only the
+   first is ever measured.** *Recommended to the chief for Sanaa; not adopted, and this team
+   creates no gate on it — a checker that refuses is hers (D539).*
