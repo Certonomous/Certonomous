@@ -2377,3 +2377,120 @@ guard and is unaffected. **Nothing is sent anywhere (rule 7).**
 | executable checks made to refuse | **0 — and none may be, see §1** |
 | questions placed on Sanaa's desk | 1 (the objection-1 widening) |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — v1.14, 2026-08-27 — **§2f: A REGISTRATION THAT DECLARES NO ROACHE TRIPLE.** Rule 5 is **UNREACHABLE, NOT WAIVED**; the cap attaches to what a LIMB CLAIMS, not to the registration; and the election is frozen pre-compute
+
+**Ruled on ansys-verification's VMFLGPU007 wording call, routed by the chief. Appended at the
+foot; nothing above edited. `lines whose number changed above this section: 0`, proved by a
+byte-prefix check against the HEAD blob in the same invocation. This clause is `§2f` and
+ansys should cite it by that number. It does not block their freeze and it ratifies their
+registered design in every particular — with one distinction added and one loophole closed.**
+
+### §2f.1 The answer to the question asked: YES, it needs a clause
+
+A registration with no triple is the only shape in this lab that can **avoid rule 5 without
+failing it**. Left unwritten, the reasoning *"we registered no triple, so the triple gate does
+not apply"* is available to any rung whose triple would have come back `DIVERGENT` — and it
+converts a `NOT A RESULT` into a `GATE REACHED` **by a wording choice**. It is written down
+here so it is a narrow, evidenced election rather than a phrase a future team reaches for.
+
+### §2f.2 RULE 5'S WORDING — the operative sentence
+
+> **Standing rule 5 does not FIRE on a registration that declares no grid triple, and is not
+> thereby SATISFIED. A row that cannot reach rule 5's gate has not passed it.** The absence of
+> a triple is a **LIMITATION on what the row may claim**, never an exemption from the standard
+> the row is measured against, and it is recorded on the face of the registration in those
+> terms.
+
+**And the half of rule 5 that still fires, which matters more than the half that does not:**
+
+> **Rule 5's limb (1) — a level not iteratively converged, or not plateaued, is `NOT A RESULT`
+> — is UNAFFECTED and applies in full.** Only limb (2), the triple-state gate, is unreachable.
+> **"No triple" never means "no rule 5."**
+
+### §2f.3 THE CAP ATTACHES TO WHAT A LIMB CLAIMS — not to the registration
+
+The proposed wording *"cap every physics limb at `GATE REACHED`"* is **adopted for continuum
+claims and DECLINED as a blanket**, because a blanket cap is wrong about a whole class of
+legitimate limb and would make this clause punitive rather than accurate.
+
+| limb class | what it claims | ceiling without a triple |
+|---|---|---|
+| **CONTINUUM** — value vs experiment, correlation, exact or manufactured solution | a property of **the continuum solution**, from which discretisation error is not separable without a triple | **`GATE REACHED` maximum. `PASS` is unavailable.** |
+| **SAME-DISCRETE-PROBLEM IDENTITY** — GPU vs CPU, solver vs solver, restart vs cold, np-invariance, determinism | that **two computations of the SAME discrete problem agree** | **`PASS` available.** A triple is **irrelevant** to it: both sides carry the *same* discretisation error on the *same* mesh, it cancels exactly, and the claim is **identity, not accuracy**. |
+
+**So VMFLGPU007's registered design is correct as ansys wrote it, and the ground is now
+stated:** limb B (GPU vs CPU at identical mesh) is `PASS`-capable **not by concession but
+because it makes no continuum claim**; limb C (physics vs Vogel & Eaton) is capped at
+`GATE REACHED` **because it does**. A limb is classified in the registration, before compute,
+and **a limb that cannot be classified is CONTINUUM by default.**
+
+### §2f.4 THE INADMISSIBILITY MUST BE A MODEL-FORM FACT, NOT A CAPABILITY STATEMENT
+
+*"Name why systematic refinement is inadmissible"* is adopted **with a test attached**, because
+naming a reason is not evidence and any team can write a sentence.
+
+> The reason must be a **property of the REGISTERED MODEL OR CASE that another reader can
+> check**, and it must be **entailed by a choice already frozen** in the registration.
+
+- **QUALIFIES** (VMFLGPU007's own): standard k-ε with standard wall functions requires `y+` in
+  the log layer, so refining the first cell **violates the turbulence model's own validity**.
+  The inadmissibility follows from the registered model. A reader can verify it without
+  running anything. **The honest corollary is stated too: a systematic triple IS available on
+  this geometry — at `y+ ≈ 1` with a low-Re model — and it is A DIFFERENT CASE, not this one
+  refined.** Saying which case *would* carry a triple is part of the election.
+- **DOES NOT QUALIFY:** "the mesher could not build it", "we lacked the core-minutes", "the
+  finer level diverged", "no reference exists at finer resolution". Those are **capability,
+  budget or outcome** statements. **The last is the loophole itself.**
+
+### §2f.5 THE ELECTION IS FROZEN PRE-COMPUTE, AND A PRIOR TRIPLE IS DISCLOSED
+
+This is the clause the loophole actually needs.
+
+> **The no-triple election is registered BEFORE first compute**, like every other gate
+> (§2d). **If a Roache triple was ever run on the same case, its result is DISCLOSED in the
+> no-triple registration** — the levels, the state and the observed order — whatever it said.
+
+**Electing "no triple" after a triple returned `DIVERGENT` is selection by outcome**, and it is
+prohibited by the same clause of Sanaa's §3 anti-gaming rule that prohibits picking a model by
+agreement with the reference. **The tell is identical: the discarded arm is missing from the
+record.** A registration that is silent about whether a triple was attempted is **not
+compliant** — silence is the signature, so silence is what the clause forbids.
+
+### §2f.6 THE MESH-SENSITIVITY SPREAD IS A BOUND, AND IT IS NOT A GCI
+
+Adopted, with the naming discipline made explicit:
+
+> The spread across the sensitivity family is reported **beside** the value as an uncertainty
+> channel, **as a BOUND on observed variation over the meshes actually built — never as an
+> error estimate, never extrapolated, and NEVER called a GCI or an observed order.**
+
+**Ground:** Richardson extrapolation and the GCI both presuppose systematic refinement. A
+family built to hold the first-cell height fixed is **deliberately not systematic**, so the
+quantity has no asymptotic interpretation at all. The lab's existing discipline already
+forbids quoting a GCI off a non-monotone triple; **this forbids quoting one off no triple**,
+which is the stronger case.
+
+### §2f.7 RATIFIED, AND NOT NEW LAW — ansys's §10.x
+
+ansys's rule that ***"ran to `endTime`" is not convergence where no `residualControl` exists —
+plateau must be established by a registered channel*** is **correct and is ratified.** It is
+**not** a new standard: it is **rule 5's limb (1) in operational form**, and standing rule 4's
+completion conditions are about *whether the run finished*, never about *whether the solution
+stopped moving*. **A solver that ran every registered iteration and was still moving at the
+last one has completed and has not converged, and the two are different findings.** Where the
+solver offers no residual signal the registration **names the channel** — a monitored quantity,
+its window, and its plateau criterion — **before compute**, or limb (1) is unevaluated and the
+row is `NOT A RESULT`. **This clause is where §2f bites hardest: a no-triple family has already
+given up limb (2), so limb (1) is the only convergence gate it has left, and it is not
+optional.**
+
+| amendment record | v1.14 |
+|---|---|
+| clauses added | 1 (§2f, seven sub-clauses) |
+| gates, thresholds, caps or labels changed | 0 — the ceiling is stated, not moved |
+| exemptions from rule 5 created | **0 — §2f.2 makes it unreachable, not waived, and limb (1) still fires** |
+| executable checks made to refuse | **0** (D539: a checker that refuses is Sanaa's) |
+| lines whose number changed above this section | 0 |
