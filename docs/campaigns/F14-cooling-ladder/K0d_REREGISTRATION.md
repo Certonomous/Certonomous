@@ -1491,3 +1491,144 @@ Disclosed here rather than silently accepted.
 
 *Addendum written by a heat-transfer lane on the heat-transfer supervisor's
 extraction and filing rulings, 2026-08-25T21:43:04Z, before first compute. Zero core-minutes.*
+
+---
+
+# ADDENDUM 2 — 2026-08-27T20:12:13Z. **CITATION SURGERY ONLY.** Version 1.3 → 1.4.
+
+**`lines whose number changed above this section: 0`.** This addendum is appended at
+the foot; nothing above it is edited, struck, reworded or renumbered (standing rule 6).
+**The assertion was VERIFIED, not typed:** in the single shell invocation that wrote
+this addendum, the bytes of this file above this section were compared byte-for-byte
+against this path's committed blob `fb45b298eb884510b4434397abffa5fc82e75011` at `HEAD`,
+and the comparison was clean.
+
+**Scope, stated so it cannot be read wider than it is.** This addendum changes **no
+gate, no threshold, no band, no cap, no label and no instrument**. It touches **no byte
+of `scripts/mark_done_k0d.py`**, which is unchanged on disk and byte-identical to its
+`HEAD` blob. It is a **citation repair** and nothing else. It re-grades nothing and
+re-runs nothing.
+
+**Origin.** `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`), §4 and §5,
+recording a finding of the verification team's `mark_done_*` freeze sweep and ruling
+that what is owed to heat-transfer is *"a dated addendum on each marker disclosing that
+its registration moved to v1.3 and re-citing `blob:fb45b298`"*.
+
+## AD2.1 THE STALE CITATION — QUOTED AND STRUCK, NOT REWRITTEN
+
+`scripts/mark_done_k0d.py` lines 4–6 read, verbatim:
+
+    Written 2026-08-25 from the FROZEN registration and from nothing else:
+      docs/campaigns/F14-cooling-ladder/K0d_REREGISTRATION.md   (v1.1, blob 36b302f1)
+      docs/campaigns/F14-cooling-ladder/K0d_PREREGISTRATION.md  (v1.5, blob e629f5c4, superseded but adopted by citation)
+
+**~~`K0d_REREGISTRATION.md` (v1.1, blob `36b302f1`)~~ — STRUCK as the OPERATIVE
+citation, 2026-08-27.** The line is left standing in the instrument exactly as written;
+it is struck here, in this document, as a statement of which revision of this
+registration is operative. **It is not rewritten and the instrument is not edited.**
+
+**The operative registration is this document at `blob:fb45b298eb884510b4434397abffa5fc82e75011`
+— version 1.3 as it stood when this addendum was written, and 1.4 with this addendum
+appended.** `36b302f1` is confirmed as a genuine historical blob of this path
+(`commit:a2451872`).
+
+## AD2.2 WHY THE MOVE MATTERS, AND WHY THE INSTRUMENT'S BEHAVIOUR IS NOT IN QUESTION
+
+Measured in the invocation that wrote this addendum:
+`git diff --numstat 36b302f1 fb45b298` returns **564 insertions, 0 deletions**.
+*(Recorded because it differs from the source: `L342_GRADER_AUDIT.md` Addendum 8 §4
+states +565 / −0. The deletion count — the load-bearing half — agrees at zero. The
+insertion count is stated here as measured, 564, and the one-line discrepancy is
+disclosed rather than reconciled silently.)*
+
+**The delta is pure insertion, so v1.1 is a BYTE-PREFIX of v1.3.** Verified, not
+asserted: the first **51,689** bytes of `fb45b298` are byte-identical to the whole of
+`36b302f1`. **Every clause the instrument was written from survives verbatim.**
+
+**What the inserted lines decide, and why this is load-bearing rather than cosmetic.**
+The two pre-compute amendments register `writeFormat = ascii`, `writePrecision = 16` and
+`writeCompression = off`. Clause 4 of the strict completion rule looks for the
+registered fields **under their plain names**. With compression on, OpenFOAM writes `T`
+as `T.gz` and a plain field-presence check finds nothing — so a *complete* run would be
+refused. **These options are therefore a precondition of clause 4 behaving correctly,
+and they are registered only in the version this instrument did not cite.**
+
+**The condition is confirmed on the sibling rung, checked personally by the
+heat-transfer supervisor:** `K0f`'s `controlDict` carries `writeFormat ascii;` and
+`writeCompression off;`, and its `endTime` directories hold plain
+`T U alphat k nut omega p p_rgh phi` (`M1_c`) and `T U alphat epsilon k nut p p_rgh phi`
+(`M2_f`) — **plain `T`, not `T.gz`**, and the **per-closure** field tuples (`omega` on
+the `kOmegaSST` arm, `epsilon` on the `RNGkEpsilon` arm) that the K0d repair required.
+
+**RULING CARRIED, not re-taken: the instrument's BEHAVIOUR is right and only its
+CITATION was stale.** No clause was added, removed or reworded by the amendments.
+
+## AD2.3 THE MISSING CITATION — `scripts/mark_done_k0d.py`'s OWN BYTES
+
+Until this addendum, **no committed document in this repository recorded a sha for the
+bytes of `scripts/mark_done_k0d.py`.** Measured at `HEAD` over every tracked file, in
+the invocation that wrote this addendum:
+
+| search | width | hits |
+| --- | ---: | ---: |
+| sha256 prefix `47f3ab6fabe0e9d1` | 16 | 0 |
+| sha256 prefix `47f3ab6fabe0` | 12 | 0 |
+| sha256 prefix `47f3ab6f` | 8 | 0 |
+| git blob prefix `390eef28` | 8 | 1 — **not a citation**, see below |
+
+**The one blob hit is discounted, and the reason is given rather than assumed.** It is
+line 1 of `docs/campaigns/F14-cooling-ladder/K0f_DIFF_4_MARK_DONE_STATUS_REFUSAL.diff`
+(`commit:44abfa63`), a `--- a/scripts/mark_done_k0d.py  (HEAD blob 390eef28, ...)` diff
+header inside a diff pack prepared for a supervisor's read. **A diff header names the
+bytes a proposed change was computed against; it does not register an instrument.** It
+is disclosed here because a literal reading of the audit's stated search would have
+returned it.
+
+**RECORDED NOW, taken with `git hash-object` in the same shell invocation that wrote
+this line:**
+
+| instrument | git blob sha1 (full) | sha256 (full) |
+| --- | --- | --- |
+| `scripts/mark_done_k0d.py` | `390eef287df0a1e8bde28ff3884da1a1e271e39c` | `47f3ab6fabe0e9d16b94b0a94b3fdd25247989bcbfd3662921d6b2654506dcf6` |
+
+Disk and `HEAD` were confirmed identical for that path (`git diff HEAD -- <path>` empty)
+before the sha was taken.
+
+## AD2.4 ⚠ WHAT THIS CITATION DOES **NOT** ESTABLISH — the whole limitation of the repair
+
+**THIS CITATION PINS FORWARD FROM ITS DATE, AND NOTHING BEHIND IT.** Recording
+`390eef28…` today establishes which bytes stand at this instrument's `HEAD` blob on
+2026-08-27 and **nothing whatever** about the bytes that stood at any earlier moment. A
+sha recorded after the fact **cannot** reach backwards: no committed document names a
+sha for this instrument at or before any earlier firing, and a `DONE.<case>` file
+carries no instrument identity of its own.
+
+**On this rung the exposure happens to be nil, and that is a fact about the rung, not a
+property of the repair.** Measured 2026-08-27: `verification/runs/F14-cooling-ladder/K0d_runs/`
+holds **0 `DONE.*` files and 0 `STATUS.*` files** (ten case directories, no completion
+markers). **`scripts/mark_done_k0d.py` has certified nothing.** So there is nothing
+behind this pin to be unsupported.
+
+**Had it fired, those firings would have been unrecoverable.** That is stated so this
+addendum cannot be read as a demonstration that after-the-fact citation is sufficient.
+It is not. It is sufficient only where the instrument has not yet run — which is this
+case, and is not the case for the sibling repair on `T9aD_PREREGISTRATION.md`, where
+eight completions stand behind a pin that cannot reach them.
+
+## AD2.5 WHAT THIS ADDENDUM DID NOT DO — each stated explicitly
+
+- **No instrument byte changed.** `scripts/mark_done_k0d.py` is byte-identical to its
+  `HEAD` blob, before and after. Nothing was staged, edited or reverted in it.
+- **No frozen line above was edited.** Byte-prefix verified against the `HEAD` blob.
+- **No gate, threshold, band, cap, label or cost basis moved**, and none could: this
+  addendum adds no test and computes no number a verdict depends on.
+- **No re-grade and no re-run**, exactly as `L342_GRADER_AUDIT.md` Addendum 8 §4 ruled.
+- **NOTHING WAS LAUNCHED.** No case directory, no mesh, no solver, no pid, no queue
+  entry. **Zero core-minutes.**
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**.
+- **No permission setting, `CLAUDE.md` or `.claude/` configuration was touched**
+  (standing rule 9). No agent message was treated as Sanaa's consent.
+
+*Addendum written by a heat-transfer lane on the heat-transfer supervisor's citation-repair
+brief, from `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §4 and §5,
+2026-08-27T20:12:13Z. Zero core-minutes.*
