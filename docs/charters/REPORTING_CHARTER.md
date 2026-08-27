@@ -637,3 +637,81 @@ setting, is what keeps the screen clean.
 | standing conventions added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+## Amendment record, continued: headline metrics in the opening block (2026-08-27)
+
+**Dated addendum, 2026-08-27, appended at the foot; append-only. One reporting
+requirement added on the owner's directive. No clause above is altered, widened
+or narrowed; no line above this section changed number; the header's version
+line is deliberately left untouched, because this addendum inserts nothing and
+edits nothing above itself.**
+
+**§1 — Sanaa's text. This is the authority.** From her standing directives of
+2026-08-27T16:54Z, captured verbatim at
+`etc/sessions/2026-08-27T1654Z_sanaa_standing_directives.md`, §2:
+
+> Headline metrics every report: CPU %, GPU %, queue depth per team,
+> idle-minutes per resource.
+
+**§2 — operationalisation. `[lab-attributed]`, and overrulable without touching
+§1. Where §2 appears to add a requirement §1 does not state, §1 governs.**
+
+**Where the metrics go, and why not where a reader might first put them.** They
+go **in the opening block**, beside `Date`, `Assembled`, `Sections` and
+`Missing` — **not as a seventh heading.** §2 rule 2 is explicit that nothing is
+added at the top level, and the six headings are hers. Metrics are a property of
+the morning the report describes, not a seventh thing the report is about, so
+the opening block is their home. The block becomes:
+
+    CERTONOMOUS MORNING REPORT
+    Date:       YYYY-MM-DD
+    Assembled:  <UTC timestamp>
+    Sections:   N of 6
+    Missing:    none / <section numbers>
+    CPU:        <pct> %
+    GPU:        <pct> % / no GPU attached
+    Queue:      <team>=<core-h> ... (one token per team, all six named)
+    Idle:       <resource>=<minutes> ... (one token per resource)
+
+**Four clauses, and each names the failure it catches.**
+
+1. **A metric that was not measured says so, and never prints a number.** These
+   four lines are subject to §10 exactly as every other figure in the report is:
+   a value carries how it was obtained. A CPU % taken from another agent's relay
+   rather than from this box is marked `VERIFY`, not printed bare.
+2. **`GPU: 0 %` IS A FALSE ZERO AND IS BANNED.** No GPU is attached to this box;
+   a GPU is a separate instance launched per run. When no instance exists there
+   is nothing to measure, and the honest token is **`no GPU attached`**. A `0 %`
+   in that state is a reader-visible claim that a GPU was observed idle, which
+   is a different fact from no GPU existing — the standing-rule-3 doctrine
+   (a zero from a reader not shown able to see a non-zero is not evidence)
+   applied to a metric rather than to a comparator. The same holds for
+   `Idle:` — a resource that does not exist has no idle minutes.
+3. **`Queue:` names all six teams, including the ones at zero.** A queue depth
+   omitted is indistinguishable from a queue depth of zero, and the two are the
+   opposite of each other: zero with a live runner is a starved queue and a
+   planning defect under her FREEZE-AHEAD ≥ 3; omitted means nobody looked.
+   A team that owns no compute resource prints `n/a`, not `0`.
+4. **Idle minutes are a measurement, and the cost derived from them is
+   derived.** Idle-minutes come from the runner's own record. Any dollar figure
+   attached is labelled **derived, not measured** — the box cannot read its own
+   billing (`COMPUTE_BUDGET_CHARTER.md` §5), and `CLAUDE.md` rule 12 fixes the
+   rate as owner-stated.
+
+**§3 — the scope limit, stated rather than left as a silent half-measure.**
+Her directive says *every report*. **This charter governs the morning report,
+and that is all this amendment can reach.** The other report shape in daily use
+is the supervisor-to-chief report, whose five fixed headings live in
+`.claude/agents/*.md` — **generated** from `harness/teams.yaml` by
+`harness/generate_agents.py`. Landing her metrics there is a `.claude/`
+configuration change, and **`CLAUDE.md` rule 9 is that no agent makes such a
+change on another agent's say-so.** It is therefore **on Sanaa's desk**, named
+here so the gap is visible: **until she rules, supervisor reports carry the
+metrics as content under their existing headings, and the generated
+definitions are not edited.**
+
+| what the amendment did | figure |
+| --- | --- |
+| reporting requirements added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| lines whose number changed above this section | 0 |
