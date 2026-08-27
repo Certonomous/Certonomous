@@ -2223,6 +2223,84 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### SIXTEENTH SESSION — THE QUEUE IS EMPTY AND ALL TEN ENTRIES RAN; TWO DIED ON NAME/CONSTANT DEFECTS AT 0.733 CORE-MIN TOTAL; AND "COMMIT EVERYTHING" WOULD DELETE 2,050 LINES OF LANDED RECORDS LAB-WIDE
+
+**Section block written:** 2026-08-27T16:3xZ (`date -u` at write) by dafoam-supervisor (SIXTEENTH session, formed ~16:16Z after the fifth fleet kill ~23:00Z 08-26). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words in force: `bc0e687e`, `d4d0c29d`/L-342, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`, `068c2bf0`, `e477f0e4`; silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7).
+
+#### 1. THE RUNNER DID ITS JOB AND THE QUEUE IS NOW EMPTY — that is this session's deficit, and it is the whole lab's, not dafoam's
+
+All **ten** drop-path entries frozen last night were launched by the daemon with **no agent alive**, between 2026-08-26T23:19:58Z and 2026-08-27T13:58:49Z (`verification/queue/LAUNCH_LOG.tsv`, rows read by me). `verification/queue/dafoam/` now holds **no top-level `*.json`**: 23 entries in `launched/`, 6 in `held/`. `runner.log` has read `EMPTY: no entries in any team queue; nothing launched` every minute since ~15:00Z — **the whole lab queue is empty, not only dafoam's**; runner pid 502797 alive and healthy with nothing to launch. Under `3c3ef86c` this is the reportable failure: the box is 88 % busy on runs already in flight, and when they end nothing follows. **Drop path at this write: 0 entries / 0.0 core-min / 0.0 core-hours.** Refill is lane B's top task and outranks its triage work.
+
+**Correction upward, on the record:** the chief's brief described dafoam as having "**6 held** entries" and asked what holds them — ranks against the 0.9×16 ceiling, a memory floor, or the aggregate cap. **None of the three.** `verification/queue/dafoam/held/` is the **supersede archive**, a subdirectory deliberately outside the runner's glob (`list_entries` globs top-level `*.json` only), and `held/README.md` marks every one of the six SUPERSEDED by a successor that was itself launched: `D12R_phase3/4` and `W2R_phase2` by the W3 path, `D6_chain.json` and `D6_chain_wait.e43bdf61.json` by the Addendum-3 re-file, `D8R_chain.357a2648.json` by the wait-wrapper form. Nothing is held for a resource reason. Lane B confirms or refutes from the README's own words.
+
+**Correction upward, second:** the chief's brief carried "dafoam Correction 1 to `docs/capability/dafoam_GRID.md` UNCOMMITTED on disk at the kill". Stale — `git status` reports the file clean; Correction 1 landed at `72e08fe8` (by my predecessor, on the chief's order) and Correction 1a at `bd8ffcd8`. Lane C verifies and reports whether a further dated Correction is owed for the D17 line, which went one step stale when D17 froze at `2d8796e3`.
+
+#### 2. THE FOUR 23-HOUR WAIT LOOPS ARE NOT A STALLED PIPELINE — they are a registered no-launch close, and two of them close within the hour
+
+The chief asked whether pids 251172/251492 (`dafoam_wait_then_launch.sh`) and 290211/290739 (`d12y_plan_step.sh`) are "waiting for headroom that never comes, i.e. whether the dafoam pipeline is effectively stalled behind its own held entries". **They are not waiting for headroom at all.** They wait on `step_plan2.json` / `step_plan3.json`, artefacts that **W2R's registered no-launch branch will never write** — because W2R phase 1 graded `NOT A RESULT` on `G12R-4` (no admissible FD step at W = 900; P3 HIT, the registered primary prediction). Their registered close is `rc=6 BLOCKED` at their bounds: **2026-08-27T17:16:42Z, 17:29:42Z, and 2026-08-28T05:17:47Z, 05:30:47Z** — the first two land within the hour of this write. At 16:24:57Z the phase-3 wrapper stood at `waited_s=83280` of 86,400. They hold **no cores and 0 core-min**, they gate nothing, and the standing ruling (UPDATE V2, from Addendum 3 A3.3's own text) is **LEAVE THEM, do not kill** — that ruling stands. **They are correctly NOT counted as queued compute, and never were.** The chief's premise is right in general — *a wait loop that never launches is not queued compute* — and does not apply to these four.
+
+#### 3. CRASH TRIAGE, MINE (SUPERVISION §3 check 2) — TWO ENTRIES DIED, TOTAL WASTE 0.733 CORE-MIN, AND ONE OF THEM VALIDATED A REPAIR
+
+**(a) `D5_chain_r3` — `launcher_rc=127` is an INFRASTRUCTURE record and it hid a bought arm.** `launcher_rc` is the exit of the launch argv, not the chain (the STATUS files say so; L-342 field classes). From `<D5 root>/ledger.txt` and `STATUS.chain`:
+- **ACC48 `rc=0`**, 13:38:12→13:47:09Z, wall_s 537, 4 ranks, **35.8 core-min** against cap 60.0, `inspect [0 false]`, delivered cores 3.9889. **BOUGHT.**
+- **F48 `rc=127`**, wall_s 11, **0.733 core-min**, `inspect [127 false]`; chain `STOPPED_AT_FIRST_NONZERO arm=F48`.
+- `CHAIN_DONE` written 13:48:25Z by the r3 driver's EXIT trap — **registered behaviour** (D5 Addendum 3 A3.5: the trap fires on every exit of a *started* chain; a pre-chain abort writes none). **This is what released D6's wait-wrapper at 13:49:03Z, and D6 is not contaminated** — the marker is a serialisation token for the 30.6 GiB aggregate ceiling, not a data dependency.
+
+**The finding worth more than the failure: D5 ADDENDUM 3's CAP REPAIR IS VALIDATED BY MEASUREMENT.** ACC48 died at `rc=124` / 10.8 core-min under the old 10.0 cap (`D5-PREREG-DEF-1`, triaged by my predecessor). Addendum 3 re-registered the cap at 60.0 with prediction 40.0, band [35, 60]. The re-fire landed at **35.8 core-min — inside the registered band, at its lower edge.** A pre-registered prediction HIT on a repair; its own row in `docs/COST_CALIBRATION.md` is due.
+
+**The F48 defect.** Container log, last line: `bash: /mnt/F48/d5_cmd.sh: No such file or directory` — while the host launcher had just written that file and printed its md5 (`D4S_CMDFILE arm=F48 md5=4d1276845bb3a20bb2ba31f335c1094f`). `<D5 root>/F48/` is now EMPTY. In `d5_run_arm.sh`, the cold-stage block at `:281-283` is guarded by `if [ "${ARM:0:1}" != "F" ]`, so **F arms are never staged and `$WORK=$BASE/F48` is not created by the launcher**; `:320` then writes `CMDFILE="$WORK/d5_cmd.sh"`, and `:398`/`:403` mount `-v "$BASE":/mnt -w "/mnt/$ARM"` and run `bash /mnt/$ARM/d5_cmd.sh`. **I have NOT established the mechanism by which the file vanished between host write and container read and I am not guessing it** — reserved as `D5-LAUNCHER-DEF-1`, lane B establishes it from disk. Named as undischarged: the sibling `av1_X2-P_20260827T134811Z_788560` was live at that instant per the ledger and has not been ruled out.
+
+**RULING `[lab-attributed]`:** ACC48 is bought and graded on its artefacts; F48's 0.733 core-min is WASTE on its own C-row; the repair is **D5 Addendum 4** correcting the staging/path defect ONLY — no gate, threshold, cap, band, label, cpuset or cost moves, original struck not rewritten, `lines whose number changed above this section: 0` — then `D5_chain_r4` re-files with **F48 O192 ACC192 F192** (ACC48 omitted: the driver's `ALREADY_BOUGHT` guard refuses any arm with an `rc=0` row, so listing it would stop the chain at zero compute). Launcher diff comes to me as a diff before its output is believed.
+
+**(b) `W3_chain` — refused at ZERO compute by a control that earned its keep.** `W3_phase1.out` contains exactly one line: `ABORT: CAP_CORE_MIN is 600.0, the pre-registration names 900.0`. The **cap-agreement control fired before any container started**. `W3_PREREGISTRATION.md` (frozen `eb1eb97d`) registers `CAP_CORE_MIN 900`; the driver carries the stale draft's 600.0. Named **`W3-LAUNCHER-DEF-1`**. **0 core-min.**
+
+**RULING `[lab-attributed]`:** the frozen document governs its instrument (this family's standing ruling, FIFTEENTH-session UPDATE H). The repair moves the **launcher's** constant to 900.0 to agree with the freeze; **the registered cap does not move, because 900 is already what is registered** — no gate, threshold, band or label changes. W3 has spent zero compute, so a §2b pre-compute amendment is legal **and must state the condition and how it was checked** — naming the run root and showing the `test -e` that says it is absent. A cap-agreement leg joins the driver's selftest, driven with a planted disagreement shown to FAIL, so the class cannot recur silently. Then `W3_chain` re-files.
+
+Together these two return **1,376.7 core-min = 22.9 core-hours** of already-registered, already-costed work to the drop path — the cheapest large refill in the family.
+
+*Worth naming beside (b): the cap-agreement control is a lab-wide pattern — cfd's F25 Amendment 1 boards the same preflight (`CAP AGREES 2000`, `bbbcdf71`). Here it caught a 600-vs-900 mismatch before 563 core-min were spent. It is cheap and it works.*
+
+#### 4. ⚠⚠⚠ "COMMIT EVERYTHING" WOULD DELETE 2,050 LINES OF LANDED RECORDS ACROSS FIVE TEAMS — INCLUDING 373 LINES OF A CHARTER. I REFUSED IT FOR DAFOAM AND I AM SENDING IT UP.
+
+I was ordered to "land the uncommitted dafoam work as the lanes left it", on the premise that lanes died mid-commit. **The premise is false.** Every one of the nine dafoam files `git status` calls modified is modified **in the reverting direction** — the disk copy is a stale old copy with strictly fewer lines than HEAD, with mtimes of **2026-08-21 to 2026-08-24**, days older than the commits that put the content at HEAD. They are not unfinished edits; they are worktree copies that drifted behind while lanes committed through the private-index protocol, which builds its tree from `read-tree HEAD` plus explicit paths and **never writes the worktree**.
+
+Classified the whole tree myself (`git diff --numstat` on every modified path, each labelled stale-reverting / pure-add / mixed):
+
+| team directory | stale-reverting files | lines that exist ONLY at HEAD |
+|---|---|---|
+| `cases/dafoam` + `docs/dafoam` | 8 (+ README mixed) | **951** |
+| `cases/ansys_verification` + `docs/ansys_verification` + **`docs/charters/ANSYS_VERIFICATION_CHARTER.md`** | 7 | **700** — of which **373 are the charter itself** (disk 289 lines, HEAD 662) |
+| `cases/RANS_LES_closure_models` | 1 | 164 |
+| lab-wide docs (`FAIL_OPEN_GATE_AUDIT.md` 150, `WORKFLOW_PROMPT_AND_STL.md` 71, `standards/MESH_STANDARD.md` 14) | 3 | 235 |
+| **TOTAL** | **19** | **2,050** |
+
+Concretely, for dafoam: committing `docs/dafoam/README.md` as it stands deletes **the two D7FR rows recording item verdict `PASS`** (SHIPPED 5/5 worst 1.959 %, PATCHED 5/5 worst 1.959 %, divergence 0.000 % on every component) and restores the superseded line claiming no patched arm ever ran on A3; `LADDER_A_STATUS.md` loses 166 lines including addendum rows 38/38b; `W4_O2_REBUY_RESULTS.md` loses 248. Two of the nine — `curriculum_D1/PREREGISTRATION.md` and `curriculum_D7FR/PREREGISTRATION.md`, −91 each — are **FROZEN pre-registrations**, so the commit would silently rewrite frozen documents (rule 6).
+
+This is exactly the hazard CLAUDE.md rule 10 names and prices: *"stale in the reverting direction (measured: would have reverted 402 lines across six files)."* The measured figure is now **2,050 lines across nineteen**.
+
+**RULING `[lab-attributed]`, dafoam only:** **none of the nine is committed.** HEAD is the authority for all nine; the worktree is brought forward to HEAD by a plain file write (`git show HEAD:<path> > <path>`) — **never `git checkout --`, `git restore`, `reset --hard`, `stash` or `clean`**, all forbidden by rule 10 — after per-file verification that the disk copy contains nothing HEAD lacks; a file stale in one hunk and novel in another is a merge and stays my call. **I have not touched, and will not touch, another family's files: measured only, reported upward.** Independently corroborated — the verification-supervisor's own block, written to disk at 16:27:12Z, flags the same hazard for ansys-verification and the chief from its own inspection.
+
+**On Sanaa's order `e477f0e4` ("EVERYBODY commits everything before we run out of credits"):** the order is obeyed in substance — everything *new* lands. But "commit everything" executed literally against this worktree destroys 2,050 lines of already-committed verdicts, which is the opposite of what the order is for. The distinction is the direction of the diff, and it must reach every team before the next one commits.
+
+#### 5. LANES LIVE (2 of 3 — the third is refused by a LAB-WIDE cap, not by permission)
+
+| lane | task |
+|---|---|
+| **A** | grade the five landed rungs: AV-1 (np-invariance), AV-2 (forward-vs-reverse duality), D15 (M 0.288), D16 (M 0.685), D17 (M 1.958 wedge, `DAHisaFoam` — a solver class never run here) — two-row tables, item verdicts, P-predictions HIT/MISS, C-rows |
+| **B** | the two triages above → D5 Addendum 4 + `D5_chain_r4`, W3 launcher repair + re-file; **REFILL THE DROP PATH** (top priority); `held/` reading; propose the cheapest empty grid cells |
+| **C** | **QUEUED, NOT DISPATCHED** — worktree repair for the nine, the untracked triage, grid verification, lab-wide drift counts |
+
+**Lane C could not be spawned: `Concurrent subagent limit reached. You can run 20 subagents at once.`** That is a **lab-wide** ceiling across all six teams, not dafoam's §8 cap of 3 — dafoam is at 2 of its own 3. Recorded as a system event, not routed around; reported to the chief. Consequence: the worktree-repair work waits, and the stale files stay untouched (which is the safe state).
+
+#### 6. RUNGS WITHOUT VERDICTS
+AV-1, AV-2, D15, D16, D17 (all ran, all ungraded — lane A). D4S-F3S (`launcher_rc=0` 14:09:21Z, ungraded). D5 r3 (ACC48 bought, ungraded; F48 waste). D6 (**LIVE**, `d6_run_arm.sh O_mp` since 14:09Z). D8R (waiting on D6's `CHAIN_DONE`, 0 core-min, bound 2026-08-29T01:58Z). W3 (0 core-min, refused). D7FR is **done**: item `PASS` at `2a93ff27`, no re-grade owed.
+
+#### 7. ON SANAA'S DESK
+Nothing new from me. R2 of the twelfth session (reporting-cap vs rule 12) and the five `NOT FILED` upstream defect drafts unchanged — **filing is Sanaa's alone and none has been filed anywhere.**
+
+#### 8. BLOCKED
+Lane C, by the lab-wide 20-subagent ceiling. (**VERIFY**: the F48 vanishing mechanism; whether `d4s_grade_L342_selftest_evidence.txt` (+10 −2) is genuinely new or partly stale; D6's live arm state — I have not read its container, and `docker` is permission-denied from my own context.)
+
 ### FIFTEENTH SESSION — FOURTH FLEET KILL (~21:30Z); THE RUNNER AND EVERY DAFOAM ENTRY SURVIVED IT; D4-SHIPPED F3 r2 DIED AT 41 s ON A STAGING DEFECT; THREE LANES RE-SPAWNED, QUEUE FIRST
 
 **Section block written:** 2026-08-26T22:1xZ (`date -u` at write) by dafoam-supervisor (FIFTEENTH session, formed ~22:00Z after the fourth fleet kill at ~21:30Z; Sanaa: "all teams continue their work"). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Lane UPDATE blocks of this session are spliced at the END of the fourteenth-session span (immediately before `### THIRTEENTH SESSION`), as UPDATE Q-A/N were — disclosed. Standing words in force: `bc0e687e`, `d4d0c29d`/L-342, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`, `068c2bf0`; silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7).
