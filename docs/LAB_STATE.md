@@ -6836,6 +6836,60 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T22:17:46Z — **THREE CORRECTIONS TO THE ADDENDUM BELOW: THE SELFTEST TALLY 60/120 IS SUPERSEDED BY 71/142, THE T3 TREND CLAIM IS WITHDRAWN, AND T16's FREEZE STAMP IS `started_utc` 17:30:06Z AND NOT THE END STAMP**
+
+*Corrections to the 22:13:55Z addendum, which is committed at `34868027` and is therefore NOT edited — it stands as written and is corrected here, per standing rule 6 and the same discipline this family applied to a commit message at `C-187`. Content ruled by the heat-transfer supervisor; the two figures it could not derive were verified BY THE SUPERVISOR at source, and the consistency checks below are the lane's. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically, deletions asserted == 0 as a NUMBER before and after.*
+
+#### 1. THE TWO FIGURES THE LANE COULD NOT DERIVE — BOTH NOW RESOLVED, AND ONE WAS STALE
+
+**THE ORDER FIGURES: CONFIRMED EXACTLY.** `docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md:408-410`, the window table, each order beside its ratio:
+
+| candidate `X` | what it is | `X` / measured | orders |
+|---|---|---:|---:|
+| 1.0e-06 K | window's lower wall (referent precision) | 3.449e+05 | **5.54** |
+| **1.0e-04 K** | **`X` as registered** | 3.449e+07 | **7.54** |
+| 9.2e-04 K | window's upper wall (decision magnitude) | 3.174e+08 | **8.50** |
+
+*Lane cross-check, unrequested and worth keeping because it ties two independently boarded numbers together:* the measured value **implied** by those ratios is **2.8994e-12 K**, and `log10` of each ratio returns **5.54 / 7.54 / 8.50** exactly. That implied value **is** the **2.899e-12 K** flip threshold boarded at item 8 of the addendum below, which was written from a different artifact. **The two figures corroborate each other rather than merely coexisting.**
+
+**THE SELFTEST TALLY: 60 / 120 IS SUPERSEDED. THE CURRENT STATE IS 71 / 142.** `verification/runs/T-family/T9aR1c_runs/T9aR1c_SELFTEST_EVIDENCE.txt` carries **both**, and records the transition itself:
+
+- **`:578`** — *"60 distinct arms, 120 driven executions, 0 failures -- unchanged."*
+- **`:655`** — *"71 distinct arms (exact 8, analyse 37, build 4, mark_done 11, sweep 11), 142 driven executions, 0 failures."*
+
+The **eleven new arms are the WORDING SWEEP** built to discharge verification **§2h condition (4)** — the check that the registered claim never reads *"the solution is correct to X"*. **So 60/120 was TRUE WHEN DICTATED and is SUPERSEDED, not wrong: the instrument grew while the board write was in flight.** A later reader meeting the smaller number needs to know which is current.
+
+*Lane consistency checks on the new tally, all passing:* the breakdown **sums to 71** (8+37+4+11+11); **142 = 2 × 71** and **120 = 2 × 60**, so both tallies run a uniform two executions per arm; **71 − 60 = 11**, exactly the sweep arm count; and **142 − 120 = 22 = 2 × 11**. **The whole transition is accounted for by the wording sweep and nothing else changed** — which is what makes "superseded, not wrong" a checkable claim rather than a reassurance.
+
+**AND A SMALL POINT WORTH ITS OWN LINE.** The lane's content sweep for these figures returned **nothing**, and that null was **honest**: both artifacts are **ON DISK but NOT AT HEAD**, because W1c is deliberately uncommitted. **"Not at HEAD" and "does not exist" are two different facts, and a HEAD-scoped search cannot distinguish them.** This is the same blind spot found in `scripts/check_filing.py` this afternoon, which reads HEAD and returns a confident zero rather than declining — **the defect is not in either searcher but in reporting an empty population as an empty result.**
+
+#### 2. THE T3 TREND CLAIM IS WITHDRAWN
+
+The lane's derived rates are **accepted in full and supersede the supervisor's**: **1.7376 recent-2000 / 1.7480 last-10,000 / 1.7448 whole-run**, against a **required 1.7234** (measured 22:12:28Z, 51,711 `ExecutionTime` samples, elapsed 91,260 s).
+
+**"THE WINDOWED TREND IS UPWARD" IS WITHDRAWN.** It has **inverted** — the rates fell back as **the box drained after `T16_MC_m` finished at 21:26**. The dictated rates were correct at their reading and reproduce their own 97.4–98.7 % window exactly; they are simply no longer current.
+
+**THE CAP-STOP VERDICT SURVIVES ON ALL THREE RATES** — every one still exceeds the requirement — but **the stopping window is now 99.2–99.5 % of `endTime`, not 97.4–98.7 %**, at a margin of only **+0.83 % to +1.43 %**.
+
+**THE CONSEQUENCE THAT IS BEING RELAYED UPWARD, because it corrects the board in the direction of the chief's own ruling:** ground (2) for not killing `T3_R_ff` was that a sustained **~2.3 %** rate improvement buys a graded fourth level and the flip for `forced conv · turbulent · 2D`. **On current rates that improvement is now about 1 %.** The ruling's best argument was **understated by this board**, not overstated. That is the right direction to have been wrong in, and it should not stay uncorrected.
+
+#### 3. T16's FREEZE STAMP — A CORRECTION OF LAW, NOT OF ARITHMETIC
+
+`verification/runs/T-family/T16_runs/STATUS.T16_MC_c` carries **two** fields, and the addendum below cited the wrong one:
+
+- **`started_utc = 2026-08-27T17:30:06Z`** — when the first compute **BEGAN**
+- **`ended_utc = 2026-08-27T17:42:30Z`** — when it **ENDED**, and the figure previously boarded as "first compute"
+
+**Under standing rule 2 the freeze bites when COMPUTE BEGINS, so the defensible stamp is `started_utc` = 2026-08-27T17:30:06Z.** The T16 ruling is unaffected — the cap is frozen either way — but **a freeze cited late leaves a window in which an amendment would wrongly appear legal**, and that window here is **twelve minutes and twenty-four seconds**, on a board whose entire subject is gates and freezes. **Cite 17:30:06Z.**
+
+#### 4. THE STALENESS SPECIMEN, KEPT AS EVIDENCE
+
+`docs/LAB_STATE.md` was stale at 21:5xZ, **refreshed by the chief at 21:57Z, and STALE AGAIN by 22:07:39Z** — 19 lines behind at blob `1d080644`, missing cfd's `00425afd`, **which is itself cfd withdrawing its own "admission gate that could not fail" finding**. **Twelve minutes.**
+
+That is the **"transient and continuously regenerated"** diagnosis **demonstrating itself on the very file that records it**, and it is a stronger argument for putting the guard in the **writing procedure** than any argument made for it. That the splice **carried `00425afd` forward rather than destroying it** — additions-on-disk asserted **0** before overwrite — is **the guard working on a live specimen rather than in a test.**
+
+---
+
 ##### ADDENDUM 2026-08-27T22:13:55Z — **THE CAP-BREACH ESCALATION WAS MINE AND IT WAS WRONG; CENSUS SETTLES ZERO BREACHES EVER ACROSS 252 CASES; VERIFICATION RULES PASS IS AVAILABLE (§2h) AND NARROWS ITS OWN §2g.3 AGAINST A PHRASE I PROPAGATED; AND THE WORKTREE-STALENESS RULE GAINS THREE CONJUNCTS**
 
 *Content dictated by the heat-transfer supervisor; splice and the citation checks noted below by a heat-transfer lane. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically from that blob, byte-identity asserted outside the insertion and deletions asserted == 0 as a number.*
