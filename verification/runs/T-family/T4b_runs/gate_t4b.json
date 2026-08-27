@@ -1,0 +1,392 @@
+{
+  "rung": "T4b",
+  "STAGNANT_FLOOR": 0.5,
+  "P_MIN": 0.05,
+  "floors_source": "scripts/roache_triple.py (MESH_STANDARD.md section 10.5)",
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "provenance": {
+    "analyse_t4.py (frozen, imported)": "9842dbc8146d4f156cd7fc343117b383139097989463139f884dd14769d777ad",
+    "analyse_t4b.py": "06674874d025c11b0a4482b331e7f4d11db8fb97a0544940d3403a68ff351e41",
+    "T4b_registered.json": "a4eb13e7eca5435f70d2783e417ee645d5fbe6c30d4a7395f7d62b32a3e3de01"
+  },
+  "planted_controls": {
+    "G_reader": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "planted_line": 43685,
+      "planted_cell": 43661,
+      "aim_distance_m": 7.010890912516193e-05,
+      "station_r_over_D": 1.0,
+      "recovered_max_abs_change": 3.204089850217251e-05,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-06,
+      "ladder": {
+        "1": 0.025965137470770783,
+        "0.1": 0.0025965078775347372,
+        "0.01": 0.0002596507259462477,
+        "0.001234": 3.204089850217251e-05,
+        "0.0001": 2.596503077878509e-06,
+        "1e-05": 2.59647409350805e-07,
+        "1e-06": 2.5962422434133714e-08
+      }
+    },
+    "yplus_reader": {
+      "status": "PASS",
+      "blind": {
+        "plate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "pipeWall": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "seeing": {
+        "plate": [
+          0.1631616959027,
+          0.6893298117131,
+          0.5560722728458
+        ],
+        "pipeWall": [
+          0.3852279479014,
+          0.397906805164,
+          0.3885352405474
+        ]
+      },
+      "planted_ratio": {
+        "plate": 1.9999999999997098,
+        "pipeWall": 2.0
+      },
+      "expected_ratio": 2.0,
+      "cells_scaled": 6048
+    },
+    "exit_reader": {
+      "status": "PASS",
+      "base": 1.1745592217160346,
+      "base_r_of_max": 1e-06,
+      "planted_line": 5208,
+      "planted_cell": 5184,
+      "aim_distance_m": 0.0014784504550412615,
+      "recovered": 4.603638840561253e-05,
+      "recovered_in_C2_scalar": 4.603638840561253e-05,
+      "demonstrated_detection_floor": 1e-06,
+      "ladder": {
+        "1": 0.03730663654492461,
+        "0.1": 0.0037306636521736714,
+        "0.01": 0.0003730663652172783,
+        "0.001234": 4.603638840561253e-05,
+        "0.0001": 3.73066666670141e-06,
+        "1e-05": 3.73066666670141e-07,
+        "1e-06": 3.7304347833000406e-08
+      },
+      "ladder_C2_scalar": {
+        "1": 0.03730663654492461,
+        "0.1": 0.0037306636521736714,
+        "0.01": 0.0003730663652172783,
+        "0.001234": 4.603638840561253e-05,
+        "0.0001": 3.73066666670141e-06,
+        "1e-05": 3.73066666670141e-07,
+        "1e-06": 3.7304347833000406e-08
+      }
+    },
+    "flux_reader": {
+      "status": "PASS",
+      "base": {
+        "inlet": -7.531512515608e-05,
+        "entrainment": -0.0001977601661317,
+        "farfield": 0.000273075294509,
+        "plate": 0.0,
+        "pipeWall": 0.0
+      },
+      "base_imbalance": 4.2769894748163256e-08,
+      "planted_imbalance": 0.009900947752568966,
+      "expected_imbalance": 0.009900947752579466,
+      "faces_scaled": 36
+    }
+  },
+  "levels": {
+    "c": {
+      "time": "20000",
+      "yplus": {
+        "plate": [
+          0.1631616959027,
+          0.6893298117131,
+          0.5560722728458
+        ],
+        "pipeWall": [
+          0.3852279479014,
+          0.397906805164,
+          0.3885352405474
+        ]
+      },
+      "Uc_over_Ubulk": 1.1745592217160346,
+      "flux": {
+        "inlet": -7.531512515608e-05,
+        "entrainment": -0.0001977601661317,
+        "farfield": 0.000273075294509,
+        "plate": 0.0,
+        "pipeWall": 0.0
+      },
+      "imbalance": 4.2769894748163256e-08,
+      "residual": {
+        "c6_1": false,
+        "c6_2": true,
+        "floor_max": 2.12051478315e-06,
+        "grow_ratio": 0.9999995280433494,
+        "n": 40000,
+        "reached_endTime": true
+      },
+      "field_change": 1.185952447357863e-09,
+      "checkpoints": [
+        "18000",
+        "20000"
+      ],
+      "C1": true,
+      "C1b": true,
+      "C2": false,
+      "C3": true,
+      "C6_1": false,
+      "C6_2": true,
+      "C6_3": true
+    },
+    "m": {
+      "time": "30000",
+      "yplus": {
+        "plate": [
+          0.06901690982858,
+          0.3490068927095,
+          0.2824590796269
+        ],
+        "pipeWall": [
+          0.1929338021077,
+          0.2017155296756,
+          0.195681724239
+        ]
+      },
+      "Uc_over_Ubulk": 1.1909008213102639,
+      "flux": {
+        "inlet": -7.531512382734e-05,
+        "entrainment": -0.0001955894313901,
+        "farfield": 0.0002709045552446,
+        "plate": 0.0,
+        "pipeWall": 0.0
+      },
+      "imbalance": 3.6061827199567274e-10,
+      "residual": {
+        "c6_1": true,
+        "c6_2": false,
+        "floor_max": 1.32946795244e-07,
+        "grow_ratio": 1.1366311612255406,
+        "n": 60000,
+        "reached_endTime": true
+      },
+      "field_change": 0.00028482186268674603,
+      "checkpoints": [
+        "27000",
+        "30000"
+      ],
+      "C1": true,
+      "C1b": true,
+      "C2": true,
+      "C3": true,
+      "C6_1": true,
+      "C6_2": false,
+      "C6_3": false
+    },
+    "f": {
+      "time": "40000",
+      "yplus": {
+        "plate": [
+          0.02787736706171,
+          0.1758048442399,
+          0.1426666812753
+        ],
+        "pipeWall": [
+          0.09628926356368,
+          0.1019807439801,
+          0.09814278257578
+        ]
+      },
+      "Uc_over_Ubulk": 1.2021461114899916,
+      "flux": {
+        "inlet": -7.531512277046e-05,
+        "entrainment": -0.000196485945187,
+        "farfield": 0.0002718010670578,
+        "plate": 0.0,
+        "pipeWall": 0.0
+      },
+      "imbalance": 1.1945276573084358e-08,
+      "residual": {
+        "c6_1": true,
+        "c6_2": true,
+        "floor_max": 3.20110962799e-08,
+        "grow_ratio": 1.005230332199123,
+        "n": 80000,
+        "reached_endTime": true
+      },
+      "field_change": 0.0008170032333622013,
+      "checkpoints": [
+        "36000",
+        "40000"
+      ],
+      "C1": true,
+      "C1b": true,
+      "C2": true,
+      "C3": true,
+      "C6_1": true,
+      "C6_2": true,
+      "C6_3": false
+    }
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "r_over_D": 1.0,
+      "reference": 1.089,
+      "band": [
+        1.069,
+        1.109
+      ],
+      "value_fine": 1.0846749719117184,
+      "triple": {
+        "c": 1.0780892735004532,
+        "m": 1.0828780000570253,
+        "f": 1.0846749719117184
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.4140742452625983,
+      "gci": null,
+      "verdict": "NOT A RESULT",
+      "note": "gate (1): level c: C2 U_c/U_bulk 1.1746 outside +-3% of 1.2245; level c: C6.1 p_rgh max over last 2000 its = 2.12051478315e-06 > 1e-06; level m: C6.2 growth ratio 1.1366311612255406 > 1.05; level m: C6.3 field change 0.00028482186268674603 > 0.0002; level f: C6.3 field change 0.0008170032333622013 > 0.0002",
+      "deviation": -0.004325028088281613,
+      "band_utilisation": 0.21625140441408064
+    },
+    {
+      "row": "G2",
+      "r_over_D": 2.0,
+      "reference": 0.7888,
+      "band": [
+        0.7687999999999999,
+        0.8088
+      ],
+      "value_fine": 0.811950865163776,
+      "triple": {
+        "c": 0.827556936680091,
+        "m": 0.81796957585291,
+        "f": 0.811950865163776
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 0.6716792600953083,
+      "gci": null,
+      "verdict": "NOT A RESULT",
+      "note": "gate (1): level c: C2 U_c/U_bulk 1.1746 outside +-3% of 1.2245; level c: C6.1 p_rgh max over last 2000 its = 2.12051478315e-06 > 1e-06; level m: C6.2 growth ratio 1.1366311612255406 > 1.05; level m: C6.3 field change 0.00028482186268674603 > 0.0002; level f: C6.3 field change 0.0008170032333622013 > 0.0002",
+      "deviation": 0.02315086516377607,
+      "band_utilisation": 1.1575432581888034
+    },
+    {
+      "row": "G3",
+      "r_over_D": 3.0,
+      "reference": 0.4632,
+      "band": [
+        0.4432,
+        0.4832
+      ],
+      "value_fine": 0.5371347230140968,
+      "triple": {
+        "c": 0.549493155955404,
+        "m": 0.5412390667732809,
+        "f": 0.5371347230140968
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.0079574572866656,
+      "gci": null,
+      "verdict": "NOT A RESULT",
+      "note": "gate (1): level c: C2 U_c/U_bulk 1.1746 outside +-3% of 1.2245; level c: C6.1 p_rgh max over last 2000 its = 2.12051478315e-06 > 1e-06; level m: C6.2 growth ratio 1.1366311612255406 > 1.05; level m: C6.3 field change 0.00028482186268674603 > 0.0002; level f: C6.3 field change 0.0008170032333622013 > 0.0002",
+      "deviation": 0.07393472301409681,
+      "band_utilisation": 3.6967361507048406
+    }
+  ],
+  "registered": {
+    "controls": {
+      "C1": {
+        "what": "plate y+_max < 1.0 on every level, READ by the comparator through buoyantBoussinesqSimpleFoam -postProcess -func yPlus on a scratch copy",
+        "threshold": 1.0,
+        "fires": "NOT A RESULT on gate (1)"
+      },
+      "C1b": {
+        "what": "pipeWall y+_max < 1.0 on every level, same reader (T4 measured 30.1 / 20.5 / 13.0 with its coarsest radial cell on the pipe wall; the grading is inverted in T4b so this condition CAN pass)",
+        "threshold": 1.0,
+        "fires": "NOT A RESULT on gate (1)"
+      },
+      "C2": {
+        "what": "nozzle-exit centreline velocity U_c/U_bulk = max |U|/U_bulk along a sampled line across the exit plane y = H (axis to pipe wall, 200 points, cellPoint), within +-3 percent of the 1/7-power-law value 1.2245; the planted control aims at the cell nearest the line's current maximum and judges visibility on the whole sampled profile (max-norm), the C2 scalar's own change reported beside it",
+        "reference": 1.2245,
+        "tolerance_rel": 0.03,
+        "fires": "NOT A RESULT on gate (1)"
+      },
+      "C3": {
+        "what": "global mass conservation |sum over all patches of phi| / |phi_inlet| < 1e-3, READ from surfaceFieldValue sums of the written phi",
+        "threshold": 0.001,
+        "fires": "NOT A RESULT on gate (1)"
+      },
+      "C4": {
+        "what": "planted-zero control, both arms, on EVERY reader on the grading path: G-row profile reader (frozen analyse_t4.planted_zero_control, aimed plant 1.234e-03 m/s with a measured detection floor); y+ reader (U x4 in a scratch copy must return y+ x2.000000000 exactly, AND the generic postProcess -func yPlus must return 0 beside it -- the blind reader shown blind); exit-line reader (aimed plant, measured floor); flux reader (inlet phi x1.01 must return the analytically predicted imbalance to 1e-9)",
+        "fires": "REFUSAL, exit 2"
+      },
+      "C5": {
+        "what": "strict completion rule with the age guard (mark_done_t4b.py); fields T U p_rgh alphat nut k omega phi",
+        "fires": "NOT DONE -> comparator refuses"
+      },
+      "C6": {
+        "what": "iterative convergence, three parts, all levels",
+        "c6_1_floor": {
+          "quantity": "every p_rgh initial residual (every non-orthogonal corrector) over the LAST 2000 iterations",
+          "threshold": 1e-06
+        },
+        "c6_2_not_growing": {
+          "quantity": "mean p_rgh initial residual over the last 1000 iterations divided by the mean over the preceding 1000",
+          "threshold": 1.05
+        },
+        "c6_3_field_change": {
+          "quantity": "max over G1/G2/G3 of |peak U/U_bulk change| between the last two written checkpoints",
+          "threshold": 0.0002
+        },
+        "fires": "NOT A RESULT on gate (1)"
+      }
+    },
+    "graded_rows": {
+      "G1": {
+        "r_over_D": 1.0,
+        "reference_file": "ij2lr-10-sw-mu.dat",
+        "reference": 1.089,
+        "band": [
+          1.069,
+          1.109
+        ]
+      },
+      "G2": {
+        "r_over_D": 2.0,
+        "reference_file": "ij2lr-20-sw-mu.dat",
+        "reference": 0.7888,
+        "band": [
+          0.7688,
+          0.8088
+        ]
+      },
+      "G3": {
+        "r_over_D": 3.0,
+        "reference_file": "ij2lr-30-sw-mu.dat",
+        "reference": 0.4632,
+        "band": [
+          0.4432,
+          0.4832
+        ]
+      },
+      "band_rule": "+-0.02 in U/U_bulk at every station (ERCOFTAC: mean velocity within +-2 percent of bulk), identical to T4 section 4; the reference value is RE-READ from the held file at every run, never from this block"
+    }
+  }
+}

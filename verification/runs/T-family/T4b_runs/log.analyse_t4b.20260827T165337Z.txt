@@ -1,0 +1,15 @@
+T4b comparator.  shared floors STAGNANT_FLOOR = 0.5, P_MIN = 0.05 (scripts/roache_triple.py).  provenance (sha256):
+  analyse_t4.py (frozen, imported)     9842dbc8146d4f156cd7fc343117b383139097989463139f884dd14769d777ad
+  analyse_t4b.py                       06674874d025c11b0a4482b331e7f4d11db8fb97a0544940d3403a68ff351e41
+  T4b_registered.json                  a4eb13e7eca5435f70d2783e417ee645d5fbe6c30d4a7395f7d62b32a3e3de01
+planted-zero control (G reader, frozen): PASS -- recovered 3.20409e-05 from 0.001234 at line 43685; floor 1e-06
+planted control (y+ reader): PASS -- blind path 0 on every patch, registered path plate max 0.6893; U x4 -> y+ x2 (expected 2)
+planted control (exit-line reader): PASS -- recovered 4.60364e-05 from 0.001234 at line 5208, floor 1e-06
+planted control (flux reader): PASS -- inlet phi x1.01 -> imbalance 0.00990094775 (predicted 0.00990094775)
+level c t=20000: C1 plate y+max 0.6893 [True]  C1b pipe y+max 0.3979 [True]  C2 Uc/Ub 1.1746 [False]  C3 imbalance 4.28e-08 [True]  C6.1 floor max 2.12051478315e-06 [False]  C6.2 ratio 0.9999995280433494 [True]  C6.3 dfield 1.185952447357863e-09 [True]
+level m t=30000: C1 plate y+max 0.3490 [True]  C1b pipe y+max 0.2017 [True]  C2 Uc/Ub 1.1909 [True]  C3 imbalance 3.61e-10 [True]  C6.1 floor max 1.32946795244e-07 [True]  C6.2 ratio 1.1366311612255406 [False]  C6.3 dfield 0.00028482186268674603 [False]
+level f t=40000: C1 plate y+max 0.1758 [True]  C1b pipe y+max 0.1020 [True]  C2 Uc/Ub 1.2021 [True]  C3 imbalance 1.19e-08 [True]  C6.1 floor max 3.20110962799e-08 [True]  C6.2 ratio 1.005230332199123 [True]  C6.3 dfield 0.0008170032333622013 [False]
+G1  r/D=1.0 fine=1.0847 ref=1.0890 band=[1.0690,1.1090] triple=CONVERGING p=1.414 GCI=n/a -> NOT A RESULT [gate (1): level c: C2 U_c/U_bulk 1.1746 outside +-3% of 1.2245; level c: C6.1 p_rgh max over last 2000 its = 2.12051478315e-06 > 1e-06; level m: C6.2 growth ratio 1.1366311612255406 > 1.05; level m: C6.3 field change 0.00028482186268674603 > 0.0002; level f: C6.3 field change 0.0008170032333622013 > 0.0002]
+G2  r/D=2.0 fine=0.8120 ref=0.7888 band=[0.7688,0.8088] triple=CONVERGING p=0.672 GCI=n/a -> NOT A RESULT [gate (1): level c: C2 U_c/U_bulk 1.1746 outside +-3% of 1.2245; level c: C6.1 p_rgh max over last 2000 its = 2.12051478315e-06 > 1e-06; level m: C6.2 growth ratio 1.1366311612255406 > 1.05; level m: C6.3 field change 0.00028482186268674603 > 0.0002; level f: C6.3 field change 0.0008170032333622013 > 0.0002]
+G3  r/D=3.0 fine=0.5371 ref=0.4632 band=[0.4432,0.4832] triple=CONVERGING p=1.008 GCI=n/a -> NOT A RESULT [gate (1): level c: C2 U_c/U_bulk 1.1746 outside +-3% of 1.2245; level c: C6.1 p_rgh max over last 2000 its = 2.12051478315e-06 > 1e-06; level m: C6.2 growth ratio 1.1366311612255406 > 1.05; level m: C6.3 field change 0.00028482186268674603 > 0.0002; level f: C6.3 field change 0.0008170032333622013 > 0.0002]
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T4b_runs/gate_t4b.json
