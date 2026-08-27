@@ -18213,3 +18213,70 @@ kind of note that should have been in git from the start, and now is.
 **ansys queue state after this commit: 10 files under the queue directory, 10 tracked, 0
 untracked, 0 absent-from-HEAD.** The exception the lab-wide line was travelling with is
 **closed.**
+
+### 2026-08-27T22:3xZ — **ANSWER FIRST: VMFLGPU005'S POISSON SOLVE RUNS ON THIS TOOLCHAIN WITHOUT AmgX. MEASURED ON THE INSTANCE. FREEZE ETA 23:30–24:00Z.**
+
+**Written by `ansys-verification-supervisor` personally.** The chief's owed item is this
+block's first paragraph by design.
+
+#### THE ANSWER — YES, RUNNABLE, AND NOT DEGRADED
+
+**Measured on the GPU instance, not recalled, not inferred from documentation.**
+
+| question | measured answer |
+|---|---|
+| Is AmgX present? | **NO. Absent.** The build recipe planned `--download-hypre --download-amgx`; **the build that shipped carries NEITHER.** A divergence between recipe and build, recorded. |
+| Does plain cuSPARSE CG solve a Poisson system here? | **YES** — CG + Jacobi converged on a 40,000-unknown Poisson probe in **327 iterations**. |
+| Is that acceptable? | Runnable but inefficient — 327 iterations per outer step is the stall risk the brief flagged. |
+| Is there a fix without AmgX? | **YES, and it is decisive: PETSc's OWN GAMG runs on the GPU.** Same system, same tolerance: **CG + GAMG converged in 9 iterations.** **36× fewer.** GPU %F = 100 on `KSPSolve`. |
+| Can `p_rgh` take a different solver from `U`/`T`? | **YES** — petsc4Foam accepts a per-field prefix (`eqn_p_rgh_`), so `p_rgh` takes CG+GAMG on the GPU while `U`/`T` take lighter preconditioners. |
+
+**Toolchain:** PETSc **v3.24.6**, `arch-cuda-opt`, `PETSC_HAVE_CUDA 1`, configured
+`--with-cuda --with-cuda-arch=89 --with-cudac=/usr/bin/nvcc --with-precision=double`;
+CUDA 12.4 on an L4 (sm_89). Requires `-use_gpu_aware_mpi 0` — **this MPI is not
+GPU-aware; at RANKS = 1 that declines a performance feature, not a correctness one.**
+
+**So the answer to "must it be degraded" is NO.** The GPU path carries the pressure solve
+itself; nothing falls back to the CPU, and no limb is weakened.
+
+**THE HONEST LIMIT, stated rather than buried: the probe was a 40,000-unknown Poisson
+system, NOT the real stiff tall-cavity `p_rgh` matrix.** This certifies **the toolchain**
+— that GAMG-on-GPU exists, runs, and retires the stall — and it does **not** certify an
+iteration count on the real matrix. That number is not knowable before the case runs, and
+it is not claimed.
+
+#### FREEZE ETA — **23:30–24:00Z**, with both pre-drop smokes
+
+**Why it slipped past my earlier 22:45Z estimate, and the reason is a good one.** The
+case's turbulence model was **misidentified twice** by the drafting lane, and I verified
+the correction from primary evidence myself rather than accept a third revision on report:
+`import_files/VMFL052_natural.cas` selectors read **`(kw-std-on? #t)`,
+`(rng-ke-on? #f)`, `(kw-low-re-mod? #t)`, `(kw-wall-omega-treatment-r13? #t)`** —
+**standard k-omega (Wilcox), low-Re correction, INTEGRATE-TO-WALL**, not the
+RNG-k-epsilon-plus-wall-functions first reported. **That identification is now FROZEN on
+my own read.** It forced the comparator to be rebuilt for full rule-5 triple gating
+instead of 007's mesh-sensitivity structure — the right call, and it cost the time.
+
+**005 IS the next PASS-capable case, so no substitute is named.** Its reference chain is
+the strongest on this ladder: Betts & Bokhari 2000 is **on the box and title-page verified
+under rule 15**, and **VMFL052's two natural-convection CSVs** — from the archive
+inventory (`docs/ansys_verification/ARCHIVE_INVENTORY_2026-08-27.md`, `07ba93ac`) — give
+the manual's own Y/h = 0.05 comparison.
+
+**But the credential sits on limb B, not on the physics, and I corrected my own ruling to
+say so.** `VERIFICATION_CHARTER` §2f.3 caps a limb comparing **value vs experiment** at
+`GATE REACHED`, and §2h.4 condition 1 states that where the reference is an experiment
+"**§2f.3's CONTINUUM cap applies in full**". A Roache triple separates *discretisation*
+error; it does nothing about **model-form** error, which is what caps an
+experiment-referenced limb. **So C1 = `GATE REACHED`, C2 = `GATE REACHED`, and LIMB B is
+`PASS`-capable as SAME-DISCRETE-PROBLEM IDENTITY** — the charter's own class, where a
+triple is expressly *irrelevant* because both sides carry the same discretisation error on
+the same mesh.
+
+#### STATE
+
+**GPU idle 101 min = 1.6885 GPU-h = $1.3589 derived** — the card has been dark since 20:52:03Z. Boarded as infrastructure,
+never folded into a case ratio. **FREEZE-AHEAD 1 of 3** (VMFLGPU007-R2 frozen at
+`ed980d33`; 005 in build). **I still will not stop the instance myself:** `stop` vs
+`terminate` is unconfirmed and on Sanaa's desk, and `terminate` destroys the root volume
+and the whole GPU toolchain build — irreversible, and hers.
