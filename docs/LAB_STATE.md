@@ -1372,7 +1372,8 @@ closure queue **5.333 core-h pending** · idle-minutes **~4,545** · **FREEZE-AH
 since the shortlist because the **epsilon wall BC** looked underivable. It is not:
 LaunderSharmaKE's own `D = 2 nu |grad sqrt k|²` term makes **`epsilon|wall = 0`
 DERIVABLE**. That matters because of the clause it lets the rung avoid —
-`NONCONVERGENCE_STANDARD.md` sha `7ffd6c73`: *"answer-changing choices (model, scheme
+`NONCONVERGENCE_STANDARD.md` (landed at COMMIT `7ffd6c73`; the FILE's sha256 is
+`14d72954cbe853ae…`, and calling the commit id a "sha" is the error corrected below): *"answer-changing choices (model, scheme
 class, formulation) are never selected by agreement with the reference."* **A wall BC
 picked would have had to be registered blind; a wall BC derived is not a choice at
 all.** Cost 1,298.1 core-min / cap 2,600.0 (2.00×), **named waste 173.6 core-min
@@ -1605,7 +1606,7 @@ registration (**no report yet at this write — VERIFY**); FS2 (complete, commit
 **NEXT ACTIONS.** (1) **File M1's first tranche of 2** once the regeneration reports and I
 have re-read `enqueued_by`; then the remaining 76 once that tranche completes clean.
 (2) **Rule on M2 and freeze it → FREEZE-AHEAD 3 of 3** — the pivot is whether the epsilon
-wall BC is DERIVABLE or a CHOICE, and under NONCONVERGENCE_STANDARD `7ffd6c73`'s absolute
+wall BC is DERIVABLE or a CHOICE, and under NONCONVERGENCE_STANDARD's absolute
 anti-gaming clause it may **never** be picked by agreement with the reference. (3) **G1
 grades itself the moment it completes** — its comparator is audited and its pre-flight
 cleared; the fail-fast is the L1 level at 5.76 core-min. (4) Relay the `COVERAGE_MATRIX.md:350`
