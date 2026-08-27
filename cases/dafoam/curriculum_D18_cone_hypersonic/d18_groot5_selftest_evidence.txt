@@ -1,0 +1,20 @@
+D18 G-ROOT.5 SELFTEST 2026-08-27T17:34:53Z launcher_md5=1fd05704a7ef0ede0057c9b18283c775
+  [OK ] G-ROOT.5 completes at :227, first destructive op at :306
+  [OK ] zero backticks on executable lines of the launcher
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic
+  [OK ] (a) live container d18_X-S_selftest_20260827T173453Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [d18_X-S_selftest_20260827T173453Z]
+  [OK ] (b) live pid 1123535 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic/d18_driver.pid names LIVE pid 1123535 (ancestor_o
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D8-a6-twist-opt -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (e1) X-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e2) MESH on the PATCHED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e3) X-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of the MESH arm's output -- nothing staged
+  [OK ] (e3) no arm directory was created
+  [OK ] temporary run root EMPTY after every invocation and after the (e) copies were removed (0 entries)
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic -> false
+  [OK ] no d18_ container survives
+D18 G-ROOT5 SELFTEST pass=18 fail=0 2026-08-27T17:34:55Z

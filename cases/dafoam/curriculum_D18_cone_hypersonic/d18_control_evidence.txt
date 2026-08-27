@@ -1,0 +1,64 @@
+D18 CONTROL EVIDENCE  2026-08-27T17:35:56Z  -- ALL ZERO SOLVER COMPUTE
+
+=== the freeze condition, driven twice inside the G-ROOT.5 selftest ===
+test -e /home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic -> FALSE
+
+=== python3  d18_grade.py --selftest ===
+D18 GRADER SELFTEST units=29 expected=29 failures=0 python_O=False
+D18 GRADER SELFTEST PASS 29/29 (counted against the frozen EXPECTED_UNITS)
+=== python3  d18_mach_agreement.py --selftest (G-MACH) ===
+G-MACH SELFTEST units=10 failures=0 python_O=False
+G-MACH SELFTEST PASS 10/10
+=== python3  d18_pin_sweep.py --selftest ===
+D18 PIN SWEEP SELFTEST units=5 failures=0 python_O=False
+D18 PIN SWEEP SELFTEST PASS 5/5
+=== python3 -O d18_grade.py --selftest ===
+D18 GRADER SELFTEST units=29 expected=29 failures=0 python_O=True
+D18 GRADER SELFTEST PASS 29/29 (counted against the frozen EXPECTED_UNITS)
+=== python3 -O d18_mach_agreement.py --selftest (G-MACH) ===
+G-MACH SELFTEST units=10 failures=0 python_O=True
+G-MACH SELFTEST PASS 10/10
+=== python3 -O d18_pin_sweep.py --selftest ===
+D18 PIN SWEEP SELFTEST units=5 failures=0 python_O=True
+D18 PIN SWEEP SELFTEST PASS 5/5
+
+=== G-MACH driven on the REAL registered pair (positive) ===
+{"gate": "G-MACH", "ok": true, "U0": 1736.0, "p0": 101325.0, "T0": 300.0, "a_m_s": 347.1887, "mach": 5.0002, "registered_U0": 1736.0, "note": "the BC file and the producer agree AND carry the registered value; the solver's flow and the objective's normalisation are the same freestream"}
+=== G-MACH driven against the TUTORIAL's unmodified BC (negative, on real files) ===
+{"gate": "G-MACH", "ok": false, "refusal": "G-MACH REFUSES: U0 DISAGREES between the two files: freestreamConditions=680.0 producer=1736.0"}
+  rc=2
+
+=== PIN SWEEP, live ===
+  [OK ] MD5_DECOMP     in d18_run_arm.sh         68ecc827562886fb43c3aedb0627b344
+D18 PIN SWEEP CLEAN: 9 pin(s), every one equal to the file it names
+
+=== ast.Assert count, every D18 python file (must be 0) ===
+  d18_grade.py               0
+  d18_xf.py                  0
+  d18_mach_agreement.py      0
+  d18_pin_sweep.py           0
+  d18_cpuset_overlap.py      0
+  d18_aggregate_memory.py    0
+
+=== the ONE REGISTERED DELTA, proved to be exactly one value in each file ===
+-- d18_runScript.py vs the tutorial, comments stripped, delta reversed:
+   IDENTICAL
+-- d18_freestreamConditions vs the tutorial:
+9c9
+< U             (680.0 0 0);
+---
+> U             (1736.0 0 0);
+
+=== instrument md5s at this freeze ===
+709ab0b98ef0302a3a3a318588f9493f  d18_aggregate_memory.py
+f884114b3f2baac5df5644bc53f4394e  d18_cpuset_overlap.py
+e4ade11ed9e3db18d2c4988b30e929b4  d18_grade.py
+d6a5b389f0976801416bfd81909e0176  d18_mach_agreement.py
+7293bc885a8003a835a2c7c3226c881a  d18_pin_sweep.py
+e6f0baf0e07a4ede7bff555e5e0ed332  d18_runScript.py
+3e63a9fa945bc6d7b3196e1e3e084a7f  d18_xf.py
+f41bd1a74b098de34e2a80f008b99bea  d18_chain_driver.sh
+568575353978a44dfaaaef98efb51e3b  d18_groot5_selftest.sh
+1fd05704a7ef0ede0057c9b18283c775  d18_run_arm.sh
+68ecc827562886fb43c3aedb0627b344  d18_decomposeParDict
+2c18bb481b762706ab03bbbac3a91a4d  d18_freestreamConditions
