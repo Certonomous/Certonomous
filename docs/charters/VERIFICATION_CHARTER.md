@@ -2809,3 +2809,67 @@ not the wording of the claim, and condition 4 is about the wording.**
 exception, which stands refused; **nothing licenses a `PASS` on any limb whose
 reference is experimental or correlative**; and **whether §2f.3's row should be
 split is Sanaa's, not settled by this.**
+
+## Amendment — v1.18, 2026-08-27 — **§2i: THE FREEZE BITES WHEN COMPUTE BEGINS.** The first-compute stamp is the EARLIEST `started_utc` under the registration, and a stamp cited late opens a window in which an illegal amendment looks legal
+
+**Appended, append-only; no line above changed number. Raised by heat-transfer from
+its own T16 records; verified here at source. Zero compute.**
+
+### §2i.1 THE CLAUSE
+
+> **A registration's first-compute moment is the EARLIEST `started_utc` of any case
+> under that registration.** Not an `ended_utc`. Not the latest `started_utc`. Not a
+> commit time, a file mtime, or the moment a launcher was invoked. **Where the
+> earliest `started_utc` cannot be established, the first-compute moment is
+> `NOT MEASURED` and every amendment after the earliest evidence of compute is
+> treated as post-compute** — the conservative direction, because the alternative
+> lets an unestablished stamp license an amendment.
+
+**The stamp is RECORDED IN THE REGISTRATION with the path of the STATUS file it was
+read from**, so a third party can check it in one command. A stamp without its
+source is an assertion (`R-CAP.8` §8.7, applied to a different quantity).
+
+### §2i.2 WHY THIS IS A RULE-2 QUESTION AND NOT BOOKKEEPING
+
+Standing rule 2: *"Before first compute, amendments are legal … After first compute
+gates are closed."* **The whole legality of an amendment turns on one timestamp.**
+
+> **A first-compute stamp cited LATE opens a WINDOW — an interval in which an
+> amendment that is in fact ILLEGAL reads as legal against the record.** The stamp
+> is not a description of the run; **it is the boundary of the lab's central
+> evidentiary rule.**
+
+**And the error has a DIRECTION.** `ended_utc` is always ≥ `started_utc`, so citing
+it is **always late and never early**. **The defect is therefore systematically
+biased toward permitting amendments, never toward refusing them** — it can only ever
+enlarge the legal window, never shrink it. **A mistake that errs in only one
+direction is not a mistake, it is a leak.**
+
+### §2i.3 THE SPECIMEN, VERIFIED AT SOURCE
+
+`verification/runs/T-family/T16_runs/STATUS.T16_MC_c` carries
+**`started_utc=2026-08-27T17:30:06Z`** and **`ended_utc=2026-08-27T17:42:30Z`**. The
+sibling `STATUS.T16_MC_m` carries `started_utc=2026-08-27T17:42:55Z`.
+
+**Citing `ended_utc` as first compute puts the boundary 12 minutes 24 seconds late,
+and the earliest `started_utc` under the registration is 17:30:06Z.** **Found and
+reported by heat-transfer against its own records.**
+
+**Note the second trap the sibling exposes:** the *latest* `started_utc` is
+**17:42:55Z**, which is **within 25 seconds of the wrong answer** — so a reader who
+correctly rejects `ended_utc` and then takes the wrong `started_utc` lands almost
+exactly where they started. **EARLIEST, across ALL cases, is the operative word.**
+
+### §2i.4 SCOPE, AND WHAT IS **NOT** RULED
+
+**This clause is PROSPECTIVE on its face and REMEDIAL only where a sweep shows an
+amendment actually fell inside a window.** A late-cited stamp with **no amendment in
+its window** is a **citation defect and nothing turns on it** — it is corrected by a
+dated addendum and **no gate moves, no row is re-graded.** Those two outcomes are
+counted **separately** and must never be reported as one number.
+
+**A sweep of the corpus is in flight and its findings are NOT anticipated here.**
+**No amendment anywhere is declared illegal by this clause**; the clause states the
+test, and any application of it to a specific record is a separate ruling on
+evidence, made case by case with the owning team. **`L-380`: a framing is not a
+finding, and this section refuses to convict on a rule it has just written.**
