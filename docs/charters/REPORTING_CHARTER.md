@@ -1,6 +1,6 @@
 # Certonomous Reporting Charter
 
-Version 2.1, dated 2026-08-17. Freezes the morning report. It is the one
+Version 2.2, dated 2026-08-17. Freezes the morning report. It is the one
 document the owner reads every day, so its shape is fixed and its sections do
 not get reordered, merged or skipped.
 
@@ -794,3 +794,158 @@ chief to route and Sanaa to approve.
 | on-board approximated stamps found | **1** (dafoam, `18:4xZ`) |
 | distinct stamp phrasings across six teams | **4** — recommended, not imposed |
 | lines whose number changed above this section | 0 |
+
+## Amendment record, continued: THE CLOCK-STAMP CLAUSE HAS TWO CLASSES OF TIME, AND MY OWN CENSUS OF IT WAS WRONG BY 100 (2026-08-27)
+
+**Dated addendum, 2026-08-27, appended at the foot; append-only. No clause above
+is altered, widened or narrowed. One scope defect is recorded as RECOMMENDED AND
+NOT ADOPTED, because permitting a class of times the clause's literal words
+forbid is a WIDENING and widening a charter clause is Sanaa's, not this team's —
+the same line this team drew four hours earlier on the two Roache admissibility
+clauses (`docs/standards/ROACHE_ADMISSIBILITY_SPEC.md`, `commit:aaf0bed6`). The
+header's version line IS bumped, 2.1 -> 2.2, discharging the rule-6 version-bump
+requirement that the two preceding amendments each deliberately left undone and
+disclosed as left undone; no line above this section changed NUMBER.**
+
+**§1 — WHAT HOLDS, AND IT IS STRENGTHENED, NOT RETRACTED.**
+
+The preceding amendment's central claim was that no board stamp runs ahead of the
+box clock. **It holds on a scan far wider than the one that produced it.** Clock
+read `date -u` in the measuring invocation: **2026-08-27T21:27:32Z**. Reading
+`git show HEAD:docs/LAB_STATE.md` with a **form-agnostic** matcher — every
+ISO-ish stamp anywhere in the file, any date, any phrasing, anchored to no
+section-header wording at all — **449 dated stamps, 391 not ahead, 10 ahead.**
+
+**ZERO WRITE-TIME STAMPS ARE AHEAD OF THE CLOCK.** All ten of the ahead readings
+are the second class described in §2 and none of them is a defect.
+
+**§2 — THE SCOPE DEFECT: A PROJECTION IS NOT A CLOCK READING AND MUST STILL BE
+WRITTEN. RECOMMENDED, NOT ADOPTED.**
+
+The clause reads *"a time that was not read from the clock is not written."*
+**Read literally, that forbids every ETA and every timeout bound in the lab** —
+and the reporting contract REQUIRES them: a `Runs live` line without an ETA is an
+incomplete report, and Sanaa's §2 headline metrics make projected idle-minutes a
+reported quantity.
+
+**All ten ahead-of-clock readings at HEAD are legitimate and each is a
+projection**, verified by reading the enclosing sentence rather than the token
+(`L-360`): wrapper timeout bounds `2026-08-28T05:17:47Z`, `05:30:47Z`,
+`2026-08-28T05:17Z`, `05:30Z` and `2026-08-29T01:58Z` (dafoam's four W2R
+wrappers and D8R's bound, nine occurrences), and one solver ETA
+`~2026-08-28T04:20Z` (heat-transfer's `T15_UP_f`, one occurrence).
+
+**So a checker built on the clause as worded returns TEN FALSE POSITIVES ON ITS
+FIRST RUN — and every one of them lands on a team doing exactly the right
+thing.** That is `L-362`'s shape once more: not a defective clause and not a
+defective practice, but a **false positive at their intersection**.
+
+**THE RECOMMENDED WORDING, for Sanaa, not adopted here:**
+
+> A time stamp is of one of two classes and the class is visible in how it is
+> written. A **MEASUREMENT** — when a thing happened, or when this was written —
+> is read from `date -u` in the same invocation that writes it. A **PROJECTION**
+> — an ETA, a timeout bound, a scheduled close — is **derived**, and is written
+> with its derivation shown: the clock reading it was computed FROM and the
+> interval added to it. A projection presented as a bare future time is
+> indistinguishable from an invented measurement and is the thing this clause
+> forbids.
+
+**The exemplar is already on the board and it is dafoam's**: *"pids 251492
+(phase4, 129,600 s from 17:16:42Z -> 2026-08-28T05:17Z)"* — base reading,
+interval, derived time, all three shown. **The rule being recommended is a
+practice one team already keeps; it is not a new burden invented at a desk.**
+
+**§3 — THE CENSUS DEFECT, AND IT IS AGAINST MY OWN §3. 1 -> 111.**
+
+The preceding amendment's own table records **`on-board approximated stamps
+found | 1 (dafoam, 18:4xZ)`**.
+
+**MEASURED AT HEAD, FORM-AGNOSTICALLY: 111, ACROSS ALL SEVEN SECTIONS OF THE
+BOARD.** Split by form, because the second form is the larger half and is the one
+that defeated the earlier scan:
+
+| form | count | how it was missed |
+| --- | --- | --- |
+| **DATED** approximation — `2026-08-27T19:2xZ` | **48** | seen |
+| **BARE-TIME** approximation, no date at all — `19:0xZ`, `06:5xZ` | **63** | **invisible to a matcher that requires a date** |
+| **total** | **111** | |
+
+By owning section: **dafoam 42, ansys-verification 27, cfd 21, heat-transfer 14,
+CHIEF 5, closure 1, verification 1.** **This team's own section carries one, and
+the chief's carries five.** **Measured on the board AS IT STOOD when the clause
+landed (`8f55958e`, 2026-08-27T19:41:54Z): 101.** So the figure published as
+**1** was, at the moment of publishing, **101 — an undercount by 100.**
+
+**AND THE MECHANISM IS THE ONE THAT AMENDMENT ITSELF NAMED.** Its §4 disclosed
+that a first scan matched one stamp phrasing, saw ONE team, and returned a clean
+zero across what looked like the whole board; it then reported a **re-derived**
+figure. **The re-derivation fixed the PHRASING axis and never touched the FORMAT
+axis** — it still required a date, and 63 of the 111 carry no date. **A scan
+corrected along one axis reads as a corrected scan.** This is the **fifth**
+publication of the coverage-as-census defect by this team today, and the first
+one to occur **inside the correction written to fix the fourth.**
+
+**§4 — THE CLAUSE IS A LIVE LEVER, AND THIS IS THE MEASUREMENT THAT SHOWS IT.**
+
+A clause with no measured effect is a dead lever and belongs in
+`docs/DEAD_LEVER_AUDIT.md`. **This one is not.** Across the **21** commits
+touching `docs/LAB_STATE.md` after the clause landed at **19:41:54Z**, the added
+lines carry **10 approximated stamps in 8 commits**:
+
+| team | commits carrying an approximated stamp, post-clause | tokens |
+| --- | --- | --- |
+| dafoam | `3ade7856` `8e2593e2` `24e8f3f7` `5c868cf2` `a2d29137` `787db192` `9782af88` | **9** |
+| heat-transfer | `a6b13c90` | **1** |
+| cfd, closure, verification, CHIEF | none | **0** |
+
+**Four of six teams wrote zero approximated stamps in the two hours after the
+clause landed. The whole residual is nine tokens from one team and one from
+another.** **Three independent methods agree to the token**: the board census
+moved **101 -> 111** (delta **10**); the per-commit sweep of added lines finds
+**10**; and a negative control run on four compliant commits (`3cc7fc35`,
+`8438f44e`, `458f741d`, `0762932e`) returns **empty** from the same reader.
+
+**ONE POST-CLAUSE INSTANCE IS NOT ON THE BOARD AND IS NAMED HERE BECAUSE THE
+CLAUSE COVERS MESSAGES TOO.** The chief's re-formation brief to this team at
+21:2xZ carries an approximated stamp in its opening line. **It is named for the
+same reason the chief named its own 13-minute instance when this clause was
+referred: a rule whose first enforcement skips the referrer decays into
+etiquette.** **No fault is asserted — the clause is two hours old and the
+practice it replaces is months old.**
+
+**§5 — THE PLANTED CONTROL, DERIVED FROM THE ARTEFACT AND NOT FROM THE SEARCH.**
+
+`L-363` says do not take the verification pattern from the claim; Addendum 9 to
+`L342_GRADER_AUDIT` sharpened it to **do not take the plant from the search.**
+So the control here plants **three** things this scan was NOT built around: a
+future stamp in a **persona phrasing** matched by no pattern in §4 of the
+preceding amendment; an approximation with the wildcard in the **seconds** field
+where every real instance carries it in the **minutes**; and a **negative** limb
+— a bare date with no time, and a bare time with no date — which must NOT count.
+**The reader found both plants (total 449 -> 451, ahead 10 -> 11, approximated 48
+-> 49) and rejected the negative limb.** **Both limbs fired.**
+
+**§6 — NOT CLAIMED.**
+
+The preceding amendment's **48 distinct 2026-08-27 timestamps** is **NOT shown
+wrong**: the same quantity measured on the board as it stood at `8f55958e` is
+**58** and at HEAD is **80**, and this team has **NOT** measured what it was at
+the hour that amendment was written. **The board grew; that figure is not
+retracted and no claim is made about it either way.** Nothing here re-grades any
+row, and no stamp anywhere is corrected by this document — **the 111 are named,
+not edited**, because they sit in six other teams' sections and a stamp is its
+writer's to repair.
+
+| what this amendment did | figure |
+| --- | --- |
+| clauses altered, widened or narrowed | **0** |
+| clauses recommended to Sanaa, NOT adopted | **1** (the measurement/projection split) |
+| write-time board stamps found ahead of the clock (449 scanned, form-agnostic) | **0** |
+| ahead-of-clock readings that are legitimate projections | **10 of 10** |
+| on-board approximated stamps, corrected from the preceding amendment's **1** | **111** |
+| of those, invisible to a matcher requiring a date | **63** |
+| approximated stamps written AFTER the clause landed | **10**, in 8 of 21 commits |
+| teams writing zero approximated stamps post-clause | **4 of 6** |
+| version | 2.1 -> **2.2** |
+| lines whose number changed above this section | **0** |
