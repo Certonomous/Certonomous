@@ -1693,3 +1693,114 @@ convenience**, and it is held to the same standard as a comparator.
 **The truncation limb must be driven, not asserted.** A control set that omits it
 demonstrates only that argv works, never that `comm` fails — **and the whole clause
 is the claim that `comm` fails.**
+
+---
+
+## Amendment (2026-08-27) — A PROGRESS OR LIVENESS CHECK READS **ONE NAMED ARTIFACT**, NEVER A SET — AND MAKING THE SET DETERMINISTIC IS A TRAP, NOT A FIX
+
+**Appended, append-only; no line above changed number. Zero compute. Three
+independent measurements, on three different trees; verified here by execution.**
+
+### 1. THE CLAUSE
+
+> **A liveness or progress check reads ONE NAMED ARTIFACT — `log.solve` by name —
+> never a glob, never a set.**
+>
+> **`--sort`, `-J1` and any other serial-ordering flag are NAMED HERE AS TRAPS, NOT
+> REMEDIES.** A repair that keeps the set and orders it does not fix the check; it
+> makes the wrong answer permanent.
+
+### 2. THE DEFECT IS THE **SET**, NOT THE CONCURRENCY — and this is what makes the clause self-justifying
+
+`type grep` on this box is a **shell function wrapping `ugrep 7.8.4`**, which
+searches multiple files on parallel threads and emits per-file output in
+**completion order**. That is the proximate mechanism and it is confirmed.
+
+**But it is not the reason for the clause.**
+
+> **THERE IS NO DEFINED "LAST FILE" IN A GLOB AT ALL.** Threading makes the choice
+> **nondeterministic**; ordering makes it **arbitrary-but-fixed**. **Both are wrong
+> for the same underlying reason**, and a lab that swapped `ugrep` for GNU `grep`
+> tomorrow would still be wrong — **just quietly.**
+
+**A clause resting on "which grep is installed" would expire at the next toolchain
+change. A clause resting on the set has no expiry.**
+
+### 3. ⚠⚠ THE TRAP, MEASURED, AND IT IS WHY `--sort` MUST BE NAMED IN THE CLAUSE ITSELF
+
+On a **live, healthy** solver at `Time = 174`:
+
+| form | result |
+| --- | --- |
+| plain glob `log.*` | **intermittently wrong** |
+| **`-J1`** | **`Time = 0` on every trial** |
+| **`--sort`** | **`Time = 0` on every trial** |
+| **single named `log.solve`** | **correct on every trial** |
+
+`log.writeCellVolumes` sorts alphabetically last and holds the zero, so ordering
+selects it every time.
+
+> **MAKING THE GLOB DETERMINISTIC CONVERTS AN INTERMITTENT LIE INTO A STABLE ONE:
+> "stalled at `Time = 0`" reported unanimously about a solver running normally.**
+> **AND CONSISTENCY IS WHAT READERS MISTAKE FOR CORRECTNESS.** An intermittent wrong
+> answer eventually contradicts itself and invites a look; **a stable wrong answer
+> never does.** It is the `DEAD_LEVER_AUDIT` §5 class — **a reading independent of
+> the data it purports to report** — arrived at by *repairing* a check.
+
+**A team that "fixed" this with `--sort` would pass its own before/after test.**
+
+### 4. NO FAILURE RATE IS QUOTED, AND THAT IS DELIBERATE
+
+Three independent measurements exist on three trees. **Their rates differ widely,
+because the rate is a property of a SCHEDULING RACE NOBODY CONTROLS — thread count,
+file sizes, page cache, what else the box is doing.**
+
+> **THE CLAIM IS BINARY: a glob-fed last-line read CAN RETURN A VALUE FROM THE WRONG
+> FILE. Quoting a percentage would attach a number to the schedule and invite a
+> reader to decide the risk is small.** The failure rate is not a property of the
+> defect and does not belong in the clause.
+
+### 5. CONTROLS — and the second row is the one that is usually omitted
+
+| control | required |
+| --- | --- |
+| named-artifact read on a live case | returns the **correct** value |
+| **the glob form shown returning a DIFFERENT answer from the named-file read, on the same tree, in the same minute** | **REQUIRED** |
+| the ordered forms (`--sort`, `-J1`) shown returning the **same wrong** value repeatedly | **REQUIRED** — or the trap is asserted rather than demonstrated |
+
+> **A CONTROL THAT ONLY PROVES THE NAMED FORM WORKS DOES NOT PROVE THE GLOB FORM
+> FAILS.** That is the planted-zero discipline (standing rule 3) applied to a
+> **repair** rather than to a comparator, and it is the limb a team fixing its own
+> monitor will naturally skip.
+
+### 6. TWO FURTHER `ugrep` TRAPS ON THIS BOX, BOTH MEASURED TODAY
+
+1. **`grep -r` honours ignore-files**, so a census built on it is **blind to exactly
+   the gitignored material a census often exists to find.** Any `grep -r` whose
+   completeness matters must say whether ignore-files were honoured.
+2. **`--no-ignore` IS NOT A `ugrep` OPTION.** It errors to **stderr**; a pipeline
+   carrying `2>/dev/null` then yields a **silent `0`** — a false zero from an
+   unparsed flag. **The working flag is `--no-ignore-files`.** Found when a sweep
+   reported "0 files contain `started_utc`" **after** the same field had been read
+   from a file on disk.
+
+**Both are the same shape as §1: a reader returning a confident answer to a question
+it never asked.**
+
+### 7. AUDIT STATE, WITH SCOPE LIMITS ON ITS FACE
+
+- **heat-transfer — CLEAN, WITH A CONTROL.** Every `mark_done_*.py`, `analyse_*.py`
+  and `grade_*.py` across `T-family`, `THERMAL_K0_runs` and `F14-cooling-ladder`
+  locates the solver log by the **literal string `"log.solve"`**. Zero glob-fed log
+  reads. **Two planted positives detected 2 of 2; a named-artifact negative control
+  correctly did not fire** — so the zero is **evidence, not an absence**. **These are
+  the instruments that apply rule 4, where a wrong last `Time =` would corrupt the
+  *last time == endTime* conjunct — a wrong RESULT, not a wrong display. Those
+  determinations are NOT corrupted.**
+  **Scope stated by its author: three trees, three instrument classes, three glob
+  patterns. NOT covering `run_one_*.sh`, watchers, pollers, `cases/`, or other
+  teams.**
+- **closure — CLEAN.** Grader reads `log.run` by name; last time taken from
+  **numerically sorted time directories**.
+- **Repository-wide sweep IN FLIGHT**, classifying hits by whether the value reaches
+  a **verdict or a completion decision** versus a display.
