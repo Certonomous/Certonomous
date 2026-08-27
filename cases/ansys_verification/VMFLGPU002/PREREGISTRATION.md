@@ -424,3 +424,94 @@ these (rule 1). **This rung is `PENDING` until the comparator has graded a compl
 against the gate above.** An expected launch is not a result, and enqueueing is not
 authorisation (`QUEUE_ENTRY_STANDARD.md` §1): `SUPERVISION_CHARTER.md` §3 check 4 is the
 supervisor's own and is not discharged by this document.
+
+---
+
+## POST-COMPUTE AMENDMENT 5 — 2026-08-27 (dated addendum; VERIFICATION_CHARTER §2d.1 + L-342)
+
+**Appended after first compute. This addendum moves NO gate, limb, band, threshold, cap or
+label — it repairs two GRADING-PATH READERS, each a demonstrable error, under the four-condition
+repair exception of `VERIFICATION_CHARTER` §2d.1 and L-342. Lines whose number changed above this
+section: 0.** Originals in §6, §8 and §11 are struck by nothing; they stand as frozen. Comparator
+blob transition **`8172a0d3` → `92a82426`**. Supervisor rulings of 2026-08-27, [lab-attributed];
+the supervisor read the frozen comparator at HEAD personally before ruling. Drafted by
+`ansys-lane-opus48` (lane H).
+
+**The pre-repair refusals, recorded verbatim (condition c).** The frozen comparator `8172a0d3`,
+run against the completed run root, refused at clause C7:
+
+> REFUSE (VMFLGPU002 C7): L1_N20: 1202 ExecutionTime lines, the registered endTime is 1200 (clause 5)
+
+and, with C7 repaired (item 1 below), then refused at limb A:
+
+> REFUSE (VMFLGPU002 A2): L1_N20: the FORCED-CPU CONTROL (mat_type aij, vec_type standard) REPORTED GPU WORK (tell1=True tell3=False). The tells cannot discriminate GPU from CPU on this build, so this row certifies NOTHING.
+
+### Item 1 — clause 5 (C7): the ExecutionTime line count is INFRASTRUCTURE (RULING 2, L-342)
+
+The frozen clause required `ExecutionTime`-line count == endTime. On this build every one of the
+six logs carries exactly `endTime` `Time = ` lines and exactly `endTime + 2` `ExecutionTime` lines;
+the two extras sit inside `Time = 1`, one before and one after `Initializing PETSc... success`,
+BEFORE the first solve — petsc4Foam initialisation timing prints, not solver iterations. This is
+the exact defect ruled at **VMFLGPU001 Post-compute Amendment 4** (commit `59110074`, blob
+`f4b07b7f`→`21fa2387`) under L-342: a count of TIMING-REPORT lines is a property of what the
+libraries print, never of the physics. The repair makes the **`Time = ` line count == endTime** the
+physics-critical clause (it REFUSES otherwise); the `ExecutionTime` count is REPORTED as an
+INFRASTRUCTURE warning and never refuses. Completion stays established by the `Time =` count, the
+last time, the `End` line, the fields at endTime and the age guard — all of which hold.
+
+### Item 2 — limb A: the GPU tell re-based on the GPU %F table VALUE; tell3 dropped (RULING 1, §2d.1)
+
+**The defect is provable from the frozen document itself, with no reference to any run output** —
+which is the line the supervisor drew for a legal post-compute repair. This file's own frozen
+header states, verbatim:
+
+> TELL 1 IS LOOSE AND CANNOT DISCRIMINATE ON ITS OWN -- PETSc's -log_view prints GPU columns and CpuToGpu/GpuToCpu rows on a CUDA-configured build EVEN WHEN THE SOLVE RAN ON THE CPU (PREREG_TEMPLATE Amendment 5, "THE SAME REQUIREMENT ON THE GPU RECIPE"). THE FORCED-CPU CONTROL IS THE DISCRIMINATOR, and a run graded without it is NOT A RESULT.
+
+The frozen `limb_A()` then refuses at A2 precisely when `tell1` fires on the forced-CPU control —
+an outcome the header declares CERTAIN on a CUDA build. **The instrument was frozen guaranteed to
+refuse, and that contradiction is visible entirely within the frozen file, before any solver ran.**
+That is a demonstrable error (the file contradicts itself), established by evidence that grades
+nothing (the file's own header, plus the documented behaviour of PETSc `-log_view`, which prints
+the GPU columns on a CUDA build irrespective of where the solve ran). **No measured physics value
+enters this justification.**
+
+The repair, restricted to limb A's readers:
+- A new reader `gpu_flops_on_device()` reads the **GPU %F column** (the last field of every
+  `-log_view` event row) — the percent of an event's flops performed on the device, which is 0 on a
+  CPU solve and > 0 on a GPU solve. It is the genuine discriminator; `tell1`'s legend match is not.
+- The GPU arm must show `gpu_flops_on_device` True **AND** `tell2` (a solver PID holding device
+  memory) — both kept as genuine discriminators.
+- The forced-CPU control refuses (A2) only when the control arm itself shows GPU %F > 0 — genuine
+  device work in the arm that must not have any — never on the loose `tell1`/`tell3`.
+- `tell3` is **dropped from the conjunction**: `-ksp_view` on this build echoes the matrix type in
+  the OPTIONS block (`-eqn_p_mat_type aijcusparse`), not as a `type: aijcusparse` line, so `tell3`
+  was frozen guaranteed False even on the genuine GPU arm. The `tell1`/`tell2`/`tell3` FUNCTIONS are
+  left byte-identical (the header's smoke-test byte-equivalence claim is preserved); they are simply
+  no longer the limb-A discriminator.
+
+**Conditions of the ruling, all met.** (a) The justification quotes the frozen header verbatim and
+cites the build behaviour, with no measured physics value; (b) the repaired control is DRIVEN, not
+read — `--drive-refusal gpu-zero-pctf` forges a GPU-arm log that is cusparse-typed with the
+`-log_view` legend present (so the loose `tell1`/`tell3` both fire) but with GPU %F = 0 on every
+event row, and the selftest requires it to REFUSE; (c) the pre-repair refusals are recorded verbatim
+above and both gradings are cited in `RESULTS.md`; (d) no limb, band, threshold, cap or label moves
+— limb A still means "the GPU path provably ran and the forced-CPU control discriminates"; (e) this
+amendment is committed BEFORE the re-grade runs, with pre-registration discipline. Selftest **47
+checks GREEN** (was 43; +3 reader-function checks, +1 forged-log driven check), byte-identical under
+`python3` and `python3 -O`, zero `ast.Assert` nodes.
+
+### The verdict does NOT move — stated plainly, because it is what makes the repair unimpeachable
+
+**Under these rulings the limb-A repair changes NO verdict in either case.** VMFLGPU001 is still
+refused earlier, at its frozen plateau clause I5 (row #33, `NOT A RESULT`, unamended). VMFLGPU002 is
+still `NOT A RESULT` on its **OSCILLATORY** grid triple (rule 5 step 2, before any band is read). A
+post-compute repair that cannot flatter any outcome was authorised, and this record shows it.
+
+### The honest tension, disclosed and NOT papered over (Sanaa's §3 anti-gaming clause, 16:54Z)
+
+Sanaa's standing directive of 2026-08-27 §3 states "Frozen gates never edited post-compute." This
+amendment repairs a post-compute limb-A **reader**. The supervisor's position, recorded here as the
+ruling's own reasoning: **a reader is not a gate** — no limb, band, threshold, cap or label moves,
+and the repair changes no verdict in either case, which is what makes it harmless. The tension is
+disclosed rather than argued away: **if Sanaa's clause is read to cover readers too, nothing is lost
+— both cases are `NOT A RESULT` either way.** The record carries the tension.

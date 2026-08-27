@@ -581,10 +581,32 @@ def strict_completion(level_dir):
             refuse("C6", "%s: field %s missing at endTime (clause 4) -- neither %s nor %s.gz"
                    % (name, f, f, f))
 
+    # ---- clause 5, AS REPAIRED BY POST-COMPUTE AMENDMENT 5 (L-342) --------
+    # n_time (`Time = ` lines) is PHYSICS-CRITICAL: the number of outer
+    # iterations the solver ACTUALLY TOOK; if it is not endTime the run did not
+    # reach the registered end and this REFUSES.  n_exec (`ExecutionTime` lines)
+    # is INFRASTRUCTURE: a count of TIMING-REPORT lines, endTime + 2 on this
+    # build because petsc4Foam prints two init timing lines inside Time = 1 (one
+    # before, one after `Initializing PETSc... success`), BEFORE the first solve.
+    # The original clause required n_exec == endtime; it was inherited from the
+    # CPU parent VMFL010, whose logs count exactly endTime, and had NEVER been
+    # driven on a petsc4Foam log.  A count of what the libraries print
+    # invalidates the bookkeeping and NEVER the physics, so n_exec is REPORTED
+    # and never refused on -- completion is established by the `Time =` count,
+    # the last time, the End line, the fields at endTime and the age guard.
     n_exec = len(re.findall(r"^ExecutionTime", text, re.M))
+    n_time = len(re.findall(r"^Time = ", text, re.M))
+    if n_time != endtime:
+        refuse("C7", "%s: %d `Time = ` lines, the registered endTime is %d (clause 5, "
+                     "actually took)" % (name, n_time, endtime))
+    exec_note = None
     if n_exec != endtime:
-        refuse("C7", "%s: %d ExecutionTime lines, the registered endTime is %d (clause 5)"
-               % (name, n_exec, endtime))
+        exec_note = "INFRA: ExecutionTime lines %d != endTime %d" % (n_exec, endtime)
+        if n_exec < endtime:
+            exec_note += " -- and FEWER than endTime, a stronger oddity than more"
+        warn_infra("%s: %s (L-342: a count of TIMING-REPORT lines is a property of what "
+                   "the libraries print, not of the physics. It does not touch the "
+                   "verdict.)" % (name, exec_note))
 
     marker = _resolve(os.path.join(level_dir, "0", "U"))
     if marker is None:
@@ -597,7 +619,8 @@ def strict_completion(level_dir):
                          "The field did not come from this run." % (name, times[-1], f))
     return dict(level=name, arm=arm_name, rc=rc, rc_status=rc_status,
                 rc_source=(rc_path if rc_status == "MEASURED" else None),
-                endtime=endtime, latest_time=times[-1], execution_lines=n_exec,
+                endtime=endtime, latest_time=times[-1],
+                time_lines=n_time, execution_lines=n_exec, execution_note=exec_note,
                 completed=True)
 
 
@@ -720,6 +743,42 @@ def tell3_cuda_type(solver_log_text):
                           solver_log_text, re.I))
 
 
+# POST-COMPUTE AMENDMENT 5 (VERIFICATION_CHARTER 2d.1 + L-342): the GENUINE
+# GPU-work reader, replacing tell1's legend match inside limb A.
+_GPU_EVENT_RE = re.compile(
+    r"^(MatMult|MatMultAdd|MatMultTranspose|MatSolve|MatLUFactorNumeric|"
+    r"KSPSolve|KSPSetUp|PCApply|PCSetUp|VecTDot|VecDot|VecMDot|VecNorm|"
+    r"VecAXPY|VecAYPX|VecWAXPY|VecMAXPY|VecScale|VecCopy|VecSet|"
+    r"VecPointwiseMult|SFPack|SFUnpack)\s+\d")
+
+
+def gpu_flops_on_device(solver_log_text):
+    """True iff a GPU-eligible `-log_view` event row reports GPU %F > 0.
+
+    PETSc's `-log_view` prints a GPU %F column (percent of an event's flops
+    performed on the device) as the LAST field of every event row, on a
+    CUDA-configured build, for BOTH a CPU and a GPU solve -- but its VALUE is 0
+    on a CPU solve and > 0 on a GPU one.  tell1 matched the arm-INDEPENDENT
+    LEGEND ('GPU Mflop/s: ...', 'CpuToGpu Count: ...') and so fired on both
+    arms; this reads the TABLE VALUE and so DISCRIMINATES.  Gated on the
+    presence of the CpuToGpu column so the last field is known to be GPU %F; if
+    the -log_view GPU columns are absent, GPU %F cannot be read and this is
+    False (fail-safe, never a spurious True)."""
+    if not re.search(r"CpuToGpu", solver_log_text):
+        return False
+    for line in solver_log_text.splitlines():
+        s = line.strip()
+        if not _GPU_EVENT_RE.match(s):
+            continue
+        parts = s.split()
+        try:
+            if float(parts[-1]) > 0.0:
+                return True
+        except (ValueError, IndexError):
+            continue
+    return False
+
+
 def _arm_artifacts(run_root, arm, level):
     d = os.path.join(run_root, arm, level)
     logp = os.path.join(d, "log.simpleFoam")
@@ -745,29 +804,50 @@ def limb_A(run_root, level):
     gtext, gsamp = _arm_artifacts(run_root, GPU_ARM, level)
     ctext, _csamp = _arm_artifacts(run_root, CPU_ARM, level)
 
-    g1, g2, g3 = tell1_gpu_flops(gtext), tell2_pid_on_gpu(gsamp), tell3_cuda_type(gtext)
-    c1, c3 = tell1_gpu_flops(ctext), tell3_cuda_type(ctext)
+    # POST-COMPUTE AMENDMENT 5 (VERIFICATION_CHARTER 2d.1 + L-342): the GENUINE
+    # discriminator is PETSc's GPU %F table VALUE, 0 on a CPU solve and > 0 on a
+    # GPU one -- NOT tell1's legend match, which THIS FILE'S OWN FROZEN HEADER
+    # declares "LOOSE AND CANNOT DISCRIMINATE ON ITS OWN ... PETSc's -log_view
+    # prints GPU columns and CpuToGpu/GpuToCpu rows ... EVEN WHEN THE SOLVE RAN
+    # ON THE CPU."  The frozen limb_A then made tell1-on-the-control an A2
+    # refusal trigger, which that header makes CERTAIN on a CUDA build -- the
+    # instrument was frozen guaranteed to refuse, a contradiction visible in the
+    # frozen file before any solver ran.  The repair: the control refuses only
+    # on GENUINE GPU work (GPU %F > 0) in the forced-CPU arm; the GPU arm must
+    # show GPU %F > 0 AND hold device memory (tell2).  tell3 is DROPPED from the
+    # conjunction: -ksp_view on this build echoes the matrix type in the OPTIONS
+    # block, not as a `type:` line, so tell3 was frozen guaranteed False even on
+    # the genuine GPU arm.  NO limb/band/threshold/cap/label moves: limb A still
+    # means "the GPU path provably ran and the forced-CPU control discriminates."
+    g_gpu = gpu_flops_on_device(gtext)
+    g_pid = tell2_pid_on_gpu(gsamp)
+    c_gpu = gpu_flops_on_device(ctext)
 
-    # The control first: if it reports GPU work, the tells cannot tell GPU from
-    # CPU and NOTHING downstream means anything.
-    if c1 or c3:
+    # The control first: if the forced-CPU arm actually ran flops on the device,
+    # the arms are not distinguishable and NOTHING downstream means anything.
+    if c_gpu:
         refuse("A2", "%s: the FORCED-CPU CONTROL (mat_type aij, vec_type standard) "
-                     "REPORTED GPU WORK (tell1=%s tell3=%s). The tells cannot "
-                     "discriminate GPU from CPU on this build, so this row certifies "
-                     "NOTHING. It is NOT A RESULT and it is never a PASS."
-               % (level, c1, c3))
+                     "reported GPU %%F > 0 on a -log_view event row -- it actually ran "
+                     "work on the device. The control does not discriminate, so this "
+                     "row certifies NOTHING. It is NOT A RESULT and it is never a PASS."
+               % level)
 
-    if not (g1 and g2 and g3):
-        print("  LIMB A FAILED at %s: flops=%s pid_on_gpu=%s cuda_type=%s"
-              % (level, g1, g2, g3))
-        print("  The linear solve did NOT provably run on the GPU. A CPU number that "
-              "happens to match the reference verifies nothing about the GPU path.")
+    if not (g_gpu and g_pid):
+        print("  LIMB A FAILED at %s: gpu_flops_on_device=%s pid_on_gpu=%s"
+              % (level, g_gpu, g_pid))
+        print("  The linear solve did NOT provably run on the GPU (GPU %F = 0, or no "
+              "device memory held). A CPU number that happens to match the reference "
+              "verifies nothing about the GPU path.")
         print("VERDICT: %s" % checked_verdict("NOT A RESULT"))
         sys.exit(2)
 
-    # Reached only when all three tells fired AND the control discriminated.
-    return dict(level=level, tell1_gpu_flops=True, tell2_pid_on_gpu=True,
-                tell3_cuda_type=True, forced_cpu_control_discriminated=True)
+    # Reached only when the GPU arm shows real device flops AND holds device
+    # memory AND the forced-CPU control showed no device flops.
+    return dict(level=level, gpu_flops_on_device=True, tell2_pid_on_gpu=True,
+                forced_cpu_control_discriminated=True,
+                tell1_note="tell1 (legend) NOT USED in limb A: loose on a CUDA build",
+                tell3_note="tell3 (ksp_view type) DROPPED: this build echoes the "
+                           "matrix type in the options block, not as a `type:` line")
 
 
 # ---------------------------------------------------------------------------
@@ -902,8 +982,9 @@ def grade(run_root, out_json=None):
             else:
                 cpu_gate[lvl] = split
         lrec["limb_A"] = limb_A(run_root, lvl)
-        print("  LIMB A HELD at %s: three tells fired on the GPU arm and the "
-              "forced-CPU control showed GPU-ABSENT" % lvl)
+        print("  LIMB A HELD at %s: the GPU arm shows GPU %%F > 0 on -log_view "
+              "event rows and holds device memory (tell2), and the forced-CPU "
+              "control showed GPU-ABSENT (Post-compute Amendment 5)" % lvl)
         rec["levels"][lvl] = lrec
 
     plant = planted_zero_control(os.path.join(run_root, GPU_ARM, LEVELS[-1]))
@@ -1231,6 +1312,24 @@ def drive_refusal(kind):
             _build_run(tmp)
             os.remove(os.path.join(tmp, GPU_ARM, LEVELS[0], "gpusample.txt"))
             grade(tmp)
+        elif kind == "gpu-zero-pctf":
+            _build_run(tmp)
+            # Forge the GPU arm log to LOOK GPU-configured -- cusparse matrix type
+            # AND the -log_view CpuToGpu legend, so the loose tell1 and tell3 BOTH
+            # fire -- but with GPU %F = 0 on every event row: the solve ran on the
+            # CPU.  The repaired reader reads the VALUE and refuses; the loose
+            # tells would have certified it (Amendment 5, the supervisor's driven
+            # forged-log mutation).
+            for lvl in LEVELS:
+                f = os.path.join(tmp, GPU_ARM, lvl, "log.simpleFoam")
+                body = open(f).read().split("Mat Object:")[0]
+                _write(f, body +
+                       "Mat Object: 1 MPI process\n  type: seqaijcusparse\n"
+                       "   CpuToGpu Count: total number of CPU to GPU copies per processor\n"
+                       "MatMult   12000 1.0 3.2e-01 1.0 3.8e+08 1.0 0 0 0 1184 2834 6000 1.73e+02 0 0.00e+00 0\n"
+                       "KSPSolve    300 1.0 1.0e+00 1.0 1.0e+08 1.0 0 0 0 424 680 3601 1.04e+02 2 1.70e-01 0\n"
+                       "End\n")
+            grade(tmp)
         else:
             refuse("D0", "unknown --drive-refusal kind %r" % kind)
         # Reached only if the refusal DID NOT fire.
@@ -1345,6 +1444,17 @@ def selftest():
         not tell3_cuda_type("Mat Object:\n  type: seqaij\n"))
     chk("tell2 sees a PID holding device memory", tell2_pid_on_gpu("4242, 512 MiB\n"))
     chk("tell2 does NOT fire on an empty GPU", not tell2_pid_on_gpu("\n\n"))
+    # Post-compute Amendment 5: the REPAIRED GPU-work reader reads the GPU %F
+    # TABLE VALUE, so it discriminates where tell1's legend match could not.
+    chk("gpu_flops_on_device SEES GPU %F > 0 on a -log_view event row",
+        gpu_flops_on_device("   CpuToGpu Count: legend\n"
+                            "MatMult 12000 1.0 3.2e-01 1.0 3.8e+08 1.0 0 0 6000 1.73e+02 0 100\n"))
+    chk("gpu_flops_on_device does NOT fire when every event's GPU %F is 0 (a CPU "
+        "solve on a CUDA build, where tell1's legend STILL appears)",
+        not gpu_flops_on_device("   CpuToGpu Count: legend\n"
+                                "MatMult 12000 1.0 3.2e-01 1.0 3.8e+08 1.0 0 0 0 0.00e+00 0 0\n"))
+    chk("gpu_flops_on_device does NOT fire without the -log_view GPU columns",
+        not gpu_flops_on_device("MatMult 12000 1.0 3.2e-01 1.0 3.8e+08 1.0\n"))
 
     # --- end-to-end on synthetic runs --------------------------------------
     tmp = tempfile.mkdtemp(prefix="vmflgpu002self_")
@@ -1460,6 +1570,17 @@ def selftest():
         chk("a GPU arm whose tells do NOT fire yields NOT A RESULT and exits 2, "
             "never a PASS (limb A is the object under verification)",
             _drives_exit2("limbA-miss"))
+        # (14b) POST-COMPUTE AMENDMENT 5, DRIVEN: a GPU arm whose log LOOKS
+        # GPU-configured (cusparse type + the -log_view CpuToGpu legend, so the
+        # loose tell1/tell3 both fire) but reports GPU %F = 0 on every event row
+        # -- i.e. it ran on the CPU -- must REFUSE.  The repaired reader reads
+        # the TABLE VALUE, so it refuses where the loose tells would have
+        # certified.  This is the forged-log mutation the supervisor's ruling
+        # requires (each guard ships its planted-failure proof, L-314).
+        chk("a FORGED GPU-arm log with GPU %F = 0 (but cusparse type and the "
+            "-log_view legend present, so the loose tells fire) REFUSES -- the "
+            "repaired limb-A reader reads the GPU %F VALUE (Amendment 5)",
+            _drives_exit2("gpu-zero-pctf"))
         # (15) THE P_MIN FLOOR, DRIVEN END TO END under `-O`: a triple whose
         # observed order is 0.0292 (below the registered floor 0.05) must route
         # to NOT A RESULT, and NO GCI may appear anywhere in the output.
