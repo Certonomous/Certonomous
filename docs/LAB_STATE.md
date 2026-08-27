@@ -1287,6 +1287,192 @@ State at this write: a Claude Code process restart at ~17:5xZ killed the ansys-v
 
 ## closure
 
+**TENTH SESSION, FIRST WRITE, 2026-08-27T18:52Z (closure-supervisor). NEWEST FIRST.**
+Stamp from `date -u` in the writing invocation. Re-formed after the ~17:50Z process
+restart killed my predecessor. **The block below this one is still accurate where this
+one is silent**; this one supersedes it on the mesh claim, which it CORRECTS.
+
+**═══ CLOSURE SPENT THIS SESSION CHECKING ITSELF AND FOUND ITS OWN HEADLINE CLAIM
+FALSE AS WORDED. G1 SURVIVES ON A STRONGER REASON. NO SOLVER RAN. ═══**
+
+**HEADLINE METRICS (Sanaa §2, 2026-08-27T16:54Z), measured at 18:49Z:** **CPU 93.8 %**
+(~15.0/16 cores, load average 42.68) · **GPU 0 %**, none attached to this box ·
+**closure queue 5.333 core-h pending** (G1, 320.0 core-min) **/ 1 launched-and-dead** ·
+**closure idle-minutes ~4,500 and still climbing** · **FREEZE-AHEAD 2 of 3.**
+
+**⚠ CLOSURE'S QUEUE IS BLOCKED AND NOT BY ANYTHING CLOSURE OWNS — CHIEF'S CALL, NOT
+MINE.** G1 has logged **`HELD ... busy >= ceiling 85.0%` on every tick since 17:34Z**,
+~75 minutes unbroken. It is **1 rank**. Two gates hold it: busy 93.8 % ≥ 85 %, and
+independently `busy_cores + ranks > 0.9 × ncpu` (15.0 + 1 > 14.4), so **G1 would still
+be held even at 85 %**. The box is held by **dafoam's four `d6_opt_runScript.py` ranks
+at 99.4 %** and **heat-transfer's `T3_runs/R_ff` at 8 ranks, elapsed 21 h 58 m**. Every
+M1 entry is also 1 rank, so **closure's entire 21.63 core-h of frozen compute sits
+behind the same wall.** I am not touching another family's runs; this is escalated,
+not decided.
+
+**═══ CHECK 3: I RE-MEASURED THE CLAIM THAT BUILT G1 AND IT IS FALSE AS WRITTEN
+(D542, L-355) ═══**
+The board's own *"266 polyMesh directories, 40 geometries, ZERO at more than one cell
+count"* — repeated into verification's `COVERAGE_MATRIX.md:350` — **changed this
+family's direction, so under §3 check 3 it is assumed wrong until defended.**
+**Re-measured personally with a resolution-INDEPENDENT key (the point cloud's bounding
+box): 344 polyMesh dirs, 344 fingerprinted, 0 skipped, 38 distinct boxes, and TWO boxes
+carry TWO cell counts** — `AR_1_Ret_180` 2209 = 47² with `AR_1_Ret_360` 3025 = 55²;
+`AR_3_Ret_180` 6627 = 3×47² with `AR_3_Ret_360` 8748 = 3×54². **RECOGNITION CONTROL
+FIRED** (injected synthetic pair moved the count 2 → 3), so the hits are measured.
+**G1 IS NOT OVERTURNED AND THE CORRECTED WORDING IS STRONGER.** Neither pair is a
+refinement family: the counts differ because **Re_tau goes 180 → 360** and the benchmark
+meshes higher Re finer — **two discretisations of TWO DIFFERENT CONTINUUM PROBLEMS**,
+exactly what Roache forbids comparing. Independently, **two levels is not a triple**
+(rule 5 needs three) and r = 1.170 / 1.149 are non-constant and far too small to resolve
+an order. **Use this wording from now on: ZERO GEOMETRIES AT MORE THAN ONE CELL COUNT
+*AT FIXED PHYSICS*.**
+**AND THE ARITHMETIC CORROBORATES THE FIGURE IT COULD HAVE REFUTED: 40 geometries − 2
+Re-pairs sharing a box = 38 boxes**, exactly the measurement. The 344-vs-266 gap is a
+**different denominator** (this sweep includes the benchmark clone and the repo case
+tree), not a contradiction.
+**L-355 IS THE REUSABLE HALF, AND IT IS ABOUT MY OWN WRONG FIRST ANSWER.** Keyed on
+directory NAME the corpus reads **111 "geometries" with 22 at multiple cell counts** — an
+apparent flat refutation, and false: `ceiling`, `truth`, `null`, `mean`, `ml_s0` are
+**ARM names shared across every geometry the arm ran on**. Keyed on the boundary
+patch-name set it collapses to 4 buckets. **THE TRAP: THE RECOGNITION CONTROL FIRED ON
+BOTH WRONG KEYS** — the instrument worked and the KEY was the defect, so the control
+could not catch it. That is the corpus-scale form of the circular plant below.
+
+**═══ CHECK 1: THE FS2 D491 CONTROL WAS CIRCULAR AND IS REPAIRED (`6b5a9239`) ═══**
+The control proposed at `66688b0c` planted a value formatted `.2e` and searched a list
+**containing `.2e`** — it could only ever prove that writer and reader share a format
+string. **Live consequence, not academic:** this generator quotes the statistic in
+**two** formats (`.2e` in six table rows, `.1e` in the prose). With the reader blinded to
+`.1e`, **the superseded control PASSED** while the same reader missed **report line 20**
+— 6 of the 7 sites D518 measured. Repaired to plant a sentinel into **every `per_family`
+entry of the real audit dict** and re-render through `render()` itself, so the
+**generator, not the test**, formats the plant; the criterion is format-free and
+site-count-free.
+**MY CHECK 1 WAS MECHANICAL, NOT A RELAY.** The lane offered `cmp` rc=0 for "render body
+unchanged"; that is the lane's test. I ran my own: **of 144 non-comment content lines at
+HEAD, exactly THREE are absent from the new file, and all three are the lines that had to
+go** (the old `import json, os`, and the two lines performing the unguarded write and its
+print). The document-producing code is **proved** unchanged.
+**BEHAVIOUR, RUN BY ME:** selftest rc 0 under `python3` and `-O` (zero asserts in the
+file); reader blinded → rc 2 both; plant neutered → rc 2 both; **normal path refuses rc 2
+naming all seven D491 sites with THE VALUE WITHHELD**, and `FS2_DEGENERACY_REPORT.md` is
+unmodified. **THE GENERATOR IS NOW A REFUSING INSTRUMENT UNTIL D491 IS RELEASED — that is
+deliberate, not a breakage.**
+**NOT APPLIED, and it is a rule not a preference:** `fs5_31_3_exit2_PROPOSED.diff` is
+substantively right (three rule-6 `assert`s → `sys.exit(2)`; an assert is a no-op under
+`-O`) but touches `make_feature_library.py`, **frozen by my own D491 ruling**
+(`DOCKET.md:856`) and the disclosed scope addition at
+`FS5_D476_CLIP_REPAIR_PREREGISTRATION.md:130`. **It lands only under its own dated
+addendum with a version bump and `lines whose number changed above this section: 0`.**
+
+**⚠ A CORRECTION I OWE AGAINST MY OWN COMMIT MESSAGE.** `6b5a9239` says the lane's
+premise "was wrong twice" and that "all three patches were unapplied, not two". The
+measured half is true (all three still `git apply --check` clean). **The framing is not:
+the board's word at `LAB_STATE.md:1429` is *applicable*, not *unapplied*, and those are
+different claims.** The lane withdrew its own overreach after I had already repeated it
+into a commit message. **Why the Kaandorp banner patch sits outside the applicable set is
+UNEXAMINED, not refuted.** A commit message is not rewritten; the correction is recorded
+here and in the next commit. **VERIFY.**
+
+**ALSO REPAIRED:** closure's D540 row was written `| 540 |` **without its `D` prefix**, so
+the reconciliation checker's id pattern **did not match it** — the check reported PASS
+while closure's newest row was invisible to every id-based sweep. Prefix restored; the
+check re-run at HEAD reads **PASS with 577 rows both sides** and its recognition control
+firing on five forms.
+
+**═══ G1 PRE-FLIGHT, CLEARED BY ME BEFORE THE SECOND LAUNCH ═══**
+The dead first launch left `CHAIN.log`, `STATUS`, `launcher.queue.out` in
+`/home/ubuntu/closure-data/g1`. **These do NOT block the relaunch and I verified why
+rather than assuming:** `build_g1.py` calls `guard_dest` on `dest_root/<LEVEL>` (line
+288) and does `mkdir(parents=True, exist_ok=True)` on `dest_root` (line 420). And
+**`grade_g1.py` has ZERO references to `CHAIN`, `STATUS`, `launcher` or `log.foamenv`**,
+so the accumulating infrastructure log **cannot contaminate a verdict**.
+**COMPARATOR AUDIT (check 1), disk sha256 `253d5942…6bb0` == HEAD blob, ONE commit only
+(`03be2015`):** rule 5 step 1 is enforced by an **early `return 2` before any Roache
+arithmetic**; no GCI is computed off the monotone branch (guarded twice); the verdict
+string is checked against the fixed vocabulary and **refuses on a synonym**; two
+independent reads of `gradP` (disk vs solver log) must agree or it refuses; a differing
+`tau_wx` crossing COUNT across levels **nulls all three** with the right reason ("the
+three values are not the same quantity"); and the family control **byte-compares the
+`vertices` block**, naming the `alpha_10_9000_{2024,3036,4048}` trap. **Selftest rc 0
+under `python3` AND `python3 -O`**; against the current run root it **REFUSED rc 2** in
+FAMILY CONTROL. **DISCLOSED ASYMMETRY, stated because the output does not state it:** of
+three planted controls, **`gradP` and `xr` refuse the whole comparator; `Kint` degrades
+only its own functional to NOT A RESULT.** Defensible (the primary's control is hard) but
+a reader seeing "volume integrator control REFUSED" beside a `gradP` PASS should know the
+run continued **deliberately**.
+**AND `grade_g1.py:611` PRINTS "(DRAFT, NOT FROZEN)" AND IS FROZEN — L-354.** **NOT
+CORRECTED, and that is a ruling:** correcting it would move the frozen grading path and
+add a third commit to the freeze chain for zero numeric reason. A display string is not a
+gate, threshold, cap or label. **L-354 records three instances of this class in closure
+territory in ONE DAY** — this banner, M1's generated `QUEUE_ENTRIES/README.md`, and
+`QUEUE_ENTRY_STANDARD.md:22` still denying the daemon D535 measured. **The mechanism is
+structural: freezing changes a SHA, and the sha lives somewhere else than the prose.**
+
+**═══ M1 — 78 ENTRIES VERIFIED, AND I REFUSED TO FILE THEM ═══**
+The lane's own recommendation was **DO NOT FILE** and **I adopted it**. Steps 2–6 all
+pass: **78 of 78 byte-identical** to a re-run of the frozen generator (no hand-edit);
+**78 ACCEPTED / 0 REFUSED** by `queue_entry_check.py` with its 18-control selftest fired
+first; **all 78 `cwd` exist, 0 hold a time directory or field file**, so the AGE-GUARD is
+clean; `prereg_commit` correct on 78 of 78 and the disk pre-registration sha256
+`81b6da16…1c49e` **equals** the `7b00b3ec` blob; estimate **1,298.058** core-min against
+a registered 1,298.1 (649.029 per arm), caps summing **1,892.780** against a §9.2
+headline of 1,900.0 — a **0.38 % conservative round-UP**, and the entries carry the
+binding §2.3 column.
+**THE TWO BLOCKERS ARE CONTENT, AND FILING WOULD HAVE MADE THEM PERMANENT.** (1)
+`enqueued_by` read **`PENDING_SUPERVISOR_ENQUEUE` on all 78** — the validator accepts any
+non-empty string, so **78 entries would have passed mechanically while each self-declared
+that nobody authorised it**. That is the exact shape rule 9 exists for. (2) the emitted
+`README.md` was **false in three claims at once**. **Regeneration is in flight** with
+check 4's result written in as an authorised string — and **I ruled the sha must be FULL,
+not the elided `81b6da16...1c49e` I myself briefed**: an ellipsis in a provenance field
+cannot be checked mechanically, which is the same principle as VERIFICATION v1.12's "a
+freeze sha is never derived from a commit subject."
+**FILING PLAN, DECIDED: NOT ALL 78 AT ONCE.** The runner launches ≤ 1 entry per 60 s tick
+under the ceiling, so the risk is **not** a stampede — it is **L-353's shape**: if the
+staging is wrong, 78 runs fail and each looks independent. **First tranche = 2 entries,
+the null arm and the `kOmega` arm on the SAME case** — the smallest drop exercising both
+arms and the staging together. **Its outcome is an INFRASTRUCTURE check and will be
+labelled one; M1 grades only when all 78 are complete.**
+
+**COMMITS THIS SESSION (3):** `6b5a9239` (FS2 circular control repaired, check 1 personal),
+`78349ae5` (**D542 + L-354 + L-355**, the check-3 correction and the D540 prefix repair),
+and this board write.
+
+**COST CALIBRATION (rule 12): NO ROW OWED, and it is a recorded decision, not an
+omission.** **Closure physics compute this session: 0.000 core-minutes, 0.000 GPU-hours,
+$0.00.** No rung graded, no case closed, no solver started — G1 never left `HELD`. Every
+piece of work above was file arithmetic and instrument controls. A calibration row with no
+actual would be a fabricated row.
+
+**LANES: 3 live** (cap 3), all zero-compute. M1 regeneration (resumed); M2 third
+registration (**no report yet at this write — VERIFY**); FS2 (complete, committed).
+
+**NEXT ACTIONS.** (1) **File M1's first tranche of 2** once the regeneration reports and I
+have re-read `enqueued_by`; then the remaining 76 once that tranche completes clean.
+(2) **Rule on M2 and freeze it → FREEZE-AHEAD 3 of 3** — the pivot is whether the epsilon
+wall BC is DERIVABLE or a CHOICE, and under NONCONVERGENCE_STANDARD `7ffd6c73`'s absolute
+anti-gaming clause it may **never** be picked by agreement with the reference. (3) **G1
+grades itself the moment it completes** — its comparator is audited and its pre-flight
+cleared; the fail-fast is the L1 level at 5.76 core-min. (4) Relay the `COVERAGE_MATRIX.md:350`
+correction to verification (**not applied by closure — verification owns that file**).
+(5) `fs5_31_3_exit2` awaits its dated addendum.
+
+**ON SANAA'S DESK,** unchanged and none of it unblocked by any agent message: (1) the
+**four withdrawn attributions**, chief among them the GPU cost approval — one line
+restores all four; (2) the two 2026-08-24 R3 quotations, and whether **§22.7 is marked
+closed in the charter itself**; (3) direction on the next R4 increment; (4) R6's phrasing;
+(5) per-item sign-off on GPU drafts 2–5; (6) **D535** — `QUEUE_ENTRY_STANDARD.md` says
+there is no daemon and there is one; amending a standard is hers.
+
+**BLOCKED.** **G1 and all of M1 — behind other families' 12+ ranks; chief's call, not
+mine.** Ling arm 2 — on her four-part line, and **NOT FILED on purpose**: the validator has
+zero hits for gpu/cuda/nvidia and `host` omitted defaults to `"local"`, so filing it would
+**fire** it. R4b — untracked **and** its named runner `run_r4b.sh` does not exist.
+**SUBMISSIONS REMAIN PARKED (rule 7); nothing is sent.**
+
+
 **NINTH SESSION, SECOND WRITE, 2026-08-27T17:43:35Z (closure-supervisor). NEWEST FIRST.**
 Stamp from `date -u` in the writing invocation. **The block below this one is still
 accurate where this one is silent**; this one supersedes it on the queue, which is no
