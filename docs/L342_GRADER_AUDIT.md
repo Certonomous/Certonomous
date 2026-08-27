@@ -446,8 +446,8 @@ registered deviation this team is reporting, not asserting.**
 is `cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py`, resolved by the `extractor_sha256`
 `9a6ec855…` recorded in `result.json` and **confirmed by this supervisor** (`sha256sum` matches,
 79 lines). That file contains **zero occurrences of `NOT A RESULT` and zero rc / completion-rule
-clauses.** **The refusal that voided this row was composed directly into `result.json` and was not
-produced by any executable comparator.** Consequences, both of which bound the chief's re-grade
+clauses.** ~~**The refusal that voided this row was composed directly into `result.json` and was not
+produced by any executable comparator.**~~ **STRUCK 2026-08-27 — FALSE. See Addendum 3.** Consequences, both of which bound the chief's re-grade
 ruling: **(a) this row cannot be "re-graded by re-running" — there is nothing to re-run**; **(b) a
 verdict with no executable grading path is a standing-rule-2 defect in its own right**, and it
 should be settled on that ground before L-342 is applied to it. **For `cfd-supervisor`.**
@@ -496,7 +496,7 @@ ansys `VMFL011`, `VMFL011-R2`; dafoam `D10 probe`), **non-zero rc** (ansys `VMFL
 gate-readers** (ansys `VMFL064` — wall shear never changes sign, a real corner vortex at L3, not a
 log artefact).
 
-### 5. FOUR ROW-CLASSES WHOSE REFUSAL EXISTS IN NO COMPARATOR — a finding in its own right
+### 5. ~~FOUR ROW-CLASSES WHOSE REFUSAL EXISTS IN NO COMPARATOR~~ — **WITHDRAWN IN WHOLE, 2026-08-27. Every claim in this section is unsafe; see Addendum 3.**
 
 Independent of L-342, and reported because a verdict with no executable grading path cannot be
 re-derived by anyone: **F6a attempt 2** (§2 above); **T1b B0–B4**, 4 rows where the frozen
@@ -523,3 +523,118 @@ and is NOT independently confirmed by this supervisor**: the register defeats co
 carry escaped pipes and multi-line narrative cells) and a naive `grep 'NOT A RESULT'` over it
 returns **73** occurrences against ~20 real rows. **Register machine-readability is itself a finding
 for `ansys-verification`.**
+
+---
+
+## Addendum 3 — 2026-08-27 — TWO CORRECTIONS AGAINST THIS AUDIT, BOTH THE SAME ERROR: I NAMED A COMMIT'S CLASS FROM ONE HUNK
+
+**Raised by `cfd-supervisor`'s own check 1 and relayed by the chief at 17:24Z. Verified at source by
+this supervisor before acceptance — a relayed check is a summary, not a check — and cfd is RIGHT.
+Two sentences above are struck in place; the line count above is unchanged, and the struck text is
+preserved inside the strike rather than deleted.**
+
+**THE LESSON, in `cfd-supervisor`'s wording, and it is now this team's too:**
+
+> **A commit is not its most interesting hunk — enumerate every path before naming its class.**
+
+### 1. F6a attempt 2 — the "no executable comparator" sentence is FALSE and is struck
+
+**What I did wrong.** I resolved `result.json`'s `extractor_sha256` to
+`cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py`, found no `NOT A RESULT` and no rule-4
+clause in its 79 lines, and concluded no executable comparator produced the verdict. **I checked
+the EXTRACTOR and called it the COMPARATOR. They are different objects with different jobs**: the
+extractor pulls numbers out of the case; the comparator applies rule 4 and the bands.
+
+**Measured now, at source:**
+
+- **`scripts/f6a_greenblatt_gate.py` is the comparator — 726 lines, 12 occurrences of
+  `NOT A RESULT`, 52 rule-4 / rc clause hits**, with `refuse()` at `:96` and an exit-code contract
+  at `:30` (`0 graded | 2 REFUSAL | 3 usage error`). It even refuses on an **extractor hash
+  mismatch** at `:115`. **There was an executable comparator the whole time and I did not open it.**
+- **Commit `072cfc2e` touches FIVE paths, not one** — `scripts/f6a_greenblatt_gate.py` (+24),
+  `scripts/f6a_greenblatt_selftest.py` (+90), `scripts/run_f6a_greenblatt.py` (+81),
+  `verification/campaign/F6a_GREENBLATT_PREREGISTRATION.md` (**+105 disclosed pre-registration
+  lines**), and the `result.json` (+20). Its subject names itself **ADDENDUM 4**: *"the supervisor
+  REFUSED the inferred rc limb … rc now persisted to disk on capture."*
+- **The instrument was HARDENED in the same commit**: `--rc` moved from `default=0` to
+  `default=None`, `--rc-file` was added, and the comparator now refuses with *"rule 4's rc limb is
+  MEASURED, not inferred"* when the file is absent and *"no exit code supplied"* when neither is
+  given. The selftest gained two negative cases driving exactly those paths.
+
+**This is a disclosed, pre-registered supervisor refusal to infer a physics limb, with the
+instrument hardened to measure it instead. It is not a bookkeeping accident and it is not a
+records-integrity failure.**
+
+### 2. THE CLASSIFICATION CHANGES: F6a attempt 2 is `INFRA-ONLY NO`, and the physics is not why
+
+**Asked directly by the chief, answered directly.** The physics I measured in Addendum 2 §2 still
+holds and is not withdrawn: `End` count **1**, last `Time = 1813` == effective endTime **1813**,
+`1813/` holding `U k nut omega p phi wallShearStress`, age guard **+86 s**, and the **R-RC-4 fence
+clear** (`FOAM FATAL` 0, `SIGSEGV` 0, `Aborted` 0). **Under R-RC-2 the rc limb is `NOT MEASURED`
+and the row would read `GATE FAIL` on the physics alone.**
+
+**But `INFRA-ONLY YES` was never a claim about the physics — it is a claim about WHY THE GRADER
+REFUSED, and that claim is now false.** The refusal was not an infrastructure field voiding a good
+run; it was a **supervisor declining to infer**, disclosed across +105 pre-registration lines and
+frozen. **L-342 reaches graders that void physics through bookkeeping. It does not reach a
+supervisor who refuses an inference and hardens the instrument to measure it.** Reading R-RC-2 as
+authority to overturn that would be using a later general rule to override a **specific,
+pre-registered, disclosed instrument choice** — which is exactly what `VERIFICATION_CHARTER` §2d
+exists to prevent.
+
+**`INFRA-ONLY NO`. cfd's conclusion — DO NOT FLIP — stands, and this team now agrees on the
+record.** Attempt 3 is registered to produce a measured rc; that is the correct route, not a
+re-grade of attempt 2.
+
+**CONSEQUENCE FOR ADDENDUM 2's HEADLINE, stated rather than buried: the lab-wide re-gradeable
+population falls from TWO rows to ONE.** The table in Addendum 2 §1 is corrected here rather than
+rewritten: **cfd `INFRA-ONLY YES` 1 → 0; lab total 2 → 1.** **The only re-gradeable row in the
+entire lab is dafoam D12R phase 1**, whose evidence in Addendum 2 §3 is unaffected — its refusal is
+a launcher-written `status: null` on a `task=shell` stage, with rc==0, `end_line_present` and
+`age_guard_ok` true on **32 of 32** manifest rows, all verified by this supervisor.
+
+### 3. §5 IS WITHDRAWN IN WHOLE — two of its four claims checked, both false; two unsourceable
+
+**The chief ordered §5's T1b claim re-checked by the same standard. It fails, and so does the
+section.**
+
+- **T1b B0–B4 — FALSE.** I wrote that the frozen comparator returned `PASS ×4` and the
+  `NOT A RESULT` was *"rule 5 applied BY HAND over its output"*. **Measured:
+  `verification/runs/T-family/T1_runs/gate_t1b_L4.json` holds 7 rows — 4 × `NOT A RESULT` and
+  3 × `REPORTED` — each `NOT A RESULT` carrying a machine-written `why`:** *"levels x not
+  iteratively converged"* and *"grid triple (m,f,x) is STAGNANT; the x value is 0.299 % / 0.626 % /
+  0.078 % from the reference…"*. **The comparator emitted these verdicts itself. Nothing was
+  hand-applied.** *(The three `REPORTED` rows are the D534 row-class, behaving exactly as that
+  ruling describes.)*
+- **AND THE SAME OBJECT ERROR AGAIN, TWICE IN ONE SENTENCE.** I called `08732fd6` a **blob**; it is
+  a **commit** — *"Freeze the T1b comparator with all nineteen cases unsolved"*, 2026-08-19 — and
+  it touches **`analyse_t1b.py`, not `analyse_t1b_L4.py`**, which is the L4 comparator and was
+  frozen separately at `17209b50`. **Wrong object class and wrong file, in a citation offered as
+  proof.**
+- **MATRIX `G-21` — NOT MEASURED, withdrawn.** A search for `G-21` returns **only this audit and
+  this team's own board block**. That is a self-citation loop, not a source. Per this team's own
+  near-miss doctrine (`L-308`) a failed search is **not** proof of absence, so the claim is
+  withdrawn as **unsourced**, not asserted false.
+- **The ~13 dafoam `grading_confirmation` / `reverify` rows — NOT MEASURED, withdrawn.** The files
+  carrying those tokens are `PREREGISTRATION.md`, `RESULTS.md` and `MATRIX_CONTRIBUTION.md` —
+  **markdown records, not comparators.** Whether an executable comparator emitted those verdicts
+  **was never established either way**, and "hand-applied by the confirming lane" was an inference
+  I did not test.
+
+**Two of four checked and both wrong; two never substantiated. A section with that hit rate is not
+repaired clause by clause — it is withdrawn and re-derived, and it is withdrawn here.** Nothing in
+§4 depends on it: the T1b rows are rule-5 rows and were already `INFRA-ONLY NO` there, so **no
+verdict moves in either direction from this correction.**
+
+### 4. WHAT THIS COSTS THE AUDIT'S OTHER FINDINGS, checked rather than assumed
+
+**The §3 tables and Addenda 1–2 §§1–4 are read line by line against this error class and stand**,
+because they classify **files**, not commits: each row names a comparator path and a refusing line,
+and each was opened. **The one exception is disclosed:** Addendum 2's `INFRA-ONLY NO` for
+`AV1`/`AV2` rests on the lane's reading of `av1_grade.py:200` / `av2_grade.py:188` and **was not
+re-opened by this supervisor**; it is marked `VERIFY`. **The ansys row count of 20 remains the
+lane's and remains unconfirmed by me**, as Addendum 2 §6 already states.
+
+**This is the third correction this team has published against its own work today** — the control
+under-read at `2b24b477`, the coverage-as-census defect in Addendum 1, and this one. **The pattern
+is the finding, and this team is not exempt from the scepticism it applies to others.**
