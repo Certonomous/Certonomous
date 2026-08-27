@@ -1,0 +1,21 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     pimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         5.25;          // 5 periods of transient decay + T/4: the locked phase.
+                               // N_PERIODS = 5 is DERIVED FROM THIS LADDER (L-346): the model's
+                               // period-to-period change decays 1.01e-05 -> 6.25e-07 -> 6.45e-08
+                               // -> 6.66e-09 -> 6.88e-10, the last being 5.4e-06 of the predicted
+                               // fine E2 of 1.285e-04.  Nothing here is inherited from F21's 12.25.
+deltaT          __DT__;        // FIXED; 128 / 256 / 512 steps per period, refines by 2 with h
+writeControl    runTime;
+writeInterval   0.25;          // quarter periods; the gates read t = 5.25 and the period check t = 4.25
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   12;
+runTimeModifiable false;
+adjustTimeStep  no;

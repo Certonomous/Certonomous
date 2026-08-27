@@ -1,0 +1,18 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+// F27 Womersley PIPE drive: uniform kinematic body force f(t) = A cos(omega t) z-hat,
+// A = 1, omega = 2 pi (frequency 1): the oscillating axial pressure gradient -1/rho dp/dz.
+// z is the PIPE AXIS (F21's planar sibling drives x-hat; this rung drives z-hat).
+womersleyPipeDrive
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   all;
+    volumeMode      specific;       // per unit volume: an acceleration
+    sources
+    {
+        U
+        {
+            explicit { type cosine; frequency 1; amplitude 1; scale (0 0 1); level (0 0 0); }
+            implicit 0;
+        }
+    }
+}

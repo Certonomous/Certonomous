@@ -1,0 +1,64 @@
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// F27 -- WOMERSLEY PULSATILE PIPE.  A GENUINE 3-D BUTTERFLY (O-GRID) MESH of a
+// circular pipe: radius R = 1, axis z in [0, LZ = 1] CYCLIC, wall no-slip.
+//
+// FIVE BLOCKS.  One nc x nc CARTESIAN CORE block whose corners sit at radius
+// CORE_FRAC * R = 0.5 (so its half-width is 0.5/sqrt(2) = 0.353553390593...),
+// and four nr x nc O-RING blocks between one core edge and one quadrant of the
+// wall.  The wall quadrants are `arc` edges through the points at 0, 90, 180
+// and 270 degrees on r = R, so the boundary is the CIRCLE and not a polygon.
+// Cross-section cells = nc^2 + 4 nc nr; total cells = that x nz.
+//
+// EVERY BLOCK IS `simpleGrading (1 1 1)`.  THERE IS NO GRADING PARAMETER AND NO
+// FIRST-CELL PARAMETER ANYWHERE IN THIS LADDER, at any level.  MESH_STANDARD
+// section 9.2's branch-flip hazard (a guard that fires at one level and not the
+// others) therefore cannot arise here: there is no branch to flip.  The
+// refinement recipe is nc, nr, nz all x2 per level with R, LZ and CORE_FRAC
+// held fixed, so the three meshes are geometrically similar by construction and
+// build_f27.py READS BACK the built cell size extremes per level anyway.
+//
+// blockMesh built this topology at 3,840 / 30,720 / 245,760 cells with
+// `Mesh OK` and max non-orthogonality 28.59 / 36.16 / 40.42 deg and max
+// skewness 0.964 / 0.980 / 0.990 against MESH_STANDARD section 3.1's 70 deg and
+// section 3.2's 4 (MESH_STANDARD section 8.1: BUILD BEFORE YOU FREEZE).
+scale 1;
+vertices (
+    (-0.35355339059327373 -0.35355339059327373 0)
+    (0.35355339059327373 -0.35355339059327373 0)
+    (0.35355339059327373 0.35355339059327373 0)
+    (-0.35355339059327373 0.35355339059327373 0)
+    (-0.70710678118654746 -0.70710678118654746 0)
+    (0.70710678118654746 -0.70710678118654746 0)
+    (0.70710678118654746 0.70710678118654746 0)
+    (-0.70710678118654746 0.70710678118654746 0)
+    (-0.35355339059327373 -0.35355339059327373 1)
+    (0.35355339059327373 -0.35355339059327373 1)
+    (0.35355339059327373 0.35355339059327373 1)
+    (-0.35355339059327373 0.35355339059327373 1)
+    (-0.70710678118654746 -0.70710678118654746 1)
+    (0.70710678118654746 -0.70710678118654746 1)
+    (0.70710678118654746 0.70710678118654746 1)
+    (-0.70710678118654746 0.70710678118654746 1)
+);
+blocks (
+    hex (0 1 2 3 8 9 10 11) (__NC__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (1 5 6 2 9 13 14 10) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (2 6 7 3 10 14 15 11) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (3 7 4 0 11 15 12 8) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+    hex (0 4 5 1 8 12 13 9) (__NR__ __NC__ __NZ__) simpleGrading (1 1 1)
+);
+edges (
+    arc 5 6 (1 0 0)
+    arc 13 14 (1 0 1)
+    arc 6 7 (0 1 0)
+    arc 14 15 (0 1 1)
+    arc 7 4 (-1 0 0)
+    arc 15 12 (-1 0 1)
+    arc 4 5 (0 -1 0)
+    arc 12 13 (0 -1 1)
+);
+boundary (
+    wall   { type wall;   faces ((4 5 13 12) (5 6 14 13) (6 7 15 14) (7 4 12 15)); }
+    inlet  { type cyclic; neighbourPatch outlet; faces ((0 3 2 1) (1 2 6 5) (2 3 7 6) (3 0 4 7) (0 1 5 4)); }
+    outlet { type cyclic; neighbourPatch inlet;  faces ((8 9 10 11) (9 13 14 10) (10 14 15 11) (11 15 12 8) (8 12 13 9)); }
+);

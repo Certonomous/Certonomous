@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F27 Womersley pipe -- internalField = the EXACT Bessel solution at t = 0 at the
+// built mesh's OWN cell centres (from 0/C), written by build_f27.py, LAST of all
+// (the age guard's datum).  The flow is purely axial: (0, 0, u_z(r, 0)).
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    wall   { type noSlip; }
+    inlet  { type cyclic; }
+    outlet { type cyclic; }
+}

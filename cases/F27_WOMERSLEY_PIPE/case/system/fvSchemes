@@ -1,0 +1,15 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// NON-ORTHOGONALITY IS REAL ON THIS MESH and the schemes say so.  The butterfly
+// O-grid measures max non-orthogonality 28.59 / 36.16 / 40.42 deg across the
+// ladder (MESH_STANDARD 3.1 gate 70 deg), so the Laplacian and surface-normal
+// gradient carry the EXPLICIT NON-ORTHOGONAL CORRECTION (`corrected`), and
+// fvSolution runs nNonOrthogonalCorrectors 1.  F21's planar sibling could use
+// `orthogonal` because its mesh is uniform Cartesian; THIS ONE CANNOT, and
+// copying F21's line here would silently make the diffusion term first order
+// exactly where the wall shear lives.
+ddtSchemes      { default backward; }   // second order in time: dt refines with h
+gradSchemes     { default Gauss linear; }
+divSchemes      { default none; div(phi,U) Gauss linear; div((nuEff*dev2(T(grad(U))))) Gauss linear; }
+laplacianSchemes{ default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }

@@ -1,0 +1,8 @@
+FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }
+// AXIAL BANDS ONLY.  The butterfly cross-section is five blocks and must not be
+// cut by a geometric method that knows nothing about them; z is cut instead,
+// and nz = 12 / 24 / 48 is divisible by 4 at every level.  `simple` is
+// deterministic and carries NO RNG: the decomposition seed is `none`.
+numberOfSubdomains 4;
+method          simple;
+coeffs          { n (1 1 4); }
