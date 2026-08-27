@@ -130,13 +130,34 @@ def census_lines(own, full):
     return [last] if first in (None, last) else [first, "", last]
 
 
-def footer_shas(text):
-    """shas listed in the source's own planted-control loop, plus every `@ `sha`` citation."""
+LOOP_RE = re.compile(r"for s in ([0-9a-f \n]+?); do")
+
+# sha -> {source file that cited it}.  Populated by footer_shas so the merged footer can
+# name the citing file beside any token it cannot resolve, instead of printing a bare
+# MISSING a reader cannot act on.  (2026-08-27, verification-supervisor.)
+SHA_SRC = {}
+
+
+def footer_shas(text, src=None):
+    """shas listed in EVERY planted-control loop the source carries, plus every `@ `sha`` citation.
+
+    2026-08-27 (verification-supervisor): this used `re.search` and so read only the
+    FIRST loop in a source.  A source that appends a dated correction with its own
+    control loop -- `docs/capability/ansys_ROWS.md` Correction 2 does exactly that --
+    had that loop's shas silently dropped from the merged control, which nonetheless
+    described itself as "every distinct sha cited by every source".  Measured at
+    revision 4 (`6b948902`): 3 of 145 escaped (`3e7c792c`, `b847b97f`, `8c7e1854`);
+    all three resolve, so no citation was ever broken -- the CONTROL under-reported
+    its own coverage, which is the defect standing rule 3 exists to prevent.
+    `finditer` can only widen the set, never narrow it.
+    """
     shas = set()
-    m = re.search(r"for s in ([0-9a-f \n]+?); do", text)   # the FIRST footer loop only
-    if m:
+    for m in LOOP_RE.finditer(text):
         shas.update(SHA_RE.findall(m.group(1)))
     shas.update(re.findall(r"@ `([0-9a-f]{7,10})`", text))
+    if src:
+        for x in shas:
+            SHA_SRC.setdefault(x, set()).add(src)
     return shas
 
 
@@ -285,10 +306,12 @@ def main():
                          "its own footer is superseded by the merged footer below):")
                 abody = atext.split("\n", 1)[1] if atext.startswith("# ") else atext
                 L += ["", re.sub(r"^(#+) ", lambda m: "#" * (len(m.group(1)) + 2) + " ", abody.rstrip(), flags=re.M)]
-                shas |= footer_shas(atext)
+                shas |= footer_shas(atext, CAP + afile)
             L.append("")
         L += ["---", ""]
         census[label] = (cen, present)
+        for _x in shas:   # attribute every sha to its citing source, for the footer's MISSING lines
+            SHA_SRC.setdefault(_x, set()).add(CAP + fname)
         all_shas |= shas
     prev = head_census(a.out)   # the census must not move under a re-assembly unless a family's table moved it
     key = lambda c: (c["CAN DO"], c["CAN DO, CAVEATS"], c["CAN NOT DO"], c["CAN NOT DO — not attempted"])
@@ -306,7 +329,7 @@ def main():
     else:
         L.append(f"**at HEAD: `{last_commit(CAP + ev_file)}`** (`{CAP + ev_file}`, reproduced verbatim):")
         L += ["", ev.rstrip()]
-        all_shas |= footer_shas(ev)
+        all_shas |= footer_shas(ev, CAP + ev_file)
     L += ["", "---", ""]
     # metrics summary
     ms = show(CAP + METRICS)
@@ -318,7 +341,19 @@ def main():
                  "planted-control footer is superseded by the merged footer below):")
         body = ms.split("\n", 1)[1] if ms.startswith("# ") else ms
         L += ["", body.rstrip()]
-        all_shas |= footer_shas(ms)
+        all_shas |= footer_shas(ms, CAP + METRICS)
+    # CONTROL ON THE CONTROL (2026-08-27): the merged footer claims to cover every sha
+    # cited by every source, so prove it against the ASSEMBLED ARTIFACT rather than
+    # against the inputs -- harvest every embedded control loop reproduced in the body
+    # and refuse if the merged set is not a superset.  This is the check that would
+    # have caught the `re.search` under-read above.
+    body_loop_shas = set()
+    for m in LOOP_RE.finditer("\n".join(L)):
+        body_loop_shas.update(SHA_RE.findall(m.group(1)))
+    escaped = sorted(body_loop_shas - all_shas)
+    if escaped:
+        sys.exit(f"REFUSED: {len(escaped)} sha(s) appear in a control loop reproduced in the grid body but "
+                 f"NOT in the merged footer: {escaped} — the merged control would understate its own coverage")
     L += ["", "---", "", "## Census per family", "",
           "| family | table at HEAD | CAN DO | CAN DO, CAVEATS | CAN NOT DO (attempted) | CAN NOT DO — not attempted | unclassified cells |",
           "|---|---|---|---|---|---|---|"]
@@ -347,9 +382,15 @@ def main():
     if noncommit:
         L += [f"That loop is the reader's own control and peels every token to a commit, so it honestly prints "
               f"`MISSING` for the {len(noncommit)} non-commit token(s) classified below with `git cat-file -t`.", ""]
+    miss_ids = [l.split()[0] for l in lines if l.endswith("MISSING")]
+    miss_txt = ", ".join(f"`{m}` (cited by " + ", ".join(f"`{x}`" for x in sorted(SHA_SRC.get(m, ["source not attributed"]))) + ")"
+                         for m in miss_ids)
     L += [f"Reading at assembly time ({now}, HEAD `{H[:8]}`): **{ok} ok, {missing} MISSING, {len(noncommit)} non-commit "
           f"tokens, {len(shas)} distinct shas.**"
-          + (" MISSING lines: " + ", ".join(l.split()[0] for l in lines if l.endswith("MISSING")) if missing else "")
+          + (" MISSING lines, each with the source that cites it — a token that does not resolve HERE is not"
+             " automatically a lost commit: read the citing file, which may disclose it as a sha in a"
+             " DIFFERENT repository, and this control deliberately never launders such a token into `ok`: "
+             + miss_txt if missing else "")
           + (" Non-commit tokens: " + ", ".join(noncommit) + " — disclosed by the citing family file as not a commit sha."
              if noncommit else ""), ""]
     bad = [lab for lab, (c, _) in census.items() if c["unclassified"]]
