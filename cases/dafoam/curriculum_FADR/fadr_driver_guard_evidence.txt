@@ -1,0 +1,15 @@
+FADR driver guard controls -- DRIVEN, not asserted. Zero compute: every one refuses
+before any container starts. Run 2026-08-27T18:50:06Z by dafoam lane C.
+Each control below is a PLANTED condition; the required outcome is REFUSE (rc=2).
+
+  SEEN   G-FREEZE.1 no sha given: rc=2 as required
+         message: REFUSAL: no freeze sha given. usage: fadr_chain_driver.sh <40-hex sha> [S|P ...]
+  SEEN   G-FREEZE.2 sha not 40 hex: rc=2 as required
+         message: REFUSAL: freeze sha 'deadbeef' is not 40 hex
+  SEEN   G-FREEZE.3 40 hex, not a commit: rc=2 as required
+         message: REFUSAL: freeze sha 0000000000000000000000000000000000000000 is not a commit in this repo
+  SEEN   G-FREEZE.4 real commit that does NOT hold the prereg path (HEAD, pre-freeze): rc=2 as required
+         message: REFUSAL: commit b452e88910fea782c22a24f16d7172e5f333ee8a does not hold cases/dafoam/curriculum_FADR/PREREGISTRATION.md. A freeze sha is NEVER derived from a
+
+units: 4 seen, 0 failed
+DRIVER GUARD CONTROLS: every planted condition REFUSED before compute

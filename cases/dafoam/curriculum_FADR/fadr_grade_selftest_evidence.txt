@@ -1,0 +1,44 @@
+FADR grader planted controls -- DRIVEN under python3 AND python3 -O. Zero compute.
+Run 2026-08-27T18:50:19Z by dafoam lane C, before the freeze.
+Standing rule 3: a zero from a reader not shown able to see a non-zero is not evidence.
+L-332: no refusal is written as an assert; --selftest parses its own AST and refuses
+if a single ast.Assert node exists, because python3 -O deletes every assert.
+
+=== python3 fadr_grade.py --selftest ===
+  SEEN   AST: 0 ast.Assert nodes in this file
+  SEEN   C2_match_identical: MATCH as required
+  SEEN   C1_mismatch_seen: MISMATCH as required
+  SEEN   C4_silent_empty: REFUSE as required
+  SEEN   C5_short_read: REFUSE as required
+  SEEN   C6a_abs_only_accepted: MATCH as required
+  SEEN   C6b_abs_exceeded_rejected: MISMATCH as required
+  SEEN   C6c_rel_only_accepted: MATCH as required
+  SEEN   C3_premutation_all_bad: MISMATCH as required
+  SEEN   C3_mutated_match_flips: MISMATCH as required
+  SEEN   C3_mutated_all_bad_flips: MATCH as required
+  SEEN   C3_restored_match: MATCH as required
+  SEEN   DUALITY PLANT: reads 0.0 unplanted and 0.0380 with a 3.8 %-shaped plant
+units: 13 seen, 0 failed
+SELFTEST PASS -- every planted control was seen and the mutation flipped both directions
+rc=0
+
+=== python3 -O fadr_grade.py --selftest  (the flag that deletes asserts) ===
+  SEEN   AST: 0 ast.Assert nodes in this file
+  SEEN   C2_match_identical: MATCH as required
+  SEEN   C1_mismatch_seen: MISMATCH as required
+  SEEN   C4_silent_empty: REFUSE as required
+  SEEN   C5_short_read: REFUSE as required
+  SEEN   C6a_abs_only_accepted: MATCH as required
+  SEEN   C6b_abs_exceeded_rejected: MISMATCH as required
+  SEEN   C6c_rel_only_accepted: MATCH as required
+  SEEN   C3_premutation_all_bad: MISMATCH as required
+  SEEN   C3_mutated_match_flips: MISMATCH as required
+  SEEN   C3_mutated_all_bad_flips: MATCH as required
+  SEEN   C3_restored_match: MATCH as required
+  SEEN   DUALITY PLANT: reads 0.0 unplanted and 0.0380 with a 3.8 %-shaped plant
+units: 13 seen, 0 failed
+SELFTEST PASS -- every planted control was seen and the mutation flipped both directions
+rc=0
+
+=== ast.Assert node count in fadr_grade.py ===
+ast.Assert nodes: 0
