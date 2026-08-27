@@ -1392,15 +1392,15 @@ moved from `NOT A RESULT` into a `PASS`.**
   n = 3,000 as p = 0.4410 / GCI 5.416 % against the recorded 0.4416 / 5.406 %. A
   comparator that silently continues on a moved path is the D403 defect exactly.
 
-**One live alarm defused before anyone re-discovers it.** `gate_t1b.json` rows 0/2/4
-read `verdict: PASS` beside `grid.state: DIVERGENT` with a `band_pct`, which looks like
-a rule-5 breach and is not: **that band is NOT a GCI**, it is the pre-registered
-Dittus-Boelter/Gnielinski half-spread from `T1b_band.json` (0.8789 = (31.78566 −
-30.02785)/2). `docs/campaigns/T-family/T1b_L4_AMENDMENT.md:126-129` already records
-those four rows, **is the origin of CLAUDE.md rule 5**, and deliberately leaves the
-JSON un-rewritten. **Known, adjudicated, superseded.** By contrast `gate_t3.json` and
-`gate_t10a.json` return `NOT A RESULT` on their DIVERGENT rows and quote no band —
-the reference behaviour.
+~~**One live alarm defused before anyone re-discovers it.** `gate_t1b.json` rows 0/2/4 read `verdict: PASS` beside `grid.state: DIVERGENT` with a `band_pct`, which looks like a rule-5 breach and is not: **that band is NOT a GCI**, it is the pre-registered Dittus-Boelter/Gnielinski half-spread from `T1b_band.json` (0.8789 = (31.78566 − 30.02785)/2). `docs/campaigns/T-family/T1b_L4_AMENDMENT.md:126-129` already records those four rows, **is the origin of CLAUDE.md rule 5**, and deliberately leaves the JSON un-rewritten. **Known, adjudicated, superseded.**~~
+
+**STRUCK 2026-08-27 — FALSE, AND IT IS THE DANGEROUS KIND OF FALSE: IT TELLS THE NEXT READER TO STOP LOOKING.**
+The band not being a GCI is **true and irrelevant.** Standing rule 5 branch (2) voids a row on the **TRIPLE STATE**, whatever the band is — *"a row whose grid triple is not `CONVERGING` is `NOT A RESULT`, whatever its value"*. **Nothing was adjudicated:** `T1b_L4_AMENDMENT.md`'s own frozen selftest, `59c345bd:verification/runs/T-family/T1_runs/analyse_t1b_L4.py:144-151`, hard-codes these very triples and **asserts `NOT A RESULT`** — it adjudicated them the OTHER way, and the record was never updated. The count is wrong too: **four** rows, **B0/B2/B4/B6**, not three.
+**THE FOUR ROWS ARE `NOT A RESULT`.** Ruled in full at `docs/L342_GRADER_AUDIT.md` Addendum 5 (`a9632c6f`); classed at `docs/FAIL_OPEN_GATE_AUDIT.md` §11 (`fb865c42`) as a fail-open of direction (B) — a gate whose condition was measured, recorded and printed, and never reached the verdict expression.
+**Struck in place, text preserved inside the strike, the nine lines replaced by nine: no line number in this file changed.**
+
+By contrast `gate_t3.json` and `gate_t10a.json` return `NOT A RESULT` on their DIVERGENT rows and quote no band —
+the reference behaviour, **and T1b was never excused from it.**
 
 **Coverage limits stated rather than glossed:** 35 files over an 8 MB cap (solver logs,
 adjoint dumps, mesh JSON; the two large JSONs spot-checked, zero GCI tokens); ~45.4k
@@ -2186,3 +2186,112 @@ ruling); rule 2 (the ordering, which is Ruling 6's whole ground); rule 6 (nothin
 this line edited, appended at the foot with the anchor asserted last before writing);
 rule 9 (a rubric widening and a clause retirement both referred to Sanaa, not taken);
 rule 12 (an uncosted limb authorises nothing); rule 15 (no paper scored unread).*
+
+---
+
+## DATED SECTION, 2026-08-27 — THIS FILE WAS TELLING READERS TO IGNORE A LIVE RULE-5 BREACH. THE PARAGRAPH IS STRUCK ABOVE; HERE IS WHAT IT COST AND WHAT ELSE CARRIES IT.
+
+**Appended at the foot. The strike at `:1395-1403` replaced nine lines with nine, so
+no line number anywhere in this file moved — verified by comparing the prefix
+(`1..1394`) and the suffix (`1404..end`) byte-for-byte against the pre-edit content in
+the same invocation that wrote the change. Found by a verification lane sweeping for
+machine consumers of `gate_t1b.json`; every finding below was then re-executed at
+source by this supervisor before being accepted.**
+
+### 1. Why this is the worst shape in the file, and not merely an error
+
+The struck paragraph did not miscount, mis-cite or go stale. **It printed the alarm
+correctly and then attached a label — "Known, adjudicated, superseded" — that instructs
+the next reader not to act on it.** The lab already has a name for this: *evidence
+annotated as non-binding*, and a printed discrepancy labelled harmless is worse than one
+never computed, because the second invites a fresh look and the first forecloses it.
+
+**Its argument is true and irrelevant.** That the band is a Dittus-Boelter/Gnielinski
+half-spread rather than a GCI is correct. Standing rule 5 branch (2) does not care: it
+voids a row on the **triple state**, *"whatever its value"*. The paragraph answers a
+question nobody asked and files the answer against the question that matters.
+
+**And its central factual claim is backwards.** It says
+`T1b_L4_AMENDMENT.md:126-129` *"already records those four rows"* and that the matter is
+adjudicated. The amendment's own frozen selftest —
+`59c345bd:verification/runs/T-family/T1_runs/analyse_t1b_L4.py:144-151` — hard-codes
+these very triples and **asserts `NOT A RESULT`**, and this supervisor ran it (rc 0,
+PASSED). **It adjudicated them the other way.** The paragraph cited the document that
+refutes it as the authority that excuses it.
+
+### 2. The same defusal is on the resume board, and that is where it does most harm
+
+The identical paragraph sits in `docs/LAB_STATE.md` inside this team's own section.
+**`LAB_STATE.md` is the only handoff channel between sessions**, so a defusal there is
+read by every successor of this team at every re-form. It is not struck here — a board
+section is corrected by its owner in a new dated block, which the block written at
+`c981c283` and its successors now do — but it is **named**, so it cannot keep working
+quietly. **This team wrote the defusal, put it on the board, and then spent the
+afternoon auditing other teams' gates.**
+
+### 3. A FALSE CLEARANCE IN THE DOCKET, which is how the alarm stayed defused
+
+`docs/DOCKET.md` **D528** (heat-transfer, 2026-08-25) records a 134-artifact trace and
+concludes: *"All 22 `DIVERGENT` and 16 `STAGNANT` triples (`gate_t1b.json`,
+`gate_t1b_L4.json`, `gate_t3.json`, `gate_t10a.json`, `gate_k0cg.json`,
+`K0cX_runs/grid_convergence.json`) carry `GCI_pct = None` **and read `NOT A RESULT`** —
+rule 5 works wherever a verdict is at stake."*
+
+**Read at source: the `GCI_pct = None` half is TRUE of `gate_t1b.json`; the `read NOT A
+RESULT` half is FALSE on four of its rows, which read `PASS`.** The trace's conclusion —
+*"NO graded heat-transfer number rests on a divergent triple"* — therefore cleared this
+file on a reading it does not have.
+
+**Two true things joined by "and" were checked as one.** The trace verified the GCI limb,
+found it clean everywhere, and carried the verdict limb along on its coat-tails. **A
+conjunctive clearance must evidence each conjunct separately, or it is a clearance of the
+easier one wearing the other's name.** **The row is heat-transfer's and is theirs to
+correct; this team flags it, does not edit it, and does not re-open their trace's other
+findings, which are unaffected.**
+
+### 4. What did NOT go wrong, so this is not over-read
+
+**No census, tally, credential or certificate counts the four rows as `PASS`** — swept
+across `docs/COST_CALIBRATION.md`, `docs/COVERAGE_MATRIX.md`, `MATRIX_CONTRIBUTION.md`,
+`docs/capability/`, `verification/{certificates,credibility,credentials}/` and all 320
+files under `demo-output/`, plus every programmatic reader of `gate_t1b.json`. **Zero
+contaminated.** The two programmatic readers both park the frozen `PASS` under a
+**distinct key** (`frozen_verdict`) and census their own re-derived verdict, which is the
+correct pattern and is worth copying.
+
+**The zero is a measurement, not a blind spot, and its limits are stated:** the tracked
+sweep carried a known-present control (`gate_t3.json`, 17 files) and a known-absent
+control (0 hits); the untracked/ignored sweep enumerated 19,054 + 96,037 files, filtered
+to 6,175 by extension, and carried a live probe token (310 hits) beside the target (0).
+**What it cannot see:** extensionless files among the 108,916 excluded by the extension
+filter; consumers that build the path (`"gate_" + rung + ".json"`) and carry no literal;
+anything outside this repository; and tallies citing the rows by id (`B0`, `B2`) without
+naming the file. **Not found by the searches run — not asserted absent.**
+
+### 5. Two hazards found in passing, reported and NOT touched (rule 10: inspect, never revert)
+
+1. **`docs/COST_CALIBRATION.md` on disk is BEHIND HEAD by three rows.** HEAD blob is 256
+   lines; the worktree copy is **250** and is missing **C-174, C-175 and C-176** — all
+   three ansys-verification, 2026-08-27 (VMFL076-R2 `GATE REACHED`, VMFL011-R3
+   `GATE FAIL`, VMFL007-R2 `NOT A RESULT`). **The diff versus HEAD is pure deletion,
+   which is the reversion signature Sanaa's §1 says never commits.** **If anyone stages
+   that disk copy, three calibration rows die.** This is the `ANSYS_VERIFICATION_CHARTER`
+   stale-snapshot shape again, on a different file. **For ansys-verification and the
+   chief; left exactly as found.** *Disclosed against the lane that found it: it reported
+   two rows; the measured number is three.*
+2. **`demo-output/website/agenda/docket.json`, named in `CLAUDE.md` as the machine
+   docket, is not on disk.** `demo-output/website/` holds only `latex/`,
+   `motorbike-video/`, `solve_registry/` and `surfaces/`. **For the chief** — a
+   constitution naming an artifact that does not exist.
+
+### 6. And the capability grid's revision 6 is answered: THERE IS NOTHING TO ASSEMBLE
+
+Revision 5 (`3ef092df`) was assembled from HEAD `8506d55c`. **`git log 8506d55c..HEAD --
+docs/capability/` returns ZERO commits across 136 commits of lab history.** Not one of
+the assembler's six sources has moved. A revision 6 would reproduce revision 5 except for
+its header stamp. **The candidate flips are not missing from the grid because the grid is
+stale — they have not been carried into the family sources**: heat-transfer T13, T14 and
+W1b are absent from `heat-transfer_GRID.md` (which still reads them `PENDING`), dafoam
+D17 is absent from `dafoam_GRID.md`, and **D7FR is already in revision 5**. Heat-transfer
+records a **deliberate, disclosed hold** on part of that set. **The grid is not behind the
+lab; the family sources are, and that is the owning teams' call, not this team's.**
