@@ -327,3 +327,103 @@ only route by which this defect could ever produce a wrong verdict.
 **Nothing in §13 has been applied.** No comparator was changed, no `_PROPOSED`
 file written, no solver launched. Nothing was sent, filed, uploaded, posted or
 registered outside this box (rule 7).
+
+---
+
+# ADDENDUM — 2026-08-27. **§2h DOES NOT REACH THIS RUNG. POST-COMPUTE, DISCLOSURE ONLY.** Document version 1.1 -> 1.2
+
+**No value moves and no verdict moves.** `G2` and `G3` remain **`PASS`**, resting
+exactly where the 2026-08-27T18:55Z disclosure put them — on the **registered absolute
+floor**, with the instrument defect disclosed beside them. This addendum records only
+that a clause which *looked* like it retroactively legitimised those two `PASS`es
+**does not**, and says what would be needed instead. **Lines whose number changed above
+this section: 0**, verified by byte-prefix against this file's HEAD blob in the same
+shell invocation as the commit, never typed.
+
+## A.1 The primary ground, which disposes of the question on its own
+
+`VERIFICATION_CHARTER.md` **§2h** (v1.17, commit `9fdb1d9f`) creates the
+**FLOOR DEMONSTRATION**: a limb grading one value at one level against one
+pre-registered absolute threshold, computing no order and no GCI, which **can return
+`PASS` without touching rule 5**. Structurally that is what `G2` and `G3` are.
+
+**But §2h.4's chapeau reads:** *"a floor demonstration may `PASS` ONLY where ALL FIVE
+hold, **declared in the registration BEFORE compute**."*
+
+| | commit | timestamp |
+|---|---|---|
+| **T13 registration frozen** | `0d2dc150` | **2026-08-26T20:55:45Z** |
+| **§2h landed** | `9fdb1d9f` | **2026-08-27T22:01:24Z** |
+| | | **gap: 25.09 hours** |
+
+**A registration cannot declare conditions against a clause that did not exist when it
+was frozen.** This is not a technicality — it is **rule 2's own logic**, and it is the
+§2g reasoning pointed back at this team: *a pre-registration cannot except a standing
+rule, and equally it cannot retroactively claim the benefit of one.*
+
+## A.2 The five conditions tested anyway, one by one — corroboration, not the argument
+
+The chapeau settles it. The conditions were tested at source regardless, because the
+result of that test is the **specification** in §A.4.
+
+| § | condition | verdict | evidence |
+|---|---|---|---|
+| **(1)** | reference is the **exact solution of the same continuum model** — *the load-bearing one* | **MET** | `T13_registered.json` title *"Batchelor 1954 parallel flow, EXACT tier"*; `G2` reference **0.0** (the linear `T` is an exact solution of the same Boussinesq model), `G3` reference **1.0** (`Nu_L` = 1 in the conduction regime) |
+| **(2)** | iterative error separately gated by rule 5 limb (1), **one-way** | **MET** | **Verified in code:** `analyse_t13.py:404` returns `NOT A RESULT` on gate (1) **before** the `exact_class` branch at `:405`; `apply_gate`'s own docstring states *"the gate is one-way"* |
+| **(3)** | **round-off stated with its magnitude, as a number in the registration** | **NOT MET** | `T13_registered.json` carries **no round-off string at all**. `T13_PREREGISTRATION.md:104` says the triples *"are round-off"* qualitatively; `:225`/`:227`'s `1e-09` / `1e-06` are **SELFTEST FIXTURE values for forged rows**, not stated magnitudes for the graded rows. §2h.4(3): *"a number in the registration, not an assurance"* |
+| **(4)** | the limb's **wording** makes no continuum claim | **NOT CLEANLY MET** | §2h.4(4): *"The registration's own sentence is the test."* T13's registered sentence — *"a linear `T` is in the null space of the scheme's truncation error, so its triple is EXACT/DEGENERATE by construction and rule 5 (2) would return `NOT A RESULT` for a row that cannot be wrong by discretisation"* — **justifies skipping gate (2)**; it is not a bounded discretisation-error claim |
+| **(5)** | the claim is **bounded by the levels actually run** | **NOT DECLARED** | neither asserted nor denied in the registration |
+
+**Two of five met, two not met, one not declared.**
+
+## A.3 A correction that runs in T13's favour, and is stated for that reason
+
+**Condition (2) is MET, and that narrows a characterisation this team has repeatedly
+made in wider terms.** The `exact_class` flag bypasses **gate (2) ONLY**. Gate (1) —
+iterative convergence and plateau, `C_CONV` and `C_PLAT` — is applied to every level
+**before** the flag is consulted and is unaffected by it. **The defect is therefore not
+"a bypass of rule 5"; it is a bypass of rule 5's gate (2).** §11 above and later
+records describe it in the broader way; **the narrower statement is the correct one.**
+It is recorded here because a correction that favours the thing we criticised is the
+one most likely to be quietly dropped.
+
+**This narrows the defect; it does not retire it.** §11's finding stands in full: the
+flag is *declared*, never *derived*, and is never confronted with the measured triple
+state. **`analyse_t13.py` remains NOT FOR REUSE** — and it now has a **second,
+independent ground**: conditions (3) and (4) fail quite apart from the `exact_class`
+defect, so even a repaired flag would not make this instrument §2h-eligible.
+
+## A.4 What a T13 successor must REGISTER, PRE-COMPUTE, to qualify
+
+The blocked citation converts into a buildable specification. A successor must declare,
+**in the registration, before any compute**:
+
+1. **A round-off magnitude as a NUMBER**, shown negligible against the floor — not the
+   assurance that the values "are at round-off" (condition 3).
+2. **A limb sentence worded as a bounded discretisation-error claim naming the mesh** —
+   *"the discretisation error in <quantity> is below X at N cells"* — never *"the
+   solution is correct to X"* (condition 4).
+3. **A levels-run bound** — *"below X at every level run"*, and no claim about meshes
+   not run (condition 5).
+
+Conditions (1) and (2) T13 already satisfies and a successor would inherit.
+
+**The general point, which is larger than this rung: because §2h requires pre-compute
+declaration, §2h can never be cited for ANY already-frozen rung.** There is no citation
+path. Every §2h benefit requires a **new registration**. `T9a-R1c` (`W1c`, frozen
+`8268ffe2`, **2026-08-27T22:17:28Z — sixteen minutes after §2h landed**) declares all
+five conditions before compute and is currently the only rung in this territory that
+can invoke the clause.
+
+## A.5 What this addendum does not do
+
+It does not move a value, a verdict, a band, a floor or a label; it does not
+re-instrument anything and it is not a new measurement. **`G2` 6.2626e-11 against the
+1e-06 floor (4.20 orders, triple OSCILLATORY) and `G3` 1.9896e-10 against 2e-04 (6.00
+orders, triple DIVERGENT, observed order −0.8931) remain `PASS` on the registered
+absolute floor.** §2h **recognises the class these rows belong to**; it **is not
+authority for their `PASS`**.
+
+*Ruled by the heat-transfer supervisor `[lab-attributed]` 2026-08-27 after the ordered
+grid flip was refused by the drafting lane and the refusal upheld; drafted by a lab
+lane. Zero compute.*
