@@ -162,3 +162,35 @@ Reading at write time, 2026-08-26: 27 ok, 0 MISSING, 27 distinct shas. (Image ID
 | bands, gates, verdict mappings changed | 0 |
 | sentences struck in place | 2 |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment v1.0b — 2026-08-27, the dafoam supervisor's DATED CORRECTION to check (ii)'s status, on lane C's crash triage of AV-2 (dated addendum; the supervisor's own "refuted" reading struck; no band, gate or verdict mapping changed)
+
+**Version bump: v1.0a → v1.0b.** As with v1.0a, the version is carried in this heading and the `Version 1.0` line at `:3` is NOT edited — editing it would renumber nothing but would rewrite a frozen line, and the v1.0a precedent is followed exactly.
+
+**Dated correction — 2026-08-27 — check (ii)'s exposure claim STANDS; the supervisor's "refuted" reading is STRUCK.**
+
+On 2026-08-27 the dafoam supervisor reported to the chief and boarded at `bca4014c` that measurement had **refuted** v1.0a's claim that the total-level forward-AD-vs-reverse-AD channel is exposed. **That reading is struck. It was wrong, and it was wrong in the direction that overstates a finding.** The channel is exposed and it is live: AV-2's arms print `ADF-Deriv` beside `CD` and `CL` at every print interval and carry a real tangent, reading `CL` 0.9983742395429173 against the reverse-mode total 1.037472696796837 — 3.8 % short and **rising monotonically** toward it (0.98812 at iteration 800, 0.99343 at 900).
+
+**What actually happens is a collapse of the primal's convergence RATE under a forward seed, not a breakage.** Reverse mode on the identical staged case decays geometrically and satisfies the tolerance at iteration 435 (`Minimal residual 9.822715611394694e-09`); the forward-seeded primal decays algebraically to 7.4997e-05 at `endTime` 1000, against an effective acceptance of 1e-6 (`primalMinResTol` 1e-8 × the library default `primalMinResTolDiff` 1e2, `pyDAFoam.py:517`) — 75× outside. The refusal is issued by DAFoam's own `checkPrimalFailure()` (`DASolver.C:2721-2760`), i.e. **by the primal convergence gate, not by the API and not by the forward channel.** A tangent read at a non-converged primal would be worthless in any case.
+
+**Two explanations are ELIMINATED, from disk, without compute.** (a) *Tolerance configuration* — DAFoam's own forward regression uses `primalMinResTol 1.0e-12` with `primalMinResTolDiff 1e4`, an effective 1e-8, **100× stricter in absolute terms than ours**. (b) *Invocation pattern* — `av2_xf.py`'s forward loop reproduces `tests/testFuncs.py:17-52` exactly (fresh `om.Problem` per component, `setup(mode="rev")`, `add_dvgeo`, `run_model()`, tangent via `prob.get_val(func)[0]`). **What differs is the CASE**: NACA0012, 4,032 cells, np=1 against ConvergentChannel, 343 cells, np=4.
+
+**Status of check (ii) is therefore `BLOCKED — primal convergence under a forward seed`, not `BLOCKED — API`.** AV-2's registered band of 1.0e-5 per component is **untested, not falsified**: no `ε_k` has been computed and none is quoted. The measurement that would cash the test is whether the forward-seeded primal reaches acceptance at a longer `endTime` or on a smaller case — and **either change alters the case under test, so it is a new registration and not an adjustment to this one.**
+
+The bit-identity of `primalMaxRes` across both images (two values, same order, `7.499668076651931e-05` / `7.495510217564101e-05`) establishes that **the IDWarp patch does not touch this channel.**
+
+*Recorded by the dafoam supervisor; the mechanism, the eliminations and the correction of the supervisor's own reading are lane C's, established from disk at zero solver cost.*
+
+**Provenance of every figure above, so none of it rests on recall.** All are read from artefacts still on disk under `/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality/`: the arm logs `FAD-S_20260826T232426Z_626679.log` and `FAD-P_20260826T233553Z_633158.log` (the `ADF-Deriv` prints, both residual histories, all five `Primal min residual` banners per arm, the reverse block's `Minimal residual … satisfied` line at iteration 435), `X-S/av2_X.json` and `X-P/av2_X.json` (the reverse-mode totals), `FAD-S/av2_FAD.json` and `FAD-P/av2_FAD.json` (`blocked_any` true, `control_fail` **false**, 5/5 `BLOCKED`, `n_add_dvgeo` 1). The DAFoam source citations were read **inside the SHIPPED image** at `/home/dafoamuser/dafoam/repos/dafoam/`. **Recorded in a successor's frozen text as well:** `cases/dafoam/ladder-a/A1/curriculum_AV2R/PREREGISTRATION.md` §1.2 states the same observations and **excludes them from that item's prediction set**, since a prediction about something already observed is worth nothing.
+
+**One thing this correction does NOT do.** It does not attempt DAFoam's own shipped forward-AD regression `tests/runRegTests_DASimpleFoamForward.py`. Its reference `refs/DAFoam_Test_DASimpleFoamForwardRef.txt` is in both images but its case fixture `reg_test_files-main` is **absent from both**, and `tests/Allrun` retrieves it by `wget` from `github.com` at run time. **Not attempted, and no external retrieval was made** — that is an outbound fetch with no pre-registration, and it is on the chief's desk as a question, not taken as an action.
+
+| what this amendment did | figure |
+|---|---|
+| bands, gates, thresholds, caps, labels or verdict mappings changed | 0 |
+| supervisor readings struck | 1 (the "refuted" reading boarded at `bca4014c`) |
+| status strings corrected | 1 (check (ii): `BLOCKED — API` → `BLOCKED — primal convergence under a forward seed`) |
+| solver core-minutes spent to establish it | 0.000 |
+| lines whose number changed above this section | 0 |
