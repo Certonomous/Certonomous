@@ -140,3 +140,15 @@ the file is weaker evidence than a commit object: it proves the file has not
 changed since 18:10:36Z only to a reader who trusts this record's timestamps.
 The commit would have made the freeze independently checkable.  It is not
 available, and no claim in the results file rests on more than the hashes here.
+
+==================== COMMITTED AFTER ALL ====================
+utc                 2026-08-22T19:11:54.361769914Z
+A commit lane (not this lane, on the T-family supervisor's instruction) committed
+the freeze set as 7150182b83a04f0f6efb913d4515dbd36575ad81 at 2026-08-22T18:55:43Z.
+This lane did not make that commit and did not retry its own denied one.
+Intervals: freeze -> first preprocessing +4 min 58.34 s; freeze -> first solver
+launch (18:16:57Z) +6 min 20.34 s; freeze -> commit +45 min 06.34 s; first solver
+launch -> commit +38 min 46 s.  The commit does NOT precede compute; the on-disk
+freeze does.  Every committed blob verified byte-identical to the working copy,
+comparator included (a3014a64f1a2e5ce507f029c45b7c1f54eaf108348cf37a63be1ca604649c5ef).
+Recorded in T10aR_PREREGISTRATION.md ADDENDUM 2.

@@ -7,11 +7,11 @@
 \*---------------------------------------------------------------------------*/
 Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
-Exec   : checkMesh -allRegions -allTopology -allGeometry
+Exec   : checkMesh -case /home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/T5_CUBE_f -allRegions
 Date   : Aug 26 2026
-Time   : 16:26:13
+Time   : 22:22:31
 Host   : ip-172-31-43-247
-PID    : 148761
+PID    : 513371
 I/O    : uncollated
 Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T5_runs/T5_CUBE_f
 nProcs : 1
@@ -31,8 +31,6 @@ Create mesh air for time = 0
 Create mesh epoxy for time = 0
 
 Check mesh...
-    Enabling all (cell, face, edge, point) topology checks.
-    Enabling all geometry checks.
 
 Time = 0
 
@@ -62,31 +60,29 @@ Checking topology...
     Point usage OK.
     Upper triangular ordering OK.
     Face vertices OK.
-    Topological cell zip-up check OK.
-    Face-face connectivity OK.
     Number of regions: 1 (OK).
 
 Checking patch topology for multiply connected surfaces...
-    Patch               Faces    Points     Surface topology  Bounding box
-    inlet               5133     5280     ok (non-closed singly connected)   (-0.12 0 0) (-0.12 0.051 0.075)
-    outlet              5133     5280     ok (non-closed singly connected)   (0.3 0 0) (0.3 0.051 0.075)
-    floor               9790     10044    ok (non-closed singly connected)   (-0.12 0 0) (0.3 0 0.075)
-    roof                10384    10620    ok (non-closed singly connected)   (-0.12 0.051 0) (0.3 0.051 0.075)
-    symmetry            14124    14424    ok (non-closed singly connected)   (-0.12 0 0) (0.3 0.051 0)
-    side                15312    15576    ok (non-closed singly connected)   (-0.12 0 0.075) (0.3 0.051 0.075)
-    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
-    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
-    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
-    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
-    ".*"                62954    62956    ok (closed singly connected)       (-0.12 0 0) (0.3 0.051 0.075)
+    Patch               Faces    Points     Surface topology
+    inlet               5133     5280     ok (non-closed singly connected)  
+    outlet              5133     5280     ok (non-closed singly connected)  
+    floor               9790     10044    ok (non-closed singly connected)  
+    roof                10384    10620    ok (non-closed singly connected)  
+    symmetry            14124    14424    ok (non-closed singly connected)  
+    side                15312    15576    ok (non-closed singly connected)  
+    cube_front          648      703      ok (non-closed singly connected)  
+    cube_rear           648      703      ok (non-closed singly connected)  
+    cube_top            594      646      ok (non-closed singly connected)  
+    cube_side_n         1188     1258     ok (non-closed singly connected)  
+    ".*"                62954    62956    ok (closed singly connected)      
 
 
 Checking faceZone topology for multiply connected surfaces...
-    FaceZone            Faces    Points   Surface topology                   Bounding box
-    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
-    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
-    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
-    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
+    FaceZone            Faces    Points   Surface topology                  
+    cube_front          648      703      ok (non-closed singly connected)  
+    cube_rear           648      703      ok (non-closed singly connected)  
+    cube_top            594      646      ok (non-closed singly connected)  
+    cube_side_n         1188     1258     ok (non-closed singly connected)  
 
 Checking basic cellZone addressing...
     CellZone            Cells        Points       Volume       BoundingBox
@@ -110,37 +106,8 @@ Checking geometry...
     Face pyramids OK.
     Max skewness = 7.237074726e-13 OK.
     Coupled point location match (average 0) OK.
-    Face tets OK.
-    Min/max edge length = 4.999994e-05 0.00701904137 OK.
-    All angles in faces OK.
-    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
-    All face flatness OK.
-    Cell determinant (wellposedness) : minimum: 2.219520928e-07 average: 0.1878804497
- ***Cells with small determinant (< 0.001) found, number of cells: 59818
-  <<Writing 59818 under-determined cells to set cellDeterminant
-    Concave cell check OK.
-    Face interpolation weight : minimum: 0.1428569959 average: 0.4731772181
-    Face interpolation weight check OK.
-    Face volume ratio : minimum: 0.1666664667 average: 0.9081284765
-    Face volume ratio check OK.
-AMI: Patch source faces: 648
-AMI: Patch target faces: 648
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
-AMI: Patch source faces: 648
-AMI: Patch target faces: 648
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
-AMI: Patch source faces: 594
-AMI: Patch target faces: 594
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
-AMI: Patch source faces: 1188
-AMI: Patch target faces: 1188
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
 
-Failed 1 mesh checks.
+Mesh OK.
 
 Mesh stats epoxy
     points:           17610
@@ -168,28 +135,26 @@ Checking topology...
     Point usage OK.
     Upper triangular ordering OK.
     Face vertices OK.
-    Topological cell zip-up check OK.
-    Face-face connectivity OK.
     Number of regions: 1 (OK).
 
 Checking patch topology for multiply connected surfaces...
-    Patch               Faces    Points     Surface topology  Bounding box
-    cube_bottom         594      646      ok (non-closed singly connected)   (0 0 0) (0.015 0 0.0075)
-    symmetry            659      774      ok (non-closed singly connected)   (0 0 0) (0.015 0.015 0)
-    core                1725     1772     ok (non-closed singly connected)   (0.0015 0.0015 0) (0.0135 0.0135 0.006)
-    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
-    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
-    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
-    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
-    ".*"                6056     6058     ok (closed singly connected)       (0 0 0) (0.015 0.015 0.0075)
+    Patch               Faces    Points     Surface topology
+    cube_bottom         594      646      ok (non-closed singly connected)  
+    symmetry            659      774      ok (non-closed singly connected)  
+    core                1725     1772     ok (non-closed singly connected)  
+    cube_front          648      703      ok (non-closed singly connected)  
+    cube_rear           648      703      ok (non-closed singly connected)  
+    cube_top            594      646      ok (non-closed singly connected)  
+    cube_side_n         1188     1258     ok (non-closed singly connected)  
+    ".*"                6056     6058     ok (closed singly connected)      
 
 
 Checking faceZone topology for multiply connected surfaces...
-    FaceZone            Faces    Points   Surface topology                   Bounding box
-    cube_front          648      703      ok (non-closed singly connected)   (0 0 0) (0 0.015 0.0075)
-    cube_rear           648      703      ok (non-closed singly connected)   (0.015 0 0) (0.015 0.015 0.0075)
-    cube_top            594      646      ok (non-closed singly connected)   (0 0.015 0) (0.015 0.015 0.0075)
-    cube_side_n         1188     1258     ok (non-closed singly connected)   (0 0 0.0075) (0.015 0.015 0.0075)
+    FaceZone            Faces    Points   Surface topology                  
+    cube_front          648      703      ok (non-closed singly connected)  
+    cube_rear           648      703      ok (non-closed singly connected)  
+    cube_top            594      646      ok (non-closed singly connected)  
+    cube_side_n         1188     1258     ok (non-closed singly connected)  
 
 Checking basic cellZone addressing...
     CellZone            Cells        Points       Volume       BoundingBox
@@ -213,34 +178,6 @@ Checking geometry...
     Face pyramids OK.
     Max skewness = 5.182480205e-14 OK.
     Coupled point location match (average 0) OK.
-    Face tets OK.
-    Min/max edge length = 4.999999668e-05 0.000521739133 OK.
-    All angles in faces OK.
-    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
-    All face flatness OK.
-    Cell determinant (wellposedness) : minimum: 0.006271163667 average: 0.6321740597
-    Cell determinant check OK.
-    Concave cell check OK.
-    Face interpolation weight : minimum: 0.3341195015 average: 0.4873343855
-    Face interpolation weight check OK.
-    Face volume ratio : minimum: 0.5017709668 average: 0.9586529084
-    Face volume ratio check OK.
-AMI: Patch source faces: 648
-AMI: Patch target faces: 648
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
-AMI: Patch source faces: 648
-AMI: Patch target faces: 648
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
-AMI: Patch source faces: 594
-AMI: Patch target faces: 594
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
-AMI: Patch source faces: 1188
-AMI: Patch target faces: 1188
-AMI: Patch source sum(weights) min:1 max:1 average:1
-AMI: Patch target sum(weights) min:1 max:1 average:1
 
 Mesh OK.
 

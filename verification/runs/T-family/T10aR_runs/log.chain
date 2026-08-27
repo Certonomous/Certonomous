@@ -1,1 +1,8 @@
 2026-08-22T18:51:24Z chain: waiting for STATUS.R_q and R_x/BUILD.txt
+2026-08-22T19:01:24Z chain: R_q status: rc=0 wall=2639 checkMesh_rc=0 maxRSS_kB=1814664 case=R_q end=2026-08-22T19:01:00Z pid=804659
+2026-08-22T19:01:25Z chain: R_x preprocessing: viewFactorsGen_rc  0   wall 2545 s   maxRSS_kB 21022916
+2026-08-22T19:01:25Z chain: launching R_s
+LAUNCH  R_s: guards G1 G2 G3 passed; wrapper pid=856135
+2026-08-22T19:01:31Z chain: launching R_x
+LAUNCH  R_x: guards G1 G2 G3 passed; wrapper pid=857855
+2026-08-22T19:31:35Z chain: still waiting (1800s): R_s=done R_x=running rss=12036492 
