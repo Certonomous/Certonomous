@@ -129,3 +129,41 @@ smaller one, and of the sixteen cases it reaches two.
 **Zero core-minutes.** Two pre-registrations and one specification read end to end;
 sixteen `CASE.txt` files and their `blockMeshDict`/`controlDict` inputs read directly.
 `docs/COST_CALIBRATION.md` gains no row: there is no compute to calibrate.
+
+---
+
+## ADDENDUM, 2026-08-27 — `K2bU3_D`'s gate has CLOSED; the §2 tally line is superseded
+
+**Appended under `CLAUDE.md` rule 6 by a heat-transfer lane on the supervisor's
+dispatch. No line above this section was edited: `lines whose number changed
+above this section: 0`. Zero compute.**
+
+**What is superseded, quoted rather than rewritten.** §2 ends:
+
+> *"**14 covered / 2 uncovered**, of sixteen names. Of the **fifteen with consumed
+> compute**, **13 covered / 2 uncovered** (`K2bU3_D` is covered but has no
+> compute)."*
+
+The parenthesis *"`K2bU3_D` is covered but has no compute"* is **true and now
+incomplete**, and reads today as though `K2bU3_D` were merely waiting its turn.
+It is not waiting. **Its own registered gate has fired and closed it out.**
+
+**The correction.** `K2b_3D_UNSTEADINESS_PREREGISTRATION.md` §2 makes Control M a
+gate on Test D: *"Control M shows it damping → … Test D **cannot** answer the
+question. Outcome **P3**, declared **without running Test D**."* The frozen
+comparator `verification/runs/F14-cooling-ladder/K2b_runs/analyse_k2bU3.py`, run
+**read-only** on 2026-08-27 (rc 0, run tree byte-unchanged), reads Control M as
+**DAMPS** — final window 60–80 s p2p **0.7792 K** against the preceding window's
+**1.6156 K**, **ratio 0.482** at or below the registered DAMPS threshold of
+**0.5**, with the aliasing guard **passing** (34.4 steps/period against a floor of
+20; 29.9 samples/period against a floor of 10), so the null is a reading and not
+a non-detection.
+
+**`K2bU3_D` therefore has no compute BECAUSE ITS GATE REFUSED IT, and it must not
+acquire any at 100 mm.** The rung's outcome is **P3**; the 3D question is
+**`NOT A RESULT`**; K2b's pilot outcome **O1 — PHYSICALLY UNSTEADY** at 12.5 mm
+is untouched and not retracted. The full record is
+**`docs/campaigns/F14-cooling-ladder/K2bU3_RESULTS.md`** (2026-08-27).
+
+**The count itself is unchanged** — `K2bU3_D` was covered and stays covered, and
+14/2 and 13/2 both stand. Only the reason for its zero compute is corrected.
