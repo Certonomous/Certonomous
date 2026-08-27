@@ -479,3 +479,188 @@ registered basis and is the one calibrated. All three walls exceed the §2
 3600-s stall trigger mechanically; each ended on its registered `endTime` with
 rc=0 and `End`, so cleaned is stated equal to gross with this departure named.
 Calibration row: `docs/COST_CALIBRATION.md`.
+
+---
+
+## 13. Addendum 2026-08-27 — rows B0–B7 REGRADED THROUGH THE REGISTERED GATE; the hand-applied cells of §8 are superseded `[lab-attributed]`
+
+Dated addendum under this file's numbering, appended at the foot per
+`CLAUDE.md` standing rule 6. **Bytes above this section changed: 0** — a
+BYTE-IDENTITY assertion, not a line count, executed against the HEAD blob in
+the same shell invocation as the commit that lands this section. Sections 1–12
+are untouched and nothing in them is rewritten.
+
+Registration: `T1b_L4_AMENDMENT.md` **Amendment 1 (v1.1), 2026-08-27, §11** —
+the dated scope amendment that extends the gate this rung already registered to
+the pre-extension triple. Graded artifact:
+`verification/runs/T-family/T1_runs/gate_t1b_cmf_gated.json`. Driver:
+`verification/runs/T-family/T1_runs/analyse_t1b_cmf_gated.py` (rc 0).
+
+### 13.1 What was wrong, in one sentence
+
+**§8 of this file diagnosed the flaw correctly and then applied the rule BY
+HAND over the instrument.** The frozen comparator `analyse_t1b.py` encodes
+Roache branch (1) at `:176–187` and COMPUTES the triple at `:189`, but decides
+at
+
+```python
+:193   verdict = "PASS" if dev <= bpct else "GATE FAIL"
+```
+
+**without ever consulting `g["state"]`** — which it reads only at `:203`, and
+only to decide whether to print `p` and the GCI. So branch (2) of standing
+rule 5 is **not encoded in that instrument at all**, and §8 line 316 had to say
+what the rows "would" read. **A verdict cell produced by an instrument that
+cannot express the gate is a standing-rule-2 shape.** The repair is not a new
+instrument and not a re-grade by hand: `analyse_t1b_L4.py` already encodes
+branch (2) at `:78–79`, with negative controls at `:115–121`, and its gate is a
+pure function that its own selftest at `:144–151` **already applies to this
+rung's (c, m, f) triple** at two of the four Reynolds numbers.
+
+### 13.2 The superseded cells — QUOTED AND STRUCK, never rewritten
+
+§1 lines 29/31/33/35 and §11 stand where they are, unedited. Their `Nu` verdict
+cells are struck here and superseded by §13.3. **The struck text remains
+legible above; only its authority is withdrawn.**
+
+From §1, the four `Nu` rows as the frozen comparator returned them:
+
+> | B0 | 1e4 | `Nu` | 31.619 | 30.907 | 2.84 % | 2.305 % | **DIVERGENT** | −0.219 | ~~**PASS**~~ |
+> | B2 | 3e4 | `Nu` | 72.480 | 73.684 | 3.89 % | 1.635 % | **DIVERGENT** | −0.150 | ~~**PASS**~~ |
+> | B4 | 1e5 | `Nu` | 185.771 | 190.398 | 5.33 % | 2.430 % | **DIVERGENT** | −0.059 | ~~**PASS**~~ |
+> | B6 | 3e5 | `Nu` | 449.255 | 456.723 | 5.75 % | 1.635 % | **STAGNANT** | +0.010 | ~~**PASS**~~ |
+
+From §11, the rung verdict line:
+
+> ~~"**PASS, as returned by the frozen comparator, on all four Nu rows** … 4
+> graded `Nu` rows, 0 GATE FAIL, 0 NOT A RESULT"~~
+
+From §8 line 316, the hand-applied sentence — struck because the instrument now
+returns what it predicted, so the conditional is spent:
+
+> ~~"Under that rule rows B0, B2, B4 and B6 would **all read NOT A RESULT** and
+> the graded-row count would drop from four to zero."~~
+
+**That prediction was dated 2026-08-20 and it held exactly.** Nothing about the
+answer was learned after the rule was written down.
+
+### 13.3 The rows as the registered instrument returns them
+
+Values re-measured from the fields on disk by the frozen `analyse_t1b.measure()`
+and **reproducing `gate_t1b.json` at relative difference 0.000e+00 on all four**
+(the driver refuses above 1e-6). Both triples are given: (c, m, f) measured
+here, (m, f, x) read from `gate_t1b_L4.json` and named as read.
+
+| row | `Re` | qty | value | dev | band | triple (c,m,f) | `p` | GCI | triple (m,f,x) | frozen returned | **CORRECTED** |
+| --- | ---: | --- | ---: | ---: | ---: | --- | ---: | --- | --- | --- | --- |
+| B0 | 1e4 | `Nu` | 31.619 | 2.305 % | 2.844 % | **DIVERGENT** | −0.219 | n/a | STAGNANT, p +0.420, GCI n/a | PASS | **NOT A RESULT** |
+| B1 | 1e4 | `f` | 0.03106 | 1.34 % | — | **DIVERGENT** | −0.307 | n/a | not on disk | REPORTED | **REPORTED** |
+| B2 | 3e4 | `Nu` | 72.480 | 1.635 % | 3.885 % | **DIVERGENT** | −0.150 | n/a | STAGNANT, p +0.435, GCI n/a | PASS | **NOT A RESULT** |
+| B3 | 3e4 | `f` | 0.02290 | 3.11 % | — | **DIVERGENT** | −0.233 | n/a | STAGNANT, p +0.399, GCI n/a | REPORTED | **REPORTED** |
+| B4 | 1e5 | `Nu` | 185.771 | 2.430 % | 5.334 % | **DIVERGENT** | −0.059 | n/a | STAGNANT, p +0.422, GCI n/a | PASS | **NOT A RESULT** |
+| B5 | 1e5 | `f` | 0.01733 | 3.69 % | — | **DIVERGENT** | −0.132 | n/a | STAGNANT, p +0.387, GCI n/a | REPORTED | **REPORTED** |
+| B6 | 3e5 | `Nu` | 449.255 | 1.635 % | 5.749 % | **STAGNANT** | +0.010 | n/a | STAGNANT, p +0.412, GCI n/a | PASS | **NOT A RESULT** |
+| B7 | 3e5 | `f` | 0.01389 | 3.77 % | — | **DIVERGENT** | −0.057 | n/a | STAGNANT, p +0.379, GCI n/a | REPORTED | **REPORTED** |
+
+**B1's (m, f, x) friction triple is "not on disk" and that is a fact about the
+L4 grade, not a gap here**: `gate_t1b_L4.json` row X0 (Re 1e4) is a **branch-1**
+NOT A RESULT — *"levels x not iteratively converged"* — and the L4 comparator
+emits no friction row after a branch-1 refusal (`analyse_t1b_L4.py:242`,
+`continue`). It is reported absent, not approximated.
+
+**THE VALUES DO NOT CHANGE. ONLY THE VERDICTS DO. The difference is the gate,
+not the physics** — rule 5 branch (2), which `analyse_t1b.py:193` does not
+encode. Every level of every triple is `CONVERGED` and plateaued (station
+spreads 0.004–0.072 against limits of 0.2 × band), so **no row reaches branch
+(1); all four `Nu` rows fall at branch (2)**.
+
+**GCI reads `n/a` on every row, printed with its reason and never suppressed.**
+No triple on this rung is CONVERGING, so `analyse_t1c.gci()` emits no `GCI_pct`
+at all; standing rule 5 forbids quoting a GCI on a non-monotone triple, and the
+stronger fact here is that a Richardson extrapolation off a DIVERGENT or
+STAGNANT triple is not an error bound. The driver prints, per row: *"GCI n/a:
+the triple is DIVERGENT at p = −0.219; a Richardson extrapolation off a
+non-converging triple is not an error bound, and rule 5 forbids quoting one."*
+
+### 13.4 CORRECTED RUNG TALLY, with the REPORTED rows excluded and named (D534)
+
+Sanaa, 2026-08-27: **`REPORTED` is a ROW CLASS, not a verdict, and is excluded
+from every verdict census.** The census is therefore over the four `Nu` rows
+only:
+
+**Rung T1b, pre-extension rows: 0 graded, 0 PASS, 0 GATE FAIL, 4 NOT A RESULT
+(B0, B2, B4, B6).**
+**Excluded from the census as REPORTED, and named as D534 requires: B1, B3, B5,
+B7 — four friction rows.**
+
+The rung's other findings are **untouched by this addendum and stand as §§2–5
+and §11 report them**: the `Pr_t` discrimination SEPARATED at all four `Re`
+(7.38 / 8.50 / 9.40 / 10.02 % against bands of 2.84 / 3.89 / 5.33 / 5.75 %); the
+wall-treatment comparison at 1e5 and 3e5; `C_lam` MET. Those arms were graded by
+different rows of the frozen comparator and are not re-graded here.
+
+**What this costs the rung, stated plainly: T1b has no graded `Nu` row at any
+Reynolds number.** It measured four fine-mesh values and a direction, and the
+record now says so with a verdict word instead of a footnote.
+
+### 13.5 Controls, and what could not be verified
+
+- **Freeze (rule 2):** `analyse_t1b.py` `17436d64`, `analyse_t1c.py` `3d566802`,
+  `analyse_t1b_L4.py` `59c345bd`, `planted_zero_control_t1b.py` `16660281`, each
+  byte-identical to its HEAD blob, checked by the driver, which REFUSES
+  otherwise.
+- **Planted zero (rule 3):** `planted_zero_control_t1b.py --selftest` 21/21,
+  including the blind-reader and noisy-reader refusals; the driver refuses if it
+  fails.
+- **Negative controls:** `analyse_t1b_L4.py --selftest` PASSED under `python3`
+  and `python3 -O`, `__pycache__` cleared between runs. Same for
+  `analyse_t1b_cmf_gated.py --selftest` (three arms).
+- **Planted-failure proof (L-314):** branch (2) at `analyse_t1b_L4.py:78–79`
+  replaced in-memory by the ungated `:193` rule → selftest FAILED (rc 1) with
+  **exactly the four non-converging controls firing** (DIVERGENT, STAGNANT,
+  OSCILLATORY, EXACT). The frozen file was not touched.
+- **NOT VERIFIED, stated as such:** whether `measure()` computes `Nu` correctly.
+  The planted-zero control establishes that the convergence reader is neither
+  blind nor noisy; it does not establish that any `Nu` is right, and
+  `planted_zero_control_t1b.py`'s own note says `measure()` cannot be exercised
+  on synthetic data.
+- **A COSMETIC DEFECT IN THE FROZEN GATE'S PROSE, disclosed not repaired:**
+  `verdict_amended`'s refusal string hard-codes *"(m,f,x)"* and *"the x value"*
+  because it was written for the L4 triple. Applied to (c, m, f) the numbers are
+  right and the labels are wrong. The frozen file is not edited; the driver
+  prints a LABEL CAVEAT beneath every affected row and stores it as
+  `why_label_caveat`. See `T1b_L4_AMENDMENT.md` §11.5.
+- **THE JUDGMENT CALL, flagged for the supervisor:** this is a POST-COMPUTE
+  scope amendment. Its legality rests on the gate being **one-way** — it can
+  only turn a PASS or GATE FAIL INTO NOT A RESULT, as `T1b_L4_AMENDMENT.md`
+  lines 131–133 already registered — plus standing rule 5 binding regardless and
+  the consequence having been registered on 2026-08-20 (§8, D440). **A
+  supervisor who reads that as insufficient should refuse the amendment**, in
+  which case §1 and §11 stand as written and this addendum is withdrawn.
+  `T1b_L4_AMENDMENT.md` §11.3 states the grounds in full so they can be refused.
+
+### 13.6 Cost (rule 12)
+
+**Zero solver core-minutes.** No solver ran, no mesh was generated, no new field
+was written by any solve — `NONCONVERGENCE_STANDARD.md` L0: a reading, not a
+run. The reading's own cost, measured by `/usr/bin/time`: two grading passes at
+59.30 s and 56.06 s wall, serial, = **1.93 core-min measured**; ~2.5 core-min
+including the selftest and planted-failure passes, whose wall was **not
+separately instrumented and is stated as an estimate, not a measurement**.
+Dollars **derived, not measured**, at $0.0513/core-h, c7a.4xlarge,
+reported-by-owner (`COMPUTE_BUDGET_CHARTER.md` §5): **$0.0017 derived**.
+**There was no pre-registered estimate for a re-grade, so the ratio
+actual/predicted is not defined and is stated absent rather than
+approximated**; no waste and no contention to attribute. No calibration-ledger
+row is appended on that ground — a row whose ratio column cannot be filled
+would add nothing to the lab's estimate-quality record and
+`docs/COST_CALIBRATION.md` append rule 2 forbids approximating a figure the
+record does not carry.
+
+### 13.7 Docket
+
+A docket entry is owed for this repair and is **not assigned here**: the docket
+is written concurrently by other teams and `CLAUDE.md` rule 11 requires the
+number to be re-derived from the tail at commit time by whoever lands it.
+Highest existing entry read at drafting time: **D537**. Referred to the
+heat-transfer supervisor.
