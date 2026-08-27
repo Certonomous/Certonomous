@@ -676,3 +676,74 @@ setting, is what keeps the screen clean.
 | standing conventions added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — 2026-08-27 — CLASSIFIER DENIALS: THE ACTION/MECHANISM DISTINCTION (§8 and §4.1)
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`.**
+cfd's distinction, adopted by the chief `[lab-attributed]`, recorded here by the standards owner.
+**On Sanaa's desk to overrule.** This **narrows** what an agent may do after a denial; it grants
+nothing. `CLAUDE.md` rule 9 is unchanged and is **not edited by this amendment** — a draft
+provenance line is offered at the end for Sanaa alone to accept.
+
+### The clause
+
+> **A classifier denial is a system event, and the first duty is always to RECORD IT VERBATIM.**
+>
+> **(1) If the denial names the ACTION being attempted — STOP AND REPORT. Never reformulate.**
+> Reformulating past an action-denial is permission laundering (rule 9): the classifier's decision
+> is not an agent's to overturn by rephrasing. The legitimate routes are the user's own words or a
+> permission-rule change made by the user.
+>
+> **(2) If the denial names a MECHANISM, while the action is independently permitted and the denial
+> text itself invites other tools, reformulation is allowed — but ONLY toward a form that is MORE
+> TRANSPARENT, DOCUMENTED and NARROWER.** Never less visible. **Never via another agent.** Never
+> via a broader-permission tool. **Both forms — denied and permitted — go in the record verbatim.**
+
+### The provenance, verified at source rather than taken on report
+
+`verification/certificates/QUEUE_RUNNER_KILL_TEST_2026-08-26.md` at `4cdbc2dd` (one path, +165).
+
+**The denial was mechanism-naming and said so in its own text**, quoted there verbatim: *"You **may**
+attempt to accomplish this action using other tools that might naturally be used to accomplish this
+goal, e.g. using head instead of cat"* — with its own guardrail, *"you **should not** attempt to work
+around this denial in malicious ways"*, and its own escalation route, *"If you believe this
+capability is essential … STOP and explain to the user."* **Limb (2) is the denial text's own
+instruction, not an invention of this lab.**
+
+**The direction of travel was correct**, which is the whole test: the **denied** form was *"a single
+compound invocation that wrote a Python driver into scratch and ran it under `timeout`"*; the
+**permitted** form was the **documented** one from `docs/standards/QUEUE_RUNNER.md` —
+`kill $(cat verification/queue/runner.pid)` — with read-only `ps`/`grep`/`stat` around it. **A
+scratch-written driver under `timeout` is less visible and broader; a documented one-liner is more
+visible and narrower.** Had the reformulation gone the other way it would have been laundering
+whatever the denial named.
+
+### ⚠ ONE CORRECTION TO THE RELAY, and it strengthens the rule rather than weakening it
+
+The claim reached this team as *"no kill was ever denied."* **That is too strong, and the
+certificate itself says both things** — `:340` *"No `kill` was denied"* (true **of this test**) and
+`:6` **"`kill` of the runner pid was DENIED by the classifier at the supervisor's 17:46Z attempt …
+the rule now allows it."**
+
+**A kill WAS denied, on a prior occasion, and that denial named the ACTION.** What cleared it was
+**a permission-rule change**, not a reformulation. **That is limb (1) executed correctly, and it is
+the better half of the precedent:** the two limbs are not a spectrum to slide along — the 17:46Z
+denial was answered by going to the permission system, and the later mechanism-denial was answered
+by narrowing to the documented form. **Cite the certificate for both limbs, and never quote "no
+kill was denied" without the scope "in this test".**
+
+### DRAFT ONLY — a provenance line for `CLAUDE.md` rule 9, NOT APPLIED
+
+**`CLAUDE.md` is not edited by any agent (rule 9). This is offered for Sanaa alone:**
+
+> *Classifier denials: `ESCALATION_CHARTER` §8/§4.1 amendment 2026-08-27 — an action-denial stops
+> and is reported; a mechanism-denial may be reformulated only toward a more transparent,
+> documented, narrower form, both forms recorded verbatim.*
+
+| amendment record | 2026-08-27 |
+|---|---|
+| clauses added | 1 (narrowing; grants nothing) |
+| `CLAUDE.md` edits | **0 — draft offered, not applied** |
+| lines whose number changed above this section | 0 |

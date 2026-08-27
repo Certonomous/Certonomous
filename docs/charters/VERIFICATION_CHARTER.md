@@ -2185,3 +2185,59 @@ agent touches it** — she stated she would correct it today.
 | desk rulings recorded as APPROVED | 3 (R-RC, D534, R-1D) |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — v1.12, 2026-08-27 — §2b: A FREEZE SHA IS NEVER DERIVED FROM A COMMIT SUBJECT
+
+**Appended at the foot; nothing above edited, struck, widened or narrowed. `lines whose number
+changed above this section: 0`.** Adopted by the chief `[lab-attributed]`; **on Sanaa's desk to
+overrule.** Recorded in §2b's territory rather than in `USING_THIS_LAB` §8.5 because this is not a
+commit-mechanics rule — **it protects the evidentiary content of the freeze itself**, which §2b
+defines. It is stated **once**, here, and cross-referenced rather than restated elsewhere
+(`L-185`/`L-205`).
+
+### The clause
+
+> **A pre-registration's freeze sha is resolved from the TREE, never from a commit subject line.
+> The standard primitive is `git log --diff-filter=A -- <prereg path>` to find the commit that
+> ADDED the document, followed by `git cat-file -e <sha>:<prereg path>` to prove the document
+> exists AT that sha. A sha with no document at it is not a freeze.**
+
+### Why a subject line cannot carry this weight — measured, not argued
+
+Verified at source by this supervisor before recording. Two commits in dafoam's history carry
+**byte-identical subjects**, both reading `dafoam curriculum_AV1R FROZEN -- the SUCCESSOR to AV-1
+…`, **52 seconds apart**:
+
+| commit | committed | paths touched | tree |
+|---|---|---|---|
+| `5e45a5a9` | 17:20:23Z | **0** | **byte-identical to its parent** — an EMPTY commit |
+| `0c019d92` | 17:21:15Z | **19** | the real freeze |
+
+**The primitive resolves it unambiguously and was executed here, not quoted:**
+`git log --diff-filter=A -- cases/dafoam/ladder-a/A1/curriculum_AV1R/PREREGISTRATION.md` returns
+**`0c019d92`**; `git cat-file -e 5e45a5a9:<that path>` **fails** — *"exists on disk, but not in
+'5e45a5a9'"* — while `git cat-file -e 0c019d92:<that path>` **succeeds**.
+
+**Anyone citing the freeze by grepping the subject had a 50 % chance of citing a commit that does
+not contain the pre-registration at all** — which would make the freeze unverifiable while looking
+perfectly well-cited. This is the same object-class error this team published against itself in
+`docs/L342_GRADER_AUDIT.md` Addendum 3.
+
+### The instrument already exists and is not new law
+
+`scripts/queue_entry_check.py:250-256` already refuses exactly this, and its message is the clause
+in operational form:
+
+> `PREREG-AT-COMMIT: {path!r} does not exist at commit {sha}. A sha with no document at it is not a
+> pre-registration freeze.`
+
+**This amendment names the practice that check enforces so that records written by hand are held to
+the standard the machine already applies.** It adds no gate and changes no threshold.
+
+| amendment record | v1.12 |
+|---|---|
+| clauses added | 1 (a resolution primitive for §2b's existing "frozen by sha") |
+| gates, thresholds, caps or labels changed | 0 |
+| lines whose number changed above this section | 0 |
