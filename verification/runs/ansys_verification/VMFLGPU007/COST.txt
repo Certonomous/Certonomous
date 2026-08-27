@@ -1,0 +1,8 @@
+case_id = VMFLGPU007
+total_wall_s = 1105
+gpu_h_total = 0.306944
+cpu_arm_core_min = 6.2333
+cap_gpu_h_registered = 1.5
+cap_cpu_arm_core_min_registered = 90
+cost_basis = DERIVED, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5).
+utc = 2026-08-27T20:52:03Z

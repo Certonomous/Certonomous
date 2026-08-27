@@ -1,0 +1,38 @@
+[2026-08-27T20:33:38Z] VMFLGPU007: === START (run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007 build_root=/home/ubuntu/gpu_build repo=DERIVED-AT-STEP-1 repo_env=<unset>) ===
+[2026-08-27T20:33:38Z] VMFLGPU007: SMOKE GATE PASSED: /home/ubuntu/gpu_build/STATUS.smoke reads smoke_rc=0, /home/ubuntu/gpu_build/TOOLCHAIN_MANIFEST.txt exists, /home/ubuntu/gpu_build/env.sh exists
+[2026-08-27T20:33:39Z] VMFLGPU007: CAP MECHANISM DRIVEN: timeout passes a child rc through (7) and reports an overrun as 124 on this host
+[2026-08-27T20:33:39Z] VMFLGPU007: REPO DERIVED FROM SCRIPT_DIR: /home/ubuntu/laneR2_freeze007 (script_dir /home/ubuntu/laneR2_freeze007/cases/ansys_verification/VMFLGPU007 == $REPO/cases/ansys_verification/VMFLGPU007; env REPO <unset>)
+[2026-08-27T20:33:40Z] VMFLGPU007: FREEZE VERIFIED: cases/ansys_verification/VMFLGPU007/PREREGISTRATION.md=1979b7a4a94a4c4686a0818a94fb33c629b91007 cases/ansys_verification/VMFLGPU007/grade_vmflgpu007.py=a4632b7ac2ef88fd98d14015b614ab4772ae71df cases/ansys_verification/VMFLGPU007/run_vmflgpu007.sh=9174e648d7c571414cebe3911bb7e411b4646f56 cases/ansys_verification/VMFLGPU007/field_completeness.py=195fcc0009e46d092dd836a6cbe189927f3268e7 cases/ansys_verification/VMFLGPU007/resolve_blockmesh.py=76ee0d3ac1c4c18529492155192f052f045ab7de ; HEAD 7126b0a51ac57e4e8fa9dcff4cf360a2b88b6766
+[2026-08-27T20:33:40Z] VMFLGPU007: ENVIRONMENT OK: /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantSimpleFoam
+[2026-08-27T20:33:40Z] VMFLGPU007: no level directory of either arm pre-exists
+  GU=4.545613  GUINV=0.219992  GC=1.950522   d1_upper=0.070000000  d1_step=0.070000000 (target 0.070000000)
+  PREDICTED cell count = NXI*NYU + NXD*NYU + NXD*NYL = 16*24 + 96*24 + 96*10 = 3648
+[2026-08-27T20:33:40Z] VMFLGPU007: L1/gpu BIRTH CERTIFICATE OK: 3648 cells == registered 3648
+FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+[2026-08-27T20:35:11Z] VMFLGPU007: L1/gpu rc=0 wall_s=90 cap_fired=0
+  GU=4.545613  GUINV=0.219992  GC=1.950522   d1_upper=0.070000000  d1_step=0.070000000 (target 0.070000000)
+  PREDICTED cell count = NXI*NYU + NXD*NYU + NXD*NYL = 16*24 + 96*24 + 96*10 = 3648
+[2026-08-27T20:35:11Z] VMFLGPU007: L1/cpu BIRTH CERTIFICATE OK: 3648 cells == registered 3648
+FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+[2026-08-27T20:35:31Z] VMFLGPU007: L1/cpu rc=0 wall_s=20 cap_fired=0
+  GU=2.354314  GUINV=0.424752  GC=1.401442   d1_upper=0.070000000  d1_step=0.070000000 (target 0.070000000)
+  PREDICTED cell count = NXI*NYU + NXD*NYU + NXD*NYL = 24*36 + 144*36 + 144*12 = 7776
+[2026-08-27T20:35:31Z] VMFLGPU007: L2/gpu BIRTH CERTIFICATE OK: 7776 cells == registered 7776
+FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+[2026-08-27T20:38:38Z] VMFLGPU007: L2/gpu rc=0 wall_s=187 cap_fired=0
+  GU=2.354314  GUINV=0.424752  GC=1.401442   d1_upper=0.070000000  d1_step=0.070000000 (target 0.070000000)
+  PREDICTED cell count = NXI*NYU + NXD*NYU + NXD*NYL = 24*36 + 144*36 + 144*12 = 7776
+[2026-08-27T20:38:38Z] VMFLGPU007: L2/cpu BIRTH CERTIFICATE OK: 7776 cells == registered 7776
+FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+[2026-08-27T20:39:46Z] VMFLGPU007: L2/cpu rc=0 wall_s=68 cap_fired=0
+  GU=1.203850  GUINV=0.830668  GC=1.041071   d1_upper=0.070000000  d1_step=0.070000000 (target 0.070000000)
+  PREDICTED cell count = NXI*NYU + NXD*NYU + NXD*NYL = 36*52 + 216*52 + 216*14 = 16128
+[2026-08-27T20:39:47Z] VMFLGPU007: L3/gpu BIRTH CERTIFICATE OK: 16128 cells == registered 16128
+FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+[2026-08-27T20:47:16Z] VMFLGPU007: L3/gpu rc=0 wall_s=449 cap_fired=0
+  GU=1.203850  GUINV=0.830668  GC=1.041071   d1_upper=0.070000000  d1_step=0.070000000 (target 0.070000000)
+  PREDICTED cell count = NXI*NYU + NXD*NYU + NXD*NYL = 36*52 + 216*52 + 216*14 = 16128
+[2026-08-27T20:47:17Z] VMFLGPU007: L3/cpu BIRTH CERTIFICATE OK: 16128 cells == registered 16128
+FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+[2026-08-27T20:52:03Z] VMFLGPU007: L3/cpu rc=0 wall_s=286 cap_fired=0
+[2026-08-27T20:52:03Z] VMFLGPU007: grade with: python3 cases/ansys_verification/VMFLGPU007/grade_vmflgpu007.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007

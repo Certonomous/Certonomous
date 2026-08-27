@@ -1,0 +1,4 @@
+VMFLGPU007-comparator-1.0  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFLGPU007
+REGISTERED: Re_H = 28000 on u_max = 2.8 m/s (bulk would give 25709 -- recorded, NOT used). q'' = 1000 W/m2, kappa = 1.408 W/m-K, H = 1 m, T_inlet = 300 K. Nu is DERIVED here from these frozen constants.
+MESH-SENSITIVITY FAMILY (H1 = 0.07 m identical at every level). NO discretisation-order figure and no extrapolation-based uncertainty figure is computed or printed by this comparator -- see PREREGISTRATION section 6 for why this family is not entitled to one. Rule 5's triple gating does not fire because NO TRIPLE IS REGISTERED: a LIMITATION, NOT AN EXEMPTION.
+REFUSE (VMFLGPU007 IG3): the plateau window peak-to-peak is 0.0237893 K, above the registered 0.0001 K: the channel has not settled

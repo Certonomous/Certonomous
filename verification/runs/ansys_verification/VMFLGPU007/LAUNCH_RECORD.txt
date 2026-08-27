@@ -1,0 +1,18 @@
+case_id = VMFLGPU007
+launched_utc = 2026-08-27T20:33:40Z
+head = 7126b0a51ac57e4e8fa9dcff4cf360a2b88b6766
+script_dir = /home/ubuntu/laneR2_freeze007/cases/ansys_verification/VMFLGPU007
+repo_toplevel_derived = /home/ubuntu/laneR2_freeze007
+repo_env_as_passed = <unset>
+frozen_blob cases/ansys_verification/VMFLGPU007/PREREGISTRATION.md = 1979b7a4a94a4c4686a0818a94fb33c629b91007
+frozen_blob cases/ansys_verification/VMFLGPU007/grade_vmflgpu007.py = a4632b7ac2ef88fd98d14015b614ab4772ae71df
+frozen_blob cases/ansys_verification/VMFLGPU007/run_vmflgpu007.sh = 9174e648d7c571414cebe3911bb7e411b4646f56
+frozen_blob cases/ansys_verification/VMFLGPU007/field_completeness.py = 195fcc0009e46d092dd836a6cbe189927f3268e7
+frozen_blob cases/ansys_verification/VMFLGPU007/resolve_blockmesh.py = 76ee0d3ac1c4c18529492155192f052f045ab7de
+host = ip-172-31-44-162
+solve rc = 0  arm = gpu  level = L1  wall_s = 90  cap_fired = 0  utc = 2026-08-27T20:35:11Z
+solve rc = 0  arm = cpu  level = L1  wall_s = 20  cap_fired = 0  utc = 2026-08-27T20:35:31Z
+solve rc = 0  arm = gpu  level = L2  wall_s = 187  cap_fired = 0  utc = 2026-08-27T20:38:38Z
+solve rc = 0  arm = cpu  level = L2  wall_s = 68  cap_fired = 0  utc = 2026-08-27T20:39:46Z
+solve rc = 0  arm = gpu  level = L3  wall_s = 449  cap_fired = 0  utc = 2026-08-27T20:47:16Z
+solve rc = 0  arm = cpu  level = L3  wall_s = 286  cap_fired = 0  utc = 2026-08-27T20:52:03Z

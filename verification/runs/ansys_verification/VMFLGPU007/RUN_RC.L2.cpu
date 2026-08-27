@@ -1,0 +1,16 @@
+case_id = VMFLGPU007
+arm = cpu
+level = L2
+rc = 0
+cap_fired = 0
+cap_s = 5400
+wall_s = 68
+ranks = 1
+core_min = 1.1333
+gpu_h = 0.018889
+endtime = 1800
+cells = 7776
+mat_type = aij
+vec_type = standard
+petsc_options =  -use_gpu_aware_mpi 0 -ksp_view -log_view
+utc = 2026-08-27T20:39:46Z
