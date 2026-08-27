@@ -1,0 +1,43 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T16_MC_f",
+  "prereg_commit": "ae20d137e5ed61f8cf0ad6351188529f60d49aaa",
+  "prereg_path": "docs/campaigns/T-family/T16_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/run_one_t16.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/T16_MC_f",
+    "--timeout",
+    "144000",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T16_runs/T16_MC_f",
+  "ranks": 1,
+  "cost_core_min_estimate": 1063.103,
+  "cost_basis": "derived from the MEASURED rate 3.8932e-06 core-s per cell-iteration, timed on a scratch copy of THIS exact case OUTSIDE the repository (ExecutionTime 379.13 s over 25 600 cells x 3 804 iterations, N=20, serial, nice 15, contended box, 2026-08-27): 409600 cells x 40000 iterations, serial -> 1063.103 core-min POINT; cap 2400 core-min = timeout 144000 s, the wrapper's stop (rule 12, an overrun stops the run and does not get a new budget); USD 0.9090 at the owner-stated $0.0513/core-h -- DERIVED, NOT MEASURED, reported-by-owner (COMPUTE_BUDGET_CHARTER section 5); T16_PREREGISTRATION.md section 8",
+  "memory_floor_gb": 3.0,
+  "enqueued_by": "heat-transfer lane 3 (registration) [lab-attributed]; SUPERVISION_CHARTER section 3 check 4 -- pre-registration COMMITTED at ae20d137 BEFORE this entry was written, and the entry cites that sha",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T16_MC_f (rc VALUE, written inside run_one_t16.sh's foreground wrapper)",
+      "the case's own log.solve End line, last time == endTime, fields T U p_rgh phi at endTime, and the 0/T age guard"
+    ],
+    "infrastructure": [
+      "the ExecutionTime line count",
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines",
+      "the STATUS RECORD itself (ruling R-RC: the rc VALUE is physics, the rc RECORD is infrastructure)"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). The ExecutionTime count is INFRASTRUCTURE here deliberately -- it is the misclassification docs/L342_GRADER_AUDIT.md found in T14_runs/mark_done_t14.py and it is not repeated in mark_done_t16.py."
+  }
+}
