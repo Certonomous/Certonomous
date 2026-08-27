@@ -1,7 +1,7 @@
 {
   "team": "closure",
   "case_id": "G1_grid_triple",
-  "prereg_commit": "a90077dfc8fbbdbbb0dc9f5c3885194c5ae50054",
+  "prereg_commit": "03be20159e98284928d8032ffb9c89ed0af63644",
   "prereg_path": "cases/RANS_LES_closure_models/G1_grid_triple/PREREGISTRATION.md",
   "launch_cmd": [
     "/bin/bash",
@@ -14,7 +14,16 @@
   "memory_floor_gb": 1.0,
   "memory_floor_basis": "ALLOWANCE, not a measurement. Derived field and mesh arithmetic gives circa 55 MB of solution data at the finest level (61440 cells); measured anchors taken with /usr/bin/time -v at that level are blockMesh MaxRSS 123644 kB and checkMesh MaxRSS 177692 kB. simpleFoam's own footprint was NOT measured, the drafting lane being forbidden to launch a solver. 1.0 GB is roughly 3x the resulting estimate. run_g1.sh captures the real MaxRSS per level into mem_time.txt, which converts this allowance into a reading for the next pre-registration.",
   "cap_core_min_registered": 600.0,
-  "enqueued_by": "closure-supervisor (check 4 personal; re-filed after AMENDMENT 1 a90077df repaired the driver environment step; first launch 17:28:58Z produced ZERO physics artefacts, verified: 0 staged levels, 0 log.run, 0 time dirs, 0 field files)",
+  "enqueued_by": "closure-supervisor (SUPERVISION_CHARTER sec.3 check 4 performed personally at freeze 03be2015: the pre-registration is committed before any compute, and the four sha256 are in that commit message)",
+  "_launch": {
+    "utc": "2026-08-27T17:28:58Z",
+    "pid": 1109265,
+    "sid": 1109265,
+    "status_file": "/home/ubuntu/closure-data/g1/STATUS.G1_grid_triple",
+    "wrapper_out": "/home/ubuntu/closure-data/g1/launcher.queue.out",
+    "started_epoch": 1787851738.8593569,
+    "status_seen_utc": "2026-08-27T17:29:58Z"
+  },
   "_field_classes": {
     "physics_critical": [
       "STATUS.G1_grid_triple (rc inside the detached wrapper)",
