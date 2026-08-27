@@ -1,6 +1,6 @@
 # COMMIT INTEGRITY STANDARD
 
-Version 1.2, dated 2026-08-27. **STATUS: STANDARD, ADOPTED for tooling.** Owned by
+Version 1.3, dated 2026-08-27. **STATUS: STANDARD, ADOPTED for tooling.** Owned by
 the verification team. Written on cfd's referral, carrying heat-transfer's finding.
 
 **SCOPE, and it is the first thing a reader must have.** These five clauses are a
@@ -357,3 +357,57 @@ line's being inert in intent does not make it inert in execution.**
 `git add -A`, `git add .`, `git commit -a` and a bare `git commit` before running**,
 and refuses. **Both limbs: a script containing one must be refused; a clean script
 must run.**
+
+---
+
+## Amendment 3 (2026-08-27) — v1.2 -> v1.3: CLAUSE 3 WOULD HAVE REFUSED A RENAME, AND A RENAME IS THE SHAPE A SIBLING CLAUSE NOW MANDATES
+
+**Appended, append-only; no line above changed number. Found while drafting
+`QUEUE_ENTRY_VALIDATOR_RULINGS` R-QCOMMIT.9. Verified by execution.**
+
+### §A3.1 THE COLLISION, AND IT IS BETWEEN TWO OF THIS TEAM'S OWN CLAUSES
+
+Clause 3 (`:47`) asserts the diff is **"NON-EMPTY *and* single-path"**.
+
+**A rename is TWO paths.** Measured on `commit:ee4c331c` — the exemplar rename this
+team is about to mandate for queue records — **`git diff-tree -r` without rename
+detection returns 6 paths** (three deletes plus three adds) for what
+`git diff-tree -r -M` reports as **three `R100` rows, 0 insertions, 0 deletions.**
+
+> **So clause 3 as written would have REFUSED the exact commit shape R-QCOMMIT.9
+> mandates.** Two clauses, each correct alone, **contradicting at their
+> intersection** — `L-362`'s class, **inside this team's own standards, for the
+> second time today.**
+
+### §A3.2 THE FIX: ASSERT THE EXPECTED PATH SET, NOT THE NUMBER ONE
+
+**Clause 3 is restated as: assert the diff is NON-EMPTY and that its path set equals
+the EXPECTED path set, declared before `commit-tree`.**
+
+- For an ordinary edit the expected set has **one** member and the behaviour is
+  unchanged.
+- **For a rename the expected set has TWO members — the old path and the new — and
+  the commit must additionally satisfy `git diff-tree -r -M` reporting them as a
+  matched `R100` pair with 0 insertions and 0 deletions.** A rename that is **not**
+  `R100` is a rename plus an edit and **is not a rename for this clause's purposes**;
+  it is asserted as an ordinary multi-path change with its content diff read.
+
+**"Single-path" was never the property that mattered — NO FOREIGN PATH was.** A count
+of one was a proxy that happened to hold for the commits this team had made, and
+**a proxy stops being safe at the first legitimate exception.** The `-r` correction
+in Amendment 2 fixed how the paths are *enumerated*; **this fixes what they are
+compared against.**
+
+### §A3.3 CONTROL, ADDED
+
+| control | required |
+| --- | --- |
+| an ordinary single-path edit | **PASSES** (unchanged behaviour) |
+| **a two-path `R100` rename with the pair declared** | **PASSES** — the limb that does not exist today |
+| a two-path rename where **only one** path was declared | **REFUSED** |
+| a rename reported as `R0xx`/`M` (rename **plus** edit) | **REFUSED as a rename**; admitted only as a declared multi-path change |
+| a foreign path added to a declared rename | **REFUSED** |
+
+**The second row is the one that must be driven.** Without it the clause is
+consistent with an assertion that simply counts to two, **which would admit any
+two-path commit — the opposite of what is wanted.**
