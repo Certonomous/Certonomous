@@ -1,0 +1,91 @@
+SO-1a GRADER SELFTEST EVIDENCE -- 2026-08-27T17:20:20Z
+so1a_grade.py md5 6966d19eeccd275b45fe9a5492eef6d2
+so1a_xf.py    md5 f34bd5bf550786ff926aed81b342cced
+
+===== python3 so1a_grade.py --selftest =====
+  [OK ] U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1-P4, P6, P7, P8, P8b, P9 HIT; P5 MISS (shape[6] clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U4 PLANTED sign flip on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on X-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 F-S core_min 26.0 > cap 25.0 -> G10 GATE FAIL
+  [OK ] U14 X-S on cpuset 4,14 (registered 9) -> G12 GATE FAIL
+  [OK ] U15 cells 4033 -> G-M2 GATE FAIL, P1 MISS
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in so1a_grade.py and so1a_xf.py
+  [OK ] U22 the assert counter sees a planted assert (=1)
+  [OK ] U23 (A) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz -- the AV-1/AV-2 configuration -- guard PASSES, the resolved name and writeCompression are recorded, P9 HIT
+  [OK ] U24 (A) DRIVEN CONTROL -- the datum is GENUINELY ABSENT in BOTH registered names on X-S -> REFUSAL (a name swap would not have caught this)
+  [OK ] U25 (A) writeCompression off -> the datum resolves to the PLAIN 0/U, guard PASSES, verdict unchanged PASS, P9 MISS (scored, never adjusted)
+  [OK ] U26 (B) R-RC -- the rc RECORD is absent on F-P while C2-C5 all hold -> rc value NOT MEASURED, rc=0 printed as an INFERENCE with its basis named, verdict unchanged PASS
+  [OK ] U27 (B) the rc RECORD is absent AND C2 fails (no terminal marker) -> REFUSAL: NOT MEASURED is available ONLY when the other four conditions hold
+  [OK ] U28 (B) the rc RECORD is absent but the harness rc reads NON-ZERO -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U29 (C) FOAM FATAL ERROR in the X-S log at rc = 0 -> REFUSAL (C5 refuses regardless of rc, so R-RC can never launder a crash)
+  [OK ] U30 (C) a SIGNAL token at rc = 0 -> REFUSAL
+  [OK ] U31 (D) PLANTED -- the DELIBERATELY WRONG step AGREES on 5/5 of the PATCHED row -> G-TB GATE FAIL, that row's G5 verdict WITHDRAWN to NOT A RESULT, item NOT A RESULT, P7 MISS (DAFOAM_CHARTER.md section 4)
+  [OK ] U32 (D) ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, row PASS, P7 still HIT (4 of 5 failing)
+  [OK ] U33 (E) PLANTED 7 % error on the shipped CONSTRAINT gradient dCL/dx[shape 0] while dCD/dx is clean -> G5 CD PASS, G5c CL GATE FAIL, SHIPPED row GATE FAIL: the constraint gradient is shown able to fail INDEPENDENTLY of the objective
+  [OK ] U34 (E) P6 is scored on the AGGREGATE, not on the component verdicts: a 3.0 % CL error on one patched component leaves EVERY component inside band D (5 %) and the row PASS, while the P6 aggregate bar of 1.0 % is crossed -> P6 MISS
+  [OK ] U35 the five rule-4 clauses are present and named INDIVIDUALLY for every one of the five arms (Sanaa 2026-08-27 s0)
+SO1a GRADER SELFTEST units=35 expected=35 failures=0 python_O=False
+SO1a GRADER SELFTEST PASS 35/35 (counted against the frozen EXPECTED_UNITS)
+rc=0
+
+===== python3 -O so1a_grade.py --selftest  (L-332: guards must survive -O) =====
+  [OK ] U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1-P4, P6, P7, P8, P8b, P9 HIT; P5 MISS (shape[6] clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U4 PLANTED sign flip on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on X-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 F-S core_min 26.0 > cap 25.0 -> G10 GATE FAIL
+  [OK ] U14 X-S on cpuset 4,14 (registered 9) -> G12 GATE FAIL
+  [OK ] U15 cells 4033 -> G-M2 GATE FAIL, P1 MISS
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in so1a_grade.py and so1a_xf.py
+  [OK ] U22 the assert counter sees a planted assert (=1)
+  [OK ] U23 (A) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz -- the AV-1/AV-2 configuration -- guard PASSES, the resolved name and writeCompression are recorded, P9 HIT
+  [OK ] U24 (A) DRIVEN CONTROL -- the datum is GENUINELY ABSENT in BOTH registered names on X-S -> REFUSAL (a name swap would not have caught this)
+  [OK ] U25 (A) writeCompression off -> the datum resolves to the PLAIN 0/U, guard PASSES, verdict unchanged PASS, P9 MISS (scored, never adjusted)
+  [OK ] U26 (B) R-RC -- the rc RECORD is absent on F-P while C2-C5 all hold -> rc value NOT MEASURED, rc=0 printed as an INFERENCE with its basis named, verdict unchanged PASS
+  [OK ] U27 (B) the rc RECORD is absent AND C2 fails (no terminal marker) -> REFUSAL: NOT MEASURED is available ONLY when the other four conditions hold
+  [OK ] U28 (B) the rc RECORD is absent but the harness rc reads NON-ZERO -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U29 (C) FOAM FATAL ERROR in the X-S log at rc = 0 -> REFUSAL (C5 refuses regardless of rc, so R-RC can never launder a crash)
+  [OK ] U30 (C) a SIGNAL token at rc = 0 -> REFUSAL
+  [OK ] U31 (D) PLANTED -- the DELIBERATELY WRONG step AGREES on 5/5 of the PATCHED row -> G-TB GATE FAIL, that row's G5 verdict WITHDRAWN to NOT A RESULT, item NOT A RESULT, P7 MISS (DAFOAM_CHARTER.md section 4)
+  [OK ] U32 (D) ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, row PASS, P7 still HIT (4 of 5 failing)
+  [OK ] U33 (E) PLANTED 7 % error on the shipped CONSTRAINT gradient dCL/dx[shape 0] while dCD/dx is clean -> G5 CD PASS, G5c CL GATE FAIL, SHIPPED row GATE FAIL: the constraint gradient is shown able to fail INDEPENDENTLY of the objective
+  [OK ] U34 (E) P6 is scored on the AGGREGATE, not on the component verdicts: a 3.0 % CL error on one patched component leaves EVERY component inside band D (5 %) and the row PASS, while the P6 aggregate bar of 1.0 % is crossed -> P6 MISS
+  [OK ] U35 the five rule-4 clauses are present and named INDIVIDUALLY for every one of the five arms (Sanaa 2026-08-27 s0)
+SO1a GRADER SELFTEST units=35 expected=35 failures=0 python_O=True
+SO1a GRADER SELFTEST PASS 35/35 (counted against the frozen EXPECTED_UNITS)
+rc=0
+
+===== ast.Assert census on BOTH frozen python files =====
+so1a_grade.py    ast.Assert = 0
+so1a_xf.py       ast.Assert = 0
+PLANTED CONTROL  ast.Assert = 1  (the counter is shown able to SEE one)
+
+===== the comparator refuses with no root (usage), rc captured =====
+no-root rc=64  (64 = usage, not a verdict)

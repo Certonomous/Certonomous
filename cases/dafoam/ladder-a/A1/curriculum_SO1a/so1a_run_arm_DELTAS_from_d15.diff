@@ -1,0 +1,260 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/dafoam-lane-D/d15_run_arm.sh	2026-08-27 17:03:56.826860995 +0000
++++ so1a_run_arm.sh	2026-08-27 17:19:53.173664361 +0000
+@@ -1,15 +1,24 @@
+ #!/usr/bin/env bash
+-# Curriculum D15 arm launcher -- NACA0012 SUBSONIC (DARhoSimpleFoam) baseline
+-# gradient, TWO ROWS (shipped + patched), adjoint X + central-FD table F.
++# Curriculum SO-1a arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam)
++# drag-min-at-fixed-lift, the FD-VERIFIED GRADIENT RUNG of Sanaa's shape-
++# optimisation ladder SO-1.  TWO ROWS (shipped + patched), adjoint X + central-FD
++# table F on BOTH the objective CD and the equality constraint CL.
+ #
+-# DERIVED from `cases/dafoam/ladder-a/A2/curriculum_D5/d5_run_arm.sh` (Addendum 1
+-# md5 50a976780e357998238ede3bbb8e5521) with the REGISTERED DELTAS listed in
+-# PREREGISTRATION.md section 7 and recorded in d15_run_arm_DELTAS_from_d5.diff:
+-# item/root names; forbidden roots; G-ROOT.3 accepts BOTH rows (this item BUYS
+-# both); arms MESH X-S F-S X-P F-P; RANKS 2 (MESH 1); cpuset 2,3; 4g; cap table;
+-# G-ROW derived from the arm suffix; the staged instruments; solver arms stage
+-# from the MESH arm's output; the arm commands.  Container-printed strings
+-# (D4S_*) are inherited UNCHANGED so the grader greps what the launcher writes.
++# DERIVED from `cases/dafoam/ladder-a/A1/curriculum_D15/d15_run_arm.sh`
++# (md5 796a2de5b894e8fcdbfab99af6fbf09d) with the REGISTERED DELTAS listed in
++# PREREGISTRATION.md section 7 and recorded in so1a_run_arm_DELTAS_from_d15.diff:
++# item/root names; the INCOMPRESSIBLE tutorial as the source; forbidden roots
++# extended with D15's, D16's, D17's, AV-1's and AV-2's; RANKS 1 ON EVERY ARM
++# (DAFOAM_CHARTER.md section 5, serial before parallel); cpuset 9; the cap table;
++# the staged instruments; the arm commands.  Container-printed strings (D4S_*)
++# are inherited UNCHANGED so the grader greps what the launcher writes.
++#
++# THE AGE-GUARD DATUM IS RESOLVED BY EXISTENCE HERE TOO, AND ITS NAME IS RECORDED.
++# AV-1 and AV-2 both returned NOT A RESULT on 2026-08-27 with every physics
++# artefact intact because a frozen grader pinned the datum to the NAME `0/U` while
++# this tutorial's `writeCompression on` rewrites it as `0/U.gz` on a serial arm.
++# This launcher resolves the datum over BOTH names and writes the one it used to
++# `.so1a_age_datum_ref` beside the epoch, so the grader is not left inferring it.
+ #
+ # CAP DISCIPLINE (the failure this file exists not to repeat).  A peer lane
+ # today registered a 3.0 core-min cap and its launcher enforced 6.0 by
+@@ -48,8 +57,8 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=D15
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic
++ITEM=SO1a
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -82,9 +91,13 @@
+ /home/ubuntu/certonomous-runs/CURRICULUM-D12R2-cylinder-unsteady
+ /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W2R-cylinder-unsteady
+ /home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart
++/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic
+ /home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic
++/home/ubuntu/certonomous-runs/CURRICULUM-D17-cone-supersonic
++/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
++/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
+ /home/ubuntu/certonomous-runs/A2-mach-wing
+-/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/subsonic
++/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ /home/ubuntu/dafoam-tutorials
+ /home/ubuntu/certonomous-runs
+ /home/ubuntu/Certonomous"
+@@ -124,29 +137,32 @@
+ # four distinct cores.  So: PIN, and MEASURE the placement rather than infer it
+ # from the flag that was passed.
+ #
+-# D15 REGISTERED DELTA (PREREGISTRATION.md section 5): cpuset 2,3 -- the
+-# dafoam-supervisor's FOURTEENTH-session placement; DISJOINT from D5 8,10,11,13,
+-# D4-SHIPPED 5,6,7,9, W2R 12, D16 4,14; not core 0.
+-CPUSET=2,3
++# SO-1a REGISTERED DELTA (PREREGISTRATION.md section 5): cpuset 9, ONE core,
++# because every arm runs at np = 1.  DISCLOSED OVERLAP: 9 sits inside
++# D4-SHIPPED's registered 5,6,7,9.  At np = 1 the grader's delivered-cores floor
++# does not apply (so1a_grade.py g_placement: dl_ok is True when ARM_RANKS == 1),
++# so an overlap costs WALL TIME and cannot fail G12 -- it is reported as a cost
++# exposure in PREREGISTRATION.md section 4, never silently re-pinned.
++CPUSET=9
+ 
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d15_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^so1a_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE (PREREGISTRATION.md §4, verbatim) ---------------
+ #   arm    ranks  core-min cap   in-container wall   memory cap
+ #   MESH     1        5.0            300 s              4g
+-#   X-S      2       20.0            600 s              4g
+-#   X-P      2       20.0            600 s              4g
+-#   F-S      2       60.0           1800 s              4g
+-#   F-P      2       60.0           1800 s              4g
++#   X-S      1       10.0            600 s              4g
++#   X-P      1       10.0            600 s              4g
++#   F-S      1       25.0           1500 s              4g
++#   F-P      1       25.0           1500 s              4g
+ cap_core_min() {
+   case "$1" in
+     MESH)     echo 5.0 ;;
+-    X-S|X-P)  echo 20.0 ;;
+-    F-S|F-P)  echo 60.0 ;;
++    X-S|X-P)  echo 10.0 ;;
++    F-S|F-P)  echo 25.0 ;;
+     *)  echo "" ;;
+   esac
+ }
+@@ -156,10 +172,11 @@
+     *) echo "" ;;
+   esac
+ }
++# np = 1 ON EVERY ARM by registration: DAFOAM_CHARTER.md section 5 (serial before
++# parallel), and A4's 16,600x decomposition effect is removed from the chain.
+ ranks_of() {
+   case "$1" in
+-    MESH) echo 1 ;;
+-    X-S|X-P|F-S|F-P) echo 2 ;;
++    MESH|X-S|X-P|F-S|F-P) echo 1 ;;
+     *) echo "" ;;
+   esac
+ }
+@@ -173,13 +190,13 @@
+ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc
+ 
+ # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md §7, verbatim) ----------
+-MD5_RUNSCRIPT=6537fa7641c4ccb20056f60f96f63b11   # d15_runScript.py = byte copy of the shipped subsonic tutorial runScript.py
+-MD5_XF=8a664a976de77c5fe7c3fed5746be4de                                 # d15_xf.py (set at freeze)
+-MD5_DECOMP=68ecc827562886fb43c3aedb0627b344      # d15_decomposeParDict (numberOfSubdomains 2, scotch)
++MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f   # so1a_runScript.py = byte copy of the shipped INCOMPRESSIBLE tutorial runScript.py
++MD5_XF=f34bd5bf550786ff926aed81b342cced                                 # so1a_xf.py (set at freeze)
++MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4      # so1a_decomposeParDict (numberOfSubdomains 1, scotch)
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: d15_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: d15_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: so1a_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: so1a_run_arm.sh <MESH|X-S|F-S|X-P|F-P> <image>"; exit 64; }
+ RANKS=$(ranks_of "$ARM"); test -n "$RANKS" || { echo "ABORT arm $ARM carries no registered rank count"; exit 64; }
+ 
+ # ---- G-ROOT.5 (ADDENDUM 2) -- A LIVE ARM IS NEVER RE-STAGED.  G-ROOT.1-.3
+@@ -191,13 +208,13 @@
+ # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+ # ----       ancestor of this process (a second driver), or whose cwd is the
+ # ----       run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d15_${ARM}_" 2>/dev/null | grep "^d15_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^so1a_${ARM}_" 2>/dev/null | grep "^so1a_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/d15_driver.pid"
++PIDFILE="$BASE/so1a_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -246,8 +263,8 @@
+ test "$(stat -c '%a' "$BASE")" = "777" || { echo "ABORT L-251 run root mode $(stat -c '%a' "$BASE")"; exit 4; }
+ 
+ # ---- staged-instrument identity, re-asserted before EVERY launch ---------
+-echo "$MD5_RUNSCRIPT  $BASE/d15_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
+-echo "$MD5_XF  $BASE/d15_xf.py"                     | md5sum -c - || { echo "ABORT xf md5"; exit 4; }
++echo "$MD5_RUNSCRIPT  $BASE/so1a_runScript.py"       | md5sum -c - || { echo "ABORT runScript md5"; exit 4; }
++echo "$MD5_XF  $BASE/so1a_xf.py"                     | md5sum -c - || { echo "ABORT xf md5"; exit 4; }
+ echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict" | md5sum -c - || { echo "ABORT decomposeParDict md5"; exit 4; }
+ 
+ # ---- image identity by DIGEST, resolved from the local store -------------
+@@ -277,7 +294,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="d15_${ARM}_${STAMP}"
++NAME="so1a_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+@@ -290,23 +307,29 @@
+   cp -a "$BASE/base" "$WORK" || { echo "ABORT stage copy"; exit 4; }
+   test -e "$WORK/constant/polyMesh" && { echo "ABORT G-COLD MESH: base/ already carries constant/polyMesh"; exit 5; }
+   test -e "$WORK/0" && { echo "ABORT G-COLD MESH: base/ already carries 0/"; exit 5; }
+-  test -f "$WORK/0.orig/U" || { echo "ABORT G-COLD 0.orig/U missing"; exit 5; }
++  # DATUM BY EXISTENCE (AV-1/AV-2, 2026-08-27): accept either registered name and
++  # RECORD the one used, so the grader is not left inferring it from a hard-coded
++  # string that `writeCompression on` can invalidate.
++  if   [ -f "$WORK/0.orig/U" ];    then DATUM_NAME=0.orig/U
++  elif [ -f "$WORK/0.orig/U.gz" ]; then DATUM_NAME=0.orig/U.gz
++  else echo "ABORT G-COLD neither 0.orig/U nor 0.orig/U.gz is present"; exit 5; fi
+   touch "$WORK/0.orig"/* || { echo "ABORT age-guard datum"; exit 5; }
+-  AGE_DATUM=$(stat -c '%Y' "$WORK/0.orig/U")
+-  echo "$AGE_DATUM" > "$WORK/.d15_age_datum"
+-  echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=0.orig/U"
++  AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
++  echo "$AGE_DATUM" > "$WORK/.so1a_age_datum"
++  echo "$DATUM_NAME" > "$WORK/.so1a_age_datum_ref"
++  echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+ else
+   test -d "$BASE/MESH" || { echo "ABORT arm $ARM expects an existing MESH/ from arm MESH"; exit 5; }
+   test -f "$BASE/MESH/constant/polyMesh/boundary" || { echo "ABORT arm $ARM: MESH/ carries no constant/polyMesh/boundary"; exit 5; }
+-  test -f "$BASE/MESH/0/U" || { echo "ABORT arm $ARM: MESH/ carries no 0/U"; exit 5; }
++  { [ -f "$BASE/MESH/0/U" ] || [ -f "$BASE/MESH/0/U.gz" ]; } || { echo "ABORT arm $ARM: MESH/ carries neither 0/U nor 0/U.gz"; exit 5; }
+   sudo -n rm -rf "$WORK" 2>/dev/null
+   cp -a "$BASE/MESH" "$WORK" || { echo "ABORT stage copy from MESH"; exit 4; }
+-  rm -f "$WORK/d15_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.d15_age_datum" 2>/dev/null
+-  cp -a "$BASE/d15_runScript.py" "$BASE/d15_xf.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
++  rm -f "$WORK/so1a_cmd.sh" "$WORK/checkMesh.log" "$WORK/logMeshGeneration.txt" "$WORK/volumeMesh.xyz" "$WORK/surfaceMesh.xyz" "$WORK/.so1a_age_datum" "$WORK/.so1a_age_datum_ref" 2>/dev/null
++  cp -a "$BASE/so1a_runScript.py" "$BASE/so1a_xf.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+   # COLD START, verified BEFORE the launch (D2 G8), and the AGE GUARD's datum:
+   # 0/ is touched LAST at stage time, so every artifact the run produces must
+   # be strictly newer than 0/U or it did not come from this run.
+-  for bad in "$WORK/reports" "$WORK/d15_X.json" "$WORK/d15_F.json" "$WORK/d15_F.jsonl" "$WORK/d15_X.jsonl" "$WORK/dRdWColoring_2.bin"; do
++  for bad in "$WORK/reports" "$WORK/so1a_X.json" "$WORK/so1a_F.json" "$WORK/so1a_F.jsonl" "$WORK/so1a_X.jsonl" "$WORK/dRdWColoring_2.bin"; do
+     test -e "$bad" && { echo "ABORT G-COLD $bad exists"; exit 5; }
+   done
+   test -n "$(ls -d "$WORK"/processor* 2>/dev/null)" && { echo "ABORT G-COLD processor* present"; exit 5; }
+@@ -314,24 +337,28 @@
+     n=$(basename "$d")
+     case "$n" in 0|0.orig) ;; [0-9]*) echo "ABORT G-COLD time dir present: $n"; exit 5 ;; esac
+   done
+-  test -f "$WORK/0/U" || { echo "ABORT G-COLD 0/U missing"; exit 5; }
++  if   [ -f "$WORK/0/U" ];    then DATUM_NAME=0/U
++  elif [ -f "$WORK/0/U.gz" ]; then DATUM_NAME=0/U.gz
++  else echo "ABORT G-COLD neither 0/U nor 0/U.gz is present"; exit 5; fi
+   touch "$WORK/0"/* || { echo "ABORT age-guard datum"; exit 5; }
+-  AGE_DATUM=$(stat -c '%Y' "$WORK/0/U")
+-  echo "$AGE_DATUM" > "$WORK/.d15_age_datum"
+-  echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=0/U"
++  AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
++  echo "$AGE_DATUM" > "$WORK/.so1a_age_datum"
++  echo "$DATUM_NAME" > "$WORK/.so1a_age_datum_ref"
++  echo "SO1A_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
++  echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+ fi
+ 
+ case "$ARM" in
+-  MESH)     CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo D15_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
+-  X-S|X-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d15_xf.py -mode X" ;;
+-  F-S|F-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python d15_xf.py -mode F" ;;
++  MESH)     CMD="bash preProcessing.sh && checkMesh > checkMesh.log 2>&1; echo SO1A_CHECKMESH_RC \$?; sha256sum constant/polyMesh/points* ; grep -a 'cells:' checkMesh.log" ;;
++  X-S|X-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1a_xf.py -mode X" ;;
++  F-S|F-P)  CMD="mpirun --allow-run-as-root -np $RANKS --bind-to core --report-bindings -x PYTHONPATH python so1a_xf.py -mode F" ;;
+ esac
+ 
+ # ---- ADDENDUM 2: the arm command goes to a FILE the container executes under
+ # ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
+ # ---- INSIDE the container and survives every host shell.  `-k 60` escalates
+ # ---- TERM to KILL; the kernel exit code (124/137) is then the record.
+-CMDFILE="$WORK/d15_cmd.sh"
++CMDFILE="$WORK/so1a_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+ echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -392,7 +419,7 @@
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$ARM/d15_cmd.sh" > /dev/null 2>&1 \
++     timeout -k 60 $TMO bash /mnt/$ARM/so1a_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
