@@ -1,0 +1,21 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU005 -- specific dissipation omega for standard k-omega, integrate-to-
+  wall. omegaWallFunction with blender tanh (CONTINUOUS) so that as the r=2 triple
+  refines and near-wall y+ falls, the wall omega transitions SMOOTHLY between
+  levels -- the STEPWISE default (omegaWallFunctionFvPatchScalarField.C case at
+  lines 233-247) would switch the effective wall model discontinuously between
+  meshes and corrupt the observed order. The comparator REFUSES if any wall-
+  function patch is STEPWISE or unset (blender control, PREREGISTRATION section 3).
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object omega; }
+dimensions      [0 0 -1 0 0 0 0];
+internalField   uniform 10;
+boundaryField
+{
+    coldWall   { type omegaWallFunction; blender tanh; value uniform 10; }
+    hotWall    { type omegaWallFunction; blender tanh; value uniform 10; }
+    bottomWall { type omegaWallFunction; blender tanh; value uniform 10; }
+    topWall    { type omegaWallFunction; blender tanh; value uniform 10; }
+    frontBack  { type empty; }
+}
+// ************************************************************************* //

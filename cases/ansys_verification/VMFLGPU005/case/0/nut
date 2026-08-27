@@ -1,0 +1,18 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  nutLowReWallFunction: the RESOLVED-mesh nut treatment (nut -> 0 in the viscous
+  sublayer, y+ ~ 1). It is inherently low-Re and carries NO blender switch, so it
+  cannot introduce the STEPWISE discontinuity the omega/k wall functions can; the
+  blender control therefore applies to omega and k, not to nut.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object nut; }
+dimensions      [0 2 -1 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    coldWall   { type nutLowReWallFunction; value uniform 0; }
+    hotWall    { type nutLowReWallFunction; value uniform 0; }
+    bottomWall { type nutLowReWallFunction; value uniform 0; }
+    topWall    { type nutLowReWallFunction; value uniform 0; }
+    frontBack  { type empty; }
+}
+// ************************************************************************* //

@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU005 -- Boussinesq air. ALL VALUES FIRST-HAND from the plain
+  import_files/VMFL052_natural.cas inside VMFL052_WB.wbpz:
+    density (boussinesq . 1.184)  specific-heat 1005  thermal-conductivity 0.02605
+    viscosity 1.81e-05           molecular-weight 28.966
+  DERIVED here (arithmetic recorded so it is auditable):
+    nu   = mu/rho_ref = 1.81e-5 / 1.184            = 1.528716e-05 m2/s
+    Pr   = mu*cp/k    = 1.81e-5 * 1005 / 0.02605   = 0.698292
+    beta = 1/TRef     = 1/298.05                    = 3.355142e-03 1/K   (ideal-gas
+           value at the operating temperature -- the archive states Boussinesq
+           rho_ref but prints NO explicit beta, so this is OUR closure, declared.)
+    TRef = (307.85 + 288.25)/2 = 298.05 K          (mean of the two wall temps)
+    Prt  = 0.85                                     (Fluent/OpenFOAM default)
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+transportModel  Newtonian;
+nu              [0 2 -1 0 0 0 0] 1.528716e-05;
+beta            [0 0 0 -1 0 0 0] 3.355142e-03;
+TRef            [0 0 0 1 0 0 0]  298.05;
+Pr              [0 0 0 0 0 0 0]  0.698292;
+Prt             [0 0 0 0 0 0 0]  0.85;
+// ************************************************************************* //

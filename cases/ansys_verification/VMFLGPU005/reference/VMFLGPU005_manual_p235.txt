@@ -1,0 +1,31 @@
+VMFLGPU005: Turbulent Natural Convection Inside a Tall Cavity
+Manual: Ansys Fluid Dynamics Verification Manual, Release 2026 R1, page 235
+
+REFERENCE
+Source: P.L. Betts, I.H. Bokhari. "Experiments on turbulent natural convection in an enclosed tall cavity". 
+International Journal of Heat and Fluid Flow, Vol. 21, pp. 675-683, 2000
+
+Reference Source Kind: EXPERIMENTAL (Betts & Bokhari data)
+
+GEOMETRY
+Length of cavity: 2.18 m
+Width of cavity: 0.0762 m
+Aspect ratio (L/W): 28.6
+
+MATERIAL PROPERTIES
+Density: Boussinesq approximation
+Specific Heat: 1005 J/kg-K
+Viscosity: 1.81 x 10^-5 kg/m-sec
+Molecular weight: 28.966
+
+BOUNDARY CONDITIONS
+Cold wall temperature: 288.25 K
+Hot wall temperature: 307.85 K
+Top and bottom walls: adiabatic
+
+QUANTITIES UNDER VERIFICATION
+1. Vertical velocity at Y/h = 0.05 (Figure .gpu005.2 in manual)
+2. Temperature at Y/h = 0.05 (Figure .gpu005.3 in manual)
+
+ANALYSIS TYPE
+Steady, turbulent natural convection flow induced by heat transfer

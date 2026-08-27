@@ -1,0 +1,69 @@
+VMFLGPU005 -- READER-PATH SMOKE, 2026-08-27, lane S (ansys-lane-opus48)
+========================================================================
+5-ITERATION CPU smoke on the LAB BOX, in SCRATCH -- NEVER the run root, NEVER
+inside verification/runs/ (ANSYS_VERIFICATION_CHARTER Clause B: a smoke in the
+runs tree would trip rule 4's age guard). It used PCG/PBiCGStab, NOT the frozen
+petsc blocks: the lab box has no petsc4Foam and the linear algebra is not what a
+reader-path check tests. IT PRODUCES NO GRADED QUANTITY AND NOTHING FROM IT IS
+EVER CITED AS A RESULT.
+
+PURPOSE: confirm the ACTUAL on-disk names, shapes and column orders the function
+objects write, and DRIVE every reader the comparator uses on those verbatim bytes,
+showing each returns a non-zero value. Run twice: first on a working copy, then
+CLEANLY FROM THE FROZEN case/ templates (materialised exactly as run_vmflgpu005.sh
+does) so the record certifies the FROZEN bytes, not a hand-patched copy.
+
+CASE RAN: solver rc=0, 5 Time lines, End present, checkMesh cells 6720 (== the L1
+birth-certificate target registered in run_vmflgpu005.sh / PREREGISTRATION section
+6). The case is physically runnable: one SIMPLE iteration solved Ux, Uy, T, p_rgh,
+omega and k, and the run reached endTime.
+
+TWO DEFECTS CAUGHT AND REPAIRED BEFORE FREEZE (this is what the smoke is for):
+
+  DEFECT 1 -- ALPHABETICAL FIELD ORDER. The `sets` sampler writes fields SORTED
+  ALPHABETICALLY, so the file is `<set>_T_U.xy` with columns  x  T  Ux Uy Uz  --
+  T BEFORE U. The comparator's first draft assumed x,Ux,Uy,Uz,T and would have
+  read the TEMPERATURE column as Uy. Column constants corrected to
+  COL_X=0, COL_T=1, COL_UX=2, COL_UY=3, COL_UZ=4 and driven on the real file.
+
+  DEFECT 2 -- wallHeatFlux DOES NOT WORK FOR THE BOUSSINESQ SOLVER. The
+  `wallHeatFlux` FO refused at execute: "Unable to find compressible turbulence
+  model in the database" (buoyantBoussinesqSimpleFoam carries no compressible
+  thermo). The Nu channel was re-based, PRE-FREEZE, on the WALL-NORMAL TEMPERATURE
+  GRADIENT: grad(T) is materialised as a volume field and surface-sampled on the
+  walls, and Nu_hot = |grad(T)_x|_hot_avg * W / dT_wall (on the resolved integrate-
+  to-wall mesh the wall flux is conductive; alphat -> 0 at the wall, so K_AIR
+  cancels). Confirmed emitting: postProcessing/wallGradT/5/grad(T)_hotWall.raw.
+
+ACTUAL READER PATHS AND FORMATS (from the FROZEN case, endTime=5):
+  postProcessing/midLine/5/midHeight_T_U.xy   cols: x  T  Ux Uy Uz    (400 rows)
+  postProcessing/lowLine/5/lowHeight_T_U.xy   cols: x  T  Ux Uy Uz    (400 rows)
+  postProcessing/wallGradT/5/grad(T)_hotWall.raw  hdr "# x y z  grad(T)_x grad(T)_y grad(T)_z", 140 faces
+  postProcessing/probeU/0/U                   line: "<t>  (Ux Uy Uz)"  (Uy = 2nd comp)
+  postProcessing/yPlusFO/0/yPlus.dat          cols: Time patch min max average
+  postProcessing/resid/0/solverInfo.dat       (residual history; not a gate reader)
+
+EVERY COMPARATOR READER DRIVEN ON THE FROZEN-CASE OUTPUT, each returns non-zero
+(values are 5-ITERATION TRANSIENT, not converged -- the point is the READER works):
+  read_line  midHeight    OK   400 rows; C1b max mean Uy and C1c central dT/dx read
+  read_line  lowHeight    OK   400 rows; C2 peak up / peak down / core T read
+  read_nusselt            OK   hot-wall grad mean 7544.15 K/m -> Nu 29.3298 (transient)
+  yplus_max              OK   max y+ 4.4782; per patch cold 0.54 hot 0.50 bottom 1.26
+                              top 4.48 -- ALL BELOW yPlusLam 11.06, the resolved
+                              integrate-to-wall regime the model requires, at L1 (coarsest)
+  blender_control        OK   all 8 wall-function patches (omega, k x 4 walls) read
+                              blender=tanh -- the CONTINUOUS blender is on the frozen
+                              case, so the STEPWISE-refusal control passes on the real case
+  planted_zero_control   OK   FIRED ON REAL OUTPUT: plant 0.001234 m/s at the argmax
+                              row, expected 0.001234, observed 0.001234
+
+  limb-A logview reader is NOT exercised here (the lab box has no PETSc, so no
+  -log_view table exists). It is instead driven in --selftest on the REAL FROZEN
+  BYTES of VMFLGPU007's own gpu and cpu -log_view tables
+  (reference/REAL_LOGVIEW_{GPU,CPU}_vmflgpu007_L1.txt): reads GPU %F=100 / 0 by
+  COLUMN POSITION, reproduces the 007 defect (max of last four tokens = 210 = the
+  CpuToGpu MBytes), and refuses a GPU %F above 100.
+
+WHAT THIS SMOKE DOES NOT SHOW: nothing about the GPU path (no PETSc on the lab box),
+nothing about convergence or any verdict (5 transient iterations), nothing about
+the graded values (those come only from the frozen GPU run on the instance).

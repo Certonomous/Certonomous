@@ -1,0 +1,19 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU005 -- tall differentially-heated cavity (Betts & Bokhari 2000).
+  0/T is TOUCHED LAST at launch (run_vmflgpu005.sh) and dates the age guard
+  (CLAUDE.md rule 4). Cold wall 288.25 K, hot wall 307.85 K (manual p.235,
+  = paper's Lower-Ra dT=19.6 K case). Top/bottom ADIABATIC (manual). Initial
+  field = mean 298.05 K.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+dimensions      [0 0 0 1 0 0 0];
+internalField   uniform 298.05;
+boundaryField
+{
+    coldWall   { type fixedValue; value uniform 288.25; }
+    hotWall    { type fixedValue; value uniform 307.85; }
+    bottomWall { type zeroGradient; }
+    topWall    { type zeroGradient; }
+    frontBack  { type empty; }
+}
+// ************************************************************************* //

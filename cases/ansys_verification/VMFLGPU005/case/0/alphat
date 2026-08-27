@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object alphat; }
+dimensions      [0 2 -1 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    coldWall   { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    hotWall    { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    bottomWall { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    topWall    { type alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    frontBack  { type empty; }
+}
+// ************************************************************************* //

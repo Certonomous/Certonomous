@@ -1,0 +1,17 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU005 -- STANDARD k-OMEGA (Wilcox). FIRST-HAND from the plain
+  import_files/VMFL052_natural.cas: (kw-std-on? #t), (kw-sst-on? #f),
+  (rng-ke-on? #f), (realizable-epsilon? #f), (laminar? #f), and the near-wall
+  regime (kw-low-re-mod? #t), (kw-wall-omega-treatment-r13? #t) -- i.e. Ansys ran
+  standard k-omega with LOW-RE corrections, INTEGRATING TO THE WALL (y+ ~ 1), NOT
+  wall functions. Reproduced here as OpenFOAM's standard kOmega on a boundary-
+  layer-resolving mesh with CONTINUOUS (tanh) wall functions.
+
+  DECLARED MODELLING DIFFERENCE (Ruling 4): OpenFOAM's standard kOmega does NOT
+  carry Fluent's exact low-Re viscous-damping terms. kOmega is registered as OUR
+  reproduction; byte-identity with Fluent's low-Re k-omega is NOT claimed.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+simulationType  RAS;
+RAS { RASModel kOmega; turbulence on; printCoeffs on; }
+// ************************************************************************* //

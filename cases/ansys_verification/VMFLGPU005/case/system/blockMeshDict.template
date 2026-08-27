@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU005 -- tall differentially-heated cavity. Geometry FIRST-HAND: W=0.0762 m
+  (manual p.235; paper "0.076 m wide between the hot and cold walls"), H=2.18 m
+  (manual/paper), aspect H/W=28.6. 2D (paper: flow "closely two-dimensional"):
+  one cell in z over a 0.01 m slab, frontBack empty.
+  x = horizontal (cold wall x=0, hot wall x=W); y = vertical; matches the paper's
+  own x,y convention (nomenclature: "x, y, z horizontal, vertical and depth-wise").
+
+  RESOLVED near-wall mesh (integrate-to-wall k-omega low-Re): x is DOUBLE-GRADED,
+  fine at BOTH vertical walls. __NX__ __NY__ and the x-grading __XGRADING__ are
+  filled by the FROZEN generator resolve_blockmesh.py from a Roache r=2 triple
+  (Nx,Ny and first-cell height H1 all scale by 2 between levels -- geometric
+  similarity, the condition a discretisation order requires). y is uniform.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+scale 1;
+vertices
+(
+    (0       0     0    )   // 0
+    (0.0762  0     0    )   // 1
+    (0.0762  2.18  0    )   // 2
+    (0       2.18  0    )   // 3
+    (0       0     0.01 )   // 4
+    (0.0762  0     0.01 )   // 5
+    (0.0762  2.18  0.01 )   // 6
+    (0       2.18  0.01 )   // 7
+);
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (__NX__ __NY__ 1) simpleGrading ( __XGRADING__ 1 1 )
+);
+edges ();
+boundary
+(
+    coldWall   { type wall;  faces ( (0 4 7 3) ); }   // x = 0
+    hotWall    { type wall;  faces ( (1 2 6 5) ); }   // x = W
+    bottomWall { type wall;  faces ( (0 1 5 4) ); }   // y = 0  (adiabatic, manual)
+    topWall    { type wall;  faces ( (3 7 6 2) ); }   // y = H  (adiabatic, manual)
+    frontBack  { type empty; faces ( (0 3 2 1) (4 5 6 7) ); }
+);
+mergePatchPairs ();
+// ************************************************************************* //

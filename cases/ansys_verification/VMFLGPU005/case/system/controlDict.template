@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU005 -- tall differentially-heated cavity (Betts & Bokhari 2000).
+  buoyantBoussinesqSimpleFoam + petsc4Foam, steady, Boussinesq, g=(0 -9.81 0).
+  Run to a FIXED iteration count (__ENDTIME__): NO residualControl, so the run
+  always reaches endTime and rule 4's "last time == endTime" and the comparator's
+  "Time = count == endTime" clause both bite, and BOTH ARMS TAKE THE SAME OUTER
+  ITERATION COUNT -- the condition that makes limb B a statement about the linear
+  algebra alone. Iterative convergence is judged AFTER the run by the comparator's
+  plateau test on the gate quantity's OWN history (probeU below).
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+
+application     buoyantBoussinesqSimpleFoam;
+libs            (petscFoam);
+
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;    writeInterval __ENDTIME__;
+purgeWrite      0;  writeFormat ascii;  writePrecision 12;  writeCompression off;
+timeFormat      general;  timePrecision 6;  runTimeModifiable false;
+
+functions
+{
+    // ------- C1 mid-height traverse (y/H = 0.5, y = 1.09 m) -----------------
+    // Reads U and T across the width. Comparator derives: C1b = max of the mean
+    // vertical velocity U_y over this traverse (paper's "Max. vert. velocity
+    // (Av)"); C1c = centre-line horizontal temperature gradient dT/dx at x=W/2.
+    midLine
+    {
+        type sets; libs (sampling); writeControl writeTime; interpolationScheme cellPoint;
+        setFormat raw; fields (U T);
+        sets ( midHeight { type uniform; axis x; start (1e-6 1.09 0.005); end (0.0761990 1.09 0.005); nPoints 400; } );
+    }
+    // ------- C2 Y/h = 0.05 traverse (y = 0.109 m) -- reproduces the manual ---
+    // Comparator derives: peak up-flow and peak down-flow of U_y (vs archive CSV
+    // exp1) and the mid-width core temperature (vs exp2). CEILING GATE REACHED.
+    lowLine
+    {
+        type sets; libs (sampling); writeControl writeTime; interpolationScheme cellPoint;
+        setFormat raw; fields (U T);
+        sets ( lowHeight { type uniform; axis x; start (1e-6 0.109 0.005); end (0.0761990 0.109 0.005); nPoints 400; } );
+    }
+    // ------- C1a Nusselt: WALL-NORMAL TEMPERATURE GRADIENT on the walls ------
+    // The READER SMOKE proved buoyantBoussinesqSimpleFoam has NO compressible
+    // thermo, so the wallHeatFlux FO refuses ("Unable to find compressible
+    // turbulence model"). On the resolved integrate-to-wall mesh the wall flux is
+    // conductive (q = k*dT/dn, turbulent alphat -> 0 at the wall), so the
+    // comparator forms Nu_hot = |dT/dn|_hot_avg * W / dT_wall from grad(T)_x
+    // (x is the wall normal at x=W). grad(T) is materialised as a volume field
+    // and surface-sampled on the hot and cold walls.
+    gradTvol { type grad; libs (fieldFunctionObjects); field T; writeControl writeTime; }
+    wallGradT
+    {
+        type surfaces; libs (sampling); surfaceFormat raw; fields ( grad(T) ); writeControl writeTime;
+        surfaces
+        (
+            hotWall  { type patch; patches (hotWall);  interpolate false; }
+            coldWall { type patch; patches (coldWall); interpolate false; }
+        );
+    }
+
+    // ------- PLATEAU channel: the gate quantity's own history ----------------
+    // U probed at the mid-height near-hot-wall point (where the wall jet peaks),
+    // one row per SIMPLE iteration. The comparator's plateau test runs on the
+    // U_y tail of THIS series -- a plateau in the gated velocity itself, not a
+    // proxy. (007 died NOT A RESULT on an unsettled plateau; this channel is the
+    // one the plateau criterion in PREREGISTRATION section 7 is chosen against.)
+    probeU { type probes; libs (sampling); writeControl timeStep; writeInterval 1;
+             fields (U); probeLocations ( (0.0755 1.09 0.005) ); }
+
+    // ------- y+ control: wall-treatment regime, reported per level -----------
+    // The triple is only clean if every near-wall face stays BELOW yPlusLam(~11)
+    // at ALL levels (integrate-to-wall). The comparator reports max y+ per level
+    // and refuses if any level exceeds yPlusLam WHILE a wall function is STEPWISE.
+    yPlusFO { type yPlus; libs (fieldFunctionObjects); writeControl writeTime; }
+
+    // ------- residuals ------------------------------------------------------
+    resid { type solverInfo; libs (utilityFunctionObjects); fields (U p_rgh T k omega);
+            writeControl timeStep; writeInterval 1; }
+}
+// ************************************************************************* //

@@ -1,0 +1,58 @@
+VMFLGPU005 -- LAUNCHER-ORDER SMOKE. 2026-08-27, lane S (ansys-lane-opus48).
+==========================================================================
+TWO SMOKES, TWO DIFFERENT OBJECTS, and neither substitutes for the other:
+  * the READER smoke (SMOKE_READER_PATH_RECORD.txt) proved the COMPARATOR can
+    read what OpenFOAM writes;
+  * THIS smoke proves the LAUNCHER assembles a case OpenFOAM can run -- that the
+    case directory is COMPLETE before the first OpenFOAM utility constructs a
+    Time object and reads system/controlDict (VMFLGPU007's Amendment 2).
+
+NO SOLVER STEP. blockMesh and checkMesh only. IT PRODUCES NO GRADED QUANTITY AND
+NOTHING FROM IT IS EVER CITED AS A RESULT. Scratch root only -- NEVER
+verification/runs/. Zero solver artifacts in the driven case (log.*Foam count = 0).
+
+THE ANTI-TRAP: THE BYTES ARE EXTRACTED, NEVER RETYPED.
+The case-assembly region was taken VERBATIM BY LINE RANGE from the launcher and
+hashed, so a reader can confirm they are the shipped bytes:
+
+  run_vmflgpu005.sh lines 144-164   21 lines
+  sha256  dcf0feba0300744c346e09cbe511bf54f146e71187dc32c08baefe0d3616292c
+
+The harness supplies VARIABLES ONLY -- CASE_SRC, D, RUN_ROOT, NAME, arm, NX, NY,
+H1, ETIME, EXPECT_CELLS, the mat/vec types, REPO, MESHGEN_REL and a log() shim. It
+contains NO mkdir, NO cp, NO sed of any template and NO blockMesh call of its own
+(mkdir/cp/sed/blockMesh live in the EXTRACTED bytes: 1 blockMesh call and 2
+template seds counted inside the extract, 0 in the harness). EVERY ORDERING
+DECISION COMES FROM THE EXTRACTED BYTES. If the assembly order had been
+re-implemented in the harness, this check would be testing the test.
+
+RESULTS
+-------
+FROZEN ORDERING (the launcher's own bytes, lines 144-164)          rc = 0
+    [LOG] L1/gpu BIRTH CERTIFICATE OK: 6720 cells == registered 6720
+  blockMesh: End      checkMesh: Mesh OK
+  system/ AFTER assembly:  blockMeshDict  controlDict  fvSchemes  fvSolution
+  -- the case directory is COMPLETE before the first utility runs; NO .template
+  remains; birth-certificate count 6720 == the L1 count registered in
+  run_vmflgpu005.sh and PREREGISTRATION section 6.
+
+DEFECT ORDERING (blockMesh BEFORE templating -- the 007 Amendment-2 failure)  rc = 1
+    --> FOAM FATAL ERROR: (openfoam-2606)
+    cannot find file ".../defect/gpu/L1/system/controlDict"
+  system/ AFTER the failed blockMesh:  blockMeshDict.template  controlDict.template
+    fvSchemes  fvSolution.template   -- the templates never materialised.
+
+THE FLIP IS EXACT: same case inputs, same OpenFOAM v2606, same scratch harness,
+only the ordering differs -- the launcher's own order completes the case and
+meshes it (rc 0, 6720 cells), the reordered one dies in blockMesh's constructor
+(rc 1). A fix not shown to flip the failure it claims to fix is an assertion, not
+evidence (L-357).
+
+WHAT THIS DRIVE DOES NOT SHOW
+  * Nothing about the physics, the gate or any verdict; no solver ran.
+  * Only the L1 level was meshed here; L2 and L3 share the same loop body and the
+    same mesh generator, and their birth-certificate counts (26880, 107520) are
+    registered for the graded run to assert.
+  * It does not exercise the launcher's STEP 0 GPU preconditions (STATUS.smoke,
+    the manifest, the MPI pin) -- those cannot pass on the lab box, and defeating
+    them to make a test run is NOT done.
