@@ -477,8 +477,9 @@ grader's selftest, including a stale field tripping the age guard.
 ## 10. THE PRE-COMPUTE PILOT, DISCLOSED IN FULL
 
 A **coarse-level scratch arm** was run to `T_END` before this document was
-frozen, **outside the registered run root**, at a cost of **0.88 core-min**
-(ClockTime 13 s x 4 ranks). It is disclosed here in full because it informed
+frozen, **outside the registered run root**, at a cost of **1.20 core-min**
+(ClockTime 18 s x 4 ranks; the ExecutionTime was 13.23 s, and the lab's unit is
+ClockTime x ranks). It is disclosed here in full because it informed
 §6.2 and because an undisclosed pilot is worse than none.
 
 | quantity | pilot (coarse) | composite-model prediction | ratio |
@@ -573,7 +574,7 @@ dated addenda that cannot alter a gate, threshold, cap or label**
 2. **One gated quantity was demoted before freezing.** §6.2. `W` is
    REPORTED-NOT-GATED because a pre-compute measurement showed the registered
    model mis-predicts it by sign.
-3. **A pre-compute pilot was run and is disclosed.** §10. 0.88 core-min, outside
+3. **A pre-compute pilot was run and is disclosed.** §10. 1.20 core-min, outside
    the run root, informing §6.2 and §6.3 but not `BAND_FACTOR`.
 4. **`A_theta` has a declared null space.** §6.4. D4-invariant azimuthal modes
    read exactly zero; that class is carried by the two gated norms instead.
@@ -584,3 +585,78 @@ dated addenda that cannot alter a gate, threshold, cap or label**
    shows the increments shrinking geometrically to a limit near 45.8°, well
    under the 70° gate — the opposite of F1's approach to 90° — and records the
    trend rather than only the three passing numbers.
+
+
+---
+
+## AMENDMENT 1 — 2026-08-27, PRE-COMPUTE: a mislabelled scratch cost corrected
+
+**THE CONDITION, AND HOW IT WAS CHECKED.** This amendment is legal only before
+first compute (`CLAUDE.md` rule 2). **The registered run root
+`verification/runs/F27_WOMERSLEY_PIPE_runs` DOES NOT EXIST**, checked in this
+amendment's own preparation at **2026-08-27T17:10:35Z** by `ls -d` on that exact
+path, which returned `No such file or directory`, and again by
+`bash cases/F27_WOMERSLEY_PIPE/run_f27.sh --preflight`, which prints
+`run root … is ABSENT` and exits 0 at zero compute. **No solver has run against
+this registration. Zero core-minutes have been spent in the run root.**
+
+**WHAT WAS WRONG.** §10 stated the pre-compute coarse pilot's cost as
+**0.88 core-min "(ClockTime 13 s x 4 ranks)"**. **13.23 s was the pilot's
+`ExecutionTime`, not its `ClockTime`.** The pilot's `ClockTime` is **18 s**, so
+its cost in the lab's unit (`ClockTime x ranks / 60`) is **1.20 core-min**.
+Read back from `log.pimpleFoam` of the pilot arm:
+`ExecutionTime = 13.23 s  ClockTime = 18 s`.
+
+**WHAT CHANGED.** TWO figures, both the same number in two places. In §10,
+`0.88 core-min (ClockTime 13 s x 4 ranks)` becomes `1.20 core-min (ClockTime
+18 s x 4 ranks; the ExecutionTime was 13.23 s, and the lab's unit is ClockTime x
+ranks)`; in §14 departure 3, `0.88 core-min` becomes `1.20 core-min`. Nothing
+else in the document is edited, and a grep for the superseded figure returns
+hits ONLY inside this amendment, where it is quoted as the thing corrected.
+
+**WHAT DID NOT CHANGE, and this is the whole point of disclosing it.** **NO
+GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL MOVES.** `BAND_FACTOR` is 5.0;
+both bands are unchanged; `CAP_CORE_MIN` is 680; `cost_core_min_estimate` is
+456.74 — the corrected figure is the cost of a **scratch arm outside the run
+root**, which is not part of the ladder's estimate and is not charged against
+the cap. The capability cell, the ladder, the levels, the tolerances and the
+verdict rules are untouched.
+
+**WHY IT IS CORRECTED RATHER THAN LEFT.** A cost figure carrying the wrong
+label is worse than one omitted: a reader would have taken 0.88 core-min as a
+ClockTime-basis number and it is an ExecutionTime-basis number. The two bases
+differ here by 38 %, and the lab's unit is fixed at `ClockTime x ranks / 60`
+(`CLAUDE.md` rule 12).
+
+**THE FULL SCRATCH SPEND OF THIS REGISTRATION, stated here so it is on the
+record in one place.** All of it outside the run root, all on 4 ranks,
+**MEASURED** as `ClockTime x 4 / 60` from each arm's own `log.pimpleFoam`:
+
+| scratch arm | steps | ClockTime | core-min |
+|---|---|---|---|
+| rate arm, coarse | 200 | 4 s | 0.267 |
+| rate arm, medium | 150 | 20 s | 1.333 |
+| rate arm, fine | 24 | 59 s | 3.933 |
+| physics pilot, coarse, to `T_END` | 672 | 18 s | 1.200 |
+| **measured total** | | | **6.733** |
+
+Beside it, **NOT MEASURED and stated as an estimate**: an earlier 30-step probe
+whose log was overwritten (~0.07 core-min) and the serial `blockMesh`,
+`checkMesh` and `postProcess` work across two builds of three levels
+(~1.5 core-min). **Estimated grand total ≈ 8.3 core-min, of which 6.733 is
+measured.** None of it is charged against the registered cap, and none of it is
+a result.
+
+**A LINE-NUMBER NOTE.** Rule 6's `lines whose number changed above this section:
+0` assertion governs POST-compute addenda to frozen files. This is a
+**pre-compute** amendment under rule 2, and it replaces one sentence in place
+with a sentence of the same line count, so **no line number in this document
+changes**. No other record cites this file by line: it was committed at
+`4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e` eleven minutes before this amendment
+and is cited only by path.
+
+**CONSEQUENCE FOR THE FREEZE.** This amendment produces a **new freeze sha**,
+and `cases/F27_WOMERSLEY_PIPE/queue_entry_F27_WOMERSLEY_PIPE.json` is re-issued
+against it in the same push. The superseded sha
+`4bb0226dcac06719b1a16a2d53647fcd5d0b9c9e` is struck, not rewritten, and no run
+ever cited it.
