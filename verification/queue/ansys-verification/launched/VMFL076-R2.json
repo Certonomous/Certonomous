@@ -44,16 +44,5 @@
     "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL076-R2/launcher.queue.out",
     "started_epoch": 1787787178.899046,
     "status_seen_utc": "2026-08-26T23:33:58Z"
-  },
-  "cap_core_min_registered": 30.0,
-  "cap_core_min_shape": "family ceiling; 10 core-min PER LEVEL, never a shared drawdown",
-  "cap_core_min_per_level": [
-    10.0,
-    10.0,
-    10.0
-  ],
-  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
-  "cap_source": "cases/ansys_verification/VMFL076-R2/PREREGISTRATION.md:138-141",
-  "cap_annotation_added": "2026-08-27",
-  "cap_annotation_note": "Cap transcribed from the pre-registration on the chief's 2026-08-27 lab-wide order. NO pre-existing dispatch field was altered and no value was moved; this entry is in 'launched'. ENTRY IS HISTORICAL: the run has already launched, so this is a record annotation, NOT a live pre-compute control."
+  }
 }

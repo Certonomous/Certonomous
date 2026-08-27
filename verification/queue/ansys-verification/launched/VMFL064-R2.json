@@ -40,11 +40,5 @@
       "runner.log lines"
     ],
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
-  },
-  "cap_core_min_registered": 90.0,
-  "cap_core_min_shape": "RUNNING TOTAL across the three levels",
-  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
-  "cap_source": "cases/ansys_verification/VMFL064-R2/PREREGISTRATION.md:88",
-  "cap_annotation_added": "2026-08-27",
-  "cap_annotation_note": "Cap transcribed from the pre-registration on the chief's 2026-08-27 lab-wide order. NO pre-existing dispatch field was altered and no value was moved; this entry is in 'launched'. ENTRY IS HISTORICAL: the run has already launched, so this is a record annotation, NOT a live pre-compute control."
+  }
 }
