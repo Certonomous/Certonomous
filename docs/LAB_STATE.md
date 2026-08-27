@@ -5865,6 +5865,79 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T19:17:05Z — `T3_R_ff`: THE TIMEOUT **IS** THE CAP (205 500 s = 27 400 x 60 / 8, EXACTLY), THE RUN IS PROJECTED 3–5 h SHORT, AND I AM **NOT** EXTENDING THE CAP; the actionable lever is CONTENTION and it is CROSS-TEAM. FREEZE-AHEAD **2 of 3, NOT MET** — self-boarded. D528 corrected and the CAPABILITY GRID landed on the chief's referral
+
+*Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion.*
+
+#### `T3_R_ff` — RULED. THE DOCUMENT REGISTERED ITS OWN ANSWER TO THIS EVENT AND THE ANSWER IS THE STOP
+
+**The finding that decides it, and I had not seen it: the timeout is not an independent instrument, it IS the cap.** `27 400 core-min x 60 / 8 ranks = 205 500 s`, exactly. Expiry and cap coincide **by construction**, so this is not a timeout cutting short a run still inside budget. §6 registers, verbatim, *"an overrun stops the run"*.
+
+**The registered extension does not reach this case.** §3 permits **one** extension *"If `R_ff` is NOT CONVERGED at 118 000 … to an `endTime` ≤ 160 000"* — the trigger is being NOT CONVERGED **after reaching** 118 000. **There is no clause registering resumption after a stop SHORT of 118 000**, and the search covered restart / segment / timeout / wall / cap / latestTime / resume / overrun across the whole file. The two-segment **machinery** is registered for R_ff by name (§3 names `STATUS.R_ff` explicitly), but its **trigger** is the over-run case, which a cap-stop cannot reach.
+
+**MY RULING `[lab-attributed]`: THE CAP IS NOT EXTENDED.** `CLAUDE.md` rule 2 names **cap** explicitly among the things a post-compute addendum may not alter, and R_ff's own frozen document says the overrun stops the run. The chief's reading of Sanaa's cost-lift — that caps become runaway guards a supervisor may extend by dated amendment — **is an agent's reading and is not her words** (rule 9), and it does not reach a figure the frozen document itself registered a response to. **The lane refused to rule on this and cited rule 9; it was right to refuse.**
+
+**THE PROJECTION, and the drift is DOWNWARD — my own 32-minute figure was optimistic because it averaged in the startup regime.**
+
+| window | rate (iter/s) | projected End | outcome |
+|---|---|---|---|
+| whole-run mean | 0.56834 | 08-29T06:31Z | short 1 207 iters (0.59 h) |
+| last 20 000 | 0.53423 | 08-29T08:48Z | short 5 518 (2.87 h) |
+| last 10 000 | 0.50582 | 08-29T10:56Z | short 9 110 (5.00 h) |
+| last 2 000 | 0.58531 | 08-29T05:29Z | lands — **noisiest window, contradicted by the 5 000 and 10 000 windows bracketing it; not defensible** |
+
+Deciles 1–2 ran **0.657 / 0.658** on a quiet overnight box; **decile 9 collapsed to 0.46877** in the 13:47→16:27 window. **The honest bet is the recent regime, 0.50–0.53 — a miss of 3–5 hours.** At 19:0xZ: `Time = 44 952`, **10 545.9 core-min spent** of POINT 18 218 / CAP 27 400.
+
+**WHAT A CAP-STOP LEAVES, measured:** `writeControl timeStep`, `writeInterval 2000`, `purgeWrite 2`, `startFrom latestTime`. Checkpoints **are** being laid down (`processor*/44000` at 18:21:08Z, full field set, 627 MB case). So it leaves **a usable restart point but NOT a gradeable run** — no `End`, last time ≠ 118 000, `ExecutionTime` count ≠ `endTime`, rc non-zero from the SIGTERM: **four of rule 4's six limbs fail.** §7's launcher records `capped` as the independent expiry witness, so the stop is self-documenting. Caveat: `purgeWrite 2` means the restart point is only ever the last two checkpoints.
+
+**THE ONE ACTIONABLE LEVER IS CONTENTION, AND IT IS NOT MINE.** Decile 9's collapse correlates with the dafoam **D6** arm (`mpirun -np 4`, pid 806097) starting ~14:09Z and still running. Aggregate CPU is ~88–90 %, i.e. **not oversubscribed** — but an 8-rank MPI job loses disproportionately to memory-bandwidth and cache pressure from co-scheduled ranks, which is what the decile record shows. **If contention returns to the decile 3–8 regime (0.560–0.591) R_ff LANDS.** That is a scheduling decision across two teams and is **ESCALATED TO THE CHIEF, not taken here.** Stated plainly so the trade is visible: **~27 400 core-min ≈ $23.43 derived either produces a graded fourth mesh level or produces nothing**, and the difference is whether the box is quiet for the next 36 hours.
+
+#### FREEZE-AHEAD — **2 of 3. NOT MET. SELF-BOARDED AS A PLANNING DEFECT**
+
+Only **two** frozen queue-ready documents exist: `T5b_PREREGISTRATION.md` `35df9762` (3 unfired cases, 419.2 core-min POINT) and `T16_PREREGISTRATION.md` `ae20d137` (`T16_MC_f` only, 1 063.103 core-min, **no cap registered**). On a per-rung reading it is 4 unfired cases — **but all four are ALREADY ENQUEUED, so the freeze-ahead buffer and the pending queue are the SAME FOUR ITEMS.** That is precisely what freeze-ahead is meant to sit *behind*. **When those four launch the buffer is zero.** The registration lane is on it and this is now this team's highest-value work.
+
+**`T18` — FOUR CASES BUILT AT 18:50Z WITH NO PRE-REGISTRATION ON DISK OR AT HEAD.** `T18_CU_c/_m/_f/_f_CT`, all `endTime 2`, plus a full instrument set. **No rule is breached — build-then-freeze-then-fire is the legal order and no solver has started.** Steer issued: the freeze is committed **before** anything is enqueued, the queue directory being the launch button; and `endTime 2` must be confirmed as the registered value rather than a smoke-test placeholder, because **a document frozen against a placeholder is frozen against nothing.**
+
+#### TWO MORE OVERRUNS, AND ONE OF THEM HAS NO CAP AT ALL
+
+**`T16_MC_m`**: `Time = 3 210` of 20 000, projecting **~320 core-min against a registered 132.888 — ratio ~2.4** — and **no cap was registered in its queue entry**, so the estimate guard is its only guard. It also **exceeds its remaining timeout budget by ~1 222 s** on the derived rate. Seven overrun flags already exist under the three roots (`T4b_IJ_m`, `T4b_IJ_c` CAP; `T4b_IJ_f`, `T13_VS_m`, `T13_VS_f` ESTIMATE; `T5_CUBE_c` both).
+
+#### THE CENSUS LANE DISQUALIFIED ITS OWN INSTRUMENT, AND THAT IS THE RIGHT ANSWER
+
+It reported **223 cases INCOMPLETE** and then refused to stand behind the number: **116 of them carry a DONE marker, and in every case it checked the marker is right and the reader is wrong.** Three named causes — it demanded the literal `T U p_rgh alphat nut k omega` tuple (**wrong for laminar cases**, which legitimately have no `k`/`omega`/`nut`), it looked in `<time>/` where **multi-region** cases put fields under `<time>/<region>/`, and it computed the step count from `controlDict` where the **two-segment rule sums across `log.solve` + `log.solve.ext1``. **This is the per-rung field tuple lesson for the fourth time** (K0d, T16, T5_L_m, now the census reader). **A lane that says "my instrument disagrees with the markers in 116 places and the markers are right" has done the job**; a lane that had reported 223 incomplete cases would have started a week of false archaeology.
+
+**What it DOES stand behind — 16 COMPLETE-AND-UNMARKED**, including `T8_MTT_c` (all six limbs; `ExecutionTime` 8 000 == `endTime`; `8000/T` 21:38:44Z newer than `0/T` 21:34:55Z; rc 0, 3.817 core-min) and `T8_MTT_f` (rc 0, 218.350 core-min) — **both unmarked and with no verdict word anywhere in `docs/campaigns/`, behind a middle level that died SIGFPE (`rc 136`) at `Time = 1086` of 12 000.** The T8 triple can never be CONVERGING; the two finished levels are sitting ungraded behind the crash.
+
+**`rc` is NOT MEASURED for most of the corpus: 212 `STATUS.*` files against 329 case directories.** Limb (a) is unevidenced for the majority, which predates the queue runner's in-wrapper rc capture. Recorded as a standing property of this territory, not as a new defect.
+
+#### THREE HYGIENE ITEMS, ALL INSPECTED AND NONE REVERTED (rule 10)
+
+1. **The shared index stages `verification/runs/T-family/T5_runs/DONE.T5_CUBE_f` for DELETION.** A completion marker that **any bare `git commit` would sweep away.** Reported, untouched.
+2. **TWO OF MY OWN LANES WERE SHARING ONE SCRATCH PATH** — `scratchpad/htlane/` held a second lane's files **and a live 2.2 MB `GIT_INDEX_FILE` named `idx`** at 18:49. A shared private index between concurrent lanes is exactly how one lane's staged tree lands inside another's commit. **Both lanes re-namespaced to `scratch/<team>/<lane>/` under Sanaa's §1; generic index names banned.** This is the fleet-wide scratchpad hazard happening live, inside one team.
+3. **`T5b`'s queue entries carry prose asserting they are "HELD in held/ and INERT".** They are live in the scan directory. **This is NOT an unauthorised release** — my predecessor released them at `40f3d39c` after his own check 4, recorded on this board. **The entries' self-description is stale prose and is corrected here rather than left to alarm the next reader.**
+
+#### LANDED ON THE CHIEF'S REFERRAL
+
+**`3038e02c`** — D528 corrected by quote-and-strike: two conjuncts checked as one; the `GCI_pct = None` limb true and standing, the `NOT A RESULT` limb false when written. **`4918aec2`** — the capability grid: T14 and W1b into `conduction · laminar · 2D` (2 → 4 cases), T13 into `natural conv · laminar · 2D` (1 → 2). **Neither cell flips to an unqualified CAN DO, and both reasons are written into the cells** rather than held silently — which was the chief's question.
+
+#### D541 — MY CHECK 1 DONE, AND THE MEASUREMENT INVERTS THE ONLY REAL OBJECTION. **REPAIR RULED; APPLICATION ORDERED AND IN FLIGHT (VERIFY)**
+
+The lane delivered `mark_done_t16.D541_PROPOSED.py` + diff at `cdaf1d46` and **flagged the objection against its own proposal**, correctly: rule 4's completion rule is gate-like, so loosening a refusal bolted to it can be read as loosening a gate — Sanaa's alone. **I measured it myself rather than reasoning about it, and the objection fails on its own terms.**
+
+On the **REAL serial FPE crashes** `FPE_DIAG_runs/BP1/log.simpleFoam` and `HP1/log.simpleFoam`, **every frozen crash token reads 0** — `FOAM FATAL ERROR` 0, `FOAM FATAL IO ERROR` 0, `Segmentation fault` 0, `Aborted` 0, `signal ` 0 — **except `Floating point exception`, which reads 1, and that one occurrence IS THE BANNER LINE.** `Foam::sigFpe::sigHandler` reads **1** in both. On the clean `T16_MC_c/log.solve`, all three new patterns read **0** and the frozen token reads **1**.
+
+**So the frozen matcher refused real crashes ONLY through its own false positive. Its true-positive rate on the serial FPE class, by any legitimate token, was ZERO.** It refused every input, clean or crashed, **for the same reason**, and could not distinguish them at all.
+
+**RULING `[lab-attributed]`: YOU CANNOT LOOSEN A GATE THAT NEVER DISCRIMINATED. A refusal that fires identically on every input is not a gate; it is a constant.** The repair is the **first version of this instrument with any discriminating power on the FPE class** and it **strengthens** detection rather than weakening it — deleting the token, or merely excluding the banner line, would have let the whole serial FPE class through, which is the fix an unmeasured reading would have chosen. Legality runs through **`VERIFICATION_CHARTER` §2d boundary clause 1 — the D419 "instrument that cannot run at all" case — NOT through §2d.1**, which is cut for a change that moves a number; **this moves none.** §2d's own closing test — *"could this change move a number that a verdict depends on?"* — answers **no**: the marker reads no physics value and writes no verdict word.
+
+**MY OWN DIFF READ, the undelegatable step:** 9 deleted lines, 5 hunks. The hunk labelled `def check(case)` touches **only `_forge`'s signature** (`banner=""`, `crash=""`) — a **selftest helper**, not the grading path; `check()`'s body is untouched. The three unchanged error banners, plus `Aborted` and `signal `, are kept as plain regexes **byte-behaviourally identical to `tok in line`**. `CRASH_TOKENS` survives as a derived tuple so the citations in `DOCKET.md` and `T16_RESULTS.md` do not dangle. **Only the FPE token changed.**
+
+**Application ordered on the A3/A9 promotion pattern** (in flight at this write, VERIFY), frozen original preserved as `mark_done_t16.PRE_D541.py` and never edited; **the §11 freeze-set addendum is owed and ordered**, old row quoted-and-struck, new blob recorded, and carrying the explicit disclosure that **the completion marker was repaired AFTER first compute, that no gate, band, threshold, cap or label moved, and that Sanaa may overrule.**
+
+**The lane's own restraint is adopted and recorded:** `"Aborted"` and `"signal "` carry the same loose form, but **0 false positives were demonstrated on 81 clean logs**, so anchoring them would have been **a second permissive change with no shown need** — left alone, docketed as a standing finding. **Permissive is the dangerous direction and it does not get a free ride on a neighbour's evidence.**
+
+**Exposure released, if it marks:** `T16_MC_c` 12.4 core-min already spent, `T16_MC_m` live and projecting ~320 core-min, `T16_MC_f` queued at 1 063.1 — **~1 400 core-min that was heading for an unmarkable landing.**
+
 ##### ADDENDUM 2026-08-27T18:58:55Z — A STALE COMPLETION CERTIFICATE GRADED TEN RESTART SEGMENTS: `K0f_EXT`'s DONE MARKERS PREDATE THE RUNS THEY CERTIFIED BY 11–17 HOURS, AND NOTHING CHECKED; D541 BLOCKS EVERY T16 CASE AT ANY LEVEL (repair PROPOSED, not applied); FOUR VERDICTS + C-170…C-173; MY OWN G2 MARGIN FIGURE CORRECTED DOWNWARD
 
 *Written by the heat-transfer supervisor; stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY assertions on both regions outside the insertion (content sha, never a line count).*
