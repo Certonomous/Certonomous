@@ -1,0 +1,66 @@
+{
+  "team": "cfd",
+  "case_id": "F17c_KV40_FLOOR",
+  "prereg_commit": "3c01061ea6c773952a6df259c49bcaf4de7f31b5",
+  "prereg_path": "verification/campaign/F17c_KV40_FLOOR_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/run_f17c.sh",
+    "--prereg-commit=3c01061ea6c773952a6df259c49bcaf4de7f31b5"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor",
+  "ranks": 1,
+  "cost_core_min_estimate": 247.62,
+  "cost_basis": "derived from a rate MEASURED on these exact three meshes, but the ladder total itself is NOT MEASURED and no dollar figure here is measured. Rate: the MARGINAL per-iteration cost from F17b's own logs (verification/runs/F17b_runs/<level>/log.simpleFoam), first and last ExecutionTime readings differenced over 3999 iterations so startup is excluded, divided by the cell count = 0.6751 / 0.9347 / 0.7447 core-microseconds per cell-iteration at 24576 / 98304 / 393216 cells, 1 rank, this box; re-measured independently by the registering lane and agreeing to every digit. Applied to 98304000 / 786432000 / 18874368000 cell-iterations = 1.106 + 12.251 + 234.262 = 247.62 core-min. GROWTH BASIS: NO per-doubling exponent is registered, because the measured rate is NOT MONOTONE in problem size (+38.5 % coarse->medium, -20.3 % medium->fine); frozen per-level RATIOS from that one measurement are carried instead and GROWTH[fine] = 0.7967 is BELOW ONE. Contention multiplier 1.0, on F17b's measured wall/CPU ratios 1.0077 / 1.0080 / 1.0001 for this exact work. Registered CAP 370.0 core-min = 1.4942x the estimate (prereg section 8.3). Dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.212 at the estimate, $0.316 at the cap -- DERIVED, NOT MEASURED; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 3.0,
+  "enqueued_by": "ENQUEUED by the cfd-supervisor on 2026-08-27, executed mechanically by cfd lane R2 at the supervisor's written direction. THE SUPERVISOR STATES, AND THIS IS RECORDED AS THEIR CLAIM AND NOT AS THIS LANE'S MEASUREMENT (a relayed check is a summary, not a check -- SUPERVISION_CHARTER section 3): check 1 DISCHARGED PERSONALLY on the measurement code this lane changed -- they read the timeout guard as a diff rather than accepting its control result, confirming RC=$? is captured on the line immediately after the solver and never around a setsid (whose parent returns 0 for every outcome), rc 124/137 -> HALT exit 3 with the level INCOMPLETE and nothing deleted, any other non-zero rc -> ABORT under the check-2 doctrine 'a crash is a FINDING until triage says otherwise; it is not retried here', and cap 370 cross-checked between launcher and grader at runtime; check 4 DISCHARGED -- they re-derived the freeze sha themselves with `git log --diff-filter=A` (3c01061e, one adding commit, never from a subject line, VERIFICATION_CHARTER v1.12) and confirmed the run root ABSENT with no numeric or processor* directory under the case. THE SUPERVISOR'S RULING ON SIZE: the 247.62 core-min design STANDS AS FROZEN; the board's ~30 core-min was a guess written before the decay arithmetic and is superseded by the measurement (L-346), and the 13.6 core-min alternative was REJECTED because it settles the floor only at 384x256 and buys a diagnostic rather than the result -- the saving on offer was ~$0.19 derived. ENQUEUEING IS STILL NOT AUTHORISATION and the validator's acceptance is a mechanical guard only.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "purpose": "THE ITERATIVE-CONVERGENCE FLOOR for the Kovasznay case (L-346). F17b returned NOT A RESULT x2 because it inherited F17's floor byte-for-byte (4000 iterations at every level) and its own registered Class C plateau limb correctly refused a fine level still moving 13.5 % of itself over its last 1100 iterations. F17c changes EXACTLY ONE THING: the per-level iteration count.",
+  "lineage": "F17_KV40 (prereg 4ad083fbd76d9e75bdf33963e5bfba787291e51d, PASS x2 at 1.2 core-min) -> F17b_KV40_EXT (prereg 61b47973bdec19aa061d11030967bd612038ba01, NOT A RESULT x2 at 26.87 core-min) -> F17c. Case dictionaries byte-identical to both: 0/U.template b6f3251b, 0/p 0105f6fe, transportProperties 81921b4b, turbulenceProperties ba5bb3d1, blockMeshDict.template ad0f3269, fvSchemes f0eea325, fvSolution 96a0fc1b. controlDict is a TEMPLATE here (630dc7e2) because endTime is PER LEVEL.",
+  "levels": "coarse 192x128 at 4000 iterations / medium 384x256 at 8000 / fine 768x512 at 48000 -- the counts are DERIVED (L-346) from F17b's own 40 checkpoints per level at ZERO NEW COMPUTE, not inherited. All SERIAL 1 rank; decomposePar never invoked; decomposition seed none. Projected wall 66 / 735 / 14056 s.",
+  "floor_derivation": "E2 recomputed at all 40 F17b checkpoints per level through the frozen reader; last 20 increments fitted geometric. rho per 100 iterations 0.89131 / 0.78558 / 0.98517 (fine +2 sigma 0.98538, last observed ratio 0.98435). The fine level was 41.40 % SHORT of its own converged value at 4000; E2_inf = 1.050478e-05, inside the unchanged band. Counts round up past the worst of three routes (fine 43568 / 44110 / 41768). Reader control: a second independent parser vs the frozen reader on F17b_runs/fine/4000/U, 393216 cells, max|diff| = 0.000e+00.",
+  "gates": "G-F17-1 E2_velocity_L2 band [2.299886970024015e-06, 2.0698982730216133e-05]; G-F17-2 u_at_probe (0.5,0) band [0.3823735001308136, 0.3823948460265708], reference 0.3823841730786922. BOTH UNCHANGED FROM F17b, including its Amendment 1 same-stencil reference. Class C tolerances unchanged: trend 2.0e-04 over a 12-checkpoint (1100-iteration) window, stat 1.0e-04, variance ratio [0.2, 5.0]. THE GATE THAT CAUGHT F17b IS NOT RELAXED.",
+  "registered_prediction": "both triples CONVERGING; G-F17-1 E2_fine 1.050478e-05 at observed p ~ 2.0885 (F17b's inherited-floor triple read 1.8585); G-F17-2 u_probe_fine 3.823832e-01 at p ~ 3.4322, predicted to PASS on its BAND and not on its order; both inside their unchanged bands -> PASS x2. Falsifiable and registered before compute.",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F17c_runs -- ABSENT at 2026-08-27T18:50:50Z, checked four ways in the writing invocation (ls, os.path.exists, os.path.lexists, glob). The launcher creates it and REFUSES at exit 3 if it exists; it REFUSES at exit 1 on any pre-existing 0/ or numeric time directory under a level. NOTHING IS EVER DELETED.",
+  "cap_core_min_registered": 370.0,
+  "cap_behaviour": "THREE LAYERS. (1) proj_f17c.py projects each level BEFORE it starts from frozen measured rates, reading no clock, no /proc and no disk (L-349 is designed out); exit 3 HALTS. (2) NEW IN F17c: the whole remaining cap, converted to wall seconds, is handed to `timeout` AROUND THE SOLVER, because 93.6 % of this ladder is ONE level and a between-levels check cannot stop an overrun inside it. Fine level allowance 21398 s against a projected 14056 s = x1.52 headroom. A kill leaves an INCOMPLETE level, which rule 4 refuses and the grader reports NOT A RESULT -- the correct outcome of an overrun. (3) the cumulative ClockTime x ranks / 60 check after each level. THE CAP IS NEVER RAISED.",
+  "wall_time_note": "~4.13 h at the estimate, ~6.17 h at the cap, at 1 rank of 16. The fine level alone is a projected 14056 wall s, so COMPUTE_BUDGET_CHARTER section 6's 'a row over 3600 wall s is a stall' heuristic WILL FIRE on it AND IT IS NOT A STALL -- it is one registered 48000-iteration level. Registered before compute (prereg section 8.4) so the results record cannot be accused of explaining it away afterwards.",
+  "disk_note": "16.8 GB of checkpoints projected (fine 16.01 + medium 0.67 + coarse 0.08). writeInterval stays 100 because the Class C window is defined in CHECKPOINTS, so changing the interval would silently change the criterion. One fine checkpoint MEASURED at 0.0334 GB (F17b_runs/fine/4000: U 13.65 MB, p 5.69 MB, phi 14.02 MB). Free space MEASURED 261 GB at 2026-08-27T18:49:34Z; the ladder needs 6.4 %. Run output is NOT committed.",
+  "memory_floor_note": "3.0 GB, the same figure F17b registered. The binding consumer is the GRADER's sparse model solve at 192x128 (2.89 GB RSS measured), not simpleFoam, which is < 1 GB serial at 393k cells.",
+  "instrument_state": "grade_f17c.py --selftest rc 0, 11 controls green, 53.6 s; python3 -O grade_f17c.py --selftest rc 2 AT ENTRY; proj_f17c.py --selftest rc 0 (17 checks) and rc 2 under -O; exact_f17c.py --selftest rc 0. 0 ast.Assert across all five shipped python files. Exactly one grade_ladder call node, grade_f17c.py:756. Both gate quantities driven to a PASSING and a FAILING value THROUGH THE REAL READER on disk. L-345: both registered MODEL triples read CONVERGING (order 2.0020) through the real roache_triple at dim 2 -- neither DEGENERATE.",
+  "preflight": "bash /home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/run_f17c.sh --preflight -- ZERO COMPUTE, blockMesh is NOT run; prints CAP AGREES between launcher and grader: 370 core-minutes, and the run-root absence.",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/grade_f17c.py",
+    "--prereg-commit=3c01061ea6c773952a6df259c49bcaf4de7f31b5"
+  ],
+  "grade_note": "SEPARATE invocation, zero solver compute, ~10-12 min wall (480 fine checkpoints x 0.6 s per frozen read x 2 gates). Plain python3 only -- the grader exits 2 under -O.",
+  "verdict_state": "PENDING",
+  "_launch": {
+    "utc": "2026-08-27T22:30:04Z",
+    "pid": 1589600,
+    "sid": 1589600,
+    "status_file": "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/STATUS.F17c_KV40_FLOOR",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/launcher.queue.out",
+    "started_epoch": 1787869804.003552
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.F17c_KV40_FLOOR (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
