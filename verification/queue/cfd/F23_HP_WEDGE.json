@@ -1,0 +1,35 @@
+{
+  "team": "cfd",
+  "case_id": "F23_HP_WEDGE",
+  "prereg_commit": "058e77719c57332aff245e58d536a343cbde49e5",
+  "prereg_path": "verification/campaign/F23_HP_WEDGE_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE/run_f23.sh",
+    "--prereg-commit=058e77719c57332aff245e58d536a343cbde49e5"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE",
+  "ranks": 4,
+  "cost_core_min_estimate": 519.4,
+  "cost_basis": "derived, not measured: 131072 / 524288 / 2097152 cells x 4000 SIMPLE iterations at 1.11 / 1.88 / 3.18 us per cell-iteration, the rate DERIVED from F17's MEASURED simpleFoam record of a DIFFERENT case (verification/runs/F17_runs/fine/log.simpleFoam: 24576 cells x 4000 iterations, ClockTime 58 s = 0.59 us/cell-iteration) grown +30 % per doubling of the cell count (F17b_KV40_EXT_PREREGISTRATION.md section 8); VMFL005's simpleFoam wedge measured 2.1 us/cell-iteration at 16k cells and is disclosed against it = 583 + 3940 + 26637 core-s = 519.4 core-min (9.7 / 65.7 / 444.0 per level), ideal 4-rank scaling assumed for the wall projection (~2.2 h on 4 ranks); registered CAP 1100 core-min (prereg section 7); dollars at the owner-stated $0.0513/core-h, reported-by-owner: $0.44 estimate, $0.94 at cap -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "cfd lab-lane C, 2026-08-27T17:03:24Z, for cfd-supervisor, on the L-349 projector re-freeze 058e7771. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT discharged by this file. HELD under the case directory; moving it into verification/queue/cfd/ is the supervisor's act.",
+  "_schema_note": "Fields above are the required set (scripts/queue_entry_check.py REQUIRED_FIELDS). Fields below are cfd annotations the validator ignores.",
+  "capability_grid_cell_068c2bf0": "axisym . steady . incompressible",
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/F23_HP_WEDGE_runs -- ABSENT re-checked by test -e at 2026-08-27T17:03:24Z (rule-2 absence condition); the launcher creates it and REFUSES any pre-existing 0/, numeric time or processor* directory in the run root or a level directory; the grader never creates it.",
+  "cwd_note": "cwd is the CASE directory (no time directory as a direct child; case/0 holds p and U.template). The launcher uses absolute paths and ignores cwd. A queue runner's wrapper writes launcher.queue.out and STATUS.F23_HP_WEDGE into cwd; both are INFRASTRUCTURE fields under L-342 and untracked.",
+  "levels": "coarse 64x2048 / medium 128x4096 / fine 256x8192 (dim 2, dx = dr, r = 2 both directions), 4000 iterations each, ALL on 4 ranks via decomposePar simple n (1 4 1) then mpirun -np 4 simpleFoam -parallel; never reconstructed (grader reads processor*/); decomposition seed none (deterministic geometric)",
+  "cap_core_min_registered": 1100.0,
+  "cap_behaviour": "PRE-SPEND PROJECTION IS AMENDED (L-349): the next level is projected from THIS CASE'S OWN COMPLETED LEVELS -- measured core-seconds / cell-iterations from the last finished level, which ALREADY carries the load it ran under so no contention factor is applied on top -- times the next level's cell-iterations times a rate-drift factor clamped to [1.0, 2.5]. The frozen constant is the fallback for the FIRST level only, times a contention factor clamped at CONT_MAX 2.0 (was an unbounded ranks/max(free,0.5) that pinned at 8.0x on a busy box). The POST-LEVEL check on ACTUAL spend is byte-identical to its pre-amendment form: ClockTime x ranks / 60, summed, HALT exit 3 on a crossing, cap NEVER raised (rule 12).",
+  "registered_prediction": "G-F23-1 normalised-profile E2 CONVERGING with observed order ~2 (model 2.003 / 2.009), fine value in [2.376227e-06, 2.138605e-05]; G-F23-2 f.Re CONVERGING (model orders 2.017 / 2.072), fine value in [63.998628773, 64.001371227] (exact 64); Class C plateau on the graded quantity (40 checkpoints, window 12); rule 5 limb 1 is a Ux initial-residual census (<= 1e-8) plus a transverse-field floor; Uy/Uz/p residuals printed, excluded at freeze (N-AV8); N-AV9 wedge bias carried (half angle 0.04 deg; bias < 1/10 of the fine discretisation error)",
+  "mesh_admission": "coarse level built and checkMesh'd on a scratch copy: 131072 cells, Mesh OK, max non-orthogonality 0 deg (gate 70), max skewness 0.333 (gate 4), max aspect ratio 2.0 (advisory 1000), wedge patches 0.0400002766821 deg (registered 0.04)",
+  "smoke_arm": "one real simpleFoam iteration on 4 ranks at the coarse level (131072 cells) in scratch: rc 0, Ux initial residual 1 -> 7.2e-05, max|Ux| after one iteration 1.139e-03 (non-zero: the driven component moves), max|Uz| 0",
+  "grade_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/cases/F23_HP_WEDGE/grade_f23.py",
+    "--prereg-commit=058e77719c57332aff245e58d536a343cbde49e5"
+  ],
+  "verdict_state": "PENDING",
+  "amendment_1": "pre-compute, PRE-SPEND PROJECTOR ONLY (L-349, re-freeze 058e7771): new proj_f23.py; cap UNMOVED at 1100; post-level ACTUAL-spend check byte-identical to its HEAD blob; no gate, band, label, ladder, floor or dictionary touched; estimate UNCHANGED at 519.4. Replay at the frozen rates now projects coarse 19.4 / medium 65.7 / fine 443.8, cumulative 519.2 of 1100, HALT=0 at every level -- the old form projected fine 3552.0, cumulative 3627.4, HALT=1. Note the frozen constant here is F17-DERIVED, not measured on F23 (run_f23.sh:42-47), which is the sharper reason to project from the case's own levels. Run root ABSENT.",
+  "projector_effect_at_registered_rates": "fine level projects 443.8 core-min, cumulative 519.2 of 1100 -> PROCEEDS (old form: 3627.4 -> HALT)"
+}
