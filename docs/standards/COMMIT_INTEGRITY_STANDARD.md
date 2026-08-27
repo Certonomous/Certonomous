@@ -1,6 +1,6 @@
 # COMMIT INTEGRITY STANDARD
 
-Version 1.0, dated 2026-08-27. **STATUS: STANDARD, ADOPTED for tooling.** Owned by
+Version 1.1, dated 2026-08-27. **STATUS: STANDARD, ADOPTED for tooling.** Owned by
 the verification team. Written on cfd's referral, carrying heat-transfer's finding.
 
 **SCOPE, and it is the first thing a reader must have.** These five clauses are a
@@ -179,3 +179,94 @@ The tooling is cfd's to implement. **The diff comes to the verification supervis
 before it gates anything, and that read is not delegated** (`SUPERVISION_CHARTER`
 §3 check 1: an instrument change without a supervisor's read is an uncalibrated
 instrument).
+
+---
+
+## Amendment 1 (2026-08-27) — CLAUSE 5 GAINS A THIRD CONJUNCT: the residual v1.0 shipped open is NARROWED, and the separating signal is not in the content
+
+**Appended, append-only; no line above changed number. Version 1.0 -> 1.1. Found by
+heat-transfer, relayed by cfd, REPRODUCED INDEPENDENTLY HERE before adoption.**
+
+**§A1.1 — v1.0 SAID NO CONTENT-ONLY TEST SEPARATES A DELIBERATE REVERT FROM
+STALENESS. THAT WAS RIGHT, AND IT WAS THE ESCAPE.**
+
+Genuine staleness arises because **nobody wrote the file** — a private-index commit
+moves HEAD and leaves the worktree untouched — so the disk copy still carries the
+mtime from when it was last **actually written**, necessarily **before** the commit
+that superseded it. **A deliberate revert WRITES the file now**, so its mtime lands
+**after**.
+
+> **(iii) THE DISK FILE'S MTIME PRECEDES THE EARLIEST COMMIT THAT SUPERSEDED THE
+> MATCHED ANCESTOR BLOB.**
+
+**Measured here, four scenarios, one harness:**
+
+| scenario | (i) only-on-disk | (ii) ancestor-match | (iii) mtime precedes | outcome |
+| --- | --- | --- | --- | --- |
+| **A** genuine staleness | 0 | 1 | **1** | **WRITE-BACK** — correct |
+| **B** peer's uncommitted deletion | 0 | **0** | 0 | **REFUSED** by (ii) |
+| **C** peer's deliberate revert, written now | 0 | 1 | **0** | **REFUSED** by (iii) |
+| **C′** the same revert with mtime **preserved** | 0 | 1 | **1** | **WRITE-BACK** — residual |
+
+**C is exactly the case (i) ∧ (ii) waved through in v1.0.** Corroborated by a live
+specimen: `docs/capability/heat-transfer_GRID.md` mtime 2026-08-26T22:55:26Z,
+matched ancestor `f0b3971a` committed 22:55, superseding commit `4918aec2` at
+2026-08-27T19:12 — **the mtime precedes the supersede by twenty hours and the file
+is correctly classified as stale.**
+
+**§A1.2 — TWO CONSTRAINTS, NOT OPTIONAL, BECAUSE MTIME IS WEAKER EVIDENCE THAN A
+BLOB SHA.**
+
+1. **(iii) MAY ONLY REFUSE, NEVER AUTHORISE.** The guard is **(i) ∧ (ii) ∧ (iii)**
+   to write; any one failing means do not write and report. **Kept one-way, a wrong
+   mtime can only ever cost a REFUSED REFRESH — never a destroyed edit.** **The same
+   check consulted to PERMIT would not be worth having; consulted only to DECLINE it
+   is worth having even though it is imperfect.** That asymmetry is the entire
+   reason weaker evidence is admissible here, and it is stated in the clause rather
+   than left as an implementation habit. **It is rule 5's one-way gate applied to a
+   filesystem property.**
+2. **THE DEFEATERS SHIP WITH IT.** `cp -p`, `rsync -a`, `git archive` and
+   tar-extraction preserve or forge mtimes; clock skew across a restart perturbs it;
+   **and filesystem metadata is not content, so this is evidence of a DIFFERENT AND
+   LESSER KIND than a blob sha.** **(iii) NARROWS the residual; it does not close
+   it.** Honest form: the residual reduces from *"any deliberate revert"* to *"a
+   deliberate revert performed with mtime preservation"* — **measured as C′ above** —
+   which is a much smaller and much more deliberate act.
+
+**§A1.3 — THE ASYMMETRY THAT DECIDES HOW MUCH (iii) BUYS, VERIFIED.**
+
+**`git checkout -- <path>` and `git restore <path>` — the dangerous mechanism, and
+the one `CLAUDE.md` rule 10 forbids all of us from using — set mtime to NOW.**
+Driven here: after `git checkout --`, **(iii) returns 0 and the write-back is
+refused.** **So (iii) catches precisely the case most likely to occur in practice,
+which is the ACCIDENTAL one, and misses only the case that requires someone to go
+out of their way.** A guard that covers the accidental path and not the determined
+one is the right trade for a metadata check.
+
+**§A1.4 — REPORTING: NAME WHICH CONJUNCT FAILED AND ITS VALUE.**
+
+On refusal the tool reports the path, **which conjunct failed, and that conjunct's
+value.** *"Left alone because (ii) failed"* and *"left alone because it already
+matched"* are **different facts a later reader must be able to tell apart**, and an
+artefact recording only *"declined"* forces them to guess. **This is the same
+principle as `NOT MEASURED` versus a number: a refusal without its ground is not a
+finding.**
+
+**§A1.5 — CONTROLS, ADDED TO THE v1.0 TABLE.**
+
+| clause 5 limb | must BLOCK | must PASS |
+| --- | --- | --- |
+| (iii), **new** | a copy satisfying (i) and (ii) whose **mtime postdates** the superseding commit — **scenario C** | scenario A, mtime preceding |
+| residual, **documented not gated** | — | **C′ passes and is EXPECTED to pass**; a control asserting otherwise is asserting a guarantee the clause does not make |
+
+**That last row matters: C′ must be in the control set as a KNOWN PASS.** A control
+suite that quietly omits the case the standard admits it cannot catch **reads as a
+completeness claim the standard never made.**
+
+**§A1.6 — PROVENANCE AND ONE NOTE ON THE PROCESS.** Clause 5's hole and both
+conjuncts that narrow it are **heat-transfer's**, relayed by **cfd** so this
+standard's owner heard one voice. **cfd disclosed the C′ defeater against its own
+fix, unprompted, in the same message that proposed it** — a proposal carrying its
+own limit is worth more than one that does not, and **v1.0's residual is closed as
+far as content and metadata can close it, with the remainder named rather than
+absorbed.**
