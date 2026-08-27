@@ -1,0 +1,153 @@
+SO-1c GRADER SELFTEST EVIDENCE -- so1c_grade.py
+generated 2026-08-27T22:17:09Z by dafoam lab-lane H, BEFORE any compute
+so1c_grade.py md5 ON DISK AT CAPTURE: 32af1c494db6884144151c7e7d7e81af
+so1c_xn.py    md5 ON DISK AT CAPTURE: 63d13c88fb915ab7695d6f1a9383a4ed
+
+==============================================================================
+RUN 1 of 2 -- python3, __pycache__ CLEARED IMMEDIATELY BEFORE
+  (a stale __pycache__ inverts mutation tests: the clean control fails and the
+   mutated case passes.  PYTHONDONTWRITEBYTECODE does NOT fix it; clearing does.)
+==============================================================================
+  [OK ] U1 clean fixture -> item PASS; both rows PASS; every arm PASS
+  [OK ] U2 clean fixture -> G-M2, G-MESHID, G-METHOD (both rows), G9, G10, G12 all PASS
+  [OK ] U3 the np-INVARIANCE BAND IN THE ARTEFACT IS THE STANDARD'S, NOT BAND D: s_g == 1.0e-3, s_J == 2.2e-5, and s_g is EXACTLY 50x tighter than band D expressed as a fraction (5.0 % -> 5.0e-2)
+  [OK ] U4 band D / band E / plateau are BYTE-IDENTICAL to SO-1a's inherited constants
+  [OK ] U5 PLANTED 5 % np=4-vs-np=1 disagreement on the PATCHED scotch arm -> G-NP GATE FAIL, that arm GATE FAIL, the PATCHED row GATE FAIL, item GATE FAIL
+  [OK ] U6 a disagreement of 5e-4 -- INSIDE the 1.0e-3 band -- still PASSES: the gate discriminates, it does not merely refuse
+  [OK ] U7 a disagreement of 2e-3 -- JUST OUTSIDE the band -- FAILS.  The band's two sides are both driven, so it is a threshold and not a direction
+  [OK ] U8 PLANTED SIGN FLIP at flat index 6 on the SHIPPED scotch arm -> flip counted, G-NP GATE FAIL even though the magnitude is unchanged
+  [OK ] U9 PLANTED 1e-3 OBJECTIVE spread -> s_J GATE FAIL on its own far tighter band (2.2e-5) with the gradient untouched
+  [OK ] U10 an objective spread of 1e-5 is INSIDE 2.2e-5 and PASSES
+  [OK ] U11 REFUSAL when the staged serial reference is not np = 1 -- the comparison basis must be the serial arm, never another parallel one
+  [OK ] U12 CHANNEL DISAGREEMENT: the instrument's carried copy of the serial reference differs from the comparator's own read of the same file -> REFUSAL
+  [OK ] U13 a scotch arm 5e-3 from the serial reference is ALSO 5e-3 from its `simple` twin -> G-METHOD GATE FAIL on the SHIPPED row: the METHOD axis fires independently of the np axis
+  [OK ] U14 G-METHOD names `simple 4x1x1` as the REFERENCE limb and the convention is registered in the artefact, not chosen after the numbers
+  [OK ] U15 an arm whose artefact names the WRONG decomposition method -> REFUSAL (a gradient that cannot name its decomposition is not a result)
+  [OK ] U16 an artefact whose nprocs is 2 where 4 is registered -> REFUSAL, cross-asserted against the dictionary's own numberOfSubdomains
+  [OK ] U17 a `simple` arm whose SUBDIVISION is (2 2 1) not (4 1 1) -> REFUSAL: for `simple` the subdivision is part of the disclosure, not only the method name
+  [OK ] U18 the clean artefact RECORDS the decomposition column section 5 requires (method, n_subdomains and, for `simple`, the subdivision)
+  [OK ] U19 an arm that solved at a DIFFERENT design point from SO-1b's x* -> REFUSAL
+  [OK ] U20 G-XSTAR labels itself an IDENTITY ASSERTION ON A CONSUMED INPUT, not a gate on the design vector -- D13 measured the design vector non-unique 15/15
+  [OK ] U21 this item's mesh `points` sha256 DIFFERS from SO-1b's -> G-MESHID GATE FAIL and item GATE FAIL: 'the same mesh' is asserted, not assumed
+  [OK ] U22 SO-1b's mesh fingerprint ABSENT -> NOT A RESULT, never a pass: mesh identity is a PHYSICS precondition of the comparison the standard defines
+  [OK ] U23 PLANTED 7 % FD error on the SHIPPED scotch arm -> that component GATE FAIL, the arm GATE FAIL, item GATE FAIL -- WITH G-NP still PASSING, which is exactly the hole AV-1's own section 8 says G-NP alone cannot close
+  [OK ] U24 PLANTED 7 % error on the CONSTRAINT gradient only -> G5cN GATE FAIL with G5N (CD) still PASS: the constraint gradient fails independently
+  [OK ] U25 three no-plateau components on one arm -> 2 graded < 3 -> that arm's G5N NOT A RESULT, row NOT A RESULT, item NOT A RESULT
+  [OK ] U26 the DELIBERATELY WRONG step AGREES on 5/5 of one arm -> G-TB GATE FAIL and that arm's verdict WITHDRAWN to NOT A RESULT (rule-5 direction)
+  [OK ] U27 ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, arm PASS: the gate has a registered tolerance, not a hair trigger
+  [OK ] U28 THE DEFECT THIS GATE EXISTS TO REMOVE: an arm whose HOST core-min (30.4) is ABOVE its 30.0 cap while its CONTAINER core-min (29.9) is inside -> G10 PASSES, because the cap is enforced in the container frame and is graded there
+  [OK ] U29 AND THE CAP STILL BITES: container core-min 30.8 above the 30.0 cap -> G10 GATE FAIL.  The frame was corrected, the cap was NOT widened
+  [OK ] U30 an UNREADABLE container clock -> G10 falls back to the HOST frame AND SAYS SO, and the arm is named in the fallback list: a limb that could not be evaluated in its own frame is reported, never silently passed
+  [OK ] U31 the COST claim uses the HOST frame and the CAP GATE uses the CONTAINER frame, and the two totals are BOTH reported with their difference
+  [OK ] U32 rc=1 on one arm -> REFUSAL
+  [OK ] U33 OOMKilled=true -> REFUSAL
+  [OK ] U34 terminal marker absent -> REFUSAL
+  [OK ] U35 artefact OLDER than the age datum -> REFUSAL (rule 4)
+  [OK ] U36 FOAM FATAL ERROR at rc = 0 -> REFUSAL (C5 refuses regardless of rc)
+  [OK ] U37 harness rc 0 vs kernel exit 1 -> REFUSAL
+  [OK ] U38 (R-RC) the rc RECORD absent while C2-C5 all hold -> rc value NOT MEASURED, the implied rc = 0 written as an INFERENCE, verdict unchanged PASS
+  [OK ] U39 (R-RC) the rc RECORD absent AND the terminal marker missing -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U40 THE D4S-F3S CLASS: the STAGED so1b_E.json is OLDER than the age datum on every solver arm, and the item still PASSES -- an age guard checks only what the run PRODUCES, and the staged input is excluded BY NAME
+  [OK ] U41 (AV-1/AV-2) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz and the guard PASSES -- the defect that cost AV-1 and AV-2 their items
+  [OK ] U42 (AV-1/AV-2) the datum GENUINELY ABSENT in BOTH registered names -> REFUSAL: resolution by existence still refuses when neither name exists
+  [OK ] U43 BOTH grader-level plants are SEEN -- the FD plant on two arms AND the np-INVARIANCE plant, which shows THE HEADLINE GATE ITSELF able to fail
+  [OK ] U44 the instrument CTRL planted row broken -> REFUSAL (a reader not shown able to see a non-zero is not evidence)
+  [OK ] U45 a PATCHED arm carrying the SHIPPED library hash -> G9 GATE FAIL (G-ROWX: a row is an image hash, never a directory name)
+  [OK ] U46 an arm off its registered per-arm cpuset -> G12 GATE FAIL
+  [OK ] U47 delivered cores 2.10 below the 3.0 floor AT np = 4 -> G12 GATE FAIL.  The floor did not apply in SO-1a or SO-1b, where every arm was np = 1
+  [OK ] U48 cells 4033 -> G-M2 GATE FAIL and P_A MISS
+  [OK ] U49 ast.Assert count = 0 in so1c_grade.py and so1c_xn.py (L-332)
+  [OK ] U50 the assert counter SEES a planted assert (=1) -- a counter never shown counting is not a counter
+  [OK ] U51 the registered CEILING equals the sum of the registered caps
+  [OK ] U52 P_3 (the design-point claim) is registered NOT_MEASURED with its reason, so an absent AV-1R baseline can never become a silent HIT
+  [OK ] U53 THE SIGN-FLIP LIMB IS NOT INDEPENDENTLY LOAD-BEARING, AND THIS UNIT SAYS SO: the planted flip drives s_g to >10x the band on its own, so `SIGN_FLIP_MAX 0 -> 9` is an INERT MUTATION that proves nothing.  The limb is kept because the standard registers it and because it NAMES the failure mode
+
+SO1c grader selftest: 53 units, 0 fail
+
+==============================================================================
+RUN 2 of 2 -- python3 -O, __pycache__ CLEARED IMMEDIATELY BEFORE
+  -O strips assert statements.  This comparator carries ZERO (U49/U50), so the
+   two runs must be identical -- and a suite that only ever ran under one
+   interpreter has not shown that.
+==============================================================================
+  [OK ] U1 clean fixture -> item PASS; both rows PASS; every arm PASS
+  [OK ] U2 clean fixture -> G-M2, G-MESHID, G-METHOD (both rows), G9, G10, G12 all PASS
+  [OK ] U3 the np-INVARIANCE BAND IN THE ARTEFACT IS THE STANDARD'S, NOT BAND D: s_g == 1.0e-3, s_J == 2.2e-5, and s_g is EXACTLY 50x tighter than band D expressed as a fraction (5.0 % -> 5.0e-2)
+  [OK ] U4 band D / band E / plateau are BYTE-IDENTICAL to SO-1a's inherited constants
+  [OK ] U5 PLANTED 5 % np=4-vs-np=1 disagreement on the PATCHED scotch arm -> G-NP GATE FAIL, that arm GATE FAIL, the PATCHED row GATE FAIL, item GATE FAIL
+  [OK ] U6 a disagreement of 5e-4 -- INSIDE the 1.0e-3 band -- still PASSES: the gate discriminates, it does not merely refuse
+  [OK ] U7 a disagreement of 2e-3 -- JUST OUTSIDE the band -- FAILS.  The band's two sides are both driven, so it is a threshold and not a direction
+  [OK ] U8 PLANTED SIGN FLIP at flat index 6 on the SHIPPED scotch arm -> flip counted, G-NP GATE FAIL even though the magnitude is unchanged
+  [OK ] U9 PLANTED 1e-3 OBJECTIVE spread -> s_J GATE FAIL on its own far tighter band (2.2e-5) with the gradient untouched
+  [OK ] U10 an objective spread of 1e-5 is INSIDE 2.2e-5 and PASSES
+  [OK ] U11 REFUSAL when the staged serial reference is not np = 1 -- the comparison basis must be the serial arm, never another parallel one
+  [OK ] U12 CHANNEL DISAGREEMENT: the instrument's carried copy of the serial reference differs from the comparator's own read of the same file -> REFUSAL
+  [OK ] U13 a scotch arm 5e-3 from the serial reference is ALSO 5e-3 from its `simple` twin -> G-METHOD GATE FAIL on the SHIPPED row: the METHOD axis fires independently of the np axis
+  [OK ] U14 G-METHOD names `simple 4x1x1` as the REFERENCE limb and the convention is registered in the artefact, not chosen after the numbers
+  [OK ] U15 an arm whose artefact names the WRONG decomposition method -> REFUSAL (a gradient that cannot name its decomposition is not a result)
+  [OK ] U16 an artefact whose nprocs is 2 where 4 is registered -> REFUSAL, cross-asserted against the dictionary's own numberOfSubdomains
+  [OK ] U17 a `simple` arm whose SUBDIVISION is (2 2 1) not (4 1 1) -> REFUSAL: for `simple` the subdivision is part of the disclosure, not only the method name
+  [OK ] U18 the clean artefact RECORDS the decomposition column section 5 requires (method, n_subdomains and, for `simple`, the subdivision)
+  [OK ] U19 an arm that solved at a DIFFERENT design point from SO-1b's x* -> REFUSAL
+  [OK ] U20 G-XSTAR labels itself an IDENTITY ASSERTION ON A CONSUMED INPUT, not a gate on the design vector -- D13 measured the design vector non-unique 15/15
+  [OK ] U21 this item's mesh `points` sha256 DIFFERS from SO-1b's -> G-MESHID GATE FAIL and item GATE FAIL: 'the same mesh' is asserted, not assumed
+  [OK ] U22 SO-1b's mesh fingerprint ABSENT -> NOT A RESULT, never a pass: mesh identity is a PHYSICS precondition of the comparison the standard defines
+  [OK ] U23 PLANTED 7 % FD error on the SHIPPED scotch arm -> that component GATE FAIL, the arm GATE FAIL, item GATE FAIL -- WITH G-NP still PASSING, which is exactly the hole AV-1's own section 8 says G-NP alone cannot close
+  [OK ] U24 PLANTED 7 % error on the CONSTRAINT gradient only -> G5cN GATE FAIL with G5N (CD) still PASS: the constraint gradient fails independently
+  [OK ] U25 three no-plateau components on one arm -> 2 graded < 3 -> that arm's G5N NOT A RESULT, row NOT A RESULT, item NOT A RESULT
+  [OK ] U26 the DELIBERATELY WRONG step AGREES on 5/5 of one arm -> G-TB GATE FAIL and that arm's verdict WITHDRAWN to NOT A RESULT (rule-5 direction)
+  [OK ] U27 ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, arm PASS: the gate has a registered tolerance, not a hair trigger
+  [OK ] U28 THE DEFECT THIS GATE EXISTS TO REMOVE: an arm whose HOST core-min (30.4) is ABOVE its 30.0 cap while its CONTAINER core-min (29.9) is inside -> G10 PASSES, because the cap is enforced in the container frame and is graded there
+  [OK ] U29 AND THE CAP STILL BITES: container core-min 30.8 above the 30.0 cap -> G10 GATE FAIL.  The frame was corrected, the cap was NOT widened
+  [OK ] U30 an UNREADABLE container clock -> G10 falls back to the HOST frame AND SAYS SO, and the arm is named in the fallback list: a limb that could not be evaluated in its own frame is reported, never silently passed
+  [OK ] U31 the COST claim uses the HOST frame and the CAP GATE uses the CONTAINER frame, and the two totals are BOTH reported with their difference
+  [OK ] U32 rc=1 on one arm -> REFUSAL
+  [OK ] U33 OOMKilled=true -> REFUSAL
+  [OK ] U34 terminal marker absent -> REFUSAL
+  [OK ] U35 artefact OLDER than the age datum -> REFUSAL (rule 4)
+  [OK ] U36 FOAM FATAL ERROR at rc = 0 -> REFUSAL (C5 refuses regardless of rc)
+  [OK ] U37 harness rc 0 vs kernel exit 1 -> REFUSAL
+  [OK ] U38 (R-RC) the rc RECORD absent while C2-C5 all hold -> rc value NOT MEASURED, the implied rc = 0 written as an INFERENCE, verdict unchanged PASS
+  [OK ] U39 (R-RC) the rc RECORD absent AND the terminal marker missing -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U40 THE D4S-F3S CLASS: the STAGED so1b_E.json is OLDER than the age datum on every solver arm, and the item still PASSES -- an age guard checks only what the run PRODUCES, and the staged input is excluded BY NAME
+  [OK ] U41 (AV-1/AV-2) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz and the guard PASSES -- the defect that cost AV-1 and AV-2 their items
+  [OK ] U42 (AV-1/AV-2) the datum GENUINELY ABSENT in BOTH registered names -> REFUSAL: resolution by existence still refuses when neither name exists
+  [OK ] U43 BOTH grader-level plants are SEEN -- the FD plant on two arms AND the np-INVARIANCE plant, which shows THE HEADLINE GATE ITSELF able to fail
+  [OK ] U44 the instrument CTRL planted row broken -> REFUSAL (a reader not shown able to see a non-zero is not evidence)
+  [OK ] U45 a PATCHED arm carrying the SHIPPED library hash -> G9 GATE FAIL (G-ROWX: a row is an image hash, never a directory name)
+  [OK ] U46 an arm off its registered per-arm cpuset -> G12 GATE FAIL
+  [OK ] U47 delivered cores 2.10 below the 3.0 floor AT np = 4 -> G12 GATE FAIL.  The floor did not apply in SO-1a or SO-1b, where every arm was np = 1
+  [OK ] U48 cells 4033 -> G-M2 GATE FAIL and P_A MISS
+  [OK ] U49 ast.Assert count = 0 in so1c_grade.py and so1c_xn.py (L-332)
+  [OK ] U50 the assert counter SEES a planted assert (=1) -- a counter never shown counting is not a counter
+  [OK ] U51 the registered CEILING equals the sum of the registered caps
+  [OK ] U52 P_3 (the design-point claim) is registered NOT_MEASURED with its reason, so an absent AV-1R baseline can never become a silent HIT
+  [OK ] U53 THE SIGN-FLIP LIMB IS NOT INDEPENDENTLY LOAD-BEARING, AND THIS UNIT SAYS SO: the planted flip drives s_g to >10x the band on its own, so `SIGN_FLIP_MAX 0 -> 9` is an INERT MUTATION that proves nothing.  The limb is kept because the standard registers it and because it NAMES the failure mode
+
+SO1c grader selftest: 53 units, 0 fail
+
+==============================================================================
+MUTATION CONTROLS -- eight mutants, each run through the WHOLE suite.
+A MUTANT THAT CHANGES NO VERDICT IS NOT EVIDENCE, and the one that changes none
+is reported as proving nothing rather than quietly counted.
+==============================================================================
+MUTATION                                       UNITS FLIPPED
+M0 CONTROL (unmutated)                         []
+M1 S_G_BAND 1.0e-3 -> 1.0e-1                   [U3 U5 U7 U13 ]
+M2 S_J_BAND 2.2e-5 -> 2.2e-2                   [U3 U9 ]
+M3 SIGN_FLIP_MAX 0 -> 9                        []
+M4 G-METHOD limb always PASS                   [U13 ]
+M5 G-MESHID always PASS                        [U21 ]
+M6 G10 cap gate reads the HOST frame           [U28 U31 ]
+M7 STAGED_INPUTS name broken                   [U40 ]
+M8 np-invariance plant control disarmed        [U11 ]
+
+M3 IS AN INERT MUTATION AND IS RECORDED AS PROVING NOTHING.  A sign flip on any
+component above the near-zero floor NECESSARILY drives s_g far past 1.0e-3: the
+fixture's smallest non-zero component, shape[6] = 0.007 against a reference norm
+of ~0.107, gives s_g ~ 0.13 -- 130x the band.  So the sign-flip limb can never be
+the SOLE cause of a GATE FAIL and IS NOT INDEPENDENTLY LOAD-BEARING.  It is kept
+because ADJOINT_VERIFICATION_STANDARD.md section 3 registers it and because it
+NAMES the failure mode in the record -- a reader sees "sign flip at index 6", not
+only "s_g = 0.13".  This item does not claim it as an independent gate.  Unit U53
+measures the redundancy rather than asserting it.
