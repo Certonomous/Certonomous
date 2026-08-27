@@ -461,3 +461,78 @@ inventing one would be the defect this amendment exists to close.**
 * **Nothing here was sent, filed, uploaded, registered, posted or commented** (`CLAUDE.md` rule 7).
   **No image was pushed anywhere and none is installable by any reader** — every PATCHED-ROT row in
   this lab carries that qualifier and this amendment does not weaken it.
+
+---
+
+## AMENDMENT 2 — 2026-08-27, dafoam lane C — §3's IMAGE LIST IS STALE; A1.1/A1.2 ARE THE LIVE RECORD. Plus four freeze-time reads from FADR.
+
+**Appended at the foot, never in place: other records cite this file by line
+(`cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION_DRAFT.md`,
+`cases/dafoam/ladder-b/W4_M1M2_PREREGISTRATION.md`,
+`cases/dafoam/ladder-b/B3/decomposition_peak_rss/PREREGISTRATION.md`).
+**Lines whose number changed above this section: 0.** Zero compute; every reading below is a file
+read or a `docker inspect`. **No gate, threshold, band or label moves, and nothing is retired.**
+
+### A2.1 THE CORRECTION
+
+**§3's image list was measured 2026-08-21 and is STALE.** This is not new — **Amendment 1 §A1.2
+already said so**, and named three images §3 omits. It is restated here as a **pointer at the top
+level** because §3 is the section a reader reaches for first, and it does not itself say it is out
+of date. **The live record is A1.1 (:405–:410) for the two graded rows, and A1.2 (:435 ff.) for the
+fuller image list.** A reader wanting a digest should go there, not to §3.
+
+**Why a stale digest list is more dangerous here than a stale prose section.** §11's rule is that
+**the DIGEST is the identity and the version string is not** — the IDWarp rotation patch moves a
+reverse-mode derivative by seven orders of magnitude while the version string reads `2.6.2` either
+way. A reader who takes §3 as live can therefore pin a row to a **tag**, and a tag is exactly the
+thing that can come to resolve elsewhere. The stale list quietly re-admits the failure mode §11
+exists to close.
+
+### A2.2 BOTH GRADED DIGESTS RE-MEASURED LIVE, a second independent confirmation of A1.1
+
+Read **2026-08-27T19:03:34Z** with `sudo -n docker inspect --format '{{.Id}}' <tag>`:
+
+| row | tag | digest returned |
+|---|---|---|
+| **SHIPPED** | `dafoam/opt-packages:latest` | `sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc` |
+| **PATCHED-ROT** | `dafoam-idwarp-rot:v1` | `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35` |
+
+**Both are exactly A1.1's values.** A1.1 was measured 2026-08-26 and now stands re-confirmed on a
+second date by a second lane. `cases/dafoam/curriculum_FADR/fadr_chain_driver.sh` re-reads both at
+launch and **refuses (exit 2)** on any difference, so this is a live check and not only a record.
+
+### A2.3 FOUR READS FROM FADR'S FREEZE THAT BELONG IN THE INVENTORY
+
+All four were measured inside the images at zero compute while registering
+`cases/dafoam/curriculum_FADR/` (freeze `eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`):
+
+1. **The DAFoam test harness is md5-IDENTICAL on both images** —
+   `tests/runRegTests_DASimpleFoamForward.py` `e03630f44a016c3a8b23bcbc8b4b8128`,
+   `tests/testFuncs.py` `fb11e90630aeba07c62c14afc5ed2ceb`,
+   `tests/refs/DAFoam_Test_DASimpleFoamForwardRef.txt` `ac46aca2f10e68da43dbe74be0dd3c29`.
+   **Consequence for every two-row item that runs the shipped tests: a divergence between the rows
+   is located in the toolchain and can never be in the test.**
+2. **The regression FIXTURE is absent from both images.** `tests/reg_test_files-main` does not exist
+   on either; `tests/Allrun:9-14` fetches
+   `https://github.com/DAFoam/reg_test_files/archive/refs/heads/main.tar.gz` **at run time**. The
+   reference file (1) **ships in the image and cannot drift**; the **fixture is upstream's moving
+   `main` branch and can**. FADR's retrieval is pinned by sha256 in
+   `cases/dafoam/curriculum_FADR/FIXTURE_PROVENANCE.md`.
+3. **The containers' default user is `uid 0`** — measured with `id`, not chosen — and **`bash -lc`
+   as root does NOT source `/home/dafoamuser/dafoam/loadDAFoam.sh`**, which lives in `dafoamuser`'s
+   tree. Without it `$WM_PROJECT` is unset and `python` (the conda interpreter at
+   `/home/dafoamuser/dafoam/packages/miniconda3/bin/python`) is **not on `PATH`**, and `mpirun`
+   dies with `Executable: python … 4 total processes failed to start`. **Measured both ways on a
+   3-core cpuset at np = 4: without the source, 4 of 4 ranks fail to start; with it, 4 of 4 come
+   up.** `tests/Allrun:3-6` refuses outright when `$WM_PROJECT` is unset, so the source is a
+   **precondition of the shipped recipe**, not an addition to it. **Any driver here that runs
+   `bash -lc` as uid 0 and does not source it will fail silently in the launcher rather than
+   loudly in the solver.**
+4. **`OMPI_ALLOW_RUN_AS_ROOT=1` and `OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1` are required** for any
+   `mpirun` under `--user 0:0`. Exporting them leaves the command line unmodified, which matters
+   when the requirement is to run an upstream recipe **verbatim**.
+
+**Nothing here was sent, filed, uploaded, registered, posted or commented** (`CLAUDE.md` rule 7).
+The only outbound act in the item that produced these readings was an **inbound** retrieval of
+public upstream test material; **no image was pushed anywhere and none is installable by any
+reader.**
