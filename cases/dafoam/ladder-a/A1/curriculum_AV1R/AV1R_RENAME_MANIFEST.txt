@@ -1,0 +1,25 @@
+AV1R RENAME MANIFEST -- how the successor's files were derived, and from what
+generated 2026-08-27T17:13:12Z by dafoam lane C; source commit af44d244b72f0ca45797fb22034e4b7a1284a7b5
+
+STEP 1, MECHANICAL: every file below was read from the HEAD BLOB of
+  cases/dafoam/ladder-a/A1/curriculum_AV1/ (never from the working tree -- L-350)
+  and passed through exactly:   sed 's/AV1/AV1R/g; s/av1/av1r/g'
+  The substitution is applied in that order, so it cannot double-apply (AV1R contains
+  no bare AV1 that the second rule can reach, and hex digests contain no 'v').
+
+STEP 2, SUBSTANTIVE: only av*_grade.py received a code delta (the datum resolved by
+  EXISTENCE plus its driven controls), and av*_run_arm.sh / av*_chain_driver.sh
+  received the md5 pins that follow from it.  Both are in the *_DELTAS_from_* diffs.
+  av*_datum_control.py is NEW (a pre-compute diagnostic; it is not on the grading path).
+
+FILE                         HEAD_BLOB_MD5                      AFTER_RENAME_MD5                   FINAL_MD5                          STEP2
+av1r_aggregate_memory.py     709ab0b98ef0302a3a3a318588f9493f   709ab0b98ef0302a3a3a318588f9493f   709ab0b98ef0302a3a3a318588f9493f   none (rename only)
+av1r_chain_driver.sh         b070e40957b88e5d8b0ebba10075d500   ea039f4a1248f45482ddb56b7d6b7349   0f24df6857bb1fe5969a9b5511a85ad8   CHANGED -- see the DELTAS diff
+av1r_datum_control.py        (new file, no source)              (new file)                         5e714767e65ea93b893f44f6d7381274   NEW
+av1r_decomposeParDict_np2    68ecc827562886fb43c3aedb0627b344   68ecc827562886fb43c3aedb0627b344   68ecc827562886fb43c3aedb0627b344   none (rename only)
+av1r_decomposeParDict_np4    816f5ba44075fde47fa5db4269877bc8   816f5ba44075fde47fa5db4269877bc8   816f5ba44075fde47fa5db4269877bc8   none (rename only)
+av1r_grade.py                87f15e05130cfdb3cbf195d1daba6154   438c9c6227b658c1b521429d33fea60a   b5c1d0092c6d2a2608ad3cc0899ed0fd   CHANGED -- see the DELTAS diff
+av1r_groot5_selftest.sh      dbb22dae4266f026d40fb10d386760f3   1cad80bb16eec8a6616d0bfb9f6bb660   1cad80bb16eec8a6616d0bfb9f6bb660   none (rename only)
+av1r_runScript.py            0557da51f6f179f6de865144343c499f   0557da51f6f179f6de865144343c499f   0557da51f6f179f6de865144343c499f   none (rename only)
+av1r_run_arm.sh              9996cfddf5c1f8637a498027cd48385d   71180e8db7474c87d9ea6aface13e02d   4ce916895994ab87b458a3e5fab2de01   CHANGED -- see the DELTAS diff
+av1r_x.py                    74011a9c5e6c760b8aec1c78e928b4d2   7313bab8b15629c9d872a39d0654aa08   7313bab8b15629c9d872a39d0654aa08   none (rename only)

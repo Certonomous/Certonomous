@@ -1,0 +1,20 @@
+AV1R DATUM-RESOLUTION DRIVEN CONTROL -- generated 2026-08-27T17:11:53Z by dafoam lane C
+grader md5=b5c1d0092c6d2a2608ad3cc0899ed0fd   control md5=5e714767e65ea93b893f44f6d7381274
+This is a PRE-COMPUTE DIAGNOSTIC.  It grades nothing, reads no artefact and quotes no band.
+AV-1 and AV-2 remain NOT A RESULT on their own frozen comparators.
+
+== (1) driven against the REAL AV-1 run root, whose frozen comparator refused at G1 ==
+CONTROL grader=av1r_grade.py
+CONTROL root=/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
+  MESH   resolved=0.orig/U     ref_mtime=1787837959 recorded=1787837959 datumfile_mtime=1787837959 self_delta=0 ref-datum=+0 writeCompression=on
+  X1-S   resolved=0/U.gz       ref_mtime=1787838086 recorded=1787838035 datumfile_mtime=1787838035 self_delta=0 ref-datum=+51 writeCompression=on
+  X2-S   resolved=0/U          ref_mtime=1787838162 recorded=1787838162 datumfile_mtime=1787838162 self_delta=0 ref-datum=+0 writeCompression=on
+  X4-S   resolved=0/U          ref_mtime=1787838269 recorded=1787838269 datumfile_mtime=1787838269 self_delta=0 ref-datum=+0 writeCompression=on
+  X1-P   resolved=0/U.gz       ref_mtime=1787838420 recorded=1787838366 datumfile_mtime=1787838366 self_delta=0 ref-datum=+54 writeCompression=on
+  X2-P   resolved=0/U          ref_mtime=1787838491 recorded=1787838491 datumfile_mtime=1787838491 self_delta=0 ref-datum=+0 writeCompression=on
+  X4-P   resolved=0/U          ref_mtime=1787838598 recorded=1787838598 datumfile_mtime=1787838598 self_delta=0 ref-datum=+0 writeCompression=on
+CONTROL resolved_by_name_plain=5 resolved_by_name_gz=2
+PLANTED CONTROL (neither candidate present, arm X1-S): guard_fired=True key=True
+PLANTED CONTROL (0/U.gz planted): resolver returns 0/U.gz
+CONTROL OK: the resolver sees a planted non-zero AND refuses an absent one
+rc=0

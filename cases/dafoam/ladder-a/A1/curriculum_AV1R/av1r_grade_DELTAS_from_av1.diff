@@ -1,0 +1,208 @@
+# av1r_grade.py DELTAS from AV1's file, AFTER the mechanical rename AV1->AV1R / av1->av1r.
+# The rename is a token substitution and is recorded separately in RENAME_MANIFEST.txt;
+# this diff therefore shows the SUBSTANTIVE successor delta and nothing else.
+--- RENAMED_ORIGINAL/av1r_grade.py	2026-08-27 17:12:50.533101014 +0000
++++ SUCCESSOR/av1r_grade.py	2026-08-27 17:11:18.822001372 +0000
+@@ -70,7 +70,22 @@
+ ARTEFACT = {a: ("checkMesh.log" if a == "MESH" else "av1r_X.json") for a in ARMS_REQUIRED}
+ TERMINAL = {a: "AV1R_X_WRITTEN" for a in ARMS_REQUIRED if a != "MESH"}
+ CONTROL_LINE = "AV1R_PLANTED_CONTROL_SEEN"
+-DATUM_REF = {a: ("0.orig/U" if a == "MESH" else "0/U") for a in ARMS_REQUIRED}
++# --- SUCCESSOR DELTA (AV1R): the age-guard datum is resolved BY EXISTENCE, not by name ---
++# AV-1 and AV-2 both REFUSED at G1 with `age_reference_absent` on "0/U".  The cause was not
++# physics: the NACA0012 incompressible tutorial runs `writeCompression on`, so a SERIAL
++# solver arm rewrites time 0 back to disk COMPRESSED and "0/U" becomes "0/U.gz".  Measured
++# on both refused run roots, every affected arm's artefact was strictly NEWER than the
++# recorded datum -- the age guard's SUBSTANCE held on every arm.  Only the PATH vanished.
++# Parallel arms are untouched (they write under processor*/), which is why AV-1 refused at
++# its first np=1 arm while its np=2 and np=4 arms carried "0/U" with mtime == datum.
++# The successor therefore registers a candidate SET and resolves it BY EXISTENCE; a
++# hard-coded second name would reproduce this defect at the next compression change.
++DATUM_REF_CANDIDATES = {a: (("0.orig/U", "0.orig/U.gz") if a == "MESH" else ("0/U", "0/U.gz"))
++                        for a in ARMS_REQUIRED}
++DATUM_REF = {a: DATUM_REF_CANDIDATES[a][0] for a in ARMS_REQUIRED}   # uncompressed name; the fixture's default
++DATUM_SELF_TOL_S = 5         # the launcher writes the datum file one `stat` after the touch;
++                             # measured delta on 10 of 10 arms across AV-1 and AV-2: 0 s
++DATUM_RESOLVED = {}          # RECORDED per arm, never gated on the name
+ CAPS = {"MESH": 5.0, "X1-S": 10.0, "X2-S": 15.0, "X4-S": 20.0, "X1-P": 10.0, "X2-P": 15.0, "X4-P": 20.0}
+ ITEM_CEILING_CORE_MIN = 95.0
+ PREDICTED_CORE_MIN = {"MESH": 0.3, "X1-S": 2.5, "X2-S": 3.0, "X4-S": 4.0, "X1-P": 2.5, "X2-P": 3.0, "X4-P": 4.0}
+@@ -92,7 +107,7 @@
+                          "siblings_post", "log", "wall_s")
+ NOT_MEASURED = "NOT_MEASURED"
+ VOCAB = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
+-EXPECTED_UNITS = 24
++EXPECTED_UNITS = 31
+ 
+ 
+ class Refusal(Exception):
+@@ -189,21 +204,75 @@
+ 
+ 
+ # ================= G1: COMPLETION, ARM-KIND AWARE =====================================
++def resolve_datum_ref(d, arm):
++    """Resolve the age-guard reference BY EXISTENCE over the registered candidate set.
++
++    Returns (path, name).  REFUSES when NO candidate exists -- that refusal is the driven
++    control, and the selftest drives it -- and when MORE THAN ONE exists, because two files
++    carry two mtimes and no registered rule says which one dates the run.
++    """
++    found = [(c, os.path.join(d, c)) for c in DATUM_REF_CANDIDATES[arm]
++             if os.path.isfile(os.path.join(d, c))]
++    if not found:
++        refuse("G1", {"age_reference_absent": [os.path.join(d, c) for c in DATUM_REF_CANDIDATES[arm]],
++                      "arm": arm,
++                      "note": "no registered candidate exists; the guard fires (driven control)"})
++    if len(found) > 1:
++        refuse("G1", {"age_reference_ambiguous": [p for _c, p in found], "arm": arm,
++                      "note": "two candidates, two mtimes, and no rule says which dates the run"})
++    return found[0][1], found[0][0]
++
++
++def read_write_compression(d):
++    """Read `writeCompression` from the ARM'S OWN system/controlDict and RECORD it.
++
++    Recorded, NEVER gated.  It is the setting that decides which candidate name the solver
++    leaves behind, and a record that does not carry it cannot explain its own datum.
++    Absent or unparseable -> NOT_MEASURED (an infrastructure field, L-342), never a refusal.
++    """
++    p = os.path.join(d, "system", "controlDict")
++    if not os.path.isfile(p):
++        return NOT_MEASURED
++    try:
++        for line in open(p, errors="replace"):
++            s = line.strip()
++            if s.startswith("writeCompression"):
++                return s.rstrip(";").split()[-1]
++    except OSError:
++        return NOT_MEASURED
++    return NOT_MEASURED
++
++
+ def arm_datum(base, arm):
+     d = os.path.join(base, arm)
+     p = os.path.join(d, ".av1r_age_datum")
+     if not os.path.isfile(p):
+         refuse("G1", {"age_datum_absent": p, "arm": arm})
+     datum = int(open(p).read().strip())
+-    ref = os.path.join(d, DATUM_REF[arm])
+-    if not os.path.isfile(ref):
+-        refuse("G1", {"age_reference_absent": ref})
+-    if int(os.path.getmtime(ref)) != datum:
+-        refuse("G1", {"age_reference_moved": ref, "recorded": datum, "on_disk": int(os.path.getmtime(ref))})
++    # The datum FILE is written by the launcher one `stat` after the touch and no solver in
++    # this ladder writes it.  Its own mtime must therefore date its own recorded epoch: this
++    # is what the old `mtime(0/U) == datum` clause was really protecting, moved onto a file
++    # the solver cannot legitimately rewrite.
++    self_mtime = int(os.path.getmtime(p))
++    if abs(self_mtime - datum) > DATUM_SELF_TOL_S:
++        refuse("G1", {"age_datum_self_inconsistent": p, "recorded": datum, "own_mtime": self_mtime,
++                      "tol_s": DATUM_SELF_TOL_S,
++                      "note": "the recorded epoch was not written by the launcher that staged this arm"})
++    ref, refname = resolve_datum_ref(d, arm)
++    ref_mtime = int(os.path.getmtime(ref))
++    if ref_mtime < datum:
++        refuse("G1", {"age_reference_older_than_datum": ref, "recorded": datum, "on_disk": ref_mtime,
++                      "note": "a staged field cannot predate the stage that touched it"})
++    DATUM_RESOLVED[arm] = {"datum_file": p, "recorded_epoch": datum, "datum_file_mtime": self_mtime,
++                           "reference_name": refname, "reference_path": ref, "reference_mtime": ref_mtime,
++                           "candidates": list(DATUM_REF_CANDIDATES[arm]),
++                           "resolved_by": "EXISTENCE over the registered candidate set, never by name",
++                           "writeCompression": read_write_compression(d)}
+     return d, datum
+ 
+ 
+ def g_completion(base, rows):
++    DATUM_RESOLVED.clear()
+     out = {"arms": {}, "not_measured": {}}
+     for arm in ARMS_REQUIRED:
+         r = rows.get(arm)
+@@ -486,6 +555,7 @@
+             "mesh_cells": cells, "divergence_shipped_vs_patched_np1_CD": div, "predictions": preds,
+             "controls": controls, "completion": g1,
+             "not_measured": {"G1": g1["not_measured"], "G10": g10["not_measured"], "G12": g12["not_measured"]},
++            "datum_resolution": dict(DATUM_RESOLVED),
+             "field_classes": {"physics": list(FIELDS_PHYSICS), "infrastructure": list(FIELDS_INFRASTRUCTURE),
+                               "rule": "absent infrastructure -> NOT_MEASURED beside the verdict; absent physics -> REFUSE (L-342)"},
+             "no_gci": "no grid family; standing rule 5 has no row; NO GCI IS QUOTED",
+@@ -511,6 +581,8 @@
+          "drop_row": set(), "inspect_file": set(), "dl": {a: "%.2f n=10 max_nr_throttled=0" % (0.99 * ARM_RANKS[a]) for a in ARMS_REQUIRED},
+          "nprocs": dict(ARM_RANKS), "part_cells": {}, "wall": {a: 60 for a in ARMS_REQUIRED}}
+     k["gpert"]["X1-S"] = 0.0; k["gpert"]["X1-P"] = 0.0; k["jpert"]["X1-S"] = 0.0; k["jpert"]["X1-P"] = 0.0
++    k.update({"datum_gz": set(), "datum_none": set(), "datum_both": set(), "datum_skew": 0,
++              "ref_backdate": set(), "gz_skew": 50, "wc": "on"})
+     if tweak:
+         tweak(k)
+     root = os.path.join(tmp, "root_%d" % int(time.time() * 1e6))
+@@ -519,10 +591,25 @@
+     for arm in ARMS_REQUIRED:
+         d = os.path.join(root, arm)
+         os.makedirs(os.path.join(d, "0.orig" if arm == "MESH" else "0"))
++        os.makedirs(os.path.join(d, "system"), exist_ok=True)
++        open(os.path.join(d, "system", "controlDict"), "w").write(
++            "writeControl    timeStep;\nwriteCompression %s;\n" % k["wc"])
+         ref = os.path.join(d, DATUM_REF[arm])
+         open(ref, "w").write("U\n")
+         t0 = int(os.path.getmtime(ref))
+-        open(os.path.join(d, ".av1r_age_datum"), "w").write("%d\n" % t0)
++        gz = ref + ".gz"
++        if arm in k["datum_gz"] or arm in k["datum_both"]:
++            open(gz, "w").write("U.gz\n")
++            os.utime(gz, (t0 + k["gz_skew"], t0 + k["gz_skew"]))
++        if arm in k["datum_gz"] or arm in k["datum_none"]:
++            os.remove(ref)
++        if arm in k["ref_backdate"]:
++            for cand in (ref, gz):
++                if os.path.isfile(cand):
++                    os.utime(cand, (t0 - 60, t0 - 60))
++        datfile = os.path.join(d, ".av1r_age_datum")
++        open(datfile, "w").write("%d\n" % (t0 - k["datum_skew"]))
++        os.utime(datfile, (t0, t0))
+         log = "%s_x.log" % arm
+         so = k["so"][arm]
+         text = "D4S_CONTAINER_UID: 0\nD4S_IDWARP_SO_MD5: %s\nD4S_DEADLINE_IN_CONTAINER_S: 600\n" % so
+@@ -591,6 +678,13 @@
+         except Refusal:
+             return True
+ 
++    def refused_at(root, key):
++        try:
++            grade(root)
++        except Refusal as e:
++            return key in str(e)
++        return False
++
+     def tw(**kw):
+         def f(k):
+             for key, val in kw.items():
+@@ -654,6 +748,30 @@
+     open(p, "w").write("x = 1\nassert x == 1\n")
+     unit("U24 ast.Assert count = 0 in av1r_grade.py and av1r_x.py, and the counter sees a planted assert (=1)",
+          count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "av1r_x.py")) == 0 and count_asserts(p) == 1)
++    # ---- SUCCESSOR DELTA: the datum resolved BY EXISTENCE, and the guard STILL ABLE TO FIRE
++    solver_arms = [a for a in ARMS_REQUIRED if ARM_KIND[a] == "SOLVER"]
++    r_gz = _fix(tmp, tw(datum_gz=set(solver_arms)))
++    try:
++        g_gz = grade(r_gz)
++    except Refusal:
++        g_gz = None
++    unit("UD1 datum resolved BY EXISTENCE: every solver arm carrying ONLY 0/U.gz still grades "
++         "(the exact shape that refused AV-1 and AV-2 is repaired)", g_gz is not None)
++    unit("UD2 the resolution is RECORDED and names 0/U.gz on every solver arm, with its candidate set",
++         g_gz is not None
++         and all(g_gz["datum_resolution"][a]["reference_name"] == "0/U.gz" for a in solver_arms)
++         and all(list(g_gz["datum_resolution"][a]["candidates"]) == ["0/U", "0/U.gz"] for a in solver_arms))
++    unit("UD3 writeCompression is READ from the arm's own system/controlDict and recorded ('on'), never gated",
++         g_gz is not None and all(g_gz["datum_resolution"][a]["writeCompression"] == "on" for a in ARMS_REQUIRED))
++    unit("UD4 DRIVEN CONTROL -- with NEITHER candidate on disk the guard STILL REFUSES; a guard "
++         "relaxed without a control showing it can fire is a guard retired, not repaired",
++         refused_at(_fix(tmp, tw(datum_none=set(solver_arms))), "age_reference_absent"))
++    unit("UD5 ambiguity REFUSES: 0/U and 0/U.gz both present is two mtimes and no registered rule",
++         refused_at(_fix(tmp, tw(datum_both=set(solver_arms))), "age_reference_ambiguous"))
++    unit("UD6 the datum file must date its own epoch: content back-dated 60 s against its own mtime REFUSES",
++         refused_at(_fix(tmp, tw(datum_skew=60)), "age_datum_self_inconsistent"))
++    unit("UD7 a resolved reference OLDER than the datum REFUSES (a staged field cannot predate its stage)",
++         refused_at(_fix(tmp, tw(ref_backdate=set(solver_arms))), "age_reference_older_than_datum"))
+     print("AV1R GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
+     if n != EXPECTED_UNITS or fails:
+         print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))

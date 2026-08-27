@@ -1,0 +1,19 @@
+# av1r_chain_driver.sh DELTAS from AV1's file, AFTER the mechanical rename AV1->AV1R / av1->av1r.
+# The rename is a token substitution and is recorded separately in RENAME_MANIFEST.txt;
+# this diff therefore shows the SUBSTANTIVE successor delta and nothing else.
+--- RENAMED_ORIGINAL/av1r_chain_driver.sh	2026-08-27 17:12:50.509100870 +0000
++++ SUCCESSOR/av1r_chain_driver.sh	2026-08-27 17:11:18.821838491 +0000
+@@ -46,10 +46,10 @@
+ AGG_POLL_S=30; AGG_BOUND_S=14400
+ # The launcher and grader are FROZEN (PREREGISTRATION.md section 7/8);
+ # asserted before EVERY arm so a mid-chain edit cannot change what runs.
+-MD5_LAUNCHER=9996cfddf5c1f8637a498027cd48385d
+-MD5_GRADER=87f15e05130cfdb3cbf195d1daba6154
++MD5_LAUNCHER=4ce916895994ab87b458a3e5fab2de01
++MD5_GRADER=b5c1d0092c6d2a2608ad3cc0899ed0fd
+ MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f
+-MD5_XF=74011a9c5e6c760b8aec1c78e928b4d2
++MD5_XF=7313bab8b15629c9d872a39d0654aa08
+ MD5_DECOMP_NP2=68ecc827562886fb43c3aedb0627b344
+ MD5_DECOMP_NP4=816f5ba44075fde47fa5db4269877bc8
+ # the shipped tutorial's INPUT bytes, frozen here because the checkout is not

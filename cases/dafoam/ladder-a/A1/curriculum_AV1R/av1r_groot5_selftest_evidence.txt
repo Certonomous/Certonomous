@@ -1,0 +1,21 @@
+AV1R G-ROOT.5 SELFTEST 2026-08-27T17:12:10Z launcher_md5=4ce916895994ab87b458a3e5fab2de01
+  [OK ] G-ROOT.5 completes at :239, first destructive op at :316
+  [OK ] zero backticks on executable lines of the launcher
+  [OK ] run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-AV1R-a1-naca0012-npinv
+  [OK ] (a) live container av1r_X1-S_selftest_20260827T171210Z -> rc=3: ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [av1r_X1-S_selftest_20260827T171210Z]
+  [OK ] (b) live pid 1016231 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-AV1R-a1-naca0012-npinv -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-AV1R-a1-naca0012-npinv/av1r_driver.pid names LIVE pid 1016231 (ancest
+  [OK ] (b2) stale pidfile ignored; launcher went on to abort at the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D13-a1-basin-restart -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D16-a1-naca0012-transonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (e1) X1-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e2) MESH on the PATCHED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e3) X4-S on the SHIPPED image -> G-ROW passes, then the arm REFUSES (rc=5) for want of the MESH arm's output -- nothing staged
+  [OK ] (e3) no arm directory was created
+  [OK ] temporary run root EMPTY after every invocation and after the (e) copies were removed (0 entries)
+  [OK ] run root ABSENT after the test (freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-AV1R-a1-naca0012-npinv -> false
+  [OK ] no av1r_ container survives
+AV1R G-ROOT5 SELFTEST pass=19 fail=0 2026-08-27T17:12:12Z
