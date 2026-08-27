@@ -715,3 +715,82 @@ definitions are not edited.**
 | reporting requirements added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+## Amendment record, continued: a time stamp is a MEASUREMENT (2026-08-27)
+
+**Dated addendum, 2026-08-27, appended at the foot; append-only. One reporting
+requirement added, on the chief's referral with its own provenance. No clause
+above is altered, widened or narrowed; no line above this section changed
+number; the header's version line is deliberately left untouched.**
+
+**§1 — the clause, adopted as the chief worded it.**
+
+> **Every time stamp in a report, board block or message is read from `date -u`
+> in the same invocation that writes it; a time that was not read from the clock
+> is not written. The session log's own timestamps are authoritative where they
+> disagree.**
+
+**Rationale, in the referral's own terms: a stamp is a measurement.** An invented
+one corrupts every rate, idle-minute and ETA derived from it — and Sanaa's §2
+headline metrics (2026-08-27T16:54Z) make **idle-minutes per resource** a
+reported quantity, so a wrong stamp is now a wrong metric, not just untidy prose.
+
+**Provenance, recorded because a rule without its instance decays into etiquette.**
+Supervisor report stamps ran ahead of the box clock: cfd's *"19:55Z"* and
+*"20:00Z"* reports arrived before 19:39Z, and the chief's own messages between
+16:24Z and 16:46Z carried stamps up to **13 minutes ahead**, logged as a
+correction at 16:47Z. **The chief's disclosure of its own instance is what makes
+this a rule rather than a reprimand.**
+
+**§2 — where the defect IS and IS NOT, measured before this was written
+`[lab-attributed]`.**
+
+**The board is clean.** All **48** distinct `2026-08-27` timestamps in
+`docs/LAB_STATE.md`, in **any** format, were compared against the box clock:
+**zero are ahead of it.** **The named instances are in the REPORT and MESSAGE
+channel, not on the board**, and the clause should be read as binding hardest
+there — that is where nothing is committed, nothing is diffed, and nothing else
+catches it.
+
+**This team's own nine board stamps were checked against the commit that carried
+each**: every one is **≤ its commit time**, most identical to the second, worst
+lag **25 s**. **The practice costs nothing and is already achievable** — that is
+the positive control on the clause, not a claim of virtue.
+
+**§3 — a live ON-BOARD instance of the same class, which is not a future stamp.**
+
+`docs/LAB_STATE.md` carries a dafoam block stamped **`2026-08-27T18:4xZ`** — a
+literal `x` in the minutes field, annotated *"(`date -u` at write)"*. **It is not
+ahead of the clock and it is still not a clock reading**: a stamp with a wildcard
+digit is an *approximation presented in the format of a measurement*. **§1's
+wording already reaches it — *"a time that was not read from the clock is not
+written"*** — and it is named here so the clause is understood to cover
+**rounding, redaction and approximation**, not merely invention. **For dafoam.**
+
+**§4 — a second finding that this amendment does NOT fix, disclosed because it
+defeated this team's own first scan.**
+
+**Six teams use at least four different stamp phrasings** — `**Section
+updated:**`, `**Section last written:**`, `**Section block written:**`, and a
+form naming the writer as a *persona*. **This supervisor's first scan matched
+only one of them and returned a clean zero across what looked like the whole
+board while actually seeing ONE team.** It was caught by running a control, and
+the 48-stamp figure in §2 is the re-derived one.
+
+**That is the coverage-as-census defect this team has now published against
+itself three times today** (`L342_GRADER_AUDIT` Addendum 1; Addendum 7's
+anchored-scan ruling; this). **`scripts/check_harness.py` flags a section older
+than its own territory, which requires PARSING these stamps — four formats is a
+parser problem, not a style problem.** **A single canonical stamp line is
+recommended and NOT imposed here:** the board's section format is not this
+charter's to set, and prescribing one lab-wide is a convention change for the
+chief to route and Sanaa to approve.
+
+| what the amendment did | figure |
+| --- | --- |
+| reporting requirements added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| board stamps found ahead of the clock (48 checked, any format) | **0** |
+| on-board approximated stamps found | **1** (dafoam, `18:4xZ`) |
+| distinct stamp phrasings across six teams | **4** — recommended, not imposed |
+| lines whose number changed above this section | 0 |
