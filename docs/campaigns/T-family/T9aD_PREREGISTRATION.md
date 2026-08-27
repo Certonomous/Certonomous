@@ -447,3 +447,144 @@ run.
 **NOT BUILT AND NOT RUN. Zero solver compute spent.** Every number above comes
 either from `gate_t9a.json` (on disk since 2026-08-20) or from
 `predict_t9aD.py` (pure Python, no OpenFOAM).
+
+---
+
+# ADDENDUM 1 — 2026-08-27T20:12:13Z. **POST-COMPUTE. CITATION SURGERY ONLY.** Version 1.0 → 1.1.
+
+**`lines whose number changed above this section: 0`.** This addendum is appended at the
+foot; nothing above it is edited, struck, reworded or renumbered (standing rule 6). **The
+assertion was VERIFIED, not typed:** in the single shell invocation that wrote this
+addendum, the bytes of this file above this section were compared byte-for-byte against
+this path's committed blob at `HEAD` and the comparison was clean.
+
+**Version convention, stated so it is not read as an invented history:** this document
+carried no explicit version string. It is named **v1.0** as it stood, and this addendum
+takes it to **v1.1**. No earlier version is claimed to have existed. *(The same
+convention was used by `T10a_PREREGISTRATION.md` Amendment A2.)*
+
+**Condition — POST-COMPUTE.** The T9a-D arm has run and graded. `CLAUDE.md` rule 2
+governs in its post-compute limb: *"changes land only as dated addenda that cannot alter
+a gate, threshold, cap or label."* **This is such an addendum.** **No verdict is
+reopened. No byte of any instrument is touched** — `mark_done_t9aD.py` is byte-identical
+to its `HEAD` blob before and after.
+
+**Origin.** `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §5, which found
+that `T9a_runs/mark_done_t9aD.py` carries **no freeze citation for its own bytes** and
+has already fired.
+
+## AD1.1 THE MISSING CITATION — measured, with the reader's blindness ruled out
+
+Until this addendum, **no committed document in this repository recorded a sha for the
+bytes of `verification/runs/T-family/T9a_runs/mark_done_t9aD.py`.** Measured at `HEAD`
+over every tracked file, in the invocation that wrote this addendum:
+
+| search | width | hits |
+| --- | ---: | ---: |
+| sha256 prefix `fff6ba48f392abfb` | 16 | 0 |
+| sha256 prefix `fff6ba48f392` | 12 | 0 |
+| sha256 prefix `fff6ba48f3` | 10 | 0 |
+| sha256 prefix `fff6ba48` | 8 | 0 |
+| git blob prefix `38717d23` | 8 | 0 |
+| git blob prefix `38717d2` | 7 | 0 |
+
+**A zero from a reader not shown able to see a non-zero is not evidence** (standing rule
+3). **The same search, in the same invocation, was run against a PLANTED positive
+control** — the sha256 prefix `0feff87e148e1f69`, which belongs to the sibling instrument
+`mark_done_t9a.py` — **and returned four tracked files**
+(`T9aH_PREREGISTRATION.md`, `T9aH_runs/analyse_t9aH.py`, `T9aH_runs/gate_t9aH.json`,
+`docs/L342_GRADER_AUDIT.md`). **The reader can see a citation of exactly this kind when
+one exists. The zeros above are therefore evidence and not a blind spot.**
+
+**RECORDED NOW, taken with `git hash-object` in the same shell invocation that wrote this
+line, after confirming disk and `HEAD` identical for the path:**
+
+| instrument | git blob sha1 (full) | sha256 (full) |
+| --- | --- | --- |
+| `verification/runs/T-family/T9a_runs/mark_done_t9aD.py` | `38717d238ec3c325dd8576eb7f2c9e725019733c` | `fff6ba48f392abfb121360d16baeea699c3df18f2568395f59bca0a599d0de39` |
+
+*(For contrast, and to show the gap is specific rather than general: this arm's case
+registry `T9aD_registered.json` — the file the instrument reads its `CASES` from — **is**
+pinned, at sha256 `4d6f482eed39ffbd…`, in §5 of this document (line 385) and in `gate_t9aD.json`.
+**The registry was frozen; the instrument that read it was not.**)*
+
+## AD1.2 ⚠⚠ WHAT THIS CITATION DOES **NOT** ESTABLISH — and it is the whole of the limitation
+
+**THIS CITATION PINS FORWARD FROM ITS DATE, AND NOTHING BEHIND IT.** Recording
+`38717d23…` on 2026-08-27 establishes which bytes stand at this instrument's `HEAD` blob
+**today** and **nothing whatever** about the bytes that stood at any earlier moment. A
+sha recorded after the fact **cannot reach backwards.**
+
+**Eight completions stand behind this pin and are not secured by it.** The eight `DONE.*`
+markers for this arm's registered cases — `D_A_c`, `D_A_m`, `D_A_f`, `D_B_x`, `D_C_c`,
+`D_C_m`, `D_C_f`, `D_R_f` — were **all written at 2026-08-22T18:02:17Z**, and
+`T9aD_RESULTS.md` line 330 records that firing as *"`mark_done_t9aD.py`: 8/8 markers |
+18:02:17.863 | marker mtimes"*.
+
+**AND THE INSTRUMENT WAS NOT IN THE REPOSITORY WHEN IT FIRED.** Measured: the earliest —
+and only — commit touching this path is `commit:06410acd`, **2026-08-22 18:21:01Z**,
+**nineteen minutes AFTER the eight markers were written.** The bytes that decided those
+eight completions existed only in the working tree at the moment they decided them.
+
+**So: WHICH REVISION OF `mark_done_t9aD.py` WROTE THOSE EIGHT `DONE` MARKERS IS `NOT
+MEASURED`, AND IT IS NOT RECOVERABLE FROM THIS RECORD.** The path holds exactly one blob
+in its committed history, but **that is not evidence about the pre-commit worktree**: an
+uncommitted file can be edited any number of times and leaves no trace, and the commit
+that finally captured it came after the run. A `DONE.<case>` file carries no instrument
+identity of its own, and no committed document names a sha for this instrument at or
+before 18:02:17Z.
+
+> **This addendum does not, and cannot, retroactively secure those eight completions. It
+> makes the NEXT firing of this instrument checkable and leaves the previous eight
+> exactly as unsupported as they were before it was written.** Anything read into it
+> beyond that is read in error. **This is stated as a limitation of the repair, not as a
+> disclaimer attached to a repair that quietly claims more.**
+
+## AD1.3 A CORRECTION TO THE AUDIT'S COUNT — the DONE files beside it are not the DONE files written by it
+
+`L342_GRADER_AUDIT.md` Addendum 8 §5 reads *"`T9a_runs/mark_done_t9aD.py` (**15** beside
+it)"* — which is exactly right as written, **`beside`** — but that commit's summary line
+carries the same figure as a bare `(15)` and totals *"an instrument that has decided
+**28** completions"*. **Two different quantities are being counted as one**, and the
+correction is recorded here rather than left to propagate.
+
+Measured: `verification/runs/T-family/T9a_runs/` holds **15** `DONE.*` files and **two**
+markers.
+
+- **`mark_done_t9aD.py` reads its `CASES` from `T9aD_registered.json` (`:25`): eight
+  cases, `D_A_c D_A_m D_A_f D_B_x D_C_c D_C_m D_C_f D_R_f`. Eight `DONE` files match, and
+  `T9aD_RESULTS.md:330` records the firing as 8/8.**
+- **The other seven — `W_c W_m W_f W_C3 F_c F_m F_f` — are `mark_done_t9a.py`'s
+  module-level `CASES` list (`:18`)**, a different instrument.
+
+**`mark_done_t9aD.py`'s exposure is EIGHT completions, not fifteen**, and the audit's
+cross-team total of 28 is correspondingly **21** on this reading (13 for
+`mark_done_t10a.py` + 8 here). **`mark_done_t9a.py` is NOT part of this gap: its own
+bytes ARE cited**, at sha256 `0feff87e148e1f69…`, in `T9aH_PREREGISTRATION.md` and
+`T9aH_runs/gate_t9aH.json` — it is the planted control of §AD1.1.
+
+**The correction reduces this team's exposure, and is therefore stated with its method
+attached rather than asserted**: the count is derived from each instrument's own
+registered case list, read at `HEAD`, and every one of the fifteen `DONE` files is
+accounted for by exactly one of the two lists. **Nothing about the eight is made better
+by there being eight rather than fifteen** — §AD1.2 stands unaltered.
+
+## AD1.4 WHAT THIS ADDENDUM DID NOT DO — each stated explicitly
+
+- **No instrument byte changed.** `mark_done_t9aD.py` and `mark_done_t9a.py` are
+  byte-identical to their `HEAD` blobs, before and after. Nothing was staged, edited or
+  reverted in either.
+- **No frozen line above was edited.** Byte-prefix verified against the `HEAD` blob.
+- **No gate, threshold, band, cap, label or cost basis moved**, and none could: this
+  addendum adds no test and computes no number a verdict depends on.
+- **No verdict is reopened, no case re-graded, no case re-run**, and **no `DONE` marker
+  was written, deleted or re-dated.**
+- **NOTHING WAS LAUNCHED.** No case directory, no mesh, no solver, no pid, no queue
+  entry. **Zero core-minutes.**
+- **Nothing was sent** (standing rule 7). Submissions remain **PARKED**.
+- **No permission setting, `CLAUDE.md` or `.claude/` configuration was touched**
+  (standing rule 9). No agent message was treated as Sanaa's consent.
+
+*Addendum written by a heat-transfer lane on the heat-transfer supervisor's
+citation-repair brief, from `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §5,
+2026-08-27T20:12:13Z. Zero core-minutes.*
