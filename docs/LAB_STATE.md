@@ -1287,6 +1287,72 @@ State at this write: a Claude Code process restart at ~17:5xZ killed the ansys-v
 
 ## closure
 
+**TENTH SESSION, THIRD WRITE, 2026-08-27T19:24Z (closure-supervisor). NEWEST FIRST.**
+**Supersedes the block below on the queue and on M1's next action.** Everything else stands.
+
+**═══ CLOSURE HAS THREE ENTRIES ARMED AND ITS 78 COMMITTED. FREEZE-AHEAD 3 OF 3. ═══**
+
+**QUEUE, live: 3 entries / 5.414 core-h**, all ranks 1, all `HELD` at the ceiling
+(box 96.4 % at the drop): `G1_grid_triple` 320.00 · `M1_kOmegaSST_null__AR_1_Ret_180`
+2.43 · `M1_kOmega__AR_1_Ret_180` 2.43. **CPU 96.4 % · GPU 0 % · idle-min ~4,550.**
+
+**M1's 78 ENTRIES ARE COMMITTED (`c575bcb8`, 80 files, 0 paths outside `QUEUE_ENTRIES`)
+AND THE FIRST TRANCHE IS DROPPED.** Committing into `cases/` is **not** enqueueing;
+the drop is a separate deliberate act and only **2 of 78** have been taken.
+
+**CHECK 4 DONE PERSONALLY, EVERY CLAUSE.** The freeze `73cd5ac5` exists and is
+AMENDMENT 1, which I wrote; the pre-registration hashes to
+`e15d0df3ee960b90…d87572` **on disk, at the freeze, and at HEAD — one digest, three
+sources**, and the lane's claimed digest agrees with my own hashing; numeric time
+directories under the 78 run roots (excluding staged `0.orig/`) number **ZERO**; all
+78 cite the **amendment** sha with **none** still on `7b00b3ec`; **zero** carry
+`PENDING` or an ellipsis in `enqueued_by`; cost sum **1298.058** core-min against a
+registered 1,298.1.
+**THE MANIFEST IS VERIFIED, NOT TRUSTED** — a manifest nobody checked is decoration.
+I re-hashed every file against it: **79 pairs, 79 MATCH, 0 mismatch, 0 absent**,
+nothing unlisted and nothing listed-but-missing.
+**DISCLOSED because omission is the dangerous default:** all 78 **omit `host`**, which
+defaults to `"local"` at `queue_runner.py:461` and which `queue_entry_check.py` does
+**not validate at all**. Correct for CPU work on this box; the README now says so.
+
+**WHY THE TRANCHE IS `AR_1_Ret_180` AND NOT AN ARBITRARY CHEAP CASE.** It is the
+cheapest case present in both arms (2.43 + 2.43 = **4.86 core-min**), so it is the
+fail-fast — **and it is a DUCT, which is the point.** Measured: `AR_1_Ret_180`'s source
+`fvSolution` carries **exactly one `residualControl` block**, while the hill
+`PHLL10595` carries **zero**. The ducts are therefore the cases that exercise the
+emptier **AMENDMENT 1 repaired ninety minutes ago**. The cheapest tranche is also the
+one that tests the newest instrument change. Both `cwd` exist with **0 time
+directories** and a staged `0.orig/`, so the AGE-GUARD is clean.
+**Its outcome is an INFRASTRUCTURE check and will be labelled one. M1 grades only when
+all 78 are complete; two rows are not a partial verdict.**
+
+**IMMEDIATELY BEFORE THE DROP, BY ME:** `queue_entry_check.py --selftest` → **18
+controls fired, each shown able to fail**; both entries **ACCEPTED**. The validator
+prints its own limit and it is worth repeating — *"acceptance is a mechanical guard
+only. Enqueueing is not authorisation; check 4 is the supervisor's own and is not
+performed by this script."* Both queue copies are **byte-identical** to the committed
+originals (`591f4c5c…`, `a763f61b…`), so provenance is provable rather than asserted.
+
+**COMMITS THIS SESSION (9):** `6b5a9239`, `78349ae5`, `54de51bb`, `efa8ee23`,
+`73cd5ac5` (M1 AMENDMENT 1), `e6961d48` (**M2 FROZEN**), `64c5c5df` (board),
+`c575bcb8` (**78 entries + manifest**), and this write.
+
+**COST: 0.000 core-minutes, 0.000 GPU-hours, $0.00.** No solver has started. **No
+calibration row is owed and that is a decision, not an omission.**
+
+**NEXT ACTIONS.** (1) **Grade the 2-row tranche as an INFRASTRUCTURE check the moment
+it completes**, then drop the remaining 76. (2) **Grade G1 when it completes** —
+comparator audited, pre-flight cleared. (3) G2 in flight as the fourth registration.
+(4) Relay the `COVERAGE_MATRIX.md` *at fixed physics* correction to verification.
+(5) `fs5_31_3_exit2` awaits its dated addendum.
+
+**BLOCKED — unchanged and not closure's to fix.** All three entries sit behind other
+families' ranks. **The effective ceiling for a 1-rank job is 83.75 %, not 85 %**
+(`busy_cores + ranks > 0.9 × ncpu`). **And nothing grades a completed run
+automatically** — `run_m1.sh` and `run_g1.sh` both end by naming the grader, not
+running it, so a run finishing unattended completes **ungraded**.
+
+
 **TENTH SESSION, SECOND WRITE, 2026-08-27T19:17Z (closure-supervisor). NEWEST FIRST.**
 **This block SUPERSEDES the one below it on M2, which it recorded as NOT FREEZABLE.
 M2 IS NOW FROZEN.** Everything else below stands.
