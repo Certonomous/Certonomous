@@ -1174,3 +1174,131 @@ the recommendation and the pattern is not.**
 - **Whether other lab ledgers carry a third row format is `NOT MEASURED`.** Two files were
   examined. **A rule written from two specimens is a rule written from two specimens**, and
   clause (c) exists precisely so the next ledger does not have to be enumerated in advance.
+
+---
+
+## Addendum 8 — 2026-08-27 — THE `mark_done_*` FREEZE SWEEP: **RULE 3 MANUFACTURES RULE-2 FALSE POSITIVES**, THE PROPOSED FIX WOULD HAVE MISSED THE DEFECT THAT MOTIVATED IT, AND MY "3 UNTRACKED" WAS THE STALE INDEX AGAIN
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`,
+proved by a byte-prefix check against the HEAD blob in the same invocation. The §3 diff read in
+§4 below was performed personally by this supervisor, as the lane correctly declined to make that
+call.**
+
+### 1. ⚠ MY OWN PREMISE WAS AN INDEX READING, NOT A REPOSITORY FACT
+
+I briefed the sweep with *"31 markers on disk, 28 tracked — 3 UNTRACKED instruments that apply
+rule 4."* **`git ls-files` returns 28 because it reads the SHARED INDEX. `git ls-tree -r HEAD`
+returns 31.** All three are committed at HEAD — heat-transfer's T17/T18/T19 freezes
+(`commit:b8ebddfe`, `commit:add2c788`, `commit:4d8943d8`), landed **twelve minutes before the
+sweep**, through the private-index protocol, **which by design never writes the shared index.**
+
+**UNTRACKED = 0. There is no unfiled instrument.**
+
+**This is the THIRD false reading the stale index has produced today, and it was produced by the
+team that measured and documented the mechanism** (`docs/DEAD_LEVER_AUDIT.md`, dated sections 1
+and 2, `commit:98f5fd5e` / `commit:0f8f39fd`). **Knowing the mechanism did not stop me using
+`git ls-files` as a repository census four hours later.** The operational rule, which is now
+this team's: **`git ls-files` answers "what is in the index"; only `git ls-tree -r HEAD` answers
+"what is in the repository", and on this box those are different questions.**
+
+### 2. ⚠⚠ THE FINDING: STANDING RULE 3 MANUFACTURES STANDING-RULE-2 FALSE POSITIVES
+
+`verification/runs/T-family/T1_runs/mark_done_dts_u.py` reads **`UNFROZEN` by a margin of
+−623,814 s** under the widened population — and **the flag is entirely an artefact of the
+instrument's own planted control.**
+
+The mechanism, measured rather than argued: the file's registered `CASES` tuple (`:44-45`) holds
+six `D_Ts_Re25_U_*` / `L_Ts_U_*` cases. The offending name `L_Ts_c` enters the source **once**, at
+**`:221`** — `run(tmp, ["L_Ts_c"])` — **inside the instrument's own selftest, as the planted
+NEGATIVE control**, with `:226` printing *"a PARENT case name (L_Ts_c) → REFUSE: this instrument
+grades only the six U cases."* **D471.1's scope rule excludes docstrings and prose but admits a
+string constant in a call argument.** So the checker **imports the instrument's own refusal
+control as a case it grades**, then dates its freeze from a foreign sub-campaign's `DONE.L_Ts_c`
+written **seven days before the instrument existed**.
+
+> **`CLAUDE.md` rule 3 requires a comparator to plant the failure it must refuse. Planting it
+> necessarily puts the refused name into the source. The freeze checker's scope rule then reads
+> that name as a case under grading. SO THE MORE FAITHFULLY AN INSTRUMENT OBEYS RULE 3, THE MORE
+> LIKELY IT IS TO BE FLAGGED UNFROZEN UNDER RULE 2.**
+
+**Two rules of this lab, each correct alone, produce a false positive at their intersection.**
+That is a new class — not a defective instrument, not a defective checker, but a **rule
+interaction** — and it reaches **markers and graders alike, on any instrument disciplined enough
+to carry a planted control.**
+
+**AND THE POPULATION IS `NOT MEASURED`.** The lane found it in a marker and **did not audit the 9
+baseline `UNFROZEN` grader rows for the same mechanism**, saying so plainly rather than implying
+coverage. **Those 9 must be re-read before any amendment ships, because some fraction of the
+lab's standing freeze violations may be this artefact.** **Commissioned; not counted here.**
+
+### 3. THE PROPOSED ONE-LINE FIX WOULD HAVE MISSED THE DEFECT THAT MOTIVATED IT
+
+Adding `mark_done_` to `GRADER_RE` (`scripts/check_comparator_freeze.py:130`) brings **29** files
+into scope — population **142 → 171**. **It does NOT reach `scripts/mark_done_k0d.py` or
+`scripts/mark_done_k0f.py`, because `POPULATION_ROOTS` at `:131` is `("verification", "cases")`
+and excludes `scripts/`** — and **those two carry the sweep's ONE REAL citation defect.**
+
+**A widening that ships without also widening the roots is a check that cannot see the finding
+that caused it to be written.** Both lines move together or neither does.
+
+### 4. THE §3 CHECK THE LANE RESERVED FOR ME — read personally, and the answer is BENIGN WITH A DUTY
+
+`scripts/mark_done_k0d.py:5` and `mark_done_k0f.py:5` both state they were written *"from the
+FROZEN registration and from nothing else: `K0d_REREGISTRATION.md` (v1.1, blob `36b302f1`)"*.
+HEAD's blob for that path is **`fb45b298`**; the delta is **+565 / −0** across two later
+amendments, both stamped **before first compute** and therefore legal under rule 2.
+
+**I read the diff.** What the +565 lines add: `writeFormat = ascii`; `writePrecision = 16`;
+`writeCompression = off`; `domain_thickness_t = 0.010 m`; and a re-derived core-minute ceiling.
+Counted across the added lines: **`ExecutionTime` 0, `CASES` 0, `DONE.` 0**, `endTime` 1,
+`age guard` 1.
+
+**The finding, and it cuts both ways.** The markers' seven clauses turn on `controlDict endTime`,
+the per-closure field tuple at `endTime`, the `ExecutionTime` count and the age guard. **The
+amendments do NOT alter that clause set** — no clause was added, removed or reworded. **But
+`writeCompression = off` and `writeFormat = ascii` are exactly the settings that decide whether
+the registered fields exist under the names clause 4 looks for**: with compression on, `T` is
+written as `T.gz` and a field-presence check finds nothing. **So the amendments registered
+settings the markers silently depend on and did not previously have.**
+
+**RULING: the markers' behaviour is not wrong, and the citation is.** The delta is **pure
+insertion (−0)**, so every clause of v1.1 survives verbatim into v1.3 — **the document the
+markers were written from is a byte-prefix of the document at HEAD.** **What is owed is a dated
+addendum on each marker disclosing that its registration moved to v1.3 and re-citing
+`blob:fb45b298`** — not a re-grade, not a re-run. **For heat-transfer.**
+
+### 5. THREE MARKERS HAVE NO FREEZE CITATION FOR THEIR OWN BYTES, AND TWO HAVE ALREADY FIRED
+
+`T10a_runs/mark_done_t10a.py` (**13 `DONE` markers already written by it**),
+`T9a_runs/mark_done_t9aD.py` (**15 beside it**), and `scripts/mark_done_k0d.py`. Confirmed by
+`git grep` at HEAD over every tracked file for both blob-8 and sha256-16, **with a plant proving
+the same search finds `0feff87e148e1f69` in `T9aH_PREREGISTRATION.md`.** **An instrument that has
+decided 28 completions and cannot be shown to be the file that decided them is the gap standing
+rule 2 exists to close.** *Limit carried: the worktree arm is `ugrep` honouring ignore files, so
+a gitignored archive could hold a registration it cannot see; the `git grep` arm is exhaustive
+over tracked files and is the load-bearing one.*
+
+### 6. v1.13's DISCLOSURE, DISCHARGED
+
+`scripts/check_comparator_freeze.py` **carries no measured false-positive or refusal rate** — not
+in its docstring, not in a record, not in a docket row. D471 and D422 name **mechanisms and one
+instance**, never a denominator; `VERIFICATION_CHARTER:1922-1934` records one over-reach with its
+reasoning and no rate. **So v1.13 §1 does not bind and no re-measurement is required — and v1.13
+§5's disclosure is owed instead, and is made here: this instrument carries no measured rate and
+none was re-measured.** **The wider question — whether the obligation should attach regardless of
+whether a rate was ever published — remains a named item on Sanaa's desk and is not settled by
+this addendum.**
+
+### 7. WHAT IS NOT CLAIMED
+
+- **The amendment is NOT applied.** `scripts/check_comparator_freeze.py` is byte-identical to its
+  HEAD blob; nothing was staged, edited or reverted, and the shared index was never touched.
+- **The planted control for the citation check is a SPECIFICATION, not a result.** It is
+  **unbuilt and unexercised**, and v1.13 §3's whole point is that an unexercised harness proves
+  nothing. Disclosed rather than implied.
+- **`check_comparator_freeze.py` has no citation-resolution check at all today** — its two
+  mechanisms are commit-ordering and worktree drift. *"The disk blob differs from the sha its
+  record cites"* is a **third question the instrument does not currently ask**, so the control
+  specifies behaviour that must be **built**, not merely armed.
+- **Worktree ≠ HEAD blob: 0 of 31**, and the zero is a measurement — the same reader returned
+  `MISMATCH` on two live `RESULTS.md` files (−39 lines each) on the same code path.
