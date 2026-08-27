@@ -1717,3 +1717,146 @@ sit outside it.
 | Addendum 9's "21 completions" | **DOES NOT HOLD — measured 8** |
 | **completions standing on an unfrozen instrument at HEAD** | **4** |
 | gate 2 status | **CLEARS** |
+
+---
+
+## Addendum 12 (2026-08-27) — BOTH GATES ARE CLEAR AND THE AMENDMENT IS NOW SPECIFIED WITH ITS EFFECT MEASURED: the widening imports **2** rows, **1 of them the artefact**, and Addendum 8's two-lines-move-together claim is right but **needs a THIRD line**
+
+**Appended, append-only. Nothing above is rewritten. `scripts/check_comparator_freeze.py`
+is UNTOUCHED — byte-identical to its HEAD blob (sha256 `6217bfe6904bf5f2`),
+asserted before AND after the harness ran. Nothing shipped, no index touched.
+Cost: 3.20 core-minutes measured single-rank, plus 2.00 core-minutes of WASTE
+named separately and not absorbed (a foreground dry run killed at a 120 s tool
+timeout, relaunched detached) and ≈0.5 core-min estimated ancillary — gross ≈5.7
+core-min / $0.0049, cleaned ≈3.7 / $0.0032, both DERIVED at $0.0513/core-h and
+NOT MEASURED.**
+
+**§1 — GATE 1 IS INDEPENDENTLY REPRODUCED, ROW FOR ROW.**
+
+A classifier built from Addendum 10 §4's corrected artefact condition, run over
+the baseline 9: **8 REGISTERED / 1 FOREIGN / 0 ARTEFACT.** **Addendum 10's table
+reproduces exactly, by a second instrument that did not exist when it was
+written.** Validated against the three specimens with independently known
+answers: `mark_done_dts_u.py`/`L_Ts_c` → **ARTEFACT**,
+`analyse_t3_rff.py`/`R_m` → **REGISTERED**, `analyse_t9aD.py`/`W_c` → **FOREIGN**.
+**Three for three. Gate 1 stands.**
+
+**§2 — THE WIDENED DRY RUN, WHICH IS THE NUMBER THE AMENDMENT TURNS ON.**
+
+The widened population (markers admitted, `scripts/` in the roots) returns **11
+UNFROZEN: 9 REGISTERED, 1 ARTEFACT, 1 FOREIGN, 0 UNDECIDED.**
+
+**THE WIDENING IMPORTS EXACTLY TWO NEW ROWS, AND ONE OF THE TWO IS THE ARTEFACT:**
+
+- **`mark_done_dts_u.py` / `L_Ts_c` at −623,814 s — ARTEFACT.** **Addendum 8's
+  figure, which Addendum 10 §7 explicitly declined to re-measure, IS RE-MEASURED
+  HERE AND REPRODUCES EXACTLY.**
+- **`mark_done_t9a.py` / `W_c` at −455 s — REGISTERED, i.e. a REAL violation** on
+  a registered case.
+
+> **So the amendment does NOT manufacture a backlog: it adds ONE real violation
+> and ONE false positive. But a 1-in-2 artefact rate on the imported rows is
+> precisely why the classifier must ship WITH it — a bare regex widening would
+> file the artefact as a standing violation against heat-transfer.**
+
+**Five of the eleven margins are `mtime`-based** — filesystem properties, not run
+properties. **Do not quote those seconds as run evidence.**
+
+**§3 — POPULATION COUNTS MEASURED, AND ADDENDUM 8's +29 IS OFF BY ONE.**
+
+| population | instruments | delta |
+| --- | --- | --- |
+| baseline at HEAD | **145** (143 tracked + 2 untracked) | — |
+| `GRADER_RE` widened **alone** | **175** | **+30** |
+| `POPULATION_ROOTS` widened **alone** | **147** | **+2** |
+| **both** | **179** | **+34** |
+
+**Addendum 8 said +29; measured +30. The cause is exact and is this team's own
+recurring defect: Addendum 8 counted TRACKED files, and the checker walks the
+DISK.** The 32nd marker is `T9aR1c_runs/mark_done_t9aR1c.py`, **untracked.**
+**Addendum 10's 142/143 also no longer reproduces — 145 on disk, 143 tracked —
+because the population grew as peers committed. A census is a reading, not a
+constant.**
+
+**§4 — ⚠ ADDENDUM 8's "BOTH LINES MOVE TOGETHER" IS RIGHT AND IS NOT ENOUGH. A
+THIRD LINE IS NEEDED, AND WITHOUT IT THE ROOTS WIDENING DELIVERS NOTHING.**
+
+**Confirmed:** `GRADER_RE` widened alone does **not** reach
+`scripts/mark_done_k0d.py` or `scripts/mark_done_k0f.py`; both appear only when
+`scripts/` joins the roots. **Necessary — and NOT sufficient.**
+
+**All four rows the `scripts/` root adds come back `NO-MARKERS`, including both
+k0d/k0f markers.** `check_tree` pairs a grader only with `DONE.*` files **in its
+own directory**, and `scripts/` holds **zero**; K0f's markers live under
+`verification/runs/F14-cooling-ladder/K0f_runs`. **So widening the roots makes
+those two instruments COUNTABLE and leaves them structurally UNJUDGEABLE.** A
+**third** change — **cross-directory grader-to-marker association** — is required
+for the roots widening to deliver what Addendum 8 wanted from it.
+
+**AND THE ROOTS QUESTION IS WIDER THAN THE MARKER QUESTION:**
+`scripts/analyse_k0d.py` and `scripts/analyse_k0f.py` are **conventional
+`analyse_*` graders the checker has NEVER walked.** They are not markers at all.
+
+**§5 — HALF THE IMPORTED MARKERS GET NO VERDICT, AND THAT IS THE HONEST COST.**
+
+Of the 32 `mark_done_*` rows: **12 FROZEN, 2 AMENDED_AFTER, 2 UNFROZEN — 16
+JUDGED**; **9 AMBIGUOUS-SCOPE, 7 NO-MARKERS — 16 UNJUDGED.**
+**`AMBIGUOUS-SCOPE` nearly triples across the whole population, 5 → 14.** **An
+amendment that doubles a checker's population and leaves half the new rows
+unjudged has widened its reach and not its judgement, and the amendment must say
+so on its face rather than report the coverage gain alone.**
+
+**§6 — THE CLASSIFIER'S OWN WEAK LIMB, DISCLOSED RATHER THAN IMPLIED.**
+
+**Registration is checked BEFORE any refusal signal**, so a name that is both
+registered and planted returns REGISTERED — Addendum 10 §4's condition,
+implemented. Occurrence finding, docstring exclusion (inherited verbatim from the
+checker so scoping matches), enclosing-function attribution, three refusal signals
+and call-graph reachability are **AST-based and sound.**
+
+**The weak limb is textual and is named: selftest roots are identified by function
+NAME.** An instrument whose selftest carries an unconventional name would have its
+planted control read as a live path — **classifying an ARTEFACT as FOREIGN.** Not
+measured. **It degrades to `UNDECIDED`, never to a silent `REGISTERED`.**
+
+**A SELF-CORRECTION THE LANE DISCLOSED AND WHICH VINDICATES ADDENDUM 10:** the
+first version returned **FOREIGN** for `analyse_k0cx.py`/`X_lo_f_LAM`, a false
+positive against Addendum 10 §6. Cause: that case name has **zero literal
+occurrences** in the file and is **composed** at `:827` by `f"X_{rung}_f_LAM"`
+over a module-level `RUNGS`. **The spec already covered it and the implementation
+under-implemented the spec. Addendum 10 was right; the classifier was wrong, and
+it was the classifier that changed.**
+
+**§7 — NOT CLAIMED, AND ONE OF THESE IS THE MOST LIKELY PLACE FOR A WRONG ANSWER.**
+
+**Function-local registration BY LITERAL is a live false-FOREIGN risk** — a
+limitation probe returns FOREIGN for `cases = ("LOC_c", …)` assigned inside
+`main()`. **The template form of that shape is covered; the literal form is not,
+and the widened population was NOT swept for it**, so its frequency is
+`NOT MEASURED`. **The classifier is validated, NOT blind-tested** — the three
+specimens' expected answers were known and the classifier was corrected after it
+disagreed with one. **The `UNDECIDED` rate is 0 of 11**, which on a population
+this small is **not evidence that the UNDECIDED path works on real files**; only
+the controls exercise it. **Whether any of the nine real violations is excusable
+remains `NOT MEASURED` and belongs to each owning team.**
+
+**§8 — FILING: NOTHING IS FILED BY THIS ADDENDUM.** The classifier is scratch-only
+and **rule 13 applies — the scratchpad is not a handoff channel and no repository
+document may cite those paths.** This addendum cites **none**. A permanent path is
+a ruling this team owes before any record leans on the instrument, and it is
+**deferred, not forgotten.**
+
+| Addendum 12 | figure |
+| --- | --- |
+| gate 1 reproduced by a second instrument | **8 REGISTERED / 1 FOREIGN / 0 ARTEFACT — row for row** |
+| classifier vs known specimens | **3 of 3** |
+| widened population `UNFROZEN` rows | **11** — 9 REGISTERED, 1 ARTEFACT, 1 FOREIGN, 0 UNDECIDED |
+| **rows the widening IMPORTS** | **2 — one REAL, one ARTEFACT** |
+| Addendum 8's −623,814 s, previously un-re-measured | **REPRODUCES EXACTLY** |
+| baseline / `GRADER_RE` alone / roots alone / both | **145 / 175 / 147 / 179** |
+| Addendum 8's stated +29 | **+30 measured — it counted TRACKED, the checker walks DISK** |
+| rows the `scripts/` root adds that are JUDGEABLE | **0 of 4 — all `NO-MARKERS`** |
+| changes needed for the roots widening to work | **3, not 2** |
+| imported markers judged / unjudged | **16 / 16** |
+| `AMBIGUOUS-SCOPE` across the population | **5 → 14** |
+| both gates | **CLEAR** |
