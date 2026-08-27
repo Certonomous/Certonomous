@@ -252,15 +252,35 @@ def empty_functions_block(txt):
 
 
 def empty_residual_control(txt):
-    """Empty every residualControl sub-dictionary in the file."""
+    """Empty EVERY residualControl sub-dictionary in the file.
+
+    AMENDMENT 1, 2026-08-27, PRE-COMPUTE.  The original stopped at the FIRST
+    already-empty block and never advanced a cursor: after emptying one block it
+    re-found that same block from position 0 and returned, so it emptied AT MOST
+    ONE and left every later block intact -- while its docstring claimed it
+    emptied every one.  The correct idiom was already in this file, twelve lines
+    below, in `residual_control_bodies`, which walks a cursor.  MEASURED on the
+    registered corpus: 29 of 40 source cases carry ZERO residualControl blocks
+    and 11 carry exactly ONE, none carries two, so the defect was UNREACHABLE
+    here -- no staged case changes, and no gate, threshold, cap or label moves.
+    Repaired rather than merely recorded because the window closes at first
+    compute, and `g_R12_residual_control_empty` (which uses the CORRECT scanner)
+    would have REFUSED rather than produced a wrong number -- that defence in
+    depth is unchanged and is why this was safe to leave until now.
+    """
+    done, rest = "", txt
+    EMPTY = "{\n    }"
     while True:
-        span = _match_block(txt, "residualControl")
+        span = _match_block(rest, "residualControl")
         if span is None:
-            return txt
+            return done + rest
         ob, cb = span
-        if txt[ob:cb + 1].strip() == "{\n    }":
-            return txt
-        txt = txt[:ob] + "{\n    }" + txt[cb + 1:]
+        if rest[ob:cb + 1].strip() == EMPTY:
+            done += rest[:cb + 1]        # already empty: step PAST it, never stop
+            rest = rest[cb + 1:]
+            continue
+        done += rest[:ob] + EMPTY
+        rest = rest[cb + 1:]
 
 
 def residual_control_bodies(txt):

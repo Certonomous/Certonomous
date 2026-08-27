@@ -1249,5 +1249,73 @@ is refusing for a reason that has nothing to do with the mutation.**
 
 ---
 
-**END OF PRE-REGISTRATION. NOT FROZEN. NOT COMMITTED. NOT ENQUEUED. 0.000
-CORE-MINUTES SPENT.**
+~~**END OF PRE-REGISTRATION. NOT FROZEN. NOT COMMITTED. NOT ENQUEUED. 0.000
+CORE-MINUTES SPENT.**~~ **STRUCK by AMENDMENT 1 below — false since `7b00b3ec`.**
+
+---
+
+## AMENDMENT 1 — 2026-08-27, PRE-COMPUTE. One staging defect repaired; one false line struck. NO GATE, THRESHOLD, CAP OR LABEL IS ALTERED.
+
+**lines whose number changed above this section: 0**
+
+**THE CONDITION FOR A PRE-COMPUTE AMENDMENT, STATED AND CHECKED IN THE WRITING
+INVOCATION (standing rule 2).** M1 has **not fired**. The run roots exist as staged
+trees under `/home/ubuntu/closure-data/multimodel_sweep/`, and a recursive search for
+numeric time directories beneath them returns **0**. No solver has run, no field has
+been written, and **no number exists that any gate could have been fitted to**. The 78
+queue entries have never been filed into `verification/queue/closure/`.
+
+### (1) `stage_m1.py` `empty_residual_control` emptied AT MOST ONE block, and said otherwise
+
+**The defect.** The function never advanced a cursor. `_match_block(txt, keyword)`
+always searches from position 0, so after emptying the first block the loop re-found
+**that same, now-empty block** and hit `return txt` on the next iteration. Every later
+`residualControl` block was left intact — while the docstring read *"Empty every
+residualControl sub-dictionary in the file."*
+
+**Proved by execution, not by inspection.** Running the frozen function on a
+two-block fixture returned bodies `['', 'k               5e-6;']` — the second block
+survives. The correct idiom was **already in this same file, twelve lines below**:
+`residual_control_bodies` walks a cursor (`hay = hay[cb + 1:]`). The repair adopts
+that idiom; `_match_block`'s signature is unchanged.
+
+**WHY IT NEVER BIT, MEASURED RATHER THAN ASSUMED.** Across the 40 source cases,
+**29 carry ZERO `residualControl` blocks and 11 carry exactly ONE. None carries two.**
+The defect was therefore **unreachable on the registered corpus**: no staged case
+differs by one byte before or after this repair.
+
+**AND THE SECOND LINE OF DEFENCE WAS THE CORRECT ONE ALL ALONG.**
+`g_R12_residual_control_empty` scans with `residual_control_bodies` — the working
+scanner — and **refuses** if any body is non-empty. So even on a two-block case the
+failure mode was a **refusal**, never a wrong number. That is why this was safe to
+leave until now, and it is unchanged by the repair.
+
+**WHY REPAIRED RATHER THAN MERELY RECORDED.** The window closes at first compute.
+After that, standing rule 2 permits only dated addenda that cannot alter the
+instruments, so a staging script whose docstring is false would be locked into the
+record for the life of the rung. The cost now is one regeneration of the 78 entries,
+which was already in flight for an unrelated field.
+
+**Verification of the repair, run under both interpreters with `__pycache__` cleared
+between runs:** two-block fixture → both bodies empty; one-block → unchanged; zero-block
+→ unchanged; re-running the function on its own output is a **no-op** (idempotent);
+`stage_m1.py --selftest` **rc 0 under `python3` and under `python3 -O`**.
+
+### (2) The document's own closing line said `NOT FROZEN`
+
+The foot read **`END OF PRE-REGISTRATION. NOT FROZEN. NOT COMMITTED. NOT ENQUEUED.`**
+while the opening paragraph of this same document reads **`FROZEN by the closure
+supervisor on 2026-08-27`**. Both cannot be true and the foot has been false since
+`7b00b3ec`. **Struck, not rewritten** (standing rule 6). This is the **fifth** measured
+instance of **L-354** — a freeze changes a sha and never the prose that says "not
+frozen" — and the first one found *inside a frozen pre-registration contradicting its
+own opening paragraph.
+
+### What is NOT changed
+
+No gate, no threshold, no band, no cap, no label, no case list, no arm definition, no
+cost figure. The registered estimate remains **1,298.1 core-min** against a cap of
+**1,900.0**; the null arm remains the planted control; the 29-hill / 10-unmatched
+structural partition and its planted-failure proof are untouched. **This amendment is
+re-frozen in a commit of its own and the 78 queue entries are regenerated to cite that
+commit.**
