@@ -16673,3 +16673,47 @@ the committed blob**, not merely that the right number of lines arrived at the r
 form: after `update-ref`, grep the committed blob for a distinctive phrase you wrote and assert it
 appears exactly once — which this landing did for the title and would have caught had it been
 applied to the body.
+
+## L-392 — A SHA THAT RESOLVES LOCALLY IS NOT A STATEMENT ABOUT THE LOCAL MACHINE: OBJECT EXISTENCE AND REF POSITION ARE DIFFERENT QUESTIONS
+
+A lane reported the box's `main` at `8dfb4598` *"rather than the freeze"*; the
+supervisor verified `main == HEAD == c990bece` with the freeze on it. **`8dfb4598`
+was the GPU INSTANCE's clone HEAD.**
+
+- **And the trap is sharper than "a foreign sha", measured here: `8dfb4598` IS a
+  commit in this repository.** `git cat-file -t` returns `commit`; `git log` shows
+  it. **Every local resolution check PASSES and the conclusion is still wrong**,
+  because the clone was made from this history and the two machines share the object
+  — **they differ only in where a REF points.**
+- So the failing question is never *"does this sha exist?"* — it is *"whose HEAD is
+  it?"*, and **no local command answers that.**
+- **Second occurrence of the same sha causing the same misattribution in one family.**
+  The first cost **46 minutes of GPU idle** through a launcher's REPO fallback; the
+  second stalled a case drop whose **real** cause was a **3.7 GB `.git` defeating a
+  30-second bundle timeout**, fixed by a **55 MB incremental bundle**. **Both times a
+  transfer problem was read as a freeze problem.**
+- **THE RULE: when a transfer or freeze check fails, NAME WHICH MACHINE EACH SHA CAME
+  FROM before naming a cause.** A sha without its machine is like a line number
+  without its content (`L-378`) — **the half that rots is the half nobody records.**
+
+## L-393 — THE OBJECT CLASS OF A CITED SHA IS CHECKABLE IN ONE COMMAND, COSTS NOTHING, AND MUST BE CHECKED RATHER THAN ASSUMED
+
+Five citations named shas as **blobs** that are **commits**. Verified with
+`git cat-file -t`: `6e66de34`, `b219df11`, `357a2648`, `ed9cda90`, `bd7f68d6` all
+return **`commit`**; the entries' actual blobs are `d46b5e89` and `39d2e9b0`.
+
+- **This is not a new rule — `VERIFICATION_CHARTER` v1.15 §2b already requires a
+  citation to name its object class, and records that the classes are THREE, not
+  two.** So the lesson is not *"we need a rule"*; it is that **an existing rule was
+  not applied because the check was assumed rather than run.**
+- **The check is `git cat-file -t <sha>` — one command, no arguments to get wrong,
+  instant.** A citation discipline whose verification costs nothing and is still
+  skipped is a discipline that will be skipped again; **the cure is to run it at
+  WRITE time, not to remember harder.**
+- **Why the class matters and is not pedantry: a commit sha and a blob sha are
+  answers to different questions.** A blob pins **the bytes of an instrument**; a
+  commit pins **a tree at a moment**. **A freeze that cites a commit where it means a
+  blob has not pinned the instrument** — the file can differ at that commit from what
+  ran — and the citation still resolves, so nothing complains.
+- Same family as the bare-hex citation defect: **a citation that resolves is not
+  thereby a citation that says what its writer meant.**
