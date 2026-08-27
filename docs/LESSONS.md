@@ -16285,3 +16285,65 @@ compared spend against the **point estimate** and labelled the result an overrun
   first.** The evidence for a standards question is checked at source **before** the
   question is answered, not after — **especially when the question arrives already
   framed as a conflict between two rules.** A framing is not a finding.
+
+## L-381 — AN APPEND TO A SHARED LEDGER IS A READ-MODIFY-WRITE AGAINST A FILE THAT IS PROBABLY STALE, AND BUILDING FROM THE DISK COPY DELETES PEERS' ROWS IN A DIFF THAT LOOKS LIKE YOUR OWN EDIT
+
+Under the private-index protocol the worktree is behind HEAD **most of the time**, by
+design: `commit-tree` + `update-ref` never touch the working copy. So a lane that
+reads the ledger from disk, appends its row and commits **silently deletes every row a
+peer landed since the worktree last matched HEAD.**
+
+- **The post-commit diff does NOT catch it, because the deletion is inside the region
+  the lane changed and therefore reads as part of its own edit.** This is `L-373`'s
+  blind spot with a peer's data in it.
+- Three same-day instances: a family grid file **two commits behind** on disk;
+  `LAB_STATE.md` **shrank 151 lines between two readings**; `COST_CALIBRATION.md` one
+  row behind — **an append built from the disk copy would have DELETED `C-185`**, caught
+  only by a pre-write guard.
+- **THE PROTOCOL: build the new content from `git show HEAD:<path>`, assert the DISK
+  copy carries nothing HEAD lacks (additions == 0), and commit that.** Applies to
+  `COST_CALIBRATION.md`, `DOCKET.md`, `LESSONS.md`, `NUMERICS_KNOWLEDGE.md`,
+  `LAB_STATE.md` and the capability grids.
+- **It is the FILE-LEVEL twin of `L-223`:** `L-223` is HEAD moving between two calls;
+  this is the **worktree being behind** at the only call — **and no gap is needed, only
+  a peer who committed correctly.**
+
+## L-382 — ⚠⚠ AN EMPTY SHA TURNS RULE 10's CAS INTO A SILENT NO-OP, AND ALL THREE OF THE PROTOCOL'S SUCCESS SIGNALS FIRE ON A COMMIT THAT NEVER HAPPENED
+
+`C=$(git commit-tree $T -p $H -F msg)` returns **empty** whenever `commit-tree` fails —
+a missing message file (the scratchpad can vanish **during** an invocation, not only
+between them), a killed process, a full disk. **Then the protocol's own line
+`git update-ref refs/heads/main $C $H` collapses, unquoted, to the TWO-ARGUMENT form
+`git update-ref refs/heads/main <H>` — which SUCCEEDS as a no-op.**
+
+Measured in a throwaway repository:
+
+- **`CAS OK` PRINTS.**
+- **HEAD is UNCHANGED** (`be81bf6` before and after).
+- **The mandated post-commit verify `git diff HEAD~1 HEAD --stat` prints the PREVIOUS
+  commit's diff** — one file, one insertion — **which reads exactly like a successful
+  landing of a one-file change.**
+
+**All three success signals fire. The agent reports a commit, may cite a sha it never
+created, and the work is silently lost.** This is the same family as the lab's
+backticks-in-`commit -m` note — *the command that reports success is the one that did
+nothing* — but here it defeats a guard **written specifically to prevent it.**
+
+- **TWO FIXES, EITHER SUFFICIENT, BOTH ONE LINE.** (1) **Assert the sha:** require
+  `C` to match `^[0-9a-f]{40}$` before `update-ref`. (2) **QUOTE THE ARGUMENTS** —
+  `git update-ref refs/heads/main "$C" "$H"` fails hard with *"fatal: : not a valid
+  SHA1"* instead of collapsing. **Take both: the quoting is free and the assertion says
+  why.**
+- **And pass commit messages by stdin rather than `-F <path>`**, so a vanished
+  scratchpad cannot be the cause in the first place.
+- **Rule 10's wording is `CLAUDE.md` and therefore Sanaa's** — this is measured and
+  recommended, **not** adopted.
+
+**AND IT FIRED ON ITS OWN COMMIT, TWO MINUTES AFTER BEING WRITTEN.** The first attempt
+to land this lesson **aborted at a content assertion before the heredoc that writes the
+commit message had run.** On the retry, `commit-tree -F` found **no message file**,
+returned **empty**, and **the newly-added sha assertion refused.** **Without it the CAS
+line would have printed `CAS OK`, HEAD would have been unchanged, and this team would
+have reported a lesson commit that never happened** — the lesson lost by the mechanism
+it describes. **The failure cause was not exotic: an earlier guard in the same script
+exiting early. Every long commit script has that shape.**
