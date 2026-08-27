@@ -10769,6 +10769,139 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-27T16:3xZ — **THE "UNCOMMITTED LANE WORK" I WAS TOLD TO LAND IS 19 REVERSIONS ACROSS FOUR TEAMS — 2,050 COMMITTED LINES, INCLUDING 373 OF MY OWN CHARTER. I COMMITTED NONE OF IT.** GPU idle 16 h 40 m measured; VMFLGPU002 completed 6/6 rc 0 and was never graded
+
+**Written by `ansys-verification-supervisor` personally.** Four lanes fired at session start
+(2 opus, 2 haiku). This block is the finding that changed my orders mid-session; the verdicts
+are still with the lanes and are NOT predicted here.
+
+#### THE FINDING — read this before you land anybody's "uncommitted work"
+
+My brief, and the chief's live reading, told me to land the ansys files the killed lanes left
+modified on disk. **I read the diffs personally (check 1) before committing, and every one of
+them is a DELETION of content that is already at `HEAD`.** Not a half-finished edit — a
+reversion.
+
+| my territory | worktree vs HEAD | what the deletion removes |
+|---|---|---|
+| `cases/ansys_verification/VMFL005/RESULTS.md` | **+0 −21** | the 2026-08-25 dated correction redirecting every `D510` citation to `D512` (landed `4bb0f6a1`) |
+| `cases/ansys_verification/VMFL051/RESULTS.md` | **+0 −49** | the TIER `NOT HELD` section and Amendment 1 (landed `63c8d044`) |
+| `cases/ansys_verification/VMFL051/LANE_REPORT_RESULTS.md` | **+0 −82** | PART 2 in full (landed `dc1aa4b1`) |
+| `docs/ansys_verification/CASE_MAP_AUDIT.md` | **+0 −79** | the "95 cases, not 105" dated correction |
+| `docs/ansys_verification/RUN_STATUS_EVIDENCE.md` | **+0 −74** | the "HEAD carries three tracked case dirs" correction |
+| `docs/ansys_verification/RECORDS_DRAFTS.md` | **+0 −22** | the SUPERSEDED discharge note (the anti-stale-draft note, itself gone stale) |
+| `verification/runs/ansys_verification/contention_sampler.sh` | **+12 −54** | an OLDER form of the sampler, its whole rationale header gone |
+| **`docs/charters/ANSYS_VERIFICATION_CHARTER.md`** | **+0 −373** | **v1.4 in full — the two standing setup obligations and the record-update duty** |
+
+**It is not my team's problem. It is lab-wide.** Repo sweep, `git diff --numstat
+--diff-filter=M HEAD`: **19 modified tracked files whose diff is PURE DELETION, 2,050 lines,
+across ansys-verification, dafoam (7 files, 803 lines), closure (1, 164), and shared `docs/`
+(4, 608).** 36 further files are mixed and unswept. (The 18 worktree *deletions* are a
+different and mostly innocent thing: queue JSONs moved into `launched/` by the runners.)
+
+#### THE MECHANISM, measured — and the hypothesis I falsified
+
+My first hypothesis was the 87-file record `rsync` from the GPU instance's own clone
+(board, 22:48Z) clobbering box files with pre-amendment copies. **I falsified it:** no ansys
+rsync can reach `cases/dafoam/`, `cases/RANS_LES_closure_models/` or `docs/FAIL_OPEN_GATE_AUDIT.md`,
+and those are clobbered identically.
+
+What actually holds, on four independent measurements:
+
+1. **Every one of the 19 has an mtime EARLIER than the commit that landed its amendment** —
+   `VMFL005/RESULTS.md` by 5 h 02 m, the charter by 15 h 23 m. A file cannot be written before
+   the commit that contains its content. **Nobody edited these files.**
+2. **Every landing commit is an APPEND-AMENDMENT commit** — "dated addendum", "Addendum 1",
+   "append-only correction", "-> v1.4 ... append-on[ly]" — across all four teams.
+3. **12 of the 19 worktree copies are byte-identical to the blob of the commit BEFORE the
+   amendment**; the other 7 match an older revision still (stacked amendments, all landed the
+   same way). The worktree was simply never written after some earlier commit.
+4. **Every diff is pure deletion, so no worktree copy holds one byte that HEAD lacks.**
+
+**Conclusion `[lab-attributed]`: this is the private-index amendment workflow doing exactly what
+it is written to do.** A lane splices the new section onto the **HEAD blob in scratch**, hashes
+it into a private index and commits it — the dafoam board block at `c9ff33d9` says so in its own
+commit message ("spliced from the HEAD blob"). The commit is correct. **The working tree is
+never touched, so it stays permanently behind `HEAD`, and `git status` then reports the
+lab's own correct amendment workflow as "uncommitted work" needing to be landed.**
+
+#### WHY THIS IS DANGEROUS, in two ways, and my ruling
+
+- **Reading:** an agent that reads any of these 19 from disk reads a **pre-amendment** record.
+  Right now `docs/charters/ANSYS_VERIFICATION_CHARTER.md` **on disk is missing 373 lines**,
+  including v1.4's two standing setup obligations. Every lane brief that says "read the charter"
+  has been pointing at a stale file.
+- **Writing:** the normal protocol step `git update-index --add -- <path>` takes the **worktree**
+  copy. Any agent told to "land the uncommitted work" **reverts the amendment** — silently, with
+  a clean CAS and a passing post-commit stat, because only *its own* paths appear and they do
+  appear. This is L-223's failure class **mechanised into the standard workflow**. 2,050 lines
+  lab-wide are one obedient lane away from being lost, and my brief this session instructed
+  exactly that lane.
+
+**MY RULING `[lab-attributed]`, binding on my lanes:** (1) **`HEAD` is authoritative** for all
+seven ansys paths; (2) **no lane commits any of them**; (3) lanes read records and charters via
+**`git show HEAD:<path>`**, never from disk, until the chief rules; (4) before committing any
+path it did not itself write this session, a lane runs `git diff -- <path>` and states in its
+report that the change is an addition, not a deletion. Lane H's task 3 was **cancelled in
+flight** by this ruling. **Nothing reverted, nothing restored** — rule 10: inspected, never
+reverted, and the worktree/index call is the chief's.
+
+**On the chief's desk, with the evidence that makes it safe:** a worktree refresh of those 19
+paths from `HEAD` is **loss-free**, because every diff is pure deletion — no worktree copy holds
+anything HEAD lacks. That is measured, not assumed. Restoring is still not mine to do.
+**Candidate lesson (number to be derived at commit, max+1 from the tail):** *the private-index
+amendment workflow leaves the working tree permanently behind HEAD; `git status` then advertises
+correct history as unfinished work, and obeying it reverts the amendment.*
+
+#### GPU — the idle Sanaa will ask about first, named and not absorbed
+
+`VMFLGPU002` **COMPLETED** and nobody knew: `STATUS.VMFLGPU002` reads `launcher_rc=0
+end=2026-08-26T23:40:01Z`; **six arms, every `RUN_RC` = 0**; wall 24 / 103 / 174 / 316 / 1636 /
+967 s = **3,220 s = 0.8944 GPU-h against a registered cap of 1.0** — the cap did not fire but
+came within **11 %**. All six logs carry `End`, last `Time =` equals endTime (1200 / 1600 /
+2200), fields present at endTime. Not gated but recorded: **at L3 the GPU arm beat the CPU arm
+(967 s vs 1636 s)** — the opposite of VMFLGPU001 at every level.
+
+**THE CARD HAS BEEN IDLE SINCE 2026-08-26T23:40:01Z — 16 h 40 m at this write, ≈ $13.41 derived**
+at the published-list $0.8048/GPU-h (console figure still owed). Under Sanaa's standing order
+`3c3ef86c` that idle is **this team's reported failure**, and the cause is plainly stated: the
+session died at ~23:00Z with **8 of 10 VMFLGPU cases unfrozen and nothing behind 002 in the
+queue**. Freezing must run ahead of grading, not behind it. GPU queue pending: **0**.
+
+#### LANES (cap 4 — 2 opus + 2 haiku, Sanaa's `2026-08-24` exception)
+
+| lane | task | state |
+|---|---|---|
+| opus G | **bulk freeze VMFLGPU003/004/005/006**, each dropped on the GPU queue the moment it freezes — 003 first and fast | live |
+| opus H (4.8) | grade **VMFLGPU002**; resolve **VMFLGPU001**'s I5 NULL-RANGE refusal (repair under §2d.1 + L-342, or `NOT A RESULT` honestly); task 3 cancelled | live |
+| haiku M | GPU-instance recon | done |
+| haiku N | box recon | done |
+
+#### QUEUE DEPTH (Sanaa `7def3c6b`)
+
+| instance | queued, agent-independent | note |
+|---|---|---|
+| box | **0.0 core-min pending** (5 entries launched = 323.4 core-min already claimed; 1 held: VMFLGPU001, 24.0 core-min) | box at **89.1 % busy**, 1-min load 14.26/16 |
+| GPU | **0.0 GPU-h pending**, card idle | lane G's freezes are the only thing that ends it |
+
+#### VERIFY — things I did NOT verify at this session
+
+- **Register row count is UNRESOLVED and I will not assert one.** My predecessor's own block
+  says **32 rows, 6 PASS**; a haiku recon this session says **36 rows, 6 PASS, highest row id
+  124**. My own two row-id regexes matched **neither** convention, so the register's row
+  syntax is not what either of us assumed. The next lane deriving a row number must derive it
+  from the file's **maximum existing row id**, never a count (rule 11), and state the convention
+  it used.
+- The 36 **mixed** (+ and −) modified files lab-wide are **unswept**; some may hide reversions
+  inside additions. Not mine to sweep — flagged to the chief.
+- Whether the GPU instance's clone is itself behind, and whether any record was rsync'd **from**
+  it onto the box, is **NOT MEASURED** — the haiku that would have measured it was refused by the
+  lab-wide concurrent-subagent limit (20), not by any classifier.
+
+**BLOCKED:** nothing in my territory. **No classifier denial in any lane this session.** One
+infrastructure refusal of record: a fifth subagent spawn was refused by the **lab-wide** cap of
+20 concurrent subagents (my own cap of 4 was not reached).
+
 ### 2026-08-26T22:57:51Z — **CLOSING BLOCK ON SANAA'S ORDER ("EVERYBODY commits everything before we run out of credits") — progress, lessons, next steps; lanes G and H ordered to land in-progress artefacts as they stand**
 
 **Written by `ansys-verification-supervisor` personally.** Sanaa's order relayed by the chief at
