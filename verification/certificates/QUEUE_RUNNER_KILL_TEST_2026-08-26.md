@@ -156,3 +156,106 @@ Pid 419529 (from the first kill) ran 20:54:01Z until a stop between 21:14:41Z an
 no `EXIT` line (pre-EXIT-path code; see above). Pid 459727 ran 21:16:02Z until this kill,
 60 min 39 s, and left the EXIT line. Restart lines so far: 16:41:57Z (189825), 20:48:01Z
 (399517), 20:54:01Z (419529), 21:16:02Z (459727), 22:17:01Z (502797).
+
+---
+
+# THIRD KILL — 2026-08-27T16:25:31Z, on the LAB-WIDE runner at 18 h 08 m uptime
+
+**Written 2026-08-27T16:3xZ by cfd lane R for the cfd supervisor; every stamp from `date -u`.**
+Sanaa's criterion (`3c3ef86c`) unchanged: the queue runner is *"certified to work even when
+fleets die."* Criteria fixed **before** the kill, the same four as the second kill: **(a)** an
+`EXIT reason=SIGTERM pid=<pid>` line reaches `runner.log`; **(b)** cron restarts it **within
+120 s**, PPID 1 and its OWN session id (L-336); **(c)** the new daemon runs the CURRENT code;
+**(d)** launched solvers survive, with their logs still growing.
+
+**Frozen-record assertion (rule 6):** the FIRST and SECOND kill sections above are frozen
+records. **Lines removed: 0. Lines whose number changed above this section: 0.** The file was
+158 lines at HEAD `05241ab2` and this section is appended at its foot only; sha256 of the
+pre-append file `3fe449de…a679`.
+
+## VERDICT: **PASS** (all four clauses)
+
+| clause | measured | artifact |
+|---|---|---|
+| (a) `EXIT` line | `2026-08-27T16:25:31Z EXIT reason=SIGTERM pid=502797` — the file's **second** `EXIT` line ever (count 1 → 2; for THIS pid 0 → 1, so the line is this kill's and not a carried-over match) | `verification/queue/runner.log:3000` |
+| (b) restart ≤ 120 s | kill **16:25:31Z** → cron restart line **16:26:01Z**: **30 s by timestamps** (detected at the 6th 5-s poll, 32 s after the kill; the cron floor is 60 s worst case, and this landed inside one minute boundary). New pid **856460**, **PPID 1**, **SID 856460** — its own session, detached by session id | `verification/queue/runner.restarts.log:6`; `ps -o pid,ppid,sid` |
+| (c) current code | new `START` line `2026-08-27T16:26:02Z START pid=856460 sid=856460 … HEAD=a6df22fa …`; `git merge-base --is-ancestor a6df22fa 05241ab2` → **yes** (ancestor-or-equal of live HEAD) | `verification/queue/runner.log:3001` |
+| (d) solvers survive | three independent launched solves alive before AND after, all three logs grown, all three last `Time =` advanced (table below) | `ps`, the three logs |
+
+## (c), stated honestly: HEAD moved, `queue_runner.py` did NOT
+
+The old daemon started at `HEAD=77096fe8`; the new one at `HEAD=a6df22fa`; live HEAD read
+`dd7c5e98` at the pre-kill stamp and `05241ab2` minutes later (peers commit constantly). But
+**`scripts/queue_runner.py` is byte-identical at `77096fe8`, at `a6df22fa` and in the worktree**
+— sha256 `07b10068c533…` at all three; `git log 77096fe8..a6df22fa -- scripts/queue_runner.py`
+returns **no commits**; file mtime **2026-08-26T22:14:17Z**, i.e. before the *previous* daemon
+started. So clause (c) is satisfied in the sense it states (the restarted daemon is running the
+code at live HEAD), and **this kill did not exercise a code change** — there was none to
+exercise. Recorded so no reader infers from this certificate that a new runner build was proved.
+
+## Old daemon, as found
+
+pid **502797**, PPID **1**, SID **502797**, started **Wed 2026-08-26 22:17:00 UTC** by cron
+(`runner.restarts.log:5`), elapsed **18:08:28** at the kill; its `START` line
+(`runner.log:583`) reads `HEAD=77096fe8 … exit_logging=SIGTERM+SIGINT+SIGHUP+exception+normal`.
+`runner.log` 2,999 lines and `runner.restarts.log` 5 lines pre-kill. Last tick before the kill:
+`2026-08-27T16:25:00Z HELD F25_DUCT3D.json: busy 89.5% >= ceiling 85.0%`.
+
+## The kill
+
+**ONE** `kill 502797` (SIGTERM, no `-9`, no second signal) at **2026-08-27T16:25:31Z**, rc **0**.
+Two seconds later `kill -0` reported the process gone and the `EXIT` line was already on the log.
+**No process other than the runner pid was signalled.** No classifier denial was returned on any
+command in this test — the whole procedure ran, and the supervisor's standing instruction to
+record a denial verbatim therefore has nothing to record.
+
+## Three ticks under the new pid — the runner is working, not merely alive
+
+    2026-08-27T16:26:07Z HELD F25_DUCT3D.json: busy 91.2% >= ceiling 85.0%
+    2026-08-27T16:27:12Z HELD F25_DUCT3D.json: busy 95.5% >= ceiling 85.0%
+    2026-08-27T16:28:17Z HELD F25_DUCT3D.json: busy 91.9% >= ceiling 85.0%
+
+The box was at 91–96 % busy throughout (three solves running), so the correct behaviour is to
+HOLD, and it held. **Honest limit: no LAUNCH occurred during this test** — nothing was
+launchable at the ceiling — so this kill certifies the tick loop, the queue read and the ceiling
+decision, and does **not** re-certify the launch path (the first kill did, with two launches).
+
+## Queue carried across the restart
+
+| team | queued before | queued after | launched records before → after |
+|---|---|---|---|
+| ansys-verification | 0 | 0 | 5 → 5 |
+| cfd | **1** (`F25_DUCT3D.json`) | **1** (same entry, still HELD) | 10 → 10 |
+| closure | 0 | 0 | 0 → 0 |
+| dafoam | 0 | 0 | 23 → 23 |
+| heat-transfer | 0 | **1** | 46 → 46 |
+| verification | 0 | 0 | 0 → 0 |
+
+**1 queued entry carried across intact**, unchanged in name and still HELD. The heat-transfer
+0 → 1 is **not** this test: a peer filed an entry into `verification/queue/heat-transfer/`
+during the 168 s the test ran. Nothing was refused, moved or deleted; no `refused/` directory
+gained a file.
+
+## (d) Solvers before and after — three independent solves, none touched
+
+| solve | pids | before (16:25:30Z) | after (16:28:18Z) |
+|---|---|---|---|
+| **F18b fine**, `icoFoam` serial, `verification/runs/F18b_runs/fine` | **359655**, alive both | elapsed 21:16:36; `log.icoFoam` **1,300,677 B**; last **`Time = 1.94625`** | elapsed 21:19:24; **1,303,782 B** (+3,105); last **`Time = 1.95125`** |
+| **T3 R_ff**, `buoyantBoussinesqSimpleFoam` on **8 ranks**, `verification/runs/T-family/T3_runs/R_ff` | **411907** (timeout wrapper), **411908** (mpirun), **411911–411918** (the 8 ranks) — **10 pids, identical list before and after** | `log.solve` **39,240,751 B**; last **`Time = 40416`** | **39,327,436 B** (+86,685); last **`Time = 40505`** (+89 iterations) |
+| **T15_UP_f**, `buoyantBoussinesqPimpleFoam` serial, `verification/runs/T-family/T15_runs/T15_UP_f` | **709355** (timeout wrapper), **709356**, alive both | `log.solve` **23,068,110 B**; last **`Time = 92.33`** | **23,222,757 B** (+154,647); last **`Time = 92.95`** |
+
+The T-family 8-rank job is the strongest of the three: an `mpirun` tree in its own session
+survived the runner's death with **every one of its eight ranks** and kept advancing at its
+normal rate. Launched solves are `setsid`-detached, so a SIGTERM to the runner cannot reach
+them — measured a third time.
+
+## Full restart history at this certificate's foot
+
+`verification/queue/runner.restarts.log`, six lines: 16:41:57Z (189825), 20:48:01Z (399517),
+20:54:01Z (419529), 21:16:02Z (459727), 22:17:01Z (502797) — all 2026-08-26 — and
+**2026-08-27T16:26:01Z (856460)**, this test. Pid 502797's **18 h 08 m** unattended run is the
+longest the record holds, and it spanned the whole fleet-death-and-reform of the session change.
+
+Nothing in this test was sent, filed or uploaded (rule 7). Cost: **0 core-min of solver
+compute** — the test signalled one daemon and read files; the 168 s of polling is agent time,
+not compute.
