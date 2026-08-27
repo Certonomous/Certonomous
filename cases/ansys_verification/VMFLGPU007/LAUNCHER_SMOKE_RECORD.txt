@@ -1,0 +1,59 @@
+VMFLGPU007 -- LAUNCHER SMOKE (Amendment 2). 2026-08-27, lane R2.
+================================================================
+TWO SMOKES, TWO DIFFERENT OBJECTS, and neither substitutes for the other:
+  * the READER smoke (Amendment 1, SMOKE_READER_PATH_RECORD.txt) proved the COMPARATOR can read
+    what OpenFOAM writes;
+  * THIS smoke proves the LAUNCHER assembles a case OpenFOAM can run.
+It was the gap between them that cost the 20:21:35Z abort: the reader smoke ran in a directory
+staged BY HAND, so it never exercised the launcher's own ordering.
+
+NO SOLVER STEP. blockMesh and checkMesh only. IT PRODUCES NO GRADED QUANTITY AND NOTHING FROM IT
+IS EVER CITED AS A RESULT. Scratch root only -- NEVER verification/runs/. Zero solver artifacts
+were produced in either arm (log.*Foam count = 0 in both).
+
+THE ANTI-TRAP: THE BYTES ARE EXTRACTED, NEVER RETYPED.
+The case-assembly region was taken VERBATIM BY LINE RANGE from each launcher, and both extracted
+ranges are hashed so a reader can confirm they are the shipped bytes:
+
+  REPAIRED  run_vmflgpu007.sh lines 198-236   39 lines  sha256 39a1888ecf407f2b000bf16a7faa4eee...
+  FROZEN    HEAD blob 8747b42c lines 198-219  22 lines  sha256 957bf4221df50641db5a0d471da36f98...
+
+The harness supplies VARIABLES ONLY -- CASE_SRC, D, NAME, arm, the level integers, ETIME,
+EXPECT_CELLS, H1_WALL, the mat/vec types, REPO, MESHGEN_REL and a log() shim. It contains NO
+mkdir, NO cp, NO sed of any template and NO blockMesh call: measured, 0 matches for those tokens.
+EVERY ORDERING DECISION COMES FROM THE EXTRACTED BYTES. If the assembly order had been
+re-implemented here, this check would be testing the test -- which is exactly how the reader
+smoke missed the defect.
+
+RESULTS
+-------
+FROZEN ORDERING (the defect, blob 8747b42c lines 198-219)      rc = 1
+    ABORT (L1/gpu): blockMesh failed; see <SCRATCH>/case_FROZEN/log.blockMesh
+  and log.blockMesh carries, verbatim:
+    --> FOAM FATAL ERROR: (openfoam-2606)
+    cannot find file "<SCRATCH>/case_FROZEN/system/controlDict"
+  system/ afterwards:  blockMeshDict  controlDict.template  fvSchemes  fvSolution.template
+  -- the two templates never materialised, which is the defect in one line.
+  This REPRODUCES ON THE LAB BOX THE EXACT ERROR THE INSTANCE PRODUCED AT 20:21:35Z.
+
+REPAIRED ORDERING (lines 198-236)                              rc = 0
+    LOG: L1/gpu BIRTH CERTIFICATE OK: 3648 cells == registered 3648
+  blockMesh: End
+  checkMesh: Mesh OK.
+  BIRTH-CERTIFICATE COUNT = 3648, EQUAL to the count registered in PREREGISTRATION.md section 6
+  and measured pre-freeze in MESH_PREFREEZE_RECORD.md.
+  system/ afterwards:  blockMeshDict  controlDict  fvSchemes  fvSolution
+  -- the case directory is COMPLETE before the first utility runs.
+
+THE FLIP IS EXACT: same inputs, same OpenFOAM v2606, same scratch harness, only the ordering
+bytes differ. A fix not shown to flip the failure it claims to fix is an assertion, not evidence
+(L-357).
+
+WHAT THIS DRIVE DOES NOT SHOW
+-----------------------------
+  * Nothing about the physics, the gate or any verdict; no solver ran.
+  * Only the L1 level was meshed. L2 and L3 were meshed and checkMesh'd pre-freeze
+    (MESH_PREFREEZE_RECORD.md: 7776 and 16128 cells, Mesh OK) and their assembly path is the
+    same loop body.
+  * It does not exercise STEP 0's GPU preconditions (nvidia-smi, the L4 check, the PETSc/MPI
+    pin). Those cannot pass on the lab box, and DEFEATING THEM TO MAKE A TEST RUN IS NOT DONE.

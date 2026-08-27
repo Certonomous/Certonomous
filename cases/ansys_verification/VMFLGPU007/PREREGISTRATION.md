@@ -451,3 +451,108 @@ arm, `y_nongate_patches_do_not_gate`, asserts that a clean run **still passes** 
   here: adding a new refusal path after the freeze is not a reader repair, and it is not done.
 - It does not re-open any gate, and it does not authorise a launch.
   `SUPERVISION_CHARTER` §3 check 4 remains the supervisor's own.
+
+---
+
+## PRE-COMPUTE AMENDMENT 2 — 2026-08-27 — a LAUNCHER SEQUENCING repair: the case directory is completed before any OpenFOAM utility runs
+
+**Version 1.2.** Appended at the foot, below Amendment 1, which it does not touch. **Nothing
+above this section is rewritten, edited or struck.** **Lines whose number changed above this
+section: 0**, verified by hashing the Amendment-1 blob
+`bfbfd1a070d9c3747d2908734a5827300df2a5eb` as an exact byte prefix of this file, not merely
+asserted. Drafted by `ansys-lane-opus` (lane R2) after the supervisor's personal triage.
+
+**THIS AMENDMENT MOVES NO LIMB, BAND, THRESHOLD, CAP, LABEL, MESH COUNT, ENDTIME OR CONSTANT.**
+Verified by comparing every registered constant on disk against its blob at HEAD, character for
+character: `BAND_B = 1.0e-4`, `BAND_C1 = 0.20`, `BAND_C2 = 1.5`, `REF_PEAK_NU = 64.8530`,
+`REF_PEAK_XH = 5.8209`, `YPLUS_MIN_ATTACHED = 11.0`, `YPLUS_MAX_ATTACHED = 300.0`,
+`GPU_PCTF_MIN = 99.0`, `TIER_CEILING_C = "GATE REACHED"`, `PLANT = 1.234e-3`,
+`LEVELS = (("L1", 3648), ("L2", 7776), ("L3", 16128))`, `H1_WALL = 0.07`, and in the launcher
+`CAP_GPU_H=1.5`, `CAP_CPU_ARM_CORE_MIN=90` and the `LEVELS` line with its endTimes and
+measured cell counts — **all IDENTICAL**.
+
+| file | blob BEFORE | blob AFTER |
+|---|---|---|
+| `run_vmflgpu007.sh` | `8747b42cc882167d56b0f316d583b31841ad7426` | **`9174e648d7c571414cebe3911bb7e411b4646f56`** |
+| `grade_vmflgpu007.py` | `a4632b7ac2ef88fd98d14015b614ab4772ae71df` | **UNCHANGED** |
+| `field_completeness.py` | `195fcc0009e46d092dd836a6cbe189927f3268e7` | **UNCHANGED** |
+| `resolve_blockmesh.py` | `76ee0d3ac1c4c18529492155192f052f045ab7de` | **UNCHANGED** |
+
+### 1. THE CONDITION: still zero compute, and the failure itself is the evidence
+
+The case was dropped at **20:20:34Z** and aborted at **20:21:35Z**. **Not one cell was meshed
+and no solver ran** — `blockMesh` died in its own constructor, before generating any geometry,
+with this in `gpu/L1/log.blockMesh`:
+
+> `--> FOAM FATAL ERROR: (openfoam-2606)`
+> `cannot find file ".../VMFLGPU007/gpu/L1/system/controlDict"`
+
+**A utility that cannot construct its `Time` object has not computed anything**, so gates
+remain open and this amendment is legal under rule 2. The failed attempt is **preserved, not
+deleted**: the supervisor renamed the run root to `VMFLGPU007.attempt1_blockmesh_fail/` on the
+instance and recreated an empty run root, so `log.blockMesh` — the evidence quoted above —
+survives and the operation is reversible. **Nothing was deleted.**
+
+### 2. THE DEFECT
+
+**Every OpenFOAM utility constructs a `Time` object before it does anything else, and `Time`
+reads `system/controlDict`. `blockMesh` is no exception.** The frozen launcher staged the case
+and then, in this order:
+
+```
+199  cp -a "/." "/"            copies controlDict.TEMPLATE, not controlDict
+202  python3 resolve_blockmesh.py ...     blockMeshDict resolved
+205  rm -f .../blockMeshDict.template
+206  ( cd "" && blockMesh ... )          <-- DIES HERE, no controlDict exists yet
+...
+233  sed ... controlDict.template > controlDict    <-- 27 LINES TOO LATE
+```
+
+**The contrast that proves it:** the VMFLGPU001-R2 launcher, which ran to completion, templates
+`blockMeshDict`, `controlDict` **and** `fvSolution` and only then calls `blockMesh`. **This
+launcher inherited that structure and then moved the mesh generation ahead of the templating
+when `resolve_blockmesh.py` was introduced.** That is the whole defect: a reordering, not a
+missing step.
+
+### 3. THE REPAIR
+
+The `fvSolution` and `controlDict` materialisation (and the `rm -f` of their templates) moves
+to **before** the mesh generation, so the case directory is **complete before the first utility
+is invoked**. The new order is: `mkdir` → `cp` → `fvSolution` → `controlDict` →
+`blockMeshDict` → `blockMesh` → `checkMesh` → `Mesh OK` → birth certificate → field
+completeness → `touch 0/T` → solve. **Nothing else changes**; no clause is added, removed or
+re-worded, and the field-completeness call stays where it was.
+
+### 4. THE FIX IS DRIVEN, and the flip is exact (L-357)
+
+The per-arm staging block was **extracted from the launcher's own bytes** — once from the blob at
+HEAD, once from the repaired file on disk — and both were run against the real frozen case inputs
+with OpenFOAM v2606 on the lab box, in scratch.
+
+| arm | rc | `blockMesh` said | `system/` afterwards |
+|---|---|---|---|
+| **HEAD bytes (the defect)** | **1** | `--> FOAM FATAL ERROR: (openfoam-2606)` / `cannot find file ".../system/controlDict"` | `blockMeshDict  controlDict.template  fvSchemes  fvSolution.template` |
+| **repaired bytes** | **0** | `End` | `blockMeshDict  controlDict  fvSchemes  fvSolution` |
+
+The repaired arm continues through `checkMesh` to
+**`BIRTH CERTIFICATE OK: 3648 cells == registered 3648`**, and `field_completeness.py` on the
+resulting directory returns `required={T, U, epsilon, k, p_rgh}`. **The instance's exact error
+message was reproduced on the lab box from the frozen bytes**, which is what makes this a
+demonstrated cause rather than a plausible one.
+
+### 5. Why the smoke did not catch this, stated plainly
+
+Amendment 1's 5-iteration smoke **validated the reader paths, not the launcher's case-assembly
+sequence.** It ran in a scratch directory that had been **staged by hand** — templates
+materialised manually before `blockMesh` was called — so it never exercised the launcher's own
+ordering. **That is the boundary of what a smoke of the READER can prove**, and it is recorded
+here so nobody later reads "the smoke passed" as covering the launcher. The lesson generalises:
+a smoke proves the step it actually performs, and hand-staging a fixture silently replaces the
+step under test.
+
+### 6. What this amendment does NOT do
+
+- **The comparator does not move.** `a4632b7ac2ef88fd98d14015b614ab4772ae71df` before and after.
+- It adds no clause, no guard and no refusal path; it reorders four lines of staging.
+- It does not touch the preserved failed attempt, and it does not authorise a launch.
+  `SUPERVISION_CHARTER` §3 check 4 remains the supervisor's own.
