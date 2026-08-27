@@ -744,3 +744,119 @@ permission (rule 9)."*
 implement such a check **to verification's specification** if verification asks for one. We
 will not write it on our own authority, and no reading of the charter's adoption of our own
 proposal makes it ours to write.
+
+---
+
+## AMENDMENT 7 — 2026-08-27, cfd-supervisor as named Owner. THE OPEN QUESTION OF AMENDMENT 6 §4 IS RULED: A HARNESS-ONLY CHANGE CARRIES THE OBLIGATION. v1.6 → v1.7
+
+**lines whose number changed above this section: 0** (746 lines before this heading: the 74
+original lines byte-identical to HEAD, plus AMENDMENTS 1–6 untouched — verified by comparing
+the md5 of the first 746 lines of the pre-amendment blob against the md5 of the first 746
+lines of this file, and by asserting the new file's bytes begin with the whole old blob. Not
+verified by writing the words.)
+
+**D539 unchanged: the guard is ADVISORY**, and AMENDMENT 6 §6 records why no clause here may
+be made to refuse on anything.
+
+### 1. First, the finding that prompted this, named rather than left as a table row
+
+AMENDMENT 6 added control `S6` and kept `S3`. The reason belongs beside them:
+
+> **`S3` tested a code path `main()` never took.** It called `resolve_window()` **directly,
+> with the expectation argument set**, and passed — for as long as the command line was
+> reaching that function **without** the expectation set, so that `--depth 199` swept a
+> different 199-commit sample and reported a confident 2.5 % at `rc 0`.
+
+**A control that exercises a path the program never executes is not a control. It is a
+decoration that reports PASS forever.** It is the same family as a planted zero read by a
+reader never shown able to see a non-zero (`CLAUDE.md` standing rule 3), and the same family
+as a structural splice check that passes while the wrong text goes in: in every case the
+instrument reports on something adjacent to the thing that matters, and the report is
+indistinguishable from a real one.
+
+**It was found in this team's own instrument, unprompted, and reported rather than quietly
+repaired.** `S3` is retained — with its limitation printed in its own output, so the record of
+the defect travels with the control — and `S6` plants a wrong endpoint into the constant and
+exercises **the function `main()` actually calls.** The general lesson has been carried up.
+
+### 2. THE RULING: a harness-only change carries the AMENDMENT 5 obligation
+
+AMENDMENT 6 §4 left open whether an amendment changing only the **harness** — the instrument —
+must record rows, or only one changing the **guard**. **It must. The rows are mandatory.**
+
+**What varies is not whether the rows are recorded, but what they MEAN — and the inversion is
+the whole reason to require them:**
+
+- For a **guard** change, the rows detect an unintended change in **what the guard does**.
+- For a **harness** change, the guard has not moved at all. The rows can therefore only detect
+  a change in **what the instrument measures** — so **any movement is, by construction, a
+  measurement artefact.** That is precisely the failure most worth catching: a harness that
+  quietly starts measuring something else **keeps producing confident, comparable-looking
+  rates that mean something different from the ones beside them in the same table.**
+
+> **A harness-only change records the before/after rows, and THEY MUST BE IDENTICAL —
+> commit-for-commit, clause-for-clause, over the same frozen sample and the same guard blob.**
+
+AMENDMENT 6 already did this, unprompted: its rows were 194 / 6 / 3.0 % on both sides with all
+200 rows identical in every recorded field. **This ruling makes what was done the rule rather
+than the habit** — the same move AMENDMENT 4 made, and the same one AMENDMENT 5 made in
+refusing the self-classification qualifier.
+
+### 3. THE ONE EXCEPTION, written explicitly so it cannot be abused
+
+Where the harness change **is itself a correction to the measurement** — the window-resolution
+refusal added in AMENDMENT 6 is exactly this class, and a genuine fix to a mis-specified window
+or sample would be another — **the rows may legitimately move.** In that case, and only in that
+case:
+
+1. **Both rows are recorded.**
+2. **The movement is attributed to the specific correction** — which line of the diff caused it,
+   not "the fix".
+3. **The OLD row is marked in the table as having been WRONG**, not merely superseded. **A
+   superseded row invites a reader to average it in with the others; a row marked wrong does
+   not.**
+
+**What is never acceptable is a harness change that moves the rows and explains the movement as
+"expected".** "Expected" is a statement about the amender's intent; "this correction changed
+what was being counted, and here is the line that did it" is a statement about the code.
+
+**The distinction is decidable FROM THE DIFF, not from the amender's intent.** *"Did this change
+what the instrument measures?"* is answerable by looking at the change. *"Did I mean to?"* is
+not, and a rule that turns on the second is the self-classification exemption AMENDMENT 5
+already refused, re-entering through the instrument instead of the guard.
+
+**Applied retrospectively to AMENDMENT 6, honestly:** that harness change **was** of the
+correcting class, and the exception was nonetheless **not needed** — its rows did not move,
+because the defect it fixed affected only **non-default invocations**, and every recorded row in
+this document is taken over the default frozen window. No row in this document is marked wrong.
+The 2.5 % that the broken `--depth 199` path once printed **was never a recorded row here**, and
+is named in AMENDMENT 6 §2 as a defect rather than as a measurement.
+
+### 4. This amendment's own rows, under §2
+
+**AMENDMENT 7 changes neither guard code nor harness code**, so under §2 its rows must be
+identical — and they were **run and recorded, not asserted as exempt.**
+
+| row | sample | commits | accepted | refused | rate | clauses |
+|---|---|---|---|---|---|---|
+| guard blob at `abe1a634` | FROZEN `94ceebe7..db2c7f9a`, 200 | 200 | 194 | 6 | 3.0 % | LOGS 0, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+| guard blob at HEAD | FROZEN `94ceebe7..db2c7f9a`, 200 | 200 | 194 | 6 | 3.0 % | LOGS 0, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+
+**Which outcomes moved: none. Which did not: all of them.**
+
+**Planted control, same invocation, recorded beside the rows** (`VERIFICATION_CHARTER` v1.13
+§3): guard mutated with `disable_count=True` → **4 refused, 2.0 %**, clauses LOGS 0, COUNT 0,
+BYTES 3, EMPTY 1, ATTEMPT 0, on **both** rows. **The rows MOVED (6 → 4), so the identity above
+is a measurement and not a stuck reading.**
+
+Blob identity across the whole amendment chain, so the "no code changed" claim is checkable
+rather than trusted:
+
+- **guard** `7f2abff6d485` at `abe1a634`, `f6bb721d`, `3caa655d`, `959fdb47` **and HEAD** —
+  unchanged since AMENDMENT 3.
+- **harness** `b5fea2b9ded6` at `05f7e726` through `3caa655d`, then `bf5bebf81d9a` at
+  `959fdb47` **and HEAD** — the single change is AMENDMENT 6's hardening, whose identical rows
+  are recorded in AMENDMENT 6 §3.
+
+**§5 disclosure (`VERIFICATION_CHARTER` v1.13):** `scripts/sweep_commit_size_guard.py` carries
+no measured false-positive rate of its own, and none was re-measured.
