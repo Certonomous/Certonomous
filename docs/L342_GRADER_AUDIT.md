@@ -1412,3 +1412,138 @@ unsupported as they were.**
 - **The freeze-population amendment remains GATED** on re-reading the nine baseline `UNFROZEN`
   grader rows for that interaction — **and is now additionally gated on rebuilding the citation
   search per §1**, since the sweep that would justify it has been shown to under-read the corpus.
+
+---
+
+## Addendum 10 (2026-08-27) — GATE 1 CLEARS AND IT CLEARS AGAINST US: the artefact rate in the baseline `UNFROZEN` population is **0 of 9**
+
+**Appended, append-only. Nothing above is rewritten. Zero compute (≈1.5 core-minutes
+of single-rank analysis, 1.39 measured by `/usr/bin/time`, the rest estimated;
+$0.0013 derived at $0.0513/core-h, NOT measured — the box cannot read its own
+billing.)**
+
+**§1 — THE MEASUREMENT, AND IT REFUTES THIS TEAM'S OWN GENERALISATION.**
+
+Addendum 8 wrote: *"the more faithfully an instrument obeys rule 3, the more likely
+it is flagged `UNFROZEN` under rule 2 … some fraction of the lab's standing freeze
+violations may be this artefact"*, and honestly marked the population **NOT
+MEASURED**. **It is measured now.**
+
+Every one of the **9** baseline `UNFROZEN` rows was classified by locating the case
+that DATED the freeze, finding its non-docstring occurrences, and reading the
+**enclosing function**:
+
+| classification | count |
+| --- | --- |
+| **(ii) PLANTED CONTROL — the `L-362` artefact** | **0** |
+| **(i) REAL freeze violation** | **9** |
+| UNDECIDED | **0** |
+
+**ZERO OF NINE.** Not one standing violation is the artefact. **A freeze-population
+amendment justified by *"rule 3 manufactures rule 2 false positives"* would be
+amending a checker to fix 0 of its 9 current violations.**
+
+**§2 — THE FACT THAT DOES THE MOST WORK, AND ADDENDUM 8 DID NOT NOTICE IT.**
+
+**`mark_done_dts_u.py` — the single measured instance of the artefact, the file the
+whole generalisation rests on — IS NOT IN THE BASELINE POPULATION AT ALL.**
+`GRADER_RE` at `scripts/check_comparator_freeze.py:130` is
+`^(analyse_|grade_|score_).*\.py$`; **`mark_done_` matches none of the three
+alternatives.** Verified personally by executing the committed pattern against the
+name rather than by reading it: `mark_done_dts_u.py` and `mark_done_t10a.py` both
+return NO MATCH; `analyse_dts.py`, `grade_g1.py`, `score_x.py` all match.
+
+**So the mechanism and the population never met.** Addendum 8 found the artefact in a
+file class the checker does not walk, and generalised it to a population that does
+not contain it. **The two halves of that argument are about different sets, and the
+seam is exactly where nobody looked.**
+
+**§3 — THE INVERSION, WHICH IS THE REASON THIS GATE EXISTED.**
+
+The proposed amendment widens `GRADER_RE` to admit `mark_done_*`. **Its
+justification and its effect point in OPPOSITE directions:**
+
+- **As justification** — *"the artefact inflates our violation count"* — it is
+  **refuted**: the artefact contributes 0 of 9.
+- **As effect** — it **imports into rule 2's population the one file class where the
+  artefact is known to live.** 31 `mark_done_*.py` are tracked at HEAD; the walk
+  today covers **142** matching graders at HEAD (143 on disk, the extra being one
+  untracked ansys grader) and **not one marker.**
+
+**The amendment is still right and it is right for a DIFFERENT reason: 31
+instruments decide completions under rule 4 and stand entirely outside rule 2's
+checker.** That is a real coverage hole and it should close. **But it must ship WITH
+the artefact classification built in, not as a bare regex widening** — because the
+widening is precisely the act that imports the artefact. **A widened run must be
+classified case by case before any scope rule is relaxed.**
+
+**§4 — `L-362`'s DIAGNOSTIC SHARPENED, because the obvious one produces FALSE
+ARTEFACT CALLS.**
+
+Addendum 8's mechanism implies a test: *look for the driving name in a selftest*.
+**That test is wrong, and one of the nine proves it.**
+
+`verification/runs/T-family/T3_runs/analyse_t3_rff.py` is dated from `R_m`, which
+occurs at `:32` in `LADDER = {"c": "R_m", "m": "R_f", "f": "R_ff"}` **and** at `:193`
+inside the selftest, forging `DONE.` files in a `tempfile.mkdtemp` root to drive a
+refusal. **Read personally at source: `R_m` is the graded COARSE LEVEL of the
+triple** — it has its own solve directory `R_m/`, its own `DONE.R_m`, its own
+`STATUS.R_m`, and `:78` names the marker that decided it. **A selftest occurrence is
+NOT the artefact condition.**
+
+> **THE ARTEFACT CONDITION, corrected: the driving name appears ONLY on a refusal
+> path AND is absent from the instrument's registration table.** A name can be both
+> registered and planted; the registration is what decides.
+
+**§5 — THE CONTROL, AND IT WAS BUILT TO BE SYNTACTICALLY INDISTINGUISHABLE.**
+
+`L-363`, and Addendum 9's sharpening of it, say do not take the plant from the
+search. So the positive and negative controls were given the **identical** call
+shape `run(<root>, ["<CASE>"])` — the exact form the scope rule admits — differing
+only in whether the name is registered. **The checker CANNOT separate them:** both
+return `UNFROZEN`, the negative at −345,600 s from a forged `DONE.BAR_c`, the
+positive at −86,400 s. **The classification rule of §4 does separate them.**
+
+**AND THE VERDICT WAS SHOWN TO MOVE.** The negative control re-committed at the
+**same date** with only the selftest block excised (`grep -c BAR_c` → 0) goes
+**`UNFROZEN` −345,600 s → `FROZEN` +432,000 s.** The plant, and nothing else,
+produced the flag. **So the `L-362` mechanism is real, the reader can see it, and it
+is simply not present in any of the nine.** `L-362` is **NOT** withdrawn; its
+**scope** is.
+
+**§6 — WHAT THE NINE ACTUALLY ARE, since they are now the lab's real exposure.**
+
+**8** are dated from a case in the grader's **own** registration table.
+**1** — `analyse_t9aD.py`, dated from `W_c` — reads T9a's frozen baseline from
+`gate_t9a.json` for context; `W_c` is **not** in its `ALL_CASES`. **That foreign read
+inflates the magnitude ~78×, from −1,124 s to −88,185 s; it does NOT create the
+flag.** The row is `UNFROZEN` on its own registered cases alone. **A third class —
+neither registered case nor planted control, but a foreign campaign's case read for
+context — and neither Addendum 8 nor the checker has a name for it.**
+
+**4 of the 9 are dated from an `mtime`, not a `finished_utc`.** Those margins are
+**filesystem properties, not run properties**; the checker prints that on each row
+and this addendum repeats it so no one quotes those four seconds-figures as run
+evidence.
+
+**§7 — NOT CLAIMED.**
+
+`mark_done_dts_u.py`'s **−623,814 s was NOT re-measured** this session and stays
+Addendum 8's figure, not this one's. **Whether each of the nine real violations is
+EXCUSABLE — a purely additive post-marker edit, a disclosure already on record — is
+`NOT MEASURED`**; this addendum establishes that they are real, not that they are
+culpable, and each belongs to its owning team to answer. **Both controls were
+authored knowing the answer**, so they establish that the checker cannot separate the
+two shapes and that the verdict moves when the plant is removed — **they are not a
+blind trial.** No commit, no re-grade and no verdict moved by this addendum.
+
+| gate 1 | figure |
+| --- | --- |
+| baseline `UNFROZEN` rows, count VERIFIED not assumed | **9** |
+| of those, the `L-362` artefact | **0** |
+| of those, REAL freeze violations | **9** |
+| graders the checker walks at HEAD | **142** (143 on disk) |
+| `mark_done_*.py` tracked at HEAD, ALL outside rule 2's checker | **31** |
+| the artefact's single known instance, inside the walked population? | **NO** |
+| `L-362` withdrawn? | **NO — its SCOPE is narrowed, its mechanism stands** |
+| gate 1 status | **CLEARS**, and against this team |
