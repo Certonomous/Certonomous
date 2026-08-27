@@ -1,0 +1,27 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+// F26 -- rhoSimpleFoam (pressure-based steady SIMPLE).  Registered by
+// F26_RINGLEB_PREREGISTRATION.md section 2 after the rhoCentralFoam finding.
+// Convection is SECOND ORDER (`bounded Gauss linearUpwind grad(.)`) on every
+// transported quantity: the ladder's observed order is the object of the
+// L-345 model check and a first-order upwind form would make the two gates
+// order-1 and the fine band uselessly wide.  `bounded` subtracts the
+// div(phi)*psi term, which is exactly zero for a converged steady state and
+// stabilises the approach to it.  The mesh is a flow net: max non-orthogonality
+// 0.017 deg at 48x8, so `corrected` snGrad is effectively `orthogonal` and
+// nNonOrthogonalCorrectors 0 is enough (asserted by checkMesh in build_f26.py).
+ddtSchemes      { default steadyState; }
+gradSchemes     { default Gauss linear; }
+divSchemes
+{
+    default                       none;
+    div(phi,U)                    bounded Gauss linearUpwind grad(U);
+    div(phi,e)                    bounded Gauss linearUpwind grad(e);
+    div(phi,Ekp)                  bounded Gauss linearUpwind grad(e);
+    div(phid,p)                   Gauss upwind;
+    div((phi|interpolate(rho)),p) Gauss upwind;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes{ default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }

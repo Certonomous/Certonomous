@@ -1,0 +1,19 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+// F26 -- rhoSimpleFoam.  The "time" axis is the SIMPLE ITERATION INDEX:
+// deltaT 1 and endTime = the registered iteration count for this level, so
+// `last time == endTime` (rule 4) is `the registered iterations all ran`.
+application     rhoSimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __END_TIME__;      // = the level's registered SIMPLE iteration count
+deltaT          1;                 // one SIMPLE iteration
+writeControl    timeStep;
+writeInterval   __WRITE_EVERY__;   // N_CHECKPOINTS checkpoints -> the Class C plateau on the GRADED quantity
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;

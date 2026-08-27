@@ -1,0 +1,29 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F26 -- Ringleb channel.  blockMesh builds the TOPOLOGY of a single structured
+  block on the unit square (__N_ALONG__ cells along the flow = the potential
+  phi, __N_ACROSS__ cells across = the stream function psi, one cell deep, empty
+  front/back).  build_f26.py then REMAPS constant/polyMesh/points through the
+  exact flow-net map (phi, psi) -> (x, y) of exact_f26.py (round-tripped to
+  1e-12 at selftest), so every wall node lies on the exact streamline and every
+  end node on the exact equipotential; checkMesh gates the remapped geometry.
+  Local x: inflow (phi = -PHI_END) -> outflow (+PHI_END); local y: INNER wall
+  (psi = 1/K_MAX) -> OUTER wall (psi = 1/K_MIN); (phi, psi, z) is right-handed.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+scale   1;
+vertices
+(
+    (0 0 0)  (1 0 0)  (1 1 0)  (0 1 0)
+    (0 0 1)  (1 0 1)  (1 1 1)  (0 1 1)
+);
+blocks ( hex (0 1 2 3 4 5 6 7) (__N_ALONG__ __N_ACROSS__ 1) simpleGrading (1 1 1) );
+edges ();
+boundary
+(
+    inflow       { type patch; faces ((0 4 7 3)); }
+    outflow      { type patch; faces ((1 2 6 5)); }
+    wallInner    { type wall;  faces ((0 1 5 4)); }
+    wallOuter    { type wall;  faces ((3 7 6 2)); }
+    frontAndBack { type empty; faces ((0 3 2 1) (4 5 6 7)); }
+);
+mergePatchPairs ();

@@ -1,0 +1,15 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+// F26 Ringleb / rhoSimpleFoam.  internalField = exact T = c^2/gamma at the built
+// mesh's own cell centres; inflow fixedValue = exact T at the patch face centres
+// (the inflow's third characteristic condition); outflow zeroGradient; walls
+// zeroGradient (adiabatic slip walls, mu = 0 and Pr = 1 make the wall flux zero).
+dimensions      [0 0 0 1 0 0 0];
+internalField   nonuniform List<scalar> __INTERNALFIELD__;
+boundaryField
+{
+    inflow       { type fixedValue; value nonuniform List<scalar> __INFLOW__; }
+    outflow      { type zeroGradient; }
+    wallOuter    { type zeroGradient; }
+    wallInner    { type zeroGradient; }
+    frontAndBack { type empty; }
+}

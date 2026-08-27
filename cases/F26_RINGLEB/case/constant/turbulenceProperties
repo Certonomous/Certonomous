@@ -1,0 +1,5 @@
+FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+// F26 Ringleb -- the exact hodograph solution is an INVISCID (mu = 0) homentropic
+// steady Euler flow, so the case is laminar by construction and carries no turbulence
+// fields; asserted by build_f26.py against exact_f26's constants.
+simulationType  laminar;

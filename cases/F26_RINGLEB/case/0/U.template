@@ -1,0 +1,18 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F26 Ringleb / rhoSimpleFoam.  internalField = exact V (cos theta, sin theta, 0)
+// at the built mesh's own cell centres.  CHARACTERISTIC COUNT (2-D subsonic Euler):
+// the subsonic INFLOW takes three conditions -- here U (two) and T (one), exact at
+// the patch FACE centres -- and the subsonic OUTFLOW takes exactly one, which is p;
+// U and T are therefore zeroGradient at the outflow.  The two streamline walls are
+// `slip`.  Written LAST OF ALL by build_f26.py: the age guard dates every
+// checkpoint field against this file's mtime.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    inflow       { type fixedValue; value nonuniform List<vector> __INFLOW__; }
+    outflow      { type zeroGradient; }
+    wallOuter    { type slip; }
+    wallInner    { type slip; }
+    frontAndBack { type empty; }
+}

@@ -1,0 +1,42 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+// F26 -- rhoSimpleFoam.  NOTE (L-346, and the reason there is NO residualControl
+// block): the run is a FIXED iteration count to endTime, so CLAUDE.md rule 4's
+// `last time == endTime` clause holds unconditionally and no run can stop early
+// and be mistaken for a completed one.  The ITERATIVE FLOOR IS NOT DELEGATED TO
+// THE SOLVER: it is REGISTERED in the pre-registration (section 6) from THIS
+// ladder's own predicted FINE-level discretisation error and is gated by
+// grade_f26.py, which reads the final initial-residual of every equation out of
+// the solver log and returns NOT A RESULT if a level did not reach it.  The
+// iteration count per level is sized from the MEASURED convergence rate of this
+// ladder (pre-registration section 5), never inherited from a coarser ladder.
+solvers
+{
+    p
+    {
+        solver           GAMG;
+        tolerance        1e-12;
+        relTol           0.01;
+        smoother         GaussSeidel;
+        nCellsInCoarsestLevel 20;
+    }
+    "(U|e)"
+    {
+        solver           PBiCGStab;
+        preconditioner   DILU;
+        tolerance        1e-12;
+        relTol           0.01;
+    }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    pMinFactor      0.1;
+    pMaxFactor      2;
+    transonic       yes;      // max exact Mach in the domain is 0.857
+    consistent      yes;      // SIMPLEC; the relaxation set below is the SIMPLEC one
+}
+relaxationFactors
+{
+    fields    { p 1; }
+    equations { p 1; U 0.9; e 0.8; }
+}
