@@ -447,3 +447,108 @@ clause is built (R-CAP.7 §7.4), compliance is evidenced by hand — **and a by-
 comparison counts ONLY WITH THE LINE NAMED.** *"I checked and it matches"* **is not
 evidence**; it is the human form of a validator `rc 0` from a reader shown unable to
 see a non-zero. **cfd's five-entry comparison named its lines and therefore counts.**
+
+---
+
+## R-QCOMMIT — 2026-08-27, verification-supervisor, writing the chief's ruling. `[lab-attributed, Sanaa may overrule]`
+
+**The chief's ruling, adopted lab-wide, with the census method corrected and the
+controls specified. Zero compute. No entry edited, no run stopped.**
+
+### R-QCOMMIT.1 THE THREE CLAUSES
+
+- **(a) A QUEUE ENTRY IS COMMITTED BEFORE IT IS DROPPED.** The entry is the **third
+  leg of the freeze**, beside the pre-registration and the grading path. **An
+  uncommitted entry lets the runner spend from a file whose `cap_core_min_registered`,
+  `ranks` and `prereg_commit` are still MUTABLE** — which is rule 2's defect with the
+  gate moved into a different file.
+- **(b) THE LAUNCHED RECORD IS COMMITTED BY THE OWNING TEAM AT ITS NEXT BOARD WRITE,
+  AS IT STOOD AT LAUNCH.** The runner's later `status_seen_utc` stamps are
+  **infrastructure, re-committed without ceremony** (`QUEUE_RUNNER.md:109`), and are
+  **NEVER read as a records failure.** A record of what ran is a record of what ran
+  (`R-CAP.7` §7.3).
+- **(c) UNTIL (a) IS MET THE CENSUS FRAME IS DISK.** A HEAD-scoped census of a queue
+  that is not yet committed-before-drop measures compliance with (a), not the queue.
+
+### R-QCOMMIT.2 THE CENSUS IS A SET DIFFERENCE, NEVER A SUBTRACTION OF COUNTS
+
+**The runner MOVES an entry from `<team>/<name>.json` to
+`<team>/launched/<name>.json` at launch.** A move is a **delete plus an add**, so
+**subtracting counts nets it to zero and can go NEGATIVE.**
+
+> **A census names its ENUMERATOR, its PATH SET, and its CLOCK — and compares SETS
+> with `comm`, never totals with arithmetic.**
+
+**The proof the subtraction method was broken is that it returned NEGATIVE counts.**
+Measured here at **2026-08-27T22:25:34Z**, enumerators named:
+
+| quantity | figure |
+| --- | --- |
+| `find verification/queue -type f -name '*.json'` | **121** |
+| `git ls-tree -r HEAD -- verification/queue` | **138** |
+| **on disk, NOT at HEAD (untracked)** — set difference | **0** |
+| **at HEAD, NOT on disk (move fossils)** — set difference | **17** (heat-transfer 10, dafoam 4, ansys 2, closure 1) |
+| **naive subtraction** | **−17** — a negative count, which is the method refuting itself |
+
+### R-QCOMMIT.3 ⚠ AND A CENSUS WITHOUT ITS CLOCK IS NOT A MEASUREMENT — DEMONSTRATED, NOT ARGUED
+
+The chief's reading at **22:21:53Z** returned **69 untracked lab-wide** (heat-transfer
+48, dafoam 21). **Mine at 22:25:34Z returns 0.** **Neither is wrong.** In those
+**three minutes and forty-one seconds** the teams committed their queue files under
+clause (a).
+
+> **Two honest readings of the same quantity, taken four minutes apart, differ by
+> 69. A queue census without its clock is not a measurement of anything.**
+
+This is `REPORTING_CHARTER` v2.3's stamp clause reaching a quantity rather than a
+report, and it is why **frame-stating is a requirement of the census and not a
+courtesy.** **Clause (a) is already substantially complied with** — that is the
+finding those two readings jointly support, and neither supports it alone.
+
+### R-QCOMMIT.4 ⚠⚠ TRACKED-AND-STALE IS THE INVISIBLE FAILURE AND THE WORSE ONE
+
+**The compliance census compares each queue file's CONTENT against the HEAD blob —
+`git cat-file -e HEAD:<path>` plus a sha256 — NEVER a tracked/untracked flag.**
+
+Closure found `launched/G1_grid_triple.json` **TRACKED at HEAD but DIVERGENT on
+disk**: HEAD carried the **pre-amendment** entry while the **amended** one is what
+launched (`prereg_commit` re-filed `03be2015` → `a90077df`, **legal, because the
+first launch produced zero physics**).
+
+> **An untracked-only census scores that file COMPLIANT. A tracked-but-stale entry
+> is worse than an untracked one, because it carries a HEAD blob that a reader will
+> trust and that is not what ran.** Untracked is a gap a reader can see;
+> tracked-and-stale is a gap that looks like evidence.
+
+### R-QCOMMIT.5 THE FOSSILS ARE NOT DIRT AND CLEANING THEM IS A DELETION
+
+The 17 "tracked-but-absent" paths are **runner-move fossils still at HEAD**.
+**Cleaning them is an explicit `git mv` commit NAMING THE OLD PATHS — a deletion,
+and therefore a supervisor's call in the owning team, NEVER a tidy-up** and never a
+lane's initiative. `CLAUDE.md` rule 10: an unexpected change is inspected, never
+reverted.
+
+### R-QCOMMIT.6 CONTROLS — every limb driven both ways
+
+| control | required |
+| --- | --- |
+| **entry dropped with NO commit containing its blob** | **WARN** (D539 — never REFUSE; a queue clause does not acquire a refusal power a cap clause was denied) |
+| **MOVED entry** | counts as **tracked ONCE and untracked ZERO times** — the limb that catches the subtraction method |
+| **tracked entry whose disk copy differs in ANY NON-RUNNER-STAMP key** | **FLAGGED** |
+| **tracked entry differing ONLY in runner stamps** (`status_seen_utc`) | **PASSES** — or clause (b) is contradicted by the census that enforces it |
+| **census re-run with no change** | identical output — a census that drifts against a static tree is measuring itself |
+
+**The fourth row is the discriminating limb.** Without it the content check flags
+every launched record the runner has touched, **which is every launched record**, and
+the clause becomes noise that teams learn to ignore — `R-CAP.8` §8.4's route-around
+hazard in a second place.
+
+### R-QCOMMIT.7 ON SANAA'S DESK, NOT DECIDED HERE
+
+**`verification/queue/LAUNCH_LOG.tsv` is UNTRACKED**, excluded as a *log* under
+Sanaa's §1 — **yet it is the register of what compute was launched.** **A file
+excluded as a log cannot also be the register of last resort.** **Recommended
+wording, hers because it touches §1:** *LAUNCH_LOG.tsv, and the GPU instance's
+equivalent, is a **REGISTER**, tracked and committed by the runner owner at each
+board write — or replaced by a tracked per-launch record.* **Recommended, NOT
+adopted.**
