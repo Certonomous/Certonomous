@@ -598,3 +598,149 @@ AMENDMENT 5 likewise changes no guard code. Its rows are the two above, produced
 committed blobs over the frozen window, identical commit-for-commit. The obligation clause 2
 imposes is discharged here in the same breath as it is written, which is the least this
 document can do having just recorded an amendment that did not.
+
+---
+
+## AMENDMENT 6 — 2026-08-27, cfd-supervisor as named Owner. RECONCILED TO `VERIFICATION_CHARTER` v1.13, WHICH ADOPTED THIS CLAUSE LAB-WIDE AND STRENGTHENED IT. v1.5 → v1.6
+
+**lines whose number changed above this section: 0** (600 lines before this heading: the 74
+original lines byte-identical to HEAD, plus AMENDMENTS 1–5 untouched — verified by comparing
+the md5 of the first 600 lines of the pre-amendment blob against the md5 of the first 600
+lines of this file, and by asserting the new file's bytes begin with the whole old blob. Not
+verified by writing the words.)
+
+**D539 unchanged: the guard is ADVISORY**, and §6 below records why nothing here may change
+that, on the charter's own authority as well as ours.
+
+### What happened
+
+`docs/standards/SWEEP_PRECONDITION_PROPOSAL.md` was relayed by the chief to verification as
+standards owner. **Verification ADOPTED it lab-wide** — `VERIFICATION_CHARTER` v1.13,
+`17a58c1e` — with one narrowing and two additions, and it now binds every team including this
+one. **The charter is the floor and says so; where it is stronger, it governs.** This amendment
+reconciles our text to it clause by clause, adopting what is stronger and keeping what is more
+specific to this guard, rather than paraphrasing the charter into slightly different words —
+**a standard that restates a charter loosely is how two rules drift apart.**
+
+### 1. Clause-by-clause reconciliation
+
+| charter (v1.13) | our text (v1.4/v1.5) | disposition |
+|---|---|---|
+| §1 core clause: re-measure before shipping; before/after rows; per-clause split; explicit moved/not-moved; committed blobs; same frozen sample; one process; instrument filed, never scratch | AMENDMENT 4, same requirements | **Identical in substance. Ours KEPT** — it additionally names `--guard-blob`, names the instrument by path, and rules that a refusal on window drift forbids claiming a delta. More specific to this guard, not weaker. |
+| §2 no "no behaviour change" exemption; the sweep runs anyway; **the identical row IS the compliance** | AMENDMENT 5's two limbs | **Identical in substance, arrived at independently.** Charter's phrasing **ADOPTED** for the case where the sweep genuinely cannot apply — a typo, a citation, a strike-in-place: the amendment records the rows it did produce and their identity, **which is a measurement, not an assertion.** |
+| §3 **the harness ships a planted control, EXECUTED IN THE SAME INVOCATION as the sweep and RECORDED BESIDE ITS ROWS**; a deliberate mutation of the instrument under test must MOVE the rows | **ABSENT.** Our harness had controls, but only under `--selftest` — a *different* invocation, never printed beside a row | **ADOPTED, and implemented.** See §2 below. This is the charter's load-bearing addition and it is right: under §2 identical rows are the *expected* outcome of most amendments, which is exactly when a broken harness is least likely to be noticed. |
+| §4 **every recorded rate carries its sample's DEFINITION — the commit range and the count — beside the number** | Partial: the window was named in prose, and an ad-hoc run printed the requested depth but not the resolved range | **ADOPTED, and implemented.** See §2 below. |
+| §5 an instrument carrying **no** measured rate incurs one sentence saying so | Absent (not previously needed) | **ADOPTED.** Discharged for the harness in §3 below. |
+| §1 **BOUNDARY: no executable check may be made to refuse on the precondition, by any agent at any level** | Absent | **ADOPTED and recorded on our face.** See §6. |
+
+**One correction to the record, because a mischaracterisation of a charter is how drift
+starts:** §2 of the charter is sometimes read as a *carve-out* exempting typos and citations
+from the sweep. **It is not an exemption.** It says such an amendment records **the rows it
+did produce and their identity**. The sweep still runs. Nothing in the charter lets an
+amendment ship with no rows.
+
+### 2. The harness is hardened to §3 and §4 — and a REAL DEFECT was found doing it
+
+`scripts/sweep_commit_size_guard.py` now, **on every run**:
+
+- **Applies the charter's planted control in the same invocation**, mutating the guard under
+  test with its own `Mutations` machinery and **REFUSING (rc 2) if the mutation does not move
+  the rows.** The control's row is **printed beside** the measured row so an amender pastes
+  both. `disable_count` is the mutation, chosen over the more topical
+  `disable_logs_runs_exemption` because it exists in **every** version of the guard's tuple
+  including blobs predating AMENDMENT 3 — a control that breaks on half the inputs it must run
+  against is not a control. The mutation is taken **from the guard**, never copied: *a control
+  that carries its own copy of the thing it is testing tests the copy.*
+- **Prints the sample's resolved definition** — `FROZEN 94ceebe7..db2c7f9a (newest..oldest),
+  200 commits` — built from the **resolved** endpoints rather than from what was requested.
+- **Emits the "matches the recorded row" line ONLY for the frozen window.** Previously a
+  *different* sample that happened to produce the same numbers could claim that match.
+- **Validates the frozen anchor on EVERY run, ad-hoc included**, refusing if `94ceebe7` is
+  unreachable or `db2c7f9a` is no longer at depth 200.
+
+**THE DEFECT, MEASURED AND DISCLOSED RATHER THAN QUIETLY FIXED.** Before this amendment,
+`--depth 199` **swept a different 199-commit sample and printed a confident 2.5 % at rc 0.**
+The endpoint check existed but was reachable only when the caller asked for the default window
+*and* depth.
+
+**And the worse half:** the harness's own `S3` control passed throughout, because it called
+`resolve_window()` **directly with the expectation set** — proving a refusal **on a code path
+the command line never took.** *A control that exercises a path the entry point does not use
+tests the control, not the instrument.* `S3` is retained with that limitation stated in its own
+output, and a new **`S6`** plants a wrong endpoint into the constant and shows **the function
+`main()` actually calls** refusing. Controls: **7 → 10**, rc 0; rc 2 under `python3 -O`.
+
+**What is a refusal and what is a disclosure, stated so it is not over-read:** the harness
+**refuses** when the frozen anchor is *broken* — that is drift, and the charter's §4 adopts
+refusal as sufficient for it. An **explicitly requested** ad-hoc window is not drift; it runs,
+carries its resolved range and count, and is stamped *not comparable*. Refusing a window the
+caller deliberately asked for would be a different rule from the one adopted.
+
+### 3. This amendment's own rows, under §2 — and the §5 disclosure
+
+**The guard's rate is unchanged, by construction: this amendment changes no guard code.**
+
+| row | sample | commits | accepted | refused | rate | clauses |
+|---|---|---|---|---|---|---|
+| guard blob at `abe1a634` | FROZEN `94ceebe7..db2c7f9a`, 200 | 200 | 194 | 6 | 3.0 % | LOGS 0, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+| guard blob at HEAD | FROZEN `94ceebe7..db2c7f9a`, 200 | 200 | 194 | 6 | 3.0 % | LOGS 0, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+
+**Which outcomes moved: none. Which did not: all of them.** The guard blob is
+`7f2abff6d48506f202557281d1dbe9bcd18a9eae` at `abe1a634`, at `f6bb721d`, at `3caa655d` and at
+this amendment — identical throughout.
+
+**Planted control, same invocation, recorded beside the rows as §3 requires:** guard mutated
+with `disable_count=True` → **4 refused, 2.0 %**, clauses LOGS 0, COUNT 0, BYTES 3, EMPTY 1,
+ATTEMPT 0. **The rows MOVED (6 → 4), so the identity above is a measurement and not a stuck
+reading.**
+
+**Because this amendment changes the HARNESS, the same measurement was taken across the
+harness change**, over the same frozen sample and the same guard blob: **all 200 rows identical
+in every recorded field, and the summaries identical.** The hardening changed what the harness
+*reports about itself*, not what it measures.
+
+**§5 disclosure, discharged:** `scripts/sweep_commit_size_guard.py` **carries no measured
+false-positive rate of its own, and none was re-measured.**
+
+### 4. AN AMBIGUITY IN AMENDMENT 5, NAMED AND LEFT OPEN
+
+AMENDMENT 5 binds "every amendment to this guard". **It does not say whether an amendment that
+changes only the HARNESS — the instrument — carries the obligation, or only one that changes
+the guard.** A harness change cannot move the guard's rate by construction, yet the harness is
+what *produces* the rate, so a defect in it is at least as dangerous as one in the guard.
+
+**This is OPEN and UNRULED. The implementer did not resolve it**, because resolving it is a
+change to a clause in a rule-6 file and that is the Owner's call. **It was complied with in the
+stricter direction** — the harness before/after rows are recorded in §3 — so no reading of the
+clause is unsatisfied while it stands open.
+
+### 5. THE RESIDUAL, BOARDED AS **OPEN AND UNENFORCED**, IN THOSE WORDS
+
+**The precondition is honoured by a person reading it. Nothing mechanically prevents a future
+amendment landing with no rows in its section.** That is stated plainly rather than papered
+over.
+
+### 6. WHAT WE DELIBERATELY DID NOT BUILD, AND WHY IT WAS NEVER OURS TO BUILD
+
+A bespoke checker over this file, asserting that every `## AMENDMENT` section carries a
+recorded row pair, was proposed as the way to close §5. **It is not built.** The Owner's three
+grounds: verification has already chosen the enforcement mechanism — the same-invocation
+planted control recorded beside the rows, which makes a missing row pair visible in the
+document itself — and a second, differently-shaped local mechanism would drift from the
+charter; an enforcement instrument for a lab-wide charter clause belongs to the team that owns
+the clause, and building one unilaterally would be this team legislating for the lab; and it is
+turtles — an unenforced checker enforcing an unenforced clause, which only *appears* to close
+the gap.
+
+**And the charter forecloses it outright, which settles it above the Owner's level.**
+`VERIFICATION_CHARTER` v1.13 §1: *"This is a documentation obligation on amenders. **No
+executable check may be made to refuse on it, by any agent, at any level.**"* Verification's
+D539 reasoning is that a checker which refuses is a gate on lab process, and **adding** a gate
+is reserved to Sanaa exactly as retiring one is. The charter goes further and names the failure
+mode by name: *"Anyone who reads this adoption as authority to write that check has laundered a
+permission (rule 9)."*
+
+**So the residual stays open by ruling, not by neglect**, and this team's offer stands: we will
+implement such a check **to verification's specification** if verification asks for one. We
+will not write it on our own authority, and no reading of the charter's adoption of our own
+proposal makes it ours to write.

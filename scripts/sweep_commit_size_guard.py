@@ -37,9 +37,39 @@ The LOGS split is counted from raw fnmatch on basenames, deliberately NOT
 through the guard's is_log_path(), so that "0 LOGS firings" can be read against
 "how many log paths were actually there" instead of being a tautology.
 
+VERIFICATION_CHARTER v1.13 (17a58c1e) ADOPTED THE SWEEP PRECONDITION LAB-WIDE
+and added two requirements this file implements, 2026-08-27:
+
+  SS3 THE PLANTED CONTROL, and the charter calls it the load-bearing one. A
+  harness that returns identical before/after rows because it is BROKEN is
+  indistinguishable from one that returns them because nothing moved -- and
+  under the charter's SS2 identical rows are now the EXPECTED outcome of most
+  amendments, which is exactly when a broken harness is least likely to be
+  noticed. So every sweep run mutates the guard under test IN THE SAME
+  INVOCATION and REFUSES unless the mutation MOVES the rows. The control is
+  printed beside the rows so an amender pastes both and a reader can see the
+  instrument was live. This is CLAUDE.md standing rule 3 -- a zero from a reader
+  not shown able to see a non-zero is not evidence -- applied to a rate delta.
+
+  SS4 THE SAMPLE IS PART OF THE ROW. Every rate is printed with its sample's
+  DEFINITION: the resolved commit range AND the count. Two rates over different
+  samples are not a before and an after, and a reader who cannot tell them apart
+  will subtract them. The "matches the recorded row" line is therefore emitted
+  ONLY for the frozen window -- a different sample that happens to produce the
+  same numbers must never be able to claim that match.
+
+THE CHARTER'S BOUNDARY, WHICH THIS FILE STAYS THE RIGHT SIDE OF (SS1): the
+precondition is a DOCUMENTATION obligation and NO EXECUTABLE CHECK MAY BE MADE
+TO REFUSE ON IT. This harness refuses only ever to produce a NUMBER IT CANNOT
+STAND BEHIND -- an unresolvable window, or an instrument not shown live. It
+never refuses an amendment, never inspects an amendment's text, and never gates
+a commit. Refusing to answer is not gating the lab.
+
 EXIT CODES
     0   the sweep ran (or the selftest passed)
-    2   the selftest failed, or the frozen window no longer resolves
+    2   the selftest failed; the frozen window no longer resolves; or the
+        planted control did not move the rows, so the instrument is not shown
+        live and no row it produced may be believed
     1   usage error
 
 USAGE
@@ -107,6 +137,14 @@ PLANT_EXPECT = {"BYTES", "COUNT"}
 
 CLAUSES = ("LOGS", "COUNT", "BYTES", "EMPTY", "ATTEMPT")
 
+# The mutation the same-invocation planted control applies to the GUARD (charter
+# SS3). `disable_count` is chosen deliberately over the more topical
+# `disable_logs_runs_exemption`: it exists in EVERY version of the guard's
+# Mutations tuple, including blobs predating AMENDMENT 3, so the control keeps
+# working when an amender sweeps an old blob as their "before" row. A control
+# that breaks on half the inputs it must run against is not a control.
+CONTROL_MUTATION = "disable_count"
+
 
 class SweepRefusal(Exception):
     """A condition that must stop the instrument under ANY interpreter flag."""
@@ -151,6 +189,37 @@ def load_guard(root, rev):
     return mod, "%s (blob %s, %d bytes)" % (rev, blob[:12], len(src.stdout))
 
 
+def assert_frozen_window(root):
+    """The frozen anchor is validated on EVERY run, including ad-hoc ones.
+
+    MEASURED DEFECT, 2026-08-27, and the reason this function exists separately
+    from resolve_window(): the endpoint check used to be reachable only when the
+    caller asked for the DEFAULT window and depth. `--depth 199` therefore swept
+    199 commits and printed a confident 2.5 % with rc 0 -- a different sample,
+    reported in the same shape as the recorded rows. Worse, the harness's own
+    S3 control passed throughout, because it called resolve_window() DIRECTLY
+    with expect_oldest set: it proved a refusal on a code path the command line
+    never took. A control that exercises a path the entry point does not use
+    tests the control, not the instrument."""
+    out = _git(["log", "--format=%H", "-n", str(WINDOW_DEPTH), WINDOW_NEWEST], root)
+    if out.returncode != 0:
+        raise SweepRefusal(
+            "FROZEN-ANCHOR: %s is unreachable -- %s. Every recorded row in "
+            "COMMIT_SIZE_GUARD.md is defined against this window, so with the "
+            "anchor gone no row this harness produces can be compared to one."
+            % (WINDOW_NEWEST, out.stderr.strip()))
+    shas = [l.strip() for l in out.stdout.splitlines() if l.strip()]
+    if len(shas) != WINDOW_DEPTH or not shas[-1].startswith(WINDOW_OLDEST):
+        raise SweepRefusal(
+            "FROZEN-ANCHOR: depth %d from %s yielded %d commits ending at %s, not "
+            "the recorded %s. History has moved under the frozen window. REFUSING "
+            "to report ANY row -- including an ad-hoc one -- because the anchor "
+            "every recorded rate is defined against is broken."
+            % (WINDOW_DEPTH, WINDOW_NEWEST, len(shas),
+               shas[-1][:8] if shas else "nothing", WINDOW_OLDEST))
+    return shas
+
+
 def resolve_window(root, newest, depth, expect_oldest):
     out = _git(["log", "--format=%H", "-n", str(depth), newest], root)
     if out.returncode != 0:
@@ -179,13 +248,28 @@ def raw_log_paths(guard, live):
                    for pat in guard.LOG_BASENAME_PATTERNS)]
 
 
-def sweep(guard, root, shas):
+def mutated(guard, field):
+    """Build the guard's own Mutations tuple with one defect reintroduced. Uses
+    the guard's machinery rather than a copy of it: a control that carries its
+    own copy of the thing it is testing tests the copy (cfd precedent, cited by
+    VERIFICATION_CHARTER v1.13 SS3)."""
+    if field not in guard.Mutations._fields:
+        raise SweepRefusal(
+            "CONTROL-MUTATION: the guard under test has no %r field in its "
+            "Mutations tuple (%s), so the same-invocation planted control the "
+            "charter requires cannot be applied and no row may be reported."
+            % (field, list(guard.Mutations._fields)))
+    return guard.Mutations(**{field: True})
+
+
+def sweep(guard, root, shas, mut=None):
     rows = []
     for sha in shas:
         meta = guard.commit_meta_from_sha(sha, root)
         changes = guard.changes_from_trees(sha + "^", sha, root)
         texts = guard.manifest_texts_from_tree(changes, sha, root)
-        findings, _ = guard.evaluate(changes, texts, guard.CLEAN, meta)
+        findings, _ = guard.evaluate(changes, texts,
+                                     guard.CLEAN if mut is None else mut, meta)
         live = [c for c in changes if c.status in ("A", "M")]
         logs = raw_log_paths(guard, live)
         rows.append({
@@ -224,9 +308,10 @@ def clause_mismatch(expected, got):
     return None
 
 
-def print_summary(s, what, label):
+def print_summary(s, what, label, frozen, control=None):
     print("guard under test: %s" % what)
-    print("window: %s" % label)
+    # Charter SS4: the sample's DEFINITION travels with the number, always.
+    print("sample: %s" % label)
     print("commits %d  accepted %d  refused %d  rate %.1f %%"
           % (s["commits"], s["accepted"], s["refused"], s["rate_pct"]))
     print("clauses: " + "  ".join("%s %d" % (c, s["clauses"][c]) for c in CLAUSES))
@@ -234,6 +319,23 @@ def print_summary(s, what, label):
           "%s and %d outside"
           % (s["log_paths_total"], s["log_paths_in_runtree"], "verification/runs/",
              s["log_paths_total"] - s["log_paths_in_runtree"]))
+    if control:
+        # Charter SS3: printed BESIDE the rows, in the same invocation, so an
+        # amender pastes both and a reader can see the instrument was live.
+        print("PLANTED CONTROL (same invocation, guard mutated with %s=True): "
+              "%d refused / %.1f %%, clauses %s"
+              % (CONTROL_MUTATION, control["refused"], control["rate_pct"],
+                 " ".join("%s %d" % (c, control["clauses"][c]) for c in CLAUSES)))
+        print("CONTROL FIRED: the mutation MOVED the rows (%d -> %d refused), so this "
+              "harness is shown able to report a change and the row above is a "
+              "measurement, not a stuck reading."
+              % (s["refused"], control["refused"]))
+    # Charter SS4: a DIFFERENT sample that happens to produce the same numbers must
+    # never be able to claim this match, so it is emitted only for the frozen window.
+    if not frozen:
+        print("AD HOC SAMPLE -- no recorded-row comparison is offered, and this rate "
+              "must not be subtracted from one taken over the frozen window.")
+        return
     for name, (n, acc, ref, split) in RECORDED.items():
         if (s["commits"], s["accepted"], s["refused"]) == (n, acc, ref) and s["clauses"] == split:
             print("MATCHES THE RECORDED ROW FOR %s (COMMIT_SIZE_GUARD.md)" % name)
@@ -278,8 +380,13 @@ def selftest():
         problems.append("S3 FAILED: a window ending one commit short was ACCEPTED. "
                         "Drift must refuse, or a boarded rate is unreproducible.")
     except SweepRefusal:
-        lines.append("S3 CONTROL FIRED: a window whose endpoint is not the recorded one "
-                     "REFUSES, so this harness cannot silently sweep a different 200.")
+        lines.append("S3 CONTROL FIRED: resolve_window() refuses a window whose endpoint "
+                     "is not the recorded one. DISCLOSED LIMITATION: this control calls "
+                     "resolve_window DIRECTLY with expect_oldest set, which is NOT the "
+                     "path the command line took before 2026-08-27 -- it passed while "
+                     "`--depth 199` swept a different sample at rc 0. S6 covers the "
+                     "entry point's actual path; S3 alone was a control over a road "
+                     "nobody drove.")
 
     # S4 -- PLANTED CONTROL on a commit whose answer is measured, driven from a
     # COMMITTED blob so what is checked is what shipped.
@@ -311,6 +418,58 @@ def selftest():
         lines.append("S5 CONTROL FIRED: fed the WRONG expectation {'EMPTY'} for %s, the "
                      "same comparison S4 uses reported a mismatch -- so S4 is a check "
                      "and not a rubber stamp." % PLANT_SHA)
+
+    # S6 -- the check main() ACTUALLY calls, planted in-process so the exact
+    # function on the entry point's path is the one shown able to refuse.
+    import builtins as _b
+    g = globals()
+    saved = g["WINDOW_OLDEST"]
+    try:
+        g["WINDOW_OLDEST"] = "0000000"
+        try:
+            assert_frozen_window(root)
+            problems.append("S6 FAILED: assert_frozen_window() ACCEPTED a frozen anchor "
+                            "whose recorded oldest endpoint does not match. This is the "
+                            "function main() calls on every run, ad-hoc included.")
+        except SweepRefusal:
+            lines.append("S6 CONTROL FIRED: with the recorded oldest endpoint planted "
+                         "wrong, assert_frozen_window() -- the function main() calls on "
+                         "EVERY run including ad-hoc ones -- REFUSES. The entry point's "
+                         "own path is shown able to refuse, which S3 did not show.")
+    finally:
+        g["WINDOW_OLDEST"] = saved
+    if g["WINDOW_OLDEST"] != saved:
+        problems.append("S6 FAILED: the planted constant was not restored.")
+
+    # S7 -- the same-invocation planted control machinery is LIVE: the guard
+    # mutation must move the summary. Run on a small subset so --selftest stays
+    # quick; the full-sweep control runs on every real invocation anyway.
+    subset = [_git(["rev-parse", x], root).stdout.strip()
+              for x in ("994daa49", "ae20d137", PLANT_SHA)]
+    base = summarise(sweep(guard, root, subset))
+    ctl = summarise(sweep(guard, root, subset, mutated(guard, CONTROL_MUTATION)))
+    if ctl == base:
+        problems.append("S7 FAILED: mutating the guard with %s=True did not move the "
+                        "summary. The same-invocation control the charter requires "
+                        "cannot distinguish a working harness from a stuck one."
+                        % CONTROL_MUTATION)
+    else:
+        lines.append("S7 CONTROL FIRED: on a 3-commit subset the %s=True mutation moved "
+                     "the summary (%d refused -> %d refused), so the same-invocation "
+                     "planted control is live and a real run's identical rows mean "
+                     "something (VERIFICATION_CHARTER v1.13 SS3)."
+                     % (CONTROL_MUTATION, base["refused"], ctl["refused"]))
+
+    # S8 -- mutated() refuses a field the guard does not carry, which is how the
+    # control degrades safely when an amender sweeps an older guard blob.
+    try:
+        mutated(guard, "no_such_mutation_field")
+        problems.append("S8 FAILED: mutated() accepted a field the guard has no idea "
+                        "about; the control would silently become a no-op.")
+    except SweepRefusal:
+        lines.append("S8 CONTROL FIRED: mutated() REFUSES a mutation field absent from "
+                     "the guard's Mutations tuple, so a control that could not actually "
+                     "mutate anything reports as a refusal instead of a clean pass.")
 
     lines.append("guard loaded for the planted control: %s" % what)
     for l in lines:
@@ -346,20 +505,39 @@ def main(argv):
         return selftest()
 
     root = repo_root()
+    # The frozen anchor is checked on EVERY run, ad-hoc included: if the window
+    # every recorded rate is defined against is broken, no row is reportable.
+    assert_frozen_window(root)
     frozen = (a.window == WINDOW_NEWEST and a.depth == WINDOW_DEPTH)
     shas = resolve_window(root, a.window, a.depth, WINDOW_OLDEST if frozen else None)
     guard, what = load_guard(root, a.guard_blob)
     rows = sweep(guard, root, shas)
     s = summarise(rows)
-    label = ("FROZEN %s -> %s, depth %d" % (WINDOW_NEWEST, WINDOW_OLDEST, WINDOW_DEPTH)
-             if frozen else
-             "AD HOC %s, depth %d -- NOT the frozen window, not comparable to the "
-             "recorded rows" % (a.window[:8], a.depth))
+    # Charter SS3: the planted control runs in THIS invocation, and a failure to
+    # move the rows REFUSES rather than being printed and passed over.
+    crows = sweep(guard, root, shas, mutated(guard, CONTROL_MUTATION))
+    cs = summarise(crows)
+    if cs == s:
+        raise SweepRefusal(
+            "PLANTED CONTROL DID NOT MOVE THE ROWS. The guard was mutated with "
+            "%s=True and this harness reported the SAME summary: %s. A harness "
+            "that answers the same thing whether or not the instrument changed "
+            "cannot be used to show that nothing changed -- that is the false "
+            "zero at rate scale (CLAUDE.md rule 3, VERIFICATION_CHARTER v1.13 "
+            "SS3). REFUSING to report the row above."
+            % (CONTROL_MUTATION, json.dumps(cs)))
+    # Charter SS4: the sample definition is built from the RESOLVED endpoints, not
+    # from what was asked for.
+    label = "%s %s..%s (newest..oldest), %d commits" % (
+        "FROZEN" if frozen else "AD HOC", shas[0][:8], shas[-1][:8], len(shas))
     if a.json:
-        print(json.dumps({"guard": what, "window": label,
-                          "summary": s, "rows": rows}, indent=1))
+        print(json.dumps({"guard": what, "sample": label, "frozen": frozen,
+                          "summary": s, "planted_control": {
+                              "mutation": CONTROL_MUTATION, "summary": cs,
+                              "moved": True},
+                          "rows": rows}, indent=1))
         return 0
-    print_summary(s, what, label)
+    print_summary(s, what, label, frozen, cs)
     return 0
 
 
