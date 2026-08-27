@@ -425,3 +425,7 @@ on Sanaa's desk**.
 
 `--selftest` now reports **35 controls** (was 30), rc 0; rc 2 under `python3 -O`, refused
 at module entry before any work.
+
+**The sweep harness is filed at `scripts/sweep_commit_size_guard.py`** — the rows above are
+re-derivable with `--guard-blob abe1a634^` and `--guard-blob abe1a634`, and it refuses if
+the frozen window stops resolving to `94ceebe7` → `db2c7f9a`.
