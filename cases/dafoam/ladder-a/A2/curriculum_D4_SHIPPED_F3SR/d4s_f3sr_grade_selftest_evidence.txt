@@ -1,0 +1,124 @@
+D4S-F3SR GRADER SELFTEST EVIDENCE -- 54/54 under python3 AND python3 -O, __pycache__ cleared before each run
+utc=2026-08-27T21:53:26Z  grader=d4s_f3sr_grade.py md5=9596c7bf711a934313a9b4d5801481c6
+accept rule=d4s_f3s_accept.py md5=7377fd5e1eb0a558c2d38fc8da125fc2 (BYTE-IDENTICAL to D4S-F3S's, 8dfb4598)
+ast.Assert: grader 0, accept rule 0, fd instrument 0; the counter is shown counting a PLANTED assert (case 0).
+
+THE FIXTURE STAGES WITH A REAL `cp -a` SUBPROCESS.  The predecessor's fixture CREATED
+OptView.hst fresh (d4s_f3s_grade.py:599-601) against a datum pinned at epoch 1000000000,
+so real staging semantics were never exercised and 26/26 passed over an unsatisfiable clause.
+
+===== python3 =====
+D4S_F3SR_GRADE SELFTEST mode=python3 grader_md5=9596c7bf711a934313a9b4d5801481c6 accept_md5=7377fd5e1eb0a558c2d38fc8da125fc2
+  [OK ] 0_ast_counter_sees_planted_assert 
+  [OK ] 0_ast_Assert_zero_in_grader_and_accept 
+  [OK ] 1_clean_fixture_ITEM_PASS {'G_ACC_stationarity_F-S': 'PASS', 'G5_endpoint_fd_F-S': 'PASS', 'G_ACC_stationarity_F-P': 'PASS', 'G5_endpoint_fd_F-P': 'PASS', 'G9_two_rows_distinct': 'PASS', 'ITEM_two_row_endpoint_fd': 'PASS'}
+  [OK ] 1_G_ACC_n_primals_22_all_accepted 
+  [OK ] 1_G5_both_rows_PASS_aggregate_0.1634 0.1634451673004621
+  [OK ] 1_NOT_MEASURED_empty_on_full_rows 
+  [OK ] 1_P3_HIT_on_the_reference_itself 
+  [OK ] 1_P2_MISS_on_a_passing_fixture 
+  [OK ] 1_P4_HIT_at_ratio_1.0 
+  [OK ] 1_P5_HIT_on_the_repaired_two_term_anchor {'F-S': 1.0000527273206612, 'F-P': 1.0000527273206612}
+  [OK ] 1_P7_HIT_age_clause_satisfiable_on_both_arms {'F-S': {'n_stale': 0, 'n_staged_inputs_excluded': 2, 'age_clause_pass': True, 'inverse_clause_pass': True}, 'F-P': {'n_stale': 0, 'n_staged_inputs_excluded': 2, 'age_clause_pass': True, 'inverse_clau
+  [OK ] 1b_fixture_staged_by_real_cp_a_mtime_PRESERVED 4
+  [OK ] 1b_staged_OptView_hst_PREDATES_the_datum_by_construction {'OptView.hst': 1787767512, 'datum': 1787867512, 'delta_s': 100000}
+  [OK ] 1c_PREDECESSOR_DEFECT_REPLAYED_now_PASSES {'F-S': 0, 'F-P': 0}
+  [OK ] 1c_exclusions_REGISTERED_and_CHECKED_not_silent 
+  [OK ] 1d_G10_frame_limbs_BINDING_not_diagnostic [{'arm': 'F-S', 'container_wall_s': 560.0, 'host_wall_s': 569, 'frame_gap_s': 9.0}, {'arm': 'F-P', 'container_wall_s': 560.0, 'host_wall_s': 569, 'frame_gap_s': 9.0}]
+  [OK ] 2_rc1_G1_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 2b_harness_vs_kernel_rc_disagree_REFUSES G1: {"arm": "F-P", "harness_rc_vs_kernel_rc_disagree": [0, "1"]}
+  [OK ] 3_terminal_not_last_G1_NOT_A_RESULT None
+  [OK ] 4_STALE_PRODUCT_age_clause_REFUSES_the_arm None
+  [OK ] 4_the_stale_file_is_NAMED_and_it_is_the_planted_one ['d4s_f3s_fd_endpoint.json']
+  [OK ] 4_the_STAGED_INPUTS_are_NOT_counted_stale 2
+  [OK ] 4b_absent_graded_artefact_REFUSES G1-age: {"arm": "F-S", "graded_artifact_absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819
+  [OK ] 4c_staged_input_NEWER_than_datum_EXCLUSION_REFUSED G1-age: {"EXCLUSION_REFUSED": "OptView.hst", "arm": "F-S", "datum": 1787867512, "mtime": 1787867519, "note": "a file excluded from the age clause as a STAGED IN
+  [OK ] 4d_absent_staged_input_manifest_REFUSES G1-age: {"arm": "F-S", "note": "the age exclusions were never registered by the run that claims them", "staged_input_man
+  [OK ] 4e_tampered_staged_input_bytes_REFUSE G1-age: {"EXCLUSION_REFUSED": "OptView.hst", "arm": "F-S", "dst_md5_recorded": "3695ae8aee0ae7c0b97003f993ff6927", "md5_on_disk": "eff5c59dd98c4a263772c13ea9508
+  [OK ] 4f_absent_age_reference_sentinel_REFUSES G1-age: {"age_reference_sentinel_absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab1908
+  [OK ] 4g_absent_registered_staged_input_REFUSES G1-age: {"arm": "F-S", "reason_registered": "staged input: the optimiser log beside OptView.hst, carried by the same `cp
+  [OK ] 4h_i_PREDECESSOR_LIST_REPRODUCES_THE_DEFECT_n_stale_1_on_OptView_hst {'predecessor_n_stale': 1, 'named': ['OptView.hst'], 'datum': 1787867512, 'OptView.hst': 1787767512}
+  [OK ] 4h_i_REPAIRED_LIST_ON_THE_SAME_DISK_STATE_n_stale_0 []
+  [OK ] 4h_ii_MUTATION_CONTROL_FIRES_predecessor_classification_REFUSED_by_name G1-age: {"PRODUCT_AND_STAGED_INPUT_OVERLAP": ["OptView.hst"], "arm": "F-S", "note": "a file cannot be both produced by this item and carried
+  [OK ] 4h_ii_control_restored_the_SAME_fixture_PASSES_with_the_repaired_list None
+  [OK ] 4i_products_and_staged_inputs_are_DISJOINT_and_OptView_is_not_a_product 
+  [OK ] 5_planted_5pct_drift_G_ACC_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 5b_capture_count_mismatch_REFUSES G-ACC: {"COUNT_REFUSAL": "capture / record / log counts disagree", "arm": "F-S", "counts": {"accept_
+  [OK ] 5c_disarm_readback_1e3_G_ACC_NOT_A_RESULT None
+  [OK ] 6_shipped_arm_with_patched_so_G9_GATE_FAIL_and_rows_not_distinct None
+  [OK ] 7_shape18_sign_flip_G5_GATE_FAIL_item_GATE_FAIL_P2_HIT None
+  [OK ] 8_infra_absent_NOT_MEASURED_disclosed_grade_proceeds {'F-S': ['memavail_post_GiB', 'delivered']}
+  [OK ] 8b_infra_garbage_REFUSES ledger: {"present_but_unparseable_infrastructure_field": "memavail_post_GiB", "value": "abc"}
+  [OK ] 9_physics_field_absent_REFUSES ledger: {"line": "ARM=F-P ROW=PATCHED IMG=x DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf
+  [OK ] 10_oom_row_G11_NOT_A_RESULT None
+  [OK ] 11_cap_crossing_G10_GATE_FAIL_P4_MISS_P5_MISS None
+  [OK ] 12_two_ranks_on_one_core_G12_GATE_FAIL None
+  [OK ] 12b_container_clock_absent_NOT_MEASURED_and_G10_still_PASS None
+  [OK ] 12c_container_wall_over_deadline_plus_grace_G10_GATE_FAIL None
+  [OK ] 12d_frame_gap_over_registered_allowance_G10_GATE_FAIL None
+  [OK ] 12e_at_the_REPAIRED_deadline_host_bracket_is_WITHIN_the_cap {'host_wall_s': 1735, 'core_min': 115.667, 'cap': 120.0}
+  [OK ] 12e_under_the_PREDECESSOR_deadline_the_SAME_arm_would_have_TRIPPED_within_cap {'predecessor_core_min': 121.667, 'repaired_core_min': 115.667, 'cap': 120.0, 'note': 'the cap did not move; the enforced deadline did'}
+  [OK ] 12e_the_cap_did_NOT_move 
+  [OK ] 12e_deadline_plus_allowance_INVERTS_to_the_registered_cap 120.0
+  [OK ] 12f_FD_bands_inherited_UNCHANGED 
+  [OK ] 12g_P4_band_inherited_UNCHANGED_and_P5_is_STRICTLY_TIGHTER 
+  [OK ] 13_every_verdict_in_the_fixed_vocabulary 
+D4S_F3SR_GRADE SELFTEST pass=54 fail=0
+
+===== python3 -O =====
+D4S_F3SR_GRADE SELFTEST mode=python3 -O grader_md5=9596c7bf711a934313a9b4d5801481c6 accept_md5=7377fd5e1eb0a558c2d38fc8da125fc2
+  [OK ] 0_ast_counter_sees_planted_assert 
+  [OK ] 0_ast_Assert_zero_in_grader_and_accept 
+  [OK ] 1_clean_fixture_ITEM_PASS {'G_ACC_stationarity_F-S': 'PASS', 'G5_endpoint_fd_F-S': 'PASS', 'G_ACC_stationarity_F-P': 'PASS', 'G5_endpoint_fd_F-P': 'PASS', 'G9_two_rows_distinct': 'PASS', 'ITEM_two_row_endpoint_fd': 'PASS'}
+  [OK ] 1_G_ACC_n_primals_22_all_accepted 
+  [OK ] 1_G5_both_rows_PASS_aggregate_0.1634 0.1634451673004621
+  [OK ] 1_NOT_MEASURED_empty_on_full_rows 
+  [OK ] 1_P3_HIT_on_the_reference_itself 
+  [OK ] 1_P2_MISS_on_a_passing_fixture 
+  [OK ] 1_P4_HIT_at_ratio_1.0 
+  [OK ] 1_P5_HIT_on_the_repaired_two_term_anchor {'F-S': 1.0000527273206612, 'F-P': 1.0000527273206612}
+  [OK ] 1_P7_HIT_age_clause_satisfiable_on_both_arms {'F-S': {'n_stale': 0, 'n_staged_inputs_excluded': 2, 'age_clause_pass': True, 'inverse_clause_pass': True}, 'F-P': {'n_stale': 0, 'n_staged_inputs_excluded': 2, 'age_clause_pass': True, 'inverse_clau
+  [OK ] 1b_fixture_staged_by_real_cp_a_mtime_PRESERVED 4
+  [OK ] 1b_staged_OptView_hst_PREDATES_the_datum_by_construction {'OptView.hst': 1787767513, 'datum': 1787867513, 'delta_s': 100000}
+  [OK ] 1c_PREDECESSOR_DEFECT_REPLAYED_now_PASSES {'F-S': 0, 'F-P': 0}
+  [OK ] 1c_exclusions_REGISTERED_and_CHECKED_not_silent 
+  [OK ] 1d_G10_frame_limbs_BINDING_not_diagnostic [{'arm': 'F-S', 'container_wall_s': 560.0, 'host_wall_s': 569, 'frame_gap_s': 9.0}, {'arm': 'F-P', 'container_wall_s': 560.0, 'host_wall_s': 569, 'frame_gap_s': 9.0}]
+  [OK ] 2_rc1_G1_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 2b_harness_vs_kernel_rc_disagree_REFUSES G1: {"arm": "F-P", "harness_rc_vs_kernel_rc_disagree": [0, "1"]}
+  [OK ] 3_terminal_not_last_G1_NOT_A_RESULT None
+  [OK ] 4_STALE_PRODUCT_age_clause_REFUSES_the_arm None
+  [OK ] 4_the_stale_file_is_NAMED_and_it_is_the_planted_one ['d4s_f3s_fd_endpoint.json']
+  [OK ] 4_the_STAGED_INPUTS_are_NOT_counted_stale 2
+  [OK ] 4b_absent_graded_artefact_REFUSES G1-age: {"arm": "F-S", "graded_artifact_absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819
+  [OK ] 4c_staged_input_NEWER_than_datum_EXCLUSION_REFUSED G1-age: {"EXCLUSION_REFUSED": "OptView.hst", "arm": "F-S", "datum": 1787867513, "mtime": 1787867520, "note": "a file excluded from the age clause as a STAGED IN
+  [OK ] 4d_absent_staged_input_manifest_REFUSES G1-age: {"arm": "F-S", "note": "the age exclusions were never registered by the run that claims them", "staged_input_man
+  [OK ] 4e_tampered_staged_input_bytes_REFUSE G1-age: {"EXCLUSION_REFUSED": "OptView.hst", "arm": "F-S", "dst_md5_recorded": "3695ae8aee0ae7c0b97003f993ff6927", "md5_on_disk": "eff5c59dd98c4a263772c13ea9508
+  [OK ] 4f_absent_age_reference_sentinel_REFUSES G1-age: {"age_reference_sentinel_absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab1908
+  [OK ] 4g_absent_registered_staged_input_REFUSES G1-age: {"arm": "F-S", "reason_registered": "staged input: the optimiser log beside OptView.hst, carried by the same `cp
+  [OK ] 4h_i_PREDECESSOR_LIST_REPRODUCES_THE_DEFECT_n_stale_1_on_OptView_hst {'predecessor_n_stale': 1, 'named': ['OptView.hst'], 'datum': 1787867513, 'OptView.hst': 1787767513}
+  [OK ] 4h_i_REPAIRED_LIST_ON_THE_SAME_DISK_STATE_n_stale_0 []
+  [OK ] 4h_ii_MUTATION_CONTROL_FIRES_predecessor_classification_REFUSED_by_name G1-age: {"PRODUCT_AND_STAGED_INPUT_OVERLAP": ["OptView.hst"], "arm": "F-S", "note": "a file cannot be both produced by this item and carried
+  [OK ] 4h_ii_control_restored_the_SAME_fixture_PASSES_with_the_repaired_list None
+  [OK ] 4i_products_and_staged_inputs_are_DISJOINT_and_OptView_is_not_a_product 
+  [OK ] 5_planted_5pct_drift_G_ACC_NOT_A_RESULT_item_NOT_A_RESULT None
+  [OK ] 5b_capture_count_mismatch_REFUSES G-ACC: {"COUNT_REFUSAL": "capture / record / log counts disagree", "arm": "F-S", "counts": {"accept_
+  [OK ] 5c_disarm_readback_1e3_G_ACC_NOT_A_RESULT None
+  [OK ] 6_shipped_arm_with_patched_so_G9_GATE_FAIL_and_rows_not_distinct None
+  [OK ] 7_shape18_sign_flip_G5_GATE_FAIL_item_GATE_FAIL_P2_HIT None
+  [OK ] 8_infra_absent_NOT_MEASURED_disclosed_grade_proceeds {'F-S': ['memavail_post_GiB', 'delivered']}
+  [OK ] 8b_infra_garbage_REFUSES ledger: {"present_but_unparseable_infrastructure_field": "memavail_post_GiB", "value": "abc"}
+  [OK ] 9_physics_field_absent_REFUSES ledger: {"line": "ARM=F-P ROW=PATCHED IMG=x DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf
+  [OK ] 10_oom_row_G11_NOT_A_RESULT None
+  [OK ] 11_cap_crossing_G10_GATE_FAIL_P4_MISS_P5_MISS None
+  [OK ] 12_two_ranks_on_one_core_G12_GATE_FAIL None
+  [OK ] 12b_container_clock_absent_NOT_MEASURED_and_G10_still_PASS None
+  [OK ] 12c_container_wall_over_deadline_plus_grace_G10_GATE_FAIL None
+  [OK ] 12d_frame_gap_over_registered_allowance_G10_GATE_FAIL None
+  [OK ] 12e_at_the_REPAIRED_deadline_host_bracket_is_WITHIN_the_cap {'host_wall_s': 1735, 'core_min': 115.667, 'cap': 120.0}
+  [OK ] 12e_under_the_PREDECESSOR_deadline_the_SAME_arm_would_have_TRIPPED_within_cap {'predecessor_core_min': 121.667, 'repaired_core_min': 115.667, 'cap': 120.0, 'note': 'the cap did not move; the enforced deadline did'}
+  [OK ] 12e_the_cap_did_NOT_move 
+  [OK ] 12e_deadline_plus_allowance_INVERTS_to_the_registered_cap 120.0
+  [OK ] 12f_FD_bands_inherited_UNCHANGED 
+  [OK ] 12g_P4_band_inherited_UNCHANGED_and_P5_is_STRICTLY_TIGHTER 
+  [OK ] 13_every_verdict_in_the_fixed_vocabulary 
+D4S_F3SR_GRADE SELFTEST pass=54 fail=0

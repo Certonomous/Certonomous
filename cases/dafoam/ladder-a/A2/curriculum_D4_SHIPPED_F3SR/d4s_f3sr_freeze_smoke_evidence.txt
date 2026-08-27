@@ -1,0 +1,24 @@
+D4S-F3SR FROZEN-INSTRUMENT SMOKE DRIVE -- ZERO SOLVER COMPUTE, ZERO CONTAINERS
+utc=2026-08-27T21:53:26Z
+
+Containers on the box BEFORE: 16 (1 running: d6_O_mp_20260827T140924Z_805560, another item's live arm)
+
+1. THE FROZEN STAGER, EXECUTED (bash d4s_f3sr_stage_arm.sh F-S):
+   ABORT run root /home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin absent -- the chain driver creates it
+   rc=5.  THE FREEZE CONDITION CHECKED BY THE FROZEN INSTRUMENT ITSELF: the registered run root is ABSENT.
+
+2. THE FROZEN LAUNCHER, EXECUTED (bash d4s_f3sr_run_arm.sh F-S dafoam/opt-packages:latest):
+   D4S_G_ROOT_PASS item=D4S-F3SR base=/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin ledger_clean=yes
+   D4S_G_ROOT5_PASS arm=F-S live_same_arm_containers=none driver_pidfile=absent
+   D4S_CAP_FRAME arm=F-S registered_core_min=120.0 ranks=4 deadline_in_container_s=1710 frame_allowance_s=90 worst_case_host_core_min=120.000000 enforced_in_frame=container graded_in_frame=host_bracket_T0_T1
+   D4_CAP_ASSERT arm=F-S registered_core_min=120.0 ranks=4 enforced_wall_s=1710 enforced_core_min=120.000000 memory=12g
+   D4_HOST_PRE arm=F-S MemAvailable_GiB=11.06 load1=14.40 cpuset=5,6,7,9 siblings_pre=[d6_O_mp_20260827T140924Z_805560]
+   ABORT L-251 run root mode      (the root does not exist)
+   rc=4.  The CAP FRAME assertion is DRIVEN: 1710 s + 90 s allowance inverts to exactly 120.000000 core-min.
+
+Containers on the box AFTER: 16.  DELTA ZERO.  No container created, none signalled, none removed.
+Run root after both drives: ABSENT.
+
+OPERATIONAL NOTE FOR THE SUPERVISOR, not a gate: MemAvailable read 11.06 GiB during this drive,
+BELOW the chain driver's registered H5 floor of 16.0 GiB.  D6's live arm holds the memory.
+The driver's H5 window would REFUSE this item today -- correctly.  It is a scheduling fact, not a defect.

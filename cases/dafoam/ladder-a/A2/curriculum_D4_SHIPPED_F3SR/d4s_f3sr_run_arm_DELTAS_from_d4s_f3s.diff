@@ -1,0 +1,252 @@
+--- ../curriculum_D4_SHIPPED_F3S/d4s_f3s_run_arm.sh	2026-08-26 22:38:05.226182482 +0000
++++ d4s_f3sr_run_arm.sh	2026-08-27 21:44:31.899543463 +0000
+@@ -1,8 +1,45 @@
+ #!/usr/bin/env bash
+-# D4S-F3S arm launcher -- the ENDPOINT FD arms F-S (SHIPPED row, source D4-SHIPPED O/)
++# D4S-F3SR arm launcher -- the ENDPOINT FD arms F-S (SHIPPED row, source D4-SHIPPED O/)
+ # and F-P (PATCHED row, source curriculum_D4 O/) under ONE stationarity acceptance
+-# rule (d4s_f3s_accept.py).  Derived from D4-SHIPPED's d4s_run_arm.sh at 08039792
+-# (md5 506c99e6...); the DELTAS diff beside this file is the whole difference.
++# rule (d4s_f3s_accept.py, byte-identical to the predecessor's).  Derived from
++# D4S-F3S's d4s_f3s_run_arm.sh at 8dfb4598 (md5 d65da2e0...); the DELTAS diff
++# beside this file is the whole difference.
++#
++# ===========================================================================
++# D4S-F3S-CAP-DEF-1 -- THE SECOND DEFECT THIS FILE EXISTS NOT TO REPEAT, and
++# it is the D6 shape one level up (found by lane G on d6_run_arm.sh:347 vs
++# :376-399 on 2026-08-27).
++#
++# THE CAP WAS ENFORCED IN ONE TIME FRAME AND GRADED IN ANOTHER.  The
++# predecessor put the deadline INSIDE the container (`timeout -k 60 $TMO`,
++# d4s_f3s_run_arm.sh:394) with TMO = CAP*60/RANKS = 1800 s, and then computed
++# the graded `core_min` from a HOST bracket T0..T1 (:355, :425-426) that
++# STRICTLY CONTAINS the container clock:
++#     T0 is taken BEFORE `docker run` (:355), so it includes the client call,
++#       the container create/start and the whole in-container preamble
++#       (`source loadDAFoam.sh`, the idwarp import and md5, the echoes) that
++#       runs BEFORE `timeout` starts;  MEASURED upper bound 3.3 s on the
++#       predecessor's own F-S arm (T0 ~1787838552 to the first in-container
++#       product mtime 1787838555.29);
++#     T1 is taken after a poll loop with `sleep 10` (:419) plus `docker logs`
++#       and `docker inspect` (:421-423), so it trails the actual exit by up to
++#       one poll interval;
++#     `timeout -k 60` may take a further 60 s to escalate TERM to KILL (:394).
++# An arm stopped EXACTLY at its own registered deadline therefore records a
++# host wall ABOVE 1800 s and trips the grader's own `within_cap` limb
++# (`core_min <= cap`, d4s_f3s_grade.py:435) -- A GATE FAIL MANUFACTURED BY THE
++# MEASUREMENT FRAME RATHER THAN BY THE RUN.  D4S-F3S never fired it only
++# because its arms landed at 577 s and 561 s against 1800 s.
++#
++# THE REPAIR IS NOT TO WIDEN THE CAP.  The registered cap stays 120.0 core-min
++# EXACTLY.  What moves is the ENFORCED DEADLINE, DOWNWARD: the in-container
++# `timeout` is set to CAP*60/RANKS MINUS a REGISTERED FRAME ALLOWANCE that
++# bounds every term above, so the HOST bracket -- the figure the grader reads
++# and the figure the box was actually occupied for -- cannot exceed the cap
++# even when the deadline fires.  The allowance is asserted by inverting the
++# arithmetic (below), exactly as the cap assertion already was, so no second
++# number in this file can drift from the first.
++# ===========================================================================
+ # Curriculum D4 arm launcher -- MACH wing constrained CD minimisation at fixed CL.
+ #
+ # Derived from `cases/dafoam/ladder-a/A1/curriculum_D2/d2_run_arm.sh` (this
+@@ -47,8 +84,8 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=D4S-F3S
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin
++ITEM=D4S-F3SR
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3SR-a2-wing-cdmin
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -70,6 +107,7 @@
+ # ---- a future reader in a hurry actually acts on.
+ FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
+ /home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
++/home/ubuntu/certonomous-runs/CURRICULUM-D4S-F3S-a2-wing-cdmin
+ /home/ubuntu/certonomous-runs/CURRICULUM-D7R-a3-m6-cdmin
+ /home/ubuntu/certonomous-runs/CURRICULUM-D7F-a3-m6-fd
+ /home/ubuntu/certonomous-runs/CURRICULUM-D7FR-a3-m6-fd
+@@ -134,7 +172,7 @@
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d4sf3s_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^d4sf3sr_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE (D4S-F3S PREREGISTRATION.md §4, verbatim) --------
+@@ -182,7 +220,7 @@
+ # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+ # ----       ancestor of this process (a second driver), or whose cwd is the
+ # ----       run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d4sf3s_${ARM}_" 2>/dev/null | grep "^d4sf3s_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d4sf3sr_${ARM}_" 2>/dev/null | grep "^d4sf3sr_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+@@ -213,18 +251,34 @@
+ test -n "$CAP" || { echo "ABORT unknown arm $ARM -- no registered cap"; exit 64; }
+ test -n "$MEM" || { echo "ABORT unknown arm $ARM -- no registered memory cap"; exit 64; }
+ 
++# ---- REGISTERED FRAME ALLOWANCE (D4S-F3S-CAP-DEF-1; PREREGISTRATION.md 4b)
++# The host bracket the grader reads STRICTLY CONTAINS the in-container
++# `timeout` clock.  Every term is bounded and named; the sum is the allowance
++# and the enforced deadline is SHORTENED by it.  THE CAP DOES NOT MOVE.
++#   10 s  docker run client + container create/start + in-container preamble
++#         before `timeout` begins  (MEASURED upper bound 3.3 s, D4S-F3S F-S)
++#   60 s  `timeout -k 60` TERM->KILL escalation grace
++#   10 s  the poll loop's `sleep 10` granularity on T1
++#    5 s  `docker logs` of the arm log + `docker inspect` before T1
++#   ----
++#   85 s  bounded; REGISTERED AT 90 s
++FRAME_ALLOWANCE_S=90
+ # THE ASSERTION.  The enforced wall timeout is DERIVED from the registered
+-# core-minute cap and the registered rank count, and is then re-checked
+-# against that cap by inverting the arithmetic.  There is no second number
+-# anywhere in this file that could drift from the first.
+-TMO=$(python3 -c "print(int(round($CAP*60.0/$RANKS)))") || { echo "ABORT tmo calc"; exit 65; }
+-BACKCHECK=$(python3 -c "print('%.6f' % ($TMO*$RANKS/60.0))") || { echo "ABORT backcheck"; exit 65; }
++# core-minute cap, the registered rank count and the registered frame
++# allowance, and is then re-checked against that cap by inverting the
++# arithmetic.  There is no second number anywhere in this file that could
++# drift from the first, and the inversion RE-ADDS the allowance so a change to
++# it cannot silently widen the cap.
++TMO=$(python3 -c "print(int(round($CAP*60.0/$RANKS)) - $FRAME_ALLOWANCE_S)") || { echo "ABORT tmo calc"; exit 65; }
++test "$TMO" -gt 0 || { echo "ABORT frame allowance $FRAME_ALLOWANCE_S consumes the whole cap"; exit 65; }
++BACKCHECK=$(python3 -c "print('%.6f' % (($TMO+$FRAME_ALLOWANCE_S)*$RANKS/60.0))") || { echo "ABORT backcheck"; exit 65; }
+ python3 -c "
+ import sys
+ cap, back = $CAP, $BACKCHECK
+ if abs(cap-back) > 0.02:
+-    sys.stderr.write('ABORT CAP MISMATCH registered=%r enforced=%r\n' % (cap, back)); sys.exit(1)
+-" || { echo "ABORT enforced cap != registered cap"; exit 65; }
++    sys.stderr.write('ABORT CAP MISMATCH registered=%r enforced_plus_allowance=%r\n' % (cap, back)); sys.exit(1)
++" || { echo "ABORT enforced cap + frame allowance != registered cap"; exit 65; }
++echo "D4S_CAP_FRAME arm=$ARM registered_core_min=$CAP ranks=$RANKS deadline_in_container_s=$TMO frame_allowance_s=$FRAME_ALLOWANCE_S worst_case_host_core_min=$BACKCHECK enforced_in_frame=container graded_in_frame=host_bracket_T0_T1"
+ echo "D4_CAP_ASSERT arm=$ARM registered_core_min=$CAP ranks=$RANKS enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM"
+ 
+ # ---- host state, read before ranks are claimed ---------------------------
+@@ -264,7 +318,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="d4sf3s_${ARM}_${STAMP}"
++NAME="d4sf3sr_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+@@ -273,20 +327,43 @@
+ # ---- arm); the copy epoch is the arm's age datum; the frozen D4-DEF-4 repair
+ # ---- instruments and this item's two instruments are md5-asserted; no answer
+ # ---- file may pre-exist.  Nothing here removes anything.
+-test -d "$WORK" || { echo "ABORT arm $ARM: $WORK absent -- run d4s_f3s_stage_arm.sh $ARM first"; exit 5; }
+-test -f "$WORK/.d4s_f3s_stage_${ARM}_copy_epoch" || { echo "ABORT $WORK carries no copy epoch -- the age guard would have no datum"; exit 5; }
+-AGE_DATUM=$(cat "$WORK/.d4s_f3s_stage_${ARM}_copy_epoch")
++test -d "$WORK" || { echo "ABORT arm $ARM: $WORK absent -- run d4s_f3sr_stage_arm.sh $ARM first"; exit 5; }
++test -f "$WORK/.d4s_f3sr_stage_${ARM}_copy_epoch" || { echo "ABORT $WORK carries no copy epoch -- the age guard would have no datum"; exit 5; }
++AGE_DATUM=$(cat "$WORK/.d4s_f3sr_stage_${ARM}_copy_epoch")
++# ---- D4S-F3S-AGE-DEF-1: the age reference and the staged-input manifest are
++# ---- PRECONDITIONS OF THE LAUNCH, not of the grade.  A run whose exclusions
++# ---- were never registered cannot be graded against them afterwards.
++test -f "$WORK/.d4s_f3sr_age_ref" || { echo "ABORT $WORK carries no .d4s_f3sr_age_ref -- the datum sentinel is absent"; exit 5; }
++test -f "$WORK/.d4s_f3sr_stage_${ARM}_age_ref" || { echo "ABORT $WORK carries no datum-reference name file"; exit 5; }
++test -f "$WORK/.d4s_f3sr_staged_inputs.json" || { echo "ABORT $WORK carries no staged-input manifest -- the age exclusions are unregistered"; exit 5; }
++REFM=$(stat -c '%Y' "$WORK/.d4s_f3sr_age_ref")
++test "$REFM" = "$AGE_DATUM" || { echo "ABORT the age reference mtime $REFM disagrees with the frozen datum $AGE_DATUM"; exit 5; }
+ test -f "$WORK/OptView.hst" || { echo "ABORT arm $ARM: no OptView.hst to read an endpoint from"; exit 5; }
++test -f "$WORK/opt_IPOPT.txt" || { echo "ABORT arm $ARM: no opt_IPOPT.txt -- a registered staged input is absent"; exit 5; }
++# ---- THE INVERSE AGE CLAUSE on the registered staged inputs, checked BEFORE
++# ---- the run so a mis-staged input is a refusal, never a late finding.  A
++# ---- file EXCLUDED from the age clause is not thereby unchecked: it must be
++# ---- NOT NEWER than the datum, which is the positive proof that it is an
++# ---- input this item carried in and did not produce.
++for si in OptView.hst opt_IPOPT.txt; do
++  M=$(stat -c '%Y' "$WORK/$si")
++  [ "$M" -le "$AGE_DATUM" ] || { echo "ABORT registered staged input $si (mtime $M) is NEWER than the datum $AGE_DATUM -- it is not a staged input"; exit 5; }
++done
++echo "D4S_STAGED_INPUTS_OK arm=$ARM excluded_from_age_by_name=[OptView.hst opt_IPOPT.txt] all_not_newer_than_datum=$AGE_DATUM"
+ ( cd "$BASE" && md5sum -c d4_repair_instruments.md5 ) || { echo "ABORT repair-instrument md5"; exit 4; }
+-( cd "$BASE" && md5sum -c d4s_f3s_instruments.md5 ) || { echo "ABORT item-instrument md5"; exit 4; }
++( cd "$BASE" && md5sum -c d4s_f3sr_instruments.md5 ) || { echo "ABORT item-instrument md5"; exit 4; }
++# ---- G-COLD, WIDENED to the full registered product set (D4S-F3S-AGE-DEF-1):
++# ---- every name the age clause will grade must be ABSENT before the run, and
++# ---- so must the foreign datum and any carry-over command file.
+ for bad in "$WORK/d4s_f3s_fd_endpoint.json" "$WORK/d4s_f3s_fd_endpoint.jsonl" "$WORK/d4s_f3s_accept.jsonl" \
+            "$WORK/d4_endpoint_dvs.json" "$WORK/d4_endpoint_dvs_PHYSICAL.json" "$WORK/d4_endpoint_dvs_DRIVERSCALED.json" \
+-           "$WORK/d4_major_history.json" "$WORK/d4_fd_endpoint.json" "$WORK/d4_accept_primal.json"; do
++           "$WORK/d4_major_history.json" "$WORK/d4_fd_endpoint.json" "$WORK/d4_accept_primal.json" \
++           "$WORK/.d4_age_datum" "$WORK/d4s_f3s_cmd.sh" "$WORK/d4s_f3sr_cmd.sh"; do
+   test -e "$bad" && { echo "ABORT G-COLD $bad exists BEFORE the arm that must produce it"; exit 5; }
+ done
+ test -n "$(ls "$WORK"/d4s_f3s_primal_* 2>/dev/null)" && { echo "ABORT G-COLD primal captures present BEFORE the arm"; exit 5; }
+ echo "D4_G_COLD OK arm=$ARM -- no answer file present"
+-echo "D4_AGE_DATUM arm=$ARM copy_epoch=$AGE_DATUM"
++echo "D4_AGE_DATUM arm=$ARM copy_epoch=$AGE_DATUM age_ref=.d4s_f3sr_age_ref touched_last_at_stage_time=yes"
+ cp -a "$BASE/d4_opt_runScript.py" "$BASE/d4_extract_endpoint.py" \
+       "$BASE/d4_endpoint_locus.py" "$BASE/d4_endpoint_physical.py" \
+       "$BASE/d4s_f3s_fd_endpoint.py" "$BASE/d4s_f3s_accept.py" "$WORK/" || { echo "ABORT stage instruments"; exit 4; }
+@@ -308,7 +385,7 @@
+ # ---- its OWN `timeout` at the registered cap wall (TMO), so the deadline is
+ # ---- INSIDE the container and survives every host shell.  `-k 60` escalates
+ # ---- TERM to KILL; the kernel exit code (124/137) is then the record.
+-CMDFILE="$WORK/d4s_f3s_cmd.sh"
++CMDFILE="$WORK/d4s_f3sr_cmd.sh"
+ printf '%s\n' "$CMD" > "$CMDFILE" || { echo "ABORT cmd file"; exit 4; }
+ echo "D4S_CMDFILE arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1) deadline_in_container_s=$TMO"
+ CPUSAMPLE="$BASE/${ARM}_${STAMP}.cpu.jsonl"
+@@ -391,7 +468,7 @@
+      echo D4S_CONTAINER_UID: \$(id -u) && \
+      python -c 'import idwarp,os,hashlib; p=idwarp.__file__; so=os.path.join(os.path.dirname(p),\"libidwarp.so\"); print(\"D4S_IDWARP_IMPORTED_FROM:\",p); print(\"D4S_IDWARP_SO_MD5:\",hashlib.md5(open(so,\"rb\").read()).hexdigest())' && \
+      echo D4S_DEADLINE_IN_CONTAINER_S: $TMO && \
+-     timeout -k 60 $TMO bash /mnt/$ARM/d4s_f3s_cmd.sh" > /dev/null 2>&1 \
++     timeout -k 60 $TMO bash /mnt/$ARM/d4s_f3sr_cmd.sh" > /dev/null 2>&1 \
+   || { echo "ABORT could not start container"; exit 4; }
+ 
+ # The cap is a RUNAWAY GUARD THAT REPORTS (Sanaa, 2026-08-25), not a budget
+@@ -442,6 +519,35 @@
+ 
+ # ---- the KERNEL's verdict, read BEFORE the container is removed (8.2) ----
+ INSPECT=$(sudo -n docker inspect --format '{{.State.ExitCode}} {{.State.OOMKilled}}' "$NAME" 2>/dev/null)
++# ---- D4S-F3S-CAP-DEF-1: THE CONTAINER'S OWN CLOCK, from the kernel, read in
++# ---- the same inspect and BEFORE the rm.  This is the frame the deadline is
++# ---- enforced in.  It is recorded so the two frames are SEPARATED on the
++# ---- record instead of conflated, and the grader BINDS it at G10 rather than
++# ---- printing it -- a discrepancy nobody grades is worse than one never
++# ---- computed.  Absent -> NOT_MEASURED (INFRASTRUCTURE, L-342); the gate
++# ---- then falls back to the HOST bracket alone, which is the STRICTER
++# ---- reading, so the fallback can never turn a failing cap into a pass.
++CSTART=$(sudo -n docker inspect --format '{{.State.StartedAt}}' "$NAME" 2>/dev/null)
++CFIN=$(sudo -n docker inspect --format '{{.State.FinishedAt}}' "$NAME" 2>/dev/null)
++CWALL=$(python3 -c "
++import datetime
++def p(s):
++    s = s.strip().replace('Z', '+00:00')
++    i = s.find('.')
++    if i >= 0:
++        j = i + 1
++        while j < len(s) and s[j].isdigit():
++            j += 1
++        if j - i > 7:
++            s = s[:i + 7] + s[j:]
++    return datetime.datetime.fromisoformat(s)
++try:
++    print(int(round((p('$CFIN') - p('$CSTART')).total_seconds())))
++except Exception:
++    print('NOT_MEASURED')
++" 2>/dev/null)
++test -n "$CWALL" || CWALL=NOT_MEASURED
++echo "D4S_CONTAINER_CLOCK arm=$ARM started_at=$CSTART finished_at=$CFIN container_wall_s=$CWALL host_wall_s_bracket_T0_T1=$WALL"
+ sudo -n docker rm "$NAME" >/dev/null 2>&1
+ sudo -n chown -R ubuntu:ubuntu "$LOG" "$WORK" 2>/dev/null
+ 
+@@ -449,7 +555,7 @@
+ MEMAVAIL_POST=$(python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))")
+ LEDGER="$BASE/ledger.txt"
+ {
+-  echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST rc=$rc wall_s=$WALL ranks=$RANKS core_min=$CORE_MIN cap_core_min=$CAP enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM inspect(exit,oomkilled)=[$INSPECT] memavail_pre_GiB=$MEMAVAIL_GIB memavail_post_GiB=$MEMAVAIL_POST cpuset=$CPUSET delivered_cores_mean=[$DELIVERED] siblings_pre=[$SIBLINGS_PRE] siblings_post=[$SIBLINGS_POST] log=$(basename "$LOG") stamp=$STAMP"
++  echo "ARM=$ARM ROW=$ROW IMG=$IMG DIGEST=$GOT_DIGEST rc=$rc wall_s=$WALL ranks=$RANKS core_min=$CORE_MIN cap_core_min=$CAP enforced_wall_s=$TMO enforced_core_min=$BACKCHECK memory=$MEM inspect(exit,oomkilled)=[$INSPECT] container_wall_s=$CWALL frame_allowance_s=$FRAME_ALLOWANCE_S memavail_pre_GiB=$MEMAVAIL_GIB memavail_post_GiB=$MEMAVAIL_POST cpuset=$CPUSET delivered_cores_mean=[$DELIVERED] siblings_pre=[$SIBLINGS_PRE] siblings_post=[$SIBLINGS_POST] log=$(basename "$LOG") stamp=$STAMP"
+   grep -a "D4S_CONTAINER_UID\|D4S_IDWARP_SO_MD5\|D4S_DEADLINE_IN_CONTAINER_S" "$LOG" | head -3   # ADDENDUM 2: the strings the container prints
+ } | tee -a "$LEDGER"
+ test -s "$LOG" && touch "$LOG.ok.${STAMP}"   # L-252 provenance sentinel
