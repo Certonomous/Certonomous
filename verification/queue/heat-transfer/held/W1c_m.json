@@ -1,0 +1,86 @@
+{
+  "team": "heat-transfer",
+  "case_id": "W1c_m",
+  "prereg_commit": "8268ffe22a15c0703a893354f8d7842892423951",
+  "prereg_path": "docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1c_runs/run_one_t9aR1c.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1c_runs/W1c_m",
+    "--timeout",
+    "60",
+    "--ranks",
+    "1",
+    "--solver",
+    "laplacianFoam",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1c_runs/W1c_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.000833,
+  "cap_core_min_registered": 1,
+  "cap_core_min_registered_note": "TRANSCRIBED FROM THE REGISTRATION, NOT REGISTERED HERE. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source disagree, the source wins and this field is the thing that is wrong. Present because a standing chief order records that 50 of 109 queue entries lab-wide carry no cap field, which would leave runner-side enforcement inert for half the lab the moment it is switched on.",
+  "cap_core_min_registered_source": {
+    "kind": "machine-readable registration, frozen",
+    "document": "verification/runs/T-family/T9aR1c_runs/T9aR1c_registered.json",
+    "document_sha256_16": "9ddbb818ce35e24a",
+    "frozen_at_commit": "8268ffe22a15c0703a893354f8d7842892423951",
+    "json_path": "cases.W1c_m.cap_core_min",
+    "verbatim": "\"cap_core_min\": 1",
+    "scope": "case",
+    "prose_source": "docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md section 9.3"
+  },
+  "cap_enforcement": "THE LAUNCHER'S `timeout` WRAPPER IS THE ONLY THING THAT STOPS THIS RUN. scripts/queue_runner.py REPORTS a cap overrun and does NOT kill. The cap therefore binds only through the arithmetic timeout_s = cap_core_min * 60 / ranks = 1 * 60 / 1 = 60 s, and run_one_t9aR1c.sh REFUSES at pre-flight if the registered timeout_s does not equal that product, and separately REFUSES a --timeout not equal to the registered timeout_s. Both refusals are DRIVEN on scratch in T9aR1c_SELFTEST_EVIDENCE.txt (ARM A proceeds past the check; ARMs B and C refuse). A cap nothing enforces is not a cap.",
+  "cost_basis": "POINT 0.000833 core-min on the ExecutionTime basis, transcribed from T9aR1c_registered.json cost.point_core_min_per_level_executiontime_basis.W1c_m. PRICED PER LEVEL FROM ITS OWN MEASURED RATE, never one flat per-cell-iteration rate: the rate source is T9a-R1b's MEASURED solver ExecutionTime on THESE EXACT CASES (W1b_c 0.05 s, W1b_m 0.05 s, W1b_f 0.06 s at 1000 iterations serial, T9aR1b_RESULTS.md section 2). The registered core-minute basis (wall_s x ranks / 60) is expected to read 0.000 again at this case size, which means TOO SMALL TO MEASURE and not FREE; the calibration row will state the wall basis as UNRESOLVED rather than as a 0.000 ratio. USD 7.122e-07 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h -- REPORTED-BY-OWNER: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Cap headroom 1200x (60 s cap against 0.05 s measured). T9aR1c_PREREGISTRATION.md section 9.",
+  "memory_floor_gb": 0.5,
+  "memory_basis": "ESTIMATED, NOT MEASURED. This is a 56-cell 1-D laplacianFoam case; the footprint is dominated by the solver binary and the OpenFOAM runtime, not by the mesh. No memory record exists for W1b's byte-identical runs, so 0.5 GB is a floor chosen with margin and is labelled an estimate.",
+  "enqueued_by": "heat-transfer lab-lane, ON THE SUPERVISOR'S EXPLICIT INSTRUCTION of 2026-08-27. SUPERVISION_CHARTER section 3 CHECK 4 (pre-registration COMMITTED before compute) WAS NOT PERFORMED BY THIS LANE and is not delegable to it: the supervisor discharged it personally at freeze commit 8268ffe22a15c0703a893354f8d7842892423951 (10 files, 6191 insertions, zero deletions, zero foreign paths), asserting in that commit's own invocation that no W1c case directory existed, so the freeze provably precedes compute. CHECK 1 (measurement-script diffs read as diffs) was likewise the supervisor's, on apply_gate at analyse_t9aR1c.py:475-494. WHAT THIS LANE DID: built the three cases with the frozen builder, hashing it against the frozen blob IN THE SAME INVOCATION that ran it (sha256 c4bf597a2ca2f876, matched), and wrote this entry. ENQUEUEING IS NOT AUTHORISATION.",
+  "_verified_on_disk_by_this_lane": {
+    "cells": 56,
+    "cells_source": "/home/ubuntu/Certonomous/verification/runs/T-family/T9aR1c_runs/W1c_m/BUILD.txt checkMesh line",
+    "blockMesh_rc": 0,
+    "checkMesh_rc": 0,
+    "checkMesh": "Mesh OK.",
+    "age_guard": "0.orig/T and 0.orig/DT present; NO 0/ directory and NO numeric time directory",
+    "scheme_on_disk": "system/fvSchemes carries `laplacianSchemes { default Gauss harmonic corrected; }`; the ONLY line differing from the T9a parent blob at freeze 0cbaea26",
+    "cells_per_layer": [
+      16,
+      32,
+      8
+    ],
+    "frozen_instrument_sha256_16": {
+      "build_t9aR1c.py": "c4bf597a2ca2f876",
+      "analyse_t9aR1c.py": "ecd58da928dfc523",
+      "run_one_t9aR1c.sh": "f6ede1bb00cc52f2",
+      "T9aR1c_registered.json": "9ddbb818ce35e24a"
+    },
+    "hash_function_named": "ALL hashes in this entry are SHA-256 of the file bytes. They are NOT git object ids: git's sha1 prefixes a 'blob <len>\\0' header, so the two can never agree and a comparison between them is meaningless. analyse_t9aR1c.py is sha256 ecd58da928dfc523 and git-sha1 932920e89043."
+  },
+  "_decoupling": "The GRADED row F1 reads W1c_c ALONE. W1c_m and W1c_f are OPTIONAL EVIDENCE feeding REPORTED rows: if either is capped, crashed or never run, the rung is STILL GRADEABLE and their absence is recorded NOT RUN / RAN_NOT_COMPLETE. Driven five ways in the comparator's selftest. A level holding a written time directory with NO STATUS file is still a REFUSAL (K0d L1), so a level cannot be dropped from the record by removing its markers.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.W1c_m (the rc VALUE, written inside run_one_t9aR1c.sh's foreground wrapper)",
+      "the End line in log.solve",
+      "last written time == endTime 1000",
+      "T and DT present at endTime",
+      "the ExecutionTime line count == endTime/deltaT",
+      "the 0/T age guard"
+    ],
+    "infrastructure": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc",
+      "_launch.pid",
+      "LAUNCH_LOG.tsv row"
+    ],
+    "open_tension": "CLAUDE.md rule 4 lists the ExecutionTime count among the strict completion conjuncts while docs/L342_GRADER_AUDIT.md classes a refusal keyed on it CONFLATED. T9aR1b_RESULTS.md section 3 referred that to verification and it is STILL OPEN. This rung keeps the limb UNWEAKENED and does not settle it."
+  }
+}
