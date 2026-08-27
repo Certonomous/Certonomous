@@ -11151,6 +11151,124 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-27T16:5xZ — **THREE COMMITS, TWO LESSONS, THREE GATE RULINGS ON THE GPU CASES — AND THE CARD IS STILL IDLE PAST 17 HOURS, WHICH IS THIS TEAM'S FAILURE**
+
+**Written by `ansys-verification-supervisor` personally.** Commits since the 16:3xZ block:
+`94421bea` (L-350 + L-351), `fedf2a39` (dated addendum to both, two corrections owed to
+verification's audit), `981d767f` (the `contention_sampler.sh` disposal ruling). The 16:3xZ
+board block itself **landed inside verification's `a7021bb5`**, not under my own commit — see
+L-351.
+
+#### THE THREE GATE RULINGS — the reason both GPU cases can be closed today
+
+Lane H graded VMFLGPU001 and VMFLGPU002 and brought me three instrument defects rather than a
+verdict. It was right to. **I read the frozen `grade_vmflgpu002.py` at HEAD myself (check 1)
+before ruling.**
+
+**THE LINE I DREW, and it is the general rule:** *a post-compute instrument repair is legal when
+the defect is provable **from the frozen document itself**, with no reference to any run output.
+It is not legal when the defect is provable **only from the run's own values** — that is a change
+justified by the answer, whichever way it points.* The two defects fall on opposite sides, which
+is why they get opposite rulings.
+
+| # | defect | ruling |
+|---|---|---|
+| 1 | **Limb A was frozen GUARANTEED TO REFUSE.** The frozen file's own header says *"TELL 1 IS LOOSE AND CANNOT DISCRIMINATE ON ITS OWN — PETSc's `-log_view` prints GPU columns … EVEN WHEN THE SOLVE RAN ON THE CPU. THE FORCED-CPU CONTROL IS THE DISCRIMINATOR."* Its `limb_A()` then refuses at A2 exactly when tell1 fires **on the control** — the outcome its own header calls certain. `tell3` expects a `type: aijcusparse` line **this build never prints**, so it false-negatives on a genuine GPU run | **REPAIR GRANTED** under §2d.1. The contradiction is visible entirely within the frozen file, before any solver ran. Conditions: justification quotes the frozen header verbatim and cites **no measured physics value**; the repaired control must **refuse a forged GPU-arm log with GPU %F = 0**, in the selftest; both gradings quoted; **amendment committed before the re-grade** |
+| 2 | **C7, the `ExecutionTime` line count**, inherited by 002 seventeen minutes before 001's fix landed | **GRANTED**, exact `59110074` precedent under L-342. Timing-line counts are INFRASTRUCTURE; the physics-critical clause is `Time =` count == endTime, which **held exactly** at 1200/1600/2200 |
+| 3 | **VMFLGPU001's I5 null range.** The L1 probe rose 1.86e-16 → 4.639246e-03 then went **bit-identical for its final 1662 iterations** — a perfectly converged fixed point whose plateau ptp is exactly 0 | **REFUSED. THE FROZEN CLAUSE STANDS.** This was provable only by reading the run's own values, and amending it would move 001 from no-verdict toward `GATE REACHED` — the favourable direction. The remedy is forward: a **liveness-controlled plateau clause** (ptp < tol **AND** full-history range ≥ a pre-registered floor) frozen into VMFLGPU003+ |
+
+**What makes the granted repair unimpeachable, and it must be said in the amendment: UNDER THESE
+RULINGS THE LIMB-A REPAIR CHANGES NO VERDICT IN EITHER CASE.** 001 is still refused earlier at I5;
+002 is `NOT A RESULT` on its triple regardless. I authorised a post-compute repair that **cannot
+flatter any outcome**.
+
+#### THE TWO VERDICTS ORDERED (lane H landing them; **not yet in the register at this write — VERIFY**)
+
+- **VMFLGPU001 → `NOT A RESULT`**, instrument refused at the frozen plateau clause. **0.4417
+  GPU-h.** Recorded as CONTEXT and explicitly **not** the verdict: triple [4.51458e-3, 4.53957e-3,
+  4.54578e-3] **CONVERGING**, R = 0.248, p ≈ 2.01, deviation **0.0446 %** against the exact
+  Taylor-Couette closed form (tol 2 %). **The physics looks strong and the lab is not claiming it.**
+- **VMFLGPU002 → `NOT A RESULT`**, fully graded after both amendments. Triple [0.8859509,
+  0.8844553, 0.8847505] is **OSCILLATORY, R = −0.197** → rule 5 step 2 gates it before any band is
+  read; **no GCI is quotable and none may be printed.** Limb B (~3e-10) and limb C (0.254 % vs
+  0.887, tol 2 %) both hold, as context only. **0.89694 GPU-h of the 1.0 cap — within 10.3 % of
+  firing.** The GPU path genuinely ran: **GPU %F = 100** on MatMult/KSPSolve, 6000 CpuToGpu
+  transfers (173 MB), against **GPU %F = 0** and zero transfers on the forced-CPU arm.
+
+#### THE IDLE, NAMED AND NOT ABSORBED — this is the line Sanaa will read first
+
+**VMFLGPU002 finished at 2026-08-26T23:40:01Z. The card was still idle at 16:5xZ — over 17 hours,
+≈ $13.7 derived** at the published-list $0.8048/GPU-h (console figure still owed). Cause, stated
+plainly: the session died at ~23:00Z with **8 of 10 GPU cases unfrozen and nothing queued behind
+002**. **Freezing must run AHEAD of grading, not behind it** — that is the standing correction.
+GPU queue pending: **0**. Two entries that were in the instance's `launched/` at 16:16Z have since
+vanished; **forensics in flight, UNRESOLVED at this write** — the leading candidate is that
+`/home/ubuntu/gpu_queue/ansys-verification` is a **symlink into that instance's own repo clone**,
+so a git operation on the clone changes what the queue appears to hold.
+
+#### TWO LESSONS, AND A NEAR-MISS THAT ALMOST DESTROYED THIS BOARD
+
+- **L-350** — the private-index **amendment** workflow leaves the working tree permanently behind
+  `HEAD`, so `git status` advertises correct history as "uncommitted work" and landing it
+  **reverts the amendment** with a clean CAS and a passing post-commit stat. **19 files, four
+  teams, 2,050 lines**, including **this team's own charter at −373**. My brief this session
+  instructed exactly that lane. Corrected the same hour (`fedf2a39`): the staleness is **not**
+  universal — where a lane wrote the spliced result back to disk the tree stayed correct, and that
+  is now the cure, `USING_THIS_LAB.md` §8.5 **step 3**.
+- **L-351** — **the scratchpad is shared by the entire fleet across teams**, and the board-splice
+  temporaries collide by name. My `base.md` — the 13,890-line `LAB_STATE.md` HEAD blob, 1.9 MB —
+  became a 698-line foreign document mid-session (named in `fedf2a39`: verification's fail-open
+  lane, `cmp`-identical to `f2f74a05~1:docs/FAIL_OPEN_GATE_AUDIT.md`). **Had my splice spanned two
+  bash calls I would have committed that foreign file as `docs/LAB_STATE.md` and destroyed this
+  board**, with a passing CAS and a stat showing only my own path. **Rule 10's one-invocation
+  requirement is the only thing that stopped it — luck, not design.** Every lane of mine now writes
+  under `<scratchpad>/ansys-<role>/` and asserts on **content**, not line count.
+
+#### `contention_sampler.sh` — RULED (`981d767f`), and it was not what it looked like
+
+Not stale: worktree mtime is **~15 h AFTER** the commit it appeared to revert. It is a **different
+instrument wearing the same filename** — both take four arguments and mean different things by
+them, so a caller holding the committed interface gets a header, an "ended" line and **no samples,
+with no error and a zero exit. The failure is silent.** Preserved verbatim at
+`verification/runs/ansys_verification/contention_timeseries_sampler.sh`; the committed midpoint
+sampler untouched. **Nothing was corrupted — checked, not assumed:** no record on disk is in the
+new format.
+
+#### OPEN, AND HONEST ABOUT WHAT I HAVE NOT VERIFIED
+
+- **The grader census is CONTESTED and I assert no number.** Verification's audit says **30
+  defective of 32**; my recon says **28 of 35**; my own directory scan found **31 `VMFL*` case dirs
+  + 3 `VMFLGPU`**. The recon also lists ids I cannot match to case dirs and calls VMFL059 both
+  "unfired" and a register row. **All three VERIFY.** One authoritative derivation is owed, with
+  its counting rule stated; the chief has ruled it verification's.
+- **The one figure I do trust, because a zero is checkable: no cheap pre-compute sweep remains** —
+  every defective committed grader has already fired. The only pre-compute targets are graders not
+  yet written, and 003+ already carry the fix by order.
+- **Re-grade of past `NOT A RESULT` rows: ruled by the chief, not today.** Verification first runs
+  a bounded audit (per row: refused on an infrastructure field **alone**, physics complete, clause
+  cited); yes-rows may then be re-graded as one dated §2d.1 amendment per case, original struck,
+  flip disclosed in `COST_CALIBRATION.md`. On Sanaa's desk to overrule.
+
+#### QUEUE DEPTH (Sanaa `7def3c6b`)
+
+| instance | queued, agent-independent | note |
+|---|---|---|
+| box | **0.0 core-min pending** | 89 % busy; six cases measured READY TO QUEUE — VMFL003_M2 113, VMFL007_R2 30, VMFL021 ~40, VMFL022 ~22, VMFL050 ~0.2, VMFL059 (est NOT STATED) ≈ **205 core-min = 3.4 core-h** — awaiting an opus slot |
+| GPU | **0.0 GPU-h pending**, card idle > 17 h | VMFLGPU003 freeze in flight (comparator, case and reference built; prereg/launcher/commit outstanding); 004–006 follow |
+
+#### LANES (cap 4: 2 opus + 2 haiku)
+
+| lane | task | state |
+|---|---|---|
+| opus G | VMFLGPU003 freeze → commit → GPU queue drop; then 004/005/006, each dropped as it freezes. Carries all three rulings + the liveness clause | live, hard ETA requested |
+| opus H (4.8) | land VMFLGPU001 + VMFLGPU002 verdicts, register rows 33/34, both GPU calibration rows | live |
+| haiku M/N/Q/R | GPU recon, box recon, box-queue candidates, grader census | done |
+| haiku S | GPU queue-entry forensics (where the two `launched/` entries went) | live |
+
+**BLOCKED:** none. **No classifier denial in any lane this session.** One infrastructure refusal
+of record: a spawn refused by the **lab-wide** 20-concurrent-subagent cap; my own cap of 4 was not
+reached.
+
 ### 2026-08-27T16:3xZ — **THE "UNCOMMITTED LANE WORK" I WAS TOLD TO LAND IS 19 REVERSIONS ACROSS FOUR TEAMS — 2,050 COMMITTED LINES, INCLUDING 373 OF MY OWN CHARTER. I COMMITTED NONE OF IT.** GPU idle 16 h 40 m measured; VMFLGPU002 completed 6/6 rc 0 and was never graded
 
 **Written by `ansys-verification-supervisor` personally.** Four lanes fired at session start
