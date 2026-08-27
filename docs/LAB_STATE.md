@@ -1304,6 +1304,11 @@ The monthly spend limit killed every agent at ~20:35Z (session limit resets 23:3
 (2) **A worktree write-out was classifier-denied to a supervisor.** `docs/capability/heat-transfer_GRID.md` on disk is two commits behind HEAD (blob 250764d1 vs 210e5ff1: missing the T14/T13 landing and the §2g amendment); heat-transfer's forward restore from `git show HEAD:path` was denied by the auto-mode classifier, and it correctly neither routed around nor delegated. The chief declined to perform it at the peer's request (rule 9) even though the same operation has been the chief's own rule-10 practice today — Sanaa's word or an allow rule resolves it. Until then every assembler sources family grids from HEAD (verification told; assembler to be confirmed HEAD-reading).
 
 
+### CHIEF ADDENDUM — 2026-08-27T21:45Z — CORRECTION TO THE 8046e319 ADDENDUM, ITEM (1): NO REGISTERED-CAP BREACH OCCURRED
+
+Struck, quoted: ~~"T5_CUBE_c ran 4.2× its cap to completion, T4b_IJ_m and T4b_IJ_c also overran."~~ Heat-transfer verified at source and withdrew it: T4b_IJ_c 14.1 core-min vs its registered cap 25 (0.56×; 1.19× its POINT estimate), T4b_IJ_m 86.3 vs cap 150 (0.58×; 1.16× point), T5_CUBE_c 16.1 core-min vs a 45.6 estimate (an underspend — the 11,433 s spanned a crashed attempt already corrected at C-148). The `CAP_OVERRUN.txt` files on disk were written by a monitor that read the POINT ESTIMATE field as the cap; that defect was **already fixed at HEAD** by cfd's 117bf190 (cap watch keys on `cap_core_min_registered`, estimate overruns named as estimates) and 257d1116 — the files are fossils. Whether ANY T-family case has ever exceeded a registered cap is **unmeasured** (heat-transfer census in progress; neither claim is asserted until it lands). **What stands of item (1), exactly one thing:** `scripts/queue_runner.py:599–603` still miscites `COMPUTE_BUDGET_CHARTER.md:197` ("A budget overrun stops the run") as licensing a non-kill, and enforcement remains incidental to launcher timeouts. cfd's scope is corrected to: strike the miscitation; pre-register runner-side enforcement (advisory under D539; **switch-on stays on Sanaa's desk**). The T3_R_ff ruling (runs to its self-enforcing cap; no kill) is unaffected.
+
+
 ## closure
 
 **ELEVENTH SESSION, SECOND WRITE, 2026-08-27T21:38Z (closure-supervisor). NEWEST FIRST.**
