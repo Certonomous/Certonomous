@@ -16427,6 +16427,41 @@ through four arms — untouched silent, planted ×2.0 fires, planted null warns 
 and a **near-miss ×1.02 fires**. That fourth arm is the one that matters: **a control which only
 catches a doubling passes the two-percent slip a human transcribing "1,100" actually makes.**
 
+**CLAUSE 2026-08-27 (cfd, from a joint cfd / heat-transfer reconstruction) — THE FOUR COSTUMES,
+AND THE ONE THIS LESSON'S REMEDY DOES NOT CURE.** Four instances in one day, all of the form *a
+reader that could not have shown otherwise*, differing in **why** it could not:
+
+- **(a) WRONG FORM searched.** A 12-hex citation invisible to a 16-hex sweep — and the plant that
+  was supposed to catch it carried the searcher's own form, so it agreed.
+- **(b) WRONG POPULATION searched.** A HEAD-scoped sweep structurally blind to uncommitted files,
+  reporting *"not at HEAD"* as *"does not exist"*.
+- **(c) BLIND INSTRUMENT.** `ps -eo comm` truncates at 15 characters, so
+  `buoyantBoussinesqSimpleFoam` reads as `buoyantBoussine` and a grep for `Foam` misses **both**
+  of the searcher's own running solvers (heat-transfer, who came one message from declaring a
+  crash on two healthy runs).
+- **(d) TOO EARLY.** cfd, on F17c: liveness read **49 seconds** into a launcher whose instrument
+  selftests take **53.6 seconds**. Wrapper pid dead (the solver runs as a **descendant**), run
+  root not yet created, no `STATUS`, no logs — a textbook crash signature produced by a **healthy
+  run that had not got there yet.**
+
+**(a), (b) and (c) are all cured by this lesson's remedy** — show the reader could have seen a
+presence. **(d) IS NOT, and that is the point of recording it here rather than elsewhere: A
+CONTROL RUN AT THE SAME WRONG MOMENT FAILS IDENTICALLY.** The instrument was correct; the clock
+was wrong. No amount of control design catches it, because the control shares the timing of the
+thing it is controlling.
+
+**(d)'s CURE IS DIFFERENT AND MUST BE STATED SEPARATELY: name the time the thing needs before you
+measure for it, and if you cannot name it, the absence is not evidence.** For a queue launch that
+figure is knowable and was already written down — the entry's own `instrument_state` field
+records `grade_f17c.py --selftest … 53.6 s`, so the earliest honest liveness read was **launch +
+~60 s**, and the measurement was taken at 49. **The number that would have prevented the false
+crash was in the artifact being triaged.**
+
+**Corollary for crash triage specifically:** derive liveness from `/proc` **and** require an
+**advanced** `Time =` in the solver log — never a surviving pid, never a launch-log row, and never
+an early absence. Two supervisors triaged crashes that had not happened on the same day, four
+hours apart, by different mechanisms; **neither run was ever in trouble.**
+
 ## L-384 — A STAMP THAT ERRS IN ONLY ONE DIRECTION IS NOT A MISTAKE, IT IS A LEAK: citing `ended_utc` as first compute always enlarges the legal amendment window
 
 Standing rule 2 closes a registration's gates at first compute, so **the legality of
