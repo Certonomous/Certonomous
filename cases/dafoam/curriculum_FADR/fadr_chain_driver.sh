@@ -73,9 +73,19 @@ WANT_SHA="$(grep -oE '^\| \*\*sha256\*\* \| `[0-9a-f]{64}`' "${PROV}" | grep -oE
 GOT_SHA="$(sha256sum "${ARCHIVE}" | awk '{print $1}')"
 [ "${GOT_SHA}" = "${WANT_SHA}" ] \
   || die "FIXTURE DIGEST: on disk ${GOT_SHA}, recorded ${WANT_SHA}. The digest is a GATE, not a note."
-tar -tzf "${ARCHIVE}" | head -1 | grep -q '^reg_test_files-main/' \
-  || die "the archive's top-level directory is not reg_test_files-main/ -- the test script
-     chdirs into ./reg_test_files-main/ConvergentChannel by that literal name"
+# AMENDMENT 1 (v1.0a, 2026-08-27, PRE-COMPUTE): this check was written as
+#   tar -tzf "$ARCHIVE" | head -1 | grep -q '^reg_test_files-main/'
+# and it FALSELY REFUSED a correct archive.  `head -1` closes the pipe, `tar`
+# takes SIGPIPE and exits 141, and `set -o pipefail` (line 15) promotes that to
+# the pipeline's status.  Measured: PIPESTATUS = 141 0 0 on the real fixture,
+# whose first entry IS `reg_test_files-main/`.  The guard was wrong, not the
+# archive.  Repaired to a command substitution, whose exit status is not tested.
+FIRST_ENTRY="$(tar -tzf "${ARCHIVE}" 2>/dev/null | head -1)"
+case "${FIRST_ENTRY}" in
+  reg_test_files-main/*) : ;;
+  *) die "the archive's top-level directory is '${FIRST_ENTRY}', not reg_test_files-main/ --
+     the test script chdirs into ./reg_test_files-main/ConvergentChannel by that literal name" ;;
+esac
 log "G-FIXTURE: sha256 ${GOT_SHA} matches the recorded provenance; top-level name confirmed"
 
 # --------------------------------------------------------------- G-ROOT --

@@ -341,3 +341,47 @@ check 4 is the supervisor's own and is not discharged by this lane filing the en
 launched by hand.** The daemon runner launches from the drop path with no agent alive; the box is
 above the runner's 85 % ceiling and the entry will **hold**. **That is correct behaviour, not a
 stall.**
+
+---
+
+## AMENDMENT 1 — 2026-08-27, dafoam lane C — PRE-COMPUTE INSTRUMENT REPAIR (`fadr_chain_driver.sh` only)
+
+**Version 1.0 → 1.0a. Appended at the foot. Lines whose number changed above this section: 0.**
+
+**The condition rule 2 requires an amendment to state, and how it was checked.** This amendment is
+made **before first compute**, and the check is the run directory that does not exist: the run root
+`/home/ubuntu/certonomous-runs/CURRICULUM-FADR-forward-ad-regression` was **verified ABSENT** at
+2026-08-27T18:52Z, immediately after the guard controls of
+`fadr_driver_guard_evidence_postfreeze.txt`, which create no arm directory and leave no run root
+behind (that file's closing line records `run root after all controls: ABSENT`). No container has
+started, no core-second has been spent, and no gate has closed.
+
+**What was found, and by what.** The **G-ROOT.1 planted control** — an arm directory made to exist
+so the driver must refuse — refused with the **wrong reason**: it reported the fixture's top-level
+directory as not being `reg_test_files-main/`. The archive is correct; **the guard was wrong.**
+`tar -tzf "$ARCHIVE" | head -1 | grep -q '^reg_test_files-main/'` closes the pipe at `head`, `tar`
+takes **SIGPIPE and exits 141**, and `set -o pipefail` promotes that to the pipeline's status.
+**Measured on the real fixture: `PIPESTATUS = 141 0 0`, with the first entry genuinely
+`reg_test_files-main/`.** Left alone, this guard would have refused **every** launch of this item
+with a false statement about the fixture, and the failure would have been read as branch P-C.
+
+**The repair.** The check becomes a command substitution — whose exit status is not tested — and a
+`case` match. Nine lines, in one guard, in `fadr_chain_driver.sh` only.
+
+**WHAT THIS AMENDMENT DOES NOT TOUCH — and the list is the point.** No gate, no threshold, no band,
+no cap, no label, no verdict mapping, no prediction, no cost, no cpuset, no image, no arm, no
+control. The comparator `fadr_grade.py` is **byte-unchanged** (`2ec89e0e7ffef79968486ce0c69946ce`
+before and after). `PREREGISTRATION.md` above this line is byte-unchanged. §4.3's mapping, §5's
+ceiling of 240.0 core-min, §7's P1–P7 and §8's three branches all stand exactly as frozen at
+`eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`.
+
+**The freeze is still `eaa8061347bc6dce3e6d4a4d0563c7576e9e9e5d`.** The amendment lands as a second
+commit; the queue entry names **both**, and the driver's own `G-PATH` self-check is given the
+**amendment** commit, because that is the commit whose blobs are the files that will run — which is
+what standing rule 2's "verify the frozen file **is** the file that ran" actually asks for.
+
+**The general lesson this cost nothing to learn, and would have cost the whole item to miss:** a
+guard that has never been shown able to fire is not known to work — and a guard that fires for the
+**wrong reason** is worse than one that does not fire at all, because it answers with a finding
+(`P-C`, "the fixture is wrong") that is false. The control did not merely pass; **it disagreed with
+the guard, and the guard lost.**
