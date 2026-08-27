@@ -136,3 +136,75 @@ D17 §8 verbatim, plus: **nothing about real-gas hypersonics** (§0 — perfect 
 **Committed BEFORE any container starts** (rule 2). The grading path is fixed at this commit: `d18_grade.py` md5 `e4ade11ed9e3db18d2c4988b30e929b4`, asserted by the driver before every arm. **Queue entry `verification/queue/dafoam/D18_chain.json`:** team `dafoam`, `prereg_commit` = the sha of the commit introducing this file, `launch_cmd` = `["bash", "<abs>/d18_chain_driver.sh", "MESH", "X-S", "F-S", "X-P", "F-P"]`, `cwd` = this directory, `ranks 2`, `cost_core_min_estimate 182.2`, `cap_core_min_registered 785.0`, `memory_floor_gb 12.0`, `cost_basis` derived / not measured, `permission bc0e687e`. **Enqueueing is not authorisation** — `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own.
 
 **Predicted outcome:** P1, P2, P3, P4, P6 HIT; **P7 HIT (the two rows do not discriminate)**; P5 undetermined and reported as whatever it is; the `2D · steady · hypersonic` gradient cell moves from `CAN NOT DO — not attempted` to **`CAN DO, CAVEATS`** — the caveats being the single mesh, the perfect-gas assumption of §0, and the absence of two-row discrimination. **If the primal does not converge, the item is `NOT A RESULT` and the finding is §8's.**
+
+---
+
+## ADDENDUM A — 2026-08-27, appended by dafoam lane C on `dafoam-supervisor`'s explicit order — CITATION FORM ONLY
+
+**Version 1.0 → 1.0a. Appended at the foot. Lines whose number changed above this section: 0**,
+proved by byte comparison of the 138-line prefix against the blob this document was frozen at, not
+by eyeball. **This document was authored by another lane (B), which is gone. Lane C appended this
+section and touched nothing else in it**, on the supervisor's order and with no other change.
+
+**The condition rule 2 requires, named and checked.** This is a **pre-compute** amendment: the run
+root **`/home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic` DOES NOT EXIST**, verified at
+**2026-08-27T19:41:01Z**; `verification/queue/runner.log` carries **zero** D18 mentions;
+`verification/queue/dafoam/D18_chain.json` is still on the drop path and **not** in `launched/`.
+No container has started and no gate has closed.
+
+### A.1 THE DEFECT — a citation that makes the reader infer the identifier's type
+
+§0 line 3 reads ``NONCONVERGENCE_STANDARD.md (`7ffd6c73`)`` and §8's heading at line 97 reads the
+same. **A bare hex string in parentheses does not say what kind of identifier it is.** The same file
+has **three** identifiers and only one of them is that one:
+
+| identifier | value | what it names |
+|---|---|---|
+| **commit** | **`7ffd6c7386e76b54572714378ab12d975fa518a1`** | the revision — **this is the one cited, and the one that governs** |
+| blob id | `d553b963b4a727b894729a5d793bedd07c83820d` | the file's bytes, as git names them |
+| content sha256 | `14d72954cbe853ae859c083417963758985181391484fd5da08b3ded86e08885` | the file's bytes, as `sha256sum` names them |
+
+**Both original citations are STRUCK and superseded by this section. They are left byte-identical on
+the page rather than edited**, because frozen files are never edited in place and other records cite
+documents here by line; the strike is recorded here, not applied above.
+
+### A.2 THE CORRECTION, AND ITS SEVERITY STATED HONESTLY RATHER THAN INFLATED
+
+**`7ffd6c73` is a COMMIT.** Verified independently by lane C, not accepted on relay:
+`git cat-file -t 7ffd6c73` returns **`commit`**, and
+`git log --diff-filter=A -- docs/standards/NONCONVERGENCE_STANDARD.md` returns **that same commit**,
+so it is the commit that *landed* the standard. **The commit is the right thing to cite here**,
+because what this document points at is the standard's **text at that revision**, and only a commit
+makes that text recoverable.
+
+**Nothing was at risk and no freeze integrity is touched.** Eight hex characters cannot be a sha256;
+the reference resolves correctly as a commit; and neither §0 nor §8 uses it as an integrity check —
+it is a pointer to a standard's text. **This is not a freeze-integrity failure and is not to be
+written up as one.** It is worth a one-line fix on a document that has spent zero compute because
+this family was bitten today by one notch worse: two commits sharing a subject 52 s apart, where the
+wrong one resolved to a real commit and failed only at the path check (`VERIFICATION_CHARTER` v1.12).
+
+**One measurement that bounds the exposure exactly.** The blob at `7ffd6c73` is
+`d553b963b4a727b894729a5d793bedd07c83820d` and the blob at HEAD is **the same** — the standard's
+text has not changed since it landed. **So the ambiguity currently resolves to identical bytes
+whichever identifier a reader reached for. That is true today and is not a property anyone may rely
+on tomorrow**, which is the whole reason to fix the form now rather than after the text moves.
+
+### A.3 THE CLASS IS CLOSED HERE, NOT ONE INSTANCE OF IT
+
+`7ffd6c73` is not the only bare hex in this document. **Every distinct 8-hex token in it was typed
+by `git cat-file -t`, and all five are COMMITS:**
+
+`068c2bf0` · `2d8796e3` · `7ffd6c73` · `bc0e687e` · `d4d0c29d` — **commit, all of them.**
+
+**Every bare hex on this page names a commit.** Naming them explicitly is what stops the ambiguity
+recurring by someone later "correcting" a commit id into a digest.
+
+### A.4 WHAT THIS ADDENDUM DOES NOT TOUCH
+
+**No gate, threshold, band, cap, label, verdict mapping, prediction, cost, cpuset, image or arm
+moves.** §2's registered delta, §7's scope, §8's anti-gaming carriage, the 182.2 core-min estimate,
+the 785.0 cap, `ranks 2`, `memory_floor_gb 12.0` and `d18_grade.py` md5
+`e4ade11ed9e3db18d2c4988b30e929b4` all stand exactly as frozen at
+`dae3dc9d17dab4ecda7d44e30c9a3016637f9987`, which remains this document's freeze. Nothing was sent
+anywhere; **submissions remain parked.**
