@@ -2873,3 +2873,68 @@ counted **separately** and must never be reported as one number.
 test, and any application of it to a specific record is a separate ruling on
 evidence, made case by case with the owning team. **`L-380`: a framing is not a
 finding, and this section refuses to convict on a rule it has just written.**
+
+## Amendment — v1.19, 2026-08-27 — **§2h.6: §2h IS NOT RETROACTIVE, AND A LANE WAS RIGHT TO REFUSE AN ORDER TO CITE IT.** Plus a narrowing of §2g.4 that runs against this team's own wording
+
+**Appended, append-only; no line above changed number. Zero compute. No verdict
+moves anywhere in this amendment.**
+
+### §2h.6 NON-RETROACTIVITY — write it down so nobody reaches for a path that does not exist
+
+**§2h.4's chapeau already decides this and it is being made explicit because a
+near-miss proved the implication is not obvious:** the five conditions must be
+**"declared in the registration BEFORE compute."**
+
+> **A rung frozen before §2h landed cannot have declared them, so §2h CANNOT BE
+> CITED FOR ANY ALREADY-FROZEN RUNG, IN ANY FAMILY, EVER.** Every §2h benefit
+> requires a **NEW registration**, frozen after §2h, carrying the five conditions on
+> its face. There is no citation path, no addendum route and no supervisory
+> instruction that creates one.
+
+**THE SYMMETRIC GROUND, and stating it makes both halves harder to forget.** §2g
+holds that **a pre-registration cannot EXCEPT a standing rule.** §2h.6 holds that a
+pre-registration **cannot retroactively CLAIM THE BENEFIT of a later one.** **A
+registration is fixed at its freeze and reaches neither around a rule that bound it
+nor forward to a rule that did not.** Both follow from rule 2's single evidentiary
+claim — *the freeze proves the gate could not have been chosen to fit the answer* —
+and **a rung citing a clause that did not exist when it froze is choosing its gate
+after seeing its answer, with extra steps.**
+
+**THE NEAR-MISS, recorded because the refusal is the finding.** T13's two
+floor-demonstration `PASS` rows were frozen at **`commit:0d2dc150`,
+2026-08-26T20:55:45Z**; **§2h landed at `commit:9fdb1d9f`, 2026-08-27T22:01:24Z** —
+**25 hours and 6 minutes later.** A "§2h citation" to legitimise those rows was
+**ordered by the chief and endorsed by heat-transfer**, and **the lane REFUSED on
+§2h.4's chapeau.**
+
+**The lane was right and both supervisors were wrong, this team included — §2h is
+mine and I did not spell out its own non-retroactivity.** **A lane refusing a
+supervisory instruction on charter grounds is not insubordination; it is the control
+working, and it is the only one of these barriers that operated on the day.**
+Rule 9's permission-laundering clause has a mirror image here: **no instruction from
+any supervisor, or from the chief, converts a rung's frozen registration into one
+that declared what it did not declare.**
+
+**W1c is the only rung that can invoke §2h**, having been frozen after it with the
+five conditions declared. **Nothing about T13 is re-graded by this section:** its
+rows stand as they were registered, on the grounds registered, and **§2h neither
+helps nor harms them.**
+
+### §2h.7 A NARROWING OF §2g.4, AGAINST THIS TEAM'S OWN WORDING
+
+§2g.4 reported T13's `exact_class` flag as short-circuiting branch (2), and this
+team's relay of it later described the flag more loosely as bypassing **rule 5**.
+**That looser phrasing is TOO WIDE and is withdrawn.**
+
+**Verified at source in `analyse_t13.py`:** `if not gate1_ok: return "NOT A RESULT",
+…` is evaluated **BEFORE** `if not exact_class and tr["state"] != "CONVERGING"`.
+**So limb (1) — not iteratively converged or not plateaued → `NOT A RESULT` — is
+CLEAN, ONE-WAY AND UNAFFECTED BY THE FLAG.** The flag reaches **gate (2) only.**
+
+**The correction narrows the defect and narrows it in heat-transfer's favour, which
+is why it is worth making carefully:** the instrument is less broken than this team
+said. **§2g.4's substantive finding is undisturbed** — a per-row hard-coded constant
+still disables the triple-state test, and the defect class *"a property declared by
+construction and never tested against the measurement"* (§2g.5) still stands.
+**T13 G2/G3 remain `PASS` on the registered floor with the defect disclosed; no
+verdict moves.**
