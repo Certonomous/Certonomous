@@ -121,6 +121,14 @@ class Change(NamedTuple):
     old_size: int
 
 
+class CommitMeta(NamedTuple):
+    """What EMPTY needs to know about the commit, and nothing else. Read from
+    `git cat-file -p <sha>` (parent lines and the tree line), so no writing or
+    index-reading subcommand is involved."""
+    n_parents: int
+    tree_equals_first_parent: bool
+
+
 class Mutations(NamedTuple):
     """SELFTEST ONLY. Each field reintroduces a specific defect so the control
     that catches it can be shown to FLIP. The command-line path never
@@ -130,6 +138,8 @@ class Mutations(NamedTuple):
     disable_logs: bool = False
     disable_attempt: bool = False
     manifest_exempts_logs: bool = False      # the defect the spec FORBIDS
+    disable_runs_exemption: bool = False     # AMENDMENT 1 (d), shown load-bearing
+    widen_merge_carveout: bool = False       # AMENDMENT 2: carve-out on ANY parent count
 
 
 CLEAN = Mutations()
@@ -161,12 +171,34 @@ def is_log_path(path):
     return any(fnmatch.fnmatchcase(base, pat) for pat in LOG_BASENAME_PATTERNS)
 
 
-def is_attempt_path(path):
-    parts = path.split("/")[:-1]          # DIRECTORY components only
-    for comp in parts:
-        if comp in ATTEMPT_DIR_EXACT:
+# AMENDMENT 1, 2026-08-27, cfd-supervisor as named Owner of the spec, on the
+# measurements below. Both changes are recorded in the spec's dated amendment;
+# neither was taken by the implementer.
+#
+# (c) LEADING-DOT VARIANTS MATCH. A hidden attempt directory is still an
+#     attempt directory, and a leading dot is precisely how one would evade the
+#     clause. Found live: 05241ab2 landed .attempt1_stale/ , which the frozen
+#     pattern did not match.
+#
+# (d) ATTEMPT DOES NOT MATCH UNDER verification/runs/. That is the CORRECT
+#     filing location for run outputs (FILING_CHARTER), and attemptN_<descriptor>/
+#     is this lab's legitimate convention for successive attempts at a rung.
+#     The clause was written to keep SCRATCH attempt directories out of git, not
+#     to reject FILED run outputs; as frozen it would have refused every
+#     legitimate re-attempt the lab files the moment it went blocking, and the
+#     0/200 ATTEMPT score hid that entirely because those paths simply were not
+#     re-touched in the sample. The clause keeps its teeth everywhere else.
+RUN_TREE_PREFIX = "verification/runs/"
+
+
+def is_attempt_path(path, mut=None):
+    if path.startswith(RUN_TREE_PREFIX) and not (mut and mut.disable_runs_exemption):
+        return False                       # ruling (d): filed run outputs
+    for comp in path.split("/")[:-1]:      # DIRECTORY components only
+        bare = comp[1:] if comp.startswith(".") else comp   # ruling (c)
+        if bare in ATTEMPT_DIR_EXACT:
             return True
-        if any(fnmatch.fnmatchcase(comp, pat) for pat in ATTEMPT_DIR_PATTERNS):
+        if any(fnmatch.fnmatchcase(bare, pat) for pat in ATTEMPT_DIR_PATTERNS):
             return True
     return False
 
@@ -205,7 +237,7 @@ def added_bytes_of(change):
 # adapter below is the only thing that has to be exercised against a real tree.
 # ---------------------------------------------------------------------------
 
-def evaluate(changes, manifest_texts=None, mut=CLEAN):
+def evaluate(changes, manifest_texts=None, mut=CLEAN, meta=None):
     manifest_texts = manifest_texts or {}
     findings = []
     notes = []
@@ -215,6 +247,27 @@ def evaluate(changes, manifest_texts=None, mut=CLEAN):
     # nothing must not report "small enough". `git ls-files` against the
     # contaminated shared index is exactly how a guard comes to see nothing.
     if not changes:
+        # AMENDMENT 2 (verification D538/D539, relayed by the Owner): a TRUE
+        # MERGE whose tree equals its first parent's yields zero changed paths
+        # through no fault of the committer, and EMPTY would fire spuriously.
+        # Carved out -- but NOT SILENTLY. A carve-out that hides is a hole.
+        # MEASURED BEFORE SHIPPING, and it CORRECTS the premise the carve-out
+        # was ordered on: the claim was that this repository has linear history
+        # by construction, so a merge is anomalous. Merges are RARE here, not
+        # absent -- 15 in the last 500 commits, 3.0%, measured. The lane work
+        # under the private-index protocol never merges, which is what makes a
+        # merge worth REPORTING; but at 3% a silent carve-out would have hidden
+        # real cases, so the note below is load-bearing rather than decorative.
+        merge_carved = (meta is not None
+                        and meta.tree_equals_first_parent
+                        and (meta.n_parents >= 2 or mut.widen_merge_carveout))
+        if merge_carved:
+            notes.append(
+                "MERGE: %d-parent commit whose tree equals its first parent's -- "
+                "zero changed paths, EMPTY skipped. This repository has linear "
+                "history by construction, so a merge is itself anomalous and is "
+                "reported rather than passed over in silence." % meta.n_parents)
+            return findings, notes
         findings.append(
             "EMPTY: the guard was handed ZERO changed paths. That is not an "
             "accept -- it is a guard that cannot see. A size guard reporting on "
@@ -250,10 +303,12 @@ def evaluate(changes, manifest_texts=None, mut=CLEAN):
         else:
             findings.append(
                 "COUNT: %d files added or modified, over the threshold of %d, "
-                "with no manifest in the tree. Land it with a manifest naming "
-                "what is being landed and why -- one line per group, with a "
-                "total -- or split the commit. This guard does not write the "
-                "manifest for you." % (n_live, COUNT_MAX))
+                "with no manifest IN THIS COMMIT. A COMMIT_MANIFEST.md that "
+                "already exists in the repository does NOT count: the manifest "
+                "must be Added or Modified by the very commit it explains. Land "
+                "one naming what is being landed and why -- one line per group, "
+                "with a total -- or split the commit. This guard does not write "
+                "the manifest for you." % (n_live, COUNT_MAX))
 
     # --- BYTES ------------------------------------------------------------
     if total_added > BYTES_MAX and not mut.disable_bytes:
@@ -263,7 +318,8 @@ def evaluate(changes, manifest_texts=None, mut=CLEAN):
         else:
             findings.append(
                 "BYTES: %d added bytes, over the threshold of %d, with no "
-                "manifest in the tree. Bulk evidence is filed by digest OUTSIDE "
+                "manifest IN THIS COMMIT (a pre-existing one does not count; it "
+                "must be Added or Modified here). Bulk evidence is filed by digest OUTSIDE "
                 "git (/home/ubuntu/certonomous-runs/, docs/LOCATIONS.md); a "
                 "manifest explains bulk that genuinely belongs in the repository."
                 % (total_added, BYTES_MAX))
@@ -284,12 +340,15 @@ def evaluate(changes, manifest_texts=None, mut=CLEAN):
                 "First 5: %s" % (len(logs), logs[:5]))
 
     # --- ATTEMPT -- NOT EXEMPTIBLE BY MANIFEST ----------------------------
-    att = sorted(c.path for c in live if is_attempt_path(c.path))
+    att = sorted(c.path for c in live if is_attempt_path(c.path, mut))
     if att and not mut.disable_attempt:
         findings.append(
             "ATTEMPT: %d path(s) sit under attempt*/ , *_attempt*/ , scratch/ or "
-            "__pycache__/ and attempt directories stay out of git (Sanaa section "
-            "1). A MANIFEST DOES NOT EXEMPT THIS. First 5: %s"
+            "__pycache__/ (leading-dot variants included) and attempt "
+            "directories stay out of git (Sanaa section 1). A MANIFEST DOES NOT "
+            "EXEMPT THIS. Paths under verification/runs/ are EXEMPT -- that is "
+            "the correct filing location for run outputs and attemptN_<descriptor>/ "
+            "is the lab's convention there (AMENDMENT 1). First 5: %s"
             % (len(att), att[:5]))
 
     return findings, notes
@@ -345,6 +404,33 @@ def manifest_texts_from_tree(changes, tree, root):
             if out.returncode == 0:
                 texts[c.path] = out.stdout
     return texts
+
+
+def commit_meta_from_sha(sha, root):
+    """Parent count and tree equality, read with cat-file only."""
+    out = _git(["cat-file", "-p", sha], root)
+    if out.returncode != 0:
+        return None
+    tree = None
+    parents = []
+    for line in out.stdout.splitlines():
+        if line.startswith("tree "):
+            tree = line.split()[1]
+        elif line.startswith("parent "):
+            parents.append(line.split()[1])
+        elif not line.strip():
+            break
+    if tree is None:
+        return None
+    eq = False
+    if parents:
+        pout = _git(["cat-file", "-p", parents[0]], root)
+        if pout.returncode == 0:
+            for line in pout.stdout.splitlines():
+                if line.startswith("tree "):
+                    eq = (line.split()[1] == tree)
+                    break
+    return CommitMeta(len(parents), eq)
 
 
 def repo_root(start):
@@ -442,7 +528,7 @@ def selftest():
         problems.append("CONTROL FAILED (git allowlist): `git add -A` was not refused.")
 
     # --- 0d: the CLI never constructs a mutation --------------------------
-    if CLEAN != Mutations(False, False, False, False, False):
+    if CLEAN != Mutations(False, False, False, False, False, False, False):
         problems.append("CONTROL FAILED (mutations): CLEAN is not all-False.")
     elif src.count("mut=CLEAN") < 1 or "Mutations(" not in src:
         problems.append("CONTROL FAILED (mutations): mutation plumbing not as claimed.")
@@ -464,6 +550,11 @@ def selftest():
     c5 = [Change("verification/runs/X/log.solve", "A", 100, 0)]
     c6 = list(c5) + [Change(MAN, "A", len(man_text), 0)]
     c7 = [Change("cases/X/attempt3/case.foam", "A", 100, 0)]
+    # AMENDMENT 1 (c): a HIDDEN attempt directory is still an attempt directory.
+    c7d = [Change("cases/X/.attempt1_stale/S_KE_x/0/T", "A", 100, 0)]
+    # AMENDMENT 1 (d): a FILED run output under verification/runs/ is not one.
+    c7r = [Change("verification/runs/F6a_GREENBLATT_runs/attempt3_Re936k/"
+                  "grading.json", "A", 100, 0)]
     mtx = {MAN: man_text}
 
     table = [
@@ -474,6 +565,10 @@ def selftest():
         ("control 5  one log.solve", c5, {}, {"LOGS"}, False),
         ("control 6  one log.solve WITH manifest", c6, mtx, {"LOGS"}, False),
         ("control 7  one attempt3/ path", c7, {}, {"ATTEMPT"}, False),
+        ("control 7d AMENDMENT 1(c)  hidden .attempt1_stale/ outside a run tree",
+         c7d, {}, {"ATTEMPT"}, False),
+        ("control 7r AMENDMENT 1(d)  attempt3_Re936k/ UNDER verification/runs/",
+         c7r, {}, set(), True),
     ]
     for name, ch, mt, want, accept in table:
         f, _ = evaluate(ch, mt)
@@ -526,6 +621,7 @@ def selftest():
         ("disable ATTEMPT", c7, {}, Mutations(disable_attempt=True), "control 7"),
         ("WIDEN the manifest exemption to LOGS", c6, mtx,
          Mutations(manifest_exempts_logs=True), "control 6"),
+        ("disable ATTEMPT", c7d, {}, Mutations(disable_attempt=True), "control 7d"),
     ]
     for what, ch, mt, mut, which in plants:
         f, _ = evaluate(ch, mt, mut)
@@ -538,6 +634,21 @@ def selftest():
                     "reintroducible AND shown caught" if mut.manifest_exempts_logs else "")
             lines.append("PLANT FLIPPED %s (%s): the tree became ACCEPTED, so the "
                          "clause is load-bearing and reachable.%s" % (which, what, tail))
+    # AMENDMENT 1 (d) is an EXEMPTION, so its planted failure runs the other
+    # way: removing it must make an ACCEPTING control REFUSE. An exemption that
+    # cannot be shown to change an outcome is not known to be doing anything.
+    fr, _ = evaluate(c7r, {}, Mutations(disable_runs_exemption=True))
+    if "ATTEMPT" not in {x.split(":", 1)[0] for x in fr}:
+        problems.append("PLANT DID NOT FLIP (remove the verification/runs/ "
+                        "exemption): control 7r stayed ACCEPTED, so the exemption "
+                        "is not what is accepting it.")
+    else:
+        lines.append("PLANT FLIPPED control 7r (remove the verification/runs/ "
+                     "exemption): the filed run output became REFUSED under "
+                     "ATTEMPT, so AMENDMENT 1(d) is load-bearing and is the only "
+                     "thing standing between this guard and refusing every "
+                     "legitimate re-attempt the lab files.")
+
     # ...and the SHIPPED code must not be any of the mutants.
     f6, _ = evaluate(c6, mtx)
     if "LOGS" not in {x.split(":", 1)[0] for x in f6}:
@@ -546,6 +657,56 @@ def selftest():
     else:
         lines.append("PLANT RESIDUE CHECK: the shipped guard still refuses control "
                      "6 under LOGS, so no mutant leaked into shipped behaviour.")
+
+    # --- AMENDMENT 2: the EMPTY merge carve-out, and its L-314 proof ------
+    # E1 uses the REAL commit 5e45a5a9 -- characterised BY COMMAND, not by the
+    # shape expected of it: it has ONE parent and its tree equals that parent's.
+    # A lane read `git rev-list --parents -n1 | wc -w` = 2 as "two parents" when
+    # it is sha + one parent, and reported a merge that does not exist. The
+    # control uses the measurement, never the expectation.
+    e1_sha = "5e45a5a9"
+    if _git(["cat-file", "-e", e1_sha + "^{commit}"], root).returncode != 0:
+        problems.append("E1 CONTROL FAILED: %s is not a commit here." % e1_sha)
+    else:
+        e1_meta = commit_meta_from_sha(e1_sha, root)
+        e1_ch = changes_from_trees(e1_sha + "^", e1_sha, root)
+        if e1_meta is None or e1_meta.n_parents != 1 or not e1_meta.tree_equals_first_parent:
+            problems.append("E1 CONTROL FAILED: %s is not the single-parent "
+                            "zero-path shape this control needs; read %s."
+                            % (e1_sha, e1_meta))
+        elif e1_ch:
+            problems.append("E1 CONTROL FAILED: %s enumerated %d paths, expected 0."
+                            % (e1_sha, len(e1_ch)))
+        else:
+            f, _ = evaluate(e1_ch, {}, CLEAN, e1_meta)
+            if {x.split(":", 1)[0] for x in f} != {"EMPTY"}:
+                problems.append("E1 CONTROL FAILED: a REAL single-parent empty "
+                                "commit must still refuse EMPTY; got %s." % (f or "ACCEPT"))
+            else:
+                lines.append("E1 CONTROL FIRED (%s, real, 1 parent, tree == parent "
+                             "tree, 0 paths): still REFUSES under EMPTY, so the "
+                             "merge carve-out does not reach a non-merge." % e1_sha)
+            f2, n2 = evaluate([], {}, CLEAN, CommitMeta(2, True))
+            if f2:
+                problems.append("E2 CONTROL FAILED: a 2-parent commit whose tree "
+                                "equals its first parent's must be carved out; got %s." % f2)
+            elif not any(n.startswith("MERGE:") for n in n2):
+                problems.append("E2 CONTROL FAILED: the carve-out was SILENT. It must "
+                                "emit a MERGE note -- a carve-out that hides is a hole.")
+            else:
+                lines.append("E2 CONTROL FIRED (2 parents, tree == first parent's): "
+                             "EMPTY carved out AND reported as a distinct MERGE note.")
+            f3, _ = evaluate(e1_ch, {}, Mutations(widen_merge_carveout=True), e1_meta)
+            if f3:
+                problems.append("PLANT DID NOT FLIP (widen the merge carve-out to "
+                                "single-parent): E1 stayed refused by %s. The carve-out "
+                                "would then be an UNTESTED HOLE in the one clause "
+                                "verification ruled load-bearing." % f3)
+            else:
+                lines.append("PLANT FLIPPED E1 (widen the merge carve-out to "
+                             "single-parent commits): the REAL empty commit became "
+                             "ACCEPTED -- the parent-count condition is exactly what "
+                             "keeps EMPTY alive, and widening it is detectable.")
 
     # --- control 9: L-314, a caller that ignores `set -e` still detects ---
     with tempfile.TemporaryDirectory() as td:
@@ -624,7 +785,9 @@ def main(argv):
         return 1
 
     changes = changes_from_trees(base, tree, root)
-    findings, notes = evaluate(changes, manifest_texts_from_tree(changes, tree, root))
+    meta = commit_meta_from_sha(a.commit, root) if a.commit else None
+    findings, notes = evaluate(changes, manifest_texts_from_tree(changes, tree, root),
+                               CLEAN, meta)
     if a.json:
         print(json.dumps({"label": label,
                           "verdict": "REFUSED" if findings else "ACCEPTED",
