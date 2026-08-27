@@ -1,12 +1,12 @@
 {
  "team": "cfd",
  "case_id": "F26D",
- "prereg_commit": "6ab2e257774c727c11822271722a962b8bba1b72",
+ "prereg_commit": "ed09c9ef5f9ca20571105185e5210a1d60f8a231",
  "prereg_path": "cases/F26_RINGLEB/PREREGISTRATION_F26D_2026-08-27.md",
  "launch_cmd": [
   "bash",
   "/home/ubuntu/Certonomous/cases/F26_RINGLEB/run_f26d.sh",
-  "--prereg-commit=6ab2e257774c727c11822271722a962b8bba1b72"
+  "--prereg-commit=ed09c9ef5f9ca20571105185e5210a1d60f8a231"
  ],
  "cwd": "/home/ubuntu/Certonomous/cases/F26_RINGLEB",
  "ranks": 1,
@@ -24,8 +24,9 @@
  "grade_cmd": [
   "python3",
   "/home/ubuntu/Certonomous/cases/F26_RINGLEB/grade_f26d.py",
-  "--prereg-commit=6ab2e257774c727c11822271722a962b8bba1b72"
+  "--prereg-commit=ed09c9ef5f9ca20571105185e5210a1d60f8a231"
  ],
  "verdict_state": "PENDING",
- "freeze_history": "frozen at 6ab2e257774c727c11822271722a962b8bba1b72, obtained with `git log --diff-filter=A --format=%H -- cases/F26_RINGLEB/PREREGISTRATION_F26D_2026-08-27.md` (exactly one adding commit), NEVER from a commit subject (VERIFICATION_CHARTER v1.12). Prereg blob 1ec23cbf7142; grade_f26d.py --prereg-commit re-verifies the on-disk file against that blob before grading."
+ "freeze_history": "ADDED at 6ab2e257774c727c11822271722a962b8bba1b72 (git log --diff-filter=A --format=%H -- the prereg path; exactly one adding commit, never from a commit subject), prereg blob 1ec23cbf7142. AMENDMENT 1, BEFORE FIRST COMPUTE and moving NO gate/threshold/cap/label, at ed09c9ef5f9ca20571105185e5210a1d60f8a231, prereg blob 3e6a6a38c393. --diff-filter=A STILL RETURNS THE ADDING COMMIT 6ab2e257774c727c11822271722a962b8bba1b72 AND DOES NOT MOVE, because the prereg was MODIFIED not added; THE SHA THE LAUNCHER AND GRADER MUST BE HANDED IS THE AMENDING COMMIT ed09c9ef5f9ca20571105185e5210a1d60f8a231, exactly as the F17 entry records for its own pre-compute amendment. Proved mechanically: grade_f26d.py --prereg-commit=6ab2e257774c727c11822271722a962b8bba1b72 REFUSES (blob 3e6a6a38c393 on disk != committed 1ec23cbf7142), and --prereg-commit=ed09c9ef5f9ca20571105185e5210a1d60f8a231 prints FREEZE VERIFIED.",
+ "amendment_1": "grade_f26d.py classified an ABSENT level as FAILED, so a cap halt would have been read as a physics failure at exactly the level where the money ran out and mapped onto a registered conclusion (demonstrated: it returned 'NONE of the three'). Fixed: UNRUN and BUILD_FAILED are their own states, N* comes from the first non-COMPLETED level, an infrastructure state gives UNDETERMINED and NOT A RESULT, and the cap halt is READ from run_f26d.sh's CAP_HALT.json rather than inferred. Unrun levels stay PENDING. Grader controls 8 -> 13, including the mutation G10 that reintroduces the defect and requires the new control to flip."
 }
