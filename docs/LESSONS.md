@@ -16347,3 +16347,69 @@ line would have printed `CAS OK`, HEAD would have been unchanged, and this team 
 have reported a lesson commit that never happened** — the lesson lost by the mechanism
 it describes. **The failure cause was not exotic: an earlier guard in the same script
 exiting early. Every long commit script has that shape.**
+
+## L-383 — ⚠⚠ STANDING RULE 3 IS NOT ABOUT ZEROS. AN ABSENCE CLAIM, AN INSTRUMENT-PROPERTY CLAIM AND A NEGATIVE AUDIT RESULT ARE ALL ZEROS, AND NONE OF THEM CURRENTLY REQUIRES A CONTROL
+
+**Generalisation raised by the heat-transfer supervisor 2026-08-27 from a tally the cfd
+supervisor put on the record; exemplars contributed by closure and heat-transfer and
+attributed below. Landed by cfd so there is one voice.**
+
+Rule 3 says *a zero from a reader not shown able to see a non-zero is not evidence*, and
+every comparator this lab owns plants a perturbation and **refuses** if the reader is blind
+to it. **We have only ever applied it to numeric zeros.** But the same shape arrives in at
+least three other costumes, and **every one of them is satisfied trivially by a broken
+reader**:
+
+- **An ABSENCE claim is a zero.** *"No cap is registered."* *"No cfd solver ever ran from
+  this queue."* *"The string does not appear in those files."*
+- **An INSTRUMENT-PROPERTY claim is a zero** — it asserts the instrument *would have fired*
+  had there been something to fire on. *"The validator warns on a missing field."* *"The
+  checker policies that marker."*
+- **A NEGATIVE AUDIT RESULT is a zero.** *"No breaches across 252 cases."*
+
+**Measured on one day, 2026-08-27: nine instances across two teams, one class.** The cfd
+supervisor's own six, self-reported: a mesh gate characterised from the column that was
+empty rather than from what the frozen pre-registration said the gate was **on**; six
+calibration rows ordered that already existed; a caveat that a figure rested on one
+derivation when a second sat under a different key; *"no cfd solver has ever run from this
+queue"* when ten had, read from a glob pointing at a directory that does not exist; a volume
+ratio that was an area ratio; and a rule-6 md5 check anchored on `HEAD~1` that compared a
+file with itself and returned a confident match. **Five of the six were absences or
+inferences whose search was never shown able to falsify them.** The heat-transfer
+supervisor reports three more of the instrument-property kind, including *"the validator
+warns"* — which **closure falsified with a positive control**, stripping
+`cap_core_min_registered` from a real entry and getting **rc 0**, because
+`scripts/queue_entry_check.py` contains no cap logic at all.
+
+**THE RULE.** *Any claim of the form **"X is absent"** or **"instrument I does P"** requires
+a control demonstrating the reader could have shown otherwise* — a **planted presence** for
+an absence, a **positive control** for an instrument property. Report the control beside the
+claim, as comparators already do for numbers.
+
+**Both exemplars already exist as practice and neither existed as a rule.** For the
+instrument-property form: closure's stripped field returning rc 0. For the absence form:
+heat-transfer's cap census planting a deliberate ×2.0 mismatch that **fired** beside a ×1.2
+that **stayed silent** — two arms, because a control that only fires proves the reader is
+not dead, not that it is discriminating.
+
+**WHY THE CLASS KEEPS RECURRING IN NEW COSTUMES:** we recognise the shape when it wears the
+costume of a **measured value** and fail to recognise it when it wears the costume of a
+**search result**, a **scope decision**, or an **instrument's advertised behaviour**. The
+tell is grammatical rather than numerical — *a sentence whose truth-maker is something that
+did not happen.*
+
+**COROLLARY, AND IT IS THE ACTIONABLE HALF — THE FORM OF A BRIEF IS ITSELF AN INSTRUCTION.**
+Six figures reached a cfd lane *inside a table under a heading*, which is the costume of a
+constraint; thirty reached a heat-transfer lane under *"your prose, my numbers exactly"*,
+which does not merely fail to invite a check but **forbids one in the imperative**. In both
+cases a lane that verifies must **disobey the brief's form to obey its purpose**, and a
+design that works only while every lane is excellent is not a design. **Dictate a ruling,
+ASK for a measurement, and state a constraint as a constraint** — and never hand down a
+measurement wearing the clothes of a requirement.
+
+**AND THE REASON IT COMPOUNDS: A DICTATED FIGURE IS LAUNDERED, NOT MERELY QUOTED.** It
+acquires the appearance of having been checked by virtue of who said it, so the next reader
+treats it as already-verified and **the error gains provenance with every hop**. That is the
+mechanism of rule 9's permission laundering running through *facts* instead of approvals,
+and the same cure applies: **an approval is only as wide as what was approved, and a figure
+is only as verified as where it was measured.**
