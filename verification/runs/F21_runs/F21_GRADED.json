@@ -1,0 +1,669 @@
+{
+  "rung": "F21-WOMERSLEY",
+  "prereg_commit": "448756a540b86dc4dc94ed094cc93db3284e5928",
+  "prereg": "verification/campaign/F21_WOMERSLEY_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 4,
+    "assert_nodes": 0,
+    "planted_assert_seen": true
+  },
+  "controls": [
+    {
+      "control": "symbolic_substitution_into_unsteady_x_momentum",
+      "residual": "0",
+      "numeric_residual_max": 2.220446049250313e-16,
+      "wall_value_max": 0.0,
+      "alpha": 5.0,
+      "passed": true
+    },
+    {
+      "control": "PZ-F21-K_planted_1.1k_must_be_nonzero",
+      "planted_factor": 1.1,
+      "residual_is_zero": false,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement_h_and_dt",
+      "h_ratios": [
+        2.0,
+        2.0
+      ],
+      "dt_ratios": [
+        2.0,
+        2.0
+      ],
+      "passed": true
+    },
+    {
+      "control": "model_second_order_between_solved_grids_extrapolation_crosschecked_and_wall_stencil_planted",
+      "model_orders": {
+        "E2": 2.0035208625282355,
+        "probe": 1.9975967555161236
+      },
+      "fine_extrapolated_E2": 7.713234452376805e-05,
+      "fine_direct_E2": 7.718461712102007e-05,
+      "fine_direct_probe_err": -0.00010888880470180574,
+      "fine_direct_period_change": 1.2766268660178155e-09,
+      "extrapolation_over_direct": 0.9993227588708504,
+      "planted_wall_E2": 0.012402015976775755,
+      "passed": true
+    },
+    {
+      "control": "PZ-F21-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        670
+      ],
+      "passed": true
+    },
+    {
+      "control": "solver_dictionaries_agree_with_registration",
+      "nu": 0.25132741228718347,
+      "p_tol": 1e-09,
+      "U_tol": 1e-12,
+      "endTime": 12.25,
+      "ddt": "backward",
+      "drive": "cosine f=1 A=1 x-hat, specific, all",
+      "passed": true
+    },
+    {
+      "control": "reader_parses_real_solver_written_U_on_this_box",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL019/L1_30/5/U",
+      "cells": 120,
+      "passed": true
+    },
+    {
+      "control": "PZ-F21-L342_infrastructure_vs_physics_fields_driven_both_ways",
+      "infrastructure_deleted": "verdict channel unchanged, cost claim refused, defect lines printed",
+      "physics_corrupted": "NOT A RESULT",
+      "missing_prev_period_U": "not complete",
+      "passed": true
+    },
+    {
+      "control": "PZ-F21-ITERATIVE_census_flags_one_bad_p_and_one_bad_Ux_reading",
+      "clean": "CONVERGED",
+      "bad_p": "NOT_CONVERGED_1_READINGS_ABOVE_TOL",
+      "bad_Ux": "NOT_CONVERGED_1_READINGS_ABOVE_TOL",
+      "passed": true
+    },
+    {
+      "control": "PZ-F21-PERIODICITY_planted_change_read_back_and_tolerance_above_10x_model",
+      "planted": 0.00775345066905961,
+      "read_back": 0.007753450669059668,
+      "identical_files": 0.0,
+      "tolerance": 1e-05,
+      "model_worst_predicted_change": 4.065307690440804e-08,
+      "passed": true
+    },
+    {
+      "control": "PZ-F21-PROBE_reference_same_stencil_zero_error_and_plant_read_back",
+      "reference": 1.0538041252522687,
+      "pointwise_exact": 1.0538030606698008,
+      "stencil_error": 1.0645824679578197e-06,
+      "zero_error_readback": 0.0,
+      "planted_readback": 0.007753450669059747,
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F21-1_E2_velocity_locked_phase",
+      "construction": "exact(T) + 1 x scaled model error field",
+      "value": 7.71323445237589e-05,
+      "band": [
+        2.5710781507922686e-05,
+        0.00023139703357130415
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F21-2_u_centreline_locked_phase",
+      "construction": "exact(T) + 1 x scaled model error field",
+      "value": 1.053695528387166,
+      "band": [
+        1.053476994119757,
+        1.0541312563847804
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F21-1_E2_velocity_locked_phase",
+      "construction": "exact(T) + 40 x scaled model error field",
+      "value": 0.0030852937809507253,
+      "band": [
+        2.5710781507922686e-05,
+        0.00023139703357130415
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F21-2_u_centreline_locked_phase",
+      "construction": "exact(T) + 40 x scaled model error field",
+      "value": 1.049460250648159,
+      "band": [
+        1.053476994119757,
+        1.0541312563847804
+      ],
+      "inside": false,
+      "intended": "outside"
+    }
+  ],
+  "write_path": "OpenFOAM ascii volVectorField `U` at a write time: `internalField nonuniform List<vector>` NEWLINE N NEWLINE `(` one `(ux uy uz)` per line `)`; pinned against REAL solver output on this box, verification/runs/ansys_verification/VMFL019/L1_30/5/U, parsed at selftest.",
+  "cap_core_min": 1500.0,
+  "field_classes": {
+    "PHYSICS_CRITICAL": [
+      "log.pimpleFoam `End` line and `Time =` count (fixed-deltaT identity)",
+      "RC.txt (solver rc, written by the launcher in the shell that ran the solver)",
+      "<endTime>/U and <endTime>/p present and NEWER than 0/U (age guard)",
+      "<endTime - PERIOD>/U present (the periodicity check)",
+      "0/C cell centres",
+      "every time step's final p and Ux residual in log.pimpleFoam (rule 5 limb 1 census)"
+    ],
+    "INFRASTRUCTURE": [
+      "ClockTime in log.pimpleFoam (cost actual)",
+      "box_before.txt / box_after.txt",
+      "MESH_LINE.txt",
+      "STATUS.* / launcher.queue.out / LAUNCH_LOG rows written by a queue runner",
+      "calibration figures derived from any of the above"
+    ]
+  },
+  "cost_claim": {
+    "fields": "INFRASTRUCTURE",
+    "core_min_claim": 944.5333333333333,
+    "partial_sum_core_min": 944.5333333333333,
+    "cap_core_min": 1500.0,
+    "defects": [],
+    "note": "ClockTime x ranks / 60; dollars at $0.0513/core-h DERIVED, NOT MEASURED"
+  },
+  "rows": [
+    {
+      "quantity": "G-F21-1_E2_velocity_locked_phase",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 56.08858769671483,
+      "reference": 0.0,
+      "band": [
+        2.5710781507922686e-05,
+        0.00023139703357130415
+      ],
+      "band_verdict": "GATE FAIL",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 16384,
+          "value": 0.0012401559071491053
+        },
+        {
+          "name": "medium",
+          "cells": 65536,
+          "value": 0.0003092832597642876
+        },
+        {
+          "name": "fine",
+          "cells": 262144,
+          "value": 56.08858769671483
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "OSCILLATORY",
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            0.0012401559071491053,
+            0.0003092832597642876,
+            56.08858769671483
+          ],
+          "cells": [
+            16384,
+            65536,
+            262144
+          ],
+          "e21": -56.088278413455065,
+          "e32": 0.0009308726473848178
+        }
+      ],
+      "orders": [
+        null
+      ],
+      "states": [
+        "OSCILLATORY"
+      ],
+      "monotone": false,
+      "planted_zero": {
+        "passed": true,
+        "planted": -6.444314408327045e-06,
+        "read_back_delta": -6.444314408327045e-06,
+        "reader_delta": -6.444314408327045e-06,
+        "reader": "e2_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "NOT_PERIODIC_change_3.853e+01_above_1.0e-05"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "levels fine are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "gate": "G-F21-1_E2_velocity_locked_phase",
+      "band_principle": "discretisation-model prediction E2 = 7.713234452e-05 at h_fine = 0.00390625, dt = 0.00260417, t = 12.25 (the solver's own 1-D FV/BDF2 discretisation solved on the coarse and medium grids, fine extrapolated with the model order), times [1/3, 3]",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 16384,
+          "value": 0.0012401559071491053,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/12.25/U",
+          "h": 0.015625,
+          "dt": 0.010416666666666666,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 1176,
+            "latest": 12.25,
+            "dt": 0.010416666666666666,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/12.25",
+            "prev_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/11.25",
+            "why": "rc 0; End; latest + dt > endTime; 1176 `Time` lines == endTime/dt; U, p at endTime newer than 0/U; U at endTime - PERIOD present"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p and Ux residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 2352,
+              "Ux": 1176
+            },
+            "tolerances": {
+              "p": 1e-09,
+              "Ux": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0
+            },
+            "worst": {
+              "p": 9.99971427494e-10,
+              "Ux": 9.9005771629e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2 / U_ref over every cell",
+            "change": 4.065299034954092e-08,
+            "tolerance": 1e-05,
+            "artifacts": [
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/12.25/U",
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/11.25/U"
+            ]
+          },
+          "n": 128
+        },
+        {
+          "name": "medium",
+          "cells": 65536,
+          "value": 0.0003092832597642876,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/12.25/U",
+          "h": 0.0078125,
+          "dt": 0.005208333333333333,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 2352,
+            "latest": 12.25,
+            "dt": 0.005208333333333333,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/12.25",
+            "prev_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/11.25",
+            "why": "rc 0; End; latest + dt > endTime; 2352 `Time` lines == endTime/dt; U, p at endTime newer than 0/U; U at endTime - PERIOD present"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p and Ux residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 4704,
+              "Ux": 2352
+            },
+            "tolerances": {
+              "p": 1e-09,
+              "Ux": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0
+            },
+            "worst": {
+              "p": 9.99957927283e-10,
+              "Ux": 9.95726324623e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2 / U_ref over every cell",
+            "change": 6.792030875144702e-09,
+            "tolerance": 1e-05,
+            "artifacts": [
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/12.25/U",
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/11.25/U"
+            ]
+          },
+          "n": 256
+        },
+        {
+          "name": "fine",
+          "cells": 262144,
+          "value": 56.08858769671483,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25/U",
+          "h": 0.00390625,
+          "dt": 0.0026041666666666665,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 4704,
+            "latest": 12.25,
+            "dt": 0.0026041666666666665,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25",
+            "prev_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/11.25",
+            "why": "rc 0; End; latest + dt > endTime; 4704 `Time` lines == endTime/dt; U, p at endTime newer than 0/U; U at endTime - PERIOD present"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p and Ux residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 9408,
+              "Ux": 4704
+            },
+            "tolerances": {
+              "p": 1e-09,
+              "Ux": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0
+            },
+            "worst": {
+              "p": 9.99990524337e-10,
+              "Ux": 9.99886958287e-13
+            }
+          },
+          "plateau": "NOT_PERIODIC_change_3.853e+01_above_1.0e-05",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2 / U_ref over every cell",
+            "change": 38.52970496142732,
+            "tolerance": 1e-05,
+            "artifacts": [
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25/U",
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/11.25/U"
+            ]
+          },
+          "n": 512
+        }
+      ],
+      "plateau_note": "periodicity: ||U(T_END) - U(T_END - PERIOD)||_2 / U_ref <= 1e-05 at every level",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    },
+    {
+      "quantity": "G-F21-2_u_centreline_locked_phase",
+      "dim": 2,
+      "fs": 1.25,
+      "value": 1.074655151729998,
+      "reference": 1.0538041252522687,
+      "band": [
+        1.053476994119757,
+        1.0541312563847804
+      ],
+      "band_verdict": "GATE FAIL",
+      "levels": [
+        {
+          "name": "coarse",
+          "cells": 16384,
+          "value": 1.0520811926923228
+        },
+        {
+          "name": "medium",
+          "cells": 65536,
+          "value": 1.0533718698903372
+        },
+        {
+          "name": "fine",
+          "cells": 262144,
+          "value": 1.074655151729998
+        }
+      ],
+      "triples": [
+        {
+          "levels": [
+            "coarse",
+            "medium",
+            "fine"
+          ],
+          "state": "DIVERGENT",
+          "order": -4.043520499896468,
+          "dim": 2,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "form": "equal",
+          "values": [
+            1.0520811926923228,
+            1.0533718698903372,
+            1.074655151729998
+          ],
+          "cells": [
+            16384,
+            65536,
+            262144
+          ],
+          "e21": -0.021283281839660884,
+          "e32": -0.001290677198014345
+        }
+      ],
+      "orders": [
+        -4.043520499896468
+      ],
+      "states": [
+        "DIVERGENT"
+      ],
+      "monotone": true,
+      "planted_zero": {
+        "passed": true,
+        "planted": 0.00775345066905961,
+        "read_back_delta": 0.007753450669059747,
+        "reader_delta": 0.007753450669059747,
+        "reader": "u_probe_from_files",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25/U",
+        "level": "fine"
+      },
+      "iterative_convergence": {
+        "coarse": "CONVERGED",
+        "medium": "CONVERGED",
+        "fine": "CONVERGED"
+      },
+      "plateau": {
+        "coarse": "PLATEAUED",
+        "medium": "PLATEAUED",
+        "fine": "NOT_PERIODIC_change_3.853e+01_above_1.0e-05"
+      },
+      "verdict": "NOT A RESULT",
+      "why": "levels fine are not iteratively converged or not plateaued; no grid claim can be made from this triple",
+      "gate": "G-F21-2_u_centreline_locked_phase",
+      "band_principle": "exact field sampled at the fine level's cell centres and interpolated by the grader's own bilinear() at (1, 0), t = 12.25: u/U_ref = 1.053804125252269 (pointwise exact 1.053803060669801) +/- 3 x the model's predicted pointwise error there (-1.090437108e-04) = +/- 3.271311325e-04",
+      "levels_detail": [
+        {
+          "name": "coarse",
+          "cells": 16384,
+          "value": 1.0520811926923228,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/12.25/U",
+          "h": 0.015625,
+          "dt": 0.010416666666666666,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 1176,
+            "latest": 12.25,
+            "dt": 0.010416666666666666,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/12.25",
+            "prev_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/11.25",
+            "why": "rc 0; End; latest + dt > endTime; 1176 `Time` lines == endTime/dt; U, p at endTime newer than 0/U; U at endTime - PERIOD present"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p and Ux residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 2352,
+              "Ux": 1176
+            },
+            "tolerances": {
+              "p": 1e-09,
+              "Ux": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0
+            },
+            "worst": {
+              "p": 9.99971427494e-10,
+              "Ux": 9.9005771629e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2 / U_ref over every cell",
+            "change": 4.065299034954092e-08,
+            "tolerance": 1e-05,
+            "artifacts": [
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/12.25/U",
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/coarse/11.25/U"
+            ]
+          },
+          "n": 128
+        },
+        {
+          "name": "medium",
+          "cells": 65536,
+          "value": 1.0533718698903372,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/12.25/U",
+          "h": 0.0078125,
+          "dt": 0.005208333333333333,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 2352,
+            "latest": 12.25,
+            "dt": 0.005208333333333333,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/12.25",
+            "prev_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/11.25",
+            "why": "rc 0; End; latest + dt > endTime; 2352 `Time` lines == endTime/dt; U, p at endTime newer than 0/U; U at endTime - PERIOD present"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p and Ux residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 4704,
+              "Ux": 2352
+            },
+            "tolerances": {
+              "p": 1e-09,
+              "Ux": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0
+            },
+            "worst": {
+              "p": 9.99957927283e-10,
+              "Ux": 9.95726324623e-13
+            }
+          },
+          "plateau": "PLATEAUED",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2 / U_ref over every cell",
+            "change": 6.792030875144702e-09,
+            "tolerance": 1e-05,
+            "artifacts": [
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/12.25/U",
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/medium/11.25/U"
+            ]
+          },
+          "n": 256
+        },
+        {
+          "name": "fine",
+          "cells": 262144,
+          "value": 1.074655151729998,
+          "artifact": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25/U",
+          "h": 0.00390625,
+          "dt": 0.0026041666666666665,
+          "completion": {
+            "case": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine",
+            "log": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/log.pimpleFoam",
+            "rc": "0",
+            "n_times": 4704,
+            "latest": 12.25,
+            "dt": 0.0026041666666666665,
+            "done": true,
+            "end_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25",
+            "prev_dir": "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/11.25",
+            "why": "rc 0; End; latest + dt > endTime; 4704 `Time` lines == endTime/dt; U, p at endTime newer than 0/U; U at endTime - PERIOD present"
+          },
+          "iterative": "CONVERGED",
+          "iterative_detail": {
+            "basis": "per-time-step final p and Ux residuals, census over ALL steps and correctors",
+            "n_readings": {
+              "p": 9408,
+              "Ux": 4704
+            },
+            "tolerances": {
+              "p": 1e-09,
+              "Ux": 1e-12
+            },
+            "n_above_tolerance": {
+              "p": 0,
+              "Ux": 0
+            },
+            "worst": {
+              "p": 9.99990524337e-10,
+              "Ux": 9.99886958287e-13
+            }
+          },
+          "plateau": "NOT_PERIODIC_change_3.853e+01_above_1.0e-05",
+          "plateau_detail": {
+            "basis": "||U(T_END) - U(T_END - PERIOD)||_2 / U_ref over every cell",
+            "change": 38.52970496142732,
+            "tolerance": 1e-05,
+            "artifacts": [
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/12.25/U",
+              "/home/ubuntu/Certonomous/verification/runs/F21_runs/fine/11.25/U"
+            ]
+          },
+          "n": 512
+        }
+      ],
+      "plateau_note": "periodicity: ||U(T_END) - U(T_END - PERIOD)||_2 / U_ref <= 1e-05 at every level",
+      "gated_by": "scripts/roache_triple.py::grade_ladder -- rule 5 is reached through this call and through nothing else"
+    }
+  ]
+}

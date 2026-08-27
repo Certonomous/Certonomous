@@ -1,0 +1,10 @@
+F21 -- WOMERSLEY PULSATILE CHANNEL FLOW -- TALLY
+==============================================================================
+G-F21-1_E2_velocity_locked_phase         NOT A RESULT
+    levels fine are not iteratively converged or not plateaued; no grid claim can be made from this triple
+G-F21-2_u_centreline_locked_phase        NOT A RESULT
+    levels fine are not iteratively converged or not plateaued; no grid claim can be made from this triple
+==============================================================================
+cost actual: 944.533 core-min of cap 1500.0 (ClockTime x ranks / 60; dollars derived, not measured)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F21_runs/F21_GRADED.json
