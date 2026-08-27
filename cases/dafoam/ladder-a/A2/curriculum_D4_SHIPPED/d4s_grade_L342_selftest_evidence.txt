@@ -17,7 +17,11 @@
   [OK ] 5_running_container_REFUSES
   [OK ] 5_G10_frozen_clause_within_cap_False_for_731_667
   [OK ] 5_G11_oomkilled_reads_false
-L342_SELFTEST mode=python3 pass=18 fail=0
+  [OK ] 6_P1_REAL_BYTES_PASS_script_rule
+  [OK ] 6_P2_REAL_BYTES_PASS_solver_rule
+  [OK ] 6_SOLVER_arm_without_statement_FAILS_clause_strict
+  [OK ] 6_unregistered_arm_kind_REFUSES
+L342_SELFTEST mode=python3 pass=22 fail=0
 rc=0
 === python3 -O ===
   [OK ] 1_infra_absent_row_PARSES
@@ -38,5 +42,9 @@ rc=0
   [OK ] 5_running_container_REFUSES
   [OK ] 5_G10_frozen_clause_within_cap_False_for_731_667
   [OK ] 5_G11_oomkilled_reads_false
-L342_SELFTEST mode=python3 -O pass=18 fail=0
+  [OK ] 6_P1_REAL_BYTES_PASS_script_rule
+  [OK ] 6_P2_REAL_BYTES_PASS_solver_rule
+  [OK ] 6_SOLVER_arm_without_statement_FAILS_clause_strict
+  [OK ] 6_unregistered_arm_kind_REFUSES
+L342_SELFTEST mode=python3 -O pass=22 fail=0
 rc=0
