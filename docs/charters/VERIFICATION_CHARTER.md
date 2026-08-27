@@ -2584,3 +2584,118 @@ convention yet, which is why this is charter text.
 | executable checks made to refuse | **0** |
 | existing citations retro-fitted | **0** |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment — v1.16, 2026-08-27 — **§2g: A PRE-REGISTRATION CANNOT EXCEPT A STANDING RULE.** W1b R1's floor exception is REFUSED — and the remedy is a different instrument, not a refusal
+
+**Ruling on heat-transfer's referred-and-unruled W1b R1 item. Appended at the foot; nothing above
+edited. `lines whose number changed above this section: 0`, proved by a byte-prefix check against
+the HEAD blob in the same invocation. The clause is `§2g`.**
+
+### §2g.1 THE QUESTION
+
+W1b R1's triple measures **`EXACT`** (`e21` −2.842e-13, `e32` 3.240e-12); its deviation is
+**2.899e-12 K against a registered 1e-06 K floor**. Standing rule 5 branch (2) makes an `EXACT`
+triple **`NOT A RESULT`**. The row is recorded **`PASS`**, standing on a **floor exception frozen
+in the pre-registration before compute** (`commit:3c39d08d`, 2026-08-26T21:18Z, against first
+compute 2026-08-27T08:54:19Z — **rule 2 is clean and is not in question**).
+
+### §2g.2 THE RULING: REFUSED, ON RULE 5's OWN SENTENCE
+
+> **A pre-registration fixes the gate, threshold, cap and label FOR ITS CASE. It has no power to
+> disapply a standing rule, and an exception to one is void however early it was frozen.**
+
+**Three grounds, and the first is decisive on its own:**
+
+1. **Rule 5 says the gate is ONE-WAY, in its own text:** *"The gate can only turn a `PASS` or
+   `GATE FAIL` **into** `NOT A RESULT`, never the reverse."* **An exception that yields `PASS`
+   where rule 5 yields `NOT A RESULT` runs the gate backwards.** It is not a gap in the rule; it
+   is the thing the rule's last sentence exists to forbid.
+2. **Scope.** A pre-registration binds a **case**; a standing rule binds the **lab**. **A
+   case-level document cannot amend a lab-level rule** — that is Sanaa's, exactly as adding or
+   retiring a gate threshold is (this team's D539).
+3. **The consequence if it were allowed:** any rung could pre-register its way out of any standing
+   rule, disclosed and in advance, and **rule 5 would become optional at the author's election.**
+   Pre-registration's power is that it fixes what the author may claim *before* they know the
+   answer; it was never a power to choose which rules apply.
+
+**Rule 2 being clean does not save it.** Freezing early proves the exception was not chosen to fit
+the answer. **It does not confer the authority to write the exception.**
+
+### §2g.3 BUT THE PHYSICS IS RIGHT, AND THE REMEDY IS A DIFFERENT INSTRUMENT — NOT A REFUSAL
+
+**Heat-transfer's substantive point stands and this ruling does not dismiss it.** A triple whose
+three levels agree to 1e-13, whose deviation sits **six orders inside its floor**, and which is
+**900× tighter than the band it replaces**, is **not the pathology rule 5 exists to catch.**
+
+**Why rule 5 refuses an `EXACT` triple, stated precisely, because it decides the remedy:**
+`p = ln|e32/e21| / ln r` on two differences that are both round-off is **noise divided by noise**.
+**Rule 5 refuses to compute an ORDER from nothing. It does not say the VALUE is worthless.**
+
+> **THE DIAGNOSIS: the wrong instrument was registered.** Where the discretisation error is below
+> the registered floor **at every level**, a Roache triple **has nothing to measure** — there is
+> no order to observe and no GCI to quote. Registering a triple and then excepting the triple gate
+> is **registering the wrong instrument and patching it.**
+
+**THE REMEDY, which loses nothing:**
+
+- The row reads **`NOT A RESULT` on its Roache limb** — rule 5 unexcepted.
+- **The measurement is REPORTED beside it, not discarded**: 2.899e-12 K against a 1e-06 K floor,
+  the three levels' agreement, and the 900× improvement on the band it replaces. **D534 already
+  established `REPORTED` as a row class** for exactly this — a quantity the record carries and no
+  gate scores.
+- **The successor registers a FLOOR DEMONSTRATION with its own gate** — *the discretisation error
+  is below X at the coarsest level, so the answer does not depend on the mesh at the resolution
+  that matters* — **and that gate CAN `PASS`**, on its own pre-registered band, without touching
+  rule 5. **A floor demonstration is a weaker claim than grid convergence and it is the claim the
+  evidence actually supports.**
+
+**Nothing is re-graded by this team.** The row is heat-transfer's; this rules the standard.
+
+### §2g.4 AND THE T13 `exact_class` FLAG IS WIDER THAN THE ARGUMENT FOR IT — verified at source
+
+`verification/runs/T-family/T13_runs/analyse_t13.py:405` reads:
+
+    if not exact_class and tr["state"] != "CONVERGING":
+
+**Read by this supervisor at source: the flag short-circuits the WHOLE of branch (2)** — not the
+`EXACT` state its docstring argues for, but `DIVERGENT`, `STAGNANT` and `OSCILLATORY` with it. The
+flag is a **hard-coded per-row constant** in the spec tuples at `:488`. **G2 and G3 read
+`OSCILLATORY` and `DIVERGENT` (p −0.8931) and are recorded `PASS`.**
+
+**This is the T1b shape** (`analyse_t1b.py:193`, ruled at `docs/L342_GRADER_AUDIT.md` Addendum 5):
+**a gate condition that is computed, recorded, and never reaches the verdict.** Here it is worse in
+one respect and better in another — **worse**, because a constant *actively* disables the test
+rather than the test merely being absent; **better**, because heat-transfer found it, boarded it
+(D545), disclosed the width itself, and marked the comparator **NOT-FOR-REUSE**.
+
+**This team accepts that no retrofit is owed**, on heat-transfer's own evidence and not on its
+assurance: the band verdict is computed first, the gate is one-way, the graded fine values sit
+**4.20 and 6.00 orders below their floors**, and **all five planted-zero controls PASS at a
+demonstrated detection floor of 1e-07 — an order below G2's band — so a band violation would have
+been visible.** **The verdicts are substantively right and the instrument is not. Both are true
+and the record should say both.**
+
+### §2g.5 THE DEFECT CLASS, ADOPTED — and its contrast pattern is in the same family
+
+Heat-transfer's generalisation is adopted as this charter's:
+
+> **A PROPERTY DECLARED BY CONSTRUCTION AND NEVER TESTED AGAINST THE MEASUREMENT.** The
+> declaration then reads as licence to skip the check that would have falsified it. **In T13 the
+> measurement happened to vindicate the premise; nothing in the code required that.**
+
+**The contrast is `verification/runs/T-family/T9aR1b_runs/analyse_t9aR1b.py:217-225`, which
+DERIVES the state from the numbers** — `if max(abs(e21), abs(e32)) < roundoff_K: state="EXACT"` —
+**and carries both `e`'s in the record either way.** **A property MEASURED can be wrong and be
+caught; a property DECLARED cannot.** That file is the lab's pattern of record for this, and the
+sweep contrast to look for is a **constant** where `analyse_t9aR1b` has a **comparison**.
+
+| amendment record | v1.16 |
+|---|---|
+| clauses added | 1 (§2g) |
+| exceptions to standing rules permitted | **0** |
+| gates, thresholds, caps or labels changed | 0 |
+| rows re-graded by this team | **0** |
+| executable checks made to refuse | 0 |
+| lines whose number changed above this section | 0 |
