@@ -187,3 +187,143 @@ ask; the answer is the registration, and it was written before compute.
 - `__pycache__` was removed before the run. No frozen file was edited (rule 6).
 - **Nothing was sent, filed, uploaded, posted or registered outside this box**
   (rule 7).
+
+---
+
+# APPENDED 2026-08-27T18:55Z — DISCLOSURE: `G2` and `G3` are `PASS` ON AN ABSOLUTE FLOOR WITH NON-CONVERGING TRIPLE STATES PRINTED BESIDE THEM, and the comparator's exactness bypass is UNGUARDED
+
+**Document version 1.0 -> 1.1**; 1.0 is the text above, which carried no version
+line and is not edited by this section. **Lines whose number changed above this
+section: 0.** No gate, band, threshold, floor, cap, label or verdict moves.
+Drafted by a heat-transfer grading lane at the supervisor's direction, on the
+supervisor's own check-3 finding; every number below was re-read by the drafting
+lane from `gate_t13.json` and from the comparator source rather than relayed.
+
+## 10. What a reader of `gate_t13.json` will see, and why it is not the T1b defect
+
+**Opening that file shows `"triple_state": "DIVERGENT"` next to `"verdict": "PASS"`.**
+That pairing is exactly the shape `CLAUDE.md` rule 5 exists to forbid, and a
+reader is entitled to an explanation without having to reconstruct one.
+
+**THE TWO ROWS, AS MEASURED.**
+
+| row | quantity | triple `c` / `m` / `f` | state | order | registered band | margin |
+|---|---|---|---|---|---|---|
+| `G2` | RMS over the mid-height row of `(T - T_lin)/dT` | 4.1028e-12 / 3.3543e-12 / 6.2626e-11 | **OSCILLATORY** | — | ±**1e-06** | **1.60e4 ×**, 4.20 orders |
+| `G3` | `Nu_L` from the half-cell wall gradient | 4.8801e-11 / 1.0136e-10 / 1.9896e-10 | **DIVERGENT** | **-0.8931** | ±**2e-04** | **1.01e6 ×**, 6.00 orders |
+
+**BOTH VERDICTS STAND, AND WHAT SAVES THEM IS THE ABSOLUTE FLOOR, NOT THE
+BYPASS.** The registration's premise for these two rows is that the linear `T`
+profile lies in the null space of the scheme's truncation error, so the
+discretisation error should be zero. **The measurement CONFIRMS that premise:**
+every one of the six values is at round-off. The `OSCILLATORY` and `DIVERGENT`
+labels are the Roache classifier reading round-off noise — `G3`'s observed order
+of **-0.8931** is a slope fitted through three numbers that are all of order
+1e-10 — and a sign pattern in noise is not a convergence behaviour. **No GCI is
+quoted for either row** (`gci_pct` is `null` in both), which is correct and is
+what rule 5 requires when the three values are not monotone.
+
+**THE READERS WERE DEMONSTRATED ABLE TO SEE A BAND VIOLATION, WHICH IS THE
+THING THAT ACTUALLY MAKES A FLOOR PASS TRUSTWORTHY.** All five planted-zero
+controls PASS with a **demonstrated detection floor of 1e-07** (§5), `G2` and
+`G3`'s own readers included. That floor sits **an order of magnitude below
+`G2`'s ±1e-06 band and 2 000× below `G3`'s ±2e-04 band** — so any value large
+enough to fail either gate would have been visible to the reader that reported
+it. The measured values (1e-11 … 1e-10) lie *below* the demonstrated detection
+floor and are therefore **indistinguishable from zero by this instrument**,
+which is precisely the registered prediction and not a defect in it. Standing
+rule 3 is satisfied in the way that matters here: the reach that had to be
+established is reach down to the **band**, and it was established.
+
+## 11. THE DEFECT — an exactness DECLARED is not an exactness MEASURED
+
+`analyse_t13.py:405` reads
+
+```
+if not exact_class and tr["state"] != "CONVERGING":
+```
+
+and `exact_class` arrives as a **literal `True`** in the `specs` tuple at
+`:485` (`G2`) and `:486` (`G3`), consumed by the loop at `:488`. **It is
+therefore a blanket bypass of the whole of rule 5's gate (2), not an
+EXACT-specific exception.** The flag is never confronted with the triple state
+that was actually measured, and nothing anywhere checks that the values are at
+round-off before the gate is skipped.
+
+**The consequence is not visible in this rung's numbers and is real anyway:
+the same flag would have passed a genuinely divergent row carrying an O(1)
+error just as silently.** What protects `G2` and `G3` is that their values
+happen to be at round-off — a property of the answer, not of the code. A gate
+whose correctness depends on the answer coming out right is not a gate.
+
+**The correct construction already exists in this family, twenty-three minutes
+later.** `analyse_t9aR1b.py:217-225` **DERIVES** the state instead of
+declaring it:
+
+```
+if max(abs(e21), abs(e32)) < roundoff_K:
+    return dict(state="EXACT", e21=e21, e32=e32, ...)
+```
+
+— exactness is a **measured** property of the triple against a registered
+round-off floor, and both `e`s are carried in the record either way. **T13
+DECLARES what T9a-R1b MEASURES**, and the T9a-R1b form is the pattern of record.
+
+**Not repaired.** `analyse_t13.py` is frozen; rule 6 forbids editing it, and a
+measurement-script diff is the supervisor's own non-delegable read
+(`SUPERVISION_CHARTER` §3 check 1). No `_PROPOSED` file was written. Docketed.
+
+## 12. CORRECTION TO A DESK ITEM — `T13` and `W1b` are NOT the same question
+
+The board has carried the item *"rule 5's EXACT clause met a registered-floor
+exception TWICE today (T13 G2/G3, W1b R1)"*. **That framing is withdrawn: it is
+accurate for `W1b` and NOT accurate for `T13`.**
+
+| | `W1b` `R1` | `T13` `G2` / `G3` |
+|---|---|---|
+| triple state | **`EXACT`** — **DERIVED FROM THE MEASUREMENT** | **`OSCILLATORY`** / **`DIVERGENT`** — measured, and non-converging |
+| evidence | `e21` -2.842e-13, `e32` 3.240e-12, deviation **2.899e-12 K** vs a **1e-06 K** floor | values at 1e-11 … 1e-10 vs floors 1e-06 / 2e-04 |
+| how exactness was established | `analyse_t9aR1b.py:217-225` **tests** `\|e21\|,\|e32\| < roundoff_K` | `analyse_t13.py:485-486` **asserts a literal `True`** |
+
+**`W1b` is a genuine EXACT triple that met a registered floor. `T13` is a
+NON-CONVERGING triple whose row passed on an absolute floor with the gate
+bypassed.** Both verdicts stand, but **the argument that rescues an EXACT row
+does not on its face rescue a DIVERGENT one**, and the two must not be cited
+together as one precedent. The corrected form is the one to carry forward.
+
+## 13. WHETHER A T1b-PATTERN REPAIR IS OWED — the drafting lane's reading, PROPOSED and NOT APPLIED
+
+**Reading: a retrofit amendment to this rung is NOT owed. Concur with the
+supervisor's provisional view, and for a reason that can be stated as a test
+rather than a preference.**
+
+1. **No value and no verdict here is wrong.** The band verdict is computed
+   **first** (`analyse_t13.py:402`) and the gate is one-way (`:403-405`), so
+   the recorded `PASS` **is** the band verdict, and the band verdict is correct
+   on the measured values. A repaired comparator re-run on this data would
+   reproduce every number at relative difference 0.000e+00 **and every verdict
+   unchanged** — because a measured-exactness test on values 4 to 6 orders
+   below their floors returns `EXACT`, which passes gate (2) legitimately.
+2. **That is the substantive difference from T1b.** T1b's defect changed an
+   answer, which is what obliged a retrofit that reproduced the frozen values.
+   Here the defect changes no answer on this data, so a retrofit would purchase
+   **disclosure only** — and disclosure is exactly what §10-§12 deliver, at zero
+   risk to the frozen bytes.
+
+**ONE THING THE LANE WOULD ADD TO THE SUPERVISOR'S FRAMING, AND IT IS NOT A
+DISAGREEMENT.** "Fix it in the next registration" is right but is not
+sufficient on its own, because **the hazard here is REUSE, not this rung.** The
+bypass is unscoped: `exact_class=True` disables gate (2) at any magnitude, so
+the moment `analyse_t13.py`'s `specs` pattern is lifted into an extension rung,
+a different `Ra_L`, or a re-run on a repaired mesh, it becomes capable of
+passing a genuinely divergent O(1) row — and lifting a sibling comparator's
+`specs` block is the normal way this family builds a new rung. **The lane
+therefore proposes, for the supervisor's decision and not as an action taken:
+that this comparator be marked NOT-FOR-REUSE in its own results record, and
+that `analyse_t9aR1b.py:217-225` be named the pattern of record for any future
+exact-class row.** That costs nothing, touches no frozen file, and closes the
+only route by which this defect could ever produce a wrong verdict.
+
+**Nothing in §13 has been applied.** No comparator was changed, no `_PROPOSED`
+file written, no solver launched. Nothing was sent, filed, uploaded, posted or
+registered outside this box (rule 7).
