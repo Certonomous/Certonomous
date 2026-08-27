@@ -1,0 +1,10 @@
+MDS-1 CONTROLS (MDS1-reader-1.0 (2026-08-27))
+  each control driven BOTH ways: perturbation must FIRE, twin must STAY SILENT
+  C1 aspect value (= form)                              silent:OK    fire:OK     silent=805.199 fired=4321.99
+  C2 cell count                                         silent:OK    fire:OK     silent=23040 fired=777777
+  C3 removed log (both filename shapes enumerated)      silent:OK    fire:OK     before=2 after=1
+  C4 `:` label form read non-null                       silent:OK    fire:OK     colon=2842.46 flagged=True equals_form='EQUALS_FORM'
+  C5 non-positive min volume reported, not dropped      silent:OK    fire:OK     status='MIN_NEGATIVE' ratio=None negvol=-3.30275e-09
+  C6 F5b_runs pruned and counted, never opened          silent:OK    fire:OK     kept=1 pruned=1
+ast.Assert nodes in this file: 0 (required 0)
+ALL CONTROLS BEHAVED. The reader is entitled to report a distribution.
