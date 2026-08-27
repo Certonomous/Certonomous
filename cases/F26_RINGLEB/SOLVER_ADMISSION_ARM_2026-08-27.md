@@ -38,7 +38,8 @@ It lives under the case directory, not in scratch (rule 13 / L-186).
 
 ## 2. The finding: no solver configuration holds this flow at ladder resolutions
 
-Twenty-one configurations were driven on scratch instrument grids. Every one either aborted or
+Twenty-two configurations were driven on scratch instrument grids (the table below is the
+measurement and is authoritative; this sentence read "Twenty-one" until 2026-08-27). Every one either aborted or
 settled into a limit cycle at 1-70 % density error. `rc=136` is SIGFPE, `rc=134` a FOAM abort.
 
 | # | solver | boundary set | convection | outcome |
