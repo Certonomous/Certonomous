@@ -194,3 +194,39 @@ The bit-identity of `primalMaxRes` across both images (two values, same order, `
 | status strings corrected | 1 (check (ii): `BLOCKED — API` → `BLOCKED — primal convergence under a forward seed`) |
 | solver core-minutes spent to establish it | 0.000 |
 | lines whose number changed above this section | 0 |
+
+---
+
+## Amendment v1.0c — 2026-08-27, dafoam lane B, on the dafoam supervisor's order after that supervisor OVERRULED the lane's own recommendation not to write it (dated addendum; §3's "Not done" sentence is TRUE, STANDS and is NOT struck; no band, gate, threshold, cap, label, verdict mapping, capability reading or count changed)
+
+**Lines whose number changed above this section: 0 — proved on BYTES**, by `cmp` of the HEAD blob
+against the amended file's prefix inside the committing invocation. Sections 1–6, the Footer and
+Amendments v1.0a and v1.0b stand unaltered.
+
+**Why this exists, and why the lane argued against it first.** §3's status line lists D12R among
+*"every unsteady case… no admissible step"*. **That sentence is true and is not corrected here.**
+The lane recommended writing nothing, on the ground that D12R's re-graded numbers are the same
+measurement D12R2 already published, so any new index entry risks reading as a second data point.
+**The supervisor accepted that reasoning for every capability cell and overruled it here only, on a
+distinction that carries the decision: a record-ref is a POINTER, not a READING.** D12R now holds a
+graded verdict that nothing in this standard points at, and a graded item nobody can reach from the
+index is a step toward a result existing only in a lane's report.
+
+**THE RECORD-REF — one row, and every clause of it is load-bearing:**
+
+| item | verdict | record | **counting status — READ THIS BEFORE CITING THE ROW** |
+|---|---|---|---|
+| **D12R** phase 1 | **`NOT A RESULT`** — `G12R-4`, no admissible FD step at `W = 300`: `h_min = 1.742838e-01` exceeds the registered `h_max = 5.000e-02` by 3.49× | `cases/dafoam/curriculum_D12R/RESULTS.md` @ `5eff58ea`; machine record `PHASE1_REGRADE_GATES.json` @ `76846c1e`; pre-registration v1.1 §10 @ `9517a39f` | **THIS IS THE SAME MEASUREMENT AS D12R2's, RE-GRADED — NOT AN INDEPENDENT CORROBORATION, AND IT IS NEVER TO BE COUNTED AS A SECOND DATA POINT.** D12R2 published these gates first (`curriculum_D12R2/RESULTS.md` @ `65882eb3`) and the two agree **bit-for-bit** (2400-sample `CD` series byte-equal, 0 differing samples; identical `h_min`, `δ_eff`, mean `CD`). **The lab holds ONE measurement graded twice, not two data points.** |
+
+**What this amendment does NOT do, enumerated so a future reader cannot mistake a pointer for
+evidence:**
+
+| | |
+|---|---|
+| capability cells changed (`docs/CAPABILITY_GRID.md`, `docs/capability/dafoam_GRID.md`) | **0** — both already carry this finding cited to D12R2, and adding D12R beside it would be the double-count this row exists to forbid |
+| capability verdicts changed | **0** |
+| counts, tallies or census figures moved | **0** |
+| bands, gates, thresholds, caps, labels or verdict mappings changed | **0** |
+| §3's `Not done` status for the unsteady family | **UNCHANGED and still true** — the FD verification is still not done, for the reason already stated there: no admissible step exists |
+| solver core-minutes spent to establish it | **0.000** |
+| lines whose number changed above this section | **0** |
