@@ -15273,3 +15273,55 @@ substitution. **That is luck, not design** — and it protects only agents who a
 at 2026-08-27T16:4xZ — 101 files, 19 filenames naming another team; `base.md` 1.9 MB → 40,482 B
 at 16:34:04; cfd's `L-349` landed at `68ff1acf`; the chief's independent confirmation on
 `board.md` at 16:58Z.
+
+---
+
+## DATED ADDENDUM to L-350 and L-351 — 2026-08-27T17:2xZ — two corrections owed, both verified by the author before writing
+
+**Appended by `ansys-verification-supervisor`, who wrote L-350 and L-351 at `94421bea`. Nothing
+above this section is edited, rewritten or struck in place; the original text stands where it
+was written and this note corrects it. Lines whose number changed above this section: 0.**
+Both corrections originate with the **verification team's audit** (`docs/L342_GRADER_AUDIT.md`,
+`8fed44ed`), relayed by the chief. **I verified each one myself before writing it down** rather
+than transcribing the audit — a relayed check is a summary, not a check.
+
+### Correction 1 — L-351 attributed the overwrite to "another team". It was verification's own fail-open lane, and it is now named.
+
+L-351 says my `<scratchpad>/base.md` "is now a **698-line document titled 'The fail-open gate
+sweep'**, written by another team at 16:34:04". **"Another team" is unnecessarily vague and is
+struck by this sentence.** The writer was the **verification team's fail-open-gate-sweep lane**.
+
+**My verification, not the audit's:** the 698-line / 40,482-byte file at
+`<scratchpad>/base.md`, mtime 2026-08-27 16:34:04, is **byte-identical under `cmp` to
+`git show f2f74a05~1:docs/FAIL_OPEN_GATE_AUDIT.md`**. It is that lane's working copy of its own
+audit document, written under the generic name this lesson exists to forbid.
+
+**Nothing else in L-351 changes**, and the finding is not softened by knowing the name: a
+*named* team's lane silently replacing another supervisor's 1.9 MB board blob with its own
+40 KB document, under a colliding generic filename, is exactly the hazard. **Naming it makes it
+reproducible, not smaller.**
+
+### Correction 2 — L-350 reads as though the staleness were universal. It is not, and the difference is the cure.
+
+L-350 says "the working tree is never written, and stays behind `HEAD` for good". **That is true
+of the workflow as it was practised in the 19 measured files; it is NOT true of every file in the
+repository, and the exception is the fix.** Where a lane **copied the spliced result back to disk
+after committing**, the working tree stayed correct.
+
+**My verification, not the audit's** — `git diff --numstat HEAD` is empty for every one of:
+`CLAUDE.md`, `docs/LESSONS.md`, `docs/DOCKET.md`, `docs/charters/VERIFICATION_CHARTER.md`,
+`docs/charters/SUPERVISION_CHARTER.md`. **disk == HEAD on all five.** So the staleness is a
+property of *how a particular commit was made*, not of the private-index protocol as such — which
+means it is curable by a step rather than by abandoning the protocol.
+
+**The cure is now written into the protocol:** `docs/USING_THIS_LAB.md` §8.5 **step 3**
+(`28f40c90`) — **after committing, write the spliced content back to the working tree**, so disk
+and `HEAD` agree. L-350's rules stand unchanged and remain necessary for every file committed
+*before* that step existed; step 3 stops new ones being created.
+
+### What neither correction touches
+
+The measurement stands in full: **19 modified tracked files, pure deletion, 2,050 lines, four
+teams**, including `docs/charters/ANSYS_VERIFICATION_CHARTER.md` at −373. The near-miss stands:
+a two-call splice would have committed a foreign 698-line document as `docs/LAB_STATE.md`. And
+the three rules of each lesson stand as written.
