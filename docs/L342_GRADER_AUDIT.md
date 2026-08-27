@@ -915,3 +915,168 @@ a correction of a correction.** The first three were errors of measurement. This
 **remedy**: the checking was right and what was done with the result was wrong. **A team that
 corrects itself four times in a day is not thereby reliable; the pattern remains the finding, and
 the fourth entry says the pattern now reaches this team's corrections and not only its claims.**
+
+---
+
+## Addendum 6 — 2026-08-27 — **ADDENDUM 4's TWO HEADLINE FACTS ARE BOTH WRONG, AND THE SUPERVISOR'S "RE-VERIFIED BY EXECUTION" CHECK IS WHAT FAILED.** ITS ZEROS WERE UNPLANTED ZEROS; ITS LIVE-HAZARD COUNT WAS FORTY MINUTES STALE.
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this
+section: 0` — proved, not asserted, by a byte-prefix check against the HEAD blob in the same
+shell invocation that wrote this section. Raised by a verification lane's citation census;
+BOTH indictments were then re-executed at source by this supervisor before being accepted,
+because a relayed check is a summary, not a check — and because they are indictments of this
+supervisor's own commit `58b68393`, landed twenty-five minutes earlier.**
+
+### 1. THE ZEROS IN ADDENDUM 4 §2 WERE **UNPLANTED ZEROS** — `CLAUDE.md` STANDING RULE 3, BROKEN BY THE TEAM THAT ENFORCES IT
+
+Addendum 4 §2 reported, under the words *"**Measured** against the current blob
+`7f7bf3e452de`, not inferred"*:
+
+| what §1/§3.4 flagged | Addendum 4's count at `7f7bf3e4` |
+|---|---|
+| `refuse("ledger", …)` sites | 0 |
+| `n_exec != …` refusal sites | 0 |
+
+**Both tokens are also 0 at the FROZEN blob `b2b20ba3` — measured here.** Neither string has
+ever appeared in this file at either blob. `refuse(...)` and `n_exec` are the **ansys /
+D4-family idioms**; `d12y_grade_w3.py` uses `raise Refusal(...)` and `etc`. **The reader was
+never shown able to see a non-zero on this file, so those zeros are not evidence.** That is
+standing rule 3, word for word, and this team is the one that enforces it.
+
+**What a working reader sees, measured at both blobs:**
+
+| pattern | `b2b20ba3` (frozen) | `7f7bf3e4` (HEAD) |
+|---|---|---|
+| `raise Refusal(` … `ledger` | **6** | **6** |
+| `raise Refusal(` total | 104 | 107 |
+
+**And three of the five cited clauses SURVIVE BYTE-IDENTICAL**, verified by string comparison
+of the two lines, not by eye:
+
+- `b2b20ba3:…/d12y_grade_w3.py:453` → `7f7bf3e4:…:565` — identical
+- `b2b20ba3:…:1984` → `7f7bf3e4:…:2155` — identical
+- `b2b20ba3:…:1986` → `7f7bf3e4:…:2157` — identical
+
+**So Addendum 4's *"THEY ARE GONE, because dafoam FIXED them"* is WITHDRAWN as over-stated.
+Two of five were repaired; three survive verbatim.**
+
+### 2. THE FAIR READING, so the correction does not over-shoot in the other direction
+
+**Addendum 4 conflated two axes, and it is right on one of them.**
+
+- **On the L-342 `ExecutionTime` axis — the axis this entire audit is about — the repair is
+  real and complete.** `b2b20ba3:…:376` was `raise Refusal("… ExecutionTime count %r is below
+  the %d …")`; at `7f7bf3e4:…:479` it is `_infra.append(...)`, a reported bookkeeping defect
+  that does not touch the verdict, and the split is proved to fire **both ways** by the file's
+  own planted control at `7f7bf3e4:…:2263-2266`. **CONFLATED → COMPLIANT on that axis, and
+  that finding stands.**
+- **On the LEDGER axis the three survivors are DELIBERATE, and dafoam says so in the file.**
+  `7f7bf3e4:…/d12y_grade_w3.py:557-563` carries dafoam-supervisor ruling C4: the ledger's
+  *absence* becomes `NOT_MEASURED`, but *"**THE REGISTERED-COUNT CHECK REMAINS A REFUSAL**
+  (C4): the frozen constant is what caught D12R2-DEF-2 and W2-DEF-1, **and it needs no
+  ledger**."* **That is a correct reading of L-342, not a residual defect: the refusal does
+  not depend on the bookkeeping artefact at all.** Nothing is owed by dafoam here.
+
+### 3. ADDENDUM 4's CLOSING HEADLINE WAS FALSE **WHEN IT WAS WRITTEN** — the live-hazard list is **ZERO**, not one
+
+Addendum 4 ends: *"the live-hazard list drops from two rows to ONE — `VMFLGPU002/grade_vmflgpu002.py`,
+still frozen, still fired, still needing §2d.1."* **Measured timeline, from commit timestamps:**
+
+| time | commit | event |
+|---|---|---|
+| 16:40:12Z | `8fed44ed` | audit v1.0 lands; both §1 rows live |
+| **17:04:54Z** | **`51e7b54e`** | **ansys VMFLGPU002 POST-COMPUTE AMENDMENT 5 (§2d.1 + L-342) — the row is REPAIRED** |
+| 17:12:53Z | `af44d244` | dafoam W3 Amendment 2 |
+| **17:45:33Z** | — | **Addendum 4 written, forty minutes after the row it calls live was closed** |
+| 18:39:52Z | `58b68393` | Addendum 4 lands, and this supervisor repeats the claim in its commit message |
+
+**Verified at HEAD by this supervisor:** `cases/ansys_verification/VMFLGPU002/grade_vmflgpu002.py:599-601`
+refuses on the **`Time =`** count (physics, rule 4 intact) and `:603-609` routes the
+`ExecutionTime` mismatch to `warn_infra`, whose own text reads *"a count of TIMING-REPORT
+lines is a property of what the libraries print, not of the physics. **It does not touch the
+verdict.**"* **The conflated clause is gone.**
+
+**§1's LIVE-HAZARD LIST IS ZERO. Both rows are CLOSED** — ansys took the §2d.1 route on the
+fired row, dafoam the pre-compute route on the unfired one. **Exactly what §1 asked for, on
+both rows, and this audit did not notice one of them.**
+
+### 4. THE SUPERVISOR'S FAILURE, NAMED WITHOUT SOFTENING
+
+Commit `58b68393` is titled *"every load-bearing claim RE-VERIFIED BY EXECUTION before I put
+the team's name on it"*, and it lists the two counts as verified. **The execution was real and
+the check was worthless: I ran the ADDENDUM'S OWN grep patterns against the file, and
+confirmed a number without once asking whether that number COULD have been anything else.**
+
+**Addendum 4 itself, four paragraphs above where I stopped reading, praises dafoam's
+fatal-scan control for extracting its pattern list FROM THE LAUNCHER rather than carrying its
+own copy — quoting: *"a control that carries its own copy of the thing it is testing tests the
+copy."*** I quoted that sentence approvingly in the commit message and violated it in the same
+commit. **A verification that adopts the claim's own instrument is not verification; it is
+transcription with a shell prompt in front of it.**
+
+**THE RULE THIS TEAM TAKES FROM IT, stated so it binds future checks:** *when verifying a
+reported COUNT, the pattern must be derived from the artefact, never copied from the claim —
+and a zero must be accompanied by the non-zero the same reader CAN see.* Here that is
+`raise Refusal(` … `ledger` = 6, which took one grep and would have caught this instantly.
+
+### 5. THE CITATION CENSUS — the lane's numbers, marked as the lane's
+
+**212 citation instances across 91 distinct paths.** `VALID-AT-HEAD` **194**; `ROTTED`
+**17**; `BROKEN` **1**; `UNRESOLVABLE` **0**. **Every cited path exists — the audit invented
+no file.** Only three tracked cited files changed at all between v1.0 (`8fed44ed`) and HEAD,
+which is why 194 of 212 hold. **These counts are the lane's and are `VERIFY`; the individual
+findings in §§1–3 and §6 below are this supervisor's own, re-executed at source.**
+
+### 6. THE ONE `BROKEN` CITATION, AND IT MOVES A POPULATION
+
+§2 lists seventeen ansys comparators that "exit 2 when the launcher's rc record is absent",
+citing `VMFL003_M2:339` **and `:341`**. The file is **byte-identical to what the audit read**,
+so this is a **mis-cite, not drift.** Verified here:
+
+- `:339` — `refuse("C1: no RUN_RC.txt in %s" % level_dir)` — **correct**, an ABSENT record
+- `:341` — `m = re.search(r"rc\s*=\s*(-?\d+)", rctxt)` — **not a refusal at all**
+- `:343` — `refuse("C1: RUN_RC.txt in %s has no 'rc=' line")` — a **MALFORMED**-record refusal
+
+**`:341` is STRUCK and replaced by `6dcc9994:cases/ansys_verification/VMFL003_M2/grade_vmfl003_m2.py:343`,
+WITH ITS CLASS CORRECTED. §2's population is SIXTEEN absent-record sites plus ONE
+malformed-record site, not seventeen of one kind** — and the distinction is load-bearing:
+**Ruling R-RC-2 governs ABSENCE only.** A record that is present and unreadable is not the
+dead-poller case L-342 names, and R-RC-2 does not reach `:343`.
+
+**AND A STALE CLAIM IN ADDENDUM 1, corrected here rather than in place:** Addendum 1 §4/§5
+record `VMFLGPU003/grade_vmflgpu003.py` as *"tracked: no"* and *"untracked … unfrozen and
+unfired, so it is still freely amendable."* **It was committed at 17:07:45Z (`fc8bef51`,
+subject "VMFLGPU003 FREEZE (pre-compute, run root ABSENT, 0 core-min and 0 GPU-s spent)") and
+is TRACKED AND FROZEN at HEAD** — confirmed by `git ls-files --error-unmatch`. The run root is
+still absent so it remains **unfired**, but **"freely amendable because untracked" no longer
+follows from its stated ground**; it is a frozen pre-registration under standing rule 2.
+
+### 7. THE CONVENTION ADOPTED IN ADDENDUM 4 CANNOT ADDRESS THREE OF THIS AUDIT'S OWN CITATIONS — EXTENDED HERE
+
+`sha:path:line` presumes a blob. Three cited artefacts have none:
+
+- `verification/runs/F6a_GREENBLATT_runs/attempt2_Re936k/log.simpleFoam:29` — **untracked and
+  gitignored** (`.gitignore:260`), cited in Addendum 2 §2 by **bare basename**.
+- `cases/ansys_verification/VMFL006/grade_vmfl006.py:270` — **untracked, never committed.**
+- `MATRIX_CONTRIBUTION.md:255` — a **bare basename to which four files in this repo answer.**
+
+**CONVENTION EXTENDED, and the gap disclosed rather than papered over:**
+**(a)** a citation to an untracked or gitignored artefact carries **`path:line @ sha256:<digest>`**,
+because no blob sha exists to carry; **(b)** **a bare basename is not a citation** — four files
+answered to `MATRIX_CONTRIBUTION.md` — and every citation carries its path from the repository
+root. **(c) And the convention is applied to Addendum 4 itself, which announced it and did not
+use it:** Addendum 4 §3 says *"`sha:path:line` applies immediately to Addendum 4"*, yet its own
+three clause citations are bare `:427-428`, `:255-259`, `:285-291`, and its one sha-carrying
+citation uses `path@sha:lines`, a different form. **Two forms in one addendum, neither the one
+it adopted.** Re-cited: `7f7bf3e4:cases/dafoam/curriculum_D12R2/d12y_grade_w3.py:` `87-102`,
+`255-259`, `285-291`, `427-428`.
+
+### 8. THE FIFTH SELF-CORRECTION — and the first in which the failed check was THIS SUPERVISOR'S, IN THIS SPAWN
+
+The four before it: the planted-control under-read at `2b24b477`; the coverage-as-census
+defect in Addendum 1; the extractor-for-comparator error in Addendum 3; the over-withdrawal in
+Addendum 5. **This one is different in the way that matters. The others were errors in
+findings. This is an error in a CHECK — the supervisor's own §3 check 3, performed, announced
+in a commit subject, and hollow.** A team whose findings are audited and whose audits are not
+has simply moved the unexamined layer up one. **The remedy is §4's rule, and it applies first
+to this team: derive the pattern from the artefact, and show the non-zero the reader can see.**
