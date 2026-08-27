@@ -1,0 +1,16 @@
+F24 -- PRANDTL-MEYER CORNER -- TALLY
+==============================================================================
+G-F24-1_p2_over_p1_box_mean              PENDING  [mode None]
+    level 'fine': no RC.txt yet: rc not recorded; PENDING, not a verdict
+G-F24-2_p_line_L2_across_fan             PENDING  [mode None]
+    level 'fine': no RC.txt yet: rc not recorded; PENDING, not a verdict
+R-F24-M2_box_mean                        REPORTED-NOT-GATED (no verdict by registration)
+    no verdict by registration; level 'fine': no RC.txt yet: rc not recorded; PENDING, not a verdict
+==============================================================================
+BOOKKEEPING DEFECT: level fine has no ClockTime reading; cost actual NOT MEASURED
+BOOKKEEPING DEFECT: level fine lacks box_after.txt; NOT MEASURED
+BOOKKEEPING DEFECT: level fine lacks MESH_LINE.txt; NOT MEASURED
+BOOKKEEPING DEFECT: level fine lacks log.decomposePar; NOT MEASURED
+COST CLAIM REFUSED (infrastructure fields missing); physics verdicts above are unaffected (L-342)
+gated by: scripts/roache_triple.py::grade_ladder
+written: /home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/F24_GRADED.json

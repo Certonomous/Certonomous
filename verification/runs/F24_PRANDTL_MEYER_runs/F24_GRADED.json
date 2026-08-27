@@ -1,0 +1,374 @@
+{
+  "rung": "F24-PRANDTL_MEYER",
+  "prereg_commit": "260ff3c13e6877183a508c34ecd8e12886ed9a45",
+  "prereg": "verification/campaign/F24_PRANDTL_MEYER_PREREGISTRATION.md",
+  "assert_census": {
+    "files_checked": 4,
+    "assert_nodes": 0,
+    "planted_assert_seen": true
+  },
+  "controls": [
+    {
+      "control": "nu_closed_form_vs_defining_integral_and_isentropic_rederivation",
+      "M2": 2.598446326990895,
+      "p2_over_p1": 0.39306779460909,
+      "T2_over_T1": 0.7658320905723576,
+      "passed": true
+    },
+    {
+      "control": "PZ-F24-GAMMA_planted_1.1x_must_break_the_identity",
+      "planted_factor": 1.1,
+      "mismatch": 0.04605654114758079,
+      "passed": true
+    },
+    {
+      "control": "fan_field_continuous_ray_relation_monotone_column_crosses_fan",
+      "phi_head_deg": 30.000000000000004,
+      "phi_tail_deg": 7.634140069388799,
+      "max_ray_residual": 6.661338147750939e-16,
+      "line_y": {
+        "wall": -0.2679491924311227,
+        "tail": 0.13403500047557512,
+        "head": 0.5773502691896258,
+        "top": 0.7320508075688773
+      },
+      "passed": true
+    },
+    {
+      "control": "sampling_box_in_region_2",
+      "tail_margins": [
+        0.13850104174723515,
+        0.31116817141267306
+      ],
+      "y_head_at_outlet": 0.8660254037844388,
+      "top_at_outlet": 0.598076211353316,
+      "head_crosses_sloped_top_at_x": 1.1830127018922192,
+      "passed": true
+    },
+    {
+      "control": "constant_ratio_refinement_h_and_dt_and_subladder_disjoint",
+      "h_ratios": [
+        2.0,
+        2.0
+      ],
+      "step_ratios": [
+        2.0,
+        2.0
+      ],
+      "passed": true
+    },
+    {
+      "control": "PZ-F24-GATE_MODE_admitted_by_subladder_triple_through_roache_triple",
+      "detail": {
+        "p_box": {
+          "registered": "GATED-ABSOLUTE",
+          "admitted": [
+            "GATED-ABSOLUTE",
+            "REPORTED-NOT-GATED"
+          ],
+          "triple": {
+            "state": "OSCILLATORY",
+            "order": null,
+            "levels": [
+              "n16",
+              "n32",
+              "n64"
+            ]
+          }
+        },
+        "M_box": {
+          "registered": "REPORTED-NOT-GATED",
+          "admitted": [
+            "GATED-ABSOLUTE",
+            "REPORTED-NOT-GATED"
+          ],
+          "triple": {
+            "state": "OSCILLATORY",
+            "order": null,
+            "levels": [
+              "n16",
+              "n32",
+              "n64"
+            ]
+          }
+        },
+        "p_line": {
+          "registered": "GATED-EXTRAPOLATED",
+          "admitted": [
+            "GATED-EXTRAPOLATED"
+          ],
+          "triple": {
+            "state": "CONVERGING",
+            "order": 0.8480229646184758,
+            "levels": [
+              "n16",
+              "n32",
+              "n64"
+            ]
+          },
+          "p_observed": 0.8935793100570388,
+          "p_used": 0.8935793100570388,
+          "fine_pred": 0.0013509345385508773
+        },
+        "planted_equal_increments": {
+          "state": "DEGENERATE",
+          "admits": [
+            "GATED-ABSOLUTE",
+            "REPORTED-NOT-GATED"
+          ]
+        },
+        "planted_power_law": {
+          "state": "CONVERGING",
+          "admits": [
+            "GATED-EXTRAPOLATED"
+          ]
+        }
+      },
+      "passed": true
+    },
+    {
+      "control": "PZ-F24-PLATEAU_limbs_each_shown_able_to_refuse",
+      "flat": "PLATEAUED",
+      "ramp": "NOT_PLATEAUED_TREND",
+      "step": "NOT_PLATEAUED_TREND",
+      "short_series": "exit 2",
+      "residual_small": "PLATEAUED",
+      "residual_large": "NOT_PLATEAUED_RESIDUAL_1.00e-02",
+      "passed": true
+    },
+    {
+      "control": "PZ-F24-GRADE_LADDER_CALLSITE_ast_census_plus_grep_both_ways",
+      "ast_call_nodes": [
+        905
+      ],
+      "passed": true
+    },
+    {
+      "control": "solver_dictionaries_agree_with_registration_and_empty_is_z_only",
+      "molWeight": 8314.47006650545,
+      "Cp": 3.5000000000000004,
+      "endTime": 4.0,
+      "writeInterval": 0.1,
+      "flux": "Kurganov",
+      "limiters": "vanLeer/vanLeerV/vanLeer",
+      "ddt": "Euler",
+      "ranks": 4,
+      "empty_patches": [
+        "frontAndBack"
+      ],
+      "passed": true
+    },
+    {
+      "control": "reader_parses_real_solver_written_rho_and_U_on_this_box",
+      "artifacts": [
+        "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/4/rho",
+        "/home/ubuntu/Certonomous/verification/runs/F15_runs/coarse/4/U"
+      ],
+      "cells": 10000,
+      "passed": true
+    },
+    {
+      "control": "PZ-F24-L342_infrastructure_vs_physics_fields_driven_both_ways",
+      "infrastructure_deleted": "verdict channel unchanged, cost claim refused, defect lines printed",
+      "physics_corrupted": "NOT A RESULT; Courant ceiling, nan and a missing rank all flip",
+      "passed": true
+    }
+  ],
+  "gate_demonstration": [
+    {
+      "gate": "G-F24-1_p2_over_p1_box_mean",
+      "construction": "exact state 2 + 1 x finest sub-ladder error",
+      "value": 0.3931970615863685,
+      "band": [
+        0.39267999367725354,
+        0.3934555955409265
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F24-2_p_line_L2_across_fan",
+      "construction": "exact fan field + 1 x extrapolated fine error (uniform)",
+      "value": 0.0013509345385508853,
+      "band": [
+        0.00045031151285029246,
+        0.004052803615652632
+      ],
+      "inside": true,
+      "intended": "inside"
+    },
+    {
+      "gate": "G-F24-1_p2_over_p1_box_mean",
+      "construction": "exact state 2 + 40 x finest sub-ladder error",
+      "value": 0.398238473700243,
+      "band": [
+        0.39267999367725354,
+        0.3934555955409265
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "G-F24-2_p_line_L2_across_fan",
+      "construction": "exact fan field + 40 x extrapolated fine error (uniform)",
+      "value": 0.05403738154203509,
+      "band": [
+        0.00045031151285029246,
+        0.004052803615652632
+      ],
+      "inside": false,
+      "intended": "outside"
+    },
+    {
+      "gate": "R-F24-M2_box_mean",
+      "construction": "exact state 2 (reader returns M2 exactly) and planted Ux offset",
+      "value": 2.5984463269908935,
+      "band": null,
+      "inside": null,
+      "intended": "reported",
+      "planted_seen": true
+    },
+    {
+      "gate": "G-F24-2_p_line_L2_across_fan",
+      "construction": "exact fan field, no error",
+      "value": 0.0,
+      "band": null,
+      "inside": null,
+      "intended": "zero"
+    }
+  ],
+  "write_path": "OpenFOAM ascii volScalarField `p`, `T` and volVectorField `U` written by the solver at every checkpoint into each processor<k>/<t>/ directory; `C` (vector) and `V` (scalar) in processor<k>/0/ from postProcess before decomposePar.  Pinned against REAL rhoCentralFoam output on this box, verification/runs/F15_runs/coarse/4/{rho,U}, parsed at selftest.",
+  "cap_core_min": 1450.0,
+  "bands": {
+    "G-F24-1_p2_over_p1_box_mean": {
+      "quantity": "p_box",
+      "mode": "GATED-ABSOLUTE",
+      "band": [
+        0.39267999367725354,
+        0.3934555955409265
+      ],
+      "reference": 0.39306779460909,
+      "dim": 2,
+      "order_claim": null,
+      "fine_pred": null,
+      "principle": "sub-ladder triple OSCILLATORY: NO ORDER CLAIM and no extrapolation; ABSOLUTE band = reference +/- 3 x the finest sub-ladder error (h = 1/64: +1.292670e-04) = [0.39267999367725354, 0.3934555955409265]; rule 5 may return NOT A RESULT on the ladder triple and that outcome is registered as possible",
+      "subladder_triple": {
+        "state": "OSCILLATORY",
+        "order": null,
+        "levels": [
+          "n16",
+          "n32",
+          "n64"
+        ]
+      }
+    },
+    "G-F24-2_p_line_L2_across_fan": {
+      "quantity": "p_line",
+      "mode": "GATED-EXTRAPOLATED",
+      "band": [
+        0.00045031151285029246,
+        0.004052803615652632
+      ],
+      "reference": 0.0,
+      "dim": 2,
+      "order_claim": 0.8935793100570388,
+      "fine_pred": 0.0013509345385508773,
+      "principle": "sub-ladder triple CONVERGING (order 0.848); fine-level error extrapolated from h = 1/64 with order 0.894 (clamped to [0.5, 2.0]) = +1.350935e-03; band = [0.00045031151285029246, 0.004052803615652632]",
+      "subladder_triple": {
+        "state": "CONVERGING",
+        "order": 0.8480229646184758,
+        "levels": [
+          "n16",
+          "n32",
+          "n64"
+        ]
+      }
+    },
+    "R-F24-M2_box_mean": {
+      "quantity": "M_box",
+      "mode": "REPORTED-NOT-GATED",
+      "band": null,
+      "reference": 2.598446326990895,
+      "dim": 2,
+      "order_claim": null,
+      "fine_pred": null,
+      "principle": "REPORTED-NOT-GATED at registration: the sub-ladder triple is OSCILLATORY (errors -9.197e-03 / -1.523e-02 / -8.047e-03); the grader prints the values, the ladder triple and its order beside the exact reference and issues NO verdict",
+      "subladder_triple": {
+        "state": "OSCILLATORY",
+        "order": null,
+        "levels": [
+          "n16",
+          "n32",
+          "n64"
+        ]
+      }
+    }
+  },
+  "field_classes": {
+    "PHYSICS_CRITICAL": [
+      "log.rhoCentralFoam `End` line and `Time =` count (fixed-deltaT identity)",
+      "RC.txt (solver rc, written by the launcher in the shell that ran mpirun)",
+      "processor*/<endTime>/rho, U, p, T present in every one of the RANKS directories and NEWER than the serial 0/U (age guard)",
+      "processor*/0/C cell centres and processor*/0/V cell volumes",
+      "checkpoint p, T, U files (the gate quantities, the plateau series and the residual)",
+      "every time step's `max Courant Number` in log.rhoCentralFoam (limb iii stability census)"
+    ],
+    "INFRASTRUCTURE": [
+      "ClockTime in log.rhoCentralFoam (cost actual)",
+      "box_before.txt / box_after.txt",
+      "MESH_LINE.txt",
+      "log.decomposePar, log.blockMesh, log.checkMesh, log.build (utility logs)",
+      "STATUS.* / launcher.queue.out / LAUNCH_LOG rows written by a queue runner",
+      "calibration figures derived from any of the above"
+    ]
+  },
+  "cost_claim": {
+    "fields": "INFRASTRUCTURE",
+    "core_min_claim": null,
+    "partial_sum_core_min": 179.0,
+    "cap_core_min": 1450.0,
+    "defects": [
+      "BOOKKEEPING DEFECT: level fine has no ClockTime reading; cost actual NOT MEASURED",
+      "BOOKKEEPING DEFECT: level fine lacks box_after.txt; NOT MEASURED",
+      "BOOKKEEPING DEFECT: level fine lacks MESH_LINE.txt; NOT MEASURED",
+      "BOOKKEEPING DEFECT: level fine lacks log.decomposePar; NOT MEASURED"
+    ],
+    "note": "ClockTime x ranks / 60 (4 ranks); dollars at $0.0513/core-h DERIVED, NOT MEASURED"
+  },
+  "rows": [
+    {
+      "gate": "G-F24-1_p2_over_p1_box_mean",
+      "verdict": "PENDING",
+      "note": "level 'fine': no RC.txt yet: rc not recorded; PENDING, not a verdict",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/fine",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/fine/log.rhoCentralFoam",
+        "done": false,
+        "why": "no RC.txt yet: rc not recorded; PENDING, not a verdict"
+      }
+    },
+    {
+      "gate": "G-F24-2_p_line_L2_across_fan",
+      "verdict": "PENDING",
+      "note": "level 'fine': no RC.txt yet: rc not recorded; PENDING, not a verdict",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/fine",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/fine/log.rhoCentralFoam",
+        "done": false,
+        "why": "no RC.txt yet: rc not recorded; PENDING, not a verdict"
+      }
+    },
+    {
+      "gate": "R-F24-M2_box_mean",
+      "verdict": null,
+      "note": "no verdict by registration; level 'fine': no RC.txt yet: rc not recorded; PENDING, not a verdict",
+      "completion": {
+        "case": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/fine",
+        "log": "/home/ubuntu/Certonomous/verification/runs/F24_PRANDTL_MEYER_runs/fine/log.rhoCentralFoam",
+        "done": false,
+        "why": "no RC.txt yet: rc not recorded; PENDING, not a verdict"
+      },
+      "mode": "REPORTED-NOT-GATED"
+    }
+  ]
+}
