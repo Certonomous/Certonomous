@@ -2613,6 +2613,69 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 (`e88b86e6`, C-19 closes arm 1's idle window at 15:56:45Z).**
 
 ## dafoam
+### SEVENTEENTH SESSION — RE-FORMED AFTER THE ~17:50Z PROCESS RESTART; THE CHIEF'S TASK 3 WAS ALREADY DONE AND I VERIFIED IT MYSELF RATHER THAN RELAY IT; NOTHING OF THE KILLED LANES' WORK IS UNLANDED; DROP PATH 26.02 CORE-HOURS AND FREEZE-AHEAD 6 AGAINST A FLOOR OF 3
+
+**Section block written:** 2026-08-27T18:4xZ (`date -u` at write) by dafoam-supervisor (SEVENTEENTH session, formed 18:30Z after the ~17:50Z Claude Code process restart killed my predecessor and its lanes B, C and E). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words in force: `bc0e687e`, `d4d0c29d`/L-342, `73eccb1b`, `7def3c6b`, `0b041d1a`, `3c3ef86c`, `068c2bf0`, `e477f0e4`, and Sanaa's `[SANAA-DIRECT]` STANDING DIRECTIVES of 2026-08-27T16:54Z (§0 R-RC APPROVED, §1 file integrity, §2 FREEZE-AHEAD ≥ 3 + headline metrics, §3 the L0–L7 ladder with the absolute anti-gaming clause, §4 the SO-1…SO-8 shape-optimisation ladder). Silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7).
+
+#### 1. THE CHIEF'S TASK 3 WAS ALREADY COMPLETE BEFORE I WAS FORMED — AND I ESTABLISHED THAT PERSONALLY, FROM THE ARTEFACTS, NOT FROM A RELAY
+
+I was ordered to "apply the L-342/R-RC field split to `d12y_grade_w3.py` BEFORE W3 launches (pre-compute, free)". **My predecessor's lane B did it at 17:14Z and the window is already shut correctly.** Verified by me at 18:33Z, four ways, because a supervisor's belief that a repair landed is worth nothing without the supervisor's own read:
+
+- `d12y_grade_w3.py` md5 **`3b0a75079c932b41ec19477388498842`** on disk, and **the identical md5 from the HEAD blob** (`git cat-file -p HEAD:… | md5sum`) — worktree and HEAD agree, so Sanaa's §1 "HEAD IS TRUTH" test is satisfied without a repair.
+- The driver's pin is **not stale**: `cases/dafoam/curriculum_D12R2/d12y_w3_chain_driver.sh:36` carries `MD5_GRADER=3b0a75079c932b41ec19477388498842`, the same value, and `:42` **asserts** it (`md5sum -c` → `rc=4 event=ABORT reason=grader_md5_drifted`). A stale pin here is the `D8R-DRIVER-DEF-1` death class; it is not present.
+- The split is genuinely in the frozen comparator, not merely announced: R-RC-4's fatal/signal limb refusing regardless of rc, `rc` present-but-`None` REFUSING (R-RC-2 licenses an absent record, not one the launcher wrote and failed to fill — the exact `status = None` shape that voided D12R, fenced in the opposite direction), `rc` absent DEFERRING to a named resolution point, and the INFRASTRUCTURE-channel visibility clause.
+- `git diff --stat HEAD` on both the grader and the driver returns **empty**.
+
+`W3_chain_r3.json` is on the drop path filed against **W3 AMENDMENT 2 (`af44d244`)**, grader `f3c1252c…` → `3b0a7507…`, at **zero compute** — W3 has never fired. **No pre-compute amendment is owed and no lane work is required on this item.** Reporting the chief's item back as already-done, with my own evidence, is the honest answer; re-doing it would have been a second instrument change on a frozen path for nothing.
+
+#### 2. "LAND THE KILLED LANES' FINISHED WORK" FINDS NOTHING UNLANDED UNDER MY PATHS — and I inspected rather than reverted, per rule 10
+
+`git status --porcelain` over `cases/dafoam`, `docs/dafoam`, `docs/papers/adjoint_and_optimization` at 18:33Z returns **zero modified tracked files**. Every commit my predecessor's lanes made reached HEAD before the kill: `dae3dc9d`/`82b9a959` (D18 frozen + filed), `7bd91ef9`/`b43c5c10` (SO-1a frozen + queued), `1da23ba3` (GPU scope memo), `054ab55d` (ADJOINT_VERIFICATION_STANDARD v1.0b), `74beec4c` (AV1R/AV2R enqueued), `241f6cac` (L-352), `0c019d92`/`44b9c0c3` (AV-1R/AV-2R frozen), `44ff9c5b`, `54158b93`, `af44d244`, `d0bcf80d`. **The private-index protocol is why: it builds its tree from `read-tree HEAD` plus explicit paths and never writes the worktree, so a lane's commit is at HEAD the instant it lands and a kill cannot strand it.**
+
+What is untracked is not the killed lanes' work either. Of 47 untracked paths, 43 are `STATUS.*` and `launcher.queue.out` — the runner's own launch records, the log class Sanaa's §1 keeps **out of git**. The remaining four predate the kill by hours to days and are not this session's: `D9_D4DEF4_EXPOSURE_MEASURED.md` (mtime 2026-08-25T23:04Z), `curriculum_D14/PREREGISTRATION_DRAFT.md` (08-26T16:46Z), `d4s_primal_accept_wrap{,_selftest}.py` + evidence (08-26T21:02–21:22Z), and two `DALinearEqn_*.patch` (08-21T17:47Z). **None is committed on a "commit everything" reading**; each is a separate decision on its own merits, and a draft pre-registration in particular must never land as though frozen.
+
+**Correction upward, on my brief:** the session-start `git status` handed to me showed **staged deletions** of `cases/dafoam/curriculum_D18_cone_hypersonic/*` (`D` in the index). At 18:33Z they are **gone** — the shared index has been reset since, and `D18_chain.json` plus `PREREGISTRATION.md` are present both in HEAD and on disk. This is the same three-way discriminator my predecessor established for the 368-path finding — **in HEAD × on disk × content == HEAD** — and it says index artefact, nothing at risk. The chief's "a pure-deletion diff never commits" stop-order was right as a stop and would have fired here as a false positive.
+
+#### 3. THE SEVEN HELD ENTRIES, ANSWERED FROM THE ARCHIVE'S OWN WORDS — none is held for a resource reason, and the drop path launches with no agent alive
+
+`verification/queue/dafoam/held/` is the **supersede-and-withdrawal archive**, a subdirectory deliberately **outside the runner's glob** (`scripts/queue_runner.py`'s `list_entries` globs top-level `*.json` only). Nothing there is held by ranks, by a memory floor or by the aggregate cap:
+
+| held entry | why |
+|---|---|
+| `D12R_phase3.json`, `D12R_phase4.json`, `W2R_phase2.json` | premature 16:10–16:17Z fires, then SUPERSEDED BY THE W3 PATH; their `step_plan*.json` can never be written by the registered grading path |
+| `D6_chain.json`, `D6_chain_wait.e43bdf61.json` | superseded by the Addendum-3 re-file now on the drop path |
+| `D8R_chain.357a2648.json` | superseded by the wait-wrapper form behind D6's `CHAIN_DONE` |
+| `W3_chain_r2.a6dcc964.json` | **the seventh, and the count's whole difference from the chief's "6"** — withdrawn 16:46Z on my predecessor's sequencing order (three minutes on the path, never fired, verified four ways), then resolved SUPERSEDED by `W3_chain_r3.json` at 17:14Z |
+
+**The drop path launches with no agent alive, demonstrated rather than asserted:** all ten of the previous night's entries were launched by the daemon between 2026-08-26T23:19:58Z and 2026-08-27T13:58:49Z with no dafoam agent in existence (`verification/queue/LAUNCH_LOG.tsv`). The runner is a daemon; agent death does not stop it, and that is the design Sanaa's detached-runner ruling asks for.
+
+**The four 23-hour wait loops, resolved rather than left as a VERIFY.** Two closed on their registered no-launch branch exactly at their bounds: `STATUS.W2R_phase3_wait` **`launcher_rc=6`** at 17:16:57Z (registered 17:16:42Z) and `STATUS.W2R_plan2_wait` **`launcher_rc=6`** at 17:30:03Z (registered 17:29:42Z). Two remain, closing 2026-08-28T05:17:47Z and 05:30:47Z (pids 251491/251492, 290738/290739, alive at 18:34Z). They hold **no cores and 0 core-min**; the standing ruling is LEAVE THEM.
+
+#### 4. LANES, AND A DISPATCH REFUSED BY A LAB-WIDE CEILING FOR THE SECOND SESSION RUNNING
+
+| lane | task |
+|---|---|
+| **B** | **D12R phase 1 re-grade** on **L-342/R-RC authority, not §2d.1** — the lab's only re-gradeable infrastructure-only row; six rule-4 conditions re-derived from artefacts by the lane, dated amendment with the original STRUCK, planted-failure proof under `python3` and `python3 -O`, C-107's 63.95 core-min struck **only if** the re-grade lands. **Zero compute.** Its grader diff comes to me as a diff, and it has been ordered to commit the amendment and then WAIT for my approval before writing any verdict into a status row |
+| **C** | **FADR** — the forward-AD regression fixture, registered from scratch (the lane holding it died before writing anything). Inbound-only retrieval under rule 15 discipline (URL + sha256 + bytes + UTC, and the **content verified by opening the archive**, never by filename or hash); run UNMODIFIED on **both image digests**; both branches named in the pre-registration in advance — P-A passes → case-dependence, P-B fails → **DAFoam's own shipped forward-AD regression does not pass in the image it ships in**, a materially larger finding and an upstream defect candidate carrying `NOT FILED` |
+| **D** | **SO-1b, REFUSED — not dispatched.** `Concurrent subagent limit reached. You can run 20 subagents at once.` This is the **lab-wide** ceiling across all six teams, **not** dafoam's §8 cap of 3 (dafoam is at 2 of its own 3) and **not** a permission denial. Recorded as a system event, reported upward, **not routed around**. Second session running that this ceiling has cost this family a lane |
+
+**RULING `[lab-attributed]` — SO-1b PRECEDES SO-2.** My brief said "SO-2 next per §4". Sanaa's §4 states its pattern **per case**: FD-verified gradient rung → optimisation rung → post-optimum verification → the D7R attribution rule. SO-1a (the gradient rung) is frozen at `7bd91ef9` and queued; pulling SO-2 (constraint families **on SO-1**) before SO-1b would leave SO-1 with a gradient and no optimum, and would put constraint rungs on top of an optimisation that does not exist. **SO-1b — drag-min at fixed lift, gated on SO-1a, filed as a wait-wrapper behind its chain end, with a registered no-launch branch if SO-1a lands `NOT A RESULT` or `GATE FAIL`, and with the D7R attribution rule registered as a GATE rather than a caveat: no improvement percentage is quoted before its mechanism is decomposed into shape vs AoA vs operating point.** It is the first item lane D takes when the ceiling clears.
+
+#### 5. HEADLINE METRICS (Sanaa §2), 2026-08-27T18:37:02Z
+
+**CPU 95.2 %** (~15.2/16 cores, MemAvailable 9.6 GB — from the runner's own line, not an estimate). **GPU 0 %** — none attached, and this family's answer on the §2 handover offer remains ***NO*, on measurement** (`1da23ba3`: `PETSC_HAVE_CUDA` undefined in both images, zero CUDA deps in `libpetsc.so`, `aijcusparse` refused with PETSc error 86, no `nvcc`, no `petsc4Foam`; and even after a new image build a GPU would not unblock a single blocked adjoint rung, because the measured failure is **host-memory OOM during CPU-side Jacobian colouring, before any Krylov solve is entered**). **Dafoam queue depth 6 entries / 1,560.934 core-min / 26.02 core-hours** at 18:33:01Z — `D5_chain_r4` 773.434, `W3_chain_r3` 563.3, `D18_chain` 182.2, `AV1R_chain` 19.3, `AV2R_chain` 15.3, `SO1a_chain` 7.4; 15 entries queued lab-wide, all **HELD at the runner's 85 % ceiling**, which is the ceiling doing its job on a 95 % box, not a stall. **Box idle-minutes 0** — D6 `O_mp` has been solving continuously since 14:09:24Z (~4.5 h, pids 805560/805671), the only dafoam compute in flight. **FREEZE-AHEAD 6 against Sanaa's floor of 3.** Session spend so far **0.000 core-min** (no dafoam run has started or completed this session); no calibration row is due until one does.
+
+**Runner pid is `1120800`, started 17:33Z — not the `856460` on the previous block.** Cron restarts the daemon, so a runner pid on this board is only true with a timestamp, exactly as a queue depth is.
+
+#### 6. RUNGS WITHOUT VERDICTS
+**D6** (LIVE, `O_mp` since 14:09Z, ungraded — three arms `ACC_mp F_mp REF_off` still to come). **D8R** (waiting on D6's `CHAIN_DONE`, 0 core-min, bound 2026-08-29T01:58Z). **D5 r4** (queued; ACC48 and O48 bought under r3 and ungraded; F48's 0.733 core-min is waste on its own C-row). **D4S-F3S** (`launcher_rc=0` at 14:09:21Z, ungraded — carried unresolved across two sessions now and I am naming it rather than letting it age silently). **W3** (0 core-min, queued). **AV-1R, AV-2R, D18, SO-1a** (frozen, queued, never run). **D12R phase 1** (original struck, re-grade in flight with lane B). D7FR is **done**: item `PASS` at `2a93ff27`.
+
+#### 7. ON SANAA'S DESK
+Nothing new from me. The twelfth session's R2 (reporting-cap vs rule 12) and the **five `NOT FILED` upstream defect drafts** are unchanged — **filing is Sanaa's alone and none has been filed anywhere, by any agent, ever.** If FADR's P-B branch lands, a sixth draft joins them carrying `NOT FILED` at its head; it will not be filed either.
+
+#### 8. BLOCKED
+**Lane D (SO-1b), by the lab-wide 20-subagent ceiling** — the only blocked item, and it needs no dafoam decision to clear. (**VERIFY**, honestly: D6's live arm state — I have not read its container and `docker` is permission-denied from my own context; and whether `d4s_primal_accept_wrap.py` and its selftest evidence, untracked since 08-26T21:02Z, are owed a landing decision.)
+
 
 ### SIXTEENTH SESSION — THE QUEUE IS EMPTY AND ALL TEN ENTRIES RAN; TWO DIED ON NAME/CONSTANT DEFECTS AT 0.733 CORE-MIN TOTAL; AND "COMMIT EVERYTHING" WOULD DELETE 2,050 LINES OF LANDED RECORDS LAB-WIDE
 
