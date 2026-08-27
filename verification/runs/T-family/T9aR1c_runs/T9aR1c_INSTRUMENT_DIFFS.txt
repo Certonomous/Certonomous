@@ -1,0 +1,1963 @@
+T9a-R1c INSTRUMENT DIFFS -- for the supervisor's SUPERVISION_CHARTER section 3
+check 1 (measurement-script diffs read AS DIFFS, personally, never delegated).
+
+STATUS: THESE INSTRUMENTS ARE PROPOSED AND UNFROZEN.  Their output has not been
+believed by anyone, no solver has run, no W1c case directory exists, and nothing
+here is committed.  No launch may occur before this file is read.
+
+REGENERATED after VERIFICATION_CHARTER v1.17 / section 2h.  The gate wording in
+analyse_t9aR1c.py and T9aR1c_registered.json changed under condition 2h.4(4) and
+2h.4(5): the phrase "so the answer does not depend on the mesh at the resolution
+that matters" -- taken verbatim from 2g.3, and quoted approvingly by the lane and
+the supervisor alike -- was NARROWED by verification against its own drafting and
+is STRUCK.  An earlier generation of THIS FILE still carried the struck phrase in
+its embedded diff bodies, which is why it is regenerated rather than appended to:
+a diffs file that quotes a withdrawn claim as current text is a stale record.
+
+HOW THE BASELINES WERE SOURCED, AND WHY IT IS SAID HERE.  The shared git index
+lags HEAD while peers commit through private indexes, and it reports phantom
+staged deletions under verification/runs for paths that are at HEAD and on disk.
+Every baseline below was therefore taken with `git show HEAD:<path>` -- never from
+the index, never from `git ls-files`, and never by `git checkout`/`git restore`,
+which restore from that stale index.  Each baseline's HEAD blob sha is stated on
+its own diff header, and each was confirmed BYTE-IDENTICAL to the working-tree
+copy at generation time.
+
+Generated 2026-08-27T22:08:50Z.  Repo HEAD: 55afb558414db3a1a06b5a7d1532c586eed12d9f
+
+--------------------------------------------------------------------------------
+WHAT MOVED, IN ONE PARAGRAPH, BEFORE THE LINE DIFFS
+--------------------------------------------------------------------------------
+
+Four of the six instruments are the W1b sibling with names changed and one
+substantive addition each; the fifth (the comparator) is a REWRITE and the sixth
+(the referent module) is NEW.  That distribution is the point of the rung:
+VERIFICATION_CHARTER 2g refused W1b's floor EXCEPTION and diagnosed that THE
+WRONG INSTRUMENT WAS REGISTERED.  The cases did not change.  The instrument did.
+
+  build_t9aR1c.py                names + a docstring paragraph
+  mark_done_t9aR1c.py            names + the ExecutionTime-count referral
+  run_one_t9aR1c.sh              names + THE CAP ARITHMETIC CHECK (new)
+  T9aR1c_registered.json         a different registration
+  analyse_t9aR1c.py              REWRITE -- read it as a new file
+  exact_t9aR1c.py                NEW -- no line ancestor; pattern named below
+
+
+================================================================================
+--- DIFF: HEAD:verification/runs/T-family/T9aR1b_runs/build_t9aR1b.py
+     blob ef58986681c292c71fccbce2d478ac4a48facc18
+     confirmed byte-identical to the working tree at generation time
+  -> verification/runs/T-family/T9aR1c_runs/build_t9aR1c.py
+================================================================================
+WHAT MOVED: the builder: nothing about the CASES changed. Same parent freeze 
+sha, same single scheme line, same refusal if the fvSchemes diff against the 
+parent blob is anything but that line. The case NAMES changed W1b_* -> W1c_* 
+and the docstring says why: rule 4's age guard and the launcher both REFUSE a 
+case directory that already holds a 0/ or a time directory, and W1b's do.
+
+--- HEAD:T9aR1b_runs/build_t9aR1b.py
++++ T9aR1c_runs/build_t9aR1c.py
+@@ -1,5 +1,13 @@
+ #!/usr/bin/env python3
+-"""Build T9a-R1b: T9a's three WALL levels with the interface scheme corrected.
++"""Build T9a-R1c: T9a's three WALL levels with the interface scheme corrected.
++
++FLOOR-DEMONSTRATION SUCCESSOR of T9a-R1b.  The CASES ARE THE SAME PHYSICS as
++W1b's -- the same parent blobs at the same freeze sha, the same single scheme
++line -- and the CASE NAMES ARE NEW (W1c_*) because standing rule 4's age guard
++and this rung's launcher both REFUSE a case directory that already holds a 0/
++or a time directory, and W1b's do.  A rung that reused W1b's directories could
++not evaluate its own completion rule.  Nothing about the case inputs is a
++successor: what changed is the INSTRUMENT, per VERIFICATION_CHARTER 2g.
+ 
+ ONE-ROW SUCCESSOR of T9a (GATE FAIL on R1, T9a_RESULTS.md section 1.1: the
+ face conductivity at each material interface under `Gauss linear` is the
+@@ -16,7 +24,7 @@
+ 
+ blockMesh + checkMesh run at build.  NO assert (L-332).
+ 
+-usage: build_t9aR1b.py --root DIR [--level c|m|f ...] | --selftest
++usage: build_t9aR1c.py --root DIR [--level c|m|f ...] | --selftest
+ """
+ import argparse
+ import difflib
+@@ -29,7 +37,7 @@
+ PARENT_SHA = "0cbaea26573924a27d489a8472fad233e198ca6d"     # T9a case inputs at HEAD of the T9a report commit
+ PARENT_DIR = "verification/runs/T-family/T9a_runs"
+ PARENT_CASE = {"c": "W_c", "m": "W_m", "f": "W_f"}
+-CASE_OF = {lv: "W1b_%s" % lv for lv in PARENT_CASE}
++CASE_OF = {lv: "W1c_%s" % lv for lv in PARENT_CASE}
+ COPIED = ("0.orig/T", "0.orig/DT", "constant/transportProperties", "system/blockMeshDict",
+           "system/controlDict", "system/fvSolution", "system/fvSchemes")
+ OLD_LINE = "laplacianSchemes { default Gauss linear corrected; }"
+@@ -82,7 +90,7 @@
+     parent_case_txt = git_show("%s/CASE.txt" % src)
+     cells = re.findall(r"(\d+) cells", parent_case_txt)
+     open(os.path.join(case, "CASE.txt"), "w").write(
+-        "case=%s\nrung=T9a-R1b (one-row successor of T9a: R1 with the harmonic interface scheme)\n"
++        "case=%s\nrung=T9a-R1c (one-row successor of T9a: R1 with the harmonic interface scheme)\n"
+         "parent_case=%s\nparent_sha=%s\nlevel=%s\ncells_per_layer=%s\nlaplacianSchemes=Gauss harmonic corrected\n"
+         "solver=laplacianFoam\nranks=1\nendTime=1000\ndeltaT=1\n"
+         % (CASE_OF[lv], PARENT_CASE[lv], PARENT_SHA, lv, ",".join(cells)))
+
+================================================================================
+--- DIFF: HEAD:verification/runs/T-family/T9aR1b_runs/mark_done_t9aR1b.py
+     blob 68c78731a061688ace56e7ca43133a4716b328a4
+     confirmed byte-identical to the working tree at generation time
+  -> verification/runs/T-family/T9aR1c_runs/mark_done_t9aR1c.py
+================================================================================
+WHAT MOVED: the completion marker: NO LIMB WEAKENED. All six conjuncts of 
+rule 4 carried unchanged. The only substantive addition is a docstring 
+paragraph naming the OPEN tension on clause 5 (CLAUDE.md rule 4 lists the 
+ExecutionTime count; docs/L342_GRADER_AUDIT.md classes it CONFLATED; 
+T9aR1b_RESULTS.md section 3 referred it and it is still open) and stating 
+that this rung does not settle it.
+
+--- HEAD:T9aR1b_runs/mark_done_t9aR1b.py
++++ T9aR1c_runs/mark_done_t9aR1c.py
+@@ -1,9 +1,9 @@
+ #!/usr/bin/env python3
+-"""Turn T9a-R1b STATUS files into DONE markers under the STRICT COMPLETION RULE
++"""Turn T9a-R1c STATUS files into DONE markers under the STRICT COMPLETION RULE
+ (CLAUDE.md rule 4), all-or-nothing:
+ 
+   1. STATUS.<case> EXISTS in the run root and carries the solver's own rc,
+-     written INSIDE the launcher wrapper (run_one_t9aR1b.sh), and rc == 0
++     written INSIDE the launcher wrapper (run_one_t9aR1c.sh), and rc == 0
+   2. log.solve carries an `End` line
+   3. the last written time == endTime from the case's own controlDict
+   4. the registered field T is present at that time (pure conduction)
+@@ -18,11 +18,22 @@
+ never voids a run.  `capped` labels a non-zero rc (cap-stop vs crash); it is
+ never a completion conjunct.
+ 
++CLAUSE 5 IS CARRIED UNWEAKENED AND ITS OPEN TENSION IS NAMED RATHER THAN
++QUIETLY RESOLVED.  CLAUDE.md rule 4 lists "ExecutionTime count == endTime"
++among the strict completion conjuncts; docs/L342_GRADER_AUDIT.md classifies a
++refusal keyed on that count as CONFLATED -- MISCLASSIFIED, on the ground that
++the count records bookkeeping rather than whether the solve completed.
++T9aR1b_RESULTS.md section 3 recorded that tension and REFERRED it to the
++verification supervisor; it is still open.  This rung does not settle it: it
++keeps every limb the rule names, because weakening a completion clause on a
++lane's own reading of an audit is exactly the move the completion rule exists
++to forbid.
++
+ AN ABSENT STATUS FILE IS A REFUSAL (exit 2), NEVER AN INFERENCE FROM AN End
+ LINE (K0d L1).  NO `assert` (L-332).  --selftest forges cases in scratch and
+ drives every clause under python3 and python3 -O.
+ 
+-Usage: python3 mark_done_t9aR1b.py [CASE ...] [--root DIR] | --selftest
++Usage: python3 mark_done_t9aR1c.py [CASE ...] [--root DIR] | --selftest
+ Exit: 0 all DONE, 1 at least one NOT DONE, 2 REFUSAL.
+ """
+ import os
+@@ -30,7 +41,7 @@
+ import sys
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+-CASES = ("W1b_c", "W1b_m", "W1b_f")
++CASES = ("W1c_c", "W1c_m", "W1c_f")
+ NEEDED = ("T", "DT")
+ INFRA = ("wall_s", "timeout_s", "ranks", "core_min", "capped", "checkmesh_rc",
+          "solver", "solver_path", "note", "started_utc", "ended_utc")
+@@ -120,7 +131,7 @@
+     rc = EXIT_OK
+     for case in want:
+         if case not in CASES:
+-            refuse("%r is not a registered T9a-R1b case: %s" % (case, " ".join(CASES)))
++            refuse("%r is not a registered T9a-R1c case: %s" % (case, " ".join(CASES)))
+         fails, notes = check(root, case)
+         for n in notes:
+             print("NOTE      %-12s - %s" % (case, n))
+@@ -168,15 +179,15 @@
+     fails = []
+ 
+     def drive(label, want_rc, want_marker, **kw):
+-        tmp = tempfile.mkdtemp(prefix="t9aR1bmd_")
++        tmp = tempfile.mkdtemp(prefix="t9aR1cmd_")
+         try:
+-            _forge(tmp, "W1b_c", **kw)
++            _forge(tmp, "W1c_c", **kw)
+             code = None
+             try:
+-                code = run(tmp, ["W1b_c"])
++                code = run(tmp, ["W1c_c"])
+             except SystemExit as e:
+                 code = e.code
+-            marker = os.path.exists(os.path.join(tmp, "DONE.W1b_c"))
++            marker = os.path.exists(os.path.join(tmp, "DONE.W1c_c"))
+             ok = (code == want_rc and marker == want_marker)
+             print("  [%s] %-58s -> exit %s, DONE marker %s" % ("ok " if ok else "FAIL", label, code, marker))
+             if not ok:
+
+================================================================================
+--- DIFF: HEAD:verification/runs/T-family/T9aR1b_runs/run_one_t9aR1b.sh
+     blob d7990722b87c592a1b5c8a09bd75e77092c86b32
+     confirmed byte-identical to the working tree at generation time
+  -> verification/runs/T-family/T9aR1c_runs/run_one_t9aR1c.sh
+================================================================================
+WHAT MOVED: the launcher: names, plus ONE SUBSTANTIVE ADDITION that is the 
+only new refusal in the instrument set. scripts/queue_runner.py REPORTS a cap 
+overrun and does NOT kill, so this timeout wrapper is the only thing that 
+stops the run. The launcher now REFUSES unless the registered timeout_s 
+equals cap_core_min * 60 / ranks. Driven three ways on scratch.
+
+--- HEAD:T9aR1b_runs/run_one_t9aR1b.sh
++++ T9aR1c_runs/run_one_t9aR1c.sh
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ # ==========================================================================
+-# T9aR1b CASE LAUNCHER (T9a one-row successor, harmonic interface scheme, laplacianFoam) -- run ONE registered level, capture the SOLVER's rc in
++# T9aR1c CASE LAUNCHER (T9a one-row successor, harmonic interface scheme, laplacianFoam) -- run ONE registered level, capture the SOLVER's rc in
+ # this wrapper, write STATUS.<case>.  Modelled line-for-line on
+ # run_one_t11.sh's rc-in-wrapper pattern and launch_t4b.sh's queue interface:
+ #
+@@ -9,14 +9,14 @@
+ #     box: `setsid timeout ... bash -c 'exit 7'` returns 0, `setsid --wait`
+ #     returns 7 -- K0f header);
+ #   * rc is captured INSIDE and written to STATUS.<case> in the run root (the
+-#     file mark_done_t9aR1b.py reads);
++#     file mark_done_t9aR1c.py reads);
+ #   * `capped` = (wall_s >= timeout_s) is the INDEPENDENT expiry witness -- rc
+ #     124 collides with a solver that itself exits 124, and 137 with an OOM
+ #     kill (measured, GNU coreutils 9.4); it is an INFRASTRUCTURE field
+ #     (L-342): it labels a non-zero rc, it never voids a run;
+ #   * a PRE-FLIGHT REFUSAL writes NO STATUS: nothing ran, so there is no rc,
+ #     and inventing one is the back-dating this file exists to prevent;
+-#   * the registered cap is READ from T9aR1b_registered.json and a --timeout that
++#   * the registered cap is READ from T9aR1c_registered.json and a --timeout that
+ #     is not EQUAL to it is REFUSED: a caller can neither widen a cap that rule
+ #     12 says stops the run nor narrow one into a manufactured cap-stop;
+ #     --ranks must equal the registered 1;
+@@ -27,7 +27,7 @@
+ #   * `exit "$RC"` is the LAST line: the wrapper reports the solver's own
+ #     status to its caller, never 0.
+ #
+-# usage: run_one_t9aR1b.sh --case-dir DIR --timeout SECONDS [--ranks 1]
++# usage: run_one_t9aR1c.sh --case-dir DIR --timeout SECONDS [--ranks 1]
+ #                       [--solver laplacianFoam] [--foam-bashrc F]
+ #                       [--no-detach]
+ #   --timeout   registered per-case cap in wall seconds = cap_core_min*60/ranks
+@@ -36,7 +36,7 @@
+ # ==========================================================================
+ set -u
+ SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+-REGJSON="$SELF/T9aR1b_registered.json"
++REGJSON="$SELF/T9aR1c_registered.json"
+ 
+ usage() { sed -n '/^# usage:/,/^# ====/p' "$0" >&2; exit 2; }
+ 
+@@ -58,7 +58,7 @@
+ [ -d "$CASE_DIR" ] || { echo "REFUSE: no case directory $CASE_DIR" >&2; exit 2; }
+ case "$RANKS" in ''|*[!0-9]*) echo "REFUSE: --ranks must be an integer" >&2; exit 2;; esac
+ case "$TIMEOUT_S" in ''|*[!0-9]*) echo "REFUSE: --timeout must be integer seconds" >&2; exit 2;; esac
+-[ "$RANKS" = "1" ] || { echo "REFUSE: T9aR1b is registered SERIAL (ranks 1 on every level); --ranks=$RANKS" >&2; exit 2; }
++[ "$RANKS" = "1" ] || { echo "REFUSE: T9aR1c is registered SERIAL (ranks 1 on every level); --ranks=$RANKS" >&2; exit 2; }
+ 
+ CASE_DIR="$(cd "$CASE_DIR" && pwd)"
+ ROOT="$(dirname "$CASE_DIR")"
+@@ -66,13 +66,26 @@
+ STATUS="$ROOT/STATUS.$CASE"
+ 
+ # --- the registered cap: a --timeout that is not EQUAL to it is refused ------
++# AND the cap ARITHMETIC is checked here, because THIS `timeout` WRAPPER IS THE
++# ONLY THING THAT STOPS THE RUN.  scripts/queue_runner.py REPORTS a cap overrun
++# and does NOT kill (measured lab-wide 2026-08-27; the chief has ordered
++# runner-side enforcement pre-registered separately).  So the registered
++# cap_core_min binds only if timeout_s == cap_core_min * 60 / ranks, and this
++# launcher REFUSES rather than trusting the JSON to be self-consistent.  A cap
++# nothing enforces is not a cap.
+ if [ -f "$REGJSON" ]; then
+     REG_T=$(python3 -c "import json,sys; c=json.load(open(sys.argv[1]))['cases'].get(sys.argv[2]); print(c['timeout_s'] if c else 'UNREGISTERED')" "$REGJSON" "$CASE" 2>/dev/null || echo UNREADABLE)
+     case "$REG_T" in
+-        UNREGISTERED) echo "REFUSE: $CASE is not a registered T9aR1b case in $REGJSON" >&2; exit 2 ;;
++        UNREGISTERED) echo "REFUSE: $CASE is not a registered T9aR1c case in $REGJSON" >&2; exit 2 ;;
+         UNREADABLE)   echo "REFUSE: cannot read the registered cap from $REGJSON" >&2; exit 2 ;;
+     esac
+     [ "$TIMEOUT_S" -eq "$REG_T" ] || { echo "REFUSE: --timeout $TIMEOUT_S is not the registered timeout_s=$REG_T for $CASE (rule 12: a cap is neither widened nor narrowed at launch -- a narrower one manufactures a cap-stop)" >&2; exit 2; }
++    REG_CM=$(python3 -c "import json,sys; c=json.load(open(sys.argv[1]))['cases'].get(sys.argv[2]); print(c['cap_core_min'])" "$REGJSON" "$CASE" 2>/dev/null || echo UNREADABLE)
++    case "$REG_CM" in
++        UNREADABLE|'') echo "REFUSE: cannot read cap_core_min from $REGJSON" >&2; exit 2 ;;
++    esac
++    WANT_T=$(awk -v cm="$REG_CM" -v r="$RANKS" 'BEGIN{printf "%d", cm*60.0/r}')
++    [ "$REG_T" -eq "$WANT_T" ] || { echo "REFUSE: the registered timeout_s=$REG_T for $CASE does not equal cap_core_min*60/ranks = $REG_CM*60/$RANKS = $WANT_T. The queue runner REPORTS a cap and does not kill; this timeout wrapper is the only thing that stops the run, so a timeout that does not equal the registered cap means the cap is unenforced." >&2; exit 2; }
+ else
+     echo "REFUSE: registered JSON $REGJSON is missing; the cap cannot be checked" >&2; exit 2
+ fi
+@@ -81,8 +94,8 @@
+ [ -e "$STATUS" ] && { echo "REFUSE: $STATUS exists -- a completed run's record is never overwritten; nothing ran, nothing written" >&2; exit 2; }
+ 
+ # --- detach ONCE by re-executing this file in a new session ------------------
+-if [ "$DETACH" = "1" ] && [ "${T9aR1b_DETACHED:-}" != "1" ]; then
+-    T9aR1b_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
++if [ "$DETACH" = "1" ] && [ "${T9aR1c_DETACHED:-}" != "1" ]; then
++    T9aR1c_DETACHED=1 exec setsid "$0" --case-dir "$CASE_DIR" --timeout "$TIMEOUT_S" \
+         --ranks "$RANKS" --solver "$SOLVER" --foam-bashrc "$FOAM_BASHRC" \
+         --no-detach </dev/null >>"$CASE_DIR/log.launch" 2>&1 &
+     echo "launched $CASE detached; STATUS will appear at $STATUS"
+@@ -128,7 +141,7 @@
+     [ -n "$d" ] && { echo "REFUSE: $CASE already has time directory $(basename "$d")" >&2; exit 2; }
+ done < <(find "$CASE_DIR" -maxdepth 1 -mindepth 1 -type d -regextype posix-extended -regex '.*/[0-9]+(\.[0-9]+)?' 2>/dev/null)
+ [ -d "$CASE_DIR/0.orig" ] || { echo "REFUSE: $CASE has no 0.orig to arm from" >&2; exit 2; }
+-[ -f "$CASE_DIR/constant/polyMesh/owner" ] || { echo "REFUSE: $CASE has no mesh (constant/polyMesh/owner) -- run build_t9aR1b.py" >&2; exit 2; }
++[ -f "$CASE_DIR/constant/polyMesh/owner" ] || { echo "REFUSE: $CASE has no mesh (constant/polyMesh/owner) -- run build_t9aR1c.py" >&2; exit 2; }
+ for f in T DT; do
+     [ -f "$CASE_DIR/0.orig/$f" ] || { echo "REFUSE: 0.orig/$f missing -- the registered field set is incomplete" >&2; exit 2; }
+ done
+
+================================================================================
+--- DIFF: HEAD:verification/runs/T-family/T9aR1b_runs/T9aR1b_registered.json
+     blob cfe867c6c88dd4fd1094e9e0733966c650308ecb
+     confirmed byte-identical to the working tree at generation time
+  -> verification/runs/T-family/T9aR1c_runs/T9aR1c_registered.json
+================================================================================
+WHAT MOVED: the registration: a different document, not an edit. Read it in 
+full rather than as a diff. Since v1.0 of this rung it also gained the 
+2h.4(3) round-off block, the 2h.4(4) wording condition, and a rewritten 
+gate_sentence and label_ceiling_ground under the 2h ruling.
+
+--- HEAD:T9aR1b_runs/T9aR1b_registered.json
++++ T9aR1c_runs/T9aR1c_registered.json
+@@ -1,16 +1,32 @@
+ {
+-  "rung": "T9a-R1b",
+-  "title": "one-row successor of T9a: R1 (interface-1 temperature) with the harmonic interface scheme",
++  "rung": "T9a-R1c",
++  "title": "FLOOR DEMONSTRATION successor of T9a-R1b: the discretisation error in the interface-1 temperature is below X at the COARSEST level",
++  "status": "PROPOSED AND UNFROZEN -- no solver has run, no case directory holds 0/ or a time directory, and this file is not yet committed",
++  "predecessor": {
++    "rung": "T9a-R1b",
++    "cases": "W1b_c, W1b_m, W1b_f",
++    "record": "docs/campaigns/T-family/T9aR1b_RESULTS.md",
++    "ruling": "VERIFICATION_CHARTER.md section 2g (v1.16, 2026-08-27T19:51:42Z): the floor EXCEPTION to standing rule 5 that W1b's pre-registration froze is VOID, because rule 5's gate is one-way and a pre-registration cannot disapply a standing rule. Section 2g.3's diagnosis, adopted by the heat-transfer supervisor 2026-08-27T20:28:10Z: THE WRONG INSTRUMENT WAS REGISTERED, and the remedy is a floor demonstration with its own gate."
++  },
+   "parent": {
+     "rung": "T9a",
+     "freeze_sha": "0cbaea26573924a27d489a8472fad233e198ca6d",
+-    "result": "GATE FAIL on R1, 2.41 mK against a 0.92 mK GCI band (T9a_RESULTS.md section 1.1); cause named there: arithmetic face conductivity at the material interfaces under Gauss linear"
++    "result": "GATE FAIL on R1, 2.41 mK against a 0.92 mK GCI band (T9a_RESULTS.md section 1.1)"
+   },
+-  "capability_grid_cell": "conduction x (n/a) x 1D steady, layered wall (docs/capability/heat-transfer_GRID.md)",
++  "capability_grid_cell": "conduction x laminar x 1D steady, layered wall",
+   "solver": "laplacianFoam",
+   "dimensionality": 1,
+   "ranks": 1,
+-  "what_moves": "system/fvSchemes laplacianSchemes: Gauss linear corrected -> Gauss harmonic corrected; NOTHING else (build_t9aR1b.py refuses any other diff against the parent's blobs at the freeze sha)",
++  "graded_level": "c",
++  "label_ceiling": "PASS",
++  "label_ceiling_ground": "RULED. VERIFICATION_CHARTER 2h (v1.17, commit 9fdb1d9f, 2026-08-27): PASS IS AVAILABLE to this floor limb. 2f.3 does not reach it -- 2f.3's own heading is 'THE CAP ATTACHES TO WHAT A LIMB CLAIMS', and a floor demonstration claims a property of THE DISCRETISATION, not of the continuum solution; 2f.3's ground ('discretisation error is not separable') is not merely absent but INVERTED, because the quantity it protects against is the quantity being reported. 2f.3's CONTINUUM default is RESIDUAL and governs UNCLASSIFIED limbs, while 2g.3 classifies this limb EXPRESSLY, and express beats residual -- so the two clauses never both applied. PASS is conditional on all five of 2h.4, declared before compute in T9aR1c_PREREGISTRATION.md section 3a. Condition 1 is load-bearing: if the reference were anything but the exact solution of the same continuum model, 2f.3's cap would apply in full and this field would revert to GATE REACHED.",
++  "roache_election": {
++    "declares_a_roache_triple": false,
++    "rule5_status": "limb (2), the triple-state gate, is UNREACHABLE and NOT WAIVED (charter 2f.2). Limb (1) -- a level not iteratively converged is NOT A RESULT -- applies IN FULL as gate (1) (charter 2f.7), BINDING on the level the graded row reads and EVALUATED AND REPORTED on the other levels, where it flags their REPORTED rows and touches no verdict. A level F1 does not read cannot decide F1; a level F1 does read cannot escape limb (1).",
++    "inadmissibility_is_a_model_form_fact": "For a three-layer plane wall in steady 1-D conduction with piecewise-constant k, the exact solution is PIECEWISE LINEAR and carries ONE flux. With harmonic face interpolation of DT the discrete face conductance IS the series conductance of the two half-cells, so the discrete solution reproduces the exact solution to round-off on EVERY mesh that resolves the layers. The discretisation error is therefore in the NULL SPACE of the scheme's truncation error, and a systematic-refinement triple has nothing to measure: e21 and e32 are both round-off and p = ln|e32/e21|/ln r is noise divided by noise. This is entailed by choices already frozen -- the layer table, the Dirichlet faces and the laplacianSchemes line -- and a reader can check it from those without running anything (charter 2f.4).",
++    "which_case_would_carry_a_triple": "T9a itself. Under the parent's `Gauss linear corrected` the face conductivity at each interface is the ARITHMETIC mean, the interface error is O(dx) and shrinks with refinement, and T9a MEASURED a CONVERGING triple with p = 1.738 on exactly this ladder. That is a DIFFERENT CASE, not this one refined (charter 2f.4's honest corollary).",
++    "prior_triple_disclosure": "A Roache triple WAS run on this case family and its result is disclosed here in full, whatever it said. T9a-R1b (W1b_c/W1b_m/W1b_f -- the same three levels, the same scheme, the same reader) returned state EXACT with e21 = -2.842e-13 K and e32 = 3.240e-12 K, no observed order defined, deviation 2.899e-12 K. Verification section 2g refused the floor exception that graded that triple PASS. The election here is NOT selection by outcome: the ground is 2g.3's own diagnosis that the wrong instrument was registered, and the discarded arm is on the record with its numbers (charter 2f.5)."
++  },
+   "wall": {
+     "layers": [
+       {
+@@ -31,12 +47,120 @@
+     "interfaces_x": [
+       0.05,
+       0.15
+-    ],
+-    "T_i1_registered_T9a": 348.781082,
+-    "q_registered_T9a": 19.502682
++    ]
++  },
++  "referent": {
++    "module": "exact_t9aR1c.py",
++    "routes": "TWO independent derivations: (A) the closed-form series resistance; (B) flux continuity as a 2x2 linear system solved by general Gaussian elimination with partial pivoting, which never forms R_tot. Required to agree to 1e-12 RELATIVE or the module REFUSES.",
++    "external_cross_check_rung": "T9a",
++    "external_cross_check_source": "docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1",
++    "external_cross_check_values": {
++      "T_i1_K": 348.781082,
++      "q_W_per_m2": 19.502682,
++      "drop_layer1_K": 1.218918,
++      "drop_layer3_K": 0.024378
++    },
++    "external_cross_check_tol_abs": 1e-06,
++    "external_cross_check_tol_ground": "the precision to which T9a's record states these numbers (six decimal places), not a tolerance chosen to pass",
++    "derived_values": {
++      "T_i1_K": 348.7810823988298,
++      "T_i2_K": 300.0243783520234,
++      "q_W_per_m2": 19.502681618722573,
++      "R_tot_m2K_per_W": 2.56375
++    }
++  },
++  "rows": {
++    "F1": {
++      "claim_class": "FLOOR_DEMONSTRATION",
++      "quantity": "|T_i1 - T_i1_exact| at the COARSEST registered level W1c_c, where T_i1 is the interface-1 temperature read as the conductance-weighted mean of the two cells adjacent to the interface face (the parent's reader form, analyse_t9a.measure_wall.iface_T)",
++      "level": "c",
++      "floor_K": 0.0001,
++      "floor_symbol": "X",
++      "floor_inclusive": true,
++      "gate_sentence": "At the coarsest registered level W1c_c, WHICH IS 35 CELLS, the DISCRETISATION ERROR in the interface-1 temperature IS BELOW X = 1.0e-04 K: |T_i1(W1c_c) - T_i1_exact| <= 1.0e-04 K. PASS inside; GATE FAIL outside. The claim is bounded by the mesh actually run: it is a statement about 35 cells, and about no finer mesh. It is NOT a claim that the solution is correct to X, and it is NOT a claim that the answer does not depend on the mesh -- establishing behaviour ACROSS meshes is what a Roache triple is for, and this instrument deliberately has none. No observed order, no GCI, no Richardson extrapolate and no Roache triple is computed anywhere in the comparator.",
++      "floor_justification": {
++        "upper_bound_decision_magnitude_K": 0.00092,
++        "upper_bound_source": "T9a's registered R1 GCI band, 0.92 mK (T9a_RESULTS.md section 1 table). The band the lab itself fixed, in 2026-08-20's registration, as the size of error that DECIDES this quantity. X sits 9.2x below it.",
++        "discrimination_magnitude_K": 0.00543,
++        "discrimination_source": "T9a's own COARSEST level under the parent's `Gauss linear corrected` scheme deviates -5.43 mK from exact (T9a_RESULTS.md section 1.1: the three levels are off by -5.43 / -3.33 / -2.41 mK). X sits 54.3x below that, so the PARENT'S REGISTERED SCHEME GATE FAILS THIS GATE AT THIS VERY LEVEL, measured and on the record.",
++        "lower_bound_referent_precision_K": 1e-06,
++        "lower_bound_source": "T9a states the referent to six decimal places (348.781082 K), so the cross-check itself is only good to ~1e-06 K. X is 100x above that: the demonstration does not claim more precision than the referent it is checked against carries.",
++        "physical_significance": "The layer-1 temperature drop this row sits inside is 1.218918 K and the wall's total drop is 50 K, so X is 8.2e-05 of the local drop and 2.0e-06 of the total. Downstream, on the DC-cooling spine this rung is the conjugate entry to, the interface temperatures it feeds carry design margins of order 1 K and instrument resolutions of order 0.01-0.1 K; X is at least three orders below anything a DC-cooling conclusion could turn on.",
++        "chosen": "X = 1.0e-04 K is the round decade lying one order below the decision magnitude, inside the window [1e-06, 9.2e-04] K that the three sources above fix. Every number used to fix it was registered in T9a's record on 2026-08-20/22, before W1b was built.",
++        "independence_disclosure": "THE LANE THAT WROTE THIS KNEW W1b's MEASURED 2.899e-12 K. X is not a function of it: the window and the decade were fixed from T9a's three registered numbers alone, and a reader can check that by arithmetic. The falsifiability statement: had this case returned 5e-04 K, X = 1.0e-04 K would GATE FAIL it; had it returned 2.9e-05 K, X would pass it. X is therefore not a threshold drawn around a known answer."
++      },
++      "identity_test_charter_2a": {
++        "what_makes_it_FAIL": "|T_i1(W1c_c) - exact| > 1.0e-04 K. Not hypothetical: the parent's own registered scheme measures 5.43e-03 K at this level, 54x above the floor.",
++        "could_a_wrong_treatment_still_PASS": "YES, and the ways are named rather than denied. A treatment wrong about anything this row does not read passes it: interface 2, the fin rows, the transient path, 2-D or 3-D conduction, or any error that happens to vanish at interface 1 while being large elsewhere in the wall. What is gated against: C_MAP (every cell's DT against the layer map), C_SCHEME (the harmonic line on disk), gate (1) (iterative plateau), the age guard, and the four-arm planted-zero control. What is carried as REPORTED rather than gated, precisely so a reader can see the part the gate does not cover: N4 (interface 2), N3 (hot-face flux) and N2 (the mesh-family spread)."
++      },
++      "wording_condition_2h4": "VERIFICATION_CHARTER 2h.4(4) and 2h.4(5) are WORDING conditions and no machine check discharges them -- the AST guard C_NOTRIPLE proves the ABSENCE OF A TRIPLE, not the wording of the claim, and 2h.5 says so in terms. The sentence above reads 'the discretisation error is below X at N cells' with N stated (35), never 'the solution is correct to X'. The phrase 'so the answer does not depend on the mesh at the resolution that matters' appeared in 2g.3's own drafting, was carried verbatim into this registration's v1.0 draft, and was STRUCK throughout on 2026-08-27 under 2h.4(5), which narrowed 2g.3 against verification's own words.",
++      "roundoff_condition_2h4_3": {
++        "requirement": "VERIFICATION_CHARTER 2h.4(3): round-off is stated WITH ITS MAGNITUDE and shown negligible against the band -- a number, not an assurance. A floor demonstration whose floor is not shown to sit above the arithmetic noise is asserting the thing it exists to measure.",
++        "unit_roundoff_binary64": 1.1102230246251565e-16,
++        "ulp_at_350K_K": 5.684341886080802e-14,
++        "ulp_derivation": "IEEE-754 binary64; 350 K lies in [2^8, 2^9), so ulp = 2^(8-52) = 2^-44 K. OpenFOAM is built double precision here and the case writes writePrecision 16.",
++        "measured_e21_K": 2.842e-13,
++        "measured_e21_ulp": 5.0,
++        "measured_e32_K": 3.24e-12,
++        "measured_e32_ulp": 57.0,
++        "measured_source": "T9a-R1b's graded run on byte-identical inputs (T9aR1b_RESULTS.md section 5): the level-to-level differences of T_i1, which are pure arithmetic noise because the harmonic scheme carries no discretisation error to distinguish the levels by. W1b's checkpoint move between times 900 and 1000 measured 0.000e+00 K exactly.",
++        "binding_roundoff_magnitude_K": 3.24e-12,
++        "binding_choice": "the LARGEST measured figure is used, not the ulp, because using the larger is conservative for a claim that the floor sits above the noise.",
++        "band_over_roundoff": 30864197.530864194,
++        "orders_of_margin_vs_binding": 7.49,
++        "orders_of_margin_vs_ulp": 9.25,
++        "verdict": "CONDITION 3 MET: the band 1.0e-04 K sits 7.49 orders above the largest measured round-off figure and 9.25 orders above the representation granularity at the operating magnitude.",
++        "correction_to_the_expectation": "The referral expected '~12 orders down'. The arithmetic gives 7.49 orders against the binding measured figure and 9.25 against the ulp. The condition is met either way, and the smaller true number is recorded rather than the larger expected one."
++      }
++    },
++    "N1": {
++      "claim_class": "REPORTED",
++      "quantity": "|T_i1 - T_i1_exact| at all three levels. No verdict is written for this row."
++    },
++    "N2": {
++      "claim_class": "REPORTED",
++      "quantity": "the mesh-family SPREAD, max - min of T_i1 over the three levels built. A BOUND on observed variation over the meshes actually built (charter 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order. No verdict is written for this row."
++    },
++    "N3": {
++      "claim_class": "REPORTED",
++      "quantity": "hot-face flux q_hot, relative deviation from the exact series-resistance q, at all three levels. No verdict is written for this row."
++    },
++    "N4": {
++      "claim_class": "REPORTED",
++      "quantity": "|T_i2 - T_i2_exact| at all three levels -- the SECOND interface, which the graded row does not read. Carried because charter 2a's second question has a yes answer and this is one of the channels that lets a reader see it. No verdict is written for this row."
++    }
++  },
++  "controls": {
++    "C_CONV": {
++      "what": "gate (1), standing rule 5 limb (1): an End line in log.solve, and the last two written checkpoints (900, 1000) agree in T to the floor. BINDING on the graded level W1c_c -- F1 is NOT A RESULT if it fails there. EVALUATED AND REPORTED on W1c_m and W1c_f, where it flags their REPORTED rows and touches no verdict.",
++      "floor": 1e-09,
++      "ground": "the parent's checkpoint form (L-140/L-141); charter 2f.7 makes limb (1) the only convergence gate a no-triple family has left, and not optional"
++    },
++    "C_MAP": {
++      "what": "every cell's DT equals the registered layer conductivity for its centre position; a mismatch is exit 2, never a note"
++    },
++    "C_SCHEME": {
++      "what": "CASE.txt and system/fvSchemes on disk both carry the registered scheme; the parent's linear line is REFUSED",
++      "required_line": "Gauss harmonic corrected"
++    },
++    "C_REF": {
++      "what": "the two-route referent and its four external cross-checks against T9a's registered numbers; disagreement is exit 2"
++    },
++    "C_CLASS": {
++      "what": "every registered row carries a claim_class, and the only admissible classes are FLOOR_DEMONSTRATION and REPORTED. A row registered with any other class -- in particular any row claiming a grid-convergence property -- is REFUSED, because this comparator has no rule 5 triple gate to route it through. Exactly one FLOOR_DEMONSTRATION row is admissible."
++    },
++    "C_NOTRIPLE": {
++      "what": "an AST scan of the comparator itself, blind to comments and docstrings, refusing if it refers to gci / gci_equal / gci_unequal / refinement_ratio / richardson / observed_order / GCI_abs / GCI_pct / grade_triple / triple_of / p_observed / roache_gate, and requiring that the ONLY name imported from scripts/roache_triple.py is PLANT. Driven with a planted call, so the scanner is shown able to see one."
++    },
++    "C_PZ": {
++      "what": "the planted-zero control, standing rule 3, FOUR ARMS: N two reads of identical bytes must be bit-identical; P1 the registered plant into the reader's own stencil cell on a measured ladder, refusing a blind reader or a read below 0.1 x plant; P2 a PERMUTATION plant that SWAPS the two stencil values so that no value in the file changes and only their ORDER does, refusing an ORDER-BLIND reader; P3 the registered plant into a far cell in layer 3 outside the stencil, which must move the read by EXACTLY zero, refusing a reader that has become a whole-field statistic.",
++      "plant_K": "scripts/roache_triple.PLANT, imported by name (1.234e-03)",
++      "visibility_floor_K": 1e-06,
++      "why_P2_is_adequate": "A floor demonstration is a claim that a number is SMALL, which is the claim class most easily produced by a reader that cannot see. A plant carrying the same form the reader is already written for proves only that the reader is not blind TO THAT FORM. P2 changes NO VALUE in the file -- it changes only the order of two of them -- so every value-based-but-position-blind failure (a drifted index, a cached constant, a block sum or mean) reads exactly the same number before and after and is refused. That failure class is invisible to P1 by construction."
++    }
+   },
+   "cases": {
+-    "W1b_c": {
++    "W1c_c": {
+       "level": "c",
+       "parent_case": "W_c",
+       "cells_per_layer": [
+@@ -49,10 +173,10 @@
+       "deltaT": 1,
+       "cap_core_min": 1,
+       "timeout_s": 60,
+-      "point_core_min": 0.0015,
+-      "point_source": "T9a MEASURED: STATUS.W_c wall 0.09 s, STATUS.W_f wall 0.09 s (2026-08-20), serial; scratch harmonic runs 2026-08-26 W_c 0.12 s, W_f 0.11 s wall"
++      "point_core_min_executiontime_basis": 0.000833,
++      "point_core_min_wall_basis": 0.0015
+     },
+-    "W1b_m": {
++    "W1c_m": {
+       "level": "m",
+       "parent_case": "W_m",
+       "cells_per_layer": [
+@@ -65,10 +189,10 @@
+       "deltaT": 1,
+       "cap_core_min": 1,
+       "timeout_s": 60,
+-      "point_core_min": 0.0015,
+-      "point_source": "T9a MEASURED: STATUS.W_c wall 0.09 s, STATUS.W_f wall 0.09 s (2026-08-20), serial; scratch harmonic runs 2026-08-26 W_c 0.12 s, W_f 0.11 s wall"
++      "point_core_min_executiontime_basis": 0.000833,
++      "point_core_min_wall_basis": 0.0015
+     },
+-    "W1b_f": {
++    "W1c_f": {
+       "level": "f",
+       "parent_case": "W_f",
+       "cells_per_layer": [
+@@ -81,67 +205,64 @@
+       "deltaT": 1,
+       "cap_core_min": 1,
+       "timeout_s": 60,
+-      "point_core_min": 0.0015,
+-      "point_source": "T9a MEASURED: STATUS.W_c wall 0.09 s, STATUS.W_f wall 0.09 s (2026-08-20), serial; scratch harmonic runs 2026-08-26 W_c 0.12 s, W_f 0.11 s wall"
++      "point_core_min_executiontime_basis": 0.001,
++      "point_core_min_wall_basis": 0.0015
+     }
+   },
+-  "dim": 1,
+-  "factor_of_safety": 1.25,
+-  "roache_floors": {
+-    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5); the comparator defines neither and REFUSES if these differ from the import",
+-    "STAGNANT_FLOOR": 0.5,
+-    "P_MIN": 0.05
+-  },
+-  "graded_rows": {
+-    "R1": {
+-      "quantity": "wall interface-1 temperature T_i1 [K], conductance-weighted mean of the two cells adjacent to the interface face (the parent's reader form)",
+-      "reference": 348.78108239883,
+-      "band_rule": "T9a's registered row rule, unchanged: CONVERGING -> band = the triple's own GCI (Fs 1.25, unequal ratios from cell counts, dim 1); EXACT -> T9a's 'zero band grades only a literally exact value' made operational as the absolute floor below; other states NOT A RESULT",
+-      "exact_floor_K": 1e-06,
+-      "floor_ground": "a piecewise-linear exact solution is in the null space of the harmonic scheme's truncation error, so the triple is predicted EXACT; scratch (2026-08-26, outside the repository) measured |T_i1 - exact| = 5.7e-14 K at c and 2.9e-12 K at f; the floor 1e-6 K is ~1000x the round-off and 900x TIGHTER than T9a's R1 band of 0.92 mK -- no widening",
+-      "exact_roundoff_K": 1e-09,
+-      "roundoff_ground": "a triple whose level differences |e21|, |e32| are both below 1e-9 K is classified EXACT (T9a's byte-identical EXACT made operational: the harmonic scheme reproduces the exact solution to ~1e-12 K, not to the bit); above it the imported roache_triple classifier rules"
+-    }
+-  },
+-  "reported_rows": {
+-    "R0": "hot-face flux q, relative deviation from the series-resistance q; REPORTED, not graded (T9a's R0 PASSED at 1.8 percent under linear; predicted exact under harmonic)"
++  "predictions": {
++    "P1": "F1: |T_i1(W1c_c) - exact| < 1e-06 K, two orders inside the registered floor X. Loses if the measurement lands anywhere in [1e-06, 1e-04) K, which would still be a PASS -- so this prediction can lose without the gate losing, which is the point of stating it separately.",
++    "P2": "the ratio |dev(W1c_c)| / 5.43e-03 K -- this rung's coarsest-level error against the parent scheme's measured coarsest-level error -- is below 1e-04, i.e. the registered scheme beats the parent's by at least four orders at the same resolution.",
++    "P3": "N3: |q_hot/q_exact - 1| < 1e-09 at every level (T9a's 1.8 percent linear-scheme excess has vanished).",
++    "P4": "N2: the mesh-family spread is below 1e-08 K.",
++    "P5": "N4: |T_i2 - exact| < 1e-06 K at every level.",
++    "P6": "gate (1) holds at every level: the last two checkpoints agree in T to better than 1e-09 K."
+   },
+-  "controls": {
+-    "C_CONV": {
+-      "what": "gate (1): End line and the last two written checkpoints (900, 1000) agree in T to the floor (the parent's checkpoint form, L-140/L-141)",
+-      "floor": 1e-09
+-    },
+-    "C_MAP": {
+-      "what": "every cell's DT equals the registered layer conductivity for its centre position (the parent's C_MAP)"
++  "cost": {
++    "primary_basis": "ExecutionTime, per level",
++    "primary_basis_ground": "T9aR1b_RESULTS.md section 8's transferable finding, adopted here before compute: below about one wall-second per case the registered core-minute basis (wall_s x ranks / 60) cannot resolve the spend and returns 0, and a 0 there means 'too small to measure', NOT 'free'. W1b's calibration row therefore carried no ratio on the wall basis. This rung registers ExecutionTime as its primary cost basis UP FRONT so its calibration row can carry one.",
++    "per_level_pricing_ground": "EACH LEVEL IS PRICED SEPARATELY from its own measured rate. A single flat per-cell-iteration rate across a mesh family is a measured defect, not a simplification: T16 (2026-08-27) priced three levels from one flat 3.8932e-06 core-s per cell-iteration and measured 2.8890e-06 at coarse and 6.4883e-06 at medium -- a 2.246x rise for a 4x cell count, giving TWO OPPOSITE errors out of one registration (0.742x over-priced, 1.667x under-priced) which is why they did not cancel and why nobody saw it until the actuals arrived.",
++    "rate_source": "T9a-R1b MEASURED solver ExecutionTime, per level, on THESE EXACT CASES: W1b_c 0.05 s, W1b_m 0.05 s, W1b_f 0.06 s at 1000 iterations serial (T9aR1b_RESULTS.md section 2). This rung does not borrow another family's exponent: it has a direct measurement at every level it will run.",
++    "measured_per_cell_iteration_core_s": {
++      "W1c_c": 1.4286e-06,
++      "W1c_m": 8.9286e-07,
++      "W1c_f": 6.6667e-07
+     },
+-    "C_SCHEME": {
+-      "what": "CASE.txt and system/fvSchemes on disk carry the harmonic scheme; the parent's linear scheme is REFUSED"
++    "measured_scaling_exponent": {
++      "total_time_vs_cells": 0.193,
++      "per_cell_iteration_rate_vs_cells": -0.807,
++      "arithmetic": "c -> f is 35 -> 90 cells (2.5714x) for 0.05 -> 0.06 s (1.2x). ln(1.2)/ln(2.5714) = 0.193 on total time; the per-cell-iteration rate therefore falls as N^-0.807 (0.193 - 1). The rate FALLS with size here, the OPPOSITE sign to T16's +0.584, because at 35-90 cells the run is dominated by process start-up and field I/O rather than by the linear algebra.",
++      "assumption_and_its_failure_mode": "The exponent is an ASSUMPTION about a case size this rung has never run at more than 90 cells, and it is stated so a reader can attack it. If it is wrong the consequence is bounded and named: the cap headroom is 1200x at the coarse level (60 s cap against 0.05 s measured) and 1000x at the fine. Priced at T16's much steeper total exponent of 1.584 the fine level would take 0.223 s, still 269x inside its cap; at a pathological N^3.0 it would take 0.85 s, still 70x inside it. The exponent would have to be wrong by three orders before any cap bound. AND -- the point that matters most -- because this rung is DECOUPLED, a capped or mispriced W1c_m or W1c_f cannot make it ungradeable: F1 reads W1c_c alone. The T16 failure mode is structurally absent here, not merely unlikely."
+     },
+-    "C_REF": {
+-      "what": "the referent derived from the series-resistance law is cross-checked to T9a's registered T_i1 and q to 1e-6; a 1 mK planted error is REFUSED (selftest)"
++    "point_core_min_per_level_executiontime_basis": {
++      "W1c_c": 0.000833,
++      "W1c_m": 0.000833,
++      "W1c_f": 0.001
+     },
+-    "C_PZ": {
+-      "what": "planted-zero control (rule 3): one-cell plant in the cell adjacent to interface 1 (the point reader's own station), both arms, measured ladder, refuses a blind/noisy reader or a read below 0.1 x plant"
+-    }
+-  },
+-  "predictions": {
+-    "P1": "the R1 triple is EXACT to round-off: |e21|, |e32| < 1e-9 K",
+-    "P2": "|T_i1 - 348.781082399| < 1e-9 K on every level -> PASS by the floor",
+-    "P3": "R0 (reported) q within 1e-9 relative of 19.502682 on every level (the 1.8 percent linear-scheme excess vanishes)",
+-    "P4": "if instead the triple is CONVERGING, p in [1.5, 2.5] and R1 inside its GCI band"
+-  },
+-  "cost": {
+-    "point_total_core_min": 0.0045,
++    "point_total_core_min_executiontime_basis": 0.002667,
++    "point_total_core_min_wall_basis": 0.0045,
++    "point_source_wall": "T9a MEASURED wall 0.09 s per level (STATUS.W_c, STATUS.W_f, 2026-08-20), carried for continuity with W1b's registration; expected to read 0.000 again at this case size",
++    "cap_per_level_core_min": 1,
+     "cap_total_core_min": 3,
++    "cap_enforcement": "THE LAUNCHER'S `timeout` WRAPPER IS THE ONLY THING THAT STOPS THIS RUN. scripts/queue_runner.py REPORTS a cap overrun and does NOT kill (measured lab-wide 2026-08-27; runner-side enforcement is being pre-registered separately by cfd on the chief's order). So the cap binds only through the arithmetic timeout_s = cap_core_min * 60 / ranks = 1 * 60 / 1 = 60 s, and run_one_t9aR1c.sh REFUSES at pre-flight if the registered timeout_s does not equal it, and REFUSES a --timeout that is not equal to the registered timeout_s. Both refusals are DRIVEN on scratch in T9aR1c_SELFTEST_EVIDENCE.txt. A cap nothing enforces is not a cap.",
+     "usd_per_core_h": 0.0513,
+-    "usd_basis": "derived, not measured, reported-by-owner rate (COMPUTE_BUDGET_CHARTER section 5)",
+-    "rate_source": "parent T9a MEASURED wall 0.09 s per level (STATUS.W_c/W_f); scratch harmonic 0.11-0.12 s"
++    "usd_point_per_level_executiontime_basis": {
++      "W1c_c": 7.125e-07,
++      "W1c_m": 7.125e-07,
++      "W1c_f": 8.55e-07
++    },
++    "usd_point_total_executiontime_basis": 2.28e-06,
++    "usd_point_total_wall_basis": 3.85e-06,
++    "usd_cap": 0.002565,
++    "usd_basis": "DERIVED, NOT MEASURED. The box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5), and the rate is owner-stated (Sanaa 2026-08-21/22, corroborated at Xiao2016_EnKF/PREREGISTRATION.md:197), so every dollar figure here is derived at that rate and reported-by-owner.",
++    "calibration": "At completion the actual is stated on the ExecutionTime basis with the ratio actual/predicted, the wall basis is reported as UNRESOLVED rather than as 0.000, and the row lands in docs/COST_CALIBRATION.md (CLAUDE.md rule 12). The comparison is made PER LEVEL, not as one rung-wide ratio, because a rung-wide ratio is exactly what hid T16's two opposite errors."
+   },
+   "completion": {
++    "instrument": "mark_done_t9aR1c.py",
+     "needed_fields": [
+       "T",
+       "DT"
+     ],
++    "conjuncts": "rc == 0; an End line; last written time == endTime; T and DT present at that time; ExecutionTime line count == endTime/deltaT; and every needed field at endTime NEWER than the case's own 0/T (the age guard). All-or-nothing (CLAUDE.md rule 4, T1b_L4_AMENDMENT section 7). An absent STATUS file is a REFUSAL, never an inference from an End line.",
+     "infrastructure_fields": [
+       "wall_s",
+       "timeout_s",
+@@ -155,11 +276,20 @@
+       "started_utc",
+       "ended_utc"
+     ],
+-    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
++    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342). The ExecutionTime-count conjunct is carried UNWEAKENED because CLAUDE.md rule 4 lists it; T9aR1b_RESULTS.md section 3 records that docs/L342_GRADER_AUDIT.md classifies it CONFLATED, and that tension is referred to the verification supervisor and is not resolved by this rung."
+   },
+   "launcher": {
+-    "file": "run_one_t9aR1b.sh",
+-    "guard": "lineage-aware foreign-process scan (9fa66065), inherited from run_one_t14.sh (freeze 5a870e54) with the field set and rung name changed",
+-    "queue_mode": "--no-detach"
++    "file": "run_one_t9aR1c.sh",
++    "guard": "lineage-aware foreign-process scan (9fa66065), inherited through run_one_t9aR1b.sh from run_one_t14.sh",
++    "queue_mode": "--no-detach",
++    "preflight": "refuses a case that already holds 0/ or any numeric time directory, so the age guard can always be evaluated"
++  },
++  "decoupling": {
++    "rule": "The graded row F1 reads ONE level (W1c_c) and no other. W1c_m and W1c_f are OPTIONAL EVIDENCE LEVELS feeding REPORTED rows only. A level that is capped, crashed, mispriced or not run is recorded as such and CANNOT touch F1's verdict: there is NO all-or-none coupling in this rung.",
++    "why": "Measured exposure, T16, 2026-08-27: one flat per-cell-iteration rate over-priced its coarse level 0.742x and under-priced its medium level 1.667x, and its fine level is now priced from that same flat rate at POINT 1063 / CEILING 1604 / CAP 2400 core-min against an actual of roughly 1772 at the medium level's measured rate. On an all-or-none comparator one capped level makes the whole rung ungradeable, and T16's cap is unfixable because its first compute has closed rule 2. A floor demonstration does not need a triple and therefore does not need every level, so it should not be built to require them.",
++    "mandatory": "DONE.W1c_c. Its absence is a REFUSAL.",
++    "optional": "DONE.W1c_m, DONE.W1c_f. Absence is REPORTED as NOT RUN / RAN_NOT_COMPLETE and is never fatal.",
++    "anti_cherry_pick": "Every level whose DONE marker exists IS READ; the comparator cannot be told to skip one. A level with a STATUS file and no DONE marker is recorded RAN_NOT_COMPLETE. A level holding a written time directory and NO STATUS file is a REFUSAL (K0d L1), so a level cannot be dropped from the record by removing its markers.",
++    "gate1_scope": "Standing rule 5 limb (1) is BINDING on the graded level and EVALUATED AND REPORTED on the others, where it flags their REPORTED rows and touches no verdict."
+   }
+-}
++}
+\ No newline at end of file
+
+================================================================================
+--- DIFF: HEAD:verification/runs/T-family/T9aR1b_runs/analyse_t9aR1b.py
+     blob fd6c43a0da916e534b588c306edaf7da737c3c7a
+     confirmed byte-identical to the working tree at generation time
+  -> verification/runs/T-family/T9aR1c_runs/analyse_t9aR1c.py
+================================================================================
+THIS IS A REWRITE, so a unified diff read line by line will mislead.  The four
+things a check-1 read needs are stated first and the full diff follows.
+
+(1) WHAT WAS REMOVED, AND IT IS THE WHOLE POINT OF THE RUNG.  The names below
+    existed in W1b's comparator and DO NOT EXIST AS EXECUTABLE REFERENCES in
+    W1c's.  This is the list to check, because the ruling this rung implements
+    is that the wrong instrument was registered, and the evidence that a new
+    instrument was built is that the old one's machinery is gone rather than
+    flagged off:
+      name               W1b AST refs  W1c AST refs  W1c in strings
+      triple_of                     2             0             2
+      gci_unequal                   2             0             6
+      gci_equal                     0             0             2
+      refinement_ratio              3             0             2
+      GCI_abs                       0             0             2
+      GCI_pct                       0             0             2
+      STAGNANT_FLOOR                5             0             0
+      P_MIN                         5             0             0
+      FS                            2             0             0
+      richardson                    0             0             3
+      observed_order                0             0             3
+
+      AST refs is the count C_NOTRIPLE's own scanner measures: EXECUTABLE
+      references only.  EVERY W1c AST COUNT IS ZERO, and that is what the guard
+      refuses on.  The last column is the same names inside DOCSTRINGS AND STRING
+      LITERALS -- the guard's own forbidden-name list, the selftest's planted
+      control, and the prose explaining why the machinery is absent.  A PLAIN TEXT
+      GREP CONFLATES THE TWO and reads as though the machinery survived; it did
+      not, and this table is reported AST-wise for exactly that reason.
+
+    W1c's C_NOTRIPLE guard makes that structural rather than a promise: an AST
+    scan of the comparator itself REFUSES if any of gci / gci_equal /
+    gci_unequal / refinement_ratio / richardson / observed_order / GCI_abs /
+    GCI_pct / grade_triple / triple_of / p_observed / roache_gate appears, and
+    requires that the ONLY name imported from scripts/roache_triple.py is PLANT.
+    Driven with a planted gci_unequal() call.
+
+(2) THE FUNCTION MAP -- what replaced what:
+
+      W1b                          W1c                        note
+      ---------------------------  -------------------------  --------------------
+      apply_gate(dev, tr, ...)     apply_gate(dev, floor,      NO triple argument.
+                                     gate1_ok, why, ceiling)   The one verdict writer.
+      triple_of(vals, ns, ro)      -- REMOVED --               nothing to gate.
+      grade_triple / GCI band      -- REMOVED --               nothing to extrapolate.
+      (none)                       level_state()               DONE / RAN_NOT_COMPLETE
+                                                               / NOT RUN + the
+                                                               anti-cherry-pick refusal.
+      (none)                       check_claim_classes()       C_CLASS.
+      (none)                       scan_for_triple() /         C_NOTRIPLE.
+                                     no_triple_guard()
+      measure()                    measure()                   SAME READER FORM,
+                                                               extended with interface 2,
+                                                               the stencil weights and the
+                                                               far-cell index, which the
+                                                               permutation and specificity
+                                                               plants need.  T_i1 itself is
+                                                               computed identically.
+      converged()                  converged()                 UNCHANGED in substance;
+                                                               SCOPE changed -- see (3).
+      planted_zero_control()       planted_zero_control()      ONE arm -> FOUR.  P1 is
+                                                               W1b's arm unchanged.  N, P2
+                                                               (permutation) and P3
+                                                               (specificity) are new.
+      exact() (in-file)            exact_t9aR1c.py (module)    the referent left the
+                                                               comparator and gained a
+                                                               second derivation route and
+                                                               two more cross-checks.
+
+(3) THE TWO SCOPE CHANGES A CHECK-1 READ SHOULD ATTACK HARDEST, because both
+    make a verdict EASIER to reach than W1b's comparator made it, and a change
+    in that direction needs the most justification.  BOTH WERE ATTACKED AND
+    ACCEPTED BY THE SUPERVISOR on 2026-08-27, on the grounds recorded below.
+
+    (3a) GATE (1) IS BINDING ON THE GRADED LEVEL ONLY.  W1b required all three
+         levels checkpoint-converged before any verdict; W1c binds gate (1) to
+         W1c_c, the one level F1 reads, and REPORTS it on the other two.
+         Accepted BECAUSE the claim is single-level: m and f are evidence, not
+         part of the claim, so binding the claim's convergence test to the
+         claim's own level is right rather than lax.  This is also
+         VERIFICATION_CHARTER 2h.4(2), and apply_gate consults limb (1) BEFORE
+         the band, one-way.
+
+    (3b) THE RUNG IS DECOUPLED: only DONE.W1c_c is mandatory.  Accepted as
+         REQUIRED rather than merely acceptable -- the all-or-none coupling is
+         what has T16 one mispriced level away from being ungradeable entirely.
+         The cherry-picking hazard is closed by three refusals: every level whose
+         DONE marker exists IS read; STATUS-without-DONE is recorded
+         RAN_NOT_COMPLETE; a written time directory with NO STATUS is a REFUSAL
+         (K0d L1).
+
+    Neither can turn a NOT A RESULT into a PASS, because there is no triple gate.
+
+(4) THE WORDING CHANGE UNDER VERIFICATION_CHARTER 2h.4(4) AND 2h.4(5), WHICH NO
+    MACHINE CHECK IN THIS FILE DISCHARGES.  The module docstring's one-sentence
+    claim and the `claim` / `claim_is_not` values written into gate_t9aR1c.json
+    were rewritten.  THE OLD `claim` STRING WENT INTO THE GRADED MACHINE RECORD,
+    which is the worst place for a withdrawn claim to survive, and it is the
+    reason this was swept rather than spot-fixed.  Struck everywhere:
+    "so the answer does not depend on the mesh at the resolution that matters".
+    New wording states the discretisation error, the threshold and the CELL
+    COUNT (35), and disclaims the two constructions 2h.4 forbids.  2h.5 is
+    express that the AST guard proves THE ABSENCE OF A TRIPLE, not the wording
+    of the claim -- so condition 4 is discharged by a TEXT SWEEP, recorded in
+    T9aR1c_SELFTEST_EVIDENCE.txt with its own planted control.
+
+FULL UNIFIED DIFF FOLLOWS.
+--------------------------------------------------------------------------------
+--- HEAD:T9aR1b_runs/analyse_t9aR1b.py
++++ T9aR1c_runs/analyse_t9aR1c.py
+@@ -1,30 +1,98 @@
+ #!/usr/bin/env python3
+-"""T9a-R1b -- the FROZEN one-row comparator.  T9a's wall levels with the
+-harmonic interface scheme; the graded row is R1 (interface-1 temperature),
+-exactly the row T9a GATE FAILed.
+-
+-THE REFERENT is derived here from the series-resistance law (a three-layer
+-plane wall in steady conduction carries one flux: q = dT / SUM(L_i/k_i),
+-T_i1 = T_hot - q L_1/k_1) and CROSS-CHECKED against T9a's registered
+-348.781082 K to 1e-6 K.
+-
+-THE GATE follows T9a's registered rule for the row (analyse_t9a.grade_triple,
+-T9a_PREREGISTRATION.md): the band is the triple's own GCI (Fs = 1.25,
+-r_eff from cell counts, dim 1), convergence-gated by rule 5 -- and T9a's own
+-handling of an EXACT triple (analyse_t9a.py:223, "a zero band grades only a
+-literally exact value") is made operational here as the ABSOLUTE FLOOR
+-|T_i1 - exact| <= 1e-6 K, registered because a piecewise-linear exact solution
+-lies in the null space of the harmonic scheme's truncation error, so the
+-triple is predicted EXACT at round-off (scratch: 3e-12 K).  No band is widened:
+-T9a's R1 band was 0.9 mK; this floor is 900x tighter.
++"""T9a-R1c -- the FROZEN comparator.  A FLOOR DEMONSTRATION, and nothing else.
+ 
+-ROACHE FLOORS ARE IMPORTED (MESH_STANDARD.md 10.5): STAGNANT_FLOOR, P_MIN, FS,
+-gci_unequal from scripts/roache_triple.py; this file defines none.
++WHAT THIS RUNG CLAIMS, in one sentence, and it makes exactly this claim and no
++more:
+ 
+-L-342: refuses only on PHYSICS-CRITICAL facts (DONE markers, fields, the
+-parent-derived geometry, the referent).  NO assert (L-332).  Exit 0 / 2.
++    THE DISCRETISATION ERROR IN T_i1 IS BELOW X = 1.0e-04 K AT 35 CELLS.
++
++That is a STRICTLY WEAKER claim than grid convergence, and it is the claim the
++evidence supports.  It is graded by ONE number at ONE level against ONE
++pre-registered absolute threshold.
++
++WHAT THE SENTENCE DELIBERATELY DOES NOT SAY, per VERIFICATION_CHARTER 2h.4
++conditions (4) and (5).  It does not say "the solution is correct to X" -- a
++floor demonstration WORDED as a continuum claim IS a continuum claim and 2f.3
++would catch it.  And it does not say "so the answer does not depend on the
++mesh": that phrase appeared in 2g.3's own drafting and was NARROWED by 2h.4(5)
++against it, because a floor demonstration establishes the error AT THE MESHES
++MEASURED and nothing about finer ones.  Establishing behaviour ACROSS meshes is
++what a Roache triple is for, and this instrument deliberately has none.  The
++claim is bounded by the meshes actually run and is extrapolated to none.
++
++WHY THE INSTRUMENT CHANGED, and it is the whole reason this file exists.  The
++predecessor T9a-R1b (`W1b`) registered a Roache triple on this case, measured
++it EXACT (e21 -2.842e-13 K, e32 3.240e-12 K), and graded the row PASS on a
++FLOOR EXCEPTION to standing rule 5 frozen before compute.  VERIFICATION_CHARTER
++section 2g (v1.16, 2026-08-27) REFUSED that exception:
++
++    "A pre-registration fixes the gate, threshold, cap and label FOR ITS CASE.
++     It has no power to disapply a standing rule, and an exception to one is
++     void however early it was frozen."
++
++The decisive ground is that rule 5's gate is ONE-WAY -- "the gate can only turn
++a PASS or GATE FAIL INTO NOT A RESULT, never the reverse" -- so an exception
++yielding PASS where rule 5 yields NOT A RESULT runs the gate backwards.  The
++same ruling's diagnosis, section 2g.3: THE WRONG INSTRUMENT WAS REGISTERED.
++Where the discretisation error is below the registered floor at every level, a
++Roache triple has nothing to measure; p = ln|e32/e21| / ln r on two round-off
++differences is noise divided by noise.  Rule 5 refuses to compute an ORDER from
++nothing.  It does not say the VALUE is worthless.
++
++SO THIS FILE COMPUTES NO TRIPLE AT ALL.  There is nothing to gate and nothing
++to bypass.  Two guards make that structural rather than stated:
++
++  * C_CLASS -- every registered row carries a `claim_class`, and the only
++    admissible classes are FLOOR_DEMONSTRATION (graded against the absolute
++    floor) and REPORTED (no verdict).  A row registered with any other class --
++    in particular any row claiming a grid-convergence property -- REFUSES,
++    because this comparator has no triple gate to route it through.  Driven.
++
++  * C_NOTRIPLE -- an AST scan of THIS FILE, which is blind to comments and
++    docstrings, refusing if it contains any reference to `gci_equal`,
++    `gci_unequal`, `refinement_ratio`, `richardson`, `observed_order`,
++    `GCI_abs`, `GCI_pct`, `grade_triple` or `triple_of`, and requiring that the
++    ONLY name imported from `scripts/roache_triple.py` is `PLANT`.  Driven with
++    a planted call, so the scanner is shown able to see one.
++
++THE RUNG IS DECOUPLED BY CONSTRUCTION, and that is a cost-model property as
++much as a grading one.  F1 reads ONE level.  The other two are OPTIONAL
++EVIDENCE feeding REPORTED rows: a level that is capped, crashed, mispriced or
++simply not run is recorded as such and CANNOT touch F1's verdict.  The exposure
++this avoids was measured on T16 on 2026-08-27 -- one flat per-cell-iteration
++rate under-priced its medium level by 1.667x, and on an all-or-none comparator
++a single capped level would have made the whole rung ungradeable.  The
++decoupling is not a licence to drop an inconvenient level: see level_state().
++
++RULE 5 IS UNREACHABLE HERE, NOT WAIVED (VERIFICATION_CHARTER section 2f.2), and
++the half of it that still fires is the half that matters: LIMB (1) -- a level
++not iteratively converged is NOT A RESULT -- applies IN FULL, on EVERY level
++built, as gate (1).  Section 2f.7: a no-triple family has already given up limb
++(2), so limb (1) is the only convergence gate it has left and it is not
++optional.
++
++THE REFERENT is `exact_t9aR1c.py`: two independent derivations, cross-checked
++against FOUR numbers registered by rung T9a that this lab did not recompute
++here.  A disagreement REFUSES.
++
++THE PLANTED-ZERO CONTROL (standing rule 3) HAS FOUR ARMS, and the third is the
++point.  A floor demonstration is a claim that a number is SMALL, which is the
++most dangerous claim class in this lab, because a blind reader returns small.
++A plant that carries the same form the reader is already looking for proves
++only that the reader is not blind TO THAT FORM.  Arm P2 therefore plants a
++PERMUTATION: it SWAPS the two values at the reader's own stencil, changing no
++value in the file, only their ORDER.  Any reader that is value-based but
++position-blind -- one that had drifted to a fixed index, that summed or averaged
++a block, or that returned a cached constant -- reads exactly the same number
++before and after and is REFUSED.  A value plant cannot detect that failure
++class; this one can.
++
++NO `assert` STATEMENT IN THIS FILE (L-332).  Every refusal is sys.exit(2).
++apply_gate() is the ONLY function that writes a verdict.
++Exit: 0 graded, 2 REFUSAL.
+ """
+ import argparse
++import ast
+ import json
+ import os
+ import re
+@@ -34,11 +102,21 @@
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
++sys.path.insert(0, HERE)
+ sys.path.insert(0, os.path.join(REPO, "scripts"))
+-from roache_triple import STAGNANT_FLOOR, P_MIN, FS, PLANT, gci_unequal, refinement_ratio   # noqa: E402
++import exact_t9aR1c as EX                                       # noqa: E402
++from roache_triple import PLANT                                 # noqa: E402
+ 
+ LEVELS = ("c", "m", "f")
+-CASES = {lv: "W1b_%s" % lv for lv in LEVELS}
++CASES = {lv: "W1c_%s" % lv for lv in LEVELS}
++ADMISSIBLE_CLAIM_CLASSES = ("FLOOR_DEMONSTRATION", "REPORTED")
++ADMISSIBLE_CEILINGS = ("PASS", "GATE REACHED")
++# names whose PRESENCE would mean this file computes an order or a GCI
++FORBIDDEN_NAMES = ("gci", "gci_equal", "gci_unequal", "refinement_ratio", "richardson",
++                   "observed_order", "GCI_abs", "GCI_pct", "grade_triple", "triple_of",
++                   "p_observed", "roache_gate")
++ROACHE_MODULE = "roache_triple"
++ROACHE_ALLOWED_IMPORTS = {"PLANT"}
+ EXIT_OK, EXIT_REFUSE = 0, 2
+ 
+ 
+@@ -47,29 +125,86 @@
+     sys.exit(EXIT_REFUSE)
+ 
+ 
++# ==================================================== C_NOTRIPLE: the AST guard
++def scan_for_triple(src, label):
++    """Returns the sorted list of FORBIDDEN references found in `src`, and the
++    set of names imported from roache_triple.  AST-based, so a name that appears
++    only in a comment or a docstring is INVISIBLE to it -- which is what lets
++    this file explain at length why it computes no triple without tripping its
++    own guard."""
++    try:
++        tree = ast.parse(src)
++    except SyntaxError as e:
++        refuse("C_NOTRIPLE: %s is not parseable (%s)" % (label, e))
++    hits, roache_imports = set(), None
++    for n in ast.walk(tree):
++        if isinstance(n, ast.Name) and n.id in FORBIDDEN_NAMES:
++            hits.add(n.id)
++        elif isinstance(n, ast.Attribute) and n.attr in FORBIDDEN_NAMES:
++            hits.add(n.attr)
++        elif isinstance(n, ast.FunctionDef) and n.name in FORBIDDEN_NAMES:
++            hits.add(n.name)
++        elif isinstance(n, ast.ImportFrom) and n.module == ROACHE_MODULE:
++            roache_imports = set(a.name for a in n.names)
++        elif isinstance(n, ast.Import):
++            for a in n.names:
++                if a.name == ROACHE_MODULE:
++                    roache_imports = {"<whole module>"}
++    return sorted(hits), roache_imports
++
++
++def no_triple_guard():
++    hits, roache_imports = scan_for_triple(open(__file__).read(), os.path.basename(__file__))
++    if hits:
++        refuse("C_NOTRIPLE: this comparator refers to %s -- it registered NO Roache triple, so a "
++               "name that computes an order or a GCI has no business in it (charter 2f.2: rule 5 "
++               "is UNREACHABLE here, not waived)" % ", ".join(hits))
++    if roache_imports is not None and roache_imports != ROACHE_ALLOWED_IMPORTS:
++        refuse("C_NOTRIPLE: the only name this comparator may take from %s.py is %s; it takes %s"
++               % (ROACHE_MODULE, sorted(ROACHE_ALLOWED_IMPORTS), sorted(roache_imports)))
++    return dict(status="PASS", forbidden_names_checked=len(FORBIDDEN_NAMES),
++                roache_imports=sorted(roache_imports or []))
++
++
++# ============================================== C_CLASS: what a row may claim
++def check_claim_classes(reg):
++    seen = {}
++    for rid, row in sorted(reg["rows"].items()):
++        cls = row.get("claim_class")
++        if cls not in ADMISSIBLE_CLAIM_CLASSES:
++            refuse("C_CLASS: row %s is registered claim_class %r; this comparator admits only %s. "
++                   "A row that claims a grid-convergence property must be graded through an "
++                   "UNCONDITIONAL rule 5 triple gate, and this comparator has none -- so it "
++                   "refuses the row rather than grading it without one."
++                   % (rid, cls, " or ".join(ADMISSIBLE_CLAIM_CLASSES)))
++        seen[rid] = cls
++    graded = [r for r, c in seen.items() if c == "FLOOR_DEMONSTRATION"]
++    if len(graded) != 1:
++        refuse("C_CLASS: exactly one FLOOR_DEMONSTRATION row is registered for this rung; found %d (%s)"
++               % (len(graded), ", ".join(sorted(graded)) or "none"))
++    return seen, graded[0]
++
++
+ def load_registered(root=None):
+-    p = os.path.join(root or HERE, "T9aR1b_registered.json")
++    p = os.path.join(root or HERE, "T9aR1c_registered.json")
+     if not os.path.isfile(p):
+-        refuse("no T9aR1b_registered.json")
++        refuse("no T9aR1c_registered.json -- the gate is not registered")
+     reg = json.load(open(p))
+-    fl = reg.get("roache_floors", {})
+-    if fl.get("STAGNANT_FLOOR") != STAGNANT_FLOOR or fl.get("P_MIN") != P_MIN:
+-        refuse("registered floors %r disagree with the imported STAGNANT_FLOOR=%r P_MIN=%r" % (fl, STAGNANT_FLOOR, P_MIN))
++    for key in ("rows", "wall", "cases", "graded_level", "label_ceiling", "controls"):
++        if key not in reg:
++            refuse("T9aR1c_registered.json states no %r" % key)
++    if reg["label_ceiling"] not in ADMISSIBLE_CEILINGS:
++        refuse("registered label_ceiling %r is not one of %s" % (reg["label_ceiling"], ADMISSIBLE_CEILINGS))
++    if reg["graded_level"] not in LEVELS:
++        refuse("registered graded_level %r is not one of %s" % (reg["graded_level"], LEVELS))
++    check_claim_classes(reg)
++    fl = reg["rows"]["F1"].get("floor_K")
++    if not isinstance(fl, float) or not (fl > 0.0):
++        refuse("row F1 registers no positive absolute floor_K: %r" % fl)
+     return reg
+ 
+ 
+-def exact(wall):
+-    ks = [l["k"] for l in wall["layers"]]; Ls = [l["L"] for l in wall["layers"]]
+-    sumR = sum(L / k for L, k in zip(Ls, ks))
+-    q = (wall["T_hot"] - wall["T_cold"]) / sumR
+-    Ti1 = wall["T_hot"] - q * Ls[0] / ks[0]
+-    if abs(Ti1 - wall["T_i1_registered_T9a"]) > 1e-6:
+-        refuse("derived T_i1 %.9f disagrees with T9a's registered %.6f" % (Ti1, wall["T_i1_registered_T9a"]))
+-    if abs(q - wall["q_registered_T9a"]) > 1e-6:
+-        refuse("derived q %.9f disagrees with T9a's registered %.6f" % (q, wall["q_registered_T9a"]))
+-    return q, Ti1
+-
+-
++# ================================================================ THE READERS
+ def case_meta(root, case):
+     p = os.path.join(root, case, "CASE.txt")
+     if not os.path.isfile(p):
+@@ -107,10 +242,29 @@
+     return len(wall["layers"]) - 1
+ 
+ 
++def stencil(wall, Cx, iface_index):
++    """The two cells straddling interface `iface_index`, and their conductance
++    weights -- THE PARENT'S READER FORM (analyse_t9a.measure_wall.iface_T,
++    inherited unchanged through analyse_t9aR1b.measure)."""
++    ks = [l["k"] for l in wall["layers"]]
++    xi = sum(l["L"] for l in wall["layers"][:iface_index + 1])
++    left = [i for i in range(len(Cx)) if Cx[i] < xi]
++    right = [i for i in range(len(Cx)) if Cx[i] > xi]
++    if not left or not right:
++        refuse("interface %d at x=%.6g has no cell on one side" % (iface_index + 1, xi))
++    iL, iR = max(left), min(right)
++    wL = ks[layer_of(wall, Cx[iL])] / (xi - Cx[iL])
++    wR = ks[layer_of(wall, Cx[iR])] / (Cx[iR] - xi)
++    return iL, iR, wL, wR
++
++
++def iface_T(T, iL, iR, wL, wR):
++    return (wL * T[iL] + wR * T[iR]) / (wL + wR)
++
++
+ def measure(root, case, wall, cells):
+-    """T_i1 by the PARENT's reader form (analyse_t9a.measure_wall.iface_T):
+-    conductance-weighted mean of the two cells adjacent to the interface face.
+-    The DT field is checked cell by cell against the layer map (C_MAP)."""
++    """The frozen reader.  T_i1 (GRADED at the coarsest level), T_i2 and q_hot
++    (REPORTED).  C_MAP checks the DT field cell by cell against the layer map."""
+     d = os.path.join(root, case)
+     t = latest_time(d)
+     if t is None:
+@@ -118,265 +272,674 @@
+     T = read_internal(os.path.join(d, t, "T"))
+     DT = read_internal(os.path.join(d, t, "DT"))
+     if T is None or DT is None:
+-        refuse("%s: T or DT unreadable at time %s" % (case, t))
++        refuse("%s: T or DT unreadable at time %s -- a missing number is not a zero" % (case, t))
+     Cx = centres(wall, cells)
+     if len(T) != len(Cx):
+         refuse("%s: %d cells on disk, %d from the registered layer counts" % (case, len(T), len(Cx)))
+     ks = [l["k"] for l in wall["layers"]]
+     for i, x in enumerate(Cx):
+-        if abs(DT[i] - ks[layer_of(wall, x)]) > 1e-9 * ks[layer_of(wall, x)]:
+-            refuse("%s: cell %d at x=%.6g carries DT=%g, layer map says %g (C_MAP)" % (case, i, x, DT[i], ks[layer_of(wall, x)]))
+-    xi = wall["layers"][0]["L"]
+-    iL = max(i for i in range(len(Cx)) if Cx[i] < xi)
+-    iR = min(i for i in range(len(Cx)) if Cx[i] > xi)
+-    wL = ks[layer_of(wall, Cx[iL])] / (xi - Cx[iL]); wR = ks[layer_of(wall, Cx[iR])] / (Cx[iR] - xi)
+-    Ti1 = (wL * T[iL] + wR * T[iR]) / (wL + wR)
+-    q_hot = ks[0] * (wall["T_hot"] - T[0]) / Cx[0]
+-    return dict(time=t, n=len(T), T_i1=Ti1, q_hot=q_hot, iL=iL, iR=iR, T=T)
++        want = ks[layer_of(wall, x)]
++        if abs(DT[i] - want) > 1e-9 * want:
++            refuse("%s: cell %d at x=%.6g carries DT=%g, the registered layer map says %g (C_MAP)"
++                   % (case, i, x, DT[i], want))
++    i1L, i1R, w1L, w1R = stencil(wall, Cx, 0)
++    i2L, i2R, w2L, w2R = stencil(wall, Cx, 1)
++    return dict(time=t, n=len(T), T=T, Cx=Cx,
++                T_i1=iface_T(T, i1L, i1R, w1L, w1R), i1L=i1L, i1R=i1R, w1L=w1L, w1R=w1R,
++                T_i2=iface_T(T, i2L, i2R, w2L, w2R), i2L=i2L, i2R=i2R,
++                q_hot=ks[0] * (wall["T_hot"] - T[0]) / Cx[0],
++                far_cell=len(T) - 1)
++
++
++def level_state(root, case):
++    """WHAT STATE IS THIS LEVEL IN?  Returns one of DONE / RAN_NOT_COMPLETE /
++    NOT RUN, and REFUSES the one state that must never be reported quietly.
++
++    THIS RUNG IS DECOUPLED BY CONSTRUCTION.  The graded row F1 reads ONE level.
++    A rung whose comparator refuses unless every level completed makes a
++    mispriced, capped or crashed level able to destroy a verdict that never
++    depended on it -- the exposure measured on T16 today, where a flat
++    per-cell-iteration rate under-priced a level 1.667x and the whole rung
++    would have become ungradeable on an all-or-none coupling.  So: the GRADED
++    level must be DONE, and the other levels are OPTIONAL EVIDENCE whose
++    absence is REPORTED, never fatal.
++
++    The decoupling is not a licence to drop an inconvenient level, and the
++    difference is enforced rather than promised:
++
++      * every level whose DONE marker exists IS READ.  The comparator cannot be
++        told to skip one.
++      * a level with a STATUS file and no DONE marker is recorded
++        RAN_NOT_COMPLETE with mark_done's own reasons -- it ran, it did not
++        complete, and that appears in the record instead of vanishing.
++      * a level holding a numeric time directory but NO STATUS file is a
++        REFUSAL: a solver ran there and its exit status was never recorded, and
++        an absent STATUS is never inferred from fields on disk (K0d L1).
++    """
++    d = os.path.join(root, case)
++    has_done = os.path.isfile(os.path.join(root, "DONE.%s" % case))
++    has_status = os.path.isfile(os.path.join(root, "STATUS.%s" % case))
++    has_time = os.path.isdir(d) and any(
++        re.fullmatch(r"[0-9]+(\.[0-9]+)?", t) and float(t) > 0 for t in os.listdir(d))
++    if has_time and not has_status:
++        refuse("%s holds a written time directory but NO STATUS.%s -- a solver ran there and its "
++               "exit status was never recorded. An absent STATUS is refused, never inferred from "
++               "fields on disk (K0d L1). A level cannot be dropped from this record by removing "
++               "its markers." % (case, case))
++    if has_done:
++        return "DONE"
++    if has_status:
++        return "RAN_NOT_COMPLETE"
++    return "NOT RUN"
+ 
+ 
+ def converged(root, case, floor):
+-    """Gate (1): the last two written checkpoints agree in T to `floor` K (the
+-    parent's checkpoint form, L-140/L-141) and the log carries End."""
++    """GATE (1) -- standing rule 5's limb (1), which is UNAFFECTED by this
++    rung's no-triple election (charter 2f.2, 2f.7).  End line present, and the
++    last two written checkpoints agree in T to `floor` K (the parent's
++    checkpoint form, L-140/L-141)."""
+     d = os.path.join(root, case)
+     log = os.path.join(d, "log.solve")
+     if not os.path.isfile(log) or not re.search(r"^End\s*$", open(log, errors="replace").read(), re.M):
+         return False, None, "no End line"
+-    ts = sorted((t for t in os.listdir(d) if re.fullmatch(r"[0-9]+(\.[0-9]+)?", t) and float(t) > 0), key=float)
++    ts = sorted((t for t in os.listdir(d) if re.fullmatch(r"[0-9]+(\.[0-9]+)?", t) and float(t) > 0),
++                key=float)
+     if len(ts) < 2:
+-        return False, None, "fewer than two written checkpoints"
+-    a = read_internal(os.path.join(d, ts[-2], "T")); b = read_internal(os.path.join(d, ts[-1], "T"))
++        return False, None, "fewer than two written checkpoints, so the plateau test cannot be evaluated"
++    a = read_internal(os.path.join(d, ts[-2], "T"))
++    b = read_internal(os.path.join(d, ts[-1], "T"))
+     if a is None or b is None:
+         return False, None, "checkpoint T unreadable"
+     mv = max(abs(x - y) for x, y in zip(a, b))
+-    return (mv <= floor), mv, ("" if mv <= floor else "T moved %.3e K between the last two checkpoints > %.1e" % (mv, floor))
+-
+-
+-def planted_zero_control(root, case, wall, cells, idx):
+-    tmp = tempfile.mkdtemp(prefix="t9ar1b_pz_")
++    return (mv <= floor), mv, ("" if mv <= floor else
++                               "T moved %.3e K between the last two checkpoints, above the floor %.1e"
++                               % (mv, floor))
++
++
++# ================================ rule 3: THE FOUR-ARM PLANTED-ZERO CONTROL
++def _plant_lines(p):
++    lines = open(p).read().splitlines(True)
++    start = None
++    for i, ln in enumerate(lines):
++        if "internalField" in ln and "nonuniform" in ln:
++            for j in range(i, min(i + 5, len(lines))):
++                if lines[j].strip() == "(":
++                    start = j + 1
++                    break
++            break
++    if start is None:
++        refuse("planted-zero control: internalField could not be located STRUCTURALLY")
++    return lines, start
++
++
++def planted_zero_control(root, case, wall, cells, visibility_floor_K, far_cell_override=None):
++    """FOUR ARMS.  Copies the case into scratch first and never writes into the
++    run tree.
++
++      N  negative   : identical bytes read twice -> must be bit-identical.
++      P1 value      : the registered PLANT into the reader's own stencil cell,
++                      on a measured ladder; the reader must SEE it, and (units
++                      match, K into K) must move by at least 0.1 x the plant.
++      P2 permutation: the two stencil values are SWAPPED.  No value in the file
++                      changes -- only their order.  A reader that is value-based
++                      but position-blind reads the same number and is REFUSED.
++                      This is the form the reader was NOT written for.
++      P3 specificity: the registered PLANT into a far cell in layer 3, outside
++                      the reader's stencil.  T_i1 must move by EXACTLY zero; a
++                      reader that has become a whole-field statistic is REFUSED.
++    """
++    tmp = tempfile.mkdtemp(prefix="t9ar1c_pz_")
+     try:
+         dst = os.path.join(tmp, case)
+         shutil.copytree(os.path.join(root, case), dst, symlinks=True)
+         if os.path.realpath(dst).startswith(os.path.realpath(os.path.join(root, case))):
+-            refuse("planted-zero control: scratch copy resolved inside the case tree")
++            refuse("planted-zero control: the scratch copy resolved INSIDE the case tree")
+         base = measure(tmp, case, wall, cells)
+         again = measure(tmp, case, wall, cells)
+         if base["T_i1"] != again["T_i1"]:
+-            refuse("planted-zero control NEGATIVE ARM FAILED: reader is NOISY")
++            refuse("planted-zero control ARM N FAILED: two reads of identical bytes differ by %.17g "
++                   "-- the reader is NOISY" % abs(base["T_i1"] - again["T_i1"]))
+         p = os.path.join(dst, base["time"], "T")
+-        lines = open(p).read().splitlines(True)
+-        start = None
+-        for i, ln in enumerate(lines):
+-            if "internalField" in ln and "nonuniform" in ln:
+-                for j in range(i, min(i + 5, len(lines))):
+-                    if lines[j].strip() == "(":
+-                        start = j + 1; break
+-                break
+-        if start is None:
+-            refuse("planted-zero control: internalField not located structurally")
+-        before = float(lines[start + idx].strip())
++        orig = open(p).read()
++        iL, iR = base["i1L"], base["i1R"]
++        far = base["far_cell"] if far_cell_override is None else far_cell_override
++        out = {}
++
++        # ---- ARM P1: the registered value plant, on a measured ladder --------
++        lines, start = _plant_lines(p)
++        before = float(lines[start + iL].strip())
+         seen, floor = {}, None
+         for mag in (1.0, 1e-1, 1e-2, PLANT, 1e-4, 1e-5, 1e-6, 1e-7):
+-            lines[start + idx] = "%.17g\n" % (before + mag)
++            lines[start + iL] = "%.17g\n" % (before + mag)
+             open(p, "w").write("".join(lines))
+             d = abs(measure(tmp, case, wall, cells)["T_i1"] - base["T_i1"])
+             seen[mag] = d
+-            if d > 0:
++            if d > 0.0:
+                 floor = mag
++        open(p, "w").write(orig)
+         if floor is None:
+-            refuse("planted-zero control POSITIVE ARM FAILED: reader is BLIND")
++            refuse("planted-zero control ARM P1 FAILED: no plant magnitude down to 1e-7 K moved the "
++                   "read -- the reader is BLIND")
+         if seen[PLANT] < 0.1 * PLANT:
+-            refuse("planted-zero control: registered plant %.3g moved T_i1 by only %.3g (< 0.1 plant)" % (PLANT, seen[PLANT]))
+-        print("planted-zero control R1 PASS: plant %.6g K in cell %d (adjacent to interface 1), recovered %.6g K, floor %.1g"
+-              % (PLANT, idx, seen[PLANT], floor))
+-        return dict(status="PASS", plant=PLANT, cell=idx, recovered=seen[PLANT], demonstrated_detection_floor=floor,
+-                    ladder={"%g" % k: v for k, v in seen.items()})
++            refuse("planted-zero control ARM P1: the registered plant %.6g K moved T_i1 by only %.6g K "
++                   "(< 0.1 x plant), while plant and read carry the SAME UNITS" % (PLANT, seen[PLANT]))
++        out["P1_value"] = dict(status="PASS", arm="value plant at the reader's own stencil cell",
++                               plant_K=PLANT, cell=iL, recovered_K=seen[PLANT],
++                               demonstrated_detection_floor_K=floor,
++                               ladder={"%g" % k: v for k, v in seen.items()})
++        print("planted-zero P1 (value)       PASS: plant %.6g K in cell %d, T_i1 moved %.6g K, floor %.1g"
++              % (PLANT, iL, seen[PLANT], floor))
++
++        # ---- ARM P2: THE PERMUTATION PLANT -- order changes, values do not ---
++        lines, start = _plant_lines(p)
++        vL = float(lines[start + iL].strip())
++        vR = float(lines[start + iR].strip())
++        pred = ((base["w1L"] * vR + base["w1R"] * vL) / (base["w1L"] + base["w1R"])) - base["T_i1"]
++        if abs(pred) < visibility_floor_K:
++            refuse("planted-zero control ARM P2 COULD NOT BE ARMED: swapping the two stencil values "
++                   "would move T_i1 by only %.3e K, below the registered visibility floor %.1e K. An "
++                   "unarmable control is a REFUSAL, never a pass." % (abs(pred), visibility_floor_K))
++        lines[start + iL], lines[start + iR] = lines[start + iR], lines[start + iL]
++        open(p, "w").write("".join(lines))
++        got = measure(tmp, case, wall, cells)["T_i1"]
++        open(p, "w").write(orig)
++        moved = got - base["T_i1"]
++        if moved == 0.0:
++            refuse("planted-zero control ARM P2 FAILED: the two stencil values were SWAPPED -- no "
++                   "value in the file changed, only their ORDER -- and T_i1 did not move. The reader "
++                   "is ORDER-BLIND, and a value plant cannot detect that.")
++        out["P2_permutation"] = dict(
++            status="PASS", arm="permutation plant: stencil values swapped, no value changed",
++            cells_swapped=[iL, iR], moved_K=moved,
++            predicted_from_the_readers_own_weights_K=pred,
++            identity_agreement_K=abs(moved - pred),
++            identity_note="the predicted/measured agreement is an IDENTITY (charter 2a): the "
++                          "prediction uses the reader's own weights. It is REPORTED, never gated. "
++                          "The GATE is that the move is non-zero.")
++        print("planted-zero P2 (permutation) PASS: cells %d<->%d swapped, T_i1 moved %.6g K "
++              "(identity check vs the reader's own weights: %.2e K)" % (iL, iR, moved, abs(moved - pred)))
++
++        # ---- ARM P3: specificity -- a far plant must be INVISIBLE ------------
++        lines, start = _plant_lines(p)
++        bfar = float(lines[start + far].strip())
++        lines[start + far] = "%.17g\n" % (bfar + PLANT)
++        open(p, "w").write("".join(lines))
++        gotf = measure(tmp, case, wall, cells)["T_i1"]
++        open(p, "w").write(orig)
++        dfar = abs(gotf - base["T_i1"])
++        if dfar != 0.0:
++            refuse("planted-zero control ARM P3 FAILED: a plant of %.6g K into cell %d, which is "
++                   "OUTSIDE the reader's two-cell stencil (%d, %d), moved T_i1 by %.3e K. The reader "
++                   "is not the local reader it is registered as." % (PLANT, far, iL, iR, dfar))
++        out["P3_specificity"] = dict(status="PASS", arm="far plant outside the stencil must be invisible",
++                                     plant_K=PLANT, cell=far, moved_K=dfar, stencil=[iL, iR])
++        print("planted-zero P3 (specificity) PASS: plant %.6g K in cell %d (outside the stencil %d,%d), "
++              "T_i1 moved %.1e K" % (PLANT, far, iL, iR, dfar))
++        out["N_negative"] = dict(status="PASS", arm="two reads of identical bytes", delta_K=0.0)
++        return out
+     finally:
+         shutil.rmtree(tmp, ignore_errors=True)
+ 
+ 
+-def apply_gate(dev_K, tr, gate1_ok, gate1_why, floor_K):
+-    """The ONLY verdict-writing function.  Rule 5 order; T9a's row rule:
+-    CONVERGING -> band = its own GCI (absolute, K); EXACT -> the registered
+-    absolute floor (T9a's 'literally exact' made operational); any other
+-    state -> NOT A RESULT."""
++# ========================================================== THE GATE, one way
++def apply_gate(dev_K, floor_K, gate1_ok, gate1_why, ceiling):
++    """THE ONLY FUNCTION IN THIS FILE THAT WRITES A VERDICT.
++
++    Order, and it is one-way:
++      (1) rule 5's limb (1) -- any level not iteratively converged -> NOT A RESULT;
++      (2) the FLOOR DEMONSTRATION -- |value - exact| <= floor_K -> PASS else GATE FAIL;
++      (3) the registered LABEL CEILING is applied: where the registration caps
++          the limb at GATE REACHED (charter 2f.3's CONTINUUM class), a band PASS
++          is reported as GATE REACHED.  The ceiling can only WEAKEN a verdict.
++
++    There is no branch (2) triple gate because there is no triple.  Nothing in
++    this function can turn a NOT A RESULT into a PASS."""
++    band_verdict = "PASS" if dev_K <= floor_K else "GATE FAIL"
+     if not gate1_ok:
+-        return "NOT A RESULT", None, "gate (1): " + gate1_why
+-    st = tr["state"]
+-    if st == "CONVERGING":
+-        band = tr["GCI_abs"]
+-        return ("PASS" if dev_K <= band else "GATE FAIL"), band, "band = the triple's own GCI (T9a rule)"
+-    if st == "EXACT":
+-        return ("PASS" if dev_K <= floor_K else "GATE FAIL"), floor_K, "EXACT triple: T9a's zero band made operational as the registered floor %.1e K" % floor_K
+-    return "NOT A RESULT", None, "gate (2): triple is %s%s (STAGNANT_FLOOR=%g, P_MIN=%g)" % (
+-        st, (" (p = %.3e)" % tr["order"]) if tr.get("order") is not None else "", STAGNANT_FLOOR, P_MIN)
+-
+-
+-def triple_of(vals, ns, roundoff_K):
+-    """roache_triple.gci_unequal at the cell-count ratios; a triple whose level
+-    differences are ALL below the registered round-off floor (|e21|, |e32| <
+-    roundoff_K) is EXACT -- T9a's byte-identical EXACT made operational for a
+-    scheme that reproduces the exact solution to 1e-12 K rather than to the
+-    bit.  Both e's are carried in the record either way."""
+-    r21 = refinement_ratio(ns["m"], ns["f"], 1)
+-    r32 = refinement_ratio(ns["c"], ns["m"], 1)
+-    e21, e32 = vals["m"] - vals["f"], vals["c"] - vals["m"]
+-    if max(abs(e21), abs(e32)) < roundoff_K:
+-        return dict(state="EXACT", e21=e21, e32=e32, r21=r21, r32=r32, dim=1, roundoff_floor_K=roundoff_K)
+-    return gci_unequal(vals["c"], vals["m"], vals["f"], r21, r32, 1, fs=FS)
++        return "NOT A RESULT", band_verdict, "gate (1), standing rule 5 limb (1): " + gate1_why
++    if band_verdict == "PASS" and ceiling == "GATE REACHED":
++        return "GATE REACHED", band_verdict, ("registered label ceiling GATE REACHED "
++                                              "(VERIFICATION_CHARTER 2f.3): PASS is unavailable to this limb")
++    return band_verdict, band_verdict, ""
+ 
+ 
+-def grade(root, json_out, reg):
++# ================================================================== the grade
++def grade(root, json_out, reg, quiet_ref=False):
++    guard = no_triple_guard()
++    classes, graded_row = check_claim_classes(reg)
+     wall = reg["wall"]
+-    for lv, case in CASES.items():
+-        if not os.path.isfile(os.path.join(root, "DONE.%s" % case)):
+-            refuse("no DONE.%s -- the whole rung is graded or none of it is" % case)
+-    q_ex, Ti1_ex = exact(wall)
+-    print("referent: q = %.6f W/m2, T_i1 = %.9f K (derived; cross-checked to T9a's registered values)" % (q_ex, Ti1_ex))
+-    metas = {lv: case_meta(root, CASES[lv]) for lv in LEVELS}
+-    cells = {lv: [int(x) for x in metas[lv]["cells_per_layer"].split(",")] for lv in LEVELS}
++    gl = reg["graded_level"]
++    states = {lv: level_state(root, CASES[lv]) for lv in LEVELS}
++    if states[gl] != "DONE":
++        refuse("the GRADED level %s is %s -- F1 reads that level and no other, so without its DONE "
++               "marker there is nothing to grade; mark_done_t9aR1c.py rules" % (CASES[gl], states[gl]))
++    read = [lv for lv in LEVELS if states[lv] == "DONE"]
+     for lv in LEVELS:
++        if states[lv] != "DONE":
++            print("  level %s (%s): %s -- REPORTED, and it does not touch F1 (this rung is decoupled "
++                  "by construction; the graded row reads %s alone)" % (lv, CASES[lv], states[lv], CASES[gl]))
++    ref = EX.solve(wall["layers"], wall["T_hot"], wall["T_cold"], quiet=quiet_ref)
++
++    metas = {lv: case_meta(root, CASES[lv]) for lv in read}
++    cells = {lv: [int(x) for x in metas[lv]["cells_per_layer"].split(",")] for lv in read}
++    for lv in read:
+         if cells[lv] != reg["cases"][CASES[lv]]["cells_per_layer"]:
+-            refuse("%s cells_per_layer %r != registered %r" % (CASES[lv], cells[lv], reg["cases"][CASES[lv]]["cells_per_layer"]))
+-        if metas[lv].get("laplacianSchemes") != "Gauss harmonic corrected":
+-            refuse("%s CASE.txt does not record the harmonic scheme" % CASES[lv])
++            refuse("%s cells_per_layer %r != registered %r"
++                   % (CASES[lv], cells[lv], reg["cases"][CASES[lv]]["cells_per_layer"]))
++        if metas[lv].get("laplacianSchemes") != reg["controls"]["C_SCHEME"]["required_line"]:
++            refuse("%s CASE.txt records laplacianSchemes=%r, the registration requires %r (C_SCHEME)"
++                   % (CASES[lv], metas[lv].get("laplacianSchemes"),
++                      reg["controls"]["C_SCHEME"]["required_line"]))
+         sch = open(os.path.join(root, CASES[lv], "system", "fvSchemes")).read()
+-        if "Gauss harmonic corrected" not in sch:
+-            refuse("%s fvSchemes on disk is not the registered harmonic scheme" % CASES[lv])
+-    ok1, why = {}, []
+-    for lv in LEVELS:
++        if reg["controls"]["C_SCHEME"]["required_line"] not in sch:
++            refuse("%s system/fvSchemes on disk does not carry the registered scheme %r (C_SCHEME)"
++                   % (CASES[lv], reg["controls"]["C_SCHEME"]["required_line"]))
++
++    # ---- gate (1): standing rule 5's limb (1) (charter 2f.2, 2f.7) --------
++    # BINDING on the level F1 reads.  EVALUATED AND REPORTED on the others,
++    # where it flags that level's REPORTED rows and touches no verdict -- a
++    # level F1 does not read cannot decide F1.
++    g1 = {}
++    for lv in read:
+         o, mv, w = converged(root, CASES[lv], reg["controls"]["C_CONV"]["floor"])
+-        ok1[lv] = dict(ok=o, checkpoint_move_K=mv, why=w)
+-        if not o:
+-            why.append("%s: %s" % (lv, w))
+-        print("  level %s: checkpoint-converged %s (move %s K)" % (lv, o, ("%.3e" % mv) if mv is not None else "n/a"))
+-    gate1_ok = all(v["ok"] for v in ok1.values())
+-    ms = {lv: measure(root, CASES[lv], wall, cells[lv]) for lv in LEVELS}
+-    pz = planted_zero_control(root, CASES["f"], wall, cells["f"], ms["f"]["iL"])
+-    ns = {lv: ms[lv]["n"] for lv in LEVELS}
+-    vals = {lv: ms[lv]["T_i1"] for lv in LEVELS}
+-    tr = triple_of(vals, ns, reg["graded_rows"]["R1"]["exact_roundoff_K"])
+-    dev = abs(vals["f"] - Ti1_ex)
+-    verdict, band, note = apply_gate(dev, tr, gate1_ok, "; ".join(why), reg["graded_rows"]["R1"]["exact_floor_K"])
+-    print("R1 T_i1: c=%.9f m=%.9f f=%.9f exact=%.9f dev=%.3e K triple=%s p=%s band=%s -> %s [%s]"
+-          % (vals["c"], vals["m"], vals["f"], Ti1_ex, dev, tr["state"],
+-             ("%.4f" % tr["order"]) if tr.get("order") is not None else "n/a",
+-             ("%.3e K" % band) if band is not None else "none", verdict, note))
+-    q_rows = {lv: dict(q_hot=ms[lv]["q_hot"], rel_dev=(ms[lv]["q_hot"] - q_ex) / q_ex) for lv in LEVELS}
+-    print("R0 (REPORTED, not graded): q_hot rel dev " + ", ".join("%s %+.3e" % (lv, q_rows[lv]["rel_dev"]) for lv in LEVELS))
+-    out = dict(rung="T9a-R1b", parent="T9a", row="R1", reference_T_i1=Ti1_ex, values=vals, cells=ns,
+-               triple=dict(state=tr["state"], order=tr.get("order"), e21=tr["e21"], e32=tr["e32"], GCI_abs=tr.get("GCI_abs")),
+-               deviation_K=dev, band_K=band, verdict=verdict, note=note, gate1=ok1,
+-               floors=dict(STAGNANT_FLOOR=STAGNANT_FLOOR, P_MIN=P_MIN, source="scripts/roache_triple.py (imported)"),
+-               planted_zero_control=pz, R0_reported=q_rows)
++        g1[lv] = dict(ok=o, checkpoint_move_K=mv, why=w,
++                      binding=(lv == gl), role=("gate (1) for F1" if lv == gl else "REPORTED only"))
++        print("  level %s: checkpoint-converged %s (move %s K) [%s]"
++              % (lv, o, ("%.3e" % mv) if mv is not None else "n/a", g1[lv]["role"]))
++    gate1_ok = g1[gl]["ok"]
++    why = ["%s: %s" % (CASES[gl], g1[gl]["why"])] if not gate1_ok else []
++
++    ms = {lv: measure(root, CASES[lv], wall, cells[lv]) for lv in read}
++    pz = planted_zero_control(root, CASES[gl], wall, cells[gl],
++                              reg["controls"]["C_PZ"]["visibility_floor_K"])
++
++    # ---- F1, THE ONE GRADED ROW: one number, one level, one threshold ----
++    F = reg["rows"]["F1"]
++    dev = abs(ms[gl]["T_i1"] - ref["T_i1"])
++    verdict, band_verdict, note = apply_gate(dev, F["floor_K"], gate1_ok, "; ".join(why),
++                                             reg["label_ceiling"])
++    print("F1 [%s] FLOOR DEMONSTRATION at the COARSEST level %s: T_i1 = %.12f K, exact = %.12f K, "
++          "|deviation| = %.3e K against the registered floor X = %.3e K -> %s%s"
++          % (F["claim_class"], CASES[gl], ms[gl]["T_i1"], ref["T_i1"], dev, F["floor_K"], verdict,
++             (" [" + note + "]") if note else ""))
++
++    # ---- REPORTED rows: no verdict is written for any of these ------------
++    # A level that is not DONE reads NOT MEASURED here.  L-342's rule applies:
++    # NOT MEASURED is reported, never silently rendered as a zero.
++    NM = "NOT MEASURED"
++
++    def per_level(fn):
++        return {lv: (fn(lv) if lv in read else NM) for lv in LEVELS}
++    n1 = per_level(lambda lv: abs(ms[lv]["T_i1"] - ref["T_i1"]))
++    n3 = per_level(lambda lv: (ms[lv]["q_hot"] - ref["q"]) / ref["q"])
++    n4 = per_level(lambda lv: abs(ms[lv]["T_i2"] - ref["T_i2"]))
++    vals = [ms[lv]["T_i1"] for lv in read]
++    spread = (max(vals) - min(vals)) if len(read) > 1 else None
++
++    def fmtrow(d, f):
++        return ", ".join(("%s %s" % (lv, d[lv])) if d[lv] == NM else ("%s " + f) % (lv, d[lv])
++                         for lv in LEVELS)
++    print("N1 (REPORTED) |T_i1 - exact| per level: " + fmtrow(n1, "%.3e K"))
++    print("N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the %d level(s) READ (%s): %s. "
++          "This is a BOUND on observed variation over the meshes actually built "
++          "(VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is "
++          "NOT a GCI and NOT an observed order."
++          % (len(read), ",".join(CASES[lv] for lv in read),
++             ("%.3e K" % spread) if spread is not None else
++             "NOT MEASURED -- a spread needs at least two levels and %d was read" % len(read)))
++    print("N3 (REPORTED) q_hot relative deviation: " + fmtrow(n3, "%+.3e"))
++    print("N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): "
++          + fmtrow(n4, "%.3e K"))
++
++    out = dict(
++        rung="T9a-R1c", parent="T9a-R1b (W1b)", predecessor_ruling="VERIFICATION_CHARTER 2g (v1.16); label ceiling ruled by 2h (v1.17)",
++        claim="the discretisation error in T_i1 is below X at %d cells (%s), and below X at each "
++              "further level run as reported in N1" % (ms[gl]["n"], CASES[gl]),
++        claim_is_not="(a) NOT grid convergence: no observed order, no GCI, no Richardson "
++                     "extrapolate and no Roache triple is computed anywhere in this comparator. "
++                     "(b) NOT 'the solution is correct to X' -- that is a continuum claim and "
++                     "charter 2f.3 would cap it. (c) NOT 'the answer does not depend on the mesh': "
++                     "charter 2h.4(5) NARROWED 2g.3's own phrase, because this instrument "
++                     "establishes the error at the meshes MEASURED and nothing about finer ones. "
++                     "The claim is bounded by the meshes actually run and extrapolated to none.",
++        charter_2h_conditions="PASS is available to this limb under VERIFICATION_CHARTER 2h "
++                              "(v1.17) only where all five of 2h.4 hold; they are declared in "
++                              "docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md section 3a "
++                              "BEFORE compute, and conditions (4) and (5) are wording conditions "
++                              "that no machine check in this file can discharge -- the AST guard "
++                              "proves the ABSENCE OF A TRIPLE, not the wording of the claim.",
++        rule5_status="limb (2) UNREACHABLE, NOT WAIVED (charter 2f.2); limb (1) applies IN FULL as "
++                     "gate (1), BINDING on the graded level (charter 2f.7, 2h.4(2))",
++        label_ceiling=reg["label_ceiling"], graded_level=CASES[gl],
++        decoupling=dict(
++            levels_read=[CASES[lv] for lv in read], level_states={CASES[lv]: states[lv] for lv in LEVELS},
++            rule="F1 reads the graded level ALONE. A level that is not DONE is REPORTED as such and "
++                 "cannot touch F1's verdict; there is no all-or-none coupling for a capped, crashed "
++                 "or mispriced level to destroy (the exposure measured on T16, 2026-08-27). A level "
++                 "holding a written time directory with no STATUS file is still a REFUSAL, so a "
++                 "level cannot be dropped from this record by removing its markers."),
++        referent=dict(T_i1=ref["T_i1"], T_i2=ref["T_i2"], q=ref["q"],
++                      route_agreement_rel=ref["route_agreement_rel"], cross_check=ref["cross_check"]),
++        rows=[dict(row="F1", claim_class=F["claim_class"], quantity=F["quantity"], level=CASES[gl],
++                   value_K=ms[gl]["T_i1"], reference_K=ref["T_i1"], deviation_K=dev,
++                   floor_K=F["floor_K"], band_verdict=band_verdict, verdict=verdict, note=note)],
++        reported_rows=dict(
++            N1_deviation_per_level_K=n1,
++            N2_mesh_family_spread_K=dict(value=spread, levels_read=[CASES[lv] for lv in read],
++                                         kind="BOUND on observed variation over the meshes actually "
++                                              "READ (charter 2f.6)",
++                                         not_a="GCI or observed order; not extrapolated"),
++            N3_q_hot_relative_deviation=n3,
++            N4_T_i2_deviation_K=n4),
++        cells={lv: ms[lv]["n"] for lv in read},
++        gate1=dict(ok=gate1_ok, why="; ".join(why), per_level=g1,
++                   rule="standing rule 5 limb (1), which is UNAFFECTED by the no-triple election "
++                        "(charter 2f.2, 2f.7). BINDING on the graded level: F1 is NOT A RESULT if "
++                        "%s fails it. EVALUATED AND REPORTED on the other levels, where it flags "
++                        "their REPORTED rows and touches no verdict." % CASES[gl]),
++        controls=dict(C_NOTRIPLE=guard, C_CLASS=classes, C_PZ=pz,
++                      C_SCHEME=reg["controls"]["C_SCHEME"]["required_line"],
++                      C_MAP="every cell's DT checked against the registered layer map inside measure()",
++                      C_REF=ref["cross_check"]))
+     json.dump(out, open(json_out, "w"), indent=2)
+     print("wrote %s" % json_out)
+     return EXIT_OK
+ 
+ 
+-def _forge(root, lv, cells, wall, dev_f=0.0, p=2.0, move=0.0, harmonic=True, offset=0.0):
+-    """Analytic piecewise-linear T at centres (+ a deviation scaled by level)."""
++# ================================================================== selftest
++def _forge(root, lv, cells, wall, offset_K=0.0, move_K=0.0, scheme=None, dt_bad=False,
++           equal_stencil=False, done=True, status=True):
++    """A forged case carrying the ANALYTIC piecewise-linear T at cell centres,
++    plus a constant offset.  `offset_K` may be a float (all levels) or a dict
++    keyed by level."""
+     case = CASES[lv]
+     d = os.path.join(root, case)
+-    os.makedirs(os.path.join(d, "system"), exist_ok=True); os.makedirs(os.path.join(d, "0"), exist_ok=True)
++    os.makedirs(os.path.join(d, "system"), exist_ok=True)
++    os.makedirs(os.path.join(d, "0"), exist_ok=True)
+     open(os.path.join(d, "0", "T"), "w").write("x")
+-    open(os.path.join(d, "system", "fvSchemes"), "w").write("laplacianSchemes { default Gauss %s corrected; }\n" % ("harmonic" if harmonic else "linear"))
+-    open(os.path.join(d, "CASE.txt"), "w").write("case=%s\ncells_per_layer=%s\nlaplacianSchemes=Gauss %s corrected\n"
+-                                                 % (case, ",".join(map(str, cells)), "harmonic" if harmonic else "linear"))
+-    q, Ti1 = exact(wall)
++    line = "Gauss harmonic corrected" if scheme is None else scheme
++    open(os.path.join(d, "system", "fvSchemes"), "w").write(
++        "laplacianSchemes { default %s; }\n" % line)
++    open(os.path.join(d, "CASE.txt"), "w").write(
++        "case=%s\ncells_per_layer=%s\nlaplacianSchemes=%s\n" % (case, ",".join(map(str, cells)), line))
++    r = EX.solve(wall["layers"], wall["T_hot"], wall["T_cold"], quiet=True)
++    q = r["q"]
+     ks = [l["k"] for l in wall["layers"]]
+     Cx = centres(wall, cells)
+-    scale = {"c": 4 ** p, "m": 2 ** p, "f": 1.0}[lv] * dev_f + offset
++    off = offset_K[lv] if isinstance(offset_K, dict) else offset_K
+     T, DT = [], []
+     for x in Cx:
+-        li = layer_of(wall, x); x0 = sum(l["L"] for l in wall["layers"][:li])
++        li = layer_of(wall, x)
++        x0 = sum(l["L"] for l in wall["layers"][:li])
+         Tface = wall["T_hot"] - q * sum(l["L"] / l["k"] for l in wall["layers"][:li])
+-        T.append(Tface - q * (x - x0) / ks[li] + scale); DT.append(ks[li])
++        T.append(Tface - q * (x - x0) / ks[li] + off)
++        DT.append(ks[li])
++    if dt_bad:
++        DT[0] = DT[0] * 1.5
++    if equal_stencil:
++        iL, iR, _, _ = stencil(wall, Cx, 0)
++        T[iR] = T[iL]
++
+     def fld(name, vals):
+-        return ("FoamFile{version 2.0; format ascii; class volScalarField; object %s;}\ndimensions [0 0 0 1 0 0 0];\n"
+-                "internalField   nonuniform List<scalar> \n%d\n(\n%s\n)\n;\nboundaryField{}\n" % (name, len(vals), "\n".join("%.17g" % v for v in vals)))
+-    for t, off in (("900", move), ("1000", 0.0)):
++        return ("FoamFile{version 2.0; format ascii; class volScalarField; object %s;}\n"
++                "dimensions [0 0 0 1 0 0 0];\ninternalField   nonuniform List<scalar> \n%d\n(\n%s\n)\n;\n"
++                "boundaryField{}\n" % (name, len(vals), "\n".join("%.17g" % v for v in vals)))
++    for t, extra in (("900", move_K), ("1000", 0.0)):
+         os.makedirs(os.path.join(d, t), exist_ok=True)
+-        open(os.path.join(d, t, "T"), "w").write(fld("T", [v + off for v in T]))
++        open(os.path.join(d, t, "T"), "w").write(fld("T", [v + extra for v in T]))
+         open(os.path.join(d, t, "DT"), "w").write(fld("DT", DT))
+     open(os.path.join(d, "log.solve"), "w").write("ExecutionTime = 1 s\nEnd\n")
+-    open(os.path.join(root, "DONE.%s" % case), "w").write("done\n")
++    # STATUS accompanies every real run (mark_done REFUSES without one and so
++    # cannot write DONE), so the forge carries the same invariant.
++    if status:
++        open(os.path.join(root, "STATUS.%s" % case), "w").write("case=%s\nrc=0\n" % case)
++    if done:
++        open(os.path.join(root, "DONE.%s" % case), "w").write("done\n")
+ 
+ 
+ def selftest():
+-    import ast
+     fails = []
+     reg = load_registered()
+     wall = reg["wall"]
+-    print("analyse_t9aR1b selftest:")
+-    fired = False
+-    tmpj = tempfile.mkdtemp(prefix="t9ar1b_reg_")
+-    try:
+-        bad = dict(reg); bad["roache_floors"] = dict(reg["roache_floors"], P_MIN=0.5)
+-        json.dump(bad, open(os.path.join(tmpj, "T9aR1b_registered.json"), "w"))
++    X = reg["rows"]["F1"]["floor_K"]
++    cells = {lv: reg["cases"][CASES[lv]]["cells_per_layer"] for lv in LEVELS}
++    print("analyse_t9aR1c selftest (floor X = %.3e K, graded level %s, label ceiling %s):"
++          % (X, CASES[reg["graded_level"]], reg["label_ceiling"]))
++
++    def drive(label, fn):
++        fired, code, res = False, None, None
+         try:
+-            load_registered(tmpj)
++            code, res = fn()
+         except SystemExit as e:
+-            fired = (e.code == EXIT_REFUSE)
+-    finally:
+-        shutil.rmtree(tmpj, ignore_errors=True)
+-    print("  [%s] registered P_MIN mutated -> REFUSE (import is the one number)" % ("ok " if fired else "FAIL"))
+-    if not fired:
+-        fails.append("floors")
+-    fired = False
+-    try:
+-        exact(dict(wall, T_i1_registered_T9a=wall["T_i1_registered_T9a"] + 1e-3))
+-    except SystemExit as e:
+-        fired = (e.code == EXIT_REFUSE)
+-    print("  [%s] referent cross-check: T9a value planted 1 mK wrong -> REFUSE" % ("ok " if fired else "FAIL"))
+-    if not fired:
+-        fails.append("xcheck")
+-    cells = {lv: reg["cases"][CASES[lv]]["cells_per_layer"] for lv in LEVELS}
++            fired, code = True, e.code
++        return fired, code, res
++
+     def run_forged(**kw):
+-        tmp = tempfile.mkdtemp(prefix="t9ar1b_forge_")
++        tmp = tempfile.mkdtemp(prefix="t9ar1c_forge_")
+         try:
+             for lv in LEVELS:
+                 _forge(tmp, lv, cells[lv], wall, **kw)
+-            out = os.path.join(tmp, "gate.json"); code = None
++            out = os.path.join(tmp, "gate.json")
++            code = None
+             try:
+-                code = grade(tmp, out, reg)
++                code = grade(tmp, out, reg, quiet_ref=True)
+             except SystemExit as e:
+                 code = e.code
+             return code, (json.load(open(out)) if os.path.isfile(out) else None)
+         finally:
+             shutil.rmtree(tmp, ignore_errors=True)
+-    for label, kw, want in (("exact field on all levels (EXACT triple) -> floor -> PASS", {}, "PASS"),
+-                            ("exact + 2e-6 K offset on all levels (EXACT, above floor) -> GATE FAIL", dict(dev_f=2e-6, p=0.0), "GATE FAIL"),
+-                            ("second-order deviation 1e-4 K at f, consistent ladder (CONVERGING) -> inside its own GCI -> PASS", dict(dev_f=1e-4, p=2.0), "PASS"),
+-                            ("CONVERGING ladder on top of a 1e-3 K constant error -> GCI band cannot cover it -> GATE FAIL", dict(dev_f=1e-4, p=2.0, offset=1e-3), "GATE FAIL"),
+-                            ("checkpoints move 1e-6 K -> gate (1) -> NOT A RESULT", dict(move=1e-6), "NOT A RESULT"),
+-                            ("oscillating deviation -> OSCILLATORY -> NOT A RESULT", dict(dev_f=1e-4, p=-1.0), None)):
+-        code, res = run_forged(**kw)
+-        v = res["verdict"] if res else None
+-        ok = (code == 0 and res is not None and (v == want if want else v == "NOT A RESULT"))
+-        print("  [%s] %-70s -> %s (%s)" % ("ok " if ok else "FAIL", label, v, res["triple"]["state"] if res else "?"))
++
++    def check(label, ok):
++        print("  [%s] %s" % ("ok " if ok else "FAIL", label))
+         if not ok:
+             fails.append(label)
+-    code, res = run_forged(harmonic=False)
+-    ok = (code == EXIT_REFUSE)
+-    print("  [%s] case built with the parent's linear scheme -> REFUSE (exit %s)" % ("ok " if ok else "FAIL", code))
+-    if not ok:
+-        fails.append("scheme")
+-    fired = False
++
++    # ---- 1. the no-triple AST guard, with a PLANTED control ---------------
++    hits, imports = scan_for_triple(open(__file__).read(), "self")
++    planted = "def f(a, b, c, r, p):\n    return gci_unequal(a, b, c, r, p)\n"
++    hits2, _ = scan_for_triple(planted, "planted")
++    check("C_NOTRIPLE: this file refers to 0 forbidden order/GCI names; the PLANTED control "
++          "`gci_unequal(...)` is seen (%d hit) -- the scanner is not blind" % len(hits2),
++          hits == [] and hits2 == ["gci_unequal"])
++    check("C_NOTRIPLE: the only name imported from roache_triple.py is ['PLANT'] (got %r)" % (imports,),
++          imports == ROACHE_ALLOWED_IMPORTS)
++    hits3, _ = scan_for_triple("# gci_unequal(1,2,3)\n'''richardson observed_order'''\nx = 1\n", "comment")
++    check("C_NOTRIPLE: the scanner is AST-based -- the same names in a COMMENT and a DOCSTRING are "
++          "invisible to it (0 hits)", hits3 == [])
++
++    # ---- 2. C_CLASS: a convergence-claiming row is REFUSED ----------------
++    for cls, want_refuse in (("ROACHE_TRIPLE", True), ("GRID_CONVERGENCE", True),
++                             ("REPORTED", True), ("FLOOR_DEMONSTRATION", False)):
++        bad = json.loads(json.dumps(reg))
++        bad["rows"]["F1"]["claim_class"] = cls
++        fired, code, _ = drive(cls, lambda: (check_claim_classes(bad), None))
++        ok = (fired and code == EXIT_REFUSE) if want_refuse else (not fired)
++        check("C_CLASS: row F1 registered claim_class %-20r -> %s"
++              % (cls, "REFUSE" if want_refuse else "admitted"), ok)
++    bad = json.loads(json.dumps(reg))
++    bad["rows"]["F2_planted"] = dict(reg["rows"]["F1"])
++    fired, code, _ = drive("two", lambda: (check_claim_classes(bad), None))
++    check("C_CLASS: a SECOND FLOOR_DEMONSTRATION row planted -> REFUSE (exactly one graded row)",
++          fired and code == EXIT_REFUSE)
++
++    # ---- 3. the registration itself --------------------------------------
++    tmpj = tempfile.mkdtemp(prefix="t9ar1c_reg_")
++    try:
++        bad = json.loads(json.dumps(reg))
++        bad["label_ceiling"] = "VALIDATED"
++        json.dump(bad, open(os.path.join(tmpj, "T9aR1c_registered.json"), "w"))
++        fired, code, _ = drive("ceiling", lambda: (load_registered(tmpj), None))
++        check("registered label_ceiling mutated to 'VALIDATED' -> REFUSE (the ceiling is one of "
++              "PASS / GATE REACHED and nothing else)", fired and code == EXIT_REFUSE)
++        bad = json.loads(json.dumps(reg))
++        bad["rows"]["F1"].pop("floor_K")
++        json.dump(bad, open(os.path.join(tmpj, "T9aR1c_registered.json"), "w"))
++        fired, code, _ = drive("floor", lambda: (load_registered(tmpj), None))
++        check("registered floor_K removed -> REFUSE (a floor demonstration with no floor is not a gate)",
++              fired and code == EXIT_REFUSE)
++    finally:
++        shutil.rmtree(tmpj, ignore_errors=True)
++
++    # ---- 4. the referent cross-check --------------------------------------
++    fired, code, _ = drive("xcheck", lambda: (EX.solve(
++        [dict(L=0.05, k=0.8 * 1.0001), dict(L=0.1, k=0.04), dict(L=0.02, k=16.0)],
++        350.0, 300.0, quiet=True), None))
++    check("C_REF: layer-1 k planted 1e-4 wrong -> the T9a cross-check REFUSES the referent",
++          fired and code == EXIT_REFUSE)
++
++    # ---- 5. THE FLOOR GATE, DRIVEN BOTH WAYS AND AT ITS EDGES -------------
++    # apply_gate is driven directly on numbers, then end-to-end on real bytes.
++    for label, dev, g1, ceiling, want in (
++            ("dev 0            -> PASS", 0.0, True, "PASS", "PASS"),
++            ("dev 0.99 X       -> PASS", 0.99 * X, True, "PASS", "PASS"),
++            ("dev 1.00 X       -> PASS (the floor is inclusive, as registered)", X, True, "PASS", "PASS"),
++            ("dev 1.01 X       -> GATE FAIL", 1.01 * X, True, "PASS", "GATE FAIL"),
++            ("dev 2.00 X       -> GATE FAIL", 2.0 * X, True, "PASS", "GATE FAIL"),
++            ("dev 5.43e-03 (the PARENT's linear scheme at this level) -> GATE FAIL",
++             5.43e-03, True, "PASS", "GATE FAIL"),
++            ("dev 0, gate (1) failed -> NOT A RESULT (rule 5 limb (1), one-way)",
++             0.0, False, "PASS", "NOT A RESULT"),
++            ("dev 2 X, gate (1) failed -> NOT A RESULT (never a GATE FAIL upgrade either)",
++             2.0 * X, False, "PASS", "NOT A RESULT"),
++            ("dev 0, ceiling GATE REACHED -> GATE REACHED (the ceiling only WEAKENS)",
++             0.0, True, "GATE REACHED", "GATE REACHED"),
++            ("dev 2 X, ceiling GATE REACHED -> GATE FAIL (a ceiling never rescues a fail)",
++             2.0 * X, True, "GATE REACHED", "GATE FAIL")):
++        v, bv, note = apply_gate(dev, X, g1, "forced", ceiling)
++        check("FLOOR GATE: %-70s got %s" % (label, v), v == want)
++
++    # ---- 6. end-to-end on forged bytes, PASSING and FAILING ---------------
++    code, res = run_forged()
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == reg["label_ceiling"] and row["deviation_K"] < X
++          and all(v["status"] == "PASS" for v in res["controls"]["C_PZ"].values()))
++    check("VALUE CONTROL end-to-end: the exact piecewise-linear field on all three levels grades F1 "
++          "%s at |dev| = %s K; all four planted-zero arms PASS"
++          % (reg["label_ceiling"], ("%.2e" % row["deviation_K"]) if row else "?"), ok)
++
++    code, res = run_forged(offset_K={"c": 2.0 * X, "m": 0.0, "f": 0.0})
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == "GATE FAIL")
++    check("GATE-FAIL end-to-end on real bytes: a %.1e K offset planted at the COARSEST level only "
++          "-> F1 GATE FAIL (a gate never shown to fail is not an instrument)" % (2.0 * X), ok)
++
++    code, res = run_forged(offset_K={"c": 0.0, "m": 2.0 * X, "f": 0.0})
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == reg["label_ceiling"]
++          and res["reported_rows"]["N1_deviation_per_level_K"]["m"] > X)
++    check("SCOPE: the same offset planted at the MEDIUM level leaves F1 %s and appears only in the "
++          "REPORTED row N1 -- F1 grades the coarsest level and nothing else" % reg["label_ceiling"], ok)
++
++    code, res = run_forged(move_K=1e-6)
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == "NOT A RESULT" and not res["gate1"]["ok"])
++    check("gate (1) end-to-end: checkpoints move 1e-6 K > the 1e-9 K floor -> F1 NOT A RESULT "
++          "(rule 5 limb (1) fires on a no-triple registration, charter 2f.7)", ok)
++
++    # ---- 6b. DECOUPLING, driven four ways --------------------------------
++    def run_levels(spec):
++        """spec: {level: kwargs or None (level not run at all)}"""
++        tmp = tempfile.mkdtemp(prefix="t9ar1c_dec_")
++        try:
++            for lv, kw in spec.items():
++                if kw is not None:
++                    _forge(tmp, lv, cells[lv], wall, **kw)
++            out = os.path.join(tmp, "gate.json")
++            code = None
++            try:
++                code = grade(tmp, out, reg, quiet_ref=True)
++            except SystemExit as e:
++                code = e.code
++            return code, (json.load(open(out)) if os.path.isfile(out) else None)
++        finally:
++            shutil.rmtree(tmp, ignore_errors=True)
++
++    code, res = run_levels({"c": {}, "m": None, "f": None})
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == reg["label_ceiling"]
++          and res["decoupling"]["level_states"]["W1c_m"] == "NOT RUN"
++          and res["reported_rows"]["N1_deviation_per_level_K"]["m"] == "NOT MEASURED"
++          and res["reported_rows"]["N2_mesh_family_spread_K"]["value"] is None)
++    check("DECOUPLING: ONLY the coarsest level run -- m and f absent entirely -> F1 still grades %s; "
++          "N1[m] reads NOT MEASURED and the spread N2 is NOT MEASURED (a mispriced, capped or "
++          "crashed level cannot destroy this verdict: the T16 exposure is absent by construction)"
++          % reg["label_ceiling"], ok)
++
++    code, res = run_levels({"c": None, "m": {}, "f": {}})
++    check("DECOUPLING: the GRADED level absent while m and f are DONE -> REFUSE (exit %s) -- the one "
++          "level F1 reads is the one level that is mandatory" % code, code == EXIT_REFUSE)
++
++    code, res = run_levels({"c": {}, "m": {}, "f": dict(done=False)})
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == reg["label_ceiling"]
++          and res["decoupling"]["level_states"]["W1c_f"] == "RAN_NOT_COMPLETE"
++          and res["reported_rows"]["N1_deviation_per_level_K"]["f"] == "NOT MEASURED")
++    check("DECOUPLING: level f has a STATUS file and NO DONE marker -> recorded RAN_NOT_COMPLETE and "
++          "REPORTED; F1 still grades %s. It ran, it did not complete, and that appears in the record "
++          "instead of vanishing" % reg["label_ceiling"], ok)
++
++    code, res = run_levels({"c": {}, "m": {}, "f": dict(done=False, status=False)})
++    check("ANTI-CHERRY-PICK: level f holds a written time directory and NO STATUS file -> REFUSE "
++          "(exit %s). A level cannot be dropped from this record by removing its markers; an absent "
++          "STATUS is refused, never inferred from fields on disk (K0d L1)" % code, code == EXIT_REFUSE)
++
++    code, res = run_levels({"c": {}, "m": {}, "f": dict(move_K=1e-6)})
++    row = res["rows"][0] if res else None
++    ok = (code == 0 and row and row["verdict"] == reg["label_ceiling"]
++          and res["gate1"]["ok"] and res["gate1"]["per_level"]["f"]["ok"] is False
++          and res["gate1"]["per_level"]["f"]["binding"] is False)
++    check("DECOUPLING: gate (1) BROKEN AT LEVEL f ONLY -> reported against f as non-binding, and F1 "
++          "still grades %s on the level it actually reads. A level F1 does not read cannot decide F1"
++          % reg["label_ceiling"], ok)
++
++    code, res = run_forged(scheme="Gauss linear corrected")
++    check("C_SCHEME: cases built with the PARENT's linear scheme -> REFUSE (exit %s)" % code,
++          code == EXIT_REFUSE)
++
++    code, res = run_forged(dt_bad=True)
++    check("C_MAP: one cell's DT planted 1.5x the registered layer conductivity -> REFUSE (exit %s)" % code,
++          code == EXIT_REFUSE)
++
++    code, res = run_forged(equal_stencil=True)
++    check("C_PZ ARM P2 UNARMABLE: the two stencil values forced EQUAL, so a swap cannot move the read "
++          "-> REFUSE (an unarmable control is a refusal, never a pass) (exit %s)" % code,
++          code == EXIT_REFUSE)
++
++    # ---- 7. the planted-zero arms driven to REFUSE ------------------------
++    tmp = tempfile.mkdtemp(prefix="t9ar1c_pz_drive_")
+     try:
+-        grade(HERE, os.path.join(tempfile.gettempdir(), "t9ar1b_never.json"), reg)
+-    except SystemExit as e:
+-        fired = (e.code == EXIT_REFUSE)
+-    print("  [%s] live tree, no DONE markers -> REFUSE" % ("ok " if fired else "FAIL"))
+-    if not fired:
+-        fails.append("live")
++        gl = reg["graded_level"]
++        _forge(tmp, gl, cells[gl], wall)
++        m = measure(tmp, CASES[gl], wall, cells[gl])
++        fired, code, _ = drive("P3", lambda: (planted_zero_control(
++            tmp, CASES[gl], wall, cells[gl], reg["controls"]["C_PZ"]["visibility_floor_K"],
++            far_cell_override=m["i1L"]), None))
++        check("C_PZ ARM P3 driven to REFUSE: the 'far' cell overridden to the stencil cell %d, so the "
++              "plant IS visible where the control registered it invisible -> REFUSE" % m["i1L"],
++              fired and code == EXIT_REFUSE)
++        pz = planted_zero_control(tmp, CASES[gl], wall, cells[gl],
++                                  reg["controls"]["C_PZ"]["visibility_floor_K"])
++        ok = (pz["P2_permutation"]["moved_K"] != 0.0
++              and pz["P3_specificity"]["moved_K"] == 0.0
++              and pz["P1_value"]["recovered_K"] >= 0.1 * PLANT)
++        check("C_PZ four arms on real bytes: N bit-identical; P1 recovered %.3g K; P2 permutation moved "
++              "%.3g K; P3 far plant moved %.1g K"
++              % (pz["P1_value"]["recovered_K"], pz["P2_permutation"]["moved_K"],
++                 pz["P3_specificity"]["moved_K"]), ok)
++    finally:
++        shutil.rmtree(tmp, ignore_errors=True)
++
++    # ---- 8. the live tree, and the AST assert counter ---------------------
++    fired, code, _ = drive("live", lambda: (grade(
++        HERE, os.path.join(tempfile.gettempdir(), "t9ar1c_never.json"), reg, quiet_ref=True), None))
++    check("live tree, no DONE markers -> REFUSE (exit %s)" % code, fired and code == EXIT_REFUSE)
++
+     src = open(__file__).read()
+     n0 = sum(isinstance(n, ast.Assert) for n in ast.walk(ast.parse(src)))
+     n1 = sum(isinstance(n, ast.Assert) for n in ast.walk(ast.parse(src + "\nassert 1\n")))
+-    ok = (n0 == 0 and n1 == 1)
+-    print("  [%s] AST assert count = %d (planted control: %d)" % ("ok " if ok else "FAIL", n0, n1))
+-    if not ok:
+-        fails.append("ast")
++    check("AST assert count in this file = %d (planted control: the counter sees %d)" % (n0, n1),
++          n0 == 0 and n1 == 1)
++
+     print("SELFTEST %s (%d failed)" % ("PASS" if not fails else "FAIL", len(fails)))
+     return 0 if not fails else 1
+ 
+@@ -385,7 +948,7 @@
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--selftest", action="store_true")
+     ap.add_argument("--root", default=HERE)
+-    ap.add_argument("--json", default=os.path.join(HERE, "gate_t9aR1b.json"))
++    ap.add_argument("--json", default=os.path.join(HERE, "gate_t9aR1c.json"))
+     a = ap.parse_args()
+     if a.selftest:
+         return selftest()
+
+================================================================================
+--- NEW FILE: verification/runs/T-family/T9aR1c_runs/exact_t9aR1c.py
+    NO LINE ANCESTOR.  There is nothing honest to diff it against, and saying so
+    is better than manufacturing a diff against a file it did not come from.
+================================================================================
+
+WHAT IT REPLACES.  W1b's referent was a nine-line `exact()` INSIDE the comparator
+(HEAD:T9aR1b_runs/analyse_t9aR1b.py:61-70): one derivation, one cross-check pair.
+W1c moves the referent out and takes it to the T18/T19 discipline.
+
+THE PATTERN OF RECORD IT FOLLOWS:
+  HEAD:verification/runs/T-family/T18_runs/exact_t18.py
+  HEAD:verification/runs/T-family/T19_runs/exact_t19.py  blob 053e2b50ee1d
+  -- derive, never transcribe; verify by an INDEPENDENT ROUTE; CROSS-CHECK
+  against numbers the module did not compute, hard-coded from a named
+  registration document, refusing on disagreement; and a selftest that PLANTS an
+  error into the referent and requires the cross-check to catch it.
+
+SAME: two independent computations required to agree to 1e-12 relative; external
+cross-check hard-coded from a named document; a planted-error arm that must fire;
+no `assert`, every refusal sys.exit(2).
+
+DIFFERENT: the independent route is ALGEBRAIC rather than numerical -- route B
+poses flux continuity as a 2x2 LINEAR SYSTEM solved by general Gaussian
+elimination with partial pivoting, never forming R_tot, so a dropped layer, an
+inverted reciprocal or a sign error moves route A and not route B.  FOUR external
+numbers instead of two, all from rung T9a.  And the file SAYS the four are not
+four independent facts (drop1 is T_hot - T_i1 by definition) rather than claiming
+four checks where there are two, and MEASURES what the extra ones buy: perturbing
+layer-3 k by 1e-5 moves drop3 by 2.437e-07 K and T_i1 by only 5.943e-09 K.
+
+THIS MODULE IS ALSO WHERE VERIFICATION_CHARTER 2h.4(1) IS DISCHARGED -- the
+LOAD-BEARING condition.  Its referent is the exact series-resistance solution of
+the SAME steady conduction model laplacianFoam discretises (NOT
+buoyantBoussinesqSimpleFoam, which is T19's solver), with the same Dirichlet
+faces 350/300 and the same per-layer k, on a mesh whose transverse patches are
+`empty`.  Model-form error is therefore zero by construction and the residual IS
+discretisation error.  The one caveat -- laplacianFoam integrates the TRANSIENT
+equation and the referent is its STEADY limit -- is quantified in
+T9aR1c_PREREGISTRATION.md section 3a.3 at ~13 660 e-folds, 18x past the point
+where the temporal residual is representable in double precision at all.
+
+READ IT IN FULL.  The whole file is the change.
+
+================================================================================
+WHAT THIS FILE DOES NOT COVER
+================================================================================
+
+The case INPUTS (0.orig/, constant/, system/) are not diffed here because they do
+not exist yet: build_t9aR1c.py has not been run and no W1c case directory has been
+created.  When it is run, every input is taken from the T9a parent's freeze commit
+0cbaea26 with `git show <sha>:<path>` and the builder REFUSES if the written
+fvSchemes differs from the parent blob by anything but the one registered
+laplacianSchemes line -- so the input diff is fixed in advance to exactly that one
+line, and the builder's selftest drives the refusal with a planted extra line.

@@ -1,0 +1,669 @@
+T9a-R1c SELFTEST EVIDENCE -- PRODUCED BY RUNNING THE SELFTESTS, not transcribed.
+
+Generated 2026-08-27T21:45:41Z by the heat-transfer lane drafting
+docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md.  Repo HEAD at generation:
+  34cef715c88a334483fc5815bd14d750e7c06413
+
+STATUS: THESE INSTRUMENTS ARE PROPOSED AND UNFROZEN.  No solver has run, no
+W1c case directory exists under this run root, and nothing here is committed.
+Selftests run on SCRATCH forgeries; they are not compute against the case.
+
+Every instrument is run TWICE, under python3 and under python3 -O, because -O
+strips assert statements and an instrument whose refusals live in asserts
+silently stops refusing (L-332).  __pycache__ was cleared first, because stale
+bytecode inverts mutation tests.
+
+THE ARMS THAT MATTER MOST, named here so they are not lost in the listing:
+  * the FLOOR GATE is driven FAILING, on numbers and end-to-end on real bytes
+    (a 2.0e-04 K offset at the coarsest level -> GATE FAIL), and at both edges
+    of the threshold (0.99 X PASS / 1.01 X GATE FAIL).  A gate never shown to
+    fail is not an instrument.
+  * C_NOTRIPLE's AST scanner is shown able to SEE a planted gci_unequal() call,
+    and shown to be blind to the same names in comments and docstrings.
+  * the planted-zero PERMUTATION arm (P2) is driven both PASSING and REFUSING.
+  * DECOUPLING is driven five ways, including the anti-cherry-pick refusal.
+
+================================================================================
+
+=============== python3  exact_t9aR1c.py --selftest ===============
+exact_t9aR1c selftest:
+referent (exact_t9aR1c): q = 19.502681619 W/m2, T_i1 = 348.781082398830 K, T_i2 = 300.024378352023 K
+  route A (closed form) vs route B (flux-continuity linear solve): agree to 3.41e-14 relative
+  cross-check vs T9a registered (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), tol 1e-06 abs: T_i1 3.99e-07, q 3.81e-07, drop1 3.99e-07, drop3 3.52e-07
+  [ok ] the registered wall: routes A and B agree to 3.41e-14 relative; four cross-checks pass
+REFUSE: CROSS-CHECK against T9a's registered T_i1 FAILED: this module derives 348.781201307, T9a states 348.781082 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 1.193e-04 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] layer-1 k planted 1e-4 relative high -> cross-check REFUSES
+REFUSE: CROSS-CHECK against T9a's registered T_i1 FAILED: this module derives 348.780963538, T9a states 348.781082 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 1.185e-04 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] layer-2 k planted 1e-4 relative high -> cross-check REFUSES
+REFUSE: CROSS-CHECK against T9a's registered q FAILED: this module derives 19.502672110, T9a states 19.502682 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 9.890e-06 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] layer-3 L planted 1e-3 relative high -> cross-check REFUSES
+  [ok ] layer-3 k perturbed 1e-5: drop3 moves 2.437e-07 K, T_i1 moves 5.943e-09 K -- the drop3 cross-check is the sensitive one for a layer-3 defect
+REFUSE: ROUTE A and ROUTE B disagree on q: closed form 19.502681618722573, flux-continuity linear solve 19.502681618721908, relative 3.406e-14 > 0.0e+00
+  [ok ] route-agreement tolerance driven to 0 -> the disagreement path REFUSES (the refusal is reachable, not decorative)
+REFUSE: route B: the flux-continuity system is singular at column 0
+  [ok ] singular 2x2 flux-continuity system -> REFUSE (never a silent divide)
+  [ok ] AST assert count in this file = 0 (planted control: the counter sees 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3 -O exact_t9aR1c.py --selftest ===============
+exact_t9aR1c selftest:
+referent (exact_t9aR1c): q = 19.502681619 W/m2, T_i1 = 348.781082398830 K, T_i2 = 300.024378352023 K
+  route A (closed form) vs route B (flux-continuity linear solve): agree to 3.41e-14 relative
+  cross-check vs T9a registered (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), tol 1e-06 abs: T_i1 3.99e-07, q 3.81e-07, drop1 3.99e-07, drop3 3.52e-07
+  [ok ] the registered wall: routes A and B agree to 3.41e-14 relative; four cross-checks pass
+REFUSE: CROSS-CHECK against T9a's registered T_i1 FAILED: this module derives 348.781201307, T9a states 348.781082 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 1.193e-04 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] layer-1 k planted 1e-4 relative high -> cross-check REFUSES
+REFUSE: CROSS-CHECK against T9a's registered T_i1 FAILED: this module derives 348.780963538, T9a states 348.781082 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 1.185e-04 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] layer-2 k planted 1e-4 relative high -> cross-check REFUSES
+REFUSE: CROSS-CHECK against T9a's registered q FAILED: this module derives 19.502672110, T9a states 19.502682 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 9.890e-06 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] layer-3 L planted 1e-3 relative high -> cross-check REFUSES
+  [ok ] layer-3 k perturbed 1e-5: drop3 moves 2.437e-07 K, T_i1 moves 5.943e-09 K -- the drop3 cross-check is the sensitive one for a layer-3 defect
+REFUSE: ROUTE A and ROUTE B disagree on q: closed form 19.502681618722573, flux-continuity linear solve 19.502681618721908, relative 3.406e-14 > 0.0e+00
+  [ok ] route-agreement tolerance driven to 0 -> the disagreement path REFUSES (the refusal is reachable, not decorative)
+REFUSE: route B: the flux-continuity system is singular at column 0
+  [ok ] singular 2x2 flux-continuity system -> REFUSE (never a silent divide)
+  [ok ] AST assert count in this file = 0 (planted control: the counter sees 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3  analyse_t9aR1c.py --selftest ===============
+analyse_t9aR1c selftest (floor X = 1.000e-04 K, graded level W1c_c, label ceiling PASS):
+  [ok ] C_NOTRIPLE: this file refers to 0 forbidden order/GCI names; the PLANTED control `gci_unequal(...)` is seen (1 hit) -- the scanner is not blind
+  [ok ] C_NOTRIPLE: the only name imported from roache_triple.py is ['PLANT'] (got {'PLANT'})
+  [ok ] C_NOTRIPLE: the scanner is AST-based -- the same names in a COMMENT and a DOCSTRING are invisible to it (0 hits)
+REFUSE: C_CLASS: row F1 is registered claim_class 'ROACHE_TRIPLE'; this comparator admits only FLOOR_DEMONSTRATION or REPORTED. A row that claims a grid-convergence property must be graded through an UNCONDITIONAL rule 5 triple gate, and this comparator has none -- so it refuses the row rather than grading it without one.
+  [ok ] C_CLASS: row F1 registered claim_class 'ROACHE_TRIPLE'      -> REFUSE
+REFUSE: C_CLASS: row F1 is registered claim_class 'GRID_CONVERGENCE'; this comparator admits only FLOOR_DEMONSTRATION or REPORTED. A row that claims a grid-convergence property must be graded through an UNCONDITIONAL rule 5 triple gate, and this comparator has none -- so it refuses the row rather than grading it without one.
+  [ok ] C_CLASS: row F1 registered claim_class 'GRID_CONVERGENCE'   -> REFUSE
+REFUSE: C_CLASS: exactly one FLOOR_DEMONSTRATION row is registered for this rung; found 0 (none)
+  [ok ] C_CLASS: row F1 registered claim_class 'REPORTED'           -> REFUSE
+  [ok ] C_CLASS: row F1 registered claim_class 'FLOOR_DEMONSTRATION' -> admitted
+REFUSE: C_CLASS: exactly one FLOOR_DEMONSTRATION row is registered for this rung; found 2 (F1, F2_planted)
+  [ok ] C_CLASS: a SECOND FLOOR_DEMONSTRATION row planted -> REFUSE (exactly one graded row)
+REFUSE: registered label_ceiling 'VALIDATED' is not one of ('PASS', 'GATE REACHED')
+  [ok ] registered label_ceiling mutated to 'VALIDATED' -> REFUSE (the ceiling is one of PASS / GATE REACHED and nothing else)
+REFUSE: row F1 registers no positive absolute floor_K: None
+  [ok ] registered floor_K removed -> REFUSE (a floor demonstration with no floor is not a gate)
+REFUSE: CROSS-CHECK against T9a's registered T_i1 FAILED: this module derives 348.781201307, T9a states 348.781082 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 1.193e-04 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] C_REF: layer-1 k planted 1e-4 wrong -> the T9a cross-check REFUSES the referent
+  [ok ] FLOOR GATE: dev 0            -> PASS                                               got PASS
+  [ok ] FLOOR GATE: dev 0.99 X       -> PASS                                               got PASS
+  [ok ] FLOOR GATE: dev 1.00 X       -> PASS (the floor is inclusive, as registered)       got PASS
+  [ok ] FLOOR GATE: dev 1.01 X       -> GATE FAIL                                          got GATE FAIL
+  [ok ] FLOOR GATE: dev 2.00 X       -> GATE FAIL                                          got GATE FAIL
+  [ok ] FLOOR GATE: dev 5.43e-03 (the PARENT's linear scheme at this level) -> GATE FAIL   got GATE FAIL
+  [ok ] FLOOR GATE: dev 0, gate (1) failed -> NOT A RESULT (rule 5 limb (1), one-way)      got NOT A RESULT
+  [ok ] FLOOR GATE: dev 2 X, gate (1) failed -> NOT A RESULT (never a GATE FAIL upgrade either) got NOT A RESULT
+  [ok ] FLOOR GATE: dev 0, ceiling GATE REACHED -> GATE REACHED (the ceiling only WEAKENS) got GATE REACHED
+  [ok ] FLOOR GATE: dev 2 X, ceiling GATE REACHED -> GATE FAIL (a ceiling never rescues a fail) got GATE FAIL
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_giuat_68/gate.json
+  [ok ] VALUE CONTROL end-to-end: the exact piecewise-linear field on all three levels grades F1 PASS at |dev| = 0.00e+00 K; all four planted-zero arms PASS
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781282398830 K, exact = 348.781082398830 K, |deviation| = 2.000e-04 K against the registered floor X = 1.000e-04 K -> GATE FAIL
+N1 (REPORTED) |T_i1 - exact| per level: c 2.000e-04 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 2.000e-04 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c -3.282e-03, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 2.000e-04 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_ef9xbfh5/gate.json
+  [ok ] GATE-FAIL end-to-end on real bytes: a 2.0e-04 K offset planted at the COARSEST level only -> F1 GATE FAIL (a gate never shown to fail is not an instrument)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 2.000e-04 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 2.000e-04 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m -5.251e-03, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 2.000e-04 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_6szhlm8g/gate.json
+  [ok ] SCOPE: the same offset planted at the MEDIUM level leaves F1 PASS and appears only in the REPORTED row N1 -- F1 grades the coarsest level and nothing else
+  level c: checkpoint-converged False (move 1.000e-06 K) [gate (1) for F1]
+  level m: checkpoint-converged False (move 1.000e-06 K) [REPORTED only]
+  level f: checkpoint-converged False (move 1.000e-06 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> NOT A RESULT [gate (1), standing rule 5 limb (1): W1c_c: T moved 1.000e-06 K between the last two checkpoints, above the floor 1.0e-09]
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_7xtgd2ed/gate.json
+  [ok ] gate (1) end-to-end: checkpoints move 1e-6 K > the 1e-9 K floor -> F1 NOT A RESULT (rule 5 limb (1) fires on a no-triple registration, charter 2f.7)
+  level m (W1c_m): NOT RUN -- REPORTED, and it does not touch F1 (this rung is decoupled by construction; the graded row reads W1c_c alone)
+  level f (W1c_f): NOT RUN -- REPORTED, and it does not touch F1 (this rung is decoupled by construction; the graded row reads W1c_c alone)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m NOT MEASURED, f NOT MEASURED
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 1 level(s) READ (W1c_c): NOT MEASURED -- a spread needs at least two levels and 1 was read. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m NOT MEASURED, f NOT MEASURED
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m NOT MEASURED, f NOT MEASURED
+wrote /tmp/t9ar1c_dec_ryvgtw1u/gate.json
+  [ok ] DECOUPLING: ONLY the coarsest level run -- m and f absent entirely -> F1 still grades PASS; N1[m] reads NOT MEASURED and the spread N2 is NOT MEASURED (a mispriced, capped or crashed level cannot destroy this verdict: the T16 exposure is absent by construction)
+REFUSE: the GRADED level W1c_c is NOT RUN -- F1 reads that level and no other, so without its DONE marker there is nothing to grade; mark_done_t9aR1c.py rules
+  [ok ] DECOUPLING: the GRADED level absent while m and f are DONE -> REFUSE (exit 2) -- the one level F1 reads is the one level that is mandatory
+  level f (W1c_f): RAN_NOT_COMPLETE -- REPORTED, and it does not touch F1 (this rung is decoupled by construction; the graded row reads W1c_c alone)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f NOT MEASURED
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 2 level(s) READ (W1c_c,W1c_m): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f NOT MEASURED
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f NOT MEASURED
+wrote /tmp/t9ar1c_dec_zly_5aw7/gate.json
+  [ok ] DECOUPLING: level f has a STATUS file and NO DONE marker -> recorded RAN_NOT_COMPLETE and REPORTED; F1 still grades PASS. It ran, it did not complete, and that appears in the record instead of vanishing
+REFUSE: W1c_f holds a written time directory but NO STATUS.W1c_f -- a solver ran there and its exit status was never recorded. An absent STATUS is refused, never inferred from fields on disk (K0d L1). A level cannot be dropped from this record by removing its markers.
+  [ok ] ANTI-CHERRY-PICK: level f holds a written time directory and NO STATUS file -> REFUSE (exit 2). A level cannot be dropped from this record by removing its markers; an absent STATUS is refused, never inferred from fields on disk (K0d L1)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged False (move 1.000e-06 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_dec_nb2n9e0_/gate.json
+  [ok ] DECOUPLING: gate (1) BROKEN AT LEVEL f ONLY -> reported against f as non-binding, and F1 still grades PASS on the level it actually reads. A level F1 does not read cannot decide F1
+REFUSE: W1c_c CASE.txt records laplacianSchemes='Gauss linear corrected', the registration requires 'Gauss harmonic corrected' (C_SCHEME)
+  [ok ] C_SCHEME: cases built with the PARENT's linear scheme -> REFUSE (exit 2)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+REFUSE: W1c_c: cell 0 at x=0.0025 carries DT=1.2, the registered layer map says 0.8 (C_MAP)
+  [ok ] C_MAP: one cell's DT planted 1.5x the registered layer conductivity -> REFUSE (exit 2)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+REFUSE: planted-zero control ARM P2 COULD NOT BE ARMED: swapping the two stencil values would move T_i1 by only 0.000e+00 K, below the registered visibility floor 1.0e-06 K. An unarmable control is a REFUSAL, never a pass.
+  [ok ] C_PZ ARM P2 UNARMABLE: the two stencil values forced EQUAL, so a swap cannot move the read -> REFUSE (an unarmable control is a refusal, never a pass) (exit 2)
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+REFUSE: planted-zero control ARM P3 FAILED: a plant of 0.001234 K into cell 9, which is OUTSIDE the reader's two-cell stencil (9, 10), moved T_i1 by 1.175e-03 K. The reader is not the local reader it is registered as.
+  [ok ] C_PZ ARM P3 driven to REFUSE: the 'far' cell overridden to the stencil cell 9, so the plant IS visible where the control registered it invisible -> REFUSE
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+  [ok ] C_PZ four arms on real bytes: N bit-identical; P1 recovered 0.00118 K; P2 permutation moved -1.16 K; P3 far plant moved 0 K
+REFUSE: the GRADED level W1c_c is NOT RUN -- F1 reads that level and no other, so without its DONE marker there is nothing to grade; mark_done_t9aR1c.py rules
+  [ok ] live tree, no DONE markers -> REFUSE (exit 2)
+  [ok ] AST assert count in this file = 0 (planted control: the counter sees 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3 -O analyse_t9aR1c.py --selftest ===============
+analyse_t9aR1c selftest (floor X = 1.000e-04 K, graded level W1c_c, label ceiling PASS):
+  [ok ] C_NOTRIPLE: this file refers to 0 forbidden order/GCI names; the PLANTED control `gci_unequal(...)` is seen (1 hit) -- the scanner is not blind
+  [ok ] C_NOTRIPLE: the only name imported from roache_triple.py is ['PLANT'] (got {'PLANT'})
+  [ok ] C_NOTRIPLE: the scanner is AST-based -- the same names in a COMMENT and a DOCSTRING are invisible to it (0 hits)
+REFUSE: C_CLASS: row F1 is registered claim_class 'ROACHE_TRIPLE'; this comparator admits only FLOOR_DEMONSTRATION or REPORTED. A row that claims a grid-convergence property must be graded through an UNCONDITIONAL rule 5 triple gate, and this comparator has none -- so it refuses the row rather than grading it without one.
+  [ok ] C_CLASS: row F1 registered claim_class 'ROACHE_TRIPLE'      -> REFUSE
+REFUSE: C_CLASS: row F1 is registered claim_class 'GRID_CONVERGENCE'; this comparator admits only FLOOR_DEMONSTRATION or REPORTED. A row that claims a grid-convergence property must be graded through an UNCONDITIONAL rule 5 triple gate, and this comparator has none -- so it refuses the row rather than grading it without one.
+  [ok ] C_CLASS: row F1 registered claim_class 'GRID_CONVERGENCE'   -> REFUSE
+REFUSE: C_CLASS: exactly one FLOOR_DEMONSTRATION row is registered for this rung; found 0 (none)
+  [ok ] C_CLASS: row F1 registered claim_class 'REPORTED'           -> REFUSE
+  [ok ] C_CLASS: row F1 registered claim_class 'FLOOR_DEMONSTRATION' -> admitted
+REFUSE: C_CLASS: exactly one FLOOR_DEMONSTRATION row is registered for this rung; found 2 (F1, F2_planted)
+  [ok ] C_CLASS: a SECOND FLOOR_DEMONSTRATION row planted -> REFUSE (exactly one graded row)
+REFUSE: registered label_ceiling 'VALIDATED' is not one of ('PASS', 'GATE REACHED')
+  [ok ] registered label_ceiling mutated to 'VALIDATED' -> REFUSE (the ceiling is one of PASS / GATE REACHED and nothing else)
+REFUSE: row F1 registers no positive absolute floor_K: None
+  [ok ] registered floor_K removed -> REFUSE (a floor demonstration with no floor is not a gate)
+REFUSE: CROSS-CHECK against T9a's registered T_i1 FAILED: this module derives 348.781201307, T9a states 348.781082 (docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1), |difference| 1.193e-04 > 1.0e-06 -- a referent that cannot reproduce a registered value is not graded against, it is refused
+  [ok ] C_REF: layer-1 k planted 1e-4 wrong -> the T9a cross-check REFUSES the referent
+  [ok ] FLOOR GATE: dev 0            -> PASS                                               got PASS
+  [ok ] FLOOR GATE: dev 0.99 X       -> PASS                                               got PASS
+  [ok ] FLOOR GATE: dev 1.00 X       -> PASS (the floor is inclusive, as registered)       got PASS
+  [ok ] FLOOR GATE: dev 1.01 X       -> GATE FAIL                                          got GATE FAIL
+  [ok ] FLOOR GATE: dev 2.00 X       -> GATE FAIL                                          got GATE FAIL
+  [ok ] FLOOR GATE: dev 5.43e-03 (the PARENT's linear scheme at this level) -> GATE FAIL   got GATE FAIL
+  [ok ] FLOOR GATE: dev 0, gate (1) failed -> NOT A RESULT (rule 5 limb (1), one-way)      got NOT A RESULT
+  [ok ] FLOOR GATE: dev 2 X, gate (1) failed -> NOT A RESULT (never a GATE FAIL upgrade either) got NOT A RESULT
+  [ok ] FLOOR GATE: dev 0, ceiling GATE REACHED -> GATE REACHED (the ceiling only WEAKENS) got GATE REACHED
+  [ok ] FLOOR GATE: dev 2 X, ceiling GATE REACHED -> GATE FAIL (a ceiling never rescues a fail) got GATE FAIL
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_muvjmv0e/gate.json
+  [ok ] VALUE CONTROL end-to-end: the exact piecewise-linear field on all three levels grades F1 PASS at |dev| = 0.00e+00 K; all four planted-zero arms PASS
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781282398830 K, exact = 348.781082398830 K, |deviation| = 2.000e-04 K against the registered floor X = 1.000e-04 K -> GATE FAIL
+N1 (REPORTED) |T_i1 - exact| per level: c 2.000e-04 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 2.000e-04 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c -3.282e-03, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 2.000e-04 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_7tr3z0i8/gate.json
+  [ok ] GATE-FAIL end-to-end on real bytes: a 2.0e-04 K offset planted at the COARSEST level only -> F1 GATE FAIL (a gate never shown to fail is not an instrument)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 2.000e-04 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 2.000e-04 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m -5.251e-03, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 2.000e-04 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_39mfkflh/gate.json
+  [ok ] SCOPE: the same offset planted at the MEDIUM level leaves F1 PASS and appears only in the REPORTED row N1 -- F1 grades the coarsest level and nothing else
+  level c: checkpoint-converged False (move 1.000e-06 K) [gate (1) for F1]
+  level m: checkpoint-converged False (move 1.000e-06 K) [REPORTED only]
+  level f: checkpoint-converged False (move 1.000e-06 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> NOT A RESULT [gate (1), standing rule 5 limb (1): W1c_c: T moved 1.000e-06 K between the last two checkpoints, above the floor 1.0e-09]
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_forge_39ud54mu/gate.json
+  [ok ] gate (1) end-to-end: checkpoints move 1e-6 K > the 1e-9 K floor -> F1 NOT A RESULT (rule 5 limb (1) fires on a no-triple registration, charter 2f.7)
+  level m (W1c_m): NOT RUN -- REPORTED, and it does not touch F1 (this rung is decoupled by construction; the graded row reads W1c_c alone)
+  level f (W1c_f): NOT RUN -- REPORTED, and it does not touch F1 (this rung is decoupled by construction; the graded row reads W1c_c alone)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m NOT MEASURED, f NOT MEASURED
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 1 level(s) READ (W1c_c): NOT MEASURED -- a spread needs at least two levels and 1 was read. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m NOT MEASURED, f NOT MEASURED
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m NOT MEASURED, f NOT MEASURED
+wrote /tmp/t9ar1c_dec_m3lm1109/gate.json
+  [ok ] DECOUPLING: ONLY the coarsest level run -- m and f absent entirely -> F1 still grades PASS; N1[m] reads NOT MEASURED and the spread N2 is NOT MEASURED (a mispriced, capped or crashed level cannot destroy this verdict: the T16 exposure is absent by construction)
+REFUSE: the GRADED level W1c_c is NOT RUN -- F1 reads that level and no other, so without its DONE marker there is nothing to grade; mark_done_t9aR1c.py rules
+  [ok ] DECOUPLING: the GRADED level absent while m and f are DONE -> REFUSE (exit 2) -- the one level F1 reads is the one level that is mandatory
+  level f (W1c_f): RAN_NOT_COMPLETE -- REPORTED, and it does not touch F1 (this rung is decoupled by construction; the graded row reads W1c_c alone)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f NOT MEASURED
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 2 level(s) READ (W1c_c,W1c_m): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f NOT MEASURED
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f NOT MEASURED
+wrote /tmp/t9ar1c_dec_407u8e9v/gate.json
+  [ok ] DECOUPLING: level f has a STATUS file and NO DONE marker -> recorded RAN_NOT_COMPLETE and REPORTED; F1 still grades PASS. It ran, it did not complete, and that appears in the record instead of vanishing
+REFUSE: W1c_f holds a written time directory but NO STATUS.W1c_f -- a solver ran there and its exit status was never recorded. An absent STATUS is refused, never inferred from fields on disk (K0d L1). A level cannot be dropped from this record by removing its markers.
+  [ok ] ANTI-CHERRY-PICK: level f holds a written time directory and NO STATUS file -> REFUSE (exit 2). A level cannot be dropped from this record by removing its markers; an absent STATUS is refused, never inferred from fields on disk (K0d L1)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged False (move 1.000e-06 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+F1 [FLOOR_DEMONSTRATION] FLOOR DEMONSTRATION at the COARSEST level W1c_c: T_i1 = 348.781082398830 K, exact = 348.781082398830 K, |deviation| = 0.000e+00 K against the registered floor X = 1.000e-04 K -> PASS
+N1 (REPORTED) |T_i1 - exact| per level: c 0.000e+00 K, m 0.000e+00 K, f 0.000e+00 K
+N2 (REPORTED) mesh-family SPREAD max-min of T_i1 over the 3 level(s) READ (W1c_c,W1c_m,W1c_f): 0.000e+00 K. This is a BOUND on observed variation over the meshes actually built (VERIFICATION_CHARTER 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order.
+N3 (REPORTED) q_hot relative deviation: c +5.920e-14, m +4.323e-13, f +6.190e-13
+N4 (REPORTED) |T_i2 - exact| per level (the interface F1 does NOT read): c 5.684e-14 K, m 0.000e+00 K, f 0.000e+00 K
+wrote /tmp/t9ar1c_dec_ciw3kyni/gate.json
+  [ok ] DECOUPLING: gate (1) BROKEN AT LEVEL f ONLY -> reported against f as non-binding, and F1 still grades PASS on the level it actually reads. A level F1 does not read cannot decide F1
+REFUSE: W1c_c CASE.txt records laplacianSchemes='Gauss linear corrected', the registration requires 'Gauss harmonic corrected' (C_SCHEME)
+  [ok ] C_SCHEME: cases built with the PARENT's linear scheme -> REFUSE (exit 2)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+REFUSE: W1c_c: cell 0 at x=0.0025 carries DT=1.2, the registered layer map says 0.8 (C_MAP)
+  [ok ] C_MAP: one cell's DT planted 1.5x the registered layer conductivity -> REFUSE (exit 2)
+  level c: checkpoint-converged True (move 0.000e+00 K) [gate (1) for F1]
+  level m: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+  level f: checkpoint-converged True (move 0.000e+00 K) [REPORTED only]
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+REFUSE: planted-zero control ARM P2 COULD NOT BE ARMED: swapping the two stencil values would move T_i1 by only 0.000e+00 K, below the registered visibility floor 1.0e-06 K. An unarmable control is a REFUSAL, never a pass.
+  [ok ] C_PZ ARM P2 UNARMABLE: the two stencil values forced EQUAL, so a swap cannot move the read -> REFUSE (an unarmable control is a refusal, never a pass) (exit 2)
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+REFUSE: planted-zero control ARM P3 FAILED: a plant of 0.001234 K into cell 9, which is OUTSIDE the reader's two-cell stencil (9, 10), moved T_i1 by 1.175e-03 K. The reader is not the local reader it is registered as.
+  [ok ] C_PZ ARM P3 driven to REFUSE: the 'far' cell overridden to the stencil cell 9, so the plant IS visible where the control registered it invisible -> REFUSE
+planted-zero P1 (value)       PASS: plant 0.001234 K in cell 9, T_i1 moved 0.00117524 K, floor 1e-07
+planted-zero P2 (permutation) PASS: cells 9<->10 swapped, T_i1 moved -1.15797 K (identity check vs the reader's own weights: 0.00e+00 K)
+planted-zero P3 (specificity) PASS: plant 0.001234 K in cell 34 (outside the stencil 9,10), T_i1 moved 0.0e+00 K
+  [ok ] C_PZ four arms on real bytes: N bit-identical; P1 recovered 0.00118 K; P2 permutation moved -1.16 K; P3 far plant moved 0 K
+REFUSE: the GRADED level W1c_c is NOT RUN -- F1 reads that level and no other, so without its DONE marker there is nothing to grade; mark_done_t9aR1c.py rules
+  [ok ] live tree, no DONE markers -> REFUSE (exit 2)
+  [ok ] AST assert count in this file = 0 (planted control: the counter sees 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3  build_t9aR1c.py --selftest ===============
+  [ok ] parent fvSchemes at 0cbaea26 patched to the single harmonic line
+REFUSE: the fvSchemes diff against the parent is not the single registered line: ['-laplacianSchemes { default Gauss linear corrected; }', '+laplacianSchemes { default Gauss harmonic corrected; }', '+', '+plantedExtraLine yes;']
+  [ok ] written file with a second changed line (planted extra line) vs the parent blob -> REFUSE
+REFUSE: the parent fvSchemes does not carry exactly one 'laplacianSchemes { default Gauss linear corrected; }' line
+  [ok ] parent without the registered linear line -> REFUSE
+  [ok ] AST assert count = 0 (planted control: 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3 -O build_t9aR1c.py --selftest ===============
+  [ok ] parent fvSchemes at 0cbaea26 patched to the single harmonic line
+REFUSE: the fvSchemes diff against the parent is not the single registered line: ['-laplacianSchemes { default Gauss linear corrected; }', '+laplacianSchemes { default Gauss harmonic corrected; }', '+', '+plantedExtraLine yes;']
+  [ok ] written file with a second changed line (planted extra line) vs the parent blob -> REFUSE
+REFUSE: the parent fvSchemes does not carry exactly one 'laplacianSchemes { default Gauss linear corrected; }' line
+  [ok ] parent without the registered linear line -> REFUSE
+  [ok ] AST assert count = 0 (planted control: 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3  mark_done_t9aR1c.py --selftest ===============
+DONE      W1c_c       
+  [ok ] pristine forged case -> DONE                               -> exit 0, DONE marker True
+REFUSE: no STATUS.W1c_c -- the solver's exit status was never recorded. An absent STATUS is not inferred from an End line (K0d L1); it is refused.
+  [ok ] STATUS absent -> REFUSE (never inferred from End)          -> exit 2, DONE marker False
+NOT DONE  W1c_c        - CRASH: rc=1 (capped=no) -- a crash is a FINDING until triage says otherwise
+  [ok ] rc=1 below cap -> NOT DONE (CRASH)                         -> exit 1, DONE marker False
+NOT DONE  W1c_c        - CAPPED: rc=124 at wall_s=1 against timeout_s=120 -- the run reached its registered cap and was stopped; an overrun does not get a new budget (rule 12)
+  [ok ] rc=124 capped=yes -> NOT DONE (CAPPED, no new budget)      -> exit 1, DONE marker False
+NOT DONE  W1c_c        - log.solve has no End line
+  [ok ] no End line -> NOT DONE                                    -> exit 1, DONE marker False
+NOT DONE  W1c_c        - last written time 1.5 != endTime 2
+  [ok ] last time 1.5 != endTime 2 -> NOT DONE                     -> exit 1, DONE marker False
+NOT DONE  W1c_c        - time 2 is missing T,DT
+  [ok ] field T missing at endTime -> NOT DONE                     -> exit 1, DONE marker False
+NOT DONE  W1c_c        - 19999 ExecutionTime lines, expected 20000 (endTime 2 / deltaT 0.0001)
+  [ok ] ExecutionTime count 19999 != 20000 -> NOT DONE             -> exit 1, DONE marker False
+NOT DONE  W1c_c        - time 2 holds fields OLDER than 0/T (T,DT) -- not written by this run
+  [ok ] T at endTime OLDER than 0/T -> NOT DONE (age guard)        -> exit 1, DONE marker False
+NOTE      W1c_c        - INFRASTRUCTURE fields NOT MEASURED (L-342, reported, not refused): wall_s,timeout_s,ranks,core_min,capped,checkmesh_rc,solver,solver_path,note,started_utc,ended_utc
+DONE      W1c_c       
+  [ok ] all INFRASTRUCTURE fields absent -> DONE with NOTE (L-342) -> exit 0, DONE marker True
+  [ok ] AST assert count = 0 (planted control: 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+=============== python3 -O mark_done_t9aR1c.py --selftest ===============
+DONE      W1c_c       
+  [ok ] pristine forged case -> DONE                               -> exit 0, DONE marker True
+REFUSE: no STATUS.W1c_c -- the solver's exit status was never recorded. An absent STATUS is not inferred from an End line (K0d L1); it is refused.
+  [ok ] STATUS absent -> REFUSE (never inferred from End)          -> exit 2, DONE marker False
+NOT DONE  W1c_c        - CRASH: rc=1 (capped=no) -- a crash is a FINDING until triage says otherwise
+  [ok ] rc=1 below cap -> NOT DONE (CRASH)                         -> exit 1, DONE marker False
+NOT DONE  W1c_c        - CAPPED: rc=124 at wall_s=1 against timeout_s=120 -- the run reached its registered cap and was stopped; an overrun does not get a new budget (rule 12)
+  [ok ] rc=124 capped=yes -> NOT DONE (CAPPED, no new budget)      -> exit 1, DONE marker False
+NOT DONE  W1c_c        - log.solve has no End line
+  [ok ] no End line -> NOT DONE                                    -> exit 1, DONE marker False
+NOT DONE  W1c_c        - last written time 1.5 != endTime 2
+  [ok ] last time 1.5 != endTime 2 -> NOT DONE                     -> exit 1, DONE marker False
+NOT DONE  W1c_c        - time 2 is missing T,DT
+  [ok ] field T missing at endTime -> NOT DONE                     -> exit 1, DONE marker False
+NOT DONE  W1c_c        - 19999 ExecutionTime lines, expected 20000 (endTime 2 / deltaT 0.0001)
+  [ok ] ExecutionTime count 19999 != 20000 -> NOT DONE             -> exit 1, DONE marker False
+NOT DONE  W1c_c        - time 2 holds fields OLDER than 0/T (T,DT) -- not written by this run
+  [ok ] T at endTime OLDER than 0/T -> NOT DONE (age guard)        -> exit 1, DONE marker False
+NOTE      W1c_c        - INFRASTRUCTURE fields NOT MEASURED (L-342, reported, not refused): wall_s,timeout_s,ranks,core_min,capped,checkmesh_rc,solver,solver_path,note,started_utc,ended_utc
+DONE      W1c_c       
+  [ok ] all INFRASTRUCTURE fields absent -> DONE with NOTE (L-342) -> exit 0, DONE marker True
+  [ok ] AST assert count = 0 (planted control: 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+================================================================================
+=============== run_one_t9aR1c.sh -- DRIVEN on scratch, three arms ===============
+
+The launcher carries no --selftest; it is DRIVEN instead, on a scratch copy with
+a scratch registered JSON, so nothing in the run tree is touched.  No STATUS file
+was written by any arm: a pre-flight refusal writes none, because nothing ran, so
+there is no rc, and inventing one is the back-dating the launcher exists to stop.
+
+ARM A -- the registered JSON AS WRITTEN (timeout_s 60 == cap_core_min 1 * 60 / ranks 1).
+  The cap arithmetic PASSES and the launcher proceeds to the launch guard, which is
+  what proves the new check is not a refusal that always fires:
+    REFUSE: W1c_c has no 0.orig to arm from
+
+ARM B -- cap_core_min mutated to 5 in the SCRATCH json while timeout_s stays 60, so
+  the arithmetic timeout_s == cap_core_min * 60 / ranks no longer holds:
+    REFUSE: the registered timeout_s=60 for W1c_c does not equal cap_core_min*60/ranks = 5*60/1 = 300. The queue runner REPORTS a cap and does not kill; this timeout wrapper is the only thing that stops the run, so a timeout that does not equal the registered cap means the cap is unenforced.
+
+ARM C -- --timeout widened to 600 against the registered 60:
+    REFUSE: --timeout 600 is not the registered timeout_s=60 for W1c_c (rule 12: a cap is neither widened nor narrowed at launch -- a narrower one manufactures a cap-stop)
+
+  (ARMs B and C used the MUTATED scratch json.  The run-tree copy at
+   verification/runs/T-family/T9aR1c_runs/T9aR1c_registered.json is unmutated and
+   is what ARM A passed against; sha256 of the run-tree copy at this moment:
+   6cb563124839820b893a3771e921dbde)
+
+================================================================================
+TALLY
+  arms driven [ok ]      : 120
+  arms driven [FAIL]     : 0
+  SELFTEST PASS lines    : 8 (4 instruments x python3 and python3 -O)
+  SELFTEST FAIL lines    : 0
+  launcher arms driven   : 3 (A proceeds past the cap check, B and C REFUSE)
+  distinct comparator arms: 37
+
+================================================================================
+=============== FILING CHECK, AND THE LIVE RUN IS A FALSE ZERO ===============
+
+`python3 scripts/check_filing.py` reports 34 violations across 7 rules and NOT
+ONE of them names a T9aR1c or W1c path.  THAT IS NOT EVIDENCE OF COMPLIANCE.
+The checker enumerates paths from HEAD (git ls-tree -r HEAD, check_filing.py
+:86-105) and every artifact of this rung is UNCOMMITTED, so the checker cannot
+see any of them.
+
+PROVED, NOT ASSUMED: a file literally named 'Bad Name PLANT.md' was created
+inside verification/runs/T-family/T9aR1c_runs/ and the live checker still
+reported ZERO T9aR1c hits and the same 34 total.  The file was removed.
+A zero from a reader not shown able to see a non-zero is not evidence
+(standing rule 3), and this one was shown blind.
+
+So the rules were run against the paths DIRECTLY, by importing check_filing's
+own rule set and substituting its HEAD enumeration with this rung's paths.
+
+PATHS CHECKED (9):
+    docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md
+    verification/runs/T-family/T9aR1c_runs/T9aR1c_INSTRUMENT_DIFFS.txt
+    verification/runs/T-family/T9aR1c_runs/T9aR1c_SELFTEST_EVIDENCE.txt
+    verification/runs/T-family/T9aR1c_runs/T9aR1c_registered.json
+    verification/runs/T-family/T9aR1c_runs/analyse_t9aR1c.py
+    verification/runs/T-family/T9aR1c_runs/build_t9aR1c.py
+    verification/runs/T-family/T9aR1c_runs/exact_t9aR1c.py
+    verification/runs/T-family/T9aR1c_runs/mark_done_t9aR1c.py
+    verification/runs/T-family/T9aR1c_runs/run_one_t9aR1c.sh
+
+ARM 1 -- the paths as filed:                                    0 violations
+
+ARM 2 -- PLANTED CONTROLS, the canonical shape of every rule that governs this
+         rung, to show the reader can return a non-zero:
+    R0 a name with spaces
+         verification/runs/T-family/T9aR1c_runs/Bad Name W1c.md    -> FIRED
+    R6 a run output filed beside the prose
+         docs/campaigns/T-family/W1c_c/system/controlDict          -> FIRED
+    R7 a campaign record not in UPPER_SNAKE
+         docs/campaigns/T-family/t9aR1c_preregistration.md         -> FIRED
+    R7 campaign helper code not lower_snake
+         docs/campaigns/T-family/AnalyseT9aR1c.py                  -> FIRED
+
+    A NOTE AGAINST THIS LANE, recorded because it is the same defect class.
+    The R7 lowercase plant first reported as NOT FIRING.  The rule had fired;
+    THIS LANE'S OWN FILTER was matching the literal 'T9aR1c' while the plant
+    path spells it 't9aR1c'.  The instrument was right and the harness reading
+    it was blind -- which is exactly what a planted control exists to expose,
+    and it is recorded here rather than quietly corrected.
+
+ARM 1 STANDS: 0 violations on the paths as filed, from a reader shown able to
+see all four planted shapes.  Prose under docs/campaigns/T-family/ as
+<RUNG>_<PURPOSE>.md; instruments and run outputs under
+verification/runs/T-family/T9aR1c_runs/, never beside the prose.
+
+THE FULL RUN'S 34 VIOLATIONS ARE PRE-EXISTING and belong to other paths
+(6 R0-PORTABLE-NAME, 1 R1-ROOT-CLEAN, 4 R5-ASSET-SUBDIR, 1 R6-RUNTREE,
+1 R7-CAMPAIGN-RECORD, 12 R8-PAPER-NAME, 9 R9-SIDECAR-MISSING).  None is this
+rung's and none was introduced by it; they are named here so the count is not
+mistaken for something this lane caused, and they are not this lane's to fix.
+
+================================================================================
+=========== RE-DRIVE AFTER THE SUPERVISOR'S TWO PRE-COMPUTE ADDITIONS ===========
+
+2026-08-27T22:00:41Z.  Repo HEAD: 9c4ed59a7c750f9af4243083454cd411f6c1d677
+
+The heat-transfer supervisor discharged check 1 on apply_gate and directed two
+PRE-COMPUTE ADDITIONS, both legal under VERIFICATION_CHARTER 2b limb 1 while no
+W1c case directory exists (re-checked: none does):
+  ADDITION 1 -- section 3.3 gains the VERDICT-INSENSITIVITY argument, and records
+    that the 9.2e-04 K fallback was CONSIDERED AND REJECTED because a GCI band is
+    a statement about grid convergence and borrowing it as the absolute threshold
+    of a non-convergence claim would import the category error being removed.
+  ADDITION 2 -- a new section 0.6: THIS RUNG IS RE-INSTRUMENTATION, NOT
+    CORROBORATION.  The answer is already known and the registration forecloses
+    any later citation of W1c as a second, corroborating measurement.
+
+NEITHER ADDITION MOVED A GATE, THRESHOLD, CAP OR LABEL.  Both are prose in the
+pre-registration; no instrument byte changed.  PROVED rather than asserted --
+all six freeze-set sha256 re-verified identical to the values recorded before
+the additions:
+    build_t9aR1c.py            c4bf597a2ca2f876  167 lines
+    exact_t9aR1c.py            bea38debb333be86  283 lines
+    analyse_t9aR1c.py          9b5a3d0c3ca94e60  939 lines
+    mark_done_t9aR1c.py        4cd92f35813cef73  231 lines
+    run_one_t9aR1c.sh          f6ede1bb00cc52f2  206 lines
+    T9aR1c_registered.json     6cb563124839820b  275 lines
+
+The selftests were re-driven anyway, because 'no byte changed' is a claim and a
+re-drive is a measurement:
+    exact      python3  SELFTEST PASS (0 failed)
+    exact      -O       SELFTEST PASS (0 failed)
+    analyse    python3  SELFTEST PASS (0 failed)
+    analyse    -O       SELFTEST PASS (0 failed)
+    build      python3  SELFTEST PASS (0 failed)
+    build      -O       SELFTEST PASS (0 failed)
+    mark_done  python3  SELFTEST PASS (0 failed)
+    mark_done  -O       SELFTEST PASS (0 failed)
+
+    60 distinct arms, 120 driven executions, 0 failures -- unchanged.
+
+================================================================================
+===== RE-DRIVE AFTER VERIFICATION_CHARTER v1.17 / SECTION 2h (commit 9fdb1d9f) =====
+
+2026-08-27T22:14:28Z.  Repo HEAD: 018aab8ccc9bfcb428e9e0c1cf598f92a3c62981
+
+VERIFICATION RULED: PASS IS AVAILABLE to this floor limb.  2f.3 never reached
+it -- a floor demonstration claims a property of THE DISCRETISATION, so 2f.3's
+ground is INVERTED here, and 2f.3's CONTINUUM default is RESIDUAL while 2g.3
+classifies this limb EXPRESSLY.  label_ceiling stays "PASS".  NO CODE CHANGE
+was required by the ruling itself.
+
+TWO CONDITIONS OF 2h.4 WERE OWED AND ARE NOW DISCHARGED:
+
+  (3) ROUND-OFF AS A NUMBER.  ulp(350 K) = 2^-44 = 5.684342e-14 K; W1b's
+      measured level differences 2.842e-13 K (5 ulp) and 3.240e-12 K (57 ulp),
+      the larger taken as binding because the larger is the conservative
+      choice; checkpoint move 0.000e+00 K exactly.  Band 1.0e-04 K sits 7.49
+      orders above the binding figure and 9.25 above the ulp.  CONDITION MET.
+      CORRECTION: the referral expected '~12 orders down'.  It is 7.49 / 9.25.
+
+  (4)(5) WORDING.  2h.4(5) NARROWED 2g.3 against verification's own drafting
+      and struck the phrase "so the answer does not depend on the mesh at the
+      resolution that matters".  That phrase was in OUR GATE SENTENCE, copied
+      verbatim from the clause by the lane and quoted approvingly by the
+      supervisor.  Swept from every artifact.  WHERE IT WAS, before the strike:
+        docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md   2 sites (0.3, 3.2)
+        T9aR1c_registered.json                              1 site  (gate_sentence)
+        analyse_t9aR1c.py                                   2 sites -- the module
+            docstring AND the `claim` value at line 587 inside the out=dict()
+            that is json.dump'ed to gate_t9aR1c.json.  THAT ONE WENT INTO THE
+            GRADED MACHINE RECORD, which is the worst place for a withdrawn
+            claim to survive, and it is why this was swept and not spot-fixed.
+        T9aR1c_INSTRUMENT_DIFFS.txt                         3 sites (embedded copies)
+      exact_t9aR1c.py, build_t9aR1c.py, mark_done_t9aR1c.py, run_one_t9aR1c.sh:
+      ZERO sites -- they never carried a claim sentence.
+
+A NEW INSTRUMENT, sweep_wording_t9aR1c.py, DISCHARGES THE MACHINE HALF OF (4).
+2h.5 is express that the AST guard proves THE ABSENCE OF A TRIPLE and not the
+wording, so the wording needs its own reader.  It is NOT in the freeze set.
+
+WORDING SWEEP (charter 2h.4(4)/(5)): 10 files, 8 phrases, 63 occurrences
+  ASSERTIONS  : 0   <- the only class that is a violation
+  DISCLAIMERS : 55   (quoted in order to deny or strike -- required)
+  REMOVALS    : 0   (unified-diff '-' lines -- required)
+  VOCABULARY  : 8   (this file's own PHRASES tuple, located by AST -- required)
+
+--- sweep_wording_t9aR1c.py --selftest ---
+sweep_wording_t9aR1c selftest:
+  [ok ] PLANTED CONTROL: a sentence ASSERTING the forbidden claims -> 4 hits, all ASSERTION
+  [ok ] a DISCLAIMED occurrence -> classified DISCLAIMER, not a violation
+  [ok ] CASE CONTROL: negation spelled 'Struck' (not 'struck'/'STRUCK') -> still DISCLAIMER. This exact miss produced a false violation in the first version of this file
+  [ok ] a unified-diff '-' line quoting the struck text -> classified REMOVAL, not a violation
+  [ok ] the SAME bytes with diff handling OFF -> NOT classified REMOVAL, so the exemption is scoped to the diffs file and is not a blanket
+  [ok ] the VOCABULARY exemption is located STRUCTURALLY: this file's PHRASES tuple parses to source lines (69, 71), not a hardcoded number and not a filename test
+  [ok ] this file scanned as itself -> 12 occurrences, 8 VOCABULARY, 0 ASSERTION
+  [ok ] an ASSERTING sentence injected into this file OUTSIDE the PHRASES tuple -> still a VIOLATION (3 ASSERTION). The exemption covers ONE AST node, not this file
+REFUSE: docs/campaigns/T-family/T9aR1c_PREREGISTRATION.md is missing -- a sweep that silently skips a file is a false zero
+  [ok ] a file the sweep cannot read -> REFUSE, never a silent skip (a sweep that skips a file is a false zero)
+  [ok ] THE LIVE SWEEP over all 10 artifacts: 0 ASSERTIONS
+  [ok ] AST assert count in this file = 0 (planted control: the counter sees 1)
+SELFTEST PASS (0 failed)
+   rc=0
+
+--- every instrument re-driven, python3 and python3 -O ---
+    exact          python3  SELFTEST PASS (0 failed)
+    exact          -O       SELFTEST PASS (0 failed)
+    analyse        python3  SELFTEST PASS (0 failed)
+    analyse        -O       SELFTEST PASS (0 failed)
+    build          python3  SELFTEST PASS (0 failed)
+    build          -O       SELFTEST PASS (0 failed)
+    mark_done      python3  SELFTEST PASS (0 failed)
+    mark_done      -O       SELFTEST PASS (0 failed)
+    sweep_wording  python3  SELFTEST PASS (0 failed)
+    sweep_wording  -O       SELFTEST PASS (0 failed)
+
+    71 distinct arms (exact 8, analyse 37, build 4, mark_done 11, sweep 11),
+    142 driven executions, 0 failures.
+
+--- freeze-set sha256 AFTER the 2h additions ---
+    build_t9aR1c.py            c4bf597a2ca2f876  167 lines
+    exact_t9aR1c.py            bea38debb333be86  283 lines
+    analyse_t9aR1c.py          ecd58da928dfc523  959 lines
+    mark_done_t9aR1c.py        4cd92f35813cef73  231 lines
+    run_one_t9aR1c.sh          f6ede1bb00cc52f2  206 lines
+    T9aR1c_registered.json     9ddbb818ce35e24a  294 lines
+    TWO MOVED: analyse_t9aR1c.py 9b5a3d0c -> ecd58da9 (939->959) and
+    T9aR1c_registered.json 6cb56312 -> 9ddbb818 (275->294).  The other four are
+    UNCHANGED from the 21:48:26Z recording -- a wording amendment must not have
+    touched the builder, the referent, the completion marker or the launcher.
+    NOT in the freeze set: sweep_wording_t9aR1c.py 43acd8e60ae5dc90 248 lines.

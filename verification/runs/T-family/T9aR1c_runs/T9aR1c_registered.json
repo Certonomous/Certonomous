@@ -1,0 +1,295 @@
+{
+  "rung": "T9a-R1c",
+  "title": "FLOOR DEMONSTRATION successor of T9a-R1b: the discretisation error in the interface-1 temperature is below X at the COARSEST level",
+  "status": "PROPOSED AND UNFROZEN -- no solver has run, no case directory holds 0/ or a time directory, and this file is not yet committed",
+  "predecessor": {
+    "rung": "T9a-R1b",
+    "cases": "W1b_c, W1b_m, W1b_f",
+    "record": "docs/campaigns/T-family/T9aR1b_RESULTS.md",
+    "ruling": "VERIFICATION_CHARTER.md section 2g (v1.16, 2026-08-27T19:51:42Z): the floor EXCEPTION to standing rule 5 that W1b's pre-registration froze is VOID, because rule 5's gate is one-way and a pre-registration cannot disapply a standing rule. Section 2g.3's diagnosis, adopted by the heat-transfer supervisor 2026-08-27T20:28:10Z: THE WRONG INSTRUMENT WAS REGISTERED, and the remedy is a floor demonstration with its own gate."
+  },
+  "parent": {
+    "rung": "T9a",
+    "freeze_sha": "0cbaea26573924a27d489a8472fad233e198ca6d",
+    "result": "GATE FAIL on R1, 2.41 mK against a 0.92 mK GCI band (T9a_RESULTS.md section 1.1)"
+  },
+  "capability_grid_cell": "conduction x laminar x 1D steady, layered wall",
+  "solver": "laplacianFoam",
+  "dimensionality": 1,
+  "ranks": 1,
+  "graded_level": "c",
+  "label_ceiling": "PASS",
+  "label_ceiling_ground": "RULED. VERIFICATION_CHARTER 2h (v1.17, commit 9fdb1d9f, 2026-08-27): PASS IS AVAILABLE to this floor limb. 2f.3 does not reach it -- 2f.3's own heading is 'THE CAP ATTACHES TO WHAT A LIMB CLAIMS', and a floor demonstration claims a property of THE DISCRETISATION, not of the continuum solution; 2f.3's ground ('discretisation error is not separable') is not merely absent but INVERTED, because the quantity it protects against is the quantity being reported. 2f.3's CONTINUUM default is RESIDUAL and governs UNCLASSIFIED limbs, while 2g.3 classifies this limb EXPRESSLY, and express beats residual -- so the two clauses never both applied. PASS is conditional on all five of 2h.4, declared before compute in T9aR1c_PREREGISTRATION.md section 3a. Condition 1 is load-bearing: if the reference were anything but the exact solution of the same continuum model, 2f.3's cap would apply in full and this field would revert to GATE REACHED.",
+  "roache_election": {
+    "declares_a_roache_triple": false,
+    "rule5_status": "limb (2), the triple-state gate, is UNREACHABLE and NOT WAIVED (charter 2f.2). Limb (1) -- a level not iteratively converged is NOT A RESULT -- applies IN FULL as gate (1) (charter 2f.7), BINDING on the level the graded row reads and EVALUATED AND REPORTED on the other levels, where it flags their REPORTED rows and touches no verdict. A level F1 does not read cannot decide F1; a level F1 does read cannot escape limb (1).",
+    "inadmissibility_is_a_model_form_fact": "For a three-layer plane wall in steady 1-D conduction with piecewise-constant k, the exact solution is PIECEWISE LINEAR and carries ONE flux. With harmonic face interpolation of DT the discrete face conductance IS the series conductance of the two half-cells, so the discrete solution reproduces the exact solution to round-off on EVERY mesh that resolves the layers. The discretisation error is therefore in the NULL SPACE of the scheme's truncation error, and a systematic-refinement triple has nothing to measure: e21 and e32 are both round-off and p = ln|e32/e21|/ln r is noise divided by noise. This is entailed by choices already frozen -- the layer table, the Dirichlet faces and the laplacianSchemes line -- and a reader can check it from those without running anything (charter 2f.4).",
+    "which_case_would_carry_a_triple": "T9a itself. Under the parent's `Gauss linear corrected` the face conductivity at each interface is the ARITHMETIC mean, the interface error is O(dx) and shrinks with refinement, and T9a MEASURED a CONVERGING triple with p = 1.738 on exactly this ladder. That is a DIFFERENT CASE, not this one refined (charter 2f.4's honest corollary).",
+    "prior_triple_disclosure": "A Roache triple WAS run on this case family and its result is disclosed here in full, whatever it said. T9a-R1b (W1b_c/W1b_m/W1b_f -- the same three levels, the same scheme, the same reader) returned state EXACT with e21 = -2.842e-13 K and e32 = 3.240e-12 K, no observed order defined, deviation 2.899e-12 K. Verification section 2g refused the floor exception that graded that triple PASS. The election here is NOT selection by outcome: the ground is 2g.3's own diagnosis that the wrong instrument was registered, and the discarded arm is on the record with its numbers (charter 2f.5)."
+  },
+  "wall": {
+    "layers": [
+      {
+        "L": 0.05,
+        "k": 0.8
+      },
+      {
+        "L": 0.1,
+        "k": 0.04
+      },
+      {
+        "L": 0.02,
+        "k": 16.0
+      }
+    ],
+    "T_hot": 350.0,
+    "T_cold": 300.0,
+    "interfaces_x": [
+      0.05,
+      0.15
+    ]
+  },
+  "referent": {
+    "module": "exact_t9aR1c.py",
+    "routes": "TWO independent derivations: (A) the closed-form series resistance; (B) flux continuity as a 2x2 linear system solved by general Gaussian elimination with partial pivoting, which never forms R_tot. Required to agree to 1e-12 RELATIVE or the module REFUSES.",
+    "external_cross_check_rung": "T9a",
+    "external_cross_check_source": "docs/campaigns/T-family/T9a_RESULTS.md section 1 table and section 1.1",
+    "external_cross_check_values": {
+      "T_i1_K": 348.781082,
+      "q_W_per_m2": 19.502682,
+      "drop_layer1_K": 1.218918,
+      "drop_layer3_K": 0.024378
+    },
+    "external_cross_check_tol_abs": 1e-06,
+    "external_cross_check_tol_ground": "the precision to which T9a's record states these numbers (six decimal places), not a tolerance chosen to pass",
+    "derived_values": {
+      "T_i1_K": 348.7810823988298,
+      "T_i2_K": 300.0243783520234,
+      "q_W_per_m2": 19.502681618722573,
+      "R_tot_m2K_per_W": 2.56375
+    }
+  },
+  "rows": {
+    "F1": {
+      "claim_class": "FLOOR_DEMONSTRATION",
+      "quantity": "|T_i1 - T_i1_exact| at the COARSEST registered level W1c_c, where T_i1 is the interface-1 temperature read as the conductance-weighted mean of the two cells adjacent to the interface face (the parent's reader form, analyse_t9a.measure_wall.iface_T)",
+      "level": "c",
+      "floor_K": 0.0001,
+      "floor_symbol": "X",
+      "floor_inclusive": true,
+      "gate_sentence": "At the coarsest registered level W1c_c, WHICH IS 35 CELLS, the DISCRETISATION ERROR in the interface-1 temperature IS BELOW X = 1.0e-04 K: |T_i1(W1c_c) - T_i1_exact| <= 1.0e-04 K. PASS inside; GATE FAIL outside. The claim is bounded by the mesh actually run: it is a statement about 35 cells, and about no finer mesh. It is NOT a claim that the solution is correct to X, and it is NOT a claim that the answer does not depend on the mesh -- establishing behaviour ACROSS meshes is what a Roache triple is for, and this instrument deliberately has none. No observed order, no GCI, no Richardson extrapolate and no Roache triple is computed anywhere in the comparator.",
+      "floor_justification": {
+        "upper_bound_decision_magnitude_K": 0.00092,
+        "upper_bound_source": "T9a's registered R1 GCI band, 0.92 mK (T9a_RESULTS.md section 1 table). The band the lab itself fixed, in 2026-08-20's registration, as the size of error that DECIDES this quantity. X sits 9.2x below it.",
+        "discrimination_magnitude_K": 0.00543,
+        "discrimination_source": "T9a's own COARSEST level under the parent's `Gauss linear corrected` scheme deviates -5.43 mK from exact (T9a_RESULTS.md section 1.1: the three levels are off by -5.43 / -3.33 / -2.41 mK). X sits 54.3x below that, so the PARENT'S REGISTERED SCHEME GATE FAILS THIS GATE AT THIS VERY LEVEL, measured and on the record.",
+        "lower_bound_referent_precision_K": 1e-06,
+        "lower_bound_source": "T9a states the referent to six decimal places (348.781082 K), so the cross-check itself is only good to ~1e-06 K. X is 100x above that: the demonstration does not claim more precision than the referent it is checked against carries.",
+        "physical_significance": "The layer-1 temperature drop this row sits inside is 1.218918 K and the wall's total drop is 50 K, so X is 8.2e-05 of the local drop and 2.0e-06 of the total. Downstream, on the DC-cooling spine this rung is the conjugate entry to, the interface temperatures it feeds carry design margins of order 1 K and instrument resolutions of order 0.01-0.1 K; X is at least three orders below anything a DC-cooling conclusion could turn on.",
+        "chosen": "X = 1.0e-04 K is the round decade lying one order below the decision magnitude, inside the window [1e-06, 9.2e-04] K that the three sources above fix. Every number used to fix it was registered in T9a's record on 2026-08-20/22, before W1b was built.",
+        "independence_disclosure": "THE LANE THAT WROTE THIS KNEW W1b's MEASURED 2.899e-12 K. X is not a function of it: the window and the decade were fixed from T9a's three registered numbers alone, and a reader can check that by arithmetic. The falsifiability statement: had this case returned 5e-04 K, X = 1.0e-04 K would GATE FAIL it; had it returned 2.9e-05 K, X would pass it. X is therefore not a threshold drawn around a known answer."
+      },
+      "identity_test_charter_2a": {
+        "what_makes_it_FAIL": "|T_i1(W1c_c) - exact| > 1.0e-04 K. Not hypothetical: the parent's own registered scheme measures 5.43e-03 K at this level, 54x above the floor.",
+        "could_a_wrong_treatment_still_PASS": "YES, and the ways are named rather than denied. A treatment wrong about anything this row does not read passes it: interface 2, the fin rows, the transient path, 2-D or 3-D conduction, or any error that happens to vanish at interface 1 while being large elsewhere in the wall. What is gated against: C_MAP (every cell's DT against the layer map), C_SCHEME (the harmonic line on disk), gate (1) (iterative plateau), the age guard, and the four-arm planted-zero control. What is carried as REPORTED rather than gated, precisely so a reader can see the part the gate does not cover: N4 (interface 2), N3 (hot-face flux) and N2 (the mesh-family spread)."
+      },
+      "wording_condition_2h4": "VERIFICATION_CHARTER 2h.4(4) and 2h.4(5) are WORDING conditions and no machine check discharges them -- the AST guard C_NOTRIPLE proves the ABSENCE OF A TRIPLE, not the wording of the claim, and 2h.5 says so in terms. The sentence above reads 'the discretisation error is below X at N cells' with N stated (35), never 'the solution is correct to X'. The phrase 'so the answer does not depend on the mesh at the resolution that matters' appeared in 2g.3's own drafting, was carried verbatim into this registration's v1.0 draft, and was STRUCK throughout on 2026-08-27 under 2h.4(5), which narrowed 2g.3 against verification's own words.",
+      "roundoff_condition_2h4_3": {
+        "requirement": "VERIFICATION_CHARTER 2h.4(3): round-off is stated WITH ITS MAGNITUDE and shown negligible against the band -- a number, not an assurance. A floor demonstration whose floor is not shown to sit above the arithmetic noise is asserting the thing it exists to measure.",
+        "unit_roundoff_binary64": 1.1102230246251565e-16,
+        "ulp_at_350K_K": 5.684341886080802e-14,
+        "ulp_derivation": "IEEE-754 binary64; 350 K lies in [2^8, 2^9), so ulp = 2^(8-52) = 2^-44 K. OpenFOAM is built double precision here and the case writes writePrecision 16.",
+        "measured_e21_K": 2.842e-13,
+        "measured_e21_ulp": 5.0,
+        "measured_e32_K": 3.24e-12,
+        "measured_e32_ulp": 57.0,
+        "measured_source": "T9a-R1b's graded run on byte-identical inputs (T9aR1b_RESULTS.md section 5): the level-to-level differences of T_i1, which are pure arithmetic noise because the harmonic scheme carries no discretisation error to distinguish the levels by. W1b's checkpoint move between times 900 and 1000 measured 0.000e+00 K exactly.",
+        "binding_roundoff_magnitude_K": 3.24e-12,
+        "binding_choice": "the LARGEST measured figure is used, not the ulp, because using the larger is conservative for a claim that the floor sits above the noise.",
+        "band_over_roundoff": 30864197.530864194,
+        "orders_of_margin_vs_binding": 7.49,
+        "orders_of_margin_vs_ulp": 9.25,
+        "verdict": "CONDITION 3 MET: the band 1.0e-04 K sits 7.49 orders above the largest measured round-off figure and 9.25 orders above the representation granularity at the operating magnitude.",
+        "correction_to_the_expectation": "The referral expected '~12 orders down'. The arithmetic gives 7.49 orders against the binding measured figure and 9.25 against the ulp. The condition is met either way, and the smaller true number is recorded rather than the larger expected one."
+      }
+    },
+    "N1": {
+      "claim_class": "REPORTED",
+      "quantity": "|T_i1 - T_i1_exact| at all three levels. No verdict is written for this row."
+    },
+    "N2": {
+      "claim_class": "REPORTED",
+      "quantity": "the mesh-family SPREAD, max - min of T_i1 over the three levels built. A BOUND on observed variation over the meshes actually built (charter 2f.6). It is NOT an error estimate, NOT extrapolated, and it is NOT a GCI and NOT an observed order. No verdict is written for this row."
+    },
+    "N3": {
+      "claim_class": "REPORTED",
+      "quantity": "hot-face flux q_hot, relative deviation from the exact series-resistance q, at all three levels. No verdict is written for this row."
+    },
+    "N4": {
+      "claim_class": "REPORTED",
+      "quantity": "|T_i2 - T_i2_exact| at all three levels -- the SECOND interface, which the graded row does not read. Carried because charter 2a's second question has a yes answer and this is one of the channels that lets a reader see it. No verdict is written for this row."
+    }
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "gate (1), standing rule 5 limb (1): an End line in log.solve, and the last two written checkpoints (900, 1000) agree in T to the floor. BINDING on the graded level W1c_c -- F1 is NOT A RESULT if it fails there. EVALUATED AND REPORTED on W1c_m and W1c_f, where it flags their REPORTED rows and touches no verdict.",
+      "floor": 1e-09,
+      "ground": "the parent's checkpoint form (L-140/L-141); charter 2f.7 makes limb (1) the only convergence gate a no-triple family has left, and not optional"
+    },
+    "C_MAP": {
+      "what": "every cell's DT equals the registered layer conductivity for its centre position; a mismatch is exit 2, never a note"
+    },
+    "C_SCHEME": {
+      "what": "CASE.txt and system/fvSchemes on disk both carry the registered scheme; the parent's linear line is REFUSED",
+      "required_line": "Gauss harmonic corrected"
+    },
+    "C_REF": {
+      "what": "the two-route referent and its four external cross-checks against T9a's registered numbers; disagreement is exit 2"
+    },
+    "C_CLASS": {
+      "what": "every registered row carries a claim_class, and the only admissible classes are FLOOR_DEMONSTRATION and REPORTED. A row registered with any other class -- in particular any row claiming a grid-convergence property -- is REFUSED, because this comparator has no rule 5 triple gate to route it through. Exactly one FLOOR_DEMONSTRATION row is admissible."
+    },
+    "C_NOTRIPLE": {
+      "what": "an AST scan of the comparator itself, blind to comments and docstrings, refusing if it refers to gci / gci_equal / gci_unequal / refinement_ratio / richardson / observed_order / GCI_abs / GCI_pct / grade_triple / triple_of / p_observed / roache_gate, and requiring that the ONLY name imported from scripts/roache_triple.py is PLANT. Driven with a planted call, so the scanner is shown able to see one."
+    },
+    "C_PZ": {
+      "what": "the planted-zero control, standing rule 3, FOUR ARMS: N two reads of identical bytes must be bit-identical; P1 the registered plant into the reader's own stencil cell on a measured ladder, refusing a blind reader or a read below 0.1 x plant; P2 a PERMUTATION plant that SWAPS the two stencil values so that no value in the file changes and only their ORDER does, refusing an ORDER-BLIND reader; P3 the registered plant into a far cell in layer 3 outside the stencil, which must move the read by EXACTLY zero, refusing a reader that has become a whole-field statistic.",
+      "plant_K": "scripts/roache_triple.PLANT, imported by name (1.234e-03)",
+      "visibility_floor_K": 1e-06,
+      "why_P2_is_adequate": "A floor demonstration is a claim that a number is SMALL, which is the claim class most easily produced by a reader that cannot see. A plant carrying the same form the reader is already written for proves only that the reader is not blind TO THAT FORM. P2 changes NO VALUE in the file -- it changes only the order of two of them -- so every value-based-but-position-blind failure (a drifted index, a cached constant, a block sum or mean) reads exactly the same number before and after and is refused. That failure class is invisible to P1 by construction."
+    }
+  },
+  "cases": {
+    "W1c_c": {
+      "level": "c",
+      "parent_case": "W_c",
+      "cells_per_layer": [
+        10,
+        20,
+        5
+      ],
+      "cells": 35,
+      "endTime": 1000,
+      "deltaT": 1,
+      "cap_core_min": 1,
+      "timeout_s": 60,
+      "point_core_min_executiontime_basis": 0.000833,
+      "point_core_min_wall_basis": 0.0015
+    },
+    "W1c_m": {
+      "level": "m",
+      "parent_case": "W_m",
+      "cells_per_layer": [
+        16,
+        32,
+        8
+      ],
+      "cells": 56,
+      "endTime": 1000,
+      "deltaT": 1,
+      "cap_core_min": 1,
+      "timeout_s": 60,
+      "point_core_min_executiontime_basis": 0.000833,
+      "point_core_min_wall_basis": 0.0015
+    },
+    "W1c_f": {
+      "level": "f",
+      "parent_case": "W_f",
+      "cells_per_layer": [
+        26,
+        51,
+        13
+      ],
+      "cells": 90,
+      "endTime": 1000,
+      "deltaT": 1,
+      "cap_core_min": 1,
+      "timeout_s": 60,
+      "point_core_min_executiontime_basis": 0.001,
+      "point_core_min_wall_basis": 0.0015
+    }
+  },
+  "predictions": {
+    "P1": "F1: |T_i1(W1c_c) - exact| < 1e-06 K, two orders inside the registered floor X. Loses if the measurement lands anywhere in [1e-06, 1e-04) K, which would still be a PASS -- so this prediction can lose without the gate losing, which is the point of stating it separately.",
+    "P2": "the ratio |dev(W1c_c)| / 5.43e-03 K -- this rung's coarsest-level error against the parent scheme's measured coarsest-level error -- is below 1e-04, i.e. the registered scheme beats the parent's by at least four orders at the same resolution.",
+    "P3": "N3: |q_hot/q_exact - 1| < 1e-09 at every level (T9a's 1.8 percent linear-scheme excess has vanished).",
+    "P4": "N2: the mesh-family spread is below 1e-08 K.",
+    "P5": "N4: |T_i2 - exact| < 1e-06 K at every level.",
+    "P6": "gate (1) holds at every level: the last two checkpoints agree in T to better than 1e-09 K."
+  },
+  "cost": {
+    "primary_basis": "ExecutionTime, per level",
+    "primary_basis_ground": "T9aR1b_RESULTS.md section 8's transferable finding, adopted here before compute: below about one wall-second per case the registered core-minute basis (wall_s x ranks / 60) cannot resolve the spend and returns 0, and a 0 there means 'too small to measure', NOT 'free'. W1b's calibration row therefore carried no ratio on the wall basis. This rung registers ExecutionTime as its primary cost basis UP FRONT so its calibration row can carry one.",
+    "per_level_pricing_ground": "EACH LEVEL IS PRICED SEPARATELY from its own measured rate. A single flat per-cell-iteration rate across a mesh family is a measured defect, not a simplification: T16 (2026-08-27) priced three levels from one flat 3.8932e-06 core-s per cell-iteration and measured 2.8890e-06 at coarse and 6.4883e-06 at medium -- a 2.246x rise for a 4x cell count, giving TWO OPPOSITE errors out of one registration (0.742x over-priced, 1.667x under-priced) which is why they did not cancel and why nobody saw it until the actuals arrived.",
+    "rate_source": "T9a-R1b MEASURED solver ExecutionTime, per level, on THESE EXACT CASES: W1b_c 0.05 s, W1b_m 0.05 s, W1b_f 0.06 s at 1000 iterations serial (T9aR1b_RESULTS.md section 2). This rung does not borrow another family's exponent: it has a direct measurement at every level it will run.",
+    "measured_per_cell_iteration_core_s": {
+      "W1c_c": 1.4286e-06,
+      "W1c_m": 8.9286e-07,
+      "W1c_f": 6.6667e-07
+    },
+    "measured_scaling_exponent": {
+      "total_time_vs_cells": 0.193,
+      "per_cell_iteration_rate_vs_cells": -0.807,
+      "arithmetic": "c -> f is 35 -> 90 cells (2.5714x) for 0.05 -> 0.06 s (1.2x). ln(1.2)/ln(2.5714) = 0.193 on total time; the per-cell-iteration rate therefore falls as N^-0.807 (0.193 - 1). The rate FALLS with size here, the OPPOSITE sign to T16's +0.584, because at 35-90 cells the run is dominated by process start-up and field I/O rather than by the linear algebra.",
+      "assumption_and_its_failure_mode": "The exponent is an ASSUMPTION about a case size this rung has never run at more than 90 cells, and it is stated so a reader can attack it. If it is wrong the consequence is bounded and named: the cap headroom is 1200x at the coarse level (60 s cap against 0.05 s measured) and 1000x at the fine. Priced at T16's much steeper total exponent of 1.584 the fine level would take 0.223 s, still 269x inside its cap; at a pathological N^3.0 it would take 0.85 s, still 70x inside it. The exponent would have to be wrong by three orders before any cap bound. AND -- the point that matters most -- because this rung is DECOUPLED, a capped or mispriced W1c_m or W1c_f cannot make it ungradeable: F1 reads W1c_c alone. The T16 failure mode is structurally absent here, not merely unlikely."
+    },
+    "point_core_min_per_level_executiontime_basis": {
+      "W1c_c": 0.000833,
+      "W1c_m": 0.000833,
+      "W1c_f": 0.001
+    },
+    "point_total_core_min_executiontime_basis": 0.002667,
+    "point_total_core_min_wall_basis": 0.0045,
+    "point_source_wall": "T9a MEASURED wall 0.09 s per level (STATUS.W_c, STATUS.W_f, 2026-08-20), carried for continuity with W1b's registration; expected to read 0.000 again at this case size",
+    "cap_per_level_core_min": 1,
+    "cap_total_core_min": 3,
+    "cap_enforcement": "THE LAUNCHER'S `timeout` WRAPPER IS THE ONLY THING THAT STOPS THIS RUN. scripts/queue_runner.py REPORTS a cap overrun and does NOT kill (measured lab-wide 2026-08-27; runner-side enforcement is being pre-registered separately by cfd on the chief's order). So the cap binds only through the arithmetic timeout_s = cap_core_min * 60 / ranks = 1 * 60 / 1 = 60 s, and run_one_t9aR1c.sh REFUSES at pre-flight if the registered timeout_s does not equal it, and REFUSES a --timeout that is not equal to the registered timeout_s. Both refusals are DRIVEN on scratch in T9aR1c_SELFTEST_EVIDENCE.txt. A cap nothing enforces is not a cap.",
+    "usd_per_core_h": 0.0513,
+    "usd_point_per_level_executiontime_basis": {
+      "W1c_c": 7.125e-07,
+      "W1c_m": 7.125e-07,
+      "W1c_f": 8.55e-07
+    },
+    "usd_point_total_executiontime_basis": 2.28e-06,
+    "usd_point_total_wall_basis": 3.85e-06,
+    "usd_cap": 0.002565,
+    "usd_basis": "DERIVED, NOT MEASURED. The box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5), and the rate is owner-stated (Sanaa 2026-08-21/22, corroborated at Xiao2016_EnKF/PREREGISTRATION.md:197), so every dollar figure here is derived at that rate and reported-by-owner.",
+    "calibration": "At completion the actual is stated on the ExecutionTime basis with the ratio actual/predicted, the wall basis is reported as UNRESOLVED rather than as 0.000, and the row lands in docs/COST_CALIBRATION.md (CLAUDE.md rule 12). The comparison is made PER LEVEL, not as one rung-wide ratio, because a rung-wide ratio is exactly what hid T16's two opposite errors."
+  },
+  "completion": {
+    "instrument": "mark_done_t9aR1c.py",
+    "needed_fields": [
+      "T",
+      "DT"
+    ],
+    "conjuncts": "rc == 0; an End line; last written time == endTime; T and DT present at that time; ExecutionTime line count == endTime/deltaT; and every needed field at endTime NEWER than the case's own 0/T (the age guard). All-or-nothing (CLAUDE.md rule 4, T1b_L4_AMENDMENT section 7). An absent STATUS file is a REFUSAL, never an inference from an End line.",
+    "infrastructure_fields": [
+      "wall_s",
+      "timeout_s",
+      "ranks",
+      "core_min",
+      "capped",
+      "checkmesh_rc",
+      "solver",
+      "solver_path",
+      "note",
+      "started_utc",
+      "ended_utc"
+    ],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342). The ExecutionTime-count conjunct is carried UNWEAKENED because CLAUDE.md rule 4 lists it; T9aR1b_RESULTS.md section 3 records that docs/L342_GRADER_AUDIT.md classifies it CONFLATED, and that tension is referred to the verification supervisor and is not resolved by this rung."
+  },
+  "launcher": {
+    "file": "run_one_t9aR1c.sh",
+    "guard": "lineage-aware foreign-process scan (9fa66065), inherited through run_one_t9aR1b.sh from run_one_t14.sh",
+    "queue_mode": "--no-detach",
+    "preflight": "refuses a case that already holds 0/ or any numeric time directory, so the age guard can always be evaluated"
+  },
+  "decoupling": {
+    "rule": "The graded row F1 reads ONE level (W1c_c) and no other. W1c_m and W1c_f are OPTIONAL EVIDENCE LEVELS feeding REPORTED rows only. A level that is capped, crashed, mispriced or not run is recorded as such and CANNOT touch F1's verdict: there is NO all-or-none coupling in this rung.",
+    "why": "Measured exposure, T16, 2026-08-27: one flat per-cell-iteration rate over-priced its coarse level 0.742x and under-priced its medium level 1.667x, and its fine level is now priced from that same flat rate at POINT 1063 / CEILING 1604 / CAP 2400 core-min against an actual of roughly 1772 at the medium level's measured rate. On an all-or-none comparator one capped level makes the whole rung ungradeable, and T16's cap is unfixable because its first compute has closed rule 2. A floor demonstration does not need a triple and therefore does not need every level, so it should not be built to require them.",
+    "mandatory": "DONE.W1c_c. Its absence is a REFUSAL.",
+    "optional": "DONE.W1c_m, DONE.W1c_f. Absence is REPORTED as NOT RUN / RAN_NOT_COMPLETE and is never fatal.",
+    "anti_cherry_pick": "Every level whose DONE marker exists IS READ; the comparator cannot be told to skip one. A level with a STATUS file and no DONE marker is recorded RAN_NOT_COMPLETE. A level holding a written time directory and NO STATUS file is a REFUSAL (K0d L1), so a level cannot be dropped from the record by removing its markers.",
+    "gate1_scope": "Standing rule 5 limb (1) is BINDING on the graded level and EVALUATED AND REPORTED on the others, where it flags their REPORTED rows and touches no verdict."
+  }
+}
