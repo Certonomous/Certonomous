@@ -140,6 +140,7 @@ class Mutations(NamedTuple):
     manifest_exempts_logs: bool = False      # the defect the spec FORBIDS
     disable_runs_exemption: bool = False     # AMENDMENT 1 (d), shown load-bearing
     widen_merge_carveout: bool = False       # AMENDMENT 2: carve-out on ANY parent count
+    disable_logs_runs_exemption: bool = False   # AMENDMENT 3, shown load-bearing
 
 
 CLEAN = Mutations()
@@ -166,7 +167,35 @@ def _git(args, cwd):
 # Path predicates. Each is the spec's pattern list and nothing more.
 # ---------------------------------------------------------------------------
 
-def is_log_path(path):
+# AMENDMENT 3, 2026-08-27. cfd-supervisor is the named Owner of the spec; the
+# change is the Owner's, not the implementer's. SANAA APPROVED IT at 8ed55f26
+# (docs/LAB_STATE.md, CHIEF section), in her ruling's words: verification/runs/**
+# /log.* is EXEMPT from the LOGS clause; BYTES (5,000,000) and COUNT (50) keep
+# catching bulk.
+#
+# THE MEASUREMENT THAT EARNED IT is cfd's own, boarded at 532da5d9 and recorded
+# in AMENDMENT 2 (1) of docs/standards/COMMIT_SIZE_GUARD.md: on 200 real commits
+# LOGS scored 0 TRUE POSITIVES and 14 FALSE POSITIVES. Zero of the 14 carried a
+# single log path OUTSIDE verification/runs/ -- every firing was correctly filed
+# run output. The archetype 05241ab2 is a TRUE positive on BYTES (276,711,923
+# added bytes) and a FALSE one on LOGS: its defect was never that a log was in
+# git, it was 276.7 MB of it. And these logs are what the lab's own records
+# cite -- CLAUDE.md standing rule 4's completion evidence (rc = 0, an `End`
+# line, last time == endTime, an ExecutionTime count == endTime) is READ FROM
+# the solver log, so evicting solver logs from git would make the lab's own
+# completion rule unverifiable from the repository.
+#
+# WHAT IS NOT CHANGED, and is proven not changed by controls L3b/L3c/L3d below:
+# LOGS is STILL NOT EXEMPTIBLE BY MANIFEST; it still fires on every log path
+# outside a run tree; and BYTES and COUNT are untouched and still fire on the
+# very same run-tree paths, so the exemption did not open a bulk hole.
+#
+# The prefix test is the SAME RUN_TREE_PREFIX constant AMENDMENT 1 (d) uses,
+# defined a few lines below (resolved at call time, not at def time). One
+# constant deliberately: two prefix tests would be two exemptions drifting apart.
+def is_log_path(path, mut=None):
+    if path.startswith(RUN_TREE_PREFIX) and not (mut and mut.disable_logs_runs_exemption):
+        return False                       # AMENDMENT 3: filed run outputs
     base = path.rsplit("/", 1)[-1]
     return any(fnmatch.fnmatchcase(base, pat) for pat in LOG_BASENAME_PATTERNS)
 
@@ -325,7 +354,7 @@ def evaluate(changes, manifest_texts=None, mut=CLEAN, meta=None):
                 % (total_added, BYTES_MAX))
 
     # --- LOGS -- NOT EXEMPTIBLE BY MANIFEST -------------------------------
-    logs = sorted(c.path for c in live if is_log_path(c.path))
+    logs = sorted(c.path for c in live if is_log_path(c.path, mut))
     if logs and not mut.disable_logs:
         exempt = has_manifest and mut.manifest_exempts_logs
         if exempt:
@@ -333,11 +362,14 @@ def evaluate(changes, manifest_texts=None, mut=CLEAN, meta=None):
                          "SPEC FORBIDS and exists here only as a selftest mutant.")
         else:
             findings.append(
-                "LOGS: %d path(s) match log.* / */log.* / *.log and logs stay out "
-                "of git (Sanaa section 1). A MANIFEST DOES NOT EXEMPT THIS: a "
-                "manifest explains bulk, it does not make a solver log a "
-                "repository artifact. File the log by digest outside git. "
-                "First 5: %s" % (len(logs), logs[:5]))
+                "LOGS: %d path(s) match log.* / */log.* / *.log OUTSIDE "
+                "verification/runs/ , and logs stay out of git (Sanaa section 1). "
+                "A MANIFEST DOES NOT EXEMPT THIS: a manifest explains bulk, it "
+                "does not make a solver log a repository artifact. File the log "
+                "by digest outside git. Paths UNDER verification/runs/ are EXEMPT "
+                "(AMENDMENT 3, approved by Sanaa at 8ed55f26 on a measured 0 true "
+                "/ 14 false split over 200 commits); BYTES and COUNT still catch "
+                "bulk there. First 5: %s" % (len(logs), logs[:5]))
 
     # --- ATTEMPT -- NOT EXEMPTIBLE BY MANIFEST ----------------------------
     att = sorted(c.path for c in live if is_attempt_path(c.path, mut))
@@ -528,7 +560,7 @@ def selftest():
         problems.append("CONTROL FAILED (git allowlist): `git add -A` was not refused.")
 
     # --- 0d: the CLI never constructs a mutation --------------------------
-    if CLEAN != Mutations(False, False, False, False, False, False, False):
+    if CLEAN != Mutations(False, False, False, False, False, False, False, False):
         problems.append("CONTROL FAILED (mutations): CLEAN is not all-False.")
     elif src.count("mut=CLEAN") < 1 or "Mutations(" not in src:
         problems.append("CONTROL FAILED (mutations): mutation plumbing not as claimed.")
@@ -547,8 +579,23 @@ def selftest():
     c2 = files(51, 10)                                      # 51 files
     c3 = [Change("cases/X/big.dat", "A", BYTES_MAX + 1, 0)]  # 5 MB + 1 byte
     c4 = files(51, 10) + [Change(MAN, "A", len(man_text), 0)]
-    c5 = [Change("verification/runs/X/log.solve", "A", 100, 0)]
+    # AMENDMENT 3 CHANGES THESE TWO CONTROLS' TREES, DECLARED NOT SLID IN. The
+    # frozen spec's control table wrote control 5 as
+    # `verification/runs/X/log.solve` -> refuse LOGS and control 6 as the same
+    # path WITH a manifest -> refuse LOGS anyway. That exact tree is now the
+    # ACCEPTING control L3a: the amendment IS the flip. Controls 5 and 6 keep
+    # their PURPOSE -- LOGS fires, and a manifest does not exempt it -- by moving
+    # to a path outside a run tree, where the clause still has all its teeth.
+    # The expectation was not edited to fit; the tree was moved and the old tree
+    # is retained below with its new, opposite expectation asserted.
+    c5 = [Change("cases/X/log.solve", "A", 100, 0)]
     c6 = list(c5) + [Change(MAN, "A", len(man_text), 0)]
+    # AMENDMENT 3 controls. L3a is the pre-amendment control-5 tree, verbatim.
+    c5r = [Change("verification/runs/X/log.solve", "A", 100, 0)]
+    c5o = [Change("cases/F27_WOMERSLEY_PIPE/log.solve", "A", 100, 0)]
+    c5b = [Change("verification/runs/X/log.solve", "A", 40_000_000, 0)]
+    c5n = [Change("verification/runs/X/S%03d/log.solve" % i, "A", 100, 0)
+           for i in range(51)]
     c7 = [Change("cases/X/attempt3/case.foam", "A", 100, 0)]
     # AMENDMENT 1 (c): a HIDDEN attempt directory is still an attempt directory.
     c7d = [Change("cases/X/.attempt1_stale/S_KE_x/0/T", "A", 100, 0)]
@@ -569,6 +616,17 @@ def selftest():
          c7d, {}, {"ATTEMPT"}, False),
         ("control 7r AMENDMENT 1(d)  attempt3_Re936k/ UNDER verification/runs/",
          c7r, {}, set(), True),
+        ("control L3a AMENDMENT 3  verification/runs/X/log.solve ALONE "
+         "(this is the pre-amendment control-5 tree; it REFUSED LOGS before)",
+         c5r, {}, set(), True),
+        ("control L3b AMENDMENT 3  the SAME basename outside a run tree, "
+         "cases/F27_WOMERSLEY_PIPE/log.solve", c5o, {}, {"LOGS"}, False),
+        ("control L3c AMENDMENT 3  40 MB verification/runs/X/log.solve, NO "
+         "manifest -- the exemption must not open a bulk hole",
+         c5b, {}, {"BYTES"}, False),
+        ("control L3d AMENDMENT 3  51 exempt run-tree log.solve paths, NO "
+         "manifest -- COUNT is untouched and still catches bulk",
+         c5n, {}, {"COUNT"}, False),
     ]
     for name, ch, mt, want, accept in table:
         f, _ = evaluate(ch, mt)
@@ -600,10 +658,23 @@ def selftest():
         mts = manifest_texts_from_tree(real, named, root)
         f, notes = evaluate(real, mts)
         got = {x.split(":", 1)[0] for x in f}
-        if not {"COUNT", "LOGS"} <= got:
-            problems.append("CONTROL 8 FAILED: %s must refuse COUNT + LOGS; got %s. "
-                            "It is the measurement that sized the thresholds."
+        # AMENDMENT 3 CHANGES THIS EXPECTATION, DECLARED NOT SLID IN. Before:
+        # {COUNT, LOGS} <= got. All 28 of this commit's log paths sit under
+        # verification/runs/ (measured), so LOGS no longer fires on it -- which
+        # is the amendment's own evidentiary basis: 05241ab2 was a TRUE positive
+        # on BYTES (276.7 MB), a FALSE one on LOGS. The control is STRENGTHENED,
+        # not weakened: BYTES is now asserted where it was previously unasserted,
+        # and the archetype must still refuse.
+        if not {"COUNT", "BYTES"} <= got:
+            problems.append("CONTROL 8 FAILED: %s must refuse COUNT + BYTES; got %s. "
+                            "It is the measurement that sized the thresholds, and "
+                            "AMENDMENT 3 rests on it being a BYTES catch."
                             % (named, sorted(got)))
+        elif "LOGS" in got:
+            problems.append("CONTROL 8 FAILED: %s still refuses LOGS, but all 28 of "
+                            "its log paths are under verification/runs/ and "
+                            "AMENDMENT 3 exempts them. The exemption is not reaching "
+                            "the real git adapter." % named)
         else:
             live = [c for c in real if c.status in ("A", "M")]
             lines.append("CONTROL 8 FIRED (%s replayed through the real git "
@@ -648,6 +719,22 @@ def selftest():
                      "ATTEMPT, so AMENDMENT 1(d) is load-bearing and is the only "
                      "thing standing between this guard and refusing every "
                      "legitimate re-attempt the lab files.")
+
+    # AMENDMENT 3 is an EXEMPTION, so its planted failure runs the OTHER way,
+    # exactly as AMENDMENT 1 (d)'s does: removing it must make an ACCEPTING
+    # control REFUSE. An exemption that cannot be shown to change an outcome is
+    # not known to be doing anything.
+    fl, _ = evaluate(c5r, {}, Mutations(disable_logs_runs_exemption=True))
+    if "LOGS" not in {x.split(":", 1)[0] for x in fl}:
+        problems.append("PLANT DID NOT FLIP (remove the verification/runs/ LOGS "
+                        "exemption): control L3a stayed ACCEPTED, so the exemption "
+                        "is not what is accepting it and AMENDMENT 3 is unproven.")
+    else:
+        lines.append("PLANT FLIPPED control L3a (remove the verification/runs/ LOGS "
+                     "exemption): the filed solver log became REFUSED under LOGS, "
+                     "so AMENDMENT 3 is load-bearing -- and it is the only thing "
+                     "standing between this guard and a clause measured at 0 true "
+                     "/ 14 false on 200 real commits.")
 
     # ...and the SHIPPED code must not be any of the mutants.
     f6, _ = evaluate(c6, mtx)

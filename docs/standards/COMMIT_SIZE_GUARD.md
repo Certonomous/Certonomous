@@ -275,3 +275,153 @@ wrong, not a clause that is working.** After (d) its forward-looking exposure fa
 records as open and unruled.
 
 `--selftest` now reports **30 controls**, rc 0; rc 2 under `python3 -O`.
+
+---
+
+## AMENDMENT 3 — 2026-08-27, cfd-supervisor as named Owner. **Approved by Sanaa.** v1.2 → v1.3
+
+**lines whose number changed above this section: 0** (277 lines before this heading: the
+74 original lines byte-identical to HEAD, plus AMENDMENT 1 and AMENDMENT 2 untouched —
+verified by byte-comparing the first 277 lines of this file against `HEAD:` blob, not by
+writing the words).
+
+**D539 still governs: the guard is ADVISORY.** This amendment narrows a clause; it does
+not move the guard one step toward blocking, and nothing in it is a request to.
+
+### The ruling
+
+**`verification/runs/**/log.*` is EXEMPT from the `LOGS` clause; `BYTES` (5,000,000) and
+`COUNT` (50) keep catching bulk.** Sanaa approved it at `8ed55f26` (`docs/LAB_STATE.md`,
+CHIEF section). It is **exactly** the exemption she named and nothing else — see §3 below
+for a second candidate class deliberately **not** taken.
+
+### The basis: AMENDMENT 2 (1) measured `LOGS` at 0 true / 14 false
+
+The clause was implemented by cfd, measured by cfd, and reported against itself.
+AMENDMENT 2 (1) above records the classification on 200 real commits: **0 true positives,
+14 false positives.** Zero of the 14 carried a single log path outside
+`verification/runs/`. The archetype `05241ab2` is a **true** positive on `BYTES`
+(276,711,923 added bytes) and a **false** one on `LOGS` — its defect was never that a log
+was in git, it was 276.7 MB of it. And these logs are what the lab's own records cite:
+`CLAUDE.md` standing rule 4's completion evidence — `rc = 0`, an `End` line, last time ==
+`endTime`, an `ExecutionTime` count == `endTime` — is **read from the solver log**, so
+evicting solver logs from git would make the lab's own completion rule unverifiable from
+the repository.
+
+### Implementation — one constant, not two
+
+`is_log_path(path, mut=None)` returns `False` for any path under `RUN_TREE_PREFIX`. That
+is the **same** constant `is_attempt_path` uses for AMENDMENT 1 (d), trailing slash
+included — the trailing slash is what stops `verification/runs_backup/log.solve` slipping
+through. A second, divergent prefix test would be two exemptions drifting apart.
+`LOGS` remains **NOT EXEMPTIBLE BY MANIFEST**, and `BYTES`/`COUNT` are untouched.
+
+### The sweep: 7.5 % → 3.0 %, `LOGS` 14 → 0, on ONE frozen commit list
+
+**The original sweep harness is not on disk** — nothing under `scripts/` references
+`check_commit_size`. The method was reconstructed as line 137 above describes it ("one
+process over one frozen commit list") and the reconstruction was **proven, not asserted**:
+replaying the pre-amendment guard blob over the reconstructed list reproduces the
+"after AMENDMENT 1" row of the table at lines 139–142 **exactly**. The list is the 200
+commits `94ceebe7` (newest) → `db2c7f9a` (oldest), chosen because `db2c7f9a` — the last
+commit named in AMENDMENT 2 (1)'s table — falls at depth exactly 200 from `94ceebe7`.
+
+**On the 8.0 % question, settled here so nobody re-opens it:** line 137 above states in
+terms that the rate *"drifts under live traffic — an earlier sample of a different 200
+read 8.0 %"*, and this document's own row is **7.5 %**. The 8.0 % on the cfd board is that
+earlier, different sample. There is no discrepancy.
+
+| | commits | accepted | refused | rate | clauses |
+|---|---|---|---|---|---|
+| before AMENDMENT 3 | 200 | 185 | 15 | 7.5 % | LOGS 14, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+| after AMENDMENT 3 | 200 | 194 | 6 | **3.0 %** | **LOGS 0**, COUNT 5, BYTES 3, EMPTY 1, ATTEMPT 0 |
+
+- **No `BYTES`, `COUNT`, `ATTEMPT` or `EMPTY` outcome moved on any of the 200 commits** —
+  checked per commit, set-difference in both directions, zero movements.
+- Of the 14 commits that lost `LOGS`, **5 are still refused** by `COUNT`/`BYTES`
+  (`db2c7f9a`, `05241ab2`, `59110074` on both; `994daa49`, `ae20d137` on `COUNT`),
+  independently reproducing AMENDMENT 2 (1)'s "5 of the 14 are still refused".
+- `LOGS`'s post-amendment split on this sample is **0 firings — 0 true, 0 false**, because
+  all **178** log-pattern paths added or modified across the whole window sit under
+  `verification/runs/` and **0** sit outside. Measured from raw `fnmatch` on basenames,
+  independently of the amended predicate, so the zero is a reading and not a tautology.
+
+### Forward exposure: the clause is narrowed, not gutted
+
+Measured at HEAD by the Owner and reproduced independently by the implementer, from
+`git ls-tree -r HEAD` with the same two basename patterns:
+
+| tracked log-pattern paths at HEAD | count | share |
+|---|---|---|
+| total | **1,395** | 100 % |
+| under `verification/runs/` — now exempt | **1,187** | 85.1 % |
+| outside a run tree — `LOGS` still fires | **208** | 14.9 % |
+
+The amendment removes **85 %** of the clause's surface — precisely the surface measured
+0-true/14-false — and leaves **208 live targets**: `cases/committee-grids` 80, `cases/tmr`
+47, `research/race` 39, `cases/ansys_verification` 23, `*/mesh_certificates/` 18,
+`cases/mega-batch` 1.
+
+### Controls: 30 → 35, and TWO DEPARTURES FROM THE FROZEN CONTROL TABLE, DECLARED
+
+Both departures are recorded here because an expectation quietly edited to fit an outcome
+is the defect this guard exists to prevent. **In neither case was an expectation edited to
+fit.**
+
+**(i) Controls 5 and 6 — the TREE moved, the EXPECTATION was kept.** The frozen table
+(lines 52–53) writes control 5 as `verification/runs/X/log.solve` → refuse `LOGS`, and
+control 6 as the same path **with** a manifest → refuse `LOGS` anyway. That path is
+exactly what this amendment exempts.
+
+- **Before:** control 5 = `verification/runs/X/log.solve` → refuses `LOGS`; control 6 =
+  the same + `COMMIT_MANIFEST.md` → refuses `LOGS`.
+- **After:** control 5 = `cases/X/log.solve` → refuses `LOGS`; control 6 = the same +
+  manifest → refuses `LOGS`. Their **purpose** is intact — the clause fires, and a
+  manifest does not exempt it — proven on a path where the clause still has all its teeth.
+- The original tree is **retained verbatim** as control **L3a**, with its new and opposite
+  expectation asserted. The amendment *is* that flip, and it is asserted rather than
+  deleted.
+
+**(ii) Control 8 (`05241ab2` replayed through the real git adapter) — the expectation
+changed, and the control got STRICTER.** All **28** of that commit's log paths sit under
+`verification/runs/` (measured on the real tree, not assumed), so `LOGS` no longer fires
+on it.
+
+- **Before:** `{COUNT, LOGS} ⊆ got`.
+- **After:** `{COUNT, BYTES} ⊆ got`, **plus a new explicit failure branch if `LOGS` fires
+  at all** — which would mean the exemption is not reaching the real git adapter. `BYTES`
+  is now asserted where it was previously unasserted. This is the amendment's own basis
+  stated as a control: the archetype is a `BYTES` catch, not a `LOGS` catch.
+
+**New controls, all planted, all shown able to fail:**
+
+- **L3a** — `verification/runs/X/log.solve` alone → **ACCEPTS**.
+- **L3b** — the same basename outside a run tree, `cases/F27_WOMERSLEY_PIPE/log.solve` →
+  **refuses `LOGS`**.
+- **L3c** — a 40 MB `verification/runs/X/log.solve` with **no** manifest → **refuses
+  `BYTES`**. The exemption did not open a bulk hole.
+- **L3d** — 51 exempt run-tree `log.solve` paths with **no** manifest → **refuses
+  `COUNT`**. `COUNT` is untouched and still catches bulk on exempt paths.
+- **Plant** — AMENDMENT 3 is an *exemption*, so its planted failure runs the **other way**,
+  exactly as (d)'s does: `disable_logs_runs_exemption=True` must make the **accepting**
+  control L3a **refuse under `LOGS`**, and `--selftest` fails loudly if it does not. An
+  exemption that cannot be shown to change an outcome is not known to be doing anything.
+
+### 3. OBSERVED, UNRULED, AND DELIBERATELY NOT ACTED ON: mesh-admission certificates
+
+**18** of the 208 remaining targets are `*/mesh_certificates/log.blockMesh`,
+`log.checkMesh` and `log.topoSet` — deliberately filed mesh-admission evidence that
+`docs/standards/MESH_STANDARD.md` requires a case to carry, and which that standard
+refers to 27 times. **On the same reasoning that earned this amendment, they look like
+false positives too.**
+
+**They are NOT exempted, and this implementer did not widen the exemption to reach them.**
+Sanaa approved `verification/runs/**/log.*` and nothing else. Widening her ruling to a
+class she did not name would be precisely the permission laundering `CLAUDE.md` rule 9
+forbids — approval of an item is approval of **its** scope, never a new ceiling — and a
+spec quietly widened by its implementer is the defect both guards exist to prevent. The
+class is recorded here with its count and its three basenames and is **open, unruled, and
+on Sanaa's desk**.
+
+`--selftest` now reports **35 controls** (was 30), rc 0; rc 2 under `python3 -O`, refused
+at module entry before any work.
