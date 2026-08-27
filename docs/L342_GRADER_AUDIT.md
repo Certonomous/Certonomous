@@ -372,3 +372,154 @@ in v1.0 is a coverage figure, not a census**, and must be cited as one.
 unaffected by the census correction, since both were identified by reading the file, not by
 counting. The CONFLATED total for ansys is **unchanged at 30** — the correction moves the
 denominator, not the defect list.
+
+---
+
+## Addendum 2 — 2026-08-27 — THE BOUNDED INFRA-ONLY AUDIT: 2 RE-GRADEABLE ROWS IN THE ENTIRE LAB, AND NEITHER IS ON THE `ExecutionTime` AXIS
+
+**Ordered by the chief at 16:48Z. Appended at the foot; nothing above edited or renumbered.
+`lines whose number changed above this section: 0` — proved by `cmp` against the `HEAD` blob in the
+same invocation as the commit. NO VERDICT MOVED IN THIS AUDIT. No comparator was edited, no case
+re-graded, no solver run.**
+
+**The question, per row:** was the refusal on an **INFRASTRUCTURE field ALONE**, with the physics
+artefacts complete under `CLAUDE.md` rule 4's **other** conditions?
+
+### 1. THE RESULT
+
+| family | rows examined | `INFRA-ONLY YES` | `INFRA-ONLY NO` | `NOT MEASURED` |
+|---|---|---|---|---|
+| ansys-verification (register) | 20 | **0** | 20 | 0 |
+| heat-transfer | 43 | **0** | 43 | 0 |
+| cfd | 28 | **1** | 27 | 0 |
+| dafoam | ~50 | **1** | ~49 | 0 |
+| closure | 10 | **0** | 10 | 0 |
+| **total** | **~151** | **2** | **~149** | **0** |
+
+**THE RE-GRADEABLE POPULATION IN THE ENTIRE LAB IS TWO ROWS.** Both are verified below by this
+supervisor personally, not taken on lane report (`SUPERVISION_CHARTER` §3 check 3).
+
+**THE HEADLINE FINDING IS THE ONE NOBODY EXPECTED: the `ExecutionTime` line-count conflation that
+§3.1–§3.4 flags in ~60 frozen comparators HAS VOIDED NOTHING, ANYWHERE.** Neither YES row is on
+that axis. The defect is **real, frozen and latent** — it will bite the next petsc4Foam-style run,
+which is why §1's `VMFLGPU002` warning stands — **but it is not a backlog of lost results.** Three
+independent reasons, each measured:
+
+- **ansys:** the clause exists in ~30 comparators and **fired in none of them.** A sweep of grading
+  artefacts returns only `VMFLGPU001/GRADING.txt` and `GRADING_regrade.txt`, and **`VMFLGPU001` has
+  no register row at all** — its verdict is withheld at `59110074`. **That is the positive control
+  for this zero**, and it is why the zero is a measurement rather than a blind spot: the one place
+  the defect fired is excluded from the population by construction.
+- **heat-transfer:** the 27 CONFLATED comparators are `mark_done_*` **completion markers that exit
+  1 NOT DONE upstream of grading.** They never compose a verdict row, so the conflation cannot
+  reach a record. All 43 rows are rule 5.
+- **dafoam:** the `refuse("ledger", {"absent": path})` cluster §3.4 named as *"the single most
+  likely INFRA-ONLY YES family"* **yields zero.** `AV1`/`AV2` refused at a *different* clause
+  (`av1_grade.py:200`, `av2_grade.py:188` — the G1 age reference, a **physics** field);
+  `D15`/`D16` graded to `GATE FAIL`/`PASS` with no `NOT A RESULT` rows; `D5`, `D6`,
+  `D4_SHIPPED_F3S` and `D8R` have **no `RESULTS.md` at all** and no row ever reached a verdict.
+  **This team's own prediction was wrong, and the measurement is the finding.**
+
+### 2. `INFRA-ONLY YES` #1 — cfd, F6a attempt 2 (`verification/runs/F6a_GREENBLATT_runs/attempt2_Re936k`)
+
+**Turns on the ABSENT rc RECORD — the exact axis of Ruling R-RC, which Sanaa APPROVED at 16:54Z.**
+
+**Verified by this supervisor on disk, not relayed** — the four remaining rule-4 physics conditions
+and the R-RC-4 fence:
+
+| rule-4 conjunct | measured | holds |
+|---|---|---|
+| rc record | **ABSENT** — no rc file anywhere in the run root | the infrastructure field, and the only missing one |
+| `End` line | `grep -c '^End' log.simpleFoam` = **1** | ✔ |
+| last time == endTime | `Time = 1813` == effective endTime **1813** | ✔ (caveat below) |
+| fields at endTime | `1813/` holds `U k nut omega p phi wallShearStress` | ✔ |
+| age guard | `1813/U` mtime **1787626925** > `0/U` **1787626839** (+86 s) | ✔ |
+| **R-RC-4 fence** | `FOAM FATAL` **0**, `SIGSEGV` **0**, `Aborted` **0**; the sole `SIGFPE` hit is `log.simpleFoam:29`, the `trapFpe … enabled` **startup banner** | ✔ clear |
+
+**Under R-RC-2 this row reads `GATE FAIL`, not `NOT A RESULT`** (P1 separation `PASS` −1.59 %; P2
+reattachment `GATE FAIL` +13.95 %). **Stated rather than glossed:** the `last time == endTime` limb
+holds against the **effective** endTime 1813, not the `controlDict` declared 2000 — a substitution
+ruled by the cfd supervisor in Addendum 3 (Ruling 2) on the (P-a) plateau clause. **That is a
+registered deviation this team is reporting, not asserting.**
+
+**⚠ AND A RULE-2 FINDING THAT IS INDEPENDENT OF L-342 AND MATTERS MORE.** The registered extractor
+is `cases/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py`, resolved by the `extractor_sha256`
+`9a6ec855…` recorded in `result.json` and **confirmed by this supervisor** (`sha256sum` matches,
+79 lines). That file contains **zero occurrences of `NOT A RESULT` and zero rc / completion-rule
+clauses.** **The refusal that voided this row was composed directly into `result.json` and was not
+produced by any executable comparator.** Consequences, both of which bound the chief's re-grade
+ruling: **(a) this row cannot be "re-graded by re-running" — there is nothing to re-run**; **(b) a
+verdict with no executable grading path is a standing-rule-2 defect in its own right**, and it
+should be settled on that ground before L-342 is applied to it. **For `cfd-supervisor`.**
+
+### 3. `INFRA-ONLY YES` #2 — dafoam, D12R phase 1 (`cases/dafoam/curriculum_D12R`)
+
+**This is the canonical L-342 case — the dead poller, exactly as Sanaa described it.**
+
+The refusing clause, verified at source, `cases/dafoam/curriculum_D12R/d12x_grade.py:204-205`:
+
+```
+        if st.get("status") != "COMPLETE":
+            raise Refusal("G12R-0 %s: JSON status=%r" % (nm, st.get("status")))
+```
+
+`status` is read from `manifest.jsonl`, which the **frozen launcher itself** populates —
+`d12x_stage_and_run.sh` sets `row["status"] = j.get("status")` when a stage JSON exists and
+**`row["status"] = None` in the `else` branch when it does not**, which is the designed path for a
+`task=shell` stage that writes no JSON. **The launcher writes the null; the grader refuses on it.**
+
+**Measured by this supervisor across all 32 manifest rows** at
+`/home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady/manifest.jsonl`:
+
+| field | value |
+|---|---|
+| rows | **32** |
+| `status` null | **1** — and it is `task = shell`, `rc = 0` |
+| `status` `COMPLETE` | 31 |
+| **`rc == 0`** | **32 / 32** |
+| **`end_line_present` true** | **32 / 32** |
+| **`age_guard_ok` true** | **32 / 32** |
+| `oomkilled` true | **0** |
+
+**One launcher-metadata field, absent by the launcher's own design, voided a rung whose thirty-two
+stages are every one of them physically complete.** `INFRA-ONLY YES`. **For `dafoam-supervisor`.**
+
+### 4. WHAT IS EXPLICITLY *NOT* RE-GRADEABLE, so the ruling cannot be over-applied
+
+**Of ~149 `INFRA-ONLY NO` rows, the overwhelming majority are rule 5** — a level not iteratively
+converged or not plateaued, or a triple `DIVERGENT` / `STAGNANT` / `OSCILLATORY` / `EXACT` /
+`DEGENERATE`. **Rule 5 is a physics verdict and `L-342` does not touch it.** Also `INFRA-ONLY NO`,
+and named so they are not mistaken for bookkeeping: **failed planted-zero controls** (rule 3 —
+ansys `VMFL011`, `VMFL011-R2`; dafoam `D10 probe`), **non-zero rc** (ansys `VMFL045` rc = 1,
+`VMFL007` rc = 136; cfd `F12` rc = 134), **absent `End` line / absent `endTime` fields** (ansys
+`VMFL003-M2` arms C and D, `VMFL017-R2`, `VMFL021`), **registered band failures**, and **physics
+gate-readers** (ansys `VMFL064` — wall shear never changes sign, a real corner vortex at L3, not a
+log artefact).
+
+### 5. FOUR ROW-CLASSES WHOSE REFUSAL EXISTS IN NO COMPARATOR — a finding in its own right
+
+Independent of L-342, and reported because a verdict with no executable grading path cannot be
+re-derived by anyone: **F6a attempt 2** (§2 above); **T1b B0–B4**, 4 rows where the frozen
+comparator returned `PASS ×4` (blob `08732fd6`, byte-identical) and the `NOT A RESULT` is rule 5
+applied **by hand** over its output, with both readings displayed and neither picked
+(`MATRIX_CONTRIBUTION.md:255`, D440); **~13 dafoam A2/A3 `grading_confirmation` and A1 `reverify`
+near-zero rows**, hand-applied by the confirming lane; and **MATRIX `G-21`**, which states plainly
+that it has *"no pre-registered gate of its own"*.
+
+### 6. COVERAGE LIMITS
+
+`git grep` / `git ls-files` for the tracked population, raw `find` for disk — **a `NOT A RESULT`
+living only in a gitignored file would have escaped.** Outside git, **read**:
+`/home/ubuntu/certonomous-runs/CURRICULUM-D12R-cylinder-unsteady/` (where YES #2 was verified).
+**Not read:** the remaining ~500 run roots under `/home/ubuntu/certonomous-runs/`,
+`/home/ubuntu/closure-data/`, `/home/ubuntu/closure-challenge-benchmark/`; a whole-tree grep for
+`completion_rule_limb_by_limb` **timed out at 120 s and was abandoned**, so §2's negative result for
+the F6a comparator rests on a tracked-file grep plus targeted finds, **not** an exhaustive sweep.
+**No comparator was hashed against its committed blob** except the F6a extractor (sha256 matched),
+so "frozen" keeps §5's meaning: *named and committed*, never *proven byte-identical to what ran*.
+**The dafoam row count is ~50, not exact** — that family nests verdicts at item, arm and component
+level and the row boundary is a judgement, not a measurement. **The ansys count of 20 is the lane's
+and is NOT independently confirmed by this supervisor**: the register defeats column indexing (rows
+carry escaped pipes and multi-line narrative cells) and a naive `grep 'NOT A RESULT'` over it
+returns **73** occurrences against ~20 real rows. **Register machine-readability is itself a finding
+for `ansys-verification`.**
