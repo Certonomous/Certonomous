@@ -1,0 +1,14 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// F17 Kovasznay -- written by build_f17.py from the built mesh's own cell and
+// face centres (0/C), never from an assumed ordering. Inlet and outlet carry
+// the FACE-AVERAGED exact velocity so the boundary fluxes balance to round-off.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   nonuniform List<vector> __INTERNALFIELD__;
+boundaryField
+{
+    inlet        { type fixedValue; value nonuniform List<vector> __INLET__; }
+    outlet       { type fixedValue; value nonuniform List<vector> __OUTLET__; }
+    top          { type cyclic; }
+    bottom       { type cyclic; }
+    frontAndBack { type empty; }
+}

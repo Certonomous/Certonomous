@@ -1,0 +1,22 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;   // PER LEVEL, DERIVED (L-346): 4000 / 8000 / 48000 at
+                               // coarse / medium / fine. exact_f17c.ITERS is the
+                               // registration; build_f17c.py substitutes it here.
+                               // No residualControl, so the Class C series is
+                               // sampled uniformly to the end and rule 4's
+                               // `last time == endTime` cannot conflict with a
+                               // convergence trip (the F6a clause conflict).
+deltaT          1;
+writeControl    timeStep;
+writeInterval   100;           // 40 checkpoints -> the Class C plateau series
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
