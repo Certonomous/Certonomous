@@ -2938,3 +2938,119 @@ still disables the triple-state test, and the defect class *"a property declared
 construction and never tested against the measurement"* (§2g.5) still stands.
 **T13 G2/G3 remain `PASS` on the registered floor with the defect disclosed; no
 verdict moves.**
+
+## Amendment — v1.20, 2026-08-27 — **§2i.5–§2i.8: THE SWEEP IS IN. Three LATE citations and NOTHING TURNS ON THEM; T4 AMENDMENT 2 IS LEGAL AND §2i DOES NOT REACH IT; and the clause is NARROWED three ways prospectively**
+
+**Appended, append-only; no line above changed number. Zero compute. No row re-graded, no amendment declared illegal.**
+
+### §2i.5 THE SWEEP RESULT — the two outcomes counted separately, as §2i.4 required
+
+**15 records assert a timestamp AS first compute**, out of 1,271 phrase-bearing files
+(16,624 tracked at HEAD). **3 LATE · 6 CORRECT · 6 UNDECIDABLE.**
+
+**All three LATE citations are T16 and all three cite the same stamp** —
+`T16_PREREGISTRATION.md:489` and two `LAB_STATE` sites — and **the window is EMPTY.**
+The T16 window is `[17:30:06Z, 17:42:30Z]`, **744 s**; every commit touching that
+registration or run tree sits **1,073 s before it** (the freeze `ae20d137`) **or
+after it**, and Amendment A1 **self-declares POST-COMPUTE on its face**, so it never
+rested on the late stamp.
+
+> **CITATION WRONG, NOTHING TURNS ON IT: 3. AMENDMENT INSIDE A WINDOW: 0.** A dated
+> addendum on each of the three is owed. **No gate moves, no row is re-graded, and
+> the two figures are never to be reported as one number.**
+
+### §2i.6 T4 AMENDMENT 2 — RULED **LEGAL**, AND §2i DOES NOT REACH IT
+
+`verification/runs/T-family/T4_runs/STATUS.T4_IJ_c.CRASH_pre_amendment2` carries
+`started_utc=2026-08-26T03:47:47Z`, **`rc=1`**, `ended_utc` **equal to**
+`started_utc`. **T4 Amendment 2 (`commit:399dc213`) is at 03:56:37Z — 530 s later**,
+and it registers **physics** (`kLowReWallFunction`, `nutLowReWallFunction`,
+`alphat = calculated`) on a Nusselt-class rung while claiming rule 2's **pre-compute**
+clause.
+
+**Under §2i as literally worded it is post-compute. IT IS NEVERTHELESS LEGAL, ON A
+GROUND THAT HAS NOTHING TO DO WITH CRASHES.**
+
+> **§2h.6 holds that a registration cannot claim the BENEFIT of a clause that did
+> not exist when it froze. THE SYMMETRIC PROPOSITION IS THAT A LATER CLAUSE CANNOT
+> RETROACTIVELY CONVICT ONE EITHER.** §2i landed **2026-08-27T22:19Z**; T4's
+> amendment was made **2026-08-26T03:56:37Z — over a day earlier.** **A rule written
+> after the act does not reach the act.** T4 Amendment 2 is judged on the rules in
+> force when it was made, and **§2i is not among them.**
+
+**Recorded because the symmetry is the whole point: this team wrote the
+non-retroactivity clause four hours ago in the direction that RESTRAINED a team, and
+it applies here in the direction that PROTECTS one. A principle that only ever runs
+one way is not a principle.**
+
+**AND ON THE MERITS, prospectively and without deciding this case:** the amendment's
+own stated ground — **rc=1, zero iterations, no `Time = 1`, no time directory, no
+field written, 0.034 core-min** — **is the correct criterion, and §2i.7 adopts it.**
+
+### §2i.7 NARROWING 1 — FIRST COMPUTE REQUIRES A RESULT-BEARING ARTEFACT
+
+> **The first-compute moment is the earliest `started_utc` of any case UNDER THE
+> REGISTRATION THAT PRODUCED A RESULT-BEARING ARTEFACT: a time directory, a written
+> field, or at least one `Time = ` iteration line in a solver log.** A launch that
+> produced **none** of these did not close the gates.
+
+**THE GROUND IS RULE 2'S OWN EVIDENTIARY CLAIM, NOT LENIENCY.** The freeze proves the
+gate **could not have been chosen to fit the answer**. **A run that produced no
+iteration and no field produced NO ANSWER TO FIT TO.** Nothing was visible, so
+nothing could be fitted. **`started_utc` is a PROXY for "compute that could have
+produced information", and where the proxy and the thing diverge, the thing governs.**
+
+**AND THE LOOPHOLE IS CLOSED BY PUTTING THE BURDEN ON THE REGISTRATION, NOT ON
+HINDSIGHT:** the amendment must **state the absence at its own timestamp, naming the
+checks** — no time directory, no field, no `Time =` line, and the `rc`. **"Nothing
+useful happened" judged after the fact by the party who benefits is not admissible;
+a named, checkable absence recorded at the time is.** **Spend does NOT close gates
+— 0.034 core-min is a rule-12 question and rule 2 is about evidence.**
+
+### §2i.8 NARROWING 2 — WHICH CONVENTION GOVERNS WHEN THE MESH IS COMPUTE
+
+Two conventions are live and **they disagree by ~23 minutes on T16**: `started_utc`
+is set **after** the case build and `checkMesh` (`run_one_t16.sh:178` vs `:169`) —
+measured, `log.blockMesh` mtime **17:07:20Z** against `started_utc` **17:30:06Z**,
+**1,366 s of meshing outside the stamp** — while
+`docs/CROSS_TEAM_GATE_AUDIT.md:617` uses *"the `blockMesh` banner"* outright.
+
+> **THE TEST IS WHETHER THE MESH IS INSIDE THE FREEZE.** Where the built mesh is
+> **committed in the freeze commit**, it is part of the registration and **compute
+> means the SOLVER**. Where the mesh is **generated after the freeze**, **MESHING IS
+> COMPUTE**, because a mesh made after the freeze is a result-bearing artefact the
+> registration did not fix — and a gate could be fitted to it.
+
+**T16 is internally consistent under this test and needs no correction:** its freeze
+`ae20d137` **deliberately commits `log.blockMesh` and `log.checkMesh.build`.**
+
+### §2i.9 NARROWING 3 — SCOPE, STATED HONESTLY
+
+**The rule is MOSTLY PROSPECTIVE and the corpus is largely immune by construction.**
+The dominant convention is the **opposite** one — an amendment carrying its own
+timestamp plus a **run-root-ABSENCE** check — which cannot exhibit this defect.
+
+**`started_utc` exists in only 8 tracked run directories, ALL heat-transfer
+T-family.** **No closure, dafoam, cfd or ansys registration carries the field**, and
+K0f's base STATUS files lack it. **So 6 of the 15 sites are UNDECIDABLE because there
+is no `started_utc` to read**, and they derive first compute from mtimes or banners.
+**Where no `started_utc` exists the clause does not bind; the record states its
+criterion and its evidence, and `NOT MEASURED` remains available.**
+
+### §2i.10 NOT CLAIMED, AND ONE READER FAILED
+
+**The single most consequential candidate lived ONLY IN THE DISK FRAME** — T4's crash
+STATUS files are **untracked**. **A HEAD-scoped search returned the identical null for
+"no such record" and "not committed yet", and here that difference hid the finding
+completely** (`L-386`, now with its worked example).
+
+**A phrase-based reader MISSED the planted control** — a first-compute assertion in a
+phrasing outside the enumerated vocabulary — **and is reported as failed rather than
+quietly dropped**; the conclusions rest on a **value-based** reader that flagged the
+plant and did not flag its correct-citing twin. **Both limbs fired on the reader
+that is relied upon.**
+
+**`T1_runs` may be one registration or two** (`NOT MEASURED`); if two, one CORRECT
+classification needs re-reading. **K0f's true first compute is UNDECIDABLE.** **The
+three crash STATUS files are evidenced by mtime, a weaker class than a committed
+field.** **No amendment anywhere is declared illegal by this amendment.**
