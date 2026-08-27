@@ -4,4 +4,5 @@ db35550e97f391e156d531a985268ad5  fadr_chain_driver.sh
 9a3ec810ddf771257f9ce4bbb33fb334  fadr_fetch_fixture.sh
 5d9c8c4761eb296d9a3657ad986eeb48  fadr_grade_selftest_evidence.txt
 c754ca239e1e103bf26cff012bb8b0e6  fadr_driver_guard_evidence.txt
+97c05684001b5f13a549991ca27d50ec  fadr_driver_guard_evidence_postfreeze.txt
 0ecdfec74d1e88272a85a487183373f4  FIXTURE_PROVENANCE.md

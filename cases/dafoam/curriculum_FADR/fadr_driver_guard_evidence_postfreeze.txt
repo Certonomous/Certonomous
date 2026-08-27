@@ -1,0 +1,48 @@
+FADR driver guards, POST-FREEZE branch -- RE-DRIVEN after AMENDMENTS 1 and 2.
+Run 2026-08-27T19:01:01Z by dafoam lane C. Driver given 41adacc71632fc9969e8c386aa323906356ebe77 (the AMENDMENT
+commit, whose blobs ARE the files that will run). The FREEZE remains eaa80613.
+
+TWO PROPERTIES OF THIS FILE, STATED FIRST BECAUSE THEY ARE THE POINT.
+1. NO CONTROL BELOW CAN LAUNCH AN ARM. An earlier generation of this file drove the
+   guards' POSITIVE branch by invoking the driver with no plant, and the driver did what
+   it is built to do: it LAUNCHED ARM S. That incident is owned in PREREGISTRATION.md
+   AMENDMENT 2 section 2.1 with its cost named. A CONTROL MUST NOT BE ABLE TO START THE
+   THING IT IS CONTROLLING. Every probe below carries a plant that REFUSES.
+2. THE POSITIVE BRANCH IS PROVEN BY WHICH GUARD REFUSES. A probe that refuses at G-ROOT
+   has by construction already PASSED G-FREEZE, G-PATH and G-FIXTURE, and the driver
+   prints each as it passes. The G-ROOT.1 transcript below therefore carries the positive
+   reading of every earlier guard, with NO container started.
+
+  SEEN   G-FREEZE.1 no sha given
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: no freeze sha given. usage: fadr_chain_driver.sh <40-hex sha> [S|P ...]
+  SEEN   G-FREEZE.2 sha is not 40 hex
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: freeze sha 'deadbeef' is not 40 hex
+  SEEN   G-FREEZE.3 40 hex, not a commit
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: freeze sha 0000000000000000000000000000000000000000 is not a commit in this repo
+  SEEN   G-FREEZE.4 a REAL commit that does NOT hold the prereg path -- cbcb11272b35e5112f536dcc0622fc28f7692d95, this session's dispatch HEAD. THIS IS VERIFICATION_CHARTER v1.12's exact failure: a wrong-but-real commit resolves, and ONLY the path check catches it
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: commit cbcb11272b35e5112f536dcc0622fc28f7692d95 does not hold cases/dafoam/curriculum_FADR/PREREGISTRATION.md. A freeze sha is NEVER derived 
+  SEEN   G-PATH.1 a REAL commit that DOES hold the prereg path but whose driver blob differs from disk -- the pre-amendment freeze eaa80613. The path check passes and the GRADING-PATH check catches it
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: GRADING PATH MOVED: PREREGISTRATION.md on disk is 1035960ad40f0f83832d90c1110bb211, the freeze holds fe3e730f4117fc742b3b1ffc20334ffe.
+  SEEN   G-FIXTURE.1 the archive is ABSENT (branch P-C)
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: no fixture archive at /home/ubuntu/certonomous-runs/FADR-fixture/reg_test_files-main.tar.gz (branch P-C)
+  SEEN   G-FIXTURE.2 the recorded digest does not match the archive on disk
+         rc=2, and the reason is the RIGHT one:
+         REFUSAL: FIXTURE DIGEST: on disk 0154df31254d596d8bb36dff7d289e35e2791b9a1c6d4607164fbe0bb3937fa3, recorded 000000000000000000000000000000000000000000
+         plant REVERTED byte-for-byte: FIXTURE_PROVENANCE.md md5 before=0ecdfec74d1e88272a85a487183373f4 after=0ecdfec74d1e88272a85a487183373f4
+  SEEN   G-ROOT.1 an arm directory ALREADY EXISTS -- reached for the FIRST time only after AMENDMENT 1 repaired the guard above it
+         FULL TRANSCRIPT, which is ALSO the positive reading of every earlier guard:
+           [2026-08-27T19:01:01Z] G-PATH: 4 instruments hashed against the freeze blob, all identical
+           [2026-08-27T19:01:01Z] G-FIXTURE: sha256 0154df31254d596d8bb36dff7d289e35e2791b9a1c6d4607164fbe0bb3937fa3 matches the recorded provenance; top-level name confirmed
+           REFUSAL: arm directory /home/ubuntu/certonomous-runs/CURRICULUM-FADR-forward-ad-regression/S ALREADY EXISTS -- refusing to
+                write into a directory that may hold another run's answer
+
+units: 8 seen, 0 failed
+run root after all controls: ABSENT
+containers before=16 after=16
+no container was created by any control: CONFIRMED
