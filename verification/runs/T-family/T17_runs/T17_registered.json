@@ -1,0 +1,161 @@
+{
+  "rung": "T17",
+  "title": "Axisymmetric transient conduction in a finite cylinder (T11d), Robin surfaces, EXACT tier",
+  "capability_grid_cell": "conduction x laminar (no flow) x axisym -- reads `CAN NOT DO -- not attempted` at HEAD cbcb1127 (docs/capability/heat-transfer_GRID.md:48). The grid's own convention places a wedge in the axisym row: 'a 1-D slab on an empty-patch mesh counts as 2D; a wedge counts as axisym' (:7).",
+  "ceiling": "GATE REACHED at best. The reference is an EXACT series solution, so under the upheld V/P ruling this rung scores V and NEVER P; it can never reach HOLDS. Stated here so a reader does not discover it at grading.",
+  "solver": "laplacianFoam",
+  "turbulence": "NONE -- solid conduction, no fluid, no closure. The registered closure was checked against the required field set explicitly: laplacianFoam solves and writes T alone and reads no turbulenceProperties, so the field tuple is ('T',) and requires no k, epsilon, omega, nut or alphat. It is NOT copied from T1b's thermal-family tuple.",
+  "dimensionality": "axisymmetric (2-D in (r,z) on a 1-degree wedge)",
+  "ranks": 1,
+  "decomposition_seed": "serial, 1 rank, no decomposition",
+  "physics": {
+    "R_m": 0.01,
+    "H_half_m": 0.01,
+    "alpha_m2_s": 1e-05,
+    "Bi": 1.0,
+    "T_init": 1.0,
+    "T_inf": 0.0,
+    "endTime_s": 2.0,
+    "Fo_end": 0.2,
+    "wedge_deg": 1.0,
+    "referent": "theta(r,z,Fo) = C(r*,Fo) P(z*,Fo): C the infinite-cylinder Bessel series (zeta J1 = Bi J0), P the plane-wall series (exact_t17.py). J0/J1 are computed from their integral representations inside the module, with no third-party dependency. The plane-wall factor is cross-checked against T11's registered values, which this module did not compute; the coefficient normalisation of BOTH factors is checked against the lumped limit exp(-2 Bi Fo) and exp(-Bi Fo)."
+  },
+  "cases": {
+    "T17_CY_c": {
+      "level": "c", "N": 50, "cells": 2500, "dr_m": 0.0002, "dz_m": 0.0002,
+      "endTime": 2.0, "deltaT": 0.0001, "steps": 20000, "cell_steps": 50000000,
+      "valueFraction_axial": 0.00990099009900990,
+      "valueFraction_radial": 0.00986761036,
+      "point_core_min": 0.137, "cap_core_min": 2, "timeout_s": 120,
+      "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "graded level"
+    },
+    "T17_CY_m": {
+      "level": "m", "N": 100, "cells": 10000, "dr_m": 0.0001, "dz_m": 0.0001,
+      "endTime": 2.0, "deltaT": 0.0001, "steps": 20000, "cell_steps": 200000000,
+      "valueFraction_axial": 0.004975124378109453,
+      "valueFraction_radial": 0.00496664405,
+      "point_core_min": 0.547, "cap_core_min": 8, "timeout_s": 480,
+      "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "graded level"
+    },
+    "T17_CY_f": {
+      "level": "f", "N": 200, "cells": 40000, "dr_m": 5e-05, "dz_m": 5e-05,
+      "endTime": 2.0, "deltaT": 0.0001, "steps": 20000, "cell_steps": 800000000,
+      "valueFraction_axial": 0.0024937655860349127,
+      "valueFraction_radial": 0.00249159279,
+      "point_core_min": 2.187, "cap_core_min": 30, "timeout_s": 1800,
+      "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "graded level -- THE GRADED VALUE IS THIS LEVEL'S, never the Richardson extrapolate"
+    },
+    "T17_CY_f_CT": {
+      "level": "f_CT", "N": 200, "cells": 40000, "dr_m": 5e-05, "dz_m": 5e-05,
+      "endTime": 2.0, "deltaT": 5e-05, "steps": 40000, "cell_steps": 1600000000,
+      "valueFraction_axial": 0.0024937655860349127,
+      "valueFraction_radial": 0.00249159279,
+      "point_core_min": 4.373, "cap_core_min": 60, "timeout_s": 3600,
+      "ranks": 1, "decomposition_seed": "serial, 1 rank, no decomposition",
+      "role": "C-T temporal-bias control, REPORTED never gated"
+    }
+  },
+  "refinement_ratio": 2.0,
+  "factor_of_safety": 1.25,
+  "dim": 2,
+  "roache_floors": {
+    "source": "scripts/roache_triple.py, imported by name (MESH_STANDARD.md section 10.5, chief ruling 01967a7b); the comparator defines neither and REFUSES if these numbers differ from the import",
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05
+  },
+  "wedge_geometry_bias": {
+    "what": "A planar-faced OpenFOAM wedge does NOT discretise the true axisymmetric operator. For a wedge of HALF angle h, every interior radial face has area 2 r sin(h) dz against the true (2h) r dz, every cell has volume sin(h)cos(h)(r2^2-r1^2)dz against the true h(r2^2-r1^2)dz, and the face-normal centre-to-centre distance carries a further cos(h). The radial flux per unit volume is therefore larger than the true one by EXACTLY sec^2(h), for every interior radial face and every N. The axial direction is unaffected (its face area and its volume carry the same constant).",
+    "consequence": "The wedge mesh converges, as N -> infinity, to the solution of theta_t = alpha[sec^2(h)(theta_rr + theta_r/r) + theta_zz], i.e. to the exact solution with the RADIAL Fourier number multiplied by sec^2(h). This is a FIXED bias that does NOT vanish under mesh refinement, so it does not enter the Roache triple (a constant offset cancels from e21 and e32 and leaves p unchanged) but it DOES enter every band.",
+    "sec2h_minus_1_at_1_degree": 7.6158e-05,
+    "why_1_degree_and_not_5": "T1c used WEDGE_DEG = 5.0 (build_t1c.py:50), for which sec^2(h)-1 is 1.905e-03. That is larger than any band this rung could arm. At 1 degree it is 7.6158e-05 and the fine-level deviations it produces are 2e-05 to 3e-05, which a band of 3e-05 to 5e-05 contains. The mesh at 1 degree is still clean: checkMesh reports max aspect ratio 2.0000761566999, non-orthogonality 0, max skewness 0.3332, Mesh OK on all four cases (BUILD.txt).",
+    "flag_raised_not_claimed": "The same derivation implies a 1.905e-03 radial-operator bias in every 5-degree wedge case this family owns, T1c included. THIS REGISTRATION DOES NOT CLAIM THAT AS A FINDING: the derivation is analytic and has never been measured here, and T1c's own f.Re landed 0.019 percent low against 64, not 0.19 percent high. Prediction P5 below is the first measurement of it. If P5 loses, this paragraph is wrong and must be recorded as wrong."
+  },
+  "graded_rows": {
+    "G1": {
+      "quantity": "theta_mean, VOLUME-weighted mean over the wedge (weight (r2^2-r1^2) per radial cell; a plain arithmetic mean would over-weight the axis and is not what the reader does)",
+      "reference": 0.6118851822,
+      "band_rel": 5e-05,
+      "predicted_rel_deviation": -2.2e-05,
+      "grading": "Roache triple, rule 5; the FINE value is graded, the extrapolate is reported beside it and gated on never",
+      "band_ground": "THREE components, all computed BEFORE compute. (a) READER, from applying this comparator's own reader to the EXACT field at the registered cell stations: +2.513e-05 (N=50), +6.282e-06 (N=100), +1.571e-06 (N=200), clean O(1/N^2). (b) WEDGE BIAS, mesh-independent, from sec^2(h) above: -2.418e-05 on this row at every level. (c) FINITE VOLUME, from T11's measured +4.4e-06 at N=100 less this module's computed +3.148e-06 midpoint-reader component, leaving +1.25e-06 per factor at N=100, scaled by (100/N)^2 and doubled for the product: +1.0e-05 / +2.5e-06 / +6.3e-07. PREDICTED: c +1.10e-05, m -1.54e-05, f -2.20e-05. Band 5e-05 clears the fine level by 2.3x. THIS BAND DOES NOT DISCRIMINATE THE LADDER and the reason is registered rather than hidden: the mesh-independent wedge bias dominates the fine level, so no band both contains the fine value and excludes the coarse one. The mesh-convergence claim on this row is carried by the Roache triple (whose p is unaffected by a constant bias), not by the band. What the band DOES test is the wedge-bias derivation itself: a bias 4x larger than derived puts the fine value outside."
+    },
+    "G2": {
+      "quantity": "theta at (r*,z*) = (0,0), the centre of the full cylinder, separable linear extrapolation over the NON-UNIFORM radial sector-centroid stations and the uniform axial stations",
+      "reference": 0.8272239909,
+      "band_rel": 3e-05,
+      "predicted_rel_deviation": -5.9e-06,
+      "grading": "Roache triple, rule 5; FINE value graded",
+      "band_ground": "READER on the exact field: +2.309e-04 (N=50), +5.771e-05 (N=100), +1.443e-05 (N=200). WEDGE BIAS: -2.128e-05. FV: as G1. PREDICTED: c +2.19e-04, m +4.13e-05, f -5.9e-06. Band 3e-05 clears the fine level by 5.1x and is FAILED by the medium level (1.4x) and the coarse level (7.3x) -- this row DOES discriminate the ladder. The fine value is a near-cancellation of a positive reader term and a negative wedge term, so it is the row most sensitive to P5."
+    },
+    "G3": {
+      "quantity": "theta at (r*,z*) = (1,0), the mid-plane of the curved Robin surface, separable linear extrapolation",
+      "reference": 0.5420823169,
+      "band_rel": 4e-05,
+      "predicted_rel_deviation": -1.28e-05,
+      "grading": "Roache triple, rule 5; FINE value graded",
+      "band_ground": "READER on the exact field: +1.909e-04 (N=50), +4.743e-05 (N=100), +1.182e-05 (N=200). WEDGE BIAS: -2.566e-05. FV: as G1. PREDICTED: c +1.77e-04, m +2.47e-05, f -1.28e-05. Band 4e-05 clears the fine level by 3.1x and is FAILED by the coarse level (4.4x); the medium level (+2.47e-05) sits INSIDE it, so this row discriminates the coarse level only."
+    }
+  },
+  "controls": {
+    "C_CONV": {
+      "what": "every timestep's T solve final residual <= 1e-10 and an End line (gate (1) for a transient rung, T11/T14 form)",
+      "floor": 1e-10
+    },
+    "W0": {
+      "what": "MONOTONICITY witness: at Fo = 0.20 with Bi = 1 the exact field decreases strictly in both r and z (the first radial eigenvalue 1.2558 lies below the first zero of J0 = 2.4048, and the first axial eigenvalue 0.8603 below pi/2), and so does the discrete field. W0 is the worst INCREASE between radially or axially adjacent cells; a value above the floor means the solver or the reader produced a field the physics forbids -> gate (1) NOT A RESULT. STATED WEAKNESS: this is a weaker structural witness than T18's exact permutation symmetry, because the r and z operators are not interchangeable here. The separability defect is measured too and is REPORTED, never gated -- backward Euler on the coupled operator is not exactly separable, so a non-zero value there is expected and is not a defect.",
+      "floor": 1e-12
+    },
+    "C_GEOM": {
+      "what": "The comparator computes the wedge cell volumes and the radial sector centroids INDEPENDENTLY of build_t17.py and refuses if they differ from the case's registered analytic volumes by more than 1e-08 relative; it also requires the exact identity (volume-weighted mean of the radial cell centre) == (2/3)R to 1e-14, which the naive centroid (j+1/2)dr fails by 1/(6N^2) (6.67e-05 at N=50 -- measured, the control discriminates). The build-time analytic volumes were themselves checked against checkMesh's own three numbers on the built meshes: Total 8.7262032205803e-09 (checkMesh) vs 8.7262032186418e-09 (analytic), agreeing to 2.2e-10 relative; Min and Max agree to the same order on both the coarse and the fine mesh.",
+      "residual_assumption_named": "The PER-CELL centroid is analytic and has NOT been checked against OpenFOAM's own cell-centre field, because writing cell centres would create a time directory and break the launch age guard. The volume model that produces the centroid IS checked against checkMesh on three independent numbers. This is the weakest assumption in this registration and it is named rather than buried."
+    },
+    "C_VF": {
+      "what": "TWO valueFractions, not one, because the two Robin faces have different cell-centre-to-face distances: axial f_z = Bi/(Bi+2N); radial f_r = Bi_d/(1+Bi_d) with Bi_d = Bi (R - r_c(N-1)) cos(h)/R and r_c the sector centroid. The comparator refuses unless the axial value equals the derived form and the radial value is strictly below it (a consequence of r_c(N-1) < (N-1/2)dr that would fail immediately if the centroid model were wrong). Registered values: axial 9.900990e-03 / 4.975124e-03 / 2.493766e-03, radial 9.867610e-03 / 4.966644e-03 / 2.491593e-03 -- six different numbers, as L-341 requires."
+    },
+    "C_REF": {
+      "what": "Route B on the referent (axisymmetric PDE residual at two stencil widths falling as h^2, axis regularity, symmetry plane, both Robin surfaces, initial condition, 2r-weighted Simpson mean) PLUS: Bessel's equation satisfied by this module's own J0 and J1; an INDEPENDENT power-series implementation of J0/J1 agreeing to 6.7e-14; the LUMPED LIMIT exp(-2 Bi Fo) and exp(-Bi Fo) at Bi = 1e-4, which is the normalisation control on BOTH coefficient sets and refuses a 1e-6 uniform mutation of D_n; and the CROSS-CHECK of the plane-wall factor against T11's registered values to 1e-9, which refuses a 1e-7 mutation of A_n. A scipy.special cross-check is run when scipy is present and is REPORTED, never required (measured worst 1.11e-16)."
+    },
+    "C_PZ": {
+      "what": "planted-zero control per reader (rule 3, L-340): ALL-CELL plant for the volume-weighted mean G1 (N_f^2 = 40 000 cells), one-cell plant for the point readers G2 (index 0, the axis cell on the symmetry plane) and G3 (index N_f-1 in the radial direction, the surface cell on the symmetry plane); both arms; measured detection ladder; refuses a blind or noisy reader or a read below 0.1 x plant"
+    },
+    "C_T": {
+      "what": "temporal-bias control: T17_CY_f_CT, deltaT halved at the fine level; movement of G1 REPORTED as a fraction of the band, never gated"
+    }
+  },
+  "predictions": {
+    "P1": "G1, G2, G3 all PASS at the fine level, at the predicted deviations -2.2e-05 / -5.9e-06 / -1.28e-05. CAN LOSE.",
+    "P2": "all three triples CONVERGING with observed order p in [1.8, 2.2]. The wedge bias is mesh-independent and cancels from e21 and e32, so it should not move p. CAN LOSE.",
+    "P3": "C-T moves G1 by less than 10 percent of the G1 band (|move| < 5e-06 relative). CAN LOSE.",
+    "P4": "W0 = 0 exactly on every level (the discrete field is monotone). CAN LOSE.",
+    "P5": "THE WEDGE-BIAS PREDICTION, and it is the interesting one. Every fine-level deviation will be NEGATIVE, and specifically G1 near -2.2e-05 rather than the reader-only +1.6e-06, G2 near -5.9e-06 rather than +1.4e-05, G3 near -1.3e-05 rather than +1.2e-05. If instead all three land near their reader-only values, the sec^2(h) derivation in `wedge_geometry_bias` is WRONG and this registration says so in advance. P5 LOSING DOES NOT BY ITSELF FAIL ANY ROW: the bands were sized to contain both outcomes, and the comparator's selftest carries a P5-LOSES CONTROL that drives the no-bias field through the whole grade and requires PASS x3 -- so the gate cannot be read as a test of P5 by the back door."
+  },
+  "cost": {
+    "unit": "core-minutes (wall s x ranks / 60)",
+    "rate_core_s_per_cell_step": 1.64e-07,
+    "rate_provenance": "BORROWED, NOT MEASURED ON THIS RUNG. T14's rate, MEASURED 2026-08-26T21:03Z on a scratch copy of T14_SQ_c: laplacianFoam, Euler, Gauss linear corrected, PCG/DIC 1e-12, serial, 2 500 cells, 2 000 steps, ExecutionTime 0.82 s (T14_registered.json cost.rate_scratch_measured_core_s_per_cell_step). SAME SOLVER, SAME SCHEMES, SAME LINEAR SOLVER, SAME CELL COUNTS (2 500 / 10 000 / 40 000, identical to T14's ladder), SAME transient class.",
+    "misprediction_risk": "NAMED, and much smaller than T18's. The only difference from the case the rate was measured on is the mesh TOPOLOGY: a wedge whose cells have two zero-flux wedge faces and whose innermost cells are degenerate. Cell counts, step counts, solver and schemes are identical, so the borrow does not cross a mesh jump or a dimension change -- the two failure shapes named in the brief (T1b L4's 31.4 percent miss came from a rate borrowed ACROSS a mesh jump). Expected miss: within a factor of 1.5 either way. The caps sit at 13.7x to 14.6x the point, inherited from T14's cap discipline, and an overrun STOPS the run (rule 12).",
+    "point_total_core_min": 7.244,
+    "cap_total_core_min": 100,
+    "usd_per_core_h": 0.0513,
+    "point_total_usd_derived": 0.0062,
+    "cap_total_usd_derived": 0.0855,
+    "usd_basis": "DERIVED, NOT MEASURED. The box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5); the rate is owner-stated 2026-08-21/22.",
+    "calibration": "a row in docs/COST_CALIBRATION.md is owed at completion, stating actual/predicted and attributing the gap (rule 12)"
+  },
+  "completion": {
+    "rule": "CLAUDE.md rule 4, all-or-nothing: rc=0 in the wrapper-written STATUS; an End line; last written time == endTime; the registered field present at that time; ExecutionTime line count == endTime/deltaT; every field at endTime NEWER than the case's own 0/T (age guard)",
+    "needed_fields": ["T"],
+    "field_tuple_check": "CHECKED EXPLICITLY against the registered closure for THIS rung: the closure is NONE (solid conduction, laplacianFoam), the solver writes T and nothing else, so the tuple is ('T',). It is NOT copied from T1b.",
+    "infrastructure_fields": ["wall_s", "timeout_s", "ranks", "core_min", "capped", "checkmesh_rc", "solver", "solver_path", "note", "started_utc", "ended_utc"],
+    "note": "capped is an INFRASTRUCTURE field and never a completion conjunct (L-342)"
+  },
+  "launcher": {
+    "file": "run_one_t17.sh",
+    "descends_from": "run_one_t14.sh with the rung name, case set and registered-JSON path changed",
+    "guard": "lineage-aware foreign-process scan (T10aR2 AMENDMENT 1, 9fa66065); NOT YET DRIVEN on either arm -- the lane that wrote this registration was instructed to launch no solver, so ARM A (a real launch) is UNDRIVEN and is named as such",
+    "queue_mode": "--no-detach"
+  }
+}
