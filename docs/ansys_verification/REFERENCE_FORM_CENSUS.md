@@ -634,3 +634,100 @@ who made them.** The rule stands and now has a supervisor's own instance attache
 **measured/experimental → CAN buy P**), both tolerances, both classifications (VMFL017
 DISCRETE, VMFL041 PROFILE), and every count in batch 9's reconciliation — **the correction is
 to a claimed EQUIVALENCE, not to any classification or total.**
+
+---
+
+# CORRECTION — 2026-08-27 — THE VMFLGPU CPU-PARENT MAP IS WRONG IN SIX OF TEN ROWS
+
+**Appended, dated, append-only under CLAUDE.md rule 6. Nothing above this section is
+edited, rewritten or struck in place. Lines whose number changed above this section: 0.**
+
+Found by `ansys-lane-opus` (lane G) while opening VMFLGPU007, and verified independently
+by `ansys-verification-supervisor` before landing. **Batch 5's parent map (§"VMFLGPU
+Family", the rows for VMFLGPU005–010) sends a reader to a COMPLETELY DIFFERENT CASE in
+every one of its last six rows.**
+
+## What is wrong
+
+| GPU case (manual title) | this census says | **what that parent ACTUALLY is** | **correct parent** |
+|---|---|---|---|
+| VMFLGPU005 — *Turbulent Natural Convection Inside a Tall Cavity* (p.235) | VMFL031 | *Turbulent Flow Behind an Open-Slit V Gutter* (p.113) | **VMFL052** — *Turbulent Natural Convection Inside a Tall Cavity* (p.167) |
+| VMFLGPU006 — *Mid-Span Flow Over a Goldman Stator Blade* (p.239) | VMFL037 | *Turbulent Flow Over a Forward Facing Step* (p.127) | **VMFL071** — *Mid-Span Flow Over a Goldman Stator Blade* (p.209) |
+| VMFLGPU007 — *Turbulent Flow with Heat Transfer in a Backward-Facing Step* (p.243) | VMFL041 | *Transonic Flow Over an Airfoil* (p.141) | **VMFL013** — *Turbulent Flow with Heat Transfer in a Backward-Facing Step* (p.51) |
+| VMFLGPU008 — *Radiative Heat Transfer in a Rectangular Enclosure with Participating Medium* (p.247) | VMFL043 | *Laminar to Turbulent Transition of Boundary Layer over a Flat Plate* (p.147) | **VMFL066** — same title as the GPU case (p.199) |
+| VMFLGPU009 — *Two Phase Poiseuille Flow* (p.249) | VMFL063 | *Separated Laminar Flow Over a Blunt Plate* (p.193) | **VMFL069** — *Two Phase Poiseulle Flow* (p.205) |
+| VMFLGPU010 — *Surface to Surface Radiative Heat Transfer Between Two Concentric Cylinders* (p.251) | VMFL070 | *Radiation Between Two PARALLEL Surfaces* (p.207) | **VMFL061** — same title as the GPU case (p.189) |
+
+**VMFLGPU001–004 are CORRECT** (VMFL001, VMFL010, VMFL011, VMFL029) and are not touched
+by this correction.
+
+**The tell was in the census's own text.** The six wrong rows are exactly the batch this
+document labels *"(partial extraction)"* and *"PARTIAL: 6 cases (VMFLGPU005–010) — require
+full read"*. The rows were never claimed to be verified; they were read as though they had
+been. **A row marked unverified is not a weaker fact, it is not a fact.**
+
+## Evidence 1 — the manual's own index, title against title
+
+Every **correct** parent's manual title matches its GPU case's manual title; every
+**census** parent's title names a different problem. Both sets were read from the sidecar's
+table of contents (`.13.`, `.29.`, `.31.`, `.37.`, `.41.`, `.43.`, `.52.`, `.61.`, `.63.`,
+`.66.`, `.69.`, `.70.`, `.71.` and `.gpu005.`–`.gpu010.`), not recalled.
+
+**A title match alone would not have been enough, and here is the proof:** the manual
+spells VMFL069 *"Two Phase Poiseulle Flow"* and VMFLGPU009 *"Two Phase Poiseuille Flow"* —
+**the manual's own typo**. A naive string-equality check would have rejected the correct
+pairing. Titles were therefore read, not string-compared.
+
+## Evidence 2 — ARCHIVE CONTENTS, which is what makes this airtight
+
+Title-matching says two documents use the same words. **Opening the archives says the data
+is the same physics.** Every file below was listed read-only from
+`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/VM2026R1_FLUENT_ARCHIVES/`; no archive was
+written to, moved or extracted in place.
+
+| parent | data files it carries | what they corroborate |
+|---|---|---|
+| **VMFL052** | `VMFL052_natural-exp1.csv`, `VMFL052_natural-exp2.csv` | **natural** convection, and **TWO** experimental curves matching VMFLGPU005's **two** comparison figures (vertical velocity and temperature, both at Y/h = 0.05) |
+| **VMFL071** | `VMFL071_Midspan_press.xy` | **mid-span pressure**, exactly VMFLGPU006's *"Comparison of Pressure Ratio"* |
+| **VMFL013** | `VMFL013_htc.xy` (titled *"Local Nusselt No., Re = 28,000"*), `VMFL013_nu2.xy`, `VMFL013_step_ve.set.prof` | a **step** profile and a Nusselt curve **at VMFLGPU007's own Reynolds number** |
+| **VMFL066** | `VMFL066_radiation-exp.csv` | radiation, for the participating-medium enclosure |
+| **VMFL069** | `VMFL069_vof-vel-analytical.csv` | **VOF** — volume of fluid, i.e. **two-phase**, for the two-phase Poiseuille case |
+| **VMFL061** | `VMFL061_cylinder-exp.csv` | **cylinder**, for the concentric-cylinder case |
+| VMFL031 *(census's 005)* | `VMFL031_u-exp.xy`, `u2.xy` | a V-gutter velocity profile — no temperature, no cavity |
+| VMFL037 *(census's 006)* | `VMFL037_ffstep-exp.csv` | **`ffstep`** — a FORWARD-facing step |
+| VMFL041 *(census's 007)* | `VMFL041_transonic-exp.csv` | transonic airfoil data |
+| VMFL043 *(census's 008)* | `VMFL043_transition-exp.csv` | boundary-layer transition data |
+| VMFL063 *(census's 009)* | *(no curve or profile files at all)* | nothing to corroborate |
+| VMFL070 *(census's 010)* | `VMFL070_radiation-exp.csv` | radiation — but between **parallel surfaces** |
+
+**VMFLGPU010's is the insidious one and it is called out deliberately.** VMFL070 and
+VMFL061 are adjacent radiation cases and BOTH carry a `*-exp.csv`, so the filename pattern
+does **not** discriminate between them — only the title (*parallel surfaces* against
+*concentric cylinders*) and the geometry do. A lane checking by filename shape alone would
+have confirmed the wrong parent. Where the filenames do not discriminate, the title and the
+geometry must, and this correction says which evidence carried which row.
+
+## Consequence, and what a lane should use until this document is rebuilt
+
+**`docs/ansys_verification/gpu/DRAFT_PREREGISTRATIONS_VMFLGPU.md` is CORRECT throughout —
+all ten rows — and is the SOURCE OF RECORD for VMFLGPU parentage until batch 5 of this
+census is re-extracted and re-verified.** This correction does not rebuild batch 5; it
+marks it unsafe and names the right answers.
+
+**No case has been built on a wrong parent.** Checked at the time of writing: VMFLGPU001,
+002 and 003 use VMFL001, VMFL010 and VMFL011, all in the correct four; the staged
+`cases/ansys_verification/VMFLGPU005/` was briefed from `DRAFT_PREREGISTRATIONS_VMFLGPU.md`
+naming VMFL052, not from this census, and its `case/` holds a VMFLGPU002-derived skeleton
+with no VMFL031 content. **That is luck in the source that happened to be cited, not care,
+and it is recorded as luck** — which is the reason this correction is landed rather than
+merely known about.
+
+**The hazard is not hypothetical.** Register row 7 (VMFL045) died on its first timestep
+from a dictionary inherited out of an unrelated case. A wrong parent hands a lane an
+unrelated case's mesh, dictionaries and reference curve — and the reference curve is the
+dangerous one, because a case built on the wrong experiment still converges, still plots,
+and still prints a number to four decimal places.
+
+**What does NOT change:** no reference-form classification (DISCRETE / PROFILE / EMPTY),
+no tolerance, no count and no total in any earlier batch. The correction is to a **parentage
+map**, and to nothing else.
