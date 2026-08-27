@@ -1156,3 +1156,105 @@ counts.
   supervisor-and-Sanaa matter, not this lane's.
 
 *Lines whose number changed above this section: 0.*
+
+## 11. DATED SECTION, 2026-08-27 — A **SECOND DIRECTION** OF FAIL-OPEN, MISSED BY EVERY SECTION ABOVE: THE GATE THAT **MEASURED** ITS CONDITION, **RECORDED** IT, **PRINTED** IT, AND THEN GRADED AS THOUGH IT HAD NOT
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above
+this section: 0` — proved rather than asserted: the HEAD blob was verified to be
+a byte-exact PREFIX of this file in the same shell invocation that wrote this
+section. Found by this supervisor while auditing a heat-transfer correction, and
+carried here because this audit is where the class belongs. Ruled in full at
+`docs/L342_GRADER_AUDIT.md` Addendum 5 (`a9632c6f`); this section records the
+CLASS, not the case.**
+
+### 11.1 The instance, cited so it can be re-derived by content
+
+`17436d64:verification/runs/T-family/T1_runs/analyse_t1b.py`, frozen at
+`08732fd6` with all nineteen cases unsolved — a correctly pre-registered,
+prediction-first comparator.
+
+It encodes **limb (1)** of `CLAUDE.md` standing rule 5 faithfully, at `:172-187`:
+any level not iteratively `CONVERGED`, or not plateaued across 60/70/80 D, emits
+`NOT A RESULT` with a machine-written `why`. **Limb (2) — the triple-state gate —
+is absent.** At `:193` the verdict is composed as
+
+    verdict = "PASS" if dev <= bpct else "GATE FAIL"
+
+and `g["state"]` appears nowhere in it. The state **is** computed, by
+`3d566802:…/analyse_t1c.py:321-335 gci()`; it **is** written into the record; it
+**is** printed. Its only role in the verdict is **cosmetic**, at `:203`, where it
+decides whether `p` and the GCI are shown.
+
+**Result, in `c35d4db4:…/gate_t1b.json` at HEAD:** rows B0/B2/B4/B6 carry
+`"verdict": "PASS"` on triples that are **DIVERGENT / DIVERGENT / DIVERGENT /
+STAGNANT** (p −0.2189 / −0.1504 / −0.0585 / +0.0105), with `GCI_pct` correctly
+`null` on all four. **The instrument was right about the half of rule 5 that
+forbids quoting a GCI off a non-monotone triple, and silent on the half of the
+same sentence that forbids the verdict.**
+
+### 11.2 WHY EVERY SECTION ABOVE MISSED IT — and this is the point of the section
+
+§§1–10 hunt a gate that **could not fire**: an exception path that swallows a
+failure, a comparator whose refusal is unreachable, a control that cannot see a
+non-zero, a threshold never evaluated. **This gate fired perfectly.** Its
+condition was evaluated, its value is correct, and it reached the record. What
+failed is the **wiring between the measured condition and the composed verdict**.
+
+**So there are two fail-open directions and this audit had a name for one:**
+
+| direction | what is broken | how it is caught |
+|---|---|---|
+| **(A) — §§1–10** | the condition is **never evaluated**, or its refusal is unreachable | reachability: plant a failure and require the refusal |
+| **(B) — this section** | the condition **is** evaluated and **does not reach the verdict** | **read the verdict expression and require every recorded gate field to appear in it** |
+
+**A planted-failure control of the (A) kind CANNOT catch a (B) defect.** Plant a
+divergent triple into `analyse_t1b.py` and it will faithfully record DIVERGENT —
+and still return `PASS`. The control passes; the gate is open. **Every guard in
+this lab that was proved by a planted failure has been proved against direction
+(A) only.** That is not a claim any of them are broken; it is a statement about
+what their proof covers, and it was not previously written down.
+
+**THE TEST FOR (B), stated so it is checkable by a reader holding the file:**
+*for every field a comparator records as a gate condition, that field's
+identifier must appear in the expression that composes the verdict — or its
+absence must be justified in the file.* `g["state"]` recorded, `g["state"]`
+absent from `:193`, no justification: that is the whole detection, and it is a
+grep plus a read, not a run.
+
+### 11.3 The aggravating fact, and it is the finding worth carrying
+
+**The defect was disclosed twice and corrected neither time.**
+
+1. `07313b68`, the commit that landed the record, is titled *"T1b passes all four
+   rows as returned, and every grid triple is divergent or stagnant"* — **the
+   defect named in the act of committing it.**
+2. `59c345bd:…/analyse_t1b_L4.py:138` carries the comment *"the frozen rule, for
+   contrast: the same DIVERGENT triple PASSES under it — this is the defect the
+   amendment closes"*, and at `:144-151` **hard-codes the recorded triples and
+   asserts the correct verdict**. This supervisor ran it: **rc 0, PASSED.**
+
+**A frozen, committed, executable assertion of the correct verdict has been
+passing for days beside the record it contradicts.** For this audit's purposes
+that is a distinct hazard from an unfired gate: **an unfired gate is a hole
+nobody knows about; this is a hole with a green light next to it.** A sweep that
+looks only for missing checks will not find it, because the check exists,
+executes and passes — in a file that grades a different rung.
+
+### 11.4 What is and is not claimed
+
+- **No verdict moves anywhere in the lab from this section.** The prose reading
+  boundary was already closed at HEAD in three places, including this team's own
+  `e2b2d44a:docs/CAPABILITY_GRID.md:149`, whose cell verdict is **CAN NOT DO**
+  precisely because of this. No census was flattered.
+- **This is not an L-342 row and not re-gradeable.** The lab-wide re-grade
+  population stays at **one** (dafoam D12R phase 1).
+- **The population of direction-(B) defects in this repository is NOT MEASURED.**
+  One instance is one instance. §11.2's test has not been run across the ~236
+  paths of §10's population, and stating a count from one hit would repeat
+  exactly the coverage-as-census defect this team published against itself in
+  the L-342 audit's Addendum 1. **What is offered here is the class and its
+  test, not a census.**
+- **The sweep is proposed, not run, and it gates nothing.** No comparator
+  consults this section and no verdict depends on it.
+
+*Lines whose number changed above this section: 0.*
