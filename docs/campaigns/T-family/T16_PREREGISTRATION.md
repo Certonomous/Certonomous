@@ -474,3 +474,122 @@ against a **derived closed form**, not against an experiment, so it earns
 **verification**, not validation: no experimental datum is claimed, and the `P`
 (published-reference) column of this rung is empty by construction and is not
 BLOCKED — there is nothing to acquire.
+
+---
+
+## AMENDMENT A1 — 2026-08-27, **POST-COMPUTE. FREEZE-SET UPDATE FOR THE D541 REPAIR OF `mark_done_t16.py`.** Document **v1.0 → v1.1**.
+
+**`lines whose number changed above this section: 0`.** This amendment is
+appended at the foot. Nothing in §0–§13 has been edited, struck, reworded or
+renumbered; the byte prefix of this document up to the line above was asserted
+identical to the pre-amendment file before this text was written.
+
+**DISCLOSED IN THESE TERMS, WITHOUT SOFTENING: THE COMPLETION MARKER WAS
+REPAIRED AFTER FIRST COMPUTE.** `T16_MC_c` had already run to `endTime` 10 000
+(744 wall s, ended 2026-08-27T17:42:30Z) when the defect below was found and
+repaired. That is a departure from rule 2's ordinary discipline and it is stated
+plainly rather than buried. **No gate, no band, no threshold, no cap, no timeout,
+no reference value and no verdict label is altered by this amendment, and none
+could be:** the repaired file is the completion marker, not the comparator — it
+reads no physics value, computes nothing, and writes no word from the rule-1
+vocabulary. §5's bands, §6's gate, §8's costs and caps and §10's predictions are
+untouched, byte for byte. **Sanaa may overrule this amendment and the repair it
+records.**
+
+### A1.1 The §11 freeze-set row, QUOTED AND STRUCK — never rewritten (rule 6)
+
+The row as frozen at `ae20d137`, struck in place and preserved:
+
+> ~~`| `verification/runs/T-family/T16_runs/mark_done_t16.py` | `2ae1605c7983e379d586467a8ffb4890d0d1b20d` | the strict completion rule with the two L-342 field classes declared in prose and ruling R-RC applied |`~~
+
+**The registered blob for that path from this amendment forward:**
+
+| file | git blob | what it fixes |
+|---|---|---|
+| `verification/runs/T-family/T16_runs/mark_done_t16.py` | **`efcf78524dc4f853202cf24dd08c733d7742ac67`** | the strict completion rule with the two L-342 field classes and ruling R-RC **as before, unchanged**, plus the D541 repair of the FPE crash-token limb |
+| `verification/runs/T-family/T16_runs/mark_done_t16.PRE_D541.py` | `2ae1605c7983e379d586467a8ffb4890d0d1b20d` | **the frozen original, preserved and never edited and never deleted (rule 6)** — byte-identical to the blob struck above, so the struck row remains reproducible with `git hash-object` |
+
+Applied at commit **`5bcbaf8ca19e3a9c769e2dd11c5e435fdd755b09`** on this family's
+A3/A9 promotion pattern (the pattern used for T5's builder). The promoted content
+is byte-identical to the PROPOSED blob `efcf78524dc4f853202cf24dd08c733d7742ac67`
+committed at **`cdaf1d46`** — the exact bytes the supervisor read as a diff and
+ruled on. **The applying lane added not one byte to the approved content.** The
+proposal and its unified diff remain on disk beside the file as
+`mark_done_t16.D541_PROPOSED.py` and `.diff`.
+
+The other six §11 rows are **untouched and byte-identical to the freeze**;
+`analyse_t16.py` was re-hashed against `9054d452b43ddda60c2bb187edc762d698a595ec`
+in the same invocation that ran it (§A1.4).
+
+### A1.2 THE SUPERVISOR'S RULING AND ITS REASONING, RECORDED VERBATIM
+
+The supervisor read the diff personally, discharged his check 1, and ruled the
+repair APPROVED and to be APPLIED. His reasoning goes into the record verbatim
+because it answers the one real objection:
+
+> The proposal at `cdaf1d46` (`verification/runs/T-family/T16_runs/mark_done_t16.D541_PROPOSED.py` + `.diff`) was measured by the supervisor directly against real artifacts. On the REAL serial FPE crashes `verification/runs/FPE_DIAG_runs/BP1/log.simpleFoam` and `HP1/log.simpleFoam`, EVERY frozen crash token reads 0 — `FOAM FATAL ERROR` 0, `FOAM FATAL IO ERROR` 0, `Segmentation fault` 0, `Aborted` 0, `signal ` 0 — except `Floating point exception`, which reads 1, and THAT ONE OCCURRENCE IS THE BANNER LINE `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)`. `Foam::sigFpe::sigHandler` reads 1 in both. On the clean `T16_MC_c/log.solve` all three new patterns read 0 and the frozen token reads 1.
+>
+> So: the frozen matcher refused real crashes ONLY through its own false positive; its true-positive rate on the serial FPE class by any legitimate token was ZERO. It refused every input, clean or crashed, for the same reason, and could not distinguish them at all. THE OBJECTION THAT THIS "LOOSENS A GATE" THEREFORE FAILS ON ITS OWN TERMS: you cannot loosen a gate that never discriminated — a refusal that fires identically on every input is not a gate, it is a constant. The repair is the first version of this instrument with any discriminating power on the FPE class, and it STRENGTHENS detection rather than weakening it. Legality runs through VERIFICATION_CHARTER §2d's boundary clause 1, the D419 case — an instrument that cannot run at all — and NOT through §2d.1, which is cut for a change that moves a number. This one moves no number: the marker reads no physics value, computes nothing and writes no verdict word.
+
+### A1.3 The control on the real artifact, measured by the applying lane
+
+On the registered clean log `verification/runs/T-family/T16_runs/T16_MC_c/log.solve`
+(7 029 076 B, `End` line present, `rc = 0`):
+
+| matcher | file | crash tokens returned on that log |
+|---|---|---|
+| frozen | `mark_done_t16.PRE_D541.py` | **`['Floating point exception']`** — the `trapFpe` banner, line 20 |
+| repaired | `mark_done_t16.py` | **`[]` — none** |
+
+That single false positive is the whole of what blocked this rung. It is the
+mirror of rule 3: **a refusal from a guard never shown able to accept a
+known-good input is worth exactly as little as a zero from a reader never shown
+able to see a non-zero.** The repaired file drives that positive control, and two
+negative controls built from verbatim excerpts of real FPE crashes on this box,
+in its own `--selftest`.
+
+**`--selftest` state of the registered blob, disclosed exactly and not rounded
+up: 24 ok / 1 FAIL, identically under `python3` and `python3 -O`.** The single
+FAIL is the D541 **frozen-contrast** arm, which loads `HERE/mark_done_t16.py`
+expecting to find the defect still present in it; after promotion that path *is*
+the repaired file, so the arm compares the repair against itself and reports the
+defect gone. **It is a defect-presence detector reporting success, not the
+failure of any completion clause.** Every substantive arm reads ok: all six
+strict-rule limbs, both L-342 field-class halves, all three R-RC arms, the D541
+provenance check on all three embedded excerpts, and the three FPE
+positive/negative controls. AST `assert` count in the file is 0 (L-332), by a
+counter shown to see a planted `assert`. Retargeting that one arm at
+`mark_done_t16.PRE_D541.py` would change the approved blob, so **the applying
+lane did not make that edit** — approval of a blob is not approval of a blob
+edited afterwards (rule 9). It is referred to the supervisor as a second ruling
+and is **not** claimed here as a passing selftest.
+
+### A1.4 What `scripts/check_comparator_freeze.py` actually reports
+
+Run after this repair: **`analyse_t16.py` reads `FROZEN`**, scope 1 of 1 marker
+(`DONE.T16_MC_c`), comparator committed 2026-08-27T17:12:13Z, first marker
+2026-08-27T19:18:24Z, **margin (last) +7 571 s** — frozen by construction, and
+the T16 marking widened that margin rather than narrowing it. The tool's global
+verdict is `FAIL` for **pre-existing, lab-wide, non-T16 reasons** (9 UNFROZEN and
+2 AMENDED_AFTER graders out of a population of 140; none of them is a T16
+instrument), and that FAIL predates this amendment.
+
+**A correction to the record, stated because it matters for how this file is
+maintained:** `check_comparator_freeze.py` does **not** police
+`mark_done_t16.py`. Its population is 139 *graders* — `analyse_*` / `grade_*` —
+and `mark_done` appears zero times in its output. The freeze-set mismatch this
+amendment repairs is therefore a **prose-record** mismatch in §11, reproducible
+only by `git hash-object` against the table, and **no automated check would have
+caught it.** That is an argument for the amendment being owed, not against it.
+
+### A1.5 What this amendment does NOT do
+
+It does not grade anything. `T16_MC_c` is marked `DONE`; `T16_MC_m` was still
+running and `T16_MC_f` still queued when this was written, so the Roache triple
+is incomplete and the frozen comparator **refused the partial rung (exit 2)** —
+correctly, and that refusal is recorded as correct. **Rule 5's ordering is
+untouched by any of this.** The rung's verdict remains **`PENDING`**. No solver
+was launched by the lane that applied this repair.
+
+**Nothing in this rung has been sent, filed, submitted, uploaded, registered or
+posted anywhere outside this box, and nothing in it may be (`CLAUDE.md` rule 7).**
