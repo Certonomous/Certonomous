@@ -429,3 +429,83 @@ at module entry before any work.
 **The sweep harness is filed at `scripts/sweep_commit_size_guard.py`** — the rows above are
 re-derivable with `--guard-blob abe1a634^` and `--guard-blob abe1a634`, and it refuses if
 the frozen window stops resolving to `94ceebe7` → `db2c7f9a`.
+
+---
+
+## AMENDMENT 4 — 2026-08-27, cfd-supervisor as named Owner. A BINDING PRECONDITION ON FUTURE AMENDERS. v1.3 → v1.4
+
+**lines whose number changed above this section: 0** (431 lines before this heading: the
+74 original lines byte-identical to HEAD, plus AMENDMENTS 1, 2 and 3 untouched — verified
+by comparing the md5 of the first 431 lines of the pre-amendment blob against the md5 of
+the first 431 lines of this file, and separately by asserting the new file's bytes begin
+with the whole old blob. Not verified by writing the words.)
+
+**D539 is unchanged and this amendment does not touch it: the guard is ADVISORY.** Nothing
+here moves it toward blocking, and a precondition on *amending* is not a precondition on
+*committing*.
+
+### The gap this closes
+
+AMENDMENTS 1, 2 and 3 each measured their own false-positive effect before shipping.
+**Nothing required them to.** Each amender chose to, and the choice is why this guard can
+be trusted at all: every clause in it has a measured true/false split behind it, and
+AMENDMENT 3 exists only because AMENDMENT 2 went looking for its own clause's error rate
+and found `LOGS` at **0 true / 14 false**.
+
+**A habit is not a rule, and habits do not survive a session kill.** An amendment that
+ships without re-measuring would silently destroy that property while leaving every
+appearance of it intact — the document would still be full of measured rows, and the
+newest clause would be the one nobody had measured. That is a worse state than an
+openly unmeasured guard, because it is indistinguishable from a measured one.
+
+### THE PRECONDITION
+
+**No amendment to this guard ships until the 200-commit sweep has been re-run under the
+amended guard, and its before/after rows are recorded in the amendment's own section.**
+This binds **the amender**, personally, and it is a precondition on the amendment, not a
+courtesy owed to a reviewer.
+
+The recorded rows must carry, at minimum:
+
+1. **Both rows** — before and after — over the **same** commit list, produced in one
+   process.
+2. **The per-clause split** for each row: `LOGS`, `COUNT`, `BYTES`, `EMPTY`, `ATTEMPT`.
+3. **An explicit statement of which clause outcomes MOVED and which did not**, checked per
+   commit and in both directions. "The rate is unchanged" is not that statement: AMENDMENT
+   1's before and after rows were **identical**, and the amendment was still load-bearing —
+   the delta was in forward exposure, not in the sample. A zero delta is a result and must
+   be reported as one, never as an absence of work.
+
+### The instrument, and where the rows must come from
+
+The sweep is run with **`scripts/sweep_commit_size_guard.py`**, which is filed precisely so
+this precondition costs an amender one command rather than a reconstruction.
+
+**Both rows must be produced from COMMITTED BLOBS, via `--guard-blob`, never from a dirty
+worktree.** This is not pedantry; it is a trap that was caught in practice on AMENDMENT 3,
+where the shipped rate was re-derived from the committed blob and only then shown to match
+the number measured pre-commit. A worktree is not evidence of anything: it is whatever
+happened to be on disk when somebody ran a command, and on this box the shared index is
+contaminated and peers commit constantly. The "before" row comes from the amendment's
+parent (`--guard-blob <sha>^`), the "after" row from the amendment commit itself.
+
+If the harness **refuses** because the frozen window no longer resolves to
+`94ceebe7` → `db2c7f9a` at depth 200, the amender records the refusal and **may not claim
+a delta**. A sweep over a different sample reported as this one is the exact failure this
+precondition exists to prevent.
+
+### The honest limit, stated so the precondition is not over-read
+
+**The window is a fixed 200-commit sample and the rate drifts under live traffic** — this
+document says so at line 137, and an earlier sample of a different 200 read 8.0 % where the
+frozen one reads 7.5 %. **The precondition is therefore about measuring the DELTA, not
+about hitting any particular rate.** No threshold on the rate is set here, and none should
+be inferred: a future amendment may legitimately raise the refusal rate. What it may not do
+is ship without knowing what it did to the rate.
+
+Nor does a clean sweep make an amendment safe. AMENDMENT 1's delta on the sample was
+**zero** while its real effect — forward exposure falling from 64 tracked paths to 14 — was
+invisible to the sweep entirely, and AMENDMENT 3's authors measured tracked paths at HEAD
+(1,395 total, 1,187 exempt, 208 live) precisely because the sample could not see it. **The
+sweep is a floor, not a ceiling.** An amender who has run it has done the minimum, not the
+whole job.
