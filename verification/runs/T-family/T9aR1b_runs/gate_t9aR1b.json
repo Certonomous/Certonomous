@@ -1,0 +1,80 @@
+{
+  "rung": "T9a-R1b",
+  "parent": "T9a",
+  "row": "R1",
+  "reference_T_i1": 348.7810823988298,
+  "values": {
+    "c": 348.7810823988299,
+    "m": 348.78108239882664,
+    "f": 348.7810823988269
+  },
+  "cells": {
+    "c": 35,
+    "m": 56,
+    "f": 90
+  },
+  "triple": {
+    "state": "EXACT",
+    "order": null,
+    "e21": -2.8421709430404007e-13,
+    "e32": 3.240074875066057e-12,
+    "GCI_abs": null
+  },
+  "deviation_K": 2.8990143619012088e-12,
+  "band_K": 1e-06,
+  "verdict": "PASS",
+  "note": "EXACT triple: T9a's zero band made operational as the registered floor 1.0e-06 K",
+  "gate1": {
+    "c": {
+      "ok": true,
+      "checkpoint_move_K": 0.0,
+      "why": ""
+    },
+    "m": {
+      "ok": true,
+      "checkpoint_move_K": 0.0,
+      "why": ""
+    },
+    "f": {
+      "ok": true,
+      "checkpoint_move_K": 0.0,
+      "why": ""
+    }
+  },
+  "floors": {
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05,
+    "source": "scripts/roache_triple.py (imported)"
+  },
+  "planted_zero_control": {
+    "status": "PASS",
+    "plant": 0.001234,
+    "cell": 25,
+    "recovered": 0.0011763153070774024,
+    "demonstrated_detection_floor": 1e-07,
+    "ladder": {
+      "1": 0.9532538955086807,
+      "0.1": 0.09532538955085101,
+      "0.01": 0.00953253895505668,
+      "0.001234": 0.0011763153070774024,
+      "0.0001": 9.53253895090711e-05,
+      "1e-05": 9.532538911116717e-06,
+      "1e-06": 9.532539024803555e-07,
+      "1e-07": 9.532539024803555e-08
+    }
+  },
+  "R0_reported": {
+    "c": {
+      "q_hot": 19.502681618723727,
+      "rel_dev": 5.92037530111611e-14
+    },
+    "m": {
+      "q_hot": 19.50268161878921,
+      "rel_dev": 3.416876293016458e-12
+    },
+    "f": {
+      "q_hot": 19.502681618781935,
+      "rel_dev": 3.0438015663492027e-12
+    }
+  }
+}

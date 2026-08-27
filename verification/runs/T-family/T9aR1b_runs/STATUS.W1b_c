@@ -1,0 +1,13 @@
+case=W1b_c
+rc=0
+wall_s=0
+ranks=1
+core_min=0.000
+timeout_s=60
+capped=no
+checkmesh_rc=0
+solver=laplacianFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/laplacianFoam
+note=clean
+started_utc=2026-08-27T08:54:19Z
+ended_utc=2026-08-27T08:54:19Z

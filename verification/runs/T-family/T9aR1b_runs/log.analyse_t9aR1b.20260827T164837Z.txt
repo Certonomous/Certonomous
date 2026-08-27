@@ -1,0 +1,8 @@
+referent: q = 19.502682 W/m2, T_i1 = 348.781082399 K (derived; cross-checked to T9a's registered values)
+  level c: checkpoint-converged True (move 0.000e+00 K)
+  level m: checkpoint-converged True (move 0.000e+00 K)
+  level f: checkpoint-converged True (move 0.000e+00 K)
+planted-zero control R1 PASS: plant 0.001234 K in cell 25 (adjacent to interface 1), recovered 0.00117632 K, floor 1e-07
+R1 T_i1: c=348.781082399 m=348.781082399 f=348.781082399 exact=348.781082399 dev=2.899e-12 K triple=EXACT p=n/a band=1.000e-06 K -> PASS [EXACT triple: T9a's zero band made operational as the registered floor 1.0e-06 K]
+R0 (REPORTED, not graded): q_hot rel dev c +5.920e-14, m +3.417e-12, f +3.044e-12
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T9aR1b_runs/gate_t9aR1b.json
