@@ -633,3 +633,240 @@ decade apart across frozen files. **Rule for NEXT registrations: use the shared 
 (`STAGNANT_FLOOR` / `P_MIN`) with the shared instrument's numbers, or call `grade_ladder` and
 define neither.** Frozen files are not edited; no verdict, threshold or band moves. Sanaa's desk
 holds this as information, not as a question.
+
+---
+
+## 11. ASPECT RATIO AND CELL-VOLUME RATIO BECOME REPORTED MESH-ADMISSION EVIDENCE — AND NO THRESHOLD IS SET FOR EITHER (v1.6, 2026-08-27)
+
+**Appended at the foot under standing rule 6. Version 1.5 → 1.6. Lines whose number changed
+above this section: 0.** Nothing above is edited, struck or renumbered by this section.
+
+**THIS SECTION SETS NO THRESHOLD AND MOVES NO GATE, NO BAND, NO CAP AND NO LABEL.** §3.1's
+70°, §3.2's 4, §3.3's advisory at 1000 and its compound flag, §3.4's proposed 0.01 and §7.5's
+proposed α bracket are all untouched, and no value is written to `docs/physics_rules.yaml` by
+this section. It changes exactly one thing: **two quantities that were optional to record become
+required to record.** *(Header discrepancy carried forward per §9: line 3 still reads
+`Version 1.2`; the authoritative version is the highest section version, now **v1.6**, and the
+header is deliberately not edited here because editing it would move every line number above.)*
+
+### 11.1 The occasion, measured
+
+`verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/coarse/log.checkMesh`, OpenFOAM
+v2606, F12 RAE 2822 attempt-2 coarse level, 23,040 cells:
+
+| line | what the log says |
+|---|---|
+| 93 | `Max aspect ratio = 805.199 OK.` |
+| 95 | `Min volume = 1.30653e-09. Max volume = 41.8474.  Total volume = 13825.7.  Cell volumes OK.` |
+| 96 | `Mesh non-orthogonality Max: 51.1237 average: 17.375` |
+| 99 | `Max skewness = 0.95723 OK.` |
+| 102 | `Mesh OK.` |
+
+`checkMesh` returned **`Mesh OK.`** The mesh clears §3.1 (51.12 < 70), §3.2 (0.957 < 4) and
+§3.3's advisory (805.199 < 1000). Its **whole-mesh cell-volume ratio**, 41.8474 / 1.30653e-09 =
+**3.2029e+10**, is a quantity **this standard does not name anywhere, `docs/physics_rules.yaml`
+does not carry, and the §6 birth certificate does not record.**
+
+**The sharper finding, and it is the one that motivates §11.4.** The same ladder's own
+certificate file,
+`verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/birth_certificates.json`, records
+`"max_aspect_ratio": null` at **all three levels** — while `medium`'s and `fine`'s logs read
+`***High aspect ratio cells found, Max aspect ratio: 2842.46 / 1760.97` and end
+`Failed 1 mesh checks.` The builder
+(`.../build_ladder_attempt2.py`) contains **no occurrence of the string `aspect`**: it never read
+the field it left a slot for. Gate A was recorded `PASS` at all three levels with the
+aspect-ratio column empty at all three.
+
+Across the lab's whole certificate population, measured 2026-08-27: **64 mesh records carry a
+`max_aspect_ratio` key; 61 carry a value and 3 are null (all three are F12 attempt-2's levels);
+and 64 of 64 carry NO cell-volume field of any kind.** So the aspect dimension is ~95 % covered
+with one measured hole, and **the volume dimension is 0 % covered.**
+
+### 11.2 WHY THIS SECTION SETS NO THRESHOLD — and this refusal, not the reporting rule, is the point of it
+
+**Setting a number here from F12 would be the mesh-quality form of choosing a gate to fit the
+answer.** Standing rule 2 freezes a solver gate before the run precisely so the gate cannot be
+selected once the answer is visible. A mesh gate written *after* looking at the mesh that
+crashed enjoys none of that protection and deserves none of the authority.
+
+**And F12 is weaker evidence than it looked when this amendment was ordered.** F12's Arm A
+**exonerated the mesh**: the crash cell, 17152, sits in the **44th–58th percentile in every
+dimension**, while the mesh's real extremes — aspect ratio 805.199, non-orthogonality 51.124 at
+the trailing edge, minimum cell volume 1.307e-09 at the leading edge — are **nowhere near the
+crash**. A threshold fitted to F12 would therefore have **gated against cells that had nothing
+to do with the failure**, and would have done it carrying a standard's authority.
+
+*Disclosed, because the strength of a claim is part of the claim:* Arm A's percentile figures
+are recorded as supervisor triage prose in `docs/LAB_STATE.md` (cfd section, 2026-08-27) and
+have **no artifact of their own under `verification/runs/F12_runs/`**. **No requirement in §11
+rests on them.** They are stated here as the reason a threshold is *withheld*, which is the one
+direction in which weak evidence is safe to act on.
+
+**The transferable rule, and it is the reason this section exists:**
+
+> **A number that is WRONG in a standard is more expensive than a number that is MISSING from
+> one.** A missing number produces a survey. A wrong number produces refusals of admissible
+> meshes, retro-invalidated results, and the false confidence that the dimension is under
+> control. **Measurement precedes the threshold: a dimension is first made VISIBLE across the
+> whole population, then a threshold is argued from the distribution — never from the one case
+> that made somebody look.**
+
+§3.3 already records this mistake from the other side and is the lab's own proof of the rule: a
+hard aspect-ratio gate at 1000 would reject **every** reference-grade wall-resolved RANS grid
+the lab owns, the NASA TMR flat plates measuring 66,643 to 74,041 with non-orthogonality 0 and
+machine-precision skewness. That gate was avoided **because the population had been measured
+first.** §11 asks the same of its own successor.
+
+### 11.3 The three quantities, disambiguated — because two of them are routinely conflated
+
+Field names below were verified 2026-08-27 against real `log.checkMesh` files in this
+repository, not from memory. The verification log for the first two is
+`verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/coarse/log.checkMesh`; for the
+flagged aspect-ratio form,
+`verification/runs/F12_runs/mesh_ladder_attempt2_2026-08-25/medium/log.checkMesh`; for the
+third, `verification/runs/GEN_ALT_runs/alt_refined/log.checkMesh`.
+
+| # | quantity | how it appears in `log.checkMesh` | status before §11 |
+|---|---|---|---|
+| (a) | **max aspect ratio** (whole mesh) | **two mutually exclusive labels.** Below `aspectThreshold_ = 1000`: `    Max aspect ratio = 805.199 OK.` (**space, `=`, space**). At or above it: ` ***High aspect ratio cells found, Max aspect ratio: 2842.46, number of cells 34` (**colon, no space before it**), and the run then ends `Failed N mesh checks.` | §3.3 advisory; `aspect_ratio_advisory: 1000.0` in `docs/physics_rules.yaml`; `max_aspect_ratio` already a §6 certificate field |
+| (b) | **whole-mesh cell-volume ratio** = max cell volume / min cell volume | **NOT PRINTED BY `checkMesh` AT ALL.** Derived from `    Min volume = 1.30653e-09. Max volume = 41.8474.  Total volume = 13825.7.  Cell volumes OK.` | **named nowhere** — not in this standard, not in `physics_rules.yaml`, not in the certificate |
+| (c) | **adjacent-cell (face) volume ratio** | `    Face volume ratio : minimum: 0.0528967 average: 0.877159` — printed **only** under `checkMesh -allGeometry` | §3.4's proposed 0.01; `min_volume_ratio_warn: 0.01` in `physics_rules.yaml` |
+
+**(b) and (c) are different quantities and §3.4 governs only (c).** The 3.2029e+10 figure of
+§11.1 is (b). Conflating them would let a reader believe §3.4 already covers the F12 observation;
+it does not, and §11 does not touch §3.4.
+
+**Two traps in (a), both measured, both live.** First, a reader matching only the `=` form sees
+**761 of the lab's 916 logs and silently misses exactly the 155 pathological ones** — the failure
+is invisible because it returns a plausible number for most meshes. `sdk/chief_engineer/mesh_certificate.py:93`
+matches both forms (`Max aspect ratio[:=\s]+`); F12's own builder matched neither. Second, the
+`=` form carries **a space on both sides of the `=`** while the `:` form has **no space before the
+colon**; a pattern of the shape `Max aspect ratio[:=]` matches neither the `=` form nor a run of
+`grep` written in haste. *(This was demonstrated live while writing this section: exactly that
+pattern returned nothing on two logs that plainly contain the field.)*
+
+### 11.4 THE OBLIGATION — measured and reported, now, with a named home
+
+> **Every cfd mesh entering a pre-registration, a ladder rung or an admission record RECORDS
+> its max aspect ratio and its whole-mesh cell-volume ratio, read back from its own
+> `log.checkMesh`, in that mesh's §6 birth certificate.**
+
+**No value of either quantity makes a mesh inadmissible under this section. What makes a record
+INCOMPLETE is the ABSENCE of the number, never its size.** §11 rejects no mesh.
+
+**The home.** The §6 mesh birth certificate: `birth_certificate.json` beside the `polyMesh` it
+certifies, or — for a ladder that writes one aggregate file per family, as F12's
+`birth_certificates.json` does — the per-level record inside that file. Fields:
+
+| field | definition | new here? |
+|---|---|---|
+| `max_aspect_ratio` | the value from **either** label form of §11.3(a) | **no** — already a §6 field; §11 requires it be non-null |
+| `aspect_ratio_flagged` | boolean, true iff the log carries `***High aspect ratio cells found` | yes |
+| `min_cell_volume`, `max_cell_volume` | the two values on the `Min volume = … Max volume = …` line | yes |
+| `cell_volume_ratio` | `max_cell_volume / min_cell_volume`, **stated as derived**, not as a checkMesh output | yes |
+| `geometric_directions` | the count on `Mesh has N geometric (non-empty/wedge) directions` | yes — see the 2-D caveat below |
+| `checkMesh_log` | absolute path of the log every value above was read from | already present in practice; made explicit |
+
+**The reader carries a planted control (standing rule 3).** A reader that reports `null`, or a
+ratio of 1, must first have been shown able to read a non-null value from a log of **each** label
+form and to derive a non-trivial ratio. F12's three nulls are exactly the failure this clause
+prevents, and they were produced by a reader nobody had asked to see a value.
+
+**The 2-D caveat, measured on the occasion case.** F12 coarse reports `Mesh has 2 geometric
+(non-empty/wedge) directions`, and its `Min volume` equals its `Minimum face area` to every
+printed digit (1.30653e-09 both). In a 2-D mesh with a unit-thickness empty direction the
+cell-volume ratio is an **in-plane area ratio**, not a volume ratio, and is not dimensionally the
+same statistic as a 3-D mesh's. Hence `geometric_directions` is required alongside it, and
+§11.5's distribution is split on it.
+
+**What is NOT done here, said plainly so it is not described as done.**
+`sdk/chief_engineer/mesh_certificate.py` does not yet emit the four new fields; it parses (a) and
+not (b). §11 **names** the fields and does not edit that code — a separate, disclosed change.
+Until it lands, the case writes them into the certificate file it already produces. A
+mesh-admission record without them is **incomplete**, and §8.1's *"SHOWN ADMISSIBLE"* is not shown
+by a record with an empty column.
+
+### 11.5 THE SURVEY — **MESH DIMENSION SURVEY, MDS-1** — named, sized, and owned
+
+A deferral with no named survey is a deferral that never lands. MDS-1 therefore has a
+population, a statistic, a home, an owner and an exit condition.
+
+**Population, counted 2026-08-27 with `find . -name 'log.checkMesh*' -type f` — measured, not
+estimated:**
+
+| class | `log.checkMesh` files |
+|---|---|
+| `verification/runs/` (40 distinct campaigns) | **837** |
+| — of which `T-family/` | 278 |
+| — of which `ansys_verification/` | 134 |
+| — of which `F14-cooling-ladder/` | 123 |
+| — of which `F1_MESH_TRIALS_2026-08-25/` | 50 |
+| — of which `MODEL_FORM_runs/` | 36 |
+| — of which the remaining 35 campaigns | 216 |
+| `mission-output/geometry-study/` | 24 |
+| `cases/mega-batch/` | 21 |
+| `cases/ansys_verification/` | 17 |
+| `cases/tmr/` | 12 |
+| `mission-output/` other (skew-experiments 2, uq-studies 1, nasa-hump 1, ahmed-body 1) | 5 |
+| **TOTAL** | **916** |
+
+Two population facts recorded because they change how the survey must be run:
+- **`cases/committee-grids/` exists and holds ZERO `log.checkMesh` files.** It contributes
+  nothing and is named here so a later reader does not assume it was overlooked.
+- **Two of the 916 sit inside a hidden directory**
+  (`verification/runs/F14-cooling-ladder/K0cG_runs/.attempt1_stale/`). `find` sees them; a
+  recursive `**` glob does **not** enter dotted directories, and `grep -r` in this environment
+  honours ignore files. **MDS-1 enumerates with `find` and states its enumerator**, or its
+  coverage figure is a false zero of exactly the kind standing rule 3 exists to catch.
+
+**Feasibility, measured — MDS-1 costs ZERO new compute for the two quantities §11 names:**
+- a `Max aspect ratio` line is present in **916 of 916** logs (761 in the `=` form, 155 in the
+  `:` form; the two sets are disjoint and exhaustive);
+- a `Min volume = … Max volume = …` line is present in **916 of 916**, and the ratio is derivable
+  with `min > 0` in **916 of 916**;
+- by contrast a `Face volume ratio` line — §11.3(c), §3.4's quantity — is present in only
+  **66 of 916 (7.2 %)**, because the rest were not run with `-allGeometry`. **That is why MDS-1
+  surveys (a) and (b) and not (c), and why §11 leaves §3.4 alone:** 93 % of the population cannot
+  answer (c) without re-meshing or re-checking.
+
+**Statistic to be taken.** Per log: max aspect ratio and its label form; min and max cell volume
+and the derived ratio; `geometric_directions`; max non-orthogonality; max skewness; the
+`Mesh OK.` / `Failed N mesh checks.` verdict; and the class. Reported as **the full empirical
+distribution** (min, deciles, median, 90th / 95th / 99th percentile, max) of each of (a) and (b),
+**split by 2-D versus 3-D**, and **cross-tabulated against non-orthogonality and skewness** —
+because §3.3 already asserts that high aspect ratio is dangerous *in company* and harmless when
+aligned, and MDS-1 must be able to **test** that assertion rather than inherit it.
+
+**Home:** `verification/runs/MDS1_runs/`, with the reader and its planted control beside the
+result. **Owner:** the cfd supervisor.
+
+**WHAT A LATER DATED AMENDMENT NEEDS IN ORDER TO SET A THRESHOLD — all four, not three:**
+
+1. **The MDS-1 distribution**, filed at the home above, its reader carrying a live planted
+   control that is shown able to read a non-null value from **both** label forms and to derive a
+   non-trivial ratio.
+2. **At least one mesh whose failure is attributed to the proposed dimension BY A MECHANISM, not
+   by correlation.** **F12 does not supply one** — Arm A exonerated it. Every entry in §3 states
+   the failure mode its gate prevents; a threshold with no failure mode is a number.
+3. **A statement of what the proposed threshold would have REJECTED in the surveyed population,
+   by name and count** — including how many currently-PASSing lab results it would
+   retro-invalidate and how many reference-grade grids (NASA TMR, Ansys VM, community canonical
+   grids under the R12 exemption) it would refuse. This is the test §3.3 applied and passed;
+   every successor answers it before adoption, not after.
+4. **§5's governed path:** the value in `docs/physics_rules.yaml` with its citation beside the
+   number, and a proposal in the agenda inbox so the owner sees it.
+
+**Anti-deferral clause.** A record that cites §11 to say *"threshold deferred to MDS-1"* while
+`verification/runs/MDS1_runs/` **does not exist** is citing a survey that has not been started,
+and **must say so in those words.** The survey's absence is a reportable state, not a silence.
+
+### 11.6 Scope of §11
+
+- §11 binds **cfd meshes**; it is offered to other families rather than imposed on them.
+- **Not retroactive.** No frozen ladder is re-opened, no closed verdict is regraded — **F12's
+  included.** §11.1 reads F12's records as evidence of a reporting gap; it does not regrade F12.
+- §11 **sets no threshold and moves no gate value.** §3's and §7's numbers are unchanged, and
+  nothing is written to `docs/physics_rules.yaml` by this section.
+- §11 does not amend any charter, and does not edit
+  `sdk/chief_engineer/mesh_certificate.py`; the four new certificate fields are named here and
+  their implementation is a separate, disclosed change.
