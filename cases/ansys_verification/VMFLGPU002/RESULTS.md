@@ -110,3 +110,42 @@ instrument graded; the solver did not fail.
 **Ledger follow-up:** register **row 34** and **calibration C-168** land with this record.
 **No R2 is warranted:** a re-run on the same three grids reproduces the same OSCILLATORY
 triple and the same `NOT A RESULT`, so it buys nothing (supervisor, 2026-08-27).
+
+---
+
+## Dated addendum — 2026-08-27 — the launcher's FIELD-COMPLETENESS guard passed VACUOUSLY and is NOT evidence for VMFLGPU002
+
+**Appended at the foot in rule-6 form by `ansys-lane-opus48` (lane B) on the supervisor's
+dispatch of 2026-08-27. Nothing above is edited, struck, widened or renumbered; no gate,
+threshold, cap, label or verdict changes.**
+
+The launcher's `field_completeness()` guard (in `run_vmflgpu003.sh` and its VMFLGPU siblings)
+was intended to refuse launch unless the case's `system/fvSolution` solver block declares
+solvers for the required fields (`p`, `U`, plus the closure's fields). **On this case it passed
+VACUOUSLY: `required = {}` — the guard checked NO fields.**
+
+**Mechanism, measured — and NOT the "nested petsc blocks" story the board carried.** The guard's
+embedded key-extraction parser contains the line `if ch in ";\n" and depth == 0: tok = ""`, which
+clears the accumulated key token at **every depth-0 newline**. OpenFOAM's standard `fvSolution`
+style puts the solver key (`p`, `U`) on its **own line**, with the opening `{` on the **next**
+line — so the newline between the key and its brace clears the token, and when the `{` is reached
+`tok` is empty, no key is captured, `keys = []`, `cand = {}`, and `required = cand ∩ {p, U} = {}`.
+
+**A/B discriminator, independently reproduced in this lane** (not taken on report): with the key
+and brace on **one line** (`p {`), `required = {U, p}` and the guard is active; with the key on
+its **own line** (OpenFOAM standard), `required = {}` and the guard still fails. **Confirmed
+`required = {}` on VMFLGPU003's frozen `system/fvSolution.template`, on its `gpu/L3_80x160`
+actual `fvSolution`, and on VMFLGPU001-R2's frozen template** (the R2 run executing at the time
+of writing printed the same empty set).
+
+**Consequence:** the launcher's green field-completeness check is **NOT evidence** that the
+required fields were declared for VMFLGPU002. It is a vacuous pass.
+
+**What DOES stand, and why the verdict is untouched:** the verdict `NOT A RESULT` rests on the OSCILLATORY GPU grid triple (rule 5 step 2, R = −0.197406) and the amended comparator's own field reads — all read by the **frozen
+COMPARATOR** from disk, which carries its own planted-zero controls and its own strict-completion
+field-presence checks (CLAUDE.md rule 4). Those are the real evidence; the launcher's guard is a
+redundant belt-and-braces check that happened to be vacuous. **The frozen launcher is NOT edited**
+(a departure is disclosed, never reverted); this is a records addendum so no future reader cites
+the launcher's field-completeness pass as evidence of field completeness for this case.
+
+**Lines whose number changed above this section: 0.**
