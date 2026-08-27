@@ -355,3 +355,184 @@ No mechanism is claimed. No fix is proposed. No F12 gate is read. The interlock
 is not touched. **Nothing is sent, filed, uploaded or submitted** (rule 7).
 **No launch is authorised by this amendment** — it fixes the grading path and
 nothing more; the launch decision belongs to the cfd supervisor.
+
+---
+
+## AMENDMENT 2 (PRE-COMPUTE) — 2026-08-27 — A CONTROL REPAIRED BECAUSE ITS SCOPE WAS NARROWER THAN ITS TITLE; READER RE-PINNED; AND THREE RULINGS PUT ON RECORD BEFORE ANY COMPUTE
+
+**Version 1.1 → 1.2.** `lines whose number changed above this section: 0`
+— proven, not asserted: `md5(head -357)` reads
+`e388d7a0558a01ede558fb5d1aeb0e72` both before and after this append, checked
+against **the true parent of this amendment's commit** (`git rev-parse <sha>^`),
+never against `HEAD~1` — peers commit constantly and a `HEAD~1` comparison can
+match vacuously. Amendment 1's frozen-body proof at N = 176 also still stands.
+Nothing above line 357 was edited. This amendment is APPENDED at the foot.
+
+**IT MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP AND NO LABEL.** It strengthens
+one control and changes nothing scorable. PE1–PE6 stand digit for digit; PE7
+still registers no prediction; C1–C6 stand; estimate 0.0795 core-min and cap
+0.50 core-min stand. **F12 rung 1 stands `NOT A RESULT`; rungs 2–5 stand
+`BLOCKED`**, and the rung-2 `rate_calibration_gate()` interlock is untouched.
+**THE SEVEN OPEN MECHANISMS REMAIN LISTED, UNCHANGED AND UNNARROWED.**
+
+### A2.1 THE DEFECT — a control that could not return an alarming answer
+
+The reader's verdict-leak control, as committed at `6b011629`, read:
+
+```python
+banned = [w for w in ("GATE REACHED", "GATE FAIL", "BLOCKED", "PENDING")
+          if w in blob and w not in out["note"]]
+```
+
+Its title claimed *"no verdict-vocabulary word leaks into the result"*. It could
+not deliver that, in two independent ways:
+
+1. **`PASS` and `NOT A RESULT` were not in the banned tuple at all** — two of
+   the six words were simply unchecked. The arm does not emit them; the defect
+   is that **this control could not have told anyone if it did.**
+2. **The carve-out was keyed on the WORD, not on the LOCATION.**
+   `w not in out["note"]` excused a banned word appearing **anywhere in the
+   object** so long as the same word also appeared in the note. The note
+   contains both `BLOCKED` and `NOT A RESULT`, so a stray `BLOCKED` leaking
+   from **any other field** was silently excused.
+
+This is the same disease this arm exists to catch: a check that returns a
+reassuring answer without being able to return an alarming one.
+
+### A2.2 THE REPAIR, AND ITS PROOF
+
+`verdict_leak_check(out)` now bans **the full six-word vocabulary** — `PASS`,
+`GATE REACHED`, `GATE FAIL`, `NOT A RESULT`, `BLOCKED`, `PENDING` — and scopes
+the exemption to the `note` **field**: the field is removed from the object,
+what remains is serialised, and every remaining byte is searched. **The
+exemption now attaches to the field that earned it, never to the string.** The
+note is kept and is still emitted; the disclaimer is wanted.
+
+A repair to a control that is not itself shown able to fail is worth nothing,
+so the repaired control is driven **six ways** through the real code path on the
+real scored object — one passing, four failing, one passing-for-the-right-reason:
+
+| drive | outcome |
+|---|---|
+| clean result, note and all | passes, `leaks=[]` |
+| `PASS` planted in a non-note field | **FIRES**, `leaks=['PASS']` — a word the old control did not ban at all |
+| `NOT A RESULT` planted in a non-note field | **FIRES** — the second word the old control did not ban at all |
+| `BLOCKED` planted in a non-note field **while the note also contains `BLOCKED`** | **FIRES** — the exact case the old word-keyed carve-out silently excused |
+| `PENDING` planted in a non-note field | **FIRES** |
+| note — and only the note — carrying all six words | passes, `leaks=[]` |
+
+Selftest total: **35 of 35, rc 0** (was 30 of 30). `ast.Assert` count remains
+**0**; `python3 -O` and `-OO` both still bail **rc 2** at module entry.
+
+### A2.3 THE GRADING PATH, RE-PINNED
+
+The reader's bytes changed, so amendment 1's reader pin is **SUPERSEDED AND
+STRUCK**. A1.2's table is not rewritten — rule 2 strikes originals, it does not
+edit them. **The operative pin is this one:**
+
+| role | path | hash |
+|---|---|---|
+| launcher | `…/first_pressure_solve_instrument_2026-08-27/run_arms_e.sh` | launcher git-blob `26f270a7609994b81d1e8cecb49abf9c347e9c76` — **UNCHANGED** |
+| launcher | (same file) | launcher sha256 `90adab6da8f97ab67e1dcba42748a2a7d95745051460e2ac152c0d524b14fa95` — **UNCHANGED** |
+| reader | `…/first_pressure_solve_instrument_2026-08-27/readers/analyse_first_pressure_solve.py` | reader git-blob `f502aec4cfade0ca8ef5f987d667404410ad1427` |
+| reader | (same file) | reader sha256 `805c8c4a9eb63aa69b9e31d63db9806e70b6ebb0b93d3c5d0dd2f84a7565276d` |
+
+A1.2's reader pin `0124cd44c2dbed20b502f4199173f89e44455acb` /
+`578df8fdbaf70f5fe23f44bcb9ab2ec43797766bba9e89fc60c5e89543717885` **is struck
+and must not be matched against.**
+
+**A residual weakness, disclosed rather than papered over.** The launcher's
+document-side check is `grep`, so it would now accept **either** the struck pin
+or this one — the struck string still sits in A1.2, as rule 2 requires. The
+check that actually binds is the launcher's separate requirement that the
+reader on disk equal `HEAD:<path>`, and exactly one file can satisfy that. The
+grep is corroboration; the `HEAD` equality is the pin. The launcher was
+deliberately **not** edited to tighten this, because editing it would change
+its own blob and cascade the pin again for no gain in the binding check.
+
+### A2.4 THE PRE-COMPUTE CONDITION, AND HOW IT WAS CHECKED
+
+Checked in this writing invocation, at **2026-08-27T21:48:33Z**, by `os.path.exists`,
+`os.path.lexists` and a prefix glob — three readers, not one:
+
+```
+/home/ubuntu/Certonomous/verification/runs/F12_runs/first_pressure_solve_2026-08-27 :: os.path.exists=False os.path.lexists=False glob=[]
+/home/ubuntu/certonomous-runs/F12_first_pressure_solve_2026-08-27 :: os.path.exists=False os.path.lexists=False glob=[]
+```
+
+**Both ABSENT. 0.000 core-min have been spent on Arm E.**
+
+**A correction to the record of `6b011629`, stated rather than smoothed.** That
+commit's message carries the stamp `2026-08-27T21:47Z` for the absence check.
+**That number was typed by hand and was never read from a clock — it is wrong,
+and it is the only fabricated figure in this arm's file.** The stamp actually
+recorded by `date -u +%FT%TZ` in the writing invocation is the one in §A1.3:
+**2026-08-27T21:39:54Z**. The lane's own post-commit re-check read
+**21:41:13Z** (`date -u +%FT%TZ`); the cfd supervisor's independent check read
+**21:44:05Z**; a later reading in the repair invocation read **21:46:02.712Z**
+(`date -u +%FT%T.%NZ`, corroborated to the same second by `datetime.now(utc)`).
+Those four readings are strictly increasing. **There was no clock anomaly on
+this box — the lane initially reported one, and the anomaly was the lane's own
+unread number.** No measurement depended on it.
+
+### A2.5 THREE RULINGS BY THE CFD SUPERVISOR, ON RECORD BEFORE ANY COMPUTE
+
+**(a) PE7 / §3 item 5 — THE FROZEN TEXT IS WRONG, AND IS RECORDED AS WRONG.**
+§3 item 5 and PE7 ask whether the extremes are present after the **first** inner
+`p` solve or only after the **second**. §4 says *"The arm reports the answer
+either way."* **It cannot.** The registered instrument writes fields at time 1
+only, and `pressureControl` prints once per outer iteration, **after both**
+inner solves — so no field and no print exists between them, and the arm's disk
+output does not resolve the question in either direction. **A registered
+question this instrument cannot answer is a finding about the registration.**
+The reader emits `resolved_by_this_instrument: false` with that reason, as a
+measurement. **No physics change is bought to reach it:**
+`nNonOrthogonalCorrectors 0` and solver instrumentation were both considered
+and both **REFUSED** — either would be an unregistered change made to rescue a
+question, which is exactly what the freeze exists to prevent. The claim stands
+struck as wrong; the question stands unanswered; nothing is tuned to close it.
+
+**(b) PE6's `0.836` — DO NOT TOUCH IT.** Driving the reader over the frozen
+field-localisation arm's iteration-1 field, the at-bound set spans
+`r_qc ∈ [0.0556, 0.8365]` — so the registered ceiling **0.836** is a truncation
+of a measured **0.8365**, and a pre-clip extreme cell on the outer edge of that
+set would score `NOT HELD` on a rounding artifact rather than on physics. That
+span was measured **after** the freeze. **Widening a threshold to accommodate a
+measurement is precisely the move rule 2 exists to prevent, and the fact that it
+would only ever help us is what makes it dangerous.** The number is unchanged.
+If it ever fires on that edge it is reported as a threshold-truncation artifact,
+never as physics. **A threshold that costs us a prediction is the price of
+having frozen it.** (The hazard is real but narrow: the localisation record puts
+the iteration-1 extreme at the trailing edge `(0.995635, 0.001004)`, i.e.
+`r_qc ≈ 0.7456`.)
+
+**(c) C2's conflation with PE2 — ACCEPTED AS IT STANDS, AND THE rc 2 IS
+DESIGNED.** C2 makes the 6,914 count a control limb as well as prediction PE2,
+so a measured count other than 6,914 makes the reader exit **2** and withdraw
+every number, rather than exit 1 with PE2 `NOT HELD`. That is a real weakness
+and it is kept, because it errs toward **refusing rather than degrading**, which
+is this lab's safe direction, and because PE1 already carries the same logic
+(*"the arm is then not rung 1 and nothing it says transfers"*). **An rc 2 on a
+count miss is DESIGNED. Nobody is to triage it later as a defect.**
+
+### A2.6 THE STRONGEST EVIDENCE IN THIS FILE, NAMED AS SUCH
+
+The reader was driven, before any Arm E compute, over **real fields already on
+disk** — the frozen field-localisation replication's iteration-1 `p` and rung
+1's own `log.rhoSimpleFoam` — and reproduced **every registered constant
+unaided**: 6,914 of 23,040 cells at a bound (**3,628 floor + 3,286 ceiling**),
+**0** cells outside `[10132.5, 202650]`, PE1 at **0 mismatches** across all
+eleven registered digits, and the pre-clip pair **−411376.774 / 2974458.981**
+parsed from the solver's own print. The planted-zero control C1 fired on that
+same real field at cell 12345.
+
+**This is the strongest single piece of evidence in this arm's file, because it
+is the one thing the synthetic fixtures could not have given.** A selftest
+proves a reader is internally consistent; only real fields prove it can read
+the thing it will be asked to read.
+
+### A2.7 NOT REGISTERED, NOT SENT
+
+No mechanism is claimed. No fix is proposed. No F12 gate is read. The interlock
+is not touched. **Nothing is sent, filed, uploaded or submitted** (rule 7).
+**No launch is authorised by this amendment.**

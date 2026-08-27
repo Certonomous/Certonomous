@@ -460,6 +460,41 @@ def control_e2_never_grade(ev):
 
 
 # ===========================================================================
+# VERDICT-LEAK CONTROL.  This arm grades nothing, so NO word of the fixed
+# vocabulary may appear in its result.
+#
+# REPAIRED 2026-08-27 (pre-compute) after the cfd supervisor read the control
+# and found its scope narrower than its title.  The first version banned only
+# four of the six words -- `PASS` and `NOT A RESULT` were unchecked -- and
+# carved out the disclaimer BY WORD (`w not in out["note"]`), which excused a
+# banned word appearing ANYWHERE in the object so long as the same word also
+# appeared in the note.  Since the note contains both `BLOCKED` and
+# `NOT A RESULT`, a stray `BLOCKED` leaking from any other field was silently
+# excused.  A control that returns a reassuring answer without being able to
+# return an alarming one is not a control.
+#
+# The repair: ban THE FULL SIX-WORD VOCABULARY, and scope the exemption to the
+# `note` FIELD -- remove it from the object, serialise what remains, and search
+# that.  The exemption now attaches to the field that earned it, never to the
+# string.  The note itself is KEPT and is still emitted: the disclaimer is
+# wanted.
+# ===========================================================================
+VERDICT_VOCABULARY = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT",
+                      "BLOCKED", "PENDING")
+VERDICT_EXEMPT_FIELDS = ("note",)
+
+
+def verdict_leak_check(out):
+    """-> (ok, leaks).  `out` is the scored object.  The exempt fields are
+    REMOVED before serialising; every remaining byte is searched for every one
+    of the six words."""
+    rest = {k: v for k, v in out.items() if k not in VERDICT_EXEMPT_FIELDS}
+    blob = json.dumps(rest, default=str)
+    leaks = [w for w in VERDICT_VOCABULARY if w in blob]
+    return (leaks == []), leaks
+
+
+# ===========================================================================
 # CAP WATCH -- a HANG DETECTOR, not a budget tracker.  See the banner.
 # ===========================================================================
 def cap_watch(ev):
@@ -1028,14 +1063,45 @@ def selftest(workroot):
     print(("CONTROL-OK   " if ok else "CONTROL-BAD  ") +
           "PE7 carries NO prediction and NO threshold")
 
-    print("\n=== NO VERDICT-VOCABULARY WORD IS EMITTED ===")
-    blob = json.dumps(out, default=str)
-    banned = [w for w in ("GATE REACHED", "GATE FAIL", "BLOCKED", "PENDING")
-              if w in blob and w not in out["note"]]
-    ok = (banned == [])
-    results.append(("no verdict-vocabulary word leaks into the result", ok, str(banned)))
-    print(("CONTROL-OK   " if ok else "CONTROL-BAD  ") +
-          "no verdict-vocabulary word leaks into the result")
+    print("\n=== NO VERDICT-VOCABULARY WORD IS EMITTED (all six; exemption "
+          "scoped to the `note` FIELD, not to the words) ===")
+
+    def _leak(name, mutate, expect_ok):
+        """Drive the REAL control on the REAL scored object."""
+        import copy as _copy
+        obj = _copy.deepcopy(out)
+        if mutate is not None:
+            mutate(obj)
+        got_ok, leaks = verdict_leak_check(obj)
+        good = (got_ok is expect_ok)
+        results.append((name, good, f"leaks={leaks}"))
+        print(("CONTROL-OK   " if good else "CONTROL-BAD  ") + name +
+              f"   [leaks={leaks}]")
+
+    _leak("verdict-leak control passes the clean result, note and all",
+          None, True)
+    _leak("verdict-leak control FIRES on `PASS` planted in a non-note field "
+          "-- a word the OLD control did not ban at all",
+          lambda o: o["predictions"]["PE3"].__setitem__("statement", "PASS"),
+          False)
+    _leak("verdict-leak control FIRES on `NOT A RESULT` planted in a non-note "
+          "field -- the second word the OLD control did not ban at all",
+          lambda o: o["predictions"]["PE4"].__setitem__("statement", "NOT A RESULT"),
+          False)
+    _leak("verdict-leak control FIRES on `BLOCKED` planted in a non-note field "
+          "WHILE THE NOTE ALSO CONTAINS `BLOCKED` -- the exact case the OLD "
+          "word-keyed carve-out silently excused",
+          lambda o: o["controls"]["C3_lever_effect"].__setitem__("n_cells", "BLOCKED"),
+          False)
+    _leak("verdict-leak control FIRES on `PENDING` planted in a non-note field",
+          lambda o: o["cap_watch"].__setitem__("cost_basis", "PENDING"),
+          False)
+    _leak("verdict-leak control still passes when the note -- and ONLY the "
+          "note -- carries `NOT A RESULT` and `BLOCKED`",
+          lambda o: o.__setitem__("note", "rung 1 stands NOT A RESULT; rungs "
+                                  "2-5 stand BLOCKED; PASS; GATE FAIL; "
+                                  "GATE REACHED; PENDING"),
+          True)
 
     bad = [n for n, o, _ in results if not o]
     print(f"\n{len(results)-len(bad)}/{len(results)} controls driven BOTH WAYS through "
