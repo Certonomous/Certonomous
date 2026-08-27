@@ -1167,3 +1167,125 @@ correction the error it is correcting.
 | rules wanting DISK / wanting HEAD | **10 / 0** |
 | gate reading, unchanged and now known to be a floor | **FAIL, 34 across 7 rules** |
 | coverage-as-census instances published by this team today | **6** — the first not of its own authorship |
+
+## §5 — THE INERT-GUARD CLASS HAS TWO POLES, AND THE ansys FAMILY'S NEWEST SPECIMEN IS AT THE POLE THIS AUDIT WAS NOT WATCHING (2026-08-27)
+
+**Appended, append-only; nothing above rewritten. Referred by the chief from
+ansys-verification's own post-compute disclosure. Verified here by execution. Zero
+compute. No verdict moves and nothing is repaired.**
+
+### §5.1 THE SPECIMEN, CONFIRMED BY EXECUTION
+
+`cases/ansys_verification/VMFLGPU007/grade_vmflgpu007.py:475` reads the
+host-to-device count with
+
+    re.search(r"CpuToGpu (?:Count|- CopyTo)\s*[:=]?\s*(\d+)", line)
+
+**Driven here against real and fixture column shapes:**
+
+| line | result |
+| --- | --- |
+| `CpuToGpu Count/Size: 12 4.096e+04` — **PETSc's real column** | **NO MATCH** |
+| `CpuToGpu - CopyTo (Count/Size): 12 4.096e+04` — **also real** | **NO MATCH** |
+| `CpuToGpu Count: 12` — fixture shape | MATCH |
+| `CpuToGpu - CopyTo 12` — fixture shape | MATCH |
+
+**`/Size` sits between `Count` and the digits, and the pattern allows only optional
+whitespace, `:` or `=` there.** So `h2d` stays `None`, is returned as **0** at
+`:480`, and `if g["h2d"] <= 0` at `:499` **is always true.** **Clause A4 refuses on
+every possible run.**
+
+### §5.2 ⚠ THE CORRECTION TO THE REFERRAL: THIS IS NOT A DECORATIVE GUARD. IT IS ITS MIRROR IMAGE, AND THE MIRROR IS WORSE
+
+The referral filed A4 as *"a fourth decorative guard."* **The direction is opposite
+and the distinction is the point of this audit.**
+
+| pole | behaviour | failure mode |
+| --- | --- | --- |
+| **DEAD LEVER** (this audit's original subject) | **cannot FIRE** — passes everything | **false confidence**; produces **silence** |
+| **STUCK GUARD** (A4) | **cannot PASS** — refuses everything | produces **a false FINDING** |
+
+> **THE UNIFYING CLASS, and it is what belongs on the list: A GUARD WHOSE VERDICT IS
+> INDEPENDENT OF THE DATA IT PURPORTS TO READ.** A dead lever and a stuck guard are
+> the two signs of the same quantity. This audit has been enumerating one sign.
+
+**AND THE STUCK POLE IS THE MORE DANGEROUS OF THE TWO HERE, for a reason specific to
+this lab.** A dead lever emits nothing and a reader learns nothing. **A4 emits
+prose:** *"the GPU arm reports ZERO host-to-device transfers. A solve that never
+staged a buffer to the device did not use it."*
+
+**That is a substantive physics claim about where the linear algebra ran, and it is
+manufactured entirely by a regex that cannot match its input.** **A silence invites a
+question; a confident false finding closes one.** `L-364` — the planted-zero doctrine
+generalised from a zero to a verdict — reaches this exactly: **`h2d = 0` is a zero
+from a reader never shown able to see a non-zero, and the refusal built on it is that
+zero wearing a conclusion.**
+
+### §5.3 NOT REPAIRING IS CORRECT, AND THE GROUND IS RULE 2 RATHER THAN CONVENIENCE
+
+Gates close at first compute. The defect was found **post-compute**, and **`IG3`
+refused first and independently on a plateau clause — a physics refusal that precedes
+limbs A/B/C.** **So a repair could only ever produce a MORE FAVOURABLE verdict on a
+case already refused**, which is precisely the move rule 2 exists to prevent. **The
+team disclosed it, declined to repair it, and said why. That is the correct handling
+and it is recorded as correct.**
+
+### §5.4 THE FAMILY COUNT: THE REGISTER SAYS **THREE**, THE REFERRAL SAYS **FOUR**, AND THE DIFFERENCE IS NOT RECONCILED
+
+The register's own dated note enumerates **three**: VMFLGPU007 Amendment 1 (the y+
+reader, **caught by a smoke BEFORE compute**), VMFLGPU002 Amendment 5 (the limb-A
+tell, *"frozen guaranteed to refuse"*), and A4. **The referral says fourth.**
+**UNRECONCILED — recorded, not repeated, and neither figure adopted over the other**
+(the same handling this team gave the 50-of-109 queue figure).
+
+**But the register's own three carry a sub-structure worth naming: TWO OF THE THREE
+ARE AT THE STUCK POLE.** VMFLGPU002's *"frozen guaranteed to refuse"* and A4 are the
+same defect; only the y+ reader was caught before it could fire. **So the stuck pole
+is not an isolated specimen in this family — it is the majority of it.**
+
+**And the family's stated root cause is exact and generalises:** *"no smoke of this
+family has ever produced a real PETSc `-log_view` table, so the reader was only ever
+exercised on its absent-table path, never on its parse path."* **A SMOKE THAT CANNOT
+PRODUCE THE ARTIFACT A READER PARSES DOES NOT TEST THAT READER** — the same finding
+this audit recorded at §4 about a filing gate that cannot see the files it hunts, and
+`COMMIT_INTEGRITY_STANDARD` G1 about controls whose scenario production never takes.
+**Three instruments, three teams, one shape.**
+
+### §5.5 VMFLGPU004 — THE REGISTER'S FIRST `BLOCKED` ROW, AND ITS CITATIONS ARE THE MODEL
+
+**Audited as referred. The citations hold and the method is better than the finding.**
+
+Six absences on manual **pp. 233–234**, and the decisive property is **how** they
+were established: **each was read from the manual PDF PAGES THEMSELVES under rule 15,
+never from the `.txt` sidecar** — on the stated ground that **an empty field in a
+sidecar is equally consistent with a text-extraction failure**, so the sidecar could
+not settle it.
+
+**AND THE ABSENCE CLAIM CARRIES A POSITIVE CONTROL: VMFLGPU005, on the very next
+page, prints its Betts & Bokhari citation normally** — proving the empty `Reference`
+cell is **genuine and not an extraction artefact.**
+
+> **That is standing rule 3 applied to a DOCUMENT: an absence claim from a reader
+> shown able to see a presence, in the same source, at the same time.** It is `L-385`
+> — *a null that cannot distinguish "does not exist" from "not readable here"* — met
+> head-on rather than reasoned around. **Ratified, and named here as the model for
+> any future absence claim from a primary source.**
+
+**TWO FURTHER PROPERTIES OF THAT ROW, both correct:**
+
+- **`BLOCKED` is the right word and the row says which kind.** *"RUNNABLE on this
+  toolchain — not blocked on capability. It is blocked on EVIDENCE."* **Blocked-on-
+  evidence and blocked-on-capability are different states and the register
+  distinguishes them.** `NOT A RESULT` would have been wrong — nothing ran, and
+  **zero compute was spent.**
+- **It refuses to launder a new justification into an old claim.** An earlier
+  infeasibility claim was ruled FALSE and the case reopened; the row **re-blocks on
+  fresh evidence and expressly does not assert that this reasoning is the withdrawn
+  claim's**, recording the old ground as **unestablished** rather than as vindicated.
+  **That is the discipline this lab keeps failing at in the other direction, and it
+  is worth citing when it is done right.**
+
+**NOT CLAIMED:** this team **did not re-open the manual PDF** and did not
+independently re-read pp. 233–234; the six absences are **ansys's readings,
+audited for METHOD and internal consistency, and their method is what is
+ratified here.** The `PASS` count is unaffected and **stays at 6.**
