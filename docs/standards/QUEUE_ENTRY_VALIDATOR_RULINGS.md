@@ -276,3 +276,78 @@ non-conforming until amended — **which is why the validator warns and does not
 refuse.** **Whether the 19 (or 57) uncapped entries should be back-filled with a
 transcribed cap or marked `UNCAPPED-LEGACY` is per-entry and belongs to each owning
 team**, since only the owner can read the registration and say which is true.
+
+### R-CAP.7 — AMENDMENT, 2026-08-27, same day: `UNCAPPED-LEGACY` IS A FINDING, NOT A DEFAULT, AND THE CLAUSE ABOVE SPECIFIES A MECHANISM THAT DOES NOT EXIST
+
+**Appended; nothing above is rewritten. Raised by the chief on cfd's specimen and
+closure's measurement; both verified here at source.**
+
+**§7.1 THE HOLE IN R-CAP.1, AND IT IS MINE.** R-CAP.1 lets an entry declare
+`cap_status: "UNCAPPED-LEGACY"` and did **not** require that anyone read the
+registration first. **So a transcription MISS could be laundered into a permanent
+declaration that no cap was ever registered** — a property **declared by
+construction and never tested against the measurement**, which is the defect class
+this team adopted as `VERIFICATION_CHARTER` §2g.5 this same day, appearing in my own
+clause four minutes after I wrote it.
+
+**THE AMENDED RULE:**
+
+> **`cap_status: "UNCAPPED-LEGACY"` is applied ONLY AFTER the case's registration has
+> been READ, and the entry carries the SEARCH THAT ESTABLISHED THE ABSENCE — the
+> registration path and the lines searched.** A declaration without its search is an
+> assertion, not a finding, and is refused the same way a zero without a planted
+> control is refused.
+
+**§7.2 THE SPECIMEN, VERIFIED HERE, AND IT IS SHARPER THAN REPORTED.**
+`verification/queue/cfd/launched/F16b_SL2.json` carries **NO cap-bearing key at
+all** — not a null, not a zero; its only cost key is **`cost_core_min_estimate`** —
+while `verification/campaign/F16b_SL2_PREREGISTRATION.md:122` reads **"REGISTERED
+CAP: 5 core-minutes"**.
+
+**So an absent entry field is NOT evidence of an unregistered cap.** And note what
+the specimen is: **the entry carries ONLY the estimate.** That is **R-CAP.3's
+mechanism and this transcription miss in the same record** — when the cap is absent
+the estimate is the only figure present, and tooling one layer out then labels
+estimate-derived results in **cap** language. **The two defects are not neighbours;
+they are the same entry.**
+
+**§7.3 LAUNCHED RECORDS ARE HISTORICAL AND ARE NOT BACK-FILLED.** A record of what
+ran is a record of what ran. **Editing it to carry a cap it did not carry at launch
+would make the historical record agree with a rule written afterwards** — the move
+this team refuses for pre-registrations. **The specimen is cited as EVIDENCE, and
+nothing about it is corrected.**
+
+**§7.4 ⚠⚠ THE CLAUSE ABOVE SPECIFIES A MECHANISM THAT DOES NOT EXIST. STATED ON ITS
+FACE.** Closure measured, with a recognition control and a positive control (the
+field stripped → **rc 0**), that **`scripts/queue_entry_check.py` has ZERO cap
+logic.** **Verified here independently: `cap_core_min_registered`, `cap_status` and
+"registered cap" return ZERO hits in that file.**
+
+**R-CAP IS THEREFORE A SPECIFICATION FOR cfd TO BUILD, NOT A DESCRIPTION OF
+BEHAVIOUR THAT RUNS TODAY.** Nothing in R-CAP.1–R-CAP.6 is currently enforced by any
+instrument.
+
+> **AND THE CONSEQUENCE, WHICH IS STANDING RULE 3 AT QUEUE SCALE (closure's words,
+> adopted): until the clause is live, compliance with the cap-field order is
+> evidenced ONLY by a BY-HAND comparison of the entry against its registration with
+> the LINES NAMED. A validator `rc 0` is a zero from a reader shown UNABLE TO SEE A
+> NON-ZERO.** Anyone reporting the queue clean on the strength of the validator is
+> reporting the silence of a check that was never written.
+
+**§7.5 THE CONTROL SET, REPLACING R-CAP.4's — the middle limb is the new one and it
+is the one that matters.**
+
+| control | scenario | required |
+| --- | --- | --- |
+| **C1** | entry with **neither** field | **WARN** |
+| **C1b** | **absent or null cap field, registration DOES register a cap** | **WARN "transcription miss"** — **NEVER accepted as legacy** |
+| **C2** | `UNCAPPED-LEGACY` **carrying its search**, registration genuinely capless | **PASS, SILENT** |
+| **C2b** | `UNCAPPED-LEGACY` **without** its search | **WARN** — a declaration without its search is an assertion |
+| **C3** | entry cap **≠** registration cap | **REFUSE** (freeze check, rule 2) |
+| **C4** | entry cap **=** registration cap | **PASS, SILENT** — without this the others are consistent with a check that fires on everything |
+| **C5** | clause no-opped → **C1, C1b and C3 must FLIP** | they are worthless without it |
+
+**C1b must be driven on the F16b_SL2 shape** — an entry carrying only
+`cost_core_min_estimate` against a registration whose cap line is real — because
+that is the shape production actually holds (`COMMIT_INTEGRITY_STANDARD` G1: a
+control whose scenario production never takes has not tested the clause).
