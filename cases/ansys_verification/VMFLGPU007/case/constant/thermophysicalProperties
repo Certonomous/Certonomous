@@ -1,0 +1,48 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU007 -- CONSTANT PROPERTIES, exactly the four the manual prints on p.244:
+      Density       = 1 kg/m3        -> equationOfState rhoConst
+      Viscosity     = 0.0001 kg/m-s  -> transport const, mu
+      Conductivity  = 1.408 W/m-K    -> carried as Pr, see below
+      Specific heat = 10,000 J/kg-K  -> thermodynamics Cp
+  "Fluid properties are considered constant" (manual p.244), so rhoConst + hConst
+  + const transport reproduces that table EXACTLY and no property varies with T.
+
+  WHY A COMPRESSIBLE-FORM SOLVER FOR AN INCOMPRESSIBLE CASE: rhoConst makes the
+  density constant, so the flow is incompressible by construction. The reason for
+  this route is the WALL TREATMENT -- the manual specifies standard wall
+  functions, so the conductive sublayer is NOT resolved and the wall temperature
+  (hence Nu, the gate quantity) is set by alphatJayatillekeWallFunction, which
+  exists only on this path. A passive-scalar route would have had no thermal wall
+  function and would have produced a wall temperature with no model behind it.
+
+  OpenFOAM's "const" transport takes mu and Pr, not kappa. Pr is therefore
+  DERIVED from the manual's own four numbers:
+      Pr = mu * Cp / kappa = 1e-4 * 10000 / 1.408 = 0.7102272727272728
+  and kappa is recovered EXACTLY: mu*Cp/Pr = 1.408 W/m-K. The comparator's
+  selftest executes that round trip so the two cannot drift apart.
+
+  molWeight is REQUIRED by the "specie" model but is INERT here: with rhoConst
+  the density never consults it. 28.966 is the manual's own air value (p.236).
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object thermophysicalProperties; }
+
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+mixture
+{
+    specie          { molWeight  28.966; }
+    equationOfState { rho        1.0; }
+    thermodynamics  { Cp         10000; Hf 0; }
+    transport       { mu         1e-4; Pr 0.7102272727272728; }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,103 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU007 -- backward-facing step with heat transfer, manual p.243.
+
+  EVERY DIMENSION BELOW COMES FROM THE ARCHIVE OR FROM THE MANUAL'S GEOMETRY
+  TABLE, AND IS CITED. The manual's p.243 geometry cell is TRUNCATED -- it reads
+  "H = 1m" and then a stray "I" -- so THE MANUAL CANNOT SPECIFY THIS MESH. What
+  each number rests on:
+
+    H  = 1 m           manual p.244 geometry table ("H = 1m"). THE ONLY
+                       dimension the manual gives.
+    inlet at x = -3.8  reference/VMFL013_step_ve.set.prof: its `x` block is
+                       -3.8 at all 101 points.
+    inlet duct y 1..5  the same file's `y` block spans exactly 1..5, so the
+                       incoming duct is 4 H tall and its lower wall is the step
+                       lip at y = 1.
+    outlet at x = 30   reference/VMFL013_nu2.xy carries 101 positions spanning
+                       exactly 0..30 along the heated wall, so Ansys's own
+                       domain runs 30 H downstream of the step.
+    step height 1      y = 1 (duct floor) down to y = 0 (heated wall) = H.
+    expansion ratio    5/4 = 1.25, which is Vogel & Eaton's rig.
+
+  NEAR-WALL SPACING IS HELD FIXED ACROSS ALL THREE MESHES (see PREREGISTRATION
+  section 6): __GU__ and __GC__ are expansion ratios COMPUTED BY THE LAUNCHER so
+  that the first cell height at every wall is the registered __H1__ m whatever
+  the cell count. That is why this is a mesh-SENSITIVITY family and NOT a Roache
+  r=2 family -- refining a wall-function mesh uniformly changes the MODEL, not
+  only the discretisation.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+
+scale 1;
+
+vertices
+(
+    (-3.8  1    0  )   //  0
+    ( 0    1    0  )   //  1  step lip
+    ( 0    5    0  )   //  2
+    (-3.8  5    0  )   //  3
+    ( 30   1    0  )   //  4
+    ( 30   5    0  )   //  5
+    ( 0    0    0  )   //  6  step foot
+    ( 30   0    0  )   //  7
+    (-3.8  1    0.1)   //  8
+    ( 0    1    0.1)   //  9
+    ( 0    5    0.1)   // 10
+    (-3.8  5    0.1)   // 11
+    ( 30   1    0.1)   // 12
+    ( 30   5    0.1)   // 13
+    ( 0    0    0.1)   // 14
+    ( 30   0    0.1)   // 15
+);
+
+blocks
+(
+    // A -- incoming duct.  y-grading is two-sided (walls at y=1 AND y=5) and
+    // MUST match block B's, because they share the x=0 face.
+    hex (0 1 2 3 8 9 10 11) (__NXI__ __NYU__ 1)
+        simpleGrading (1 ((0.5 0.5 __GU__) (0.5 0.5 __GUINV__)) 1)
+
+    // B -- downstream, above the step lip.  y=1 here is INTERNAL (it meets
+    // block C), not a wall; the grading toward it is deliberate all the same,
+    // because that is where the separated shear layer sits.
+    hex (1 4 5 2 9 12 13 10) (__NXD__ __NYU__ 1)
+        simpleGrading (1 ((0.5 0.5 __GU__) (0.5 0.5 __GUINV__)) 1)
+
+    // C -- the recirculation region and the HEATED WALL at y = 0.
+    hex (6 7 4 1 14 15 12 9) (__NXD__ __NYL__ 1)
+        simpleGrading (1 __GC__ 1)
+);
+
+edges ();
+
+boundary
+(
+    inlet       { type patch; faces ((0 3 11 8)); }
+    outlet      { type patch; faces ((4 5 13 12) (7 4 12 15)); }
+
+    // THE GATE PATCH.  Vogel & Eaton's Nusselt number is measured on the wall
+    // downstream of the step, and reference/VMFL013_nu2.xy spans 0..30 on a
+    // single wall -- so this is the heated one and it is heated over its whole
+    // length.
+    heatedWall  { type wall; faces ((6 7 15 14)); }
+
+    // Adiabatic, and REGISTERED as a choice: the manual states one heat-flux
+    // value and does not say the step face carries it, and the archive's Nu
+    // curve starts at x = 0, i.e. AT the step foot, not on the vertical face.
+    stepFace    { type wall; faces ((6 1 9 14)); }
+
+    ductBottom  { type wall; faces ((0 1 9 8)); }
+    topWall     { type wall; faces ((3 2 10 11) (2 5 13 10)); }
+
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 1 2 3) (1 4 5 2) (6 7 4 1)
+            (8 9 10 11) (9 12 13 10) (14 15 12 9)
+        );
+    }
+);
+
+// ************************************************************************* //

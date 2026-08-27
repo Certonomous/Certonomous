@@ -1,0 +1,53 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU007 -- EVERY linear solve routed through petsc4Foam.
+  __MATTYPE__ / __VECTYPE__ substituted by run_vmflgpu007.sh:
+      GPU arm            : aijcusparse / cuda
+      forced-CPU control : aij        / standard
+  BOTH ARMS ARE OTHERWISE BYTE-IDENTICAL -- same mesh, schemes, relaxation,
+  outer loop, outer iteration count and tolerances. That identity is the entire
+  basis on which limb B is a statement about WHERE the linear algebra ran.
+
+  ALL FIVE equations go through PETSc, not just pressure: the object under
+  verification is the GPU linear-solver path, and a case that ran four of its
+  five solves on the host would verify far less than it appears to.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+
+solvers
+{
+    p_rgh
+    {
+        solver petsc;
+        petsc
+        {
+            options { ksp_type cg; pc_type jacobi; mat_type __MATTYPE__; vec_type __VECTYPE__; }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance 1e-9; relTol 0.01;
+    }
+    "(U|h|k|epsilon)"
+    {
+        solver petsc;
+        petsc
+        {
+            options { ksp_type bcgs; pc_type jacobi; mat_type __MATTYPE__; vec_type __VECTYPE__; }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance 1e-9; relTol 0.1;
+    }
+}
+
+SIMPLE
+{
+    // The mesh is a structured orthogonal hex mesh, so no non-orthogonal
+    // correction is needed; checkMesh's max non-orthogonality is asserted by the
+    // launcher's mesh birth certificate.
+    nNonOrthogonalCorrectors 0;
+}
+
+relaxationFactors
+{
+    fields    { rho 1.0; p_rgh 0.7; }
+    equations { U 0.3; h 0.3; "(k|epsilon)" 0.7; }
+}
+// ************************************************************************* //

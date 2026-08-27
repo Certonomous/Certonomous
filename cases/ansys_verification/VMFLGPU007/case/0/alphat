@@ -1,0 +1,24 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object alphat; }
+// THE THERMAL WALL FUNCTION -- the COMPRESSIBLE-namespaced variant
+// (compressible::), which is a MEASURED requirement: the un-namespaced class
+// exists on this build but looks up a REGISTERED transportProperties dictionary
+// that no compressible solver ever registers, so it can never be satisfied --
+// buoyantSimpleFoam aborts before iteration 1 with "failed lookup of
+// transportProperties" and the registry listing shows the dictionary absent even
+// when the FILE is present on disk. Isolated by swapping one BC family at a time, and it is why this case uses a compressible-form
+// solver at all: with standard wall functions the conductive sublayer is NOT
+// resolved, so the wall temperature -- and therefore Nu, the gate quantity --
+// is set by this function. Prt = 0.85 is the standard k-e value and is
+// REGISTERED in the pre-registration, not chosen later.
+dimensions [1 -1 -1 0 0 0 0];
+internalField uniform 0;
+boundaryField
+{
+    inlet   { type calculated; value uniform 0; }
+    outlet  { type calculated; value uniform 0; }
+    heatedWall { type compressible::alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    stepFace   { type compressible::alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    ductBottom { type compressible::alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    topWall    { type compressible::alphatJayatillekeWallFunction; Prt 0.85; value uniform 0; }
+    frontAndBack { type empty; }
+}

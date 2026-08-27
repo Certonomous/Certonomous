@@ -1,0 +1,28 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object T; }
+// T_inlet = 300 K is a DATUM, not a physical claim: the manual gives no inlet
+// temperature. With constant properties and g = 0 the energy equation is LINEAR
+// in T and the wall flux is fixed, so T_wall - T_inlet -- and therefore the
+// Nusselt number -- is INDEPENDENT of this datum. The comparator's selftest
+// executes that claim rather than asserting it.
+dimensions [0 0 0 1 0 0 0];
+internalField uniform 300;
+boundaryField
+{
+    inlet   { type fixedValue; value uniform 300; }
+    outlet  { type inletOutlet; inletValue uniform 300; value uniform 300; }
+
+    // THE HEAT INPUT, manual p.244: "Wall heat transfer, Q = 1,000 W/m2".
+    heatedWall
+    {
+        type            externalWallHeatFluxTemperature;
+        mode            flux;
+        q               uniform 1000;
+        kappaMethod     fluidThermo;
+        value           uniform 300;
+    }
+
+    stepFace   { type zeroGradient; }   // adiabatic -- registered, PREREG sec.5
+    ductBottom { type zeroGradient; }
+    topWall    { type zeroGradient; }
+    frontAndBack { type empty; }
+}

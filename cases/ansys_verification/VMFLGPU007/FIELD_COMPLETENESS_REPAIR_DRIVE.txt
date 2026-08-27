@@ -1,0 +1,141 @@
+VMFLGPU007 -- FIELD COMPLETENESS: THREE BUGS, REPAIRED AND DRIVEN
+=================================================================
+Written by ansys-lane-opus (lane R2), 2026-08-27, committed BESIDE THE CASE (L-186: the
+scratchpad is never a handoff channel).  Instrument under test: field_completeness.py in
+this directory.  Reproduce with `python3 field_completeness.py --selftest`.
+
+WHY.  The ancestor of this guard is the `field_completeness()` function embedded in the
+VMFLGPU001-R2 launcher (blob c75076be3aa1d83ea8e67145c25ad43141d926cb, lines 470-551).  On
+VMFLGPU001-R2's own frozen inputs it prints
+
+    FIELD COMPLETENESS OK: closure=laminar required={} all present in 0/
+
+-- an EMPTY required set.  It gates nothing and has printed OK on every case this family has
+run.  Sanaa's section 1 rule: a guard nobody drove is decoration.  This family has now
+shipped three such guards, so this one is DRIVEN, and each repair is shown to FLIP the
+outcome on the SAME fixture rather than merely being described.
+
+THE THREE BUGS
+--------------
+BUG 1 -- the parser clears the key at the newline before the brace.  The ancestor's
+key-collecting loop ends with `if ch in ";\n" and depth == 0: tok = ""`, which discards the
+accumulated key at EVERY depth-0 newline -- including the one between a solver key and its
+opening brace.  OpenFOAM's standard style puts the key on its own line, so no key is ever
+captured and `keys` comes back empty.
+  THE BOARD'S EXPLANATION WAS WRONG AND THE DISCRIMINATOR IS DRIVEN BELOW.  It is NOT the
+  nested `petsc { options { ... } }` blocks; the depth tracking is correct and always was.
+  Arm BUG1-A keeps the nesting and puts key and brace on ONE line -> the ancestor WORKS.
+  Arm BUG1-B removes the nesting entirely and leaves the key on its own line -> the ancestor
+  STILL FAILS.  The newline was always the cause.
+  REPAIR: only `;` clears the token.
+
+BUG 2 -- the base requirement set cannot see a buoyant case.  The ancestor hard-codes
+{p, U}.  VMFLGPU007's pressure variable is `p_rgh` and there is no `p` in its solvers block
+at all, so even with BUG 1 repaired a missing 0/p_rgh sails straight through.
+  REPAIR: BASE = {p, U, p_rgh}.  `h` and `e` are DELIBERATELY not in BASE -- OpenFOAM derives
+  sensible enthalpy from 0/T and never reads a 0/h, so requiring `h` would abort every
+  correctly-built buoyant case.  The energy field is still checked, by the name that is
+  actually on disk: if the consumer solves for h or e, 0/T is required.
+
+BUG 3 -- FOUND BY DRIVING THIS GUARD, NOT BY READING IT, and it is the reason a selftest is
+worth more than a review.  The ancestor anchors the model lookup to the start of a line:
+`re.search(r"^\s*(?:RASModel|LESModel|model)\s+(\w+)\s*;", txt, re.M)`.  OpenFOAM's RAS
+sub-dictionary is commonly written INLINE, and VMFLGPU007's own inherited
+turbulenceProperties is literally
+
+    RAS { RASModel kEpsilon; turbulence on; printCoeffs on; }
+
+so `RASModel` is not at the start of any line, the lookup misses, and `model` stays at the
+value of `simulationType` -- the string "RAS", which is not a key of the closure map.
+  CONSEQUENCE, MEASURED BELOW ON THE REAL CASE: on VMFLGPU007's actual inputs the ancestor
+  guard does not pass vacuously at all -- it ABORTS, at zero compute, on a defect in the
+  guard rather than in the case.  This bug was not in the brief; the selftest surfaced it on
+  its first run.
+  REPAIR: match the key on a word boundary anywhere.
+
+Each repair is STRICTLY MORE DISCRIMINATING.  Nothing that aborted before passes now:
+BUG 1's repair can only ADD keys to a set that was empty, BUG 2's can only ADD names to the
+base set, and BUG 3's can only turn a refusal-to-derive into a correct derivation.
+
+A NEW REFUSAL, added because it is the clause that would have caught BUG 1 on the day it
+shipped: if the required set comes back EMPTY while fvSolution HAS a solvers block, the
+guard REFUSES instead of printing OK.  An empty set means the parser measured nothing.
+
+NO `assert` ANYWHERE (0 ast.Assert nodes) -- `python3 -O` strips assert statements, so a
+guard built on them evaporates under optimisation.  The selftest is driven under both
+interpreters below and is 17/17 in each.
+
+SELFTEST UNDER python3
+---------------------
+PASS  CONTROL clean VMFLGPU007-shaped case -> OK, NON-EMPTY set naming p_rgh
+        rc=0  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+PASS  BUG1 REPRODUCED: ancestor parser on the SAME clean case -> refuses, empty set (it would have printed OK before the vacuity clause)
+        rc=1  ABORT: the required field set is EMPTY. <FIXTURES>/clean/system/fvSolution has a solvers block, so a consumer-side set of at least one field was expected; an empty set means this guard PARSED NOTHING and would certify the case vacuously. It refuses instead of printing OK (closure=kEpsilon, solver keys seen: NONE).
+PASS  BUG1 FLIP, ancestor arm: 0/k REMOVED, ancestor parser -> does NOT name k (it parsed nothing)
+        rc=1  ABORT: the required field set is EMPTY. <FIXTURES>/no_k/system/fvSolution has a solvers block, so a consumer-side set of at least one field was expected; an empty set means this guard PARSED NOTHING and would certify the case vacuously. It refuses instead of printing OK (closure=kEpsilon, solver keys seen: NONE).
+PASS  BUG1 FLIP, repaired arm: 0/k REMOVED -> ABORT NAMING k
+        rc=1  ABORT: field(s) k required by the consumer (fvSolution solver blocks INTERSECT closure 'kEpsilon') are ABSENT from <FIXTURES>/no_k/0/ -- neither X nor X.gz
+PASS  BUG1-A discriminator: nesting KEPT, key+brace on ONE line -> ancestor WORKS (so the nesting was never the cause)
+        rc=0  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+PASS  BUG1-B discriminator: nesting REMOVED, key on its own line -> ancestor STILL FAILS (so the newline was always the cause)
+        rc=1  ABORT: the required field set is EMPTY. <FIXTURES>/ab_b/system/fvSolution has a solvers block, so a consumer-side set of at least one field was expected; an empty set means this guard PARSED NOTHING and would certify the case vacuously. It refuses instead of printing OK (closure=kEpsilon, solver keys seen: NONE).
+PASS  BUG1-B, repaired -> OK
+        rc=0  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+PASS  BUG2 FLIP, legacy-base arm: 0/p_rgh REMOVED, base={p,U} -> SAILS THROUGH (p_rgh never required)
+        rc=0  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k} all present in 0/
+PASS  BUG2 FLIP, repaired arm: 0/p_rgh REMOVED -> ABORT NAMING p_rgh
+        rc=1  ABORT: field(s) p_rgh required by the consumer (fvSolution solver blocks INTERSECT closure 'kEpsilon') are ABSENT from <FIXTURES>/no_p_rgh/0/ -- neither X nor X.gz
+PASS  ENERGY PRIMITIVE: 0/T REMOVED while the consumer solves h -> ABORT NAMING T
+        rc=1  ABORT: field(s) T required by the consumer (fvSolution solver blocks INTERSECT closure 'kEpsilon') are ABSENT from <FIXTURES>/no_T/0/ -- neither X nor X.gz
+PASS  ENERGY PRIMITIVE: `h` is NEVER required by name (0/h does not exist in the clean fixture and it still passes)
+        rc=0  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+PASS  BUG3 FLIP, ancestor arm: RAS block written INLINE (as VMFLGPU007's own turbulenceProperties is) -> ancestor ABORTS on closure 'RAS'
+        rc=1  ABORT: closure 'RAS' is not in this guard's registered closure map; the consumer-side field set cannot be derived and this guard does not guess
+PASS  BUG3 FLIP, repaired arm: same inline RAS block -> closure read as kEpsilon and the case passes
+        rc=0  FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+PASS  UNREGISTERED CLOSURE -> ABORT, no guess
+        rc=1  ABORT: closure 'qEpsilon' is not in this guard's registered closure map; the consumer-side field set cannot be derived and this guard does not guess
+PASS  NO solvers BLOCK -> ABORT
+        rc=1  ABORT: no solvers block in <FIXTURES>/no_solvers/system/fvSolution
+PASS  UNBALANCED solvers BLOCK -> ABORT
+        rc=1  ABORT: unbalanced solvers block in <FIXTURES>/unbalanced/system/fvSolution
+PASS  NO fvSolution AT ALL -> ABORT
+        rc=1  ABORT: no system/fvSolution in <FIXTURES>/does_not_exist
+
+17/17 arms behaved as registered
+optimisation: __debug__=True (this guard contains no `assert`, so it is byte-identical in effect under python3 -O)
+
+SELFTEST UNDER python3 -O   (tail; the 17 arms are byte-identical to the above)
+-----------------------------------------------------------------------------
+
+17/17 arms behaved as registered
+optimisation: __debug__=False (this guard contains no `assert`, so it is byte-identical in effect under python3 -O)
+
+AGAINST THE REAL INHERITED VMFLGPU007 CASE
+------------------------------------------
+fvSolution materialised from case/system/fvSolution.template exactly as the launcher
+does (__MATTYPE__ -> aijcusparse, __VECTYPE__ -> cuda); 0/ carries T U alphat epsilon
+k nut p p_rgh; turbulenceProperties carries the INLINE RAS block quoted above.
+
+  REPAIRED guard:
+    FIELD COMPLETENESS OK: closure=kEpsilon required={T, U, epsilon, k, p_rgh} all present in 0/
+    rc=0
+
+  ANCESTOR behaviour on the SAME real case (all three defects reinstated):
+    ABORT: closure 'RAS' is not in this guard's registered closure map; the consumer-side field set cannot be derived and this guard does not guess
+    rc=1
+
+  THAT IS THE HEADLINE: on this case's real inputs the ancestor does not merely certify
+  nothing -- it REFUSES THE LAUNCH, and for a reason that is false about the case.
+
+WHAT THIS DRIVE DOES NOT SHOW
+-----------------------------
+* Nothing about the physics, the gate, the band or any verdict.  This is an input-side
+  launcher guard; it says a field the solver will ask for exists in 0/, and nothing more.
+* It does not certify the VALUES in those fields, only their presence.
+* It has NOT been backported to VMFLGPU001-R2 or VMFLGPU003, whose launchers still carry the
+  ancestor.  R2 is frozen with an entry awaiting the supervisor's check-4 drop and its
+  Amendment 1 section 7 already records the vacuity and forbids citing that line as
+  evidence; changing its launcher blob now would invalidate a completed check 4.  The
+  backport is the supervisor's call, and BUG 3 makes it more urgent than the board thought:
+  any future case in this family with an inline RAS block will be REFUSED by the ancestor.

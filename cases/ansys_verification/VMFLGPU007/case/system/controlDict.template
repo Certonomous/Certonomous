@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU007 -- backward-facing step with heat transfer. buoyantSimpleFoam +
+  petsc4Foam, steady, constant properties, g = 0 (forced convection).
+
+  NO residualControl: the run always reaches endTime, so rule 4's "last time ==
+  endTime" and the comparator's `Time =` line-count clause both bite, and BOTH
+  ARMS TAKE THE SAME NUMBER OF OUTER ITERATIONS -- which is what makes limb B a
+  statement about where the linear algebra ran and about nothing else.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+
+application     buoyantSimpleFoam;
+libs            (petscFoam);
+
+startFrom       startTime;   startTime 0;
+stopAt          endTime;     endTime   __ENDTIME__;
+deltaT          1;
+
+writeControl    timeStep;    writeInterval __ENDTIME__;
+purgeWrite      0;  writeFormat ascii;  writePrecision 12;  writeCompression off;
+timeFormat      general;  timePrecision 6;  runTimeModifiable false;
+
+functions
+{
+    // ----------------------------------------------------------------- GATE
+    // THE GATE READER, and it is the only one. Vogel & Eaton report the LOCAL
+    // NUSSELT NUMBER along the heated wall; with a FIXED wall flux,
+    //     Nu(x) = q'' * H / (kappa * (T_w(x) - T_inlet))
+    // so the wall TEMPERATURE field on this patch carries the whole gate. Face
+    // centres are written raw (x y z T), so the comparator derives Nu itself
+    // from the frozen constants rather than trusting a solver-side Nu.
+    wallT
+    {
+        type            surfaces;  libs (sampling);
+        surfaceFormat   raw;  fields (T);  writeControl writeTime;
+        surfaces ( heatedWall { type patch; patches (heatedWall); interpolate false; } );
+    }
+
+    // PLATEAU CHANNEL -- the GATE QUANTITY'S OWN history, one row per SIMPLE
+    // iteration. Peak Nu is reached where (T_w - T_in) is MINIMUM, so min(T) on
+    // this patch is a monotone map of the graded number, not a proxy for it.
+    wallTmin
+    {
+        type            surfaceFieldValue;  libs (fieldFunctionObjects);
+        regionType      patch;  name heatedWall;  operation min;  fields (T);
+        writeFields     false;  writeControl timeStep;  writeInterval 1;  log false;
+    }
+
+    // CONTROL -- the flux that was actually APPLIED. The gate divides by q''; if
+    // the BC delivered something else, every Nu would be wrong by that ratio and
+    // nothing else in the run would show it.
+    wallFlux
+    {
+        type            wallHeatFlux;  libs (fieldFunctionObjects);
+        patches         (heatedWall);  writeControl writeTime;
+    }
+
+    // CONTROL -- y+ on every wall. The manual specifies STANDARD wall functions,
+    // which are valid only in the log layer; the comparator prints the realised
+    // range and refuses a mesh that is outside the registered band.
+    yPlusFO { type yPlus; libs (fieldFunctionObjects); writeControl writeTime; }
+
+    resid { type solverInfo; libs (utilityFunctionObjects); fields (U p_rgh h k epsilon);
+            writeControl timeStep; writeInterval 1; }
+}
+// ************************************************************************* //
