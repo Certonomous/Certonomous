@@ -87,3 +87,190 @@ Source: `verification/runs/F14-cooling-ladder/K0f_runs/log.analyse_k0f.20260826T
 - The supervisor's brief listed `DONE` markers as existing for `M1_c M1_f M1_m M2_c M2_f` only; that matched disk. The five markers written here carry the strict rule's clause list (`strict rule met`), not a lane's word.
 - `analyse_k0f.py` writes no JSON; its stdout is the record and is retained under the run tree at the path in §4.
 - The shared index carried other teams' staged deletions at grading time (T10aR2/T4b run files); inspected, never reverted; this record's commit names its own paths only (rule 10).
+
+---
+
+# EXTENSION `ext1` — graded 2026-08-27. The ONE registered §7.1 extension (+20 000 iterations, 40 000 -> 60 000) on all ten arms.
+
+Registered by AMENDMENT 3 of `K0f_PREREGISTRATION.md`. **This section adds a
+graded segment; it moves no gate, band, threshold, floor, cap or label, and it
+does not revise anything above it.**
+
+## E1. The freeze set, hashed before anything was run — and ONE BOOKKEEPING GAP FOUND
+
+Nine instruments hashed on disk against their registered blobs before the
+extension was graded:
+
+| instrument | registered | on disk | |
+| --- | --- | --- | --- |
+| `scripts/analyse_k0f.py` | `764dedc6` | `764dedc6` | MATCH |
+| `scripts/build_k0f.py` | `0881fa08` | `0881fa08` | MATCH |
+| `scripts/check_k0f_mesh.py` | `587e6693` | `587e6693` | MATCH |
+| `scripts/mark_done_k0f.py` | `f01e3fce` | `f01e3fce` | MATCH |
+| `scripts/check_k0f_extraction_equivalence.py` | `31c902de` | `31c902de` | MATCH |
+| `scripts/check_k0f_instrument_standard.py` | `8fa5bd22` | `8fa5bd22` | MATCH |
+| `scripts/launch_k0f_ext1.sh` (A3.3) | `49ad67c0` | `49ad67c0` | MATCH |
+| `scripts/launch_k0f.sh` | §7.7 says `25071702` | `519e8361` | see below |
+| `scripts/launch_k0f_selftest.sh` | §7.7 says `c54b7f9a` | `c6e60dbd` | see below |
+
+**The two launcher rows are NOT drift, and the difference matters.** §7.7's
+table was written at v1.0. **AMENDMENT 2 (BEFORE FIRST COMPUTE) legally struck
+those two rows** — §A2.3b: *"§7.7's two launcher rows are STRUCK and replaced by
+the blob shas committed with this amendment."* Both files are **byte-identical to
+their state at AMENDMENT 2's own commit `b70b49c6`** and `git log b70b49c6..HEAD`
+shows **no commit has touched either since**. The frozen files are intact.
+
+**THE GAP, REPORTED RATHER THAN SMOOTHED:** A2.3b strikes the two rows but
+**never transcribes the replacement shas**. It names them only by reference —
+"the blob shas committed with this amendment" — so the registered value of two
+grading-path instruments is recoverable **only by resolving a commit**, not by
+reading the pre-registration. A freeze row whose value is not written down is
+weaker evidence than one that is. The values are `519e8361…` (`launch_k0f.sh`)
+and `c6e60dbd…` (`launch_k0f_selftest.sh`), recorded here so a later reader need
+not re-derive them. **This is a bookkeeping defect in the registration, not a
+defect in the run** (L-342): neither file is on the extension's grading path —
+the extension was launched by `launch_k0f_ext1.sh` (`49ad67c0`, MATCH) and graded
+by `mark_done_k0f.py` (`f01e3fce`, MATCH) and `analyse_k0f.py` (`764dedc6`,
+MATCH). **No frozen file was edited to write this section.**
+
+## E2. Completion — the strict rule under the EXTENDED clauses, ten of ten
+
+`mark_done_k0f.py --root K0f_runs <case>` re-evaluated on all ten, as A3.2
+requires (*"the markers from segment 1 are not evidence for the extended case"*).
+**Ten of ten: `1/1 cases meet the strict completion rule`, rc 0.** The extended
+clauses are the frozen file's own: rc from `STATUS.<case>.ext1`, log
+`<case>/log.solve.ext1`, last time == `endTime` + 20 000 = 60 000, 60 000
+`ExecutionTime` lines over both logs, the extension's first `Time =` exactly
+40 001, and **age datums `0/T` AND `STATUS.<case>`** — every field at 60 000
+newer than both. All ten `STATUS.*.ext1` read `rc=0 … note=clean segment=ext1
+restart_from=40000 endTime_ext=60000 controldict_restored=yes`.
+
+## E3. Controls, in the order the comparator ran them
+
+- **Pre-grading equivalence gate (§V.4) on `M1_f` at time 60 000: PASSED.**
+  OpenFOAM's own `postProcess -func sample` against the comparator's reader —
+  worst |diff| `T` 7.869505e-08 K and 1.989110e-08 K on the two mid-planes against
+  the registered criterion 2.00e-05 K; `U.x` 3.571400e-09 and 6.655985e-11 m/s
+  against 5.70e-07 m/s. All four AGREE.
+- **Planted-zero control (rule 3), run BEFORE any graded value was read.**
+  `P1` plant 1.234e-03 K into cell 0 of a COPY of `T` — **the production scalar
+  reader SAW IT**. `P2` plant 1.234e-03 m/s into the x-component of cell 0 of a
+  COPY of `U` — **the production VECTOR reader SAW IT**. `P3` negative control: a
+  0.0 plant on a 0.0 background is **not distinguishable from the background**, as
+  registered.
+
+## E4. THE RESULT — the extension did not close the gap, and that was predicted
+
+**Ten of ten arms are still `converged=False` at 60 000 under §7.1.**
+
+| arm | max\|dT\| over the last 4 000 iterations (K) | §7.1 criterion (K) | ratio to criterion |
+| --- | ---: | ---: | ---: |
+| `M2_f` | 2.357827e-02 | 1.975738e-05 | 1 193 |
+| `M2_c` | 2.215814e+00 | 1.950241e-05 | 113 618 |
+| `I_hi` | 2.942318e+00 | 1.978904e-05 | 148 684 |
+| `M2_m` | 3.048879e+00 | 1.964790e-05 | 155 175 |
+| `M1_m` | 3.123202e+00 | 1.972029e-05 | 158 375 |
+| `B_hi` | 3.155867e+00 | 2.022342e-05 | 156 050 |
+| `M1_m_seed` | 5.347684e+00 | 1.972006e-05 | 271 179 |
+| `M1_f` | 7.941544e+00 | 1.983621e-05 | 400 356 |
+| `M1_c` | 9.795403e+00 | 1.969131e-05 | 497 448 |
+| `C_lam` | 1.446301e+01 | 1.987026e-05 | 727 875 |
+
+**`y+max` 1.6244–3.5703, every arm inside the registered window.**
+
+**REGISTERED PREDICTIONS, SCORED.**
+- **`P-A3.1` — HIT.** *"all ten arms still `converged=False` at 60 000 under §7.1."*
+  Ten of ten.
+- **`P-A3.2` — HIT on its substance.** *"if any arm converges it is `M2_f`."* None
+  converged, so the conditional is not falsified; but `M2_f` was again the closest
+  **by two orders of magnitude** (2.36e-02 K against the next-best 2.22e+00 K), and
+  it improved 5.85× over the extension (0.1379 K at 40 000 -> 0.02358 K at 60 000).
+  **It is still 1 193× its own criterion.** The supervisor's stated reason —
+  *"a 5-order gap does not close in 20 000 SIMPLE iterations; the field is moving,
+  not settling"* — is what the numbers show.
+
+## E5. The ten graded rows — TALLY 0 of 10, RUNG VERDICT `GATE REACHED`
+
+Unchanged in kind from the first grading: every row is **`NOT A RESULT`**, each
+carrying `level(s) NOT CONVERGED: L1, L2, L3`. Standing rule 5 order applies at
+step (1) — no level is iteratively converged, so no triple can promote a row —
+and the comparator prints both triples and the observed order beside each row
+anyway. Two triples are `CONVERGING` and their GCI is printed but **cannot
+promote the row**: `G8` M1 `[0.0107816, 0.006432, 0.00384112]` p 1.5254 GCI
+125.7054 %, M2 `[0.0154574, 0.0083692, 0.00511869]` p 2.3009 GCI 67.9134 %;
+`G5a` M1 `[0.552025, 0.684919, 0.740801]` p 2.5579 GCI 6.9092 %. Every other
+triple is `DIVERGENT` or `OSCILLATORY` and **no GCI is quoted where the three
+values are not monotone**.
+
+**Guards:** `B` worst |dTheta| 0.26733 K at G2@0.9 (quiet); `I` dG5a 0.055408 m/s,
+dG8 0.000956 m (quiet); `DC` **UNMEASURED** (C_lam is not converged); **`SEED`
+FIRES — seed dependence is the finding**, G5a differs between `M1_m` and
+`M1_m_seed` by more than its registered band (worst 0.235272 at G2@0.9); `y+`
+1.6244 on `M1_f`, inside the window; `M0` the Boussinesq model-form floor
+(1.65 % velocity, 0.031 % Nusselt) **REPORTED beside every velocity row and NEVER
+SUBTRACTED**.
+
+**`RUNG VERDICT: GATE REACHED`, tally 0 of 10** — unchanged from the first
+grading, and for the unchanged reason the comparator prints itself: **column `P`
+is UNREACHED because Blay, Mergui and Niculae (1992) is NOT OBTAINED.** `V` is
+reachable; `G` is reachable; **`P` is not.** This rung **can never read `HOLDS`
+in this state**, and no later reader may treat a completed run of it as a graded
+result against the reference. **§8.2 item 4 now applies: no second extension
+exists, and these arms' rows stand as reported with the measured spread.**
+
+Comparator stdout retained under the run tree at
+`verification/runs/F14-cooling-ladder/K0f_runs/log.analyse_k0f.ext1.<ts>.txt`
+(the path is in the commit that lands this section).
+
+## E6. Cost — rule 12, against A3.5's registered lines
+
+- **Predicted (A3.5): POINT 689.19 core-min**, cap sum 1 315, $0.5893 DERIVED.
+- **Measured: 745.667 core-min** = 44 740 wall s × 1 rank ÷ 60, summed from the
+  ten `STATUS.*.ext1` `wall=` fields. **Gross = cleaned.** Six of the ten rows
+  exceed the 3 600 wall-s stall figure and **not one is a stall**: each restarted
+  at `Time = 40001` and ran monotonically to 60 000 with the full 20 000
+  `ExecutionTime` lines. **WASTE: 0.000 core-min**, named separately — no re-fire,
+  no refused-after-arming arm, and **no arm reached its cap** (worst `B_hi` at
+  61.8 % of its 110).
+- **Ratio actual/POINT 1.082.** Per arm: `B_hi` 1.174, `M1_f` 1.149, `C_lam`
+  1.103, `I_hi` 1.085, `M2_m` 1.084, `M2_f` 1.078, `M1_m_seed` 1.044, `M1_m`
+  0.986, `M1_c` 0.946, `M2_c` 0.938.
+- **`P-A3.3` — MISS on the form it was written in.** It predicted *"ratio
+  actual/POINT ≈ 1.0 ± 0.1 **per arm**"*. **Seven of ten arms are inside ±0.1;
+  three are outside** (`B_hi` 1.174, `M1_f` 1.149, `C_lam` 1.103). The
+  **aggregate** ratio 1.082 is inside, and scoring the aggregate instead of the
+  per-arm claim would convert a miss into a hit — so it is scored as written.
+- **Attribution: mild rate misprediction, and it is the SECOND half of each run
+  being dearer than the first, not contention.** POINT was `0.5 ×` the segment-1
+  core-minutes, i.e. it assumed iterations 40 001–60 000 cost exactly what
+  iterations 1–40 000 did. Measured, they cost **8.2 % more** in aggregate. The
+  three arms outside the band are the three whose segment-1 rate was measured
+  earliest, on a fuller box. **Contention: present, not limiting.** **The
+  transferable correction: for a restarted SIMPLE segment, price the continuation
+  at ~1.08 × the first segment's per-iteration rate, not 1.00 ×** — a restart
+  reloads fields and rebuilds the matrix without the first segment's cheap early
+  iterations.
+- **Rung total 2 124.050 core-min** (1 378.383 segment 1 + 745.667 extension)
+  **against the registered CEILING 2 750.70 — INSIDE, at 77.2 %.**
+- **Dollars, DERIVED, NOT MEASURED**, at the owner-stated $0.0513/core-h
+  (`COMPUTE_BUDGET_CHARTER.md` §5 — the box cannot read its own billing):
+  **$0.6375** for the extension against POINT $0.5893.
+- Ledger row: `docs/COST_CALIBRATION.md`, id assigned at commit from the tail.
+
+## E7. Disclosures
+
+- The supervisor's decision to take the extension was made **with the graded
+  values already printed** by the first comparator run. A3.1 discloses this
+  verbatim rather than smoothing it, and states the decision cited only the ten
+  `converged=False` lines. **This lane cannot verify what the supervisor read**;
+  it can only report that the disclosure exists and that the extension's outcome
+  matches the prediction registered before it ran.
+- `M1_m` and `M1_m_seed` both report `wall=3728`, exactly. **Checked rather than
+  waved through:** each is internally consistent with its own UTC stamps
+  (`M1_m` 06:21:30Z -> 07:23:38Z; `M1_m_seed` 07:34:06Z -> 08:36:14Z; both
+  1 h 02 m 08 s). It is a coincidence between two same-mesh arms, not a copied
+  field.
+- **The `SEED` guard fires.** Seed dependence at this mesh is a finding of the
+  rung, and it survived the extension rather than annealing out of it.
+- **Nothing was sent, filed, uploaded, posted or registered outside this box**
+  (rule 7).
