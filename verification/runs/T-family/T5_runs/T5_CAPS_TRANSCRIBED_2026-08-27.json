@@ -1,0 +1,67 @@
+{
+  "_what": "machine-readable transcription of cap_core_min figures registered only as prose",
+  "_authority": "THE PROSE IS AUTHORITATIVE. This file is a DERIVED TRANSCRIPTION of a cap that is registered in the pre-registration named below, and it is NOT a second source of truth. If this file and the prose ever disagree, THE PROSE WINS and this file is the thing that is wrong. It creates no cap, moves no cap, and re-registers nothing: every value here is copied from the cited line, which is reproduced verbatim beside it so the copy can be checked without leaving this file. Ordered by the heat-transfer supervisor 2026-08-27 so that a cap registered only in prose is visible to a machine sweep; the sweep that missed these read fields only and classed 28 capped cases as uncapped.",
+  "_scope_field": "scope=case means the prose registers this cap for that case alone; scope=rung means the prose registers it as a RUNG TOTAL and it does NOT decompose per case -- compare a rung total against it, never a single case",
+  "transcribed_utc": "2026-08-27",
+  "rung": "T5_runs",
+  "source_document": "docs/campaigns/T-family/T5_PREREGISTRATION.md",
+  "transcribed_by": "heat-transfer lane, verified line-by-line against disk at generation time",
+  "entries": [
+    {
+      "scope": "case",
+      "case": "H_c",
+      "cap_core_min": 136.8,
+      "source_line": 1431,
+      "source_line_verbatim": "| T5_CUBE_c, H_c | 45.6 | 136.8 | 8208 |"
+    },
+    {
+      "scope": "case",
+      "case": "L_m",
+      "cap_core_min": 1114.2,
+      "source_line": 1433,
+      "source_line_verbatim": "| L_m | 371.4 | 1114.2 | 66852 |"
+    },
+    {
+      "scope": "case",
+      "case": "P_m",
+      "cap_core_min": 1591.2,
+      "source_line": 1432,
+      "source_line_verbatim": "| T5_CUBE_m, P_m | 530.4 | 1591.2 | 95472 |"
+    },
+    {
+      "scope": "case",
+      "case": "S_m",
+      "cap_core_min": 1467.0,
+      "source_line": 1434,
+      "source_line_verbatim": "| S_m | 489.0 | 1467.0 | 88020 |"
+    },
+    {
+      "scope": "case",
+      "case": "T5_CUBE_c",
+      "cap_core_min": 136.8,
+      "source_line": 1431,
+      "source_line_verbatim": "| T5_CUBE_c, H_c | 45.6 | 136.8 | 8208 |"
+    },
+    {
+      "scope": "case",
+      "case": "T5_CUBE_f",
+      "cap_core_min": 6924.6,
+      "source_line": 1435,
+      "source_line_verbatim": "| T5_CUBE_f | 2308.2 | 6924.6 | 415476 |"
+    },
+    {
+      "scope": "case",
+      "case": "T5_CUBE_m",
+      "cap_core_min": 1591.2,
+      "source_line": 1432,
+      "source_line_verbatim": "| T5_CUBE_m, P_m | 530.4 | 1591.2 | 95472 |"
+    },
+    {
+      "scope": "case",
+      "case": "X_2d",
+      "cap_core_min": 79.2,
+      "source_line": 1430,
+      "source_line_verbatim": "| X_2d | 26.4 | 79.2 | 4752 |"
+    }
+  ]
+}

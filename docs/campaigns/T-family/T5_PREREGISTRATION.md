@@ -1608,3 +1608,49 @@ The critical-path wall for `F` becomes 38.5 h under Model B and 105.6 h under Mo
 **(h) Enqueue under this amendment.** The held draft `verification/runs/T-family/T5_runs/queue_drafts/T5_S_m_BLOCKED.json` is re-pointed at the built case, re-validated and renamed `T5_S_m.json`, citing **this amendment's commit as `prereg_commit`**. Argv per AMENDMENT 6(b) — `run_one_t5.sh --case-dir <case> --timeout 88020 --ranks 1 --solver chtMultiRegionSimpleFoam --no-detach`; cost per AMENDMENT 2 — `cost_core_min_estimate` **489.0**, `cap_core_min_registered` **1467.0**. **Core-minutes this amendment adds to the heat-transfer queue: 489.0** (POINT; 1467.0 at the registered cap). `scripts/queue_entry_check.py` **ACCEPTED, rc 0**, and the validator's own note is carried unsoftened: *"acceptance is a mechanical guard only. Enqueueing is not authorisation; SUPERVISION_CHARTER §3 check 4 is the supervisor's own and is not performed by this script."*
 
 **Not done by this amendment:** the digitiser and the reference are untouched — AMENDMENT 7 (`cd4a70ec`) promoted `digitise_t5.py` to `9a465d7b` and `T5_reference_primary.json` to `04dfd7e2` and A9 reads neither; `analyse_t5.py` stays blob `9c2c1d44`; `run_one_t5.sh` stays `313df45c`; `mark_done_t5.py` stays `a74ce20d`; §16.9 is not amended; every band, floor and gate of §7 stands. Nothing was sent, filed, uploaded, posted or registered outside this box (rule 7), and no permission setting, `CLAUDE.md` or `.claude/` config was touched (rule 9).
+
+---
+
+# CAP TRANSCRIPTION ADDENDUM — 2026-08-27. **POST-COMPUTE. DISCLOSURE ONLY.**
+
+**No gate, band, threshold, cap, timeout, label or cost moves. This addendum
+REGISTERS NOTHING.** It records that this document's cap figures, which exist here
+only as prose, have been copied into a machine-readable sidecar so that a field-
+reading sweep can see them. **Lines whose number changed above this section: 0** —
+verified by BYTE-PREFIX against this file's HEAD blob in the same shell invocation
+as the commit, never typed and never asserted from a reading.
+
+**THE PROSE ABOVE IS AUTHORITATIVE. THE SIDECAR IS A DERIVED TRANSCRIPTION.**
+`verification/runs/T-family/T5_runs/T5_CAPS_TRANSCRIBED_2026-08-27.json`
+is not a second source of truth for any cap in this document. **If the sidecar and
+the prose ever disagree, THE PROSE WINS and the sidecar is the thing that is wrong.**
+Without that rule a transcription becomes a silent re-registration the first time a
+later agent finds the two differing and has no ruling for which governs.
+
+**Why it exists.** The cap census of 2026-08-27
+(`docs/campaigns/T-family/CAP_CENSUS_2026-08-27.md`, `9b084614`) swept the whole
+territory for registered caps by reading FIELDS, and this rung's caps are not in a
+field — they are in a table. The first pass therefore counted these cases as having
+no registered cap at all. They do; the sweep could not see it.
+
+**SIDE BY SIDE — every transcribed number beside the line it was copied from.**
+Each `verbatim` cell was re-read from this file on disk at generation time and
+compared byte-for-byte with the stored quote: **8 entries, 0 mismatches.**
+
+| case | line | verbatim prose line | → `cap_core_min` |
+|---|---:|---|---:|
+| `H_c` | 1431 | `\| T5_CUBE_c, H_c \| 45.6 \| 136.8 \| 8208 \|` | **136.8** |
+| `L_m` | 1433 | `\| L_m \| 371.4 \| 1114.2 \| 66852 \|` | **1114.2** |
+| `P_m` | 1432 | `\| T5_CUBE_m, P_m \| 530.4 \| 1591.2 \| 95472 \|` | **1591.2** |
+| `S_m` | 1434 | `\| S_m \| 489.0 \| 1467.0 \| 88020 \|` | **1467.0** |
+| `T5_CUBE_c` | 1431 | `\| T5_CUBE_c, H_c \| 45.6 \| 136.8 \| 8208 \|` | **136.8** |
+| `T5_CUBE_f` | 1435 | `\| T5_CUBE_f \| 2308.2 \| 6924.6 \| 415476 \|` | **6924.6** |
+| `T5_CUBE_m` | 1432 | `\| T5_CUBE_m, P_m \| 530.4 \| 1591.2 \| 95472 \|` | **1591.2** |
+| `X_2d` | 1430 | `\| X_2d \| 26.4 \| 79.2 \| 4752 \|` | **79.2** |
+
+**Every value is a copy. None is derived, rounded, converted or inferred.**
+
+**Ruled by the heat-transfer supervisor `[lab-attributed]` 2026-08-27; drafted by a
+lab lane. Rule 2 permits this because it alters no cap — it RESTATES one. Rule 6
+governs the mechanics and they were followed: dated, appended at the foot, and the
+lines-changed-0 assertion verified by byte-prefix rather than claimed.**
