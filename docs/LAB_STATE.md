@@ -6739,6 +6739,54 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T21:44:20Z — **T3_R_ff RULED: NO KILL, IT RUNS TO ITS CAP; A BUDGET-FRAME CORRECTION THIS SUPERVISOR MAKES AGAINST ITS OWN REASONING; AND THE COSTING-EXPONENT REFERRAL**
+
+*Content dictated by the heat-transfer supervisor; splice and the two lane checks noted below by a heat-transfer lane. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY asserted outside the insertion. Supersedes nothing above or below it.*
+
+#### T3_R_ff — **RULED, NO KILL. IT RUNS TO ITS CAP.**
+
+Chief's ruling **[lab-attributed; Sanaa may overrule]**. The **grounds** are boarded, not merely the outcome, so the 06:00Z successor grades from the record instead of re-opening it:
+
+1. **The cap ENFORCES ITSELF.** The run's `timeout` **is** its cap — **205,500 s = 27,400 × 60 ÷ 8** — and the cap-stop outcome is **already registered as `NOT A RESULT` on a registered cap**. Nothing is gained by pre-empting a rule that will execute on its own.
+2. **Killing is the ONE IRREVERSIBLE ACT**, and it forfeits the only path to a graded fourth level: a sustained **~2.3 % rate improvement** on a quieter box. That level is the flip for **`forced conv · turbulent · 2D`, currently CAN NOT DO**.
+3. The remaining **~$13.27 derived** sits **inside Sanaa's under-$25 per-run pre-authorisation**.
+
+**THE PROJECTION, boarded so the successor does not re-derive it.** Time **50,529** of `endTime` **118,000** (**42.8 %**). Consumed **11,886.4 core-min** = **65.2 % of POINT 18,218**, **43.4 % of CAP 27,400**, **$10.16 derived, not measured**.
+
+- **REQUIRED** rate to finish inside the timeout: **1.7245 s/iter**.
+- **MEASURED: 1.8056** recent / **1.8456** over the last 10,000 / **1.7643** whole-run mean — **all three exceed the requirement**, and the windowed trend is **UPWARD** (1.722 → 1.810 → 2.065 → 1.893 → 1.798 → 1.846).
+- **PROJECTION:** the timeout fires **2026-08-29T05:56:28Z** at iteration **~114,968–116,477 of 118,000** — **97.4–98.7 % of `endTime`**. Under **standing rule 4** (last time == `endTime`) that is **`NOT A RESULT` on a registered cap**, at the full **27,400 core-min / $23.43 derived**.
+
+#### A CORRECTION THIS SUPERVISOR MAKES **AGAINST ITS OWN REASONING**
+
+I argued for considering a stop partly on the grounds that we were *"spending under a live limit"* four hours after the monthly limit killed the fleet. **That conflated two different ledgers, and the chief corrected it.**
+
+**The monthly limit that killed the fleet is the ANTHROPIC API SPEND LIMIT. AWS core-minutes are a SEPARATE BUDGET and were never the constraint that stopped us.**
+
+This is boarded explicitly and plainly because the next reader who sees *"$13 more under a spend limit"* will otherwise **re-litigate the kill on the wrong budget**. **The projection was sound; the budget frame put around it was not, and only the frame is withdrawn.**
+
+#### THE COSTING-EXPONENT FINDING — REFERRED TO VERIFICATION
+
+Sent to **verification** on the chief's referral, for the **CALIBRATION STANDARD**. T16's single flat per-cell-iteration rate (**3.8932e-06 core-s**) **over-priced coarse at 0.742×** and **under-priced medium at 1.667×** — **opposite errors from one registration, so an aggregate accuracy check is blind to them.** Measured per-cell-iteration **c = 2.8890e-06**, **m = 6.4883e-06**: a **2.246× rise for 4× cells**, exponent **~0.584**.
+
+**The LIMIT was sent with it and is boarded here:** two levels of one rung of one solver, so **0.584 is a measurement and NOT a lab constant.** The generalisable claim is **the method and the failure mode**, not the exponent.
+
+#### T16 — PRE-DECIDED, NOT TO BE RE-LITIGATED
+
+**T16's cap is FROZEN by standing rule 2** (first compute `STATUS.T16_MC_c`, 2026-08-27T17:42:30Z). **`MC_f` RUNS AS REGISTERED.** If it caps, that level is **`NOT A RESULT` on a registered cap** and **the rung becomes ungradeable**, because the comparator grades **the whole rung or none**.
+
+#### THE UNATTRIBUTED SOLVER — **NOW ATTRIBUTED, AND IT IS NOT OURS**
+
+Boarded as an **open contention source** so nobody credits or blames it to this family: `simpleFoam` **pid 1451545**, `timeout 5400`, started **2026-08-27T21:33:30Z**.
+
+*Lane check, added to the supervisor's dictation:* the process is **no longer unattributed**. Its command is `/usr/bin/time -v -o mem_time.txt timeout 5400 simpleFoam -case .` and **its working directory, read from `/proc/1451545/cwd`, is `/home/ubuntu/closure-data/g1/L2`** — i.e. **level L2 of closure's G1 grid triple**. That also **explains the runner log naming closure's `G1_grid_triple.json`** in the ceiling entry recorded in the addendum below. **Attribution is by working directory, not by a dispatch record**, so it is evidence and not proof of ownership; the chief's identification still stands as the authority. **Not this family's process, and untouched by us.**
+
+#### ROSTER RECEIPT — **PER-SESSION, NOT A TABLE TO TRUST**
+
+heat-transfer `a95522dee5ab8f651`; verification `a261babeeab96410e`; cfd `a7a202a72191327cf`; dafoam `a0ab0f65e753b0767`; closure `a6186d160fa6bcbc7`; ansys `ae71757aece1199b9`. **Standing caveat: these ids are PER-SESSION. A successor re-derives them from the chief rather than trusting this table.**
+
+---
+
 ##### ADDENDUM 2026-08-27T21:39:22Z — **TEAM RE-FORMED AFTER THE 20:35Z SPEND-LIMIT KILL; POST-KILL DISK RESIDUE IS EMPTY; A LAB-WIDE CAP-ENFORCEMENT MISCITATION CONFIRMED AT SOURCE; AND THE FAMILY GRID ON DISK IS TWO COMMITS BEHIND HEAD**
 
 *Content dictated by the heat-transfer supervisor; splice and citation checks by a heat-transfer lane. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY asserted outside the insertion.*
