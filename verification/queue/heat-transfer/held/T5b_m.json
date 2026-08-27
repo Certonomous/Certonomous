@@ -1,0 +1,70 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T5b_m",
+  "prereg_commit": "35df976233a46a5068fd87d32c10534f187b3c87",
+  "prereg_path": "docs/campaigns/T-family/T5b_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs/run_one_t5b.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs/T5_CUBE_m",
+    "--cap-core-min",
+    "154.4",
+    "--ranks",
+    "1",
+    "--solver",
+    "chtMultiRegionSimpleFoam",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs/T5_CUBE_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 77.2,
+  "cap_core_min_registered": 154.4,
+  "cost_basis": "derived: POINT 77.2 core-min = T5's OWN measured wall time for this identical case (same mesh, solver, endTime, ranks) x 1.02, from verification/runs/T-family/T5_runs/STATUS.T5_CUBE_m (rc 0, capped 0); the 1.02 is a DECLARED ALLOWANCE for the repaired function objects' extra field writes and is NOT measured. CAP 154.4 = 2.0 x POINT, contention headroom on an ~88 %-busy box, NOT model uncertainty. USD 0.0660 = 1.2867 core-h x the owner-stated $0.0513/core-h -- REPORTED-BY-OWNER, NOT MEASURED: this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). T5b_PREREGISTRATION.md section 9.",
+  "memory_floor_gb": 3.0,
+  "memory_basis": "ESTIMATED, NOT MEASURED: conjugate case, 212,942 air+epoxy cells from the case's own log.checkMesh, at roughly 1 GB per 100k cells with a 2 GB floor. No memory record exists for T5's runs, so this is an estimate and is labelled one.",
+  "enqueued_by": "heat-transfer lane 5 (T5b freeze) -- PREPARED, NOT AUTHORISED. SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) is the SUPERVISOR'S OWN and is NOT performed by this lane. This file is HELD in held/ and is INERT because queue_runner.py:223 scans with d.glob('*.json'), which is NOT recursive. Releasing it into the parent directory LAUNCHES within one minute.",
+  "_provenance": {
+    "rung": "T5b",
+    "registration_frozen_at": "35df976233a46a5068fd87d32c10534f187b3c87",
+    "why_the_directory_is_named_T5_CUBE_m": "the case directory keeps build_t5.py's registered case name; the RUN ROOT T5b_runs/ is what distinguishes the rung, exactly as T5b_PREREGISTRATION.md section 4 registers it",
+    "case_dir": "/home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs/T5_CUBE_m",
+    "cap_agreement": "run_one_t5b.sh has NO --timeout. It derives wall seconds from --cap-core-min and REFUSES unless that value equals the frozen T5B_CAPS.txt row for this case. An argv cannot widen a cap. Proven by --drive-cap-kill: a SIGTERM-ignoring child is still SIGKILLed at the cap.",
+    "verified_on_disk_by_this_lane": {
+      "cells": 212942,
+      "cells_source": "/home/ubuntu/Certonomous/verification/runs/T-family/T5b_runs/T5_CUBE_m/log.checkMesh",
+      "age_guard": "0.orig present; NO 0/ and NO numeric time directory",
+      "controlDict_repaired": "exactly 2 function objects on executeControl/writeControl timeStep; zero 'writeTime' controls",
+      "inflow_map_digest": "b1741eb9ae4288e1f8e8bfaba3fad43fba422b872f2d761602b6724197b0e103"
+    }
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "the solver rc VALUE",
+      "the End line in log.solve",
+      "last time == endTime",
+      "T U p_rgh alphat nut k omega at endTime",
+      "the ExecutionTime ITERATION count",
+      "the 0/T age guard",
+      "yPlus.dat rows at endTime on all six registered walls"
+    ],
+    "gate_input_never_infrastructure": [
+      "yPlus.dat"
+    ],
+    "infrastructure": [
+      "wall_s",
+      "ranks",
+      "core_min",
+      "cap_core_min",
+      "timeout_s",
+      "capped",
+      "checkMesh_rc",
+      "the rc RECORD (ruling R-RC)",
+      "the ExecutionTime LINE count",
+      "_launch.pid",
+      "LAUNCH_LOG.tsv row",
+      "CAP_ENFORCED.txt",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS-CRITICAL field or the GATE INPUT may produce NOT A RESULT (L-342). Ruling R-RC: the rc VALUE is physics, the rc RECORD is infrastructure. Ruling D534: REPORTED is a ROW CLASS, excluded from every census."
+  }
+}
