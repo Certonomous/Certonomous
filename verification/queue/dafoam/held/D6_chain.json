@@ -1,0 +1,42 @@
+{
+  "team": "dafoam",
+  "case_id": "D6_chain",
+  "prereg_commit": "a12832846e87cc95bc47eb40f39cdf71cff1c0f4",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D6/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6/d6_chain_driver.sh",
+    "O_mp",
+    "ACC_mp",
+    "F_mp",
+    "REF_off"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6",
+  "ranks": 4,
+  "cost_core_min_estimate": 1694.7,
+  "cap_core_min_registered": 2230.0,
+  "cap_core_min_registered_source": "cases/dafoam/ladder-a/A2/curriculum_D6/PREREGISTRATION.md:93-99 (§4 cost table; `| **total** | | **1,694.7 core-min** | **ceiling 2,230.0** (sum of caps) | | |` at :99 = O_mp 2000.0 + ACC_mp 30.0 + F_mp 180.0 + REF_off 20.0). Gate G10 at :84 reads the same figure (`the sum <= 2,230.0`). Addendum trail followed to the foot: Addenda 1 (:220), 2 (:243) and 3 (:293) are all PRE-COMPUTE and none moves a cap -- Addendum 3's instrument table at :282 records `every gate, band, cap, label, cost, prediction ... unchanged`. TRANSCRIBED ONLY, no value derived, rounded or corrected.",
+  "cap_annotation_note": "Transcription of an already-registered figure onto the entry's face under the chief's lab-wide cap-field order 2026-08-27 [lab-attributed]; NOT an amendment to the frozen registration, which is untouched. This entry is a SUPERSEDED record in held/ and is outside queue_runner.list_entries' glob (top-level *.json only), so this edit is operationally inert. The CURRENT governing record for this item is verification/queue/dafoam/launched/D6_chain_wait.json, which is NOT back-filled and therefore still carries no cap field.",
+  "cost_basis": "derived: O_mp 1533.4 (6.389 core-min/major, D4 PATCHED, x 3 scenarios x 80 majors) + ACC_mp 9.0 + F_mp 141.8 + REF_off 10.5 = 1694.7 core-min; $1.45 at the owner-stated c7a.4xlarge $0.0513/core-h, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER.md section 5). Caps O_mp 2000.0 / ACC_mp 30.0 / F_mp 180.0 / REF_off 20.0, ceiling 2230.0 = sum of caps; deadline INSIDE each container at its cap wall; PREREGISTRATION.md section 4, frozen 3090e858. Exposure registered: the x3 per-major scaling (three adjoints per major) and the multipoint MEMORY at 20g per arm (P7) -- an OOM kill stops the chain at O_mp after minutes and is a registered finding, not a wasted run.",
+  "memory_floor_gb": 24.0,
+  "enqueued_by": "dafoam-supervisor via lane Q1 (supervisor check 4 discharged at enqueue: freeze commit a12832846e87cc95bc47eb40f39cdf71cff1c0f4 verified present; freeze 3090e858, Addendum 1 a1283284)",
+  "precondition_artifact": "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base/FFD/wingFFD.xyz (md5 f9435ee2ef54df0b08feae6e5127125d, D4's PATCHED base/ the driver stages read-only), /home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/OptView.hst (md5 0d956d6ccbc010402915710f662d3b11, staged read-only into REF_off/) and .../O/opt_IPOPT.txt (CD_f(D4), consumed by the grader). INFORMATIONAL: the runner ignores this field; the driver evaluates its own preconditions (H5 window at 24.0 GiB, aggregate wait-and-retry, G-ROOT.1-.5, ALREADY_BOUGHT) before any container starts.",
+  "permission": "bc0e687e",
+  "_schema_note": "Fields above precondition_artifact are the validator's REQUIRED_FIELDS. The rest are dafoam annotations the validator ignores.",
+  "image_row": "PATCHED",
+  "image": "dafoam-idwarp-rot:v1",
+  "image_digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+  "container_memory_caps": "20g on every arm (three DAFoam solvers in one process; never 8g -- the D4-SHIPPED ACC arm was OOM-killed by its 8g cgroup, rc=137 16:56:28Z); H5 floor 24.0 GiB = cap + 4 GiB headroom",
+  "cpuset": "2,3,4,14 -- REGISTERED (PREREGISTRATION.md section 5b), disjoint from D5's 8,10,11,13, from D4-SHIPPED's 5,6,7,9 and from every live container cpuset at freeze (W2R on 12); D7FR's 2,3,4,6 released (F-S and F-P complete). D6 does NOT wait on D4-SHIPPED's STATUS.F3: the sets are disjoint, so no coupling exists.",
+  "rc_capture": "INSIDE the chain driver: rc per arm is the frozen launcher's exit = docker inspect .State.ExitCode read before docker rm (no --rm); appended to STATUS.<arm> in the run root as rc=<n> stamp=<utc> arm=<arm> source=launcher_exit=docker_inspect_ExitCode ...; STATUS.chain carries the chain state. Never the $? of a setsid/timeout line; the runner's own STATUS.D6_chain launcher_rc is an INFRASTRUCTURE record (L-342).",
+  "guards_before_each_arm": "launcher md5 asserted; windowed H5 (45 samples / 60 s, refuse on ANY sample < 24.0 GiB); ALREADY_BOUGHT; aggregate memory (live caps + 20 GiB + host non-container RSS < 30.6 GiB) in the WAIT-AND-RETRY form (poll 30 s, bounded 4 h, each wait a line in STATUS.<arm>, refuse-and-BLOCK at the bound); then the launcher's G-ROOT.1-.3, G-ROOT.5 (DEMONSTRATED 13/13 against a sacrificial container and a live pid, d6_groot5_selftest_evidence.txt), cap assertion, staged-instrument md5s, digest-only image identity, G-ROW (PATCHED only), G-COLD, REF_off's D4 history md5-asserted.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint -- ABSENT at freeze (the freeze condition); created by the driver on first fire (mode 777, L-251)",
+  "status_files": [
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/STATUS.chain",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/STATUS.O_mp",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/STATUS.ACC_mp",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/STATUS.F_mp",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/STATUS.REF_off"
+  ],
+  "grading_path": "cases/dafoam/ladder-a/A2/curriculum_D6/d6_grade.py md5 a76a7d5e298a6ba719143f14e10c89bf (per-point + composite + price + bright-line gates, L-342 field classes, arm-kind-aware completion; 26/26 under python3 and python3 -O)"
+}
