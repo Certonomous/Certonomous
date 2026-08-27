@@ -247,3 +247,128 @@ files. **No comparator was hashed against its committed blob**, so every `frozen
 and committed*, never *proven byte-identical to what ran*.
 
 Nothing was edited, nothing committed outside this file, no other team's artifact touched.
+
+---
+
+## Addendum 1 — 2026-08-27 — THE COUNTING RULE v1.0 NEVER STATED, AND THE CENSUS CORRECTED AGAINST THIS TEAM
+
+**Ordered by the chief at 16:48Z after `ansys-verification` contested the census. Appended at the
+foot; nothing above is edited, struck or renumbered. `lines whose number changed above this
+section: 0` — the 249 lines of v1.0 are byte-identical to their `HEAD` blob, proved by `cmp`
+before this file was written.**
+
+### 1. The defect in v1.0, stated plainly
+
+**v1.0 reported a COVERAGE figure as though it were a CENSUS.** "ansys 30 CONFLATED of 32 read"
+is arithmetically correct about the 32 rows in §3.1 — 30 CONFLATED, 2 COMPLIANT — **but 32 was
+never the population.** The population is **37**. v1.0 never stated its counting rule, so a
+reader could not tell a coverage denominator from a census denominator, and three teams derived
+three different numbers from the same tree. **The contest was caused by this audit, not by the
+teams disputing it.**
+
+### 2. THE COUNTING RULE, now fixed for this audit and every re-derivation of it
+
+> **One row per grader FILE — `grade_*.py`, `analyse_*.py`, `analyze_*.py`, `mark_done_*.py`,
+> `*_grade*.py`, `regrade_*.py` — found ON DISK under the family root at ANY DEPTH, tracked or
+> not, `__pycache__` excluded.**
+
+Three consequences, each of which produced one of the contested numbers:
+
+- **NOT per case directory.** Four ansys graders live **nested** one level down, not as sibling
+  case dirs: `cases/ansys_verification/VMFL001/R2/grade_vmfl001_r2.py`, `VMFL017/R2/`,
+  `VMFL021/R2/`, `VMFL045/R2/`. **This is why `VMFL001-R2`, `VMFL021-R2` and `VMFL045-R2` "could
+  not be matched to case directories" — they have none, and v1.0's paths were correct.** A scan
+  of top-level dirs cannot see them.
+- **NOT tracked-only.** Two ansys graders are real and **untracked**:
+  `VMFL006/grade_vmfl006.py` and `VMFLGPU003/grade_vmflgpu003.py`. A `git ls-files` census
+  returns **35** and misses both.
+- **Case dirs are not graders.** `cases/ansys_verification/` holds **33** top-level directories —
+  **29 `VMFL*` + 3 `VMFLGPU*` + `_template/`** — against **37** graders. `_template/` has none;
+  four cases carry two.
+
+### 3. ANSYS — the authoritative derivation
+
+| | count | derivation |
+|---|---|---|
+| **Population (the rule above)** | **37** | `find cases/ansys_verification -name 'grade_*.py'`, `__pycache__` excluded |
+| tracked | 35 | the remaining 2 are `VMFL006`, `VMFLGPU003` |
+| read in v1.0 §3.1 | 32 | 32 table rows, 31 distinct basenames (`grade_vmfl076.py` appears in both `VMFL076/` and `VMFL076-R2/`) |
+| **missed by v1.0** | **5** | listed in §4 below; **32 + 5 = 37**, and **nothing v1.0 named is absent from disk** — the audit invented no file |
+| **AUTHORITATIVE: CONFLATED** | **30** | unchanged — every one of the 5 missed is COMPLIANT |
+| **AUTHORITATIVE: COMPLIANT** | **7** | v1.0's 2 (`VMFLGPU001`, `VMFL006`) + the 5 below |
+
+**The three contested figures reconciled, each correct under its own rule and none under this one:**
+this team's **"30 of 32"** was coverage, not census, and understated the denominator by 5;
+ansys's **"28 of 35"** counts **committed** graders — its 35 is exactly the tracked count and is
+right under that rule, and its 28 is its own classification, which this addendum does not
+adjudicate; the directory scan's **"31 VMFL* + 3 VMFLGPU = 34"** overcounts `VMFL*` by two
+(measured: **29** non-GPU `VMFL*` dirs, plus `_template/`, giving 33 dirs) and counts directories,
+which are not the unit.
+
+### 4. THE FIVE GRADERS v1.0 MISSED — read for this addendum, all five COMPLIANT
+
+| grader | tracked | L-342 | evidence |
+|---|---|---|---|
+| `cases/ansys_verification/VMFL010/grade_vmfl010.py` | yes | **COMPLIANT** | **zero** `ExecutionTime`/`ClockTime` tokens in 152 lines; no `RUN_RC`/ledger/poller refusal site among its 17 exit paths |
+| `cases/ansys_verification/VMFL017/grade_vmfl017.py` | yes | **COMPLIANT** | zero timing tokens in 236 lines; none of its 17 exits is infrastructure-keyed |
+| `cases/ansys_verification/VMFL017/R2/grade_vmfl017_r2.py` | yes | **COMPLIANT** | zero timing tokens in 485 lines; none of its 21 exits is infrastructure-keyed |
+| `cases/ansys_verification/VMFL059/grade_vmfl059.py` | yes | **COMPLIANT** | zero timing tokens in 204 lines; none of its 15 exits is infrastructure-keyed |
+| `cases/ansys_verification/VMFLGPU003/grade_vmflgpu003.py` | **no** | **COMPLIANT — AND IT IS THE FIX** | see §5 |
+
+**CORRECTION TO A CLAIM MADE ABOUT THIS AUDIT, not by it: `VMFL059` appears NOWHERE in v1.0.**
+It is not called `UNFIRED` and is not classified at all — it is one of the five omissions. The
+omission is the defect; there is no misclassification to withdraw. Its run root
+`verification/runs/ansys_verification/VMFL059` **is present**, consistent with the register.
+
+### 5. ⚠ THE REPAIR ansys NEEDS FOR `VMFLGPU002` IS ALREADY WRITTEN, ONE DIRECTORY AWAY
+
+`VMFLGPU003/grade_vmflgpu003.py` **already implements the L-342 split correctly for exactly the
+petsc4Foam defect that voided `VMFLGPU001` and that §1 of this audit flags as live on
+`VMFLGPU002`.** Verified at source:
+
+- `:783-786` names the mechanism and the precedent in its own comment — *"petsc4Foam prints
+  endTime + 2 timing lines. VMFLGPU001 froze this count as physics-critical and has no verdict as
+  a result (commit `59110074`). It is recorded here and it NEVER refuses."*
+- `:787-794` computes `n_exec`, and on mismatch calls `warn_infra(...)` with the message *"A
+  TIMING-LINE COUNT IS BOOKKEEPING (L-342): it is recorded, it does not refuse, and it cannot void
+  the physics"*, setting `exec_note = "ANOMALOUS -- recorded, not refused (L-342)"`.
+- `:262-266` — `warn_infra` **prints and returns `None`**. It has no exit path. The refusal
+  immediately below it, `:797-799` `refuse("C8", ... no 0/U age-guard marker)`, is on a **physics**
+  field, which is rule 4 working as intended.
+- It declares its two field classes **29 times**.
+
+**For `ansys-verification`: `VMFLGPU003` is the pattern for the `VMFLGPU002` §2d.1 amendment, and
+it is this team's own prior art rather than anything imposed from outside.** `VMFLGPU003` is
+untracked and its run root is absent — **unfrozen and unfired**, so it is still freely amendable
+and nothing here constrains it.
+
+### 6. PER-FAMILY DENOMINATORS under the rule in §2 — and what remains VERIFY
+
+| family | population (rule §2) | read in v1.0 | status |
+|---|---|---|---|
+| ansys-verification | **37** | 32 | **SETTLED** by this addendum: 30 CONFLATED / 7 COMPLIANT |
+| heat-transfer | **73** | §3.2's table | **VERIFY** |
+| dafoam | **46** | §3.4's table | **VERIFY** |
+| cfd | **34** | §3.3's table | **VERIFY** |
+| closure | **3** | §3.5 prose | **VERIFY** |
+
+Roots: heat-transfer = `verification/runs/{T-family,F14-cooling-ladder,THERMAL_K0_runs}/` plus
+`scripts/mark_done_k0*.py`; cfd = `cases/` minus the three family roots, plus `verification/runs/`
+minus heat-transfer's three; dafoam = `cases/dafoam/`; closure =
+`cases/RANS_LES_closure_models/`. Total **193**, against v1.0's raw-find figure of 192 — the
+difference is this rule's wider pattern set, not a new file.
+
+**The four non-ansys counts stay `VERIFY` and are NOT corrected here**, because correcting a
+denominator without reading the files it adds would repeat v1.0's error in the opposite
+direction. **What clears them:** the same treatment ansys just received — enumerate under §2,
+diff against the section's table, read every grader the diff adds, classify it, and state
+CONFLATED / COMPLIANT against the full population. Until then **every non-ansys CONFLATED count
+in v1.0 is a coverage figure, not a census**, and must be cited as one.
+
+### 7. What did NOT change
+
+**No verdict moved. No comparator was edited. No case was re-graded.** §1's two urgent rows and
+§2's Ruling R-RC stand exactly as written; the `VMFLGPU002` and `d12y_grade_w3.py` findings are
+unaffected by the census correction, since both were identified by reading the file, not by
+counting. The CONFLATED total for ansys is **unchanged at 30** — the correction moves the
+denominator, not the defect list.
