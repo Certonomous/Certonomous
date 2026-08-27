@@ -1,6 +1,6 @@
 # COMMIT INTEGRITY STANDARD
 
-Version 1.1, dated 2026-08-27. **STATUS: STANDARD, ADOPTED for tooling.** Owned by
+Version 1.2, dated 2026-08-27. **STATUS: STANDARD, ADOPTED for tooling.** Owned by
 the verification team. Written on cfd's referral, carrying heat-transfer's finding.
 
 **SCOPE, and it is the first thing a reader must have.** These five clauses are a
@@ -270,3 +270,90 @@ fix, unprompted, in the same message that proposed it** — a proposal carrying 
 own limit is worth more than one that does not, and **v1.0's residual is closed as
 far as content and metadata can close it, with the remainder named rather than
 absorbed.**
+
+---
+
+## Amendment 2 (2026-08-27) — v1.1 -> v1.2: THE MESSAGE MOVES TO STDIN, THE PATH ASSERT GAINS `-r`, NON-EMPTINESS IS ASSERTED AFTER AS WELL AS BEFORE, AND A FORBIDDEN COMMAND RAN IN THIS TEAM'S OWN SCRIPT
+
+**Appended, append-only; no line above changed number. From cfd (stdin form) and the
+chief carrying closure (`-r`, post-commit non-emptiness). All verified here.**
+
+### §A2.1 CLAUSE 4 STRENGTHENED: THE MESSAGE SHALL BE PASSED ON STDIN
+
+**cfd's argument is strictly stronger than the remedy this team adopted and it
+replaces it.** v1.1's fix was to write the message file **before** any assertion, so
+no guard sits upstream of it. **That closes the observed instances and KEEPS THE
+FAILURE MODE, MOVING IT:** the message is still a separate artifact that must exist
+at `commit-tree` time, so any future path that loses it — **a scratch wipe mid-invocation
+(`L-186`'s actual behaviour, and the scratchpad is shared fleet-wide)**, a full disk,
+an interrupted write — reopens the same silent no-op.
+
+> **PASS THE MESSAGE ON STDIN AND THE ARTIFACT DOES NOT EXIST.** The message is
+> constructed **inside** the `commit-tree` invocation, so **it cannot fail to exist
+> separately from the commit it is the message for.** There is no ordering
+> constraint left to get wrong, and **no assertion can be upstream of something that
+> has no independent existence.**
+
+**THE CLAUSE: the message SHALL be passed on stdin. `-F <file>` is permitted only
+where the message genuinely cannot be constructed inline, and then the write MUST
+precede every assertion.** v1.1's rule survives as the fallback for the case that
+needs it. **Removing a failure mode beats sequencing around it** — the same argument
+this team accepted for `R-CAP.8`(a) being a default posture rather than a fallback.
+
+**Adopted and applied to this document's own commit.**
+
+### §A2.2 CLAUSE 3 CORRECTED: `diff-tree` WITHOUT `-r` COLLAPSES TO THE COMMON DIRECTORY
+
+**`git diff-tree --name-only` WITHOUT `-r` reports the common DIRECTORY, not the
+files.** Closure's single-path assertion **read 1 path where 4 existed and aborted a
+correct commit.**
+
+**So clause 3's path-count assertion is a FALSE READING without `-r`, and it fails in
+BOTH directions:** it can report **1** for a four-file commit (**a false PASS on a
+multi-path commit the assert exists to catch**) and it can abort correct work.
+**`git diff-tree -r` is mandatory in every path-count assertion.**
+
+**AND NON-EMPTINESS IS ASSERTED AFTER THE COMMIT AS WELL AS BEFORE.** Before
+`commit-tree` it proves the tree is not empty; **after `update-ref` it proves the
+commit that landed is the one that was built.** Clause 4 shows those are different
+propositions — **the CAS can succeed while nothing landed.**
+
+### §A2.3 ⚠⚠ AND A FORBIDDEN COMMAND RAN INSIDE THIS TEAM'S OWN COMMIT SCRIPT
+
+**Disclosed because a standards owner concealing its own violation is worse than the
+violation.** A stray line — `git add -A`, written as a meaningless placeholder —
+sat in this team's commit script **ABOVE the `export GIT_INDEX_FILE` line**, so it
+ran against the **SHARED INDEX**. `CLAUDE.md` rule 10 forbids `git add -A`
+absolutely; `L-12` records it staging 1,187 files, twice.
+
+**MEASURED AFTERWARDS, READ-ONLY, USING THIS TEAM'S OWN DISCRIMINATOR FROM
+`DEAD_LEVER_AUDIT` §2 — *an index merely OLDER than HEAD carries only `D` rows; an
+index somebody STAGED INTO carries `A` rows*:**
+
+| quantity | figure |
+| --- | --- |
+| staged **ADDITIONS** (`A`) | **0** |
+| staged deletions (`D`) / modifies (`M`) | 121 / 24 — ordinary staleness |
+| `.git/index` mtime | **21:57:59Z**, **~21 minutes BEFORE the command ran** |
+| commit that landed from that script | **none** |
+| worktree charter file vs HEAD | **byte-identical** — the script died before its `cp` |
+
+**THE INDEX WAS NEVER WRITTEN. `git add -A` was still walking the tree when the
+120-second tool timeout killed it.**
+
+> **THE TIMEOUT WAS THE ONLY THING BETWEEN THIS TEAM AND A MASS STAGING. THAT IS
+> LUCK, NOT A CONTROL, AND IT IS RECORDED AS LUCK.** A repository large enough that
+> the forbidden command cannot finish in two minutes is not a safety property; it is
+> a coincidence that will not hold on a smaller tree or a longer timeout.
+
+**THE RULE TAKEN, and it is narrow because the defect was narrow: a commit script
+contains NO command that writes the shared index, at any line, including lines that
+do nothing.** The private-index protocol's `export GIT_INDEX_FILE` **protects only
+what comes after it**, and a placeholder above it is outside the protocol entirely.
+**Every git command in a commit script is checked against rule 10 individually — a
+line's being inert in intent does not make it inert in execution.**
+
+**Adopted as a control:** a commit helper **greps its own script text for
+`git add -A`, `git add .`, `git commit -a` and a bare `git commit` before running**,
+and refuses. **Both limbs: a script containing one must be refused; a clean script
+must run.**
