@@ -1,0 +1,111 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU003 -- laminar flow in a lid-driven TRIANGULAR CAVITY (Ansys Fluid
+  Dynamics Verification Manual, Release 2026 R1, p. 229), with EVERY linear
+  solve routed through petsc4Foam.
+
+  __MATTYPE__ / __VECTYPE__ are substituted by run_vmflgpu003.sh, exactly as
+  VMFLGPU001 and VMFLGPU002 do:
+
+      GPU arm            : aijcusparse / cuda
+      forced-CPU control : aij        / standard
+
+  BOTH ARMS ARE OTHERWISE BYTE-IDENTICAL.  That identity is the entire basis on
+  which limb B is a statement about WHERE the linear algebra ran and about
+  nothing else: same mesh, same schemes, same relaxation, same outer loop, same
+  tolerances, same outer iteration count.
+
+  THE OUTER NUMERICS ARE THE CPU PARENT'S, CHARACTER FOR CHARACTER.  VMFL011's
+  frozen system/fvSolution carries `consistent yes`, THREE non-orthogonal
+  correctors, pRefCell 0 / pRefValue 0 and relaxation 0.7 / 0.7, and those are
+  the numerics under which the parent's MEASURED convergence points were
+  obtained (VMFL011-R2 log.simpleFoam: the initial residuals of Ux, Uy and p all
+  fall below 1e-7 and STAY below it from iteration 259 / 488 / 1455 at
+  L1 / L2 / L3).  Those measurements are this case's endTime basis and its cost
+  basis, so changing the outer loop would silently invalidate both.  ONLY the
+  linear solvers change -- and the linear solver IS the object under
+  verification.
+
+  Three non-orthogonal correctors are NOT a free parameter here: the mesh is a
+  DEGENERATE-HEX prism mesh collapsed onto the cavity apex, so cell
+  non-orthogonality is real and the parent's corrector count is what its
+  convergence record was measured under.
+
+  What changed, and why:
+    p : PCG/DIC        -> petsc, ksp_type cg    + pc_type jacobi  (symmetric)
+    U : PBiCGStab/DILU -> petsc, ksp_type bcgs  + pc_type jacobi  (asymmetric)
+  The OUTER tolerances (1e-12) and relTol (p 0.01, U 0.1) are the parent's own
+  values, unchanged; limb B's 1e-4 bound is derived from them in
+  PREREGISTRATION.md section 6.2.
+
+  NO residualControl: every level runs to EXACTLY endTime so that CLAUDE.md
+  rule 4's "last time == endTime" and the `Time =` line-count clause are
+  literally testable, and so that BOTH ARMS TAKE THE SAME NUMBER OF OUTER
+  ITERATIONS.  Iterative convergence is judged AFTER the run, by the comparator,
+  from the residual history and from the GATE QUANTITY'S OWN plateau.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        cg;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-12;
+        relTol          0.01;
+    }
+
+    U
+    {
+        solver          petsc;
+        petsc
+        {
+            options
+            {
+                ksp_type        bcgs;
+                pc_type         jacobi;
+                mat_type        __MATTYPE__;
+                vec_type        __VECTYPE__;
+            }
+            caching { matrix { update always; } preconditioner { update always; } }
+        }
+        tolerance       1e-12;
+        relTol          0.1;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 3;
+    consistent      yes;
+    pRefCell        0;
+    pRefValue       0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.7;
+        p               0.7;
+    }
+}
+
+// ************************************************************************* //

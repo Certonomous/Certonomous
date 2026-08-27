@@ -1,0 +1,61 @@
+# VMFL011 REFERENCE -- normalized X-velocity on the vertical line bisecting the base.
+# PROVENANCE, stated in full because a reference with no provenance is not a reference:
+#   The Ansys Fluid Dynamics Verification Manual (VM2026R1) p.42 prints this
+#   comparison as a FIGURE (Figure .11.2) with NO discrete target table, so no
+#   number could be read off the manual text.  The curve itself is carried in the
+#   manual's own project archive as a two-column file titled "Benchmark x-norm":
+#     /home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/VM2026R1_FLUENT_ARCHIVES/
+#       VMFL011_WB.wbpz -> VMFL011_WB_0_files/dp0/FLU/Fluent/VMFL011_xvel.xy
+#   That is Ansys's own digitisation of the manual's cited reference:
+#     R. Jyotsna, S.P. Vanka, "Multigrid Calculation of Steady, Viscous Flow in a
+#     Triangular Cavity", J. Comp. Phys., Vol 122, pp. 107-117, 1995.
+# REFERENCE KIND: NUM -- another code's numerical solution.  It buys NEITHER V nor
+#   P.  TIER CEILING is GATE REACHED, whatever the number (PREREG line 4).
+# Copied byte-for-byte from the archive file; 46 rows; NOTHING re-fitted or smoothed.
+# columns: y_m , u_x_over_U_wall   (U_wall = 2 m/s; y = 0 is the moving base, y = -4 the apex)
+-4.00,1.41231E-03
+-3.89259,7.64181E-04
+-3.78916,8.19041E-04
+-3.66982,1.75132E-04
+-3.52660,2.51093E-04
+-3.34759,3.46044E-04
+-3.17255,-2.68325E-04
+-3.02934,5.14846E-04
+-2.85231,6.08742E-04
+-2.68126,1.40668E-03
+-2.49230,1.50691E-03
+-2.34114,3.70872E-03
+-2.21783,5.89576E-03
+-2.10446,8.78474E-03
+-1.98513,1.09697E-02
+-1.84589,1.03363E-02
+-1.69269,5.16604E-04
+-1.55136,-2.62825E-02
+-1.44578,-6.44159E-02
+-1.39396,-8.91408E-02
+-1.33414,-0.124470
+-1.28027,-0.164045
+-1.23638,-0.195139
+-1.19046,-0.234011
+-1.12665,-0.273581
+-1.07083,-0.302547
+-0.987229,-0.318062
+-0.887873,-0.294671
+-0.822407,-0.253618
+-0.757008,-0.196299
+-0.707478,-0.149597
+-0.642115,-8.37916E-02
+-0.572783,-1.58625E-02
+-0.509385,4.42841E-02
+-0.444014,0.107968
+-0.360782,0.181562
+-0.279542,0.255862
+-0.222138,0.322371
+-0.170764,0.403727
+-0.141269,0.485072
+-0.115726,0.560050
+-9.41403E-02,0.630076
+-8.05316E-02,0.705047
+-6.29501E-02,0.781435
+-4.14059E-02,0.861362
+-1.81012E-02,0.995744

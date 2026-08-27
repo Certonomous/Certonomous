@@ -1,0 +1,99 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFLGPU003 -- lid-driven triangular cavity, steady laminar, simpleFoam +
+  petsc4Foam.  Run to a FIXED iteration count: there is NO residualControl, so
+  the run always ends at endTime and rule 4's "last time == endTime" and
+  "`Time =` line count == endTime" clauses are meaningful.  Iterative
+  convergence is judged AFTER the run by the comparator.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+libs            (petscFoam);   // the petsc4Foam external linear-solver module
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    // ---------------------------------------------------------------------
+    // THE GATE READER, and it is the ONLY one.
+    //
+    // The gate quantity is the normalised X-velocity profile on the vertical
+    // line that BISECTS THE BASE of the cavity -- manual Figure .gpu003.2 --
+    // and this function object IS how it is read.  401 UNIFORM points at FIXED
+    // physical locations, so the sample set is identical at all three levels
+    // and the comparator interpolates them onto the 46 benchmark abscissae.
+    // The parent VMFL011 registered exactly this reader, at these coordinates,
+    // with this interpolation scheme.
+    //
+    // WHAT IS DIFFERENT FROM THE PARENT, deliberately and before any compute:
+    // `writeControl timeStep` / `writeInterval 1`, so the SAME reader produces
+    //
+    //   * the GATE value -- the sample set in the directory named exactly
+    //     endTime;
+    //   * the PLATEAU leg of the iterative-convergence test -- the history of
+    //     u_min/U_wall over the whole run, which is THE GATE QUANTITY'S OWN
+    //     HISTORY and not a point probe standing in for it.  A point can be
+    //     still while the profile is still moving.
+    //
+    // One reader, registered in advance, serving both; the two therefore cannot
+    // disagree about what the run did.
+    // ---------------------------------------------------------------------
+    bisector
+    {
+        type            sets;
+        libs            (sampling);
+        setFormat       raw;
+        fields          (U);
+        interpolationScheme cellPoint;
+        writeControl    timeStep;
+        writeInterval   1;
+        sets
+        (
+            bisect
+            {
+                type    uniform;
+                axis    y;
+                start   (0 -4 0.05);
+                end     (0  0 0.05);
+                nPoints 401;
+            }
+        );
+    }
+
+    // Residual history for the iterative-convergence clause.  The comparator
+    // reads the residuals from log.simpleFoam (MEASURED on this instance:
+    // petsc4Foam prints `PETSc-cg:  Solving for p, Initial residual = ...` in
+    // the standard solverPerformance format); this object writes the same
+    // history to disk as a second, independent artifact.
+    resid
+    {
+        type            solverInfo;
+        libs            (utilityFunctionObjects);
+        fields          (U p);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+}
+
+// ************************************************************************* //
