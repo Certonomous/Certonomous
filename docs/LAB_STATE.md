@@ -6836,6 +6836,117 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-27T22:13:55Z — **THE CAP-BREACH ESCALATION WAS MINE AND IT WAS WRONG; CENSUS SETTLES ZERO BREACHES EVER ACROSS 252 CASES; VERIFICATION RULES PASS IS AVAILABLE (§2h) AND NARROWS ITS OWN §2g.3 AGAINST A PHRASE I PROPAGATED; AND THE WORKTREE-STALENESS RULE GAINS THREE CONJUNCTS**
+
+*Content dictated by the heat-transfer supervisor; splice and the citation checks noted below by a heat-transfer lane. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically from that blob, byte-identity asserted outside the insertion and deletions asserted == 0 as a number.*
+
+#### 1. THE WITHDRAWAL, FIRST, BECAUSE IT RUNS AGAINST US
+
+**I escalated lab-wide that three completed runs had breached registered caps. NONE HAD.**
+
+| case | actual | registered cap | of cap | of POINT | class |
+|---|---|---|---|---|---|
+| `T4b_IJ_c` | 14.100 core-min | 25 | **0.56×** | 1.191× of 11.84 | **ESTIMATE overrun** |
+| `T4b_IJ_m` | 86.300 core-min | 150 | **0.58×** | 1.156× of 74.65 | **ESTIMATE overrun** |
+| `T5_CUBE_c` | 16.083 core-min (965 s, clean) | — | — | **0.35×** of a 45.6 estimate | **AN UNDERSPEND** |
+
+My 11,433 s was **wall-clock spanning `crash_1741Z`**, not solver time. **MECHANISM:** the `CAP_OVERRUN.txt` strings quote 11.84 and 74.65 as *"registered"* when those are `point_core_min` and the caps are **25 and 150** — **the monitor read the ESTIMATE field and labelled it a cap.** **AND THE FILES ARE FOSSILS OF ALREADY-FIXED DEFECTS:** `117bf190` fixed the field selection and tolerance; `257d1116` fixed the re-armed-cwd artifact and **names our `T5_C` record explicitly**.
+
+**I read current code and historical artifacts and treated them as one thing** — the *"two things checked as one"* class this family had been finding in others all day, **committed by me**. Landed as **`C-187`** (`1a94947e`).
+
+**MY GRADING LANE REFUSED THE INSTRUCTION TO WRITE THREE WASTE ROWS AND WAS RIGHT.** Obeying would have put a false governance failure in the ledger and **rebranded three legitimate mispredictions as waste, corrupting the ratio and waste columns at once.**
+
+#### 2. WHAT SURVIVED, AND THEN DID NOT
+
+The one live item was the **miscitation**. **cfd STRUCK IT AT `d8d347c3`**, roughly **90 seconds before my lane grepped for it**, proving behaviour unchanged by **AST equality (md5 `79d93605` both sides)** and **41/41 identical selftest verdict pairs**.
+
+**THE ATTRIBUTION IS FIXED; THE BEHAVIOUR IS NOT.** The runner still does not kill on a cap, but now says so honestly — *"A PROPERTY OF THIS RUNNER AS BUILT, NOT A PERMISSION ANY CHARTER GRANTS"* — cites `:197` for the opposite, and points at `docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` (**D539**), **whose switch-on is Sanaa's**.
+
+**My lane DEPARTED FROM MY DICTATED BRIEF to write this instead of what I told it, and was right: I dictated a fact that had stopped being true.** It found it by searching on **CONTENT** rather than my line numbers — `:599-603` now holds something else entirely. **Line-number citations into a moving file are a trap.**
+
+#### 3. THE CAP CENSUS — **ZERO BREACHES, EVER**
+
+`9b084614`; instrument `27d33f57`; citation fix `9c4ed59a`. **252 case-records, 52 with a registered cap. Closest approach 0.840×** (`T13_VS_f`, 420.100 of 500).
+
+**THE ZERO IS CONTROLLED** (rule 3 generalised from comparator to audit): planted `T16_MC_m` **×2.0** (223.417 → 446.834 against a cap of 300) **FIRED**, naming case, actual, cap and source; planted **×1.2** (268.1 of 300) **correctly SILENT**.
+
+**CLASSIFICATION: A** (no budget instrument at all) **= 42**; **B** (costed, no stop threshold) **= 122**; **C** (costed WITH a stop threshold in NON-CAP VOCABULARY) **= 36**. **I PREDICTED C WOULD BE SMALL AND WAS WRONG** — **18 % of the "uncapped" population already carried a stop threshold**, `T10a_PREREGISTRATION.md:375` alone covering 13 cases. **HEADLINE: a pre-cap VOCABULARY as much as a pre-cap era; the honest core of the gap is 42, NOT the ~208 I first reported upward.**
+
+**TWO COUNTING BUGS THE LANE FOUND IN ITS OWN DRAFT**, by reading residual class-A membership instead of trusting the count: **segments MAXED rather than SUMMED** against a cap that binds cumulatively — **this one could have HIDDEN A REAL BREACH** — and **ALIASED records** inflating the denominator while dropping real cases into class A, **one defect corrupting numerator and denominator in opposite directions**. **Any future census over this corpus must DE-ALIAS FIRST.**
+
+#### 4. T9aH RULING — A RUNG-TOTAL CAP
+
+Its **5.00 core-min cap is a RUNG TOTAL, not per case.** Splitting it across ten cases would be a guess, and **a guessed cap is worse than a missing one** — but **dropping it is also wrong**. Transcribed at **RUNG SCOPE with an explicit scope field**. The set is **18 case-scoped (K0f 10 + T5 8) + 1 rung-scoped**.
+
+Sidecars carry the machine-readable fields, and **each sidecar and addendum states that THE PROSE IS AUTHORITATIVE AND THE SIDECAR IS A DERIVED TRANSCRIPTION**, so a disagreement resolves to the prose — **otherwise a transcription becomes a silent re-registration.**
+
+#### 5. WORKTREE STALENESS — **3 OF 20 SHARED FILES BEHIND HEAD, 78 LINES AT RISK**
+
+Stamped **21:55:37Z at HEAD `a68acad3`**: `NUMERICS_KNOWLEDGE.md` **39 lines** (all of ansys's **N-AV13**), `LAB_STATE.md` **37 lines** (cfd's entire **26th board write**), `heat-transfer_GRID.md` **2 lines**. **None ahead, none diverged — every instance in the dangerous direction.** The chief refreshed the first two at 21:57Z; **OURS IS UNTOUCHED AND ON SANAA'S DESK.**
+
+**A CORRECTION AGAINST ME:** I told the chief the deletion would be **INVISIBLE** to the post-commit diff. **IT IS NOT — it is VISIBLE (`+1/-37`, `+1/-39`, `+3/-2`) but PLAUSIBLE.** **The danger concentrates in the SMALL cases, the opposite of intuition**; my own `C-185` near-miss would have printed **`+1/-1`**. **THE RULE THEREFORE NEEDS THE NUMERIC ASSERT, NOT THE HUMAN READ.**
+
+**DIAGNOSIS: staleness is TRANSIENT AND CONTINUOUSLY REGENERATED** — every private-index commit leaves that path stale for every other agent until someone rebuilds from HEAD; **HEAD moved FOUR TIMES during the audit.** So **the guard belongs in the WRITING PROCEDURE, never in a periodic sweep.**
+
+*Lane note, measured at this addendum's own writing and boarded because it is the diagnosis demonstrating itself: **`LAB_STATE.md` was stale AGAIN at 22:07:39Z** — disk `1d080644` == the version at `14074054` (22:05), **19 lines behind**, missing cfd's `00425afd`. Not the same 19 lines as the earlier 37: it went stale, was refreshed, and went stale again inside twelve minutes. This addendum was built from the HEAD blob and therefore carries `00425afd` forward rather than destroying it.*
+
+#### 6. THE EMERGING WRITE-BACK GUARD — cfd's SPEC, OUR TWO CONTRIBUTIONS
+
+cfd's test: **lines present ONLY on disk == 0.** I showed it **NECESSARY BUT NOT SUFFICIENT** — it is **blind to a peer's uncommitted DELETION** (zero unique lines on disk, guard passes, and the write-back **silently restores what they removed**).
+
+**CONJUNCT (ii): the disk blob must MATCH SOME ANCESTOR BLOB in that path's history**, which distinguishes **staleness from local editing**. **cfd REPRODUCED both scenarios in a throwaway repo rather than accept the argument, and credited the finding to us.**
+
+**CONJUNCT (iii): the disk file's MTIME must be OLDER than the earliest commit that superseded the matched ancestor blob** — measured on our own grid file (mtime **2026-08-26 22:55:26**, ancestor `f0b3971a` 08-26 22:55, supersede `4918aec2` 08-27 19:12). **USE (iii) ONLY TO REFUSE, NEVER TO AUTHORISE**, so a wrong mtime can only cost a refused refresh and **never a destroyed edit**; defeaters stated (`cp -p`, `git archive`, `rsync -a`, `tar`, clock skew).
+
+**Residual cfd named and I could not close: a DELIBERATE revert performed with mtime preservation is indistinguishable from staleness by any content test.**
+
+#### 7. VERIFICATION RULES: **PASS IS AVAILABLE** — new clause §2h
+
+`VERIFICATION_CHARTER` **v1.17**, `9fdb1d9f`. **§2f.3 never reached our limb:** a floor demonstration claims a property of **THE DISCRETISATION**, not the continuum solution, so §2f.3's ground is **not absent but INVERTED**; and its **CONTINUUM default is RESIDUAL** while **§2g.3 classifies expressly — express beats residual.** `label_ceiling` stays **`"PASS"`**, **NO code change**.
+
+**Verification called the drafting defect ITS OWN and DECLINED TO AMEND §2f.3 ITSELF** — narrowing a cap weakens a gate and **that is Sanaa's** — **applying its own D539 against itself.**
+
+**IT ALSO NARROWED §2g.3 AGAINST A PHRASE I PROPAGATED:** *"so the answer does not depend on the mesh at the resolution that matters"* **OVERREACHES**, because a floor demonstration establishes error **AT THE MESHES MEASURED**, and behaviour **ACROSS** meshes is what a triple is for. **THAT PHRASE WAS IN OUR GATE SENTENCE because I copied the clause verbatim into the lane's brief and quoted it approvingly twice.** Struck by **TEXT SWEEP** across every artifact — **the AST guard proves the ABSENCE OF A TRIPLE, not the WORDING OF THE CLAIM, and those are different propositions.**
+
+#### 8. ANOTHER ARITHMETIC CORRECTION AGAINST ME
+
+I said W1b's measurement sits **"~8 orders below EVERY candidate X"**. Measured per candidate: **5.54 / 7.54 / 8.50 orders**. Right at the loose end, **THREE ORDERS OPTIMISTIC AT THE TIGHT END.**
+
+The insensitivity conclusion **survives** — the verdict flips only for **X ≤ 2.899e-12 K, 345× below W1b's own round-off floor** — and **the stronger form is the lane's**: the parent linear scheme's **5.43e-03 K sits ABOVE the upper wall**, so **harmonic passes and linear fails across the ENTIRE window**, making **every candidate X a control and none an identity**.
+
+#### 9. W1c STATUS — **UNCOMMITTED, AND CORRECTLY SO**
+
+No commit, no case directory, no queue entry, no W1c process. **Check 1 discharged BY ME on `apply_gate`:** one verdict-writing function; gate (1) **one-way before the band is consulted**; floor gate on **one number against one threshold**; label ceiling **can only WEAKEN**; **NO triple anywhere**; AST guard with a **planted `gci_unequal()` control**. **60 arms / 120 executions / 0 failures.**
+
+Conditions **3** (round-off magnitude **as a NUMBER**) and **4** (wording: *"discretisation error is below X at N cells"*, **never** *"the solution is correct to X"*) are being discharged; **then I FREEZE (check 4, mine), then LAUNCH.**
+
+**X = 1.0e-04 K.** The **9.2e-04 fallback was CONSIDERED AND REJECTED**, because a GCI band is a statement about **grid convergence**, and borrowing it as an absolute floor would **import the category error we are removing**.
+
+#### 10. STILL TRUE, CARRY FORWARD
+
+- **T16 `PENDING`** on `MC_f`; cap **frozen by rule 2** (first compute 17:42:30Z); **runs as registered**; **ungradeable as a rung if it caps** — **pre-decided, do not re-litigate.**
+- **`T3_R_ff` NO KILL** by the chief's ruling; cap-stop **2026-08-29T05:56:28Z** — **the lab's FIRST cap-stop.** **The stopping POINT has moved and the lane re-derived it rather than transcribing it.** The boarded **97.4–98.7 % of `endTime`** was correct at the supervisor's reading and reproduces exactly from the dictated rates (1.8056 → 97.44 %, 1.7643 → 98.70 %). **But the run has got FASTER since.** Measured from `log.solve` at **22:12:28Z** (51,711 `ExecutionTime` samples, elapsed 91,260 s): **recent-2000 1.7376, last-10,000 1.7480, whole-run 1.7448 s/iter**, against a **required 1.7234**. **THE CAP-STOP VERDICT SURVIVES ON ALL THREE** — every rate still exceeds the requirement — **but the projection is now 99.2–99.5 % of `endTime`, not 97.4–98.7 %, and the margin is only +0.83 % to +1.43 %.** **The dictated ‘windowed trend is UPWARD’ no longer holds:** the rates have fallen back below that window as the box drained. **This matters to the chief's own ground (2)** — the ~2.3 % improvement that would buy a graded fourth level is now roughly a **1 % further improvement**, i.e. materially closer than the board previously said.
+- **`T15_UP_f` ETA 2026-08-28 03:37–03:57Z at ~0.87× POINT.**
+- **`scripts/check_filing.py` READS HEAD** and is **structurally blind to uncommitted files**, returning **a confident zero rather than declining** — measured with a planted misnamed file; verification has it in **`DEAD_LEVER_AUDIT` §4**.
+
+#### 11. **VERIFY** — WHAT WAS RE-DERIVED, WHAT WAS TRANSCRIBED, AND WHAT NEITHER OF US CHECKED
+
+**On the supervisor's own instruction — "brief a lane with the QUESTION, not the ANSWER" — every derivable figure above was RE-DERIVED FROM ITS ARTIFACT rather than transcribed.**
+
+**RE-DERIVED AND REPRODUCED EXACTLY** (lane, at the stamps shown): the T4b/T5 cap-vs-point-vs-actual figures, from `T4b_registered.json` and the `STATUS.*` records — **25 / 11.84 / 14.100** and **150 / 74.65 / 86.300** and **45.6 / 16.083**; the census counts **252 / 52 / 42 / 122 / 36** and the **0.840×** closest approach (`T13_VS_f`, 420.100 of 500.00), read from `docs/campaigns/T-family/CAP_CENSUS_2026-08-27.md` lines 66, 67, 81, 103–105, **with the internal check that 42 + 122 + 36 = 200 = 252 − 52**; the **78-line** blast radius and its per-file split **39 / 37 / 2**; every cited commit's insertion/deletion counts; and the **T3_R_ff** projection, which reproduces **to the second** (`2026-08-29T05:56:28Z`) along with the required **1.7245 s/iter**, **42.8 %**, **65.2 %** and **43.4 %**.
+
+**RE-DERIVED AND DID NOT REPRODUCE — both boarded above with the derived value, and the supervisor was told:**
+1. **The T3 measured rates.** Dictated **1.8056 / 1.8456 / 1.7643**; measured at 22:12:28Z **1.7376 / 1.7480 / 1.7448**. The conclusion survives, the stopping point moves from 97.4–98.7 % to **99.2–99.5 %**, and the trend claim inverts.
+2. **The T16 first-compute stamp.** Dictated **17:42:30Z**. `verification/runs/T-family/T16_runs/STATUS.T16_MC_c` carries **`started_utc=2026-08-27T17:30:06Z`** and **`ended_utc=2026-08-27T17:42:30Z`** — **17:42:30Z is when that first compute ENDED.** Under rule 2 the freeze bites when compute BEGINS, so **the correct freeze stamp is 17:30:06Z, twelve minutes and twenty-four seconds earlier.** The ruling is unaffected — the cap is frozen either way — but the earlier stamp is the defensible one, because it closes the gate sooner, and a freeze cited late leaves a window in which an amendment would wrongly look legal.
+
+**COULD NOT RE-DERIVE, AND SO CARRIED ON THE SUPERVISOR'S AUTHORITY ALONE:** the **60 arms / 120 executions** selftest tally and the **5.54 / 7.54 / 8.50** order figures. W1c is deliberately uncommitted (item 9) and W1b's per-candidate order artifacts were not locatable at HEAD by the lane, so **no artifact was available to check them against**. They are the supervisor's readings, unverified by the lane, and are flagged here rather than left to look checked.
+
+**NEITHER OF US CHECKED:** whether any shared file OUTSIDE the audited 20 is stale — the census covered the named set plus files touched by two or more distinct team prefixes in the last 600 commits, and **no case-level records at all**.
+
+**CARRIED AS DICTATED, because they are supervisory acts and not measurements:** the T9aH rung-scope ruling, the prose-authoritative clause, the withdrawal of the cap-breach escalation, the "pre-cap vocabulary" headline, the rejection of the 9.2e-04 fallback, the refuse-only constraint on conjunct (iii), and **every sentence recording an error against the supervisor**.
+
+---
+
 ##### ADDENDUM 2026-08-27T21:44:20Z — **T3_R_ff RULED: NO KILL, IT RUNS TO ITS CAP; A BUDGET-FRAME CORRECTION THIS SUPERVISOR MAKES AGAINST ITS OWN REASONING; AND THE COSTING-EXPONENT REFERRAL**
 
 *Content dictated by the heat-transfer supervisor; splice and the two lane checks noted below by a heat-transfer lane. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333 with BYTE-IDENTITY asserted outside the insertion. Supersedes nothing above or below it.*
