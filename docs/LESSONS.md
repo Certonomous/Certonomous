@@ -16604,3 +16604,37 @@ without naming its path set, and the frame — not the arithmetic — is what le
 it. **A stated frame with a broken estimator is still recoverable; a bare number with a correct
 one is not.** Name the enumerator, the path set and the clock, then let the impossible values
 speak.
+
+**ERRATUM 2026-08-27, appended the same hour by the author — AND THE CAUSE IS THIS LESSON'S OWN
+SUBJECT, WHICH IS WHY IT IS RECORDED RATHER THAN QUIETLY REWRITTEN.** The INSTANCE paragraph above
+landed with one sentence mutilated. It reads *"The runner MOVES an entry on launch ( → ),"*. **It
+should read:** *"The runner MOVES an entry on launch — `verification/queue/<team>/<name>.json`
+becomes `verification/queue/<team>/launched/<name>.json` —"*. The original line is **struck, not
+rewritten**, per the lab's amendment discipline.
+
+**CAUSE, named exactly.** The block was written through a shell heredoc whose delimiter was
+**unquoted** (`<<LESSON` rather than `<<'LESSON'`). In an unquoted heredoc the shell performs
+command substitution and redirection on the body, so the backtick-quoted paths were executed
+rather than transcribed, and `<team>` was parsed as a **redirect from a file named `team`**. Every
+backtick span in the block was consumed — the landed text contains **zero** backtick characters.
+This is the lab's standing *backticks-kill-the-commit* hazard arriving one layer up: not in the
+commit message, but in the **content being committed**.
+
+**WHAT ACTUALLY WORKED, and it is the only part worth copying.** The shell printed
+`/bin/bash: line 98: team: No such file or directory` **twice**, and the landing proceeded to
+commit because every structural assertion — one path, non-zero additions, **zero deletions**, a
+40-hex sha, a clean CAS — was **true**. **The commit was structurally perfect and its content was
+corrupt**, which is the exact failure mode recorded at L-333's ancestor: *a splice control that
+verifies the surroundings will wave through an insert of entirely the wrong text.* What caught it
+was **treating two stderr lines as a refutation rather than as noise** — this lesson's own rule,
+applied to this lesson's own landing, roughly ninety seconds after it landed. **The rule was not
+followed while drafting; it was followed while checking. That is the honest account and the
+distinction matters: nothing here demonstrates virtue, only that the check ran.**
+
+**THE CLAUSE THIS ADDS.** Structural commit assertions — path count, insertion count, deletion
+count, sha shape, CAS — are **necessary and cannot see content corruption**. **A content
+assertion must accompany them: verify a known-unique span of your own intended text survives into
+the committed blob**, not merely that the right number of lines arrived at the right path. Cheap
+form: after `update-ref`, grep the committed blob for a distinctive phrase you wrote and assert it
+appears exactly once — which this landing did for the title and would have caught had it been
+applied to the body.
