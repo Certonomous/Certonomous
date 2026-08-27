@@ -835,6 +835,34 @@ intend to write instead of inheriting one* — and the append-only records need 
 same discipline applied to the **working tree**: rebuild it by **merge**, never
 by overwrite.
 
+
+**Dated clause, 2026-08-27 — THE COMMIT IS NOT THE WHOLE OPERATION: WRITE THE SPLICED RESULT
+BACK TO DISK, AND ASSERT ON CONTENT IN THE SAME INVOCATION.** Cites `L-350` (the private-index
+amendment workflow leaves the working tree permanently behind `HEAD`, so `git status` advertises
+correct history as unfinished work — 19 files, 2,050 lines, four teams) and `L-351` (the
+scratchpad is ONE directory shared by every supervisor and lane in the fleet; generic splice
+temporaries collide by name, silently). Three obligations, and none of them replaces a clause
+above:
+
+1. **Re-derive the base and assert it in the SAME shell invocation as the commit** — exactly as
+   rule 10 already demands for `HEAD`. A scratch file written in an earlier bash call is not
+   yours to read back: between the two calls another team can have replaced it, and a
+   1.9 MB board blob has already become a 698-line document from another team in under ten
+   minutes.
+2. **Assert on CONTENT, not on line count.** The regions outside your insertion must be proved
+   **byte-identical to the blob you spliced from**, by `cmp` against `git show HEAD:<path>`
+   re-read in that same invocation. **A line-count check passes happily on a substituted file
+   of the right length**, and a substituted file commits with a passing CAS and a clean
+   `--stat`, because it *is* only your own path.
+3. **Then write the spliced result back to the worktree.** The private-index protocol commits a
+   tree it built in scratch and never touches the working copy, so the amended file on disk
+   stays at its pre-amendment revision **for good** — and the next agent told to "read the
+   charter" reads a stale one. Writing it back is the step that closes `L-350`, and it is
+   already what keeps the files that *are* written back clean.
+
+**Scratch paths are per-agent** — `<scratchpad>/<team>-<role>/` — never the top level and never a
+generic name (`base`, `block`, `board`, `msg`, `append`, `final`, `tmp`, `out`).
+
 ### 8.6 `git check-ignore` is silent about tracked files, which is the only kind you are asking about
 
 `git check-ignore` skips paths that are in the index. Asking it "does this
