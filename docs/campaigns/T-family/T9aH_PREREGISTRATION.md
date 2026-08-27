@@ -954,3 +954,50 @@ globals. **A guard that protects a mutation is weaker than not needing the mutat
 **No verdict in this rung is reopened by this amendment. Nothing here has been sent,
 filed, submitted, uploaded, registered or posted anywhere outside this box
 (`CLAUDE.md` rule 7).**
+
+---
+
+# CAP TRANSCRIPTION ADDENDUM — 2026-08-27. **POST-COMPUTE. DISCLOSURE ONLY.**
+
+**No gate, band, threshold, cap, timeout, label or cost moves. This addendum
+REGISTERS NOTHING.** It records that this document's cap figures, which exist here
+only as prose, have been copied into a machine-readable sidecar so that a field-
+reading sweep can see them. **Lines whose number changed above this section: 0** —
+verified by BYTE-PREFIX against this file's HEAD blob in the same shell invocation
+as the commit, never typed and never asserted from a reading.
+
+**THE PROSE ABOVE IS AUTHORITATIVE. THE SIDECAR IS A DERIVED TRANSCRIPTION.**
+`verification/runs/T-family/T9aH_runs/T9aH_CAPS_TRANSCRIBED_2026-08-27.json`
+is not a second source of truth for any cap in this document. **If the sidecar and
+the prose ever disagree, THE PROSE WINS and the sidecar is the thing that is wrong.**
+Without that rule a transcription becomes a silent re-registration the first time a
+later agent finds the two differing and has no ruling for which governs.
+
+**Why it exists.** The cap census of 2026-08-27
+(`docs/campaigns/T-family/CAP_CENSUS_2026-08-27.md`, `9b084614`) swept the whole
+territory for registered caps by reading FIELDS, and this rung's caps are not in a
+field — they are in a table. The first pass therefore counted these cases as having
+no registered cap at all. They do; the sweep could not see it.
+
+**SCOPE — RUNG, NOT PER CASE, AND THIS IS THE WHOLE POINT OF THE ENTRY.**
+This document registers **one rung total**, not ten per-case caps:
+
+| line | verbatim |
+|---:|---|
+| 542 | `\| **REGISTERED TOTAL PREDICTION** \| \| **≤ 90 core-s = 1.50 core-min = $1.28e-03** \|` |
+| **543** | `\| **REGISTERED CAP** \| 3.3× the prediction \| **300 core-s = 5.00 core-min = $4.28e-03** \|` |
+
+→ transcribed as **one entry, `"scope": "rung"`, `cap_core_min = 5.0`**.
+
+**It is NOT split across the rung's ten cases.** The cap row sits directly under
+`REGISTERED TOTAL PREDICTION`, so 5.00 core-min governs the rung total; dividing
+it ten ways would be a guess, and a guessed cap is worse than a missing one. It is
+transcribed at the granularity it was registered at, so a future sweep compares
+this rung's TOTAL against 5.00 rather than finding no cap and misfiling the rung
+as having no budget instrument at all. **Measured for context, gating nothing:**
+the rung's largest case is 0.098 core-min against the 5.00 total.
+
+**Ruled by the heat-transfer supervisor `[lab-attributed]` 2026-08-27; drafted by a
+lab lane. Rule 2 permits this because it alters no cap — it RESTATES one. Rule 6
+governs the mechanics and they were followed: dated, appended at the foot, and the
+lines-changed-0 assertion verified by byte-prefix rather than claimed.**

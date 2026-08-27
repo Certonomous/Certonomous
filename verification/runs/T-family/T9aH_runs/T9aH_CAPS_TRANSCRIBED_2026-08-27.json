@@ -1,0 +1,21 @@
+{
+  "_what": "machine-readable transcription of cap_core_min figures registered only as prose",
+  "_authority": "THE PROSE IS AUTHORITATIVE. This file is a DERIVED TRANSCRIPTION of a cap that is registered in the pre-registration named below, and it is NOT a second source of truth. If this file and the prose ever disagree, THE PROSE WINS and this file is the thing that is wrong. It creates no cap, moves no cap, and re-registers nothing: every value here is copied from the cited line, which is reproduced verbatim beside it so the copy can be checked without leaving this file. Ordered by the heat-transfer supervisor 2026-08-27 so that a cap registered only in prose is visible to a machine sweep; the sweep that missed these read fields only and classed 28 capped cases as uncapped.",
+  "_scope_field": "scope=case means the prose registers this cap for that case alone; scope=rung means the prose registers it as a RUNG TOTAL and it does NOT decompose per case -- compare a rung total against it, never a single case",
+  "transcribed_utc": "2026-08-27",
+  "rung": "T9aH_runs",
+  "source_document": "docs/campaigns/T-family/T9aH_PREREGISTRATION.md",
+  "transcribed_by": "heat-transfer lane, verified line-by-line against disk at generation time",
+  "entries": [
+    {
+      "scope": "rung",
+      "case": null,
+      "cap_core_min": 5.0,
+      "source_line": 543,
+      "source_line_verbatim": "| **REGISTERED CAP** | 3.3\u00d7 the prediction | **300 core-s = 5.00 core-min = $4.28e-03** |",
+      "context_line": 542,
+      "context_line_verbatim": "| **REGISTERED TOTAL PREDICTION** | | **\u2264 90 core-s = 1.50 core-min = $1.28e-03** |",
+      "why_not_per_case": "The cap row sits directly under REGISTERED TOTAL PREDICTION, so 5.00 core-min is a RUNG TOTAL. Splitting it across the rung's ten cases would be a guess, and a guessed cap is worse than a missing one. It is transcribed here at the granularity it was registered at, so a future sweep compares T9aH's rung total against 5.00 rather than finding no cap and misclassifying the rung as having no budget instrument at all."
+    }
+  ]
+}
