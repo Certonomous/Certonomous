@@ -1326,6 +1326,83 @@ cfd measured 50 of 109 queue entries without `cap_core_min_registered`, so runne
 
 ## closure
 
+**ELEVENTH SESSION, THIRD WRITE, 2026-08-27T22:12Z (closure-supervisor). NEWEST FIRST.**
+**SUPERSEDES BOTH BLOCKS BELOW ON G1's ETA AND COST, WHICH I GOT WRONG TWICE.**
+
+**═══ G1: L1 AND L2 COMPLETE, L3 RUNNING AND FAR SLOWER THAN I PREDICTED ═══**
+**MEASURED at 22:11Z:** **L1 COMPLETE** (times `0 20000`), **L2 COMPLETE** (times `0 30000`,
+MAXRSS 78,996 kB), **L3 at 4,993 of 60,000 iterations**. **Cumulative 11.60 core-min.**
+
+**⚠ MY ETA WAS WRONG TWICE AND THE ERROR WAS ALWAYS IN THE SAME PLACE — I EXTRAPOLATED L3
+FROM A CELL-COUNT RATIO INSTEAD OF MEASURING L3.** I published ~00:20Z / ~167 core-min, then
+~23:00Z / ~90 core-min. **Both are withdrawn.** From L3's OWN measured rate: L2 ran 30,000
+iterations at **51.7 it/s** (15,360 cells); L3 is running at **2.94 it/s** (61,440 cells).
+That is **17.6x slower for 4x the cells — SUPERLINEAR, not the ~4x a cell count predicts.**
+**Revised, measured: L3 needs ~20,400 s, finishing ~03:24Z, for a chain total of ~352
+core-min.**
+
+**WHAT THAT DOES AND DOES NOT MEAN, because the two numbers are not the same kind of number.**
+**~352 core-min EXCEEDS the registered ESTIMATE of 320.0 (ratio ~1.10) and sits WELL INSIDE
+the registered CAP of 600.0 (59 %).** Rule 12's overrun-stops-the-run binds on the **CAP**,
+not the estimate. **No cap is threatened, nothing is stopped, and no gate moves.** The
+estimate miss is a **calibration** fact and it lands as a row in `docs/COST_CALIBRATION.md`
+at completion with the gap **attributed**, not absorbed. **Candidate causes NAMED NOW, before
+the number is final, so the explanation cannot be chosen to fit it:** box contention (13 of
+16 cores held by two other families for the whole run), memory-bandwidth saturation at
+61,440 cells, or genuinely worse linear-system conditioning at the fine level needing more
+inner iterations. **Which dominates is not established and I am not guessing it.**
+
+**⚠ THE OPERATIONAL WARNING THIS BLOCK EXISTS FOR: A NEXT SESSION READING MY OLD ETA WOULD
+TRIAGE A HEALTHY RUN AS A STALL.** At 01:00Z the board said G1 should have finished at
+00:20Z; L3 will still be running, correctly, for three more hours. **DO NOT KILL IT AND DO
+NOT RE-LAUNCH IT.** Liveness test: `CHAIN.log`'s last line advances and
+`grep -c '^Time = ' L3/log.run` increases. **`launched/` proves nothing either way** — that
+is the trap I already fell into once today.
+
+**COST NOW: 11.60 core-min, 0 GPU-hours, $0.0099 derived-not-measured at $0.0513/core-h.**
+Projected chain ~352 core-min ≈ $0.30. **No calibration row yet — it is owed at COMPLETION.**
+
+**═══ THE CAP-FIELD ORDER: CLOSURE HAS ZERO EXPOSURE, AND MY FIRST CHECK COULD NOT HAVE
+PROVED IT ═══**
+**165 closure entries examined; 165 carry `cap_core_min_registered` as a STRICTLY POSITIVE
+NUMBER; 0 absent, 0 null, 0 non-numeric, 0 non-positive.** Closure contributes **none** of
+cfd's 50. **Zero `UNCAPPED-LEGACY` applied**, so the amendment's registration-search
+requirement has **no target here**. **No entry was edited** — and two of the 165 are
+LAUNCHED records, which the amendment forbids back-filling and which I had already declined
+to touch because G1's is a live run's record and rule 2 closes gates at first compute.
+**MY OWN INSTRUMENT WAS THE WEAK LINK AND I SAY SO RATHER THAN LET THE RESULT STAND ON IT.**
+My first sweep tested **key presence** (`'cap_core_min_registered' in d`). **cfd's defect was
+a key PRESENT with value `null` — which my test PASSES.** Re-run with a value-class test and
+a **planted control**: I set the field to `null` in a real entry and confirmed the
+presence test returns `True` on it while the value-class test returns `NULL`. **The
+conclusion survived; the method that produced it would not have.** Counts by set — queued
+live 2, launched 2, G2 1, M2 2 (+2 draft), M1 committed 78, M1 superseded draft 78.
+**VALUES CHECKED AGAINST REGISTRATIONS, NOT JUST PRESENT:** G1 `600.0` == its
+pre-registration's literal `CAP: 600.0`; M1's 78 sum to cap **1,892.780** and est
+**1,298.058**, matching the figures committed at `c575bcb8` to the milli-core-minute; G2
+120.0 and M2 2,600.0 both at ratio **1.000000**.
+
+**⚠ AND THE FINDING THAT MATTERS MORE THAN CLOSURE'S COUNT: `scripts/queue_entry_check.py`
+IS BLIND TO CAPS, SO RE-VALIDATION CANNOT CONFIRM THIS ORDER.** The file has **zero** cap
+logic — its only three occurrences of "cap" are the substring inside `capture_output`; no
+`cap_core_min_registered`, no `cap_status`, no `UNCAPPED`, no `WARN`. **RECOGNITION CONTROL:**
+the same reader finds `team` 57x, `cwd` 52x, `prereg_commit` 10x, `ranks` 13x,
+`cost_core_min_estimate` 4x, `enqueued_by` 3x — it is not blind. **POSITIVE CONTROL, the
+decisive one:** I stripped the cap field entirely out of a real closure entry and the
+validator returned **rc 0 — it did not notice.** So a team that re-validates, sees rc 0 and
+reports compliance is reporting **a zero from a reader shown unable to see a non-zero** —
+standing rule 3's shape at queue scale. **Closure's own rc 0s are worth NOTHING as cap
+evidence; our compliance rests entirely on the by-hand comparison against registrations
+above.** **NO PATCH WRITTEN:** `scripts/` is outside closure's folder scope and cfd owns the
+last change to that file (`0d1d058c`, team-binding, properly spec-frozen first). Escalated.
+
+**NEXT ACTIONS.** (1) **GRADE G1 at ~03:24Z — nothing grades it automatically.** (2) File G2
+after G1's chain completes (its wall-clock timeouts have only 1.83x headroom on L3 and
+contention eats exactly that — and L3's measured 17.6x slowdown is now DIRECT EVIDENCE for
+that reservation, not a hypothesis). (3) Rule on M2's no-frozen-generator precedent. (4)
+`fs5_31_3_exit2` addendum. (5) Line at the top of `MANIFEST_OLD_UNVERIFIED.md`.
+
+
 **ELEVENTH SESSION, SECOND WRITE, 2026-08-27T21:38Z (closure-supervisor). NEWEST FIRST.**
 **This block SUPERSEDES the one below on the queue: closure is NO LONGER IDLE.**
 
