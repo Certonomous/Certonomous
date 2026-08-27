@@ -1692,3 +1692,51 @@ in evidence and is not claimed.
 *Addendum written by a heat-transfer lane on the heat-transfer supervisor's
 citation-repair brief, from `docs/L342_GRADER_AUDIT.md` Addendum 8 (`commit:b85111d1`) §4,
 2026-08-27T20:12:13Z. Zero core-minutes.*
+
+---
+
+# CAP TRANSCRIPTION ADDENDUM — 2026-08-27. **POST-COMPUTE. DISCLOSURE ONLY.**
+
+**No gate, band, threshold, cap, timeout, label or cost moves. This addendum
+REGISTERS NOTHING.** It records that this document's cap figures, which exist here
+only as prose, have been copied into a machine-readable sidecar so that a field-
+reading sweep can see them. **Lines whose number changed above this section: 0** —
+verified by BYTE-PREFIX against this file's HEAD blob in the same shell invocation
+as the commit, never typed and never asserted from a reading.
+
+**THE PROSE ABOVE IS AUTHORITATIVE. THE SIDECAR IS A DERIVED TRANSCRIPTION.**
+`verification/runs/F14-cooling-ladder/K0f_runs/K0f_CAPS_TRANSCRIBED_2026-08-27.json`
+is not a second source of truth for any cap in this document. **If the sidecar and
+the prose ever disagree, THE PROSE WINS and the sidecar is the thing that is wrong.**
+Without that rule a transcription becomes a silent re-registration the first time a
+later agent finds the two differing and has no ruling for which governs.
+
+**Why it exists.** The cap census of 2026-08-27
+(`docs/campaigns/T-family/CAP_CENSUS_2026-08-27.md`, `9b084614`) swept the whole
+territory for registered caps by reading FIELDS, and this rung's caps are not in a
+field — they are in a table. The first pass therefore counted these cases as having
+no registered cap at all. They do; the sweep could not see it.
+
+**SIDE BY SIDE — every transcribed number beside the line it was copied from.**
+Each `verbatim` cell was re-read from this file on disk at generation time and
+compared byte-for-byte with the stored quote: **10 entries, 0 mismatches.**
+
+| case | line | verbatim prose line | → `cap_core_min` |
+|---|---:|---|---:|
+| `B_hi` | 1109 | `\| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` \| 852.70 \| 51 161 \|` | **852.7** |
+| `C_lam` | 1110 | `\| `C_lam` \| 639.50 \| 38 370 \|` | **639.5** |
+| `I_hi` | 1109 | `\| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` \| 852.70 \| 51 161 \|` | **852.7** |
+| `M1_c` | 1108 | `\| `M1_c`, `M2_c` \| 435.00 \| 26 100 \|` | **435.0** |
+| `M1_f` | 1111 | `\| **`M1_f`, `M2_f`** \| **1 675.50** \| **100 530** \|` | **1675.5** |
+| `M1_m` | 1109 | `\| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` \| 852.70 \| 51 161 \|` | **852.7** |
+| `M1_m_seed` | 1109 | `\| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` \| 852.70 \| 51 161 \|` | **852.7** |
+| `M2_c` | 1108 | `\| `M1_c`, `M2_c` \| 435.00 \| 26 100 \|` | **435.0** |
+| `M2_f` | 1111 | `\| **`M1_f`, `M2_f`** \| **1 675.50** \| **100 530** \|` | **1675.5** |
+| `M2_m` | 1109 | `\| `M1_m`, `M2_m`, `B_hi`, `I_hi`, `M1_m_seed` \| 852.70 \| 51 161 \|` | **852.7** |
+
+**Every value is a copy. None is derived, rounded, converted or inferred.**
+
+**Ruled by the heat-transfer supervisor `[lab-attributed]` 2026-08-27; drafted by a
+lab lane. Rule 2 permits this because it alters no cap — it RESTATES one. Rule 6
+governs the mechanics and they were followed: dated, appended at the foot, and the
+lines-changed-0 assertion verified by byte-prefix rather than claimed.**
