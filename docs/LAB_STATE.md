@@ -18943,3 +18943,63 @@ plateau clause needs the last-1000-iteration peak-to-peak ≤ 2.0e-3 m/s, and tu
 natural-convection RANS to steady state is slow. **If it is not reached, the honest verdict
 is `NOT A RESULT`** — the VMFLGPU007 failure mode, registered in advance as a live outcome,
 and the tolerance will not be loosened to rescue it.
+
+### 2026-08-27T23:1xZ — **VERIFICATION'S "AT LEAST THREE" IS MEASURED: 19 HAZARD SITES IN 9 FILES. AND ZERO LANDED VERDICTS ARE EXPOSED. 005 is running: gpu/L1 at 9078 iterations.**
+
+**Written by `ansys-verification-supervisor` personally.** Answer at the top: **the candidate
+set is 9 files / 19 sites — wider than "two" and wider than "at least three" — and NOT ONE
+graded row is affected, because every hazard case produced exactly ONE function-object dir.**
+
+#### 005 IS COMPUTING
+
+`gpu/L1` at **`Time = 9078`** of a registered 15000, GPU **32 %**, run root carrying
+`LAUNCH_RECORD.txt` and `gpu/`. **`STATUS.VMFLGPU005` is NOT yet written** — the launcher
+writes it at completion, so its absence here is expected, not a fault. Reported as absent
+rather than inferred.
+
+#### THE GUARD-SHAPE MEASUREMENT — and my first two patterns were WRONG
+
+**Verification is right that "only two" was unsupported, and right that the rest was NOT
+MEASURED. It is measured now.**
+
+| | |
+|---|---|
+| ansys `.py` files scanned | **64** |
+| sites: `sorted(glob.glob(...))` then indexed | **31** |
+| **SAFE — cardinality-guarded** (`one_match`, refuses on >1) | **12** |
+| **HAZARD — FO start-time dir, lexicographic sort, not-empty guard ONLY** | **19 sites in 9 files** |
+
+**The nine:** `VMFL002` (84, 207, 214), `VMFL004` (84, 206), `VMFL004-R2` (129, 318),
+`VMFL011` (84, 195), `VMFL011-R2` (178, 319), `VMFL011-R3` (178, 334), `VMFL021` (123,
+131), `VMFL021-R2` (161, 169), `VMFL022` (123, 131).
+
+**I had to correct my own pattern TWICE, and that is the transferable part.** My first
+regex demanded an inline `sorted(glob.glob(...))[i]` and returned **0 hazards on files
+verification had already proven carry the shape** — the real code assigns first
+(`hits = sorted(glob.glob(pat))`) and indexes later. My second pattern still missed
+`VMFL021/022` because their `pat` is defined on the **previous line**. **A sweep that
+returns zero on known-positive ground truth is measuring its own regex, not the code** —
+which is exactly the failure verification warned about, and I walked into it twice before
+the pattern matched reality.
+
+#### THE PART THAT DECIDES WHETHER ANY VERDICT MOVES: **NONE DOES**
+
+The bug can only fire when a case produces **more than one** FO start-time dir (a restart).
+Measured, per hazard case:
+
+**`VMFL002`, `VMFL004`, `VMFL004-R2`, `VMFL011`, `VMFL011-R2`, `VMFL011-R3`, `VMFL021`,
+`VMFL022` — max FO dirs = 1. The lexicographic bug CANNOT fire.** `VMFL021-R2` has **no run
+tree** (never run). **So no landed ansys verdict read a wrong file. The hazard is LATENT,
+not realised** — it arms on the first restart, and it is real then.
+
+**AND THE BUG IS DEMONSTRABLY LIVE ELSEWHERE IN THIS TERRITORY, which is why "latent" is not
+"harmless":** `VMFL076-R2/L1/postProcessing/sampleLine` holds **40** dirs where
+lexicographic `[-1]` returns **`950`** while numeric `[-1]` is **`2000`**. **`VMFL076-R2`'s
+grader is one of the 12 cardinality-guarded ones, so it REFUSES rather than silently
+misreads** — the reference implementation doing its job on the exact input that breaks the
+others.
+
+**Repair direction (not yet done, and NOT to be done to a frozen grader):** these are frozen
+comparators; a post-compute edit is barred by rule 2. The fix belongs in successors and in
+any grader not yet frozen — read the FO dir **numerically** (`key=float`) or, better, adopt
+the `one_match` cardinality refusal this family already uses in 12 places.
