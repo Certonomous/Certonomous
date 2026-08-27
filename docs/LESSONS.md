@@ -15043,3 +15043,82 @@ rows, closure 0); `verification/queue/runner.restarts.log`;
 `verification/queue/dafoam/held/README.md` (the three 2026-08-26 launch-on-drop fires).
 
 ---
+
+## L-349 — a pre-spend guard that scales with box contention refuses work precisely because the box is full
+
+**Found** 2026-08-27 by cfd-supervisor, triaging `F24_PRANDTL_MEYER`'s `launcher_rc=3`
+(CLAUDE.md check 2: a refused solve is a finding about the case, the method or the
+toolchain until triage demonstrates otherwise). **Class:** measurement instrument /
+spend guard. **Affects:** `cases/F23_HP_WEDGE/run_f23.sh`,
+`cases/F24_PRANDTL_MEYER/run_f24.sh:200`, `cases/F25_DUCT3D/run_f25.sh:194` — grep
+`max(f, 0.5)`.
+
+**The construction.** Each launcher checks the registered cap twice: incrementally
+*after* each level on actual spend (`ClockTime x ranks / 60`, summed), and
+*projected before* each level as
+
+```
+PROJ = PROJ_CORE_S[level] / 60.0 * max(1.0, ranks / max(free_cores, 0.5))
+```
+
+`free_cores` is probed inside the launcher at the moment each level starts — hours
+after the queue runner launched the entry.
+
+**Why it is wrong, in the case's own numbers.** The contention multiplier is
+`ranks / max(free, 0.5)`. The runner fires at an 85 % busy ceiling, so by
+construction the box is near-full when a level begins and `free` pins at the 0.5
+floor; the multiplier then pins at its maximum, `ranks / 0.5` = **8.0x** for a
+4-rank entry. F24's two completed levels refute that magnitude directly:
+
+| level | cells x steps | ClockTime | actual core-min | base projection | multiplier applied | base error |
+|---|---|---|---|---|---|---|
+| coarse | 45,000 x 15,000 | 425 s | 28.33 | 8.1 | 1.0x | low by 3.50x |
+| medium | 180,000 x 30,000 | 2,260 s | 150.67 | 81.0 | 8.0x | low by 1.86x |
+
+The **measured** contention effect at `free = 0.5` was **1.86x**; the formula applied
+**8.0x** — overstated 4.3x. The fine level then projected 5,184 core-min, cumulative
+5,363 against a 1,450 cap, and the launcher halted at exit 3.
+
+**The honest reading, which is narrower than "false positive".** From F24's own
+measured rates (0.6296 then 0.4185 us/cell-step — it got *faster* per cell-step as
+fixed overheads amortised), the fine level lands at 1,205-1,440 core-min, cumulative
+1,384-1,619 against the 1,450 cap: **95.5 % to 111.7 %**. The halt may well have been
+right. What is wrong is the *reasoning* that produced it. A guard that reaches a
+defensible answer through a multiplier its own data refutes by 4.3x will reach an
+indefensible one as soon as the numbers move.
+
+**The structural defect, which is the part that generalises.** Whether a registered
+three-level ladder ever produces its fine level depends on the instantaneous box load
+at the moment that level starts. **A verification instrument whose ladder completes or
+not according to box contention is not reproducible** — the same registration, run
+twice, yields a triple once and a two-level stub the other time. And the guard is
+self-defeating under the lab's standing directive to keep the box full: the busier the
+box, the more it refuses to spend. It converts a full box into a refusing box.
+
+**Cost of the near-miss.** `F25_DUCT3D` was enqueued at 16:24:43Z under the same
+construction. At `free = 0.5`, ranks 4: coarse 32.8 proceeds, medium 576.5 (cumulative
+580.6) proceeds, fine 1,266.6 x 8 = **10,132.9**, cumulative 10,209 against a 2,000 cap
+-> HALT. It would have burned ~580 core-min producing two levels that cannot form a
+Roache triple, then refused — and F25's fine level *is* the case, the 2.1 M-cell
+genuine 3-D triple aimed at the capability grid's named `3D . steady . incompressible`
+CAN NOT DO cell. Withdrawn pre-compute at 16:29Z, 0 `LAUNCHED` lines, run root absent,
+0 core-min spent.
+
+**The rule.** A pre-spend projection is projected from **the case's own completed
+levels** — after coarse has run, the measured us/cell-step on this box under this load
+is known, and it beats any frozen constant times a guessed contention factor. A frozen
+constant is the fallback for the *first* level only, where no measurement exists. Any
+contention term must have its magnitude justified from measurement and bounded; one
+measured point (1.86x at `free = 0.5`) is not a law and must not be dressed as a basis.
+The registered cap never moves, and the post-level check on **actual** spend stays
+untouched — that guard measures rather than guesses, and it is the one that protects
+the budget.
+
+**Corollary for selftests.** The halt path must be shown reachable, driven with an
+**injected** box reading. A selftest that probes live `/proc/stat` is load-flaky and
+users learn to re-run it until it passes — the L-339 class.
+
+**Related:** L-346 (an iterative floor inherited from a coarser ladder is not a
+convergence criterion at a finer level) is the same disease in the convergence
+dimension that this is in the spend dimension: a constant carried in from elsewhere,
+governing a level it was never measured on.
