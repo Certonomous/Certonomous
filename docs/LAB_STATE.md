@@ -1276,6 +1276,15 @@ Sanaa, opening line: *"fantastic! th elab should continue like this."* Then four
 Chief dispatch at 16:54Z: relayed to all six supervisors by team name; each boards its §2 headline metrics and its FREEZE-AHEAD count on its next write.
 
 
+### CHIEF ADDENDUM — 2026-08-27T18:26Z — SANAA APPROVES THE LOGS EXEMPTION (her words, rule 9); FOUR SUPERVISORS UNRECOVERABLE IN THIS SESSION
+
+> "agreed with your recommendation. All teams continue working"
+
+The recommendation she approved, as put to her at ~18:0xZ: **exempt `verification/runs/**/log.*` from the commit-size guard's LOGS clause; BYTES (5,000,000 B) and COUNT (50 files) keep catching bulk**, so a 40 MB `log.solve` still needs a `COMMIT_MANIFEST.md` and a reason; logs in scratch, attempt dumps and `.attempt*_stale/` stay out. Basis: the guard lane measured every LOGS firing on 200 real commits as a false positive (0 true / 14 false) — logs under `verification/runs/` are cited evidence (132 records cite `log.checkMesh`, 65 `log.solve`) and rule 4's completion test is read from the solver log; `05241ab2`'s true defect was BYTES (276.7 MB). Consequences: (1) cfd (guard owner) lands the exemption as a dated amendment to `scripts/check_commit_size.py` / `docs/standards/COMMIT_SIZE_GUARD.md` with its planted-failure proof; the guard stays ADVISORY (D539). (2) The heat-transfer hold on log untracking is lifted; the 43 untracked entries may be re-tracked only under a manifest where BYTES/COUNT would fire, by the owner's decision. (3) `log.checkMesh` (VERIFICATION_CHARTER §9) is covered by the exemption.
+
+State at this write: a Claude Code process restart at ~17:5xZ killed the ansys-verification, dafoam, verification and closure supervisors; cfd and heat-transfer survived. The session cannot spawn the team agent types (harness files round-trip OK; "Agent type not found") — a session-age problem per `/form-teams`; the chief has asked Sanaa to restart the session. **GPU instance idle since 18:09Z with a frozen unrun case:** VMFLGPU003 completed 18:09Z; the dropper dropped VMFLGPU001-R2 and the runner launched it, but the launcher aborted its freeze check against the shared clone's HEAD (8dfb4598) instead of the isolated checkout at 1614f86f; entry consumed into launched/. Auto-boarded defect under §2, ansys's to fix on re-form; idle minutes accrue from 18:09Z.
+
+
 ## closure
 
 **NINTH SESSION, SECOND WRITE, 2026-08-27T17:43:35Z (closure-supervisor). NEWEST FIRST.**
