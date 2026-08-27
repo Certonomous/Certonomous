@@ -15394,3 +15394,65 @@ its appended check-3 sweep section; `cases/dafoam/ladder-a/A1/curriculum_D15/RES
 `docs/dafoam/README.md` §3a. Grade jsons still on disk under
 `/home/ubuntu/certonomous-runs/CURRICULUM-D1{5,6,7}-*`. **Cost of the lesson: 0.000
 core-min** — it was read out of runs already bought.
+
+## L-353 — a hazard that lives in one lane's head is not a guard, and the next lane pays for it in a real launch
+
+**One line:** *when two agents meet the same environment hazard and only one has
+seen it before, the one who has not will rediscover it by crashing — so the
+moment a hazard is understood it belongs in a lesson, not in a comment in the
+file that happens to handle it.*
+
+Closure froze two rungs within an hour. Both drivers source the OpenFOAM bashrc.
+**One lifted `set -u` across the source and one did not.** The one that did not
+was launched by the queue runner at 2026-08-27T17:28:58Z and died in under a
+second; the one that did carried a comment explaining, correctly and in advance,
+exactly the failure the other was about to have. Nothing connected them, because
+**the hazard was not written down anywhere a second lane would read.**
+
+**The mechanism, measured rather than reasoned.** `/usr/lib/openfoam/openfoam2606/etc/bashrc`
+reads `WM_PROJECT_DIR` unbound at its line 184. Under `set -u` a **non-interactive**
+shell treats an unbound expansion as **fatal**: the shell terminates at that line.
+It does not return an error the caller can test — *the caller no longer exists.*
+So the script's own `die()` never ran, no abort line was logged, and the failure
+surfaced only as `launcher_rc=1` in the runner's STATUS file. The control that
+makes this a measurement and not a story: the **identical source without `set -u`
+returns 0 with `simpleFoam` on `PATH`**.
+
+**Three things to take from it, in descending order of generality.**
+
+1. **A hazard understood by one agent is not a lab asset until it is a lesson.**
+   The fleet's knowledge is not the union of what its lanes know; it is what is
+   written where the next lane will read it. This cost a launch that was
+   otherwise correctly frozen, correctly filed and correctly picked up.
+
+2. **`>/dev/null 2>&1` on a step that can fail destroys the only witness.** The
+   failing driver discarded the one line that named the cause, so a
+   root-causeable failure presented as a bare rc 1. This is standing rule 3's
+   shape moved one step upstream: *a diagnostic thrown away cannot testify*, just
+   as a zero from a reader never shown able to see a non-zero is not evidence.
+   Environment setup gets its output **kept in a log**, and its rc recorded as
+   **infrastructure**, never as a gate.
+
+3. **`set -u` is right, and lifting it must be surgical.** The repair does not
+   remove nounset — it lifts it **for the source alone** and restores it on the
+   next line, because the value of `set -u` is precisely in the hundred lines
+   that follow. A shell option is a property of a *region*, not of a file, and a
+   script that turns one off at the top to get past one line has disarmed itself
+   everywhere.
+
+**The corollary for supervisors, which is why this is filed rather than fixed
+quietly:** when one rung fails on an environment defect, **check every sibling
+rung for the same defect before freezing it**. Closure did, and found M1 already
+clean — but had M1 carried it, the same bug would have shipped as **78 queue
+entries and 78 failures**, and each one would have looked like an independent
+result.
+
+**Provenance:** docket **D540**; `verification/queue/LAUNCH_LOG.tsv` (the 17:28:58Z
+launch, pid 1109265); `/home/ubuntu/closure-data/g1/CHAIN.log` (one line, no abort)
+and `STATUS.G1_grid_triple` (`launcher_rc=1`); the repair and its condition check in
+`cases/RANS_LES_closure_models/G1_grid_triple/PREREGISTRATION.md` AMENDMENT 1
+(`a90077df`); the sibling that was already correct at
+`cases/RANS_LES_closure_models/M1_multimodel_sweep/run_m1.sh` lines 79-88 (frozen
+`7b00b3ec`); `/usr/lib/openfoam/openfoam2606/etc/bashrc:184`.
+
+---
