@@ -1080,3 +1080,97 @@ findings. This is an error in a CHECK — the supervisor's own §3 check 3, perf
 in a commit subject, and hollow.** A team whose findings are audited and whose audits are not
 has simply moved the unexamined layer up one. **The remedy is §4's rule, and it applies first
 to this team: derive the pattern from the artefact, and show the non-zero the reader can see.**
+
+---
+
+## Addendum 7 — 2026-08-27 — **THE DIAGNOSIS IS RIGHT AND THE PRESCRIBED CURE WOULD BREAK RULE 11 FAR WORSE THAN THE DEFECT.** WHOLE-FILE SCANNING **OVER**-REPORTS, AND ON `DOCKET.md` IT WOULD JUMP THE NEXT ID BY **356**
+
+**Appended at the foot; nothing above edited. `lines whose number changed above this section:
+0`, proved by a byte-prefix check against the HEAD blob in the same invocation. Referred by the
+chief: an anchored `^| C-` scan under-reports `COST_CALIBRATION.md` ids, with the recommendation
+that rule 11's re-derivation "must be whole-file". Measured before answering.**
+
+### 1. THE REPORTED NUMBERS DO NOT REPRODUCE, AND THE REAL SHAPE IS DIFFERENT
+
+Referred as *"166 vs 177, under-reports by 11"*. Measured on `docs/COST_CALIBRATION.md` at HEAD:
+
+| scan | count |
+|---|---|
+| `^\| C-` (plain rows) | **86** |
+| `^\| \*\*C-` (bold rows) | **93** |
+| **union of both anchored forms** | **177** |
+| whole-file `C-[0-9]+`, unique | **178** |
+
+**A single anchored pattern does not under-report by eleven — it misses roughly HALF, because
+the ledger uses TWO row formats.** 86 plain and 93 bold. **That is the actual defect, and it is
+a bigger one than reported.**
+
+### 2. BUT WHOLE-FILE **OVER**-REPORTS, AND THE EXTRA ID IS NOT A ROW
+
+The union of both anchored forms gives **177**; whole-file gives **178**. **The single
+difference is `C-102`, and `C-102` IS NOT A ROW.** Its only occurrence in the file is at
+`:187`, **inside the prose of the `C-111` row** — the correction row that exists *because* an
+id collided:
+
+> `… C-102`), and renamed both to `C-104`.** The rename collided with its own output. **The
+> rule: ne…
+
+`grep -cE '^\| \*?\*?C-102\b'` returns **0**. **So the whole-file scan counts a mention of a
+retired id, inside a row about id collisions, as a row.**
+
+### 3. ON `DOCKET.md` THE SAME CURE IS CATASTROPHIC — AND THIS IS THE FINDING
+
+Rule 11 governs `docs/DOCKET.md` as well, and there the failure is not off-by-one:
+
+| scan | maximum id |
+|---|---|
+| anchored `^\| \*?\*?D[0-9]+` | **545** |
+| whole-file `\bD[0-9]{1,3}\b` | **901** |
+
+**There is no `D901`.** The token lives at `:714`, **inside the text of row `D349`** —
+
+> **A CITATION GUARD READ TWO NON-CITATIONS AS CITATIONS: A NUMBER NAMED AS A GAP, AND A CUE
+> GLUED INSIDE AN IDENTIFIER.**
+
+**The token that breaks the whole-file scan is inside the docket row about a guard that misread
+numbers.** The lab has already measured this exact failure once and written it down.
+
+**THE CONSEQUENCE, STATED PLAINLY: had rule 11's re-derivation been changed to whole-file, the
+next docket id would have been assigned `D902` instead of `D546` — a permanent 356-number
+corruption of a shared append-only ledger, taken from a fragment of prose.** The cure is
+materially more dangerous than the disease, and rule 11's *"the MAXIMUM EXISTING NUMBER, never
+a count"* is precisely the clause that would have carried the damage.
+
+### 4. THE RECOMMENDED WORDING — anchored **and format-complete**, and the two quantities separated
+
+**Not adopted here: rule 11 is `CLAUDE.md`, and `CLAUDE.md` is Sanaa's.** Recommended to her,
+through the chief:
+
+> **(a) The scan stays ANCHORED and must cover EVERY ROW FORMAT the ledger uses.** A ledger
+> whose rows appear both plain and bold needs a pattern matching both — `^\| \*?\*?<PREFIX>` —
+> and **the re-derivation states which formats it matched.** An anchored scan is not wrong; an
+> *incomplete* one is.
+> **(b) A CENSUS and a MAXIMUM are different quantities and are never computed by the same
+> command.** Rule 11 already says the next number is the maximum and *"never a count"*; this
+> adds the converse — **a count is never taken from the max's command either.**
+> **(c) The re-derivation is validated by a PLANTED CONTROL, not by inspection: the pattern must
+> be shown to match a row known to exist AND to reject a known prose mention** — `C-102` and
+> `D901` are the two specimens already on disk, and they cost nothing to use.
+
+**Clause (c) is `VERIFICATION_CHARTER` v1.13's harness clause applied to a counting rule, and it
+is what would have caught this in either direction:** the anchored scan fails the positive limb
+(it misses bold rows), and **the whole-file scan fails the negative limb (it accepts `D901`).**
+**Neither pattern survives a control that runs both limbs — which is exactly why the control is
+the recommendation and the pattern is not.**
+
+### 5. WHAT IS AND IS NOT CLAIMED
+
+- **No id is reassigned and no ledger is edited by this addendum.** `D545` and `C-178` remain
+  the maxima at HEAD; the anchored scan **already returns the correct maximum on both files**
+  (`178` and `545`), so **no number in flight is wrong** — the defect is in the *census*, and in
+  the *cure that was proposed for it*.
+- **`C-102`'s status is `NOT MEASURED` beyond its absence as a row.** It reads as a retired or
+  collided id per `C-111`'s own text; this addendum does not adjudicate what happened to it.
+- **Whether other lab ledgers carry a third row format is `NOT MEASURED`.** Two files were
+  examined. **A rule written from two specimens is a rule written from two specimens**, and
+  clause (c) exists precisely so the next ledger does not have to be enumerated in advance.
