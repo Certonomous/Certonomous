@@ -7526,6 +7526,47 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-28T17:0xZ — **THE `26`-vs-`28` AGE-GUARD COUNT IS RESOLVED, AND THE SUPERVISOR WAS WRONG: `26` WAS A COUNT OF FILES REPORTED AS A COUNT OF SITES. THE FINDING ITSELF IS UNCHANGED.**
+
+**Closes the `UNRESOLVED` item boarded at `86858dc6` §(a) and carried in `D554`.** That
+board recorded **"26 measured by the supervisor, 28 under a looser lane pattern,
+difference UNRESOLVED and named"**, and attributed the gap to the lane's pattern being
+looser — *"most likely 2 non-age-guard mtime comparisons"*. **That attribution was
+wrong. It was never a scope difference and never a pattern difference.**
+
+**RE-MEASURED INSIDE THE SUPERVISOR'S OWN ORIGINAL GLOB** —
+`verification/runs/T-family/*/mark_done_*.py` plus `*/analyse_*.py`, **65 files, 34
+containing `getmtime`**: **28 strict-`<` SITES across 26 FILES**, and **5 `<=` SITES**.
+**The lane's 28 was right even inside the supervisor's own scope.** The `<=` list of
+five reproduces exactly, as already boarded.
+
+**THE ERROR, NAMED: two files carry TWO age-guard sites each**, each with its own
+reference time, so a per-file tally under-counts by exactly 2 —
+
+| File | Sites | Reference times |
+|---|---|---|
+| `verification/runs/T-family/T1_runs/mark_done_t1b_ext1.py` | **2** | `:123`/`:125` (`age0`) and `:134`/`:136` (`age2`) |
+| `verification/runs/T-family/T3_runs/mark_done_t3_ext1.py` | **2** | `:155`/`:157` (`age0`) and `:166`/`:168` (`age1`) |
+
+**26 files, 28 sites.** Widening to every `.py` under `verification/runs` at depth
+≤ 3 — **299 files, 41 containing `getmtime`** — gives **29 strict-`<` and 6 `<=`**.
+
+**This is `CLAUDE.md` rule 11's count-versus-maximum trap in miniature: a count of one
+thing reported as a count of another.** The counter used here was **controlled
+two-sided** before either figure was believed — a known positive taken verbatim from
+`mark_done_t1b_L4.py:90-92` **was** seen (1 site), and a known negative of the same
+shape **inside a comment** was **not** flagged (0 sites) — per `L-400`, which this
+correction is a specimen of.
+
+**THE FINDING IS UNCHANGED AND NOTHING IS RE-OPENED. Only the count moved.** The
+divergence is real; **rule 4's own reference implementation
+`verification/runs/T-family/T1_runs/mark_done_t1b_L4.py:92` is still on the loose
+side** (`… getmtime(os.path.join(tdir, f)) < age`); the arming condition is still any
+mtime-preserving copy; and the **measured exposure is still ZERO — 0 of 1,894
+`endTime` field files across 152 T-family cases at the equality boundary.** `D554`
+stays **OPEN — REFERRED** to Sanaa / verification on the `<` vs `<=` semantics, on the
+corrected figures **28/5** in the original scope and **29/6** wider.
+
 ##### CORRECTION 2026-08-28T16:45:49Z — **TWO COMMIT MESSAGES LANDED TODAY WITH DEFECTIVE BYTES AND EVERY FILE BODY IS CORRECT. A COMMIT MESSAGE CANNOT BE REWRITTEN, SO THE REMEDY IS THIS DATED CORRECTION BESIDE IT — NO AMEND, NO REBASE, NO FORCE.**
 
 *Both defects were reproduced by this lane before boarding, and **every file body was verified correct at HEAD**. No file is wrong; only two messages are.*
