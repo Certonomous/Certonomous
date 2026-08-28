@@ -1258,3 +1258,90 @@ executes and passes — in a file that grades a different rung.
   consults this section and no verdict depends on it.
 
 *Lines whose number changed above this section: 0.*
+
+---
+
+## 12. DATED SECTION, 2026-08-28 — THE **CAP** THAT REPORTS AND DOES NOT STOP: RULED ON `VMFLGPU005`, AND THE RULE-12 QUESTION **DOES NOT ARISE** ON THE NUMBERS
+
+**Referred by the chief 2026-08-28T15:56Z:** the `VMFLGPU005` launch wrote a line reading
+`CAP OVERRUN REPORTED, NOT ENFORCED … elapsed 14400` at `03:07:44Z`, and *"a cap that reports
+and does not stop is a rule-12 question"* — `CLAUDE.md` rule 12: **an overrun stops the run.**
+**Zero compute. Ruled below in three parts, because three different questions are wearing one
+name.**
+
+### 12.1 THE SUBSTANTIVE QUESTION IS ANSWERED **NO**, AND THE ANSWER IS ROBUST TO THE AMBIGUITY IN THE FIGURE
+
+`cases/ansys_verification/VMFLGPU005/PREREGISTRATION.md:248`, the frozen cap, verbatim:
+
+> **cap (runaway guard, frozen)** | **GPU: `CAP_GPU_H = 6.0`** per solve; **forced-CPU:
+> `CAP_CPU_ARM_CORE_MIN = 240`**. An overrun STOPS the run (rule 12); it does not get a new
+> budget.
+
+**The cap is 6.0 GPU-h PER SOLVE, and the case has six solves.** The reported spend is
+**4.215 GPU-h** against it. **Under either reading of that figure the cap is not reached:** as
+a **total across six solves** it is 70 % of a *single* solve's allowance; as a **single
+solve** it is 70 % of that solve's allowance. **A ruling that does not depend on resolving the
+ambiguity is worth more than one that first insists the ambiguity be resolved**, and it is
+recorded that way deliberately.
+
+**So no registered cap was crossed, and rule 12's operative sentence — an overrun stops the
+run — was never triggered.** That agrees with
+`docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` §2's independent finding: **no
+registered-cap breach has ever been recorded by this runner.**
+
+**Not measured by me, and marked so:** the 4.215 GPU-h and the `rc=0` on all six arms reach
+this section **by relay from the chief**. `VMFLGPU005` has **no run directory on this box** —
+`verification/runs/ansys_verification/VMFLGPU005/` does not exist — so the arms have not been
+pulled back and **the case is not graded.** The chief's instruction was to read ansys's grade
+before ruling; **there is no grade to read**, and §12.1 is therefore ruled on the **frozen
+cap**, which is on this box and which I read, against a **relayed** spend, which is not.
+**`VERIFY` on the spend; the cap is measured.**
+
+### 12.2 THE **NAMING** QUESTION IS LIVE, AND IT IS **NOT** A FOSSIL
+
+`elapsed 14400` is **exactly four hours**. A registered cap of **6.0 GPU-h** cannot produce a
+threshold at 4.0 h. **The line is keyed on a wall-clock guard, not on the registered cap, and
+is reported under the word `CAP`.**
+
+That is precisely the field-selection defect
+`RUNNER_CAP_ENFORCEMENT_CLAUSE.md` §2 catalogues — an estimate or wall threshold recorded in a
+file named `CAP_OVERRUN.txt` — of which it enumerates **seven** on disk (F20, F18, F16b, D14M,
+`T5_CUBE_c`, `T4b_IJ_m`, `VMFL064-R2`) and calls them **"fossils of a field-selection defect
+already repaired at HEAD"** by `117bf190` and `257d1116`.
+
+**⚠ THIS ONE IS NOT A FOSSIL, AND THAT IS THE FINDING.** It was written at **2026-08-28T03:07:44Z**,
+**after** those repairs, by the **GPU-side launcher** — a code path the repair to
+`scripts/queue_runner.py` did not reach. **A defect declared repaired at HEAD has re-emerged on
+the host HEAD's repair does not run on.** The fossil framing is correct for the seven and
+**must not be extended to the eighth**: calling a live instance a fossil is how a repaired
+defect becomes an unrepaired one that nobody re-opens.
+
+**Same shape as R-AGE-CWD.3, landed the same hour:** a proposition established on the CPU box
+(*this defect is repaired*) asserted about the GPU host, where the code differs. **Two
+independent findings, one root cause, in one session — the lab acquired a second host on
+2026-08-22 and its instruments still reason as though it has one.**
+
+### 12.3 THE **ENFORCEMENT** QUESTION IS NOT MINE TO MOVE, AND IS NOT MOVED
+
+`docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md` opens: **"Status: ADVISORY. INERT. OFF. Not
+switched on, and no agent may switch it on."** Its owner is `cfd-supervisor`.
+
+**Nothing here switches it on, and nothing here asks for it to be switched on.** Turning on
+mechanical enforcement of a budget rule is a change to how a gate acts on a live run, which is
+`ESCALATION_CHARTER` territory and **Sanaa's**, not a verification ruling and not a supervisor's.
+**This section's contribution is to remove the one argument that would have been used to press
+for it** — a claimed live breach on `VMFLGPU005` — by showing there was none. **§12.1 makes the
+case for enforcement WEAKER, and it is reported that way because that is what the numbers say.**
+
+### 12.4 WHAT IS OWED, AND BY WHOM
+
+- **ansys** — pull the six `VMFLGPU005` arms back to
+  `verification/runs/ansys_verification/VMFLGPU005/` and **grade the case**. Until then the
+  spend figure is relayed, not measured, and no `PASS`/`GATE REACHED` row exists.
+- **ansys** — the `CAP_OVERRUN.txt` artifact itself is **on the GPU instance**. It cannot be
+  read from this box, and a search here returning nothing is **`L-392`'s null**: identical for
+  *"no such record"* and *"not on this machine"*. **Not claimed absent — claimed unreadable
+  from here.**
+- **cfd** — the wall-clock guard in the GPU-side launcher is renamed off the word `CAP`, or
+  keyed on the registered cap. It is a **string and field-selection** repair, not a behaviour
+  change, and it is the eighth instance of one already repaired once.

@@ -16717,3 +16717,79 @@ return **`commit`**; the entries' actual blobs are `d46b5e89` and `39d2e9b0`.
   ran — and the citation still resolves, so nothing complains.
 - Same family as the bare-hex citation defect: **a citation that resolves is not
   thereby a citation that says what its writer meant.**
+
+## L-394 — THE LAB HAS TWO HOSTS AND ITS INSTRUMENTS STILL REASON AS THOUGH IT HAS ONE: A CHECK THAT QUERIES HOST A TO DECIDE A PROPOSITION ABOUT HOST B HAS NOT MEASURED THE PROPOSITION, WHATEVER IT PRINTS
+
+Third occurrence in six days, and the first two were not recognised as the same
+thing. The lab acquired a second host on **2026-08-22** (GPU quota granted; a GPU
+is a separate instance, launched per run). **Every instrument written before that
+date silently assumes one machine, and the assumption is invisible because it is
+never written down.**
+
+| # | instrument | queried | reasoned about | printed |
+|---|---|---|---|---|
+| 1 | `L-392`, twice | local object store — `8dfb4598` **is** a commit here | whether the GPU host's ref pointed at it | every local check **passed**, conclusion wrong |
+| 2 | `queue_entry_check.py:348` `check_cwd_launchable()` | `Path(cwd).is_dir()` on the CPU box | `queue_runner.py:286/:293` chdir on the **executing** host | `EXEC` refusal, or a **silent accept** |
+| 3 | `RUNNER_CAP_ENFORCEMENT_CLAUSE` §2's fossil finding | HEAD's `queue_runner.py`, repaired | whether the defect is repaired **everywhere** | seven called fossils; an **eighth is live** on the GPU launcher |
+
+- **Every one of them returns a confident, well-formed, resolvable answer.** That is
+  the trap: nothing errors, nothing is empty, no null appears. `L-392`'s sha
+  **resolves**; `Path.is_dir()` **answers**; the repair **is** at HEAD. The wrongness
+  is entirely in **which machine the question was about**.
+- **Case 2 fails in the dangerous direction.** A `cwd` present on the CPU box and
+  absent on the GPU host is the ordinary condition of any case not yet pushed. The
+  clause **accepts** it, the entry is recorded `LAUNCHED`, and it dies at launch —
+  which is **precisely the failure the clause was written to prevent**, delivered by
+  the clause, while it reports green. **A gate whose green is indistinguishable from
+  its own failure mode is inverted, not weak.**
+- **The general form, and it is checkable at write time:** name the host each side of
+  the proposition lives on. If they differ, the result is **`NOT MEASURED`** — never a
+  pass and never a refusal. **A finding an instrument cannot make must not be reported
+  as a check it made.**
+- **Related but distinct from `L-386`.** There the two frames were **HEAD vs disk** on
+  one machine; here they are **two machines**. Same cure: **state the frame, then the
+  finding.** A lab with N frames needs every check to say which one it queried.
+
+## L-395 — AN INSTRUMENT THAT SHRINKS AN ALREADY-MEASURED SET LOOKS LIKE THE AUDIT CONVERGING, AND IT IS THE INSTRUMENT FAILURE THAT NO CONTROL CAUGHT
+
+An AST census of ordering-key defects failed **five passes** before it worked. Four
+failed **loudly** — they returned **zero** on files a human had already read and
+proven to carry the shape (ansys's first two regexes, this team's grep, the first AST
+pass). **A false zero against ground truth announces itself.**
+
+**The fifth did not.** A wildcard filter — correct in intent, since a glob with no
+`*` has cardinality 1 by construction — read only the `glob.glob(...)` call and missed
+that real code writes the pattern on the **previous line**:
+
+```python
+    pat  = os.path.join(d, "postProcessing", "inletMassFlow", "*", "s.dat")
+    hits = sorted(glob.glob(pat))
+```
+
+It took a set of **13 files that had already been measured** and silently deleted
+**7 confirmed positives**, leaving a smaller, tidier, entirely wrong number.
+
+- **Nothing about the output looked wrong.** A shrinking count reads as an audit
+  getting more precise — the same story a real refinement tells. **The failure wore
+  the costume of progress.**
+- **⚠ THE CONTROL DID NOT CATCH IT, AND THE CONTROL WAS CORRECT.** All four planted
+  limbs passed at the exact moment the instrument was wrong, because **no limb had a
+  glob pattern bound on a previous line**. Standing rule 3 was satisfied and the
+  instrument was still broken. **A plant proves the reader can see the shapes IN THE
+  PLANT. It says nothing about a shape the plant does not contain** — and the shapes
+  a plant omits are, by construction, the ones its author did not think of.
+- **It was caught by a PRIOR MEASUREMENT contradicting it** — `VMFL021:120-134` had
+  been read by hand before the filter was written. **The defence against a plausible
+  shrink is not a better plant; it is refusing to discard an earlier number without
+  explaining it.** When a count drops, the drop is a finding that needs its own
+  evidence, exactly as a rise would.
+- **Every limb that fails must be added to the control, not merely fixed** — the
+  missing shape is now limb **E** of a committed six-limb `--selftest`
+  (`verification/credibility/ordering_key_census.py`), three of whose limbs must stay
+  **silent**, because an instrument that fires on every limb is a counter that counts
+  everything.
+- **Four of the five passes are ONE defect in four coats: a reader of code that
+  assumes the interesting expression is syntactically local.** That is the same shape
+  as the finding under audit — a set reduced by an ordering that is not the one meant —
+  **turned on the auditor.** Expect the defect you are hunting to be in your hunting
+  instrument.

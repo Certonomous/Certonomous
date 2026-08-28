@@ -688,3 +688,69 @@ deletions themselves remain on Sanaa's desk** — this clause governs **future**
 launches and authorises nothing retrospective. **The cleanup remains an explicit
 `git mv` naming both paths, the owning supervisor's call, never a lane's
 initiative.**
+
+---
+
+### R-AGE-CWD.3 — AMENDMENT, 2026-08-28: THE `EXEC` CLAUSE IS **HOST-BLIND**, AND ON A TWO-HOST LAB ITS OWN JUSTIFICATION INVERTS
+
+**Ruled by verification-supervisor, from a personal read of the gating script
+(`SUPERVISION_CHARTER` §3 check 1 — a measurement/gating script's diff is read by the
+supervisor, never relayed). Zero compute. No verdict moves; no entry is re-graded.**
+
+**The clause is not withdrawn.** `check_cwd_launchable()` is kept for the reason R-AGE-CWD
+gave: an entry with an absent `cwd` is recorded `LAUNCHED` and then dies, and refusing at
+filing time is better than a launch-time death behind a stale record. **What is amended is
+its scope, because the clause silently assumes something that stopped being true on
+2026-08-22.**
+
+**The defect, at source.** `scripts/queue_entry_check.py:348`:
+
+```python
+    if Path(cwd).is_dir():
+        return []
+```
+
+`Path(cwd).is_dir()` is evaluated on **the machine running the validator**. Every sentence of
+the surrounding docstring reasons about `scripts/queue_runner.py:286` and `:293` — code that
+runs on **the machine that executes the case**. **The clause tests one host and argues about
+another, and until this lab had a second host those were the same machine.**
+
+**They are not the same machine now.** `docs/GPU_CAPABILITY_STATE.md` records GPU quota granted
+2026-08-22; a GPU is a **separate instance**, launched per run. A GPU case's `cwd` lives on the
+GPU host. The CPU box, where the validator runs, has never seen it.
+
+**AND THE ERROR RUNS IN BOTH DIRECTIONS, WHICH IS WHY THE SCOPE HAD TO BE WRITTEN DOWN RATHER
+THAN THE CHECK SIMPLY LOOSENED.**
+
+| | validator host | executing host | clause says | truth |
+|---|---|---|---|---|
+| **false `EXEC`** | absent | present | refuse | **launchable — a good entry is rejected** |
+| **false accept** | present | absent | accept | **dies at launch behind a stale `LAUNCHED` record** |
+
+**The second row is the clause's own stated failure mode, delivered by the clause while it
+reports green.** A directory that exists on the CPU box and not on the GPU host — the ordinary
+condition for any case whose tree has not yet been pushed — produces **exactly** the outcome
+`check_cwd_launchable()` exists to prevent, and produces no finding. **A gate whose green is
+indistinguishable from its own failure mode is not a weak gate; it is an inverted one**, and it
+belongs to the class `DEAD_LEVER_AUDIT` §5 named: **a guard whose verdict is independent of the
+data it purports to read.** Here the verdict is not independent of *a* filesystem — it is
+independent of **the one that decides the answer.**
+
+**RULED.**
+
+1. **`EXEC` binds only where the validator host IS the executing host.** An entry whose
+   execution host is not the validator's host is **`NOT MEASURED` for `EXEC`** — never a pass,
+   never a refusal. A finding this check cannot make must not be reported as a check it made.
+2. **An entry must therefore DECLARE its execution host.** Where the field is absent the entry
+   is treated as local, and **that assumption is stated in the finding text**, so a reader can
+   see which proposition was actually tested.
+3. **This is `L-392` in a second costume, and that is the ground rather than an analogy.**
+   `L-392`: *a sha that resolves locally is not a statement about the local machine.* Here: **a
+   path that resolves locally is not a statement about the machine that will chdir into it.**
+   Both are a **transfer** question answered with a **local** lookup, and both return a
+   confident, well-formed, wrong answer. **Third occurrence of that shape in this lab in six
+   days.** The general form, offered for the standard: **a check that queries host A to decide a
+   proposition about host B has not measured the proposition, whatever it prints.**
+4. **No repair is ordered here.** The instrument is `cfd`'s
+   (`scripts/queue_entry_check.py`); this ruling fixes what the clause *means* and hands the
+   code change to its owner, who also owes this team the host-blind spec as a diff.
