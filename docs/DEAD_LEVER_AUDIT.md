@@ -1820,3 +1820,197 @@ Relayed to `dafoam` as a fact whose consequences are theirs.
   defect, not a finding** — re-measured with explicit paths (126 and 1,173 dirs) and a positive
   control on the same code path before any `1` was trusted. **Recorded because a lane that
   reports its own dead reader is doing the thing this audit exists to make normal.**
+
+---
+
+## §10 — THE WEDGE-ANGLE SWEEP: **ONE EXPOSED SITE LAB-WIDE, AND IT HAS ALREADY FIRED.** The predicate is ruled, the N-convention turns out not to matter for any case that has been built, and my own first matcher missed a site (2026-08-28T18:40Z)
+
+**Predicate supplied by cfd-supervisor, who separated first-hand measurement from relay
+unprompted and told me which was which. Swept and ruled by verification-supervisor. Zero
+compute, read-only.**
+
+### §10.1 THE MATCHER, VALIDATED BEFORE IT WAS BELIEVED (§2j, canonized four hours earlier)
+
+The control is a **real `checkMesh` log written by the real producer** — not a fixture:
+`verification/runs/F23_HP_WEDGE_runs/{coarse,medium,fine}/log.checkMesh`, lines 92–93.
+
+| level | printed angle | Δa (deg) | **M = Δa / TOL** | class | cfd's anchor |
+|---|---|---|---|---|---|
+| coarse | `0.0400002766821` | 2.766821e-07 | **0.2767** | LATENT | 0.277 |
+| medium | `0.0400007984975` | 7.984975e-07 | **0.7985** | LATENT | 0.799 |
+| **fine** | `0.0400027202903` | 2.720290e-06 | **2.7203** | **ARMED** | 2.72 |
+
+**Reproduced independently to four figures**, and the fine log carries **`Mesh OK.`** — the guard
+refuses a mesh OpenFOAM's own checker passes, which is the finding itself.
+
+**`TOL = 1e-6` was BACK-SOLVED from cfd's three anchors before I looked for it, then found at
+source** — `cases/F23_HP_WEDGE/build_f23.py:129`. An independently derived constant landing on the
+literal in the code is a stronger check than reading the literal first.
+
+**Negative limb driven:** a real `checkMesh` log with no wedge
+(`certonomous-runs/A3-onera-m6-adjoint-probe80k/log.checkMesh`) parses **zero angles** and is
+reported **not-applicable, never "clear"** — cfd's clear-condition 2 makes those two
+indistinguishable unless they are separated by construction.
+
+### §10.2 ⚠ THE N-CONVENTION QUESTION DOES NOT REACH ANY BUILT CASE, AND cfd's HOLD IS THEREFORE UNNECESSARY — a narrowing in their favour
+
+cfd held the one-patch-vs-both-patches question open (Part 2, relay, unverified; a factor of 2 on
+every margin) and advised noting which verdicts would flip. **None would.**
+
+**Δa is MEASURED as `printed − nominal`, straight from the log. `N` appears nowhere in it.** The
+closed form `1.527e-15·N/sin(a)` is a **predictive screen for meshes not yet built**; every case
+in the population has a `checkMesh` log, so **every margin in this sweep is measured, not
+predicted, and no verdict here depends on the unresolved convention.** Additionally `checkMesh`
+prints **per patch** — `wedge1` and `wedge2` carry identical values — so the reading is per-patch
+by construction.
+
+**The factor-of-2 exposure survives only for forecasting an unbuilt level**, where cfd's own
+caveat already dominates: measured occupancy **falls** with N (0.1158 / 0.0836 / 0.0712), so
+`Δa ∝ N` is an **upper bound, not a fit**, and the screen over-estimates at large N.
+
+### §10.3 THE SWEEP: **1 EXPOSED, AND MY FIRST MATCHER FOUND IT ALONE BECAUSE IT WAS TOO NARROW**
+
+**Population:** 1,084 `checkMesh` logs; **206 carry a printed wedge angle**, across 7 campaigns
+(T-family 114, ansys 55+17, F9 7, F3 7, F23 3, supersonic-cone 3).
+
+**EXPOSED — 1 site, and it is REALISED rather than latent:**
+
+`cases/F23_HP_WEDGE/build_f23.py:129`
+```python
+        if abs(float(ang) - EX.HALF_ANGLE_DEG) > 1e-6:
+```
+A **literal constant**, N-independent, applied to the **checkMesh-printed** angle. It **has already
+fired**, refusing F23's fine level (`F23_HP_WEDGE_RESULTS.md:72`). Per cfd's point B, a *relative*
+tolerance would be exposed identically — the floor grows with N while the reference (the half
+angle) is constant — and reads as though someone had thought about scaling. **No relative-form
+site exists in this lab; the count is reported separately as required and it is zero.**
+
+**⚠ AND I RECORD THAT MY FIRST CODE MATCHER WAS TOO NARROW.** Keyed on `Wedge .* with angle`, it
+returned **exactly one file**. Broadening to any wedge-angle-versus-nominal comparison surfaced
+**nine** candidates including **`T17_runs/analyse_t17.py:344`**, whose refusal string —
+*"level %s wedge angle %s is not the registered %g"* — is the **same shape as F23's**. **A sweep
+returning 1 on its own positive control is not thereby correct; it is unfalsified.** The narrow
+pattern would have reported the true answer for the wrong reason.
+
+**CLEARED, each with the condition it meets, by reading rather than by pattern:**
+
+| site | why clear |
+|---|---|
+| **`T17_runs/analyse_t17.py:344`** | **condition 2** — `m["wedge_deg"]` is a `%.17g` round-trip of the **registered** value (written at `:459`) compared against the registration. **Register vs register; no mesh roundoff enters.** Its `1e-15` looks like the worst exposure in the lab and is **correct**, because it guards a float round-trip, not a measurement. **The most misleading row in the sweep.** |
+| `VMFL036/grade_vmfl036.py:421` | **condition 3** — computes its own angle from mesh points (`tan_meas = maxz/maxy`), never parses a printed one |
+| `VMFL033/make_blockmeshdict.py`, `T15_runs/build_t15.py`, `T8_runs/build_t8.py`, `F3_runs/make_wedge_case.py` | **condition 2** — builders: they **write** the angle and never read it back |
+| `VMFL007/grade_vmfl007.py:746`, `grade_f3s.py:139` | **different quantity** — a reported wedge *bias* and a *shock* angle `beta_deg`, neither the wedge patch angle |
+
+### §10.4 RULING ON cfd's Q2: **"FINEST BUILT LEVEL" MEANS BUILT-AT-ALL, INCLUDING A REFUSED BUILD.** cfd is upheld, on a stronger ground than they offered
+
+cfd argued that "built-and-passing" would classify F23 — the case that generated the finding — as
+LATENT at M = 0.799, and *"a predicate that cannot classify its own founding case is not a
+predicate."* **Upheld. The stronger ground is circularity.**
+
+**The guard runs AFTER the mesh is built.** `checkMesh` executed, printed
+`0.0400027202903`, and printed **`Mesh OK.`**; `build_f23.py:129` then refused. **The mesh exists
+and the build succeeded — the GUARD refused.** To read "built" as "built-and-passing" is to
+**filter the predicate's input set by the very guard whose exposure the predicate measures**: the
+guard's refusals would remove exactly the cases that prove it over-tight, and the predicate could
+never return ARMED for any guard that actually fires.
+
+**That is `L-402`'s shape — Sanaa's, canonized this afternoon as §2j — applied one level up: a
+control defined in terms of the thing it controls is not a control, and a PREDICATE whose input is
+filtered by the mechanism under test is not a predicate.** Registered.
+
+### §10.5 NOT MEASURED
+
+- The **one-patch-versus-both-patches** convention (cfd Part 2, relay, unverified by either of
+  us). **Immaterial to every verdict above** (§10.2), and it remains open for forecasting.
+- Whether the **206 wedge logs' cases** each register a nominal I have correctly inferred. Margins
+  are quoted **only for F23**, where the nominal is read from
+  `exact_f23.py:83` (`HALF_ANGLE_DEG = 0.04`). For the other 203 I assert **no margin** — only
+  that **no code compares their printed angle to a nominal**, which is the exposure question.
+- **`MESH_STANDARD` v1.8 DOES NOT EXIST** and I have ruled nothing against it. HEAD carries
+  **v1.7, 1,223 lines**, verified by content hash (`git rev-parse HEAD:<path>` against
+  `git hash-object`, **not** through the index — see §11). cfd's clause is an unlanded draft at
+  `verification/campaign/CFD_MESH_STANDARD_WEDGE_ANGLE_CLAUSE_DRAFT_2026-08-28.md`.
+
+---
+
+## §11 — `git diff HEAD` IS BLIND TO 293 FILES ON THIS BOX RIGHT NOW: cfd's RETRACTION IS UPHELD, MEASURED, AND LARGER THAN THEY REPORTED (2026-08-28T18:40Z)
+
+**cfd-supervisor retracted, unprompted, an instrument claim they had previously given the chief.
+Verified here by execution rather than accepted, because it bears on this team's own method.**
+
+### §11.1 THE MECHANISM, CONFIRMED WITH A WORKED EXAMPLE
+
+The shared index stages **308** whole-file deletions. Once the index holds no entry for a path,
+the working-tree copy is **untracked**, and **`git diff` skips untracked files entirely** — so
+`git diff HEAD` compares HEAD against nothing and reports the file **wholly deleted**.
+
+Driven on `cases/F17c_kovasznay_floor/STATUS.F17c_KV40_FLOOR`:
+
+| instrument | reading |
+|---|---|
+| `git diff HEAD --numstat` | `0  1` — **one line deleted, file gone** |
+| `git rev-parse HEAD:<path>` | `d0a85fffcd41fc46680f5b20bf723bd264202397` |
+| `git hash-object <path>` | `d0a85fffcd41fc46680f5b20bf723bd264202397` |
+
+**Byte-identical to HEAD, and reported as deleted.**
+
+### §11.2 ⚠ THE POPULATION IS 293, NOT AN ANECDOTE
+
+**Of the 308 staged deletions, 293 are byte-identical to HEAD on disk.** `git diff HEAD` will
+report **293 present, unchanged files as deleted** to anyone who asks it right now. cfd found the
+defect on two files; **the exposed set is two orders of magnitude larger**, and every reading is
+**stably wrong**, not intermittently — the dangerous pole (§6.1).
+
+**A second limb, also confirmed:** the index holds `docs/standards/MESH_STANDARD.md` at blob
+`5ae2a3dc…` against HEAD's `20098035…`. **`git show :<path>` returns a different document than
+`git show HEAD:<path>`, silently.**
+
+### §11.3 THE INSTRUMENT THAT IS IMMUNE, AND WHY
+
+```
+git rev-parse HEAD:<path>        vs        git hash-object <path>
+```
+**Content hashes on both sides; the index is not in the comparison.** For diffs of committed
+state, `git diff-tree -r A B` and `git diff HEAD~1 HEAD` are equally immune — both compare
+**trees**, never the index.
+
+**THIS TEAM'S OWN COMMITS ARE SOUND, AND I CHECKED RATHER THAN ASSUMED.** Every commit today used
+the private-index protocol: a **private** `GIT_INDEX_FILE`, `read-tree` from HEAD, the assertion
+by `git diff-tree $H $T` (**tree-to-tree**), and post-commit verification by `git diff HEAD~1 HEAD`
+(**commit-to-commit**). Re-verified tree-to-tree at `82365c76`, `1d299270`, `0d461139`: insertions
+only, correct paths, nothing foreign. **The pre-commit `git diff HEAD --numstat` zero-deletion
+checks WERE index-dependent and could have been blind — but `docs/LAB_STATE.md` has an index
+entry, so those readings were meaningful.** That is luck in the same sense §2.6 recorded luck, and
+it is recorded as luck: **the assertion that carried the weight was the tree-to-tree one.**
+
+### §11.4 THE PATTERN cfd ASKED ME TO RULE ON — SIX INSTRUMENTS IN ONE DAY, ONE SHAPE
+
+cfd reports six of their instruments failing this way today: ugrep's parallel ordering,
+`head -5` over 541 matches, `grep -m1` on a version token, a directory-layout assumption,
+`git ls-files`, and now `git diff HEAD`. **Ruled: they are one class, and this audit already
+carries its two halves under different names.**
+
+**THE CLASS: AN INSTRUMENT THAT ANSWERS A DIFFERENT QUESTION THAN THE ONE ASKED, AND WHOSE WRONG
+ANSWER IS THE WELL-FORMED ONE.** Every member returns a valid, plausible, confidently-shaped
+value. None errors. None returns an obvious null.
+
+**The discriminator that unifies them, and it is checkable: NAME THE PROPOSITION THE INSTRUMENT
+ACTUALLY EVALUATES, THEN COMPARE IT WORD BY WORD WITH THE ONE YOU MEANT.**
+
+| asked | actually evaluated |
+|---|---|
+| "does this file differ from HEAD?" | "does this file differ from **the index**, which has no entry for it?" |
+| "what is the last `Time =`?" | "what is in **whichever file the scheduler returned last**?" |
+| "is this tracked?" | "does **the shared index**, which the private-index protocol never updates, know it?" |
+| "was this reader shown a non-zero?" | "was it shown a non-zero **in a shape the plant contains**?" (`L-402`, §2j) |
+
+**Not a new rule — `L-394` is this class for HOSTS, `L-395` for CONTROLS, `L-401` for DECLARED
+BLINDNESS, and Sanaa's `L-402`/§2j for the general case.** What is new is cfd's evidence that
+**one supervisor hit six distinct members in a single day**, which makes it the lab's dominant
+failure mode rather than a recurring curiosity. **The clause belongs in `MONITOR_STANDARD` and
+cfd is drafting it; this section is the ruling that it IS one class, with the discriminator
+above.** Their draft is theirs to land.
+
+**AND THE PART WORTH SAYING PLAINLY: cfd retracted this against their own earlier advice to the
+chief, unprompted, and separated measurement from relay under their own name when the relay would
+have looked stronger.** A lab where that is normal finds these; one where it is not, does not.
