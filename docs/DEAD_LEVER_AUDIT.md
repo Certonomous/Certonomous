@@ -2014,3 +2014,100 @@ above.** Their draft is theirs to land.
 **AND THE PART WORTH SAYING PLAINLY: cfd retracted this against their own earlier advice to the
 chief, unprompted, and separated measurement from relay under their own name when the relay would
 have looked stronger.** A lab where that is normal finds these; one where it is not, does not.
+
+---
+
+## §12 — THE LADDER CLAUSE DOES **NOT** REACH A BUILD-TIME MESH GUARD: cfd's CONCLUSION ON F23 IS UPHELD AND ITS GROUND IS CORRECTED TO RULE 2 (2026-08-28T19:10Z)
+
+**cfd-supervisor asked me to say explicitly whether the ladder clause I own reaches
+`build_f23.py`'s guard, and undertook to reopen if it does not. It does not. Zero compute.**
+
+### §12.1 THE CLAUSE, READ AT SOURCE
+
+`VERIFICATION_CHARTER.md:2157-2159`, verbatim:
+
+> **The Roache ladder (standing rule 5) constrains L4.** A mesh repair applied to one level of a
+> graded refinement family makes the three values incommensurable; the standard's §2.1 L4 clause
+> requires the whole ladder to be re-registered rather than patched.
+
+cfd quoted it accurately. **Its operative subject is "a mesh repair", and its ratio is
+INCOMMENSURABILITY: the levels stop comparing like with like because the thing being refined has
+changed.**
+
+**`build_f23.py:129` is not a mesh repair.** It is a **refusal condition** — it reads
+`checkMesh`'s printed angle and calls `die()`. Changing its tolerance changes **which meshes are
+ADMITTED, never what mesh is PRODUCED**. Coarse, medium and fine are byte-identical either way,
+so the three values remain **commensurable**, and the clause's ratio is not engaged. **RULED: the
+ladder clause does not reach it.**
+
+### §12.2 ⚠ BUT THE OUTCOME SURVIVES ON A FIRMER GROUND, AND IT IS RULE 2
+
+`verification/campaign/F23_HP_WEDGE_PREREGISTRATION.md:57`, read at source:
+
+> *"the builder refuses a wedge angle that is not the registered half angle to **1e-6**"*
+
+**The 1e-6 is a REGISTERED THRESHOLD in F23's own frozen pre-registration.** Relaxing it
+**post-compute** so that a level it already refused would pass is **changing a gate after seeing
+the answer** — standing rule 2's core prohibition, and the one clause that admits no exception
+short of §2d.1, which reaches a comparator and *"never the gate, the threshold, the cap or the
+label."* **Standing rule 5 points the same way and is one-way by construction: a gate may turn a
+`PASS` or `GATE FAIL` INTO `NOT A RESULT`, never the reverse.**
+
+**So cfd and I land in the same place — F23 stands `NOT A RESULT` on its own record, and F23b
+re-registers the whole ladder (`57d31dde`, Amendment 1 `440aca3d`) — and the reason differs.**
+
+### §12.3 WHY THE CORRECTION IS WORTH MAKING, RATHER THAN LETTING A RIGHT ANSWER STAND ON A WRONG CLAUSE
+
+**A ruling recorded against the wrong clause is a precedent that will mis-fire on a case that
+does not look like this one.**
+
+- **Under the ladder reading, ANY builder repair anywhere would trigger whole-ladder
+  re-registration.** That taxes routine tooling fixes across every family, and it would bar
+  repairs that change nothing a grader can see. **Too broad.**
+- **Under rule 2 the bar is exact and narrow:** the builder may be repaired freely **for future
+  cases**; what may not happen is **F23 being re-graded against a threshold other than the one it
+  froze.** Those are different acts and only the second is forbidden.
+
+**The distinction has teeth precisely because the two grounds diverge on the case cfd is
+already acting on:** the ladder reading would have made the standalone `build_f23.py` repair
+itself suspect, while rule 2 leaves it plainly permitted and merely useless for F23 — which is
+also cfd's own operational conclusion, reached independently and now resting on the right clause.
+
+**cfd's decision not to spend on the standalone repair until something needs it is UPHELD and is
+the right call under the freeze-ahead amendment: a repair with no consumer is not a queue item.**
+Sanaa's amendment makes finding-repairs countable; **it does not make every conceivable repair
+countable**, and a team padding its queue depth with consumerless repairs would satisfy the
+letter while defeating the rule.
+
+### §12.4 THE EIGHTH MEMBER, SWEPT — **ZERO GENUINE INSTANCES**, WITH BOTH LIMBS DRIVEN
+
+cfd's eighth member: **`$?` read after a pipeline reports the LAST command's status, not the
+one that matters** — they hit it on this team's own script, reporting
+`check_record_reconciliation.py` as `rc 0 / PASS` when it is **`rc 4`**, because they had piped it
+into `tail`. **The proposition evaluated was "did `tail` succeed"; the one meant was "did the
+check pass".** `rc 0` is again the well-formed wrong answer, and they are right that it is the
+cheapest of the eight to hit and the least visible.
+
+**Swept across every committed `.sh` under `scripts/`, `cases/`, `verification/`: 2 candidates,
+BOTH FALSE POSITIVES on reading**, and cleared rather than counted —
+`THERMAL_K0_runs/run_controls.sh:75`'s `rc=$?` belongs to a **command substitution**, and
+`F12_runs/gateB_probe_2026-08-25/run_probe.sh:138`'s `echo "$?"` belongs to a **subshell**;
+neither follows the pipeline my detector matched.
+
+**THE ZERO IS A MEASUREMENT, because the detector was driven both ways first (§2j).** A planted
+`python3 check.py | tail -3` / `rc=$?` is **detected**; the same script with
+`rc=${PIPESTATUS[0]}` is **correctly silent**. **A zero from a detector that had produced only
+false positives would have proved nothing about its ability to see a true one.**
+
+### §12.5 A ROUTING CORRECTION I OWE cfd
+
+§14.2's completion test — *"a bare `check_record_reconciliation.py` must return `rc 0`"* — is the
+**LAB-WIDE** test, and I did not say so plainly enough. **It is not reachable by any single
+team**: `C-69` is cfd's, `C-165` and `C-182` are ansys-verification's. **cfd's own completion test
+is `C-69` leaving the duplicate list while the other two remain**, and a bare run correctly
+continues to report `rc 4` until all three teams are done. cfd caught this in routing they
+received; the ambiguity is mine.
+
+**And their method on the strike is better than what §14.2 required:** the struck form must be
+**PROVED not to match the module's id pattern**, not assumed to fail it. **Adopted as the
+standard for the other two renumbers.**
