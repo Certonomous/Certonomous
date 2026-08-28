@@ -3502,6 +3502,113 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### NINETEENTH SESSION — **D8R RAN TO COMPLETION WITH NOBODY ALIVE AND IS `PASS` ON BOTH ROWS — THE FAMILY'S FIRST CONVERGED TWO-ROW OPTIMISATION WITH AN ENDPOINT FD TABLE, 20/20 COMPONENTS, ZERO SIGN FLIPS — AND ITS REGISTERED FALSIFIERS P2/P4 BOTH *MISSED*, WHICH THE FROZEN DOCUMENT NAMED IN ADVANCE AS THE FINDING THAT THE ROTATION DEFECT DOES NOT REACH THIS PROBLEM. EIGHT MORE ENTRIES FIRED OVERNIGHT AND NONE IS GRADED. THE WHOLE LAB'S QUEUE IS EMPTY. AND THE SHARED INDEX WOULD DELETE 238 INTACT FILES**
+
+**Section block written:** 2026-08-28T16:2xZ (`date -u` at write) by dafoam-supervisor (NINETEENTH session, formed ~15:56Z after the account's **WEEKLY** usage limit killed the whole fleet at ~2026-08-27T23:15Z; resets Sep 1, 11:00 UTC). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words unchanged, including Sanaa's `[SANAA-DIRECT]` directives of 2026-08-27T16:54Z. Silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7). The two-row / toolchain-identity rule is `DAFOAM_CHARTER.md` §6.
+
+#### 1. ⚠⚠ D8R — ITEM VERDICT `PASS`, BOTH ROWS, AND THE DETACHED DRIVER EARNED IT WITH NO AGENT ALIVE
+
+**`CURRICULUM-D8R` (A6 CRM N=16, twist-only drag minimisation to the optimiser's own convergence, both rows) = `PASS`. Rows: SHIPPED `PASS`, PATCHED `PASS`.** Chain `COMPLETE` at **2026-08-28T02:13:29Z**; all four arms `rc=0`, `OOMKilled=false`; the frozen grader ran itself at chain end, `grader_rc=0`. Artefact: `/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv/D8R_grade_20260828T021329Z.json`.
+
+**THE RUN SURVIVED THE FLEET KILL.** The fleet died ~23:15Z on 08-27. `O-P` had finished at 23:50:15Z; **`F-P`, `O-S`, `F-S` and the frozen grader all ran afterwards with no agent alive**, carried by the detached OS-daemon chain driver (pid 1587601). That is Sanaa's 2026-08-26 detached-queue-runner ruling working exactly as designed, and it is the reason this family has a headline result today instead of a lost night.
+
+**THE FD TABLE IS THE RESULT (charter bright line), AND IT IS 20/20.** Both rows × both objectives, five twist components each (idx 0,1,3,4,5), three FD steps `[0.3, 0.1, 0.03]` with the plateau proved beside every component, **zero sign flips**: SHIPPED `G5_CD` aggregate **0.6458 %** / `G5c_CL` **0.0884 %**; PATCHED `G5_CD` **0.9015 %** / `G5c_CL` **0.1068 %**. Worst single component **3.9170 %** (PATCHED CD twist idx5) against band D **5.0 %**.
+
+**G-O TERMINUS — BOTH ROWS PRINTED `EXIT: Optimal Solution Found.`** SHIPPED in **12** majors, PATCHED in **8**, against `max_iter` 30. This is the first item of the D8 family to stop on the optimiser's own statement rather than at a cap. §9 is not engaged: neither row was stopped by a cap.
+
+**⚠ AND THE IMPROVEMENT GATE IS A MARGINAL PASS, WHICH I STATE RATHER THAN SMOOTH.** `G3` drag reduction **0.3025 %** (SHIPPED) and **0.3040 %** (PATCHED) against the registered band **[0.29 %, 5.0 %]** — **4–5 % above the band's lower edge**, and that lower edge was derived as D8's own measured 3-major drop (0.2871 %). This is a real, registered, in-band reduction and it is **small**. Nobody should quote D8R as a large aerodynamic gain.
+
+**Sanaa's D7R attribution rule (§4) is satisfied structurally, not by analysis:** twist is the **only** design variable, and lift is held by an equality trim (`G2` CL_final **0.4999951** SHIPPED / **0.5000011** PATCHED against target 0.5, tol 5.0e-3), so the 0.30 % is attributable to twist at fixed lift with **no AoA and no operating-point channel available to it**.
+
+**⚠⚠ THE SCIENTIFIC FINDING IS THE PREDICTION THAT FAILED, AND THE FROZEN DOCUMENT NAMED IT BEFORE THE RUN.** P1, P3, P5, P6, P7 **HIT**; **P2 and P4 MISS**. P2 predicted the SHIPPED row would exhaust `max_iter`; P4 predicted its endpoint FD would `GATE FAIL`. **The shipped row converged in 12 majors and passed 10/10 FD components.** `PREREGISTRATION.md:92` registered this in advance, verbatim: *"MISS on P2 and P4 (the shipped row converges and its endpoint FD passes) would be the finding that the rotation defect does not reach this twist-only problem — reported as such, never averaged."* **So the finding is: the D-A rotation defect class does NOT reach A6 N=16 twist-only.** It is reported exactly as registered and **is not generalised** to other DV types or other cases. SHIPPED-vs-PATCHED endpoint divergence is **0.0008 %–0.0545 %** — a reading, not a gate.
+
+**MY CHECKS, DONE PERSONALLY (SUPERVISION §3), BEFORE I BELIEVED ANY OF IT.** **Check 1 (instrument):** `d8r_grade.py` md5 **`3f6eafac2ad4897417521d00c1cc5f3e`** is identical across the worktree, the HEAD blob, **and the driver's own pinned `MD5_GRADER` constant**, which is asserted twice — `d8r_chain_driver.sh:81` before staging and `:194` before the grader runs, with a registered `grader_rc=NOT_RUN` else-branch. The file has **exactly one commit** — the freeze `357a2648` — so there is no diff to read: it is the frozen instrument, unchanged. **Check 3 (big claim before belief):** I re-ran the grader's own selftest at 16:0xZ on the exact instrument that produced this PASS: **31/31, failures=0, under `python3` AND `python3 -O`**, `__pycache__` cleared first. Those 31 units include planting a **7 % error on shipped twist[3]** and a **sign flip on shipped twist[0]**, each required to drive the SHIPPED row to `GATE FAIL`, plus U23–U28 driving `GATE REACHED`, `NOT A RESULT` and every refusal limb. **The instrument is demonstrably able to produce every adverse verdict, and it produced `PASS`.**
+
+**Planted-zero control (standing rule 3), both rows:** instrument CTRL zero **0.0** / planted **0.00617** == want; and a **grader-level plant driven through the artefact** — a copy of each F table written to disk with `PLANT = 1.234e-03` added to every physical `dCD`, re-read through the real `read_F` path, refusing unless every value moved by exactly PLANT: **seen on both rows, n_values 15 each, worst_residual 0.0**.
+
+**`NOT MEASURED`, named:** `G6` dot-product/duality — *"the tutorial exposes no dot-product/duality test"*. **No GCI is quoted** (no grid family; standing rule 5 has no row here).
+
+**⚠ THE H5 MEMORY EXPOSURE MY PREDECESSOR NAMED DID NOT FIRE, AND `D8R-GRADER-DEF-1` THEREFORE STANDS UNEXERCISED.** Measured `h5_min_GiB` per arm: **24.55 / 27.49 / 27.81 / 28.00**, every one far above even the 18.0 GiB O-arm floor; `aggregate_waited_s=0` and `cpuset_waited_s=0` on all four. Peer load drained overnight. **`D8R-GRADER-DEF-1` — that an H5 stop's verdict is unregistered, so the grader would refuse with zero gate readings — remains a real registration defect for the successor; it was simply never reached.** My predecessor's S-18h correction was right that the exposure sat at arm 3 (`O-S`, floor 18.0), and `O-S` cleared it at 27.81.
+
+**COST, AND THE RULE-12 CALIBRATION.** **Actual 876.867 core-min** (O-P 316.867, F-P 63.6, O-S 429.467, F-S 66.933), every arm inside its own cap, ceiling 2,240.0, `G10` `PASS`. **Predicted 1,038.0 core-min** point (band [500, 1,800]) — **ratio actual/predicted 0.8447**, per-arm 0.6918 / 1.0426 / 0.9377 / 1.0973. **Dollars DERIVED $0.7497** at c7a.4xlarge $0.0513/core-h against the registered point $0.8875; **`cost_basis` REPORTED-BY-OWNER, NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5). **Attribution:** 15.5 % under the point because the O arms converged in **8 and 12** majors against a predicted **20** (P7 band [8, 30]); the F arms ran slightly over (1.04×, 1.10×). **Waste 0.000, and I defend it rather than assert it:** `O-P` at 4,753 s and `O-S` at 6,442 s both exceed the 3,600 s stall heuristic, but `delivered_cores_mean` was **3.9501 / 3.9843 / 3.9969 / 3.9826 of 4 ranks** — those arms were computing, not stalled.
+
+#### 2. ⚠⚠ EIGHT MORE ENTRIES FIRED OVERNIGHT WITH NOBODY ALIVE AND **NOT ONE IS GRADED** — THIS IS THE SESSION'S REAL DEFICIT
+
+The daemon runner (pid 1120800, alive 22 h 35 m) launched eight dafoam entries after the fleet died. From `verification/queue/LAUNCH_LOG.tsv`, with REGISTERED core-min:
+
+| launched (UTC) | entry | pid | ranks | registered core-min |
+|---|---|---|---|---|
+| 2026-08-28T02:15:29Z | `W3_chain_r3` | 1708836 | 1 | 563.3 |
+| 2026-08-28T02:16:34Z | `SO1a_chain` | 1708870 | 1 | 7.4 |
+| 2026-08-28T02:17:39Z | `AV2R_chain` | 1709393 | 1 | 15.3 |
+| 2026-08-28T02:18:44Z | `D18_chain` | 1710744 | 2 | 182.2 |
+| 2026-08-28T02:19:49Z | `SO1b_chain_wait` | 1712762 | 1 | 20.2 |
+| 2026-08-28T07:00:34Z | `D5_chain_r4` | 1768658 | 4 | 773.434 |
+| 2026-08-28T07:01:39Z | `AV1R_chain` | 1769242 | 4 | 19.3 |
+| 2026-08-28T07:02:44Z | `FADR_chain` | 1770663 | 4 | 34.0 |
+
+**1,615.134 registered core-min of compute already bought and never read.** Lane S is on the triage now; **no verdict is landed from it without my ruling**, and every crash is a finding until I triage it.
+
+**⚠ TWO OF THESE HAVE A SPECIFIC HAZARD I FLAGGED IN THE DISPATCH.** **(a) `W3_chain_r3` launched at 02:15:29Z — and the repair for its grader (`d12y_grade_w3.py:2440-2444`: dead `logp`, existence-only guard, `sorted(cands)[-1]` lexicographic pick feeding G1 and G3) was IN FLIGHT as R2 when the fleet died, with its pre-compute window shutting AT LAUNCH. The window shut. `W3_chain_r3` ran on the UNREPAIRED grader**, and its gates are now closed under rule 2. Lane S is establishing whether the `[-1]` had more than one candidate to choose between — the difference between a latent hazard and a **wrong landed number**. **(b) `SO1a` and `SO1b` are the first two rungs of Sanaa's SO-1…SO-8 ladder and their outcomes are unread.**
+
+#### 3. ⚠⚠⚠ THE SHARED INDEX WOULD DELETE **238 INTACT FILES**, AND `git diff HEAD` IS NOT A SAFE CHECK AGAINST IT — A CORRECTION I OWE UPWARD ON SANAA'S §1 WORDING
+
+`git status` carries **279 deletion rows** (246 staged `D `, 33 unstaged). **I measured every one of the 246 against disk and against the HEAD blob**, and the result splits cleanly and is not what the wording predicts:
+
+- **238 are present on disk AND byte-identical to their HEAD blob.** A bare commit destroys them. **54 are dafoam's, including ALL 20 D6R files — 6,346 lines, the entire registration frozen five hours before the kill.** By area: `verification/queue` 116, `cases/ansys_verification` 62, `cases/dafoam` 54, `verification/runs` 42, `docs/standards` 2, `docs/campaigns` 2, `docs/ansys_verification` 1 — **at least four teams**.
+- **39 are genuinely absent from disk — and all 39 are explained**, each matched by a twin under its own `launched/` directory. **Zero unexplained.** These are the runner correctly moving a queue entry when it fires. They are the TRUE state and *should* land.
+- **2 have drifted** (present, not matching HEAD): `verification/queue/cfd/launched/F17c_KV40_FLOOR.json` and `verification/queue/heat-transfer/launched/T15_UP_f.json` — other teams', named not touched.
+
+**THE CORRECTION.** Sanaa's §1 says *"a pure-deletion diff vs HEAD is the reversion signature and never commits."* **The action is right and I follow it. The diagnostic is not sufficient, and here it is actively misleading:** `git diff HEAD --stat` reports all 20 D6R files as a 6,346-line pure deletion **while every one of them is byte-identical to its HEAD blob**. A pure-deletion diff proves the **index** lost the path; it does **not** prove the **worktree** did. And in this same index the signature covers both 238 files that must never be committed as deleted **and** 39 whose deletion is correct — so applied loosely it destroys records, applied strictly it freezes the queue's git history permanently behind reality. **The discriminator that actually works, and it is mechanical and plantable: does the file exist on disk, and if so does `md5sum <file>` equal `git show HEAD:<path> | md5sum`?** Present-and-identical → never commit the deletion. Absent, with a `launched/` twin → the deletion is the truth. I offer this as a lab-wide guard with its planted-failure proof (L-314 standard), and it is **not** mine to impose on other families.
+
+**My own lanes are immune and I checked why, rather than assuming:** the rule-10 private-index protocol does `read-tree` from **HEAD**, so the poisoned rows never enter a lane's tree. Nothing of mine touches the shared index.
+
+#### 4. ⚠⚠ D6R — I FOUND A DEFECT IN ITS FROZEN GRADER BY READING THE DIFF, AND IT IS FREE TO FIX BECAUSE THE ITEM HAS BURNED ZERO CORE-MIN
+
+D6R was frozen at `9ab8c03b` (23:10Z, minutes before the kill) and **all 20 of its files are byte-identical to HEAD** — verified individually, 20 identical / 0 drifted / 0 missing. Its cap question, which my predecessor left open in three parts, is answered in the strongest available way: `max_iter` **100 → 80** (a strict reduction in rope, D6's own P1 point), the `O_mp` cap **re-derived from the MEASURED 31.258 core-min/major** to 2,900.0, **and** a registered five-rung `G-D6R-OPT` ladder in which **`STALLED` is tested before `ITERATION_CAP`** so a stall cannot flatter itself as a cap hit. The arithmetic is shown: 80 × 31.258 = 2,500.6 core-min against a 2,894.0 compute window, margin 15.7 % — the `D5-PREREG-DEF-1` class named and avoided.
+
+**MY CHECK-1 READ OF `d6r_grade_DELTAS_from_d6.diff` (561 added / 97 removed) FOUND `D6R-GRADER-DEF-1`.** `d6r_grade.py:read_chain_status()` reads the driver's **append-only** `STATUS.chain` **twice with opposite selection rules and no uniqueness guard**: `:340` `CHAIN_STARTED_RE.search(txt)` takes the **FIRST** `chain=started` (yielding the arm order), while `:343-345` `finditer` keeping `last` takes the **LAST** terminal outcome. A first-wins read and a last-wins read of one file, combined into one decision — the same shape as the SO1c defect, inside the instrument built to repair D6.
+
+**IT IS REACHABLE, AND I ESTABLISHED THE PATH RATHER THAN ASSERTING IT.** `d6r_chain_driver.sh:43` is `if [ ! -d "$BASE" ]` — an existing run root is **accepted** (`D6R_ROOT_PRESENT ... (not re-staged)`); `:70` appends `chain=started` **unconditionally on every fire, before** the `ALREADY_BOUGHT` check at `:76-79`; and the EXIT trap deletes the pidfile, so the `:64-68` guard blocks only a *concurrently live* driver, never a later re-fire. **Consequence, on a chain that COMPLETED and is then fired a second time:** the grader takes the order from fire 1 and the outcome from fire 2 — `REFUSED_ALREADY_BOUGHT arm=O_mp` — and since `O_mp` is the **first** arm, `downstream = order.index(arm) >= 0` is **true for all four arms**. **`chain=COMPLETE`, the one outcome deliberately mapped to `False` so that "nothing may be missing after COMPLETE", is masked**, and any arm missing from the ledger is silently excused as `NOT_RUN` having bought 0 core-min **instead of refusing**. The single strongest guard in the repair is inverted by the most harmless possible event: a second fire that correctly refuses to do any work. **The 63-unit selftest passes 63/63 because no fixture ever writes a second fire** (`d6r_grade_selftest.py:109` writes exactly one `chain=started`).
+
+**RULE-2 CONDITION, VERIFIED BY ME AT 16:1xZ IN THE FORM §2b DEMANDS, NAMING THE DIRECTORY THAT DOES NOT EXIST:** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint` → **FALSE** (that is the driver's own `BASE`, `d6r_chain_driver.sh:25`); **ZERO** containers matching `d6r` have ever existed (15 on the box, none); and the registration itself records **0 core-min burned**. **Gates OPEN; the amendment is legal and the repair is free.** Lane T is on it, with the repair required to be proved **both directions through the real artefact** — a two-fire fixture that must refuse, shown against the unrepaired grader silently excusing it, and a one-fire fixture that must still grade unchanged.
+
+**A CORRECTION AGAINST MYSELF, recorded because it is the same error the lab keeps paying for:** my first sweep for selftest units used `unit(` and returned **ZERO** on a file with **63 passing units**, which declare themselves with `ok(...)`. A sweep that returns zero on known-positive ground truth is measuring its own regex. I also raised `d6r_grade.py:564` (`list(OBJ_RE.finditer(txt))[-1]`) as a second candidate and then **refuted it myself**: it sits inside `planted_zero_control`, and the plant is written into the very last-`Objective` line that the reader at `:553` takes — plant site and read site agree by construction. A matched pair, not an unguarded pick.
+
+#### 5. ⚠⚠ THE WHOLE LAB'S QUEUE IS EMPTY — AND THE AGENT FLEET CANNOT BE RELIED ON UNTIL SEP 1
+
+Measured 16:1xZ: **pending = 0 for ALL SIX teams** (ansys-verification 0, cfd 0, closure 0, dafoam 0, heat-transfer 0, verification 0). Held: dafoam 7, ansys 2, everyone else 0 — and dafoam's 7 are **superseded or dead** (`D6_chain`, `D6_chain_wait.e43bdf61`, `D8R_chain.357a2648` — that one superseded by the `_wait` entry that has now run and passed — `W3_chain_r2.a6dcc964`, `W2R_phase2`, `D12R_phase3/4`), so they are **not usable depth**.
+
+**dafoam FREEZE-AHEAD = 0 against Sanaa's §2 floor of 3.** I am not softening that: it is a planning defect and it is mine.
+
+**AND THE COMPOUND RISK IS THE POINT.** The weekly usage limit does not reset until **Sep 1, 11:00 UTC**. Opus lanes may be refused at any moment. **The only thing that keeps this box working without agents is the daemon runner — and its queue is empty across every team.** The box is currently busy (CPU 56.5 % user + 34.6 % wait, MemAvailable 27.76 GiB of 30.64) on heat-transfer's solvers, so nothing is idle *right now*; **when those drain, everything stops and no agent may be alive to refill.** Refilling frozen registrations while agents still run is therefore the highest-value action available to this lab today, and I am saying so beyond my own family because the measurement is lab-wide.
+
+#### 6. HEADLINE METRICS (Sanaa §2), 2026-08-28T16:2xZ
+
+**CPU 56.5 % user / 34.6 % iowait / 4.2 % idle** on 16 cores; **MemTotal 30.64 GiB, MemAvailable 27.76 GiB**; **GPU 0 %** (separate instance 3.15.199.152, idle since 03:20:39Z when ansys VMFLGPU005 finished — **≈ 12.7 h idle-minutes = 762**). **Queue depth: dafoam pending 0 / held 7; ALL SIX TEAMS pending 0.** **dafoam FREEZE-AHEAD 0 against the floor of 3.** Docker: **zero containers running**. Runner pid 1120800 alive 22 h 35 m. **Session solver core-min spent by dafoam: 0** (D8R's 876.867 was bought overnight). **Session waste 0.000.**
+
+**ON THE GPU, AND I WILL NOT GAME THE NEVER-IDLE DIRECTIVE:** §2 permits the GPU to pass to dafoam now that ansys is done. **dafoam has NO frozen, costed, GPU-capable registration, and DAFoam/OpenFOAM is a CPU toolchain in this lab's inventory — there is no GPU DAFoam build.** Inventing a GPU item to look busy would be exactly the anti-gaming clause's failure mode. **I decline the GPU on measurement grounds and report the idle honestly as INFRASTRUCTURE rather than absorbing it.** If the lab wants that card working, the answer is another family's item, not a manufactured one of mine.
+
+#### 7. RUNGS WITHOUT VERDICTS
+
+**D8R — verdict `PASS` established by me from the artefacts; RESULTS.md, the COST_CALIBRATION row and the capability-grid update are with lane R and NOT YET LANDED.** `W3_chain_r3`, `SO1a`, `SO1b`, `AV1R`, `AV2R`, `D18`, `D5_chain_r4`, `FADR` — **all eight ran overnight, all eight ungraded**, with lane S. **D6R** — frozen, one defect found by me, unrepaired, **not enqueued**. **SO1c** — R1/R5 repair (both sides of G-MESHID) **not landed**; its gates remain open (no SO1c run root, no so1c container ever). **R3** (unguarded `logs[-1]` sites) and **R4** (empty-`cid` cgroup widening) still unauthorised. `D6` stands `NOT A RESULT`; `D8R-GRADER-DEF-1` stands unexercised.
+
+#### 8. NEXT ACTIONS, CONCRETELY
+
+1. Land D8R's record, calibration row and grid cell (lane R, in flight).
+2. Triage the eight overnight runs and rule on each (lane S, in flight) — **`W3_chain_r3`'s `[-1]` candidate count first**.
+3. Repair `D6R-GRADER-DEF-1` as a pre-compute amendment, prove both directions, enqueue D6R (lane T, in flight).
+4. **Refill freeze-ahead to ≥ 3.** D6R is one. The natural next two are **SO1c** (after the R1/R5 G-MESHID repair, gates still open) and the next rung of Sanaa's SO ladder — **SO-2's first constraint family on SO-1**, per §4's stated order.
+5. Land the R1/R5 SO1c repair with the artefact-plant requirement my predecessor strengthened: a planted mesh-id **mismatch** the reader must see, and a planted **non-mismatch** it must not flag, both through the real code path.
+
+#### 9. ON SANAA'S DESK
+
+Unchanged, plus one new item. **NEW: the shared index would delete 238 intact files across at least four teams** (§3) — the measurement is mine, the remedy is cross-family and above me. **Carried:** the push-capable `origin` with an off-box mirror holding lab history as of 2026-08-25 against the 2026-08-18 permanently-private ruling; the five `NOT FILED` upstream defect drafts (rule 7 — sending is hers alone); the twelfth session's R2.
+
+#### 10. BLOCKED
+
+**None on compute.** The GPU is declined on measurement grounds (§6), which is a decision, not a block. Opus lane spawns may be refused by the weekly limit at any time until **Sep 1, 11:00 UTC**; three lanes were accepted this session.
+
 ### EIGHTEENTH SESSION — `D6-CAP-FRAME-1`: D6's CAP IS ENFORCED IN THE CONTAINER FRAME AND GRADED IN THE HOST FRAME, SO AN ARM THAT OBEYS ITS OWN DEADLINE MUST FAIL ITS OWN CAP GATE — VERIFIED BY ME FROM THE CODE, AND NOTHING IS REPAIRED BECAUSE THE GATES ARE CLOSED; D6's OPTIMISER IS STALLED NOT SLOW AND ITS DEADLINE FIRES AT ~22:29Z; THE SEVEN HELD ENTRIES ARE ANSWERED FROM `held/README.md` AND THE RUNNER'S OWN GLOB; AND SIX OF OUR EIGHT QUEUED ENTRIES HAD NEVER BEEN EVALUATED BY THE RUNNER AT ALL, SO I RAN ITS OWN VALIDATOR OVER ALL EIGHT: 8 ACCEPT / 0 REFUSE
 
 **Section block written:** 2026-08-27T21:3xZ (`date -u` at write) by dafoam-supervisor (EIGHTEENTH session, formed ~21:22Z after the MONTHLY SPEND LIMIT killed the whole fleet at ~20:35Z; agent id `a0ab0f65e753b0767`). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words in force unchanged, including Sanaa's `[SANAA-DIRECT]` directives of 2026-08-27T16:54Z (§0 R-RC, §1 file integrity, §2 FREEZE-AHEAD ≥ 3 + headline metrics, §3 the L0–L7 ladder, §4 the SO ladder). Silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7). **The two-row / toolchain-identity rule is `DAFOAM_CHARTER.md` §6, NOT §11** — my predecessor's slip, struck and not repeated.
