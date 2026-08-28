@@ -171,9 +171,24 @@ DEFAULT_REV = "HEAD"
 #:                  directions of the difference at once.
 CONTROL_FORMS = {
     "docs/LESSONS.md": {
+        # BOTH LIVE HEADING FORMS, for the reason the NUMERICS block below
+        # already states: a pattern blind to one FORM drops that form from both
+        # sides and the symmetric difference cancels into a false PASS. LESSONS
+        # has two live forms -- `## L-N. Text` (308 headings at 2026-08-28) and
+        # `## L-N — Text` (89) -- and until now EVERY planted form here was
+        # the period one. MEASURED CONSEQUENCE, driven in-process before this
+        # change: removing the em-dash alternative from append_record.py's
+        # pattern -- which is EXACTLY the D549 defect -- left this selftest at
+        # rc 0, while removing the PERIOD alternative gave rc 5 and breaking the
+        # pattern outright gave rc 5. The harness guarded the half of the
+        # pattern its controls used, and only that half. A MUTATION HARNESS THAT
+        # CANNOT CATCH A REGRESSION TO THE DEFECT IT WAS BUILT TO FIX IS THE
+        # SHAPE THIS FILE'S OWN `CANNOT SEE` LINE PREDICTED: "whether the
+        # planted forms are the RIGHT forms for a record whose shape changes
+        # tomorrow". It changed, and the forms did not follow.
         "forms": {
             "## L-9001. a lesson heading": "L-9001",
-            "## L-9002. another, three digits over": "L-9002",
+            "## L-9002 — the EM-DASH form, 89 live headings use it": "L-9002",
         },
         "negatives": [
             "a mid-sentence mention of L-9003 in prose",
@@ -181,8 +196,11 @@ CONTROL_FORMS = {
             "### L-63 - CORRECTION, an h3 amendment",
         ],
         "base": "# Lessons\n\n## L-9000. on both sides, must not appear in either difference\n",
-        "head_only": "\n## L-9101. planted in the committed blob only\n",
-        "worktree_only": "\n## L-9102. planted in the working copy only\n",
+        # The two DIRECTIONS carry DIFFERENT forms on purpose, so a pattern that
+        # goes blind to either one loses a plant from one side of the symmetric
+        # difference and cannot cancel it against the other.
+        "head_only": "\n## L-9101 — em-dash form, planted in the committed blob only\n",
+        "worktree_only": "\n## L-9102. period form, planted in the working copy only\n",
     },
     "docs/NUMERICS_KNOWLEDGE.md": {
         # Kept exactly as it was: both live entry forms and both series, because
@@ -518,6 +536,17 @@ MUTANTS = [
      "append_record.py",
      '    "docs/LESSONS.md": r"^## (L-\\d+)(?:\\.|\\s+\\u2014)",',
      '    "docs/LESSONS.md": r"^## (L-\\d+)(?:!|\\s+\\u2014)",'),
+    # THE MIRROR OF THE ABOVE, AND IT IS D549 ITSELF. The mutant above breaks
+    # the PERIOD half; this one breaks the EM-DASH half, which is the exact
+    # pattern append_record.py carried before D549 was repaired. Added
+    # 2026-08-28 with the em-dash control form, because until that form was
+    # planted THIS MUTANT PASSED SILENTLY -- measured in-process: rc 0, against
+    # rc 5 for both of its siblings. A harness that cannot catch a regression to
+    # the defect it was built to fix is not a harness for that defect.
+    ("LESSONS: the EM-DASH alternative dropped -- D549's own defect, restored",
+     "append_record.py",
+     '    "docs/LESSONS.md": r"^## (L-\\d+)(?:\\.|\\s+\\u2014)",',
+     '    "docs/LESSONS.md": r"^## (L-\\d+)\\.",'),
     ("NUMERICS: the bold entry form dropped, so half the file goes unseen",
      "append_record.py",
      '    "docs/NUMERICS_KNOWLEDGE.md": r"^(?:\\*\\*|## )(N-[A-Z]+\\d+)\\.",',
