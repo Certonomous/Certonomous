@@ -1423,3 +1423,143 @@ refutation: ordering a bad set is not a fix, because the SET is the defect.**
   plant was not decoration, it was the only thing that found the reader broken.**
 - Three cardinality questions **modulate severity but not existence** — each settled
   by one `ls | wc -l` on a live run root, **not enumerated here** (zero-compute).
+
+---
+
+## §7 — THE THREE CARDINALITY QUESTIONS §6.8 LEFT OPEN ARE NOW ENUMERATED; ansys's SWEEP IS RATIFIED BY AN INDEPENDENT INSTRUMENT THAT AGREES TO THE UNIT; AND MY OWN §6.5 CORRECTION OF THEM WAS WRONG (2026-08-28)
+
+**Zero compute.** Instrument: `verification/credibility/ordering_key_census.py`, written for
+this section, structural (AST) rather than textual, with a four-limb planted control driven
+before any number below was believed.
+
+### §7.1 THE HEADLINE: TWO INDEPENDENT INSTRUMENTS, DIFFERENT METHODS, THE SAME 19 IN THE SAME 9
+
+`c7176346` (ansys) reported **19 hazard sites in 9 files** by regex. This section's instrument
+walks the **AST**, resolves **name bindings** (`f = sorted(glob.glob(pat)); ... f[-1]`),
+resolves **name-bound glob patterns** (`pat` defined on the previous line), attributes every
+`len(x) != 1` guard **to the set it actually measures**, and discards wildcard-free globs whose
+cardinality is 1 by construction. It returns **19 distinct binding sites across 9 grader
+files** — `VMFL002`, `VMFL004`, `VMFL004-R2`, `VMFL011`, `VMFL011-R2`, `VMFL011-R3`,
+`VMFL021`, `VMFL021-R2`, `VMFL022` — **the same count and the same file set**, reached by a
+method with no step in common with theirs. (50 subscript *uses* resolve to those 19 *bindings*;
+the binding is the right unit, because one bad read serves many lines.)
+
+**ansys's sweep is RATIFIED.** Agreement between two instruments that fail in different ways is
+worth more than either number alone.
+
+### §7.2 ⚠ AND §6.5's CORRECTION OF THEM WAS WRONG, IN THE DIRECTION THAT FLATTERED THIS TEAM
+
+§6.5 said the candidate set was **wider** than ansys reported — *"at least THREE, not only
+two"*. That was right about `VMFL011` and it was **right for the wrong reason**: it rested on a
+grep whose guard-count returned 0. Run today, the same textual approach returns **13 files**,
+four of which — `VMFL010`, `VMFL017`, `VMFL017/R2`, `VMFL059` — are **benign on reading**:
+`glob.glob(os.path.join(level_dir, "log.simpleFoam"))[0]` has **no wildcard**, so the set it
+indexes has at most one member and the read is exact. **The excess was my instrument's, not the
+lab's.** ansys's count was correct and this team's widening of it was noise dressed as rigour.
+
+The previous correction ran against ansys and this one runs for them. **A team that only ever
+corrects other teams downward is not auditing, it is scoring.**
+
+### §7.3 THE LOAD-BEARING CLAIM — "ZERO LANDED VERDICTS EXPOSED" — IS CONFIRMED, WITH A LIVE POSITIVE CONTROL, AND THE CONTROL FIRES WIDER THAN ANSYS REPORTED
+
+Every function-object directory under every level of the **eight hazard cases that ran** was
+counted on disk: `VMFL002`, `VMFL004`, `VMFL004-R2`, `VMFL011`, `VMFL011-R2`, `VMFL011-R3`,
+`VMFL021`, `VMFL022`. **Zero directories hold more than one start-time subdirectory.** The
+lexicographic bug therefore **cannot fire on any landed verdict**. `VMFL021-R2` never ran.
+
+**That zero is evidence and not an absence, because the same scan was driven on ground that
+holds a non-zero** — and it found **six** multi-member sites, not the one ansys named:
+
+| site | start-time dirs | lexicographic `[-1]` | numeric `[-1]` |
+|---|---|---|---|
+| `VMFL076-R2/L1/postProcessing/sampleLine` | 40 | `950` | `2000` |
+| `VMFL076-R2/L2` | 40 | `950` | `2000` |
+| `VMFL076-R2/L3` | 40 | `950` | `2000` |
+| `VMFL076/L1` | 40 | `950` | `2000` |
+| `VMFL076/L2` | 60 | `950` | `3000` |
+| **`VMFL076/L3`** | **100** | **`950`** | **`5000`** |
+
+ansys named `VMFL076-R2/L1` only, at a ratio of 2.1×. **`VMFL076/L3` is 5.26× and was not
+named.** The hazard is **LATENT and armed by the first restart**, exactly as ansys ruled — and
+the ground that would arm it is already sitting in the neighbouring case at a hundred
+directories.
+
+### §7.4 ⚠ THE ONE CORRECTION THAT MATTERS: ansys UNDERSTATED ITS OWN REFERENCE IMPLEMENTATION, AND MIS-ATTRIBUTED THE GUARD THAT SAVES IT
+
+`c7176346` states that the `VMFL076-R2` grader *"is one of the 12 cardinality-guarded ones so
+it REFUSES instead of misreading"*. **Read at source, that is wrong on the mechanism, and the
+truth is better.** `grade_vmfl076.py:669-685` does not refuse on 40 directories. It
+
+- iterates **all** of them with `os.listdir(root)`,
+- converts each name with **`float(name)`** — a numeric key,
+- accumulates `(t, path)` pairs and calls **`out.sort()`**, sorting **numerically**,
+- and returns the **whole list**.
+
+**It reads the hard input correctly.** The `len(hits) != 1` refusal at `:678` is a guard on the
+inner `gateLine*T*.xy` **file** set inside each time directory — **a different set entirely**
+from the start-time directories that carry the hazard. `G3` refuses only on **zero** time
+directories.
+
+**The distinction is load-bearing in both directions.**
+
+- **For ansys:** a grader that *refuses* on the hard input is a **guard** — it stops. A grader
+  that *reads it right* is a **reference** — it proceeds, correctly. Ansys claimed the weaker of
+  the two about its own code.
+- **Against the sweep's method:** if the "12 cardinality-guarded SAFE" sites were classified by
+  the presence of a `len(...) != 1` refuse, then **the classifier may be crediting a guard over
+  one set with the safety of another.** A site can carry a prominent cardinality guard on an
+  inner glob and still be **unguarded on the outer set that decides the answer**. **Whether the
+  other 11 are safe for the reason claimed is `NOT MEASURED`** — the count is not disturbed,
+  the *reason* is.
+
+**AND THE REPAIR SHAPE IS NOW NAMED, FROM TWO INDEPENDENT ARRIVALS.** `float(name)` + numeric
+sort is exactly the shape §6.6 found in the **24 `mark_done_*.py`**
+(`sorted(float(x) for x in os.listdir(...))`) — the instruments that carry `CLAUDE.md` rule 4.
+Two families, no contact, same answer. **That is the lab's reference ordering key**, and any
+repair under §6.7 adopts it rather than inventing a third. Repair remains barred in **frozen**
+comparators post-compute (rule 2) and belongs in successors and unfrozen graders, as ansys
+ruled.
+
+### §7.5 THE LAB-WIDE FIGURE, AND WHAT IT IS NOT
+
+Across `cases/`, `verification/`, `scripts/`, `models/` and `harness/`: **77 unguarded
+ordering-key sites in 28 files** — **50 ansys**, **15 `verification/runs/`**, **12
+`cases/dafoam/`**. **This is a CANDIDATE list, not a hazard count.** Every site still needs the
+two readings the instrument cannot do: whether the ordered set is ever multi-member in practice,
+and whether the chosen member is the one the physics means. §7.3 is what that reading looks like
+when it is done.
+
+### §7.6 THE INSTRUMENT FAILED FIVE LIMBS BEFORE IT WORKED, AND ONE FAILURE WAS THE DANGEROUS KIND
+
+Recorded because the failures are the finding, and because **four of the five share one root
+cause**.
+
+| # | pass | what it did | direction |
+|---|---|---|---|
+| 1 | ansys's first two regexes | returned 0 on files proven to carry the shape | false zero |
+| 2 | this team's grep census | returned 0 on `VMFL021`/`VMFL022` — same files | false zero |
+| 3 | first AST pass | matched only `sorted(...)[i]`; real code binds first, then indexes | false zero |
+| 4 | guard/type filter | called `sorted(set_of_floats)[-1]` a lexical hazard | false positive |
+| 5 | **wildcard test** | **read only the glob call, missed `pat` bound one line above — declared 7 CONFIRMED hazard files BENIGN** | **false NEGATIVE** |
+
+**Limbs 1, 2, 3 and 5 are one defect wearing four coats: a reader of code that assumes the
+interesting expression is syntactically local.** It is the same shape as the finding under
+audit — *a set reduced by an ordering that is not the one meant* — turned on the auditor.
+**Pass 5 is the one to be frightened of.** Limbs 1–3 failed **loudly**, returning zero against
+ground truth a human already held. Pass 5 failed **quietly and plausibly**: it took a set of 13
+files that had already been measured, and **silently deleted 7 confirmed positives**, leaving a
+smaller, cleaner, entirely wrong number that no downstream reader could have questioned. **A
+false zero on known ground truth announces itself. A false shrink of an already-measured set
+looks like the audit converging.**
+
+It was caught only because a **prior measurement existed to contradict it** — `VMFL021` had been
+read by hand at `:120-134` before the filter was written. **Not by the control:** all four
+control limbs passed at the moment pass 5 was wrong, because none of them was a hazard site whose
+pattern was bound on a previous line. **The control was correct and insufficient.** The missing
+limb — a hazard whose glob pattern is **bound on the previous line** — was added afterwards as
+limb **E** of the committed six-limb `--selftest`, so that the next reader inherits the trap
+rather than rediscovering it. All six limbs are driven and pass: **A** bind-then-index,
+**B** direct subscript, **C** wildcard-free literal (silent), **D** cardinality guard on the
+same set (silent), **E** pattern bound on the previous line, **F** the `float(name)` + numeric
+sort repair shape (silent). **Limbs C, D and F are the discriminating half** — an instrument
+that fired on all six would be a hazard counter that counts everything.
