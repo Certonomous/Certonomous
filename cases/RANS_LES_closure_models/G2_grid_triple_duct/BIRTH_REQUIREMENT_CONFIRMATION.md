@@ -139,3 +139,31 @@ It was corrected before this file was committed. **An unmeasured number in a
 confirmation record is the same defect the record exists to close**, and it is
 disclosed here because that is the standard this session has been holding others
 to.
+
+---
+
+## 4. A DEFECT IN THIS RECORD, found by a lane and repaired here rather than argued away
+
+**The 1,200-log corpus was not reproducible when this document was first
+committed.** The path list was passed as `sys.argv[2]` from a **scratchpad file**,
+and no manifest was committed with the result. That is `L-186` in its exact
+shape — *the scratchpad is temp only and is never a handoff channel* — and it
+means a reader could not have re-derived the corpus that produced the counts
+above. The reviewing lane could not reconstruct 1,200 from any natural
+enumeration rule (its candidates measured 762 / 2,244 / 2,365 / 2,745 / 4,072 /
+5,638 / 6,536), which is exactly the position a reader should not be put in.
+
+**Repaired, not excused:** the corpus is now committed as a first-class artefact
+at `artefacts/birth_requirement_corpus_manifest.txt`, one path per line. The
+counts in §1 and §2 stand — they were internally consistent
+(`33 + 721 + 446 = 1200`) and **both ground-truth artifacts were independently
+re-verified by that lane, exactly**: `log.calib` reads `fatal=True, end=True` with
+3 `Create time` banners, 2 `End` lines and a first signature of
+`--> FOAM FATAL ERROR`; `run_L4_diagA_relax/log.simpleFoam` reads
+`fatal=True, end=False`, last `Time = 182`, `Foam::sigFpe::sigHandler`. **What was
+missing was reproducibility, not correctness** — but an unreproducible control is
+a weak control, and a document whose whole subject is "demonstrate it, do not
+assert it" has no business resting on a path list nobody else can rebuild.
+
+`RC1` registers the durable fix: an enumeration **rule** rather than an ad-hoc
+list, writing `CORPUS_MANIFEST.json` as a refusal-gated first-class artifact.

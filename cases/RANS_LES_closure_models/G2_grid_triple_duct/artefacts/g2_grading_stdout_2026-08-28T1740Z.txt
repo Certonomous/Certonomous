@@ -1,0 +1,105 @@
+==============================================================================
+G2 GRID TRIPLE -- square duct AR_1_Ret_360, comparator
+  run root : /home/ubuntu/closure-data/g2
+  D = 2  refinement is applied in y and z; the single streamwise cell
+        sits between MATCHED CYCLIC patches, so d/dx is identically zero
+        over one cell and x carries no discretisation. h = (A/N)^(1/2).
+  r21 = 2.0000   r32 = 2.0000   Fs = 1.25
+==============================================================================
+
+[RECONSTRUCTION CONTROL]
+  constructed dictionary at the shipped resolution regenerates the shipped
+  mesh to 4.800e-14 m (6272 points)  VERIFIED from the staging manifest
+
+[FAMILY CONTROL]
+  vertices block byte-identical across L1/L2/L3          VERIFIED
+  all bytes outside the single hex line byte-identical   VERIFIED
+  nCells 1024 / 4096 / 16384 -- distinct, exact 1:4:16          VERIFIED
+
+[COMPLETION AND ITERATIVE CONVERGENCE]
+  L1  complete: rc=0, End, last time == 20000, fields present, age guard held,
+        ExecutionTime lines == 20000 (hard equality), Ux/k/omega below registry,
+        gradP plateaued within 1e-05
+        DIAGNOSTIC, ungated by design: final p = 3.880e-01, Uy = 3.639e-01, Uz = 1.340e-01
+        (a linear eddy-viscosity model makes no secondary flow in a straight
+        duct, so these residuals are normalised by machine noise and never fall)
+  L2  complete: rc=0, End, last time == 30000, fields present, age guard held,
+        ExecutionTime lines == 30000 (hard equality), Ux/k/omega below registry,
+        gradP plateaued within 1e-05
+        DIAGNOSTIC, ungated by design: final p = 4.104e-01, Uy = 4.171e-01, Uz = 1.374e-01
+        (a linear eddy-viscosity model makes no secondary flow in a straight
+        duct, so these residuals are normalised by machine noise and never fall)
+  L3  complete: rc=0, End, last time == 40000, fields present, age guard held,
+        ExecutionTime lines == 40000 (hard equality), Ux/k/omega below registry,
+        gradP plateaued within 1e-05
+        DIAGNOSTIC, ungated by design: final p = 6.851e-01, Uy = 6.479e-01, Uz = 2.337e-01
+        (a linear eddy-viscosity model makes no secondary flow in a straight
+        duct, so these residuals are normalised by machine noise and never fall)
+  INFRASTRUCTURE DEFECT: L1 I1 checkMesh: log absent or not `Mesh OK`
+  INFRASTRUCTURE DEFECT: L1 I5 libs: the solver could not load a library named in the shipped controlDict. The entry is kept, never deleted to tidy a case (standing rule 14); the loader warns and continues.
+  INFRASTRUCTURE DEFECT: L2 I1 checkMesh: log absent or not `Mesh OK`
+  INFRASTRUCTURE DEFECT: L2 I5 libs: the solver could not load a library named in the shipped controlDict. The entry is kept, never deleted to tidy a case (standing rule 14); the loader warns and continues.
+  INFRASTRUCTURE DEFECT: L3 I1 checkMesh: log absent or not `Mesh OK`
+  INFRASTRUCTURE DEFECT: L3 I5 libs: the solver could not load a library named in the shipped controlDict. The entry is kept, never deleted to tidy a case (standing rule 14); the loader warns and continues.
+
+[PLANTED CONTROLS -- rule 3, each round-tripping a real file]
+  gradP  : plant 1.234567e-03 written to disk and read back 1.234567e-03 by the SAME reader;
+           the unplanted file reads 53590.2894, so the reader is not a constant
+  Kint   : uniform-k closed form and a single-cell plant at a known index both
+           recovered exactly; sum(V) = 1.000000000e-09 against the closed-form 1.000000000e-09
+  tauwint: uniform-shear closed form and a single-face plant both recovered
+           exactly (3.988930791e-07); a short face list REFUSED
+  fatal  : a genuine `--> FOAM FATAL ERROR` block reads True and a fired sigFpe
+           handler with its stack reads True, while a CLEAN log carrying
+           OpenFOAM's `trapFpe:` banner verbatim reads False -- the reader
+           is a detector, not a constant
+
+[FUNCTIONALS]
+  L1  gradP = 52172.3179852   Kint = 5.631825711e-08   tauwint = 5.217231799e-05
+       momentum balance: gradP * V = 5.217231799e-05 against the integrated wall shear
+       5.217231799e-05 -- disagreement 0.0000 % (registered ALARM LEVEL 5.0 %)
+  L2  gradP = 53160.8696885   Kint = 5.711354025e-08   tauwint = 5.316086969e-05
+       momentum balance: gradP * V = 5.316086969e-05 against the integrated wall shear
+       5.316086969e-05 -- disagreement 0.0000 % (registered ALARM LEVEL 5.0 %)
+  L3  gradP = 53590.2894333   Kint = 5.753679319e-08   tauwint = 5.359028944e-05
+       momentum balance: gradP * V = 5.359028943e-05 against the integrated wall shear
+       5.359028944e-05 -- disagreement 0.0000 % (registered ALARM LEVEL 5.0 %)
+
+[ROACHE TRIPLES]
+  PRIMARY  mean streamwise momentum source  [m/s2]
+      L1 = 52172.3179852   L2 = 53160.8696885   L3 = 53590.2894333
+      eps21 = 4.294197e+02   eps32 = 9.885517e+02   R = 0.434393   triple = CONVERGING
+      p = 1.202928  (band [1.0, 3.0])   f_ext = 53920.0887131   GCI_fine = 0.7693 %  (ceiling 5.0 %)
+      VERDICT: PASS
+  SECONDARY-A  volume-integrated k  [m5/s2]
+      L1 = 5.63182571058e-08   L2 = 5.71135402457e-08   L3 = 5.75367931852e-08
+      eps21 = 4.232529e-10   eps32 = 7.952831e-10   R = 0.532204   triple = CONVERGING
+      p = 0.909948  (band [0.5, 3.0])   f_ext = 5.80183214336e-08   GCI_fine = 1.0461 %  (ceiling 10.0 %)
+      VERDICT: PASS
+  SECONDARY-B  integrated streamwise wall shear  [m4/s2]
+      L1 = 5.21723179852e-05   L2 = 5.31608696885e-05   L3 = 5.35902894383e-05
+      eps21 = 4.294197e-07   eps32 = 9.885517e-07   R = 0.434393   triple = CONVERGING
+      p = 1.202928  (band [0.5, 3.0])   f_ext = 5.39200887287e-05   GCI_fine = 0.7693 %  (ceiling 10.0 %)
+      VERDICT: PASS
+
+[VERDICT]
+  RUNG VERDICT: PASS
+  The headline is the PRIMARY's. The secondaries carry their own verdicts and
+  never change it.
+  momentum-balance alarm: NOT FIRED at any level (registered level 5.0 %).
+  The measured disagreements above are the reading this rung owes a successor,
+  which may register a real threshold from them instead of from an argument.
+  INFRASTRUCTURE DEFECT carried into the record: L1 I1 checkMesh: log absent or not `Mesh OK`
+  INFRASTRUCTURE DEFECT carried into the record: L1 I5 libs: the solver could not load a library named in the shipped controlDict. The entry is kept, never deleted to tidy a case (standing rule 14); the loader warns and continues.
+  INFRASTRUCTURE DEFECT carried into the record: L2 I1 checkMesh: log absent or not `Mesh OK`
+  INFRASTRUCTURE DEFECT carried into the record: L2 I5 libs: the solver could not load a library named in the shipped controlDict. The entry is kept, never deleted to tidy a case (standing rule 14); the loader warns and continues.
+  INFRASTRUCTURE DEFECT carried into the record: L3 I1 checkMesh: log absent or not `Mesh OK`
+  INFRASTRUCTURE DEFECT carried into the record: L3 I5 libs: the solver could not load a library named in the shipped controlDict. The entry is kept, never deleted to tidy a case (standing rule 14); the loader warns and continues.
+
+[COST CALIBRATION -- owed at completion, standing rule 12]
+    L1 actual wall_s = 125 (ranks 1, so core-min = wall_s/60)
+    L2 actual wall_s = 642 (ranks 1, so core-min = wall_s/60)
+    L3 actual wall_s = 3270 (ranks 1, so core-min = wall_s/60)
+    The ratio actual/predicted, the attribution of the gap and the named waste
+    land as a row in docs/COST_CALIBRATION.md. A completion report without that
+    comparison is incomplete.
