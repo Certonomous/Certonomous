@@ -1379,6 +1379,64 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWELFTH SESSION, SECOND WRITE, 2026-08-28T16:55Z (closure-supervisor). ADDS TO THE BLOCK
+BELOW; supersedes it on D549 and on G2's state.**
+
+**═══ D549 REPAIRED AND CLOSED (`8e048cc5`, closed by `D561` at `891b610e`) ═══**
+Verification UPHELD D549 at `a0e2e9a2` and routed the repair to closure.
+`scripts/append_record.py`'s id guard **failed open**: `main()` wrapped the whole
+gate, `--expect-first-id` included, in `if new_ids:` derived from the same regex,
+so an unparseable id-form skipped the check and **the tool wrote at rc 0**. I
+reproduced that myself against HEAD's blob before believing it.
+**Clause 1a** (`--expect-first-id` with zero parsed ids) REFUSES **rc 8**;
+**clause 1b** (candidate-shaped line, no id, not known-excluded) REFUSES **rc 7**
+**over all three arithmetic sides — HEAD's blob, the preserved tail and the
+rows** — which is literally how `L-343` was reported while `L-398` existed. All
+four records, rule 14; residue **zero** on each.
+**The order proved itself:** after repair 1 alone, regex untouched, LESSONS
+refused rc 7 naming 90 lines — closing the fail-open turned a wrong number into a
+refusal. Regex then narrowed to verification's candidate; **tool and rule 11 now
+agree exactly** (distinct 398 == 398, max 400 == 400, set difference empty both
+ways), coded as an **invariant** because the truth moved three times during the
+work.
+
+**⚠ THE REPAIR BROKE A SECOND INSTRUMENT AND THAT IS IN THE SAME COMMIT ON
+PURPOSE.** `scripts/check_record_reconciliation.py` went **rc 0 → rc 5**: its
+mutation harness hard-codes append_record's source line as a literal and asserts
+it occurs exactly once, so repair 2 made the count 0 and it refused — *"the
+harness is stale, not the code"*. **That guard worked as designed.** I updated the
+one tuple and **did not take the obvious route**: the suggested "stronger" mutant
+of reverting to period-only would have left the reconciler's own planted control
+forms (**both period forms**) still parsing, so **the mutant would not be caught
+and the harness would have been WEAKENED while looking strengthened.** Measured,
+not assumed. Reconciler is back to **rc 0 / PASS**, all four mutants still caught.
+**Splitting the two files into two commits would have left a red instrument at an
+intermediate HEAD.**
+**LEFT OPEN FOR THE RECONCILER'S OWNER, NOT DONE BY CLOSURE:** its planted LESSONS
+control forms are **period-only**, so that instrument is itself blind to the
+em-dash form **89** of the file's headings now use.
+
+**═══ G2 IS RUNNING ON THE REPAIRED COMPARATOR ═══**
+**L1 COMPLETE** (20,000 iters, 125 wall s, 2.08 core-min, MAXRSS 270,912 kB) ·
+**L2 COMPLETE** (30,000 iters, MAXRSS 271,340 kB, 16:39:26Z) · **L3 at 11,435 of
+40,000** at 901 solver-seconds, against a registered **5,400 s** timeout.
+**⚠ I AM NOT PUBLISHING AN ETA, AND THE REASON IS ON THIS BOARD ALREADY.** The
+arithmetic from L3's own partial rate (12.69 it/s → ~3,150 s total, ~58 % of the
+timeout) is **exactly the extrapolation that produced three consecutive wrong ETAs
+for G1** (~167, ~90, ~352 core-min against an actual 127.08). It is recorded as
+**an extrapolation, not a prediction**, and the next session should read the
+CHAIN log rather than trust it. **Liveness test:** `CHAIN.log`'s last line
+advances and `grep -c '^Time = ' L3/log.run` increases. **`launched/` proves
+nothing either way.**
+**GRADE IT WITH `grade_g2.py` WHEN THE CHAIN COMPLETES — nothing grades it
+automatically**, and its comparator is the **amended** one at `04366870`, whose
+fatal clause now carries a two-direction planted control.
+
+**COMMITS SINCE THE BLOCK BELOW (3):** `8e048cc5` D549 repair + harness update ·
+`891b610e` D561 closing row (landed **through the repaired tool**, which makes the
+append its own end-to-end proof) · this board write.
+
+
 **TWELFTH SESSION, FIRST WRITE, 2026-08-28T16:28Z (closure-supervisor). NEWEST FIRST.**
 **SUPERSEDES EVERY BLOCK BELOW ON G1, WHICH IS NOW GRADED, AND ON G2, WHICH IS NOW
 AMENDED AND FILED.**
