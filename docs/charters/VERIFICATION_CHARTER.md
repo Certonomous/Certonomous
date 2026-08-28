@@ -3054,3 +3054,62 @@ that is relied upon.**
 classification needs re-reading. **K0f's true first compute is UNDECIDABLE.** **The
 three crash STATUS files are evidenced by mtime, a weaker class than a committed
 field.** **No amendment anywhere is declared illegal by this amendment.**
+
+## Amendment — v1.21, 2026-08-28 — **§2j: THE BIRTH REQUIREMENT.** Standing rule 3's question is now a PRECONDITION OF GRADING, not a property a comparator may acquire later — **canonized by Sanaa, 2026-08-28**
+
+Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`,
+proved by a byte-prefix check against the pre-amendment file: the first **184349** bytes
+of this file are byte-identical to the version before this section, whose sha256 begins
+`57ba9adb73053ccf` and which carried **3056** lines. The assertion is machine-checked in the
+commit that lands this amendment, not asserted in prose.
+
+### §2j — THE BIRTH REQUIREMENT OF EVERY READER AND COMPARATOR
+
+**Canonized on Sanaa's instruction, 2026-08-28, verbatim:**
+
+> Companion rule canonized: rule 3's question — "was this reader ever shown able to see a
+> non-zero through the real code path?" — is now the birth requirement for every
+> reader/comparator: no instrument grades anything until that answer is yes, demonstrated.
+
+**§2j.1 — WHAT CHANGES.** Standing rule 3 already required a planted control. It was read, in
+practice, as a property a comparator could be shown to have **when someone got round to
+checking** — often after it had already produced numbers. **§2j makes it a PRECONDITION.** An
+instrument that has not answered the question **does not grade**; anything it has already emitted
+is **`NOT A RESULT`** until the answer is demonstrated. **The burden sits on the instrument's
+author at birth, not on a later auditor.**
+
+**§2j.2 — "THROUGH THE REAL CODE PATH" IS THE OPERATIVE PHRASE, AND IT IS WHERE EVERY FAILURE
+THIS LAB HAS FOUND ACTUALLY LIVES.** The demonstration must use **bytes written by the real
+producer's code**, read by **the real reader**, in **the form reality delivers**. Per `L-402`:
+**ask who WROTE the bytes the control reads.** If the answer is *the control itself* or *the test
+harness* rather than the real producer, **the birth requirement is NOT met**, however green the
+selftest.
+
+**Three specimens, all found in this lab within one week, all of which pass a naive reading of
+rule 3 and fail §2j:**
+
+| instrument | its control | why it fails §2j |
+|---|---|---|
+| `grade_vmflgpu007.py` A4 | fixture shapes the reader matches | **no smoke has ever produced a real PETSc `-log_view` table**; exercised only on its absent-table path (`DEAD_LEVER_AUDIT` §5) |
+| `queue_runner.py` GPU clause | `--selftest` **injects** entries setting `gpu: exclusive` | **zero real entries set that field**, including both queued GPU cases (§8) |
+| `check_record_reconciliation.py` | plants period-form headings | **89 live headings use the em dash**; the D549 regression left the selftest at `rc 0` (`L-401`) |
+
+**§2j.3 — THE DEMONSTRATION IS AN ARTEFACT, NOT A CLAIM.** *"I tested it, it's fine"* from the
+author is evidence, never the demonstration (`SUPERVISION_CHARTER` §3). What satisfies §2j is a
+**driven control whose output is on disk or in the record**, naming the producer that wrote the
+bytes, and carrying **both limbs**: the reader **sees** the planted non-zero, **and** stays
+**silent** on the negative. **A control with only a positive limb is a detector that fires on
+everything.**
+
+**§2j.4 — WHAT §2j DOES NOT DO.** It is **NOT RETROACTIVE** (§2h.6's principle, applied here
+against this team's own interest): a comparator frozen and run before 2026-08-28 is **not
+retrospectively void** for want of a birth demonstration. It is **flagged as UNDEMONSTRATED**,
+and the honest disposition of anything resting on it is decided case by case — which is exactly
+the re-grade sweep Sanaa ordered the same day for dafoam's seven defective readers. **A rule that
+convicted every instrument written before it was announced would be the retroactivity this
+charter refused three times this week.**
+
+**§2j.5 — AND IT BINDS THIS TEAM FIRST.** The three specimens above include **two instruments in
+this team's own territory** and one this team **wrote and owns**. §2j is written by the team it
+most immediately indicts, and that is the reason it is admissible rather than a reason to soften
+it.

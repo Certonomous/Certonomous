@@ -17289,3 +17289,47 @@ dash.**
   controls are written against the population as it was when the author looked**
   — and a record format, unlike a physical apparatus, changes without anyone
   announcing it.
+
+## L-402 — [SANAA-DIRECT] A CONTROL DEFINED IN TERMS OF THE THING IT CONTROLS IS NOT A CONTROL
+
+**Assigned by Sanaa, 2026-08-28. Her words, verbatim, between the markers; the number was
+derived per rule 11 at append time (max was `L-401` at HEAD and in the worktree) and the append
+went through `scripts/append_record.py` with `--expect-first-id L-402`.**
+
+> **BEGIN SANAA'S TEXT**
+>
+> A control defined in terms of the thing it controls is not a control. A planted control must
+> travel the real production path — written by the real producer's code, read through the real
+> reader — and prove the instrument sees a non-zero the same way reality would deliver one. A
+> control that empties the tuple it tests, or writes a schema the producer never emits, tests
+> nothing and certifies blindness. Companion rule canonized: rule 3's question — "was this reader
+> ever shown able to see a non-zero through the real code path?" — is now the birth requirement
+> for every reader/comparator: no instrument grades anything until that answer is yes,
+> demonstrated.
+>
+> **END SANAA'S TEXT**
+
+**The companion rule is canonized separately as a dated `VERIFICATION_CHARTER` amendment under
+rule 6 — it is a standing requirement, not a lesson, and a rule that lives only in a lesson is a
+rule nobody is obliged to apply.**
+
+**Three of this lab's own instruments met this definition on the day it was written, which is why
+it was assigned:**
+
+- **`check_record_reconciliation.py`'s `LESSONS` controls planted only the period heading form**,
+  while 89 live headings used the em dash. Removing the em-dash half of the pattern — *the exact
+  pre-D549 defect* — left the selftest at `rc 0`. **The control was defined in terms of the shape
+  the author had in mind, not the shape the producer emits.** (`L-401`)
+- **`grade_vmflgpu007.py`'s A4 guard** parsed a PETSc column shape **no smoke had ever produced**,
+  so it refused on every possible run and emitted a confident physics claim about where the linear
+  algebra ran. **A reader exercised only on its absent-table path.** (`DEAD_LEVER_AUDIT` §5)
+- **`queue_runner.py`'s GPU-exclusivity clause** is exercised by a `--selftest` that **injects
+  entries setting the `gpu` trigger**, while **zero real entries lab-wide set it** — including
+  both queued GPU cases. **A selftest that supplies its own trigger tests the clause and not the
+  population.** (`DEAD_LEVER_AUDIT` §8)
+
+**The unifying test, stated so it can be applied without judgement: ask who WROTE the bytes the
+control reads.** If the answer is *the control itself*, or *the test harness*, rather than **the
+real producer's code**, then the control has demonstrated only that the reader can read what the
+reader's author imagined. **A plant proves the reader can see the shapes IN THE PLANT and nothing
+else** — and the shapes a plant omits are, by construction, the ones its author did not think of.
