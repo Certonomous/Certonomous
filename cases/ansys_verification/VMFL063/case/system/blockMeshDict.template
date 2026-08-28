@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL063 - Separated laminar flow over a blunt plate, VM2026R1 p.193.
+// Geometry EXACTLY as the manual: plate thickness 2t = 0.090 m (t = 0.045 m),
+// plate length 1.500 m, free stream 0.0517 m/s, rho = 1, mu = 1.7894e-5,
+// Re_2t = 260. HALF the domain is modelled, by symmetry about the plate
+// centreline y = 0; the plate top surface is therefore at y = t = 0.045 m.
+//
+// Domain (frozen in PREREGISTRATION.md sec.4, chosen a priori, never from a run):
+//   upstream   Lu = 0.900 m = 10 * 2t   ahead of the blunt leading-edge face
+//   downstream Ld = 1.500 m             = the manual's plate length; outlet at
+//                                         the plate end, 3.2 LR past reattachment
+//   far field  H  = 1.800 m = 20 * 2t   blockage t/H = 2.5 %, disclosed in the
+//                                         pre-registration error budget
+//
+// __NXU__ / __NXD__ / __NYL__ / __NYU__ substituted by run_vmfl063.sh per level.
+// The r = 2 family doubles ALL FOUR counts at every level, so the refinement is
+// systematic in both directions and the grading RATIOS are held fixed, which
+// halves every cell dimension including the first cell off the plate.
+scale 1;
+
+vertices
+(
+    (-0.900 0.000 -0.005)   //  0
+    ( 0.000 0.000 -0.005)   //  1
+    (-0.900 0.045 -0.005)   //  2
+    ( 0.000 0.045 -0.005)   //  3
+    ( 1.500 0.045 -0.005)   //  4
+    (-0.900 1.800 -0.005)   //  5
+    ( 0.000 1.800 -0.005)   //  6
+    ( 1.500 1.800 -0.005)   //  7
+
+    (-0.900 0.000  0.005)   //  8
+    ( 0.000 0.000  0.005)   //  9
+    (-0.900 0.045  0.005)   // 10
+    ( 0.000 0.045  0.005)   // 11
+    ( 1.500 0.045  0.005)   // 12
+    (-0.900 1.800  0.005)   // 13
+    ( 0.000 1.800  0.005)   // 14
+    ( 1.500 1.800  0.005)   // 15
+);
+
+blocks
+(
+    // A: upstream, BELOW plate-top level -- ahead of the blunt face.
+    //    x graded fine toward the blunt face (last/first = 0.1);
+    //    y graded fine toward the leading-edge corner (last/first = 0.2).
+    hex ( 0  1  3  2  8  9 11 10) (__NXU__ __NYL__ 1) simpleGrading (0.1 0.2 1)
+
+    // B: upstream, ABOVE plate-top level.
+    //    x as block A (shared internal face at y = 0.045 must match);
+    //    y graded fine at the bottom (last/first = 160).
+    hex ( 2  3  6  5 10 11 14 13) (__NXU__ __NYU__ 1) simpleGrading (0.1 160 1)
+
+    // C: downstream, above the plate. THE GRADED REGION.
+    //    x graded fine at the leading edge (last/first = 20);
+    //    y as block B (shared internal face at x = 0 must match).
+    hex ( 3  4  7  6 11 12 15 14) (__NXD__ __NYU__ 1) simpleGrading (20 160 1)
+);
+
+boundary
+(
+    inlet      { type patch;         faces ( ( 0  2 10  8) ( 2  5 13 10) ); }
+    outlet     { type patch;         faces ( ( 4  7 15 12) ); }
+    // plate centreline, y = 0, x in [-0.9, 0] -- the symmetry that halves the domain
+    centreline { type symmetryPlane; faces ( ( 0  1  9  8) ); }
+    // blunt leading-edge face, x = 0, y in [0, 0.045]
+    plateFace  { type wall;          faces ( ( 1  3 11  9) ); }
+    // THE WALL THE REATTACHMENT LENGTH IS MEASURED ALONG: y = 0.045, x in [0, 1.5]
+    plateTop   { type wall;          faces ( ( 3  4 12 11) ); }
+    // free stream, y = 1.8
+    farfield   { type symmetryPlane; faces ( ( 5  6 14 13) ( 6  7 15 14) ); }
+    frontAndBack { type empty; faces
+        ( ( 0  1  3  2) ( 2  3  6  5) ( 3  4  7  6)
+          ( 8 10 11  9) (10 13 14 11) (11 14 15 12) ); }
+);

@@ -1,0 +1,16 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// VMFL063: uniform free-stream 0.0517 m/s (VM2026R1 p.193). Plate half-thickness
+// t = 0.045 m (2t = 0.090 m), plate length 1.5 m, Re_2t = 260.
+// Half the domain is modelled by symmetry about the plate centreline y = 0.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (0.0517 0 0);
+boundaryField
+{
+    inlet        { type fixedValue; value uniform (0.0517 0 0); }
+    outlet       { type zeroGradient; }
+    centreline   { type symmetryPlane; }
+    plateFace    { type noSlip; }
+    plateTop     { type noSlip; }
+    farfield     { type symmetryPlane; }
+    frontAndBack { type empty; }
+}
