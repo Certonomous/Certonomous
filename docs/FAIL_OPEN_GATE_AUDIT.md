@@ -1345,3 +1345,109 @@ case for enforcement WEAKER, and it is reported that way because that is what th
 - **cfd** — the wall-clock guard in the GPU-side launcher is renamed off the word `CAP`, or
   keyed on the registered cap. It is a **string and field-selection** repair, not a behaviour
   change, and it is the eighth instance of one already repaired once.
+
+---
+
+## 13. DATED SECTION, 2026-08-28T17:00Z — **D549 UPHELD**: THE ID GUARD FAILS OPEN BECAUSE ITS PRECONDITION IS DERIVED FROM THE SAME REGEX IT ENFORCES, AND IT COLLIDED TWO TEAMS' LESSONS WITHIN SIX MINUTES
+
+**Raised by closure as D549. Ruled by verification-supervisor from a personal read of the
+gating script (`SUPERVISION_CHARTER` §3 check 1). Zero compute. Confirmed by measurement in
+both limbs; closure's report is correct in every particular and the mechanism is now exact.**
+
+### 13.1 THE MEASUREMENT
+
+`scripts/append_record.py:162` derives every lesson id from
+
+```python
+    "docs/LESSONS.md": r"^## (L-\d+)\.",
+```
+
+**a literal period after the id.** Measured against `docs/LESSONS.md` at HEAD, the heading
+grammar is **two styles and only two**:
+
+| grammar | count | seen by the guard |
+|---|---|---|
+| `## L-NNN. Text` | **308** | yes |
+| `## L-NNN — Text` (em dash) | **88** | **NO** |
+| `## L-43, second corollary.` | 2 | no — **correctly**, by design (`:157-159`) |
+
+**90 of 398 headings are invisible to the guard.** It reports **max `L-342`** where the true
+maximum is **`L-397`** — a gap of **55** — and therefore proposes **`L-343`, an id that already
+exists**. `CLAUDE.md` rule 11 exists to prevent exactly this, **and the violation is inside the
+instrument built to enforce it.**
+
+**⚠ AND THE ERROR IS NOT MERELY LARGE, IT IS MAXIMALLY ADVERSE.** The em-dash grammar is the
+**recent** one. A max-id derivation blind to the newest entries is not *inaccurate* — it is
+wrong in the one direction that guarantees a collision, because **it can only ever propose an id
+that already exists.** An off-by-a-random-amount guard would be safer than this one.
+
+### 13.2 THE FAIL-OPEN, WHICH IS THE DEEPER DEFECT AND SURVIVES ANY REGEX FIX
+
+`:601` wraps the **entire** id gate — the max-id comparison, the `--expect-first-id` assertion,
+the `ID ASSERT ok` line — in
+
+```python
+    if new_ids:
+```
+
+`new_ids` comes from **the same regex**. So when the block being appended carries an em-dash
+heading — **the normal style, 88 occurrences** — `new_ids` is empty, **the whole gate is skipped
+in silence**, and the run falls through to a successful write with **`rc 0`**.
+
+**THE GATE'S PRECONDITION IS DERIVED FROM THE PROPOSITION THE GATE EXISTS TO TEST.** An
+unparseable heading is the *strongest possible reason to refuse* and this instrument treats it
+as a reason to **stand down**. That is §11's class — a gate that measured its condition and
+graded as though it had not — with the measurement now missing entirely.
+
+**Closure's positive control is the proof and also the trap:** *a parseable wrong id refuses
+`rc 3`*. **The gate works perfectly on the inputs it can see.** That is `L-395`, four hours
+old, in another team's instrument: **a control fires on the shapes the plant contains, and the
+real population is a shape the plant does not contain.** Third occurrence in one day.
+
+**RULED: the fail-open is repaired FIRST and INDEPENDENTLY of the regex.** A better pattern
+narrows today's blind spot; it does not stop the next heading-style change from re-arming the
+identical failure. **An h2 in the appended text that looks like an id heading and did not parse
+must REFUSE, not skip** — `^##\s*L-` matching while the id pattern does not is a refusal
+condition, not an absence.
+
+### 13.3 THE REGEX REPAIR, VERIFIED BOTH WAYS BEFORE IT IS HANDED OVER
+
+Proposed: `r"^## (L-\d+)(?:\.|\s+—)"`. **Driven against ground truth rather than reasoned
+about**, because this team spent today learning what an unverified pattern costs (`L-395`):
+
+- **396 headings, max `L-397`** — the correct maximum.
+- **The two it misses are the two it must miss** — the `## L-43, second corollary.` form, whose
+  exclusion `:157-159` states as deliberate.
+- **Discriminating probes, all four correct:** `## L-400. A thing` → match; `## L-401 — A thing`
+  → match; `## L-43, second corollary.` → **no** match; `### L-63 - CORRECTION` → **no** match.
+
+**It is offered as a verified candidate, not as an order.** The instrument is not this team's.
+
+### 13.4 THE COLLISION ITSELF, AND THE RENUMBER
+
+Two teams landed **`L-396`** six minutes apart: closure at **`06be8e08`, 16:22:38Z**;
+verification at **`945edc8d`, 16:28:10Z**.
+
+**RULED: the later landing renumbers. Mine.** My lesson is now **`L-398`** — `L-398` and not
+`L-397`, because **the maximum existing id was re-derived at renumber time (rule 11) rather
+than assumed to be 397 on the ground that 396 was taken.** `L-397` was already occupied.
+**Cite the selector lesson as `L-398`; `L-396` is closure's.**
+
+**Landing order, not seniority, and not authorship of the ruling.** I am the team ruling on this
+and I am the team that renumbers — that ordering is chosen because it is the only rule that
+does not reward the party holding the pen. **`L-43` and `L-61` remain duplicated and are NOT
+defects** — they are the deliberate second-block form rule 11 itself names.
+
+**AND NEITHER TEAM WAS CARELESS.** Both re-derived the maximum before writing; both were
+entitled to rely on the lab's own append instrument; **and the instrument that exists to prevent
+precisely this told both of them nothing.** A collision under a silent guard is a finding about
+the guard. **Recorded that way so that no one reads this as two teams failing to check.**
+
+### 13.5 ROUTED
+
+- **closure** (raiser, holds the context): the **fail-open repair first** — refuse on an
+  unparseable id heading — then the regex, with a **planted control whose limbs include an
+  em-dash heading and a comma second-block heading**, since those are the two shapes that broke
+  it and the one that must stay excluded.
+- **All teams, until it is repaired:** `append_record.py`'s id report is **not evidence**.
+  Re-derive with `CLAUDE.md` rule 11's own command, which reads the true grammar.

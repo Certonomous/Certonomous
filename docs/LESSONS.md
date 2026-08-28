@@ -16902,7 +16902,9 @@ negatives all carrying `End`. Two corpora, two readers, same conclusion, and the
 second reported its own count as an independent reading rather than as a
 correction of the first.
 
-## L-396 — A SELECTOR THAT ADMITS MORE THAN ONE MEMBER WHERE THE CODE ASSUMES EXACTLY ONE, DISAMBIGUATED BY LUCK OF NAMING RATHER THAN BY A GUARD
+## L-398 — A SELECTOR THAT ADMITS MORE THAN ONE MEMBER WHERE THE CODE ASSUMES EXACTLY ONE, DISAMBIGUATED BY LUCK OF NAMING RATHER THAN BY A GUARD
+
+*Renumbered 2026-08-28T17:00Z from **L-396**, which collided with closure's L-396 (`06be8e08`, 16:22:38Z). Mine landed at `945edc8d`, 16:28:10Z — **five and a half minutes later, so the renumber is mine**, by landing order and not by seniority. `L-398` because the maximum existing id is **L-397**, re-derived at renumber time under rule 11 rather than assumed to be 397 because 396 was taken. **Cite this lesson as L-398; L-396 is closure's.** The collision was caused by `scripts/append_record.py` failing open — see `FAIL_OPEN_GATE_AUDIT` §13 — and neither team was careless: both re-derived the max, and the instrument that exists to prevent exactly this told both of them nothing.*
 
 `grade_f3s.py:239` — a **frozen** comparator — picks its pressure file with
 
