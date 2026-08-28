@@ -516,8 +516,8 @@ def render(result: dict, rev: str, worktree_file: Path) -> None:
 MUTANTS = [
     ("LESSONS: the literal period dropped, so `## L-9001.` stops matching",
      "append_record.py",
-     '    "docs/LESSONS.md": r"^## (L-\\d+)\\.",',
-     '    "docs/LESSONS.md": r"^## (L-\\d+)!",'),
+     '    "docs/LESSONS.md": r"^## (L-\\d+)(?:\\.|\\s+\\u2014)",',
+     '    "docs/LESSONS.md": r"^## (L-\\d+)(?:!|\\s+\\u2014)",'),
     ("NUMERICS: the bold entry form dropped, so half the file goes unseen",
      "append_record.py",
      '    "docs/NUMERICS_KNOWLEDGE.md": r"^(?:\\*\\*|## )(N-[A-Z]+\\d+)\\.",',
