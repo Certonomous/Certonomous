@@ -1221,3 +1221,216 @@ That question is now answerable for the first time. It is not answered here.
 - **Every count in §12 is a dated snapshot of a live corpus**, re-derivable with the §12.1
   command. It is not a constant and a later re-measurement disagreeing with it is not a defect in
   either.
+
+---
+
+## 13. A WEDGE-ANGLE GUARD MAY NOT GATE A QUANTITY DERIVED FROM `wedgePolyPatch`'s SUMMED NORMAL AGAINST A FIXED ABSOLUTE TOLERANCE (v1.8, 2026-08-28)
+
+**Appended at the foot, append-only. Nothing above is edited, struck, widened or narrowed.
+`lines whose number changed above this section: 0` — MEASURED, not recited: the md5 of
+this document's HEAD blob before the append and the md5 of the first 1,223 lines of this
+document after it are both printed in the amendment record below, and the append refused
+to proceed unless they were equal.** The header still reads `Version 1.2` and the
+authoritative version is the **highest section version**, now **v1.8**, by the convention
+this file records at its §11 and §12; the header is deliberately not edited, because
+editing it would change a line number above this section and falsify the assertion.
+
+**THIS SECTION GATES NOTHING UNTIL THE VERIFICATION TEAM HAS READ ITS DIFF PERSONALLY.**
+It is drafted by cfd; it is not in force on any case until that read.
+
+Content adapted from the cfd draft committed at
+`verification/campaign/CFD_MESH_STANDARD_WEDGE_ANGLE_CLAUSE_DRAFT_2026-08-28.md`
+(`d606bbd2`, 153 lines).
+
+### 13.1 The occasion, measured
+
+`F23_HP_WEDGE` graded **`NOT A RESULT`**. Its fine level never reached the solver because
+the case's builder (`cases/F23_HP_WEDGE/build_f23.py:129`) refused the built mesh on a
+**fixed absolute `1e-6` degree** tolerance between `checkMesh`'s printed wedge angle and
+the registered half angle of 0.04°:
+
+| level | wedge faces per patch | printed angle | deviation | vs the `1e-6` gate | `checkMesh`'s own verdict |
+|---|---|---|---|---|---|
+| coarse | 131,072 | 0.0400002766821 | 2.766821e−07 | 0.28× | **`Mesh OK.`** |
+| medium | 524,288 | 0.0400007984975 | 7.984975e−07 | **0.80×** | **`Mesh OK.`** |
+| fine | 2,097,152 | 0.0400027202903 | 2.720290e−06 | **2.72× — REFUSED** | **`Mesh OK.`** |
+
+**OpenFOAM's own checker passed all three meshes, fine included.** The guard refused a
+mesh that is correct. Medium already sat at **80 % of its tolerance budget**, so the
+ladder was one refinement level from refusal at registration time and nothing computed it.
+
+### 13.2 Why — the printed angle carries a floor that grows with the mesh
+
+`wedgePolyPatch` stores `cosAngle_ = centreNormal_ & n_`, where `n_` is the **arithmetic
+mean of that patch's unit face normals and is never renormalised**, and `checkMesh` prints
+`acos` of it. Summing N nearly-identical unit vectors accumulates floating-point rounding,
+so `|n̄|` lands **below 1**; and because `d(acos)/dc = −1/sin(a)`, that deficit is amplified
+by 1/sin(0.04°) = 1432 on its way to an angle:
+
+    printed deviation  ≈  ( 1 − |n̄| ) / sin(a)        [radians]
+
+Verified three ways, one of them a control that changes nothing else:
+
+1. **Reproduction.** An independent reimplementation of OpenFOAM's face-area-vector
+   construction, the unnormalised mean and the snapped `centreNormal_`, run from
+   `constant/polyMesh` alone, reproduced the printed value **to its last printed digit at
+   all three levels**.
+2. **The `math.fsum` control.** Replacing only the summation with exact accumulation —
+   **same points, same faces, same geometry, nothing else touched** — drives `1 − |n̄|` from
+   **3.371303e−12 / 9.729550e−12 / 3.314704e−11** to **exactly 0.0** at all three levels,
+   and the printed angle to **0.03999999999967**. The deviation is arithmetic, not geometry.
+3. **The prediction closes.** `(1 − |n̄|)/sin(a)` gives **2.766834e−07 / 7.985058e−07 /
+   2.720383e−06** against the printed **2.766821e−07 / 7.984975e−07 / 2.720290e−06**.
+
+**The growth law.** `1 − |n̄|` is bounded by `N·ε` for sequential summation
+(ε = 2.220446049250313e−16); measured, `(1 − |n̄|)/(N·ε)` is **0.1158 / 0.0836 / 0.0712** —
+a falling fraction of that bound. **The floor grows approximately linearly in the
+wedge-patch face count and inversely with sin(a). A fixed absolute tolerance is crossed at
+some level of any ladder; only the level is in question.** Because the occupancy FALLS with
+N, `Δa ∝ N` is an **upper bound, not a fit**, and is fit only for screening meshes that do
+not yet exist.
+
+**The intuitive hypothesis is EXCLUDED by measurement, not by argument.** Catastrophic
+cancellation in the cells near the axis is **false here**: across the coarse level's
+131,072 wedge faces there are **3 distinct `n_z` values and 10 distinct `n_x` values**,
+`Var(n_z) = 8.45e−32`, and binned by radius decile the per-face deviation is **flat** —
+the innermost faces' normals are bit-identical to the outermost. **A standard that sent a
+lane to look near the axis would send it to the wrong place.**
+
+### 13.3 THE DISCRIMINATOR — this is the test, and it is not a proxy
+
+> ### does the compared quantity ever touch `wedgePolyPatch`'s summed normal?
+
+**If YES, a fixed absolute tolerance is unsafe and §13.4 applies. If NO, the site is
+CLEARED regardless of how tight its tolerance is.**
+
+**Do NOT substitute a proxy, and in particular do not substitute "is the tolerance
+tight".** Tightness is precisely the property that mis-flags a sound instrument — see
+§13.5, where the tightest wedge-angle tolerance in the lab, **1e-15**, is **correct**.
+Nor is "does the case run `checkMesh`?" a usable proxy: §13.5's cleared case runs both
+`blockMesh` and `checkMesh`, refuses without `Mesh OK`, and consumes checkMesh's volume
+numbers elsewhere — and is still cleared, because **the compared quantity** does not come
+from there. **The discriminator is about the provenance of the compared quantity, and
+answering it requires tracing that provenance to its producer.**
+
+### 13.4 THE CLAUSE
+
+**A mesh guard MUST NOT gate `checkMesh`'s printed wedge angle — or any quantity derived
+from `wedgePolyPatch::cosAngle_` — against a tolerance that is fixed and absolute.** A
+guard on wedge geometry takes one of two forms, and a case that gates a wedge angle must
+state in its pre-registration which it took:
+
+**(a) READ THE GEOMETRY DIRECTLY — preferred, and the sharp form.** Compute the angle for
+**every face of every wedge patch** from `constant/polyMesh`, in a form that never
+evaluates `acos` near 1 — `degrees(atan2(hypot(n_x, n_y), |n_z|))` against the
+componentwise-snapped cardinal normal — and gate the **relative** deviation
+`max |angle/HALF_ANGLE − 1|`. Measured over the three meshes above this is
+**1.895413e−10 / 2.449031e−10 / 7.569059e−10**, ten orders below any physically meaningful
+mis-build, growing only as an extreme value over more faces.
+
+**(b) IF THE PRINTED ANGLE IS GATED AT ALL, the tolerance MUST carry the summation floor
+explicitly**, as a term in the mesh's own face count:
+
+    TOL(level) [deg] = HALF_ANGLE x TOL_REL(level)
+                     + K x N_wedge_faces(level) x EPS_MACH / sin(HALF_ANGLE) x 180/pi
+
+`N` is the face count of **ONE** wedge patch — `wedgePolyPatch` means per patch and
+`checkMesh` prints per patch — with `K ≥ 1` frozen at registration (`K = 1` is the
+worst-case sequential-summation bound, 8.6–14× above what was measured). Applied to the
+ladder above this gives **2.874681e−06 / 9.674350e−06 / 3.824547e−05 deg** and occupancies
+**0.096 / 0.083 / 0.071 — falling with refinement, where the fixed absolute tolerance's
+occupancy rose 0.28 / 0.80 / 2.72.**
+
+**In either form the relative tolerance MUST be derived per level, not inherited**, by
+this standard's existing L-346 discipline: tie it to a fraction of **that level's own
+predicted discretisation error**, with a registered absolute floor so it cannot fall below
+what floating point can deliver.
+
+**AND IT MUST STILL REFUSE A MIS-BUILT WEDGE — SHOWN, NOT ASSERTED.** Any guard landed
+under this clause ships a **two-direction** control (standing rule 3, and L-396's mirror),
+**driven through the real producer** — a plant authored as a perturbed half angle in
+`blockMeshDict` and meshed by the real `blockMesh`, not injected downstream of it: one
+plant it MUST refuse, and a real correct mesh at the ladder's FINEST level it MUST NOT.
+**A guard relaxed after a refusal, with no control showing it can still refuse, is a rubber
+stamp and this clause does not authorise one.**
+
+### 13.5 THE WORKED NEGATIVE — `analyse_t17.py:344` is CLEARED, and its tolerance is 1e-15
+
+**A rule that only ever fires is not a rule.** The clause is therefore shipped with the
+case it must NOT flag, traced end to end in this invocation.
+
+`verification/runs/T-family/T17_runs/analyse_t17.py:344` reads:
+
+    if abs(float(m["wedge_deg"]) - reg["physics"]["wedge_deg"]) > 1e-15:
+        refuse("level %s wedge angle %s is not the registered %g" % ...)
+
+**The refusal string is the same shape as F23's and the tolerance is 1e-15 — the tightest
+wedge-angle tolerance in the lab, 1e9 times tighter than the one that failed. It is
+CORRECT.** Provenance of the compared quantity, traced to its producer:
+
+| step | artifact | what happens |
+|---|---|---|
+| 1 | `build_t17.py:60` | `WEDGE_DEG = 1.0` — a **module constant** |
+| 2 | `build_t17.py:201,205` | writes `wedge_deg=%.17g` from that constant into the case's `CASE.txt` |
+| 3 | `analyse_t17.py:70-72` | reads that `CASE.txt` |
+| 4 | `analyse_t17.py:344` | compares the parsed value with `reg["physics"]["wedge_deg"]` |
+
+**Apply the discriminator: does the compared quantity ever touch `wedgePolyPatch`'s summed
+normal? NO.** `blockMesh` is not in that chain, `checkMesh` is not in that chain, and no
+mesh reading of any kind enters it. **The proposition the instrument actually evaluates is
+"does the registered value survive a `%.17g` round-trip?" — register against register —
+not "is the mesh built correctly?"** `%.17g` is round-trip-exact for IEEE-754 double, so
+the difference is identically zero; **measured in this invocation on five values including
+hostile ones (1.0, 0.04, 1/3, 5.0, 0.0024937655860349127): every difference is exactly
+`0.0`.** A `1e-15` tolerance is not merely adequate there, it is roughly `1e15` times
+looser than the quantity requires. **CLEARED.**
+
+**And note what would have mis-flagged it.** T17 **does** mesh: `build_t17.py:216` runs
+`blockMesh`, `:229` refuses without `Mesh OK`, and `:104` checks analytic volumes against
+*"checkMesh's own three numbers"*. So a screen keyed on *"uses a wedge"*, *"runs
+checkMesh"*, *"gates a wedge angle"* or *"has a tight tolerance"* flags T17 and is **wrong
+about the tree**. Only the provenance question clears it. **That is why §13.3 is phrased as
+it is and why no proxy for it is admitted.**
+
+### 13.6 The population and the result
+
+Swept by the verification team at `83cb13da` over **1,084 `checkMesh` logs across 7
+campaigns**, of which **206 carry a printed wedge angle**. Margins were taken as
+`(printed − nominal)` **straight from each log**, so they are **measured, not predicted**,
+and the face count `N` does not enter them.
+
+- **EXPOSED: 1 site lab-wide — `cases/F23_HP_WEDGE/build_f23.py:129`**, a literal `1e-6`,
+  N-independent, **REALISED** (it has already fired, on F23's fine level).
+- **Relative-form sites: ZERO.**
+- The verification team **back-solved the constant `1e-6` from the three anchors above
+  BEFORE looking for it**, then found it at that line — an independently derived constant
+  landing on the literal.
+
+`F23_HP_WEDGE`'s successor `F23b_HP_WEDGE` is registered under form (a) with form (b) as a
+cross-check (`verification/campaign/F23b_HP_WEDGE_PREREGISTRATION.md` §4.3, frozen at
+`57d31dde`, Amendment 1 at `440aca3d`).
+
+### 13.7 What this section does NOT do
+
+- It **sets no threshold**. `TOL_REL`, `K` and the absolute floor are registered per case,
+  at that case's freeze, from that case's own predicted error.
+- It **amends no existing gate**: §3's non-orthogonality 70°, skewness 4 and aspect-ratio
+  advisory 1000 are untouched, as are §7, §8, §9, §10, §11 and §12. It retires nothing.
+- It **makes no claim about other OpenFOAM versions.** Every reading is `OPENFOAM=2606`,
+  build `_481094f-20260618`, on this box.
+- It is **not an upstream defect report and not a defect claim against OpenFOAM.**
+  `checkMesh` printed `Mesh OK.` and was right to; the printed angle is a diagnostic and
+  the lab gated it as if it were a measurement. **The defect was ours.** Nothing is sent,
+  filed, uploaded, posted or submitted (standing rule 7).
+
+| amendment record | **v1.8** |
+|---|---|
+| clauses added | 1 (§13) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** |
+| worked negative examples shipped | **1** (`analyse_t17.py:344`, CLEARED) |
+| exposed sites in the swept population | **1** of 206 angle-carrying logs (1,084 swept) |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `6eaf23d2304fbd52e79c7356dcf94dd9` |
+| md5 of this file's first 1,223 lines after the append | `6eaf23d2304fbd52e79c7356dcf94dd9` |
+| the two digests | `**EQUAL — assertion MEASURED**` |

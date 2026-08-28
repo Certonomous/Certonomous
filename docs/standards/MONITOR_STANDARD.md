@@ -1877,3 +1877,180 @@ outcome must be **on the record before the gate fires.**
 **The last row is the one that will be skipped.** Two gates that agree on every case
 anyone tries are indistinguishable from one gate; **only the disagreeing case shows
 which is in force.**
+
+---
+
+## Amendment (2026-08-28) — THE INSTRUMENT THAT ANSWERS A DIFFERENT QUESTION, AND WHOSE WRONG ANSWER IS THE WELL-FORMED ONE: **NAME THE PROPOSITION, THEN COMPARE IT WORD BY WORD**
+
+**Appended at the foot, append-only. Nothing above is edited, struck, widened or narrowed.
+`lines whose number changed above this section: 0` — MEASURED, not recited: the md5 of this
+document's HEAD blob before the append and the md5 of its first 1,879 lines after it are
+both printed in the amendment record below, and the append refused to proceed unless they
+were equal.** The header still reads `Version 1.12`; the authoritative version is **v1.13**
+and the header is deliberately not edited, because editing line 3 would change a line
+number above this section and falsify the assertion.
+
+**THIS AMENDMENT GATES NOTHING UNTIL THE VERIFICATION TEAM HAS READ ITS DIFF PERSONALLY.**
+Drafted by cfd; not in force until that read.
+
+### 1. THE CLASS, AND WHY IT IS A CLASS
+
+> **An instrument that answers a different question than the one asked, and whose WRONG
+> answer is the well-formed one.**
+
+The failure has no crash, no traceback, no empty output and no anomaly. It returns a value
+of the right type, in the right range, in the right format. **Nothing about the answer
+says it is the answer to another question.** That is what defeats review: a reader checking
+for malformed output finds none.
+
+**Not new as individual lessons** — it is **L-394** for hosts, **L-395** for controls,
+**L-401** for declared blindness, and **L-402 / VERIFICATION_CHARTER §2j** for the general
+case, and this amendment restates none of them. **What is new is the census.** One
+supervisor hit **eight distinct members in a single day**, on this box. Eight independent
+instruments failing the same way in one working day is not a curiosity; **it makes this the
+lab's dominant failure mode**, and a dominant failure mode earns a standing test.
+
+### 2. THE TEST — this is the whole clause
+
+> ## NAME THE PROPOSITION THE INSTRUMENT ACTUALLY EVALUATES, THEN COMPARE IT WORD BY WORD WITH THE ONE YOU MEANT.
+
+Write both propositions down as sentences. Not "is this tool reliable?" — that question has
+no answer. **"What sentence is this command's return value the truth-value of?"** has
+exactly one, and reading the two sentences side by side is what exposes the gap. **Any
+instrument whose reading decides a verdict, a cost, a completion or an absence claim carries
+both sentences in the record beside the reading.**
+
+### 3. THE EIGHT MEMBERS — command, proposition MEANT, proposition EVALUATED, wrong answer
+
+All measured on this box on 2026-08-28. **The provenance column is honest about which this
+lane re-measured and which are reported:** five of eight were re-driven here; two are the
+raising supervisor's, not re-measured; one is the verification team's own and is cited as
+theirs.
+
+| # | instrument | proposition **MEANT** | proposition **EVALUATED** | the wrong answer | provenance |
+|---|---|---|---|---|---|
+| **1** | `grep -h '^Time = ' <case>/log.* \| tail -1` | *what iteration is the solver on?* | *what did the last worker thread to finish happen to print?* | **`Time = 0`** for a solver at **`Time = 4000`** — `log.writeCellCentres` sorts last and its only `Time =` line is a zero. **`-J1` and `--sort` make it deterministic AND STILL WRONG**, which is the worse pole | **RE-MEASURED HERE** on `verification/runs/F23_HP_WEDGE_runs/coarse` |
+| **2** | `find … \| head -5`, with the count `541` printed beside it | *does this file exist?* | *is it in the first five results?* | a **universal negative** asserted (`wallShearStress_plate.raw` "does not exist anywhere in the repo") while the disconfirming count was on screen; it exists at **19 paths** | reported by the raising supervisor; **not re-measured here** |
+| **3** | `grep -m1 -oE 'v1\.[0-9]+'` on `MESH_STANDARD.md` | *what version is this document?* | *what is the first version-shaped token in the byte stream?* | **`v1.5`** against a true **`v1.7`** — and the token it grabs is at line 11, where it refers to **the Verification Charter, a different document entirely** | **RE-MEASURED HERE** on the HEAD blob |
+| **4** | a flat `<run>/<level>/` layout assumption over F26D, which nests at `<arm>/<level>/case/` | *are the endTime fields present?* | *are they at the path I guessed?* | **twelve runs' fields read as ABSENT** | reported by the raising supervisor; **not re-measured here** |
+| **5** | `git ls-files -- <path>` as a tracked-check | *is this path tracked?* | *does the shared INDEX hold an entry for it?* | **empty output — "untracked"** for two files that **are at HEAD**; the index stages exactly those as deleted | **RE-MEASURED HERE** on this lane's own two files |
+| **6** | `git diff HEAD --numstat -- <path>` — **the instrument that had just been recommended to two other supervisors as the trustworthy one** | *how does the worktree differ from HEAD?* | *how do the INDEX's tracked paths differ from HEAD?* | once the index drops a path the worktree copy is UNTRACKED and **`git diff` skips untracked files entirely**, so the file is reported **WHOLLY DELETED**: `0 1197` and `0 153` on two files whose blobs are **byte-identical to HEAD**. Verification measured the scale: **308 staged deletions, 293 of them byte-identical to HEAD on disk** — 293 present, unchanged files reported deleted, **stably** rather than intermittently | **RE-MEASURED HERE**, see §4 |
+| **7** | `cmd \| tail; echo $?` | *did the check pass?* | *did `tail` succeed?* | `check_record_reconciliation.py` published as **rc 0 / PASS** when it is **rc 4** with COST_CALIBRATION reading FAIL. Re-driven here: a command exiting **4** through a pipe reports **`$? = 0`**; with `set -o pipefail` it reports **4** | **RE-MEASURED HERE** |
+| **8** | a code matcher keyed on `Wedge .* with angle` | *which sites are exposed?* | *does my pattern match the case I already knew about?* | returned exactly **ONE** file — the right answer for the wrong reason; broadening surfaced **NINE** candidates. **"A sweep returning 1 on its own positive control is not thereby correct; it is unfalsified."** | **THE VERIFICATION TEAM'S OWN**, cited as theirs; not re-measured here |
+
+**Members 5 and 6 are one hazard with two faces, and it is live right now**: the shared
+index differs from HEAD on **336 paths — 301 whole-file deletions and 35 modifications**,
+measured in this invocation. Every git instrument that consults the index inherits it.
+
+### 4. THE ONLY INDEX-IMMUNE GIT COMPARISON, NAMED
+
+    git rev-parse HEAD:<path>      # content hash on HEAD's side
+    git hash-object <path>         # content hash on the disk's side
+    # equal  <=>  the file on disk is byte-identical to HEAD.  The index is not consulted.
+
+And to **read** a tracked file, `git show HEAD:<path>` — **never `git show :<path>`**, which
+reads the index and can silently return a document two versions old (it currently returns
+`MESH_STANDARD.md` at a 635-line v1.5 against HEAD's 1,223-line v1.7).
+
+**Measured here, on this lane's own two files, at one instant:**
+
+| instrument | `F23b_HP_WEDGE_PREREGISTRATION.md` | `CFD_MESH_STANDARD_WEDGE_ANGLE_CLAUSE_DRAFT_2026-08-28.md` |
+|---|---|---|
+| `git ls-files` | *(empty — "untracked")* | *(empty — "untracked")* |
+| `git diff HEAD --numstat` | `0  1197` — **"wholly deleted"** | `0  153` — **"wholly deleted"** |
+| `git rev-parse HEAD:<path>` | `f51943790a9af2ce…` | `84240decc8b6354e…` |
+| `git hash-object <path>` | `f51943790a9af2ce…` | `84240decc8b6354e…` |
+| **truth** | **byte-identical to HEAD** | **byte-identical to HEAD** |
+
+Two instruments call the same files untracked and wholly deleted; the index-immune pair
+calls them identical to HEAD. **The index-immune pair is right.**
+
+**THE PRIVATE-INDEX PROTOCOL IS UNAFFECTED, and this must be said so the finding is not
+over-read into a git-wide panic.** That protocol compares **HEAD's tree** to a **tree the
+committer builds in its own `GIT_INDEX_FILE`** and never consults the shared index at any
+step. That is why ten commits landed clean on this box today while the shared index was in
+this state.
+
+### 5. THE NEGATIVE LIMB — REQUIRED, because a rule that only fires is not a rule
+
+**Two instruments that PASS the test are shipped inside this clause. Eight fires against
+two clears; without the clears the clause degenerates into "distrust every instrument",
+which is not actionable and is not true.**
+
+**CLEAR 1 — `verification/runs/T-family/T17_runs/analyse_t17.py:344`, and its tolerance is
+`1e-15`, the tightest wedge-angle tolerance in the lab.**
+
+    if abs(float(m["wedge_deg"]) - reg["physics"]["wedge_deg"]) > 1e-15: refuse(...)
+
+- **MEANT:** *does the registered wedge angle survive being written to the case record and
+  read back?*
+- **EVALUATED:** *does the registered value survive a `%.17g` round-trip?*
+- **They MATCH.** Provenance traced to the producer in this invocation:
+  `build_t17.py:60` holds `WEDGE_DEG = 1.0` as a **module constant**; `:201,205` write it
+  as `%.17g` into `CASE.txt`; `analyse_t17.py:70-72` read that file; `:344` compares the
+  parsed value with the registration. **Register against register. No mesh reading enters
+  the compared quantity at any step.** `%.17g` is round-trip-exact for IEEE-754 double —
+  **measured here on five values including hostile ones (1.0, 0.04, 1/3, 5.0,
+  0.0024937655860349127): every difference exactly `0.0`** — so `1e-15` is roughly `1e15`
+  times looser than the quantity needs. **The instrument is SOUND. CLEARED.**
+- **What would have mis-flagged it, and this is the instructive half:** T17 *does* mesh
+  (`build_t17.py:216` runs `blockMesh`, `:229` refuses without `Mesh OK`, `:104` checks
+  volumes against checkMesh's own numbers). A screen keyed on *"tight tolerance"*, *"uses a
+  wedge"*, *"runs checkMesh"* or *"gates a wedge angle"* flags T17 and is **wrong about the
+  tree**. **Only naming the evaluated proposition clears it.**
+
+**CLEAR 2 — `test -e <path>` as an absence reader, with a planted control** (as used in
+`F23b_HP_WEDGE_PREREGISTRATION.md` §10 and Amendment 1 §A1.1).
+
+- **MEANT:** *does the run root `verification/runs/F23b_HP_WEDGE_runs` exist?*
+- **EVALUATED:** *does the filesystem hold an entry at exactly this path?*
+- **They MATCH — but only under two conditions, and the clear is conditional on both:**
+  **(i)** the path is **quoted from the registration**, not reconstructed by convention —
+  **member 4 above is precisely this instrument failing when the path is guessed**; and
+  **(ii)** the reader is **shown able to return the other answer** — the same loop returned
+  **PRESENT** for `verification/runs/F23_HP_WEDGE_runs` in the same invocation that returned
+  **ABSENT** for the three F23b paths. **CLEARED.**
+- **The lesson the clear carries:** what makes this instrument sound is not that it is
+  simple. It is that its two propositions match **and** it was driven both ways. Simplicity
+  is not the clearing property — members 5, 6 and 7 are all one-liners.
+
+### 6. CONTROLS
+
+| control | required |
+|---|---|
+| **any instrument whose reading decides a verdict, cost, completion or absence claim** | both propositions — MEANT and EVALUATED — written as sentences **in the record beside the reading** |
+| **a progress / liveness / "what iteration" read** | **ONE NAMED artifact**, never a set; and making the set deterministic is **not** a fix (this file's 2026-08-27 amendment; re-measured as member 1) |
+| **a universal negative** ("does not exist anywhere") | the reader shown returning a **non-zero** in the same invocation; a truncated listing may never carry one |
+| **any git tracked/changed/deleted claim** | the **index-immune pair** of §4, or an explicit statement that the shared index was consulted and why that is sound here |
+| **an exit-status claim** | `set -o pipefail`, or the status captured **inside** the pipeline; never `cmd \| filter; echo $?` |
+| **a code or artifact sweep** | driven on a **positive control it did not already know about**; returning 1 on the case that motivated the pattern is **unfalsified, not correct** (member 8) |
+| **a version / identity read** | keyed to the document's own declared convention, not to the first matching token |
+| **EVERY clause above** | at least one **CLEARED** instrument shipped beside the fires, so the rule can be applied rather than only feared |
+
+**The last row is the one that will be skipped**, and it is the row that decides whether
+this clause is usable. **A test that has never cleared anything is indistinguishable from
+blanket suspicion, and blanket suspicion changes no behaviour.**
+
+### 7. What this amendment does NOT do
+
+- It **creates no monitor signature**, alters no S-rule, and changes no threshold anywhere
+  in this file. §§1–4, S17 and the 2026-08-27 amendments are untouched.
+- It **re-states none of L-394, L-395, L-401, L-402 or VERIFICATION_CHARTER §2j**; it cites
+  them and adds only the census and the standing test.
+- It **rules nothing about the shared index**, whose disposition is the chief's. It records
+  the index's measured state because members 5 and 6 are unreadable without it, and it
+  **reverted nothing** (standing rule 10: an unexpected change is inspected, never reverted).
+- **Nothing is sent, filed, uploaded, posted or submitted** (standing rule 7).
+
+| amendment record | **v1.13** |
+|---|---|
+| monitor signatures added | **0** |
+| thresholds altered | **0** |
+| existing clauses altered, widened or narrowed | **0** |
+| standing tests added | **1** (§2) |
+| members censused | **8** — 5 re-measured here, 2 reported, 1 the verification team's |
+| **CLEARED instruments shipped** | **2** (`analyse_t17.py:344`; `test -e` with a planted control) |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `1cee90211390dc85944e8695936386d7` |
+| md5 of this file's first 1,879 lines after the append | `1cee90211390dc85944e8695936386d7` |
+| the two digests | `**EQUAL — assertion MEASURED**` |
