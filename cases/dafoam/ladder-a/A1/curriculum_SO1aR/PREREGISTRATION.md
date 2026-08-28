@@ -271,3 +271,42 @@ SO-1a's whole-file predicate `fatal_tokens_in()` is **kept verbatim and kept OFF
 ## 12. FILING
 
 **Nothing here is filed, sent, uploaded, registered, posted or commented** (rule 7). Nothing leaves the box (rule 8). No scratch path is cited by this document (rule 13). The two fixtures are copies **into** the repository; the run roots they came from were opened read-only.
+
+---
+
+## AMENDMENT A1 — 2026-08-28. THE R4 DENOMINATOR IS WRONG. THE PREDICTION IS NOT RE-SCORED.
+
+**This document is Version 1.1 by this amendment.** *(The version line at the head of this file is DELIBERATELY NOT edited: the supervisor's ruling requires the frozen prefix to be byte-identical to the committed blob, and editing line 3 would break that proof. A version bump recorded here changes no line above; a version bump at line 3 would change bytes above. The two requirements cannot both be met at line 3, and I have chosen the byte-proof. Flagged rather than resolved silently.)*
+
+**lines whose number changed above this section: 0** — and that is **PROVED, NOT ASSERTED**: the first `N` bytes of this file, where `N` is the length of the committed blob at the freeze, are byte-compared against `git show <freeze>:<this path>` in the **same shell invocation** as the commit that lands this amendment. The proof output is in that commit's message. This section is **APPENDED AT THE FOOT** (rule 6); nothing above it is edited, re-flowed or re-numbered.
+
+**Authority:** `dafoam-supervisor` ruling 3, 2026-08-28, which approved a dated addendum and **forbade an edit**.
+
+### A1.1 THE DISCREPANCY
+
+| | value | citation |
+|---|---|---|
+| **the frozen denominator** | *"0 of **10** component-objective pairs"* | **this document, §4, line 121** |
+| **the true count** | **20** | `RESULTS.md` line 91 @ `b79ccd16`; derived as **5 registered components × 2 objectives (`CD`, `CL`) × 2 rows (SHIPPED, PATCHED)**, and confirmed by the instrument's own output: `n_graded = 5` on **each of the four** sub-gates `G5_SHIPPED.G5_CD`, `G5_SHIPPED.G5c_CL`, `G5_PATCHED.G5_CD`, `G5_PATCHED.G5c_CL` in `SO1aR_grade_20260828T171830Z.json` |
+
+**How the error arose, stated so it is not repeated:** `10` is the correct count **per row** (5 components × 2 objectives). The registration wrote it as if it were the whole item, omitting the ×2 for the two-row structure that §3.2 of this very document registers. **It is an arithmetic slip in a denominator, not a change of intent** — the prediction was always about *every* graded component-objective reading on *both* rows.
+
+### A1.2 R4's OUTCOME UNDER BOTH READINGS
+
+| reading | denominator | refusals for a missing FD plateau | outcome |
+|---|---|---|---|
+| **as frozen** (10) | 10 | **0** | **HIT** |
+| **as truly counted** (20) | 20 | **0** | **HIT** |
+
+**The instrument refused zero components for a missing plateau on either row**, so the two readings agree and the numerator is `0` under both.
+
+### A1.3 WHAT THIS AMENDMENT DOES NOT DO
+
+1. **R4 IS NOT RE-SCORED.** Its outcome stands **as the instrument produced it** — `HIT` — and this amendment does not touch it. A prediction is scored once, against the frozen text, by the frozen instrument.
+2. **NO GATE, THRESHOLD, BAND, CAP OR LABEL MOVES.** `G1`, `G-M2`, `G5`/`G5c` (band D 5.0 %, band E 5.0 %, plateau 10 %), `G-TB` (`TB_MAX_PASSING = 1`), `G6`, `G9`, `G10`, `G12`, `G-BIRTH`, the 75.0 core-min ceiling, the 1.0 core-min instrument cap, and every verdict label are **untouched and unreadable from this section**.
+3. **NO NUMBER IN THE RECORD CHANGES.** The verdict remains `GATE FAIL` (SHIPPED `GATE FAIL`, PATCHED `PASS`); every `rel_err_pct`, aggregate and cost figure is unmoved.
+4. **The original text is STRUCK, NEVER REWRITTEN** (rule 6). Line 121 keeps the words *"0 of 10 component-objective pairs"* exactly as frozen; a reader arriving at it is carried here by this amendment, not by an edited line.
+
+### A1.4 WHY IT IS RECORDED AT ALL, GIVEN THE OUTCOME IS UNCHANGED
+
+Because **a denominator is part of a prediction's content, not its packaging.** A frozen prediction whose stated scope is half its real scope is a prediction a reader cannot check, and "it hit either way" is exactly the reasoning that lets a wrong registered number survive into a case where it *would* have mattered — a `1 of 10` and a `1 of 20` are different findings. **The lane that wrote the error reported it against itself in the same message that reported the result**, and the supervisor ruled it an addendum rather than an edit. The cost of recording it is one appended section; the cost of not recording it is a document that is wrong and looks right.
