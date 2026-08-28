@@ -1,0 +1,188 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T18_CU_m",
+  "prereg_commit": "add2c78870625c75c2a48bdff018d7a034a2ff84",
+  "prereg_path": "docs/campaigns/T-family/T18_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/run_one_t18.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/T18_CU_m",
+    "--timeout",
+    "1200",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/T18_CU_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 3.499,
+  "cap_core_min_registered": 20,
+  "cap_core_min_registered_note": "TRANSCRIBED, NOT REGISTERED. The cap already exists in the registration cited below and is already enforced by this entry's own --timeout, which run_one_t18.sh:75 REFUSES unless it equals the registered timeout_s exactly. This field only makes the cap visible to the runner's cap watch. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source ever disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "machine-readable registration",
+    "document": "verification/runs/T-family/T18_runs/T18_registered.json",
+    "json_path": "cases.T18_CU_m.cap_core_min",
+    "verbatim": "\"cap_core_min\": 20",
+    "scope": "case"
+  },
+  "cost_basis": "T18_registered.json cases.T18_CU_m: 64,000 cells x 20,000 steps -> 3.499 core-min POINT; cap 20 core-min = timeout 1200 s at 1 rank. USD DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing). RATE PROVENANCE, VERBATIM FROM THE REGISTRATION: cost.rate_provenance reads 'BORROWED, NOT MEASURED ON THIS RUNG' -- it is T14's laplacianFoam rate measured 2026-08-26T21:03Z on a scratch copy of T14_SQ_c (2,500 cells, 2,000 steps, ExecutionTime 0.82 s). Same solver, same schemes, same linear solver, same transient class -- and a DIMENSION change, T14 being 2-D where T18 is 3-D. THE ONE T18 MEASUREMENT THAT EXISTS, AND WHY IT IS NOT A RATE: T18_CU_c came in at 0.533 core-min actual against 0.437 point = 1.22x (STATUS.T18_CU_c). That figure was taken while the box was ~64.8% busy with four peer solvers, so it is an UPPER BOUND on pure misprediction and NOT a clean rate measurement; the true rate error is 1.22x or less, direction unknown in magnitude. ONE COARSE LEVEL IS ALSO A WEAK BASIS FOR EXTRAPOLATION: the ladder runs 8,000 -> 64,000 -> 512,000 cells and this level is the first 8x step. THE T17 SET CONTRADICTS ANY SINGLE SCALAR CORRECTION: 1.701x (c), 1.676x (m), 2.141x (f), 2.024x (f_CT) -- the ratio GROWS with problem size, so no constant factor is quoted here. Applying T17's worst observed 2.141x to this level gives ~7.49 core-min against the 20 core-min cap, 2.7x headroom; applying T18_CU_c's own 1.22x gives ~4.27 core-min, 4.7x headroom. THE CAP, NOT THIS ESTIMATE, IS WHAT STOPS AN OVERRUN, and an overrun does not get a new budget (rule 12).",
+  "memory_floor_gb": 1.0,
+  "role": "graded level -- the MEDIUM of the Roache triple",
+  "_preflight_discharged_by_this_draft": {
+    "rule_2_freeze": "add2c788 is an ANCESTOR of HEAD (git merge-base --is-ancestor, 2026-08-28T16:04Z) and docs/campaigns/T-family/T18_PREREGISTRATION.md is present at that sha. T18_registered.json on disk hashes e6356dc1c4707076915c53bdd34dc9d517d8fa6a, byte-identical to the blob at the freeze commit -- the frozen file IS the file that would run.",
+    "rule_4_age_guard": "T18_CU_m contains NO numeric time directory and no 0/ directory; 0.orig is present; no STATUS, DONE or log.solve exists. Verified 2026-08-28T16:02Z by find -regex over maxdepth 1 directories, across all four T18 levels.",
+    "launcher_arm_A": "WITHHELD. Do not enqueue this entry until T18_CU_c has returned rc=0 through run_one_t18.sh and a STATUS.T18_CU_c exists. Same discipline T17 applied to its own launcher.",
+    "NOT_discharged_here": "SUPERVISION_CHARTER section 3 check 1 (the measurement-script diff read as a diff) and check 4 (pre-registration committed before compute, read personally) are the SUPERVISOR'S and are NOT delegated. This lane did not perform them. analyse_t18.py is IN-HEAD and byte-identical to disk and contains 6 selftest references, but this lane did not DRIVE the selftest and makes no claim about it."
+  },
+  "enqueued_by": "heat-transfer lab-lane, on heat-transfer-supervisor's decision to advance the T18 rung after the launcher smoke passed [lab-attributed], 2026-08-28T16:39:15Z. SCOPE: T18_CU_m ALONE, the MEDIUM level. T18_CU_f, T18_CU_f_CT and every T19 entry remain WITHHELD and are DRAFTS ONLY -- freezing and dropping those is the supervisor's decision, not this lane's. THE WITHHOLDING CONDITION ON THIS RUNG IS DISCHARGED, and by measurement rather than by assertion: run_one_t18.sh had never launched anything, and T18_CU_c was dropped as its first ever drive. It returned rc=0, wall_s=32, ranks=1, core_min=0.533, capped=no, checkmesh_rc=0, note=clean, solver=laplacianFoam (STATUS.T18_CU_c). THIS LANE THEN GRADED T18_CU_c BEFORE WRITING THIS ENTRY, and reports the six rule-4 conditions as MEASURED NUMBERS rather than as yes/no: rc=0; End lines in log.solve = 1; last written time 2.0 == endTime 2.0 (time dirs 0, 1, 2); the NEEDED field T present at 2/ (the dir also holds DT, flux, gradTx, gradTy, gradTz, uniform); ExecutionTime lines = 20,000 == int(round(endTime 2.0 / deltaT 0.0001)) = 20,000; and every field at 2/ NEWER than 0/T by +31.536 s to +31.547 s, with the NEEDED field T itself at +31.544 s. mark_done_t18.py T18_CU_c returned exit 0 and wrote DONE.T18_CU_c. SUPERVISION_CHARTER section 3 checks 1 and 4 were discharged PERSONALLY BY THE SUPERVISOR and are recorded as theirs, not this lane's. CHECK 4: T18 froze at add2c78870625c75c2a48bdff018d7a034a2ff84, 2026-08-27T19:34:33Z, an ancestor of HEAD, with the pre-registration present at that sha and the instruments byte-identical on disk to their committed content. CHECK 1: the supervisor read mark_done_t18.py check() as a diff -- all six rule-4 conditions conjoined, the expected ExecutionTime count correctly derived as int(round(endTime/deltaT)), CAPPED separated from CRASH, and the DISCLOSED LOOSENESS at mark_done_t18.py:113, which reads '< age' where rule 4's 'NEWER than' wants '<= age'. THAT LOOSENESS HAS NO EXPOSURE ON THIS RUNG SO FAR -- T18_CU_c's smallest margin is +31.536 s, not zero -- AND ITS OWN INSTRUMENT DOES NOT COVER IT: mark_done_t18.py's selftest drives the age guard only with a STRICTLY OLDER field (_forge sets t0-100 for the stale arm and t0+5 otherwise), so the EQUAL-mtime boundary, the exact case ':113' lets through, is never driven. Recorded at enqueue time so the gap is on the record before an answer exists, not after. NOT BLOCKING. THIS LANE'S OWN VERIFICATION FROM THE ARTEFACTS, not from any brief: --timeout 1200 EQUALS cases.T18_CU_m.timeout_s = 1200 in T18_registered.json, which run_one_t18.sh:75 refuses any other value for; cap_core_min_registered 20 EQUALS cases.T18_CU_m.cap_core_min = 20; cells 64,000; the T18_CU_m case directory holds NO numeric time directory, NO 0/ directory and no STATUS, DONE or log.solve (contents: 0.orig, BUILD.txt, CASE.txt, constant, log.blockMesh, log.checkMesh.build, system), so the age guard's precondition holds and 0/T will date this run; prereg_commit add2c78870625c75c2a48bdff018d7a034a2ff84 is an ancestor of HEAD b0da9148084d0d4fff8f508933f9a10aa197f46a with T18_PREREGISTRATION.md present at that sha; and T18_registered.json on disk hashes e6356dc1c4707076915c53bdd34dc9d517d8fa6a, byte-identical to its blob at the freeze commit -- the frozen file IS the file that will run. A REFUSAL THIS ENTRY IS DELIBERATELY SHAPED TO AVOID: scripts/queue_entry_check.py REQUIRED_FIELDS (:83-94) and check_schema (:182-184) require 'enqueued_by' to be a NON-EMPTY STRING; an object under that name is REFUSED and swept to refused/. This field is therefore the required string and '_enqueued_by' carries the structured record. THE GRADER CANNOT YET BE REACHED AND THAT IS CORRECT: analyse_t18.py refuses at :268 for want of DONE.T18_CU_m -- the whole rung is graded or none of it is -- so the T18 rung verdict stands at PENDING and no gate has been evaluated on one grid level. This entry is the second of the three levels rule 5 needs.",
+  "_enqueued_by": {
+    "utc_of_this_write": "2026-08-28T16:39:15Z",
+    "clock_source": "date -u / time.gmtime, same shell invocation as this write",
+    "head_at_write": "b0da9148084d0d4fff8f508933f9a10aa197f46a",
+    "decision_owner": "heat-transfer-supervisor took the decision to advance the rung; this lane executed it",
+    "scope": "T18_CU_m ONLY. T18_CU_f, T18_CU_f_CT and all T19 entries WITHHELD as drafts.",
+    "withholding_condition_discharged": {
+      "condition": "run_one_t18.sh must be shown to launch before any further T18 level is enqueued",
+      "discharged_by": "T18_CU_c, the first ever drive of that launcher",
+      "evidence": "verification/runs/T-family/T18_runs/STATUS.T18_CU_c",
+      "measured": {
+        "rc": 0,
+        "wall_s": 32,
+        "ranks": 1,
+        "core_min": 0.533,
+        "capped": "no",
+        "checkmesh_rc": 0,
+        "note": "clean",
+        "solver": "laplacianFoam",
+        "timeout_s": 180
+      }
+    },
+    "t18_cu_c_rule_4_six_conditions_measured": {
+      "1_rc": "0",
+      "2_end_lines_in_log_solve": 1,
+      "3_last_time_vs_endTime": "2.0 == 2.0 (numeric time dirs on disk: 0, 1, 2)",
+      "4_fields_present_at_endTime": "NEEDED=('T',) present at 2/; dir also holds DT, flux, gradTx, gradTy, gradTz, uniform",
+      "5_executiontime_count": "20000 == int(round(2.0 / 0.0001)) = 20000",
+      "6_age_guard_margins_s": {
+        "T": 31.544,
+        "DT": 31.536,
+        "flux": 31.536,
+        "gradTx": 31.542,
+        "gradTy": 31.547,
+        "gradTz": 31.539,
+        "uniform": 31.547,
+        "note": "every field at 2/ NEWER than 0/T; smallest margin +31.536 s, so the ':113 <' looseness has ZERO exposure here"
+      },
+      "instrument_verdict": "mark_done_t18.py T18_CU_c -> exit 0, DONE.T18_CU_c written",
+      "field_list_note": "NEEDED=('T',) and not the thermal family's seven fields, because T18 is pure conduction under laplacianFoam; rule 4's 'T U p_rgh alphat nut k omega' list is the thermal-family instance of the condition, not its definition"
+    },
+    "supervisor_check_4": {
+      "verdict": "PASS",
+      "freeze_commit": "add2c78870625c75c2a48bdff018d7a034a2ff84",
+      "freeze_utc": "2026-08-27T19:34:33Z",
+      "discharged_by": "heat-transfer-supervisor, personally; not delegated",
+      "cited_not_redone_by_this_lane": true
+    },
+    "supervisor_check_1": {
+      "verdict": "PASS with one DISCLOSED latent looseness",
+      "discharged_by": "heat-transfer-supervisor, personally; not delegated",
+      "cited_not_redone_by_this_lane": true
+    },
+    "disclosed_looseness": {
+      "site": "verification/runs/T-family/T18_runs/mark_done_t18.py:113",
+      "code": "stale = [f for f in NEEDED if os.path.getmtime(os.path.join(tdir, f)) < age]",
+      "defect": "'<' where rule 4's 'NEWER than' requires '<='; a field whose mtime EXACTLY equals 0/T passes",
+      "measured_exposure_on_this_rung": "ZERO -- T18_CU_c's smallest margin is +31.536 s",
+      "selftest_coverage_gap": "_forge's stale arm sets the field mtime to t0-100 (STRICTLY older) and its clean arm to t0+5; the EQUAL-mtime boundary is never driven by the instrument's own selftest",
+      "verified_by": "this lane, by reading mark_done_t18.py check() and _forge directly",
+      "ruling": "NOT BLOCKING; a standing disclosed condition of this launch"
+    },
+    "selftests": {
+      "note": "DRIVEN BEFORE FIRST COMPUTE BY THE PRIOR LANE, cited here and NOT re-driven by this lane",
+      "analyse_t18.py": {
+        "verdict": "SELFTEST PASS",
+        "arms_ok": 17,
+        "arms_fail": 0,
+        "covers": "a mutated registered P_MIN that must REFUSE, the STAGNANT floor driven from both sides at p=0.49 and 0.51, three planted-zero controls at plant 1.234e-03, and a BLIND reader mutant that correctly REFUSES"
+      },
+      "mark_done_t18.py": {
+        "verdict": "SELFTEST PASS",
+        "arms": 10,
+        "failed": 0,
+        "plus": "an AST assert-counter control"
+      },
+      "commits": [
+        "d9762dbf",
+        "1b07f842"
+      ]
+    },
+    "this_lane_verification_from_the_artefacts": {
+      "timeout_entry_vs_registered": "1200 == 1200 : MATCH",
+      "cap_entry_vs_registered": "20 == 20 : MATCH",
+      "cells_registered": 64000,
+      "numeric_time_dirs": "0 found []",
+      "zero_dir_present": false,
+      "status_done_logsolve": "0 found []",
+      "dir_listing": [
+        "0.orig",
+        "BUILD.txt",
+        "CASE.txt",
+        "constant",
+        "log.blockMesh",
+        "log.checkMesh.build",
+        "system"
+      ],
+      "prereg_commit_is_freeze": true,
+      "freeze_is_ancestor_of_head": true,
+      "prereg_present_at_freeze": true,
+      "registered_json_disk_sha": "e6356dc1c4707076915c53bdd34dc9d517d8fa6a",
+      "registered_json_freeze_blob_sha": "e6356dc1c4707076915c53bdd34dc9d517d8fa6a",
+      "cap_enforcement_line_read_by_this_lane": "run_one_t18.sh:75 -- [ \"$TIMEOUT_S\" -eq \"$REG_T\" ] || REFUSE"
+    },
+    "grader_state_at_enqueue": {
+      "analyse_t18.py": "REFUSES, exit 2, at analyse_t18.py:268: 'no DONE.T18_CU_m -- the whole rung is graded or none of it is; mark_done_t18.py rules'",
+      "reading": "CORRECT BEHAVIOUR, not a defect. One graded level is not a Roache triple; rule 5 needs three. The T18 rung verdict is PENDING.",
+      "captured": "verification/runs/T-family/T18_runs/T18_GRADE_OUTPUT.txt",
+      "planted_controls_did_NOT_fire_on_real_data": "planted_zero_control() is called at analyse_t18.py:311 on the FINE level only (dirs['f'], times['f']); grade() refuses at :268 long before reaching it. No planted arm has yet run on any real T18 field. A passing selftest is not the same as the control firing on the real run.",
+      "queue_depth_at_write": 0
+    },
+    "cost": {
+      "point_core_min": 3.499,
+      "cap_core_min": 20,
+      "usd": "$0.0030 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h",
+      "rate_provenance": "BORROWED, NOT MEASURED ON THIS RUNG -- T14's rate; T18_registered.json cost.rate_provenance",
+      "calibration_available": {
+        "T18_CU_c": "0.533/0.437 = 1.22x, taken at ~64.8% box busy with four peer solvers -- an UPPER BOUND on misprediction, not a clean rate measurement",
+        "T17_CY_c": 1.701,
+        "T17_CY_m": 1.676,
+        "T17_CY_f": 2.141,
+        "T17_CY_f_CT": 2.024
+      },
+      "model_note": "the T17 ratios GROW with problem size, so a single scalar correction factor is the wrong model and none is quoted"
+    },
+    "box_state_at_enqueue": {
+      "load_average_1min": 27.7,
+      "note": "T3_R_ff (8 ranks, pid 411911-411918) and T16_MC_f (pid 1716924) are LIVE and were NOT touched. This entry adds ONE rank. The runner logged EMPTY on its 16:35:54Z and 16:36:54Z ticks -- the queue depth this drop closes was ZERO."
+    },
+    "note_on_field_name": "'enqueued_by' is the REQUIRED non-empty STRING (queue_entry_check.py REQUIRED_FIELDS :83-94, check_schema :182-184). '_enqueued_by' is the structured record. An object under the required name would have been REFUSED and swept to refused/."
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T18_CU_m (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
