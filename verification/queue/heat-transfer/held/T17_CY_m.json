@@ -1,0 +1,116 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T17_CY_m",
+  "prereg_commit": "b8ebddfef2f0d1c64450b8b93cf42709d485511f",
+  "prereg_path": "docs/campaigns/T-family/T17_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/run_one_t17.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/T17_CY_m",
+    "--timeout",
+    "480",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T17_runs/T17_CY_m",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.547,
+  "cap_core_min_registered": 8,
+  "cap_core_min_registered_note": "TRANSCRIBED, NOT REGISTERED. The cap already exists in the registration cited below and is already enforced by this entry's own --timeout, which run_one_t17.sh:75 REFUSES unless it equals the registered timeout_s exactly. This field only makes the cap visible to the runner's cap watch. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source ever disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "machine-readable registration",
+    "document": "verification/runs/T-family/T17_runs/T17_registered.json",
+    "json_path": "cases.T17_CY_m.cap_core_min",
+    "verbatim": "\"cap_core_min\": 8",
+    "scope": "case"
+  },
+  "cost_basis": "T17_registered.json cases.T17_CY_m: 10000 cells x 20000 steps at the registered rate 1.64e-07 core-s/cell-step -> 0.547 core-min POINT; cap 8 core-min = timeout 480 s at 1 rank. USD DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing). NAMED MISPREDICTION RISK, now MEASURED not merely declared: the registered rate is BORROWED from T14 and the one T17 level that has run, T17_CY_c, took 0.233 core-min against a 0.137 core-min point prediction -- ACTUAL/PREDICTED = 1.70 (STATUS.T17_CY_c: rc=0, wall_s=14, ranks=1, core_min=0.233). Carrying that 1.70x forward puts this level near 0.93 core-min, still far inside the 8 core-min cap, which absorbs 14.6x the point.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer lab-lane, on heat-transfer-supervisor's LAUNCH brief [lab-attributed], 2026-08-28T16:13:53Z. SUPERVISION_CHARTER section 3 checks 1 and 4 were discharged PERSONALLY BY THE SUPERVISOR and are recorded here as the supervisor's, NOT this lane's (a relayed check is a summary, not a check). CHECK 4: T17's registration froze at b8ebddfe 2026-08-27T19:35:11Z; the supervisor verified that sha is an ANCESTOR of HEAD, that docs/campaigns/T-family/T17_PREREGISTRATION.md is PRESENT at it, and that T17_registered.json, analyse_t17.py, mark_done_t17.py and run_one_t17.sh are each byte-identical on disk to their HEAD blobs. PASS. CHECK 1: the supervisor read mark_done_t17.py check() as a diff -- all six rule-4 conditions present and CONJOINED, CAPPED distinguished from CRASH with a crash treated as a finding, and the expected ExecutionTime count derived as int(round(endTime/deltaT)) rather than naively from endTime. ONE DISCLOSED LATENT LOOSENESS, disclosed here and not hidden: mark_done_t17.py:113 uses '< age' where rule 4's 'NEWER than' requires '<= age', so a field whose mtime EXACTLY equals 0/T would pass. It is the family norm (26 of 31 sites) and the supervisor measured ZERO exposure across 1,894 endTime field files in 152 T-family cases, under a PLANTED CONTROL that proved the scan can see an mtime-preserving 'cp -p' copy -- a zero from a reader shown able to see a non-zero (rule 3). NOT BLOCKING; recorded as a standing condition of this launch. SELFTEST DRIVEN BY THE SUPERVISOR: analyse_t17.py --selftest returned SELFTEST PASS, 0 failed, including three planted-zero arms and a blind-reader mutant that correctly REFUSES. THIS LANE'S OWN VERIFICATION, from the artefacts and not from the brief's transcription: for each of T17_CY_m / T17_CY_f / T17_CY_f_CT the entry's --timeout EQUALS that case's registered timeout_s in T17_registered.json (480/1800/3600 against registered 480/1800/3600; the coarse level's 120 is not enqueued here) and the entry's cap_core_min_registered EQUALS cases.<id>.cap_core_min (8/30/60); each case directory under verification/runs/T-family/T17_runs/ holds NO numeric time directory, NO 0/ directory and no STATUS/DONE/log.solve, so the age guard's own precondition holds and 0/T will date this run; and prereg_commit is b8ebddfef2f0d1c64450b8b93cf42709d485511f in all three, an ANCESTOR of HEAD 3d8521410a331cca6e024d9fca78b8f57f77bd7a. CAP ENFORCEMENT IS NOT ON THIS FIELD: run_one_t17.sh REFUSES unless --timeout equals the registered timeout_s exactly, so the cap is enforced by the launcher whatever this entry says. COST: the three registered caps total 98 core-min = 1.63 core-h = $0.084 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h -- far inside the $25 pre-authorisation. SCOPE IS EXACTLY THESE THREE: T18 and T19 are NOT enqueued; run_one_t18.sh has never launched anything and its smoke is a separate decision the supervisor has not taken.",
+  "role": "graded level -- the MEDIUM of the Roache triple",
+  "_preflight_discharged_by_this_draft": {
+    "rule_2_freeze": "b8ebddfe is an ANCESTOR of HEAD (git merge-base --is-ancestor, 2026-08-28T16:04Z) and docs/campaigns/T-family/T17_PREREGISTRATION.md is present at that sha. T17_registered.json on disk hashes 542e55b5f903c49e866a5d523d2f168f65628ef2, byte-identical to the blob at the freeze commit -- the frozen file IS the file that would run.",
+    "rule_4_age_guard": "T17_CY_m contains NO numeric time directory and no 0/ directory; 0.orig is present; no STATUS, DONE or log.solve exists. Verified 2026-08-28T16:02Z by find -regex over maxdepth 1 directories.",
+    "launcher_arm_A": "DRIVEN. run_one_t17.sh's ARM A (a real launch) was UNDRIVEN when the registration was written and was named as such in section 8. It has since been driven: T17_CY_c launched through this exact launcher via the queue runner 2026-08-28T02:25:14Z and returned rc=0 in 14 s (STATUS.T17_CY_c). The withholding condition recorded in the T17_CY_c queue entry -- 'the remaining T17/T18/T19 entries are withheld until this launcher is shown to launch' -- is therefore DISCHARGED for T17. It is NOT discharged for T18: run_one_t18.sh is a different file (md5 6da5328eb3dafb8f240b53ccc06e0b21, against run_one_t17.sh md5 d9d9dbdb4b77e4525aad85cee8d4b0b1) and has never launched anything.",
+    "NOT_discharged_here": "SUPERVISION_CHARTER section 3 check 1 (the measurement-script diff read as a diff) and check 4 (pre-registration committed before compute, read personally) are the SUPERVISOR'S and are NOT delegated. This lane did not perform them. analyse_t17.py is IN-HEAD and byte-identical to disk and contains 6 selftest references, but this lane did not DRIVE the selftest and makes no claim about it."
+  },
+  "_enqueued_by": {
+    "utc_of_this_write": "2026-08-28T16:13:53Z",
+    "clock_source": "date -u, same shell invocation as this write",
+    "head_at_write": "3d8521410a331cca6e024d9fca78b8f57f77bd7a",
+    "written_by": "heat-transfer lab-lane on heat-transfer-supervisor's LAUNCH brief [lab-attributed]",
+    "purpose": "Ends a lab-wide compute idle standing since 2026-08-28T07:55:45Z; the queue runner (pid 1120800) has been ticking at 60 s and reading EMPTY on every tick.",
+    "supervisor_check_4_prereg_committed_before_compute": {
+      "verdict": "PASS",
+      "discharged_by": "heat-transfer-supervisor, personally; NOT delegated and NOT re-performed on their behalf",
+      "freeze_commit": "b8ebddfef2f0d1c64450b8b93cf42709d485511f",
+      "freeze_utc": "2026-08-27T19:35:11Z",
+      "content": "freeze sha is an ANCESTOR of HEAD; T17_PREREGISTRATION.md PRESENT at that sha; T17_registered.json, analyse_t17.py, mark_done_t17.py and run_one_t17.sh each byte-identical on disk to their HEAD blobs."
+    },
+    "supervisor_check_1_measurement_script_read_as_a_diff": {
+      "verdict": "PASS with one DISCLOSED latent looseness",
+      "discharged_by": "heat-transfer-supervisor, personally",
+      "content": "mark_done_t17.py check(): all six rule-4 conditions present and CONJOINED; CAPPED distinguished from CRASH and a crash treated as a finding; expected ExecutionTime count derived as int(round(endTime/deltaT)), not naively from endTime."
+    },
+    "disclosed_looseness": {
+      "site": "verification/runs/T-family/T17_runs/mark_done_t17.py:113",
+      "defect": "uses '< age' where rule 4's 'NEWER than' requires '<= age': a field whose mtime EXACTLY equals the case's 0/T would pass the age guard.",
+      "prevalence": "the family norm -- 26 of 31 sites carry the same shape",
+      "measured_exposure": "ZERO across 1,894 endTime field files in 152 T-family cases",
+      "planted_control": "the exposure scan was shown able to SEE a non-zero: an mtime-preserving 'cp -p' copy was planted and the scan detected it (rule 3). A zero from a reader not shown able to see a non-zero would not be evidence.",
+      "ruling": "NOT BLOCKING. Recorded as a standing condition of this launch, disclosed at enqueue time and not after the answer."
+    },
+    "selftest_driven": {
+      "script": "verification/runs/T-family/T17_runs/analyse_t17.py --selftest",
+      "driven_by": "heat-transfer-supervisor, personally",
+      "result": "SELFTEST PASS, 0 failed",
+      "arms": "three planted-zero arms and a blind-reader mutant that correctly REFUSES"
+    },
+    "this_lane_verification_from_the_artefacts": {
+      "timeout_entry_vs_registered": "480 == 480 : MATCH",
+      "cap_entry_vs_registered": "8 == 8 : MATCH",
+      "numeric_time_dirs": "0 found []",
+      "zero_dir_present": false,
+      "status_done_logsolve": "0 found []",
+      "dir_listing": [
+        "0.orig",
+        "BUILD.txt",
+        "CASE.txt",
+        "constant",
+        "log.blockMesh",
+        "log.checkMesh.build",
+        "system"
+      ],
+      "prereg_commit_is_freeze": true
+    },
+    "this_lane_verification_shared": {
+      "registered_timeouts_s": {
+        "T17_CY_c": 120,
+        "T17_CY_m": 480,
+        "T17_CY_f": 1800,
+        "T17_CY_f_CT": 3600
+      },
+      "registered_caps_core_min": {
+        "T17_CY_c": 2,
+        "T17_CY_m": 8,
+        "T17_CY_f": 30,
+        "T17_CY_f_CT": 60
+      },
+      "freeze_is_ancestor_of_head": true,
+      "prereg_present_at_freeze": true,
+      "held_dir_is_outside_the_runner_glob": "CONFIRMED BY READING THE CODE: scripts/queue_runner.py:433-441 list_entries() does d.glob('*.json') on verification/queue/<team>/ -- TOP LEVEL ONLY, no rglob and no recursion -- so verification/queue/heat-transfer/held/ is invisible to the daemon and nothing fires from it.",
+      "cap_enforcement_site": "verification/runs/T-family/T17_runs/run_one_t17.sh -- REFUSES unless --timeout equals the registered timeout_s exactly ('a cap is neither widened nor narrowed at launch')."
+    },
+    "cost": {
+      "this_case_point_estimate_core_min": 0.547,
+      "this_case_cap_core_min": 8,
+      "three_level_cap_total_core_min": 98,
+      "three_level_cap_total_core_h": 1.633,
+      "usd": "$0.084 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing)",
+      "authorisation": "far under the $25 pre-authorisation; each cap is separately enforced by the launcher, and an overrun STOPS the run rather than getting a new budget."
+    },
+    "scope_limit": "T18 and T19 are NOT enqueued. run_one_t18.sh has NEVER launched anything (md5 6da5328eb3dafb8f240b53ccc06e0b21, distinct from run_one_t17.sh md5 d9d9dbdb4b77e4525aad85cee8d4b0b1) and its smoke is a separate decision the supervisor has not taken.",
+    "note_on_field_name": "The brief asked for an '_enqueued_by' object. scripts/queue_entry_check.py REQUIRED_FIELDS (:83-94) requires 'enqueued_by' and check_schema (:182-184) requires it to be a NON-EMPTY STRING, so an object under either name would have been REFUSED by the validator and moved to refused/ by the runner. Both are therefore written: 'enqueued_by' as the required string, this '_enqueued_by' as the structured record the brief asked for. No value was invented to fit."
+  }
+}
