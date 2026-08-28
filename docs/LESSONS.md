@@ -17037,3 +17037,117 @@ did not expect trouble.**
 `3c01061ea6c773952a6df259c49bcaf4de7f31b5`; the predecessor
 `verification/campaign/F17b_KV40_EXT_RESULTS.md` and the lesson it produced, **L-346**;
 cost row C-194 in `docs/COST_CALIBRATION.md`.
+
+## L-399 — ⚠⚠ A NEGATIVE CONTROL WHOSE PERTURBATION LANDS ON AN ALGEBRAIC IDENTITY IS A COIN FLIP — AND A SELFTEST CAN EXERCISE IT AND STILL PASS, BY ONLY EVER DRIVING IT WHERE IT CANNOT FAIL
+
+**The rule.** A negative control must be built so its **expected response is BOUNDED
+AWAY from its threshold**, with a **real two-sided margin**. If the perturbation is
+chosen such that the expected response **equals** the threshold in exact arithmetic,
+the control is not measuring the reader — **it is measuring floating-point noise**,
+and it will pass or refuse by the last ulp. **And a selftest that exercises such an
+arm is not evidence the arm works**: it can drive the arm five times, print
+`SELFTEST PASS (0 failed)`, and never once have put it in a position to fail.
+
+**The specimen.** `verification/runs/T-family/T15_runs/analyse_t15.py:501` reads
+`if d_const > 0.5 * ref:`. The statistic is `S1 = sigma/mean` (`window_stats` at
+`:279-281`, `rel_sd = sd/abs(mean)`). The plant adds a constant equal to the window
+mean. **Adding the mean to a `sigma/mean` statistic leaves `sigma` untouched and
+doubles the mean, so the perturbed value is EXACTLY `ref/2` and `d_const` is
+IDENTICALLY `0.5*ref` for every positive-mean input.** The guard is a **strict `>`
+sitting ON that identity.** It refused a completed 1,195.817 core-min run by
+**1.07e-14 relative** — **78.29 ulp of `0.5*ref`**, which is the same excess as
+**48.0 ulp of 1.0** taken on the ratio; *record both denominations when you quote an
+ulp count, because the operand you take the ulp of changes the number without
+changing the measurement.*
+
+**The excursion is two-sided and grows as the statistic shrinks.** The excess is the
+**cancellation error of recomputing sigma after adding a constant of size `mean`**,
+so it scales as `epsilon/ref`: **6,827 ulp at `ref ~ 2e-4`, 1,327,727 ulp at
+`ref ~ 1e-8`, 8.8e7 ulp in the degenerate corner** — and an independent sweep through
+the grader's own uncompensated two-pass accumulator confirms the scaling and the
+two-sidedness across five decades. **The measured fire rate is 39% (117 of 300
+randomised positive-mean draws; 85 of 222 at `ref >= 1e-6`).** **THE COMPOUNDING
+FACT, AND THE ONE THAT MAKES THIS WORSE THAN A COIN FLIP: the excursion grows as
+`sigma/mean` shrinks, so the control refuses hardest on the best-behaved cases — it
+is most likely to destroy a verdict exactly when the physics is cleanest.**
+
+**Two regimes an identity-boundary control acquires for free, both found by DRIVING
+the code rather than reasoning about it.** (1) **A sign precondition nobody wrote
+down**: the plant is `+|mean|`, which **annihilates a negative mean**, so at
+`mean = -0.6`, `ref = 2.0e-4` the response is `d_const = 1.33e+12` and the control
+**refuses DETERMINISTICALLY**. Every downdraft, recirculation and return-flow station
+is refused outright — for a lab whose second ladder is data-centre cooling that is not
+a corner case. (2) **A blind mode of its own**: at `sigma = 0` the guard becomes
+`0 > 0`, so **a perfectly dead reader PASSES** — a rule-3 control that is itself
+unable to see nothing.
+
+**THE HALF THAT TRANSFERS FURTHEST: the selftest exercised the arm and could not fail
+it.** `analyse_t15.py --selftest` returns **`SELFTEST PASS (0 failed)`** while the arm
+runs **five times, once per forgery**:
+
+- **three forgeries have `ref = 0`** (default, `co_max=1.9`, `alpha=0.20`) — the guard
+  is `0 > 0` and the check is **VACUOUS**;
+- **two have `ref > 0`** (`drift=0.20`, `ref = 5.253e-02`; `noise=0.10`,
+  `ref = 7.366e-02`) and land at **+0.0 ulp exactly on the boundary**, passing **only
+  because the strict `>` lets equality through**. They are **265x and 370x more
+  dispersive than the real run**, and at that conditioning the identity is numerically
+  exact. Fire rate by regime over 60 seeds each: **`ref = 1e-1` gives 7%; every decade
+  below gives 42–62%.**
+- **AND BOTH non-vacuous S1 values (0.0525, 0.0737) lie OUTSIDE the registered PASS
+  band `[0, 0.020]`.**
+
+> **THE ONE-LINE FORM: THE NEGATIVE CONTROL WAS EXERCISED ONLY IN THE ONE REGIME WHERE
+> IT CANNOT FAIL, AND NO FORGERY EVER DROVE IT AT A DISPERSION THE RUNG WAS DESIGNED TO
+> CALL PASS.**
+
+**So the rule that transfers is not only about thresholds — it is about coverage.**
+**A selftest must drive EVERY control arm AT THE CONDITIONING THE RUNG IS DESIGNED TO
+GRADE.** A forgery whose statistic lands **outside the registered PASS band** has not
+tested the control the rung will actually rely on; it has tested a different instrument
+that happens to share the code. **Count your forgeries by the regime they put each arm
+in, not by how many there are** — five forgeries here gave **zero** effective
+exercises of this arm.
+
+**And the evidence was on the page before the run.** `T15_PREREGISTRATION.md` §5
+prints *"a constant offset ... moves it 0 to 0.037"*. **Those three zeros ARE the three
+vacuous forgeries** — printed at freeze time, and not read. **A printed zero in a
+control's own registration is a claim about coverage, and it must be interrogated
+before the freeze, not after the refusal.** The instrument goes on to state the defect
+in its own words: it prints `CONSTANT offset of one mean moved it 0.0263 (near-blind,
+as a dispersion reader must be)` — **a move of exactly 50% of the statistic, reported
+as "near-blind"** — because the stated intent is **true of a SIGMA reader and FALSE BY
+CONSTRUCTION of a SIGMA/MEAN reader**, which is a *normalised* dispersion and is
+necessarily sensitive to the mean.
+
+**How to build it instead.** Pick the perturbation from the arm's **closed form**, not
+from convenience: grade the constant-offset response against
+`ref*mean/(mean+c)` with an explicit band (±10% is enough), which is **bounded away
+from every threshold at every conditioning**; add an explicit **non-degeneracy** arm
+that REFUSES `ref = 0` rather than passing it; and add an explicit **sign
+precondition**. Three arms that can each fail, in place of one that cannot.
+
+**Kinship, stated and NOT settled.** This is adjacent to **D389** — a statistic
+normalised by a mean that is not a natural zero — and the two share the property that
+the normaliser is doing work nobody registered. **D389 is not reopened or re-scoped
+here; it is not this team's to settle unilaterally**, and this lesson makes no claim
+about its disposition.
+
+**Scope.** Every comparator carrying a planted-perturbation control, in every family —
+and **especially** every control on a **normalised** statistic (`sigma/mean`,
+`ptp/mean`, any ratio to a fitted or measured scale), where an additive plant interacts
+with the normaliser. **Also every selftest**: the coverage half of this lesson applies
+to controls that are perfectly well-designed and simply never driven in the regime that
+matters.
+
+**Provenance:** `verification/runs/T-family/T15_runs/analyse_t15.py:501` (the guard),
+`:279-281` (the uncompensated two-pass accumulator that sets the magnitude), `:524-529`
+(the reader); the arm's five firings and the `SELFTEST PASS (0 failed)` line from
+driving `analyse_t15.py --selftest`; `T15_PREREGISTRATION.md` §5 for the three printed
+zeros; docket **D553**, which carries the measured scope (**one carrier in 35 files
+swept** — `analyse_t16.py:82,:435` uses an alternating plant and correctly states its
+blindness, `analyse_t5b.py:539,:556` and `analyse_t5.A10_PROPOSED.py:1080` route a
+constant offset to the MEAN reader with A10 citing **L-340** explicitly, so **T15 is the
+one file that went against the lab's own prior written statement of the principle**) and
+the `T15b` remedy; **L-340** for the principle T15 departed from; **D389** for the
+kinship, unsettled. **T15 is `BLOCKED`** on this defect — the run is complete under all
+six of `CLAUDE.md` rule 4's conditions and no row verdict exists.
