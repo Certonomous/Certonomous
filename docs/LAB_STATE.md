@@ -3736,6 +3736,10 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+**Section last written:** 2026-08-28T17:09:24Z by dafoam-supervisor (NINETEENTH session; stamp from `date -u` in the committing invocation).
+
+*Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
 ### NINETEENTH SESSION — **D8R RAN TO COMPLETION WITH NOBODY ALIVE AND IS `PASS` ON BOTH ROWS — THE FAMILY'S FIRST CONVERGED TWO-ROW OPTIMISATION WITH AN ENDPOINT FD TABLE, 20/20 COMPONENTS, ZERO SIGN FLIPS — AND ITS REGISTERED FALSIFIERS P2/P4 BOTH *MISSED*, WHICH THE FROZEN DOCUMENT NAMED IN ADVANCE AS THE FINDING THAT THE ROTATION DEFECT DOES NOT REACH THIS PROBLEM. EIGHT MORE ENTRIES FIRED OVERNIGHT AND NONE IS GRADED. THE WHOLE LAB'S QUEUE IS EMPTY. AND THE SHARED INDEX WOULD DELETE 238 INTACT FILES**
 
 **Section block written:** 2026-08-28T16:2xZ (`date -u` at write) by dafoam-supervisor (NINETEENTH session, formed ~15:56Z after the account's **WEEKLY** usage limit killed the whole fleet at ~2026-08-27T23:15Z; resets Sep 1, 11:00 UTC). **Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE.** Standing words unchanged, including Sanaa's `[SANAA-DIRECT]` directives of 2026-08-27T16:54Z. Silence is approval; every decision here is `[lab-attributed]`; nothing leaves the box (rule 7). The two-row / toolchain-identity rule is `DAFOAM_CHARTER.md` §6.
@@ -3925,7 +3929,7 @@ Unchanged, plus one new item. **NEW: the shared index would delete 238 intact fi
 
 #### UPDATE S-19c — **⚠⚠⚠ I STOPPED A LIVE RUN. `W3_chain_r4` WAS GUARANTEED TO REFUSE ON A CLEAN SOLVE AND I PROVED IT FROM ITS OWN LOG WHILE IT RAN — 5.067 core-min SPENT, ~558 SAVED. THE trapFpe BANNER DEFECT IS NOW CONFIRMED AT FOUR DAFOAM SITES AND IS A LAB-WIDE CLASS. D6R IS LIVE, RULED, AND MEASURED CLEAN OF IT** (2026-08-28T16:4xZ, `date -u` at write)
 
-## 1. THE SUPERVISOR STOP — `W3_chain_r4`, KILLED 16:33:52Z BY ME, PERSONALLY
+##### 1. THE SUPERVISOR STOP — `W3_chain_r4`, KILLED 16:33:52Z BY ME, PERSONALLY
 
 **Closure's D548 named `d12y_w3_stage_and_run.sh:566` as carrying the same reader defect that voided its own G1, and W3 had launched 100 seconds earlier.** I did not stop it on that report, and I did not stop it on my own reading of the code. **I stopped it on its own live artefact.**
 
@@ -3943,13 +3947,13 @@ Unchanged, plus one new item. **NEW: the shared index would delete 238 intact fi
 
 **RULE 2: W3's gates CLOSED at 16:28:48Z. NOTHING IS REPAIRED HERE.** Named `W3-LAUNCHER-DEF-1`; the repair belongs to a **successor**, exactly as SO1a's does. **The bitter part, stated plainly: lane U's W3-A3 amendment was correct, well-proved and landed four minutes too late to matter — it repaired the `sorted(cands)[-1]` selection defect while a second, unrelated defect two files away made the item ungradeable regardless.** Its work is not wasted; it carries into the successor.
 
-## 2. THE BANNER DEFECT IS A CLASS, NOT AN INCIDENT — FOUR DAFOAM SITES
+##### 2. THE BANNER DEFECT IS A CLASS, NOT AN INCIDENT — FOUR DAFOAM SITES
 
 Closure measured it firing on **63 of 70 logs, 57 with a clean `End`** — so matching this banner is **the ordinary state of an OpenFOAM log**, not a corner case. Dafoam sites: **`so1a_grade.py`** (fired for real — it is why the SO ladder's head is `NOT A RESULT`), **`so1b_grade.py:490`**, **`so1c_grade.py:155/:449`** (unfired, gates OPEN, lane V repairing), and **`d12y_w3_stage_and_run.sh:566`** (fired, killed a live run). **Closure did not execute them — that check was mine and it is now done, one site driven on a real artefact and three read.** The lab's two correct implementations live under `sdk/`; lane V is instructed to **adopt** one rather than write a fourth bespoke pattern.
 
 **THIS IS THE THIRD TIME TODAY A READER DEFECT HAS PUBLISHED AS A FLUENT PHYSICS CLAIM** — SO1a's "fatal token", SO1b's block on gates never evaluated, and now W3's "has not completed" about a solve with five `End` lines. **The common shape is that the misleading text is PRE-WRITTEN into the refusal**, so the defect never looks like an error. That is worth a lesson number and I am putting it to the chief rather than filing it myself.
 
-## 3. `D6R` IS LIVE, AND I RULE ON THE BUY QUESTION MY LANE WAS RIGHT TO REFUSE TO ANSWER
+##### 3. `D6R` IS LIVE, AND I RULE ON THE BUY QUESTION MY LANE WAS RIGHT TO REFUSE TO ANSWER
 
 **FIRED 16:27:43Z**, pid 1896929, driver 1896967, container `d6r_O_mp_20260828T162849Z_1898072` up, under prereg sha **`e44c7b88`** — the AMENDED one. Chain: `O_mp ACC_mp F_mp REF_off`, **exactly one `chain=started` line**, so the multiplicity guard landed hours earlier is satisfied on its very first run.
 
@@ -3965,7 +3969,7 @@ Closure measured it firing on **63 of 70 logs, 57 with a clean `End`** — so ma
 
 **⚠ CORRECTION AGAINST MY LANE, WHICH SHARPENS THE DEFECT RATHER THAN SOFTENING IT:** I briefed the harm as "the strongest guard is inverted". The lane **built the fixture and could not produce a false PASS** — masked verdicts land on `NOT A RESULT`. **The real harm is a REFUSAL converted into a graded artefact carrying a false census and an understated cost: up to 231.2 core-min, 8.4 % of the item's own total, restated as "bought 0 core-min" beside a fabricated reason.** That is a different failure from the one I named and I accept the correction. **Also corrected: the wrapper waits on D8R's `CHAIN_DONE`, not D6's** — present since 02:13Z, so the precondition was already met and could never have been unsatisfiable.
 
-## 4. ANSWERS TO THE CHIEF, INCLUDING THREE CORRECTIONS
+##### 4. ANSWERS TO THE CHIEF, INCLUDING THREE CORRECTIONS
 
 **(a) WHO LAUNCHED SO1a, AND UNDER WHAT REGISTRATION — nothing irregular.** The **daemon queue runner** (pid 1120800) launched entry `SO1a_chain` at **02:16:34Z**, ranks 1, est 7.4 core-min, under prereg sha **`7bd91ef9`** = *"dafoam SO-1a FROZEN (pre-compute)"*, committed **2026-08-27T17:25:35Z** and containing SO1a's `PREREGISTRATION.md`, grader, driver and selftests. **Registration committed 8 h 51 m before compute. Check 4: PASS.** No rogue launch — a properly frozen, committed, costed entry consumed by the runner while no agent was alive.
 
@@ -3979,7 +3983,7 @@ Closure measured it firing on **63 of 70 logs, 57 with a clean `End`** — so ma
 
 #### UPDATE S-19d — **⚠⚠⚠ `CLAUDE.md` RULE 10's OWN POST-COMMIT VERIFY IS UNRELIABLE AT THIS LAB'S COMMIT RATE — I MEASURED 10 PEER COMMITS LANDING ON TOP OF MINE IN 11 MINUTES, SO `git diff HEAD~1 HEAD` NOW REPORTS ANOTHER TEAM'S WORK. D18 LANDED `PASS` BUT ITS DISCRIMINATION READING IS WITHDRAWN — P7 IS SCORED ON A COMPONENT BOTH ROWS CALLED `NOT A RESULT`. AND AV1R/AV2R ARE BOTH PRODUCER-SIDE READER DEFECTS WITH THE VALUES PROVABLY CORRECT ON DISK** (2026-08-28T16:5xZ, `date -u` at write)
 
-## 1. ⚠⚠⚠ A DEFECT IN THE LAB CONSTITUTION, MEASURED — NOT AN OPINION ABOUT IT
+##### 1. ⚠⚠⚠ A DEFECT IN THE LAB CONSTITUTION, MEASURED — NOT AN OPINION ABOUT IT
 
 **`CLAUDE.md` rule 10 prescribes, as the closing and explicitly non-optional step of the private-index protocol:**
 ```
@@ -4003,7 +4007,7 @@ git diff-tree -r --stat $H $C          # deterministic, regardless of what lands
 
 **MY OWN COMMITS THIS SESSION ARE SOUND, AND I CHECKED RATHER THAN ASSUMED:** every one asserted `git diff-tree --stat $H $T` — **parent-explicit — BEFORE `update-ref`**, and additionally asserted zero deletions via `--diff-filter=D`. The `HEAD~1` line ran microseconds later in the same invocation. **The protocol as written is what is fragile, not this session's commits.** **This is above me: rule 10 is charter law and I am reporting it, not amending it.** Found by dafoam lane W; verified personally by me.
 
-## 2. `D18` = `PASS` AND IT IS LANDED — BUT ITS DISCRIMINATION READING IS **WITHDRAWN**
+##### 2. `D18` = `PASS` AND IT IS LANDED — BUT ITS DISCRIMINATION READING IS **WITHDRAWN**
 
 **Commit `e58a1203`.** Item `PASS`, both rows `PASS`. Band E aggregates **0.1305 %** (SHIPPED) / **0.1459 %** (PATCHED) against 5.0 %; worst single component **3.2410 %**; **zero sign flips**. `CD_baseline` **0.0785452** — **0.377 %** from the pre-registered oblique-shock point, so the 1-D shock reading does not break down at M 5. Planted controls seen on both readers, **worst residual 4.27e-17** over 15 values each. **Grading-path freeze verified both ways** (`d18_grade.py` md5 `e4ade11e…` on disk **and** in the committed blob, matching the value frozen at `PREREGISTRATION.md:120`); Addendum A landed 19:42:30Z on 08-27, **before** first compute at 02:18:44Z — legal.
 
@@ -4019,7 +4023,7 @@ git diff-tree -r --stat $H $C          # deterministic, regardless of what lands
 
 **Foreign rows landed and DISCLOSED:** the commit's `COST_CALIBRATION.md` also carries cfd's **C-195/C-196/C-197**, preserved from the worktree tail by `append_record.py`'s design — dropping them is the D369 loss. Not ours, not read for correctness, and named here so somebody can be dispatched.
 
-## 3. `AV1R` AND `AV2R` — RULED. BOTH REFUSALS ARE PRODUCER-SIDE READER DEFECTS AND THE VALUES ARE PROVABLY CORRECT ON DISK
+##### 3. `AV1R` AND `AV2R` — RULED. BOTH REFUSALS ARE PRODUCER-SIDE READER DEFECTS AND THE VALUES ARE PROVABLY CORRECT ON DISK
 
 **I refused to accept either null at face value, and the refusal was justified in both cases.**
 
@@ -4029,7 +4033,7 @@ git diff-tree -r --stat $H $C          # deterministic, regardless of what lands
 
 **⚠⚠ THE COMMON ROOT, AND IT IS STANDING RULE 3 IN BOTH CASES: NEITHER PRODUCER READER HAS A PLANTED CONTROL THROUGH THE REAL CODE PATH.** `av1r_x.py`'s `partition_record()` is called **exactly once in the whole case directory** and **no selftest invokes it and nothing plants into it**. AV2R is worse and subtler: **its selftest fixture writes `gmresRelTol` INTO `identity` — a shape the real producer never emits — so the fixture and the producer disagree about the artefact schema and the selftest is structurally incapable of catching it.** **A control that exercises a shape the producer never writes is not a control.** Both items' gates are CLOSED; both repairs belong to successors, and **both owe calibration rows** their own registrations demand at `:84` and `:106`.
 
-## 4. CORRECTIONS AGAINST ME, AND THE DAY'S THROUGH-LINE
+##### 4. CORRECTIONS AGAINST ME, AND THE DAY'S THROUGH-LINE
 
 **My brief said the calibration maximum was `C-191`. Wrong twice over:** it is **194 at HEAD**, and **197 effective** once the preserved worktree tail is counted — only `scripts/append_record.py` sees the tail, and it **refused** the wrong id rather than accepting it. **The bolded-cell hazard I warned about is real** (100 bolded cells, 97 ids invisible to a naive anchored pattern, verified against known positives before the max was trusted) **but it is only half the hazard; the unlanded tail is the other half.** Ledger housekeeping offered, not acted on: **three duplicated ids (69, 165, 182) and one missing (C-102)** — not ours to renumber.
 
@@ -4039,7 +4043,7 @@ git diff-tree -r --stat $H $C          # deterministic, regardless of what lands
 
 #### UPDATE S-19e — **⚠⚠⚠ ONE BARE SUBSTRING HAS TAKEN OUT ALL THREE RUNGS OF SANAA'S SO LADDER, AND I ESTABLISHED THE CHAIN BEFORE ENQUEUEING RATHER THAN AFTER: SO1c IS REPAIRED, PROVED, AND STILL CANNOT RUN — ITS REFERENCE INPUT WAS NEVER PRODUCED. I DECLINED TO QUEUE IT AND DISPATCHED THE ITEM THAT UNBLOCKS THE LADDER INSTEAD** (2026-08-28T16:5xZ, `date -u` at write)
 
-## 1. THE SO LADDER IS FULLY BLOCKED, AND THE CHAIN IS ONE TOKEN LONG
+##### 1. THE SO LADDER IS FULLY BLOCKED, AND THE CHAIN IS ONE TOKEN LONG
 
 **`SO1a` false-positive refusal → `SO1b` produced no reference → `SO1c` cannot run.** Verified by me at 16:4xZ:
 
@@ -4049,7 +4053,7 @@ git diff-tree -r --stat $H $C          # deterministic, regardless of what lands
 
 **DISPATCHED: `SO1aR`** — a successor whose subject is **SO1a's existing on-disk artefacts**. SO1a's five arms all ran `rc=0` and `F-S/so1a_F.json` / `F-P/so1a_F.json` are on disk: **the solves are already bought, so the re-grade costs almost no compute and unblocks all three rungs.** SO1a's gates are CLOSED, so this is a separate registration and **not** an edit to its frozen comparator — the D12R re-grade precedent, which the lane is told to follow rather than invent.
 
-## 2. `SO1c` R6 IS LANDED — `42c7c8c3` — AND MY CHECK 1 APPROVES IT
+##### 2. `SO1c` R6 IS LANDED — `42c7c8c3` — AND MY CHECK 1 APPROVES IT
 
 Both defect classes closed in one amendment, one commit, 10 paths, **0 deletions**, on an item at **0 solver core-min**. Rule-2 condition re-verified by the lane at 16:44:46Z with four absent run-root paths, a `find` proved on a known positive, and **zero SO1c rows in `LAUNCH_LOG.tsv` against one SO1a row — and the retired `docker ps -a` reader was NOT used**, as I ordered.
 
@@ -4063,17 +4067,17 @@ Both defect classes closed in one amendment, one commit, 10 paths, **0 deletions
 
 **⚠ A MUTATION CONTROL THAT MEASURED INERT, AND WAS FIXED RATHER THAN REPORTED AS A DECORATION.** Removing the adopted handler symbol changed nothing, because the unit meant to catch it **was defined in terms of the very tuple it empties** — a self-referential control that could not fail. The lane hard-coded the token in a new unit and re-drove it; it now flips. **A control defined in terms of the thing it controls is not a control**, and that is the same family as AV2R's fixture writing a schema the producer never emits.
 
-## 3. THREE CORRECTIONS AGAINST MY FRAMING, ALL ACCEPTED, AND TWO MAKE THE DEFECT WORSE
+##### 3. THREE CORRECTIONS AGAINST MY FRAMING, ALL ACCEPTED, AND TWO MAKE THE DEFECT WORSE
 
 **(1) The two G-MESHID sites are not two picks from one candidate set.** The grader globs **SO1c's own** run root — the **subject** — while the driver globs **SO1b's** — the **reference**. They are the two **sides of one equality test**, each independently reducing its own set. **(2) `head -4` is not "effectively first": under ugrep 7.8.4 multi-file output order is a RACE, so the frozen reference was NON-DETERMINISTIC, not merely mis-ordered.** Both corrections make the defect worse than I described it. **(3)** There are two selftest evidence files, not the three I asserted.
 
 **AND `:934` IS NO LONGER AN ARGUMENT — IT WAS FIRED ON THE FROZEN INSTRUMENT.** A reference carrying two sha256 lines (exactly what `head -4` yields from a two-log root) returned **`GATE FAIL` / `MESH_REGENERATION_IS_NOT_DETERMINISTIC` / item `GATE FAIL`** — the reader defect publishing as a physics finding, demonstrated rather than predicted. **And two `MESH_*.log` in the subject root returned item `PASS`: the ambiguity silently resolved IN FAVOUR OF A PASS.** Reader-condition outcomes now return `NOT A RESULT` with `cause_class: READER_CONDITION_NOT_A_MESH_FINDING` and **do not contain the physics sentence at all, not even to explain themselves** — because a downstream reader greps the reason string. The lane's own first draft quoted the sentence inside the new reason to explain the history, and **its own unit caught it.**
 
-## 4. TWO ITEMS THE LANE PUT ON MY DESK, BOTH LEFT ALONE CORRECTLY
+##### 4. TWO ITEMS THE LANE PUT ON MY DESK, BOTH LEFT ALONE CORRECTLY
 
 **(a) `so1a_grade.py:122-125` still carries the bare token** — SO1a's gates are CLOSED and a post-compute edit to its frozen comparator is barred by rule 2. Its `NOT A RESULT` stands on a false reason and **the fix is `SO1aR`, now dispatched.** **(b) A pre-existing latent path, NAMED rather than silently repaired:** in `g_meshid`, a single `MESH_*.log` carrying no sha never falls back to `MESH/checkMesh.log` and reports `THIS_ITEM_PRINTED_NO_POINTS_SHA256`. Unchanged by R6, **correct-by-refusal**, but the fallback is dead in that branch. Recorded, not touched.
 
-## 5. HEADLINE METRICS (Sanaa §2), 16:50:17Z
+##### 5. HEADLINE METRICS (Sanaa §2), 16:50:17Z
 
 **`D6R` LIVE AND HEALTHY** — container `d6r_O_mp_…` **up 20 minutes**, `chain=started` with exactly one such line, `opt_IPOPT.txt` **not yet written**, which is **on schedule**: the registered per-major model spends its first ~20 minutes on container start, imports, mesh, cold primal, the five trim primals and colouring **before the first major**. 4 ranks, ETA ~11.5 h at the estimate.
 
@@ -4085,7 +4089,7 @@ Both defect classes closed in one amendment, one commit, 10 paths, **0 deletions
 
 **Source, read verbatim at HEAD before acting:** `etc/sessions/2026-08-28T1701Z_sanaa_directives_control_regrade_freezeahead.md`. **Three directives; three of the four routed items bind dafoam, and the fourth (the LESSONS number) is verification's to append.**
 
-## 1. THE RE-GRADE SWEEP — ORDERED "BEFORE ANYTHING ELSE BUILDS ON THEM", AND DISPATCHED AS PHASE 1
+##### 1. THE RE-GRADE SWEEP — ORDERED "BEFORE ANYTHING ELSE BUILDS ON THEM", AND DISPATCHED AS PHASE 1
 
 Sanaa's words: *"Enumerate every verdict, docket row, or finding that cited any of the seven defective readers (SO1a/b/c, W3, AV1R, AV2R, D18, D6R); re-grade each from preserved artifacts through the repaired instrument; report which verdicts moved."* Re-grades are **successor comparators frozen by sha (rule 2); originals never edited.** **Verification rules on each moved verdict — not me.**
 
@@ -4097,7 +4101,7 @@ Sanaa's words: *"Enumerate every verdict, docket row, or finding that cited any 
 
 **⚠ AND I HAVE ASKED THE LANE TO TEST SANAA'S OWN PREMISE RATHER THAN ASSUME IT.** Her order rests on *"per the TOOL LAW, nothing was dropped — artifacts exist, so this is cheap."* **That is checkable and it is being checked per item.** Where artefacts are gone, a cheap re-grade becomes a re-run, and **she should be told rather than have the sweep quietly shrink to fit.**
 
-## 2. THE BIRTH REQUIREMENT — CANONIZED, AND RELAYED TO EVERY LANE BUILDING A COMPARATOR
+##### 2. THE BIRTH REQUIREMENT — CANONIZED, AND RELAYED TO EVERY LANE BUILDING A COMPARATOR
 
 Sanaa's words: *"A control defined in terms of the thing it controls is not a control. A planted control must travel the real production path — written by the real producer's code, read through the real reader… A control that empties the tuple it tests, or writes a schema the producer never emits, tests nothing and certifies blindness."* And: *"rule 3's question … is now the birth requirement for every reader/comparator: no instrument grades anything until that answer is yes, demonstrated."*
 
@@ -4107,13 +4111,13 @@ Sanaa's words: *"A control defined in terms of the thing it controls is not a co
 
 **⚠ AN HONEST EXPOSURE I RAISE AGAINST MYSELF, BECAUSE NOBODY ELSE WILL: `D6R` IS GRADING UNDER THE OLD STANDARD.** It went to compute at 16:27:43Z, **before** this directive, so **rule 2 has closed its gates and its comparator cannot now be brought to the birth requirement.** Its IPOPT reader does carry a real-path plant (a plant written into a copy of a real artefact and re-read through the real reader), but **I have not established that every graded reader in it meets the new standard, and I will not claim it does.** When it grades in ~11 h, **its birth-requirement status is recorded as a caveat beside its verdict, and any gap goes to a successor.** The rule is not retroactive to a run already in flight; the disclosure is.
 
-## 3. FREEZE-AHEAD AMENDED — AND IT CONVERTS THIS FAMILY'S EMBARRASSMENT INTO ITS QUEUE
+##### 3. FREEZE-AHEAD AMENDED — AND IT CONVERTS THIS FAMILY'S EMBARRASSMENT INTO ITS QUEUE
 
 *"Freeze-ahead counts repair-registrations; a team blocked on findings freezes the repairs and runs them — queue depth 0 with open findings is impossible by definition."*
 
 **This is the right rule and it lands squarely on what I reported an hour ago:** I wrote that dafoam's three nearest candidates were "blocked on findings rather than on effort" and booked freeze-ahead **0**. **Under the amendment that reads as a self-indictment rather than an explanation — the findings ARE the work items.** Dafoam's repair queue, now scoped: **`SO1aR`** (in registration, unblocks all three SO-1 rungs), **`SO2a`** (in registration), and **four further repair registrations owed** — a **W3 successor** (bare token, gates closed by my stop), an **AV1R successor** (compression-blind producer), an **AV2R successor** (producer/grader schema mismatch), and a **D18 successor** (the asymmetric P7 filter). **That is six, against a floor of three.** Lane cap is 3 and all three are live, so the remaining four queue behind them **as work items with owners, not as open findings.**
 
-## 4. SO-2 PULLED FORWARD; SO-3 SCOPED, NOT FROZEN
+##### 4. SO-2 PULLED FORWARD; SO-3 SCOPED, NOT FROZEN
 
 *"Rungs SO-2/SO-3 don't depend on the blocked SO-1 graders' findings — the ladder was built deep precisely so one blocked rung can't starve the family; pull forward."* **Correct, and the reason is worth stating precisely: SO-1 is blocked on its GRADERS, not on its physics, its case, its FFD or its launcher — SO1a's own clean 5-arm run proves that machinery works end to end.**
 
@@ -4382,7 +4386,7 @@ Measured at 21:29:27Z from `/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-
 
 **Both answers were derived from the frozen documents and the code at a moment when the event has NOT happened — D8R's O-P arm is still in flight and no H5 window for F-P has opened. That is the whole point: the answer cannot have been chosen to fit an outcome that does not yet exist.**
 
-## 1. WHAT D8R's REGISTRATION SAYS HAPPENS WHEN ITS OWN H5 WINDOW REFUSES THE NEXT ARM
+##### 1. WHAT D8R's REGISTRATION SAYS HAPPENS WHEN ITS OWN H5 WINDOW REFUSES THE NEXT ARM
 
 **IT IS A HARD STOP OF THE WHOLE CHAIN. NOT held-and-retry. Quoted with its line:** `d8r_chain_driver.sh:143-146` —
 ```
@@ -4401,7 +4405,7 @@ if [ "$BELOW" -gt 0 ] || [ "$N" -ne "$H5_SAMPLES" ]; then
 
 **RULING `[lab-attributed]`, MADE BEFORE THE EVENT AND ON THE CHIEF'S OWN INSTRUCTION: the registration is SILENT, so this is a REGISTRATION DEFECT — `D8R-GRADER-DEF-1` — and NOT a decision to be taken on the night.** It re-registers in a successor; it is **not repaired mid-flight**. Rule 2 has already closed D8R's gates — the item has spent compute (O-P has been solving since 22:31:02Z), so the pre-compute window shut before this was found and **the repair is NOT free here**, unlike SO1c and W3 this evening. **Nothing about D8R is touched.** If an H5 stop occurs, the honest verdict is what the instrument actually produces — a comparator refusal — and it is recorded as such, with this ruling's timestamp proving the label predates the outcome.
 
-## 2. D6's RE-REGISTRATION PATH, AND THE COST STATED AS SPENT
+##### 2. D6's RE-REGISTRATION PATH, AND THE COST STATED AS SPENT
 
 **Name: `D6R`.** In registration now. **What changes, and nothing beyond it:** (i) **grade the arms that RAN and NAME the arms that did not**, never refuse on a registered chain stop — an absent arm is reported absent, with its reason, while the arms that ran are graded on their own limbs (a physics limb that cannot be evaluated still yields `NOT A RESULT` for its own row); (ii) **fix the `ARM_DIR` aliasing** (`d6_grade.py:46` points `F_mp` at `O_mp`'s directory, so even a restricted run refuses on a history file the unrun `F_mp` writes) and assert the mapping in the instrument; (iii) **register the chain-stop path as a GRADEABLE outcome**, naming in advance what verdict a stop at each arm produces — the gap that is `D6-GRADER-DEF-1`, and the same gap I have just found in D8R; (iv) **repair `docker_logs()`** (`:176-179` pairs `capture_output=True` with `stderr=subprocess.STDOUT`, which raises `ValueError` — it has never been able to return since freeze) **with a unit that drives it and shows it returns, under both interpreters**; (v) **the cap-frame repair**, enforcing and grading on the same clock — and the cleanest available route is the one D8R already writes to disk: `d8r_run_arm.sh:462` records the kernel's own `.State.StartedAt`/`.State.FinishedAt`, so a container-frame figure is recoverable with no host bracket at all.
 
