@@ -17151,3 +17151,92 @@ one file that went against the lab's own prior written statement of the principl
 the `T15b` remedy; **L-340** for the principle T15 departed from; **D389** for the
 kinship, unsettled. **T15 is `BLOCKED`** on this defect — the run is complete under all
 six of `CLAUDE.md` rule 4's conditions and no row verdict exists.
+
+## L-400 — ⚠⚠ A SWEEP'S ZERO IS A CLAIM ABOUT THE PATTERN UNTIL A KNOWN POSITIVE MAKES IT A CLAIM ABOUT THE CODE — AND THE ORDER IS THE LESSON, BECAUSE THE SAME ZERO READS AS AN ANSWER BEFORE YOU HOLD A REFERENCE AND AS A BUG AFTER
+
+**The rule.** Before you believe a code sweep, **name a specific file and line you
+already know carries the shape, run the pattern against THAT FIRST, and only then
+trust a zero anywhere else.** Rule 3 already says a zero from a reader not shown able
+to see a non-zero is not evidence; this is its **sweep-specific form**, and the part
+that is genuinely new is **the ORDERING**. A zero that arrives *before* you hold a
+reference looks like an answer — there is nothing on the page to contradict it, so it
+gets written down as a finding. **The identical zero arriving *after* you hold an
+established count looks like a bug**, because it meets a number instead of an empty
+page. **Same bytes, opposite epistemic status, decided purely by order of
+operations** — which is why "I'll sanity-check it if the result looks odd" does not
+work: a void zero does not look odd, it looks clean.
+
+**Five specimens, all in ONE session (2026-08-28), across three agents and a
+supervisor.** Each is a pattern that could not see what it was hunting:
+
+| # | Whose | Pattern searched | What the code actually says | Consequence |
+|---|---|---|---|---|
+| 1 | supervisor (**D556**) | `plant_into` across the F14 analysers | `verification/runs/F14-cooling-ladder/K0c_runs/analyse_k0c.py` uses **`plant`** — and carries **three** physics plants: a `constant/g = (0 0 0)` twin (`:768`), a `dT × 1.10`, `Ra = 1.10e5` twin (`:789`), and a uniform **5.000e-03 W** volumetric source with a recovery error (`:807-812`), each with an `in_log_witness` | boarded **"no planted-zero control in ANY F14 analyser"** — the exact opposite of the truth, and *retracted by the supervisor itself* |
+| 2 | supervisor | `^## D<n>` for the docket maximum | `docs/DOCKET.md` uses the **table-row** form `\| D<n> \| … \|` — `^## D` matches **0** of **558** rows | an empty result read as **"no rows"**; the rule-11 maximum could not be derived at all |
+| 3 | scope lane (**D553**) | first normalised-dispersion pattern | missed `verification/runs/T-family/T8_runs/analyse_t8.py:1339`, `(max(Fs_) - min(Fs_)) / abs(mean)` | caught by a **hand check**, pattern widened, then **re-proved against two known positives** before the rerun |
+| 4 | scope lane (**D558**) | `mark_done` as a launcher-gap detector | matched the token inside **comments** | **19 false YESes** including T15 — a **NON-zero that was equally void**; corrected to a mention-vs-invocation discriminator and proved against the real invocation at `verification/runs/F14-cooling-ladder/K0d_runs/.completion_watch/watch.sh:9` |
+| 5 | boarding lane | `st_mtime` for age guards over 80 files | the codebase uses **`os.path.getmtime`** — `st_mtime` appears in **2** files under `verification/runs`, `getmtime` in **40** | returned **0** strict-`<` and **0** `<=`. **THE TELL WAS INSIDE ITS OWN OUTPUT:** it printed `verification/runs/T-family/T1_runs/mark_done_t1b_L4.py:92` — a *known positive* — **directly beneath its own zero** |
+
+**WHY SPECIMEN 5 COST NOTHING, AND THAT IS THE WHOLE POINT.** It cost nothing *only*
+because that lane had already run a correct-pattern sweep and **had an established
+count in hand**. The void zero landed next to a reference and was recognised in
+seconds. Specimens 1 and 2 had no reference in hand, so their zeros were **boarded as
+findings**. The difference was not diligence, cleverness or scepticism — **it was the
+order the two things were done in.**
+
+**AND NONE OF THE FIVE WAS CAUGHT BY INSPECTING THE PATTERN.** Every one was caught by
+**holding the result against a known positive**. **Reading your own regex is not a
+check on it**: the regex is exactly the artefact whose assumptions are under
+suspicion, so re-reading it re-runs the assumption that produced it. The same mind
+that wrote `plant_into` will read `plant_into` and see nothing wrong.
+
+**THE SYNONYM IS WHAT KILLS YOU, AND IT IS THE ONE THING YOU CANNOT GENERATE.** Every
+specimen here is a **synonym miss** — `plant` / `plant_into`, `getmtime` / `st_mtime`,
+`| D` / `## D`. The ground truth must **exercise the synonym you did not think of**,
+which is precisely what you cannot invent from your own assumptions. **So the known
+positive must be DRAWN FROM THE CODEBASE, never written by you.** A hand-crafted
+fixture proves your pattern matches your idea of the shape; a real line from a real
+file proves it matches *the shape the codebase actually contains*.
+
+**THE CONTROL IS TWO-SIDED, because the sibling failure is a void NON-zero.**
+Specimen 4 returned 19 answers and every one was wrong. So the control needs **both
+arms**:
+
+- a **known positive** the sweep **MUST** see — real bytes from a real file; and
+- a **known negative** it **MUST NOT** flag — canonically *the same shape inside a
+  comment, a docstring, or a struck line*, which is the use-versus-mention trap.
+
+A sweep passing only the positive arm is licensed to over-report; one passing only the
+negative arm is licensed to under-report. **Report both arms beside the count, or the
+count is not evidence.**
+
+**PRACTICAL FORM — four lines, and it is cheap.**
+
+1. **Before** running the sweep, name a file:line you know carries the shape, and one
+   you know does not (a commented or struck instance of the same shape).
+2. Run the pattern against those two **first**. If the positive is not seen, or the
+   negative is flagged, **the pattern is the finding — stop, and report nothing else.**
+3. Only then sweep, and **print the two control outcomes beside the number.**
+4. Where the shape may have synonyms, **grep for the CONCEPT before the token** — how
+   many files contain *any* mtime call, *any* plant, *any* docket row — and if that
+   population is large while your hits are zero, **your pattern is wrong, not the
+   codebase.** Specimen 5's population was 40 files; its hit count was 0.
+
+**AND READ YOUR OWN OUTPUT AGAINST YOUR OWN CLAIM.** Specimen 5 printed the
+counter-example to its own zero, in the same block, and the zero was still reported.
+A tally and the lines beneath it are two channels; **when they disagree, the tally is
+the one that is wrong.**
+
+**Scope note — this is not a duplicate of L-399.** L-399 is about a *negative
+control whose perturbation lands on an algebraic identity* — an identity-boundary
+failure inside a comparator. This is about **the instrument that measures the
+codebase**: a sweep, a census, an audit count. They rhyme through rule 3 and are
+distinct failures.
+
+**See also:** `CLAUDE.md` **rule 3** (planted-zero control — the principle this
+specialises), **rule 11** (a count and a maximum are different figures; specimen 2 is
+that trap arriving through a pattern rather than through arithmetic), **L-396** (a
+detector on a POSITIVE channel needs rule 3's mirror — the two-sided requirement
+above is the same demand), **L-395** (an instrument that shrinks an already-measured
+set looks like convergence), and **D553** / **D554** / **D556** / **D558** for the
+specimens as boarded.
