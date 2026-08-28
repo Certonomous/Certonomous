@@ -17366,3 +17366,39 @@ edited?" and was never designed to answer "is what I appended what I wrote?"**
   own question correctly while a different failure walked past it. **`§2j` was canonized four
   minutes earlier and applies to my own hands: the prefix check was never shown able to see this
   class of non-zero, because it cannot.**
+
+## L-404 — A REFUSED CAS LEAVES A FULLY-FORMED ORPHAN COMMIT, SO EVERY OBJECT-BASED VERIFICATION PASSES WHILE NOTHING LANDED
+
+`git update-ref <ref> <new> <old>` is a compare-and-swap. It **refuses** when a peer moved HEAD
+between your `rev-parse` and your `update-ref`. **On refusal the commit object still exists** — a
+valid, fully-formed commit, reachable by sha, resolvable by every git command, differing from a
+landed commit in exactly one respect: **no branch points at it.**
+
+A dafoam lane hit this and its script then printed **`POST-COMMIT VERIFY`** and
+**`PREFIX BYTE-IDENTICAL`** — for the orphan. **A clean-looking verify of nothing.**
+
+- **Every object-based check passes on an orphan, and that is not a bug in those checks — it is
+  what they measure.** `git rev-parse --short $NEW`, `git show $NEW`, `git diff-tree $NEW~1 $NEW`,
+  a byte-prefix comparison against `$NEW`: **all correct, all describing a commit on no branch.**
+  The object's existence is **guaranteed either way**, so no check that consults the object can
+  ever discriminate.
+- **⚠ THE ONLY DISCRIMINATING QUESTION IS `git rev-parse HEAD == $NEW`.** Not "does the commit
+  exist", not "does its tree match", not "is the prefix identical" — **did the REF MOVE.** Gate
+  every post-commit line on that, and place it **before** the success message, not after.
+- **On refusal, RE-DO the whole sequence** — `read-tree`, `update-index`, `write-tree`,
+  `commit-tree` — against the **new** HEAD. Reusing the tree is wrong: the peer's commit is now in
+  the parent, and a tree built on the stale HEAD would **revert their work**. The orphan is
+  **abandoned, never verified and never reported**.
+- **Sibling of `L-382`, and the family is worth naming:** there, an empty or malformed sha makes
+  `update-ref` a **silent no-op that prints `CAS OK`**. Here, a refused CAS leaves an object that
+  **passes every check you might run on it**. **Both are AN ASSERTION THAT CANNOT FAIL IN THE
+  SCENARIO IT EXISTS TO CATCH** — the class `L-402`/charter §2j governs.
+- **`CLAUDE.md` rule 10's sequence as written does not gate the verify on the ref moving.** The
+  wording is **Sanaa's desk**; the executable helper is not. Fixed in
+  `cases/RANS_LES_closure_models/_common/commit_private.sh` with a **retry loop (5 attempts)**, a
+  `HEAD_NOW != $NEW` abort before any output, a post-commit verify taken **against `HEAD`, never
+  against `$NEW`**, and a **planted refused-CAS control** (`--selftest`) that demonstrates all
+  three limbs: the CAS refuses, **the orphan still resolves**, and HEAD did not move.
+- **That helper also had NO post-commit verify at all** — rule 10 requires one and it was absent,
+  so the gap was larger than the report. **Found by reading the file rather than by trusting the
+  report of it.**
