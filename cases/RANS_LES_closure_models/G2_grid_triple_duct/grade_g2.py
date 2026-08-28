@@ -106,6 +106,39 @@ VERDICTS = ("PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PEN
 TIME_DIR = re.compile(r"^[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?$")
 GRADP_LOG = re.compile(r"pressure gradient = ([-+0-9.eE]+)")
 
+# The FATAL reader used by `parse_log`, REPAIRED 2026-08-28 under the pre-compute
+# amendment (PREREGISTRATION.md v1.1).  The frozen clause was
+#     FOAM FATAL|Floating point exception|signal \(
+# ANDed with itself, and its UNANCHORED `Floating point exception` matched
+# OpenFOAM's own startup banner --
+#     trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+# -- which every log this box produces carries at line 18.  A clause that fires on
+# a safety notice is a constant, not a detector.  The replacement is built from
+# the lab's own precedents: the FOAM-ERROR channel of
+# `sdk/chief_engineer/mesh_certificate.py` (_FATAL) and the LINE-ANCHORED FPE
+# channel of `sdk/chief_engineer/head_engineer.py:188`.  Anchoring is what defeats
+# the banner: the banner's phrase is preceded by `trapFpe: ` and so never begins
+# its line.  Five channels:
+#   (1) a genuine FOAM error header, with or without ` IO`, at any MPI rank prefix
+#   (2) the library's own exit line
+#   (3) a signal handler that actually FIRED (sigFpe, sigSegv, sigInt, ...)
+#   (4) a stack trace being printed
+#   (5) a message the SHELL wrote, which always begins the line it is on
+# `trapping enabled` appears in none of them.  This reader is exercised in BOTH
+# directions by `planted_control_fatal` (standing rule 3).
+FATAL_RE = re.compile(
+    r"-->\s*FOAM FATAL(?:\s+IO)?\s+ERROR"
+    r"|FOAM exiting"
+    r"|Foam::sig\w+::sigHandler"
+    r"|Foam::error::printStack"
+    r"|^(?:Floating point exception|Segmentation fault)",
+    re.MULTILINE)
+
+# OpenFOAM's startup banner, VERBATIM from a real log on this box
+# (/home/ubuntu/closure-data/g1/L1/log.run line 18).  The negative direction of
+# the planted control writes this exact line to disk.
+FPE_BANNER = "trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).\n"
+
 
 class Refusal(Exception):
     """A condition that must stop this instrument under ANY interpreter flag."""
@@ -346,10 +379,15 @@ def parse_log(path):
     return {
         "absent": False,
         "end": bool(re.search(r"(?m)^End\s*$", text)),
-        "fatal": bool(re.search(r"FOAM FATAL|Floating point exception|"
-                                r"signal \(|--> FOAM Warning : Could not load", text)
-                      ) and bool(re.search(r"FOAM FATAL|Floating point exception|"
-                                           r"signal \(", text)),
+        # REPAIRED 2026-08-28 (pre-compute amendment, PREREGISTRATION.md v1.1).
+        # The frozen expression matched OpenFOAM's `trapFpe:` startup banner and
+        # so returned True on any clean log; see FATAL_RE above for the reading
+        # and the precedents.  `libs_warning` on the next line is a SEPARATE
+        # channel and is untouched -- note that the frozen clause's
+        # `--> FOAM Warning : Could not load` alternative sat only in the FIRST
+        # half of the `and`, so it could never on its own make `fatal` True, and
+        # dropping it here changes no behaviour.
+        "fatal": bool(FATAL_RE.search(text)),
         "libs_warning": "Could not load" in text,
         "exec_count": len(re.findall(r"ExecutionTime = ", text)),
         "n_time_blocks": len(blocks),
@@ -536,6 +574,87 @@ def planted_control_tauw(geom, tmp):
         return want2
     refuse("PLANT tauw(c): a shear field with %d values on a %d-face patch was "
            "accepted; the length check is not a check" % (nF - 1, nF))
+
+
+def planted_control_fatal():
+    """Standing rule 3 for the FATAL reader, in BOTH directions.
+
+    A detector never shown able to return NOT-fatal is a constant, and the clause
+    this control guards WAS one: measured over 70 `log.run` files across three
+    families the frozen expression fired on 63, of which 57 carry a clean `End`.
+    So this control writes THREE REAL files into a `tempfile.TemporaryDirectory()`
+    and reads every one of them back through `parse_log` -- the SAME function the
+    three registered levels go through, not a copy of its expression -- and
+    REFUSES if either direction fails.  The negative direction is the point of the
+    control, not a courtesy to it.
+
+    Returns (fatal_on_FOAM_FATAL, fatal_on_sigFpe, fatal_on_clean_banner_log),
+    which is (True, True, False) or this function has already refused.
+    """
+    prologue = ("Exec   : simpleFoam -case .\n"
+                "Host   : ip-172-31-43-247\n"
+                "nProcs : 1\n"
+                + FPE_BANNER +
+                "memory pool : not available\n"
+                "fileModificationChecking : Monitoring run-time modified files\n\n")
+    body = ("Time = 1\n"
+            "DILUPBiCGStab:  Solving for Ux, Initial residual = 1e-14, "
+            "Final residual = 1e-16, No Iterations 1\n"
+            "ExecutionTime = 1 s  ClockTime = 1 s\n\n")
+
+    with tempfile.TemporaryDirectory(prefix="g2fatal_") as td:
+        td = Path(td)
+
+        # (a) POSITIVE: a genuine FOAM FATAL ERROR block, as the library writes it.
+        a_path = td / "plant_log_foam_fatal.run"
+        a_path.write_text(
+            prologue + body +
+            "--> FOAM FATAL ERROR: (openfoam-2606)\n"
+            "Maximum number of iterations exceeded: 1000\n\n"
+            "    From function void Foam::PBiCGStab::solve(...)\n"
+            "    in file lduMatrix/solvers/PBiCGStab/PBiCGStab.C at line 193.\n\n"
+            "FOAM exiting\n\n")
+        a = parse_log(a_path)
+        if not a["fatal"]:
+            refuse("PLANT fatal(a): a log carrying a genuine `--> FOAM FATAL ERROR` "
+                   "block and `FOAM exiting` was read as NOT fatal; the reader "
+                   "cannot see the failure it exists to see")
+
+        # (b) POSITIVE: a signal handler that actually FIRED, with its stack trace
+        # and the shell's own message on a line of its own.
+        b_path = td / "plant_log_sigfpe.run"
+        b_path.write_text(
+            prologue + body +
+            "#0  Foam::error::printStack(Foam::Ostream&) at ??:?\n"
+            "#1  Foam::sigFpe::sigHandler(int) at ??:?\n"
+            "#2  ? in /lib/x86_64-linux-gnu/libc.so.6\n"
+            "#3  Foam::divide(Foam::Field<double>&) at ??:?\n"
+            "Floating point exception (core dumped)\n")
+        b = parse_log(b_path)
+        if not b["fatal"]:
+            refuse("PLANT fatal(b): a log carrying `Foam::sigFpe::sigHandler`, a "
+                   "printed stack and the shell's own `Floating point exception "
+                   "(core dumped)` was read as NOT fatal")
+
+        # (c) NEGATIVE -- the direction the frozen clause failed.  A CLEAN log
+        # carrying OpenFOAM's `trapFpe:` banner VERBATIM must read NOT fatal.
+        c_path = td / "control_log_clean_banner.run"
+        c_path.write_text(prologue + body + "End\n")
+        if FPE_BANNER not in c_path.read_text():
+            refuse("PLANT fatal(c): the banner is not in the file ON DISK that the "
+                   "reader was handed; the negative direction would prove nothing")
+        c = parse_log(c_path)
+        if c["absent"] or not c["end"]:
+            refuse("PLANT fatal(c): the control file was not read as a present log "
+                   "carrying an `End` line (absent=%r end=%r); the reader never saw "
+                   "it, so its NOT-fatal would be a blind spot" % (c["absent"], c["end"]))
+        if c["fatal"]:
+            refuse("PLANT fatal(c): a CLEAN log whose only match is OpenFOAM's own "
+                   "startup banner -- %r -- was read as FATAL. A detector that "
+                   "cannot return NOT-fatal is a constant, and a constant grades "
+                   "every level NOT A RESULT whatever the physics says."
+                   % FPE_BANNER.strip())
+        return a["fatal"], b["fatal"], c["fatal"]
 
 
 # --------------------------------------------------------------------------
@@ -848,6 +967,11 @@ def grade(run_root=RUN_ROOT):
     tw = planted_control_tauw(geom, tmp)
     print("  tauwint: uniform-shear closed form and a single-face plant both "
           "recovered\n           exactly (%.9e); a short face list REFUSED" % tw)
+    fa, fb, fc = planted_control_fatal()
+    print("  fatal  : a genuine `--> FOAM FATAL ERROR` block reads %r and a fired "
+          "sigFpe\n           handler with its stack reads %r, while a CLEAN log "
+          "carrying\n           OpenFOAM's `trapFpe:` banner verbatim reads %r -- "
+          "the reader\n           is a detector, not a constant" % (fa, fb, fc))
 
     # ---- functionals ------------------------------------------------------
     print("\n[FUNCTIONALS]")
@@ -1063,6 +1187,15 @@ def selftest():
             ok = False
     print("  all six fixed verdicts pass through unchanged")
 
+    print("[fatal reader -- planted control, BOTH directions (rule 3)]")
+    fa, fb, fc = planted_control_fatal()
+    print("  a genuine `--> FOAM FATAL ERROR` block + `FOAM exiting`  fatal=%r" % fa)
+    print("  a fired `Foam::sigFpe::sigHandler` with a printed stack  fatal=%r" % fb)
+    print("  a CLEAN log carrying the `trapFpe:` banner verbatim      fatal=%r" % fc)
+    ok &= _must_refuse(
+        "the FROZEN fatal expression, which fires on OpenFOAM's own startup banner",
+        _blind_fatal)
+
     print("[readers and planted controls, on a REAL shipped mesh]")
     if not SRC_CASE.is_dir():
         print("  SKIPPED: the source case is not on disk")
@@ -1171,6 +1304,24 @@ def selftest():
     shutil.rmtree(tmp, ignore_errors=True)
     print("SELFTEST %s" % ("PASSED" if ok else "FAILED"))
     return 0 if ok else 1
+
+
+def _blind_fatal():
+    """The FROZEN fatal expression, restored for exactly one call: the control
+    MUST refuse.  This is the `_blind_tauw` pattern applied to the fatal channel.
+    The expression installed here is the second half of the frozen `and` at
+    71654cec, which is what actually decided the value (the first half added only
+    `--> FOAM Warning : Could not load`, an alternative that could never fire
+    alone).  If `planted_control_fatal` does not refuse against it, the control is
+    not a control and the repair is unproven.
+    """
+    global FATAL_RE
+    good = FATAL_RE
+    FATAL_RE = re.compile(r"FOAM FATAL|Floating point exception|signal \(")
+    try:
+        planted_control_fatal()
+    finally:
+        FATAL_RE = good
 
 
 def _blind_tauw(geom, tmp):

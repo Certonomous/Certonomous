@@ -1050,3 +1050,206 @@ Two disclosures that belong in this register rather than in a footnote:
   primary because it needs no post-processing artefact and so survives the L-342
   split, and `tauwint` is registered anyway, with its own band and its own
   verdict, rather than being held in reserve.
+
+---
+
+## 14. AMENDMENT 2026-08-28 — the fatal-log reader was a constant, repaired BEFORE first compute (v1.0 -> v1.1)
+
+**lines whose number changed above this section: 0**
+
+**Version.** The document as frozen at `71654cec` carried no explicit version
+line; it is designated **v1.0** here, and this amendment is **v1.1**. The
+designation is made in this appended section and nowhere else: rule 6 forbids
+editing a line above it, so no version string was inserted into the header.
+
+### 14.1 The defect
+
+`grade_g2.py`'s fatal clause, at lines 349-352 of the frozen file, read
+
+```
+"fatal": bool(re.search(r"FOAM FATAL|Floating point exception|"
+                        r"signal \(|--> FOAM Warning : Could not load", text)
+              ) and bool(re.search(r"FOAM FATAL|Floating point exception|"
+                                   r"signal \(", text)),
+```
+
+Its `Floating point exception` alternative is **unanchored**, so it matches
+OpenFOAM's own startup banner —
+
+```
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+```
+
+— which every log this box produces carries at **line 18** (verbatim at
+`/home/ubuntu/closure-data/g1/L1/log.run:18`). The clause reads a **safety
+notice** as a failure. A `True` from it feeds §5's P3 clause, which makes the
+level incomplete, which makes the triple `NOT A RESULT` under standing rule 5
+step 1 — **whatever the physics says, and before any Roache arithmetic runs**.
+
+**Measured evidence.**
+
+* The closure supervisor measured the frozen expression over **70 `log.run`
+  files across three families: it FIRED on 63, of which 57 carry a clean `End`**.
+  A clause that fires on 90 % of logs, 90 % of those on runs that finished, is a
+  **near-constant, not a detector**. That measurement is the supervisor's and is
+  cited here as theirs.
+* The same reading was reproduced independently by this lane over the 51 files
+  named exactly `log.run` under `/home/ubuntu/closure-data/` and
+  `/home/ubuntu/certonomous-runs/`: **the frozen expression fires on 46, of which
+  41 carry a clean `End`**.
+* The supervisor confirmed **by execution, not by reading**, that G2's own clause
+  returns `True` on a log whose only match is the banner. This lane re-confirmed
+  it by execution against the frozen file before editing anything: a clean
+  synthetic log carrying the banner verbatim, one `Time` block and an `End` line
+  was read as `fatal=True, end=True`.
+
+Filing G2 as frozen therefore bought a **guaranteed `NOT A RESULT`** for the
+whole of its registered compute (§7: a REGISTERED ESTIMATE of 61.0 core-minutes
+against a REGISTERED CAP of 120.0 core-minutes).
+
+### 14.2 The pre-compute condition, and how it was checked
+
+Standing rule 2 permits amendment **before first compute** and requires the
+condition and its check to be stated. Checked twice — by the closure supervisor
+at 2026-08-28T16:1xZ, and **re-verified independently by this lane at
+2026-08-28T16:11:45Z, before any file was touched**:
+
+| condition | how it was checked | what was seen |
+|---|---|---|
+| the run root holds nothing | `ls -la /home/ubuntu/closure-data/g2` | the directory EXISTS and is EMPTY: `.` and `..` only, zero entries. No time directory, no field file, no `CHAIN.log`, no `STATUS.*`, no `launcher.queue.out`. |
+| G2 was never enqueued | listing of `verification/queue/closure/` in full | `launched/` holds exactly four records — `G1_grid_triple.2026-08-27T172858Z.json`, `G1_grid_triple.json`, `M1_kOmegaSST_null__AR_1_Ret_180.json`, `M1_kOmega__AR_1_Ret_180.json` — **and no G2**. A `pending/` directory **does not exist** under `verification/queue/closure/`; the "not in pending" leg is therefore satisfied by the absence of the directory itself, and is recorded that way rather than as a listing. A `find` for `*g2*` across `verification/queue/` returns only the cfd rung `F18_TG2D` and `F18b_TG2D_EXT`, which are unrelated names. |
+| the freeze chain is one commit | `git log --all` on both files | exactly one commit, `71654cec`, for `grade_g2.py` and for this document; `71654cec` is an ancestor of `HEAD`. Both files were byte-identical to their `71654cec` blobs before this amendment (`grade_g2.py` blob `0cbf39da`, this document blob `ffe0d9ad`). |
+
+**Zero core-minutes have been spent on G2.** No G2 run exists, on any level, by
+anyone. Had any one of the three checks read otherwise, gates would be closed and
+this repair would be **barred**; the instruction under which this lane worked was
+to stop and report in that case.
+
+### 14.3 What changed
+
+Two things, and nothing else.
+
+1. **The fatal reader.** The clause is replaced by a module-level `FATAL_RE`
+   built from the lab's own precedents rather than an invented pattern:
+   * the FOAM-ERROR channel of `sdk/chief_engineer/mesh_certificate.py`
+     (`_FATAL` = `-->\s*FOAM FATAL(?:\s+IO)?\s+ERROR|FOAM exiting`), and
+   * the **line-anchored** FPE channel of `sdk/chief_engineer/head_engineer.py:188`
+     (`Foam::sigFpe::sigHandler|^Floating point exception` under `re.MULTILINE`),
+     which covers the FPE channel only and is not used here as a complete fatal
+     detector on its own.
+
+   The repaired reader has five channels: a genuine `--> FOAM FATAL ERROR` or
+   `FOAM FATAL IO ERROR` header at any MPI rank prefix; `FOAM exiting`; a signal
+   handler that actually fired (`Foam::sig<name>::sigHandler`); a printed stack
+   (`Foam::error::printStack`); and a line that **begins** with `Floating point
+   exception` or `Segmentation fault`, which is the shell's own message.
+   **Anchoring is what defeats the banner**: the banner's phrase is preceded by
+   `trapFpe: ` and so never begins its line. Neither `trapFpe:` nor `trapping
+   enabled` appears in any channel.
+
+2. **A planted control for the fatal reader (standing rule 3), which the frozen
+   comparator did not have.** `planted_control_fatal()` writes **three real files**
+   into a `tempfile.TemporaryDirectory()` and reads every one of them back through
+   **`parse_log` itself** — the same function the three registered levels go
+   through, not a copy of its expression — and **refuses (`Refusal` -> exit 2)** if
+   either direction fails:
+   * a log carrying a genuine `--> FOAM FATAL ERROR` block and `FOAM exiting`
+     **must** read `fatal=True`;
+   * a log carrying `Foam::sigFpe::sigHandler`, a printed stack and the shell's
+     `Floating point exception (core dumped)` **must** read `fatal=True`;
+   * a **clean** log carrying `trapFpe: Floating point exception trapping enabled
+     (FOAM_SIGFPE).` **verbatim must read `fatal=False`** — and the control first
+     re-reads that file from disk to confirm the banner is in the bytes the reader
+     was handed, and confirms the reader saw the file at all (`absent=False`,
+     `end=True`) so that a `False` cannot be a blind spot.
+
+   **The negative direction is the point of the control.** A detector never shown
+   able to return NOT-fatal is a constant, and the frozen clause was one.
+
+   The control is wired into **both** paths: the grading path, beside the existing
+   `gradP` / `Kint` / `tauwint` plants, and `--selftest`. In `--selftest` it sits
+   **outside** the `SRC_CASE.is_dir()` guard, so it runs even when the shipped
+   mesh is absent.
+
+   A blind control, `_blind_fatal()`, on the `_blind_tauw` pattern, reinstalls the
+   **frozen** expression for exactly one call and requires
+   `planted_control_fatal()` to **refuse** against it. The control is therefore
+   shown firing on precisely the defect it was written for.
+
+**Measured behaviour of the repaired reader on real data.** Over the same 51
+`log.run` files, the repaired reader returns `fatal=True` on **4** and
+`fatal=False` on **47**; all 47 negatives carry a clean `End`. Each of the four
+positives was triaged by this lane and each is **genuine**:
+`closure-data/hump_gate/G0a_shipped` (a `--> FOAM FATAL IO ERROR` at line 133 and
+`FOAM exiting` at line 174, no `End`), `certonomous-runs/adjwall/HUMP51k` and
+`N100k` (FOAM FATAL headers and `FOAM exiting`, no `End`), and
+`certonomous-runs/adjwall/A1_4032` (nine FOAM FATAL headers, including an
+MPI-rank-prefixed `[1] --> FOAM FATAL ERROR:` at line 695, alongside an `End`).
+**Zero false positives.** The reader is shown returning both values on real data,
+not only on planted files.
+
+### 14.4 What did NOT change: no gate, threshold, band, cap, label, level, cell count, functional or timeout moved
+
+This amendment repairs a **reader** and adds a **control**. It moves **not one
+number**, and that is asserted from a measurement, not from intent:
+
+* The whole **deletion set** of the diff of `grade_g2.py` against its `71654cec`
+  blob is **4 lines**: the frozen fatal expression itself. Every other changed
+  line is an **insertion**. The diff has six hunks, at frozen lines 106, 346, 538,
+  848, 1063 and 1173 — respectively `FATAL_RE`/`FPE_BANNER`, the clause inside
+  `parse_log`, `planted_control_fatal`, the grading-path wiring, the `--selftest`
+  wiring and `_blind_fatal`. Every hunk is inside the fatal clause, the new
+  control, or comments.
+* An AST comparison of the two files reports **35 module-level constants in the
+  frozen file and 37 in the repaired one; ADDED `FATAL_RE` and `FPE_BANNER`,
+  REMOVED none, CHANGED NONE**. `LEVELS`, `R21`, `R32`, `FS`, `D_SPATIAL`,
+  `RES_MAX`, `RES_REQUIRED`, `WALL_AREA`, `DOMAIN_VOLUME`, the tolerances, the
+  plant values, `VERDICTS` and the functional registry are byte-identical in
+  their parsed form.
+* Functions **ADDED**: `planted_control_fatal`, `_blind_fatal`. Functions
+  **REMOVED**: none. Functions **CHANGED**: `parse_log` (the clause), `grade`
+  (control call and its print) and `selftest` (control block) — and since the
+  diff's only deletions are the four clause lines, the changes in `grade` and
+  `selftest` are purely additive.
+* `build_g2.py`, `run_g2.sh` and the queue entry are **untouched**. The per-level
+  wall-clock timeouts (300 / 1500 / 5400 s) live in `run_g2.sh` and were not
+  read for edit. **The timing reservation on the record stands and is not
+  answered here**: L3's headroom is 1.83x and contention eats exactly that. It is
+  the supervisor's call at filing, not this amendment's.
+* `libs_warning` is **preserved exactly**: `"Could not load" in text`, unchanged,
+  feeding I5 unchanged. The frozen clause's `--> FOAM Warning : Could not load`
+  alternative sat only in the **first** half of the `and` and so could never, on
+  its own, make `fatal` `True`; dropping it changes no behaviour, and that is a
+  reading of the frozen expression, not an assumption about it.
+
+### 14.5 The instrument still refuses under `-O`
+
+`python3 grade_g2.py --selftest` and `python3 -O grade_g2.py --selftest` both
+exit **rc 0**, `SELFTEST PASSED`, with empty stderr; exit codes were captured
+directly from the interpreter and never through a pipe. The module holds **0**
+`ast.Assert` nodes, re-counted after the edit, so `-O` deletes no refusal
+(L-332). Every refusal added here is `refuse()` -> `Refusal` -> `sys.exit(2)`.
+
+### 14.6 Two things this amendment does not do
+
+* **It does not file G2.** Filing is the supervisor's act. No queue entry was
+  written, moved or edited by this lane; `QUEUE_ENTRY.json` and
+  `make_queue_entry_g2.py` were already untracked in the working tree before this
+  amendment and were not touched.
+* **It does not touch G1.** G1's comparator is frozen **post-compute** and its
+  `NOT A RESULT` stands, ruled at `1bd6d750` with the record at
+  `cases/RANS_LES_closure_models/G1_grid_triple/RESULTS.md`. Nothing here reopens
+  it, and nothing here is evidence about it.
+
+### 14.7 Digests
+
+| file | sha256 after this amendment |
+|---|---|
+| `grade_g2.py` | `6839aad1d91db7c2a413e61c53b8e3c904a1651d948a9e3795f34391f472bbd9` |
+| `PREREGISTRATION.md` | recorded by the supervisor in the re-freeze commit; a document cannot carry its own digest. |
+
+**Observation, recorded and NOT acted on.** The header of this document still
+reads `prereg_commit: PENDING_SUPERVISOR_FREEZE`, although `71654cec` is the
+freeze commit. Rule 6 forbids editing a line above this section, so the line was
+left exactly as it stands and the discrepancy is recorded here for the
+supervisor.
