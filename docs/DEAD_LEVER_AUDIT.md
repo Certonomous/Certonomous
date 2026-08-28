@@ -1563,3 +1563,101 @@ rather than rediscovering it. All six limbs are driven and pass: **A** bind-then
 same set (silent), **E** pattern bound on the previous line, **F** the `float(name)` + numeric
 sort repair shape (silent). **Limbs C, D and F are the discriminating half** — an instrument
 that fired on all six would be a hazard counter that counts everything.
+
+---
+
+## §8 — THE GPU-EXCLUSIVITY CLAUSE IS A DEAD LEVER ON **100 %** OF THE QUEUE POPULATION, AND THE REASON NOTHING IS RUNNING IS THAT **QUEUE-READY DEPTH IS ZERO FOR ALL FIVE TEAMS** (2026-08-28T16:10Z)
+
+**Zero compute. Measured on the live box, every enumerator named. Cross-team, under this
+team's audit mandate.**
+
+### §8.1 THE DEAD LEVER
+
+`docs/standards/RUNNER_GPU_CLAUSE.md` is a frozen behaviour spec written before its code, and
+`scripts/queue_runner.py:307-341` implements it carefully — `HOLD` on `GPU-BUSY`, a distinct
+`GPU-PROBE-FAILED` because *"a zero from a reader not shown able to see a non-zero"* is standing
+rule 3, an `INERT` verdict logged on a no-device host *"because a clause that is quiet when
+absent is indistinguishable from a clause that is quiet when passing"*, and an L-314 planted
+proof with mutants. **It is among the better-built guards in this repository.**
+
+Its trigger, `:320`:
+
+```python
+    if str(entry.get("gpu", "")).strip().lower() != GPU_EXCLUSIVE:
+        return "PASS", "entry declares no `gpu: exclusive`; the clause does not apply to it"
+```
+
+**Measured across every `*.json` in `verification/queue/`: the key `"gpu"` appears in ZERO
+entries.** The clause therefore returns `PASS` on **every entry that exists**, and has never
+returned anything else.
+
+**And the two entries it most exists for are the two that do not set it.**
+`ansys-verification/held/VMFLGPU001.json` and `VMFLGPU001-R2.json` are the lab's only queued GPU
+cases — both carry `cap_gpu_h: 2.0` and `host: ip-172-31-44-162`, the GPU instance — **and
+neither declares `gpu: exclusive`.** A clause built to stop two GPU cases colliding is inert on
+the only two GPU cases in the queue.
+
+**This is §5's class exactly, and it is the harder pole to see: not a guard that cannot fire,
+but a guard whose TRIGGER FIELD nothing writes.** The code is correct, the spec is correct, the
+planted proof passes — the mutants flip their controls because `--selftest` **injects** entries
+that set the field. **A selftest that supplies its own trigger tests the clause and not the
+population.** Same root as §5.4's finding that no smoke ever produced a real PETSc `-log_view`
+table: **an instrument exercised only on inputs its author constructed has not met the inputs
+the lab actually files.**
+
+**Remedy is not in this clause.** It is in `QUEUE_ENTRY_STANDARD` / `queue_entry_check.py`:
+**an entry carrying `cap_gpu_h` or naming a GPU host must be required to declare `gpu`**, so the
+field cannot be omitted by an author who does not know it exists. Referred to `cfd` (validator)
+and `ansys-verification` (the two entries).
+
+### §8.2 ⚠ AND THE OPERATIONAL FACT UNDERNEATH IT, WHICH IS LARGER: THE QUEUE IS EMPTY
+
+`list_entries()` at `:434-442` globs **`root/<team>/*.json`** — `d.glob`, **not** `rglob`. Only
+the team directory's **top level** is queue-ready. Subdirectories are not scanned.
+
+| team | queue-ready (`<team>/*.json`) | parked (`held/`) | `launched/` |
+|---|---|---|---|
+| ansys-verification | **0** | 2 | 5 |
+| cfd | **0** | 0 | 15 |
+| closure | **0** | 0 | 4 |
+| dafoam | **0** | 7 | 31 |
+| heat-transfer | **0** | 0 | 57 |
+
+**Queue-ready depth is ZERO for every team.** Sanaa's standing directive §2 —
+**"FREEZE-AHEAD ≥ 3: every team keeps at least three frozen, queue-ready registrations at all
+times. A starved queue is a planning defect."** — is violated by **all five teams, at zero**.
+
+**`held/` is not a queue and must not be counted as one.** `VMFLGPU001.json`'s own
+`_held_reason` says so — *"HELD, NOT DROPPED. `verification/queue/ansys-verification/held/` is
+outside `scripts/queue_runner.py`"* — **and I checked the claim rather than accepting it**,
+because it is a claim by the party it benefits: `glob` does not descend, so the entry's text is
+**correct**. `SKIP_DIRS = ("launched", "refused")` at `:113` does not name `held` and reads as
+though it might be scanned; it is vestigial to this function, which never walks.
+
+**⚠ THE COUNTING TRAP, AND I FELL INTO IT FIRST.** My first reading of freeze-ahead counted
+`held/` and reported **dafoam 7 — OK, four teams below 3**. That is wrong in the direction that
+excuses: it credits a team with seven ready registrations for seven that the runner cannot see.
+**The correct figure is 0 for dafoam too, and 0 for everyone.** A directory that looks like a
+queue, is named like a queue, and is not scanned is worse than an empty one, because it makes a
+starved queue read as a stocked one.
+
+### §8.3 WHAT THIS EXPLAINS, AND WHAT IT DOES NOT
+
+**Explains:** the runner (pid **1120800**, alive **22.6 h**) is healthy and has had **nothing to
+launch**. The GPU instance has been **idle 12.81 h** since `03:20:39Z` — **$10.31 derived** at
+the pre-registration's placeholder `$0.8048/GPU-h` (`DERIVED, NOT MEASURED`; the box cannot read
+its billing, `COMPUTE_BUDGET_CHARTER` §5, and the console figure is still owed). Under Sanaa's
+§2 that is an **auto-boarded defect**. The CPU box carries only two solvers, both launched long
+before the queue drained (`T3_R_ff` pid 411911, 8 ranks, **43.3 h**; `T16_MC_f` pid 1716924,
+**13.8 h**).
+
+**Does NOT explain, and is not offered as an excuse:** the fleet was killed at ~`23:15Z` by the
+account's weekly usage limit, so no supervisor has been awake to refill a queue. **The empty
+queue is a consequence of that, not an independent planning failure by any team** — and it is
+boarded anyway, because *"a starved queue is a planning defect"* is a state, not a verdict on
+who is at fault, and the state is what the next supervisor awake needs to see first.
+
+**The one thing every team should read from this section:** on waking, **file queue-ready
+entries at `verification/queue/<team>/`, not into `held/`** — and the two GPU cases need
+`gpu: exclusive` added before either is made ready, or §8.1's lever stays dead on exactly the
+run it was built for.
