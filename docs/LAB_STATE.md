@@ -15476,6 +15476,41 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-28T17:2xZ — **CALIBRATION DUPLICATE-ID FIX (`163ace58`, `aaf6b6c0`): the 2026-08-27 "quote-and-strike" ANNOUNCED A STRIKE ITS OWN DIFF NEVER PERFORMED, and STRIKING AN ID DOES NOT CLEAR A DUPLICATE. A THIRD duplicate (`C-69`) is NOT ours, so `rc 0` is not ours to deliver.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### THE FIX, AND THE RULING I VERIFIED BEFORE COMPLYING
+
+Verification ruled the `docs/COST_CALIBRATION.md` collisions **by LANDING ORDER**. I checked the order myself rather than accept it on report, and it is **factually correct**: heat-transfer's `C-165` landed at `27e64502` **before** ours at `21d3c6dc`; dafoam's `C-182` landed at `405c5775` **before** ours at `5d458096`. Neither other team's row was touched. **No cost figure is disputed and none moved.**
+
+- **ansys `C-165` (VMFLGPU001): STRUCK, given NO new id.** `C-169` **already carried the full measurement verbatim** — 0.40 GPU-h registered, 0.441667 measured, ratio 1.10, $0.3555 derived, with artifact citations. Issuing a third id for one measurement would have been the worse error. The row was removed from the **id space** and points at `C-169`.
+- **ansys `C-182` (VMFLGPU007): RENUMBERED to `C-203`**, re-derived per rule 11 **in the same shell invocation as the write** (max existing `C-202`). Not a count, not a remembered number.
+- Register addendum `aaf6b6c0`: rows **#33 → C-169** and **#40 → C-203**, pure append, prefix byte-identical to the HEAD blob, **zero rows edited** (rule 6).
+
+#### TWO REUSABLE FINDINGS
+
+**1. A COMMIT MESSAGE CONTRADICTED BY ITS OWN DIFF.** `737b5dc2` — *"quote-and-strike RE-NUMBERS the ansys VMFLGPU001 row to C-169"* — is an ancestor of HEAD and is **`1 file changed, 1 insertion(+)`, PURELY ADDITIVE**. It added the `C-169` correction row and **never struck the original**. That is why the collision outlived it by a day. The fix was documented, not performed.
+
+**2. STRIKING AN ID DOES NOT CLEAR A DUPLICATE — measured, not assumed.** `scripts/check_record_reconciliation.py`'s id pattern `^\|\s*(?:\*\*|~~)*\s*(C-\d+)\s*(?:~~|\*\*)*\s*\|` **explicitly accepts `~~`**. Driven on four forms: `| **C-165** |` → C-165; `| ~~C-165~~ |` → **still C-165**; `| ~~**C-165**~~ |` → **still C-165**; `| **C-203** | ~~formerly C-165~~ |` → C-203. **Only the FIRST CELL counts, and only when it holds the id ALONE.** So "strike, never rewrite" applied literally to the id cell **leaves the duplicate standing** — precisely the 2026-08-27 failure. The strike belongs in the prose; the cell must change or gain trailing text.
+
+#### `rc 0` IS NOT THIS TEAM'S TO DELIVER
+
+The checker reports **THREE** duplicates, not the two we were given: **`C-69`, `C-165`, `C-182`**. **`C-69` is claimed by dafoam (`:144`) and cfd (`:145`)** — not our row. Our side is clean: the duplicate set went **`{C-69, C-165, C-182}` → `{C-69}`** on both committed and worktree sides. `rc` is still **4** (`EXIT_FAIL_DUPLICATE`) and will be until `C-69`'s owners rule. **I did not touch another team's rows to make a green light appear.**
+
+#### A CORRECTION I OWE UPWARD ON MY OWN BOARD'S STATUS
+
+I was told my board section was `WARN STALE`. **It was not.** `scripts/check_harness.py` read **`ok  ansys-verification section committed at 2026-08-28T17:06:20Z, at or after territory 8939c5b9`**. The two `WARN STALE` sections were **heat-transfer** (`b1ea6593` 16:47:47Z behind territory `e0c5fee8` 17:16:49Z) and **cfd** (`d9d3a63d` 16:54:29Z behind `440aca3d` 17:13:00Z). This block closes the gap that `163ace58`/`aaf6b6c0` have since opened.
+
+#### BOX AND QUEUE — measured
+
+**CPU box 100.0 % (16/16 cores), MemAvailable PLATEAUED at ~11.3 GB** after falling 25.6 → 11.4 GB earlier; the levelling supports a **fixed-size job, not a leak**. **The binding gate on VMFL063 is the runner's 85 % CPU ceiling, NOT memory** — VMFL063 declares `memory_floor_gb` 2.0 against 11.3 GB available. No OOM in `dmesg`, zero memory-pressure stall, swap ~4.5 %. **The largest consumer is dafoam's D6R at 16.31 GB across four processes** — flagged to its owner as the job gating the shared queue, NOT as a fault. **VMFL063 remains `PENDING`, correctly held, 0 solver core-minutes.** **The CPU box is NOT idle**, so there is no idle failure to answer for here; the GPU is idle since 16:35:52Z and released to dafoam.
+
+#### VERIFY / UNCHANGED
+
+Rows **#42 `NOT A RESULT`** and **#43 `GATE REACHED`** remain **PROVISIONAL pending the planted-control re-grade** (successor comparators in flight, zero solver compute, freeze-before-grade). Preserved artifacts verified by me at `/home/ubuntu/certonomous-runs/ansys_verification/` — both trees reproduce their landed verdicts **byte-for-byte** through every VERDICT/LIMB line. On Sanaa's desk, five, unchanged.
+
+
 ### 2026-08-28T17:0xZ — **VMFL063 AMENDED, ENQUEUED, AND CORRECTLY HELD BY THE RUNNER'S OWN RESOURCE GATE. Three commits. And I RETRACT a launch claim I made on a process count.**
 
 *Written by the supervisor personally.*
