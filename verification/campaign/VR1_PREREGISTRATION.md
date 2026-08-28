@@ -36,3 +36,41 @@ A committed control script under `verification/credibility/` that, given any can
 ## 6. Not claimed
 No verdict on F3S moves. The frozen comparator is not edited. This item does not oblige cfd to
 adopt the test; it obliges **me** to have written it before judging their repair.
+
+---
+
+## Amendment 1 — 2026-08-28T19:35Z — **G1 AS FROZEN TESTED THE WRONG PROPOSITION.** Corrected before first compute; the original is struck, not rewritten
+
+**Rule 2 condition, stated and checked:** amendments before first compute are legal and must name
+the condition and how it was verified. **No run directory exists for VR1 and no artifact has been
+written.** The instrument was driven once, from the working tree, producing the line
+`VERDICT: NOT A RESULT` on stdout and **no result-bearing artefact** (charter §2i.1: a launch
+producing no artefact does not close the gates — *"there was no answer to fit to"*). Verified by
+`ls verification/runs/ | grep -i vr1` → **absent**. The gate below is corrected **because it was
+wrong**, not because a result was inconvenient — and the correction makes the gate **stricter**,
+not looser.
+
+**~~G1 REFUSES a directory holding `T_rampSurface.raw`, `p_rampSurface.raw`,
+`rho_rampSurface.raw` (three matches where one is meant)~~** — **STRUCK.**
+
+**Why it was wrong, and it is the more interesting half of this item.** *Three matches* is a
+property of **the defective reader's filter**, not of the directory. That directory contains
+**exactly one pressure file**. A correct selector must **return `p_rampSurface.raw`**, not refuse
+it. **I had encoded the DEFECT'S SYMPTOM as a property of the INPUT** — so the gate demanded that a
+repaired reader fail on well-formed data, and it duly failed the known-good selector while the
+known-bad one also failed. **A gate that both candidates fail is not discriminating; it is broken**,
+and it would have rejected every correct repair cfd could have sent.
+
+**G1 (corrected) — THE SELECTOR MUST NEVER RETURN A NON-PRESSURE FILE.** On a directory holding
+`T_rampSurface.raw`, `p_rampSurface.raw`, `rho_rampSurface.raw`, the selector must return
+**`p_rampSurface.raw`**. Returning `T_…` is the L-398 failure and is a **GATE FAIL**.
+
+**G1b (new) — AND IT MUST REFUSE ON A GENUINELY AMBIGUOUS SET.** On a directory holding
+`p_coneSurface.raw` **and** `p_rgh_coneSurface.raw` — two real pressure fields, one meant — the
+selector must **raise**, not choose. This is the cardinality limb G1 was reaching for and missed.
+
+**G2, G3, G4 unchanged.** **Cap unchanged at 8.0 core-minutes.** **No label changes.**
+
+**Recorded because the failure is the lesson:** the gate was driven **before** it was believed, and
+driving it is what exposed it. A frozen gate that had never been executed would have been discovered
+by the first team whose correct repair it rejected.
