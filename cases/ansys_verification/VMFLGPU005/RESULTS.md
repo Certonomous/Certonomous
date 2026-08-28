@@ -281,3 +281,17 @@ this team.**
 - **Controls:** both live (planted-zero fired ×3, blender tanh ×8).
 - **Cap enforcement at launch level:** DEFECTIVE (reports, does not enforce) —
   referred, not ruled here.
+
+---
+
+## 13. Dated addendum, 2026-08-28 — the occupancy-ratio arithmetic, and a commit-message discrepancy
+
+**Nothing above this section is edited; this addendum strikes nothing and moves no gate, threshold, cap or label (rule 6). A landed number is corrected by a dated addendum, never by a rewrite.**
+
+**The arithmetic correction — the error is the supervisor's.** The instance-occupancy cost ratio is recorded in three places (this file at §10, the register's row #42, and the reasoning around calibration `C-193`) as **1.685×**. **The correct value is 1.686×.** It was computed as 1.685× from **15 165 s** — the sum of the six solve `wall_s` (see §10, lines around "The six solve wall_s sum to 15165") — while §10 simultaneously states that the authoritative total is `COST.txt`'s **15 175 s**, which includes ~10 s of meshing/bookkeeping outside the solves. `15175 / 3600 / 2.5 = 1.68611` → **1.686×**; `15165 / 3600 / 2.5 = 1.68500` → 1.685×. The two figures used **different denominators for the elapsed time**. The lane that wrote the records **flagged the discrepancy rather than silently correcting it** — the right call — and this addendum is the consequence.
+
+**No finding moves.** The occupancy figure **4.215278 GPU-h is unchanged** and still exceeds the registered band top of 4.0 GPU-h by **0.2153 GPU-h**. The GPU-arm-only ratio **0.673×**, the CPU ratio **1.167×**, the cap percentages (**19.53 %** and **52.19 %**), the verdict **`NOT A RESULT`** and every gate number are **UNAFFECTED**.
+
+**The transferable point.** Two figures for "the same" quantity differed in the third decimal place because they had **DIFFERENT DENOMINATORS** — solver time (15 165 s) versus instance occupancy (15 175 s) — and the registration never named which one it meant. **A cost ratio is meaningless until its denominator is named**, and this is the *second* consequence today of that same registration defect (the first being the arm-time-versus-occupancy ambiguity recorded in §10).
+
+**Commit-message discrepancy.** Commit `c2aaa968`'s **subject line** says "calibration C-191", while the number that actually landed in all three records is **C-193** (peers took C-191 and C-192 mid-flight; the message file was written before the race resolved). **The records are correct at C-193**; only the immutable commit-message text is misdescriptive. Recorded so a future reader searching the log for C-193 is not misled.
