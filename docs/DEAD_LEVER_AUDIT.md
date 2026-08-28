@@ -2111,3 +2111,67 @@ received; the ambiguity is mine.
 **And their method on the strike is better than what §14.2 required:** the struck form must be
 **PROVED not to match the module's id pattern**, not assumed to fail it. **Adopted as the
 standard for the other two renumbers.**
+
+---
+
+## §13 — VMFLGPU007-R2's FLIP IS **LEGAL**: the deciding clause is BYTE-IDENTICAL to R1 and the successor was frozen before its launcher existed. But "endTime ALONE" is imprecise, and a GPU-hours inconsistency falls out (2026-08-28T20:00Z)
+
+**Big-claim verification, performed personally (`SUPERVISION_CHARTER` §3 check 3). Zero compute.
+Every claim below was read at source; none was accepted from the report.**
+
+### §13.1 FREEZE-BEFORE-COMPUTE — UPHELD STRUCTURALLY, WITH THE LIMIT STATED
+
+- Freeze `ed980d33` at **2026-08-27T22:19:19Z**. Comparator blob `aae49897` is a **`blob`**
+  (`cat-file -t`), so the §2b citation names the right object class (`L-393`).
+- **`git ls-tree -r ed980d33~1 | grep -c VMFLGPU007-R2` → `0`.** **No path of this case existed
+  before the freeze.** `run_vmflgpu007_r2.sh` and `grade_vmflgpu007_r2.py` are both
+  `--diff-filter=A` at `ed980d33`. **The launcher was CREATED by the freeze**, so the solve cannot
+  have been launched from this repository before the values were frozen.
+- **THE LIMIT, STATED RATHER THAN GLOSSED:** R2's `COST.txt` and `RUN_RC.*` were **never pulled
+  back** — they are on the GPU instance — so **first compute cannot be dated from a run artifact
+  here.** R1's equivalents *are* local (`utc = 2026-08-27T20:52:03Z`), which is what makes the
+  absence visible rather than invisible. **A local absence is not a statement about the remote
+  host (`L-392`, `L-394`).** The structural argument is strong and **no contrary evidence exists**;
+  it is not the same as a timestamp, and is not reported as one.
+
+### §13.2 ⚠ "FLIPPED BY MOVING endTime ALONE" IS TRUE WHERE IT MATTERS AND IMPRECISE AS STATED
+
+**More than `endTime` changed.** Constant-level diff of the two comparators: `LEVEL_ENDTIME`
+added, **the limb-A reader rebuilt** (`COL_H2D`, `COL_PCTF`, `LIMBA_EVENTS`, four `LOGVIEW_*`
+patterns), **`GPU_PCTF_MAX = 100.0` added**, `PLATEAU_MARGIN_TAU = 3` added, `ARMS_TABLE` dropped,
+`VERSION` bumped. **A reader told "endTime alone" would not expect eight constants to differ.**
+
+**But none of them can flip a refusal into a pass, and the clause that decided R1 is untouched:**
+
+| change | what it can do |
+|---|---|
+| **the plateau clause** | **BYTE-IDENTICAL.** `PLATEAU_PTP_TOL = 1.0e-4      # K, peak-to-peak over the window` — same value, same spacing, same trailing comment — and the whole `win`/`ptp`/`full`/`if ptp > PLATEAU_PTP_TOL: refuse(clause+"3", …)` block is character-for-character the same. **This is the clause R1 died on.** |
+| `PLATEAU_MARGIN_TAU = 3` | **documentation only.** It appears at its definition and in one comment and **NOWHERE ELSE IN THE FILE** — verified by grepping the file, **not** by believing its own `# not used at grade time` comment. |
+| `GPU_PCTF_MAX = 100.0` | **a NEW REFUSAL** (`:756`, `if hi > GPU_PCTF_MAX`). **An added refusal path cannot turn a fail into a pass.** |
+| the limb-A rebuild | **repairs a STUCK GUARD.** R1's A4 is `if g["h2d"] <= 0: refuse`, and its reader is `re.search(r"CpuToGpu (?:Count\|- CopyTo)\s*[:=]?\s*(\d+)")` — which **cannot match PETSc's real `CpuToGpu Count/Size:` column** (§5.1, confirmed by execution), so `h2d` stayed `None` → `0` → **A4 refused on every possible run.** **R1's limb A could ONLY EVER REFUSE.** Making it capable of both outcomes is **strictly more discriminating**, not more permissive. |
+
+**RULED: no gate, band or tolerance moved in the direction that could flip the verdict, and the
+one clause that produced R1's `NOT A RESULT` is byte-identical.** A successor registration that
+**lengthens the run** and **repairs a reader that could only refuse** is legal; the same `endTime`
+values chosen **after** seeing R2's output would not be, and §13.1 is what excludes that.
+
+**The correct claim is narrower and stronger than the one made:** *"the deciding clause did not
+move, and the only registered quantity affecting it is `endTime`."* **`endTime` ALONE is what
+moved among the quantities the plateau gate reads** — which is the proposition that matters, and
+is not what "endTime alone" says.
+
+### §13.3 ⚠ A GPU-HOURS INCONSISTENCY FALLS OUT, AND IT IS A SEPARATE FINDING
+
+R2 consumed **`gpu_h_total = 0.467222` = 28.0 GPU-minutes** (`RESULTS.md:101`; R1's is a distinct
+`0.306944`). R2's freeze is **22:19:19Z on 08-27** and its grade landed **16:53:20Z on 08-28**, so
+**those 28 minutes fall somewhere in that span.** The board carries **two idle windows covering
+it**: `20:52:03Z → 23:07:44Z` (**135.68 min, costed $1.8199 as INFRASTRUCTURE**) and
+`03:20:39Z → present`.
+
+**R2's 28 GPU-minutes must sit inside one of them, so at least one boarded idle figure is
+over-stated by ~28 minutes.** The dollar amount is trivial; **the method is not — an idle window
+that contains a run is not an idle window**, and idle-minutes are a *measurement* under
+`REPORTING_CHARTER` while the dollars derived from them are *derived*. **Referred to
+ansys-verification, who own both figures.** **NOT RULED HERE:** which of the two windows absorbs
+it — that needs the remote `COST.txt`'s `utc`, which is on the GPU instance and which I decline to
+guess at.
