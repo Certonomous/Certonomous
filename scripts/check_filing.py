@@ -213,6 +213,33 @@ def check(root: Path, include_untracked: bool = True) -> list[Violation]:
                     "or cases/, never beside the prose that describes it.",
                 ))
 
+        # R6b -- QUEUE-RUNNER ARTIFACTS ARE RUN OUTPUTS AND BELONG UNDER
+        # verification/runs/<CAMPAIGN>/, never in a case's INPUT directory.
+        # R6-RUNTREE above fires only on `system/controlDict` and whitelists
+        # `cases/`, so it is structurally blind to run OUTPUTS committed into a
+        # case dir. Measured 2026-08-28: 4 tracked at HEAD under `cases/`
+        # against 119 correctly filed under `verification/runs/`.
+        #
+        # THE DISCRIMINATOR IS THE `.md` SUFFIX AND IT IS LOAD-BEARING.
+        # `cases/ansys_verification/VMFL023/STATUS.md` is a PROSE interim-status
+        # record -- a legitimate case document -- while `STATUS.W3_chain` and
+        # `STATUS.F17c_KV40_FLOOR` are runner artifacts in the runner's own
+        # `launcher_rc=... end=... note=...` format. A rule keyed on the
+        # `STATUS.` prefix ALONE would flag the prose and be wrong about the
+        # tree, which is the exact error this file's R6 comment records making
+        # once already with `models/`. Both cases are planted below, and the
+        # NEGATIVE limb is the one that matters.
+        if p.startswith("cases/"):
+            if base in RUNNER_ARTIFACTS or (
+                    base.startswith("STATUS.") and not base.endswith(".md")):
+                violations.append(Violation(
+                    "R6-RUNARTIFACT", p,
+                    "a queue-runner artifact is a RUN OUTPUT and belongs under "
+                    "verification/runs/<CAMPAIGN>/, not in the case's input "
+                    "directory (FILING_CHARTER; CLAUDE.md WHERE THINGS LIVE; "
+                    "Sanaa 2026-08-27: logs and attempt dirs stay out of git).",
+                ))
+
         # R7 -- campaign records are UPPER_SNAKE; campaign helper code is lower_snake.
         if len(parts) == 4 and parts[0] == "docs" and parts[1] == "campaigns":
             if base.endswith(".md") and base != "README.md" and not CAMPAIGN_RECORD_MD.match(base):
@@ -281,6 +308,10 @@ def check(root: Path, include_untracked: bool = True) -> list[Violation]:
 # as useless as one that catches nothing, and only the negative control tells
 # the two apart.
 # --------------------------------------------------------------------------
+#: Exact basenames the queue runner writes beside a run. Names, not shapes:
+#: these three are unambiguous, while `STATUS.*` needs the `.md` carve-out.
+RUNNER_ARTIFACTS = {"launcher.queue.out", "CAP_OVERRUN.txt", "ESTIMATE_OVERRUN.txt"}
+
 PLANTED = [
     ("R1-ROOT-CLEAN",      "stray_plot.png",                                    True),
     ("R1-ROOT-CLEAN",      "build_debris.log",                                  True),
@@ -288,6 +319,14 @@ PLANTED = [
     ("R3-SCRIPTS-LOWER",   "scripts/BadlyNamed.py",                             True),
     ("R5-ASSET-SUBDIR",    "media/loose_figure.png",                            True),
     ("R6-RUNTREE",         "docs/campaigns/X/case/system/controlDict",          True),
+    ("R6-RUNARTIFACT",     "cases/X/STATUS.X_CASE",                             True),
+    ("R6-RUNARTIFACT",     "cases/X/launcher.queue.out",                        True),
+    ("R6-RUNARTIFACT",     "cases/X/CAP_OVERRUN.txt",                           True),
+    # THE DISCRIMINATING NEGATIVES. Without these the rule is a prefix match
+    # that would flag a legitimate prose record and a correctly filed run.
+    ("R6-RUNARTIFACT",     "cases/X/STATUS.md",                                 False),
+    ("R6-RUNARTIFACT",     "verification/runs/CAMP/L1/STATUS.X_CASE",           False),
+    ("R6-RUNARTIFACT",     "verification/runs/CAMP/L1/launcher.queue.out",      False),
     ("R7-CAMPAIGN-RECORD", "docs/campaigns/X/lowercase_results.md",             True),
     ("R8-PAPER-NAME",      "docs/papers/buoyancy/Paper1.pdf",                   True),
     ("R0-PORTABLE-NAME",   "docs/papers/buoyancy/van gilder_2005_ipack.pdf",     True),
