@@ -1,0 +1,25 @@
+==============================================================================
+G1 GRID TRIPLE -- comparator  (DRAFT, NOT FROZEN)
+  run root : /home/ubuntu/closure-data/g1
+  D = 2 (one cell in z between `empty` patches: the z direction carries no
+      discretisation, so the representative cell size is h = (A/N)^(1/2))
+  r21 = 2.0000   r32 = 2.0000   Fs = 1.25
+==============================================================================
+
+[FAMILY CONTROL]
+  vertices block byte-identical across L1/L2/L3          VERIFIED
+  all bytes outside the two hex lines byte-identical      VERIFIED
+  nCells 3840 / 15360 / 61440 -- distinct, exact 1:4:16           VERIFIED
+
+[COMPLETION AND ITERATIVE CONVERGENCE]
+  L1  REFUSED
+      P3 fatal: log.run holds a FOAM FATAL / FPE / signal line
+  L2  REFUSED
+      P3 fatal: log.run holds a FOAM FATAL / FPE / signal line
+  L3  REFUSED
+      P3 fatal: log.run holds a FOAM FATAL / FPE / signal line
+
+[VERDICT]
+  RUNG VERDICT: NOT A RESULT
+  Reason: standing rule 5 step 1 -- a level that is not complete or not
+  iteratively converged makes the triple NOT A RESULT whatever any number says.
