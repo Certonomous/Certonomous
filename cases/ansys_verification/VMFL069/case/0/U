@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    lowerWall       { type noSlip; }
+    upperWall       { type noSlip; }
+    periodicIn      { type cyclic; }
+    periodicOut     { type cyclic; }
+    frontAndBack    { type empty; }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Manual p.205: "The two fluids have the same density." No value is printed, so
+// rho = 1 kg/m3 is THIS LAB'S declared choice (PREREGISTRATION sec.2). The exact
+// reference solution is derived at the SAME rho, so the gate is a discretisation
+// gate and is unaffected by the choice.
+//
+// Manual p.205 Kinematic Viscosity: Fluid-1 = 0.1, Fluid-2 = 0.02 (m2/s).
+// fluid1 occupies the LOWER half 0 <= y < 2 m (declared; the manual does not say
+// which layer is which and, with equal densities and no gravity, the problem is
+// symmetric under y -> H-y with the layers swapped).
+//
+// sigma = 0: "Deformation of the interface is not modeled" (manual p.205), and a
+// flat interface with U parallel to it carries no curvature force.
+
+phases          (fluid1 fluid2);
+
+fluid1
+{
+    transportModel  Newtonian;
+    nu              0.1;
+    rho             1;
+}
+
+fluid2
+{
+    transportModel  Newtonian;
+    nu              0.02;
+    rho             1;
+}
+
+sigma           0;
+
+// ************************************************************************* //

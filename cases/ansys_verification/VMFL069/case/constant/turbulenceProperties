@@ -1,0 +1,16 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      turbulenceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Manual p.205: "The flow is steady... laminar".
+simulationType  laminar;
+
+// ************************************************************************* //
