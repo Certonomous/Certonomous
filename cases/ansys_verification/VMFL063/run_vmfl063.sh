@@ -100,13 +100,31 @@ echo "  case inputs OK: 9 files, each byte-identical to its HEAD blob"
 
 # --- 4. CONTROLS (rule 3) -- the comparator's own --selftest, BOTH interpreters -
 # `python3 -O` deletes every assert, so a control that exists only under one flag
-# is not a control (L-332). The two runs must be BYTE-IDENTICAL.
+# is not a control (L-332). AMENDMENT 1 (2026-08-28): the two runs must agree on
+# PASS count, FAIL count and exit rc, and BOTH must carry the AST-guard marker.
+# They are NOT byte-identical and cannot be: the selftest sandbox is
+# tempfile.mkdtemp(prefix="vmfl063_selftest_") (grade_vmfl063.py:867) and 20 of 78
+# output lines quote that random absolute path, so TWO RUNS OF THE SAME INTERPRETER
+# also differ. The superseded byte-identity `cmp` was unsatisfiable by construction.
 ST="/tmp/vmfl063_selftest.$$"
 rm -rf "$SCRIPT_DIR/__pycache__"
-python3    "$SCRIPT_DIR/grade_vmfl063.py" --selftest > "$ST"   2>&1 || { echo "ABORT: comparator --selftest is NOT green under python3; see $ST"; exit 2; }
+python3    "$SCRIPT_DIR/grade_vmfl063.py" --selftest > "$ST"   2>&1; RC_PLAIN=$?
+[ "$RC_PLAIN" = "0" ] || { echo "ABORT: comparator --selftest is NOT green under python3 (rc $RC_PLAIN); see $ST"; exit 2; }
 rm -rf "$SCRIPT_DIR/__pycache__"
-python3 -O "$SCRIPT_DIR/grade_vmfl063.py" --selftest > "$ST.O" 2>&1 || { echo "ABORT: comparator --selftest is NOT green under python3 -O; see $ST.O"; exit 2; }
-cmp -s "$ST" "$ST.O" || { echo "ABORT: --selftest differs between python3 and python3 -O -- a control that vanishes under -O is not a control (L-332)"; exit 2; }
+python3 -O "$SCRIPT_DIR/grade_vmfl063.py" --selftest > "$ST.O" 2>&1; RC_O=$?
+[ "$RC_O" = "0" ] || { echo "ABORT: comparator --selftest is NOT green under python3 -O (rc $RC_O); see $ST.O"; exit 2; }
+# AMENDMENT 1: the SATISFIABLE form of the check the `cmp` above was reaching for.
+# PASS count, FAIL count and rc must agree across the two interpreters, and the AST
+# guard marker must be present in BOTH outputs -- which is STRICTER than the marker
+# loop below, which greps "$ST" only.
+NP_PLAIN="$(grep -c '^  \[PASS\]' "$ST")";   NP_O="$(grep -c '^  \[PASS\]' "$ST.O")"
+NF_PLAIN="$(grep -c '^  \[FAIL\]' "$ST")";   NF_O="$(grep -c '^  \[FAIL\]' "$ST.O")"
+AST_MARK='AST guard: ast.Assert count is 0 in this file'
+[ "$NP_PLAIN" = "$NP_O" ] || { echo "ABORT: --selftest PASS COUNT differs -- python3 $NP_PLAIN vs python3 -O $NP_O -- a control that vanishes under -O is not a control (L-332)"; exit 2; }
+[ "$NF_PLAIN" = "$NF_O" ] || { echo "ABORT: --selftest FAIL COUNT differs -- python3 $NF_PLAIN vs python3 -O $NF_O (L-332)"; exit 2; }
+[ "$RC_PLAIN" = "$RC_O" ] || { echo "ABORT: --selftest EXIT RC differs -- python3 $RC_PLAIN vs python3 -O $RC_O (L-332)"; exit 2; }
+grep -qF "$AST_MARK" "$ST"   || { echo "ABORT: --selftest did not print the AST GUARD MARKER under python3: $AST_MARK"; exit 2; }
+grep -qF "$AST_MARK" "$ST.O" || { echo "ABORT: --selftest did not print the AST GUARD MARKER under python3 -O -- the guard must hold under BOTH interpreters (L-332): $AST_MARK"; exit 2; }
 grep -q '^SELFTEST: all checks passed' "$ST" || { echo "ABORT: --selftest printed no all-checks-passed line"; exit 2; }
 grep -q '^  \[FAIL\]' "$ST" && { echo "ABORT: --selftest printed a FAIL line"; exit 2; }
 for MARK in \
@@ -122,7 +140,7 @@ for MARK in \
   grep -qF "$MARK" "$ST" || { echo "ABORT: --selftest did not DRIVE the control: $MARK"; exit 2; }
 done
 NCHK="$(grep -c '^  \[PASS\]' "$ST")"
-echo "  controls OK: --selftest $NCHK/$NCHK PASS, byte-identical under python3 and python3 -O"
+echo "  controls OK: --selftest $NCHK/$NCHK PASS; python3 and python3 -O agree on PASS $NP_PLAIN/$NP_O, FAIL $NF_PLAIN/$NF_O, rc $RC_PLAIN/$RC_O, and both carry the AST guard marker"
 rm -f "$ST" "$ST.O"
 
 # --- run root, contention record, launch record -------------------------------

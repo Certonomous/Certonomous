@@ -261,3 +261,59 @@ is recorded here instead.
     for predicting solver throughput.
 
 ================================================================================
+
+================================================================================
+9. DISPOSITION -- AMENDMENT 1, 2026-08-28T16:5xZ
+================================================================================
+The abort this smoke recorded at launcher line 109 was NOT a case defect and NOT
+a comparator defect. It was A GUARD THAT COULD NOT PASS.
+
+  DEFECT   line 109 demanded `cmp -s` BYTE-IDENTITY between the --selftest output
+           of python3 and python3 -O. Unsatisfiable by construction:
+           grade_vmfl063.py:867 uses tempfile.mkdtemp(prefix="vmfl063_selftest_")
+           and 20 of 78 output lines quote that random absolute path.
+  MEASURED  python3 vs python3 -O : 20 of 78 lines differ
+            python3 vs python3     : 20 of 78 lines differ  (SAME interpreter)
+            after normalising the one random token, BOTH comparisons: 0 lines
+            62 [PASS], 0 [FAIL], rc 0 under both interpreters
+            ast.Assert 0, ast.Raise 43
+  REDUNDANT lines 110-112 already carried the intent (all-checks-passed line, no
+            [FAIL] line, nine named markers). Line 109 was both impossible and
+            already covered.
+  REPAIR    PREREGISTRATION.md v1.0 -> v1.1, Amendment 1, appended at the foot;
+            "lines whose number changed above this section: 0" asserted and
+            verified by cmp of the first 547 lines. Launcher line 109 replaced by
+            the satisfiable form: PASS count, FAIL count and exit rc must agree
+            across interpreters, and the AST-guard marker must appear in BOTH
+            outputs -- STRICTER than the marker loop, which greps $ST only.
+  UNMOVED   grade_vmfl063.py blob fc339a79d1b0b1a5a5c6beba455e8e3f0e518d45 before
+            AND after -- the grading instrument is byte-unchanged. No gate, band,
+            threshold, cap, ceiling or label moved; constant-by-constant
+            extraction diffs to 0 lines. TOL 0.10, FS 1.25, RATIO 2.0, P_MIN 0.05,
+            X_WIN 0.0/1.2, X_SIGN_REF 1.35, K_PLANT 0.05, TIER_CEILING_A
+            "GATE REACHED", TIER_CEILING_B "PASS", RANKS 1, CAP_CORE_MIN 90,
+            ENDTIME 30000, cell counts, 16 core-min estimate: all unchanged.
+  LEGALITY  Pre-compute. verification/runs/ansys_verification/VMFL063/ DOES NOT
+            EXIST; 0 paths under it at HEAD; 0 log.* files; 0 wallShearStress
+            artefacts; 0 solver time dirs. The launcher refused BEFORE its own
+            mkdir (old line 129), so the run root was never created and the rule-4
+            age guard is UNCONSUMED. Solver compute to date: 0 core-min.
+
+LINE NUMBERS IN SECTION 7 ABOVE ARE NOW STALE BY +18. The repair added 18 net
+lines above them. Section 7's citations re-resolve as:
+
+  old 181 -> 199  REMAIN    = max(0, CAP_CORE_MIN - TOTAL_CORE_MIN)
+  old 182 -> 200  TIMEOUT_S = int(REMAIN * 60 / RANKS)
+  old 183 -> 201  TIMEOUT_S <= 0 -> ABORT "BUDGET EXHAUSTED", exit 2
+  old 234 -> 252  setsid timeout "${TIMEOUT_S}"s simpleFoam
+  old 244 -> 262  rc read back from .solver_rc (written at 254, INSIDE the
+                  detached subshell, never around the setsid line)
+  old 282 -> 300  first non-zero rc STOPS the run
+
+Section 7's substance is unchanged: the cap is still enforced by the OS through
+`timeout`, still a RUNNING TOTAL across L1, L1D, L2, L3, and still independent of
+the queue runner's cap check, which this team has measured to REPORT AND NOT
+ENFORCE (docketed D559, referred to verification-supervisor).
+
+Section 8's list of what this smoke did not establish STANDS IN FULL. The repair
+of line 109 establishes nothing about whether the case solves.

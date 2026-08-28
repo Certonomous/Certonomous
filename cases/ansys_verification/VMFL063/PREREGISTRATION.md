@@ -545,3 +545,203 @@ unrunnable). **Nothing in this registration has been executed against OpenFOAM. 
   behaviour across the levels run and nothing about finer ones.
 - **Nothing here is sent anywhere.** Submissions are parked; the manual is proprietary
   Ansys documentation held for this lab's private use (`CLAUDE.md` rules 7 and 8).
+
+---
+
+## AMENDMENT 1 — 2026-08-28 — THE LAUNCHER'S SELFTEST GATE WAS UNSATISFIABLE
+
+**Version: v1.0 (freeze commit `2df23798`) → v1.1.**
+**Lines whose number changed above this section: 0.** This block is appended at the
+foot under `CLAUDE.md` rule 6. Nothing above line 547 was edited, moved, struck or
+rewritten; the body's line numbering is unchanged and every citation into it still
+resolves. Authorised by the ansys-verification supervisor's ruling of 2026-08-28,
+`[lab-attributed]` — not Sanaa's word and not any agent's consent (rule 9).
+
+### A. THE RULE-2 CONDITION, NAMED AND CHECKED
+
+Rule 2 permits amendment **before first compute** provided the condition is stated
+and the check is named. It was checked at 2026-08-28T16:45Z, five ways:
+
+1. **`verification/runs/ansys_verification/VMFL063/` DOES NOT EXIST.** That is the
+   run directory rule 2 asks to be named. `ls -d` returns
+   *"No such file or directory"*.
+2. **Zero paths under `verification/runs/ansys_verification/VMFL063` at HEAD** —
+   `git ls-tree -r HEAD --name-only | grep -c` returns `0`.
+3. **Zero `log.*` files anywhere under `cases/ansys_verification/VMFL063/`** — no
+   solver log of any kind exists.
+4. **Zero `wallShearStress` artefacts** anywhere under the case.
+5. **Zero solver time directories.** The only directories under the case are
+   `case/`, `case/0/`, `case/constant/`, `case/system/`.
+
+The launcher refused at the old line 109 gate **before its own `mkdir -p "$RUN_ROOT"`
+(old line 129)**, so the run root was never created and the rule-4 age guard is
+**unconsumed**. **Solver compute to date: 0 core-minutes. No `simpleFoam` iteration
+has ever run for VMFL063.**
+
+**THE LEGALITY OF THIS AMENDMENT RESTS ON THAT ABSENCE.** No gate quantity exists —
+no `LR`, no `LR/(2t)`, no reattachment length, no Roache triple, no observed order,
+no GCI, no residual history. **There is no number in existence that a gate could have
+been fitted to.** The amendment is therefore made in the state rule 2 protects.
+
+### B. THE DEFECT — A GUARD THAT COULD NOT PASS
+
+Frozen launcher `run_vmfl063.sh` line 109 (blob `ad864596`) read, verbatim:
+
+    cmp -s "$ST" "$ST.O" || { echo "ABORT: --selftest differs between python3 and python3 -O -- a control that vanishes under -O is not a control (L-332)"; exit 2; }
+
+It demanded **byte-identical** output from `python3` and `python3 -O`. That is
+**unsatisfiable by construction**, and not by accident of environment:
+
+- `grade_vmfl063.py:867` opens the selftest sandbox with
+  `tempfile.mkdtemp(prefix="vmfl063_selftest_")`, which mints a **fresh random
+  absolute path on every invocation**.
+- **20 of the 78 output lines quote that path** — they are refusal messages that name
+  the file the reader refused on, which is exactly what makes them useful.
+- Therefore **two runs of the SAME interpreter also differ**, by the same 20 lines.
+
+**Measured, 2026-08-28T16:4xZ, `__pycache__` cleared before each run:**
+
+| comparison | lines differing, raw | lines differing, after normalising the one random token |
+|---|---|---|
+| `python3` vs `python3 -O` | **20** of 78 | **0** |
+| `python3` vs `python3` (same flag, twice) | **20** of 78 | **0** |
+
+`sed -E 's#vmfl063_selftest_[A-Za-z0-9_]+#…NORM#g'` is the only normalisation applied.
+
+**THE INSTRUMENT IS SOUND; THE GATE ON IT WAS IMPOSSIBLE.** Under both interpreters:
+**62 `[PASS]`, 0 `[FAIL]`, rc 0**, `SELFTEST: all checks passed` present, all nine
+named control markers present, `ast.Assert` count **0** and `ast.Raise` count **43**
+(re-derived here by walking the file's AST, not taken from §8).
+
+**AND THE GUARD WAS ALSO REDUNDANT.** Old lines 110–112 already `grep` for
+`^SELFTEST: all checks passed`, already abort on any `^  \[FAIL\]` line, and already
+require all nine named markers. The intent of line 109 — *a control must not vanish
+under `-O`* (L-332) — was already carried by them for the plain interpreter. Line 109
+was **both unsatisfiable and redundant**, and the redundancy is why the case is not
+harmed by replacing it.
+
+### C. WHAT CHANGED, AND WHAT DID NOT
+
+**In `run_vmfl063.sh` only** (the launcher is not the frozen comparator; the
+comparator `grade_vmfl063.py` is **untouched**, blob `fc339a79` before and after):
+
+1. The byte-identity `cmp` is replaced by the **satisfiable form of the same intent**:
+   the two interpreters must agree on **`[PASS]` count**, on **`[FAIL]` count** and on
+   **exit rc**, and the marker `AST guard: ast.Assert count is 0 in this file` must be
+   present in **BOTH** outputs. Each of the five conditions aborts `exit 2` with a
+   message **naming which quantity differed and both values**.
+2. The two `--selftest` invocations now capture `RC_PLAIN` / `RC_O` explicitly instead
+   of testing rc inline with `||`. Behaviour is identical — a non-zero rc still aborts
+   with the same wording plus the rc value — and the capture is what makes the rc
+   comparison in (1) possible.
+3. The block comment above the check, which asserted *"The two runs must be
+   BYTE-IDENTICAL"*, is corrected to state what is now checked and why byte-identity
+   is impossible.
+4. The success `echo` at old line 125, which printed *"byte-identical under python3
+   and python3 -O"*, now prints the three agreeing counts and the marker result.
+
+**Old lines 110–112 and the nine-marker loop are unchanged, character for character.**
+
+**THE NEW CHECK IS STRICTER THAN THE OLD CODE IN ONE RESPECT:** the AST-guard marker
+is now required in the `-O` output as well. The nine-marker loop greps `"$ST"` only.
+That is precisely the L-332 concern the original was reaching for and did not achieve.
+
+**NO GATE, BAND, THRESHOLD, CAP, CEILING OR LABEL MOVED.** Verified constant by
+constant against the HEAD blobs, before and after, by extraction and `diff` — **0
+lines differ**:
+
+| constant | value | where | moved? |
+|---|---|---|---|
+| `TOL` | `0.10` | `grade_vmfl063.py:52` | no |
+| `X_WIN_LO` / `X_WIN_HI` | `0.0` / `1.2` | `:67`, `:68` | no |
+| `X_SIGN_REF` | `1.35` | `:72` | no |
+| `FS` | `1.25` | `:75` | no |
+| `RATIO` | `2.0` | `:76` | no |
+| `P_MIN` | `0.05` | `:77` | no |
+| `K_PLANT` / `K_PLANT_U` | `0.05` / `0.05` | `:81`, `:82` | no |
+| `TIER_CEILING_A` | `"GATE REACHED"` | `:93` | no |
+| `TIER_CEILING_B` | `"PASS"` | `:94` | no |
+| `U_INF`, `NU`, `RE_2T` | `0.0517`, `1.7894e-05`, `260.0` | grader head | no |
+| `RANKS` | `1` | `run_vmfl063.sh:38` | no |
+| `CAP_CORE_MIN` | `90` (running total, four solves) | `:39` | no |
+| `ENDTIME` | `30000` | `:40` | no |
+| `SMOKE_ENDTIME` | `1` | `:61` | no |
+| level list | `L1 L1D L2 L3` | `:46` | no |
+| cell counts `NXU/NXD/NYL/NYU` | `32/80/12/48`, `64/160/24/96`, `128/320/48/192`, L1D = L1 | `:51`–`:54` | no |
+| cost estimate / cap in §7 | **16** core-min / **90** core-min | this file | no |
+
+The comparator's blob hash is **identical before and after** (`fc339a79d1b0…`), which
+is a stronger statement than the table: **not one byte of the grading instrument
+changed.**
+
+### D. THE §8 CLAIM CORRECTED
+
+**§8 line 440 reads, and is STRUCK as written:**
+
+> `--selftest`: 62 checks, 0 failures, rc 0, and **BYTE-IDENTICAL output under
+> `python3` and `python3 -O`**
+
+**§11 line 512 carries the same wording — *"green and byte-identical under both
+interpreters"* — and is STRUCK on the same ground.** The supervisor's ruling scoped
+this correction to §8; I extended it to §11 because it is the *same* claim in the same
+document, and correcting one while leaving the other standing would leave a false
+sentence in a frozen record. That extension is disclosed here and is the only place
+this amendment goes beyond its scope.
+
+**WHAT IS TRUE INSTEAD, and it is the substance the claim was reaching for:**
+
+> `--selftest`: **62 checks, 0 failures, rc 0 under BOTH `python3` and `python3 -O`**,
+> `__pycache__` cleared before each. The two outputs are **NOT byte-identical and
+> cannot be** — the selftest sandbox path is random per invocation and appears in 20 of
+> 78 lines, so the same interpreter run twice also differs by 20 lines. **After
+> normalising that single token the two outputs are identical, 0 lines differing.** The
+> launcher checks **PASS count, FAIL count, exit rc and the AST-guard marker under both
+> interpreters**, plus the all-checks-passed line, the absence of any `[FAIL]` line and
+> all nine named control markers, and refuses before spending a core-minute if any of
+> those fails.
+
+The original sentence was **false as written and true in substance**. Recording which
+of those two it was is the point of this block: the check it described was never
+performed by any run, because the check it *demanded* could not be performed at all.
+
+### E. THE LESSON — A GUARD THAT COULD NOT PASS
+
+This family has already recorded *a guard that could not fail*. This is its exact
+mirror: **a guard that could not pass.** Both are **launcher-level** defects, and
+**neither can ever be caught by a comparator `--selftest`, because the guard lives
+outside the instrument it guards.** The comparator was green 62/62 throughout; the
+gate on it was impossible; and no amount of testing the comparator would ever have
+revealed it. It took **driving the launcher** to find it.
+
+**The transferable rule, offered as a candidate LESSONS entry and NOT filed here:**
+
+> **A guard must be driven to BOTH its outcomes before it is trusted — shown able to
+> PASS on good input AND shown able to FAIL on bad. A guard that has only ever been
+> seen to fail is exactly as unproven as one that has only ever been seen to pass.**
+
+The number is not assigned in this document: rule 11 requires it be re-derived from the
+tail of `docs/LESSONS.md` at commit time, and this file is not the place it lands.
+
+### F. A GAP IN THE SUPERVISOR'S OWN §3 CHECK, RECORDED AS THE SUPERVISOR'S
+
+Recorded verbatim at the supervisor's direction, as the supervisor's own:
+
+> *"My §3 check 1 read `grade_vmfl063.py` as code and did not read `run_vmfl063.sh`'s
+> smoke gate. Check 1 covers any script that produces, grades or aggregates a measured
+> number, and a launcher that decides whether the comparator runs at all is on that
+> path. My check was incomplete and the pre-flight smoke caught what I missed."*
+
+The pre-flight smoke of `ANSYS_VERIFICATION_CHARTER` Amendment 1.4 Clause B is what
+found this. **That is Clause B earning its place a second way:** it was warranted as
+proof that a green comparator does not mean a runnable case (VMFL045, VMFL003), and it
+here caught something different again — a launcher gate that no case and no comparator
+could ever have exposed.
+
+### G. WHAT THIS AMENDMENT DOES NOT DO
+
+- It does not touch the comparator. Blob unchanged.
+- It does not move a gate, band, threshold, cap, ceiling or label. See §C.
+- It does not establish that the case solves. **No `simpleFoam` iteration has run.**
+  Clause B's warrant remains undischarged; §11's closing sentence still holds in full.
+- It does not license a second amendment. **After first compute, gates are closed**
+  and any further departure is a dated addendum that cannot alter a gate.
