@@ -1,0 +1,152 @@
+VMFL069 -- PRE-FLIGHT TOOLCHAIN SMOKE AND GUARD-DRIVE RECORD
+Written by ansys-lane-opus, 2026-08-28. THIS IS A RECORD, NOT AN AMENDMENT.
+It alters no gate, band, ceiling, cap, level, tolerance or verdict path in
+PREREGISTRATION.md, which PREREGISTRATION.md sec.0 said in advance it would not.
+
+THE RULE-2 CONDITION STILL HOLDS AT THE MOMENT THIS FILE IS WRITTEN.
+  verification/runs/ansys_verification/VMFL069  ->  ABSENT (test -e, 17:42:32Z)
+  No solver has run in the graded run root. NOTHING BELOW COMPUTED A GATE QUANTITY.
+
+WHAT A SMOKE MAY AND MAY NOT DO (the supervisor's ruling, applied):
+  MAY  -- exercise the toolchain: mesh, patches, dictionaries, launcher abort
+          paths, reader parsing, and that the solver starts and takes steps.
+  MAY NOT -- produce a converged solve or a gate value.
+The smoke below runs L1 for THREE time steps. The slowest mode of the discrete
+operator has a time constant of 33.4 s and the registered run is 2000 steps, so
+three steps is about 1/600 of one time constant and roughly 1/670 of the run. It
+writes no time directory at all (writeInterval is 500), so there is no field on
+disk from which a gate quantity could have been taken, and none was taken. The
+smoke ran ONLY in a scratch root; the launcher refuses any other.
+
+=============================================================================
+PART 1 -- PRE-COMMIT TOOLCHAIN VALIDATION (scratch, raw OpenFOAM commands)
+=============================================================================
+Run before the freeze commit, in
+  <scratch>/vmfl069_smoke  and  <scratch>/vmfl069_reader
+to establish that the case files this registration freezes are the ones OpenFOAM
+v2606 actually accepts. Three defects were found and fixed BEFORE the freeze:
+
+  1. FATAL IO ERROR: Entry 'pcorrFinal' not found in system/fvSolution/solvers.
+     interFoam's initial pressure correction needs a pcorr solver. Added.
+  2. FATAL IO ERROR: Entry 'maxAlphaCo' not found in system/controlDict.
+     interFoam's readTimeControls reads maxCo / maxAlphaCo / maxDeltaT
+     UNCONDITIONALLY, even under `adjustTimeStep no`. Added, with a comment in
+     the frozen file stating they limit nothing so no reader mistakes them for
+     an active control.
+  3. THE fvOptions LOG LINE CARRIES QUOTES:
+         Creating finite-volume options from "constant/fvOptions"
+     A guard matching the unquoted whole line would have MISSED it. This is why
+     the launcher and the comparator match the fragments separately. The exact
+     rendering is MEASURED here, not recalled -- which is the whole reason a
+     guard has to be driven rather than reasoned about.
+
+MEASURED, on the frozen case files, at L1 (8 x 32):
+  blockMesh   rc 0
+  checkMesh   rc 0, "Mesh OK.", cells: 256
+  setFields   rc 0, "set internal values of volScalarField: alpha.fluid1 = 1"
+  interFoam   rc 0 over 3 steps, 1 End line, 3 ExecutionTime lines
+  fvOptions   "Selecting finite volume options type vectorSemiImplicitSource"
+              "Source: streamwisePressureGradient" / "State: active"
+              "- selected 256 cell(s) with volume 0.8"   (= 2 x 4 x 0.1, the
+              whole domain -- the selection is `all`, as registered)
+  Courant Number mean over the three steps: 0 -> 1.78 -> 3.44
+              THE FLOW IS ACCELERATING, so the body force is doing work. This is
+              a toolchain observation about whether the source is applied at all;
+              it is nowhere near, and was not used as, a gate quantity.
+  Interface Courant Number mean/max: 0 / 0 at EVERY step
+              The interface flux is identically zero, which is the design premise
+              of PREREGISTRATION sec.6.2 -- now observed rather than only argued.
+  Phase-1 volume fraction = 0.5 exactly, Min(alpha)=0, Max(alpha)=1 at every
+              reported step: the interface did not move and stayed sharp.
+
+READER PARSING (separate scratch case, writeInterval 1, endTime 2, so that field
+files exist to parse). The comparator's regexes were driven against REAL solver
+output, not against synthetic files only:
+  postProcess -func writeCellCentres -latestTime   rc 0, wrote C, Cx, Cy, Cz
+  U     : "internalField   nonuniform List<vector>" + count 256   -> parsed
+  Cy    : "internalField   nonuniform List<scalar>" + count 256   -> parsed
+          first cell centre y = 0.0625 = (4/32)/2, as the uniform mesh requires
+  alpha.fluid1 : nonuniform List<scalar>, values exactly 1 and 0
+  U boundaryField carries noSlip / noSlip / cyclic / cyclic / empty, as frozen.
+NO VALUE FROM THESE FILES ENTERED ANY LIMB. They were read to confirm the
+FORMAT the frozen reader must parse.
+
+=============================================================================
+PART 2 -- GUARDS DRIVEN TO BOTH OUTCOMES
+=============================================================================
+L-314: a guard is not adopted until it has been shown to ABORT on known-bad
+input AND to stay QUIET on known-good. Every guard below was driven both ways.
+
+  ARM 1  smoke scratch-only refusal
+         BAD  : run_root under verification/runs/... -> ABORT, rc 2
+         GOOD : run_root under <scratch>            -> proceeds
+  ARM 2  launch-time freeze check
+         BAD  : files not yet at HEAD -> "ABORT: ... is NOT committed at HEAD"
+         GOOD : after commit 4e4819ab -> "freeze OK" on both, and 12 case inputs
+                each byte-identical to its own HEAD blob
+  ARM 3  fvOptions marker predicate, on REAL logs
+         GOOD : the smoke's own log            -> markers present
+         BAD  : the same log with those lines stripped -> markers absent, ABORT
+  ARM 4  age guard on the level directory
+         GOOD : empty scratch root -> proceeds
+         BAD  : relaunch into the SAME root, which now holds L1/0 -> ABORT, rc 2
+  ARM 5  blockMeshDict substitution guard
+         GOOD : substituted dict -> no __NX__/__NY__ left, proceeds
+         BAD  : the raw template -> placeholders remain, ABORT
+  ARM 6  the comparator's --selftest, 67 checks, which are themselves 67 drives:
+         a GREEN completion on a complete run, and ELEVEN separate one-defect-at-
+         a-time REFUSALS (no End line; fvOptions markers absent; last Time !=
+         endTime; ExecutionTime count != endTime; a missing field; an age-guard
+         violation; a moved interface; a streamwise-varying field; a solve that
+         has not plateaued; an unregistered endTime; a recorded rc = 124), plus a
+         time-directory disagreement. Both plant channels pass on a real plant
+         and REFUSE against a blind writer, and the two refusal texts are checked
+         to DIFFER (L-314 addendum 2: two arms failing with the same message are
+         one arm). The ceiling guard REFUSES when the ceiling is lowered to GATE
+         REACHED and goes QUIET again when it is PASS. End to end, a converging
+         in-band synthetic run gives ROW VERDICT PASS and a converging out-of-band
+         one gives ROW VERDICT GATE FAIL -- a gate that cannot fail is not a gate.
+
+=============================================================================
+PART 3 -- POST-FREEZE LAUNCHER PASS PATH, END TO END
+=============================================================================
+Commit 4e4819ab61ed96420fb6da987305dcb8375c1982, launched 2026-08-28T17:42:12Z:
+  VMFL_SMOKE=1 bash cases/ansys_verification/VMFL069/run_vmfl069.sh <scratch>/vmfl069_smoke_run
+
+  freeze OK  PREREGISTRATION.md  f3d9f37336f0fbfadb60d86c3024af92ba7cfd1a
+  freeze OK  grade_vmfl069.py    dcd7f1f9bbbbe748dd33d5337127406344de8f6e
+  case inputs OK: 12 files, each byte-identical to its HEAD blob
+  controls OK: --selftest 67/67 PASS; python3 and python3 -O agree on
+               PASS 67/67, FAIL 0/0, rc 0/0, and BOTH carry the AST guard marker
+  interFoam  = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/interFoam
+  L1: remaining 45 of 45 core-min, ranks 1, timeout 2700 s
+  birth certificate: cells=256 meshOK=True maxSkew=2.13e-14 maxAR=2.0 maxNonOrtho=0.0
+  RUN_RC.L1: rc = 0, End_lines = 1, ExecutionTime_lines = 3, last_time_in_log = 3,
+             fvOptions_applied = yes, latest_time_dir = none, nx = 8, ny = 32
+  overall rc 0, total 0.0 core-min of 45  (the smoke is below the 1 s resolution
+             of the wall-clock timer; it is charged as 0.0 and is not free -- it
+             is simply shorter than the instrument can resolve, and it is a
+             TOOLCHAIN cost, not a case cost)
+
+  latest_time_dir = none is CORRECT and is the evidence that no gate quantity
+  could have been computed: writeInterval is 500 and the smoke's endTime is 3,
+  so the solver wrote no time directory at all.
+
+=============================================================================
+PART 4 -- WHAT WAS NOT VERIFIED, STATED PLAINLY
+=============================================================================
+  * THE 2000-STEP RUN HAS NOT BEEN RUN. Whether interFoam reaches the plateau by
+    t = 2000 at every level, whether the interface stays put over 2000 steps at a
+    convective Courant number of order 350, and whether the solution stays
+    streamwise-invariant are ALL UNVERIFIED. Each has a refusal clause and each
+    is a named live outcome (PREREGISTRATION sec.10, items 4, 5, 7).
+  * THE COST ESTIMATE OF 8 CORE-MIN IS A PROJECTION, NOT A MEASUREMENT. The smoke
+    was too short to measure a per-step cost.
+  * THE PREDICTED OBSERVED ORDER OF ~1 AND THE PREDICTED L3 ERRORS COME FROM AN
+    INDEPENDENT 1-D PYTHON MODEL, disclosed in PREREGISTRATION sec.9.2. That
+    model is NOT this lab's solver and produced no gate value; it sized the band.
+    Whether the real run agrees with it is exactly what the run will settle.
+  * THE ARCHIVE VMFL069_WB.wbpz WAS NOT OPENED, so Ansys's own domain extents,
+    density and layer order remain unknown to this registration.
+  * MARCHANDISE & REMACLE (2006) IS NOT ON THIS BOX and was not read.
+  * FIGURE .69.2 WAS NOT READ, digitised or compared against.
