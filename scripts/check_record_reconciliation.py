@@ -169,7 +169,13 @@ DEFAULT_REV = "HEAD"
 #:                  `head_only` in the commit alone, `worktree_only` in the
 #:                  working copy alone, so one planted repo exercises both
 #:                  directions of the difference at once.
+#: L-401: every CANNOT SEE line carries an owner AND a re-read trigger.
+CANNOT_SEE_OWNER = (
+    "OWNER verification-supervisor (assigned 2026-08-28 [lab-attributed], chief dispatch; roster territory 'cross-team gate audits' -- these guard four lab-wide registers). RE-READ 2026-09-28, AND IMMEDIATELY ON TRIGGER: any change to a guarded record's heading/row grammar. Per L-401 a DECLARED blindness is not a DISCHARGED one -- the date is the floor, the TRIGGER is the real guard, because a date alone passes fine the day after the format changes."
+)
+
 CONTROL_FORMS = {
+
     "docs/LESSONS.md": {
         # BOTH LIVE HEADING FORMS, for the reason the NUMERICS block below
         # already states: a pattern blind to one FORM drops that form from both
@@ -515,6 +521,7 @@ def render(result: dict, rev: str, worktree_file: Path) -> None:
               "sets printed above are NOT a reconciliation verdict and must not "
               "be quoted as one (CLAUDE.md rule 3).")
     print(f"VERDICT: {result['verdict']}")
+    print(f"CANNOT SEE [{CANNOT_SEE_OWNER}]")
     print("CANNOT SEE: content divergence under a shared id; entries written as "
           "`## L-43, second corollary.` or `### L-63 - CORRECTION` (declared, "
           "not matched); CONTENT THAT MATCHES NO ID PATTERN AT ALL, which is "
@@ -649,6 +656,7 @@ def selftest(run_mutation: bool = True) -> int:
         print(f"    FAILURE: {line}")
     print("-" * 78)
     print(f"VERDICT: {'PASS' if not failures else 'FAIL'}")
+    print(f"CANNOT SEE [{CANNOT_SEE_OWNER}]")
     print("CANNOT SEE: whether the planted forms are the RIGHT forms for a "
           "record whose shape changes tomorrow; content divergence under a "
           "shared id; and anything about the four ledgers' real contents -- "

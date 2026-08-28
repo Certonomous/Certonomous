@@ -219,6 +219,11 @@ EXIT_REFUSED_EXPECTATION_UNEVALUABLE = 8
 #: One entry per append-only record this lab keeps. The pattern must match the
 #: record's OWN id vocabulary; the traps each one is anchored around are in the
 #: comments, because a pattern without its trap is copied wrongly.
+#: L-401: every CANNOT SEE line carries an owner AND a re-read trigger.
+CANNOT_SEE_OWNER = (
+    "OWNER verification-supervisor (assigned 2026-08-28 [lab-attributed], chief dispatch; roster territory 'cross-team gate audits' -- this guards four lab-wide registers). RE-READ 2026-09-28, AND IMMEDIATELY ON TRIGGER: any change to a guarded record's heading/row grammar. Per L-401 a DECLARED blindness is not a DISCHARGED one -- the date is the floor, the TRIGGER is the real guard, because a date alone passes fine the day after the format changes."
+)
+
 RECORDS = {
     # The whole first cell, modulo bold/strike -- `check_docket_reconciliation`'s
     # pattern, unchanged, including its `D19-D20 note` exclusion.
@@ -1019,6 +1024,7 @@ def selftest() -> int:
     print("-" * 78)
     verdict = "PASS" if n_fail == 0 else "FAIL"
     print(f"VERDICT: {verdict}   ({n_fail} control failure(s))")
+    print(f"CANNOT SEE [{CANNOT_SEE_OWNER}]")
     print("CANNOT SEE: whether a preserved tail is wanted or abandoned; any "
           "commit (this module touches the working tree only); or a peer "
           "landing between your `git show` and your write -- capture HEAD once "
@@ -1186,6 +1192,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  WROTE            : {wt_file} ({len(got['merged'])} bytes)")
     print("-" * 78)
     print("VERDICT: OK")
+    print(f"CANNOT SEE [{CANNOT_SEE_OWNER}]")
     print("CANNOT SEE: whether a preserved tail is wanted or abandoned; any "
           "commit -- the private-index sequence, the CAS and the post-commit "
           "verification remain the caller's.")

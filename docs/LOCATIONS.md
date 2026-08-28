@@ -806,3 +806,38 @@ single stated frame together with a re-reading of the other rows**, and that is 
 larger act than this sub-note. **Named, dated and left visible rather than
 half-done.** Whether `closure-data/` should instead be enumerated in §4.2 with the
 other closure stores is **not settled here.**
+
+## Sub-note appended 2026-08-28T17:35Z — `scripts/` RECORD-INTEGRITY INSTRUMENTS ARE NOW OWNED, AND THERE IS NO "SCRIPTS ROW" TO EDIT
+
+**Ownership assigned 2026-08-28 [lab-attributed], chief dispatch.**
+
+| instrument | guards | owner |
+|---|---|---|
+| `scripts/append_record.py` | append + id discipline for `docs/LESSONS.md`, `docs/NUMERICS_KNOWLEDGE.md`, `docs/DOCKET.md`, `docs/COST_CALIBRATION.md` | **verification-supervisor** |
+| `scripts/check_record_reconciliation.py` | commit-vs-worktree reconciliation for the same four registers | **verification-supervisor** |
+
+**Ground:** the verification roster territory *"cross-team gate audits"*. These two guard **four
+lab-wide registers**, which is a cross-team gate; and an unowned instrument's declared blindness
+does not get repaired on its own — demonstrated the same day, when
+`check_record_reconciliation.py`'s own `CANNOT SEE` line predicted the gap that then collided two
+teams' lesson ids (`L-401`, `FAIL_OPEN_GATE_AUDIT` §13).
+
+**⚠ A CORRECTION TO THE DISPATCH'S PREMISE, MADE RATHER THAN QUIETLY WORKED AROUND.** The dispatch
+said to record this in *"`docs/LOCATIONS.md`'s scripts row"*. **There is no scripts row.** This
+file carries no table of repository directories at all — `scripts/` appears only inside prose and
+in rows about `/home/ubuntu/lab-scripts/`, a different tree. The whole-lab directory index the
+dispatch was thinking of is the **`WHERE THINGS LIVE`** table in `CLAUDE.md`, whose `Scripts` row
+reads *"`scripts/`, as `lower_snake.{py,sh}`; failures in `NOT_PASSING_REGISTER.md`"* — **and
+`CLAUDE.md` is not edited on an agent's say-so (standing rule 9).** So the assignment is recorded
+here, as a dated sub-note in this file's own established form, and **`CLAUDE.md` is left alone.**
+
+**NOT DONE, and named so nobody assumes it was:** `harness/teams.yaml` is **unchanged** — the
+dispatch said so explicitly and it is right, **territory edits there are Sanaa's.** This sub-note
+records an *instrument assignment*, not a roster change; if the two ever disagree, **the roster
+wins.**
+
+**Per `L-401`, both instruments now carry an owner AND a re-read trigger beside every printed
+`CANNOT SEE` line** — `CANNOT_SEE_OWNER` in each module, **re-read 2026-09-28, and immediately on
+trigger: any change to a guarded record's heading or row grammar.** The trigger, not the date, is
+the guard: **a date alone passes fine the day after the format changes**, which is exactly how the
+gap that motivated all this stayed open.
