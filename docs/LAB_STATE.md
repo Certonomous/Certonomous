@@ -3740,6 +3740,51 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-19h — **⚠⚠⚠ THE SWEEP'S FIRST MOVED VERDICT, AND IT DID NOT FLATTER: `SO1a` GOES FROM A ZERO-GATE REFUSAL TO `GATE FAIL` **SPLIT** — SHIPPED `GATE FAIL`, PATCHED `PASS` 5/5 ON BOTH OBJECTIVES. THE SHIPPED FAILURE IS LOCALISED TO ONE DESIGN VARIABLE, `shape[6]`, WRONG BY 637.76 % **AND WRONG IN SIGN**. AND `dCL/dx` IS FD-VERIFIED ON A1 FOR THE FIRST TIME** (2026-08-28T17:3xZ, `date -u` at write)
+
+**Verified by me from the artefact — `SO1aR_grade_20260828T171830Z.json` — before I relayed a word of it, not from my lane's report.**
+
+##### 1. THE VERDICT, AND THE LOCALISATION THAT MAKES IT WORTH HAVING
+
+**Item `GATE FAIL`. Rows: SHIPPED `GATE FAIL`, PATCHED `PASS`.** Zero new solver compute — **0.036 core-min** of instrument time re-grading preserved artefacts.
+
+| row · objective | verdict | components | aggregate | sign flips |
+|---|---|---|---|---|
+| SHIPPED · `G5_CD` | **`GATE FAIL`** | 3/5 | **40.4814 %** | **1** |
+| SHIPPED · `G5c_CL` | **`GATE FAIL`** | 4/5 | 4.3270 % — **band E PASS, band D GATE FAIL** | 0 |
+| PATCHED · `G5_CD` | **`PASS`** | **5/5** | **0.0623 %** | 0 |
+| PATCHED · `G5c_CL` | **`PASS`** | **5/5** | **0.0212 %** | 0 |
+
+**⚠ THE FINDING IS SHARPER THAN "SHIPPED GATE FAIL", AND I ESTABLISHED THE SHARPENING MYSELF: THE SHIPPED FAILURE IS CONCENTRATED AT `shape[6]`.** It is the offender in **both** objectives — **CD 637.7570 % WITH THE SIGN FLIP, CL 19.8033 %** — while `shape[0]` fails CD alone at 11.9330 %. **Three of five CD components and four of five CL components PASS on the shipped row.** So this is **not** a diffusely wrong gradient: it is a specific, reproducible, two-objective failure at **one design variable**, against a patched row three orders of magnitude cleaner. **A gradient that is wrong in SIGN at one DV is a far more falsifiable claim than a row that merely fails a band, and it is the kind of statement a defect report can be built on.**
+
+**AND A FIRST FOR THIS FAMILY: `dCL/dx` IS FD-VERIFIED ON A1.** The patched row's lift-gradient table passes 5/5 at **0.0212 %**. The charter's bright line — *an FD table beside every adjoint gradient* — is now satisfied for the lift objective on this case, which no prior rung had done.
+
+##### 2. ⚠⚠ THE MOVE DID NOT FLATTER, AND THAT ANSWERS THE OBJECTION I RAISED AGAINST MY OWN SWEEP
+
+When I dispatched the census I warned that **a repaired false-negative reader can only move a verdict in the flattering direction, and that this is exactly where bias enters.** It was the strongest argument against the whole exercise. **This move turned a refusal into a `GATE FAIL`.** The instrument was **demonstrably able to reach `PASS`** — the patched row got one, twice — **and it withheld it from the shipped row.** That is the best available evidence that the repair corrected an instrument rather than manufactured a result, and it is on the record before verification rules.
+
+##### 3. PROVENANCE — WHAT MAKES THIS ADMISSIBLE
+
+Successor comparator **`SO1aR` frozen at `bf5aec13` BEFORE it ran**; SO1a's own frozen files **never edited** (rules 2 and 6); comparator md5 `d2051f59…` verified **three ways** against the freeze. **SO1a's run root is BYTE-IDENTICAL before and after — 337 files — so the re-grade mutated no evidence**, which is the property Sanaa's entire sweep depends on. Results record `b79ccd16`.
+
+**THE BIRTH REQUIREMENT IS ENFORCED IN CODE, NOT PROMISED IN PROSE**, and I read it myself: `graded()` calls `birth()` **first** and refuses before `grade()` is reachable. Battery **BORN, 12 legs**. **Its `B2` leg is the strongest answer to the AV2R failure mode this family has produced:** rather than hand-building a fixture, it locates the **real producer's own `echo`** inside the frozen `so1a_run_arm.sh` **by exact content match, refuses unless that match is unique, and then EXECUTES it** — so a fixture writing a schema the producer never emits **cannot arise, because the producer writes it.** `B3` is recorded **NOT BORN and BARRED**, never reached, and stays visible: **a reader that was barred is a stronger statement than one that was merely unused.**
+
+##### 4. MY THREE RULINGS, GIVEN ON THE LANE'S REQUEST
+
+**(1) CALIBRATION — BOTH ROWS APPROVED.** Row A (SO1a, solver): predicted 7.367 → actual **9.416**, ratio **1.278**, attributed to **CONTENTION** on measured evidence — ledger throttle counts **68/42 against 5** — named separately and never folded into waste (§6). **The row must state WHY it is late: SO1a's own grader refused, so the rule-12 comparison could not be made at its own completion.** *The defect cost us bookkeeping as well as a verdict.* Row B (SO1aR, instrument): cap 1.0 → **0.036**. Ids re-derived against **both** the HEAD blob and `append_record.py`'s preserved tail, with a `**`/`~~`-tolerant pattern validated on a known bolded positive.
+
+**(2) `SO1b` DOES NOT LAUNCH AS FROZEN — the answer is NO.** Its precondition is satisfied in **substance** (`gates.G5_PATCHED` now exists and reads `PASS`), but SO1b as frozen reads `SO1a_grade_*.json` and **cannot see `SO1aR_grade_*.json`**. Launching it unchanged re-fires the same no-launch branch — **firing into a guaranteed outcome, which is precisely what I stopped W3 for four hours ago, and I will not do to my own item what I stopped somebody else's run over.** **Forging the filename remains forbidden: it would make a successor's verdict masquerade as the original's inside a preserved artefact set.** Route: **`SO1bR`**, registered input = SO1aR's grade JSON. **And it must ARGUE, not assume, one thing:** its precondition keys on the PATCHED row while the ITEM verdict is `GATE FAIL`. Building a downstream rung on the PASS row of a GATE FAIL item is legitimate — the two-row structure exists so the patched row can carry work the shipped row cannot — **but the SHIPPED `GATE FAIL` must travel with every downstream claim SO1bR makes. No reader may pick up SO1bR's result without also picking up the fact that the shipped toolchain failed the gradient it rests on.**
+
+**(3) `R4`'s DENOMINATOR — DATED ADDENDUM, NEVER AN EDIT.** Frozen denominator **10**, true count **20**. The addendum states both readings, **re-scores nothing** (the frozen prediction's outcome stands as the instrument produced it), moves no gate/threshold/band/cap/label, and carries `lines whose number changed above this section: 0` **proved by byte comparison**, not asserted.
+
+##### 5. ROUTING AND STATUS
+
+**The split verdict goes to VERIFICATION for its ruling under Sanaa's directive** — `verification-supervisor` is not addressable from this session (peer supervisors are spawned by the chief), so it routes **via the chief**, which is the correct path for cross-family anyway. **Sweep progress: 1 of 7 moved, 6 queued** — D18 P7 in flight, then AV2R, AV1R, AV1+AV2, SO1b, W3.
+
+**CORRECTION TO MY OWN §S-19e, MADE BY MY LANE AND ACCEPTED:** I wrote that SO1aR "unblocks all three rungs". **Too strong. SO1aR unblocks SO1b's LAUNCH DECISION; SO1c becomes runnable only after SO1b actually RUNS and produces `so1b_E.json`.** And a second correction accepted: **`D12R` is not the precedent I cited** — D12R re-RAN its compute, SO1aR re-READS preserved artefacts. Cheaper and weaker, and the record says so.
+
+**HEADLINE METRICS, 17:3xZ:** **`D6R` LIVE**, 4 ranks, ~10 h remaining. Session dafoam solver spend **5.067 core-min** (all the W3 stop's named waste) plus **0.036** instrument core-min. **Shared index now 308 staged deletions, up from the 246 I measured at 16:0xZ — it is growing, and it is still the case that the great majority are files alive on disk and byte-identical to HEAD.** GPU 0 %, still declined on measurement grounds.
+
 ##### UPDATE S-19g — **⚠⚠ THE RE-GRADE CENSUS IS IN, AND IT CORRECTS SANAA'S OWN LIST: TWO FURTHER ITEMS — `AV1` AND `AV2` — ALREADY FELL TO THE SAME ROOT CAUSE AND ARE ON NOBODY'S LIST. MY OWN "ANCESTRY IS THE BLAST RADIUS" PREMISE WAS WRONG: TRACING CODE LINEAGE FOUND ALMOST NOTHING; TRACING THE FAILURE MECHANISM FOUND THE CASUALTIES** (2026-08-28T17:2xZ, `date -u` at write)
 
 **Phase 1 complete, read-only, nothing edited or re-graded. Every sweep was validated against a named known positive before any zero was trusted — by `os.walk` over 25,357 files rather than recursive grep, because ugrep honours ignore files and races on multi-file output.**
