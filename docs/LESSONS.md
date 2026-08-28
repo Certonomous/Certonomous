@@ -16938,3 +16938,100 @@ other sampled field name happens to contain the letter `p`.**
   should name the file it wants (`p_` prefix, not `p` anywhere).
 - **Found post-compute in a frozen comparator, so NOT repaired** — rule 2 bars the edit, the
   disclosure is the deliverable, and repair belongs in a successor and in the unfrozen driver.
+
+## L-397 — DERIVING THE ITERATIVE FLOOR FROM THE FINEST LEVEL PROVISIONS THE FINEST LEVEL, NOT THE LADDER: ITERATIVE-CONVERGENCE DIFFICULTY IS NOT MONOTONE IN REFINEMENT, AND THE LEVEL THAT REFUSED WAS THE MIDDLE ONE
+
+**Cost:** 246.300 core-min ($0.2106 derived) bought `PASS` × 1 and `NOT A RESULT` × 1
+on F17c_KV40_FLOOR, the rung registered specifically to repair the F17b failure that
+produced **L-346** (`verification/campaign/F17c_KV40_FLOOR_RESULTS.md`; grade record
+`verification/runs/F17c_runs/F17c_GRADED.json`; ledger row C-194). cfd, 2026-08-28.
+
+**THIS IS NOT L-346 RESTATED. L-346 WAS APPLIED FAITHFULLY AND STILL PRODUCED A
+`NOT A RESULT`.** L-346 says: register the iterative floor **from the predicted
+fine-level discretisation error of the ladder being registered**, never by
+inheritance. F17c did exactly that, in a pre-registration that showed its work — it
+re-read F17b's own 40 checkpoints per level at zero new compute, fitted the E2
+increments as a geometric sequence, found the **fine** level **41.40 % short of its
+own converged value** at 4,000 iterations, extrapolated E2_∞ and solved the drift
+equation for a per-level count. It worked **on the level it was derived from**: fine
+plateaued at a relative drift of **3.98e−05**, five times inside the unchanged
+2.0e−04 tolerance, against F17b's **1.35e−01** — a four-order-of-magnitude repair.
+The E2 observed order moved **1.8585 → 2.005022**, closer to theoretical 2 than the
+registration's own predicted 2.0885. **And the rung still returned `NOT A RESULT` on
+that gate, because a level nobody was worried about refused.**
+
+**What L-346 was missing.** Deriving the floor from the finest level **provisions the
+finest level**. It does **not** provision the ladder, because **iterative-convergence
+difficulty is not monotone in refinement.** Measured relative drift over the trailing
+1,100-iteration Class C window, at the registered counts:
+
+    coarse  1.8177e-06   (0.009x tol)
+    medium  3.7548e-04   (1.877x tol)   <-- NOT_PLATEAUED_TREND
+    fine    3.9823e-05   (0.199x tol)
+
+**The middle level is 207× worse than coarse and 9.4× worse than fine.** Nothing in
+the registration's three derivation routes could see this: every route solves the same
+per-level decay equation from that level's own fitted ρ, and the count for the level
+that was *not* short was then rounded up and believed. Medium's F17b-fitted ρ =
+0.78558 was the **fastest** decay of the three levels, so the routes demanded the
+**fewest** extra iterations there — 5,183 (point estimate), 5,262 (ρ + 2σ), *"≤ 5,300"*
+(an independent 100-iteration grid search). Medium was registered at **8,000**, a
+claimed **×1.51 margin over the worst of every route**, and it missed its own criterion
+by **88 %**. **A ×1.51 margin computed at one level is not evidence about that level's
+behaviour, let alone another's — and the residual limb never blinked: the census read
+`CONVERGED` with `n_above_tolerance` = 0 across the whole 1,200-iteration window at
+every level, for every variable.**
+
+**The actionable form. DERIVE AND CHECK THE FLOOR AT EVERY LEVEL, against that level's
+own error scale and its own predicted plateau — not only at the level identified as
+short.** Concretely, at registration: for each level, state the predicted
+discretisation error, the fitted decay, the derived count **and the predicted drift at
+the registered count**; require that predicted drift to sit inside the plateau
+tolerance with a stated margin at **every** level; and treat a level whose derived
+count is small (because its decay is fast) as **more** exposed, not less — it receives
+the largest proportional round-up and therefore the least tested one. The failure mode
+is not an under-provisioned hard level; **it is an unchecked easy one.**
+
+**A mechanism for WHY the middle level trends while both neighbours plateau is NOT
+established.** It is a measured state, not a diagnosis, and the record says so.
+Recorded as an artefact coincidence and explicitly **not** unified: the
+per-cell-iteration *cost* rate on this same ladder is also non-monotone and also peaks
+at medium (0.6751 / 0.9347 / 0.7447 core-µs), for which the F17c registration offers a
+cache-straddling **hypothesis** it labels as such. Two non-monotonicities peaking at
+the same level is an observation, not a cause.
+
+**THE INSTRUMENT POINT, AND IT IS THE SECOND CONSECUTIVE RUNG IN THIS FAMILY THAT THE
+PLATEAU GATE SAVED.** Without the Class C plateau limb on the graded quantity, F17c
+reads **`PASS` × 2** at observed orders **2.005022** and **2.140696**, with both fine
+values inside their registered bands and the grader's own `band_verdict` field reading
+`PASS` on both rows — a ladder at p ≈ 2.005 on a second-order scheme, which is as
+persuasive as a verification result ever looks. **It would have been wrong.** The
+one-way gate — rule 5 step (1), which can only turn a `PASS` into a `NOT A RESULT` and
+never the reverse — is what makes the honest answer reachable at all. F17b was caught
+by the same limb one rung earlier. **A gate that can only cost you a result is the one
+worth keeping; a gate that can win you one is a fitting procedure.**
+
+**A corollary on registered predictions.** F17c's §5.2 registered, before compute,
+*"the falsifiable content of this rung is that deriving the floor moves the E2 order
+from 1.86 to ≈ 2.09 and turns two `NOT A RESULT`s into two `PASS`es."* **It turned
+one.** The headline claim is falsified and the record leads with it. The same section
+had pre-emptively disclaimed any order claim for the second gate — which then missed
+its predicted order by **−37.63 %** (3.4322 → 2.140696) while its band-based `PASS`
+stood untouched. **A prediction registered precisely enough to be falsified is worth
+more when it fails than a vague one is when it succeeds**, and a pre-registered
+disclaimer is what let a 37 % order miss be reported beside a `PASS` without either
+softening the miss or contaminating the verdict.
+
+**Scope.** Every ladder whose iterative floor is derived rather than inherited —
+i.e. every ladder that has already applied L-346 — and steady SIMPLE ladders
+especially. L-346 remains correct and is not superseded: **derive, never inherit**
+stands; this lesson adds **derive at every level, and check the derivation where you
+did not expect trouble.**
+
+**Provenance:** `verification/campaign/F17c_KV40_FLOOR_RESULTS.md` §6, §7, §8, §9
+(`plateau_detail` per level and both `band_verdict` fields in
+`verification/runs/F17c_runs/F17c_GRADED.json`); pre-registration
+`verification/campaign/F17c_KV40_FLOOR_PREREGISTRATION.md` §4.2, §4.3, §5.2 frozen at
+`3c01061ea6c773952a6df259c49bcaf4de7f31b5`; the predecessor
+`verification/campaign/F17b_KV40_EXT_RESULTS.md` and the lesson it produced, **L-346**;
+cost row C-194 in `docs/COST_CALIBRATION.md`.

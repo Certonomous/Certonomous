@@ -1,0 +1,26 @@
+PATHS RESOLVED against disk in this invocation: 14 files, 4 directories.
+INSTRUMENT GREEN: exact_f17c, grade_f17c and proj_f17c selftests pass; grade_f17c and proj_f17c exit 2 under -O.
+CAP AGREES between launcher and grader: 370 core-minutes.
+nu ON DISK AGREES with exact_f17c.NU; controlDict.template carries __ENDTIME__ and writeInterval 100; the launcher's per-level counts 4000/8000/48000 AGREE with exact_f17c.ITERS.
+level coarse: PROCEED level=coarse cell_iterations=98304000 rate=0.6751 core-us/cell-iteration projected=1.1061 core-min spent=0.0000 total=1.1061 cap=370.0000 contention=1.0 basis=frozen measured constant (no level of this run has finished yet)
+level coarse built: level=coarse nx=192 ny=128 cells=24576 max_non_orthogonality_deg=0 max_skewness=1.42108547152e-14 gate_non_ortho=70 gate_skew=4 source=log.checkMesh; endTime read back from the WRITTEN controlDict = 4000
+level coarse runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank, decomposePar is NOT invoked at any level, there is no partition and no RNG. Contrast F6a attempt 3, where scotch drew a different partition between invocations and moved a convergence verdict)
+level coarse wall allowance from the REMAINING cap: 22200s (timeout kills the solver at that point; the cap is never raised)
+level coarse COMPLETE: ClockTime 75s x 1 ranks -> cumulative 1.25 core-min of 370
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution: +/- 0.008333333333333333 core-min per level.
+level medium: PROCEED level=medium cell_iterations=786432000 rate=1.0563 core-us/cell-iteration projected=13.8454 core-min spent=1.2500 total=15.0954 cap=370.0000 contention=1.0 basis=THIS RUN's measured rate at coarse (0.7629 core-us/cell-iteration from ClockTime 75 s x 1 ranks / 98304000 cell-iterations) carried forward by the frozen per-level ratio 1.3845
+level medium built: level=medium nx=384 ny=256 cells=98304 max_non_orthogonality_deg=0 max_skewness=4.26325641456e-14 gate_non_ortho=70 gate_skew=4 source=log.checkMesh; endTime read back from the WRITTEN controlDict = 8000
+level medium runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank, decomposePar is NOT invoked at any level, there is no partition and no RNG. Contrast F6a attempt 3, where scotch drew a different partition between invocations and moved a convergence verdict)
+level medium wall allowance from the REMAINING cap: 22125s (timeout kills the solver at that point; the cap is never raised)
+level medium COMPLETE: ClockTime 672s x 1 ranks -> cumulative 12.45 core-min of 370
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution: +/- 0.008333333333333333 core-min per level.
+level fine: PROCEED level=fine cell_iterations=18874368000 rate=0.6808 core-us/cell-iteration projected=214.1600 core-min spent=12.4500 total=226.6100 cap=370.0000 contention=1.0 basis=THIS RUN's measured rate at medium (0.8545 core-us/cell-iteration from ClockTime 672 s x 1 ranks / 786432000 cell-iterations) carried forward by the frozen per-level ratio 0.7967
+level fine built: level=fine nx=768 ny=512 cells=393216 max_non_orthogonality_deg=0 max_skewness=8.52651282912e-14 gate_non_ortho=70 gate_skew=4 source=log.checkMesh; endTime read back from the WRITTEN controlDict = 48000
+level fine runs SERIAL on 1 rank: decomposePar NOT invoked. Decomposition seed: none (identity decomposition: every level runs SERIAL on 1 rank, decomposePar is NOT invoked at any level, there is no partition and no RNG. Contrast F6a attempt 3, where scotch drew a different partition between invocations and moved a convergence verdict)
+level fine wall allowance from the REMAINING cap: 21453s (timeout kills the solver at that point; the cap is never raised)
+level fine COMPLETE: ClockTime 14031s x 1 ranks -> cumulative 246.29999999999998 core-min of 370
+  QUANTISATION: ClockTime has INTEGER-SECOND resolution: +/- 0.008333333333333333 core-min per level.
+
+ALL THREE LEVELS COMPLETE. Cumulative spend: 246.29999999999998 core-min of 370.
+Grading is a SEPARATE invocation:
+  python3 /home/ubuntu/Certonomous/cases/F17c_kovasznay_floor/grade_f17c.py --prereg-commit=3c01061ea6c773952a6df259c49bcaf4de7f31b5
