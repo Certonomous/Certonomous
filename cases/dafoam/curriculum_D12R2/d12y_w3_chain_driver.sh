@@ -33,7 +33,11 @@ MD5_LAUNCHER=20f8c0c51593576bddaa8a410659d997
 # W3 AMENDMENT 2 (2026-08-27), RULING R-RC (Sanaa APPROVED, standing directives sec.0):
 # comparator f3c1252c... -> 3b0a75079c932b41ec19477388498842. The driver asserts this at :38 before every step;
 # a stale pin here is the D8R-DRIVER-DEF-1 death and the assertion below is what catches it.
-MD5_GRADER=3b0a75079c932b41ec19477388498842
+# W3 AMENDMENT 3 (2026-08-28), W3-GRADER-DEF-2 (the S2b last-wins sort) repaired PRE-COMPUTE:
+# comparator 3b0a7507... -> 3950d30fd09c9b56213a02f5e9864e20. NO gate, band, threshold, cap or
+# label moves; the change adds a uniqueness REFUSAL on an ambiguous S2b_*.log set and records
+# the selection. A STALE PIN HERE IS WHY THE 2026-08-28T02:15:29Z LAUNCH ABORTED rc=4.
+MD5_GRADER=3950d30fd09c9b56213a02f5e9864e20
 STATUS="$HERE/STATUS.W3_chain"
 utc () { date -u +%Y-%m-%dT%H:%M:%SZ; }
 rec () { echo "stamp=$(utc) driver=d12y_w3_chain_driver.sh $*" | tee -a "$STATUS"; }

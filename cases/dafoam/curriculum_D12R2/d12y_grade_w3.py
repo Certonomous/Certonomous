@@ -2437,11 +2437,48 @@ def plan(manifest_path, root, man_meta=None):
     # SAME question -- "is this enough to start a solve?" -- which is the question the md5
     # control never asked.
     fbc = man_meta.get("field_b_completeness") if isinstance(man_meta, dict) else None
-    logp = os.path.join(root, os.path.basename(s2.get("log", "")))
-    cands = [p for p in os.listdir(root) if p.startswith("S2b_") and p.endswith(".log")]
+    # ---- W3-A3 (2026-08-27, PRE-COMPUTE): THE S2b SERIES IS SELECTED BY A UNIQUENESS
+    # REFUSAL, NOT BY A LAST-WINS SORT.  W3-GRADER-DEF-2: the predecessor read
+    # `sorted(cands)[-1]`, which RESOLVES a multi-file state silently.  S2b runs exactly
+    # once per run root (the launcher fires it at one call site and the cold-start guard
+    # refuses a re-fire into an existing root), so a SECOND S2b_*.log is a re-fired stage
+    # -- itself a FINDING, never something for the comparator to pick between.  Driven at
+    # zero compute on a fixture built from the D12R2 phase-1 manifest: a planted second
+    # log carrying the same series scaled by 1.05 moved delta_eff 4.453500e-04 ->
+    # 4.604996e-04 and h_min 0.043220 -> 0.044691 with rc=0 and no refusal, and h_min is
+    # the quantity G12R-4 grades against h_max.
+    #
+    # THE MANIFEST'S NAMED PATH IS NOT AVAILABLE AS THE PRIMARY, AND THAT IS STATED
+    # RATHER THAN ASSUMED.  The predecessor also computed `logp` from `s2.get("log")` and
+    # never used it.  The launcher writes NO "log" key into any manifest row -- checked
+    # over every row[...] assignment in d12y_w3_stage_and_run.sh, and confirmed against
+    # the real 33-row D12R2 manifest, whose S2b row carries 39 keys and no "log" -- so
+    # `logp` resolved to the run ROOT, not to a log.  The dead variable is therefore
+    # REMOVED rather than adopted, and the manifest name is used only as a CROSS-CHECK,
+    # and only where a row actually carries one.  (`grade_from_manifest`'s
+    # `read_series(os.path.join(root, s2["log"]))` is the LEGACY single-JSON path, not
+    # this one; W3_PREREGISTRATION.md section 2 already records that it does not run.)
+    cands = sorted(p for p in os.listdir(root)
+                   if p.startswith("S2b_") and p.endswith(".log"))
     if not cands:
         raise Refusal("no S2b log on disk in %s" % root)
-    _, cd, _ = read_series(os.path.join(root, sorted(cands)[-1]))
+    if len(cands) != 1:
+        raise Refusal("W3-A3: S2b log selection is AMBIGUOUS -- %d files match S2b_*.log "
+                      "in %s (%s). S2b runs exactly once per run root, so a second log "
+                      "is a re-fired stage: a FINDING, not something to resolve by sort "
+                      "order." % (len(cands), root, ", ".join(cands)))
+    s2b_log_name = cands[0]
+    s2b_log_declared = os.path.basename(s2.get("log") or "")
+    if s2b_log_declared and s2b_log_declared != s2b_log_name:
+        raise Refusal("W3-A3: the S2b manifest row NAMES log %r but the run root holds "
+                      "%r -- the record and the disk disagree about which artifact was "
+                      "graded." % (s2b_log_declared, s2b_log_name))
+    s2b_log_path = os.path.join(root, s2b_log_name)
+    # the selection is ON THE RECORD, not implicit in a sort order
+    out["s2b_log_selected"] = s2b_log_path
+    out["s2b_log_candidates"] = list(cands)
+    out["s2b_log_declared_by_manifest"] = s2b_log_declared or "NOT_MEASURED"
+    _, cd, _ = read_series(s2b_log_path)
     if len(cd) <= TRANSIENT_DISCARD:
         raise Refusal("S2b produced %d CD samples, at or below the registered %d-step "
                       "transient discard" % (len(cd), TRANSIENT_DISCARD))

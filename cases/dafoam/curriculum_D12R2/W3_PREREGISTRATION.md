@@ -311,3 +311,122 @@ The launcher's `A3` asserts every instrument against the **committed HEAD blob**
 | audited clauses examined and deliberately left strict | **3** (`:453`, `:1984`, `:1986`) |
 | planted-failure legs driven | **22 + 12 + 82**, all passing under `python3` and `python3 -O` |
 | lines whose number changed above this section | **0**, proved on bytes |
+
+---
+
+## 13. AMENDMENT 3 — 2026-08-28, PRE-COMPUTE. `W3-GRADER-DEF-2`: the S2b log selection REFUSES instead of resolving. No gate, threshold, cap, band, label, cost or prediction moves.
+
+**Version 1.2 → 1.3.** Dated **2026-08-28**. Lane: dafoam `lab-lane` (U). Supervisor: `dafoam-supervisor` (`[lab-attributed]`; **check 1 discharged before this lane wrote a byte** — the supervisor read the comparator change as a `diff` against the HEAD blob personally and approved it). **Lines whose number changed above this section: 0 — proved on BYTES**, not on a line count: the HEAD blob of this file is asserted a byte-exact PREFIX of the amended file in the commit invocation, the assertion Amendment 2 introduced and this one inherits. Sections 1–12 stand as frozen.
+
+### 13.1 The §2b condition, stated AND CHECKED
+
+`VERIFICATION_CHARTER.md` §2b permits amendment **before first compute**, and requires the condition to be stated *and* checked by naming the run directory that does not exist. Re-driven at **2026-08-28T16:14:36Z**, not carried over from Amendments 1 or 2:
+
+- `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady` → **FALSE**. The W3 run root has never existed. (`CURRICULUM-D12R2-`, `-D12R2W2-` and `-D12R2W2R-` roots exist and are other items; no root of any name carries W3 artifacts.)
+- **W3 has spent 0 core-minutes.** Two launches have been fired and both refused at zero: `2026-08-27T03:43:17Z` at the launcher's A1 cap-agreement control (§11.2, `W3-LAUNCHER-DEF-1`), and **`2026-08-28T02:15:29Z`, which aborted `rc=4 reason=grader_md5_drifted` BEFORE its `START` line** — recorded by the driver's own `rec()` in `STATUS.W3_chain`, the last line in that file.
+- No `d12y_w3_` container has ever existed; no W3 ledger, manifest or `step_plan*.json` exists.
+
+**There is no answer to tune to.** The gates are open, and this is the ordinary §2b path — **not** the §2d.1 post-compute repair exception, which is not reached and is deliberately not invoked.
+
+**Sanaa can overrule any of this.**
+
+### 13.2 `W3-GRADER-DEF-2` — a multi-file state RESOLVED BY SORT ORDER, on the path that feeds G12R-4
+
+The predecessor comparator selected the S2b series with `sorted(cands)[-1]` — **last wins by lexicographic sort**. S2b runs **exactly once per run root**: the launcher fires it at one call site and the cold-start guard refuses a re-fire into an existing root. A second `S2b_*.log` is therefore *a re-fired stage — itself a FINDING*, never something for a comparator to pick between. Silently taking the lexicographically-last file converts an anomaly into a number.
+
+The repaired path raises a `Refusal` on `len(cands) != 1`, naming the count, the root and every candidate.
+
+**The path is load-bearing, not incidental.** It feeds `delta_eff` and `h_min`, and **`h_min` is the quantity `G12R-4` grades against `h_max`**. A wrong selection here does not crash; it moves a graded number.
+
+### 13.3 A SECOND, SEPARATE FINDING — the dead `logp`, and why the manifest name is a cross-check and not the primary
+
+The predecessor also computed `logp = os.path.join(root, os.path.basename(s2.get("log", "")))` and **never used it**. This is recorded as a distinct finding rather than folded into `W3-GRADER-DEF-2`, because the tempting repair — "adopt the manifest's declared name as the primary" — **is wrong, and measurably so**:
+
+- The launcher **writes no `"log"` key into any manifest row**. Checked over every `row[...]` assignment in `d12y_w3_stage_and_run.sh`, and confirmed against the real 33-row D12R2 phase-1 manifest, whose S2b row carries **39 keys and no `"log"`**.
+- So `s2.get("log", "")` returned `""`, `os.path.basename("")` is `""`, and **`logp` resolved to the run ROOT, not to a log.**
+
+The dead variable is therefore **REMOVED, not adopted**. The manifest name is used **only as a cross-check, and only where a row actually carries one** — a row with no name is not an error and does not refuse. The selection is put **on the record** rather than left implicit in a sort order: the artefact now carries `s2b_log_selected`, `s2b_log_candidates`, and `s2b_log_declared_by_manifest` (`NOT_MEASURED` where the manifest declares nothing).
+
+(`grade_from_manifest`'s `read_series(os.path.join(root, s2["log"]))` is the LEGACY single-JSON path, not this one; §2 already records that it does not run.)
+
+### 13.4 Planted-control proofs, DRIVEN — zero compute, both directions
+
+> Sanaa's standing directives §1 (L-314): *every guard ships its planted-failure proof.* `CLAUDE.md` rule 3: **a reader not shown able to see a non-zero is not evidence.**
+
+**`d12y_w3_s2b_selection_control.sh`: 11/11, `pass=11 fail=0`.** Driven through the REAL `plan()` code path on a fixture assembled from the REAL 33-row D12R2 phase-1 manifest and its REAL S2b log; it creates no container, touches no run root, and writes only under its `TMPD`. It **refuses rather than reporting a clean zero** if its seed run root is absent.
+
+| leg | planted | required | got |
+| --- | --- | --- | --- |
+| L1 | exactly one `S2b_*.log` | `plan()` rc=0; `s2b_log_selected` NAMES the file on disk | `PASS` |
+| L2 | the same one-file fixture, graded by the PRE-`W3-A3` comparator | `step_plan` **byte-identical** pre vs post — **the repair moves no number** | `PASS` |
+| L3 | a SECOND `S2b_*.log` | REFUSE rc=2, and the refusal NAMES the ambiguity | `PASS` |
+| **L3c** | **the same plant, on the PRE-`W3-A3` comparator** | **it ACCEPTS (rc=0) and its `h_min` MOVES — the defect is real, not hypothetical** | `PASS` |
+| L4 | the plant REMOVED again | passes again rc=0 — **the refusal was caused by the plant, not by the fixture** | `PASS` |
+| L5 | manifest row `"log"` == the true name | passes rc=0 — the cross-check is not a blanket refusal | `PASS` |
+| L6 | manifest row `"log"` == a WRONG name | REFUSE rc=2 on the cross-check | `PASS` |
+| L7 | no `S2b_*.log` at all | REFUSE rc=2 — pre-existing limb, carried unchanged | `PASS` |
+| L8 | `ast.Assert` audit | `0`, with the SAME counter shown reading `1` on a planted assert (0 → 1) | `PASS` |
+
+**THE MEASURED MOVEMENT, on the PRE-`W3-A3` comparator, one file → the planted two-file state:**
+
+| quantity | one `S2b_*.log` | with the planted second log (same series × 1.05) | moved |
+| --- | --- | --- | --- |
+| `delta_eff` | `4.453500e-04` | `4.604996e-04` | **yes** |
+| `h_min` | `0.043220413943883054` | `0.044690652644557820` | **yes — and `h_min` is what `G12R-4` grades** |
+
+rc was **0** and **no refusal fired**: the predecessor would have graded the planted state as a clean result.
+
+**`d12y_w3_pin_guard_control.sh`: 6/6, `pass=6 fail=0` (NEW at this amendment).** It drives the chain driver's OWN md5 assertion in **both directions**. The assertion is **not retyped**: the harness is the driver's own first *N* bytes, cut at the grader-assertion line and **byte-asserted identical to the driver's prefix** (`21e47be43d75b3711de9c8cf6eb5e038`), so the control cannot keep passing after the driver drifts. The launcher and grader are reached by **symlink**, so `md5sum` reads the REAL files' bytes; only the sandbox `STATUS` file is written. Nothing is launched — the harness stops at the line after the guard, and `STATUS.W3_chain` in the case directory was verified unchanged.
+
+| leg | condition | required | got |
+| --- | --- | --- | --- |
+| P1 | extraction control | driver holds **exactly one** `MD5_GRADER=` and **exactly one** grader assertion, else **ABORT** rather than report a zero | `PASS` (1/1) |
+| P2 | harness prefix | byte-identical to driver lines 1–46 | `PASS` |
+| **P3** | **correct pin + REAL grader** | **rc=0, `GUARD_PASSED`, zero drift lines** | `PASS` |
+| **P4** | **pin deliberately WRONG** | **rc=4 `reason=grader_md5_drifted`, and `GUARD_PASSED` never printed** | `PASS` |
+| P5 | correct pin + PLANTED grader bytes | rc=4 — **the guard reads the FILE, not merely its own constant** | `PASS` |
+| P6 | the limb that fired | GRADER limb, not the launcher limb (launcher drift lines 0/0) | `PASS` |
+
+**An honest defect in this lane's own instrument, recorded rather than tidied.** Leg P6 FAILED on its first run — because of a bug in the *control*, not in the driver: `grep -c` prints `0` **and exits 1** on no-match, so the `|| echo 0` fallback emitted **two** values (`"0\n0"`) and the equality test failed. Repaired with a `cnt()` helper, and the helper was itself shown returning exactly one value in all three states (no-match on an existing file, match, absent file) before the re-run. A control whose own reader is broken measures its reader, not the code.
+
+**The inherited batteries, re-driven at this amendment under `python3` AND `python3 -O`:** `--selftest` **82/82, failures 0** (`units REGISTERED (frozen constant) 82, units in the list 82, units that RETURNED A RESULT 82`); `--selftest-rrc` **22/22**; `--selftest-w3` **12/12**. The registered unit count stays **82** — this amendment adds no unit to that battery and removes none.
+
+### 13.5 The stale pin, and why the `02:15:29Z` launch aborted — the guard did its job
+
+The comparator was repaired on disk at `2026-08-27T23:11Z` and **never committed**; the fleet died four minutes later on the account's weekly usage limit. The daemon runner fired `W3_chain_r3` at `2026-08-28T02:15:29Z` regardless. The driver's `MD5_GRADER` pin still named `3b0a7507…` while the file on disk was `3950d30f…`, so the assertion fired and the driver exited **`rc=4 reason=grader_md5_drifted` before its `START` line, at zero core-minutes.**
+
+**This is the instrument working, not failing.** A comparator whose bytes have drifted from its registered pin **did not run**. That is `VERIFICATION_CHARTER.md` §2's freeze executed rather than asserted, and it is the `D8R-DRIVER-DEF-1` death prevented. The abort is recorded here as corroboration of §13.1's zero-compute condition, not as a defect.
+
+The pin is bumped **in the same commit as the comparator it pins**, which is the only ordering that cannot leave a window in which the two disagree.
+
+### 13.6 Instruments re-frozen at this commit
+
+Every md5 below was **re-derived in the same shell invocation** as the freeze assertion, never carried over from a previous section.
+
+| file | md5 at v1.2 | md5 at v1.3 | change |
+| --- | --- | --- | --- |
+| `d12y_grade_w3.py` | `3b0a75079c932b41ec19477388498842` | `3950d30fd09c9b56213a02f5e9864e20` | `W3-GRADER-DEF-2`: `sorted(cands)[-1]` → a `len(cands) != 1` uniqueness Refusal; the dead `logp` removed; a manifest cross-check where a row carries a name; `s2b_log_selected` / `s2b_log_candidates` / `s2b_log_declared_by_manifest` recorded. **Two hunks, adjacent, in one function; `diff` against the v1.2 file is exactly 3 lines removed and 40 added, of which 22 are the comment naming the defect (measured from the diff, not estimated -- this lane's first draft of this row said 'one hunk, 2 removed, 21 comment lines' and all three figures were wrong). No gate, band, threshold, cap, label or constant is touched.** |
+| `d12y_w3_chain_driver.sh` | `60b1edc17a1d041a78fe8e17cbbbaebf` | `4ae856128101115c3ba566eae9f41fd2` | `MD5_GRADER` re-pinned to the repaired comparator, plus the four-line comment naming this amendment. `MD5_LAUNCHER` **unchanged**. `diff` against the v1.2 file is exactly that one block. The pins are asserted at `:45`/`:46` before every step |
+| `d12y_w3_stage_and_run.sh` | `20f8c0c51593576bddaa8a410659d997` | `20f8c0c51593576bddaa8a410659d997` | **UNCHANGED — deliberately.** No cap, cpuset, memory, stage graph or `W_STEPS` value is touched by this amendment |
+| `d12y_w3_s2b_selection_control.sh` | — | `cdc2fcd489898e725abebc01f9f1e7aa` | new — §13.4's eleven legs |
+| `d12y_w3_pin_guard_control.sh` | — | `50e2898af3a221cb7942dc766acc0bb0` | new — §13.4's six pin-guard legs, both directions |
+
+The launcher's `A3` check asserts every instrument against the **committed HEAD blob** before staging, so none of this runs until it is committed — the freeze is executed, not asserted.
+
+### 13.7 Re-file
+
+`W3_chain_r3.json` was fired by the runner at `02:15:29Z` and has moved to `verification/queue/dafoam/launched/`. The successor is **`W3_chain_r4.json`**, identical in every registered field, with `prereg_commit` set to the commit carrying this amendment and `instrument_md5s_at_this_commit` carrying the **post-amendment** comparator and driver md5s. The registered cost is unchanged: **563.3 core-min estimate, `ranks 1`, cap `900.0` core-min**, dollars **DERIVED** at `$0.0513/core-h` with `cost_basis` **REPORTED-BY-OWNER, NOT MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). **Enqueueing is not authorisation.**
+
+**The `CAP_CORE_MIN` question, checked rather than assumed.** `STATUS.W3_chain` records the `2026-08-27T03:43:17Z` abort at the cap-agreement control, where the launcher's *operative default* was the W3 DRAFT's `600.0` against the registered `900.0`. **That mismatch is gone and was verified gone, not inferred:** `d12y_w3_stage_and_run.sh:118` reads `CAP_CORE_MIN_REGISTERED="900.0"` and `:126` reads `CAP_CORE_MIN="${CAP_CORE_MIN:-900.0}"`; the agreement control at `:187-188` aborts unless they are equal; and the queue entry carries `cap_core_min_registered = 900.0`. No `600.0` remains in any operative position.
+
+| what this amendment did | figure |
+| --- | --- |
+| gates, thresholds, caps, bands, labels, costs or predictions altered | **0** |
+| core-minutes spent by W3 before this amendment | **0** |
+| refusal clauses ADDED | **2** (S2b selection ambiguous; the manifest/disk name disagreement) |
+| refusal clauses REMOVED or weakened | **0** |
+| dead variables removed | **1** (`logp`, §13.3) |
+| output keys added (record-only, graded by nothing) | **3** |
+| planted-failure legs driven | **11 + 6 + 82 + 22 + 12**, all passing, the last three under `python3` and `python3 -O` |
+| this lane's own instrument defects found and recorded | **1** (§13.4, leg P6) |
+| lines whose number changed above this section | **0**, proved on bytes |
