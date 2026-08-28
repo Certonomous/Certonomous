@@ -15891,6 +15891,50 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-28T17:4xZ — **R-FODIR-1 REPAIR REGISTRATION FROZEN (`9b687d44`) — FREEZE-AHEAD 1 → 2 under Sanaa §3. GPU RELEASED TO DAFOAM. And a CORRECTION OF FACT AGAINST MY OWN COMMIT MESSAGE: `VMFL021-R2 never ran` was FALSE.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### A FALSE STATEMENT IN MY OWN COMMITTED RECORD — corrected, not quietly dropped
+
+My commit **`c7176346`** asserted, in its own message, *"(VMFL021-R2 never ran)"*. **THAT IS FALSE, and I verified the contradiction myself rather than accept the lane's report:** `verification/runs/ansys_verification/VMFL021/R2/` holds a complete run tree — `FAMILY_DONE.flag`, **3 solver logs**, and `GRADING_VMFL021_R2.json` recording **`"verdict": "GATE REACHED"`** — and **register row #23** records that landed verdict. A commit message is immutable, so the correction lands here and in `R-FODIR-1 §1.4`. **VMFL021-R2 belongs in the exposure set**, which makes it **nine** landed verdicts on hazard-carrying comparators, not eight. The path also drifted from my note: its grader is nested at `cases/ansys_verification/VMFL021/R2/grade_vmfl021_r2.py`, not a `VMFL021-R2/` directory.
+
+#### THE HIGHEST-VALUE EXPOSURE IS A `PASS`, AND I RULE ON THE SEQUENCING `[lab-attributed]`
+
+**Register row #28 (VMFL004-R2) is a `PASS`** — verified by me at HEAD. So **one of this register's SIX PASS credentials sits on a hazard-carrying comparator**, and a PASS is the scarcest thing this ladder produces (6 of 43 rows). **RULING: the registered tranche-1 order STANDS** — VMFL022 → VMFL021 → VMFL021-R2, one successor template over three near-identical mass-flow readers, cap **9.0 core-min running-total** — because current risk is **zero for every case** (all latent) and tranche 1 delivers the reference implementation cheapest. **But tranche 2 MUST LEAD WITH VMFL004-R2**, and I record that now so the ordering is not re-litigated later by whoever picks it up. Resequencing a frozen registration to chase equal-zero risk would be churn; naming the priority forward costs nothing.
+
+#### THE REGISTRATION — `9b687d44`, one path, ZERO deletions, blob `4c9f5a4b`
+
+413 lines, **prediction-first**, and its §6 registers the outcome **before any repair runs**: because every hazard case emits **exactly ONE** FO start-time directory (measured per case in §1.3), the repaired reader selects the same sole directory, therefore **NO VERDICT MOVES** — with the opposite outcome named as live, which is the entire point of registering it. Repair standard is **Form (a) `one_match`** at all 19 sites, Form (b) `key=float` reserved for any future multi-directory reader, and **never a `[0-9]*` glob** (L-339 — it also matches `0.orig` and reads a template as an answer). §4 binds every successor's control to Sanaa's §1 birth requirement and §5 pre-registers an acceptance test that must prove BOTH that the repaired helper returns `2000` AND that the lexicographic answer WOULD have been `950` — a test that only checks the right answer never shows the bug was there.
+
+**All nine frozen parents UNCHANGED, disk == HEAD == before-hash**, verified after the work: `027bcbf7` `ddea9d47` `417b4bbe` `e369496b` `45aa4613` `3975d9ee` `7e783fe4` `87ce3fa6` `1c750397`. **No successor written, no re-grade launched, no frozen comparator touched.**
+
+**VMFL076-R2 live instance re-measured:** `L1/postProcessing/sampleLine` = **40** time directories, lexicographic `[-1]` = **`950`**, numeric last = **`2000`**. Its `_sample_times()` (663–685) is the guarded reference — `float()` membership, numeric sort, cardinality refusal — and does **not** carry the defect.
+
+#### GPU — RELEASED TO DAFOAM `[lab-attributed]`, and the idle figure CORRECTED
+
+Handed to `dafoam-supervisor` **directly** (the earlier failure was that I addressed it by NAME; a name is not an address — the agent id is). Released under Sanaa §2. I hold **no frozen GPU case**: VMFL063 is CPU, R-FODIR-1 is grader work, and **VMFLGPU006 is blocked on evidence** (manual pp.239–241 print figures only, no Target table; NASA TM X-3224 absent from this box).
+
+**THE IDLE WAS NOT CONTINUOUS AND NOT 14.5 h — a 28-minute GRADED RUN sits inside that span**, and reporting the span as idle would overstate the waste by a run that produced a register row:
+
+| | | |
+|---|---|---|
+| idle 03:20:39Z → 16:07:50Z | 767.18 min | 12.7864 GPU-h = **$10.2905** |
+| **RAN** 16:07:50Z → 16:35:52Z | 28.03 min | 0.4672 GPU-h = $0.3760 — **VMFLGPU007-R2, `GATE REACHED`** |
+| idle 16:35:52Z → 17:36Z | 60.28 min | 1.0047 GPU-h = **$0.8086** |
+| **TOTAL IDLE** | **827.47 min** | **13.7911 GPU-h = $11.0991** |
+
+**DERIVED, NOT MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5); the console figure is owed and supersedes. **INFRASTRUCTURE, never folded into any case ratio** (§6). **Whether dafoam launches within the hour is THEIR call, not mine to promise** — if they do not take it, the **stop-not-terminate** decision goes to Sanaa with **$11.0991** beside it. I still will not stop the instance myself: `terminate` destroys the root volume and the whole toolchain build.
+
+#### TWO "OWED" ITEMS WERE ALREADY LANDED — and my first check said otherwise
+
+**`C-193`** (`docs/COST_CALIBRATION.md:276`) carries the full 005 rule-12 row: **4.215278 GPU-h actual vs the 6.0 cap; 151.75 vs 240 core-min**; ratios 0.673 / 1.167; caps used **19.53 %** and **52.19 %**; **$3.3925 derived**. **Register row #42** carries the `CAP_OVERRUN` disclosure, the 14400 figure, the **per-solve** scope, **"NO REGISTERED CAP"** breached, the referral to verification, and it cites C-193. **My first grep returned EMPTY on both because it demanded `**` bolding** — the sweep-measuring-its-own-regex trap I had already flagged twice today, walked into a third time and caught on the re-check. **A grep that returns zero on a row you have previously verified is measuring your pattern, not the file.**
+
+#### STATE
+
+**FREEZE-AHEAD 2 of 3** — VMFL063 (frozen, queued) and R-FODIR-1 (frozen repair registration, counting under Sanaa §3). VMFL063 **`PENDING` at the HEAD of the queue**, held at **90.2 %** against the runner's 85 % ceiling; memory plateaued ~11.4 GB and is **NOT** the binding gate. **The CPU box is not idle.** Rows **#42 `NOT A RESULT`** and **#43 `GATE REACHED`** confirmed **non-provisional** under the S2 real-path controls. `check_record_reconciliation.py` still exits **4**, blocked **solely** by **`C-69` (dafoam `:144` vs cfd `:145`)** — not ours. On Sanaa's desk, **five**.
+
+
 ### 2026-08-28T17:3xZ — **PLANTED-CONTROL RE-GRADE: NEITHER VERDICT MOVED. Rows #42 and #43 reproduce BYTE-FOR-BYTE through a repaired real-path control and are NO LONGER PROVISIONAL. Zero solver compute.**
 
 **Written by `ansys-verification-supervisor` personally.** Commits `87a624ea` (successors frozen) and `ca84e035` (register addendum + both verbatim re-grade outputs) — **zero deletions each**.
