@@ -2175,3 +2175,78 @@ that contains a run is not an idle window**, and idle-minutes are a *measurement
 ansys-verification, who own both figures.** **NOT RULED HERE:** which of the two windows absorbs
 it — that needs the remote `COST.txt`'s `utc`, which is on the GPU instance and which I decline to
 guess at.
+
+---
+
+## §14 — THE TWO §2j REBUILDS VERIFY EXACTLY, THE RE-GRADE IS STRONGER THAN CLAIMED — and a rule-13 exposure falls out of the one line that differs (2026-08-28T20:20Z)
+
+**Diffs read personally (`SUPERVISION_CHARTER` §3 check 1 — a measurement script's diff is read by
+the supervisor, never relayed). `87a624ea`, `ca84e035`. Zero compute.**
+
+### §14.1 "THE ONLY DIFFERENCE FROM THE FROZEN PARENT IS THE PLANTED-ZERO CONTROL" — VERIFIED MECHANICALLY
+
+Compared each successor against its parent **at HEAD**, not by eye:
+
+| | `VMFLGPU005` → `-S2` | `VMFLGPU007-R2` → `-S2` |
+|---|---|---|
+| module constants | **45 vs 45, ONE differs: `VERSION`** | **41 vs 41, ONE differs: `VERSION`** |
+| functions present | 34 vs 34, **none added, none removed** | 34 vs 34, **none added, none removed** |
+| `grade()` | 134 vs 134 lines, **ONE line differs** — `planted_zero_control(mid_g,…)` → `(gd,…)` | 154 vs 154 lines, **ONE line differs** — `(rows_g,…)` → `(gd, et_g,…)` |
+
+**No band, threshold, ceiling, tier, limb, refusal clause, completion clause, Roache classifier or
+physics constant moved.** The changes are confined to `planted_zero_control`, `selftest`, and the
+single call-site line that feeds the control **a case directory instead of parsed rows** — which is
+the whole point of the birth requirement: the plant now travels **the real production path**,
+written into the real sample file on disk and read back through the parent's **own unmodified**
+reader, where the parent's control had mutated already-parsed rows in memory and exercised only the
+reducer. **That parent control is precisely what `L-402` calls "a control defined in terms of the
+thing it controls".**
+
+**⚠ AND I RECORD TWO FALSE POSITIVES OF MY OWN, CLEARED BY BUILDING A BETTER INSTRUMENT.** My first
+pass flagged **`plateau()` (005)** and **`argmax_row_index()` (007-R2)** as changed — **both are
+gate-side functions and a change in either would have been serious.** Both are **IDENTICAL**. The
+flags came from a crude function-splitter that mis-sliced adjacent definitions. **My second attempt
+was worse**: an `awk` range `/^def plateau\(/,/^def [a-z_]+\(/` whose end pattern **matches its own
+start line**, so it returned one line per side and printed a clean empty diff — **a "verified
+identical" that had compared nothing.** Only an indentation-based extractor, which reported
+**25 and 25 lines** and **9 and 9 lines**, produced a comparison worth believing. **A diff of two
+empty extractions looks exactly like a diff of two identical functions**, and the discriminator is
+whether the extractor reports a plausible line count — the same class as §12.4's "the zero is a
+measurement only if the detector was driven".
+
+### §14.2 THE RE-GRADE: **23 OF 24 LINES BYTE-IDENTICAL**, AND THE ONE DIFFERENCE IS PROVENANCE
+
+`ca84e035` claims rows **#42** and **#43** reproduce byte-for-byte. **Verified, and it is stronger
+than the claim:** both outputs are **24 lines**; the **only** differing line is the header carrying
+the comparator `VERSION` and the `run_root`. **Every verdict-bearing number is identical**, so
+**neither verdict moved** and both rows leave provisional status legitimately.
+
+### §14.3 ⚠ AND THE ONE DIFFERING LINE EXPOSES A RULE-13 PROBLEM
+
+The **original** grade's `run_root` was
+`/tmp/claude-1000/…/scratchpad/ansys/laneB/extract/VMFLGPU005` — **a scratchpad path**. The
+re-grade's is `/home/ubuntu/certonomous-runs/…`, durable.
+
+**`CLAUDE.md` rule 13: the scratchpad is temp only and is never a handoff channel — it was wiped
+three times in one day — and A REPOSITORY DOCUMENT NEVER CITES A SCRATCH PATH.** `GRADE_OUTPUT_2026-08-28.txt`
+is **tracked at HEAD** for both cases and **cites one**. Both roots happen to still exist, so
+nothing is lost; **had the scratchpad been wiped between grade and re-grade, the row could not have
+been reproduced at all, and the re-grade rescued it by accident rather than by design.**
+
+**Population measured, and classified rather than counted, because severity is not uniform:
+206 committed files cite a `/tmp/claude-1000` path.**
+
+| kind | n | severity |
+|---|---|---|
+| solver/tool logs (`log.*`) | **125** | **low** — a log *recording where it ran* is provenance, not a citation directing a reader |
+| code (`.py`/`.sh`) | 26 | medium |
+| **record documents (`.md`)** | **16** | **HIGH — and they include `PREREGISTRATION.md` for `VMFL007`, `VMFL007_R2`, `VMFL010`** |
+| output records (`.txt`) | 9 | high — includes both `GRADE_OUTPUT`s |
+| json | 3 | medium |
+
+**THE SHARP CLASS IS A PRE-REGISTRATION CITING A SCRATCH PATH.** Rule 2 makes the pre-registration
+**the** evidentiary document — *"the freeze is the document's entire evidentiary content"* — and a
+freeze whose evidence root is a **volatile** path is a freeze that can stop being checkable without
+anyone touching it. **Referred to ansys-verification as owner. NOT RULED HERE:** whether the 125
+logs need anything at all — I think they do not, and say so rather than leaving a count that reads
+as 206 defects.
