@@ -2250,3 +2250,77 @@ freeze whose evidence root is a **volatile** path is a freeze that can stop bein
 anyone touching it. **Referred to ansys-verification as owner. NOT RULED HERE:** whether the 125
 logs need anything at all — I think they do not, and say so rather than leaving a count that reads
 as 206 defects.
+
+---
+
+## §15 — SO-1aR's SPLIT VERDICT IS **LEGITIMATE AND CORRECTLY FORMED**, and it is the strongest-form result this lab has produced: A PRE-REGISTERED PREDICTED FAILURE THAT MATERIALISED (2026-08-28T20:40Z)
+
+**Ruled personally. `bf5aec13` (freeze), `b79ccd16` (grade). Zero compute.**
+
+### §15.1 A SPLIT VERDICT IS ILLEGITIMATE WHEN THE FAVOURABLE ARM CARRIES THE ROW. IT DOES NOT HERE
+
+- **The item verdict is `GATE FAIL`** — the weakest link. `RESULTS.md:23-24`: *"SO-1aR: `GATE FAIL`
+  · SHIPPED row `GATE FAIL` · PATCHED row `PASS`"*. **The PASS arm does not carry the item.** That
+  is the whole discriminator, and it is on the right side of it.
+- **Rule 1's vocabulary is respected.** Every cell carries a fixed word; *"SHIPPED GATE FAIL,
+  PATCHED PASS"* is a **row description**, not a new verdict word. The **item** word is `GATE FAIL`.
+- **The two rows are TWO DISTINCT OBJECTS UNDER VERIFICATION, not two readings of one** — separate
+  container digests (`sha256:9d45679d…` vs `sha256:2927768a…`) and separate `libidwarp.so` md5s
+  (`f0fcb488…` vs `85f59e87…`). **Grading both is a comparison, not a second bite at one gate.**
+- **The divergence itself is `REPORTED, NEVER GATED`** (`PREREGISTRATION.md:96`), so the comparison
+  cannot quietly become a gate.
+
+### §15.2 THE BANDS WERE NOT AVAILABLE TO BE FITTED — THREE LEVELS OF CITATION, EACH REFUSING TO RE-DERIVE
+
+This is a **re-grade of pre-existing artefacts with zero new compute**, so the danger is a
+comparator tuned to answers already on disk. **Three independent protections, all verified:**
+
+1. **SO-1a's pre-registration was ADDED at `7bd91ef9`, 2026-08-27T17:25:35Z, and its entire git
+   history is ONE COMMIT — never modified.** P4–P7 are frozen at that instant.
+2. **The bands are not even SO-1a's own.** `:83`: *"Bands **by citation, not re-derived**"* — band D
+   (per-component ≤ 5.0 % with the same sign) and band E (aggregate ≤ 5.0 %) cited from
+   `curriculum_D4/PREREGISTRATION.md:82` and `curriculum_D7FR/PREREGISTRATION.md:228-229`, the
+   latter reading *"inherited unchanged and **not re-derived by a lane that has seen an answer**."*
+   **Three documents deep, each refusing to re-derive.**
+3. **Comparator identity verified three ways and against the register.** `so1ar_grade.py` md5
+   **`d2051f59089f3e71ae0fbfa315c3b784`** — worktree, freeze `bf5aec13`, and HEAD **all identical**,
+   and equal to the md5 registered at `PREREGISTRATION.md:163`. **Checked by me, not accepted.**
+   That is rule 2's *"verify the frozen file IS the file that ran"* actually performed.
+
+### §15.3 ⚠ AND THE FAILURE WAS **PREDICTED IN WRITING BEFORE IT WAS SEEN**
+
+`curriculum_SO1a/PREREGISTRATION.md:137`, frozen 2026-08-27T17:25:35Z:
+
+> **P5** — the SHIPPED row's `shape[6]` (the LE function, the A1 `idx6` class) is **outside band D
+> or sign-flipped** on `CD`, hence SHIPPED row **`GATE FAIL`** … *a MISS contradicts the A1
+> record's own 11.43 % reading on this very case, and THAT is the finding*
+
+**Measured:** `shape[6]` SHIPPED = **637.757 %, GATE FAIL, SIGN FLIPPED**.
+
+**A pre-registered prediction of failure that materialised is the strongest evidentiary form rule 2
+exists to produce.** It is the exact inverse of the failure mode this audit spends its time on: not
+a gate fitted to an answer, but **an answer arriving where the gate said it would.** And the
+sign-flip rule was itself registered (*"a component whose FD reference and adjoint differ in sign is
+`GATE FAIL` whatever its magnitude"*), so the 637 % is caught by a **registered rule**, not an
+ad-hoc judgement about a large number.
+
+### §15.4 THE GATE WAS PROVED ABLE TO FAIL — G-TB, AND IT IS REGISTERED ONE-WAY
+
+`G-TB` re-probes at a **deliberately wrong step** (h = 1e-8 / 1e-6, five orders below the registered
+middle step, at or below the measured primal repeatability `eta_F = 1.30e-10`). **Registered
+outcome:** *"If 2 or more pass, the gate cannot fail, it is not evidence, and that row's G5 verdict
+is **WITHDRAWN to `NOT A RESULT`** — the standing-rule-5 direction: a gate may turn a PASS or a GATE
+FAIL INTO `NOT A RESULT`, never the reverse."* **Measured: 0 of 5 on BOTH rows.** **This is standing
+rule 3 applied to the GATE rather than to a reader**, with the withdrawal direction written down in
+advance and one-way.
+
+### §15.5 ONE READING WORTH KEEPING, BECAUSE IT COULD HAVE GONE THE OTHER WAY
+
+`G5c_SHIPPED` aggregate is **4.3270 % — INSIDE band E (5.0 %)** and **the row still fails on band
+D**. A report carrying only the aggregate would have read as a near-pass. **Because both bands are
+registered and both are printed, the favourable aggregate could not become the story.** That is what
+a two-band structure is for, and it is the reason to register both before either is known.
+
+**NOT RULED HERE:** `G6` duality stays `NOT MEASURED` by SO-1a's own scope; every arm is np = 1, so
+**no statement about np = 4 is available** and A4's decomposition effect is *removed from the chain,
+not shown absent* — the record says so itself, which is why it does not need saying against it.
