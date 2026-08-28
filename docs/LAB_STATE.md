@@ -3740,6 +3740,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-19i — **SWEEP MOVE 2 OF 7: `D18` `P7` `MISS` → `HIT`, TWO INDEPENDENT DERIVATIONS AGREEING TO EVERY PUBLISHED DIGIT, AND THE ITEM VERDICT HELD *STRUCTURALLY* RATHER THAN BY INSPECTION. THE DEFECT WAS REPRODUCED **LIVE ON PLANTED INPUT**. AND I CITED THE DEFECT AT A LINE RANGE THAT EXCLUDED THE DEFECTIVE LINE** (2026-08-28T17:4xZ, `date -u` at write)
+
+##### 1. THE MOVE, AND ITS SECOND WITNESS
+
+**`P7` `MISS` → `HIT`.** S/N **19.869056971069952 → 0.13831072288719595** against a threshold of **1.0 inherited from `d18_grade.py:108`, not chosen**. Signal moves from **64.3953 % at `shape[3]`** — `NOT A RESULT` in **both** rows — to **0.4482626682416995 % at `shape[1]`**. **Zero solver compute; 0.0578 core-min MEASURED of instrument time.**
+
+**The number has two independent witnesses.** The capability grid's Correction 3 published `0.4482626682416995 %` and `0.1383` this afternoon; the successor comparator, whose author never saw that work, returns the same to **every published digit**. **`shape[3]`'s exclusion is the producer's own reading, not the successor's** — `NO_PLATEAU`, neighbours 1572.69 % and 195.66 % against a 10 % rule, **identical in both rows**.
+
+**The direction is the point, and it is Sanaa's phrase exactly: the registered prediction — "the two rows are NOT discriminating" — was CORRECT, and the defective instrument scored it FAILED.** A false negative on the prediction itself.
+
+##### 2. ⚠ THE ITEM VERDICT HELD **STRUCTURALLY**, WHICH IS STRONGER THAN MY OWN CHECK
+
+I established that D18's `PASS` was safe by **reading** the composition and observing that `preds` is absent from it. **The successor did better: it RE-EVALUATES the composition from the preserved JSON's own gate fields and REFUSES if the recomposition disagrees with the recorded verdict.** Measured: six inputs read back `PASS` ×6, recomposed `PASS` == recorded `PASS`, both rows `PASS`. **`U11` fires that refusal on a tampered verdict, and `U6` drives the recomposer to a DIFFERENT answer (`GATE FAIL`) on a producer-built fixture — so a recomposer that merely echoes what it is handed is caught.** Census stays **6 of 36**. **A verdict defended by a driven refusal outranks a verdict defended by a supervisor's reading, and I record the difference rather than claim my check was equivalent.**
+
+##### 3. THE DEFECT WAS REPRODUCED LIVE, NOT ARGUED — THE BIRTH REQUIREMENT'S BEST SHOWING YET
+
+Every fixture is written by **`d18_grade.py`'s own `_fix()` and `grade()`**; the shell control copies the **preserved run root**, plants into **the artefact the real solver wrote** (`X-S/d18_X.json`), and runs the **real frozen grader**.
+- **ARM A — must-NOT-flag:** 99.9644 % divergence planted on the `NOT A RESULT` component. The corrected reader **did not move** (`HIT`, 0.1383, 1 excluded) — **while the ORIGINAL formula, on the same producer-emitted JSON, returned `MISS` at 30.8439.** *The defect reproduced on planted input, on the real path.*
+- **ARM B — must-flag:** 33.6322 % on a component graded in **both** rows moved the corrected reader's own S/N **0.1383 → 10.3772**, `MISS`. **So the silence in ARM A is not blindness.**
+**That pairing is exactly the two-directional standard I ordered after W3, and the prereg §8 records my W3 reasoning verbatim as its justification.** Selftests **13/13 under `python3` and `python3 -O`**, `EXPECTED_UNITS = 13` frozen **before** execution, 0 `ast.Assert`, and the producer imported with `sys.dont_write_bytecode = True` so a frozen directory cannot be polluted.
+
+##### 4. ⚠⚠ A CORRECTION AGAINST ME, AND IT IS WORSE THAN "IMPRECISE"
+
+**I cited the defect as `d18_grade.py:582-586`. Verified by me at 17:4xZ: the numerator is `worst_div = max(...)` at `:581`, `pc` at `:582`, `worst_noise` at `:583`, the ratio at `:588`. MY RANGE EXCLUDED `:581` — THE LINE THAT IS THE DEFECT — and included `:584-586`, which are the `NOT_MEASURED` guard and are not wrong at all.** The correct citation is **`:581-583` with the ratio at `:588`**, and it is now this family's citation.
+
+**AND THE MECHANISM IS SHARPER THAN ANY OF US WROTE:** at `:379-382` the `NO_PLATEAU` branch **`continue`s BEFORE `rel_err_pct` is assigned at `:385`**, so *"unreadable"* and *"no numeric error"* are **one state** — **which is precisely WHY the denominator excludes the component and the numerator does not.** That explains the defect rather than locating it. **The same wrong `:585-589` citation also sits in the capability grid's Correction 3 and in D18's own `RESULTS.md` §7a** — three citing documents, one instrument that never drifted (md5 `e4ade11e…`, disk == HEAD blob). **Citation errors in the citing documents, not drift**, and the successor's footnote states the right lines rather than rewriting anybody's frozen text.
+
+##### 5. TWO SELF-CORRECTIONS FROM THE LANE THAT ARE LAB-WIDE HAZARDS, RELAYED UPWARD
+
+**(a) A VERDICT PRINTED BARE INTO A SHELL WORD LIST SHIFTS EVERY COLUMN AFTER IT.** The lane's evidence printer emitted the item verdict bare into `set --`; **`GATE FAIL` is TWO words**, so `ARM B` printed `item=GATE sn_corr=FAIL` and **the corrected S/N landed in the original's column**. The *checks* were unaffected — they compare named single-word fields — **but the evidence line was wrong, and evidence is what a human reads.** **`NOT A RESULT` is THREE words.** Every verdict-bearing field this lab prints into a shell word list carries this. Caught by reading a value that made no sense, **not by a test**, and fixed before the freeze.
+
+**(b) RULE 11 BINDS PROSE IDENTICALLY, AND PROSE IS THE HALF THAT CANNOT BE CORRECTED.** The landing commit's message says the calibration row is `C-205`; it is **`C-207`** — a peer dafoam lane landed C-205/C-206 inside the window. **The script re-derived correctly at commit time; the prose had the number typed in beforehand.** Disclosed in a follow-up commit; the original message stands unedited, because a commit message cannot be edited. **Rule 11 is habitually read as a rule about code. It is not.**
+
+##### 6. COST, AND AN HONEST NON-VERIFICATION
+
+Solver **0.000**. Instrument: registered 0.60, cap 3.00, **actual 0.0578 core-min MEASURED** — ratio **0.096×**, 1.9 % of cap; **$0.0000494 DERIVED**, `cost_basis` REPORTED-BY-OWNER NOT MEASURED. **Gap attributed to misprediction, and usefully: the dominant cost is I/O, not CPU** — three `cp -a` of a 243 MB root — so a future instrument-only re-grade should register **≈ 0.10 core-min with the copy count named**. Waste **0.052 core-min** rework, named separately. Calibration **`C-207`**. **And the lane declined to call the pre-freeze portion (≈ 0.17 core-min gross) measured, because two selftest runs predate its timing harness — stated as ≈ rather than smoothed. It also declines to re-verify D18's own rule-3 controls and says so.** Both are the right kind of refusal.
+
+##### 7. STATUS
+
+**Commits:** freeze `9ef4b5ed` (before execution), landing `1f74d6de`, correction `d69e95c2` — all parent-explicit verified, 0 deletions; D18's `PREREGISTRATION.md`, `RESULTS.md`, `d18_grade.py` and the capability grid **UNTOUCHED** (md5 vs `git show HEAD:`); preserved artefact untouched. **Footnote APPROVED by me and being applied as an append, never an edit.**
+
+**SWEEP: 2 of 7 MOVED — `SO1a` refusal → `GATE FAIL`(split), `D18` `P7` `MISS` → `HIT`. Both moves went AGAINST flattery or against the instrument's own prior score; neither manufactured a friendlier result.** **Next dispatched: the `writeCompression` cluster — `AV1R`, `AV1`, `AV2`, three items and ONE root cause**, with the in-house `for cand in ("owner", "owner.gz")` implementation to be **adopted, not rewritten a fourth time**. Then `AV2R`, `SO1b`, `W3`. **`D6R` LIVE**, 4 ranks, ~10 h.
+
 ##### UPDATE S-19h — **⚠⚠⚠ THE SWEEP'S FIRST MOVED VERDICT, AND IT DID NOT FLATTER: `SO1a` GOES FROM A ZERO-GATE REFUSAL TO `GATE FAIL` **SPLIT** — SHIPPED `GATE FAIL`, PATCHED `PASS` 5/5 ON BOTH OBJECTIVES. THE SHIPPED FAILURE IS LOCALISED TO ONE DESIGN VARIABLE, `shape[6]`, WRONG BY 637.76 % **AND WRONG IN SIGN**. AND `dCL/dx` IS FD-VERIFIED ON A1 FOR THE FIRST TIME** (2026-08-28T17:3xZ, `date -u` at write)
 
 **Verified by me from the artefact — `SO1aR_grade_20260828T171830Z.json` — before I relayed a word of it, not from my lane's report.**
