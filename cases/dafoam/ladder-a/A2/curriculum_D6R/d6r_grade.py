@@ -315,6 +315,16 @@ def kernel_record_fallback(arm):
 CHAIN_STOP_RE = re.compile(r"^chain=(?P<outcome>[A-Z_]+)(?:\s+arm=(?P<arm>\S+))?"
                            r"(?:\s+rc=(?P<rc>-?\d+))?", re.M)
 CHAIN_STARTED_RE = re.compile(r"^chain=started\s+arms=\[(?P<arms>[^\]]*)\]", re.M)
+# D6R-GRADER-DEF-1: EVERY `chain=started` line, in whatever form -- the
+# MULTIPLICITY reader, deliberately looser than CHAIN_STARTED_RE above so a
+# second fire cannot hide behind a missing arms=[...] clause.
+CHAIN_STARTED_ANY_RE = re.compile(r"^chain=started\b", re.M)
+# The multiplicity guard's OWNING CONSTANT.  True in every graded run; the
+# selftest mutates it to False to reproduce D6R-GRADER-DEF-1 inside the
+# harness and watch the control flip (the idiom this grader's selftest
+# already uses on LAUNCHER_F_MP_WORKDIR_LINE).  Nothing but the selftest
+# ever writes it, and the selftest restores it in the same unit.
+CHAIN_SINGLE_FIRE_REQUIRED = True
 # Every chain outcome the DRIVER can write, and whether it accounts for the
 # arms downstream of it NOT having run.  Registered before compute.
 CHAIN_OUTCOMES_ACCOUNTING = {
@@ -337,6 +347,65 @@ def read_chain_status(base):
         return {"present": False, "path": p, "registered_order": None, "outcome": None,
                 "stop_arm": None, "stop_rc": None}
     txt = open(p, errors="replace").read()
+    # =======================================================================
+    # D6R-GRADER-DEF-1 REPAIR -- ONE FILE, ONE FIRE.
+    # FOUND BY THE SUPERVISOR'S SUPERVISION_CHARTER.md section 3 CHECK-1 READ OF
+    # d6r_grade_DELTAS_from_d6.diff, NOT by the selftest: the 63-unit selftest
+    # writes exactly one `chain=started` and at most one terminal line, so it
+    # could never have exposed this.
+    # THE DEFECT.  The reader below took `registered_order` FIRST-WINS
+    # (CHAIN_STARTED_RE.search) and `outcome`/`stop_arm` LAST-WINS (the finditer
+    # loop) OUT OF THE SAME APPEND-ONLY FILE, with no uniqueness guard.  A second
+    # fire is a supported path, not a hypothetical: d6r_chain_driver.sh:43 ACCEPTS
+    # an existing run root ("D6R_ROOT_PRESENT ... not re-staged"), :70 appends
+    # `chain=started` UNCONDITIONALLY on EVERY fire and BEFORE the ALREADY_BOUGHT
+    # check at :76-79, and the pidfile guard at :64-68 blocks only a CONCURRENTLY
+    # LIVE driver (the EXIT trap at :68 removes the pidfile).  So a COMPLETED
+    # chain plus one accidental re-fire leaves, in order:
+    #   chain=started / chain=COMPLETE / chain=started / chain=REFUSED_ALREADY_BOUGHT arm=O_mp
+    # and the reader returned order=<fire 1> with outcome=REFUSED_ALREADY_BOUGHT,
+    # stop_arm=O_mp.  That outcome is accounted-True and O_mp is the FIRST arm, so
+    # `order.index(arm) >= order.index("O_mp")` is TRUE FOR EVERY ARM: `COMPLETE`
+    # -- the one outcome mapped to False precisely so that NOTHING MAY BE MISSING
+    # AFTER IT -- was MASKED, and any arm missing from the ledger was excused as
+    # NOT_RUN having "bought 0 core-min" instead of REFUSING.
+    # MEASURED ON THIS BOX 2026-08-28, through this code path on real fixtures:
+    # the clean four-arm control grades PASS at 2763.600 core-min; drop ONE arm's
+    # ledger row and the grader REFUSES on one fire but GRADES on two, restating
+    # 14.7 (ACC_mp) / 231.2 (F_mp) / 17.1 (REF_off) core-min of real spend as
+    # zero.  No PASS inversion was found -- the masked verdicts land on NOT A
+    # RESULT -- so the realised harm is a REFUSAL converted into a graded artefact
+    # carrying a FALSE CENSUS and an UNDERSTATED cost, which is worse than a
+    # refusal because it publishes a fabricated explanation.
+    # THE REPAIR: REFUSE ON MULTIPLICITY, never interpret a re-fire.  Re-fire
+    # semantics are NOT registered for this item; pairing the last `chain=started`
+    # with the outcomes after it would silently grade a chain the registration
+    # never described.  A refusal keeps "absent is not garbage".  THIS IS A
+    # STRENGTHENING AND CAN ONLY TURN A VERDICT INTO A REFUSAL: on a well-formed
+    # single-fire record -- exactly one started line, at most one terminal line,
+    # which is the only shape d6r_chain_driver.sh can write in one fire (every
+    # terminal `chain=` write at :74 :79 :104 :118 :142 :146 is followed
+    # immediately by `exit`) -- nothing below it changes.  NO GATE, THRESHOLD,
+    # BAND, CAP, LABEL, COST OR PREDICTION MOVES.
+    # =======================================================================
+    starts = CHAIN_STARTED_ANY_RE.findall(txt)
+    stops = [m for m in CHAIN_STOP_RE.finditer(txt) if m.group("outcome") != "started"]
+    if CHAIN_SINGLE_FIRE_REQUIRED and (len(starts) != 1 or len(stops) > 1):
+        chain_lines = [l for l in txt.splitlines() if l.startswith("chain=")]
+        refuse("chain", {"chain_record_is_not_a_single_fire": p,
+                         "chain_started_lines": len(starts),
+                         "terminal_outcome_lines": len(stops),
+                         "terminal_outcomes_in_file_order": [m.group("outcome") for m in stops],
+                         "n_lines_in_file": len(txt.splitlines()),
+                         "n_chain_lines": len(chain_lines),
+                         "chain_lines_verbatim": chain_lines[:20],
+                         "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run "
+                                 "root (d6r_chain_driver.sh:43) and appends chain=started on every "
+                                 "fire (:70): exactly one chain=started and at most one terminal "
+                                 "outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS "
+                                 "outcome out of one file is two records for one run "
+                                 "(D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is "
+                                 "composed; re-fire semantics are not registered for this item."})
     m0 = CHAIN_STARTED_RE.search(txt)
     order = m0.group("arms").split() if m0 else None
     last = None

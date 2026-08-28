@@ -1,9 +1,9 @@
-D6R GRADE SELFTEST EVIDENCE -- driven 2026-08-27T23:02:59Z by dafoam lab-lane M.
+D6R GRADE SELFTEST EVIDENCE -- driven 2026-08-28T16:16:25Z by dafoam lab-lane T (D6R-GRADER-DEF-1 amendment).
 __pycache__ CLEARED before each interpreter (stale-pycache inverts mutation tests).
 rc: python3=0   python3 -O=0   ->  every refusal STILL FIRES under -O.
-grader md5   aa93ba1f6cc1dedad8d8c7efc7f2afeb
-selftest md5 2c95c49694a8071ef7e715cf320e3e8e
-launcher md5 243f0f631719edf7ae354410276b3cfd  (hashed by the ARM_DIR assertion)
+grader md5   bc8e9fec48b3f58ce7a96f4b9549590b   (was aa93ba1f6cc1dedad8d8c7efc7f2afeb before the D6R-GRADER-DEF-1 amendment)
+selftest md5 13b5d0b692fa35daaf0d003c5e214ed4   (was 2c95c49694a8071ef7e715cf320e3e8e; 63 units -> 68, the five new ones are 2R1-2R5)
+launcher md5 243f0f631719edf7ae354410276b3cfd  (hashed by the ARM_DIR assertion; UNCHANGED by this amendment)
 
 AST assert-node count in d6r_grade.py: 0 -- and check 0a shows the COUNTER counting a PLANTED assert, so the zero is not a blind reader.
 
@@ -12,14 +12,17 @@ D6R_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "ACC_mp", "chain_outcome": "COMPLETE", "chain_record_present": true, "chain_stop_arm": null, "kernel_record_candidates": [], "note": "absent from the ledger, no surviving container, and NOT accounted for by a registered chain outcome -- this refusal is UNCHANGED from D6"}}
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "ACC_mp", "chain_outcome": null, "chain_record_present": false, "chain_stop_arm": null, "kernel_record_candidates": [], "note": "absent from the ledger, no surviving container, and NOT accounted for by a registered chain outcome -- this refusal is UNCHANGED from D6"}}
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"chain_order_not_the_registered_order": ["O_mp", "F_mp"], "note": "the driver ran a different arm list than the one registered", "registered": ["O_mp", "ACC_mp", "F_mp", "REF_off"]}}
-D6R_GRADE REFUSE {"REFUSE": "G-D6R-1", "detail": {"absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneM/<FIXTURES>/root_prodran/REF_off/d6r_ref_off.json", "note": "the producing arm RAN; an absent product is a real failure", "producing_arm": "REF_off"}}
+D6R_GRADE REFUSE {"REFUSE": "G-D6R-1", "detail": {"absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_prodran/REF_off/d6r_ref_off.json", "note": "the producing arm RAN; an absent product is a real failure", "producing_arm": "REF_off"}}
 D6R_GRADE REFUSE {"REFUSE": "ledger", "detail": {"duplicate_arm_row": "O_mp", "note": "two ledger rows for one arm; the grader will not guess between them"}}
+D6R_GRADE REFUSE {"REFUSE": "chain", "detail": {"chain_lines_verbatim": ["chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=1 stamp=fix permission=bc0e687e", "chain=COMPLETE stamp=fix", "chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=2 stamp=fix2 permission=bc0e687e", "chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2"], "chain_record_is_not_a_single_fire": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_refire/STATUS.chain", "chain_started_lines": 2, "n_chain_lines": 4, "n_lines_in_file": 5, "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run root (d6r_chain_driver.sh:43) and appends chain=started on every fire (:70): exactly one chain=started and at most one terminal outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS outcome out of one file is two records for one run (D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is composed; re-fire semantics are not registered for this item.", "terminal_outcome_lines": 2, "terminal_outcomes_in_file_order": ["COMPLETE", "REFUSED_ALREADY_BOUGHT"]}}
+D6R_GRADE REFUSE {"REFUSE": "chain", "detail": {"chain_lines_verbatim": ["chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=1 stamp=fix permission=bc0e687e", "chain=COMPLETE stamp=fix", "chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=2 stamp=fix2 permission=bc0e687e", "chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2"], "chain_record_is_not_a_single_fire": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_refire/STATUS.chain", "chain_started_lines": 2, "n_chain_lines": 4, "n_lines_in_file": 5, "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run root (d6r_chain_driver.sh:43) and appends chain=started on every fire (:70): exactly one chain=started and at most one terminal outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS outcome out of one file is two records for one run (D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is composed; re-fire semantics are not registered for this item.", "terminal_outcome_lines": 2, "terminal_outcomes_in_file_order": ["COMPLETE", "REFUSED_ALREADY_BOUGHT"]}}
+D6R_GRADE REFUSE {"REFUSE": "chain", "detail": {"chain_lines_verbatim": ["chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=1 stamp=fix permission=bc0e687e", "chain=COMPLETE stamp=fix", "chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=2 stamp=fix2 permission=bc0e687e", "chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2"], "chain_record_is_not_a_single_fire": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_refire_cost/STATUS.chain", "chain_started_lines": 2, "n_chain_lines": 4, "n_lines_in_file": 8, "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run root (d6r_chain_driver.sh:43) and appends chain=started on every fire (:70): exactly one chain=started and at most one terminal outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS outcome out of one file is two records for one run (D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is composed; re-fire semantics are not registered for this item.", "terminal_outcome_lines": 2, "terminal_outcomes_in_file_order": ["COMPLETE", "REFUSED_ALREADY_BOUGHT"]}}
+D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "ACC_mp", "chain_outcome": "COMPLETE", "chain_record_present": true, "chain_stop_arm": null, "kernel_record_candidates": [], "note": "absent from the ledger, no surviving container, and NOT accounted for by a registered chain outcome -- this refusal is UNCHANGED from D6"}}
 D6R_GRADE REFUSE {"REFUSE": "ARM_DIR", "detail": {"launcher": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_run_arm.sh", "launcher_does_not_set_F_mp_workdir": "WORK=\"$BASE/NOT_THE_REGISTERED_DIR\"", "note": "ARM_DIR maps F_mp -> O_mp; the launcher must agree"}}
 D6R_GRADE REFUSE {"REFUSE": "PLANTED_ZERO", "detail": {"expected_delta": 0.001234, "reader_blind": true, "seen_delta": 0.0}}
-D6R_GRADE REFUSE {"REFUSE": "G-D6R-3", "detail": {"d4_reference_changed": 0.021126978108239575, "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneM/<FIXTURES>/root_price/D4_O/opt_IPOPT.txt", "recorded": 0.021125978108239574}}
+D6R_GRADE REFUSE {"REFUSE": "G-D6R-3", "detail": {"d4_reference_changed": 0.021126978108239575, "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_price/D4_O/opt_IPOPT.txt", "recorded": 0.021125978108239574}}
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"harness": 0, "kernel": 137, "rc_disagreement": "O_mp"}}
-D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"got": "16a21aee92aeccbca3ed7ab8a9865e37", "note": "REF_off's D4 history is a staged INPUT exempt from the age guard by md5 only; a moved md5 refuses", "registered": "61e7874b69e27eb07ed355e4f8c9f999", "staged_input_md5_moved": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneM/<FIXTURES>/root_hst/REF_off/OptView.hst"}}
-D6R GRADE SELFTEST under python3  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
+D6R GRADE SELFTEST under python3  grader_md5=bc8e9fec48b3f58ce7a96f4b9549590b
   [OK ] 0a L-332 grader carries 0 assert nodes and the counter SEES a planted one assert_nodes=0 planted=1
   [OK ] 0b NOT_MEASURED infrastructure fields parse to None and are DISCLOSED 
   [OK ] 0c PRESENT-BUT-GARBAGE infrastructure value -> REFUSE 
@@ -43,6 +46,11 @@ D6R GRADE SELFTEST under python3  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
   [OK ] 2j the driver ran a DIFFERENT arm list than the registered one -> REFUSE 
   [OK ] 2k AN ABSENT PRODUCT WHOSE PRODUCER *DID* RUN STILL REFUSES -- D6's behaviour, preserved 
   [OK ] 2l STRENGTHENING: two ledger rows for one arm -> REFUSE (D6 silently kept the last) 
+  [OK ] 2R1 TWO FIRES INTO ONE ROOT -> REFUSE.  The record carries 2 chain=started and 2 terminal outcomes; a FIRST-WINS order beside a LAST-WINS outcome is two records for one run.  The census is NOT built. 
+  [OK ] 2R2 THE GUARD IS THE ONE CREDITED -- D6R-GRADER-DEF-1 REPRODUCED.  With the owning constant mutated OFF the IDENTICAL fixture GRADES and excuses all three missing arms as REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT, because that outcome's stop arm is the FIRST arm and so accounts for EVERY arm -- masking chain=COMPLETE, the one outcome mapped to False so that nothing may be missing after it.  Restored, it REFUSES. masked verdict=NOT A RESULT
+  [OK ] 2R3 THE HARM IS QUANTIFIED, NOT ASSERTED: an arm that RAN but whose ledger row was lost is restated as having bought 0 core-min.  With the guard off the recorded spend falls from the clean control's 2763.600 to 2532.400 core-min -- 231.2 core-min of real compute erased from the item's own cost record.  With the guard on: REFUSE. masked total_core_min=2532.400
+  [OK ] 2R4 AT MOST ONE terminal line, NOT exactly one: a chain with a started line and NO terminal outcome yet is still read, and a record in which every arm ran still grades. 
+  [OK ] 2R5 A SINGLE FIRE IS UNCHANGED BY THE REPAIR: the one-fire form of the same fixture still refuses for the ORIGINAL reason (arm_absent_from_ledger), never the new one -- the guard adds a refusal on a MALFORMED record and moves no gate, band or label. 
   [OK ] 2m GUARD MUTATION: point ARM_DIR's assertion at a line the launcher does NOT carry -> REFUSE 
   [OK ] 3a THE PREDECESSOR'S EXACT ARGUMENT COMBINATION RAISES -- the defect, reproduced stdout and stderr arguments may not be used with capture_output.
   [OK ] 3b THE REPAIRED docker_logs() RETURNS A STRING (it is DRIVEN, not merely read) returned 90 chars, type=str
@@ -72,7 +80,8 @@ D6R GRADE SELFTEST under python3  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
   [OK ] 6f A READER THAT CANNOT SEE THE PLANT -> REFUSE (rule 3) 
   [OK ] 6g D4's O/opt_IPOPT.txt objective differs from the recorded CD_f -> REFUSE 
   [OK ] 6h O_mp kernel exit 137 OOMKilled true -> G1 NOT A RESULT, item NOT A RESULT, P7 MISS 
-  [OK ] 6i harness rc=0 vs kernel exit 137 -> REFUSE 
+  [OK ] 6i harness rc=0 vs kernel exit 137 -> REFUSE D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"got": "16a21aee92aeccbca3ed7ab8a9865e37", "note": "REF_off's D4 history is a staged INPUT exempt from the age guard by md5 only; a moved md5 refuses", "registered": "61e7874b69e27eb07ed355e4f8c9f999", "staged_input_md5_moved": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_hst/REF_off/OptView.hst"}}
+
   [OK ] 6j terminal statement not the LAST line on O_mp -> NOT A RESULT (positional) 
   [OK ] 6k SCRIPT arms without .ok markers -> NOT A RESULT; terminal statement not composed 
   [OK ] 6l O_mp/opt_IPOPT.txt older than the datum -> age clause fails -> NOT A RESULT 
@@ -83,7 +92,7 @@ D6R GRADE SELFTEST under python3  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
   [OK ] 6q TWO ROWS (DAFOAM_CHARTER section 6): the SHIPPED digest on a row of this PATCHED-ONLY item -> G9 GATE FAIL.  The SHIPPED row is named UNBOUGHT, never silently substituted. 
   [OK ] 6r the PATCHED libidwarp.so md5 must appear in EVERY log (a version string is not an identity) -> a moved md5 gives G9 GATE FAIL 
   [OK ] 7a every verdict this grader emits is inside the fixed six-token vocabulary 
-D6R GRADE SELFTEST pass=63 fail=0 under python3
+D6R GRADE SELFTEST pass=68 fail=0 under python3
 
 ---- python3 -O ----
 D6R_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does not parse is PRESENT-BUT-GARBAGE: refused, never skipped (absent != garbage)", "row_unparseable": "ARM=O_mp ROW=PATCHED IMG=dafoam-idwarp-rot:v1 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 rc=0 wall_s=60 ranks=4 core_min=1.0 cap_core_min=2900.0 enforced_wall_s=43410 enforced_core_min=2900.0 memory=20g inspect(exit,oomkilled)=[0 false] container_wall_s=55 frame_a"}}
@@ -91,14 +100,17 @@ D6R_GRADE REFUSE {"REFUSE": "ledger", "detail": {"note": "an ARM= line that does
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "ACC_mp", "chain_outcome": "COMPLETE", "chain_record_present": true, "chain_stop_arm": null, "kernel_record_candidates": [], "note": "absent from the ledger, no surviving container, and NOT accounted for by a registered chain outcome -- this refusal is UNCHANGED from D6"}}
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "ACC_mp", "chain_outcome": null, "chain_record_present": false, "chain_stop_arm": null, "kernel_record_candidates": [], "note": "absent from the ledger, no surviving container, and NOT accounted for by a registered chain outcome -- this refusal is UNCHANGED from D6"}}
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"chain_order_not_the_registered_order": ["O_mp", "F_mp"], "note": "the driver ran a different arm list than the one registered", "registered": ["O_mp", "ACC_mp", "F_mp", "REF_off"]}}
-D6R_GRADE REFUSE {"REFUSE": "G-D6R-1", "detail": {"absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneM/<FIXTURES>/root_prodran/REF_off/d6r_ref_off.json", "note": "the producing arm RAN; an absent product is a real failure", "producing_arm": "REF_off"}}
+D6R_GRADE REFUSE {"REFUSE": "G-D6R-1", "detail": {"absent": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_prodran/REF_off/d6r_ref_off.json", "note": "the producing arm RAN; an absent product is a real failure", "producing_arm": "REF_off"}}
 D6R_GRADE REFUSE {"REFUSE": "ledger", "detail": {"duplicate_arm_row": "O_mp", "note": "two ledger rows for one arm; the grader will not guess between them"}}
+D6R_GRADE REFUSE {"REFUSE": "chain", "detail": {"chain_lines_verbatim": ["chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=1 stamp=fix permission=bc0e687e", "chain=COMPLETE stamp=fix", "chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=2 stamp=fix2 permission=bc0e687e", "chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2"], "chain_record_is_not_a_single_fire": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_refire/STATUS.chain", "chain_started_lines": 2, "n_chain_lines": 4, "n_lines_in_file": 5, "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run root (d6r_chain_driver.sh:43) and appends chain=started on every fire (:70): exactly one chain=started and at most one terminal outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS outcome out of one file is two records for one run (D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is composed; re-fire semantics are not registered for this item.", "terminal_outcome_lines": 2, "terminal_outcomes_in_file_order": ["COMPLETE", "REFUSED_ALREADY_BOUGHT"]}}
+D6R_GRADE REFUSE {"REFUSE": "chain", "detail": {"chain_lines_verbatim": ["chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=1 stamp=fix permission=bc0e687e", "chain=COMPLETE stamp=fix", "chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=2 stamp=fix2 permission=bc0e687e", "chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2"], "chain_record_is_not_a_single_fire": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_refire/STATUS.chain", "chain_started_lines": 2, "n_chain_lines": 4, "n_lines_in_file": 5, "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run root (d6r_chain_driver.sh:43) and appends chain=started on every fire (:70): exactly one chain=started and at most one terminal outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS outcome out of one file is two records for one run (D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is composed; re-fire semantics are not registered for this item.", "terminal_outcome_lines": 2, "terminal_outcomes_in_file_order": ["COMPLETE", "REFUSED_ALREADY_BOUGHT"]}}
+D6R_GRADE REFUSE {"REFUSE": "chain", "detail": {"chain_lines_verbatim": ["chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=1 stamp=fix permission=bc0e687e", "chain=COMPLETE stamp=fix", "chain=started arms=[O_mp ACC_mp F_mp REF_off] pid=2 stamp=fix2 permission=bc0e687e", "chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2"], "chain_record_is_not_a_single_fire": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_refire_cost/STATUS.chain", "chain_started_lines": 2, "n_chain_lines": 4, "n_lines_in_file": 8, "note": "STATUS.chain is APPEND-ONLY and the driver accepts an existing run root (d6r_chain_driver.sh:43) and appends chain=started on every fire (:70): exactly one chain=started and at most one terminal outcome may be read.  Reading a FIRST-WINS order beside a LAST-WINS outcome out of one file is two records for one run (D6R-GRADER-DEF-1).  The arm census is NOT built and no verdict is composed; re-fire semantics are not registered for this item.", "terminal_outcome_lines": 2, "terminal_outcomes_in_file_order": ["COMPLETE", "REFUSED_ALREADY_BOUGHT"]}}
+D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "ACC_mp", "chain_outcome": "COMPLETE", "chain_record_present": true, "chain_stop_arm": null, "kernel_record_candidates": [], "note": "absent from the ledger, no surviving container, and NOT accounted for by a registered chain outcome -- this refusal is UNCHANGED from D6"}}
 D6R_GRADE REFUSE {"REFUSE": "ARM_DIR", "detail": {"launcher": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_run_arm.sh", "launcher_does_not_set_F_mp_workdir": "WORK=\"$BASE/NOT_THE_REGISTERED_DIR\"", "note": "ARM_DIR maps F_mp -> O_mp; the launcher must agree"}}
 D6R_GRADE REFUSE {"REFUSE": "PLANTED_ZERO", "detail": {"expected_delta": 0.001234, "reader_blind": true, "seen_delta": 0.0}}
-D6R_GRADE REFUSE {"REFUSE": "G-D6R-3", "detail": {"d4_reference_changed": 0.021126978108239575, "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneM/<FIXTURES>/root_price/D4_O/opt_IPOPT.txt", "recorded": 0.021125978108239574}}
+D6R_GRADE REFUSE {"REFUSE": "G-D6R-3", "detail": {"d4_reference_changed": 0.021126978108239575, "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_price/D4_O/opt_IPOPT.txt", "recorded": 0.021125978108239574}}
 D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"harness": 0, "kernel": 137, "rc_disagreement": "O_mp"}}
-D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"got": "16a21aee92aeccbca3ed7ab8a9865e37", "note": "REF_off's D4 history is a staged INPUT exempt from the age guard by md5 only; a moved md5 refuses", "registered": "61e7874b69e27eb07ed355e4f8c9f999", "staged_input_md5_moved": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneM/<FIXTURES>/root_hst/REF_off/OptView.hst"}}
-D6R GRADE SELFTEST under python3 -O  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
+D6R GRADE SELFTEST under python3 -O  grader_md5=bc8e9fec48b3f58ce7a96f4b9549590b
   [OK ] 0a L-332 grader carries 0 assert nodes and the counter SEES a planted one assert_nodes=0 planted=1
   [OK ] 0b NOT_MEASURED infrastructure fields parse to None and are DISCLOSED 
   [OK ] 0c PRESENT-BUT-GARBAGE infrastructure value -> REFUSE 
@@ -122,6 +134,11 @@ D6R GRADE SELFTEST under python3 -O  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
   [OK ] 2j the driver ran a DIFFERENT arm list than the registered one -> REFUSE 
   [OK ] 2k AN ABSENT PRODUCT WHOSE PRODUCER *DID* RUN STILL REFUSES -- D6's behaviour, preserved 
   [OK ] 2l STRENGTHENING: two ledger rows for one arm -> REFUSE (D6 silently kept the last) 
+  [OK ] 2R1 TWO FIRES INTO ONE ROOT -> REFUSE.  The record carries 2 chain=started and 2 terminal outcomes; a FIRST-WINS order beside a LAST-WINS outcome is two records for one run.  The census is NOT built. 
+  [OK ] 2R2 THE GUARD IS THE ONE CREDITED -- D6R-GRADER-DEF-1 REPRODUCED.  With the owning constant mutated OFF the IDENTICAL fixture GRADES and excuses all three missing arms as REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT, because that outcome's stop arm is the FIRST arm and so accounts for EVERY arm -- masking chain=COMPLETE, the one outcome mapped to False so that nothing may be missing after it.  Restored, it REFUSES. masked verdict=NOT A RESULT
+  [OK ] 2R3 THE HARM IS QUANTIFIED, NOT ASSERTED: an arm that RAN but whose ledger row was lost is restated as having bought 0 core-min.  With the guard off the recorded spend falls from the clean control's 2763.600 to 2532.400 core-min -- 231.2 core-min of real compute erased from the item's own cost record.  With the guard on: REFUSE. masked total_core_min=2532.400
+  [OK ] 2R4 AT MOST ONE terminal line, NOT exactly one: a chain with a started line and NO terminal outcome yet is still read, and a record in which every arm ran still grades. 
+  [OK ] 2R5 A SINGLE FIRE IS UNCHANGED BY THE REPAIR: the one-fire form of the same fixture still refuses for the ORIGINAL reason (arm_absent_from_ledger), never the new one -- the guard adds a refusal on a MALFORMED record and moves no gate, band or label. 
   [OK ] 2m GUARD MUTATION: point ARM_DIR's assertion at a line the launcher does NOT carry -> REFUSE 
   [OK ] 3a THE PREDECESSOR'S EXACT ARGUMENT COMBINATION RAISES -- the defect, reproduced stdout and stderr arguments may not be used with capture_output.
   [OK ] 3b THE REPAIRED docker_logs() RETURNS A STRING (it is DRIVEN, not merely read) returned 90 chars, type=str
@@ -151,7 +168,8 @@ D6R GRADE SELFTEST under python3 -O  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
   [OK ] 6f A READER THAT CANNOT SEE THE PLANT -> REFUSE (rule 3) 
   [OK ] 6g D4's O/opt_IPOPT.txt objective differs from the recorded CD_f -> REFUSE 
   [OK ] 6h O_mp kernel exit 137 OOMKilled true -> G1 NOT A RESULT, item NOT A RESULT, P7 MISS 
-  [OK ] 6i harness rc=0 vs kernel exit 137 -> REFUSE 
+  [OK ] 6i harness rc=0 vs kernel exit 137 -> REFUSE D6R_GRADE REFUSE {"REFUSE": "G1", "detail": {"got": "16a21aee92aeccbca3ed7ab8a9865e37", "note": "REF_off's D4 history is a staged INPUT exempt from the age guard by md5 only; a moved md5 refuses", "registered": "61e7874b69e27eb07ed355e4f8c9f999", "staged_input_md5_moved": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneT/<FIXTURES>/root_hst/REF_off/OptView.hst"}}
+
   [OK ] 6j terminal statement not the LAST line on O_mp -> NOT A RESULT (positional) 
   [OK ] 6k SCRIPT arms without .ok markers -> NOT A RESULT; terminal statement not composed 
   [OK ] 6l O_mp/opt_IPOPT.txt older than the datum -> age clause fails -> NOT A RESULT 
@@ -162,15 +180,15 @@ D6R GRADE SELFTEST under python3 -O  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
   [OK ] 6q TWO ROWS (DAFOAM_CHARTER section 6): the SHIPPED digest on a row of this PATCHED-ONLY item -> G9 GATE FAIL.  The SHIPPED row is named UNBOUGHT, never silently substituted. 
   [OK ] 6r the PATCHED libidwarp.so md5 must appear in EVERY log (a version string is not an identity) -> a moved md5 gives G9 GATE FAIL 
   [OK ] 7a every verdict this grader emits is inside the fixed six-token vocabulary 
-D6R GRADE SELFTEST pass=63 fail=0 under python3 -O
+D6R GRADE SELFTEST pass=68 fail=0 under python3 -O
 
 ---- diff, fixture scratch paths normalised: the ONLY difference is the mode label ----
-13c13
-< D6R GRADE SELFTEST under python3  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
+16c16
+< D6R GRADE SELFTEST under python3  grader_md5=bc8e9fec48b3f58ce7a96f4b9549590b
 ---
-> D6R GRADE SELFTEST under python3 -O  grader_md5=aa93ba1f6cc1dedad8d8c7efc7f2afeb
-77c77
-< D6R GRADE SELFTEST pass=63 fail=0 under python3
+> D6R GRADE SELFTEST under python3 -O  grader_md5=bc8e9fec48b3f58ce7a96f4b9549590b
+86c86
+< D6R GRADE SELFTEST pass=68 fail=0 under python3
 ---
-> D6R GRADE SELFTEST pass=63 fail=0 under python3 -O
+> D6R GRADE SELFTEST pass=68 fail=0 under python3 -O
 (diff exit 1)

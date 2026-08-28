@@ -520,3 +520,172 @@ UPDATE F ruled against. If option 1 is taken, D6R should be filed as a **wait-wr
 `/home/ubuntu/certonomous-runs/CURRICULUM-D8R-a6-twist-opt-conv/CHAIN_DONE`), exactly as D6 was filed
 behind D5. **The queue entry beside this file is a DRAFT and is NOT on the drop path.** Enqueueing is
 not authorisation: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own.
+
+---
+
+## AMENDMENT 1 — 2026-08-28 — `D6R-GRADER-DEF-1`, the chain record read twice with opposite rules
+
+**Version: v1.0 (the freeze of §8) → v1.1.**
+**PRE-COMPUTE. The gates of §3 are OPEN and none of them moves.**
+**lines whose number changed above this section: 0** — proved, not asserted: this amendment was
+appended by writing the committed `HEAD` blob of this file byte-for-byte and then appending the text
+below, and the resulting file's leading bytes were compared against that blob in the same shell
+invocation (`cmp -n <blob bytes>`, exit 0) with the blob's own md5 re-derived there. Nothing above
+this line was edited, struck or renumbered.
+
+### The rule-2 condition, and how it was checked (`VERIFICATION_CHARTER.md` §2b's own wording)
+
+Re-verified by this lane in one shell invocation at **2026-08-28T16:09:31Z**, immediately before this
+text was written, and independently of the supervisor's own check at ~16:1xZ:
+
+1. `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint` → **false**. That is the
+   run root `d6r_chain_driver.sh:25` binds as `BASE`, and **the directory does not exist**;
+   `ls -d /home/ubuntu/certonomous-runs/*D6R*` returns *No such file or directory*, so no
+   differently-named D6R root exists either.
+2. `sudo -n docker ps -a` lists **15 containers, of which 0 match `d6r`** — no D6R arm container has
+   ever existed on this box.
+3. §1 and §8 of this document record **0 core-min burned**, and §8's own three absence checks stand
+   unmodified above.
+
+**No first compute has occurred, so amendments are legal here** (`VERIFICATION_CHARTER.md` §2b) and
+**this one adds a refusal on a malformed input only**: no gate, threshold, band, cap, label,
+prediction, cost or arm order moves, and every verdict on every well-formed record is unchanged.
+**This amendment itself bought 0 core-min** (no container, no solver; the whole proof is fixtures in
+a scratch directory).
+
+### The defect — `D6R-GRADER-DEF-1`
+
+**Found by the supervisor's `SUPERVISION_CHARTER.md` §3 check-1 read of
+`d6r_grade_DELTAS_from_d6.diff` — the measurement-script diff read as a diff. NOT by the selftest**,
+which could not have found it: `d6r_grade_selftest.py`'s `build_base()` writes exactly **one**
+`chain=started` line and **at most one** terminal line, so all 63 units ran against a shape in which
+the defect cannot fire. **63/63 passing was consistent with the defect being wide open.**
+
+`read_chain_status()` read `<run root>/STATUS.chain` **twice, with opposite selection rules and no
+uniqueness guard**:
+
+* `CHAIN_STARTED_RE.search(txt)` — **FIRST-wins** — produced `registered_order`;
+* `for m in CHAIN_STOP_RE.finditer(txt): … last = m` — **LAST-wins** — produced `outcome` and
+  `stop_arm`.
+
+**It is reachable, not latent.** `STATUS.chain` is append-only and re-firing into an existing root is
+a supported path — `d6r_chain_driver.sh:43` is `if [ ! -d "$BASE" ]`, so an existing root is
+**accepted** and the driver prints `D6R_ROOT_PRESENT base=$BASE (not re-staged)`; `:70` appends
+`chain=started` **unconditionally on every fire and BEFORE** the `ALREADY_BOUGHT` check at `:76-79`;
+and the pidfile guard at `:64-68` blocks only a **concurrently live** driver, because the `EXIT` trap
+at `:68` removes the pidfile. `REFIRE_RUNBOOK.md` is a standing lab procedure and D5 has `r2`, `r3`
+and `r4` on record.
+
+So a chain that **completed cleanly** plus one accidental second fire leaves, in order:
+
+```
+chain=started arms=[O_mp ACC_mp F_mp REF_off] …      (fire 1)
+chain=COMPLETE …                                     (fire 1)
+chain=started arms=[O_mp ACC_mp F_mp REF_off] …      (fire 2)
+chain=REFUSED_ALREADY_BOUGHT arm=O_mp …              (fire 2)
+```
+
+and the reader returned `order` from fire 1 with `outcome = REFUSED_ALREADY_BOUGHT`,
+`stop_arm = O_mp`. `CHAIN_OUTCOMES_ACCOUNTING["REFUSED_ALREADY_BOUGHT"]` is `True` and `O_mp` is the
+**first** arm, so `order.index(arm) >= order.index("O_mp")` is `>= 0` — **true for every arm**.
+`COMPLETE`, the one outcome deliberately mapped to `False` so that *nothing may be missing after
+`COMPLETE`*, was **masked**, and any arm absent from the ledger was excused as
+`NOT_RUN / REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT` having *bought 0 core-min* instead of refusing.
+**The strongest guard in D6R's census was inverted by the most harmless possible event — a second
+fire that correctly refuses to do any work.**
+
+### The consequence, MEASURED on this box, through the real code path
+
+Driven on real fixture directories through `G.grade()` on **2026-08-28T16:0x–16:1xZ**, before the
+repair, with `__pycache__` cleared:
+
+| fixture | one fire | two fires (unrepaired) |
+|---|---|---|
+| chain `COMPLETE`, only `O_mp` in the ledger | **REFUSE** `arm_absent_from_ledger=ACC_mp` | **GRADED** `NOT A RESULT`, `ACC_mp F_mp REF_off` excused as `REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT` |
+| clean four-arm control, `ACC_mp` row dropped | **REFUSE** | **GRADED**, recorded spend 2,763.600 → **2,748.900** core-min |
+| clean four-arm control, `F_mp` row dropped | **REFUSE** | **GRADED**, recorded spend 2,763.600 → **2,532.400** core-min |
+| clean four-arm control, `REF_off` row dropped | **REFUSE** | **GRADED**, recorded spend 2,763.600 → **2,746.500** core-min |
+
+**A correction to the framing this lane was handed, made against its own supervisor:** no **`PASS`**
+inversion could be constructed. Every masked reading lands on `NOT A RESULT`, because a missing arm's
+gates go to `NOT A RESULT` by the §3d ladder. The realised harm is therefore **not** a false `PASS`;
+it is a **refusal converted into a graded artefact carrying a false census and an understated cost** —
+up to **231.2 core-min of real compute (8.4 % of the item's own total) restated as "bought
+0 core-min"**. That is worse than a refusal, because a refusal publishes nothing while this publishes
+a fabricated explanation of why an arm is missing, in the item's own record.
+
+### The repair — REFUSE ON MULTIPLICITY, never interpret a re-fire
+
+`read_chain_status()` now requires **exactly one** `chain=started` line and **at most one** terminal
+outcome line, and otherwise `refuse("chain", …)` with the file's own line inventory — the count of
+started lines, the count and names of terminal outcomes in file order, the total line count and the
+verbatim `chain=` lines — **before the arm census is built and before any verdict is composed**.
+
+* **Exactly one** started line: `d6r_chain_driver.sh:70` writes it once per fire and it is the only
+  writer of that form.
+* **At most one** terminal line, not exactly one: a chain still running has none, and that record is
+  still read. Every terminal `chain=` write in the driver — `:74`, `:79`, `:104`, `:118`, `:142`,
+  `:146` — is followed immediately by `exit`, so one fire can write at most one.
+* **Why refusal and not pairing.** Pairing (take the *last* `chain=started` and only the outcomes
+  after it) would silently **grade a chain this registration never described**: re-fire semantics are
+  not registered for D6R, and reading them in at grading time would be exactly the invention rule 2
+  exists to prevent. A refusal preserves *absent ≠ garbage*, and it can only turn a verdict **into**
+  a refusal — never the reverse.
+* **This is a strengthening.** On a well-formed single-fire record nothing downstream changes; the
+  clean four-arm control still grades `PASS` at **2,763.600 core-min**, byte-for-byte as before.
+
+The guard's owning constant is `CHAIN_SINGLE_FIRE_REQUIRED = True` in `d6r_grade.py`. Nothing but the
+selftest ever writes it, and the selftest restores it inside the same unit — the mutate-the-owning-
+constant idiom this grader's selftest already uses on `LAUNCHER_F_MP_WORKDIR_LINE`.
+
+### The proof, both directions, driven through the artefact
+
+Five new selftest units, `2R1`–`2R5`, all driven on real fixture directories (never by injecting a
+value into a helper):
+
+| unit | what it drives |
+|---|---|
+| **2R1** | two fires into one root → **REFUSE**, detail carries `chain_started_lines: 2`, `terminal_outcome_lines: 2`, both outcome names, and **no** `arm_absent_from_ledger` — the census was not built |
+| **2R2** | **the guard is the one credited, and the defect is reproduced inside the harness**: with `CHAIN_SINGLE_FIRE_REQUIRED` mutated `False` the *identical* fixture **grades** and excuses all three missing arms as `REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT`; restored, it **refuses** |
+| **2R3** | the harm quantified: with the guard off, recorded spend falls to **2,532.400** core-min — 231.2 core-min erased; with the guard on, **REFUSE** |
+| **2R4** | **at most one, not exactly one**: a started line with no terminal outcome yet still grades `PASS` |
+| **2R5** | a single fire is unchanged — the one-fire form of the same fixture still refuses for the **original** reason (`arm_absent_from_ledger`), never the new one |
+
+`d6r_grade_selftest.py` now stands at **68 units, 68/68 under `python3` AND `python3 -O`**, up from
+63/63; `__pycache__` cleared before each interpreter; the two outputs differ **only** in the mode
+label (`diff` at `d6r_grade_selftest_evidence.txt`, regenerated 2026-08-28). The count was bumped
+deliberately, 63 → 68; there is no `EXPECTED_UNITS` constant in this selftest, the count lives in the
+evidence file and in this table.
+
+### Instrument md5s — THESE SUPERSEDE §7 AND §8
+
+**⚠ FALSE-DRIFT TRAP (L-370), the same shape §7 warns about for `d6_chain_driver.sh`: a check that
+stops at §7:414 or at §8:478 will read the pre-amendment grader md5 and report a false `GATE FAIL`.
+§7 and §8 are NOT edited — rule 6 forbids it and the zero-line-shift assertion above depends on it.
+The binding pins are here.**
+
+| file | §7/§8 pin (superseded) | **binding md5 at this amendment** |
+|---|---|---|
+| `d6r_grade.py` | `aa93ba1f6cc1dedad8d8c7efc7f2afeb` | **`bc8e9fec48b3f58ce7a96f4b9549590b`** |
+| `d6r_grade_selftest.py` | `2c95c49694a8071ef7e715cf320e3e8e` | **`13b5d0b692fa35daaf0d003c5e214ed4`** |
+
+Every other §7 pin is **unchanged and re-verified against both disk and its committed `HEAD` blob in
+the amending invocation**: `d6r_run_arm.sh` `243f0f63…`, `d6r_chain_driver.sh` `623f3d32…`,
+`d6r_groot5_selftest.sh` `ee7d6eab…`, `d6r_aggregate_memory.py` `709ab0b9…`, `d6r_opt_runScript.py`
+`93edb4a2…`, `d6r_fd_endpoint.py` `7491c3a7…`, `d6r_extract_endpoint.py` `1743dd42…`,
+`d6r_ref_off.py` `ad67bbeb…`, `d4_extract_endpoint.py` `ee7d3c99…`. **No launcher, driver or queue
+entry pins the grader's md5**, so no run-time abort site needed updating; the only pins are §7, §8
+and this table, and the queue entry now carries the post-amendment value as an annotation.
+
+The derivation artefacts are regenerated so the derivation still reproduces:
+`d6r_grade_DELTAS_from_d6.diff` **891 → 960** lines, `d6r_grade_selftest_DELTAS_from_d6.diff`
+**700 → 791** lines, both `diff -u` from `curriculum_D6/` as before.
+
+### What this amendment does NOT do
+
+It does not repair D6, whose gates are closed and whose verdict stands `NOT A RESULT`
+(`VERIFICATION_CHARTER.md` §2d.1 is **not** invoked). It does not register re-fire semantics for
+D6R — a re-fired root is refused at grading, not interpreted. It does not touch
+`d6r_chain_driver.sh`: the driver's unconditional `chain=started` at `:70` is left exactly as frozen,
+because moving it would change what a run **writes**, and the defect is in what the grader **reads**.
+It files, sends, uploads, registers or posts nothing (rule 7).

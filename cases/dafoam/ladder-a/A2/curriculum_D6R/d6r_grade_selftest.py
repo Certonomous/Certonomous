@@ -335,6 +335,97 @@ def main():
     ok("2l STRENGTHENING: two ledger rows for one arm -> REFUSE (D6 silently kept the last)",
        rf and "duplicate_arm_row" in msg)
 
+    # =====================================================================
+    # 2R. D6R-GRADER-DEF-1 -- ONE FILE, ONE FIRE.
+    # Found by the supervisor's SUPERVISION_CHARTER.md section 3 CHECK-1 read of
+    # d6r_grade_DELTAS_from_d6.diff on 2026-08-28, NOT by this selftest: every
+    # fixture build_base() writes carries exactly ONE `chain=started` and at most
+    # ONE terminal line, which is precisely why 63/63 passed with the defect open.
+    # A second fire into a COMPLETED root is a SUPPORTED path (d6r_chain_driver.sh
+    # :43 accepts an existing root, :70 appends chain=started unconditionally on
+    # every fire and BEFORE the :76-79 ALREADY_BOUGHT check, and the :64-68 pidfile
+    # guard blocks only a CONCURRENTLY LIVE driver).
+    # =====================================================================
+    def two_fire(root_name, arms=None, drop_row=None):
+        """The SAME fixture 2h uses, plus the two lines a harmless second fire
+        appends: started(fire2) and REFUSED_ALREADY_BOUGHT arm=O_mp(fire2)."""
+        rt = os.path.join(scratch, root_name)
+        d4 = build_base(rt, CLEAN_MP, CLEAN_REF, arms=arms, chain_outcome="COMPLETE")
+        if drop_row is not None:
+            lp = os.path.join(rt, "ledger.txt")
+            keep = [l for l in open(lp).read().splitlines(True)
+                    if not l.startswith("ARM=%s " % drop_row)]
+            open(lp, "w").writelines(keep)
+        with open(os.path.join(rt, "STATUS.chain"), "a") as fh:
+            fh.write("chain=started arms=[%s] pid=2 stamp=fix2 permission=bc0e687e\n"
+                     % " ".join(G.ARMS_REQUIRED))
+            fh.write("chain=REFUSED_ALREADY_BOUGHT arm=O_mp stamp=fix2\n")
+        return rt, d4
+
+    root, d4o = two_fire("root_refire", arms=["O_mp"])
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2R1 TWO FIRES INTO ONE ROOT -> REFUSE.  The record carries 2 chain=started and 2 "
+       "terminal outcomes; a FIRST-WINS order beside a LAST-WINS outcome is two records for "
+       "one run.  The census is NOT built.",
+       rf and "chain_record_is_not_a_single_fire" in msg
+       and '"chain_started_lines": 2' in msg and '"terminal_outcome_lines": 2' in msg
+       and "COMPLETE" in msg and "REFUSED_ALREADY_BOUGHT" in msg
+       and "arm_absent_from_ledger" not in msg)
+
+    G.CHAIN_SINGLE_FIRE_REQUIRED = False
+    try:
+        res_masked = G.grade(root, d4o)
+    finally:
+        G.CHAIN_SINGLE_FIRE_REQUIRED = True
+    rf2, _ = refused(G.grade, root, d4o)
+    ok("2R2 THE GUARD IS THE ONE CREDITED -- D6R-GRADER-DEF-1 REPRODUCED.  With the owning "
+       "constant mutated OFF the IDENTICAL fixture GRADES and excuses all three missing arms "
+       "as REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT, because that outcome's stop arm is the "
+       "FIRST arm and so accounts for EVERY arm -- masking chain=COMPLETE, the one outcome "
+       "mapped to False so that nothing may be missing after it.  Restored, it REFUSES.",
+       sorted(res_masked["arms_not_run"]) == ["ACC_mp", "F_mp", "REF_off"]
+       and all(res_masked["arm_census"][a]["reason"] == "REGISTERED_CHAIN_REFUSED_ALREADY_BOUGHT"
+               for a in ("ACC_mp", "F_mp", "REF_off"))
+       and res_masked["chain_record"]["outcome"] == "REFUSED_ALREADY_BOUGHT"
+       and res_masked["chain_record"]["stop_arm"] == "O_mp"
+       and res_masked["verdict"] in G.VOCAB and rf2,
+       "masked verdict=%s" % res_masked["verdict"])
+
+    root_f, d4o_f = two_fire("root_refire_cost", drop_row="F_mp")
+    G.CHAIN_SINGLE_FIRE_REQUIRED = False
+    try:
+        res_cost = G.grade(root_f, d4o_f)
+    finally:
+        G.CHAIN_SINGLE_FIRE_REQUIRED = True
+    rf3, _ = refused(G.grade, root_f, d4o_f)
+    ok("2R3 THE HARM IS QUANTIFIED, NOT ASSERTED: an arm that RAN but whose ledger row was lost "
+       "is restated as having bought 0 core-min.  With the guard off the recorded spend falls "
+       "from the clean control's 2763.600 to 2532.400 core-min -- 231.2 core-min of real "
+       "compute erased from the item's own cost record.  With the guard on: REFUSE.",
+       abs(res_cost["G10"]["total_core_min"] - 2532.4) < 1e-6
+       and res_cost["arms_not_run"] == ["F_mp"] and rf3,
+       "masked total_core_min=%.3f" % res_cost["G10"]["total_core_min"])
+
+    root = os.path.join(scratch, "root_live_chain")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF)
+    sp = os.path.join(root, "STATUS.chain")
+    _t = [l for l in open(sp).read().splitlines(True) if not l.startswith("chain=COMPLETE")]
+    open(sp, "w").writelines(_t)
+    res = G.grade(root, d4o)
+    ok("2R4 AT MOST ONE terminal line, NOT exactly one: a chain with a started line and NO "
+       "terminal outcome yet is still read, and a record in which every arm ran still grades.",
+       res["verdict"] == "PASS" and res["chain_record"]["outcome"] is None
+       and res["chain_record"]["registered_order"] == list(G.ARMS_REQUIRED))
+
+    root = os.path.join(scratch, "root_singlefire_unchanged")
+    d4o = build_base(root, CLEAN_MP, CLEAN_REF, arms=["O_mp"], chain_outcome="COMPLETE")
+    rf, msg = refused(G.grade, root, d4o)
+    ok("2R5 A SINGLE FIRE IS UNCHANGED BY THE REPAIR: the one-fire form of the same fixture "
+       "still refuses for the ORIGINAL reason (arm_absent_from_ledger), never the new one -- "
+       "the guard adds a refusal on a MALFORMED record and moves no gate, band or label.",
+       rf and "arm_absent_from_ledger" in msg
+       and "chain_record_is_not_a_single_fire" not in msg)
+
     # ---- ARM_DIR assertion is real ---------------------------------------
     old_line = G.LAUNCHER_F_MP_WORKDIR_LINE
     G.LAUNCHER_F_MP_WORKDIR_LINE = 'WORK="$BASE/NOT_THE_REGISTERED_DIR"'
