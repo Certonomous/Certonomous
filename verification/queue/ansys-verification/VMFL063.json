@@ -1,0 +1,39 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL063",
+  "prereg_commit": "3602cbf3ccc14fe0d618673b82d1551a25048ffc",
+  "prereg_path": "cases/ansys_verification/VMFL063/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL063/run_vmfl063.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL063",
+  "ranks": 1,
+  "cost_core_min_estimate": 16,
+  "cap_core_min_registered": 90,
+  "cap_core_min_shape": "THE 90 IS A RUNNING TOTAL ACROSS ALL FOUR SOLVES (L1, L1D, L2, L3), NOT A PER-LEVEL CAP. It is drawn down level by level in run_vmfl063.sh:199-201 (REMAIN = max(0, 90 - TOTAL_CORE_MIN); TIMEOUT_S = int(REMAIN*60/RANKS); TIMEOUT_S <= 0 aborts BUDGET EXHAUSTED, exit 2) and the drawdown was DRIVEN TO BOTH OUTCOMES on the committed bytes before this entry was written: it aborted at TOTAL 90 of 90, and did not abort at TOTAL 12.5 of 90 (timeout_s 4650). PREREGISTRATION.md sec.7.",
+  "cost_basis": "DERIVED, NOT MEASURED. Estimate 16 core-min is the pre-registered figure at PREREGISTRATION.md sec.7, frozen before compute; cap 90 core-min running total across the four solves. Dollars: 16 core-min = 0.2667 core-h = $0.0137, and the 90 core-min cap = 1.5 core-h = $0.0770, both at the owner-stated c7a.4xlarge rate of $0.0513/core-h -- reported-by-owner and DERIVED, never measured, because this box cannot read its own billing (COMPUTE_BUDGET_CHARTER sec.5). Zero solver core-minutes have been spent on VMFL063 to date; the only compute so far is the pre-flight smoke at L1 endTime 1, which ran in the scratchpad and measured 0.0 core-min at the launcher's own 1 s resolution.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "ansys-lane-opus, on the ansys-verification supervisor's ruling of 2026-08-28 authorising VMFL063 Amendment 1 [lab-attributed]. THE FREEZE IS NOW THE AMENDED COMMIT 3602cbf3: Amendment 1 replaced an UNSATISFIABLE launcher gate (run_vmfl063.sh old line 109 demanded byte-identical --selftest output from python3 and python3 -O, impossible because grade_vmfl063.py:867 mints a random mkdtemp path quoted in 20 of 78 lines, so the SAME interpreter run twice also differs) with the satisfiable form: PASS count, FAIL count and exit rc must agree across interpreters and the AST-guard marker must appear in BOTH outputs. NO GATE, BAND, THRESHOLD, CAP, CEILING OR LABEL MOVED -- grade_vmfl063.py blob fc339a79d1b0b1a5a5c6beba455e8e3f0e518d45 is byte-identical before and after, and constant-by-constant extraction diffs to 0 lines. The amendment was legal because it was made BEFORE first compute: verification/runs/ansys_verification/VMFL063/ did not exist, 0 paths under it at HEAD, 0 log.* files, 0 wallShearStress artefacts, 0 solver time dirs, and no gate quantity existed to fit to. Supervisor's SUPERVISION_CHARTER sec.3 check 4 (pre-registration committed before compute) is the supervisor's own and is recorded in their ruling; this lane performed the mechanical verification and does not substitute for it (CLAUDE.md rule 9).",
+  "runner_cap_caveat": "THE RUNNER'S CAP CHECK REPORTS AND DOES NOT ENFORCE -- docketed D559, referred to verification-supervisor. This team measured it on VMFLGPU005 and on VMFL064-R2 at a 32.67x overrun: queue_runner.py writes CAP_OVERRUN.txt beside the run at 1.00x cap_core_min_registered and does not stop the solver, which is contrary to CLAUDE.md rule 12 ('an overrun STOPS the run'). THE REAL GUARD FOR THIS CASE IS THE LAUNCHER'S OWN `timeout`, RE-CONFIRMED ON THE COMMITTED BYTES AT 3602cbf3: run_vmfl063.sh:252 `setsid timeout \"${TIMEOUT_S}\"s simpleFoam`, with the solver rc captured INSIDE the detached subshell at :254 (`echo \"$SRC\" > .solver_rc`) and read back at :262 -- never around the setsid line, because `setsid timeout cmd` returns 0 for every outcome when its rc is taken outside the wrapper, so a fired cap would otherwise read rc 0 instead of rc 124. The first non-zero rc stops the run at :299-301; later levels are not launched.",
+  "_field_classes": {
+    "physics_critical": [
+      "the case's own log.simpleFoam End line, endTime fields and the 0/ age guard (CLAUDE.md rule 4)",
+      "birth_certificate.json per level, minted from that level's own checkMesh",
+      "RUN_RC.<level> solver rc captured inside the detached subshell"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
