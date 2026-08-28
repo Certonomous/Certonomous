@@ -1,0 +1,113 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T18_CU_c",
+  "prereg_commit": "add2c78870625c75c2a48bdff018d7a034a2ff84",
+  "prereg_path": "docs/campaigns/T-family/T18_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/run_one_t18.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/T18_CU_c",
+    "--timeout",
+    "180",
+    "--ranks",
+    "1",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/T18_CU_c",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.437,
+  "cap_core_min_registered": 3,
+  "cap_core_min_registered_note": "TRANSCRIBED, NOT REGISTERED. The cap already exists in the registration cited below and is already enforced by this entry's own --timeout, which run_one_t18.sh:75 REFUSES unless it equals the registered timeout_s exactly. This field only makes the cap visible to the runner's cap watch. NO VALUE MOVES. THE REGISTRATION IS AUTHORITATIVE: if this field and the cited source ever disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "machine-readable registration",
+    "document": "verification/runs/T-family/T18_runs/T18_registered.json",
+    "json_path": "cases.T18_CU_c.cap_core_min",
+    "verbatim": "\"cap_core_min\": 3",
+    "scope": "case"
+  },
+  "cost_basis": "T18_registered.json cases.T18_CU_c: 8000 cells x 20000 steps -> 0.437 core-min POINT; cap 3 core-min = timeout 180 s at 1 rank. USD DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5). NAMED MISPREDICTION RISK: T18's rate is a laplacianFoam rate of the same lineage as T17's, and the only T17 level that has run overran its point prediction by 1.70x (STATUS.T17_CY_c: 0.233 core-min actual vs 0.137 predicted). Carrying 1.70x forward puts this level near 0.743 core-min against a 3 core-min cap, which absorbs 6.9x the point. T18 is 3-D where T17 is a 1-degree wedge, so the borrow crosses a DIMENSION change and the 1.70x is a floor on the risk, not a bound.",
+  "memory_floor_gb": 1.0,
+  "enqueued_by": "heat-transfer lab-lane, on heat-transfer-supervisor's T18 LAUNCHER-SMOKE decision [lab-attributed], 2026-08-28T16:28:13Z. SCOPE: T18_CU_c ALONE, the COARSE level, dropped as the FIRST EVER DRIVE of run_one_t18.sh, which has never launched anything. T18_CU_m, T18_CU_f, T18_CU_f_CT and every T19 entry are WITHHELD until this level returns rc=0 -- that withholding is the entire point of a smoke test and is not a formality. SUPERVISION_CHARTER section 3 checks 1 and 4 were discharged PERSONALLY BY THE SUPERVISOR and are recorded as theirs, not this lane's. CHECK 4: T18's registration froze at add2c788 2026-08-27T19:34:33Z; the supervisor verified that sha is an ANCESTOR of HEAD and that T18_registered.json and run_one_t18.sh are byte-identical on disk to their committed content. PASS. CHECK 1: mark_done_t18.py carries the same check() shape the supervisor read in mark_done_t17.py, with the SAME DISCLOSED LOOSENESS at mark_done_t18.py:113, which reads 'stale = [f for f in NEEDED if os.path.getmtime(os.path.join(tdir, f)) < age]' -- '<' where rule 4's 'NEWER than' wants '<=', so a field whose mtime EXACTLY equals 0/T would pass. Family norm, 26 of 31 sites; ZERO measured exposure across 1,894 endTime field files in 152 T-family cases under a planted cp -p control that WAS seen (rule 3). NOT BLOCKING; recorded as a disclosed condition of this launch. THIS LANE DROVE BOTH T18 INSTRUMENTS BEFORE FIRST COMPUTE, because T18 is a DIFFERENT INSTRUMENT from T17 and a sibling's passing selftest is not evidence about it: analyse_t18.py --selftest -> SELFTEST PASS (0 failed), 17 arms ok / 0 FAIL, covering a mutated registered P_MIN that must REFUSE, nine rule-5 triple classifications including EXACT and STAGNANT at the floors, a VALUE CONTROL forging the analytic field on the registered 20/40/80 ladder (G1/G2/G3 PASS with observed order p=2 and three planted-zero controls PASS), residual, W0-symmetry and out-of-band arms, a BLIND READER MUTANT that ignores the disk and is correctly REFUSED by the planted-zero control, and a live tree with no DONE markers that exits 2. mark_done_t18.py --selftest -> SELFTEST PASS (0 failed), 10 behavioural arms plus an AST assert-counter control, including CRASH-vs-CAPPED separation, the ExecutionTime count arm and the age-guard arm. A PRECISE LIMIT OF THAT AGE-GUARD ARM, stated because it is exactly the disclosed defect: the selftest drives 'T at endTime OLDER than 0/T -> NOT DONE'. STRICTLY older. It does NOT drive the EQUAL-mtime boundary, which is the one case the ':113 <' lets through. The looseness is therefore disclosed AND uncovered by its own instrument's selftest; the evidence it is harmless is the supervisor's measured zero exposure, not this arm. THIS LANE'S OWN VERIFICATION from the artefacts, not from the brief: --timeout 180 EQUALS cases.T18_CU_c.timeout_s=180 in T18_registered.json; cap_core_min_registered 3 EQUALS cases.T18_CU_c.cap_core_min=3; the T18_CU_c case directory holds NO numeric time directory, NO 0/ directory and no STATUS/DONE/log.solve, so the age guard's precondition holds and 0/T will date this run; prereg_commit is add2c78870625c75c2a48bdff018d7a034a2ff84, an ancestor of HEAD 945edc8d5dff5dbcfdac3369a27d2223c0a98f88, with T18_PREREGISTRATION.md present at that sha. Independently of the supervisor I confirmed T18_registered.json, run_one_t18.sh, analyse_t18.py, mark_done_t18.py and T18_PREREGISTRATION.md are ALL byte-identical on disk to their blobs at BOTH HEAD and the freeze commit. run_one_t18.sh:75 is verified to be the cap-equality refusal it is cited as. COST: 0.437 core-min POINT against a 3 core-min cap = $0.0026 DERIVED, NOT MEASURED, at the owner-stated $0.0513/core-h (COMPUTE_BUDGET_CHARTER section 5: the box cannot read its own billing). MISPREDICTION RISK SHARPENED BY FOUR MEASUREMENTS TAKEN TODAY, THE WHOLE T17 SET, AND THEY DO NOT AGREE ON A CONSTANT: T17_CY_c 0.233/0.137 = 1.701x, T17_CY_m 0.917/0.547 = 1.676x, T17_CY_f 4.683/2.187 = 2.141x, T17_CY_f_CT 8.850/4.373 = 2.024x. The two SMALL levels sit near 1.69x and the two LARGE ones near 2.08x, so the under-prediction GROWS with problem size rather than holding constant; a single scalar correction factor would be the wrong model and I decline to quote one. Applying the WORST observed 2.141x to this level gives ~0.94 core-min against the 3 core-min cap, still 3.2x headroom. The borrow ALSO crosses a DIMENSION change -- T18 is 3-D where T17 is a 1-degree wedge -- so even 2.141x is a FLOOR on the risk, not a bound; the cap, not this estimate, is what stops an overrun, and an overrun does not get a new budget.",
+  "role": "graded level -- the COARSE of the Roache triple, and the launcher smoke test",
+  "_preflight_discharged_by_this_draft": {
+    "rule_2_freeze": "add2c788 is an ANCESTOR of HEAD (git merge-base --is-ancestor, 2026-08-28T16:04Z) and docs/campaigns/T-family/T18_PREREGISTRATION.md is present at that sha. T18_registered.json on disk hashes e6356dc1c4707076915c53bdd34dc9d517d8fa6a, byte-identical to the blob at the freeze commit -- the frozen file IS the file that would run.",
+    "rule_4_age_guard": "T18_CU_c contains NO numeric time directory and no 0/ directory; 0.orig is present; no STATUS, DONE or log.solve exists. Verified 2026-08-28T16:02Z by find -regex over maxdepth 1 directories, across all four T18 levels.",
+    "launcher_arm_A": "UNDRIVEN, and this entry is the drive. run_one_t18.sh (md5 6da5328eb3dafb8f240b53ccc06e0b21) is a sibling of run_one_t17.sh (md5 d9d9dbdb4b77e4525aad85cee8d4b0b1) but is a DIFFERENT FILE and has never launched anything. The T17_CY_c queue entry recorded a withholding condition -- 'the remaining T17/T18/T19 entries are withheld until this launcher is shown to launch' -- which T17_CY_c's rc=0 discharges for run_one_t17.sh ALONE. It does NOT transfer to run_one_t18.sh. This coarse level is therefore proposed as the SAME live smoke test T17 used: the cheapest level on the rung (0.437 core-min point, 180 s cap), dropped alone, with T18_CU_m and T18_CU_f withheld until it returns rc=0.",
+    "NOT_discharged_here": "SUPERVISION_CHARTER section 3 check 1 (the measurement-script diff read as a diff) and check 4 (pre-registration committed before compute, read personally) are the SUPERVISOR'S and are NOT delegated. This lane did not perform them. analyse_t18.py is IN-HEAD and byte-identical to disk and contains 6 selftest references, but this lane did not DRIVE the selftest and makes no claim about it."
+  },
+  "_enqueued_by": {
+    "utc_of_this_write": "2026-08-28T16:28:13Z",
+    "clock_source": "date -u, same shell invocation as this write",
+    "head_at_write": "945edc8d5dff5dbcfdac3369a27d2223c0a98f88",
+    "decision_owner": "heat-transfer-supervisor took the T18 launcher-smoke decision; this lane executed it",
+    "scope": "T18_CU_c ONLY. T18_CU_m / T18_CU_f / T18_CU_f_CT and all T19 entries WITHHELD pending rc=0 here.",
+    "supervisor_check_4": {
+      "verdict": "PASS",
+      "freeze_commit": "add2c78870625c75c2a48bdff018d7a034a2ff84",
+      "freeze_utc": "2026-08-27T19:34:33Z",
+      "discharged_by": "heat-transfer-supervisor, personally; not delegated"
+    },
+    "supervisor_check_1": {
+      "verdict": "PASS with one DISCLOSED latent looseness",
+      "discharged_by": "heat-transfer-supervisor, personally"
+    },
+    "disclosed_looseness": {
+      "site": "verification/runs/T-family/T18_runs/mark_done_t18.py:113",
+      "code": "stale = [f for f in NEEDED if os.path.getmtime(os.path.join(tdir, f)) < age]",
+      "defect": "'<' where rule 4's 'NEWER than' requires '<='; a field whose mtime EXACTLY equals 0/T passes.",
+      "prevalence": "family norm -- 26 of 31 sites",
+      "measured_exposure": "ZERO across 1,894 endTime field files in 152 T-family cases",
+      "planted_control": "an mtime-preserving cp -p copy was planted and the scan SAW it (rule 3)",
+      "selftest_coverage_gap": "mark_done_t18.py's own selftest drives the age guard only with a STRICTLY OLDER field. The EQUAL-mtime boundary -- the exact case ':113' lets through -- is NOT driven. Disclosed here so the gap is on the record at enqueue time rather than discovered after an answer.",
+      "ruling": "NOT BLOCKING; a standing disclosed condition of this launch."
+    },
+    "selftests_driven_by_this_lane": {
+      "analyse_t18.py": {
+        "verdict": "SELFTEST PASS",
+        "failed": 0,
+        "arms_ok": 17,
+        "arms_fail": 0,
+        "note": "driven BEFORE first compute; T18 is a different instrument from T17 and a sibling's passing selftest is not evidence about it"
+      },
+      "mark_done_t18.py": {
+        "verdict": "SELFTEST PASS",
+        "failed": 0,
+        "arms": "10 behavioural arms + AST assert-counter control"
+      }
+    },
+    "this_lane_verification_from_the_artefacts": {
+      "timeout_entry_vs_registered": "180 == 180 : MATCH",
+      "cap_entry_vs_registered": "3 == 3 : MATCH",
+      "numeric_time_dirs": "0 found []",
+      "zero_dir_present": false,
+      "status_done_logsolve": "0 found []",
+      "dir_listing": [
+        "0.orig",
+        "BUILD.txt",
+        "CASE.txt",
+        "constant",
+        "log.blockMesh",
+        "log.checkMesh.build",
+        "system"
+      ],
+      "prereg_commit_is_freeze": true,
+      "freeze_is_ancestor_of_head": true,
+      "prereg_present_at_freeze": true
+    },
+    "launcher_first_drive": {
+      "launcher": "verification/runs/T-family/T18_runs/run_one_t18.sh",
+      "md5": "6da5328eb3dafb8f240b53ccc06e0b21",
+      "state": "ARM A UNDRIVEN -- has never launched anything. THIS ENTRY IS THE DRIVE.",
+      "why_t17_does_not_transfer": "run_one_t17.sh (md5 d9d9dbdb4b77e4525aad85cee8d4b0b1) is a DIFFERENT FILE; T17_CY_c's rc=0 discharges the withholding condition for that launcher alone.",
+      "cap_enforcement_verified": "run_one_t18.sh:75 refuses any --timeout not exactly equal to the registered timeout_s, verified by this lane by reading the line."
+    },
+    "cost": {
+      "point_core_min": 0.437,
+      "cap_core_min": 3,
+      "usd": "$0.0026 DERIVED, NOT MEASURED, at $0.0513/core-h",
+      "calibration_today": "ALL FOUR T17 levels, measured today: c 1.701x, m 1.676x, f 2.141x, f_CT 2.024x. The ratio GROWS with problem size (small ~1.69x, large ~2.08x) and is NOT a constant, so no single correction factor is quoted.",
+      "risk_note": "the borrow crosses a 1-D-wedge -> 3-D dimension change; 1.69x is a FLOOR, not a bound"
+    },
+    "note_on_field_name": "'enqueued_by' is written as the REQUIRED non-empty STRING (scripts/queue_entry_check.py REQUIRED_FIELDS :83-94, check_schema :182-184). '_enqueued_by' is the structured record. An object alone would have been REFUSED."
+  }
+}
