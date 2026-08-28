@@ -7472,6 +7472,223 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-28T16:31:48Z — **THREE RUNGS GRADED; A FROZEN NEGATIVE CONTROL THAT IS A COIN FLIP ON AN ALGEBRAIC IDENTITY — AND WHOSE OWN SELFTEST EXERCISES IT FIVE TIMES AND PASSES ANYWAY, BECAUSE IT NEVER DRIVES IT WHERE IT COULD FAIL; AND A LAB-WIDE IDLE THAT COST MORE THAN THE SESSION'S WHOLE COMPUTE**
+
+*Rulings dictated by the heat-transfer supervisor. **EVERY FIGURE BELOW WAS RE-DERIVED BY THE LANE FROM THE NAMED ARTIFACT, NOT TRANSCRIBED.** Where a dictated figure did not reproduce, the derived value is boarded and the difference named — in both directions. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically, prefix and suffix bytes asserted, deletions asserted == 0 as a NUMBER before and after.*
+
+#### 1. THE VERDICTS
+
+- **T5b — `NOT A RESULT`**, 0 of 6 graded rows. The six are `G1a`, `G2a`, `G3a`, `G5a`, `G5b`, `G5c`; the 7 REPORTED rows are excluded by D534. The registered §7 clause 1 — the y+ ladder-tolerance clause — **fired on the FINE level**: `cube_front` y+max **2.3100** against tolerance **2.00** (= 2.0 × level target 1.00). The **sublayer bound 5.0 was never breached anywhere**, the global maximum being **3.8043**. **NO value, NO triple, NO observed order and NO GCI were computed** — `grade_row` returns at clause 1 before `classify_triple` is ever called. Cost **451.833 core-min** actual against **419.2 POINT**, ratio **1.078**, **0.539 of cap**, **$0.3863 DERIVED**.
+  - *Lane re-derivation.* The six `NOT A RESULT` rows, the firing level, the patch and the value **2.310** against "2.0x the level target 1.00" all reproduce verbatim from `verification/runs/T-family/T5b_runs/T5B_GRADE_OUTPUT.txt`, which records levels c and m as `y+: MET` and level f as `y+: NOT A RESULT`. **The POINT reproduces from the frozen caps file** `verification/runs/T-family/T5b_runs/T5B_CAPS.txt`: its MEASURED basis 16.083 + 75.650 + 319.167 = 410.900 core-min × the registered 1.02 allowance = **419.118**, boarded as 419.2; CAP = 2.0 × POINT = 838.24, and 451.833/838.24 = **0.5390**. Ratio 451.833/419.118 = **1.0781**. Dollars at $0.0513/core-h: **$0.38632**. All four reproduce.
+  - *Citation correction.* The dictated cite for the clause-1 early return was `analyse_t5b.py:654`. **Line 654 is the `def grade_row(...)` line itself**, not the return; the early return is inside the function body below it. The claim is unaffected — the function is the right one — but the line number names the definition, not the statement.
+
+- **W1c — `PASS`.** The F1 floor demonstration: |deviation| **5.684e-14 K** against the registered floor **1.000e-04 K**. The registration declares `roache_election.declares_a_roache_triple = False`, so **rule 5 limb (2) has no operand and is NOT waived**; limb (1) passed at all three levels (checkpoint move **0.000e+00 K**). **No GCI quoted, correctly.** Cost **0.002833 core-min** against **0.002666 POINT**, ratio **1.063**.
+
+- **T15 — `BLOCKED`.** The **RUN is complete**: all six rule-4 conditions pass, **1195.817 core-min** against **1307 POINT**, ratio **0.915**, **0.460 of cap**, **$1.0224 DERIVED**. But the **FROZEN grader REFUSED (exit 2)** at `analyse_t15.py:501` and **no row verdict exists for S1/V1/V2/V3**. `BLOCKED` is the honest word: the compute is spent and grading cannot proceed through the frozen instrument.
+
+#### 2. THE T15 COMPARATOR DEFECT — AND THE FROZEN INSTRUMENT'S OWN SELFTEST EXERCISES IT AND PASSES ANYWAY
+
+*This section was rewritten mid-write on the supervisor's course correction after the scope lane reported. **Three of the supervisor's originally dictated figures are corrected here, two whole regimes were missed, and the sharpest finding was not in the original dictation at all.** The lane re-derived every replacement figure and names each agreement and each residual difference.*
+
+**THE IDENTITY.** `analyse_t15.py:501` reads, verbatim from the file:
+
+```
+        if d_const > 0.5 * ref:
+```
+
+**S1 is `sd/mean`** (`window_stats` at `analyse_t15.py:279-281`, `rel_sd = sd/abs(mean)`; `_s1_of` at :524-529 returns it). Adding a constant equal to the mean leaves `sd` unchanged and doubles the mean, so the perturbed statistic is **EXACTLY `ref/2`** and `d_const` is **IDENTICALLY `0.5*ref`** for every dataset with **positive** mean. The guard is a **strict `>` AT the exact boundary of an algebraic identity**, so it is decided by last-ulp rounding. The arm's stated intent — *"a working fluctuation reader must be nearly blind to a constant offset"* — is **true of a SIGMA reader and FALSE BY CONSTRUCTION of a SIGMA/MEAN reader**, which is a *normalised* dispersion and is necessarily sensitive to the mean.
+
+**CORRECTION 1 — THE ulp FIGURE, AND THE TWO NUMBERS ARE NOT IN CONFLICT.** The supervisor first dictated **~48 ulp** and corrected it to **+79 ulp**, with `ulp(0.5*ref) = 1.35525e-20`. **The lane reconciles them: they are the SAME excess expressed in two different units, and both are arithmetically exact.** With `ref = 1.9909386169553251e-04`, `0.5*ref = 9.954693084776626e-05` and `ulp(0.5*ref) = 1.3552527156068805e-20` (reproduces the corrected figure to every printed digit). The measured ratio `d_const/(0.5*ref) = 1.0000000000000107` gives a relative excess of 1.07e-14, i.e. an **absolute** excess of **1.06099e-18**, which is:
+
+- **78.29 ulp of `0.5*ref`** — boarded as **+79**, the supervisor's corrected figure, and **the correct way to state it**, because the ulp must be taken at the magnitude of the quantity actually compared; and
+- **exactly 48.0 ulp of 1.0** — the original figure, which measured the ulp on the *ratio* rather than on the operand.
+
+**Neither number was wrong; the first named the wrong unit.** The refusal margin is **~1.07e-14 relative**, however it is denominated.
+
+**CORRECTION 2 — THE MAGNITUDE WAS UNDERSTATED, AND THE DIRECTIONAL CLAIM IS FAR STRONGER THAN FIRST STATED.** The originally dictated **−448.5 to +2064 ulp** range was measured over too narrow a synthetic band. The excess **scales as `epsilon/ref`** — it is the **cancellation error of recomputing sigma after adding a constant of size `mean`**. The supervisor's corrected measurements: **6,827 ulp at `ref ~ 2e-4`; 1,327,727 ulp at `ref ~ 1e-8`; 8.8e7 ulp in the degenerate corner** — an understatement **by up to six orders of magnitude**.
+
+*Lane re-derivation, independent, through the grader's OWN naive two-pass accumulator* (`analyse_t15.py:279-281`, uncompensated `sum((v-mean)**2)/n`), 8 draws per decade:
+
+| sigma/mean (= ref) | excursion of `d_const/(0.5*ref)` from 1.0 | draws refusing |
+|---|---|---|
+| 5e-02 | +0.0 .. +1.0 ulp | 1 of 8 |
+| 1e-02 | −1.5 .. +2.0 ulp | 4 of 8 |
+| 1e-03 | −19.0 .. +41.0 ulp | 5 of 8 |
+| 1e-04 | −303.0 .. +156.0 ulp | 1 of 8 |
+| 1e-05 | −2005.5 .. +2102.0 ulp | 5 of 8 |
+
+**THE `epsilon/ref` SCALING LAW IS CONFIRMED INDEPENDENTLY ACROSS FIVE DECADES, AND IT IS TWO-SIDED AT EVERY DECADE.** **RESIDUAL DIFFERENCE, NAMED:** at comparable `ref` the lane's magnitudes run **one to two decades BELOW** the supervisor's (lane ~303 ulp at `ref = 1e-4` against the supervisor's 6,827 at `ref ~ 2e-4`). **The difference is UNRESOLVED**; it is most likely sample size `n` and the source distribution, since the lane drew Gaussians of n = 200–4,000 while the supervisor drove the frozen path. **The lane's figures are the WEAKER of the two and are boarded only as confirmation of the SCALING, not of the magnitude.** The lane also records that its **first** sweep, through Python's *compensated* `statistics.fmean`/`pstdev`, returned only **±1 ulp** — **the magnitude is reader-dependent, and measuring this defect through anything but the grader's own accumulator understates it by orders of magnitude.**
+
+**CORRECTION 3 — THE FIRE RATE IS 39%, NOT 4-of-8.** Measured by the supervisor over **117 of 300** randomised positive-mean draws (**85 of 222** restricted to `ref >= 1e-6`). **The lane's five-decade sweep gives 16 refusals of 40 draws = 40.0%, which reproduces the corrected 39% to within one draw.** The originally dictated *"4 of 8"* is boarded as **struck**: it is one draw set, and the lane's own decade-by-decade fractions (1, 4, 5, 1, 5 of 8) show the fraction is **not monotone in `ref`** because it is **noise, not signal**.
+
+**TWO REGIMES MISSED ENTIRELY IN THE ORIGINAL DICTATION**, both found by **driving the frozen code rather than reasoning about it**:
+
+- **NEGATIVE WINDOW MEAN → UNCONDITIONAL REFUSAL**, which is **SHARPER than the coin flip**. The plant is `+|mean|`, which **ANNIHILATES** a negative mean: measured at `mean = -0.6`, `ref = 2.0e-4`, `d_const = 1.33e+12`. **Any downdraft, recirculation or return-flow station is refused DETERMINISTICALLY.** **For a lab whose second ladder is data-centre cooling, that is not a corner case.**
+- **SIGMA = 0 → VACUOUS PASS.** `ref = 0` makes the guard `0 > 0`, so **a perfectly dead reader PASSES**. **A rule-3 control with a blind mode of its own.**
+
+**THE SHARPEST FINDING OF THE SESSION — THE SELFTEST EXERCISES THE ARM AND PASSES ANYWAY.** The lane **DROVE** `analyse_t15.py --selftest` to completion. Its closing line is **`SELFTEST PASS (0 failed)`**. The arm at **:501 runs FIVE times, once per `_run_forged`** — and **it cannot fail on any of them**:
+
+| forgery | `ref` (= S1) | `d_const` | why it cannot fail |
+|---|---|---|---|
+| default | **0** | 0 | **VACUOUS** — the guard is `0 > 0` |
+| `co_max=1.9` | **0** | 0 | **VACUOUS** |
+| `alpha=0.20` | **0** | 0 | **VACUOUS** |
+| `drift=0.20` | 5.253e-02 | 0.0263 | **EXACTLY on the boundary at +0.0 ulp** — passes only because the strict `>` lets equality through |
+| `noise=0.10` | 7.366e-02 | 0.0368 | **EXACTLY on the boundary at +0.0 ulp** — same |
+
+**The lane confirms every cell of this table from the selftest's own output**: five `S1` rows printing `value=+0`, `+0`, `+0.052530109`, `+0.073664922`, `+0` and five constant-offset lines reading `moved it 0`, `0`, `0.0263`, `0.0368`, `0`. `0.0263` against `0.5 × 0.052530109 = 0.02626505` and `0.0368` against `0.5 × 0.073664922 = 0.03683246`: **the identity `d_const == 0.5*ref` is confirmed to the printed precision in the grader's own selftest output, on its own forged data.** *(The lane records against itself that its FIRST reading of this reported "four arms, two vacuous" — it was reading an INCOMPLETE run mid-flight. The complete run has **five** arms and **three** vacuous. A partial artifact read as a whole one is a false count, and the supervisor's independent figure caught it.)*
+
+**WHY IT CANNOT FAIL, STATED PRECISELY.** The two non-vacuous forgeries are **265× and 370× more dispersive than the real run**, and **at that conditioning the identity is numerically exact** — the `epsilon/ref` excess vanishes. **AND BOTH of their S1 values (0.0525, 0.0737) sit OUTSIDE the registered PASS band `[0, 0.020]`** — the lane confirms both the values and the band verbatim from the selftest's own row output. Fire rate by regime over 60 seeds each: **`ref = 1e-1` gives 7%; every decade below gives 42–62%.**
+
+> **THE ONE-LINE FORM: THE NEGATIVE CONTROL WAS EXERCISED ONLY IN THE ONE REGIME WHERE IT CANNOT FAIL, AND NO FORGERY EVER DROVE IT AT A DISPERSION THE RUNG WAS DESIGNED TO CALL PASS.**
+
+**AND THE EVIDENCE WAS ON THE PAGE AT FREEZE TIME.** `T15_PREREGISTRATION.md` §5 prints *"a constant offset ... moves it 0 to 0.037"*. **THOSE THREE ZEROS ARE THE THREE VACUOUS FORGERIES — printed, and not read.**
+
+**AND THE INSTRUMENT STATES THE DEFECT IN ITS OWN WORDS.** On the branch where the statistic moved by exactly half, the selftest prints:
+
+> `CONSTANT offset of one mean moved it 0.0263 (near-blind, as a dispersion reader must be)`
+
+**A move of exactly 50% of the statistic, reported as "near-blind".** And on the real tree the same arm prints its refusal as `moved sigma/mean by 9.95e-05` — which is `0.5 × ref` to three figures, **the identity holding on the real data exactly as it holds on the forged data, with only the last ulp separating pass from refuse.**
+
+**NOT EDITED.** Rule 2 bars a post-compute edit to a frozen comparator; **repair belongs in a T15b successor** — see the referral in §10.
+
+#### 3. THE IDLE — THE SESSION'S LARGEST NUMBER, AND IT IS LAB-WIDE, NOT OURS ALONE
+
+Last launch **2026-08-28T07:54:45Z** (cfd `F27_WOMERSLEY_PIPE`). First EMPTY tick **07:55:45Z**; unbroken through at least **16:14:48Z** = **498+ min = 8.30+ h**. The runner (**pid 1120800**) is **ALIVE AND TICKING** at 60 s cadence — the failure is an **EMPTY QUEUE, not a dead runner**, and every team's runner-visible depth was zero. *(Lane confirmation: pid 1120800 is `python3 scripts/queue_runner.py --daemon`, alive at the writing clock with 82,077 s elapsed — consistent with a runner that has been up throughout and was never the failure.)*
+
+At the **5 admissible 1-rank slots** measured (9.02 busy cores against the runner's 0.9 × 16 = **14.4** core gate; busy **56.4%** against an **85.0%** ceiling, so **THE CEILING WAS NOT BINDING**), forgone = **2,491 core-min = $2.1298 DERIVED**. That is **~1.5×** the **$1.4089 DERIVED** cost of **ALL FOUR** graded completions this session. **Sanaa's §2 threshold is 30 min; this is 16.6× it.**
+
+**CORRECTION THE SUPERVISOR MAKES AGAINST ITSELF.** This session opened by boarding *"FREEZE-AHEAD = 0 of 3"*. **THAT WAS WRONG.** `held/` is the **WITHHELD shelf**, deliberately outside `queue_runner.py` `list_entries()`'s top-level `<team>/*.json` glob — **it is the opposite of queue-ready**. On the directive's own words heat-transfer had **3 frozen queue-ready rungs / 13 unrun cases all along** (T17, T18, T19, frozen at `b8ebddfe` / `add2c788` / `4d8943d8`). **The defect was an ENQUEUE defect, not a freeze defect**, and naming it wrongly would have sent a lane to do the wrong work.
+
+#### 4. WHAT I DID ABOUT IT
+
+`T17_CY_m`, `T17_CY_f` and `T17_CY_f_CT` **committed then dropped** — commit-before-drop, the W1c discipline. **Lane correction to the dictated citation: this is TWO commits, not one, and the record should carry both.**
+
+| commit | UTC | act |
+|---|---|---|
+| `2a4caec5` | 2026-08-28T16:14:57Z | **ENTRIES COMMITTED** — *"frozen as real queue entries at `held/`, one commit before the drop that launches them"* |
+| `4328e285` | 2026-08-28T16:15:45Z | **DROPPED** — *"dropped into the runner's glob — a PURE RENAME, not one byte changed"* |
+
+The dictated sha `2a4caec5` and its stamp `16:14:57Z` **reproduce exactly** and name the **commit**; the **drop is a separate commit** `4328e285` at **16:15:45Z**, **48 seconds later**. Both re-derived from `git log --format='%H %cI %s'`.
+
+Registered caps **8 / 30 / 60 core-min**, total **98 core-min = $0.084 DERIVED** (98/60 × 0.0513 = 0.08379, reproduces). My two non-delegable checks were discharged **personally BEFORE the drop**: **check 4** (`b8ebddfe` is an ancestor of HEAD, the prereg is PRESENT at that sha, and `T17_registered.json` / `analyse_t17.py` / `mark_done_t17.py` / `run_one_t17.sh` are each **byte-identical to their HEAD blobs**) and **check 1** (I read `mark_done_t17.py` `check()` **as a diff**). I also **DROVE** `analyse_t17.py --selftest`: **SELFTEST PASS, 0 failed**, including a blind-reader mutant that correctly **REFUSES**.
+
+**AND THE FIRST DROPPED LEVEL HAS ALREADY COMPLETED.** `T17_CY_f` is **rc=0, wall_s=281, core_min=4.683, capped=no, note=clean**, against a **2.187 core-min** point estimate — **ratio 2.14**. **THAT IS HIGHER THAN `CY_c`'s 1.70 AND `CY_m`'s 1.68, SO THE BORROWED-T14-RATE UNDER-PREDICTION GROWS WITH LEVEL RATHER THAN BEING A CONSTANT FACTOR.** Three levels now read **1.70, 1.68, 2.14**, and **a single "~1.7x" would misdescribe it.**
+
+#### 5. INSTRUMENT FINDINGS FROM THE COMPLETION-RULE AUDIT
+
+§3 check 1, done **personally** over 30 `mark_done` and 16 `analyse` scripts. **ALL THREE ARE LATENT WITH ZERO LANDED VERDICTS EXPOSED, EACH ESTABLISHED BY MEASUREMENT UNDER A PLANTED CONTROL — NOT BY A BARE ZERO.**
+
+**(a) AGE-GUARD COMPARATOR DIVERGENCE.** **26 sites test `< age`** (strictly older) where **rule 4's "NEWER than" requires `<= age`**; **only 5 sites use `<=`**:
+
+| file | line |
+|---|---|
+| `verification/runs/T-family/T5_runs/analyse_t5.py` | 138 |
+| `verification/runs/T-family/T5_runs/analyse_t5.A10_PROPOSED.py` | 138 |
+| `verification/runs/T-family/T5_runs/mark_done_t5.py` | 116 |
+| `verification/runs/T-family/T5b_runs/analyse_t5b.py` | 480 |
+| `verification/runs/T-family/T8_runs/analyse_t8.py` | 487 |
+
+A field whose mtime **EXACTLY equals** `0/T` passes the loose guard. **THE RULE'S OWN REFERENCE IMPLEMENTATION IS ON THE LOOSE SIDE:** `mark_done_t1b_L4.py:92` — the file `T1b_L4_AMENDMENT` §7 names as the definition — reads `if os.path.getmtime(os.path.join(tdir, f)) < age`. Arming condition is **any mtime-preserving copy** (`cp -p`, `rsync -a`, `tar -x`). **MEASURED: 0 of 1,894 endTime field files across 152 T-family cases sit at the equality boundary**, under a planted control in which a `cp -p` copy **WAS** seen and a genuinely-newer control was **NOT** falsely flagged.
+
+- *Lane re-derivation, and it does not fully reproduce.* **The 5-site `<=` list reproduces EXACTLY** — same five files, same five line numbers — and **`mark_done_t1b_L4.py:92` reproduces verbatim on the loose side.** **The strict-`<` count does NOT reproduce: the lane measures 28, not 26**, sweeping the 80 `analyse_*.py` / `mark_done_*.py` files at depth ≤ 3 under the three team run roots for any line matching `getmtime|st_mtime` with `<` and not `<=`. **The lane's pattern is LOOSER than the supervisor's** — it catches every mtime comparison, not only age guards — so **28 is an upper bound and the 2-site difference is most likely 2 non-age-guard mtime comparisons, but the lane did NOT confirm that by reading all 28.** **Boarded as 26 measured by the supervisor, 28 under a looser lane pattern, difference UNRESOLVED and named.** The finding does not turn on the exact count: the ratio is lopsided either way and the reference implementation is on the loose side under both.
+
+**(b) CONJUGATE AGE-GUARD DATUM IS FOUND, NOT CHOSEN.** In T5 and T5b the datum is **the first `T` an `os.walk` over `0` happens to return**, and the two regions differ: the walk picks `0/epoxy/T` while T5b guards fields in `air` — **datum and guarded set in DIFFERENT REGIONS.** Measured across all **9** conjugate cases: **epoxy is later than air by 1–9 s in 9 of 9**, so the walk currently picks the **STRICTER** datum on every case that exists. **That is luck, not design** — nothing orders the walk and nothing registers that epoxy must be copied last. **Armed by any partial re-copy touching `0/air` alone**, which would make the datum stale and the guard silent **in the FALSE-PASS direction**. **T4b carries `os.walk` but NOT as a datum selector and is NOT exposed** — reading cleared it after my sweep implicated it.
+
+**(c) THE DC-COOLING SPINE PREDATES THE COMPLETION RULE.** All **16** F14 / THERMAL_K0 analysers were added **2026-08-18/19**; **rule 4 and its age guard arrive 2026-08-21** (`T1b_L4` §7, D438, L-143). There is **NO `mark_done` instrument anywhere in F14**; the DONE marker is written **BY THE PRODUCING RUNNER** at solve end and the analyser **transcribes** iterations/`exec_seconds` **OUT of it** — so **conditions 3 and 5 could not be checked even in principle from that marker**. No End-line check, no `ExecutionTime` count, no mtime/age guard in any of the 16. **MEASURED: 0 of 103 F14 cases / 1,256 endTime field files would fail a rule-4 age guard**, under a planted stale-file control in which the plant **WAS** seen. So **K0c's `GATE PASS` (0 of 20 rows)** — the one landed PASS on the spine, and the verdict a stale-field defect would manufacture — **IS NOT EXPOSED IN FACT.**
+
+**CORRECTION THE SUPERVISOR MAKES AGAINST ITSELF, SECOND ONE.** I first boarded *"no planted-zero control in ANY F14 analyser"*. **WRONG.** `analyse_k0c.py` carries **three PHYSICS plants** — a `g=(0 0 0)` twin, a `dT × 1.10` (Ra = 1.10e5) twin, and a uniform **5.000e-03 W** volumetric source with a recovery error — **each with an in-log witness**, and the file even states what its controls **CANNOT** see. **My first pattern searched `plant_into` and missed `plant`. A sweep that returns zero on ground truth it has already been shown is measuring its own regex.**
+
+#### 6. A CORRECTION OF MY OWN LANE, ON T5b's MECHANISM
+
+§3 check 3. The lane reported that y+ *"does not fall with refinement at the rate the registered ladder assumes"* and cited `floor` as showing the same flatness. **THE MESH IS FINE; THE STATISTIC IS THE DEFECT.**
+
+Measured on `cube_front` at `Time = 5000` from the named `yPlus.dat` — **and the lane has now re-derived the whole table from the three raw artifacts** `verification/runs/T-family/T5b_runs/T5_CUBE_{c,m,f}/postProcessing/air/yPlus/0/yPlus.dat`:
+
+| patch | statistic | c | m | f | p (c→m) | p (m→f) |
+|---|---|---|---|---|---|---|
+| `cube_front` | **MAX** | 3.8043 | 2.9610 | 2.3100 | **0.529** | **0.533** |
+| `cube_front` | AVG | 1.9605 | 1.2754 | 0.8427 | **0.908** | **0.890** |
+| `cube_front` | MIN | 0.3542 | 0.1493 | 0.0662 | 1.824 | 1.746 |
+| `floor` | MAX | 3.4469 | 2.3894 | 1.6067 | 0.774 | 0.853 |
+| `roof` | MAX | 1.1714 | 1.2126 | 0.6349 | **−0.073** | 1.390 |
+
+**Every dictated figure in this item reproduces to the printed precision**, with one rounding difference: **`floor` MAX gives p = 0.774 / 0.853, dictated 0.773 / 0.852** — a last-digit difference from the refinement ratios, which the lane **inferred** (r21 = 1.6058, r32 = 1.5928, recovered self-consistently from the dictated MAX and AVG orders) rather than reading from the registration. **Boarded as the lane's 0.774 / 0.853 with the inference named** — the conclusion is identical either way.
+
+Against the ladder's design **1.025 / 1.010**, the **AVG order 0.908 / 0.890 very nearly MEETS the ladder's exponent assumption**. **Only `cube_front`'s MAX is flat**; `roof`'s MAX **RISES** from c to m (p = **−0.073**), i.e. **non-monotone**. **Decisively:** the margin on the **MAX** climbs **0.732 → 0.925 → 1.155** (fires against 1.00), while on the **AVG** it is essentially **FLAT at 0.377 → 0.399 → 0.421** and **would have passed every level with better than 2× margin**.
+
+**THE GATE FIRES BECAUSE IT IS WRITTEN ON A POINT MAXIMUM OVER A FIELD WITH A LOCAL PEAK, NOT BECAUSE THE MESH OR THE TARGET LADDER IS WRONG.** A **T5c** should gate on an **area-averaged or high-quantile** y+ and keep the max as a **REPORTED diagnostic beside the sublayer bound**. The **stagnation-peak explanation** for *why* `cube_front` is the singular patch is **my HYPOTHESIS, not a measurement**, and a successor must test it.
+
+I also record that **my own first y+ table had the AVG and MAX columns SWAPPED**, caught only by cross-checking against an independent read of the same file. **The lane confirms the trap is real and structural:** `yPlus.dat`'s own header column order is **`# Time  patch  min  max  average`** — **the maximum is the MIDDLE numeric column and the average is the LAST**, so any reader that takes the trailing column as the max reads the average instead. That is the exact inversion that occurred.
+
+#### 7. LIVE RUNS — **RE-DERIVED BY THE LANE AT ITS OWN CLOCK, 2026-08-28T16:20:49Z, AND THESE SUPERSEDE THE DICTATED 16:02:50Z FIGURES**
+
+**NEVER TOUCH EITHER. Reading a log is not touching a solver.**
+
+- **`T3_R_ff`** — pid **411911**, **8 ranks**, cwd `verification/runs/T-family/T3_runs/R_ff` (both confirmed live from `/proc/411911/cwd`). Iteration **90,557 of 118,000 (76.74%)**, **20,878.7 core-min**, from `log.solve`'s own `ExecutionTime` count and trailing `ClockTime`. Launch **2026-08-26T20:51:28Z** (re-derived from process elapsed time; the dictated 20:51:29Z agrees to **1 s**). Cap-stop **2026-08-29T05:56:29Z** (launch + 205,500 s, arithmetic confirmed).
+  - **THE NEWS IS GOOD AND HAS IMPROVED SINCE THE DICTATION.** Lifetime mean **1.7292 s/iter**. **Recent rate over the last 10,000 iterations: 1.4408 s/iter** — materially faster than the dictated recent 1.6730, and the lane's own 37,444-iteration window gives **1.6528**, agreeing with the dictated 1.6730 to about 1%. **Required rate to beat the cap is 1.7833 s/iter.**
+  - **At the lifetime mean it finishes 2026-08-29T05:31:43Z, INSIDE the cap by 24.8 min. At the recent 10k rate it finishes 2026-08-29T03:19:48Z, inside by 156.7 min.** *(The dictated projections were 05:08:46Z / +48 min and +20 min; the direction and the conclusion are unchanged, the margin has widened.)*
+  - **IT IS ON TRACK TO COMPLETE RATHER THAN CAP-STOP, BUT THE LIFETIME-RATE MARGIN IS STILL UNDER HALF AN HOUR AND I DO NOT PROMISE IT.**
+
+- **`T16_MC_f`** — pid **1716924**, **1 rank**, cwd `verification/runs/T-family/T16_runs/T16_MC_f`. Iteration **16,523 of 40,000 (41.31%)**, **840.2 core-min**. Launch **2026-08-28T02:21:03Z** (re-derived; dictated 02:21:04Z, agrees to **1 s**). Cap-stop **2026-08-29T18:21:04Z**. At the lifetime mean **3.0511 s/iter** it finishes **2026-08-29T12:14:39Z, inside by 366.4 min**; at the recent 10k rate **2.7142** it finishes **10:02:50Z, inside by 498.2 min**. **It is NOT projected to cap**, so the pre-decided *"ungradeable as a rung if it caps"* does not bite.
+
+#### 8. RULE 12 CALIBRATION
+
+Four completions: **T5b 1.078**, **W1c 1.063**, **T15 0.915**, **T17_CY_c 1.701**. Aggregate **1,647.886 actual** vs **1,726.340 predicted** = ratio **0.955**, **$1.4089 DERIVED** at the owner-stated **$0.0513/core-h** — **DERIVED, NOT MEASURED; the box cannot read its own billing.**
+
+*Lane re-derivation:* the aggregate is **internally consistent** — 451.833 + 0.002833 + 1195.817 = 1647.653, so T17_CY_c contributes **0.233 core-min** actual against **0.137** predicted (ratio 1.701, reproduces); 419.118 + 0.002666 + 1307 + 0.137 = 1726.258 against the boarded 1726.340. **1647.886/1726.340 = 0.95455**, and 1647.886/60 × 0.0513 = **$1.40894**. All reproduce.
+
+**T17's LEVEL-DEPENDENT UNDER-PREDICTION.** With `CY_f` now complete the T17 ratios read **1.70 (`CY_c`), 1.68 (`CY_m`), 2.14 (`CY_f`)** — **the borrowed-T14-rate under-prediction GROWS WITH LEVEL.** It must not be quoted as a constant ~1.7x factor.
+
+**T15's CALIBRATION ROW IS OWED AND UNDISCHARGED.** Predicted POINT **1,307 core-min** against actual **1,195.817** from `STATUS.T15_UP_f` = ratio **0.915**. **It is owed to `docs/COST_CALIBRATION.md` WHICHEVER WAY THE RE-GRADE QUESTION IN §10 IS SETTLED, because the compute was spent either way.** Not yet landed as of this write.
+
+**THE CAVEAT THAT MATTERS: an aggregate of 0.955 built from components spanning 0.915 to 1.701 is OFFSETTING ERRORS, NOT CALIBRATION QUALITY, and must not be quoted as though the lab predicts well.**
+
+#### 9. RUNGS WITHOUT VERDICTS, NAMED EVEN WHERE EMBARRASSING
+
+- **T15** — `BLOCKED` on the comparator defect.
+- **T16** — `MC_c` and `MC_m` DONE, `MC_f` running, **rung ungraded**.
+- **T3_R_ff** — running.
+- **T17** — `CY_c` complete and **ungraded**; **`CY_f` now COMPLETE (rc=0, 4.683 core-min, clean) and ungraded**; `CY_m` / `CY_f_CT` enqueued.
+- **T18 and T19** — frozen, built, **never run**. **T18's launcher `run_one_t18.sh` has NEVER launched anything** and needs its own cheap smoke before enqueue, **which I have NOT authorised.**
+
+#### 10. ON SANAA'S DESK
+
+Carried forward: the `heat-transfer_GRID.md` write-out permission, **still classifier-denied and NOT delegated** — delegating a denied action is laundering; verification's §2f.3 referral; the runner cap-enforcement switch-on; the `LAUNCH_LOG.tsv` dilemma; the 19 queue fossils.
+
+**NEW (i).** Item **5(a)** above — the **`<` vs `<=` age-guard divergence** — is a **LAB-WIDE INSTRUMENT-SEMANTICS question touching every family that copied the pattern**, and it is **REFERRED, NOT SETTLED**: **I will not re-grade a corpus on my own reading, and retiring or widening a gate clause is not an agent's call.**
+
+**NEW (ii) — MAY A T15b SUCCESSOR RE-GRADE THE EXISTING T15_UP_f ARTIFACTS, OR IS A FRESH RUN REQUIRED? REFERRED, WITH A RECOMMENDATION ATTACHED SO THE DESK HAS SOMETHING TO ACT ON RATHER THAN A BARE QUESTION.**
+
+**THE QUESTION AND WHY IT ARISES.** Diagnosing the `:501` arm **REQUIRED computing `ref`, and `ref` IS S1**. So **`S1 = 1.9909386169553251e-04` is now KNOWN**, and **it lies INSIDE the frozen PASS band `[0, 0.020]`** — the lane confirms the containment arithmetically. The lane asked whether a T15b successor may re-grade the **existing** artifacts, or whether a fresh run is required.
+
+**THE SUPERVISOR'S REASONING, boarded because the distinction is the whole of it.** The **BAND** was frozen at `0d2dc150`-era registration on **2026-08-26**, **BEFORE the run and before anyone could know S1**. So **rule 2's entire evidentiary content — that the gate could not have been chosen to fit the answer — IS INTACT FOR THE BAND**, and the draft carries **S1/V1/V2/V3 over VERBATIM**, so **no threshold moves**. **WHAT IS NOT INTACT IS ANALYST BLINDNESS.** And **the real exposure is NOT the band at all**: it is that **T15b introduces FOUR NEW CONTROL ARMS** — **C-1** scale-blindness, **C-2** mean-sensitivity, **C-3** non-degeneracy, **C-4** sign precondition — **whose thresholds could be chosen, consciously or not, so that this particular dataset passes them.** **That, and not the band, is what a reader should be suspicious of.**
+
+**THE RECOMMENDATION, REFERRED RATHER THAN APPLIED:**
+
+1. **T15b SHOULD be permitted to re-grade the existing artifacts** — **no fresh 1,195.817 core-min run is needed** — **PROVIDED ALL FOUR** of:
+   - **(a)** the **S1/V1/V2/V3 bands are carried over VERBATIM**, which the draft already does;
+   - **(b)** **EVERY new control-arm threshold is derived from that arm's OWN closed-form mathematics and NEVER from any `T15_UP_f` value**, with **the derivation stated in the registration beside each threshold** — **C-2's grading against the closed form `ref*mean/(mean+c)` with a ±10% band is the model to follow**;
+   - **(c)** **T15b declares IN ITS OPENING LINES that S1's value was known at drafting time**, so **no reader can mistake it for a blind re-grade**;
+   - **(d)** the repair is registered under **`VERIFICATION_CHARTER.md` §2d.1's four-condition repair exception**, **which is VERIFICATION'S clause to apply and not heat-transfer's**.
+2. **IF verification judges the known value contaminates the new arms irretrievably, the fallback is a FRESH RUN**, and it is **costed so the decision is not made on a guess**: **1,195.817 core-min = $1.0224 DERIVED** at $0.0513/core-h. **That is affordable and it is NOT a blocker. Nobody should accept a weaker instrument on the grounds that a re-run is expensive, because it is not.**
+
+**WHY REFERRED RATHER THAN DECIDED:** it **sets a cross-family precedent about §2d.1**, **that clause belongs to verification**, and this charter **sends anything that would repair or widen a frozen gate clause upward**. **This is the same disposition taken on the `<` vs `<=` divergence and for the same reason — I will not re-grade or re-license a corpus on my own reading.**
+
+#### 11. VERIFY / CANNOT SEE
+
+- **No lane and no supervisor re-derived T5b's face-averaged `h` or `T_sur` values** — the grader computed and discarded them at clause 1.
+- The **stagnation-peak mechanism** for `cube_front` is a **HYPOTHESIS**, not a measurement.
+- The **contention share of T5b's 7.78% overshoot is UNATTRIBUTED**, because **no per-run load record covers 2026-08-27T22:31Z – 2026-08-28T08:02Z**.
+- **The dictation's open question — whether `analyse_t15.py`'s own selftest exercises the defective S1 arm — IS CLOSED by the lane driving it TO COMPLETION, and it closes AGAINST the instrument** (§2). The run terminated with **`SELFTEST PASS (0 failed)`** and **no failing check**.
+- **Minor unresolved tally.** The supervisor states the selftest carries **15 checks**; the lane counts **18** lines matching an `[ok ]`/`[FAIL]` prefix, of which **5 are nested sub-checks** under the imported-Roache-floors block. **The difference is a counting convention, not a disagreement about any outcome**, and the lane did not settle it. **Immaterial to every finding above.**
+- **The lane's magnitude figures for the `epsilon/ref` excursion (§2, Correction 2) run one to two decades BELOW the supervisor's at comparable `ref`, and the difference is UNRESOLVED** — the lane drew synthetic Gaussians, the supervisor drove the frozen path. **The lane's are the weaker figures and are boarded only as confirmation of the SCALING.**
+- **The lane did NOT independently reproduce** the negative-mean regime (`d_const = 1.33e+12` at `mean = -0.6`), the 300-draw / 39% fire rate, the 6,827 / 1,327,727 / 8.8e7 ulp figures, the `ref=1e-1 → 7%` by-regime rates, or the `T15_PREREGISTRATION.md` §5 *"0 to 0.037"* quotation. **These are the supervisor's and the scope lane's measurements, relayed and labelled as such.** The lane DID independently reproduce, from the selftest's own output: **the five arm firings, the three vacuous `ref = 0` cases, the two boundary cases and their exact `d_const == 0.5*ref` identity, both non-vacuous S1 values, the registered band `[0, 0.020]`, and `SELFTEST PASS (0 failed)`.**
+- **The 2-site difference in the strict-`<` age-guard count (26 dictated, 28 under the lane's looser pattern) is UNRESOLVED** — the lane did not read all 28 sites to classify them.
+- The **refinement ratios used for the y+ orders in item 6 were INFERRED** from the dictated orders' internal consistency, **not read from the T5b registration.**
+- The **idle arithmetic in item 3** (5 admissible slots, 9.02 busy cores, 2,491 core-min) is the **supervisor's measurement**; the lane confirmed only that **pid 1120800 is the live queue-runner daemon**, not the slot census.
+
+
 ##### ADDENDUM 2026-08-27T22:40:40Z — **W1c FROZEN, BUILT, ENQUEUED AND COMMITTED-BEFORE-DROP; THE T13 §2h FLIP STOPPED AS UNAUTHORISED; THE QUEUE-CENSUS ARITHMETIC FULLY ACCOUNTED, NO THIRD DEFECT; AND SIX OF THIS SUPERVISOR'S OWN ASSERTIONS OVERTURNED**
 
 *Rulings dictated by the heat-transfer supervisor. **EVERY MEASUREMENT BELOW WAS DERIVED BY THE LANE FROM THE ARTIFACT, NOT TRANSCRIBED** — the supervisor's corrected practice, applied to its own closing board write. Where a dictated figure did not reproduce, the derived value is boarded and the difference named. Stamp from `date -u` in the writing invocation; spliced from the HEAD blob per L-333, insert point computed dynamically, deletions asserted == 0 as a NUMBER before and after.*
