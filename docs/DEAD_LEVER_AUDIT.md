@@ -1661,3 +1661,162 @@ who is at fault, and the state is what the next supervisor awake needs to see fi
 entries at `verification/queue/<team>/`, not into `held/`** — and the two GPU cases need
 `gpu: exclusive` added before either is made ready, or §8.1's lever stays dead on exactly the
 run it was built for.
+
+---
+
+## §9 — THE 27 NON-ansys CANDIDATE SITES ARE READ AND RULED; A **NEW DEFECT CLASS** IS FOUND THAT IS NOT ABOUT ORDERING AT ALL; AND §7.5's PUBLISHED FIGURE IS CORRECTED UPWARD BECAUSE MY INSTRUMENT WAS BLIND TO A SHAPE (2026-08-28T16:40Z)
+
+**Zero compute. Lane reading, supervisor verification of both big claims at source
+(`SUPERVISION_CHARTER` §3 check 3 — verified before belief, not after relay).**
+
+### §9.1 THE RULING ON THE 27
+
+**LIVE 0 · LATENT 9 · BENIGN 17 · DISPLAY-ONLY 1.**
+
+**The zero-LIVE result is the absence of an INTERSECTION, not the absence of a hazard.** Across
+**5,039** function-object directories lab-wide, **774 are multi-member** and **492** have
+`sorted(kids)[-1] != sorted(kids, key=float)[-1]` — the disk is thoroughly armed
+(`verification/runs/ansys_verification/VMFLGPU003/gpu/L3_80x160/postProcessing/bisector`, 3,500
+dirs, lexicographic `'999'` against numeric `'3500'`). **Restricted to the seven FO names the
+27 sites actually read**, 664 directories yield 90 multi-member and **exactly 2** divergent —
+both `postProcessing/forceCoeffs1` at n=3, `lex='5000'` vs `num='10000'`
+(`verification/runs/W1_runs/medium`, `/home/ubuntu/certonomous-runs/w1-bump-nasa-grids/medium`)
+— and **neither is reachable from any of the 27.** The same reader over all FO names in the
+same pass returned 492, **so the 2 is a measurement and not a blind scan.**
+
+**The 12 `cases/dafoam/` sites are BENIGN for a reason that is not the obvious one.** They are
+**not** cardinality-1 by construction — a re-run of an arm adds a second log. They are benign
+because **the ordering key IS the ordering the physics means**: the launchers
+(`so1c_run_arm.sh:472-475`, `d8r_run_arm.sh:295-298`) write `${ARM}_${STAMP}.log` with a
+**fixed-width zero-padded ISO-8601 UTC stamp** after an identical prefix, so lexicographic order
+**is** chronological order. **That is limb F's repair shape reached by naming convention instead
+of a numeric key** — a third independent arrival at the same answer, after the 24
+`mark_done_*.py` and `grade_vmfl076.py`.
+
+**Its one residual, demonstrated rather than assumed:** on a same-second tie the sort falls
+through to a **variable-width pid tail**, and `…T010000Z_100.log` sorts **before**
+`…T010000Z_99.log`. Reaching it needs two launches of one arm inside one second, which the
+serial chain drivers make unreachable — **but that is a reading, `NOT MEASURED`.** Severity if
+it fired is not cosmetic: the chosen log's missing `TERMINAL[arm]` produces `refuse("G1")`, a
+**rule-4 completion decision.**
+
+**The 9 LATENT are all `verification/runs/` F3/F4/DPW8/F3S sites** whose FO dirs are
+single-member today and whose values reach `grade_f3.py` / `grade_f3s.py` verdicts
+(`beta_computed_deg`, `p_wall_mean`, `cd_computed`). **The F3S multi-member dirs (156–406) are
+non-divergent for a FRAGILE reason worth recording: every time falls in 0.002–3.12 s and
+4.5–6.0 s, so no `9.x` ever stands against a `10.x`. That is the VALUE RANGE, not the code** —
+a longer run arms them.
+
+### §9.2 ⚠⚠ THE SHARPEST DEFECT IN SCOPE IS **NOT ABOUT ORDERING**, AND IT SITS IN A **FROZEN** GRADER — VERIFIED PERSONALLY
+
+`verification/runs/F3_runs/successor_triple_2026-08-26/grade_f3s.py:239`, read at source:
+
+```python
+    cands = sorted(f for f in os.listdir(d) if f.endswith(".raw") and "p" in f)
+    ...
+    path = os.path.join(d, cands[0])
+```
+
+with the same selector twice in its driver — `run_f3s.py:255` and `:287`,
+`sorted(glob.glob(os.path.join(surfd, "*p*.raw")))[0]`.
+
+**The `[0]` is a red herring. The defect is that the SELECTOR is not unique, and the code
+assumes it is.** OpenFOAM's `surfaces` writer emits **one file per field**, so a time directory
+genuinely holds `p_coneSurface.raw`, `rho_coneSurface.raw`, `T_coneSurface.raw`. **`"p" in f`
+matches exactly one of those ONLY because no surface name and no other sampled field name
+happens to contain the letter `p`.**
+
+**Driven, not argued** — the ASCII ordering decides which wrong file wins:
+
+| surface name | files matching `"p" in f` | `sorted(...)[0]` | |
+|---|---|---|---|
+| `coneSurface` | 1 | `p_coneSurface.raw` | correct |
+| `wedgeSurface` | 1 | `p_wedgeSurface.raw` | correct |
+| **`rampSurface`** | **3** | **`T_rampSurface.raw`** | **⚠ TEMPERATURE** |
+| **`upperSurface`** | **3** | **`T_upperSurface.raw`** | **⚠ TEMPERATURE** |
+
+`'T'` is 84 and `'p'` is 112, so **`T_` sorts first and wins.** Rename the surface to anything
+carrying a `p` — `rampSurface`, `upperSurface` — or add `p_rgh` or `Cp` to `fields`, and
+**a temperature field is read into `p_wall_mean` and graded against a pressure band.** It is
+dimensionally silent and numerically plausible: nothing in the record would look wrong.
+
+**AND THE PREMISE THE SELECTOR RESTS ON IS ALREADY FALSE ELSEWHERE ON THIS DISK.** Enumerating
+every `.raw` basename under `F3_runs` and `/home/ubuntu/certonomous-runs`:
+**`wallShearStress_plate.raw`** and `wallShearStress_bottomWallDownstream.raw` are non-pressure
+names **containing `p`**. The uniqueness is therefore **not a property of the lab's naming
+convention** — it is a property of **which fields that one `surfaceSampleDict` happens to
+write**, which is exactly the kind of premise nobody re-checks when editing a dict.
+
+**CLASS, and it is new to this audit: A SELECTOR ADMITTING MORE THAN ONE MEMBER WHERE THE CODE
+ASSUMES EXACTLY ONE — DISAMBIGUATED BY LUCK OF NAMING RATHER THAN BY A GUARD.** Its relatives
+here (`§6`, `§7`) are about **which member of a set is chosen**; this one is about **the set
+having members it was never meant to contain.** The cure is the cure §7.4 already named for a
+different reason: **a cardinality guard on the set that decides the answer** —
+`len(cands) != 1 → refuse` — which `grade_vmfl076.py:678` already does for its inner file set
+and which this grader does not.
+
+**NOT REPAIRED, and the ground is rule 2.** `grade_f3s.py` is a **frozen comparator** and F3S
+has computed. A post-compute edit is barred. **Disclosed, declined, reasoned** — as with §5.3.
+Repair belongs in a successor; the driver `run_f3s.py` is the unfrozen half and is `cfd`'s.
+
+### §9.3 ⚠ §7.5's FIGURE IS CORRECTED UPWARD: THE INSTRUMENT WAS BLIND TO A SHAPE, AND IT WAS **THIS TEAM'S OWN HEADLINE FINDING**
+
+§7.5 published **77 candidate sites in 28 files**. **That was an understatement**, and the
+omission was found **by a lane reading code, not by the instrument.**
+
+`so1c_grade.py:907-909` is
+
+```python
+    for cand in sorted(glob.glob(os.path.join(root, "MESH_*.log"))):
+        mine_src = cand
+```
+
+— a **LAST-WINS selection with no subscript anywhere.** Ordering decides the answer exactly as
+`[-1]` does, and **nothing is indexed**, so a subscript-based detector is *structurally* blind.
+**Confirmed by running the census against that file: not flagged.**
+
+**The sting is that this is the `mine` side of `G-MESHID`, this team's own headline dafoam
+finding, recorded at §6.2 and on the board since 2026-08-27.** §6.11 already noted the earlier
+sweep *"MISSED `so1c_grade.py:907` — the `mine` side of its own headline finding — found by
+reading". **The successor instrument reproduced the same blind spot from a different direction,
+and again a human reading found it.** Twice is a pattern: **the shapes this lab's detectors miss
+are the ones its readers keep finding, which is an argument for reading, not for a third
+detector.**
+
+**Corrected.** `visit_For` now detects assign-in-loop-over-sorted, and the shape is **limb G of
+a committed seven-limb `--selftest`** (all seven pass; **C, D and F must stay silent**).
+
+**Recounted lab-wide: 78 sites in 28 files** — 50 ansys, 15 `verification/runs/`, **13**
+`cases/dafoam/` (was 12).
+
+**AND THE HONEST SIZE OF IT, STATED SO THE CORRECTION IS NOT OVERSOLD: closing the blind spot
+added exactly ONE site.** The gap was **real and qualitatively serious** — the census's 77 was
+**not a superset of the lab's known ordering-key defects**, which is a disqualifying property
+for a census — and it was **quantitatively worth one row**, on a defect already known by other
+means. **Both facts are the finding.** A correction that reported only the first would inflate
+it; one that reported only the second would excuse it.
+
+### §9.4 RELAYED, NOT RULED — `cases/dafoam/` IS NOT THIS TEAM'S TERRITORY
+
+**`SO1a`'s run root now EXISTS** — 5 arm logs stamped 2026-08-28T02:17–02:28Z at
+`/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient`. The dafoam record
+at `3fa8cc22` states *"no SO1a, SO1b or SO1c run root exists and zero such containers have ever
+existed"*, verified at 23:1xZ. **That was true when written; SO1a has since run.** SO1b and
+SO1c roots remain absent, so **the rule-2 condition as it applies to those two still holds.**
+Relayed to `dafoam` as a fact whose consequences are theirs.
+
+### §9.5 `NOT MEASURED`
+
+- Whether two launches of one dafoam arm can land inside one second (the pid tie-break's arming
+  condition). Read and judged unreachable; **the case was not constructed.**
+- Whether `DPW8_V2_runs` L4 is gated anywhere but `analyse_l4_diag.py`, whose `:465` reads
+  *"NOT gate verdicts. L4 remains NOT GATED."* Its two sites are classed **LATENT on the
+  verdict-shaped path — the conservative call.** If L4 is permanently ungated they fall to
+  DISPLAY-ONLY and **LATENT drops from 9 to 7.**
+- Whether the 11 remaining ansys "SAFE" sites are safe **for the reason claimed** — open since
+  `3c751f8a` §7.4, unchanged.
+- The lane records **a false zero of its own**: an inner-set scan used `**` globs without
+  `recursive=True` and returned *"0 dirs scanned"* for F4 and all four F3S sites. **A reader
+  defect, not a finding** — re-measured with explicit paths (126 and 1,173 dirs) and a positive
+  control on the same code path before any `1` was trusted. **Recorded because a lane that
+  reports its own dead reader is doing the thing this audit exists to make normal.**

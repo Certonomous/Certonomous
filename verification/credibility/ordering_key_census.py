@@ -84,6 +84,29 @@ class V(ast.NodeVisitor):
                 self.binds[node.targets[0].id] = (kind, expr, node.lineno)
         self.generic_visit(node)
 
+    def visit_For(self, node):
+        """ASSIGN-IN-LOOP-OVER-SORTED: `for c in sorted(...): name = c` is a
+        LAST-WINS selection with NO SUBSCRIPT ANYWHERE.  Ordering decides the
+        answer exactly as `[-1]` does, and nothing is indexed, so a
+        subscript-based detector is structurally blind to it.
+
+        FOUND BY A LANE READING CODE, NOT BY THIS INSTRUMENT, on the shape of
+        this team's OWN headline dafoam finding (so1c_grade.py:907-909).
+        The census's published figure was an UNDERSTATEMENT for that reason.
+        """
+        if isinstance(node.iter, ast.Call) and isinstance(node.target, ast.Name):
+            kind, expr = self._classify_call(node.iter)
+            if kind in ('LEXICAL', 'UNORDERED'):
+                tgt = node.target.id
+                for st in node.body:
+                    if isinstance(st, ast.Assign) and len(st.targets) == 1 \
+                       and isinstance(st.targets[0], ast.Name) \
+                       and isinstance(st.value, ast.Name) and st.value.id == tgt:
+                        self.sites.append(
+                            (st.lineno, '%s = for-last-wins over %s' % (st.targets[0].id, expr),
+                             kind, 'assign-in-loop@%d unguarded' % node.lineno))
+        self.generic_visit(node)
+
     def visit_Subscript(self, node):
         idx = ast.unparse(node.slice) if hasattr(ast, 'unparse') else '?'
         v = node.value
@@ -206,6 +229,14 @@ def r(d):
     hits = sorted(glob.glob(pat))
     if not hits: raise SystemExit(1)
     return hits[-1]
+''', True),
+    ("G pos: ASSIGN-IN-LOOP last-wins, NO SUBSCRIPT (blind spot until 2026-08-28)", '''
+import glob, os
+def r(root):
+    src = None
+    for cand in sorted(glob.glob(os.path.join(root, "MESH_*.log"))):
+        src = cand
+    return src
 ''', True),
     ("F neg: numeric key over the same directories -- THE REPAIR SHAPE", '''
 import os
