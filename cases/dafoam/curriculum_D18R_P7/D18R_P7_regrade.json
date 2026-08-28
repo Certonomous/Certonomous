@@ -1,0 +1,74 @@
+{
+ "item": "CURRICULUM-D18-R-P7",
+ "subject": "ONE registered prediction (P7) of CURRICULUM-D18, re-graded from its preserved grade JSON",
+ "P7_original_recorded": "MISS",
+ "P7_original_recomputed": "MISS",
+ "P7_corrected": "HIT",
+ "moved": true,
+ "sn_original": 19.869056971069952,
+ "sn_corrected": 0.13831072288719595,
+ "signal_original_pct": 64.39527107787734,
+ "signal_original_component": [
+  "shape",
+  3
+ ],
+ "signal_corrected_pct": 0.4482626682416995,
+ "signal_corrected_component": [
+  "shape",
+  1
+ ],
+ "noise_pct": 3.2409827588515716,
+ "noise_component": [
+  "shape",
+  0
+ ],
+ "signal_set": [
+  [
+   "shape",
+   0
+  ],
+  [
+   "shape",
+   1
+  ],
+  [
+   "shape",
+   4
+  ],
+  [
+   "shape",
+   5
+  ]
+ ],
+ "excluded_components": [
+  {
+   "component": [
+    "shape",
+    3
+   ],
+   "divergence_pct": 64.39527107787734,
+   "shipped_verdict": "NOT A RESULT",
+   "patched_verdict": "NOT A RESULT"
+  }
+ ],
+ "threshold_P7_SN_min_to_discriminate": 1.0,
+ "item_verdict_UNCHANGED": "PASS",
+ "item_verdict_recomposed_from_the_six_registered_inputs": "PASS",
+ "item_verdict_composition_inputs": [
+  "PASS",
+  "PASS",
+  "PASS",
+  "PASS",
+  "PASS",
+  "PASS"
+ ],
+ "item_verdict_note": "d18_grade.py:596-601 reads two row verdicts, G-M2, G9, G10, G12 and NOTHING from `preds`; P7 is structurally incapable of moving it. Recomposed here from the preserved JSON and matched to the recorded verdict.",
+ "buys_nothing_about": [
+  "physics",
+  "mesh",
+  "grid convergence (no grid family; NO GCI)",
+  "the shipped-vs-patched toolchain comparison as a physical finding",
+  "the capability grid census"
+ ],
+ "source_grade_json": "/home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic/D18_grade_20260828T032852Z.json"
+}

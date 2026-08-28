@@ -1,0 +1,21 @@
+D18R-P7 BIRTH CONTROL -- real producer, real preserved root, both directions
+date_utc=2026-08-28T17:26:03Z
+d18_grade.py md5   = e4ade11ed9e3db18d2c4988b30e929b4
+successor md5      = d8f1811e9815eb2a4b0f13d94d5cdb12
+this control md5   = dd944b86931673bb33af5f7dea37e824
+preserved artefact = /home/ubuntu/certonomous-runs/CURRICULUM-D18-cone-hypersonic/D18_grade_20260828T032852Z.json
+  [OK ] ARM0 frozen grader rc on an unperturbed copy of the preserved root  (0)
+  [OK ] ARM0 REPRODUCTION: predictions + verdict + divergence identical to the landed grade  (SAME)
+  [OK ] ARM A frozen grader rc with a 1000x plant on the SHIPPED shape[3] adjoint  (0)
+  ARM A read: P7_corrected=HIT P7_original=MISS signal=shape[1] moved=True excluded=1 item=PASS sn_corr=0.1383 sn_orig=30.8439
+  [OK ] ARM A MUST-NOT-FLAG: successor STAYS HIT on a planted divergence at a NOT A RESULT component  (HIT)
+  [OK ] ARM A the ORIGINAL formula on the SAME producer-emitted JSON says MISS (defect live)  (MISS)
+  [OK ] ARM A the successor's signal is a GRADED component, not the planted one  (shape[1])
+  [OK ] ARM A exactly one component excluded  (1)
+  [OK ] ARM B frozen grader rc with a 1.5x plant on the SHIPPED shape[1] adjoint  (0)
+  ARM B read: P7_corrected=MISS P7_original=MISS signal=shape[1] moved=False excluded=1 item=GATE_FAIL sn_corr=10.3772 sn_orig=19.8691
+  [OK ] ARM B MUST-FLAG: successor moves P7 to MISS on a planted divergence at a GRADED component  (MISS)
+  [OK ] ARM B the successor's signal IS the planted component  (shape[1])
+
+BIRTH CONTROL PASS -- the reader was shown able to see a non-zero AND to stay silent,
+both through the real producer on the real preserved root. failures=0
