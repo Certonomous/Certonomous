@@ -988,3 +988,210 @@ pre-registration commit (rule 2) — and costed it **nowhere** (rule 12). **§5.
 than silently corrected. **Neither the ladder cap nor any gate, band, threshold, tolerance
 or label moved: the ladder cap is 293.0 core-minutes exactly as before, and the
 pre-ladder arms are capped separately at 20.0.**
+
+---
+
+## AMENDMENT 1 — 2026-08-28T17:08Z (PRE-COMPUTE) — Sanaa's control-birth directive: the `blockMesh`-path wedge control becomes **GATING**, and the arm-acceptance reader gets its own birth control
+
+**Version 1.1. Lines whose number changed above this section: 0 — MEASURED, not recited.**
+This block is appended at the foot. The 990 lines above it are byte-identical to their
+state at the freeze commit `57d31dde`, asserted by taking the **md5 of the frozen blob**
+(`git show 57d31dde:verification/campaign/F23b_HP_WEDGE_PREREGISTRATION.md`) and the
+**md5 of the first 990 lines of this file after the append**, and requiring them equal.
+The two digests are printed in the amendment record at the foot of this block. **The
+assertion is measured because F23b's frozen sha is cited elsewhere and a line shift above
+this point would break those citations.**
+
+### A1.1 THE RULE-2 CONDITION, AND HOW IT WAS CHECKED
+
+Rule 2: *"Before first compute, amendments are legal and must state the condition and how
+it was checked (name the run directory that does not exist)."*
+
+**The run directory that does not exist is `verification/runs/F23b_HP_WEDGE_runs`.**
+Checked by this lane at **2026-08-28T17:07:38Z**, `test -e` on the path: **ABSENT**. So
+were `cases/F23b_HP_WEDGE` and `verification/runs/F23b_runs`. `find verification/runs
+-maxdepth 1 -name 'F23b*'` returned **0** entries. The frozen commit `57d31dde` itself
+tracks **0** paths under `cases/F23b/`. Out-of-tree run roots by name:
+`/home/ubuntu/certonomous-runs` (553 entries) **0**, `/home/ubuntu/closure-data` (25)
+**0**, `/home/ubuntu/closure-challenge-benchmark` (7) **0**.
+
+**PLANTED CONTROLS ON BOTH READERS (rule 3).** The same `test -e` loop returned
+**PRESENT** for `verification/runs/F23_HP_WEDGE_runs` and for this file's own path; the
+same tracked-path matcher returned **20** for `F23_HP_WEDGE` at commit `57d31dde`. Both
+readers can return a non-zero, so their zeros are evidence.
+
+**0.000 core-minutes have been spent on this rung. No `LAUNCHED` line exists. F23b is
+pre-compute and this amendment is legal.**
+
+### A1.2 THE DIRECTIVE, VERBATIM
+
+Sanaa, 2026-08-28T17:01Z
+(`etc/sessions/2026-08-28T1701Z_sanaa_directives_control_regrade_freezeahead.md`):
+
+> A control defined in terms of the thing it controls is not a control. A planted control
+> must travel the real production path — written by the real producer's code, read through
+> the real reader — and prove the instrument sees a non-zero the same way reality would
+> deliver one. A control that empties the tuple it tests, or writes a schema the producer
+> never emits, tests nothing and certifies blindness. Companion rule canonized: rule 3's
+> question — "was this reader ever shown able to see a non-zero through the real code
+> path?" — is now the birth requirement for every reader/comparator: no instrument grades
+> anything until that answer is yes, demonstrated.
+
+### A1.3 WHY IT REACHES F23b — the gap was this lane's own disclosure
+
+§4.4 registered the points-level plant as **driven** and the `blockMesh`-path plant as
+*"required of the code lane"*, and this lane's report said in terms: *"The wedge control
+is driven at the POINTS level; the production control through `blockMesh` with a
+perturbed `__HALF_ANGLE_DEG__` is specified for the code lane, not driven by me."*
+
+**A points-level plant is not written by the real producer's code.** In production the
+wedge geometry is emitted by **`blockMesh`** from `blockMeshDict`, and `G-WEDGE` reads
+what `blockMesh` produced. A perturbation injected downstream of `blockMesh` proves the
+**reader** sees it; it does not prove the guard sees a perturbation **the way reality
+would deliver one** — through a mis-set `__HALF_ANGLE_DEG__` flowing through the
+builder's `math.cos`/`math.sin` into `__YW__`/`__ZW__` and then through `blockMesh`'s own
+vertex arithmetic, which may round, snap or renormalise where a direct z-scale does not.
+
+### A1.4 WHAT CHANGES — the `blockMesh`-path control becomes GATING (§4.4, §8)
+
+**`G-WEDGE` MAY NOT GRADE ANYTHING UNTIL THE `blockMesh`-PATH CONTROL HAS BEEN DRIVEN,
+BOTH DIRECTIONS, AND PASSED.** Items **A4–A7** of §9.0 — already registered and already
+costed as real `blockMesh` builds — are hereby **gating controls**, not preparatory work.
+
+**The refusal condition on the instrument.** The driven control writes a receipt
+`cases/F23b_HP_WEDGE/GWEDGE_CONTROL_RECEIPT.txt` carrying, per level: the plant
+magnitude, the limb-1 reading on the **perturbed** mesh, the limb-1 reading on the
+**unperturbed** mesh, the `blockMesh` and `checkMesh` log paths, the UTC timestamp, and
+the `--prereg-commit` sha it ran under. **`build_f23b.py` and `grade_f23b.py` both read
+that receipt at entry and REFUSE (exit 2)** if it is absent, if any reading falls outside
+the bands below, or if its recorded sha is not this document's freeze sha. **The guard
+refuses rather than passing — an undriven control certifies blindness, and a guard that
+cannot show it was born does not grade.**
+
+**Both directions, through that same real path, stated numerically so a later reader can
+check the control FIRED rather than take "control passed" on trust:**
+
+| level | direction | `__HALF_ANGLE_DEG__` written into `blockMeshDict` | required limb-1 reading `max\|angle/a − 1\|` | required outcome |
+|---|---|---|---|---|
+| coarse | **MUST REFUSE** | `0.04 × (1 + 3×1.215313e−05)` = **0.0400014584** | **3.645948e−05**, accepted in `[2.9, 3.1] ×` `TOL_REL_WEDGE` | **REFUSE** |
+| coarse | **MUST ACCEPT** | **0.04** exactly | **≤ 1.0e−08**; measured on the real mesh **1.895413e−10** | **ACCEPT** |
+| fine | **MUST REFUSE** | `0.04 × (1 + 3×7.142188e−07)` = **0.0400000857** | **2.143442e−06**, accepted in `[2.9, 3.1] ×` `TOL_REL_WEDGE` | **REFUSE** |
+| fine | **MUST ACCEPT** | **0.04** exactly | **≤ 1.0e−08**; measured on the real mesh **7.569059e−10** | **ACCEPT** |
+
+**Separation margin between the two directions: ×1.924e+05 at coarse and ×2.832e+03 at
+fine.** The must-accept limb is what stops this being a guard that refuses everything.
+
+**Why the band is `[2.9, 3.1]×` and not "exactly 3.000×".** The points-level plant scales
+z linearly and returned 3.000× (coarse) and 3.001× (fine). The `blockMesh`-path plant
+enters through the trigonometry instead — `tan(a(1+p))/tan(a) = 1 + p + O(a²p)` — so the
+two paths agree only to `O(a²)` of the plant. **The band is registered wide enough to
+admit that difference and narrow enough that a control which silently failed to plant
+cannot pass through it.** A reading below 2.9× is a plant that did not travel; a reading
+above 3.1× is a plant that travelled differently than registered. Both refuse.
+
+**The points-level control is RETAINED, and it is the WEAKER limb.** §4.4's table stands
+unaltered. It is retained because two controls at different depths are worth more than
+one, and it is **explicitly the weaker of the two**: it exercises the real reader on a
+real mesh but **not the real producer**, so it can certify that the reader sees a
+perturbation while remaining silent about whether the builder can deliver one.
+**The `blockMesh`-path control of this amendment is the load-bearing one; the
+points-level control is corroboration and may not substitute for it.**
+
+### A1.5 THE ARM-ACCEPTANCE READER GETS THE SAME BIRTH REQUIREMENT (§5.5)
+
+The reader that decides ARM-P/ARM-F — the `|1 − Ubar|` and `Ux` initial-residual readings
+of §5.5's acceptance test — is an instrument that decides an outcome, so the directive
+binds it too.
+
+**The REJECT direction is ALREADY DEMONSTRATED, through the real production path, on real
+artifacts.** This lane drove that reader over F23's own completed levels: real
+`log.simpleFoam`, real `processor*/<time>/U`, real `processor*/0/V`, no synthesis
+anywhere. It read `|1 − Ubar| = 3.6251e−02` (coarse) and `4.2091e−01` (medium) at
+`endTime`, and `Ux` initial residual `2.540863e−05` and `1.494733e−04` — every one of them
+orders above the acceptance thresholds of 1e−10 and 1e−12. **The reader sees a non-zero
+the way reality delivers one, and rejects.** Recorded in §5.1.
+
+**The ACCEPT direction is NOT yet demonstrated, and is hereby registered as gating —
+item A0.** A reader shown only able to reject is L-396's constant in its other costume.
+
+| id | item | ranks | registered cost |
+|---|---|---|---|
+| **A0** | **arm-acceptance reader birth control** — 16 × 64 wedge (1,024 cells), the real chain `build_f23b.py` → `decomposePar` → `mpirun -np 4 simpleFoam -parallel`, 4,000 iterations, **under F23's α_U = 0.7 dictionary, deliberately** | 4 (+1 for the build) | **0.350 core-min** (build 0.050 + solve 0.294 at §9.1's measured coarse rate, **no `S` factor**, because that rate was measured under exactly that dictionary) |
+
+**Acceptance:** A0's real artifacts must drive the same reader to `|1 − Ubar| ≤ 1e−10` and
+`Ux` initial residual `≤ 1e−12`, and the reader must **ACCEPT**. **If A0 does not produce
+an accepting artifact the arm-acceptance reader is NOT BORN: ARM-P and ARM-F then REFUSE
+rather than accept-or-reject, and the rung is `BLOCKED`.**
+
+**Why A0 runs under the OLD dictionary, which is the point of it.** The accept side must
+not depend on the very thing ARM-P is testing. Were A0 run under §5.3's SIMPLEC settings
+and SIMPLEC failed, no accepting artifact could ever exist and the reader could never be
+born — **a control defined in terms of the thing it controls, which is the first sentence
+of the directive.** F23's §7 records that exact 16 × 64 configuration converging (`Ux`
+2.3e−16 by iteration 4,000), so it is the one configuration on this box already known to
+deliver a converged artifact. **The deviation is disclosed rather than buried: A0's
+relaxation factor differs from the ladder's. The producer, the file schema and the reader
+path are identical; only the relaxation differs, and it differs in the direction that
+makes the control independent of what it certifies.**
+
+### A1.6 COST — IT FITS INSIDE THE UNCHANGED PRE-LADDER CAP, AND HERE IS THE ARITHMETIC
+
+**A4–A7 add nothing: they were already registered and already costed in §9.0** (0.200
+core-min at coarse, 4.000 at fine). Making them gating changes their status, not their
+price. **A0 is the only new spend.**
+
+| | before this amendment | **after** |
+|---|---|---|
+| expected path | 5.804 | **6.154** |
+| **worst registered case** | 19.340 | **19.690** |
+| **REGISTERED PRE-LADDER CAP** | **20.0** | **20.0 — UNCHANGED** |
+| cap ÷ worst registered | ×1.034 | **×1.016** |
+| ladder cap / total rung cap | 293.0 / 313.0 | **293.0 / 313.0 — UNCHANGED** |
+
+**19.690 ≤ 20.0, so the cap is not raised and is not approached.** The wall allowances of
+§9.0's table are **outputs of §9.3's frozen formula**, and inserting a registered item
+ahead of ARM-P changes that formula's `SPENT_so_far` input exactly as the formula says it
+should — **this is the frozen arithmetic operating, not an alteration of it**:
+
+| arm | remaining pre-ladder cap | wall allowance | projected wall | headroom |
+|---|---|---|---|---|
+| **A0** | 20.000 | 300 s | 4.4 s | ×68.1 |
+| ARM-P | 19.550 | **293 s** (was 298) | 112.8 s | ×2.598 |
+| ARM-F | 12.030 | **180 s** (was 185) | 112.8 s | ×1.596 |
+
+Dollars **$0.0053 expected, $0.0171 at the unchanged cap — DERIVED, NOT MEASURED**.
+
+### A1.7 WHAT THIS AMENDMENT DOES **NOT** TOUCH — enumerated, not summarised
+
+**It makes one existing control gating and adds one control. It alters nothing else.**
+
+- **No gate.** `G-F23b-1`, `G-F23b-2` and `G-WEDGE`'s three limbs are unchanged in
+  definition, in quantity and in which artifact they read.
+- **No band.** `[2.376227e−06, 2.138605e−05]` and `[63.998628773, 64.001371227]` stand.
+- **No threshold and no tolerance.** `TOL_REL_WEDGE` (1.215313e−05 / 3.003125e−06 /
+  7.142188e−07), `TOL_CM`, `K_CM = 1.0`, `FLOOR_REL = 1e−08`, `PLATEAU_TOL`, the residual
+  floor 1e−12, the transverse floor 1e−10 × U_MAX and the arm acceptance thresholds
+  (1e−10, 1e−12, n ≤ 80) are all unchanged. **The `[2.9, 3.1]×` band of §A1.4 is a band on
+  a CONTROL's reading, not a gate on a graded quantity, and it did not exist before.**
+- **No cap.** Ladder **293.0**, pre-ladder **20.0**, total **313.0**, `CAP_RATIO = 1.4479`,
+  all unchanged. No cap is raised by any route.
+- **No label and no verdict word.** The vocabulary is untouched.
+- **No level, no rank count, no `N_ITER`, no `writeInterval`, no decomposition, no
+  dictionary value** in `fvSolution`, `controlDict`, `fvOptions`, `transportProperties` or
+  `blockMeshDict.template` — A0's relaxation is a **control's** setting, not the ladder's.
+- **No rate, no `D_fine`, no `S`.**
+- **No change to §6's registered prediction**, including the predicted verdict `PASS × 2`.
+- **No re-grade of F23**, whose record stands `NOT A RESULT`, and whose run root is read
+  **read-only** as C-7's and §A1.5's control artifact.
+- **Nothing is sent, filed, uploaded, posted or submitted** (rule 7).
+
+| amendment record | **v1.1** |
+|---|---|
+| gates / bands / thresholds / tolerances / caps / labels altered | **0** |
+| existing controls made GATING | **4** (A4–A7, the `blockMesh`-path wedge control, both levels, both directions) |
+| controls added | **1** (A0, the arm-acceptance reader's accept-side birth control) |
+| new spend registered | **0.350 core-min**, inside the unchanged 20.0 pre-ladder cap |
+| lines whose number changed above this section | **0** |
+| md5 of the frozen blob at `57d31dde` | `4074e8981e9ae34a5f03f49b2d4b21ed` |
+| md5 of this file's first 990 lines after the append | `4074e8981e9ae34a5f03f49b2d4b21ed` |
+| the two digests | `**EQUAL — the assertion holds, MEASURED**` |
