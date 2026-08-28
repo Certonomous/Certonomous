@@ -1,5 +1,5 @@
 --- ../curriculum_SO1a/so1a_grade.py	2026-08-27 17:17:44.772782766 +0000
-+++ so1c_grade.py	2026-08-27 22:16:10.931943456 +0000
++++ so1c_grade.py	2026-08-28 16:39:20.327075394 +0000
 @@ -1,90 +1,111 @@
  #!/usr/bin/env python3
 -"""Curriculum SO-1a COMPARATOR -- NACA0012 INCOMPRESSIBLE drag-min-at-fixed-lift,
@@ -194,7 +194,7 @@
  No unconditional success print.
  """
  
-@@ -98,75 +119,95 @@
+@@ -98,75 +119,159 @@
  import time
  
  # ---- REGISTERED CONSTANTS (PREREGISTRATION.md; the document governs) ----------------
@@ -254,10 +254,72 @@
 +
  FATAL_TOKENS = ("FOAM FATAL ERROR", "FOAM FATAL IO ERROR", "Segmentation fault",
                  "SIGSEGV", "SIGKILL", "MPI_ABORT", "signal 9", "Signal 11",
-                 "Floating point exception")
+-                "Floating point exception")
 -CAPS = {"MESH": 5.0, "X-S": 10.0, "F-S": 25.0, "X-P": 10.0, "F-P": 25.0}
 -ITEM_CEILING_CORE_MIN = 75.0
 -PREDICTED_CORE_MIN = {"MESH": 0.167, "X-S": 1.1, "F-S": 2.5, "X-P": 1.1, "F-P": 2.5}
++                "Floating point exception",
++                # ADOPTED FROM THE LAB'S OWN IMPLEMENTATION, AMENDMENT R6:
++                # `sdk/chief_engineer/head_engineer.py:188` reads
++                #     FPE = re.compile(r"Foam::sigFpe::sigHandler|^Floating point exception")
++                # -- the handler symbol is the ONE string OpenFOAM emits only when
++                # the FPE handler has actually FIRED.  It is added here as an extra
++                # POSITIVE token, which STRENGTHENS detection: a crash whose shell
++                # line never reaches the log is still caught by its stack trace.
++                # Its LINE ANCHOR is DELIBERATELY NOT adopted -- see
++                # BENIGN_LINE_PATTERNS below for the measured reason.
++                "Foam::sigFpe::sigHandler")
++
++# ---- C5's BENIGN-LINE EXCLUSION.  AMENDMENT R6, 2026-08-28.  ------------------
++# THE DEFECT THIS REMOVES, NAMED: `"Floating point exception"` as a BARE
++# SUBSTRING matches OpenFOAM's STANDARD STARTUP BANNER
++#     `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).`
++# -- a notice that the solver is PROTECTED against the very failure the token
++# exists to detect.  SO-1a's grader (`so1a_grade.py`, the byte-identical site)
++# refused on exactly that line, `MESH/checkMesh.log:18`, and published NOT A
++# RESULT WITH ZERO GATES EVALUATED on a run whose five arms were all rc = 0.
++#
++# THE TOKEN IS NOT DELETED.  Deleting it would blind C5 to a real SIGFPE crash,
++# which is the WORSE error direction: a missed crash is laundered into a result,
++# a false hit only costs a re-read.  It is EXCLUDED PER LINE instead, and the
++# exclusion is written as a NARROW list of ENABLEMENT NOTICES rather than as a
++# positive "crash signature", because a crash spelling this lane has not seen
++# would slip through a positive pattern while an over-narrow exclusion only
++# costs a false refusal.
++#
++# TWO LAB IMPLEMENTATIONS WERE READ BEFORE THIS ONE WAS WRITTEN, AND THE CHOICE
++# BETWEEN THEM IS MEASURED, NOT PREFERRED:
++#   * `sdk/chief_engineer/mesh_certificate.py:73` DELETES the FPE and segfault
++#     tokens outright (`_FATAL = -->\s*FOAM FATAL(?:\s+IO)?\s+ERROR|FOAM exiting`)
++#     and leans on a REQUIRED `^End` marker to catch a silent crash, calibrated on
++#     105 real checkMesh logs.  RIGHT FOR ITS SCOPE, REJECTED FOR THIS ONE: that
++#     module certifies checkMesh only, where a crash cannot be an MPI abort.  C5
++#     here also scans FOUR np = 4 SOLVER logs, and deleting the token is exactly
++#     the blinding this amendment must not do.
++#   * `sdk/chief_engineer/head_engineer.py:188` matches
++#     `Foam::sigFpe::sigHandler|^Floating point exception` -- a POSITIVE crash
++#     signature.  ITS HANDLER SYMBOL IS ADOPTED ABOVE.  ITS LINE ANCHOR IS NOT,
++#     and the reason is this item's own regime: at np = 4 the realistic FPE report
++#     is OpenMPI's, e.g. `mpirun noticed that process rank 2 exited on signal 8
++#     (Floating point exception).` -- NOT line-initial, and carrying no handler
++#     symbol.  `^Floating point exception` would MISS it.  An EXCLUSION list is
++#     therefore used instead of a positive anchor: a crash spelling this lane has
++#     not seen slips through a positive pattern, while an over-narrow exclusion
++#     only costs a false refusal, and a false refusal is the survivable error.
++#
++# WHY THE `trapFpe:` PREFIX IS SAFE TO EXCLUDE: it is the diagnostic prefix
++# printed by OpenFOAM's FPE-TRAPPING SETUP code.  A crash never prefixes itself
++# with it -- a real SIGFPE prints `Foam::sigFpe::sigHandler(int)` in the stack
++# trace and `Floating point exception (core dumped)` from the shell, and NEITHER
++# line begins `trapFpe:`.  Both of those are DRIVEN as planted positives.
++#
++# EVERY EXCLUSION IS COUNTED AND PRINTED ON THE PASS RECORD.  A suppression a
++# reader cannot see is the same defect wearing the other hat.
++BENIGN_LINE_PATTERNS = (
++    (r"^\s*trapFpe:\s",
++     "OpenFOAM sigFpe SETUP banner -- an ENABLEMENT NOTICE, not a crash"),
++)
++BENIGN_LINE_RE = tuple((re.compile(_p), _why) for _p, _why in BENIGN_LINE_PATTERNS)
 +CAPS = {"MESH": 5.0, "Ns-P": 30.0, "Ni-P": 30.0, "Ns-S": 30.0, "Ni-S": 30.0}
 +ITEM_CEILING_CORE_MIN = 125.0          # == sum(CAPS.values()), asserted in main()
 +PREDICTED_CORE_MIN = {"MESH": 0.167, "Ns-P": 10.0, "Ni-P": 10.0, "Ns-S": 10.0, "Ni-S": 10.0}
@@ -334,11 +396,14 @@
 -EXPECTED_UNITS = 35
 -
 -
-+EXPECTED_UNITS = 53
++EXPECTED_UNITS = 65          # 53 at the v1.0 freeze; +12 by AMENDMENT R6, 2026-08-28,
++                             # DELIBERATELY BUMPED with the ten units named in the
++                             # amendment.  A silent bump is the same defect as a
++                             # silently lost unit.
  class Refusal(Exception):
      pass
  
-@@ -181,9 +222,12 @@
+@@ -181,9 +286,12 @@
  
  # ================= LEDGER (physics vs infrastructure, L-342) -- D5's regex ============
  LEDGER_RE = re.compile(
@@ -352,7 +417,7 @@
      r"cap_core_min=(?P<cap>[\d.]+)\s+enforced_wall_s=(?P<ewall>\d+)\s+"
      r"enforced_core_min=(?P<ecore>[\d.]+)\s+memory=(?P<mem>\S+)\s+"
      r"inspect\(exit,oomkilled\)=\[(?P<inspect>[^\]]*)\]"
-@@ -217,11 +261,27 @@
+@@ -217,11 +325,27 @@
          parts = g["inspect"].split()
          infra_nm = [k for k, v in (("memavail_pre_GiB", g["mempre"]), ("memavail_post_GiB", g["mempost"]),
                                     ("delivered", g["delivered"]), ("siblings_pre", g["sibpre"]),
@@ -381,7 +446,7 @@
                 "enforced_core_min": float(g["ecore"]), "memory": g["mem"],
                 # R-RC: `inspect(exit,oomkilled)=[NOT_MEASURED ...]` is the rc RECORD
                 # being ABSENT (infrastructure), carried as None so C1 applies R-RC.
-@@ -237,6 +297,32 @@
+@@ -237,6 +361,32 @@
      return rows
  
  
@@ -414,7 +479,7 @@
  def inspect_file_fallback(base, arm):
      """L-342: an arm with no ledger row is read from the launcher's surviving inspect
      record `<ARM>_<stamp>.inspect.txt` (exit oom started finished cpuset memory); every
-@@ -261,7 +347,17 @@
+@@ -261,7 +411,17 @@
              rc = int(parts[0])
          except ValueError:
              refuse("G1", {"inspect_record_exit_present_but_garbage": parts[0]})
@@ -433,7 +498,90 @@
              "ranks": ARM_RANKS[arm], "core_min": None, "cap_core_min": CAPS[arm],
              "enforced_core_min": CAPS[arm], "memory": parts[5] if len(parts) > 5 else None,
              "inspect_exit": (None if rc is None else parts[0]), "oomkilled": parts[1].lower(), "memavail_pre_GiB": None,
-@@ -478,42 +574,60 @@
+@@ -347,10 +507,42 @@
+     return d, datum, resolve_datum_ref(d, arm, datum)
+ 
+ 
+-def fatal_tokens_in(text):
+-    """(C) C5.  Returns the tokens found.  Any hit REFUSES regardless of rc, so the
+-    R-RC relaxation in (B) can never launder a crash into a NOT MEASURED."""
+-    return [t for t in FATAL_TOKENS if t in text]
++def benign_reason(line):
++    """(C) C5, AMENDMENT R6.  Why this ONE LINE is an enablement notice and not a
++    crash, or None.  Narrow by construction: see BENIGN_LINE_PATTERNS."""
++    for rx, why in BENIGN_LINE_RE:
++        if rx.search(line):
++            return why
++    return None
++
++
++def fatal_token_sites(text, source):
++    """(C) C5, AMENDMENT R6.  Scans LINE BY LINE and PER SOURCE FILE, returning
++    (sites, benign).  Any site REFUSES regardless of rc, so the R-RC relaxation in
++    (B) can never launder a crash into a NOT MEASURED.
++
++    LINE BY LINE, because the token test must be able to tell a CRASH from an
++    ENABLEMENT NOTICE and a whole-file substring test cannot.  Every token in
++    FATAL_TOKENS is a single-line string, so splitting loses no match -- and that
++    is DRIVEN, not asserted: one unit plants each token in turn and requires a
++    refusal for every one.
++
++    PER SOURCE FILE, because the refusal must name the file that carries the hit.
++    SO-1a's refusal named the ARM log while the token lived in `checkMesh.log`,
++    pointing a reader at a file that does not contain the token it cites."""
++    sites, benign = [], []
++    for i, line in enumerate(text.splitlines(), 1):
++        hit = [t for t in FATAL_TOKENS if t in line]
++        if not hit:
++            continue
++        why = benign_reason(line)
++        rec = {"file": source, "line": i, "tokens": hit, "text": line.strip()[:200]}
++        if why:
++            rec["why_benign"] = why
++            benign.append(rec)
++        else:
++            sites.append(rec)
++    return sites, benign
+ 
+ 
+ def g_completion(base, rows):
+@@ -417,12 +609,29 @@
+             cl["C2_terminal_marker"] = {"verdict": "PASS", "marker": "Mesh OK.", "log": ARTEFACT[arm]}
+ 
+         # ---- C5 fatal token, REFUSES REGARDLESS OF rc ------------------------------
+-        hay = text + (open(art, errors="replace").read() if kind == "SCRIPT" else "")
+-        hits = fatal_tokens_in(hay)
+-        if hits:
+-            refuse("G1", {"C5_fatal_token_in_arm_output": hits, "arm": arm, "log": logname,
+-                          "note": "a fatal token refuses at ANY rc; R-RC never launders a crash"})
+-        cl["C5_no_fatal_token"] = {"verdict": "PASS", "tokens_searched": list(FATAL_TOKENS)}
++        # AMENDMENT R6: scanned PER FILE and PER LINE.  `hay = text + artefact`
++        # discarded which file a hit came from, which is why SO-1a's refusal named
++        # the arm log for a token that only ever appeared in `checkMesh.log`.
++        scanned = [logname]
++        sites, benign = fatal_token_sites(text, logname)
++        if kind == "SCRIPT":
++            scanned.append(ARTEFACT[arm])
++            s2, b2 = fatal_token_sites(open(art, errors="replace").read(), ARTEFACT[arm])
++            sites += s2
++            benign += b2
++        if sites:
++            refuse("G1", {"C5_fatal_token_in_arm_output": sorted({t for st in sites
++                                                                  for t in st["tokens"]}),
++                          "arm": arm, "log": logname, "files_scanned": scanned,
++                          "token_sites": sites,
++                          "note": ("a fatal token refuses at ANY rc; R-RC never launders a "
++                                   "crash.  `token_sites` names the FILE AND LINE of every "
++                                   "hit; `log` is the arm's own log and is NOT necessarily "
++                                   "the file that carries the hit")})
++        cl["C5_no_fatal_token"] = {"verdict": "PASS", "tokens_searched": list(FATAL_TOKENS),
++                                   "files_scanned": scanned,
++                                   "n_benign_lines_excluded": len(benign),
++                                   "benign_lines_excluded": benign}
+ 
+         # ---- OOMKilled (physics, unchanged) ----------------------------------------
+         oom = str(r.get("oomkilled")).lower()
+@@ -478,42 +687,60 @@
  
  
  # ================= readers with planted controls ======================================
@@ -512,7 +660,7 @@
  
  
  def ctrl_control(F):
-@@ -528,10 +642,11 @@
+@@ -528,10 +755,11 @@
      return {"instrument_ctrl_zero": zero, "instrument_ctrl_planted": plant, "want": want}
  
  
@@ -528,7 +676,7 @@
      for row in j["rows"]:
          if row.get("dv") == "CTRL":
              continue
-@@ -540,11 +655,10 @@
+@@ -540,11 +768,10 @@
                  v["dCD"] = repr(float(v["dCD"]) + PLANT)
      cdir = os.path.join(base, "grader_controls")
      os.makedirs(cdir, exist_ok=True)
@@ -543,7 +691,7 @@
      for key, row in orig.items():
          for s, v in row["fd"].items():
              if v["ok"]:
-@@ -555,6 +669,426 @@
+@@ -555,6 +782,481 @@
      return {"grader_plant_seen": True, "n_values": n, "worst_residual": worst, "file": cp}
  
  
@@ -780,23 +928,63 @@
 +    mesh identity IS NOT FREE and IS NOT ASSUMED.  An inequality is a
 +    MESH-REGENERATION-DETERMINISM finding and makes the whole comparison
 +    ungradeable: NOT A RESULT, with both digests printed."""
++    # ---- AMENDMENT R6, 2026-08-28.  UNIQUENESS REFUSAL, NOT A BETTER SORT. -----
++    # THE DEFECT THIS REMOVES: the loop below used to be
++    #     `for cand in sorted(glob.glob(...)): mine_src = cand`
++    # -- a LAST-WINS reduction of a multi-member set to one member by an ordering
++    # that is not the physics' ordering.  Its partner on the reference side was
++    # `so1c_chain_driver.sh`'s `grep ... MESH_*.log | head -4`, effectively a
++    # FIRST-WINS pick over the same file shape in SO-1b's root, and under ugrep
++    # multi-file output order is a RACE, so it is not even reliably first.
++    #
++    # AND THE FAILURE TEXT WAS ALREADY WRITTEN AS A PHYSICS CLAIM.  A misread
++    # reference published as `MESH_REGENERATION_IS_NOT_DETERMINISTIC` -- fluent,
++    # quotable and wrong.  So every REFUSAL below is a NOT A RESULT that names
++    # itself a READER CONDITION and never borrows that sentence; the physics
++    # sentence is emitted only where the comparison actually ran on ONE
++    # unambiguous sha on each side.
++    #
++    # THE SELECTION IS RECORDED WHETHER OR NOT IT REFUSES: which file was chosen,
++    # the full candidate list, and the sha count on each side.
 +    mine_log = os.path.join(root, "MESH", "checkMesh.log")
-+    mine_src = None
-+    for cand in sorted(glob.glob(os.path.join(root, "MESH_*.log"))):
-+        mine_src = cand
-+    mine_txt = ""
-+    if mine_src and os.path.isfile(mine_src):
-+        mine_txt = open(mine_src, errors="replace").read()
-+    elif os.path.isfile(mine_log):
-+        mine_txt = open(mine_log, errors="replace").read()
-+    mine = _points_sha(mine_txt)
++    cands = sorted(glob.glob(os.path.join(root, "MESH_*.log")))
 +    ref_path = os.path.join(root, "optref", "so1b_mesh_points_sha256.txt")
-+    ref_txt = open(ref_path, errors="replace").read() if os.path.isfile(ref_path) else ""
-+    ref = _points_sha(ref_txt)
-+    out = {"this_item_points_sha256": mine, "so1b_points_sha256": ref,
++    out = {"this_item_points_sha256": [], "so1b_points_sha256": [],
 +           "reference_file": ref_path,
++           "mesh_log_candidates": cands,
++           "n_mesh_log_candidates": len(cands),
++           "mesh_log_selected": None,
 +           "note": ("the standard defines np-invariance ON THE SAME MESH; this item "
 +                    "regenerates the mesh, so identity is asserted, not assumed")}
++
++    def reader_refusal(reason):
++        out["verdict"] = "NOT A RESULT"
++        out["cause_class"] = "READER_CONDITION_NOT_A_MESH_FINDING"
++        out["reason"] = reason
++        return out
++
++    if len(cands) > 1:
++        return reader_refusal(
++            "MESH_LOG_SELECTION_IS_AMBIGUOUS -- READER CONDITION, NOT A MESH FINDING: "
++            "%d files match MESH_*.log in this run root (%s).  THIS COMPARATOR REFUSES "
++            "TO PICK ONE: a multi-member set reduced to one member by an ordering that "
++            "is not the physics' ordering is a FINDING, not something to resolve by "
++            "sorting" % (len(cands), ", ".join(os.path.basename(c) for c in cands)))
++    mine_src = cands[0] if cands else None
++    mine_txt = ""
++    if mine_src and os.path.isfile(mine_src):
++        out["mesh_log_selected"] = mine_src
++        mine_txt = open(mine_src, errors="replace").read()
++    elif os.path.isfile(mine_log):
++        out["mesh_log_selected"] = mine_log
++        mine_txt = open(mine_log, errors="replace").read()
++    mine = _points_sha(mine_txt)
++    ref_txt = open(ref_path, errors="replace").read() if os.path.isfile(ref_path) else ""
++    ref = _points_sha(ref_txt)
++    out["this_item_points_sha256"] = mine
++    out["so1b_points_sha256"] = ref
++    out["n_this_item_sha"] = len(mine)
++    out["n_reference_sha"] = len(ref)
 +    if not mine:
 +        out["verdict"] = "NOT A RESULT"
 +        out["reason"] = "THIS_ITEM_PRINTED_NO_POINTS_SHA256"
@@ -807,8 +995,23 @@
 +                         "precondition of this comparison, so an unknown reference is "
 +                         "NOT A RESULT, never a pass")
 +        return out
++    if len(mine) != 1:
++        return reader_refusal(
++            "THIS_ITEM_PRINTED_%d_DISTINCT_POINTS_SHA256 -- READER CONDITION, NOT A MESH "
++            "FINDING: %s names more than one mesh, so there is no single 'this item's "
++            "mesh' to compare and the comparator REFUSES rather than choose one"
++            % (len(mine), out["mesh_log_selected"]))
++    if len(ref) != 1:
++        return reader_refusal(
++            "SO1B_REFERENCE_CARRIES_%d_DISTINCT_POINTS_SHA256 -- READER CONDITION, NOT A "
++            "MESH FINDING: %s names more than one mesh.  THIS IS THE CASE THE DRIVER'S "
++            "`head -4` USED TO MANUFACTURE, and before AMENDMENT R6 it published under "
++            "this gate's mesh-regeneration-determinism sentence -- a reader defect wearing "
++            "a physics finding.  THAT SENTENCE IS DELIBERATELY NOT REPEATED HERE, not even "
++            "to explain itself: a downstream reader greps the reason string" % (len(ref), ref_path))
 +    out["verdict"] = "PASS" if set(mine) == set(ref) else "GATE FAIL"
 +    if out["verdict"] == "GATE FAIL":
++        out["cause_class"] = "MESH_FINDING"
 +        out["reason"] = ("MESH_REGENERATION_IS_NOT_DETERMINISTIC -- the two runs did not "
 +                         "produce the same mesh, so 'the same mesh' does not hold and the "
 +                         "np-invariance comparison is not the one the standard defines")
@@ -970,7 +1173,7 @@
  # ================= G5: the bright line, per row, per objective =======================
  def grade_components(X, F, of):
      key_d = "dCD" if of == "CD" else "dCL"
-@@ -663,208 +1197,335 @@
+@@ -663,208 +1365,345 @@
                              "(DAFOAM_CHARTER.md section 4)")}
  
  
@@ -1432,6 +1635,11 @@
 +         "simple_n": list(DECOMP_SIMPLE_N),
 +         "xstar": {}, "carried": {a: 0.0 for a in ARMS_SOLVER}, "ref_np": 1,
 +         "meshsha": "same", "staged_stale": set(),
++         # ---- AMENDMENT R6 knobs.  ONE KNOB PER NEW REFUSAL. ------------------
++         # `cm_extra`      text PREPENDED to the MESH arm's checkMesh.log  -- C5
++         # `dup_mesh_log`  a SECOND MESH_*.log in the run root             -- G-MESHID
++         # `ref_dup`       a SECOND distinct sha in SO-1b's fingerprint    -- G-MESHID
++         "cm_extra": "", "dup_mesh_log": False, "ref_dup": False,
 +         "terminal": {a: True for a in ARMS_REQUIRED}, "stale": set(), "ctrl_ok": True,
 +         "mpost": "20.00", "drop_row": set(), "inspect_file": set(), "rc_record": set(),
 +         "fatal": {},
@@ -1461,8 +1669,13 @@
 +    mesh_sha = "a" * 64
 +    ref_sha = mesh_sha if k["meshsha"] == "same" else ("b" * 64)
 +    if k["meshsha"] != "absent":
++        _ref_lines = "%s  constant/polyMesh/points\n" % ref_sha
++        if k["ref_dup"]:
++            # WHAT THE DRIVER'S `head -4` USED TO PRODUCE when SO-1b's root held
++            # more than one MESH_*.log: a reference naming TWO meshes.
++            _ref_lines += "%s  constant/polyMesh/points\n" % ("d" * 64)
 +        open(os.path.join(root, "optref", "so1b_mesh_points_sha256.txt"), "w").write(
-+            "%s  constant/polyMesh/points\n" % ref_sha)
++            _ref_lines)
 +    else:
 +        open(os.path.join(root, "optref", "so1b_mesh_points_sha256.txt"), "w").write("")
 +
@@ -1470,7 +1683,7 @@
      for arm in ARMS_REQUIRED:
          d = os.path.join(root, arm)
          tdir = "0.orig" if arm == "MESH" else "0"
-@@ -878,8 +1539,6 @@
+@@ -878,8 +1717,6 @@
          open(os.path.join(d, DATUM_FILE), "w").write("%d\n" % t0)
          kind = k["datum"][arm]
          if kind == "gz":
@@ -1479,7 +1692,7 @@
              os.remove(plain)
              gz = plain + ".gz"
              open(gz, "w").write("U compressed\n")
-@@ -888,76 +1547,115 @@
+@@ -888,76 +1725,123 @@
              os.remove(plain)
          log = "%s_x.log" % arm
          so = k["so"][arm]
@@ -1487,8 +1700,11 @@
 +        text = "D4S_CONTAINER_UID: 0\nD4S_IDWARP_SO_MD5: %s\nD4S_DEADLINE_IN_CONTAINER_S: 450\n" % so
          if arm == "MESH":
              art = os.path.join(d, "checkMesh.log")
-             open(art, "w").write("Mesh stats\n    cells:            %d\n\nMesh OK.\n" % k["cells"])
+-            open(art, "w").write("Mesh stats\n    cells:            %d\n\nMesh OK.\n" % k["cells"])
 -            text += "SO1A_CHECKMESH_RC 0\n"
++            open(art, "w").write(
++                k["cm_extra"]
++                + "Mesh stats\n    cells:            %d\n\nMesh OK.\n" % k["cells"])
 +            text += "SO1C_CHECKMESH_RC 0\n%s  constant/polyMesh/points\n" % mesh_sha
          else:
 -            rk = "S" if arm.endswith("-S") else "P"
@@ -1631,6 +1847,12 @@
 +                                 wall=60, cwall=cwall, ranks=ARM_RANKS[arm], cm=k["cm"][arm],
 +                                 cmc=cmc_s, cd=cd_s, cap=CAPS[arm], ke=ke, oom=k["oom"][arm],
                                   mpost=k["mpost"], cs=k["cs"][arm], dl=k["dl"], log=log))
++    if k["dup_mesh_log"]:
++        # A SECOND `MESH_*.log` in the run root -- what a re-run of the MESH arm
++        # leaves behind.  It carries a DIFFERENT points sha256, so the ambiguity is
++        # MATERIAL: which file is read decides the G-MESHID verdict.
++        open(os.path.join(root, "MESH_second.log"), "w").write(
++            "SO1C_CHECKMESH_RC 0\n%s  constant/polyMesh/points\n" % ("c" * 64))
      open(os.path.join(root, "ledger.txt"), "w").write("".join(led))
      return root
  
@@ -1642,7 +1864,7 @@
  
      def unit(name, cond):
          nonlocal n
-@@ -968,7 +1666,8 @@
+@@ -968,7 +1852,8 @@
  
      def refused(root):
          try:
@@ -1652,7 +1874,7 @@
          except Refusal:
              return True
  
-@@ -980,148 +1679,289 @@
+@@ -980,148 +1865,447 @@
                  else:
                      k[key] = val
          return f
@@ -1993,18 +2215,9 @@
 +    unit("U42 (AV-1/AV-2) the datum GENUINELY ABSENT in BOTH registered names -> REFUSAL: "
 +         "resolution by existence still refuses when neither name exists",
 +         refused(_fix(tmp, tw(datum={"Ns-P": "none"}))))
- 
--    # ================= the five rule-4 clauses, PRINTED INDIVIDUALLY ================
++
 +    # ---- controls, toolchain, placement, and the assert census ----------------
-     r = grade(_fix(tmp))
--    want = {"C1_rc_value", "C2_terminal_marker", "C3_artefact_present", "C4_age_guard", "C5_no_fatal_token"}
--    unit("U35 the five rule-4 clauses are present and named INDIVIDUALLY for every one of "
--         "the five arms (Sanaa 2026-08-27 s0)",
--         all(set(r["rule4_clauses_per_arm"][a]) == want for a in ARMS_REQUIRED))
--
--    print("SO1a GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
--    if n != EXPECTED_UNITS or fails:
--        print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))
++    r = grade(_fix(tmp))
 +    unit("U43 BOTH grader-level plants are SEEN -- the FD plant on two arms AND the "
 +         "np-INVARIANCE plant, which shows THE HEADLINE GATE ITSELF able to fail",
 +         r["controls"]["grader_plant_Ns-P"]["grader_plant_seen"]
@@ -2064,6 +2277,173 @@
 +         "the standard registers it and because it NAMES the failure mode",
 +         len(gnp_s["sign_flips"]) == 1 and gnp_s["s_g"] > 10.0 * S_G_BAND)
 +
++
++    # =========================================================================
++    # AMENDMENT R6, 2026-08-28 -- U54..U63.  TWO READER DEFECTS, EACH DRIVEN IN
++    # BOTH DIRECTIONS.  Appended rather than interleaved so no frozen unit label
++    # is renumbered.
++    # =========================================================================
++
++    # ---- C5: the benign banner MUST NOT be flagged, the real crash MUST be ----
++    # THE PLANT IS TAKEN FROM THE ARTEFACT, NOT INVENTED.  This is line 18 of
++    # SO-1a's real `MESH/checkMesh.log`, the line its grader refused on.  Where
++    # that run root is on the box, the literal is CROSS-ASSERTED against it
++    # byte-for-byte and the unit says whether it was.
++    TRAPFPE = "trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)."
++    SO1A_CM = ("/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient"
++               "/MESH/checkMesh.log")
++    xcheck = "NOT CROSS-ASSERTED (SO-1a's run root is not on this box)"
++    if os.path.isfile(SO1A_CM):
++        _lines = open(SO1A_CM, errors="replace").read().splitlines()
++        xcheck = ("CROSS-ASSERTED byte-identical to %s:18" % SO1A_CM
++                  if len(_lines) > 17 and _lines[17] == TRAPFPE
++                  else "CROSS-ASSERT FAILED against %s:18" % SO1A_CM)
++    FOAM_FATAL = ("\n--> FOAM FATAL ERROR: \nCannot find patchField entry for lowerWall\n\n"
++                  "    From function void Foam::GeometricField<...>::readField(...)\nFOAM exiting\n")
++    SIGFPE_CRASH = ("#0  Foam::error::printStack(Foam::Ostream&) at ??:?\n"
++                    "#1  Foam::sigFpe::sigHandler(int) at ??:?\n"
++                    "#2  ? in /lib/x86_64-linux-gnu/libc.so.6\n"
++                    "Floating point exception (core dumped)\n")
++
++    def refusal_detail(root):
++        try:
++            grade(root)
++            return None
++        except Refusal as exc:
++            return json.loads(str(exc))["detail"]
++
++    r = grade(_fix(tmp, tw(cm_extra=TRAPFPE + "\n")))
++    c5 = r["rule4_clauses_per_arm"]["MESH"]["C5_no_fatal_token"]
++    unit("U54 THE DEFECT R6 REMOVES, DRIVEN: OpenFOAM's STARTUP BANNER `trapFpe: Floating "
++         "point exception trapping enabled (FOAM_SIGFPE).` -- a notice that the solver is "
++         "PROTECTED -- planted into checkMesh.log is NOT flagged and the item still reads "
++         "PASS.  BEFORE THIS AMENDMENT THIS EXACT LINE REFUSED WITH ZERO GATES EVALUATED, "
++         "which is what SO-1a's grader did on a clean 5-arm run.  The plant is %s"
++         % xcheck,
++         r["verdict"] == "PASS" and "CROSS-ASSERT FAILED" not in xcheck)
++
++    unit("U55 THE SUPPRESSION IS NOT SILENT: the PASS record counts exactly ONE excluded "
++         "benign line, names the FILE it came from (checkMesh.log, NOT the arm log) and "
++         "prints WHY it is benign",
++         c5 is not None and c5["n_benign_lines_excluded"] == 1
++         and c5["benign_lines_excluded"][0]["file"] == "checkMesh.log"
++         and "ENABLEMENT NOTICE" in c5["benign_lines_excluded"][0]["why_benign"]
++         and set(c5["files_scanned"]) == {"MESH_x.log", "checkMesh.log"})
++
++    unit("U56 AND THE OTHER DIRECTION: a REAL `FOAM FATAL ERROR` block in the SAME "
++         "artefact -- the SCRIPT-arm path that fired on SO-1a -- STILL REFUSES",
++         refused(_fix(tmp, tw(cm_extra=FOAM_FATAL))))
++
++    unit("U57 THE EXCLUSION IS PER LINE, NOT PER FILE: a REAL SIGFPE crash "
++         "(`Foam::sigFpe::sigHandler(int)` + `Floating point exception (core dumped)`) "
++         "SITTING BESIDE the benign banner in one file STILL REFUSES.  This is the unit "
++         "that proves the repair did not simply blind C5 to SIGFPE",
++         refused(_fix(tmp, tw(cm_extra=TRAPFPE + "\n" + SIGFPE_CRASH))))
++
++    det = refusal_detail(_fix(tmp, tw(cm_extra=FOAM_FATAL)))
++    unit("U58 THE SECOND, SMALLER DEFECT: the refusal NAMES THE FILE AND LINE of every "
++         "hit, and the named file is `checkMesh.log`.  SO-1a's refusal named the ARM log "
++         "for a token that appears nowhere in it -- a reader sent to the wrong file",
++         det is not None and det["token_sites"]
++         and all(st["file"] == "checkMesh.log" for st in det["token_sites"])
++         and all(isinstance(st["line"], int) and st["line"] > 0 for st in det["token_sites"])
++         and "NOT necessarily" in det["note"])
++
++    lost = [t for t in FATAL_TOKENS
++            if not refused(_fix(tmp, tw(cm_extra="a real crash line: %s\n" % t)))]
++    unit("U59 THE LINE SPLIT LOSES NO TOKEN: each of the %d registered FATAL_TOKENS, "
++         "planted ALONE on a line that is not an enablement notice, STILL REFUSES.  A "
++         "scanner rewritten from whole-file to line-by-line is measured, not assumed"
++         % len(FATAL_TOKENS), not lost)
++
++    unit("U65 THE ADOPTED HANDLER SYMBOL IS INDEPENDENTLY LOAD-BEARING, AND THIS UNIT "
++         "IS WHY IT IS NOT DECORATION: a stack trace whose ONLY fatal string is "
++         "`Foam::sigFpe::sigHandler(int)` -- an FPE crash whose shell line never reached "
++         "the log -- REFUSES.  The token is HARD-CODED here, not read from FATAL_TOKENS, "
++         "so removing it from that tuple FLIPS THIS UNIT.  U59 alone could not: it is "
++         "defined in terms of the tuple, so a mutation that empties the tuple also "
++         "empties U59's loop, and the mutation measured INERT before this unit existed",
++         refused(_fix(tmp, tw(cm_extra="#0  Foam::error::printStack(Foam::Ostream&) at ??:?\n"
++                                       "#1  Foam::sigFpe::sigHandler(int) at ??:?\n"))))
++
++    # THE STRONGEST NEGATIVE FIXTURE IS ONE NOBODY BUILT.  A live W3 stage log,
++    # 339 lines, FOUR banner hits and FIVE `End` lines -- a clean completed stage
++    # that the bare-substring test would have refused.  The supervisor stopped that
++    # run over this defect at 16:33:52Z on 2026-08-28.  READ-ONLY; never modified.
++    W3_LOG = ("/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady"
++              "/S0_20260828T162848Z_1898005.log")
++    if os.path.isfile(W3_LOG):
++        w3 = open(W3_LOG, errors="replace").read()
++        w3_banners = sum(1 for ln in w3.splitlines()
++                         if any(t in ln for t in FATAL_TOKENS))
++        r = grade(_fix(tmp, tw(cm_extra=w3)))
++        c5w = r["rule4_clauses_per_arm"]["MESH"]["C5_no_fatal_token"]
++        unit("U64 A REAL, UNCONSTRUCTED OPENFOAM LOG -- %s, %d lines, %d banner lines, "
++             "5 `End` lines, ZERO real fatal tokens -- planted whole into checkMesh.log "
++             "STILL READS PASS, with all %d benign lines counted and named.  The banner "
++             "is not a corner case: closure measured it on 63 of 70 archived logs, 57 of "
++             "them cleanly completed, so a scanner that refuses on it refuses on almost "
++             "every log the lab holds"
++             % (os.path.basename(W3_LOG), len(w3.splitlines()), w3_banners, w3_banners),
++             r["verdict"] == "PASS" and w3_banners == 4
++             and c5w["n_benign_lines_excluded"] == w3_banners)
++    else:
++        unit("U64 NOT DRIVEN ON THE REAL LOG: %s is not on this box.  The synthetic "
++             "banner plant (U54) is driven and CROSS-ASSERTED against SO-1a's own "
++             "checkMesh.log where present; this unit is recorded as not driven rather "
++             "than quietly passed" % W3_LOG, False)
++
++    # ---- G-MESHID: uniqueness refusal, and the pre-written physics sentence ----
++    r = grade(_fix(tmp, tw(dup_mesh_log=True)))
++    mid = r["gates"]["G-MESHID_same_mesh_as_SO1b"]
++    unit("U60 TWO files match MESH_*.log in the run root -> NOT A RESULT labelled a READER "
++         "CONDITION, with BOTH candidates named.  BEFORE THIS AMENDMENT the last-wins loop "
++         "SILENTLY PICKED ONE and the item read PASS -- an ambiguity resolved in favour of "
++         "a pass",
++         mid["verdict"] == "NOT A RESULT" and r["verdict"] == "NOT A RESULT"
++         and mid["cause_class"] == "READER_CONDITION_NOT_A_MESH_FINDING"
++         and mid["n_mesh_log_candidates"] == 2
++         and "MESH_REGENERATION_IS_NOT_DETERMINISTIC" not in mid["reason"])
++
++    r = grade(_fix(tmp, tw(ref_dup=True)))
++    mid = r["gates"]["G-MESHID_same_mesh_as_SO1b"]
++    unit("U61 THE :934 DEFECT, DRIVEN: SO-1b's fingerprint carrying TWO distinct sha256s -- "
++         "what the driver's `head -4` produced from a multi-log root -- now reads NOT A "
++         "RESULT, READER CONDITION.  BEFORE THIS AMENDMENT IT PUBLISHED AS "
++         "`MESH_REGENERATION_IS_NOT_DETERMINISTIC` AND GATE FAIL: a reader defect wearing "
++         "a fluent physics sentence",
++         mid["verdict"] == "NOT A RESULT" and r["verdict"] == "NOT A RESULT"
++         and mid["cause_class"] == "READER_CONDITION_NOT_A_MESH_FINDING"
++         and mid["n_reference_sha"] == 2
++         and "MESH_REGENERATION_IS_NOT_DETERMINISTIC" not in mid["reason"])
++
++    r = grade(_fix(tmp, tw(meshsha="differ")))
++    mid = r["gates"]["G-MESHID_same_mesh_as_SO1b"]
++    unit("U62 AND THE REPAIR DOES NOT BLUNT THE GATE: ONE candidate, ONE sha each side, "
++         "MISMATCHED -> GATE FAIL with the PHYSICS sentence and cause_class MESH_FINDING.  "
++         "The physics reason is now emitted ONLY where the comparison actually ran",
++         mid["verdict"] == "GATE FAIL" and mid["cause_class"] == "MESH_FINDING"
++         and "MESH_REGENERATION_IS_NOT_DETERMINISTIC" in mid["reason"]
++         and mid["n_this_item_sha"] == 1 and mid["n_reference_sha"] == 1)
+ 
+-    # ================= the five rule-4 clauses, PRINTED INDIVIDUALLY ================
+     r = grade(_fix(tmp))
+-    want = {"C1_rc_value", "C2_terminal_marker", "C3_artefact_present", "C4_age_guard", "C5_no_fatal_token"}
+-    unit("U35 the five rule-4 clauses are present and named INDIVIDUALLY for every one of "
+-         "the five arms (Sanaa 2026-08-27 s0)",
+-         all(set(r["rule4_clauses_per_arm"][a]) == want for a in ARMS_REQUIRED))
+-
+-    print("SO1a GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
+-    if n != EXPECTED_UNITS or fails:
+-        print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))
++    mid = r["gates"]["G-MESHID_same_mesh_as_SO1b"]
++    unit("U63 THE NON-MISMATCH IS NOT FLAGGED, AND THE SELECTION IS ON THE RECORD: one "
++         "candidate, PASS, with the CHOSEN FILE and the FULL CANDIDATE LIST printed beside "
++         "the verdict -- a selection a reader cannot see is not a selection",
++         mid["verdict"] == "PASS" and mid["n_mesh_log_candidates"] == 1
++         and os.path.basename(mid["mesh_log_selected"]) == "MESH_x.log"
++         and mid["mesh_log_candidates"] == [mid["mesh_log_selected"]])
++
 +    print("\nSO1c grader selftest: %d units, %d fail" % (n, len(fails)))
 +    for f in fails:
 +        print("  FAIL: %s" % f)
@@ -2077,7 +2457,7 @@
  
  
  def main():
-@@ -1133,18 +1973,26 @@
+@@ -1133,18 +2317,26 @@
      ap.add_argument("--out", default=None)
      a = ap.parse_args()
      if count_asserts(os.path.abspath(__file__)) != 0:

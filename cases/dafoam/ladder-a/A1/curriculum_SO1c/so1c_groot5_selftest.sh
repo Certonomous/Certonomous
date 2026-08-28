@@ -205,6 +205,85 @@ else
   echo "  [OK ] (e7) NO executable line of the driver reads SO-1b's G5E FD gate -- this item buys its own FD table at np=4, and DAFOAM_CHARTER.md section 5 forbids carrying an FD reference across np"
 fi
 
+# ------------------------------------------- AMENDMENT R6: THE TWO SELECTION SITES
+# Both blocks are EXTRACTED VERBATIM from the frozen driver between their own
+# markers and executed -- never re-implemented here.  A guard suite that runs its
+# own copy of the code proves nothing about the code that ships.
+selblk() { sed -n "/^ *# >>> $1/,/^ *# <<< $1/p" "$DRIVER" > "$2"; }
+runsel() { ( set -uo pipefail; SO1B_BASE="$2"; BASE="$3"; . "$1" ) >"$TMP/sel.out" 2>&1; echo $?; }
+
+selblk G-SO1B-SELECT "$TMP/sel_grade.sh"
+N=$((N+1))
+if [ -s "$TMP/sel_grade.sh" ] && grep -q 'SO1B_GRADE_CANDS' "$TMP/sel_grade.sh"; then
+  echo "  [OK ] (h0) the G-SO1B-SELECT block EXTRACTS from the frozen driver (a suite that runs its own copy of the code proves nothing about the code that ships)"
+else
+  echo "  [BAD] (h0) the G-SO1B-SELECT block did not extract"; FAIL=$((FAIL+1))
+fi
+
+mkdir -p "$TMP/gsel0" "$TMP/gsel1" "$TMP/gsel2" "$TMP/gbase"
+leg "(h1) G-SO1B-SELECT: ZERO SO1b_grade_*.json -> BLOCKED rc=7 (the frozen v1.0 branch, unchanged)" 7 "$(runsel "$TMP/sel_grade.sh" "$TMP/gsel0" "$TMP/gbase/x")"
+grep -q "reason=no_grade" "$TMP/gbase/x.STATUS.preflight" 2>/dev/null
+legc "(h1b) ... and the status line still reads reason=no_grade -- the pre-existing no-launch branch is byte-preserved" $?
+: > "$TMP/gsel1/SO1b_grade_20260828T000000Z.json"
+RC1=$(runsel "$TMP/sel_grade.sh" "$TMP/gsel1" "$TMP/gbase/y"); OUT1=$(cat "$TMP/sel.out")
+leg "(h2) G-SO1B-SELECT: EXACTLY ONE grade artefact -> PROCEED rc=0" 0 "$RC1"
+case "$OUT1" in *"G_SO1B_GRADE_SELECTED file=$TMP/gsel1/SO1b_grade_20260828T000000Z.json n_candidates=1"*) legc "(h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied" 0 ;;
+  *) legc "(h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied" 1 ;; esac
+: > "$TMP/gsel2/SO1b_grade_20260828T000000Z.json"; : > "$TMP/gsel2/SO1b_grade_20260828T010000Z.json"
+RC2=$(runsel "$TMP/sel_grade.sh" "$TMP/gsel2" "$TMP/gbase/z"); OUT2=$(cat "$TMP/sel.out")
+leg "(h3) THE R5 DEFECT, DRIVEN: TWO grade artefacts -> REFUSED rc=7.  The frozen v1.0 form was \`ls -1t ... | head -1\`, which would have SILENTLY TAKEN THE NEWER ONE by mtime" 7 "$RC2"
+N=$((N+1))
+if echo "$OUT2" | grep -q "SO1b_grade_20260828T000000Z.json" && echo "$OUT2" | grep -q "SO1b_grade_20260828T010000Z.json" && grep -q "reason=grade_selection_ambiguous" "$TMP/gbase/z.STATUS.preflight" 2>/dev/null; then
+  echo "  [OK ] (h3b) ... naming BOTH candidates and recording reason=grade_selection_ambiguous -- a refusal that does not say what it could not choose between is not a finding"
+else
+  echo "  [BAD] (h3b) ... naming BOTH candidates and recording reason=grade_selection_ambiguous"; FAIL=$((FAIL+1))
+fi
+
+selblk G-MESHREF-SELECT "$TMP/sel_mesh.sh"
+SHA_A=$(printf 'a%.0s' $(seq 64)); SHA_B=$(printf 'b%.0s' $(seq 64))
+mkmesh() { # mkmesh <dir> <nfiles> <nsha>
+  rm -rf "$1"; mkdir -p "$1"; local i j
+  for i in $(seq 1 "$2"); do
+    : > "$1/MESH_2026082${i}T000000Z_$i.log"
+    for j in $(seq 1 "$3"); do echo "${SHA_A}  constant/polyMesh/points" >> "$1/MESH_2026082${i}T000000Z_$i.log"; done
+  done
+}
+mb() { rm -rf "$TMP/mb"; mkdir -p "$TMP/mb/optref"; echo "$TMP/mb"; }
+mkmesh "$TMP/m1" 1 1; B=$(mb)
+RC4=$(runsel "$TMP/sel_mesh.sh" "$TMP/m1" "$B"); OUT4=$(cat "$TMP/sel.out")
+leg "(h4) G-MESHREF-SELECT: ONE MESH_*.log carrying ONE points-sha256 -> PROCEED rc=0" 0 "$RC4"
+N=$((N+1))
+if [ "$(cat "$B/optref/so1b_mesh_points_sha256.txt" 2>/dev/null)" = "${SHA_A}  constant/polyMesh/points" ] && grep -q "G_MESHREF_SELECTED file=$TMP/m1/MESH_20260821T000000Z_1.log n_candidates=1 sha_lines=1" "$B/optref/so1b_mesh_points_sha256.SELECTION.txt" 2>/dev/null; then
+  echo "  [OK ] (h4b) ... the reference is the ONE sha from the ONE NAMED file, and the SELECTION RECORD beside it names that file and the candidate count"
+else
+  echo "  [BAD] (h4b) ... the reference is the ONE sha from the ONE NAMED file, and the SELECTION RECORD beside it names that file"; FAIL=$((FAIL+1))
+fi
+mkmesh "$TMP/m2" 2 1; B=$(mb)
+RC5=$(runsel "$TMP/sel_mesh.sh" "$TMP/m2" "$B"); OUT5=$(cat "$TMP/sel.out")
+leg "(h5) THE R1 DEFECT, DRIVEN: TWO MESH_*.log in SO-1b's root -> REFUSED rc=4.  The frozen v1.0 form was a MULTI-FILE \`grep ... | head -4\`, and under ugrep multi-file output order is a RACE" 4 "$RC5"
+N=$((N+1))
+if echo "$OUT5" | grep -q "MESH_20260821T000000Z_1.log" && echo "$OUT5" | grep -q "MESH_20260822T000000Z_2.log" && [ ! -s "$B/optref/so1b_mesh_points_sha256.txt" ]; then
+  echo "  [OK ] (h5b) ... naming BOTH candidates, and NO reference file is written -- the ambiguous read never reaches disk"
+else
+  echo "  [BAD] (h5b) ... naming BOTH candidates, and NO reference file is written"; FAIL=$((FAIL+1))
+fi
+mkmesh "$TMP/m3" 1 0; B=$(mb)
+leg "(h6) G-MESHREF-SELECT: ONE MESH_*.log carrying ZERO points-sha256 lines -> REFUSED rc=4 (a reference that names no mesh is not a reference)" 4 "$(runsel "$TMP/sel_mesh.sh" "$TMP/m3" "$B")"
+mkmesh "$TMP/m4" 1 2; B=$(mb)
+leg "(h7) G-MESHREF-SELECT: ONE MESH_*.log carrying TWO points-sha256 lines -> REFUSED rc=4.  This is the input that used to reach the GRADER and publish as a MESH-REGENERATION-DETERMINISM finding" 4 "$(runsel "$TMP/sel_mesh.sh" "$TMP/m4" "$B")"
+
+# THE DEFECT SHAPE IS GONE FROM EXECUTABLE LINES -- and the pattern is PROVEN ON A
+# KNOWN POSITIVE FIRST.  A sweep that returns zero on ground truth it has never
+# been shown to see is measuring its own regex, not the code.
+N=$((N+1))
+PROBE=$(printf 'a=$(ls -1t foo | head -1)\nb=$(grep z bar | head -4)\n' | grep -cE 'ls -1t|head -4')
+RESID=$(grep -nE 'ls -1t|head -4' "$DRIVER" | grep -vc ':[[:space:]]*#')
+if [ "$PROBE" = "2" ] && [ "$RESID" = "0" ]; then
+  echo "  [OK ] (h8) NO EXECUTABLE line of the driver still selects with \`ls -1t\` or \`head -4\` (residue=$RESID), and the sweep pattern was PROVEN on a planted known positive first (probe=$PROBE of 2)"
+else
+  echo "  [BAD] (h8) selection-defect residue=$RESID on executable lines, probe=$PROBE (want 0 and 2)"; FAIL=$((FAIL+1))
+fi
+
 # ---------------------------------------------------------------- instrument
 python3 "$HERE/so1c_xn.py" -mode F -optimum /dev/null >"$TMP/f1.out" 2>&1
 leg "(f1) the instrument refuses an unregistered mode -> rc=64" 64 $?

@@ -35,7 +35,7 @@ AGG_POLL_S=30; AGG_BOUND_S=14400
 # The launcher and grader are FROZEN (PREREGISTRATION.md section 7/8);
 # asserted before EVERY arm so a mid-chain edit cannot change what runs.
 MD5_LAUNCHER=777c33117dd65d882a9be04d27c07526
-MD5_GRADER=32af1c494db6884144151c7e7d7e81af
+MD5_GRADER=367f9fc25b3b34535cb2cddfafdc06b1   # RE-PINNED by AMENDMENT R6, 2026-08-28 (was 32af1c494db6884144151c7e7d7e81af)
 MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f
 MD5_XN=63d13c88fb915ab7695d6f1a9383a4ed
 MD5_DECOMP_SCOTCH=816f5ba44075fde47fa5db4269877bc8
@@ -94,15 +94,35 @@ echo "$MD5_GRADER  $GRADER" | md5sum -c - || { echo "ABORT grader md5 drifted be
 # optimiser's EXIT line.  A grade that says PASS beside an artefact carrying no
 # convergence statement is not a pass, it is a defect, and it stops the chain.
 # ===========================================================================
-so1b_grade_file() { ls -1t "$SO1B_BASE"/SO1b_grade_*.json 2>/dev/null | head -1; }
-SO1B_GRADE=$(so1b_grade_file)
-if [ -z "$SO1B_GRADE" ]; then
+# >>> G-SO1B-SELECT   AMENDMENT R6, 2026-08-28.  UNIQUENESS REFUSAL, NOT AN MTIME PICK.
+# THE DEFECT THIS REMOVES, as frozen at v1.0:
+#     so1b_grade_file() { ls -1t "$SO1B_BASE"/SO1b_grade_*.json ... | head -1; }
+# `ls -1t | head -1` reduced a MULTI-MEMBER SET to one member by MTIME -- an
+# ordering that is not the physics' ordering.  Which grade is THE grade of SO-1b
+# is a FINDING; it is not a question sorting is allowed to answer.  ZERO grade
+# files is the SAME BLOCKED branch as before, byte-for-byte; MORE THAN ONE is a
+# NEW refusal.  The selection is RECORDED either way: the chosen file AND the
+# full candidate list.
+SO1B_GRADE_CANDS=$(ls -1 "$SO1B_BASE"/SO1b_grade_*.json 2>/dev/null)
+if [ -z "$SO1B_GRADE_CANDS" ]; then SO1B_GRADE_N=0; else SO1B_GRADE_N=$(printf '%s\n' "$SO1B_GRADE_CANDS" | wc -l); fi
+if [ "$SO1B_GRADE_N" -eq 0 ]; then
   echo "ABORT G-SO1B no SO1b_grade_*.json under $SO1B_BASE."
   echo "  SO-1c verifies the gradient AT SO-1b's OPTIMUM; with no graded optimum"
   echo "  there is no design point to verify at.  BLOCKED at ZERO core-minutes."
   echo "chain=BLOCKED_G_SO1B reason=no_grade stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "${BASE}.STATUS.preflight" 2>/dev/null
   exit 7
 fi
+if [ "$SO1B_GRADE_N" -ne 1 ]; then
+  echo "ABORT G-SO1B $SO1B_GRADE_N files match SO1b_grade_*.json under $SO1B_BASE."
+  echo "  THIS DRIVER REFUSES TO PICK ONE.  Which grade is THE grade is a FINDING,"
+  echo "  not an ordering question.  BLOCKED at ZERO core-minutes.  Candidates:"
+  printf '    %s\n' $SO1B_GRADE_CANDS
+  echo "chain=BLOCKED_G_SO1B reason=grade_selection_ambiguous n=$SO1B_GRADE_N stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "${BASE}.STATUS.preflight" 2>/dev/null
+  exit 7
+fi
+SO1B_GRADE=$SO1B_GRADE_CANDS
+echo "G_SO1B_GRADE_SELECTED file=$SO1B_GRADE n_candidates=$SO1B_GRADE_N candidates=$(printf '%s ' $SO1B_GRADE_CANDS)"
+# <<< G-SO1B-SELECT
 python3 - "$SO1B_GRADE" "$SO1B_BASE" <<'GSO1B'
 import json, os, sys
 grade_path, so1b_base = sys.argv[1], sys.argv[2]
@@ -203,7 +223,37 @@ if [ ! -d "$BASE" ]; then
   # ---- is copied here and G-MESHID compares it to this item's own.  An inequality
   # ---- is a mesh-regeneration-determinism finding and makes the comparison
   # ---- ungradeable -- it is NOT waved through.
-  grep -ah "constant/polyMesh/points" "$SO1B_BASE"/MESH_*.log 2>/dev/null | head -4 > "$BASE/optref/so1b_mesh_points_sha256.txt"
+  # >>> G-MESHREF-SELECT   AMENDMENT R6, 2026-08-28.  UNIQUENESS REFUSAL.
+  # THE DEFECT THIS REMOVES, as frozen at v1.0:
+  #     grep -ah "constant/polyMesh/points" "$SO1B_BASE"/MESH_*.log ... | head -4
+  # a MULTI-FILE grep reduced to four lines by OUTPUT ORDER -- and under ugrep
+  # (7.8.4 on this box) multi-file output order is a RACE, so it is not even
+  # reliably first-wins.  It is the SAME defect as the grader's last-wins loop,
+  # on the OTHER side of the same equality test: this is the REFERENCE, SO-1b's
+  # root; the grader's is the SUBJECT, SO-1c's own.  BOTH SIDES NOW REFUSE ON A
+  # MULTI-MEMBER SET, so the two sides cannot disagree about what "the" mesh is.
+  # ONE NAMED FILE IS READ.  The selection is RECORDED beside the reference.
+  SO1B_MESH_CANDS=$(ls -1 "$SO1B_BASE"/MESH_*.log 2>/dev/null)
+  if [ -z "$SO1B_MESH_CANDS" ]; then SO1B_MESH_N=0; else SO1B_MESH_N=$(printf '%s\n' "$SO1B_MESH_CANDS" | wc -l); fi
+  if [ "$SO1B_MESH_N" -ne 1 ]; then
+    echo "ABORT G-MESHREF $SO1B_MESH_N files match MESH_*.log under $SO1B_BASE (exactly one is required)."
+    echo "  The mesh fingerprint SO-1c compares against must come from ONE NAMED file."
+    echo "  A multi-member set reduced by grep's multi-file output order is not a"
+    echo "  reference.  Candidates:"
+    printf '    %s\n' $SO1B_MESH_CANDS
+    exit 4
+  fi
+  SO1B_MESH_LOG=$SO1B_MESH_CANDS
+  grep -a "constant/polyMesh/points" "$SO1B_MESH_LOG" > "$BASE/optref/so1b_mesh_points_sha256.txt"
+  SO1B_MESH_REF_N=$(wc -l < "$BASE/optref/so1b_mesh_points_sha256.txt")
+  if [ "$SO1B_MESH_REF_N" -ne 1 ]; then
+    echo "ABORT G-MESHREF $SO1B_MESH_LOG carries $SO1B_MESH_REF_N points-sha256 lines (exactly one is required)."
+    echo "  A reference that names no mesh, or more than one, is not a reference."
+    exit 4
+  fi
+  { echo "G_MESHREF_SELECTED file=$SO1B_MESH_LOG n_candidates=$SO1B_MESH_N sha_lines=$SO1B_MESH_REF_N"
+    echo "G_MESHREF_CANDIDATES $(printf '%s ' $SO1B_MESH_CANDS)"; } | tee "$BASE/optref/so1b_mesh_points_sha256.SELECTION.txt"
+  # <<< G-MESHREF-SELECT
   echo "SO1C_OPTREF_STAGED patched=$(md5sum "$BASE/optref/PATCHED/so1b_E.json" | cut -d\  -f1) shipped=$(md5sum "$BASE/optref/SHIPPED/so1b_E.json" | cut -d\  -f1) mesh_ref_lines=$(wc -l < "$BASE/optref/so1b_mesh_points_sha256.txt") source=$SO1B_BASE"
   # D5-DRIVER-DEF-1 corrected form, inherited: identity on its own line;
   # staging metadata on a line that does not start with ITEM=.

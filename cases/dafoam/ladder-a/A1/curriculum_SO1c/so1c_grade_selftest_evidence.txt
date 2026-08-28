@@ -151,3 +151,90 @@ because ADJOINT_VERIFICATION_STANDARD.md section 3 registers it and because it
 NAMES the failure mode in the record -- a reader sees "sign flip at index 6", not
 only "s_g = 0.13".  This item does not claim it as an independent gate.  Unit U53
 measures the redundancy rather than asserting it.
+
+==============================================================================
+APPENDED 2026-08-28 -- AMENDMENT R6 RE-DRIVE.  dafoam lab-lane V.
+The v1.0 capture above is UNCHANGED and is not rewritten; this is a second
+capture beside it.  STILL BEFORE ANY COMPUTE: no SO-1c run root exists and no
+SO-1c row has ever appeared in verification/queue/LAUNCH_LOG.tsv.
+so1c_grade.py md5 ON DISK AT CAPTURE: 367f9fc25b3b34535cb2cddfafdc06b1   (was 32af1c494db6884144151c7e7d7e81af)
+so1c_xn.py    md5 ON DISK AT CAPTURE: 63d13c88fb915ab7695d6f1a9383a4ed   (UNCHANGED by this amendment)
+capture stamp: 2026-08-28T16:40:36Z
+FROZEN unit count 53 -> 65.  THE BUMP IS DELIBERATE and the twelve new units are
+U54-U65, each named in PREREGISTRATION.md's AMENDMENT R6 section.
+==============================================================================
+
+------------------------------------------------------------------------------
+RUN 1 of 2 -- python3, __pycache__ CLEARED IMMEDIATELY BEFORE
+------------------------------------------------------------------------------
+  [OK ] U54 THE DEFECT R6 REMOVES, DRIVEN: OpenFOAM's STARTUP BANNER `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` -- a notice that the solver is PROTECTED -- planted into checkMesh.log is NOT flagged and the item still reads PASS.  BEFORE THIS AMENDMENT THIS EXACT LINE REFUSED WITH ZERO GATES EVALUATED, which is what SO-1a's grader did on a clean 5-arm run.  The plant is CROSS-ASSERTED byte-identical to /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log:18
+  [OK ] U55 THE SUPPRESSION IS NOT SILENT: the PASS record counts exactly ONE excluded benign line, names the FILE it came from (checkMesh.log, NOT the arm log) and prints WHY it is benign
+  [OK ] U56 AND THE OTHER DIRECTION: a REAL `FOAM FATAL ERROR` block in the SAME artefact -- the SCRIPT-arm path that fired on SO-1a -- STILL REFUSES
+  [OK ] U57 THE EXCLUSION IS PER LINE, NOT PER FILE: a REAL SIGFPE crash (`Foam::sigFpe::sigHandler(int)` + `Floating point exception (core dumped)`) SITTING BESIDE the benign banner in one file STILL REFUSES.  This is the unit that proves the repair did not simply blind C5 to SIGFPE
+  [OK ] U58 THE SECOND, SMALLER DEFECT: the refusal NAMES THE FILE AND LINE of every hit, and the named file is `checkMesh.log`.  SO-1a's refusal named the ARM log for a token that appears nowhere in it -- a reader sent to the wrong file
+  [OK ] U59 THE LINE SPLIT LOSES NO TOKEN: each of the 10 registered FATAL_TOKENS, planted ALONE on a line that is not an enablement notice, STILL REFUSES.  A scanner rewritten from whole-file to line-by-line is measured, not assumed
+  [OK ] U65 THE ADOPTED HANDLER SYMBOL IS INDEPENDENTLY LOAD-BEARING, AND THIS UNIT IS WHY IT IS NOT DECORATION: a stack trace whose ONLY fatal string is `Foam::sigFpe::sigHandler(int)` -- an FPE crash whose shell line never reached the log -- REFUSES.  The token is HARD-CODED here, not read from FATAL_TOKENS, so removing it from that tuple FLIPS THIS UNIT.  U59 alone could not: it is defined in terms of the tuple, so a mutation that empties the tuple also empties U59's loop, and the mutation measured INERT before this unit existed
+  [OK ] U64 A REAL, UNCONSTRUCTED OPENFOAM LOG -- S0_20260828T162848Z_1898005.log, 339 lines, 4 banner lines, 5 `End` lines, ZERO real fatal tokens -- planted whole into checkMesh.log STILL READS PASS, with all 4 benign lines counted and named.  The banner is not a corner case: closure measured it on 63 of 70 archived logs, 57 of them cleanly completed, so a scanner that refuses on it refuses on almost every log the lab holds
+  [OK ] U60 TWO files match MESH_*.log in the run root -> NOT A RESULT labelled a READER CONDITION, with BOTH candidates named.  BEFORE THIS AMENDMENT the last-wins loop SILENTLY PICKED ONE and the item read PASS -- an ambiguity resolved in favour of a pass
+  [OK ] U61 THE :934 DEFECT, DRIVEN: SO-1b's fingerprint carrying TWO distinct sha256s -- what the driver's `head -4` produced from a multi-log root -- now reads NOT A RESULT, READER CONDITION.  BEFORE THIS AMENDMENT IT PUBLISHED AS `MESH_REGENERATION_IS_NOT_DETERMINISTIC` AND GATE FAIL: a reader defect wearing a fluent physics sentence
+  [OK ] U62 AND THE REPAIR DOES NOT BLUNT THE GATE: ONE candidate, ONE sha each side, MISMATCHED -> GATE FAIL with the PHYSICS sentence and cause_class MESH_FINDING.  The physics reason is now emitted ONLY where the comparison actually ran
+  [OK ] U63 THE NON-MISMATCH IS NOT FLAGGED, AND THE SELECTION IS ON THE RECORD: one candidate, PASS, with the CHOSEN FILE and the FULL CANDIDATE LIST printed beside the verdict -- a selection a reader cannot see is not a selection
+
+SO1c grader selftest: 65 units, 0 fail
+
+------------------------------------------------------------------------------
+RUN 2 of 2 -- python3 -O, __pycache__ CLEARED IMMEDIATELY BEFORE
+------------------------------------------------------------------------------
+  [OK ] U54 THE DEFECT R6 REMOVES, DRIVEN: OpenFOAM's STARTUP BANNER `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` -- a notice that the solver is PROTECTED -- planted into checkMesh.log is NOT flagged and the item still reads PASS.  BEFORE THIS AMENDMENT THIS EXACT LINE REFUSED WITH ZERO GATES EVALUATED, which is what SO-1a's grader did on a clean 5-arm run.  The plant is CROSS-ASSERTED byte-identical to /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log:18
+  [OK ] U55 THE SUPPRESSION IS NOT SILENT: the PASS record counts exactly ONE excluded benign line, names the FILE it came from (checkMesh.log, NOT the arm log) and prints WHY it is benign
+  [OK ] U56 AND THE OTHER DIRECTION: a REAL `FOAM FATAL ERROR` block in the SAME artefact -- the SCRIPT-arm path that fired on SO-1a -- STILL REFUSES
+  [OK ] U57 THE EXCLUSION IS PER LINE, NOT PER FILE: a REAL SIGFPE crash (`Foam::sigFpe::sigHandler(int)` + `Floating point exception (core dumped)`) SITTING BESIDE the benign banner in one file STILL REFUSES.  This is the unit that proves the repair did not simply blind C5 to SIGFPE
+  [OK ] U58 THE SECOND, SMALLER DEFECT: the refusal NAMES THE FILE AND LINE of every hit, and the named file is `checkMesh.log`.  SO-1a's refusal named the ARM log for a token that appears nowhere in it -- a reader sent to the wrong file
+  [OK ] U59 THE LINE SPLIT LOSES NO TOKEN: each of the 10 registered FATAL_TOKENS, planted ALONE on a line that is not an enablement notice, STILL REFUSES.  A scanner rewritten from whole-file to line-by-line is measured, not assumed
+  [OK ] U65 THE ADOPTED HANDLER SYMBOL IS INDEPENDENTLY LOAD-BEARING, AND THIS UNIT IS WHY IT IS NOT DECORATION: a stack trace whose ONLY fatal string is `Foam::sigFpe::sigHandler(int)` -- an FPE crash whose shell line never reached the log -- REFUSES.  The token is HARD-CODED here, not read from FATAL_TOKENS, so removing it from that tuple FLIPS THIS UNIT.  U59 alone could not: it is defined in terms of the tuple, so a mutation that empties the tuple also empties U59's loop, and the mutation measured INERT before this unit existed
+  [OK ] U64 A REAL, UNCONSTRUCTED OPENFOAM LOG -- S0_20260828T162848Z_1898005.log, 339 lines, 4 banner lines, 5 `End` lines, ZERO real fatal tokens -- planted whole into checkMesh.log STILL READS PASS, with all 4 benign lines counted and named.  The banner is not a corner case: closure measured it on 63 of 70 archived logs, 57 of them cleanly completed, so a scanner that refuses on it refuses on almost every log the lab holds
+  [OK ] U60 TWO files match MESH_*.log in the run root -> NOT A RESULT labelled a READER CONDITION, with BOTH candidates named.  BEFORE THIS AMENDMENT the last-wins loop SILENTLY PICKED ONE and the item read PASS -- an ambiguity resolved in favour of a pass
+  [OK ] U61 THE :934 DEFECT, DRIVEN: SO-1b's fingerprint carrying TWO distinct sha256s -- what the driver's `head -4` produced from a multi-log root -- now reads NOT A RESULT, READER CONDITION.  BEFORE THIS AMENDMENT IT PUBLISHED AS `MESH_REGENERATION_IS_NOT_DETERMINISTIC` AND GATE FAIL: a reader defect wearing a fluent physics sentence
+  [OK ] U62 AND THE REPAIR DOES NOT BLUNT THE GATE: ONE candidate, ONE sha each side, MISMATCHED -> GATE FAIL with the PHYSICS sentence and cause_class MESH_FINDING.  The physics reason is now emitted ONLY where the comparison actually ran
+  [OK ] U63 THE NON-MISMATCH IS NOT FLAGGED, AND THE SELECTION IS ON THE RECORD: one candidate, PASS, with the CHOSEN FILE and the FULL CANDIDATE LIST printed beside the verdict -- a selection a reader cannot see is not a selection
+
+SO1c grader selftest: 65 units, 0 fail
+
+------------------------------------------------------------------------------
+BEFORE / AFTER, DRIVEN THROUGH THE REAL COMPARATOR ON THE SAME PLANTED INPUTS.
+The fixture is built by the comparator's OWN _fix(); the plant is written INTO
+THE ARTEFACT ON DISK and read back off disk by grade().  The benign-banner plant
+is byte-copied from line 18 of
+/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log
+------------------------------------------------------------------------------
+  input                              BEFORE (v1.0)                AFTER (R6)
+  benign trapFpe banner alone        REFUSED, 0 gates evaluated   item PASS
+  real FOAM FATAL ERROR block        REFUSED                      REFUSED
+  real SIGFPE crash beside banner    REFUSED                      REFUSED (2 tokens)
+  clean control, no plant            item PASS                    item PASS
+  TWO MESH_*.log in the run root     item PASS (silent pick)      NOT A RESULT, reader
+  reference carrying TWO sha256s     GATE FAIL, physics sentence  NOT A RESULT, reader
+  ONE each, MISMATCHED               GATE FAIL, physics sentence  GATE FAIL, physics
+  ONE each, MATCHING                 item PASS                    item PASS
+
+------------------------------------------------------------------------------
+AMENDMENT R6 MUTATION CONTROLS -- FOUR DRIVEN, FOUR LOAD-BEARING, AND THE ONE
+THAT MEASURED INERT IS RECORDED WITH THE UNIT WRITTEN TO FIX IT.
+------------------------------------------------------------------------------
+  M-R6-a  BENIGN_LINE_PATTERNS = ()          -> THE SUITE ABORTS at U54 with an
+          (the exclusion disarmed)              UNCAUGHT Refusal naming
+                                                checkMesh.log:1 and the trapFpe
+                                                banner, exit rc=1.  The mutation
+                                                REPRODUCES THE ORIGINAL DEFECT.
+  M-R6-b  the >1-candidate refusal removed   -> flips U60
+  M-R6-c  the multi-sha reference refusal    -> flips U61
+          removed
+  M-R6-d  "Foam::sigFpe::sigHandler" removed -> MEASURED INERT ON FIRST DRIVE, and
+          from FATAL_TOKENS                     that is recorded rather than hidden:
+                                                U59 is defined IN TERMS OF the
+                                                tuple, so emptying the tuple also
+                                                empties U59's loop.  U65 was
+                                                written with the token HARD-CODED
+                                                and M-R6-d RE-DRIVEN: it now
+                                                flips U65.  A mutation that
+                                                changes no verdict proves nothing.

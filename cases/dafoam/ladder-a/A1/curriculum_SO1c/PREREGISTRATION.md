@@ -286,3 +286,160 @@ Driven at **U28** (host 30.4 above a 30.0 cap, container 29.9 inside → `PASS`)
 **ENQUEUEING IS NOT AUTHORISATION**: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own, discharged on the sha, and is not discharged by this document or by the queue entry.
 
 **Predicted outcome, so it cannot be written afterwards:** P-A, P-MESHID, P-1, P-2, P-4 through P-7, P-TB, P-I, P-mesh and P-CLOCK **HIT** (P-3 `NOT_MEASURED` pending AV-1R) → **both rows `GATE FAIL` on their `scotch` arms, both `simple` arms `PASS`, item `GATE FAIL`** — and the lab gains its first measurement of what a decomposition **method** does to a gradient **at an optimum**, with an FD table beside it.
+
+---
+
+## AMENDMENT R6 — 2026-08-28, TWO READER DEFECTS CLOSED PRE-COMPUTE. **The document is v1.1.** No gate, threshold, band, cap, label, cost or prediction moves.
+
+Lane: dafoam `lab-lane` (V). Supervisor: `dafoam-supervisor`. **This amendment is a repair to two INSTRUMENTS; it repairs nothing in the text above, which is not edited.**
+
+### R6.0 `lines whose number changed above this section: 0`
+
+Not a claim — a byte comparison, made in the same shell invocation that appended this section. The **288 lines / 43971 bytes** above the horizontal rule that opens this section are **byte-identical** to `PREREGISTRATION.md` at the v1.0 freeze commit `bd7f68d67f3de225eac6425650f2fd4cda1dd579`, and byte-identical to the same path at `d87e4a7ffaa96f43ee91e53493f286348ea3b84c`. Nothing above was struck, rewritten or renumbered. The header still reads **Version 1.0. FROZEN.** deliberately: that line is a true statement about the frozen document, and rewriting it is exactly the edit rule 6 forbids. The version bump is carried here.
+
+The cap-manifest comment on **line 6 is untouched**, so `G-CAP-PREREG` channel (a) reads the same caps from disk and channel (b) reads the same line from `git show HEAD:` — both channels of that guard read exactly as they did at the freeze, and this section deliberately does not reproduce that comment's token so nothing here can be mistaken for a second manifest.
+
+### R6.1 The rule-2 condition, in `VERIFICATION_CHARTER.md` §2b's own terms
+
+**Before first compute, amendments are legal and must state the condition and how it was checked, naming the run directory that does not exist.** Re-verified by this lane, in one shell invocation, at **2026-08-28T16:44:46Z**:
+
+* `/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv` — **DOES NOT EXIST** (`test -e` false). This is the registered run root, named in `so1c_chain_driver.sh:29` and in §8 above.
+* `/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-gradient` — **DOES NOT EXIST.**
+* `/home/ubuntu/certonomous-runs/CURRICULUM-SO1c` — **DOES NOT EXIST.**
+* `/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012` — **DOES NOT EXIST.**
+* `find /home/ubuntu/certonomous-runs -maxdepth 1 -iname '*so1c*'` returns **nothing**, and the same command **shown working on a known positive** returns SO-1a's root — a zero from a finder never shown able to find is not evidence (rule 3's logic applied to the check itself).
+* `verification/queue/LAUNCH_LOG.tsv` carries **0 rows matching `so1c`** against **1 matching `so1a`** — the same grep proving it can see one.
+
+> **ONE CHECK IS RETIRED AND WAS NOT USED.** `sudo -n docker ps -a --filter name=so1c` returning empty **is not evidence**: the identical filter returns empty for `so1a`, which demonstrably ran five containers, because Docker history is pruned after inspect. A zero from that reader is blind to exactly the class being asked about.
+
+**0 core-min of solver compute has been spent on SO-1c, and no container of any kind has been created by this lane.** The amendment's own cost is local `python3`/`bash` on the head node: two grader suites and one guard suite, **0 solver core-minutes, 0 GPU-hours**, against a pre-registered item estimate of 40.2 core-min that is **unchanged and still unspent**.
+
+### R6.2 DEFECT 1 — the C5 banner false positive. **CONFIRMED at every link.**
+
+The frozen v1.0 comparator, by line:
+
+| site | frozen text |
+|---|---|
+| `so1c_grade.py:155–157` | `FATAL_TOKENS = (…, "Floating point exception")` — a **bare substring** |
+| `so1c_grade.py:449` | `return [t for t in FATAL_TOKENS if t in text]` — whole-file substring test |
+| `so1c_grade.py:137` | `ARTEFACT["MESH"] = "checkMesh.log"` |
+| `so1c_grade.py:516` | `hay = text + (open(art).read() if kind == "SCRIPT" else "")` |
+| `so1c_grade.py:517–520` | the refusal, whose `"log"` field names the **arm** log |
+
+**Measured, not inferred.** Line 18 of `/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log` reads
+
+> `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).`
+
+count **1** in that file; count **0** in the MESH arm log the refusal cites; count **0** in all four of SO-1a's solver arm logs. SO-1a's grade artefact `SO1a_grade_20260828T023132Z.json` records `verdict: NOT A RESULT` with `C5_fatal_token_in_arm_output: ["Floating point exception"], arm: MESH, log: MESH_20260828T021739Z_1709267.log` — **a refusal citing a file in which the token appears zero times**, on a run whose five arms were all `rc = 0`. **Zero gates were evaluated.**
+
+**The base rate is not marginal.** Closure measured the banner on **63 of 70** archived logs, **57** of them cleanly completed. The supervisor independently stopped a live run over the same defect at 16:33:52Z today: `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S0_20260828T162848Z_1898005.log` is 339 lines with **4 banner hits, 0 real fatal tokens and 5 `End` lines**. A scanner that refuses on this line refuses on almost every log the lab holds.
+
+### R6.3 DEFECT 2 — the G-MESHID selection defect. **CONFIRMED, and one framing corrected.**
+
+| site | frozen text |
+|---|---|
+| `so1c_grade.py:907–908` | `for cand in sorted(glob.glob(root/"MESH_*.log")): mine_src = cand` — **LAST-WINS** |
+| `so1c_grade.py:934` | the `GATE FAIL` reason **pre-written** as `MESH_REGENERATION_IS_NOT_DETERMINISTIC …` |
+| `so1c_chain_driver.sh:206` | `grep -ah … "$SO1B_BASE"/MESH_*.log … | head -4` |
+| `so1c_chain_driver.sh:97` | `so1b_grade_file() { ls -1t … | head -1; }` — an **mtime** pick |
+
+**CORRECTION OF FACT I OWE UPWARD, and it makes the defect more interesting rather than less.** The two sides are not two selections from *one* candidate set. The grader globs **SO-1c's own** run root (the **subject**); the driver globs **SO-1b's** run root (the **reference**). They are the two *sides of one equality test*, each independently reducing its own multi-member set. And `head -4` is not reliably "first": `grep` on this box is **ugrep 7.8.4**, where multi-file output order is a **race** — so the frozen reference is not merely mis-ordered, it is **non-deterministic**.
+
+**The `:934` defect is not hypothetical; it was driven and measured.** Against the **frozen v1.0 comparator**, a reference file carrying two sha256 lines — exactly what `head -4` produces from a two-log root — returned **`GATE FAIL`, `MESH_REGENERATION_IS_NOT_DETERMINISTIC`, item `GATE FAIL`.** A reader defect published as a fluent, quotable physics finding about mesh non-determinism. And two `MESH_*.log` in the subject root returned **item `PASS`** — an ambiguity silently resolved in favour of a pass.
+
+### R6.4 THE REPAIRS, AND WHY THESE SHAPES
+
+**C5 — the token is NOT deleted.** Deleting `"Floating point exception"` would blind C5 to a real SIGFPE crash, and a missed crash laundered into a result is strictly worse than a false refusal. The scan is **line-by-line and per source file** (`so1c_grade.py:510` `benign_reason`, `:519` `fatal_token_sites`, `:616` the C5 site), with a narrow, named **exclusion list** at `:214` `BENIGN_LINE_PATTERNS` — one entry, `^\s*trapFpe:\s`, because `trapFpe:` is the diagnostic prefix of OpenFOAM's FPE-trapping **setup** code and a crash never prefixes itself with it. **Every exclusion is counted and named on the PASS record**; a suppression a reader cannot see is the same defect wearing the other hat.
+
+> **TWO LAB IMPLEMENTATIONS WERE READ BEFORE THIS ONE WAS WRITTEN.** `sdk/chief_engineer/mesh_certificate.py:73` **deletes** the FPE and segfault tokens and leans on a required `^End` marker, calibrated on 105 real checkMesh logs — **right for its scope, rejected for this one**, because it certifies checkMesh only, where a crash cannot be an MPI abort, while C5 here also scans four np = 4 solver logs. `sdk/chief_engineer/head_engineer.py:188` matches `Foam::sigFpe::sigHandler|^Floating point exception`. **Its handler symbol is ADOPTED** as a tenth `FATAL_TOKENS` entry — a strictly *additional* refusal on a genuine crash signature, which strengthens detection. **Its line anchor is NOT adopted, and the reason is this item's own regime:** at np = 4 the realistic FPE report is OpenMPI's — `mpirun noticed that process rank 2 exited on signal 8 (Floating point exception).` — which is neither line-initial nor accompanied by the handler symbol, and `^Floating point exception` would miss it. An exclusion list costs a false refusal where it is too narrow; a positive anchor costs a **missed crash** where it is too narrow.
+
+**The refusal now names its own evidence.** `token_sites` carries the **file and line** of every hit and `files_scanned` lists what was read; the note states in the artefact that `log` is the arm's log and is *not necessarily* the file carrying the hit.
+
+**G-MESHID — uniqueness refusal on both sides, not a better sort.** Grader `so1c_grade.py:1037` enumerates candidates and **refuses on more than one**; it also refuses when either side resolves to more than one distinct sha256. Driver `so1c_chain_driver.sh:97–125` (`G-SO1B-SELECT`) and `:226–256` (`G-MESHREF-SELECT`) apply the **same rule** so the two sides cannot disagree about what "the" mesh or "the" grade is; each reads **one named file** and each **records the selection** — the chosen file, the candidate count and the full candidate list, printed and written beside the reference as `optref/so1b_mesh_points_sha256.SELECTION.txt`. The R5 `ls -1t | head -1` pick gets the identical treatment: **zero** grade artefacts is the pre-existing `BLOCKED` branch, byte-preserved with `reason=no_grade`; **more than one** is a new refusal with `reason=grade_selection_ambiguous` naming every candidate.
+
+**`:934` — a refusal now reads as a refusal.** Every reader-condition outcome is `NOT A RESULT` carrying `cause_class: READER_CONDITION_NOT_A_MESH_FINDING`, and **does not contain the mesh-regeneration-determinism sentence at all — not even to explain itself**, because a downstream reader greps the reason string. That sentence is emitted only where the comparison actually ran on one unambiguous sha per side, and then carries `cause_class: MESH_FINDING`. *(The unit enforcing this caught my own first draft, which quoted the forbidden sentence inside the new reason text.)*
+
+### R6.5 BOTH DIRECTIONS, DRIVEN THROUGH THE REAL CODE PATH, WITH THE PLANT ON DISK
+
+The fixture is built by the comparator's **own** `_fix()` — the builder all registered units use — the plant is written **into the artefact on disk**, and `grade()` reads it back off disk. The benign-banner plant is **byte-copied from line 18 of SO-1a's real `checkMesh.log`**, and unit U54 cross-asserts that copy against the file. `__pycache__` was cleared before every run.
+
+| planted input | **BEFORE** (v1.0, frozen) | **AFTER** (R6) |
+|---|---|---|
+| benign `trapFpe:` banner alone | **REFUSED**, 0 gates evaluated | item **PASS** |
+| real `FOAM FATAL ERROR` block in the artefact | REFUSED | **REFUSED** |
+| real SIGFPE crash **beside** the banner, same file | REFUSED | **REFUSED**, 2 tokens named |
+| clean control, no plant | item PASS | item **PASS** |
+| **two** `MESH_*.log` in the run root | item **PASS** (silent pick) | **NOT A RESULT**, reader condition |
+| reference carrying **two** sha256s | **GATE FAIL**, physics sentence | **NOT A RESULT**, reader condition |
+| one each, **mismatched** | GATE FAIL, physics sentence | **GATE FAIL**, physics sentence |
+| one each, **matching** | item PASS | item **PASS** |
+
+**The contrast is the evidence.** Rows 1, 5 and 6 are the defect firing on the frozen instrument; rows 2, 3, 7 and 8 are the proof the repair did not blunt anything.
+
+**Suites — before and after, both interpreters, `__pycache__` cleared before each run:**
+
+| suite | v1.0 | R6 | verdict |
+|---|---|---|---|
+| `so1c_grade.py --selftest`, `python3` | 53 units, 0 fail | **65 units, 0 fail** | rc 0 |
+| `so1c_grade.py --selftest`, `python3 -O` | 53 units, 0 fail | **65 units, 0 fail** | rc 0 |
+| `so1c_groot5_selftest.sh` | 35 legs, 0 fail | **49 legs, 0 fail** | rc 0 |
+
+**`EXPECTED_UNITS` 53 → 65 is a DELIBERATE bump**, carried at `so1c_grade.py:210` with the reason in the constant's own comment. The twelve units are **U54** benign banner passes (plant cross-asserted against SO-1a's file), **U55** the exclusion is counted, named and attributed to `checkMesh.log`, **U56** a real FOAM FATAL in the artefact still refuses, **U57** a real SIGFPE *beside* the banner still refuses (the exclusion is per line, not per file), **U58** the refusal names file and line and the named file is `checkMesh.log`, **U59** every registered token still refuses when planted alone (the line split loses nothing), **U60** two candidates → reader `NOT A RESULT`, **U61** a two-sha reference → reader `NOT A RESULT`, **U62** a genuine mismatch still `GATE FAIL` with the physics sentence, **U63** a genuine match still `PASS` with its selection on the record, **U64** a **real, unconstructed** 339-line OpenFOAM log driven whole through the comparator, **U65** the adopted handler symbol is independently load-bearing. The guard suite gains **h0–h8**: both driver blocks are **extracted verbatim from the frozen driver between their own markers and executed** — never re-implemented — and h8 asserts the defect shape is gone from executable lines **with its sweep pattern proven on a planted known positive first**.
+
+**FOUR R6 MUTATION CONTROLS, AND THE ONE THAT MEASURED INERT IS REPORTED, NOT HIDDEN:**
+
+| mutation | effect |
+|---|---|
+| `BENIGN_LINE_PATTERNS = ()` | **the suite ABORTS at U54** with an uncaught `Refusal` naming `checkMesh.log:1` and the banner, rc 1 — the mutation **reproduces the original defect** |
+| the `> 1` candidate refusal removed | flips **U60** |
+| the multi-sha reference refusal removed | flips **U61** |
+| `"Foam::sigFpe::sigHandler"` removed from `FATAL_TOKENS` | **MEASURED INERT ON FIRST DRIVE.** U59 is defined *in terms of* the tuple, so emptying the tuple also empties U59's loop. **U65 was then written with the token hard-coded and the mutation re-driven: it now flips U65.** A mutant that changes no verdict is not evidence |
+
+### R6.6 EVERY md5 RE-DERIVED, AND EVERY SITE UPDATED
+
+Re-derived in the invocation that wrote this section. **§7's table above is frozen prose and is NOT edited in place; it is superseded here, and this is the table a reader must use.**
+
+| file | md5 at the v1.0 freeze | **md5 now** | |
+|---|---|---|---|
+| `so1c_grade.py` | `32af1c494db6884144151c7e7d7e81af` | **`367f9fc25b3b34535cb2cddfafdc06b1`** | **CHANGED** |
+| `so1c_chain_driver.sh` | `55614d4aa953fee29ceccbc7c1785baf` | **`fce4a92f2a1cb07c98c4c8327e0e5dd0`** | **CHANGED** |
+| `so1c_run_arm.sh` | `777c33117dd65d882a9be04d27c07526` | `777c33117dd65d882a9be04d27c07526` | unchanged |
+| `so1c_xn.py` | `63d13c88fb915ab7695d6f1a9383a4ed` | `63d13c88fb915ab7695d6f1a9383a4ed` | unchanged |
+| `so1c_runScript.py` | `0557da51f6f179f6de865144343c499f` | `0557da51f6f179f6de865144343c499f` | unchanged |
+| `so1c_decomposeParDict_scotch` | `816f5ba44075fde47fa5db4269877bc8` | `816f5ba44075fde47fa5db4269877bc8` | unchanged |
+| `so1c_decomposeParDict_simple` | `194c330803077f0ffa4341f468c09768` | `194c330803077f0ffa4341f468c09768` | unchanged |
+| `so1c_aggregate_memory.py` | `709ab0b98ef0302a3a3a318588f9493f` | `709ab0b98ef0302a3a3a318588f9493f` | unchanged |
+| `so1c_groot5_selftest.sh` *(not a pinned file)* | `225a608db2f2196737ccf8599d3f7423` | `1a4d25987cd2a1a2e17a6ec7ce455eeb` | changed |
+
+**PIN SITES SWEPT AND UPDATED — how the sweep was run:** `grep -rn` for each of the four instrument md5 literals across the case directory, `docs/LAB_STATE.md`, `docs/dafoam/` and `verification/queue/`, each pattern first shown finding a known positive. Four sites carry the grader hash and two carry the driver hash:
+
+* **`so1c_chain_driver.sh:38` `367f9fc25b3b34535cb2cddfafdc06b1R` — THE ONLY EXECUTABLE PIN. RE-PINNED.** The driver asserts it before staging and again at the grade; a stale pin aborts the chain at run time, which is how W3 lost a launch this morning. Verified in the same invocation: the pin **equals** the grader's md5 on disk.
+* **§7's table and §8's sentence above** — frozen prose, **not edited**, **superseded by the table here.**
+* **`QUEUE_ENTRY_DRAFT.json`** — a draft, **not enqueued**, updated in place: new hashes, the supersession stated rather than the old values quietly overwritten, and the unit/leg counts corrected to 65 and 49.
+* **Both selftest evidence files** — the v1.0 captures are **left intact** and a dated R6 capture is **appended beside** them.
+
+**The launcher's `0557da51f6f179f6de865144343c499fCRIPT` / `63d13c88fb915ab7695d6f1a9383a4ed` / `MD5_DECOMP_*` and the driver's tutorial-input hashes are untouched**, because none of those files moved.
+
+### R6.7 WHAT MOVED, WHAT DID NOT, AND ONE §7 LINE-NUMBER CORRECTION
+
+**NO GATE, THRESHOLD, BAND, CAP, LABEL, COST, PREDICTION OR ARM MOVES.** `S_G_BAND`, `S_J_BAND`, band D, band E, the plateau tolerance, `MIN_GRADED`, `CAPS`, `ITEM_CEILING_CORE_MIN`, `PREDICTED_CORE_MIN`, `CELLS_EXPECTED`, `REGISTERED_NPROCS`, the cpuset, the deadlines, `cost_core_min_estimate 40.2`, `cap_core_min_registered 125.0` and every registered prediction P-A … P-CLOCK are **byte-unchanged**. This amendment adds **refusals on ambiguous or misread inputs** and **removes a refusal on a benign one**; on any well-formed input it changes no comparison and no verdict — which is exactly what the eight-row before/after table above measures.
+
+**§7's guard-placement line numbers for `so1c_chain_driver.sh` have SHIFTED and are corrected here** — the driver gained two blocks above them. §7 above is not edited; these are the numbers to use:
+
+| guard | §7 (v1.0) | **now** |
+|---|---|---|
+| `G-SO1B` refuses | :100 | **:109** |
+| `G-SO1B` passes | :162 | **:183** |
+| the run root is created | :180 | **:200** |
+| the optref is staged | :207 | **:247** |
+| the first launcher call | :288 | **:338** |
+| **new** `G-SO1B-SELECT` | — | **:97–125** |
+| **new** `G-MESHREF-SELECT` | — | **:226–256** |
+
+**Every guard still precedes every destructive step and every spending step**, re-measured and strictly increasing: 97 < 109 < 125 < 183 < 200 < 226 < 247 < 338. **`so1c_run_arm.sh` is byte-unchanged and §7's launcher numbers are INTACT** — re-confirmed by the suite's own legs (b2) `G-ROOT.5 pass :304 < rm -rf :482 < docker run :614` and (d2) `G-CAP-PREREG :369 < G-OPTDEP :469 < rm -rf :482`.
+
+> **A CORRECTION AGAINST MYSELF, RECORDED BECAUSE IT IS THE LESSON.** My first probe of the launcher's placement used a looser pattern than the suite's and reported `G-ROOT.5` at `:282` against §7's `:304` — a discrepancy that did not exist. The suite anchors on `D4S_G_ROOT5_PASS`; I anchored on `G-ROOT.5`, which matches an earlier line. **A sweep that disagrees with ground truth is measuring its own pattern until proven otherwise**, and I very nearly reported a defect in a file I had not touched.
+
+### R6.8 WHAT THIS AMENDMENT DOES NOT DO
+
+It **does not enqueue SO-1c** — that is the supervisor's call, and `SUPERVISION_CHARTER.md` §3 check 4 is discharged by the supervisor on the sha, not by this document. It lands **nothing** on SO-1a or on W3, whose gates are **CLOSED** — SO-1a's defect is recorded here as evidence and is **not repaired in its frozen instrument**. It files, sends, uploads, registers, posts and comments **nothing** (rule 7; SUBMISSIONS PARKED). It repairs no other item's copy of this defect: `so1a_grade.py:122–125` still carries the bare token, and that is a **finding for the supervisor**, not a change this lane may make post-compute.

@@ -1,5 +1,5 @@
 --- ../curriculum_SO1a/so1a_chain_driver.sh	2026-08-27 17:19:53.187447123 +0000
-+++ so1c_chain_driver.sh	2026-08-27 22:16:35.559572549 +0000
++++ so1c_chain_driver.sh	2026-08-28 16:39:53.792967153 +0000
 @@ -1,61 +1,45 @@
  #!/usr/bin/env bash
 -# SO-1a chain driver -- DERIVED from curriculum_D15/so1a_chain_driver.sh
@@ -79,7 +79,7 @@
 -MD5_LAUNCHER=dbe6e2b6ffd2f6630b7b40d91bfff61e
 -MD5_GRADER=6966d19eeccd275b45fe9a5492eef6d2
 +MD5_LAUNCHER=777c33117dd65d882a9be04d27c07526
-+MD5_GRADER=32af1c494db6884144151c7e7d7e81af
++MD5_GRADER=367f9fc25b3b34535cb2cddfafdc06b1   # RE-PINNED by AMENDMENT R6, 2026-08-28 (was 32af1c494db6884144151c7e7d7e81af)
  MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f
 -MD5_XF=f34bd5bf550786ff926aed81b342cced
 -MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
@@ -89,7 +89,7 @@
  # the shipped tutorial's INPUT bytes, frozen here because the checkout is not
  MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f
  MD5_TUT_GEN=681f10659eb90457fca13fc933008b93
-@@ -63,11 +47,130 @@
+@@ -63,11 +47,150 @@
  MD5_TUT_PS=51dfed28e1bdb4cd33e0d8d7dabd586a
  MD5_TUT_SS=4a6b8ef4501494c7693b71e88a2eabbf
  MD5_TUT_FFD=6ddf378b028d03d8a18270488bee1759
@@ -142,15 +142,35 @@
 +# optimiser's EXIT line.  A grade that says PASS beside an artefact carrying no
 +# convergence statement is not a pass, it is a defect, and it stops the chain.
 +# ===========================================================================
-+so1b_grade_file() { ls -1t "$SO1B_BASE"/SO1b_grade_*.json 2>/dev/null | head -1; }
-+SO1B_GRADE=$(so1b_grade_file)
-+if [ -z "$SO1B_GRADE" ]; then
++# >>> G-SO1B-SELECT   AMENDMENT R6, 2026-08-28.  UNIQUENESS REFUSAL, NOT AN MTIME PICK.
++# THE DEFECT THIS REMOVES, as frozen at v1.0:
++#     so1b_grade_file() { ls -1t "$SO1B_BASE"/SO1b_grade_*.json ... | head -1; }
++# `ls -1t | head -1` reduced a MULTI-MEMBER SET to one member by MTIME -- an
++# ordering that is not the physics' ordering.  Which grade is THE grade of SO-1b
++# is a FINDING; it is not a question sorting is allowed to answer.  ZERO grade
++# files is the SAME BLOCKED branch as before, byte-for-byte; MORE THAN ONE is a
++# NEW refusal.  The selection is RECORDED either way: the chosen file AND the
++# full candidate list.
++SO1B_GRADE_CANDS=$(ls -1 "$SO1B_BASE"/SO1b_grade_*.json 2>/dev/null)
++if [ -z "$SO1B_GRADE_CANDS" ]; then SO1B_GRADE_N=0; else SO1B_GRADE_N=$(printf '%s\n' "$SO1B_GRADE_CANDS" | wc -l); fi
++if [ "$SO1B_GRADE_N" -eq 0 ]; then
 +  echo "ABORT G-SO1B no SO1b_grade_*.json under $SO1B_BASE."
 +  echo "  SO-1c verifies the gradient AT SO-1b's OPTIMUM; with no graded optimum"
 +  echo "  there is no design point to verify at.  BLOCKED at ZERO core-minutes."
 +  echo "chain=BLOCKED_G_SO1B reason=no_grade stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "${BASE}.STATUS.preflight" 2>/dev/null
 +  exit 7
 +fi
++if [ "$SO1B_GRADE_N" -ne 1 ]; then
++  echo "ABORT G-SO1B $SO1B_GRADE_N files match SO1b_grade_*.json under $SO1B_BASE."
++  echo "  THIS DRIVER REFUSES TO PICK ONE.  Which grade is THE grade is a FINDING,"
++  echo "  not an ordering question.  BLOCKED at ZERO core-minutes.  Candidates:"
++  printf '    %s\n' $SO1B_GRADE_CANDS
++  echo "chain=BLOCKED_G_SO1B reason=grade_selection_ambiguous n=$SO1B_GRADE_N stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "${BASE}.STATUS.preflight" 2>/dev/null
++  exit 7
++fi
++SO1B_GRADE=$SO1B_GRADE_CANDS
++echo "G_SO1B_GRADE_SELECTED file=$SO1B_GRADE n_candidates=$SO1B_GRADE_N candidates=$(printf '%s ' $SO1B_GRADE_CANDS)"
++# <<< G-SO1B-SELECT
 +python3 - "$SO1B_GRADE" "$SO1B_BASE" <<'GSO1B'
 +import json, os, sys
 +grade_path, so1b_base = sys.argv[1], sys.argv[2]
@@ -222,7 +242,7 @@
  # ---- (4) ROOT STAGING on the first fire only ------------------------------
  if [ ! -d "$BASE" ]; then
    test -d "$TUT_SRC" || { echo "ABORT tutorial source absent: $TUT_SRC"; exit 4; }
-@@ -79,17 +182,40 @@
+@@ -79,17 +202,70 @@
    mkdir -p "$BASE/base" || exit 4
    cp -a "$TUT_SRC/0.orig" "$TUT_SRC/FFD" "$TUT_SRC/constant" "$TUT_SRC/system" "$TUT_SRC/profiles" "$TUT_SRC/genAirFoilMesh.py" "$TUT_SRC/preProcessing.sh" "$BASE/base/" || { echo "ABORT copy tutorial inputs"; exit 4; }
    rm -rf "$BASE/base/constant/polyMesh" 2>/dev/null
@@ -249,7 +269,37 @@
 +  # ---- is copied here and G-MESHID compares it to this item's own.  An inequality
 +  # ---- is a mesh-regeneration-determinism finding and makes the comparison
 +  # ---- ungradeable -- it is NOT waved through.
-+  grep -ah "constant/polyMesh/points" "$SO1B_BASE"/MESH_*.log 2>/dev/null | head -4 > "$BASE/optref/so1b_mesh_points_sha256.txt"
++  # >>> G-MESHREF-SELECT   AMENDMENT R6, 2026-08-28.  UNIQUENESS REFUSAL.
++  # THE DEFECT THIS REMOVES, as frozen at v1.0:
++  #     grep -ah "constant/polyMesh/points" "$SO1B_BASE"/MESH_*.log ... | head -4
++  # a MULTI-FILE grep reduced to four lines by OUTPUT ORDER -- and under ugrep
++  # (7.8.4 on this box) multi-file output order is a RACE, so it is not even
++  # reliably first-wins.  It is the SAME defect as the grader's last-wins loop,
++  # on the OTHER side of the same equality test: this is the REFERENCE, SO-1b's
++  # root; the grader's is the SUBJECT, SO-1c's own.  BOTH SIDES NOW REFUSE ON A
++  # MULTI-MEMBER SET, so the two sides cannot disagree about what "the" mesh is.
++  # ONE NAMED FILE IS READ.  The selection is RECORDED beside the reference.
++  SO1B_MESH_CANDS=$(ls -1 "$SO1B_BASE"/MESH_*.log 2>/dev/null)
++  if [ -z "$SO1B_MESH_CANDS" ]; then SO1B_MESH_N=0; else SO1B_MESH_N=$(printf '%s\n' "$SO1B_MESH_CANDS" | wc -l); fi
++  if [ "$SO1B_MESH_N" -ne 1 ]; then
++    echo "ABORT G-MESHREF $SO1B_MESH_N files match MESH_*.log under $SO1B_BASE (exactly one is required)."
++    echo "  The mesh fingerprint SO-1c compares against must come from ONE NAMED file."
++    echo "  A multi-member set reduced by grep's multi-file output order is not a"
++    echo "  reference.  Candidates:"
++    printf '    %s\n' $SO1B_MESH_CANDS
++    exit 4
++  fi
++  SO1B_MESH_LOG=$SO1B_MESH_CANDS
++  grep -a "constant/polyMesh/points" "$SO1B_MESH_LOG" > "$BASE/optref/so1b_mesh_points_sha256.txt"
++  SO1B_MESH_REF_N=$(wc -l < "$BASE/optref/so1b_mesh_points_sha256.txt")
++  if [ "$SO1B_MESH_REF_N" -ne 1 ]; then
++    echo "ABORT G-MESHREF $SO1B_MESH_LOG carries $SO1B_MESH_REF_N points-sha256 lines (exactly one is required)."
++    echo "  A reference that names no mesh, or more than one, is not a reference."
++    exit 4
++  fi
++  { echo "G_MESHREF_SELECTED file=$SO1B_MESH_LOG n_candidates=$SO1B_MESH_N sha_lines=$SO1B_MESH_REF_N"
++    echo "G_MESHREF_CANDIDATES $(printf '%s ' $SO1B_MESH_CANDS)"; } | tee "$BASE/optref/so1b_mesh_points_sha256.SELECTION.txt"
++  # <<< G-MESHREF-SELECT
 +  echo "SO1C_OPTREF_STAGED patched=$(md5sum "$BASE/optref/PATCHED/so1b_E.json" | cut -d\  -f1) shipped=$(md5sum "$BASE/optref/SHIPPED/so1b_E.json" | cut -d\  -f1) mesh_ref_lines=$(wc -l < "$BASE/optref/so1b_mesh_points_sha256.txt") source=$SO1B_BASE"
    # D5-DRIVER-DEF-1 corrected form, inherited: identity on its own line;
    # staging metadata on a line that does not start with ITEM=.
@@ -269,7 +319,7 @@
    echo "$MD5_TUT_GEN  $BASE/base/genAirFoilMesh.py"; echo "$MD5_TUT_PREPROC  $BASE/base/preProcessing.sh";
    echo "$MD5_TUT_PS  $BASE/base/profiles/NACA0012PS.profile"; echo "$MD5_TUT_SS  $BASE/base/profiles/NACA0012SS.profile"; echo "$MD5_TUT_FFD  $BASE/base/FFD/wingFFD.xyz"; } | md5sum -c - || { echo "ABORT staged instrument/input md5"; exit 4; }
  test -f "$BASE/base/0.orig/U" || { echo "ABORT staged base/ has no 0.orig/U"; exit 4; }
-@@ -100,11 +226,16 @@
+@@ -100,11 +276,16 @@
    fi
  fi
  echo "$$" > "$PIDFILE"
@@ -289,7 +339,7 @@
  img_of() { case "$1" in MESH|*-S) echo "$IMG_SHIPPED" ;; *-P) echo "$IMG_PATCHED" ;; *) echo "" ;; esac; }
  CHAIN_RC=0
  for ARM in $ARMS; do
-@@ -129,7 +260,7 @@
+@@ -129,7 +310,7 @@
      [ "$(python3 -c "print(1 if $s < $H5_FLOOR_GIB else 0)")" = "1" ] && BELOW=$((BELOW+1))
      sleep "$STEP"
    done
@@ -298,7 +348,7 @@
    if [ "$BELOW" -gt 0 ] || [ "$N" -ne "$H5_SAMPLES" ]; then
      echo "ABORT H5 $BELOW of $N samples below $H5_FLOOR_GIB GiB.  A batch that OOMs is worse than a batch that queues.  REFUSED."
      echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
-@@ -140,7 +271,7 @@
+@@ -140,7 +321,7 @@
    # ---- every wait written to STATUS.<arm>; refuse-and-BLOCK at the bound.
    WAITED=0; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"; AGG_BLOCKED=no
    while true; do
@@ -307,7 +357,7 @@
      echo "$(date -u +%s) $AGG" >> "$AGG_SERIES"
      if [ "$(printf '%s' "$AGG" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
      if [ "$WAITED" -ge "$AGG_BOUND_S" ]; then
-@@ -152,11 +283,11 @@
+@@ -152,11 +333,11 @@
      sleep "$AGG_POLL_S"; WAITED=$((WAITED+AGG_POLL_S))
    done
    if [ "$AGG_BLOCKED" = "yes" ]; then CHAIN_RC=6; break; fi
@@ -322,7 +372,7 @@
    echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN aggregate_waited_s=$WAITED permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
    echo "arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
    if [ "$rc" -ne 0 ]; then echo "chain=STOPPED_AT_FIRST_NONZERO arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=$rc; break; fi
-@@ -165,10 +296,10 @@
+@@ -165,10 +346,10 @@
  # ---- (6) the FROZEN grader on the artefacts (zero compute); its rc is INFRASTRUCTURE (L-342)
  GSTAMP=$(date -u +%Y%m%dT%H%M%SZ)
  if echo "$MD5_GRADER  $GRADER" | md5sum -c - > /dev/null; then
