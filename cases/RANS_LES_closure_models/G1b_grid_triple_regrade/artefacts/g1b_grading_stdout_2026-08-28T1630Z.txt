@@ -1,0 +1,94 @@
+==============================================================================
+G1b GRID TRIPLE REGRADE -- comparator  (FROZEN)
+  The grading path is fixed at the G1b pre-registration commit. Verify
+  this file IS the file that ran by hashing it against that blob:
+  comparator sha256 : 614e52064b8ade5dbe109c632ddea23274157a263eaf6755b822d1fc3d02535b
+  G1 is graded NOT A RESULT; that verdict is permanent and is not
+  revised here. grade_g1.py is frozen and is not edited.
+  run root : /home/ubuntu/closure-data/g1
+             READ-ONLY -- nothing under it is written, touched or
+             chmodded; every plant goes to a TemporaryDirectory.
+  D = 2 (one cell in z between `empty` patches: the z direction carries no
+      discretisation, so the representative cell size is h = (A/N)^(1/2))
+  r21 = 2.0000   r32 = 2.0000   Fs = 1.25
+==============================================================================
+
+[FAMILY CONTROL]
+  vertices block byte-identical across L1/L2/L3          VERIFIED
+  all bytes outside the two hex lines byte-identical      VERIFIED
+  nCells 3840 / 15360 / 61440 -- distinct, exact 1:4:16           VERIFIED
+
+[PLANTED CONTROL -- FATAL CHANNEL, rule 3, BOTH DIRECTIONS]
+  planted ON DISK  FOAM FATAL ERROR ('FOAM FATAL ERROR')          -> fatal=True
+  planted ON DISK  FOAM FATAL IO ERROR ('FOAM FATAL IO ERROR')    -> fatal=True
+  planted ON DISK  sigFpe handler fired ('sigFpe::sigHandler')    -> fatal=True
+  planted ON DISK  sigSegv handler fired ('sigSegv::sigHandler')  -> fatal=True
+  planted ON DISK  stack trace printed ('Foam::error::printStack') -> fatal=True
+  planted ON DISK  shell FPE death message ('Floating point exception') -> fatal=True
+  planted ON DISK  shell SEGV death message ('Segmentation fault') -> fatal=True
+  planted ON DISK  realistic sigFpe stack trace ('sigFpe::sigHandler') -> fatal=True
+  planted ON DISK  clean log + trapFpe banner verbatim + End      -> fatal=False
+    The negative direction is the point: that clean fixture carries the
+    trapFpe banner VERBATIM and the G1 clause DOES fire on it, so a
+    reader that returns fatal=False there is a reader and not a constant.
+
+[COMPLETION AND ITERATIVE CONVERGENCE]
+  L1  complete: rc=0, End, last time == 20000, fields present, age guard held,
+        ExecutionTime lines == 20000, residuals below registry, gradP plateaued
+  L2  complete: rc=0, End, last time == 30000, fields present, age guard held,
+        ExecutionTime lines == 30000, residuals below registry, gradP plateaued
+  L3  complete: rc=0, End, last time == 60000, fields present, age guard held,
+        ExecutionTime lines == 60000, residuals below registry, gradP plateaued
+  INFRASTRUCTURE DEFECT: L1 I5 legacy-fatal-clause evidence: the G1 clause `FOAM FATAL|Floating point exception|signal` matches 1 line(s) of this log.run, of which 1 are the trapFpe 'trapping enabled' banner -- a safety notice emitted on a healthy start, not a failure. Recorded as INFRASTRUCTURE (L-342): it carries the evidence of the defect this successor repairs and can never void the physics.
+  INFRASTRUCTURE DEFECT: L2 I5 legacy-fatal-clause evidence: the G1 clause `FOAM FATAL|Floating point exception|signal` matches 1 line(s) of this log.run, of which 1 are the trapFpe 'trapping enabled' banner -- a safety notice emitted on a healthy start, not a failure. Recorded as INFRASTRUCTURE (L-342): it carries the evidence of the defect this successor repairs and can never void the physics.
+  INFRASTRUCTURE DEFECT: L3 I5 legacy-fatal-clause evidence: the G1 clause `FOAM FATAL|Floating point exception|signal` matches 1 line(s) of this log.run, of which 1 are the trapFpe 'trapping enabled' banner -- a safety notice emitted on a healthy start, not a failure. Recorded as INFRASTRUCTURE (L-342): it carries the evidence of the defect this successor repairs and can never void the physics.
+
+[PLANTED CONTROLS -- rule 3, each round-tripping a real file]
+  gradP reader saw a 1.234567e-03 planted ON DISK and returned 1.234567e-03, and does NOT
+    return it on the unplanted file (0.00852655353)
+  volume integrator: k planted uniformly ON DISK gives 10.1652461, the closed form;
+    a single-cell plant moves it to 0.268472562; real integral 0.125086985
+  crossing finder recovered a crossing planted ON DISK at x = 4.234500, and
+    REFUSES on a profile with none
+
+[FUNCTIONALS]
+
+[ROACHE TRIPLES]
+
+  gradP  [PRIMARY  mean streamwise momentum source]  unit m/s2
+      L1 (coarse,   3840 cells) = 0.00842876291327
+      L2 (medium,  15360 cells) = 0.00843900963202
+      L3 (fine,    61440 cells) = 0.00852655352769
+      eps21 = 8.75439e-05   eps32 = 1.02467e-05   R = 8.5436
+      TRIPLE: DIVERGENT
+      no order and no GCI are quoted: the three values are not monotone.
+      VERDICT: NOT A RESULT
+
+  Kint  [SECONDARY-A  volume-integrated k]  unit m5/s2
+      L1 (coarse,   3840 cells) = 0.124425376623
+      L2 (medium,  15360 cells) = 0.124541912604
+      L3 (fine,    61440 cells) = 0.125086984736
+      eps21 = 0.000545072   eps32 = 0.000116536   R = 4.67729
+      TRIPLE: DIVERGENT
+      no order and no GCI are quoted: the three values are not monotone.
+      VERDICT: NOT A RESULT
+
+  xr  [SECONDARY-B  lower-wall reattachment length]  unit h
+      note: L1: xr: no negative-to-positive tau_wx crossing at x >= 0.500; there is no reattachment point to report.
+      note: L2: xr: no negative-to-positive tau_wx crossing at x >= 0.500; there is no reattachment point to report.
+      note: L3: xr: no negative-to-positive tau_wx crossing at x >= 0.500; there is no reattachment point to report.
+      L1/L2/L3 = [None, None, None]
+      VERDICT: NOT A RESULT (a level has no value)
+
+[VERDICT]
+  RUNG VERDICT (from the PRIMARY functional gradP): NOT A RESULT
+  The secondaries never change it.
+  This rung grades NUMERICAL CONVERGENCE ONLY. It says nothing whatever about
+  agreement with LES or DNS truth: no reference field is read, and none exists
+  on the L1 or L3 meshes.
+  INFRASTRUCTURE DEFECT carried into the record: L1 I5 legacy-fatal-clause evidence: the G1 clause `FOAM FATAL|Floating point exception|signal` matches 1 line(s) of this log.run, of which 1 are the trapFpe 'trapping enabled' banner -- a safety notice emitted on a healthy start, not a failure. Recorded as INFRASTRUCTURE (L-342): it carries the evidence of the defect this successor repairs and can never void the physics.
+  INFRASTRUCTURE DEFECT carried into the record: L2 I5 legacy-fatal-clause evidence: the G1 clause `FOAM FATAL|Floating point exception|signal` matches 1 line(s) of this log.run, of which 1 are the trapFpe 'trapping enabled' banner -- a safety notice emitted on a healthy start, not a failure. Recorded as INFRASTRUCTURE (L-342): it carries the evidence of the defect this successor repairs and can never void the physics.
+  INFRASTRUCTURE DEFECT carried into the record: L3 I5 legacy-fatal-clause evidence: the G1 clause `FOAM FATAL|Floating point exception|signal` matches 1 line(s) of this log.run, of which 1 are the trapFpe 'trapping enabled' banner -- a safety notice emitted on a healthy start, not a failure. Recorded as INFRASTRUCTURE (L-342): it carries the evidence of the defect this successor repairs and can never void the physics.
+
+  READ-ONLY WITNESS: 153 files under /home/ubuntu/closure-data/g1, stat digest d7835355b7f6e09b,
+    IDENTICAL before and after the grading pass.
