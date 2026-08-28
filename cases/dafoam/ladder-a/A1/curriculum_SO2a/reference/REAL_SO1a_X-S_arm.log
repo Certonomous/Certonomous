@@ -1,0 +1,690 @@
+D4S_CONTAINER_UID: 0
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+D4S_IDWARP_IMPORTED_FROM: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/idwarp/__init__.py
+D4S_IDWARP_SO_MD5: f0fcb488e0e98156575cd19548e91663
+D4S_DEADLINE_IN_CONTAINER_S: 600
+[a90c392073db:00259] Warning: could not find environment variable "PYTHONPATH"
+--------------------------------------------------------------------------
+WARNING: Open MPI tried to bind a process but failed.  This is a
+warning only; your job will continue, though performance may
+be degraded.
+
+  Local host:        a90c392073db
+  Application name:  /home/dafoamuser/dafoam/packages/miniconda3/bin/python
+  Error message:     failed to bind memory
+  Location:          ../../../../../../orte/mca/rtc/hwloc/rtc_hwloc.c:447
+
+--------------------------------------------------------------------------
+[a90c392073db:00259] MCW rank 0 is not bound (or bound to all available processors)
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+I/O    : uncollated
+Case   : /mnt/X-S
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+I/O    : uncollated
+Case   : /mnt/X-S
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 4032
+Global Faces: 16254
+Global Xv: 24948
+Undecomposed points: 8316
+Global Adjoint States: 36414
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 4032
+Global Faces: 16254
+Global Xv: 24948
+Undecomposed points: 8316
+Global Adjoint States: 36414
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+Init solver done! ElapsedClockTime 0.000000 s
+Init solver done! ElapsedCpuTime 0.530000 s
+initState: 
+6
+(
+nuTilda 4.499999999999846e-05
+phi 0
+U1 0
+U2 0
+p 0
+U0 10.00000000000001
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting primal boundary conditions...
+Setting U = (10 0 0) at inout
+Setting primal boundary conditions...
+Setting p = 0 at inout
+Setting primal boundary conditions...
+Setting nuTilda = 4.5e-05 at inout
+Setting nut wall BC for wing. BCType=nutUSpaldingWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /mnt/X-S
+nProcs : 1
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 1e-08;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        U0
+        {
+            variable        U;
+            patches         1 ( inout );
+            value           3 ( 10 0 0 );
+        }
+        p0
+        {
+            variable        p;
+            patches         1 ( inout );
+            value           1 ( 0 );
+        }
+        nuTilda0
+        {
+            variable        nuTilda;
+            patches         1 ( inout );
+            value           1 ( 4.5e-05 );
+        }
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               10;
+        p               50;
+        nuTilda         0.00045;
+        phi             1;
+    }
+    function
+    {
+        CD
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   parallelToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+        CL
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   normalToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+        patchV
+        {
+            type            patchVelocity;
+            patches         1 ( inout );
+            flowAxis        x;
+            normalAxis      y;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  1 ( wing );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/mnt/X-S',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /mnt/X-S
+nProcs : 1
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+#------------------------------#
+ Total Volume Nodes :      8316 
+#------------------------------#
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000   0.000)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       252 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('inout', [0]), ('symmetry1', [1]), ('symmetry2', [2]), ('wing', [3]), ('allSurfaces', [0, 1, 2, 3]), ('allWalls', [3]), ('designSurfaces', [3])])
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'mesh' <class DAFoamMesh>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.aero_pre.warper' <class DAFoamWarper>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.coupling.solver' <class DAFoamSolver>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-17.36955992934097 -18.580929029828 0) (18.72808974732804 18.580929008908 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-3.998195603750368e-19 -5.489325931378579e-20 -2.719001894077799e-16) OK.
+    Max cell openness = 2.647572244145361e-16 OK.
+    Max aspect ratio = 97.87218721638284 OK.
+    Minimum face area = 2.254099143164308e-06. Maximum face area = 4.224820321497278.  Face area magnitudes OK.
+    Min volume = 2.254099144856892e-07. Max volume = 0.422482032106397.  Total volume = 105.2804018655528.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891598092847 average: 2.547934581914154
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754647905 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 0.9999999999987089 finalRes: 0.08240769909338931 nIters: 7
+U1 initRes: 1 finalRes: 0.08007993441242084 nIters: 7
+U2 initRes: 0.9999999554390566 finalRes: 0.07268392955298353 nIters: 7
+p initRes: 1 finalRes: 0.06265650071420778 nIters: 5
+Time step continuity errors : sum local = 0.0004461864988617479
+                                 global = -0.0001823545177663689
+                             cumulative = -0.0001823545177663689
+nuTilda initRes: 0.9999999999193447 finalRes: 0.07774066518231852 nIters: 7
+Bounding nuTilda>1e-16
+CD: 0.5126424326440349 final: 0.5126424326440349
+CL: -0.05294325068587275 final: -0.05294325068587275
+yPlus min: 48.42640673186346 max: 83.47309896652378 mean: 78.50775815711697
+ExecutionTime = 0.99 s  ClockTime = 1 s
+
+Time = 100
+
+U0 initRes: 0.0006520627992308448 finalRes: 4.836547791766624e-05 nIters: 6
+U1 initRes: 0.0005708439491953338 finalRes: 5.583476846423638e-05 nIters: 5
+U2 initRes: 0.001122156246142387 finalRes: 8.143485391377975e-05 nIters: 5
+p initRes: 0.005429212524377838 finalRes: 0.0003783605761199192 nIters: 2
+Time step continuity errors : sum local = 9.49735882277378e-06
+                                 global = -5.266567731103324e-07
+                             cumulative = -0.0001828811745394792
+nuTilda initRes: 4.877262057288474e-05 finalRes: 4.146691611990661e-06 nIters: 2
+Bounding nuTilda>1e-16
+CD: 0.02209811780665343 final: 0.02209811780665343
+CL: 0.481827492887157 final: 0.481827492887157
+yPlus min: 14.767548168121 max: 100.171043868805 mean: 60.22841833710403
+ExecutionTime = 2.35 s  ClockTime = 2 s
+
+Time = 200
+
+U0 initRes: 1.482064798943666e-05 finalRes: 1.190560358048159e-06 nIters: 6
+U1 initRes: 1.215422566976419e-05 finalRes: 9.642374362972809e-07 nIters: 6
+U2 initRes: 1.934132246416359e-05 finalRes: 1.705373983925257e-06 nIters: 5
+p initRes: 1.684036973338929e-05 finalRes: 1.164832694711576e-06 nIters: 3
+Time step continuity errors : sum local = 2.961249279659882e-08
+                                 global = -2.762227200170455e-09
+                             cumulative = -0.0001828839367666794
+nuTilda initRes: 3.6722221277865e-07 finalRes: 3.608647401989595e-08 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02094108560428549 final: 0.02094108560428549
+CL: 0.498159794791855 final: 0.498159794791855
+yPlus min: 14.26030875167347 max: 101.0565123965794 mean: 59.96236608247683
+ExecutionTime = 3.65 s  ClockTime = 4 s
+
+Time = 300
+
+U0 initRes: 5.359369222368464e-07 finalRes: 4.266982669691707e-08 nIters: 6
+U1 initRes: 4.693757701714984e-07 finalRes: 3.602431313451672e-08 nIters: 6
+U2 initRes: 8.300499678615373e-07 finalRes: 6.183572308867888e-08 nIters: 5
+p initRes: 1.009951085791028e-06 finalRes: 8.221380311896829e-08 nIters: 2
+Time step continuity errors : sum local = 2.091219930751241e-09
+                                 global = 1.990345142409469e-10
+                             cumulative = -0.0001828837377321652
+nuTilda initRes: 1.779996476288259e-08 finalRes: 1.483876664976157e-09 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091160897078162 final: 0.02091160897078162
+CL: 0.4987464654357213 final: 0.4987464654357213
+yPlus min: 14.24986468772198 max: 101.0841930852626 mean: 59.95703733244746
+ExecutionTime = 5.01 s  ClockTime = 5 s
+
+Time = 400
+
+U0 initRes: 1.334595267307588e-08 finalRes: 9.883124846075407e-10 nIters: 6
+U1 initRes: 1.07372823729397e-08 finalRes: 7.870434280351291e-10 nIters: 6
+U2 initRes: 4.964421775497899e-08 finalRes: 4.834393996333062e-09 nIters: 5
+p initRes: 3.314861613610908e-08 finalRes: 1.8605916991785e-09 nIters: 2
+Time step continuity errors : sum local = 4.732748776665737e-11
+                                 global = 5.217508302166346e-12
+                             cumulative = -0.0001828837325146568
+nuTilda initRes: 5.84315870808835e-10 finalRes: 4.357571483600622e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091052958029021 final: 0.02091052958029021
+CL: 0.4987649883864673 final: 0.4987649883864673
+yPlus min: 14.24953325838407 max: 101.0851037668628 mean: 59.95687659650218
+ExecutionTime = 6.39 s  ClockTime = 6 s
+
+Time = 435
+Minimal residual 9.822715611394694e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091051000679216 final: 0.02091051000679216
+CL: 0.4987652641542319 final: 0.4987652641542319
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0002151763254572022 0.0002388470034126788 1.122306652582194e-12)
+U Residual Mean: (1.622996355126018e-06 6.559140123344671e-07 8.605593589035593e-15)
+U Residual Max: (5.544134364754427e-05 0.0001036291250784416 1.588750567451904e-13)
+p Residual Norm2: 7.306650781540914e-05
+p Residual Mean: 1.049709510170954e-07
+p Residual Max: 3.335154516707894e-05
+nuTilda Residual Norm2: 9.194626444165747e-08
+nuTilda Residual Mean: 3.152973288149372e-10
+nuTilda Residual Max: 1.727550517955784e-08
+phi Residual Norm2: 3.273643312923665e-07
+phi Residual Mean: 8.173191543165736e-10
+phi Residual Max: 8.334212649244771e-08
+Total Residual Norm2: 0.0003296779826775519
+ 
+ 
+Computing d[CD]/d[aero_states]^T * psi 6.76 s
+Computing d[CD]/d[aero_vol_coords]^T * psi 6.83 s
+Computing d[CD]/d[patchV]^T * psi 7.23 s
+Checking if Coloring file exists..
+dRdWCon Created. 9.92 s
+Calculating dRdW Coloring... 9.92 s
+Calculating dRdW Coloring..
+Parallel Distance 2 Graph Coloring....
+MaxCols: 127
+AllNonZeros: 2524662
+nUniqueCols: 36414
+ColorSweep: 0   10.68 s
+number of uncolored: 36223 1
+ColorSweep: 100   12.71 s
+number of uncolored: 23511 1
+ColorSweep: 200   14.79 s
+number of uncolored: 11178 1
+ColorSweep: 300   16.76 s
+number of uncolored: 544 1
+ColorSweep: 324   17.28 s
+number of uncolored: 0 0
+Global ColorSweep: 0   17.68 s
+Number of Uncolored: 0 0
+Global ColorSweep: 0   17.68 s
+Number of Uncolored: 0 0
+Ncolors: 325
+Validating Coloring...
+No Conflicting Colors Found!
+ nJacConColors: 325
+Writing Colors to dRdWColoring_1
+Calculating dRdW Coloring... Completed! 17.76 s
+Moving time 435 to 0.0001
+Driver total derivatives for iteration: 1
+---------------------------------------------
+Computing dRdWTPC 17.77 s
+Initializing dRdWCon. 17.77 s
+dRdWCon Created. 19.4 s
+Reading Coloring dRdWColoring_1
+Validating Coloring...
+No Conflicting Colors Found!
+Partial derivative matrix created. 19.46 s
+dRdWTPC: 0 of 325, ExecutionTime: 19.48 s
+dRdWTPC: 100 of 325, ExecutionTime: 21.41 s
+dRdWTPC: 200 of 325, ExecutionTime: 23.26 s
+dRdWTPC: 300 of 325, ExecutionTime: 25.16 s
+dRdWTPC: 324 of 325, ExecutionTime: 25.59 s
+Solver Type: gmres
+GMRES Restart: 1000
+ASM Overlap: 1
+Global PC Iters: 0
+Local PC Iters: 1
+Mat ReOrdering: rcm
+ILU PC Fill Level: 1
+GMRES Max Iterations: 1000
+GMRES Relative Tolerance: 1e-06
+GMRES Absolute Tolerance: 1e-14
+Solving Linear Equation... 25.24 s
+Main iteration 0 KSP Residual norm 3.216467351433e-02 25.52 s. 
+Main iteration 100 KSP Residual norm 4.259357596358e-06 31.98 s. 
+Main iteration 155 KSP Residual norm 2.959245471524e-08 35.97 s 
+**Completed**! Total iterations: 155. PetscConvergedReason: 2. 35.97 s
+Residual tolerance satisfied, solution finished!
+Computing d[aero_residuals]/d[aero_vol_coords]^T * psi 36.1 s
+Computing d[aero_residuals]/d[patchV]^T * psi 36.88 s
+Computing d[CL]/d[aero_states]^T * psi 37.23 s
+Computing d[CL]/d[aero_vol_coords]^T * psi 37.28 s
+Computing d[CL]/d[patchV]^T * psi 37.52 s
+Latest solution time 0.0001 less than 1, not renamed.
+Solving Linear Equation... 37.61 s
+Main iteration 0 KSP Residual norm 1.951477078991e-01 37.61 s. 
+Main iteration 100 KSP Residual norm 1.310397398910e-04 44.18 s. 
+Main iteration 158 KSP Residual norm 1.282727592522e-07 48.11 s 
+**Completed**! Total iterations: 158. PetscConvergedReason: 2. 48.11 s
+Residual tolerance satisfied, solution finished!
+Computing d[aero_residuals]/d[aero_vol_coords]^T * psi 48.23 s
+Computing d[aero_residuals]/d[patchV]^T * psi 48.7 s
+SO1A_X_WRITTEN so1a_X.json

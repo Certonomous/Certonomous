@@ -1,0 +1,140 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1a/so1a_chain_driver.sh	2026-08-27 17:19:53.187447123 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_chain_driver.sh	2026-08-28 17:28:14.923844713 +0000
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env bash
+-# SO-1a chain driver -- DERIVED from curriculum_D15/so1a_chain_driver.sh
++# SO-2a chain driver -- DERIVED from curriculum_D15/so2a_chain_driver.sh
+ # (md5 4656f1a0e6381b9c03923cd2470d2814) with the REGISTERED DELTAS listed in
+-# PREREGISTRATION.md section 7 and recorded in so1a_chain_driver_DELTAS_from_d15.diff.
++# PREREGISTRATION.md section 7 and recorded in so2a_chain_driver_DELTAS_from_d15.diff.
+ # THE DELTAS ARE: item names, run root, launcher/grader/instrument md5s; the
+ # TUTORIAL SOURCE is NACA0012_Airfoil/incompressible (the drag-min-at-fixed-lift
+ # problem itself, DASimpleFoam) and its SIX input md5s are re-frozen for it --
+@@ -32,7 +32,7 @@
+ #       INFRASTRUCTURE (L-342), never the verdict.
+ # Runs the named arms IN ORDER through the frozen launcher and STOPS AT THE
+ # FIRST NON-ZERO rc.  Started ONLY detached (the queue runner's own form, or
+-#   setsid nohup bash so1a_chain_driver.sh MESH X-S F-S X-P F-P > <root>/chain_launch.out 2>&1 &
++#   setsid nohup bash so2a_chain_driver.sh MESH X-S G-S X-P G-P > <root>/chain_launch.out 2>&1 &
+ # ) so it is its own session leader and outlives the agent that started it.
+ # Before each arm: launcher md5; the WINDOWED H5 gate (45 samples over 60 s,
+ # refuse on ANY sample below the floor); ALREADY_BOUGHT; AGGREGATE wait-and-retry.
+@@ -40,21 +40,21 @@
+ # Permission for detached launches: bc0e687e (Sanaa, boarded verbatim).
+ set -uo pipefail
+ HERE="$(cd "$(dirname "$0")" && pwd)"
+-LAUNCHER="$HERE/so1a_run_arm.sh"
+-GRADER="$HERE/so1a_grade.py"
++LAUNCHER="$HERE/so2a_run_arm.sh"
++GRADER="$HERE/so2a_grade.py"
+ IMG_SHIPPED=dafoam/opt-packages:latest
+ IMG_PATCHED=dafoam-idwarp-rot:v1
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
++BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient
+ TUT_SRC=/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ PERMISSION=bc0e687e
+ H5_FLOOR_GIB=8.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
+ AGG_POLL_S=30; AGG_BOUND_S=14400
+ # The launcher and grader are FROZEN (PREREGISTRATION.md section 7/8);
+ # asserted before EVERY arm so a mid-chain edit cannot change what runs.
+-MD5_LAUNCHER=dbe6e2b6ffd2f6630b7b40d91bfff61e
+-MD5_GRADER=6966d19eeccd275b45fe9a5492eef6d2
++MD5_LAUNCHER=3683bcd08486d2f9a54035aa2cc4351c
++MD5_GRADER=65b2115e90b050d8e752103a26c43204
+ MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f
+-MD5_XF=f34bd5bf550786ff926aed81b342cced
++MD5_XG=85b2a416e75141096967fe7e13b02e28
+ MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
+ # the shipped tutorial's INPUT bytes, frozen here because the checkout is not
+ MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f
+@@ -63,8 +63,8 @@
+ MD5_TUT_PS=51dfed28e1bdb4cd33e0d8d7dabd586a
+ MD5_TUT_SS=4a6b8ef4501494c7693b71e88a2eabbf
+ MD5_TUT_FFD=6ddf378b028d03d8a18270488bee1759
+-test $# -ge 1 || { echo "ABORT usage: so1a_chain_driver.sh <ARM...>"; exit 64; }
+-ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/so1a_driver.pid"
++test $# -ge 1 || { echo "ABORT usage: so2a_chain_driver.sh <ARM...>"; exit 64; }
++ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/so2a_driver.pid"
+ cd "$HERE" || exit 4
+ echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before staging"; exit 4; }
+ echo "$MD5_GRADER  $GRADER" | md5sum -c - || { echo "ABORT grader md5 drifted before staging"; exit 4; }
+@@ -79,17 +79,17 @@
+   mkdir -p "$BASE/base" || exit 4
+   cp -a "$TUT_SRC/0.orig" "$TUT_SRC/FFD" "$TUT_SRC/constant" "$TUT_SRC/system" "$TUT_SRC/profiles" "$TUT_SRC/genAirFoilMesh.py" "$TUT_SRC/preProcessing.sh" "$BASE/base/" || { echo "ABORT copy tutorial inputs"; exit 4; }
+   rm -rf "$BASE/base/constant/polyMesh" 2>/dev/null
+-  cp -a "$HERE/so1a_decomposeParDict" "$BASE/base/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict"; exit 4; }
+-  cp -a "$HERE/so1a_runScript.py" "$HERE/so1a_xf.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
++  cp -a "$HERE/so2a_decomposeParDict" "$BASE/base/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict"; exit 4; }
++  cp -a "$HERE/so2a_runScript.py" "$HERE/so2a_xg.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
+   # D5-DRIVER-DEF-1 corrected form, inherited: identity on its own line;
+   # staging metadata on a line that does not start with ITEM=.
+-  echo "ITEM=SO1a" > "$BASE/ledger.txt"
++  echo "ITEM=SO2a" > "$BASE/ledger.txt"
+   echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) tut_src=$TUT_SRC tut_commit=$(git -C "$TUT_SRC" rev-parse HEAD 2>/dev/null || echo NOT_MEASURED) permission=$PERMISSION" >> "$BASE/ledger.txt"
+-  echo "SO1A_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
++  echo "SO2A_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
+ else
+-  echo "SO1A_ROOT_PRESENT base=$BASE (not re-staged)"
++  echo "SO2A_ROOT_PRESENT base=$BASE (not re-staged)"
+ fi
+-{ echo "$MD5_RUNSCRIPT  $BASE/so1a_runScript.py"; echo "$MD5_XF  $BASE/so1a_xf.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
++{ echo "$MD5_RUNSCRIPT  $BASE/so2a_runScript.py"; echo "$MD5_XG  $BASE/so2a_xg.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
+   echo "$MD5_TUT_GEN  $BASE/base/genAirFoilMesh.py"; echo "$MD5_TUT_PREPROC  $BASE/base/preProcessing.sh";
+   echo "$MD5_TUT_PS  $BASE/base/profiles/NACA0012PS.profile"; echo "$MD5_TUT_SS  $BASE/base/profiles/NACA0012SS.profile"; echo "$MD5_TUT_FFD  $BASE/base/FFD/wingFFD.xyz"; } | md5sum -c - || { echo "ABORT staged instrument/input md5"; exit 4; }
+ test -f "$BASE/base/0.orig/U" || { echo "ABORT staged base/ has no 0.orig/U"; exit 4; }
+@@ -101,7 +101,7 @@
+ fi
+ echo "$$" > "$PIDFILE"
+ trap 'rm -f "$PIDFILE"' EXIT
+-echo "SO1A_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
++echo "SO2A_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] permission=$PERMISSION"
+ echo "chain=started arms=[$ARMS] pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
+ mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
+ cap_mem_gib() { echo 4; }   # every arm 4g (PREREGISTRATION.md section 4)
+@@ -129,7 +129,7 @@
+     [ "$(python3 -c "print(1 if $s < $H5_FLOOR_GIB else 0)")" = "1" ] && BELOW=$((BELOW+1))
+     sleep "$STEP"
+   done
+-  echo "SO1A_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
++  echo "SO2A_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW file=$(basename "$H5_FILE")"
+   if [ "$BELOW" -gt 0 ] || [ "$N" -ne "$H5_SAMPLES" ]; then
+     echo "ABORT H5 $BELOW of $N samples below $H5_FLOOR_GIB GiB.  A batch that OOMs is worse than a batch that queues.  REFUSED."
+     echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_REFUSED below=$BELOW min_GiB=$MIN permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+@@ -140,7 +140,7 @@
+   # ---- every wait written to STATUS.<arm>; refuse-and-BLOCK at the bound.
+   WAITED=0; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"; AGG_BLOCKED=no
+   while true; do
+-    AGG=$(python3 "$HERE/so1a_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
++    AGG=$(python3 "$HERE/so2a_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+     echo "$(date -u +%s) $AGG" >> "$AGG_SERIES"
+     if [ "$(printf '%s' "$AGG" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
+     if [ "$WAITED" -ge "$AGG_BOUND_S" ]; then
+@@ -152,11 +152,11 @@
+     sleep "$AGG_POLL_S"; WAITED=$((WAITED+AGG_POLL_S))
+   done
+   if [ "$AGG_BLOCKED" = "yes" ]; then CHAIN_RC=6; break; fi
+-  echo "SO1A_AGGREGATE arm=$ARM waited=$WAITED $AGG"
+-  echo "SO1A_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
++  echo "SO2A_AGGREGATE arm=$ARM waited=$WAITED $AGG"
++  echo "SO2A_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
+   bash "$LAUNCHER" "$ARM" "$IMG" > "$BASE/${ARM}_launch.out" 2>&1
+   rc=$?
+-  echo "SO1A_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
++  echo "SO2A_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
+   echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN aggregate_waited_s=$WAITED permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+   echo "arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+   if [ "$rc" -ne 0 ]; then echo "chain=STOPPED_AT_FIRST_NONZERO arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=$rc; break; fi
+@@ -165,10 +165,10 @@
+ # ---- (6) the FROZEN grader on the artefacts (zero compute); its rc is INFRASTRUCTURE (L-342)
+ GSTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+ if echo "$MD5_GRADER  $GRADER" | md5sum -c - > /dev/null; then
+-  python3 "$GRADER" --root "$BASE" --out "$BASE/SO1a_grade_${GSTAMP}.json" > "$BASE/SO1a_grade_${GSTAMP}.out" 2>&1; GRC=$?
+-  echo "grader_rc=$GRC stamp=$GSTAMP out=SO1a_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
++  python3 "$GRADER" --root "$BASE" --out "$BASE/SO2a_grade_${GSTAMP}.json" > "$BASE/SO2a_grade_${GSTAMP}.out" 2>&1; GRC=$?
++  echo "grader_rc=$GRC stamp=$GSTAMP out=SO2a_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
+ else
+   echo "grader_rc=NOT_RUN stamp=$GSTAMP note=grader-md5-drifted-at-chain-end" >> "$STATUS"
+ fi
+-echo "SO1A_DRIVER end=$(date -u +%Y%m%dT%H%M%SZ) chain_rc=$CHAIN_RC"
++echo "SO2A_DRIVER end=$(date -u +%Y%m%dT%H%M%SZ) chain_rc=$CHAIN_RC"
+ exit "$CHAIN_RC"

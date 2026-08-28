@@ -1,0 +1,192 @@
+CURRICULUM SO-2a -- so2a_grade.py SELFTEST EVIDENCE
+Written 2026-08-28 by dafoam lab-lane Z.  NOT FILED, NOT SENT (CLAUDE.md rule 7).
+
+GRADER md5 AT THIS RUN: 65b2115e90b050d8e752103a26c43204
+INSTRUMENT md5:         85b2a416e75141096967fe7e13b02e28
+LAUNCHER md5:           3683bcd08486d2f9a54035aa2cc4351c
+CHAIN DRIVER md5:       75921da288d6a410691c4f41f15568a3
+
+REAL-PRODUCER REFERENCE ARTEFACTS (the C5 and cells readers are born on these):
+  reference/REAL_SO1a_MESH_checkMesh.log  md5 22aa9cfa6725eb904123aefaebf63cfd  99 lines
+      copied verbatim from the SO-1a run root MESH/checkMesh.log; carries the trapFpe
+      banner at line 18 and 'cells:            4032' at line 39
+  reference/REAL_SO1a_X-S_arm.log         md5 c6d9c8e6976095682292fa32224c602a  690 lines
+      copied verbatim from the SO-1a run root X-S arm log -- the file SO-1a's refusal
+      CITED, and which carries the token ZERO times
+
+ast.Assert count (L-332): so2a_grade.py = 0, so2a_xg.py = 0 (counter shown counting a
+  planted assert in U96)
+Backticks on executable (non-comment) lines: so2a_run_arm.sh 0, so2a_chain_driver.sh 0
+md5 pin agreement control: 8 pins checked against the files on disk, 8 AGREE, 0 disagree
+
+==============================================================================
+RUN 1 -- python3, __pycache__ CLEARED IMMEDIATELY BEFORE
+==============================================================================
+  [OK ] U1 clean fixture -> item PASS, both rows PASS
+  [OK ] U2 clean fixture -> G-M2, G-CDIM, G-CV, G9, G10, G12 all PASS
+  [OK ] U3 clean fixture -> G-STRUCT PASS on both rows over a NON-EMPTY tuple
+  [OK ] U4 clean fixture -> G-TB PASS on every constraint, ratio >= 10
+  [OK ] U5 clean fixture -> 23 candidate output rows graded, all three constraints have pairs
+  [OK ] U6 clean fixture -> all predictions HIT (P1-P10), none MISS
+  [OK ] U7 divergence shipped-vs-patched is REPORTED and is 0.0 on the clean fixture
+  [OK ] U8 the verdict is in the fixed vocabulary and no synonym appears
+  [OK ] U9 G6 is NAMED as NOT MEASURED and is not composed into the verdict
+  [OK ] U10 no GCI is quoted (no grid family)
+  [OK ] U11 the birth register lists all seven readers and names any NOT BORN
+  [OK ] U12 R1 was BORN through the launcher's own so2a_ledger_row (not a copied format)
+  [OK ] U20 PLANTED 9 % error on shipped volcon/shape[3] -> pair GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U21 the SAME plant leaves the PATCHED row PASS -- the rows are independent
+  [OK ] U22 a 4 % error is INSIDE band D -> still PASS: the band is a threshold, not a mood
+  [OK ] U23 PLANTED sign flip -> GATE FAIL regardless of magnitude, flip COUNTED
+  [OK ] U24 PLANTED no-plateau -> the pair is EXCLUDED and NAMED, not silently graded
+  [OK ] U25 PLANTED near-zero FD reference -> EXCLUDED and NAMED as NEAR_ZERO
+  [OK ] U26 3 of volcon's 4 pairs excluded (75 % is NOT > 75 %) -> still graded on 1 pair, but MIN_GRADED_PER_CONSTRAINT = 2 makes it NOT A RESULT
+  [OK ] U27 a NOT A RESULT row makes the ITEM NOT A RESULT, never a GATE FAIL
+  [OK ] U30 A JACOBIAN ROW CONSTANT ACROSS THE SHAPE COMPONENTS -> the shift changes nothing, ratio -> 1, G-TB GATE FAIL
+  [OK ] U31 a G-TB GATE FAIL WITHDRAWS the row to NOT A RESULT (charter s4 direction)
+  [OK ] U32 G-TB reports the SHIFT-PASSING FRACTION beside the ratio, and says it is not gated
+  [OK ] U33 on the clean fixture the shift is at least 10x worse on EVERY constraint
+  [OK ] U34 A NON-ZERO d(volcon)/d(patchV) IN THE ADJOINT -> G-STRUCT GATE FAIL, even at 1e-9
+  [OK ] U35 the same plant leaves the PATCHED row's G-STRUCT PASS
+  [OK ] U36 a G-STRUCT GATE FAIL makes the row GATE FAIL and the item GATE FAIL
+  [OK ] U37 A NON-ZERO on the FD SIDE ALONE -> G-STRUCT GATE FAIL: both sides are checked
+  [OK ] U40 (R1 +) the ledger reader reads back a CHANGED core_min off a row the LAUNCHER wrote, not merely the registered one
+  [OK ] U41 (R1 -) a PRESENT-BUT-GARBAGE ledger row REFUSES, never skips
+  [OK ] U50 (R2 -) THE DEFECT SO-1a DIED OF, ON THE REAL BYTES: SO-1a's own checkMesh.log carries the banner at line 18 and produces ZERO fatal sites and EXACTLY ONE counted benign exclusion
+  [OK ] U51 (R2 -) SO-1a's REAL X-S arm log -- the file its refusal CITED -- carries the token ZERO times, which is why naming it was a reader defect
+  [OK ] U52 (R2 +) a REAL SIGFPE STACK LINE planted into those same real bytes IS SEEN, with its file and line named
+  [OK ] U53 (R2 +) EVERY registered token is seen when planted on its own line -- the line split loses no match
+  [OK ] U54 (R3 +) the cells reader reads the PLANTED count off REAL checkMesh bytes with the count changed -- it is not returning a constant
+  [OK ] U55 (R3 -) the cells reader reads 4032 off the UNCHANGED real bytes
+  [OK ] U56 (R4 +) the X reader reads back a PLANTED patchV Jacobian entry
+  [OK ] U57 (R4 +) AND G-STRUCT FLIPS TO GATE FAIL ON THAT PLANTED COPY -- the zero-reader's birth, both directions, at GRADE TIME
+  [OK ] U58 (R4 -) a Jacobian whose flat length is not divisible by the recorded size REFUSES
+  [OK ] U59 (R5 +) the F reader sees PLANT added to EVERY derivative entry of EVERY constraint, and the count of moved values is > 0
+  [OK ] U60 (R5 -) A DEAD PLANT IN THE INSTRUMENT'S CONTROL ROW REFUSES: the planted derivative reads 0.0 where PLANT/(2h) was written
+  [OK ] U61 (R6 +) the constraint-baseline reader sees a MOVED baseline: volcon at 0.4 VIOLATES its lower bound of 1.0 and G-CV GATE FAILs
+  [OK ] U62 (R6 -) volcon EXACTLY ON its lower bound of 1.0 is SATISFIED to FEAS_TOL and is reported ACTIVE -- the tolerance is stated, not implied
+  [OK ] U63 (R7 +) a STALE artefact -- older than the arm's own datum -- REFUSES
+  [OK ] U64 (R7 -) the datum resolves to the COMPRESSED TWIN on a solver arm and to the PLAIN name on MESH, and both are RECORDED
+  [OK ] U65 (R7) datum absent in BOTH names REFUSES -- and ONLY then
+  [OK ] U66 A CONTROL THAT EMPTIES THE TUPLE IT TESTS IS REFUSED, NOT PASSED (Sanaa 2026-08-28)
+  [OK ] U67 the control row absent REFUSES
+  [OK ] U70 the five rule-4 clauses are printed INDIVIDUALLY on every arm
+  [OK ] U71 C5's PASS record COUNTS AND NAMES every benign exclusion -- SO-1a's checkMesh banner is excluded on the MESH arm and the count is 1, not 0
+  [OK ] U72 A REAL FATAL TOKEN AT rc = 0 REFUSES -- C5 never launders a crash
+  [OK ] U73 A REAL SIGFPE SITTING BESIDE THE BENIGN BANNER STILL REFUSES -- per-line, so line 18 cannot suppress line 400
+  [OK ] U74 THE BANNER ALONE, at rc = 0, DOES NOT REFUSE -- the SO-1a defect, driven
+  [OK ] U75 THE BANNER PLANTED INTO A REAL 690-LINE ARM LOG STILL DOES NOT REFUSE, and the exclusion is counted on that arm
+  [OK ] U76 a missing terminal marker REFUSES
+  [OK ] U77 a non-zero rc REFUSES
+  [OK ] U78 a harness/kernel rc DISAGREEMENT REFUSES
+  [OK ] U79 OOMKilled true REFUSES (G11), never a re-fire
+  [OK ] U80 R-RC: the rc RECORD absent from BOTH channels while C2-C5 hold reads NOT MEASURED and prints the INFERENCE; the verdict is unchanged
+  [OK ] U81 R-RC: rc RECORD absent AND C2 fails -> REFUSAL, not a relaxation
+  [OK ] U82 R-RC: rc RECORD absent but the HARNESS rc reads NON-ZERO -> REFUSAL. R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U83 R-RC: the .inspect.txt FALLBACK supplies the record and C1 is a MEASUREMENT again
+  [OK ] U84 a missing ledger row REFUSES
+  [OK ] U85 the wrong cell count -> G-M2 GATE FAIL and P1 MISS
+  [OK ] U86 a constraint size that is not the producer's own arguments -> G-CDIM GATE FAIL, and the gradient grading still runs on the ACTUAL size
+  [OK ] U87 the WRONG image digest on a row -> G9 GATE FAIL
+  [OK ] U88 a cap crossing -> G10 GATE FAIL, and the ratio actual/predicted is printed
+  [OK ] U89 the item ceiling equals the sum of the caps
+  [OK ] U90 the wrong cpuset -> G12 GATE FAIL
+  [OK ] U91 at np = 1 the delivered-cores floor is NOT composed (0.99 < 1.5 and G12 PASSES)
+  [OK ] U92 P10 MISSES when the X arm costs more than the registered 3.0 core-min -- the flow-adjoint-per-constraint-row regime
+  [OK ] U95 NO `assert` carries a guard in the comparator or the instrument (L-332)
+  [OK ] U96 the assert counter is shown COUNTING a planted assert -- a zero from a counter not shown able to count is not evidence
+  [OK ] U97 (-) THE BARE-SUBSTRING SCAN IS GONE FROM EVERY GRADING PATH IN THIS FILE: the AST detector finds ZERO functions that test FATAL_TOKENS against unsplit text
+  [OK ] U97b (+) THE SAME DETECTOR, ON THE KNOWN POSITIVE: SO-1a's frozen grader is FLAGGED at `fatal_tokens_in` -- so U97's zero is a claim about the code, not about the pattern (L-400).  If the ancestor is not on disk the unit FAILS rather than passing on an unmeasured zero
+  [OK ] U98 the token is STILL REGISTERED (deleting it would blind C5 to a real SIGFPE)
+  [OK ] U99 EXACTLY ONE benign exclusion is registered, and it is the trapFpe prefix
+  [OK ] U100 DISARMING THE EXCLUSION REPRODUCES SO-1a's REFUSAL ON ITS OWN REAL BYTES -- the mutation control, with the token HARD-CODED here, not read from the constant
+  [OK ] U101 and the exclusion is BACK after the mutation -- the suite left no residue
+
+SELFTEST 79 units, 0 fail
+
+==============================================================================
+RUN 2 -- python3 -O, __pycache__ CLEARED IMMEDIATELY BEFORE
+(the -O run is not a formality: it strips `assert`, so any guard written as an
+ assert would silently vanish.  This comparator carries none -- U95/U96.)
+==============================================================================
+  [OK ] U1 clean fixture -> item PASS, both rows PASS
+  [OK ] U2 clean fixture -> G-M2, G-CDIM, G-CV, G9, G10, G12 all PASS
+  [OK ] U3 clean fixture -> G-STRUCT PASS on both rows over a NON-EMPTY tuple
+  [OK ] U4 clean fixture -> G-TB PASS on every constraint, ratio >= 10
+  [OK ] U5 clean fixture -> 23 candidate output rows graded, all three constraints have pairs
+  [OK ] U6 clean fixture -> all predictions HIT (P1-P10), none MISS
+  [OK ] U7 divergence shipped-vs-patched is REPORTED and is 0.0 on the clean fixture
+  [OK ] U8 the verdict is in the fixed vocabulary and no synonym appears
+  [OK ] U9 G6 is NAMED as NOT MEASURED and is not composed into the verdict
+  [OK ] U10 no GCI is quoted (no grid family)
+  [OK ] U11 the birth register lists all seven readers and names any NOT BORN
+  [OK ] U12 R1 was BORN through the launcher's own so2a_ledger_row (not a copied format)
+  [OK ] U20 PLANTED 9 % error on shipped volcon/shape[3] -> pair GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U21 the SAME plant leaves the PATCHED row PASS -- the rows are independent
+  [OK ] U22 a 4 % error is INSIDE band D -> still PASS: the band is a threshold, not a mood
+  [OK ] U23 PLANTED sign flip -> GATE FAIL regardless of magnitude, flip COUNTED
+  [OK ] U24 PLANTED no-plateau -> the pair is EXCLUDED and NAMED, not silently graded
+  [OK ] U25 PLANTED near-zero FD reference -> EXCLUDED and NAMED as NEAR_ZERO
+  [OK ] U26 3 of volcon's 4 pairs excluded (75 % is NOT > 75 %) -> still graded on 1 pair, but MIN_GRADED_PER_CONSTRAINT = 2 makes it NOT A RESULT
+  [OK ] U27 a NOT A RESULT row makes the ITEM NOT A RESULT, never a GATE FAIL
+  [OK ] U30 A JACOBIAN ROW CONSTANT ACROSS THE SHAPE COMPONENTS -> the shift changes nothing, ratio -> 1, G-TB GATE FAIL
+  [OK ] U31 a G-TB GATE FAIL WITHDRAWS the row to NOT A RESULT (charter s4 direction)
+  [OK ] U32 G-TB reports the SHIFT-PASSING FRACTION beside the ratio, and says it is not gated
+  [OK ] U33 on the clean fixture the shift is at least 10x worse on EVERY constraint
+  [OK ] U34 A NON-ZERO d(volcon)/d(patchV) IN THE ADJOINT -> G-STRUCT GATE FAIL, even at 1e-9
+  [OK ] U35 the same plant leaves the PATCHED row's G-STRUCT PASS
+  [OK ] U36 a G-STRUCT GATE FAIL makes the row GATE FAIL and the item GATE FAIL
+  [OK ] U37 A NON-ZERO on the FD SIDE ALONE -> G-STRUCT GATE FAIL: both sides are checked
+  [OK ] U40 (R1 +) the ledger reader reads back a CHANGED core_min off a row the LAUNCHER wrote, not merely the registered one
+  [OK ] U41 (R1 -) a PRESENT-BUT-GARBAGE ledger row REFUSES, never skips
+  [OK ] U50 (R2 -) THE DEFECT SO-1a DIED OF, ON THE REAL BYTES: SO-1a's own checkMesh.log carries the banner at line 18 and produces ZERO fatal sites and EXACTLY ONE counted benign exclusion
+  [OK ] U51 (R2 -) SO-1a's REAL X-S arm log -- the file its refusal CITED -- carries the token ZERO times, which is why naming it was a reader defect
+  [OK ] U52 (R2 +) a REAL SIGFPE STACK LINE planted into those same real bytes IS SEEN, with its file and line named
+  [OK ] U53 (R2 +) EVERY registered token is seen when planted on its own line -- the line split loses no match
+  [OK ] U54 (R3 +) the cells reader reads the PLANTED count off REAL checkMesh bytes with the count changed -- it is not returning a constant
+  [OK ] U55 (R3 -) the cells reader reads 4032 off the UNCHANGED real bytes
+  [OK ] U56 (R4 +) the X reader reads back a PLANTED patchV Jacobian entry
+  [OK ] U57 (R4 +) AND G-STRUCT FLIPS TO GATE FAIL ON THAT PLANTED COPY -- the zero-reader's birth, both directions, at GRADE TIME
+  [OK ] U58 (R4 -) a Jacobian whose flat length is not divisible by the recorded size REFUSES
+  [OK ] U59 (R5 +) the F reader sees PLANT added to EVERY derivative entry of EVERY constraint, and the count of moved values is > 0
+  [OK ] U60 (R5 -) A DEAD PLANT IN THE INSTRUMENT'S CONTROL ROW REFUSES: the planted derivative reads 0.0 where PLANT/(2h) was written
+  [OK ] U61 (R6 +) the constraint-baseline reader sees a MOVED baseline: volcon at 0.4 VIOLATES its lower bound of 1.0 and G-CV GATE FAILs
+  [OK ] U62 (R6 -) volcon EXACTLY ON its lower bound of 1.0 is SATISFIED to FEAS_TOL and is reported ACTIVE -- the tolerance is stated, not implied
+  [OK ] U63 (R7 +) a STALE artefact -- older than the arm's own datum -- REFUSES
+  [OK ] U64 (R7 -) the datum resolves to the COMPRESSED TWIN on a solver arm and to the PLAIN name on MESH, and both are RECORDED
+  [OK ] U65 (R7) datum absent in BOTH names REFUSES -- and ONLY then
+  [OK ] U66 A CONTROL THAT EMPTIES THE TUPLE IT TESTS IS REFUSED, NOT PASSED (Sanaa 2026-08-28)
+  [OK ] U67 the control row absent REFUSES
+  [OK ] U70 the five rule-4 clauses are printed INDIVIDUALLY on every arm
+  [OK ] U71 C5's PASS record COUNTS AND NAMES every benign exclusion -- SO-1a's checkMesh banner is excluded on the MESH arm and the count is 1, not 0
+  [OK ] U72 A REAL FATAL TOKEN AT rc = 0 REFUSES -- C5 never launders a crash
+  [OK ] U73 A REAL SIGFPE SITTING BESIDE THE BENIGN BANNER STILL REFUSES -- per-line, so line 18 cannot suppress line 400
+  [OK ] U74 THE BANNER ALONE, at rc = 0, DOES NOT REFUSE -- the SO-1a defect, driven
+  [OK ] U75 THE BANNER PLANTED INTO A REAL 690-LINE ARM LOG STILL DOES NOT REFUSE, and the exclusion is counted on that arm
+  [OK ] U76 a missing terminal marker REFUSES
+  [OK ] U77 a non-zero rc REFUSES
+  [OK ] U78 a harness/kernel rc DISAGREEMENT REFUSES
+  [OK ] U79 OOMKilled true REFUSES (G11), never a re-fire
+  [OK ] U80 R-RC: the rc RECORD absent from BOTH channels while C2-C5 hold reads NOT MEASURED and prints the INFERENCE; the verdict is unchanged
+  [OK ] U81 R-RC: rc RECORD absent AND C2 fails -> REFUSAL, not a relaxation
+  [OK ] U82 R-RC: rc RECORD absent but the HARNESS rc reads NON-ZERO -> REFUSAL. R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U83 R-RC: the .inspect.txt FALLBACK supplies the record and C1 is a MEASUREMENT again
+  [OK ] U84 a missing ledger row REFUSES
+  [OK ] U85 the wrong cell count -> G-M2 GATE FAIL and P1 MISS
+  [OK ] U86 a constraint size that is not the producer's own arguments -> G-CDIM GATE FAIL, and the gradient grading still runs on the ACTUAL size
+  [OK ] U87 the WRONG image digest on a row -> G9 GATE FAIL
+  [OK ] U88 a cap crossing -> G10 GATE FAIL, and the ratio actual/predicted is printed
+  [OK ] U89 the item ceiling equals the sum of the caps
+  [OK ] U90 the wrong cpuset -> G12 GATE FAIL
+  [OK ] U91 at np = 1 the delivered-cores floor is NOT composed (0.99 < 1.5 and G12 PASSES)
+  [OK ] U92 P10 MISSES when the X arm costs more than the registered 3.0 core-min -- the flow-adjoint-per-constraint-row regime
+  [OK ] U95 NO `assert` carries a guard in the comparator or the instrument (L-332)
+  [OK ] U96 the assert counter is shown COUNTING a planted assert -- a zero from a counter not shown able to count is not evidence
+  [OK ] U97 (-) THE BARE-SUBSTRING SCAN IS GONE FROM EVERY GRADING PATH IN THIS FILE: the AST detector finds ZERO functions that test FATAL_TOKENS against unsplit text
+  [OK ] U97b (+) THE SAME DETECTOR, ON THE KNOWN POSITIVE: SO-1a's frozen grader is FLAGGED at `fatal_tokens_in` -- so U97's zero is a claim about the code, not about the pattern (L-400).  If the ancestor is not on disk the unit FAILS rather than passing on an unmeasured zero
+  [OK ] U98 the token is STILL REGISTERED (deleting it would blind C5 to a real SIGFPE)
+  [OK ] U99 EXACTLY ONE benign exclusion is registered, and it is the trapFpe prefix
+  [OK ] U100 DISARMING THE EXCLUSION REPRODUCES SO-1a's REFUSAL ON ITS OWN REAL BYTES -- the mutation control, with the token HARD-CODED here, not read from the constant
+  [OK ] U101 and the exclusion is BACK after the mutation -- the suite left no residue
+
+SELFTEST 79 units, 0 fail
