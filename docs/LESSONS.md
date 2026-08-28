@@ -16793,3 +16793,111 @@ It took a set of **13 files that had already been measured** and silently delete
   as the finding under audit — a set reduced by an ordering that is not the one meant —
   **turned on the auditor.** Expect the defect you are hunting to be in your hunting
   instrument.
+
+## L-396 — A detector on a POSITIVE channel needs rule 3's mirror — and the lab had already found this exact trap twice, in prose, before it cost a graded run
+
+**The measurement.** `G1_grid_triple` ran to completion — 127.08 core-min, chain
+rc 0, all three levels — and its frozen comparator graded it **`NOT A RESULT`**
+on one clause, `P3 fatal`, firing on all three levels and on nothing else. The
+clause was
+
+    "fatal": bool(re.search(r"FOAM FATAL|Floating point exception|signal", text))
+
+and OpenFOAM writes, at **line 18 of every log it produces**:
+
+    trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+
+That is the solver **announcing that FPE trapping is ENABLED**, emitted before
+the first iteration. The reader matched a safety notice as a failure. Measured
+over **70** `log.run` files across three families with an instrument that grades
+nothing: the clause **FIRED on 63**; **57 of those carry a clean `End` line** —
+the run finished normally and the clause still called it fatal; in **59** of the
+63 every match is the banner. The 7 non-firing logs are builds without
+`FOAM_SIGFPE`. **It is not a detector. It is very nearly a constant.**
+
+**The generalisable rule, and it is standing rule 3 turned on its other face.**
+Rule 3 guards a **zero**: a zero from a reader not shown able to see a non-zero
+is not evidence. The mirror question, which nothing in this lab was asking, is
+the one a **positive** channel needs:
+
+> **An alarm, error or crash detector that has never been shown able to stay
+> SILENT is a constant, not a reader.** Every such detector ships a
+> **two-direction** planted control: one real artifact it MUST flag, and one real
+> artifact it MUST NOT — and the must-not artifact carries the real-world text
+> most easily confused with a hit, not a blank file.
+
+G1's comparator carried **three** planted controls — `gradP`, `Kint`, `xr`, each
+writing a real file and reading it back through the same reader. **None on the
+fatal channel.** The one unguarded reader is the one that decided the rung. A
+blank log would have passed a naive control; only the banner exposes it.
+
+**The half that matters more: the lab already knew, twice, and wrote it down
+twice, and it recurred anyway.** This is `CLAUDE.md` rule 14 in its exact shape —
+*a lesson is not applied until EVERY call site asserts it* (L-221/L-222).
+
+1. `sdk/chief_engineer/mesh_certificate.py:65-72` documents the trap in terms,
+   with a number: those markers *"were in a draft of this pattern and are NOT
+   here, because a healthy checkMesh log contains the former in its startup
+   banner … and **every one of the 105 real logs was misread as a crash**."* Its
+   own closing note calls the cause *"changed it, did not re-run the check."*
+2. Closure's own `Kaandorp2020_TBRF/aposteriori/RESULTS.md:572-585` records
+   *"the `diverged=True` banner artifact, confirmed by direct count.
+   `results.json` carries `diverged: true` on **every scored row**"* — disclosed
+   as limitation 3, with the repair listed at :899 as **"Queued, not done: the
+   `run_lane.py:175` divergence-flag repair."**
+
+**Both discoveries lived as PROSE — a source comment and a limitations
+paragraph. Neither became an executable guard or a shared pattern.** So the
+third call site (`grade_g1.py`, written afterwards) walked into it and lost a
+127-core-min run's verdict, and the fourth (`grade_g2.py`) was frozen carrying it
+and would have lost its whole registered compute had it been filed. **A lesson
+recorded where only a reader can find it is a lesson that will be re-paid.**
+
+**Two correct implementations already existed in this repository**, both verified
+here **by execution** against a banner-only log and a genuinely crashed log:
+`sdk/chief_engineer/mesh_certificate.py`'s `_FATAL`
+(`-->\s*FOAM FATAL(?:\s+IO)?\s+ERROR|FOAM exiting`) is correct in both
+directions; `sdk/chief_engineer/head_engineer.py:188`
+(`Foam::sigFpe::sigHandler|^Floating point exception`, `re.MULTILINE`) defeats
+the banner by **anchoring at line start** — the banner's phrase is preceded by
+`trapFpe: ` — and covers the FPE channel only. **The fix was on disk the whole
+time; what was missing was any mechanism that made a new comparator use it.**
+
+**And a caveat against my own sweep, because an auditing instrument is an
+instrument.** My first pass classed files as defective by asking whether the file
+mentions `trapFpe` anywhere — a crude proxy. It produced **13 candidates and
+several are false positives**: `cases/committee-grids/*.py` match the *different*
+and correct string `"Signal: Floating point exception (8)"`, and
+`d12y_w3_fatal_scan_control.sh` holds the phrase inside a **control fixture**.
+Only the clauses that were confirmed **by executing them against the real banner
+text** are claimed as defects. Expect the defect you are hunting to be in your
+hunting instrument — the shape L-393 closes with.
+
+**AND THE MECHANISM THAT EXPLAINS WHY GOOD CONTROLS DID NOT CATCH IT, which is
+the most transferable part.** G1's comparator carried three planted controls and
+a `--selftest` that passed under both interpreters. G2's carried a check that *"a
+clean synthetic run passes all seven PHYSICS clauses"* — a control aimed squarely
+at this failure — **and it passed while the defect was live.** The reason is that
+the selftest's own log fixture, `_synth_run`, **does not carry the `trapFpe`
+banner.** The synthetic log was cleaner than any log the solver has ever
+produced.
+
+> **A selftest fixture that omits the one line every real artifact carries is
+> testing the reader against a world that does not exist.** A fixture is not
+> "clean" when it is minimal; it is clean when it carries everything a healthy
+> real artifact carries and still reads as healthy.
+
+This is the sibling of L-395, landed the same day: *a plant proves the reader can
+see the shapes in the plant and nothing else.* L-395 is about what a plant cannot
+prove; this is about what a **negative** fixture cannot prove. Both point at the
+same repair — build fixtures from real artifacts, not from an idea of one.
+
+**Independently corroborated on a second corpus, by a different reader, at a
+different time.** A lane repeating the measurement over **51** files named
+`log.run` under two data roots found the old expression firing on **46, of which
+41 carry a clean `End`**, and the repaired reader firing on **4 — all four
+triaged individually and all genuine** (`FOAM FATAL IO ERROR` at a named line in
+one, nine `FOAM FATAL` headers in another), with **zero false positives** and 47
+negatives all carrying `End`. Two corpora, two readers, same conclusion, and the
+second reported its own count as an independent reading rather than as a
+correction of the first.
