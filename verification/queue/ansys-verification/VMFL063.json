@@ -8,7 +8,7 @@
     "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL063/run_vmfl063.sh",
     "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063"
   ],
-  "cwd": "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL063",
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063",
   "ranks": 1,
   "cost_core_min_estimate": 16,
   "cap_core_min_registered": 90,
@@ -35,5 +35,6 @@
       "runner.log lines"
     ],
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
-  }
+  },
+  "cwd_note": "cwd IS THE RUN ROOT, NOT THE CASE DIRECTORY, AND THAT CHOICE IS LOAD-BEARING. queue_runner.py writes STATUS.<case_id> (:496) and the detached wrapper's stdout (:522-523) INTO cwd, and cap_watch writes CAP_OVERRUN.txt into cwd (:611). With cwd set to the case directory those runtime artefacts would land inside cases/ansys_verification/VMFL063/, beside the FROZEN pre-registration, comparator and case inputs -- run outputs live in verification/runs/<CAMPAIGN>/ and NEVER beside the prose describing them (CLAUDE.md WHERE THINGS LIVE; FILING_CHARTER). The run root was therefore created EMPTY at enqueue time, 2026-08-28T16:5xZ, purely to satisfy the validator's EXEC clause, which refuses a cwd that does not exist because Popen(cwd=) raises FileNotFoundError. THE RULE-4 AGE GUARD IS UNCONSUMED BY THIS: the directory is EMPTY -- no 0/, no numeric time directory, and no level directory at all -- and run_vmfl063.sh's age guard tests $RUN_ROOT/$L per level (:193-195), not $RUN_ROOT. The launcher would have created this same directory itself at :207 (mkdir -p). PREREGISTRATION.md sec.11 and Amendment 1 sec.A record that the run root DID NOT EXIST at freeze and at amendment time; both statements are true as of their own timestamps and this line records the change of state."
 }
