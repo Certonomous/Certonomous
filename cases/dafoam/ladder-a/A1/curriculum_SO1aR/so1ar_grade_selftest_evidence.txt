@@ -1,0 +1,432 @@
+SO-1aR GRADER SELFTEST + BIRTH EVIDENCE
+Generated 2026-08-28T17:10:01Z by dafoam lab-lane X.  NOT FILED, NOT SENT (CLAUDE.md rule 7).
+grader md5: d2051f59089f3e71ae0fbfa315c3b784
+derived from so1a_grade.py md5 6966d19eeccd275b45fe9a5492eef6d2 == HEAD blob 1b87f8dcb5108d4eab037c9684514f8f3f29c12a
+ast.Assert nodes: 0
+
+=============== python3 --selftest ===============
+  [OK ] U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1-P4, P6, P7, P8, P8b, P9 HIT; P5 MISS (shape[6] clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U4 PLANTED sign flip on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on X-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 F-S core_min 26.0 > cap 25.0 -> G10 GATE FAIL
+  [OK ] U14 X-S on cpuset 4,14 (registered 9) -> G12 GATE FAIL
+  [OK ] U15 cells 4033 -> G-M2 GATE FAIL, P1 MISS
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in so1ar_grade.py (this file) and in the PRODUCER so1a_xf.py that wrote the artefacts being re-graded (L-332)
+  [OK ] U22 the assert counter sees a planted assert (=1)
+  [OK ] U23 (A) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz -- the AV-1/AV-2 configuration -- guard PASSES, the resolved name and writeCompression are recorded, P9 HIT
+  [OK ] U24 (A) DRIVEN CONTROL -- the datum is GENUINELY ABSENT in BOTH registered names on X-S -> REFUSAL (a name swap would not have caught this)
+  [OK ] U25 (A) writeCompression off -> the datum resolves to the PLAIN 0/U, guard PASSES, verdict unchanged PASS, P9 MISS (scored, never adjusted)
+  [OK ] U26 (B) R-RC -- the rc RECORD is absent on F-P while C2-C5 all hold -> rc value NOT MEASURED, rc=0 printed as an INFERENCE with its basis named, verdict unchanged PASS
+  [OK ] U27 (B) the rc RECORD is absent AND C2 fails (no terminal marker) -> REFUSAL: NOT MEASURED is available ONLY when the other four conditions hold
+  [OK ] U28 (B) the rc RECORD is absent but the harness rc reads NON-ZERO -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U29 (C) FOAM FATAL ERROR in the X-S log at rc = 0 -> REFUSAL (C5 refuses regardless of rc, so R-RC can never launder a crash)
+  [OK ] U30 (C) a SIGNAL token at rc = 0 -> REFUSAL
+  [OK ] U31 (D) PLANTED -- the DELIBERATELY WRONG step AGREES on 5/5 of the PATCHED row -> G-TB GATE FAIL, that row's G5 verdict WITHDRAWN to NOT A RESULT, item NOT A RESULT, P7 MISS (DAFOAM_CHARTER.md section 4)
+  [OK ] U32 (D) ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, row PASS, P7 still HIT (4 of 5 failing)
+  [OK ] U33 (E) PLANTED 7 % error on the shipped CONSTRAINT gradient dCL/dx[shape 0] while dCD/dx is clean -> G5 CD PASS, G5c CL GATE FAIL, SHIPPED row GATE FAIL: the constraint gradient is shown able to fail INDEPENDENTLY of the objective
+  [OK ] U34 (E) P6 is scored on the AGGREGATE, not on the component verdicts: a 3.0 % CL error on one patched component leaves EVERY component inside band D (5 %) and the row PASS, while the P6 aggregate bar of 1.0 % is crossed -> P6 MISS
+  [OK ] U35 the five rule-4 clauses are present and named INDIVIDUALLY for every one of the five arms (Sanaa 2026-08-27 s0)
+  [OK ] U36 THE REAL FIXTURES HAVE NOT DRIFTED: both are byte-identical to the artefacts they were copied from, by md5 frozen in PREREGISTRATION.md s7 (got {'so1ar_fixture_REAL_D12R2W3_S0_solver.log': 'ccc4f40fa0e1c1849bb7bc15a4042d47', 'so1ar_fixture_REAL_SO1a_MESH_checkMesh.log': '22aa9cfa6725eb904123aefaebf63cfd'})
+  [OK ] U37 (a) THE REAL BANNER ALONE DOES NOT REFUSE: SO-1a's own `MESH/checkMesh.log:18` line, verbatim, sits in the MESH artefact and the item is PASS with C5 PASS on MESH
+  [OK ] U38 (a) THE EXCLUSION IS COUNTED AND PRINTED: MESH C5 records exactly 1 benign line excluded, naming the FILE, the LINE, the token and WHY -- a suppression a reader cannot see is the same defect wearing the other hat
+  [OK ] U39 (a, THE CONTRAST) SO-1a's FROZEN COMPARATOR, IMPORTED AND RUN ON THE SAME FIXTURE ROOT, REFUSES on that same benign banner with C5_fatal_token_in_arm_output=['Floating point exception'] -- the defect and the repair executed side by side, not described (got REFUSED)
+  [OK ] U40 (a, SO-1a's SECOND DEFECT) the UNREPAIRED refusal's `log` field names the ARM log, which contains ZERO occurrences of the token it cites, while the repaired refusal carries `token_sites` naming file AND line
+  [OK ] U41 (b/c) a REAL `FOAM FATAL ERROR` appended to the MESH artefact BELOW the banner -> REFUSAL: a benign line NEVER suppresses a crash in the same file
+  [OK ] U42 (b) a REAL SIGFPE STACK TRACE with NO shell line -> REFUSAL.  The token is the handler symbol adopted from head_engineer.py:188 and is HARD-CODED here, not read from FATAL_TOKENS, so deleting it from the tuple fails this unit
+  [OK ] U43 (b) OpenMPI's REALISTIC multi-rank report -- `mpirun noticed that process rank 2 exited on signal 8 (Floating point exception).` -- REFUSES.  It is NOT line-initial and carries NO handler symbol, which is exactly why head_engineer.py's `^` anchor was NOT adopted
+  [OK ] U44 (c) THE REFUSAL NAMES THE CRASH LINE AND ITS FILE, NOT THE BANNER: exactly one site, in `checkMesh.log`, on the line carrying FOAM FATAL ERROR -- line 6, below the banner on line 1 -- and the banner is NOT a site
+  [OK ] U45 THE LINE SPLIT LOSES NO TOKEN: each of the 10 registered FATAL_TOKENS, planted ONE AT A TIME on its own line in the real-shaped artefact, REFUSES (lost: none)
+  [OK ] U46 A REAL 339-LINE np=4 SOLVER LOG THIS LANE DID NOT PRODUCE (D12R2W3, 4 banners, 5 End lines, 0 real fatal tokens) is appended to the X-S arm log -> item PASS, C5 PASS, EXACTLY 4 benign lines excluded and counted
+  [OK ] U47 THE SAME REAL LOG WITH ONE CRASH PLANTED BELOW ALL FOUR BANNERS -> REFUSAL.  Four benign lines above it suppress nothing; the whole-file predicate SO-1a used could not have told these two logs apart
+  [OK ] U48 THE CONTRAST AT THE PREDICATE LEVEL, ON SO-1a's REAL 99-LINE `MESH/checkMesh.log`: the UNREPAIRED whole-file predicate returns ['Floating point exception'] while the repaired scanner returns 0 sites and 1 counted benign line at line 18 -- and the unrepaired predicate is referenced by NO function on the grading path (by AST over this module's own source: ['selftest'])
+  [OK ] U49 (DELTA 2, WRITE PATH) the grader's own planted-control copy is written under `grader_controls_SO1aR/`, NOT under SO-1a's `grader_controls/`, so a re-grade can never overwrite a predecessor's control artefact in a preserved run root (wrote grader_controls_SO1aR)
+  [OK ] U50 THE BIRTH BATTERY RUNS AND EVERY LEG IS BORN on a clean root: 12 legs, each naming its PRODUCER, its READER and the NON-ZERO it was shown seeing
+  [OK ] U51 (THE GATE CLOSES) a root whose X-P ledger row is MISSING -> the ledger reader cannot be born on it AND the UNBORN inspect fallback would be reached -> graded() REFUSES on BIRTH and NOTHING IS GRADED
+  [OK ] U52 (THE AV2R LESSON) THE NON-ZERO rc IS EMITTED BY THE REAL PRODUCER'S OWN `echo` STATEMENT, lifted from the FROZEN so1a_run_arm.sh by exact content match (line 482) and EXECUTED, then read through the real reader -- so a fixture writing a schema the producer never emits cannot arise (read back rc=1 exit=1)
+  [OK ] U53 (A CONTROL ON THE CONTROL) if the producer's emitting statement can no longer be found in the frozen script -- the schema drifted, or the anchor moved -- producer_ledger_row returns NOTHING and the B2 legs are NOT BORN, so the gate closes instead of silently falling back to a hand-built row
+  [OK ] U54 (THE GATE CLOSES ON THE PRODUCER-WRITTEN PLANT) a root whose CTRL row carries a BROKEN plant -> B9 cannot be born -> graded() REFUSES on BIRTH.  The plant that must survive is the one so1a_xf.py wrote DURING THE RUN, not one this comparator adds afterwards
+SO1aR GRADER SELFTEST units=54 expected=54 failures=0 python_O=False
+COUNTING UNITS MEASURES THIS SELFTEST'S SIZE, NOT ITS COVERAGE.
+SO1aR GRADER SELFTEST PASS 54/54 (counted against the frozen EXPECTED_UNITS)
+rc=0
+wall_s=0.489 ranks=1
+
+=============== python3 -O --selftest ===============
+  [OK ] U1 clean fixture -> item PASS, both rows PASS, G-M2/G9/G10/G12 PASS
+  [OK ] U2 clean fixture -> P1-P4, P6, P7, P8, P8b, P9 HIT; P5 MISS (shape[6] clean by construction)
+  [OK ] U19 grader-level plant SEEN on both F tables (rule 3)
+  [OK ] U3 PLANTED 7 % error on shipped shape[3] -> component GATE FAIL, SHIPPED row GATE FAIL, item GATE FAIL
+  [OK ] U4 PLANTED sign flip on shipped shape[6] -> flip counted, SHIPPED GATE FAIL, P5 HIT, PATCHED PASS
+  [OK ] U5 PLANTED no-plateau on one component -> that component NOT A RESULT, row still PASS on 4 graded
+  [OK ] U6 three no-plateau components on PATCHED -> 2 graded < 3 -> row NOT A RESULT, item NOT A RESULT
+  [OK ] U7 rc=1 on X-P -> REFUSAL
+  [OK ] U8 OOMKilled=true on F-S -> REFUSAL
+  [OK ] U9 terminal marker absent in F-P log -> REFUSAL
+  [OK ] U10 artefact OLDER than the age datum (X-S) -> REFUSAL (rule 4)
+  [OK ] U11 instrument CTRL planted row broken -> REFUSAL (a reader not shown to see a non-zero)
+  [OK ] U12 X-P carrying the SHIPPED .so md5 -> G9 GATE FAIL, item GATE FAIL
+  [OK ] U13 F-S core_min 26.0 > cap 25.0 -> G10 GATE FAIL
+  [OK ] U14 X-S on cpuset 4,14 (registered 9) -> G12 GATE FAIL
+  [OK ] U15 cells 4033 -> G-M2 GATE FAIL, P1 MISS
+  [OK ] U16 absent infrastructure fields -> verdict unchanged PASS, NOT_MEASURED named beside it (L-342)
+  [OK ] U17 harness rc 0 vs kernel exit 1 disagreement -> REFUSAL
+  [OK ] U18 ledger row absent, no inspect record -> REFUSAL
+  [OK ] U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS
+  [OK ] U21 ast.Assert count = 0 in so1ar_grade.py (this file) and in the PRODUCER so1a_xf.py that wrote the artefacts being re-graded (L-332)
+  [OK ] U22 the assert counter sees a planted assert (=1)
+  [OK ] U23 (A) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz -- the AV-1/AV-2 configuration -- guard PASSES, the resolved name and writeCompression are recorded, P9 HIT
+  [OK ] U24 (A) DRIVEN CONTROL -- the datum is GENUINELY ABSENT in BOTH registered names on X-S -> REFUSAL (a name swap would not have caught this)
+  [OK ] U25 (A) writeCompression off -> the datum resolves to the PLAIN 0/U, guard PASSES, verdict unchanged PASS, P9 MISS (scored, never adjusted)
+  [OK ] U26 (B) R-RC -- the rc RECORD is absent on F-P while C2-C5 all hold -> rc value NOT MEASURED, rc=0 printed as an INFERENCE with its basis named, verdict unchanged PASS
+  [OK ] U27 (B) the rc RECORD is absent AND C2 fails (no terminal marker) -> REFUSAL: NOT MEASURED is available ONLY when the other four conditions hold
+  [OK ] U28 (B) the rc RECORD is absent but the harness rc reads NON-ZERO -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U29 (C) FOAM FATAL ERROR in the X-S log at rc = 0 -> REFUSAL (C5 refuses regardless of rc, so R-RC can never launder a crash)
+  [OK ] U30 (C) a SIGNAL token at rc = 0 -> REFUSAL
+  [OK ] U31 (D) PLANTED -- the DELIBERATELY WRONG step AGREES on 5/5 of the PATCHED row -> G-TB GATE FAIL, that row's G5 verdict WITHDRAWN to NOT A RESULT, item NOT A RESULT, P7 MISS (DAFOAM_CHARTER.md section 4)
+  [OK ] U32 (D) ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, row PASS, P7 still HIT (4 of 5 failing)
+  [OK ] U33 (E) PLANTED 7 % error on the shipped CONSTRAINT gradient dCL/dx[shape 0] while dCD/dx is clean -> G5 CD PASS, G5c CL GATE FAIL, SHIPPED row GATE FAIL: the constraint gradient is shown able to fail INDEPENDENTLY of the objective
+  [OK ] U34 (E) P6 is scored on the AGGREGATE, not on the component verdicts: a 3.0 % CL error on one patched component leaves EVERY component inside band D (5 %) and the row PASS, while the P6 aggregate bar of 1.0 % is crossed -> P6 MISS
+  [OK ] U35 the five rule-4 clauses are present and named INDIVIDUALLY for every one of the five arms (Sanaa 2026-08-27 s0)
+  [OK ] U36 THE REAL FIXTURES HAVE NOT DRIFTED: both are byte-identical to the artefacts they were copied from, by md5 frozen in PREREGISTRATION.md s7 (got {'so1ar_fixture_REAL_D12R2W3_S0_solver.log': 'ccc4f40fa0e1c1849bb7bc15a4042d47', 'so1ar_fixture_REAL_SO1a_MESH_checkMesh.log': '22aa9cfa6725eb904123aefaebf63cfd'})
+  [OK ] U37 (a) THE REAL BANNER ALONE DOES NOT REFUSE: SO-1a's own `MESH/checkMesh.log:18` line, verbatim, sits in the MESH artefact and the item is PASS with C5 PASS on MESH
+  [OK ] U38 (a) THE EXCLUSION IS COUNTED AND PRINTED: MESH C5 records exactly 1 benign line excluded, naming the FILE, the LINE, the token and WHY -- a suppression a reader cannot see is the same defect wearing the other hat
+  [OK ] U39 (a, THE CONTRAST) SO-1a's FROZEN COMPARATOR, IMPORTED AND RUN ON THE SAME FIXTURE ROOT, REFUSES on that same benign banner with C5_fatal_token_in_arm_output=['Floating point exception'] -- the defect and the repair executed side by side, not described (got REFUSED)
+  [OK ] U40 (a, SO-1a's SECOND DEFECT) the UNREPAIRED refusal's `log` field names the ARM log, which contains ZERO occurrences of the token it cites, while the repaired refusal carries `token_sites` naming file AND line
+  [OK ] U41 (b/c) a REAL `FOAM FATAL ERROR` appended to the MESH artefact BELOW the banner -> REFUSAL: a benign line NEVER suppresses a crash in the same file
+  [OK ] U42 (b) a REAL SIGFPE STACK TRACE with NO shell line -> REFUSAL.  The token is the handler symbol adopted from head_engineer.py:188 and is HARD-CODED here, not read from FATAL_TOKENS, so deleting it from the tuple fails this unit
+  [OK ] U43 (b) OpenMPI's REALISTIC multi-rank report -- `mpirun noticed that process rank 2 exited on signal 8 (Floating point exception).` -- REFUSES.  It is NOT line-initial and carries NO handler symbol, which is exactly why head_engineer.py's `^` anchor was NOT adopted
+  [OK ] U44 (c) THE REFUSAL NAMES THE CRASH LINE AND ITS FILE, NOT THE BANNER: exactly one site, in `checkMesh.log`, on the line carrying FOAM FATAL ERROR -- line 6, below the banner on line 1 -- and the banner is NOT a site
+  [OK ] U45 THE LINE SPLIT LOSES NO TOKEN: each of the 10 registered FATAL_TOKENS, planted ONE AT A TIME on its own line in the real-shaped artefact, REFUSES (lost: none)
+  [OK ] U46 A REAL 339-LINE np=4 SOLVER LOG THIS LANE DID NOT PRODUCE (D12R2W3, 4 banners, 5 End lines, 0 real fatal tokens) is appended to the X-S arm log -> item PASS, C5 PASS, EXACTLY 4 benign lines excluded and counted
+  [OK ] U47 THE SAME REAL LOG WITH ONE CRASH PLANTED BELOW ALL FOUR BANNERS -> REFUSAL.  Four benign lines above it suppress nothing; the whole-file predicate SO-1a used could not have told these two logs apart
+  [OK ] U48 THE CONTRAST AT THE PREDICATE LEVEL, ON SO-1a's REAL 99-LINE `MESH/checkMesh.log`: the UNREPAIRED whole-file predicate returns ['Floating point exception'] while the repaired scanner returns 0 sites and 1 counted benign line at line 18 -- and the unrepaired predicate is referenced by NO function on the grading path (by AST over this module's own source: ['selftest'])
+  [OK ] U49 (DELTA 2, WRITE PATH) the grader's own planted-control copy is written under `grader_controls_SO1aR/`, NOT under SO-1a's `grader_controls/`, so a re-grade can never overwrite a predecessor's control artefact in a preserved run root (wrote grader_controls_SO1aR)
+  [OK ] U50 THE BIRTH BATTERY RUNS AND EVERY LEG IS BORN on a clean root: 12 legs, each naming its PRODUCER, its READER and the NON-ZERO it was shown seeing
+  [OK ] U51 (THE GATE CLOSES) a root whose X-P ledger row is MISSING -> the ledger reader cannot be born on it AND the UNBORN inspect fallback would be reached -> graded() REFUSES on BIRTH and NOTHING IS GRADED
+  [OK ] U52 (THE AV2R LESSON) THE NON-ZERO rc IS EMITTED BY THE REAL PRODUCER'S OWN `echo` STATEMENT, lifted from the FROZEN so1a_run_arm.sh by exact content match (line 482) and EXECUTED, then read through the real reader -- so a fixture writing a schema the producer never emits cannot arise (read back rc=1 exit=1)
+  [OK ] U53 (A CONTROL ON THE CONTROL) if the producer's emitting statement can no longer be found in the frozen script -- the schema drifted, or the anchor moved -- producer_ledger_row returns NOTHING and the B2 legs are NOT BORN, so the gate closes instead of silently falling back to a hand-built row
+  [OK ] U54 (THE GATE CLOSES ON THE PRODUCER-WRITTEN PLANT) a root whose CTRL row carries a BROKEN plant -> B9 cannot be born -> graded() REFUSES on BIRTH.  The plant that must survive is the one so1a_xf.py wrote DURING THE RUN, not one this comparator adds afterwards
+SO1aR GRADER SELFTEST units=54 expected=54 failures=0 python_O=True
+COUNTING UNITS MEASURES THIS SELFTEST'S SIZE, NOT ITS COVERAGE.
+SO1aR GRADER SELFTEST PASS 54/54 (counted against the frozen EXPECTED_UNITS)
+rc=0
+wall_s=0.585 ranks=1
+
+=============== python3 --birth --root <SO1a run root> (GRADES NOTHING) ===============
+{
+ "item": "CURRICULUM-SO1aR",
+ "birth": {
+  "verdict": "BORN",
+  "n_legs": 12,
+  "legs": [
+   {
+    "leg": "B1_ledger_reader_on_the_real_ledger",
+    "born": true,
+    "detail": {
+     "producer": "so1a_run_arm.sh (the real run, 2026-08-28)",
+     "reader": "read_ledger",
+     "artefact": "ledger.txt",
+     "arms_read": [
+      "F-P",
+      "F-S",
+      "MESH",
+      "X-P",
+      "X-S"
+     ],
+     "nonzero_seen": "every core_min > 0",
+     "core_min_total": 9.416
+    }
+   },
+   {
+    "leg": "B2_rc_nonzero_seen_through_the_producers_own_emitter",
+    "born": true,
+    "detail": {
+     "producer": "so1a_run_arm.sh:482, THE ACTUAL echo STATEMENT, executed",
+     "reader": "read_ledger",
+     "planted": {
+      "rc": 1,
+      "inspect": "1 false"
+     },
+     "read_back": {
+      "rc": 1,
+      "inspect_exit": "1",
+      "oomkilled": "false"
+     }
+    }
+   },
+   {
+    "leg": "B2_oomkilled_true_seen_through_the_producers_own_emitter",
+    "born": true,
+    "detail": {
+     "producer": "so1a_run_arm.sh:482, THE ACTUAL echo STATEMENT, executed",
+     "reader": "read_ledger",
+     "planted": {
+      "rc": 0,
+      "inspect": "0 true"
+     },
+     "read_back": {
+      "rc": 0,
+      "inspect_exit": "0",
+      "oomkilled": "true"
+     }
+    }
+   },
+   {
+    "leg": "B3_inspect_fallback_NOT_BORN_and_not_needed",
+    "born": true,
+    "detail": {
+     "reader": "inspect_file_fallback",
+     "born": false,
+     "reason": "its producer is `docker inspect`, which cannot be driven without launching a container; and no non-zero-exit .inspect.txt exists anywhere on this box to birth it from a real run",
+     "bar": "BARRED from contributing a graded number.  This leg passes only because all five arms carry ledger rows, so the fallback is never reached on this root; if a row were missing this item would REFUSE rather than grade through an unborn reader",
+     "arms_with_ledger_rows": [
+      "F-P",
+      "F-S",
+      "MESH",
+      "X-P",
+      "X-S"
+     ]
+    }
+   },
+   {
+    "leg": "B4_age_datum_and_datum_reference_on_the_real_arms",
+    "born": true,
+    "detail": {
+     "producer": "so1a_run_arm.sh (datum) + the solver's own time-0 write (reference)",
+     "reader": "arm_datum + resolve_datum_ref",
+     "per_arm": {
+      "MESH": {
+       "datum_gt_0": true,
+       "resolved_name": "0.orig/U",
+       "artefact_minus_datum_s": 4,
+       "strictly_newer": true
+      },
+      "X-S": {
+       "datum_gt_0": true,
+       "resolved_name": "0/U.gz",
+       "artefact_minus_datum_s": 56,
+       "strictly_newer": true
+      },
+      "F-S": {
+       "datum_gt_0": true,
+       "resolved_name": "0/U.gz",
+       "artefact_minus_datum_s": 205,
+       "strictly_newer": true
+      },
+      "X-P": {
+       "datum_gt_0": true,
+       "resolved_name": "0/U.gz",
+       "artefact_minus_datum_s": 66,
+       "strictly_newer": true
+      },
+      "F-P": {
+       "datum_gt_0": true,
+       "resolved_name": "0/U.gz",
+       "artefact_minus_datum_s": 199,
+       "strictly_newer": true
+      }
+     },
+     "nonzero_seen": "a real epoch datum and a strictly positive age delta on every arm"
+    }
+   },
+   {
+    "leg": "B5_write_compression_reader_on_the_real_controlDicts",
+    "born": true,
+    "detail": {
+     "producer": "the tutorial's own system/controlDict, staged by preProcessing.sh",
+     "reader": "read_write_compression",
+     "per_arm": {
+      "MESH": {
+       "write_compression": "on",
+       "source_rel": "MESH/system/controlDict"
+      },
+      "X-S": {
+       "write_compression": "on",
+       "source_rel": "X-S/system/controlDict"
+      },
+      "F-S": {
+       "write_compression": "on",
+       "source_rel": "F-S/system/controlDict"
+      },
+      "X-P": {
+       "write_compression": "on",
+       "source_rel": "X-P/system/controlDict"
+      },
+      "F-P": {
+       "write_compression": "on",
+       "source_rel": "F-P/system/controlDict"
+      }
+     },
+     "nonzero_seen": "a real keyword VALUE read out of every arm's own controlDict, with the file it came from named"
+    }
+   },
+   {
+    "leg": "B6_cell_count_reader_on_the_real_checkMesh_log",
+    "born": true,
+    "detail": {
+     "producer": "OpenFOAM checkMesh, in the SHIPPED container",
+     "reader": "read_cells",
+     "artefact": "MESH/checkMesh.log",
+     "nonzero_seen": "a positive integer cell count",
+     "value_withheld": "the count itself is NOT printed here -- P1 is a registered prediction and the birth battery must not leak it"
+    }
+   },
+   {
+    "leg": "B7_adjoint_reader_on_the_real_X_artefacts",
+    "born": true,
+    "detail": {
+     "producer": "so1a_xf.py -mode X, in the real containers",
+     "reader": "read_X",
+     "per_arm": {
+      "X-S": {
+       "nonzero_adjoint_entries": 20,
+       "so_md5_present": true,
+       "nprocs": 1
+      },
+      "X-P": {
+       "nonzero_adjoint_entries": 20,
+       "so_md5_present": true,
+       "nprocs": 1
+      }
+     },
+     "nonzero_seen": "a counted number of non-zero adjoint entries",
+     "values_withheld": "no derivative value is printed"
+    }
+   },
+   {
+    "leg": "B8_FD_table_reader_on_the_real_F_artefacts",
+    "born": true,
+    "detail": {
+     "producer": "so1a_xf.py -mode F, in the real containers",
+     "reader": "read_F",
+     "per_arm": {
+      "F-S": {
+       "components": 5,
+       "nonzero_fd_dCD": 15,
+       "nonzero_fd_dCL": 15,
+       "nonzero_tb_dCD": 5,
+       "ctrl_row_present": true
+      },
+      "F-P": {
+       "components": 5,
+       "nonzero_fd_dCD": 15,
+       "nonzero_fd_dCL": 15,
+       "nonzero_tb_dCD": 5,
+       "ctrl_row_present": true
+      }
+     },
+     "nonzero_seen": "counted non-zero central-FD dCD, dCL and trivial-baseline entries",
+     "values_withheld": "no derivative value and no plateau structure is printed -- R4 is a registered prediction of this item"
+    }
+   },
+   {
+    "leg": "B9_producer_written_plant_read_back_through_the_real_reader",
+    "born": true,
+    "detail": {
+     "producer": "so1a_xf.py, WHICH INSERTED THE PLANT DURING THE REAL RUN",
+     "reader": "read_F + ctrl_control",
+     "per_arm": {
+      "F-S": {
+       "instrument_ctrl_zero": 0.0,
+       "instrument_ctrl_planted": 0.617,
+       "want": 0.617
+      },
+      "F-P": {
+       "instrument_ctrl_zero": 0.0,
+       "instrument_ctrl_planted": 0.617,
+       "want": 0.617
+      }
+     },
+     "nonzero_seen": "the CTRL row's planted derivative reads exactly PLANT/(2*ctrl_step) while its unplanted twin reads 0.0 -- the reader is shown seeing a non-zero AND a zero, from the same file, through the same code path"
+    }
+   },
+   {
+    "leg": "B10_grader_plant_on_the_real_artefacts",
+    "born": true,
+    "detail": {
+     "reader": "read_F",
+     "per_arm": {
+      "F-S": {
+       "grader_plant_seen": true,
+       "n_values": 15,
+       "worst_residual": 6.505213034913027e-19
+      },
+      "F-P": {
+       "grader_plant_seen": true,
+       "n_values": 15,
+       "worst_residual": 6.505213034913027e-19
+      }
+     },
+     "nonzero_seen": "every physical dCD moves by exactly PLANT when re-read",
+     "written_to": "a WORKDIR OUTSIDE the run root during --birth, so the battery mutates nothing it grades"
+    }
+   },
+   {
+    "leg": "B11_C5_scanner_on_every_real_log_this_item_will_grade",
+    "born": true,
+    "detail": {
+     "producer": "the real containers",
+     "reader": "fatal_token_sites",
+     "per_arm": {
+      "MESH": {
+       "files_scanned": [
+        "MESH_20260828T021739Z_1709267.log",
+        "checkMesh.log"
+       ],
+       "real_sites": 0,
+       "benign_excluded": 1
+      },
+      "X-S": {
+       "files_scanned": [
+        "X-S_20260828T021855Z_1711422.log"
+       ],
+       "real_sites": 0,
+       "benign_excluded": 0
+      },
+      "F-S": {
+       "files_scanned": [
+        "F-S_20260828T022101Z_1716255.log"
+       ],
+       "real_sites": 0,
+       "benign_excluded": 0
+      },
+      "X-P": {
+       "files_scanned": [
+        "X-P_20260828T022544Z_1723063.log"
+       ],
+       "real_sites": 0,
+       "benign_excluded": 0
+      },
+      "F-P": {
+       "files_scanned": [
+        "F-P_20260828T022805Z_1725175.log"
+       ],
+       "real_sites": 0,
+       "benign_excluded": 0
+      }
+     },
+     "nonzero_seen": "the SAME scanner is shown refusing on real crash bytes in selftest units U41-U44 and U47; here it is shown reading the REAL artefacts and reporting its exclusions COUNTED",
+     "note": "counts only; this leg renders no verdict"
+    }
+   }
+  ]
+ }
+}
+rc=0
+wall_s=0.122 ranks=1
+
+RUN ROOT UNMUTATED: files newer than 2026-08-28 16:52 under the run root = 0

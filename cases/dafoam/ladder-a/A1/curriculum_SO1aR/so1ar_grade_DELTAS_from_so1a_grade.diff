@@ -1,0 +1,920 @@
+--- cases/dafoam/ladder-a/A1/curriculum_SO1a/so1a_grade.py	2026-08-27 17:17:44.772782766 +0000
++++ cases/dafoam/ladder-a/A1/curriculum_SO1aR/so1ar_grade.py	2026-08-28 17:09:03.766198759 +0000
+@@ -1,5 +1,48 @@
+ #!/usr/bin/env python3
+-"""Curriculum SO-1a COMPARATOR -- NACA0012 INCOMPRESSIBLE drag-min-at-fixed-lift,
++"""Curriculum SO-1aR COMPARATOR -- THE RE-GRADE OF SO-1a's EXISTING ARTEFACTS.
++
++SO-1a RAN CLEANLY (5 arms, all rc = 0, OOMKilled false, chain COMPLETE 2026-08-28
++02:31:32Z, 9.416 core-min against a 75.0 ceiling) and its frozen comparator returned
++NOT A RESULT WITH ZERO GATES EVALUATED on a FALSE POSITIVE: `so1a_grade.py:122-125`
++holds the bare substring "Floating point exception" in FATAL_TOKENS, `:420` appends
++`checkMesh.log` to the C5 haystack for SCRIPT arms, and line 18 of that artefact is
++OpenFOAM's ordinary startup banner
++
++    trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
++
++-- a notice that FPE TRAPPING IS ENABLED, i.e. the solver is PROTECTED.  A second,
++smaller defect rode along: the refusal's `log` field named the ARM log, which
++contains ZERO occurrences of the token it cites (measured: 0 in
++`MESH_20260828T021739Z_1709267.log`, 1 in `MESH/checkMesh.log`).
++
++SO-1a's GATES ARE CLOSED (rule 2) and NOTHING OF SO-1a IS EDITED BY THIS FILE.  This
++is a SEPARATE registration whose subject is SO-1a's EXISTING ON-DISK ARTEFACTS.
++`cases/dafoam/ladder-a/A1/curriculum_SO1aR/PREREGISTRATION.md` governs.
++
++THE ONE INSTRUMENT CHANGE, AND NOTHING BEYOND IT -- C5, PORTED VERBATIM IN SHAPE
++FROM `curriculum_SO1c/so1c_grade.py` AMENDMENT R6 (commit 42c7c8c3), NOT REINVENTED:
++  * FATAL_TOKENS keeps EVERY original token and ADDS the handler symbol
++    `Foam::sigFpe::sigHandler` (adopted from `sdk/chief_engineer/head_engineer.py:188`),
++    which STRENGTHENS detection.  That file's `^` LINE ANCHOR IS DELIBERATELY NOT
++    ADOPTED -- see BENIGN_LINE_PATTERNS for the measured reason.
++  * `fatal_token_sites(text, source)` scans LINE BY LINE and PER SOURCE FILE, so a
++    refusal names the FILE AND LINE that actually carry the hit.
++  * BENIGN_LINE_PATTERNS holds exactly ONE entry, applied PER LINE, so a benign
++    banner on line 18 can NEVER suppress a real crash on line 400.
++  * EVERY EXCLUSION IS COUNTED AND PRINTED ON THE PASS RECORD.  A suppression a
++    reader cannot see is the same defect wearing the other hat.
++
++EVERY OTHER GATE, THRESHOLD, BAND, CAP, PREDICTION AND LABEL IS SO-1a's, UNCHANGED.
++The registered deltas are in `so1ar_grade_DELTAS_from_so1a_grade.diff`.
++
++WHAT A RE-GRADE MAY NOT CONCLUDE (PREREGISTRATION.md section 8): it re-grades
++artefacts produced under SO-1a's launcher and buys NOTHING about reproducibility,
++NOTHING about the mesh beyond what SO-1a's own MESH arm wrote, and NOTHING SO-1a's
++own scope excluded.  It is a READING of bought compute, not a new measurement.
++
++--- SO-1a's own header follows, unchanged except where a delta is marked ---
++
++Curriculum SO-1a COMPARATOR -- NACA0012 INCOMPRESSIBLE drag-min-at-fixed-lift,
+ the FD-VERIFIED GRADIENT RUNG of Sanaa's shape-optimisation ladder SO-1.  TWO ROWS
+ (SHIPPED + PATCHED), adjoint X against a central-FD table F, on BOTH the objective
+ `CD` AND the EQUALITY-CONSTRAINT `CL`.  FROZEN by md5 in PREREGISTRATION.md section 7
+@@ -70,7 +113,22 @@
+        delivered-cores floor does not apply and is not composed.
+   DIVERGENCE shipped-vs-patched per component on the adjoint is REPORTED, never gated.
+ 
+-PLANTED CONTROLS (rule 3, and Sanaa's directive section 1 "every guard ships its
++PLANTED CONTROLS ADDED BY THIS FILE (rule 3): the C5 repair is DRIVEN IN BOTH
++DIRECTIONS on REAL BYTES TAKEN FROM ARTEFACTS ON DISK, never by injecting into a
++helper -- (i) the REAL banner line from SO-1a's own `MESH/checkMesh.log:18`
++(md5 22aa9cfa6725eb904123aefaebf63cfd) is the CLEAN fixture's default and must NOT
++refuse; (ii) SO-1a's OWN FROZEN COMPARATOR is imported and run on that same fixture
++root and MUST refuse on it -- the unrepaired-versus-repaired contrast IS the
++evidence, executed, not described; (iii) a REAL 339-line np-4 solver log carrying
++FOUR of the same banners and ZERO real fatal tokens
++(`so1ar_fixture_REAL_D12R2W3_S0_solver.log`, md5 ccc4f40fa0e1c1849bb7bc15a4042d47,
++copied byte-identical from D12R2W3, a run this lane did not produce) is scanned and
++must yield 0 sites and 4 counted exclusions; (iv) a real `FOAM FATAL ERROR`, a real
++SIGFPE stack trace and OpenMPI's `exited on signal 8 (Floating point exception)` are
++each planted INTO THAT REAL LOG and must each refuse, ON THE PLANTED LINE, BESIDE
++the four banners.
++
++SO-1a's PLANTED CONTROLS (rule 3, and Sanaa's directive section 1 "every guard ships its
+ planted-failure proof"): (i) the instrument's CTRL component (derivative exactly 0.0)
+ and its PLANTED row (exactly PLANT/(2 s)) are re-read here and the grade REFUSES if
+ the reader cannot see them; (ii) this grader writes a copy of the F table with PLANT
+@@ -90,15 +148,20 @@
+ 
+ import ast
+ import glob
++import hashlib
+ import json
+ import math
+ import os
+ import re
++import subprocess
+ import sys
+ import time
+ 
+ # ---- REGISTERED CONSTANTS (PREREGISTRATION.md; the document governs) ----------------
+-ITEM = "SO1a"
++ITEM = "SO1aR"
++# THE RUN ROOT IS SO-1a's, DELIBERATELY AND BY REGISTRATION.  This item grades
++# artefacts SO-1a's launcher already produced; it launches nothing and writes nothing
++# into the run root except its own grade JSON.  PREREGISTRATION.md section 1.
+ BASE = "/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient"
+ ARMS_REQUIRED = ["MESH", "X-S", "F-S", "X-P", "F-P"]
+ ARM_KIND = {"MESH": "SCRIPT", "X-S": "SOLVER", "F-S": "SOLVER", "X-P": "SOLVER", "F-P": "SOLVER"}
+@@ -120,9 +183,54 @@
+ CONTROLDICT_REL = os.path.join("system", "controlDict")
+ # (C) C5: an arm whose log carries any of these is REFUSED regardless of rc, so the
+ # R-RC relaxation in (B) can never launder a crash into a NOT MEASURED.
++#
++# ===================== THE ONE INSTRUMENT CHANGE OF SO-1aR ==========================
++# PORTED FROM `curriculum_SO1c/so1c_grade.py` AMENDMENT R6 (commit 42c7c8c3), which
++# this lane read as a diff before porting.  NOT REINVENTED and NOT WIDENED.
+ FATAL_TOKENS = ("FOAM FATAL ERROR", "FOAM FATAL IO ERROR", "Segmentation fault",
+                 "SIGSEGV", "SIGKILL", "MPI_ABORT", "signal 9", "Signal 11",
+-                "Floating point exception")
++                "Floating point exception",
++                # ADOPTED FROM THE LAB'S OWN IMPLEMENTATION:
++                # `sdk/chief_engineer/head_engineer.py:188` reads
++                #     FPE = re.compile(r"Foam::sigFpe::sigHandler|^Floating point exception")
++                # -- the handler symbol is the ONE string OpenFOAM emits only when
++                # the FPE handler has actually FIRED.  It is added here as an EXTRA
++                # POSITIVE token, which STRENGTHENS detection: a crash whose shell
++                # line never reaches the log is still caught by its stack trace.
++                # Its LINE ANCHOR is DELIBERATELY NOT adopted -- see
++                # BENIGN_LINE_PATTERNS below for the measured reason.
++                "Foam::sigFpe::sigHandler")
++
++# ---- BENIGN LINES: the ONLY suppression this comparator carries ---------------------
++# WHY AN EXCLUSION LIST AND NOT A POSITIVE ANCHOR.  Two other readers in this lab were
++# examined before this one was written:
++#   * a checkMesh certifier that simply DELETES the FPE token and leans on a required
++#     `^End` marker.  RIGHT FOR ITS SCOPE, REJECTED FOR THIS ONE: C5 here also scans
++#     FOUR SOLVER logs, and deleting the token is exactly the blinding this repair
++#     must not do.
++#   * `sdk/chief_engineer/head_engineer.py:188` matches
++#     `Foam::sigFpe::sigHandler|^Floating point exception` -- a POSITIVE crash
++#     signature.  ITS HANDLER SYMBOL IS ADOPTED ABOVE.  ITS LINE ANCHOR IS NOT: the
++#     realistic multi-rank FPE report is OpenMPI's, e.g. `mpirun noticed that process
++#     rank 2 exited on signal 8 (Floating point exception).` -- NOT line-initial and
++#     carrying NO handler symbol.  `^Floating point exception` would MISS it.  An
++#     over-narrow EXCLUSION costs a FALSE REFUSAL; an over-narrow POSITIVE ANCHOR
++#     costs a MISSED CRASH.  The false refusal is the survivable error.
++#
++# WHY THE `trapFpe:` PREFIX IS SAFE TO EXCLUDE: it is the diagnostic prefix printed by
++# OpenFOAM's FPE-TRAPPING SETUP code.  A crash never prefixes itself with it -- a real
++# SIGFPE prints `Foam::sigFpe::sigHandler(int)` in the stack trace and `Floating point
++# exception (core dumped)` from the shell, and NEITHER line begins `trapFpe:`.  Both
++# are DRIVEN below as planted positives, on REAL log bytes.
++#
++# APPLIED PER LINE, so a benign banner on line 18 can NEVER suppress a real crash on
++# line 400.  EVERY EXCLUSION IS COUNTED AND PRINTED ON THE PASS RECORD.
++BENIGN_LINE_PATTERNS = (
++    (r"^\s*trapFpe:\s",
++     "OpenFOAM sigFpe SETUP banner -- an ENABLEMENT NOTICE, not a crash"),
++)
++BENIGN_LINE_RE = tuple((re.compile(_p), _why) for _p, _why in BENIGN_LINE_PATTERNS)
++# ===================== END OF THE ONE INSTRUMENT CHANGE =============================
+ CAPS = {"MESH": 5.0, "X-S": 10.0, "F-S": 25.0, "X-P": 10.0, "F-P": 25.0}
+ ITEM_CEILING_CORE_MIN = 75.0
+ PREDICTED_CORE_MIN = {"MESH": 0.167, "X-S": 1.1, "F-S": 2.5, "X-P": 1.1, "F-P": 2.5}
+@@ -162,9 +270,31 @@
+                   "no_fatal_token", "core_min", "cap_core_min", "DIGEST", "cpuset")
+ FIELDS_INFRASTRUCTURE = ("rc_record", "memavail_pre_GiB", "memavail_post_GiB", "delivered",
+                          "siblings_pre", "siblings_post", "log", "wall_s")
++# ---- REAL BYTES, TAKEN FROM ARTEFACTS ON DISK (PREREGISTRATION.md section 7) -------
++# The C5 repair is proven on REAL LOG BYTES, never on text this lane invented.  Both
++# fixtures are byte-identical copies of artefacts produced by runs, and their md5s are
++# frozen here AND checked by a unit, so a fixture that drifts from the artefact it
++# claims to be FAILS THE SELFTEST rather than quietly becoming a different test.
++FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
++FIXTURE_CHECKMESH = os.path.join(FIXTURE_DIR, "so1ar_fixture_REAL_SO1a_MESH_checkMesh.log")
++FIXTURE_SOLVERLOG = os.path.join(FIXTURE_DIR, "so1ar_fixture_REAL_D12R2W3_S0_solver.log")
++FIXTURE_MD5 = {FIXTURE_CHECKMESH: "22aa9cfa6725eb904123aefaebf63cfd",
++               FIXTURE_SOLVERLOG: "ccc4f40fa0e1c1849bb7bc15a4042d47"}
++# SO-1a's own `MESH/checkMesh.log:18`, VERBATIM.  This ONE LINE is what returned
++# NOT A RESULT on five clean arms and 9.416 core-min of intact physics.
++REAL_BANNER_LINE = "trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)."
++# The frozen predecessor, imported by the selftest and run on the SAME fixture root so
++# the defect and the repair are executed side by side rather than described.
++SO1A_FROZEN_GRADER = os.path.join(os.path.dirname(FIXTURE_DIR),
++                                  "curriculum_SO1a", "so1a_grade.py")
+ NOT_MEASURED = "NOT_MEASURED"
+ VOCAB = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
+-EXPECTED_UNITS = 35
++# DELIBERATE BUMP, 35 -> 47.  SO-1a's 35 units are carried unchanged; the 19 added
++# units (U36-U54) drive the C5 repair in BOTH DIRECTIONS on real bytes, execute the
++# unrepaired predecessor for the contrast, check the fixtures have not drifted, and
++# DRIVE THE BIRTH GATE ITSELF -- including its own failure modes (U51-U54), because a
++# gate that has never been seen to close is not a gate.
++EXPECTED_UNITS = 54
+ 
+ 
+ class Refusal(Exception):
+@@ -348,11 +478,53 @@
+ 
+ 
+ def fatal_tokens_in(text):
+-    """(C) C5.  Returns the tokens found.  Any hit REFUSES regardless of rc, so the
+-    R-RC relaxation in (B) can never launder a crash into a NOT MEASURED."""
++    """SO-1a's UNREPAIRED whole-file substring predicate, KEPT VERBATIM AND OFF THE
++    GRADING PATH.  It exists so the selftest can run the DEFECT and the REPAIR on the
++    SAME REAL BYTES (U48) and print the contrast, above the whole-comparator contrast
++    of U39, which imports and runs SO-1a's frozen file itself.  `grade()` never calls
++    it; that is CHECKED BY AST in U48, not asserted."""
+     return [t for t in FATAL_TOKENS if t in text]
+ 
+ 
++def benign_reason(line):
++    """(C) C5, SO-1aR.  Why this ONE LINE is an enablement notice and not a crash, or
++    None.  Narrow by construction: see BENIGN_LINE_PATTERNS."""
++    for rx, why in BENIGN_LINE_RE:
++        if rx.search(line):
++            return why
++    return None
++
++
++def fatal_token_sites(text, source):
++    """(C) C5, SO-1aR.  Scans LINE BY LINE and PER SOURCE FILE, returning
++    (sites, benign).  Any site REFUSES regardless of rc, so the R-RC relaxation in
++    (B) can never launder a crash into a NOT MEASURED.
++
++    LINE BY LINE, because the token test must be able to tell a CRASH from an
++    ENABLEMENT NOTICE and a whole-file substring test cannot -- that is precisely
++    what returned NOT A RESULT on SO-1a's five clean arms.  Every token in
++    FATAL_TOKENS is a single-line string, so splitting loses no match -- and that is
++    DRIVEN, not asserted: one unit plants each token in turn and requires a refusal
++    for every one.
++
++    PER SOURCE FILE, because the refusal must name the file that carries the hit.
++    SO-1a's refusal named the ARM log while the token lived in `checkMesh.log`,
++    pointing a reader at a file that does not contain the token it cites."""
++    sites, benign = [], []
++    for i, line in enumerate(text.splitlines(), 1):
++        hit = [t for t in FATAL_TOKENS if t in line]
++        if not hit:
++            continue
++        why = benign_reason(line)
++        rec = {"file": source, "line": i, "tokens": hit, "text": line.strip()[:200]}
++        if why:
++            rec["why_benign"] = why
++            benign.append(rec)
++        else:
++            sites.append(rec)
++    return sites, benign
++
++
+ def g_completion(base, rows):
+     """The five rule-4 clauses, PRINTED INDIVIDUALLY per arm (Sanaa 2026-08-27 s0):
+ 
+@@ -417,12 +589,29 @@
+             cl["C2_terminal_marker"] = {"verdict": "PASS", "marker": "Mesh OK.", "log": ARTEFACT[arm]}
+ 
+         # ---- C5 fatal token, REFUSES REGARDLESS OF rc ------------------------------
+-        hay = text + (open(art, errors="replace").read() if kind == "SCRIPT" else "")
+-        hits = fatal_tokens_in(hay)
+-        if hits:
+-            refuse("G1", {"C5_fatal_token_in_arm_output": hits, "arm": arm, "log": logname,
+-                          "note": "a fatal token refuses at ANY rc; R-RC never launders a crash"})
+-        cl["C5_no_fatal_token"] = {"verdict": "PASS", "tokens_searched": list(FATAL_TOKENS)}
++        # SO-1aR: scanned PER FILE and PER LINE.  SO-1a's `hay = text + artefact`
++        # discarded BOTH which file a hit came from AND whether the hit was a crash
++        # or OpenFOAM's `trapFpe:` enablement banner.  It refused all five clean arms.
++        scanned = [logname]
++        sites, benign = fatal_token_sites(text, logname)
++        if kind == "SCRIPT":
++            scanned.append(ARTEFACT[arm])
++            s2, b2 = fatal_token_sites(open(art, errors="replace").read(), ARTEFACT[arm])
++            sites += s2
++            benign += b2
++        if sites:
++            refuse("G1", {"C5_fatal_token_in_arm_output": sorted({t for st in sites
++                                                                  for t in st["tokens"]}),
++                          "arm": arm, "log": logname, "files_scanned": scanned,
++                          "token_sites": sites,
++                          "note": ("a fatal token refuses at ANY rc; R-RC never launders a "
++                                   "crash.  `token_sites` names the FILE AND LINE of every "
++                                   "hit; `log` is the arm's own log and is NOT necessarily "
++                                   "the file that carries the hit")})
++        cl["C5_no_fatal_token"] = {"verdict": "PASS", "tokens_searched": list(FATAL_TOKENS),
++                                   "files_scanned": scanned,
++                                   "n_benign_lines_excluded": len(benign),
++                                   "benign_lines_excluded": benign}
+ 
+         # ---- OOMKilled (physics, unchanged) ----------------------------------------
+         oom = str(r.get("oomkilled")).lower()
+@@ -478,6 +667,13 @@
+ 
+ 
+ # ================= readers with planted controls ======================================
++def read_cells(cm_txt):
++    """DELTA 3.  The cell-count reader, EXTRACTED TO A NAME so the birth battery can
++    drive THE SAME reader the grading path uses instead of a copy of it.  A control
++    that re-implements the reader it controls tests the copy, not the instrument."""
++    return re.search(r"^\s*cells:\s+(\d+)", cm_txt, re.M)
++
++
+ def read_X(path):
+     j = json.load(open(path))
+     adj = {}
+@@ -538,7 +734,13 @@
+         for v in (row.get("fd") or {}).values():
+             if v.get("ok"):
+                 v["dCD"] = repr(float(v["dCD"]) + PLANT)
+-    cdir = os.path.join(base, "grader_controls")
++    # SO-1aR DELTA 2 (WRITE PATH, NOT A GRADING CHANGE, disclosed in
++    # PREREGISTRATION.md section 6).  A re-grade runs a SECOND comparator against a
++    # run root a FIRST comparator already owns.  SO-1a's control path was
++    # `<root>/grader_controls/`; writing there would let a re-grade overwrite a
++    # predecessor's control artefact in a preserved run root.  Namespaced by ITEM so
++    # the two can never collide and an auditor can see which comparator wrote what.
++    cdir = os.path.join(base, "grader_controls_%s" % ITEM)
+     os.makedirs(cdir, exist_ok=True)
+     cp = os.path.join(cdir, "F_%s_planted.json" % tag)
+     json.dump(j, open(cp, "w"), indent=1, sort_keys=True)
+@@ -739,7 +941,7 @@
+     g1 = g_completion(root, rows)
+     # ---- MESH identity
+     cm_txt = open(os.path.join(root, "MESH", "checkMesh.log"), errors="replace").read()
+-    m = re.search(r"^\s*cells:\s+(\d+)", cm_txt, re.M)
++    m = read_cells(cm_txt)
+     if not m:
+         refuse("G-M2", {"cells_absent_in_checkMesh": True})
+     cells = int(m.group(1))
+@@ -835,6 +1037,294 @@
+           "siblings_pre=[] siblings_post=[] log={log} stamp=x\n")
+ 
+ 
++
++# ============================ THE BIRTH REQUIREMENT ==================================
++# Sanaa, 2026-08-28T17:01Z, verbatim: "A control defined in terms of the thing it
++# controls is not a control.  A planted control must travel the real production path
++# -- written by the real producer's code, read through the real reader -- and prove
++# the instrument sees a non-zero the same way reality would deliver one.  A control
++# that empties the tuple it tests, or writes a schema the producer never emits, tests
++# nothing and certifies blindness.  Companion rule canonized: rule 3's question --
++# 'was this reader ever shown able to see a non-zero through the real code path?' --
++# is now the birth requirement for every reader/comparator: no instrument grades
++# anything until that answer is yes, demonstrated."
++#
++# THIS IS ENFORCED IN CODE, NOT PROMISED IN A DOCUMENT.  `main()` runs `birth(root)`
++# BEFORE `grade(root)` and REFUSES the whole item if any leg fails.  Every leg below
++# reads an artefact WRITTEN BY THE REAL PRODUCER through THE REAL READER; the one leg
++# whose producer cannot be driven on this box is named NOT BORN and its reader is
++# BARRED from contributing a graded number rather than papered over with a hand-built
++# fixture.
++#
++# PRINTING DISCIPLINE: the legs that touch the FD and adjoint tables report COUNTS AND
++# BOOLEANS ONLY, never a derivative value.  The birth battery must not leak the
++# answers to this item's own predictions (PREREGISTRATION.md section 4a).
++SO1A_RUN_ARM = os.path.join(os.path.dirname(SO1A_FROZEN_GRADER), "so1a_run_arm.sh")
++PRODUCER_ROW_ANCHOR = 'echo "ARM=$ARM ROW=$ROW IMG=$IMG'
++
++
++def producer_ledger_row(rc, inspect, arm="X-S", row="SHIPPED", cpuset="9"):
++    """Emit ONE ledger row BY EXECUTING THE REAL PRODUCER'S OWN `echo` STATEMENT,
++    lifted from the FROZEN `so1a_run_arm.sh` by exact content match (never by line
++    number, which drifts).  This is what kills the AV2R failure mode: a fixture that
++    writes a schema the producer never emits cannot arise, because the producer is
++    what writes it.  Returns (line, source_line_number)."""
++    src = open(SO1A_RUN_ARM, errors="replace").read().splitlines()
++    hits = [(i + 1, ln) for i, ln in enumerate(src) if PRODUCER_ROW_ANCHOR in ln]
++    if len(hits) != 1:
++        return None, len(hits)
++    lineno, stmt = hits[0]
++    env = dict(os.environ)
++    env.update({"ARM": arm, "ROW": row, "IMG": "img", "GOT_DIGEST": IMG_DIGEST[row],
++                "rc": str(rc), "WALL": "60", "RANKS": "1", "CORE_MIN": "1.0",
++                "CAP": str(CAPS[arm]), "TMO": "600", "BACKCHECK": str(CAPS[arm]),
++                "MEM": "4g", "INSPECT": inspect, "MEMAVAIL_GIB": "20.00",
++                "MEMAVAIL_POST": "20.00", "CPUSET": cpuset,
++                "DELIVERED": "0.99 n=3 max_nr_throttled=0", "SIBLINGS_PRE": "",
++                "SIBLINGS_POST": "", "LOG": "/x/%s_x.log" % arm, "STAMP": "x"})
++    out = subprocess.run(["bash", "-c", stmt.strip()], env=env, capture_output=True,
++                         text=True)
++    if out.returncode != 0 or not out.stdout.strip():
++        return None, lineno
++    return out.stdout.strip() + "\n", lineno
++
++
++def birth(root, workdir):
++    """Every reader that contributes a graded number, driven ON THE REAL ARTEFACTS
++    THIS ITEM WILL GRADE.  Returns (ok, legs).  ok is False if ANY leg fails; the
++    caller must then refuse to grade."""
++    os.makedirs(workdir, exist_ok=True)
++    legs, ok = [], True
++
++    def leg(name, born, detail):
++        nonlocal ok
++        legs.append({"leg": name, "born": bool(born), "detail": detail})
++        if not born:
++            ok = False
++
++    # B1 -- the LEDGER reader, on the REAL ledger written by so1a_run_arm.sh --------
++    lp = os.path.join(root, "ledger.txt")
++    rows = read_ledger(lp) if os.path.isfile(lp) else {}
++    cms = {a: (rows.get(a) or {}).get("core_min") for a in ARMS_REQUIRED}
++    b1 = (set(rows) >= set(ARMS_REQUIRED)
++          and all(isinstance(cms[a], float) and cms[a] > 0.0 for a in ARMS_REQUIRED)
++          and all((rows[a] or {}).get("DIGEST") == IMG_DIGEST[ARM_ROW[a]] for a in ARMS_REQUIRED))
++    leg("B1_ledger_reader_on_the_real_ledger", b1,
++        {"producer": "so1a_run_arm.sh (the real run, 2026-08-28)", "reader": "read_ledger",
++         "artefact": "ledger.txt", "arms_read": sorted(rows),
++         "nonzero_seen": "every core_min > 0", "core_min_total": round(sum(
++             v for v in cms.values() if isinstance(v, float)), 3)})
++
++    # B2 -- the NON-ZERO rc, EMITTED BY THE REAL PRODUCER'S OWN echo ----------------
++    # No crashed container exists on this box, so the non-zero rc cannot come from a
++    # real run.  It is therefore produced by RUNNING THE PRODUCER'S OWN STATEMENT,
++    # which is the closest thing to reality that exists without burning compute -- and
++    # it proves producer and reader agree on the SCHEMA, not merely on this lane's
++    # transcription of it.
++    for _rc, _ins, _tag in ((1, "1 false", "rc_nonzero"), (0, "0 true", "oomkilled_true")):
++        line, meta = producer_ledger_row(_rc, _ins)
++        got = {}
++        if line:
++            fp = os.path.join(workdir, "birth_ledger_%s.txt" % _tag)
++            open(fp, "w").write("ITEM=SO1a\n" + line)
++            got = (read_ledger(fp).get("X-S") or {})
++        want_rc, want_exit, want_oom = _rc, _ins.split()[0], _ins.split()[1]
++        b2 = bool(line) and str(got.get("rc")) == str(want_rc) \
++            and str(got.get("inspect_exit")) == want_exit \
++            and str(got.get("oomkilled")).lower() == want_oom
++        leg("B2_%s_seen_through_the_producers_own_emitter" % _tag, b2,
++            {"producer": "so1a_run_arm.sh:%s, THE ACTUAL echo STATEMENT, executed" % meta,
++             "reader": "read_ledger", "planted": {"rc": want_rc, "inspect": _ins},
++             "read_back": {"rc": got.get("rc"), "inspect_exit": got.get("inspect_exit"),
++                           "oomkilled": got.get("oomkilled")}})
++
++    # B3 -- the INSPECT-FILE FALLBACK: NOT BORN, and therefore BARRED ---------------
++    # Its producer is a `docker inspect` command; driving it needs a container, and
++    # this item launches none.  Every `.inspect.txt` on this box records exit 0, so
++    # NO REAL NON-ZERO RECORD EXISTS to birth it with.  Rather than paper it with a
++    # hand-built file, the reader is declared NOT BORN and BARRED: if any arm were
++    # MISSING from the ledger, the grading path would fall back to it, so the birth
++    # requirement is met by proving THE FALLBACK IS NOT NEEDED for this root.
++    b3 = set(rows) >= set(ARMS_REQUIRED)
++    leg("B3_inspect_fallback_NOT_BORN_and_not_needed", b3,
++        {"reader": "inspect_file_fallback", "born": False,
++         "reason": ("its producer is `docker inspect`, which cannot be driven without "
++                    "launching a container; and no non-zero-exit .inspect.txt exists "
++                    "anywhere on this box to birth it from a real run"),
++         "bar": ("BARRED from contributing a graded number.  This leg passes only "
++                 "because all five arms carry ledger rows, so the fallback is never "
++                 "reached on this root; if a row were missing this item would REFUSE "
++                 "rather than grade through an unborn reader"),
++         "arms_with_ledger_rows": sorted(rows)})
++
++    # B4 -- the AGE DATUM and DATUM REFERENCE, on the REAL arm directories ----------
++    ages = {}
++    b4 = True
++    for a in ARMS_REQUIRED:
++        try:
++            d, datum, ref = arm_datum(root, a)
++            art = os.path.join(d, ARTEFACT[a])
++            delta = int(os.path.getmtime(art)) - datum
++            ages[a] = {"datum_gt_0": datum > 0, "resolved_name": ref.get("resolved_name"),
++                       "artefact_minus_datum_s": delta, "strictly_newer": delta > 0}
++            b4 = b4 and datum > 0 and delta > 0
++        except Exception as e:                                     # noqa: BLE001
++            ages[a] = {"error": str(e)}; b4 = False
++    leg("B4_age_datum_and_datum_reference_on_the_real_arms", b4,
++        {"producer": "so1a_run_arm.sh (datum) + the solver's own time-0 write (reference)",
++         "reader": "arm_datum + resolve_datum_ref", "per_arm": ages,
++         "nonzero_seen": "a real epoch datum and a strictly positive age delta on every arm"})
++
++    # B5 -- writeCompression, on the REAL controlDicts ------------------------------
++    wc = {}
++    for a in ARMS_REQUIRED:
++        _w = read_write_compression(os.path.join(root, a))
++        # the reader returns {value, source}; the SOURCE PATH is reduced to its
++        # arm-relative form so a birth record is comparable between roots
++        wc[a] = {"write_compression": _w.get("write_compression"),
++                 "source_rel": os.path.relpath(_w.get("write_compression_source", ""), root)
++                 if _w.get("write_compression_source") else None}
++    leg("B5_write_compression_reader_on_the_real_controlDicts",
++        all(v["write_compression"] in ("on", "off") and v["source_rel"] for v in wc.values()),
++        {"producer": "the tutorial's own system/controlDict, staged by preProcessing.sh",
++         "reader": "read_write_compression", "per_arm": wc,
++         "nonzero_seen": "a real keyword VALUE read out of every arm's own controlDict, "
++                         "with the file it came from named"})
++
++    # B6 -- the CELL-COUNT reader (DELTA 3), on the REAL checkMesh.log --------------
++    cmp_path = os.path.join(root, "MESH", "checkMesh.log")
++    mm = read_cells(open(cmp_path, errors="replace").read()) if os.path.isfile(cmp_path) else None
++    leg("B6_cell_count_reader_on_the_real_checkMesh_log",
++        bool(mm) and int(mm.group(1)) > 0,
++        {"producer": "OpenFOAM checkMesh, in the SHIPPED container", "reader": "read_cells",
++         "artefact": "MESH/checkMesh.log", "nonzero_seen": "a positive integer cell count",
++         "value_withheld": "the count itself is NOT printed here -- P1 is a registered "
++                           "prediction and the birth battery must not leak it"})
++
++    # B7/B8 -- the ADJOINT and FD readers, on the REAL producer's own artefacts -----
++    # COUNTS AND BOOLEANS ONLY.  No derivative value is printed.
++    nz = {}
++    b78 = True
++    for a in ("X-S", "X-P"):
++        try:
++            Xr = read_X(os.path.join(root, a, ARTEFACT[a]))
++            n = sum(1 for of in ("CD", "CL") for dv in Xr["adjoint"][of]
++                    for v in Xr["adjoint"][of][dv] if v != 0.0)
++            nz[a] = {"nonzero_adjoint_entries": n, "so_md5_present": bool(Xr["so_md5"]),
++                     "nprocs": Xr["nprocs"]}
++            b78 = b78 and n > 0
++        except Exception as e:                                     # noqa: BLE001
++            nz[a] = {"error": str(e)}; b78 = False
++    leg("B7_adjoint_reader_on_the_real_X_artefacts", b78,
++        {"producer": "so1a_xf.py -mode X, in the real containers", "reader": "read_X",
++         "per_arm": nz, "nonzero_seen": "a counted number of non-zero adjoint entries",
++         "values_withheld": "no derivative value is printed"})
++
++    fz = {}
++    b8 = True
++    Fs = {}
++    for a in ("F-S", "F-P"):
++        try:
++            Fr = read_F(os.path.join(root, a, ARTEFACT[a]))
++            Fs[a] = Fr
++            nfd = sum(1 for k in Fr["table"] for v in Fr["table"][k]["fd"].values()
++                      if v["ok"] and v["dCD"] not in (None, 0.0))
++            ntb = sum(1 for k in Fr["table"] for v in Fr["table"][k]["tb"].values()
++                      if v["ok"] and v["dCD"] not in (None, 0.0))
++            ncl = sum(1 for k in Fr["table"] for v in Fr["table"][k]["fd"].values()
++                      if v["ok"] and v["dCL"] not in (None, 0.0))
++            fz[a] = {"components": len(Fr["table"]), "nonzero_fd_dCD": nfd,
++                     "nonzero_fd_dCL": ncl, "nonzero_tb_dCD": ntb,
++                     "ctrl_row_present": Fr["ctrl"] is not None}
++            b8 = b8 and nfd > 0 and ncl > 0 and ntb > 0 and Fr["ctrl"] is not None
++        except Exception as e:                                     # noqa: BLE001
++            fz[a] = {"error": str(e)}; b8 = False
++    leg("B8_FD_table_reader_on_the_real_F_artefacts", b8,
++        {"producer": "so1a_xf.py -mode F, in the real containers", "reader": "read_F",
++         "per_arm": fz,
++         "nonzero_seen": "counted non-zero central-FD dCD, dCL and trivial-baseline entries",
++         "values_withheld": ("no derivative value and no plateau structure is printed -- "
++                             "R4 is a registered prediction of this item")})
++
++    # B9 -- THE CANONICAL RULE-3 CONTROL: the plant WRITTEN BY THE REAL PRODUCER
++    #       DURING THE REAL RUN, read back through the real reader.  This is the one
++    #       leg where the plant genuinely travelled the production path end to end:
++    #       `so1a_xf.py` inserted PLANT into the CTRL row inside the container.
++    cz = {}
++    b9 = True
++    for a in ("F-S", "F-P"):
++        try:
++            cz[a] = ctrl_control(Fs[a])
++            b9 = b9 and cz[a]["instrument_ctrl_zero"] == 0.0
++        except Exception as e:                                     # noqa: BLE001
++            cz[a] = {"error": str(e)}; b9 = False
++    leg("B9_producer_written_plant_read_back_through_the_real_reader", b9,
++        {"producer": "so1a_xf.py, WHICH INSERTED THE PLANT DURING THE REAL RUN",
++         "reader": "read_F + ctrl_control", "per_arm": cz,
++         "nonzero_seen": ("the CTRL row's planted derivative reads exactly "
++                          "PLANT/(2*ctrl_step) while its unplanted twin reads 0.0 -- "
++                          "the reader is shown seeing a non-zero AND a zero, from the "
++                          "same file, through the same code path")})
++
++    # B10 -- the GRADER-LEVEL plant, applied to the REAL artefacts ------------------
++    gz = {}
++    b10 = True
++    for a, tag in (("F-S", "S"), ("F-P", "P")):
++        try:
++            gz[a] = grader_plant_control(workdir, os.path.join(root, a, ARTEFACT[a]),
++                                         "birth_%s" % tag)
++            b10 = b10 and gz[a]["grader_plant_seen"] and gz[a]["n_values"] > 0
++        except Exception as e:                                     # noqa: BLE001
++            gz[a] = {"error": str(e)}; b10 = False
++    leg("B10_grader_plant_on_the_real_artefacts", b10,
++        {"reader": "read_F", "per_arm": {a: {k: v for k, v in (gz[a] or {}).items()
++                                             if k != "file"} for a in gz},
++         "nonzero_seen": "every physical dCD moves by exactly PLANT when re-read",
++         "written_to": ("a WORKDIR OUTSIDE the run root during --birth, so the "
++                        "battery mutates nothing it grades")})
++
++    # B11 -- the C5 SCANNER, on every REAL log this item will grade -----------------
++    c5 = {}
++    for a in ARMS_REQUIRED:
++        r = rows.get(a) or {}
++        files = []
++        lg = r.get("log")
++        if lg and os.path.isfile(os.path.join(root, lg)):
++            files.append((lg, os.path.join(root, lg)))
++        if ARM_KIND[a] == "SCRIPT":
++            files.append((ARTEFACT[a], os.path.join(root, a, ARTEFACT[a])))
++        si, be = 0, 0
++        for nm, fp in files:
++            _s, _b = fatal_token_sites(open(fp, errors="replace").read(), nm)
++            si += len(_s); be += len(_b)
++        c5[a] = {"files_scanned": [f[0] for f in files], "real_sites": si,
++                 "benign_excluded": be}
++    leg("B11_C5_scanner_on_every_real_log_this_item_will_grade", True,
++        {"producer": "the real containers", "reader": "fatal_token_sites", "per_arm": c5,
++         "nonzero_seen": ("the SAME scanner is shown refusing on real crash bytes in "
++                          "selftest units U41-U44 and U47; here it is shown reading the "
++                          "REAL artefacts and reporting its exclusions COUNTED"),
++         "note": "counts only; this leg renders no verdict"})
++
++    return ok, legs
++
++def graded(root, workdir):
++    """THE ONLY GRADING ENTRY POINT.  The birth requirement is ENFORCED HERE: if any
++    reader that contributes a graded number has not been shown able to see a non-zero
++    through the real code path, this REFUSES and NOTHING is graded.  Sanaa 2026-08-28:
++    "no instrument grades anything until that answer is yes, demonstrated"."""
++    os.makedirs(workdir, exist_ok=True)
++    ok, legs = birth(root, workdir)
++    if not ok:
++        refuse("BIRTH", {"birth_requirement_not_met": [l["leg"] for l in legs if not l["born"]],
++                         "legs": legs,
++                         "note": ("a reader not shown able to see a non-zero through the "
++                                  "real code path may not grade.  NOTHING was graded.")})
++    r = grade(root)
++    r["birth"] = {"verdict": "BORN", "n_legs": len(legs), "legs": legs}
++    return r
++
++
+ def _fix(tmp, tweak=None):
+     """Build a clean fixture; `tweak` mutates the dict of knobs before writing.
+ 
+@@ -855,6 +1345,12 @@
+          "tb_pass": {"S": set(), "P": set()},
+          "terminal": {a: True for a in ARMS_REQUIRED}, "stale": set(), "ctrl_ok": True, "mpost": "20.00",
+          "drop_row": set(), "inspect_file": set(), "rc_record": set(), "fatal": {},
++         # SO-1aR knobs.  `banner` puts SO-1a's OWN REAL banner line into the MESH
++         # artefact and is ON BY DEFAULT, because that is what the real artefact
++         # carries; `fatal_art` injects into the ARTEFACT (which is where SO-1a's
++         # false positive lived and where its `fatal` knob could not reach);
++         # `log_extra` appends arbitrary REAL log bytes to an arm log.
++         "banner": True, "fatal_art": {}, "log_extra": {},
+          # DEFAULT: the SOLVER arms resolve to the COMPRESSED twin, which is what
+          # `writeCompression on` at np = 1 actually produces (AV-1 measured it).
+          "datum": {a: ("plain" if a == "MESH" else "gz") for a in ARMS_REQUIRED},
+@@ -891,7 +1387,12 @@
+         text = "D4S_CONTAINER_UID: 0\nD4S_IDWARP_SO_MD5: %s\nD4S_DEADLINE_IN_CONTAINER_S: 600\n" % so
+         if arm == "MESH":
+             art = os.path.join(d, "checkMesh.log")
+-            open(art, "w").write("Mesh stats\n    cells:            %d\n\nMesh OK.\n" % k["cells"])
++            # LAID OUT LIKE THE REAL ARTEFACT: the banner is an EARLY line (real file:
++            # line 18 of 99) and `Mesh OK.` is at the end, so a planted crash appended
++            # after it sits BELOW the banner exactly as a real crash would.
++            head = (REAL_BANNER_LINE + "\n") if k["banner"] else ""
++            open(art, "w").write(head + "Mesh stats\n    cells:            %d\n\nMesh OK.\n"
++                                 % k["cells"] + k["fatal_art"].get(arm, ""))
+             text += "SO1A_CHECKMESH_RC 0\n"
+         else:
+             rk = "S" if arm.endswith("-S") else "P"
+@@ -942,6 +1443,8 @@
+                 text += TERMINAL[arm] + " ok\n"
+         if arm in k["fatal"]:
+             text += k["fatal"][arm] + "\n"
++        if arm in k["log_extra"]:
++            text += k["log_extra"][arm]
+         os.utime(art, (t0 - 5, t0 - 5) if arm in k["stale"] else (t0 + 5, t0 + 5))
+         open(os.path.join(root, log), "w").write(text)
+         ke = NOT_MEASURED if arm in k["rc_record"] else k["ke"].get(arm, k["rc"][arm])
+@@ -1027,8 +1530,13 @@
+     r = grade(_fix(tmp, tw(drop_row={"F-P"}, inspect_file={"F-P"})))
+     unit("U20 ledger row absent, ONE inspect record -> read from it, source named, core_min NOT_MEASURED, verdict PASS",
+          r["verdict"] == "PASS" and r["completion"]["arms"]["F-P"]["source"] == "inspect_record" and "F-P" in r["not_measured"]["G10"])
+-    here = os.path.dirname(os.path.abspath(__file__))
+-    unit("U21 ast.Assert count = 0 in so1a_grade.py and so1a_xf.py", count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "so1a_xf.py")) == 0)
++    # SO-1aR delta: the PRODUCER of the artefacts being re-graded is SO-1a's frozen
++    # `so1a_xf.py`, which lives in SO-1a's directory, not this one.  Checking IT is
++    # exactly right for a re-grade -- this item produces nothing.
++    here = os.path.dirname(SO1A_FROZEN_GRADER)
++    unit("U21 ast.Assert count = 0 in so1ar_grade.py (this file) and in the PRODUCER "
++         "so1a_xf.py that wrote the artefacts being re-graded (L-332)",
++         count_asserts(os.path.abspath(__file__)) == 0 and count_asserts(os.path.join(here, "so1a_xf.py")) == 0)
+     p = os.path.join(tmp, "planted_assert.py")
+     open(p, "w").write("x = 1\nassert x == 1\n")
+     unit("U22 the assert counter sees a planted assert (=1)", count_asserts(p) == 1)
+@@ -1116,11 +1624,217 @@
+          "the five arms (Sanaa 2026-08-27 s0)",
+          all(set(r["rule4_clauses_per_arm"][a]) == want for a in ARMS_REQUIRED))
+ 
+-    print("SO1a GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
++
++    # ================= SO-1aR: THE ONE INSTRUMENT CHANGE, DRIVEN BOTH DIRECTIONS =====
++    # Every unit below reads REAL BYTES from artefacts on disk.  The plant is inserted
++    # into the ARTEFACT the grader actually opens, never into a helper.
++
++    # ---- the fixtures ARE the artefacts they claim to be ---------------------------
++    md5ok, md5got = True, {}
++    for _p, _want in sorted(FIXTURE_MD5.items()):
++        _h = (hashlib.md5(open(_p, "rb").read()).hexdigest()
++              if os.path.isfile(_p) else "ABSENT")
++        md5got[os.path.basename(_p)] = _h
++        md5ok = md5ok and _h == _want
++    unit("U36 THE REAL FIXTURES HAVE NOT DRIFTED: both are byte-identical to the "
++         "artefacts they were copied from, by md5 frozen in PREREGISTRATION.md s7 "
++         "(got %s)" % md5got, md5ok)
++
++    # ---- (a) THE FALSE POSITIVE, ON THE REAL BYTES THAT CAUSED IT ------------------
++    root_banner = _fix(tmp)
++    r = grade(root_banner)
++    c5m = r["rule4_clauses_per_arm"]["MESH"]["C5_no_fatal_token"]
++    unit("U37 (a) THE REAL BANNER ALONE DOES NOT REFUSE: SO-1a's own "
++         "`MESH/checkMesh.log:18` line, verbatim, sits in the MESH artefact and the "
++         "item is PASS with C5 PASS on MESH",
++         r["verdict"] == "PASS" and c5m["verdict"] == "PASS")
++    unit("U38 (a) THE EXCLUSION IS COUNTED AND PRINTED: MESH C5 records exactly 1 "
++         "benign line excluded, naming the FILE, the LINE, the token and WHY -- a "
++         "suppression a reader cannot see is the same defect wearing the other hat",
++         c5m["n_benign_lines_excluded"] == 1
++         and c5m["benign_lines_excluded"][0]["file"] == "checkMesh.log"
++         and c5m["benign_lines_excluded"][0]["tokens"] == ["Floating point exception"]
++         and c5m["benign_lines_excluded"][0]["line"] == 1
++         and "ENABLEMENT NOTICE" in c5m["benign_lines_excluded"][0]["why_benign"]
++         and c5m["files_scanned"] == ["MESH_x.log", "checkMesh.log"])
++
++    # ---- THE CONTRAST, EXECUTED: the UNREPAIRED comparator on the SAME root --------
++    old_ref, old_det = "IMPORT FAILED", {}
++    try:
++        import importlib.util as _ilu
++        _sp = _ilu.spec_from_file_location("so1a_frozen", SO1A_FROZEN_GRADER)
++        _m = _ilu.module_from_spec(_sp)
++        _sp.loader.exec_module(_m)
++        try:
++            _m.grade(root_banner)
++            old_ref = "NO REFUSAL"
++        except _m.Refusal as _e:
++            old_ref = "REFUSED"
++            old_det = json.loads(str(_e))["detail"]
++    except Exception as _e:                                   # noqa: BLE001
++        old_ref = "IMPORT/RUN ERROR: %s" % _e
++    unit("U39 (a, THE CONTRAST) SO-1a's FROZEN COMPARATOR, IMPORTED AND RUN ON THE "
++         "SAME FIXTURE ROOT, REFUSES on that same benign banner with "
++         "C5_fatal_token_in_arm_output=['Floating point exception'] -- the defect and "
++         "the repair executed side by side, not described (got %s)" % old_ref,
++         old_ref == "REFUSED"
++         and old_det.get("C5_fatal_token_in_arm_output") == ["Floating point exception"]
++         and old_det.get("arm") == "MESH")
++    unit("U40 (a, SO-1a's SECOND DEFECT) the UNREPAIRED refusal's `log` field names "
++         "the ARM log, which contains ZERO occurrences of the token it cites, while "
++         "the repaired refusal carries `token_sites` naming file AND line",
++         old_det.get("log") == "MESH_x.log"
++         and "Floating point exception" not in open(
++             os.path.join(root_banner, "MESH_x.log"), errors="replace").read())
++
++    # ---- (b) REAL CRASHES STILL REFUSE, EACH BESIDE THE BANNER ---------------------
++    unit("U41 (b/c) a REAL `FOAM FATAL ERROR` appended to the MESH artefact BELOW the "
++         "banner -> REFUSAL: a benign line NEVER suppresses a crash in the same file",
++         refused(_fix(tmp, tw(fatal_art={"MESH": "--> FOAM FATAL ERROR: \n"
++                                                 "    keyword nCells is undefined\n"}))))
++    unit("U42 (b) a REAL SIGFPE STACK TRACE with NO shell line -> REFUSAL.  The token "
++         "is the handler symbol adopted from head_engineer.py:188 and is HARD-CODED "
++         "here, not read from FATAL_TOKENS, so deleting it from the tuple fails this "
++         "unit",
++         refused(_fix(tmp, tw(fatal_art={"MESH": "#0  Foam::error::printStack(...)\n"
++                                                 "#1  Foam::sigFpe::sigHandler(int) at ??:?\n"}))))
++    unit("U43 (b) OpenMPI's REALISTIC multi-rank report -- `mpirun noticed that "
++         "process rank 2 exited on signal 8 (Floating point exception).` -- REFUSES.  "
++         "It is NOT line-initial and carries NO handler symbol, which is exactly why "
++         "head_engineer.py's `^` anchor was NOT adopted",
++         refused(_fix(tmp, tw(fatal_art={"MESH": "mpirun noticed that process rank 2 "
++                                                 "exited on signal 8 (Floating point "
++                                                 "exception).\n"}))))
++
++    # ---- (c) THE CRASH IS NAMED, NOT THE BANNER -----------------------------------
++    crash_det = {}
++    try:
++        grade(_fix(tmp, tw(fatal_art={"MESH": "--> FOAM FATAL ERROR: boom\n"})))
++    except Refusal as _e:
++        crash_det = json.loads(str(_e))["detail"]
++    unit("U44 (c) THE REFUSAL NAMES THE CRASH LINE AND ITS FILE, NOT THE BANNER: "
++         "exactly one site, in `checkMesh.log`, on the line carrying FOAM FATAL "
++         "ERROR -- line 6, below the banner on line 1 -- and the banner is NOT a site",
++         [x["file"] for x in crash_det.get("token_sites", [])] == ["checkMesh.log"]
++         and crash_det["token_sites"][0]["tokens"] == ["FOAM FATAL ERROR"]
++         and crash_det["token_sites"][0]["line"] == 6
++         and crash_det.get("files_scanned") == ["MESH_x.log", "checkMesh.log"])
++
++    # ---- the line split loses no token --------------------------------------------
++    lost = [t for t in FATAL_TOKENS
++            if not refused(_fix(tmp, tw(fatal_art={"MESH": "xx %s yy\n" % t})))]
++    unit("U45 THE LINE SPLIT LOSES NO TOKEN: each of the %d registered FATAL_TOKENS, "
++         "planted ONE AT A TIME on its own line in the real-shaped artefact, REFUSES "
++         "(lost: %s)" % (len(FATAL_TOKENS), lost or "none"), not lost)
++
++    # ---- THE REAL 339-LINE np=4 SOLVER LOG, THROUGH THE REAL GRADING PATH ----------
++    real_log = open(FIXTURE_SOLVERLOG, errors="replace").read()
++    r = grade(_fix(tmp, tw(log_extra={"X-S": real_log})))
++    c5x = r["rule4_clauses_per_arm"]["X-S"]["C5_no_fatal_token"]
++    unit("U46 A REAL 339-LINE np=4 SOLVER LOG THIS LANE DID NOT PRODUCE (D12R2W3, "
++         "4 banners, 5 End lines, 0 real fatal tokens) is appended to the X-S arm log "
++         "-> item PASS, C5 PASS, EXACTLY 4 benign lines excluded and counted",
++         r["verdict"] == "PASS" and c5x["verdict"] == "PASS"
++         and c5x["n_benign_lines_excluded"] == 4
++         and all(x["why_benign"] for x in c5x["benign_lines_excluded"]))
++    planted = real_log.splitlines(True)
++    planted.insert(300, "--> FOAM FATAL ERROR: planted below all four banners\n")
++    unit("U47 THE SAME REAL LOG WITH ONE CRASH PLANTED BELOW ALL FOUR BANNERS -> "
++         "REFUSAL.  Four benign lines above it suppress nothing; the whole-file "
++         "predicate SO-1a used could not have told these two logs apart",
++         refused(_fix(tmp, tw(log_extra={"X-S": "".join(planted)}))))
++
++    # ---- the UNREPAIRED predicate is kept for the contrast and is NOT on the path --
++    _tree = ast.parse(open(os.path.abspath(__file__)).read())
++    _callers = set()
++    for _fn in [x for x in ast.walk(_tree) if isinstance(x, ast.FunctionDef)]:
++        for _nd in ast.walk(_fn):
++            if isinstance(_nd, ast.Name) and _nd.id == "fatal_tokens_in":
++                _callers.add(_fn.name)
++    _real = open(FIXTURE_CHECKMESH, errors="replace").read()
++    _old_hits = fatal_tokens_in(_real)
++    _sites, _ben = fatal_token_sites(_real, "checkMesh.log")
++    unit("U48 THE CONTRAST AT THE PREDICATE LEVEL, ON SO-1a's REAL 99-LINE "
++         "`MESH/checkMesh.log`: the UNREPAIRED whole-file predicate returns %s while "
++         "the repaired scanner returns 0 sites and 1 counted benign line at line 18 "
++         "-- and the unrepaired predicate is referenced by NO function on the grading "
++         "path (by AST over this module's own source: %s)"
++         % (_old_hits, sorted(_callers) or "nothing"),
++         _old_hits == ["Floating point exception"] and _sites == []
++         and len(_ben) == 1 and _ben[0]["line"] == 18
++         and "g_completion" not in _callers and "grade" not in _callers)
++
++    # ---- DELTA 2: the control write path cannot collide with the predecessor's ----
++    _r49 = grade(_fix(tmp))
++    _cf = _r49["controls"]["grader_plant_S"]["file"]
++    unit("U49 (DELTA 2, WRITE PATH) the grader's own planted-control copy is written "
++         "under `grader_controls_SO1aR/`, NOT under SO-1a's `grader_controls/`, so a "
++         "re-grade can never overwrite a predecessor's control artefact in a "
++         "preserved run root (wrote %s)" % os.path.basename(os.path.dirname(_cf)),
++         os.path.basename(os.path.dirname(_cf)) == "grader_controls_SO1aR"
++         and os.path.isfile(_cf))
++
++
++    # ================= THE BIRTH GATE, DRIVEN (Sanaa 2026-08-28T17:01Z) =============
++    def refused_graded(root):
++        try:
++            graded(root, os.path.join(tmp, "bw_%d" % int(time.time() * 1e6)))
++            return False
++        except Refusal:
++            return True
++
++    _bw = os.path.join(tmp, "bw_clean")
++    _ok, _legs = birth(_fix(tmp), _bw)
++    unit("U50 THE BIRTH BATTERY RUNS AND EVERY LEG IS BORN on a clean root: %d legs, "
++         "each naming its PRODUCER, its READER and the NON-ZERO it was shown seeing"
++         % len(_legs),
++         _ok and len(_legs) == 12 and all(l["born"] for l in _legs)
++         and all(l["detail"].get("reader") for l in _legs))
++
++    unit("U51 (THE GATE CLOSES) a root whose X-P ledger row is MISSING -> the ledger "
++         "reader cannot be born on it AND the UNBORN inspect fallback would be reached "
++         "-> graded() REFUSES on BIRTH and NOTHING IS GRADED",
++         refused_graded(_fix(tmp, tw(drop_row={"X-P"}))))
++
++    _line, _meta = producer_ledger_row(1, "1 false")
++    _fp = os.path.join(tmp, "u52_ledger.txt")
++    open(_fp, "w").write("ITEM=SO1a\n" + (_line or ""))
++    _got = (read_ledger(_fp).get("X-S") or {}) if _line else {}
++    unit("U52 (THE AV2R LESSON) THE NON-ZERO rc IS EMITTED BY THE REAL PRODUCER'S OWN "
++         "`echo` STATEMENT, lifted from the FROZEN so1a_run_arm.sh by exact content "
++         "match (line %s) and EXECUTED, then read through the real reader -- so a "
++         "fixture writing a schema the producer never emits cannot arise (read back "
++         "rc=%s exit=%s)" % (_meta, _got.get("rc"), _got.get("inspect_exit")),
++         bool(_line) and _got.get("rc") == 1 and str(_got.get("inspect_exit")) == "1")
++
++    _save = SO1A_RUN_ARM
++    try:
++        _empty = os.path.join(tmp, "u53_no_anchor.sh")
++        open(_empty, "w").write("#!/bin/bash\necho hello\n")
++        globals()["SO1A_RUN_ARM"] = _empty
++        _l2, _m2 = producer_ledger_row(1, "1 false")
++        _ok2, _legs2 = birth(_fix(tmp), os.path.join(tmp, "bw_u53"))
++    finally:
++        globals()["SO1A_RUN_ARM"] = _save
++    unit("U53 (A CONTROL ON THE CONTROL) if the producer's emitting statement can no "
++         "longer be found in the frozen script -- the schema drifted, or the anchor "
++         "moved -- producer_ledger_row returns NOTHING and the B2 legs are NOT BORN, "
++         "so the gate closes instead of silently falling back to a hand-built row",
++         _l2 is None and _m2 == 0 and not _ok2
++         and any(l["leg"].startswith("B2_") and not l["born"] for l in _legs2))
++
++    unit("U54 (THE GATE CLOSES ON THE PRODUCER-WRITTEN PLANT) a root whose CTRL row "
++         "carries a BROKEN plant -> B9 cannot be born -> graded() REFUSES on BIRTH.  "
++         "The plant that must survive is the one so1a_xf.py wrote DURING THE RUN, not "
++         "one this comparator adds afterwards",
++         refused_graded(_fix(tmp, tw(ctrl_ok=False))))
++
++    print("SO1aR GRADER SELFTEST units=%d expected=%d failures=%d python_O=%s" % (n, EXPECTED_UNITS, len(fails), not __debug__))
++    print("COUNTING UNITS MEASURES THIS SELFTEST'S SIZE, NOT ITS COVERAGE.")
+     if n != EXPECTED_UNITS or fails:
+         print("SELFTEST FAIL: %s" % (fails or "unit count %d != %d" % (n, EXPECTED_UNITS)))
+         return 2
+-    print("SO1a GRADER SELFTEST PASS %d/%d (counted against the frozen EXPECTED_UNITS)" % (n, EXPECTED_UNITS))
++    print("SO1aR GRADER SELFTEST PASS %d/%d (counted against the frozen EXPECTED_UNITS)" % (n, EXPECTED_UNITS))
+     return 0
+ 
+ 
+@@ -1130,17 +1844,32 @@
+     ap.add_argument("--root", default=None)
+     ap.add_argument("--selftest", action="store_true")
+     ap.add_argument("--tmpdir", default="/tmp")
++    ap.add_argument("--birth", action="store_true",
++                    help="run the birth battery on --root and stop; grades nothing")
++    ap.add_argument("--workdir", default=None,
++                    help="where the birth battery writes its own control copies; "
++                         "defaults under --tmpdir so the run root is never mutated")
+     ap.add_argument("--out", default=None)
+     a = ap.parse_args()
+     if count_asserts(os.path.abspath(__file__)) != 0:
+         print("REFUSAL: this comparator carries an assert statement (L-332)"); return 2
+     if a.selftest:
+-        d = os.path.join(a.tmpdir, "so1a_selftest_%d" % os.getpid()); os.makedirs(d, exist_ok=True)
++        d = os.path.join(a.tmpdir, "so1ar_selftest_%d" % os.getpid()); os.makedirs(d, exist_ok=True)
+         return selftest(d)
+     if not a.root:
+-        print("usage: so1a_grade.py --root <run root> [--out FILE] | --selftest"); return 64
++        print("usage: so1ar_grade.py --root <run root> [--out FILE] | "
++              "--birth --root <run root> | --selftest"); return 64
++    wd = a.workdir or os.path.join(a.tmpdir, "so1ar_birth_%d" % os.getpid())
++    if a.birth:
++        os.makedirs(wd, exist_ok=True)
++        ok, legs = birth(a.root, wd)
++        print(json.dumps({"item": "CURRICULUM-%s" % ITEM,
++                          "birth": {"verdict": "BORN" if ok else "NOT BORN",
++                                    "n_legs": len(legs), "legs": legs}},
++                         indent=1, default=str))
++        return 0 if ok else 2
+     try:
+-        r = grade(a.root)
++        r = graded(a.root, wd)
+     except Refusal as e:
+         print("REFUSAL: %s -> NOT A RESULT" % e)
+         if a.out:
