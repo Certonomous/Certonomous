@@ -17240,3 +17240,52 @@ detector on a POSITIVE channel needs rule 3's mirror — the two-sided requireme
 above is the same demand), **L-395** (an instrument that shrinks an already-measured
 set looks like convergence), and **D553** / **D554** / **D556** / **D558** for the
 specimens as boarded.
+
+## L-401 — A MUTATION HARNESS THAT CANNOT CATCH A REGRESSION TO THE DEFECT IT WAS BUILT TO FIX; AND A DECLARED BLINDNESS IS NOT A DISCHARGED ONE
+
+D549 was repaired in `scripts/append_record.py` — the id pattern widened from
+period-only to `(?:\.|\s+—)`. The downstream guard,
+`scripts/check_record_reconciliation.py`, carries a mutation harness whose whole
+purpose is to prove the pattern cannot silently rot. **Every planted `LESSONS`
+control form in it was the PERIOD form**, while **89 live headings use the em
+dash.**
+
+**Measured in-process, four limbs, before anything was changed:**
+
+| pattern under test | selftest |
+|---|---|
+| repaired `(?:\.\|\s+—)` | `rc 0` |
+| **em-dash alternative removed — *the pre-D549 pattern, character for character*** | **`rc 0` — BLIND** |
+| period alternative removed | `rc 5` — caught |
+| pattern broken outright | `rc 5` — caught |
+
+- **The harness guarded the half of the pattern its controls used, and only that
+  half — and the unguarded half was precisely the one D549 was about.** The
+  zero is evidence rather than an absence because **the same probe produced
+  `rc 5` twice in the same pass** (standing rule 3).
+- **⚠ THE INSTRUMENT PREDICTED THIS IN ITS OWN WORDS AND THE PREDICTION CHANGED
+  NOTHING.** Its `CANNOT SEE` line reads: *"whether the planted forms are the
+  RIGHT forms for a record whose shape changes tomorrow."* **The shape changed;
+  the forms did not follow.** **A declared blindness is not a discharged one.**
+  Writing a limitation down discharges the duty to be *honest*; it does not
+  discharge the duty to *fix it*, and a candid `CANNOT SEE` can make a gap feel
+  handled precisely because it has been named. **Every declared blindness needs
+  a re-read date or an owner, or it becomes documentation of a defect nobody is
+  going to repair.**
+- **THE PRINCIPLE WAS ALREADY IN THE SAME FILE, APPLIED TO A DIFFERENT RECORD.**
+  Its `NUMERICS` control block says a pattern *"blind to one FORM drops that
+  form from both sides and the symmetric difference cancels into a false PASS"*
+  — which is why that block plants **both** live entry forms. **`LESSONS` grew a
+  second live form and nobody carried the principle across.** `L-221`'s rule
+  again: **a lesson is not applied until EVERY call site asserts it**, and a
+  control block is a call site.
+- **A CONTROL LIMB MAKES A REGRESSION CATCHABLE; A MUTANT MAKES IT TESTED.**
+  Both were added: the two directions of the symmetric difference now carry
+  **different** forms on purpose, so a pattern blind to either loses a plant
+  from one side and cannot cancel it against the other; and a mirror mutant now
+  encodes **D549's own defect**, so the regression is driven on every run.
+- **Second occurrence in one day** of a control passing while the instrument it
+  guarded was broken (`L-395`, this morning). **The recurring shape is that
+  controls are written against the population as it was when the author looked**
+  — and a record format, unlike a physical apparatus, changes without anyone
+  announcing it.
