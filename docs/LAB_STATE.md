@@ -15549,6 +15549,51 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-28T17:3xZ — **PLANTED-CONTROL RE-GRADE: NEITHER VERDICT MOVED. Rows #42 and #43 reproduce BYTE-FOR-BYTE through a repaired real-path control and are NO LONGER PROVISIONAL. Zero solver compute.**
+
+**Written by `ansys-verification-supervisor` personally.** Commits `87a624ea` (successors frozen) and `ca84e035` (register addendum + both verbatim re-grade outputs) — **zero deletions each**.
+
+#### THE DEFECT WAS SELF-CAUGHT, NOT AUDITED OUT OF ME
+
+Applying Sanaa's 2026-08-28 §1 birth requirement to this team's OWN instruments: `grade_vmflgpu005.py:609` and `grade_vmflgpu007_r2.py:413` both planted into an **already-parsed in-memory list** and re-ran only the reducer (`planted = list(rows)` → mutate → `c1b_vmax(planted)`). **Nothing written to disk, nothing re-read.** The plant sat **downstream of the reader**, exercising an argmax and never showing the file reader could see a non-zero reality delivered. Rule 3 requires plant, **"reads it back from disk"**, refuse — the middle clause was skipped. Exactly *"a control defined in terms of the thing it controls."*
+
+#### THE RESULT — VERIFIED BY MY OWN DIFF, NOT ACCEPTED ON REPORT
+
+| row | verdict | under the repaired control |
+|---|---|---|
+| **#42** VMFLGPU005 | `NOT A RESULT` | **UNCHANGED**, rc 0, byte-identical on every VERDICT/LIMB/PER-LIMB line |
+| **#43** VMFLGPU007-R2 | `GATE REACHED` | **UNCHANGED**, rc 0, byte-identical on every VERDICT/LIMB/PER-LIMB line |
+
+**The most exposed claims — the POSITIVE ones — survive:** #42's limb-B `PASS` at **2.957e-10** vs band 1e-4; #43's limb B **1.561e-07**, limb C finest peak Nu **63.792470** vs ref **64.853000**, rel **0.0164** in a 0.2000 band. Plant fired at all three levels in each.
+
+#### WHAT I CHECKED PERSONALLY (four things, none relayed)
+
+1. **Parents still frozen byte-for-byte**: `f80254fd712b1cda5a86908de2ad92f4cc85f062`, `aae498976139cd8489c9b3de48427f1f425f875c` — unchanged after all work (rule 6).
+2. **Freeze commit `87a624ea`** adds exactly two paths, **zero deletions**, and is an ancestor of HEAD. **Frozen BEFORE any re-grade** — grading before the freeze would destroy the evidentiary content.
+3. **My own constant-identity extraction** over every module-level constant, parent vs successor: **ZERO differing constants excluding `VERSION`**, both files. Every band, threshold, ceiling, tier, reference, Roache constant, `PLATEAU_*`, `GPU_PCTF_*`, `P_MIN` and physics constant byte-identical.
+4. **My own diff** of both re-grade outputs against the landed grade outputs: identical on every grading line.
+
+#### THE REPAIRED CONTROL, AND IT WAS DRIVEN TO BOTH OUTCOMES
+
+Writes a **SIZED** plant into **EVERY** row of the gate column **ON DISK**, reads it back through the **parent's own unmodified reader**, then runs the same planted file through the **FULL GATE FUNCTIONAL** — answering **L-340**'s 1/√N dilution (row #26) and **L-347**'s out-of-support placement (row #31) **together**, the two failure modes that killed those rungs. Successors `3dffee1c…` (005-S2, selftest **30/30**) and `3fdf5192…` (007-R2-S2, **40/40**), both under `python3` AND `python3 -O`, `ast.Assert` **0**, all refusals via `refuse()` (exit 2). **FIRES**: 005 moved max U_y by 0.00695995 vs expected 0.00695995; 007-R2 moved peak Nu by 21.8742 vs 21.8742. **REFUSES**: plant withheld from disk → both abort `PLANT-BLIND (P1a…)`. **A guard seen only to pass is unproven.**
+
+#### A CHANGE OUTSIDE THE CONTROL FUNCTION — RULED, NOT BURIED `[lab-attributed]`
+
+One call-site line per file inside `grade()` (005:776, 007-R2:1009) changed, because the parent hands the control **already-parsed rows** and a real-path control must receive the **case directory**. **I RULE IT LEGITIMATE AND NECESSARY**: the minimum change that makes a real-path control possible at all, moving no band, threshold, ceiling, tier, limb, refusal, completion or Roache clause — proven by check 3 above. **The lane flagged it explicitly rather than hiding it in a hunk list**, which is the behaviour this family wants and I am recording it as such.
+
+#### WHAT THIS WAS ACTUALLY WORTH
+
+It did **not** merely re-confirm two numbers. **It converted CORROBORATION into DEMONSTRATION.** Before, the readers were *probably* sound — physically coherent values, GPU and CPU arms agreeing to 8–10 digits on independently-read files. That is corroboration. Now they have been **shown able to see a non-zero through the real code path**, which is the birth requirement. **A verdict that survives a repaired instrument is worth more than one never tested** — and had it gone the other way a `GATE REACHED` would have fallen, which is exactly why it needed doing.
+
+#### A LANE CLAIM I REJECTED ON MY OWN MEASUREMENT
+
+The hazard-inventory lane reported *"the register contains no rows for any HAZARD case."* **FALSE.** All nine have rows: VMFL022 **#17**, VMFL021 **#18**, VMFL021-R2 **#23**, VMFL002 **#24**, VMFL004 **#25**, VMFL011 **#26**, VMFL004-R2 **#28**, VMFL011-R2 **#31**, VMFL011-R3 **#36**. **Corrected statement: NINE landed verdicts sit on comparators carrying the lexicographic time-directory hazard.** They are not misread — but the reason is **not** "no rows exist"; it is that **every one produced exactly ONE function-object start-time directory**, so the bug has no second directory to sort wrongly. **The hazard is LATENT and armed by the first restart, not absent.** Had I taken the lane's reason I would have held a right conclusion on a false premise.
+
+#### STATE
+
+VMFL063 **`PENDING`**, correctly held — box **88.1 %** against the runner's 85 % ceiling, easing but still above; memory plateaued ~11.4 GB and **NOT** the binding gate. **The CPU box is not idle.** GPU idle since 16:35:52Z, **released to dafoam**, routing owed by the chief. `check_record_reconciliation.py` still exits **4**, blocked **solely** by **`C-69` (dafoam `:144` vs cfd `:145`)** — not ours; our set went `{C-69, C-165, C-182}` → `{C-69}`. Fourth registration still drafting. On Sanaa's desk, **five**, unchanged.
+
+
 ### 2026-08-28T17:2xZ — **CALIBRATION DUPLICATE-ID FIX (`163ace58`, `aaf6b6c0`): the 2026-08-27 "quote-and-strike" ANNOUNCED A STRIKE ITS OWN DIFF NEVER PERFORMED, and STRIKING AN ID DOES NOT CLEAR A DUPLICATE. A THIRD duplicate (`C-69`) is NOT ours, so `rc 0` is not ours to deliver.**
 
 **Written by `ansys-verification-supervisor` personally.**
