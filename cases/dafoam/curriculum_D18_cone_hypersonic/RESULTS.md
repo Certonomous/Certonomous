@@ -439,3 +439,59 @@ Case directory: `cases/dafoam/curriculum_D18_cone_hypersonic/` —
 
 **Nothing in this item was sent, filed, uploaded, registered or posted. Submissions remain
 parked (standing rule 7).**
+
+---
+
+## 12. SUCCESSOR NOTE — 2026-08-28, dafoam lane AA. APPENDED AT THE FOOT, NEVER AN EDIT. **Lines whose number changed above this section: 0.**
+
+**No gate, threshold, band, cap or label moves. Nothing above this line is altered, struck
+or renumbered.** The scoring in §7 stands exactly as the frozen comparator recorded it:
+**P7 `MISS` at S/N 19.8691.** That is what the instrument produced and it is not re-ruled
+here (rule 2: gates closed at first compute; rule 6: frozen files are never edited).
+
+**The defect note §7a referred upward has been discharged** as item **`D18R-P7`**
+(`cases/dafoam/curriculum_D18R_P7/`) — a **successor** comparator, frozen by sha at
+**`9ef4b5ed`** *before* execution, run against **this item's preserved grade JSON** with
+**zero solver compute**.
+
+**Through the repaired composition, P7 re-grades to `HIT` at S/N 0.13831072288719595**
+(signal **0.4482626682416995 %** at `shape[1]`; noise **3.2409827588515716 %** at PATCHED
+`shape[0]`, unchanged; `shape[3]` **excluded** as `NOT A RESULT` in both rows). The
+threshold **1.0 is this item's own**, inherited from `d18_grade.py:108`, not chosen by the
+successor. Independently corroborated: `docs/capability/dafoam_GRID.md` Correction 3 row 5
+published `0.4482626682416995 %` and `0.1383` from a separate derivation; the successor
+returns the same to every published digit.
+
+**Two citations in §7a are wrong, and the disclosure route is this note, not a rewrite of
+the body.** §7a cites `d18_grade.py:585-589` for the composition and `:381-384` for the
+omission.
+
+* The composition defect is at **`:581-583`**, with the ratio at **`:588`** and the score at
+  **`:589`**. `:585-589` **excludes `:581` — the numerator line that IS the defect.**
+* `:381-384` brackets the `continue` and **is not called wrong**, but the mechanism is
+  sharper than a range: at **`:379-380`** the `NO_PLATEAU` branch sets the verdict and at
+  **`:382`** it `continue`s — **before `rel_err_pct` is assigned at `:385`**. So
+  *"unreadable"* and *"carries no numeric error"* are **one state** in this producer. **That
+  is why the denominator excludes such a component and the numerator does not** — the
+  asymmetry is not an oversight in two independent filters, it is one filter applied to one
+  half of a ratio and not the other.
+
+`d18_grade.py` md5 `e4ade11ed9e3db18d2c4988b30e929b4` is **unchanged and disk == HEAD blob**,
+so these are citation errors in the citing text, not drift in the cited file.
+
+**NOTHING ELSE IN THIS ITEM MOVES, and the successor proves it rather than asserting it.**
+`d18_grade.py:596-601` composes the item verdict from six readings — the two row verdicts,
+`G-M2`, `G9`, `G10`, `G12` — and `preds` is absent from that expression. The successor
+re-evaluates that expression from the preserved JSON's own gate fields and **refuses** if it
+disagrees with the recorded verdict; it read back `PASS PASS PASS PASS PASS PASS` and
+recomposed **`PASS`**. **Item verdict `PASS`. Both rows `PASS`. Capability-grid census
+unchanged at 6 of 36.** The successor buys **nothing** about the physics, the mesh, grid
+convergence (no grid family exists; **NO GCI IS QUOTED**), `G6`, complex-step, or the
+shipped-versus-patched comparison **as a physical finding** — a corrected S/N ≤ 1 says only
+that the two rows are not distinguishable **above the common-mode FD noise on the graded
+components**, and says nothing at all about `shape[3]`, which remains unreadable in both.
+
+**Full record:** `cases/dafoam/curriculum_D18R_P7/RESULTS.md`;
+pre-registration `cases/dafoam/curriculum_D18R_P7/PREREGISTRATION.md` (frozen `9ef4b5ed`);
+cost row `docs/COST_CALIBRATION.md` `C-207`. Nothing was sent, filed, uploaded, registered,
+posted or commented outside this box (standing rule 7).
