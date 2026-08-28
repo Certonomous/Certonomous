@@ -1,0 +1,20 @@
+{
+  "team": "closure",
+  "case_id": "RC1_birth_requirement_control",
+  "prereg_commit": "PENDING_SUPERVISOR_FREEZE",
+  "prereg_path": "cases/RANS_LES_closure_models/RC1_birth_requirement_control/PREREGISTRATION.md",
+  "launch_cmd": [
+    "/usr/bin/python3",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/RC1_birth_requirement_control/rc1_control.py",
+    "--run-root",
+    "/home/ubuntu/closure-data/rc1"
+  ],
+  "cwd": "/home/ubuntu/closure-data/rc1",
+  "ranks": 1,
+  "cost_core_min_estimate": 30.0,
+  "cost_basis": "derived from TWO rates MEASURED on this box on 2026-08-28 through real subject code, not assumed. (a) Whole-text regex readers: a seed-7 random sample of 400 files from the registered corpus read in 17.95 s over 0.815 GiB = 46.5 MiB/s, with two regex searches and a substring count per file. (b) Python line-loop readers: a seed-11 random sample of 60 files read through grade_m1.parse_log ITSELF in 12.53 s over 0.133 GiB = 10.9 MiB/s, 4.3x slower. The registered corpus measured 5638 files and 12.391 GiB at drafting (CORPUS_A 4072 files 12.340 GiB; CORPUS_B 1566 files 0.053 GiB); producer sub-corpora log.run 73 files 0.81 GiB, log.solve 384 files 6.56 GiB, log.frozen 68 files 0.04 GiB. Ten channels, one reference channel and four plants on a stratified sub-corpus give 819 + 273 + 36 + 1 + 152 + 273 + 71 s of reads plus 20 s of manifest work and 60 s of startup, selftest and report assembly = 1705 s wall at ranks 1 = 28.4 core-min; registered 30.0 core-min. RC1 LAUNCHES NO SOLVER: 0 core-min of solver compute. $0.026 at the owner-stated $0.0513/core-h is DERIVED, reported-by-owner, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5: this box cannot read its own billing).",
+  "memory_floor_gb": 2.0,
+  "memory_floor_basis": "ALLOWANCE, not a measurement. RC1 holds one log's text at a time; the ceiling is the largest corpus file, MEASURED at 504.1 MiB, plus a manifest of 5638 entries (under 2 MiB of JSON) plus the interpreter. 2.0 GB is roughly 3.5x the largest single-file read. This lane did not run the instrument, so simpleFoam-style footprint measurement does not apply and none was taken. The instrument wraps itself in /usr/bin/time -v and records MaxRSS, converting this allowance into a reading for the next pre-registration. A registered hazard: a 504 MiB file read into a Python str peaks above its own size, so the instrument refuses any corpus file above MAX_FILE_BYTES = 1073741824 and records the refusal as a counted, named skip in the manifest rather than dropping it silently.",
+  "cap_core_min_registered": 75.0,
+  "enqueued_by": "closure-supervisor. NOT YET ENQUEUED: SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) HAS NOT BEEN PERFORMED on this entry. The drafting lane did not perform it and may not: it is the supervisor's own non-delegable act. prereg_commit is not a sha, and the instrument rc1_control.py named in launch_cmd DOES NOT YET EXIST (PREREGISTRATION.md section 11) -- the freeze commit must carry both this document and the instrument before the check can be taken."
+}

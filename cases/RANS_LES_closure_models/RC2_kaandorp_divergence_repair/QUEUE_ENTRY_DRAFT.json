@@ -1,0 +1,20 @@
+{
+  "team": "closure",
+  "case_id": "RC2_kaandorp_divergence_repair",
+  "prereg_commit": "PENDING_SUPERVISOR_FREEZE",
+  "prereg_path": "cases/RANS_LES_closure_models/RC2_kaandorp_divergence_repair/PREREGISTRATION.md",
+  "launch_cmd": [
+    "/usr/bin/python3",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/RC2_kaandorp_divergence_repair/regrade_rc2.py",
+    "--run-root",
+    "/home/ubuntu/closure-data/rc2"
+  ],
+  "cwd": "/home/ubuntu/closure-data/rc2",
+  "ranks": 1,
+  "cost_core_min_estimate": 4.0,
+  "cost_basis": "derived from TWO rates MEASURED on this box on 2026-08-28 through real subject code, not assumed: whole-text regex readers 46.5 MiB/s (seed-7 sample of 400 corpus files, 17.95 s over 0.815 GiB) and Python line-loop readers 10.9 MiB/s (seed-11 sample of 60 files read through grade_m1.parse_log ITSELF, 12.53 s over 0.133 GiB). run_lane.parse_log is a line loop; the successor is whole-text regex. The re-grade corpus is the 16 preserved log.run files under /home/ubuntu/closure-data/aposteriori/kaandorp, MEASURED at 268.0 MiB (0.2617 GiB) with all 16 present and the largest 32,691,552 bytes. Reads: 25 s frozen reader (before column) + 6 s successor (after column) + 25 s blind control + 1 s over the six named real fatal logs (0.0051 GiB) + 1 s sha256 provenance + 15 s citation enumeration over every .md/.json outside .git + 60 s of selftest x2, startup and report assembly = 133 s wall at ranks 1 = 2.2 core-min; registered 4.0 core-min. RC2 LAUNCHES NO SOLVER AND RE-RUNS NOTHING: 0 core-min of solver compute. $0.0034 at the owner-stated $0.0513/core-h is DERIVED, reported-by-owner, NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5: this box cannot read its own billing).",
+  "memory_floor_gb": 0.5,
+  "memory_floor_basis": "ALLOWANCE, not a measurement. RC2 holds one log's text at a time; the largest of the 16 preserved logs is MEASURED at 32,691,552 bytes (31.2 MiB). The citation manifest and re-grade table are both well under 10 MiB of JSON. 0.5 GB is roughly 16x the largest single-file read. This lane did not run the instrument and took no MaxRSS reading; the instrument wraps itself in /usr/bin/time -v and records MaxRSS, converting this allowance into a reading for the next pre-registration. Its absence is an INFRASTRUCTURE defect, not a refusal.",
+  "cap_core_min_registered": 12.0,
+  "enqueued_by": "closure-supervisor. NOT YET ENQUEUED: SUPERVISION_CHARTER section 3 check 4 (pre-registration committed before compute) HAS NOT BEEN PERFORMED on this entry. The drafting lane did not perform it and may not: it is the supervisor's own non-delegable act. prereg_commit is not a sha, and the instruments rc2_divergence.py and regrade_rc2.py named in launch_cmd DO NOT YET EXIST (PREREGISTRATION.md section 11) -- the freeze commit must carry this document and both instruments before the check can be taken."
+}
