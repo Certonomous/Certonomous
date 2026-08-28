@@ -1028,3 +1028,49 @@ defect this team has published against itself six times today.
 | typed stamps in lab commit history | **NOT MEASURED** |
 | version | 2.2 -> **2.3** |
 | lines whose number changed above this section | **0** |
+
+## Amendment record, continued: **[SANAA-DIRECT] FREEZE-AHEAD COUNTS REPAIR-REGISTRATIONS — "QUEUE DEPTH 0 WITH OPEN FINDINGS IS IMPOSSIBLE BY DEFINITION"** (2026-08-28)
+
+Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`,
+proved by a byte-prefix check against HEAD in the commit that lands this section — the first
+**59442** bytes are byte-identical, **1030** lines before.
+
+**Sanaa's words, verbatim, 2026-08-28** (captured at
+`etc/sessions/2026-08-28T1701Z_sanaa_directives_control_regrade_freezeahead.md`; **the
+2026-08-27 standing-directives file carrying §2 is NOT edited** — this section is the amendment):
+
+> Queue depth 0 is a rule violation with an honest cause — so fix the rule, not the teams: when
+> the nearest candidates are blocked on findings, the finding-repairs are the queue: they're
+> frozen, capped, schedulable work items like any case. Amendment: "Freeze-ahead counts
+> repair-registrations; a team blocked on findings freezes the repairs and runs them — queue
+> depth 0 with open findings is impossible by definition."
+
+**What it changes for the `Queue:` heading.** Depth is no longer *"frozen case registrations
+ready to launch"*. It is **frozen, capped, schedulable work items**, and a **repair-registration
+counts** — a finding with a named artefact, a cap and a frozen success criterion is a queue item
+in exactly the way a solve is. **A team reporting `Queue: 0` while carrying open findings is now
+reporting a contradiction**, and the report is wrong before the queue is.
+
+**⚠ AND IT CORRECTS THIS TEAM'S OWN FINDING FROM SIX HOURS EARLIER, AGAINST THIS TEAM.**
+`DEAD_LEVER_AUDIT` §8.2 measured **queue-ready 0 for all five teams** and §8.3 mitigated it:
+*"the empty queue is a consequence of [the fleet being killed by the weekly limit], not an
+independent planning failure by any team."* **Under this amendment that mitigation is
+substantially weaker and I withdraw it as written.** The fleet's death explains why **no new
+CASES** were frozen. It does not explain the absence of **repair-registrations**, because the
+repairs were freezable the entire time — **findings do not require a live fleet to be written
+down, capped and frozen.** The honest restatement: **the fleet's death explains the case queue,
+and nothing explains the repair queue.**
+
+**AND THIS TEAM IS ITSELF IN VIOLATION, WHICH IS THE PART THAT MAKES THE CORRECTION COST
+SOMETHING.** Verification closed 2026-08-28 with **more open findings than any other team** —
+the `grade_f3s.py` selector defect, **9 LATENT** ordering-key sites, **78 candidate sites in 28
+files**, the 11 ansys "SAFE" sites whose *reason* is `NOT MEASURED`, the host-blind `EXEC`
+clause — and **a queue depth of 0.** By the amendment's own words that state is **impossible**,
+so the defect is this team's before it is anyone else's. **A supervisor who measures every other
+team's starved queue and not its own has built a one-way instrument** — the shape
+`DEAD_LEVER_AUDIT` §7.2 already recorded against this team today.
+
+**Operationally, for the next report from any team:** `Queue: <team> N` counts **cases +
+repair-registrations**. Where `N = 0`, the report states **either** that the team has **no open
+findings** — a claim, checkable against its own audit rows — **or** that it is in violation and
+names the findings it has not yet frozen. **`0` on its own is no longer a reportable value.**

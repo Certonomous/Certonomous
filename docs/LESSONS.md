@@ -17333,3 +17333,36 @@ control reads.** If the answer is *the control itself*, or *the test harness*, r
 real producer's code**, then the control has demonstrated only that the reader can read what the
 reader's author imagined. **A plant proves the reader can see the shapes IN THE PLANT and nothing
 else** — and the shapes a plant omits are, by construction, the ones its author did not think of.
+
+## L-403 — A RULE-6 PREFIX ASSERTION PROVES NOTHING WAS EDITED ABOVE; IT CANNOT SEE CONTENT DESTROYED INSIDE THE TEXT YOU ARE APPENDING
+
+Landing the freeze-ahead amendment into `REPORTING_CHARTER.md`, an **unquoted** heredoc
+(`<<EOF`, needed so `$B`/`$BL` would expand into the byte/line assertion) also
+**command-substituted every unescaped backtick**. `` `Queue:` `` ran as a command, printed
+`Queue:: command not found` to stderr, and **was replaced by the empty string**, leaving
+
+    **What it changes for the  heading.**
+
+in a charter. **The rule-6 prefix check passed** — correctly, because appending *is* still
+appending and nothing above the section moved. **The assertion answers "was anything above
+edited?" and was never designed to answer "is what I appended what I wrote?"**
+
+- **This is the `git commit -m` backtick trap in its quiet costume.** There it is **loud**: the
+  commit silently never runs and `git log -1` shows it. Here the write **succeeds**, the file
+  **grows**, the verification **passes**, and the only signal is one line of stderr in a
+  transcript nobody re-reads. **The louder failure is the safer one.**
+- **`$B` and `$BL` landed correctly**, which is what made it plausible: the *substitutions I
+  wanted* worked, so the ones I did not want were invisible in the same output.
+- **THE RULE: an unquoted heredoc is for VALUES, never for PROSE.** Compute the values first,
+  then write the prose through `<<'EOF'` (quoted) with the values already interpolated by a
+  script, or write the file with Python. **Never mix a quoted-heredoc need with an
+  unquoted-heredoc need in one write.**
+- **AND THE CHECK THAT CATCHES IT COSTS NOTHING: after any heredoc write, grep the appended
+  region for the corruption signature** — a doubled space where a token was removed
+  (`the  heading`), an empty `` `` ``, or a stray `$`. It found this one immediately and found
+  nothing else, which is why the fix is one line rather than a re-read of 46.
+- **Generalised, because the specific bug is not the lesson: A VERIFICATION THAT PASSES TELLS
+  YOU ONLY WHAT IT WAS BUILT TO ASK.** The rule-6 assertion is a *good* check that answered its
+  own question correctly while a different failure walked past it. **`§2j` was canonized four
+  minutes earlier and applies to my own hands: the prefix check was never shown able to see this
+  class of non-zero, because it cannot.**
