@@ -16901,3 +16901,40 @@ one, nine `FOAM FATAL` headers in another), with **zero false positives** and 47
 negatives all carrying `End`. Two corpora, two readers, same conclusion, and the
 second reported its own count as an independent reading rather than as a
 correction of the first.
+
+## L-396 — A SELECTOR THAT ADMITS MORE THAN ONE MEMBER WHERE THE CODE ASSUMES EXACTLY ONE, DISAMBIGUATED BY LUCK OF NAMING RATHER THAN BY A GUARD
+
+`grade_f3s.py:239` — a **frozen** comparator — picks its pressure file with
+
+```python
+    cands = sorted(f for f in os.listdir(d) if f.endswith(".raw") and "p" in f)
+    path  = os.path.join(d, cands[0])
+```
+
+**The `[0]` is a red herring.** OpenFOAM's `surfaces` writer emits **one file per field**, so
+the directory holds `p_coneSurface.raw`, `rho_coneSurface.raw`, `T_coneSurface.raw`. The
+substring test `"p" in f` matches exactly one of them **only because no surface name and no
+other sampled field name happens to contain the letter `p`.**
+
+- **Driven, not argued.** Rename the surface to `rampSurface` or `upperSurface` and **three**
+  files match; `'T'` is ASCII 84 and `'p'` is 112, so `sorted(...)[0]` returns
+  **`T_rampSurface.raw`** — **a temperature field read into `p_wall_mean` and graded against a
+  pressure band.** Dimensionally silent, numerically plausible, and nothing in the record looks
+  wrong. Adding `p_rgh` or `Cp` to `fields` does it too.
+- **⚠ THE PREMISE IS ALREADY FALSE ELSEWHERE ON THE SAME DISK.** `wallShearStress_plate.raw`
+  and `wallShearStress_bottomWallDownstream.raw` are non-pressure basenames **containing `p`**.
+  So the uniqueness is **not a property of the lab's naming convention** — it is a property of
+  **which fields that one `surfaceSampleDict` happens to write**, which is precisely the premise
+  nobody re-checks when editing a dict.
+- **DISTINGUISH IT FROM THE ORDERING FAMILY, because the cure is found in a different place.**
+  The lexicographic-vs-numeric defects ask **which member of a set is chosen**. This one asks
+  **whether the set has members it was never meant to contain.** Ordering is downstream of a
+  selector that was already wrong; fixing the sort key fixes nothing.
+- **The cure is a cardinality guard ON THE SET THAT DECIDES THE ANSWER** — `len(cands) != 1 →
+  refuse`. `grade_vmfl076.py:678` already does exactly this for its inner file set. **A reader
+  that cannot say how many things it matched cannot say it matched the right one.**
+- **The general rule, and it is cheap: a filter intended to select ONE thing must ASSERT that
+  it selected one thing.** Where the assertion would be expensive, the filter is too loose and
+  should name the file it wants (`p_` prefix, not `p` anywhere).
+- **Found post-compute in a frozen comparator, so NOT repaired** — rule 2 bars the edit, the
+  disclosure is the deliverable, and repair belongs in a successor and in the unfrozen driver.
