@@ -150,7 +150,22 @@ EXIT_UNKNOWN = 3
 EXIT_FAIL_DUPLICATE = 4
 EXIT_CONTROL_REFUSED = 5
 
-DEFAULT_PATHS = ["docs/LESSONS.md", "docs/NUMERICS_KNOWLEDGE.md"]
+#: DERIVED FROM `RECORDS`, NEVER LISTED. Until 2026-08-28 this was the literal
+#: pair ["docs/LESSONS.md", "docs/NUMERICS_KNOWLEDGE.md"] while `RECORDS` held
+#: FOUR records -- so a BARE RUN, which is how this module is actually invoked,
+#: returned PASS (rc 0) while `docs/COST_CALIBRATION.md` carried THREE live
+#: duplicate ids (C-69, C-165, C-182) that `--path docs/COST_CALIBRATION.md`
+#: reports as rc 4. A GUARD THAT COVERS HALF THE RECORDS IT KNOWS ABOUT, BY
+#: DEFAULT, IS A FAIL-OPEN GUARD -- and the default is the configuration that
+#: matters, because it is the one nobody types.
+#:
+#: This module ALREADY solved this exact drift once, at the CONTROL_FORMS/RECORDS
+#: assertion below (`_MISSING`/`_EXTRA`), and did not carry it to the third site.
+#: `L-221`: a lesson is not applied until EVERY call site asserts it. Deriving
+#: rather than listing makes the drift structurally impossible instead of merely
+#: currently absent -- a fifth record added to `RECORDS` is covered on the day it
+#: is added, with nobody remembering to come here.
+DEFAULT_PATHS = sorted(RECORDS)
 DEFAULT_REV = "HEAD"
 
 #: PLANTED CONTROL FORMS, one entry per record in `RECORDS`, each written in

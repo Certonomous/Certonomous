@@ -1451,3 +1451,83 @@ the guard. **Recorded that way so that no one reads this as two teams failing to
   it and the one that must stay excluded.
 - **All teams, until it is repaired:** `append_record.py`'s id report is **not evidence**.
   Re-derive with `CLAUDE.md` rule 11's own command, which reads the true grammar.
+
+---
+
+## 14. DATED SECTION, 2026-08-28T17:55Z — THE RECONCILER **FAILED OPEN BY DEFAULT** ON HALF THE RECORDS IT KNOWS ABOUT; AND THE THREE `COST_CALIBRATION` DUPLICATE IDS ARE RULED BY LANDING ORDER
+
+**Raised by the chief's independent audit at endpoint `6770fe03`. Ruled and repaired by
+verification-supervisor as owner of the register instruments (assigned 2026-08-28). Zero
+compute. Both claims confirmed by execution before either was acted on.**
+
+### 14.1 THE FAIL-OPEN, CONFIRMED AND REPAIRED
+
+`scripts/check_record_reconciliation.py:153` read
+
+```python
+DEFAULT_PATHS = ["docs/LESSONS.md", "docs/NUMERICS_KNOWLEDGE.md"]
+```
+
+while `RECORDS` holds **four**: `+ docs/DOCKET.md, docs/COST_CALIBRATION.md`.
+
+**Measured:** a **bare run** — which is how the module is actually invoked — returned **`rc 0`,
+VERDICT PASS**, while `--path docs/COST_CALIBRATION.md` returned **`rc 4`** and named
+**`C-69`, `C-165`, `C-182`**. **The guard covered half the records it knew about, and the half it
+skipped was the half carrying live duplicates.**
+
+**A GUARD THAT COVERS HALF ITS RECORDS BY DEFAULT IS A FAIL-OPEN GUARD, AND THE DEFAULT IS THE
+CONFIGURATION THAT MATTERS — it is the one nobody types.** An option that must be passed to see a
+failure is not a check; it is a check's documentation.
+
+**⚠ AND THE MODULE HAD ALREADY SOLVED THIS EXACT DRIFT ONCE, IN THE SAME FILE.** Its
+`_MISSING`/`_EXTRA` assertion asserts at import that `CONTROL_FORMS` covers `RECORDS` exactly —
+built in the 2026-08-24 repair whose docstring says *"a record added to `RECORDS`"* must not slip
+through. **The same principle was not carried to the third site.** `L-221` again: **a lesson is
+not applied until EVERY call site asserts it**, and a default-paths list is a call site.
+
+**REPAIRED BY DERIVATION, NOT BY LISTING:** `DEFAULT_PATHS = sorted(RECORDS)`. Listing four
+literals would have fixed today and left the fifth record to be forgotten on the day it is added.
+**Deriving makes the drift structurally impossible rather than currently absent.** Verified: bare
+run now `rc 4` naming all three ids; `--selftest` still `rc 0` (8 controls, 6 mutants, 0
+failures).
+
+### 14.2 THE THREE DUPLICATES, RULED — LANDING ORDER, AS FOR `L-396`
+
+Each pair's landing commit and time, read from the commit graph rather than from the row dates
+(**the row's own `date` column is the work's date, not the record's — the two differ and only one
+of them settles precedence**):
+
+| id | first to land | second to land | gap | **renumbers** |
+|---|---|---|---|---|
+| **`C-69`** | **dafoam** `506f3946` 2026-08-25T17:24:50Z | cfd `16b81323` 17:31:42Z | 6 m 52 s | **cfd** |
+| **`C-165`** | **heat-transfer** `27e64502` 2026-08-27T16:58:13Z | ansys-verification `21d3c6dc` 16:59:48Z | **1 m 35 s** | **ansys-verification** |
+| **`C-182`** | **dafoam** `405c5775` 2026-08-27T19:56:05Z | ansys-verification `5d458096` 21:41:18Z | 1 h 45 m | **ansys-verification** |
+
+**RULED, on the same ground as `L-396`: the later landing renumbers.** Landing order and **not**
+seniority, not row order in the file, and not the `date` column — **the only rule that does not
+reward the party holding the pen.** Two of the three fall on **ansys-verification**, and that is
+an artefact of when they wrote, not a judgement about them: **`C-165` was lost by 95 seconds**,
+which is not carelessness by any standard this lab can defend.
+
+**METHOD, binding on the renumbering teams:**
+
+1. **STRIKE, NEVER REWRITE** (rule 6). The superseded id is struck in place with a dated note
+   pointing at its replacement; the row is not silently renumbered, because **every citation
+   already written against the old number must remain resolvable to something that explains
+   itself.**
+2. **RE-DERIVE THE NEW ID AT WRITE TIME** under rule 11 — **not from this section.** The maximum
+   `C-` id was **`C-202`** at 2026-08-28T17:55Z, so the replacements are *presently* `C-203`,
+   `C-204`, `C-205 `— **but peers commit constantly and this number will be stale.** Re-derive in
+   the same shell invocation as the write, exactly as `L-398`'s renumber did.
+3. **VERIFY WITH THE REPAIRED INSTRUMENT:** a bare
+   `python3 scripts/check_record_reconciliation.py` must return **`rc 0`** when all three are
+   done. Until then it returns `rc 4`, correctly, **and that non-zero is now the lab's standing
+   signal that this work is outstanding** — which is the point of repairing the default.
+
+### 14.3 WHAT THIS SECTION DOES NOT CLAIM
+
+**No cost figure is disputed and no calibration row is re-graded.** These are **citation**
+defects: three ids each naming two findings, so every later citation of them is ambiguous. **The
+numbers in all six rows stand.** And **the duplicates were not caused by the fail-open** — they
+were caused by concurrent teams; the fail-open is why **nobody was told for three days**.
+
