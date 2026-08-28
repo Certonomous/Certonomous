@@ -7974,6 +7974,175 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-28T17:41:59Z — **T15_UP_f AND T5b DISPOSED OF: TWO INSTRUMENT DEFECTS, TWO REGISTERED SUCCESSORS, ZERO FROZEN BYTES CHANGED. PLUS A SIXTH SWEEP-PATTERN FAILURE OF MINE AND THREE CORRECTIONS AGAINST MY OWN BRIEF.**
+
+**Section last written:** 2026-08-28T17:41:59Z by heat-transfer-supervisor (via a board lane)
+
+Written by a board lane; no compute launched, nothing enqueued, no frozen file edited.
+
+---
+
+**1. `T15_UP_f` — THE REFUSAL IS A READER DEFECT, NOT AN ABSENT SIGNAL, AND THE CLASS MATTERS.**
+
+**It is NOT the §2j class** (*"the control cannot travel the real production path"*).
+A lane verified the parent's plant **does** travel the real path: `analyse_t15.py` plants
+into the **real solver-written** `postProcessing` probe file and reads back through the
+production `read_probe_series` -> `window_stats` -> `rel_sd` chain.
+
+The defect is instead exactly Sanaa's directive-1 phrase — **"A CONTROL DEFINED IN TERMS
+OF THE THING IT CONTROLS IS NOT A CONTROL"**. The threshold at `analyse_t15.py:501` is
+`0.5*ref` where `ref` **is the statistic under test**. `S1` is sigma/mean, so a `+|mean|`
+offset leaves sigma unchanged and doubles the mean: the perturbed statistic is exactly
+`ref/2` and `d_const` is **identically** `0.5*ref` for every positive-mean series. The
+guard `d_const > 0.5*ref` is therefore **a strict comparison at an algebraic identity**,
+decided by last-ulp rounding — **measured 39-40% refusal** over randomised draws, the
+excess scaling as `epsilon/ref`, so **it fails hardest on the best-behaved data**. Two
+further regimes: a **negative** window mean refuses **unconditionally** (the `+|mean|`
+plant annihilates it), and `sigma = 0` gives a **vacuous pass**.
+
+**DECISIVELY, THERE IS NO ABSENT SIGNAL.** `S1 = 1.9909386169553251e-04` was computed
+during diagnosis and lies **inside** the frozen band `[0, 0.020]`. The signal is present
+and would have passed. **The refusal is the control's alone.**
+
+**DISPOSITION.** **The successor is REGISTERED** — **`T15b`, frozen by sha at `078f0559`**,
+`docs/campaigns/T-family/T15b_PREREGISTRATION.md`. **The parent `analyse_t15.py` is
+UNTOUCHED and byte-identical to HEAD — verified by this lane**, worktree
+`git hash-object` and `git rev-parse HEAD:<path>` both `8b5e787fdace02e1dcb572652f95e5dd78069341`
+at `verification/runs/T-family/T15_runs/analyse_t15.py`.
+
+The parent's four rows `S1`/`V1`/`V2`/`V3` remain **UNGRADED** and the verdict stays
+**`BLOCKED`** — explicitly **NOT `NOT A RESULT`**, because `NOT A RESULT` under rule 5 is
+reserved for a **non-`CONVERGING` triple**, and **no triple was ever computed here**: the
+instrument refused **before any row was produced**.
+
+**Rule 12 discharged:** `C-208`, actual **1195.817 core-min** vs **POINT 1307** =
+**0.915**, **$1.022424 DERIVED, not measured** (box cannot read its own billing).
+
+---
+
+**2. `T5b` — THE §3 LADDER STEP, AND IT TERMINATES AT L0.**
+
+The step taken is **L0 DIAGNOSE FIRST**, and the diagnosis is that **this is not a
+non-convergence case at all.** All three levels **converged and completed cleanly** —
+`rc = 0`, all six rule-4 conditions, none capped, **451.833 core-min**. **Nothing in L1
+(numerics dials), L2 (linear solver), L3 (discretization), L4 (mesh), L5 (initialization),
+L6 (model swap) or L7 (formulation) applies, because nothing failed to converge.** The
+rung returned **`NOT A RESULT` on all 6 graded rows** from the registered y+
+ladder-tolerance clause firing on the fine level: `cube_front` y+max **2.310** against
+tolerance **2.00**.
+
+**THE MECHANISM, from the raw `yPlus.dat`: the mesh is fine, the STATISTIC is the defect.**
+Using the **correct** ratio assignment (`r21 = 1.605978` is medium->fine, `r32 = 1.592921`
+is coarse->medium), `cube_front` **MAX** gives `p = 0.538/0.524` while **AVG** gives
+`0.924/0.875` against a design ladder of `1.043/0.992` — **the ladder's exponent
+assumption is very nearly MET by the average.** Only `cube_front`'s MAX is flat;
+`floor`'s MAX gives `0.787/0.838` and `roof`'s MAX is **non-monotone** at `p = -0.074`.
+The margins, which **contain no ratio**: **MAX 0.7316 -> 0.9253 -> 1.1550 (fires)**;
+**AVG 0.3770 -> 0.3986 -> 0.4213 (flat, would have cleared every level with better than
+2x margin)**. **THE GATE FIRES BECAUSE IT IS WRITTEN ON A POINT MAXIMUM OVER A FIELD WITH
+A LOCAL PEAK.**
+
+**THE ANTI-GAMING CLAUSE DETERMINES THE REMEDY AND IS CITED HERE:** changing the gated
+statistic is an **answer-changing** choice, not a convergence aid, so it may **never** be
+tuned freely — it must be a **pre-registered arm RE-FROZEN as a new registration**. That
+is **`T5c`, frozen at `e0c5fee8`**, `docs/campaigns/T-family/T5c_PREREGISTRATION.md`,
+thresholds **byte-identical to `analyse_t5b.py:142-146`**, and it **explicitly REFUSES to
+loosen `YPLUS_TARGET_TOL`** — which would have been the gaming move and the widened band
+`VERIFICATION_CHARTER` §2d.1 forbids. `analyse_t5b.py` is untouched and T5b's six
+`NOT A RESULT` verdicts stand as published.
+
+**Rule 12 discharged:** `C-209`, **451.833** vs **POINT 419.118** = **1.0781**, and
+**1.0778** against the registration's own printed **419.2**. **Both figures are stated;
+the ledger does not get to pick.**
+
+---
+
+**3. TWO ITEMS REPORTED UPWARD **UNRULED** — marked `REFERRED`, not decided.**
+
+**(a) THE WASTE QUESTION — `REFERRED`.** `C-202` named an **entire spend** as waste for a
+`NOT A RESULT` rung. `T5b` is also `NOT A RESULT` but is **materially different**: F23's
+levels were **never converged**, whereas T5b's three levels were **COMPLETE and
+COMPARATOR-READ** and the refusal is an **admission gate on a statistic**. Whether the
+whole **451.833 core-min** is "waste" turns on that distinction, and it **sets a lab-wide
+accounting convention**. **Reported to the chief and to verification; unruled by me.**
+
+**(b) THE `T15b` §2d.1 RE-GRADE QUESTION — `REFERRED`, already on Sanaa's desk.** May
+`T15b` **re-grade the existing `T15_UP_f` artifacts**, or is a **fresh run** required? The
+four-condition recommendation and the costed fallback (**$1.0224 DERIVED**) are in
+**`T15b` §10**, which puts **both** readings of condition (2) on the table **including the
+unfavourable one**. **Verification's clause, verification's call.**
+
+---
+
+**4. A SIXTH SWEEP-PATTERN FAILURE, MINE AGAIN — the session's most repeated error, and
+`L-400`'s own subject.**
+
+**My wide-scope `<=` count of 6 IS WRONG; it is 11.** Five sites express the identical
+guard in a shape a `getmtime(...) <=` pattern **cannot see**. **All five verified by this
+lane by reading the source**, and **the paths in my brief were wrong** — they are under
+`verification/runs/`, **not** `cases/`:
+
+| Site | Shape |
+|---|---|
+| `verification/runs/F11_runs/conversion_2026-08-25/grade_f11.py:735` | `ages[f] = getmtime(p) - zmt` then `if ages[f] <= 0:` |
+| `verification/runs/F11_runs/conversion_2026-08-25/grade_f11.py:739` | same shape, over `xy_paths` |
+| `verification/runs/F3_runs/conversion_2026-08-24/grade_f3.py:221` | `ages[f] = getmtime(p) - zmt` then `if ages[f] <= 0:` |
+| `verification/runs/F4_runs/conversion_2026-08-25/grade_f4.py:265` | `age = getmtime(p) - t0` then `if age <= 0:` |
+| `verification/runs/F4_runs/successor_2026-08-26/grade_f4s.py:493` | `if not os.path.getmtime(fp) > t0:` |
+
+**All five reproduce exactly at the stated line numbers.** This **WIDENS the divergence on
+the strict side** and means **four `cfd` graders that got it RIGHT were undercounted by
+me — the error ran AGAINST a peer team, not in our favour.**
+
+**Beside it:** a lane's own AST scanner first returned **29/27**, and its 29th was
+`analyse_t5b.py:1031`, `if src.count(old) < 1:` — **a mutation-anchor check on source TEXT
+mistyped as an age guard**, because that file's mutation templates contain the string
+`getmtime`. **Caught only by printing all 29 hits beside their source and reading every
+one.** (Verified at that line by this lane.)
+
+**And I correct my exoneration of the frozen reader.** The header I quoted
+(`# Time patch min max average`) is the **SECOND** line of `yPlus.dat`; the **FIRST** is
+only `# y+ ()`, so a reader stopping at line 1 sees **no column names at all**. **The
+exoneration STANDS** — `analyse_t5b.py:360-361` takes `parts[3]` for the maximum, verified
+against the header **and** independently against the data ordering (`cube_front` at `c`:
+`parts[2] = 0.354 < parts[4] = 1.961 < parts[3] = 3.804`) — **but it needed two-way
+verification, not one.** Both lines re-read from the artifact by this lane at
+`verification/runs/T-family/T4_runs/T4_IJ_c/postProcessing/yPlus/0/yPlus.dat`.
+
+---
+
+**5. LIVE — re-derived at this lane's own clock, `2026-08-28T17:38-17:39Z`, from each
+named `log.solve`. THREE CORRECTIONS AGAINST THE FIGURES I WAS HANDED.**
+
+- **`T3_R_ff`** pid **411911**, 8 ranks, `verification/runs/T-family/T3_runs/R_ff/log.solve`:
+  **`Time = 93,172` of 118,000 (79.0%)**, **21,324 core-min**. **THE MARGIN IS NOT A SINGLE
+  NUMBER AND I WILL NOT PRESENT IT AS STABLE.** On the **lifetime-average** basis my brief
+  used, the rate is **1.7165 s/iter**, ETA **2026-08-29T05:28Z**, margin **+27 min** against
+  cap-stop **05:56Z** — **not the +22 min I was handed.** But short windows swing hard:
+  **w=1000 gives 1.8455 s/iter, ETA 06:22Z, margin −26 MINUTES (already negative)**;
+  w=200 gives **+8 min**; w=5000 **+80 min**; w=20000 **+129 min**. **The honest statement
+  is that the margin is contention-dominated and spans −26 to +129 min depending on the
+  window, and a lifetime average is a lagging indicator that cannot see a narrowing.**
+- **`T16_MC_f`** pid **1716924**, 1 rank: **`Time = 17,858` of 40,000 (44.6%)**,
+  **3.0720 s/iter** lifetime, ETA **2026-08-29T12:32Z** against cap-stop **18:21Z**, margin
+  **+348 min**, **914 core-min**. Short windows are **tighter** here (w=1000: +219 min), so
+  this one is comfortable on every basis.
+- **`T18_CU_m` — CORRECTION: IT IS NOT HELD. IT LAUNCHED.** The runner launched it at
+  **2026-08-28T17:35:10Z**, pid 1965602, sid 1965602, ranks 1, est **3.499 core-min**,
+  prereg `add2c788` (`verification/queue/LAUNCH_LOG.tsv:122`). **And it did NOT wait for
+  T3 to release its eight ranks** — it fired at **busy 83.1%**, below the 85% ceiling,
+  **with T3 still holding all eight**. The stated mechanism in my brief was wrong.
+  **Live now**: `laplacianFoam` pid 1966531, `Time = 1.5919` of `endTime 2` (79.6%),
+  **4.211 core-min already spent against the 3.499 POINT estimate = 1.203**. That is
+  **over POINT, not over cap** (the wrapper is `timeout 1200 s` = 20 core-min at 1 rank),
+  so **rule 12's overrun-stop is NOT triggered** — but it is a **calibration row owed to
+  `docs/COST_CALIBRATION.md` on completion**, and it is boarded here so nobody reads
+  "held" off a stale line.
+
+**No solver was touched. Reading a log is not touching.**
+
+---
+
 ##### ADDENDUM 2026-08-28T17:0xZ — **THE `26`-vs-`28` AGE-GUARD COUNT IS RESOLVED, AND THE SUPERVISOR WAS WRONG: `26` WAS A COUNT OF FILES REPORTED AS A COUNT OF SITES. THE FINDING ITSELF IS UNCHANGED.**
 
 **Closes the `UNRESOLVED` item boarded at `86858dc6` §(a) and carried in `D554`.** That
