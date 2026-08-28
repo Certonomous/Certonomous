@@ -1,0 +1,263 @@
+================================================================================
+VMFL063 -- PRE-FLIGHT SMOKE RECORD (ANSYS_VERIFICATION_CHARTER Amendment 1.4
+Clause B; PREREGISTRATION.md sec.11)
+================================================================================
+Run by      : ansys-lane-opus, 2026-08-28T16:33Z -- 16:37Z
+Scratch root: /tmp/.../scratchpad/ansys/vmfl063/   (temp only, rule 13; NOT cited
+              as evidence by any graded record, and NOT a handoff channel)
+Freeze      : 2df23798bf168823ccfaac31f1278529e58897d6
+              PREREGISTRATION.md  2db4c1bbe29904322c8863d03d42b6c6909e696a
+              grade_vmfl063.py    fc339a79d1b0b1a5a5c6beba455e8e3f0e518d45
+              run_vmfl063.sh      ad864596d7e73080990f0227904f43f97550b764
+              All three verified EQUAL to their HEAD blobs by
+              `git hash-object` vs `git rev-parse HEAD:<path>` before and after
+              this smoke -- never by `git diff`, which reports pure deletions on
+              byte-identical files while the shared index is poisoned.
+
+OUTCOME: **THE SMOKE ABORTED. THE CASE CANNOT LAUNCH AS FROZEN.**
+         Blocking defect VMFL063-LAUNCHER-DEF-1, sec.6 below. NOT enqueued.
+         Referred to ansys-verification-supervisor; no frozen file was edited
+         and no registration was adjusted.
+
+--------------------------------------------------------------------------------
+0. THE RULING THIS SMOKE WAS RUN UNDER, AND HOW IT WAS HONOURED
+--------------------------------------------------------------------------------
+Supervisor's ruling, 2026-08-28: a pre-flight smoke MAY exercise the toolchain
+and MAY NEVER compute a gate quantity. Test: could a reader use the smoke's
+output to choose or defend the band?
+
+NO GATE QUANTITY WAS PRODUCED. Asserted against the scratch tree at 16:37Z:
+    log.simpleFoam files      : 0
+    wallShearStress files     : 0
+    solver time directories   : 0
+      (a `find` for numeric dirs returns 5 paths; all five are git object
+       fan-out dirs -- 87, 38, 26, 25, 66 -- inside the throwaway repo of
+       sec.5, and none is a solver time directory)
+NO simpleFoam invocation occurred at all: the launcher aborts at line 109,
+which is upstream of blockMesh (195) and of the solver (234). No reattachment
+length, no LR/(2t), no residual history, no field at any level exists.
+Solver cost: 0 core-min. Mesh-tool cost: 0.0457 core-min at RANKS=1 (2.7 s
+wall for eight blockMesh/checkMesh invocations), derived from artifact mtimes.
+
+The graded run root verification/runs/ansys_verification/VMFL063/ was ABSENT
+before this smoke and is ABSENT after it. The rule-2 condition recorded in
+PREREGISTRATION.md sec.0 is intact and unconsumed.
+
+--------------------------------------------------------------------------------
+1. MESH FAMILY -- REALISED vs REGISTERED  (closes the lane's disclosed gap:
+   PREREGISTRATION.md sec.11, "the blockMeshDict has never been meshed")
+--------------------------------------------------------------------------------
+Built in scratch by the SAME substitution the launcher performs at lines
+188-191 (same frozen blockMeshDict.template, same four sed expressions, same
+per-level counts from the launcher's own arrays), then blockMesh + checkMesh
+exactly as lines 195-196.
+
+level | NXU NXD NYL NYU | A     B      C      | cells realised | registered | rc
+------|-----------------|-------|------|------|----------------|------------|---
+ L1   |  32  80  12  48 |   384   1536   3840 |          5 760 |      5 760 | 0
+ L1D  |  32  80  12  48 |   384   1536   3840 |          5 760 |      5 760 | 0
+ L2   |  64 160  24  96 |  1536   6144  15360 |         23 040 |     23 040 | 0
+ L3   | 128 320  48 192 |  6144  24576  61440 |         92 160 |     92 160 | 0
+
+ALL FOUR CELL COUNTS MATCH THE REGISTRATION EXACTLY. The launcher's mesh birth
+certificate cannot abort on a count mismatch. r = 2 in cell count is realised:
+x4 per level.
+
+--------------------------------------------------------------------------------
+2. checkMesh -- QUALITY, AND THE LAB'S OWN GATES
+--------------------------------------------------------------------------------
+level | max non-orthogonality | max skewness | max aspect ratio | Mesh OK | failed
+------|-----------------------|--------------|------------------|---------|-------
+ L1   | 0 (avg 0)             | 2.9712e-14   | 62.9025          | yes     | 0
+ L1D  | 0 (avg 0)             | 2.9712e-14   | 62.9025          | yes     | 0
+ L2   | 0 (avg 0)             | 6.2303e-14   | 62.3884          | yes     | 0
+ L3   | 0 (avg 0)             | 1.3438e-13   | 62.7755          | yes     | 0
+
+checkMesh reports "Mesh OK." and ZERO failed checks at every level.
+Against docs/standards/MESH_STANDARD.md sec.3:
+  3.1 non-orthogonality hard gate 70 deg  -- measured 0, cleared by 70
+  3.2 skewness hard gate 4                -- measured ~1e-13, machine zero
+  3.3 aspect ratio >1000 needs an alignment justification on the record --
+      measured ~63, two orders below the threshold, so no justification is owed.
+The mesh is orthogonal and unskewed to machine precision, as an all-hex
+Cartesian block mesh should be. Aspect ratio does not fall across the family
+(62.90 / 62.39 / 62.78) because both dx and dy halve together -- expected for
+this refinement, and recorded so its constancy is not later read as a defect.
+
+--------------------------------------------------------------------------------
+3. BOUNDARY PATCHES -- NAMES, TYPES, FACE COUNTS
+--------------------------------------------------------------------------------
+All SEVEN registered patches resolve at every level with the registered type.
+Face counts are the exact geometric consequence of the level counts, which is
+the check that matters -- a patch can carry the right name and the wrong faces.
+
+patch        | type          |   L1 |  L1D |    L2 |     L3 | expected
+-------------|---------------|------|------|-------|--------|----------
+inlet        | patch         |   60 |   60 |   120 |    240 | NYL+NYU
+outlet       | patch         |   48 |   48 |    96 |    192 | NYU
+centreline   | symmetryPlane |   32 |   32 |    64 |    128 | NXU
+plateFace    | wall          |   12 |   12 |    24 |     48 | NYL
+plateTop     | wall          |   80 |   80 |   160 |    320 | NXD  <-- gate wall
+farfield     | symmetryPlane |  112 |  112 |   224 |    448 | NXU+NXD
+frontAndBack | empty         |11520 |11520 | 46080 | 184320 | 2*cells
+
+plateTop -- the wall LR is measured along -- carries exactly NXD faces at every
+level, so the gate reader has 80 / 160 / 320 abscissae to find a crossing in.
+
+--------------------------------------------------------------------------------
+4. FIRST CELL HEIGHT OFF plateTop -- REALISED vs REGISTERED
+--------------------------------------------------------------------------------
+Measured from constant/polyMesh/points as (smallest y above 0.045) - 0.045.
+
+level | realised   | registered (sec.4) | agreement
+------|------------|--------------------|-----------
+ L1   | 1.1291 mm  | 1.1291 mm          | exact to 4 d.p.
+ L1D  | 1.1291 mm  | 1.1291 mm          | exact to 4 d.p.
+ L2   | 0.5740 mm  | 0.5740 mm          | exact to 4 d.p.
+ L3   | 0.2894 mm  | 0.2894 mm          | exact to 4 d.p.
+
+Independently re-derived analytically from the simpleGrading geometric series
+(L = 1.755 m, n = NYU, total expansion 160) before the mesh was built, giving
+the same four figures -- so the registration's numbers are reproducible from
+the dictionary and are also what blockMesh actually lays down. The leading-edge
+dx column of sec.4 likewise reproduces: 2.9319 / 1.4721 / 0.7376 mm.
+
+--------------------------------------------------------------------------------
+5. LAUNCHER -- SYNTAX AND ABORT PATHS DRIVEN
+--------------------------------------------------------------------------------
+`bash -n run_vmfl063.sh` -> rc 0, syntax clean.
+`python3 -m py_compile grade_vmfl063.py` -> clean.
+
+DRIVEN, each firing with its stated message and a NON-ZERO exit:
+
+ id | line | path                                          | rc | where driven
+----|------|-----------------------------------------------|----|--------------
+ A  | 109  | --selftest differs plain vs -O                 |  2 | FROZEN file
+ B  |  65  | VMFL_SMOKE refuses a non-scratch run root      |  2 | FROZEN file
+ C  |  44  | usage: run_vmfl063.sh <run_root>               |  1 | FROZEN file
+ D  |  81  | freeze check: PREREGISTRATION.md != HEAD blob  |  2 | copy, sec.5a
+ D2 |  81  | freeze check: grade_vmfl063.py != HEAD blob    |  2 | copy, sec.5a
+ E  |  97  | case/0/U != HEAD blob                          |  2 | copy, sec.5a
+ F  |  78  | PREREGISTRATION.md is NOT committed at HEAD    |  2 | copy, sec.5a
+
+Drive B is the one that matters most for containment: pointed at the graded run
+root under VMFL_SMOKE=1 the launcher refused BEFORE its mkdir (line 129), and
+the graded run root was still absent afterwards. A smoke cannot consume the age
+guard. This is exactly the containment that the quarantined VMFL006 pre-freeze
+smoke did not have, and it is present and working here.
+
+5a. WHERE D/D2/E/F WERE DRIVEN, AND WHY THAT IS A LIMIT.
+These four guards read HEAD of the repository containing the launcher, so
+driving them requires a tree in which a frozen blob differs from its commit.
+The real repository was NOT perturbed. They were driven in a throwaway git repo
+in scratch holding a byte-identical copy of the case; the copy's launcher blob
+was asserted equal to ad864596d7e73080990f0227904f43f97550b764 before the
+drives, so the bytes that executed are the frozen bytes. This is the strongest
+drive available without touching the frozen tree, and it is stated as a copy.
+
+NOT DRIVEN, AND THE REASON IS DEFECT-1 ITSELF:
+  - age guard, lines 176/178 (existing 0/ or numeric time dir)
+  - budget exhaustion, line 183 (TIMEOUT_S <= 0)
+  - blockMeshDict substitution guard, line 191
+  - controlDict endTime guard, line 193
+  - blockMesh failure, line 195
+  - the mesh birth certificate, line 199
+  - the solver timeout, line 234
+EVERY ONE of these sits DOWNSTREAM of line 109. While the line-109 gate is
+unsatisfiable (sec.6) they are unreachable on the frozen launcher, and reaching
+them would require editing a frozen file. They are therefore UNVERIFIED, and
+that is reported rather than inferred from reading. The substitution and
+blockMesh path (188-196) was exercised independently in sec.1 by running the
+identical commands outside the launcher, which proves those commands succeed
+but does NOT prove the launcher's guards around them fire.
+
+--------------------------------------------------------------------------------
+6. **VMFL063-LAUNCHER-DEF-1 -- THE BLOCKING FINDING**
+--------------------------------------------------------------------------------
+run_vmfl063.sh:109
+    cmp -s "$ST" "$ST.O" || { echo "ABORT: --selftest differs between python3
+      and python3 -O ..."; exit 2; }
+
+THIS GATE CAN NEVER PASS. It is not a control that fired on a real defect; it
+is a gate whose success condition is unreachable.
+
+MEASURED, at 16:34-16:35Z, `__pycache__` cleared before each run:
+  python3    grade_vmfl063.py --selftest -> rc 0, 62 [PASS], 0 [FAIL],
+                                            "SELFTEST: 62 checks, 0 failures"
+  python3 -O grade_vmfl063.py --selftest -> rc 0, 62 [PASS], 0 [FAIL], same line
+  raw byte comparison            -> DIFFER, 20 lines
+  python3 vs python3 (SAME flag) -> ALSO DIFFER            <-- the diagnosis
+  after normalising the mkdtemp suffix:
+      plain vs -O    -> BYTE-IDENTICAL, 0 differing lines
+      plain vs plain -> BYTE-IDENTICAL, 0 differing lines
+
+CAUSE. grade_vmfl063.py:867 opens its selftest sandbox with
+`tempfile.mkdtemp(prefix="vmfl063_selftest_")`, and 20 of the selftest's 78
+output lines quote that absolute path inside their refusal messages (the
+cardinality-guard, completion, age-guard, time-directory and planted-zero
+refusals all name the file they refused on -- which is good diagnostics). The
+suffix is random per process, so two runs never agree byte-for-byte. Sites 420
+and 473 use mkdtemp identically for the two plant channels.
+
+WHAT IS AND IS NOT WRONG:
+  - The COMPARATOR is not defective. Its -O-invariance is real: with the one
+    nondeterministic token normalised, the two interpreters produce identical
+    output, and both give 62/62 with zero asserts. L-332 is satisfied in
+    substance. My own independent ast walk of the source confirms
+    ast.Assert = 0, ast.Raise = 43.
+  - The LAUNCHER's check is defective: `cmp` is the wrong instrument for an
+    output that legitimately carries a per-process path. The check intends
+    "the controls do not change under -O" and instead tests "the output has no
+    nondeterministic token", which no run can satisfy.
+  - PREREGISTRATION.md sec.8 states the selftest is "BYTE-IDENTICAL output
+    under python3 and python3 -O". As literally written that is FALSE and is
+    now measured false. In substance -- the controls exercised, their counts,
+    their verdicts and their text modulo the sandbox path -- it is TRUE.
+    RECORDED, NOT CORRECTED: the pre-registration is frozen and this lane does
+    not edit it. This paragraph is a referral, not an amendment.
+
+CONSEQUENCE. VMFL063 cannot be launched by its frozen launcher, in smoke mode
+or graded. It aborts at rc 2 having spent no compute -- which is the launcher
+failing safe, not failing dangerous: it refuses rather than running ungated.
+The ruling is the supervisor's. This lane makes no repair and enqueues nothing.
+
+--------------------------------------------------------------------------------
+7. THE CAP -- IS IT ENFORCED?
+--------------------------------------------------------------------------------
+YES, in the launcher, and it is the real guard.
+
+  line 181  REMAIN    = max(0, CAP_CORE_MIN - TOTAL_CORE_MIN)      # drawdown
+  line 182  TIMEOUT_S = int(REMAIN * 60 / RANKS)
+  line 183  TIMEOUT_S <= 0  -> ABORT "BUDGET EXHAUSTED", exit 2
+  line 234  setsid timeout "${TIMEOUT_S}"s simpleFoam
+  line 244  rc captured INSIDE the detached subshell (.solver_rc), never around
+            the setsid line, so a fired cap reads rc 124 and not 0
+  line 282  first non-zero rc STOPS the run; later levels are not launched
+
+The 90 core-min cap is a RUNNING TOTAL across L1, L1D, L2, L3, drawn down level
+by level, and it is enforced by the OS through `timeout`. It does not depend on
+the queue runner's cap check, which this team has measured to REPORT AND NOT
+ENFORCE (VMFLGPU005; VMFL064-R2 at a 32.67x overrun), contrary to rule 12. Had
+this case been enqueued, that caveat would have been carried in the entry; it
+is recorded here instead.
+
+--------------------------------------------------------------------------------
+8. WHAT THIS SMOKE DID NOT ESTABLISH
+--------------------------------------------------------------------------------
+  - That the case SOLVES. No simpleFoam iteration was run. Clause B's warrant
+    (VMFL045: selftest 45/45, solver dead on the first timestep; VMFL003:
+    selftest 60/60, case unrunnable) is therefore NOT discharged. A green mesh
+    is not a runnable case. The registration's outcome 5 -- the steady solve
+    may not converge on a leading-edge separation bubble -- remains entirely
+    open and untested.
+  - That the launcher's guards downstream of line 109 fire (sec.5, seven paths).
+  - That the comparator reads real solver bytes. Its readers were exercised
+    only against its own constructed selftest fixtures, never against
+    simpleFoam output, because none exists.
+  - Anything about LR, LR/(2t), the Roache triple, the band, or either limb.
+    Nothing in this record can be used to choose or defend the gate.
+  - Contention: load average was 35.2 on 16 cores at 16:33Z. The cost figures
+    above are mesh-tool wall time on a heavily loaded box and are not a basis
+    for predicting solver throughput.
+
+================================================================================
