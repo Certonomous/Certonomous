@@ -1379,6 +1379,118 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWELFTH SESSION, THIRD WRITE, 2026-08-28T17:41Z (closure-supervisor). SUPERSEDES THE TWO
+BLOCKS BELOW ON G2, WHICH IS GRADED, AND ON QUEUE DEPTH.**
+
+**═══ G2 IS A `PASS` — CLOSURE'S FIRST CONVERGED GRID TRIPLE ═══** (`088a9ee6`)
+Chain COMPLETE 2026-08-28T17:33:57Z, rc 0, **67.28 core-min of a 120.0 cap
+(56.1 %)** against a 61.0 estimate — **ratio 1.1030**. Comparator sha `6839aad1…`
+verified identical **disk == HEAD == the amendment blob `04366870`**.
+**PRIMARY `gradP`:** L1 **52172.3179852**, L2 **53160.8696885**, L3
+**53590.2894333**; `R = 0.434393` → **CONVERGING**; **p = 1.2029** in band
+[1.0, 3.0]; `f_ext` 53920.0887131; **GCI_fine 0.7693 %** against a 5.0 % ceiling.
+Both secondaries CONVERGING and PASS (`Kint` p 0.9099 / GCI 1.0461 %; `tauwint`
+p 1.2029 / GCI 0.7693 %). Momentum balance agreed to **0.0000 %** at every level —
+an **alarm, not a gate**, and it did not fire.
+**⚠ THE CAVEAT, BECAUSE A PASS INVITES LESS SCRUTINY THAN A FAILURE:** p = 1.2029
+is inside the band **and at the low end of it**. A nominally second-order scheme
+gives p ≈ 2; **1.20 is closer to first order than second.** The rung claims a
+monotone triple at a measured order inside a pre-registered band with a small GCI.
+**It is not a claim about scheme order and no cause for the low order is
+established.**
+**AND THE PAYOFF IS MEASURED, NOT ARGUED: had I not repaired that fatal clause
+PRE-COMPUTE this morning, all three levels would have refused on `P3` and this
+PASS would have been a `NOT A RESULT`** — 67.28 core-min spent to buy a refusal
+from a reader firing on OpenFOAM's own healthy-start banner. **G1 unrepaired →
+NOT A RESULT; G2 repaired → PASS**, same defect, same day.
+**The inherited timing reservation is settled:** L3's 1.83× headroom was the
+thinnest in the chain; **L3 ran 3,270 s = 60.6 % of its 5,400 s guard.** It held
+because **filing is not launching** — the entry sat until the runner's ceiling
+released it.
+**Infrastructure carried and voiding nothing (L-342):** I1 `checkMesh` log absent
+— **so this rung carries NO mesh-quality certificate**; I5 a shipped-`controlDict`
+library the solver could not load, **entry KEPT, never deleted to tidy a case**.
+
+**═══ QUEUE-READY DEPTH IS 0, AND I AM NOT RAISING IT BY FILING SOMETHING THAT
+WOULD DIE AT LAUNCH ═══**
+G2 completed and moved to `launched/`. **Three registrations are frozen or landed
+— R4b-I (`d6c749ac`, FROZEN), RC1 and RC2 (`fcf6f996`, landed UNFROZEN) — and NOT
+ONE IS ENQUEUEABLE YET, for a measured reason: every one of them invokes an
+instrument that does not exist.** R4b-I's `launch_cmd` calls `grade_r4b.py`; I
+verified `exists=False`. **Filing it would launch a command that dies instantly,
+outside its own error handling — precisely G1's 17:28:58Z death (D540, L-353),
+which closure has already paid for once.** RC1 and RC2 additionally **cannot
+legally be frozen yet**: rule 2 fixes the grading path **at the pre-registration
+commit**, so their freeze must be the later commit carrying **document AND
+instrument together**. Each now carries a header saying exactly that.
+**FREEZING AND ENQUEUEING ARE DIFFERENT ACTS.** Sanaa's amendment requires the
+repairs be frozen **and run**; freezing is done, running needs the instruments,
+and a build lane is in flight against R4b-I's frozen spec. **Depth will go 0 → 1
+the moment `grade_r4b.py` exists, and not one minute before.**
+
+**═══ FINDINGS FROM THE RC WORK THAT CHANGE WHAT THE NEXT SESSION SHOULD DO ═══**
+- **`grade_m2.py` HAS NO FATAL OR CRASH CHANNEL AT ALL** in 758 lines — no
+  `FOAM FATAL`, no `sigFpe`, no signal test. **A crashed solve reaches its physics
+  gate with nothing in the way**; `rc` and the `End` line sit in `infra`, which its
+  own comment says can never void physics. **M2 IS NOT FILED and this is now a
+  SECOND, independent reason not to file it**, beside the unruled
+  no-frozen-generator precedent.
+- **`NASA_hump_gate/run_gate.py:108` has no FPE channel** — only
+  `"FOAM FATAL" in txt`, so a SIGFPE death is invisible to it.
+- **R4 is NOT contaminated, and the negative bounds the blast radius:** the only
+  code consumer of a `diverged` key in the repository is
+  `R4_sparta_build/score_aposteriori.py:195-196`, and it reads its **own**
+  `log_facts:70`, which uses the correct narrow `Foam::sigFpe::sigHandler`.
+- **RC2's re-grade is cheap and its size is known:** all **16** preserved
+  `log.run` files exist (268.0 MiB, zero missing); all 16 rows read
+  `diverged: true` **and** `ended: true`, **none** holds a genuine fatal signature,
+  all carry the banner — **16 of 16 flag cells would flip.** A second artifact adds
+  10 more cells whose **provenance is unprovable** (no original-log hash preserved),
+  registered in advance as `NOT A RESULT — artifact provenance unestablished`.
+- **RC1's gate is THREE clauses because B1 alone would have PASSED `grade_g1.py`** —
+  the reader that cost G1 its verdict returns both values on real data, firing on
+  63 of 70. **A positive-only birth test would certify the very defect that
+  started this.**
+
+**═══ TWO DEFECTS OF MY OWN, BOTH REPAIRED, BOTH DISCLOSED ═══**
+1. **My birth-requirement corpus was NOT REPRODUCIBLE.** The 1,200-log path list
+   came from a **scratchpad file** via `sys.argv[2]` with no manifest committed —
+   **L-186 in its exact shape, inside a document whose whole subject is "demonstrate
+   it, do not assert it".** The reviewing lane could not rebuild 1,200 from any
+   enumeration rule. **The manifest is now a committed artefact** (1,200 paths, all
+   verified still present); the counts stand and both ground-truth artifacts were
+   independently re-verified exactly. **An unreproducible control is a weak control.**
+2. **THE UNQUOTED HEREDOC BIT ME A SECOND TIME, TWO HOURS AFTER I BOARDED IT.**
+   Building C-210 I unquoted the heredoc to expand one id, and bash
+   **command-substituted the backticks**, writing a row whose `cost_basis` quote and
+   `C-190` cross-reference were **eaten** — leaving *"Sibling to , where…"*. Nothing
+   was committed: restored from the HEAD blob, rebuilt with a **quoted** heredoc and
+   a sed-substituted placeholder, four load-bearing strings asserted present.
+   **RULE: a heredoc carrying markdown is ALWAYS quoted; a variable it needs is
+   substituted afterwards — never buy expansion by unquoting.**
+
+**COST THIS SESSION: 67.33 core-min of NEW compute** (G2's chain 67.28 + its
+0.0518 grading pass) **+ 0.188 for G1b, 0 GPU-hours.** Calibration rows **C-190**
+(G1, 0.397), **C-192** (G1b, 0.188), **C-210** (G2, **1.1030**) all landed.
+**C-210's attribution: a per-cell-iteration cost basis is NOT scale-invariant** —
+measured 6.10e-06 / 5.22e-06 / 4.99e-06 s per cell-iteration at L1/L2/L3, so one
+blended constant under-predicts the small levels and over-predicts the large one.
+**Sibling to C-190, whose error ran the OTHER way** (a rate sampled under
+contention). **A rate carries the conditions it was measured under — load AND
+problem size.**
+
+**NEXT ACTIONS.** (1) Land the four R4b instruments when the build lane returns,
+**read their diffs personally**, freeze document-and-instrument together, then file
+— depth 0 → 1. (2) Same for RC1/RC2. (3) **Rule on M2** — now with two reasons
+against filing. (4) D551's **L4**, cost from a **measured pilot**, never a ratio.
+(5) D550 `xr` diagnosis under L0. (6) `fs5_31_3_exit2` addendum; (7) the
+`MANIFEST_OLD_UNVERIFIED.md` line.
+
+**ON SANAA'S DESK.** The **R4b increment ruling**, unchanged and still owed —
+R4b's solve arm is `BLOCKED` on it and no agent may substitute for it.
+**SUBMISSIONS REMAIN PARKED (rule 7).**
+
+
 **TWELFTH SESSION, SECOND WRITE, 2026-08-28T16:55Z (closure-supervisor). ADDS TO THE BLOCK
 BELOW; supersedes it on D549 and on G2's state.**
 
