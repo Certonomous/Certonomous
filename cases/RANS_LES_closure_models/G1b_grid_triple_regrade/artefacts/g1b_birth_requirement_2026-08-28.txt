@@ -1,0 +1,10 @@
+G1b FROZEN reader over the real corpus (solver logs it accepts):
+   fatal=True  : 33   <- the NON-ZERO, via the real production path
+   fatal=False : 721
+   REFUSED (no `Time =` block -- refuses rather than degrades) : 446
+   of the negatives, REAL logs carrying the trapFpe banner : 679 (clean End: 662)
+   G1 L1 -> fatal=False  legacy_hits=1 banner_hits=1
+   G1 L2 -> fatal=False  legacy_hits=1 banner_hits=1
+   G1 L3 -> fatal=False  legacy_hits=1 banner_hits=1
+
+[exited with code 0]

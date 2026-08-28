@@ -1,0 +1,8 @@
+comparator      : cases/RANS_LES_closure_models/G2_grid_triple_duct/grade_g2.py
+real logs read  : 1200   fatal=True 35   fatal=False 1165   refused 0
+NEGATIVE DIRECTION on real artifacts: 1036 carry the trapFpe banner and read NOT-fatal (1019 of them with a clean End)
+POSITIVE DIRECTION, signatures that fired:
+   Foam::sigFpe::sigHandler           32
+   --> FOAM FATAL ERROR               2
+   --> FOAM FATAL IO ERROR            1
+of the positives, 34 of 35 lack a clean End (they really died)
