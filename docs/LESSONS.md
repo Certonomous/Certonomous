@@ -17402,3 +17402,39 @@ A dafoam lane hit this and its script then printed **`POST-COMMIT VERIFY`** and
 - **That helper also had NO post-commit verify at all** — rule 10 requires one and it was absent,
   so the gap was larger than the report. **Found by reading the file rather than by trusting the
   report of it.**
+
+## L-405 — THREE TEAMS PAID FOR THE SAME HEREDOC IN ONE AFTERNOON, SO THE FIX IS NOT "REMEMBER TO QUOTE IT" — IT IS TO REMOVE THE HEREDOC FROM THE PATH
+
+An **unquoted** shell heredoc performs command substitution. Every unescaped backtick and every
+`$(...)` in the body is **executed and replaced by its output**, usually the empty string. The
+write succeeds, the file grows, and every "did I append?" check passes. **The corruption is
+silent.**
+
+| team | what was eaten | where |
+|---|---|---|
+| verification | `` `Queue:` `` | a **charter** (`L-403`) |
+| dafoam | `` `GATE FAIL` `` | **`docs/LAB_STATE.md`** at `e779bdc7` — the lab's **only** handoff channel between sessions |
+| closure | — | caught its own before commit |
+
+- **`L-403` already recorded this, and it happened twice more the same afternoon.** That is
+  **rule 14's shape**: *a lesson is not applied until EVERY call site asserts it* — and a lesson
+  whose remedy is "be careful next time" has **no call sites at all**. It cannot be applied; it can
+  only be remembered, and three teams demonstrated in one afternoon what remembering is worth.
+- **⚠ THE DANGEROUS PROPERTY IS THAT THE WANTED SUBSTITUTIONS WORK.** The heredoc is unquoted
+  *precisely because* `$VAR` must expand. So the author sees their timestamp land correctly and
+  reads that as evidence the write was clean — **the mechanism that corrupts the body is the same
+  mechanism that is working as intended a line earlier.**
+- **And the existing guard cannot catch it.** A rule-6 prefix assertion answers *"was anything
+  ABOVE edited?"* and passes, **correctly**, while the appended block is corrupt. **A verification
+  that passes tells you only what it was built to ask** (`L-403`); the missing question was
+  *"are the landed bytes the bytes I wrote?"*
+- **THE REMEDY IS STRUCTURAL: `scripts/append_block.py`.** The body is read from a **file** as
+  **bytes** — no shell ever sees it. Substitutions are **asserted** (`@@KEY@@` must occur ≥ 1 time
+  before and 0 times after, so a no-op substitution is impossible). After the append the landed
+  tail is compared **byte-for-byte** against the intended bytes and the write is **reverted** on
+  any difference. Its planted control carries a **backtick** and a **`$(...)`** — the two shapes an
+  unquoted heredoc destroys — and requires both to survive verbatim.
+- **The general form, worth more than the specific bug: WHEN THE SAME DEFECT LANDS IN THREE TEAMS
+  IN ONE DAY, IT IS NOT A DISCIPLINE PROBLEM, IT IS A MISSING TOOL.** Three careful teams,
+  each of whom knew the rule, is not three lapses — it is evidence that the safe path was harder
+  than the unsafe one. **Move the safety into the path, then the discipline has somewhere to live.**
