@@ -1,0 +1,18 @@
+{
+  "cap_core_min_registered": 120.0,
+  "case_id": "G2_grid_triple_duct",
+  "cost_basis": "derived: 7.9872e8 cell-iterations at 4.5e-06 s per cell-iteration serial = 3594.2 s wall at ranks 1 = 59.90 core-min, plus 1.62 s of blockMesh and checkMesh MEASURED on this box at the three registered resolutions and 45 s of postProcess estimated; registered 61.0 core-min. The rate is conservative: the two long duct runs on this box under OpenFOAM v2606 at nProcs 1 measure 3.5748e-06 s per cell-iteration at 3025 cells (aposteriori/kaandorp/AR_1_Ret_360__NULL/log.run, 324.41 s over 30000 iterations) and 4.0100e-06 at 8748 cells (AR_3_Ret_360__NULL/log.run, 1052.38 s over 30000 iterations), both of a corrected model that solves extra fields and so both upper bounds on stock kOmegaSST. The fine level at 16384 cells sits INSIDE the largest calibration point on record (21000 cells). $0.052 at the owner-stated $0.0513/core-h is derived, reported-by-owner, not measured (COMPUTE_BUDGET_CHARTER section 5: this box cannot read its own billing).",
+  "cost_core_min_estimate": 61.0,
+  "cwd": "/home/ubuntu/closure-data/g2",
+  "enqueued_by": "closure-supervisor, personally, 2026-08-28. SUPERVISION_CHARTER section 3 CHECK 4 PERFORMED BY ME AND NOT DELEGATED, and I say what I checked rather than that I checked. prereg_commit was 71654cec (G2's original freeze) and IS CORRECTED HERE to 043668707a0d60e210461c7a6f32f75a71bd2154, the PRE-COMPUTE AMENDMENT 1 commit, because 71654cec's blobs are NO LONGER THE FILES THAT WOULD RUN: the amendment repaired grade_g2.py's fatal clause, which matched OpenFOAM's own line-18 trapFpe banner and would have graded every level NOT A RESULT whatever the physics said. Filing against the superseded commit would have recorded a launch against a pre-registration that does not contain the comparator being used. VERIFIED BY ME AT FILING: PREREGISTRATION.md, grade_g2.py, run_g2.sh and build_g2.py are each byte-identical on disk and in the blob at 043668707a0d60e210461c7a6f32f75a71bd2154; run_g2.sh and build_g2.py are ALSO byte-identical to their 71654cec blobs, so no timeout, level or cell count moved; the amendment's rule-6 assertion is MEASURED true (the amended PREREGISTRATION's first 1052 lines are a byte-identical prefix of the frozen blob); the run root /home/ubuntu/closure-data/g2 holds 0 entries, 0 numeric time directories and 0 field files, so no compute has occurred and the rule-4 age guard is clean; and grade_g2.py --selftest returns rc 0 under BOTH python3 and python3 -O with 0 ast.Assert nodes, exit codes captured directly and not through a pipe. ENQUEUEING IS NOT AUTHORISATION AND THIS FIELD AUTHORISES NOTHING: it records that the supervisor's own check was done and what it consisted of.",
+  "launch_cmd": [
+    "/bin/bash",
+    "/home/ubuntu/Certonomous/cases/RANS_LES_closure_models/G2_grid_triple_duct/run_g2.sh"
+  ],
+  "memory_floor_basis": "ALLOWANCE, not a measurement. Derived field and mesh arithmetic gives circa 15 MB of solution data at the finest level (16384 cells); measured anchors taken with /usr/bin/time -v are checkMesh MaxRSS 39096 kB, 44780 kB and 69004 kB at the three registered resolutions. simpleFoam's own footprint was NOT measured, the drafting lane being forbidden to launch a solver. 0.5 GB is roughly 3.5x the resulting estimate and 7x the largest measurement. run_g2.sh captures the real MaxRSS per level into mem_time.txt, which converts this allowance into a reading for the next pre-registration.",
+  "memory_floor_gb": 0.5,
+  "prereg_commit": "043668707a0d60e210461c7a6f32f75a71bd2154",
+  "prereg_path": "cases/RANS_LES_closure_models/G2_grid_triple_duct/PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "closure"
+}
