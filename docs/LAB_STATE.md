@@ -1379,6 +1379,182 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**TWELFTH SESSION, FIRST WRITE, 2026-08-28T16:28Z (closure-supervisor). NEWEST FIRST.**
+**SUPERSEDES EVERY BLOCK BELOW ON G1, WHICH IS NOW GRADED, AND ON G2, WHICH IS NOW
+AMENDED AND FILED.**
+
+**HEADLINE METRICS, measured in this invocation.** **CPU 100 % busy of 16 cores
+(load 32.65 33.35 25.32 — roughly 2x oversubscribed) · GPU 0 %, none attached to this box and
+closure owns NO GPU entry · closure queue-ready depth 0 -> 1** (G2 filed
+top-level; **still UNDER Sanaa's FREEZE-AHEAD floor of 3 and reported as a
+shortfall, not a success**) · **closure solver idle-minutes: no closure solver has
+run since G1 completed 2026-08-27T23:38:44Z — a QUEUE state, not a stall, because
+nothing of closure's was launchable until G2 was repaired today.**
+
+**═══ G1 IS GRADED: `NOT A RESULT`, AND THE REFUSAL WAS AN INSTRUMENT CONSTANT ═══**
+G1's chain **COMPLETED 2026-08-27T23:38:44Z**, rc 0, **127.08 core-min of a 600.0
+cap (21.2 %)** against a registered estimate of 320.0 — **ratio 0.397**.
+**MY PREDECESSOR'S BOARD PREDICTED ~352 core-min FINISHING ~03:24Z. WRONG, AND IT
+WAS THE THIRD CONSECUTIVE WRONG ETA FOR ONE CHAIN** (~167, ~90, ~352; actual
+127.08), the last by a factor of 2.8, every one extrapolated from a partial-run
+rate. The board's warning was right in principle and **inverted in practice**: the
+danger was not killing a healthy long run, it was believing a run was still going
+when it had finished two hours earlier. Cause **decided, not chosen** — the run
+accelerated when the box emptied. **A rate sampled under contention is not a rate.**
+
+**THE VERDICT AND WHY.** All three levels refused on the single clause `P3 fatal`
+and nothing else. `parse_log` matched the substring `Floating point exception` —
+and OpenFOAM writes **`trapFpe: Floating point exception trapping enabled
+(FOAM_SIGFPE).` at line 18 of every log it produces.** The reader read a **safety
+notice announcing that trapping is ENABLED** as a failure. **Measured with an
+instrument that grades nothing, over 70 `log.run` files across three families:
+FIRED on 63, of which 57 CARRY A CLEAN `End` LINE, and 59 have the banner as their
+only match.** Not a detector — very nearly a constant.
+**P3 WAS THE ONLY BLOCKER**, measured by importing the FROZEN comparator and
+calling its own `completion()`/`iterative()`: other-physics failures 0/0/0,
+infrastructure defects 0/0/0, `ExecutionTime` lines == `endTime` at hard equality,
+age guard held, **zero** iterative clauses failing (final `Ux` 3.312e-09 /
+3.663e-10 / 4.018e-11). The family control passed byte-wise.
+
+**MY RULING: `grade_g1.py` IS NOT REPAIRED.** VERIFICATION §2d.1 permits a
+post-compute grading-path change on four conditions and a case could be argued.
+**I declined, because the exception is not needed** — editing it would mean G1's
+verdict came from a file that is not the file that was frozen, rule 2's hash check
+would fail for this rung forever, and **the repair direction is the flattering
+one**. The successor route cost **0.188 core-min**. Given a choice between
+exercising an exception and not needing one, not needing one is strictly better.
+
+**═══ G1b: THE SUCCESSOR RAN AND DID NOT RESCUE THE VERDICT — WHICH IS THE POINT ═══**
+Frozen at **`dc61e9b5` BEFORE any functional value existed**, every band verbatim
+from G1. **Nobody in this lab had computed or looked at gradP, Kint, xr, the
+triple, R, p or any GCI at that commit.** It then read the physics and returned
+**`NOT A RESULT` again.** **A successor that repairs an instrument and then fails
+to rescue the verdict is the strongest available evidence that the ordering was
+honest** — had it returned PASS, a reader could fairly ask whether the repair had
+been shaped to produce it.
+**THE REPAIR IS PROVED BOTH WAYS.** Positive 8 of 8, each fixture read back
+`fatal=True` **for its own token**; **negative 1 of 1, the direction that
+mattered** — a clean log carrying the banner verbatim read back **`fatal=False`**,
+after the control first confirmed the OLD clause DOES fire on that same fixture.
+All three levels then PASSED completion. Read-only witness: **153 files, stat
+digest identical before and after** — G1's evidence was not touched.
+
+**AND NOW THE RUNG IS `NOT A RESULT` FOR A REAL, PHYSICAL REASON: THE TRIPLE IS
+DIVERGENT.** `gradP` L1 **0.00842876291327**, L2 **0.00843900963202**, L3
+**0.00852655352769**; `eps21` 8.754390e-05, `eps32` 1.024672e-05, **R = 8.5436**.
+The differences **GROW** under refinement: **L1->L2 moves 0.1216 %, L2->L3 moves
+1.0374 % — the finer step is 8.5x the larger.** The solution is **not in the
+asymptotic range** on this family, so no order and no GCI is quotable and none was
+computed. `Kint` the same shape (R 4.6773). Iterative error is excluded, so what
+remains between levels is **discretisation**.
+**`xr` RETURNED NO VALUE ON ANY LEVEL** — no negative-to-positive `tau_wx`
+crossing at x >= 0.5 — while its planted control **recovered a crossing planted on
+disk at x = 4.234500**, so the null is a reading, not a blind reader. **Left as a
+finding, NOT repaired** (D550).
+
+**WHAT THE NEXT SESSION MUST NOT DO, and it is the most important line on this
+board.** The divergent triple has three obvious and **forbidden** remedies:
+**widen the `p` band, loosen the GCI ceiling, or swap the primary functional for
+one that behaves.** All three are barred — a band is not an instrument (§2d.1:
+*nothing a verdict depends on may be repaired on the authority of the verdict it
+produces*), and Sanaa's §3 anti-gaming clause is absolute. The legitimate step is
+**L4 at 245,760 cells**, re-forming the triple as L2/L3/L4, as a **NEW
+registration** with its own frozen bands and cap — never an amendment of G1b.
+**AND ITS COST MUST COME FROM A MEASURED SHORT PILOT, NOT A CELL-COUNT RATIO**
+(D551): the L2->L3 step was superlinear and this family has already paid three
+times for ratio extrapolation on one chain.
+
+**═══ G2: THE SAME DEFECT, CAUGHT PRE-COMPUTE, AMENDED AND FILED ═══**
+Sweeping for siblings found **G2 carrying the identical defect and NOT YET RUN.**
+Its frozen clause reduces to `A_or_W and A` — so the whole expression is just
+`A` — and I confirmed **by execution** that it returns True on a banner-only log.
+**Filing it as it stood would have bought a guaranteed `NOT A RESULT` for its
+entire registered compute, the second such purchase in two rungs.**
+Rule-2 pre-compute condition verified **twice independently**: run root empty
+(0 entries, re-checked after the edits), G2 in neither `launched/` nor `pending/`
+(which does not exist as a directory), freeze chain exactly one commit.
+**Amendment 1 at `04366870`: the ENTIRE deletion set is FOUR LINES** — the fatal
+expression — against 155 insertions; AST constants **35 -> 37, two added, NONE
+changed**; `run_g2.sh` and `build_g2.py` **byte-identical to their frozen blobs**,
+so no timeout, level or cell count moved. Rule-6 assertion **MEASURED**: the first
+1052 lines are a byte-identical prefix.
+**FILED at `fcce0c3c`, and the field that had to be corrected first was a COMMIT
+POINTER THAT HAD SILENTLY GONE STALE UNDER ITS OWN AMENDMENT** — the entry cited
+`71654cec`, correct yesterday and wrong today, so rule 2's hash check would have
+had the wrong blob and **would have looked fine**. **An amendment does not update
+the entries that cite it, and nothing in the queue machinery notices.**
+
+**═══ THE FINDING THAT IS BIGGER THAN CLOSURE — L-396, D548 ═══**
+**The lab had already diagnosed this exact trap TWICE, in prose, and it recurred
+anyway.** `sdk/chief_engineer/mesh_certificate.py:65-72` records that it once made
+**every one of 105 real checkMesh logs read as a crash**; closure's own
+`Kaandorp2020_TBRF/aposteriori/RESULTS.md:572` records `diverged: true` on **every
+scored row**, with the repair listed at :899 as **"Queued, not done"**. Both lived
+as a comment and a limitations paragraph; neither became an executable guard, so
+the third call site (G1) lost a run's verdict and the fourth (G2) was frozen
+carrying it. **Rule 14's exact shape.**
+**THE RULE: an alarm/error/crash detector never shown able to STAY SILENT is a
+constant, not a reader — standing rule 3's mirror.** G1 carried three planted
+controls and **none on the fatal channel**.
+**AND THE MECHANISM THAT EXPLAINS WHY GOOD CONTROLS MISSED IT:** G2's selftest
+checked that *"a clean synthetic run passes all seven PHYSICS clauses"* and
+**passed while the defect was live**, because its fixture `_synth_run` **does not
+carry the banner. The synthetic log was cleaner than any log the solver has ever
+produced.**
+**FOUR SITES OUTSIDE CLOSURE'S FENCE are routed to their owners in D548 and are
+explicitly NOT confirmed defective by execution** — that check is theirs:
+`cases/dafoam/ladder-a/A1/curriculum_SO1{a,b,c}/so1*_grade.py` and
+`cases/dafoam/curriculum_D12R2/d12y_w3_stage_and_run.sh:566`.
+
+**═══ D549 — A SHARED INSTRUMENT THAT FAILS OPEN, ESCALATED ═══**
+`scripts/append_record.py` on `docs/LESSONS.md`: its pattern needs a literal
+period, so it sees **308 of 395** ids and reports its maximum as **342 against a
+true 395** — its own refusal names the next id as **`L-343`, WHICH ALREADY
+EXISTS**, so a team following it mints a duplicate. Worse, given rows it cannot
+parse it prints `(no ids parsed)`, **silently skips `--expect-first-id` and
+returns rc 0.** **POSITIVE CONTROL:** the same tool with a parseable wrong id
+**REFUSES rc 3**, so that rc 0 is **blindness, not compliance**. It is CORRECT on
+the other two records and caught a genuine stale-worktree truncation today.
+`scripts/` is outside closure's scope — escalated, patch unwritten.
+
+**AND A TRAP I FELL INTO WRITING THIS BOARD, recorded because it is one keystroke
+from a corrupted record.** My first draft of this block used an UNQUOTED heredoc,
+so **bash command-substituted every backtick in it** — dozens of identifiers ran
+as commands and the file that landed on disk was mangled. It was discarded, not
+committed. This is L-370's "backticks kill the commit" **in a different costume**:
+there the message silently never ran, here the *content* is silently rewritten.
+**A heredoc carrying markdown MUST be quoted (`<<'EOF'`),** and the tell is that
+the shell prints `command not found` for your own prose.
+
+**COST THIS SESSION: 0.188 core-min of NEW compute (the G1b grading pass), 0
+GPU-hours, $0.00016 derived-not-measured.** G1's 127.08 core-min is charged ONCE,
+at `C-190`. Calibration rows **C-190** (G1, ratio 0.397) and **C-192** (G1b, ratio
+0.188) are landed.
+
+**COMMITS THIS SESSION (7):** `1bd6d750` G1 graded · `0d7d2ebd` C-190 ·
+`dc61e9b5` G1b FROZEN · `e8ef5008` G1b graded · `06be8e08` L-396 + D548-D551 +
+C-192 · `04366870` G2 amendment 1 · `fcce0c3c` G2 filed.
+
+**RUNGS WITHOUT VERDICTS.** M1 (78 entries frozen, 2 filed, never launched) · M2
+(frozen `e6961d48`, **0 entries filed** — the no-frozen-generator precedent is
+**STILL UNRULED** and is mine to rule) · R4b (four instruments absent, `PENDING`)
+· Ling arm 2 (**NOT FILED ON PURPOSE**: `host` omitted defaults to `local`, so
+filing it would fire a GPU arm on the CPU box).
+
+**NEXT ACTIONS.** (1) **Watch G2 — filed and HELD by the runner's ceiling; grade
+it when the chain completes, NOTHING GRADES IT AUTOMATICALLY.** (2) Register
+**L4** per D551, cost from a **measured pilot**, never a ratio. (3) Rule on M2's
+no-frozen-generator precedent. (4) D550 `xr` diagnosis under the L0 step.
+(5) `fs5_31_3_exit2` addendum. (6) One line at the top of
+`MANIFEST_OLD_UNVERIFIED.md`. (7) **FREEZE-AHEAD is 1 of 3** — two more frozen,
+queue-ready registrations are owed.
+
+**ON SANAA'S DESK.** Nothing new. **SUBMISSIONS REMAIN PARKED (rule 7).**
+
+**BLOCKED.** M1/M2 behind filing decisions that are mine, not behind the box.
+R4b — four instruments short of registrable.
+
+
 **ELEVENTH SESSION, THIRD WRITE, 2026-08-27T22:12Z (closure-supervisor). NEWEST FIRST.**
 **SUPERSEDES BOTH BLOCKS BELOW ON G1's ETA AND COST, WHICH I GOT WRONG TWICE.**
 
