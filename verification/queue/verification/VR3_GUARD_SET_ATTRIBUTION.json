@@ -1,0 +1,22 @@
+{
+  "_ceiling": "PASS is reachable: this is an INSTRUMENT gate, not a physics claim, so no CONTINUUM cap applies. No physics verdict can be produced by this item.",
+  "_launch_cmd_asserted": "launch_cmd[1] was asserted PRESENT and READABLE on disk at enqueue time by the enqueuer, because scripts/queue_entry_check.py does NOT check it (cfd, 2026-08-28): an entry naming an absent script validates rc 0 and dies at launch behind a LAUNCHED record.",
+  "_scope": "Whether the ansys SAFE sites are safe FOR THE REASON CLAIMED. Can widen a CANDIDATE set; can never move a VERDICT -- section 7.3's finding that no landed verdict is exposed stands.",
+  "_smoke": "The driver was DRIVEN before enqueue and its controls behaved; the queue run produces the RECORDED artifact. Disclosed rather than presented as first contact.",
+  "cap_core_min_registered": 20.0,
+  "case_id": "VR3_GUARD_SET_ATTRIBUTION",
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). ZERO SOLVER COMPUTE: this is a read-only audit item, so the estimate is interpreter time only.",
+  "cost_core_min_estimate": 0.5,
+  "cwd": "/home/ubuntu/Certonomous",
+  "enqueued_by": "verification-supervisor, 2026-08-28, personally. ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD.md section 1). The SUPERVISION_CHARTER section 3 check-4 'pre-registration committed before compute' was performed by me with my own eyes: the freeze is ffe5ded78ec0776c476955bedb1716926351971b and I verified the blob is the file that will run.",
+  "launch_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/verification/credibility/vr3_guard_set_attribution.py"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "ffe5ded78ec0776c476955bedb1716926351971b",
+  "prereg_path": "verification/campaign/VR3_PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "verification",
+  "verdict_state": "PENDING -- not yet run under the queue."
+}
