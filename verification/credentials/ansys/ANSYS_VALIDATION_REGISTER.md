@@ -685,3 +685,39 @@ Verification ruled a `docs/COST_CALIBRATION.md` duplicate-id collision **by LAND
 2. **STRIKING AN ID DOES NOT CLEAR A DUPLICATE, AND I MEASURED THIS RATHER THAN ASSUMING IT.** `scripts/check_record_reconciliation.py`'s id pattern is `^\|\s*(?:\*\*|~~)*\s*(C-\d+)\s*(?:~~|\*\*)*\s*\|` — it **explicitly accepts `~~`**. Driven on four forms: `| **C-165** |` → C-165; `| ~~C-165~~ |` → **still C-165**; `| ~~**C-165**~~ |` → **still C-165**; `| **C-203** | ~~formerly C-165~~ |` → C-203. Only the **first cell** counts, and only when it holds the id **alone**. So a strike in the prose is an audit trail; the id cell itself must change or gain trailing text. A "strike, never rewrite" instruction applied literally to the id cell would have left the duplicate in place — which is exactly what happened on 2026-08-27.
 
 **A THIRD DUPLICATE EXISTS AND IS NOT THIS TEAM'S: `C-69`, claimed by both dafoam (`docs/COST_CALIBRATION.md:144`) and cfd (`:145`).** `check_record_reconciliation.py` therefore **still exits 4** after this commit and will do so until `C-69`'s owners rule. This team's side is clean — the duplicate set went `{C-69, C-165, C-182}` → `{C-69}`. **I did not touch another team's rows to produce a green light**, and rc 0 is not this team's to deliver.
+
+---
+
+### DATED ADDENDUM — 2026-08-28 — PLANTED-CONTROL RE-GRADE OF ROWS #42 AND #43: **NEITHER VERDICT MOVED.** Both reproduce byte-for-byte through a repaired real-path control.
+
+**Appended by `ansys-verification-supervisor` personally. Nothing above is edited; no row is rewritten (rule 6). ZERO solver compute.**
+
+**THE DEFECT, found by applying Sanaa's 2026-08-28 §1 birth requirement to this team's own instruments rather than waiting to be audited.** `grade_vmflgpu005.py:609` and `grade_vmflgpu007_r2.py:413` both planted into an **already-parsed in-memory list** and re-ran only the reducer — `planted = list(rows)`, mutate, `c1b_vmax(planted)`. **Nothing was written to disk and nothing re-read.** The plant sat *downstream* of the reader, so it exercised an argmax and never established that the file reader could see a non-zero reality delivered. CLAUDE.md rule 3 requires plant, **"reads it back from disk"**, refuse; these skipped the middle clause. That is precisely *"a control defined in terms of the thing it controls."*
+
+**THE REPAIR — successor comparators, frozen by sha, parents never edited.** Frozen at **`87a624ea`** (2 files added, **zero deletions**) BEFORE any re-grade:
+
+| successor | blob | parent — **verified still frozen after all work** |
+|---|---|---|
+| `grade_vmflgpu005_s2.py` | `3dffee1c6fc9060a7528f67b5df8cd6c9b1f2856` | `f80254fd712b1cda5a86908de2ad92f4cc85f062` |
+| `grade_vmflgpu007_r2_s2.py` | `3fdf5192b45594031f41323b18bfe6c5d72f8493` | `aae498976139cd8489c9b3de48427f1f425f875c` |
+
+The new control locates the **real solver-written** sample file via the comparator's own `one_match`, writes a **sized** plant into **every** row of the gate column **on disk**, reads it **back through the parent's own unmodified reader**, then runs the same planted file through the **full gate functional**. Sized and applied to every row because a fixed single-point plant into an averaging reader dilutes by ~1/√N (**L-340, row #26**) and a correctly sized point plant can land outside the reader's support (**L-347, row #31**) — the two failure modes that killed those rungs. Negative arm plus a gate-functional arm; every refusal via `refuse()` (exit 2), **`ast.Assert` = 0** in both. Selftests: 005-S2 **30/30**, 007-R2-S2 **40/40**, under `python3` **and** `python3 -O`.
+
+**THE CONTROL WAS DRIVEN TO BOTH OUTCOMES.** It FIRES — 005 moved max U_y by 0.00695995 against an expected 0.00695995; 007-R2 moved peak Nu by 21.8742 against 21.8742. And it REFUSES — with the plant withheld from disk, both abort `PLANT-BLIND (P1a…)`. **A guard seen only to pass is unproven.**
+
+**ONLY THE CONTROL CHANGED, and the strongest proof is not the hunk list.** I extracted every module-level constant from each parent and successor and diffed them **myself**: **zero differing constants, excluding `VERSION`**. Every band, threshold, ceiling, tier, reference, Roache constant, `PLATEAU_*`, `GPU_PCTF_*`, `P_MIN` and physics constant is byte-identical.
+
+**A CHANGE OUTSIDE THE CONTROL FUNCTION, DISCLOSED AND RULED `[lab-attributed]` RATHER THAN BURIED.** One call-site line per file changed inside `grade()` (005 line 776, 007-R2 line 1009), because the parent hands the control **already-parsed rows** and a real-path control must instead receive the case directory. **I RULE THIS LEGITIMATE AND NECESSARY:** it is the minimum change that makes a real-path control possible at all, it moves no band, threshold, ceiling, tier, limb, refusal, completion or Roache clause, and the constant-identity check above proves it. The lane flagged it explicitly instead of hiding it in a hunk list, which is the behaviour this register wants.
+
+**THE RESULT — NEITHER VERDICT MOVED. Verified by my own diff, not accepted on report.**
+
+| row | verdict | under the repaired control |
+|---|---|---|
+| **#42** VMFLGPU005 | `NOT A RESULT` | **UNCHANGED**, rc 0, byte-identical on every VERDICT/LIMB/PER-LIMB line |
+| **#43** VMFLGPU007-R2 | `GATE REACHED` | **UNCHANGED**, rc 0, byte-identical on every VERDICT/LIMB/PER-LIMB line |
+
+**The most exposed claims — the POSITIVE ones — survive:** row #42's limb-B `PASS` at worst |dq|/|q| = **2.957e-10** against band 1e-4, and row #43's limb B **1.561e-07** with limb C finest peak Nu **63.792470** vs reference **64.853000**, rel **0.0164** in a 0.2000 band. Plant fired at all three levels in each.
+
+**WHAT THIS DID AND DID NOT ESTABLISH.** It did **not** merely re-confirm two numbers. **It converted corroboration into demonstration**: before, the readers were *probably* sound because their values were physically coherent and the GPU and CPU arms agreed to 8–10 digits on independently-read files; now they have been **shown able to see a non-zero through the real code path**, which is the birth requirement. A verdict that survives a repaired instrument is worth more than one that was never tested. **Rows #42 and #43 are no longer provisional.**
+
+Evidence on disk: `verification/runs/ansys_verification/VMFLGPU005/REGRADE_OUTPUT_2026-08-28.txt` and `verification/runs/ansys_verification/VMFLGPU007-R2/REGRADE_OUTPUT_2026-08-28.txt`. Preserved artifacts at `/home/ubuntu/certonomous-runs/ansys_verification/`, verified by me to reproduce both landed verdicts through the frozen parents before any successor ran.

@@ -1,0 +1,24 @@
+VMFLGPU005-comparator-1.0-s2  run_root=/home/ubuntu/certonomous-runs/ansys_verification/VMFLGPU005/VMFLGPU005
+MODEL (frozen, supervisor-verified): standard k-omega low-Re, integrate-to-wall (import_files/VMFL052_natural.cas: kw-std-on? #t, rng-ke-on? #f, kw-low-re-mod? #t). Reproduced as OpenFOAM kOmega + tanh wall functions on an r=2 BOUNDARY-LAYER-RESOLVING triple. Fluent's low-Re damping terms are NOT claimed (declared modelling difference).
+  L1 INFRA: 15002 ExecutionTime lines against 15000 'Time =' lines (petsc4Foam prints init timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 INFRA: 15002 ExecutionTime lines against 15000 'Time =' lines (petsc4Foam prints init timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L1 cells=6720 | Nu gpu=4.7940 cpu=4.7940 | Vmax gpu=0.14881 cpu=0.14881 | dTdx gpu=52.532 cpu=52.532 | y+max=5.11 | plant fired
+  L2 INFRA: 20002 ExecutionTime lines against 20000 'Time =' lines (petsc4Foam prints init timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 INFRA: 20002 ExecutionTime lines against 20000 'Time =' lines (petsc4Foam prints init timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L2 cells=26880 | Nu gpu=4.8521 cpu=4.8521 | Vmax gpu=0.14604 cpu=0.14604 | dTdx gpu=53.536 cpu=53.536 | y+max=3.7 | plant fired
+  L3 INFRA: 25002 ExecutionTime lines against 25000 'Time =' lines (petsc4Foam prints init timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 INFRA: 25002 ExecutionTime lines against 25000 'Time =' lines (petsc4Foam prints init timing before the first solve). INFRASTRUCTURE under L-342 -- reported, never refuses.
+  L3 cells=107520 | Nu gpu=4.8751 cpu=4.8751 | Vmax gpu=0.14465 cpu=0.14465 | dTdx gpu=55.565 cpu=55.565 | y+max=2.3 | plant fired
+BLENDER CONTROL: {'omega/coldWall': 'tanh', 'omega/hotWall': 'tanh', 'omega/bottomWall': 'tanh', 'omega/topWall': 'tanh', 'k/coldWall': 'tanh', 'k/hotWall': 'tanh', 'k/bottomWall': 'tanh', 'k/topWall': 'tanh'}
+LIMB A: GPU execution established at every level; forced-CPU control reported no GPU work at any level.
+LIMB B (HOLDS, PASS-CAPABLE -- identical mesh and scheme): worst |dq|/|q| = 2.957e-10 against band 1.0e-04
+LIMB C1 C1a Nu (ceiling GATE REACHED): CONVERGING (p=1.334, GCI=0.388%); inside 4.87508 vs ref 5.85, dev 0.1667 <= band 0.2
+LIMB C1 C1b Vmax (ceiling GATE REACHED): CONVERGING (p=1.001, GCI=1.2%); inside 0.144652 vs ref 0.139, dev 0.04066 <= band 0.2
+LIMB C1 C1c dTdx (ceiling GATE REACHED): triple is DIVERGENT (|e32|>=|e21| (R=2.022>=1) -- refinement is not reducing the error) -- rule 5: NOT A RESULT whatever the value
+LIMB C2 C2 Vup (ceiling GATE REACHED): triple is OSCILLATORY (e21 and e32 have opposite sign (R=-1.512<0) -- not monotone, no GCI) -- rule 5: NOT A RESULT whatever the value
+LIMB C2 C2 Vdown (ceiling GATE REACHED): triple is OSCILLATORY (e21 and e32 have opposite sign (R=-0.8783<0) -- not monotone, no GCI) -- rule 5: NOT A RESULT whatever the value
+LIMB C2 C2 Tcore (ceiling GATE REACHED): triple is DIVERGENT (|e32|>=|e21| (R=6.416>=1) -- refinement is not reducing the error) -- rule 5: NOT A RESULT whatever the value
+PAPER-vs-CSV (reported, NEVER averaged): C1b mid-height Vmax 0.14465 (paper Table 1 = 0.13900) and C2 Y/h=0.05 peak up 0.12788 (archive CSV = 0.14783) are at DIFFERENT heights and different provenance; any disagreement stands as recorded.
+PER-LIMB: B(GPU==CPU, SAME-DISCRETE-PROBLEM IDENTITY, PASS-capable) = PASS | C1(mid-height vs Betts&Bokhari experiment, CONTINUUM ceiling GATE REACHED) = NOT A RESULT | C2(Y/h=0.05 digitisation, CONTINUUM ceiling GATE REACHED) = NOT A RESULT
+VERDICT: NOT A RESULT -- weakest of the three limbs. C1 and C2 are CONTINUUM limbs capped at GATE REACHED (§2f.3): a Roache triple cures discretisation error but not the model-form error the residual against an EXPERIMENT still carries. The PASS credential of this case lives in limb B alone (same-discrete-problem identity, to which a triple is irrelevant).
+NOT CLAIMED: nothing about Ansys (this box has no Fluent); nothing about GPU performance (a GPU arm slower than the CPU arm passes every limb); no PASS on C2; no byte-identity with Fluent's low-Re k-omega.
