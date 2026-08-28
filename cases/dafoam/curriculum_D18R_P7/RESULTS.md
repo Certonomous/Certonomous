@@ -259,3 +259,28 @@ prints into a shell word list is exposed to this, and `NOT A RESULT` is THREE wo
 | producer, md5 `e4ade11ed9e3db18d2c4988b30e929b4`, **read only** | `cases/dafoam/curriculum_D18_cone_hypersonic/d18_grade.py` |
 | D18's own record (**not edited by this lane**) | `cases/dafoam/curriculum_D18_cone_hypersonic/RESULTS.md` §7a |
 | independent corroboration (**not edited by this lane**) | `docs/capability/dafoam_GRID.md` Correction 3, row 5 |
+
+## 11. ⚠ A CORRECTION OWED AGAINST THIS ITEM'S OWN LANDING COMMIT
+
+**The landing commit `1f74d6de` says the calibration row is `C-205`. It is `C-207`.**
+
+`docs/COST_CALIBRATION.md` row **`C-207`** is this item's, and it is the only row in that
+file naming `D18R-P7` (checked: one occurrence). It is correct and no other row was altered
+(the commit adds exactly **one** line to that file and deletes none).
+
+**How the error happened, because the mechanism matters more than the typo.** The maximum
+existing id was read as `C-204` while drafting; a peer dafoam lane then landed `C-205` and
+`C-206` in commit **`641a4ad7`** before this item's write. The **appending script**
+re-derived the maximum from the file **in the same invocation as the commit** and produced
+`C-207` **correctly** — rule 11 was obeyed by the code. The **commit message prose** had the
+number **typed into it beforehand** and was not re-derived. So the record is right and the
+description of the record is wrong.
+
+**The lesson, stated plainly: rule 11's "re-derive at commit time, from the maximum, never a
+count" is usually read as a rule about CODE. It binds PROSE identically, and prose is the
+half that cannot be corrected afterwards** (`REPORTING_CHARTER.md`, *"a commit message is a
+record, and it is the one record that cannot be corrected"*). The interval here was **under
+one minute**. Any number a commit message asserts about shared, peer-contended state should
+be written by the same invocation that derives it, or left out of the message entirely.
+
+This note is the disclosure; `1f74d6de` stands unedited and uncorrectable.
