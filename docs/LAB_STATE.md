@@ -16744,6 +16744,70 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:3xZ — **VMFL069-R2 DRAFTED AND GATE-VERIFIED BY ME, BUT I WILL NOT FREEZE A 36-CORE-HOUR RUN ON A BASIS ITS OWN AUTHOR CALLS CONTAMINATED — a bounded 3-core-min PROBE goes first. AND VMFL061 IS RULED OUT ON THE ARCHIVE'S OWN EVIDENCE, WHICH RETIRES THE RADIATION CLASS.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### VMFL069-R2 — THE GATE IS CLEAN, VERIFIED BY MY OWN EXTRACTION
+
+Draft at `cases/ansys_verification/VMFL069-R2/`, **untracked and unfrozen**. **Check 1 (measurement-script diff) done by me, not relayed** — I extracted the gate constants from both comparators myself:
+
+```
+REF_LOWER=10.0   REF_UPPER=50.0/3.0   REF_WHOLE=40.0/3.0
+TOL=0.01   FS=1.25   RATIO=2.0   P_MIN=0.05
+TIER_CEILING={"A":"PASS","B":"PASS","C":"PASS"}
+```
+
+**Byte-identical in R1 and R2. No band, tolerance, ceiling or Roache constant moved.** `diff -rq` on the case directories returns **exactly one differing file — `system/controlDict.template`** — so all 12 inputs but the time-stepping control are untouched. The comparator's changes are confined to time-stepping, and the drafting lane reported them **as a diff**, which is what this family asks for.
+
+**The rule-4 adaptation is well made and I accept its form.** R1's clause 5 required `ExecutionTime count == endTime`; under `adjustTimeStep yes` that identity is unsatisfiable. It is **adapted, not waived**, to *"the count of `ExecutionTime` lines EQUALS the count of `Time =` lines"* — the solver's own internal-consistency condition — **with `last Time == endTime` KEPT UNCHANGED.** That pair is **strictly stronger** than the artefact it replaces, which was never a physics condition at all, only a side effect of `deltaT = 1`. **What is dropped is the numeric identity and nothing else**, and a guard was *added* requiring the controlDict to carry the registered `maxCo`/`maxAlphaCo`. **And there is no §3.3 in it** — charter §11.2 was respected on its first outing.
+
+#### BUT THE COST IS NOT FREEZABLE, AND I AM STOPPING IT AT THE FREEZE
+
+**~2160 core-min (~36 core-h), with L3 alone at ~32 WALL-HOURS, against a 5000 core-min cap.** The lane stated plainly that its per-step basis is transferred from **R1's single contaminated L1 measurement — 68 steps in 3 wall seconds, including startup AND the blow-up's 1000-iteration alpha steps** — and that the truth could be **0.5× to 3×**. **At 3× the entire cap is burned and there is NO VERDICT**, because an overrun **stops** the run (rule 12) and does not get a new budget.
+
+**RULING: NO FREEZE TONIGHT. A BOUNDED SCOPING PROBE FIRST** — L1 only, hard-stopped at **2000 steps or 120 wall seconds**, **cap 3 core-min**, run **in scratch so R2's graded run root stays non-existent** and its rule-2 §0 condition and age guard stay intact. It answers two questions worth far more than it costs:
+
+1. **The true per-step wall time** under R2's own controlDict, startup excluded — turning a contaminated estimate into a measurement.
+2. **WAS R1'S DEATH NUMERICAL OR PHYSICAL?** If CFL, `maxCo = 1.0` cures it. **If it was a genuine interfacial instability at upper-layer Re ≈ 4400, `maxCo` will not save it and the 36-hour run is doomed before it starts.** The drafting lane flagged this as something it could not predict and did not pretend to. **A 2000-step probe answers it for about one core-minute.**
+
+**The quarantine rule binds the probe absolutely:** at 2000 of ~88,900 steps L1 is ~2 % of the way to steady state, so **no gate quantity may be computed** — no comparator, no limb, no volume mean, no deviation from 10, 50/3 or 40/3. **The test is whether a reader of its output could choose or defend a band; if yes it is an unregistered run.** Only wall-time, `deltaT`, Courant, alpha bounds, rc and memory come back.
+
+**This is the same remedy the radiation screen independently recommended** for `viewFactorsGen`, and the same one this team keeps rediscovering: **when no basis exists, measure a small one rather than transfer a bad one.**
+
+#### VMFL061 IS RULED OUT — AND THE ARCHIVE IS WHAT RULED IT OUT `[lab-attributed]`
+
+I authorised opening `VMFL061_WB.wbpz` under charter §47. **It was the right call and it produced a decisive answer — against the case.** Extraction to scratch; **archive sha256 `880be559…`, size and mtime unchanged after the work**, as §130 requires.
+
+**What the archive settles, and it is a lot:** S2S **enabled**; surfaces **grey and diffuse by explicit setting** — `band-diffuse-frac 1`, `specular-coeff 0.` — which the manual never states; **2-D planar, NOT axisymmetric** (`rp-axi? #f`, `fluent 2ddp`), which the manual never states; symmetry planes `top-sym`/`bottom-sym`; walls at **700 K** and **300 K**; medium air with **absorption coefficient 0**, genuinely non-participating; **energy ON, flow OFF, steady**; 100 iterations. **That is exactly what §47 archives are for, and it converted five unstated properties into read values.**
+
+**AND YET THE CASE STILL FAILS, ON THREE INDEPENDENT GROUNDS:**
+
+1. **EMISSIVITY IS ABSENT FROM THE ARCHIVE TOO.** The only hits are `partial-enclosure-emissivity 1` under a **partial-enclosure model that is DISABLED** (`s2s/partial-enclosure? #f`) — **not a surface property, and not in force.** The lane's claim that "Fluent defaults to ε = 1.0" is **its own knowledge, not a value it read**, and I will not build a gate on an unsourced default — **that is precisely the unsourced fill I rejected earlier today.**
+2. **THE ε-INDEPENDENT GATE DOES NOT TEST RADIATION AND THE RADIATION-TESTING GATE NEEDS ε.** My own proposed way through — gating on the **heat rate** `q₁₂` from Incropera's enclosure network instead of the undefined normalized profile — **depends on ε₁ and ε₂**, which are nowhere established. The normalized temperature profile *is* ε-independent, and that is exactly why it is **unfalsifiable** and worthless as a gate. **My proposed rescue does not survive contact with the archive, and I withdraw it.**
+3. **AN EXPERIMENTAL CSV SITS IN THE ARCHIVE.** `import_files/VMFL061_cylinder-exp.csv`, referenced by the journal as **"Series 2: Experimental"**. The manual labels its figure *"Analytical"*. **If the comparison Ansys actually plots is experimental, the reference is not what the manual's label says**, and an experimental reference is capped at `GATE REACHED` in any event. **Unresolved, and it does not need resolving — grounds 1 and 2 are already sufficient.**
+
+**CONSEQUENCE: the surface-radiation class of VM2026R1 is retired for `PASS` purposes**, on the manual-wide emissivity absence now confirmed to extend into the project archive. **VMFL070 was already out on its predicted `EXACT` triple. VMFL061 is out on the above. Neither is registrable.**
+
+**A ruling worth stating in general terms, because it will recur:** **a solver's undocumented DEFAULT is not a case property.** The archive is honest — it contains what was set, and what was not set is **absence, not a hidden value.** Adopting a default we have not read from any document on this box would be inventing the quantity the gate rests on: **VMFL046's failure in a fourth costume.**
+
+#### WHERE THIS LEAVES THE TEAM, STATED WITHOUT DRESSING
+
+**VMFL069-R2 is now the ONLY known `PASS`-capable item in this team's reach**, which makes the probe more important rather than less. Everything else is out, and each for a reason now on the record: **VMFL029** no reference; **VMFL046** no constructible geometry *and* laminar-viscous; **VMFL072** toolchain; **VMFL070** predicted `EXACT` triple; **VMFL061** no emissivity anywhere, in manual or archive; **VMFL011** exhausted; **VMFLGPU006** no reference on this box. **VMFL024 and VMFL038 remain, both capped at `GATE REACHED`, both with real risk.**
+
+**FREEZE-AHEAD 0.** I would rather report that honestly than freeze a 36-core-hour run I cannot cost.
+
+#### STATE
+
+**Live.** Runner pid 881; box busy with peer work. One lane: the R2 scoping probe.
+
+**Next.** (1) Read the probe. (2) If per-step is at or under estimate AND alpha stays bounded, freeze R2 with a **measured** cost basis and queue it. (3) If it diverges again at `maxCo = 1.0`, that is a **finding about the case**, VMFL069 is not reachable by this route, and it is recorded as one rather than retried. (4) The `LESSONS` entry for the manual-wide emissivity absence is still owed.
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index and the rule-4 referral.
+
+**VERIFY:** everything the probe is being sent to measure; whether the experimental csv is what the manual plots as "Analytical".
+
+
 ### 2026-08-30T23:2xZ — **THE MANUAL CONTAINS NO EMISSIVITY VALUE ANYWHERE — 0 OCCURRENCES IN 6,992 LINES, VERIFIED BY ME. That would retire every surface-radiation case in VM2026R1 — EXCEPT THAT MY OWN SCREEN WAS WRITTEN WRONG, AND MY CHARTER SAYS SO AT LINE 47. Condition (B) is CORRECTED, in the qualifying direction.**
 
 **Written by `ansys-verification-supervisor` personally.**
