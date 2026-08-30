@@ -120,7 +120,7 @@ def sections(text):
 
 
 def check_roster():
-    print("\n[1/4] ROSTER -- agent files and prose surfaces vs teams.yaml")
+    print("\n[1/5] ROSTER -- agent files and prose surfaces vs teams.yaml")
     r = subprocess.run([sys.executable, os.path.join(REPO, "harness", "generate_agents.py"),
                         "--check"], capture_output=True, text=True)
     for line in r.stdout.splitlines():
@@ -154,7 +154,7 @@ def board_text(use_worktree):
 
 
 def check_board(cfg, use_worktree=False):
-    print("\n[2/4] SECTIONS -- every team has a board section")
+    print("\n[2/5] SECTIONS -- every team has a board section")
     text, src = board_text(use_worktree)
     print("  ....  board read from %s" % src)
     if text is None:
@@ -252,7 +252,7 @@ def iso_of(epoch):
 
 
 def check_freshness(cfg, secs):
-    print("\n[3/4] FRESHNESS -- is each section older than its own territory?")
+    print("\n[3/5] FRESHNESS -- is each section older than its own territory?")
     for t in cfg["teams"]:
         team, body = t["team"], secs.get(t["team"])
         if body is None:
@@ -288,7 +288,7 @@ def check_freshness(cfg, secs):
 
 
 # ---------------------------------------------------------------------------
-# [4/4] PROVENANCE -- the DETECTION half of the unquoted-heredoc defect.
+# [4/5] PROVENANCE -- the DETECTION half of the unquoted-heredoc defect.
 #
 # append_block.py removed the heredoc from the WRITE path and proves, at the
 # instant of the append, that the landed bytes are the source bytes. That
@@ -471,8 +471,43 @@ def orphan_verdict(records, head_bytes):
     return out
 
 
+
+def check_numerics_index():
+    """[5/5] Is the NUMERICS_KNOWLEDGE FAMILY INDEX still true of its own tail?
+
+    The index is a DERIVED value. A derived value maintained by hand drifts, and
+    on 2026-08-30 it had: N-C listed as N-C1 alone against an actual N-C7, N-AV to
+    11 against an actual 13 -- 8 entries, with FIVE of seven families correct and
+    the only two stale being the two that had grown. Deriving it removes the
+    drift; this clause makes a future drift impossible to accumulate silently.
+    """
+    print("\n[5/5] NUMERICS INDEX -- is the FAMILY INDEX true of its own tail?")
+    try:
+        sys.path.insert(0, os.path.join(REPO, "scripts"))
+        import check_numerics_index as nk
+        div = nk.divergence(os.path.join(REPO, "docs", "NUMERICS_KNOWLEDGE.md"))
+    except Exception as exc:
+        warn("numerics-index", "NOT MEASURED -- the checker could not run (%s). "
+             "A zero from an instrument that did not run is not evidence." % exc)
+        return
+    if div and div[0][0] == "*":
+        fail("numerics-index", "no FAMILY INDEX block exists in the file at all")
+        return
+    if not div:
+        ok("numerics-index", "the index lists exactly the ids in the tail")
+        return
+    for k, miss, extra, _ in div:
+        fail("numerics-index",
+             "N-%s DIVERGES: %d id(s) in the tail are MISSING from the index %s; "
+             "%d listed that are not in the tail %s. Regenerate with "
+             "`scripts/check_numerics_index.py --gen` and append a SUPERSEDING "
+             "block -- never edit above, this file is cited by line number."
+             % (k, len(miss), ["N-%s%d" % (k, x) for x in miss],
+                len(extra), ["N-%s%d" % (k, x) for x in extra]))
+
+
 def check_provenance(strict=False):
-    print("\n[4/4] PROVENANCE -- do recorded blocks still match their source bytes?")
+    print("\n[4/5] PROVENANCE -- do recorded blocks still match their source bytes?")
     path = os.path.join(REPO, *PROV_LEDGER_REL.split("/"))
     recs = load_provenance(path)
 
@@ -969,6 +1004,7 @@ def main():
     secs = check_board(cfg, args.worktree)
     check_freshness(cfg, secs)
     check_provenance(args.strict_provenance)
+    check_numerics_index()
 
     print("\n" + "-" * 70)
     if FAILS:

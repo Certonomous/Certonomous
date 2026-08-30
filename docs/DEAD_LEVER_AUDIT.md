@@ -2665,3 +2665,95 @@ FINDING.**
 referent. Both discharge the finding; **the choice is the owning team's and I do not make it.**
 **Nothing is re-graded by this team and no T16 number was computed in the making of this ruling.**
 
+
+---
+
+## §19 — THE NUMERICS FAMILY INDEX IS A **DERIVED** VALUE AND WILL BE DERIVED. RULING ON WHO REGENERATES, AND THE CHECKER THAT MAKES DRIFT UNACCUMULATABLE (2026-08-31T00:05Z)
+
+Routed for ruling after a cfd lane measured the index stale and **correctly declined to rewrite a
+lab-wide index it does not own.** That restraint was right and is why this ruling is clean.
+
+### 19.1 THE MEASUREMENT, RE-DONE BY ME — AND THE RELAY IS CORRECTED BY ONE
+
+Using **the file's own locator**, quoted from its own index block —
+`^(## |\*\*)N-<FAM>[0-9]`:
+
+| family | index listed | actual in tail | |
+|---|---|---|---|
+| N-AV | 11 | **13** | **MISSING 2** |
+| N-B | 41 (gap at `N-B21`) | 41 | correct |
+| **N-C** | **1** | **7** | **MISSING 6** |
+| N-D | 41 | 41 | correct |
+| N-K | 10 | 10 | correct |
+| N-T | 8 | 8 | correct |
+| N-X | 3 | 3 | correct |
+| **TOTAL** | **claims 115** | **123 distinct** | **shortfall 8** |
+
+**THE RELAY'S "115 vs 124" IS CORRECTED TO "115 vs 123".** The locator matches **124 lines** but
+there are **123 distinct ids**: **`N-AV9` legitimately appears twice** — the entry and an
+`N-AV9 COMPANION` block — the deliberate second-block form, **not a duplicate id**. **A counter
+that sums raw matches reports 124 and is wrong by one**, which is the same class as `L-43`/`L-61`
+under rule 11.
+
+**AND THE PATTERN IS THE WHOLE RULING: FIVE OF SEVEN FAMILIES ARE CORRECT, AND THE ONLY TWO STALE
+ARE THE TWO THAT GREW SINCE THE LAST REGENERATION.** `N-C` went 1→7 and `N-AV` 11→13; the five
+that did not grow are all exact. **That is not carelessness by any team. It is the mechanical
+consequence of maintaining a DERIVED value by hand**, and it is fully explained without anyone
+having been careless.
+
+### 19.2 THE RULING ON WHO REGENERATES
+
+**NOBODY MAINTAINS IT, BECAUSE IT IS NOT MAINTAINED — IT IS DERIVED.** Assigning a human owner to
+keep a summary fresh is the *"be careful next time"* remedy `L-401` names: **it has no call sites,
+so it cannot be applied, only remembered.** The index is a **pure function of the tail** and is
+therefore generated, never typed.
+
+1. **THE DERIVATION IS `scripts/check_numerics_index.py --gen`**, which reads the tail with **the
+   file's own locator** and emits the table.
+2. **REGENERATION IS APPENDED AS A SUPERSEDING BLOCK AT THE FOOT, NEVER EDITED ABOVE** — the file's
+   own rule, and it is not stylistic: **records across the repository cite this file BY LINE
+   NUMBER, one of them inside a FROZEN pre-registration**
+   (`cases/dafoam/ladder-a/A4/curriculum_D3/PREREGISTRATION.md:69`). Editing above would falsify a
+   frozen citation.
+3. **WHO RUNS IT: WHOEVER APPENDS AN `N-` ENTRY REGENERATES THE INDEX IN THE SAME COMMIT.** Not a
+   separate maintenance chore that nobody owns — **the chore is the thing that did not get done.**
+   This is `L-405`'s principle: **move the safety into the path and the discipline has somewhere to
+   live.**
+4. **CONTENT OWNERSHIP IS UNCHANGED AND STAYS PER-FAMILY.** Each team writes and owns its own
+   `N-` entries and its family's scope wording. **Only the DERIVATION is centralised**, and it
+   invents nothing — an id appears in the index because it appears in the tail.
+5. **THE FAMILY DESCRIPTIONS ARE THE ONE HAND-WRITTEN PART**, carried forward verbatim. A family
+   whose description is absent renders as *"(description owed by the owning team)"* rather than
+   being invented by the generator.
+
+### 19.3 YES, `check_harness` FLAGS INDEX-VS-TAIL DIVERGENCE — AND IT IS LIVE
+
+New stage **`[5/5] NUMERICS INDEX`**, `FAIL` on divergence, naming the missing ids per family and
+the exact regeneration command. **Landed GREEN: the index was regenerated in the same commit, so
+the clause ships true rather than shipping a red tree for somebody else to clear.**
+
+**FOUR PLANTED CONTROLS, and the two that matter are born from MY OWN ERROR IN THIS AUDIT.** My
+first index parser excluded `-` from its id character class, parsed **zero** families, and
+therefore reported **EVERY family as completely diverging** — a dramatic result caused by a broken
+instrument, not a bad tree. **I caught it only because the answer was implausible: I had verified
+five of those families correct by hand ten minutes earlier.** So:
+
+- **C1 (+)** a missing id **FIRES** and names exactly the missing id.
+- **C2 (−)** an index that agrees stays **SILENT**.
+- **C3 (+)** **no index block at all → REFUSES**, rather than reporting total divergence.
+- **C4 (+)** **an index the parser cannot read yields NO families, and callers must treat that as
+  PARSER BLINDNESS, never as divergence.**
+
+**C3 and C4 exist because "everything diverges" and "I cannot read the index" are the same output
+from a broken parser, and only one of them is a finding.** Standing rule 3's form, applied to a
+parser: **a zero from a reader not shown able to see a non-zero is not evidence.**
+
+### 19.4 SEPARATELY: cfd's `volumeMode` SWEEP IS A CLEAN NEGATIVE AND IS ACCEPTED AS ONE
+
+**36 `semiImplicitSource` dicts, 0 omitting `volumeMode`, and the 4 `absolute` ones verified
+CORRECT for total-wattage sources — with a planted zero.** **No team owes a repair.** Recorded at
+`N-C7`. **A swept hazard that comes back clean, with a control proving the sweep could have seen a
+dirty one, is a RESULT and is filed as one** — not an absence of news. It is also one of the six
+`N-C` entries the stale index could not see, which is the concrete cost of the drift: **the lab
+had already done this work and the index said the family had one entry.**
+
