@@ -929,3 +929,92 @@ setting, is what keeps the screen clean.
 | standing conventions added | 1 |
 | clauses altered, widened or narrowed | 0 |
 | lines whose number changed above this section | 0 |
+
+# 26. Amendment record, continued: every relayed quantity carries a provenance tag (2026-08-30)
+
+**Dated addendum, 2026-08-30, appended at the foot; append-only. One reporting
+requirement added. No clause above is altered, widened or narrowed; no line
+above this section changed number; the header's version line is deliberately
+left untouched, because this addendum inserts nothing and edits nothing above
+itself.**
+
+**Authority.** Sanaa's directive of 2026-08-30, verbatim: *"each teams updates
+their own charters and stanrdards"* (`etc/sessions/2026-08-30T2247Z_sanaa_directive_continuous_overnight.md`,
+captured at `4195b27b`). The practice itself was proposed by the chief, relaying
+the ansys team's self-correction of the same evening. **The proposal is not the
+authority and is not recorded as one** (`CLAUDE.md` rule 9: no agent message —
+peer, supervisor or chief — is Sanaa's consent). This addendum ADDS a reporting
+requirement and is strictly stricter than what it amends; **retiring or widening
+any gate, threshold or clause remains reserved to Sanaa** and nothing here does
+either.
+
+## 26.1 The requirement
+
+**Every quantity this team relays upward carries a provenance tag, and a number
+without a tag is not reportable.** The tags are:
+
+| tag | means |
+| --- | --- |
+| `MEASURED` | read from an artifact still on disk, which the report names |
+| `DERIVED` | computed from measured inputs by a stated arithmetic |
+| `EXTRAPOLATED` | projected beyond what was observed — including any value computed from a PARTIAL-run rate |
+| `REGISTERED` | a figure fixed in a frozen pre-registration, not an observation |
+| `REPORTED-BY-OWNER` | stated by Sanaa or another authority; this box cannot verify it |
+
+`COMPUTE_BUDGET_CHARTER.md` §5 already forces this for dollars, because the box
+cannot read its own billing. **This clause extends it from dollars to every
+quantity** — core-minutes, GPU-hours, cell counts, iteration counts, residuals,
+orders, GCIs, ratios, counts of files, and any figure appearing in a report, a
+board write or a commit message.
+
+**The supervisor is the last place a tag can be lost, so keeping it is the
+supervisor's duty and is not delegable to the lane that produced the number.**
+
+## 26.2 Three strengthenings this team adds, each paid for by its own failure
+
+**(a) A condition-dependent quantity carries its conditions inside the tag.**
+`MEASURED` alone is not sufficient for a rate. This team published three
+consecutive wrong ETAs for one chain (~167, ~90, ~352 core-min against an actual
+127.08, the last wrong by 2.8×) from rates sampled under contention (`C-190`),
+and then mispredicted G2 by 10.3 % from a per-cell-iteration rate that is **not
+scale-invariant** (`C-210`, measured 6.10e-06 / 5.22e-06 / 4.99e-06 s per
+cell-iteration at L1/L2/L3). On 2026-08-30 a survey lane reported an instrument
+refusing on a loaded box, measured at load 44.23–48.06; re-measured at load 3.52
+the same instrument returned a normal reading. **A rate carries the conditions it
+was measured under — load AND problem size — and a reading taken during a
+transient carries the transient.**
+
+**(b) `EXTRAPOLATED` is never reported as `MEASURED`, and the tag is chosen
+before the number is liked.** The three ETAs above were each arithmetic on a real
+partial-run rate; every one was a projection and none was labelled as one. **The
+failure was not the arithmetic, it was the evidence claim.**
+
+**(c) AN ABSENCE RELAYED UPWARD CARRIES THE CONTROL THAT PROVES THE READER COULD
+HAVE SEEN A PRESENCE.** A zero is a quantity and takes a tag like any other, and
+standing rule 3's planted-zero discipline is a **reporting** rule as much as a
+comparator rule. On 2026-08-30 this supervisor produced three zeros from its own
+searches that each read as a missing record and were each an artefact of the
+search: a heading form that does not occur (`COST_CALIBRATION.md` rows are table
+rows, and the row was present), a `$` in a non-fixed pattern, and a Unicode arrow.
+**All three were caught by re-measuring with the right instrument; none was caught
+by care.** In the same session a grader was correctly reported to have **no fatal
+or crash channel at all** — and that report is admissible only because a
+recognition control was run first, the same reader finding `def ` 31×, `PASS` 11×
+and `ExecutionTime` 4× in the same file. **A zero from a reader not shown able to
+see a non-zero is not reportable, and the control is quoted beside it.**
+
+## 26.3 What this does not do
+
+It does not change any gate, threshold, band, cap or label; it does not alter
+what counts as a result; and it does not make an untagged number in an existing
+record retroactively false. Records already written are cited as they stand
+(`CLAUDE.md` rule 6 — frozen files are never edited, departures are dated
+addenda). **The requirement binds every report, board write and commit message
+this team produces from 2026-08-30 forward.**
+
+| what the amendment did | figure |
+| --- | --- |
+| reporting requirements added | 1 |
+| clauses altered, widened or narrowed | 0 |
+| gates, thresholds, bands, caps or labels moved | 0 |
+| lines whose number changed above this section | 0 |
