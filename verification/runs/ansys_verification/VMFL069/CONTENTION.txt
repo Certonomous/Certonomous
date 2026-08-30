@@ -1,0 +1,9 @@
+sampled_utc = 2026-08-30T22:51:46Z
+uptime =  22:51:46 up 18 min,  1 user,  load average: 1.20, 6.10, 7.17
+nproc = 16
+loadavg = 1.20 6.10 7.17
+mem_available_MB = 29681
+-- other solver processes on the box at launch --
+      5 python3
+      1 dockerd
+note = contention at launch; core-minutes are wall_s*RANKS/60 and a busy box inflates wall_s (COMPUTE_BUDGET_CHARTER sec.6: waste is reported, never absorbed)

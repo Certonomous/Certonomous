@@ -1,0 +1,15 @@
+=== VMFL069 launcher  utc=2026-08-30T22:51:45Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069
+  freeze OK  cases/ansys_verification/VMFL069/PREREGISTRATION.md  f3d9f37336f0fbfadb60d86c3024af92ba7cfd1a
+  freeze OK  cases/ansys_verification/VMFL069/grade_vmfl069.py  dcd7f1f9bbbbe748dd33d5337127406344de8f6e
+  case inputs OK: 12 files, each byte-identical to its HEAD blob
+  controls OK: --selftest 67/67 PASS; python3 and python3 -O agree on PASS 67/67, FAIL 0/0, rc 0/0, and both carry the AST guard marker
+  interFoam = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/interFoam
+--- L1  remaining 45 of 45 core-min  ranks 1  timeout 2700s
+  birth certificate: cells=256 meshOK=True maxSkew=2.12721097378e-14 maxAR=2.0 maxNonOrtho=0.0
+/home/ubuntu/Certonomous/cases/ansys_verification/VMFL069/run_vmfl069.sh: line 290: 29460 Floating point exceptionsetsid timeout "${TIMEOUT_S}"s interFoam > log.interFoam 2>&1
+  DETACH NOTE (L1): wrapper pid=29458 SID=29082 -- expected in this form; gates nothing
+STOP L1: rc=136 after 3s = 0.05 core-min (running total 0.05 of 45).
+  A non-zero rc is a FINDING, not a retry. rc=124 means the running-total cap stopped it;
+  an overrun does NOT get a new budget and endTime is NOT shrunk to fit (rule 12).
+=== VMFL069 launcher done, overall rc=136, total 0.05 core-min of 45
+grade with: python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL069/grade_vmfl069.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069 --out /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069/GRADING_VMFL069.json

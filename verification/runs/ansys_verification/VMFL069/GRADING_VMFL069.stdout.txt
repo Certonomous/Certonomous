@@ -1,0 +1,1 @@
+REFUSING (exit 2): rc=136 recorded for L1 (124 == the cap fired). A RECORDED non-zero rc is evidence about the SOLVER and refuses (L-342).

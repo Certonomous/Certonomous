@@ -1,0 +1,20 @@
+case = VMFL069
+manual_page = 205
+supersedes = nothing -- FIRST registration of this case; no prior VMFL069 register row exists
+launched_utc = 2026-08-30T22:51:46Z
+freeze_commit_head = 7a6170ef28a5fb0c521cb266a528734bf0198026
+prereg = cases/ansys_verification/VMFL069/PREREGISTRATION.md
+prereg_blob = f3d9f37336f0fbfadb60d86c3024af92ba7cfd1a
+comparator = cases/ansys_verification/VMFL069/grade_vmfl069.py
+comparator_blob = dcd7f1f9bbbbe748dd33d5337127406344de8f6e
+launcher_blob_on_disk = 31ba108607c384a3b805f3336f725a8f4b844dd8
+levels = L1 L2 L3
+ranks = 1
+cap_core_min = 45  (RUNNING TOTAL across levels, PREREGISTRATION sec.7)
+endTime = 2000
+smoke_mode = no
+solver_bin = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/interFoam
+level L1 : rc=136 wall_s=3 core_min=0.05 total=0.05 cap=45 timeout_s=2700 last_time=69 End_lines=0 ExecutionTime_lines=68 fvOptions=yes latest_time_dir=none field_newer_than_0_U=no
+later levels are NOT launched
+total_core_min = 0.05
+finished_utc = 2026-08-30T22:51:50Z

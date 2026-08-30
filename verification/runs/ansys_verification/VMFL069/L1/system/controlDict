@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// deltaT = 1 s and endTime = 2000 s, so the number of time steps EQUALS
+// the numeric endTime. CLAUDE.md rule 4's clause "ExecutionTime count == endTime"
+// therefore holds LITERALLY for this transient run, with no adaptation.
+//
+// adjustTimeStep no: the transient is not the object of study. The convective
+// Courant number is large and that is harmless here -- ddt, the laplacian and
+// div(rhoPhi,U) are all implicit, the wall-normal convective flux is identically
+// zero, and alpha is x-uniform so its flux differences cancel. The alpha field
+// is required by the comparator to be UNMOVED at endTime, which is the check
+// that this reasoning is not merely asserted.
+//
+// The slowest mode of the discrete two-layer diffusion operator has tau = 33.6 s
+// (PREREGISTRATION sec.9), so endTime 2000 s is ~60 tau. The comparator's own
+// PLATEAU clause compares t = 1500 with t = 2000 and refuses if they differ.
+
+application     interFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         2000;
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   500;
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+adjustTimeStep  no;
+
+// maxCo / maxAlphaCo / maxDeltaT are read UNCONDITIONALLY by interFoam's
+// readTimeControls (a missing maxAlphaCo is a FATAL IO ERROR -- measured in the
+// pre-flight toolchain smoke, PREFLIGHT_SMOKE_RECORD.txt). With
+// `adjustTimeStep no` they LIMIT NOTHING: deltaT stays 1 s for every step. They
+// are set high and stated here so no reader mistakes them for an active control.
+maxCo           1e6;
+maxAlphaCo      1e6;
+maxDeltaT       1;
+
+// ************************************************************************* //

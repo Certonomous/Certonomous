@@ -1,0 +1,51 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL069",
+  "prereg_commit": "4e4819ab61ed96420fb6da987305dcb8375c1982",
+  "prereg_path": "cases/ansys_verification/VMFL069/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL069/run_vmfl069.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069",
+  "ranks": 1,
+  "cost_core_min_estimate": 8,
+  "cap_core_min_registered": 45,
+  "cap_core_min_shape": "THE 45 IS A RUNNING TOTAL ACROSS ALL THREE SOLVES (L1, L2, L3), NOT A PER-LEVEL CAP, and that shape is the frozen registration's own wording at PREREGISTRATION.md:402. It is drawn down level by level in run_vmfl069.sh:228-230 (REMAIN = max(0.0, 45 - TOTAL_CORE_MIN); TIMEOUT_S = int(REMAIN*60/RANKS); TIMEOUT_S <= 0 aborts 'BUDGET EXHAUSTED', exit 2, citing rule 12). endTime is 2000 s at deltaT 1 s and is NEVER reduced to fit the cap (PREREGISTRATION.md:403); an overrun stops the run rather than buying a new budget.",
+  "cost_basis": "DERIVED, NOT MEASURED. The 8 core-min estimate and the 45 core-min running-total cap are the pre-registered figures at PREREGISTRATION.md:401-402 and run_vmfl069.sh:52-53 (RANKS=1, CAP_CORE_MIN=45), frozen at 4e4819ab before any compute; this lane invented neither and changed neither. Dollars: 8 core-min = 0.1333 core-h = $0.0068, and the 45 core-min cap = 0.75 core-h = $0.0385, both at the owner-stated c7a.4xlarge rate of $0.0513/core-h -- reported-by-owner and DERIVED, never measured, because this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). ZERO GRADED SOLVER CORE-MINUTES HAVE BEEN SPENT ON VMFL069 TO DATE: the only compute is the 2026-08-28 pre-flight smoke at commit 710a3e9a, which ran L1 for 3 time steps in the scratchpad only and wrote no time directory, hence computed no gate quantity. The registration itself records at :413 that the interFoam PIMPLE loop has not been measured on this box for this case and that the cap is ~5.6x the estimate for that reason -- so the estimate is a TRANSFERRED figure, not a measured one, and the estimate-versus-actual calibration owed under CLAUDE.md rule 12 at completion will be the first real reading.",
+  "memory_floor_gb": 2.0,
+  "memory_floor_note": "2.0 GB IS A LANE-SET INFRASTRUCTURE FLOOR AND IS NOT A REGISTERED QUANTITY -- the frozen PREREGISTRATION.md declares no memory floor (grep for memory/GiB/RAM returns only an unrelated line). It is set to the same value VMFL063 used and is amply above need: the largest level is L3 at NX=32 x NY=128 = 4096 cells, a two-dimensional interFoam case. queue_runner.py:713 reads this field only to compare against MemAvailable before launching, so it gates scheduling and never enters a verdict; under the L-342 split below it is INFRASTRUCTURE, and if it is wrong the cost claim suffers and the physics does not.",
+  "enqueued_by": "ansys-lane-opus, under Sanaa's 2026-08-30T22:47Z overnight directive (etc/sessions/2026-08-30T2247Z_sanaa_directive_continuous_overnight.md at 4195b27b) that every runnable item be filed in the team queue so the work survives every agent's death. THE CASE WAS ALREADY LAUNCHABLE BEFORE THIS ENTRY EXISTED AND THIS ENTRY AUTHORISES NOTHING: the freeze is 4e4819ab, the end-to-end pre-flight smoke is 710a3e9a, and the one open interpretive question -- PREREGISTRATION.md section 3.3, whether VERIFICATION_CHARTER section 2f.3's CONTINUUM cap is an absolute cap or the no-triple ceiling its own column heading declares -- was RULED by the ansys-verification-supervisor PERSONALLY at b1b7cfc1 (cases/ansys_verification/VMFL069/SUPERVISOR_RULING_SEC3.3.txt): section 2f.3 does NOT reach a registration that declares a triple, the three PASS ceilings in section 5.2 and in grade_vmfl069.py:93 STAND AS FROZEN, and the amendment toward GATE REACHED is DECLINED. That ruling cost zero bytes -- no gate, band, threshold, ceiling, cap, level, tolerance or label moved, and the three frozen blobs are byte-identical to their 4e4819ab originals, verified by this lane below rather than assumed. ENQUEUEING IS NOT AUTHORISATION (queue_entry_check.py header): SUPERVISION_CHARTER section 3 check 4, pre-registration committed before compute, is the supervisor's own personal check and was made by them; this lane performed only the mechanical hash verification and does not substitute for it (CLAUDE.md rule 9).",
+  "freeze_verification": "PERFORMED BY THIS LANE AT 2026-08-30T22:5xZ, BEFORE ENQUEUEING, so that run_vmfl069.sh's own launch-time freeze check (:86-99) cannot abort on arrival. Each file hashed on disk with git hash-object and compared to its blob at HEAD (4195b27b) AND to its blob at the freeze commit 4e4819ab; all three are the same object at both: PREREGISTRATION.md f3d9f37336f0fbfadb60d86c3024af92ba7cfd1a, grade_vmfl069.py dcd7f1f9bbbbe748dd33d5337127406344de8f6e, run_vmfl069.sh 31ba108607c384a3b805f3336f725a8f4b844dd8. The twelve case inputs the launcher hashes at :103-116 were checked the same way: 12 hashed, 0 mismatches. NOTE THE ORDER OF EVIDENCE: the launcher checks against HEAD at launch time, not against prereg_commit, so this verification proves the launcher's check will pass ONLY while nobody edits those files; the standing protection is CLAUDE.md rule 6, not this line.",
+  "runner_cap_caveat": "THE RUNNER'S CAP CHECK REPORTS AND DOES NOT ENFORCE -- docketed D559, referred to verification-supervisor. queue_runner.py:607-620 writes CAP_OVERRUN.txt into cwd at 1.00x cap_core_min_registered and, in its own words in that file's text, does NOT kill the solver, which is contrary to CLAUDE.md rule 12 ('an overrun STOPS the run'). THE REAL GUARD FOR THIS CASE IS THE LAUNCHER'S OWN `timeout`, re-read on the committed bytes by this lane: run_vmfl069.sh:286 `setsid timeout \"${TIMEOUT_S}\"s interFoam`, with the solver rc captured INSIDE the detached subshell at :287-289 and read back at :296 -- never around the setsid line, because `setsid timeout cmd` returns 0 for every outcome when its rc is taken outside the wrapper, so a fired cap would otherwise read rc 0 instead of rc 124. The first non-zero rc stops the run and later levels are not launched.",
+  "cwd_note": "cwd IS THE RUN ROOT, NOT THE CASE DIRECTORY, AND THE FROZEN REGISTRATION ITSELF REQUIRES IT. PREREGISTRATION.md:613-619 carries a QUEUE NOTE calling this 'a filing requirement, not a preference': queue_runner.py writes STATUS.<case_id> (:496), the detached wrapper's stdout (:522-523) and CAP_OVERRUN.txt (:611) into the entry's cwd, and with cwd set to the case directory those runtime artefacts would land inside cases/ansys_verification/VMFL069/ beside the frozen pre-registration, comparator and inputs -- forbidden by FILING_CHARTER R6 and by CLAUDE.md WHERE THINGS LIVE, and it would also drop unhashed files next to the twelve the launcher hashes. THE VALIDATOR ACTIVELY SUGGESTS THE WRONG ANSWER AND IS NOT FOLLOWED: queue_entry_check.py:351-354's EXEC refusal text proposes 'the CASE directory is the lab convention'. It is not, for this team; the frozen registration governs. THE RUN ROOT WAS THEREFORE CREATED EMPTY AT ENQUEUE TIME, 2026-08-30T22:5xZ, purely to satisfy that EXEC clause, which refuses an absent cwd because Popen(cwd=) raises FileNotFoundError. THE RULE-4 AGE GUARD IS UNCONSUMED BY THIS, verified in the launcher's own text rather than assumed: the directory is EMPTY -- no 0/, no numeric time directory, no level directory -- and run_vmfl069.sh's age guard tests $RUN_ROOT/$L PER LEVEL (:220-225), not $RUN_ROOT, which the launcher would have created itself at :172 with mkdir -p. PREREGISTRATION.md:600 records that the run root DID NOT EXIST at freeze, and the supervisor's ruling re-verified its absence at 2026-08-30T22:37Z; both statements were true at their own timestamps and this line records the change of state.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VMFL069 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-30T22:51:45Z",
+    "pid": 29081,
+    "sid": 29081,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069/STATUS.VMFL069",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069/launcher.queue.out",
+    "started_epoch": 1788130305.8084595,
+    "status_seen_utc": "2026-08-30T22:52:45Z"
+  }
+}

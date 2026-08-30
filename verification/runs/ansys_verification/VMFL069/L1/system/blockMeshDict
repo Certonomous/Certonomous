@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Manual p.205 "Dimensions of the domain: 2m X 4m".
+// READING, and the ambiguity is disclosed in PREREGISTRATION sec.2: the same
+// manual writes VMFL070's domain as "2.5 m X 0.5 m" for a case it describes as
+// having "a length-to-gap aspect ratio of 5" and "gap thickness 0.5 m" -- i.e.
+// LENGTH first, HEIGHT second. On that internal precedent VMFL069 is read as
+// Lx = 2 m (streamwise, CYCLIC) and H = 4 m (wall-normal). The interface sits at
+// y = H/2 = 2 m, which is a CELL FACE at every level because NY is even.
+//
+// One cell in z with `empty` front and back: the case is two-dimensional.
+
+scale   1;
+
+vertices
+(
+    (0 0 0)      (2 0 0)      (2 4 0)      (0 4 0)
+    (0 0 0.1)    (2 0 0.1)    (2 4 0.1)    (0 4 0.1)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (8 32 1) simpleGrading (1 1 1)
+);
+
+edges ();
+
+boundary
+(
+    lowerWall   { type wall;  faces ((0 1 5 4)); }
+    upperWall   { type wall;  faces ((3 7 6 2)); }
+
+    periodicIn
+    {
+        type            cyclic;
+        neighbourPatch  periodicOut;
+        faces           ((0 4 7 3));
+    }
+    periodicOut
+    {
+        type            cyclic;
+        neighbourPatch  periodicIn;
+        faces           ((1 2 6 5));
+    }
+
+    frontAndBack { type empty; faces ((0 3 2 1) (4 5 6 7)); }
+);
+
+mergePatchPairs ();
+
+// ************************************************************************* //
