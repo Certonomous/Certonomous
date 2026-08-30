@@ -16466,6 +16466,70 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:0xZ — **VMFL069 LAUNCHED AND DIED: `NOT A RESULT` (rc 136, SIGFPE, 0.05 core-min), PREDICTED IN WRITING AS OUTCOME 8. TRIAGE FINDING: A BOOKKEEPING CLAUSE OF THE COMPLETION RULE DICTATED THE DISCRETISATION CHOICE THAT DESTROYED THE PHYSICS. VMFL069-R2 AUTHORISED.**
+
+**Written by `ansys-verification-supervisor` personally. Crash triage is a §3 check and was not delegated.**
+
+#### THE VERDICT, AND IT WAS NAMED BEFORE IT HAPPENED
+
+Filed at **22:51:40Z**; the runner — which had logged `EMPTY` every 60 s since 22:38 — picked it up in **five seconds** and launched at **22:51:45Z**, pid 29081, `prereg=4e4819ab`. **`interFoam` took SIGFPE after 3 wall seconds.**
+
+**`NOT A RESULT`** — `PREREGISTRATION.md` §10 **outcome 8**, written before compute: *"rc != 0 … the solver died. The launcher stops at the first non-zero rc and does not launch later levels; the comparator refuses on a recorded non-zero rc. `NOT A RESULT`, and the spend is reported."* **Every clause fired in order.** L2 and L3 never launched; the frozen comparator **refused, exit 2**, and wrote no grading JSON. **A pre-registered failure that materialised exactly as registered is the registration working, not a setback.**
+
+**Verified by me, from the artefacts, not from the lane's report:** `RUN_RC.L1` records `rc = 136` and `wait_rc = 136` — **136 = 128 + 8 = SIGFPE** — **captured INSIDE the detached subshell**, never around the `setsid` line, which is the trap this lab has a lesson for. **69** `Time =` lines, last `Time = 69` against a registered `endTime` of **2000**, and **no `End` line**. **Cost 0.05 core-min** (3 wall s, ranks 1) of a **45 core-min cap — 0.11 % used**; **$0.00004 DERIVED, NOT MEASURED**. **Waste is 0.05 core-min spent for no verdict, named separately and not absorbed.**
+
+#### THE TRIAGE FINDING, WHICH IS WORTH FAR MORE THAN THE ROW
+
+Courant ran away over **four decades across four writes** — max **1802.77 → 8538.46 → 8,511,836 → 2,869,282,454** — and `alpha.fluid1` left [0,1] entirely (**−2.37e23**, then Min **−8.26e109** / Max **+6.23e109**, then **−1.56e107**). MULES could not recover it.
+
+**The frozen `controlDict.template` sets `deltaT 1` with `adjustTimeStep no`, AND ITS OWN COMMENTS SAY WHY:**
+
+- `:14` — deltaT = 1 s was chosen so that *"the number of time steps EQUALS the numeric endTime"*, expressly to satisfy **`CLAUDE.md` rule 4's clause `"ExecutionTime count == endTime"`**.
+- `:48-51` — under `adjustTimeStep no` the `maxCo`/`maxAlphaCo`/`maxDeltaT` values *"LIMIT NOTHING: deltaT stays 1 s for every step."* `maxCo` is registered as **1e6**.
+
+**So the registration KNEW the Courant limiter was inert, and fixed the step anyway, to satisfy a BOOKKEEPING CLAUSE OF THE COMPLETION RULE. Courant was already 1802 at the first write.** The case was **guaranteed to diverge before it ever launched**, and the reason is traceable to a line of rule 4 rather than to any physics judgement.
+
+**This lab already holds Sanaa's universal rule that BOOKKEEPING NEVER VOIDS PHYSICS (2026-08-26). Here the inverse happened: bookkeeping DESTROYED physics** — not by voiding a result, but by dictating the discretisation that produced none. **Rule 4's `ExecutionTime count == endTime` clause is a lab-wide standard, not this team's, so I am REFERRING IT to `verification-supervisor` rather than ruling on it**: a completion clause that is satisfiable only by a fixed time step is a clause that forbids adaptive time-stepping in every transient case in this lab. **VMFL063 met the same clause honestly by declaring an adaptation before compute; VMFL069 met it by breaking the physics. The clause should not have both properties.**
+
+#### THE SMOKE COULD NOT HAVE CAUGHT THIS, AND THAT IS A PROPERTY OF SMOKES
+
+The 2026-08-28 pre-flight smoke (`710a3e9a`) ran **L1 for three time steps** and correctly reported the launcher's pass path executes end to end. **Divergence needed 69 steps.** **A smoke proves the TOOLCHAIN and never the NUMERICS.** This is not a criticism of that smoke — it was correctly constrained by my own VMFL006 quarantine rule from computing any gate quantity — **it is the corollary of that constraint, and it should be stated wherever a smoke is cited as evidence a case will run.** It is evidence the case will *start*.
+
+#### WHAT I GOT WRONG, ON MY OWN BOARD
+
+Six hours ago I boarded VMFL069 as *"frozen, smoke-tested end to end, and launchable whenever the box queue has room"*, and my §3.3 ruling closed with *"STILL OWED BEFORE VMFL069 COMPUTES: nothing on the gate side."* **That was true about the gate and misleading about the case.** The gate was sound, the ceilings were right, the freeze was clean — **and the case could not run.** I checked the registration's reasoning and never checked its Courant number, which is one arithmetic step from numbers printed in the frozen file. **A registration can be legally impeccable and numerically dead, and I was auditing only the first.**
+
+#### VMFL069-R2 AUTHORISED `[lab-attributed]`
+
+**A NEW pre-registration, frozen before any compute — never a retry and never an edit of R1**, whose frozen files are now closed. Its own directory `cases/ansys_verification/VMFL069-R2/`. **The lane did NOT retry, shrink `endTime`, or touch `deltaT`, and was right not to:** outcome 8 makes a non-zero rc a **finding, not a retry**.
+
+**Why it is worth doing:** VMFL069's reference is the **exact closed-form solution of the model the solver discretises**, so model-form error is **zero by construction**, and under charter §11.1 its limbs are **`PASS`-capable on a `CONVERGING` triple**. **It is the only case currently in this team's reach that can produce a `PASS`.**
+
+**Two constraints I placed on the drafting lane.** (1) `adjustTimeStep yes` with a registered `maxCo` **breaks rule 4's step-count clause**, so R2 must **declare that adaptation expressly, before compute, with its reasoning**, on VMFL063 §6's proven form — every other completion clause unchanged, **an adaptation is not a waiver**. (2) **The bands are INHERITED BYTE-UNCHANGED from R1, not re-derived** — R1's gate was never reached, so no VMFL069 gate quantity exists on this box, and **a band re-derived by an agent that has seen a failure is a band chosen after an outcome.**
+
+#### A BIG CLAIM UNDER TEST, NOT YET BELIEVED
+
+The lane reports that **VMFL069's own manual page is FIGURE-ONLY** (Figure .69.2, no Target table) — so *"carries a numeric target table"* and *"has an exact closed-form reference"* are **two different qualifications**, and the `PASS`-capable cases have always come from the second. If that holds, figure-only cases with genuine analytical solutions — **VMFL029** (anisotropic conduction) and **VMFL070** (parallel-plate radiation) — **come back into scope and the `PASS`-capable well is far from dry.** **It would change this team's search rule, so it is not believed yet:** an audit is running of what kind of reference **every** landed `PASS` actually earned against, with the mirror test that no experimental reference ever reached `PASS`. **VERIFY.**
+
+**And a correction to a path in my own dispatch:** the archives are at **`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/`**, not the repo-root path my brief gave. `docs/LOCATIONS.md` should say so.
+
+#### STATE
+
+**Commits:** `951ec636` (VMFL069 queue entry + run records, 36 files, 7081 insertions, **zero deletions**) — landed by the lane; earlier this session `b1b7cfc1`, `0e05ad7b`, `381e0f83`, `bf27e151`, `da7d14b6`, plus the disclosed empty `aac83670`.
+
+**Live.** Runner pid 881, now **72 entries queued lab-wide** and launching closure work — **the lab-wide idle failure is over.** Three lanes: VMFL069 verdict records, VMFL069-R2 drafting, register `PASS`-provenance audit.
+
+**FREEZE-AHEAD IS 0 against Sanaa's floor of 3, and ansys's own queue is back to 0 pending.** Our one entry launched and died. **That is a planning defect of mine, not the box's**, and R2 plus the two candidates below are the answer to it.
+
+**Candidates brought to me, both capped at `GATE REACHED` (experimental references), both archives present:** **VMFL024** (rotating-cylinder immiscible interface, printed p.91–92, Sugimoto & Iguchi 2002, three tabulated swirl values) — costed at ~1300 core-min, **and I do not trust that number**: it is transferred across a case *and* scaled off a diverging run, which is exactly the unreliable direction this team's C-199 lesson names. **VMFL072** (falling liquid film, printed p.211–212, target 0.555 mm) — **blocked on toolchain**: Fluent solves it with Eulerian Wall Film and OpenFOAM has no drop-in equivalent without a `regionModels` build. **Second choice with the blocker stated, not ready work.**
+
+**Rungs without verdicts.** VMFL069-R2 (drafting). VMFLGPU006 blocked on evidence. VMFLGPU004 `BLOCKED` (#41). VMFLGPU008/009/010 untouched.
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index. **New referral to `verification-supervisor`:** rule 4's `ExecutionTime count == endTime` clause versus adaptive time-stepping.
+
+**VERIFY:** the `PASS`-provenance audit; VMFL024's cost; whether R2's comparator needs any change at all.
+
+
 ### 2026-08-30T22:5xZ — **VMFL063 = `GATE FAIL` (register row #44, C-211, `bf27e151`) — THE FIRST VERDICT THIS TEAM HAS LANDED ON A RUN IT DID NOT WATCH HAPPEN. CHARTER v1.5 UNDER RULE 6 (`381e0f83`). And the GCI is larger than the number it qualifies.**
 
 **Written by `ansys-verification-supervisor` personally.**
