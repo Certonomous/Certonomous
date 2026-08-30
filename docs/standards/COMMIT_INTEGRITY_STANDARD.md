@@ -411,3 +411,98 @@ compared against.**
 **The second row is the one that must be driven.** Without it the clause is
 consistent with an assertion that simply counts to two, **which would admit any
 two-path commit — the opposite of what is wanted.**
+
+---
+
+## Amendment 4 (2026-08-30) — v1.3 -> v1.4: CLAUSE 2's "AND AGAIN AFTER" IS TAUTOLOGICAL FOR AN OBJECT-BASED HELPER, AND WRITING IT ANYWAY PLANTS THE DEFECT THIS STANDARD EXISTS TO REMOVE
+
+**Appended at the foot, append-only. Nothing above is edited, struck, widened or narrowed.
+`lines whose number changed above this section: 0`.** Raised as a **referral** by a verification
+lane auditing `cases/RANS_LES_closure_models/_common/commit_private.sh`, and **ruled here by the
+standard's owner**. The lane declined to write the assertion and said why rather than quietly
+skipping it; **that was the right call and this amendment ratifies it, with one correction to its
+reasoning.**
+
+### §A4.1 THE REFERRAL, AND THE HALF OF IT THAT IS RIGHT
+
+Clause 2 requires `deletions == 0` asserted numerically **before `commit-tree`** *and again* after
+`update-ref`. A helper that performs its post-landing verify over **`$OLD..$NEW`** — its own two
+commit objects — **cannot fail the second assertion.** A commit object is content-addressed and
+**immutable**: `$NEW`'s tree cannot have become a different tree between `commit-tree` and the
+line after `update-ref`, so the second count compares **the same two trees** as the first and is
+**tautologically equal**.
+
+**The lane is right, and the consequence is sharper than "harmless duplication":** written as an
+`if`, it is **AN ASSERTION THAT CANNOT FAIL IN THE SCENARIO IT EXISTS TO CATCH** — the defect class
+named in `L-404`, in a standard whose own Amendment 2 and Amendment 3 exist to remove instances of
+it. **Complying with the clause literally would have committed the defect the clause is for.**
+
+### §A4.2 THE CORRECTION: THE CLAUSE IS NOT WRONG, IT IS UNDER-SPECIFIED — TWO DIFFERENT PROPOSITIONS WEAR ONE SENTENCE
+
+Applying `MONITOR_STANDARD` v1.13's test — **name the proposition the instrument actually
+evaluates** — the two counts evaluate **different sentences**, and Clause 2 as written does not say
+which the second one is:
+
+| | proposition |
+|---|---|
+| **(a) over `$OLD..$NEW`** | *"does MY COMMIT OBJECT delete anything?"* — **immutable, so asking twice is asking once** |
+| **(b) over `HEAD~1..HEAD`** | *"does the BRANCH'S NEWEST COMMIT delete anything?"* — **NOT tautological: the ref can move** |
+
+**Clause 2's "and again" was written against form (b)** — standing rule 10's own post-commit
+`git diff HEAD~1 HEAD --stat`, which re-reads **through the ref**. That form is genuinely
+falsifiable, and it is how `C-185` was saved.
+
+**But form (b) has a defect of its own that this referral exposes, and it is the more dangerous
+one: WHEN A PEER COMMITS ON TOP BETWEEN THE CAS AND THE READ-BACK, `HEAD~1..HEAD` DESCRIBES THE
+PEER'S COMMIT, NOT YOURS.** The verify then prints a clean, plausible, entirely truthful stat line
+**about somebody else's work**, and the committer reads it as confirmation of their own. **A
+verification that silently changes its subject is worse than one that is tautological**, because
+the tautology is merely uninformative while this one is *affirmatively misleading*. Driven by the
+lane as a real post-CAS race, not a mock.
+
+### §A4.3 THE RULING
+
+**Clause 2's post-`update-ref` obligation is DISCHARGED BY EITHER FORM, and the helper MUST NAME
+WHICH IT USED:**
+
+1. **A numeric deletion count over the range that actually describes what landed on the branch**
+   (form (b)), **provided the helper first asserts that its own commit is the branch tip** — if it
+   is not, this range is not about the committer's work and must not be reported as though it were;
+   **or**
+2. **A REACHABILITY assertion — that `$NEW` is the branch tip or an ancestor of it — plus the
+   pre-`commit-tree` count**, with the post-landing count **REPORTED AND NOT RE-ASSERTED**, and the
+   verify taken over **`$OLD..$NEW`** so it describes the committer's own change and nobody else's.
+
+**Form 2 is PREFERRED.** Reachability is the **only** property that can change after `update-ref`,
+so it is the only load-bearing post-landing question — and unlike the deletion re-count it is
+**killable**, which the lane demonstrated: an `update-ref` returning 0 without moving the ref
+(`L-382`'s silent no-op) is caught by reachability and **cannot** be caught by any object-existence
+or object-content check, because the orphan resolves perfectly.
+
+**WHAT IS NOT WEAKENED, AND THIS IS THE HALF THAT MUST NOT BE READ AWAY: the PRE-`commit-tree`
+count is UNTOUCHED and remains mandatory.** It is the assertion that actually refuses a stale tree
+before anything lands. **Nothing in this amendment permits omitting it**, and a helper that drops
+the pre-count while citing this amendment for the post-count has inverted the ruling.
+
+### §A4.4 A CLAUSE MAY NOT DEMAND AN UNFALSIFIABLE ASSERTION — GENERAL, AND IT BINDS THIS FILE
+
+**Any clause in this standard that would require an assertion whose subject cannot change between
+the two evaluations is, to that extent, requiring theatre.** The test is `MONITOR_STANDARD`
+v1.13's: **name the proposition, then ask what could make it false.** *"Nothing"* is not a strong
+assertion, it is an absent one. **Where a clause's literal reading yields such an assertion, the
+obligation is discharged by the nearest falsifiable question about the same hazard, and the record
+says which was asked and why** — as this amendment does.
+
+**Provenance and honesty about who found it:** raised by a verification lane against a helper in
+**closure's** tree; **the lane did not edit the standard and did not rule** — it referred, which is
+the correct routing for a document it does not own. **No gate, threshold, cap or label moves in
+this amendment**; Clauses 1, 3, 4 and every prior amendment are untouched.
+
+| amendment record | **v1.4** |
+|---|---|
+| clauses added | **0** |
+| existing clauses altered, widened or narrowed | **0** (Clause 2 is **specified**, not narrowed: the pre-count is unchanged and mandatory) |
+| gate values changed | **0** |
+| discharge forms named for Clause 2's post-`update-ref` half | **2**, with form 2 preferred |
+| **lines whose number changed above this section** | **0** |
+

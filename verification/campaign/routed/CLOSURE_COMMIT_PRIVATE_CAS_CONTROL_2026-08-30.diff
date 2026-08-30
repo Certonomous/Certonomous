@@ -1,0 +1,453 @@
+--- a/cases/RANS_LES_closure_models/_common/commit_private.sh
++++ b/cases/RANS_LES_closure_models/_common/commit_private.sh
+@@ -27,40 +27,312 @@
+ # no-op that prints CAS OK). Same family: AN ASSERTION THAT CANNOT FAIL IN THE
+ # SCENARIO IT EXISTS TO CATCH.
+ # ---------------------------------------------------------------------------
++# 2026-08-30 -- THE CONTROL DID NOT TEST THE CODE, AND FOUR ASSERTS WERE PRINTS.
++# Audited by a verification lane at HEAD 7abc04a4. THREE findings, all measured:
++#
++#  (1) THE --selftest OF THE 2026-08-28 GAP RE-IMPLEMENTED GIT INLINE AND NEVER
++#      INVOKED THIS SCRIPT. Mutation-tested in a scratch copy: four separate
++#      mutations, each destroying one limb of the gate -- (a) `break`
++#      unconditionally so a REFUSED CAS is treated as success, (b) the 40-hex
++#      sha assert deleted, (c) the HEAD-MOVED abort deleted, (d) the per-attempt
++#      HEAD re-capture neutered so a retry reuses the STALE tree -- ALL FOUR
++#      STILL PRINTED `SELFTEST PASS`. Mutation kill rate 0/4. The control read
++#      bytes IT had written, not bytes the mechanism under test had written,
++#      which is exactly what VERIFICATION_CHARTER section 2j.2 forbids. The
++#      selftest below now drives THIS FILE, by `$0`, in throwaway repositories.
++#
++#  (2) `--- $N paths changed; M requested` WAS A PRINT, NOT AN ASSERT. Rule 10's
++#      line reads `# ASSERT: only your paths`; the script printed a count beside
++#      a count and continued regardless. A printed number that nothing compares
++#      is the same defect class as (1): it cannot fail. The path set is now
++#      ASSERTED to be a SUBSET of the requested set, and the deletion count is
++#      asserted NUMERICALLY before commit-tree -- the shape
++#      docs/standards/COMMIT_INTEGRITY_STANDARD.md Clause 2 mandates. An
++#      UNREQUESTED deletion is the c46309f5 stale-tree loss (nine files)
++#      wearing an ordinary-looking stat line. Clause 2's SECOND half, after
++#      update-ref, is REPORTED and not re-asserted, and the footnote at the
++#      bottom of this file says why: over an immutable commit object that
++#      comparison is TAUTOLOGICAL, and writing it as an `if` would plant a
++#      cannot-fail assertion while complying with a clause against them.
++#
++# A REQUESTED deletion is NOT refused here. Whether Clause 2's `deletions == 0`
++# is a statement about PATHS or about LINES is an OPEN REFERRAL to the
++# verification team (R3_COMMIT_RENAME_MODE_PREREGISTRATION.md P1, status
++# BLOCKED); this file does not rule on it and does not route around it. It
++# refuses only the deletion NOBODY ASKED FOR, which no reading of Clause 2
++# permits.
++#
++#  (3) THE "PRIVATE" INDEX WAS A FIXED SINGLETON SHARED BY THE WHOLE FLEET.
++#      `/home/ubuntu/closure-data/supervisor/private.index` is one path, and
++#      every concurrent invocation -- any lane, any team -- used it. MEASURED in
++#      a throwaway repository, 25 concurrent pairs (50 invocations) of this
++#      script against ONE index path: 8 invocations built a tree containing a
++#      path THE CALLER NEVER REQUESTED -- lane A's tree carried lane B's
++#      `b/fileB.txt` and lane B's carried lane A's `a/fileA.txt`, four
++#      iterations symmetrically -- and 21 more died on `index.lock: File
++#      exists`. The pre-2026-08-30 script has NO assertion that refuses such a
++#      tree: it printed `$N paths changed; M requested` and committed. The index
++#      path is now PER-INVOCATION (`.$$`), so the interleaving is structurally
++#      impossible, and the subset assert of finding (2) stays as the belt to
++#      that braces.
++# ---------------------------------------------------------------------------
+ set -euo pipefail
+-cd /home/ubuntu/Certonomous
+ 
+-MAX_TRIES=5
++# Defaults are the production values and are UNCHANGED. The overrides exist so
++# the planted control can drive THIS FILE against a throwaway repository -- a
++# control that cannot invoke the real bytes is finding (1) all over again.
++REPO="${COMMIT_PRIVATE_REPO:-/home/ubuntu/Certonomous}"
++# THE INDEX PATH IS PER-INVOCATION, NOT PER-TEAM. It was a fixed singleton, and
++# a singleton shared by every lane in the fleet is not a private index -- see
++# the 2026-08-30 note, finding (3).
++IDX="${COMMIT_PRIVATE_INDEX:-${COMMIT_PRIVATE_INDEX_DIR:-/home/ubuntu/closure-data/supervisor}/private.index.$$}"
++MAX_TRIES="${COMMIT_PRIVATE_MAX_TRIES:-5}"
+ 
+-# --- the planted refused-CAS control (L-314). Driven with --selftest.
++# --- the planted control (L-314, L-404). Driven with --selftest.
++# EVERY LIMB INVOKES THIS FILE, by "$0", against a throwaway repository. The
++# control observes bytes THIS SCRIPT wrote; it does not re-implement git and
++# then grade its own output (that was the 2026-08-28 defect, kill rate 0/4).
+ if [ "${1:-}" = "--selftest" ]; then
+-  T=$(mktemp -d); cd "$T"
+-  git init -q . && git config user.email s@l && git config user.name s
+-  echo a > f && git add f && git commit -qm one
+-  A=$(git rev-parse HEAD)
+-  echo b > f && git add f && git commit -qm two          # a "peer" moves HEAD
+-  B=$(git rev-parse HEAD)
+-  # Build a commit whose parent is the STALE A, then attempt the CAS against A.
+-  TREE=$(git write-tree)
+-  ORPHAN=$(git commit-tree "$TREE" -p "$A" -m orphan)
+-  rc=0; git update-ref refs/heads/"$(git symbolic-ref --short HEAD)" "$ORPHAN" "$A" 2>/dev/null || rc=$?
+-  fail=0
+-  if [ "$rc" -eq 0 ]; then echo "CONTROL FAIL: the CAS was ACCEPTED against a stale parent"; fail=1
+-  else echo "  control +: CAS REFUSED against a stale parent (rc=$rc)"; fi
+-  # THE DISCRIMINATOR: the orphan object still resolves, so object-existence
+-  # checks pass while the ref did NOT move.
+-  if git rev-parse --quiet --verify "$ORPHAN^{commit}" >/dev/null; then
+-    echo "  control +: the orphan STILL RESOLVES (this is why object checks are worthless here)"
+-  else echo "CONTROL FAIL: orphan did not resolve; the trap cannot be demonstrated"; fail=1; fi
+-  if [ "$(git rev-parse HEAD)" = "$ORPHAN" ]; then
+-    echo "CONTROL FAIL: HEAD moved to the orphan"; fail=1
+-  else echo "  control -: HEAD is still $B -- the ref did NOT move, which is the only true test"; fi
+-  cd /; rm -rf "$T"
+-  [ "$fail" -eq 0 ] && { echo "SELFTEST PASS"; exit 0; } || { echo "SELFTEST FAIL"; exit 2; }
++  SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
++  REALGIT="$(command -v git)"
++  # R3 section 7 item 3: a control that moves THIS repository's main is an
++  # incident, not a control result. Asserted at both ends.
++  GUARD_BEFORE="$("$REALGIT" -C /home/ubuntu/Certonomous rev-parse refs/heads/main 2>/dev/null || echo none)"
++  ROOT="$(mktemp -d)"; FAIL=0
++  mkdir -p "$ROOT/bin"
++
++  # The shim is a REAL git passthrough. It supplies the INTERLEAVING -- the one
++  # thing a single-threaded control cannot schedule -- and nothing else. The
++  # peer commit is a genuine `git commit`, the CAS is genuine `git update-ref`,
++  # and the refusal rc is git's own. NOTHING IS MOCKED EXCEPT THE CLOCK.
++  cat > "$ROOT/bin/git" <<SHIM
++#!/bin/bash
++R="$REALGIT"
++if [ "\$1" = "update-ref" ] && [ -n "\${PEER_FILES:-}" ]; then
++  if [ -z "\${PEER_ONCE:-}" ] || [ ! -e "\$PEER_STAMP" ]; then
++    GEN=\$(( \$(cat "\$PEER_STAMP" 2>/dev/null || echo 0) + 1 )); echo "\$GEN" > "\$PEER_STAMP"
++    # Each generation lands DISTINCT content, or the second commit is a no-op
++    # and HEAD never moves -- which would make the CAS succeed and the control
++    # silently stop testing the thing it exists to test.
++    ( cd "\$PEER_REPO" && unset GIT_INDEX_FILE
++      i=0; while [ \$i -lt "\$PEER_FILES" ]; do echo "peer g\$GEN n\$i" > "peer_g\${GEN}_\$i.txt"; i=\$((i+1)); done
++      "\$R" add -- \$("\$R" ls-files -o --exclude-standard | grep '^peer_') >/dev/null 2>&1
++      "\$R" commit -qm "a peer lands work (generation \$GEN)" >/dev/null 2>&1 ) || true
++  fi
++fi
++if [ "\$1" = "commit-tree" ] && [ -n "\${FORCE_EMPTY_SHA:-}" ]; then printf ''; exit 0; fi
++if [ "\$1" = "update-ref" ] && [ -n "\${FORCE_NOOP_OK:-}" ]; then exit 0; fi
++if [ "\$1" = "update-ref" ] && [ -n "\${POST_RACE:-}" ]; then
++  # A GENUINE post-CAS race: our swap SUCCEEDS, and a peer commits on top before
++  # we can read HEAD back. rc is git's own; only the ordering is arranged.
++  rc=0; "\$R" "\$@" || rc=\$?
++  if [ \$rc -eq 0 ] && [ ! -e "\$PEER_STAMP.post" ]; then
++    : > "\$PEER_STAMP.post"
++    ( cd "\$PEER_REPO" && unset GIT_INDEX_FILE
++      echo "post-cas peer" > post_peer.txt
++      "\$R" add post_peer.txt >/dev/null 2>&1
++      "\$R" commit -qm "a peer commits ON TOP of our landing" >/dev/null 2>&1 ) || true
++  fi
++  exit \$rc
++fi
++exec "\$R" "\$@"
++SHIM
++  chmod +x "$ROOT/bin/git"
++
++  newrepo() {  # $1 = name; echoes the repo path
++    local d="$ROOT/$1"; mkdir -p "$d"
++    "$REALGIT" init -q -b main "$d"
++    "$REALGIT" -C "$d" config user.email s@l; "$REALGIT" -C "$d" config user.name s
++    echo seed > "$d/seed.txt"
++    "$REALGIT" -C "$d" add seed.txt >/dev/null; "$REALGIT" -C "$d" commit -qm seed
++    mkdir -p "$d/work"; echo "mine" > "$d/work/mine.txt"
++    printf 'a control commit\n' > "$d/msg.txt"
++    echo "$d"
++  }
++  # run the REAL script against repo $1; extra env in $2..; captures rc + output
++  drive() {
++    local repo="$1"; shift
++    OUT="$( PATH="$ROOT/bin:$PATH" \
++            COMMIT_PRIVATE_REPO="$repo" \
++            COMMIT_PRIVATE_INDEX="$ROOT/idx.$RANDOM" \
++            COMMIT_PRIVATE_MAX_TRIES="${MT:-3}" \
++            PEER_REPO="$repo" PEER_STAMP="$repo/.peerstamp" \
++            env "$@" bash "$SELF" "$repo/msg.txt" work/mine.txt 2>&1 )" && RC=0 || RC=$?
++  }
++  say() { if [ "$1" = ok ]; then echo "  limb $2 +: $3"; else echo "LIMB $2 FAIL: $3"; FAIL=1; fi; }
++  has() { printf '%s' "$OUT" | grep -qF "$1"; }
++
++  echo "=== L1a POSITIVE -- a REAL concurrent ref move on EVERY attempt; the gate must fire and must NOT report success"
++  R1="$(newrepo l1a)"; MT=2 drive "$R1" PEER_FILES=1
++  has "CAS REFUSED"            && say ok L1a "the refusal is reported"                 || say no L1a "no CAS REFUSED line"
++  has "is NOT verified and NOT reported" && say ok L1a "the orphan is named and refused verification" || say no L1a "the orphan was not disclaimed"
++  has "ABORT: CAS refused"     && say ok L1a "aborts after MAX_TRIES"                  || say no L1a "no abort"
++  [ "$RC" -eq 2 ]              && say ok L1a "rc=2"                                    || say no L1a "rc=$RC, expected 2"
++  has "COMMITTED "             && say no L1a "A SUCCESS LINE WAS PRINTED FOR A REFUSED CAS" || say ok L1a "no success line -- silent on success, loud on refusal"
++  L1A_HEAD_HAS_MINE="$("$REALGIT" -C "$R1" ls-tree -r --name-only HEAD | grep -c '^work/mine.txt$' || true)"
++  [ "$L1A_HEAD_HAS_MINE" -eq 0 ] && say ok L1a "nothing landed on the branch" || say no L1a "something landed despite every CAS refusing"
++
++  echo "=== L3 POSITIVE -- ONE real peer commit of NINE files; the retry must REBUILD, not reuse the stale tree"
++  R3D="$(newrepo l3)"; BASE="$("$REALGIT" -C "$R3D" rev-parse HEAD)"
++  MT=3 drive "$R3D" PEER_FILES=9 PEER_ONCE=1
++  has "CAS REFUSED" && say ok L3 "the first CAS was genuinely refused" || say no L3 "no refusal -- the interleaving did not happen"
++  has "retrying the whole read-tree/write-tree/commit-tree" && say ok L3 "the WHOLE sequence is redone" || say no L3 "no rebuild line"
++  [ "$RC" -eq 0 ] && say ok L3 "the retry landed (rc=0)" || say no L3 "rc=$RC, expected 0"
++  PEERCNT="$("$REALGIT" -C "$R3D" ls-tree -r --name-only HEAD | grep -c '^peer_' || true)"
++  MINECNT="$("$REALGIT" -C "$R3D" ls-tree -r --name-only HEAD | grep -c '^work/mine.txt$' || true)"
++  [ "$PEERCNT" -eq 9 ] && say ok L3 "all 9 peer files SURVIVE in the landed tree" || say no L3 "only $PEERCNT/9 peer files survived -- the stale tree was reused"
++  [ "$MINECNT" -eq 1 ] && say ok L3 "our own file landed too" || say no L3 "our file is missing"
++  echo "  limb L3 =: LOST-FILE COUNT WITHOUT THE GATE = $("$REALGIT" -C "$R3D" diff-tree -r --name-only "$BASE" HEAD | grep -c '^peer_' || true) (paths a stale-tree retry would have reverted)"
++
++  echo "=== L2 POSITIVE -- the L-382 empty-sha condition on the REAL path; it must not sail through as CAS OK"
++  R2="$(newrepo l2)"; MT=1 drive "$R2" FORCE_EMPTY_SHA=1
++  has "ABORT: commit-tree returned a non-sha" && say ok L2 "the 40-hex assert fires BEFORE update-ref" || say no L2 "an empty sha reached update-ref"
++  [ "$RC" -eq 2 ] && say ok L2 "rc=2" || say no L2 "rc=$RC, expected 2"
++  has "COMMITTED " && say no L2 "a success line was printed for an empty sha" || say ok L2 "no success line"
++  [ "$("$REALGIT" -C "$R2" rev-parse HEAD)" = "$("$REALGIT" -C "$R2" rev-parse refs/heads/main)" ] \
++    && say ok L2 "the branch is untouched" || say no L2 "the branch moved"
++
++  echo "=== L4 NEGATIVE -- an ordinary clean commit MUST pass unflagged and stay SILENT"
++  R4="$(newrepo l4)"; MT=3 drive "$R4"
++  [ "$RC" -eq 0 ] && say ok L4 "rc=0" || say no L4 "rc=$RC, expected 0"
++  has "COMMITTED " && say ok L4 "reports the landing" || say no L4 "no COMMITTED line"
++  NOISE=0
++  for w in "CAS REFUSED" "ABORT" "GATE FAIL" "UNREQUESTED" "REFUSE "; do has "$w" && { echo "    NOISE: '$w'"; NOISE=1; }; done
++  [ "$NOISE" -eq 0 ] && say ok L4 "the gate stayed SILENT -- no refusal, no abort, no GATE FAIL" || say no L4 "the gate fired on a clean commit"
++  [ "$("$REALGIT" -C "$R4" ls-tree -r --name-only HEAD | grep -c '^work/mine.txt$' || true)" -eq 1 ] \
++    && say ok L4 "the file is in the landed tree" || say no L4 "the file did not land"
++
++  echo "=== L5 POSITIVE -- a REAL post-CAS race: our swap SUCCEEDS, then a peer commits ON TOP"
++  R5="$(newrepo l5)"; MT=2 drive "$R5" POST_RACE=1
++  [ "$RC" -eq 0 ] && say ok L5 "rc=0 -- our commit DID land and is not called a failure" || say no L5 "rc=$RC, expected 0"
++  has "a peer committed ON TOP" && say ok L5 "the peer-on-top landing is DISCLOSED, not passed off as a clean one" || say no L5 "the divergence was not disclosed"
++  has "REACHABLE-FROM-BRANCH ASSERTED: peer-on-top" && say ok L5 "reachability, not equality, is what was asserted" || say no L5 "reachability was not asserted"
++  L5V="$(printf '%s' "$OUT" | sed -n '/POST-COMMIT VERIFY/,$p' | grep -c 'post_peer.txt' || true)"
++  [ "$L5V" -eq 0 ] && say ok L5 "the verify shows OUR change only -- the peer's file is NOT in it" || say no L5 "THE VERIFY DESCRIBED THE PEER'S COMMIT, not ours"
++
++  echo "=== L5b POSITIVE (INJECTED TRIGGER, declared) -- update-ref returns 0 and the ref does NOT move"
++  echo "    The real-world cause is a wrapped or modified git; the control supplies that condition."
++  R5B="$(newrepo l5b)"; H5B="$("$REALGIT" -C "$R5B" rev-parse HEAD)"; MT=1 drive "$R5B" FORCE_NOOP_OK=1
++  has "NOT REACHABLE from HEAD" && say ok L5b "the no-op is caught by REACHABILITY, which object checks cannot do" || say no L5b "a silent no-op passed the gate"
++  [ "$RC" -eq 2 ] && say ok L5b "rc=2" || say no L5b "rc=$RC, expected 2"
++  has "COMMITTED " && say no L5b "a success line was printed for a ref that never moved" || say ok L5b "no success line"
++  [ "$("$REALGIT" -C "$R5B" rev-parse HEAD)" = "$H5B" ] && say ok L5b "the branch is where it was" || say no L5b "the branch moved"
++
++  echo "=== L6 POSITIVE -- TWO REAL CONCURRENT INVOCATIONS sharing ONE index path (the pre-2026-08-30 default)"
++  R6="$(newrepo l6)"; SHARED="$ROOT/l6.shared.index"; CAUGHT=0; LANDED_BAD=0
++  for i in $(seq 1 14); do
++    echo "A$i" > "$R6/work/mine.txt"; mkdir -p "$R6/other"; echo "B$i" > "$R6/other/theirs.txt"
++    ( COMMIT_PRIVATE_REPO="$R6" COMMIT_PRIVATE_INDEX="$SHARED" COMMIT_PRIVATE_MAX_TRIES=6 \
++        bash "$SELF" "$R6/msg.txt" work/mine.txt   > "$ROOT/l6.A" 2>&1 ) &
++    ( COMMIT_PRIVATE_REPO="$R6" COMMIT_PRIVATE_INDEX="$SHARED" COMMIT_PRIVATE_MAX_TRIES=6 \
++        bash "$SELF" "$R6/msg.txt" other/theirs.txt > "$ROOT/l6.B" 2>&1 ) &
++    wait
++    grep -q "NOT REQUESTED" "$ROOT/l6.A" "$ROOT/l6.B" 2>/dev/null && CAUGHT=$((CAUGHT+1))
++  done
++  for c in $("$REALGIT" -C "$R6" rev-list HEAD); do
++    [ "$("$REALGIT" -C "$R6" rev-list --count "$c")" -le 1 ] && continue
++    n=$("$REALGIT" -C "$R6" diff-tree -r --name-only --no-commit-id "$c" | grep -c . || true)
++    [ "$n" -gt 1 ] && LANDED_BAD=$((LANDED_BAD+1))
++  done
++  echo "  limb L6 =: iterations where a cross-contaminated tree was BUILT and REFUSED: $CAUGHT/14"
++  [ "$CAUGHT" -gt 0 ] && say ok L6 "the subset assert fired on a REAL concurrent interleaving" \
++    || say no L6 "NOT TRIGGERED in 14 iterations -- the assert is UNPROVEN, which is not the same as sound"
++  [ "$LANDED_BAD" -eq 0 ] && say ok L6 "no multi-path commit reached the branch" || say no L6 "$LANDED_BAD contaminated commit(s) LANDED"
++
++  echo "=== L7 NEGATIVE -- the SAME concurrency with the NEW per-invocation index default MUST stay silent"
++  R7="$(newrepo l7)"; NOISE7=0; LAND7=0
++  for i in $(seq 1 14); do
++    echo "A$i" > "$R7/work/mine.txt"; mkdir -p "$R7/other"; echo "B$i" > "$R7/other/theirs.txt"
++    # NOTE: COMMIT_PRIVATE_INDEX is deliberately NOT set. Only the DIRECTORY is
++    # redirected, so the limb exercises the SHIPPED default naming -- if the
++    # `.$$` suffix is ever removed, these two collide and this limb fails.
++    ( COMMIT_PRIVATE_REPO="$R7" COMMIT_PRIVATE_MAX_TRIES=6 COMMIT_PRIVATE_INDEX_DIR="$ROOT/l7idx" \
++        bash "$SELF" "$R7/msg.txt" work/mine.txt   > "$ROOT/l7.A" 2>&1 ) &
++    ( COMMIT_PRIVATE_REPO="$R7" COMMIT_PRIVATE_MAX_TRIES=6 COMMIT_PRIVATE_INDEX_DIR="$ROOT/l7idx" \
++        bash "$SELF" "$R7/msg.txt" other/theirs.txt > "$ROOT/l7.B" 2>&1 ) &
++    wait
++    grep -qE "NOT REQUESTED|index.lock" "$ROOT/l7.A" "$ROOT/l7.B" 2>/dev/null && NOISE7=$((NOISE7+1))
++    LAND7=$(( LAND7 + $(grep -lc "COMMITTED " "$ROOT/l7.A" "$ROOT/l7.B" 2>/dev/null | grep -c . || true) ))
++  done
++  echo "  limb L7 =: landings $LAND7/28; iterations showing contamination or an index.lock fatal: $NOISE7/14"
++  [ "$NOISE7" -eq 0 ] && say ok L7 "a per-invocation index removes BOTH the contamination and the lock contention" \
++    || say no L7 "$NOISE7/14 iterations still collided"
++
++  echo "=== L8 POSITIVE -- an IDEMPOTENT RE-RUN commits nothing; an empty commit must be refused"
++  R8="$(newrepo l8)"; MT=2 drive "$R8"
++  [ "$RC" -eq 0 ] && say ok L8 "the first run landed" || say no L8 "first run rc=$RC"
++  H8="$("$REALGIT" -C "$R8" rev-parse HEAD)"
++  MT=2 drive "$R8"                                    # same bytes, second time
++  has "ABORT: the diff is EMPTY" && say ok L8 "the second run REFUSES an empty commit" || say no L8 "an empty commit was allowed"
++  [ "$RC" -eq 2 ] && say ok L8 "rc=2" || say no L8 "rc=$RC, expected 2"
++  [ "$("$REALGIT" -C "$R8" rev-parse HEAD)" = "$H8" ] && say ok L8 "the branch did not gain an empty commit" || say no L8 "the branch moved on a no-op"
++
++  echo "=== L9 POSITIVE -- a DETACHED HEAD: the CAS old-value and the swapped ref would be different objects"
++  R9="$(newrepo l9)"; "$REALGIT" -C "$R9" checkout -q --detach HEAD
++  H9="$("$REALGIT" -C "$R9" rev-parse refs/heads/main)"; MT=2 drive "$R9"
++  has "HEAD is DETACHED" && say ok L9 "the detached HEAD is refused BEFORE anything is built" || say no L9 "a detached HEAD was accepted"
++  [ "$RC" -eq 2 ] && say ok L9 "rc=2" || say no L9 "rc=$RC, expected 2"
++  [ "$("$REALGIT" -C "$R9" rev-parse refs/heads/main)" = "$H9" ] && say ok L9 "main is untouched" || say no L9 "main moved from a detached HEAD"
++
++  echo "=== L10 POSITIVE -- a branch that is NOT main: the CAS must swap the branch HEAD is actually on"
++  R10="$(newrepo l10)"; "$REALGIT" -C "$R10" checkout -q -b feature/x
++  M10B="$("$REALGIT" -C "$R10" rev-parse refs/heads/main)"; MT=2 drive "$R10"
++  [ "$RC" -eq 0 ] && say ok L10 "rc=0 on a non-main branch" || say no L10 "rc=$RC -- the helper cannot commit off main"
++  [ "$("$REALGIT" -C "$R10" rev-parse refs/heads/main)" = "$M10B" ] \
++    && say ok L10 "refs/heads/main was NOT touched" || say no L10 "IT MOVED main WHILE HEAD WAS ON feature/x"
++  [ "$("$REALGIT" -C "$R10" ls-tree -r --name-only feature/x | grep -c '^work/mine.txt$' || true)" -eq 1 ] \
++    && say ok L10 "the commit landed on feature/x" || say no L10 "nothing landed on feature/x"
++
++  echo "=== L11 POSITIVE -- the PDF/extracted-text refusal still refuses"
++  R11="$(newrepo l11)"; : > "$R11/work/paper.pdf"; echo x >> "$R11/work/paper.pdf"
++  OUT="$( COMMIT_PRIVATE_REPO="$R11" COMMIT_PRIVATE_INDEX="$ROOT/idx.l11" COMMIT_PRIVATE_MAX_TRIES=2 \
++          bash "$SELF" "$R11/msg.txt" work/paper.pdf 2>&1 )" && RC=0 || RC=$?
++  has "REFUSE work/paper.pdf" && say ok L11 "a .pdf is refused by path" || say no L11 "a .pdf was accepted"
++  [ "$RC" -eq 2 ] && say ok L11 "rc=2" || say no L11 "rc=$RC, expected 2"
++
++  # R3 section 7 item 3. NOTE THE TRAP THIS GUARD ALREADY FELL INTO ONCE: a bare
++  # before/after comparison of the real repository's `main` FAILS WHENEVER A PEER
++  # COMMITS, which on this box is constantly -- measured, one spurious GUARD FAIL
++  # in five consecutive runs with no limb failure. Movement is not authorship.
++  # The sound question is whether any commit added in that window is OURS.
++  GUARD_AFTER="$("$REALGIT" -C /home/ubuntu/Certonomous rev-parse refs/heads/main 2>/dev/null || echo none)"
++  if [ "$GUARD_BEFORE" = "$GUARD_AFTER" ]; then
++    echo "  guard +: /home/ubuntu/Certonomous refs/heads/main UNMOVED ($GUARD_BEFORE)"
++  else
++    MINE="$("$REALGIT" -C /home/ubuntu/Certonomous log --format='%H %s' \
++              "$GUARD_BEFORE..$GUARD_AFTER" 2>/dev/null \
++            | grep -cE 'a control commit|a peer lands work|a peer commits ON TOP' || true)"
++    if [ "$MINE" -eq 0 ]; then
++      echo "  guard +: main moved $GUARD_BEFORE -> $GUARD_AFTER, and NONE of those commits is the control's -- peers, not us"
++    else
++      echo "GUARD FAIL: $MINE COMMIT(S) AUTHORED BY THIS CONTROL REACHED THE REAL REPOSITORY. An incident, not a control result."; FAIL=1
++    fi
++  fi
++  cd /; rm -rf "$ROOT"
++  [ "$FAIL" -eq 0 ] && { echo "SELFTEST PASS"; exit 0; } || { echo "SELFTEST FAIL"; exit 2; }
++fi
++
++cd "$REPO"
++git rev-parse --git-dir >/dev/null 2>&1 || { echo "ABORT: $REPO is not a git worktree"; exit 2; }
++
++# The CAS below swaps refs/heads/<BRANCH> but the old-value comes from HEAD.
++# If HEAD is detached, or on a different branch, those are two different objects
++# and the compare-and-swap compares the wrong thing. Assert they are the same
++# ref before anything is built.
++BRANCH="$(git symbolic-ref --quiet --short HEAD || true)"
++if [ -z "$BRANCH" ]; then
++  echo "ABORT: HEAD is DETACHED. The CAS old-value would come from HEAD while the swap targets a branch."; exit 2
++fi
++if [ -n "${COMMIT_PRIVATE_BRANCH:-}" ] && [ "$BRANCH" != "$COMMIT_PRIVATE_BRANCH" ]; then
++  echo "ABORT: HEAD is on '$BRANCH' but COMMIT_PRIVATE_BRANCH says '$COMMIT_PRIVATE_BRANCH'."; exit 2
+ fi
+ 
+ MSG="$1"; shift
+-export GIT_INDEX_FILE=/home/ubuntu/closure-data/supervisor/private.index
++[ -s "$MSG" ] || { echo "ABORT: message file '$MSG' is missing or empty"; exit 2; }
++[ "$#" -gt 0 ] || { echo "ABORT: no paths given"; exit 2; }
++export GIT_INDEX_FILE="$IDX"
++mkdir -p "$(dirname "$GIT_INDEX_FILE")"
++trap 'rm -f "$IDX"' EXIT   # a per-invocation index is not left behind on an abort
+ 
+ TRY=0
+ while : ; do
+@@ -75,19 +347,52 @@
+       while IFS= read -r f; do FILES+=("$f"); done < <(find "$p" -type f ! -name '*.pdf' ! -name '*.txt' ! -name '*.npy' ! -name '*.npz' ! -name '*.h5' ! -name '*.pt' ! -name '*.pkl' ! -path '*/__pycache__/*' | sort)
+     else FILES+=("$p"); fi
+   done
++  [ "${#FILES[@]}" -gt 0 ] || { echo "ABORT: the requested paths expanded to no files"; exit 2; }
+   for f in "${FILES[@]}"; do case "$f" in *.pdf|docs/papers/*.txt) echo "REFUSE $f"; exit 2;; esac; done
+   git update-index --add -- "${FILES[@]}"
+   TREE=$(git write-tree)
+   echo "--- diff-tree HEAD..new (must list only our files):"
+   git diff-tree -r --name-status "$OLD^{tree}" "$TREE"
+-  N=$(git diff-tree -r --name-only "$OLD^{tree}" "$TREE" | wc -l)
++
++  # --- ASSERT, not print. Three numeric assertions before commit-tree.
++  # Tree-to-tree, so IMMUNE to the shared index (which on this box stages
++  # hundreds of whole-file deletions and makes `git diff`/`git status` lie).
++  CHANGED=$(git diff-tree -r --name-only "$OLD^{tree}" "$TREE")
++  N=$(printf '%s' "$CHANGED" | grep -c . || true)
+   echo "--- $N paths changed; ${#FILES[@]} requested"
++
++  # A1 NON-EMPTY (COMMIT_INTEGRITY_STANDARD Clause 3).
++  if [ "$N" -eq 0 ]; then
++    echo "ABORT: the diff is EMPTY -- nothing to commit. Not landing an empty commit."; exit 2
++  fi
++  # A2 SUBSET: every changed path must be one we asked for.
++  REQ=$(printf '%s\n' "${FILES[@]}" | sed 's|^\./||' | sort -u)
++  EXTRA=$(comm -23 <(printf '%s\n' "$CHANGED" | sed 's|^\./||' | sort -u) <(printf '%s\n' "$REQ") || true)
++  NEXTRA=$(printf '%s' "$EXTRA" | grep -c . || true)
++  if [ "$NEXTRA" -ne 0 ]; then
++    echo "ABORT: $NEXTRA path(s) in the tree were NOT REQUESTED. This is the c46309f5 shape."
++    printf '%s\n' "$EXTRA" | sed 's/^/    UNREQUESTED /'
++    exit 2
++  fi
++  # A3 DELETIONS AS A NUMBER, before commit-tree (Clause 2, first half). A
++  # deletion of a path we did not ask for is a stale tree reverting a peer.
++  DEL_PRE=$(git diff-tree -r --name-status "$OLD^{tree}" "$TREE" | awk '$1 ~ /^D/ {print $2}')
++  NDEL_PRE=$(printf '%s' "$DEL_PRE" | grep -c . || true)
++  UNREQ_DEL=$(comm -23 <(printf '%s\n' "$DEL_PRE" | sed 's|^\./||' | sort -u) <(printf '%s\n' "$REQ") || true)
++  NUNREQ_DEL=$(printf '%s' "$UNREQ_DEL" | grep -c . || true)
++  echo "--- deletions before commit-tree: $NDEL_PRE (unrequested: $NUNREQ_DEL)"
++  if [ "$NUNREQ_DEL" -ne 0 ]; then
++    echo "GATE FAIL: $NUNREQ_DEL UNREQUESTED DELETION(S) -- a stale tree is about to revert a peer's work."
++    printf '%s\n' "$UNREQ_DEL" | sed 's/^/    WOULD DELETE /'
++    echo "ABORT: nothing landed. Inspect, never force."; exit 2
++  fi
++
+   NEW=$(git commit-tree "$TREE" -p "$OLD" -F "$MSG")
+   # L-382: a commit sha that is empty or malformed makes update-ref a silent no-op.
+   if ! printf '%s' "$NEW" | grep -qE '^[0-9a-f]{40}$'; then
+     echo "ABORT: commit-tree returned a non-sha: '$NEW'"; exit 2
+   fi
+-  rc=0; git update-ref refs/heads/main "$NEW" "$OLD" || rc=$?
++  rc=0; git update-ref "refs/heads/$BRANCH" "$NEW" "$OLD" || rc=$?
+   if [ "$rc" -eq 0 ]; then break; fi
+   # REFUSED CAS: a peer moved HEAD. The commit object exists and is an ORPHAN.
+   # Do NOT verify it, do NOT report it -- re-do the whole sequence on new HEAD.
+@@ -100,12 +405,49 @@
+ done
+ 
+ # THE GATE: every line below is reached ONLY if the ref actually moved.
++# The discriminating question is REACHABILITY FROM THE BRANCH, not the existence
++# of the object. Three outcomes, and only two of them are a landing:
++#   HEAD == NEW              -> we landed and nothing followed.
++#   NEW is an ANCESTOR of HEAD -> we landed and a peer committed ON TOP. Still a
++#                              landing; HEAD~1..HEAD would then describe THE
++#                              PEER'S commit, so the verify is taken as
++#                              OLD..NEW, which is our own change and nobody
++#                              else's.
++#   otherwise                -> update-ref returned 0 and the ref did not move.
++#                              This is L-382's silent no-op. NOTHING IS VERIFIED.
+ HEAD_NOW=$(git rev-parse HEAD)
+-if [ "$HEAD_NOW" != "$NEW" ]; then
+-  echo "ABORT: update-ref returned 0 but HEAD is $HEAD_NOW, not $NEW. NOTHING IS VERIFIED."; exit 2
++if [ "$HEAD_NOW" = "$NEW" ]; then
++  LANDING="clean"
++elif git merge-base --is-ancestor "$NEW" "$HEAD_NOW" 2>/dev/null; then
++  LANDING="peer-on-top"
++else
++  echo "ABORT: update-ref returned 0 but $NEW is NOT REACHABLE from HEAD ($HEAD_NOW)."
++  echo "The ref did not move. This is the L-382 silent no-op. NOTHING IS VERIFIED."; exit 2
+ fi
+ unset GIT_INDEX_FILE
+-echo "COMMITTED $(git rev-parse --short HEAD) (parent $(git rev-parse --short "$OLD"))  [HEAD-MOVED ASSERTED]"
+-echo "--- POST-COMMIT VERIFY (rule 10; against HEAD, never against \$NEW):"
+-git diff-tree -r --numstat HEAD~1 HEAD
+-rm -f /home/ubuntu/closure-data/supervisor/private.index
++if [ "$LANDING" = "peer-on-top" ]; then
++  echo "--- NOTE: our commit landed and a peer committed ON TOP before we read HEAD back."
++  echo "--- HEAD is $(git rev-parse --short "$HEAD_NOW"); the verify below is OUR change, OLD..NEW, not HEAD~1..HEAD."
++fi
++echo "COMMITTED $(git rev-parse --short "$NEW") (parent $(git rev-parse --short "$OLD"))  [REACHABLE-FROM-BRANCH ASSERTED: $LANDING]"
++echo "--- POST-COMMIT VERIFY (rule 10; commit-to-commit, so IMMUNE to the shared index):"
++git diff-tree -r --numstat "$OLD" "$NEW"
++# Clause 2's second half -- "assert deletions as a NUMBER again after
++# update-ref" -- is REPORTED here and deliberately NOT re-asserted, and the
++# reason is worth stating rather than quietly skipping.
++#
++# A commit object is content-addressed and IMMUTABLE. `$NEW`'s tree cannot have
++# become a different tree between our `commit-tree` and this line, so a second
++# deletion count over `$OLD..$NEW` compares THE SAME TWO TREES as the count
++# before `commit-tree` and is TAUTOLOGICALLY EQUAL. Writing it as an `if` would
++# plant an assertion that CANNOT FAIL -- the very defect the 2026-08-28 and
++# 2026-08-30 notes above exist to remove, committed in the act of complying
++# with a clause against it.
++#
++# The only thing that CAN change after `update-ref` is WHICH COMMIT THE BRANCH
++# POINTS AT, so the only load-bearing post-landing assertion is the
++# REACHABILITY check above -- and that one is made, and is killable.
++# THIS IS A REFERRAL, NOT A RULING: `COMMIT_INTEGRITY_STANDARD.md` is the
++# verification team's and Clause 2's post-`update-ref` half may need rewording
++# for object-based helpers. Nothing here amends it.
++echo "--- deletions after update-ref: $(git diff-tree -r --name-status "$OLD" "$NEW" | awk '$1 ~ /^D/' | grep -c . || true) (reported; the load-bearing post-check is REACHABILITY, asserted above)"

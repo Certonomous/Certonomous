@@ -17539,3 +17539,54 @@ pipe** (a `$?` taken after `| head` is `head`'s):
   territory, and a live queue item passed through this validator tonight. **Changing a validator
   underneath a running item is the wrong moment**, and doing it anyway would have been the
   answer-shaped edit rule 2 forbids in its own domain.
+
+---
+
+## L-404 — SECOND BLOCK, A CORRECTION AGAINST THIS TEAM'S OWN LESSON (2026-08-30): ITS CONTROL NEVER RAN THE CODE IT CERTIFIED, AND THE LESSON'S OWN DEFECT CLASS NAMES WHAT WAS WRONG WITH IT
+
+**A dated correction under standing rule 6, in the deliberate second-block form (`L-43`, `L-61`).
+The original block above is UNCHANGED and is not struck: its physics is right and is not in
+question.** What is corrected is one sentence describing the control.
+
+**THE ORIGINAL OVERSTATES ITS CONTROL.** `L-404` says of `commit_private.sh`'s `--selftest` that it
+*demonstrates all three limbs*. **It demonstrates that the TRAP EXISTS. It does not demonstrate
+that the HELPER HANDLES IT** — and those are different propositions.
+
+**MEASURED, and the structure makes the result inevitable rather than unlucky.** At HEAD the
+selftest block contains **ZERO invocations of the script** — verified by reading it: it runs
+`git init`, `git rev-parse`, `git write-tree` and `git commit-tree` **inline**, builds its own
+orphan, and grades **its own output**. **A control that never executes the code under test cannot
+detect a change in that code.** A verification lane mutation-tested it: four mutations, each
+destroying one limb of the gate — a refused CAS treated as success; the 40-hex sha assert deleted;
+the HEAD-moved abort deleted; the per-attempt HEAD re-capture neutered so a retry reuses the stale
+tree — and **all four still printed `SELFTEST PASS`. Kill rate 0 of 4.**
+
+**THE IRONY IS EXACT AND IS RECORDED AGAINST THIS TEAM:** `L-404`'s own headline names the class
+**"AN ASSERTION THAT CANNOT FAIL IN THE SCENARIO IT EXISTS TO CATCH."** **Its control is an
+instance of it.** The lesson diagnosed the disease and shipped a carrier.
+
+**THE RULE THIS ADDS, and it is charter §2j.2 with the emphasis moved:** §2j.2 asks **who wrote the
+bytes the control reads**. For a control over a *script*, the same question has a sharper form —
+**WHICH PROCESS EXECUTED THE LOGIC THE CONTROL IS GRADING?** If the control re-implements the
+mechanism and grades its own re-implementation, then **every assertion in it is about the control**,
+and the artifact under test could be deleted without the selftest noticing. **The discriminating
+test is a MUTATION: change one limb of the real file and require the control to go red.** A control
+with a kill rate of zero is not weak evidence, it is **no evidence**, and it is indistinguishable
+from a control that passes because it is correct.
+
+**AND THIS IS WHY A GREEN SELFTEST IS NOT A CREDENTIAL.** The original control was **honestly
+written and reads convincingly** — it plants a real orphan, it makes real assertions, its output is
+specific and its limbs are labelled `control +` and `control -`. **Nothing on its face distinguishes
+it from a control that works.** That is the whole difficulty: this failure has no crash, no empty
+output and no anomaly, which is `MONITOR_STANDARD` v1.13's class.
+
+**Rebuilt control, for the record: every limb now invokes the real file by `$0` against throwaway
+repositories; mutation kill rate 12 of 14**, with the two survivors **declared, not counted as
+controlled** — an unrequested-deletion abort with no demonstrated trigger (shadowed by a
+subset assert that runs first) and a control-hygiene guard that only executes when a peer moves the
+real repository mid-run. **Two limbs are NEGATIVE and must stay silent, and do.**
+
+**NOT CLAIMED HERE:** that the rebuilt helper is landed. It is a **diff routed to closure**, whose
+tree the file is in; **this correction is about the LESSON, which is this team's, and about nothing
+else.**
+
