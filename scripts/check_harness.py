@@ -419,6 +419,58 @@ def provenance_verdict(records, read_bytes):
     return out
 
 
+def orphan_verdict(records, head_bytes):
+    """ORPHAN LEDGER ROWS: a row COMMITTED at HEAD whose block is NOT at HEAD.
+
+    append_block.py writes the ledger row and leaves committing to the caller --
+    correctly, because standing rule 10 reserves every commit to the caller. So an
+    agent that appends and then commits ONLY its target file leaves the row behind,
+    and an agent that commits only the LEDGER publishes a claim that a block landed
+    when it did not.  Found live by a cfd lane 2026-08-30.
+
+    THE WINDOW BETWEEN APPEND AND COMMIT IS LEGITIMATE AND MUST STAY SILENT. A row
+    that is not yet at HEAD is IN FLIGHT, not orphaned, and grading it would make
+    this clause fire on every correct workflow -- the false-positive shape that gets
+    a guard switched off for being noisy (COMMIT_INTEGRITY_STANDARD Amendment 5
+    limb C).  So the population is exactly THE ROWS COMMITTED AT HEAD, and the
+    proposition is: `a committed row's block is in the target AT HEAD`.
+
+    head_bytes(target) -> bytes   the target's bytes at HEAD
+                       -> None    the target is not at HEAD -> FAIL (orphan)
+                       -> False   out of this repo           -> not graded
+    """
+    out = []
+    for r in records:
+        if r.get("_bad"):
+            out.append(("fail", "ledger line %s" % r.get("_line"),
+                        "unparseable at HEAD: %s" % r["_bad"]))
+            continue
+        label = "%s :: %s" % (r.get("target", "?"), (r.get("section") or "")[:60])
+        try:
+            want = base64.b64decode(r.get("body_b64", ""))
+        except Exception as exc:
+            out.append(("fail", label, "body_b64 does not decode at HEAD: %s" % exc))
+            continue
+        blob = head_bytes(r.get("target", ""))
+        if blob is False:
+            out.append(("skip", label, "target is outside this repo -- not graded"))
+            continue
+        if blob is None:
+            out.append(("fail", label,
+                        "ORPHAN: this row is COMMITTED but its target is NOT AT HEAD. "
+                        "The ledger claims a block landed in a file the repository "
+                        "does not have."))
+            continue
+        if want in blob:
+            out.append(("ok", label, "%d bytes present at HEAD" % len(want)))
+        else:
+            out.append(("fail", label,
+                        "ORPHAN: this row is COMMITTED but its %d recorded bytes are "
+                        "NOT in %s AT HEAD. The row was committed without its block."
+                        % (len(want), r.get("target"))))
+    return out
+
+
 def check_provenance(strict=False):
     print("\n[4/4] PROVENANCE -- do recorded blocks still match their source bytes?")
     path = os.path.join(REPO, *PROV_LEDGER_REL.split("/"))
@@ -480,6 +532,44 @@ def check_provenance(strict=False):
              "appearing to run." % len(recs))
     else:
         print("  ....  population: %d of %d ledger record(s) graded" % (graded, len(recs)))
+
+    # --- ORPHAN PASS: rows COMMITTED at HEAD whose block is not at HEAD ---------
+    def _head(path):
+        p = subprocess.run(["git", "-C", REPO, "show", "HEAD:" + path],
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        return p.stdout if p.returncode == 0 else None
+
+    led_at_head = _head(PROV_LEDGER_REL)
+    if led_at_head is None:
+        print("  ....  ORPHAN PASS: the ledger is not at HEAD -- every row is IN "
+              "FLIGHT, nothing to grade. Not a failure.")
+        return
+    head_recs, bad = [], 0
+    for n, raw in enumerate(led_at_head.splitlines(), 1):
+        if not raw.strip():
+            continue
+        try:
+            head_recs.append(json.loads(raw.decode("utf-8")))
+        except Exception as exc:
+            head_recs.append({"_bad": str(exc), "_line": n}); bad += 1
+    inflight = max(0, len(recs) - len(head_recs))
+
+    def head_bytes(target):
+        if not target or os.path.isabs(target):
+            return False
+        return _head(target)
+
+    o_graded = 0
+    for status, label, msg in orphan_verdict(head_recs, head_bytes):
+        if status == "fail":
+            fail("orphan-row", "%s -- %s" % (label, msg)); o_graded += 1
+        elif status == "ok":
+            o_graded += 1
+        else:
+            pass
+    print("  ....  ORPHAN PASS: %d committed row(s) checked against HEAD, %d in "
+          "flight (append not yet committed -- legitimate, not graded)%s"
+          % (o_graded, inflight, ", %d unparseable" % bad if bad else ""))
 
 
 STAMP_CASES = [
@@ -681,6 +771,75 @@ def provenance_selftest():
     else:
         print("  ok    selftest    %-28s absent and empty both reportable as "
               "NOT MEASURED" % "empty population NOT green")
+
+    # --- LIMBS 11-14: THE ORPHAN PASS -------------------------------------------
+    # A row COMMITTED at HEAD whose block is not at HEAD. The IN-FLIGHT window
+    # (appended, not yet committed) is legitimate and is excluded by POPULATION
+    # rather than by a verdict -- limb 14 drives that through a REAL git repo so
+    # the exclusion is demonstrated, not asserted (charter 2j.2).
+    def ograde(label, records, reader, want_statuses):
+        nonlocal bad, n
+        n += 1
+        got = orphan_verdict(records, reader)
+        statuses = [s for s, _, _ in got]
+        if statuses != want_statuses:
+            print("  FAIL  selftest    %-28s wanted %r got %r -- %s"
+                  % (label, want_statuses, statuses,
+                     " | ".join(m for _, _, m in got))); bad += 1
+        else:
+            print("  ok    selftest    %-28s %s" % (label, "/".join(statuses)))
+
+    body = b"\n## orphan probe\n\na `backtick` and a $(paren)\n"
+    row = dict(target="docs/PROBE.md", section="orphan probe",
+               body_b64=base64.b64encode(body).decode())
+    ograde("orphan row SPEAKS", [row], lambda t: b"other content entirely", ["fail"])
+    ograde("orphan target gone SPEAKS", [row], lambda t: None, ["fail"])
+    ograde("landed row SILENT", [row], lambda t: b"before" + body + b"after", ["ok"])
+    ograde("orphan out-of-repo NOT graded", [row], lambda t: False, ["skip"])
+
+    # LIMB 15, THE REAL ONE: a genuine git repository, a real commit of the LEDGER
+    # ONLY, and the orphan detected through `git show HEAD:` -- not a lambda.
+    n += 1
+    g = os.path.join(d, "orepo")
+    os.makedirs(g)
+    def _g(*a):
+        return subprocess.run(["git", "-C", g] + list(a),
+                              stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    _g("init", "-q", "-b", "main", "."); _g("config", "user.email", "s@l")
+    _g("config", "user.name", "s")
+    with open(os.path.join(g, "seed.txt"), "w") as fh:
+        fh.write("seed\n")
+    _g("add", "seed.txt"); _g("commit", "-qm", "seed")
+    # the block is written to the target but ONLY the ledger is committed
+    with open(os.path.join(g, "PROBE.md"), "wb") as fh:
+        fh.write(b"header\n" + body)
+    with open(os.path.join(g, "led.jsonl"), "w") as fh:
+        fh.write(json.dumps(dict(target="PROBE.md", section="orphan probe",
+                                 body_b64=base64.b64encode(body).decode())) + "\n")
+    _g("add", "led.jsonl"); _g("commit", "-qm", "ledger only, target left behind")
+    def real_head(target):
+        p = _g("show", "HEAD:" + target)
+        return p.stdout if p.returncode == 0 else None
+    led = _g("show", "HEAD:led.jsonl").stdout
+    rrows = [json.loads(l.decode()) for l in led.splitlines() if l.strip()]
+    rstat = [s for s, _, _ in orphan_verdict(rrows, real_head)]
+    if rstat == ["fail"]:
+        print("  ok    selftest    %-28s a real ledger-only commit is caught "
+              "through git show HEAD:" % "REAL orphan commit SPEAKS")
+    else:
+        print("  FAIL  selftest    %-28s wanted ['fail'] got %r"
+              % ("REAL orphan commit SPEAKS", rstat)); bad += 1
+    # and once the target lands, the SAME rows must go silent -- proving the clause
+    # tracks the repository rather than merely always complaining.
+    n += 1
+    _g("add", "PROBE.md"); _g("commit", "-qm", "the target lands")
+    rstat2 = [s for s, _, _ in orphan_verdict(rrows, real_head)]
+    if rstat2 == ["ok"]:
+        print("  ok    selftest    %-28s the same rows go SILENT once the target "
+              "is committed" % "REAL orphan CLEARS")
+    else:
+        print("  FAIL  selftest    %-28s wanted ['ok'] got %r"
+              % ("REAL orphan CLEARS", rstat2)); bad += 1
 
     shutil.rmtree(d, ignore_errors=True)
     return bad, n

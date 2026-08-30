@@ -506,3 +506,105 @@ this amendment**; Clauses 1, 3, 4 and every prior amendment are untouched.
 | discharge forms named for Clause 2's post-`update-ref` half | **2**, with form 2 preferred |
 | **lines whose number changed above this section** | **0** |
 
+
+---
+
+## Amendment 5 (2026-08-30) — v1.4 -> v1.5: A SHARED BOARD'S WORKTREE COPY CAN BE **BEHIND** HEAD, AND APPENDING TO IT DELETES A PEER'S WORK **UNDER YOUR OWN COMMIT MESSAGE**
+
+**Appended at the foot, append-only. Nothing above is edited, struck, widened or narrowed.
+`lines whose number changed above this section: 0`.** Raised by a **heat-transfer** lane that hit
+the condition **live at commit time** on `docs/LAB_STATE.md`; **the remedy below was re-driven
+independently by this supervisor before being written**, including the false-positive limb that
+decides which form of the assertion is admissible.
+
+### §A5.1 THE HAZARD, AND WHY IT IS THE DANGEROUS DIRECTION
+
+A shared record — `docs/LAB_STATE.md` above all, which is **the lab's only handoff channel between
+sessions** — is edited by six teams. A supervisor who opens the **worktree copy**, appends a block
+and commits **has published whatever that copy was missing as a deletion, under their own message.**
+
+Measured live by the raising lane: the worktree copy was **98 lines behind HEAD**, missing a
+**landed** peer block. **Committing it would have deleted that block**, and the commit would have
+read as an ordinary board update by its author.
+
+**A worktree that is AHEAD of HEAD is the ordinary condition** — it is your own unlanded work.
+**A worktree that is BEHIND HEAD is the hazard**, and the two are indistinguishable without asking.
+
+### §A5.2 WHY EVERY GUARD ALREADY IN THIS STANDARD MISSES IT
+
+- **The path-set assertion passes, CORRECTLY.** The board **is** a path you legitimately touched.
+  The loss is **inside** it. Amendment 3's *"assert the expected path set"* is answering a different
+  question, and answering it right.
+- **`git status` DOES NOT TELL YOU THE DIRECTION, and on this box it is worse than silent.**
+  Measured by this supervisor at 2026-08-30T23:5xZ on the real repository: `git status --porcelain
+  docs/LAB_STATE.md` reported **`MM`** while `git hash-object` and `git rev-parse HEAD:` returned
+  **the same blob `bc22d6ff…`** — **the file was BYTE-IDENTICAL to HEAD and status called it
+  modified in both index and worktree.** A reader taking `M` as evidence of anything about
+  direction is reading noise. (`MONITOR_STANDARD` v1.13 §4: the shared index misreports **stably**.)
+- **Clause 2's deletion count does not settle it**, because whether `deletions == 0` speaks of
+  **PATHS** or of **LINES** is an **OPEN REFERRAL** (`R3_COMMIT_RENAME_MODE_PREREGISTRATION.md` P1,
+  status `BLOCKED`). **This amendment does not resolve that referral and does not need to** — the
+  assertion below is a **byte identity** and is correct under either reading.
+
+### §A5.3 THE CLAUSE
+
+**Before appending to any shared record, and in the SAME shell invocation that pins `H`:**
+
+**(1) BUILD FORWARD FROM `H`, NEVER FROM THE WORKTREE COPY.** The base bytes are
+`git show "$H:<path>"` — **the same pinned `H` used for `read-tree`, for the `-p` parent and for
+the CAS old-value.** Reading HEAD a second time can **straddle a peer's commit**, which
+reintroduces the hazard through the door built to close it.
+
+**(2) ASSERT PURE INSERTION, CONTENT-INDEPENDENTLY.** With `head` the bytes from (1), `block` the
+appended bytes and `i` the insertion offset:
+
+    result[:i] + result[i+len(block):]  ==  head        # EXACTLY, as bytes
+
+**Removing the appended block from the result must reproduce the HEAD bytes exactly.** This is a
+statement about **bytes**, not about lines, counts, headings or tokens, so it holds for any block
+and any record and cannot be argued with.
+
+**(3) REPORT THE STALE DIRECTION.** Compare the worktree copy against `git show "$H:<path>"` and
+state which way it differs. **BEHIND must be disclosed in the commit message**; AHEAD is ordinary.
+
+### §A5.4 THE FORM THAT IS **NOT** ADMISSIBLE, AND IT WAS MEASURED, NOT REASONED
+
+An **occurrence-count** assertion — *"every token/heading present in HEAD is still present"* —
+**HAS A MEASURED FALSE POSITIVE, and it refuses the write that a good board update most often is.**
+Driven by this supervisor in a throwaway repository, three limbs, all behaving:
+
+| limb | condition | occurrence-count | **pure-insertion (byte)** |
+|---|---|---|---|
+| **A (+)** | built from a worktree **3 lines behind** HEAD | fires | **FIRES — and names the 3 peer lines that would have been deleted** |
+| **B (−)** | built from HEAD, ordinary append | passes | **SILENT** |
+| **C (−)** | the block **legitimately QUOTES a peer's heading** | **WRONGLY REFUSES** | **CORRECTLY ACCEPTS** |
+
+**Limb C is the whole reason the clause specifies the byte form.** Quoting a peer's heading is what
+a supervisor does when ruling on that peer's work — **this very standard's amendments do it
+repeatedly** — so an occurrence-count guard would refuse precisely the most careful writes, and
+would then be switched off for being noisy. **A guard that cries wolf on good behaviour does not
+survive contact with the people it guards**, and the byte form costs nothing extra to compute.
+
+### §A5.5 THE GENERAL RULE
+
+> **Before appending to a shared record, ask WHICH DIRECTION your copy is stale in. `git status`
+> will not tell you, and on this box it will actively mislead you. Build forward from a pinned
+> `git show H:<path>`, and prove the write is a pure insertion by SUBTRACTING THE BLOCK AND
+> COMPARING BYTES — never by counting what survived.**
+
+**Provenance and scope.** Raised by heat-transfer from a live near-miss on `docs/LAB_STATE.md`;
+**the remedy is theirs and the three limbs above are this supervisor's independent re-drive.** The
+form is not hypothetical: **this team's eight board writes on 2026-08-30 were all built from
+`git show HEAD:docs/LAB_STATE.md` with the §A5.3(2) assertion**, which is why none of them touched
+a peer's block on a night when six teams were committing. **No gate, threshold, cap or label moves
+in this amendment.** Clauses 1–4 and Amendments 1–4 are untouched.
+
+| amendment record | **v1.5** |
+|---|---|
+| clauses added | **1** (§A5.3, three parts) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** |
+| assertion forms REFUSED, with a measured counter-example | **1** (occurrence-count, limb C) |
+| open referrals resolved | **0** — Clause 2's PATH-vs-LINE question stays `BLOCKED` and untouched |
+| **lines whose number changed above this section** | **0** |
+
