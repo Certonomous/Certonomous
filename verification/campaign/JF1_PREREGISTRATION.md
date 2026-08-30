@@ -700,7 +700,7 @@ and, where applicable, §7.2's triple gating.
 >
 > | Artefact | What it actually is | Why it cannot serve as V's comparand |
 > |---|---|---|
-> | `models/curriculum/results/naca0012_wing.json` | `Cd = 0.02229` at **zero lift** (`CL = −0.000795`, i.e. `alpha = 0`), band ±30 % vs Abbott & von Doenhoff (1959) **section** data `Cd = 0.009`; verdict `TREND ONLY`, 148 % off | **Single alpha — no slope at all.** And its verdict was **overturned**: `verification/campaign/W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md` finds four independently regenerated meshes at the same nominal resolution give `Cd` = **0.009454, 0.009605, 0.010630, 0.012052** — range 2.5987e-03, a **21.6 % spread** — enough to flip the ±30 % verdict on mesh-generation noise alone; the published mesh is the **maximum** of the four and the only one outside the band. Its grid-convergence claim was separately ruled **`NOT A RESULT`** (`verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md`). It is also scored on a **planform-area basis against section data**, a basis mismatch the record itself notes. |
+> | `models/curriculum/results/naca0012_wing.json` | `Cd = 0.02229` at **zero lift** (`CL = −0.000795`, i.e. `alpha = 0`), band ±30 % vs Abbott & von Doenhoff (1959) **section** data `Cd = 0.009`; verdict `TREND ONLY`, 148 % off | **Single alpha — no slope at all.** And its verdict was **overturned**: `verification/campaign/W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md` finds four independently regenerated meshes at the same nominal resolution give `Cd` = **0.009454, 0.009605, 0.010630, 0.012052** — range 2.5987e-03, a **21.6 % spread OF THE PUBLISHED VALUE** — enough to flip the ±30 % verdict on mesh-generation noise alone; the published mesh is the **maximum** of the four and the only one outside the band. Its grid-convergence claim was separately ruled **`NOT A RESULT`** (`verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md`). It is also scored on a **planform-area basis against section data**, a basis mismatch the record itself notes. |
 > | `cases/dafoam/ladder-a/A1_naca0012_incompressible.{md,json}` | `CL = 0.49877`, `CD = 0.02091` at a single `alpha = 5.139 deg`; Spalart–Allmaras, `DASimpleFoam`, **4 032 cells** | An **adjoint FD-vs-analytic verification artefact**, not an aerodynamic gate. `docs/VALIDATION_INVENTORY.md:364` classifies it as internal-FD adjoint verification in the lab's own words. Single alpha, different closure, no external reference, no band. |
 > | `cases/tmr/naca0012_status.json`, `verification/campaign/W1_TMR_NACA0012_DISPOSITION.md` | one converged rung only: `alpha = 10 deg`, 3 584 cells, `Cl = 1.11644`, `Cd = 0.00449` | The record **itself refuses the comparison** — *"a single coarse rung supports no comparison claim and none is made"* — and the 9-rung item was **dismissed as unaffordable**. Alpha 0 and 15 never reached steady state. |
 > | F5b pitching NACA 0012 (`CL`/`CM`) | the repo's nearest thing to a `CL(alpha)` curve | `docs/VALIDATION_INVENTORY.md:306`: its Physics and Gate rows are literal `[to be completed]` placeholders — **"NO GATE EXISTS"**, the audit's own words. |
@@ -737,17 +737,30 @@ and, where applicable, §7.2's triple gating.
 > set is `W3:114` and the range is 0.009454–0.012052. The "3D finite wing" claim
 > was **asserted without evidence** — the record nowhere states dimensionality,
 > and what it does state is a planform-area basis against section data. The
-> load-bearing number, the **21.6 % spread, was and is correct** and is confirmed
+> load-bearing number, the **21.6 %-of-the-published-value spread, was and is
+> correct** and is confirmed
 > arithmetically (0.012052 − 0.009454 = 2.598e-03, `W3:37`), so the conclusion —
 > gate V `BLOCKED` — is unaffected. Recorded here because a wrong number in an
 > evidentiary table is a defect whether or not it changes the verdict, and
 > because this lab's own precedent (`e779bdc7`) is to disclose such a repair
 > inline rather than quietly overwrite it.
 >
+> **SECOND CORRECTION, SAME DISCLOSURE RULE (2026-08-30, pre-compute, pre-freeze;
+> same condition, re-checked: no run root, no compute).** Every percentage in this
+> section now carries its **denominator**, because a percentage without one is
+> three different numbers. The 2.5987e-03 range is **21.56 % of the published
+> value (0.012052229)**, but **24.90 % of the four-mesh mean (0.010435363)** and
+> **27.49 % of the minimum (0.009454)**. `W3:37` names its denominator — *"21.6 %
+> of the published value"* — and is self-consistent; a reader who recomputes the
+> spread **without** carrying that denominator gets 24.9 % or 27.5 % and concludes
+> our own record is wrong. As first committed, this document quoted the bare
+> figure. It no longer does. Recorded as **L-408**, whose fourth call site is
+> exactly this.
+>
 > **A caution that bears directly on option (b) and on gate G.** The W3 finding
-> above — 21.6 % `Cd` spread on this same body from mesh-generation noise alone,
-> at fixed nominal resolution — is a measured statement about how fragile a NACA
-> 0012 `Cd` is to *how the mesh was built*. It is the strongest available
+> above — a `Cd` spread of **21.6 % of the published value** on this same body
+> from mesh-generation noise alone, at fixed nominal resolution — is a measured
+> statement about how fragile a NACA 0012 `Cd` is to *how the mesh was built*. It is the strongest available
 > justification for §4.1's binding rule that all three levels come from **one
 > parametric script at three scale factors and are never hand-edited**, and it is
 > why `LADDER_RECIPE_RULING_2026-08-25.md` ruled a recipe-forked ladder
@@ -1296,8 +1309,8 @@ repository-wide search found **no gated unblown NACA 0012 lift-curve-slope recor
 at all**, and no surviving gated `Cd` record: the nearest candidate
 (`models/curriculum/results/naca0012_wing.json`) is `Cd` at a **single alpha** on
 a **3D wing**, its verdict was **overturned as not reproducible**
-(`W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md`, 21.6 % `Cd` spread from mesh noise
-alone) and its grid-convergence claim separately ruled **`NOT A RESULT`**
+(`W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md`, `Cd` spread of **21.6 % of the
+published value** from mesh-generation noise alone) and its grid-convergence claim separately ruled **`NOT A RESULT`**
 (`LADDER_RECIPE_RULING_2026-08-25.md`); the dafoam A1 row is an **adjoint FD
 verification artefact** by the lab's own audit (`docs/VALIDATION_INVENTORY.md:364`);
 the TMR row **refuses the comparison in its own words**; and F5b, the nearest

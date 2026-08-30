@@ -17590,3 +17590,81 @@ real repository mid-run. **Two limbs are NEGATIVE and must stay silent, and do.*
 tree the file is in; **this correction is about the LESSON, which is this team's, and about nothing
 else.**
 
+
+## L-408 — WHEN A SUBAGENT'S RESULT ARRIVES AFTER THE TEXT THAT DEPENDS ON IT, RE-VERIFY THE TEXT AGAINST THE SOURCE, NEVER AGAINST THE ARRIVING SUMMARY
+
+**THE SUMMARY AGREED WITH ME. THE DISK DID NOT.** That sentence is the whole lesson, and it was
+measured, not imagined: on 2026-08-30T23:39Z a cfd lane drafting `verification/campaign/JF1_PREREGISTRATION.md`
+dispatched a search lane to find gate V's comparand, wrote and **committed** the evidence table that
+depended on it, and only afterwards received the lane's completion notification. When the
+notification finally arrived it **confirmed the conclusion** — and two cells of the table were
+nevertheless wrong.
+
+**THE MECHANICAL RULE, WHICH HAS CALL SITES AND IS NOT "BE CAREFUL":**
+
+> A result that lands after the text depending on it makes that text **unverified**, whatever the
+> result says. Re-check the text **against the source artifact**, cell by cell. **A subagent's
+> summary is not an acceptable comparand for text drawn from the same lineage.**
+
+**WHY THE SUMMARY IS NOT A CONTROL — THE PART THAT MAKES THIS A LESSON RATHER THAN A SLOGAN.** A summary produced from the same lineage as the text **shares its priors** and will tend
+to confirm it. Checking text against summary is therefore a control **with no independent limb** —
+exactly the shape Sanaa's 2026-08-28 control-birth directive rules out: *a control defined in terms
+of the thing it controls is not a control.* Only the **source** is independent. This is standing
+rule 3's structure moved from a reader to a citation: a confirmation from a checker not shown able
+to **disconfirm** is not evidence.
+
+**A PENDING RESULT IS A GAP, AND A GAP IN A FLUENT DOCUMENT DOES NOT LOOK LIKE A GAP — IT LOOKS
+LIKE A PARAGRAPH.** This is the half that makes the failure invisible and it is worth more than the
+rule above. The table in question had thirteen checkable claims; **eleven verified exactly** —
+`cd_measured 0.02229`, `TREND ONLY`, the Abbott & von Doenhoff `0.009` datum, `CL = 0.4987652667308054`,
+`CD = 0.0209105098587985`, 4 032 cells, `cl = 1.1164357439`, `cd = 0.0044948532678`, 3 584 cells, a
+verbatim quote reproduced word for word, and every one of seven cited paths. **Every surrounding
+cell being right is precisely what made the two wrong ones invisible.** Nothing on the page's face
+distinguished the fabricated cells from the verified ones. **FLUENCY IS NOT EVIDENCE, AND "IT READS
+FINE" IS NOT A CHECK** — the same class as `MONITOR_STANDARD` v1.13's failures with no crash, no
+empty output and no anomaly.
+
+**THE TWO DEFECTS WERE NOT THE SAME KIND, AND THE ASYMMETRY IS THE POINT.**
+
+| defect | what it was | class |
+|---|---|---|
+| four-mesh `Cd` range given as "0.00800 to 0.01205" | 0.008479 belongs to the **refinement** series (`W3:43`); the same-resolution set is 0.009454 / 0.009605 / 0.010630 / 0.012052 (`W3:114`) — a number lifted from the adjacent table | **a slip** |
+| "a **3D finite wing**" | **the record nowhere states dimensionality.** Inferred from a planform-area basis and an STL, then written as established fact | **an asserted fact never checked — worse, and a different class** |
+
+**The second landed in the same document that faults its own governing directive for exactly that
+failure** — the directive's "already gated on file for unblown CL-alpha and Cd" was an unchecked
+assertion that turned out to be false, and the lane answered it with one of its own. **A lane is not
+exempt from the standard it is applying to somebody else's text.**
+
+**WHAT SURVIVED, AND WHY IT WAS STILL A DEFECT.** The load-bearing number — a 21.6 % spread — was
+correct and was confirmed **arithmetically rather than by trusting the record's prose**
+(`0.012052 − 0.009454 = 2.598e-03`, matching `W3:37` to four figures), so the verdict did not move.
+**A WRONG NUMBER IN AN EVIDENTIARY TABLE IS A DEFECT WHETHER OR NOT IT CHANGES THE VERDICT.** The
+repair was therefore a disclosed correction, not a footnote and not a silent overwrite, following
+`e779bdc7`'s precedent: the struck text is quoted **inside** the document so a reader can see what
+was there, what replaced it, and why.
+
+**A SECOND INSTANCE FROM THE SAME AUDIT, SAME ROOT — A PERCENTAGE WHOSE DENOMINATOR IS NOT STATED
+IS THREE DIFFERENT NUMBERS.** That same 2.5987e-03 range is **21.56 % of the published value,
+24.90 % of the mean, and 27.49 % of the minimum.** `W3:37` names its denominator — *"21.6 % of the
+published value"* — and is self-consistent; a reader who recomputes the spread **without** carrying
+that denominator gets 24.9 % or 27.5 % and concludes our own record is wrong. **Quote the
+denominator with the percentage, always.** Same root as the rest of this lesson: the bare figure
+reads fine, and reading fine is not being checked.
+
+**CALL SITES, because rule 14 says a lesson is not applied until every call site asserts it:**
+
+1. **Any agent that dispatches a lane and continues working.** If the lane's result has not arrived,
+   the text that depends on it is **PENDING**, not draftable. Either wait, or write the placeholder
+   as a visible placeholder — never as prose.
+2. **On the arrival of any late result**, re-verify the dependent text **against the source**, and
+   record that the re-verification happened. Agreement with the arriving summary is **not** the check.
+3. **Any table of citations**: each cell is verified against the artifact it names, and a claim the
+   artifact does not state — dimensionality, provenance, method — is **not written at all**, however
+   strongly the surrounding evidence suggests it.
+4. **Any quoted percentage**: state the denominator in the same sentence.
+
+**NOT CLAIMED HERE:** that any tooling enforces this. It does not. Item 2 is currently a discipline
+with no instrument, and this entry says so rather than implying a guard exists — which is the same
+honesty this lesson is about. The one mechanical support that does exist is that a late-arriving
+notification is itself the trigger: **treat it as a work item, not an acknowledgement.**
