@@ -17438,3 +17438,104 @@ silent.**
   IN ONE DAY, IT IS NOT A DISCIPLINE PROBLEM, IT IS A MISSING TOOL.** Three careful teams,
   each of whom knew the rule, is not three lapses — it is evidence that the safe path was harder
   than the unsafe one. **Move the safety into the path, then the discipline has somewhere to live.**
+
+## L-406 — `HEAD~1` IS NOT A STABLE NAME IN THIS REPOSITORY, AND `CLAUDE.md` RULE 10's OWN POST-COMMIT VERIFY IS WRITTEN WITH IT
+
+`git diff HEAD~1 HEAD` answers *"what changed between the current tip and its parent"*. It does
+**not** answer *"did MY commit contain only my paths"*. The two questions coincide only while
+nobody else commits — and this lab does not have that property.
+
+**Measured on this tree at 2026-08-30T23:17Z:** the last **47** commits span **0.53 h**. Median
+inter-commit gap **27 s**; **38 of 46** gaps under 60 s; smallest gap **0 s** — two commits in the
+same second. **The gap between your `update-ref` and the next line of your script is a window a
+peer lands in**, and `HEAD~1` then names their commit instead of your parent.
+
+Three demonstrations, all on the record:
+
+| when | what happened |
+|---|---|
+| 2026-08-28 | dafoam measured **10 peer commits in 11 minutes** landing on top of its own; `git diff HEAD~1 HEAD` then reported **another team's work** (`docs/LAB_STATE.md` S-19d) |
+| — | `L-223`: a lane can move HEAD **between two bash calls**, which is why HEAD is captured **once** for `read-tree`, the assertion and `-p` |
+| 2026-08-30 | a dafoam lane asserted a byte-identity against `HEAD~1` in `42de2fdf`. HEAD had moved, so `HEAD~1` resolved to **the lane's own new entry** rather than the 2026-08-27 record. Self-disclosed at `bc5d5b37` rather than patched |
+
+- **⚠ THE REMEDY ALREADY EXISTS IN THIS LAB AND IS SIMPLY NOT AT EVERY CALL SITE — which is
+  rule 14's exact shape.** The private-index protocol already puts the parent in a variable and
+  passes it to `commit-tree -p`. Verify with **the same sha**, never with a relative name:
+  ```
+  git diff-tree -r --stat "$H" "$C"     # H = the captured parent, C = your commit
+  ```
+  This is what the dafoam supervisor's own commits already say — *"verified parent-explicit with
+  `git diff-tree -r --stat` against the captured parent"* — so **the lab has been running the
+  remedy and the defective prescription at the same time.**
+- **The unasserted call sites are named, because a lesson with no call sites cannot be applied
+  (`L-405`).** `CLAUDE.md` rule 10 line 117, `git diff HEAD~1 HEAD --stat`; and
+  `cases/RANS_LES_closure_models/_common/commit_private.sh:110`, which was hardened **yesterday**
+  for `L-404` with a `HEAD_NOW != $NEW` gate and still does its verify as
+  `git diff-tree -r --numstat HEAD~1 HEAD` — with `$OLD` and `$NEW` **both in scope one line
+  above**. The gate narrows the window to microseconds; it does not close it, and the exact form
+  costs nothing. **16 tracked `.md` records already cite the `HEAD~1` verify as their evidence.**
+- **⚠⚠ THE SECOND HALF IS SHARPER THAN THE FIRST: THE ASSERTION LIVED IN MESSAGE PROSE, NOT IN AN
+  EXECUTABLE GUARD.** The 2026-08-30 lane's own words: *"THE MISMATCH WAS PRINTED ON MY SCREEN AND
+  THE COMMIT PROCEEDED, because the identity lived in the MESSAGE TEXT as prose and not in an
+  executable guard"*. That is not carelessness — **nothing in the path could refuse.** Compare
+  `scripts/append_block.py`, which exists because *"remember to quote the heredoc"* had no call
+  sites and could only be remembered: it now **reverts the write** on any byte difference. **That
+  is the difference between a rule and a guard.** An identity worth putting in a commit message is
+  an identity worth putting in the commit **invocation**, where a mismatch can abort.
+- **A contrary sentence a reader will find, and it is not a contradiction — it answers a different
+  question.** `docs/DEAD_LEVER_AUDIT.md` §11.3 rules that *"`git diff-tree -r A B` and
+  `git diff HEAD~1 HEAD` are equally immune — both compare **trees**, never the index."* **True,
+  and about the index axis only.** Immunity to a poisoned index says nothing about **which two
+  commits the names resolve to**. Two axes, one sentence, and it is `L-403` again: **a
+  verification tells you only what it was built to ask.**
+- **THE CONSTITUTION'S LINE IS NOT AN AGENT'S TO CHANGE.** Rule 9: nothing alters `CLAUDE.md` on an
+  agent's say-so. Raised as **`D-578`** for Sanaa. **The executable helpers are a separate
+  question and are not blocked on her** — `L-404` already drew that line: *"the wording is Sanaa's
+  desk; the executable helper is not."*
+
+## L-407 — A VALIDATOR THAT EXITS 0 ON NO INPUT IS A FALSE GREEN: STANDING RULE 3'S PLANTED ZERO APPLIES TO EXIT CODES, NOT ONLY TO MEASUREMENTS
+
+**A GREEN FROM A CHECK NOT SHOWN ABLE TO GO RED IS NOT EVIDENCE.** That is standing rule 3 —
+*"a zero from a reader not shown able to see a non-zero is not evidence"* — with the reading moved
+from a measurement to an **exit code**. The lab already trusts the rule for comparators. It applies
+unchanged to tooling, and tonight it caught a live instrument.
+
+**Measured on this tree at 2026-08-30T23:2xZ**, `date -u` at write, every rc captured **without a
+pipe** (a `$?` taken after `| head` is `head`'s):
+
+| invocation | prints | rc |
+|---|---|---|
+| `queue_entry_check.py` (no arguments) | `No entries given. Nothing to validate; nothing was launched.` | **0** |
+| `--dir` on a **real but empty** queue directory | the same line | **0** |
+| a genuine entry (`verification/queue/closure/M1_kOmega__AR_3_Ret_360.json`) | `ACCEPTED … est=9.623 core-min` | 0 |
+| planted: `prereg_commit` = 40 zeros | `REFUSED … COMMIT-EXISTS` | 2 |
+| planted: `cost_core_min_estimate` deleted | `REFUSED … SCHEMA` | 2 |
+| the same entry unmutated, same scratch dir | `ACCEPTED` | 0 |
+
+- **⚠ THE PASS AND THE NO-OP ARE THE SAME NUMBER, SO THE CALLER CANNOT TELL THEM APART.** The first
+  two rows **passed because they checked nothing**. The instrument's own docstring carries the
+  ambiguity in its `EXIT CODES` section — *"0  every entry validated was accepted"* — which is
+  vacuously true of **zero** entries. It is not lying; it is answering a question nobody meant to
+  ask.
+- **THE FALSE GREEN IS NARROWER THAN "A BAD PATH", AND THE NARROW VERSION IS THE DEFENSIBLE ONE.**
+  A **typo'd** `--dir` returns **1** (usage) and a **missing file** returns **2** (`SCHEMA: cannot
+  read`) — **both correctly caught.** Exactly two shapes go green on nothing: **no arguments**, and
+  **a real directory holding no `.json`**. The second is the operational one: `--dir` on
+  `verification/queue/dafoam/` returns **0** tonight because that directory is empty, and a caller
+  reads that as *"the queue is clean"*.
+- **THE PLANTED NEGATIVES ARE WHAT MAKE THE GENUINE 0 MEAN ANYTHING.** Two mutations fired on the
+  two different limbs — sha existence and schema — and the unmutated control still accepted in the
+  same directory, so the refusals are the mutation and not the location. **Without the plants, rows
+  1-3 of that table are three indistinguishable zeros.**
+- **THE PRINCIPLE IS ALREADY WRITTEN DOWN IN THIS LAB, IN ANOTHER `scripts/` FILE, AND THIS ONE
+  VIOLATES IT.** `scripts/append_block.py:228` refuses a bare invocation with *"REFUSED: `--target`
+  and `--body` are both required. **A run with nothing to do exits non-zero, never 0.**"* **Rule 14
+  again: a lesson is not applied until EVERY call site asserts it** — and two instruments in one
+  directory now answer the empty case in opposite directions.
+- **The exposure is lab-wide and immediate, which is why this is a lesson and not a bug report.**
+  Every team enqueues through this validator under Sanaa's continuous-operation directive, and the
+  green it returns on an empty or mistyped-but-existing target is the green a supervisor reads
+  before compute. **Raised as `D-579`; deliberately NOT repaired here** — it is not dafoam
+  territory, and a live queue item passed through this validator tonight. **Changing a validator
+  underneath a running item is the wrong moment**, and doing it anyway would have been the
+  answer-shaped edit rule 2 forbids in its own domain.
