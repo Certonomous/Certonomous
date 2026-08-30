@@ -1,0 +1,24 @@
+SO-2a PREREGISTRATION.md — ADDENDUM A PREFIX PROOF
+written 2026-08-30T233117Z by the dafoam lab-lane
+
+CLAUDE.md rule 6 requires the assertion 'lines whose number changed above this
+section: 0'.  It is PROVED here by byte comparison, not asserted in prose.
+
+bytes before append : 55242   md5 40b815f6ca10db5a052b34bd04956009
+bytes after  append : 67080   md5 aa7c3a88e933a1e4e8719e601853c799
+bytes appended      : 11838
+
+PREFIX TEST: after[:55242] == before  -> IDENTICAL
+  md5 of after[:55242] = 40b815f6ca10db5a052b34bd04956009
+  md5 of before     = 40b815f6ca10db5a052b34bd04956009
+
+LINE TEST: lines 1..253 compared pairwise, before vs after
+  lines whose CONTENT or NUMBER changed above this section: 0
+  newline count before 252, after 432
+
+KNOWN POSITIVE for this comparator, so the zero above is not a zero from a
+reader never shown able to see a non-zero (standing rule 3):
+  the SAME comparator, run against a copy with ONE byte of line 1 altered,
+  reports changed-line count = 1 and PREFIX TEST = DIFFERENT
+
+VERDICT: lines whose number changed above this section: 0 — PROVED

@@ -1,0 +1,55 @@
+SO-2a (so2a_chain_driver.sh, arms MESH X-S G-S X-P G-P) — SUPERVISOR STOP, 2026-08-30T231849Z
+STOPPED BY: dafoam-supervisor, personally, [lab-attributed]. Not a crash, not a cap, not an OOM,
+and NOT a physics failure — no solver ever started.
+
+WHY, ESTABLISHED FROM DISK BY THE SUPERVISOR BEFORE ANYTHING WAS KILLED — not inferred:
+NAMED: SO2a-DRIVER-DEF-1.
+  so2a_chain_driver.sh:143  AGG=$(python3 "$HERE/so2a_aggregate_memory.py" ... )
+                            inside the AGGREGATE wait-and-retry `while true` loop.
+  THE FILE DOES NOT EXIST ON DISK and has never existed in any commit on any branch
+  (`git log --all -- .../so2a_aggregate_memory.py` returns nothing).
+  Consequence, mechanically: AGG is the empty string; the `json.load` on empty input
+  raises; the `ok` test can therefore NEVER be true; the loop polls every AGG_POLL_S=30 s
+  to AGG_BOUND_S=14400 and then writes chain=BLOCKED_AGGREGATE / CHAIN_RC=6 at the FIRST arm.
+
+MEASURED ON THIS RUN'S OWN LIVE ARTEFACTS BEFORE THE STOP:
+  MESH_aggregate_series.txt : 9 poll lines, EVERY payload EMPTY — each line is an epoch and
+                              nothing else (NF == 1 on 9 of 9; confirmed with cat -A).
+  STATUS.MESH               : 1 preflight line + 9 AGGREGATE_WAIT lines, waited=0..240 s,
+                              the JSON field blank on every one.
+  arm directories           : 0 of 5 (MESH, X-S, G-S, X-P, G-P all absent).
+  containers                : 0 named so2a_* have EVER been created (docker ps -a, all states).
+  ledger.txt                : ITEM=SO2a and one STAGED line only; 0 rows matching `rc=0`.
+
+CONSEQUENCE: this launch was on a GUARANTEED NO-LAUNCH BRANCH. It could not reach a container,
+could not buy an arm and could not produce a verdict. Left alone it would have held an 8 GB
+memory reservation for four hours and then written BLOCKED_AGGREGATE. Continuing would have been
+knowingly buying waste (CLAUDE.md rule 12: waste is reported, not absorbed).
+
+WHAT WAS STOPPED: driver pid 1409902 and its wrapper 1409901. The wrapper recorded
+`launcher_rc=143 end=2026-08-30T23:18:49Z` in STATUS.SO2a_chain itself. No container existed to
+orphan, which is the same fact as the defect: nothing had started.
+
+SPEND: launched by the queue runner 2026-08-30T23:13:26Z, stopped 2026-08-30T23:18:49Z.
+  wall 323 s, ranks 1. SOLVER COMPUTE: ZERO core-min — no container, no solver process.
+  The 323 s of wall and the 8 GB reservation are the whole cost and are booked as WASTE,
+  NAMED, and NOT folded into any actual/predicted ratio (COMPUTE_BUDGET_CHARTER §6).
+  Registered estimate for the item is 9.19 core-min at ranks 1, cap 79.0.
+
+WHY THE FREEZE DID NOT CATCH IT: PREREGISTRATION.md:161 REGISTERS the aggregate gate
+(< 30.6 GiB, wait-and-retry, poll 30 s, bound 4 h). §7's instrument table freezes EIGHT files
+and DOES NOT LIST THE SCRIPT THAT IMPLEMENTS THAT GATE. The §7 md5-agreement control therefore
+read "eight of eight AGREE" while the ninth dependency was absent. A GATE WAS FROZEN WITHOUT ITS
+IMPLEMENTATION. An instrument table that enumerates instruments but not their dependencies can be
+complete and wrong at the same time.
+
+SCOPE: nine siblings in ladder-a/A1 ship this script (so1a, so1b, so1c, av1, av1r, av2, av2r,
+d15, d16). SO-2a's copy-forward took the driver and not the script.
+
+W3 WAS ASSERTED UNAFFECTED, BY PID IDENTITY: chain driver 1280304 alive before and after the
+stop, its S2b container still up.
+
+PRECEDENT, APPLIED TO MY OWN ITEM: on 2026-08-28 I stopped a live W3 run (D12R2-W3, run root
+CURRICULUM-D12R2W3-cylinder-unsteady, SUPERVISOR_STOP.txt of 2026-08-28T163352Z) for the same
+class of defect — an instrument guaranteed to refuse, so the remaining compute could not buy a
+verdict. I do not exempt my own item from my own precedent.

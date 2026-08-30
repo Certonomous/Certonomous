@@ -1,0 +1,32 @@
+SO-2a AGGREGATE GATE REFUSAL PROOF  stamp=20260830T232626Z
+frozen driver md5 75921da288d6a410691c4f41f15568a3 AGREES; script md5 709ab0b98ef0302a3a3a318588f9493f AGREES
+loop under test: /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_chain_driver.sh lines 141-155 (extracted, not transcribed)
+
+L1 KNOWN POSITIVE -- script ABSENT (SO2a-DRIVER-DEF-1 reproduced)
+  PASS  L1 the loop WAITED -- AGGREGATE_WAIT lines = 6 (>= 2 required)
+  PASS  L1 payload EMPTY -- series fields-per-line set = {1,} (epoch only)
+  PASS  L1 never proceeded -- REACHED_NEXT_GATE lines = 0
+
+L2 MUST-WAIT -- arm cap PLANTED at 4000 GiB, REGISTERED ceiling 30.6 GiB
+  PASS  L2 the loop WAITED -- AGGREGATE_WAIT lines = 3 (>= 2 required)
+  PASS  L2 never proceeded -- REACHED_NEXT_GATE lines = 0
+  PASS  L2 read a REAL non-empty refusal -- ok/aggregate_GiB/ceiling_GiB = False 4010.12 30.6
+
+L3 MUST-PROCEED -- REGISTERED cap 4 GiB, REGISTERED ceiling 30.6 GiB
+  PASS  L3 PROCEEDED -- REACHED_NEXT_GATE lines = 1
+  PASS  L3 broke on poll ONE -- AGGREGATE_WAIT lines = 0 (0 required)
+  PASS  L3 printed the pass line -- SO2A_AGGREGATE waited=0 lines = 1
+  PASS  L3 ok=True on a real reading -- ok/aggregate/ceiling/live = True 14.14 30.6 ['d12y_w3_S3_r1_20260830T231011Z_1280361']
+
+L4 BOUND -- over-ceiling with the bound SHRUNKEN to 2 s (poll 1 s)
+  PASS  L4 STATUS carries the bound refusal -- AGGREGATE_BLOCKED_AT_BOUND lines = 1
+  PASS  L4 chain=BLOCKED_AGGREGATE written -- chain=BLOCKED_AGGREGATE lines = 1
+  PASS  L4 CHAIN_RC = 6 -- LEG_CHAIN_RC=6 lines = 1
+  PASS  L4 never proceeded -- REACHED_NEXT_GATE lines = 0
+
+L5 ast.Assert counter -- known positive before the zero is believed
+  PASS  L5 counter SEES a planted assert -- planted copy count = 1
+  PASS  L5 real file carries none -- real file count = 0
+
+frozen driver and script md5s RE-ASSERTED after all legs: unchanged
+RESULT: ALL LEGS AS REGISTERED

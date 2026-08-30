@@ -250,3 +250,183 @@ Sanaa, 2026-08-28, verbatim: *"A control defined in terms of the thing it contro
 **When it is enqueued**, the entry is `verification/queue/dafoam/SO2a_chain.json`: team `dafoam`, `prereg_commit` = the full 40-hex sha of the commit introducing this file, `launch_cmd` = `["bash", "<abs>/so2a_chain_driver.sh", "MESH", "X-S", "G-S", "X-P", "G-P"]`, `cwd` = this directory, `ranks 1`, `cost_core_min_estimate 9.19`, `cap_core_min_registered 79.0`, `memory_floor_gb 8.0`, `cost_basis` derived / not measured.
 
 **Predicted outcome, so it cannot be written afterwards:** P1–P10 HIT → SHIPPED row `PASS`, PATCHED row `PASS`, item **`PASS`**, with `d(thickcon, volcon, rcon)/d(shape)` FD-verified for the first time on this case, `d(constraint)/d(patchV)` established as structurally exactly zero, `volcon` shown ACTIVE at the tutorial's own starting point, and the first SO-2 optimisation rung unblocked at np = 1.
+
+---
+
+## ADDENDUM A — 2026-08-30. §7's INSTRUMENT TABLE GAINS THE NINTH FILE: `so2a_aggregate_memory.py`
+
+**Version 1.1.** Dated **2026-08-30T233055Z**. Appended by the dafoam `lab-lane` under the
+`dafoam-supervisor`'s rule-2 ruling of 2026-08-30T23:18:49Z. **Frozen files are never
+edited** (`CLAUDE.md` rule 6): nothing above this line is touched, and
+**lines whose number changed above this section: 0** — proved by byte comparison, not
+asserted, in `so2a_addendum_prefix_proof.txt` beside this file.
+
+**NO GATE, THRESHOLD, BAND, CAP OR LABEL MOVES IN THIS ADDENDUM.** Everything §3, §4,
+§5 and §6 register stands exactly as frozen on 2026-08-28.
+
+### A.1 What was wrong
+
+`so2a_chain_driver.sh:143` — inside the AGGREGATE wait-and-retry loop — calls
+
+    AGG=$(python3 "$HERE/so2a_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+
+**and that file did not exist.** Not on disk, and not in any commit on any branch
+(`git log --all` returns zero commits for the path, and zero adds for the basename).
+`AGG` was therefore the empty string on every poll, the `json.load` of empty input
+raised, the `ok` test could never be true, and the loop was **guaranteed** to poll
+every 30 s to `AGG_BOUND_S = 14400` and then write `chain=BLOCKED_AGGREGATE` /
+`CHAIN_RC=6` at the FIRST arm. Named **SO2a-DRIVER-DEF-1**.
+
+Measured on the 2026-08-30T23:13:26Z fire before the supervisor stopped it at
+23:18:49Z: **9 poll lines** in `MESH_aggregate_series.txt`, **every payload empty**
+(one field per line, the epoch, and nothing else); **0 of 5 arm directories**;
+**0 `so2a_*` containers ever created**, in any state. Full record in
+`SUPERVISOR_STOP.txt` beside this file, and the fire's artefacts are ARCHIVED (never
+deleted) at
+`<run root>/_prior_fires/20260830T231326Z_supervisor_stopped/` with each file's md5
+recorded before and after the move (`REFIRE_RUNBOOK.md` §2/§3).
+
+### A.2 Why the freeze did not catch it — the root cause, which is this addendum's real subject
+
+**§7 REGISTERS A GATE WHOSE IMPLEMENTATION §7 DOES NOT LIST.** §5 registers the
+aggregate gate in full — `aggregate < 30.6 GiB`, wait-and-retry, poll 30 s, bound 4 h,
+every wait a line in `STATUS.<arm>`. §7's instrument table then freezes **eight** files
+and does not name the script that implements it. So §7's own md5-agreement control ran
+honestly and reported **"eight of eight AGREE"** while the ninth dependency was absent
+from the box entirely.
+
+**AN INSTRUMENT TABLE THAT ENUMERATES INSTRUMENTS BUT NOT THEIR DEPENDENCIES CAN BE
+COMPLETE AND WRONG AT THE SAME TIME.** The control was not weak — it was pointed at the
+wrong set. That is the lesson worth more than the repair, and it is the reason this
+addendum amends the table rather than only adding the file.
+
+### A.3 The ninth row, added to §7's table
+
+| file | md5 | derivation, and the DELTAS file the supervisor reads |
+|---|---|---|
+| `so2a_aggregate_memory.py` | `709ab0b98ef0302a3a3a318588f9493f` | `curriculum_SO1a/so1a_aggregate_memory.py` (`709ab0b9…`) + **`so2a_aggregate_memory_DELTAS_from_so1a.diff`: THE DELTA IS EMPTY.** `diff -u` between the two produces **zero lines**; the adopted file is a byte-for-byte copy under this item's name, which is the name `so2a_chain_driver.sh:143` calls. The script carries **no item name, no run root, no path, no threshold and no unit** — its ceiling and this arm's cap both arrive as `argv` from the driver's frozen `AGG_CEILING_GIB=30.6` and `cap_mem_gib()` — so there was nothing item-specific to change. `grep -cE 'so1a\|so2a\|curriculum\|CURRICULUM'` on it returns 0. **All NINE siblings that ship this script are byte-identical at this md5** (so1a, so1b, so1c, av1, av1r, av2, av2r, d15, d16), so the choice of sibling could not have altered a byte |
+
+**The md5 agreement control is RE-RUN and now reads NINE of NINE.** The eight of
+2026-08-28 are unchanged and re-asserted at this commit; the ninth is the row above.
+The chain driver's own five pins and the launcher's three are untouched — this addendum
+adds no pin to any frozen file, because the driver already names the script and
+supplying it leaves the driver's bytes and its md5 `75921da288d6a410691c4f41f15568a3`
+exactly as frozen.
+
+### A.4 Why supplying the file is legal under rule 2, with the condition checked
+
+The gates that close at first compute **have not closed**, checked on disk at
+2026-08-30T23:2x Z and recorded here with counts rather than assurances:
+
+* **0 of 5 arm directories exist** in the run root (`MESH`, `X-S`, `G-S`, `X-P`, `G-P`).
+* **0 rows matching `rc=0`** in `<run root>/ledger.txt`; it holds `ITEM=SO2a` and a
+  single `STAGED` line and nothing else.
+* **0 containers named `so2a_*` have ever been created**, in ANY state — `docker ps -a`
+  across all states returns zero matches, and the same command lists 20 other
+  containers, so the zero is a statement about this item and not about the reader.
+* **0 solver core-minutes** were spent: no container, therefore no solver process.
+
+**And the four reasons this is a repair and not an amendment:** (1) **no frozen byte is
+edited** — the driver already calls the file by that exact name, so supplying it leaves
+the driver's bytes and md5 unchanged; (2) **no arm has ever started**, so the
+first-compute closure has not occurred; (3) **no gate, threshold, band, cap or label
+moves** — the gate is already registered at §5 and supplying its implementation makes
+this frozen document TRUE rather than amending it; (4) the one condition that HAS
+changed is disclosed in A.5 rather than glossed.
+
+### A.5 THE FREEZE CONDITION THAT NO LONGER HOLDS, DISCLOSED
+
+§7's staging note and `so2a_chain_driver.sh`'s comment (4) both record **"the run root
+does not exist at freeze (the freeze condition)"**. **It exists now** — the 23:13:26Z
+fire created and staged it before the defect stalled it. This is stated plainly rather
+than left for a reader to notice.
+
+It is handled, not waved through. The root is **preserved, never deleted**
+(`REFIRE_RUNBOOK.md` §2 forbids a deletion inside a preserved run root). The stopped
+fire's four per-fire artefacts are archived to `_prior_fires/` — chosen because every
+fire begins `rm -rf "$BASE/$ARM"` and an archive inside an arm directory would be
+destroyed by the next fire, whereas `_prior_fires` is not an arm name and the driver
+creates `$BASE` only when absent. The staged inputs (`base/`, `ledger.txt`,
+`so2a_runScript.py`, `so2a_xg.py`) stay in the root and are **NOT trusted**: the
+driver's eight-file staged-md5 assertion sits OUTSIDE the `if [ ! -d "$BASE" ]` staging
+branch and therefore re-verifies every one of them on the next fire before any container
+starts. `ALREADY_BOUGHT` does not block the relaunch, because it greps for an `rc=0`
+row and there is none.
+
+### A.6 THE GATE IS SHOWN ABLE TO REFUSE, BOTH DIRECTIONS, ON THE REAL PATH
+
+Standing rule 3 applied to a guard: **a gate not shown able to refuse is not evidence.**
+This script decides whether an arm may start, so a permissive implementation would wave
+everything through and a green run would look identical either way.
+
+`so2a_aggregate_refusal_selftest.sh` drives the **driver's own bytes** — the aggregate
+loop is EXTRACTED BY LINE RANGE from `so2a_chain_driver.sh` lines 141–155 and asserted
+by its first line, its last line and the call it must contain, so nothing is
+transcribed — against a throwaway base in a temp directory. No run root is written and
+no container is started. The driver's md5 is asserted before AND after every leg and was
+unchanged. Evidence: `so2a_aggregate_memory_REFUSAL_EVIDENCE.txt`, **15 of 15 checks as
+registered, rc 0**:
+
+* **L1, the KNOWN POSITIVE — the defect itself reproduced.** With the script absent the
+  loop **waited**: 6 `AGGREGATE_WAIT` lines, every series payload one field wide, 0
+  proceeds. A harness that could not reproduce SO2a-DRIVER-DEF-1 would have zeros worth
+  nothing.
+* **L2, MUST-WAIT.** The plant is on the **measured** side, not the gate side: this
+  arm's cap planted at 4000 GiB against the **registered** 30.6 GiB ceiling. The real
+  docker and `/proc/meminfo` reading was performed and the real comparison refused —
+  `ok=false`, `aggregate_GiB = 4010.12`, `ceiling_GiB = 30.6` — 3 waits, 0 proceeds.
+* **L3, MUST-PROCEED.** The **registered** 4 GiB cap and **registered** 30.6 GiB
+  ceiling: `ok=true` at `aggregate_GiB = 14.14` against `30.6`, with the one live
+  container correctly named in `live`. The loop broke on poll ONE — 0 waits — and
+  reached the next gate.
+* **L4, the BOUND branch shown REACHABLE, not assumed.** Over-ceiling with the bound
+  shrunk to 2 s: `note=AGGREGATE_BLOCKED_AT_BOUND` in `STATUS.<arm>`,
+  `chain=BLOCKED_AGGREGATE` in `STATUS.chain`, `CHAIN_RC = 6`, 0 proceeds.
+* **L5.** The `ast.Assert` counter is shown counting a **planted** assert (1) before its
+  zero on the real file (0) is believed (L-332).
+
+**ONE DEFECT THE HARNESS COMMITTED AND CAUGHT, RECORDED RATHER THAN QUIETLY FIXED.** L4's
+first run reported the bound branch UNREACHED. It was not: the branch HAD fired — its
+`ABORT AGGREGATE still over … BLOCKED` line was printed — and the next statement died on
+`PERMISSION: unbound variable` under `set -u`, because the harness had not defined a
+variable the real driver defines at its own line 50. **A missing harness variable read
+as a gate that could not refuse.** The fix is not to type the constant into the harness
+but to read it out of the frozen driver's own bytes, so the two cannot disagree.
+
+### A.7 THE SIBLING SWEEP — the root cause closed across the family, not just here
+
+Rule 14: a lesson is not applied until EVERY call site asserts it. SO-2a's copy-forward
+silently dropped a dependency; the question is whether any other item did.
+
+`scripts/sweep_dafoam_script_references.py` walks **every** `.sh` under `cases/dafoam`
+with `os.walk` — **never a recursive grep**, because ugrep honours ignore files and
+races on multi-file output, so a recursive grep's zero here would mean nothing — binds
+`$HERE` to each script's own directory and every other literal `VAR=` assignment, and
+resolves every `$VAR/name`, `${VAR}/name` and bare `python3 name.py` reference against
+the filesystem.
+
+**Validated against a known positive FIRST.** Pointed at the tree exported from `HEAD`
+as it stood **before** this repair, the sweep reports `so2a_aggregate_memory.py`
+**ABSENT** at `curriculum_SO2a/so2a_chain_driver.sh`. It can see the thing it hunts.
+
+**Result on the live tree: 83 shell files walked, 437 references resolved, 417 PRESENT,
+0 ABSENT, 20 RUNTIME.** The 20 RUNTIME rows are targets under a run root, created by the
+fire rather than shipped; each was traced to a staging `cp` and to a source that exists
+(`curriculum_D6R/`, `curriculum_D4/`, and each item's own case directory). **No second
+instance of SO2a-DRIVER-DEF-1 exists in `cases/dafoam`.**
+
+**A FALSE POSITIVE THE SWEEP PRODUCED AND THIS LANE CAUGHT BEFORE REPORTING IT.** The
+first version reported `curriculum_D18R_P7`'s `./d18_grade.py` ABSENT. It is not: the
+line reads `( cd "$D18" && python3 ./d18_grade.py … )` and `$D18/d18_grade.py` is
+present. The resolver ignored the preceding `cd`. **A false ABSENT is not a harmless
+extra row — it is the noise a real ABSENT hides in**, so the resolver was fixed rather
+than the row annotated, and the known positive was re-driven afterwards to prove the fix
+did not blind it.
+
+### A.8 What this addendum does NOT do
+
+It does not repair any other item — the sweep found nothing to repair, and had it found
+something, the repair would have gone to the supervisor first. It does not re-open §3,
+§4, §5 or §6. It does not convert this item's `PENDING` into any verdict: **SO-2a has
+still bought nothing**, and its label remains `PENDING` until arms run and
+`so2a_grade.py` grades them.

@@ -1,0 +1,46 @@
+DELTAS: curriculum_SO1a/so1a_aggregate_memory.py  ->  curriculum_SO2a/so2a_aggregate_memory.py
+Produced 2026-08-30 by the dafoam lane repairing SO2a-DRIVER-DEF-1, under the
+dafoam-supervisor's rule-2 ruling of the same evening.
+
+    $ diff -u curriculum_SO1a/so1a_aggregate_memory.py \
+              curriculum_SO2a/so2a_aggregate_memory.py
+
+    (zero lines of output)
+
+THE DELTA IS EMPTY.  The adopted file is a BYTE-FOR-BYTE copy of SO-1a's, under
+this item's name.  The only difference between the two paths is the filename,
+which is what `so2a_chain_driver.sh:143` calls:
+
+    AGG=$(python3 "$HERE/so2a_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+
+md5 of the adopted file  : 709ab0b98ef0302a3a3a318588f9493f
+md5 of the SO-1a original: 709ab0b98ef0302a3a3a318588f9493f
+
+WHY SO-1a WAS THE SIBLING ADOPTED FROM.  SO-2a's other four DELTAS files are all
+measured against SO-1a (`so2a_chain_driver_DELTAS_from_so1a.diff`,
+`so2a_run_arm_DELTAS_from_so1a.diff`, `so2a_grade_DELTAS_from_so1a_grade.diff`,
+`so2a_xg_DELTAS_from_so1a_xf.diff`), and §7 of PREREGISTRATION.md names SO-1a as
+the copy-forward parent in its own heading.  SO-1a is therefore the parent whose
+copy-forward dropped this dependency, and adopting from the same parent is what
+makes this a repair of the copy rather than a fresh import from elsewhere.
+
+THE CHOICE OF SIBLING COULD NOT HAVE CHANGED THE BYTES.  All NINE siblings that
+ship this script are byte-identical at md5 709ab0b98ef0302a3a3a318588f9493f:
+so1a, so1b, so1c, av1, av1r, av2, av2r, d15, d16 (measured 2026-08-30).  The
+script contains no item name, no run root, no path, no threshold, no unit and no
+constant of any kind — its ceiling and this arm's cap both arrive as argv, from
+the driver.  `grep -cE 'so1a|so2a|SO1a|SO2a|curriculum|certonomous-runs|CURRICULUM'`
+returns 0 on the adopted file.
+
+WHAT WAS **NOT** TOUCHED, NAMED EXPLICITLY BECAUSE THE RULING FORBADE IT.  No
+threshold moved: the ceiling is `sys.argv[2]`, supplied by the driver's frozen
+`AGG_CEILING_GIB=30.6`.  No unit changed: caps stay bytes/2**30, docker stats
+stays MiB/GiB/bytes-per-token, /proc/meminfo stays kB/2**20.  No rounding
+changed: `round(..., 2)` on the three reported figures, and — the one that
+matters — the reported figures are ROUNDED WHILE THE COMPARISON IS NOT, since
+`ok` is `bool(agg < ceil)` on the UNROUNDED `agg`.  The ceiling comparison
+itself is unchanged and remains STRICT `<`.  Any of these would have been a gate
+change wearing a repair's clothes and is outside the ruling.
+
+`ast.Assert` count in the adopted file: 0 (L-332), counter shown counting a
+planted assert in `so2a_aggregate_memory_REFUSAL_EVIDENCE.txt`.
