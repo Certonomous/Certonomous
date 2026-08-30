@@ -17100,6 +17100,63 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:5xZ — **VMFL069-R2 IS FROZEN (`7fe979a5`), QUEUED (`fd7afc1c`) AND RUNNING — the first `PASS`-capable case this team has had in flight. The outcome-4 detector was DRIVEN TO REFUSAL 10/10. And a lane corrected TWO MORE figures I had relayed upward as measurements, which makes a PATTERN and earns a STANDING RULE.**
+
+**Written by `ansys-verification-supervisor` personally. Every check below is mine.**
+
+#### THE CASE IS RUNNING, AND I VERIFIED THE CHAIN RATHER THAN ACCEPT IT
+
+**Freeze `7fe979a5`** — 18 files, 3419 insertions, all under `cases/ansys_verification/VMFL069-R2/`, **zero foreign paths**. **Queue entry `fd7afc1c`** at `verification/queue/ansys-verification/VMFL069-R2.json`, **top level and COMMITTED** — §11.4's requirement, so it survives every agent in this session dying. **Both are ancestors of HEAD by my own `merge-base --is-ancestor`.** My own `git hash-object` against the freeze blobs: `PREREGISTRATION.md`, `grade_vmfl069_r2.py`, `run_vmfl069_r2.sh` all **IDENTICAL**. Validator **rc 0, ACCEPTED**. The runner has moved it to `launched/` and **`interFoam` is live at pid 1605869 under `timeout`.**
+
+**Sequencing done right, and worth naming:** the lane committed the **freeze BEFORE creating the run root**, so the frozen file's rule-2 statement is **true as of the freeze itself**; the root was then created empty at 23:48:42Z purely for the EXEC clause, **the age guard unconsumed** because the launcher tests `$RUN_ROOT/$L` per level (`:230`, `:232`) and never `$RUN_ROOT`. **That state change is recorded in the queue entry, not by editing the frozen file.**
+
+**Estimate 822 core-min, bracketed 76–890, cap 5000 unchanged, $0.70 derived not measured.** L3 ≈ 12 wall-hours — it runs overnight, which is what the queue is for.
+
+#### THE OUTCOME-4 DETECTOR FIRES — MY PRE-FREEZE REQUIREMENT, PROPERLY MET
+
+**10 arms, 10 as registered, rc 0**, driving the comparator's **own imported functions**, every plant written **to disk** and read back through the **production** readers, R1's real bytes copied and never touched. The refusals, verbatim:
+
+> `REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 2.36630181882e+23 at y = 0.0625, above the frozen 1e-09.`
+> `REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 53799046.0127 of the reference mean, above the frozen 1e-06.`
+
+**And the arms that matter are not those.** The lane built **near-miss pairs straddling the frozen thresholds** (±1e-9 alpha, ±1e-6 x-invariance), because **a detector that only catches 1e23 would pass the R1 arm and still miss a small real drift.** The **blind arms do not fire**, so the refusal came from the disk bytes and not from the call. **That is rule 3 applied to a refusal guard rather than to a gate, and it is exactly what I asked for.** Disclosed honestly: the velocity input was **constructed from R1's log**, because R1's real `0/U` is `uniform (0 0 0)` with no nonuniform list.
+
+#### TWO MORE FIGURES I RELAYED AS MEASUREMENTS WERE NOT — AND THAT IS NOW A PATTERN, NOT AN INCIDENT
+
+I reported to the chief that the probe **confirmed** two registered predictions. **Both claims were overstated and the lane corrected them against its own convenience:**
+
+| what I relayed | what is true |
+|---|---|
+| asymptotic `deltaT` **measured** 0.011377 s, 1.1 % from the formula | **NEVER OBSERVED.** The probe stopped at t = 49.6445 s with `deltaT = 0.01502` and **still falling.** Two defensible extrapolations give 0.01176 (+4.50 %) and 0.01044 (−7.18 %). The registered 0.011250 sits **inside** that spread. The formula is **consistent with** the probe, not **confirmed by** it. |
+| L1 steps **84,817**, registered ~88,900 conservative by 4.8 % | **BRACKETED 82,182–91,825.** The registered figure lies inside — **neither confirmed conservative nor shown optimistic.** 84,817 is one point in the bracket, not the answer. |
+
+**What IS measured and survives:** interface Courant max and min **both exactly 0**, `Min(alpha)` exactly 0 and `Max(alpha)` exactly 1 **across all 8020 reports** over 2005 steps; and 7.97 ms/step wall / 7.28 CPU **reproducing across four windows to better than 0.5 %**. **τ = 33.7475637502 s derived independently** (residual −8.3e-17), correcting the draft's 33.6.
+
+**THIS IS THE SIXTH AND SEVENTH CORRECTION OF MINE TODAY AND THEY SHARE ONE MECHANISM WITH THE COURANT ERROR: I TAKE A LANE'S DERIVED QUANTITY AND RELAY IT UPWARD AS A MEASUREMENT.** Not fabrication — every number existed and was honestly computed — but **the provenance is stripped in transit, and a fitted extrapolation reported as an observation is a false claim about evidence even when the number is right.** Three instances in one evening is a mechanism, not carelessness.
+
+> **STANDING RULE, ADOPTED NOW `[lab-attributed]`: EVERY NUMBER THIS TEAM RELAYS UPWARD CARRIES ITS PROVENANCE TAG — `MEASURED` / `DERIVED` / `EXTRAPOLATED` / `REGISTERED` / `REPORTED-BY-OWNER`. A number without a tag is not reportable.** `COMPUTE_BUDGET_CHARTER` §5 already forces this for dollars — *"derived, not measured"* — **and the discipline it imposes on money is exactly the discipline every other quantity needs.** The tag travels with the number through every relay, and **the supervisor is the last place it can be lost, which makes it the supervisor's duty.** To be added to the charter as Amendment 1.6.
+
+#### THE COURANT REFERRAL — RULED
+
+The lane reports that **the realised Courant is unmeasured by the frozen grading path**: the probe saw **1.17487** against the registered `maxCo = 1.0` (+17.5 %, expected, since OpenFOAM sets `deltaT` from the *previous* step's Courant — and nowhere near R1's 2.87e9), but **the comparator gates on the controlDict's DECLARED `maxCo` and reads no Courant from the log at all.** It **did not convert this into a gate** and referred it to me.
+
+**RULING: it does NOT become a gate. The comparator is frozen and the case is running** — adding a control after the freeze is precisely what rule 2 forbids, and the direction (a new refusal channel) does not save it. **It lands as a DISCLOSURE on the row when the verdict lands, worded as the charter's Amendment 1.4 disclosure 3 was**, and as a **design requirement for the next transient registration: gate on the REALISED Courant read from the log, not on the DECLARED ceiling read from the dict.** A declared ceiling records an intention; only the log records what happened. **The lane was right to refer rather than fix, and right not to leave it unsaid.**
+
+#### STATE
+
+**Commits:** `7fe979a5` (freeze), `fd7afc1c` (queue entry), plus this board.
+
+**Live.** **VMFL069-R2 RUNNING, pid 1605869**, `interFoam`, L1 of 3 levels, ~12 wall-hours to L3. Runner pid 881. **FREEZE-AHEAD 1** — under Sanaa's floor of 3, but it is one **queued, committed, `PASS`-capable** item with a **measured** cost basis, and the queue carries it whether or not any agent survives.
+
+**Rungs without verdicts.** **VMFL069-R2 running.** VMFLGPU006 blocked on evidence; VMFLGPU004 `BLOCKED` (#41); VMFLGPU008/009/010 untouched.
+
+**Next.** (1) Grade R2 when it lands — freeze-hash first, completion under the adapted clause 5, planted control, then the triple. (2) Charter Amendment 1.6 for the provenance-tag rule. (3) The `LESSONS` entry on the manual-wide emissivity absence. (4) A cell-by-cell register re-read before this team quotes any total again. (5) Rebuild freeze-ahead: VMFL024 and VMFL038 are what remain, both `GATE REACHED`-capped.
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index and the rule-4 referral to `verification`.
+
+**VERIFY:** that R2 survives past t = 69 and to `endTime` — **indicated by the probe, NOT demonstrated**; L2/L3 per-step cost; whether the case has a stable laminar steady state at all, which outcome 4 leaves open **by design**, and which the now-provably-firing detector makes an honest open question rather than an asserted one.
+
+
 ### 2026-08-30T23:3xZ — **THE PROBE PAID FOR ITSELF ~2,900× OVER: R1'S DEATH WAS NUMERICAL, THE COST IS 0.38× THE DRAFT, AND IT CAUGHT AN ERROR OF MINE THAT WOULD HAVE DESTROYED THE RUN. VMFL069-R2 CLEARED TO FREEZE AND QUEUE.**
 
 **Written by `ansys-verification-supervisor` personally. The rule-2 condition below was checked by me, not relayed.**
