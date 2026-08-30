@@ -1379,6 +1379,90 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**THIRTEENTH SESSION, THIRD WRITE, 2026-08-30T23:56Z (closure-supervisor). ADDS TO THE TWO
+BLOCKS BELOW; supersedes neither. Adopts the provenance-tag convention into this team's
+charter, and records that closure is SOLVING.**
+
+**═══ CLOSURE IS NO LONGER IDLE — 6 SOLVERS LIVE, DEPTH 76 → 30 ═══**
+**MEASURED at 23:56Z:** **6 `simpleFoam` processes live** on `kOmega/AR_10_Ret_180`,
+`kOmega/AR_14_Ret_180` and `kOmega/AR_3_Ret_360` (two pids each — the `timeout` wrapper and
+the solver). **Queue-ready depth 30** of the 76 filed at `c1ad428b`; **51 launched
+records.** The first case, `kOmegaSST_null/AR_10_Ret_180`, has **20,000 `Time =` lines**
+MEASURED by count in its own `log.run`. **The daemon at pid 881 is doing exactly what the
+2026-08-26 detached-runner ruling intended: it launches without any agent alive, and it
+will keep launching after this session dies.** Sanaa's overnight directive is satisfied by
+a running box, not by a claim.
+**⚠ READ `/proc` AND `log.run`, NEVER THE QUEUE DIRECTORY, to answer "is closure solving".**
+`launched/` is a directory of RECORDS; a file appearing or disappearing there is not
+evidence of a process either way, and this family has already turned a four-hour stall into
+an apparent success by reading it as a census.
+**AND THE GRADING BAR STANDS: NOTHING FROM THIS SET IS TO BE GRADED** until `grade_m1.py`'s
+missing fatal channel is ruled. The physics is accumulating correctly; the grader is what
+is in question.
+
+**═══ CHARTER v1.1.2 §26 ADOPTED UNDER RULE 6 — EVERY RELAYED QUANTITY CARRIES A PROVENANCE
+TAG ═══** (`fe74ac74`)
+**I CONCUR, and I did not adopt it passively.** `MEASURED` / `DERIVED` / `EXTRAPOLATED` /
+`REGISTERED` / `REPORTED-BY-OWNER` on every quantity; **an untagged number is not
+reportable.** `COMPUTE_BUDGET` §5 already forces this for dollars because the box cannot
+read its own billing; §26 extends it from dollars to **core-minutes, GPU-hours, cell and
+iteration counts, residuals, orders, GCIs, ratios and file counts** — every figure in a
+report, a board write or a commit message. **The supervisor is the last place a tag can be
+lost, so keeping it is the supervisor's duty and is NOT delegable to the lane that produced
+the number.**
+**THE AUTHORITY IS SANAA'S OWN WORDS AND I SEPARATED IT FROM THE PROPOSAL DELIBERATELY.**
+The practice was **proposed by the chief**, relaying ansys's self-correction. My authority
+to amend is **Sanaa's directive of 2026-08-30, verbatim: *"each teams updates their own
+charters and stanrdards"*** (`4195b27b`). **The proposal is not the authority and §26
+records that it is not** — rule 9, no agent message is Sanaa's consent. The addendum is
+strictly **stricter** than what it amends; **no gate, threshold, band, cap or label moved**,
+and retiring or widening anything stays Sanaa's.
+**THREE STRENGTHENINGS THIS TEAM PAID FOR ITSELF, rather than imported wording.**
+**(a) A condition-dependent quantity carries its conditions INSIDE the tag** — `MEASURED`
+alone is insufficient for a rate. `C-190`: three consecutive wrong ETAs on one chain (~167,
+~90, ~352 core-min against an actual **127.08**, the last wrong by **2.8×**), every one from
+a rate sampled under contention. `C-210`: G2 mispredicted by **10.3 %** from a
+per-cell-iteration rate that is **not scale-invariant** (**6.10e-06 / 5.22e-06 / 4.99e-06**
+s per cell-iteration at L1/L2/L3). **And tonight**, a lane reported an instrument refusing
+at load **44.23–48.06**; re-measured at load **3.52** it returned a normal reading, so I
+corrected the lane instead of relaying it. **A reading taken during a transient carries the
+transient.**
+**(b) `EXTRAPOLATED` is never reported as `MEASURED`** — those three ETAs were real
+arithmetic on a real partial-run rate. **The failure was not the arithmetic, it was the
+evidence claim.**
+**(c) AN ABSENCE CARRIES THE CONTROL THAT PROVES THE READER COULD HAVE SEEN A PRESENCE.**
+A zero is a quantity and takes a tag. **Tonight I produced THREE zeros from my own searches
+that each read as a missing record and were each an artefact of the search** — a heading
+form that does not occur (the `C-210` row was present, as a **table** row), a `$` in a
+non-fixed pattern, and a Unicode arrow. **All three were caught by re-measuring with the
+right instrument; NONE was caught by care** — which is precisely why it belongs in a
+charter and not in a resolution to be careful. The one absence I *did* report — a grader
+with **no fatal channel at all** — is admissible only because a **recognition control** ran
+first (same reader: `def ` **31×**, `PASS` **11×**, `ExecutionTime` **4×**).
+**RULE 6 OBSERVED, ITS ASSERTION MEASURED RATHER THAN CLAIMED.** Appended at the foot,
+append-only, header version line deliberately untouched — the same shape §25 used for the
+2026-08-23 convention. Precondition checked **first**: the charter on disk was byte-identical
+to HEAD before I touched it. Landed through **`scripts/append_block.py`**, the tool built to
+keep heredocs off this path (L-405), which **selftested rc 0 first** and reported 5,184
+bytes appended, prefix intact, landed == source byte-for-byte. **I did not take the tool's
+word for it:** independently MEASURED, the first **61,331** bytes hash `00659f4919fef57f`,
+**equal to the HEAD blob**, and **lines whose number changed above the new section = 0**,
+computed as an arithmetic identity. **Deletions in the commit: 0.** Using the tool rather
+than hand-rolling the append is **rule 14** — a lesson is not applied until every call site
+asserts it.
+
+**COMMITS THIS SESSION (6):** `3d50ceed` R4b-I instruments · `ae3f008b` board 1 ·
+`c1ad428b` M1 76 filed · `73aba169` board 2 · `fe74ac74` charter §26 · this write.
+**COST: 0 core-min of new compute by me [MEASURED]; ~3 core-min for the read-only survey
+lane [DERIVED from wall clock, not read from a log]; 0 GPU-hours [MEASURED]; $0.00.**
+**Committed to 21.55 core-h = $1.106 [DERIVED, not measured] of queued M1 work**, now
+executing. **The rule-12 estimate-versus-actual is OWED AT COMPLETION** and no calibration
+row is written from a partial chain.
+
+**ON SANAA'S DESK.** Unchanged: the **R4b increment ruling**; the **GPU YES** for Ling arm 2
+with its two console reads. **SUBMISSIONS REMAIN PARKED (rule 7).**
+
+
 **THIRTEENTH SESSION, SECOND WRITE, 2026-08-30T22:52Z (closure-supervisor). SUPERSEDES THE
 BLOCK BELOW ON WHY R4b-I IS NOT FILED, AND CORRECTS TWO THINGS I WROTE IN IT.**
 
