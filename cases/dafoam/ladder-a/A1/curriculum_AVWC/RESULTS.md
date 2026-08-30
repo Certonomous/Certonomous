@@ -366,3 +366,91 @@ Preserved run roots, outside git and never written:
 own original grade JSON, per-arm artefacts, per-arm age datums, solver logs and memory windows.
 
 This lane's re-run working directory was transient and is **not** cited by this record.
+
+---
+
+## Amendment record — v1.0 to v1.1, 2026-08-30T23:50Z: §7's CALIBRATION ROW ID IS WRONG. IT IS `C-212`, NOT `C-211`, AND `C-211` BELONGS TO ANOTHER TEAM
+
+**Rule 6 assertion: lines whose number changed above this section: 0.** This is an APPEND at the foot
+and nothing above it was edited. **Proved by byte comparison, not asserted.** The block was landed
+through `scripts/append_block.py`, which reads the body from a file as bytes so that no shell ever
+sees it, compares the landed tail byte-for-byte against the bytes intended, and REVERTS the write on
+any difference. Independently of that tool, this lane took a copy of the file before the append: the
+pre-append file was **26,306 bytes**, md5 **`5239e81640cac0c0bb39cfab0038377e`**, identical to
+`git cat-file blob HEAD:cases/dafoam/ladder-a/A1/curriculum_AVWC/RESULTS.md` at the time of writing,
+and the first 26,306 bytes of the file after the append were compared against that copy and are
+**byte-identical**. **Version: this record was previously unversioned (v1.0 implied); it is v1.1 as of
+this amendment.** No gate, threshold, band edge, cap or label above is altered, no verdict above is
+restated, and no cost figure above is changed.
+
+### What is wrong, precisely
+
+§7 above closes: *"The calibration row is `C-211` in `docs/COST_CALIBRATION.md`."*
+
+| | |
+|---|---|
+| id written in §7 | **`C-211`** — **WRONG** |
+| id of this item's row | **`C-212`** |
+| what `C-211` actually is | an **`ansys-verification`** row — **VMFL063**, *Separated Laminar Flow Over a Blunt Plate*, register row #44, verdict `GATE FAIL`, landed by that team |
+
+**The wrong id points at another team's record.** `C-212` is the row that carries AVWC's own numbers,
+and it is identified as AVWC's by its content and not merely by its position: it is dated 2026-08-30,
+team **dafoam**, subject **AVWC**, and it records **1.33353 core-min MEASURED** against a registered
+**3.00** core-min at ratio **0.4445** and 13.3 % of the 10.00 cap — the same figures §7 above states.
+`C-211` records 13.8333 core-min against a registered 16 for a four-solve `simpleFoam` family, which
+is not this item and shares no figure with it.
+
+**Nothing in the ledger is wrong and nothing there needs to move.** `docs/COST_CALIBRATION.md` carries
+AVWC's row at the correct id. The defect is confined to this one sentence of prose in this record.
+
+### The cause — ESTABLISHED FROM THE COMMIT TIMELINE, not offered as an inference
+
+This lane can state the mechanism as measured rather than supposed, and does so because a diagnosis
+labelled "likely" when it is checkable is a diagnosis that was not checked:
+
+1. Immediately before the `ansys-verification` commit, the maximum `C-` id in
+   `docs/COST_CALIBRATION.md` was **`C-210`**, read from
+   `git show bf27e151^:docs/COST_CALIBRATION.md`. **A rule-11 tail read taken at any moment before
+   that commit therefore yields `C-211` as the next free id, and `C-211` was the correct answer.**
+2. `ansys-verification` took `C-211` at commit **`bf27e151`**, committed **2026-08-30T22:55:14Z**.
+3. This record landed at commit **`7fd01e25`**, committed **2026-08-30T22:57:01Z** — **107 seconds
+   later**. From 22:55:14Z onward, `C-211` was no longer free.
+4. **The decisive evidence is internal to that single commit.** `7fd01e25` wrote the ledger row into
+   `docs/COST_CALIBRATION.md` as **`C-212`** — correct, because rule 11 requires the id to be
+   re-derived from the tail *in the committing invocation* — while writing **`C-211`** into §7 of this
+   file. **One commit, two ids for one row, disagreeing.** That is the signature of an id re-derived
+   at commit time for the ledger and carried from an earlier reading in the prose.
+
+**What remains genuinely unestablished, and is not dressed up as established:** the exact moment §7's
+sentence was authored is not recorded anywhere, so this lane cannot name the instant of the stale
+read. What is established is that `C-211` was correct until 22:55:14Z, wrong from then on, and that
+the prose and the ledger written in the same commit 107 seconds later do not agree — which is
+sufficient to locate the mechanism without guessing at the clock.
+
+**This is rule 11's hazard in its exact registered form**, and it caught two teams in the same
+minute in opposite directions: `docs/LAB_STATE.md` records the `ansys-verification` lane finding that
+*"`C-211` as I briefed it was STALE: dafoam landed `C-212` mid-flight"* on the same evening. The
+remedy rule 11 already names — re-derive the maximum in the committing invocation — was applied to
+the ledger row here and not to the prose citing it. **A record that cites an id it did not re-derive
+at commit time is citing a reading, not a row.**
+
+### Scope of this correction, and what it deliberately does not touch
+
+* **§7's cost figures are untouched and none is restated as a different number.** The 1.33353
+  core-min, the 3.00 registered estimate, the 0.4445 ratio, the 10.00 cap, the $0.0011402 DERIVED
+  dollars and the REPORTED-BY-OWNER `cost_basis` all stand exactly as landed. **Only the row id is
+  wrong.**
+* **No other record is edited by this lane.** `cases/dafoam/ladder-a/A1/curriculum_AV1R/RESULTS.md`
+  §7 already carries a correct flag of this discrepancy and already gives the right id, `C-212`; it
+  needs no change, and its caveat that the cause was *"an inference, not a measurement"* was honest
+  when written and is now superseded by the timeline above.
+* **`docs/COST_CALIBRATION.md` is another team's file at `C-211` and was NOT touched.**
+* **One further occurrence of `C-211` exists outside dafoam territory and is reported, not
+  corrected:** `docs/campaigns/T-family/T3c_PREREGISTRATION.md` cites *"the C-211 cost row"* for a
+  T-family draft row. That is heat-transfer's document and a **separate** misnumbering — the board at
+  `docs/LAB_STATE.md` already records the underlying T3 draft row as misnumbered and to be renumbered
+  when landed. **Correcting another team's record is not this lane's call**, and it is flagged upward
+  rather than fixed.
+
+**Nothing in this amendment is filed, sent, uploaded, registered, posted or commented outside this
+box.** SUBMISSIONS PARKED (`CLAUDE.md` rule 7).
