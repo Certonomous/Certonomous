@@ -1195,3 +1195,229 @@ Dollars **$0.0053 expected, $0.0171 at the unchanged cap — DERIVED, NOT MEASUR
 | md5 of the frozen blob at `57d31dde` | `4074e8981e9ae34a5f03f49b2d4b21ed` |
 | md5 of this file's first 990 lines after the append | `4074e8981e9ae34a5f03f49b2d4b21ed` |
 | the two digests | `**EQUAL — the assertion holds, MEASURED**` |
+
+---
+
+## AMENDMENT 2 — 2026-08-30T23:44Z (PRE-COMPUTE) — §12's frozen-file table COMPLETED: the six drivers exist, and each is recorded by `sha256`
+
+**Version 1.2. Lines whose number changed above this section: 0 — MEASURED, not
+recited.** This block is appended at the foot. The 1,197 lines above it are
+byte-identical to their state at the AMENDMENT 1 commit `440aca3d`, asserted by
+taking the **md5 of that commit's blob**
+(`git show 440aca3d:verification/campaign/F23b_HP_WEDGE_PREREGISTRATION.md`) and the
+**md5 of the first 1,197 lines of this file after the append**, and requiring them
+equal. The two digests are printed in the amendment record at the foot of this
+block. The **freeze commit `57d31dde`'s blob is likewise still a byte-exact PREFIX
+of this file**, checked independently in this invocation and recorded below. The
+assertion is measured because F23b's frozen sha is cited elsewhere and a line shift
+above this point would break those citations.
+
+**§12 said "to be completed by the supervisor" and every entry was an unfilled
+placeholder. `cases/F23b_HP_WEDGE/` did not exist on disk and tracked 0 paths at
+`57d31dde`. That is repaired here, and NOT by editing §12: rule 6 says a frozen
+file is never edited, so the completed table is APPENDED as this dated amendment.
+§12's placeholder lines stand exactly as frozen, and this block supersedes them.**
+
+### A2.1 THE RULE-2 CONDITION, AND HOW IT WAS CHECKED
+
+Rule 2: *"Before first compute, amendments are legal **and must state the condition
+and how it was checked** (name the run directory that does not exist)."*
+
+**The run directory that does not exist is `verification/runs/F23b_HP_WEDGE_runs`.**
+Checked in this invocation at **2026-08-30T23:44Z**, `test -e` on the path: **ABSENT**. So is
+`verification/runs/F23b_runs`. `find verification/runs -maxdepth 1 -name 'F23b*'`
+returned **0** entries.
+
+**PLANTED CONTROL ON THE ABSENCE READER (rule 3 — a zero from a reader not shown
+able to see a non-zero is not evidence).** The same `test -e` loop, in the same
+invocation, returned **PRESENT** for `verification/runs/F23_HP_WEDGE_runs` and for
+this file's own path. The reader can return a non-zero, so its ABSENT readings are
+evidence.
+
+**0.000 solver core-minutes have been spent on this rung.** The drivers were built
+and their instrument controls driven; **no solver started, `blockMesh` was never
+run against a ladder level, and the run root was never created** — `--preflight`
+was driven twice and `test -e` on the run root reads ABSENT after both. The
+instrument work is read-only over F23's retained artifacts plus scratch copies, and
+is charged to INFRASTRUCTURE, folded into no case ratio
+(`COMPUTE_BUDGET_CHARTER.md` §6). **F23b is pre-compute and this amendment is
+legal.**
+
+**The pre-ladder arms A0 and A4–A7 are NOT driven by this amendment.** They are
+registered compute under the freeze sha and are the supervisor's to start; driving
+them ahead of the freeze is the exact rule-2 defect §5.5 and §11 record and repair.
+
+### A2.2 §12'S TABLE, COMPLETED
+
+Every file below is on disk and is tracked at commit **3c621ee9bfe370f8f3381fee5c46f25406a38fe9** (16 paths, 4,699
+insertions, **0 deletions**, verified parent-explicit after the commit).
+
+    cases/F23b_HP_WEDGE/exact_f23b.py      sha256 61e3f9fd41e5bc4a5932e70c4954c19e7719ff2412bb5d849f4b22a7e31308a2
+    cases/F23b_HP_WEDGE/build_f23b.py      sha256 c4ab65465a74c65416b46f237359f3d05778daec31b214dee5ece77842a8b409   <- carries G-WEDGE (§4.3, AMENDMENT 1)
+    cases/F23b_HP_WEDGE/foam_io_f23b.py    sha256 8a25d0e5c6ea079f0a1dfabfb0fad940eba923c25cf8155fc61ee198353c761f
+    cases/F23b_HP_WEDGE/grade_f23b.py      sha256 1576399bbf547cb6308369db0151ab834cf6d67948663af8474a596829113e77
+    cases/F23b_HP_WEDGE/proj_f23b.py       sha256 afad6d0240408e8e75269a2254237842efe9f4ab1582b9c30f5e00f9029e5ced
+    cases/F23b_HP_WEDGE/run_f23b.sh        sha256 ebc9d441968cffc512a0be7ca7884ed93abd99104a18fb4683d3a25aa0c66383
+
+    cases/F23b_HP_WEDGE/case/0/p                             sha256 c23125965b6f7d3ddbcb79c881e1bf0978ce168cf8c75ed3539a1621bfb750fb
+    cases/F23b_HP_WEDGE/case/0/U.template                    sha256 e12dd55c74aef1792aa3dbc18daf484e05311309d2112470d645ca43a978d8a2
+    cases/F23b_HP_WEDGE/case/constant/transportProperties    sha256 d85533caee187bbdca22f3dce5b8c05507370b93225105946e7416be32ee0515
+    cases/F23b_HP_WEDGE/case/constant/turbulenceProperties   sha256 69c7b4ecbae1a0c239bf8a1a8c7e2b056e858bb4216d1ec1770510e56bf212f9
+    cases/F23b_HP_WEDGE/case/constant/fvOptions              sha256 190430aa40a89cb6e7d14e83136a0b2c92023df229737f8feb756acdcdd7c280
+    cases/F23b_HP_WEDGE/case/system/blockMeshDict.template   sha256 b628c758868caaeadc3c663208ab349a7fe71f8a01ff01e5285afbbb5a6ebd8a
+    cases/F23b_HP_WEDGE/case/system/controlDict              sha256 45cfecf914f20e45b7ea5ee29ad870ca9de96b2199c0fd98529b374c1c3e20a0
+    cases/F23b_HP_WEDGE/case/system/fvSchemes                sha256 94075f352f4ca623c01a9e971444c5b00aa12861f6a8a587cd8295d799606767
+    cases/F23b_HP_WEDGE/case/system/fvSolution               sha256 ec36f2eb298c0adcaa0621da1241c8af116e13a4b7fea4e2d91eb2daf62f659a
+    cases/F23b_HP_WEDGE/case/system/decomposeParDict         sha256 43c7d49d0ef61adea3c02accd4569e4dd0500bdb0da1142de1f7aaaa3149fd80
+
+**The eight dictionaries §2 registers as kept BYTE-FOR-BYTE from F23 were verified
+byte-identical to `cases/F23_HP_WEDGE/case/...` by `cmp` at the moment they were
+copied**: `0/p`, `0/U.template`, `constant/{transportProperties,
+turbulenceProperties, fvOptions}`, `system/{blockMeshDict.template, fvSchemes,
+decomposeParDict}`. Only `system/fvSolution` and `system/controlDict` differ, which
+is exactly the change §2 and §5.3 register and no more.
+
+**`queue_entry_F23b_HP_WEDGE.json` is NOT created by this amendment.** §11 holds it
+in the case directory until the supervisor's checks, and a peer lane owns cfd's
+queue drops; two lanes filing one entry is two records for one run.
+
+### A2.3 THE FREEZE VERIFIER, AND WHY IT IS A PREFIX CHECK
+
+`grade_f23b.py` REQUIRES `--prereg-commit`, RESOLVES it, and **CHECKS it equals this
+rung's freeze commit `57d31dde434f3af8332cc8a882808bdb28e21079`** — it does not
+merely record it. **Four of five cfd graders require the flag and then only record
+it, so any forty-hex string satisfies them, which defeats rule 2 entirely; that is
+not repeated here.**
+
+It then verifies this document by **PREFIX** rather than by full-file hash, and the
+reason is this section's own existence: **rule 6 permits dated amendments appended
+at the foot, so a grader that hard-codes one blob sha for an amendable registration
+breaks the moment a legal amendment lands.** `verify_freeze_prefix` requires the
+committed blob to be a **byte-exact prefix of the file on disk**, at `57d31dde` and
+at `440aca3d`. That IS rule 6's *"lines whose number changed above this section:
+0"*, measured rather than recited, and it survives this amendment and any later
+one — which is why **AMENDMENT 2's own commit does not need to be added to the
+verifier**. `verify_freeze` in its full blob-`sha1` form is carried and is applied to
+the six case files under the optional `--case-freeze-commit`, which take no
+amendments.
+
+The verifier is itself an instrument and so carries its own birth control, driven
+both ways at every entry: it ACCEPTS the real registration at both commits, and
+REFUSES a one-byte mutation, a truncation, and a wrong `--prereg-commit`.
+
+### A2.4 WHAT THE DRIVERS REPRODUCE — the evidence that they are THIS document's
+
+An instrument that merely runs is not this registration's instrument. Every figure
+below was recomputed by the committed code from the artifacts, and each equals the
+figure this document already printed:
+
+| §4.2 / §4.4 | registered | reproduced |
+|---|---|---|
+| checkMesh's printed wedge angle, coarse | 0.0400002766821 | 0.04000027668213 |
+| checkMesh's printed wedge angle, fine | 0.0400027202903 | 0.04000272029028 |
+| 1 − \|n̄\|, coarse / fine | 3.371303e−12 / 3.314704e−11 | identical |
+| the same under `math.fsum` | **0.0** / **0.0** | identical |
+| limb 1, coarse / fine, unplanted | 1.895413e−10 / 7.569059e−10 | identical |
+| limb 1, plant at 3×TOL, coarse / fine | 3.645948e−06×10 / 2.143442e−06 | 3.645948e−05 (3.0000×) / 2.143442e−06 (3.0011×) |
+| limb 1, plant at 0.10, coarse / fine | 8,228× / 140,013× | 8228.33× / 140013.06× |
+| plant round trip, max \|Δz\| | 4.94e−16 | 4.946e−16 (coarse), 4.940e−16 (fine) |
+
+| §5.1 / C-7 | registered | reproduced |
+|---|---|---|
+| f·Re at iteration 4000, coarse / medium | 66.407 / 110.519 | 66.407328 / 110.518995 |
+| plateau drift, coarse / medium | 5.598771e−02 / 2.055168e−01 | identical |
+| occupancy against §5.4's tolerance | 4,606× / 68,435× | 4606.9× / 68434.3× |
+
+| §6 / §9.3 | registered | reproduced |
+|---|---|---|
+| E2n predicted, the three levels | 1.149980e−04 / 2.869164e−05 / 7.128682e−06 | identical |
+| f·Re predicted, the three levels | 63.992221588 / 63.998078262 / 63.999542924 | identical |
+| G-F23b-1 band | [2.376227e−06, 2.138605e−05] | identical |
+| G-F23b-2 band | [63.998628773, 64.001371227] | identical |
+| ESTIMATE / CAP at N_ITER = 400 | 202.366 / 293.0 | 202.366171 / 293.0 |
+| per-level core-min | 7.520 / 31.427 / 163.419 | 7.520003 / 31.426801 / 163.419367 |
+| ladder wall allowances | 4,395 / 4,282 / 3,810 s | identical |
+| pre-ladder allowances, A0 / ARM-P / ARM-F | 300 / 293 / 180 s | identical |
+| TOTAL_RUNG_CAP | 313.0 | 313.0 |
+
+### A2.5 THREE THINGS THE CODE LANE COULD NOT IMPLEMENT AS WRITTEN — reported, not resolved
+
+**These are recorded for the supervisor's ruling. None of them moves a gate, a
+band, a threshold, a tolerance, a cap, a label, a level or a rank count.**
+
+**(1) §9.0's WALL-ALLOWANCE COLUMN AND ITS COST TABLE DO NOT AGREE ABOUT A4–A7.**
+§9.0's cost table registers A4–A7 at 4.200 core-min and they are inside the 19.690
+worst-registered total, so the **cap is safe**. But §9.0's *"remaining pre-ladder
+cap"* column — carried into AMENDMENT 1 §A1.6 unchanged — subtracts **A0 and A1
+only**: ARM-P's 19.550 is 20.0 − 0.350 − 0.100, with A4–A7 not drawn down, while
+§11 orders A4–A7 **before** ARM-P. Implemented **conservatively and disclosed**:
+the registered allowances 300/293/180 s are reproduced verbatim by §9.3's frozen
+formula, and the 20.0 pre-ladder cap is enforced against the **full running total,
+every pre-ladder item included**, so nothing escapes a cap either way.
+
+**(2) `TOL_REL_WEDGE` IS THE §4.3 FORMULA AT A ROUNDED INTERMEDIATE, NOT AT FULL
+PRECISION.** The tabulated 1.215313e−05 / 3.003125e−06 / 7.142188e−07 are
+`max(0.1 × |E_pred| / 64, FLOOR_REL)` evaluated at §4.3's **four-significant-figure**
+`E_pred_fRe` (−7.778e−03 / −1.922e−03 / −4.571e−04). The full-precision model gives
+1.2153769e−05 at coarse, which is **not** the registered 1.215313e−05. **The printed
+number is the frozen threshold**, so it is frozen as a TABLE and the formula is
+carried as a CHECK on it — a threshold recomputed at grade time is not a frozen
+threshold. §6's bands are handled the same way: the model's band **rounds to** the
+registered one at the precision this document prints, and the check is stated at
+that precision rather than in binary.
+
+**(3) §12 NAMES NO DICTIONARY FOR AMENDMENT 1's ITEM A0**, which §A1.5 requires to
+run under F23's α_U = 0.7 **deliberately**, so that the accept side does not depend
+on the very thing ARM-P tests. Rather than add a file §12 does not name,
+`build_f23b.py --a0-dictionary` rewrites the **destination copy** of `fvSolution`
+under an asserted substitution (each pattern required exactly once before and the
+new value exactly once after), refuses that flag for any ladder level, and refuses
+to build A0 at all if the destination does not then carry α_U = 0.7. **The frozen
+`fvSolution` is never edited.**
+
+### A2.6 A DEFECT THE CODE LANE FOUND IN ITS OWN LAUNCHER, RECORDED AGAINST ITSELF
+
+Driving `--preflight` printed `writeInterval 10,  (SIMPLEC)` — with the registered
+setting **missing**. The launcher's `say` line had `consistent yes` between
+**backticks inside a double-quoted string**, so the shell **command-substituted it
+to nothing**; `consistent: command not found` went to stderr and every check on that
+line passed, with the variable substitutions on the same line working perfectly.
+That is L-403's shape and `e779bdc7`'s, in a third team, within the week. Repaired
+at the site, disclosed in the file rather than silently corrected, and — because a
+lesson is not applied until **every call site asserts it** (rule 14) — a control now
+scans the launcher for a live backtick and is shown able to catch a planted one.
+`scripts/append_block.py` was used to land THIS block, so no heredoc was in the
+path of this amendment either.
+
+### A2.7 WHAT THIS AMENDMENT DOES **NOT** TOUCH — enumerated, not summarised
+
+- **No gate.** `G-F23b-1`, `G-F23b-2` and `G-WEDGE`'s three limbs are unchanged in
+  definition, in quantity and in which artifact they read.
+- **No band.** `[2.376227e−06, 2.138605e−05]` and `[63.998628773, 64.001371227]` stand.
+- **No threshold and no tolerance.** `TOL_REL_WEDGE`, `TOL_CM`, `K_CM = 1.0`,
+  `FLOOR_REL = 1e−08`, `PLATEAU_TOL`, the residual floor 1e−12, the transverse floor
+  1e−10 × U_MAX, the arm acceptance thresholds (1e−10, 1e−12, n ≤ 80) and AMENDMENT
+  1's `[2.9, 3.1]×` control band are all unchanged.
+- **No cap.** Ladder **293.0**, pre-ladder **20.0**, total **313.0**,
+  `CAP_RATIO = 1.4479`, `ESTIMATE 202.366`. No cap is raised by any route.
+- **No label and no verdict word.** The vocabulary is untouched.
+- **No level, no rank count, no `N_ITER`, no `writeInterval`, no decomposition, no
+  rate, no `D_fine`, no `S`.**
+- **No change to §6's registered prediction**, including the predicted verdict
+  `PASS × 2`.
+- **No re-grade of F23**, whose record stands `NOT A RESULT`, and whose run root is
+  read **read-only** as C-7's and §A1.5's control artifact.
+- **Nothing is sent, filed, uploaded, posted or submitted** (rule 7).
+
+| amendment record | **v1.2** |
+|---|---|
+| gates / bands / thresholds / tolerances / caps / labels altered | **0** |
+| §12 entries completed | **16** (6 drivers + 10 case dictionaries) |
+| controls added to the rung's instrument | **16**, every one driven BOTH ways |
+| solver core-minutes spent by this amendment | **0.000** |
+| run root at the time of writing | **`verification/runs/F23b_HP_WEDGE_runs` ABSENT** |
+| lines whose number changed above this section | **0** |
+| md5 of the frozen blob at `440aca3d` | `398b8b3e888e52365ccf6f5bea57b841` |
+| md5 of this file's first 1,197 lines after the append | `398b8b3e888e52365ccf6f5bea57b841` |
+| the two digests | `EQUAL -- the assertion holds, MEASURED` |
+| `57d31dde`'s blob is still a byte-exact PREFIX of this file | `TRUE -- MEASURED, byte-exact prefix` |
