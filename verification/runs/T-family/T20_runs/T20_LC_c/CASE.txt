@@ -1,0 +1,17 @@
+case=T20_LC_c
+rung=T20
+prereg=docs/campaigns/T-family/T20_PREREGISTRATION.md
+prereg_commit=7b93b2c805598987ab405cb7901642d909257264
+solver=chtMultiRegionFoam
+region=cellRegion
+cells=240 (20x12x1)
+deltaT=6
+endTime=4500
+steps=750
+ranks=1
+timeout_s=48
+point_core_min=0.0771
+cap_core_min=0.80
+BUILT BY build_t20.py FROM T20_registered.json; every value carries its
+frozen-document section in that file.  NO 0/ AND NO TIME DIRECTORY IS
+WRITTEN HERE: the launcher arms 0/ from 0.orig/ and touches 0/cellRegion/T last.

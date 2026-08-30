@@ -1,0 +1,96 @@
+{
+  "_what_this_file_is": "TRANSCRIBED FROM THE FROZEN PRE-REGISTRATION, NOT A REGISTRATION. Every value below is copied from docs/campaigns/T-family/T20_PREREGISTRATION.md at freeze commit 7b93b2c805598987ab405cb7901642d909257264, and every one carries the section it came from. NO VALUE IS SET HERE. THE FROZEN DOCUMENT IS AUTHORITATIVE: if this file and the document ever disagree, the document wins and THIS FILE is the thing that is wrong. This file exists for one mechanical reason -- run_one_t20.sh REFUSES a --timeout that is not exactly equal to timeout_s, and a shell cannot read a markdown table.",
+  "prereg_path": "docs/campaigns/T-family/T20_PREREGISTRATION.md",
+  "prereg_commit": "7b93b2c805598987ab405cb7901642d909257264",
+  "rung": "T20",
+  "solver": "chtMultiRegionFoam",
+  "solver_source_section": "S1 line 1 -- 'Solver chtMultiRegionFoam (OpenFOAM v2606 ...), run with regionProperties = fluid () / solid (cellRegion) -- zero fluid regions'",
+  "region": "cellRegion",
+  "ranks": 1,
+  "ranks_source_section": "S1 line 6 -- 'Serial, 1 rank. numberOfSubdomains 1, no decomposeParDict, decomposePar is not run'",
+
+  "physics": {
+    "rho": 2500.0,
+    "cp": 1000.0,
+    "kappa": 200.0,
+    "h_conv": 25.0,
+    "T_inf": 293.0,
+    "T_initial": 293.0,
+    "q_volumetric": 5000.0,
+    "source_section": "S4.1 table -- rho 2500 / cp 1000 / k 200 isotropic / q''' 5000 W-per-m3 / T_inf, T(0) 293 K / h 25 W-per-m2K CHOSEN HERE",
+    "Lx": 0.100,
+    "Ly": 0.030,
+    "Lz": 1.000,
+    "geometry_section": "S4.1 table 'geometry 100 x 30 mm x 1.000 m' and S6.3 'one block, uniform grading, one cell in z of thickness 1.000 m exactly'",
+    "derived_tau_s": 1500.0,
+    "derived_three_tau_s": 4500.0,
+    "derived_Bi": 0.001875,
+    "derived_dT_steady_K": 3.0,
+    "derived_section": "S4.3"
+  },
+
+  "numerics": {
+    "ddtScheme": "Euler",
+    "laplacianScheme": "Gauss linear corrected",
+    "gradScheme": "Gauss linear",
+    "h_linear_solver": "PCG",
+    "h_preconditioner": "DIC",
+    "h_tolerance": 1e-12,
+    "h_relTol": 0.0,
+    "nOuterCorrectors": 2,
+    "nNonOrthogonalCorrectors": 0,
+    "residualControl_h": 1e-10,
+    "writeControl": "runTime",
+    "writeInterval": 150,
+    "writeFormat": "ascii",
+    "writePrecision": 12,
+    "writeCompression": "off",
+    "timeFormat": "general",
+    "timePrecision": 12,
+    "adjustTimeStep": "no",
+    "source_section": "S6.2 'Numerics, frozen'",
+    "DISCLOSURE_residualControl_is_INERT": "MEASURED ON THIS BUILD, NOT ASSUMED. readSolidMultiRegionPIMPLEControls.H at v2606 reads ONLY nNonOrthogonalCorrectors from a solid region's PIMPLE dict ('const dictionary& pimple = mesh.solutionDict().subDict(\"PIMPLE\"); int nNonOrthCorr = pimple.getOrDefault<int>(\"nNonOrthogonalCorrectors\", 0);'). The registered 'residualControl h 1e-10' is therefore SILENTLY IGNORED for a solid region. It is written into the case anyway so the case matches the frozen document literally. THE OPERATIVE CONVERGENCE CONTROL IS THE LINEAR-SOLVER TOLERANCE 1e-12, WHICH IS ALSO REGISTERED IN THE SAME SECTION, so the registered intent (S4.4 clause 2: the iterative contribution sits three orders below the band) is delivered -- by the tolerance, not by residualControl. NO GATE, BAND, THRESHOLD, CAP OR LABEL IS AFFECTED. Reported, not silently repaired."
+  },
+
+  "cases": {
+    "T20_LC_c": {
+      "role": "FEASIBILITY. The temporal triple's COARSE level, and the staging doctrine's feasibility step.",
+      "nx": 20,
+      "ny": 12,
+      "nz": 1,
+      "cells": 240,
+      "mesh_source_section": "S6.3 mesh table -- base (c,m,f,D,P10) 20 x 12 = 240 cells, dy 2.5 mm",
+      "deltaT": 6.0,
+      "endTime": 4500.0,
+      "steps": 750,
+      "ladder_source_section": "S5.1 'Temporal triple dt = 6.0 / 3.0 / 1.5 s' and S9 run-set table",
+      "executiontime_expected": 750,
+      "executiontime_source_section": "S8 -- 'Registered step counts for conjunct 5, all exact integers: T20_LC_c 750'",
+      "point_core_min": 0.0771,
+      "cap_core_min": 0.80,
+      "timeout_s": 48,
+      "timeout_derivation": "cap_core_min 0.80 x 60 s / ranks 1 = 48 s exactly",
+      "cost_source_section": "S11.2 POINT/CAP table -- T20_LC_c POINT 0.0771 core-min, per-case CAP 0.80",
+      "graded": false,
+      "graded_source_section": "S9 run-set table -- T20_LC_c column 'graded' reads 'triple only'; it carries no V row in the S12 verdict map"
+    }
+  },
+
+  "totals": {
+    "point_core_min": 1.9559,
+    "cap_core_min_rung": 16.0,
+    "source_section": "S11.2 -- 'POINT 1.956 core-min. CAP 16.0 core-min = 8.18x POINT. The total cap binds.'"
+  },
+
+  "cost_model": {
+    "form": "cost_core_s = startup + N_steps * (t_overhead + rate * N_cells)",
+    "startup_core_s": 3.0,
+    "startup_provenance": "ASSUMED, NOT MEASURED",
+    "t_overhead_core_s_per_step": 0.0021,
+    "t_overhead_provenance": "ASSUMED, NOT MEASURED. Derived as 3x T17's total 0.70 ms/step at 2500 cells, the 3x a DECLARED allowance for chtMultiRegionFoam's region loop, thermo.correct() and PIMPLE outer loop. S11.1 names this THE WEAKEST FIGURE IN THE REGISTRATION.",
+    "rate_core_s_per_cell_step": 2.8e-07,
+    "rate_provenance": "BORROWED, NOT MEASURED. T17's uncontended T17_CY_c reading (2500 cells x 20000 steps in 14 wall s, 1 rank, ran alone 13 h 50 min before any sibling). A DIFFERENT SOLVER: laplacianFoam, where T20 runs chtMultiRegionFoam.",
+    "calibration_note": "S11.3 -- t_overhead is the figure this rung exists to calibrate, and T20_LC_c running ALONE is the registered clean reading for it.",
+    "source_section": "S11.1, S11.2, S11.3"
+  }
+}

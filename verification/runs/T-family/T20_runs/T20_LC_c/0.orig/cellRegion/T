@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | T20 -- lumped-capacitance control (rung T20)    |
+|    \\/     M anipulation  | BUILT BY build_t20.py FROM T20_registered.json  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0/cellRegion";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 293;
+
+boundaryField
+{
+    "channelFaceLo|channelFaceHi"
+    {
+        type            externalWallHeatFluxTemperature;
+        mode            coefficient;
+        h               constant 25;
+        Ta              constant 293;
+        emissivity      0;
+        kappaMethod     solidThermo;
+        value           uniform 293;
+    }
+    "endLo|endHi"
+    {
+        type            zeroGradient;
+    }
+    "front|back"
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,47 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | T20 -- lumped-capacitance control (rung T20)    |
+|    \\/     M anipulation  | BUILT BY build_t20.py FROM T20_registered.json  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system/cellRegion";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    h
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-12;
+        relTol          0;
+    }
+    hFinal
+    {
+        $h;
+        tolerance       1e-12;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    // REGISTERED at S6.2 and WRITTEN HERE VERBATIM, and INERT on this
+    // build: readSolidMultiRegionPIMPLEControls.H (v2606) reads ONLY
+    // nNonOrthogonalCorrectors from a solid region's PIMPLE dict, so
+    // this entry is silently ignored.  The operative control is the
+    // linear-solver tolerance above, which is registered in the same
+    // section.  Disclosed in T20_registered.json, not repaired here.
+    residualControl { h 1e-10; }
+}
+
+// ************************************************************************* //

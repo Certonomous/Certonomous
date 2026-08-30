@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | T20 -- lumped-capacitance control (rung T20)    |
+|    \\/     M anipulation  | BUILT BY build_t20.py FROM T20_registered.json  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     chtMultiRegionFoam;
+
+startFrom       startTime;
+startTime       0;
+
+stopAt          endTime;
+endTime         4500;
+
+deltaT          6;
+
+writeControl    runTime;
+writeInterval   150;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   12;
+
+runTimeModifiable no;
+
+adjustTimeStep  no;
+
+// ************************************************************************* //
