@@ -19,7 +19,7 @@
     "/home/ubuntu/Certonomous/verification/monitor/vr5_shared_cwd_stdout_collision.py"
   ],
   "memory_floor_gb": 2.0,
-  "prereg_commit": "0000000000000000000000000000000000000000",
+  "prereg_commit": "2a61b7bab90de4ae89508e7a23f43c2b6a547002",
   "prereg_path": "verification/campaign/VR5_PREREGISTRATION.md",
   "ranks": 1,
   "team": "verification",
