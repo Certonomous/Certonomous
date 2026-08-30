@@ -1,0 +1,173 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T20_LC_c",
+  "prereg_commit": "7b93b2c805598987ab405cb7901642d909257264",
+  "prereg_path": "docs/campaigns/T-family/T20_PREREGISTRATION.md",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T20_runs/run_one_t20.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T20_runs/T20_LC_c",
+    "--timeout",
+    "48",
+    "--ranks",
+    "1",
+    "--region",
+    "cellRegion",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T20_runs/T20_LC_c",
+  "ranks": 1,
+  "cost_core_min_estimate": 0.0771,
+  "cap_core_min_registered": 0.8,
+  "cap_core_min_registered_note": "TRANSCRIBED, NOT REGISTERED. The cap already exists in the frozen pre-registration cited below and is already enforced by this entry's own --timeout, which run_one_t20.sh REFUSES unless it equals the registered timeout_s exactly -- DRIVEN IN BOTH DIRECTIONS before filing (see _enqueued_by.launcher_refusal_arms_driven). This field only makes the cap visible to the runner's cap watch. NO VALUE MOVES. THE FROZEN DOCUMENT IS AUTHORITATIVE: if this field and the cited source ever disagree, the source wins and this field is the thing that is wrong.",
+  "cap_core_min_registered_source": {
+    "kind": "frozen pre-registration, section 11.2 POINT/CAP table",
+    "document": "docs/campaigns/T-family/T20_PREREGISTRATION.md",
+    "commit": "7b93b2c805598987ab405cb7901642d909257264",
+    "verbatim": "| `T20_LC_c` | 240 | 750 | 0.0771 | 0.80 |",
+    "columns": "case | cells | steps | POINT (core-min) | per-case CAP",
+    "timeout_derivation": "0.80 core-min x 60 s / 1 rank = 48 s exactly",
+    "machine_transcription": "verification/runs/T-family/T20_runs/T20_registered.json cases.T20_LC_c.timeout_s = 48, cap_core_min = 0.80, point_core_min = 0.0771, each carrying its section",
+    "scope": "case"
+  },
+  "WHAT_PERMITS_THIS_CASE_TO_RUN": {
+    "why_this_block_exists": "A MANUAL STAND-IN FOR A CLAUSE THE VALIDATOR DOES NOT HAVE (D571). scripts/queue_entry_check.py runs seven checks -- schema, commit-exists, prereg-at-commit, age-guard, cwd-launchable, ranks, team-binding -- and NOT ONE OF THEM READS WHAT THE PRE-REGISTRATION SAYS. Tonight T5_S_m was launched despite its registration EXCLUDING it, and the validator was clean throughout because it has no opinion on permission. The quote below is therefore supplied by hand, with its section, so a reader can check the authorisation the tool cannot.",
+    "section": "T20_PREREGISTRATION.md section 9, 'THE REGISTERED RUN SET'",
+    "verbatim_quote": "Staging per the directive's preamble: feasibility -> physics -> gate. The feasibility step is `T20_LC_c` alone (750 steps, ~0.08 core-min) and it answers one question that source inspection cannot: does `chtMultiRegionFoam` run to completion with `fluid ()`? If it does not, the rung is `BLOCKED` on that finding and `solidFoam` is registered as the alternative in a re-registration -- not substituted silently, because `solidFoam` is not the solver Case 4's module rungs use and swapping to it would quietly convert this from a machinery gate into a different rung.",
+    "also_registered": "Section 9's run-set table lists T20_LC_c with role 'temporal triple -- coarse' and graded column 'triple only'; the section 12 verdict map assigns it NO V row. It is named in the registration, it is the named first step of the registered staging, and it carries no graded quantity.",
+    "reading": "T20_LC_c is PERMITTED BY NAME as the feasibility step, and it is the ONLY case of the seven that this entry files. T20_LC_m, T20_LC_f, T20_LC_Sc, T20_LC_Sf, T20_LC_D and T20_LC_P10 are registered but NOT enqueued and NOT built; filing them is the supervisor's decision and not this lane's."
+  },
+  "WHY_NO_COMPARATOR_IS_REQUIRED_YET": {
+    "claim": "This run produces NO graded value, reaches NO band, and needs NO comparator.",
+    "evidence_in_the_frozen_document": "Section 12's verdict map enumerates every row this rung may ever produce (V1, V2, V3, V4, V5, P1, P2, P3, P4, R1-R6) and states 'A row not listed here is not a row.' T20_LC_c appears in NONE of them -- V1, V2, V4 and V5 name T20_LC_f or T20_LC_P10, V3 names T20_LC_D, P2 names Sc/Sf against f. T20_LC_c enters only through the temporal triple of section 5.1, which cannot be formed until T20_LC_m and T20_LC_f also exist.",
+    "consequence": "The section 2j birth requirement governs an instrument BEFORE IT GRADES ANYTHING. Nothing here grades anything, so it is not yet engaged. Rule 2 is satisfied by a different route and the stronger one: the pre-registration is FROZEN at 7b93b2c8, an ancestor of HEAD, and it names this case, this solver, this mesh, this dt, this endTime and this cap before any compute.",
+    "self_imposed_limit": "IF ANYTHING IN THIS ENTRY OR IN run_one_t20.sh WOULD PRODUCE A GRADED NUMBER, THIS FILING IS WRONG AND MUST BE PULLED. This lane checked: run_one_t20.sh runs blockMesh-free (the mesh is already built), checkMesh, the solver, and writes STATUS -- rc, wall_s, ranks, core_min, timeout_s, capped, checkmesh_rc, solver, solver_path, region, note, started_utc, ended_utc. Not one of those is a physical quantity of the solution. analyse_t20.py DOES NOT EXIST and is deliberately not written."
+  },
+  "THREE_OUTCOMES_REGISTERED_IN_ADVANCE": {
+    "why_three_and_not_two": "THIS LANE ADDS A THIRD OUTCOME TO THE TWO IT WAS GIVEN, AND REPORTS THE ADDITION RATHER THAN MAKING IT QUIETLY. A two-outcome map (completes -> proceed, fails -> BLOCKED) attributes EVERY failure to the solver. But this case was hand-built tonight and a dictionary defect would fail identically to a genuine solver limitation, converting a build bug into a registered finding about chtMultiRegionFoam. 'A crash is a FINDING until triage says otherwise' cuts both ways: it forbids waving a crash through, and it equally forbids promoting one to a conclusion before triage. The BLOCKED verdict is reserved for a failure TRIAGE ATTRIBUTES TO THE SOLVER.",
+    "outcome_1_rc_0": "Feasibility ESTABLISHED: chtMultiRegionFoam completes with `fluid ()` on this build. The rung proceeds to its comparator, which the supervisor reads as a diff before its output is believed. The rung verdict remains PENDING -- one level is not a triple.",
+    "outcome_2_fails_and_triage_attributes_it_to_the_solver": "The rung is BLOCKED on that finding. solidFoam is NAMED IN A RE-REGISTRATION, NEVER SUBSTITUTED SILENTLY -- solidFoam is not the solver Case 4's module rungs use, so swapping it quietly would change what the rung demonstrates (section 9, quoted above). run_one_t20.sh enforces this mechanically: --solver is REFUSED unless it equals the registered chtMultiRegionFoam, driven before filing.",
+    "outcome_3_fails_and_triage_attributes_it_to_THIS_CASE_BUILD": "A CASE-BUILD DEFECT, NOT the registered BLOCKED finding and NOT a fact about the solver. The build is repaired, the case is REBUILT FROM SCRATCH (build_t20.py REFUSES an existing case directory rather than cleaning it), and the feasibility step is re-run. NO GATE, BAND, THRESHOLD, CAP OR LABEL MOVES, because this case carries none. The defect and the repair are recorded.",
+    "in_every_failing_case": "Capture everything -- STATUS, log.solve, log.checkMesh, log.launch -- and REPORT. Do NOT retry with a changed setting: a second run under different conditions destroys the evidence that would have told outcome 2 from outcome 3."
+  },
+  "cost_basis": "T20_PREREGISTRATION.md section 11.2, transcribed into T20_registered.json cases.T20_LC_c: 240 cells x 750 steps -> POINT 0.0771 core-min; per-case CAP 0.80 core-min = timeout 48 s at 1 rank. USD DERIVED, NOT MEASURED: 0.0771 core-min = 0.001285 core-h x $0.0513/core-h = $0.0000659 point; 0.80 core-min = 0.013333 core-h = $0.000684 at cap. COMPUTE_BUDGET_CHARTER section 5: THE BOX CANNOT READ ITS OWN BILLING, so no dollar figure originating here is a measurement and a console figure supersedes it. RATE PROVENANCE, HONESTLY: the model is two-term, cost_core_s = startup + N_steps*(t_overhead + rate*N_cells). The RATE 2.80e-07 core-s per cell-step is BORROWED, NOT MEASURED -- T17's uncontended T17_CY_c reading (2,500 cells x 20,000 steps in 14 wall s, ran ALONE 13 h 50 min before any sibling), and it is a DIFFERENT SOLVER: laplacianFoam where this is chtMultiRegionFoam. The t_overhead 2.1e-03 core-s per step is ASSUMED, NOT MEASURED -- 3x T17's total 0.70 ms/step, the 3x a DECLARED allowance for the region loop, thermo.correct() and the PIMPLE outer loop -- and section 11.1 NAMES IT THE WEAKEST FIGURE IN THE REGISTRATION. THIS RUN IS ITS OWN CALIBRATION POINT AND THAT IS WHY IT IS THE FIRST ONE FILED: section 11.3 registers t_overhead as the figure this rung exists to calibrate and names T20_LC_c RUNNING ALONE as the clean reading for it, so the estimate-versus-actual comparison rule 12 requires at process completion has a designated, uncontended source. At 240 cells the cell-step term is 0.2 core-s of a 4.63 core-s point -- the run is OVERHEAD-DOMINATED, which T11_RESULTS.md measured directly for this family ('ratio 0.41, overhead-dominated below ~1e3 cells'), and it is precisely why a single per-cell-step rate was NOT used. THE CAP, NOT THIS ESTIMATE, IS WHAT STOPS AN OVERRUN, and an overrun does not get a new budget (rule 12).",
+  "memory_floor_gb": 0.5,
+  "role": "FEASIBILITY -- the named first step of the registered staging (feasibility -> physics -> gate), and the temporal triple's COARSE level. Produces no graded value.",
+  "enqueued_by": "heat-transfer lab-lane, on heat-transfer-supervisor's decision to advance T20 to its feasibility step [lab-attributed], 2026-08-30T23:55:13Z. SCOPE: T20_LC_c ALONE. The other six registered cases are NOT built and NOT enqueued; filing them is the supervisor's decision, not this lane's. WHAT THIS LANE VERIFIED FROM THE ARTEFACTS RATHER THAN FROM ANY BRIEF. Rule 2: the freeze commit 7b93b2c805598987ab405cb7901642d909257264 is an ANCESTOR of HEAD fd7afc1c77e926db8f56333e36df67e8d9e43c74 (git merge-base --is-ancestor, exit 0) and T20_PREREGISTRATION.md is PRESENT at that sha (git cat-file -e, exit 0). Rule 4 age-guard precondition, LISTED not asserted: T20_LC_c contains NO 0/ directory, NO numeric time directory (find -regextype posix-extended -regex '.*/[0-9]+(\\.[0-9]*)?' returned 0), and no STATUS, DONE or log.solve; contents are 0.orig/, CASE.txt, constant/, log.blockMesh, log.checkMesh.build, system/ -- so 0/cellRegion/T will date this run and the guard can be evaluated. GEOMETRY MEASURED FROM THE BUILT MESH, NOT ASSUMED: checkMesh reports Total volume = 0.003 exactly against the registered V = 3.000e-03 m3/m; polyMesh/boundary gives channelFaceLo 20 faces and channelFaceHi 20 faces at 0.005 m2 each = 0.2 m2, the registered A, and endLo/endHi 12 faces each as the adiabatic pair; V/A = 0.015 m = the registered L_c. Mesh OK, non-orthogonality max 0, max skewness 8.3e-15, 240 cells = the registered 20 x 12. THE SOURCE'S UNITS WERE CHECKED IN THE SOLVER SOURCE, NOT RECALLED: SemiImplicitSource.C sets SuDims = eqn.dimensions()/dimVolume, and the solid energy matrix ddt(betav*rho,h) has dimensions W, so volumeMode specific with explicit constant 5000 enters as 5000 W/m3 with NO rho factor -- the registered q'''. THE LAUNCHER'S REFUSALS WERE DRIVEN, NOT TRUSTED: five arms, each returning rc=2 and writing NO STATUS, NO 0/, NO log.solve -- --timeout 60 (WIDEN) refused, --timeout 20 (NARROW) refused, --solver solidFoam refused, --ranks 2 refused, --region wrongRegion refused. Both directions on the cap, because a cap that only refuses widening lets a narrowed one manufacture a cap-stop. check_case_provenance.py returns 0: application chtMultiRegionFoam (compressible), no cross-family tokens. A DISCLOSURE THIS LANE FOUND WHILE BUILDING AND DID NOT REPAIR SILENTLY: the registered 'residualControl h 1e-10' (section 6.2) is INERT for a solid region on this build -- readSolidMultiRegionPIMPLEControls.H at v2606 reads ONLY nNonOrthogonalCorrectors from a solid region's PIMPLE dict. It is written into the case verbatim anyway so the case matches the frozen document literally, and the registered intent is delivered by the linear-solver tolerance 1e-12, which is registered in the same section. NO GATE, BAND, THRESHOLD, CAP OR LABEL IS AFFECTED. A REFUSAL THIS ENTRY IS DELIBERATELY SHAPED TO AVOID: queue_entry_check.py REQUIRED_FIELDS (:83-94) requires 'enqueued_by' to be a NON-EMPTY STRING; an object under that name is REFUSED and swept to refused/. This field is therefore the required string and '_enqueued_by' carries the structured record. NOT DISCHARGED HERE AND NOT CLAIMED: SUPERVISION_CHARTER section 3 check 1 (the measurement-script diff read as a diff) does not apply yet because analyse_t20.py DOES NOT EXIST; check 4 (pre-registration committed before compute) WAS discharged personally by the supervisor at the freeze and is recorded in the frozen document's section 16 as theirs, cited here and not redone by this lane.",
+  "_enqueued_by": {
+    "utc_of_this_write": "2026-08-30T23:55:13Z",
+    "clock_source": "date -u, same shell invocation as the pre-filing checks",
+    "head_at_write": "5060e626eeb3b0fbfa44a488c49326d1cd069c32",
+    "decision_owner": "heat-transfer-supervisor took the decision; this lane executed it",
+    "scope": "T20_LC_c ONLY -- 1 of the 7 registered cases",
+    "rule_2_freeze": {
+      "freeze_commit": "7b93b2c805598987ab405cb7901642d909257264",
+      "is_ancestor_of_head": true,
+      "prereg_present_at_freeze": true,
+      "supervisor_check_4": "PASS, discharged PERSONALLY by heat-transfer-supervisor at the freeze; recorded in the frozen document section 16; cited here, NOT redone by this lane"
+    },
+    "rule_4_age_guard_precondition": {
+      "zero_dir_present": false,
+      "numeric_time_dirs_found": 0,
+      "status_done_logsolve_present": false,
+      "dir_listing": [
+        "0.orig",
+        "CASE.txt",
+        "constant",
+        "log.blockMesh",
+        "log.checkMesh.build",
+        "system"
+      ],
+      "arming_mechanism": "run_one_t20.sh copies 0.orig/ -> 0/, sleeps 1 s, then touches 0/cellRegion/T LAST, so that file dates the run allowed to produce the answer"
+    },
+    "geometry_measured_from_the_built_mesh": {
+      "total_volume_m3": 0.003,
+      "registered_V": 0.003,
+      "channelFaceLo_nFaces": 20,
+      "channelFaceHi_nFaces": 20,
+      "convecting_area_m2": 0.2,
+      "registered_A": 0.2,
+      "endLo_nFaces": 12,
+      "endHi_nFaces": 12,
+      "front_back_type": "empty",
+      "Lc_derived_m": 0.015,
+      "registered_Lc": 0.015,
+      "cells": 240,
+      "registered_cells": 240,
+      "checkmesh": "Mesh OK; non-orthogonality max 0; max skewness 8.32667268469e-15; max aspect ratio 2",
+      "artifact": "verification/runs/T-family/T20_runs/T20_LC_c/log.checkMesh.build"
+    },
+    "source_units_checked_in_the_solver_source": {
+      "site": "src/fvOptions/sources/general/semiImplicitSource/SemiImplicitSource.C, addSup(rho, eqn, fieldi)",
+      "code": "const dimensionSet SuDims(eqn.dimensions()/dimVolume);",
+      "reasoning": "the solid energy matrix is ddt(betav*rho, h) whose dimensions are W, so SuDims = W/m3",
+      "conclusion": "volumeMode specific + explicit constant 5000 enters as 5000 W/m3, no rho factor -- the registered q'''",
+      "checked_by": "this lane, reading the source; NOT recalled"
+    },
+    "launcher_refusal_arms_driven": {
+      "note": "DRIVEN BY THIS LANE BEFORE FILING. Each returned rc=2 and wrote NO STATUS, NO 0/, NO time directory and NO log.solve -- a pre-flight refusal must write nothing, because inventing an rc for a run that never started is back-dating.",
+      "timeout_widen_60": "REFUSED",
+      "timeout_narrow_20": "REFUSED",
+      "solver_solidFoam": "REFUSED",
+      "ranks_2": "REFUSED",
+      "region_wrongRegion": "REFUSED",
+      "why_both_cap_directions": "a cap that only refuses widening still lets a caller narrow one into a manufactured cap-stop (rule 12)"
+    },
+    "disclosed_inert_entry": {
+      "site": "system/cellRegion/fvSolution, PIMPLE { residualControl { h 1e-10; } }",
+      "registered_at": "T20_PREREGISTRATION.md section 6.2",
+      "finding": "readSolidMultiRegionPIMPLEControls.H (v2606) reads ONLY nNonOrthogonalCorrectors from a solid region's PIMPLE dict, so this entry is silently ignored",
+      "written_anyway": "yes -- the case matches the frozen document literally, and the departure is disclosed rather than the document quietly obeyed in spirit",
+      "operative_control": "the linear-solver tolerance 1e-12, registered in the same section; section 4.4 clause 2's intent (iterative contribution three orders below the band) is delivered by it",
+      "gates_affected": "none"
+    },
+    "cost": {
+      "point_core_min": 0.0771,
+      "cap_core_min": 0.8,
+      "timeout_s": 48,
+      "usd_point": "$0.0000659 DERIVED, NOT MEASURED",
+      "usd_cap": "$0.000684 DERIVED, NOT MEASURED",
+      "usd_basis": "owner-stated $0.0513/core-h; COMPUTE_BUDGET_CHARTER section 5 -- the box cannot read its own billing",
+      "rate_provenance": "BORROWED, NOT MEASURED (T17's laplacianFoam uncontended reading; a different solver)",
+      "t_overhead_provenance": "ASSUMED, NOT MEASURED -- section 11.1 names it THE WEAKEST FIGURE IN THE REGISTRATION",
+      "this_run_is_its_own_calibration_point": "section 11.3 registers t_overhead as the figure this rung exists to calibrate and names T20_LC_c RUNNING ALONE as the clean reading. The estimate-versus-actual comparison rule 12 requires at process completion therefore has a designated uncontended source, and this is why the feasibility case is the first one filed.",
+      "fraction_of_case4_family_cap": "0.0771 / 600 = 0.0129% at POINT; 0.80 / 600 = 0.133% at CAP"
+    },
+    "instruments_state_at_enqueue": {
+      "analyse_t20.py": "DOES NOT EXIST. Deliberately not written -- the comparator is the next job and the supervisor reads every measurement-script diff personally before its output is believed.",
+      "mark_done_t20.py": "DOES NOT EXIST.",
+      "consequence": "no verdict of any kind can be produced from this run by any instrument in this rung; the T20 rung verdict stands at PENDING",
+      "birth_requirement_2j": "NOT YET ENGAGED -- it governs an instrument before it GRADES, and nothing here grades"
+    },
+    "box_state_at_enqueue": {
+      "load_average_1_5_15": [
+        7.51,
+        8.66,
+        13.23
+      ],
+      "queue_runner_pid": 881,
+      "queue_runner_elapsed": "01:16:08",
+      "queue_depth_heat_transfer_before": 2,
+      "queue_depth_heat_transfer_after": 3,
+      "note": "the runner was NOT touched, NOT restarted and NOT signalled. This entry adds ONE rank. This lane did not launch anything and did not start a runner."
+    }
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T20_LC_c (rc captured INSIDE the detached wrapper)",
+      "the case's own log.solve End line, endTime fields and 0/cellRegion/T age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "LAUNCH_LOG.tsv row",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "capped",
+      "checkmesh_rc",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). Bookkeeping never voids physics."
+  }
+}
