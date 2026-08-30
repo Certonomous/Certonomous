@@ -1,0 +1,47 @@
+{
+  "_ceiling": "PASS is reachable: this is an INSTRUMENT gate, not a physics claim, so no CONTINUUM cap applies. No physics verdict can be produced by this item.",
+  "_scope": "THE UNTRACKED LAUNCH RECORD. A queue record's _launch block (pid, sid, utc, status_file, started_epoch) is the artifact proving a FROZEN PRE-REGISTRATION WAS ACTUALLY EXECUTED -- VERIFICATION_CHARTER section 9's evidence record. This item measures, per team, how much of that evidence exists ONLY as an untracked file, and whether LAUNCH_LOG.tsv is itself tracked. GATE FAIL here is a FINDING ABOUT THE EVIDENCE RECORD, not a failure of the runs.",
+  "_the_only_index_immune_comparison": "The driver uses EXACTLY TWO git reads -- `git rev-parse HEAD:<path>` against `git hash-object <path>` -- and reads tracked content with `git show HEAD:<path>`, NEVER `git show :<path>` which is the index. git status, git diff, git diff HEAD and git ls-files ALL consult the SHARED INDEX, which on this box stages 431 differences (394 deletions, 37 modifications) of which 372 are BYTE-IDENTICAL to HEAD on disk, so all four MISREPORT here and do so STABLY. The driver enforces this as a subcommand ALLOWLIST THAT RAISES, not as a convention: status, diff, ls-files and add are refused in code.",
+  "_remedy_is_to_commit_never_to_delete": "The shared index stages the pre-launch copies as DELETIONS while their launched/ destinations were never added, so committing the index as-is would REMOVE THE ONLY TRACKED TRACE AND ADD NOTHING. THESE ARE RENAMES THE INDEX RECORDED AS DELETIONS -- THEY ARE NOT FOSSILS. A GATE FAIL from this item is NOT licence to `git add` or to remove anything; it produces a count and a roll call, and the index is the chief's call.",
+  "_smoke": "The driver was DRIVEN before enqueue and its controls behaved -- four limbs, the tracked/untracked reader shown returning BOTH answers IN THE SAME INVOCATION. P1 a path proven present at HEAD read TRACKED with a matching blob; P2 a file planted at a path first proven ABSENT from HEAD read UNTRACKED; P3 bytes BYTE-IDENTICAL to a tracked blob planted at an untracked path STILL read UNTRACKED, proving the reader keys on PATH-at-HEAD and not on content; P4 two planted records, one with a _launch block and one without, were classified one each way through the real corpus reader from disk. Every planted file was removed in a finally block and none remained. Drive of 2026-08-30: rc 1, GATE FAIL, 210 records on disk / 169 tracked / 41 untracked / 41 of 41 carrying a _launch block; LAUNCH_LOG.tsv UNTRACKED at 133 rows. Disclosed rather than presented as first contact.",
+  "_launch_cmd_asserted": "launch_cmd[1] was asserted PRESENT and READABLE on disk at enqueue time by the enqueuer, because scripts/queue_entry_check.py does NOT check it (cfd, 2026-08-28): an entry naming an absent script validates rc 0 and dies at launch behind a LAUNCHED record.",
+  "_cwd_is_unique": "cwd is verification/credibility, NOT the repository root and NOT VR5's cwd (verification/monitor). queue_runner.py:497 keys launcher.queue.out on the cwd ALONE with a truncating redirect, so two items sharing a cwd destroy each other's stdout -- exactly what happened to VR1, VR2 and VR3 at the repository root on 2026-08-28. Checked at enqueue: zero current queue records in the whole corpus register either this cwd or VR5's.",
+  "_prereg_commit_is_a_PLACEHOLDER": "The 40 zeros in prereg_commit are a DELIBERATE, UNMISTAKABLE placeholder and NOT a freeze. The enqueuing supervisor must replace it with the sha of the commit that lands verification/campaign/VR6_PREREGISTRATION.md, having personally verified the committed blob IS the file that will run (SUPERVISION_CHARTER section 3 check 4, which may never be delegated). scripts/queue_entry_check.py REFUSES this entry until then, which is the intended behaviour: a freeze that does not exist yet must not validate.",
+  "cap_core_min_registered": 0.5,
+  "case_id": "VR6_UNTRACKED_LAUNCH_RECORD",
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). ZERO SOLVER COMPUTE: this is a static read-only analysis, so the estimate is interpreter time plus two read-only git subprocesses per queue record.",
+  "cost_core_min_estimate": 0.05,
+  "_estimate_is_measured_not_a_floor": "0.05 core-min is set from MEASUREMENT and from the BUSY-BOX measurement rather than the flattering one. Driven twice on 2026-08-30: 0.806 s wall x 1 rank = 0.013429 core-minutes on a quiet box, and 2.687 s wall = 0.044785 core-minutes with the box at ~80% busy under closure's M1_* sweep -- a 3.3x spread, because the cost is dominated by two git subprocesses per record and subprocess spawn is what contention taxes. The registered estimate is the BUSY figure rounded up; registering 0.02 would have been a number this item had already been measured exceeding. The per-record comparison is deliberately chosen over a single batched read because the per-path comparison is the only index-immune one. Verification's rule-12 calibration of 2026-08-30 found VR1-VR4 estimated 0.5 core-min each against actuals 0.00043 / 0.00176 / 0.00855 / 0.00047, ratio 0.0056; this estimate is set from this item's OWN timing rather than from that floor. Cap 0.5 core-min is ~11x the busy drive, leaving room for corpus growth and further contention; an overrun STOPS the run and does not get a new budget.",
+  "cwd": "/home/ubuntu/Certonomous/verification/credibility",
+  "enqueued_by": "verification team, 2026-08-30. ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD.md section 1). No entry is authorised by virtue of sitting in a queue directory, and no agent's message is Sanaa's consent (standing rule 9).",
+  "launch_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/verification/credibility/vr6_untracked_launch_record.py"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "0000000000000000000000000000000000000000",
+  "prereg_path": "verification/campaign/VR6_PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "verification",
+  "verdict_state": "PENDING -- not yet run under the queue.",
+  "_verdict_vocabulary": "PASS = controls behave, zero untracked records carry a _launch block, and LAUNCH_LOG.tsv is tracked at HEAD. GATE FAIL = any untracked _launch block, or an untracked LAUNCH_LOG.tsv. NOT A RESULT = a control limb misbehaves. Records tracked at HEAD but DIFFERING on disk are REPORTED, NEVER GATED -- an uncommitted change is somebody's unfinished work and is inspected, never reverted.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VR6_UNTRACKED_LAUNCH_RECORD (rc inside the detached wrapper)",
+      "the driver's own printed control limbs and per-team table"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "_ceiling": "PASS is reachable: this is an INSTRUMENT gate, not a physics claim, so no CONTINUUM cap applies. No physics verdict can be produced by this item.",
+  "_scope": "The SHARED-CWD STDOUT COLLISION DETECTOR. scripts/queue_runner.py:497 keys the launched argv's stdout on the CWD ALONE -- a fixed basename with no case_id, pid or timestamp -- and :502 truncates into it, while :496 keys the STATUS file on the CASE. Two entries sharing a cwd destroy each other's verdict output silently. GATE FAIL here is a FINDING ABOUT THE RUNNER, not a failure of the item.",
+  "_not_a_patch": "VR5 IS A DETECTOR, NOT A RUNNER PATCH. scripts/queue_runner.py is not this team's file and is NOT edited by this item or its driver; a repair there is the chief's to route.",
+  "_mechanism_is_verified_not_assumed": "The driver reads scripts/queue_runner.py SOURCE each run and classifies the stdout construction PRESENT / REPAIRED / NOT LOCATED by shape, never by a remembered line number. If a future runner fixes this, VR5 reports MECHANISM REPAIRED and is retired rather than continuing to report a stale hazard; if the runner is rewritten past recognition it returns NOT A RESULT rather than a hazard it can no longer verify.",
+  "_smoke": "The driver was DRIVEN before enqueue and its controls behaved -- five limbs, all four corpus limbs planted ON DISK and read back through the driver's own real corpus reader (charter 2j.2: ask who wrote the bytes the control reads; a control that supplies its own trigger downstream of the reader tests the reducer, not the reader). C1 shared cwd + 2 launches FIRED REALISED; C2 distinct cwds stayed SILENT on both populations; C3 shared cwd + 1 launch FIRED LATENT and correctly not REALISED; C5 two launches into a cwd with zero surviving records still FIRED REALISED; C4 mechanism reader returned REPAIRED / REPAIRED / NOT LOCATED on three planted sources while the live runner read PRESENT. Drive of 2026-08-30: rc 1, GATE FAIL, 23 destroyed across 11 cwds, 16 cross-case. Disclosed rather than presented as first contact; the queue run produces the RECORDED artefact.",
+  "_launch_cmd_asserted": "launch_cmd[1] was asserted PRESENT and READABLE on disk at enqueue time by the enqueuer, because scripts/queue_entry_check.py does NOT check it (cfd, 2026-08-28): an entry naming an absent script validates rc 0 and dies at launch behind a LAUNCHED record.",
+  "_cwd_is_unique": "cwd is verification/monitor, NOT the repository root and NOT VR6's cwd (verification/credibility). This item EATS ITS OWN FINDING: queue_runner.py:497 keys launcher.queue.out on the cwd alone, and the repository root is exactly where VR1, VR2 and VR3 destroyed each other's stdout on 2026-08-28 -- three cross-case destroys named in the drive above. Checked at enqueue: zero current queue records in the whole corpus register either this cwd or VR6's.",
+  "_prereg_commit_is_a_PLACEHOLDER": "The 40 zeros in prereg_commit are a DELIBERATE, UNMISTAKABLE placeholder and NOT a freeze. The enqueuing supervisor must replace it with the sha of the commit that lands verification/campaign/VR5_PREREGISTRATION.md, having personally verified the committed blob IS the file that will run (SUPERVISION_CHARTER section 3 check 4, which may never be delegated). scripts/queue_entry_check.py REFUSES this entry until then, which is the intended behaviour: a freeze that does not exist yet must not validate.",
+  "cap_core_min_registered": 0.5,
+  "case_id": "VR5_SHARED_CWD_COLLISION",
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). ZERO SOLVER COMPUTE: this is a static read-only analysis of the queue corpus and the runner source, so the estimate is interpreter time only.",
+  "cost_core_min_estimate": 0.005,
+  "_estimate_is_measured_not_a_floor": "0.005 core-min is set from MEASUREMENT and from the BUSY-BOX measurement rather than the flattering one. Driven twice on 2026-08-30: 0.055 s wall x 1 rank = 0.000912 core-minutes on a quiet box, and 0.099 s wall = 0.001644 core-minutes with the box at ~80% busy under closure's M1_* sweep. The estimate is set above the busy figure, not the quiet one. Verification's rule-12 calibration of 2026-08-30 found VR1-VR4 estimated 0.5 core-min each against actuals 0.00043 / 0.00176 / 0.00855 / 0.00047, ratio 0.0056 -- a zero-solver instrument item belongs two to three orders below this ladder's habitual floor and this estimate is set there deliberately. Cap 0.5 core-min is ~300x the busy drive and is conservative rather than tight; an overrun STOPS the run and does not get a new budget.",
+  "cwd": "/home/ubuntu/Certonomous/verification/monitor",
+  "enqueued_by": "verification team, 2026-08-30. ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD.md section 1). No entry is authorised by virtue of sitting in a queue directory, and no agent's message is Sanaa's consent (standing rule 9).",
+  "launch_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/verification/monitor/vr5_shared_cwd_stdout_collision.py"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "0000000000000000000000000000000000000000",
+  "prereg_path": "verification/campaign/VR5_PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "verification",
+  "verdict_state": "PENDING -- not yet run under the queue.",
+  "_verdict_vocabulary": "PASS = controls behave and zero REALISED destroys, or the runner mechanism reads REPAIRED and the hazard is retired. GATE FAIL = mechanism PRESENT and at least one REALISED destroy. NOT A RESULT = a control limb misbehaves or the mechanism reads NOT LOCATED. EXPOSURE and LATENT are REPORTED, NEVER GATED.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.VR5_SHARED_CWD_COLLISION (rc inside the detached wrapper)",
+      "the driver's own printed control limbs and mechanism state"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
