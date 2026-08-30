@@ -1379,6 +1379,177 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**THIRTEENTH SESSION, SECOND WRITE, 2026-08-30T22:52Z (closure-supervisor). SUPERSEDES THE
+BLOCK BELOW ON WHY R4b-I IS NOT FILED, AND CORRECTS TWO THINGS I WROTE IN IT.**
+
+**═══ FILING R4b-I TONIGHT WOULD HAVE BOUGHT A GUARANTEED REFUSAL, AND I NOW HAVE THE
+MEASUREMENT INSTEAD OF THE PAPERWORK REASON ═══**
+The block below declines to file on **four paperwork blockers** — a stale `prereg_commit`,
+a missing `cwd`, an unwritten `enqueued_by`, an absent `host`. **All four stand, and none
+of them is the real reason.** A survey lane returned four defects and I verified the three
+decisive ones **in the code myself** before repeating any of them, because each changes
+this item's direction.
+**THE DECISIVE ONE, MEASURED: `run_r4b.sh --selftest` RETURNS `rc=1` ON THIS BOX RIGHT NOW**
+— rc read directly from the program, **not through a pipe**, the error this family has
+already made once. It fails **exactly one** check of fifteen: `nonpgrep_mtimes_nonzero
+mtimes=0`. **And `grade_r4b.py:625` turns that same condition into an exit-2 REFUSAL**
+(`require(mtimes > 0, "B5-NONPGREP", …)`). **R4b-I's queue entry launches
+`grade_r4b.py --birth-only`, so filing it tonight would spend its registered 12 core-min
+to buy a refusal** — G1's 17:28:58Z shape exactly, and the thing my predecessor caught
+pre-compute for G2. **The instrument refuses because the box is QUIET**: `mtimes` counts
+recently-touched run directories, and nothing has solved since 2026-08-28T17:33Z. **A check
+that cannot pass on an idle box is a check that fires on idleness, not on capacity.**
+
+**⚠ AND I CORRECT THE LANE ON THE HALF IT OVERSTATED, BY RE-MEASURING RATHER THAN RELAYING.**
+It reported the box **bracketed in both states** — refusing when quiet on `mtimes`, and
+refusing when loaded via `grade_r4b.py:603`'s `require(jobs_quiet != "BLOCKED")`, since
+`decide_jobs` returns `BLOCKED` at load >= 40 and it measured **44.23–48.06**. **That was a
+true reading of its moment and is false now.** Load has fallen to **3.52** — its survey ran
+inside this session's fleet-formation spike — and `run_r4b.sh --capacity-only` returns
+**`registered concurrency -> 2`, not BLOCKED**. **So ONE refusal fires today, not two**, and
+the item is not bracketed. **A load-dependent finding carries the load it was measured
+under**, which is the third time in three sessions this family has paid for a rate or a
+reading sampled under contention (`C-190`, `C-210`, now this).
+
+**═══ THE DEFECT THAT MATTERS MOST IS ONE I READ PAST MYSELF, AND I AM RECORDING IT AGAINST
+MY OWN CHECK 1 ═══**
+**`grade_r4b.py:861-876` — G1, G3, G4, G5, G6 and G7 are UNCONDITIONAL `PENDING` STUBS.**
+The early return at `:818-828` handles the absent run root; **this second loop sits AFTER
+it**, so it runs when the root **does** exist and assigns `verdict="PENDING"` regardless.
+**Given twelve complete, converged cases those six gates still return `PENDING`.** Only
+**G0** and **G2** are computed. §2.2 registers this instrument to *"Grade G0–G7 as R4b §5
+writes them"*; **the physics grading is absent.**
+**I READ THESE EXACT LINES DURING CHECK 1 AND DID NOT CATCH IT.** The loop is preceded by
+the comment *"G1, G3-G7 are delegated to the RE-USED scorers"* and each stub carries the
+name of the scorer that would do the work. **I read the comment and accepted its framing:
+the comment says delegated, and the code delegates nothing.** The `note` field compounds it
+— *"PENDING until the propagation run this gate reads has been produced"* — which reads as
+**environmental** when it is **structural**. **A stub wearing the label of a deferral is
+harder to catch than a stub, and I am the reader it got past.** This is the lab's standing
+failure shape (prose asserting what code does not do) arriving inside my own
+non-delegable check.
+**IT DOES NOT BLOCK FILING**, and I say so rather than let the disclosure inflate: R4b-I's
+entry runs `--birth-only`, which grades **B1–B5**, not G0–G7. **It becomes live the moment
+Sanaa's increment ruling arrives and R4b's solve arm runs** — and until then this
+comparator cannot produce R4b's physics verdicts at all.
+
+**═══ THREE MORE DEFECTS, TWO VERIFIED BY ME, ONE AN ESCALATION ═══**
+**D2 — §5.6's HEADLINE IS NOT COMPUTABLE (verified myself).** `run_birth()` declares
+`gate_set=["B1","B2","B3","B4","B5"]` and then builds the record with **`B1=b1, B2=b2,
+B5=b5`**; `main()` computes the headline from **those three only**. **B3 and B4 never enter
+the birth record**, though the `_dev` artefacts show B3 actually ran and **PASSED**. The
+registered *"B1–B5 all PASS → GATE REACHED"* cannot be evaluated by the instrument that
+owes it.
+**D4 — STANDING RULE 4'S `ExecutionTime` CLAUSE IS ABSENT FROM THE ENTIRE COMPLETION PATH
+(verified myself, and it CORRECTS MY OWN BLOCK BELOW).** I grepped all four files —
+`grade_r4b.py`, `r4_lib.py`, `score_aposteriori.py`, `run_r4b.sh` — and the token
+`ExecutionTime` occurs **zero** times in every one. Rule 4 requires the `ExecutionTime`
+count to equal `endTime`. **And the age guard I called "real" below is real but
+CONDITIONAL:** `r4_lib.py:542` guards `if os.path.exists(zp) and …`, so **when `0/<field>`
+is absent the guard SKIPS SILENTLY for that field** — one-sided in the **permissive**
+direction. My block below says the age guard is real and stops there; **that sentence was
+true and incomplete, and incomplete in the flattering direction.** Both defects live in the
+**frozen re-used `r4_lib.py`**, which this item may not edit — **escalated, not repaired.**
+
+**═══ AN OPEN RULE-2 QUESTION I AM NOT RULING AT 22:52, NAMED SO IT IS NOT DECIDED BY
+DEFAULT ═══**
+`/home/ubuntu/closure-data/r4b_instruments/` **now EXISTS** — §3.3 recorded it ABSENT at
+2026-08-28T17:20:38Z — holding a `_dev/` subtree written **17:43Z**: a B3 birth record
+reading **PASS**, a `MODEL.json` carrying **`xi* = 0.05`** (inside R4b's P1 band [0.02,
+0.20], **reported, not graded**), and two built case trees from B4's positive half.
+**SO SOME COMPUTE WAS SPENT ON THIS ITEM BEFORE ITS GATES WERE GRADED, AND WHETHER THAT IS
+"FIRST COMPUTE" DECIDES WHETHER D2 AND D3 CAN BE REPAIRED PRE-COMPUTE AT ALL.** If it is,
+gates are closed and the legitimate route is a **successor instrument**, as my predecessor
+chose for G1 rather than exercise VERIFICATION §2d.1. If it is not, a pre-compute amendment
+is legal. **The registration ANTICIPATED the neighbouring question** — §4.3 registers the
+conservative answer (re-run, never promote the demonstration `MODEL.json`) — which is
+evidence the drafters saw the shape. **It is my ruling to make, it is consequential, and
+making it hastily at the end of a session is how a precedent gets set by accident.**
+**R4b's `xi* = 0.05` IS NOT A RESULT and is not to be quoted as one.**
+
+**═══ A HAZARD OUTSIDE MY FENCE, RELAYED WITH ITS NUMBER ═══**
+The **shared git index carries 394 staged deletions** of 431 staged entries — including all
+four instruments and the frozen pre-registration — **while every one of those files is
+present on disk and in HEAD**. That is standing rule 10's stale-index-in-the-reverting-
+direction condition **at roughly the scale the rule itself records**. **A bare `git commit`
+right now would delete 394 files from HEAD.** Inspected, **not reverted**; the index is the
+chief's call. My own two commits tonight were unaffected — the private-index protocol
+`read-tree`s HEAD, so the shared index's staged deletions never entered them, which is the
+protocol doing exactly the job it was written for.
+
+**═══ SANAA'S OVERNIGHT DIRECTIVE: QUEUE-READY DEPTH 0 → 76, AND THE ITEM I WAS EXPECTED
+TO FILE IS THE ONE I REFUSED ═══** (`c1ad428b`)
+Her directive of 2026-08-30 (`etc/sessions/2026-08-30T2247Z…`, verbatim at `4195b27b`):
+the box never sits idle, and **"all jobs always queued such that if any teams dies the work
+continues."** Closure had **depth 0** against a freeze-ahead floor of 3, with a **live
+`queue_runner` daemon at pid 881** and nothing to take. **That is now 76.**
+**I FILED M1, NOT R4b-I, AND THE SWAP IS THE POINT.** R4b-I is the item this session built
+instruments for, and it is measured **non-runnable** — filing it would have bought a
+guaranteed exit-2 refusal. **Filing something that dies at launch is not compliance with a
+directive to keep the box busy, it is the APPEARANCE of it.** The 76 entries filed are ones
+I measured will actually run.
+**CHECK 4 PERFORMED PERSONALLY, NOT INHERITED.** M1's pre-registration is committed at
+`73cd5ac5…` (object verified, five case files listed); `PREREGISTRATION.md` and `run_m1.sh`
+are byte-identical **disk == HEAD**. The entries' `enqueued_by` carries my predecessor's
+dated check-4 statement and **I did not take it on trust — I re-derived both hashable
+claims myself**, and the digest it names (`e15d0df3ee960b90…`) is the digest I measured.
+**Its third clause is now STALE for two entries**, which is why those two are excluded.
+**THE TWO EXCLUSIONS ARE A FINDING, NOT AN OMISSION.** `M1_kOmegaSST_null__AR_1_Ret_180`
+and `M1_kOmega__AR_1_Ret_180` were filed 2026-08-28 and **RAN** — **201,189 and 252,896
+`log.run` lines** — and wrote **no numeric time directory** before the box went down. They
+are **incomplete solves**; their roots now hold `log.run` and `0/`, so the birth guard
+correctly refuses a re-run in place. **`queue_entry_check.py` REFUSED exactly those two and
+ACCEPTED the other 76** — an independent instrument agreeing with my own cwd sweep case for
+case, 76 clean / 2 dirty / no third category. **They are RUNGS WITHOUT VERDICTS**, boarded
+rather than quietly dropped, and their evidence is untouched.
+**COST:** the 76 registered estimates sum to **1,293.2 core-min = 21.55 core-h = $1.106
+derived, not measured** at $0.0513/core-h; caps sum to 1,885.7 core-min = $1.612. Inside
+the under-$25 pre-authorisation, and **every entry still carries its OWN cap**, which is
+what an overrun stops against. `ranks` 1; `host` absent hence local — correct for CPU work,
+**and NOT correct for Ling arm 2**, whose GPU entry stays unfiled for exactly that reason.
+**⚠ A GRADER DEFECT DISCLOSED BEFORE THE RUNS RATHER THAN AFTER, AND IT DOES NOT BLOCK
+THEM. `grade_m1.py` HAS NO FATAL OR CRASH CHANNEL AT ALL in 988 lines** — zero `FOAM
+FATAL`, zero `Floating point exception`, zero `sigFpe`. **RECOGNITION CONTROL RUN, because
+an absence from an unproven reader is not evidence:** the same reader finds `def ` **31×**,
+`PASS` **11×**, `NOT A RESULT` **7×**, `endTime` **7×**, `ExecutionTime` **4×** in that
+same file — **the zeros are a real absence, not a blind grep.** This is **D548/L-396's
+MIRROR IMAGE**: not a detector that always fires, but **no detector at all**, so a crashed
+solve would reach its physics gate with nothing in the way. Same shape already recorded
+against `grade_m2.py`. **It is a GRADING defect, not a RUN defect** — physics accumulates on
+disk correctly either way and bookkeeping never voids physics — **so NOTHING FROM THIS SET
+IS TO BE GRADED UNTIL THE GRADING PATH IS RULED**, and that ruling interacts with rule 2
+because 2 of the 78 arms have already consumed compute.
+
+**COST: 0 core-min of new compute by me; ~3 core-min single-rank for the survey lane
+(read-only, derived from wall clock, not read from a log). 0 GPU-hours. $0.00.**
+**NOW COMMITTED TO 21.55 core-h = $1.106 derived of QUEUED work** that the daemon will
+launch without me. **The rule-12 estimate-versus-actual is OWED AT COMPLETION**; no
+calibration row is written from a partial chain.
+
+**COMMITS THIS SESSION (4):** `3d50ceed` R4b-I instruments · `ae3f008b` board ·
+`c1ad428b` M1 76 entries filed · this write.
+
+**LIVE JOBS AT THIS WRITE: none yet, 76 QUEUED.** The `queue_runner` daemon (**pid 881**)
+holds entries against its 85 % ceiling and launches without any agent alive — that is the
+2026-08-26 detached-runner ruling doing its job. **To read whether closure is solving, read
+`/proc` and each case's `log.run`, NEVER the queue directory:** `launched/` is a directory
+of RECORDS, and a file appearing or disappearing there is not evidence of a process either
+way. This family has already turned a four-hour stall into an apparent success that way.
+
+**NEXT ACTIONS, REORDERED BY WHAT I NOW KNOW.** (0) **Read the 76 M1 runs' liveness and
+grade NOTHING until the `grade_m1.py` fatal-channel question is ruled.** (1) **Rule the
+`_dev` first-compute question** — everything about R4b-I's repair route hangs on it.
+(2) Then D3, D2 and D1 by whichever route that ruling permits, **D3 first** since it alone
+blocks the birth run.
+(3) `COVERAGE.md` — §4.1 lists it in I-2 and `3d50ceed` did not land it, so ORDER B's **A0
+is undone** and it is a hard precondition of `build_r4b_cases.py`. (4) Escalate D4 to
+`r4_lib.py`'s owner. (5) Only then file R4b-I: depth **0 → 1**. (6) M2 ruling; (7) D551's
+L4 from a **measured pilot**; (8) D550 `xr`.
+
+**ON SANAA'S DESK.** Unchanged: the **R4b increment ruling**, and the **GPU YES** for
+Ling arm 2 with its two console reads. **SUBMISSIONS REMAIN PARKED (rule 7).**
+
+
 **THIRTEENTH SESSION, FIRST WRITE, 2026-08-30T22:43Z (closure-supervisor). NEWEST FIRST.**
 **SUPERSEDES EVERY BLOCK BELOW ON R4b's INSTRUMENTS, WHICH EXIST AND ARE LANDED, AND ON
 THE GPU QUESTION, WHICH IS ANSWERED YES WITH A NAMED FROZEN ITEM.**
