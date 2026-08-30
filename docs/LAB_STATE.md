@@ -4195,9 +4195,77 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-30T23:28:46Z by dafoam-supervisor (TWENTIETH session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-30T23:49:24Z by dafoam-supervisor (TWENTIETH session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-20c — **`D6R` = `NOT A RESULT`, MEASURED RATHER THAN PREDICTED, AND ITS FAILURE IS PHYSICS. THE CHARTER IS AMENDED TO v1.0d UNDER SANAA'S DIRECTIVE. THREE ITEMS THAT HAD NEVER OWNED A RECORD NOW HAVE ONE. AND MY OWN HEADLINE CLAIM ABOUT `D6R`'s COST ANCHOR WAS WRONG IN THE DIRECTION THAT MAKES THE DEFECT WORSE** (2026-08-30T23:49:24Z, `date -u` at write)
+
+##### 1. `D6R` = `NOT A RESULT` — AND I HELD THE VERDICT UNTIL IT WAS DRIVEN
+
+**I refused to rule from a trace.** Earlier tonight I established from the code that D6R's frozen grader *must* refuse; that is a prediction, and **a predicted refusal is weaker than a measured one**. The grader was then **driven unmodified**: it **REFUSED, exit 2, with ZERO gate readings**. The successor `D6RG` composed **ELEVEN** — `G9` `PASS`, `G12` `PASS`, `G10` `GATE FAIL`, the remainder `NOT A RESULT`. **I confirmed both counts from the artefacts myself** (`D6RG_regrade.json`'s `grade` block carries `G-D6R-1…4`, `G-D6R-OPT`, `G1`, `G9`, `G10`, `G12`, `L332`, `arm_census`, `arm_dir_mapping`).
+
+**ONE REFINEMENT AGAINST MY OWN PREDICTION:** I expected the `EXIT:` line to be missing. **It is present.** The refusal fires on the **objective limb alone**. The log is not truncated — **it is unreadable by that reader**, which is a different and more precise statement.
+
+**THE PHYSICS, WHICH MUST NOT BE LOST IN THE BOOKKEEPING.** `rc=0` on `O_mp` means the **process** finished, **not** that the optimiser stopped where told: IPOPT ran **73 majors of a registered 80** and died on **`EXIT: Invalid number in NLP function or derivative detected.`** after **673 alpha cutbacks (9.22 per major)** and 7 restoration majors, against D6's **8.56** over fewer majors. **THE SUCCESSOR BUILT TO FIX D6's CHAIN STOP REPRODUCED AND WORSENED D6's EVALUATION PATHOLOGY.** That is a reproducible finding about multipoint optimisation on the A2 wing under this toolchain, now on the record **twice**, and it is worth more than the verdict. **`SUBMISSIONS ARE PARKED`; filing is Sanaa's alone.**
+
+##### 2. ⚠⚠ MY OWN HEADLINE CLAIM WAS WRONG, AND THE TRUTH IS WORSE
+
+I reported — to the chief, and in briefs — that D6R's `ACC_mp` cap **"cited C-94, a 45-second acceptance primal"**. **That is false and I verified the correction myself: `grep -c 'C-94'` on `curriculum_D6R/PREREGISTRATION.md` returns 0.** The C-94 trace belongs to **D5**, quoted inside C-139. **D6R's anchor cell at `:270` reads a bare `9.0 × 1.6308` — NO ROW, NO PROGRAM, NO PROVENANCE AT ALL.**
+
+**THIS IS THE WORSE CASE, NOT THE MILDER ONE: D5 at least NAMED the row it priced from and could be audited against it. D6R named nothing.** And it changes the remedy — **a clause requiring only that a calibration row be CITED would not have caught D6R**, which is why the charter clause is bound to the **program statement** and not to the citation. **A lane checking my facts before writing them into a charter is exactly why check 1 exists**, and it caught me.
+
+**Sharper still:** D6R §4:275 carries the heading *"the `D5-PREREG-DEF-1` class, named and avoided"*. **The guard was applied to `O_mp`** (anchor `80 × 31.258`, genuinely same-program) **and NOT to the three arms priced by the carried multiplier.** The item knew the class, named it, avoided it in one place and missed it in three. **That is rule 14 in its most uncomfortable form: not an unknown lesson, but a known one applied to one call site out of four.**
+
+##### 3. `DAFOAM_CHARTER.md` → **v1.0d**, THREE ADDITIVE CLAUSES (`e841b8a7`, +121 / −0)
+
+Written under Sanaa's 2026-08-30 directive, which authorises a team to amend **its own** charter and nothing more. **§18.1** a cost anchor names the **program** it prices — ranks, adjoint, colouring, cold-or-decomposed — and asserts the match. **§18.2** an instrument-only estimate carries a **cache-state term** (`COLD`/`WARM`, sized on file count and copy count). **§18.3** an instrument table enumerates every file the launcher, driver and comparator **execute or import**, and **existence is asserted BEFORE any md5**.
+
+**EVERY CLAUSE ADDS A REQUIREMENT; NONE RELAXES ANYTHING** — retiring or widening is Sanaa's alone. The closing table asserts **"items that would previously have failed and would now pass: 0"**, and the diff corroborates structurally: **121 insertions, 0 deletions**. **§18.4 states honestly that all three have NOTHING AUTOMATIC** — a clause nobody can fail is a preference; what these have is a specific assertion over a specific artefact, which is what C-139's and C-212's prose lessons could not offer. **§18.5 carries the fourth as a PROPOSAL EXPLICITLY NOT IN FORCE** — *a rule-3 control that did not fire must report `NOT EXERCISED`, never be counted as a pass* — refused locally because it reaches every family's comparators, and routed to verification.
+
+**The lane declined to put any clause in `ADJOINT_VERIFICATION_STANDARD.md` and gave a reason rather than defaulting:** every band in that standard is a band on a **derivative**, and none of these three is about a derivative. **Every DAFoam item is costed and frozen; only some measure a gradient.** **A SECOND CORRECTION AGAINST ME, ON TENSE:** I briefed *"never existed in any commit on any branch"* for SO2a's missing script. **True when I found it, FALSE by the time the charter was written** — the repair landed at `84c0a769`. The clause is written in the **past tense against the freeze**, because a present-tense absence claim inside a charter would have aged into a falsehood.
+
+##### 4. `SO2a` REPAIRED AND RE-QUEUED — AND MY RULE-2 RULING WAS SAFER THAN I COULD HAVE KNOWN
+
+**THE DELTA IS EMPTY.** The adopted script is **byte-for-byte SO1a's**, and **all nine siblings share md5 `709ab0b9…`**. It carries **no item name, no path, no threshold, no unit** — ceiling and cap both arrive as `argv` from the driver's own frozen constants. **So the choice of sibling could not have changed a byte, and supplying the file cannot have moved a gate.** That was the single risk in my ruling and it is closed **by measurement, not by my judgement**.
+
+**The gate is proved able to refuse: 15/15**, driven on the driver's **own bytes** — known positive first (script absent → 6 waits, 0 proceeds), must-wait (`ok=false` at 4010.12 GiB, 3 waits), must-proceed (`ok=true` at 14.14 GiB, broke on poll one), **and the BOUND branch DRIVEN rather than assumed** (bound shrunk to 2 s → `BLOCKED_AGGREGATE`, `CHAIN_RC=6`). **§7 now reads nine of nine, existence before md5.**
+
+**THE SIBLING SWEEP SAYS THE DEFECT IS A SINGLETON:** 83 shell files, **437 references, ZERO ABSENT**, validated against the **pre-repair** tree so it demonstrably sees what it hunts; all 20 `RUNTIME` targets traced to a staging `cp` and an existing source rather than shrugged at. **Two self-caught instrument defects worth more than the fix:** the refusal harness first read the bound branch as UNREACHED when it had **fired** — the harness died one statement later on an unbound variable under `set -u`, so **a missing harness variable read as a gate that could not refuse**; and the sweep's first pass threw a false ABSENT off an ignored `cd`, **and a false ABSENT is the noise a real ABSENT hides in**, so the resolver was fixed and the known positive re-driven to prove the fix had not blinded it.
+
+**Cpuset non-collision established before re-filing:** SO2a on **9**, W3's live container on **1**, read from `docker inspect`; aggregate measured **14.14 GiB against the 30.6 ceiling with W3 live**. **Re-filed at top level, validator ACCEPTED on the explicit path, not launched by hand** — waiting behind ~45 queued entries. **Run root archived per the runbook, never deleted**, because `STATUS.<arm>` is opened with `>` at preflight and a relaunch would have destroyed the stop evidence.
+
+**Reported, NOT repaired, and both matter:** the driver's header names `curriculum_D15` as its parent and cites a DELTAS file **that does not exist** (a stale comment inherited verbatim from SO1a's own header — it gates nothing, but a reader would hunt the wrong parent); and **§7.3 is now stale IN THE ITEM'S FAVOUR**, still asserting the G-ROOT.5 selftest *"IS NOT PRESENT"* when it was discharged at 23:07Z with evidence. **Stale-in-favour is the dangerous direction and I carry it as owed.**
+
+**And a refusal I want kept:** the lane **declined to compute a rule-12 ratio at all**, because nothing predicted an instrument repair and dividing its 0.367 core-min by SO2a's registered 9.19 would be a category error corrupting the ledger's ratio series. **Waste named separately and honestly: ZERO solver core-min, 323 wall s, and an 8 GiB reservation it would have held four hours.**
+
+##### 5. THREE ITEMS THAT HAD NEVER OWNED A RECORD NOW HAVE ONE (`6f0dcdac`, +932 / −0)
+
+**My pattern claim was TRUE and stronger than I stated it:** `git log --all --diff-filter=ADR` returns **zero commits** for all three paths — **`AV1R`, `AV2R` and `SO1a` have NEVER had a `RESULTS.md` at any point in this repository's history.** Creations, not restorations. **And the record already knew:** AVWC §10 and AV2RG §9 each flagged the gap and **correctly declined to close it**, calling it a supervisor's call. It was, and this is its execution.
+
+`AV1R` **`PASS`** (rows `PASS`/`PASS`, `names_rebound = []`), `AV2R` **`BLOCKED`** (rows `BLOCKED`/`BLOCKED`, `names_rebound = []`), `SO1a` **`GATE FAIL`** split — each carrying its **original struck refusal verbatim from the run root**, so no record presents its current verdict as though it were the first answer. **Every figure I quoted from this board matched its artefact to the digit** — 40.481353490548585, 637.7570114398126 with `sign_flip: true`, and the rest — which is the first time tonight my board survived a check unamended.
+
+**⚠ AN EPISTEMIC DISTINCTION THE LANE ADDED THAT CHANGES WHAT THESE RECORDS MEAN, AND I ADOPT IT:** **AVWC and AV2RG ran their predecessors' OWN frozen `grade()`** with at most one name rebound, so **their verdicts are literally the frozen instruments'**. **SO1aR is NOT that** — it is a **separate comparator**, and on SO1a's own frozen path `so1a_grade.py` **still refuses today**. SO1aR §9.5: *"SO-1a is `NOT A RESULT` permanently. Two records, one run."* **That must not sit unmentioned beside a headline `GATE FAIL`**, and it now sits in SO1a's own §1.2 and §8.5.
+
+**Two corrections against me:** `SO1aR_grade_*.json` is **in the preserved run root, not in `curriculum_SO1aR/`** where my source list put it. And **`curriculum_AVWC/RESULTS.md` §7 cites `C-211` when the AVWC row is `C-212`** — `C-211` is an **ansys-verification** row for VMFL063, so **a dafoam record I approved currently points at another team's cost row.** Rule-11 drift, almost certainly; the lane **correctly refused to repair another item's record on an inference** and flagged it to me. A correction is dispatched.
+
+**And a refusal that was right:** per-item instrument cost **does not exist** — AVWC measured 1.33353 core-min across three items, AV2RG ≈0.20 across two — so **dividing by an item count would have been a fabricated measurement**, and the records say so instead.
+
+##### 6. `D6R-CAP-FRAME-2` — MY RULING: THE ALLOWANCE IS **NOT** WIDENED
+
+`G10` reads **`GATE FAIL`** on a **75 s** frame gap against a **30 s** registered allowance, while the arm sat **inside** its cap at 77.9 %. **Widening a registered threshold is reserved to Sanaa and does not become mine because it is inconvenient.** Two consequences, both recorded: **the `GATE FAIL` STANDS**; and **it does NOT carry the item verdict** — Sanaa's universal rule is that **bookkeeping never voids physics**, and D6R's `NOT A RESULT` rests on the physics components, not on a frame gap. The honest remedy is a **new** registration deriving the allowance from log size, frozen before it runs — **not a retroactive widening of this one.**
+
+**⚠ AND A FINDING THAT OUTRANKS THE VERDICT: RULE 3 WAS NEVER EXERCISED ON THIS DATA.** D6R's frozen grader short-circuits its planted-zero control when an arm did not run, **so the control never fired at all — and nothing reported that it hadn't.** An item can pass through a comparator whose rule-3 control was silently skipped. **That is the defect §18.5 proposes to close lab-wide, and it is why I sent it to verification rather than enacting it here.**
+
+##### 7. STATUS
+
+**`W3` LIVE** — pid 1280304, **seven stage markers**: `S1a S1b S2a S2b S3_r1 S3_r2 S3_r3`. **Queued behind it: `D6RACC2.json`, `SO2a_chain.json`**, both at top level where the runner can see them; ~45 entries across all teams, closure's sweep dominating, so dafoam's may wait — **which is the directive working, not a problem.**
+
+**Commits this block:** `84c0a769` (SO2a repair + §7 amendment + stop record), `e841b8a7` (charter v1.0d), `6f0dcdac` (three RESULTS.md). **Lanes live: `SO1bR` (freeze only — I hold checks 1 and 4), and the C-212 / D6R-record correction.**
+
+**OWED:** SO2a §7.3's stale-in-favour statement; the AVWC `C-211` correction; `AV1R`/`AV2R` solver spends (9.069 and 20.766 core-min) appear to carry **no calibration rows** — an absence the lane declined to assert without proving, and I have not proved it either; the **verification audit of my own §2d.1 grant is now ON RECORD AND UPHELD** on all four conditions, measured blind by **5m34s on the commit graph** — **stronger evidence than the behavioural argument I made for it**; and the **CASE 1 §1.7 adjoint rung**, still correctly gated behind a cfd primal that does not yet exist.
+
+**VERIFY** — the D6R gate counts, the `C-94` absence and the charter's landing are my own readings tonight. Everything attributed to a lane is that lane's measurement, relayed with its numbers.
 
 ##### UPDATE S-20b — **⚠⚠⚠ THE BOX IS WORKING AGAIN — `W3` IS LIVE AND PAST FOUR STAGES AFTER THREE DAYS BLOCKED — AND I STOPPED MY OWN ITEM AN HOUR LATER ON THE SAME PRECEDENT I STOPPED SOMEBODY ELSE'S RUN WITH. `AVWC` LANDED, `AV2RG` AND `D6R-ACC2` ARE FROZEN, AND TWO LAB-WIDE LESSONS LEFT THIS FAMILY** (2026-08-30T23:28:46Z, `date -u` at write)
 
