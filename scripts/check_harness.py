@@ -20,6 +20,12 @@ preference -- that made them scenery. This is the check.
                 the section's own commit cannot be determined, because the stamp is
                 typed at minute resolution just before `commit-tree` and produced
                 false STALE for every team that did the right thing.
+  4. PROVENANCE a block RECORDED as landed is still present in its file
+                BYTE-FOR-BYTE. This is the DETECTION half of the unquoted-heredoc
+                defect (L-403/L-405): append_block.py protects the writes that go
+                THROUGH it, and nothing asked the same question afterwards. Its
+                population is the ledger it reads, so an empty ledger is reported
+                NOT MEASURED and never ok.
 
 What this does NOT check, stated rather than implied: whether the agents actually
 LOAD (they are read at session start -- see harness/README.md), whether the lane
@@ -34,6 +40,9 @@ names the Ansys manual and its sidecar inside it by explicit path, 2026-08-24).
 """
 
 import argparse
+import base64
+import hashlib
+import json
 import os
 import re
 import subprocess
@@ -111,7 +120,7 @@ def sections(text):
 
 
 def check_roster():
-    print("\n[1/3] ROSTER -- agent files and prose surfaces vs teams.yaml")
+    print("\n[1/4] ROSTER -- agent files and prose surfaces vs teams.yaml")
     r = subprocess.run([sys.executable, os.path.join(REPO, "harness", "generate_agents.py"),
                         "--check"], capture_output=True, text=True)
     for line in r.stdout.splitlines():
@@ -145,7 +154,7 @@ def board_text(use_worktree):
 
 
 def check_board(cfg, use_worktree=False):
-    print("\n[2/3] SECTIONS -- every team has a board section")
+    print("\n[2/4] SECTIONS -- every team has a board section")
     text, src = board_text(use_worktree)
     print("  ....  board read from %s" % src)
     if text is None:
@@ -243,7 +252,7 @@ def iso_of(epoch):
 
 
 def check_freshness(cfg, secs):
-    print("\n[3/3] FRESHNESS -- is each section older than its own territory?")
+    print("\n[3/4] FRESHNESS -- is each section older than its own territory?")
     for t in cfg["teams"]:
         team, body = t["team"], secs.get(t["team"])
         if body is None:
@@ -276,6 +285,201 @@ def check_freshness(cfg, secs):
             warn(team, "STALE -- %s (%s)" % (reason, label))
         else:
             ok(team, "%s -- %s" % (reason, label))
+
+
+# ---------------------------------------------------------------------------
+# [4/4] PROVENANCE -- the DETECTION half of the unquoted-heredoc defect.
+#
+# append_block.py removed the heredoc from the WRITE path and proves, at the
+# instant of the append, that the landed bytes are the source bytes. That
+# guarantee then evaporates: nothing afterwards could ask whether the block that
+# landed is still the block that landed, and nothing at all sees a block written
+# by hand, by heredoc, or by an older path. This clause asks the later question,
+# for every block that carries a record.
+#
+# THE HONESTY CONDITION. The clause is only as wide as the ledger, and on the day
+# it landed the ledger held ZERO records -- every block in the tree predates the
+# recorder. A clause that returns green over an empty population is the fail-open
+# shape this team has now measured five times (queue_entry_check with no args
+# returns 0; the reconciler's DEFAULT_PATHS; append_record.py's `if new_ids:`).
+# So an empty population is NOT MEASURED, never ok, and --strict-provenance turns
+# it into a FAIL for whoever wants the gate armed.
+# ---------------------------------------------------------------------------
+
+PROV_LEDGER_REL = "verification/credibility/append_block_provenance.jsonl"
+
+
+def heredoc_shadow(b):
+    """The bytes an UNQUOTED heredoc would have produced from these bytes.
+
+    Command substitution replaces every `...` and $(...) span with the command's
+    OUTPUT, which for the prose shapes at issue -- `GATE FAIL` eaten out of
+    docs/LAB_STATE.md, `Queue:` eaten out of a charter -- is the empty string.
+    Computing the shadow lets the clause name WHICH defect it is looking at
+    rather than only reporting that the bytes changed.
+    """
+    b = re.sub(rb"`[^`\n]*`", b"", b)
+    return re.sub(rb"\$\([^()\n]*\)", b"", b)
+
+
+def load_provenance(path):
+    """Returns a list of records, or None when the ledger does not exist.
+
+    An unreadable line becomes a {"_bad": ...} record rather than an exception: a
+    corrupt ledger is precisely the failure this clause exists to notice, so it
+    must be reported, not raised over.
+    """
+    if not os.path.exists(path):
+        return None
+    recs = []
+    with open(path, "rb") as fh:
+        for n, raw in enumerate(fh, 1):
+            if not raw.strip():
+                continue
+            try:
+                r = json.loads(raw.decode("utf-8"))
+                if not isinstance(r, dict):
+                    raise ValueError("not a JSON object")
+            except Exception as e:
+                recs.append({"_bad": "ledger line %d is unreadable: %s" % (n, e)})
+                continue
+            r["_line"] = n
+            recs.append(r)
+    return recs
+
+
+def provenance_verdict(records, read_bytes):
+    """Pure function, so --selftest can exercise it. Returns [(status, label, msg)].
+
+    read_bytes(target) -> bytes   grade this record against these file bytes
+                       -> None    the target is gone   -> FAIL
+                       -> False   the target is out of this repo -> not graded
+
+    status is one of: ok / fail / superseded / skip.
+    """
+    out = []
+    # SUPERSESSION. The shared-board protocol REWRITES a section wholesale (rebuild
+    # from HEAD, replace only your own `## <team>`), so an earlier record for the
+    # same heading makes no claim about today's file. Without this the clause would
+    # flag every team that correctly updated its board -- the same defect this
+    # file's own stamp parser shipped twice: an instrument that cannot see a
+    # correct input.
+    last = {}
+    for i, r in enumerate(records):
+        if "_bad" not in r:
+            last[(r.get("target"), r.get("section") or r.get("sha256"))] = i
+
+    for i, r in enumerate(records):
+        if "_bad" in r:
+            out.append(("fail", "ledger", r["_bad"]))
+            continue
+        label = "%s :: %s" % (r.get("target") or "?", r.get("section") or "(no heading)")
+        missing = [k for k in ("target", "bytes", "sha256", "body_b64") if k not in r]
+        if missing:
+            out.append(("fail", label, "record on line %s lacks %s"
+                        % (r.get("_line"), ", ".join(missing))))
+            continue
+        try:
+            want = base64.b64decode(r["body_b64"], validate=True)
+        except Exception as e:
+            out.append(("fail", label, "body_b64 on line %s will not decode: %s"
+                        % (r["_line"], e)))
+            continue
+        # The ledger is checked against ITSELF before it is believed about a file.
+        # A record whose bytes disagree with its own length or sha256 cannot be
+        # used to accuse a file of anything.
+        if len(want) != r["bytes"] or hashlib.sha256(want).hexdigest() != r["sha256"]:
+            out.append(("fail", label, "ledger record on line %s is internally "
+                        "inconsistent: its bytes do not match its own length/sha256"
+                        % r["_line"]))
+            continue
+        if last[(r["target"], r.get("section") or r["sha256"])] != i:
+            out.append(("superseded", label, "line %s retired by a later write to the "
+                        "same heading" % r["_line"]))
+            continue
+        blob = read_bytes(r["target"])
+        if blob is False:
+            out.append(("skip", label, "target is outside this repo -- not graded"))
+            continue
+        if blob is None:
+            out.append(("fail", label, "the target no longer exists; a block was "
+                        "recorded as landing in it"))
+            continue
+        if want in blob:
+            out.append(("ok", label, "%d bytes still present byte-for-byte" % len(want)))
+            continue
+        shadow = heredoc_shadow(want)
+        sig = ""
+        if shadow != want and shadow in blob:
+            sig = (" COMMAND-SUBSTITUTION SIGNATURE CONFIRMED: the block is present "
+                   "with every `...` and $(...) span REMOVED -- this is the "
+                   "unquoted-heredoc defect (L-403/L-405), not an ordinary edit.")
+        out.append(("fail", label, "the %d recorded bytes are NO LONGER present in %s.%s"
+                    % (len(want), r["target"], sig)))
+    return out
+
+
+def check_provenance(strict=False):
+    print("\n[4/4] PROVENANCE -- do recorded blocks still match their source bytes?")
+    path = os.path.join(REPO, *PROV_LEDGER_REL.split("/"))
+    recs = load_provenance(path)
+
+    def not_measured(why):
+        (fail if strict else warn)(
+            "provenance",
+            "NOT MEASURED -- %s. This clause graded 0 blocks and is a DEAD LEVER "
+            "until append_block.py is the path record appends take. A green here "
+            "would mean nothing." % why)
+        print("  ....  CANNOT SEE: any block written by hand, by heredoc, or by any "
+              "path other than append_block.py. OWNER verification-supervisor; "
+              "RE-READ 2026-09-30 to re-measure the population.")
+
+    # THE TWO ZERO-POPULATION CASES ARE NOT THE SAME CASE, and collapsing them is
+    # the fail-open this clause exists to avoid (verification-supervisor,
+    # 2026-08-30, on landing). NO LEDGER AT ALL is the honest day-one state: the
+    # recorder has never run, nothing is claimed, and a warning is the truthful
+    # report. A LEDGER THAT EXISTS AND GRADES NOTHING is a different proposition
+    # -- the recorder DID run, and every record it wrote has since become
+    # ungradeable. That is indistinguishable from the recorder being silently
+    # broken, and it is exactly the shape of the five fail-opens this team has
+    # already measured (queue_entry_check with no args returns rc 0; the
+    # reconciler's DEFAULT_PATHS; append_record.py's `if new_ids:`). So it FAILS
+    # on its own, without waiting for --strict-provenance to be armed.
+    if recs is None:
+        not_measured("no ledger at %s -- the recorder has never run" % PROV_LEDGER_REL)
+        return
+    if not recs:
+        fail("provenance",
+             "the ledger at %s EXISTS but holds 0 records. The recorder ran and "
+             "wrote nothing gradeable; a green here would be indistinguishable "
+             "from a silently broken recorder." % PROV_LEDGER_REL)
+        return
+
+    def read_bytes(target):
+        if os.path.isabs(target):
+            return False
+        p = os.path.join(REPO, *target.split("/"))
+        if not os.path.exists(p):
+            return None
+        with open(p, "rb") as fh:
+            return fh.read()
+
+    graded = 0
+    for status, label, msg in provenance_verdict(recs, read_bytes):
+        if status == "fail":
+            fail("provenance", "%s -- %s" % (label, msg)); graded += 1
+        elif status == "ok":
+            ok("provenance", "%s -- %s" % (label, msg)); graded += 1
+        else:
+            print("  ....  %-14s %s -- %s" % ("provenance", label, msg))
+    if graded == 0:
+        # Same ruling as above: the ledger EXISTS, so this is not day one.
+        fail("provenance",
+             "the ledger holds %d record(s) and NONE was graded -- all are "
+             "superseded or out of repo. The clause measured nothing while "
+             "appearing to run." % len(recs))
+    else:
+        print("  ....  population: %d of %d ledger record(s) graded" % (graded, len(recs)))
 
 
 STAMP_CASES = [
@@ -312,6 +516,174 @@ FRESHNESS_CASES = [
     ("no territory commits", None, None, None, None, -300, "ok"),
     ("no stamp, no section", "aaaa", 0, None, None, None, "ok"),
 ]
+
+
+def _prov_write_real(d, when, target=None):
+    """Drive the REAL producer: scripts/append_block.py, as a subprocess.
+
+    BIRTH REQUIREMENT (VERIFICATION_CHARTER §2j.2): ask who wrote the bytes the
+    control reads. A hand-built ledger fixture proves only that the parser
+    parses -- it cannot prove the clause grades what the tool actually emits, and
+    a control the harness wrote for itself is not a control. So this limb writes
+    nothing itself: it runs append_block.py and grades ITS ledger line.
+
+    The body carries BOTH shapes an unquoted heredoc destroys -- a backtick pair
+    and a $(...) -- and both must survive verbatim into the record.
+    """
+    tgt = target or os.path.join(d, "board.md")
+    if not os.path.exists(tgt):
+        with open(tgt, "w") as fh:
+            fh.write("# Board\n\nprior content that must not move\n")
+    body = os.path.join(d, "body_%s.md" % when.replace(":", ""))
+    with open(body, "wb") as fh:
+        fh.write(b"\n## verification\n\n"
+                 b"**Section last written:** @@WHEN@@ by verification-supervisor.\n"
+                 b"The verdict word is `GATE FAIL` and the queue key is `Queue:`.\n"
+                 b"A command substitution that must NOT run: $(date -u).\n")
+    led = os.path.join(d, "prov.jsonl")
+    r = subprocess.run(
+        [sys.executable, os.path.join(REPO, "scripts", "append_block.py"),
+         "--target", tgt, "--body", body, "--subst", "WHEN=" + when],
+        capture_output=True, text=True,
+        env=dict(os.environ, APPEND_BLOCK_LEDGER=led))
+    return tgt, led, r.returncode
+
+
+def provenance_selftest():
+    """Planted controls for the provenance clause (CLAUDE.md rule 3).
+
+    Every limb states what it plants and whether it must SPEAK or stay SILENT. A
+    clause that only ever fires on a fixture it built is not evidence, so limb 1
+    runs the real tool; the negative limbs exist because a checker that flags a
+    correct write is the defect this file has already shipped twice.
+    """
+    import shutil
+    import tempfile
+    bad, n = 0, 0
+    d = tempfile.mkdtemp(prefix="prov_")
+
+    def grade(label, records, reader, want_statuses, want_sig=None):
+        nonlocal bad, n
+        n += 1
+        if records is None:
+            # Found by mutation test M5 (recorder disabled): a limb with no ledger
+            # to read used to raise TypeError. A control that CRASHES reports
+            # nothing -- it must fail loudly and let the remaining limbs run.
+            print("  FAIL  selftest    %-28s no ledger to grade (records is None)"
+                  % label); bad += 1
+            return
+        got = provenance_verdict(records, reader)
+        statuses = [s for s, _, _ in got]
+        msgs = " | ".join(m for _, _, m in got)
+        problem = None
+        if statuses != want_statuses:
+            problem = "got %s want %s" % (statuses, want_statuses)
+        elif want_sig is not None:
+            has = "SIGNATURE CONFIRMED" in msgs
+            if has != want_sig:
+                problem = "signature %s, wanted %s" % (has, want_sig)
+        if problem:
+            print("  FAIL  selftest    %-28s %s" % (label, problem)); bad += 1
+        else:
+            print("  ok    selftest    %-28s %s" % (label, "/".join(statuses) or "-"))
+
+    abs_reader = lambda t: (open(t, "rb").read() if os.path.exists(t) else None)
+
+    # --- LIMB 1 (REAL PATH, must be SILENT: an unmodified block is not flagged) --
+    tgt, led, rc = _prov_write_real(d, "2026-08-30T01:00Z")
+    n += 1
+    recs = load_provenance(led)
+    if rc != 0 or not recs:
+        print("  FAIL  selftest    %-28s append_block.py rc=%s, %s record(s)"
+              % ("real path writes a record", rc, 0 if not recs else len(recs))); bad += 1
+    else:
+        planted = base64.b64decode(recs[0]["body_b64"])
+        landed = open(tgt, "rb").read()
+        miss = [p for p in (b"`GATE FAIL`", b"`Queue:`", b"$(date -u)",
+                            b"2026-08-30T01:00Z")
+                if p not in planted or p not in landed]
+        if miss:
+            print("  FAIL  selftest    %-28s did not survive: %s"
+                  % ("real path keeps both shapes", miss)); bad += 1
+        else:
+            print("  ok    selftest    %-28s backtick pair + $(...) verbatim in "
+                  "record AND file" % "real path keeps both shapes")
+    grade("unmodified block SILENT", recs, abs_reader, ["ok"])
+
+    # --- LIMB 2 (SILENT): an unrelated append below must not disturb the block ---
+    with open(tgt, "ab") as fh:
+        fh.write(b"\n## some other team\n\nlater, unrelated work\n")
+    grade("append below SILENT", load_provenance(led), abs_reader, ["ok"])
+
+    # --- LIMB 3 (must SPEAK): the heredoc mutation, applied to the landed file ---
+    keep = open(tgt, "rb").read()
+    with open(tgt, "wb") as fh:
+        fh.write(heredoc_shadow(keep))
+    grade("heredoc mutation SPEAKS", load_provenance(led), abs_reader, ["fail"],
+          want_sig=True)
+
+    # --- LIMB 4 (must SPEAK): one byte, INSIDE the block and outside any backtick
+    # span, so the clause must fail on it WITHOUT claiming the heredoc signature.
+    # Sensitivity has to be byte-level, not signature-level, or the clause would
+    # only ever catch the one defect it was written for.
+    flipped = keep.replace(b"the queue key", b"the queve key", 1)
+    assert flipped != keep, "limb 4 planted nothing"
+    with open(tgt, "wb") as fh:
+        fh.write(flipped)
+    grade("one-byte flip SPEAKS", load_provenance(led), abs_reader, ["fail"],
+          want_sig=False)
+    with open(tgt, "wb") as fh:
+        fh.write(keep)
+
+    # --- LIMB 5 (SILENT): supersession, i.e. the real board-rewrite protocol -----
+    # A second write to the same `## verification` heading retires the first. The
+    # file then carries ONLY the newer block, exactly as a board rebuild leaves it.
+    _prov_write_real(d, "2026-08-30T02:00Z", target=tgt)
+    recs2 = load_provenance(led)
+    if not recs2:
+        # Also M5: without a ledger the remaining limbs have nothing to plant into.
+        # Stop and SAY so; never let a limb pass because it could not run.
+        print("  FAIL  selftest    %-28s no ledger after a real-path write -- limbs "
+              "5-10 could not be planted" % "supersession SILENT"); bad += 1; n += 1
+        shutil.rmtree(d, ignore_errors=True)
+        return bad, n
+    newer = base64.b64decode(recs2[-1]["body_b64"])
+    with open(tgt, "wb") as fh:
+        fh.write(b"# Board\n\nprior content that must not move\n" + newer)
+    grade("supersession SILENT", recs2, abs_reader, ["superseded", "ok"])
+
+    # --- LIMB 6 (must SPEAK): a ledger that disagrees with itself ----------------
+    tampered = dict(recs2[-1]); tampered["sha256"] = "0" * 64
+    grade("ledger self-inconsistent SPEAKS", [tampered], abs_reader, ["fail"])
+
+    # --- LIMB 7 (must SPEAK): the block's file is gone ---------------------------
+    grade("target deleted SPEAKS", [recs2[-1]], lambda t: None, ["fail"])
+
+    # --- LIMB 8 (must NOT be graded): a record pointing outside the repo ---------
+    grade("out-of-repo record NOT graded", [recs2[-1]], lambda t: False, ["skip"])
+
+    # --- LIMB 9 (must SPEAK): a corrupt ledger line is reported, never raised ----
+    with open(os.path.join(d, "bad.jsonl"), "w") as fh:
+        fh.write("{not json\n")
+    grade("corrupt ledger line SPEAKS",
+          load_provenance(os.path.join(d, "bad.jsonl")), abs_reader, ["fail"])
+
+    # --- LIMB 10 (the fail-open guard): an empty population is NEVER ok ----------
+    n += 1
+    absent = load_provenance(os.path.join(d, "nope.jsonl"))
+    with open(os.path.join(d, "empty.jsonl"), "w") as fh:
+        fh.write("\n")
+    empty = load_provenance(os.path.join(d, "empty.jsonl"))
+    if absent is not None or empty != []:
+        print("  FAIL  selftest    %-28s absent=%r empty=%r -- an unseeable "
+              "population must be distinguishable from a clean one"
+              % ("empty population NOT green", absent, empty)); bad += 1
+    else:
+        print("  ok    selftest    %-28s absent and empty both reportable as "
+              "NOT MEASURED" % "empty population NOT green")
+
+    shutil.rmtree(d, ignore_errors=True)
+    return bad, n
 
 
 def selftest():
@@ -404,7 +776,12 @@ def selftest():
                   % (t["team"], cap, "" if cap == cfg["defaults"]["max_live_lanes"]
                      else " (exception, authority recorded)"))
 
-    total = len(STAMP_CASES) + 2 + len(FRESHNESS_CASES) + len(LANE_CASES) + len(cfg["teams"])
+    # ---- provenance: does a recorded block still match its source bytes? ----
+    prov_bad, prov_n = provenance_selftest()
+    bad += prov_bad
+
+    total = (len(STAMP_CASES) + 2 + len(FRESHNESS_CASES) + len(LANE_CASES)
+             + len(cfg["teams"]) + prov_n)
     print("\n%s: harness selftest, %d case(s), %d failure(s)"
           % ("FAIL" if bad else "PASS", total, bad))
     return 1 if bad else 0
@@ -420,6 +797,9 @@ def main():
     ap.add_argument("--worktree", action="store_true",
                     help="grade the worktree docs/LAB_STATE.md instead of HEAD "
                          "(default is HEAD; no team writes the worktree copy)")
+    ap.add_argument("--strict-provenance", action="store_true",
+                    help="make an unmeasurable provenance population a FAIL rather "
+                         "than a NOT MEASURED warning (arm once the ledger is fed)")
     args = ap.parse_args()
 
     if args.selftest:
@@ -429,6 +809,7 @@ def main():
     check_roster()
     secs = check_board(cfg, args.worktree)
     check_freshness(cfg, secs)
+    check_provenance(args.strict_provenance)
 
     print("\n" + "-" * 70)
     if FAILS:
