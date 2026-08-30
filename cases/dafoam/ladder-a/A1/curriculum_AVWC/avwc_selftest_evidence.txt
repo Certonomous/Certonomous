@@ -1,0 +1,44 @@
+  [OK ] U1 PARTITION reader on the REAL preserved X2-S: both processors resolve via `owner.gz` to 2016 + 2016 = 4032, the recorded mesh_cells
+  [OK ] U2 PARTITION reader on the REAL preserved X4-S: 1008 x 4 = 4032
+  [OK ] U3 PARTITION reader on a SERIAL arm returns [] -- what np = 1 must record (`av1r_grade.py:409-411` refuses a non-empty record there)
+  [OK ] U4 `writeCompression` is READ from the arm's own controlDict and is `on` -- the cause is measured, not assumed (got 'on')
+  [OK ] U5 AV1 WITH THE DATUM REPAIR ALONE still returns NOT A RESULT -- and it is now a DIFFERENT refusal: `G-NP partition_cells [null, null] sum 0` against mesh_cells 4032. **AV1 CARRIES BOTH MANIFESTATIONS OF THE ONE ROOT CAUSE**, because `av1_x.py:75-87` is byte-identical to `av1r_x.py:75-87`. A datum-only repair moves AV1 from one NOT A RESULT to another, and this unit is what proves it rather than asserting it (clause 'G-NP:mesh_cells,partition_cells,sum')
+  [OK ] U6 AV1 with BOTH repairs: the original `G1 age_reference_absent` on `X1-S/0/U` is GONE and the partition is recovered on all four parallel arms to 4032
+  [OK ] U7 THE DATUM DEFECT ONLY BITES SERIAL ARMS, measured on AV1's own root: the two np = 1 arms resolved to the COMPRESSED twin `0/U.gz` (+51 s and +54 s newer than their datum -- the solver rewrote them), while every np = 2 / np = 4 arm still carries the UNCOMPRESSED `0/U` at EXACTLY its datum, because each rank writes its own `processorN/0/U.gz` and the arm-root file is left alone. That is why AV1 refused on `X1-S`, the first serial arm
+  [OK ] U8 AV1 rebound EXACTLY the registered name `arm_datum` and nothing else -- every band, threshold and composition rule that decides the verdict is the frozen code
+  [OK ] U9 AV1's preserved run root is byte-identical after the re-grade (754 files, md5 manifest before == after)
+  [OK ] U10 AV1's verdict is from the fixed vocabulary and is whatever the FROZEN instrument produced (got 'PASS')
+  [OK ] U11 AV2 re-graded: the ORIGINAL refusal `G1 age_reference_absent` on `X-S/0/U` is GONE and the datum resolves to `0/U.gz`
+  [OK ] U12 AV2 rebound exactly `arm_datum`; preserved root byte-identical; verdict in vocabulary
+  [OK ] U13 AV1R REBINDS NOTHING -- its grader is not defective and is run completely unmodified; the repair is in the PRODUCER's reader
+  [OK ] U14 AV1R partition recovered on all four parallel arms: X2 sums 4032, X4 sums 4032, every processor resolved via `owner.gz`, serial arms still []
+  [OK ] U15 AV1R's preserved run root is byte-identical after the re-grade (755 files) -- the recovered record was written into the COPY, never the preserved artefact
+  [OK ] U16 AV1R's verdict is from the fixed vocabulary (got 'PASS')
+  [OK ] U17 BIRTH must-FLAG (DATUM): NEITHER `0/U` nor `0/U.gz` on X1-S -> still REFUSED, on the repaired clause `age_reference_absent_in_every_registered_name`. A repaired reader that cannot still refuse is not repaired, it is disabled (clause 'G1:age_reference_absent_in_every_registered_name')
+  [OK ] U18 BIRTH must-FLAG (DATUM): the compressed twin planted OLDER than the datum -> REFUSED on `compressed_datum_twin_older_than_the_datum`. The age guard's SUBSTANCE survives the repair; only the reference PATH was ever wrong (clause 'G1:compressed_datum_twin_older_than_the_datum,on_disk,recorded,resolved_name,write_compression,write_compression_source')
+  [OK ] U19 BIRTH must-FLAG (DATUM): an UNCOMPRESSED `0/U` planted beside the real `0/U.gz` with a wrong mtime -> candidate[0] wins and the EXACT-mtime rule fires (`age_reference_moved`). Ordering and the uncompressed branch both proved live (clause 'G1:age_reference_moved,on_disk,recorded,resolved_name,write_compression,write_compression_source')
+  [OK ] U20 BIRTH must-FLAG (PARTITION), TWO plants in one: `owner.gz` deleted from X2-S/processor0 -> the reader reports `nCells: None` and the FROZEN grader refuses; and a planted WRONG nCells inside the real gzip moves the sum off 4032 and the FROZEN grader refuses on that too -- so the reader reads the FILE, not a constant
+AVWC SELFTEST units=20 expected=20 failures=0 python_O=False
+AVWC SELFTEST PASS 20/20 (counted against the frozen EXPECTED_UNITS)
+  [OK ] U1 PARTITION reader on the REAL preserved X2-S: both processors resolve via `owner.gz` to 2016 + 2016 = 4032, the recorded mesh_cells
+  [OK ] U2 PARTITION reader on the REAL preserved X4-S: 1008 x 4 = 4032
+  [OK ] U3 PARTITION reader on a SERIAL arm returns [] -- what np = 1 must record (`av1r_grade.py:409-411` refuses a non-empty record there)
+  [OK ] U4 `writeCompression` is READ from the arm's own controlDict and is `on` -- the cause is measured, not assumed (got 'on')
+  [OK ] U5 AV1 WITH THE DATUM REPAIR ALONE still returns NOT A RESULT -- and it is now a DIFFERENT refusal: `G-NP partition_cells [null, null] sum 0` against mesh_cells 4032. **AV1 CARRIES BOTH MANIFESTATIONS OF THE ONE ROOT CAUSE**, because `av1_x.py:75-87` is byte-identical to `av1r_x.py:75-87`. A datum-only repair moves AV1 from one NOT A RESULT to another, and this unit is what proves it rather than asserting it (clause 'G-NP:mesh_cells,partition_cells,sum')
+  [OK ] U6 AV1 with BOTH repairs: the original `G1 age_reference_absent` on `X1-S/0/U` is GONE and the partition is recovered on all four parallel arms to 4032
+  [OK ] U7 THE DATUM DEFECT ONLY BITES SERIAL ARMS, measured on AV1's own root: the two np = 1 arms resolved to the COMPRESSED twin `0/U.gz` (+51 s and +54 s newer than their datum -- the solver rewrote them), while every np = 2 / np = 4 arm still carries the UNCOMPRESSED `0/U` at EXACTLY its datum, because each rank writes its own `processorN/0/U.gz` and the arm-root file is left alone. That is why AV1 refused on `X1-S`, the first serial arm
+  [OK ] U8 AV1 rebound EXACTLY the registered name `arm_datum` and nothing else -- every band, threshold and composition rule that decides the verdict is the frozen code
+  [OK ] U9 AV1's preserved run root is byte-identical after the re-grade (754 files, md5 manifest before == after)
+  [OK ] U10 AV1's verdict is from the fixed vocabulary and is whatever the FROZEN instrument produced (got 'PASS')
+  [OK ] U11 AV2 re-graded: the ORIGINAL refusal `G1 age_reference_absent` on `X-S/0/U` is GONE and the datum resolves to `0/U.gz`
+  [OK ] U12 AV2 rebound exactly `arm_datum`; preserved root byte-identical; verdict in vocabulary
+  [OK ] U13 AV1R REBINDS NOTHING -- its grader is not defective and is run completely unmodified; the repair is in the PRODUCER's reader
+  [OK ] U14 AV1R partition recovered on all four parallel arms: X2 sums 4032, X4 sums 4032, every processor resolved via `owner.gz`, serial arms still []
+  [OK ] U15 AV1R's preserved run root is byte-identical after the re-grade (755 files) -- the recovered record was written into the COPY, never the preserved artefact
+  [OK ] U16 AV1R's verdict is from the fixed vocabulary (got 'PASS')
+  [OK ] U17 BIRTH must-FLAG (DATUM): NEITHER `0/U` nor `0/U.gz` on X1-S -> still REFUSED, on the repaired clause `age_reference_absent_in_every_registered_name`. A repaired reader that cannot still refuse is not repaired, it is disabled (clause 'G1:age_reference_absent_in_every_registered_name')
+  [OK ] U18 BIRTH must-FLAG (DATUM): the compressed twin planted OLDER than the datum -> REFUSED on `compressed_datum_twin_older_than_the_datum`. The age guard's SUBSTANCE survives the repair; only the reference PATH was ever wrong (clause 'G1:compressed_datum_twin_older_than_the_datum,on_disk,recorded,resolved_name,write_compression,write_compression_source')
+  [OK ] U19 BIRTH must-FLAG (DATUM): an UNCOMPRESSED `0/U` planted beside the real `0/U.gz` with a wrong mtime -> candidate[0] wins and the EXACT-mtime rule fires (`age_reference_moved`). Ordering and the uncompressed branch both proved live (clause 'G1:age_reference_moved,on_disk,recorded,resolved_name,write_compression,write_compression_source')
+  [OK ] U20 BIRTH must-FLAG (PARTITION), TWO plants in one: `owner.gz` deleted from X2-S/processor0 -> the reader reports `nCells: None` and the FROZEN grader refuses; and a planted WRONG nCells inside the real gzip moves the sum off 4032 and the FROZEN grader refuses on that too -- so the reader reads the FILE, not a constant
+AVWC SELFTEST units=20 expected=20 failures=0 python_O=True
+AVWC SELFTEST PASS 20/20 (counted against the frozen EXPECTED_UNITS)

@@ -1,0 +1,581 @@
+{
+ "AV1": {
+  "item": "AV1",
+  "repairs_applied": [
+   "DATUM",
+   "PARTITION"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV1/av1_grade.py",
+  "frozen_grader_md5": "87f15e05130cfdb3cbf195d1daba6154",
+  "names_rebound": [
+   "arm_datum"
+  ],
+  "defect_lines": "av1_grade.py:198-200 (DATUM) AND av1_x.py:75-87 (PARTITION, the producer)",
+  "original_refusal": "G1 age_reference_absent .../X1-S/0/U",
+  "verdict": "PASS",
+  "refusal": null,
+  "datum_resolution": {
+   "MESH": {
+    "arm": "MESH",
+    "registered_name": "0.orig/U",
+    "candidates": [
+     "0.orig/U",
+     "0.orig/U.gz"
+    ],
+    "resolved_name": "0.orig/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/MESH/0.orig/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787837959,
+    "reference_mtime_epoch": 1787837959,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/MESH/system/controlDict"
+   },
+   "X1-S": {
+    "arm": "X1-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X1-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787838035,
+    "reference_mtime_epoch": 1787838086,
+    "seconds_newer_than_datum": 51,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X1-S/system/controlDict"
+   },
+   "X2-S": {
+    "arm": "X2-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X2-S/0/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787838162,
+    "reference_mtime_epoch": 1787838162,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X2-S/system/controlDict"
+   },
+   "X4-S": {
+    "arm": "X4-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X4-S/0/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787838269,
+    "reference_mtime_epoch": 1787838269,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X4-S/system/controlDict"
+   },
+   "X1-P": {
+    "arm": "X1-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X1-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787838366,
+    "reference_mtime_epoch": 1787838420,
+    "seconds_newer_than_datum": 54,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X1-P/system/controlDict"
+   },
+   "X2-P": {
+    "arm": "X2-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X2-P/0/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787838491,
+    "reference_mtime_epoch": 1787838491,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X2-P/system/controlDict"
+   },
+   "X4-P": {
+    "arm": "X4-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X4-P/0/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787838598,
+    "reference_mtime_epoch": 1787838598,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV1/X4-P/system/controlDict"
+   }
+  },
+  "partition_repair": {
+   "X1-P": {
+    "before": [],
+    "after": [],
+    "resolved_names": [],
+    "sum": 0
+   },
+   "X1-S": {
+    "before": [],
+    "after": [],
+    "resolved_names": [],
+    "sum": 0
+   },
+   "X2-P": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 2016
+     },
+     {
+      "dir": "processor1",
+      "nCells": 2016
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   },
+   "X2-S": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 2016
+     },
+     {
+      "dir": "processor1",
+      "nCells": 2016
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   },
+   "X4-P": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     },
+     {
+      "dir": "processor2",
+      "nCells": null
+     },
+     {
+      "dir": "processor3",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor1",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor2",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor3",
+      "nCells": 1008
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz",
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   },
+   "X4-S": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     },
+     {
+      "dir": "processor2",
+      "nCells": null
+     },
+     {
+      "dir": "processor3",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor1",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor2",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor3",
+      "nCells": 1008
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz",
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   }
+  },
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv",
+  "preserved_root_files": 754,
+  "root_manifest_identical": true
+ },
+ "AV1R": {
+  "item": "AV1R",
+  "repairs_applied": [
+   "PARTITION"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV1R/av1r_grade.py",
+  "frozen_grader_md5": "b5c1d0092c6d2a2608ad3cc0899ed0fd",
+  "names_rebound": [],
+  "defect_lines": "av1r_x.py:75-87 (THE PRODUCER; the grader is not defective)",
+  "original_refusal": "G-NP partition_cells [null, null] sum 0 vs mesh_cells 4032",
+  "verdict": "PASS",
+  "refusal": null,
+  "datum_resolution": null,
+  "partition_repair": {
+   "X1-P": {
+    "before": [],
+    "after": [],
+    "resolved_names": [],
+    "sum": 0
+   },
+   "X1-S": {
+    "before": [],
+    "after": [],
+    "resolved_names": [],
+    "sum": 0
+   },
+   "X2-P": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 2016
+     },
+     {
+      "dir": "processor1",
+      "nCells": 2016
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   },
+   "X2-S": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 2016
+     },
+     {
+      "dir": "processor1",
+      "nCells": 2016
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   },
+   "X4-P": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     },
+     {
+      "dir": "processor2",
+      "nCells": null
+     },
+     {
+      "dir": "processor3",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor1",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor2",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor3",
+      "nCells": 1008
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz",
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   },
+   "X4-S": {
+    "before": [
+     {
+      "dir": "processor0",
+      "nCells": null
+     },
+     {
+      "dir": "processor1",
+      "nCells": null
+     },
+     {
+      "dir": "processor2",
+      "nCells": null
+     },
+     {
+      "dir": "processor3",
+      "nCells": null
+     }
+    ],
+    "after": [
+     {
+      "dir": "processor0",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor1",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor2",
+      "nCells": 1008
+     },
+     {
+      "dir": "processor3",
+      "nCells": 1008
+     }
+    ],
+    "resolved_names": [
+     "owner.gz",
+     "owner.gz",
+     "owner.gz",
+     "owner.gz"
+    ],
+    "sum": 4032
+   }
+  },
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV1R-a1-naca0012-npinv",
+  "preserved_root_files": 755,
+  "root_manifest_identical": true
+ },
+ "AV2": {
+  "item": "AV2",
+  "repairs_applied": [
+   "DATUM"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/av2_grade.py",
+  "frozen_grader_md5": "4bde0ad7dbdd3e460dcef1fe6d063979",
+  "names_rebound": [
+   "arm_datum"
+  ],
+  "defect_lines": "av2_grade.py:186-188",
+  "original_refusal": "G1 age_reference_absent .../X-S/0/U",
+  "verdict": "NOT A RESULT",
+  "refusal": "{\"REFUSE\": \"G-DP\", \"detail\": {\"gmresRelTol_in_artefact\": null, \"note\": \"the band is 10 x the adjoint solve tolerance; a different tolerance is a different band\", \"registered\": 1e-06, \"row\": \"S\"}}",
+  "datum_resolution": {
+   "MESH": {
+    "arm": "MESH",
+    "registered_name": "0.orig/U",
+    "candidates": [
+     "0.orig/U",
+     "0.orig/U.gz"
+    ],
+    "resolved_name": "0.orig/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/MESH/0.orig/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787786463,
+    "reference_mtime_epoch": 1787786463,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/MESH/system/controlDict"
+   },
+   "X-S": {
+    "arm": "X-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/X-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787786539,
+    "reference_mtime_epoch": 1787786594,
+    "seconds_newer_than_datum": 55,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/X-S/system/controlDict"
+   },
+   "FAD-S": {
+    "arm": "FAD-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/FAD-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787786666,
+    "reference_mtime_epoch": 1787787068,
+    "seconds_newer_than_datum": 402,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/FAD-S/system/controlDict"
+   },
+   "X-P": {
+    "arm": "X-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/X-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787787227,
+    "reference_mtime_epoch": 1787787278,
+    "seconds_newer_than_datum": 51,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/X-P/system/controlDict"
+   },
+   "FAD-P": {
+    "arm": "FAD-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/FAD-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787787353,
+    "reference_mtime_epoch": 1787787770,
+    "seconds_newer_than_datum": 417,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/laneAA/e3/avwc_1977229/root_AV2/FAD-P/system/controlDict"
+   }
+  },
+  "partition_repair": null,
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality",
+  "preserved_root_files": 378,
+  "root_manifest_identical": true
+ }
+}

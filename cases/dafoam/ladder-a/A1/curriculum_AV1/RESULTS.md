@@ -160,3 +160,60 @@ Run root `/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv/`:
 `STATUS.chain` and the seven per-arm `STATUS.*`, per-arm `*.inspect.txt` kernel records,
 `X{1,2,4}-{S,P}/av1_X.json` and `av1_X_planted.json`, per-arm `.av1_age_datum`, solver logs and
 memory windows.
+
+---
+
+## Amendment record — v1.0 to v1.1, 2026-08-30T22:51Z: THE REFUSAL RECORDED ABOVE IS SUPERSEDED BY `AVWC`, AND THE BODY ABOVE IS UNCHANGED
+
+**Rule 6 assertion: lines whose number changed above this section: 0.** This is an APPEND at the foot
+and nothing above it was edited. Proved by byte comparison, not asserted: the block was landed through
+`scripts/append_block.py`, which reads the body from a file as bytes so no shell ever sees it, and
+which compares the file's prefix byte-for-byte against the pre-append bytes and REVERTS on any
+difference. The pre-append file hashed md5 `626b6415af42ee961a40f64e6541465a`, identical to
+`git show HEAD:cases/dafoam/ladder-a/A1/curriculum_AV1/RESULTS.md` at the time of writing, and that
+same prefix is intact below the amendment. **Version: this record was previously unversioned (v1.0
+implied); it is v1.1 as of this amendment.** No gate, threshold, band edge, cap or label above is
+altered, and no figure above is restated as a different number.
+
+**What is superseded, precisely.** §1 above records this item's verdict as `NOT A RESULT` on
+`G1 age_reference_absent .../X1-S/0/U`, and §3 identifies the cause as the age-datum reference not
+surviving the tutorial's `writeCompression on` at np = 1. **That diagnosis was correct and is
+confirmed.** What has changed is that the defect has since been repaired in a successor item and the
+item re-graded from this same preserved run root.
+
+**The successor's result: `PASS`.** Item `AVWC`
+(`cases/dafoam/ladder-a/A1/curriculum_AVWC/`), pre-registration frozen at commit `c85eb4df`
+2026-08-28T17:47:02Z before execution, re-graded AV1 from the preserved root
+`/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv/` through a repaired reader and
+returned **`PASS`**, with rows `SHIPPED PASS` and `PATCHED PASS`. Source:
+`cases/dafoam/ladder-a/A1/curriculum_AVWC/AVWC_regrade.json` and `RESULTS.md` §1.
+
+**Three things about that successor verdict that this record is entitled to state:**
+
+1. **AV1 carried BOTH manifestations of the one root cause, not just the datum one.** §3 above names
+   the datum reference. Measured by the successor: repairing only the datum advances AV1 from
+   `G1 age_reference_absent` to `G-NP partition_cells [null, null] sum 0` against `mesh_cells 4032` —
+   one `NOT A RESULT` to another — because the PRODUCER `av1_x.py:75-87` also stats an uncompressed
+   `processorN/constant/polyMesh/owner` when the file on disk is `owner.gz`. Both repairs were needed.
+2. **No gate was re-implemented and no frozen file here was edited.** The successor imports this
+   item's own `av1_grade.py`, verifies it byte-identical to the committed blob
+   (md5 `87f15e05130cfdb3cbf195d1daba6154`, re-checked at every invocation as a refusal clause),
+   rebinds exactly one name — `arm_datum` — under a rebind audit that refuses on any other name, and
+   runs the frozen `grade()`. Every band, threshold and composition rule that produced the `PASS` is
+   the frozen code above, unedited on disk.
+3. **The repaired reader was proved able to REFUSE before that `PASS` was accepted.** Five must-flag
+   plants travelling the real preserved files and the real frozen grader all fired: neither datum name
+   on disk, a compressed twin planted older than the datum, an uncompressed `0/U` planted with a wrong
+   mtime, `owner.gz` deleted from a processor, and `nCells` rewritten inside the real gzip. Five of
+   five, on five distinct clauses, in two independent readings.
+
+**This preserved run root was never written.** An md5 manifest of every regular file in it was taken
+before and after each re-grade and compared; it is byte-identical, 754 files, on every invocation.
+The successor grades a `cp -a` copy, which matters because the frozen grader at
+`av1_grade.py:274-291` is itself a WRITING grader.
+
+**What this amendment does NOT do.** It does not revise §1's verdict as the verdict this item
+produced: `av1_grade.py` refused, and on this item's own frozen path it still refuses. It does not
+move a gate, a band, a cap, a label, a capability-grid cell or a census row. It does not restate any
+cost figure in §7, and `C-158` stands as landed. It makes no claim about the physics, the mesh or the
+solver — no solver ran for the re-grade, which cost zero solver core-minutes.

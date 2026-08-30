@@ -198,3 +198,66 @@ Run root `/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality/`:
 `X-{S,P}/av2_X.json` and `av2_X_planted.json`, `FAD-{S,P}/av2_FAD.json`, per-arm `.av2_age_datum`,
 the two 144 KB FAD solver logs carrying `AV2_FAD_BLOCKED` and `AV2_PLANTED_CONTROL_SEEN`, and memory
 windows.
+
+---
+
+## Amendment record — v1.0 to v1.1, 2026-08-30T22:51Z: THE REFUSAL RECORDED ABOVE IS SUPERSEDED BY `AVWC`, THE VERDICT DOES NOT MOVE, AND THE BODY ABOVE IS UNCHANGED
+
+**Rule 6 assertion: lines whose number changed above this section: 0.** This is an APPEND at the foot
+and nothing above it was edited. Proved by byte comparison, not asserted: the block was landed through
+`scripts/append_block.py`, which reads the body from a file as bytes so no shell ever sees it, and
+which compares the file's prefix byte-for-byte against the pre-append bytes and REVERTS on any
+difference. The pre-append file hashed md5 `c43fe8c84fb24b359676e366b837fe66`, identical to
+`git show HEAD:cases/dafoam/ladder-a/A1/curriculum_AV2/RESULTS.md` at the time of writing, and that
+same prefix is intact below the amendment. **Version: this record was previously unversioned (v1.0
+implied); it is v1.1 as of this amendment.** No gate, threshold, band edge, cap or label above is
+altered, and no figure above is restated as a different number.
+
+**THE ITEM VERDICT DOES NOT MOVE. IT IS STILL `NOT A RESULT`.** That is the first thing this
+amendment has to say, because AV2 is the one item of the three-item cluster where the re-grade did not
+change the verdict, and a reader who skims a supersession note will otherwise assume it did.
+
+**What is superseded, precisely.** §1 above records the refusal as
+`G1 age_reference_absent .../X-S/0/U`, and §3 identifies the cause as the age-datum reference not
+surviving `writeCompression on` at np = 1. **That diagnosis was correct and is confirmed**, and the
+`writeCompression` cause has since been repaired in a successor item. **What the repair revealed is
+that AV2 carried TWO stacked defects, not one.** With the datum reference repaired, the frozen grader
+reaches a gate it had never reached before and refuses there instead.
+
+**The successor's result: `NOT A RESULT`, on a MOVED clause.** Item `AVWC`
+(`cases/dafoam/ladder-a/A1/curriculum_AVWC/`), pre-registration frozen at commit `c85eb4df`
+2026-08-28T17:47:02Z before execution, re-graded AV2 from the preserved root
+`/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality/` and the frozen `av2_grade.py`
+refused at **`G-DP`** with `gmresRelTol_in_artefact: null` against the registered `1e-06`. Source:
+`cases/dafoam/ladder-a/A1/curriculum_AVWC/AVWC_regrade.json` and `RESULTS.md` §5.
+
+**That is a REGISTERED branch, decided in advance.** `curriculum_AVWC/PREREGISTRATION.md` §8 reads:
+a repaired item that then refuses on a DIFFERENT clause has that refusal reported as the verdict and
+is NOT repaired there. AV2 took exactly that branch; nothing was chosen after the answer was known.
+
+**The second defect, read from the artefact rather than reasoned about.** The frozen grader reads
+`j["identity"]["gmresRelTol"]` at `av2_grade.py:252`. In `X-S/av2_X.json` the `identity` block is
+present and carries exactly two keys, `idwarp_file` and `libidwarp_so_md5`; the string `gmresRelTol`
+does not appear anywhere in that file. **The grader is looking in the right place and the key is not
+there.** The producer explains why: `av2_xf.py:152-155` emits `gmresRelTol` as a SIBLING of `**ident`
+into the jsonl stream, while `av2_xf.py:203` writes the artefact with `"identity": ident` — the bare
+dict — so the key never enters the `.json` the grader reads. Corroborated on disk: `X-S/av2_X.jsonl`
+carries `"gmresRelTol": 1e-06` and the run log carries `gmresRelTol 1e-06;`, which is exactly the
+registered value. **The tolerance used was right; the place it was recorded was not.**
+
+**The repair did not create that condition, and the dating proves it.** `G-DP` sits downstream of the
+datum gate, so before the repair `G1` refused first and `G-DP` was never reached. `X-S/av2_X.json`
+was written 2026-08-26T23:23:14Z, two days before the successor's freeze, and this preserved run root
+is byte-identical — 378 files, md5 manifest before and after every invocation — so nothing the
+successor ran could have put that key there or removed it.
+
+**This defect is REPORTED and NOT REPAIRED.** It is an artefact-plumbing defect in `av2_xf.py`,
+distinct from `writeCompression`, and repairing it needs its own pre-registration — the supervisor's
+ruling under `VERIFICATION_CHARTER.md` §2d.1, not a lane's. No instrument was edited.
+
+**What this amendment does NOT do.** It does not move this item's verdict, which stands at
+`NOT A RESULT`. It does not disturb §2's registered `BLOCKED` branch for the forward-AD channel, nor
+§5's predictions, none of which the successor scored. It does not move a gate, a band, a cap, a label,
+a capability-grid cell or a census row, does not restate any cost figure in §7, and makes no claim
+about the physics, the mesh or the solver — no solver ran for the re-grade, which cost zero solver
+core-minutes.
