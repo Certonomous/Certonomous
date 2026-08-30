@@ -17668,3 +17668,78 @@ reads fine, and reading fine is not being checked.
 with no instrument, and this entry says so rather than implying a guard exists — which is the same
 honesty this lesson is about. The one mechanical support that does exist is that a late-arriving
 notification is itself the trigger: **treat it as a work item, not an acknowledgement.**
+
+### L-408 ADDENDUM (2026-08-30T23:47Z) — A WRONG METHOD THAT *AGREES* WITH THE RIGHT ONE IS MORE DANGEROUS THAN ONE THAT DISAGREES, AND TWO OF US PROVED IT IN THE THREAD THAT PRODUCED L-408
+
+**This is an addendum, not a new lesson, and it takes no new `L-` number.** The finding is bound to
+L-408's own subject — *the numbers were verified, the inference sitting on top of them was not* — and
+a fresh number would fragment one finding across two blocks. The L-408 block above is **not
+rewritten**; nothing in it changed.
+
+**THE GENERAL FORM.** A wrong method that **disagrees** with the right one announces itself. A wrong
+method that **agrees** with it is silent — and **silence is also what a broken instrument gives
+you.** Disagreement is a signal; agreement is the absence of one, and an absence is only evidence
+when the check was shown able to produce a presence (standing rule 3). So a method validated by
+"it gave the same answer" has been validated by **nothing**.
+
+**THE MECHANISM, AND ITS EXPIRY — a decaying condition is worth recording only with the trigger that
+ends it.** For `docs/LESSONS.md`, with `M` = tail-max, `G` = missing numbers, `D` = extra blocks from
+duplicates:
+
+```
+    blocks = M - G + D        so        blocks == M + 1   exactly when   D - G == 1
+```
+
+**Measured on this file at 2026-08-30T23:47Z:** `M` = 408, blocks = 409, distinct = 406; gaps `[52, 258]`
+(`G` = 2); duplicated `L-43`, `L-61`, `L-404` (`D` = 3). `D - G = 1`, so **the block count currently
+equals `tail-max + 1` and a "just count the blocks" method returns the RIGHT answer today.**
+
+> **THAT COINCIDENCE BREAKS SILENTLY, AND IT BREAKS IN THE COLLISION DIRECTION, THE MOMENT ANY PEER
+> LANDS ONE MORE DUPLICATE OR ONE MORE GAP.** One further duplicate makes `D - G = 2` and the block
+> count overshoots into a gap; one further gap makes `D - G = 0` and the block count lands **on an
+> existing block**. Neither event announces itself, and three duplicates already exist, so this is
+> not a hypothetical failure — it is a scheduled one with no scheduled date.
+
+**Rule 11 was still vindicated on the night this was written — but by the DISTINCT count, not by the
+block count.** At the append that produced L-408 (parent `324b6ba8`): tail-max 407, blocks 408,
+distinct 405. `tail-max + 1 = 408`, correct. `distinct + 1 = 406`, **which collides with the existing
+`L-406`.** Block count = 408, which **equalled** the right answer. The lane's report and its commit
+message `86ec548d` both said the *block count* was what would have collided. **That was wrong**, and
+it is corrected here rather than left standing in an immutable commit message.
+
+**THE SAME LESSON AT A SECOND CALL SITE, AND THEN AT A THIRD IN THE SAME HOUR.** Both errors below
+sit on **correctly measured numbers**. Neither was a measurement failure. That is the whole point:
+
+| # | who | the verified part | the inference that was not checked |
+|---|---|---|---|
+| 1 | cfd lane | 407 / 408 / 405, all three correct | "so a **count** would have collided" — the block count would have been **right**; it was the distinct count that collides |
+| 2 | cfd-supervisor | the discrepancy between two sets of figures was real | *"a peer has appended since"* — **written as the explanation, never checked.** No peer had. `git log 86ec548d..HEAD -- docs/LESSONS.md` is **empty** and the blob is byte-identical at both commits; the difference was the lane's own append of L-408 |
+
+**Instance 2 is `L-391` recurring — and `L-391` was self-reported by the cfd supervisor.** That
+lesson reads *"AN IMPOSSIBLE VALUE IS A REFUTATION, AND THE TELL IS THAT YOU ARE WRITING THE
+EXPLANATION."* Here a surprising value — two disagreeing sets of counts — was met by **reaching for
+a mechanism that made the numbers agree** instead of asking which number was wrong. **The tell fired
+exactly as L-391 describes it**, in the author's own team, and the refutation cost one empty `git
+log` query to obtain. Recorded against the supervisor at the supervisor's own instruction, because
+this addendum is worth far more carrying **both** instances than carrying only the lane's: **two
+people, one thread, both verified their figures and both failed on the inference above them.**
+
+**AN OBSERVATION ABOUT THE FILE, NOT A PROPOSED EDIT.** `CLAUDE.md` rule 11 cites *"L-43 has two
+blocks, L-52 does not exist"*. **Both are still true.** But the file now carries **three** duplicates
+(`L-43`, `L-61`, `L-404`) and **two** gaps (`52`, `258`), so the rule's illustration is now narrower
+than the condition it illustrates. **This is recorded as a fact about `docs/LESSONS.md` and nothing
+more. `CLAUDE.md` is Sanaa's; no agent edits it, and neither of us proposes a wording.**
+
+**THE OPERATIONAL RESIDUE**, which is all a reader needs to carry away:
+
+1. **Derive the number from the tail maximum, in the same shell invocation as the commit.** Never a
+   count of any kind — not blocks, not distinct — regardless of what it returned last time.
+2. **When two methods agree, you have learned nothing about either.** Only a method that could have
+   disagreed and did not is evidence, and only then if it was shown able to disagree.
+3. **When you find yourself writing the explanation for a discrepancy, stop and check it instead**
+   (`L-391`). The explanation is cheaper to write than to verify, which is precisely why it arrives
+   first.
+
+**NOT CLAIMED:** that anything enforces items 1–3. Rule 11 is a rule with no instrument on this file,
+exactly as L-408's call site 2 is a discipline with no instrument. Saying so is the point; a lesson
+that implies a guard exists is worse than one that admits there is none.
