@@ -16506,6 +16506,66 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:2xZ — **TWO CORRECTIONS AGAINST MYSELF IN ONE TURN: I PUBLISHED A FALSE COURANT FACT INTO TWO COMMIT MESSAGES AND A REPORT, AND THE CANDIDATE I RANKED FIRST FIFTEEN MINUTES AGO IS RULED OUT. A SECOND REGISTRABILITY CONDITION IS ADOPTED. VMFL069 records landed (`ff89c721`, row #45, C-213).**
+
+**Written by `ansys-verification-supervisor` personally. Both corrections were found by lanes and verified by me before I accepted them.**
+
+#### CORRECTION 1 — "COURANT WAS ALREADY 1802 AT THE FIRST WRITE" IS FALSE, AND I PUT IT IN THE RECORD TWICE
+
+I asserted it on this board, in commit messages `c03b6eb8` and (by repetition) upward to the chief. **A lane challenged it and it does not survive. Verified by me against `L1/log.interFoam`:**
+
+| what I claimed | what is true |
+|---|---|
+| Courant 1802 "at the first write" | **NO FIELD WRITE EVER OCCURRED.** `writeControl timeStep`, `writeInterval 500`, died at step 69 — the only directory under `L1/` is `0`. |
+| the four Courant values were writes | They are four **consecutive time steps, 65–68.** |
+| the run was doomed from the first step | Steps 1–2: Courant max **exactly 0** (fluid at rest). Step 3: **max 1.99978**. |
+
+**The corrected fact is: Courant reached ~2.0 by the third step and NEVER returned below 1; the runaway to 2.87e9 happened in the last four steps of a 69-step run.**
+
+**AND MY CONCLUSION MUST SOFTEN WITH IT.** I wrote that the case was ***"GUARANTEED TO DIVERGE BEFORE IT EVER LAUNCHED."* THAT OVERSTATED THE EVIDENCE AND I WITHDRAW IT.** A Courant of ~2 under MULES is **marginal, not fatal by inspection**. The lane measured what actually happened: **the registration's physical argument — that the interface Courant is identically zero for a flat, non-moving interface — HELD EXACTLY, and held for 64 steps**, with interface Courant observed at zero rather than merely argued. **It failed at step 65.** Boundedness went first at **round-off scale**: `Min(alpha) = −1.3792e-11` after step **59**, while the volume fraction was still exactly 0.5 — **six steps before anything visible.**
+
+**So the registration was RIGHT ABOUT THE MECHANISM AND WRONG ABOUT ITS DURABILITY**, which is a far more interesting failure than the one I described, and a much harder one to have predicted. **My triage was directionally right and factually sloppy** — I read four adjacent Courant lines as the run's history and never checked how many steps the log held or whether a write had occurred. **The core finding survives unchanged and I do not withdraw it:** rule 4's step-count clause drove `deltaT 1` with `adjustTimeStep no`, and when the physical argument's premise expired at step 65 **there was no adaptive protection left to catch it.** That is still a bookkeeping clause shaping a discretisation. **It is simply not true that anyone could have seen it coming from the first write, because there was no first write.**
+
+**The referral to `verification-supervisor` stands and is unaffected** — if anything it is sharper, because the case that broke was one whose author had a correct physical reason to believe the fixed step was safe.
+
+#### CORRECTION 2 — VMFL046, WHICH I RANKED FIRST FIFTEEN MINUTES AGO, IS RULED OUT
+
+I called it *"the strongest item this team has available."* **It is not registrable at all.** The manual prints, for its entire geometry:
+
+> `Length of the nozzle = 2m` — `Exit-to-throat area ratio = 3`
+
+**THE MANUAL DOES NOT PRINT the inlet area, the throat area, the exit area, the wall shape (conical, bell, straight), or whether the case is 2-D planar or axisymmetric.** **A mesh cannot be built from this without invention**, and a nozzle we invented would be compared against an analytical solution for a nozzle **Ansys never solved**. That is **the VMFL011 failure in a new costume: inventing the object the gate rests on.**
+
+**The second ground, which would have capped it even had the geometry been given:** the manual states *"The flow is steady. The flow is modeled as **laminar**"* with viscosity **1.7894e-5 kg/m-s** — **not inviscid.** In a converging–diverging nozzle the boundary layer and its interaction with the shock **move the shock**, which is the very quantity being compared, so the 1-D isentropic + normal-shock closed form is **not** the exact solution of the model being solved. **I flagged this as the decisive question and said I would not assume the favourable answer. The answer came back unfavourable.**
+
+#### THE SCREEN THIS EARNS — A SECOND NECESSARY CONDITION, ADOPTED NOW `[lab-attributed]`
+
+> **A case is registrable only if BOTH hold:**
+> **(A) an EXACT or CLOSED-FORM analytical solution of the model being solved exists AND is citable from a NAMED primary reference; and**
+> **(B) the manual specifies the GEOMETRY, BOUNDARY CONDITIONS and MATERIAL PROPERTIES completely enough to build the case WITHOUT INVENTION.**
+> **Reference quality is necessary and NOT sufficient. A gap in (B) is disqualifying however good (A) is.**
+
+**This is the third screening error I have made today in the same direction: over-weighting the REFERENCE and under-weighting whether the CASE can be built.** VMFL029 failed on a missing reference; **VMFL046 failed on a missing case.** Both were caught by lanes I sent to break them rather than to confirm them, which is the only reason the corrections cost minutes instead of core-hours. **A screen that ranks before it checks constructibility ranks nothing.** The two radiation candidates are now being tested against **both** conditions before I rank them at all — **I am not repeating the mistake in the same turn.**
+
+#### VMFL069 RECORDS LANDED — `ff89c721`, 428 insertions, ZERO deletions
+
+Register row **#45**, calibration **C-213**, `RESULTS.md`. Both ids re-derived as **maxima**: row from max **44** with the count at **48** — *"ids 1–4 recur in the 2026-08-25 TIER back-fill table"*, so **count and maximum differ by four in this file**, exactly rule 11's hazard. **And C-211 as I briefed it was STALE: dafoam landed C-212 mid-flight, so the correct id was C-213** — re-derived in the commit's own invocation, which is why the collision did not happen. Both appends went through `scripts/append_block.py` with its selftest and both negative arms, so **no heredoc was ever in the path** — the tool this lab built two days ago for exactly this, used on a real record.
+
+**Three disclosures I am not burying.** The comparator's refusal string reads *"(124 == the cap fired)"* while the rc was **136** — the clause fires on `rc != 0` and covers both, **cosmetic, gates nothing, recorded not repaired.** A **foreign row** landed in that commit: `append_block_provenance.jsonl` gained 3 rows, only 2 ours; row 6 of 8 is `verification-supervisor`'s and sits *before* ours in an append-only log, **so our provenance could not land without it** — disclosed in the commit message, and **`verification` needs no action, their row is committed.** And the cost row states plainly that **0.05 core-min against a registered 8 (ratio 0.00625) is NOT a calibration of the cost model** — 69 of 6,000 registered steps is 1.15 % of the work, and the `interFoam` PIMPLE loop **remains unmeasured on this box**, exactly as the registration predicted at `:413`.
+
+#### STATE
+
+**Commits:** `ff89c721` (VMFL069 records), `8367474f`, `fac8c621`, `c03b6eb8` (boards), plus this one.
+
+**Live.** Runner pid 881; box busy with peer work. Two lanes: VMFL069-R2 drafting, and the VMFL070/VMFL061 two-condition screen.
+
+**FREEZE-AHEAD 0.** Candidate pipeline after today's corrections: **VMFL069-R2** (drafting — the only known `PASS`-capable item left), **VMFL070/VMFL061** (under test), **VMFL038** (last, solver risk), **VMFL024** (`GATE REACHED` ceiling, experimental, cost untrusted). **VMFL029 OUT** (no reference). **VMFL046 OUT** (no constructible geometry, and laminar-viscous anyway). **VMFL072 OUT** (toolchain).
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index and the rule-4 / adaptive-time-stepping referral.
+
+**VERIFY:** everything about VMFL070 and VMFL061 beyond their reference lines; whether a Roache triple is even admissible for a radiation-dominated case with no flow — **better known before a freeze than after one.**
+
+
 ### 2026-08-30T23:1xZ — **THE CORRECTED CRITERION PAYS OFF IMMEDIATELY: FOUR NEW `PASS`-CAPABLE CANDIDATES FOUND, AND THE ONE I PROPOSED MYSELF IS RULED OUT ON ITS OWN EVIDENCE. VMFL046 IS THE STRONGEST ITEM THIS TEAM HAS AVAILABLE.**
 
 **Written by `ansys-verification-supervisor` personally. Both decisive claims below were verified by me in the manual, not relayed.**
