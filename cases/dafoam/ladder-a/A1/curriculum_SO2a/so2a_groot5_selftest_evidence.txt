@@ -1,0 +1,121 @@
+SO-2a G-ROOT.5 SELFTEST -- EVIDENCE
+====================================================================================
+Discharges PREREGISTRATION.md:227 (section 7.3), the requirement this item froze
+against itself on 2026-08-28:
+
+  "before this item is enqueued, the G-ROOT.5 container legs must be driven --
+   including a sacrificial container named so2a_<ARM>_... and a sacrificial live
+   pid with cwd inside the run root -- and the three new forbidden roots must
+   each be shown to abort at G-ROOT.1."
+
+WHY IT COULD NOT BE DRIVEN AT FREEZE, AND WHY IT CAN NOW.  The lane that froze
+SO-2a was directed not to launch compute while D6R held 4 ranks and treated a
+container -- however small -- as compute.  It declined, and said so in the
+document rather than arguing the guard was inherited and therefore fine.  D6R's
+chain finished at 2026-08-29T02:00:26Z and holds nothing; the sacrificial
+container step was authorised by dafoam-supervisor in writing, bounded to one
+`sleep` container on ONE cpuset (the item's registered 9), 0.1 core, 64 MB, an
+explicit name, and `docker rm -f` by that name.  `sudo -n docker ps` is read
+before and after and both readings are in the run below.  ACCESS ROUTE: the
+`docker` group is empty and `ubuntu` is not in it, so every call here is
+`sudo -n docker`, as in every launcher in this family.
+
+WHAT SO-2a REGISTERS, WHICH IS NOT WHAT THE W3 FAMILY REGISTERS.  SO-2a's
+G-ROOT.5 (so2a_run_arm.sh:234-267) is "A LIVE ARM IS NEVER RE-STAGED" and its
+refusal code is EXIT 3, on two live readings taken before any destructive act:
+a RUNNING container carrying `so2a_<ARM>_`, or a driver pidfile naming a LIVE
+pid that is not an ancestor of the launcher or whose cwd IS the run root.  A
+STALE pidfile does not block.  SO-2a's launcher does NOT refuse merely because
+the run root exists; the D12R2/W3 chain driver's exit-6 phase-1 clause is that
+family's, and SO-2a's driver instead re-stages on the FIRST fire only
+(so2a_chain_driver.sh:72-91).  BOTH DIRECTIONS ARE DRIVEN BELOW AND THE OBSERVED
+CODES ARE PRINTED RATHER THAN ASSUMED: run root PRESENT + live arm -> EXIT 3
+(legs a, b); run root PRESENT + clear -> D4S_G_ROOT5_PASS, the launcher proceeds
+and is stopped by the NEXT gate at EXIT 4 with nothing staged (leg c).
+
+CLEANUP -- W3-SELFTEST-DEF-1, ALREADY PAID FOR IN THIS FAMILY.
+d12y_w3_groot5_selftest.sh's end-of-run `rm -f STATUS.W3_chain` deleted a REAL
+status file the queue runner had written.  This selftest removes ONLY paths it
+recorded creating, BY NAME; leg (g) DRIVES that discipline with a decoy it did
+not create and requires the decoy to survive; leg (g3) proves the CASE DIRECTORY
+listing is byte-identical before and after, so there is nothing there it could
+have deleted.
+
+TWO DRIVES ARE RECORDED, NOT ONE.  The first drive returned 46 pass / 1 fail and
+the single failure was THIS SELFTEST'S OWN meta-check: written with a literal
+backtick inside its own grep, it counted 2 backticks -- ITS OWN PATTERN.  That is
+the same "a check that measured its own selftest" defect this item records
+against its first C5 regex at PREREGISTRATION.md:232, reproduced by the lane
+writing the fix for it.  It is recorded here rather than quietly replaced.  The
+repair is structural: the backtick is BUILT with printf so no literal backtick
+occurs in the file at all, and leg (o3b) hands the same counter a synthesised
+backticked line and requires it to return 1, so the zero stays a reading.
+
+FROZEN FILES: NONE EDITED.  so2a_run_arm.sh 3683bcd08486d2f9a54035aa2cc4351c,
+so2a_grade.py 65b2115e90b050d8e752103a26c43204, so2a_chain_driver.sh
+75921da288d6a410691c4f41f15568a3, so2a_xg.py 85b2a416e75141096967fe7e13b02e28,
+so2a_runScript.py 0557da51f6f179f6de865144343c499f, PREREGISTRATION.md
+40b815f6ca10db5a052b34bd04956009 -- each re-read after the drive and unchanged,
+and each equal to its blob at the freeze commit
+5f0e083e3c9f08be1f2920ee2c95c1b323b4f1c4.
+
+COST.  Instrument time, MEASURED: 5.60 wall s at 1 rank = 0.093 core-min for the
+recorded drive (5.77 wall s / 0.096 core-min for the first).  Zero solver
+compute; no arm container was ever started by the launcher, which legs (a2) and
+(e4) assert by counting containers and by the absence of any arm directory.
+
+------------------------------------------------------------------------------
+DRIVE 2 of 2 -- RECORDED, rc=0
+------------------------------------------------------------------------------
+SO2a G-ROOT.5 SELFTEST 2026-08-30T23:07:28Z launcher_md5=3683bcd08486d2f9a54035aa2cc4351c grader_md5=65b2115e90b050d8e752103a26c43204
+  adopted from: /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2a/../curriculum_SO1b/so1b_groot5_selftest.sh
+  [OK ] (o1) G-ROOT.5 completes at :267, the FIRST destructive op is at :338 -- the guard is above the act
+  [OK ] (o2) zero backticks on executable lines of the launcher
+  [OK ] (o3) zero backticks on executable lines of THIS selftest, and the pattern is BUILT not written, so this zero is not the counter failing to see itself
+  [OK ] (o3b) PLANTED POSITIVE: the same counter, handed one synthesised backticked line, returns 1 -- (o2) and (o3) are readings, not a blind pattern
+  [OK ] (o4) run root ABSENT before the test (freeze condition): /home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient
+  [OK ] (o5) docker ps BEFORE the test: []
+  [OK ] (a0) PLANTED CONTROL LIVE: the sacrificial container so2a_X-S_selftest_20260830T230728Z is RUNNING, so leg (a)'s refusal is a reading and not an absence
+  [OK ] (a) MUST-REFUSE: a LIVE arm container -> EXIT 3 -- ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [so2a_X-S_selftest_20260830T230728Z]
+  [OK ] (a2) the launcher started NO container of its own: docker ps -a count 18 before, 18 after
+  [OK ] (a3) the launcher never printed D4S_G_ROOT5_PASS -- it stopped AT the gate, not after it
+  [OK ] (a4) the sacrificial container so2a_X-S_selftest_20260830T230728Z is REMOVED by name
+  [OK ] (b0) PLANTED CONTROL LIVE: pid 1071249 is alive with cwd=/home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient
+  [OK ] (b) MUST-REFUSE: a LIVE driver pid with cwd in the run root -> EXIT 3 -- ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient/so2a_driver.pid names LIVE pid 1
+  [OK ] (b2pre) the stale pid 999999 is confirmed DEAD before the leg
+  [OK ] (b2) a STALE pidfile is IGNORED: G-ROOT.5 passes and the launcher goes on to abort at the L-251 mode check (EXIT 4) -- nothing staged
+  [OK ] (c) MUST-PROCEED: run root PRESENT and clear -> D4S_G_ROOT5_PASS arm=X-S live_same_arm_containers=none driver_pidfile=absent ; the launcher then aborts at the L-251 mode check (EXIT 4) before any staging
+  [OK ] (c2) G-ROOT.1-.3 also PASS on this item's own root, ledger_clean=yes
+  [OK ] (c3) the OPERATIVE cap the launcher would enforce for X-S, read from its own print: D4_CAP_ASSERT arm=X-S registered_core_min=12.0 ranks=1 enforced_wall_s=720 enforced_core_min=12.000000 memory=4g
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient (ON_DISK) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt (not_on_disk) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-postopt (not_on_disk) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin (ON_DISK) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint (ON_DISK) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality (ON_DISK) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/certonomous-runs (ON_DISK) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d) BASE=/home/ubuntu/Certonomous (ON_DISK) -> EXIT 3, G-ROOT.1 REFUSED before any staging
+  [OK ] (d2) DRIVEN CONTROL: the SAME root written with a trailing '/./' NORMALISES and is ACCEPTED (rc=4 at L-251) -- the guard compares realpaths, it does not compare strings
+  [OK ] (d3) a ledger carrying ITEM=D4 in this item's own root -> EXIT 3, G-ROOT.3 REFUSED
+  [OK ] (d4) DRIVEN CONTROL: the SAME ledger carrying ITEM=SO2a is ACCEPTED -- (d3)'s refusal is a reading of the line, not of the file's existence
+  [OK ] (e1) X-P on the SHIPPED image -> EXIT 4, G-ROW REFUSED before any staging
+  [OK ] (e2) MESH on the PATCHED image -> EXIT 4, G-ROW REFUSED before any staging (and this is the only form in which MESH is driven at all)
+  [OK ] (e3) X-S on the SHIPPED image -> the md5s and the DIGEST verify, G-ROW PASSES, and the arm then REFUSES (EXIT 5) for want of the MESH arm's output -- nothing staged
+  [OK ] (e4) no arm directory was created by any leg
+  [OK ] (e5) the SHIPPED digest the launcher resolved is the registered one
+  [OK ] (f) arm MESH: the LAUNCHER enforces 5.0 core-min and the FROZEN GRADER scores against 5.0 -- they AGREE
+  [OK ] (f) arm X-S: the LAUNCHER enforces 12.0 core-min and the FROZEN GRADER scores against 12.0 -- they AGREE
+  [OK ] (f) arm G-S: the LAUNCHER enforces 25.0 core-min and the FROZEN GRADER scores against 25.0 -- they AGREE
+  [OK ] (f) arm X-P: the LAUNCHER enforces 12.0 core-min and the FROZEN GRADER scores against 12.0 -- they AGREE
+  [OK ] (f) arm G-P: the LAUNCHER enforces 25.0 core-min and the FROZEN GRADER scores against 25.0 -- they AGREE
+  [OK ] (f2) the five operative caps sum to 79.0 and the grader's ITEM_CEILING_CORE_MIN is 79.0 -- a ceiling that is not the sum of the caps could not pass this leg
+  [OK ] (f3) the FROZEN pre-registration names the same ceiling 79.0 (section 4)
+  [NOTE] so2a_run_arm.sh's inline 'REGISTERED CAP TABLE' COMMENT (:186-192) still reads X 10.0 core-min / 600 s, inherited from SO-1a.  The OPERATIVE constant, the frozen grader and PREREGISTRATION.md section 4 all read 12.0 / 720 s, and section 7 registers the delta 'the X cap 10.0 -> 12.0'.  The comment is stale; the file is FROZEN and is not edited.  REPORTED, never gated.
+  [OK ] (g) DRIVEN: the named cleanup removed 5 path(s) IT recorded creating and the DECOY it did not create SURVIVED BYTE-INTACT -- W3-SELFTEST-DEF-1 cannot recur here
+  [OK ] (g2) the decoy is now removed BY ITS OWN NAME, by the line that created it
+  [OK ] (g3) the CASE DIRECTORY listing is byte-identical before and after (231651688943ea09c9628df2f31c6d83) -- this selftest wrote and deleted nothing there at all
+  [OK ] (z1) the temporary run root is EMPTY after every invocation and after the named cleanup (0 entries)
+  [OK ] (z2) run root ABSENT after the test (the freeze condition restored): test -e /home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient -> false
+  [OK ] (z3) docker ps AFTER the test: [] -- identical to before, nothing was left behind
+  [OK ] (z4) no so2a_ container survives, running or stopped
+SO2a G-ROOT5 SELFTEST pass=48 fail=0 2026-08-30T23:07:34Z

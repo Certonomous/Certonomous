@@ -1,0 +1,60 @@
+SO-2a C5 trapFpe CONFIRMATION ON A REAL LOG -- EVIDENCE
+====================================================================================
+Confirms, on disk and on a REAL run's bytes, the repair PREREGISTRATION.md
+section 5 (:119) registers for C5: OpenFOAM's banner line
+
+    trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+
+is NOT read as a crash, while a real SIGFPE still is.  THE TOKEN STAYS.  What was
+removed is the WHOLE-FILE SUBSTRING SCAN -- SO-1a's shape at so1a_grade.py:122-125,
+`[t for t in FATAL_TOKENS if t in text]` -- replaced by a LINE-BY-LINE, PER-FILE
+scan with exactly one registered benign exclusion anchored on the BANNER PREFIX
+`^\s*trapFpe:\s`, never on the token.
+
+THE REAL LOG.  /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/
+ACC_mp_20260829T015422Z_2086625.log -- 100,533 bytes, 2,832 lines, a CLEAN
+multipoint run with no FPE.  Chosen because dafoam-supervisor MEASURED the
+unrepaired form firing on it three times; that measurement is checked here rather
+than repeated on faith, and the three line numbers are re-derived independently.
+
+THE PLANTED POSITIVE COMES FIRST (rule 3, L-400).  Limb (1) reconstructs the
+UNREPAIRED whole-file form and shows it FIRING on these exact bytes.  Only then
+is limb (2)'s zero a claim about the CODE rather than about the LOG.  Limb (5b)
+does the same for the AST detector: the same detector run on SO-1a's frozen
+grader FLAGS `fatal_tokens_in`, so its zero on so2a_grade.py is a reading.
+
+THE ANCHORING TRAP THIS SPECIFICALLY AVOIDS.  A fix that anchored the TOKEN to
+the start of a line would pass every leg here except (3b) and would MISS OpenMPI's
+report at np > 1 -- `process rank 2 exited on signal 8 (Floating point exception).`
+-- which is not line-initial.  Limb (3b) drives exactly that string and requires
+it CAUGHT.
+
+The comparator was IMPORTED, never copied and never edited: so2a_grade.py md5
+65b2115e90b050d8e752103a26c43204 before and after the drive, equal to its blob at
+the freeze commit 5f0e083e3c9f08be1f2920ee2c95c1b323b4f1c4.  __pycache__ was
+cleared before the run (stale-bytecode inversion).  Driver:
+so2a_c5_trapfpe_confirmation.py, beside this file.
+
+Instrument time, MEASURED: under 1 wall s at 1 rank; zero solver compute.
+
+------------------------------------------------------------------------------
+DRIVE -- RECORDED, rc=0
+------------------------------------------------------------------------------
+SO2a C5 trapFpe CONFIRMATION 2026-08-30T23:02:48Z grader_md5=65b2115e90b050d8e752103a26c43204
+  real log: /home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint/ACC_mp_20260829T015422Z_2086625.log (100533 bytes, 2832 lines)
+  [OK ] (1) the UNREPAIRED whole-file substring form FIRES on this clean log: ['Floating point exception'] -- the planted positive that makes limb (2)'s zero evidence
+  [OK ] (1b) the bare token 'Floating point exception' hits 3 times, at lines [62, 749, 1432] -- the supervisor's measurement reproduced exactly
+        line 62: trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+        line 749: trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+        line 1432: trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+  [OK ] (2) the REPAIRED fatal_token_sites() returns ZERO non-benign sites on the real log -- a clean run is read as clean
+  [OK ] (2b) all 3 hits were classified BENIGN and each is NAMED with its reason, not silently dropped: OpenFOAM sigFpe SETUP banner -- an ENABLEMENT NOTICE, not a crash
+  [OK ] (3a) OpenFOAM's FPE HANDLER SYMBOL planted into the same clean log -> CAUGHT, 1 site at line 2834
+  [OK ] (3b) OpenMPI's NON-LINE-INITIAL report -- 'process rank 2 exited on signal 8 (Floating point exception).' -- CAUGHT, 1 site at line 2834.  An '^'-anchored fix would MISS this, which is why the benign pattern anchors the BANNER and not the token
+  [OK ] (3c) EVERY one of the 10 registered tokens, planted in turn into the real log, produces exactly one site -- the repair narrowed nothing but the banner
+  [OK ] (3d) the banner planted a fourth time is still read as an ENABLEMENT NOTICE (4 benign, 0 sites)
+  [OK ] (4) the token STAYS: 'Floating point exception' and 'Foam::sigFpe::sigHandler' are both still in FATAL_TOKENS -- what was removed is the WHOLE-FILE SCAN
+  [OK ] (4b) EXACTLY ONE benign exclusion is registered and it anchors the trapFpe BANNER PREFIX, not the token
+  [OK ] (5) the AST detector finds ZERO whole-file token scans in so2a_grade.py
+  [OK ] (5b) THE SAME DETECTOR, run on SO-1a's frozen grader, FLAGS 'fatal_tokens_in' -- so limb (5)'s zero is a claim about the CODE, not about the pattern (L-400)
+SO2a C5 trapFpe CONFIRMATION pass=12 fail=0 2026-08-30T23:02:48Z
