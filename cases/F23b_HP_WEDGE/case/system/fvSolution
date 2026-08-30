@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F23b -- Hagen-Poiseuille wedge.  THE ONE SUBSTANTIVE DICTIONARY CHANGE from
+  F23 (pre-registration section 5.3), and the reason F23b exists at all.
+
+  F23's coarse and medium levels were NEVER ITERATIVELY CONVERGED: their Ux
+  initial residuals sat 7,300x and 26,000x the registered floor at iteration
+  4000 and the flow was STILL ACCELERATING FROM REST.  Section 5.2 measured the
+  mechanism: the OUTER SIMPLE loop is the bottleneck, not the linear solver.
+  GAMG reported `No Iterations 1` for Ux at every iteration -- the inner solve
+  reaches its relTol in one V-cycle and is doing its job -- while the relaxed
+  Picard iteration crawled at 1 - O((h/R)^2), measured 8.190e-04 (NR = 64) and
+  2.065e-04 (NR = 128), a ratio of 3.96 ~ h^-2.  Extrapolated: coarse ~25,000,
+  medium ~100,000, fine ~395,000 iterations.  F23's ladder was not runnable at
+  4,000 iterations and was not runnable at ANY cap the lab would grant.
+
+  `consistent yes` is SIMPLEC, whose whole purpose is to allow alpha_U -> 1.  At
+  alpha_U = 1 the added diagonal ((1-a)/a) diag(A_P) VANISHES and the outer loop
+  converges at the inner solve's own rate, in a handful of iterations rather
+  than 10^5.
+
+  THIS IS A PREDICTION, NOT A MEASUREMENT, and it is registered as one: nothing
+  had been launched when it was written.  Section 5.5's ARM-P tests it under the
+  freeze sha, ARM-F (alpha_U = 0.9) is the registered fallback, and a double
+  failure HALTs the rung as BLOCKED rather than taking a third setting -- a
+  third setting chosen after watching two fail is a parameter hunt, and a
+  parameter hunt is not a registration.
+
+  NO residualControl: the run goes to endTime and the section 5.4 plateau gate
+  decides.  pRefCell/pRefValue pin the pressure level of the cyclic domain.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-12;
+        relTol          1e-4;
+    }
+    U
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-14;
+        relTol          1e-4;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    consistent      yes;
+    pRefCell        0;
+    pRefValue       0;
+    // NO residualControl: the run goes to endTime and the grader's Class C
+    // plateau gate decides whether it plateaued.
+}
+
+relaxationFactors
+{
+    fields    { p 1.0; }
+    equations { U 1.0; }
+}

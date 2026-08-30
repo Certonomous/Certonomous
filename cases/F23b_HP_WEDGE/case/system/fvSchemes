@@ -1,0 +1,17 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F23 -- Hagen-Poiseuille wedge.  Second-order central everywhere; the
+  Laplacian (the term that sets the profile) is Gauss linear corrected -- the
+  wedge mesh is orthogonal in the r-x plane (checkMesh non-orthogonality is
+  quoted in the pre-registration), so `corrected` adds nothing and is kept
+  for the record.  Convection is null on the fully developed solution
+  (u_r = 0, d/dx = 0 by the cyclic pair) and is kept central; the model in
+  exact_f23.py integrates exactly these stencils.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSchemes; }
+
+ddtSchemes      { default steadyState; }
+gradSchemes     { default Gauss linear; }
+divSchemes      { default none; div(phi,U) Gauss linear; div((nuEff*dev2(T(grad(U))))) Gauss linear; }
+laplacianSchemes{ default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }

@@ -1,0 +1,41 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F23b -- Hagen-Poiseuille wedge.  FIXED iteration count, NO residualControl:
+  the run goes to endTime so the grader's Class C plateau series is sampled
+  uniformly.  Changed from F23 in EXACTLY TWO FIELDS (pre-registration 5.3):
+
+      endTime         400      (was 4000)
+      writeInterval   10       (was 100)
+
+  THE CHECKPOINT COUNT IS 40, BYTE-FOR-BYTE F23's, AND THE CLASS C WINDOW STAYS
+  12 CHECKPOINTS.  F17c section 8.4's warning is that changing `writeInterval`
+  silently changes a criterion defined in checkpoints, so the count and the
+  window are held fixed and the SPAN is registered explicitly: 12 checkpoints =
+  120 iterations (F23: 1,200).
+
+  `endTime` is the ONE MOVABLE INPUT of this registration (section 5.5).  If
+  ARM-P accepts at 80 < n <= 400 the branch rule sets N_ITER = max(400, 40 x
+  ceil(5n/40)) and build_f23b.py rewrites BOTH fields IN THE DESTINATION COPY,
+  with the substitution asserted; this frozen source is never edited.  The
+  derived writeInterval = N_ITER/40 keeps the checkpoint count at exactly 40.
+
+  Everything else is unchanged from F23: purgeWrite 0, writeFormat ascii,
+  writePrecision 12, timePrecision 6, runTimeModifiable false, no
+  residualControl.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         400;           // N_ITER; must equal exact_f23b.N_ITER unless section 5.5 moved it
+deltaT          1;
+writeControl    timeStep;
+writeInterval   10;            // = N_ITER / 40; 40 checkpoints -> the Class C plateau series
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
