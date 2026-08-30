@@ -1,0 +1,259 @@
+{
+  "ast_assert_count": 0,
+  "band": 0.1,
+  "case": "VMFL063",
+  "field_classes": {
+    "infrastructure": [
+      "RUN_RC.<level> rc / wall_s / core_min / timeout_s",
+      "COST.txt run-root roll-up"
+    ],
+    "physics_critical": [
+      "log.simpleFoam End line (EXACT name, cardinality-guarded)",
+      "log.simpleFoam 'SIMPLE solution converged'",
+      "log.simpleFoam Time / ExecutionTime counts",
+      "system/controlDict endTime",
+      "<t>/U, <t>/p, <t>/wallShearStress, <t>/Cx, <t>/Cy",
+      "0/U -- the age-guard datum"
+    ]
+  },
+  "levels": {
+    "L1": {
+      "LR_m": 0.6109314353696159,
+      "LR_nearwall_u_m": 0.6109316349385259,
+      "LR_over_2t": 6.7881270596624,
+      "age_guard": "all 5 fields at 1004 newer than 0/U",
+      "converged": true,
+      "core_min": 0.15,
+      "cross_instrument_gap_m": 1.995689099532072e-07,
+      "cross_instrument_tol_m": 0.07785867861899987,
+      "crossing_census": {
+        "n_in_window": 74,
+        "neg_to_pos": 1,
+        "pos_to_neg": 1,
+        "starts_attached": true
+      },
+      "endTime": 30000.0,
+      "end_lines": 1,
+      "last_time": 1004,
+      "level": "L1",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L1",
+      "local_dx_m": 0.025952892872999955,
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L1/log.simpleFoam",
+      "n_exec": 1004,
+      "n_plateTop_faces": 80,
+      "numeric_latest_time_dir": "1004",
+      "orientation": {
+        "orient": -1.0,
+        "tau_ref": -1.44017422703e-05,
+        "x_ref": 1.3577262429
+      },
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/RUN_RC.L1",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "1004",
+      "timeout_s": 5400.0,
+      "wall_s": 9.0
+    },
+    "L1D": {
+      "age_guard": "all 5 fields at 1004 newer than 0/U",
+      "converged": true,
+      "core_min": 0.1333,
+      "endTime": 30000.0,
+      "end_lines": 1,
+      "last_time": 1004,
+      "level": "L1D",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L1D",
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L1D/log.simpleFoam",
+      "n_exec": 1004,
+      "numeric_latest_time_dir": "1004",
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/RUN_RC.L1D",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "1004",
+      "timeout_s": 5391.0,
+      "wall_s": 8.0
+    },
+    "L2": {
+      "LR_m": 0.5548232319529735,
+      "LR_nearwall_u_m": 0.5548232748094284,
+      "LR_over_2t": 6.164702577255261,
+      "age_guard": "all 5 fields at 1944 newer than 0/U",
+      "converged": true,
+      "core_min": 1.2333,
+      "cross_instrument_gap_m": 4.285645494039869e-08,
+      "cross_instrument_tol_m": 0.03541993052700021,
+      "crossing_census": {
+        "n_in_window": 149,
+        "neg_to_pos": 1,
+        "pos_to_neg": 1,
+        "starts_attached": true
+      },
+      "endTime": 30000.0,
+      "end_lines": 1,
+      "last_time": 1944,
+      "level": "L2",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L2",
+      "local_dx_m": 0.01180664350900007,
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L2/log.simpleFoam",
+      "n_exec": 1944,
+      "n_plateTop_faces": 160,
+      "numeric_latest_time_dir": "1944",
+      "orientation": {
+        "orient": -1.0,
+        "tau_ref": -1.42949251472e-05,
+        "x_ref": 1.34478793795
+      },
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/RUN_RC.L2",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "1944",
+      "timeout_s": 5383.0,
+      "wall_s": 74.0
+    },
+    "L3": {
+      "LR_m": 0.5040212989101195,
+      "LR_nearwall_u_m": 0.5040213088907194,
+      "LR_over_2t": 5.600236654556883,
+      "age_guard": "all 5 fields at 4177 newer than 0/U",
+      "converged": true,
+      "core_min": 12.3167,
+      "cross_instrument_gap_m": 9.98059990209299e-09,
+      "cross_instrument_tol_m": 0.01643148562200014,
+      "crossing_census": {
+        "n_in_window": 298,
+        "neg_to_pos": 1,
+        "pos_to_neg": 1,
+        "starts_attached": true
+      },
+      "endTime": 30000.0,
+      "end_lines": 1,
+      "last_time": 4177,
+      "level": "L3",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L3",
+      "local_dx_m": 0.005477161874000047,
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L3/log.simpleFoam",
+      "n_exec": 4177,
+      "n_plateTop_faces": 320,
+      "numeric_latest_time_dir": "4177",
+      "orientation": {
+        "orient": -1.0,
+        "tau_ref": -1.40112971391e-05,
+        "x_ref": 1.35182550258
+      },
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/RUN_RC.L3",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "4177",
+      "timeout_s": 5309.0,
+      "wall_s": 739.0
+    }
+  },
+  "limb_A": {
+    "LR_over_2t": {
+      "L1": 6.7881270596624,
+      "L2": 6.164702577255261,
+      "L3": 5.600236654556883
+    },
+    "band": 0.1,
+    "ceiling": "GATE REACHED",
+    "class": "CONTINUUM (VERIFICATION_CHARTER sec.2f.3)",
+    "deviation_rel": 0.4000591636392208,
+    "finest": 5.600236654556883,
+    "inside": false,
+    "reference": 4.0,
+    "verdict": "GATE FAIL",
+    "why": "LR/(2t) is outside the frozen 0.1 band about 4"
+  },
+  "limb_B": {
+    "LR_L1D_m": 0.6109314353696159,
+    "LR_L1_m": 0.6109314353696159,
+    "LR_bitwise_equal": true,
+    "ceiling": "PASS",
+    "class": "SAME-DISCRETE-PROBLEM IDENTITY (VERIFICATION_CHARTER sec.2f.3)",
+    "identical": true,
+    "same_iteration_count": true,
+    "sha256": {
+      "U": {
+        "L1": "73d37da053a7ea9d69936bca889083c520403a57d0593fab42579079462fd3f3",
+        "L1D": "73d37da053a7ea9d69936bca889083c520403a57d0593fab42579079462fd3f3",
+        "identical": true
+      },
+      "p": {
+        "L1": "a5ba2ad7a0c025da707781432ba83f845348fd723a95ddf91326446c9fb99b2b",
+        "L1D": "a5ba2ad7a0c025da707781432ba83f845348fd723a95ddf91326446c9fb99b2b",
+        "identical": true
+      },
+      "wallShearStress": {
+        "L1": "dbf1b556e489bd2c7b71fd1db9b4d4bf19093e7a763a4f8ce1759795bdc9939a",
+        "L1D": "dbf1b556e489bd2c7b71fd1db9b4d4bf19093e7a763a4f8ce1759795bdc9939a",
+        "identical": true
+      }
+    },
+    "twin": "L1D",
+    "verdict": "PASS",
+    "why": "same converged iteration count: True; sha256 identical on wallShearStress, U, p; LR bitwise equal: True"
+  },
+  "manual_page": 193,
+  "planted_zero": [
+    {
+      "channel": "wall_shear",
+      "file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L1/1004/wallShearStress",
+      "gate_response": "crossing moved upstream by 0.0883645374502 m",
+      "lr_planted": 0.5225668979193985,
+      "lr_unplanted": 0.6109314353696159,
+      "n_faces": 80,
+      "passed": true,
+      "patch": "plateTop",
+      "plant_physical": 6.776594558500001e-06,
+      "plant_reported": -6.776594558500001e-06,
+      "worst_readback_error": 4.999916903029519e-16
+    },
+    {
+      "channel": "nearwall_ux",
+      "file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063/L1/1004/U",
+      "gate_response": "the plant pushed the u_x crossing OUT of the window",
+      "lr_planted": null,
+      "lr_unplanted": 0.6109316349385259,
+      "passed": true,
+      "plant": 0.0025850000000000005,
+      "worst_readback_error": 4.999993474807951e-14
+    }
+  ],
+  "reference": {
+    "ansys_cfx_context_only": 4.05,
+    "ansys_fluent_context_only": 4.16,
+    "kind": "EXPERIMENTAL",
+    "quantity": "LR/(2t), non-dimensionalised reattachment length",
+    "source": "J.C. Lane, R.I. Loehrke, Transactions of ASME Vol.102 pp.494-496 (1980), via VM2026R1 Table .63.1",
+    "value": 4.0
+  },
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL063",
+  "tier_ceiling_limb_a": "GATE REACHED",
+  "tier_ceiling_limb_b": "PASS",
+  "title": "Separated Laminar Flow Over a Blunt Plate",
+  "triple": {
+    "R": 0.905427904465488,
+    "d21": -0.6234244824071391,
+    "d32": -0.5644659226983775,
+    "f_coarse": 6.7881270596624,
+    "f_extrapolated": 0.19607177227972716,
+    "f_fine": 5.600236654556883,
+    "f_med": 6.164702577255261,
+    "fs": 1.25,
+    "gci_fine": 1.2062358288644406,
+    "p": 0.143328325065891,
+    "ratio": 2.0,
+    "state": "CONVERGING"
+  },
+  "verdict": "GATE FAIL",
+  "verdict_note": "the ROW verdict is the WORST limb; limb A's ceiling is GATE REACHED, so this row can never read PASS and is NOT a credential",
+  "window": [
+    0.0,
+    1.2
+  ],
+  "x_sign_ref": 1.35
+}
