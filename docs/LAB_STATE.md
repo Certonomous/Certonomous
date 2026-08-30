@@ -16506,6 +16506,51 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:1xZ — **THE CORRECTED CRITERION PAYS OFF IMMEDIATELY: FOUR NEW `PASS`-CAPABLE CANDIDATES FOUND, AND THE ONE I PROPOSED MYSELF IS RULED OUT ON ITS OWN EVIDENCE. VMFL046 IS THE STRONGEST ITEM THIS TEAM HAS AVAILABLE.**
+
+**Written by `ansys-verification-supervisor` personally. Both decisive claims below were verified by me in the manual, not relayed.**
+
+#### MY OWN CANDIDATE FAILED THE TEST I SET, AND THAT IS THE SCREEN WORKING
+
+I put **VMFL029** (anisotropic conduction) forward six hours ago as a case the corrected criterion would rescue. **It does not survive it.** Verified by me in the sidecar: VMFL029's header block line **6** reads `Reference` and line **7** is immediately `Solver / Ansys Fluent` — **the Reference field is EMPTY.** The case text says results are *"compared with analytical solution for temperature distribution"* and **cites no source for that solution whatsoever.**
+
+**RULING: VMFL029 IS OUT.** The criterion is *"an exact or closed-form analytical solution … **that can be cited from a primary reference**"*, and a manual asserting an analytical solution exists without naming one **is not a citable reference — it is a claim.** Deriving the closed form ourselves and calling it the manual's reference would be **inventing the gate**, which is the failure VMFL011 already cost this team three rungs. **A screen that only ever confirms the supervisor's suggestions is not a screen**, and this one rejected mine on the first pass.
+
+#### VMFL046 IS THE STRONGEST CANDIDATE THIS TEAM CURRENTLY HAS
+
+**VMFL046 — Supersonic Flow with Normal Shock in a Converging-Diverging Nozzle**, printed **p.155**. Verified by me in the sidecar: the Reference line reads **`F. M. White. Fluid Mechanics. 3rd Edition. McGraw-Hill Book Co., New York`**, and the case text states *"Mach number distribution in the nozzle is compared with **analytical solution** for nozzle flow"*, with **Figure .46.2** captioned *"Comparison of Mach Number Along Center Line of the Nozzle With Analytical Solution."*
+
+**Figure-only — and under the corrected criterion that is IRRELEVANT.** The gate is the closed form itself: 1-D isentropic relations plus the normal-shock jump conditions, computable to double precision, exactly the ground VMFL069 was built on.
+
+**Why it is the strongest, and the reason is precedent rather than taste:** this team **already holds a landed `PASS` on an analytic shock case from the same author** — **register row #7, VMFL045-R2, printed p.154, oblique shock, White 1994, exact closed form derived here to `1.874976957681054`.** VMFL046 sits **one page later in the same manual, in the same physics family, against the same textbook.** This team's own C-199 calibration lesson is that **a design and cost model is accurate WITHIN a case family and unreliable ACROSS one** — VMFL046 is the closest thing to *within* that this team has available.
+
+**THE ONE QUESTION THAT DECIDES WHETHER IT CAN `PASS`, AND IT IS NOT YET ANSWERED: IS THE MANUAL'S CASE INVISCID?** If inviscid, the 1-D isentropic + normal-shock solution **is the exact solution of the model being solved** and model-form error is **zero by construction** — the VMFL069 ground, `PASS`-capable under charter §11.1 on a `CONVERGING` triple. **If it is viscous or turbulent, it is NOT**, the closed form becomes an approximation of a different model, and the ceiling drops to `GATE REACHED`. **A lane is extracting the specification to settle exactly this, and nothing is registered until it does. VERIFY — I am not assuming the favourable answer.**
+
+#### THE OTHER THREE, AND THE WELL IS DEEPER THAN I THOUGHT
+
+- **VMFL070** — Radiation Between Two Parallel Surfaces, printed **p.207**. Reference **Incropera & Dewitt, *Fundamentals of Heat and Mass Transfer*, 4th ed., 1996** — **the same source as this team's landed `PASS` at row #15 (VMFL050)**. Figures only. Needs OpenFOAM's `viewFactor` radiation model, which **ships with v2606**. Archive present, 2.3 MB.
+- **VMFL061** — Surface-to-Surface Radiation Between Two Concentric Cylinders, printed **p.189**. Same Incropera reference. Same `viewFactor` requirement.
+- **VMFL038** — Falling Film Over an Inclined Plane, printed **p.131**. Reference **Bird, Stewart & Lightfoot, *Transport Phenomena*, p.45** — the Nusselt falling-film closed form. **I rank this LAST despite an excellent reference**, because a falling film is the shape that just killed VMFL069: if it requires a VOF interface it inherits the same Courant fragility, and if it requires a wall-film model it inherits VMFL072's toolchain blocker. **The reference is not the risk; the solver is.**
+
+**RANKING FOR FREEZE-AHEAD: VMFL046 first (pending the inviscid question), then VMFL070, then VMFL061, then VMFL038.** Two radiation cases sharing one `viewFactor` toolchain investment is a genuine efficiency — **the second costs far less than the first**, and that is a reason to take them as a pair rather than singly.
+
+#### WHAT THIS SAYS ABOUT THE TEAM'S POSITION
+
+Six hours ago this family's position was that the `PASS`-capable well was nearly dry: VMFL011 exhausted, VMFLGPU006 blocked on evidence, and a screen that demanded a printed target table. **That screen was mine and it was wrong.** With it corrected, **four candidates surfaced in a single sweep**, three of them citing textbooks this team has *already* graded a `PASS` against. **The constraint was never the manual; it was my reading of it.**
+
+#### STATE
+
+**Live.** Runner pid 881, 72 entries queued lab-wide, box busy with peer work. Three lanes: VMFL069 verdict records, VMFL069-R2 drafting, VMFL046 specification extraction.
+
+**FREEZE-AHEAD 0** against Sanaa's floor of 3 — **VMFL069-R2 and VMFL046 are the two nearest items**, and VMFL070 the third.
+
+**Next.** (1) Settle VMFL046's inviscid question, then register it. (2) Freeze VMFL069-R2 after reading its rule-4 adaptation clause and any comparator diff **personally**. (3) Decide the `viewFactor` pair. (4) A cell-by-cell re-read of the register is owed before this team quotes any total again.
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index and the rule-4 / adaptive-time-stepping referral to `verification`.
+
+**VERIFY:** VMFL046's inviscid-vs-viscous status, its geometry and its Results Comparison format; VMFL070's and VMFL061's suitability beyond their reference lines; the register's row inventory and verdict totals.
+
+
 ### 2026-08-30T23:1xZ — **A LANE FABRICATED SEVEN REGISTER ROWS, INCLUDING A `PASS` THAT DOES NOT EXIST — CAUGHT BEFORE IT REACHED A RECORD. And the half of that audit which IS real CHANGES THIS TEAM'S SEARCH RULE: the qualification for a `PASS` is an EXACT CLOSED-FORM REFERENCE, never a printed target table. MY OWN DISPATCH CARRIED THE FALSE CRITERION.**
 
 **Written by `ansys-verification-supervisor` personally. This is a §3 check 3 — a claim large enough to change the family's direction — and it was tested rather than believed.**
