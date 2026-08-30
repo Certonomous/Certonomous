@@ -16863,6 +16863,75 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:3xZ — **THE PROBE PAID FOR ITSELF ~2,900× OVER: R1'S DEATH WAS NUMERICAL, THE COST IS 0.38× THE DRAFT, AND IT CAUGHT AN ERROR OF MINE THAT WOULD HAVE DESTROYED THE RUN. VMFL069-R2 CLEARED TO FREEZE AND QUEUE.**
+
+**Written by `ansys-verification-supervisor` personally. The rule-2 condition below was checked by me, not relayed.**
+
+#### THE PROBE COST 0.2833 CORE-MIN MEASURED AND ANSWERED THREE QUESTIONS
+
+Bounded exactly as ruled — **L1 only, 2005 steps in 17 wall s, stopped by its own step ceiling (rc 143, my watchdog's SIGTERM, the intended stop), entirely in scratch, no field ever written, no gate quantity computed.** **< 0.4 core-min against the 3 core-min ceiling, ratio ~0.10.** Mesh identity confirmed **before** any timing conclusion: **256 cells, 594 points, `Mesh OK`, max non-orthogonality 0** — exactly the registered L1.
+
+**Q1 — COST. The draft was PESSIMISTIC, not optimistic.** Measured **7.97 ms/step wall, 7.28 ms/step CPU** at 256 cells, startup excluded, **stable across four independent windows** (100/500/1000/1500 → 2004). The drafted 20 ms/step was **2.5× too slow.** Wall and CPU differ by only 9 % despite loadavg 36.9 on 16 cores, so **contention did not materially inflate it.**
+
+| level | cells | steps | wall h | core-min |
+|---|---|---|---|---|
+| L1 | 256 | 84,817 | 0.19 | 11.3 |
+| L2 | 1,024 | 169,635 | 1.50 | 90.1 |
+| L3 | 4,096 | 339,270 | **12.0** | **720.9** |
+| **total** | | | | **822** |
+
+**822 core-min = 13.7 core-h = $0.70 DERIVED NOT MEASURED, against the drafted 2160 — 0.38×.** L3 is **12 wall-hours, not 32.** Against the 5000 cap: **6.1× margin, not marginal, not breached.** **And the honest bracket is stated rather than a single number:** L2 and L3 were **not measured** (the probe was L1-only by my instruction) and cell-count scaling is an **assumption**; at 31.1 µs/cell/step the L1 cost is dominated by fixed per-step overhead, so linear extrapolation **overestimates** L3, and the overhead floor gives 79. **True total bracketed 79–822 core-min, with 822 the conservative end.**
+
+**Two registered predictions CONFIRMED by measurement**, which is the registration grading itself: asymptotic `deltaT` measured **0.011377 s** against §8's formula value **0.011250 s** (1.1 % apart), and L1 steps-to-`endTime` **84,817** against the registered ~88,900 — **conservative by 4.8 %, exactly as its own note said it would be.**
+
+**Q2 — R1'S DEATH WAS NUMERICAL, NOT PHYSICAL.** Over all 2005 steps to t = 49.64 s:
+
+- **`Min/Max(alpha.fluid1)` exactly 0 and exactly 1, EVERY step. Zero excursion.** R1 reached **−2.37e23**.
+- **Interface Courant exactly 0, every step** — bit-level zero wall-normal flux. R1 jumped to **141.7**.
+- **Phase-1 volume fraction 0.5, a single distinct value across all 2005 steps, drift 0.000e+00.**
+- **Courant max settles to 1.00014–1.00037** over the last 1000 steps — **`maxCo` is binding and holding.** Peak 1.17487 at t = 2.46 s; only 7 of 2006 reports above 1.05, all in the first 3.5 s — interFoam's expected one-step-lag overshoot during initial acceleration, not drift.
+
+**So `maxCo = 1.0` cures it and the 36-hour run is not doomed — and it is also not a 36-hour run.** **The lane's own caveat, which I keep rather than discard: it stopped at t = 49.64 s and DID NOT REACH R1's death time of t = 69.** Survival to `endTime` is **not demonstrated**, only strongly indicated.
+
+#### THE PROBE CAUGHT AN ERROR OF MINE THAT WOULD HAVE DESTROYED THE RUN
+
+**I proposed shortening `endTime` as a cost lever, in my own brief, and I was WRONG.** My arithmetic — and the draft's — compared the residual at t = 500 against the plateau tolerance and concluded there was slack. **The plateau clause's FIRST sample sits at `endTime/2` and therefore MOVES DOWN when `endTime` is shortened.** With τ = **33.7476 s**, derived independently by solving `√ν₁·cot(2k₁) + √ν₂·cot(2k₂) = 0` rather than by accepting the draft's 33.6:
+
+| `endTime` | first sample | `exp(−t/τ)` | vs frozen 1e-6 |
+|---|---|---|---|
+| 1000 | 500 | 3.68e-7 | **OK** |
+| 928 | 464 | 1.07e-6 | **FAILS** |
+| 600 | 300 | 1.38e-4 | **FAILS BY 138×** |
+
+**Minimum `endTime` under the registered `writeInterval = endTime/2` structure is 932.5 s — a 6.75 % saving, not worth touching a registered quantity for.** Had my suggestion been taken to 600 s, the plateau sample would have been **138× over tolerance**, the comparator would have **refused**, and the item would have been **`NOT A RESULT`** — a 12-hour run destroyed by a cost optimisation. **`endTime` stays 1000 and the amendment records WHY, so no future reader repeats it.**
+
+**THIS IS THE FIFTH ERROR OF MINE A LANE HAS CAUGHT TODAY AND THE FIRST THAT WOULD HAVE COST COMPUTE.** The others were screens and a misread log. **The pattern is consistent and I state it plainly: I reason correctly about the physics and carelessly about the machinery that measures it.** The probe existed because I distrusted a cost estimate; **it repaid that by catching a different error entirely**, which is the argument for bounded measurement over confident inference in general.
+
+#### THE ONE REQUIREMENT I IMPOSE BEFORE THE FREEZE
+
+The probe found that with an x-invariant initial condition and x-invariant forcing, **the discrete problem preserves x-invariance BIT-EXACTLY.** Excellent for stability — and it raises a real question the registration does not anticipate: **is outcome 4's detector (`check_alpha_stationary` / `check_x_invariance`) STRUCTURALLY CAPABLE OF FIRING at all**, if the instability it hunts can never be seeded? **A guard seen only to pass is unproven.**
+
+> **REQUIREMENT: the detector must be DRIVEN TO A REFUSAL against R1's REAL diverged data before the freeze commit** — R1's own bytes, whose log records alpha at −2.37e23 and interface Courant 141.7; or, since R1 wrote no field directory, a sized plant written **to disk** and read back through the **production** reader per rule 3. **If it cannot be made to fire, the case does NOT freeze and comes back to me** — that would mean outcome 4 is undetectable and the registration needs rethinking.
+
+**The lane raised this against its own favourable result.** It had every reason to report "stable, freeze it" and instead flagged the way its own good news weakens a guard. **That is the behaviour this family wants and I am recording it as such.**
+
+#### RULE 2 CONDITION — CHECKED BY ME AT 2026-08-30T23:33:18Z
+
+`verification/runs/ansys_verification/VMFL069-R2/` **DOES NOT EXIST**; **0** VMFL069-R2 artefacts anywhere on the box outside the case directory; **0** register rows; **0** solver logs or time directories under the case directory. **The probe left the repository untouched** — its entire tree is in scratch. **The amendment is legal pre-compute, and the lane re-verifies all of it with its own timestamp rather than citing mine.**
+
+#### STATE
+
+**Live.** Runner pid 881; box busy with peer work. One lane: R2 amendment → freeze → enqueue.
+
+**FREEZE-AHEAD will be 1 when that lands**, still under Sanaa's floor of 3 — but it will be **1 real, queued, `PASS`-capable item with a MEASURED cost basis**, which is worth more than three frozen on transferred estimates. **And it will be committed at queue top level, so it survives every agent in this session dying** (§11.4).
+
+**Next.** (1) Read the detector-refusal evidence and the freeze diff personally. (2) Confirm the entry is committed and the runner sees it. (3) The `LESSONS` entry for the manual-wide emissivity absence is still owed. (4) A cell-by-cell re-read of the register before this team quotes any total again.
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index and the rule-4 referral.
+
+**VERIFY:** survival past t = 69 and to `endTime`; L2/L3 per-step cost; whether the detector can be made to fire.
+
+
 ### 2026-08-30T23:3xZ — **VMFL069-R2 DRAFTED AND GATE-VERIFIED BY ME, BUT I WILL NOT FREEZE A 36-CORE-HOUR RUN ON A BASIS ITS OWN AUTHOR CALLS CONTAMINATED — a bounded 3-core-min PROBE goes first. AND VMFL061 IS RULED OUT ON THE ARCHIVE'S OWN EVIDENCE, WHICH RETIRES THE RADIATION CLASS.**
 
 **Written by `ansys-verification-supervisor` personally.**
