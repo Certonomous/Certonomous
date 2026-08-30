@@ -4797,3 +4797,116 @@ defect, and the case is **register row #37 `NOT A RESULT`** (single-grid slate, 
 `grade_vmfl007_r2.py` blob `0d29d3b8`. Observed by `ansys-lane-opus48` (lane B) 2026-08-27; landed
 on the supervisor's Ruling 2 of the same day, scoped hard as a single-case observation. Companion
 to **N-AV12** (VMFL007 run 1: a normalised residual is blind to coherent divergence).
+
+## N-C7. An OpenFOAM `fvOptions` source can be silently divided by the cell-zone volume — `volumeMode` is a REQUIRED entry whose two values change what your number MEANS, and the wrong one converges to a smooth, plausible, entirely wrong answer
+
+**Class: CONVERGED-BUT-WRONG.** There is no crash, no warning, no residual signature, and
+**every clause of CLAUDE.md rule 4's completion rule is satisfied.** Applies to any team
+using `fvOptions` `semiImplicitSource` in any of its five typed forms
+(`scalar`/`vector`/`sphericalTensor`/`symmTensor`/`tensor`SemiImplicitSource). Measured in
+**OpenFOAM v2606 on this box**, by reading the source rather than trusting a units string.
+
+### ESTABLISHED — what the v2606 source does
+
+In `/usr/lib/openfoam/openfoam2606/src/fvOptions/sources/general/semiImplicitSource/SemiImplicitSource.C`:
+
+| line | what it does |
+|---|---|
+| `:534` | `volumeModeTypeNames_.get("volumeMode", coeffs_)` — a **`get`**, so `volumeMode` is a **REQUIRED** dictionary entry, not a defaulted lookup |
+| `:537-540` | mode **`absolute`** sets `VDash_ = V_`, the **cell-zone volume**; mode **`specific`** leaves `VDash_ = 1` |
+| `:348`, `:357`, `:367` | the supplied value is **DIVIDED by `VDash_`** |
+| `:224` | the class constructor's own default member value is **`vmAbsolute`** |
+
+So **the same number means two different things**: a **TOTAL over the zone** under
+`absolute` (units of the quantity itself — N, W), and a **PER-UNIT-VOLUME DENSITY** under
+`specific` (N/m^3, W/m^3). A source written as a density and run under `absolute` is
+under-applied by the zone volume.
+
+**Magnitude, on the case that found this** (`F28`, a ducted actuator disk on a 5-degree
+axisymmetric wedge): the disk cellZone is **~5.9e-4 m^3**, so the momentum source would
+have been under-applied by **three to four orders of magnitude**. The case would still
+mesh, still run, still converge to residuals below 1e-6, and still produce a smooth,
+monotone, internally self-consistent thrust-vs-airspeed map. Nothing downstream of the
+solver could have caught it.
+
+**Aggravating factor on axisymmetric wedges.** `specific` is **WEDGE-INVARIANT** — a
+per-unit-volume density is the same number at any wedge angle. `absolute` is not: it must
+be rescaled by the wedge fraction, which for a 5-degree wedge is a further silent factor
+of **72** (`360/5`). A wedge case therefore has two independent volume-scaling errors
+available to it, and `specific` removes one of them by construction.
+
+**Neither mode is "the right one".** `absolute` is correct when the registered quantity is
+a total — a heat source of *N watts into a zone* is naturally `absolute`. `specific` is
+correct when the registered quantity is a density. **The defect is not choosing `absolute`;
+it is leaving the mode unstated in the frozen dictionary while writing the value in the
+other convention's units.**
+
+### ESTABLISHED — the repository's actual exposure, measured 2026-08-30
+
+Swept on disk (not via `git ls-files`, which reads the poisoned index and lies; and not
+via `grep -r`, which is `ugrep` here and skips ignored files):
+
+| measure | count |
+|---|---|
+| `fvOptions` dictionaries on disk (`Certonomous` + `certonomous-runs`) | **319** |
+| of those, using a `semiImplicitSource` (the only exposed type) | **36** |
+| using some other source type — **not exposed by this hazard** | **283** |
+| **omitting `volumeMode` (would take the `vmAbsolute` default)** | **0** |
+| stating `volumeMode specific` | **32** |
+| stating `volumeMode absolute` | **4** |
+
+**THE ZERO IS PLANTED, NOT ASSUMED** (CLAUDE.md rule 3). A synthetic `fvOptions`
+dictionary carrying a `vectorSemiImplicitSource` and **no** `volumeMode` was written and
+read back through the same reader, which flagged it; the negative arm — the same file with
+`volumeMode specific` added — was correctly not flagged. **The reader was shown able to see
+a non-zero before its zero was believed.**
+
+The **4 `absolute`** dictionaries are all `scalarSemiImplicitSource` **heat** sources in the
+thermal families (`THERMAL_K0_runs/K0a_heated_box_source`, `F14-cooling-ladder`
+`K0c_runs/C3_Ra1e5_m64_source`, `K2b_runs/K2bP_C3_plant`, `KV1_runs/KV1a_duct_source`),
+where the registered quantity is a **total wattage** and `absolute` is therefore the
+**correct** mode. One of them states the reason in its own comment: *"volumeMode absolute
+=> the value is the TOTAL over the selected cells."* **These are not defects and are not
+reported as such.**
+
+### INFERRED, NOT ESTABLISHED — and the distinction is the point
+
+- That **other cases could be affected** is an inference from the mechanism, not an
+  observation. **On this measurement, none in this repository is: the omission count is 0.**
+- **No run of this lab is known to be wrong** because of this, and **no re-grade is implied
+  by this entry.** The sweep above establishes that the entry is a **preventive** record,
+  not a defect report.
+- The sweep covers `Certonomous` and `certonomous-runs`. It **does not** cover any case
+  built after 2026-08-30, and it cannot: the hazard is in what a future author writes.
+
+### THE REMEDY IS A CONTROL, NOT CARE
+
+A units convention that is right in one mode and catastrophically wrong in the other cannot
+be defended by remembering it — that is rule 14's shape (*a lesson is not applied until
+every call site asserts it*), and *"be careful"* has no call sites.
+
+1. **State `volumeMode` explicitly in every frozen `fvOptions`.** It is already required by
+   the parser; stating it makes the *units convention* visible to a human reader of the
+   frozen file, which is the actual failure surface.
+2. **Prove the source magnitude through the REAL production path.** A planted control that
+   computes the imposed quantity **two independent ways** — once analytically from the
+   registered inputs, once integrated from the solved fields with every geometric scale
+   factor applied — and **refuses** on disagreement. One computation cannot catch a scale
+   error, because a scale error is invisible to the thing it scaled.
+3. **Then a NEGATIVE LIMB: deliberately mis-set the source by a known factor and require
+   the control to REFUSE.** A control that has never been shown able to fail has certified
+   nothing (Sanaa's control-birth directive, 2026-08-28; the birth requirement of rule 3).
+
+### Provenance
+
+Found by **cfd** while drafting
+`verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md`, whose §2.4 registers
+`volumeMode specific;` verbatim and whose §6 registers the two-way control and its negative
+limb. The directive being implemented
+(`etc/sessions/2026-08-30T2300Z_sanaa_four_new_case_families.md` §2.3) specified the source
+in `N/m^3`, which is correct **only** under `specific` — the units in a brief are a
+convention, and the convention is not in the brief. Source lines read on this box at
+v2606; exposure sweep and planted control run 2026-08-30 by a `lab-lane`, landed on
+`cfd-supervisor`'s ruling of the same day.
+
+**Lines whose number changed above this section: 0.**
