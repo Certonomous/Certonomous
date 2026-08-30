@@ -1,0 +1,102 @@
+{
+  "birth_requirement": "Sanaa 2026-08-28T17:01Z, implemented as a REFUSAL CONDITION: this instrument grades nothing until the real producer has written the fixtures and the defect has been observed firing on them.",
+  "graded_dir_sha256_match": true,
+  "graded_singleton": {
+    "T_wedgeSurface.raw": {
+      "bytes": 8065,
+      "equal": true,
+      "original": "6de8c94c9bc694f2e4162c047c98cf4542edb69f88ed1d3ac67d78c3550a6191",
+      "retained": "6de8c94c9bc694f2e4162c047c98cf4542edb69f88ed1d3ac67d78c3550a6191"
+    },
+    "p_wedgeSurface.raw": {
+      "bytes": 8070,
+      "equal": true,
+      "original": "33cc24a11e0cbe5aad5df1ec1aa7ae16781eb371a916a2b6dd528376602694e6",
+      "retained": "33cc24a11e0cbe5aad5df1ec1aa7ae16781eb371a916a2b6dd528376602694e6"
+    },
+    "rho_wedgeSurface.raw": {
+      "bytes": 8071,
+      "equal": true,
+      "original": "22adfd76d85d4dbef5c77a13cbdbafc7e03ae5d3a77bedc38a8d60f2e6c6ebcf",
+      "retained": "22adfd76d85d4dbef5c77a13cbdbafc7e03ae5d3a77bedc38a8d60f2e6c6ebcf"
+    }
+  },
+  "invocations": [
+    {
+      "command": "postProcess -func surfaceSampleDict -latestTime",
+      "dict_mtime": 1787938956.5733624,
+      "end_line": true,
+      "exec_line": "Exec   : postProcess -func surfaceSampleDict -latestTime",
+      "log": "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/log.surfsample_ramp",
+      "mtimes": {
+        "T_ramp.raw": 1787938957.1787896,
+        "p_ramp.raw": 1787938957.1795394,
+        "rho_ramp.raw": 1787938957.1797898
+      },
+      "newer_than_dict": true,
+      "old_predicate": [
+        "T_ramp.raw",
+        "p_ramp.raw",
+        "rho_ramp.raw"
+      ],
+      "rc": 0,
+      "retained_raw": [
+        "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/T_ramp.raw",
+        "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/p_ramp.raw",
+        "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/rho_ramp.raw"
+      ],
+      "sample_dir_in_scratch": "/tmp/br1_f3s_y4qol_k9/case_ramp/postProcessing/surfaceSampleDict/3.11989651",
+      "surface": "ramp",
+      "wall_s": 0.6225,
+      "wrote": [
+        "T_ramp.raw",
+        "p_ramp.raw",
+        "rho_ramp.raw"
+      ]
+    },
+    {
+      "command": "postProcess -func surfaceSampleDict -latestTime",
+      "dict_mtime": 1787938957.2015848,
+      "end_line": true,
+      "exec_line": "Exec   : postProcess -func surfaceSampleDict -latestTime",
+      "log": "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/log.surfsample_rgh_wedgeSurface",
+      "mtimes": {
+        "T_rgh_wedgeSurface.raw": 1787938957.6827927,
+        "p_rgh_wedgeSurface.raw": 1787938957.6837928,
+        "rho_rgh_wedgeSurface.raw": 1787938957.6837928
+      },
+      "newer_than_dict": true,
+      "rc": 0,
+      "retained_raw": [
+        "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/T_rgh_wedgeSurface.raw",
+        "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/p_rgh_wedgeSurface.raw",
+        "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts/rho_rgh_wedgeSurface.raw"
+      ],
+      "sample_dir_in_scratch": "/tmp/br1_f3s_y4qol_k9/case_rgh_wedgeSurface/postProcessing/surfaceSampleDict/3.11989651",
+      "surface": "rgh_wedgeSurface",
+      "wall_s": 0.5004,
+      "wrote": [
+        "T_rgh_wedgeSurface.raw",
+        "p_rgh_wedgeSurface.raw",
+        "rho_rgh_wedgeSurface.raw"
+      ]
+    }
+  ],
+  "note": "NO .raw FILE HERE WAS HAND-WRITTEN AND NONE WAS RENAMED. Every basename is the one OpenFOAM chose: p_ramp.raw and T_ramp.raw come from a surface named `ramp`, and p_rgh_wedgeSurface.raw comes from a surface named `rgh_wedgeSurface` -- so the two-member fixture C1 reads is a pair the PRODUCER emitted, not a copy renamed to look like one.",
+  "old_predicate_first_element": "T_ramp.raw",
+  "old_predicate_full": [
+    "T_ramp.raw",
+    "p_ramp.raw",
+    "rho_ramp.raw"
+  ],
+  "old_predicate_len": 3,
+  "producer": "OpenFOAM v2606, `postProcess -func surfaceSampleDict -latestTime` -- the command run_f3s.py:253 runs",
+  "reader": "select_one() in this successor's grade_f3s.py and run_f3s.py, reached from read_p_wall_mean() -- the production reader",
+  "retained_artifacts": "verification/runs/F3_runs/successor_selector_2026-08-28/BR1_producer_artifacts",
+  "source_case": "verification/runs/F3_runs/successor_triple_2026-08-26/runs/wedge/M2.5_th10/fine",
+  "transcript": [
+    "ramp               postProcess -func surfaceSampleDict -latestTime -> rc=0 End=True wall=0.623s wrote ['T_ramp.raw', 'p_ramp.raw', 'rho_ramp.raw']",
+    "rgh_wedgeSurface   postProcess -func surfaceSampleDict -latestTime -> rc=0 End=True wall=0.500s wrote ['T_rgh_wedgeSurface.raw', 'p_rgh_wedgeSurface.raw', 'rho_rgh_wedgeSurface.raw']"
+  ],
+  "wall_s": 1.1362
+}
