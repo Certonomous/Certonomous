@@ -4024,9 +4024,87 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-28T17:48:23Z by dafoam-supervisor (NINETEENTH session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-30T22:46:27Z by dafoam-supervisor (TWENTIETH session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-20a — **⚠⚠ TWO PREMISES OF MY OWN ASSIGNING BRIEF ARE FALSE AND I ESTABLISHED BOTH BEFORE ACTING ON EITHER: `D6R` DID **NOT** DIE WITH THE BOX — IT RAN TO ITS OWN CHAIN END 12 h EARLIER AND STOPPED ON AN ARM THAT HIT A 360-SECOND DEADLINE; AND THE `AVWC` RE-GRADE DID NOT DIE IN FLIGHT — IT **COMPLETED**, AND ITS RESULTS HAVE BEEN SITTING UNCOMMITTED ON DISK FOR TWO DAYS** (2026-08-30T22:46:27Z, `date -u` at write)
+
+**TWENTIETH session. The box rebooted at 2026-08-30T22:33:32Z after ~32 h off. Nothing in this family was running when I picked it up, and nothing in this family had been running since 2026-08-29T02:00:26Z.**
+
+##### 1. ⚠⚠ CORRECTION 1: `D6R` COMPLETED ITS CHAIN. THE 429 KILLED THE WATCHER, NOT THE RUN
+
+My brief said D6R "died with the box" and told me to establish whether it was complete, partial, or needed re-running. **It is none of those three descriptions as the brief framed them.** `CHAIN_DONE` was written at **2026-08-29T02:00:26Z** — roughly **twelve hours before** the box went off, and about eight hours after the 429 killed the fleet. **Sanaa's rule that a dead watcher never voids physics is not an argument I had to make here; the run simply outlived the agent watching it.**
+
+| arm | rc | wall s | ranks | core-min | cap core-min | verdict on the arm |
+|---|---|---|---|---|---|---|
+| `O_mp` (PATCHED) | **0** | 33,869 | 4 | **2,257.933** | 2,900.0 | ran to its own end, **under cap** |
+| `ACC_mp` (PATCHED) | **124** | 363 | 4 | **24.2** | 30.0 | **killed by `timeout` at its own 360 s in-container deadline** |
+| `F_mp`, `REF_off` | — | — | — | — | — | **NEVER RAN** — chain stopped at first non-zero |
+
+**`rc=124` is `timeout`'s exit code, and `container_wall_s=363` against `enforced_wall_s=360` says exactly what happened: the ACC arm was cut off three seconds past its own deadline.** `oomkilled` is **false** on both arms and `MemAvailable` never went below 27.9 GiB, so **memory is excluded as a cause on measured evidence, not by assumption.** Total D6R spend on the night: **2,282.133 core-min = 38.04 core-hours**, **$1.951 DERIVED** at $0.0513/core-h — `cost_basis` REPORTED-BY-OWNER **NOT MEASURED**, the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**THE QUESTION THAT DECIDES THE VERDICT IS NOT "DID IT CRASH" — IT IS "COULD 360 SECONDS EVER HAVE BEEN ENOUGH".** If the ACC arm could not have finished inside its registered deadline, this is a **registration defect and a finding**, not a run that failed; if it could have, it is a stall and a different finding. **I have NOT ruled it and I will not rule it from the ledger alone.** A read-only triage lane is establishing it from the arm's own log rate against its own deadline. **This is my check 2 and the ruling is mine personally; the lane gathers, I rule.** Provisionally `PENDING` — and `PENDING` here means *not yet graded*, never a softened `GATE FAIL`.
+
+**The predecessor's shape is the thing to watch:** D6 was ruled `NOT A RESULT` because its grader **refused, exit 2, with ZERO gate readings** on precisely this state — the registration registers a chain stop as a finding and the instrument cannot grade that state (`D6-GRADER-DEF-1`). **If D6R's grader carries the same defect, then O_mp's 2,257.933 core-min of real optimisation is sitting behind an instrument that cannot read it, and that is a far more expensive fact than a timed-out 24-core-min arm.**
+
+##### 2. ⚠⚠ CORRECTION 2: `AVWC` RAN. THE SWEEP'S MOVE 3 OF 7 HAS BEEN COMPLETE AND UNLANDED SINCE 2026-08-28T17:48Z
+
+My brief listed the AV1R re-grade as "in flight". **It is not in flight; it finished.** `AVWC_regrade.json` and `AVWC_full_grades.json` are on disk in `cases/dafoam/ladder-a/A1/curriculum_AVWC/`, **untracked**, written 45 and 87 seconds after the freeze commit. **The 429 landed between execution and landing, which is the most expensive place it could have landed: the compute was spent, the answer was produced, and nobody could see it.**
+
+**MY CHECK 4, PERFORMED PERSONALLY, WITH THE MARGIN MEASURED RATHER THAN ASSERTED.** The freeze commit `c85eb4df` is stamped **2026-08-28T17:47:02Z**. The outputs are stamped **17:47:23.74Z** (selftest evidence), **17:47:24.51Z** (`AVWC_regrade.json`) and **17:48:06.80Z** (`AVWC_full_grades.json`). **Every output postdates the freeze; the margin is 22 seconds.** And the frozen files did not drift: `PREREGISTRATION.md` md5 `81d120a7…`, `avwc_grade.py` `6e390f8f…`, `avwc_reader.py` `1a7f3f21…` are **identical across disk, the `c85eb4df` blob and the HEAD blob**. Rule 2's "verify the frozen file **is** the file that ran" is satisfied by hashing, by me.
+
+**THE THREE VERDICTS.** Zero solver compute — nothing meshed, nothing solved, no container.
+
+| item | original verdict and refusal | re-graded verdict | repairs |
+|---|---|---|---|
+| **`AV1`** | `NOT A RESULT` — `G1 age_reference_absent .../X1-S/0/U` | **`PASS`** | {DATUM, PARTITION} |
+| **`AV1R`** | `NOT A RESULT` — `G-NP partition_cells [null, null] sum 0 vs mesh_cells 4032` | **`PASS`** | {PARTITION} |
+| **`AV2`** | `NOT A RESULT` — `G1 age_reference_absent .../X-S/0/U` | **`NOT A RESULT`** — refusal **MOVED** to `G-DP`, `gmresRelTol_in_artefact: null` against registered 1e-06 | {DATUM} |
+
+**AV2's moved refusal is the registered branch working exactly as written** — the pre-registration says that a repaired item refusing on a *different* clause has that refusal reported as the verdict and **not** repaired here. **A `NOT A RESULT` that stays `NOT A RESULT` is a result and is reported as one.**
+
+##### 3. ⚠⚠⚠ MY CHECK 3 — TWO OF THREE MOVED TO `PASS`, WHICH IS THE FLATTERING DIRECTION, AND THAT IS EXACTLY WHERE BIAS ENTERS
+
+**When I dispatched this sweep I warned, against my own exercise, that a repaired false-negative reader can only move a verdict in the flattering direction.** Move 1 (`SO1a`) and move 2 (`D18`) both went *against* flattery, which was reassuring. **Move 3 does not, and so it gets the harder look.** I did the code sweep myself rather than accept the lane's evidence file, because an evidence file is written by the instrument it vouches for.
+
+**FIRST — THE PASSES ARE NOT VACUOUS. THEY CARRY REAL NUMBERS AGAINST A REAL BAND.** AV1 `G-NP_SHIPPED` at np = 2 reads `J_ref` = **0.02091051000679216** against `J_np` = **0.0209105098587985**, a relative spread of **7.077477422391519e-09** against a band of **2.2e-05** — a `PASS` with **three and a half orders of margin**, not an empty gate. Both rows carry it: **SHIPPED `PASS` and PATCHED `PASS`** on both AV1 and AV1R, which is what a DAFoam verdict has to be or it is not a verdict about DAFoam.
+
+**SECOND — AND THIS IS THE STRONGEST SINGLE FACT: `AV1R` REBINDS NOTHING.** `names_rebound = []`. Its frozen grader ran **entirely unmodified**; the only change is that the *producer's* own reader recovered `nCells` from `owner.gz` into a **copy**. **A `PASS` produced by wholly untouched frozen code cannot have been manufactured by touching the code.** AV1 rebinds exactly one name, `arm_datum`, and it is a datum-*resolution* helper — **no band, threshold, composition rule or refusal clause is reachable from it**, and the replacement raises the **frozen module's own `refuse`** and takes its reference name from the **frozen module's own `DATUM_REF`**, so the successor cannot quietly re-register a different reference.
+
+**THIRD — THE INSTRUMENT IS DEMONSTRABLY ABLE TO REFUSE, AND `U5` IS THE UNIT THAT PROVES IT ON THE REAL PATH WITHOUT ANY PLANT AT ALL:** AV1 with the **DATUM repair alone** still returns `NOT A RESULT`, on a *different* refusal. A partial repair still refuses. **Then five plants drive the must-flag direction on real files** — both datum names deleted; the compressed twin's mtime set 100 s *older* than the datum; an uncompressed `0/U` planted beside the real `0/U.gz` with a wrong mtime; `owner.gz` deleted from a processor; and **`nCells` rewritten inside the real gzip so the sum moves off 4032** — and each is asserted to produce `NOT A RESULT` **AND** a named refusal clause, not merely a non-`PASS`. **20 of 20 units under both `python3` and `python3 -O`**, against an `EXPECTED_UNITS = 20` frozen before execution, with **zero `assert` statements** so `-O` cannot strip a single check.
+
+**FOURTH — I READ THE UNIT HARNESS ITSELF, because a battery that counts its own successes is worth nothing if it cannot record a failure.** `unit()` appends to `fails` on a false condition and the selftest returns **2** if `fails` is non-empty *or* if the count differs from the frozen `EXPECTED_UNITS`. **A silently-skipped unit is caught by the count and a failed unit is caught by the list.**
+
+**FIFTH — PRESERVED ROOTS WERE NOT MUTATED, PROVED BY md5 MANIFEST OVER EVERY REGULAR FILE, READ FROM THE DISK AND NOT FROM GIT** (a run root is not in git, so a git-based cleanliness check is blind to exactly the thing being protected): AV1 **754 files**, AV1R **755**, AV2 **378**, `root_manifest_identical = true` on all three.
+
+**THE ONE RESIDUAL I OWE, NAMED RATHER THAN BURIED.** `repair_partition_in_copy()` **writes into the copy's artefact** — it supplies the field the producer failed to write. That is the single place in this instrument where laundering could live. Its defence is real and driven: the recovered sum is checked against **`mesh_cells`, an independently recorded datum from the grader's own artefact**, and a **±1 perturbation inside the real gzip makes the frozen grader refuse**. A second, narrower residual: the rebind audit fingerprints callables by `id()`, which detects **rebinding** but would not see a function object mutated in place. **Theoretical, not demonstrated, and recorded so a successor can close it.**
+
+**MY POSITION: CHECK 1 APPROVED AND CHECK 3 SUBSTANTIALLY SATISFIED ON MY OWN READING — AND STILL NOT LANDED**, because an independent re-run after the reboot is owed and a lane is doing it. **The results were produced on working copies under the SCRATCHPAD, which rule 13 forbids as a handoff channel and which the reboot has probably destroyed; the outputs survived only because they were written into the case directory.** That is L-186 charging this family a second time in a week, and it is the reason the re-run is not optional.
+
+##### 4. THE TOOLCHAIN SURVIVED THE REBOOT AND I VERIFIED IT BY **HASH**, NOT BY VERSION STRING
+
+All six DAFoam images are present, and **`dafoam-idwarp-rot:v1` inspects to `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35`, byte-identical to the digest `D6R`'s own ledger recorded on the night it ran.** The charter's §11 identity rule is that **the hash is the identity and the version string is not**; there is no such thing as "the fixed toolchain", so this is the only form in which "the toolchain survived" means anything. Also carried: `dafoam-team:v1`, `dafoam-kspopts:v1` (this family's `KSPSetFromOptions` ordering fix), `dafoam-subpclu:v1`/`v2`, `dafoam/opt-packages:latest`.
+
+**A SMALL OPERATIONAL FACT WORTH BOARDING SO THE NEXT SESSION DOES NOT MISREAD IT AS A BLOCKER:** a bare `docker` command fails with *permission denied on the socket*, and it always has — **the `docker` group is EMPTY (`docker:x:113:`) and `ubuntu` is not in it.** Every launcher in this family goes through **`sudo -n docker`**. Docker is `active`, the socket is present, and container work is **not** blocked. **A capability that looks broken because it was probed the wrong way is worth one line on the board.**
+
+##### 5. THE GPU, AND WHAT THE BOX IS DOING
+
+**The GPU instance is unreachable — stopped.** My 2026-08-28 stop recommendation appears to have been taken. **I claim nothing from that**: I do not have Sanaa's word for it and a stopped instance is not a ruling. The measured `NO` behind that recommendation is unchanged and does not depend on the outcome — **`g6.xlarge` is 4 vCPU / 15 GiB against this family's registered per-arm floors of 18.0 GiB, so the card's host is smaller than our own frozen registrations require, whatever anyone decides about the instance.**
+
+**The queue runner is alive** (pid 881, `--daemon`, up from the boot at 22:34), which matters because Sanaa's 2026-08-26 ruling makes queues OS daemons independent of agents. **dafoam queue depth 0 and no solver of ours is running.** **The box is carrying no dafoam solver load at all, and idle compute is a failure** — the item that would honestly fill it is `W3`, and it cannot launch until its comparator's `trapFpe`-banner defect is repaired and re-frozen. That is the next registration, not the next launch.
+
+##### 6. WHAT IS DISPATCHED, WHAT IS OWED, AND WHAT I AM NOT CLAIMING
+
+**Three lanes live, at the §8 cap of 3:** the AVWC landing (independent post-reboot re-run, the must-flag evidence, the AV2 `G-DP` diagnosis, `RESULTS.md`, dated amendments appended to AV1/AV2/AV1R rather than edits, calibration rows, commit); the D6R read-only triage described in §1; and the `AV2R` root-cause lane, which is asked to test rather than assume this family's recorded claim that `AV2R` is "a producer-side reader defect with the values provably correct on disk" — **it may be false, and the honest third answer is that the tolerance was never recorded and the refusal is final.**
+
+**`AV2` AND `AV2R` NOW REFUSE ON THE SAME CLAUSE FROM TWO SEPARATE RUN ROOTS WITH THE SAME `gmresRelTol_in_artefact: null`.** Two items, two roots, one refusal — **that is a second witness, and it makes a one-arm accident very unlikely.** It also means the sweep's remaining AV work is **one root cause, two casualties**, the same shape AVWC just closed.
+
+**Owed and NOT claimed done:** the D6R ruling (mine, pending the triage); the AVWC landing; `AV2RG` frozen but **not executed** — I hold that pre-compute gate personally; the `W3` re-run registration with its own costed pre-registration (~560 core-min ≈ $0.479 DERIVED); `SO1bR` still **unbuilt**; and **`SO2a`'s `G-ROOT.5` container legs are now UNBLOCKED** — the lane declined to start a sacrificial container only because D6R held 4 ranks, and D6R has held nothing since 2026-08-29T02:00Z. **Driving those legs is a pre-enqueue requirement and I still hold it.**
+
+**The re-grade sweep, Sanaa's directive 2, stands at 3 of 7 moved** — `SO1a` refusal → `GATE FAIL`(split), `D18` `P7` `MISS` → `HIT`, and `AVWC` (`AV1`, `AV1R` → `PASS`; `AV2` → `NOT A RESULT` on a moved clause) **pending its landing commit**. **I am not counting AVWC as landed until it is committed; a result on disk that no reader can find is the failure mode this whole session opened with.**
+
+**VERIFY** — everything in §1 attributed to the triage lane is my reading of the ledger and `STATUS` files only, and the arm-log rate analysis that decides the D6R ruling is not yet in.
 
 ##### UPDATE S-19k — **⚠⚠ THE GPU IS HANDED BACK. THE ANSWER IS A MEASURED `NO`, AND THE DECISIVE BLOCKER IS NOT THE TOOLCHAIN — IT IS THAT THE CARD'S BOX IS SMALLER THAN THIS FAMILY'S REGISTERED MEMORY FLOORS. MY TWO REFUSALS NOW REST ON EVIDENCE RATHER THAN ON MY JUDGEMENT** (2026-08-28T17:48:23Z, `date -u` at write)
 
