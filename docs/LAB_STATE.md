@@ -8532,6 +8532,139 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+##### ADDENDUM 2026-08-30T23:39:08Z — **T16 IS `NOT A RESULT` ON VERIFICATION'S RULING, AND IT IS THIS TEAM'S CLEAN SPECIMEN OF A RUN THAT IS RULE-4 COMPLETE AND STILL NOT A RESULT. THE INSTRUMENT WORKED.**
+
+Written by a lab-lane. **No compute launched, nothing enqueued, no frozen file edited.** Every figure
+below was RE-DERIVED by this lane from the named artifact rather than transcribed from the brief;
+§4 boards the four places this lane's reading differs from the briefs it was handed.
+
+**THIS BLOCK IS A PURE INSERTION.** The worktree copy of this file was **98 lines BEHIND HEAD** and
+was missing dafoam's committed `UPDATE S-20b` block entirely; it was rebuilt FORWARD from
+`git show HEAD:` and no existing line was edited or deleted. **Zero deletions asserted at commit.**
+
+#### 1. VERDICT — **`NOT A RESULT`**, and the marking stands
+
+`T16_MC_f` completed 2026-08-29T14:13:00Z — **2 151.950 core-min**, `rc=0`, `capped=no`, age-guard
+minimum margin **+129 116.85 s** — and is `DONE`. The frozen `analyse_t16.py` (blob `9054d452`,
+hashed in the invocation that ran it, unchanged after) then **REFUSED at exit 2** on `C_ORDER`,
+whose consequence `T16_PREREGISTRATION.md:274` registers as *"1e−06; REFUSAL"*.
+**Verification ruled (b) at `df69751b`, `docs/DEAD_LEVER_AUDIT.md` §18: the REFERENT, not the
+threshold.** **`T16_MC_f` STAYS `DONE` — completion is a fact about the run, the verdict is a
+statement about the physics, and a rung can be rule-4 complete and still `NOT A RESULT`.**
+
+**VERDICT HISTORY, RECORDED HONESTLY.** The supervisor's `BLOCKED` was the correct **INTERIM** word
+while a ruling was outstanding — it said *blocked on a ruling* and it was — and it resolves to
+`NOT A RESULT` now the ruling is in. **Not an error and not a vindication: an interim state closed
+by the body that owns the vocabulary.** **Commit `634941bd`'s message asserts `BLOCKED` and is
+SUPERSEDED. It landed on parent `df69751b` — the very commit carrying the ruling — so it was already
+superseded as it landed. Disclosed here, never patched silently.**
+
+#### 2. THE DECIDING MEASUREMENT IS VERIFICATION'S, AND THIS LANE REPRODUCED IT
+
+Verification did the sharper thing: the linearity departure **Richardson-extrapolates to a NON-ZERO
+limit −7.15e−05 at observed order p = 1.404**, where a discretisation error extrapolates to **ZERO**.
+**Re-derived independently here and it reproduces**: from `T_slope_rel` = −8.600762974187e−05 /
+−7.699721052945e−05 / −7.362943368217e−05 at c/m/f, **p = 1.4198, limit −7.1619e−05, 71.62×** the
+1e−06 tolerance — within **1.1 %** on `p` and **0.17 %** on the limit. The small `p` gap is boarded,
+not smoothed. This team's prior argument was mere constancy across levels; **the Roache machinery
+turned on the residual itself is a cleaner separation of physics from numerics.**
+
+**CORROBORATED BY A WITNESS THE COMPARATOR NEVER REACHED:** `W1_T` = 1.204e−03 / 1.094e−03 /
+1.050e−03 against its **1e−06** floor — ~1050× over **and mesh-converged** — while `W1_g`, measured
+on the graded velocity reader, **PASSES on all three and converges at second order**.
+**THE VELOCITY FIELD IS DEVELOPED AND THE TEMPERATURE FIELD IS NOT.**
+
+**THE FALSIFIED PREMISE IS THE REGISTRATION'S, NOT THE SOLVER'S.** `T16_registered.json`
+`graded_rows.G2.grading` holds a linear `T` *"is an exact solution of the continuous problem for ANY
+velocity field"*. **False as written** — it requires the flow to be **THERMALLY** fully developed,
+not merely hydrodynamically developed; axial convection of enthalpy breaks linearity and at
+Pr = 0.71 the entry lengths differ.
+
+#### 3. THE INSTRUMENT WORKED — AND THAT IS THE ENTRY'S VALUE
+
+**T16 is NOT one of tonight's five broken controls.** `T15_UP_f` and `T3_R_ff` are `BLOCKED` because
+their INSTRUMENTS WERE DEFECTIVE. **T16 is `NOT A RESULT` because a registered control FIRED
+CORRECTLY ON REAL DATA and the ruling UPHELD it against the reading that would have rescued the
+rung.** After a night in which this team found five broken controls, the record must not flatten a
+working gate into that pile.
+
+**THE 1e−06 TOLERANCE MAY NOT BE RELAXED (§18.4 clause 2); repair path (a) is REFUSED in advance.**
+That vindicates declining the self-serving reading — *"the thresholds are too tight"* would have
+rescued the rung and was declined **on principle first and on evidence second**, before the ruling
+existed.
+
+#### 4. FOUR CORRECTIONS THIS LANE BOARDS RATHER THAN TRANSCRIBING
+
+1. **THE ORDER-OF-MAGNITUDE DISCREPANCY IS RECONCILED, NOT ADJUDICATED — BOTH FIGURES ARE RIGHT.**
+   The transposed-ordering signature is **exactly −1.000e+00**, re-derived from the comparator's own
+   transpose selftest arm (`:922`), not assumed. **(i) tolerance → signature = 6.000 orders** —
+   verification's *"six orders"*, which is **the GUARD'S MARGIN**; **(ii) measured → signature =
+   4.133 orders (13 582×)** — this team's *"~13 500×"*, **how far the OBSERVED value sits below the
+   hunted defect**; **(iii) tolerance → measured = 1.867 orders (73.6×)**. They answer different
+   questions. **Neither referral was wrong and neither is adopted over the other.**
+2. **THE LEDGER MAXIMUM IS `C-216`, NOT `C-212` OR `C-214`.** Both briefed figures are superseded;
+   re-derived from the tail in HEAD and worktree alike (110 bare + 105 starred openers = **215
+   distinct ids**). Next free **C-217**, itself provisional — **the maximum moved three times this
+   evening and must be re-derived in the same invocation as any append.**
+3. **`D574` ALREADY COVERS COMPARATORS AND ALREADY NAMES `analyse_t16.py`.** The brief framed the
+   selftest arm (viii) finding as *widening* D574 from markers to comparators; **D574's measured set
+   is nine COMPARATORS**. So **no new row was minted** — the C-179/C-170 duplicate lesson applied to
+   the docket. What is new is that **T16's DONE count in that row moves 2 → 3**, because this lane's
+   authorised marking flipped the arm.
+4. **THE BLINDNESS RELAY IS WIDER THAN THE RULING.** The brief relayed that T16 blindness is
+   DISCHARGED; **§18.4 clause 1 reads *"no graded value exists and none may be computed under this
+   registration"***. **The ruling is NARROWER. This lane computed no graded value and still has
+   not**, so nothing turns on it — referred rather than resolved here. **Blindness remains in force
+   for `T3_R_ff`**, whose §2d.1 ruling is outstanding. **The two must not be confused.**
+
+#### 5. T16b LANDED AND WAS USED — ZERO FROZEN BYTES CHANGED
+
+`docs/campaigns/T-family/T16b_PREREGISTRATION.md` + `mark_done_t16b.py` (blob `a536b2e1`), committed
+`634941bd`. The parent's D541 contrast limb **loaded ITSELF** after the A3/A9 promotion renamed the
+proposal onto the running basename: one visible FAIL, **two crash arms passing TAUTOLOGICALLY**, and
+a narration line printing *"the frozen matcher refuses the CLEAN case"* unconditionally, contradicting
+the measurement three lines above it. **Only the first was ever ruled on.** The successor loads
+`mark_done_t16.PRE_D541.py` by explicit path and **REFUSES (exit 2)** if it is absent or
+byte-identical to the running module. **The arm that does the real work registers `F(serial FPE
+crash) == F(clean run)` EXACTLY** — and it measured exactly that, both `['Floating point exception']`
+— **so the pre-repair matcher's refusal on a REAL CRASH is INDISTINGUISHABLE from its refusal on a
+CLEAN RUN. It fired on the banner, not the crash.** Four mutation controls prove the new limbs can
+fail; on a defect-free target the narration string occurs **zero** times. **38 ok / 0 FAIL**,
+byte-identical under `python3` and `-O`. **Marking cost 0.0071 core-min.**
+
+#### 6. SUCCESSOR `T16c` IS OWED — TWO INSTRUMENT FINDINGS REGISTERED, NOT FIXED
+
+`T16c` verified **FREE**. (1) **The refusal must NOT be published under `C_ORDER`'s
+transposed-ordering text** — the ordering is fine and the field IS the solution, so that text is a
+**FALSE DIAGNOSIS**; §18.4 clause 4 directs **splitting the clause** into an ordering guard sized to
+its O(1) signal, with a **planted** transposed control rather than an asserted one, and a separate
+profile-agreement gate with a referent valid in the station's actual regime. (2) **`W1_T` must be
+reachable BEFORE the ordering guard refuses** — the witness that produced this diagnosis was never
+reached because a different guard fired first. **A comparator whose most informative reader sits
+downstream of a guard that fires on physics will keep losing the diagnosis and reporting the wrong
+cause.** Same shape as `D576`. **NOT RULED and it is this team's:** whether the successor moves the
+station or changes the referent.
+
+#### 7. COST — EVERY ARM UNDER ITS OWN CAP
+
+Rung **2 387.767 core-min MEASURED** = **1.9691×** POINT 1 212.602; per level **0.7465 / 1.6812 /
+2.0242** against CAPs **40 / 300 / 2400** (0.3100 / 0.7447 / 0.8966 of cap), `capped=no` on all
+three. **NO OVERRUN OCCURRED AND NO STOP WAS OWED** — said plainly, because a refused rung invites
+the assumption that something ran over and nothing did. **USD $2.041545 rung / $1.839917 for `f` —
+DERIVED, NOT MEASURED** at $0.0513/core-h (`COMPUTE_BUDGET_CHARTER.md` §5). **Waste 0.000 core-min**,
+named separately. **`C-184`'s forward projection is now testable and both branches are wrong in
+opposite directions with the truth between them** — measured rate 7.8687e−06, actual 2 151.950
+against branch A's 1 772 (under 21.4 %) and branch B's 3 979 (over 84.9 %); rate growth per 4×
+cells fell 2.246× → 1.2128×, implied exponent 0.584 → 0.139. **Never extrapolate a ladder's fine
+level from a two-point rate fit; price it as a bracket and set the CAP above the ceiling.** The
+calibration row is **DRAFTED, NOT APPENDED**, at
+`verification/runs/T-family/T16_runs/COST_CALIBRATION_C217_DRAFT_ROW.txt`.
+
+**Docket rows this block lands with: D580 (the ruling and the referent finding) and D581 (the
+two-point-fit cost lesson).**
+
+**Stamp:** 2026-08-30T23:39:08Z by a heat-transfer `lab-lane`, `date -u` in the committing invocation.
+
 
 ##### ADDENDUM 2026-08-30T23:22:58Z — **`T3_R_ff` IS `BLOCKED`: THE RUN IS RULE-4 COMPLETE ON ALL SIX CONJUNCTS AND THE COMPARATOR REFUSED AT ITS OWN PLANTED-ZERO CONTROL BEFORE MEASURING ANYTHING. THE CONTROL IS DECIDED BY THE SIGN OF A SEVEN-ULP WIGGLE AND CONVERGENCE CANNOT WIN IT. PLUS ~2,624 core-min OF COMPLETED PHYSICS WITH NO RECORDED VERDICT; NINE COMPARATORS CARRYING A SELFTEST LIMB WHOSE TRUTH IS DESTROYED BY THE SUCCESS OF THE CAMPAIGN IT GUARDS — EIGHT ALREADY EXPIRED AND T19 THE LIVE CONTROL THAT HAS NOT EXPIRED YET; AND A DOZEN CORRECTIONS I MAKE AGAINST MY OWN DICTATION, INCLUDING A RETRACTED RATE-CONSTANT CLAIM, A MIS-NAMED INSTRUMENT FAMILY, AND MY CLAIM THAT D541's SECOND RULING WENT UNANSWERED — IT WAS ANSWERED ON 2026-08-27, AND THE REASON I BELIEVED OTHERWISE IS THAT THE DOCKET STILL READS AS OPEN WHERE THIS BOARD RECORDS IT CLOSED.**
 
