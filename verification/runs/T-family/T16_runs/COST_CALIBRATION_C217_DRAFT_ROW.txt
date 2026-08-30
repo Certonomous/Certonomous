@@ -1,0 +1,174 @@
+DRAFT COST_CALIBRATION ROW -- NOT COMMITTED, NOT APPENDED.
+Drafted 2026-08-30 by a heat-transfer lab-lane. docs/COST_CALIBRATION.md is held
+by another lane at drafting time and was NOT touched.
+
+ID: C-217.
+  RE-DERIVED FROM THE TAIL AS THE MAXIMUM, NOT A COUNT (rule 11), against
+  `git show HEAD:docs/COST_CALIBRATION.md` and against the worktree, with a
+  regex covering BOTH opener forms `| C-nnn` and `| **C-nnn**` (C-180's lesson:
+  a naive `^\| C-[0-9]+` misses the starred openers used from C-167 on).
+    rows opening `| C-nnn`     : 110
+    rows opening `| **C-nnn**` : 105
+    DISTINCT ids               : 215
+    MAXIMUM id                 : C-216   <- the authority
+    NEXT FREE                  : C-217
+  THE ASSIGNING BRIEF SAID THE MAXIMUM WAS C-212 AND THE NEXT FREE C-213.
+  THAT IS SUPERSEDED: C-213..C-216 landed while this lane worked. Rule 11
+  requires re-derivation IN THE SAME SHELL INVOCATION AS THE APPEND, so
+  C-217 IS ITSELF PROVISIONAL and must be re-derived again at append time.
+
+PROCESS GREP DONE FIRST, BEFORE THE ID (C-180's lesson: re-deriving a free id
+answers "is this NUMBER free?" and never "is this PROCESS already on the
+ledger?" -- a correct id derivation produced the C-179 duplicate anyway):
+  `T16_MC_f` appears in 4 rows of HEAD's ledger -- C-179, C-184, C-200, C-201.
+  NONE is a completion or actual row for level f:
+    C-179  level `c` row (itself withdrawn by C-180); mentions f in passing
+    C-184  level `m` row; carried a FORWARD PROJECTION for f, explicitly
+           labelled an estimate and not a measurement
+    C-200  T17_CY row; names f as concurrent load
+    C-201  T18_CU row; names f as concurrent load
+  THE PROCESS IS NOT ON THE LEDGER. A new row is legitimate.
+
+SCOPE: THIS IS A LEVEL ROW FOR `T16_MC_f`, NOT A RUNG-GRADED ROW.
+  The T16 rung is NOT graded. The frozen comparator `analyse_t16.py` (blob
+  9054d452) REFUSED at exit 2 on the C_ORDER precondition before any row was
+  produced. A rung-graded row is still owed and is NOT pre-empted here.
+
+----------------------------------------------------------------------------
+| C-217 | 2026-08-30 | heat-transfer |
+
+PROCESS. T16 level `f` (`T16_MC_f`) -- the FINE level of the T16 laminar
+mixed-convection rung in a vertical parallel-plate channel,
+`buoyantBoussinesqSimpleFoam`, serial (1 rank), 409 600 cells, `endTime`
+40 000. RAN TO COMPLETION AND IS `DONE` UNDER THE STRICT RULE. THE RUNG IS
+`PENDING` AND NO ROW OF IT IS GRADED HERE. Started 2026-08-28T02:21:03Z, ended
+2026-08-29T14:13:00Z (`STATUS.T16_MC_f`, `rc=0`, `capped=no`, `note=clean`).
+Every limb of rule 4 re-derived by this lane from the artifacts, not relayed:
+rc=0; an `End` line; last written time 40000 == `endTime` 40000; the rung's own
+registered field tuple `T U p_rgh phi` present at `40000/`; `ExecutionTime`
+count == `endTime`; and every field at `endTime` NEWER than the case's own
+`0/T` -- the age guard, minimum margin **+129 116.85 s** on `U` (T +129 117.40,
+p_rgh +129 116.98, phi +129 117.19). The verdict was NOT hand-judged: the
+marker was RUN and printed `DONE T16_MC_f` at exit 0, writing
+`DONE.T16_MC_f` at 2026-08-30 23:19:00Z with no `NOT MEASURED` and no
+`INFERENCE` annotation, i.e. the STATUS record was complete and rc was READ,
+not inferred.
+  MARKER PROVENANCE, DISCLOSED: the marker that ran is `mark_done_t16b.py`
+  (blob a536b2e1), the T16b SUCCESSOR registered at
+  `docs/campaigns/T-family/T16b_PREREGISTRATION.md`, NOT the frozen parent.
+  The frozen `mark_done_t16.py` is UNTOUCHED at its registered blob
+  `efcf78524dc4f853202cf24dd08c733d7742ac67` (worktree == HEAD, hashed in the
+  same invocation that ran the successor), as is
+  `mark_done_t16.PRE_D541.py` at `2ae1605c`. The successor differs from the
+  parent ONLY in the D541 selftest contrast limb; no gate, threshold, band,
+  cap, label, crash pattern, field tuple or physics conjunct moves.
+
+PREDICTED. **POINT 1 063.103 core-min**, registered **CEILING 1 603.994**,
+**CAP 2 400 core-min**, `timeout_s` 144 000, RANKS = 1 --
+`verification/runs/T-family/T16_runs/T16_registered.json`, `cases.T16_MC_f`,
+frozen with the pre-registration before compute. POINT basis: the registered
+rate `cost.rate_point_core_s_per_cell_it` = **3.8932e-06** core-s per
+cell-iteration on 409 600 cells x 40 000 iterations. **USD $0.909003 --
+DERIVED, NOT MEASURED** at $0.0513/core-h, owner-stated
+(`COMPUTE_BUDGET_CHARTER.md` §5: the box cannot read its own billing).
+CAP = $2.052000 derived.
+
+ACTUAL. **2 151.950 core-min MEASURED** from `STATUS.T16_MC_f`
+(`wall_s=129117` x `ranks=1` / 60), corroborated by the solver's own log tail:
+`ClockTime = 129117 s`, `ExecutionTime = 128921.18 s`. **USD $1.839917 --
+DERIVED, NOT MEASURED.**
+
+CLEANED. **2 151.950 -- gross == cleaned, AND THE 3 600-SECOND FIGURE IS
+ADDRESSED RATHER THAN PASSED OVER.** The wall 129 117 s is far above that
+number, so the row names the rule and shows it does not match:
+`scripts/self_audit.py::check_ledger_stalls` (`STALL_SECONDS = 3600.0`,
+`COMPUTE_BUDGET_CHARTER.md` §2) identifies stalls by cross-family wall-time
+CLUSTERING that no per-solver cost mechanism explains, not by threshold alone.
+Here **128 921.18 s of the 129 117 s wall (99.85 %) is solver-resident
+`ExecutionTime`** -- 40 000 SIMPLE iterations on 409 600 cells -- with 196 s of
+start-up and field I/O. There is nothing to clean.
+
+RATIO. **2.0242x** actual/POINT (2 151.950 / 1 063.103). Against the registered
+CEILING: **1.3417x** -- the ceiling was exceeded. Against the CAP: **0.8966x**.
+**NO OVERRUN: `capped=no`, wall 129 117 s of the registered `timeout_s`
+144 000; the run stopped at `endTime`, not at its cap, and no new budget was
+sought or taken.**
+  RUNG TOTALS, for the rung row that is still owed: actual
+  12.400 (c) + 223.417 (m) + 2 151.950 (f) = **2 387.767 core-min** against
+  POINT 16.611 + 132.888 + 1 063.103 = **1 212.602**, ratio **1.9691x**;
+  per-level 0.7465 / 1.6812 / 2.0242; fraction of CAP 0.3100 / 0.7447 / 0.8966.
+  **USD $2.041545 rung total -- DERIVED, NOT MEASURED** (39.7961 core-h).
+
+ATTRIBUTION. **C-184's FORWARD PROJECTION FOR THIS LEVEL IS NOW TESTABLE, AND
+BOTH OF ITS BRANCHES ARE WRONG IN OPPOSITE DIRECTIONS WITH THE TRUTH BETWEEN
+THEM. THAT IS THE CALIBRATION FINDING AND IT IS WORTH MORE THAN THE RATIO.**
+C-184 recorded, in writing and before this level ran, two branches:
+  (A) if the per-cell-iteration rate stopped growing and held at level `m`'s
+      measured 6.4883e-06, `MC_f` would cost **~1 772 core-min**;
+  (B) if the measured c->m scaling continued one more 4x step
+      (rate ~1.457e-05, from a two-point fit `rate ∝ cells^0.584`),
+      `MC_f` would cost **~3 979 core-min**, blow the 2 400 CAP and the
+      144 000-s timeout, stop at roughly 60 % of `endTime`, and be
+      `NOT A RESULT` under rule 5 clause (1).
+MEASURED: level `f`'s rate is **7.8687e-06 core-s per cell-iteration**
+(128 921.18 s / (409 600 x 40 000)). Actual **2 151.950 core-min**.
+  Branch A under-predicted by **21.4 %**; branch B over-predicted by **84.9 %**.
+  **BRANCH B DID NOT MATERIALISE: THE CAP WAS NOT REACHED (0.8966 of it), THE
+  TIMEOUT WAS NOT REACHED, AND THE LEVEL IS NOT `NOT A RESULT` ON COST.** A
+  written prediction of failure that did not come true is recorded here as
+  explicitly as one that does, and C-184 was right to refuse to let either
+  figure authorise a cap change.
+  **THE MECHANISM: THE RATE GROWTH IS DECELERATING SHARPLY, AND A TWO-POINT
+  POWER LAW COULD NOT HAVE SEEN IT.** Rate growth c->m was **2.246x** per 4x
+  cells; m->f is **1.2128x** per 4x cells. The implied exponent fell from
+  **0.584** to **0.139** (ln 1.2128 / ln 4). The two-point fit was not merely
+  imprecise, its exponent is not a constant of the ladder.
+  **CALIBRATION LESSON, ACTIONABLE BEFORE THE NEXT SPEND: a per-cell-iteration
+  rate fitted on TWO levels of a Roache ladder must not be extrapolated to the
+  third. The third point is what reveals the exponent is not constant, and on
+  this ladder a two-point extrapolation over-predicted the fine level by 85 %.
+  Price a three-level ladder's fine level from a bracket -- the flat-rate
+  branch as the floor and the power-law branch as the ceiling -- and register
+  the CAP above the ceiling, which is exactly what saved this level: the
+  registered CAP 2 400 sat above branch A and below branch B, and the actual
+  landed between them.** The registered POINT, priced from the coarse-level
+  rate 3.8932e-06 alone, under-predicted by 2.02x for the same reason C-184
+  named: the geometry term (cells x iterations) is exact; the RATE is not
+  mesh-independent.
+  **CONTENTION: NOT SEPARABLE AND NOT CLAIMED.** No per-level free-core reading
+  was taken beside the wall time. C-170 refused this attribution and C-180
+  withdrew C-179 for making it; that refusal is respected here and contention
+  is NOT offered as an explanation for any part of the 2.0242x.
+  **WASTE: 0.000 core-min, named separately and NOT absorbed into the ratio**
+  (`COMPUTE_BUDGET_CHARTER.md` §6). Nothing was re-fired, abandoned or
+  truncated. The run met every limb of the strict rule and its fields are on
+  disk.
+  **THE MARKER DEFECT COST ZERO CORE-MINUTES**, as D541 did for level `c`: the
+  level sat unmarked from 2026-08-29T14:13:00Z until 2026-08-30T23:19:00Z on an
+  instrument question, not a solver failure, and the 2 151.950 core-min were
+  recovered from artifacts already on disk rather than re-spent. Had it been
+  "repaired" by re-running, this row would carry 2 151.950 core-min of pure
+  waste.
+  **THE T16b INSTRUMENT WORK ITSELF COST 0.0071 core-min** (marking pass, 0.43
+  wall s at 1 rank) plus ~0.006 core-min of selftest and comparator time --
+  under the registered T16b POINT of 0.003 + 0.30 core-min and far under its
+  CAPs. **USD ~$0.000011 -- DERIVED, NOT MEASURED.**
+
+CITATIONS. `verification/runs/T-family/T16_runs/STATUS.T16_MC_f`;
+`T16_MC_f/log.solve` (28 419 255 bytes, 360 066 lines; `ExecutionTime =
+128921.18 s`, `ClockTime = 129117 s`); `T16_MC_f/log.checkMesh` (cells:
+409600); `DONE.T16_MC_f` (2026-08-30 23:19:00Z, 56 bytes);
+`T16_registered.json` (`cases.T16_MC_f`, `cost`); marker `mark_done_t16b.py`
+blob `a536b2e1`, hash-checked against the untouched parent `efcf7852` in the
+invocation that ran it; registration
+`docs/campaigns/T-family/T16b_PREREGISTRATION.md`; comparator `analyse_t16.py`
+blob `9054d452b43ddda60c2bb187edc762d698a595ec` (worktree == HEAD, hashed in
+the invocation that ran it), whose REFUSAL is recorded at
+`verification/runs/T-family/T16_runs/T16_GRADE_OUTPUT_20260830T231921Z.txt`;
+prior rows C-170 (level c, the standing row), C-180 (withdrawing C-179),
+C-184 and C-185 (level m and its correction).
+  **`docs/campaigns/T-family/T16_RESULTS.md` does NOT yet carry this level** --
+  it was last written before `MC_f` ended and the rung is `PENDING`; this row
+  cites the run artifacts directly rather than a results file that does not
+  contain the figures.
+----------------------------------------------------------------------------

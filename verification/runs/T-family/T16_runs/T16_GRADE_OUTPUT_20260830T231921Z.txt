@@ -1,0 +1,10 @@
+verifying the DERIVED analytic reference before any comparison:
+B1 U'' + G theta + P = 0: worst residual 3.612e-11 at BOTH stencil widths (the difference is exact on a cubic) -> PASS
+B2 U(0) = U(1) = 0 and Simpson integral = 0.9999999999999996 (|1 - I| = 4.44e-16) -> PASS
+B3 tabulated values at G = 48: U(0.25) = 1.500000000000000 (want 1.5), U(0.75) = 0.750000000000000 (want 0.75), tau_hot/tau_cold = 5.000000000000000 (want 5), Y_max = 0.368118692087013 (closed root 0.368118692087013) -> PASS
+B4 INDEPENDENT RK4 shooting route (n = 4000 steps, exact on a cubic): U'(0) recovered 9.999999999999915 (closed 10.000000000000000), worst |U_rk4 - U_closed| 8.741e-14, |mean - 1| 4.075e-14 -> PASS
+B4b FV band model is SECOND ORDER and converges on the closed form: errors 1.200e-05 / 3.000e-06 / 7.500e-07 at N = 250/500/1000, ratios 4.0001 and 4.0000 (required in [3.5, 4.5]), Richardson remainder -6.067e-12 < 1e-9 -> PASS
+  reader self-check: on the analytic profile at N = 20/40/80 the 4-point Lagrange reader recovers U(0.25) to 2.220e-16 and the cubic-max reader recovers Y_max to 5.524e-09 -- both readers are EXACT on a cubic, so every error they report on a solve is the SOLVE's
+operands (L-331), read from each case's own files:
+  T16_MC_c: N=20 Ny=1280 dx=1.0000e-03 nu=1.5000e-05 Pr=0.71 beta=3.333333e-03 TRef=300.0000 T_hot=304.1284403670 T_cold=300.0000000000 g=9.810 U0=0.0750000000 Re=100.00000000 G=Gr/Re=48.0000000000 (reversal 72, margin 1.5000) station row 960 at y/b=48.025 times=['9000', '10000']
+REFUSE: T16_MC_c: C_ORDER -- the station row's T is not the hot-to-cold linear profile (monotone True, slope/(-dT) - 1 = -8.601e-05); a transposed cell ordering or a field that is not the solution
