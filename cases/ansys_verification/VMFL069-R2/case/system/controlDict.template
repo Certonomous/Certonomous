@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069-R2 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.|
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// R2 EXISTS BECAUSE R1 DIED OF AN UNCONTROLLED COURANT NUMBER.
+// R1 (cases/ansys_verification/VMFL069/) set `deltaT 1` with `adjustTimeStep no`
+// so that the number of time steps EQUALLED the numeric endTime, to satisfy
+// CLAUDE.md rule 4's clause "ExecutionTime count == endTime" LITERALLY. Under
+// `adjustTimeStep no` the maxCo/maxAlphaCo/maxDeltaT limited NOTHING: the
+// convective Courant number was 1802 at the first write and reached 2.87e9,
+// alpha ran to -2.4e23, and interFoam took SIGFPE (rc 136) at t=69 of 2000 after
+// 3 wall seconds (verification/runs/ansys_verification/VMFL069/L1/log.interFoam).
+// A BOOKKEEPING CLAUSE OF THE COMPLETION RULE DICTATED A DISCRETISATION CHOICE
+// THAT DESTROYED THE PHYSICS. R2 controls the Courant number and DECLARES the
+// completion-clause adaptation that this forces (PREREGISTRATION-R2 sec.6).
+
+application     interFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+
+// adjustTimeStep yes: deltaT is chosen every step to hold the Courant number at
+// or below maxCo. The initial deltaT is small and is adapted UP toward maxDeltaT
+// and DOWN as the developing velocity field demands. Because the step count is
+// now VARIABLE and no longer equals the numeric endTime, rule 4's clause
+// "ExecutionTime count == endTime" is ADAPTED -- to "ExecutionTime count ==
+// the number of Time lines in the log" (log self-consistency) AND "last Time ==
+// endTime" (the run reached the registered physical end). The adaptation is
+// declared BEFORE compute in PREREGISTRATION-R2 sec.6, following VMFL063's
+// PREREGISTRATION sec.6 clause 4 precedent. An adaptation is NOT a waiver: every
+// other completion clause is unchanged and each still gates.
+adjustTimeStep  yes;
+deltaT          0.001;
+
+maxCo           1.0;
+maxAlphaCo      1.0;
+maxDeltaT       1.0;
+
+// writeControl adjustableRunTime: the solver nudges deltaT slightly so a write
+// lands EXACTLY on each multiple of writeInterval, giving integer-named time
+// directories 500 and 1000 that the comparator reads by name. Under
+// `adjustTimeStep yes` a timeStep-based writeControl would write every N STEPS,
+// never at a fixed physical time, and the comparator would not find t=500/1000.
+writeControl    adjustableRunTime;
+writeInterval   500;
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+// The slowest mode of the discrete two-layer diffusion operator has tau ~ 33.6 s
+// (PREREGISTRATION sec.9.3). endTime 1000 s is ~30 tau; the comparator's PLATEAU
+// clause compares t = 500 (~15 tau, exp(-500/33.6) = 3.5e-7 relative to the
+// transient) with t = 1000 and REFUSES if the layer means differ by more than
+// 1e-6. The plateau clause is the CHECK that steady state was reached; endTime is
+// not trusted to guarantee it.
+
+// ************************************************************************* //

@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// THE DRIVING PRESSURE GRADIENT, manual p.205: "Periodic Boundary is used with a
+// Pressure Gradient = -0.5 Pa/m."
+//
+// The streamwise boundaries are a CYCLIC pair, so the gradient cannot be carried
+// by p_rgh; it is applied as a constant body force of +0.5 N/m3 in +x, which is
+// exactly -dp/dx = 0.5 Pa/m.
+//
+// UNITS, verified at source rather than recalled: SemiImplicitSource.C:265 sets
+// SuDims = eqn.dimensions()/dimVolume, and interFoam's UEqn (interFoam/UEqn.H)
+// is in force units, so Su is in N/m3 == Pa/m. `volumeMode specific` sets
+// VDash_ = 1 (SemiImplicitSource.C:530-539), so Su is used AS WRITTEN and is NOT
+// divided by the selection volume. `absolute` would divide by it.
+//
+// SILENT-FAILURE HAZARD, measured in the v2606 source and guarded against:
+// fvOptions.C:50-93 looks for `constant/fvOptions` FIRST and `system/fvOptions`
+// second, and if NEITHER exists it sets NO_READ and applies NOTHING WITHOUT AN
+// ERROR. A misplaced or misnamed file therefore produces a quiet zero-velocity
+// run that looks like physics. Both the launcher and the comparator require the
+// solver log to carry the line
+//     Creating finite-volume options from constant/fvOptions
+// which fvOptions.C:86-91 prints ONLY when the file was actually read.
+
+streamwisePressureGradient
+{
+    type            vectorSemiImplicitSource;
+    active          yes;
+
+    selectionMode   all;
+    volumeMode      specific;
+
+    sources
+    {
+        U           ((0.5 0 0) 0);
+    }
+}
+
+// ************************************************************************* //

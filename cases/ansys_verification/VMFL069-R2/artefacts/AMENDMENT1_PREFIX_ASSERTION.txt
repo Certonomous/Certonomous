@@ -1,0 +1,20 @@
+AMENDMENT 1 PREFIX ASSERTION -- VMFL069-R2 PREREGISTRATION.md
+UTC: 2026-08-30T23:46:22Z
+HEAD: ffdc27bbb0f4a6e0892e45dfdb72972ae10c46da
+
+PRIOR file bytes            : 36799
+PRIOR sha256                : 4625639eea22ff3a6e3071755e1fb2b471d66925b38b962887b99d0a44ced86d
+AMENDMENT body bytes        : 22629
+AMENDMENT body sha256       : 646fb107025e815e1302cc108532573f1b8b962684e60d4be86f429b464f5f27
+
+AFTER file bytes            : 59428  (expected 59428)
+first 36799 bytes sha256        : 4625639eea22ff3a6e3071755e1fb2b471d66925b38b962887b99d0a44ced86d
+PREFIX IDENTICAL byte-for-byte : True
+LANDED TAIL == INTENDED BYTES  : True
+
+newlines PRIOR 564 -> AFTER 916 ; added 352
+LINES WHOSE NUMBER CHANGED ABOVE THE AMENDMENT: 0  -- VERIFIED, not asserted:
+  the first 36799 bytes of the post-append file hash to the pre-append file's
+  own sha256, so every byte above the amendment is at the same offset and
+  therefore on the same line as before.
+AFTER sha256                : 39db2f1310861f970a3c52c3b8e8f17277b3b877f778493af9a93d9d416e2cda

@@ -1,0 +1,19 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       uniformDimensionedVectorField;
+    object      g;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ZERO. The two phases have equal density, so buoyancy is identically absent and
+// the manual's case carries no gravity term. g = 0 makes that explicit rather
+// than relying on rho1 == rho2 to cancel it.
+dimensions      [0 1 -2 0 0 0 0];
+value           (0 0 0);
+
+// ************************************************************************* //

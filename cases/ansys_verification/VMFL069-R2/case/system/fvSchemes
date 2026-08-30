@@ -1,0 +1,69 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| VMFL069 -- Two Phase Poiseuille Flow (VM2026R1 p.205). FROZEN CASE INPUT.  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// THE ONE SCHEME CHOICE THAT DECIDES THIS CASE'S OBSERVED ORDER, registered
+// BEFORE compute and predicted in PREREGISTRATION sec.9:
+//
+//   interpolationSchemes { default linear; }
+//
+// interFoam's viscous term is fvm::laplacian(rho*nuEff, U), and the face value of
+// rho*nuEff is produced by `interpolate((rho*nuEff))`, which falls to this
+// default. `linear` on a UNIFORM mesh is the ARITHMETIC mean, so at the single
+// face where mu jumps from 0.1 to 0.02 the face conductance is
+// (mu1+mu2)/2 = 0.06 where the exact two-half-cell series resistance requires the
+// HARMONIC mean 2*mu1*mu2/(mu1+mu2) = 0.0333... -- too large by
+// (mu1+mu2)^2/(4 mu1 mu2) = 1.8.
+//
+// That is an O(1) error in ONE face's conductance. It does NOT destroy
+// consistency, because the face RESISTANCE and its error both vanish like h, but
+// it DOES demote the scheme from second order to FIRST order at the interface
+// while the rest of the field stays second order.
+//
+// PRE-REGISTERED PREDICTION, falsifiable by this run: the observed order will be
+// near 1, not near 2. `harmonic` is NOT chosen here, and choosing it after seeing
+// a result would be selection by outcome; it is named in PREREGISTRATION sec.12
+// as the successor rung's single change.
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    div(rhoPhi,U)   Gauss linearUpwind grad(U);
+    div(phi,alpha)  Gauss vanLeer;
+    div(phirb,alpha) Gauss linear;
+    div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// ************************************************************************* //

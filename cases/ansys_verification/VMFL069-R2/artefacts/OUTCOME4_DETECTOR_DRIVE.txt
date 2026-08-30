@@ -1,0 +1,50 @@
+OUTCOME-4 DETECTOR DRIVE -- VMFL069-R2, run BEFORE the freeze commit.
+Lane: ansys-lane-opus (Opus 5).  UTC: 2026-08-30T23:46:05Z
+HEAD at drive time: 6f0dcdac475d72a719811ad670b03288287fa5c7
+Driver: cases/ansys_verification/VMFL069-R2/artefacts/drive_outcome4.py
+Functions driven are IMPORTED from the frozen comparator, not reimplemented.
+R1 real bytes are COPIED, never touched. Plants are on disk, read back through
+the production readers (CLAUDE.md rule 3).
+python3: Python 3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]
+================================================================================
+registered L1 centres: 256 cells, 32 distinct y-rows, 8 distinct x-cols
+R1 real alpha source : /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069/L1/0/alpha.fluid1
+            sha256   : 50fa5ccfba92363d9dfa17906e32942767c5af14f2eecacac2988720e719a5a8
+frozen thresholds    : ALPHA_TOL=1e-09  XINVAR_TOL=1e-06  REF_WHOLE=13.3333333333
+
+=== ALPHA CHANNEL -- R1's REAL 256-value setFields bytes ===
+[OK ] A0 CONTROL   unperturbed R1 bytes                          expect_refuse=False got=False
+        returned: 0.0
+[OK ] A1 NEAR-MISS below 1e-9 (9.0e-10)                          expect_refuse=False got=False
+        returned: 9.000000744663339e-10
+[OK ] A2 NEAR-MISS above 1e-9 (1.1e-9)                           expect_refuse=True  got=True 
+        REFUSAL TEXT: REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 1.10000009101e-09 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+[OK ] A3 R1 REAL   Min(alpha) = -2.3663e+23                      expect_refuse=True  got=True 
+        REFUSAL TEXT: REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 2.36630181882e+23 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+[OK ] A4 BLIND     writer writes nothing                         expect_refuse=False got=False
+        returned: 0.0
+
+=== X-INVARIANCE CHANNEL -- exact solution on the registered L1 mesh, perturbed at R1's LOGGED magnitude ===
+    threshold in m/s = XINVAR_TOL * REF_WHOLE = 1.33333333333e-05
+    R1 logged Courant max 2.86928e+09 at deltaT 1 s, dx 0.25 m -> |u_x| = 7.17321e+08 m/s
+[OK ] X0 CONTROL   pure exact solution                           expect_refuse=False got=False
+        returned: (0.0, 32)
+[OK ] X1 NEAR-MISS below threshold (0.9x)                        expect_refuse=False got=False
+        returned: (9.000000001258001e-07, 32)
+[OK ] X2 NEAR-MISS above threshold (1.1x)                        expect_refuse=True  got=True 
+        REFUSAL TEXT: REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 1.10000000002e-06 of the reference mean (at y = 0.4375), above the frozen 1e-06. The registered solution is x-invariant.
+[OK ] X3 R1 REAL   u_x = 7.173e+08 m/s                           expect_refuse=True  got=True 
+        REFUSAL TEXT: REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 53799046.0127 of the reference mean (at y = 0.0625), above the frozen 1e-06. The registered solution is x-invariant.
+[OK ] X4 BLIND     no perturbation written                       expect_refuse=False got=False
+        returned: (0.0, 32)
+
+=== REFUSAL-TEXT DIFFERENCE ===
+    4 refusals fired, 2 distinct refusal headings
+      - REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 1.10000009101e-09 at y = 0.0625, above the frozen 
+      - REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 2.36630181882e+23 at y = 0.0625, above the frozen 
+      - REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 1.100000000
+      - REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 53799046.01
+
+ARMS: 10 run, 10 as registered, 0 WRONG 
+================================================================================
+driver exit code: 0 (all arms as registered)
