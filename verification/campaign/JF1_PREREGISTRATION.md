@@ -700,7 +700,7 @@ and, where applicable, §7.2's triple gating.
 >
 > | Artefact | What it actually is | Why it cannot serve as V's comparand |
 > |---|---|---|
-> | `models/curriculum/results/naca0012_wing.json` | `Cd = 0.02229` at **alpha = 0 only**, band ±30 % vs Abbott & von Doenhoff `Cd = 0.009`; verdict `TREND ONLY`, 148 % off | **Single alpha — no slope at all.** And its verdict was **overturned**: `verification/campaign/W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md` finds four independently regenerated meshes at the same nominal resolution give `Cd` from **0.00800 to 0.01205 — a 21.6 % spread**, enough to flip the ±30 % verdict on mesh-generation noise alone. Its grid-convergence claim was separately ruled **`NOT A RESULT`** (`verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md`). Also a **3D finite wing**, not a 2D section. |
+> | `models/curriculum/results/naca0012_wing.json` | `Cd = 0.02229` at **zero lift** (`CL = −0.000795`, i.e. `alpha = 0`), band ±30 % vs Abbott & von Doenhoff (1959) **section** data `Cd = 0.009`; verdict `TREND ONLY`, 148 % off | **Single alpha — no slope at all.** And its verdict was **overturned**: `verification/campaign/W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md` finds four independently regenerated meshes at the same nominal resolution give `Cd` = **0.009454, 0.009605, 0.010630, 0.012052** — range 2.5987e-03, a **21.6 % spread** — enough to flip the ±30 % verdict on mesh-generation noise alone; the published mesh is the **maximum** of the four and the only one outside the band. Its grid-convergence claim was separately ruled **`NOT A RESULT`** (`verification/campaign/LADDER_RECIPE_RULING_2026-08-25.md`). It is also scored on a **planform-area basis against section data**, a basis mismatch the record itself notes. |
 > | `cases/dafoam/ladder-a/A1_naca0012_incompressible.{md,json}` | `CL = 0.49877`, `CD = 0.02091` at a single `alpha = 5.139 deg`; Spalart–Allmaras, `DASimpleFoam`, **4 032 cells** | An **adjoint FD-vs-analytic verification artefact**, not an aerodynamic gate. `docs/VALIDATION_INVENTORY.md:364` classifies it as internal-FD adjoint verification in the lab's own words. Single alpha, different closure, no external reference, no band. |
 > | `cases/tmr/naca0012_status.json`, `verification/campaign/W1_TMR_NACA0012_DISPOSITION.md` | one converged rung only: `alpha = 10 deg`, 3 584 cells, `Cl = 1.11644`, `Cd = 0.00449` | The record **itself refuses the comparison** — *"a single coarse rung supports no comparison claim and none is made"* — and the 9-rung item was **dismissed as unaffordable**. Alpha 0 and 15 never reached steady state. |
 > | F5b pitching NACA 0012 (`CL`/`CM`) | the repo's nearest thing to a `CL(alpha)` curve | `docs/VALIDATION_INVENTORY.md:306`: its Physics and Gate rows are literal `[to be completed]` placeholders — **"NO GATE EXISTS"**, the audit's own words. |
@@ -724,6 +724,25 @@ and, where applicable, §7.2's triple gating.
 > **Under (a) the record must be named by absolute path with its `CL`,
 > `dCL/dalpha` and `Cd` values, its bands, its `Re`, turbulence model, mesh and
 > solver, before the freeze.**
+>
+> **CORRECTION, DISCLOSED RATHER THAN PATCHED SILENTLY (2026-08-30, pre-compute,
+> pre-freeze; legal under rule 2's pre-compute amendment clause — the condition is
+> that no run root `verification/runs/JF1_jet_flap/` exists and no compute has
+> occurred, checked at the time of writing).** As first committed at
+> `34f51b78`, the row above stated the four-mesh `Cd` range as "0.00800 to
+> 0.01205" and asserted the artefact was a "3D finite wing". **Both were wrong
+> and are struck.** The 0.00800 figure belongs to W3's *refinement* series
+> (0.012052 → 0.010406 → 0.008479 as cells increase, `W3:43`), a different
+> quantity, and I mislabelled it as the same-nominal-resolution set; the correct
+> set is `W3:114` and the range is 0.009454–0.012052. The "3D finite wing" claim
+> was **asserted without evidence** — the record nowhere states dimensionality,
+> and what it does state is a planform-area basis against section data. The
+> load-bearing number, the **21.6 % spread, was and is correct** and is confirmed
+> arithmetically (0.012052 − 0.009454 = 2.598e-03, `W3:37`), so the conclusion —
+> gate V `BLOCKED` — is unaffected. Recorded here because a wrong number in an
+> evidentiary table is a defect whether or not it changes the verdict, and
+> because this lab's own precedent (`e779bdc7`) is to disclose such a repair
+> inline rather than quietly overwrite it.
 >
 > **A caution that bears directly on option (b) and on gate G.** The W3 finding
 > above — 21.6 % `Cd` spread on this same body from mesh-generation noise alone,
