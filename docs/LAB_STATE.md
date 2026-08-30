@@ -16103,6 +16103,91 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T22:4xZ — **SESSION RESUMED AFTER THE 429 + 32 h POWER-OFF. VMFL069 §3.3 RULED (`b1b7cfc1`) AND THE IN-FLIGHT CEILING AMENDMENT DECLINED. VMFL063 **RAN AND COMPLETED** UNGRADED ON 2026-08-28 AND NOBODY KNEW. AND THE SHARED GIT INDEX IS POISONED WITH 389 STAGED DELETIONS — 122 OF THEM LIVE ANSYS FILES.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### THE URGENT ONE FIRST — A BARE `git commit` BY ANY AGENT RIGHT NOW WOULD DELETE 389 TRACKED FILES
+
+Measured by me at 22:38Z, not inferred. `.git/index` was last written **2026-08-27T21:57:59Z** and HEAD has advanced three days past it, so the shared index holds **389 staged deletions relative to HEAD**: `verification/queue` 96, **`cases/ansys_verification` 96**, `cases/dafoam` 89, `verification/runs` 49, `cases/RANS_LES_closure_models` 24, `verification/campaign` 17, and singles including `scripts/append_block.py`. **123 are in ansys territory and 122 of those files are STILL PRESENT ON DISK** — the entire frozen VMFL069 package (pre-registration, comparator, launcher, nine inputs; 3,021 lines) among them.
+
+This is **CLAUDE.md rule 10's exact hazard, an order of magnitude past the failure that wrote the rule** (measured then: 402 lines across six files). **I did not touch the index — rule 10 says the index is the chief's call** — and I committed through the private-index protocol with the post-commit verify, which read back **1 file, 129 insertions, zero deletions**.
+
+**THE OPERATIONAL CONSEQUENCE EVERY TEAM NEEDS AND MAY NOT GUESS AT: `git status` and `git diff HEAD` ARE LYING RIGHT NOW.** `git diff --stat HEAD -- cases/ansys_verification/VMFL069/` reports **`16 files changed, 3021 deletions(-)`** for files that are sitting on disk intact, because the paths are absent from the stale index and `git diff HEAD` reads tracked-ness from the index. **A lane that trusts that output will conclude its own frozen case has been deleted.** One of my own lanes reported exactly that to me this session and I rejected it. Diff against `git show HEAD:<path>` until the chief rules on the index.
+
+**One ansys path is staged-deleted AND genuinely gone from disk: `verification/queue/ansys-verification/VMFL063.json`** — and that turned out to be the thread that unravelled the next finding, because the queue runner had **moved** it.
+
+#### VMFL063 RAN TO COMPLETION ON 2026-08-28 AND HAS SAT UNGRADED EVER SINCE
+
+My last board block said VMFL063 was **`PENDING`**, correctly held by the runner's 85 % busy ceiling. **That was true when written and stopped being true 40 minutes later.** The runner launched it at **17:41:41Z** and it finished at **17:55:34Z** — **18 h 44 min before the box shut down** on 2026-08-29T14:40Z. The fleet died to the 429 at 18:05Z, ten minutes after the run ended, so **no agent was alive to see it land.**
+
+| level | log | `Time =` count | last time | rc | core-min |
+|---|---|---|---|---|---|
+| L1 | `verification/runs/ansys_verification/VMFL063/L1/log.simpleFoam` | 1004 | 1004 | 0 | 0.1500 |
+| L1D | `…/L1D/log.simpleFoam` | 1004 | 1004 | 0 | 0.1333 |
+| L2 | `…/L2/log.simpleFoam` | 1944 | 1944 | 0 | 1.2333 |
+| L3 | `…/L3/log.simpleFoam` | 4177 | 4177 | 0 | **12.3167** |
+
+**13.8333 core-min total against a 90 core-min cap (15.4 % used), one `End` line per level, zero `CAP_OVERRUN.txt`, zero `CAP_EXCEEDED`.** `STATUS.VMFL063` reads `launcher_rc=0` and **carries its own honest caveat in the file** — *"exit-status-of-the-launch-argv-NOT-the-solver-rc"* — so the rc that matters is the per-level `RUN_RC.*`, which I have as 0 at all four.
+
+**I AM NOT CALLING THIS A VERDICT AND THE REASON IS RULE 4.** The four levels stopped at **four different times** (1004 / 1004 / 1944 / 4177). That is the signature of **residual-convergence termination, not of reaching `endTime`**, and rule 4's strict completion requires **last time == `endTime`**. Either the frozen registration expressly declared convergence termination and defined completion accordingly, or **this is a completion failure and the row is `NOT A RESULT` whatever the numbers say.** An opus lane is grading it under a brief that forbids softening that, with the freeze-identity hash checked **before** the grade and the age guard checked explicitly. **`PENDING`, and the verdict is not predicted here.**
+
+**THE LESSON I OWE ON MYSELF:** this family's recorded trap is *occupancy read as progress*, and I retracted a launch claim for it on 2026-08-28. **The inverse cost me two days: a case correctly reported held, never re-checked, that launched the moment the gate cleared.** A queue state is a reading with a shelf life, and **the handoff channel carried a `PENDING` that had been false for 40 minutes.** The board is only as good as its last re-derivation, which is why the duty says re-derive rather than remember.
+
+#### VMFL069 §3.3 — RULED BY ME PERSONALLY, AND THE RULING COSTS ZERO BYTES (`b1b7cfc1`)
+
+The lane killed by the 429 was amending VMFL069's ceilings from `PASS` toward `GATE REACHED`; its last words were *"Rule 2 legality check first."* **That check is mine and it is made.** Full record at `cases/ansys_verification/VMFL069/SUPERVISOR_RULING_SEC3.3.txt`.
+
+**RULING `[lab-attributed]`: `VERIFICATION_CHARTER` §2f.3 DOES NOT REACH A REGISTRATION THAT DECLARES A TRIPLE. The three `PASS` ceilings STAND AS FROZEN. The amendment is DECLINED.** The scope is set by the clause's own column heading — `:2419-2421` is headed ***"ceiling WITHOUT a triple"*** and §2f's title is ***"A REGISTRATION THAT DECLARES NO ROACHE TRIPLE"*** — and the CONTINUUM row states its ground on its face: *"from which discretisation error is not separable **without a triple**."* VMFL069 registers a four-level family and a triple, so where that triple returns `CONVERGING` the error **is** separated and bounded by the GCI and **the condition the cap exists to cover does not obtain**. §2f.2 disables only rule 5's **limb (2)**, and only for a no-triple registration.
+
+**I NAME THE CLAUSE THAT CUTS AGAINST ME RATHER THAN OMIT IT.** §2h.3 (`:2757-2762`) **refers to Sanaa** the very question of making an exact-solution reference `PASS`-capable and holds *"§2f.3's cap stands untouched for everything else"* until she rules. **§2h is by its own terms the FLOOR-DEMONSTRATION clause for registrations carrying NO triple**; VMFL069 §3.2 expressly declines to invoke it and claims no benefit under it. **I am NOT deciding Sanaa's referred question and this ruling does not touch it.**
+
+**RULE 2 LEGALITY, RULED EXPLICITLY, ON TWO INDEPENDENT GROUNDS THAT AGREE:**
+
+1. **It is NOT post-compute** — the framing that reached me had it backwards. Checked by me at **22:37Z**, naming the directory rule 2 requires me to name: **`verification/runs/ansys_verification/VMFL069/` DOES NOT EXIST.** An independent read-only lane swept the whole box: zero `log.*Foam*`, zero time directories, zero `postProcessing`, zero `GRADING_VMFL069*.json`, zero `RUN_RC.*`, no register row — **the only VMFL069 artefacts on this machine are the frozen case package and the unopened `VMFL069_WB.wbpz` archive.** **NO GATE QUANTITY EXISTS ANYWHERE**, so there is nothing any ceiling could have been fitted to; §2d.1's repair exception is neither invoked nor needed. The 2026-08-28 smoke (`710a3e9a`) ran **L1 for 3 steps against a registered `endTime` of 2000 at `writeInterval` 500, `latest_time_dir = none`** — the solver wrote **no time directory at all**, so no field existed on disk from which a gate value could be taken. My own **VMFL006 quarantine rule** is satisfied on its own test: no reader of that smoke could choose or defend a band from it.
+2. **It is TIME-BARRED ANYWAY by the registration's OWN self-restraint, which is tighter than the constitution.** §3.3 `:234` and §11 item 10 `:588` both say the call is made ***"before the freeze commit, never after."*** The pre-registration froze at `4e4819ab`. **A registration may bind itself more tightly than `CLAUDE.md`, and that self-restraint is honoured** even though rule 2's pre-compute window is open.
+
+**DIRECTION, RECORDED SO NO AUDITOR HAS TO INFER IT:** the amendment would have **TIGHTENED** the ceiling and made the best available row **worse**, so it could not have been gate-fitting. **I decline it anyway** — a ceiling should be the one the charter actually imposes, not the most conservative one available, which is the same reason §2f.3 itself **DECLINED a blanket cap** as *"punitive rather than accurate"* (`:2415-2417`). **An unnecessarily capped row is as inaccurate as an overclaimed one.**
+
+**THE RULING EDITS NOTHING.** `grade_vmfl069.py:93` already reads `TIER_CEILING = {"A": "PASS", "B": "PASS", "C": "PASS"}` and §5.2 already carries `PASS` on all three limbs — **the frozen bytes already encode the outcome, so rule 6 is never reached and the freeze stays byte-identical to its committed blobs.** Filed as a **record, not an amendment**, exactly as `PREFLIGHT_SMOKE_RECORD.txt` was.
+
+**A DRAFTING GAP RECORDED AGAINST THIS TEAM:** the registration went to its freeze commit with §3.3 **unresolved** while its own text said the call must be made **at** the freeze. It damaged nothing — nothing ran, and the frozen ceilings turn out to be the correct ones — **but a registration that defers a ceiling question past its own freeze deadline is a registration with an open gate, and the next one does not carry a §3.3.**
+
+#### TWO "OWED" ITEMS WERE ALREADY LANDED — CONFIRMED A SECOND TIME, AGAINST A BOLD-BLIND GREP
+
+The brief that resumed me listed the 005 rule-12 calibration row and the `CAP_OVERRUN` disclosure as still owed. **Both landed on 2026-08-28 and I have now re-verified them at the byte level.** `C-193` at `docs/COST_CALIBRATION.md:276` carries **4.215278 GPU-h actual vs the 6.0 cap, 151.75 vs 240 core-min, ratios 0.673 / 1.167, $3.3925 derived**. **Register row #42** (`:628`) carries the `CAP_OVERRUN.txt` disclosure with its **`elapsed 14400`**, the **per-solve** scope, *"that 4 h cap is NOT in the pre-registration"*, the referral to verification, and its citation of C-193. **Nothing is owed on 005.**
+
+#### A LANE CLAIM I REJECTED ON MY OWN MEASUREMENT — THE SAME REGEX TRAP, FOURTH TIME
+
+The evidence lane reported **"0 PASS rows"** in the register. **FALSE**, and false for the reason this family has now walked into four times: its pattern was `| PASS |` and **every verdict cell in that file is bolded and backticked**. My own tally of verdict cells: **26 `NOT A RESULT`, 14 `GATE REACHED`, 9 `PASS`, 5 `GATE FAIL`, 1 `PENDING`, 1 `BLOCKED`. **A grep that returns zero on a file you have previously seen non-zero is measuring your pattern, not the file.** **HONEST LIMIT ON MY OWN NUMBER: that is a count of verdict CELLS, not of ROWS** — rows carry per-limb verdicts too — so the row-level PASS count is **VERIFY**, not asserted here.
+
+#### VMFL011 IS CLOSED AND STAYS CLOSED
+
+Three rows, all landed: **#26 VMFL011 `NOT A RESULT`**, **#36 VMFL011-R3 `GATE FAIL`** (rms 0.034088 vs band ≤ 0.030, over by 13.6 %, triple `CONVERGING` p=1.600, GCI 3.303 %), **#38 VMFLGPU003 `GATE FAIL`** on the same parent geometry. The miss is **against the reference, not the solver** — Richardson-extrapolated u_min −0.3465 against a digitised −0.318, an **8.9 % gap on a 3.3 % numerical uncertainty** — the band cannot be widened under rule 2, and VMFLGPU003 already reproduced the number to twelve digits on independent hardware. **No fourth rung. The only thing that would reopen it is Jyotsna & Vanka 1995, which is on Sanaa's desk and is an acquisition, not an agent's task.**
+
+#### GPU — THE ANSWER TO THE CHIEF IS **NO**, AND THE IDLE/STOP NOTE
+
+**Asked whether ansys needs the card started: NO.** I hold **no frozen GPU case and none freezable today.** VMFLGPU006 (Goldman stator, manual pp. 239-241) is **blocked on evidence** — the manual prints **figures only, no Target table**, and NASA TM X-3224 is absent from this box; VMFLGPU004 is `BLOCKED` (row #41); VMFLGPU008/009/010 are untouched and unregistered. **Every case I could freeze today is CPU.** **I will not invent a GPU item to justify hardware** — that is the same refusal `dafoam-supervisor` made on measurement at `7abc04a4`, and a peer's release of the card is not a reason to take it. **A dark card is a failure, but the honest remedy is the stop recommendation already on Sanaa's desk, not manufactured work.**
+
+**FOR THE REGISTER'S IDLE/STOP NOTE, all DERIVED NOT MEASURED** at the published-list $0.8048/GPU-h — **the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5) and the console figure is owed and supersedes every dollar here.** Last measured window before the instance stopped: idle 03:20:39Z → 16:07:50Z = **767.18 min = 12.7864 GPU-h = $10.2905**; the **28.03 min** inside it that actually ran (VMFLGPU007-R2, `GATE REACHED`) is **excluded**; idle 16:35:52Z → 17:36Z = **60.28 min = 1.0047 GPU-h = $0.8086**; **total idle 827.47 min = 13.7911 GPU-h = $11.0991**, which cost **more than 3× the run it was waiting on**. dafoam's standing figure for holding it dark is **$19.32/day** at $0.8048 × 24. **INFRASTRUCTURE — never folded into any case ratio (§6).** **The instance is now STOPPED and unreachable, so the meter is off and `BLOCKED-GPU` is NOT the right word for anything in my territory: the queue runs on the box.**
+
+#### STATE — RE-DERIVED, NOT REMEMBERED
+
+**Commits this session:** `b1b7cfc1` (VMFL069 §3.3 ruling; 1 file, 129 insertions, **zero deletions**, post-commit verified).
+
+**Live jobs.** Queue runner **pid 881**, cwd `/home/ubuntu/Certonomous`, `--daemon`, alive since the reboot, log `verification/queue/runner.log` writing live. **No ansys solver is running.** One opus lane grading VMFL063. Box: 16 cores, **~30.2 GB MemAvailable**, load 30.1 at 22:40Z but **that is `apt` post-reboot, not compute** — it will fall.
+
+**Rungs without verdicts.** **VMFL063 — RAN, COMPLETE, UNGRADED, `PENDING`**, grading in flight, rule-4 completion the live question. **VMFL069 — frozen, ceilings ruled, smoke-tested end to end, launchable**, 0 core-min spent, no gate quantity. VMFLGPU006 blocked on evidence. VMFLGPU004 `BLOCKED` (#41). VMFLGPU008/009/010 untouched.
+
+**Next actions.** (1) Read the VMFL063 grade personally — comparator invocation, completion ruling, planted control — before any row lands. (2) On a `NOT A RESULT` for completion, the successor is registered **before** anything is re-run and the failure is registered as the prediction. (3) Enqueue VMFL069 once the box settles. (4) Rebuild FREEZE-AHEAD toward Sanaa's floor of 3 — it is **1** (VMFL069) now that VMFL063 has run, and that is **below the floor and is mine to answer for**.
+
+**On Sanaa's desk (six).** Per-item **GPU cost sign-off**; **`stop` vs `terminate`** (terminate destroys the root volume and the whole PETSc-CUDA / OpenFOAM v2606 build); the **console GPU figure**, which supersedes every derived dollar above; **Jyotsna & Vanka 1995** (would reopen VMFL011 on a published benchmark); **NASA TM X-3224 Goldman** (would unblock VMFLGPU006); and **NEW — the poisoned shared index**, which is the chief's to route but Sanaa's if the remedy touches anyone's staged work.
+
+**Blocked.** Nothing of mine is blocked on compute. `check_record_reconciliation.py` still exits **4**, blocked **solely** by **`C-69` (dafoam `:144` vs cfd `:145`)** — **not ours**, and I will not touch another team's rows to make a green light appear.
+
+**VERIFY (not checked by me this session, said plainly rather than filled in):** the row-level `PASS` count and the register's highest row number; that `check_harness.py` now reads my section fresh; the VMFL063 comparator's planted-zero control against real solver bytes; and every VMFL063 number above beyond the four logs' own `Time =` counts and `RUN_RC` values.
+
+
 ### 2026-08-28T17:4xZ — **R-FODIR-1 REPAIR REGISTRATION FROZEN (`9b687d44`) — FREEZE-AHEAD 1 → 2 under Sanaa §3. GPU RELEASED TO DAFOAM. And a CORRECTION OF FACT AGAINST MY OWN COMMIT MESSAGE: `VMFL021-R2 never ran` was FALSE.**
 
 **Written by `ansys-verification-supervisor` personally.**
