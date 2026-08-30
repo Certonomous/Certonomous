@@ -9,8 +9,16 @@
 > says so. **A lane may not freeze its own registration and this lane has not.**
 >
 > Until that freeze: the run root does not exist, no queue entry exists, no solver
-> has run. Three questions in §14 are **OPEN and deliberately not decided by this
-> lane** — freezing this document with §14 unresolved would freeze an ambiguity.
+> has run.
+>
+> **REVISION 2, 2026-08-30.** The three questions this lane raised in §14 and declined
+> to decide — the ill-posed forward-flight balance, the under-specified open-disk
+> reference, and the cost arithmetic that does not close — have all been **ruled by
+> `cfd-supervisor`** and are now registered in §9.6/§9.6a, §7.1 and §2.7/§10.
+> **§14 records each ruling with its author.** No question in this document is now
+> open, none was decided by the lane that raised it, and **none was decided after
+> seeing a result, because no compute has been run.** The document is still
+> **UNFROZEN**; the freeze is the supervisor's act and has not occurred.
 
 - **Team:** cfd
 - **Rung id:** `F28` — **PROVISIONAL.** Derived from the tail per rule 11 (maximum
@@ -118,7 +126,7 @@ done by the source. Reasons, in order:
 1. It is a **volume integral at the disk**, computed from the imposed `delta_p` and a
    `surfaceFieldValue` volumetric flow through the disk plane. It requires **no
    far-slipstream sampling**, and therefore does not inherit the `V_e` definition
-   problem that is OPEN-1 in §14.
+   problem that OPEN-1 turned on (§14, resolved in §9.6/§9.6a).
 2. **The two powers coincide EXACTLY in the ideal limit on BOTH arms** — verified
    symbolically in §12, for the ducted arm and the open arm separately. So the choice
    between them **does not perturb the theory constant `(2 sigma)^(1/3)` at all**;
@@ -191,7 +199,70 @@ This is a classic axisymmetric error and it is silent: a factor-72 error produce
 map that is smooth, monotone and self-consistent. It is caught by the planted control
 in §6, which computes `T_disk` two independent ways.
 
-### 2.7 Departures NOT taken
+### 2.7 DEPARTURE 7 — the compute cap is raised to 400 core-min, UPWARD and DISCLOSED
+
+**Directive §2.8 states a cap of 320 core-min. This registration registers 400.** The
+departure is upward, it is disclosed here rather than taken silently, and **Sanaa may
+overrule it.**
+
+**Why her own §2.8 does not close:** §2.8 budgets the 24-solve map at "~4 core-h" =
+240 core-min, and this registration costs the gates that must precede it at 144
+(§10). 144 + 240 = **384 > 320**. The arithmetic in the directive is internally
+inconsistent, and the only ways to satisfy 320 are to drop gates or to drop map
+points.
+
+**Why dropping map points is the wrong answer**, and this is the operative reason:
+Sanaa's cost-lift directive, **verbatim, recorded at `docs/LAB_STATE.md:712`**, dated
+**2026-08-25**:
+
+> *"I want the three teams to forget about cost constraints for now. We originally had
+> them when thelab did not have discipline, but the lab does now. So no team stops
+> anything in the name of saving compute. The lab having experience running hard and
+> diverse cases primes over saving money. Besides, we have two instances running rn.
+> So ample ressources."*
+
+*(Quoted byte-exact, including `thelab` and `ressources`; the board records that her
+typos are deliberately preserved as provenance and are not to be normalised.)*
+
+**This case is squarely inside that lift and does not rely on any inference.** "The
+three teams" are `cfd`, `ansys-verification` and `heat-transfer` — the three she then
+addresses by name in the same directive, `cfd` first. **`cfd` is named by her, not
+extended to by a chief's reading.** (The board separately marks the extension of the
+lift to `dafoam` as the chief's inference and correctable; that clause is irrelevant
+here and is not leaned on.)
+
+Deliberately dropping 7 of 24 map points would save roughly **$0.05** and is exactly
+"stopping something in the name of saving compute". **Registered cap: 400 core-min.**
+Basis: 144 gates + 240 map + ~4% margin. **$0.342 DERIVED NOT MEASURED** at the
+owner-stated $0.0513/core-h — far below the $25 pre-authorisation.
+
+**Attribution, kept straight because two different voices are involved:** the words
+above are Sanaa's. The operational reading that the directive *"overrides `CLAUDE.md`
+rule 12's 'an overrun stops the run' clause, FOR BUDGET REASONS ONLY"* and that
+**"caps become RUNAWAY GUARDS, not stop conditions"**, with a crossing *reported to
+the supervisor* who *extends by dated amendment* or *stops it*, is **the chief's
+reading at `docs/LAB_STATE.md:718-724`, which that page marks "recorded as
+correctable"**. This registration adopts the chief's reading and says whose it is.
+
+**Two clauses that survive the lift untouched, and the second is the one most likely
+to be misread:**
+
+1. **Costing and calibration continue unchanged** — she lifted *constraints*, not
+   *measurement* (`:725-729`). §10.3's `COST_CALIBRATION.md` row is still owed.
+2. **THE 15,000-ITERATION CAP IN §8 IS NOT A BUDGET CAP AND IS NOT TOUCHED BY THIS
+   LIFT.** It is a **rigor** clause: a run that has not converged in 15,000 iterations
+   has not converged, and its verdict is `NOT A RESULT` for that reason and not for a
+   financial one. The board's own reading says so — *"RIGOR IS UNCHANGED ... the
+   completion rule ... stand exactly as written. No refusal made on evidence is
+   reopened by this directive"* (`:730-733`). **"Caps are runaway guards now" applies
+   to the COMPUTE cap in §10 and to nothing else in this document.** Registered
+   explicitly so that no later reader extends the lift into a gate.
+
+*Ruled by `cfd-supervisor` after this lane declined to widen the ceiling on a
+supervisor's assertion; the citation was then verified by this lane at the line given,
+and the date corrected from 2026-08-28 to 2026-08-25.*
+
+### 2.8 Departures NOT taken
 
 - The band `[1.05, 1.26]` is **kept as Sanaa wrote it**, with the upper edge stated
   to its verified precision, `1.2599`, and it applies **at sigma = 1.0 only**. The
@@ -199,8 +270,10 @@ in §6, which computes `T_disk` two independent ways.
   therefore **REPORTED, NEVER GATED** under this registration; it is also outside the
   cost cap (§10). Gating a sigma sweep against a sigma=1.0 band would be a
   manufactured failure of the same species as Departure 1.
-- The 5% band on §2.7(b) is kept as written. Whether the quantity it bands is
-  well-posed is **OPEN-1** in §14 and is not decided here.
+- **The 5% band on §2.7(b) is kept exactly as Sanaa wrote it.** What changed under
+  OPEN-1 is the **quantity** the band is applied to, not the band — see §9.6. The
+  directive's literal quantity survives as a reported number in §9.6a, so nothing she
+  asked for is discarded; one reading is gated and the other is published beside it.
 
 ---
 
@@ -326,9 +399,13 @@ cone behind. The exact profile is **registered as an artifact at freeze**
 (`case/geometry/centerbody_profile.csv`, produced by the parametric script), not
 described in prose here — a profile described in words is not reproducible.
 
-**`A_disk` is annular, not circular, because the hub occupies 9% of the duct area.
-The theory of §3 is derived for a hubless disk.** This is the substance of **OPEN-2**
-in §14 and it is not resolved by this lane.
+**`A_disk` is annular, not circular. The hub occupies exactly 9.00% of the duct
+frontal area, the tip-gap band a further 3.96%, so the disk annulus covers 87.04%.
+The theory of §3 is derived for a HUBLESS disk.** Resolved in **§7.1**: the centrebody
+is present in **both** arms of the theory-gate ratio, so the departure from the hubless
+ideal falls in the same direction on both and the comparison stays controlled. The
+blockage fractions are a **disclosed departure** and are reported beside the gated
+ratio every time it is reported.
 
 Fluid: air, `rho` = 1.2 kg/m^3, `nu` = 1.5e-5 m^2/s, incompressible. Registered check
 on **every** run: `max|U| < 100 m/s`; any run whose local Mach exceeds 0.3 is
@@ -455,10 +532,43 @@ by root-finding, and the search is registered here in full.
 - **Registered maximum iterations: 6.** Expected 3.
 - **Hitting 6 iterations without meeting tolerance -> `NOT A RESULT`, never
   "close enough".** No extra iterations are granted; §10's cap is the second stop.
-- Geometry of the open arm: **the same annular disk (same `r_tip`, same `r_hub`) with
-  the same centerbody, in the same wedge domain, with the duct removed.** This keeps
-  the comparison a *duct effect* and nothing else. **This is a CHOICE and it is
-  OPEN-2 in §14** — it is the reading this lane recommends, and it is not frozen here.
+### 7.1 REGISTERED geometry of the open arm — the centrebody stays in BOTH arms
+
+**The open reference is the same annular disk (same `r_tip`, same `r_hub`) with the
+SAME CENTREBODY — hub, nose and tail cone — in the same wedge domain, with the DUCT
+REMOVED.** Correspondingly, `A_exit` in `sigma = A_exit / A_disk` is the **annulus** at
+the exit plane, with the tail cone terminating **at** the exit plane, so both areas in
+the ratio are measured the same way.
+
+**Why, and it is the reason to write down: this makes the comparison CONTROLLED. The
+duct is then the ONLY thing that differs between the arms**, which is the single change
+the ratio exists to isolate.
+
+**The honest cost of that choice, registered rather than discovered later.** Both arms
+now depart from the hubless ideal that `(2 sigma)^(1/3)` describes:
+
+- The hub occupies **exactly 9.00%** of the duct frontal area (`r_hub/r_duct = 0.3`,
+  squared).
+- The tip-gap band removes a further **3.96%**, so the disk annulus covers **87.04%**
+  of the duct frontal area.
+- The tail cone occupies part of the slipstream in both arms.
+
+**The departure is in the SAME DIRECTION on both arms, so the RATIO is less affected
+than either arm alone — but it is NOT zero, and this registration does not pretend it
+is.** The theory band has only **17 percentage points of headroom** between 1.05 and
+1.2599, and **this hub uncertainty eats into that headroom.** The blockage fractions
+above are reported beside the gated ratio, every time it is reported.
+
+**The rejected alternative, and why it is worse:** comparing a hub-having ducted arm
+against a **hubless** open arm would buy nominal fidelity to the hubless theory by
+making the ratio measure **two changes at once** — the duct *and* the centrebody. A
+ratio that moves for two reasons cannot attribute its own value. Nominal
+theory-fidelity is not worth an uncontrolled comparison.
+
+*Ruled by `cfd-supervisor`, adopting this lane's §7 recommendation; the blockage
+fractions were computed by this lane.*
+
+Remaining open-arm conditions:
 - The static open disk draws from rest through a farfield `totalPressure`/`inletOutlet`
   pair with `p_0 = 0`, exactly as §2.3 specifies for the ducted static case.
   **Feasibility risk, disclosed: an open disk at static conditions in a finite domain
@@ -561,15 +671,71 @@ augmentation** (§2.2, proved in §12).
 
 Also reported and never gated: `P_ideal / P_disk` on **both** arms (§2.3).
 
-### 9.6 Forward-flight momentum balance (§2.7 b) — **SEE OPEN-1 IN §14**
+### 9.6 GATED — forward-flight momentum balance, proper control volume
 
-As written: `T = mdot (V_e - U_inf)` from the simulation must equal the integrated
-`T_total` within **5%**, as an internal-consistency check on the control-volume
-integration.
+**Evaluated at `delta_p = 1000 Pa`, `U_inf = 20 m/s`, `sigma = 1.0`, L1** — the **same
+state as the Roache triple of §9.3**, so the consistency gate and the triple share one
+converged solution and the GCI band of §9.3 applies to both. **§2.7(b) names no state;
+this state is `cfd-supervisor`'s choice and is recorded as theirs, not Sanaa's.** It
+also means this gate costs **zero additional solves** — it is post-processing on a
+solution stage 4 already buys.
 
-**This lane has NOT registered a formulation for `V_e` and `mdot` and has NOT decided
-between the two candidate readings. §14 OPEN-1 states the problem and both
-candidates. This gate is not freezable until the supervisor rules.**
+**GATED quantity — momentum flux plus the pressure term over a downstream plane `S` at
+`x = 3 D`, integrated to the farfield radius `R = 15 D` and multiplied by
+`WEDGE_SCALE`:**
+
+```
+T_momentum = WEDGE_SCALE * [ integral_S rho u_x (u_x - U_inf) dA
+                           + integral_S (p - p_inf) dA ]
+```
+
+**Registered band, as Sanaa wrote it: `|T_momentum - T_total| / T_total <= 5%`.**
+Outside -> `GATE FAIL`.
+
+This form **needs no point sampling and no `V_e` at all**, which is precisely why it
+is the gated one: the quantity that made the literal reading unsafe does not appear in
+it. `T_total` is the force integration of §2.6; the gate tests the two against each
+other, which is what §2.7(b) says in prose it exists to do — *"forces vs momentum
+balance — if it fails, the control-volume integration is wrong before the physics is
+questioned."*
+
+**Companion refusal, registered because the balance above neglects the lateral
+control-surface term.** The form is exact only if the lateral boundary at `r = R`
+carries negligible momentum flux. That is asserted, not assumed:
+
+> The control volume's **mass** imbalance — mass flux at `S` minus mass flux at the
+> inlet plane minus lateral inflow — is computed and reported as a percentage of the
+> disk mass flow. **If it exceeds 1%, the control volume is not closed, its momentum
+> statement cannot be trusted, and this gate is `NOT A RESULT`** — never a `GATE FAIL`,
+> because a `GATE FAIL` would blame the physics for an integration that did not close.
+
+### 9.6a REPORTED, NEVER GATED — the literal reading, with its caveat attached
+
+The directive's own form is computed and published beside the gated one:
+
+```
+T_literal = mdot_disk * (V_e - U_inf)
+```
+
+with **`V_e` registered as a MASS-FLUX-WEIGHTED MEAN, not a point maximum and not an
+on-axis value**: at the plane `x = 3 D`, let `r_s` be the radius satisfying
+`integral_0^{r_s} rho u_x dA = mdot_disk` — the streamtube that actually carries the
+disk mass flow — and
+
+```
+V_e = integral_0^{r_s} rho u_x * u_x dA  /  integral_0^{r_s} rho u_x dA
+```
+
+**The hub-wake caveat travels with this number wherever it is reported**, in these
+terms: *this case has a 0.3 D hub and a tail cone, so the axis at 3 D lies in the hub
+wake — the slowest part of the slipstream. A `V_e` read as an on-axis or point-maximum
+value would sample a near-minimum of the slipstream and call it the maximum. The value
+reported here is a mass-flux-weighted mean over the disk streamtube and is not
+comparable to a point reading.*
+
+**Same two-quantity structure as §2.2, and for the same reason:** two plausible
+readings of one published requirement exist, both are registered before compute, and
+neither can be quietly substituted for the other once the answer is known.
 
 ### 9.7 Physicality — required on every run
 
@@ -589,9 +755,18 @@ across the map; exit velocity profiles; `P_ideal / P_disk` per point.
 ## 10. Cost — core-minutes, per rung, with a registered cap and a registered STOP ORDER
 
 Rule 12: the unit is **core-minutes** (wall s x ranks / 60). **A proposal with no cost
-is disqualified. An overrun STOPS the run; it does not get a new budget.**
+is disqualified.**
 
-**Registered cap: 320 core-minutes** (Sanaa §2.8). Per-solve estimates from §2.8:
+**Registered cap: 400 core-minutes**, departing upward from §2.8's 320. The full
+basis, the verbatim directive it rests on, and the attribution of which sentence is
+Sanaa's and which is the chief's are in **§2.7**. Under that directive the compute cap
+is a **RUNAWAY GUARD, not a stop condition**: a crossing is **reported to the
+supervisor**, who extends by dated amendment if the work is sound or stops it if the
+run is genuinely stuck. **This applies to the compute cap in this section and to
+nothing else in this document — the 15,000-iteration cap of §8 is a rigor clause and
+is untouched (§2.7).**
+
+Per-solve estimates from §2.8:
 L1 ~ 10, L2 ~ 15, L3 ~ 25 core-min (§2.8 gives 5-15 per solve; 10 is taken for L1,
 and L2/L3 scaled by cell count).
 
@@ -601,30 +776,39 @@ and L2/L3 scaled by cell count).
 | 1 | **Controls** — §6.2 planted (1) + §6.2 C4 negative limb (1) + §6.3 pass-through (1) | 3 | 30 | 34 |
 | 2 | **Theory gate arms** — ducted static (1) + open-disk root-find (up to 6) | 7 | 70 | 104 |
 | 3 | **Roache triple** — L2 + L3 at (1000 Pa, 20 m/s); L1 comes from the map | 2 | 40 | 144 |
-| 4 | **Map** — 4 loadings x 6 airspeeds at L1, minus points already run | up to 24 | up to 240 | up to 384 |
-| | **PROJECTED TOTAL** | | **up to 384** | |
+| 4 | **Map** — 4 loadings x 6 airspeeds at L1, minus points already run | 24 | 240 | 384 |
+| | **PROJECTED TOTAL** | | **384** | vs cap **400** |
 
-### 10.1 THE PROJECTION EXCEEDS THE CAP, AND THAT IS REGISTERED, NOT HIDDEN
+The §9.6 momentum-balance gate and §9.6a add **no solve**: they are post-processing on
+the (1000 Pa, 20 m/s) L1 solution that stage 4 already buys and that stage 3's triple
+already uses. Sharing that one state across three gates is deliberate.
 
-**384 > 320.** Sanaa's §2.8 budgets the 24-solve map at ~4 core-h = 240 core-min and
-then caps the whole program, triple and open-disk reference included, at 320 — which
-leaves 80 core-min for work this lane estimates at 144. **The arithmetic in §2.8 does
-not close, and it is reported rather than absorbed.**
+### 10.1 THE FULL MAP RUNS. THE ORDERING BELOW IS A RUNAWAY GUARD, NOT THE PLAN.
 
-**Registered resolution — a STOP ORDER frozen before compute, so no truncation is
-ever chosen after seeing a result:**
+**All 24 map points are budgeted and all 24 are expected to run.** 384 against a cap of
+400 leaves ~4% margin. The earlier draft of this document proposed truncating the map
+to fit §2.8's 320; **that truncation is withdrawn**, because dropping 7 of 24 points to
+save roughly $0.05 is precisely what the cost-lift directive quoted in §2.7 forbids —
+*"no team stops anything in the name of saving compute."*
+
+**What is retained, and it is retained for a different purpose:** a **frozen execution
+order**, registered before compute so that if the cap is ever approached the
+degradation is deterministic and was chosen blind rather than after seeing a result.
 
 1. Stages 0-3 (**144 core-min**) are the gates and they run first, in the order above.
-2. Stage 4 spends **whatever remains under 320**, i.e. **~176 core-min ~ 17 of the 24
-   map points**, in this **frozen order**: all six airspeeds at `delta_p = 1000` first,
-   then all six at 500, then 2000, then 200. Within each loading, ascending `U_inf`.
-3. **The first solve whose projected completion would carry the running total past 320
-   is not launched.** Unrun map points are **`PENDING`**, named individually in the
-   results record. `PENDING` here is a queue state, never a softened verdict.
-4. **The map truncates. The gates do not.** Registered so that a cost squeeze can
-   never quietly cost a gate.
-5. This ordering gives **complete airspeed curves at three loadings** rather than a
-   ragged grid, which is the more useful truncation and is chosen now, blind.
+2. Stage 4 runs the full map in this **frozen order**: all six airspeeds at
+   `delta_p = 1000` first, then all six at 500, then 2000, then 200. Within each
+   loading, ascending `U_inf`. This ordering yields **complete airspeed curves loading
+   by loading** rather than a ragged grid, so any interruption — cap, stall, session
+   loss — leaves usable curves.
+3. **If the running total reaches 400**, the crossing is **reported to the supervisor**,
+   who extends by dated amendment or stops the work. It is **not** an automatic kill:
+   under the directive in §2.7 a cap crossing is no longer by itself a reason to stop a
+   sound run.
+4. **If work is stopped at a crossing, the map degrades and the gates never do** — the
+   gates are already complete by construction, since they run first. Unrun map points
+   are **`PENDING`**, named individually in the results record. `PENDING` is a queue
+   state, never a softened verdict.
 
 Any run exceeding **3600 wall s** is a **stall**, is reported as such, and its spend
 is stated **gross**, with waste **named separately and never absorbed** into the
@@ -632,8 +816,8 @@ estimate-vs-actual ratio.
 
 ### 10.2 Dollars, and what may not be claimed
 
-Derived at the owner-stated **$0.0513/core-h** for c7a.4xlarge: 320 core-min = 5.33
-core-h = **$0.274, DERIVED NOT MEASURED**. **The box cannot read its own billing**
+Derived at the owner-stated **$0.0513/core-h** for c7a.4xlarge: 400 core-min = 6.67
+core-h = **$0.342, DERIVED NOT MEASURED**. **The box cannot read its own billing**
 (`COMPUTE_BUDGET_CHARTER.md` §5), so `cost_basis` states reported-by-owner, never
 measured. This is a CPU run and sits inside the under-$25 pre-authorisation; **a
 blanket is not a per-item read** (rule 9), and the per-item cost is registered above
@@ -649,15 +833,27 @@ misprediction — **waste named separately**), and lands **a row in
 protocol, and `scripts/append_block.py` (L-405: no heredoc in the write path).
 **A completion report without this row is incomplete.**
 
-*Note recorded for the supervisor rather than relied upon: the drafting brief stated
-that Sanaa lifted cost CONSTRAINTS on 2026-08-28 while retaining cost MEASUREMENT,
-making caps runaway guards. **This lane could not verify that in the session record** —
-`etc/sessions/2026-08-28T1701Z_...md` carries three directives (lesson, re-grade
-sweep, freeze-ahead) and none of them concerns cost, and the most recent cost wording
-this lane can cite is `etc/sessions/2026-08-30T2247Z_...md:9`, "costed per rules 2
-and 12 (under-$25 pre-authorised)". **This registration therefore treats the 320 cap
-as a BINDING STOP under rule 12 as written**, which is the conservative reading and is
-correct under either. No agent's statement is Sanaa's consent (rule 9).*
+### 10.4 Provenance of the cost-lift, and how it was established
+
+Recorded because the route to it matters more than the conclusion.
+
+The drafting brief cited the lift to `etc/sessions/2026-08-28T1701Z_...md`. **It is not
+there** — that file carries three directives (lesson assigned, re-grade sweep,
+freeze-ahead amendment) and none concerns cost. This lane therefore **declined to widen
+the ceiling** and registered the 320 cap as a binding stop, on the ground that no
+agent's statement is Sanaa's consent (rule 9) and that a supervisor's assertion is not
+a citation.
+
+The supervisor then supplied the correct location and **this lane verified it at the
+line rather than accepting the correction**: `docs/LAB_STATE.md:712`, quoted verbatim in
+§2.7, dated **2026-08-25** — not 2026-08-28 as both the brief and the correction stated.
+`cfd` is one of the three teams she names, so the lift reaches this case **directly**
+and no chief-side inference is relied on.
+
+**The refusal was correct and the outcome is correct, and they are not in tension.**
+Rule 9 asks for a citation, not for obedience and not for obstruction; when the citation
+arrived and checked out, the ceiling moved. A cap raised on a verified quotation is a
+different object from a cap raised on a message.
 
 ---
 
@@ -792,96 +988,130 @@ confirms Chew p.5 eq (7)'s `sigma_d = 0.5` for an open rotor.
 | 10 | Root-find exceeds 6 iterations or leaves the bracket | `NOT A RESULT` for the theory gate; G and the map stand |
 | 11 | `T_total/T_open` in [1.05, 1.2599] | `PASS` on the theory gate |
 | 12 | `T_total/T_open` outside that band, **either edge** | `GATE FAIL` |
-| 13 | §9.6 forward-flight balance outside 5% | `GATE FAIL` — **subject to OPEN-1** |
-| 14 | Cost reaches 320 core-min | remaining map points `PENDING`, named individually; gates already complete |
-| 15 | This document is not frozen by the supervisor | `PENDING` — the current state |
+| 13 | §9.6 control-volume mass imbalance > 1% | `NOT A RESULT` for the balance gate — never `GATE FAIL` |
+| 14 | §9.6 balance outside 5% with the CV closed | `GATE FAIL` |
+| 15 | Cost reaches the 400 core-min cap | crossing **reported to the supervisor**, who extends by dated amendment or stops; if stopped, remaining map points `PENDING`, named individually — gates already complete by construction |
+| 16 | This document is not frozen by the supervisor | `PENDING` — the current state |
 
 ---
 
-## 14. OPEN QUESTIONS — NOT DECIDED BY THIS LANE. RESOLVE BEFORE FREEZE.
+## 14. THE THREE OPEN QUESTIONS — ALL RULED. RECORD OF WHO RULED WHAT.
 
-Three items. This lane declines to choose on all three, because freezing an
-ambiguity is worse than freezing late, and because the supervisor holds the
-non-delegable check.
+All three items this lane raised and declined to decide have been ruled by
+`cfd-supervisor`. Each ruling is recorded **with its author**, because a registration
+that does not say whose choice a gate embodies cannot later be audited for whether the
+gate was chosen to fit an answer.
 
-### OPEN-1 — §2.7(b) may not be well-posed as written
+**None of the three was decided by the lane that raised it, and none was decided after
+seeing any result — no compute has been run.**
 
-§2.6 defines `V_e` as *"far-slipstream velocity (max axial velocity at 3 D downstream
-on the axis)"*, and §2.7(b) gates `T = mdot (V_e - U_inf)` against the integrated
-`T_total` within 5%.
+| Item | Ruling | Where it now lives | Ruled by |
+|---|---|---|---|
+| **OPEN-1** — §2.7(b) ill-posed: `V_e` ambiguous, and the axis at 3 D sits in the **hub wake**, the slowest part of the slipstream | Adopt the **proper control-volume balance including the pressure term** as the GATED quantity; **report** the literal reading with `V_e` redefined as a **mass-flux-weighted mean over the disk streamtube**, never a point maximum or an on-axis value, with the hub-wake caveat attached | **§9.6** (gated, + CV-closure refusal) and **§9.6a** (reported) | `cfd-supervisor`; diagnosis by this lane |
+| **OPEN-1a** — §2.7(b) named no state | Evaluate at **`delta_p` = 1000 Pa, `U_inf` = 20 m/s** — deliberately the same state as the Roache triple, so both share one converged solution and the GCI band covers both. Costs **zero extra solves** | **§9.6** | `cfd-supervisor` — **explicitly recorded as their choice, not Sanaa's** |
+| **OPEN-2** — "open disk of the same area" under-specified against a 9% hub; `sigma` under-specified by the tail-cone termination | **Centrebody present in BOTH arms**, duct removed from the reference; `A_exit` annular with the tail cone terminating **at** the exit plane. Makes the duct the only difference between arms. Hub blockage disclosed as a departure eating into the band's 17 points of headroom | **§7.1**, and **§4** | `cfd-supervisor`, adopting this lane's recommendation |
+| **OPEN-3** — §2.8's own arithmetic does not close (144 + 240 = 384 > 320) | Cap raised to **400 core-min**, disclosed as an **upward** departure Sanaa may overrule; the **full 24-point map runs**; the gates-first ordering is retained as a **runaway guard, not a truncation plan** | **§2.7** and **§10** | `cfd-supervisor`, on Sanaa's cost-lift at `docs/LAB_STATE.md:712` — citation verified at the line by this lane |
 
-Three problems, all specific:
+### 14.1 What each ruling changed, stated so the change is visible
 
-1. **"max axial velocity at 3 D downstream on the axis" is itself ambiguous** — max
-   *over the plane at 3 D*, or the value *on the axis at 3 D*? These are different
-   numbers and, with a centerbody, they are far apart.
-2. **With this geometry, the axis at 3 D is in the HUB WAKE — the SLOWEST part of the
-   slipstream, not the fastest.** The case has a 0.3 D hub with a tail cone; the axis
-   downstream carries its wake deficit. Reading "max" on the axis would sample a
-   near-minimum of the slipstream.
-3. **`mdot (V_e - U_inf)` is not the momentum balance for a duct.** A correct
-   control-volume thrust is `integral rho u (u - U_inf) dA` over an exit surface plus
-   the pressure terms on that surface. Substituting a **single-point** velocity for a
-   **non-uniform** profile, and the **disk** mass flow for the **entrained streamtube**
-   mass flow at 3 D, introduces errors that this lane's judgement says will not close
-   to 5% in a viscous RANS with a duct — which would produce a `GATE FAIL` on the
-   instrument, not on the physics, and §2.7(b) says explicitly it is meant to test
-   *"the control-volume integration ... before the physics is questioned"*.
+- **OPEN-1** turned one gate that would have failed on its own formulation into one
+  gate that tests what §2.7(b) says in prose it tests, plus one reported number that
+  preserves the directive's literal form without letting it decide anything. The
+  neglected lateral term is now bounded by a registered **mass-closure refusal**
+  (§9.6), so a control volume that does not close returns `NOT A RESULT` rather than
+  blaming the physics with a `GATE FAIL`.
+- **OPEN-2** chose a **controlled** comparison over a nominally theory-faithful one,
+  and paid for it in disclosure: both arms now depart from the hubless ideal, in the
+  same direction, and the blockage fractions ride alongside the gated ratio.
+- **OPEN-3** removed a self-inflicted scope cut. The earlier draft's truncation is
+  **withdrawn** and named as withdrawn in §10.1 rather than quietly deleted.
 
-**Two candidate readings, both defensible, neither chosen here:**
+### 14.2 One item remains open, and it is NOT a gate
 
-- **(A) Literal.** Keep `mdot (V_e - U_inf)` with `V_e` = the area-weighted mean axial
-  velocity over the disk-area annulus at 3 D and `mdot` = the disk mass flow.
-  Cheap, matches the directive's words most nearly, **and is the reading most likely
-  to fail on formulation rather than on physics.**
-- **(B) Proper control volume.** `T = integral rho u_x (u_x - U_inf) dA + integral
-  (p - p_inf) dA` over the plane at 3 D, out to the farfield radius, wedge-scaled.
-  Physically correct, closes to a few percent if the integration is right, is the
-  gate §2.7(b) actually describes in prose, **and is a larger departure from her
-  written formula than any departure in §2.**
+**Not blocking this registration; raised for the supervisor's disposition.**
 
-Also unresolved by either: **which loading and airspeed the gate is evaluated at.**
-§2.7(b) names none.
+The same board section that carries the cost-lift also carries a standing directive to
+this team: Sanaa's `docs/LAB_STATE.md:712` continues, in her own words, that the `cfd`
+team *"can also read the High_order_grid_convergence.pdf in docs/standard"*, and the
+chief's reading at `:743-745` sharpens that to **"`cfd` reads it FIRST, before
+continuing its tasks"**, on the ground that `cfd` did bump into numerical convergence
+issues — with the lessons then to be recorded into this team's own charters and, if
+`ansys-verification` has not already done so, into the lab's charters, numerics
+knowledge and the mesh/verification standards.
 
-**This lane's recommendation, offered and not taken: (B), registered as a departure
-with (A) computed and REPORTED alongside** — the same two-quantity structure that
-Ruling B applies to the static gate, for the same reason. But this is a gate
-formulation, not a lane's call.
+**This bears on this registration**, which rests on a Roache triple, an observed order
+and a GCI. **And the board attaches a rule-15 warning to that very file:** commit
+`01fcb3d8` records that this same PDF was previously found to be **Ekaterinaris 2005 on
+high-order low-diffusion schemes — zero Roache, zero GCI, zero Richardson** — while two
+teams were about to write its "lessons" into the mesh and verification standards.
+**Whoever reads it verifies the title page, never the filename.**
 
-### OPEN-2 — what "an open actuator disk of the same area" means, given a hub
+This lane has **not** read it and does not claim to have. It is flagged here because a
+supervisor deciding whether to freeze a grid-convergence registration should know an
+unactioned directive touching grid convergence is outstanding — and should know it may
+point at a paper about something else entirely.
 
-§2.7(a)'s reference is *"an open actuator disk of the same area"*, and §3's theory is
-derived for a **hubless** disk. This case's disk is **annular**: `r_hub = 0.0375 m`,
-`r_tip = 0.1225 m`, so the hub occupies **9% of the duct's frontal area** and the
-tail cone occupies part of the slipstream. Two consequences:
+---
 
-1. **The open reference is under-specified.** Same *annular* area with the same
-   centerbody present? Or same *circular* area, hubless? These give different `T_open`
-   and therefore a different gated ratio.
-2. **`sigma = A_exit / A_disk = 1.0` is under-specified in the same way.** With
-   `A_disk` annular at 0.0427257 m^2, is `A_exit` a full circle of radius 0.11663 m
-   (i.e. the duct **contracts** at the exit, and the tail cone ends **before** the exit
-   plane), or an annulus around a tail cone that extends **past** the exit? §2.2 says
-   only "a tail cone behind" the disk. The two give different duct shapes for the same
-   registered `sigma`, and the gate is on `sigma = 1.0`.
+## APPENDIX A — DRAFT `N`-ENTRY FOR `docs/NUMERICS_KNOWLEDGE.md` (NOT FILED)
 
-**This lane's recommendation, offered and not taken:** the open reference keeps the
-**same annular disk and the same centerbody**, duct removed — so the ratio isolates
-the duct and nothing else; and `A_exit` is the **annulus** at the exit plane with the
-tail cone terminating **at** the exit plane, so both areas are measured the same way.
-That reading is registered in §7 as a recommendation and is flagged there as
-unfrozen. **Either way it must be stated in the frozen text, because the hub is a
-9% departure from the theory the gate cites, and the gate band has only 17% of
-headroom between 1.05 and 1.2599.**
+**`NOT FILED`.** This appendix is a **draft** held here so it is not lost. It has **not**
+been appended to `docs/NUMERICS_KNOWLEDGE.md`, which is a **lab-wide** document outside
+this team's territory. **This lane does not unilaterally edit lab-wide records**, and the
+id below is a placeholder: a real id is derived at append time from the tail, as the
+**maximum existing number, never a count** (rule 11), in the same shell invocation as the
+append, through `scripts/append_block.py` so no heredoc is ever in the write path (L-405).
 
-### OPEN-3 — the §2.8 cost arithmetic does not close
+> ### N-XXX — An OpenFOAM `fvOptions` source can be wrong by the cell-zone volume, silently, and the case still converges
+>
+> **Class:** converged-but-wrong. **Applies to:** every team using `fvOptions`
+> `semiImplicitSource` / `vectorSemiImplicitSource` (and any `cellSetOption` source
+> sharing the `volumeMode` mechanism). **Measured in:** OpenFOAM v2606 on this box.
+>
+> `volumeMode` is a **required** dictionary entry, and it silently rescales the number
+> you supply. In
+> `src/fvOptions/sources/general/semiImplicitSource/SemiImplicitSource.C`:
+>
+> - `:534` — `volumeModeTypeNames_.get("volumeMode", coeffs_)`. A `get`, not a
+>   defaulted lookup.
+> - `:537-540` — `absolute` sets `VDash_ = V_`, the **cell-zone volume**; `specific`
+>   leaves `VDash_ = 1`.
+> - `:348`, `:357`, `:367` — the supplied value is **divided by `VDash_`**.
+> - `:224` — the class constructor's own default is `vmAbsolute`.
+>
+> So the same number means a **total over the zone** under `absolute` and a
+> **per-unit-volume density** under `specific`. A source written in `N/m^3` and run
+> under `absolute` is under-applied by the zone volume — on the case that found this,
+> a zone of ~5.9e-4 m^3, i.e. **three to four orders of magnitude**.
+>
+> **Why it is dangerous rather than merely wrong: the case still meshes, still runs,
+> still converges to tight residuals, and produces a smooth, monotone, entirely
+> plausible map.** There is no crash, no warning and no residual signature. Nothing in
+> the completion rule catches it, because every clause of the completion rule is
+> satisfied.
+>
+> **Aggravating factor on axisymmetric wedges:** `specific` is **wedge-invariant** — a
+> per-unit-volume density is the same number at any wedge angle — while `absolute`
+> must be rescaled by the wedge fraction, one further silent factor (72, for a
+> 5-degree wedge).
+>
+> **The remedy is a control, not care.** State `volumeMode` explicitly in every frozen
+> `fvOptions`, and prove the source magnitude through the **real production path**: a
+> planted control that computes the imposed quantity **two independent ways** — once
+> analytically from the registered inputs, once integrated from the solved fields with
+> any geometric scale factor applied — and refuses on disagreement. Then a **negative
+> limb**: deliberately mis-set the source by a known factor and require the control to
+> **refuse**. A control that has never been shown able to fail has certified nothing
+> (Sanaa's control-birth directive, 2026-08-28).
+>
+> **Found by:** cfd, while drafting `F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md`, by
+> reading the v2606 source rather than trusting the units written in the brief. **No
+> run of this lab is known to be affected; no sweep for affected cases has been done,
+> and this entry does not claim one.**
 
-Stated fully in §10.1: §2.8's own numbers total ~384 core-min against its own cap of
-320. §10.1 registers a stop order that protects the gates and truncates the map, and
-that resolution is **this lane's construction, not the directive's**. The supervisor
-should either accept it, raise the cap explicitly with its own cost basis, or cut the
-map's scope before freeze. **It is registered rather than silently absorbed, because
-an overrun stops the run and does not get a new budget (rule 12).**
+**Owed if this is landed:** a sweep of existing `fvOptions` dictionaries in the repo for
+a missing or `absolute` `volumeMode` where the value is dimensionally a density. **That
+sweep has NOT been run and nothing here should be read as saying it has.**
 
 ---
 
