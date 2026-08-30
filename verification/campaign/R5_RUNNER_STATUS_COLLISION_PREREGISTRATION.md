@@ -622,3 +622,212 @@ git index was not touched, no `git add` of any form was issued, and `refs/heads/
 **37 violations across 8 rules (rc 1)** at 2026-08-28T17:35Z. The after-reading and the attribution
 of any change belong to the freezing invocation; an improvement claimed by the wrong agent is a
 false record in the cheap direction.
+
+---
+
+## AMENDMENT 1 — 2026-08-30T23:06Z (PRE-COMPUTE) — the second runner-written file: `launcher.queue.out` collides **EIGHT WAYS AND ACROSS TEAMS**, and §2.3's "next relaunch of the same case" understates the hazard
+
+**Version 1.1. Lines whose number changed above this section: 0 — MEASURED, not recited.**
+This block is appended at the **foot**. The **624** lines above it are byte-identical to their
+state at the freeze commit `52632a2dd3cc78fccf0855684dffc386f79dc701`, asserted by taking the
+**md5 of the frozen blob** (`git show 52632a2d:verification/campaign/R5_RUNNER_STATUS_COLLISION_PREREGISTRATION.md`)
+and the **md5 of the first 624 lines of this file after the append**, and requiring them equal.
+The frozen digest is **`be24e1892b631c9850119a4005c051b5`**; the post-append digest is asserted
+equal to it in the appending invocation, which reverts the write on any difference. The assertion
+is **measured** because this registration's frozen sha is cited by its own queue entry
+(`verification/campaign/queue_entry_R5_RUNNER_STATUS_COLLISION.json`, `prereg_commit` and the
+`--prereg-commit=` argument of `launch_cmd`) and a line shift above this point would break the
+citations that entry's launch depends on.
+
+**This block was written through `scripts/append_block.py`, not a heredoc** — the body was read
+from a file as bytes, no shell saw it, and the landed tail was compared byte-for-byte against the
+intended bytes (L-405).
+
+### A1.1 THE RULE-2 CONDITION, AND HOW IT WAS CHECKED
+
+Rule 2: *"Before first compute, amendments are legal **and must state the condition and how it
+was checked** (name the run directory that does not exist)."*
+
+**The run directory that does not exist is `/home/ubuntu/Certonomous/verification/runs/TOOLING_REPAIRS`**,
+and with it its registered child `R5_STATUS_COLLISION_2026-08-28` and the launch target
+`/home/ubuntu/Certonomous/scripts/run_r5_status_collision_repair.sh`. Re-checked by this lane at
+**2026-08-30T23:05:13Z** — not inherited from the registering lane's 2026-08-28 reading, because
+two days passed and an absence has a shelf life. Each path checked four ways: `os.path.exists`
+**False**, `os.path.lexists` **False**, `os.path.isdir` **False**, `glob` **[]**. Two wider globs:
+`verification/runs/TOOLING*` → **[]** and `scripts/run_r5*` → **[]**.
+
+**PLANTED CONTROL ON THE ABSENCE READER (rule 3).** A zero from a reader not shown able to see a
+non-zero is not evidence. The same four-way reader was pointed at
+`/home/ubuntu/Certonomous/verification/runs/F3_runs` and at this file's own path and returned
+**exists=True**, **lexists=True**, **glob_n=1** for both, and the same `glob` returned **14**
+entries for `/home/ubuntu/Certonomous/cases/*/launcher.queue.out`. The reader can return a
+non-zero, so its zeros above are evidence.
+
+**No driver exists, no run root exists, no `LAUNCHED` line exists, and 0.000 core-minutes have
+been spent under this registration. R5 is pre-compute and this amendment is legal.**
+
+**The sixth condition of `run_root_absence` re-checked too**, because the subsumption ruling rests
+on it: `scripts/queue_runner.py` in the worktree hashes to blob
+`94fdabfcaf661d0d7cf3bdf1bbffae81e3845f03`, **identical** to `git rev-parse HEAD:scripts/queue_runner.py`
+— the only index-immune comparison while the shared index stages whole-file deletions — and `:496`
+still reads `status = cwd / f"STATUS.{case_id}"`. **The relocation has not landed.**
+
+### A1.2 WHAT §2.3 SAYS, AND WHY IT UNDERSTATES THE HAZARD
+
+§2.3 reason 1, at line 90–92, reads:
+
+> **The recovery is perishable.** `launcher.queue.out` is written by the runner into the same
+> `cwd` by the same mechanism (`:497`) and is **truncated on the next launch of the same case**.
+
+**"Of the same case" is the understatement, and it is understated in the direction that makes the
+hazard look containable.** `STATUS.<case_id>` is case-keyed, so its collision genuinely is
+per-case — that is the F27 collision this registration is built around. **`launcher.queue.out`
+carries no case id at all.** Its collision is therefore not per-case but **per-`cwd`**: every
+entry sharing a `cwd` shares **one** file, and each launch truncates the last one's record. The
+correct sentence is *"truncated on the next launch of **any entry sharing that `cwd`**"*.
+
+This amendment **records a widened hazard. It alters no gate, no threshold, no cap and no label**
+— see A1.7.
+
+### A1.3 THE MEASUREMENT — TWO RUNNER-WRITTEN FILES, BOTH UNCONDITIONALLY TRUNCATED
+
+Read by this lane from `scripts/queue_runner.py` at the blob named in A1.1, `launch()`:
+
+- `:496` — `status = cwd / f"STATUS.{case_id}"` — **carries the case id**.
+- `:497` — `out = cwd / "launcher.queue.out"` — **carries no case id**. A literal basename.
+- `:502-504` — the detached wrapper string:
+  `cd '{cwd}' && {quoted} > '{out}' 2>&1; R=$?; echo "launcher_rc=$R ..." > '{status}'`
+
+Both are **unconditional shell `>` truncations**. Neither is guarded by an existence test, and
+`archive_previous_records()` (`:454-470`) is handed `launched_dir`, never `cwd`, so nothing
+archives either file.
+
+**A CORRECTION TO THE ORDERING, IN THE DIRECTION THAT MAKES IT WORSE.** The brief that ordered
+this amendment described both writes as landing *"after the launch argv returns"*. That is exact
+for `STATUS.<case_id>`, which is written by the `echo` after `R=$?`. It is **not** exact for
+`launcher.queue.out`: `> '{out}'` is a **redirection**, and the shell truncates the target when it
+sets the redirection up — i.e. **at the instant the argv starts**, before the argv has produced a
+single byte. So the previous record is destroyed by the next launch **attempt**, whatever its
+outcome: a launcher that refuses at zero compute and exits immediately still destroys it. The
+window is not "until the next launch completes"; it closes the moment the next launch begins.
+
+### A1.4 THE EIGHT ENTRIES THAT SHARE THE REPOSITORY ROOT AS `cwd`
+
+Measured by this lane at 2026-08-30T23:0xZ over every `*.json` under `verification/queue/**` and
+every `verification/campaign/queue_entry_*.json` — **218 entries carrying a `cwd`, across 186
+distinct `cwd` values**. Grouped, the repository root `/home/ubuntu/Certonomous` carries **eight**:
+
+| # | `case_id` | entry file | state |
+|---|---|---|---|
+| 1 | `VR1_SELECTOR_ACCEPTANCE` | `verification/queue/verification/launched/VR1_SELECTOR_ACCEPTANCE.json` | **LAUNCHED** |
+| 2 | `VR2_ORDERING_ARM_MONITOR` | `verification/queue/verification/launched/VR2_ORDERING_ARM_MONITOR.json` | **LAUNCHED** |
+| 3 | `VR3_GUARD_SET_ATTRIBUTION` | `verification/queue/verification/launched/VR3_GUARD_SET_ATTRIBUTION.json` | **LAUNCHED** |
+| 4 | `VR4_EXEC_HOST_CONTROL` | `verification/queue/verification/launched/VR4_EXEC_HOST_CONTROL.json` | **LAUNCHED** |
+| 5 | `R2_QUEUE_HOST_SCOPE_REPAIR` | `verification/campaign/queue_entry_R2_QUEUE_HOST_SCOPE_REPAIR.json` | **HELD, not enqueued** |
+| 6 | `R3_COMMIT_RENAME_MODE` | `verification/campaign/queue_entry_R3_COMMIT_RENAME_MODE.json` | **HELD, not enqueued** |
+| 7 | `R4_QUEUE_LAUNCH_TARGET_REPAIR` | `verification/campaign/queue_entry_R4_QUEUE_LAUNCH_TARGET_REPAIR.json` | **HELD, not enqueued** |
+| 8 | `R5_RUNNER_STATUS_COLLISION` | `verification/campaign/queue_entry_R5_RUNNER_STATUS_COLLISION.json` | **HELD, not enqueued** |
+
+**Four are verification's and already launched; four are cfd's own and held.** Stated precisely
+because the difference matters: **today the collision set is four live**, and it becomes eight the
+moment R2–R5 are enqueued. **R1 is NOT in this set** — `queue_entry_R1_F3S_SELECTOR_REPAIR.json`
+carries `cwd = /home/ubuntu/Certonomous/verification/runs/F3_runs` and collides with nothing.
+
+**RECONCILING WITH §2.4's OWN SWEEP, which found the seed of this and scoped it away.** The
+`cap_watch_sweep_result` field of this item's queue entry already recorded *"8 `cwd` values are
+shared by more than one `case_id` — `/home/ubuntu/Certonomous` by 4 verification VR entries"*. It
+said **4**, not 8, and it is not wrong: that sweep ran on 2026-08-28 over `verification/queue/*/`
+and `*/*/` only, where R2–R5 do not live. **And it drew the conclusion for `CAP_OVERRUN.txt` and
+`ESTIMATE_OVERRUN.txt` and not for `launcher.queue.out`** — the same "no case id in the basename"
+reasoning, applied to two files and stopped one file short. The instrument was right and its scope
+was narrow; this amendment widens the scope, it does not overturn the reading.
+
+### A1.5 THE LIVE INSTANCE — ANOTHER TEAM'S VERDICT RECORD IS SITTING IN THE SLOT
+
+`/home/ubuntu/Certonomous/launcher.queue.out`, read by this lane 2026-08-30T23:0xZ:
+
+- **677 bytes**, mtime **2026-08-28 17:57:55.978316263 +0000**, **UNTRACKED at HEAD**
+  (`git ls-tree -r HEAD` returns no such path), sha256
+  `d37f307c6cee7d8740a7c5a3e9dd3a3687a6a5190f8705b2288f954c606d447c`.
+- Opening line, verbatim:
+  `VR4 -- exec_host control (frozen: VR4_PREREGISTRATION.md @ ffe5ded7)`
+- It carries all three control limbs (`local/absent REFUSE, remote/present NOT MEASURED,
+  local/present PASS`), two per-entry `NOT MEASURED EXEC` classifications citing L-394, and the
+  closing line `VERDICT: PASS -- all control limbs behaved and 2 live entr(y/ies) classified`.
+
+**That file is verification's VR4 verdict record, and it is the only copy.** Launching R2, R3, R4
+or R5 as currently registered — all four carry `cwd = /home/ubuntu/Certonomous` — truncates it at
+the instant the launch argv starts. **This is not a projected hazard; it is a loaded one.**
+
+### A1.6 THE DESTRUCTION HAS ALREADY FIRED THREE TIMES AT THIS PATH
+
+Four `STATUS.VR*` files sit at the repository root, each **93 bytes** and each in the runner's own
+format (`launcher_rc=0 end=... note=exit-status-of-the-launch-argv-NOT-the-solver-rc`), with
+mtimes **17:34:05, 17:55:46, 17:56:51 and 17:57:55** on 2026-08-28. Four launches, one `cwd`, one
+`launcher.queue.out` — which holds **only the fourth**. VR1's, VR2's and VR3's stdout records were
+each truncated by the launch that followed.
+
+**AND HERE THE LOSS IS WORSE THAN F27's, for the exact reason §2.3 reason 2 predicted.** §2.3 was
+able to say the F27 loss was *"the loss of a record, not the loss of the information in it"*
+**only because `run_f27.sh` happened to print its cap and spend to stdout, and stdout landed in a
+sibling file**. Here **`launcher.queue.out` IS the destroyed file**, so that redundancy does not
+exist — and this lane checked whether the four VR validators persist their verdicts anywhere else
+before writing this sentence. They do not: `vr2_ordering_arm_monitor.py` contains **no file-write
+call at all**; `vr1_selector_acceptance.py`'s only `open(..., "w")` writes `"x\n"` into its own
+scratch fixture; `vr3` and `vr4` open files only for **reading**. All four print their verdict to
+stdout, which the runner redirects to `launcher.queue.out` and nowhere else. **For VR1, VR2 and
+VR3 the information is gone with the record.** §2.3 reason 2 — *"a launcher that wrote its cap and
+spend only to STATUS would lose them outright, and nothing in the lab stops the next one from
+doing exactly that"* — was written on 2026-08-28 about a hypothetical, and the same afternoon four
+entries in that class had already run.
+
+**BOUNDED HONESTLY.** The destroyed bytes cannot be read back, so this is not a recovered
+artifact. The claim rests on the mechanism at `:502` plus four `launcher_rc=0` records plus one
+surviving file, and on VR4's surviving output establishing that this class of validator prints a
+full verdict record to stdout. It is not directly established that VR1–VR3 printed anything;
+inferring that they did from the behaviour of their sibling is an inference, and it is labelled as
+one. **This is an assertion about another team's completed runs, so `SUPERVISION_CHARTER.md` §3's
+big-claim check is the cfd-supervisor's and is not discharged by this amendment.** Nothing in
+verification's territory was written, moved or annotated by this lane.
+
+### A1.7 WHAT THIS AMENDMENT DOES **NOT** DO — enumerated, not summarised
+
+1. **It moves no gate.** G-R5-1 … G-R5-9 stand exactly as frozen, in wording and in required
+   outcome. No gate is added, retired, widened or narrowed.
+2. **It moves no threshold and no cap.** `cap_core_min_registered` remains **0.7000** core-min,
+   `cap_over_estimate` **1.4840×**, the estimate **0.4717** core-min and the 42.0 s wall allowance
+   around terms (b), (c) and (d) exactly as registered. An overrun still **stops the item** and
+   grades **NOT A RESULT**.
+3. **It moves no label.** `verdict_state` remains **`PENDING`**.
+4. **It does not change the repair.** Candidate (a) — `:496` writing
+   `STATUS.queue.<case_id>` unconditionally, **ONE HUNK** — is untouched, and the widened hazard
+   recorded here is deliberately **NOT** folded into it. A second hunk covering
+   `launcher.queue.out` would be a third hunk under `permitted_edit` and **GATE FAIL under
+   G-R5-9**, and letting this item's PASS rest on evidence about a defect it was not registered
+   against is precisely what §2.4 refused for the `CAP_OVERRUN.txt` collision. **Reported, not
+   repaired here** — the same disposition, for the same reason.
+5. **It enqueues nothing and launches nothing.** No file was written into `verification/queue/`
+   by this lane, no driver was run, no solver was launched, and the live queue daemon was neither
+   signalled nor restarted.
+6. **It does not amend §2.3.** §2.3's text stands unedited and struck by nothing; a reader who
+   reaches line 91 and stops has the narrow reading, and this block is where the wide one lives.
+
+### A1.8 WHAT IS OWED, AND EXPLICITLY NOT CLAIMED DONE
+
+**The remedy must cover BOTH runner-written files, not only `STATUS.<case_id>`.** A repair that
+gives `STATUS.<case_id>` a `queue.` prefix and leaves `launcher.queue.out` a bare literal fixes
+the per-case collision and leaves the per-`cwd` one entirely intact — and the per-`cwd` one is the
+larger of the two by every measure taken here: it is cross-team, it has **already fired**, and it
+destroys the very file §2.3 relies on as F27's recovery medium. Whoever specifies the remedy —
+this item's successor, or `docs/standards/QUEUE_RUNNER_RECORD_LOCATION.md` if the relocation lands
+first, which its `§3.2` scope already appears to cover — **must name both files or say in writing
+why one is left**.
+
+**Not claimed done, and owed to whoever picks it up:** the lab-wide count, measured in the same
+invocation. Of **218** entries across **186** distinct `cwd` values, **8** `cwd` values are shared
+by two or more **distinct** `case_id`s — the same **8** §2.4's own sweep found, which is the
+reconciliation — and **33** distinct cases sit in one. Taking the last launch in each shared `cwd`
+as the survivor, **25 `launcher.queue.out` records are destroyable by a relaunch today.** The
+largest single set is **11** distinct cases at `cases/dafoam/curriculum_D12R2` — larger in count
+than the repository root's eight, though single-team where the root's set spans two. Those are
+**cfd's readings of other teams' entries and are reported, not repaired, and not graded here.**
