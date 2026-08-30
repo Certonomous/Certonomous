@@ -66,6 +66,7 @@
     "sid": 1280302,
     "status_file": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/STATUS.W3_chain",
     "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/launcher.queue.out",
-    "started_epoch": 1788131411.1519318
+    "started_epoch": 1788131411.1519318,
+    "status_seen_utc": "2026-08-30T23:11:11Z"
   }
 }
