@@ -301,3 +301,202 @@ box** (rule 7).
 the lane stops. The pre-compute gate is the supervisor's: the comparator diff read personally
 as a diff, and the freeze commit confirmed to exist. Neither is delegable and neither is
 claimed here.
+
+---
+
+## AMENDMENT 1 — 2026-08-30 — AV2 ADDED; THE MTIME HAZARD FOUND AND REPAIRED; THE FD SPLIT REGISTERED
+
+**Version 1.0 → 1.1.** Appended at the foot under rule 6; nothing above is edited.
+**`lines whose number changed above this section: 0`** — proved by byte comparison, not
+asserted: the file's first **20,834 bytes / 303 lines** were captured before this append and
+compared byte-for-byte after it, md5 `799f1c2c7d859a97435047657887a212` on both sides. The
+block was written through `scripts/append_block.py`, which reads the body from a file as
+bytes and refuses unless the landed tail equals the intended bytes.
+
+**Authority.** Supervisor ruling of 2026-08-30 (checks 1 and 4 discharged personally;
+execution authorised). **This is a PRE-COMPUTE amendment and is therefore legal under rule
+2**, which is a condition and not a formality, so it is stated with how it was checked:
+
+* `ls -d /home/ubuntu/certonomous-runs/*AV2RG*` → **0 entries**.
+* `ls -d /home/ubuntu/Certonomous/verification/runs/*AV2RG*` → **0 entries**.
+* `ls cases/dafoam/ladder-a/A1/curriculum_AV2RG/` → still exactly the two instruments and
+  this document; **no re-grade JSON, no `RESULTS.md`, no evidence file**.
+* `find … curriculum_AV2R -name __pycache__` → **0**. Nothing has been imported or executed.
+
+**AV2RG HAS HAD NO FIRST COMPUTE.** No gate, threshold, band, cap or label is altered below;
+what changes is the item SET, two instrument md5s, the unit count and the cost.
+
+---
+
+### A1.1 THE PRE-FLIGHT CONDITION, ANSWERED — AND IT WAS THE WRONG WORRY, WHICH IS WHY IT WAS WORTH ASKING
+
+**The question asked:** does the frozen grader ever hash, diff or textually parse
+`av2r_X.json`, such that `repair_identity_in_copy`'s reformatting rewrite would be a silent
+input change?
+
+**Answer: NO, and formatting is irrelevant.** Every access to the JSON artefacts in
+`av2r_grade.py` is `json.load(open(path))` — `:315` (`read_X`), `:325` (`read_F`), `:363`
+(`grader_plant_control`). The only file-level operations are `os.path.isfile` (`:286`) and
+`os.path.getmtime` (`:288`). The `open(art).read()` at `:303` is in the `else:` branch for
+`kind != "SOLVER"`, i.e. **MESH only**, where `ARTEFACT["MESH"] == "checkMesh.log"`. The
+`artefact_so_md5` at `:454`/`:508` is the md5 of `libidwarp.so` **recorded inside** the JSON,
+not a hash of the JSON file. Same result in `av2_grade.py`.
+
+**BUT THE SAME QUESTION, ASKED OF THE FILE'S METADATA RATHER THAN ITS BYTES, ANSWERS YES —
+AND THAT WAS A REAL DEFECT IN THE FROZEN INSTRUMENT.** `av2r_grade.py:288-289` and
+`av2_grade.py:219-220` refuse `artefact_not_newer_than_datum` unless the artefact's **mtime**
+post-dates the arm's launch datum. The age guard is a **rule-4 PHYSICS field**
+(`curriculum_AV2R/PREREGISTRATION.md:64`). Version 1.0's `repair_identity_in_copy` rewrote
+the artefact and therefore **stamped it with the successor's write time**, after which the
+age guard would have passed **because of this instrument's write** rather than because of the
+solver's — silently, on every repaired arm, for ever. That is exactly the laundering this
+successor exists to prevent, committed by the successor itself.
+
+**REPAIRED, IN BOTH DIRECTIONS.** `repair_identity_in_copy` now captures `os.stat` before the
+write, restores `(st_atime, st_mtime)` after it, and **REFUSES**
+(`identity_repair_moved_the_artefact_mtime`) if the mtime did not survive. The must-not-flag
+direction is unit **U9** (mtime preserved on all four repaired arms); the **must-flag**
+direction is the new unit **U20**, which back-dates the repaired artefact before its arm's
+datum and requires the **frozen** grader to still refuse `artefact_not_newer_than_datum`. A
+guard that cannot still fire is retired, not repaired.
+
+**Recorded as a finding in its own right:** a repair that touches a file touches every
+property of that file a grader might read, and *bytes* is only one of them. The pre-flight
+condition asked about formatting and found mtime; the general form is that the question to
+ask of a repaired input is **which properties of it any gate consumes**, not merely its
+content.
+
+### A1.2 AV2 IS ADDED AS A SECOND ITEM — ONE ROOT CAUSE, TWO CASUALTIES, ONE INSTRUMENT
+
+Registered per the supervisor's Ruling 2. **Both required tests were run before adding it,
+not assumed.**
+
+**TEST 1 — is it the same defect, read the same way?** Yes, on three measurements.
+`idwarp_identity()` is **byte-identical** between `curriculum_AV2/av2_xf.py:56-63` and
+`curriculum_AV2R/av2r_xf.py:56-63`. AV2's grader reads the same key by the same path —
+`av2_grade.py:252`, `(j.get("identity") or {}).get("gmresRelTol")` — and refuses in the same
+clause at `:442-443` against the same `GMRES_REL_TOL_REGISTERED = 1.0e-6` (`:70`) with the
+same `DP_BAND = 1.0e-5` (`:69`). On AV2's own preserved root all four arms carry `identity`
+keys **exactly** `['idwarp_file', 'libidwarp_so_md5']`. Registered as unit **U6**.
+
+**TEST 2 — do the serial arms change the source shapes?** **The premise needed correcting
+and this is the correction.** AV2R's arms are **also all serial** — `av2r_grade.py:59` is
+`ARM_RANKS = {a: 1 for a in ARMS_REQUIRED}`, byte-for-byte AVWC's observation about
+`av2_grade.py:59`. AVWC's note that *"every AV2 arm is serial"* was a contrast with **AV1**
+(np = 2, 4), which is why the PARTITION variant cannot reach AV2; it is **not** a difference
+between AV2 and AV2R. Measured on AV2's root: **1 log per arm, 1 DAOption echo on each X arm,
+6 on each FAD arm, every one `1e-06`** — the same shape as AV2R. The arm NAMES are identical,
+so `arm_mode` needs no per-item table; **only the file prefix differs** (`av2_` vs `av2r_`),
+and the artefact / JSONL / runScript names are now prefix-parameterised. Registered as unit
+**U5**, which reads AV2's own root rather than inheriting AV2R's answer.
+
+**REPAIRS ARE A SET PER ITEM, AND AV2 NEEDS TWO.** AV2 also carries the `writeCompression`
+DATUM variant. Registered: **AV2R = {GMRES}, rebind `()`; AV2 = {DATUM, GMRES}, rebind
+`("arm_datum",)`.**
+
+**THE DATUM RESOLVER IS AVWC'S OWN CODE, IMPORTED AND md5-VERIFIED — NOT REWRITTEN.**
+`avwc_grade.py` `6e390f8f3c0df5d4229dd3640590ca44` and `avwc_reader.py`
+`1a7f3f211f44c7b67b4f8f2d4c65bf4a`, both verified disk **==** `HEAD` blob at this freeze;
+`make_repaired_arm_datum` is called from AVWC's module, and its `resolve_datum` in turn
+adopted `so1a_grade.py:292-338`. A fifth implementation is what this family keeps paying for.
+
+**AV2 GENUINELY NEEDS BOTH, AND IT IS PROVED NOT ASSERTED:** unit **U22** applies the `GMRES`
+repair **alone** and requires AV2 to still return `NOT A RESULT` on the **datum** clause —
+one `NOT A RESULT` to another — exactly AVWC's U5 shape for AV1.
+
+**If AV2 then refuses on a THIRD clause, that refusal is the verdict and is NOT repaired
+here.** It needs its own registration.
+
+| item | frozen grader (md5, disk == `HEAD` blob) | frozen producer | repairs | rebind |
+|---|---|---|---|---|
+| `AV2R` | `av2r_grade.py` `8a2dcebd954f56d9970601fc7761787a` | `av2r_xf.py` `32a755bc9fa84bc0e03ab02bb6ec3c3c` | `{GMRES}` | **`()`** |
+| `AV2` | `av2_grade.py` `4bde0ad7dbdd3e460dcef1fe6d063979` | `av2_xf.py` `76bc93090062e0bf03de2344709e384f` | `{DATUM, GMRES}` | **`("arm_datum",)`** |
+
+### A1.3 RE-REGISTERED md5s AND UNIT COUNT — §8's TABLE IS SUPERSEDED BY THIS ONE
+
+The v1.0 md5s `c26d2fa8a6c834c116eff9f1cd18b14b` and `3ea234a97b4b2c7058c9a07dca20f685` are
+**struck**, not rewritten; the frozen text above stands as written and these supersede it.
+
+| file | md5 (v1.1) |
+|---|---|
+| `cases/dafoam/ladder-a/A1/curriculum_AV2RG/av2rg_grade.py` | **`0cf94c9b67207eb3c7fff95762a389ce`** |
+| `cases/dafoam/ladder-a/A1/curriculum_AV2RG/av2rg_reader.py` | **`51f65b1d67885b8960201acfc1d2a44d`** |
+
+**`EXPECTED_UNITS = 26`** (v1.0's 18 is struck), selftest under `python3` **and** `python3 -O`
+with `__pycache__` cleared before each. The freeze remains **unexercised**: neither
+`selftest()` nor `regrade()` has been run, and the constants were checked by syntax
+compilation and a **static `ast` count** of `unit()` calls (26, matching) with `ast.Assert`
+counted at 0 in each file.
+
+### A1.4 THE FD RULING, REGISTERED AS A SPLIT AND NOT AS A SENTENCE
+
+Supervisor Ruling 1, 2026-08-30, recorded with its reasoning. **AV2R is the forward-AD versus
+reverse-AD duality rung: its reference is forward AD, an exact derivative, so it carries no
+step and no plateau question at all.** `DAFOAM_CHARTER.md` §2's second clause — *"where a
+complex-step or forward-AD reference is available, it is the reference"* (PAS 2019 §5.1: 10
+digits forward-AD against 3–4 digits FD) — applies, and AV2R is the item it was written for.
+**The bright line is discharged HERE BY FORWARD AD RATHER THAN BY FD, which is stronger than
+an FD table and is not a waiver of one.**
+
+**THE CAVEAT TRAVELS AND IS NOT OPTIONAL. Registered as a split, per component:**
+
+| component | FD corroboration at a step PROVED to lie in the plateau |
+|---|---|
+| `shape[3]`, `shape[7]`, `patchV[1]` | **MAY be claimed** — `reverify_patched_idwarp_np1/RESULTS.md` §2 @ `be35dcad`, within the five-of-eight plateau of `A_stepsize_study.md` |
+| **`shape[0]`** | **MAY NOT BE CLAIMED** — excluded from the plateau (`A_stepsize_study.md:45-46`; flat but step-independent at −8 % to −16 % across three decades, so not a step artefact) |
+| **`shape[6]`** | **MAY NOT BE CLAIMED** — excluded, and *"**there is no step at which idx6 is a trustworthy estimate**"* (`A_stepsize_study.md:40`) |
+
+**AV2RG MAY NOT CLAIM FD CORROBORATION FOR `shape[0]` OR `shape[6]`, and any verdict carries
+this split explicitly.** It may not be collapsed into a single sentence saying an FD table
+exists.
+
+### A1.5 A CONVERGENCE BETWEEN TWO INDEPENDENT ITEMS, RECORDED AS AN OBSERVATION AND NOT AS A MECHANISM
+
+`shape[6]` is the component AV2R's own prediction **P2** (`av2r_grade.py:549`) expects to fail
+on the SHIPPED row. It is **also** the component `SO1aR` found wrong by
+**637.7570 % AND SIGN-FLIPPED** on `dCD/dx` three days ago, by a completely different
+instrument (`curriculum_SO1aR/RESULTS.md:53`, `:80`).
+
+**AND THE CONVERGENCE IS WIDER THAN EITHER OF US STATED — read from SO1aR's own record rather
+than relayed.** SO1aR:80 reads: *"`shape[6]` is the offender in BOTH objectives: `dCD/dx` at
+637.7570 % WITH THE SIGN FLIPPED, and `dCL/dx` at 19.8033 %. **`shape[0]` fails `dCD/dx`
+alone, at 11.9330 %.**"* So SO1aR independently fingers **`shape[0]` and `shape[6]`** — which
+are **exactly and only** the two components §A1.4 has just ruled have no proved-plateau FD
+table. Three instruments, one pair of design variables.
+
+**Claimed: nothing causal.** This is a convergence, not a mechanism, and it is recorded as an
+observation with both citations so that it is not lost in a table. A defect report is built
+out of exactly this kind of repeated, localised, falsifiable finding — and **SUBMISSIONS
+REMAIN PARKED** (rule 7): nothing here is filed, sent or reported outside this box.
+
+### A1.6 COST, REVISED (rule 12)
+
+**Solver compute remains ZERO core-minutes.** Two items, two preserved roots (**378 files /
+25.7 MB each**), 13 re-grades per selftest pass, two passes, plus two real re-grades.
+
+| | v1.0 | **v1.1** |
+|---|---|---|
+| Registered estimate | 2.50 core-min | **6.00 core-min**, ranks = 1 |
+| Cap | 8.00 core-min | **15.00 core-min.** An overrun **stops the item** |
+| Dollars, estimate | $0.002138 | **$0.005130 — DERIVED, NOT MEASURED** |
+| Dollars at cap | $0.006840 | **$0.012825 — DERIVED, NOT MEASURED** |
+| `cost_basis` | — | **REPORTED-BY-OWNER, NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5) |
+| Disk | ≈ 260 MB transient | ≈ **700 MB** transient in the session scratchpad, deleted on completion. **No record cites a scratch path** (L-186) |
+
+The v1.0 figures are **struck, not rewritten**. A calibration row per item is owed in
+`docs/COST_CALIBRATION.md` at completion, its id **re-derived from the tail as the maximum
+existing number in the same shell invocation as the commit**.
+
+### A1.7 WHAT THIS AMENDMENT DOES NOT DO
+
+* It alters **no gate, threshold, band, cap or label of AV2R or AV2** — every one remains the
+  frozen items' own. What moved is this successor's item set, its own instrument md5s, its
+  own unit count and its own cost.
+* It claims **nothing about AV1 or AV1R**, which AVWC already re-graded to `PASS`.
+* It does not amend `ADJOINT_VERIFICATION_STANDARD.md`, `DAFOAM_CHARTER.md` or
+  `A_stepsize_study.md`; §A1.4 **records** a supervisor ruling under those documents and
+  retires nothing.
+* It files nothing in `verification/queue/`: this item registers **no solver arm**, so there
+  is nothing runnable for the overnight queue to carry (Sanaa's directive 2026-08-30 read and
+  applied — it changes nothing here because there is zero compute to queue).
+* **A `NOT A RESULT` that stays `NOT A RESULT` is a result and is reported as one.**
