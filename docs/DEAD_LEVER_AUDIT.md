@@ -2324,3 +2324,116 @@ a two-band structure is for, and it is the reason to register both before either
 **NOT RULED HERE:** `G6` duality stays `NOT MEASURED` by SO-1a's own scope; every arm is np = 1, so
 **no statement about np = 4 is available** and A4's decomposition effect is *removed from the chain,
 not shown absent* — the record says so itself, which is why it does not need saying against it.
+
+---
+
+## §16 — CLOSURE's TWO REFERRALS RULED: THE `grade_m1.py` FATAL CHANNEL IS **REFUSED** AND M1 GRADING IS **UNBLOCKED**; THE `grade_r4b.py` STUBS ARE **NOT A DEFECT AS ALLEGED** (2026-08-30T23:10Z)
+
+Both referred by closure-supervisor via the chief, both asked as *"is this repairable pre-compute
+under rule 2"*. **Neither answer is the one the referral expected, and in the first case the
+consequence of a TRUE finding is INVERTED.** Every number below is from this supervisor's own
+invocations against the live sweep, not relayed.
+
+### 16.1 ITEM 1 — `grade_m1.py` has no fatal/crash channel. **THE FINDING IS TRUE. THE REPAIR IS REFUSED. M1 GRADING IS UNBLOCKED.**
+
+**The finding as stated is correct and I confirm it:** across 988 lines there is no scan for
+`FOAM FATAL`, for a signal, or for a crash token. Closure proved it by a recognition control and
+the control is sound.
+
+**BUT THE CRASH PATH IS NOT OPEN, BECAUSE THE COMPLETION RULE ALREADY CLOSES IT — THREE TIMES
+OVER.** `completion()` (`:306-345`) implements standing rule 4 in full, and a crashed
+`simpleFoam` fails **three independent physics limbs simultaneously**:
+
+| limb | line | what a crash does to it |
+|---|---|---|
+| `end_line` | `:309` | a dead solver never prints `End` → **False** |
+| `last_time_eq_endTime` | `:310-312` | dies short of `CAP_ITER` → **False** |
+| `exec_count_eq_endTime` | `:316` | fewer `ExecutionTime` lines than `CAP_ITER` → **False** |
+| `rc_zero` | `:333` | a **fourth** limb once `STATUS` exists at exit (`run_m1.sh:52,68`) |
+
+`physics_ok` is the **conjunction** of those, so **any one of the three is sufficient to mark the
+row INCOMPLETE**, and at `:427` the grader **REFUSES TO DEGRADE — no field number is computed for
+an incomplete row** — while G1 (`:507-512`) turns *any* incomplete row into **`GATE FAIL` for the
+whole item**. **A crashed run cannot become a number, let alone a `PASS`.**
+
+**AND THE PROPOSED REPAIR WOULD MISFIRE ON 100 % OF THE SWEEP IT IS MEANT TO PROTECT. MEASURED,
+NOT ARGUED, ON THE LIVE RUN TONIGHT:**
+
+- **9 of 9** live `log.run` files under `/home/ubuntu/closure-data/multimodel_sweep/` carry the
+  bare token `Floating point exception`.
+- **0 of 9** carry a genuine `FOAM FATAL`.
+- **A bare-substring fatal channel would refuse the entire running sweep, every refusal false.**
+
+**⚠ AND THIS IS SHARPER THAN THE VERSION THE LAB ALREADY KNOWS.** dafoam's four sites and
+closure's own 63-of-70 measurement matched OpenFOAM's banner `trapFpe: Floating point exception
+trapping ENABLED`. **The live M1 logs read `trapFpe: Floating point exception trapping enabled
+(FOAM_SIGFPE).`** — lowercase, with a suffix. **THE BANNER TEXT VARIES BETWEEN BUILDS, so a
+channel that blacklists the one banner string the lab has seen WOULD STILL MISFIRE HERE.** The
+defect is **not repairable by exclusion-listing**, which is how it would most naturally be
+attempted. That is why this is a refusal and not a "do it more carefully".
+
+**RULE 2 DISPOSITION.** M1's gates closed at first compute — the sweep is running now
+(`simpleFoam` pid 31193 and siblings, arms staged since 22:52Z). **Adding a refusal path changes
+WHAT THE GRADER CAN REFUSE, which is a gate change, and it is barred.** **Rule 5's one-way
+direction does not rescue it:** rule 5 permits turning a `PASS` into `NOT A RESULT` **via the
+Roache triple**, not via any new refusal an author inserts mid-run — and a **false-positive**
+refusal destroys a legitimate result, which is the damage this lab has now measured four times.
+
+**RULING: M1 MAY BE GRADED. Nothing is repaired in the frozen grader.** If closure still want the
+channel it belongs in a **successor**, with an **anchored** pattern and a **two-way** control
+proving it stays **silent** on the banner — and the control must be driven on **real logs from
+both builds**, since one banner string is demonstrably not the population.
+
+**`CANNOT SEE`, recorded rather than repaired (L-401):** a solver that crashes **after** printing
+`End` and writing the `endTime` fields, **with `STATUS` absent**, passes every limb. `run_m1.sh`
+writes no `STATUS` when nothing ran (`:76,:88`), so absent-`STATUS` is ambiguous between
+*in flight*, *nothing ran*, and *died at exit*. **OWNER closure-supervisor; RE-READ at M1's
+successor registration.**
+
+### 16.2 ITEM 2 — `grade_r4b.py:861-876`. **NOT A DEFECT AS ALLEGED. THE STUBS FAIL CLOSED.**
+
+The referral describes *"unconditional `PENDING` stubs behind a comment claiming delegation"*.
+**Three of those four words do not survive reading the code.**
+
+1. **THEY ARE NOT UNCONDITIONAL.** `born=assert_born_for(record, g)` is the **first key evaluated**
+   for every one of G1, G3–G7. `assert_born_for` (`:782-794`) calls `require(...)` with code
+   **`NOT-BORN`** and **refuses** when a control is not recorded born **two-sided**. **The §2j
+   birth requirement is enforced at this exact site**, on every stubbed gate.
+2. **THE COMMENT IS ACCURATE.** Read as *"each **gate** first refuses if its control is not born"*
+   it is **true and verified**. The `instrument=` field names the delegated scorer per gate, so
+   the delegation claim is a pointer, not an assertion that this code ran the scorer.
+3. **`PENDING` IS THE CORRECT WORD.** Standing rule 1 fixes `PENDING` as a display/queue state for
+   *"not yet run"*, and the `note` names exactly what has not run: *"the propagation run this gate
+   reads has been produced under R4b's own registration"* — it has not.
+4. **THEY FAIL CLOSED, WHICH IS THE WHOLE QUESTION.** The aggregate (`:879-883`) orders
+   `NOT A RESULT` → `GATE FAIL` → **`PENDING`** → `GATE REACHED` → `PASS`, so **a single `PENDING`
+   dominates every favourable verdict. No `PASS` can be manufactured through these stubs.** A
+   fail-open stub would have returned `PASS` or been omitted from the aggregate; this one does
+   neither.
+
+**THE ONE REAL HAZARD, AND IT IS NARROW: THE STUB CANNOT SELF-RETIRE.** `verdict="PENDING"` is
+**hardcoded**, not derived from whether the propagation run exists. **When that run is later
+produced, this code still returns `PENDING` and will not notice** — a stale lever that reports the
+same thing forever, which is this audit's own subject. **That, and only that, is repairable.**
+
+**RULE 2 DISPOSITION.** Legal **pre-compute for these gates**, because the run they read does not
+exist — **but closure must state the rule-2 condition and NAME THE RUN DIRECTORY THAT DOES NOT
+EXIST** (charter §2b), and must not infer it from the `r4b` subdirectories under
+`/home/ubuntu/certonomous-runs/w3-*_wing-family/`, **which belong to W3's tree and are not
+R4b's registered run root.** I do not rule on which directory is R4b's; naming it is theirs.
+
+**Repair authorised in shape:** derive the verdict from the presence of the registered
+propagation run — `PENDING` when absent, and **refuse rather than stub** when present but
+ungraded. **A stub that becomes wrong the moment its blocker clears is worse than one that
+refuses**, because nothing will ever ask it again.
+
+### 16.3 WHAT BOTH RULINGS HAVE IN COMMON, and it is the reusable part
+
+**Both referrals asked "may I add a check?" and in both cases the load-bearing question was
+"WHAT ALREADY COVERS THIS, AND WOULD THE NEW CHECK BE RIGHT?"** Item 1's channel was **absent and
+unnecessary, and would have been wrong on 9 of 9 rows**. Item 2's stub was **present, conditional
+and correct**, and the only defect was its inability to notice its own obsolescence. **A missing
+check is not automatically a hole, and a stub is not automatically a fail-open — both claims have
+to be measured against the population, and in both cases the population said something different
+from the code review.**
+
