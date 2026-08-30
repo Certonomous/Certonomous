@@ -1,0 +1,621 @@
+{
+ "cost_core_min_this_execution": 0.162,
+ "frozen": {
+  "HEAD": "2a61b7bab90de4ae89508e7a23f43c2b6a547002",
+  "cases/dafoam/ladder-a/A2/curriculum_D6R/PREREGISTRATION.md": {
+   "committed_blob_md5_HEAD": "e525084daac50c82738170925894fbe1",
+   "disk_equals_committed_blob": true,
+   "disk_equals_registered": true,
+   "on_disk_md5": "e525084daac50c82738170925894fbe1",
+   "registered_md5": "e525084daac50c82738170925894fbe1"
+  },
+  "cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_grade.py": {
+   "committed_blob_md5_HEAD": "bc8e9fec48b3f58ce7a96f4b9549590b",
+   "disk_equals_committed_blob": true,
+   "disk_equals_registered": true,
+   "on_disk_md5": "bc8e9fec48b3f58ce7a96f4b9549590b",
+   "registered_md5": "bc8e9fec48b3f58ce7a96f4b9549590b"
+  }
+ },
+ "grade": {
+  "G-D6R-1": {
+   "all_pass": false,
+   "arm_state": {
+    "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "note": "the registration names this outcome; the arm bought 0 core-min",
+    "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+    "state": "NOT_RUN",
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   },
+   "artefact": "d6r_major_history.json",
+   "gate": "G-D6R-1",
+   "note": "the arm that writes this artefact did not run, so this gate has NO INPUT. That is NOT a GATE FAIL -- nothing was measured that could fail.",
+   "per_point": {
+    "cl04": {
+     "reason": "ARM_DID_NOT_RUN",
+     "verdict": "NOT A RESULT"
+    },
+    "cl05": {
+     "reason": "ARM_DID_NOT_RUN",
+     "verdict": "NOT A RESULT"
+    },
+    "cl06": {
+     "reason": "ARM_DID_NOT_RUN",
+     "verdict": "NOT A RESULT"
+    }
+   },
+   "producing_arm": "F_mp",
+   "reason": "ARM_DID_NOT_RUN",
+   "verdict": "NOT A RESULT",
+   "verdicts": {
+    "cl04": "NOT A RESULT",
+    "cl05": "NOT A RESULT",
+    "cl06": "NOT A RESULT"
+   }
+  },
+  "G-D6R-2": {
+   "J0": null,
+   "Jf": null,
+   "arm_state": {
+    "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "note": "the registration names this outcome; the arm bought 0 core-min",
+    "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+    "state": "NOT_RUN",
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   },
+   "artefact": "d6r_major_history.json",
+   "band_pct": [
+    15.0,
+    40.0
+   ],
+   "gate": "G-D6R-2",
+   "n_major": null,
+   "note": "the arm that writes this artefact did not run, so this gate has NO INPUT. That is NOT a GATE FAIL -- nothing was measured that could fail.",
+   "producing_arm": "F_mp",
+   "reason": "ARM_DID_NOT_RUN",
+   "reduction_pct": null,
+   "verdict": "NOT A RESULT"
+  },
+  "G-D6R-3": {
+   "CD_cl05_mp": null,
+   "CD_f_D4": null,
+   "arm_state": {
+    "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "note": "the registration names this outcome; the arm bought 0 core-min",
+    "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+    "state": "NOT_RUN",
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   },
+   "artefact": "d6r_major_history.json",
+   "band": [
+    0.0,
+    0.001
+   ],
+   "gate": "G-D6R-3",
+   "note": "the arm that writes this artefact did not run, so this gate has NO INPUT. That is NOT a GATE FAIL -- nothing was measured that could fail.",
+   "planted_control": {
+    "skipped": "no input to compare against; the control plants into D4's reference and is driven whenever the gate is"
+   },
+   "price": null,
+   "producing_arm": "F_mp",
+   "reason": "ARM_DID_NOT_RUN",
+   "verdict": "NOT A RESULT"
+  },
+  "G-D6R-4": {
+   "aggregate_pass": false,
+   "aggregate_rel_err_pct": null,
+   "arm_state": {
+    "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "note": "the registration names this outcome; the arm bought 0 core-min",
+    "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+    "state": "NOT_RUN",
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   },
+   "artefact": "d6r_fd_endpoint.json",
+   "components": [],
+   "gate": "G-D6R-4",
+   "n_planned": 0,
+   "note": "the arm that writes this artefact did not run, so this gate has NO INPUT. That is NOT a GATE FAIL -- nothing was measured that could fail.",
+   "pathology_NOT_A_RESULT": false,
+   "producing_arm": "F_mp",
+   "reason": "ARM_DID_NOT_RUN",
+   "sign_flips": 0,
+   "verdict": "NOT A RESULT"
+  },
+  "G-D6R-OPT": {
+   "S1_line_search_failing": true,
+   "S2_dual_infeasibility_not_decreasing": false,
+   "container_wall_s": 33794,
+   "cutbacks": 673,
+   "cutbacks_per_major": 9.219178082191782,
+   "deadline_fired": false,
+   "deadline_registered_s": 43410,
+   "exit_line": "EXIT: Invalid number in NLP function or derivative detected.",
+   "inf_du_at_tail_start": 0.000923,
+   "inf_du_last": 0.0009,
+   "ladder": "DEADLINE > STALLED > ITERATION_CAP > CONVERGED (registered order)",
+   "max_iter_registered": 80,
+   "n_major": 73,
+   "n_restoration_majors": 7,
+   "outcome": "UNCLASSIFIED",
+   "stall_threshold_cutbacks_per_major": 1.0,
+   "tail_start_major": 66
+  },
+  "G1": {
+   "age_failures": [],
+   "all_arms_ran": false,
+   "any_oom_killed": false,
+   "arms": {
+    "ACC_mp": {
+     "age_clause_pass": true,
+     "age_detail": {
+      "same_as_script_clause": true
+     },
+     "arm_kind": "SCRIPT",
+     "core_min": 24.2,
+     "field_sources": {
+      "all": "ledger_row"
+     },
+     "infrastructure_not_measured": [],
+     "kernel_rc": 124,
+     "oomkilled": "false",
+     "rc": 124,
+     "rc_clause_pass": false,
+     "source": "ledger_row",
+     "terminal_clause_pass": true,
+     "terminal_detail": {
+      "arm_datum": 1787968462,
+      "arm_kind": "SCRIPT",
+      "artefacts": [
+       {
+        "artefact": "ACC_mp_20260829T015422Z_2086625.log",
+        "mtime": 1787968825,
+        "newer_than_arm_datum": true,
+        "present": true
+       }
+      ],
+      "ok_markers": [
+       "ACC_mp_20260829T015422Z_2086625.log.ok.20260829T015422Z_2086625"
+      ],
+      "terminal_statement_INFORMATIONAL_not_composed": {
+       "last_line": "Number of Uncolored: 53124 4",
+       "log": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/ACC_mp_20260829T015422Z_2086625.log",
+       "n_occurrences_anywhere": 6,
+       "positional": true
+      }
+     }
+    },
+    "F_mp": {
+     "arm_kind": "SOLVER",
+     "core_min": 0.0,
+     "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+     "state": "NOT_RUN",
+     "stop_arm": "ACC_mp",
+     "stop_rc": 124,
+     "workdir": "O_mp",
+     "workdir_reason": "REGISTERED to run inside O_mp/ -- it reads the optimiser endpoint"
+    },
+    "O_mp": {
+     "age_clause_pass": true,
+     "age_detail": {
+      "artefacts": [
+       {
+        "artefact": "O_mp/opt_IPOPT.txt",
+        "mtime": 1788131300,
+        "newer_than_datum": true,
+        "present": true
+       },
+       {
+        "artefact": "O_mp/OptView.hst",
+        "mtime": 1787968369,
+        "newer_than_datum": true,
+        "present": true
+       }
+      ],
+      "datum": 1787934529
+     },
+     "arm_kind": "SOLVER",
+     "core_min": 2257.933,
+     "field_sources": {
+      "all": "ledger_row"
+     },
+     "infrastructure_not_measured": [],
+     "kernel_rc": 0,
+     "oomkilled": "false",
+     "rc": 0,
+     "rc_clause_pass": true,
+     "source": "ledger_row",
+     "terminal_clause_pass": true,
+     "terminal_detail": {
+      "arm_kind": "SOLVER",
+      "last_line": "Finalising parallel run",
+      "log": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/O_mp_20260828T162849Z_1898072.log",
+      "n_occurrences_anywhere": 12,
+      "positional": true
+     }
+    },
+    "REF_off": {
+     "arm_kind": "SCRIPT",
+     "core_min": 0.0,
+     "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+     "state": "NOT_RUN",
+     "stop_arm": "ACC_mp",
+     "stop_rc": 124,
+     "workdir": "REF_off",
+     "workdir_reason": "its own staged case"
+    }
+   },
+   "arms_not_run": {
+    "F_mp": {
+     "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+     "note": "the registration names this outcome; the arm bought 0 core-min",
+     "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+     "state": "NOT_RUN",
+     "stop_arm": "ACC_mp",
+     "stop_rc": 124
+    },
+    "REF_off": {
+     "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+     "note": "the registration names this outcome; the arm bought 0 core-min",
+     "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+     "state": "NOT_RUN",
+     "stop_arm": "ACC_mp",
+     "stop_rc": 124
+    }
+   },
+   "arms_ran": [
+    "O_mp",
+    "ACC_mp"
+   ],
+   "arms_required": [
+    "O_mp",
+    "ACC_mp",
+    "F_mp",
+    "REF_off"
+   ],
+   "chain_record": {
+    "outcome": "STOPPED_AT_FIRST_NONZERO",
+    "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "present": true,
+    "registered_order": [
+     "O_mp",
+     "ACC_mp",
+     "F_mp",
+     "REF_off"
+    ],
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   },
+   "not_measured": {},
+   "pass": false,
+   "ran_clean": false,
+   "rc_failures": [
+    {
+     "arm": "ACC_mp",
+     "kernel_rc": 124,
+     "oomkilled": "false"
+    }
+   ],
+   "staged_inputs": {},
+   "terminal_failures": []
+  },
+  "G10": {
+   "arms_not_run_bought_zero": [
+    "F_mp",
+    "REF_off"
+   ],
+   "ceiling": 3270.0,
+   "deadline_plus_allowance_inverts_to_cap": {
+    "ACC_mp": 30.0,
+    "F_mp": 300.0,
+    "O_mp": 2900.0,
+    "REF_off": 40.0
+   },
+   "frame_note": "cap ENFORCED in the container; GRADED on the host bracket; (deadline + allowance) * ranks / 60 INVERTS to the registered cap",
+   "inversion_ok": true,
+   "per_arm": {
+    "ACC_mp": {
+     "cap": 30.0,
+     "cap_equals_registered": true,
+     "container_wall_s": 363,
+     "core_min": 24.2,
+     "deadline_frame_pass": true,
+     "deadline_registered_s": 360,
+     "frame_allowance_matches_registered": true,
+     "frame_allowance_s_registered": 90,
+     "frame_gap_s": 0,
+     "frame_gap_within_allowance": true,
+     "frame_limbs_binding": true,
+     "host_wall_s": 363,
+     "predicted": 14.7,
+     "ratio_actual_over_predicted": 1.6462585034013606,
+     "within_cap": true
+    },
+    "O_mp": {
+     "cap": 2900.0,
+     "cap_equals_registered": true,
+     "container_wall_s": 33794,
+     "core_min": 2257.933,
+     "deadline_frame_pass": true,
+     "deadline_registered_s": 43410,
+     "frame_allowance_matches_registered": true,
+     "frame_allowance_s_registered": 90,
+     "frame_gap_s": 75,
+     "frame_gap_within_allowance": false,
+     "frame_limbs_binding": true,
+     "host_wall_s": 33869,
+     "predicted": 2500.6,
+     "ratio_actual_over_predicted": 0.9029564904422939,
+     "within_cap": true
+    }
+   },
+   "total_core_min": 2282.133,
+   "verdict": "GATE FAIL"
+  },
+  "G12": {
+   "arms_graded": [
+    "ACC_mp",
+    "O_mp"
+   ],
+   "arms_not_graded_because_they_did_not_run": [
+    "F_mp",
+    "REF_off"
+   ],
+   "delivered_not_measured": [],
+   "per_arm": {
+    "ACC_mp": {
+     "cpuset": "2,3,4,14",
+     "cpuset_ok": true,
+     "delivered_mean": 3.9282,
+     "delivered_ok": true
+    },
+    "O_mp": {
+     "cpuset": "2,3,4,14",
+     "cpuset_ok": true,
+     "delivered_mean": 3.9791,
+     "delivered_ok": true
+    }
+   },
+   "verdict": "PASS"
+  },
+  "G9": {
+   "arms_graded": [
+    "ACC_mp",
+    "O_mp"
+   ],
+   "arms_not_graded_because_they_did_not_run": [
+    "F_mp",
+    "REF_off"
+   ],
+   "per_arm": {
+    "ACC_mp": {
+     "digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+     "digest_ok": true,
+     "so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+     "so_md5_ok": true
+    },
+    "O_mp": {
+     "digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+     "digest_ok": true,
+     "so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+     "so_md5_ok": true
+    }
+   },
+   "verdict": "PASS"
+  },
+  "L332": {
+   "assert_nodes": 0,
+   "counter_sees_planted": 1
+  },
+  "arm_census": {
+   "ACC_mp": {
+    "source": "ledger_row",
+    "state": "RAN"
+   },
+   "F_mp": {
+    "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "note": "the registration names this outcome; the arm bought 0 core-min",
+    "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+    "state": "NOT_RUN",
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   },
+   "O_mp": {
+    "source": "ledger_row",
+    "state": "RAN"
+   },
+   "REF_off": {
+    "chain_record": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+    "note": "the registration names this outcome; the arm bought 0 core-min",
+    "reason": "REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO",
+    "state": "NOT_RUN",
+    "stop_arm": "ACC_mp",
+    "stop_rc": 124
+   }
+  },
+  "arm_dir_mapping": {
+   "ARM_DIR": {
+    "ACC_mp": "ACC_mp",
+    "F_mp": "O_mp",
+    "O_mp": "O_mp",
+    "REF_off": "REF_off"
+   },
+   "ARM_DIR_REASON": {
+    "ACC_mp": "its own staged case",
+    "F_mp": "REGISTERED to run inside O_mp/ -- it reads the optimiser endpoint",
+    "O_mp": "its own staged case",
+    "REF_off": "its own staged case"
+   },
+   "ARTEFACT_PRODUCER": {
+    "OptView.hst": "O_mp",
+    "d6r_endpoint_dvs.json": "F_mp",
+    "d6r_fd_endpoint.json": "F_mp",
+    "d6r_major_history.json": "F_mp",
+    "d6r_ref_off.json": "REF_off",
+    "opt_IPOPT.txt": "O_mp"
+   },
+   "F_mp_workdir_line_found": "WORK=\"$BASE/O_mp\"",
+   "checked": true,
+   "launcher_present": true,
+   "md5": "243f0f631719edf7ae354410276b3cfd",
+   "path": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_run_arm.sh"
+  },
+  "arms_not_run": [
+   "F_mp",
+   "REF_off"
+  ],
+  "arms_ran": [
+   "O_mp",
+   "ACC_mp"
+  ],
+  "base": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R",
+  "chain_record": {
+   "outcome": "STOPPED_AT_FIRST_NONZERO",
+   "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/STATUS.chain",
+   "present": true,
+   "registered_order": [
+    "O_mp",
+    "ACC_mp",
+    "F_mp",
+    "REF_off"
+   ],
+   "stop_arm": "ACC_mp",
+   "stop_rc": 124,
+   "text_tail": [
+    "arm=O_mp rc=0 stamp=20260829T015319Z",
+    "arm=ACC_mp rc=124 stamp=20260829T020026Z",
+    "chain=STOPPED_AT_FIRST_NONZERO arm=ACC_mp rc=124 order=[O_mp ACC_mp F_mp REF_off] not_run=[F_mp REF_off] stamp=20260829T020026Z"
+   ]
+  },
+  "gates": {
+   "G-D6R-1_cl04": "NOT A RESULT",
+   "G-D6R-1_cl05": "NOT A RESULT",
+   "G-D6R-1_cl06": "NOT A RESULT",
+   "G-D6R-2_composite": "NOT A RESULT",
+   "G-D6R-3_price": "NOT A RESULT",
+   "G-D6R-4_fd": "NOT A RESULT",
+   "G-D6R-OPT_optimiser": "NOT A RESULT",
+   "G10_caps": "GATE FAIL",
+   "G12_placement": "PASS",
+   "G1_completion": "NOT A RESULT",
+   "G9_toolchain": "PASS"
+  },
+  "grader_md5": "bc8e9fec48b3f58ce7a96f4b9549590b",
+  "item": "D6R",
+  "not_a_result_reasons": [
+   "a completion clause failed on an arm that ran",
+   "registered arms did not run: F_mp,REF_off",
+   "optimiser outcome UNCLASSIFIED",
+   "G-D6R-1_cl04 NOT A RESULT",
+   "G-D6R-1_cl05 NOT A RESULT",
+   "G-D6R-1_cl06 NOT A RESULT",
+   "G-D6R-2_composite NOT A RESULT",
+   "G-D6R-3_price NOT A RESULT",
+   "G-D6R-4_fd NOT A RESULT"
+  ],
+  "not_measured_named": {},
+  "optimiser_outcome": "UNCLASSIFIED",
+  "per_point_verdicts": {
+   "cl04": "NOT A RESULT",
+   "cl05": "NOT A RESULT",
+   "cl06": "NOT A RESULT"
+  },
+  "predictions": {
+   "P1": {
+    "obs": {
+     "exit": "EXIT: Invalid number in NLP function or derivative detected.",
+     "n_major": 73,
+     "outcome": "UNCLASSIFIED"
+    },
+    "pred": "the optimiser does NOT converge in max_iter 80; outcome in {ITERATION_CAP, STALLED}, POINT = STALLED.  Registered honestly against D6's own measurement: 548 alpha cutbacks over 64 majors, 7 restoration majors, dual infeasibility WORSENING 5.78e-04 (major 58) -> 1.14e-03 (major 64) against tol 1e-5.  A MISS here is GOOD NEWS.",
+    "score": "MISS"
+   },
+   "P2": {
+    "obs": null,
+    "pred": "composite reduction [15,40] %, point 22 %",
+    "score": "NOT A RESULT"
+   },
+   "P3": {
+    "obs": null,
+    "pred": "price CD_0.5(mp) - 2.1125978e-02 in [0, 1.0e-3], point +3.0e-4",
+    "score": "NOT A RESULT"
+   },
+   "P4": {
+    "obs": {
+     "cl04": null,
+     "cl06": null
+    },
+    "pred": "off-design gains > 0 (0.6 point +8.0e-4; 0.4 point +2.0e-4)",
+    "score": "NOT A RESULT"
+   },
+   "P5": {
+    "obs": 2257.933,
+    "pred": "O_mp cost [1900, 2900] core-min, point 2500.6 (80 x 31.258 MEASURED, C-188)",
+    "score": "HIT"
+   },
+   "P6": {
+    "obs": {
+     "cl04": "NOT A RESULT",
+     "cl05": "NOT A RESULT",
+     "cl06": "NOT A RESULT"
+    },
+    "pred": "all three per-point verdicts PASS",
+    "score": "NOT A RESULT"
+   },
+   "P7": {
+    "obs": {
+     "answered_by": "D6 / C-188",
+     "any_oom_killed": false
+    },
+    "pred": "ALREADY ANSWERED BY D6 AND NOT RE-BOUGHT: OOMKilled=false after 8 h 20 m at np=4 in a 20g cgroup, so multipoint IS memory-feasible on this box (C-188; D6 ledger inspect(exit,oomkilled)=[124 false]).  D6R scores it ONLY as a regression check on an answered question.",
+    "score": "HIT"
+   },
+   "P8": {
+    "obs": {
+     "arms_not_run": [
+      "F_mp",
+      "REF_off"
+     ],
+     "chain_outcome": "STOPPED_AT_FIRST_NONZERO"
+    },
+    "pred": "THE REPAIR'S OWN FALSIFIER: the chain COMPLETES -- all four arms run, because the optimiser's own max_iter (80 x 31.258 = 2500.6 core-min) binds BEFORE the container deadline (2894.0 core-min of compute window).  D6's chain died at O_mp on rc=124 and bought nothing else.",
+    "score": "MISS"
+   }
+  },
+  "ref_off_consistency_CD_cl05_minus_D4": "NOT_MEASURED",
+  "verdict": "NOT A RESULT"
+ },
+ "item": "D6RG",
+ "names_rebound": [
+  "read_ipopt"
+ ],
+ "predecessor": "D6R",
+ "preserved_root_files": {
+  "/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O": 5085,
+  "/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint": 14546
+ },
+ "preserved_roots_identical": true,
+ "reader_audit": {
+  "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/d6rg/exec1/root_D6R/O_mp/opt_IPOPT.txt": {
+   "branch": "REPAIRED",
+   "n_exit": 1,
+   "n_obj": 0,
+   "objective": 0.0222388,
+   "printed_significant_digits": 8,
+   "provenance": "ITERATION_TABLE_ROW",
+   "row_major": 73
+  }
+ },
+ "selftest": {
+  "expected": 27,
+  "failures": [],
+  "python_O": false,
+  "units": 27
+ },
+ "utc": "2026-08-30T23:08:23Z",
+ "verdict": "NOT A RESULT"
+}
