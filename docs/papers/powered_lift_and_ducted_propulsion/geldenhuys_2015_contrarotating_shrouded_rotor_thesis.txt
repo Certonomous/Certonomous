@@ -1,0 +1,7340 @@
+TITLE-PAGE VERIFIED (CLAUDE.md rule 15) by reading the PDF's own title page on 2026-08-30.
+Title page reads: 'Aerodynamic Development of a Contra-Rotating Shrouded Rotor System for a UAV / by Heinrich Jacques Geldenhuys / Thesis presented in partial fulfilment of the requirements for the degree of Master of Science in Engineering (Mechanical) in the Faculty of Engineering at Stellenbosch University / Supervisor: Dr S.J. van der Spuy / Co-supervisor: Prof T.W. von Backstrom / March 2015 / Copyright 2015 Stellenbosch University'.
+Key page: printed p.7 (PDF p.23) states the ideal static thrust of a shrouded propeller at expansion ratio unity is 26% more than the isolated propeller, rotor and shroud carrying approximately equal thrust. Text layer is native (not OCR).
+
+----- BEGIN EXTRACTED TEXT -----
+
+Aerodynamic Development of a Contra-Rotating
+Shrouded Rotor System for a UAV
+
+by
+Heinrich Jacques Geldenhuys
+
+Thesis presented in partial fulfilment of the requirements for the degree
+of Master of Science in Engineering (Mechanical) in the Faculty of
+Engineering at Stellenbosch University
+
+Supervisor: Dr S.J. van der Spuy
+Co-supervisor: Prof T.W. von Backström
+
+March 2015
+
+Stellenbosch University https://scholar.sun.ac.za
+
+DECLARATION
+By submitting this thesis electronically, I declare that the entirety of the work
+contained therein is my own, original work, that I am the sole author thereof (save
+to the extent explicitly otherwise stated), that reproduction and publication thereof
+by Stellenbosch University will not infringe any third party rights and that I have
+not previously in its entirety or in part submitted it for obtaining any qualification.
+
+Signature:
+
+Date:
+
+Copyright © 2015 Stellenbosch University
+All rights reserved
+
+ii
+
+Stellenbosch University https://scholar.sun.ac.za
+
+ABSTRACT
+Aerodynamic Development of a Contra-Rotating Shrouded Rotor
+System for a UAV
+H.J. Geldenhuys
+Department of Mechanical and Mechatronic Engineering, Stellenbosch
+University,
+Private Bag X1, Matieland 7602, South Africa
+Thesis: MSc. Eng. (Mech)
+March 2015
+Unmanned aerial vehicles with vertical take-off and landing capabilities have
+received extensive attention worldwide in the last decade. Their low detectability,
+high manoeuvrability in confined spaces, and their capability for out-of-sight
+operations make them practical solutions for an array of military and civilian
+missions.
+The main advantage of shrouded rotors in hover and low speed conditions is the
+decreased blade tip induced drag when the tip gap is small enough. A welldesigned shroud augments the rotor thrust in hover and low axial flight
+conditions. It also provides noise reduction and safety. A contra-rotating rotor
+system eliminates the need for separate anti-torque devices, thus producing a
+smaller footprint and a more compact vehicle.
+In this study a more efficient coaxial rotor for the ducted coaxial rotor system as
+published by (Lee 2010) was developed.
+The first phase of the design process consisted of the selection and numerical
+analysis of the best suited parent airfoils for the rotors by using XFOIL and
+XFLR 5.
+The second phase dealt with the design of a counter-rotating rotor system for the
+existing cambered shroud as published by (Lee, 2010), using the DFDC070ES2a two dimensional code, specifically written for ducted rotor optimization.
+The final phase of the study dealt with the Computational Fluid Dynamic (CFD)
+verification of the design in ANSYS-CFX 15.07.
+A comparison between the CFX predictions of the newly designed rotor system
+and the reference design indicates a 33% improvement in hover thrust at the
+design power input.
+
+iii
+
+Stellenbosch University https://scholar.sun.ac.za
+
+OPSOMMING
+Aerodinamiese Ontwikkeling van ‘n Kontra-roterende Gehulde
+Rotorstelsel vir ‘n Onbemande Lugvaartuig
+H.J. Geldenhuys
+Departement van Meganiese and Megatroniese Ingenieurswese,
+Universiteit van Stellenbosch,
+Privaatsak X1, Matieland 7602, Suid-Afrika
+Tesis: MSc. Ing. (Meg)
+Maart 2015
+Onbemande lugvaartuie met vertikale opstyg en landings vermoëns het
+uitgebreide aandag wêreldwyd in die laaste dekade geniet. Hul lae
+waarneembaarheid, hoë beweegbaarheid in beperkte ruimtes, en hul vermoë om
+buite-sig operasies uit te voer maak dat hulle praktiese oplossings vir 'n
+verskeidenheid van militêre en burgerlike missies is.
+Die grootste voordeel van gehulde rotors in hangvlug en lae spoed
+omstandighede is die afname in die lem punt sleepkrag wanneer die lem punt
+gaping klein genoeg is. 'n Goed ontwerpde omhulsel dra by tot die rotor stukrag
+in hangvlug en lae aksiale vlug omstandighede. Dit bied ook geraasreduksie en
+veiligheid. 'n Kontra-roterende rotorstelsel skakel die vereiste van afsonderlike
+anti-wringkrag toestelle uit, wat lei tot 'n kleiner voetspoor en 'n meer kompakte
+voertuig.
+In hierdie studie is 'n meer doeltreffende koaksiale rotor vir die gehulde koaksiale
+rotor stelsel soos gepubliseer deur (Lee 2010) ontwikkel.
+Die eerste fase van die ontwerp-proses het bestaan uit die seleksie en numeriese
+analise van die mees geskikte lemprofiele vir die rotors deur die gebruik van
+XFOIL en XFLR 5.
+Fase twee het die ontwerp van 'n teen-roterende rotor stelsel vir die bestaande
+omhulsel soos gebruik in (Lee, 2010) se publikasie behels. Die ontwerp is met
+behulp van DFDC-070ES2a, ‘n twee dimensionele kode wat spesifiek vir gehulrotor optimering geskryf is, gedoen.
+Die verifikasie van die nuwe ontwerp is in die finale fase met behulp van die
+berekeings vloeidinamika sagteware, ANSYS-CFX 15.07 gedoen.
+‘n Vergelyking tussen die CFX prestasie voorspelling vir die nuwe rotorstelsel en
+die gepubliseerde data van (Lee, 2010) toon ‘n 33% toename in hangvlug stukrag
+by die ontwerpsdrywing.
+
+iv
+
+Stellenbosch University https://scholar.sun.ac.za
+
+ACKNOWLEDGEMENTS
+My sincere thanks are due to several people, without whom the lessons that I
+have learned during this research would never have occurred;
+My wife, Lucresia. You are my most precious gift. Thank you for your unselfish
+support and encouragement.
+My supervisors, Dr S.J. van der Spuy and Prof T.W. von Backström for their
+insight and continued support throughout the time of my study.
+Heartfelt thanks to my friend, Bosman van der Merwe. He has been an
+irreplaceable source of advice and inspiration. This work would not have been
+possible without his valuable contributions.
+Philip Carter, the founder and owner of Esotec Developments, Madeira Park, BC,
+Canada, for your help and constant guidance with the Ducted Fan Development
+Code (DFDC).
+My sincere thanks to my wonderful family for their support and encouragement.
+Lastly, eternal thanks to God – to Him be the glory.
+
+v
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CONTENTS
+page
+DECLARATION.........................................................................................................ii
+ABSTRACT .............................................................................................................. iii
+OPSOMMING ..........................................................................................................iv
+ACKNOWLEDGEMENTS......................................................................................... v
+CONTENTS .............................................................................................................vi
+TABLES ..................................................................................................................ix
+FIGURES ................................................................................................................. x
+ACRONYMS AND ABBREVIATIONS..................................................................... xiii
+NOMENCLATURE ................................................................................................. xiv
+CHAPTER 1:
+
+INTRODUCTION ............................................................................. 1
+
+1.1
+
+BACKGROUND .......................................................................................... 1
+
+1.2
+
+THE PERFORMANCE OF SMALL SCALE ROTORS................................. 4
+
+1.3
+
+THE SHROUDED/DUCTED ROTOR (SDR) CONFIGURATION ................ 4
+
+1.4
+
+PREVIOUS RESEARCH OF SHROUDED ROTOR SYSTEMS .................. 7
+
+1.5
+
+OBJECTIVES OF THIS THESIS................................................................. 9
+
+CHAPTER 2:
+
+ROTOR AERODYNAMICS ............................................................ 11
+
+2.1
+
+INTRODUCTION ...................................................................................... 11
+
+2.2
+
+MOMENTUM THEORY FOR SHROUDED ROTORS............................... 11
+
+2.2.1
+2.3
+
+Figure of merit (FM) and other measures of rotor efficiency ............ 16
+
+MOMENTUM THEORY FOR COAXIAL ROTORS ................................... 17
+
+2.3.1
+
+Figure of merit (FM) for coaxial rotors ............................................. 20
+
+2.4
+
+BLADE ELEMENT THEORY .................................................................... 20
+
+2.5
+
+BLADE ELEMENT MOMENTUM THEORY (BEMT) FOR COAXIAL
+ROTORS .................................................................................................. 24
+
+2.6
+
+LIFTING LINE MODELS ........................................................................... 27
+
+2.7
+
+VORTEX MODELS ................................................................................... 29
+
+2.7.1
+
+Theodorsen’s model ........................................................................ 29
+
+2.7.2
+
+McCormick’s model ......................................................................... 30
+
+vi
+
+Stellenbosch University https://scholar.sun.ac.za
+
+page
+CHAPTER 3:
+
+DESIGN OF THE COAXIAL ROTOR SYSTEM ............................. 31
+
+3.1
+
+INTRODUCTION ...................................................................................... 31
+
+3.2
+
+SHROUD DESIGN ................................................................................... 31
+
+3.2.1
+
+Shroud specifications ...................................................................... 34
+
+3.2.2
+
+Cambered leading edge .................................................................. 34
+
+3.2.3
+
+NACA trailing edge.......................................................................... 35
+
+3.2.4
+
+Centre body specifications .............................................................. 36
+
+3.3
+
+UAV ROTOR BLADE DESIGN ................................................................. 36
+
+3.3.1
+
+Rotor Blade Profile Selection........................................................... 37
+
+3.3.2
+
+Final Rotor Blade Design ................................................................ 38
+
+3.3.3
+
+Rotor Blade Geometry..................................................................... 38
+
+CHAPTER 4:
+
+CAMBERED SHROUDED COAXIAL ROTOR SYSTEM
+(CSCRS) PERFORMANCE ........................................................... 40
+
+4.1
+
+INTRODUCTION ...................................................................................... 40
+
+4.2
+
+CSCRS HOVER PERFORMANCE ........................................................... 40
+
+4.3
+
+CSCRS PERFORMANCE IN AXIAL FLIGHT ........................................... 44
+
+CHAPTER 5:
+
+CFD FORMULATION .................................................................... 49
+
+5.1
+
+INTRODUCTION ...................................................................................... 49
+
+5.2
+
+COMPUTATIONAL MODEL ..................................................................... 49
+
+5.2.1
+
+Discretization of the governing equations ........................................ 49
+
+5.2.2
+
+Rotational forces ............................................................................. 50
+
+5.2.3
+
+Turbulence model ........................................................................... 50
+
+5.3
+
+COMPUTATIONAL DOMAIN .................................................................... 51
+
+5.4
+
+BOUNDARY CONDITIONS ...................................................................... 52
+
+5.5
+
+COMPUTATIONAL MESH........................................................................ 52
+
+5.6
+
+BOUNDARY LAYER INFLATION ............................................................. 53
+
+5.7
+
+GRID GENERATION IN THE ROTATING FLUID DOMAINS .................... 54
+
+5.8
+
+CONVERGENCE ..................................................................................... 54
+
+5.9
+
+MESH INDEPENDENCE .......................................................................... 55
+
+CHAPTER 6:
+
+CFD PERFORMANCE PREDICTIONS OF THE CSCRS .............. 57
+
+6.1
+
+INTRODUCTION ...................................................................................... 57
+
+6.2
+
+CFD PERFORMANCE PREDICTIONS FOR THE CSCRS IN HOVER .... 57
+
+6.3
+
+CFD PERFORMANCE PREDICTIONS FOR THE CSCRS IN AXIAL
+FLIGHT..................................................................................................... 60
+vii
+
+Stellenbosch University https://scholar.sun.ac.za
+
+page
+CHAPTER 7:
+
+CONCLUSION .............................................................................. 64
+
+7.1
+
+INTRODUCTION ...................................................................................... 64
+
+7.2
+
+AERODYNAMIC DESIGN OF THE COAXIAL ROTOR SYSTEM ............. 65
+
+7.2.1
+
+Selection and numerical analysis of the best suited airfoils ............. 65
+
+7.2.2
+
+The shroud and design of the rotor system ..................................... 65
+
+7.2.3
+
+CFD Simulation ............................................................................... 66
+
+7.3
+
+RECOMMENDATIONS FOR FUTURE WORK ......................................... 67
+
+REFERENCES ....................................................................................................... 68
+APPENDIX A: NACA 2418-14-10 POLAR DIAGRAMS .......................................... 71
+APPENDIX B: DFDC INPUT FILE .......................................................................... 74
+APPENDIX C: DFDC OUTPUT FILE ...................................................................... 78
+APPENDIX C: DFDC OUTPUT PLOTS.................................................................. 82
+
+viii
+
+Stellenbosch University https://scholar.sun.ac.za
+
+TABLES
+page
+Table 3.1
+
+Upper rotor geometric data.................................................................. 39
+
+Table 3.2
+
+Lower rotor geometric data.................................................................. 39
+
+Table 5.1
+
+Boundary conditions imposed. ............................................................ 52
+
+Table 5.2
+
+Mesh independent study. .................................................................... 55
+
+Table 5.3
+
+Meshing statistics. ............................................................................... 56
+
+ix
+
+Stellenbosch University https://scholar.sun.ac.za
+
+FIGURES
+page
+Figure 1.1: Mass versus Reynolds number range for flight vehicles (Mueller &
+DeLaurier, 2003). .................................................................................. 2
+Figure 1.2: Wingspan versus mass for small UAVs and MAVs (Mueller &
+DeLaurier, 2003). .................................................................................. 2
+Figure 1.3: Endurance of existing micro air vehicles (Hrishikeshavan, 2011)............ 3
+Figure 1.4: iSTAR SDR-VTOL MUAV (Kotwani, n.d.). .............................................. 5
+Figure 1.5: The test parameters and flight conditions of the experiments done
+by Lee and their possible settings (Lee, 2010). ..................................... 9
+Figure 2.1: Shrouded rotor operating theory (Hrishikeshavan, 2011). ..................... 11
+Figure 2.2: The 2-dimensional rotor wake for the shrouded rotor (Pereira, 2008). .. 12
+Figure 2.3: A comparison of the required power for an open and shrouded rotor
+in climbing flight (Pereira, 2008). ......................................................... 15
+Figure 2.4: Control volume for a coaxial rotor system with rotors in the same
+plane and sharing the same induced velocity (Leishman, 2008). ......... 18
+Figure 2.5: Flow model for a coaxial rotor system with the lower rotor operating
+in the fully developed slipstream of the upper rotor (Leishman,
+2006)................................................................................................... 19
+Figure 2.6: Incident velocities and aerodynamic forces on a typical rotor blade
+element (Leishman, 2006). .................................................................. 21
+Figure 2.7: Flow model used for the BEMT analysis (Leishman 2006). .................. 24
+Figure 2.8: The lifting line model (Gur & Rosen, 2008). .......................................... 28
+Figure 2.9: The cross sectional velocities of the vortex model (Gur & Rosen,
+2008)................................................................................................... 29
+Figure 3.4: The vortex presentation of the shroud, hub and rotor in DFDC (Drela
+& Youngren, 2005). ............................................................................. 32
+Figure 3.1: Shroud design parameters (Pereira 2008). ........................................... 32
+Figure 3.2: The cambered shroud airfoil and symmetrical centre body. .................. 35
+Figure 3.3: The total loads for hover performance of the cambered duct with a
+coaxial rotor for different profiles sets. ................................................. 38
+Figure 4.1: A comparison between the Lee CSCRS and the N241810 CSCRS in
+terms of hover performance at various rotor-to-rotor spacings and
+rotor-to-shroud positions. .................................................................... 40
+Figure 4.2: Load distribution for the hover performance of the N241810 CSCRS
+with a 0.01R tip gap and S3;P3 spacing. ............................................. 41
+x
+
+Stellenbosch University https://scholar.sun.ac.za
+
+page
+Figure 4.3: Net torque for hover performance of the N241810 CSCRS with a
+0.01R tip gap and S3;P3 spacing. ....................................................... 42
+Figure 4.4: A comparison between the Lee CSCRS and the N241810 CSCRS in
+terms of the power loading for hover performance at various rotorto-rotor spacings and rotor-to-shroud positions. .................................. 42
+Figure 4.5: Figure of Merit (FM) for hover performance of the N241810 CSCRS
+with a 0.01R rotor tip gap. ................................................................... 43
+Figure 4.6: Hover performance in terms of total loads and load distribution for
+the N241810 CSCRS in the S3;P3 rotor position at various rotor tip
+gaps. ................................................................................................... 44
+Figure 4.7: Total loads for axial flight performance of the N241810 CSCRS at
+various rotor-to-rotor spacings and rotor-to-shroud positions. Tip
+gap is 0.01R. ....................................................................................... 45
+Figure 4.8: Axial flight performance of the shroud, upper rotor and lower rotor of
+the N241810 CSCRS at S3;P3 and TG1. ............................................ 45
+Figure 4.9: Axial flight performance of the N241810 CSCRS in terms of power
+loading (PL) at various inflow velocities for a S3;P3 spacing and tip
+gap of 0.01R. ...................................................................................... 46
+Figure 4.10: Total loads for axial flight performance of the N241810 CSCRS for
+a S3;P3 rotor spacing at various rotor tip gaps and inflow velocities. ... 47
+Figure 4.11: Load distributions for axial flight performance of the
+N241810 CSCRS with a S3;P3 rotor spacing at various rotor tip
+gaps and inflow velocities. ................................................................... 48
+Figure 4.12: Total efficiency of the N241810 CSCRS with a 0.01R tip gap and
+S3;P3 spacing at various inflow velocities. .......................................... 48
+Figure 5.1: MRF Transparent with periodic interfaces and boundary conditions. .... 51
+Figure 5.2: The computational mesh. ..................................................................... 53
+Figure 5.3: The inner computational mesh with hexahedral elements and
+inflation................................................................................................ 53
+Figure 5.4: The TurboGrid-generated hexahedral meshes on the hub and blade. .. 54
+Figure 5.5: The mesh independence study. ............................................................ 55
+Figure 5.6: A velocity contour plot of a mesh independent CFD solution. ............... 56
+Figure 6.1: A comparison between the hover performance of the Lee CSCRS
+experimental data, the DFDC results and the ANSYS-CFX CFD
+predictions at various power inputs. .................................................... 57
+
+xi
+
+Stellenbosch University https://scholar.sun.ac.za
+
+page
+Figure 6.2: A comparison between the DFDC and CFX thrust predictions for the
+design in hover flight. .......................................................................... 58
+Figure 6.3: A comparison between the DFDC and CFX load distribution
+predictions in hover flight for various rotational speeds. ...................... 59
+Figure 6.4: A comparison between the DFDC and CFX torque predictions on
+the upper and lower rotors in hover flight............................................. 60
+Figure 6.5: A comparison between the Lee data, DFDC and CFX power loading
+with thrust in hover flight. ..................................................................... 61
+Figure 6.6: A comparison between the DFDC and CFX total load predictions at
+various axial velocities. ........................................................................ 62
+Figure 6.7: A comparison between the DFDC and CFX power loadings at
+various axial velocities. ........................................................................ 62
+Figure 6.8: A CFX velocity vector plot for hover flight at a rotational speed of
+5 000 rpm. ........................................................................................... 63
+Figure 6.9: A CFX pressure contour plot for hover at a rotational speed of
+5 000 rpm. ........................................................................................... 63
+Figure 7.1: The three-dimensional model of the counter rotating rotor system........ 64
+
+xii
+
+Stellenbosch University https://scholar.sun.ac.za
+
+ACRONYMS AND ABBREVIATIONS
+AFDD
+AoA
+ATE
+BEMT
+BET
+CFD
+CSCRS
+DFDC
+DL
+FM
+FVM
+GGI
+IMT
+LADF
+L/D
+MAV
+MIT
+MRF
+MUAV
+NACA
+NASA
+PL
+RMS
+SCRS
+SDR
+SLADe
+SST
+UAV
+VTOL
+V/STOL
+
+Aero Flight Dynamics Directorate
+Angle of attack
+Advanced Technologies and Engineering
+Blade element momentum theory
+Blade element theory
+Computational Fluid Dynamics
+Cambered Shroud Coaxial Rotor System
+Ducted fan design code
+Disk loading = Trotor/A
+Figure of merit = Pi/P
+Finite volume method
+General grid interface
+Institute of Maritime Technology, Simon’s Town, South Africa
+Lift augmented ducted fan
+Lift to drag ratio
+Mini aerial vehicles
+Massachusetts Institute of Technology
+Multi reference frame
+Mini UAV
+National Advisory Committee for Aeronautics
+National Aeronautics and Aerospace Administration
+Power loading = T/P
+Root mean square residual
+Shrouded coaxial rotor system
+Shrouded/ducted rotor
+Surface launched aerial decoy
+Shear stress transport
+Unmanned aerial vehicle
+Vertical take-off and landing
+Vertical/short take-off and landing
+
+xiii
+
+Stellenbosch University https://scholar.sun.ac.za
+
+NOMENCLATURE
+A
+AR
+Ae
+a
+CL
+Cd
+Cl
+C̃l
+CP
+CT
+c
+𝑐𝑑
+D
+𝐷𝑅
+𝐷𝑡
+J
+K1…4
+L
+Ld
+M
+ṁ
+Nb
+ncrit
+n
+p
+patm
+P
+Pi
+P0
+Pz
+Q
+R
+R
+Ri
+Rm
+R0
+Re
+r
+T
+Ttotal
+t/c
+td
+U
+UR
+UT
+Vc
+VF
+𝑣
+𝑣𝑖
+w
+
+2
+𝐷
+rotor disk area or shroud throat cross-sectional area = 𝜋 ( 𝑡⁄2)
+rotor disk area, corrected for blade root cut-out = 𝜋(𝑅 2 − 𝑅02 )
+diffuser exit area
+airfoil lift-curve slope = 𝑑𝐶𝐿/𝑑𝛼
+lift coefficient = L/_A(R)2
+2D drag coefficient
+2D lift coefficient
+corrected two dimensional lift coefficient of the blade-element
+𝑃
+power coefficient = 𝜋𝑅2
+𝑇
+
+thrust coefficient = 𝜋𝑅2
+rotor blade chord
+shroud/duct chord
+drag
+rotor diameter
+shroud throat diameter (minimum inner diameter)
+propeller advance ratio = v1/nDR
+Küchemann constants
+lift
+shroud diffuser length
+Mach number
+mass flow = ρAv
+number of blades
+transition criteria in XFOIL
+rotor rotational speed, rev/s
+local static pressure
+ambient atmospheric pressure
+rotor shaft power = Pi + Po = actual power
+ideal/induced power
+profile power
+wake helical pitch
+rotor torque
+shroud/duct radius
+𝐷
+rotor radius = 2𝑅
+shroud/duct inner radius
+shroud/duct outer radius
+rotor blade root cut-out
+Reynolds number
+non-dimensional radial coordinate = y/R
+thrust
+total shrouded-rotor thrust = Trotor + Tshroud
+thickness to chord ratio
+shroud wall thickness
+resultant velocity at rotor blade element
+radial component of velocity at rotor blade element
+tangential component of velocity at rotor blade element
+climb velocity
+flight velocity
+induced velocity at rotor plane
+(ideal) induced velocity at rotor plane
+induced velocity in far wake of rotor
+xiv
+
+Stellenbosch University https://scholar.sun.ac.za
+
+wa
+wt
+Y
+y
+z
+
+axial component of the induced velocity on the helical pitch in far wake
+of rotor
+tangential component of the induced velocity on the helical pitch in far
+wake of rotor
+the wake contraction coefficient
+radial coordinate
+axial coordinate, positive downstream from rotor
+
+Greek symbols
+𝛼
+effective angle of attack; blade element aerodynamic angle of attack
+𝛿𝑡𝑖𝑝
+blade tip clearance
+𝜃𝑑
+diffuser angle
+𝜙
+induced inflow angle
+𝜅
+induced power correction factor; Goldstein’s coefficient of interference
+velocity
+λ
+advance ratio in the far wake
+𝜆𝑖
+induced inflow ratio = 𝑣𝑖 /( Ω𝑅)
+Ω
+rotor rotational speed, rad/s
+𝜌
+air density
+μ
+viscosity
+ν
+kinematic viscosity
+ω
+induced velocity in far wake of rotor
+𝜎
+rotor solidity = Nbc/(𝜋𝑅)
+𝐴
+𝜎𝑑
+shroud diffuser expansion ratio = 𝐴𝑒
+𝜎𝑑∗
+
+𝐴
+
+𝜎𝑑
+
+𝑅
+
+(1−( 0 ) )
+
+expansion ratio, corrected for rotor hub blockage = 𝐴 𝑒 =
+
+𝑅 2
+𝑅
+
+Subscripts
+OR or IRrefers to open (un-shrouded or isolated) rotor
+SR
+refers to Shrouded Rotor
+c
+refers to value in the climb condition
+h
+refers to value in the hover condition
+i
+refers to the shroud interior
+inlet
+refers to component due to shroud inlet
+m
+refers to the shroud exterior
+rotor
+refers to component due to rotor
+shroud refers to component due to shroud
+l
+lower
+u
+upper
+
+Model Parameter Nomenclature
+C
+cambered shroud
+L
+lower rotor
+P1
+upper rotor at a distance of 0.10cd from the shroud leading edge
+P2
+upper rotor at a distance of 0.33cd from the shroud leading edge
+P3
+lower rotor at a distance of 0.67cd from the shroud leading edge
+P4
+lower rotor at a distance of 0.90cd from the shroud leading edge
+R
+rotor loads only
+S
+symmetric shroud
+S1
+0.15R rotor-to-rotor spacing
+S2
+0.20R rotor-to-rotor spacing
+S3
+0.30R rotor-to-rotor spacing
+xv
+
+Stellenbosch University https://scholar.sun.ac.za
+
+S4
+T
+TG1
+TG3
+U
+
+0.35R rotor-to-rotor spacing
+total loads
+Tip Gap = 0.01R
+Tip Gap = 0.03R
+upper rotor
+
+xvi
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 1:
+1.1
+
+INTRODUCTION
+
+BACKGROUND
+
+This thesis documents the aerodynamic development of a contra-rotating
+shrouded rotor system for unmanned aerial vehicles (UAVs).
+Unmanned aerial vehicles and mini aerial vehicles (MAVs) with vertical/short
+take-off and landing (V/STOL) capabilities have received extensive worldwide
+attention in the last decade. Their low noise signature, low detectability, high
+manoeuvrability in confined spaces and their ability to perform out-of-sight
+operations, make them practical solutions for an array of military and civilian
+missions. Their potential applications are mainly in the field of dangerous
+missions where manned flight would be either unfeasible or uneconomical. These
+missions could include visual reconnaissance, biological, chemical or nuclear
+agent sensing, communications relay, ship decoys, border patrol, traffic
+monitoring, meteorological studies and power-line inspections (Ko et al., 2007).
+In South Africa, the firm Advanced Technologies and Engineering (ATE)
+produces the 5.2 meter wingspan Vulture reconnaissance UAV while Denel
+Dynamics, a division of Denel, produces the Seeker II+ and the updated
+Seeker 400 tactical UAV surveillance systems with a wingspan of approximately
+4.4 meters. These systems operate at ranges of up to 250 km from their base
+and can be used for real-time day and night surveillance, target location, artillery
+fire support, electronic intelligence, border patrol and marine patrol. Denel
+Dynamics also produces the Hungwe catapult-launched and skip-landed UAV
+real-time communication system, enabling communication up to 100 km from its
+base (Denel, 2014).
+The definition of small UAVs is somewhat arbitrary, but vehicles with a wing span
+of less than approximately 6 m and a mass less than 25 kg are usually
+considered in this category. Low altitude UAVs are typically required to operate at
+flight speeds between 0 and 100 km/h at altitudes that may vary from 3 to 300 m
+in all weather conditions for a couple of hours.
+Figure 1.1 shows the relation between the total mass and wing chord Reynolds
+number (Re) for flight vehicles, where the wing chord Re is defined as the cruise
+speed multiplied by the mean wing chord divided by the kinematic viscosity of the
+air. Figure 1.2 illustrates the mass versus wingspan for various flight vehicles. It is
+clear that the small UAV regime, which includes the MAVs, is well below that of
+conventional aircraft (Mueller & DeLaurier, 2003).
+The definition of mini and micro UAVs varies according to different sources, but
+generally a mini UAV (MUAV) has a wing span between 0.305 and 2.5 m and
+weighs in the order of 1 to 10 kg. Micro aerial vehicles (MAVs) refer to a size less
+than 0.15 m in length, width and height. They weigh roughly 100 g and have an
+endurance of approximately one hour. Whether mini or micro vehicles, all of them
+are:
+
+
+
+Small, lightweight and portable and can be deployed and controlled remotely
+by a single person.
+They are fully autonomous or semi-autonomous or remotely controlled and
+as such eliminate the need for a human to be on site.
+
+1
+
+Stellenbosch University https://scholar.sun.ac.za
+
+
+
+Lastly, they are inexpensive and dispensable or easy-to-repair vehicles that
+carry the dedicated sensors required for their specific civilian or military
+mission (Kotwani, n.d.).
+
+Figure 1.1: Mass versus Reynolds number range for flight vehicles (Mueller &
+DeLaurier, 2003).
+
+Figure 1.2: Wingspan versus mass for small UAVs and MAVs (Mueller & DeLaurier,
+2003).
+
+2
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The configuration of existing MAVs may be classified as: fixed wing; flapping
+wing; tilt-rotor; and vertical take-off and landing rotary wing MAVs.
+The fixed-wing MAVs were the first to be developed, of which the Black Widow is
+an example (Kotwani, n.d.). The conventional fixed-wing configuration will be
+superior when the task at hand involves outdoor missions over longer distances
+or for longer flight durations, such as monitoring traffic, forestry and wild-life
+surveys, and border surveillance.
+The flapping wing MAVs are inspired by insect-based flight. These vehicles
+cannot hover and are mechanically very complex to manufacture. There is a
+great deal of wear and tear on the components caused by the high frequency
+back-and-forth motion of the wings. Recently Aerovirnoment designed and tested
+their Nano Hummingbird, shown in Figure 1.3. It is capable of agile manoeuvring,
+has a low noise signature, weighs 19 g and has a hover endurance of 11 minutes
+(Hrishikeshavan, 2011).
+
+Figure 1.3: Endurance of existing micro air vehicles (Hrishikeshavan, 2011).
+
+The tilt-rotor UAV has the ability to hover directly over a target and to fly at high
+speeds. Bell Helicopters, a US company, has done a lot of research on tilt-rotor
+UAVs, but the researchers at the Korea Aerospace Research Institute did
+extensive studies, using computational fluid dynamics, to investigate the rotor
+performance and the rotor wake of the tilt-rotor UAV to improve the aircraft’s
+stability and air speed (Miller et al., 2006).
+The VTOL rotary wing MAVs, with their ability to “perch and stare” for extended
+periods of time with a low risk of being detected during tactical reconnaissance
+and surveillance missions, make the rotary wing configurations very attractive.
+3
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Some of the many rotary wing MAVs that have been developed are the micro
+commercial helicopter, the Crazyfile quad rotor and micro coaxial rotors. These
+vehicles operate in the low Re flow regime (between 104 and 105) where the
+highly viscous and separation prone flow conditions result in a low hover
+endurance. The flight mechanics of these vehicles are inherently unstable due to
+considerable cross coupling in lateral and longitudinal motions.
+
+1.2
+
+THE PERFORMANCE OF SMALL SCALE ROTORS
+
+The figure of merit (FM) and power loading (PL) values are two metrics used to
+compare the performance of various rotary wing and VTOL MAV designs.
+The rotor FM is given by:
+𝐼𝑑𝑒𝑎𝑙 𝑝𝑜𝑤𝑒𝑟 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑡𝑜 ℎ𝑜𝑣𝑒𝑟
+
+𝑃
+
+𝑖𝑑𝑒𝑎𝑙
+𝐹𝑀 = 𝐴𝑐𝑡𝑢𝑎𝑙 𝑝𝑜𝑤𝑒𝑟 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑡𝑜 ℎ𝑜𝑣𝑒𝑟 = 𝐼𝑛𝑑𝑢𝑐𝑒𝑑 𝑝𝑜𝑤𝑒𝑟+𝑃𝑟𝑜𝑓𝑖𝑙𝑒
+𝑝𝑜𝑤𝑒𝑟
+
+(1.1)
+
+where the actual power supplied to the rotor is the sum of the induced power and
+the profile power. The Ideal power is given by the simple momentum theory
+which assumes no viscous losses and is thus entirely induced in origin. The
+induced power compensates for the non-uniform flow with compressibility, swirl,
+the tip losses and a finite number of blades. The profile power is determined by
+the power required to overcome the drag on the rotor blades. In reality, the
+viscous effects are present in the induced power and profile power contributions
+and are thus always present in the actual power measurements. (Leishman,
+2006).
+The PL is the ratio of the thrust to power required to hover and is often expressed
+in terms of the rotor FM, air density and disc loading (DL is the ratio of thrust to
+rotor disc area) or in terms of the thrust and power coefficients (Leishman, 2006):
+𝑇
+2𝜌
+𝑃𝐿 = 𝑃 = 𝐹𝑀√ ⁄𝐷𝐿
+
+(1.2)
+
+Studies done by Pines and Bohorquez (2006) indicated that the FM of full scale
+rotors is between 0.75 and 0.90 whereas the values for MAVs are between 0.60
+and 0.75. It was found that the profile power (Po) for full scale rotors is in the
+order of 30% whereas this value is closer to 45% at the MAV scale. CP/CT values
+between 12 and 14 can be expected for full scale rotors, while the maximum
+values at MAV scale are between 5 and 6.
+Currently the rotor-based hovering platforms are the most advanced. The coaxial
+configuration is more compact than the conventional single main rotor with a tail
+rotor and the quad rotor configurations, but they can be less efficient in hover due
+to the aerodynamic interference between the rotors. It is thus important to
+investigate the shrouded coaxial rotor systems for MAVs to improve their
+compactness and efficiency.
+
+1.3
+
+THE SHROUDED/DUCTED ROTOR (SDR) CONFIGURATION
+
+The iSTAR, developed by Allied Aerospace and shown in Figure 1.4, is an
+example of an SDR-VTOL MAV that uses a lift augmented ducted fan (LADF).
+A shroud or duct, also known as a ring-wing or an annular airfoil, is the main
+lifting surface of a ducted fan vehicle. The shroud consists of an inlet and a
+diffuser section. The diffuser recovers the kinetic energy of the slipstream and
+increases the mass flow rate through the rotor. The rotation of the rotor causes a
+4
+
+Stellenbosch University https://scholar.sun.ac.za
+
+low pressure above the rotor plane, which accelerates the flow over the shroud
+inlet surface. This causes a low pressure over the shroud inlet area which results
+in an added lift force.
+The geometry is formed by revolving an airfoil cross section about an offset
+centreline (Ko et al., 2007). The terms, “ducted-fan” and “shrouded-propeller” are
+used interchangeably. Normally a “duct” has a length that is equal to or longer
+than its diameter - it has a low width-to-length ratio. Shorter “ducts” are referred
+to as “shrouds” and have a high width-to-length ratio. In the same way a “fan”
+normally has five or more blades, whereas a “propeller” generally has four or
+fewer blades. Each blade of a propeller, rotor or fan is essentially a rotating wing,
+twisted and varying in airfoil section from root to tip to achieve maximum
+efficiency in the generation of lift. Propellers are commonly used to convert the
+power of an aircraft engine into a propulsive force in a forward direction, namely
+thrust.
+
+Figure 1.4: iSTAR SDR-VTOL MUAV (Kotwani, n.d.).
+
+Rotors generally rotate in approximately a horizontal plane about a common axis
+which produces upwards lift and forward thrust for hovercraft.
+The main difficulty with rotary wing vehicles is to achieve better performance
+because of the large amount of power required to hover. Hover is an inherently
+high power flight state with considerably larger energy requirements than cruise
+for fixed wing vehicles where the lift generated by the wings in forward flight
+equals the weight of the craft. If a significant part of a mission involves stationary
+flight, hover efficiency becomes a key vehicle requirement.
+In South Africa, the need for a small surface launched aerial decoy (SLADe) was
+identified by The Institute of Maritime Technology (IMT) in Simon’s Town. A
+SCRS-VTOL MUAV was developed in 2006 under the guidance of Prof Thomas
+Jones of the Electrical and Electronic Engineering Department of Stellenbosch
+University to serve as a technology demonstrator for SLADe. The focus of the
+project was primarily on the control system design and as such the development
+of the technology demonstrator was successful, but the aerodynamic design was
+not optimised. The details of the development of the initial technology
+demonstrator can be found in an article by Heise et al. (2006). In 2007 Dr S.J.
+van der Spuy, under the guidance of Prof T.W von Backström, evaluated the
+5
+
+Stellenbosch University https://scholar.sun.ac.za
+
+existing SLADe demonstrator and suggested that, amongst others, the coaxial
+rotor system could be redesigned to improve the aerodynamic efficiency of the
+demonstrator (Van der Spuy & Von Backström, 2007). Unfortunately the SLADE
+demonstrator was damaged beyond repair shortly after the evaluation.
+In an investigation done by Bohorquez (2007), initial hover rotor testing showed
+that small-scale rotors with airfoils and blade geometries similar to those of fullscale vehicles had a maximum FM in the vicinity of 0.35. Given that full-scale
+helicopters can reach maximum FMs in the order of 0.8, this is a very low value.
+However, since efficiency depends largely on airfoil characteristics, such as the
+L/D ratios, it is expected that the low Reynolds number sub-scale MUAV rotors
+will have a lower hovering efficiency than full-scale ones. In order to improve
+these numbers it will not only be necessary to consider two-dimensional airfoil
+characteristics, but the complete rotor design. Blade parameters such as taper,
+twist and collective will have to be modified for the vastly different flow conditions.
+The hovering shrouded/ducted rotor system (single or coaxial) is normally more
+aerodynamically efficient than a single rotor system since additional duct forces
+increase the rotor performance (Lee, 2010). The SDR configuration for VTOL
+MAVs and MUAVs has proved to be a popular design and offers the following
+potential advantages:
+
+
+
+
+
+
+
+The shroud augments the lift/thrust produced by the rotor, which is crucial
+for these miniature class vehicles. A carefully designed shroud/duct
+augments static thrust by about 10% over that produced by an open rotor
+of the same diameter (Heise et al., 2006).
+The shroud protects the rotor from tip strikes, thus improving ruggedness
+and making it safer for people operating it in confined areas.
+The shroud dampens the noise of the rotor considerably since a shrouded
+propeller can be run under optimum flow and loading conditions,
+eliminating propeller-tip "buzz," which is a large component of propellerdriven aeroplane noise.
+The shroud/duct can be used to support the rotors and vanes. It can also
+serve as a housing for various avionics, sensors, the propulsion system,
+fuel, payload and other equipment.
+
+One of the reasons for the thrust increase in SDRs is the small tip clearance
+between the rotor tips and the shroud, which results in reduced tip losses and
+thus an increase in thrust. In a cleverly designed shroud the upstream and
+slipstream flow of the rotor may cause a pressure distribution on the shroud that
+can result in additional thrust or lift. For a given rotor, this extra force will depend
+on parameters such as the size and profile of the shroud, the tip clearance of the
+rotor as well as its location along the vertical axis of the shroud (Kotwani, n.d.).
+One of the biggest disadvantages to the use of a shroud on a rotating-wing
+platform is the extra weight of the shroud itself. Extra care must also be taken to
+ensure a sufficient clearance between the rotor tip and the shroud wall to avoid
+possible blade strikes. The aerodynamic benefits of shrouding are the greatest in
+hover, and may not necessarily render improvements in forward flight.
+A major advantage of the contra-rotating coaxial rotor system is that it does not
+require a separate means of anti-torque, since the rotor torques offset each other.
+This results in a smaller footprint compared to conventional rotorcraft that require
+a tail rotor for anti-torque. Vehicle compactness is improved, since the disc area
+of each rotor in a contra-rotating system may be smaller than for a single rotor
+system in a vehicle with the same weight and disc loading.
+6
+
+Stellenbosch University https://scholar.sun.ac.za
+
+In contrast, the rotor-to-rotor aerodynamic interference with the coaxial system is
+likely to increase the net power requirements, dictating a bigger power source for
+the same thrust, which reduces the available payload, endurance, range and
+overall capability for the same vehicle weight. The more complex rotor hub for the
+coaxial system will also increase the vehicle weight and ultimately raise the
+maintenance costs.
+In order to make a final decision on the suitability of a shrouded contra-rotating
+configuration for a UAV, the potential benefits of greater aerodynamic efficiency,
+vehicle ruggedness and compactness must be weighed against the decreased
+vehicle capability resulting from higher structural weight requirements.
+
+1.4
+
+PREVIOUS RESEARCH OF SHROUDED ROTOR SYSTEMS
+
+Early research on larger scale shrouded propellers and ducted fans done by
+Krȕger (1949) and Sacks & Brunell (1962) led to a better understanding in this
+field. The National Aeronautics and Aerospace Administration (NASA) was
+involved in extensive research on the full scale 1.219 m (4 ft) diameter ducted
+propeller of the Doak VZ-4DA. Yaggy & Mort (1961), Yaggy & Goodson (1960)
+and Mort (1965) documented numerous experiments on the performance of the
+ducted propeller by changing the incidence angles with regard to the free stream
+in hover and forward flight. These experiments indicated a maximum propulsive
+efficiency of 0.60 at an advance ratio (J) of 0.6 and a maximum FM of 0.78 at
+blade angles between 11° and 20°.
+Platt (1948) performed static tests on 1.219 m (4 ft) diameter shrouded and
+isolated counter rotating propellers. Three different shrouds that varied in length
+and diffuser angle were used. The power consumption for all the tests was
+within 10% of each other, but the shrouded propellers produced nearly twice the
+thrust of the unshrouded propellers. Alterations in the diffuser angle and shroud
+length had little effect on the performance of the shrouded propellers. Further
+wind tunnel experiments were done by Mort and Gamse (1967) on
+the 2.134 m (7 ft) diameter ducted propeller of the Bell X-22A tilt rotor. They
+found a maximum FM of 0.81 and a maximum propulsive efficiency of 0.74. They
+reported a decrease of nearly 20% in thrust when the tip clearance was
+increased. Mort and Gamse (1967) indicated that the design criteria of a
+shrouded propeller in axial flight and in hover flight are normally in conflict.
+An extensive investigation on the effects of various duct parameters was done by
+Black et al. (1968). They used twelve different duct models on a 0.762 m
+(30 inch) diameter propeller to investigate the effects of the duct chord, lip shape,
+duct external shape, blade tip clearance, the position of the propeller in the duct,
+the number of blades and the exit expansion ratio. They obtained up to 67%
+increase in thrust for the same ideal power and found that the duct exit expansion
+ratio was the overriding shrouded propeller variable. Their investigation indicated
+that shroud performance is increased by increasing the rotational speed of the
+rotor or by increasing the blade angle of attack, since this resulted in higher
+suction forces on the shroud inlet. The shroud performance deteriorated in axial
+flow due to the drag from the shroud and the fact that the slipstream contraction,
+which is extensive at static conditions for the isolated rotor, becomes less
+pronounced at higher flight speeds.
+The theoretical ideal thrust produced in static conditions by a shrouded propeller
+with an expansion ratio of unity is 26% more than for the same isolated propeller,
+with the thrust produced by the rotor and the shroud being approximately equal.
+With larger expansion ratios, the ideal static thrust growth increases as the cube
+7
+
+Stellenbosch University https://scholar.sun.ac.za
+
+root of the ratio. Black et al. (1968) found that, depending upon the duct design, a
+shrouded rotor with a 30% to 40% smaller diameter would produce the same
+thrust as the isolated rotor. Lower duct expansion ratios were required in axial
+flow. Their investigation indicated that positioning the propeller forward in the duct
+resulted in better performance in axial flight whereas a rearward position is
+preferred in static conditions.
+With the focus on UAV development, research was done on smaller scale shroud
+rotor systems. Experiments on a shrouded counter rotating rotor system done by
+Cycon, Rosen & Whyte (1992) indicated that performance increased with an
+increase in the shroud leading edge radius. Varying the shroud length from 100%
+shroud throat diameter (Dt) to 5% (Dt) resulted in a thrust reduction of only 10%,
+which is important in terms of weight-saving considerations.
+Martin and Tung (2004) experimented on a 10 inch diameter shroud rotor model
+using two different shroud shapes to investigate the effects of leading edge
+radius. The tip gap on each shroud could also vary between 1% and 4% rotor
+radius (R). A 37% increase in thrust over the isolated rotor was measured when
+they used the shroud with the highest leading edge radius and the smallest rotor
+tip gap. With the rotor tip shroud gap at 4% R the FM was 0.44 which was close
+to the value for the open rotor. At low propeller rotational speed the shroud
+resulted in a negative thrust on the system which was caused by the internal flow
+losses in the shroud at low Re.
+Martin and Boxwell (2005) did additional experiments on a 10 inch diameter
+shrouded rotor model using two new shroud internal shapes, with changes near
+the rotor tip path plane, to further investigate the effect of rotor tip gap on hover
+performance. The one shroud had a stepped internal geometry while the other
+had a notch for the rotor tip. Their experiments indicated that for the same power,
+the stepped shroud delivered less thrust while the notched shroud delivered the
+same amount of thrust as the original shroud.
+Pereira and Chopra (2009) did thorough investigations on the performance of
+a 0.16 m (6.3 inch) ducted rotor MAV. Performance gains in static conditions of
+up to 50% were obtained with optimal settings for the inlet leading edge radius.
+tip gap, diffuser length (50% Dt) and diffuser angle (10°). It was found that
+about 80% of the duct thrust was generated by the inner half of the inlet lip.
+Lee (2010) did extensive experiments on the shrouded counter rotating rotor
+system indicated in Figure 1.5, where better static performance was recorded
+with the rotors positioned further down within the shroud. The hover performance
+of the shrouded coaxial rotor system was more sensitive to the rotor position
+within the duct than to the spacing between the two rotors, with the best
+performance recorded when the rotor spacing was the smallest. In general,
+reducing the rotor blade tip clearance to the shroud increased the system
+performance. For the axial flight performance, the trends of rotor position within
+the shroud and rotor-to-rotor spacing as recorded in the static conditions
+prevailed. A smaller rotor tip gap resulted in better axial performance, at least
+whilst the inflow velocities were not too high.
+
+8
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 1.5: The test parameters and flight conditions of the experiments done by
+Lee and their possible settings (Lee, 2010).
+
+Lee (2010) indicated that the rotors used for his research were downscaled, close
+variants of the Bell XV-15 tilt-rotor blades and not optimum for his experiments.
+He argued that the low solidity of the rotors and their small blade chords clearly
+resulted in lower thrust values than would be expected from a MUAV on that
+scale. He suggested the redesigning of the coaxial rotor blades and rotor system
+to match the shroud and available power from the motors.
+It is thus clear that the performance of a shrouded rotor system on MUAV scale
+mainly depends on the following factors:
+
+
+
+
+
+
+The design of the shroud;
+The performance of the rotor system itself at MUAV scale, where the
+frictional losses are greater and the aerodynamic efficiencies are low due
+to the relatively low blade chord Reynolds numbers;
+The aerodynamic interaction between the shroud and the rotor at MUAV
+scale where the relatively low Reynolds number flow causes the boundary
+layers to be thicker which may influence the system performance
+differently at this scale. Parameters to be considered here may include
+the rotor tip gap, the rotor-to-rotor spacing and the axial placement of the
+rotors in the shroud;
+The flow conditions at the shroud inlet, in hover and forward flight.
+
+A better understanding of these factors is required for the design of more efficient
+shrouded rotor MUAVs.
+
+1.5
+
+OBJECTIVES OF THIS THESIS
+
+The primary objectives of this study are twofold: Firstly, the aerodynamic
+development of an efficient contra-rotating shrouded rotor system for a UAV
+using a freeware code named “Ducted Fan Design Code” (DFDC), which was
+developed by professor Mark Drela, Massachusetts Institute of Technology (MIT)
+Aero & Astro and Harold Youngren, Aerocraft Associates, Inc. Secondly, to verify
+the design by comparing the results of the DFDC to an ANSYS-CFX CFD
+9
+
+Stellenbosch University https://scholar.sun.ac.za
+
+simulation and published experimental data. In order to satisfy these objectives
+the work was divided into several phases.
+The first phase of the study was to obtain published experimental data of a
+shrouded contra-rotating rotor system in hover and forward flight in terms of
+thrust, torque and power to be used as a benchmark for the new design. This
+turned out to be a daunting task since sufficient geometric information on a
+ducted coaxial rotor system together with published experimental data to
+reconstruct the design and simulate the performance was not entirely possible.
+The present work is based on the Aero Flight Dynamics Directorate (AFDD)
+ducted coaxial rotor system and experimental data as published by Lee (2010).
+The description of the rotors used by Lee proved to be insufficient to accurately
+reproduce them. It was thus decided to design a new set of rotors for the existing
+shroud.
+Normally the first phase in the aerodynamic design of a shrouded rotor system
+would be to design the shroud. In this study the shroud used by Lee (2010) is
+used. The second phase of the study to design a more efficient coaxial rotor
+system, as suggested by Lee (2010), was the selection of new rotor blade
+profiles by doing a detailed airfoil section analysis using XFOIL. Only profiles with
+a high lift to drag ratio in low Reynolds number flow and optimal geometry for
+design were considered.
+The third phase was the design of a new coaxial rotor system using the Mark
+Drela DFDC_070E2a code. The performance of the new ducted coaxial rotor
+system was compared with several configurations of the experimental data,
+including variations in rotor separation distance, position of the rotors within the
+duct and tip clearances to investigate the aerodynamic impact of these
+parameters on the performance of the rotor system.
+The fourth phase was to verify the DFDC results in ANSYS CFX. The numerical
+representation was done by using three areas, namely the far-field area, an
+immediate-field area where the shrouded rotor and the hub were placed, and
+moving reference frames for the rotors.
+The ultimate objective of this study was to design a more efficient coaxial rotor
+system for the AFDD cambered shroud that Lee (2010) used. The design was
+done using DFDC which was verified with CFD simulations. In this way it was
+proved that DFDC could be used as a valuable preliminary design tool for the
+development of shrouded coaxial rotor systems for UAVs.
+
+10
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 2:
+2.1
+
+ROTOR AERODYNAMICS
+
+INTRODUCTION
+
+This chapter discusses some of the mathematical models used to study the
+aerodynamics and performance of rotary wings. One-dimensional momentum
+theory allows for the approximation of downwash velocities and rotor efficiencies,
+but a more thorough aerodynamic theory like blade element theory is needed to
+predict blade geometry, blade sectional orientation and blade twist. Blade
+element theory (BET) and momentum theory were combined in the blade
+element momentum theory (BEMT) to incorporate the effect of drag and blade
+geometry on rotor performance.
+In blade-element models each propeller blade is divided into a number of small
+independent sections. It is assumed that each section behaves aerodynamically
+as a wing in two-dimensional flow. The flight velocity and rotational velocity are
+usually known, but the induced velocity components are unknown and must be
+found by using other models like the momentum model. By using the induced
+velocity as input to the blade-element model, the aerodynamic loads along the
+blade are calculated by an iterative scheme. The integration of the aerodynamic
+loads along the blades results in the calculation of the propeller's thrust and
+required power.
+The momentum and blade element theories presented in this study were
+developed from Johnson (1980) and Leishman (2006), which are both frequently
+quoted.
+
+2.2
+
+MOMENTUM THEORY FOR SHROUDED ROTORS
+
+In a ducted fan or shrouded rotor design, the thrust consists of two parts, the
+thrust of the rotor or fan and the thrust from the shroud or duct as illustrated in
+Figure 2.1.
+
+Figure 2.1: Shrouded rotor operating theory (Hrishikeshavan, 2011).
+
+11
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The shroud consists of an inlet and a diffuser section. Considering a case where
+the same total thrust is being produced by a shrouded and an isolated rotor, the
+diffuser recovers the kinetic energy of the slipstream and increases the mass flow
+rate through the rotor.
+The rotation of the rotor causes a low pressure above the rotor plane, which
+accelerates the flow over the shroud inlet surface. This causes a low pressure
+over the shroud inlet area which results in an added lift force. In order to explain
+the improvements in hover performance with a shrouded rotor, an outline of the
+momentum theory applied to a shrouded rotor is given below. The full derivations
+of these results can be found in Leishman (2006) and Pereira (2008).
+Figure 2.2 illustrates the 2-dimensional rotor wake for the shrouded rotor. The
+assumptions made in the momentum theory are: steady, frictionless,
+incompressible, and quasi 1-dimensional flow. The rotor imparts only axial
+momentum with no rotation in the wake. It is further assumed that the wake of the
+shrouded rotor expanded to the atmospheric pressure at the diffuser exit plane.
+
+Figure 2.2: The 2-dimensional rotor wake for the shrouded rotor (Pereira, 2008).
+
+For the shrouded rotor in hover flight (Vc = 0 m/s) or climbing flight with the climb
+velocity Vc and w the induced velocity in the far wake of the rotor, the following
+velocities and identities at the different stations in Figure 2.2 arise:
+(2.1)
+𝑣0 = Vc
+𝑣1 = 𝑣2 = Vc + 𝑣𝑖
+
+(2.2)
+
+𝑣3 = Vc + w
+
+(2.3)
+
+𝐴1 = A2 = A
+
+(2.4)
+
+𝐴3 = Ae = 𝜎𝑑 𝐴
+
+(2.5)
+
+𝑝0 = 𝑝3 = 𝑝𝑒
+
+(2.6)
+
+∆pshroud = 𝑝2 − 𝑝3
+
+(2.7)
+
+12
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Assuming complete expansion at the shroud exit plane it follows from the
+conservation of mass that the mass flow rate is given as:
+𝑚̇ = 𝜌𝐴(𝑉𝑐 + 𝑣𝑖 ) = 𝜌𝐴𝑒 (𝑉𝑐 + w)
+
+(2.8)
+
+The expansion ratio can be expressed as:
+𝜎𝑑 =
+
+𝐴𝑒 (𝑉𝑐 + 𝑣𝑖 )
+=
+(𝑉𝑐 + w)
+𝐴
+
+(2.9)
+
+Since w = 2𝑣𝑖 for the isolated rotor, it follows that the expansion ratio for the
+isolated case varies between ½ and 1.0, depending on the climb velocity
+(Pereira, 2008). For a shrouded rotor, 𝜎𝑑 is constant at all climb velocities and
+depends on the geometry of the diffuser.
+⇒𝑤=
+
+(𝑉𝑐 +𝑣𝑖 )
+𝜎𝑑
+
+− 𝑉𝑐
+
+(2.10)
+
+From the conservation of momentum on the shrouded rotor system, it follows
+that:
+𝑇𝑡𝑜𝑡𝑎𝑙 = 𝑇𝑟𝑜𝑡𝑜𝑟 + 𝑇𝑠ℎ𝑟𝑜𝑢𝑑 = 𝑚̇𝑤
+
+(2.11)
+
+Substituting Equation 2.1 for 𝑉𝑐 = 0 into Equation 2.11 results in the ideal
+induced velocity, for the shrouded rotor in a hover flight condition:
+𝜎𝑑 𝑇𝑡𝑜𝑡𝑎𝑙
+𝑣ℎ = √
+𝜌𝐴
+
+(2.12)
+
+Solving these equations yields the expression for the ratio of the ideal induced
+velocities is given by (Pereira, 2008):
+𝑣𝑖
+𝑉𝑐
+𝜎𝑑 𝑉𝑐 2
+(𝜎𝑑 − 2) + √(
+=
+) +1
+𝑣ℎ 2𝑣ℎ
+2𝑣ℎ
+
+(2.13)
+
+Applying the actuator-disc theory, the thrust generated by the rotor alone yields:
+𝑇𝑟𝑜𝑡𝑜𝑟 = ∆𝑝 ∙ 𝐴 = (𝑝2 − 𝑝1 ) ∙ 𝐴
+
+(2.14)
+
+Applying Bernoulli equation between positions 0 and 1 and between positions 2
+and 3 in Figure 2.2 and solving these equations for the pressure increase across
+the rotor yields:
+1
+1
+w
+∆𝑝 = 𝜌(𝑉𝑐 + w)2 − 𝜌𝑉𝑐 2 = 𝜌w ( + 𝑉𝑐 )
+2
+2
+2
+
+(2.15)
+
+From Equations 2.11 and 2.15 it follows that the rotor thrust fraction can be given
+as:
+w
+
+𝑇𝑟𝑜𝑡𝑜𝑟 (𝑝2 − 𝑝1 ) ∙ 𝐴 (𝑉𝑐 + 2 ) 𝑣𝑖 + 𝑉𝑐 (𝜎𝑑 + 1)
+=
+=
+=
+𝑇𝑡𝑜𝑡𝑎𝑙
+𝑚̇w
+(𝑉𝑐 + 𝑣𝑖 )
+2𝜎𝑑 (𝑉𝑐 + 𝑣𝑖 )
+
+(2.16)
+
+Equation 2.16 shows that even though the total thrust is constant in a steady
+climb, the rotor thrust varies, depending on the climb velocity.
+13
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The ratio of the rotor thrust in hover and in climbing flight is given by:
+(𝑇𝑟𝑜𝑡𝑜𝑟 )𝑐 (𝑇𝑟𝑜𝑡𝑜𝑟 ⁄𝑇𝑡𝑜𝑡𝑎𝑙 )𝑐 𝑣𝑖 + 𝑉𝑐 (𝜎𝑑 + 1)
+=
+=
+(𝑇𝑟𝑜𝑡𝑜𝑟 )ℎ (𝑇𝑟𝑜𝑡𝑜𝑟 ⁄𝑇𝑡𝑜𝑡𝑎𝑙 )ℎ
+(𝑉𝑐 + 𝑣𝑖 )
+
+(2.17)
+
+The product of the velocity of the air through the rotor and the rotor thrust
+represents the ideal power required and can be written as:
+𝑃𝑐 = (𝑇𝑟𝑜𝑡𝑜𝑟 )𝑐 ∙ (𝑉𝑐 + 𝑣𝑖 ) = (𝑇𝑟𝑜𝑡𝑜𝑟 )ℎ ∙ [𝑣𝑖 + 𝑉𝑐 (𝜎𝑑 + 1)]
+
+(2.18)
+
+The ideal power to hover for a shrouded rotor is the product of the thrust in hover
+and the air flow through the rotor disc, 𝑣ℎ as given in Equation 2.12:
+𝑃ℎ = (𝑇𝑟𝑜𝑡𝑜𝑟 )ℎ ∙ 𝑣ℎ =
+
+3/2
+
+𝑇𝑡𝑜𝑡𝑎𝑙
+
+(2.19)
+
+√4𝜎𝑑 𝜌𝐴
+
+The ratio of the power required to climb versus the hover power for a shrouded
+rotor can be expressed as:
+𝑃𝑐 𝑣𝑖 + 𝑉𝑐 (𝜎𝑑 + 1)
+𝑉𝑐
+𝜎𝑑 𝑉𝑐 2
+=
+= (3𝜎𝑑
+) + √(
+) +1
+𝑃ℎ
+𝑣ℎ
+2𝑣ℎ
+2𝑣ℎ
+
+(2.20)
+
+It should be noted that although these equations represent the shrouded rotor
+performance, by changing the value of the expansion ratio as given in
+Equation 2.9, these equations reduce to the isolated rotor case. By setting Vc = 0
+m/s they reduce to the hover flight conditions. In particular, for the shrouded rotor
+in hover flight, it is proven by Pereira (2008) that the total thrust of the shrouded
+rotor system consists of contributions from the rotor, the inlet section and diffuser
+and are summarised as follows:
+The ideal power:
+3/2
+
+𝑃𝑖 =
+
+𝑇𝑡𝑜𝑡𝑎𝑙
+
+(2.21)
+
+√4𝜎𝑑 𝜌𝐴
+
+The rotor thrust in terms of the total thrust of the shrouded rotor system in hover:
+𝑇𝑟𝑜𝑡𝑜𝑟 =
+
+𝑇𝑡𝑜𝑡𝑎𝑙
+2σd
+
+(2.22)
+
+The diffuser thrust:
+𝑇𝑑𝑖𝑓𝑓𝑢𝑠𝑒𝑟 = −
+
+𝑇𝑡𝑜𝑡𝑎𝑙 (𝜎𝑑 − 1)2
+2𝜎𝑑
+
+(2.23)
+
+The inlet thrust:
+𝑇𝑖𝑛𝑙𝑒𝑡 =
+
+𝑇𝑡𝑜𝑡𝑎𝑙 ∙ 𝜎𝑑
+2
+
+(2.24)
+
+14
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The thrust ratio between the shroud and the rotor is:
+𝑇𝑠ℎ𝑟𝑜𝑢𝑑
+= (2𝜎𝑑 − 1)
+𝑇𝑟𝑜𝑡𝑜𝑟
+
+(2.25)
+𝐴
+
+This shows that as 𝜎𝑑 = 𝐴𝑒 increases, the shroud gradually reduces the
+proportional load on the rotor. The diffuser increases the downward force
+(negative thrust) on the shrouded rotor system, the rotor thrust decreases and the
+inlet thrust increases. For a straight diffuser, where 𝜎𝑑 = 1, the rotor and shroud
+inlet share about 50% of the total thrust.
+Using Equation 2.18 and 2.19 for an isolated rotor, where the rotor thrust is equal
+to the total thrust and remains constant, it can be shown that the ratio of the
+power required to climb versus the hover power is:
+𝑃𝑐 𝑣𝑖 + 𝑉𝑐
+𝑉𝑐
+𝑉𝑐 2
+=
+=
++ √(
+) +1
+𝑃ℎ
+𝑣ℎ
+2𝑣ℎ
+2𝑣ℎ
+
+(2.26)
+
+Figure 2.3 shows a comparison of the power requirements of a shrouded rotor
+versus an open rotor in terms of the climb velocity, normalised by the ideal
+induced velocity of the open rotor in hover. This comparison was done with the
+two configurations producing the same total thrust and having the same disc
+area. From the figure it follows that the shrouded rotor requires less power up to
+a climb velocity close to 𝑣ℎ,𝑂𝑅 and that the shroud with the higher expansion ratio
+results in the most savings when the climb velocity is less than 𝑣ℎ,𝑂𝑅 .
+
+Figure 2.3: A comparison of the required power for an open and shrouded rotor in
+climbing flight (Pereira, 2008).
+
+15
+
+Stellenbosch University https://scholar.sun.ac.za
+
+2.2.1 Figure of merit (FM) and other measures of rotor efficiency
+The efficiency of a rotor is difficult to define since there are many parameters
+involved and their effects on performance may not be the same on different
+rotors. The FM is equivalent to the static thrust efficiency and is a ratio of the
+ideal power required to hover, which assumes no viscous losses, to the actual
+power required to hover by the rotor. The FM may be used to compare two
+rotors, in which case they need to operate at the same disc loading (DL), where
+the DL of a rotor is the ratio of the total thrust to the rotor disc area. For an open
+rotor the FM is defined as:
+𝐹𝑀 =
+
+𝐼𝑑𝑒𝑎𝑙 𝑝𝑜𝑤𝑒𝑟 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑡𝑜 ℎ𝑜𝑣𝑒𝑟
+𝐴𝑐𝑡𝑢𝑎𝑙 𝑝𝑜𝑤𝑒𝑟 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑡𝑜 ℎ𝑜𝑣𝑒𝑟
+
+=
+
+𝐼𝑑𝑒𝑎𝑙 𝑝𝑜𝑤𝑒𝑟
+𝐼𝑛𝑑𝑢𝑐𝑒𝑑 𝑝𝑜𝑤𝑒𝑟 + 𝑃𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑜𝑤𝑒𝑟
+
+(2.27)
+
+3⁄2
+
+=
+
+𝑃𝑖
+=
+𝜅𝑃𝑖 + 𝑃0
+
+𝐶𝑇
+
+√2
+
+𝜅
+
+3⁄2
+𝐶𝑇
+
+√2
+
++
+
+𝜎𝐶𝑑0
+8
+
+The induced power is the product of 𝜅 and the ideal power and 𝜅, the ideal power
+correction factor derived from rotor measurements and compensating for nonuniform flow with compressibility, swirl, the tip losses and a finite number of
+blades. The profile power is determined by the power required to overcome the
+drag on the rotor blades. Experimental results indicated that in hovering flight a
+typical average value of 𝜅 for open rotors is 1.15, whilst a first estimation for
+𝑁 𝑐𝑅
+𝐶𝑑0 ≈ 0.01 (Leishman, 2006). The rotor solidity, 𝜎 = 𝑏𝐴 is the ratio of the rotor
+blade area to the rotor disc area, with typical values for a helicopter rotor ranging
+between 0.05 and 0.12. 𝑃ℎ = (𝑇𝑟𝑜𝑡𝑜𝑟 )ℎ ∙ 𝑣ℎ
+For a shrouded rotor, the wake development is influenced by the geometry of the
+shroud and the expression for the ideal power (Pi) and ideal power coefficient
+(CPi) needs to incorporate the diffuser’s expansion ratio 𝜎𝑑 and is given by:
+3
+
+T
+σd T
+T ⁄2
+Pi = Trotor ∙ 𝑣𝑖 =
+∙√
+=
+2σd
+ρA
+√4σd ρA
+
+(2.28)
+
+3
+
+T
+CT ⁄2
+CPi = CTrotor ∙ λi =
+∙ √σd CT =
+2σd
+√4σd
+
+(2.29)
+
+𝑣
+
+where λi is the induced inflow ratio, λi = ΩR𝑖 and 𝑇 = Ttotal = Trotor + Tshroud is the
+C
+total thrust. The relation between the power loading (PL) and the T⁄C ratio is
+P
+also applicable to the shrouded rotor as a measure of efficiency at the same tip
+speed:
+PL =
+
+T
+1 CT
+=
+∙
+P 𝑣𝑡𝑖𝑝 CP
+
+(2.30)
+
+The expression for the disc loading (DL) of a shrouded rotor is given as:
+
+16
+
+Stellenbosch University https://scholar.sun.ac.za
+
+DL =
+
+Trotor
+T
+=
+A
+2σd A
+
+(2.31)
+
+Substituting Equation 2.31 into Equation 2.28 for the ideal power:
+DL
+Pi = T ∙ √
+2ρ
+
+(2.32)
+
+P
+With the figure of merit defined as 𝐹𝑀 = i⁄𝑃, using the relation between the
+power loading and FM for open rotors and the expression for the DL of shrouded
+rotors, it follows that :
+T
+2ρ
+4σd ρA
+4ρA
+= √ ∙ FM = √
+∙ FM = √
+∙ FM√σd
+P
+DL
+T
+T
+
+(2.33)
+
+Equation 2.33 is known as the “generalised” figure of merit and indicates that for
+a fixed total thrust and rotor disc area, the power is inversely proportional to FM ∙
+√σd . Equation 2.33 can also be rearranged to indicate that for a fixed power and
+2⁄
+3
+
+disc area the thrust produced will be directly proportional to (FM√σd )
+
+.
+
+C
+Substituting Equation 2.30 into Equation 2.33 gives a relation between CT and the
+P
+
+generalised FM:
+CT
+2
+=
+∙ FM√σd
+CP √CT
+
+(2.34)
+
+It is important to note that the equations above also hold for the open rotor case
+where the expansion ratio σd = 0.5 (Pereira, 2008).
+
+2.3
+
+MOMENTUM THEORY FOR COAXIAL ROTORS
+
+In order to understand the coaxial counter rotating shrouded rotor system, a
+simple momentum analysis of an open coaxial rotor system in hover will be
+considered first. It is assumed that the two coaxial rotors are closely spaced to
+ensure minimum wake contraction before it passes through the lower rotor. This
+will ensure that the areas of the upper and lower rotors are the same, 𝐴𝑢 = 𝐴𝑙 = 𝐴
+as indicated in Figure 2.4. This is also true for the shrouded coaxial rotor system
+under consideration in this study, even though there is some vertical separation
+between the rotors. Based on the conservation of mass, the induced velocity
+through each disc will be the same, from which it follows that each disc will
+produce the same thrust 𝑇 so that the total system thrust is 2𝑇 where
+𝑇𝑢 = 𝑇𝑙 = 𝑇 = 𝑊/2
+
+(2.35)
+
+Based on simple momentum theory and from Equation 2.12, the effective
+induced velocity of this coaxial rotor configuration will be
+2𝑇
+𝑇
+𝑊
+(𝑣𝑖 )𝑒 = √
+=√ =√
+2𝜌𝐴
+𝜌𝐴
+2𝜌𝐴
+
+(2.36)
+
+17
+
+Stellenbosch University https://scholar.sun.ac.za
+
+And from Equation 2.19 and 2.36, the ideal power, 𝑃𝑖 , is
+3
+
+3
+
+2𝑇
+(2𝑇) ⁄2
+𝑊 ⁄2
+(𝑃𝑖 )𝑐𝑜𝑎𝑥 = 2𝑇(𝑣𝑖 )𝑒 = 2𝑇√
+=
+=
+2𝜌𝐴
+√2𝜌𝐴
+√2𝜌𝐴
+
+(2.37)
+
+Figure 2.4: Control volume for a coaxial rotor system with rotors in the same plane
+and sharing the same induced velocity (Leishman, 2008).
+
+If one considers the ideal power required of the coaxial rotors as if they were
+operating as separate rotors, isolated from each other, the ideal power for each
+rotor will be 𝑇𝑣𝑖 and the total ideal power for the two separate rotors will be:
+3
+
+3
+
+𝑇 ⁄2
+
+3
+
+2𝑇 ⁄2
+
+𝑊 ⁄2
+
+(𝑃𝑖 )𝑖𝑠𝑜𝑙𝑎𝑡𝑒𝑑 = 2 (
+)=
+=
+√2𝜌𝐴
+√2𝜌𝐴 √4𝜌𝐴
+
+(2.38)
+
+Let the interference‐induced loss factor κint related to the coaxial rotor system be
+defined as:
+3
+
+3
+
+(𝑃𝑖 )𝑐𝑜𝑎𝑥
+𝑊 ⁄2
+𝑊 ⁄2
+𝜅𝑖𝑛𝑡 =
+=(
+)⁄(
+) = √2 = 1.41
+(𝑃𝑖 )𝑖𝑠𝑜𝑙𝑎𝑡𝑒𝑑
+√2𝜌𝐴
+√4𝜌𝐴
+
+(2.39)
+
+From the equation above, it follows that there is a 41% increase in ideal power
+required by this coaxial system compared to the power required for the two rotors
+operating in isolation. The total ideal power required of the coaxial rotor system is
+thus:
+3
+
+𝑇 ⁄2
+
+3
+
+𝑊 ⁄2
+
+(𝑃𝑖 )𝑐𝑜𝑎𝑥 = 2𝜅𝑖𝑛𝑡 (
+) = 𝜅𝑖𝑛𝑡
+√2𝜌𝐴
+√4𝜌𝐴
+
+(2.40)
+
+In the event where the two coaxial rotors are operated closely to each other to
+give zero resultant torque it can be shown that 𝜅𝑖𝑛𝑡 = √2 = 1.41 (Leishman &
+Syal, 2008). Note that when the two coaxial rotors operate closely in the same
+plane, a torque balance can only be reached if 𝑇𝑢 = 𝑇𝑙 .
+
+18
+
+Stellenbosch University https://scholar.sun.ac.za
+
+According to various experimental results given in the article by Coleman (1997)
+the forgoing momentum analysis over-predicts the ideal power required by the
+closely spaced coaxial rotors. One reason for the over prediction of the power
+may be the fact that there needs to be finite spacing between the rotors to
+prevent inter-rotor blade collisions. This causes the lower rotor to almost always
+operate in the fully developed slipstream of the upper rotor, since experiments by
+Taylor (1950) indicated that the wake of the upper rotor contracts within 0.25R
+below the rotor. In the article of Leishman (2006) the ideal wake contraction ratio
+is 0.707, but in reality it is found to be in the order of 0.80. If it is assumed that the
+wake contraction of the upper rotor is not directly affected by the lower rotor, then
+from the ideal flow considerations, half of the rotor area of the lower rotor will
+operate in the fully developed slipstream of the upper rotor as indicated in
+Figure 2.5. Leishman (2006) analysed this flow condition using similar principles
+to the simple non-viscous momentum theory for two flow conditions. In the first
+case it was assumed that the two rotors produce the same thrust, 𝑇𝑢 = 𝑇𝑙 = 𝑇, in
+which case the interference power factor 𝜅𝑖𝑛𝑡 is given by:
+𝜅𝑖𝑛𝑡 =
+
+(𝑃𝑖 )𝑐𝑜𝑎𝑥
+2.562𝑇𝑣ℎ
+=
+= 1.281
+(2𝑃𝑖 )𝑖𝑠𝑜l𝑎𝑡𝑒𝑑
+2𝑇𝑣ℎ
+
+(2.41)
+
+Figure 2.5: Flow model for a coaxial rotor system with the lower rotor operating in
+the fully developed slipstream of the upper rotor (Leishman, 2006).
+
+19
+
+Stellenbosch University https://scholar.sun.ac.za
+
+This gives a 28% increase in induced losses, which compares much better to
+the 41% increase when the two rotors have no vertical separation. In the second
+case it was assumed that the two coaxial rotors are operating at equal but
+opposite torque, in which case the interference power factor 𝜅𝑖𝑛𝑡 is given by
+𝜅𝑖𝑛𝑡 =
+
+2.4375𝑣ℎ
+= 1.219
+2𝑣ℎ
+
+(2.42)
+
+and suggests a 22% increase in interference losses, compared to the case when
+the two rotors have no vertical separation. Leishman & Syal (2008) investigated
+an option where the two rotors are operated independently but with the same
+thrust sharing as for the torque balanced case, which resulted in an interferenceinduced power factor 𝜅𝑖𝑛𝑡 = 1.2657.
+These results indicate that as the vertical distance increases, the interference
+losses decrease. Note that these results indicate the minimum induced losses for
+the different coaxial configuration and set a basis for comparison with real coaxial
+rotor systems.
+
+2.3.1 Figure of merit (FM) for coaxial rotors
+To compare the relative efficiency of single and coaxial rotors they must be
+operated at the same effective disc loading. If this is true, the figure of merit for
+the coaxial system can be defined as:
+𝑃
+FM = 𝜅𝑃 𝑖𝑑𝑒𝑎𝑙+𝑃 =
+𝑖𝑑𝑒𝑎𝑙
+0
+
+3⁄2
+𝐶𝑇
+√2
+3⁄2 𝜎𝐶
+𝐶𝑇
+𝑑0
+𝜅𝑖𝑛𝑡 𝜅
++
+8
+√2
+
+(2.43)
+
+Where 𝜅𝑖𝑛𝑡 = 1 for an unshrouded single rotor (Leishman, 2006). A new FM
+expression for a coaxial rotor was developed by Leishman & Syal (2008) from the
+momentum theory solutions for a coaxial rotor. Their expression also
+incorporated the effect of relative thrust sharing between the rotors which would
+result in different disc loadings and efficiencies of the rotors and can be written
+as:
+1.2657
+𝐹𝑀 =
+𝜅𝑖𝑛𝑡 𝜅
+
+3⁄2
+𝑙
+
+𝐶𝑇
+
+√2
+
+3⁄2
+𝑙
+
+𝐶𝑇
+
+√2
+
+3⁄
+2
+
+[( 𝐶 )
+
+𝐶𝑇𝑢
+
+[(
+
+𝐶 𝑇𝑢
+
+𝐶𝑇𝑙
+
+𝑇𝑙
+
+3⁄
+2
+
+)
+
++ 1]
+(2.44)
+
++ 1] +
+
+𝜎𝐶𝑑0
+4
+
+where 𝜅𝑖𝑛𝑡 ≥ 1.2657. Generally 𝜅𝑖𝑛𝑡 = 1.28, 𝜅 ≈ 1.10 − 1.20, 𝐶𝑑0 ≈ 0.011 and
+𝜎(𝑐𝑜𝑎𝑥𝑖𝑎𝑙) = 2𝜎(𝑠𝑖𝑛𝑔𝑙𝑒). The special case of 𝐶𝑇𝑢 = 𝐶𝑇𝑙 = 𝐶𝑤 /2 can also be
+treated in general at torque balance 𝐶𝑇𝑢 /𝐶𝑇𝑙 > 1.
+
+2.4
+
+BLADE ELEMENT THEORY
+
+The momentum theory provides no information regarding the design of the rotor
+blades in order to produce a specified thrust. This method also ignores the profile
+drag losses. In blade element theory (BET) each propeller blade is divided into a
+number of small independent airfoil sections. It is assumed that each section
+behaves aerodynamically as a wing in a two-dimensional flow, with each element
+considered independent of the adjoining elements. The section lift and drag
+coefficients are functions of the local angle-of-attack, Mach number, and
+Reynolds number. These parameters are functions of the cross-sectional
+20
+
+Stellenbosch University https://scholar.sun.ac.za
+
+resultant velocity, which in turn is found by summing all the contributions of the
+flight velocity, rotation of the blade and induced velocity. Tip losses, the influence
+of the wake and other empirical factors may be applied to accommodate three
+dimensional effects. Lift and drag forces per unit span are then calculated from
+this resultant velocity acting on the airfoil. The rotor performance such as the
+thrust and torque are obtained by integrating the individual contribution of each
+element along the blade radius and multiplying this with the number of blades,
+𝑁𝑏 .
+BET can form the basis of design for the rotor blades in terms of blade twist,
+planform distribution and airfoil shape in order to provide a specified overall rotor
+performance. Figure 2.6 shows the flow environment and the aerodynamic forces
+on a typical blade element on the rotor that will be used for the derivation of the
+BET.
+
+Figure 2.6: Incident velocities and aerodynamic forces on a typical rotor blade
+element (Leishman, 2006).
+
+The blade is divided into finite radial elements of width 𝑑𝑦, where each element is
+defined by its radial position 𝑦. Figure 2.6 (a) illustrates the top view of the
+element and Figure 2.6 (b) shows the vector velocities and the aerodynamic
+forces acting in the plane perpendicular to the rotor axis of rotation. It is assumed
+that the aerodynamic forces arise entirely from the velocity and angle of attack,
+(AoA) normal to the leading edge of the blade section. From Figure 2.6 the
+geometric pitch angle of the blade element relative to the plane of rotation is 𝜃,
+the climbing speed is 𝑉𝑐 and the local induced velocity 𝜈𝑖 . 𝑈𝑃 = 𝑉𝑐 + 𝜈𝑖 is normal
+to the rotor plane and 𝑈𝑇 = Ω𝑦, parallel to the rotor blade due to blade rotation in
+the disc plane, so that the resultant velocity at the blade element is
+𝑈 = √𝑈𝑇2 + 𝑈𝑃2 + 𝑈𝑅2 ≈ √𝑈𝑇2 + 𝑈𝑃2
+21
+
+(2.45)
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Since only airflow perpendicular to the blade axis is considered in simple blade
+element theory, the total velocity is represented by the rightmost part of
+Equation 2.45. The relative inflow angle or the induced angle of attack at the
+blade element for small angles is
+𝑈𝑃
+𝑉𝑐 + 𝜈𝑖
+𝑈𝑃
+𝜙 = tan−1 ( ) = tan−1 (
+)≈
+𝑈𝑇
+𝛺𝑦
+𝑈𝑇
+
+(2.46)
+
+and the aerodynamic or effective AoA for small inflow angles is
+𝛼 =𝜃−∅=𝜃−
+
+𝑈𝑃
+𝑈𝑇
+
+(2.47)
+
+The incremental lift and drag per unit span of the blade element are
+1
+1
+𝑑𝐿 = 𝜌𝑈 2 𝑐𝐶𝑙 𝑑𝑦 𝑎𝑛𝑑 𝑑𝐷 = 𝜌𝑈 2 𝑐𝐶𝑑 𝑑𝑦
+2
+2
+
+(2.48)
+
+where 𝑐 is the local blade chord and the coefficient of lift, 𝐶𝑙 , and the coefficient
+of drag, 𝐶𝑑 , are functions of the angle of attack, 𝛼, Reynolds number, 𝑅𝑒, and
+Mach number, 𝑀, although the last two are sometimes ignored. The lift coefficient
+is often approximated by a linear function of 𝛼 with a slope 𝐶𝑙𝛼 = 2𝜋. According to
+Bramwell et al. (2001), a typical coefficient of drag for a rotor blade can be
+expressed as
+𝐶𝑑 = 0.0087 – 0.0216𝛼 + 0.4𝛼 2
+
+(2.49)
+
+From Figure 2.6 the incremental lift and drag forces can be resolved
+perpendicular and parallel to the rotor disc plane as
+𝑑𝐹𝑧 = 𝑑𝐿 cos 𝜙 − 𝑑𝐷 sin 𝜙 𝑎𝑛𝑑 𝑑𝐹𝑥 = 𝑑𝐿 sin 𝜙 + 𝑑𝐷 cos 𝜙
+
+(2.50)
+
+The contributions to the thrust, torque and power of the rotor with Nb number of
+blades are
+𝑑𝑇 = 𝑁𝑏 𝑑𝐹𝑧 ,
+
+𝑑𝑄 = 𝑁𝑏 𝑑𝐹𝑥 𝑦 𝑎𝑛𝑑 𝑑𝑃 = 𝑁𝑏 𝑑𝐹𝑥 Ω𝑦.
+
+(2.51)
+
+Substituting the results for 𝑑𝐹𝑥 and 𝑑𝐹𝑧 of Equation 2.50 into Equation 2.51 and
+noting that for helicopter rotors 𝑈𝑃 ≪ 𝑈𝑇 , so that √𝑈𝑇2 + 𝑈𝑃2 ≈ 𝑈𝑇 ; and that the
+𝑈
+induced angle ∅ is small, so that ∅ ≈ 𝑈𝑃 , sin ∅ ≈ ∅ 𝑎𝑛𝑑 cos ∅ ≈ 1; also, the drag
+𝑇
+
+is at least one order less than the lift, so that 𝑑𝐷 sin 𝜙 is negligible, giving
+𝑑𝑇 = 𝑁𝑏 (𝑑𝐿 cos 𝜙 − 𝑑𝐷 sin 𝜙) ≈ 𝑁𝑏 𝑑𝐿
+
+(2.52)
+
+𝑑𝑄 = 𝑁𝑏 (𝑑𝐿 sin 𝜙 + 𝑑𝐷 cos 𝜙)𝑦 ≈ 𝑁𝑏 (𝜙𝑑𝐿 + 𝑑𝐷)𝑦
+
+(2.53)
+
+𝑑𝑃 = 𝑁𝑏 (𝑑𝐿 sin 𝜙 + 𝑑𝐷 cos 𝜙)Ωy ≈ 𝑁𝑏 Ω(𝜙𝑑𝐿 + 𝑑𝐷)y
+
+(2.54)
+
+The non-dimensional quantities are introduced by dividing lengths by 𝑅 and
+velocities by 𝛺𝑅.
+Thus, 𝑟 = 𝑦⁄𝑅, and 𝑈⁄Ω𝑅 = Ω𝑦⁄Ω𝑅 = 𝑦⁄𝑅 = 𝑟.
+Note that 𝑑𝐶𝑇 = 𝑑𝑇⁄𝜌𝐴(Ω𝑅)2, 𝑑𝐶𝑄 = 𝑑𝑄 ⁄𝜌𝐴(Ω𝑅)2 𝑅 and 𝑑𝐶𝑃 = 𝑑𝑃⁄𝜌𝐴(Ω𝑅)3 and
+𝜎𝑟𝑜𝑡𝑜𝑟 = 𝐵𝑙𝑎𝑑𝑒 𝑎𝑟𝑒𝑎⁄𝑑𝑖𝑠𝑘 𝑎𝑟𝑒𝑎 = 𝑁𝑏 𝑐⁄𝜋𝑅 for a rectangular blade with a constant
+chord.
+
+22
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The inflow ratio can now be written as
+𝑉 +𝜈
+
+𝑉 +𝜈
+
+Ω𝑦
+
+𝑈
+
+𝑦
+
+𝑃
+𝜆 = 𝑐Ω𝑅 𝑖 = 𝑐Ω𝑦 𝑖 (ΩR) = ΩR
+(R) = 𝜙𝑟
+
+(2.55)
+
+The thrust and power are the integral sums over the radius of the equations
+above
+𝑅
+𝑅
+𝑅
+1
+𝑇 = ∫ 𝑑𝑇 = ∫ 𝑁𝑏 𝑑𝐿 = 𝜌𝑁𝑏 ∫ 𝑈 2 𝑐𝐶𝑙 𝑑𝑦
+2
+0
+0
+0
+𝑅
+
+(2.56)
+
+𝑅
+
+𝑃 = ∫ 𝑑𝑃 = ∫ 𝑁𝑏 Ω(𝜙𝑑𝐿 + 𝑑𝐷)ydy
+0
+
+0
+
+(2.57)
+
+𝑅
+1
+= 𝜌𝑁𝑏 ∫ 𝑈 2 𝑐(𝜙𝐶𝑙 + 𝐶𝑑 )Ω𝑦𝑑𝑦
+2
+0
+
+The incremental thrust coefficient is
+1
+
+2
+
+𝑁𝑏 (2 𝜌𝑈𝑇 𝑐𝐶𝑙 𝑑𝑦)
+𝑁𝑏 𝑑𝐿
+𝑑𝐶𝑇 =
+=
+𝜌𝐴(Ω𝑅)2
+𝜌(𝜋𝑅 2 )(Ω𝑅)2
+
+(2.58)
+
+1 𝑁𝑏 𝑐
+𝑦
+𝑦
+1
+= (
+) 𝐶𝑙 ( ) 𝑑 ( ) = 𝜎𝑟𝑜𝑡𝑜𝑟 𝐶𝑙 𝑟 2 𝑑𝑟
+2 𝜋𝑅
+𝑅
+𝑅
+2
+2
+
+Similarly it can be shown that the incremental torque and power coefficients are
+𝑑𝐶𝑄 =
+
+𝑁𝑏 (𝜙𝑑𝐿 + 𝑑𝐷)𝑦
+𝜌𝐴(Ω𝑅)2 R
+
+(2.59)
+
+𝑑𝐶𝑃 =
+
+𝑁𝑏 (𝜙𝑑𝐿 + 𝑑𝐷)𝛺𝑦
+𝜌𝐴(𝛺𝑅)3
+
+(2.60)
+
+𝑑𝐶𝑄 ≡ 𝑑𝐶𝑃 =
+
+𝑁𝑏 (𝜙𝑑𝐿 + 𝑑𝐷)𝑦 1 𝑁𝑏 𝑐
+= (
+) (𝜙𝐶𝑙 + 𝐶𝑑 )𝑟 3 𝑑𝑟
+𝜌𝐴(𝛺𝑅)2 𝑅
+2 𝜋𝑅
+
+1
+= 𝜎𝑟𝑜𝑡𝑜𝑟 (𝜙𝐶𝑙 + 𝐶𝑑 )𝑟 3 𝑑𝑟
+2
+
+(2.61)
+
+Substituting Equation 2.55 into Equation 2.61 gives
+1
+𝑑𝐶𝑃 = 𝜎𝑟𝑜𝑡𝑜𝑟 (𝜆𝑖 𝐶𝑙 𝑟 2 + 𝐶𝑑 𝑟 3 )𝑑𝑟
+2
+
+(2.62)
+
+Based on the linear lift curve where 𝐶𝑙 = 𝛼 ∙ 𝐶𝑙∝
+Equation 2.55 it follows that
+𝛼 = 𝜃 − 𝜙 = 𝜃 − λ ⁄𝑟
+
+and from Figure 2.6 and
+(2.63)
+
+23
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The incremental thrust coefficient in Equation 2.59 can now be written as
+𝜎𝑟𝑜𝑡𝑜𝑟 𝐶𝑙∝
+1
+(θ𝑟 2 − λ𝑟)𝑑𝑟
+𝑑𝐶𝑇 = 𝜎𝑟𝑜𝑡𝑜𝑟 𝐶𝑙 𝑟 2 𝑑𝑟 =
+2
+2
+
+(2.64)
+
+Integrating Equations 2.59 and 2.60 along the blade from the root to the tip and
+assuming a rectangular blade, results in the total 𝐶𝑇 and 𝐶𝑄 ≡ 𝐶𝑃 .
+1
+
+1
+
+𝐶𝑇 = 𝜎𝑟𝑜𝑡𝑜𝑟 ∫0 𝐶𝑙 𝑟 2 𝑑𝑟
+2
+1
+2
+
+(2.65)
+
+1
+
+1
+2
+
+𝐶𝑄 ≡ 𝐶𝑃 = 𝜎𝑟𝑜𝑡𝑜𝑟 ∫0 (𝜙𝐶𝑙 + 𝐶𝑑 )𝑟 3 𝑑𝑟 = 𝜎𝑟𝑜𝑡𝑜𝑟
+
+(2.66)
+
+To calculate the coefficient of thrust and torque of the equations above, the
+spanwise variation in the inflow, 𝜆 and the sectional coefficients of lift and drag, 𝐶𝑙
+and 𝐶𝑑 , must be known. Assuming two-dimensional aerodynamics,
+𝐶𝑙 = 𝐶𝑙 (α, Re, M), 𝐶𝑑 = 𝐶𝑑 (α, Re, M), 𝛼 = 𝛼(𝑉𝑐 , 𝜃, 𝜈𝑖 ) and 𝜈𝑖 = (𝑟). Since these
+effects cannot generally be expressed as simple equations a numerical solution
+is needed to solve for 𝐶𝑇 and 𝐶𝑃 .
+
+2.5
+
+BLADE ELEMENT MOMENTUM THEORY (BEMT) FOR COAXIAL
+ROTORS
+
+The BEMT is a two-dimensional theory that assumes varying inflow over the rotor
+blades and that consecutive annuli on the rotor disc have no shared influence on
+each other. The flow model used for the BEMT analysis is given in Figure 2.7.
+
+Figure 2.7: Flow model used for the BEMT analysis (Leishman 2006).
+
+24
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Assume that the wake of the upper rotor affects the flow into the lower rotor, but
+the upper rotor is not largely affected by the lower rotor. Consider the upper rotor
+with an axial climb velocity, 𝑉𝑐 = 𝑉∞ , as discussed by Leishman (2006), then the
+differential mass flow rate through and thrust on the rotor annulus, is given as
+𝑑𝑚̇ = 𝜌𝑑𝐴(𝑉∞ + 𝑣𝑢 ) = 2𝜋𝜌(𝑉∞ + 𝑣𝑢 )𝑦𝑑𝑦
+
+(2.67)
+
+𝑑𝑇𝑢 = 2𝜌(𝑉∞ + 𝑣𝑢 )𝑣𝑢 𝑑𝐴 = 4𝜋𝜌(𝑉∞ + 𝑣𝑢 )𝑣𝑢 𝑦𝑑𝑦
+
+(2.68)
+
+and
+
+Or in dimensionless form
+𝑑𝐶𝑇𝑢 =
+
+𝑑𝑇𝑢
+2𝜌(𝑉∞ + 𝑣𝑢 )𝑣𝑢 𝑑𝐴
+=
+2
+2
+𝜌(𝜋𝑅 )(𝛺𝑅)
+𝜌𝜋𝑅 2 (𝛺𝑅)2
+
+2𝜌(𝑉∞ + 𝑣𝑢 )𝑣𝑢 (2𝜋𝑦𝑑𝑦)
+=
+= 4𝜆𝜆𝑢 𝑟𝑑𝑟
+𝜌𝜋𝑅 2 (𝛺𝑅)2
+
+(2.69)
+
+Thus, on the annulus the incremental thrust coefficient is
+𝑑𝐶𝑇𝑢 = 4𝜆𝜆𝑢 𝑟𝑑𝑟 = 4𝜆(𝜆 − 𝜆∞ )𝑟𝑑𝑟
+
+(2.70)
+
+since 𝜆𝑢 = 𝜆 − 𝜆∞ . The incremental induced power required is
+𝑑𝐶𝑃𝑢 = λ𝑑𝐶𝑇𝑢 = 4𝜆2 𝜆𝑢 𝑟𝑑𝑟 = 4𝜆2 (𝜆 − 𝜆∞ )𝑟𝑑𝑟
+
+(2.71)
+
+These results ignore swirl losses in the wake, which is acceptable for rotors that
+are lightly loaded. The blade tip induced losses due to the formation of the tip
+vortex can be accounted for in the BEMT by using the Prandtl tip-loss function,
+which is defined in terms of a correction factor, 𝐹, where
+2
+
+𝐹 = (𝜋) cos −1 (exp(−𝑓)),
+
+(2.72)
+
+and 𝑓 is defined by the number of blades 𝑁𝑏 and the radial location of the blade
+element, 𝑟 and 𝜙, the induced inflow angle, 𝜙 = 𝜆(𝑟)/𝑟 for small angles.
+𝑁
+
+1−𝑟
+
+𝑓 = 2𝑏 ( 𝑟𝜙 )
+
+(2.73)
+
+The function 𝐹 can be seen as a reduction factor added to the variation in the
+fluid velocity passing through the control volume. From the momentum theory it
+follows that
+𝑑𝐶𝑇 = 4Fλ2 rdr
+
+(2.74)
+
+and from blade element theory, the incremental thrust of the same annulus is
+1
+
+𝑑𝐶𝑇𝑢 = 2 𝜎𝐶𝑙 𝑟 2 𝑑𝑟 =
+
+𝜎𝐶𝑙𝛼
+2
+
+(𝜃𝑢 𝑟 2 − 𝜆𝑟 )𝑑𝑟
+
+(2.75)
+
+with 𝜃𝑢 , the blade pitch distribution of the upper rotor. Equating these two
+equations and using, 𝜆𝑢 = 𝜆 − 𝜆∞ from Equation 2.70, gives
+𝜎𝐶𝑙𝛼
+2
+
+(𝜃𝑢 𝑟 2 − 𝜆𝑟 ) = 4𝐹𝜆(𝜆 − 𝜆∞ )𝑟
+
+(2.76)
+
+25
+
+Stellenbosch University https://scholar.sun.ac.za
+
+or
+𝜎𝐶
+
+𝜎𝐶
+
+𝜆2 + ( 8𝐹𝑙𝛼 − 𝜆∞ ) 𝜆 − 8𝐹𝑙𝛼 𝜃𝑢 𝑟 = 0
+
+(2.77)
+
+Solving this equation for 𝜆 results in
+𝜎𝐶𝑙
+
+𝜆
+
+2
+
+𝜎𝐶𝑙
+
+𝜎𝐶𝑙
+
+𝜆
+
+𝜆(𝑟, 𝜆∞ ) = √( 16𝐹𝛼 − 2∞ ) + 8𝐹𝛼 𝜃𝑢 𝑟 − ( 16𝐹𝛼 − 2∞ )
+
+(2.78)
+
+Thus the upper rotor’s inflow equation, found by using the BEMT principles for a
+single rotor with an axial climb velocity where 𝑉𝑐 = 𝑉∞ , as discussed by Leishman
+(2006) can be written as
+σu (r)Clα
+
+λu (r, λ∞ ) = √(
+
+16F
+
+λ
+2
+
+− ∞ )2 +
+
+σu (r)Clα
+8F
+
+σu (r)Clα
+
+θu (r)r − (
+
+16F
+
+λ
+2
+
+− ∞)
+
+(2.79)
+
+where 𝜎𝑢 (𝑟) and 𝜃𝑢 (𝑟) are respectively the blade solidity distribution and pitch
+distribution at radial positions on the upper rotor.
+Take note that 𝐹 in Equation 2.72 is a function of the rotor inflow, 𝜆, and that 𝜆 is
+initially unknown. Therefore Equations 2.78, 2.72 and 2.73 are solved iteratively
+starting from 𝐹 = 1 (equivalent to 𝑁𝑏 → ∞) to calculate 𝜆 and then calculating 𝑓
+and 𝐹 using, 𝜙 = 𝜆(𝑟)/𝑟 to recalculate and update 𝜆 until convergence is
+achieved.
+The same method can be used to analyse the lower rotor. Note that depending
+on the vertical separation of the rotors, only a certain part of the lower rotor will
+be affected by the slipstream of the upper rotor. The velocity of the slipstream of
+the upper rotor can be defined in terms of the radial contraction of the wake, 𝑟𝑐 ,
+that is, the contracted wake area is 𝐴𝑐 = 𝜋(𝑟𝑐 𝑅)2 . In the ideal case for a fully
+developed slipstream, the area is 𝐴𝑐 = 𝐴⁄2 𝑜𝑟 𝑟𝑐 = 1⁄√2 = 0.707 . For this ideal
+case the inner area of the lower rotor encounters incoming differential stream
+tubes with velocity 𝑉∞ + 2𝜐𝑢 , or 𝑉∞ + (𝐴⁄𝐴𝑐 )𝜐𝑢 in the general case.
+Using the same steps for the lower rotor, the equation for the inflow distribution
+can be written as
+2
+𝜎𝑙 (𝑟)𝐶𝑙𝛼 𝜆𝑢
+𝜎𝑙 (𝑟)𝐶𝑙𝛼
+√
+𝜆𝑙 (𝑟, 𝜆∞ ) = (
+− ) +
+𝜃𝑙 (𝑟)𝑟
+16𝐹
+2
+8𝐹
+
+−(
+
+𝜎𝑙 (𝑟)𝐶𝑙𝛼 𝜆∞ + (𝐴/𝐴𝑐 )𝜆𝑢
+−
+)
+16𝐹
+2
+
+(2.80)
+𝑓𝑜𝑟 𝑟 ≤ 𝑟𝑐
+
+where 𝜃𝑙 is the blade pitch distribution on the lower rotor. The inflow distribution
+for points outside the area 𝐴𝑐 , where 𝑟 > 𝑟𝑐 , is found by solving
+2
+
+𝜎𝑙 (𝑟)𝐶𝑙𝛼 𝜆𝑢
+𝜎𝑙 (𝑟)𝐶𝑙𝛼
+𝜆𝑙 (𝑟, 𝜆∞ ) = √(
+− ) +
+𝜃𝑙 (𝑟)𝑟
+16𝐹
+2
+8𝐹
+−(
+
+𝜎𝑙 (𝑟)𝐶𝑙𝛼 𝜆∞
+− )
+16𝐹
+2
+
+(2.81)
+𝑓𝑜𝑟 𝑟 > 𝑟𝑐
+
+Equations 2.79 to 2.81 give an estimate of the inflow distribution at separate
+radial points over both the upper and lower rotors for any prescribed blade pitch,
+26
+
+Stellenbosch University https://scholar.sun.ac.za
+
+blade twist distribution and planform shape (in terms of the chord or solidity
+distribution). The airfoil section is implicitly specified through the effect of lift-curve
+slope and zero-lift angle of attack (Leishman & Syal, 2008).
+With the inflow distributions of both the rotors known, the corresponding thrust
+and power (induced plus profile) distributions for each can be solved numerically,
+element by element, using the discretised inflow solution. The total thrust and
+power are simply found by numerically integrating the equations across each
+rotor disc. The coefficient of thrust and power for the upper rotor is
+𝑟=1
+
+1
+1 1
+𝑑𝐶𝑇𝑢 = 4 ∫ 𝜆𝑢 2 𝑟𝑑𝑟 = ∫ 𝜎𝑢 𝐶𝑙 𝑟 2 𝑑𝑟
+2 0
+𝑟=0
+0
+
+𝐶𝑇𝑢 = ∫
+
+(2.82)
+
+and
+𝑟=1
+
+1
+
+𝑟=1
+
+𝜆𝑢 𝑑𝐶𝑇𝑢 = 4 ∫ 𝜆𝑢 3 𝑟𝑑𝑟 = ∫
+
+𝐶𝑃𝑢 = ∫
+
+𝑟=0
+
+0
+
+𝑟=0
+
+1
+
+1
+𝜎𝑢 𝐶𝑑 𝑟 3 𝑑𝑟
+0 2
+
+𝜆𝑢 𝑑𝐶𝑇𝑢 + ∫
+
+(2.83)
+
+Where 𝐶𝑑 is the sectional profile drag coefficient and 𝐶𝑑 ≈ 𝐶𝑑0 for moderate blade
+loading coefficients. The coefficient of thrust and power for the lower rotor is
+𝑟=1
+
+1 1
+𝑑𝐶𝑇𝑙 = ∫ 𝜎𝑙 𝐶𝑙 𝑟 2 𝑑𝑟
+2 0
+𝑟=0
+
+𝐶𝑇𝑙 = ∫
+
+(2.84)
+
+and
+𝑟=1
+
+𝐶𝑃𝑙 = ∫
+
+𝑟=0
+
+1
+
+1
+𝜎𝑙 𝐶𝑑 𝑟 3 𝑑𝑟
+2
+0
+
+𝜆𝑙 𝑑𝐶𝑇𝑙 + ∫
+
+(2.85)
+
+The two rotors operate at a torque (or power) balance condition where
+𝐶𝑃𝑢 = 𝐶𝑃𝑙 for a prescribed system thrust, 𝐶𝑇 = 𝐶𝑊 = 𝐶𝑇𝑢 + 𝐶𝑇𝑙 . These two conditions
+(i.e. thrust balance and torque balance) can be satisfied by a numerically
+trimming procedure whereby the pitch angles on both the rotors are adjusted
+iteratively until the required balance conditions are met.
+The BEMT applied to a coaxial rotor system is an efficient tool to aerodynamically
+analyse the coaxial rotors with different twist distributions and planform shapes.
+In the article by Leishman (2006) a detailed analysis on the use of the BEMT is
+done in order to find an optimum design for the blade shapes.
+
+2.6
+
+LIFTING LINE MODELS
+
+The lifting line model can be used to represent a high aspect ratio wing by a
+vortex string, positioned along the ¼ chord line of the wing (the bound vortex).
+This bound vortex string is also called the lifting line. Since the circulation along
+the blade is not constant, trailing vortices are shed off the blade forming a helical
+shape and these vortex lines combine to form helical vortex sheets in the wake.
+Betz (1919) extended the classic lifting line model for rotating wings as illustrated
+in Figure 2.8 and defined the conditions for a propeller with maximum efficiency.
+Betz indicated that the vortex sheets of a most efficient propeller move axially
+backwards as rigid twisted surfaces. The bound circulation is a function of the
+radial position ΓB(r) and the circulation of the trailing vortex lines per unit span ΓT
+is determined by the conservation of circulation:
+
+27
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Γ𝑇 (𝑟) =
+
+Γ𝐵 (𝑟)
+𝑑𝑙𝐵
+
+(2.86)
+
+where 𝑑𝑙𝐵 is the coordinate along the ¼ chord line of the blade. The shape of the
+helical trailing vortices affects the induced velocities at any point in the flow field.
+In the free wake model it is assumed that the direction of the trailing vortices
+coincides with the direction of the local resultant velocity and is thus not acted on
+by forces. This method is important for hover conditions, but requires that the
+actual wake geometry needs to be calculated and entails intensive computations
+(Gur & Rosen, 2008).
+
+Figure 2.8: The lifting line model (Gur & Rosen, 2008).
+
+In the prescribed wake models it is assumed that each vortex string in the wake
+has a helical shape with a constant pitch and radius, where the radius is the
+same as the radius where the trailing vortex string started at the bound vortex.
+For the fully prescribed wake model, the induced velocity, compared to the
+tangential velocity, Ω∙r and the flight velocity VF is ignored when defining the
+wake’s pitch:
+P𝑍 (𝑟) = 2𝜋
+
+𝑉𝐹
+Ω
+
+(2.87)
+
+The wake geometry thus stays constant during the whole iterative process. For
+the semi prescribed wake model, the axial component of the induced velocity is
+incorporated when defining the wake’s pitch:
+P𝑍 (𝑟) = 2𝜋
+
+𝑉𝐹 + 𝑤𝑎 (𝑟)
+Ω
+
+(2.88)
+
+where 𝑤𝑎 (𝑟) is the axial induced velocity in the wake. This velocity is dependent
+on the wake geometry and thus requires an iterative solution process.
+Experiments have shown that the difference in accuracy between these models
+are negligible and suggested that the fully prescribed wake model should be the
+preferred one except for hovering flight where the free wake model needs to be
+used, since the free stream velocity in this condition is zero (Gur & Rosen, 2008).
+28
+
+Stellenbosch University https://scholar.sun.ac.za
+
+With the wake geometry known, the lifting line model is combined with the blade
+element model to calculate the induced velocity along the bound vortex by using
+Biot-Sarvart’s law. These velocities are then projected onto the blade element
+cross section.
+
+2.7
+
+VORTEX MODELS
+
+The vortex models of Theodorsen and McCormick will be discussed here as two
+methods of calculating the induced velocities along the blades. The assumption
+of Betz (1919) that the vortex sheets of a most efficient propeller move axially
+backwards as rigid twisted surfaces, implies that the resultant velocity of the
+vortex sheets must be normal to the vortex surfaces. Therefore the resultant
+induced velocities in the far wake will be normal to the resultant velocities there. It
+was further assumed by McCormick (1967) and Theodorsen (1948) that the cross
+sectional resultant induced velocity at the rotor disc plane is perpendicular to the
+resultant velocity as indicated in Figure 2.9. Applying the Momentum theory to
+rotors with certain assumptions, it was shown that the induced velocity in the far
+wake is two times the magnitude of the induced velocity at the rotor disc.
+Therefore the displacement velocity, w, in the far wake of the vortex model is also
+assumed to be twice the value of the displacement velocity at the disc plane. If
+the displacement velocity and its inflow angle ∅ are known, the circumferential
+and axial components of the induced velocity can easily be calculated.
+
+Figure 2.9: The cross sectional velocities of the vortex model (Gur & Rosen, 2008).
+
+2.7.1 Theodorsen’s model
+In Theodorsen’s vortex model the displacement velocity, w, is expressed as
+[V𝐹 + 𝑤(𝑟)] ∙ 𝑤(𝑟) =
+
+1 𝑉𝐵𝐸 (𝑟) ∙ 𝜎(𝑟) ∙ Ω ∙ 𝑟 ∙ 𝐶̃𝑙 (𝑟)
+∙
+2
+K(Nb , λ, r⁄R)
+
+(2.89)
+
+where 𝐶̃𝑙 (𝑟) is the corrected 2D lift coefficient of the blade element and includes
+effects of the angle of attack ∝, Mach number M, and Reynolds number Re and
+σ(r) is the local solidity
+𝜎(𝑟) =
+
+𝑁𝑏 ∙ 𝑐(𝑟)
+2𝜋𝑟
+
+(2.90)
+
+Equation 2.89 is a relation between the displacement velocity and the blade
+element aerodynamic loading in terms of the coefficient of lift distribution, which is
+29
+
+Stellenbosch University https://scholar.sun.ac.za
+
+found from the blade-element model (Theodorsen, 1948). The basis of this
+equation is the Kutta-Joukowski theory that dictates a relation between the local
+lift coefficient and the amount of the local circulation. Theodorsen’s circulation
+function, K(Nb , λ, r⁄R) is a function of the number of blades, Nb the radial position
+of the element r/R and the advance ratio in the far wake, λ which is calculated as
+𝜆 =
+
+𝑉𝐹
+𝑤
+𝑤
+∙ (1 + ) ∙ (1 + 2 ∙ ∙ 𝑌)
+𝛺∙𝑟
+𝑉𝐹
+𝑉𝐹
+
+(2.91)
+
+where the values of the wake contraction coefficient, Y, are found in the article of
+Crigler (1948). It is common practice to assume that the pitch angle is constant
+along the wake when dealing with lightly loaded propellers. In this case the
+advance ratio in the far wake, λ can be approximated to the tangent to the disc
+inflow angle, ϕ
+𝜆 ≅ tan ∅
+
+(2.92)
+
+A simplified form of Theodorsen’s model as illustrated in Figure 2.9 expresses the
+displacement velocity as
+tan ∅ =
+
+𝑉𝐹
+𝑤
+∙ (1 +
+)
+𝛺∙𝑟
+2 ∙ 𝑉𝐹
+
+(2.93)
+
+With the axial and circumferential induced velocity components at the blade
+element cross-section expressed as
+𝑤𝑎−𝐵𝐸 =
+
+𝑤
+∙ cos2 ϕ
+2
+
+(2.94)
+
+𝑤𝑡−𝐵𝐸 =
+
+𝑤
+∙ cos ϕ ∙ sin ϕ
+2
+
+(2.95)
+
+Equations 2.94 and 2.95 in conjunction with the blade element model can be
+used to calculate the aerodynamic loads along the blade.
+
+2.7.2 McCormick’s model
+McCormick’s model differs only slightly from Theodorsen’s model. He expressed
+the circumferential induced velocity at the blade element as
+𝑤𝑡−𝐵𝐸 (𝑟) =
+
+𝑉𝐵𝐸 (𝑟) ∙ 𝜎(𝑟) ∙ 𝐶̃𝑙 (𝑟)
+2 ∙ 𝜅(𝑟)
+
+(2.96)
+
+where the relation between Theodorsen’s circulation function, K and Goldstein’s
+interference velocity coefficient κ is given as (Gur & Rosen, 2008)
+𝜆 2
+𝜅 = 𝐾 ∙ [1 + (
+) ]
+𝑅 ⁄𝑟
+
+(2.97)
+
+The axial induced velocity at the blade element can be found from Figure 2.9
+𝑤𝑎−𝐵𝐸 (𝑟) = −
+
+𝑉𝐹
+𝑉𝐹 2
++ √( ) + 𝑤𝑡−𝐵𝐸 (𝑟) ∙ [𝛺 ∙ 𝑟 − 𝑤𝑡−𝐵𝐸 (𝑟)]
+2
+2
+
+(2.98)
+
+Equations 2.97 and 2.98 in conjunction with the blade element model can be
+used to calculate the aerodynamic loads along the blade.
+30
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 3:
+
+DESIGN OF THE COAXIAL ROTOR SYSTEM
+
+3.1 INTRODUCTION
+The objective of this study was to design a more efficient coaxial rotor for the
+Aero Flight Dynamics Directorate (AFDD) ducted coaxial rotor system as
+published by Lee (2010). It was decided to use simple fixed-pitch coaxial rotors
+attached to a direct drive electric motor to ensure mechanical robustness with
+reliable and safe operation and minimum skilled maintenance. In this
+configuration the thrust is varied by changing the rotor rotational speed rather
+than changing the pitch of the rotor blades as is required when using the
+traditional helicopter rotor. The traditional rotor requires a mechanically complex
+swash plate mechanism and tail rotor system. In this study the rotor radius was
+dictated by the inner geometry of the shroud used by Lee (2010), which was set
+at 0.1778 m. This resulted in a tip Mach number of 0.278 and 0.322 for a rotor
+speed of 5 000 and 6 000 rpm respectively, which would ensure incompressible
+flow conditions. From experimental data published by Lee (2010) it was decided
+to base the design on two conditions:
+
+
+
+3.2
+
+To design the rotors to deliver the maximum thrust in hover with an input
+power of 370 W at a design rotor speed of 5 000 rpm.
+To achieve a torque balance for the coaxial rotors with each rotor
+operating at the same rotational speed, ranging from 3 000 to 7 500 rpm.
+
+THE DUCTED FAN DESIGN CODE (DFDC)
+
+DFDC was specifically developed for the design and analysis of a ducted
+propulsor with single or multiple blade rows. It is a simple two-dimension code
+where the rotor blade representation is based on a lifting-line formulation as
+described in paragraph 2.6. The duct and hub is modelled with the panel method
+scheme that is also used in the XFOIL code.
+The code combines the blade element theory presented in paragraphs
+2.4 and 2.5 for the blade row sections and the vortex theory together with the
+two-dimensional lift, moment and profile drag characteristics to determine the
+rotor blade performance. The induced velocities associated with the blade-row
+loading are represented by vortex sheets shed into the flow field as described in
+paragraph 2.7. The vortex theory with the Betz and the Glauert laws are used to
+optimize the blade geometry for a specified thrust, power or torque.
+DFDC is designed for rapid shrouded rotor design and analysis. The code works
+with a single input file in text format which contains the shroud case data, the
+shroud geometry data, actuator disk or rotor blade data and drag source data. Its
+aerodynamic outputs are the shroud forces and moments and the rotor and stator
+forces. Amongst others, DFDC’s analysis capabilities include a shroud with an
+actuator disk or rotor blade, a stator modelled as actuator disk or as a bladed
+disk. The user can specify the rotor or stator axial position, the free-stream
+velocity and the rotor RPM, and with these DFDC will then drive the solution to a
+specified thrust output. The effects of duct drag sources can also be investigated.
+DFDC has the capability to design the rotor or stator blade chord to a specified
+circulation and the blade twist for a specified chord and circulation. The rotor
+blade design in DFDC is exported into CAD for subsequent 3D modelling and
+meshing with the ESLOFT tool that is fully integrated with DFDC for generating
+accurate lofts.
+31
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 3.1: The vortex presentation of the shroud, hub and rotor in DFDC
+(Drela & Youngren, 2005).
+The
+DFDC
+code
+and
+user
+http://www.esotec.org/sw/DFDC.html.
+
+3.3
+
+manual
+
+is
+
+available
+
+online
+
+at
+
+SHROUD DESIGN
+
+For the shrouded rotor to be viable, the increase in total thrust must be more than
+the additional weight of the shroud.
+
+Figure 3.2: Shroud design parameters (Pereira 2008).
+
+Pereira (2008) identified an optimum combination of design parameters for a
+shrouded rotor on a MAV scale to minimize the losses due to the increased
+weight of the shroud as indicated in Figure 3.1. His main conclusions were:
+
+
+
+
+A blade tip clearance 𝛿𝑡𝑖𝑝 < 0.012𝑅 will generally result in good
+performance.
+The diffuser length (𝐿𝑑 ) is less important than the diffuser angle(𝜃𝑑 ), a
+value of 𝜃𝑑 ≈ 10° gave the best results.
+Moderate increases in thrust (or decreases in power required) were
+experienced when the diffuser length was increased from 31% to 50% of
+32
+
+Stellenbosch University https://scholar.sun.ac.za
+
+the throat diameter (Dt). The improvement was less significant with a
+further increase to 72% Dt. It was found that a diffuser expansion ratio
+between 1.22 and 1.31 generally resulted in better performance, where
+the expansion ratio is expressed as
+𝐴𝑒
+𝐿𝑑
+𝜃𝑑 2
+𝜎𝑑 =
+= ⌊1 + 2 tan ( )⌋
+𝐴
+𝐷𝑡
+2
+
+
+(3.1)
+
+The external part of the shroud leading edge plays a less important role in
+thrust production. Thus, to save weight, reducing the lip radius in this
+region might be considered.
+
+Hrishikeshavan (2011) applied simple momentum theory to determine the upper
+limit for the shroud weight as described below:
+If 𝑊𝐼𝑅 is the weight of the isolated rotor MAV, 𝑊𝑆ℎ𝑟𝑜𝑢𝑑 the weight of the shroud
+and 𝑊𝑆𝑅 the weight of the shrouded MAV, then
+𝑊𝑆𝑅 = 𝑊𝑆ℎ𝑟𝑜𝑢𝑑 + 𝑊𝐼𝑅
+
+(3.2)
+
+The total power required by a rotor can be expressed as
+𝑃 = 𝑃0 + 𝑃𝑖
+
+(3.3)
+
+The profile power (𝑃0 ) is primarily a function of the airfoil drag coefficient and
+rotor solidity, while the induced power (𝑃𝑖 ) is largely determined by the structure
+of the wake. For the same rotor configurations, it follows that the induced power
+will be the main reason for differences in power consumption between an isolated
+rotor and shrouded rotor. Thus, for a favourable shroud design:
+𝑃𝑖𝑆𝑅 < 𝑃𝑖𝐼𝑅
+
+(3.4)
+
+In coefficient form:
+𝐶𝑃𝑖
+
+𝑆𝑅
+
+< 𝐶𝑃𝑖
+
+(3.5)
+
+𝐼𝑅
+
+From simple momentum theory, for a given expansion ratio 𝜎𝑑 , the induced
+power coefficient is given by:
+𝐶𝑃𝑖 = 𝜅
+
+𝑊 3/2
+
+(3.6)
+
+√4𝜎𝑑 𝜌𝐴
+
+Where, 𝜅 is the induced power factor accounting for non uniform inflow, tip losses
+and swirl effects, 𝑊 is the weight of the MAV, 𝐴 is the rotor disk area which is
+constant. Thus, for
+𝐶𝑃𝑖
+
+𝑆𝑅
+
+< 𝐶𝑃𝑖
+
+(3.7)
+
+𝐼𝑅
+
+It is necessary that
+𝜅𝑆𝑅
+
+3/2
+
+𝑊𝑠
+
+√4𝜎𝑑 𝜌𝐴
+
+𝑊
+
+3/2
+
+𝑈𝑆
+< 𝜅𝐼𝑅 2𝜌𝐴
+
+(3.8)
+
+33
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Thus,
+𝑊𝑆𝑅
+𝜅
+< ( 𝐼𝑅 )2/3 (2𝜎𝑑 )1/3
+𝑊𝐼𝑅
+𝜅𝑆𝑅
+
+(3.9)
+
+Since the tip vortices and therefore the induced losses from a shrouded rotor are
+anticipated to be lower than for an isolated rotor, 𝜅𝐼𝑅 > 𝜅𝑆𝑅 . By assuming 𝜅𝐼𝑅 ∼
+𝜅𝑆𝑅 , a conservative calculation for the weight of the shroud can be made from
+Equations 3.10 and 3.11
+𝑊𝑆ℎ𝑟𝑜𝑢𝑑
+< ((2𝜎𝑑 )1/3 − 1)
+𝑊𝐼𝑅
+
+Hence, for 𝜎𝑑 = 1,
+
+(3.10)
+
+𝑊𝑆ℎ𝑟𝑜𝑢𝑑
+< 0.26 to ensure an improved power loading for the
+𝑊𝐼𝑅
+
+shrouded MAV.
+
+3.3.1 Shroud specifications
+The shroud used for the present work consists of the same cambered leading
+edge shroud and the symmetrical NACA derivative trailing edge as used by Lee
+(2010) in his research. Apart from the leading edge, the inner surface of the
+shroud is flat to ensure the same inner diameter and tip clearance for any rotor
+station within the shroud. The shroud airfoil is defined in terms of a leading edge
+and a trailing edge segment and each segment consists of an inner and an outer
+surface. The shroud throat (or minimum inner) diameter 𝐷𝑡 is 0.3592 m to ensure
+a nominal tip clearance of 0.01R (0.001778 m) and the shroud chord 𝑐𝑑 is set
+at 0.2052 m.
+
+3.3.2 Cambered leading edge
+The cambered leading edge is a variant of the Küchemann airfoil and consists of
+a pair of elliptical shapes that form the interior and exterior surfaces of the shroud
+inlet. The shape is described by four constants K1, K2, K3, K4 and the ratio
+between the inner and outer cross-sectional areas of the shroud, 𝐴𝑖 ⁄𝐴𝑚 . By
+changing these parameters the shroud geometry, like the leading edge nose
+roundness or the size of the interior or exterior lengths can be altered. The
+shroud inner radius is Ri = 1.01R (0.1798 m) and the maximum shroud thickness
+is td = 0.0254 m to leave enough space for the internal shroud structures. It
+follows that the shroud outer radius Rm is described as
+𝑅𝑚 = 𝑅𝑖 + 𝑡𝑑 and
+
+(3.12)
+
+2
+𝐴𝑖 ⁄𝐴𝑚 = 𝑅𝑖2⁄𝑅𝑚
+= 0.76752
+
+(3.12)
+
+The cambered airfoil leading edge was generated by the equations:
+2
+
+𝑦𝐾𝑚 = 𝑅0 + (𝑅𝑚 − 𝑅0 )√1 − (1 − 𝑥⁄𝐿 )
+
+0 ≤ 𝑥 ≤ 𝐿𝑚
+
+(3.13)
+
+0 ≤ 𝑥 ≤ 𝐿𝑖
+
+(3.14)
+
+𝐿𝑖 ≤ 𝑥 ≤ 𝐿 𝑚
+
+(3.15)
+
+𝑚
+
+𝑦𝐾𝑖 = 𝑅0 − (𝑅0 − 𝑅𝑖 )√1 − (1 − 𝑥⁄𝐿 )
+
+2
+
+𝑖
+
+𝑦𝐾𝑖 = 𝑅𝑖
+
+where R0 is the leading edge centre radius, Lm the outer length and Li the inner
+length which are all defined in terms of the Küchemann constants (Küchemann,
+1953).
+34
+
+Stellenbosch University https://scholar.sun.ac.za
+
+𝑅0 = 𝐾1 𝑅𝑖
+𝐿𝑚 =
+
+(3.16)
+𝑅𝑚
+3
+
+𝐾2 + 𝐾3 (𝐴 𝑖 )
+
+(3.17)
+
+𝐿𝑖 = 𝐾4 (𝐾1 − 1)𝑅𝑖
+
+(3.18)
+
+𝐴
+
+𝑚
+
+For the current design K1 = 1.05, K2 = 0.20, K3 = 8.58 and K4 = 1.50. The outer
+length Lm specifies the overall length of the leading edge segment, therefore the
+NACA trailing edge begins at x = Lm = 0.245cd (0.050247 m).
+
+3.3.3 NACA trailing edge
+The equations for the shroud exterior and interior surfaces of the trailing edge
+originate from a NACA symmetrical airfoil and are defined by Lee (2010, 34) as
+𝑥
+𝑥
+𝑥
+𝑥
+𝑦𝑇𝐸𝑚 = 10𝑡𝑑 (𝐴√ + 𝑇 ( ) + 𝐵( + 𝑇( )) +
+𝑐𝑠
+𝑐𝑠
+𝑐𝑠
+𝑐𝑠
+𝑥
+𝑥
+x
+x
+𝐶( + 𝑇( ))2 + 𝐷( + 𝑇( ))3 +
+𝑐𝑠
+𝑐𝑠
+𝑐𝑠
+𝑐𝑠
+𝑥
+
+𝑥
+
+𝑠
+
+𝑠
+
+𝐸(𝑐 + 𝑇(𝑐 ))4 )
+
+(3.19)
+
+𝑦𝑇𝐸𝑖 = 0
+
+𝐿𝑚 ≤ 𝑥 ≤ 𝑐𝑑
+
+(3.20)
+
+where the values of the constants are: 𝐴 = 0.2969, 𝐵 = −0.1260, 𝐶 = −0.3516,
+𝐷 = 0.2843 and 𝐸 = −0.1015.
+The combination of the Küchemann leading edge surfaces and the NACA trailing
+edge surfaces forms the cambered shroud airfoil as shown in the Figure 3.2.
+
+Figure 3.3: The cambered shroud airfoil and symmetrical centre body.
+
+35
+
+Stellenbosch University https://scholar.sun.ac.za
+
+3.3.4 Centre body specifications
+The cylindrical centre body of the current design has a radius equal to the rotor
+hub radius of 0.167R (0.02969 m) as used by Lee (2010) in his research. A close
+variant of a semi-circle leading edge is used to ensure convergence in DFDC,
+whilst the trailing edge protrudes from the shroud and is slightly tapered towards
+the centreline. Apart from housing the electrical motors, batteries and flight
+avionics, the vehicle’s centre of gravity can be controlled by carefully shifting
+these items in the centre body.
+
+3.4
+
+UAV ROTOR BLADE DESIGN
+
+The design of high performance simple fixed-pitch rotors with optimum low
+Re number airfoils for small scale UAVs is a trade-off between optimal
+aerodynamic performance and ease of manufacturing. According to
+Hrishikeshavan (2011), the ideal profile will be very thin (in the order of 2%),
+highly cambered (in the order of 10%) with a sharpened leading edge, but in
+reality these airfoils are difficult to manufacture.
+Furthermore, these thin airfoils deform easily due to aerodynamic torque on the
+blades under load conditions. The design of small-scale fixed-pitch rotor blades is
+thus also a trade-off between best aerodynamic design and best structural
+design.
+The blades must be rigid enough to ensure that the aerodynamic moment due to
+lift is being balanced by the elastic torque due to twisting (Pounds &
+Mahony, 2004). Unbalanced aerodynamic blade pitching moments will increase
+the angle of attack of the airfoil, resulting in an even higher blade pitching
+moment. Insufficient elastic restoring torque will cause the blades to twist until
+they stall. At the equilibrium angle, the torsional strain along the blades will be
+balanced by the continuous deformation due to the aerodynamic bending
+moments of the blades.
+The three major aspects of rotor design are the rotor tip velocity (determined by
+the rotor speed and diameter), the profile section and the planform, which is
+determined by the chord and twist distribution. The blade planform should be
+designed in such a way to ensure that the equilibrium angle of each blade section
+along the radius is also the ideal AoA. Tapering the blade towards the blade tip
+generally helps to enhance the efficiency of the rotor (Hrishikeshavan, 2011).
+The goal of the blade design is to ensure maximum thrust at steady state for a
+given power supplied to the rotor shaft. This means that the blade AoA and
+Re number should be optimal for the airfoil to ensure a high lift to drag (L/D) ratio.
+The Re range for most small scale UAV rotor blades is in the order of 50 000 to
+150 000 and as such it can be expected that the flow in this regime will be
+laminar and that the aerodynamics will be mainly influenced by viscous effects
+(Pounds & Mahony, 2004). High aerodynamic rotor efficiency is guaranteed by
+maximum rotor radius, but the rotor radius is always constrained by the geometry
+of the UAV and manufacturing limitations. For small blades to generate maximum
+thrust it is required that the rotor speed must be as high as possible (Leishman,
+2000). In contrast, the rotor speed is restricted by the available drive torque and
+the rotor tip Mach number. It is generally accepted that tip Mach numbers
+below 0.3 will ensure negligible compressibility effects.
+The ideal airfoil shape for these small scale UAV rotors is a high aspect ratio
+blade section. Minimum profile drag will be ensured by a profile with a limited
+36
+
+Stellenbosch University https://scholar.sun.ac.za
+
+camber and a thin cross section, while a sharp trailing edge will keep the
+separation drag to a minimum (Pounds & Mahony, 2004).
+
+3.4.1 Rotor blade profile selection
+The profile selection for the rotor blades was done by dividing the blade into three
+Re number regions namely: 60 000 < Re > 80 000 for the first third inner section
+of the blade, 80 000 < Re > 110 000 for the middle section and
+110 000 < Re > 150 000 for the outer section of the blade. To ensure structural
+integrity and ease of manufacturing, a thickness to chord ratio (t/c) in the order
+of 18%, 14% and 10% respectively were chosen for the three sections.
+Comparative searches within the online airfoil databases, Airfoil Tools (Airfoil
+Tools, n.d.) and The Incomplete Guide to Airfoil Usage by Lednicer (2010), were
+made for rotorcraft/propeller airfoils with regards to their lift and drag polar
+diagrams within the relevant Re number ranges. Airfoils that would deliver high
+L/D ratios over an adequate range of AoAs where their lift curve slopes stay
+constant were selected.
+The airfoil comparative search resulted in five sets of profiles being selected,
+namely
+the
+ARA-D13-D10,
+DAE 11-21-31-51,
+EPPLER 855-854-852,
+NACA 2418-2414-2410 and MH 112-114-115-117-121 series (Airfoil Tools, n.d.).
+All these sections were designed for propellers or rotors for ultra-light aircraft
+operating in low Reynolds number flows. Analyses of these profiles were done by
+producing airfoil polars with the analytical tool XFOIL (Drela, 2004). A short
+description of XFOIL can be found in (Drela, 1989) and the code and user
+manual is available online at http://web.mit.edu/drela/Public/web/xfoil.
+The aerodynamic data of these five sets of profiles were then used in Drela’s
+Ducted Fan Design Code (DFDC) to do a preliminary rotor design. The same
+geometric data of the cambered duct used in Lee’s experiments and a cylindrical
+hub with a circular nose section were used to host the rotor blades in the DFDC
+code.
+Figure 3.3 shows the total loads for the hover performance of the cambered duct
+with a coaxial rotor for the different profile sets as predicted with the DFDC code.
+For the comparison between the different airfoil sets, the tip gap was set to 0 mm
+and no provision was made for the blade blockage effect. The results indicated
+that the ARA-D13-D10 and the NACA 2418-2414-2410 profile sets performed the
+best, with the first only marginally better than the latter. This result is in
+agreement with previous research that indicated that thinner airfoils will give
+better performance (Hrishikeshavan, 2011). In almost all of the designs an
+increase in thrust of more than 20% for the same power input as in Lee’s
+experiments was achieved. After comparing the different rotors at design point
+and away from the design point it was decided to use the NACA 2418-14-08
+sections. Not only are they aerodynamically better than the other airfoils, but their
+much simpler geometry should result in easier manufacturing.
+
+37
+
+Stellenbosch University https://scholar.sun.ac.za
+
+60
+
+ARA-D13-10: S3;P3
+NACA 2418-10: S3;P3
+50
+DAE 11-51: S3;P3
+EPPLER 855-852: S3;P3
+MH 112-121: S3;P3
+
+Thrust, T (N)
+
+40
+
+30
+
+20
+
+10
+
+0
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+600
+
+700
+
+800
+
+Power, P (W)
+
+Figure 3.4: The total loads for hover performance of the cambered duct with a
+coaxial rotor for different profiles sets.
+
+The aerodynamic polar diagrams for the NACA 2418-14-10 profiles can be found
+in Appendix A.
+
+3.4.2 Final rotor blade design
+With the blade profile set having been selected, the final rotor blade design was
+done with the DFDC code. In the initial design each rotor consisted of three rotor
+blades to closely resemble the rotors that were used in Lee’s experiments. It was
+later decided to decrease the number of blades to two, which allowed an increase
+in blade chord length and Reynolds number. The rotors were designed at sea
+level conditions with the density (ρ) set at 1.226 kg/m3, the viscosity (ν) equal to
+0.178E-04 kg/m/s and the speed of sound (a) equal to 340 m/s. An example of an
+input file used in the DFDC code is presented in Appendix B.
+
+3.4.3 Rotor blade geometry
+The rotor blade geometry for the upper and lower rotor is summarised in
+Tables 3.1 and Table 3.2 respectively. Further rotor details are shown in
+Appendix C and Appendix D.
+
+38
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Table 3.1
+
+Upper rotor geometric data.
+
+Lofted Blade
+
+CRR-S3P3-NACA 2418-14-10
+
+Disk 1
+
+Upper Rotor
+
+Parents Airfoils
+1
+2
+3
+
+NACA 24 series
+NACA_2418
+NACA_2414
+NACA_2410
+
+@ x/c
+0.2998
+0.2998
+0.2997
+
+Camber
+0.0200
+0.0200
+0.0200
+
+Points per side
+Stations Spec
+Rotor Tip Gap (mm)
+
+60
+16
+1.78
+Station
+1H
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16T
+
+Table 3.2
+
+t/c
+0.18
+0.14
+0.10
+
+Density -le/te
+Distribution
+PitchAxisHub-x/c
+Radius (cm)
+2.97
+3.76
+4.59
+5.44
+6.32
+7.22
+8.15
+9.11
+10.10
+11.12
+12.16
+13.23
+14.32
+15.45
+16.60
+17.78
+
+Chord (cm)
+5.38
+4.78
+4.24
+3.78
+3.39
+3.08
+2.81
+2.59
+2.40
+2.24
+2.10
+1.99
+1.89
+1.80
+1.73
+1.68
+
+@ x/c
+0.4021
+0.4018
+0.4023
+
+8.00
+Linear t/c
+0.35
+Beta (deg)
+58.47
+50.71
+44.09
+38.77
+34.66
+31.37
+28.62
+26.32
+24.37
+22.75
+21.35
+20.13
+19.02
+17.99
+17.03
+16.11
+
+Rotor Rotation:
+
+Positive
+
+Radius_le
+0.0354
+0.0213
+0.0110
+
+Thickness_te
+0.0038
+0.0029
+0.0021
+
+Density-hub/tip
+PitchAxisTip
+
+1.50
+0.35
+
+Alpa 0 (deg) Thickness (mm)
+-0.900
+9.69
+-0.960
+8.40
+-1.022
+7.27
+-1.087
+6.30
+-1.153
+5.50
+-1.221
+4.83
+-1.292
+4.28
+-1.365
+3.80
+-1.439
+3.40
+-1.434
+3.05
+-1.397
+2.74
+-1.360
+2.48
+-1.321
+2.24
+-1.282
+2.03
+-1.241
+1.84
+-1.200
+1.68
+
+A0 (deg)
+-0.90
+-1.46
+-1.20
+
+t/c
+0.18
+0.18
+0.17
+0.17
+0.16
+0.16
+0.15
+0.15
+0.14
+0.14
+0.13
+0.12
+0.12
+0.11
+0.11
+0.10
+
+Lower rotor geometric data.
+
+Lofted Blade
+
+CRR-S3P3-NACA 2418-14-10
+
+Disk 2
+
+Lower Rotor
+
+Parents Airfoils
+1
+2
+3
+
+NACA 24 series
+NACA_2418
+NACA_2414
+NACA_2410
+
+@ x/c
+0.2998
+0.2998
+0.2997
+
+Camber
+0.0200
+0.0200
+0.0200
+
+Points per side
+Stations Spec
+Rotor Tip Gap (mm)
+
+t/c
+0.18
+0.14
+0.10
+
+60
+16
+1.78
+Station
+1H
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16T
+
+Density -le/te
+Distribution
+PitchAxisHub-x/c
+Radius (cm)
+2.97
+3.76
+4.59
+5.44
+6.32
+7.22
+8.15
+9.11
+10.10
+11.12
+12.16
+13.23
+14.32
+15.45
+16.60
+17.78
+
+Chord (cm)
+4.56
+4.16
+3.79
+3.46
+3.17
+2.91
+2.69
+2.50
+2.33
+2.19
+2.07
+1.96
+1.86
+1.78
+1.71
+1.65
+
+8.00
+Linear t/c
+0.35
+Beta (deg)
+126.57
+131.76
+136.39
+140.40
+143.77
+146.63
+149.07
+151.17
+152.98
+154.56
+156.07
+157.46
+158.70
+159.85
+160.91
+161.88
+
+39
+
+@ x/c
+0.4021
+0.4018
+0.4023
+
+Rotor Rotation:
+
+Negative
+
+Radius_le
+0.0354
+0.0213
+0.0110
+
+Thickness_te
+0.0038
+0.0029
+0.0021
+
+Beta Coords
+Density-hub/tip
+PitchAxisTip
+
+Global
+1.50
+0.35
+
+Alpa 0 (deg) Thickness (mm)
+-0.900
+8.20
+-0.960
+7.31
+-1.022
+6.50
+-1.087
+5.77
+-1.153
+5.13
+-1.221
+4.58
+-1.292
+4.09
+-1.365
+3.67
+-1.439
+3.30
+-1.434
+2.98
+-1.397
+2.69
+-1.360
+2.44
+-1.321
+2.21
+-1.282
+2.01
+-1.241
+1.82
+-1.200
+1.65
+
+t/c
+0.18
+0.18
+0.17
+0.17
+0.16
+0.16
+0.15
+0.15
+0.14
+0.14
+0.13
+0.12
+0.12
+0.11
+0.11
+0.10
+
+A0 (deg)
+-0.90
+-1.46
+-1.20
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 4:
+
+4.1
+
+CAMBERED SHROUDED COAXIAL ROTOR
+SYSTEM (CSCRS) PERFORMANCE
+
+INTRODUCTION
+
+This chapter presents the results of the design and performance predictions
+obtained from DFDC. The hover performance and the axial flight performance of
+the newly designed NACA 2418-14-10 Cambered Shroud Coaxial Rotor System
+(CSCRS) are compared to the experimental results published by Lee (2010).
+
+4.2
+
+CSCRS HOVER PERFORMANCE
+
+Figure 4.1 compares the hover performance of the Lee rotors to the DFDC
+designed rotors, both using the same cambered shroud of Lee. Two
+combinations of rotor-to-rotor spacings (S3 and S4) and three rotor-to-shroud
+positions (P1, P3 and P4) were used in this comparison. These simulations were
+all done with a nominal rotor tip gap set at 0.01R. Note that due to the larger root
+chord of the DFDC rotors it was not possible to reduce the rotor-to-rotor spacing
+below a value of 0.30R. It is clear that the DFDC rotors outperform the rotors
+used by Lee over the entire power range. In the operating region of the design
+point, where the required power is 363 W, the DFDC S3;P3 rotor system
+delivers 67.45% more thrust than the equivalent Lee rotors.
+60
+Lee: OCRS
+Lee: CSCRS S1;P1
+
+50
+
+Lee: CSCRS S1;P3
+Lee: CSCRS S3;P3
+N241810 S3;P3
+
+Thrust, T (N)
+
+40
+
+N241810 S3;P1
+N241810 S4;P3
+
+30
+
+N241810 S4;P1
+N241810 S3;P4
+
+20
+
+10
+
+0
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+600
+
+700
+
+800
+
+Power, P (W)
+
+Figure 4.1: A comparison between the Lee CSCRS and the N241810 CSCRS in
+terms of hover performance at various rotor-to-rotor spacings and rotor-to-shroud
+positions.
+
+Unlike the experimental data of Lee that indicated that the best hover
+performance was obtained with the rotors closely spaced and positioned further
+back in the shroud, DFDC predicts very little difference in hover performance for
+the various rotor-to-rotor spacings and rotor-to-shroud positions. This insensitivity
+to rotor spacing and position of the DFDC simulation may be due to the
+40
+
+Stellenbosch University https://scholar.sun.ac.za
+
+cylindrical centre body and straight inner flow section of the shroud, resulting in a
+constant inner area duct.
+
+Figure 4.2: Load distribution for the hover performance of the N241810 CSCRS with
+a 0.01R tip gap and S3;P3 spacing.
+
+The load distribution between the shroud and the rotors is presented in
+Figure 4.2. The DFDC results indicate that approximately the same amount of
+thrust is being generated by the upper rotor and the lower rotor and that the
+rotors and the shroud share about 50% of the total trust.
+Figure 4.3 represents the torque distribution in hover between the upper and the
+lower rotors of the DFDC shrouded coaxial rotor system. It is clear that the torque
+is almost equally shared between these rotors over the entire rotor speed range.
+A total torque in the order of 0.001 Nm at 3 000 rpm, increasing slightly to
+0.006 Nm at 7 500 rpm is predicted by DFDC.
+The power loading (PL) is the direct ratio of thrust developed to the power
+required by the system and is an indication of the efficiency of the system.
+Figure 4.4 compares the power loadings of the rotors used by Lee and the DFDC
+rotors at the same disc loadings (DL). Note that these rotors have the same area
+and will thus have the same DL at the same thrust. It can be seen that to
+produce 25 N thrust, the PL of the DFDC rotors is in the order of 75% higher than
+that of the Lee rotors, which means that considerably less power is required by
+the DFDC rotors to produce the same amount of thrust.
+
+41
+
+Stellenbosch University https://scholar.sun.ac.za
+
+1.00
+Total Torque (Nm)
+
+0.80
+
+Upper Rotor Q (Nm)
+
+0.60
+Total Torque, Q (Nm)
+
+Lower Rotor Q (Nm)
+
+0.40
+0.20
+0.00
+-0.20
+-0.40
+-0.60
+
+-0.80
+-1.00
+0
+
+1000
+
+2000
+
+3000
+
+4000
+
+5000
+
+6000
+
+7000
+
+8000
+
+Rotor rotational speed, Ω (rpm)
+Figure 4.3: Net torque for hover performance of the N241810 CSCRS with a 0.01R
+tip gap and S3;P3 spacing.
+0.18
+Lee: CSCRS
+S3;P3
+N241810
+S3;P3
+Lee: CSCRS
+S1;P3
+N241810
+S3;P1
+Lee: CSCRS
+S1;P1
+
+0.16
+
+Power loading, PL (N/W)
+
+0.14
+0.12
+0.10
+0.08
+0.06
+0.04
+0.02
+0.00
+0
+
+5
+
+10
+
+15
+
+20
+
+25
+
+30
+
+35
+
+40
+
+Thrust, T (N)
+
+Figure 4.4: A comparison between the Lee CSCRS and the N241810 CSCRS in
+terms of the power loading for hover performance at various rotor-to-rotor
+spacings and rotor-to-shroud positions.
+
+42
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The Lee rotors recorded the best PL for the S1 rotor-to-rotor spacing and the P3
+rotor to shroud position, while rotor spacing and position have a negligible effect
+on the PL for the DFDC rotors.
+The figure of merit (FM) is used as an indication of the static thrust efficiency of a
+rotor and is the ratio of the ideal (or the least possible) amount of power required
+to produce a specified thrust, to the actual amount required by the rotor. From
+Figure 4.5 it can be seen that DFDC predicts an FM in the order of 83% when
+delivering 35.4 N thrust for the S3;P3 configuration. At this condition, the
+shrouded coaxial rotor system with nominal tip gap requires power of 363 W.
+DFDC predicts a marginally higher FM when the rotor-to-rotor spacing is the
+largest and the rotors are positioned further back in the shroud.
+0.87
+FM S3;P3
+
+Figure of Merit, FM
+
+0.86
+
+FM S3;P1
+FM S4;P3
+
+0.85
+
+FM S4;P1
+
+0.84
+0.83
+0.82
+0.81
+0.80
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+90
+
+Total Thrust, T (N)
+Figure 4.5: Figure of Merit (FM) for hover performance of the N241810 CSCRS with
+a 0.01R rotor tip gap.
+
+The effect of tip-gap clearance on the performance of the shrouded coaxial rotor
+system for the S3;P3 spacing is shown in Figure 4.6. An increase in the tip gap
+reduces the total thrust of the system. From the figure it can be seen that an
+increased tip gap mainly reduces the shroud thrust while the rotor thrust is less
+affected by the increased tip clearance.
+
+43
+
+Stellenbosch University https://scholar.sun.ac.za
+
+90
+Total Thrust: TG1
+
+80
+
+Total Thrust: TG3
+
+70
+
+Rotor Thrust: TG3
+
+Thrust, T (N)
+
+60
+
+Shroud Thrust: TG3
+Rotor Thrust: TG1
+
+50
+
+Shroud Thrust: TG1
+
+40
+30
+20
+10
+0
+0
+
+200
+
+400
+
+600
+
+800
+
+1000
+
+1200
+
+1400
+
+Power, P (W)
+
+Figure 4.6: Hover performance in terms of total loads and load distribution for the
+N241810 CSCRS in the S3;P3 rotor position at various rotor tip gaps.
+
+4.3
+
+CSCRS PERFORMANCE IN AXIAL FLIGHT
+
+The axial flight performance of the shrouded rotor system was investigated to
+assess the effect of rotor-to-rotor spacing, the rotor-to-shroud position, the shroud
+performance and the rotor tip gap at various inflow velocities. For a fixed pitch
+rotor configuration axial flow through the rotor increases the inflow angle which in
+turn will decrease the angle of attack of the blade section, resulting in a decrease
+of thrust by approximately the square of the inflow velocity. A lower thrust will
+decrease the rotor torque and the power required to turn the rotor.
+If the inflow velocity is increased to a value where the inflow angle increased to
+the point where the effective angle of attack is zero, the rotor will produce zero
+thrust. This point is the beginning of the rotor brake state, where after any
+increase in inflow velocity will result in negative rotor thrust. It was found that the
+rotors designed in this study reached the brake state at an axial velocity of
+approximately 28 m/s for the design rotational speed of 5 000 rpm with the lower
+rotor reaching this state only fractionally before the upper rotor.
+Figure 4.7 represents the total loads (shroud and rotors) for the axial flight
+performance of the shrouded coaxial rotor system at various inflow velocities and
+rotor positions. The figure clearly illustrates that for a given power input the total
+thrust delivered by the system decreases with increasing axial velocity. Generally
+the axial flight performance of the shrouded coaxial rotor system used in this
+study seems not to be affected by the rotor-shroud position, as was the case with
+the hover performance. It was thus decided to use only the S3;P3 rotor-to-rotor
+spacing and rotor-to-shroud position for the remainder of the axial flight
+performance investigation.
+
+44
+
+Stellenbosch University https://scholar.sun.ac.za
+
+80
+70
+60
+
+S3;P1: V = 0 m/s
+S3;P3: V = 0 m/s
+S3;P1: V =5 m/s
+S3;P3: V = 5 m/s
+
+Thrust, T (N)
+
+50
+
+S3;P1: V =10 m/s
+S3;P3: V = 10 m/s
+
+40
+
+S3;P1: V = 15 m/s
+S3;P3: V = 15 m/s
+
+30
+
+S3;P1: V = 20 m/s
+S3;P3: V = 20 m/s
+
+20
+10
+0
+-10
+-200
+
+0
+
+200
+
+400
+600
+Power, P (W)
+
+800
+
+1000
+
+1200
+
+Figure 4.7: Total loads for axial flight performance of the N241810 CSCRS at
+various rotor-to-rotor spacings and rotor-to-shroud positions. Tip gap is 0.01R.
+
+The composition of the total loads generated in axial flight conditions at
+increasing speeds is given in Figure 4.8.
+40
+Shroud T: V = 0 m/s
+U Rotor T: V = 0 m/s
+L Rotor T: V = 0 m/s
+Shroud T: V = 10 m/s
+U Rotor T: V = 10 m/s
+L Rotor T: V = 10 m/s
+Shroud T: V = 15 m/s
+U Rotor T: V = 15 m/s
+L Rotor T: V = 15 m/s
+
+35
+30
+
+Thrust, T (N)
+
+25
+20
+15
+10
+5
+0
+-5
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+600
+
+700
+
+800
+
+900
+
+1000
+
+1100
+
+Power, P (W)
+Figure 4.8: Axial flight performance of the shroud, upper rotor and lower rotor of
+the N241810 CSCRS at S3;P3 and TG1.
+
+45
+
+Stellenbosch University https://scholar.sun.ac.za
+
+As in the case for the hover performance, it can be seen that for the same axial
+velocity, the thrust produced by the upper and lower rotors is almost identical and
+decreases with an increase in inflow velocity. The largest reduction in thrust with
+increased axial velocities can be attributed to the shroud. This reduction of
+shroud thrust may be due to the fact that the increased axial flow decreased the
+low pressure region at the inner section of the shroud leading edge due to the
+forward movement of the stagnation point towards the leading edge of the
+shroud, which causes less thrust to be developed in this region. A further
+increase in axial velocity will ultimately result in negative shroud thrust. For the
+coaxial rotor system used in this study the condition of zero shroud thrust at
+design rpm is reached when the axial velocity is approximately 28 m/s.
+The major impact on the efficiency, in terms of power loading, of the shrouded
+coaxial rotor system in axial flight conditions is shown in Figure 4.9. The power
+loading is significantly reduced for an increase in axial velocity.
+0.18
+
+0.16
+
+Power loading, PL (N/W)
+
+0.14
+0.12
+0.10
+0.08
+0.06
+
+V = 0 m/s
+V = 5 m/s
+
+0.04
+
+V = 10 m/s
+V = 15 m/s
+
+0.02
+
+V = 20 m/s
+
+0.00
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+90
+
+Thrust, T (N)
+Figure 4.9: Axial flight performance of the N241810 CSCRS in terms of power
+loading (PL) at various inflow velocities for a S3;P3 spacing and tip gap of 0.01R.
+
+The effect of the rotor tip clearance on the performance of the shrouded coaxial
+rotor system for the S3;P3 spacing is illustrated in Figure 4.10. An increase in the
+tip gap reduced the total thrust of the system. From the figure it can be seen that
+at higher axial velocity the total thrust of the system is less affected by an
+increased tip clearance.
+The total thrust decrease caused by an increase in rotor tip gap and axial velocity
+is further investigated in Figure 4.11. The load distributions on the shroud and
+rotors are displayed to examine the influence of various rotor tip gaps and inflow
+velocities on the shroud and rotors. From Figure 4.11 it follows that the rotor
+thrust at an axial velocity of 0 m/s or 15 m/s is almost unaffected by the rotor tip
+gap, but the rotor thrust decreases with an increase in axial velocity.
+
+46
+
+Stellenbosch University https://scholar.sun.ac.za
+
+80
+Total Thrust TG1; V = 0 m/s
+
+70
+
+Total Thrust TG3; V = 0 m/s
+
+Total Thrust TG1; V = 5 m/s
+
+60
+Thrust, T (N)
+
+Total Thrust TG3; V = 5 m/s
+
+50
+
+Total Thrust TG1; V = 15 m/s
+Total Thrust TG3; V = 15 m/s
+
+40
+30
+
+20
+10
+0
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+600
+
+700
+
+800
+
+900
+
+1000
+
+1100
+
+Power, P (W)
+Figure 4.10: Total loads for axial flight performance of the N241810 CSCRS for a
+S3;P3 rotor spacing at various rotor tip gaps and inflow velocities.
+
+The shroud thrust in hover conditions deteriorates with an increase in rotor tip
+gap, but at an axial velocity of 15 m/s the shroud thrust is practically unchanged
+by rotor tip gap changes. The shroud thrust decreases drastically with an
+increase in axial velocity and is by far the largest contributor to the total thrust
+reduction caused by an increase in axial velocity and rotor tip gap.
+The total efficiency of the shrouded coaxial rotor system is defined as the product
+of the inflow velocity and the total thrust divided by the total power required by the
+system. Figure 4.5 indicates that for hover conditions the FM is between 0.81
+and 0.86 with the upper value corresponding to the higher thrust conditions. From
+Figure 4.12 the maximum total efficiency for axial flight conditions is in the order
+of 0.70 for axial velocities between 15 m/s and 20 m/s in the low thrust region.
+For the design thrust in the order of 36 N and an axial velocity of 20 m/s, the total
+efficiency will be approximately 0.68.
+
+47
+
+Stellenbosch University https://scholar.sun.ac.za
+
+40
+Rotor Thrust TG1; V = 0 m/s
+
+35
+
+Shroud Thrust TG1; V = 0 m/s
+Rotor Thrust TG1; V = 15 m/s
+
+30
+
+Shroud Thrust TG1; V = 15 m/s
+Rotor Thrust TG3; V = 0 m/s
+
+25
+
+Shroud Thrust TG3; V = 0 m/s
+
+Thrust, T (N)
+
+Rotor Thrust TG3; V = 15 m/s
+
+20
+
+Shroud Thrust TG3; V = 15 m/s
+
+15
+
+10
+
+5
+
+0
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+-5
+
+600
+
+700
+
+800
+
+900
+
+1000
+
+1100
+
+Power, P (W)
+
+Figure 4.11: Load distributions for axial flight performance of the N241810 CSCRS
+with a S3;P3 rotor spacing at various rotor tip gaps and inflow velocities.
+0.80
+0.70
+
+Total Efficiency, η
+
+0.60
+0.50
+0.40
+0.30
+Tot Eff: V = 5 m/s
+Tot Eff: V = 10 m/s
+Tot Eff: V = 15 m/s
+Tot Eff: V = 20 m/s
+
+0.20
+0.10
+0.00
+0
+
+10
+
+20
+
+30
+
+40
+
+50
+
+60
+
+70
+
+80
+
+Total Thrust, T (N)
+
+Figure 4.12: Total efficiency of the N241810 CSCRS with a 0.01R tip gap and S3;P3
+spacing at various inflow velocities.
+
+48
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 5:
+5.1
+
+CFD FORMULATION
+
+INTRODUCTION
+
+This chapter gives a brief overview of the CFD formulation for the validation of
+the performance of the newly designed NACA 2418-14-10 Cambered Shroud
+Coaxial Rotor System (CSCRS) as predicted in the DFDC code.
+The geometry of the shrouded coaxial rotor system (SCRS) was created with the
+DFDC code after which AutoDesk Inventor 3D CAD was used to import the
+geometric data into ANSYS TurboGrid and ANSYS Mesher. The performance
+predictions of the DFDC code were simulated with the general purpose
+ANSYS-CFX 15.07 code, which is based on the finite volume method (FVM).
+CFX is capable of simulating the incompressible mean flow field flow past the
+contra-rotating shrouded rotor system for UAVs.
+Predictions for the 35.5 mm diameter shrouded rotors with tip Mach numbers
+between 0.276 and 0.332 at varying rotor speeds of 5 000 and 6 000 rpm
+respectively, for which incompressible and isothermal flow conditions can be
+assumed, were made. A description of the computational method followed is
+given in the next sections.
+
+5.2
+
+COMPUTATIONAL MODEL
+
+A three dimensional CFD method was used to conduct a steady state analysis on
+the turbulent and viscous flow field around and inside the shrouded rotors in
+hover and axial flight conditions. The incompressible mean flow field around the
+shrouded rotors was simulated using the ANSYS-CFX 15.07 code, which solves
+the unsteady Reynolds-Averaged Navier Stokes equations by means of an
+element based FVM (Ansys, 2009). The conservation of mass, momentum and
+energy equations are solved simultaneously over a predominant hexahedral finite
+volume mesh.
+
+5.2.1 Discretization of the governing equations
+The conservation of mass, momentum and a passive scalar, used in the
+expression of the energy equation for the temperature distribution, given in scalar
+coordinates below forms the governing equations for a complete mathematical
+description of the fluid flow problem. The equation for the temperature distribution
+was not solved in this study.
+𝜕𝜌
+𝜕
++
+(𝜌𝑈𝑗 ) = 0
+𝜕𝑡 𝜕𝑥𝑗
+
+(5.1)
+
+𝜕
+𝜕
+𝜕𝑃
+𝜕
+𝜕𝑈𝑖 𝜕𝑈𝑗
++
++
+(𝜌𝑈𝑗 ) +
+(𝜌𝑈𝑗 𝑈𝑖 ) = −
+(𝜇𝑒𝑓𝑓 (
+) + 𝑆𝑈𝑖 )
+𝜕𝑡
+𝜕𝑥𝑗
+𝜕𝑥𝑖 𝜕𝑥𝑗
+𝜕𝑥𝑗 𝜕𝑥𝑖
+
+(5.2)
+
+𝜕
+𝜕
+𝜕
+𝜕∅
+(𝜌∅) +
+(𝜌𝑈𝑗 ∅) =
+(Γ𝑒𝑓𝑓 ( ) + 𝑆∅ )
+𝜕𝑡
+𝜕𝑥𝑗
+𝜕𝑥𝑗
+𝜕𝑥𝑗
+
+(5.3)
+
+Equations 5.1, 5.2 and 5.3 are integrated over the control volume and the Gauss’
+Divergence Theorem is used to convert the volume integrals involving divergence
+
+49
+
+Stellenbosch University https://scholar.sun.ac.za
+
+and gradient operators to the surface integrals which results in the following set
+of equations:
+𝜕
+∫ 𝜌𝑑𝑉 + ∫ 𝜌𝑈𝑗 𝑑𝑛𝑗 = 0
+𝜕𝑡 𝑉
+𝑆
+
+(5.4)
+
+𝜕
+∫ 𝜌𝑈𝑗 𝑑𝑉 + ∫ 𝑃𝑈𝑗 𝑈𝑖 𝑑𝑛𝑗
+𝜕𝑡 𝑉
+𝑆
+
+𝜕𝑈𝑖 𝜕𝑈𝑗
+= ∫ 𝑃 𝑑𝑛𝑗 + ∫ 𝜇𝑒𝑓𝑓 (
++
+) 𝑑𝑛𝑗 + ∫ 𝑆𝑈𝑖 𝑑𝑉
+𝜕𝑥𝑗 𝜕𝑥𝑖
+𝑆
+𝑆
+𝑉
+
+𝜕
+𝜕∅
+∫ 𝜌∅𝑑𝑉 + ∫ 𝜌𝑈𝑗 ∅ 𝑑𝑛𝑗 = ∫ Γ𝑒𝑓𝑓 ( ) 𝑑𝑛𝑗 + ∫ 𝑆∅ 𝑑𝑉
+𝜕𝑡 𝑉
+𝜕𝑥𝑗
+𝑆
+𝑆
+𝑉
+
+(5.5)
+
+(5.6)
+
+where S and V in Equations 5.4, 5.5 and 5.6 respectively indicate the surface and
+volume region integrals and 𝑑𝑛𝑗 are the Cartesian components of the outward
+normal surface vectors.
+
+5.2.2 Rotational forces
+To account for the effects of Coriolis and centrifugal forces when simulating flow
+in a rotating frame of reference which rotates at a constant rotational velocity Ω,
+additional sources of momentum are required (Ansys, 2009). In Equation 5.2
+and 5.3 the source terms are modified as:
+𝑆𝑀,𝑟𝑜𝑡 = 𝑆𝐶𝑜𝑟 + 𝑆𝑐𝑓𝑔 = −2 𝜌Ω x 𝑈 − 𝜌Ω x (Ω x 𝑟)
+
+(5.7)
+
+where U is the relative frame velocity and r is the location vector.
+
+5.2.3 Turbulence model
+To model the turbulent flow in this study, the k-epsilon and k-omega turbulent
+models were initially used, but these models struggled to converge. The k-ω
+based shear-stress transport (SST) turbulence model was used in this study. This
+low Re turbulence model was designed to give an accurate prediction of the start
+and the amount of fluid flow separation due to adverse pressure gradients. This is
+done by the incorporation of transport effects into the expression of the eddy
+viscosity, resulting in a high accuracy boundary layer simulations turbulence
+model. Included in the SST turbulence model used in CFX are blending functions
+in the near wall region that are dependent on the wall distance (Ansys, 2009).
+The model automatically resorts to a wall function formulation called the
+“automatic wall treatment” in the vicinity of coarse grid resolutions close to a wall.
+An additional equation is solved automatically by the CFX-Solver at the beginning
+of the simulations to calculate the wall distance. With all turbo machinery there is
+a large component of primary and induced swirl in the flow-field. ANSYS CFX
+provides a curvature correction option when the SST turbulence model is
+selected to capture the additional turbulent kinetic energy produced from the swirl
+(Ansys, 2009). CFX has several transitional turbulence models as extensions to
+the standard SST Turbulence model. The writer experimented with the Gamma
+Theta and other models, but found similar results as with the standard SST
+model.
+
+50
+
+Stellenbosch University https://scholar.sun.ac.za
+
+5.3
+
+COMPUTATIONAL DOMAIN
+
+The computational domain for the simulation of the shrouded contra-rotating
+rotors in hover and axial flight is divided into two stationary half cylindrical regions
+and two rotating regions. Due to the axisymmetric nature of the problem, only one
+half of the model is analysed to save on computational time. The dimensions of
+the computational domain selected were similar to the domain used by Akturk et
+al. (2009) in their computational study of a 5 inch ducted fan for V/STOL UAV
+applications. The outer half cylindrical region extends 8 𝐷𝑅 ahead and 12 𝐷𝑅
+behind the model, while an extension of 5 𝐷𝑅 to each side was allowed.
+In this study the multi reference frame (MRF) method was used to simulate the
+flow activities in the stationary domains and the rotating rotor domains. The outer
+computational domain (named Volume) hosts a smaller inner domain (named
+Blades) in which the shrouded contra-rotating rotors are situated as shown in
+Figure 5.1.
+
+Figure 5.1: MRF Transparent with periodic interfaces and boundary conditions.
+
+In the rotating rotor domains, named R1 and R2, the alternate rotation model was
+selected, resulting in the solver to solve the advection term in the stationary
+frame and transform it back to the rotating frame. The alternate rotation model
+can reduce the production of false swirl due to fluid motion that is not well aligned
+with the rotating frame as is the case with the flow through a rotor, which is
+primarily axial and not well aligned with the rotating frame (Ansys 2009). A stage
+type interface model was inserted between the stationary and rotating frames as
+well as between the two rotating rotor frames. This interface model
+circumferentially averages the fluxes on the interface and sends the average
+fluxes to the downstream section. A general grid interface (GGI) was used to
+connect the meshes on either side of the two joined boundary surfaces where
+they did not match. Periodic interfaces were created on the symmetry planes to
+reduce the size of the computational domain and computation time as indicated
+in Figure 5.1.
+
+51
+
+Stellenbosch University https://scholar.sun.ac.za
+
+5.4
+
+BOUNDARY CONDITIONS
+
+For the computation, an undisturbed subsonic velocity in the axial direction is
+specified for an inlet boundary condition and atmospheric static pressure is
+prescribed on the outlet surface. On the outer side wall of the cylinder, a free-slipwall boundary condition is prescribed, which ensures that the flow is not
+decelerated when it approaches the surface. The smaller inner flow domain hosts
+the rotating domains as well as all the external sections of the shroud and hub
+not included in the rotating domains. All sections of the rotor hub, the shroud and
+blades are considered as smooth solid walls with no-slip boundary conditions.
+The shroud walls inside the rotating domains are prescribed by a counter rotating
+wall boundary condition, since the counter rotating wall in the rotating system will
+ensure a stationary wall in the global system. The boundary conditions are shown
+in Table 5.1.
+Table 5.1
+
+Boundary conditions imposed.
+
+Boundary type
+
+Property
+
+Value
+
+Inlet: (hover flight)
+
+Flow regime
+Mass & momentum
+Static pressure
+Turbulence intensity
+Flow regime
+Mass & momentum
+Cylindrical velocity
+
+Subsonic
+
+Inlet: (axial flight)
+
+Outlet:
+
+Outer side walls (hover flight)
+Opening boundary:
+
+Turbulence intensity
+Flow regime
+Mass & momentum
+Static pressure
+Turbulence intensity
+
+Relative press = 0 Pa
+Low = 1%
+Subsonic
+Axial comp.= 5-10 m/s
+Radial comp.= 0 m/s
+Theta comp.= 0 m/s
+Low = 1%
+Subsonic
+Relative press = 0 Pa
+Low = 1%
+
+Flow regime
+Mass & momentum
+
+Subsonic
+Opening pressure & direction
+
+Flow direction
+
+Normal to boundary
+
+Turbulence intensity
+
+Medium = 5%
+
+Flow regime
+Mass & momentum
+
+Subsonic
+Free slip wall
+
+Outer side walls (axial flight)
+Wall boundary:
+
+5.5
+
+COMPUTATIONAL MESH
+
+The outer domain is predominantly filled with hexahedral elements with a smaller
+number of pyramids and tetrahedral elements as indicated in Figure 5.2. The
+unstructured mesh in the smaller inner domain hosts the shrouded rotor system,
+and consists of tetrahedral and wedge elements as shown in Figure 5.3.
+
+52
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 5.2: The computational mesh.
+
+Figure 5.3: The inner computational mesh with hexahedral elements and inflation.
+
+5.6
+
+BOUNDARY LAYER INFLATION
+
+A boundary layer inflation of at least 10 layers is needed, but 20 layers are
+desirable to fully benefit from this model. To ensure that the laminar sub-layer in
+low Re flows is thoroughly captured the average Y-plus value should be in the
+order of 1 (Ansys 2009). A boundary layer inflation of 30 layers with a first layer
+height set at 5.e-5 m and an expansion ratio of 1.15 was used in the smaller fluid
+domain and in the rotating fluid domains of this study to fully benefit from this
+turbulence model. Edge sizing was used on the trailing edge of the shroud with a
+curvature normal angle set at 5°.
+
+53
+
+Stellenbosch University https://scholar.sun.ac.za
+
+5.7
+
+GRID GENERATION IN THE ROTATING FLUID DOMAINS
+
+The ANSYS TurboGrid package was used to create good quality structured grids
+for the two rotating domains. The “Tradional with Control Point” placement in
+conjunction with the H-Grid method and O-Grid inclusion with control points was
+selected. TurboGrid generates hexahedral meshes which are ideal for solving the
+complex blade passage problems for rotating machinery. Figure 5.4 illustrates the
+grid on the hub and blade. The two rotating domains consist of a total number
+of 4 468 236 elements.
+In this study Y-plus values in the order of 1 were used on the blades. Y-plus
+values in the order of 5 for the hub regions were the lowest that TurboGrid would
+allow before negative volume elements were encountered in the mesh.
+
+Figure 5.4: The TurboGrid-generated hexahedral meshes on the hub and blade.
+
+5.8
+
+CONVERGENCE
+
+Convergence of the steady state problem was assumed after the solution
+satisfied at least two of the following three criteria:
+
+
+
+
+Residual RMS Error values for P-Mass, U-Mom, V-Mom and W-Mom
+have reduced to a value less than 10-4. This criteria could not always be
+reached, with the V-Momentum residual mostly having the highest value.
+Monitor points set up for the thrust and torque of both rotors having
+reached a steady solution for at least the last 50 consecutive iterations.
+The flow domain has P-Mass, U-Mom, V-Mom and W-Mom imbalances of
+less than 1%.
+
+For steady-state problems, the CFX-Solver uses a false time scale to under-relax
+the equations as they iterate towards a solution. Auto Time Scale uses a physical
+time scale, dependent on the flow conditions, boundary conditions, flow physics,
+and flow domain geometry. It is usually stable, but faster convergence for steadystate problems is often possible by selecting a larger time scale using the local
+time scale factor (Ansys 2009). A factor of 5 was used as a first guess. Large
+time scales normally result in fluctuating convergence or no convergence. Time
+scales that are too small result in very slow, steady convergence.
+54
+
+Stellenbosch University https://scholar.sun.ac.za
+
+In this study the use of local time scale factors between 1 and 10 were utilized to
+improve the convergence rate although the last few iterations were done using
+the auto time scale setting. The value entered is a multiplier of a local elementbased time scale, which is roughly the time required by an element to travel
+𝑙𝑒𝑛𝑔ℎ𝑡 𝑜𝑓 𝑑𝑜𝑚𝑎𝑖𝑛
+. The default time scale factor is 5 and
+through the flow domain, 𝑡 ≈
+𝑚𝑒𝑎𝑛 𝑣𝑒𝑙𝑜𝑐𝑖𝑡𝑦
+
+values less than this are considered as “small” time steps. The simulations
+typically required between 350 and 500 outer loop iterations to achieve
+convergence.
+
+5.9
+
+MESH INDEPENDENCE
+
+With the convergence criteria above met, the mesh independence was confirmed
+using 6 different mesh refinements. A simulation, at a rotation speed of 5 000 rpm
+and an axial velocity of 5 m/s, was performed for each of the refined meshes until
+convergence was reached after which the total thrust produced by the rotor
+system for the respective meshes were compared as indicated in Figure 5.5.
+From Table 5.2 it is evident that extremely fine meshes in the rotational domains
+are required to ensure mesh independence. The mesh with 5 648 084 elements
+is considered to be independent of the mesh resolution, and was used for the
+remainder of the analysis.
+Table 5.2
+Domain
+Blades
+R1
+R2
+Vol
+Total
+Thrust (N)
+
+Mesh independent study.
+Mesh 1
+
+Mesh 2
+
+Mesh 3
+
+Mesh 4
+
+Mesh 5
+
+Mesh 6
+
+273863
+262032
+227016
+94879
+857790
+26.24
+
+273863
+479568
+485516
+94879
+1333826
+26.15
+
+971832
+1104288
+1126140
+207764
+3410024
+22.82
+
+971832
+1104288
+1126140
+354153
+3556413
+22.76
+
+972048
+2225376
+2242860
+207764
+5648048
+21.5
+
+972048
+2675768
+2327868
+207764
+6183448
+21.2
+
+Figure 5.5: The mesh independence study.
+
+55
+
+Stellenbosch University https://scholar.sun.ac.za
+
+The meshing statistics of Mesh 2 that was used for the remainder of the study are
+given in Table 5.3.
+Table 5.3
+
+Domain
+Blades
+R1
+R2
+Volume
+All Domains
+
+Meshing statistics.
+
+Nodes
+
+Elements
+
+Tetrahedra
+
+Wedges
+
+Hexahedra
+
+336113
+2289916
+2307884
+183078
+5116991
+
+972048
+2225376
+2242860
+207764
+5648048
+
+493158
+0
+0
+17799
+510957
+
+478890
+0
+0
+3515
+482405
+
+0
+2225376
+2242860
+158028
+4626264
+
+Figure 5.6 displays a contour plot of the axial velocity on the symmetry-plane and
+at the outlet for hover flight at a rotational speed of 5 000 rpm. The plot is
+generated from the CFX simulation using Mesh 5. The symmetric distribution of
+the velocity in the slipstream is a clear indication of a converged solution with a
+sufficiently fine mesh.
+
+Figure 5.6: A velocity contour plot of a mesh independent CFD solution.
+
+56
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 6: CFD PERFORMANCE PREDICTIONS OF THE
+CSCRS
+6.1
+
+INTRODUCTION
+
+This chapter presents the ANSYS-CFX CFD performance predictions of the
+design. The CFD hover and axial flight performance of the newly designed rotors
+are compared to the DFDC results for the NACA2418-14-10 CSCRS. Only the S3
+rotor-to-rotor spacing and the P3 rotor-to-shroud position were considered in this
+comparison. The CFD simulations were performed at rotation speeds of
+4 000 rpm, 5 000 rpm and 6 000 rpm. In all these simulations the nominal rotor tip
+gap was set at 0.01R.
+
+6.2
+
+CFD PERFORMANCE PREDICTIONS FOR THE CSCRS IN
+HOVER
+
+Figure 6.1 compares the hover thrust of the Lee rotors to the DFDC and the CFD
+simulation at various power inputs. The fact that the thrust delivered by the DFDC
+rotors exceeds the performance of the rotors used by Lee over the entire power
+range is also confirmed by the CFD predictions. Although the CFD predictions
+are less optimistic than the DFDC results they still indicate a 33% increase in
+thrust for the design power input of 370 W at a rotational speed of 5 000 rpm.
+
+Figure 6.1: A comparison between the hover performance of the Lee CSCRS
+experimental data, the DFDC results and the ANSYS-CFX CFD predictions at
+various power inputs.
+
+57
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 6.2 illustrates the comparison between the DFDC and CFX thrust
+predictions for the design in hover flight at various rotational speeds. The CFD
+simulation predicts a lower thrust in hover condition at a specified rotational
+speed, with the difference increasing at higher rotational speeds.
+
+Figure 6.2: A comparison between the DFDC and CFX thrust predictions for the
+design in hover flight.
+
+The load distribution between the shroud and the rotors is presented in
+Figure 6.3. According to the CFD thrust prediction at the same rotational speed,
+less thrust is generated by the upper rotor, while more thrust is generated by the
+lower rotor than the DFDC results indicate.
+The CFD prediction that the lower rotor will perform better than the upper rotor
+might be due to the fact that the lower rotor is operating in the rotating flow
+coming from the upper rotor at a more favourable incidence and that the lower
+rotor is able to extract some of the rotational energy present in the slipstream of
+the upper rotor. The total thrust generated by the two shrouded rotors correlates
+well in the CFD and DFDC predictions.
+The CFD predicted shroud thrust in hover flight is close to the average of the
+thrust predicted for the upper and lower rotors. It is in the order of half the amount
+of thrust predicted by DFDC. From Equation 6, derived for a single rotor, the
+thrust ratio between the shroud and the rotor is given as TShroud/TRotor = (2σd - 1),
+𝐴
+where 𝜎𝑑 = 𝐴𝑒 is the shroud diffuser ratio. Since the current shroud has a straight
+diffuser meaning 𝜎𝑑 = 1, the rotor and shroud inlet should share about 50% of
+the total thrust. If it is assumed that the mass flow rate through the shrouded
+coaxial rotors are approximately the same as through the single shrouded rotor,
+the resulting external flow over the leading edge of the shroud will be the same,
+irrespective of one or two rotors in the shroud. This would imply that the shroud
+58
+
+Stellenbosch University https://scholar.sun.ac.za
+
+thrust should be of the same order as the average thrust of the coaxial rotors.
+The more conservative shroud thrust prediction of the CFX analysis thus seems
+to be the realistic one.
+
+Figure 6.3: A comparison between the DFDC and CFX load distribution predictions
+in hover flight for various rotational speeds.
+
+The difference in the shroud thrust predictions may be due to the very basic
+boundary layer analysis on the shroud and hub in DFDC. It is currently done at
+the end of the blade design, in one pass, based on the calculated pressures. An
+interactive routine where the boundary layer thickness will result in pressure
+changes should be incorporated into the DFDC code. This might have a
+significant influence on the shroud thrust predictions.
+Figure 6.4 represents a comparison between the DFDC and CFX torque
+predictions on the upper and lower rotors in hover flight of the shrouded coaxial
+rotor system. The CFD predicted torque on both the rotors correlates well with
+the DFDC prediction. CFX predicts a slightly higher torque for the upper rotor and
+a slightly lower torque for the lower. The CFD simulation thus predicts a resultant
+positive torque. Whilst DFDC predicts a total torque of 0.00316 Nm at 5 000 rpm,
+the CFD prediction is of 0.0537 Nm at 5 000 rpm.
+
+59
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 6.4: A comparison between the DFDC and CFX torque predictions on the
+upper and lower rotors in hover flight.
+
+Comparing Figure 6.1 with Figures 6.2 to 6.4 leads to the conclusion that
+although DFDC predicts a higher thrust in hover flight than CFX at a given power
+input and rotational speed, these two methods correlate well, except for the
+shroud thrust that seems to be over predicted by DFDC.
+The power loading (PL) is the direct ratio of thrust developed to the power
+required by the system and is an indication of the efficiency of the system.
+Figure 6.5 compares the power loadings of the rotors from the Lee experimental
+data to the DFDC and CFD predictions. It can be seen that DFDC and CFD
+predictions correspond with the trends discussed above and that considerably
+less power is required by the newly designed rotors to produce the same amount
+of thrust than the original design.
+
+6.3
+
+CFD PERFORMANCE PREDICTIONS FOR THE CSCRS IN AXIAL
+FLIGHT
+
+The axial flight performance of the shrouded rotor system was evaluated to
+assess the effect of various inflow velocities on the performance. For a fixed pitch
+rotor configuration an axial flow through the rotor increases the inflow angle
+which in turn will decrease the angle of attack of the blade section, resulting in a
+decrease of thrust. A lower thrust will decrease the rotor torque and the power
+required to turn the rotor.
+
+60
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 6.5: A comparison between the Lee data, DFDC and CFX power loading with
+thrust in hover flight.
+
+Figure 6.6 represents the total loads (shroud and rotors) for the axial flight
+performance of the shrouded coaxial rotor system at various inflow velocities and
+rotor positions at different power inputs. For both the DFDC and the CFD
+predictions the figure clearly illustrates that for a given power input the total thrust
+delivered by the system decreases with increasing axial velocity.
+The CFD and DFDC thrust predictions for axial flight agree closely for the
+velocities simulated in this study. The graphs for hover flight were included in this
+figure to highlight the decreasing effect of shroud thrust with increasing axial
+velocity.
+Figure 6.7 illustrates the impact of an increased axial velocity on the efficiency, in
+terms of power loading. For both the CFD and DFDC predictions the power
+loading is significantly reduced by an increase in axial velocity. The decreasing
+effect of the shroud thrust with increasing axial velocity can be seen by
+comparing the power loading predictions at higher axial velocities.
+
+61
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 6.6: A comparison between the DFDC and CFX total load predictions at
+various axial velocities.
+
+Figure 6.7: A comparison between the DFDC and CFX power loadings at various
+axial velocities.
+
+62
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure 6.8: A CFX velocity vector plot for hover flight at a rotational speed of
+5 000 rpm.
+
+A CFX velocity vector plot for hover flight at a rotational speed of 5 000 rpm is
+illustrated in Figure 6.8. The direction, magnitude and symmetry of the flow
+correlates with the pressure contour plot of the same flight condition as illustrated
+in Figure 6.9.
+
+Figure 6.9: A CFX pressure contour plot for hover at a rotational speed of
+5 000 rpm.
+
+The velocity vector plot clearly indicates how the flow is being accelerated and
+sucked into the shroud due to the action of the rotating rotors that cause a low
+pressure region above the rotor plane. This explains the low pressure distribution
+on the inside of the shroud’s leading edge which results in additional thrust or lift.
+
+63
+
+Stellenbosch University https://scholar.sun.ac.za
+
+CHAPTER 7:
+7.1
+
+CONCLUSION
+
+INTRODUCTION
+
+The aerodynamic design of a counter rotating rotor system for a UAV was
+completed. The challenge was to design a more efficient coaxial rotor for the
+ducted coaxial rotor system as published by Lee (2010). The new design was
+performed using the DFDC code and compared with the experimental data of the
+existing design. The new design was also compared to ANSYS-CFX CFD
+simulation results which validated the DFDC code predictions. The study only
+considered the aerodynamic design of the counter rotating rotor system for the
+existing shroud. The final counter rotating rotors are displayed in Figure 7.1.
+
+Figure 7.1: The three-dimensional model of the counter rotating rotor system.
+
+The literature review considered the current trends of UAV design. Specific focus
+was placed on the design of shrouded or ducted rotor UAVs. The research
+revealed that a number of studies have been done on the design of the shroud,
+the axial position of the rotor in the shroud and the spacing between the two
+counter rotating rotors. The design of the leading edge lip of the shroud, the
+length of the shroud, as well as the tip-gap effect was also investigated.
+Research indicated that the design of high-performance simple fixed-pitch rotors
+with optimum low Re number airfoils for small scale UAVs is a trade-off between
+optimal aerodynamic performance and ease of manufacturing. The ideal profile
+would be very thin and highly cambered with a sharpened leading edge, but in
+reality these airfoils are difficult to manufacture.
+Although research on the design of a UAV helicopter rotor blade with variable
+pitch has been conducted, very little research on the aerodynamic design of a
+shrouded counter rotating fixed pitch rotor system could be found.
+Lee (2010) published experimental data on a shrouded coaxial rotor system, but
+did not design the rotors and suggested that further work should be done on this
+aspect.
+
+64
+
+Stellenbosch University https://scholar.sun.ac.za
+
+7.2
+
+AERODYNAMIC DESIGN OF THE COAXIAL ROTOR SYSTEM
+
+Based on the research and resources available it was decided to use Mark
+Drela’s freeware code, named DFDC, to design a more efficient, simple fixedpitch counter rotating rotor system for the shroud used by Lee. The design was
+based on two conditions:
+
+
+
+To design the rotors to deliver the maximum thrust with an input
+power of 370 W at a design rotor speed of 5 000 rpm.
+To achieve a torque balance for the coaxial rotors with each rotor
+operating at the same rotational speed, ranging from 3 000 to
+7 500 rpm.
+
+The design strategy was to obtain published experimental data of a shrouded
+contra-rotating rotor system in hover and forward flight in terms of thrust, torque
+and power to be used as a benchmark for the new design. The present work is
+based on the Aero Flight Dynamics Directorate (AFDD) ducted coaxial rotor
+system and experimental data as published by Lee (2010). The next phase was
+to select the radial airfoil profiles and numerically analyse them using XFOIL and
+XFLR 5 to ensure that they would deliver a high L/D ratio over a wide range of
+angles of attack within the expected Re number range. The selected airfoil
+characteristics were then used in the DFDC-070ES2a code for the blade design
+and optimization, after which the design was benchmarked against published
+experimental data and finally verified in ANSYS-CFX 15.07.
+
+7.2.1 Selection and numerical analysis of the best suited airfoils
+The goal of the blade design is to ensure maximum thrust at steady state for a
+given power supplied to the rotor shaft. This means that the blade AoA and Re
+should be optimal for the airfoil to ensure a high lift to drag (L/D) ratio.
+The Re range for most small scale UAV rotor blades is in the order of 50 000 to
+150 000 and as such it can be expected that the flow in this regime will be
+laminar and that the aerodynamics will be mainly influenced by viscous effects.
+The profile selection for the rotor blades was done by dividing the blade into three
+Re regions namely: 60 000 < Re > 80 000 for the first third inner section of the
+blade, 80 000 < Re > 110 000 for the middle section and 110 000 < Re > 150 000
+for the outer section of the blade. To ensure structural integrity and ease of
+manufacturing, a thickness to chord ratio (t/c) in the order of 18%, 14% and 10%
+respectively were chosen for the three sections.
+An airfoil database comparative search and analysis using XFOIL and XFLR 5
+resulted in five sets of possible profiles. An analysis of the different rotors at
+design point and away from the design point indicated that the NACA 2418-14-08
+sections were the better choice, since they were aerodynamically amongst the
+best and their much simpler geometry should result in higher structural integrity
+and easier manufacturing.
+
+7.2.2 The shroud and design of the rotor system
+The shroud used for the present work consists of the same cambered leading
+edge shroud and the symmetrical NACA derivative trailing edge as used by Lee
+(2010) in his research. The rotor radius was dictated by the shroud inner
+geometry of the existing shroud. The shroud throat (or minimum inner) diameter,
+Dt, is 0.3592 m to ensure a nominal tip clearance of 0.01R (0.001778 m) and the
+65
+
+Stellenbosch University https://scholar.sun.ac.za
+
+shroud chord cd is set at 0.2052 m. This resulted in a tip Mach number of 0.278
+and 0.322 for a rotor speed of 5 000 and 6 000 rpm respectively, which would
+ensure incompressible flow conditions.
+The goal of the blade design was to ensure maximum thrust at steady state for a
+given power supplied to the rotor shaft. This means that the blade AoA and Re
+should be optimal for the airfoil to ensure a high lift to drag (L/D) ratio. The
+detailed rotor blade geometry for the front and rear rotors is listed in Table 3.1
+and Table 3.2.
+
+7.2.3 CFD Simulation
+Once the geometry of the SCRS was created with the DFDC code, AutoDesk
+Inventor 3D CAD was used to import the geometric data into ANSYS TurboGrid
+and ANSYS Mesher. Due to the axisymmetric nature of the problem, only one
+half of the model was analysed to save on computational time. The dimensions of
+the computational domain were selected so that the outer half cylindrical region
+extends 8 DR ahead and 12 DR downstream of the model while an extension of
+5 DR to each side was allowed.
+The computational domain consists of an outer domain that hosts a smaller inner
+domain in which the shrouded contra rotating rotors are situated. An MFR
+method was used to simulate the flow activities in the stationary domains and the
+rotating rotor domains, while stage type interfaces were inserted between
+stationary and rotating frames as well as between the two rotating rotor frames. A
+general grid interface (GGI) was used to connect meshes where they did not
+match on either side of the two joined boundary surfaces and periodic interfaces
+were created on the symmetry planes.
+The outer domain is predominantly filled with hexahedral elements with a smaller
+amount of pyramids and tetrahedral elements The unstructured mesh in the
+smaller inner domain hosts the shrouded rotor system. It consists primarily of
+tetrahedral and wedge elements.
+The performance predictions of the DFDC code were done with the general
+purpose ANSYS-CFX 15.07 code, which is based on the finite volume method
+(FVM). CFX is capable of simulating the incompressible mean flow field flow past
+the contra-rotating shrouded rotor system for a UAV. The k-ω based SST
+turbulence model was used in this study. This low Re turbulence model was
+designed to give an accurate prediction of the start and the amount of fluid flow
+separation due to adverse pressure gradients. The model automatically resorts to
+a wall function formulation in the vicinity of coarse grid resolutions close to a wall.
+In this study boundary layer inflation was used in the smaller fluid domain and in
+the rotating fluid domains on all the walls, while edge inflation was used on the
+trailing edge of the shroud to fully benefit from the SST turbulence model.
+For axial flow computation, an undisturbed velocity in the axial direction is
+specified for an inlet boundary condition and atmospheric static pressure is
+prescribed on the outlet surface. On the outer side wall of the cylinder, a free-slipwall boundary condition is prescribed. An atmospheric static pressure at the inlet
+and outlet with an opening boundary condition on the sides were assumed for
+hover flight. Convergence of the problem was assumed after the residual RMS
+error values for P-Mass, U-Mom, V-Mom and W-Mom had reduced to a value
+less than 10-4. Since the V-Momentum residual often could not satisfy this
+requirement it was verified that the thrust and torque values of both rotors had
+reached a steady solution for at least the last 50 consecutive iterations and that
+66
+
+Stellenbosch University https://scholar.sun.ac.za
+
+the flow domain P-Mass, U-Mom, V-Mom and W-Mom imbalances were less than
+1%.
+The hover performance and the axial flight performance of the newly designed
+blades are compared to the experimental results as published by Lee (2010) and
+the ANSYS-CFX predictions. These comparisons indicate that the newly
+designed rotor system succeeded in most aspects of the design criteria.
+The CFD predictions are less optimistic than the DFDC results, but they still
+indicate a 33% increase in total thrust for the design power input of 370 W at a
+rotational speed of 5 000 rpm in hover conditions.
+The CFD predictions confirmed the DFDC calculations in terms of the total
+amount of thrust generated by the rotors for rotational speeds of 4 000 rpm,
+5 000 rpm and 6 000 rpm. CFX indicates a slight difference in the torque
+predictions on the upper and lower rotors from the DFDC design values. There is
+however a significant difference in the shroud thrust predictions of DFDC and the
+CFD simulations.
+This study further indicated that the DFDC code has the potential be used as a
+valuable preliminary design tool for the development of shrouded coaxial rotor
+systems for UAVs.
+
+7.3
+
+RECOMMENDATIONS FOR FUTURE WORK
+
+Further research is required into the reasons why the shroud thrust of the DFDC
+code and the ANSYS-CFX predictions differ so much.
+DFDC and CFX comparisons for more shrouded rotor configurations should be
+made to better understand the nature of the problem.
+A more detailed boundary layer analysis on the shroud and hub should be
+investigated.
+It is advisable that the computational mesh, specifically in the rotational domains,
+be optimised further.
+Further research on the aerodynamic design of the shroud would most definitely
+contribute to an increase in the performance of the system.
+The best scenario would be to build and test the shrouded counter rotating rotor
+system to verify the anticipated system performance experimentally.
+
+67
+
+Stellenbosch University https://scholar.sun.ac.za
+
+REFERENCES
+Ansys. 2009. Ansys-cfx solver theory guide. [Online] Available: www.ansys.com
+Airfoil Tools. 2014. Airfoil database search. [Online]. Available:
+http://airfoiltools.com/search/index. [2013,June,24].
+Akturk, A., Shavalikul, A., Camci, C. 2009. PIV Measurements and
+Computational Study of a 5-Inch Ducted Fan for V/STOL UAV Applications.
+AIAA 47th Aerospace Sciences Meeting and Exhibit, AIAA-2009-332. [Online].
+Available at: http://arc.aiaa.org/doi/abs/10.2514/6.2009-332. [2014, Sept 10].
+Betz, A. 1919. Screw propeller with minimum energy loss (Schraubenpropeller
+mit geringstem energieverlust). Translation from German by DA Sinclair,
+Translation Section, NRC Library, Technical Translation 736: 193-217.
+Black, D., Wainauski, H. & Rohrbach, C. 1968. Shrouded propellers – a
+comprehensive performance study. AIAA 5th Annual Meeting and Technology
+Display, AIAA-68-99. [Online]. Available at:
+http://scholar.google.com/scholar?hl=en&btnG=Search&q=intitle:Shrouded+Pr
+opellers+A+Comprehensive+Performance+Study#0. [2014, July 4].
+Bohorquez, F. 2007. Rotor hover performance and system design of an efficient
+coaxial rotary wing micro air vehicle. PhD Thesis, Department of Aerospace
+Engineering, University of Maryland. [Online]. Available:
+http://drum.lib.umd.edu/handle/1903/6704. [2012,July 15].
+Bramwell, A.R.S., Done, G. & Balmford, D. 2001. Bramwell’s helicopter
+dynamics. 2nd Ed. Oxford: Butterworth-Heinemann.
+Coleman, C.P. 1997. A survey of theoretical and experimental coaxial rotor
+aerodynamic research. National Aeronautics and Space Administration, Ames
+Research Center, Vol. 3675, March.
+Crigler, L.J. 1948. Application of Theodorsen’s theory to propeller design.
+National Advisory Committee for Aeronautics, Report 924. [Online]. Available:
+http://naca.central.cranfield.ac.uk/reports/1949/naca-report-924.pdf.
+[2014,
+September 2].
+Cycon, J.P., Rosen K.M.& Whyte A.C. 1992. Unmanned flight vehicle including
+counter rotating rotors positioned within a toroidal shroud and operable to
+provide all required vehicle flight controls. Patent US 5152478 A. [Online].
+Available: http://www.google.co.za/patents/US5152478. [2014, June 24].
+Denel Dynamics. 2014. Products. [Online]. Available:
+http://www.deneldynamics.co.za/products/uas/reconnaissance-systems/.
+[2014,March 9].
+Drela, M. 1989. XFOIL: An analysis and design system for low Reynolds number
+airfoils. [Online]. Available: http://web.mit.edu/drela/Public/papers/xfoil_sv.pdf.
+[2012, January 27].
+Drela, M. 2004. XFOIL subsonic airfoil development system. [Online]. Available:
+http://raphael.mit.edu/xfoil.[2011, August 8 ].
+
+68
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Drela, M. & Youngren, H. 2005. Axisymmetric analysis and design of ducted rotors.
+[Online]. Available: http://web.mit.edu/drela/Public/web/dfdc/DFDCtheory1231.pdf. [2011, August 9].
+
+Gur, O., & Rosen, A. 2008. Comparison between blade-element models of
+propellers. Aeronautical Journal 113.3277: 689-704. [Online]. Available:
+http://aerosociety.com/News/Publications/AeroJournal/Online/528/Comparison-between-bladeelement-models-of-propellers.
+[2010, October 10].
+Heise, R., Peddle, I.K., Jones, T. & Milne, G.R. 2006. SLADe: Development of a
+UAV Decoy. Paper presented at 32nd European Rotorcraft Forum, Maastricht,
+Netherlands, 12-14. Code 70024.
+Hrishikeshavan, V. 2011. Experimental investigation of shrouded rotor micro air
+vehicle in hover and in edgewise gusts. University of Maryland at College
+Park. [Online]. Available: http://drum.lib.umd.edu/handle/1903/12351 [2014,
+June 15].
+Johnson, W. 1980. Helicopter Theory. New York: Dover Publications.
+Ko, A., Ohanian, O.J., Gelhausen, P. 2007. Ducted fan UAV modeling and
+simulation in preliminary design. Paper presented at AIAA Modeling and
+Simulation Technologies Conference and Exhibit, Hilton Head, South Carolina,
+20-23 August. [Online]. Available: http://arc.aiaa.org/doi/abs/10.2514/6.20076375. [2009, June 1].
+Kotwani, K. n.d. Ducted fan or shrouded rotor aerodynamics and its applications
+in VTOL miniature aerial vehicles. AE 416 Project. [Online]. Available:
+http://issuu.com/jeanlulu/docs/ducted-fan-or-shrouded-rotor-aerodynamicsand-its-. [2012, August 4].
+Krüger, W. 1949. On wind tunnel tests and computations concerning the problem
+of shrouded propellers. NACA Technical Memorandum No. 1202. [Online].
+Available: http://naca.central.cranfield.ac.uk/reports/1949/naca-tm-1202.pdf.
+[2012, August 6].
+Küchemann, D. & Weber, J. 1953. Aerodynamics of Propulsion. New York:
+McGraw-Hill.
+Lednicer, D. 2010. The incomplete guide to airfoil usage. [Online]. Available:
+http://aerospace.illinois.edu/m-selig/ads/aircraft.html. [2011, August 3].
+Lee, T.E. 2010. Design and performance of a ducted coaxial rotor in hover and
+forward flight. MSc thesis, Faculty of the Graduate School of the University of
+Maryland. [Online]. Available: http://drum.lib.umd.edu/handle/1903/11300.
+[2012, November 15].
+Leishman, J.G. 2006. Principles of helicopter aerodynamics. 2nd Ed. New York:
+Cambridge University Press.
+Leishman, J., & Syal, M. 2008. Figure of merit definition for coaxial rotors. Journal
+of the American Helicopter Society 53.3: 290-300. [Online]. Available:
+http://www.ingentaconnect.com/content/ahs/jahs/2008/00000053/00000003/ar
+t00007. [2012, August 28].
+Martin, P. & Boxwell, D. 2005. Design, analysis and experiments on a 10-inch
+ducted rotor VTOL UAV. Paper presented at AHS International Specialists'
+69
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Meeting - Unmanned Rotorcraft: Design, Control and Testing in Chandler, AZ,
+January. Available: https://vtol.org/store/product/design-analysis-andexperiments-on-a-10inch-ducted-rotor-vtol-uav-8174.cfm. [2014, August 6].
+Martin, P. & Tung, C. 2004. Performance and flowfield measurements on a 10inch ducted rotor VTOL UAV. [Online]. Available:
+rotorcraft.arc.nasa.gov/publications/files/Martin_2004.pdf.
+McCormick, B.W. 1967. Aerodynamics of V/STOL flight. New York: Academic
+Press.
+Miller, P.M., Manager, P. & Goodrich, M.K. 2006. Report by the Federal
+Research Division, Library of Congress, Washington, DC. [Online]. Available:
+http://www.researchgate.net/publication/235139475_Mini_Micro_and_Swarmi
+ng_Unmanned_Aerial_Vehicles_A_Baseline_Study. [2014 July 31].
+Mort, K. 1965. Performance characteristics of a 4-foot-diameter ducted fan at
+zero angle of attack for several fan blade angles. NASA Technical Note NASA
+TN D-3122: 20. [Online]. Available:
+http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19660002851.pdf. [2014 ,
+June 23].
+Mort, K.W. & Gamse, B. 1967. A wind tunnel investigation of a 7-foot-diameter
+ducted propeller. NASA Technical Note TN D-4142. [Online]. Available:
+http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19670025554.pdf. [2014,
+June 24].
+Mueller, T.J. & DeLaurier, J.D. 2003. Aerodynamics of small vehicles. Annual
+Review of Fluid Mechanics 35.1: pp.89-111. [Online] Available:
+http://www.annualreviews.org/doi/abs/10.1146/annurev.fluid.35.101101.16110
+2. [2014, June 12].
+Pereira, J.L. 2008. Hover and wind-tunnel testing of shrouded rotors for improved
+micro air vehicle design. PhD thesis, Department of Aerospace Engineering,
+University of Maryland. [Online]. Available:
+http://drum.lib.umd.edu/handle/1903/8752. [2014, June 15].
+Pereira, J.L. & Chopra, I. 2009. Hover tests of micro aerial vehicle – scale
+shrouded rotors, Part I performance characteristics. Journal of the American
+Helicopter Society 54.1: 012001-1 to 012001-28.
+Pines, D.J. & Bohorquez, F. 2006. Challenges facing future micro-air-vehicle
+development. Journal of Aircraft 43.2: 290-305. [Online]. Available:
+http://arc.aiaa.org/doi/abs/10.2514/1.4922. [2014, June 30].
+Platt, R.J. Jnr. 1948. Static tests of a shrouded and an unshrouded propeller.
+NACA Research Memorandum L7H26. [Online]. Available:
+http://www.dtic.mil/dtic/tr/fulltext/u2/a800783.pdf. [2014, Sept 10].
+Pounds, P. & Mahony, R. 2004. Small-scale aeroelastic rotor simulation, design
+and fabrication. [Online]. Available:
+http://www.araa.asn.au/acra/acra2005/papers/pounds.pdf. [2014, April.20]
+Sacks, A.H., & Burnell, J.A.1962. Ducted propellers – a critical review of the state
+of the art. Progress in Aeronautical Sciences 3: 85-135.
+Taylor, M. 1950. A balsa-dust technique for air-flow visualization and its
+application to flow through model helicopter rotors in static thrust. National
+Advisory Committee for Aeronautics, Technical Note 2220. [Online]. Available:
+70
+
+Stellenbosch University https://scholar.sun.ac.za
+
+http://naca.central.cranfield.ac.uk/reports/1950/naca-tn-2220.pdf. [2012,
+August 25].
+Theodorsen, T. (1948). Theory of Propellers. [Online]. Available:
+http://ittc.sname.org/proc7/Theory%20of%20Propellers.pdf. [Year, Month day].
+Van der Spuy, S. & Von Backström, T.W. 2007. Aerodynamic design of a surface
+launched aerial decoy.
+Yaggy, P. & Goodson, K. 1960. Aerodynamics of tilting ducted-fan configurations.
+, Paper presented at NASA Conference on V/STOL Aircraft, Langley Research
+Center, Langley Field, Va, November 17-18. [Online]. Available:
+http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19630004807.pdf#page=6
+3 [2014, June 15].
+Yaggy, P. & Mort, K., 1961. A wind-tunnel investigation of a 4-foot-diameter
+ducted fan mounted on the tip of a semispan wing. NASA Technical Note D776. [Online]. Available:
+http://babel.hathitrust.org/cgi/pt?id=uiug.30112106740704;view=1up;seq=1.
+[2014, June 15].
+
+71
+
+Stellenbosch University https://scholar.sun.ac.za
+
+APPENDIX A: NACA 2418-14-10 POLAR DIAGRAMS
+The XFOIL generated polar diagrams of the NACA 2418-14-10 parent airfoil
+sections at various Reynolds numbers.
+
+Figure A.1: NACA 2410 Polar Diagram.
+
+72
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure A.2: NACA 2414 Polar Diagram.
+
+73
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure A.3: NACA 2418 Polar Diagram.
+
+74
+
+Stellenbosch University https://scholar.sun.ac.za
+
+APPENDIX B: DFDC INPUT FILE
+An example of a DFDC input file with the NACA2418-4-10 parent airfoil sections
+prescribed for the rotor blade design of a CSCR. In this example the S3 rotor-torotor spacing and P3 rotor-to-shroud position with a 1% R tip gap is set.
+
+DFDC Ve rs i on 0.70E+03
+TG1-S3P3-NACA2418-14-10
+OPER
+!
+Vi nf
+0
+!
+Rho
+1.226
+!
+XDwa ke
+0.8
+!
+Lwkrl x
+F
+ENDOPER
+AERO
+!
+#s e cti ons
+3
+!
+Xi s e cti on
+0.167
+!
+A0de g
+-0.9000
+!
+dCLdAs ta l l
+1.7190
+!
+CDmi n
+0.0240
+!
+REre f
+80000.0000
+0.6
+!
+A0de g
+-1.4600
+!
+dCLdAs ta l l
+1.1460
+!
+CDmi n
+0.0180
+!
+REre f
+90000.0000
+1
+!
+A0de g
+-1.2000
+!
+dCLdAs ta l l
+1.7190
+!
+CDmi n
+0.0130
+!
+REre f
+120000.0000
+ENDAERO
+ROTOR
+!
+Xdi s k
+0.11414
+!
+#s ta ti ons
+12
+!
+r
+3.70E-02
+5.16E-02
+6.63E-02
+8.09E-02
+9.55E-02
+
+Vre f
+25
+Vs o
+340
+Nwa ke
+20
+
+RPM1
+5000
+Rmu
+0.0000178
+
+RPM2
+-5000
+Al t
+0
+
+dCLdA
+5.5730
+dCLs ta l l
+0.0300
+CLCDmi n
+0.6600
+REe xp
+-0.6000
+
+CLma x
+1.3000
+Cmcons t
+-0.0300
+dCDdCL^2
+0.0180
+TOC
+0.1800
+
+CLmi n
+-0.9000
+Mcri t
+0.6000
+
+dCLdA
+5.3930
+dCLs ta l l
+0.0200
+CLCDmi n
+0.4000
+REe xp
+-0.6000
+
+CLma x
+1.3000
+Cmcons t
+-0.0400
+dCDdCL^2
+0.0480
+TOC
+0.1400
+
+CLmi n
+-0.7600
+Mcri t
+0.7000
+
+dCLdA
+5.3860
+dCLs ta l l
+0.0300
+CLCDmi n
+0.4000
+REe xp
+-0.6000
+
+CLma x
+1.2000
+Cmcons t
+-0.0400
+dCDdCL^2
+0.0380
+TOC
+0.1000
+
+CLmi n
+-0.5200
+Mcri t
+0.7000
+
+Nbl ds
+2
+
+NRs ta
+11
+
+Chord
+4.82E-02
+3.92E-02
+3.28E-02
+2.83E-02
+2.50E-02
+
+Be ta
+51.287
+40.324
+33.46
+28.808
+25.432
+
+dCDdCL^2
+0.0180
+
+dCDdCL^2
+0.0480
+
+dCDdCL^2
+0.0380
+
+75
+
+Stellenbosch University https://scholar.sun.ac.za
+
+0.11017
+0.12481
+0.13944
+0.15407
+0.16871
+0.17691
+0.17869
+ENDROTOR
+AERO
+! #s ections
+3
+! Xi s ection
+0.167
+! A0deg
+-0.9
+! dCLdAs ta l l
+0.172
+! CDmi n
+2.40E-02
+! REref
+80000
+0.6
+! A0deg
+-1.46
+! dCLdAs ta l l
+1.146
+! CDmi n
+1.80E-02
+! REref
+90000
+1
+! A0deg
+-1.2
+! dCLdAs ta l l
+1.719
+! CDmi n
+1.30E-02
+! REref
+1.20E+05
+ENDAERO
+ROTOR
+! Xdi s k
+0.16748
+! #s ta tions
+12
+! r
+3.70E-02
+5.15E-02
+6.61E-02
+8.08E-02
+9.54E-02
+0.11005
+0.1247
+0.13936
+0.15402
+0.16869
+0.17691
+0.17869
+ENDROTOR
+
+2.26E-02
+2.07E-02
+1.92E-02
+1.80E-02
+1.72E-02
+1.69E-02
+1.68E-02
+
+22.884
+20.953
+19.375
+18.019
+16.805
+16.172
+16.04
+
+dCLdA
+5.573
+dCLs ta l l
+3.00E-02
+CLCDmi n
+-0.66
+REexp
+-0.6
+
+CLma x
+0.9
+Cmcons t
+-3.00E-02
+dCDdCL^2
+1.80E-02
+TOC
+0.18
+
+CLmi n
+-1.3
+Mcri t
+0.6
+
+dCLdA
+5.393
+dCLs ta l l
+2.00E-02
+CLCDmi n
+-0.4
+REexp
+-0.6
+
+CLma x
+0.76
+Cmcons t
+-4.00E-02
+dCDdCL^2
+4.80E-02
+TOC
+0.14
+
+CLmi n
+-1.3
+Mcri t
+0.7
+
+dCLdA
+5.386
+dCLs ta l l
+3.00E-02
+CLCDmi n
+-0.4
+REexp
+-0.6
+
+CLma x
+0.52
+Cmcons t
+-4.00E-02
+dCDdCL^2
+3.80E-02
+TOC
+0.1
+
+CLmi n
+-1.2
+Mcri t
+0.7
+
+Nbl ds
+2
+
+NRs ta
+11
+
+Chord
+4.19E-02
+3.57E-02
+3.08E-02
+2.71E-02
+2.42E-02
+2.21E-02
+2.03E-02
+1.90E-02
+1.79E-02
+1.70E-02
+1.66E-02
+1.65E-02
+
+Beta
+131.34
+139.14
+144.76
+148.87
+151.96
+154.4
+156.51
+158.29
+159.81
+161.15
+161.82
+161.96
+
+dCDdCL^2
+1.80E-02
+
+dCDdCL^2
+4.80E-02
+
+dCDdCL^2
+3.80E-02
+
+76
+
+Stellenbosch University https://scholar.sun.ac.za
+
+GEOM
+Sym.centerbody
+0.264626
+0.262078
+0.259245
+0.256384
+0.253231
+0.250108
+0.247411
+0.244746
+0.241802
+0.238536
+0.235035
+0.231351
+0.227556
+0.223842
+0.22008
+0.215895
+0.211284
+0.206574
+0.201769
+0.19692
+0.192053
+0.187158
+0.182245
+0.177325
+0.172403
+0.16748
+0.162631
+0.157782
+0.152933
+0.148084
+0.143235
+0.138386
+0.133536
+0.128687
+0.123838
+0.118989
+0.11414
+0.109228
+0.104317
+0.099405
+0.094494
+0.089586
+0.084684
+0.07979
+0.074927
+0.070105
+0.065467
+0.060959
+0.056417
+0.051913
+0.047585
+0.043461
+0.039546
+0.035894
+0.032552
+0.029507
+0.026755
+0.024271
+0.021974
+0.019785
+0.017684
+
+0.019691
+0.021024
+0.022416
+0.02367
+0.024885
+0.026071
+0.02694
+0.027567
+0.028087
+0.028543
+0.028923
+0.029233
+0.02948
+0.029642
+0.029705
+0.029703
+0.029689
+0.029693
+0.029695
+0.029692
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029693
+0.029692
+0.029692
+0.029696
+0.029692
+0.029659
+0.029597
+0.029513
+0.029401
+0.029248
+0.029044
+0.028783
+0.028454
+0.028043
+0.027545
+0.026941
+0.026195
+0.025285
+0.024221
+
+0.015673
+0.013671
+0.011638
+0.009668
+0.007784
+0.006029
+0.004489
+0.003167
+0.002076
+0.00121
+0.000564
+0.000143
+999.00 999.00
+0.2352
+0.232265
+0.228352
+0.223821
+0.21904
+0.214189
+0.209292
+0.204358
+0.199403
+0.194465
+0.189524
+0.184558
+0.179603
+0.174648
+0.169733
+0.164826
+0.159931
+0.155072
+0.150242
+0.145465
+0.140746
+0.136067
+0.131426
+0.12685
+0.122339
+0.117884
+0.113505
+0.109171
+0.104887
+0.100359
+0.095517
+0.090447
+0.085265
+0.080274
+0.075848
+0.071837
+0.067947
+0.064152
+0.060435
+0.056829
+0.053365
+0.050059
+0.046946
+0.044056
+0.041415
+0.039041
+0.036949
+0.035137
+
+77
+
+0.022983
+0.021512
+0.01983
+0.01801
+0.016052
+0.014041
+0.012041
+0.010063
+0.00811
+0.006166
+0.004211
+0.002214
+0.180111
+0.181018
+0.182203
+0.183538
+0.184907
+0.186254
+0.187574
+0.188864
+0.190123
+0.191341
+0.192518
+0.193662
+0.194767
+0.195831
+0.196848
+0.197817
+0.198743
+0.199615
+0.200436
+0.201197
+0.201897
+0.202531
+0.203103
+0.203605
+0.204035
+0.204388
+0.204664
+0.204856
+0.204965
+0.204978
+0.205014
+0.205013
+0.20501
+0.204977
+0.204913
+0.204746
+0.204479
+0.204114
+0.203647
+0.203087
+0.202431
+0.201684
+0.200855
+0.199949
+0.198978
+0.197954
+0.19689
+0.195789
+
+0.033594
+0.032317
+0.0313
+0.030558
+0.03012
+0.030005
+0.030228
+0.030757
+0.031559
+0.03261
+0.033887
+0.035372
+0.037055
+0.038929
+0.041018
+0.043437
+0.046506
+0.050642
+0.055705
+0.061256
+0.067027
+0.072881
+0.078759
+0.08465
+0.090546
+0.096444
+0.102343
+0.108241
+0.11414
+0.118989
+0.123838
+0.128687
+0.133536
+0.138385
+0.143235
+0.148084
+0.152933
+0.157782
+0.162631
+0.16748
+0.172275
+0.177069
+0.181864
+0.186659
+0.191454
+0.196248
+0.201043
+0.205837
+0.21063
+0.215416
+0.220177
+0.224833
+0.229139
+0.23264
+0.2352
+ENDGEOM
+
+0.194657
+0.193486
+0.192268
+0.190991
+0.189657
+0.188285
+0.186909
+0.185591
+0.184362
+0.183245
+0.182248
+0.181383
+0.180664
+0.180101
+0.179733
+0.179577
+0.179568
+0.179584
+0.179577
+0.179578
+0.179579
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+0.179578
+
+Stellenbosch University https://scholar.sun.ac.za
+
+PANELING
+!
+#el ements
+#refi nement zones
+2
+4
+!
+#pa nel nodes
+74
+!
+curv_expon
+curv_s mooth ds L/ds Avg
+ds R/ds Avg
+1
+1
+0.6
+0.6
+!
+s 1/s ma x
+s 2/s ma x
+ds /ds Avg
+0
+0
+1
+0
+0
+1
+0
+0
+1
+0
+0
+1
+!
+#pa nel nodes
+99
+!
+curv_expon
+curv_s mooth ds L/ds Avg
+ds R/ds Avg
+1
+1
+0.6
+0.6
+!
+s 1/s ma x
+s 2/s ma x
+ds /ds Avg
+0
+0
+1
+0
+0
+1
+0
+0
+1
+0
+0
+1
+ENDPANELING
+
+78
+
+Stellenbosch University https://scholar.sun.ac.za
+
+APPENDIX C: DFDC OUTPUT FILE
+An example of a DFDC output file with the NACA2418-4-10 parent airfoil sections
+prescribed for the rotor blade design of a CSCR. In this example the S3 rotor-torotor spacing and P3 rotor-to-shroud position with a 1% R tip gap is set.
+---------------------------------------------------------------------------DFDC Case: TG1-S3P3-NACA2418-14-10
+---------------------------------------------------------------------------Flow Condition and total Forces
+Corrected for blade blockage
+Vinf(m/s) : 0.000
+rho(kg/m3) : 1.2260
+Thrust(N) : 35.4
+Tvisc (N) : -0.2014
+Tduct(N) : 17.3179
+
+Alt.(km) :
+0.000
+Vsound(m/s): 340.000
+Power(W) : 363
+Pvisc(W) : 38.5
+torQue(N-m): 0.312E-02
+
+DeltaT(dgC): 0.0000
+mu(kg/m-s) : 0.1780E-04
+Efficiency : 0.0000
+Induced Eff: 0.0000
+Ideal Eff :
+0.0000
+
+Area:
+0.09854
+Radius:
+0.17958
+Omega:
+523.59882 Reference data
+Ct:
+0.24956
+Cp:
+0.08563
+J:
+0
+by(Rho,N,Dia)
+Tc:
+0
+Pc:
+0
+adv:
+0
+by(Rho,Vinf,Area)
+CT0:
+0.0331
+CP0:
+0.00362
+FOM:
+0.83289 by(Rho,R*Omg,Area)
+---------------------------------------------------------------------------Disk # 1 Bladed Rotor
+# blades : 2
+RPM
+:
+5000.000
+adv. ratio : 0.0000
+Thrust(N) : 8.95
+Power(W) : 182
+Efficiency : 0.0000
+Tvisc (N) : -0.1018
+Pvisc(W) : 19.3
+Induced Eff: 0.0000
+torQue(N-m):0.3483
+Qvisc(N-m) : 0.311
+Ideal Eff :
+0.0000
+radius(m) : 0.1796
+hub rad.(m): 0.0297
+VAavg (m/s): 17.6793
+Area:
+Ct:
+Tc:
+CT0:
+Sigma:
+
+0.09854
+0.06320
+0.00000
+0.00838
+0.06966
+
+Radius:
+Cp:
+Pc:
+CP0:
+CT0/Sig:
+
+0.17958
+0.04301
+0.00000
+0.00182
+0.12033
+
+Omega:
+J:
+adv:
+
+---------------------------------------------------------------------------i
+r/R
+c/R
+beta deg alfa
+CL
+CD
+REx10^3
+1
+0.206 0.2686 51.29
+6.16
+0.692 0.0241
+82.81
+2
+0.288 0.2181 40.32
+6.37
+0.719 0.0254
+83.58
+3
+0.369 0.1824 33.46
+6.37
+0.726 0.0265
+85.2
+4
+0.451 0.1575 28.81
+6.25
+0.722 0.0269
+87.45
+5
+0.532 0.1392 25.43
+6.05
+0.71
+0.0267
+89.89
+6
+0.614 0.1256 22.88
+5.83
+0.696 0.0258
+92.64
+7
+0.695 0.1151 20.95
+5.67
+0.678 0.0239
+95.54
+8
+0.776 0.107
+19.38
+5.5
+0.66
+0.022
+98.78
+9
+0.858 0.1004 18.02
+5.32
+0.641 0.0202
+102.07
+10
+0.939 0.0956 16.8
+5.12
+0.62
+0.0184
+106.13
+11
+0.985 0.0939 16.17
+5.01
+0.609 0.0174
+109.1
+12
+0.995 0.0936 16.04
+0
+0
+0
+0
+----------------------------------------------------------------------------
+
+79
+
+523.59882 Reference data
+0.00000 by(Rho,N,Dia)
+0.00000 by(Rho,Vinf,Area)
+by(Rho,R*Omg,Area)
+
+Mach
+0.073
+0.091
+0.111
+0.132
+0.154
+0.175
+0.197
+0.22
+0.242
+0.264
+0.276
+0
+
+B*Gam
+0.832
+0.872
+0.898
+0.916
+0.927
+0.936
+0.941
+0.947
+0.95
+0.956
+0.964
+0
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Disk # 2 Bladed Rotor
+# blades :
+2
+Thrust(N) : 9.08
+Tvisc (N) :
+-0.0996
+torQue(N-m): -0.3451
+radius(m) : 0.1796
+
+RPM
+:
+-5000.000
+Power(W) : 181.
+Pvisc(W) : 19.1
+Qvisc(N-m) : -0.309
+hub rad.(m): 0.0297
+
+adv. ratio : 0.0000
+Efficiency : 0.0000
+Induced Eff: 0.0000
+Ideal Eff : 0.0000
+VAavg (m/s): 17.6402
+
+Area:
+0.09854
+Radius:
+0.17958
+Omega:
+Ct:
+0.06411
+Cp:
+0.04262
+J:
+Tc:
+0.00000
+Pc:
+0.00000
+adv:
+CT0:
+0.00850
+CP0:
+0.00180
+Sigma:
+0.06867
+CT0/Sig:
+0.12383
+----------------------------------------------------------------------------
+
+i
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+-global coordsr/R
+c/R
+beta deg
+0.206 0.2335 131.34
+0.287 0.1987 139.14
+0.368 0.1715 144.76
+0.45
+0.1508 148.87
+0.531 0.135
+151.96
+0.613 0.1228 154.4
+0.694 0.1132 156.51
+0.776 0.1056 158.29
+0.858 0.0994 159.81
+0.939 0.0945 161.15
+0.985 0.0922 161.82
+0.995 0.0918 161.96
+
+alfa
+-8.26
+-8.62
+-8.74
+-8.75
+-8.72
+-8.62
+-8.35
+-8.05
+-7.75
+-7.42
+-7.04
+0
+
+CL
+-0.712
+-0.733
+-0.732
+-0.72
+-0.705
+-0.686
+-0.668
+-0.647
+-0.626
+-0.603
+-0.571
+0
+
+Force Summary
+----------------------------------------------TG1-S3P3-NACA2418-14-10
+Qinf = 0.0000
+Rho =
+1.2260
+Qref = 25.000
+Mach = 0.0000
+unitRN = 68876.
+q_ref = 383.13
+----------------------------------------------Total Forces
+Fx =
+-17.545
+Cx =
+-4.58E-02
+Fxinv = -17.297
+Cxinv = -4.51E-02
+Fxvis = -0.24807
+Cxvis = -6.47E-04
+----------------------------------------------Element 1
+Fx =
+-0.23597
+Cx =
+-6.16E-04
+Fxinv = -0.26071
+Cxinv = -6.80E-04
+Fxvis = 2.47E-02
+Cxvis = 6.46E-05
+QnDOF= 4.85E-04
+
+CD
+0.0242
+0.0247
+0.0252
+0.0255
+0.0257
+0.0253
+0.0233
+0.0213
+0.0195
+0.0178
+0.0163
+0
+
+REx10^3
+80.21
+82.31
+84.64
+87.14
+89.78
+92.6
+95.6
+98.8
+102.21
+105.9
+108.24
+0
+
+-523.59882
+Reference data
+0.00000 by(Rho,N,Dia)
+0.00000 by(Rho,Vinf,Area)
+by(Rho,R*Omg,Area)
+
+Mach
+0.082
+0.099
+0.117
+0.137
+0.158
+0.179
+0.201
+0.223
+0.244
+0.266
+0.279
+0
+
+B*Gam
+-0.829
+-0.876
+-0.899
+-0.911
+-0.919
+-0.922
+-0.927
+-0.928
+-0.929
+-0.927
+-0.897
+0
+
+----------------------------------------------Element 2
+Fx =
+-17.33
+Cx =
+-4.52E-02
+Fxinv =
+-17.057
+Cxinv = -4.45E-02
+Fxvis =
+-0.27281
+Cxvis = -7.12E-04
+QnDOF=
+-1.89E-03
+----------------------------------------------Element 3
+Fx =
+0.10545E-01 Cx =
+0.27524E-04
+Fxinv =
+0.10545E-01 Cxinv = 0.27524E-04
+Fxvis =
+0.0000
+Cxvis = 0.0000
+QnDOF=
+-0.0000
+----------------------------------------------Element 4
+Fx =
+0.10177E-01 Cx =
+0.26562E-04
+Fxinv =
+0.10177E-01 Cxinv = 0.26562E-04
+Fxvis =
+0.0000
+Cxvis = 0.0000
+QnDOF=
+-0.0000
+
+80
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Rotor velocities
+QINF =
+0.0000
+QREF =
+25.0000
+OMEGA = 523.5988
+RPM =
+5000.0005
+Induced vel, flow angles in absolute frame (downstream of disk)
+r
+Vxi
+Vri
+Vmi
+Vti
+Vi
+3.70E-02 16.19
+-8.20E-02 16.19
+3.577
+16.58
+5.16E-02 16.34
+-0.2494
+16.34
+2.688
+16.56
+6.63E-02 16.5
+-0.4277
+16.5
+2.156
+16.64
+8.09E-02 16.69
+-0.5891
+16.7
+1.802
+16.79
+9.55E-02 16.9
+-0.7151
+16.91
+1.544
+16.98
+0.1102
+17.14
+-0.7893
+17.16
+1.352
+17.21
+0.1248
+17.39
+-0.7967
+17.41
+1.2
+17.45
+0.1394
+17.64
+-0.7273
+17.66
+1.081
+17.69
+0.1541
+17.85
+-0.5888
+17.86
+0.9811
+17.89
+0.1687
+17.98
+-0.4945
+17.99
+0.9016
+18.01
+0.1769
+18.01
+-1.406
+18.07
+0.8672
+18.09
+0.1787
+15.58
+-1.093
+15.62
+0
+15.62
+
+Swirl(deg)
+12.46
+9.344
+7.447
+6.166
+5.222
+4.51
+3.947
+3.505
+3.146
+2.871
+2.756
+0
+
+Velocities, flow angles in absolute frame (downstream of disk)
+r
+Vx
+Vr
+Vm
+Vt
+V
+3.70E-02 17.66
+-8.20E-02 17.66
+3.577
+18.02
+5.16E-02 17.3
+-0.2494
+17.3
+2.688
+17.51
+6.63E-02 17.2
+-0.4277
+17.2
+2.156
+17.34
+8.09E-02 17.22
+-0.5891
+17.23
+1.802
+17.33
+9.55E-02 17.33
+-0.7151
+17.34
+1.544
+17.41
+0.1102
+17.49
+-0.7893
+17.51
+1.352
+17.56
+0.1248
+17.69
+-0.7967
+17.71
+1.2
+17.75
+0.1394
+17.9
+-0.7273
+17.91
+1.081
+17.95
+0.1541
+18.07
+-0.5888
+18.08
+0.9811
+18.1
+0.1687
+18.17
+-0.4945
+18.18
+0.9016
+18.2
+0.1769
+18.19
+-1.406
+18.24
+0.8672
+18.26
+0.1787
+15.73
+-1.093
+15.77
+0
+15.77
+
+Swirl(deg)
+11.45
+8.832
+7.148
+5.974
+5.092
+4.418
+3.881
+3.456
+3.108
+2.841
+2.73
+0
+
+Velocities, flow angles relative to blade frame (downstream of disk)
+r
+Wx
+Wr
+Wm
+Wt
+W
+3.70E-02 17.66
+-8.20E-02 17.66
+-15.8
+23.7
+5.16E-02 17.3
+-0.2494
+17.3
+-24.35
+29.87
+6.63E-02 17.2
+-0.4277
+17.2
+-32.55
+36.81
+8.09E-02 17.22
+-0.5891
+17.23
+-40.56
+44.07
+9.55E-02 17.33
+-0.7151
+17.34
+-48.48
+51.49
+0.1102
+17.49
+-0.7893
+17.51
+-56.34
+58.99
+0.1248
+17.69
+-0.7967
+17.71
+-64.15
+66.55
+0.1394
+17.9
+-0.7273
+17.91
+-71.93
+74.13
+0.1541
+18.07
+-0.5888
+18.08
+-79.69
+81.72
+0.1687
+18.17
+-0.4945
+18.18
+-87.43
+89.3
+0.1769
+18.19
+-1.406
+18.24
+-91.76
+93.56
+0.1787
+15.73
+-1.093
+15.77
+-93.56
+94.88
+
+Phi(deg)
+48.19
+35.39
+27.85
+23.01
+19.67
+17.25
+15.42
+13.97
+12.77
+11.74
+11.21
+9.543
+
+81
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Velocities in blade frame, on blade lifting line
+flow angle from plane of rotation
+r
+Wx
+Wr
+Wm
+Wt
+3.70E-02 17.66
+-8.20E-02 17.66
+-17.59
+5.16E-02 17.3
+-0.2494
+17.3
+-25.7
+6.63E-02 17.2
+-0.4277
+17.2
+-33.62
+8.09E-02 17.22
+-0.5891
+17.23
+-41.46
+9.55E-02 17.33
+-0.7151
+17.34
+-49.25
+0.1102
+17.49
+-0.7893
+17.51
+-57.01
+0.1248
+17.69
+-0.7967
+17.71
+-64.75
+0.1394
+17.9
+-0.7273
+17.91
+-72.47
+0.1541
+18.07
+-0.5888
+18.08
+-80.18
+0.1687
+18.17
+-0.4945
+18.18
+-87.88
+0.1769
+18.19
+-1.406
+18.24
+-92.2
+0.1787
+15.73
+-1.093
+15.77
+-93.56
+
+W
+24.93
+30.98
+37.77
+44.9
+52.22
+59.64
+67.13
+74.65
+82.19
+89.74
+93.98
+94.88
+
+----------------------------------------------------------------------------
+
+82
+
+Phi(deg)
+45.12
+33.95
+27.09
+22.56
+19.38
+17.06
+15.28
+13.87
+12.7
+11.68
+11.16
+9.543
+
+Stellenbosch University https://scholar.sun.ac.za
+
+APPENDIX D: DFDC OUTPUT PLOTS
+DFDC output plot files with the NACA2418-4-10 parent airfoil sections prescribed
+for the upper rotor blade design of a CSCR. In this example the S3 rotor-to-rotor
+spacing and P3 rotor-to-shroud position with a 1% R tip gap is set.
+
+Figure D.1: Cp plot.
+
+83
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.2: Blade geometry and twist.
+
+84
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.3: Frontal view and geometric data.
+
+85
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.4: Aerodynamic characteristics.
+
+86
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.5: Parent airfoils.
+
+87
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.6: Blended sections.
+
+88
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.7: Transformed sections.
+
+89
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.8: Thickness distribution.
+
+Figure D.9: Thickness/chord ratio.
+
+90
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.10: Percentage camber.
+
+Figure D.11: Beta distribution.
+
+91
+
+Stellenbosch University https://scholar.sun.ac.za
+
+Figure D.12: Chord length distribution.
+
+92
+
+
