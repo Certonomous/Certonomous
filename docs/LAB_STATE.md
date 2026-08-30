@@ -16521,6 +16521,77 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T23:2xZ — **THE MANUAL CONTAINS NO EMISSIVITY VALUE ANYWHERE — 0 OCCURRENCES IN 6,992 LINES, VERIFIED BY ME. That would retire every surface-radiation case in VM2026R1 — EXCEPT THAT MY OWN SCREEN WAS WRITTEN WRONG, AND MY CHARTER SAYS SO AT LINE 47. Condition (B) is CORRECTED, in the qualifying direction.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### THE FINDING, VERIFIED BY ME AND NOT RELAYED
+
+A screening lane sent to **break** VMFL070 and VMFL061 came back with something bigger than either case. My own counts over the 6,992-line sidecar:
+
+| term | occurrences |
+|---|---|
+| `emissiv` | **0** |
+| `absorptiv` | **0** |
+| `reflectiv` | **0** |
+| `grey` | **0** |
+| `Stefan` | **0** |
+| `blackbody` / `black body` | **0** |
+
+**Surface emissivity is THE property that sets the answer in a surface-to-surface radiation problem, and the manual never prints one, anywhere, for any case.** The lane cross-checked its own finding by locating **VMFLGPU010**, a GPU twin of VMFL061 at printed p.251 with the same radii and temperatures, and confirmed **it omits emissivity too** — so this is **systematic, not a typesetting loss on one page.** It also verified, by reading the *rendered PDF* rather than the sidecar, that the property tables genuinely contain no numbers — the sidecar drops figure text, so absence in the sidecar alone would not have been proof. **That is the right way to establish an absence and I am recording that it was done properly.**
+
+#### AND IT EXPOSES AN ERROR IN THE SCREEN I ADOPTED TWENTY MINUTES AGO
+
+I wrote condition (B) as: *"**the manual** specifies the geometry, boundary conditions and material properties completely enough to build the case without invention."* **THAT WORDING IS WRONG, AND MY OWN CHARTER CONTRADICTS IT.** `ANSYS_VERIFICATION_CHARTER.md:47`:
+
+> archives (`.wbpz`, `.ftsim`) **are read for geometry, setup and reference numbers**
+
+**The archives are a CHARTERED source for geometry and setup.** I wrote a screen stricter than my own founding document and was one step from retiring an entire class of cases on it.
+
+> **CONDITION (B), CORRECTED: the manual OR THE ARCHIVES must specify the geometry, boundary conditions and material properties completely enough to build the case WITHOUT INVENTION.**
+>
+> **AND THE LINE THAT MAKES THIS SAFE, WHICH IS THE WHOLE POINT: A SETUP INPUT MAY COME FROM THE ARCHIVE. A GATE VALUE MAY NOT — EVER.** The reference the row is graded against comes from the manual and its primary reference alone. **Reading an INPUT out of Ansys's own project file makes our case MORE faithful to the case Ansys solved; reading a RESULT out of it would mean grading ourselves against Ansys's answer instead of against physics.** That is the difference between reproducing a case and marking your own homework.
+
+**This is my fourth self-correction today and the FIRST in the qualifying direction** — the previous three (VMFL029, VMFL046, and the target-table screen) all made me too permissive and were caught by tightening. **This one made me too strict.** The pattern I take from it: **I have been writing screens from the last failure rather than from the charter**, and a screen derived from a wound is calibrated to that wound and nothing else. **The charter is the thing to write screens against.**
+
+#### WHAT SURVIVES THE CORRECTION, AND WHAT DOES NOT
+
+**Emissivity is now recoverable** — a lane is opening `VMFL061_WB.wbpz` under §47, extraction to scratch, the archive never written to (§130). **But two of the lane's objections are untouched by the archive and are the harder ones:**
+
+1. **THE CITED CLOSED FORM DOES NOT PRODUCE THE PLOTTED QUANTITY.** Incropera's enclosure network yields a **heat rate** `q₁₂`; both manuals plot a **normalized temperature profile**. The reference's exact solution is not the figure's quantity, and no derivation joining them is printed. **This is a condition (A) failure and the archive cannot cure it, because a gate value may not come from the archive.**
+2. **NEITHER CASE DEFINES ITS NORMALIZATION** — not the temperature scale, not the length scale, not the direction. **A gap on the GATE QUANTITY ITSELF, which is worse than a gap on an input.**
+
+**THE WAY THROUGH, WHICH IS MINE TO RULE AND IS NOT THE LANE'S TO HAVE SEEN:** we are **not obliged to adopt the manual's figure as our gate.** VMFL069 proved this — its manual page is figure-only and its registration gated on **volume means and an L2 profile error derived from the closed form**, never on the figure. **So VMFL061 can be gated on the RADIATIVE HEAT RATE `q₁₂`, which Incropera gives EXACTLY and which the solver computes directly** — sidestepping both the undefined normalization and the quantity mismatch. **The figure then becomes context, not the gate**, exactly as the Fluent/CFX ratios are context in every row we hold.
+
+#### THE LANE INVERTED MY RANKING, WITH REASONS, AND I ACCEPT IT
+
+I ranked **VMFL070 above VMFL061**. **The lane says the reverse and is right on three counts I can check:** VMFL061 **names its discrete model** (S2S → OpenFOAM `viewFactor`, a documented mapping rather than an inferred one) where VMFL070's `Physics/Models` says only *"Heat Transfer, radiation"*; VMFL061 needs **one** declared election (2-D/infinite-length, under which `F₁₂ = 1` exactly, matching the cited configuration) against VMFL070's undefined model; and decisively —
+
+**VMFL070 CARRIES A PREDICTED `EXACT` TRIPLE AND WOULD BE `NOT A RESULT` BY CONSTRUCTION.** Its plotted profile is a **straight line from (0,0) to (1,1)**; a linear profile across a uniformly-spaced gap between two Dirichlet walls is reproduced by linear finite-volume interpolation **to machine precision at every refinement level**, so the three values would be identical, the triple state `EXACT`, and **rule 5 limb (2) sends `EXACT` straight to `NOT A RESULT`.** **Knowing that BEFORE a freeze instead of after is worth more than the case would have been.** VMFL061's annular profile is not exactly representable by linear FV on a radial mesh, so its triple has genuine error to refine.
+
+**And a trap the lane put on the record unasked, which I want preserved:** one might argue the missing properties do not matter because a *normalized* profile between two Dirichlet walls is independent of `k` and `ε`. **That disqualifies rather than rescues the case** — a gate quantity insensitive to every unprinted property is also **insensitive to the radiation model**, so it does not test radiation at all, and both endpoints are pinned at 0 and 1 by the boundary conditions. **An unfalsifiable gate is not a weak gate; it is not a gate.**
+
+**A second-order caution I am carrying into any radiation registration:** `faceAgglomerate` coarsens the radiative surface before `viewFactorsGen` runs, so **agglomeration is an independent discrete parameter**. Refining the volume mesh while holding the agglomeration target fixed **does not refine the radiative discretisation** — that would be a triple of the conduction operator wearing a radiation label.
+
+#### THE LANE DECLINED TO COST IT, AND IT WAS RIGHT TO
+
+Asked for core-minutes, it returned **"no basis exists"** and refused a number. This team has never run a radiation case; the dominant cost is `viewFactorsGen`, scaling with the square of the agglomerated face count, **with no analogue in anything we have run**. A prior lane's *"trivial (< 5 core-min)"* sits in `RUN_STATUS_EVIDENCE.md:133` and **it declined to launder that estimate into a costing.** Per C-199 — cost models are reliable within a family and unreliable across one — **that refusal is the correct answer**, and the only honest route to a number is a measured scoping run of `faceAgglomerate` + `viewFactorsGen`. **A lane that says "I don't know" when it doesn't is worth more than one that produces a number.**
+
+**Toolchain verified on disk, not from memory:** `viewFactor`, `fvDOM`, `P1`, `solarLoad` all present in v2606; `libradiationModels.so` carries `greyDiffusiveRadiationViewFactor`; **`faceAgglomerate`, `viewFactorsGen` and `createViewFactors` are all in `platforms/*/bin/`** — without the first two `viewFactor` cannot run. `chtMultiRegionSimpleFoam` present, with an on-disk tutorial carrying a real `viewFactorsDict`. **The toolchain is not the obstacle.**
+
+#### STATE
+
+**Live.** Runner pid 881; box busy with peer work. Two lanes: VMFL069-R2 drafting, VMFL061 archive extraction.
+
+**FREEZE-AHEAD 0.** Pipeline: **VMFL069-R2** (drafting, `PASS`-capable), **VMFL061** (revived by the corrected condition (B), pending emissivity from the archive; gate to be the heat rate, not the figure), **VMFL070 effectively out** on the predicted `EXACT` triple, VMFL038 last on solver risk, VMFL024 `GATE REACHED` with an untrusted cost. **VMFL029, VMFL046, VMFL072 out.**
+
+**Owed:** a `LESSONS`/`NUMERICS_KNOWLEDGE` entry for the manual-wide emissivity absence — it governs **every** surface-radiation case in VM2026R1 and should be recorded once rather than rediscovered per case at a screening lane each.
+
+**On Sanaa's desk (six)**, unchanged, plus the poisoned index and the rule-4 referral.
+
+**VERIFY:** whether the archive carries the emissivities at all; whether Ansys's setup declares grey/diffuse; the 2-D/axisymmetric question; and every number in this block that came from the rendered PDF rather than the sidecar.
+
+
 ### 2026-08-30T23:2xZ — **TWO CORRECTIONS AGAINST MYSELF IN ONE TURN: I PUBLISHED A FALSE COURANT FACT INTO TWO COMMIT MESSAGES AND A REPORT, AND THE CANDIDATE I RANKED FIRST FIFTEEN MINUTES AGO IS RULED OUT. A SECOND REGISTRABILITY CONDITION IS ADOPTED. VMFL069 records landed (`ff89c721`, row #45, C-213).**
 
 **Written by `ansys-verification-supervisor` personally. Both corrections were found by lanes and verified by me before I accepted them.**
