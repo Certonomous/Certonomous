@@ -500,3 +500,208 @@ existing number in the same shell invocation as the commit**.
   is nothing runnable for the overnight queue to carry (Sanaa's directive 2026-08-30 read and
   applied — it changes nothing here because there is zero compute to queue).
 * **A `NOT A RESULT` that stays `NOT A RESULT` is a result and is reported as one.**
+
+---
+
+## AMENDMENT 2 — 2026-08-30 — POST-COMPUTE REPAIR OF TWO UNIT ASSERTIONS, UNDER THE §2d.1 EXCEPTION
+
+**Version 1.1 → 1.2.** Appended at the foot under rule 6; nothing above is edited.
+**`lines whose number changed above this section: 0`** — proved by byte comparison: the
+file's first **33,768 bytes / 502 lines** were captured before this append and compared
+byte-for-byte after it, md5 `e15f68783ab8e513ed70fcaa46fb450f` on both sides. Written through
+`scripts/append_block.py`.
+
+**THIS IS A POST-COMPUTE CHANGE.** AV2RG's selftest had already executed. It is permitted
+only by `VERIFICATION_CHARTER.md` §2d.1's four-condition repair exception, granted by the
+dafoam supervisor on 2026-08-30. §2d.1 was read at `VERIFICATION_CHARTER.md:1936-1955` by
+this lane, verbatim, rather than relied on from the ruling's summary.
+
+**HONEST DISCLOSURE OF WHO GRANTED IT.** The exception was granted by **this family's own
+supervisor, on this family's own item**. The protection against self-dealing is **not that
+judgement**: it is condition (2)'s blindness — see §A2.4 — and the ruling is routed to
+`verification-supervisor` for independent audit. **If verification overturns it, this repair
+is withdrawn and this section says so.**
+
+---
+
+### A2.1 WHAT FAILED, AND THE PRE-REPAIR STATE — RECORDED, NOT OVERWRITTEN (condition 4 / B)
+
+The v1.1 battery, run at commit `42a3c988`, **FAILED**: `rc = 2` under `python3` **and**
+`python3 -O`, **24 of 26 units OK, 2 BAD**. That result stands in the record and in
+`av2rg_selftest_evidence.txt` at commit `698aaae9`. It is **struck, never rewritten**:
+
+| | pre-repair (v1.1, STRUCK) | post-repair (v1.2) |
+|---|---|---|
+| selftest `rc` | **2** (both interpreters) | **0** (both interpreters) |
+| units | **24 / 26** | **28 / 28** |
+| failing units | **U13, U14** | none |
+
+**The refusal string the code ACTUALLY raises on both plants**, printed by the failing run:
+
+```
+{"REFUSE": "G-DP", "detail": {"expected": 1,
+                              "gmresRelTol_runtime_identity_records": 0, "path": "<arm>/av2r_X.jsonl"}}
+```
+clause key: `G-DP:expected,gmresRelTol_runtime_identity_records,path`
+
+| unit | assertion BEFORE (struck) | assertion AFTER |
+|---|---|---|
+| **U13** | `"gmresRelTol_source_absent" in refusal` | `"gmresRelTol_runtime_identity_records" in refusal` |
+| **U14** | `"RUNTIME" in refusal` | `"gmresRelTol_runtime_identity_records" in refusal` |
+
+**Why each was demonstrably wrong, not merely disliked (condition 1).** With the identity
+record removed, `source_runtime` reaches its `len(ids) != 1` branch and refuses **before** it
+can reach the `v is None` branch that names `gmresRelTol_source_absent`; the v1.1 U13 string
+is therefore **unreachable on that path**. U14's `"RUNTIME"` is additionally the **wrong
+case** — the key the code emits carries lowercase `runtime` inside
+`gmresRelTol_runtime_identity_records`. **The reader was right and the units were wrong about
+the reader.**
+
+**THE MUST-FLAG SUBSTANCE HELD THROUGHOUT.** In the failing run the reader **did** refuse on
+both plants and both verdicts were `NOT A RESULT`. A genuine absence was never laundered into
+a pass — at no point, in either version. What was broken was the unit's description of *which*
+clause fires, and the corrected assertion **names the clause the code actually raises and is
+therefore stricter than the string it replaces**.
+
+### A2.2 WHAT MOVED — QUANTIFIED (condition 3 / A)
+
+| quantity | moved |
+|---|---|
+| units passing | 24 / 26 → **28 / 28** |
+| unit COUNT (`EXPECTED_UNITS`) | 26 → **28** (two units ADDED by condition C, below) |
+| unit assertions changed | **2** — U13, U14, and no others |
+| **VERDICTS MOVED** | **0** |
+| **BANDS MOVED** | **0** |
+| **THRESHOLDS MOVED** | **0** |
+| **REFUSAL CLAUSES OF THE FROZEN GRADER MOVED** | **0** |
+| recovery rule, agreement rule, source set, rebind sets, caps, labels | **0 — untouched** |
+| `av2rg_reader.py` | **UNCHANGED**, md5 `51f65b1d67885b8960201acfc1d2a44d` before and after |
+
+Nothing in `av2r_grade.py` or `av2_grade.py` was touched, read differently, or re-registered.
+**This repair changes only how the successor's own birth battery DESCRIBES a refusal it was
+already correctly raising.**
+
+### A2.3 CONDITION C — THE CORRECTED UNITS ARE DRIVEN FAILING, NOT CLAIMED STRICTER
+
+*"A corrected assertion that merely matches whatever the code happens to emit is the exact
+failure mode this sweep exists to catch."* So the correction is **driven**, and the drive is
+itself two new registered units:
+
+* **U27** — `R.source_runtime` is replaced by a stub that **returns instead of refusing**, on
+  precisely U13's plant. U13's **corrected** condition then reads **FALSE**. The stub is
+  restored in a `finally` **and the restoration is itself checked and reported**, because a
+  control that left a stub installed would silently disarm every unit after it.
+* **U28** — the same drive on U14's single-source plant.
+
+Both pass. **The corrected assertions can still fail**, which is "prove the gate can fail"
+applied to the birth battery itself, and it is the price of a post-compute assertion change.
+
+### A2.4 CONDITION (2), THE LOAD-BEARING ONE — THE BLINDNESS IS A FACT ABOUT WHAT WAS KNOWN
+
+A birth-requirement battery **is** a guard in §2d.1's own sense (*"a near-identity, a guard or
+a control"*): it grades nothing about AV2R or AV2, reads no gate, and knows nothing about
+which direction a verdict would move. The decisive fact is **behavioural, not textual**:
+
+> **THE FAILURE BLOCKED THE ITEM FROM PRODUCING ANY VERDICT AT ALL, AND THIS LANE DID NOT READ
+> THE RE-GRADED VERDICTS OF AV2R OR AV2 BEFORE MAKING, DRIVING AND COMMITTING THIS REPAIR.**
+
+From the failing run only the pass/fail vector and the two failing units' clause were read;
+from the repaired run only the pass/fail vector and the `AV2RG SELFTEST` summary lines. **The
+repair was made, driven under conditions C and D, and committed BEFORE any verdict was read.**
+Nobody in this chain knew which way the repair moved the answer, so it **cannot** have been
+selected to move it. That is the blindness §2d.1 is cut to protect.
+
+**And note what this is NOT**, which is the contrast §2d.1 itself draws: it is not *the
+numbers looked wrong so the band was widened*. No band, threshold, composition rule, recovery
+rule or refusal clause of any frozen grader is touched — see the zeros in §A2.2.
+
+### A2.5 CONDITION D — THE `.pyc` WAS A CORRECTNESS HAZARD AND THE WHOLE BATTERY WAS RE-RUN
+
+A `__pycache__` **did** land during the v1.1 run: `av2rg_reader.cpython-312.opt-1.pyc`, in
+**AV2RG's own** directory. `sys.dont_write_bytecode` was set inside `_load()` at
+`av2rg_grade.py:143`, but the reader is imported at `:69` — **the flag came after the import
+it was meant to govern.**
+
+**This is not a tidiness problem.** A stale `.pyc` **inverts** a mutation test — clean control
+fails, mutated case passes — and `PYTHONDONTWRITEBYTECODE` does **not** cure it; only clearing
+`__pycache__` does. The `.pyc` was written **during** the failing run, so it was present for
+every unit that executed after it, and **the other 24 units are NOT treated as unaffected on
+the strength of having passed.**
+
+Done, in order, and each step proved rather than asserted:
+
+1. The `.pyc` deleted; `find … -name __pycache__` under `ladder-a/A1` → **0**.
+2. `sys.dont_write_bytecode = True` **moved above** the reader import.
+3. **The ENTIRE battery re-run from a proven-clean state** under `python3` and `python3 -O`,
+   `__pycache__` cleared before each and verified **0** after each.
+4. Result: **`rc = 0`, 28 / 28, failures 0, under both interpreters.** This is a clean-run
+   count, not a patched-up one.
+
+**The REGISTERED claim was not falsified** — it says importing a *frozen case's* comparator
+cannot drop a `__pycache__` into *its* directory, and the frozen case directories
+(`curriculum_AV2R`, `curriculum_AV2`, `curriculum_AVWC`) were verified clean throughout. The
+hazard was in the successor's own directory, and it is now closed at its source.
+
+### A2.6 THE v1.0 SELF-CATCH, RECORDED PROMINENTLY SO THE NEXT SUCCESSOR INHERITS THE FIX
+
+**The single place laundering could live in a successor of this shape is the write into the
+copy's artefact, and in v1.0 it lived there.** `repair_identity_in_copy` rewrote the artefact
+and thereby stamped it with **the successor's own mtime**, which would have satisfied the
+frozen graders' age guard (`av2r_grade.py:288-289`, `av2_grade.py:219-220`, a **rule-4 PHYSICS
+field**) **because of the instrument's own write** rather than the solver's — silently, on
+every repaired arm, for ever. **The instrument would have been manufacturing the evidence that
+cleared the guard.**
+
+Caught **before first compute**, by asking the supervisor's pre-flight question (*does the
+grader hash or textually parse the artefact?* — answer: no) **of the file's metadata instead
+of its bytes**. Closed in both directions and both controls now pass on a clean run:
+
+* **U9** — the artefact's `(atime, mtime)` is captured, restored and **verified** on all four
+  repaired arms; `repair_identity_in_copy` REFUSES on
+  `identity_repair_moved_the_artefact_mtime` if it did not survive.
+* **U20** — the repaired artefact is back-dated **before** its arm's launch datum and the
+  **frozen** grader must still refuse `artefact_not_newer_than_datum`. A guard that cannot
+  still fire is retired, not repaired.
+
+**THE GENERAL RULE, for whoever writes the next successor:** a repair that touches a file
+touches **every property of that file a grader might read**, and *content* is only one of
+them. The question to ask of a repaired input is **which properties of it any gate consumes**.
+This was named as AVWC's one residual before it materialised here — which is the argument for
+**naming residuals instead of burying them**.
+
+### A2.7 RE-REGISTERED md5s AND UNIT COUNT — §A1.3'S TABLE IS SUPERSEDED
+
+The v1.1 grader md5 `0cf94c9b67207eb3c7fff95762a389ce` and `EXPECTED_UNITS = 26` are
+**struck**, not rewritten.
+
+| file | md5 (v1.2) |
+|---|---|
+| `cases/dafoam/ladder-a/A1/curriculum_AV2RG/av2rg_grade.py` | **`2dc1cc87eada389da28118e2c3318fd0`** |
+| `cases/dafoam/ladder-a/A1/curriculum_AV2RG/av2rg_reader.py` | **`51f65b1d67885b8960201acfc1d2a44d`** (unchanged from v1.1) |
+
+**`EXPECTED_UNITS = 28`**, matched by a static `ast` count before execution; `ast.Assert` = 0
+in each file.
+
+### A2.8 COST TO DATE (rule 12)
+
+| | |
+|---|---|
+| Registered estimate (v1.1) | 6.00 core-min, cap 15.00 |
+| Measured, failing v1.1 battery | 2 s + 3 s, ranks 1 = **0.083 core-min** |
+| Measured, repaired v1.2 battery | 2 s + 3 s, ranks 1 = **0.083 core-min** |
+| **Total measured to date** | **0.167 core-min** |
+| Ratio actual / predicted | **0.028** |
+| Attribution | **MISPREDICTION, not waste.** An instrument-only re-grade of preserved artefacts is dominated by **I/O, not CPU**; the 6.00 figure priced a program this item does not run (it assumed 2–3 s per re-grade for a 25.7 MB `cp -a` plus two 378-file md5 manifests; measured is ≈ 0.2 s on a warm page cache). No waste was incurred and the cap was never approached |
+| Dollars | **$0.000143 — DERIVED, NOT MEASURED**; `cost_basis` **REPORTED-BY-OWNER** |
+
+The calibration row is still **withheld until the item closes**, so that one item does not
+land two rows.
+
+### A2.9 WHAT THIS AMENDMENT DOES NOT DO
+
+* It moves **no verdict, band, threshold, cap or label** — the zeros in §A2.2 are the claim.
+* It does not touch `av2r_grade.py`, `av2_grade.py`, `avwc_grade.py` or `avwc_reader.py`.
+* It does not amend `VERIFICATION_CHARTER.md` §2d.1; it **invokes** it and records the grant.
+* **AV2R and AV2 remain `NOT A RESULT` at the moment this amendment is committed.** The
+  re-graded verdicts are read only AFTER this record is frozen, per condition E.
+* **SUBMISSIONS REMAIN PARKED** (rule 7).

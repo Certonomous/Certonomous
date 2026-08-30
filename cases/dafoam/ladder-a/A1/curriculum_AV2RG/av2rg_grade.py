@@ -64,12 +64,21 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 A1 = os.path.dirname(HERE)
+# AMENDMENT 2 (2026-08-30): THE FLAG MUST PRECEDE THE FIRST IMPORT, NOT SIT INSIDE `_load`.
+# v1.1 set `sys.dont_write_bytecode` inside `_load()` only, so THIS module's own reader was
+# byte-compiled at the import below before the flag was ever set, and a
+# `av2rg_reader.cpython-312.opt-1.pyc` landed in this directory during the v1.1 run.  A stale
+# `.pyc` INVERTS a mutation test -- clean control fails, mutated case passes -- and
+# PYTHONDONTWRITEBYTECODE does NOT cure it; only clearing `__pycache__` does.  The frozen
+# case directories were clean, so the REGISTERED claim was not falsified; this closes the
+# hazard at its source instead of relying on the caller to clear the directory first.
+sys.dont_write_bytecode = True
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import av2rg_reader as R                                                    # noqa: E402
 
 VOCAB = {"PASS", "GATE REACHED", "GATE FAIL", "NOT A RESULT", "BLOCKED", "PENDING"}
-EXPECTED_UNITS = 26
+EXPECTED_UNITS = 28
 
 # ---- REGISTERED, frozen with PREREGISTRATION.md (Amendment 1 for the AV2 entry) --------
 AVWC_CASE = "curriculum_AVWC"
@@ -440,6 +449,29 @@ def plant_reverse_total_out_of_band(item, arm, of_key, dv, idx, factor):
     return f
 
 
+# ================= CONDITION C driver (§2d.1 ruling, 2026-08-30) =======================
+CORRECTED_CLAUSE = "gmresRelTol_runtime_identity_records"
+
+
+def _corrected_unit_can_fail(tmp, plant, tag):
+    """PROVE the corrected U13/U14 assertions CAN STILL FAIL.  A corrected assertion that
+    merely matches whatever the code happens to emit is the exact failure mode this sweep
+    exists to catch, so `R.source_runtime` is replaced by a stub that RETURNS instead of
+    refusing -- the reader is made not to refuse on precisely the plant the unit tests -- and
+    the corrected condition must then read FALSE.  The real function is restored in a
+    `finally` and the restoration is itself checked and reported, because a control that
+    leaves a stub installed would silently disarm every unit after it."""
+    realfn = R.source_runtime
+    try:
+        R.source_runtime = (lambda arm_dir, prefix, mode, refuse:
+                            (GMRES_EXPECTED_ON_THE_REAL_ROOTS, "<stubbed: made not to refuse>"))
+        out = regrade("AV2R", tmp, mutate=plant, tag=tag)
+        fired = CORRECTED_CLAUSE in (out["refusal"] or "")
+    finally:
+        R.source_runtime = realfn
+    return (not fired), (R.source_runtime is realfn), out
+
+
 # ================= selftest ============================================================
 def selftest(tmp):
     n = 0
@@ -529,16 +561,29 @@ def selftest(tmp):
 
     # ---- MUST-FLAG: absence must never be laundered into a pass ------------------------
     b_all = regrade("AV2R", tmp, mutate=plant_drop_all("AV2R", "X-S"), tag="drop_all")
+    # AMENDMENT 2, §2d.1 repair.  ASSERTED IN v1.1: `"gmresRelTol_source_absent" in refusal`.
+    # THAT STRING CANNOT BE RAISED ON THIS PATH: with the identity record removed,
+    # `source_runtime` reaches its `len(ids) != 1` branch and refuses with
+    # `gmresRelTol_runtime_identity_records` BEFORE it can reach the `v is None` branch that
+    # names `gmresRelTol_source_absent`.  The reader was right; the unit was wrong about the
+    # reader.  The corrected assertion names the clause the code ACTUALLY raises and is
+    # therefore STRICTER, not weaker -- and U27 DRIVES it failing rather than claiming it.
     unit("U13 MUST-FLAG: ALL THREE sources removed from X-S -> still REFUSED, and the verdict "
          "is NOT A RESULT. A repaired reader that cannot still refuse is not repaired, it is "
-         "disabled (clause %r)" % refusal_clause(b_all),
+         "disabled. The recovery SHORT-CIRCUITS on the FIRST source it cannot read, so with "
+         "all three gone the clause raised is the RUNTIME one -- stated plainly rather than "
+         "papered over (clause %r)" % refusal_clause(b_all),
          b_all["verdict"] == "NOT A RESULT"
-         and "gmresRelTol_source_absent" in (b_all["refusal"] or ""))
+         and "gmresRelTol_runtime_identity_records" in (b_all["refusal"] or ""))
     b_r = regrade("AV2R", tmp, mutate=plant_drop_runtime("AV2R", "X-S"), tag="drop_runtime")
     unit("U14 MUST-FLAG: source R alone removed -> REFUSED. THERE IS NO TWO-OF-THREE VOTE: a "
          "missing source means the tolerance the adjoint solve ran at is unknown, and an "
          "unknown tolerance is not a band (clause %r)" % refusal_clause(b_r),
-         b_r["verdict"] == "NOT A RESULT" and "RUNTIME" in (b_r["refusal"] or ""))
+         # AMENDMENT 2, §2d.1 repair.  ASSERTED IN v1.1: `"RUNTIME" in refusal` -- which is
+         # additionally the WRONG CASE: the key the code emits carries lowercase `runtime`
+         # inside `gmresRelTol_runtime_identity_records`.  U28 drives the correction failing.
+         b_r["verdict"] == "NOT A RESULT"
+         and "gmresRelTol_runtime_identity_records" in (b_r["refusal"] or ""))
     b_c = regrade("AV2R", tmp, mutate=plant_drop_container("X-S"), tag="drop_container")
     unit("U15 MUST-FLAG: source C alone removed (the DAOption echo stripped from the log copy) "
          "-> REFUSED, proving the log is genuinely read and is not decoration (clause %r)"
@@ -620,7 +665,21 @@ def selftest(tmp):
          "and the verdict is NOT A RESULT (clause %r)" % refusal_clause(a2w),
          a2w["verdict"] == "NOT A RESULT" and "gmresRelTol_in_artefact" in (a2w["refusal"] or ""))
 
-    every = (real, b_all, b_r, b_c, b_f, b_d, b_m, b_w, b_a, b_g, a2g, a2b, a2w)
+    # ---- CONDITION C of the §2d.1 ruling: the CORRECTED assertions are DRIVEN, not claimed --
+    c13, c13r, o13 = _corrected_unit_can_fail(tmp, plant_drop_all("AV2R", "X-S"), "drive_u13")
+    unit("U27 CONDITION C for U13: with `source_runtime` STUBBED so the reader does NOT refuse "
+         "on the very plant U13 tests, U13's CORRECTED condition reads FALSE -- so the "
+         "corrected assertion CAN still fail and is not merely matching whatever the code "
+         "happens to emit. The stub is restored and the restoration is itself checked. A "
+         "post-compute assertion change that cannot be shown able to fail is not a repair, it "
+         "is a rubber stamp",
+         c13 and c13r)
+    c14, c14r, o14 = _corrected_unit_can_fail(tmp, plant_drop_runtime("AV2R", "X-S"), "drive_u14")
+    unit("U28 CONDITION C for U14: same drive on the single-source plant -- stubbed, the "
+         "corrected condition reads FALSE; restored, U14 passes on the real path above",
+         c14 and c14r)
+
+    every = (real, b_all, b_r, b_c, b_f, b_d, b_m, b_w, b_a, b_g, a2g, a2b, a2w, o13, o14)
     unit("U26 every plant ran on a COPY: BOTH preserved run roots are byte-identical after all "
          "%d re-grades in this selftest" % len(every),
          all(x["root_manifest_identical"] for x in every))
