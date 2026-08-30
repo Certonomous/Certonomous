@@ -1379,6 +1379,182 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**THIRTEENTH SESSION, FIRST WRITE, 2026-08-30T22:43Z (closure-supervisor). NEWEST FIRST.**
+**SUPERSEDES EVERY BLOCK BELOW ON R4b's INSTRUMENTS, WHICH EXIST AND ARE LANDED, AND ON
+THE GPU QUESTION, WHICH IS ANSWERED YES WITH A NAMED FROZEN ITEM.**
+
+**HEADLINE METRICS, measured in this invocation at 22:42Z.** Box up **9 minutes**;
+**load 40.52 on 16 cores** — that is the RE-FORMED FLEET of agents, **not solvers**:
+**ZERO closure solver processes are live** and zero anywhere. **GPU 0 %, none attached
+to this box** (`nvidia-smi` absent); the L4 is a separate stopped instance.
+**closure queue-ready depth 0** — still under Sanaa's freeze-ahead floor of 3 and
+**reported as a shortfall, not a success**. **Closure solver idle: last physics ended
+2026-08-28T17:33Z, so ~53 h wall, of which ~21 h 16 m with the BOX ON** (21 h 07 m to
+the 08-29T14:40Z shutdown, plus this session's 9 min). The 32 h the box was off is not
+closure's to answer for; **the 21 h is.**
+
+**═══ I WAS BRIEFED TO GRADE G2. G2 WAS ALREADY GRADED, AND I DID NOT RE-GRADE IT ═══**
+The brief said `/home/ubuntu/closure-data/g2` holds L1/L2/L3 and a CHAIN.log, that G2
+completed before the shutdown, and that the session died mid-watch leaving it **ungraded**.
+**The first two are true and the third is false.** G2 was graded on 2026-08-28 at
+`088a9ee6`, **verified by me an ancestor of the pre-session HEAD** — verdict **`PASS`**,
+closure's first converged grid triple. **RE-GRADING IT WOULD HAVE BEEN A SECOND BITE AT A
+CLOSED GATE**, and a second grading pass that agreed would have proved nothing while one
+that disagreed would have had no way to say which reading governed. **What I did instead
+was verify the landed record is intact across the reboot:** `RESULTS.md` disk == HEAD
+(`c1bb0848…`), `grade_g2.py` disk == HEAD (`6839aad1…`, the amended comparator),
+`PREREGISTRATION.md` disk == HEAD (`7240f4cf…`). **`git status` shows those paths `MM`/`D`
+— that is the STALE SHARED INDEX, not a real difference**, and the standing hazard note on
+this board is right that a blind checkout here would destroy work. **Nothing was reverted.**
+**The rule-12 row was already landed too: `C-210`,** 67.28 core-min measured against a 61.0
+estimate, **ratio 1.1030**, 56.1 % of the 120.0 cap.
+**⚠ AND MY FIRST INSTRUMENT FOR CHECKING THAT WAS WRONG, WHICH I RECORD AGAINST MYSELF.**
+I grepped `^## C-210` and got **zero**, which reads exactly like a missing calibration row
+— the board would have said a duty was unmet. `COST_CALIBRATION.md` rows are **table rows**,
+`| C-210 |`, not headings. **A zero from a reader shaped for the wrong record form is not
+an absence**, and this is standing rule 3 arriving in a bookkeeping sweep rather than in a
+comparator. I re-read with the right form in the same invocation before writing anything.
+
+**═══ THE REAL FINDING: R4b's FOUR INSTRUMENTS WERE NEVER ABSENT — THEY SURVIVED THE KILL
+UNCOMMITTED, AND ARE NOW LANDED (`3d50ceed`) ═══**
+Every block below this one says `grade_r4b.py`, `run_r4b.sh`, `select_control.py` and
+`build_r4b_cases.py` are **ABSENT**, and that closure's depth is 0 because its
+registrations invoke instruments that do not exist. **That was true when it was written at
+17:41Z on 2026-08-28 and became false nine minutes later.** The build lane wrote all four
+to disk at **17:40–17:50Z**, after the board write and **minutes before the session limit
+killed the fleet at ~18:05Z**. They then sat **untracked** through a 32-hour shutdown and
+a reboot. **THE ENTIRE R4b INSTRUMENT BUILD EXISTED ONLY IN THE WORKING TREE** — the copy
+this board's own hazard list calls authoritative and one `git checkout` from gone.
+**Landing them is not opportunism, it is section 9's registered order `I-2`:** the four
+instruments committed **with their sha256 in the message**, after authoring and **before
+any birth demonstration is graded**. That commit is now the freeze the grading path is
+fixed to under rule 2. **sha256, re-measured at the HEAD blobs after the commit:**
+`select_control.py` `50d9622d…` · `build_r4b_cases.py` `b45ddd8e…` ·
+`run_r4b.sh` `f915bfed…` · `grade_r4b.py` `0e2554ae…`.
+
+**═══ CHECK 1, DONE PERSONALLY AND NOT RELAYED, ON ALL FOUR ═══**
+**`grade_r4b.py` — the fatal channel at `:840` uses the NARROW `Foam::sigFpe::sigHandler`
+form, NOT the broad substring that cost G1 its whole 127.08 core-min verdict.** That is
+**L-396 / D548 applied PROSPECTIVELY in a new instrument instead of retrofitted after a
+loss — the first time this family has managed that ordering**, and it is the single most
+important line in the four files. `VOCAB` at `:94-95` is exactly the six words. The
+aggregation at `:879-882` is correctly **one-way** — NOT A RESULT, then GATE FAIL, then
+PENDING, then GATE REACHED, then PASS — so a gate can only pull the item verdict **down**.
+G0 failure returns **early** at `:814-816` before any downstream arithmetic. **Zero
+`ast.Assert` nodes in all three python files**, so `-O` erases no refusal (L-332).
+**I followed the delegated completion rule rather than trusting the delegation:** it hands
+off to the re-used frozen `r4_lib.solve_complete`, and the **age guard is real at
+`r4_lib.py:542`** — a field not strictly newer than the case's own `0/` refuses. **mtimes
+are on-disk, so the guard survived the reboot intact**, which was the brief's open worry.
+`select_control.py` — **`BLOCKED` exits 3 and is registered NEVER to return `xi* = 0`**
+(`:32-33`, `:126-130`), because a zero control is the linear EVM and would propagate
+nothing; the distinction between a verdict and a refusal is **coded, not narrated**.
+Selection is on realisability **alone**, with a registered refusal if asked otherwise.
+`build_r4b_cases.py` — all four registered refusals present (`MODEL-ABSENT`,
+`MODEL-FROZEN-AT`, `MODEL-HASH`, `COVERAGE-ABSENT`), so R4b §3.5's freeze order is
+**mechanically enforced rather than documented**; rule 14's `n in (1,2,3)` is re-asserted
+**at the new call site** as a refusal surviving `-O`; `libs` goes through `set_libs`, which
+inserts-or-replaces **and then asserts the name is present** (L-221/L-222).
+`run_r4b.sh` — no `kill`/`pkill`/`killall` verb by construction and it **fails if one
+appears**; `JOBS_MAX=2` is written so the capacity reading **can only ever reduce** it;
+`nice -n 10` is not removable. **And it carries a lesson I re-learned the hard way this
+session:** `:69` and `:117` exclude the script's own command line from its `pgrep` sweep.
+**My own liveness sweep minutes earlier matched its own shell** and I had to read past it.
+**ONE DEPARTURE FROM RULE 4's LITERAL WORDING, NAMED RATHER THAN LEFT TO BE FOUND.**
+`r4_lib.py:497-502` replaces *last time == endTime* with *last time == the iteration the
+log converged at*, because a propagation stops at its registered `residualControl`. It is
+a real departure and it moves in the **conservative** direction: a cap-stop is recorded and
+**NEVER graded as converged** (`:502`). Re-used frozen code; I did not edit it.
+
+**═══ DEPTH IS STILL 0 AND I AM NOT FILING R4b-I TONIGHT — FOUR NAMED THINGS BLOCK IT ═══**
+`grade_r4b.py` now exists, so the reason depth was 0 is gone; **it is not yet 1, and I will
+not file an entry that dies at launch.** `QUEUE_ENTRY_DRAFT.json` reads:
+(1) `prereg_commit` **`PENDING_SUPERVISOR_FREEZE`** — a literal that fails
+`queue_entry_check.py` check 1 and must become `3d50ceed`;
+(2) `cwd` `/home/ubuntu/closure-data/r4b_instruments` **DOES NOT EXIST** — and a missing
+`cwd` is precisely G1's 17:28:58Z death **outside its own error handling** (D540, L-353),
+which this family has already bought once;
+(3) `enqueued_by` still carries the build lane's **written statement that check 4 has NOT
+been performed** — the lane **refused** my predecessor's instruction to write an
+authorisation it could not hold. **That refusal was correct under rule 9 and I am leaving
+it exactly as it stands** until I replace it in my own words;
+(4) `host` is **absent**. For R4b-I that is benign — it is CPU work and the runner defaults
+to `local`. **It is NOT benign for Ling arm 2**, where the same omission would fire a GPU
+arm on the CPU box, and that entry stays unfiled on purpose.
+
+**═══ SANAA'S GPU QUESTION, ANSWERED YES WITH A NAMED FROZEN ITEM ═══**
+Asked mid-session whether closure needs the card back on. **YES.**
+**`Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md`, FROZEN 2026-08-24T16:27:45Z**, committed
+alone with its sha256 in the message, amended pre-compute at `77f064a8`; **disk == HEAD**
+(`6b0724db…`), verified by me. **Nothing needs freezing today — it was frozen six days ago.**
+**Registered estimate 3–32 GPU-h = $2.41–$25.75 derived; REGISTERED CAP 40 GPU-h = $32.19
+derived**, at **$0.8048/GPU-h** (published price list, `g6.xlarge` us-east-2, retrieved
+2026-08-23; **derived, not measured** — a console figure supersedes it).
+**IT IS NOT AN ITEM INVENTED TO FILL A CARD, AND THE PROOF IS THAT ITS PREDECESSOR ALREADY
+LOST.** Arm 1 ran and returned **`NOT A RESULT`**: it registered Ling's optimiser as
+**full-batch** SGD — one update per epoch — and the net did not move in 200,000 updates.
+The paper updated **after each training point**: **342,014 updates per epoch**, ~3.4e5×
+arm 1. **Arm 1's falsifier fired on the wrong question.** Arm 2 runs the paper's actual
+regime (batch 1, lr 2.5e-7, unscaled) and settles departure **D3 either way**.
+**CAPACITY IS SETTLED BY DEMONSTRATION, NOT ARGUMENT, AND THIS IS WHERE CLOSURE DIFFERS
+FROM DAFOAM:** arm 1 **already ran on `gpu1`**, the same g6.xlarge / L4 class, spending
+**10.7054 GPU-h gross** of a 60 GPU-h cap. **The 4 vCPU / 15 GiB host that blocked dafoam's
+18.0 GiB floors does not bind an 8×30 TBNN.** Same workload, same instance class, already
+executed.
+**TWO CORRECTIONS I OWE RATHER THAN RELAY.** (1) `arm2/LAUNCH_CHECKLIST.md` records that
+`run_all_gpu_v2.sh` passes `--shutdown` **unconditionally** and therefore cannot launch
+legally. **STALE — I read the file:** `:51-55` carry a real `SHUTDOWN=0` branch, and
+`train_gpu_ling_v2.py:950` refuses `--shutdown` off `gpu1` or with no CUDA device. **The
+launch path is not blocked.** (2) **The cap cannot be overrun by misprediction:** `P0` is a
+**measured pilot inside the frozen run** setting the epoch count from per-update cost read
+on the actual hardware, `E = min(E_TARGET, floor(0.8 × (CAP_H − spent) × 3600 / epoch_s))`.
+**That is D551's "cost from a measured pilot, never a ratio" applied prospectively** — the
+budget self-limits.
+**CONDITIONS, STATED AS CONDITIONS.** Starting `gpu1` is **Sanaa's alone**. Two console
+reads are owed **by her and by no agent**: `gpu1`'s shutdown-behaviour attribute must read
+**stop**, not terminate, and the console price supersedes the published list. And the
+discipline that must come with a yes: **arm 1 idled 7.88 GPU-h = $6.34 derived after its
+batch completed**, because no agent existed to report completion. **A dark card is a
+failure whoever holds it.**
+
+**COST THIS SESSION: 0 core-min of new compute, 0 GPU-hours, $0.00.** No solver ran; no
+calibration row is owed, because **a row needs an actual and nothing was spent.**
+
+**COMMITS THIS SESSION (2):** `3d50ceed` R4b-I commit I-2, the four instruments · this
+board write.
+
+**RUNGS WITHOUT VERDICTS.** **R4b-I** — instruments landed, **not filed**, four named
+blockers above · **R4b solve arm** — `BLOCKED` on Sanaa's increment ruling, and
+`grade_r4b.py:823-827` says so **itself** rather than leaving it to prose · **M1** (78
+entries frozen, 2 filed, never launched) · **M2** (frozen `e6961d48`, 0 entries filed; the
+no-frozen-generator precedent is **STILL UNRULED and is mine to rule**) · **RC1/RC2**
+(landed unfrozen; their freeze must be the later commit carrying document AND instrument
+together) · **Ling arm 2** (frozen, costed, **NOT FILED on purpose** — needs the card and
+an explicit `host`) · **G1b `xr`** null (D550).
+
+**NEXT ACTIONS.** (1) File **R4b-I** — clear the four blockers in order: create the empty
+`cwd`, point `prereg_commit` at `3d50ceed`, perform **check 4 personally** and write
+`enqueued_by` in my own words, then file. **Depth 0 → 1.** (2) Same for RC1/RC2 — freeze
+document-and-instrument together. (3) **Rule on M2**, now with two reasons against filing
+(no frozen generator; `grade_m2.py` has **no fatal or crash channel at all** in 758 lines).
+(4) **D551's L4** at 245,760 cells as a NEW registration, cost from a **measured pilot**,
+never a ratio. (5) D550 `xr` diagnosis under L0. (6) `fs5_31_3_exit2` addendum; (7) the
+`MANIFEST_OLD_UNVERIFIED.md` line.
+
+**ON SANAA'S DESK.** (a) The **R4b increment ruling**, unchanged and owed since 2026-08-28
+— R4b's solve arm is `BLOCKED` on it and **no agent may substitute for it**. (b) **The GPU
+answer above: YES, `gpu1` start requested**, with the two console reads owed by her.
+**SUBMISSIONS REMAIN PARKED (rule 7).**
+
+**BLOCKED.** R4b solve arm — Sanaa's increment ruling. R4b-I — four blockers, all mine,
+none behind the box. M1/M2 — behind filing decisions that are mine. Ling arm 2 — behind
+the card.
+
+**VERIFY (not checked by me this session):** the state of M1's 78 draft entries and the
+`QUEUE_ENTRIES_DRAFT/` hazard; RC1/RC2's current on-disk state; whether the 2 filed M1
+entries are still in `launched/` correctly.
+
+
 **TWELFTH SESSION, THIRD WRITE, 2026-08-28T17:41Z (closure-supervisor). SUPERSEDES THE TWO
 BLOCKS BELOW ON G2, WHICH IS GRADED, AND ON QUEUE DEPTH.**
 
