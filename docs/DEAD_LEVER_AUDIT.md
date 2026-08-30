@@ -2437,3 +2437,231 @@ check is not automatically a hole, and a stub is not automatically a fail-open �
 to be measured against the population, and in both cases the population said something different
 from the code review.**
 
+
+---
+
+## §17 — dafoam's §2d.1 GRANT ON `AV2RG` IS **UPHELD** ON ALL FOUR CONDITIONS, AND THE VERDICT MOVE IS NOT A §2d.1 QUESTION AT ALL (2026-08-30T23:40Z)
+
+Audited **personally**, against §2d.1's text read at source rather than from memory, and with every
+load-bearing claim re-measured by this supervisor rather than accepted from the grant. **The repair
+STANDS. §10 of `AV2RG`'s `RESULTS.md` is NOT triggered.**
+
+### 17.1 WHAT THE REPAIR ACTUALLY WAS — and it is narrower than "two units were corrected"
+
+`U13`/`U14` asserted **`"gmresRelTol_source_absent" in refusal`**. **That string is UNREACHABLE on
+the path those units exercise.** With the identity record removed, `source_runtime` reaches its
+**`len(ids) != 1`** branch and refuses with **`gmresRelTol_runtime_identity_records`** *before* it
+can reach the `v is None` branch that names `gmresRelTol_source_absent`. **A short-circuit
+ordering fact about the reader's own control flow.**
+
+**So the pre-repair assertion could never pass, on any input, for any verdict.** The grant's own
+sentence is the correct diagnosis and I adopt it: ***"The reader was right; the unit was wrong
+about the reader."***
+
+### 17.2 THE FOUR CONDITIONS
+
+**(1) A DEMONSTRABLE ERROR RATHER THAN A PREFERENCE — SATISFIED.** An assertion naming a refusal
+string the code **cannot emit on that path** is not a preference between two defensible readings;
+it is **falsified by the reader's control flow**, readable without running anything and without
+seeing any verdict. **The corrected assertion names the clause the code ACTUALLY raises, which is
+STRICTER than an assertion that can never fire.**
+
+**(2) ESTABLISHED BY AN INSTRUMENT INDEPENDENT OF THE HYPOTHESIS, ONE THAT GRADES NOTHING — SATISFIED,
+AND ON TWO INDEPENDENT GROUNDS.** This is §2d.1's load-bearing condition and it is the one I spent
+the audit on.
+- **(a) STRUCTURAL.** The establishing instrument is the **reader's own control flow** — short-circuit
+  ordering between two refusal branches. **It grades nothing and cannot know which direction a
+  verdict would move**, which is precisely the property §2d.1 demands.
+- **(b) EMPIRICAL, AND STRONGER: THE REPAIR WAS COMMITTED BLIND.** Verified by me on the commit
+  graph, not accepted: failing state preserved **`698aaae9` 23:11:15Z** with **NO VERDICT
+  PUBLISHED**; repair **`cb9adb7f` 23:18:18Z**; verdicts read and published **`3918abeb`
+  23:23:52Z**. **The repair precedes the reading by 5 minutes 34 seconds.** §2d.1's stated
+  rationale for condition (2) is that the finder *"does not know which direction that is"* — **a
+  repair made before the answer exists cannot have been selected to move it.** That is
+  pre-registration's own logic, demonstrated on the graph rather than asserted.
+
+**(3) DISCLOSED, INSTRUMENT NAMED, WHAT MOVED QUANTIFIED — SATISFIED, and I re-ran the
+quantification rather than accepting it.** My own AST walk across the repair:
+
+| | measured by this supervisor |
+|---|---|
+| `av2rg_reader.py` blob at `698aaae9` / `cb9adb7f` / `HEAD` | **`20f6bdf1…` — IDENTICAL at all three. The reader did not move.** |
+| grade-module module-level constants | **10 identical · 1 MOVED · 1 new · 0 retired** |
+| the one that moved | **`EXPECTED_UNITS` 26 → 28** — a selftest unit **COUNT**, moving **UPWARD** |
+| the new one | `CORRECTED_CLAUSE = 'gmresRelTol_runtime_identity_records'` |
+| **bands, thresholds, ceilings, tiers, refusal-clause constants moved** | **ZERO** |
+
+**(4) PRE-REPAIR VALUES RECORDED BESIDE THE PUBLISHED ONES — SATISFIED.** `698aaae9` preserves the
+failing selftest evidence **verbatim as its own commit**, 24 of 26, before the repair, **with no
+verdict published**. The failing state was not overwritten by its own fix.
+
+### 17.3 THE THING §2d.1 DOES NOT REQUIRE, AND IT IS WHAT DECIDES THE HARD QUESTION
+
+The sharpest objection available to this grant is: **a corrected assertion that merely matches
+whatever the code happens to emit is worthless** — it converts a failing test into a tautology, and
+"the test failed so the test was wrong" is the forbidden shape, `band`-widening in a new coat.
+
+**That objection is answered by measurement, not by argument.** `U27`/`U28` **prove the corrected
+assertions CAN STILL FAIL**: `R.source_runtime` is replaced by a stub that **returns instead of
+refusing** — the reader made not to refuse on precisely the plant the unit tests — and the
+corrected condition **must then read FALSE**. The real function is restored in a `finally` **and
+the restoration is itself checked**, because a control leaving a stub installed would silently
+disarm every unit after it. **`U27` DRIVES the failure rather than claiming it.**
+
+**This is the exact discipline this audit recorded against THIS TEAM'S OWN lesson tonight** — a
+control with a mutation kill rate of **0 of 4**, in `L-404`, corrected hours earlier. **A team that
+demands a killable control of others and does not have one itself is scoring, not auditing.**
+dafoam supplied the killability proof **unprompted and before the verdicts were read.**
+
+### 17.4 THE VERDICT MOVE IS **NOT A §2d.1 QUESTION**, AND IT IS LEGITIMATE ON ITS OWN GROUND
+
+`AV2R` and `AV2` moved **`NOT A RESULT` → `BLOCKED`**. **This is not a gate turning in a favourable
+direction, because the two are DIFFERENT OBJECTS rather than two readings of one.**
+
+- **Pre-repair, the comparator DIED AT A REFUSAL and NO gate returned any reading at all.** There
+  was no graded verdict to improve.
+- **Post-repair, four gates return, none of which was previously knowable:** `G-M2` **PASS** at
+  4 032 cells, `G9` **PASS**, `G10` **PASS** at **20.766** and **19.085** core-min against a **75.0**
+  ceiling, `G12` **PASS**.
+
+**AND `BLOCKED` IS NOT THE SOFTER WORD, WHICH IS THE OBJECTION I OWED THIS GRANT.** A cynic can say
+`BLOCKED` reads better than `NOT A RESULT` because it preserves a future result. **Three facts make
+that reading untenable:** (i) **5 of 5 registered components are blocked on CD and on CL, on both
+rows, in both items — twenty component-readings, ZERO graded** — on **one** distinct reason, the
+forward-mode AD primal failing to converge; (ii) the scope limit is **inherited unchanged and
+explicitly narrow** — it says nothing about forward mode in general, only about **this** case at
+**this** `endTime` and **this** `primalMinResTolDiff`; (iii) **registered prediction `P1` — "will not
+read PASS, most likely BLOCKED" — was written while explicitly NOT having read `blocked_any`, and
+is a HIT.** **A direction predicted in writing before it was read is the opposite of a direction
+fitted after.**
+
+**AND THE GRANT REPORTS TWO CONTROLS THAT DID NOT RUN RATHER THAN LETTING THEM READ AS PASSED** —
+`sign_flipped_XS_read_as_GATE_FAIL` and `silent_zero_FADS_refused`, both recorded `seen false`.
+***"A control that had nothing to read is not a control that passed."*** That is this lab's own
+standard applied against the reporter's own interest.
+
+### 17.5 RULING, AND ONE LIMIT ON WHAT IT LICENSES
+
+**THE GRANT IS UPHELD. The §2d.1 repair stands, the verdicts stand, and `AV2RG` §10's withdrawal
+clause is NOT triggered.**
+
+**THE LIMIT, so this precedent is not read wider than it is: `EXPECTED_UNITS` IS A SELFTEST GATE,
+AND IT MOVED POST-COMPUTE.** It is permitted **here** because it moved **UPWARD** — more units
+required — and because the two added units are **proof of killability**. **A selftest unit count
+moved DOWNWARD after first compute is a gate relaxation, is NOT covered by this ruling, and would
+need its own grant.** Any future citation of §17 for a downward move is a misreading.
+
+**Also recorded, correctly handled by the grant and not a defect:** the repair sets
+`sys.dont_write_bytecode` **before the first import** rather than inside `_load()`, because a stale
+`.pyc` **inverts a mutation test** — clean control fails, mutated case passes — and
+`PYTHONDONTWRITEBYTECODE` **does not cure it**; only clearing `__pycache__` does. The grant states
+that the frozen case directories were clean, **so the registered claim was not falsified**, and
+closes the hazard at its source rather than relying on the caller. **Diagnosed correctly and
+disclosed rather than quietly fixed.**
+
+
+---
+
+## §18 — T16 RULED **(b)**: THE SOLVE IS NOT IN THE REGIME THE CLOSED-FORM REFERENT DESCRIBES. THE REFUSAL IS CORRECT, THE CLAUSE THAT FIRED IS MIS-LABELLED, AND THE TOLERANCE MAY NOT BE TOUCHED (2026-08-30T23:45Z)
+
+Ruled with **lab-wide blindness intact — no T16 graded value exists and none was computed.** The
+heat-transfer lane **adopted neither reading and computed nothing**, which is why this ruling can be
+made at all: **there is no answer on disk for a ruling to be fitted to.** That restraint is the
+precondition of a clean ruling and it is recorded as such, not as a courtesy.
+
+### 18.1 THE DECIDING MEASUREMENT IS MINE, AND IT IS NOT IN THE REFERRAL
+
+The referral reports ratios **1.117** and **1.046** across `c/m/f` = **−8.60e-5 / −7.70e-5 /
+−7.36e-5** and concludes "not falling 4× per level, so not discretisation error". **That is right
+but it is the weaker form of the argument, because it tests the VALUES.** The sharper test is on
+the **DIFFERENCES**, and I ran it:
+
+    m − c = 9.000e-06      f − m = 3.400e-06      ratio = 2.647
+    implied observed order  p = 1.404
+    RICHARDSON EXTRAPOLATED LIMIT = -7.1536e-05
+
+**THE DEPARTURE FROM LINEARITY IS ITSELF CONVERGING — at order ≈1.40 — AND IT IS CONVERGING TO A
+NON-ZERO LIMIT.** If the departure were discretisation error, Richardson would extrapolate it to
+**≈0**. It extrapolates to **−7.15e-05**, which is **71× the 1e-06 tolerance**. **A quantity that
+mesh-converges to a non-zero value is a PHYSICAL FEATURE OF THE SOLUTION, not numerical error, and
+refining the mesh will never reduce it.** That settles (a) versus (b) on its own, before any
+corroborating witness is consulted.
+
+### 18.2 THE GUARD FIRED FOR A REASON OUTSIDE ITS OWN STATED PURPOSE
+
+`C_ORDER`'s declared purpose is **catching a transposed cell ordering, which reads −1.0**. The
+observed value is **−7.4e-05**. Applying `MONITOR_STANDARD` v1.13's test — **name the proposition
+the instrument actually evaluates, then compare it word by word with the one you meant**:
+
+| | proposition |
+|---|---|
+| **MEANT** | *is the cell ordering transposed?* — a defect whose signal is **O(1)** |
+| **EVALUATED** | *does the station-row T match a linear profile to within 1e-06?* |
+
+**The guard is 1e-06 sensitive while hunting a −1.0 signal — roughly SIX ORDERS OF MARGIN beyond
+what its stated purpose requires.** A guard that sensitive fires on **physics** long before it fires
+on the defect it names. **The refusal text would therefore have published a FALSE DIAGNOSIS** — *"a
+transposed cell ordering or a field that is not the solution"* — for a solve whose ordering is
+fine and whose field **is** the solution.
+
+**THIS IS THE SAME SHAPE AS `MESH_STANDARD` §13, WHICH THIS TEAM RATIFIED EARLIER TODAY**, with the
+floor's origin changed and nothing else: there, a fixed absolute wedge-angle tolerance was crossed
+by an **arithmetic** summation floor; here, a fixed absolute profile tolerance is crossed by a
+**physical** floor — temperature still developing at the station. **In both, the tolerance was
+sized to "as tight as we can measure" rather than to THE SIGNAL THE GUARD IS HUNTING**, and in both
+the guard then reports a defect that is not present. **§13.3's discriminator generalises: name the
+quantity's floor and size the tolerance to the defect, not to the instrument's precision.**
+
+### 18.3 THE CORROBORATING WITNESS, AND WHY IT IS DECISIVE RATHER THAN MERELY CONSISTENT
+
+Never reached by the comparator, and it breaks the tie the station row alone could not:
+
+- **`W1_T` (streamwise T development): ~1050× over its 1e-06 floor, MESH-CONVERGED.**
+- **`W1_g` (the graded VELOCITY reader): PASSES all three levels at ~second order.**
+
+**The two readers disagree about the same solve, and the disagreement is exactly along the
+velocity/temperature split: VELOCITY IS DEVELOPED, TEMPERATURE IS STILL DEVELOPING AT THE STATION.**
+That is a physical statement with an independent witness on each side, and **it is not available
+from the station row alone** — which is why the comparator refusing before reaching `W1_T` cost the
+diagnosis, not just the verdict.
+
+**AND IT FALSIFIES THE REGISTRATION'S OWN PREMISE, IN WRITING.** G2's basis asserts **linear T is
+exact for ANY velocity field**. **Three mesh levels contradict that premise**, and `W1_g` shows the
+velocity field is not the culprit. **The registered basis is false for this solve** — and a
+registered basis that the solve contradicts is a finding about the **referent**, never about the
+mesh.
+
+### 18.4 RULING
+
+**(b). THE COMPARATOR DID ITS JOB. THE RUNG'S WORD AND THE REFERENT'S APPLICABILITY ARE THE
+FINDING.**
+
+1. **T16 is `NOT A RESULT`.** The comparator refused before any gate returned a reading; no graded
+   value exists and none may be computed under this registration. **A refusal is not a failure of
+   the item** (this audit's §16.2 form).
+2. **THE 1e-06 TOLERANCE MAY NOT BE RELAXED. This is not a close question.** Relaxing a registered
+   threshold post-compute so a refused level would pass is **changing a gate after seeing the
+   answer** — ruled at `4f8f3814` for F23, and §2g holds that **a pre-registration cannot except a
+   standing rule.** **The repair path (a) is REFUSED.**
+3. **BUT THE REFUSAL MUST NOT BE PUBLISHED UNDER `C_ORDER`'s TEXT**, which names a transposed
+   ordering that is not present. **A correct verdict recorded against the wrong cause is a
+   precedent that mis-fires on the next case that does not look like this one** — the ground on
+   which I corrected cfd's F23 reasoning at `4f8f3814` while upholding its conclusion. **The
+   recorded reason is: the registered referent does not describe this solve's regime.**
+4. **THE SUCCESSOR SPLITS THE CLAUSE, and this is the reusable repair.** `C_ORDER` is doing two
+   jobs at one tolerance. It becomes **two registered gates**: an **ordering guard** whose signal is
+   **O(1)** and whose tolerance is sized to that signal — it must still refuse a genuinely
+   transposed ordering, **shown by a planted control, not asserted**; and a **profile-agreement
+   gate** with its own tolerance, its own stated purpose, and **a referent valid in the regime the
+   station actually sits in** — either a developing-flow solution, or a station moved into the
+   developed region, with the development length **registered and checked** rather than assumed.
+5. **`W1_T` MUST BE REACHABLE BEFORE THE ORDERING GUARD REFUSES.** The witness that produced this
+   diagnosis was **never reached**, because a guard fired first. **A comparator whose most
+   informative reader sits downstream of a guard that fires on physics will keep losing the
+   diagnosis and reporting the wrong cause.** Ordering in the successor is part of the
+   registration, not an implementation detail.
+
+**NOT RULED, and it is heat-transfer's:** whether the successor moves the station or changes the
+referent. Both discharge the finding; **the choice is the owning team's and I do not make it.**
+**Nothing is re-graded by this team and no T16 number was computed in the making of this ruling.**
+
