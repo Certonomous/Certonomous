@@ -1,7 +1,7 @@
 {
   "team": "dafoam",
   "case_id": "W3_chain",
-  "prereg_commit": "eb1eb97dc863dd846e43d234d2049a05ca749c7c",
+  "prereg_commit": "5ce4566260f2048e445e4f368373d4bbd37c4f5d",
   "prereg_path": "cases/dafoam/curriculum_D12R2/W3_PREREGISTRATION.md",
   "launch_cmd": [
     "bash",
@@ -9,37 +9,34 @@
   ],
   "cwd": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2",
   "ranks": 1,
-  "cost_core_min_estimate": 563.3,
   "cap_core_min_registered": 900.0,
-  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 563.3 core-min DERIVED (W3_PREREGISTRATION.md section 4): phase 1 = 196.4 from the two measured phase-1 anchors (D12R2 55.5167 core-min at W=300, C-115; W2R 105.2334 at W=900: V = 74.575, F = 30.658 per the two-point linear model), phase 2 = 37.6 (6 stages x 6.26), phase 3 = 62.6 (10 x 6.26), phase 4 = S8 <= 266.7 which is the registered 16,000-s wall BOUND at np=1, not a prediction from a record (no S8 has ever run in this family); registered caps CAP_CORE_MIN 900.0 cumulative and CAP_S8 400.0, both asserted by the launcher before every stage. Dollars derived, not measured: $0.48 point, $0.77 at the cap.",
+  "cost_core_min_estimate": 563.3,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 563.3 core-min = 9.39 core-h = $0.48, DERIVED NOT MEASURED, under the $25 pre-authorisation and still costed because a proposal with no cost is disqualified (rule 12). ENQUEUEING IS NOT AUTHORISATION TO SPEND BEYOND THE CAP: the registered CAP_CORE_MIN 900.0 stands and an overrun STOPS the run, it does not get a new budget. The actual/predicted calibration row in docs/COST_CALIBRATION.md is OWED AT COMPLETION and is deliberately NOT written now -- the run has not finished.",
   "memory_floor_gb": 14.0,
-  "enqueued_by": "dafoam-supervisor via lane G (lane's read: git cat-file -e on the freeze sha and on <sha>:cases/dafoam/curriculum_D12R2/W3_PREREGISTRATION.md both present; the two DELTAS diffs, the comparator selftest evidence and the driver G-ROOT.5 evidence are in the case directory for the supervisor's own check 1/4). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own.",
+  "enqueued_by": "dafoam-supervisor via lab-lane (W3 ADDENDUM 1, 2026-08-30). SUPERVISION_CHARTER section 3 check 4 -- pre-registration COMMITTED before compute -- is the supervisor's own and is discharged on sha 5ce4566260f2048e445e4f368373d4bbd37c4f5d, the commit carrying the addendum that GOVERNS this launch. That sha, not the original freeze, is what the runner launches against.",
   "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "why_this_fire": "W3 has NEVER produced a verdict in three fires and NOT ONE of them was physics. 2026-08-27T03:43:17Z: launcher ABORT at the A1 cap-agreement control, 0 core-min. 2026-08-28T02:15:29Z: rc=4 reason=grader_md5_drifted -- a comparator repaired on disk and never committed; the guard did its job, 0 core-min. 2026-08-28T16:28:48Z: STOPPED BY THE SUPERVISOR after 5.067 core-min on the measured finding that the run was GUARANTEED to abort on a clean solve, ~558 core-min saved. THE DEFECT (W3-LAUNCHER-DEF-2) is repaired by W3 ADDENDUM 1: the launcher's BARE whole-file regex 'Floating point exception' matched OpenFOAM's trapFpe ENABLEMENT BANNER on 5 of 5 real clean corpora. The token STAYS; the whole-file match is what went. This is the FOURTH fire and the FIRST able to reach a verdict.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady -- must be ABSENT; created by phase 1, which refuses exit 6 on [ -e $ROOT ] (d12y_w3_stage_and_run.sh:238). CHECKED at enqueue, not asserted: it does NOT exist. The 2026-08-28 fire's root was ARCHIVED (96 files, 1,348,280 bytes, md5 manifest IDENTICAL before and after, NEVER deleted) to /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady_prior_fires/20260828T162848Z_supervisor_stopped/, with ARCHIVE_RECORD.txt inside it.",
+  "instrument_md5s_at_this_commit": {
+    "d12y_grade_w3.py": "3950d30fd09c9b56213a02f5e9864e20 -- THE GRADING PATH, UNTOUCHED by W3 ADDENDUM 1. Its pre-answer freeze is this item's entire evidentiary value and the addendum does not reach it.",
+    "d12y_w3_stage_and_run.sh": "8a92f3f84f72d6806a2e5c5df88d82ef (was 20f8c0c51593576bddaa8a410659d997) -- the fatal scan ONLY: line-by-line with a per-line benign exclusion, the token KEPT, one adopted extra positive. ONE hunk, 7 removed / 66 added. No cap, cpuset, memory, stage graph, W_STEPS, band, threshold, label or prediction is touched.",
+    "d12y_w3_chain_driver.sh": "2b6ac7bbc6a5593940a0f2d217005b10 (was 4ae856128101115c3ba566eae9f41fd2) -- MD5_LAUNCHER re-pinned IN THE SAME COMMIT as the launcher edit. A stale pin here is exactly why the 02:15:29Z launch died rc=4; pin == committed HEAD blob was ASSERTED after the commit.",
+    "d12y_run_script.py": "2790c39a09cd458d5a3263d7f1811da5 -- the producer, unchanged through six items."
+  },
+  "controls_at_this_commit": "ALL ZERO COMPUTE. d12y_w3_fatal_scan_control.sh 36/36 pass=36 fail=0 rc=0, TWO-DIRECTIONAL against the REAL corpus and executing the LAUNCHER'S OWN extracted scan rather than a copy of it. MUST-NOT-FLAG: the real trapFpe banner verbatim and two real clean logs give ZERO hits, and a FOAM FATAL ERROR planted into those SAME real bytes is CAUGHT, so the zero is a reading not a blind spot (rule 3). MUST-FLAG: all nine original fixtures KEPT plus Foam::sigFpe::sigHandler(int), 'Floating point exception (core dumped)', OpenMPI's non-line-initial 'process rank 2 exited on signal 8 (Floating point exception).', and a REAL SIGFPE crash log excerpt -- all CAUGHT; banner-and-crash in ONE file still CAUGHT. PROVED ABLE TO FAIL 4/4: reverted launcher, deleted token, widened exclusion and drifted fixture each REFUSE. d12y_w3_pin_guard_control.sh 6/6 against the re-pinned driver.",
+  "gate_neutrality_measured": "The repair adds ONE positive token, Foam::sigFpe::sigHandler. On the lab's 34 REAL SIGFPE crash logs it DECIDES a refusal the other nine would have missed in ZERO of them, and it moves only in the NOT A RESULT direction (rule 5's one-way sense), so it cannot manufacture a favourable outcome. Files where the repair loses REAL crash evidence, against a ground truth computed independently of both scans: ZERO. NO gate, threshold, band, cap, label, cost or prediction moves.",
   "capability_grid_cell": "2D . unsteady . incompressible -- gradients (CAN DO, CAVEATS -> CAN DO on G12R-6 PASS) and optimisation (CAN NOT DO -> attempted, S8 authorised only on an FD-verified gradient, G12R-11)",
   "regime": "2D unsteady incompressible: DAPimpleFoam time-accurate unsteady adjoint, cylinder Re_D 1.0e6, 2,450 cells, np=1, W = 2,000 averaging window",
   "one_driver_form": "ONE detached process runs --phase 1 -> --plan -> --phase 2 -> --plan2 -> --phase 3 -> --plan3 -> --phase 4 and STOPS at the first non-zero rc, recording every rc in STATUS.W3_chain; the runner evaluates no precondition and neither does the driver -- each later phase refuses for itself (absent step_plan*.json -> ABORT rc=1; admissible:false / h_star=None / optimisation_authorised!=True -> the registered no-launch branches exit 0 launching nothing; the comparator's plan modes exit 2 on a Refusal). No separate entries for phases 2-4, no wait-wrapper (the W2R lesson).",
-  "precondition_artifact": "none at enqueue -- phase 1 REQUIRES the run root /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady to be ABSENT (the launcher refuses exit 6 otherwise; asserted absent at freeze 22:54:09Z); the driver's G-ROOT.5 (live d12y_w3_ container / live sibling driver) refuses before anything (driven 7/7).",
-  "successor_comparator": "d12y_grade_w3.py (md5 f3c1252c11fb94a3d4c580fdcbe7a62d) -- the frozen d12y_grade.py (02a9ab62..., blob aecceb4e...) is UNEDITED and cited; W3-A2 reads W from every manifest row and the ledger's W_STEPS line and refuses on any disagreement; W3-A1 sizes the step on max(delta_window exact, C_ENV/W = 0.8907/W). --selftest-w3 12/12 and the inherited --selftest PASS under python3 and -O.",
   "images": {
     "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc -- this entry buys the SHIPPED row (the launcher's default --image shipped); the PATCHED row (--image patched, <root>_p) is registered and NOT queued until the shipped row has a plan-step reading"
   },
   "container_memory_cap": "8g every stage (W2R's registered cap; D12R2 peak RSS 1.3461 GiB)",
   "cpuset": "1 -- REGISTERED (W3_PREREGISTRATION.md section 5), the supervisor's placement for W3; W2R was 12",
   "stage_wall_bounds_s": "7,200 every stage except S8 = 16,000 (266.7 core-min at np=1)",
-  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady (must be ABSENT; created by phase 1)",
   "rc_capture": "INSIDE the detached driver: each step's rc recorded in STATUS.W3_chain (cwd = the case directory); per stage the launcher reads docker inspect .State.ExitCode|OOMKilled before docker rm and writes the ledger STAGE= row and the manifest row (with the W key). STATUS.W3_chain launcher_rc from the runner is the driver's exit, not the verdict.",
   "predictions": "P1 S2b bit-identical (delta_window_exact(2000) = 4.385710e-04); P2 |g(2000)| in [1.01, 1.37]; P3 PRIMARY BINARY admissible step EXISTS (h_min point 0.0391, falsified iff |g| < 0.8907); P4 phase-1 cost 196.4 +-15 %; P5 conditional: S8 authorised and reaches Optimal Solution Found. (PASS) or its registered terminus (GATE REACHED)",
   "permission_record": "Sanaa's verbatim permission boarded at bc0e687e.",
-  "verdict_state": "PENDING",
-  "_launch": {
-    "utc": "2026-08-27T03:43:17Z",
-    "pid": 662453,
-    "sid": 662453,
-    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/STATUS.W3_chain",
-    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/launcher.queue.out",
-    "started_epoch": 1787802197.318662,
-    "status_seen_utc": "2026-08-27T03:44:17Z"
-  },
   "_field_classes": {
     "physics_critical": [
       "STATUS.W3_chain (rc inside the detached wrapper)",
@@ -58,5 +55,17 @@
       "runner.log lines"
     ],
     "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "selftest_at_this_commit": "d12y_grade_w3.py --selftest 82/82 (units REGISTERED 82, in the list 82, RETURNED A RESULT 82, failures 0), --selftest-rrc 22/22, --selftest-w3 12/12, each under python3 and python3 -O, at 2026-08-28T16:1xZ. Plus the two planted controls above. G-ROOT.5 selftest d12y_w3_groot5_selftest.sh pass=14 fail=0 stands from W3 AMENDMENT 2 and is not re-driven here: this amendment touches no root, cap or stage-graph clause.",
+  "successor_comparator": "d12y_grade_w3.py md5 3950d30fd09c9b56213a02f5e9864e20 -- UNTOUCHED by this addendum. The frozen d12y_grade.py (02a9ab62..., blob aecceb4e...) is UNEDITED and cited.",
+  "verdict_state": "PENDING",
+  "name_reuse_note": "A prior launched/W3_chain.json from the 2026-08-27T03:43:17Z fire exists. The runner's archive_previous_records() RENAMES a shadowed record to <stem>.<utc>.json and DELETES NOTHING (scripts/queue_runner.py:454-485), so that record survives this name reuse -- CHECKED in the source, not assumed. launched/W3_chain_r4.json carries a DIFFERENT case_id and is NOT archived by this entry; its stale CAP_OVERRUN (54,013 s stamped 2026-08-29T07:29:01Z) is an artefact of a dead launch record, pid 1897971 is dead and the real spend on that fire was 5.067 core-min. REPORTED to the supervisor, not altered by this lane.",
+  "_launch": {
+    "utc": "2026-08-30T23:10:11Z",
+    "pid": 1280302,
+    "sid": 1280302,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/STATUS.W3_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/curriculum_D12R2/launcher.queue.out",
+    "started_epoch": 1788131411.1519318
   }
 }
