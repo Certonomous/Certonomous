@@ -1,0 +1,85 @@
+AV2RG SELFTEST EVIDENCE -- 2026-08-30
+Instruments as frozen at commit 42a3c988 (v1.1, Amendment 1):
+  av2rg_grade.py  md5 0cf94c9b67207eb3c7fff95762a389ce
+  av2rg_reader.py md5 51f65b1d67885b8960201acfc1d2a44d
+  EXPECTED_UNITS = 26 (frozen before execution; static ast count matched)
+OUTCOME: SELFTEST FAILED, rc=2 under python3 AND python3 -O. 24 of 26 units OK.
+  U13 and U14 BAD -- BOTH are unit-ASSERTION defects, not instrument defects:
+  the reader DID refuse on both plants (clause G-DP:expected,
+  gmresRelTol_runtime_identity_records,path) because source_runtime reaches the
+  len(ids)!=1 branch BEFORE the v-is-None branch. The units asserted the strings
+  'gmresRelTol_source_absent' (U13) and 'RUNTIME' (U14), neither of which can
+  appear on that path. The MUST-FLAG substance HELD: absence was refused.
+NO VERDICT IS PUBLISHED FROM THIS RUN. AV2R and AV2 remain NOT A RESULT,
+unchanged. The lane did NOT read the re-graded verdicts of AV2R or AV2 from this
+output; only the pass/fail vector and the two failing units' clause were read, so
+the repair decision is not contaminated by the outcome it would unblock.
+Repair after first compute is the supervisor's call under VERIFICATION_CHARTER
+section 2d.1; this lane recommends but does not take it.
+MEASURED COST: wall 2 s (python3) + 3 s (python3 -O), ranks 1 = 0.083 core-min
+against a registered estimate of 6.00 core-min and a cap of 15.00 core-min.
+Preserved roots byte-identical after all 13 re-grades (U26 OK).
+
+==============================================================================
+
+--- python3 ---
+  [OK ] U1 SOURCE R on the REAL preserved AV2R X-S: exactly one `identity` record and it carries `gmresRelTol` = 1e-06 -- the value the PRODUCER ITSELF held one statement before it wrote the identity dict that omits it (av2r_X.jsonl)
+  [OK ] U2 SOURCE C on the REAL preserved AV2R X-S solver log: the container's own DAOption echo reads `gmresRelTol 1e-06;` -- what DASimpleFoam actually PARSED, not anybody's record of what it was asked to be (X-S_20260828T022000Z_1713655.log)
+  [OK ] U3 SOURCE F on the REAL preserved AV2R X-S runScript: md5 == the FROZEN PRODUCER'S OWN `PRODUCER_MD5` (0557da51) and `daOptions['adjEqnOption']['gmresRelTol']` parses to 1e-06 by `ast`, WITHOUT EXECUTING THE FILE
+  [OK ] U4 THE PATCHED ROW IS MEASURED, NOT INFERRED FROM THE SHIPPED ROW: all three sources on the REAL preserved AV2R X-P read 1e-06, 1e-06, 1e-06 independently
+  [OK ] U5 AV2'S OWN ROOT IS MEASURED, NOT INHERITED: all three sources on X-S (1e-06, 1e-06, 1e-06) and on X-P (1e-06, 1e-06, 1e-06). AV2 and AV2R have IDENTICAL arm names and both are serial on every arm (`av2_grade.py:59` == `av2r_grade.py:59`, ARM_RANKS all 1), so only the file prefix differs
+  [OK ] U6 AV2'S GRADER READS THE SAME KEY BY THE SAME PATH and refuses in the same clause against the same registered tolerance -- which is why AV2 is an ENTRY here and not a fifth implementation
+  [OK ] U7 MUST-NOT-FLAG (AV2R): on the REAL preserved root the original refusal `G-DP gmresRelTol_in_artefact null` is GONE -- no refusal raised anywhere in this re-grade names `gmresRelTol` (clause now None)
+  [OK ] U8 the repair is VISIBLE ON DISK where the producer left a hole: on both arms the frozen grader consumes (X-S, X-P) the COPY's `identity.gmresRelTol` reads 1e-06 where the preserved artefact carries the key NOT AT ALL
+  [OK ] U9 THE ARTEFACT'S MTIME SURVIVED THE REPAIR on all four repaired arms. Both frozen graders age-guard this very file (`av2r_grade.py:288-289`), and that guard is a rule-4 PHYSICS field: a rewrite that stamped a fresh mtime would make it pass on THIS INSTRUMENT'S WRITE instead of the solver's
+  [OK ] U10 REBIND AUDIT (AV2R): the set of rebound callables is EXACTLY the empty set -- the frozen grader ran COMPLETELY UNMODIFIED, so every band, threshold, planted control and composition rule that decided this verdict is the frozen code, unedited on disk
+  [OK ] U11 AV2R's PRESERVED run root is byte-identical after the re-grade (378 regular files, md5 manifest before == after, read from the DISK and not from `git status`)
+  [OK ] U12 the verdict is from the FIXED vocabulary and is whatever the FROZEN instrument produced (got 'BLOCKED')
+  [BAD] U13 MUST-FLAG: ALL THREE sources removed from X-S -> still REFUSED, and the verdict is NOT A RESULT. A repaired reader that cannot still refuse is not repaired, it is disabled (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')
+  [BAD] U14 MUST-FLAG: source R alone removed -> REFUSED. THERE IS NO TWO-OF-THREE VOTE: a missing source means the tolerance the adjoint solve ran at is unknown, and an unknown tolerance is not a band (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')
+  [OK ] U15 MUST-FLAG: source C alone removed (the DAOption echo stripped from the log copy) -> REFUSED, proving the log is genuinely read and is not decoration (clause 'G-DP:gmresRelTol_source_absent,note,path')
+  [OK ] U16 MUST-FLAG: source F alone removed -> REFUSED (clause 'G-DP:gmresRelTol_source_absent,path')
+  [OK ] U17 MUST-FLAG: 1e-5 planted into source R ALONE -> REFUSED on `gmresRelTol_sources_disagree` with all three values printed. This is what proves all three sources are read rather than one being trusted and two decorated (clause 'G-DP:gmresRelTol_sources_disagree,note')
+  [OK ] U18 MUST-FLAG: one byte appended to X-S's runScript -> REFUSED on `gmresRelTol_runscript_md5_moved` BEFORE any value is parsed. The pin is taken from the FROZEN PRODUCER'S OWN constant, so the successor cannot silently read a different runScript (clause 'G-DP:gmresRelTol_runscript_md5_moved')
+  [OK ] U19 MUST-FLAG, THE LAUNDERING TEST: a wrong-but-PRESENT tolerance (1e-5) planted into the repaired artefact -> THE FROZEN GRADER'S OWN CLAUSE `av2r_grade.py:511-513` fires, `gmresRelTol_in_artefact` reads 1e-05 and the verdict is NOT A RESULT. The repair restores the field; it does not weaken the check the field feeds (clause 'G-DP:gmresRelTol_in_artefact,note,registered,row')
+  [OK ] U20 MUST-FLAG, THE AGE GUARD SURVIVES THE REPAIR: the repaired artefact back-dated BEFORE its arm's launch datum -> the FROZEN grader still refuses `artefact_not_newer_than_datum`. Had the repair stamped a fresh mtime this rule-4 PHYSICS guard would have been silently satisfied by this instrument's own write, on every arm, for ever (clause 'G1:arm,artefact_mtime,artefact_not_newer_than_datum,datum,note')
+  [OK ] U21 MUST-FLAG: with the repair applied, one registered reverse total (CD/shape[3]) DOUBLED -- five orders outside the frozen band 1.0e-5 -- the item does NOT read PASS. REGISTERED CONDITIONAL: `GATE FAIL` (or a refusal on that component) if the SHIPPED forward row returns MEASURED components, `BLOCKED` if that row is blocked; what is forbidden is PASS. Branch taken: verdict 'BLOCKED', clause None
+  [OK ] U22 AV2 WITH THE GMRES REPAIR ALONE still returns NOT A RESULT, and on a DIFFERENT clause -- the `writeCompression` datum variant. **AV2 CARRIES BOTH DEFECTS**, so a gmres-only repair moves it from one NOT A RESULT to another, and this unit is what proves that rather than asserting it (clause 'G1:age_reference_absent')
+  [OK ] U23 AV2 WITH BOTH REPAIRS: the original `G1 age_reference_absent` on `X-S/0/U` is GONE and no refusal names `gmresRelTol` either -- the datum resolves to the compressed twin and the recovered tolerance is in place (clause None)
+  [OK ] U24 AV2 REBOUND EXACTLY `arm_datum`, AVWC's registered name, and the resolver IS AVWC's own code imported and md5-verified (1a7f3f21) -- NOT a second implementation of a repair this family has already paid for once
+  [OK ] U25 MUST-FLAG on AV2 TOO, the laundering test is not inherited: a wrong-but-present 1e-5 in the repaired artefact -> AV2's OWN frozen clause `av2_grade.py:442-443` fires and the verdict is NOT A RESULT (clause 'G-DP:gmresRelTol_in_artefact,note,registered,row')
+  [OK ] U26 every plant ran on a COPY: BOTH preserved run roots are byte-identical after all 13 re-grades in this selftest
+AV2RG SELFTEST units=26 expected=26 failures=2 python_O=False
+SELFTEST FAIL: ["U13 MUST-FLAG: ALL THREE sources removed from X-S -> still REFUSED, and the verdict is NOT A RESULT. A repaired reader that cannot still refuse is not repaired, it is disabled (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')", "U14 MUST-FLAG: source R alone removed -> REFUSED. THERE IS NO TWO-OF-THREE VOTE: a missing source means the tolerance the adjoint solve ran at is unknown, and an unknown tolerance is not a band (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')"]
+
+
+--- python3 -O ---
+  [OK ] U1 SOURCE R on the REAL preserved AV2R X-S: exactly one `identity` record and it carries `gmresRelTol` = 1e-06 -- the value the PRODUCER ITSELF held one statement before it wrote the identity dict that omits it (av2r_X.jsonl)
+  [OK ] U2 SOURCE C on the REAL preserved AV2R X-S solver log: the container's own DAOption echo reads `gmresRelTol 1e-06;` -- what DASimpleFoam actually PARSED, not anybody's record of what it was asked to be (X-S_20260828T022000Z_1713655.log)
+  [OK ] U3 SOURCE F on the REAL preserved AV2R X-S runScript: md5 == the FROZEN PRODUCER'S OWN `PRODUCER_MD5` (0557da51) and `daOptions['adjEqnOption']['gmresRelTol']` parses to 1e-06 by `ast`, WITHOUT EXECUTING THE FILE
+  [OK ] U4 THE PATCHED ROW IS MEASURED, NOT INFERRED FROM THE SHIPPED ROW: all three sources on the REAL preserved AV2R X-P read 1e-06, 1e-06, 1e-06 independently
+  [OK ] U5 AV2'S OWN ROOT IS MEASURED, NOT INHERITED: all three sources on X-S (1e-06, 1e-06, 1e-06) and on X-P (1e-06, 1e-06, 1e-06). AV2 and AV2R have IDENTICAL arm names and both are serial on every arm (`av2_grade.py:59` == `av2r_grade.py:59`, ARM_RANKS all 1), so only the file prefix differs
+  [OK ] U6 AV2'S GRADER READS THE SAME KEY BY THE SAME PATH and refuses in the same clause against the same registered tolerance -- which is why AV2 is an ENTRY here and not a fifth implementation
+  [OK ] U7 MUST-NOT-FLAG (AV2R): on the REAL preserved root the original refusal `G-DP gmresRelTol_in_artefact null` is GONE -- no refusal raised anywhere in this re-grade names `gmresRelTol` (clause now None)
+  [OK ] U8 the repair is VISIBLE ON DISK where the producer left a hole: on both arms the frozen grader consumes (X-S, X-P) the COPY's `identity.gmresRelTol` reads 1e-06 where the preserved artefact carries the key NOT AT ALL
+  [OK ] U9 THE ARTEFACT'S MTIME SURVIVED THE REPAIR on all four repaired arms. Both frozen graders age-guard this very file (`av2r_grade.py:288-289`), and that guard is a rule-4 PHYSICS field: a rewrite that stamped a fresh mtime would make it pass on THIS INSTRUMENT'S WRITE instead of the solver's
+  [OK ] U10 REBIND AUDIT (AV2R): the set of rebound callables is EXACTLY the empty set -- the frozen grader ran COMPLETELY UNMODIFIED, so every band, threshold, planted control and composition rule that decided this verdict is the frozen code, unedited on disk
+  [OK ] U11 AV2R's PRESERVED run root is byte-identical after the re-grade (378 regular files, md5 manifest before == after, read from the DISK and not from `git status`)
+  [OK ] U12 the verdict is from the FIXED vocabulary and is whatever the FROZEN instrument produced (got 'BLOCKED')
+  [BAD] U13 MUST-FLAG: ALL THREE sources removed from X-S -> still REFUSED, and the verdict is NOT A RESULT. A repaired reader that cannot still refuse is not repaired, it is disabled (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')
+  [BAD] U14 MUST-FLAG: source R alone removed -> REFUSED. THERE IS NO TWO-OF-THREE VOTE: a missing source means the tolerance the adjoint solve ran at is unknown, and an unknown tolerance is not a band (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')
+  [OK ] U15 MUST-FLAG: source C alone removed (the DAOption echo stripped from the log copy) -> REFUSED, proving the log is genuinely read and is not decoration (clause 'G-DP:gmresRelTol_source_absent,note,path')
+  [OK ] U16 MUST-FLAG: source F alone removed -> REFUSED (clause 'G-DP:gmresRelTol_source_absent,path')
+  [OK ] U17 MUST-FLAG: 1e-5 planted into source R ALONE -> REFUSED on `gmresRelTol_sources_disagree` with all three values printed. This is what proves all three sources are read rather than one being trusted and two decorated (clause 'G-DP:gmresRelTol_sources_disagree,note')
+  [OK ] U18 MUST-FLAG: one byte appended to X-S's runScript -> REFUSED on `gmresRelTol_runscript_md5_moved` BEFORE any value is parsed. The pin is taken from the FROZEN PRODUCER'S OWN constant, so the successor cannot silently read a different runScript (clause 'G-DP:gmresRelTol_runscript_md5_moved')
+  [OK ] U19 MUST-FLAG, THE LAUNDERING TEST: a wrong-but-PRESENT tolerance (1e-5) planted into the repaired artefact -> THE FROZEN GRADER'S OWN CLAUSE `av2r_grade.py:511-513` fires, `gmresRelTol_in_artefact` reads 1e-05 and the verdict is NOT A RESULT. The repair restores the field; it does not weaken the check the field feeds (clause 'G-DP:gmresRelTol_in_artefact,note,registered,row')
+  [OK ] U20 MUST-FLAG, THE AGE GUARD SURVIVES THE REPAIR: the repaired artefact back-dated BEFORE its arm's launch datum -> the FROZEN grader still refuses `artefact_not_newer_than_datum`. Had the repair stamped a fresh mtime this rule-4 PHYSICS guard would have been silently satisfied by this instrument's own write, on every arm, for ever (clause 'G1:arm,artefact_mtime,artefact_not_newer_than_datum,datum,note')
+  [OK ] U21 MUST-FLAG: with the repair applied, one registered reverse total (CD/shape[3]) DOUBLED -- five orders outside the frozen band 1.0e-5 -- the item does NOT read PASS. REGISTERED CONDITIONAL: `GATE FAIL` (or a refusal on that component) if the SHIPPED forward row returns MEASURED components, `BLOCKED` if that row is blocked; what is forbidden is PASS. Branch taken: verdict 'BLOCKED', clause None
+  [OK ] U22 AV2 WITH THE GMRES REPAIR ALONE still returns NOT A RESULT, and on a DIFFERENT clause -- the `writeCompression` datum variant. **AV2 CARRIES BOTH DEFECTS**, so a gmres-only repair moves it from one NOT A RESULT to another, and this unit is what proves that rather than asserting it (clause 'G1:age_reference_absent')
+  [OK ] U23 AV2 WITH BOTH REPAIRS: the original `G1 age_reference_absent` on `X-S/0/U` is GONE and no refusal names `gmresRelTol` either -- the datum resolves to the compressed twin and the recovered tolerance is in place (clause None)
+  [OK ] U24 AV2 REBOUND EXACTLY `arm_datum`, AVWC's registered name, and the resolver IS AVWC's own code imported and md5-verified (1a7f3f21) -- NOT a second implementation of a repair this family has already paid for once
+  [OK ] U25 MUST-FLAG on AV2 TOO, the laundering test is not inherited: a wrong-but-present 1e-5 in the repaired artefact -> AV2's OWN frozen clause `av2_grade.py:442-443` fires and the verdict is NOT A RESULT (clause 'G-DP:gmresRelTol_in_artefact,note,registered,row')
+  [OK ] U26 every plant ran on a COPY: BOTH preserved run roots are byte-identical after all 13 re-grades in this selftest
+AV2RG SELFTEST units=26 expected=26 failures=2 python_O=True
+SELFTEST FAIL: ["U13 MUST-FLAG: ALL THREE sources removed from X-S -> still REFUSED, and the verdict is NOT A RESULT. A repaired reader that cannot still refuse is not repaired, it is disabled (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')", "U14 MUST-FLAG: source R alone removed -> REFUSED. THERE IS NO TWO-OF-THREE VOTE: a missing source means the tolerance the adjoint solve ran at is unknown, and an unknown tolerance is not a band (clause 'G-DP:expected,gmresRelTol_runtime_identity_records,path')"]
+
