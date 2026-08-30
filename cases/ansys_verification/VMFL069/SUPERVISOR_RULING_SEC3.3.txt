@@ -1,0 +1,129 @@
+VMFL069 — SUPERVISOR'S RULING ON PREREGISTRATION §3.3
+=====================================================
+Made by ansys-verification-supervisor PERSONALLY, 2026-08-30T22:4xZ.
+THIS IS A RECORD, NOT AN AMENDMENT. It edits no frozen file, moves no gate,
+band, threshold, ceiling, cap, level, tolerance or verdict path, and changes
+zero bytes of PREREGISTRATION.md, grade_vmfl069.py or run_vmfl069.sh.
+
+-----------------------------------------------------------------------------
+THE QUESTION §3.3 RESERVED TO ME
+-----------------------------------------------------------------------------
+PREREGISTRATION.md §3.3 (lines 227-235) flagged one interpretive call for the
+supervisor: is VERIFICATION_CHARTER §2f.3's CONTINUUM cap ("GATE REACHED
+maximum. PASS is unavailable.") the NO-TRIPLE ceiling its own column heading
+says it is, or an absolute cap on every continuum limb? If absolute, all three
+of VMFL069's limb ceilings fall from PASS to GATE REACHED and the row can
+never be a credential.
+
+A lane was in flight amending the ceilings toward GATE REACHED when the
+2026-08-28T18:05Z session limit killed the fleet. Its last words were "Rule 2
+legality check first." That check is mine and is made here.
+
+-----------------------------------------------------------------------------
+RULING: §2f.3 DOES NOT REACH VMFL069. THE THREE `PASS` CEILINGS STAND AS
+FROZEN. NO AMENDMENT IS MADE.                                [lab-attributed]
+-----------------------------------------------------------------------------
+Grounds, read by me in the charter rather than relayed:
+
+1. SCOPE IS SET BY THE CLAUSE'S OWN COLUMN HEADING. §2f.3's table column is
+   headed "ceiling WITHOUT a triple" (VERIFICATION_CHARTER.md:2419-2421), and
+   §2f's amendment title (:2383) is "A REGISTRATION THAT DECLARES NO ROACHE
+   TRIPLE." A cap whose column is conditioned on the absence of a triple does
+   not reach a registration that declares one.
+
+2. THE CLAUSE STATES ITS OWN GROUND, AND THE GROUND IS ABSENT HERE. The
+   CONTINUUM row reads: "a property of the continuum solution, FROM WHICH
+   DISCRETISATION ERROR IS NOT SEPARABLE WITHOUT A TRIPLE" (:2421). VMFL069
+   registers a four-level family and a Roache triple. Where that triple
+   returns CONVERGING, discretisation error IS separated and bounded by the
+   GCI — the exact condition the cap exists to cover does not obtain.
+
+3. §2f DISABLES ONLY LIMB (2), AND ONLY FOR A NO-TRIPLE REGISTRATION.
+   §2f.2 (:2401-2411): "Only limb (2), the triple-state gate, is unreachable.
+   'No triple' never means 'no rule 5.'" Nothing in §2f purports to disable
+   CLAUDE.md rule 5 step 3 ("CONVERGING -> PASS inside the pre-registered band
+   else GATE FAIL") for a registration that reaches it.
+
+4. THE CLAUSE THAT MOST NEARLY CUTS THE OTHER WAY, NAMED RATHER THAN OMITTED.
+   §2h.3 (:2757-2762) REFERS TO SANAA the question of splitting §2f.3's
+   CONTINUUM row so that "exact or manufactured solution of the same continuum
+   model" is named separately and is PASS-capable, and rules that until she
+   rules "§2f.3's cap stands untouched for everything else." I do not read
+   that against VMFL069: §2h is by its own terms the FLOOR-DEMONSTRATION
+   clause for registrations carrying NO triple, and §2h.4's five conditions
+   are conditions on a no-triple floor demonstration. VMFL069 §3.2 expressly
+   does not invoke §2h, needs no benefit under it, and does not stand on it —
+   it stands on rule 5 step 3, which it reaches. I AM NOT DECIDING SANAA'S
+   REFERRED QUESTION AND THIS RULING DOES NOT TOUCH IT.
+
+5. CONSISTENCY CHECK, WITH THE CAVEAT STATED RATHER THAN LEANT ON. Register
+   rows #2 (VMFL001-R2, exact Taylor-Couette, CONVERGING, p=2.0102) and #3
+   (VMFL005, exact Hagen-Poiseuille, CONVERGING, p=1.9341) both landed PASS
+   against exact-solution references. HONEST CAVEAT: §2f is dated 2026-08-27
+   and both rows PREDATE it, so they are this lab's practice, not applications
+   of the clause. They corroborate; they do not bind. The ruling rests on
+   §2f.3's own text.
+
+-----------------------------------------------------------------------------
+THE RULE-2 LEGALITY CHECK, MADE EXPLICITLY AS REQUIRED
+-----------------------------------------------------------------------------
+Two independent grounds, and they agree.
+
+(a) NOT POST-COMPUTE — so rule 2's window was OPEN, contrary to the framing
+    that reached me. Checked BY ME at 2026-08-30T22:37Z, naming the directory
+    that does not exist exactly as rule 2 requires:
+      verification/runs/ansys_verification/VMFL069/  DOES NOT EXIST.
+    Zero solver logs, zero time directories, zero postProcessing, zero
+    GRADING_VMFL069*.json, no register row. NO GATE QUANTITY EXISTS ANYWHERE,
+    so there is nothing any ceiling could have been fitted to. The four-
+    condition repair exception (§2d.1) is NOT invoked and is not needed.
+
+    The 2026-08-28 pre-flight smoke (commit 710a3e9a) computed NO gate
+    quantity: L1 for 3 time steps against a registered endTime of 2000 with
+    writeInterval 500, latest_time_dir = none — the solver wrote no time
+    directory at all, so no field existed on disk from which a gate value
+    could be taken. My own VMFL006 quarantine rule ("a pre-freeze smoke may
+    exercise the TOOLCHAIN but may NEVER compute a GATE QUANTITY") is
+    satisfied on its own test: no reader of that smoke could choose or defend
+    a band from it.
+
+(b) TIME-BARRED BY THE REGISTRATION'S OWN SELF-RESTRAINT, WHICH IS TIGHTER
+    THAN THE CONSTITUTION. §3.3 (:234) and §11 item 10 (:588) both say the
+    call "must be made BEFORE the freeze commit, never after" / "Decided at
+    the freeze, never after." The pre-registration was committed at 4e4819ab;
+    §0 line 56 refers to that commit as "this freeze". A ceiling change made
+    now would therefore be barred by the registration's OWN wording even
+    though rule 2's pre-compute window is open. A registration may bind itself
+    more tightly than the constitution, and that self-restraint is honoured.
+
+DIRECTION, RECORDED SO AN AUDITOR DOES NOT HAVE TO INFER IT: the amendment in
+flight would have TIGHTENED the ceiling (PASS -> GATE REACHED), making the
+best available row WORSE. It could not have been gate-fitting. I decline it
+anyway, because a ceiling should be the one the charter actually imposes, not
+the most conservative one available — an unnecessarily capped row is as
+inaccurate as an overclaimed one, and §2f.3 itself declined a blanket cap for
+exactly that reason (":2415-2417 ... DECLINED as a blanket, because a blanket
+cap ... would make this clause punitive rather than accurate").
+
+-----------------------------------------------------------------------------
+THE RULING COSTS ZERO BYTES
+-----------------------------------------------------------------------------
+grade_vmfl069.py:93 already reads
+    TIER_CEILING = {"A": "PASS", "B": "PASS", "C": "PASS"}
+and PREREGISTRATION.md §5.2 already carries PASS on all three limbs. The
+registration AS FROZEN already encodes the outcome of this ruling, so no file
+is edited, rule 6 is never reached, and the freeze remains byte-identical to
+its committed blobs. This record is filed beside the case exactly as
+PREFLIGHT_SMOKE_RECORD.txt was — a record, not an amendment.
+
+DRAFTING GAP RECORDED AGAINST THIS TEAM, NOT BURIED: the registration was
+committed at 4e4819ab with §3.3's call UNRESOLVED while its own text said the
+call must be made AT the freeze. It should have been ruled before that commit.
+It did not damage anything — nothing ran, and the frozen ceilings turn out to
+be the correct ones — but a registration that defers a ceiling question past
+its own freeze deadline is a registration with an open gate, and the next one
+does not go to a freeze commit with a §3.3 in it.
+
+STILL OWED BEFORE VMFL069 COMPUTES: nothing on the gate side. The case is
+frozen, smoke-tested end to end, its ceilings are ruled, and it is launchable
+whenever the box queue has room.
