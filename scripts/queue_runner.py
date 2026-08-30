@@ -655,6 +655,47 @@ def measure_box(busy_window: float) -> tuple[float, float]:
     return busy_percent(busy_window), mem_available_gb()
 
 
+def rotation_order(queues: dict, rr_state: dict) -> list[str]:
+    """Team order for one tick: ROTATE THE FULL `TEAMS` TUPLE FIRST, FILTER SECOND.
+
+    WHY THIS FUNCTION EXISTS (2026-08-30). The round-robin cursor was kept in TWO
+    UNIT SYSTEMS and the mismatch was not a bias, it was an ABSORBING STATE:
+
+      * WRITTEN as an index into the full `TEAMS` tuple  -- `(TEAMS.index(team)+1) % len(TEAMS)`
+      * READ  as an index into the FILTERED list of teams that have work
+        -- `rr_state.get("cursor", 0) % max(1, len(order))`
+
+    With TEAMS of length 6 and `order = ['heat-transfer','closure','dafoam']`, launching
+    `closure` wrote cursor = 4, and `4 % 3 = 1` rotated the filtered list so that
+    `closure` was FIRST AGAIN. Eight of eight ticks went to closure; heat-transfer and
+    dafoam were starved permanently until the queue shape changed. The absorbing team is
+    STATE-DEPENDENT -- drain dafoam and `4 % 2 = 0` makes heat-transfer the absorber --
+    so it can land on ANY team, and it defeated Sanaa's standing never-idle order for
+    five of six teams while the log looked entirely healthy.
+
+    THE REPAIR IS NOT A CORRECTED MODULUS. A modulus that is currently right is one edit
+    away from being wrong again, and the defect was invisible precisely because both
+    expressions were individually reasonable. The SECOND UNIT SYSTEM IS ELIMINATED:
+
+      * State is the LAST-LAUNCHED TEAM NAME. A name has no unit system and cannot be
+        taken modulo the wrong length -- the defect is not fixed, it is UNREPRESENTABLE.
+      * Rotation happens in TEAMS-index space; filtering happens AFTERWARDS. No TEAMS
+        index is ever taken modulo `len(order)`, which was the whole defect.
+
+    It is also strictly fairer than the original intent: a team with no work on one tick
+    KEEPS ITS PLACE in the global rotation instead of being silently renumbered by a
+    filtered list that changed length underneath it.
+
+    A legacy integer `cursor` key is simply never read. `rr_state` is process-local (it is
+    created fresh in main() and never persisted), so this is belt-and-braces for an
+    in-process caller, not an on-disk migration -- see the note in tick().
+    """
+    last = rr_state.get("last_team")
+    i = TEAMS.index(last) + 1 if last in TEAMS else 0
+    rotated = TEAMS[i:] + TEAMS[:i]
+    return [t for t in rotated if queues.get(t)]
+
+
 def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
          busy_window: float, rr_state: dict, launch_fn=launch, measure=None,
          gpu_probe=None) -> str:
@@ -684,9 +725,15 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     busy_cores = busy / 100.0 * ncpu
     log(f"box busy={busy:.1f}% (~{busy_cores:.1f}/{ncpu} cores) MemAvailable={mem:.1f} GB; "
         f"{total} entr{'y' if total == 1 else 'ies'} queued")
-    order = [t for t in TEAMS if queues.get(t)]
-    start = rr_state.get("cursor", 0) % max(1, len(order))
-    order = order[start:] + order[:start]
+    # A legacy integer `cursor` is IGNORED, and the transition is LOGGED rather than
+    # inferred. `rr_state` is process-local (created fresh in main(), never persisted),
+    # so a restart already starts clean; this branch exists for an in-process caller
+    # holding pre-repair state, and the selftest plants exactly that.
+    if "cursor" in rr_state and not rr_state.get("cursor_legacy_noted"):
+        log("ROTATION: legacy integer 'cursor' state present and IGNORED -- rotation now "
+            "keys on the last-launched TEAM NAME; this tick starts from the head of TEAMS")
+        rr_state["cursor_legacy_noted"] = True
+    order = rotation_order(queues, rr_state)
     any_refused = False
     gpu_reading: dict | None = None      # probed at most once per tick, lazily
     gpu_live: list[str] = []
@@ -742,7 +789,8 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
                 # indistinguishable from a clause that is quiet when passing.
                 log(f"GPU-CLAUSE {path.name}: {gpu_verdict} -- {gpu_message}")
             launch_fn(entry, path, root, log)
-            rr_state["cursor"] = (TEAMS.index(team) + 1) % len(TEAMS)
+            # The LAST-LAUNCHED TEAM NAME, never an index: see rotation_order().
+            rr_state["last_team"] = team
             return "LAUNCHED"
     if any_refused:
         return "REFUSED-ONLY"
@@ -1372,6 +1420,141 @@ def selftest() -> int:
     check("mutation: with the shape predicate always-true the unrecognised root is ACCEPTED "
           "-- S1's refusal comes from that predicate and nothing else",
           mut_raised == "", f"still_raised={mut_raised[:60]!r}")
+
+    # ---------------------------------------------------------------- R1-R4: ROTATION
+    # THE ABSORBING-STATE DEFECT (2026-08-30). See rotation_order()'s docstring for the
+    # mechanism. These controls drive the REAL rotation_order() as the positive limb and
+    # a faithful transcription of the OLD two-unit-system logic as the NEGATIVE limb.
+    # THE NEGATIVE LIMB IS THE POINT: a control that passes against BOTH implementations
+    # would be measuring nothing, and this defect survived precisely because every check
+    # that existed passed against it.
+
+    def _drive(order_fn, advance_fn, nonempty: tuple[str, ...], ticks: int) -> list[str]:
+        """Run `ticks` scheduling passes over a fixed set of teams that all have work.
+
+        Each pass launches the FIRST team of the returned order -- which is what tick()
+        does when every queued entry is launchable -- then advances the state the way
+        that implementation advances it. Returns the launch sequence.
+        """
+        st: dict = {}
+        queues = {t: ["entry"] for t in nonempty}
+        seq = []
+        for _ in range(ticks):
+            order = order_fn(queues, st)
+            if not order:
+                break
+            team = order[0]
+            seq.append(team)
+            advance_fn(st, team, order)
+        return seq
+
+    def _new_order(queues, st):
+        return rotation_order(queues, st)          # THE REAL PRODUCTION FUNCTION
+
+    def _new_advance(st, team, order):
+        st["last_team"] = team                     # matches the real write site
+
+    def _old_order(queues, st):                    # the pre-repair logic, transcribed
+        o = [t for t in TEAMS if queues.get(t)]
+        start = st.get("cursor", 0) % max(1, len(o))
+        return o[start:] + o[:start]
+
+    def _old_advance(st, team, order):
+        st["cursor"] = (TEAMS.index(team) + 1) % len(TEAMS)
+
+    def _worst_starvation(seq: list[str], nonempty: tuple[str, ...]) -> tuple[int, str]:
+        """Largest number of consecutive ticks any team with work went unlaunched."""
+        worst, who = 0, ""
+        for t in nonempty:
+            gap = best = 0
+            for s in seq:
+                if s == t:
+                    gap = 0
+                else:
+                    gap += 1
+                    best = max(best, gap)
+            if t not in seq:
+                best = len(seq)
+            if best > worst:
+                worst, who = best, t
+        return worst, who
+
+    # R1: every non-empty subset of TEAMS, all sizes 1..6. Fairness requirement: with N
+    # teams holding work, no team may go unlaunched for N or more consecutive ticks.
+    subsets = []
+    for mask in range(1, 1 << len(TEAMS)):
+        subsets.append(tuple(TEAMS[i] for i in range(len(TEAMS)) if mask & (1 << i)))
+    new_bad, old_bad = [], []
+    for sub in subsets:
+        n = len(sub)
+        seq_new = _drive(_new_order, _new_advance, sub, 4 * n)
+        w_new, who_new = _worst_starvation(seq_new, sub)
+        if w_new >= n:
+            new_bad.append((sub, w_new, who_new))
+        seq_old = _drive(_old_order, _old_advance, sub, 4 * n)
+        w_old, who_old = _worst_starvation(seq_old, sub)
+        if w_old >= n:
+            old_bad.append((sub, w_old, who_old))
+    check(f"R1 rotation: no team starved >= len(order) ticks, all {len(subsets)} non-empty "
+          f"subsets of TEAMS (sizes 1..{len(TEAMS)})",
+          not new_bad,
+          "" if not new_bad else f"{len(new_bad)} starving subsets, worst {new_bad[0]}")
+
+    # R1-NEG: THE SAME control against the OLD logic MUST FAIL. If it does not, the
+    # control cannot tell the repaired code from the broken code and is worth nothing.
+    check("R1-NEG mutation: the SAME fairness control REFUSES the old two-unit-system "
+          "logic -- the control can distinguish repaired from broken",
+          bool(old_bad),
+          f"{len(old_bad)}/{len(subsets)} subsets starve under the old logic"
+          + (f"; e.g. {old_bad[0][0]} starved {old_bad[0][2]} for {old_bad[0][1]} ticks"
+             if old_bad else ""))
+
+    # R2: THE LIVE CASE, named as a regression. TEAMS as shipped, the three teams that
+    # actually had work at 23:49Z, and the cursor value the old code had written (4,
+    # from TEAMS.index('closure')+1). The old logic gave 8 of 8 ticks to closure.
+    live = ("heat-transfer", "closure", "dafoam")
+    seq_live_new = _drive(_new_order, _new_advance, live, 8)
+    old_st: dict = {"cursor": 4}
+    old_seq = []
+    q_live = {t: ["entry"] for t in live}
+    for _ in range(8):
+        o = _old_order(q_live, old_st)
+        old_seq.append(o[0])
+        _old_advance(old_st, o[0], o)
+    check("R2 live regression: order=('heat-transfer','closure','dafoam') no longer locks "
+          "on one team; every team launches within 8 ticks",
+          set(seq_live_new) == set(live),
+          f"new={seq_live_new}")
+    check("R2-NEG the old logic on the SAME input locks on a single team",
+          len(set(old_seq)) == 1,
+          f"old={old_seq[:4]}... all-closure={old_seq == ['closure'] * 8}")
+
+    # R3: the absorbing team is STATE-DEPENDENT under the old logic -- drain dafoam and
+    # 4 % 2 = 0 makes heat-transfer the absorber. Recorded so the defect is not
+    # remembered as "it always favoured closure", which would be the wrong lesson.
+    two = ("heat-transfer", "closure")
+    old_st2: dict = {"cursor": 4}
+    q2 = {t: ["entry"] for t in two}
+    old_seq2 = []
+    for _ in range(8):
+        o = _old_order(q2, old_st2)
+        old_seq2.append(o[0])
+        _old_advance(old_st2, o[0], o)
+    new_seq2 = _drive(_new_order, _new_advance, two, 8)
+    check("R3 the old absorber is state-dependent (drain dafoam -> heat-transfer locks, "
+          "not closure); the repair is fair on the same input",
+          len(set(old_seq2)) == 1 and set(new_seq2) == set(two),
+          f"old={old_seq2[0]}x8 new={new_seq2[:4]}")
+
+    # R4: a legacy integer `cursor` is IGNORED and never taken modulo anything. Planted
+    # directly, because "it cannot happen in production" is not a reason to leave a
+    # crash path untested -- rr_state is a plain dict any in-process caller may hold.
+    legacy: dict = {"cursor": 4}
+    legacy_order = rotation_order({t: ["e"] for t in live}, legacy)
+    check("R4 legacy integer 'cursor' state is ignored, not mis-seeded: rotation starts "
+          "from the head of TEAMS and no index is taken modulo len(order)",
+          legacy_order == [t for t in TEAMS if t in live],
+          f"order={legacy_order}")
 
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
