@@ -430,3 +430,195 @@ The launcher's `A3` check asserts every instrument against the **committed HEAD 
 | planted-failure legs driven | **11 + 6 + 82 + 22 + 12**, all passing, the last three under `python3` and `python3 -O` |
 | this lane's own instrument defects found and recorded | **1** (§13.4, leg P6) |
 | lines whose number changed above this section | **0**, proved on bytes |
+
+---
+
+## 14. ADDENDUM 1 — 2026-08-30, **POST-COMPUTE**. `W3-LAUNCHER-DEF-2`: the fatal scan read OpenFOAM's FPE-*enablement banner* as a crash. No gate, threshold, cap, band, label, cost or prediction moves.
+
+**Version 1.3 → 1.4.** Dated **2026-08-30**. Lane: dafoam `lab-lane`. Supervisor: `dafoam-supervisor` (`[lab-attributed]`; the ruling implemented here is the supervisor's, quoted in §14.1). **Lines whose number changed above this section: 0 — proved on BYTES**, not on a line count: the HEAD blob of this file is asserted a byte-exact PREFIX of the amended file in the commit invocation, the assertion Amendment 2 introduced and every later one inherits. Sections 1–13 stand as frozen. This block was appended with `scripts/append_block.py`, which reads the body from a **file as bytes** so no shell ever sees it and compares the landed tail **byte-for-byte** against the intended bytes — no heredoc was used anywhere in producing it.
+
+### 14.1 THE RULE-2 STATUS, STATED PLAINLY — THIS IS AN ADDENDUM, NOT AN AMENDMENT
+
+**W3 HAS HAD FIRST COMPUTE.** The `2026-08-28T16:28:48Z` fire ran S0 to completion and entered S1a before the supervisor stopped it at `16:33:52Z`, spending **5.067 core-min**. Amendments 1, 2 and 3 were all **pre-compute** and could legally move things this one cannot. **Under standing rule 2 the gates are CLOSED**, and this block is a **dated addendum that cannot alter a gate, threshold, cap or label**. Nothing below alters one.
+
+**The supervisor's ruling, implemented here and not re-opened by this lane:** repairing a **false-positive** crash detector moves no gate — it makes the instrument able to reach a verdict it was *structurally barred* from reaching. The token stays; no threshold, band, cap, label, cost or prediction moves; and the **must-flag controls of §14.4 are what prove no guard was loosened**. The lane was instructed to STOP and report if it found any way the repair could **change** a graded outcome rather than merely **permit** one. It looked, it found one candidate, it **measured** it, and the measured answer is zero — §14.5.
+
+**THE §2b CONDITION, STATED AND CHECKED.** A pre-compute amendment must name a run directory that does not exist. This is not a pre-compute amendment, so the analogous condition is checked instead and is stated here in full:
+
+- The run root of the fire this addendum enables is **`/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady`**. **CHECKED, not asserted: it does NOT exist.** `ls -d` on that path returns `No such file or directory`, and the launcher's phase 1 requires exactly that (`d12y_w3_stage_and_run.sh:238`, `[ -e "$ROOT" ]` → `exit 6`).
+- It does not exist **because the stopped fire's root was ARCHIVED, never deleted** — §14.6.
+- The stopped fire produced **no graded stage, no plan step and no verdict**. Nothing in this document is being re-fitted to an answer, because no answer was ever produced. `verdict_state` has been `PENDING` throughout.
+
+**AN HONEST CONTRADICTION, RECORDED RATHER THAN SMOOTHED.** `SUPERVISOR_STOP.txt`, written into the run root at the stop and preserved verbatim in the archive, closes: *"NOTHING here is repaired. The repair belongs to a SUCCESSOR registration, exactly as SO1a's does."* The supervisor's 2026-08-30 ruling instead directs the repair into **this** registration as a post-compute addendum. Both documents are the supervisor's. The 08-30 ruling is the later and is the one implemented; the 08-28 sentence is **not** struck, because it sits in a preserved run-root artefact that is evidence of what was believed at the stop. A reader who finds the two should know the lane saw the conflict and did not paper over it. The distinction the ruling turns on is real: SO-1a's repair changed a **grading path** and so needed a successor, whereas this one repairs a **launcher-side false positive** and leaves the grading path byte-identical.
+
+### 14.2 `W3-LAUNCHER-DEF-2` — A SAFETY NOTICE READ AS A CRASH
+
+`d12y_w3_stage_and_run.sh:566` carried the **bare, unanchored** regex `r"Floating point exception"` in `_FATAL`, applied by a **whole-file** `re.search` at `:568-570`. Real DAFoam logs carry OpenFOAM's standard startup banner:
+
+```
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+```
+
+— **the notice that FPE trapping is ENABLED**, i.e. that the solver is *protected* against the very fault the token exists to detect. The comment at `:562-563` claimed these were *"Anchored patterns, not a loose substring … ONLY on a real fault"*; that was true of every token **except this one**, which is why the claim survived review.
+
+Downstream, `d12y_grade_w3.py:288-293` refuses on **any** non-empty `fatal_tokens`, explicitly *"regardless of rc, of the End line and of every other limb"*. **W3 was therefore GUARANTEED to refuse at its first stage and to publish a false physics statement about a clean solve**, for its whole registered 563.3 core-min.
+
+**REPRODUCED ON REAL LOGS FROM FIVE DISTINCT ITEMS**, not argued from the source (`d12y_w3_fatal_scan_control_evidence.txt`, regenerable by `python3 d12y_w3_fatal_scan_evidence.py`):
+
+| corpus | OLD hits | NEW hits | `trapFpe` banner lines | `FOAM FATAL` |
+|---|---|---|---|---|
+| D12R2W3 `S0` (this item's own first stage) | 1 | **0** | 4 | 0 |
+| D12R2W3 `S1a` (this item's own second stage) | 1 | **0** | 1 | 0 |
+| D6R `ACC_mp` multipoint | 1 | **0** | 3 (lines 62, 749, 1432) | 0 |
+| D18 cone hypersonic `MESH` | 1 | **0** | 3 (lines 25, 114, 154) | 0 |
+| D17 cone supersonic `MESH` | 1 | **0** | 3 (lines 25, 114, 154) | 0 |
+| D12R2W2R `S1a` | 1 | **0** | 1 (line 18) | 0 |
+
+Every OLD hit is the banner and every corpus has `FOAM FATAL = 0`. The NEW zeros sit beside a **non-zero banner column**, so each zero is a **reading and not an empty population** (standing rule 3), and §14.4's unit `(a6)` plants a `FOAM FATAL ERROR` into those same real bytes and requires it to be caught.
+
+**No other pattern false-positives on any clean corpus.** The repair's scope is exactly one token.
+
+### 14.3 THE REPAIR — ADOPTED FROM THIS FAMILY'S OWN TWO PRIOR SOLUTIONS, NOT A FIFTH IMPLEMENTATION
+
+Both were read as source before a byte was written, and both are cited in the launcher comment:
+
+- `cases/dafoam/ladder-a/A1/curriculum_SO1aR/so1ar_grade.py` — `FATAL_TOKENS` `:190-202`, the reasoning `:204-232`, `REAL_BANNER_LINE` `:285`, `benign_reason()` `:489-495`, `fatal_token_sites()` `:498-525`.
+- `cases/dafoam/ladder-a/A1/curriculum_SO1c/so1c_grade.py` — `:155-218`.
+
+Both take the handler symbol from the lab's own `sdk/chief_engineer/head_engineer.py:188` and **deliberately reject that reader's `^` line anchor**. **The two traps they document are honoured here:**
+
+1. **THE TOKEN STAYS.** Deleting `Floating point exception` would blind the scan to a real SIGFPE — the worse direction, since a missed crash is laundered into a result while a false hit only costs a re-read. What was removed is the **whole-file / bare substring match**, not the token. Unit `(s3)` asserts the token is still present and **fails** if a future edit deletes it (driven: NEG-2, §14.4).
+2. **`^` IS NOT THE FIX.** OpenMPI's real report is `mpirun noticed that process rank 2 exited on signal 8 (Floating point exception).` — **not line-initial**, so `^Floating point exception` would **miss a genuine crash**. Unit `(s4)` asserts the anchor was not adopted, and `(c)` drives that exact OpenMPI line as must-flag.
+
+**The shape:** line-by-line scanning with a **per-line benign exclusion**, so a banner on line 89 can never suppress a crash on line 400. The exclusion list holds **exactly one** entry, `^\s*trapFpe:\s`, and **every exclusion is recorded** in a new record-only key `fatal_benign_excluded` (line, tokens, reason, text) — a suppression a reader cannot see is the same defect wearing the other hat.
+
+**THE GRADER CONTRACT IS UNCHANGED AND THE GRADING PATH IS UNTOUCHED.** `row["fatal_tokens"]` remains a list of pattern strings in `_FATAL` order: non-empty **refuses**, empty means the scan **ran and was clean**, `None` still means **no log was read**. `d12y_grade_w3.py` reads it with `.get()` and enforces no key schema, so the added record-only key is graded by nothing. **`d12y_grade_w3.py` is not edited by this addendum** — its pre-answer freeze is this item's entire evidentiary value.
+
+The launcher diff is **ONE hunk**, `@@ -559,16 +559,75 @@`, **7 lines removed and 66 added**, of which the large majority are the comment naming the defect and its provenance. No cap, cpuset, memory, stage graph, `W_STEPS`, band, threshold or prediction is touched, and no other line of the file moves.
+
+### 14.4 THE REPAIRED CONTROL — TWO-DIRECTIONAL AGAINST THE REAL CORPUS, **36/36**, AND PROVED ABLE TO FAIL
+
+**WHY THE OLD CONTROL PASSED WHILE THE INSTRUMENT WAS BLIND — this is the lesson of this addendum.** `d12y_w3_fatal_scan_control.sh` passed **12/12** on 2026-08-27 against a launcher that could not read a single real log correctly. It failed in **two independent ways**, and only the first is the one people remember:
+
+1. **EVERY FIXTURE WAS SYNTHETIC.** It invented nine crash strings, confirmed each was caught, added innocuous prose and confirmed that was not — and **never once ran a pattern against a real DAFoam log**. No fixture it invented contained the banner line. *A control validated only against fixtures it invented can pass while the instrument is blind to the real corpus.*
+2. **IT TESTED A COPY OF THE ALGORITHM, NOT THE ALGORITHM.** It extracted the launcher's **pattern list** live (correctly, and its own header explains why) and then re-implemented the **scan** as its own whole-file `re.search(p, txt, re.M)`. The part that was actually broken — the *semantics* — was a private copy the launcher could never invalidate. **Its own header names that exact trap for the pattern list and then walks into it for the scan.**
+
+**The repair closes both.** The launcher's **real scan block is extracted from its source and executed**, so the control drives the shipping implementation rather than a description of it; and the must-not-flag fixtures are **real log bytes** from three preserved corpora, registered by md5 so a drifted fixture **refuses** instead of quietly passing.
+
+**Result: `pass=36 fail=0 units=36 expected=36`, rc=0**, zero compute. `EXPECTED_UNITS` is frozen at the **driven** population — this lane's first draft wrote `31` and the guard **refused with rc=2** rather than accept a control whose population had silently changed; the number is recorded as what the control actually drove, and that refusal is itself evidence the count is not decorative.
+
+**MUST-NOT-FLAG (the direction the old control never tested, and the direction W3 died in):**
+
+| unit | what it drives | result |
+|---|---|---|
+| `(a2)` | the **real** `trapFpe:` banner line, **verbatim** | **0 hits**, 1 exclusion recorded |
+| `(a3)` | the exclusion carries its reason and is not silent | recorded, `ENABLEMENT NOTICE` |
+| `(a4)` | **real clean log** `D12R2W3 S0` (real bytes, md5 `ccc4f40f…`) | **0 hits**, 4 excluded, `FOAM FATAL` 0 |
+| `(a4)` | **real clean log** `D6R ACC` excerpt (md5 `61add2fd…`) | **0 hits**, 2 excluded, `FOAM FATAL` 0 |
+| `(a5)` | those corpora **did** carry banner lines the old scan flagged | ≥1 each — a zero here would mean the corpus proves nothing |
+| `(a6)` | **plant `FOAM FATAL ERROR` into those same real clean bytes** | **CAUGHT** — the zero above is a reading, not a blind spot |
+
+**MUST-FLAG — a repaired scan that cannot still catch a real SIGFPE is not repaired, it is disabled:**
+
+| unit | what it drives | result |
+|---|---|---|
+| `(b0)` | **every** launcher pattern has a fixture (coverage not reduced) | all 10 driven |
+| `(b)` | the **nine original fixtures, all kept**, planted one at a time | **10/10 CAUGHT** |
+| `(c)` | `Foam::sigFpe::sigHandler(int)` — stack-trace handler symbol | **CAUGHT** |
+| `(c)` | `Floating point exception (core dumped)` — shell report | **CAUGHT** |
+| `(c)` | `… process rank 2 exited on signal 8 (Floating point exception).` — OpenMPI, **not line-initial** | **CAUGHT** |
+| `(c4)` | a **REAL SIGFPE crash log excerpt**, real bytes (md5 `81317016…`) | **CAUGHT** |
+| `(c5)` | banner **and** a real crash in **one file** | **still CAUGHT**, banner still excluded |
+| `(c6)` | real clean log **+** a crash appended | **CAUGHT** — per-line, not whole-file |
+| `(d2)` | a **non**-line-initial `trapFpe:` mention buys **no** exclusion | not excluded, crash caught |
+
+**THE CONTROL IS PROVED ABLE TO FAIL — four planted failures, four refusals** (a gate that has never been seen to close is not a gate):
+
+| plant | expected | measured |
+|---|---|---|
+| NEG-1 launcher **reverted** to the whole-file scan | refuse | **rc=2**, `REFUSE: could not extract the scan block` |
+| NEG-2 the FPE **token deleted** from the launcher (the wrong fix) | refuse | **rc=2**, `(s3)`, `(a2)`, `(a3)` all BAD |
+| NEG-3 the exclusion **widened** to bare `trapFpe` | refuse | **rc=1**, `(d2)` BAD |
+| NEG-4 a fixture's **bytes drifted** | refuse | **rc=2**, `REFUSE: fixture DRIFTED` |
+
+### 14.5 THE ONE WIDENING, AND WHY IT IS NOT A GATE CHANGE — MEASURED, NOT ARGUED
+
+The repair adds **one** positive token, `Foam::sigFpe::sigHandler`, adopted from `so1ar_grade.py:202` and `so1c_grade.py:167`. **This is the one element of the repair that widens rather than narrows, and the lane flagged it rather than letting it pass.** It exists because an interleaved multi-rank stack trace can mangle the `[n] #n ` prefix — a shape present in the lab's own crash corpus, e.g. `Foam::sigFpe::sigHandler(int)[6] [9] [stack trace]`, which the `^\s*\[\d+\]\s+#\d+\s` pattern does **not** match.
+
+Two facts settle it, and the second is a measurement rather than a judgement:
+
+1. **It can only ADD refusals, never remove one.** It moves strictly in the `NOT A RESULT` direction — the same one-way direction standing rule 5 gives a gate, and the same direction the existing guard already runs in. It cannot manufacture a favourable outcome.
+2. **On the lab's 34 real SIGFPE crash logs it DECIDES a refusal the other nine would have missed in ZERO of them.** It changes no graded outcome on any log this lab has ever produced; it is belt-and-braces.
+
+**AN HONEST CORRECTION, RECORDED RATHER THAN DROPPED — and it is the most useful thing in this addendum.** This lane's **first** measurement of the crash corpus compared *"files the OLD scan refused"* against *"files the REPAIRED scan refuses"* and reported **34 → 28**, which reads as **six lost crash detections** — the one outcome that would have made this a gate change and stopped the work. The lane stopped on its own number and diagnosed it instead of shipping it. **That metric was wrong**: it scored a file whose **only** old hit was the **banner** as a *detected crash*, i.e. it counted the false positive as a success. The honest metric is **ground truth computed independently of both scans** — a pattern matching a **non-banner** line:
+
+| measured on the 34-log real SIGFPE crash corpus | value |
+|---|---|
+| refused by the OLD scan | 34 |
+| refused by the REPAIRED scan | 28 |
+| of the OLD refusals, files whose **only** hit was the banner | **6** (0 non-banner fatal lines, 0 `FOAM FATAL`, 0 `sigHandler`; four are externally `KILLED_` runs, not FPE crashes) |
+| **files where the repair loses REAL crash evidence** | **0** |
+
+The `34 → 28` difference **is exactly the six false positives being removed**. Every real crash signature in the corpus is still refused. **A raw before/after count that treats a false positive as a detection will always make a false-positive repair look like a regression**; the fix is a ground truth computed independently of both instruments, and that is what is registered here.
+
+### 14.6 THE RUN ROOT — ARCHIVED, NEVER DELETED
+
+The `2026-08-28T16:28:48Z` fire left a populated root. **The whole root was MOVED**; nothing was deleted.
+
+- **FROM** `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady`
+- **TO** `/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady_prior_fires/20260828T162848Z_supervisor_stopped/`
+- **96 files, 1,348,280 bytes. An md5 manifest was taken BEFORE the move and re-taken AFTER; the two are IDENTICAL**, so the archived bytes are provably the bytes that stood in the root. The manifest, the reason and both paths are recorded in `ARCHIVE_RECORD.txt` inside the archive, per `docs/dafoam/REFIRE_RUNBOOK.md` §3. `SUPERVISOR_STOP.txt` is preserved verbatim.
+
+**WHY A SIBLING DIRECTORY AND NOT `$BASE/_prior_fires/`.** `REFIRE_RUNBOOK.md` §2 scopes itself to the five chain-arm items whose graders read a per-arm record by glob (AV1R, AV2R, D18, SO1a, SO1b); **D12R2-W3 is not among them**, and a subdirectory archive could not work here for a structural reason: this family's launcher requires an **absent** run root and refuses `exit 6` on `[ -e "$ROOT" ]` (`:238`), so an archive *inside* the root would still block the re-fire. The sibling location is safe from the next fire by the same reasoning the runbook's own §2 correction rests on — **every `rm -rf` in the launcher is strictly inside `$ROOT`** (`:372, :376, :378, :908, :924, :953`) and phase 1 creates only `$ROOT`, so `..._prior_fires/` is never reached. The move was made on the supervisor's explicit instruction; §3 reserves it from a lane's own discretion.
+
+### 14.7 INSTRUMENTS RE-FROZEN AT THIS COMMIT
+
+Every md5 below was re-derived in the same shell invocation as the freeze assertion, never carried over from an earlier section.
+
+| file | md5 at v1.3 | md5 at v1.4 | change |
+|---|---|---|---|
+| `d12y_w3_stage_and_run.sh` | `20f8c0c51593576bddaa8a410659d997` | `8a92f3f84f72d6806a2e5c5df88d82ef` | the fatal scan only: line-by-line + per-line benign exclusion, the token KEPT, one adopted extra positive, the `fatal_benign_excluded` record. ONE hunk, 7 removed / 66 added. **No cap, cpuset, memory, stage graph, `W_STEPS`, band, threshold, label or prediction is touched** |
+| `d12y_w3_chain_driver.sh` | `4ae856128101115c3ba566eae9f41fd2` | `2b6ac7bbc6a5593940a0f2d217005b10` | `MD5_LAUNCHER` re-pinned to the line above, plus the comment naming this addendum. `MD5_GRADER` **unchanged**. Asserted at `:45`/`:46` before every step |
+| `d12y_grade_w3.py` | `3950d30fd09c9b56213a02f5e9864e20` | **unchanged** | — **THE GRADING PATH IS NOT TOUCHED BY THIS ADDENDUM** |
+| `d12y_w3_fatal_scan_control.sh` | `c8fae41f0908cf6cbb7381bb13715ca4` | `b893ea9be9a2df65e2eedb8e9e911462` | rewritten two-directional: executes the launcher's real scan, real-corpus fixtures, 36 units, frozen count |
+| `d12y_w3_fatal_scan_evidence.py` | *(new)* | `01421ac4d017c4db9b361a5e86e5657e` | regenerates §14.2/§14.5 from the preserved corpora; zero compute |
+| `d12y_w3_fixture_REAL_D12R2W3_S0.log` | *(new)* | `ccc4f40fa0e1c1849bb7bc15a4042d47` | W3's own S0 bytes. **Byte-identical to the fixture `curriculum_SO1aR` froze independently** — two items reached the same bytes separately, a cross-check rather than a copy |
+| `d12y_w3_fixture_REAL_D6R_ACC_excerpt.log` | *(new)* | `61add2fd3f29a476c68f59aec5abaf02` | a second, independent item's real bytes |
+| `d12y_w3_fixture_REAL_SIGFPE_crash_excerpt.log` | *(new)* | `8131701608d412c10460339a73e43795` | a **real** SIGFPE crash, must-flag |
+
+**The pin guard was driven, not assumed:** `d12y_w3_pin_guard_control.sh` **6/6, `pass=6 fail=0`** against the re-pinned driver, including `P4` (a deliberately wrong pin → `rc=4 reason=grader_md5_drifted`, `GUARD_PASSED` never printed) and `P5` (planted grader bytes → the guard reads the FILE). The driver's `md5sum -c` was additionally driven directly against both real files with a wrong-pin negative control that correctly FAILED.
+
+**`A3` in the launcher asserts every instrument's md5 against the COMMITTED HEAD blob before staging**, and the driver asserts the launcher's and the comparator's before each step, so **none of the above can run until it is committed** — the freeze is executed, not asserted. **This is the single most likely way this item fails again**: the `2026-08-28T02:15:29Z` launch aborted `rc=4 reason=grader_md5_drifted` at zero core-minutes for exactly this reason, a repair made on disk and never committed. It is closed here by re-pinning the driver **in the same change** as the launcher edit and committing both together, and by the queue entry naming this addendum's own commit as `prereg_commit`.
+
+### 14.8 COST — UNCHANGED, AND THE CALIBRATION ROW IS OWED AT COMPLETION
+
+**Nothing about the cost moves.** The registered estimate stands at **563.3 core-min** against the registered cap **`CAP_CORE_MIN = 900.0`** (`CAP_S8 = 400.0`), `ranks 1`, `MEM_LIMIT 8g`, `CPUSET_CPUS 1`, `MEMAVAIL_FLOOR_GIB 14.0`. Dollars are **DERIVED** at `$0.0513/core-h`: 563.3 core-min ≈ **$0.48**, under the $25 pre-authorisation and **still costed, because a proposal with no cost is disqualified** (rule 12). `cost_basis` is **REPORTED-BY-OWNER, NOT MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**Enqueueing is not authorisation to spend beyond the cap.** The cap of 900.0 core-min stands and **an overrun STOPS the run; it does not get a new budget.**
+
+**Spent so far: 5.067 core-min**, booked as **WASTE, named, and NOT folded into any ratio** (`COMPUTE_BUDGET_CHARTER.md` §6). **The estimate-versus-actual calibration row in `docs/COST_CALIBRATION.md` is OWED AT COMPLETION and is NOT written now** — the run has not finished, and a calibration row for an unfinished run would be a fabrication.
+
+**An infrastructure observation, reported and not absorbed.** `CAP_OVERRUN.txt` in the case directory, stamped `2026-08-29T07:29:01Z`, reports case `W3_chain_r4` as having elapsed 54,013 s against the 54,000 s cap. **That figure is an artefact of a stale launch record, not a real overrun**: the run was stopped at `2026-08-28T16:33:52Z` after 304 s and its pid `1897971` is **dead** (checked). `cap_watch` watches *current* `launched/<name>.json` records, and `launched/W3_chain_r4.json` was never archived because no later entry has carried its `case_id`. **The real spend on that fire is 5.067 core-min, not 900 core-min**, and any reader of that file should know so. This is reported to the supervisor as an infrastructure matter; **this lane changed nothing in `launched/`.**
+
+### 14.9 RE-FILE
+
+`W3_chain_r4.json` was fired at `2026-08-28T16:28:48Z` and has moved to `verification/queue/dafoam/launched/`. The successor is **`verification/queue/dafoam/W3_chain.json`**, at the top level of that directory where the runner can see it, **identical in every registered field**, with `prereg_commit` set to **the commit carrying this addendum** — the registration that actually governs, not the original freeze — and `instrument_md5s_at_this_commit` carrying the **post-addendum** launcher and driver md5s. The registered cost is unchanged: **563.3 core-min estimate, `ranks 1`, cap `900.0` core-min, `memory_floor_gb 14.0`**, `cost_basis` **derived / REPORTED-BY-OWNER, NOT MEASURED**.
+
+A prior `launched/W3_chain.json` from the `2026-08-27T03:43:17Z` fire exists; the runner's `archive_previous_records()` **renames** a shadowed record to `<stem>.<utc>.json` and **deletes nothing** (`scripts/queue_runner.py:454-485`), so that record survives the name reuse. **Enqueueing is not authorisation**; `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own and is discharged on the sha.
+
+**No submission of any kind is made by this addendum.** "Filed in the queue" means the local `verification/queue/` directory and nothing else; **SUBMISSIONS REMAIN PARKED** (rule 7).
+
+### 14.10 WHAT THIS ADDENDUM DELIBERATELY DOES NOT DO
+
+| | |
+|---|---|
+| gates, thresholds, bands, caps, labels, predictions moved | **0** |
+| the grading path (`d12y_grade_w3.py`) | **UNTOUCHED**, md5 unchanged |
+| refusal clauses removed or weakened | **0** — one positive token ADDED, measured to decide 0 of 34 |
+| fatal/signal tokens deleted | **0** — the token stays; the whole-file match is what went |
+| existing must-flag fixtures dropped | **0** — all nine kept, `(b0)` refuses if any pattern lacks one |
+| run-root bytes deleted | **0** — 96 files moved, md5 manifest identical before and after |
+| output keys added (record-only, graded by nothing) | **1** (`fatal_benign_excluded`) |
+| planted-failure legs driven | **36 + 4 + 6**, all as registered, zero compute |
+| this lane's own measurement errors found and recorded | **2** (§14.5's metric; §14.4's `EXPECTED_UNITS`) |
+| lines whose number changed above this section | **0**, proved on bytes |

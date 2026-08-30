@@ -1,0 +1,25 @@
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.00045754003, Final residual = 5.0569145e-07, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0030242024, Final residual = 2.8483852e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.001883518, Final residual = 1.9726408e-06, No Iterations 2
+DILUPBiCGStab:  Solving for e, Initial residual = 0.001259427, Final residual = 8.9175302e-06, No Iterations 1
+[7] [stack trace]
+=============
+[11] [7] #1  [stack trace]
+=============
+Foam::sigFpe::sigHandler(int)[6] [9] [stack trace]
+=============
+[2] [11] #1  Foam::sigFpe::sigHandler(int)[3] [stack trace]
+=============
+[stack trace]
+=============
+[stack trace]
+=============
+[9] #1  Foam::sigFpe::sigHandler(int)[6] [3] #1  #1  Foam::sigFpe::sigHandler(int)Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #2  ?[2] #1  Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[11] #2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[6] #2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+ in [2] <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[9] #2  ?#2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #2  ? in /lib/x86_64-linux-gnu/libc.so.6
+[11] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[7] #3  ? in /lib/x86_64-linux-gnu/libc.so.6

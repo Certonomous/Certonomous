@@ -559,16 +559,75 @@ if os.path.isfile(log):
         except ValueError:
             pass
     row["execution_time_count"] = len(re.findall(r"ExecutionTime", txt))
-    # R-RC-4 STRICT LIMB.  Anchored patterns, not a loose substring: "signal" alone would match
-    # OpenFOAM prose.  Every token here is one OpenFOAM or the kernel emits ONLY on a real fault.
+    # R-RC-4 STRICT LIMB.  Every token here is one OpenFOAM or the kernel emits on a real
+    # fault -- but the test is applied LINE BY LINE with a PER-LINE BENIGN EXCLUSION, and
+    # NOT as a whole-file substring search.  W3 ADDENDUM 1 (2026-08-30), W3-LAUNCHER-DEF-2.
+    #
+    # THE DEFECT, NAMED.  The bare token `Floating point exception` matched OpenFOAM's
+    # STANDARD STARTUP BANNER
+    #     trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+    # -- the notice that the solver is PROTECTED against the very fault the token exists
+    # to detect.  MEASURED on five real clean corpora from four separate items: D6R 3
+    # hits (lines 62/749/1432), D18 3, D17 3, D12R2W2R 1, and W3's OWN S0 log 4 -- in
+    # every corpus 100 % of the hits were the banner and FOAM FATAL was 0.  W3 was
+    # GUARANTEED to refuse at its first stage and publish a false statement about a clean
+    # solve.  The prior comment on these lines claimed the patterns were "anchored, not a
+    # loose substring"; that was true of every token EXCEPT this one, which is why the
+    # claim survived review.
+    #
+    # THE TOKEN IS NOT DELETED.  Deleting it would blind the scan to a real SIGFPE, the
+    # WORSE direction: a missed crash is laundered into a result, a false hit only costs
+    # a re-read.  ANCHORING WITH `^` IS ALSO NOT THE FIX -- OpenMPI's real report reads
+    # `... process rank 2 exited on signal 8 (Floating point exception).`, which is NOT
+    # line-initial, so `^Floating point exception` would MISS a genuine crash.
+    #
+    # ADOPTED, NOT REINVENTED, from this family's own two prior solutions of the same
+    # defect, both read as source before this was written:
+    #     curriculum_SO1aR/so1ar_grade.py:190-232, :285, :489-525
+    #     curriculum_SO1c/so1c_grade.py:155-218
+    # each of which takes the handler symbol from sdk/chief_engineer/head_engineer.py:188
+    # and DELIBERATELY REJECTS that reader's `^` line anchor for the OpenMPI reason above.
     _FATAL = [r"FOAM FATAL ERROR", r"FOAM FATAL IO ERROR",
               r"Segmentation fault", r"signal \(11\)", r"signal \(8\)", r"signal \(6\)",
-              r"Floating point exception", r"^\s*\[\d+\]\s+#\d+\s", r"MPI_ABORT"]
-    _hits = []
-    for _pat in _FATAL:
-        if re.search(_pat, txt, re.M):
-            _hits.append(_pat)
+              r"Floating point exception", r"^\s*\[\d+\]\s+#\d+\s", r"MPI_ABORT",
+              # ADOPTED EXTRA POSITIVE (SO1aR/SO1c): the one symbol OpenFOAM emits only
+              # when the FPE handler has ACTUALLY FIRED, so an interleaved multi-rank
+              # stack trace whose `[n] #n ` prefix is mangled is still caught.  It can
+              # only ADD refusals, never remove one.  MEASURED on the lab's 34 real
+              # SIGFPE crash logs (certonomous-runs/dpw5-committee-probe/logs/*_solve.log):
+              # it DECIDES a refusal the other nine would have missed in ZERO of them, so
+              # it changes no graded outcome on any log this lab has ever produced.
+              r"Foam::sigFpe::sigHandler"]
+    # The ONLY suppression this scan carries, applied PER LINE so a banner on line 89 can
+    # NEVER suppress a crash on line 400.  Narrow BY CONSTRUCTION: an over-narrow
+    # EXCLUSION costs a false refusal, an over-narrow POSITIVE ANCHOR costs a MISSED
+    # CRASH, and the false refusal is the survivable error.
+    _BENIGN = [(r"^\s*trapFpe:\s",
+                "OpenFOAM sigFpe SETUP banner -- an ENABLEMENT NOTICE, not a crash")]
+    _hitset, _benign = set(), []
+    for _i, _line in enumerate(txt.splitlines(), 1):
+        _lh = [_p for _p in _FATAL if re.search(_p, _line)]
+        if not _lh:
+            continue
+        _why = None
+        for _bp, _bw in _BENIGN:
+            if re.search(_bp, _line):
+                _why = _bw
+                break
+        if _why:
+            # EVERY EXCLUSION IS RECORDED, naming the line, the tokens and WHY.  A
+            # suppression a reader cannot see is the same defect wearing the other hat.
+            _benign.append({"line": _i, "tokens": _lh, "why": _why,
+                            "text": _line.strip()[:200]})
+        else:
+            _hitset.update(_lh)
+    # Rebuilt in _FATAL order so the recorded list is byte-stable for a given hit set,
+    # exactly as the superseded pattern-outer loop produced it.  THE GRADER CONTRACT IS
+    # UNCHANGED: a non-empty list REFUSES (d12y_grade_w3.py:288-293), an empty list means
+    # the scan RAN and was clean, and None still means NO LOG WAS READ.
+    _hits = [_p for _p in _FATAL if _p in _hitset]
     row["fatal_tokens"] = _hits
+    row["fatal_benign_excluded"] = _benign
     # ---- [D3] THE ANCHORED OBJECTIVE READER -----------------------------------
     # The superseded launcher used a LOOSE findall on `average:` and took the last.
     # The solver prints `average:` on BOTH lines every timestep:

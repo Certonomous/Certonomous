@@ -1,14 +1,70 @@
-EXTRACTED 9 fatal/signal patterns FROM THE LAUNCHER: ['FOAM FATAL ERROR', 'FOAM FATAL IO ERROR', 'Segmentation fault', 'signal \\(11\\)', 'signal \\(8\\)', 'signal \\(6\\)', 'Floating point exception', '^\\s*\\[\\d+\\]\\s+#\\d+\\s', 'MPI_ABORT']
-  [OK ] (a) CLEAN log -> no tokens (the reader is not trigger-happy)
-  [OK ] (b0) every launcher pattern has a planted fixture here 
-  [OK ] (b) PLANTED 'FOAM FATAL ERROR'         -> CAUGHT hits=['FOAM FATAL ERROR']
-  [OK ] (b) PLANTED 'FOAM FATAL IO ERROR'      -> CAUGHT hits=['FOAM FATAL IO ERROR']
-  [OK ] (b) PLANTED 'Segmentation fault'       -> CAUGHT hits=['Segmentation fault']
-  [OK ] (b) PLANTED 'signal \\(11\\)'          -> CAUGHT hits=['signal \\(11\\)']
-  [OK ] (b) PLANTED 'signal \\(8\\)'           -> CAUGHT hits=['signal \\(8\\)']
-  [OK ] (b) PLANTED 'signal \\(6\\)'           -> CAUGHT hits=['signal \\(6\\)']
-  [OK ] (b) PLANTED 'Floating point exception' -> CAUGHT hits=['Floating point exception']
-  [OK ] (b) PLANTED '^\\s*\\[\\d+\\]\\s+#\\d+\\s' -> CAUGHT hits=['^\\s*\\[\\d+\\]\\s+#\\d+\\s']
-  [OK ] (b) PLANTED 'MPI_ABORT'                -> CAUGHT hits=['MPI_ABORT']
-  [OK ] (c) PLANTED innocuous prose ('signal', 'error', 'fatal', 'segment') -> no tokens the patterns are ANCHORED, not substrings
-W3 FATAL-SCAN CONTROL pass=12 fail=0
+W3 ADDENDUM 1 -- FATAL-SCAN REPAIR (W3-LAUNCHER-DEF-2): DRIVEN EVIDENCE
+generated 2026-08-30T23:02:36Z   ZERO COMPUTE (no solver, no container)
+regenerate with: python3 d12y_w3_fatal_scan_evidence.py
+==============================================================================
+
+1. THE DEFECT, REPRODUCED ON REAL LOGS FROM FIVE DISTINCT ITEMS.
+   Every OLD hit below is OpenFOAM's startup banner
+     trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+   i.e. the notice that FPE trapping is ENABLED, on runs with FOAM FATAL = 0.
+
+   corpus                                        OLDhits  NEWhits   banner  FOAMFATAL
+   ----------------------------------------------------------------------------------
+   D12R2W3  S0  (this item's own first stage)          1        0        4          0
+   D12R2W3  S1a (this item's own second stage)         1        0        1          0
+   D6R      ACC multipoint                             1        0        3          0
+   D18      cone hypersonic MESH                       1        0        3          0
+   D17      cone supersonic MESH                       1        0        3          0
+   D12R2W2R S1a                                        1        0        1          0
+
+   OLDhits > 0 with FOAM FATAL = 0 IS the defect: d12y_grade_w3.py:288-293 refuses
+   on ANY non-empty `fatal_tokens`, 'regardless of rc, of the End line and of every
+   other limb'.  W3 was GUARANTEED to refuse at its first stage and to publish a
+   FALSE physics statement about a clean solve.
+   NEWhits = 0 on every clean corpus WHILE the banner column is non-zero, so the
+   zero is a READING and not an empty population (standing rule 3).
+
+2. THE REPAIR DOES NOT DISABLE THE SCAN.
+   THE METRIC HERE WAS CORRECTED, AND THE CORRECTION IS RECORDED RATHER THAN
+   DROPPED.  This lane's first draft counted 'files the OLD scan refused' against
+   'files the REPAIRED scan refuses' and reported 34 -> 28, reading as SIX LOST
+   CRASHES.  That metric was WRONG: it counted a file whose ONLY old hit was the
+   BANNER as a detected crash, i.e. it scored the false positive as a success.
+   The honest metric is GROUND TRUTH -- a pattern matching a NON-BANNER line --
+   computed independently of both scans.  Measured below.
+
+   real SIGFPE crash-corpus logs scanned                    : 34
+   refused by the OLD scan                                  : 34
+   refused by the REPAIRED scan                             : 28
+   of the OLD refusals, files whose ONLY hit was the BANNER : 6
+     (pure false positives -- 0 non-banner fatal lines, 0 FOAM FATAL,
+      0 sigHandler; four of them are externally KILLED_ runs, not FPE crashes)
+
+   >>> files where the REPAIR LOSES REAL CRASH EVIDENCE     : 0
+
+   ZERO. The 34 -> 28 difference is EXACTLY the 6 false positives being removed.
+   Every real crash signature in the corpus is still refused.
+
+3. THE ONE WIDENING, AND ITS MEASURED CONSEQUENCE.
+   The repair adds ONE positive token, `Foam::sigFpe::sigHandler`, adopted from
+   curriculum_SO1aR/so1ar_grade.py:202 and curriculum_SO1c/so1c_grade.py:167,
+   both of which take it from sdk/chief_engineer/head_engineer.py:188.  It can
+   only ADD refusals, never remove one -- rule 5's one-way direction, the same
+   direction the existing guard already runs in.
+   Files where that token DECIDES a refusal the other nine would have missed: 0
+   So on every log this lab has ever produced it changes NO graded outcome; it is
+   belt-and-braces against an interleaved multi-rank stack trace whose `[n] #n `
+   prefix is mangled, a shape present in this very corpus.
+
+4. INSTRUMENT AND FIXTURE MD5s AT THIS EVIDENCE RUN
+   d12y_w3_stage_and_run.sh                         8a92f3f84f72d6806a2e5c5df88d82ef
+   d12y_w3_chain_driver.sh                          2b6ac7bbc6a5593940a0f2d217005b10
+   d12y_grade_w3.py                                 3950d30fd09c9b56213a02f5e9864e20
+   d12y_w3_fatal_scan_control.sh                    b893ea9be9a2df65e2eedb8e9e911462
+   d12y_w3_fatal_scan_evidence.py                   01421ac4d017c4db9b361a5e86e5657e
+   d12y_w3_fixture_REAL_D12R2W3_S0.log              ccc4f40fa0e1c1849bb7bc15a4042d47
+   d12y_w3_fixture_REAL_D6R_ACC_excerpt.log         61add2fd3f29a476c68f59aec5abaf02
+   d12y_w3_fixture_REAL_SIGFPE_crash_excerpt.log    8131701608d412c10460339a73e43795
+
+   d12y_grade_w3.py IS UNTOUCHED BY THIS ADDENDUM.  Its pre-answer freeze is this
+   item's entire evidentiary value and nothing here reaches it.
