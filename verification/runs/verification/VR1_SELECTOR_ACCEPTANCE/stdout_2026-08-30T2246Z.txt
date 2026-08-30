@@ -1,0 +1,6 @@
+VR1 -- selector acceptance test (frozen: VR1_PREREGISTRATION.md @ ffe5ded7)
+G4 control corpus, real basenames read from disk elsewhere in this repo:
+     T_coneSurface.raw, p_coneSurface.raw, rho_coneSurface.raw, T_wedgeSurface.raw, p_wedgeSurface.raw, rho_wedgeSurface.raw, p_cylSurface.raw, wallShearStress_plate.raw
+  DEFECTIVE selector (L-398's shape) -> 2 gate failure(s): ["G1: returned 'T_rampSurface.raw' on a renamed surface; wanted p_rampSurface.raw (returning T_ is the L-398 failure)", "G1b: returned 'p_coneSurface.raw' instead of refusing (p_ and p_rgh_ both present)"]
+  REPAIRED  selector (cardinality guard) -> 0 gate failure(s): none
+VERDICT: PASS -- fails the known-bad selector, passes the known-good one

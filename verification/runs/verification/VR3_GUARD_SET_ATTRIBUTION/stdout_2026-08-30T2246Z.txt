@@ -1,0 +1,5 @@
+VR3 -- guard-set attribution (frozen: VR3_PREREGISTRATION.md @ ffe5ded7)
+  G1/G2/G3 applied to every wildcard-bound ordered read in every ansys grader
+  GUARDED (guard measures the deciding set): 16
+  UNGUARDED (no len() guard on the deciding name): 44
+VERDICT: PASS -- every site classified by WHICH SET its guard measures

@@ -1,0 +1,9 @@
+driver_rc=0
+driver=verification/credibility/vr4_exec_host_control.py
+driver_head_blob=063378b14c626fa03ac03bccc34850a9193604cd
+wall_s=0.028
+ranks=1
+core_min=0.00047
+cap_core_min=10.0
+utc_end=2026-08-30T22:46:01Z
+note=rc captured INSIDE the run, not around a setsid line

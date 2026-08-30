@@ -1,0 +1,9 @@
+driver_rc=0
+driver=verification/credibility/vr1_selector_acceptance.py
+driver_head_blob=02e231057ee1e75d7bb409bc54c069f9cd592f7e
+wall_s=0.026
+ranks=1
+core_min=0.00043
+cap_core_min=8.0
+utc_end=2026-08-30T22:46:00Z
+note=rc captured INSIDE the run, not around a setsid line

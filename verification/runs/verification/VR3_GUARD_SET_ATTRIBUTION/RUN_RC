@@ -1,0 +1,9 @@
+driver_rc=0
+driver=verification/credibility/vr3_guard_set_attribution.py
+driver_head_blob=e6a2a35090a557027b1088f28831b9dcc56521ed
+wall_s=0.513
+ranks=1
+core_min=0.00855
+cap_core_min=20.0
+utc_end=2026-08-30T22:46:01Z
+note=rc captured INSIDE the run, not around a setsid line

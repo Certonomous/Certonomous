@@ -1,0 +1,6 @@
+VR4 -- exec_host control (frozen: VR4_PREREGISTRATION.md @ ffe5ded7)
+  control: local/absent REFUSE, remote/present NOT MEASURED, local/present PASS
+  G4 -- live GPU entries under the spec:
+    VMFLGPU001             NOT MEASURED EXEC not evaluated: entry executes on 'ip-172-31-44-162', this validator ran on 'ip-172-31-43-247'; a path that resolves here is not a statement about there (L-394)
+    VMFLGPU001-R2          NOT MEASURED EXEC not evaluated: entry executes on 'ip-172-31-44-162', this validator ran on 'ip-172-31-43-247'; a path that resolves here is not a statement about there (L-394)
+VERDICT: PASS -- all control limbs behaved and 2 live entr(y/ies) classified

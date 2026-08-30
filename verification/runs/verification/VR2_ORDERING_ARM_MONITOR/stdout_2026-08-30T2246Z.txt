@@ -1,0 +1,5 @@
+VR2 -- ordering-key ARMING monitor (frozen: VR2_PREREGISTRATION.md @ ffe5ded7)
+  control +: planted {0,950,2000} fired -> lex=950 num=2000
+  control -: planted {0,100,200} correctly silent
+  scanned 156 function-object directories under 4 roots
+VERDICT: PASS -- no LATENT site has armed; every set is single-member or lexicographically == numerically ordered

@@ -1,0 +1,9 @@
+driver_rc=0
+driver=verification/monitor/vr2_ordering_arm_monitor.py
+driver_head_blob=24d8ee66bba675ed34ad69583219a0d6d5ae266d
+wall_s=0.105
+ranks=1
+core_min=0.00176
+cap_core_min=12.0
+utc_end=2026-08-30T22:46:00Z
+note=rc captured INSIDE the run, not around a setsid line
