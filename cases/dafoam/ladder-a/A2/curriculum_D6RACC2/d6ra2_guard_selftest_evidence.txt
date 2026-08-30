@@ -1,0 +1,42 @@
+D6R-ACC2 GUARD SELFTEST EVIDENCE
+utc=2026-08-30T23:20:41Z
+--- python3 ---
+  [OK ] U1 CONTAINER CENSUS IS LIVE before anything runs: `docker ps -a` returned rc 0 and 19 names, so a later 'zero created' reading is a measurement and not a blind spot
+  [OK ] U2 G-ROOT.1 REFUSES a launcher pointed at D6R's OWN PRESERVED RUN ROOT (rc 3, expected 3) -- the root holding O_mp's 2,257.933 core-min.  This is the abort that matters and it is driven against the real path, not a fixture
+  [OK ] U3 and the abort NAMES the root it just protected, so the message says WHOSE evidence was at stake rather than only that something was refused
+  [OK ] U4 G-ROOT.1 REFUSES a launcher pointed at D4's run root (rc 3, expected 3) -- the case this item's mesh and FFD came from
+  [OK ] U5 G-ROOT.1 REFUSES a path that WALKS to D6R's root through `..` (rc 3, expected 3) -- the check normalises with `realpath -m`, so a traversal cannot walk around it
+  [OK ] U7 arm O_mp REFUSES (rc 64, expected 64): D6R-ACC2 registers EXACTLY ONE arm and a second arm is a separate item -- this strengthening can only turn a launch into a refusal
+  [OK ] U8 a near-miss arm name `ACC` REFUSES (rc 64, expected 64) -- the guard is an equality, not a prefix match
+  [OK ] U6 an EMPTY arm name REFUSES (rc 64, expected 64)
+  [OK ] U9 arms F_mp and REF_off both REFUSE as well, so no path in the derived launcher reaches a second arm's staging
+  [OK ] U10 THE CAP IN THE DERIVED FILE IS 240.0 core-min (registered 240.0), its deadline is 3510 s (registered 3510), and the inversion is EXACT: (3510 + 90) * 4 / 60 = 240.000000
+  [OK ] U11 the deadline 3510 s sits BELOW rule 12's 3600 s stall convention, so an arm that runs all the way to its deadline is never itself a stall row
+  [OK ] U12 THE OLD CAP IS GONE FROM THE DERIVED FILE: no `ACC_mp)  echo 30.0` remains, so the defect this item exists to repair cannot survive as a second branch
+  [OK ] U13 the driver's pinned launcher md5 a561ab9309559680305c9ddb0fcc1d7b EQUALS the derived launcher's actual md5 a561ab9309559680305c9ddb0fcc1d7b, so the driver's own pre-flight `md5sum -c` cannot fire on a stale pin
+  [OK ] U14 THE PROGRAM IS UNCHANGED: all four of D6R's staged instruments carry their frozen md5s in curriculum_D6R and the derived driver pins exactly those values -- only the cap moved, and this unit is what proves it rather than asserting it
+  [OK ] U15 EVERY GUARD PRECEDES THE FIRST DESTRUCTIVE STEP, with both line numbers RECOMPUTED FROM THE FILE rather than carried: `rm -rf $WORK` is at line 340 and the guards are at [('G-ROOT.1', 52), ('ONE-ARM', 220), ('G-ROOT.5', 229), ('CAP-ASSERT', 291), ('L-251-MODE', 302), ('INSTRUMENT-MD5', 305), ('IMAGE-DIGEST', 319), ('G-ROW', 323)]
+  [OK ] U16 the derived launcher has EXACTLY ONE EXECUTABLE `rm -rf` (line [340]) and its target is `$WORK` = `$BASE/$ARM`, with $BASE proved equal to this item's own registered root by G-ROOT.1 before it -- so the worst case deletes this item's own arm directory.  A further 1 occurrence(s) at line(s) [39] are COMMENTS quoting the statement while explaining D4-LAUNCHER-DEF-1: counted and named, not hidden
+  [OK ] CENSUS zero containers created: before 19, after 19, new []
+D6RA2 GUARD SELFTEST units=16 expected=16 failures=0 containers_created=0 python_O=False
+D6RA2 GUARD SELFTEST PASS 16/16, ZERO CONTAINERS CREATED
+--- python3 -O ---
+  [OK ] U1 CONTAINER CENSUS IS LIVE before anything runs: `docker ps -a` returned rc 0 and 19 names, so a later 'zero created' reading is a measurement and not a blind spot
+  [OK ] U2 G-ROOT.1 REFUSES a launcher pointed at D6R's OWN PRESERVED RUN ROOT (rc 3, expected 3) -- the root holding O_mp's 2,257.933 core-min.  This is the abort that matters and it is driven against the real path, not a fixture
+  [OK ] U3 and the abort NAMES the root it just protected, so the message says WHOSE evidence was at stake rather than only that something was refused
+  [OK ] U4 G-ROOT.1 REFUSES a launcher pointed at D4's run root (rc 3, expected 3) -- the case this item's mesh and FFD came from
+  [OK ] U5 G-ROOT.1 REFUSES a path that WALKS to D6R's root through `..` (rc 3, expected 3) -- the check normalises with `realpath -m`, so a traversal cannot walk around it
+  [OK ] U7 arm O_mp REFUSES (rc 64, expected 64): D6R-ACC2 registers EXACTLY ONE arm and a second arm is a separate item -- this strengthening can only turn a launch into a refusal
+  [OK ] U8 a near-miss arm name `ACC` REFUSES (rc 64, expected 64) -- the guard is an equality, not a prefix match
+  [OK ] U6 an EMPTY arm name REFUSES (rc 64, expected 64)
+  [OK ] U9 arms F_mp and REF_off both REFUSE as well, so no path in the derived launcher reaches a second arm's staging
+  [OK ] U10 THE CAP IN THE DERIVED FILE IS 240.0 core-min (registered 240.0), its deadline is 3510 s (registered 3510), and the inversion is EXACT: (3510 + 90) * 4 / 60 = 240.000000
+  [OK ] U11 the deadline 3510 s sits BELOW rule 12's 3600 s stall convention, so an arm that runs all the way to its deadline is never itself a stall row
+  [OK ] U12 THE OLD CAP IS GONE FROM THE DERIVED FILE: no `ACC_mp)  echo 30.0` remains, so the defect this item exists to repair cannot survive as a second branch
+  [OK ] U13 the driver's pinned launcher md5 a561ab9309559680305c9ddb0fcc1d7b EQUALS the derived launcher's actual md5 a561ab9309559680305c9ddb0fcc1d7b, so the driver's own pre-flight `md5sum -c` cannot fire on a stale pin
+  [OK ] U14 THE PROGRAM IS UNCHANGED: all four of D6R's staged instruments carry their frozen md5s in curriculum_D6R and the derived driver pins exactly those values -- only the cap moved, and this unit is what proves it rather than asserting it
+  [OK ] U15 EVERY GUARD PRECEDES THE FIRST DESTRUCTIVE STEP, with both line numbers RECOMPUTED FROM THE FILE rather than carried: `rm -rf $WORK` is at line 340 and the guards are at [('G-ROOT.1', 52), ('ONE-ARM', 220), ('G-ROOT.5', 229), ('CAP-ASSERT', 291), ('L-251-MODE', 302), ('INSTRUMENT-MD5', 305), ('IMAGE-DIGEST', 319), ('G-ROW', 323)]
+  [OK ] U16 the derived launcher has EXACTLY ONE EXECUTABLE `rm -rf` (line [340]) and its target is `$WORK` = `$BASE/$ARM`, with $BASE proved equal to this item's own registered root by G-ROOT.1 before it -- so the worst case deletes this item's own arm directory.  A further 1 occurrence(s) at line(s) [39] are COMMENTS quoting the statement while explaining D4-LAUNCHER-DEF-1: counted and named, not hidden
+  [OK ] CENSUS zero containers created: before 19, after 19, new []
+D6RA2 GUARD SELFTEST units=16 expected=16 failures=0 containers_created=0 python_O=True
+D6RA2 GUARD SELFTEST PASS 16/16, ZERO CONTAINERS CREATED

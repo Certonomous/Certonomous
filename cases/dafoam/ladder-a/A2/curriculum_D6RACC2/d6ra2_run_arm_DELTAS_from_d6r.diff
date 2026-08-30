@@ -1,0 +1,111 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_run_arm.sh	2026-08-27 23:02:34.379281479 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RACC2/d6ra2_run_arm.sh	2026-08-30 23:23:01.625527788 +0000
+@@ -1,5 +1,17 @@
+ #!/usr/bin/env bash
+-# Curriculum D6R arm launcher -- multipoint cruise (CL 0.4/0.5/0.6) on D4's case.
++# Curriculum D6R-ACC2 arm launcher -- THE ACC_mp ARM OF D6R RE-RUN AT A CORRECTLY
++# ANCHORED CAP.  DERIVED BY ASSERTED SUBSTITUTION from curriculum_D6R/d6r_run_arm.sh
++# md5 243f0f631719edf7ae354410276b3cfd; the substitution set is enumerated in
++# d6ra2_derive.py and the whole delta is d6ra2_run_arm_DELTAS_from_d6r.diff.
++# Everything not in that set is D6R's bytes.
++#
++# WHY: D6R-PREREG-DEF-1.  ACC_mp's 30.0 core-min cap traced to D6's `3.0 x 3`
++# anchor, and C-94 (docs/COST_CALIBRATION.md:170) is a 45-SECOND ACCEPTANCE PRIMAL
++# on an ALREADY-DECOMPOSED tree with no adjoint and no colouring.  The registered
++# program is `compute_totals` on a COLD staged copy at np=4, which must first
++# COLOUR the Jacobian three times.  Two independent measurements put that at
++# 112.4 and 107.4 core-min -- the arm needed ~4.7x its deadline and ~3.7x its cap
++# and COULD NOT HAVE FINISHED, not on a slow day and not on an empty box.
+ #
+ # DERIVED from curriculum_D5/d5_run_arm.sh (itself the D4-SHIPPED Addendum-2
+ # launcher d4s_run_arm.sh @ 8b91be2b plus D5's registered deltas) with ONLY the
+@@ -28,8 +40,8 @@
+ # THE REPAIR IS NOT "CHANGE THE CONSTANT".  The WRONG CONSTANT MUST REFUSE, and
+ # the guard below is DRIVEN in d6r_groot5_selftest.sh and shown to abort.
+ # ===========================================================================
+-ITEM=D6R
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
++ITEM=D6RACC2
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RACC2-a2-wing-multipoint
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -54,7 +66,8 @@
+ # the class of defect this lab records.  G-ROOT.1 above already refuses any base
+ # that is not D6R's own; this list makes the abort SAY WHOSE root it just
+ # refused, so it is worth nothing unless the names are real.
+-FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
++FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
++/home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
+ /home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
+ /home/ubuntu/certonomous-runs/CURRICULUM-D1-a1-constrained-opt
+ /home/ubuntu/certonomous-runs/CURRICULUM-D12-cylinder-unsteady
+@@ -137,7 +150,22 @@
+ # MET.  D6R prices every arm from that measurement:
+ #   arm      predicted     cap     deadline(s)   compute window (core-min)
+ #   O_mp      2500.6      2900.0     43410            2894.0   80 x 31.258
+-#   ACC_mp      14.7        30.0       360              24.0   9.0 x 1.6308
++#   ACC_mp     112.4       240.0      3510            2400.0   RE-ANCHORED, below
++# D6R-ACC2's ACC_mp CAP IS NOT INHERITED AND NOT A COPY-FORWARD.  Two INDEPENDENT
++# measurements of the program this arm actually runs:
++#  (a) 1685.98 s, from the run's OWN logs: 75.10 s to the first colouring MEASURED
++#      in ACC_mp's own log (`Calculating dRdW Coloring... 75.1 s`, i.e. start-up +
++#      all three primals), plus three colourings MEASURED in O_mp's log at 419.08 /
++#      425.85 / 425.61 s, plus two adjoint intervals MEASURED at 111.64 / 115.25 s
++#      and a third INTERPOLATED at 113.45 s.  x4 ranks / 60 = 112.399 core-min.
++#  (b) 107.4 core-min, from CURRICULUM-D5's ledger: ARM=ACC48 rc=0 wall_s=537
++#      ranks=4 core_min=35.8 for ONE primal+adjoint pair on this same wing at np=4;
++#      three pairs = 1611 s.  Over-counts start-up twice, so it is an upper bound
++#      on the marginal scaling and a corroboration, not the primary.
++#  The two agree to 4.65 %.  REGISTERED POINT 112.4, CAP 240.0 = 2.135x, whose
++#  deadline inverts EXACTLY: (3510 + 90) * 4 / 60 = 240.000000, and 3510 s sits
++#  BELOW rule 12's 3600 s stall convention so an arm that runs to its deadline is
++#  never itself a stall row.
+ #   F_mp       231.2       300.0      4410             294.0   141.8 x 1.6308
+ #   REF_off     17.1        40.0       510              34.0   10.5 x 1.6308
+ # The three non-O arms never ran under D6, so their anchors are still the x3
+@@ -157,7 +185,7 @@
+ cap_core_min() {
+   case "$1" in
+     O_mp)    echo 2900.0 ;;
+-    ACC_mp)  echo 30.0 ;;
++    ACC_mp)  echo 240.0 ;;
+     F_mp)    echo 300.0 ;;
+     REF_off) echo 40.0 ;;
+     *)  echo "" ;;
+@@ -187,21 +215,22 @@
+ D4_HST_SRC=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/O/OptView.hst
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: d6r_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: d6r_run_arm.sh <O_mp|ACC_mp|F_mp|REF_off> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: d6ra2_run_arm.sh ACC_mp <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: d6ra2_run_arm.sh ACC_mp <image>"; exit 64; }
++test "$ARM" = "ACC_mp" || { echo "ABORT D6RACC2 registers EXACTLY ONE arm, ACC_mp; got '$ARM'.  A second arm is a separate item."; exit 64; }
+ 
+ # ---- G-ROOT.5 -- A LIVE ARM IS NEVER RE-STAGED.  Two live readings, taken
+ # ---- BEFORE any destructive act: (a) a RUNNING container carrying this
+ # ---- item's prefix and this arm; (b) a driver pidfile in the run root naming
+ # ---- a LIVE pid that is not an ancestor of this process, or whose cwd is the
+ # ---- run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6r_${ARM}_" 2>/dev/null | grep "^d6r_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6ra2_${ARM}_" 2>/dev/null | grep "^d6ra2_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/d6r_driver.pid"
++PIDFILE="$BASE/d6ra2_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -298,7 +327,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="d6r_${ARM}_${STAMP}"
++NAME="d6ra2_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 

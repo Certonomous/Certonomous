@@ -1,0 +1,73 @@
+--- /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_chain_driver.sh	2026-08-27 23:02:34.420191662 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6RACC2/d6ra2_chain_driver.sh	2026-08-30 23:23:01.742536198 +0000
+@@ -1,4 +1,10 @@
+ #!/usr/bin/env bash
++# D6R-ACC2 driver -- ONE ARM, ACC_mp, at a correctly anchored cap.  DERIVED BY
++# ASSERTED SUBSTITUTION from curriculum_D6R/d6r_chain_driver.sh; the substitution
++# set is enumerated in d6ra2_derive.py and the whole delta is
++# d6ra2_chain_driver_DELTAS_from_d6r.diff.  The INSTRUMENTS ARE D6R'S OWN, staged
++# from curriculum_D6R/ under their frozen md5s: the PROGRAM IS UNCHANGED and only
++# the cap moved.  Original D6R header follows.
+ # D6R chain driver -- DERIVED from curriculum_D6/d6r_chain_driver.sh @ b4ddca65
+ # (Addendum 3 form, CHAIN_DONE trap FROM BIRTH), itself derived from
+ # curriculum_D5/d5_chain_driver.sh (itself the
+@@ -20,23 +26,30 @@
+ # Permission for detached launches: bc0e687e (Sanaa, boarded verbatim).
+ set -uo pipefail
+ HERE="$(cd "$(dirname "$0")" && pwd)"
+-LAUNCHER="$HERE/d6r_run_arm.sh"
++LAUNCHER="$HERE/d6ra2_run_arm.sh"
+ IMG=dafoam-idwarp-rot:v1
+-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6R-a2-wing-multipoint
++BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6RACC2-a2-wing-multipoint
+ D4_BASE_SRC=/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin/base
+ D4_CASE_DIR="$HERE/../curriculum_D4"
++# THE INSTRUMENTS ARE D6R'S, READ FROM D6R'S OWN CASE DIRECTORY UNDER THE SAME
++# FROZEN md5s ASSERTED BELOW.  Copying them into this item would create a second
++# copy of a frozen file, which is the drift this lab records.
++D6R_CASE_DIR="$HERE/../curriculum_D6R"
+ PERMISSION=bc0e687e
+ H5_FLOOR_GIB=24.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
+ AGG_POLL_S=30; AGG_BOUND_S=14400
+ H5_RETRY_S=60; H5_BOUND_S=14400   # D6R ADDENDUM 2: H5 in the WAIT-AND-RETRY form (re-take the 60 s window every 60 s, bounded 4 h); the loop below was found on disk uncommitted from lane Q1 (17:49:14Z) with these two names unbound -- completed and registered here
+-MD5_LAUNCHER=243f0f631719edf7ae354410276b3cfd
++MD5_LAUNCHER=a561ab9309559680305c9ddb0fcc1d7b
+ MD5_RUNSCRIPT=93edb4a231e13a7af065368f61a468ef
+ MD5_FD=7491c3a73c232fb6744990fd8109fd63
+ MD5_EXTRACT6=1743dd4232a7f06785f71be2f285f08d
+ MD5_REFOFF=ad67bbeb0c7b502262ebf5d4e8fa21cd
+ MD5_EXTRACT4=ee7d3c99fd716da23779cb651961918e
+-test $# -ge 1 || { echo "ABORT usage: d6r_chain_driver.sh <ARM...>"; exit 64; }
+-ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d6r_driver.pid"
++test $# -ge 1 || { echo "ABORT usage: d6ra2_chain_driver.sh ACC_mp"; exit 64; }
++# A STRENGTHENING: this item registers EXACTLY ONE arm.  Any other argument list
++# REFUSES before the launcher md5 is even read, so no second arm can be bought.
++test "$*" = "ACC_mp" || { echo "ABORT D6RACC2 registers EXACTLY the arm list [ACC_mp]; got [$*]."; exit 64; }
++ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/d6ra2_driver.pid"
+ cd "$HERE" || exit 4
+ echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before staging"; exit 4; }
+ # ---- ROOT STAGING on the first fire only ----------------------------------
+@@ -45,12 +58,12 @@
+   mkdir -p "$BASE" || { echo "ABORT cannot create run root $BASE"; exit 4; }
+   chmod 777 "$BASE" || { echo "ABORT chmod 777 $BASE (L-251)"; exit 4; }
+   cp -a "$D4_BASE_SRC" "$BASE/base" || { echo "ABORT copy base/"; exit 4; }
+-  cp -a "$HERE/d6r_opt_runScript.py" "$HERE/d6r_fd_endpoint.py" "$HERE/d6r_extract_endpoint.py" "$HERE/d6r_ref_off.py" "$D4_CASE_DIR/d4_extract_endpoint.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
++  cp -a "$D6R_CASE_DIR/d6r_opt_runScript.py" "$D6R_CASE_DIR/d6r_fd_endpoint.py" "$D6R_CASE_DIR/d6r_extract_endpoint.py" "$D6R_CASE_DIR/d6r_ref_off.py" "$D4_CASE_DIR/d4_extract_endpoint.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
+   # ADDENDUM 1 (D5-DRIVER-DEF-1, inherited): G-ROOT.3 accepts ONLY an exact
+   # `ITEM=D6` line; the `ITEM=D6R staged=...` form was refused by D5's launcher
+   # on its first runner fire (17:43:47Z, rc=3, zero compute).  Identity on its
+   # own line; staging metadata on a line that does not start with ITEM=.
+-  echo "ITEM=D6R" > "$BASE/ledger.txt"
++  echo "ITEM=D6RACC2" > "$BASE/ledger.txt"
+   echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) base_src=$D4_BASE_SRC permission=$PERMISSION" >> "$BASE/ledger.txt"
+   echo "D6R_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
+ else
+@@ -109,7 +122,7 @@
+   # ---- AGGREGATE: WAIT-AND-RETRY (UPDATE F ruling)
+   WAITED=0; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"
+   while true; do
+-    AGG=$(python3 "$HERE/d6r_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
++    AGG=$(python3 "$D6R_CASE_DIR/d6r_aggregate_memory.py" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+     echo "$(date -u +%s) $AGG" >> "$AGG_SERIES"
+     if [ "$(printf '%s' "$AGG" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
+     if [ "$WAITED" -ge "$AGG_BOUND_S" ]; then
