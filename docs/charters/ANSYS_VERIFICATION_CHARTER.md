@@ -660,3 +660,183 @@ gate that was passed.
 
 **Lines whose number changed above this section: 0** — verified by hashing the prior file as
 an exact byte prefix of this one, not merely asserted.
+
+---
+
+## Amendment 1.5 — 2026-08-30 — **§2f.3's SCOPE IS SETTLED FOR THIS TEAM; a registration may not reach its freeze commit with an OPEN gate question; a queue state is a READING WITH A SHELF LIFE; and every runnable item is FILED AND COMMITTED, not held in an agent's head**
+
+**Version 1.5.** Appended at the foot, below Amendment 1.4. **Nothing above this line is
+rewritten, amended or struck** — not §1's verbatim directive, not the §3 roster, not the
+§5 verdict path, not the §6 register rules, not the §8 lane-cap exception, and not
+Amendments 1.3 or 1.4. Every clause below is **additive**. The version bump is declared
+here rather than by editing the §283 amendment table, which is the form Amendment 1.3
+established for this file and which is followed unchanged.
+
+Written by `ansys-verification-supervisor` personally under **Sanaa's directive of
+2026-08-30** (verbatim at `etc/sessions/2026-08-30T2247Z_sanaa_directive_continuous_overnight.md`,
+commit `4195b27b`): *"each teams updates their own charters and stanrdards … all jobs
+always queued such that if any teams dies the work continues."* **Every clause here was
+paid for by a specific failure in the preceding 48 hours, and each names its failure.**
+**Nothing below retires, widens or narrows a gate, threshold, band, cap or charter clause
+— those remain Sanaa's alone (`ESCALATION_CHARTER` §4.1, D539).**
+
+### §11.1 `VERIFICATION_CHARTER` §2f.3 DOES NOT REACH A REGISTRATION THAT DECLARES A TRIPLE — this team's standing reading, so it is not re-litigated case by case
+
+**Ruled 2026-08-30 on VMFL069 §3.3, full record at
+`cases/ansys_verification/VMFL069/SUPERVISOR_RULING_SEC3.3.txt`, commit `b1b7cfc1`.**
+
+> **§2f.3's CONTINUUM cap — *"`GATE REACHED` maximum. `PASS` is unavailable"* — is the
+> NO-TRIPLE ceiling. It does not cap a limb of a registration that declares a Roache
+> triple and whose triple returns `CONVERGING`. Such a limb is graded by `CLAUDE.md`
+> rule 5 step 3.**
+
+The scope is set by the clause's own column heading, which reads ***"ceiling WITHOUT a
+triple"*** (`VERIFICATION_CHARTER.md:2419-2421`), by §2f's own title *"A REGISTRATION
+THAT DECLARES NO ROACHE TRIPLE"* (`:2383`), and by the CONTINUUM row's stated ground:
+*"from which discretisation error is not separable **without a triple**."* Where a
+`CONVERGING` triple exists the error **is** separated and bounded by the GCI, so the
+condition the cap exists to cover does not obtain. §2f.2 (`:2401-2411`) disables only
+rule 5's **limb (2)**, and only for a no-triple registration; **limb (1) always fires.**
+
+**THE LIMIT OF THIS CLAUSE, STATED SO IT IS NOT OVERREAD — and it is the half that
+matters most:**
+
+1. **This is a reading of an existing clause's SCOPE, not an amendment to it.** §2f.3's
+   row is untouched. A team reading a charter clause to determine whether it reaches
+   their case is doing what every registration must do; **weakening the clause would be
+   Sanaa's and is not done here.**
+2. **§2h.3 (`:2757-2762`) REFERS TO SANAA** the separate question of whether an
+   exact-solution reference should be `PASS`-capable **in a NO-TRIPLE registration**,
+   and holds §2f.3's cap untouched meanwhile. **This team does not decide that question
+   and no case of ours may claim to have decided it.** §2h is the floor-demonstration
+   clause for no-triple registrations; a case of ours that invokes §2h is governed by
+   §2h.4's five conditions and by that referral, **not by §11.1.**
+3. **The cap still binds in full wherever the ground holds**: any limb with no triple,
+   any limb whose triple is not `CONVERGING`, and — per this team's own VMFL063
+   registration — **any limb whose reference is EXPERIMENTAL is capped at `GATE REACHED`
+   even on a converging triple**, because a triple bounds discretisation error and says
+   nothing about model-form error.
+4. **A limb that cannot be classified is CONTINUUM by default** (§2f.3's own words), and
+   that default is not softened by anything here.
+
+**AND THE REASON A CEILING IS NOT SIMPLY SET AS LOW AS POSSIBLE**, which is the finding
+behind this clause: the amendment declined on 2026-08-30 would have **tightened** the
+ceiling. It could not have been gate-fitting — it made the best available row worse.
+**It was declined anyway, because an unnecessarily capped row is as inaccurate as an
+overclaimed one.** §2f.3 itself declined a blanket cap for exactly this reason, as
+*"punitive rather than accurate"* (`:2415-2417`). **A ceiling is the one the charter
+imposes, never the most conservative one available**, and "we were being careful" is not
+a defence for a wrong label in either direction.
+
+### §11.2 A REGISTRATION MAY NOT REACH ITS FREEZE COMMIT WITH AN OPEN GATE QUESTION
+
+**The failure:** VMFL069's pre-registration was committed at `4e4819ab` carrying a §3.3
+headed *"The one interpretive call, flagged for the supervisor"* — a question whose two
+answers gave **different ceilings on all three limbs** — while that same section said the
+call *"must be made **before** the freeze commit, never after."* **The document went to
+its own freeze in breach of its own deadline**, and the question was still open when the
+2026-08-28 session limit killed the fleet, leaving a frozen registration whose gate no
+reader could state.
+
+> **A pre-registration is not freezable while any clause of it defers a gate, band,
+> threshold, cap, level, ceiling or label to a later decision. The supervisor rules
+> BEFORE the freeze commit, and the ruling is IN the frozen bytes or in a record
+> committed no later than they are. A section that reads "flagged for the supervisor"
+> is a BLOCKER on the freeze, not a note inside it.**
+
+It damaged nothing this time — nothing had run and the frozen ceilings turned out to be
+the correct ones — **and that is precisely why it is written down now rather than after
+it costs a verdict.** A registration with an open gate is indistinguishable, at grading
+time, from one whose gate was chosen after the answer arrived; **the freeze's entire
+evidentiary content is that the gate could not have been fitted, and a deferred gate
+forfeits it.**
+
+### §11.3 A QUEUE STATE IS A READING WITH A SHELF LIFE — re-derive it, never carry it forward
+
+**The failure, and it cost two days:** on 2026-08-28 this supervisor boarded VMFL063 as
+**`PENDING`, correctly held** by the runner's 85 % busy ceiling. **That was true when
+written and false forty minutes later.** The runner launched it at **17:41:41Z**; it ran
+to completion at **17:55:34Z**; the fleet died to the 429 at 18:05Z, ten minutes after
+it finished, and **the run sat ungraded for two days behind a board that said `PENDING`.**
+
+This is the exact inverse of the trap this team already recorded — *occupancy read as
+progress*, retracted on 2026-08-28 — and the inverse cost more, because **a wrong
+"running" is caught by the next check while a wrong "held" invites no check at all.**
+
+> **A held, queued or pending state is never carried into a new session, a new block or a
+> report without being re-derived at the moment it is written. On resuming, the FIRST
+> question about any queued item is "did it launch while nobody was watching", answered
+> from the run root and the item's own named log — never from the board's last word.**
+
+**And the corollary that would have caught it in seconds:** a queue entry that has left
+the top-level queue directory has been **moved by the runner**, and the move is itself
+evidence of launch. `verification/queue/ansys-verification/launched/` is the first place
+to look, before the run root.
+
+### §11.4 EVERYTHING RUNNABLE IS FILED AND COMMITTED IN THE QUEUE — the queue carries the plan, not the agent
+
+**Sanaa, 2026-08-30, verbatim:** *"all jobs always queued such that if any teams dies the
+work continues."* Measured at 22:48Z that night: **all six team queues held 0 pending
+entries while the runner daemon (pid 881) was alive and idle** — the box sitting idle,
+which the 2026-08-26 detached-runner ruling names as the failure.
+
+> **Every case this team has frozen and can run is filed as a queue entry at
+> `verification/queue/ansys-verification/` TOP LEVEL and is COMMITTED. An uncommitted
+> queue entry is not filed — it dies with the working tree. The queue, not the
+> supervisor's context, carries this team's plan, and it must be readable by an agent
+> that has never met this team.**
+
+Two traps are now standing requirements of any entry this team files, both already paid
+for on 2026-08-28:
+
+- **`cwd` points at the RUN ROOT, never the case directory.** `scripts/queue_runner.py`
+  writes `STATUS.<case_id>` (`:496`), the wrapper stdout (`:522-523`) and
+  `CAP_OVERRUN.txt` (`:611`) **into `cwd`**. Pointing `cwd` at the case directory drops
+  runtime artefacts beside the frozen pre-registration, comparator and inputs. **The
+  validator SUGGESTS the case directory; a validator's suggested remedy is a suggestion,
+  not a ruling.**
+- **`prereg_commit` names the commit the frozen files actually match**, verified by
+  hashing each file on disk against its blob at that commit **before** enqueueing, so the
+  launcher's own freeze check (`run_*.sh` launch-time HEAD-blob comparison) will pass.
+
+**FREEZE-AHEAD.** Sanaa's floor of 3 frozen-and-ready items is a floor on **this team's
+throughput**, not a target. **Freeze-ahead is re-derived and reported in every board
+block**, and falling below the floor is named as a planning defect of the supervisor's,
+never of the box's.
+
+**AND WHEN THE ASSIGNED CASES ARE DONE** (Sanaa, same directive): the supervisor
+**originates new research proposals and launches them** — still pre-registered, frozen by
+sha before compute, costed in core-minutes per rule 12, graded under the strict completion
+rule, the planted-zero control and the fixed vocabulary, and recorded in the register
+whatever the verdict. **SUBMISSIONS REMAIN PARKED** (`CLAUDE.md` rule 7, §8 above);
+originating research is not publishing it.
+
+### §11.5 IN THIS TERRITORY, A FILE'S STATE IS ASSERTED AGAINST `git show HEAD:<path>` — NEVER AGAINST `git status` OR `git diff HEAD`
+
+**The failure:** on 2026-08-30 the shared `.git/index` was found to have been last written
+**2026-08-27T21:57:59Z**, three days behind HEAD, holding **389 staged deletions** —
+**123 in this team's territory, 122 of those files still present on disk**, including the
+entire frozen VMFL069 package. Because `git diff HEAD` takes tracked-ness from the index,
+`git diff --stat HEAD -- cases/ansys_verification/VMFL069/` reported
+**`16 files changed, 3021 deletions(-)` for files sitting intact on disk.** **A lane of
+this team read that output and reported the case deleted.** It was not.
+
+> **No agent of this team asserts that a file is missing, deleted, modified or clean on
+> the evidence of `git status`, `git diff HEAD`, or any porcelain that consults the shared
+> index. The comparison is against `git show HEAD:<path>` or `git hash-object` versus
+> `git rev-parse HEAD:<path>`, and the disk is read with `test -e` / `find`.**
+
+This is the same shape as the two failures already on this board — **a grep measuring its
+own pattern**, and **a watcher matching the watcher**: an instrument reporting its own
+stale state as a fact about the world. **The index is never repaired by this team** —
+`CLAUDE.md` rule 10 makes it the chief's call — and the private-index protocol with its
+**post-commit** `git diff HEAD~1 HEAD --stat` verify is what makes committing safe while
+it is broken. **The post-commit verify is not optional and is not satisfied by the
+pre-commit `diff-tree` assertion**: the CAS proves the parent is current and says nothing
+about the tree.
+
+---
+
+**Lines whose number changed above this section: 0** — verified by hashing the prior file
+as an exact byte prefix of this one in the same invocation as the write, not merely
+asserted.
