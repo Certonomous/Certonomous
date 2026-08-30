@@ -15354,6 +15354,21 @@ Read the M6 bad-face localisation **personally** and rule on whether hypothesis 
 **cfd measured compute this session: 1.4333 core-min** (M6 v2 trial, 86 wall s × 1 rank), **$0.0012 derived not measured.** Three lanes live at cap: F12 firing the frozen replication (1 rank, ≤ 6.0 core-min), F2 conversion in registration, M6 TE study firing an m=1 variant batch. **Box load ~8–9 of 16 ≈ 50–56 %, still under Sanaa's 80–90 % target, and cfd's share is still small.** The F2 batch harness and the M6 variant batch are this team's instruments for closing that gap and both are being built to run 8–12 abreast.
 ## verification
 
+**Section updated:** 2026-08-30T23:20Z by verification-supervisor. **Zero solver compute.**
+
+##### UPDATE V-26 — **VR1–VR4 RAN; VR5/VR6 RAN AND WERE GRADED UNDER THE QUEUE; AND THE COLLISION HAZARD FIRED AGAIN 65 SECONDS BEFORE THE ITEM THAT MEASURES IT**
+
+- **THE WATCH QUESTION IS ANSWERED FROM NAMED RECORDS, AND IT IS NEITHER OF THE TWO HYPOTHESES.** VR1–VR4 **RAN** — `runner.log` carries four named `LAUNCHED` rows, 2026-08-28T17:34:05Z/17:55:45Z/17:56:50Z/17:57:55Z, pids 1962669/1980474/1980693/1980892, prereg `50734752`/`ffe5ded7`×3. **Nothing was swallowed by the reboot or by `held/`.** All four were re-driven and graded **`PASS`** at `7a6170ef`.
+- **VR5 AND VR6 RAN UNDER THE QUEUE TOO, 2 MINUTES AFTER I PROMOTED THEM:** `LAUNCHED` 23:11:16Z pid 1331215 and 23:14:31Z pid 1458980, **both `prereg=2a61b7ba`** — the freeze I committed 20 minutes earlier. **Both `GATE FAIL`, `launcher_rc=1` captured correctly, all nine control limbs behaved under the runner exactly as in my hand drive.**
+- **⚠ SO "QUEUE DEPTH 0" NOW HAS A THIRD MEANING, AND ONLY NAMED RECORDS SEPARATE THEM.** (1) never filed; (2) filed into `held/` where `d.glob` cannot see it; (3) **filed, launched and CONSUMED.** Tonight it is (3) — **depth 0 is a THROUGHPUT signal, not a starvation signal** — and the count alone cannot tell the three apart. **A depth reading without the `LAUNCHED` rows beside it is not evidence about whether work is happening.**
+- **✅ AND MY OWN FIX IS CONFIRMED EMPIRICALLY RATHER THAN BY ARGUMENT: VR5's AND VR6's STDOUT SURVIVED.** Both captures intact — **7,158 and 9,975 bytes** — because they were filed into **distinct cwds** (`verification/monitor`, `verification/credibility`). **VR1–VR3 lost theirs to a shared repo-root cwd on 08-28. Same runner, same mechanism, different filing, opposite outcome.**
+- **⚠⚠ THE HAZARD IS NOT HISTORICAL — IT FIRED AGAIN TONIGHT, 65 SECONDS BEFORE VR5 RAN.** dafoam relaunched **`W3_chain` into `cases/dafoam/curriculum_D12R2` at 2026-08-30T23:10:11Z**, the **eleventh** launch into that one directory, **destroying `W3_chain_r4`'s stdout from 2026-08-28T16:28:48Z**. That cwd is now **11 launches / 10 destroyed / 10 cross-case**, and the surviving `launcher.queue.out` is **281 bytes belonging to the new run**. **VR5's count moved 23 → 24 between my hand drive and its queue run, and this is the record that moved it.** dafoam's separate `W3_chain_r4` ruling is unaffected — it was read from the arm log, a different file — but the queue capture is gone.
+- **VR6 likewise moved 47 → 52 untracked `_launch` blocks and `LAUNCH_LOG.tsv` 139 → 145 rows in the same interval**, as closure's `M1_*` sweep launched. **Both items gate on the SIGN, never on a count, and print the corpus that produced the verdict** — which is why a growing corpus does not destabilise either verdict.
+
+**Last commit:** this one. **Live jobs:** none of mine; closure's M1 sweep live (60 queued, box ~58 %). **Lanes 1 live** (`commit_private.sh` CAS gate). **Queue: verification 0 top-level — BY CONSUMPTION, both items launched and graded**; I will re-stock rather than let it read as starvation. **Rungs without verdicts:** none. **Next actions:** re-stock the queue; the V-24 pre-freeze theory-gate hold stands. **On Sanaa's desk:** unchanged, **plus the collision now has a witness from tonight, not only from the archive.** **Blocked:** nothing of mine.
+
+---
+
 **Section updated:** 2026-08-30T23:30Z by verification-supervisor. **Zero solver compute.** Commits **`2a61b7ba`** (VR5/VR6 FROZEN), **`723abf9d`** (promoted to queue-ready).
 
 ##### UPDATE V-25 — **QUEUE-READY DEPTH 0 → 2. BOTH NEW ITEMS GRADE `GATE FAIL` ON THE LIVE CORPUS, AND BOTH CAN RETIRE THEMSELVES.**
