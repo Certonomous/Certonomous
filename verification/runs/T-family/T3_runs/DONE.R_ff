@@ -1,0 +1,2 @@
+strict rule met (mark_done_t3.check clauses 1-6 + reconstructpar_rc=0)
+infrastructure (disclosed, not gating): wall_s=200678; ranks=8; core_min=26757.067; timeout_s=205500; capped=no; checkmesh_rc=0; decomposepar_rc=0; log.launch=present; log.decomposePar=present; log.reconstructPar=present; log.checkMesh.run=present

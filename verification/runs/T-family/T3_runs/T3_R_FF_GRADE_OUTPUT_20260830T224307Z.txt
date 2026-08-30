@@ -1,0 +1,2 @@
+planted-zero control on R_f: {'passed': False, 'planted': 0.001234, 'read_back_delta': 0.0012340000000108375, 'reader_max_change': 0.0012339999996129336, 'reader_state': 'NOT_CONVERGED', 'between': ['76000', '78000']}
+REFUSE: planted-zero control failed: the convergence reader cannot see a 0.001234 K difference; its zeros mean nothing

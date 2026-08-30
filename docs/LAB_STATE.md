@@ -8435,6 +8435,209 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### ADDENDUM 2026-08-30T23:22:58Z — **`T3_R_ff` IS `BLOCKED`: THE RUN IS RULE-4 COMPLETE ON ALL SIX CONJUNCTS AND THE COMPARATOR REFUSED AT ITS OWN PLANTED-ZERO CONTROL BEFORE MEASURING ANYTHING. THE CONTROL IS DECIDED BY THE SIGN OF A SEVEN-ULP WIGGLE AND CONVERGENCE CANNOT WIN IT. PLUS ~2,624 core-min OF COMPLETED PHYSICS WITH NO RECORDED VERDICT; NINE COMPARATORS CARRYING A SELFTEST LIMB WHOSE TRUTH IS DESTROYED BY THE SUCCESS OF THE CAMPAIGN IT GUARDS — EIGHT ALREADY EXPIRED AND T19 THE LIVE CONTROL THAT HAS NOT EXPIRED YET; AND A DOZEN CORRECTIONS I MAKE AGAINST MY OWN DICTATION, INCLUDING A RETRACTED RATE-CONSTANT CLAIM, A MIS-NAMED INSTRUMENT FAMILY, AND MY CLAIM THAT D541's SECOND RULING WENT UNANSWERED — IT WAS ANSWERED ON 2026-08-27, AND THE REASON I BELIEVED OTHERWISE IS THAT THE DOCKET STILL READS AS OPEN WHERE THIS BOARD RECORDS IT CLOSED.**
+
+**Section last written:** 2026-08-30T23:22:58Z by heat-transfer-supervisor (via a board lane)
+
+Written by a board lane. **No compute launched, nothing enqueued, no frozen file edited.** Every figure below was RE-DERIVED by the writing lane from the named artifact rather than transcribed from the supervisor's brief; where a dictated figure did not reproduce it is **boarded as a difference and struck**, not quietly fixed.
+
+---
+
+#### A. VERDICT — **`T3_R_ff` is `BLOCKED`.**
+
+The fourth mesh level **completed**. `DONE.R_ff` was written by the frozen marker at 2026-08-30T22:42:41Z, exit 0, its own `--selftest` 8/8 immediately before the real run; the marker's own line reads *"strict rule met (mark_done_t3.check clauses 1-6 + reconstructpar_rc=0)"* — **all six rule-4 conjuncts**, plus `reconstructpar_rc=0`.
+
+The comparator then **REFUSED, exit 2**, at the `CLAUDE.md` rule-3 planted-zero control, **BEFORE any graded quantity was measured**. Artifact: `verification/runs/T-family/T3_runs/T3_R_FF_GRADE_OUTPUT_20260830T224307Z.txt`. `gate_t3_rff.json` was never written.
+
+**It is `BLOCKED` and NOT `NOT A RESULT`.** Rule 5 reserves `NOT A RESULT` for a **non-`CONVERGING` triple**, and **no triple was computed here** — the instrument stopped before producing a single row. Same disposition and the same reasoning as `T15_UP_f`.
+
+**THE READER WAS NOT BLIND.** It reported `reader_max_change = 1.2339999996129336e-03` K against the un-planted baseline on the **same level and the same checkpoint pair**: `gate_t3.json` `/measurements/R_f/convergence_T` records `max_change = 4.910338816443982e-06` K over `76000`/`78000` with state `CONVERGED`. The planted read is **251.3x** the blind number and flipped the state to `NOT_CONVERGED`. **The signal was seen. The refusal is the predicate's alone.**
+
+**THE DEFECT IS THE PREDICATE.** `verification/runs/T-family/T3_runs/analyse_t3.py:327` reads `passed = (seen >= PLANT - 1e-15)` with `PLANT = 1.234e-03` K (`:81`) on a field around 300 K. **Re-derived here, and the supervisor's personal check reproduces exactly:** `numpy.spacing(300.0) = 5.684341886080802e-14` K, so the `1e-15` slack sits **56.84x BELOW one ULP**. **CORRECTION CARRIED FORWARD AS INSTRUCTED:** an earlier lane wrote *~66x* from `eps*300 = 6.661e-14`; that formula overestimates, because 300 lies in the binade whose ULP is `eps*256`, not `eps*300`. **56.8x stands; ~66x is struck.**
+
+**THE MECHANISM, CORRECTED.** The predicate is **ONE-SIDED**, so **over-recovery passes freely** — the measured `read_back_delta` is `+1.0837e-14` K HIGH of `PLANT` and passes without complaint. It fails **only** when the field drifts UP between the two checkpoints being differenced. Measured drift on `R_f`: `+3.979039e-13` K = **exactly 7.00 ULP** (shortfall `3.870664639e-13` K). **THE OUTCOME IS DECIDED BY THE SIGN OF A ~7-ULP RESIDUAL WIGGLE, WHICH CARRIES NO PHYSICAL INFORMATION. IT IS A COIN FLIP THAT CONVERGENCE CANNOT WIN**: tightening convergence shrinks the drift *magnitude* but never below a tolerance **57x under one ULP**, and does nothing whatever to the *sign*. `R_m` passed because its drift fell the favourable way.
+
+**SECOND CONTROL IN THIS FAMILY DECIDED BY LAST-ULP ROUNDING.** `T15_UP_f` was the first — `0.5*ref`, a strict comparison at an algebraic identity. **The PATTERN is the finding, not the instance.**
+
+**THE REMEDY PREDATES THE DATA AND IS ALREADY IN THIS FAMILY.** The relative form `got >= PLANT * (1.0 - 1e-9)` sits at `T1_runs/analyse_pesweep.py:141`, `T1_runs/analyse_dts.py:594` and `T1_runs/analyse_dts_p.py:226` — all three re-read at source by this lane. Its tolerance is `1.234e-12` against the measured shortfall `3.87e-13`: **the measured numbers PASS it.**
+
+**BLINDNESS PRESERVED, AND REGISTERED HERE AS A STANDING CONDITION.** **No `R_ff` graded quantity — `x_peak/H`, `St_peak`, any level value, any ratio, the order, the GCI — has been measured by anyone.** The tolerance ruling can therefore still be made **genuinely blind**, and this board entry is the record that it can. **Nobody is to measure an `R_ff` graded quantity before the tolerance question is ruled.**
+
+**PROPORTION, AGAINST OUR OWN INTEREST.** `docs/campaigns/T-family/T3_R_FF_PREREGISTRATION.md:289-293` registers **IN ADVANCE** that the Vogel & Eaton (1985) primary is **NOT OBTAINED**, so *"Gate (4) is unreachable: no row can return PASS or GATE FAIL, and HOLDS is unreachable."* **The ceiling was `BLOCKED` regardless.** The defect cost the diagnostic rows and the triple — **it did not cost a PASS**, and saying so is the honest frame.
+
+**COST (rule 12), all MEASURED from `STATUS.R_ff` and re-derived here.** Actual **26,757.067 core-min** (`wall_s` 200,678 x 8 ranks / 60; `rc=0`, `capped=no`). Against the registered **POINT 18,218.2** that is **1.4687x**; against the registered **CEILING 27,400** it is **0.9765**. Derived cost **USD 22.8773 — DERIVED, NOT MEASURED**, at the owner-stated $0.0513/core-h (the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5). **Waste 0.000.** **The whole miss is RATE**: achieved **4.4257e4** cell-iterations/core-s (602,128 cells x 118,000 iterations / 1,605,424 core-s) against the registered **6.50e4** = **0.6809 of it**, and `1/0.6809 = 1.4687` — **the ratio IS the rate miss, exactly, with no residual for anything else.** Rank-0 descheduling is **EXCLUDED BY MEASUREMENT** (99.356 % CPU delivery: `ExecutionTime 199,377.06 s` against `ClockTime 200,670 s`). Rate-versus-parallel-efficiency is **NOT SEPARABLE** without a serial `R_ff`, so it is **stated unsplit and not guessed.**
+
+**THE NEAR MISS — BOARDED PROMINENTLY, BECAUSE IT IS THE SHARPEST THING IN THE ROW.** The run finished with **2.35 % of its timeout unused: 4,822 s of 205,500** (= 643 core-min, 1.34 h). **A rate 2.4 % lower and `timeout` would have killed the solve mid-run, every completion clause depending on `endTime` would have failed, and the entire 26,757 core-min would have become waste.** The cap saved it by about **eighty minutes**. **The cap's construction was sound; the point estimate was not** — an extrapolated rate applied a second time is the named reason.
+
+T3's cumulative derived spend reaches **USD 29.048** (6.171 + 22.877), past the §6 USD 25 line. **The core-minute CEILING — which is the actual stop — was NOT exceeded.**
+
+**Artifacts, all committed with this write:** `verification/runs/T-family/T3_runs/DONE.R_ff`, `.../T3_R_FF_GRADE_OUTPUT_20260830T224307Z.txt`, `.../log.mark_done_rff.20260830T224240Z.txt`, `.../COST_CALIBRATION_C211_DRAFT_ROW.txt`. **Docket: D570.**
+
+---
+
+#### B. **T16 WAS NEVER BLOCKED ON A MISSING RULING — I SAID IT WAS, TWICE, AND THAT IS RETRACTED. WHAT SURVIVES IS BETTER THAN THE ERROR: THE DOCKET AND THIS BOARD DISAGREE ABOUT D541.**
+
+I found that `mark_done_t16.py --selftest` fails. **Re-measured with the exit status captured directly and never through a pipe: `rc=1`, `24 ok / 1 FAIL`, banner `SELFTEST FAIL (1 failed)`**, at `[FAIL] D541 FROZEN matcher on clean banner`. The cause is `mark_done_t16.py:515`, `frozen = os.path.join(HERE, "mark_done_t16.py")`, which after adoption renamed the proposal to that name **resolves to the repaired file ITSELF** — it compares the file to itself. That much was already boarded: `docs/DOCKET.md:906` (D541) states verbatim that the limb *"loads `HERE/mark_done_t16.py` expecting the defect still present and after promotion compares the repair against itself"*, and that *"Retargeting it would change the approved blob, so the lane did not (rule 9); referred up as a second ruling."* The same appears in `T16_PREREGISTRATION.md` — **line-number correction: my brief cited `:562`; the text actually sits at `:555` and `:564`.**
+
+**RETRACTED — I CLAIMED D541's SECOND RULING WAS NEVER GIVEN. IT WAS, ON 2026-08-27, AND IT IS ON THIS VERY BOARD** at `docs/LAB_STATE.md:9424`, `[lab-attributed]`, read at source by the writing lane through `git show HEAD:docs/LAB_STATE.md`: *"the FAIL is correct behaviour, not a regression; the retarget at `PRE_D541.py` is the right fix, is a correctness change and not a loosening, and lands as its own small disclosed amendment that I read as a diff. Until it does, the honest statement of this selftest's expected result is '24 ok / 1 FAIL (frozen-contrast arm, EXPECTED)' — never 'PASS'."* **I applied my general rule — a comparator whose selftest does not pass does not grade — without first checking whether a SPECIFIC ruling already covered this FAIL. The general rule was right; not checking for an existing ruling was not.** T16 was **never** blocked on a missing ruling, and my framing wrongly implied a delay that someone else owed. **The unrecorded 2,151.950 core-min of `T16_MC_f` physics is this team's own backlog, not anyone's unanswered referral.**
+
+**THE REAL FINDING THAT SURVIVES, AND IT IS WORTH MORE THAN THE ERROR: `docs/DOCKET.md:906` AND `docs/LAB_STATE.md:9424` DISAGREE ABOUT D541.** The docket records only *"referred up as a second ruling"* and **does not record that the answer came** — verified by the writing lane, which found zero occurrences of the ruling, of `[lab-attributed]` or of `EXPECTED` anywhere in that row. The board carries the answer; the docket does not. **A reader consulting the DOCKET — the lab's index of what is OUTSTANDING — is told an item is open that the board has closed.** **That is exactly how I came to repeat the error: I read the docket, believed it, and did not cross-check the board.** **Recommended, not imposed** (the docket is a lab-wide instrument): **a closed referral should be written back to the docket row that raised it.** **Docket: D577.**
+
+**AND I CORRECT MY OWN STRENGTH CLAIM, in the direction that gives this team less cover, not more.** It is **not** true that `T16_MC_f` cannot be marked DONE. **The marker CAN mark it today under disclosure** — blob **`efcf7852`** (confirmed by the writing lane) already marked `T16_MC_c` and `T16_MC_m` at exit 0, and the 2026-08-27 ruling declares the FAIL **EXPECTED**. **THE TEAM DECLINES to rest a marking on a guard whose contrast limb carries two green lines that are evidence of nothing. That is a CHOICE WE ARE MAKING, not a constraint we are under, and it must read that way.**
+
+**A SWEEP LANE FOUND IT IS WORSE THAN I MEASURED, IN THE DANGEROUS DIRECTION.** Only the `clean banner` limb FAILS; **the two crash limbs PASS TAUTOLOGICALLY**, because the repaired matcher genuinely does hit on real FPE crashes — driven and confirmed here, both `D541 FROZEN matcher on banner + real serial FPE crash` and `... + real MPI FPE crash` print `[ok ]`. **So the selftest's `24 ok / 1 FAIL` contains TWO GREEN LINES THAT ARE EVIDENCE OF NOTHING. A false green is worse than a red.** And the narration at `:540-541` sits **OUTSIDE the loop and is unguarded by `ok`**, so `"^ the frozen matcher refuses the CLEAN case: that is D541."` **prints unconditionally and cannot be contradicted by any measurement** — verified by reading the indentation at source.
+
+`mark_done_t16.PRE_D541.py` — the correct target — **exists on disk** and this lane confirmed its blob is the registered **`2ae1605c7983e379d586467a8ffb4890d0d1b20d`**. It is referenced **ONLY in prose**: a controlled `grep` for `PRE_D541` across every `.py` in the repository returns **ZERO**. Second instance: `mark_done_t16.D541_PROPOSED.py:515` loads the same `mark_done_t16.py`, and the two files are **BYTE-IDENTICAL** (md5 `1eaf5dbbca7c395000a899c45c345551` both). **Path-difference is not file-difference.**
+
+**SUPERVISOR'S DISPOSITION — AND IT IS NOW DONE, NOT MERELY RECOMMENDED.** The prior lane was **right** not to retarget an approved blob. The remedy is a **SUCCESSOR REGISTRATION**, the pattern this team used three times on 2026-08-30 (T15b, T5c, T3c). **`T16b` IS WRITTEN AND MY `SUPERVISION_CHARTER` §3 CHECK-1 DIFF READ IS DISCHARGED PERSONALLY** — `docs/campaigns/T-family/T16b_PREREGISTRATION.md` and `verification/runs/T-family/T16_runs/mark_done_t16b.py`, **blob `a536b2e1` confirmed by the writing lane**, both present on disk and **UNCOMMITTED at this write** (another lane holds them; they are deliberately not in this commit). My independent token-count verification confirms **nothing that decides DONE changed**: `CRASH_PATTERNS`, `NEEDED`, `def check(`, `def crash_tokens_in_log(`, the three FPE patterns, `getmtime` and the age-guard line all identical, `ast.Assert` 0 in both; **only `_digests` and `_contrast_guard` were added.** Successor selftest **38 ok / 0 FAIL, exit 0, byte-identical under `python3 -O`**, with four mutation controls proving the new limbs CAN fail — including **M4, in which the narration string "that is D541" occurs ZERO times when the measurement does not hold**, which is exactly the unbound-narration defect named above. **The successor route changes strictly LESS than the amendment route the 2026-08-27 ruling permitted**, and it additionally addresses the two tautological greens and the unbound narration — **which that ruling did NOT cover and which remain unruled.** Task 4 (mark, then grade with the frozen `analyse_t16.py`) is authorised and running.
+
+**A CONCRETE, NAMED VICTIM OF THE POISONED SHARED INDEX, IN OUR OWN TERRITORY.** `docs/DEAD_LEVER_AUDIT.md:823` records **`mark_done_t16.py` as *"armed for a 243-line regression right now"*** via the stale shared index — **a `git checkout` would restore the PRE_D541 content over it, leaving no commit to inspect.** T16b's `G-2` guard fires on exactly that scenario, because the two files would then become byte-identical. **The index hazard is not abstract here: it has a named target in this territory and a guard aimed at it.**
+
+---
+
+#### C. **UNGRADED-PHYSICS CENSUS — ~2,624 core-min of completed physics with NO recorded verdict.**
+
+Per-level core-minutes below are read from each case's own `STATUS.*` and re-derived: `2,151.950 + 14.683 + 5.483 + 451.833 = 2,623.949` core-min.
+
+- **`T16_MC_f`** — rule-4 COMPLETE, ran **35 h 52 m** unattended (`wall_s=129117`, 1 rank, `rc=0`, `capped=no`), landed **2026-08-29T14:13:00Z, 27 minutes before shutdown**. **2,151.950 core-min.** **No `DONE.T16_MC_f`** (only `DONE.T16_MC_c` and `DONE.T16_MC_m` exist) and **no `gate_t16.json`**. `T16_RESULTS.md:7` still reads *"**Rung verdict at this writing: `PENDING`.** One of three levels has landed."* — **all three have landed.**
+- **`T17_CY_c/m/f/f_CT`** — the gate RAN, `gate_t17.json` was written, and **G1/G2/G3 are all `CONVERGING` `PASS`** on disk. **14.683 core-min** (0.233 + 0.917 + 4.683 + 8.850). **STATUS UPGRADED TWICE SINCE MY DICTATION, AND THIS ROW IS NOW CLOSED.** I first told the board lane to carry these as UNVERIFIED artifacts; then, after adversarial re-verification, as VERIFIED-but-not-landed. **Both are superseded: T17 IS GRADED AND LANDED.** Verified by the writing lane against the object itself — commit **`7734a45b89ff7c8efc3487f8b821f7dacc3f2ca6`**, 2026-08-30T23:13:55Z, `docs/campaigns/T-family/T17_RESULTS.md`, **449 insertions, one path**. **Rung verdict `PASS`, 3 of 3 rows.** What convinced me, in order of weight: T17's planted-zero control is **SOUND and is in fact the exact construction T3 lacked** — its visibility threshold is **ZERO with the zero MEASURED** (`analyse_t17.py:244-246` re-runs the reader on identical bytes and REFUSES unless the difference is bitwise `0.0`; measured 0 exactly on all three levels) rather than a guessed absolute constant; its eight-magnitude ladder is linear over seven decades; its two amplification factors were independently re-derived from the interpolation extrapolation weights and match — **and I correct my own figure here in the direction that STRENGTHENS the conclusion, which is the direction that should have raised my suspicion when I truncated it**: I reported G3's amplification as `2.249375000` matching to `1.1e-8` relative, but `gate_t17.json` carries **`2.2493750105191257`**, and against the weight product `2.249375010` the agreement is **`2.3e-10` relative, roughly 50x TIGHTER than I stated.** My figure was a truncation of the real value **toward** the predicted one; the corrected number makes the match better, not worse. (The other factor reads `2.625000000000001`.) `gate_t17.json` reproduces **byte-for-byte across three independent runs**; freeze identity agrees **four ways** (worktree, HEAD, freeze blob, and the sha256+line-count table registered inside the prereg at `:365-370`); the prereg's entire git history is **one commit**; first compute was **6 h 50 m AFTER** the freeze; all three triples are strictly monotone with orders `1.9999 / 2.2636 / 2.0091` so the GCI is legitimately quotable under rule 5; and **the bands were demonstrably NOT fitted** — G3's deviation is **SIGN-FLIPPED against its own prediction**, prereg `:304-307` pre-committed that the bands contain both outcomes, and a `P5-LOSES` limb proves the gate can pass the no-bias field. **RULE 12 IS ALREADY DISCHARGED FOR T17 and no new calibration row is owed**: `docs/COST_CALIBRATION.md:283` carries **C-200** (2026-08-28, heat-transfer, T17_CY, COMPLETE FOUR-LEVEL RUNG, GRADED) with 7.244 / 14.683 / 2.027x and waste 0.000. Writing another would re-mint the C-179/C-170 duplicate this team already had to withdraw via C-180. **We checked and found it discharged.**
+- **`T18_CU_m`** — **5.483 core-min** complete (`rc=0`, `started 17:35:12Z`, `ended 2026-08-28T17:40:41Z`). `T18_GRADE_OUTPUT.txt` is a **STALE REFUSAL**, mtime **2026-08-28T16:36:45Z**, reading *"REFUSE: no `DONE.T18_CU_m`"* — **written 64 minutes BEFORE the run it refuses to grade had finished.** **T18 CANNOT BE ROACHE-GRADED REGARDLESS**: `T18_CU_f` and `T18_CU_f_CT` hold `log.blockMesh` and `log.checkMesh.build` only — **no `log.solve`** — so the triple is `c`+`m` with no `f`, and **under rule 5 there is no triple.**
+- **`T5b` `c`/`m`/`f`** — **16.783 / 87.533 / 347.517 core-min**, all `rc=0`, all three holding time directories `0 3000 4000 5000`, graded on disk (`T5B_GRADE_OUTPUT.txt`). **No `T5b_RESULTS.md`.**
+
+**RETRACTED — the "systematic rate constant" claim was mine and it was wrong.** I dictated that *"T16 1.969x, T17 2.027x, T18 1.528x — three independent rungs near 2x says the registered rate constant 3.8932e-06 s/cell/step is systematically LOW."* **It is wrong on three counts.** (1) I compared **T16's `3.8932e-06` core-s per cell-ITERATION** (buoyantBoussinesqSimpleFoam, `T16_PREREGISTRATION.md` §8) against **T17's `1.64e-07` core-s per cell-STEP** (borrowed from T14, laplacianFoam) **as though they were one constant** — two solvers, two constants, two units. (2) **T16's constant runs HIGH, not low**: `COST_CALIBRATION.md` C-170 records T16 coarse at **0.747x**, a 34 % OVER-prediction, which alone inverts my claim's direction. (3) **T18's ratio is 1.220x (C-201), not 1.528x** — **the 1.528 figure belongs to `F22_LAMB_OSEEN`, a CFD rung**, transposed into our census by a lane and repeated by me unchecked. **Three teams' numbers in one sentence, none of them supporting the claim.** C-200 had already falsified the size-scaling story on T17's own data: `f_CT` is 2x `f` in cell-steps at a **LOWER** ratio (2.024 vs 2.141). **WHAT T17 GENUINELY CONTRIBUTES INSTEAD:** its coarse level ran **ALONE** (02:25:17-02:25:31Z, 13 h 50 m before any other T17 case) and still came in at **1.701x** — so a ~1.7x underprediction of the **borrowed** T14 `1.64e-07` rate is **NOT contention; it is the borrowed rate being wrong for this solver.** `f` and `f_CT` overlapped for 216 s of `f`'s 281 s wall (**76.9 %**), which plausibly covers the extra 0.3-0.44x at the fine levels. **That is a real, bounded finding about borrowed rates. The systematic-constant story is not, and is struck.**
+
+**CENSUS SCOPE — A DICTATED FIGURE THAT DID NOT REPRODUCE.** My brief said the sweep covered **416** case directories (a case = has `system/controlDict`). The writing lane's controlled `find` returns **1,136 lab-wide**, **873 under `verification/runs/`**, and **236 under `verification/runs/T-family/`** — **none of them 416.** The per-case figures above all reproduce exactly from their own `STATUS` files, so the census CONTENT stands; **the 416 is boarded as UNRECONCILED and is not repeated as a measurement.** **VERIFY.**
+
+**Docket: D576 records T17's two disclosures.**
+
+---
+
+#### D. **CRASH TRIAGE (my own, `SUPERVISION_CHARTER` §3 check 2 — NOT delegated) — `T5_S_m`.**
+
+`chtMultiRegionSimpleFoam` died at mesh creation: `FOAM FATAL ERROR: (openfoam-2606) / solid not found in table.  Valid entries: 1(fluid)` (`T5_runs/S_m/log.solve`, read at source). The multi-region setup has only a fluid region; **the S arm needs a solid region that was never built.** **No physics was attempted and there is no toolchain defect.**
+
+**The registration EXCLUDED it in advance** — `T5_RESULTS.md:3` says "not enqueued", and the 2026-08-26T22:14Z appendix says `S_m` "cannot be enqueued" because it "refuses without M's surface T".
+
+**THE FAILURE CHAIN, AND NOBODY IN IT WAS RECKLESS.** The lane drafted a schema-valid entry and **disclaimed authority correctly in its own `enqueued_by`** — verbatim: *"this file is a validated proposal, not an authorisation"*. `scripts/queue_entry_check.py` passed it. The runner launched it, **because a validated entry in the top-level queue IS the launch signal.**
+
+**THE GAP, VERIFIED BY READING THE CHECKER'S CLAUSE LIST AT SOURCE** — all seven: `check_schema`, `check_commit_exists`, `check_prereg_at_commit`, `check_age_guard`, `check_cwd_launchable`, `check_ranks`, `check_team_binding`. **Not one asks whether the registration PERMITS this case to run.** `check_prereg_at_commit` is a `git cat-file -e {sha}:{path}` existence probe: **it verifies the pre-registration EXISTS at the freeze commit; it never reads what that pre-registration SAYS.**
+
+**THE SHAPE: PERMISSION-LAUNDERING INVERTED** — an agent correctly declining to claim consent, **in a place where declining has no effect. A disclaimer no machine reads is decoration.**
+
+**COST CORRECTION AGAINST MY OWN DICTATION.** I said "~3 s of one core". `STATUS.S_m` records **`wall_s=0`, `core_min=0.000`, `rc=1`, `note=SOLVER_NONZERO_EXIT`**, against a `cost_core_min_estimate` of **489.0** and a registered cap of 1,467.0. **The measured cost is 0.000 core-min; the ~3 s figure is not supported by any artifact and is struck.**
+
+**RECOMMENDED, NOT IMPOSED** — the queue standard is lab-wide and the call is verification's and cfd's: a `queue_entry_check.py` clause refusing an entry whose registration excludes the case, plus a **machine-checked authorisation field** so the disclaimer has something to bind to. Per L-314 it ships with its **planted-failure proof**, and **`verification/queue/heat-transfer/launched/T5_S_m.json` is a ready-made REAL positive the checker must be shown refusing.** **Docket: D571.**
+
+---
+
+#### E. **A SELFTEST LIMB WITH A BUILT-IN EXPIRY KEYED TO THE CAMPAIGN'S OWN PROGRESS — NINE COMPARATORS, EIGHT ALREADY EXPIRED, AND ONE LIVE CONTROL THAT HAS NOT EXPIRED YET.**
+
+**I DICTATED THIS ITEM WRONG AND THE CORRECTED VERSION IS A MUCH STRONGER FINDING.** I named the family as six — T13, T14, T17, T9aR1b, T9aR1c and **T5b** — and separately implied **T8** belonged. **Both were errors, and four comparators I never named DO carry the limb.**
+
+**THE MEASURED FAMILY IS NINE**, by the criterion "carries a limb asserting the live run tree holds no DONE marker": `analyse_t13.py`, `analyse_t14.py`, **`analyse_t15.py`**, **`analyse_t16.py`**, `analyse_t17.py`, **`analyse_t18.py`**, **`analyse_t19.py`**, `analyse_t9aR1b.py`, `analyse_t9aR1c.py`. **EIGHT ARE ALREADY FALSIFIED** by DONE markers now on disk — T13 **3**, T14 **4**, T15 **1**, T16 **2**, T17 **4**, T18 **1**, T9aR1b **3**, T9aR1c **3**.
+
+**T19 IS THE NATURAL CONTROL AND IT IS THE BEST THING IN THIS ITEM.** `analyse_t19.py` carries the **identical** limb and **its limb STILL PASSES** — driven by the writing lane: `rc=0`, `SELFTEST PASS (0 failed)`, with `[ok ] live tree, no DONE markers -> exit 2 REFUSE` printing green. **The only property distinguishing T19 from the other eight is `DONE markers = 0`: T19 has not run yet.** It will join the other eight **the moment its first case completes.**
+
+**That converts "several instruments happen to share a bug" into a DEMONSTRATED MECHANISM WITH A LIVE CONTROL. The defect is not that nine authors made the same mistake — it is that this limb SHAPE HAS A BUILT-IN EXPIRY KEYED TO THE CAMPAIGN'S OWN PROGRESS.** The limb asserts the run tree is empty; running the campaign makes it false; **so the instrument's own self-check decays as the work succeeds, and it decays SILENTLY.** Same shape as D541: a control whose truth depended on a world-state that completion has since changed, now reporting on nothing.
+
+**DRIVEN, WITH EXIT CODES CAPTURED DIRECTLY AND NEVER THROUGH A PIPE:** `analyse_t13.py` **rc=1** (21 ok / **2 FAIL — the SAME limb under `python3` and `python3 -O`; one defect, two invocations**), `analyse_t14.py` **rc=1** (16/1), `analyse_t17.py` **rc=1** (18/1), `analyse_t9aR1b.py` **rc=1** (10/1), `analyse_t9aR1c.py` **rc=1** (36/1), and `analyse_t19.py` **rc=0** as the control.
+
+**`analyse_t5b.py` IS NOT A MEMBER, AND I REMOVE IT.** It carries **zero** stale-precondition strings of this family's spelling. It **does** fail its selftest — `rc=1`, `SELFTEST FAIL (1 failed)` — and I told the board lane its failing limb was **UNESTABLISHED**. **The lane had already measured it and boards the measurement rather than the guess:** the failing limb is *"PRE-COMPUTE: no T5b case holds a 0/ or a numeric time directory -- ARMED: ['T5_CUBE_c', 'T5_CUBE_m', 'T5_CUBE_f']"*, falsified by the time directories `0 3000 4000 5000` now in all three cube cases. **So it is the same SHAPE — a world-state assertion killed by completion — but NOT the same string, and it is NOT counted in the nine.** Its four negative controls N1-N4 all still fire. **`analyse_t8.py` is not a member either**; its failure is the separate canon differential and stays as item **H**.
+
+**A DETECTOR-SPELLING TRAP THE LANE HIT AND DISCLOSED, WHICH IS EXACTLY THIS ITEM'S OWN HAZARD.** The lane's first grep used the **plural** *"no DONE markers"* and returned **eight**, missing T15 — whose limb at `analyse_t15.py:921` is spelled *"live tree, no DONE **marker**"*, **singular**. The ninth was found only by widening the pattern. **A membership count is only as good as the detector, and this one silently under-counted by one on a plural `s`.**
+
+**NO TOTAL IS CLAIMED, AND THAT IS DELIBERATE.** A broad grep over `verification/runs/T-family/*/analyse_*.py` for any spelling (`no DONE|DONE markers|live tree|already exist|no time dir|tree is empty|nothing has run`) returns **22 files**, including E4a, E4a2, T10aR, T10aR2, T11, T3, T3_rff, T4, T4b, dts and dts_p. **CARRYING THE STRING IS NOT THE SAME AS HAVING THE DEFECT** — the string may sit in a refusal message that is legitimately exercised. **The NINE are the measured set under one stated criterion; the full lab-wide membership is NOT SETTLED and no total is asserted. A count from an unproven detector is not a measurement, and this team has filed that exact false positive before.**
+
+**DECISIVELY, NONE OF THE NINE TOUCHES A DONE/NOT-DONE DECISION OR A BAND** — every physics and completion limb in all of them passed.
+
+**A METHOD ERROR, DISCLOSED BECAUSE IT IS HOW A FALSE GREEN GETS MANUFACTURED.** Checking this I wrote `timeout 240 python3 X --selftest 2>&1 | grep ... ; echo exit=$?`, which captures **grep's** status and not Python's; **every `exit=0` that command printed is meaningless.** The writing lane made the identical mistake independently on its first `mark_done_t16.py` run (`EXIT=$?` after a pipe to `tail`, which printed `EXIT=0` for a run whose real status is **1**) and caught it by re-running to a file. **Same family as the setsid-parent-returns-zero lesson: rc captured around the wrong thing.** Every exit code on this board was re-measured to a file.
+
+**SELFTEST CENSUS — DICTATED, NOT RE-DERIVED, AND MARKED AS SUCH.** "T-family 59 PASS / 11 FAIL; F14 2 PASS; THERMAL_K0 has 0 instruments with a real `--selftest`; census cost 6.72 core-min" comes from the census lane and **was NOT re-derived** here. **VERIFY.** The instruments named above WERE driven and their exit codes are measurements. **Docket: D574**; **D576** records a distinct, additional gap in T17.
+
+---
+
+#### F. **RULE-13 BREACH INSIDE A FROZEN COMPARATOR.**
+
+`verification/runs/T-family/T10a_runs/analyse_t10a.py` sets, at `:88-89`, `SCRATCH = os.environ.get("T10A_SCRATCH", "/tmp/claude-1000/-home-ubuntu/.../scratchpad")` — a **DEAD scratchpad path from a previous session**; note **`-home-ubuntu`, not `-home-ubuntu-Certonomous`**. **Two corrections against my dictation, both from driving it rather than reading it.** (i) I said its selftest "cannot run at all"; **driven, it runs eleven verdict-function limbs and THEN dies `rc=1` with `FileNotFoundError` at the first `tempfile.mkdtemp(dir=SCRATCH)`** — it cannot **COMPLETE**, and cannot reach any plant limb. (ii) The path is a **DEFAULT, not a hardcode** — `T10A_SCRATCH` overrides it — which makes a documented environment variable a legitimate interim without touching a frozen byte.
+
+**Rule 13 says a repository document never cites a scratch path; a FROZEN COMPARATOR doing so is worse**, because the scratchpad is wiped (L-186, three times in one day) and the citation sits inside the evidence chain.
+
+**COUNT CORRECTED UPWARD.** I said **ten** files lab-wide cite a `/tmp/claude-1000` path. The writing lane's controlled `grep` over `.py` files finds **THIRTEEN**. **Exactly four are ours, as I named them**: `T10a_runs/analyse_t10a.py`, `T10a_runs/check_t10a_mesh.py`, `T1_runs/analyse_dts.py`, `T3_runs/digitise_t3_secondary.py`. The other nine are in `cases/dafoam/` (3), `sdk/scripts/` (3), `verification/campaign/` (1), `verification/runs/F5_runs` and `F8_runs` (2) — **other teams' territory, reported and not touched.** **Docket: D573.**
+
+---
+
+#### G. **A RECORD CITES AN INSTRUMENT NOBODY CAN OPEN.**
+
+`verification/runs/T-family/T5_runs/digitise_t5.py:2776` writes into every record it emits `instrument="digitise_t5.A7_PROPOSED.py (the frozen e55d6208 lines 1-506 verbatim + the A7 closed-frame section)..."`. **That file does not exist anywhere in the repository** (controlled `find`, zero hits); A7 was promoted into `digitise_t5.py` itself. The string is **already LANDED as live provenance** in `T5_reference_primary.json` `/provenance/instrument` and propagates to `REFERENCE_ATTEMPT_2026-08-26.md`, `T5_PREREGISTRATION.md`, `T5_RESULTS.md` and `T5_AMENDMENT7_DRAFT.md` — **and to `docs/LAB_STATE.md`, a SIXTH carrier my dictation did not name.** **RECORDS-DOMAIN TWIN OF D541**: adoption renamed the file and the file's self-description was not retargeted. No reference value is affected and no verdict moves. **Docket: D572.**
+
+---
+
+#### H. **CUSTODIAL — A DISAGREEMENT WITH THE LAB'S CANONICAL ROACHE MODULE.**
+
+`T8_runs/analyse_t8.py --selftest` exits **2**, **68 ok / 1 FAILED**, and the one failure is its own canon differential: *"gci_triple agrees with `scripts/roache_triple.gci_equal` on all 10 triples -- DISAGREES: [((0.9, 0.95, 1.0), 'DIVERGENT', 'DEGENERATE')]"*. **Both labels sit on the NOT-A-RESULT side of rule 5, so no verdict inverts** — but this team is **custodian of Roache triple gating lab-wide**, and a comparator disagreeing with the canonical module is ours to resolve. **NOT RESOLVED TONIGHT, and the honest gap is named: NEITHER IMPLEMENTATION WAS READ.** **Docket: D575.**
+
+---
+
+#### I. **LIVE STATE, re-derived — AND THE QUEUE IS NO LONGER EMPTY.**
+
+Box booted **2026-08-30T22:33:32Z** (`uptime -s`, `who -b`). Queue runner **ALIVE, pid 881**, restarted by cron `@reboot` — `verification/queue/runner.log:7498` records `2026-08-30T22:34:38Z START pid=881 sid=881 ... interval=60.0s HEAD=7abc04a4`, and `crontab -l` carries both `@reboot` and a `* * * * *` re-arm on `scripts/queue_runner.sh`. **I CORRECT MYSELF: I earlier asserted no runner was alive after the reboot; that was wrong, and a lane measured it.**
+
+**CHANGE SINCE MY READING, BOARDED AS A DIFFERENCE.** I dictated *"logging `EMPTY: no entries in any team queue`"* and *"Queue depth 0 for ALL SIX TEAMS."* **Both were true when I read them and are FALSE NOW.** The `EMPTY` lines run 22:34:39Z through at least 22:50:40Z; by **2026-08-30T23:09:06Z** the runner logs `box busy=78.9% (~12.6/16 cores) MemAvailable=28.3 GB; 66 entries queued` and **LAUNCHED team=closure case=M1_kOmegaSST_null__alpha_05_4071_2024 pid=1226595**. **Closure has 63 top-level entries queued and live compute running; nothing in this write touched it.** **Our own depth reproduces exactly: heat-transfer top-level 0, `launched/` 62, `held/` EMPTY.** The other teams at the time of writing: dafoam 0 top / 33 launched / 7 held; cfd 0 / 15 / 0; verification 2 / 4 / 0; ansys-verification 0 / 7 / 2.
+
+**THE PREVIOUS DAEMON RAN UNBROKEN** from `2026-08-27T17:33:01Z START pid=1120800` to `2026-08-29T14:40:32Z EXIT reason=SIGTERM pid=1120800` (`runner.log:3146` and `:7497`) — **the 2026-08-28T18:05Z session limit killed the AGENT FLEET, not the daemon, which is exactly why `T16_MC_f` was still solving 20 hours later. The detached-runner ruling did its job: bookkeeping died, physics did not.**
+
+Box **POWERED OFF 2026-08-29T14:40:32Z → 2026-08-30T22:33:32Z = 31 h 53 min.** **A STOPPED EC2 INSTANCE DOES NOT BILL COMPUTE** — that window is **lost THROUGHPUT, not burned SPEND**, and must not be reported as wasted compute. The genuinely wasteful figure is small: minutes of 16 live cores against an empty queue between 22:34Z and the first launch.
+
+---
+
+#### J. **FREEZE-AHEAD AND OPEN ITEMS.**
+
+**Frozen and queue-ready, all five confirmed present on disk:** `T15b_PREREGISTRATION.md`, `T5c_PREREGISTRATION.md`, `T9aR1c_PREREGISTRATION.md`, `T17_PREREGISTRATION.md`, `T19_PREREGISTRATION.md` — **above the ≥3 floor**, and the 2026-08-28 amendment counts repair-registrations. **`T3c`** (the T3 planted-zero repair) is **drafting now and is not yet written.**
+
+**GPU: NOTHING IN THIS TERRITORY NEEDS IT.** No frozen costed GPU item exists here; `T4b` and `T10aR2` are **already graded** — `T4b` **`NOT A RESULT` 3/3** (`T4b_RESULTS.md:4`, all three rows), `T10aR2` **2 PASS / 5 GATE FAIL / 2 NOT A RESULT on an OSCILLATORY triple** (`T10aR2_RESULTS.md:3`, `:40`) — and both ran at 1-2 ranks. **The card's 4 vCPU / 15 GiB host cannot hold this family's 8-rank arms.** The five wrong-host entries are **unreadable from this box** (that path lived on the stopped GPU instance) and **no document in the repository names which five they were.**
+
+---
+
+#### K. **NEW WORK ASSIGNED TONIGHT.**
+
+Sanaa's **2026-08-30T23:00Z** directive assigns this team **CASE 3** (motor-in-duct steady axisymmetric CHT, 4x4 `P_loss` x `U_inf` map, cap **700 core-min**, geometry reuses cfd's Case 2 centerbody — **CROSS-TEAM COORDINATION REQUIRED**) and **CASE 4** (battery module transient CHT, 8-cell 2D air-cooled, cap **600 core-min**).
+
+**I VERIFIED CASE 4's EXACT GATE PERSONALLY AND SYMBOLICALLY, per the directive's own instruction that its constants are to be checked and not trusted.** Solving `rho*cp*V dT/dt = q'''V - hA(T - T_inf)` with `T(0) = T_inf` in sympy returns `T_inf + qV/(hA) - qV·exp(-hAt/(V·cp·rho))/(hA)`; **`simplify(sympy - claimed)` is identically `0`**, and the decay constant is **exactly `tau = rho*cp*V/(h*A)`** as claimed. Gate sample fractions re-derived: `1 - e^-1 = 0.632121`, `1 - e^-2 = 0.864665`, `1 - e^-3 = 0.950213`. Bi < 0.1 feasibility at `k = 200 W/mK`: **h < 666.7 W/m²K at Lc = 30 mm, < 1333.3 at Lc = 15 mm, < 1733 at Lc = V/A = 11.54 mm** (my dictated 1733.3 assumed `Lc = 11.5385 mm`; at 11.54 mm the figure is 1733.1 — the difference is rounding and changes nothing). **All three are comfortably above any realistic air-side `h` (~10-100 W/m²K), so the lumped control is feasible with wide margin.**
+
+**Case 4 is staged FIRST** (cheap, independent of cfd); **Case 3 waits on the Case 2 centerbody.**
+
+---
+
+#### NEXT ACTIONS
+
+1. **Write `T3c`** — the T3 planted-zero repair registration, with the relative predicate `got >= PLANT*(1.0 - 1e-9)` adopted from `analyse_pesweep.py:141`. **Frozen before any re-grade, and blind: no `R_ff` graded quantity is to be measured first.**
+2. **Commit `T16b`** — `T16b_PREREGISTRATION.md` and `mark_done_t16b.py` (blob `a536b2e1`) are written, my diff read is discharged and they sit **uncommitted**; another lane holds them and lands them with its mark-then-grade. **Zero frozen bytes changed.**
+3. **Land the remaining ungraded verdicts**: `T16_RESULTS.md` (correct its `:7` `PENDING` line) and `T5b_RESULTS.md`. **T18 gets a record saying it CANNOT be Roache-graded — no `f` level exists.** **`T17_RESULTS.md` is DONE** (`7734a45b`, PASS 3/3); **check that it carries BOTH D576 disclosures — the fine-level-only planted control and the selftest that has failed since 31 seconds before the graded artifact was written.**
+4. **Rule-12 calibration rows** for T16 and T5b. **T17 needs none — C-200 already discharges it.** **The next `docs/COST_CALIBRATION.md` id is `C-213`** (max is now **C-212**; C-211 ansys/VMFL063 and C-212 dafoam/AVWC both landed 2026-08-30). **The T3 draft row at `T3_runs/COST_CALIBRATION_C211_DRAFT_ROW.txt` is MISNUMBERED and will be renumbered when it is landed** — it is committed here as the drafting artifact, not as a ledger row.
+5. **Stage Case 4** (battery module) against the verified lumped gate. **Case 3 blocked on cfd's Case 2 centerbody — open the coordination.**
+6. **Successor registrations for item E's expired limbs** and for the four dead-scratch citations (item F).
+7. **WATCH T19 — AND FIX IT BEFORE IT RUNS.** It is item E's live control: its limb passes **only because T19 has not run yet**, and its first completed case falsifies it exactly as it falsified the other eight. **Repairing `analyse_t19.py`'s limb BEFORE T19's first solve is the cheapest possible demonstration that the mechanism is understood** — and if it is left alone and expires on schedule, that is the prediction confirmed rather than a new defect.
+
+#### ON SANAA'S DESK
+
+- **T15b's §2d.1 re-grade-vs-fresh-run ruling** — `T15b_PREREGISTRATION.md` §10 explicitly refers it and says **NO ROW MAY GRADE UNTIL RULED**.
+- ~~**D541's SECOND RULING, unanswered since 2026-08-27.**~~ **STRUCK — THE RULING WAS GIVEN, on 2026-08-27, at `docs/LAB_STATE.md:9424` `[lab-attributed]`. I carried this as an open desk item in error; see item B.** What IS open, and is a lab-wide instrument question rather than Sanaa's: **the docket does not record that answer, so `DOCKET.md:906` still reads as an open referral** (D577). **What remains genuinely unruled is narrower and is NEW**: the 2026-08-27 ruling covered the frozen-contrast FAIL; it did **not** cover the **two tautological green limbs** or the **unbound narration** at `:540-541`, both of which T16b addresses without asking for a ruling.
+- **D389's S13 normalisation.**
+- **The `T15_UP_f` and `T5b` dispositions**, as already boarded.
+- **The T3 planted-zero tolerance question** (D570) — a decision that can still be made **genuinely blind**, and this board entry is the record of that.
+
+#### BLOCKED
+
+- **`T3_R_ff` — `BLOCKED`.** No graded quantity exists. Unblocks on `T3c`.
+- ~~**`T16` — `BLOCKED` on an unanswered referral (D541).**~~ **STRUCK: it never was.** The ruling exists and T16b is written, checked and running its mark-then-grade. **T16 is `PENDING` on that task completing — not `BLOCKED`.**
+- **`T18` — cannot be Roache-graded**: `T18_CU_f` and `T18_CU_f_CT` hold mesh logs only, no `log.solve`; **under rule 5 there is no triple.**
+- **Case 3 — blocked on cfd's Case 2 centerbody geometry.**
+- **`T15b` — blocked on Sanaa's §2d.1 ruling**, by its own registration.
+
+**Vogel & Eaton (1985) and Blay (1992) remain NOT OBTAINED.**
+
+---
+
 ##### ADDENDUM 2026-08-28T17:41:59Z — **T15_UP_f AND T5b DISPOSED OF: TWO INSTRUMENT DEFECTS, TWO REGISTERED SUCCESSORS, ZERO FROZEN BYTES CHANGED. PLUS A SIXTH SWEEP-PATTERN FAILURE OF MINE AND THREE CORRECTIONS AGAINST MY OWN BRIEF.**
 
 **Section last written:** 2026-08-28T17:41:59Z by heat-transfer-supervisor (via a board lane)
