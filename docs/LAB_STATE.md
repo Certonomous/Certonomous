@@ -16447,6 +16447,87 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-30T22:5xZ — **VMFL063 = `GATE FAIL` (register row #44, C-211, `bf27e151`) — THE FIRST VERDICT THIS TEAM HAS LANDED ON A RUN IT DID NOT WATCH HAPPEN. CHARTER v1.5 UNDER RULE 6 (`381e0f83`). And the GCI is larger than the number it qualifies.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### THE VERDICT
+
+**`GATE FAIL`** — two limbs, and **the row takes the worse**.
+
+| limb | class | result | |
+|---|---|---|---|
+| **A** | CONTINUUM, ceiling **`GATE REACHED`** | **`GATE FAIL`** | `LR/(2t) = 5.600237` at L3 (92,160 cells) vs Lane & Loehrke **Target 4.0**, **40.0059 %** against a frozen **10 %** band; triple **`CONVERGING`**, `R = 0.905428`, `p = 0.143328`, `GCI_fine = 120.62 %` |
+| **B** | SAME-DISCRETE-PROBLEM IDENTITY, ceiling **`PASS`** | **`PASS`** | L1 vs L1D: same 1,004 iterations, sha256-identical `wallShearStress`/`U`/`p`, `LR` **bitwise** equal |
+
+**Limb B's `PASS` does not carry the row.** This is **registered outcome #2 of §10, named before compute**. **Not a credential and never could have been** — limb A's ceiling is `GATE REACHED` by construction because the reference is **experimental**, and a converging triple bounds discretisation error while saying nothing about model-form error.
+
+**Cost 13.8333 core-min MEASURED** (L1 0.15 / L1D 0.1333 / L2 1.2333 / L3 12.3167), **15.4 % of the 90 cap**, waste **0**, **$0.011827 DERIVED NOT MEASURED** at the owner-stated $0.0513/core-h.
+
+#### WHAT I CHECKED PERSONALLY, NONE OF IT RELAYED
+
+1. **The freeze.** All three files hash **equal** to their blobs at `prereg_commit` `3602cbf3` — `PREREGISTRATION.md` `efdb2a8a…`, `grade_vmfl063.py` `fc339a79…`, `run_vmfl063.sh` `8c3d9ec7…`. **And the comparator blob is THE SAME OBJECT `fc339a79…` at `2df23798` AND at `3602cbf3`**, so Amendment 1 genuinely did not change one byte of the grading instrument, exactly as it claimed. **A claim that an amendment left the instrument alone is checkable in one command, so it gets checked.**
+2. **Every headline number**, read by me out of `GRADING_RECORD_VMFL063.json` rather than out of the lane's report: `verdict = GATE FAIL`, `limb_A.deviation_rel = 0.4000591636392208`, `limb_A.finest = 5.600236654556883`, `triple.state = CONVERGING`, `triple.p = 0.143328325065891`, `triple.gci_fine = 1.2062358288644406`, `triple.R = 0.905427904465488`, `limb_B.verdict = PASS`.
+3. **The completion ruling** (below).
+4. **Pre-registration committed before compute** — `2df23798` v1.0, `3602cbf3` v1.1, both ancestors, the run 2026-08-28T17:41:41Z.
+
+#### THE COMPLETION WORRY I RAISED WAS ANSWERED BY THE FREEZE, NOT BY ME — AND THAT IS THE POINT OF A FREEZE
+
+The four levels stopped at **1004 / 1004 / 1944 / 4177 — four DIFFERENT times**, which looks exactly like a rule-4 failure, and I said so before anything was graded. **`PREREGISTRATION.md` §6 clause 4 had declared the inversion BEFORE COMPUTE**: for a `residualControl`-terminated steady solve the honest condition is **last `Time` STRICTLY LESS THAN `endTime`**, because `last == endTime` means the solver **ran out of clock without converging** — the opposite of completion. `endTime = 30000`; the four levels converged **7× to 30× short of it**; each carries `SIMPLE solution converged` exactly once and one `End` line; **age guard verified from mtimes**, every field 8–739 s newer than its own level's `0/U`. §10 outcome 5 names `last == endTime` as *"the largest scientific risk in this registration"* — **it did not materialise.**
+
+**A document frozen on 2026-08-28 answered a question I asked on 2026-08-30. That is the whole return on prediction-first registration**, and it is worth more than the verdict it produced.
+
+#### THE NUMBER I WILL NOT LET THE VERDICT HIDE
+
+**`GCI_fine = 120.62 % EXCEEDS THE VALUE IT QUALIFIES.`** `p = 0.143328` is far below the scheme's formal order, `R = 0.905` sits at the arithmetic edge of `DIVERGENT`, and `f_extrapolated = 0.196` is **physically meaningless** for a quantity whose target is 4.0.
+
+The triple is `CONVERGING` **on the frozen test** — `p` clears the frozen floor `P_MIN = 0.05` — so rule 5 step 3 gives `GATE FAIL`, and **rule 5 is one-way**, so I may not walk it back toward `PASS`. **But the honest reading of 6.788 → 6.165 → 5.600 is that the sequence is STILL MARCHING toward 4.0 at the finest level and THIS MESH FAMILY CANNOT RESOLVE THE QUESTION**: the uncertainty band on 5.600 swallows the target. **The 40 % miss is NOT EXPLAINED**, the archive was never opened, and Ansys's own domain is therefore unknown to this row. **I did not guess at it.**
+
+**WHAT I AM NOT DOING, SAID PLAINLY:** not widening the band (rule 2 closed it), not inventing a fourth level to rescue the row, not re-labelling. **A `GATE FAIL` stays in the register as it is — that is what the register is FOR**, and this one is a clean, defensible negative that cost 13.8 core-min.
+
+**FOR THE NEXT REGISTRATION, NOT THIS ONE:** the frozen `P_MIN = 0.05` admitted a triple whose GCI is 30× the band. **A registration of this shape should carry a GCI ceiling beside its `P_MIN` floor** — a forward-looking instrument fix, and it may not touch VMFL063, whose gate is closed.
+
+#### A WEAKNESS DISCLOSED IN THE ROW ITSELF RATHER THAN BURIED
+
+The planted-zero control **is** a real disk round trip on both channels — copy the real solver bytes, write the plant **to disk**, re-read through the **production** reader; read-back error **5.0e-16** (τ), gate functional moved **0.0884 m** upstream — so it is **not** the in-memory defect this team found in its own graders on 2026-08-28. **But it fires at L1 ONLY** (`grade_vmfl063.py:1156-1158`), not at every level. **Permitted by the freeze** (§8 promised two stages, two channels, per-**face** coverage, and never per-level) so it is not a departure — **but weaker than rows #42/#43, whose record reads "plant fired at all three levels."** It is written into row #44.
+
+#### A FIRST FOR THIS LAB, FOR 0.1333 CORE-MIN
+
+**L1D is a separate determinism control, not a triple member**, and it is the **first measurement of serial `simpleFoam` determinism this lab has made**. That premise sits under **every re-grade this lab has ever done** and had never been measured — only assumed. It is now measured, bitwise, for eight seconds of compute.
+
+#### CHARTER v1.5 LANDED UNDER RULE 6 (`381e0f83`)
+
+180 insertions, **zero deletions**, all additive, nothing above rewritten or struck, and the prior file verified as an **exact byte prefix in the same invocation as the write** (prior sha256 `6ddb41eb…`, which also matched the HEAD blob, so no foreign work was swept in). Five clauses, each naming the failure that bought it: **§11.1** settles §2f.3's scope for this team — with its *limits* written harder than its holding, and **Sanaa's §2h.3 referral expressly NOT decided by us**; **§11.2** a section reading "flagged for the supervisor" is a **blocker on the freeze**, not a note inside it; **§11.3** a queue state is a reading with a shelf life; **§11.4** an uncommitted queue entry is not filed; **§11.5** assert file state against `git show HEAD:<path>`, never `git status`. **Nothing retired, widened or narrowed — those remain Sanaa's.**
+
+#### RULE 11 DEMONSTRATED LIVE WHILE LANDING THIS ROW
+
+The register's **row COUNT is 49** and its **MAXIMUM ID is 43**. **Anyone taking the count would have written row #50.** The two figures agreeing is a coincidence of a gapless sequence, never a method — and this file is not gapless. Re-derived as the maximum, and **re-asserted unique in the commit's own shell invocation**.
+
+#### A FALSE COMMIT OF MINE, DISCLOSED RATHER THAN QUIETLY REPLACED
+
+**`aac83670` IS AN EMPTY COMMIT CARRYING A FULL MESSAGE THAT DESCRIBES WORK IT DOES NOT CONTAIN.** It claims to board this verdict. **It boards nothing — its tree is identical to its parent.** A commit message is immutable and history is never rewritten, so the correction lands here, on the board, exactly as the `c7176346` false statement did on 2026-08-28.
+
+**The mechanism, measured:** I inserted this block into `docs/LAB_STATE.md` at ~22:56:30 and **verified the landed bytes byte-for-byte against the source** — that check passed. **`verification-supervisor` then committed `90a37ecf` at 22:56:41, and its write of `LAB_STATE.md` rewrote the whole file, deleting my block from disk.** My commit ran at 22:56:46, captured the new HEAD, read the file — **which no longer contained my block** — and produced a tree identical to its parent.
+
+**THE CHECK THAT CAUGHT IT WAS THE ONE RULE 10 SAYS IS NOT OPTIONAL.** Both `git diff-tree --stat` and the post-commit `git diff HEAD~1 HEAD --stat` printed **nothing at all**, and an empty diff where 71 lines were expected is the whole signal. **Had I treated "no error" as "committed", this verdict would have been reported as boarded while the board said nothing about it** — and the next session would have inherited a `GATE FAIL` that existed only in a commit message.
+
+**THE GENERAL FINDING, AND IT IS NOT MINE ALONE: `docs/LAB_STATE.md` IS A SINGLE FILE THAT SIX SUPERVISORS APPEND TO CONCURRENTLY, AND A WHOLE-FILE WRITE BY ANY ONE OF THEM SILENTLY DISCARDS EVERY UNCOMMITTED BLOCK IN IT.** A byte-verification at insert time proves nothing about the state five seconds later. **The remedy adopted here: the insert and the commit go in ONE shell invocation, and an EMPTY diff-tree is treated as a FATAL error rather than a successful no-op.** The lab's only handoff channel is also its most contended file, and nothing in the protocol acknowledged that until now.
+
+#### STATE
+
+**Commits:** `b1b7cfc1` VMFL069 §3.3 ruling; `0e05ad7b` board; `381e0f83` charter v1.5; `bf27e151` VMFL063 verdict (RESULTS, row #44, C-211, grading record — 4 files, 666 insertions, **zero deletions**, post-commit verified).
+
+**Live.** Queue runner pid 881 `--daemon`. **The box is no longer idle** — closure's `simpleFoam` sweep is running (peer work), load 3.63. **No ansys solver running.** One opus lane filing VMFL069's queue entry and scouting two freeze-ahead candidates.
+
+**Rungs without verdicts.** **VMFL069** — frozen, ceilings ruled, smoke-tested, **not yet queued** (lane in flight; this is the gap Sanaa's directive closes). VMFLGPU006 blocked on evidence. VMFLGPU004 `BLOCKED` (#41). VMFLGPU008/009/010 untouched.
+
+**Next.** (1) Confirm VMFL069's entry is filed **and committed** at queue top level — uncommitted is not filed (§11.4). (2) Take the two freeze-ahead candidates and rule on them; freeze-ahead is **1 and falls to 0 when VMFL069 launches**, below Sanaa's floor of 3, and that is my planning defect. (3) Consider a docket item for the GCI-ceiling instrument gap above.
+
+**On Sanaa's desk (six)** — unchanged, plus the poisoned index.
+
+**VERIFY (not checked by me):** the 40 % miss's cause; `FINDING_p_floor.md` §4's basis for `P_MIN = 0.05`; whether the VMFL063 run tree beyond the grading record is tracked at HEAD.
+
+
 ### 2026-08-30T22:4xZ — **SESSION RESUMED AFTER THE 429 + 32 h POWER-OFF. VMFL069 §3.3 RULED (`b1b7cfc1`) AND THE IN-FLIGHT CEILING AMENDMENT DECLINED. VMFL063 **RAN AND COMPLETED** UNGRADED ON 2026-08-28 AND NOBODY KNEW. AND THE SHARED GIT INDEX IS POISONED WITH 389 STAGED DELETIONS — 122 OF THEM LIVE ANSYS FILES.**
 
 **Written by `ansys-verification-supervisor` personally.**
