@@ -1,0 +1,359 @@
+{
+ "AV2": {
+  "item": "AV2",
+  "tag": "real",
+  "repairs_applied": [
+   "DATUM",
+   "GMRES"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/av2_grade.py",
+  "frozen_grader_md5": "4bde0ad7dbdd3e460dcef1fe6d063979",
+  "frozen_producer": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/av2_xf.py",
+  "frozen_producer_md5": "76bc93090062e0bf03de2344709e384f",
+  "defect_lines": "av2_xf.py:56-63 `idwarp_identity()` -- BYTE-IDENTICAL to av2r_xf.py:56-63 -- PLUS the writeCompression datum variant at av2_grade.py:186-188 that AVWC repaired",
+  "original_refusal": "G1 age_reference_absent .../X-S/0/U -> NOT A RESULT; after AVWC's datum repair, G-DP {\"gmresRelTol_in_artefact\": null, \"row\": \"S\"} -> NOT A RESULT (curriculum_AVWC/AVWC_regrade.json)",
+  "verdict": "BLOCKED",
+  "refusal": null,
+  "names_rebound": [
+   "arm_datum"
+  ],
+  "recovery": {
+   "X-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-S/av2_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-S_20260826T232219Z_625347.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-S/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-S/av2_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787786594.5851042,
+     "mtime_after": 1787786594.5851042,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "X-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-P/av2_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-P_20260826T233347Z_631423.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-P/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-P/av2_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787787278.861446,
+     "mtime_after": 1787787278.861446,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "FAD-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-S/av2_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-S_20260826T232426Z_626679.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-S/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-S/av2_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787787159.4226058,
+     "mtime_after": 1787787159.4226058,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   },
+   "FAD-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-P/av2_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-P_20260826T233553Z_633158.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-P/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-P/av2_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787787867.0532618,
+     "mtime_after": 1787787867.0532618,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   }
+  },
+  "datum_resolution": {
+   "MESH": {
+    "arm": "MESH",
+    "registered_name": "0.orig/U",
+    "candidates": [
+     "0.orig/U",
+     "0.orig/U.gz"
+    ],
+    "resolved_name": "0.orig/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/MESH/0.orig/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787786463,
+    "reference_mtime_epoch": 1787786463,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/MESH/system/controlDict"
+   },
+   "X-S": {
+    "arm": "X-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787786539,
+    "reference_mtime_epoch": 1787786594,
+    "seconds_newer_than_datum": 55,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-S/system/controlDict"
+   },
+   "FAD-S": {
+    "arm": "FAD-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787786666,
+    "reference_mtime_epoch": 1787787068,
+    "seconds_newer_than_datum": 402,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-S/system/controlDict"
+   },
+   "X-P": {
+    "arm": "X-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787787227,
+    "reference_mtime_epoch": 1787787278,
+    "seconds_newer_than_datum": 51,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/X-P/system/controlDict"
+   },
+   "FAD-P": {
+    "arm": "FAD-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787787353,
+    "reference_mtime_epoch": 1787787770,
+    "seconds_newer_than_datum": 417,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2_real/FAD-P/system/controlDict"
+   }
+  },
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality",
+  "preserved_root_files": 378,
+  "root_manifest_identical": true
+ },
+ "AV2R": {
+  "item": "AV2R",
+  "tag": "real",
+  "repairs_applied": [
+   "GMRES"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2R/av2r_grade.py",
+  "frozen_grader_md5": "8a2dcebd954f56d9970601fc7761787a",
+  "frozen_producer": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2R/av2r_xf.py",
+  "frozen_producer_md5": "32a755bc9fa84bc0e03ab02bb6ec3c3c",
+  "defect_lines": "av2r_xf.py:56-63 `idwarp_identity()` (THE PRODUCER); the grader (av2r_grade.py:321, :511-513) is NOT defective",
+  "original_refusal": "G-DP {\"gmresRelTol_in_artefact\": null, \"registered\": 1e-06, \"row\": \"S\"} -> NOT A RESULT (AV2R_grade_20260828T024400Z.json)",
+  "verdict": "BLOCKED",
+  "refusal": null,
+  "names_rebound": [],
+  "recovery": {
+   "X-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-S/av2r_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-S_20260828T022000Z_1713655.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-S/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-S/av2r_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787883653.0405316,
+     "mtime_after": 1787883653.0405316,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "X-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-P/av2r_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-P_20260828T023242Z_1728653.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-P/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/X-P/av2r_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787884417.7117004,
+     "mtime_after": 1787884417.7117004,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "FAD-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-S/av2r_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-S_20260828T022210Z_1718283.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-S/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-S/av2r_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787884289.434569,
+     "mtime_after": 1787884289.434569,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   },
+   "FAD-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-P/av2r_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-P_20260828T023452Z_1730271.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-P/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_1574567/root_AV2R_real/FAD-P/av2r_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787885029.8042417,
+     "mtime_after": 1787885029.8042417,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   }
+  },
+  "datum_resolution": null,
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV2R-a1-naca0012-duality",
+  "preserved_root_files": 378,
+  "root_manifest_identical": true
+ }
+}

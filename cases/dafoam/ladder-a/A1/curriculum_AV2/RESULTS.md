@@ -261,3 +261,56 @@ ruling under `VERIFICATION_CHARTER.md` §2d.1, not a lane's. No instrument was e
 a capability-grid cell or a census row, does not restate any cost figure in §7, and makes no claim
 about the physics, the mesh or the solver — no solver ran for the re-grade, which cost zero solver
 core-minutes.
+
+---
+
+## SUCCESSOR NOTE — 2026-08-30 — AV2 re-graded by `AV2RG`; the verdict moves from `NOT A RESULT` to `BLOCKED`
+
+**Appended under rule 6. Nothing above is edited: `lines whose number changed above this
+section: 0`**, proved by byte comparison — the first **17,393 bytes / 263 lines** were captured
+before this append and compared byte-for-byte after, md5 `f754cc66be77a869d7a01ca3c3e2fb8c` on
+both sides. Written through `scripts/append_block.py`. **This note adds no gate, moves no band
+and rewrites no figure above; AV2's own frozen instruments are untouched.**
+
+**AV2 carried TWO defects on one line of source each, and needed both repaired to reach a
+gate.** The first — the `writeCompression` datum variant (`0/U` vs `0/U.gz`) — was repaired by
+`curriculum_AVWC` (frozen `c85eb4df`), which advanced AV2 from `G1 age_reference_absent` to a
+**`G-DP`** refusal, `gmresRelTol_in_artefact: null`, and correctly declined to repair further.
+The second is that refusal's cause: **`av2_xf.py:56-63` `idwarp_identity()` returns only
+`{"idwarp_file", "libidwarp_so_md5"}`**, so the artefact identity never carried
+`gmresRelTol` — although `av2_xf.py:152-156` emits it to the JSONL sidecar **one statement
+earlier**. That function is **BYTE-IDENTICAL to `av2r_xf.py:56-63`**; AV2 and AV2R are two
+casualties of one omission.
+
+**`av2_grade.py` IS NOT DEFECTIVE AND WAS NOT MODIFIED.** It refused on absent data, which is
+correct. `AV2RG` recovers the value from three independent on-disk sources required to agree
+exactly — the producer's own JSONL identity record, the container's own DAOption echo in the
+solver log, and `av2_runScript.py:69` md5-pinned from the frozen producer's own constant — all
+reading **`1e-06`** (dimensionless) on all four arms, writes it into a **copy** of the
+artefact **preserving the artefact's mtime** so the rule-4 age guard still dates the solver's
+write, and runs the frozen `grade()` with **`arm_datum`** rebound to **AVWC's own** resolver
+and nothing else.
+
+**RE-GRADED VERDICT: `BLOCKED`.** Rows `SHIPPED` `BLOCKED` / `PATCHED` `BLOCKED`. Gates that
+were previously never reached now all return: **`G-M2 PASS`** (4032 cells), **`G9 PASS`**,
+**`G10 PASS`** (19.085 core-min against the 75.0 ceiling), **`G12 PASS`**. `G-DP` is `BLOCKED`
+because **5 of 5 registered components are `blocked` on `CD` and on `CL`, on both rows —
+twenty component-readings, zero graded** — with one distinct reason: `AnalysisError(...
+DAFoamSolver: Error calling solve_nonlinear(), Primal solution failed!)`. **The forward-mode
+AD primal does not converge on this case.** Two of the frozen grader's own controls
+(`sign_flipped_XS_read_as_GATE_FAIL`, `silent_zero_FADS_refused`) report `seen: false` on
+their registered `blocked_any` branch — **a control that had nothing to read is not a control
+that passed.**
+
+**AV2's preserved run root was never written**: md5 manifest of all **378** regular files
+identical before and after every re-grade, read from the disk and not from `git status`.
+
+**The scope of `BLOCKED`** is AV2's own and is not widened here: it says the forward-mode
+primal fails **on this case, at this `endTime` and this `primalMinResTolDiff`** — nothing about
+forward mode in general. **The dot-product/duality test remains NOT MEASURED in this family**
+and this note moves no census line and no capability-grid cell.
+
+**Full record:** `cases/dafoam/ladder-a/A1/curriculum_AV2RG/RESULTS.md`; verdicts of record in
+`AV2RG_regrade.json`, gate detail in `AV2RG_full_grades.json`; pre-registration frozen
+`2f827746`, amended `42a3c988` (pre-compute) and `cb9adb7f` (post-compute, under
+`VERIFICATION_CHARTER.md` §2d.1, `VERDICTS MOVED: 0`).

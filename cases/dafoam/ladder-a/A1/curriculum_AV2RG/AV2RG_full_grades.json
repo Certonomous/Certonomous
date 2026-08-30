@@ -1,0 +1,1415 @@
+{
+ "AV2": {
+  "item": "AV2",
+  "tag": "real",
+  "repairs_applied": [
+   "DATUM",
+   "GMRES"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/av2_grade.py",
+  "frozen_grader_md5": "4bde0ad7dbdd3e460dcef1fe6d063979",
+  "frozen_producer": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2/av2_xf.py",
+  "frozen_producer_md5": "76bc93090062e0bf03de2344709e384f",
+  "defect_lines": "av2_xf.py:56-63 `idwarp_identity()` -- BYTE-IDENTICAL to av2r_xf.py:56-63 -- PLUS the writeCompression datum variant at av2_grade.py:186-188 that AVWC repaired",
+  "original_refusal": "G1 age_reference_absent .../X-S/0/U -> NOT A RESULT; after AVWC's datum repair, G-DP {\"gmresRelTol_in_artefact\": null, \"row\": \"S\"} -> NOT A RESULT (curriculum_AVWC/AVWC_regrade.json)",
+  "verdict": "BLOCKED",
+  "refusal": null,
+  "grade": {
+   "item": "CURRICULUM-AV2",
+   "verdict": "BLOCKED",
+   "rows": {
+    "SHIPPED": "BLOCKED",
+    "PATCHED": "BLOCKED"
+   },
+   "gates": {
+    "G1_completion": "PASS",
+    "G-M2_mesh_identity": "PASS",
+    "G-DP_SHIPPED": {
+     "G-DP_CD": {
+      "objective": "CD",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": -0.011341645760780585,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 0.01238016299939811,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": 0.0056907373580455355,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.003466807992034993,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.002410481363072161,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "G-DP_CL": {
+      "objective": "CL",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": 1.037472696796837,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 1.2136872443659519,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": -0.46239179952813747,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.6714206318306372,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.08923320066130686,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "row_verdict": "BLOCKED",
+     "CD_baseline": 0.02091051000679216,
+     "CL_baseline": 0.49876526415423195
+    },
+    "G-DP_PATCHED": {
+     "G-DP_CD": {
+      "objective": "CD",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": -0.01013379201271327,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 0.012897284974053704,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": -0.0010656351756414767,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.00352810453738826,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.002410481363072161,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "G-DP_CL": {
+      "objective": "CL",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": 1.0339322971355531,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 1.2210380829610046,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": -0.38562102474258547,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.677844356868305,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.08923320066130686,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "row_verdict": "BLOCKED",
+     "CD_baseline": 0.02091051000679216,
+     "CL_baseline": 0.49876526415423195
+    },
+    "G9_toolchain": {
+     "per_arm": {
+      "MESH": {
+       "row": "SHIPPED",
+       "digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+       "printed_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "artefact_so_md5": null,
+       "ok": true
+      },
+      "X-S": {
+       "row": "SHIPPED",
+       "digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+       "printed_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "artefact_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "ok": true
+      },
+      "FAD-S": {
+       "row": "SHIPPED",
+       "digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+       "printed_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "artefact_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "ok": true
+      },
+      "X-P": {
+       "row": "PATCHED",
+       "digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+       "printed_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "artefact_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "ok": true
+      },
+      "FAD-P": {
+       "row": "PATCHED",
+       "digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+       "printed_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "artefact_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "ok": true
+      }
+     },
+     "verdict": "PASS"
+    },
+    "G10_caps": {
+     "per_arm": {
+      "MESH": {
+       "core_min": 0.167,
+       "cap": 5.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 0.5567
+      },
+      "X-S": {
+       "core_min": 1.017,
+       "cap": 10.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 0.4068
+      },
+      "FAD-S": {
+       "core_min": 8.267,
+       "cap": 25.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 1.6534
+      },
+      "X-P": {
+       "core_min": 1.017,
+       "cap": 10.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 0.4068
+      },
+      "FAD-P": {
+       "core_min": 8.617,
+       "cap": 25.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 1.7234
+      }
+     },
+     "verdict": "PASS",
+     "total_core_min": 19.085,
+     "ceiling": 75.0,
+     "not_measured": []
+    },
+    "G12_placement": {
+     "per_arm": {
+      "MESH": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": "NOT_MEASURED"
+      },
+      "X-S": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9885
+      },
+      "FAD-S": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9963
+      },
+      "X-P": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9942
+      },
+      "FAD-P": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9992
+      }
+     },
+     "verdict": "PASS",
+     "not_measured": [
+      "MESH"
+     ]
+    }
+   },
+   "bands": {
+    "eps_per_component": 1e-05,
+    "gmresRelTol_registered": 1e-06,
+    "near_zero": 1e-14,
+    "provenance": "ADJOINT_VERIFICATION_STANDARD.md sec.2 (10 x gmresRelTol); v1.0a forward-channel controls"
+   },
+   "mesh_cells": 4032,
+   "divergence_rev_shipped_vs_patched_CD": [
+    {
+     "dv": "shape",
+     "idx": 0,
+     "J_rev_shipped": -0.011341645760780585,
+     "J_rev_patched": -0.01013379201271327,
+     "divergence_pct": 10.649722038084397
+    },
+    {
+     "dv": "shape",
+     "idx": 3,
+     "J_rev_shipped": 0.01238016299939811,
+     "J_rev_patched": 0.012897284974053704,
+     "divergence_pct": 4.009541354602322
+    },
+    {
+     "dv": "shape",
+     "idx": 6,
+     "J_rev_shipped": 0.0056907373580455355,
+     "J_rev_patched": -0.0010656351756414767,
+     "divergence_pct": 118.72578382368827
+    },
+    {
+     "dv": "shape",
+     "idx": 7,
+     "J_rev_shipped": 0.003466807992034993,
+     "J_rev_patched": 0.00352810453738826,
+     "divergence_pct": 1.7373789439539364
+    },
+    {
+     "dv": "patchV",
+     "idx": 1,
+     "J_rev_shipped": 0.002410481363072161,
+     "J_rev_patched": 0.002410481363072161,
+     "divergence_pct": 0.0
+    }
+   ],
+   "predictions": {
+    "P1_patched_row_PASS": "NOT_MEASURED",
+    "P2_shipped_shape6_GATE_FAIL_others_ge3_PASS": "NOT_MEASURED",
+    "P2_shipped_shape6_eps": null,
+    "P3_patched_worst_eps_le_1e-6": "NOT_MEASURED",
+    "P3_patched_worst_eps": null,
+    "P4_forward_channel_controls_pass_both_rows": "HIT",
+    "P5_fad_over_x_cost_ratio_shipped": "MISS",
+    "P5_total_core_min_band": "HIT",
+    "P6_mesh_wall_le_120s": "HIT",
+    "P7_cells_4032": "HIT"
+   },
+   "controls": {
+    "forward_channel_S": {
+     "forward_channel_controls_pass": true,
+     "row": "S"
+    },
+    "forward_channel_P": {
+     "forward_channel_controls_pass": true,
+     "row": "P"
+    },
+    "grader_plant_XS": {
+     "grader_plant_seen": true,
+     "n_values": 20,
+     "worst_residual": 1.7932703932910243e-16,
+     "file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/grader_controls/X_XS_planted.json"
+    },
+    "sign_flipped_XS_read_as_GATE_FAIL": {
+     "seen": false,
+     "note": "FAD-S blocked; the transpose control has nothing to read"
+    },
+    "silent_zero_FADS_refused": {
+     "seen": false,
+     "note": "FAD-S blocked"
+    }
+   },
+   "completion": {
+    "arms": {
+     "MESH": {
+      "kind": "SCRIPT",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "checkMesh.log",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "X-S": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2_X.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "FAD-S": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2_FAD.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "X-P": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2_X.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "FAD-P": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2_FAD.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     }
+    },
+    "not_measured": {
+     "MESH": [
+      "delivered"
+     ]
+    }
+   },
+   "not_measured": {
+    "G1": {
+     "MESH": [
+      "delivered"
+     ]
+    },
+    "G10": [],
+    "G12": [
+     "MESH"
+    ]
+   },
+   "field_classes": {
+    "physics": [
+     "rc",
+     "inspect_exit",
+     "oomkilled",
+     "terminal_statement",
+     "age_guard",
+     "core_min",
+     "cap_core_min",
+     "DIGEST",
+     "cpuset"
+    ],
+    "infrastructure": [
+     "memavail_pre_GiB",
+     "memavail_post_GiB",
+     "delivered",
+     "siblings_pre",
+     "siblings_post",
+     "log",
+     "wall_s"
+    ],
+    "rule": "absent infrastructure -> NOT_MEASURED beside the verdict; absent physics -> REFUSE (L-342)"
+   },
+   "no_gci": "no grid family; standing rule 5 has no row; NO GCI IS QUOTED",
+   "no_fd": "this rung carries no FD table; its reference is forward-mode AD (the exact tangent), standard sec.2",
+   "capability_grid_cell": "2D . steady . incompressible -- dot-product/duality evidence for the gradient column's 'what was checked'; the census line's 'never performed' moves only on a graded row"
+  },
+  "names_rebound": [
+   "arm_datum"
+  ],
+  "recovery": {
+   "X-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-S/av2_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-S_20260826T232219Z_625347.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-S/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-S/av2_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787786594.5851042,
+     "mtime_after": 1787786594.5851042,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "X-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-P/av2_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-P_20260826T233347Z_631423.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-P/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-P/av2_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787787278.861446,
+     "mtime_after": 1787787278.861446,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "FAD-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-S/av2_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-S_20260826T232426Z_626679.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-S/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-S/av2_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787787159.4226058,
+     "mtime_after": 1787787159.4226058,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   },
+   "FAD-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-P/av2_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-P_20260826T233553Z_633158.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-P/av2_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-P/av2_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787787867.0532618,
+     "mtime_after": 1787787867.0532618,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   }
+  },
+  "datum_resolution": {
+   "MESH": {
+    "arm": "MESH",
+    "registered_name": "0.orig/U",
+    "candidates": [
+     "0.orig/U",
+     "0.orig/U.gz"
+    ],
+    "resolved_name": "0.orig/U",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/MESH/0.orig/U",
+    "is_compressed_twin": false,
+    "recorded_datum_epoch": 1787786463,
+    "reference_mtime_epoch": 1787786463,
+    "seconds_newer_than_datum": 0,
+    "rewritten_by_solver": false,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/MESH/system/controlDict"
+   },
+   "X-S": {
+    "arm": "X-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787786539,
+    "reference_mtime_epoch": 1787786594,
+    "seconds_newer_than_datum": 55,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-S/system/controlDict"
+   },
+   "FAD-S": {
+    "arm": "FAD-S",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-S/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787786666,
+    "reference_mtime_epoch": 1787787068,
+    "seconds_newer_than_datum": 402,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-S/system/controlDict"
+   },
+   "X-P": {
+    "arm": "X-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787787227,
+    "reference_mtime_epoch": 1787787278,
+    "seconds_newer_than_datum": 51,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/X-P/system/controlDict"
+   },
+   "FAD-P": {
+    "arm": "FAD-P",
+    "registered_name": "0/U",
+    "candidates": [
+     "0/U",
+     "0/U.gz"
+    ],
+    "resolved_name": "0/U.gz",
+    "resolved_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-P/0/U.gz",
+    "is_compressed_twin": true,
+    "recorded_datum_epoch": 1787787353,
+    "reference_mtime_epoch": 1787787770,
+    "seconds_newer_than_datum": 417,
+    "rewritten_by_solver": true,
+    "write_compression": "on",
+    "write_compression_source": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2_real/FAD-P/system/controlDict"
+   }
+  },
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality",
+  "preserved_root_files": 378,
+  "root_manifest_identical": true
+ },
+ "AV2R": {
+  "item": "AV2R",
+  "tag": "real",
+  "repairs_applied": [
+   "GMRES"
+  ],
+  "frozen_grader": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2R/av2r_grade.py",
+  "frozen_grader_md5": "8a2dcebd954f56d9970601fc7761787a",
+  "frozen_producer": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV2R/av2r_xf.py",
+  "frozen_producer_md5": "32a755bc9fa84bc0e03ab02bb6ec3c3c",
+  "defect_lines": "av2r_xf.py:56-63 `idwarp_identity()` (THE PRODUCER); the grader (av2r_grade.py:321, :511-513) is NOT defective",
+  "original_refusal": "G-DP {\"gmresRelTol_in_artefact\": null, \"registered\": 1e-06, \"row\": \"S\"} -> NOT A RESULT (AV2R_grade_20260828T024400Z.json)",
+  "verdict": "BLOCKED",
+  "refusal": null,
+  "grade": {
+   "item": "CURRICULUM-AV2R",
+   "verdict": "BLOCKED",
+   "rows": {
+    "SHIPPED": "BLOCKED",
+    "PATCHED": "BLOCKED"
+   },
+   "gates": {
+    "G1_completion": "PASS",
+    "G-M2_mesh_identity": "PASS",
+    "G-DP_SHIPPED": {
+     "G-DP_CD": {
+      "objective": "CD",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": -0.011341645760780585,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 0.01238016299939811,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": 0.0056907373580455355,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.003466807992034993,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.002410481363072161,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "G-DP_CL": {
+      "objective": "CL",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": 1.037472696796837,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 1.2136872443659519,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": -0.46239179952813747,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.6714206318306372,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.08923320066130686,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "row_verdict": "BLOCKED",
+     "CD_baseline": 0.02091051000679216,
+     "CL_baseline": 0.49876526415423195
+    },
+    "G-DP_PATCHED": {
+     "G-DP_CD": {
+      "objective": "CD",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": -0.01013379201271327,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 0.012897284974053704,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": -0.0010656351756414767,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.00352810453738826,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.002410481363072161,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "G-DP_CL": {
+      "objective": "CL",
+      "components": [
+       {
+        "dv": "shape",
+        "idx": 0,
+        "g_rev": 1.0339322971355531,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 3,
+        "g_rev": 1.2210380829610046,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 6,
+        "g_rev": -0.38562102474258547,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "shape",
+        "idx": 7,
+        "g_rev": 0.677844356868305,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       },
+       {
+        "dv": "patchV",
+        "idx": 1,
+        "g_rev": 0.08923320066130686,
+        "verdict": "BLOCKED",
+        "reason": "AnalysisError(\"'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!\")"
+       }
+      ],
+      "n_graded": 0,
+      "n_blocked": 5,
+      "n_pass": 0,
+      "n_gate_fail": 0,
+      "worst_eps": null,
+      "verdict": "BLOCKED",
+      "reason": "5 component(s) blocked in forward mode"
+     },
+     "row_verdict": "BLOCKED",
+     "CD_baseline": 0.02091051000679216,
+     "CL_baseline": 0.49876526415423195
+    },
+    "G9_toolchain": {
+     "per_arm": {
+      "MESH": {
+       "row": "SHIPPED",
+       "digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+       "printed_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "artefact_so_md5": null,
+       "ok": true
+      },
+      "X-S": {
+       "row": "SHIPPED",
+       "digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+       "printed_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "artefact_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "ok": true
+      },
+      "FAD-S": {
+       "row": "SHIPPED",
+       "digest": "sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc",
+       "printed_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "artefact_so_md5": "f0fcb488e0e98156575cd19548e91663",
+       "ok": true
+      },
+      "X-P": {
+       "row": "PATCHED",
+       "digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+       "printed_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "artefact_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "ok": true
+      },
+      "FAD-P": {
+       "row": "PATCHED",
+       "digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+       "printed_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "artefact_so_md5": "85f59e87253e0a71a813f64ca6e4c425",
+       "ok": true
+      }
+     },
+     "verdict": "PASS"
+    },
+    "G10_caps": {
+     "per_arm": {
+      "MESH": {
+       "core_min": 0.183,
+       "cap": 5.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 0.61
+      },
+      "X-S": {
+       "core_min": 1.017,
+       "cap": 10.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 0.4068
+      },
+      "FAD-S": {
+       "core_min": 9.4,
+       "cap": 25.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 1.88
+      },
+      "X-P": {
+       "core_min": 1.033,
+       "cap": 10.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 0.4132
+      },
+      "FAD-P": {
+       "core_min": 9.133,
+       "cap": 25.0,
+       "crossed": false,
+       "ratio_actual_over_predicted": 1.8266
+      }
+     },
+     "verdict": "PASS",
+     "total_core_min": 20.766,
+     "ceiling": 75.0,
+     "not_measured": []
+    },
+    "G12_placement": {
+     "per_arm": {
+      "MESH": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": "NOT_MEASURED"
+      },
+      "X-S": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9944
+      },
+      "FAD-S": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9969
+      },
+      "X-P": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9931
+      },
+      "FAD-P": {
+       "cpuset": "0,1",
+       "delivered_cores_mean": 0.9991
+      }
+     },
+     "verdict": "PASS",
+     "not_measured": [
+      "MESH"
+     ]
+    }
+   },
+   "bands": {
+    "eps_per_component": 1e-05,
+    "gmresRelTol_registered": 1e-06,
+    "near_zero": 1e-14,
+    "provenance": "ADJOINT_VERIFICATION_STANDARD.md sec.2 (10 x gmresRelTol); v1.0a forward-channel controls"
+   },
+   "mesh_cells": 4032,
+   "divergence_rev_shipped_vs_patched_CD": [
+    {
+     "dv": "shape",
+     "idx": 0,
+     "J_rev_shipped": -0.011341645760780585,
+     "J_rev_patched": -0.01013379201271327,
+     "divergence_pct": 10.649722038084397
+    },
+    {
+     "dv": "shape",
+     "idx": 3,
+     "J_rev_shipped": 0.01238016299939811,
+     "J_rev_patched": 0.012897284974053704,
+     "divergence_pct": 4.009541354602322
+    },
+    {
+     "dv": "shape",
+     "idx": 6,
+     "J_rev_shipped": 0.0056907373580455355,
+     "J_rev_patched": -0.0010656351756414767,
+     "divergence_pct": 118.72578382368827
+    },
+    {
+     "dv": "shape",
+     "idx": 7,
+     "J_rev_shipped": 0.003466807992034993,
+     "J_rev_patched": 0.00352810453738826,
+     "divergence_pct": 1.7373789439539364
+    },
+    {
+     "dv": "patchV",
+     "idx": 1,
+     "J_rev_shipped": 0.002410481363072161,
+     "J_rev_patched": 0.002410481363072161,
+     "divergence_pct": 0.0
+    }
+   ],
+   "predictions": {
+    "P1_patched_row_PASS": "NOT_MEASURED",
+    "P2_shipped_shape6_GATE_FAIL_others_ge3_PASS": "NOT_MEASURED",
+    "P2_shipped_shape6_eps": null,
+    "P3_patched_worst_eps_le_1e-6": "NOT_MEASURED",
+    "P3_patched_worst_eps": null,
+    "P4_forward_channel_controls_pass_both_rows": "HIT",
+    "P5_fad_over_x_cost_ratio_shipped": "MISS",
+    "P5_total_core_min_band": "HIT",
+    "P6_mesh_wall_le_120s": "HIT",
+    "P7_cells_4032": "HIT"
+   },
+   "controls": {
+    "forward_channel_S": {
+     "forward_channel_controls_pass": true,
+     "row": "S"
+    },
+    "forward_channel_P": {
+     "forward_channel_controls_pass": true,
+     "row": "P"
+    },
+    "grader_plant_XS": {
+     "grader_plant_seen": true,
+     "n_values": 20,
+     "worst_residual": 1.7932703932910243e-16,
+     "file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/grader_controls/X_XS_planted.json"
+    },
+    "sign_flipped_XS_read_as_GATE_FAIL": {
+     "seen": false,
+     "note": "FAD-S blocked; the transpose control has nothing to read"
+    },
+    "silent_zero_FADS_refused": {
+     "seen": false,
+     "note": "FAD-S blocked"
+    }
+   },
+   "completion": {
+    "arms": {
+     "MESH": {
+      "kind": "SCRIPT",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "checkMesh.log",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "X-S": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2r_X.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "FAD-S": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2r_FAD.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "X-P": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2r_X.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     },
+     "FAD-P": {
+      "kind": "SOLVER",
+      "kernel_rc": 0,
+      "oomkilled": "false",
+      "artefact": "av2r_FAD.json",
+      "source": "ledger_row",
+      "field_sources": {
+       "all": "ledger_row"
+      }
+     }
+    },
+    "not_measured": {
+     "MESH": [
+      "delivered"
+     ]
+    }
+   },
+   "not_measured": {
+    "G1": {
+     "MESH": [
+      "delivered"
+     ]
+    },
+    "G10": [],
+    "G12": [
+     "MESH"
+    ]
+   },
+   "datum_resolution": {
+    "MESH": {
+     "datum_file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/MESH/.av2r_age_datum",
+     "recorded_epoch": 1787883524,
+     "datum_file_mtime": 1787883524,
+     "reference_name": "0.orig/U",
+     "reference_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/MESH/0.orig/U",
+     "reference_mtime": 1787883524,
+     "candidates": [
+      "0.orig/U",
+      "0.orig/U.gz"
+     ],
+     "resolved_by": "EXISTENCE over the registered candidate set, never by name",
+     "writeCompression": "on"
+    },
+    "X-S": {
+     "datum_file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-S/.av2r_age_datum",
+     "recorded_epoch": 1787883600,
+     "datum_file_mtime": 1787883600,
+     "reference_name": "0/U.gz",
+     "reference_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-S/0/U.gz",
+     "reference_mtime": 1787883652,
+     "candidates": [
+      "0/U",
+      "0/U.gz"
+     ],
+     "resolved_by": "EXISTENCE over the registered candidate set, never by name",
+     "writeCompression": "on"
+    },
+    "FAD-S": {
+     "datum_file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-S/.av2r_age_datum",
+     "recorded_epoch": 1787883730,
+     "datum_file_mtime": 1787883730,
+     "reference_name": "0/U.gz",
+     "reference_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-S/0/U.gz",
+     "reference_mtime": 1787884184,
+     "candidates": [
+      "0/U",
+      "0/U.gz"
+     ],
+     "resolved_by": "EXISTENCE over the registered candidate set, never by name",
+     "writeCompression": "on"
+    },
+    "X-P": {
+     "datum_file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-P/.av2r_age_datum",
+     "recorded_epoch": 1787884362,
+     "datum_file_mtime": 1787884362,
+     "reference_name": "0/U.gz",
+     "reference_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-P/0/U.gz",
+     "reference_mtime": 1787884417,
+     "candidates": [
+      "0/U",
+      "0/U.gz"
+     ],
+     "resolved_by": "EXISTENCE over the registered candidate set, never by name",
+     "writeCompression": "on"
+    },
+    "FAD-P": {
+     "datum_file": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-P/.av2r_age_datum",
+     "recorded_epoch": 1787884492,
+     "datum_file_mtime": 1787884492,
+     "reference_name": "0/U.gz",
+     "reference_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-P/0/U.gz",
+     "reference_mtime": 1787884924,
+     "candidates": [
+      "0/U",
+      "0/U.gz"
+     ],
+     "resolved_by": "EXISTENCE over the registered candidate set, never by name",
+     "writeCompression": "on"
+    }
+   },
+   "field_classes": {
+    "physics": [
+     "rc",
+     "inspect_exit",
+     "oomkilled",
+     "terminal_statement",
+     "age_guard",
+     "core_min",
+     "cap_core_min",
+     "DIGEST",
+     "cpuset"
+    ],
+    "infrastructure": [
+     "memavail_pre_GiB",
+     "memavail_post_GiB",
+     "delivered",
+     "siblings_pre",
+     "siblings_post",
+     "log",
+     "wall_s"
+    ],
+    "rule": "absent infrastructure -> NOT_MEASURED beside the verdict; absent physics -> REFUSE (L-342)"
+   },
+   "no_gci": "no grid family; standing rule 5 has no row; NO GCI IS QUOTED",
+   "no_fd": "this rung carries no FD table; its reference is forward-mode AD (the exact tangent), standard sec.2",
+   "capability_grid_cell": "2D . steady . incompressible -- dot-product/duality evidence for the gradient column's 'what was checked'; the census line's 'never performed' moves only on a graded row"
+  },
+  "names_rebound": [],
+  "recovery": {
+   "X-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-S/av2r_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-S_20260828T022000Z_1713655.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-S/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-S/av2r_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787883653.0405316,
+     "mtime_after": 1787883653.0405316,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "X-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-P/av2r_X.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-P_20260828T023242Z_1728653.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-P/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/X-P/av2r_X.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787884417.7117004,
+     "mtime_after": 1787884417.7117004,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": true
+   },
+   "FAD-S": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-S/av2r_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-S_20260828T022210Z_1718283.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-S/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-S/av2r_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787884289.434569,
+     "mtime_after": 1787884289.434569,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   },
+   "FAD-P": {
+    "value": 1e-06,
+    "units": "dimensionless (relative Krylov residual tolerance)",
+    "sources": {
+     "RUNTIME": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-P/av2r_FAD.jsonl"
+     },
+     "CONTAINER": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-P_20260828T023452Z_1730271.log"
+     },
+     "FROZEN": {
+      "value": 1e-06,
+      "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-P/av2r_runScript.py"
+     }
+    },
+    "agreement": "EXACT",
+    "repair": {
+     "path": "/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/av2rg/av2rg_dump_1575308/root_AV2R_real/FAD-P/av2r_FAD.json",
+     "before": null,
+     "after": 1e-06,
+     "mtime_before": 1787885029.8042417,
+     "mtime_after": 1787885029.8042417,
+     "mtime_preserved": true
+    },
+    "consumed_by_frozen_grader": false
+   }
+  },
+  "datum_resolution": null,
+  "preserved_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV2R-a1-naca0012-duality",
+  "preserved_root_files": 378,
+  "root_manifest_identical": true
+ }
+}
