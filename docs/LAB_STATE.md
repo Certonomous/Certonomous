@@ -9757,6 +9757,221 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T17:49Z — **T19b IS `PASS ×3` AND CLOSED; T20's TEMPORAL TRIPLE IS COMPLETE; T22 ANSWERED ITS FEASIBILITY QUESTION; T23'S FOUR CASES ARE RUNNING NOW. AND THE SHARED INDEX WOULD DELETE 16 411 LINES, 32 OF THOSE ROWS BEING T23'S OWN CASE ARTEFACTS.**
+
+*(Pure insertion by a heat-transfer `lab-lane`, at the supervisor's instruction, with **zero existing lines edited or deleted**. The `**Section last written:**` line at the top of this section is stale and is DELIBERATELY NOT EDITED — editing it would be a deletion. **Every figure below was re-derived by this lane from the named artefact**, not transcribed from the commissioning brief; where this lane's reading DIFFERS from the supervisor's brief the difference is boarded under "WHERE I DIFFER FROM MY SUPERVISOR" rather than silently fixed. Items this lane did not check itself are tagged **VERIFY**.)*
+
+---
+
+### LAST COMMIT (this team)
+
+**`3cceb3835c798f6c50f86bf28a214526d52fe86d`** — *"heat-transfer T23'S FOUR REGISTERED CASES BUILT, VERIFIED AND LAUNCHED -- AND ON THE WAY THERE I REPRODUCED, IN MY OWN INSPECTION SHELL, THE EXACT DEFECT THAT KILLED T22'S FIRST LAUNCH."*, 2026-08-31 17:37:24 +0000 [MEASURED, `git log`]. The five preceding heat-transfer commits, newest first: `ca6b485a` (striking a false sentence in `25c36d4b`, minutes old), `25c36d4b` (T22 calibration), `fe666fd5` (T23 freeze), `74a9141d` (T19b graded and closed), `b87eb07d` (correction against `173d797c`). Repository HEAD at the time of this write was `6a8a8d17` (a dafoam commit) [MEASURED].
+
+---
+
+### LIVE JOBS — re-derived by this lane at **2026-08-31T17:42Z**, from `ps`, `readlink /proc/<pid>/cwd` and each case's own `log.solve`
+
+**Four `chtMultiRegionSimpleFoam` solvers, all T23, all 1 rank, all `endTime` 10000, all under `timeout 6000s`** [MEASURED]:
+
+| case | pid | cwd | iteration | rate | ETA | timeout headroom |
+|---|---:|---|---:|---:|---|---:|
+| `T23_P305_U10` | 196712 | `verification/runs/T-family/T23_runs/T23_P305_U10` | 2981 / 10000 | 5.21 it/s | ≈22 min → **≈18:05Z** | ≈4081 s |
+| `T23_P305_U20` | 197166 | `…/T23_P305_U20` | 2407 / 10000 | 4.75 it/s | ≈27 min → **≈18:09Z** | ≈3894 s |
+| `T23_P305_U30` | 198000 | `…/T23_P305_U30` | 1976 / 10000 | 4.47 it/s | ≈30 min → **≈18:12Z** | ≈3763 s |
+| `T23_P305_U40` | 198450 | `…/T23_P305_U40` | 1678 / 10000 | 4.45 it/s | ≈31 min → **≈18:13Z** | ≈3753 s |
+
+Iteration is the last `Time = ` line of each `log.solve`; rate is iteration ÷ process elapsed seconds (`ps -o etimes=`); ETA is linear extrapolation and is therefore **DERIVED and optimistic-to-neutral** — a SIMPLE solver does not run at a constant rate. **No case is near its `timeout`**: the worst headroom is ≈3753 s. Registered per-case cap is **100.0 core-min** [REGISTERED, `T23_PREREGISTRATION.md` §6.2]; at the measured rates each case lands near **30–37 core-min**, comfortably inside [DERIVED].
+
+**A fifth live process, and it is not a solver:** pid 202312, `python3 verification/runs/T-family/T20_runs/mutation_controls_t20.py` under `timeout 5000`, driving `analyse_t20.py --selftest` in a temp copy [MEASURED]. **This is another lane's work, not this one's — do not kill it.** Also live: pid 111265, `scripts/queue_runner.py --daemon` (cfd's instrument, up ≈1 h 32 m) [MEASURED].
+
+---
+
+### VERDICTS THIS SESSION
+
+#### T19b — **`PASS` ×3, three rows, three `CONVERGING` triples. The rung is CLOSED.**
+
+From `verification/runs/T-family/T19b_runs/gate_t19b.json`, read by this lane [MEASURED]:
+
+| row | quantity | reference | triple c / m / f | state | p | GCI % | verdict |
+|---|---|---:|---|---|---:|---:|---|
+| **G1** | **f·Re**, from the axial pressure gradient (2nd order in dy); the 1st-order wall-shear route is REPORTED, never graded | 96.0 | 95.52238805969479 / 95.88014981272394 / **95.97000937207427** | CONVERGING | 1.9933 | 0.03926 | **PASS** |
+| **G2** | **Nu**, uniform wall **heat flux**, at the registered station | 8.235294200908305 | 8.249616601410779 / 8.238914180475957 / **8.236201599861733** | CONVERGING | 1.9802 | 0.01398 | **PASS** |
+| **G3** | **Nu**, uniform wall **temperature**, at the registered station | 7.540700874069418 | 7.543378217000218 / 7.543245498691451 / **7.543209307508371** | CONVERGING | 1.8747 | 0.000225 | **PASS** |
+
+All three triples are monotone (G1 increasing, G2 and G3 decreasing), so quoting a GCI is legal under rule 5. Observed orders sit at 1.87–1.99 against a formal 2 — the discretisation is behaving. Re_Dh 100, Pr 0.71, x/Dh 0.8 (x⁺ 0.28169), ny 20/40/80, r = 2, Fs = 1.25 [REGISTERED, same file].
+
+**`gate1` (C_PLATEAU) returned `ok: true` on all six cases, and this is the sentence that matters: C_PLATEAU'S FIRST REAL EVALUATION RETURNED `ok`, SO VERIFICATION'S `DEAD_LEVER_AUDIT.md` §21.2 DIAGNOSIS HELD.** Recorded as *holding*, not as flattery: a lever that had never been exercised was exercised, and it did not misfire. Plateau deltas across the six cases, `t_last` 30000 against `t_prev` 28000: **`d_Nu` from 3.110e-12 down to exactly 0.0; `d_fRe` from 1.4178e-13 down to 2.5025e-14** [MEASURED].
+
+**Planted-zero controls PASS on both channels** — `Nu_H` plant 1.234e-03 into 1 cell recovered 2.0897e-03 with a **zero negative arm** and a demonstrated detection floor of **1e-07** across an eight-rung ladder; `fRe` plant into 80 cells recovered 2808.04 with a zero negative arm and the same 1e-07 floor [MEASURED, `planted_zero_controls`]. Rule 3 is armed on this rung and was shown able to see a non-zero.
+
+**Registered ceiling stands and is not a disappointment:** the referent is EXACT/derived, so T19b scores V, reaches **`GATE REACHED` at best** and can never reach `HOLDS` [REGISTERED, `gate_t19b.json` key `ceiling`].
+
+**COST CALIBRATION (rule 12), already landed as two rows in `docs/COST_CALIBRATION.md` (`C-20260831T164745.937132Z-3fc3bd39` stage 1, `C-20260831T164745.937182Z-82edc690` stage 3) and re-derived here from the six `STATUS.<case>` files:**
+
+| case | wall s | core-min MEASURED | POINT REGISTERED | actual/predicted |
+|---|---:|---:|---:|---:|
+| `P_q_c` | 63 | 1.050 | 2.952 | 0.3557 |
+| `P_Ts_c` | 63 | 1.050 | 2.952 | 0.3557 |
+| `P_q_m` | 231 | 3.850 | 12.624 | 0.3050 |
+| `P_Ts_m` | 229 | 3.817 | 12.624 | 0.3024 |
+| `P_q_f` | 1451 | 24.183 | 77.952 | 0.3102 |
+| `P_Ts_f` | 1413 | 23.550 | 77.952 | 0.3021 |
+| **total** | | **57.500** | **187.056** | **0.3074** |
+
+All six `rc=0`, `ranks=1`, `capped=no`, `checkmesh_rc=0`, `note=clean` [MEASURED]. Registered CAP was **624 core-min** (12 / 50 / 250 per case); **peak single-case cap usage 9.67 %** [DERIVED]. **The overall miss is a 3.25× OVER-prediction in the CONSERVATIVE direction — no cap was ever at risk.** The band 0.302–0.356 across a 16× mesh range makes it a **systematic scale error, not scatter**, and its one cause is a **borrowed per-cell-iteration rate that does not transfer**: T1c's 2.46e-06 / 2.63e-06 / 4.06e-06 core-s per cell-iteration [BORROWED] against T19b's measured 8.75e-07 / 8.02e-07 / 1.26e-06 [DERIVED]. T1c is a **pipe**; T19b is a 2-D plane channel. **No contention and no waste** — the longest case ran 1451 wall s, nowhere near the charter's 3600-s stall threshold.
+
+> **AND THE ROW THAT IS AGAINST MY OWN SUPERVISOR, WHICH IS WHY IT IS ON THE BOARD.** His commissioning brief projected **≈148 core-min per fine case, ≈60 % of the 250 core-min cap, finishing ≈18:45Z** [TRANSCRIBED — this is a brief, not an artefact, and no frozen document carries it]. Measured: **24.183 and 23.550 core-min, ≈9.7 % and ≈9.4 % of cap, ended 16:36:34Z and 16:37:01Z** [MEASURED, `ended_utc`]. That is a **6.12× and 6.28× over-prediction and ≈2 h 08 m early**, roughly twice the registration's own miss. **It is a DIFFERENT error and is not folded into the 3.25×**: it compounds the bad borrow with a cap-fraction assumption the borrow never supported. A calibration ledger that omits the supervisor's miss is not a calibration ledger.
+
+#### T20_LC_c — **was `BLOCKED` on a builder defect; NOW REBUILT AND RERUN CLEAN. The temporal triple c/m/f is COMPLETE.**
+
+The failed attempt is preserved, not deleted, at `verification/runs/T-family/T20_runs/T20_LC_c_FAILED_NO_G_20260831T001244Z` with its own `STATUS`: `rc=1 wall_s=0 core_min=0.000 note=SOLVER_NONZERO_EXIT`, 2026-08-31T00:12:44Z — a `FOAM FATAL ERROR` because `constant/g` was absent [MEASURED]. The rerun: `STATUS.T20_LC_c` now reads `rc=0 wall_s=1 core_min=0.017 capped=no checkmesh_rc=0 note=clean`, started 16:45:23Z [MEASURED]. The six T20 cases and their measured cost:
+
+| case | rc | wall s | core-min | ended |
+|---|---:|---:|---:|---|
+| `T20_LC_c` | 0 | 1 | 0.017 | 16:45:24Z |
+| `T20_LC_m` | 0 | 1 | 0.017 | 16:14:34Z |
+| `T20_LC_f` | 0 | 1 | 0.017 | 16:15:39Z |
+| `T20_LC_D` | 0 | 7 | 0.117 | 16:19:01Z |
+| `T20_LC_Sc` | 0 | 1 | 0.017 | 16:16:44Z |
+| `T20_LC_Sf` | 0 | 3 | 0.050 | 16:17:52Z |
+
+**Total 0.235 core-min MEASURED** across the whole rung [DERIVED from the six `STATUS` files]. The supervisor cleared `build_t20b.py` by **paired build**, personally: 19 files against 18, the sole addition `./constant/g`, 16 of the 18 byte-identical, **no registered value moved** [TRANSCRIBED from his brief — this lane did not re-run the paired build; **VERIFY**].
+
+#### T22 — **FEASIBILITY. The question is ANSWERED. NO VERDICT IS ASSERTED, and none may be: a feasibility output is never gradeable.**
+
+`chtMultiRegionSimpleFoam` advanced the three-region wedge to **`Time = 5000` == `endTime` 5000**, with exactly one `End` line and an `ExecutionTime` count of 5000 [MEASURED, `verification/runs/T-family/T22_runs/T22_CHTb_L1/log.solve`]. All six rule-4 conjuncts hold. **Cost: predicted 15.4 core-min DERIVED against 13.9872 core-min MEASURED** (`ExecutionTime = 839.23 s` at 1 rank; `ClockTime` was 844 s and is deliberately not the figure used), **ratio 0.908** — the closest estimate this team has filed today.
+
+**Rule 12 discharged**: row `C-20260831T172527.907664Z-b006f781` in `docs/COST_CALIBRATION.md` carries it, with the 15.4 registered **DERIVED, NOT MEASURED** from two Cartesian single-solid anchors (`T5_CUBE_m` 4.1541e-06, `T5_CUBE_f` 4.6476e-06 s per cell-iteration) at the conservative `_f` end, registered CAP **50.0 core-min** enacted as `timeout 3000s`, **cap utilisation 28.0 %**, and the wedge / two-solid / source mismatches **disclosed rather than absorbed** [MEASURED, that row]. The borrowed Cartesian anchor was expected to be a lower bound and **turned out to be a bracket** — it transfers, which is the opposite of T19b's borrow (see the 3.25× above) and worth carrying forward.
+
+**Launch 1 died BEFORE the solver** — `set -u` around the OpenFOAM `bashrc` source — and is preserved at `T22_CHTb_L1_FAILED_LAUNCH1_20260831T163511Z` with its triage at `T22_LAUNCH_1_TRIAGE.md` and the fix at `T22_LAUNCHER_REPAIR.diff` [MEASURED, both on disk]. Four refusal arms were driven (A bashrc-absent → exit 2; B solver-unresolvable → exit 2; C positive control; D paired negative reproducing launch 1's signature) [TRANSCRIBED from the supervisor's brief; **VERIFY** — this lane confirmed the artefacts exist but did not re-drive the arms].
+
+#### T23 — **FROZEN at `fe666fd5`. Four cases RUNNING. No verdict, and none is due until they land.**
+
+`docs/campaigns/T-family/T23_PREREGISTRATION.md`, 791 lines, sha256 `b46d23c9cbbc945d…` [MEASURED]. Sanaa's Case 3 variant (b), motor-in-duct CHT, rescaled power levels by her own one-word ruling **"5. Rescale"**.
+
+- **Levels {80, 155, 230, 305} W [ASSUMED, §2.6 states them as assumptions], U_inf {10, 20, 30, 40} m/s.**
+- **Closure incompatibility 1.6723× (DB) / 1.6374× (FP), `h_FP/h_DB` = 1.7628** [REGISTERED, §271].
+- **THE BOARD'S "8 of 16" IS WRONG AND IS STRUCK.** The directive's ORIGINAL levels {100, 300, 600, 1000} flag **9 of 16 under Dittus-Boelter and 6 of 16 under the flat-plate closure**; the RESCALED levels flag **2 of 16 (DB) and 0 of 16 (FP)** [REGISTERED, §318–§321, which says so in its own words: *"The lab board's figure of '8 of 16' is WRONG and is corrected here."*].
+- **(305 W, 20 m/s) is REGISTERED UNDECIDED BEFORE COMPUTE at +2.70 K** — DB gives `T_max` 197.3 °C, FP gives 120.3 °C, against a 120 °C bound [REGISTERED, §2.7].
+
+---
+
+### ⚠ FINDINGS THAT MUST NOT BE LOST
+
+> #### 1. **THE `Ux` RESIDUAL IS A NORMALISATION ARTEFACT, AND TAKEN AT FACE VALUE IT WOULD MAKE EVERY RUN OF THIS FAMILY READ AS UNCONVERGED.**
+>
+> T22's final initial residuals [MEASURED, `T22_CHTb_L1/log.solve`, last solve block]:
+> **`Ux` 0.135293932329** against `Uy` 6.25246691154e-10, `Uz` 4.22352769741e-12, `h` 9.58594416691e-10, `p_rgh` 8.6363150737e-09, `omega` 6.09083492469e-10, `k` 9.73010377729e-10.
+>
+> Read naively that is a solver eight orders from converged. It is not. From `5000/fluid/U`, **35 200 internal-field vectors** parsed by this lane: **max|Ux| = 3.837141e-15** against **max|Uz| = 2.089689e+01 m/s**, **ratio 1.8362e-16** [MEASURED]. `Ux` is the wedge's **circumferential** component, **identically zero BY GEOMETRY**; its residual is a 0/0 normalisation and carries no information about convergence.
+>
+> **T23 DOES NOT GATE ON RESIDUALS, SO NO AMENDMENT TO THE FROZEN T23 IS NEEDED AND NONE MAY BE MADE.** §3.1 registers convergence as *"an **ASSERTION on the log**, never a stopping rule"*, and registers **no `residualControl` in any region's `SIMPLE` dict**; the queue entries grade T23 against the physicality tier B1/B2/B3 and nothing else [MEASURED, §3.1 read verbatim].
+>
+> **What this IS: (a) a REPORTING INSTRUCTION** — whoever writes T23's convergence assertion must **exclude `Ux` and say why**, because an assertion that quietly drops an inconvenient field is worse than one that never mentioned it; **(b) a WARNING carried forward into every deferred GATED rung on a wedge geometry**, where a residual-based control would fire falsely on all of them.
+
+> #### 2. **THE QUEUE RUNNER CLOBBERS THE WRAPPER'S `STATUS` FILE, DESTROYING FIELDS THE ENTRY'S OWN `_field_classes` CALLS PHYSICS-CRITICAL.**
+>
+> Verified directly by this lane: `verification/runs/T-family/T22_runs/T22_CHTb_L1/STATUS.T22_CHTb_L1` contains, in full, `launcher_rc=0 end=2026-08-31T17:21:42Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc` — and **nothing else** [MEASURED]. Compare a wrapper-written `STATUS`, e.g. `T19b_runs/STATUS.P_q_f`, which carries `rc`, `wall_s`, `ranks`, `core_min`, `timeout_s`, `capped`, `checkmesh_rc`, `solver`, `solver_path`, `note`, `started_utc`, `ended_utc`. **`rc`, `wall_s`, `core_min`, `capped` and `solver` are gone.**
+>
+> **Consequence, stated honestly: T22's `rc=0` is DERIVED (from the `End` line, the `ExecutionTime` count and `Time = 5000` == `endTime`), NOT READ.** The completion still holds on the physics conjuncts; what was destroyed is the bookkeeping that would have made it a direct read.
+>
+> **`scripts/queue_runner.py` is cfd's instrument. THIS IS ESCALATED, NOT REPAIRED BY US** — a heat-transfer lane editing another team's runner is exactly the class of cross-territory fix the charters forbid. **Sanaa's universal rule stands: bookkeeping never voids physics. No run is voided by this defect.**
+
+> #### 3. **THE FOUR HELD T19 ENTRIES STAY HELD — the supervisor's decision, and the reasoning is a post-mortem on this family's own corpse.**
+>
+> `verification/queue/heat-transfer/held/` holds exactly four entries — `P_q_m`, `P_q_f`, `P_Ts_m`, `P_Ts_f` — all citing `prereg_commit 4d8943d8`, `prereg_path docs/campaigns/T-family/T19_PREREGISTRATION.md`, caps **50 / 250 / 50 / 250 = 600 core-min** and estimates 12.624 / 77.952 / 12.624 / 77.952 [MEASURED, the four JSON files].
+>
+> Why they stay held, from `T23_PREREGISTRATION.md` §3.1 read verbatim: T19's `P_q_c` and `P_Ts_c` carried `residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }` against `endTime` 30000 and **stopped at 828 and 541 iterations — under 3 % of registered duration — both reporting `rc=0` and `note=clean`. They did not crash; THEY SUCCEEDED AT THE WRONG EXPERIMENT.** The m/f cases carry the same block, so rule 4's conjunct 3 (last time == `endTime`) **cannot** hold and running them buys a guaranteed `NOT A RESULT` for 600 core-min. **T19b supersedes T19 and drops that block** [MEASURED, `gate_t19b.json` key `supersedes`].
+
+> #### 4. **T20_LC_P10 IS A DEAD LEVER, AND THE SUPERVISOR REFUSED THE ARGUMENT THAT WOULD HAVE REVIVED IT.**
+>
+> The planted +10 % arm needs `fvOptions` 5500. `q_volumetric` is **rung-global**, in `physics`, not per-case, and `--params` only injects a `cases` entry — so the lever cannot be pulled through the registered interface. **V5 registers that a refusal there makes the WHOLE RUNG `NOT A RESULT`.**
+>
+> **The supervisor REJECTED the same-repair-topic argument** that would have let the already-cleared `constant/g` repair carry a per-case physics override. That is rule 9 applied to himself: a clearance for one defect is not a clearance for a wider class, and treating it as one is permission laundering. **§2d.1 is with verification.** [TRANSCRIBED from the supervisor's brief; the `fvOptions`/`physics` structure was not re-read by this lane — **VERIFY**.]
+
+> #### 5. **T21 IS NOT FROZEN, AND THAT IS DELIBERATE.**
+>
+> `docs/campaigns/T-family/T21_PREREGISTRATION.md` exists as an untracked draft headed *"NOT FROZEN … AUTHORISES NOTHING"*. **Sanaa ruled feasibility-first**, so Case 3's first act was the T22 wedge, not this gate. **`verification/runs/T-family/T21_runs` DOES NOT EXIST** — confirmed absent by this lane [MEASURED]. Nothing here is blocked; the ordering is the ruling being obeyed.
+
+> #### 6. **A FALSE-ZERO LESSON, RECORDED AND NOT RULED** (Sanaa's 14-day rule freeze forbids spawning a new rule from it).
+>
+> A lane read a background command's output file **before its completion notification**, got an empty section, and reported that empty partial as a **finished zero** inside load-bearing rule-2 evidence. It self-corrected at **`b87eb07d`**. This is the standing lesson *"a zero needs a live planted control"* firing in a new shape — the reader was capable of seeing a non-zero and simply had not finished.
+>
+> **And the follow-up is against the supervisor, not the lane: his own verification grep TIMED OUT at 2 minutes on the same tree.** So the 11-file claim across all of `verification/` and `cases/` remains **the lane's measurement, NOT the supervisor's** — **VERIFY**, and it should be re-driven with a bounded, named-artefact read rather than a whole-tree sweep.
+
+---
+
+### ⚠ WHERE I DIFFER FROM MY SUPERVISOR — boarded, not silently fixed
+
+Eight differences. None changes a verdict; three change a number that a later reader would otherwise cite wrongly.
+
+1. **`Nu` AND `f·Re` ARE SWAPPED IN THE COMMISSIONING BRIEF.** The brief labels 95.522/95.880/95.970 as **Nu** and 8.2496/8.2389/8.2362 as **f·Re**. `gate_t19b.json` says the opposite: **G1 is `f·Re` against reference 96.0**, and **G2 is `Nu` (uniform heat flux) against reference 8.2353**; the 7.5434/7.5432/7.5432 triple the brief calls f·Re is **G3, `Nu` (uniform wall temperature), reference 7.5407** [MEASURED, `quantity` and `reference` keys]. The physics is decisive independently of the file — f·Re for a plane channel is 96, and Nu is O(8) — so the brief's labelling is the error.
+2. **The largest `d_Nu` is 3.110e-12 (`Ts_f`), not 2.99e-12.** The brief's 2.99e-12 is `Ts_c`'s value, which is not the maximum of the six [MEASURED].
+3. **T22's `5000/fluid/U` internal field holds 35 200 vectors, not 35 312.** The declared list length and the parsed count agree at 35 200. The supervisor's 35 312 presumably includes boundary-field entries; this lane did not reproduce 35 312 from any reading of that file [MEASURED].
+4. **The four running T23 cases are not a power sweep.** They are **all at P = 305 W**, across U_inf {10, 20, 30, 40} — exactly the subset §6.2 registers as *"THE REGISTERED SUBSET — the P = 305 W row, all four airspeeds"*, chosen because it uniquely carries **both** the UNDECIDED bound point (305, 20) and the 120 °C isotherm bracket at (305, 40) [MEASURED, cwds + §6.2]. The full 4×4 map is registered but not launched.
+5. **The two T19b fine cases ended 16:36:34Z and 16:37:01Z, not ≈16:43Z.** 16:41:23Z is the mtime of `gate_t19b.json` — the *grading* time, not the run end [MEASURED, `ended_utc` vs `stat`].
+6. **The over-prediction is 3.25×, not "~3×", and the registered CAP total is 624 core-min** (12 / 50 / 250 per case), a figure the brief did not carry. Per-level ratios: coarse 0.3557, medium 0.3037, fine 0.3062 [DERIVED].
+7. **`T16c_PREREGISTRATION.md` IS NOT STAGED IN THE SHARED INDEX.** The brief warned of a staged deletion of it; `git diff --cached --name-status HEAD` returns **no T16c row at all**, and `verification/runs/T-family/T16c_runs/` is **entirely untracked** (`??`) [MEASURED]. What the shared index actually holds is far worse, and is item 8.
+8. **THE SHARED INDEX WOULD DELETE 16 411 LINES ACROSS 57 FILES, AND 32 OF THOSE ROWS ARE THIS TEAM'S OWN.** `git diff --cached --stat HEAD`: **57 files, 5 insertions, 16 411 deletions** [MEASURED]. Breakdown: **28 rows are T23's four case directories** (`build_t23.py` ×4 at 826 lines each, the blockMesh / checkMesh / splitMeshRegions logs, `run_t23.sh` ×4), **4 more are `verification/queue/heat-transfer/launched/` entries**, 15 are dafoam's `curriculum_SO1cR`, and the rest are cfd's F28 and ansys-verification's VMFL006. **A bare `git commit` right now would erase the four T23 cases that are running as this is written.** This is rule 10's first bullet with this team's own name on it. **LEFT EXACTLY AS FOUND — inspected, never reverted.**
+
+---
+
+### RUNGS WITHOUT VERDICTS — named, including where the answer is embarrassing
+
+| rung | state | why there is no verdict |
+|---|---|---|
+| **T16c** | frozen `8ff2cf36`; comparator **BLIND** | `analyse_t16c.py` and `mutation_controls_t16c.py` are on disk and **UNTRACKED** [MEASURED]. **No T16 graded value may be computed before the comparator is frozen and read.** `verification/runs/T-family/` holds **no `gate_t16*.json` of any kind** [MEASURED, full sweep of `gate_*.json`]. |
+| **T20** | six cases run, all `rc=0`; **V5 DEAD** | `analyse_t20.py` is on disk and its `mutation_controls_t20.py` is **being driven right now** (pid 202312). No `gate_t20.json` exists [MEASURED]. V5's dead lever (finding 4) means the rung's grading path is not yet whole. |
+| **T21** | **NOT FROZEN, deliberately** | See finding 5. `T21_runs` absent. |
+| **T22** | **FEASIBILITY — question answered, no verdict assertable** | A feasibility output is never gradeable. Recorded as an answered question with its cost, and nothing more. |
+| **T23** | four cases **RUNNING** | Grading is due when all four reach `Time = 10000`; ETAs ≈18:05–18:13Z. |
+| **T15b** | §2d.1 on Sanaa's desk | **VERIFY** — relayed, not re-derived by this lane. |
+| **T18** | `PASS ×3`, CONVERGING ×3 [MEASURED, `gate_t18.json`] — **but its successor is OWED** | The successor must carry the **S8 clause**, per the standing finding that `analyse_t18.py:509`'s `grade(HERE, …)` selftest limb produced a file **byte-identical to the real `gate_t18.json`**. **Until that successor exists, `analyse_t18.py --selftest` must not be run.** |
+
+---
+
+### NEXT ACTIONS — concrete enough to act on
+
+1. **When the four T23 solvers land (≈18:05–18:13Z), check rule 4 on each before anything else** — `rc`, `End`, `Time = 10000` == `endTime`, `ExecutionTime` count, fields present, and the **age guard against each case's own `0/T`**. Then grade against **B1/B2/B3 only**; §3.1 forbids treating residuals as a gate. **Write the convergence assertion excluding `Ux`, and say in the assertion why** (finding 1).
+2. **Do not read T23's `rc` from the runner-written `STATUS`** — it will have been clobbered to `launcher_rc` only (finding 2). Derive completion from the solver log and say `rc` is DERIVED.
+3. **Finish the T20 comparator loop**: `mutation_controls_t20.py` is running now; when it returns, freeze `analyse_t20.py` **before** any T20 value is computed, and do not let the V5 dead lever be quietly dropped — V5's own text makes a refusal there a whole-rung `NOT A RESULT`.
+4. **Freeze the T16c comparator, then grade.** The blindness is the point and is currently intact; it stays intact only while nothing computes a T16 value first.
+5. **Draft T18's S8-carrying successor.** It is the only thing that disarms a limb which has already fired once today.
+6. **Rule 12 is DISCHARGED for both completed processes — do not re-file either.** `docs/COST_CALIBRATION.md` carries **four** heat-transfer rows landed today: T19b stage 1 (`C-20260831T164745.937132Z-3fc3bd39`), T19b stage 3 (`C-20260831T164745.937182Z-82edc690`), T22 feasibility (`C-20260831T172527.907664Z-b006f781`) and a self-correction against `25c36d4b`'s commit message (`C-20260831T172757.247519Z-34cbf5b1`) [MEASURED]. **This lane's own first sweep for a T22 row missed it** — a bare `grep 'T22'` on that file matches ISO timestamps, not rung ids — and the miss is recorded here rather than left as a near-miss instruction to duplicate a landed row.
+7. **Re-drive the 11-file verification claim** with a bounded, named-artefact read (finding 6) so it stops being VERIFY.
+
+---
+
+### ON SANAA'S DESK
+
+| item | state |
+|---|---|
+| **Strike the board's "8 of 16" → 9 (DB) / 6 (FP)** | **Now measured and struck in this block** — `T23_PREREGISTRATION.md` §318–§321 corrects it in its own words [MEASURED]. Sanaa's desk needs only to note the correction landed. |
+| **D389** | relayed, not re-derived — **VERIFY** |
+| **T15b §2d.1** | relayed, not re-derived — **VERIFY** |
+| **T10a** | relayed, not re-derived — **VERIFY** |
+| **K2a** | relayed, not re-derived — **VERIFY** |
+| **Queue-directory write permission** | relayed, not re-derived — **VERIFY** |
+
+---
+
+### BLOCKED, and exactly what would unblock each
+
+| item | blocked on | what unblocks it |
+|---|---|---|
+| **T20 V5** (the +10 % planted arm) | dead lever — `q_volumetric` is rung-global in `physics`, `--params` reaches only `cases`; a per-case physics override was **refused** as permission laundering | **§2d.1 is with verification.** Their ruling, or a registered interface change that reaches `physics` per case. Nothing here is a heat-transfer decision. |
+| **`K2bU3_D`** (`verification/runs/F14-cooling-ladder/K2b_runs/K2bU3_D`) | **NOT FILED.** Frozen prereg sha256 `91a26fc9` [TRANSCRIBED — **VERIFY**], but the case directory holds only `0.orig/`, `CASE.txt`, `constant/` and `system/`: **no `constant/polyMesh`, no launcher** [MEASURED by this lane]. | Mesh + launcher, **and** the hard ladder precondition on `K2bU3_M` — which **the supervisor has NOT yet read**. `K2bU3_M` does exist on disk [MEASURED]. **VERIFY the precondition before spending anything here.** |
+| **T18's successor** | not yet drafted | Draft it with the S8 clause. Until then `analyse_t18.py --selftest` is a loaded gun pointed at a live run tree. |
+
+---
+
+### HOUSEKEEPING THIS LANE DID AND DID NOT DO
+
+- **Board reconciliation was run as a precondition, before the write:** `scripts/check_board_reconciliation.py` returned **PASS, exit 0, "every section is byte-identical on both sides", 8 sections each side, zero diverging sections**, under a RECOGNITION control that found all four planted divergence forms and correctly rejected the negative — so its zero is a **measurement, not a silence** [MEASURED].
+- **`docs/DOCKET.md` was NOT edited**, so `scripts/check_docket_reconciliation.py`'s precondition did not fire. **No lesson or docket number was assigned** — rule 11 has nothing to bite on here.
+- **No frozen file was edited** (rule 6). **No scratch path is cited anywhere in this block** (rule 13).
+- **A per-team board file for heat-transfer EXISTS**: `docs/lab_state/heat-transfer.md`, 591 087 bytes, mtime 2026-08-31 15:53 — one of seven, all written in the same 15:53–15:54 batch by verification's merger. It is **UNTRACKED in git** (`git ls-files docs/lab_state/` returns nothing) and is a **derived snapshot of this section, not a channel** [MEASURED]. **The cutover has NOT happened, so `docs/LAB_STATE.md` remains the handoff channel** and is where this block landed; the same block was mirrored into the per-team file so nothing is lost if the cutover comes.
+
 ##### ADDENDUM 2026-08-31T15:40Z — **T19b IS FROZEN AT `b52ed93b`, AND ON THE WAY TO WRITING IT I MEASURED THAT T19's SECOND DEFECT HAS ALREADY FIRED ON T18 AND PRODUCED A FILE BYTE-IDENTICAL TO A REAL GATE OUTPUT.**
 
 *(Pure insertion. The `**Section last written:**` line above is now stale and is DELIBERATELY NOT EDITED, because the supervisor required this write to land with zero deletions; editing it would be a deletion. Written by a heat-transfer `lab-lane`; items this lane did not check itself are tagged **VERIFY**.)*
