@@ -1,0 +1,202 @@
+SO-3a STAGE 2 — INCREMENT 1 EVIDENCE
+Lane: lab-lane (dafoam). Date: 2026-08-31. Freeze read: 1a06a7d6 (ancestor of HEAD).
+NOT A COMPLETE STAGE 2. 4 of the 9 registered instruments exist. NO AMENDMENT IS LANDED.
+
+================================================================================
+0. WHAT THIS FILE IS, AND WHAT IT DELIBERATELY DOES NOT CLAIM
+================================================================================
+This records what was BUILT and what was DRIVEN in Stage-2 increment 1. It does
+NOT claim Stage 2 is registered, and NO md5 amendment is appended to the frozen
+PREREGISTRATION.md, because five of the nine instruments do not exist.
+
+Landing an md5 table now would be the SO2a-DRIVER-DEF-1 SHAPE EXACTLY: a table
+reading agreement on every pin it holds while files the frozen code executes are
+absent. §7 of the frozen document says it in its own words — "an md5 over a
+subset can read agreement on every pin it holds while a dependency the frozen
+code executes is missing; existence is a different question and cannot be
+inferred from any level of md5 agreement — not at 8 of 8, not at 800 of 800."
+The amendment is OWED when rows 2, 3, 4, 5 and 7 exist, and not before.
+
+================================================================================
+1. §18.3 ORDER — EXISTENCE ASSERTED FIRST AND SEPARATELY, THEN md5
+================================================================================
+STEP 1, existence, file by file, before any md5 was taken:
+
+  1 so3a_chain_driver.sh        PRESENT   (this increment)
+  2 so3a_run_arm.sh             ABSENT
+  3 so3a_xf.py                  ABSENT
+  4 so3a_grade.py               ABSENT
+  5 so3a_runScript.py           ABSENT
+  6 so3a_aggregate_memory.py    PRESENT   (this increment)
+  7 so3a_groot5_selftest.sh     ABSENT
+  8 so3a_decomposeParDict       PRESENT   (this increment)
+  9 so3a_stop_marker.sh         PRESENT   (this increment)
+  present = 4 of 9
+
+PLANTED CONTROL, same reader, same invocation (CLAUDE.md rule 3): the eight
+parent files read present = 8 of 8. The reader is demonstrably able to report a
+non-zero, so the five ABSENT readings are real and not a blind reader.
+
+STEP 2, md5, claimed ONLY for files that exist:
+
+  so3a_chain_driver.sh       c75522aa08d5961ead81d134a930eb8a    18020 bytes
+  so3a_aggregate_memory.py   709ab0b98ef0302a3a3a318588f9493f     2264 bytes
+  so3a_decomposeParDict      e6f1b0060944bc86d6dff56480ad2bd4     1049 bytes
+  so3a_stop_marker.sh        d44e05f9d6097821502570fd3c70ebe7     8013 bytes
+
+NO md5 IS CLAIMED FOR ANY OF THE FIVE ABSENT FILES.
+
+================================================================================
+2. DERIVATION AND THE ASSERTED SUBSTITUTION LIST (executable lines only)
+================================================================================
+so3a_chain_driver.sh  <-  curriculum_SO2a/so2a_chain_driver.sh (174 lines)
+Deltas recorded in so3a_chain_driver_DELTAS_from_so2a.diff (344 lines).
+
+  old form            BEFORE(parent)   AFTER(derived)   new form present
+  so2a_                          10                0                 14
+  SO2A_                           8                0                 10
+  SO2a                            5                0                  5
+  CURRICULUM-SO2a                 1                0                  1
+  so2a_xg.py                      2                0                  3
+
+  ASSERT: zero of every old form on any executable line — PASS.
+  ASSERT: the SO-1bR defect form  AGG=$(python3 "$AGG" ...)  absent — PASS (0).
+  ASSERT: AGG_SCRIPT assigned exactly once, never inside the arm loop — 1 / 0.
+  bash -n on both shell files — PASS. ast.Assert in so3a_aggregate_memory.py — 0.
+
+FILES 6 AND 8 ARE ADOPTED BYTE-IDENTICALLY, and that is a choice with a reason:
+  * so3a_aggregate_memory.py is byte-identical to curriculum_SO1bR's (md5
+    709ab0b9…), which is itself byte-identical to SO-2a's. It carries ZERO
+    item-specific tokens (measured: 0 hits for so1b/SO1b/so2a/SO2a) and takes its
+    cap and ceiling as argv, so there is nothing to rename. A gratuitous edit
+    would move an md5 for no behavioural gain.
+  * so3a_decomposeParDict is byte-identical to SO-2a's, which ALREADY carries
+    `numberOfSubdomains 1`. §7 row 8 describes it as "the tutorial's, ONE line
+    changed"; SO-2a's copy is that file, already changed, so it is adopted rather
+    than re-derived. Recorded because the reader should not have to wonder why no
+    line was edited.
+
+================================================================================
+3. THE THREE DEFECTS THIS FAMILY PAID FOR TODAY — WHAT WAS DONE ABOUT EACH
+================================================================================
+DEFECT 1 — THE AGG SELF-DESTRUCT.
+  Established from the parents' own bytes, NOT taken on report: so2a_chain_
+  driver.sh:143 passes the script path as a LITERAL. BOTH PARENTS ARE CLEAN, so
+  SO-1bR's DERIVATION introduced the defect. Derivation discipline guarantees a
+  rename is COMPLETE and is structurally BLIND to a new name COLLIDING with a
+  variable already in use — which is why "we renamed carefully" was not, and
+  could not have been, a defence.
+  Two defences here, both required, neither sufficient alone:
+    (a) DISTINCT RESULT NAME — $AGG_SCRIPT holds the path and is never assigned
+        in the loop; $AGG_JSON holds the reading.
+    (b) CALL-SITE GUARD — test -f "$AGG_SCRIPT" immediately before use, on every
+        arm and every poll, aborting rc=4 note=AGG_PATH_DESTROYED_AT_CALL_SITE.
+        rc=4 is DISTINCT from the resource-block codes (6 aggregate, 7 H5) so a
+        destroyed path can never masquerade as a resource block.
+    The §18.3 existence assertion runs ONCE AT STARTUP, when the variable still
+    holds a path. THAT STARTUP-ONLY ASSERTION IS THE HOLE THE DEFECT WENT
+    THROUGH, which is why (b) exists at the point of use.
+
+DEFECT 2 — A SELFTEST THAT DRIVES EACH UNIT ONCE IS BLIND TO THIS CLASS.
+  Every control below drives TWO ARMS. See §4.
+
+DEFECT 3 — §18.7 QUANTITY-TO-FORM MATCH.
+  H5 (TRANSIENT: live MemAvailable) converted from the parent's ONE-SHOT refusal
+  to the WAIT form: re-take the window, poll H5_POLL_S=30, bound H5_BOUND_S=3600,
+  and AT THE BOUND TERMINATE rc=7 / chain=BLOCKED_H5. AGGREGATE (STABLE) keeps
+  the wait form, bound 14400, rc=6. NO BLOCK-AND-CONTINUE PATH EXISTS ANYWHERE:
+  every guard stops the chain, so no discard fraction can compound.
+  G-STAGES: the completion line carries DECLARED=5 EXECUTED=<n> and `COMPLETE`
+  is written ONLY at rc=0 AND executed==declared.
+
+================================================================================
+4. THE CONTROLS — KNOWN POSITIVE FIRST, IN BOTH DIRECTIONS
+================================================================================
+Every block driven below was extracted VERBATIM from so3a_chain_driver.sh and
+asserted to be a byte-for-byte substring of the real file before it was driven.
+
+(4a) TWO-ARM AGG CONTROL — driver lines 171..208, verbatim substring: TRUE.
+
+  RAW KNOWN POSITIVE (defect reintroduced AND the call-site guard removed):
+    arm 1 MESH  proceeds, real JSON payload
+    arm 2 X-S   python3: can't open file '/home/ubuntu/Certonomous/{"live_caps_
+                GiB": 4.0, ... "ok": true}': [Errno 2] No such file or directory
+                -> FALSE "AGGREGATE_BLOCKED_AT_BOUND", rc=6
+    X-S_aggregate_series.txt: 4 rows, EVERY ONE NF=1 (bare timestamps)
+    THE RECORD WOULD HAVE BEEN FALSE: the first arm's own reading was
+    aggregate_GiB=17.84 against ceiling_GiB=30.6, ok=true. Nothing was blocked.
+    This reproduces the production signature of 2026-08-31 exactly.
+
+  KNOWN POSITIVE WITH THE GUARD PRESENT (defect reintroduced, guard kept):
+    arm 2 aborts IMMEDIATELY with AGG_PATH_DESTROYED_AT_CALL_SITE, rc=4, and
+    NO series file is written — no false evidence is created at all. The guard
+    converts a four-hour silent lie into an instant, correctly-named refusal.
+
+  REPAIRED (the real driver bytes):
+    arm 1 MESH  SO3A_AGGREGATE waited=0  {... aggregate_GiB: 17.84, ok: true}
+    arm 2 X-S   SO3A_AGGREGATE waited=0  {... aggregate_GiB: 17.94, ok: true}
+    both series rows NF=15. THE SECOND ARM IS THE TEST AND IT PASSES.
+
+(4b) H5 WAIT-FORM CONTROL — driver lines 148..168, verbatim substring: TRUE.
+  Floor set unreachably high (1e6 GiB) so the condition can never clear:
+    3 windows RE-TAKEN (>1 proves the window is re-taken, not one-shot)
+    2 H5_WAIT lines recorded in STATUS.MESH (proves it waited and re-polled)
+    at the bound: ABORT ... BOUND REACHED; THE CHAIN STOPS.
+    CHAIN_RC=7, chain=BLOCKED_H5 arm=MESH waited=2
+  THE EXPIRY TERMINATES NON-ZERO. It does not block-and-continue. This is the
+  behaviour W3 lacked when it lost 20 of 33 declared stages.
+
+(4c) G-STAGES CONTROL — driver lines 223..229, verbatim substring: TRUE.
+  chain_rc=0  executed=5/5 -> chain=COMPLETE
+  chain_rc=0  executed=3/5 -> chain=NOT A RESULT      <== THE W3 CASE
+  chain_rc=6  executed=2/5 -> chain=BLOCKED
+  chain_rc=7  executed=1/5 -> chain=BLOCKED
+  chain_rc=4  executed=0/5 -> chain=NOT A RESULT
+  chain_rc=3  executed=2/5 -> chain=NOT A RESULT
+  `COMPLETE` appears ONLY at rc=0 AND 5/5. The second row is the one that
+  matters: a ZERO chain rc over a TRUNCATED program yields NOT A RESULT, which
+  is exactly the state W3 covered with an unconditional PHASE1_COMPLETE.
+
+(4d) STOP MARKER — five directions, all driven through the file's own argv:
+  (1) verdict present      -> verdict=PASS      truncated=False
+  (2) grade artefact ABSENT   -> verdict=PENDING   truncated=True
+  (3) grade artefact MALFORMED -> verdict=PENDING  truncated=True
+  (4) verdict OUT OF VOCABULARY -> verdict=PENDING truncated=True/False per args
+  (5) no grade argument at all -> verdict=PENDING  truncated=True
+  FIXED ADDRESS PROVED: exactly 1 file named SO3a_STOP_MARKER.json; 0 files with
+  a timestamped variant. There is nothing to sort and therefore nothing to glob.
+  PENDING is a rule-1 token whose plain reading is NOT success; an unreadable or
+  out-of-vocabulary verdict is NEVER coerced into one of the six.
+  A malformed artefact and an absent one are recorded as DIFFERENT findings.
+
+================================================================================
+5. WHAT IS OWED, AND WHAT MUST NOT BE ASSUMED DONE
+================================================================================
+OWED, and NOT done here:
+  * rows 2, 3, 4, 5, 7 — so3a_run_arm.sh (parent 519 lines), so3a_xf.py (478),
+    so3a_grade.py (1924, THE GRADING PATH), so3a_runScript.py (252, the
+    3-scenario mphys Multipoint), so3a_groot5_selftest.sh (278).
+    Parent total for the five: 3,451 lines.
+  * The Stage-2 md5 AMENDMENT to PREREGISTRATION.md §7, with the prefix proof.
+  * The five §7 Stage-2 duties (a)-(f): the mechanical §18.3 path extraction;
+    the comparator driven under python3 AND python3 -O with ast.Assert = 0 and
+    the counter shown counting a planted assert; G-ROOT.1–.5 both directions;
+    the rule-3 planted control shown REFUSING when the plant is invisible; the
+    rule-2 condition re-checked with its own planted control.
+  * THE CPUSET PLACEMENT is NOT chosen here. §5 requires it fixed at Stage 2 and
+    disclosed against every live sibling's registered set; it belongs with
+    so3a_run_arm.sh, which does not exist. Live registered sets at this writing:
+    SO ladder cpuset 9, D4-SHIPPED 5,6,7,9, W3 cpuset 1, D6RACC2 2,3,4,14.
+
+THE DRIVER CANNOT BE FROZEN UNTIL THOSE FIVE EXIST, and the reason is structural
+rather than procedural: it md5-pins the launcher, the grader, the runScript and
+the instrument, and §18.3 forbids claiming an md5 for a file that does not exist.
+Its five pins are therefore set to a SENTINEL that FAILS CLOSED —
+MD5_UNSET=000…0, which `md5sum -c` cannot match — so the driver REFUSES TO STAGE
+rather than run against an unpinned instrument. A placeholder that PASSED would
+be the SO2a-DRIVER-DEF-1 shape. This is a deliberate fail-closed state, not an
+oversight, and the driver is NOT RUNNABLE in it BY DESIGN.
+
+NOT CLAIMED ANYWHERE IN THIS FILE: that SO-3a is queueable; that any gate has
+been exercised on real artefacts; that any solver compute was spent (ZERO was);
+that the four built files have been driven inside a container (they have not).
