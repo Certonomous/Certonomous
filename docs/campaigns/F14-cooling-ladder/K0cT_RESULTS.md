@@ -671,3 +671,121 @@ VALIDATED, and the measurement says it does not.
    over even 30 convective transits (H/V = 11.5 s each) at this mesh is several
    hundred core-minutes, more than the whole overnight ceiling. It is proposed,
    not executed.
+
+---
+
+## AMENDMENT 2026-08-31T21:21:36Z — the bare-`FAIL` cells in `gate_k0ct.json`, corrected BY THIS AMENDMENT and NOT by editing the artefact
+
+**lines whose number changed above this section: 0**
+
+Filed by a heat-transfer `lab-lane` on the supervisor's instruction, under the
+**D-5** disposition ratified by Sanaa 2026-08-24 (`docs/DOCKET.md` D496, item 3:
+*"the 3 legacy bare-`FAIL` cells are corrected to `GATE FAIL` by their owning
+teams by quote-and-strike, never rewritten"*). **This amendment changes no gate,
+no threshold, no cap, no label and no verdict.** Zero compute.
+
+### 1. THE PREMISE, VERIFIED BEFORE ANYTHING WAS TOUCHED [MEASURED]
+
+`verification/runs/F14-cooling-ladder/K0cT_runs/gate_k0ct.json` (55,976 B) does
+carry bare `FAIL`. **Quoted, not paraphrased:** `graded_rows[*].verdict` reads
+the four-character string `"FAIL"` on **8 of its 14 graded rows** (the other 6
+read `"PASS"`):
+
+| index | row | rung | quantity | deviation | band |
+|---|---|---|---|---|---|
+| 0 | R0 | lo | core stratification S (bound) | 0.220869 | 0.07 absolute |
+| 1 | R1 | lo | mid-height peak upward velocity (magnitude) | 15.9352 | 15.0 percent |
+| 2 | R3 | lo | mid-height peak downward velocity (magnitude) | 20.2253 | 15.0 percent |
+| 3 | R5 | lo | mid-width temperature at y/H = 0.30 | 1.20770 | 1.0 K |
+| 7 | R9 | hi | core stratification S | 0.140270 | 0.05 absolute |
+| 8 | R10 | hi | mid-height peak upward velocity (magnitude) | 16.3758 | 15.0 percent |
+| 9 | R12 | hi | mid-height peak downward velocity (magnitude) | 16.9980 | 15.0 percent |
+| 10 | R14 | hi | mid-width temperature at y/H = 0.30 | 2.02888 | 2.0 K |
+
+**THE CORRECTION, STATED HERE AND NOWHERE ELSE: each of those eight cells is to
+be read as `GATE FAIL`.** The prose of this record was already correct — `:19`
+reads **"GATE FAIL. 8 of 18 graded rows failed."** — so **the record and the
+artefact do not disagree about the physics or about the count of failures; they
+disagree only about the spelling of the label**, and the record's spelling
+governs.
+
+### 2. ROUTE TAKEN — THE AMENDMENT, AND THE JSON IS LEFT BYTE-UNTOUCHED. FOUR REASONS, EACH MEASURED
+
+The brief offered two routes: add a sibling key preserving the original
+(`verdict_as_originally_written`) beside a corrected `verdict`, **or** leave the
+JSON alone and correct it here. **The amendment route was taken.** The reasons
+are not stylistic:
+
+**(a) THE FILE IS NOT A LEDGER CELL. IT IS THE DETERMINISTIC OUTPUT OF A FROZEN
+COMPARATOR, AND EDITING IT DESYNCHRONISES THE ARTEFACT FROM ITS GENERATOR.**
+`K0cT_runs/analyse_k0ct.py` **writes** this file (`:1234`) and hard-codes the
+bare literal `"FAIL"` at `:644`, `:645`, `:646`, `:779`, `:876`, `:943`, `:995`,
+counting `r["verdict"] == "FAIL"` at `:1135` and `:1237`. **Any re-run of the
+comparator regenerates bare `FAIL` and silently reverts a hand-edit** — the
+correction would evaporate without a trace and without an error. The comparator
+is a frozen instrument and rule 6 forbids editing it, so there is **no** edit to
+the JSON that survives its own generator.
+
+**(b) THERE ARE 73 BARE `FAIL` STRINGS IN THE FILE, NOT 8 — AND CORRECTING ONLY
+THE 8 WOULD MAKE IT INTERNALLY INCONSISTENT.** [MEASURED: 73 exact-match `"FAIL"`
+values, 1 occurrence of `GATE FAIL`, by full recursive walk.] The other 65 sit in
+`cases/*/convergence/criterion_{a,b,c}_*` (7), the C1/C2 control verdicts (2),
+and **56 inside the C3 mutation control** as `base_verdict`, `regraded_verdict`
+and — decisively — **`required`**. **`required` is the mutation control's
+REGISTERED EXPECTED VALUE.** Rewriting it edits what a planted control is
+entitled to expect; leaving it while rewriting `verdict` makes the control
+compare a corrected string against an uncorrected expectation. **Neither branch
+is safe, and that is the argument against touching the file at all.**
+
+**(c) FOUR SCRIPTS READ THIS FILE AND ADDING A KEY CHANGES ITS SHAPE.** Measured
+consumers: `K0cT_runs/regrade_nusselt.py:77` (reads it as `EXECUTED`; its own
+verdict test at `:211` is `!= "PASS"`, and it already emits the correct
+`"GATE FAIL"` at `:142`), `K0cX_runs/report_diagnostics.py:42`,
+`scripts/check_row_discrimination.py:162` (iterates `graded_rows`, and defines
+`FAIL = "GATE FAIL"` at its own `:125`), and `analyse_k0ct.py` as generator.
+**None of them requires the JSON to change for the corrected label to be the
+lab's reading**, because the reading now lives here.
+
+**(d) D-5's CLOSED SCOPE NAMES THREE CELLS, AND THIS FILE IS NOT ONE OF THEM.**
+D-5's corpus is the markdown verdict-cell corpus that `scripts/check_verdict_cells.py`
+enumerates — `demo-output/website/campaign/*.md` (`:270`) against the ledger
+`LADDER_V_TRIPLE_VERIFICATION.md` (`:78`) — and its three legacy cells are named
+in D472 as **V5:1070, V14:1080, V15:1081**. **`gate_k0ct.json` is a machine
+artefact and appears in that corpus nowhere.** Applying D-5 here is therefore an
+**extension by analogy of a ruling Sanaa closed on three named cells**, not an
+execution of it. **Under rule 9 that extension is not this lane's to make
+silently**, so it is made **visibly, in a record, and reversibly** — which is
+exactly what an amendment is and what a mutated artefact is not. **D-5's own
+method — quote-and-strike, never rewrite — a JSON cannot carry**; this section is
+the quote and the strike.
+
+### 3. A SECOND DISCREPANCY FOUND WHILE VERIFYING THE FIRST — REPORTED, NOT FIXED
+
+**This record's `:19` says "8 of 18 graded rows failed"; the artefact says 14
+graded rows.** [MEASURED: `graded_rows` n = **14** — 8 `FAIL`, 6 `PASS` — plus a
+separate `reported_never_graded` list of n = **4**: R2, R4, R11, R13, the four
+peak-*location* rows, each carrying `verdict: "PASS"`.] **14 + 4 = 18.** So the
+prose reaches 18 by folding the four never-graded rows into the graded
+denominator and counting them among its "**PASS** ×10", while the artefact
+explicitly holds them out.
+
+**This is the same defect the sibling record has already corrected on itself** —
+`K0c_RESULTS.md:546` now reads *"0 of 20 GRADED rows failed, with 4 identity rows
+reported and counted toward nothing"*. **The direction of the error is
+UNFAVOURABLE to this rung's headline in the honest direction**: the true graded
+failure rate is **8 of 14 (57.1 %)**, not 8 of 18 (44.4 %).
+
+**IT IS NOT CORRECTED HERE, and deliberately so:** the count in `:19` sits inside
+this record's **Verdict** section, and changing a verdict figure is not a lane's
+call under rule 2's post-compute discipline. **It is referred to the
+heat-transfer supervisor.** The verdict word itself — `GATE FAIL` — is unaffected
+either way: 8 failures out of any denominator is a `GATE FAIL`.
+
+### 4. WHAT THIS AMENDMENT DOES NOT DO
+
+It does not edit `gate_k0ct.json` (verified byte-unchanged and clean against
+HEAD at the time of writing), does not edit `analyse_k0ct.py`, does not re-run
+any comparator, does not alter the rung's `GATE FAIL` verdict, and does not
+correct the `:19` denominator. **It records one thing: the eight
+`graded_rows[*].verdict` cells reading bare `FAIL` are to be read as
+`GATE FAIL`.**
