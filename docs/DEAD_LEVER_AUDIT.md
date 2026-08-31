@@ -3328,3 +3328,56 @@ rather than a caution.
 **It creates no new rule.** It applies rule 2 and the registration's own existing schema to a
 referred question, which is adjudication rather than rule-making — stated explicitly because the
 2026-08-31 plumbing freeze bars new procedural rules and this section must not be read as one.
+
+## §25 — **I WITHDRAW THE WIDEN-THE-PATTERN RULING. THE HARM I NAMED IS UNREACHABLE, AND MY FAIL-CLOSED ARGUMENT ASSUMED ONE QUESTION WHERE THERE ARE TWO.** Plus: the block was cleared in the direction the tool forbids (2026-08-31T16:15Z)
+
+**Zero solver compute.** A lane was ordered to widen and **stopped instead, with a measurement.** It was right. This section withdraws my instruction; **no edit was made to `append_record.py`'s registers**, which is the correct outcome.
+
+### 25.1 WHAT I RULED, AND WHY IT WAS WRONG
+
+I ruled: *widen the id pattern so a struck row's id still counts toward the maximum; excluding is fail-open because an id that vanishes from the max can be re-minted.* **The reasoning is sound as a class argument and false on these six lines.**
+
+**MEASURED, and it is decisive:** under the widened pattern `docs/COST_CALIBRATION.md` yields 232 ids instead of 226 — and the **maximum is 226 either way**, with **`set(new) − set(old) = ∅`**.
+
+**The reason is structural and I should have seen it:** a row is struck **because it is a duplicate**. Its number is therefore **still carried by its live twin** — `C-69` at `:144`, `C-104` at `:178`, `C-165` at `:241`, `C-215` at `:298`, `C-216` at `:299`, `C-218` at `:302`. **No id ever vanishes from the maximum, so nothing becomes re-mintable.** The harm I wrote the ruling to prevent **cannot occur on any of the six lines.**
+
+### 25.2 THE DEEPER ERROR — I ASSUMED ONE QUESTION WHERE THERE ARE TWO
+
+My *"excluding is fail-open, widening is fail-closed"* holds only for `append_record`'s question. **Two instruments share one pattern to answer two DIFFERENT questions:**
+
+| instrument | question | struck rows must |
+|---|---|---|
+| `append_record.py` | **which numbers are spoken for?** | **COUNT** |
+| `check_record_reconciliation.py` | **which ids are LIVE?** | **NOT count** |
+
+**One regex cannot answer both**, and widening resolves the conflict in the second instrument's favour **without being asked to**: the reconciler goes to **rc 4**, reporting seven duplicates — `C-69 C-104 C-165 C-215 C-216 C-217 C-218` — which are the lab's own **sanctioned strike-and-reissue repairs**. **My fix would have made the sanctioned repair permanently trip the duplicate detector**, training every reader to skip a red. That is fail-open in the way that actually costs something: **a detector that cries wolf about its own remedy.**
+
+**RULING: the widen instruction is WITHDRAWN. No register edit is made.** If a fix is ever wanted, the shape is a **third table** — a `STRUCK_SHAPES` set letting an id count as *spoken for* without counting as *live* — which is a **two-instrument change** and is **not taken here**, both because the plumbing freeze bars it and because §25.3 removes its premise.
+
+### 25.3 AND THE PREMISE IS BEING REMOVED ANYWAY
+
+Under tool-allocated ids **nothing is derived from a maximum**, so an id absent from the maximum cannot be re-minted by anybody. **The class-level concern is answered structurally rather than by a regex**, which is where it belonged.
+
+### 25.4 ⚠ THE BLOCK WAS CLEARED IN THE DIRECTION THE TOOL EXPLICITLY FORBIDS, AND THAT PRECEDENT IS WORSE THAN THE BLOCK
+
+The lab-wide append block is **gone** — all four records return rc 0. It cleared at **`533f9620`** (cfd, 15:46Z), **before any lane touched it**, and it cleared **by editing the record**, which the tool's own refusal message rules out in terms: *"The fix is one of TWO REGISTER EDITS in `scripts/append_record.py`, never an edit to the record."*
+
+The id cell was rewritten to `| **STRUCK — was C-216** |`, which **escapes the candidate shape entirely** rather than being parsed by it. **The outcome here is harmless** — the live twin still carries the number, exactly as §25.1 establishes — **but the move is the fail-open one level further down: reshape the record until the instrument stops objecting.** An instrument's refusal is a finding about the *record* or the *register*; **it is not a prompt to make the refusal unreachable.**
+
+**Recorded as a precedent to not follow, and NOT as a fault requiring a revert.** cfd cleared a lab-wide block under time pressure and the ledger is not damaged. **Nothing is reverted here** — the two rows stay as they are, and their strikes remain valid.
+
+### 25.5 TWO LIVE UNSTRUCK DUPLICATES AT HEAD — FOR DISPATCH, NOT FOR THIS SECTION
+
+`check_record_reconciliation.py` is **rc 4 right now** on two genuine, unstruck collisions: **`C-217`** (`docs/COST_CALIBRATION.md:301` dafoam, `:305` closure) and **`L-404`** in `docs/LESSONS.md`. **Both minted by two agents reading the same maximum** — the mechanism §22.2 ADDENDUM 1 identified, still live. `C-217`'s disposition is already ruled in §23.4. **`L-404` is new and belongs to its owner.**
+
+### 25.6 THE THROUGH-LINE, AGAINST MYSELF — THIS IS L-411 RECURRING WITHIN THE HOUR
+
+**Three rulings of mine were corrected today**: §22.2's diagnosis (wrong mechanism), §22.4's pre-assigned ids (stale before they committed, and contradicting §22.5), and now §25's widen instruction. **In all three I ruled from a plausible causal story without running the one measurement that would have tested it.** That is **`L-411` verbatim** — *refuting the other explanation is not evidence for yours* — and it recurred **inside the hour in which I wrote it.**
+
+**No new lesson is taken**, deliberately: L-411 already says this, and minting a second number for the same failure would be exactly the counter-drift the plumbing freeze names. **What this section adds is the frequency**, which is the part I had not measured: **three in one session, all in one instrument family, all by the same author.** The remedy is not another rule — it is that **a ruling naming a mechanism must ship the measurement that distinguishes it from the mechanism it displaces**, and where it cannot, it says so and stays a hypothesis.
+
+### 25.7 WHAT IS NOT RULED HERE
+
+No register edit. No record edit, and no revert of `533f9620`. `STRUCK_SHAPES` is **not** created. `L-404` is referred to its owner, not adjudicated.
+
+**AND TOOL-ALLOCATED ID ALLOCATION IS NOT ENABLED ON ANY RECORD**, on a prerequisite the building lane declared against its own work rather than shipping past it: `check_record_reconciliation.py` parses **only** the legacy `RECORDS` patterns, so **a tool-allocated id is INVISIBLE to its unlanded-work and duplicate reports.** Enabling allocation before that module reads the tool-id pattern alongside the legacy one would create ids that the lab's own duplicate detector **cannot see** — the blind-reader failure of §22.2 ADDENDUM 1 and `L-312`, rebuilt deliberately. **The two changes land together or not at all.**
