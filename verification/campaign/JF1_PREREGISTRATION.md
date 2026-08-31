@@ -1,12 +1,86 @@
 # JF1 — JET-FLAP AIRFOIL, PRIMAL FAMILY — PRE-REGISTRATION
 
-## *** UNFROZEN DRAFT — NOT A PRE-REGISTRATION UNTIL THE SUPERVISOR FREEZES IT ***
+## *** FROZEN — 10-LINE TEMPLATE. Status at freeze: ARMED — never run. ***
 
-**Status: UNFROZEN DRAFT. Verdict: PENDING.**
-**No compute has been launched against this document and none may be until the
-cfd-supervisor has performed the non-delegable check 4 of `SUPERVISION_CHARTER.md`
-§3 (pre-registration committed before compute) and stamped this file FROZEN with
-the freezing commit sha.**
+**Frozen by the commit that carries this file**, 2026-08-31T15:29Z, by `cfd-supervisor`
+personally under `SUPERVISION_CHARTER.md` §3 check 4, **under Sanaa's FREEZE CLOCK**
+(`etc/sessions/2026-08-31T1513Z_sanaa_freeze_clock_and_so3_ruling.md`, commit `927924f1`):
+*"Freeze in 10-line template form within 4 hours; anything a draft still 'needs' after that
+becomes a W-3 amendment after first fields exist."* Clock started 15:14Z; **frozen at 15:29Z,
+inside 15 minutes of it, and — deliberately — BEFORE the first feasibility field exists.**
+
+### THE TEN LINES. These are the frozen gates. Everything else in this document is supporting material and is amendable as a W-3 addendum after first fields.
+
+| # | gate | threshold | label if outside |
+|---|---|---|---|
+| 1 | **V — unblown NACA 0012 regression** | *(none — see line 10)* | **`BLOCKED`** |
+| 2 | **G — Roache triple on `CL_total`**, L1/L2/L3, `Fs = 1.25` | observed **`p ∈ [1.3, 2.5]`** | `GATE FAIL` |
+| 3 | **G — grid convergence index** | **`GCI_fine < 3 %`**, `f_1 = L3` (fine), `f_3 = L1` (coarse) | `GATE FAIL` |
+| 4 | **THEORY (a) — `CL_total(C_mu)`** at α = 0, τ = π/6, `C_mu ∈ {0.05, 0.1, 0.2}` | **≤ 15 %** vs Williams/Butler/Wood, series **INSIDE** the root with `4πC_μ′` | `GATE FAIL` |
+| 5 | **THEORY (b) — `dCL/dα`** at `C_mu = 0.1` | **≤ 15 %** | `GATE FAIL` |
+| 6 | **Physicality — jet mass flow** through `jetSlot` vs `ρ h V_j` | **≤ 0.5 %** | `NOT A RESULT` |
+| 7 | **Physicality — near-wall resolution** | **`max(y+) ≤ 1`** on every gated level | `NOT A RESULT` |
+| 8 | **Physicality — continuity** `sum local` | **`< 1e-6`** (see ruling O6 below) | `NOT A RESULT` |
+| 9 | **Cost cap** | **300 core-min**, Sanaa's number, unmoved | overrun **stops the run**, `STATUS` written, artifacts preserved |
+| 10 | **Verdict vocabulary** | `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING` only | — |
+
+**Rule 5 ordering is one-way and binds every row:** a triple that is not `CONVERGING` is
+`NOT A RESULT` whatever its value; the gate may turn a `PASS` or `GATE FAIL` **into**
+`NOT A RESULT` and **never** the reverse. No GCI is quoted on a non-monotone triple.
+
+### CHECK 4, PERFORMED PERSONALLY AT 15:29:46Z — re-derived on disk, not recalled
+
+`verification/runs/JF1*` **absent**; **0** `JF1` entries across all six team queues; **no
+`log.*`** anywhere in `cases/JF1_JET_FLAP/`; **no solver process running**; the single time
+directory is `0/`, the initial condition, **not a field**. **No compute has produced a
+result against this document.**
+
+### ⚠ WHY THIS WAS FROZEN AHEAD OF THE FEASIBILITY SOLVE, AND IT IS THE WHOLE POINT
+
+The drafting lane raised the sharpest question of this case: **rule 2 closes gates at *first
+compute*, not first *gated* compute**, so a feasibility field could be argued to have closed
+this window — *"the single most likely way this case repeats `F23b`."* Sanaa has ruled that
+feasibility rungs need no freeze and that gates score nothing on them, and that ruling
+governs. **I have not resolved that tension by argument. I have removed it.** Freezing before
+any field exists means the question cannot arise: whatever "first compute" means, **this
+freeze precedes it.** `F23b` died because a threshold became unamendable the moment a solver
+ran. That will not happen here.
+
+### FOUR SUPERVISOR RULINGS, MADE AT FREEZE, RECORDED WITH THEIR AUTHOR
+
+- **O4 — gate V is `BLOCKED`** (line 1). The only candidate comparand sits at **y+ = 9.664, a
+  wall-function solution**, against this case's y+ ≤ 1 with no wall functions. **A different
+  wall treatment is a different mesh family**, so it cannot supply the same-family regression
+  §1.5 asks for — decisive before that record's other weaknesses. **No comparand was
+  manufactured.** The absence is registered as **FINDING JF1-V1**, a coverage gap in this lab.
+- **O6 — continuity is gated at `1e-6`, NOT at `1e-8`** (line 8). The lane could not derive
+  `1e-8` from this document's own arithmetic or from any artifact — it rests on general
+  practice — **and L-409 is precisely about gating on a number you cannot derive.** `1e-6` is
+  defensible as *unambiguously not converged*. **The actual value is REPORTED on every row**
+  (the exemplar predicts 3.0e-09), and a tighter expectation is recorded as an expectation,
+  never as a gate.
+- **O3 — branch B plus the S2 sensitivity** (option C). A **22.36×** freestream-`nut` choice
+  defended only by argument is the first thing any reader will challenge; at **11.36
+  core-min, 3.8 % of the cap**, it can simply be measured instead.
+- **O7 — cap stays at Sanaa's 300.** Registered total **282.00 core-min** with S2, slack
+  18.00; **$0.2314 `[DERIVED]`, not measured.** If the single L3 run needs a re-run, gate G
+  goes **`BLOCKED` on budget and escalates** — it does not silently consume a reserve that
+  does not exist.
+
+### TWO DEPARTURES DISCLOSED TO SANAA RATHER THAN ABSORBED
+
+1. **Cell counts are 13.3–14.1 % above her §1.3 targets** — 46 180 / 86 638 / 161 006 against
+   ~40k / ~75k / ~140k. Her `~` marks a target; her §1.4 *"no wall functions — the jet/BL
+   interaction is the physics"* makes **`max(y+) ≤ 1` a gate**. A gate beats a target, so the
+   mesh grew. **If she reads those counts as binding, the constraint set is not simultaneously
+   satisfiable and this case is `BLOCKED` — that is her call, not mine.**
+2. **Her remembered theory formula is wrong in its grouping**, not its constants. 0.151 /
+   0.139 / 0.219 are all correct, but the series sits **inside** the square root with
+   `4πC_μ′`; her form is high by `√S` — **+2.02 / +3.04 / +4.66 / +7.29 %** at
+   `C_mu = 0.05 / 0.1 / 0.2 / 0.4`. A constants-only check returns "all three correct" and
+   freezes a one-signed, growing bias into the gate. **The corrected grouping is what is
+   frozen at line 4.**
+
 **No queue entry exists. No run root exists. No solver has been started.**
 **Until the FROZEN stamp is present, every gate, threshold, band, cap and label
 below is a PROPOSAL and is amendable under rule 2's pre-compute amendment
