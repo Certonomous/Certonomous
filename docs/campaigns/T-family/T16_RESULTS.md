@@ -213,3 +213,111 @@ believed.
   (rule 7).
 - Ledger row: `docs/COST_CALIBRATION.md`, id assigned at commit from the tail
   maximum row-opener.
+
+---
+
+## Amendment 1 — 2026-08-31, heat-transfer lane — TWO STATEMENTS ABOVE HAVE GONE STALE, AND ONE OF THEM IS A VERDICT THIS LANE MAY NOT MOVE
+
+**Document version 1.0 → 1.1.** Appended at the foot; **nothing above this
+section was edited. `lines whose number changed above this section: 0`** —
+verified mechanically, not asserted: everything above was byte-compared against
+`git show HEAD:docs/campaigns/T-family/T16_RESULTS.md` in the same shell
+invocation as this write, and the 215 lines above are unchanged.
+
+**No gate, threshold, cap or label is altered by this amendment, and NO T16
+VALUE IS COMPUTED HERE.** The comparator `analyse_t16.py` was not executed, no
+`gate_t16*.json` was written or read, and a sweep of the repository confirms no
+such file exists anywhere. T16c's comparator blindness is intact and this
+amendment does not disturb it.
+
+### (a) The level count at `:7` is stale — ALL THREE levels have landed
+
+`:7` reads, and is left standing as written:
+
+> ~~**Rung verdict at this writing: `PENDING`.** One of three levels has landed.~~
+
+That was true at 2026-08-27T18:45Z. It is no longer. All three levels of the
+ladder are now complete on their own artifacts:
+
+| level | `rc` | `wall_s` | `core_min` | `note` | last time / `endTime` | DONE marker written |
+|---|---|---|---|---|---|---|
+| `T16_MC_c` | 0 | 744 | 12.400 | clean | 10000 / 10000 | `DONE.T16_MC_c`, 2026-08-27 19:18:24 |
+| `T16_MC_m` | 0 | 13405 | 223.417 | clean | 20000 / 20000 | `DONE.T16_MC_m`, 2026-08-27 21:28:30 |
+| `T16_MC_f` | 0 | 129117 | 2151.950 | clean | 40000 / 40000 | `DONE.T16_MC_f`, 2026-08-30 23:19:00 |
+
+Read from `verification/runs/T-family/T16_runs/STATUS.T16_MC_{c,m,f}` and the
+three `DONE.T16_MC_{c,m,f}` files in the same directory. §3's table above — which
+recorded `T16_MC_m` as RUNNING at time `2000` and `T16_MC_f` as not launched — is
+superseded by this row set and is likewise left standing as the record of what
+was true when it was written.
+
+**A three-level ladder now exists where §3 said none did.** This amendment does
+**not** convert that into a Roache triple: a triple is a graded object, and
+grading it means running the frozen comparator, which has not been done.
+
+### (b) The `BLOCKED` condition at `:11` was lifted — by the repaired marker, with a chain of custody
+
+`:11` reads, and is left standing as written:
+
+> ~~**Case verdict, `T16_MC_c`: `BLOCKED`.**~~ The run satisfies all six limbs of the
+> strict completion rule on a direct reading of its artifacts, and the rung's own
+> registered marker — the only instrument entitled to write its DONE — **refuses
+> it (exit 2) on a false-positive crash token.**
+
+**The condition that produced that block no longer holds.** §4 above records
+that the frozen `mark_done_t16.py` refused every T16 case on the `trapFpe`
+start-up banner. That marker was repaired on the supervisor's ruling and
+committed at **`5bcbaf8c`**. The repaired instrument then wrote the marker §4
+said could never be written:
+
+- `verification/runs/T-family/T16_runs/DONE.T16_MC_c` exists, dated
+  **2026-08-27 19:18:24** — after this document's 18:45Z writing — and its
+  content reads `strict rule met on the PHYSICS-CRITICAL conjuncts P1-P5`.
+- Chain of custody on the instrument: `mark_done_t16.py` on disk hashes
+  `efcf78524dc4f853202cf24dd08c733d7742ac67`, which is byte-identical to both
+  the blob at `5bcbaf8c` and the blob at current `HEAD`. The file that wrote
+  the marker is the file that was committed as the repair.
+- The repaired marker carries the control whose absence §4 identified as the
+  deeper defect: a **positive control presenting a real clean OpenFOAM 2606
+  banner including the `trapFpe` line**, which the reader must PASS, standing
+  beside the planted crash it must refuse.
+
+**THE CASE VERDICT WORD AT `:11` IS DELIBERATELY NOT CHANGED BY THIS LANE.**
+What is recorded here is the *lift of the condition* and the artifact that proves
+it. Whether `T16_MC_c`'s verdict is now something other than `BLOCKED` is the
+heat-transfer supervisor's ruling and is reserved to them; this lane is not
+entitled to move a verdict and has not.
+
+The cause class is untouched. `:13-14` already assigns it — the block was an
+instrument defect, not a property of the run — and this amendment neither
+restates nor revisits that assignment.
+
+### THE RE-GRADE IS OWED AND WAS NOT PERFORMED HERE
+
+Three levels landing does not produce a verdict. Under standing rule 5 a row is
+gated only through the frozen comparator, on a triple whose convergence
+behaviour that comparator classifies; and under rule 3 the planted-zero controls
+§7 above records as **owed** are still owed — §7's statement that no zero in this
+record rests on an unestablished reader remains true precisely because this
+amendment computes nothing.
+
+**Outstanding, and none of it done here:** run the frozen `analyse_t16.py` over
+the completed triple; take the planted-zero controls before any row is believed;
+classify the triple; and only then gate. A rung verdict quoted before that
+sequence would be an assertion, not a result.
+
+### Also stale, disclosed but NOT altered
+
+The document **title at `:1`** carries `PARTIAL` and the same `BLOCKED` word for
+`T16_MC_c`. It is stale by the same two facts recorded above. It is a verdict
+line and is left exactly as written for the supervisor, flagged here only so that
+a reader arriving at the title is not misled about the state of the tree.
+
+### Disclosures
+
+- No frozen file was edited (rule 6); nothing above was rewritten in place; both
+  superseded statements are quoted and struck rather than replaced.
+- No solver was launched, no comparator was executed, no T16 value was computed,
+  and nothing was placed in `verification/queue/`.
+- Nothing was sent, filed, uploaded, posted or registered outside this box
+  (rule 7).
