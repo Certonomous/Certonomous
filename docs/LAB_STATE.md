@@ -19294,6 +19294,58 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T18:1xZ — **VMFL006 IS `NOT A RESULT` ON A CLAUSE DEFECT, NOT A SOLVE DEFECT — ITS PHYSICS WOULD HAVE PASSED 10.9× INSIDE THE BAND. ITS ROW COLLIDED WITH #44 AND I CAUGHT IT. BOTH ROUTED LAUNCHER DEFECTS COME BACK NEGATIVE, DRIVEN RATHER THAN ASSERTED.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+#### VMFL006 — `NOT A RESULT`, ROW **#49**
+
+**The solve is clean and the registration is what failed.** Every L3 station is inside the 1 % band, **worst 0.09162 % — 10.9× inside** — on a `CONVERGING` triple (p = 0.6770, GCI 0.032 % against a 1 % ceiling). **The frozen convergence clause is JOINTLY UNSATISFIABLE on this run:** L1 and L2 drive the T residual to the double-precision floor (**8.87e-15 / 9.99e-15**) and go **exactly flat**, tripping a NULL-RANGE refusal, while **L3 is still descending at `endTime` and never reaches `RES_FLOOR = 1e-9`.** No level can satisfy both limbs. **The comparator REFUSED (exit 2) rather than degrade, which is precisely what it is for**, and the lane did not edit the frozen clause.
+
+Controls: reference reproduction **2.383599e-06** against a 1e-5 tolerance; AST guard live on the disk bytes; **the plant fires undiluted at all three levels when invoked directly.** It registered zero on the graded path only because the refusal preceded the plant loop — **a different thing from the L1-only weakness of rows #44/#46, and the lane said so rather than letting the zero read as coverage.**
+
+**Cost 1.633 core-min MEASURED** inside a 0.8–8.4 EXTRAPOLATED bracket, cap 18. **Freeze `e28a6a29` 17:16:25Z vs earliest run-root byte 17:18:52Z = +147 s**, root absent at the freeze, four frozen files identical on disk/freeze/HEAD — all checked by me. **The §12 caveat rides the row: git cannot prove `TOL = 0.01` predates the first VMFL006 field, and the 6.8561 %-off smoke is an argument from direction, NOT proof.**
+
+#### THE ROW COLLIDED AT 44, AND THE ROOT CAUSE IS RULE 11 AT ITS PUREST
+
+The row was appended as **44 — already VMFL063's.** **The register carries TWO id formats: 44 rows as `| **N** |` and 9 as `| **#N** |`**, and the lane's scan matched only the no-hash form, returning max 43 when the **true max across both is 48**. Fixed in **`25a5cdc2`**: VMFL006 renumbered to **`#49`**, hash format so the new id joins the sequence carrying the tail rather than splitting it at exactly the point the next lane reads. **49 rows, 49 distinct ids, 1–49, no gaps, no repeats.** VMFL063's `#44` untouched and byte-identical; lines 1–757 SHA-256 unchanged. 27 insertions, 1 deletion, **zero file deletions**.
+
+> **THE FINDING, IN THE LANE'S OWN WORDS AND BETTER THAN MY FRAMING: *A MAXIMUM IS ONLY AS TRUE AS THE PATTERN THAT ENUMERATES THE POPULATION.*** Rule 11 was obeyed **arithmetically** — maximum, not count — and broken **in its reading**, because the scan's idea of "existing" was narrower than the file's. **No rule and no tool is spawned; the 14-day freeze holds.** Sanaa's 2026-08-31 timestamp+hash ids are immune by construction and **this register's row ids have not migrated to them.**
+
+#### **A LANE OVERRODE AN INSTRUCTION OF MINE AND WAS RIGHT — THE SHARPEST CORRECTION OF THE DAY**
+
+I ordered **"strike, never rewrite"** on the id cell. **Followed literally, THAT WOULD HAVE LEFT TWO 44s STANDING** — a struck id still reads as that id, because only the first cell counts and it must actually **change**. **That is exactly what went wrong on 2026-08-27.** The lane changed the id and put the strike **beside** it as the audit trail, in the form this file already uses (`~~formerly C-182~~ **STRUCK AND RENUMBERED to C-203**`). **My rule was right in general and wrong in that position, and the lane knew the difference.**
+
+It also **declined an edit I had authorised**: I told it to correct `RESULTS.md` if it cited row 44. It checked instead of assuming — the only `44` there is a cross-reference to VMFL063 in *"not the row-#44/#46 L1-only weakness"*, **correct as written; editing it would have INTRODUCED an error.** A lane that refuses a sanctioned edit because the edit is wrong is worth more than one that performs it.
+
+#### BOTH ROUTED LAUNCHER DEFECTS: **NEGATIVE — AND MY OWN SWEEP UNDER-COUNTED**
+
+**DEFECT 1, the `__` placeholder guard — LATENT, NOT LIVE.** Enumerated: **6 BARE** (`VMFL076:156/157`, `VMFL076-R2:204/205`, `VMFLGPU001:541`, `VMFLGPU001-R2:614`, `VMFLGPU002:679`, `VMFLGPU003:695`), **9 UNTERMINATED**, ~22 TERMINATED. **My own sweep gave 2 bare and 5 unterminated — I under-counted both, and the lane extended it.**
+
+**DRIVEN, NOT ASSERTED, exactly as ordered.** Generating VMFL076's dicts with the launcher's own sed: correct file → **guard silent**; a skipped `__GY__` → **guard fires correctly**; an injected `// __fast__` comment → would fire, **but no template carries one.**
+
+**THE DECISIVE MEASUREMENT, and it is the discriminator cfd's case turned on:** several of our templates **DO** carry `__TOKEN__` inside comments (`VMFLGPU003:14`, `VMFL063:16`, `VMFL038:21`, `VMFL045:43`, `VMFL019:3`, `VMFL036:13`) — **but every one of those commented tokens is itself in that launcher's global `sed …/g` set, so the comment is rewritten to a number BEFORE the guard runs.** A programmatic cross-check of every template token against every launcher's sed set found **zero un-substituted survivors**. **So the real discriminator is not the grep pattern — it is whether the template's commented tokens are in the substitution set.** cfd's F28 was armed because its header comment carried a **non-substitutable** `__`; ours are not armed at all.
+
+**Repairable-and-defective: ZERO. Every guarded case is frozen with a computed run root.** Adding both-direction controls to a guard that is not broken would be a **rule-2/rule-6 edit for a cosmetic number**, and it was correctly not done. **Nothing edited, nothing committed, zero compute.**
+
+**DEFECT 2, `writeFields` mandatory-in-source — ABSENT COUNT ZERO.** **66 `fieldValue` function objects across the territory; 66 carry `writeFields`; 0 absent.** **VMFL006's 20 (`mixCup_x01..x10`, `flux_x01..x10`) are the positive control** — they carry it and the case ran today. VMFL038's `wallShearStress` is not a `fieldValue` FO and correctly carries no requirement. **No case would MPI_ABORT at construction from this cause on its next launch. No live blocker.**
+
+**FORWARD REQUIREMENT, recorded and NOT minted as a rule:** every NEW launcher this team writes uses the **value-position discriminator**, and no template comment carries a token outside its own sed set. The frozen ones are left alone.
+
+#### STATE
+
+**Commits:** `9f7056d7`, `cf132138`, `e28a6a29`, `4a3f1387`, `6ba99979`, `3f957bdd`, `a6e0ce56`, `d2b89ab5`, `851e5c9c` (VMFL006 graded), `25a5cdc2` (row collision), + this board.
+
+**Live.** No ansys solver. No lane. **Queue 0.**
+
+**Rungs without verdicts.** VMFLGPU006 blocked on evidence; VMFLGPU004 `BLOCKED` (#41); VMFLGPU008/009/010 untouched. **No completed ansys run is ungraded.**
+
+**FREEZE-AHEAD 0** against Sanaa's floor of 3. **THREE OF TODAY'S FOUR GRADED CASES RETURNED `NOT A RESULT`, AND EVERY ONE WAS A REGISTRATION DEFECT RATHER THAN A SOLVER FAILURE** — VMFL038's anisotropic triple, VMFL006's jointly-unsatisfiable convergence clause, and R1s before them. **That is the freeze-ahead answer: VMFL038-R2 (uniform refinement in BOTH directions) and VMFL006-R2 (a convergence clause that a run reaching the double-precision floor can actually satisfy) are the two obvious next registrations, and both are cheap — 7.75 and 1.633 core-min measured.**
+
+**On Sanaa's desk (six)**, plus: the runner-cap `ENFORCE` misstatement (cross-team, from my own brief); **`scripts/append_record.py` uncommitted with the HEAD version unable to import — the ledger at HEAD cannot be reproduced from HEAD**; the C-id doctrine conflict; and foreign staged index state (50 file deletions) needing an owner.
+
+**VERIFY (stated rather than filled in):** whether ANY tool parses this register's row ids — the `~~`-tolerance precedent was measured against the calibration ledger's checker, **not this file**; and per-launcher frozen-blob attestation, which the audit established from run roots and freeze commits rather than by hashing each file.
+
 ### 2026-08-31T17:4xZ — **VMFL033-R2 IS A `PASS` — THE EIGHTH CREDENTIAL. VMFL038 IS `NOT A RESULT`. I REJECTED TWO LANE REPORTS FOR CONTRADICTING "FACTS I ESTABLISHED PERSONALLY" AND ON BOTH COUNTS THE LANE WAS RIGHT AND MY FACT HAD EXPIRED.**
 
 **Written by `ansys-verification-supervisor` personally. Every check in §1 is mine.**
