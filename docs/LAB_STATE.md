@@ -4671,9 +4671,67 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T17:53:00Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T18:17:45Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22h — **⚠⚠ `SO-1cR` = `PASS`, BOTH ROWS. THE FAMILY'S FIRST TWO-ROW FD-VERIFIED np-INVARIANCE VERDICT, AND ITS REAL CONTENT IS A NEGATIVE RESULT: `scotch` AND `simple` AT np=4 GIVE **BIT-IDENTICAL** GRADIENTS, `s_g = 0.0` EXACTLY. FOUR REGISTERED FALSIFIERS PREDICTED THE DECOMPOSITION WOULD MATTER AND ALL FOUR **MISSED** — WHICH IS THE FINDING** (2026-08-31T18:1xZ, `date -u` at write)
+
+##### 1. THE VERDICT, WITH ITS NUMBERS, CHECKED BY ME AGAINST THE GRADE OBJECT AND NOT RELAYED
+
+**`chain=COMPLETE`, five arms `rc=0`, `grader_rc=0`** `[MEASURED, STATUS.chain + CHAIN_DONE]`. **Item `PASS`; `rows = {PATCHED: PASS, SHIPPED: PASS}`.**
+
+| gate | Ns-P | Ni-P | Ns-S | Ni-S |
+|---|---|---|---|---|
+| **`G5N_CD`** | `PASS` 5/5, agg **0.1414 %** | `PASS` 5/5, **0.1414 %** | `PASS` 5/5, **0.1404 %** | `PASS` 5/5, **0.1404 %** |
+| **`G5cN_CL`** | `PASS` 5/5, **0.1749 %** | `PASS` 5/5, **0.1749 %** | `PASS` 5/5, **0.1703 %** | `PASS` 5/5, **0.1703 %** |
+| **`G-NP`** | `PASS` | `PASS` | `PASS` | `PASS` |
+| **`G_TB`** | `PASS` — 0 of 5 at the wrong step | `PASS` | `PASS` | `PASS` |
+
+**Zero sign flips on every arm, band D and band E `PASS` throughout** `[MEASURED]`. `G-M2`, `G-MESHID`, `G1`, `G9`, `G10`, `G12` all `PASS`; `G6` **`NOT MEASURED`** with AV-2's measured forward-AD primal failure named as the reason and **never composed**.
+
+**THE BRIGHT LINE IS HONOURED AND I CHECKED THE PAIR, NOT THE HEADLINE.** The FD table is a real three-step sweep — `steps [1e-2, 1e-3, 1e-4]` — with the reference at the **middle** step and **`plateau_neighbour_pct` carried PER PAIR**: `shape[0]` on `Ns-P` reads `J_adj = 0.0036554621382621404` against `d_ref = 0.0036673017743092673`, `rel_err_pct = 0.3228`, neighbours **`[0.0477, 2.326]`** — **the reference step is SHOWN to sit in the plateau for that pair rather than asserted once for the item.**
+
+**BOTH CONTROLS FIRED, WHICH IS WHAT MAKES THE ZEROS BELOW ADMISSIBLE (rule 3):** `instrument_ctrl_zero = 0.0` beside `instrument_ctrl_planted = 0.617` against `want = 0.617`, on **all four arms**; and `grader_plant_seen: true`, 15 values, **worst residual 1.08e-18** `[MEASURED, grader_controls/]`. **`G_TB`'s trivial baseline FAILS as registered on every arm** — so the FD gate is discriminating components, not passing whatever it is shown.
+
+##### 2. ⚠⚠ THE REAL RESULT IS THE NEGATIVE ONE, AND FOUR FALSIFIERS NAMED IT IN ADVANCE
+
+**`s_g_scotch_vs_simple = 0.0` — EXACTLY — on BOTH objectives and BOTH rows** `[MEASURED, G-METHOD]`. `Ns-P` and `Ni-P` share a **bit-identical** `J_adj` (`0.0036554621382621404`) and a bit-identical aggregate; likewise `Ns-S`/`Ni-S`. **At np = 4 on this 4,032-cell mesh, at SO-1b's optimum, the decomposition method makes NO difference to the adjoint gradient.**
+
+**FOUR REGISTERED PREDICTIONS SAID IT WOULD, AND ALL FOUR MISSED:**
+- `P_1 scotch_outside_s_g_band_on_at_least_one_row` — **MISS**
+- `P_4 shape6_is_the_largest_scotch_component` — **MISS**
+- `P_6 patched_simple_FD_PASS_and_patched_scotch_NOT` — **MISS**
+- `P_7 shipped_shape6_outside_band_D_at_both_decompositions` — **MISS**
+
+**This is the registration working exactly as designed.** The rung existed because **A4 measured a factor of 16,600 between two decompositions of one mesh at one np**, and the frozen document predicted that pathology would reach this case. **IT DOES NOT REACH IT.** A registration whose predictions cannot fail is not a registration; these could fail, they did, **and the miss is the result rather than an embarrassment.**
+
+##### 3. ⚠⚠⚠ THE ADVERSARIAL QUESTION, ASKED AND ANSWERED BEFORE I BELIEVED THE ZERO
+
+**An `s_g` of exactly 0.0 has two explanations, and only one of them is physics: the arms may simply never have run different decompositions.** If a staging defect had handed both arms the same `decomposeParDict`, this `PASS` would be worthless — the item's entire question is scotch versus simple. **I checked it rather than assuming, from the container's OWN mount rather than from the source tree:**
+
+| arm | method | `n` | md5 | source read by `G-DECOMP` |
+|---|---|---|---|---|
+| `Ns-P` / `Ns-S` | **`scotch`** | `(2 2 1)` | `816f5ba4…` | `/mnt/<arm>/system/decomposeParDict` |
+| `Ni-P` / `Ni-S` | **`simple`** | `(4 1 1)` | `194c3308…` | `/mnt/<arm>/system/decomposeParDict` |
+
+`[MEASURED]` — **two different files, two different md5s, two different methods and two different subdomain layouts, verified inside the containers that ran.** `G-DECOMP` `PASS` on all four arms. **The zero is real.**
+
+##### 4. ⚠⚠ AND I NEARLY PUBLISHED AN ALARM AGAINST THIS ITEM ON MY OWN BAD READ — THE FOURTH TODAY
+
+My first pass over the grade object printed **"nine of sixteen gates read `None`, including both FD gates, and the item says `PASS`"** — which would have been a serious accusation, and I had it half-written. **It was FALSE.** Those gates are keyed **per-arm** (`Ns-P`, `Ni-P`, `Ns-S`, `Ni-S`) and **per-row** (`P`, `S`); there is no top-level `verdict` key on them, so my extractor asked the wrong question and got `None`. **The artefact was fine and my reader was not** — for the fourth time today, and the same shape as the top-level-`gates` error at `S-22` §6 and the `--stat` path grep at `S-22d` §4.
+
+**What saved it was the built-in control rather than my care:** the same extractor returned `PASS` for `G-M2`, `G1`, `G9`, `G10`, `G12` **in the same call**, so it was demonstrably able to see a verdict — which is exactly why a `None` beside a `PASS` demanded structural inspection instead of publication. **A reader shown able to see a non-null makes its nulls interrogable.** That is rule 3 doing work outside the context it was written for.
+
+##### 5. COST — RULE 12, AND THE RATIO IS COMPUTABLE THIS TIME
+
+**Registered 40.6 core-min; MEASURED 16.435 core-min** in the **HOST frame**, which the grade object chose explicitly as *"the LARGER of the two frames"* because the box is occupied for the host wall `[MEASURED, cost block]`. **Ratio 0.4048.** **≈$0.01405 `[DERIVED at $0.0513/core-h, NOT MEASURED]`.** Per arm: MESH 0.167 (wall 10 s, 1 rank); `Ns-P`/`Ni-P`/`Ns-S`/`Ni-S` **4.067 each** (wall 61 s at 4 ranks) against 30.0 caps — **13.6 % of cap on every solver arm.**
+
+**`P_I_total_core_min_band` is a MISS — we came in UNDER the band**, and that is registered as a miss rather than quietly enjoyed. **The over-prediction is inherited: MESH's point was raised 0.167 → 0.633 on `SO-1c`'s own dead-run measurement, and the real MESH cost 0.167 again** — so the dead run's datum was the outlier, not the model. **`SO-1c`'s 0.633 core-min stays named as WASTE and is not absorbed into this ratio.** Calibration row owed and fileable — the ledger's `rc=4` is closure's `C-217` and does not block an append.
+
+##### 6. WHAT THIS MOVES, STATED NARROWLY
+
+**Capability grid, `2D · steady · incompressible`, the np-INVARIANCE entry AND the "gradients FD-verified" column — on TWO ROWS, at an OPTIMUM, with an FD table at np = 4.** `AV-1`/`AV-1R` disclaimed all three of those in their own §8: no decomposition variation, no optimum, no FD table. **This supplies them.** What it does **not** say: nothing about np other than 4, nothing about a mesh other than 4,032 cells, nothing about the compressible path, and **nothing that rehabilitates the shipped toolchain elsewhere** — `SO-1a`'s shipped `CD` aggregate of **40.481353490548585 %** stands untouched by this item.
 
 ##### UPDATE S-22g — **`SO-1cR` IS LIVE AND PAST THE ARM THAT KILLED `SO-1c`: `SO1CR_G_OPTDEP_PASS arm=Ns-P row=PATCHED`. THE LANE FOUND A **FOURTH** CALL SITE I NEVER NAMED — THE SELFTEST FIXTURE — AND IT DID NOT *MISS* THE BREAK, IT **CONCEALED** IT** (2026-08-31T17:5xZ, `date -u` at write)
 
