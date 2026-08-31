@@ -1,0 +1,22 @@
+=== SO-3aR2 FREEZE-TIME DRIVE, 2026-08-31T22:34:17Z. HOST ONLY, ZERO SOLVER COMPUTE, NO CONTAINER. ===
+
+--- so3ar2_pin_census.py (G-PINS) ---
+A7 stale disposition rows: 0
+
+PIN CENSUS GREEN -- 26 pin-like constants enumerated BY ROLE across 11 sources; every one carries a registered disposition, every md5-kind pin holds a real md5, every resolvable pin EQUALS the file it pins, no pin is dead, no consumer is unpinned, no table row is stale, and the extractor was shown able to see a planted change in every source.
+census rc=0
+
+--- so3ar2_grade.py --selftest (python3) ---
+
+  units run: 97   failures: 0
+
+--- so3ar2_grade.py --selftest (python3 -O) ---
+
+  units run: 97   failures: 0
+
+--- so3ar2_xf_selftest.py (both modes) ---
+DRIVE 34 checks, 0 fail
+DRIVE 34 checks, 0 fail
+
+--- so3ar2_groot5_selftest.sh ---
+SO3aR2 G-ROOT5 SELFTEST pass=92 fail=0 2026-08-31T22:34:32Z

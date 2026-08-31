@@ -1,0 +1,13 @@
+=== SO-3aR2 FREEZE-TIME DRIVE, 2026-08-31T22:34:17Z ===
+=== HOST ONLY. ZERO SOLVER COMPUTE. NO CONTAINER STARTED. ===
+
+--- G-COLL: so3ar2_collision_leg.py ---
+L1 {'label': 'L1_frozen_fixed', 'resolved': True, 'how': 'PER_SCENARIO (3 DASolvers): RUN_DIRS[point0]; RUN_DIRS[point1]; RUN_DIRS[point2]', 'scenarios': ['point0', 'point1', 'point2'], 'run_directories': ['mp0', 'mp1', 'mp2'], 'distinct_parents': True, 'collided': False, 'destinations': ['mp0/0.0001', 'mp1/0.0001', 'mp2/0.0001']}
+L2 {'label': 'L2_mutant_no_run_directory', 'resolved': True, 'how': 'PER_SCENARIO (3 DASolvers): CWD_FALLBACK -- no run_directory keyword; CWD_FALLBACK -- no run_directory keyword; CWD_FALLBACK -- no run_directory keyword', 'scenarios': ['point0', 'point1', 'point2'], 'run_directories': ['.', '.', '.'], 'distinct_parents': False, 'collided': True, 'message': 'pyDAFoam Error: /tmp/so3ar2_collision_spctg5em/L2_mutant_no_run_directory/0.0001 already exists, moving failed!'}
+L3 {'label': 'L3_parent_real_bytes', 'resolved': True, 'how': 'PER_SCENARIO (3 DASolvers): CWD_FALLBACK -- no run_directory keyword; CWD_FALLBACK -- no run_directory keyword; CWD_FALLBACK -- no run_directory keyword', 'scenarios': ['point0', 'point1', 'point2'], 'run_directories': ['.', '.', '.'], 'distinct_parents': False, 'collided': True, 'message': 'pyDAFoam Error: /tmp/so3ar2_collision_spctg5em/L3_parent_real_bytes/0.0001 already exists, moving failed!'}
+L4 {'run_dirs': ['mp0', 'mp1', 'mp2'], 'staged_by_launcher': ['mp0', 'mp1', 'mp2'], 'missing_from_launcher': [], 'ok': True}
+L4b (must be NOT ok) {'run_dirs': ['mp0', 'mp1', 'mp2'], 'staged_by_launcher': ['mp1', 'mp2'], 'missing_from_launcher': ['mp0'], 'ok': False}
+L5 {'label': 'L5_blinded_extractor', 'resolved': False, 'why': 'NO_BUILDERS_FOUND'}
+L5 OK -- a reader that finds no builders REFUSES; it does not report 'no collisions'.  Exit 2 is the ABSENCE of a reading, neither green nor red.
+SO3AR2_COLLISION rc=0 -- L1 GREEN on the frozen producer; L2 RED on the same bytes with ONE mutation; L3 RED on SO-3aR's own frozen bytes; L4 the launcher stages every named run directory and L4b proves that check able to fail; L5 the extractor REFUSES when blinded.
+rc=0

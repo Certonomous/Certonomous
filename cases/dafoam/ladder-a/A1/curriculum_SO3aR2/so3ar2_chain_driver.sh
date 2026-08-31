@@ -1,0 +1,298 @@
+#!/usr/bin/env bash
+# SO-3aR2 chain driver -- DERIVED from curriculum_SO2a/so2a_chain_driver.sh
+# (md5 asserted in so3ar2_chain_driver_DELTAS_from_so2a.diff) with the REGISTERED
+# DELTAS below.  PREREGISTRATION.md section 7 row 1, frozen 1a06a7d6.
+#
+# THE REGISTERED DELTAS FROM THE PARENT, each traceable to a frozen line:
+#   (a) NAMES: so2a_ -> so3ar2_, SO2A_ -> SO3AR2_, SO2a -> SO3aR2; run root
+#       CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient; the instrument is
+#       so3ar2_xf.py (modes X and F), NOT so2a_xg.py.
+#   (b) ARMS: MESH X-S F-S X-P F-P (line 1 / section 2 limb 1).  DECLARED = 5.
+#   (c) MEMORY CAP 12 GiB per arm, raised from the family's 4 g (section 5, with
+#       the arithmetic there: 3 x 1.70 GiB EXTRAPOLATED + shared footprint, >2x
+#       headroom).  H5 FLOOR 16.0 GiB = 12 g cap + 4 GiB headroom.
+#   (d) H5 CHANGES FORM, AND THIS IS THE SUBSTANTIVE DELTA.  The parent refuses
+#       on ANY sample below the floor -- a ONE-SHOT guard on a TRANSIENT
+#       quantity.  Section 5 registers the WAIT form per DAFOAM_CHARTER section
+#       18.7 Requirement 3: poll, re-window, bounded H5_BOUND_S=3600, and at the
+#       bound TERMINATE with rc=7 / chain=BLOCKED_H5.  MemAvailable changes
+#       second by second and a peer's working set shrinks; a condition that
+#       clears on its own must not convert into an immediate stop.
+#       THE EXPIRY TERMINATES.  IT DOES NOT BLOCK-AND-CONTINUE.  SO-3aR2 registers
+#       NO block-and-continue anywhere: that is how W3 compounded a 3.03 %
+#       per-stage guard into 60.6 % of its declared program.
+#   (e) G-STAGES / section 18.7 Requirement 4: the completion line carries
+#       DECLARED=5 EXECUTED=<n>, and where n < 5 the token is one of rule 1's six
+#       -- NEVER `COMPLETE`, never a word whose plain reading is success.  W3
+#       printed PHASE1_COMPLETE unconditionally over 20 blocked stages and that
+#       token misled a triage.
+#   (f) THE STOP MARKER (section 2 limb 2) is written on EVERY exit path,
+#       including the paths where nothing after MESH ran, at ONE FIXED ADDRESS.
+#   (g) THE AGG CALL SITE.  See the block at the call site itself.
+#
+# Runs the named arms IN ORDER through the frozen launcher and STOPS AT THE FIRST
+# NON-ZERO rc.  Started ONLY detached (the queue runner's own form).  cwd is the
+# CASE directory, never the run root (G-ROOT.5 b).
+# Permission for detached launches: bc0e687e (Sanaa, boarded verbatim).
+set -uo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+LAUNCHER="$HERE/so3ar2_run_arm.sh"
+GRADER="$HERE/so3ar2_grade.py"
+AGG_SCRIPT="$HERE/so3ar2_aggregate_memory.py"
+STOP_MARKER="$HERE/so3ar2_stop_marker.sh"
+IMG_SHIPPED=dafoam/opt-packages:latest
+IMG_PATCHED=dafoam-idwarp-rot:v1
+BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient
+TUT_SRC=/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+PERMISSION=bc0e687e
+# ---- registered resource constants (PREREGISTRATION.md section 5) -----------
+H5_FLOOR_GIB=16.0; H5_SAMPLES=45; H5_WINDOW_S=60
+H5_POLL_S=30; H5_BOUND_S=3600            # (d) WAIT form; expiry TERMINATES rc=7
+AGG_CEILING_GIB=30.6; AGG_POLL_S=30; AGG_BOUND_S=14400
+DECLARED_ARMS=5                          # (e) section 5 Requirement 4
+#
+# ---- INSTRUMENT PINS -- section 18.3: EXISTENCE IS ASSERTED BEFORE ANY MD5 AND
+# ---- NO MD5 IS CLAIMED FOR A FILE THAT DOES NOT EXIST.
+# SUPERSEDED PARAGRAPH, STRUCK RATHER THAN DELETED so the history of this table is
+# readable: until the Stage-2 amendment five of these pins were the fail-closed
+# sentinel `$MD5_UNSET`, because section 7 rows 2,3,4,5,7 did not exist and an md5
+# claimed for an absent file is the SO2a-DRIVER-DEF-1 shape -- an agreement control
+# reading agreement while a file the frozen code executes is missing.  THAT
+# CONDITION IS DISCHARGED: all nine exist, checked by `test -f` before any md5 was
+# taken (the loop below), and the sentinel is gone.  The paragraph is kept because
+# a comment that still described an unset table over a set one is precisely the
+# doc-versus-code contradiction this item's own (x5) leg exists to refuse.
+# ---- STAGE-2 AMENDMENT, 2026-08-31.  ALL NINE INSTRUMENTS EXIST, SO THE PINS ARE
+# ---- SET -- ALL OF THEM, TOGETHER, WHICH IS THE ONLY ORDER SECTION 18.3 ALLOWS.
+# `MD5_UNSET` is DELETED, not left defined.  Its value (32 zeros) is a WELL-FORMED
+# md5, so a dead sentinel would (a) be counted as a real pin by the completeness
+# leg that now compares pins-DECLARED against pins-DRIVEN, and (b) sit in the file
+# as a fail-open one edit away from being re-used.  A stale pin aborts this chain
+# rc=4 BEFORE any container -- the W3 death mode -- so every pin below was computed
+# from the FINAL bytes of the file it pins, after the last code edit, and each is
+# DRIVEN against that file by so3ar2_groot5_selftest.sh's (x12)/(x13)/(x14).
+MD5_LAUNCHER=ebc127f7039acc7b8422ee23442a8360   # so3ar2_run_arm.sh
+MD5_GRADER=c81a09a90950cb1610f40a91b29cdabe     # so3ar2_grade.py -- THE GRADING PATH (section 10)
+MD5_RUNSCRIPT=d9ac0faf5b5e49d686db74db4cdbc1aa  # so3ar2_runScript.py
+MD5_XF=d6e9117d5971b56fefc5f96d366acf74         # so3ar2_xf.py
+MD5_AGG=709ab0b98ef0302a3a3a318588f9493f
+MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
+MD5_STOP_MARKER=f3c9b888a4498ff81470c4bfc07db106  # so3ar2_stop_marker.sh
+# the shipped tutorial's INPUT bytes, frozen here because the checkout is not
+MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f
+MD5_TUT_GEN=681f10659eb90457fca13fc933008b93
+MD5_TUT_PREPROC=4a9395452540705686acf94898aa33af
+MD5_TUT_PS=51dfed28e1bdb4cd33e0d8d7dabd586a
+MD5_TUT_SS=4a6b8ef4501494c7693b71e88a2eabbf
+MD5_TUT_FFD=6ddf378b028d03d8a18270488bee1759
+test $# -ge 1 || { echo "ABORT usage: so3ar2_chain_driver.sh <ARM...>"; exit 64; }
+ARMS="$*"; STATUS="$BASE/STATUS.chain"; PIDFILE="$BASE/so3ar2_driver.pid"
+cd "$HERE" || exit 4
+EXECUTED=0
+
+# ---- section 18.3 STEP 1: EXISTENCE OF EVERY DEPENDENCY, ASSERTED FIRST AND
+# ---- SEPARATELY, BEFORE ANY MD5 IS TAKEN.  Existence is a DIFFERENT QUESTION
+# ---- from md5 agreement and cannot be inferred from any level of it: SO-2a read
+# ---- `eight of eight AGREE` while so2a_aggregate_memory.py -- a file its own
+# ---- driver executed -- was absent, and the chain was on a guaranteed
+# ---- no-launch branch for four hours.
+for _dep in "$LAUNCHER" "$GRADER" "$AGG_SCRIPT" "$STOP_MARKER" \
+            "$HERE/so3ar2_runScript.py" "$HERE/so3ar2_xf.py" "$HERE/so3ar2_decomposeParDict"; do
+  test -f "$_dep" || { echo "ABORT section 18.3 dependency ABSENT before any md5: $_dep"; exit 4; }
+done
+echo "SO3AR2_DEPS_EXIST n=7 checked_before_any_md5=yes"
+echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted or UNSET before staging"; exit 4; }
+echo "$MD5_GRADER  $GRADER" | md5sum -c - || { echo "ABORT grader md5 drifted or UNSET before staging"; exit 4; }
+echo "$MD5_AGG  $AGG_SCRIPT" | md5sum -c - || { echo "ABORT aggregate-reader md5 drifted"; exit 4; }
+echo "$MD5_STOP_MARKER  $STOP_MARKER" | md5sum -c - || { echo "ABORT stop-marker md5 drifted or UNSET"; exit 4; }
+
+# ---- ROOT STAGING on the first fire only -----------------------------------
+if [ ! -d "$BASE" ]; then
+  test -d "$TUT_SRC" || { echo "ABORT tutorial source absent: $TUT_SRC"; exit 4; }
+  { echo "$MD5_TUT_RUNSCRIPT  $TUT_SRC/runScript.py"; echo "$MD5_TUT_GEN  $TUT_SRC/genAirFoilMesh.py"; echo "$MD5_TUT_PREPROC  $TUT_SRC/preProcessing.sh";
+    echo "$MD5_TUT_PS  $TUT_SRC/profiles/NACA0012PS.profile"; echo "$MD5_TUT_SS  $TUT_SRC/profiles/NACA0012SS.profile"; echo "$MD5_TUT_FFD  $TUT_SRC/FFD/wingFFD.xyz"; } | md5sum -c - \
+    || { echo "ABORT tutorial input md5 drifted (the checkout moved under this item; nothing staged)"; exit 4; }
+  mkdir -p "$BASE" || { echo "ABORT cannot create run root $BASE"; exit 4; }
+  chmod 777 "$BASE" || { echo "ABORT chmod 777 $BASE (L-251)"; exit 4; }
+  mkdir -p "$BASE/base" || exit 4
+  cp -a "$TUT_SRC/0.orig" "$TUT_SRC/FFD" "$TUT_SRC/constant" "$TUT_SRC/system" "$TUT_SRC/profiles" "$TUT_SRC/genAirFoilMesh.py" "$TUT_SRC/preProcessing.sh" "$BASE/base/" || { echo "ABORT copy tutorial inputs"; exit 4; }
+  rm -rf "$BASE/base/constant/polyMesh" 2>/dev/null
+  cp -a "$HERE/so3ar2_decomposeParDict" "$BASE/base/system/decomposeParDict" || { echo "ABORT overlay decomposeParDict"; exit 4; }
+  cp -a "$HERE/so3ar2_runScript.py" "$HERE/so3ar2_xf.py" "$BASE/" || { echo "ABORT copy instruments"; exit 4; }
+  echo "ITEM=SO3aR2" > "$BASE/ledger.txt"
+  echo "STAGED stamp=$(date -u +%Y%m%dT%H%M%SZ) tut_src=$TUT_SRC tut_commit=$(git -C "$TUT_SRC" rev-parse HEAD 2>/dev/null || echo NOT_MEASURED) permission=$PERMISSION" >> "$BASE/ledger.txt"
+  echo "SO3AR2_ROOT_STAGED base=$BASE stamp=$(date -u +%Y%m%dT%H%M%SZ) mode=$(stat -c '%a' "$BASE") permission=$PERMISSION"
+else
+  echo "SO3AR2_ROOT_PRESENT base=$BASE (not re-staged)"
+fi
+{ echo "$MD5_RUNSCRIPT  $BASE/so3ar2_runScript.py"; echo "$MD5_XF  $BASE/so3ar2_xf.py"; echo "$MD5_DECOMP  $BASE/base/system/decomposeParDict";
+  echo "$MD5_TUT_GEN  $BASE/base/genAirFoilMesh.py"; echo "$MD5_TUT_PREPROC  $BASE/base/preProcessing.sh";
+  echo "$MD5_TUT_PS  $BASE/base/profiles/NACA0012PS.profile"; echo "$MD5_TUT_SS  $BASE/base/profiles/NACA0012SS.profile"; echo "$MD5_TUT_FFD  $BASE/base/FFD/wingFFD.xyz"; } | md5sum -c - || { echo "ABORT staged instrument/input md5"; exit 4; }
+test -f "$BASE/base/0.orig/U" || { echo "ABORT staged base/ has no 0.orig/U"; exit 4; }
+if [ -f "$PIDFILE" ]; then
+  OLD=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+  if [ -n "$OLD" ] && kill -0 "$OLD" 2>/dev/null; then
+    echo "ABORT another driver is live (pid $OLD, $PIDFILE).  Two records for one run is the defect."; exit 3
+  fi
+fi
+echo "$$" > "$PIDFILE"
+trap 'rm -f "$PIDFILE"' EXIT
+echo "SO3AR2_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o sid= -p $$ | tr -d ' ') cwd=$(pwd) arms=[$ARMS] declared=$DECLARED_ARMS permission=$PERMISSION"
+echo "chain=started arms=[$ARMS] declared=$DECLARED_ARMS pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
+mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
+cap_mem_gib() { echo 12; }   # every arm 12 GiB (PREREGISTRATION.md section 5)
+# ---- THE ARM -> ROW -> IMAGE MAPPING, AS A REGISTERED TABLE OVER FULL ARM NAMES.
+# ---- THIS WAS THE FOURTH CONSUMER, AND IT WAS FOUND BY SWEEPING FOR IT.
+# This line read `case "$1" in MESH|*-S) ... *-P) ...` -- the ARM-NAME SUFFIX GLOB
+# that so3ar2_run_arm.sh's own G-ROW comment names as forbidden, in the words of the
+# SO-1c post-mortem: SO-1c died at its second arm because one call site of a row
+# label was repaired and the others were not.  The launcher WAS repaired to a
+# registered `row_of` table; the comparator registers the same mapping as
+# `ARM_ROW`; the selftest's (x4) leg cross-checks those two.  THIS FILE WAS THE
+# ONE NOBODY SWEPT -- the comparator's row-label sweep carried a suffix rule in its
+# PYTHON rule set and none in its SHELL rule set, so the single surviving instance
+# was in the one language the sweep could not see it in.
+#
+# MEASURED, not asserted: `img_of Q-S` returned the SHIPPED image.  The chain
+# driver takes its arms from the command line (`ARMS="$*"`), so an undeclared arm
+# reaches this function.  It did NOT reach a wrong verdict, because the launcher
+# independently re-derives ROW from the IMAGE DIGEST and then refuses when
+# `row_of Q-S` is empty (exit 64) -- defence in depth held, and saying so is the
+# honest size of the finding.  A guard that cannot fire while another stands is
+# still a guard that must not be wrong.
+#
+# The label sets are DISJOINT (SHIPPED/PATCHED are the only two, and no arm name
+# is a row name), so a swapped artefact still refuses; an arm that is not one of
+# the five DECLARED names falls through to the empty case and the caller aborts.
+row_of_arm() {
+  case "$1" in
+    MESH)  echo SHIPPED ;;
+    X-S)   echo SHIPPED ;;
+    F-S)   echo SHIPPED ;;
+    X-P)   echo PATCHED ;;
+    F-P)   echo PATCHED ;;
+    *)     echo "" ;;
+  esac
+}
+img_of() {
+  case "$(row_of_arm "$1")" in
+    SHIPPED) echo "$IMG_SHIPPED" ;;
+    PATCHED) echo "$IMG_PATCHED" ;;
+    *)       echo "" ;;
+  esac
+}
+CHAIN_RC=0
+for ARM in $ARMS; do
+  IMG=$(img_of "$ARM"); test -n "$IMG" || { echo "ABORT arm $ARM names no registered row"; echo "chain=ABORT arm=$ARM reason=no_row stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=64; break; }
+  echo "$MD5_LAUNCHER  $LAUNCHER" | md5sum -c - || { echo "ABORT launcher md5 drifted before arm $ARM"; echo "chain=ABORT arm=$ARM reason=launcher_md5 stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=4; break; }
+  echo "preflight arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ) driver_pid=$$ image=$IMG permission=$PERMISSION" > "$BASE/STATUS.$ARM"
+  if grep -aq "^ARM=$ARM .* rc=0 " "$BASE/ledger.txt" 2>/dev/null; then
+    echo "ABORT ALREADY_BOUGHT arm $ARM has an rc=0 ledger row; a second record for one run is the defect."
+    echo "rc=3 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=ALREADY_BOUGHT permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+    echo "chain=REFUSED_ALREADY_BOUGHT arm=$ARM stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=3; break
+  fi
+  # ---- (d) H5 IN THE WAIT FORM.  A WINDOW of MemAvailable; if any sample is
+  # ---- below the floor the window is RE-TAKEN after H5_POLL_S, bounded by
+  # ---- H5_BOUND_S, and the EXPIRY TERMINATES the chain with rc=7.  Every wait
+  # ---- is a line in STATUS.<arm>.  There is no block-and-continue path.
+  H5_WAITED=0; H5_BLOCKED=no; MIN=999; MAX=0
+  while true; do
+    H5_FILE="$BASE/${ARM}_h5_window_$(date -u +%Y%m%dT%H%M%SZ).txt"; BELOW=0; N=0; MIN=999; MAX=0
+    STEP=$(python3 -c "print('%.3f' % ($H5_WINDOW_S/float($H5_SAMPLES)))")
+    for _ in $(seq 1 $H5_SAMPLES); do
+      s=$(mem_gib); N=$((N+1)); echo "$(date -u +%s) $s" >> "$H5_FILE"
+      MIN=$(python3 -c "print(min($MIN,$s))"); MAX=$(python3 -c "print(max($MAX,$s))")
+      [ "$(python3 -c "print(1 if $s < $H5_FLOOR_GIB else 0)")" = "1" ] && BELOW=$((BELOW+1))
+      sleep "$STEP"
+    done
+    echo "SO3AR2_H5_WINDOW arm=$ARM n=$N window_s=$H5_WINDOW_S floor_GiB=$H5_FLOOR_GIB min_GiB=$MIN max_GiB=$MAX samples_below_floor=$BELOW waited_s=$H5_WAITED file=$(basename "$H5_FILE")"
+    if [ "$BELOW" -eq 0 ] && [ "$N" -eq "$H5_SAMPLES" ]; then break; fi
+    if [ "$H5_WAITED" -ge "$H5_BOUND_S" ]; then
+      echo "ABORT H5 still short of $H5_FLOOR_GIB GiB after ${H5_WAITED}s.  BOUND REACHED; THE CHAIN STOPS."
+      echo "rc=7 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=H5_BLOCKED_AT_BOUND waited=$H5_WAITED below=$BELOW min_GiB=$MIN series=$(basename "$H5_FILE") permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+      echo "chain=BLOCKED_H5 arm=$ARM waited=$H5_WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; H5_BLOCKED=yes; break
+    fi
+    echo "H5_WAIT waited=$H5_WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM below=$BELOW of $N min_GiB=$MIN floor_GiB=$H5_FLOOR_GIB" >> "$BASE/STATUS.$ARM"
+    sleep "$H5_POLL_S"; H5_WAITED=$((H5_WAITED+H5_POLL_S))
+  done
+  if [ "$H5_BLOCKED" = "yes" ]; then CHAIN_RC=7; break; fi
+  # ---- AGGREGATE: live sibling caps + this arm's cap + host non-container RSS,
+  # ---- WAIT-AND-RETRY, bounded AGG_BOUND_S, expiry TERMINATES rc=6.
+  WAITED=0; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"; AGG_BLOCKED=no
+  while true; do
+    # ---- (g) THE AGG CALL SITE, AND THE ONE DEFECT THIS FAMILY PAID FOR TODAY.
+    # BOTH PARENTS ARE CLEAN: so2a_chain_driver.sh:143 and so1b's both pass the
+    # script path as a LITERAL.  SO-1bR's DERIVATION introduced the defect by
+    # hoisting the path into $AGG and then writing the RESULT back into the same
+    # name -- `AGG=$(python3 "$AGG" ...)` -- so the call worked exactly ONCE and
+    # was guaranteed to fail on every later arm, polling four hours to a FALSE
+    # BLOCKED_AGGREGATE while MemAvailable was 28.90 GiB against a 30.6 ceiling.
+    # DERIVATION DISCIPLINE GUARANTEES A RENAME IS COMPLETE AND IS STRUCTURALLY
+    # BLIND TO A NEW NAME COLLIDING WITH A VARIABLE ALREADY IN USE.
+    # Two defences, both required, neither sufficient alone:
+    #   1. THE RESULT GOES TO A DISTINCT NAME.  $AGG_SCRIPT holds the path and is
+    #      never assigned in this loop; $AGG_JSON holds the reading.
+    #   2. A CALL-SITE GUARD.  Section 18.3's existence assertion above runs ONCE
+    #      AT STARTUP, when the variable still held a path -- that startup-only
+    #      assertion is exactly the hole the defect went through.  This re-asserts
+    #      AT THE POINT OF USE, on every arm and every poll.
+    # rc=4 is DISTINCT from the resource-block codes (6 aggregate, 7 H5) so a
+    # destroyed path can NEVER masquerade as a resource block.
+    test -f "$AGG_SCRIPT" || {
+      echo "ABORT AGG_SCRIPT no longer names an existing file at the point of use: [$AGG_SCRIPT]"
+      echo "rc=4 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=AGG_PATH_DESTROYED_AT_CALL_SITE permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+      echo "chain=ABORT arm=$ARM reason=agg_path_destroyed stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+      CHAIN_RC=4; break 2; }
+    AGG_JSON=$(python3 "$AGG_SCRIPT" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+    echo "$(date -u +%s) $AGG_JSON" >> "$AGG_SERIES"
+    if [ "$(printf '%s' "$AGG_JSON" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
+    if [ "$WAITED" -ge "$AGG_BOUND_S" ]; then
+      echo "ABORT AGGREGATE still over $AGG_CEILING_GIB GiB after ${WAITED}s.  BOUND REACHED; THE CHAIN STOPS.  Series: $(basename "$AGG_SERIES")"
+      echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=AGGREGATE_BLOCKED_AT_BOUND waited=$WAITED series=$(basename "$AGG_SERIES") permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+      echo "chain=BLOCKED_AGGREGATE arm=$ARM waited=$WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; AGG_BLOCKED=yes; break
+    fi
+    echo "AGGREGATE_WAIT waited=$WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM $AGG_JSON" >> "$BASE/STATUS.$ARM"
+    sleep "$AGG_POLL_S"; WAITED=$((WAITED+AGG_POLL_S))
+  done
+  if [ "$AGG_BLOCKED" = "yes" ]; then CHAIN_RC=6; break; fi
+  echo "SO3AR2_AGGREGATE arm=$ARM waited=$WAITED $AGG_JSON"
+  echo "SO3AR2_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
+  bash "$LAUNCHER" "$ARM" "$IMG" > "$BASE/${ARM}_launch.out" 2>&1
+  rc=$?
+  echo "SO3AR2_DRIVER arm=$ARM end=$(date -u +%Y%m%dT%H%M%SZ) rc=$rc"
+  echo "rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM source=launcher_exit=docker_inspect_ExitCode launch_out=${ARM}_launch.out h5_min_GiB=$MIN h5_waited_s=$H5_WAITED aggregate_waited_s=$WAITED permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
+  echo "arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+  if [ "$rc" -ne 0 ]; then echo "chain=STOPPED_AT_FIRST_NONZERO arm=$ARM rc=$rc stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=$rc; break; fi
+  EXECUTED=$((EXECUTED+1))
+done
+# ---- (e) G-STAGES: DECLARED and EXECUTED on the completion line, and NO
+# ---- SUCCESS-READING TOKEN OVER A TRUNCATED PROGRAM.  `COMPLETE` is written
+# ---- ONLY when the chain rc is zero AND every declared arm executed.  Any
+# ---- shortfall writes a rule-1 token instead -- BLOCKED where a registered
+# ---- resource guard reached its bound, NOT A RESULT otherwise.
+if [ "$CHAIN_RC" -eq 0 ] && [ "$EXECUTED" -eq "$DECLARED_ARMS" ]; then
+  echo "chain=COMPLETE declared=$DECLARED_ARMS executed=$EXECUTED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+elif [ "$CHAIN_RC" -eq 6 ] || [ "$CHAIN_RC" -eq 7 ]; then
+  echo "chain=BLOCKED declared=$DECLARED_ARMS executed=$EXECUTED chain_rc=$CHAIN_RC stamp=$(date -u +%Y%m%dT%H%M%SZ) note=registered-resource-guard-reached-its-bound" >> "$STATUS"
+else
+  echo "chain=NOT A RESULT declared=$DECLARED_ARMS executed=$EXECUTED chain_rc=$CHAIN_RC stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"
+fi
+# ---- the FROZEN grader on the artefacts (zero compute); its rc is INFRASTRUCTURE (L-342)
+GSTAMP=$(date -u +%Y%m%dT%H%M%SZ)
+GRADE_OUT="$BASE/SO3aR2_grade_${GSTAMP}.json"
+if echo "$MD5_GRADER  $GRADER" | md5sum -c - > /dev/null; then
+  python3 "$GRADER" --root "$BASE" --out "$GRADE_OUT" > "$BASE/SO3aR2_grade_${GSTAMP}.out" 2>&1; GRC=$?
+  echo "grader_rc=$GRC stamp=$GSTAMP out=SO3aR2_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
+else
+  echo "grader_rc=NOT_RUN stamp=$GSTAMP note=grader-md5-drifted-at-chain-end" >> "$STATUS"
+  GRADE_OUT=""
+fi
+# ---- (f) THE STOP MARKER, ON EVERY EXIT PATH.  This line is reached from every
+# ---- terminating path above -- COMPLETE, BLOCKED, NOT A RESULT, and the
+# ---- `break 2` from the AGG call-site guard -- because every one of them leaves
+# ---- the arm loop rather than exiting the script.  A marker written only on
+# ---- success is exactly the address a successor cannot rely on.
+bash "$STOP_MARKER" "$BASE" "$CHAIN_RC" "$DECLARED_ARMS" "$EXECUTED" "$GRADE_OUT" \
+  || echo "SO3AR2_STOP_MARKER_FAILED rc=$? -- the marker did not land; the successor has no fixed address for this run"
+echo "SO3AR2_DRIVER end=$(date -u +%Y%m%dT%H%M%SZ) chain_rc=$CHAIN_RC declared=$DECLARED_ARMS executed=$EXECUTED"
+exit "$CHAIN_RC"

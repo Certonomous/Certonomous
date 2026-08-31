@@ -1,0 +1,36 @@
+{
+ "_NOT_ENQUEUED": "THIS FILE IS A DRAFT AND IS NOT IN THE DAEMON'S DROP PATH. It lives beside the case (CLAUDE.md rule 13). IN-PLACE VALIDATION IS ARMING -- the runner takes an entry from the drop directory within 60 s -- and arming is the supervisor's (SUPERVISION_CHARTER.md section 3 check 4), not this lane's. Validated OUT OF PLACE, WITHOUT --require-binding; TEAM-BINDING IS NOT CHECKED, which is an UNCHECKED condition and never a passing one.",
+
+ "_WHY_THIS_ENTRY_IS_SHORT_AND_THE_PARENT'S_WAS_LONG": "SO-3aR's queue entry carried about thirty annotation fields of rich prose. They were NOT carried forward. A mechanical rename moves TOKENS; it cannot make PROSE true, and the parent's own entry proves the point: its rename had turned the citation `feasibility_SO3a_alpha` -- a real directory -- into `feasibility_SO3aR_alpha`, which is not one, so a falsified citation was sitting inside an arming artefact. Every field below is either mechanical (the validator's required set, which the runner acts on) or a statement this lane re-derived. The full registered content is in PREREGISTRATION.md, which is the document the freeze sha covers; an annotation block that merely restates it is one more place for it to drift.",
+
+ "team": "dafoam",
+ "case_id": "SO3aR2_chain",
+
+ "prereg_commit": "UNSET-AT-DRAFT-TIME-SUPERVISOR-SETS-THIS-AT-ARMING",
+ "_prereg_commit_note": "DELIBERATELY NOT A SHA, AND DELIBERATELY NOT SHA-SHAPED so it can never be mistaken for one. The freeze commit does not exist when this draft is written -- this file is inside it. The supervisor sets this field at arming from `git log --format=%H --diff-filter=A -- cases/dafoam/ladder-a/A1/curriculum_SO3aR2/PREREGISTRATION.md`, DERIVED and not recalled, and the validator's FULL_SHA check refuses this entry until then. That refusal is the intended state of a draft: fail-closed, never fail-open.",
+
+ "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_SO3aR2/PREREGISTRATION.md",
+ "launch_cmd": [
+  "bash",
+  "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR2/so3ar2_chain_driver.sh",
+  "MESH",
+  "X-S",
+  "F-S",
+  "X-P",
+  "F-P"
+ ],
+ "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR2",
+ "ranks": 1,
+
+ "cost_core_min_estimate": 22.1,
+ "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER 2026-08-21/22, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Point 22.1 core-min, band [14.0, 60.0], ceiling 115.0 = the SUM of the five per-arm caps (MESH 5.0, X-S 15.0, X-P 15.0, F-S 40.0, F-P 40.0), asserted as that sum in the comparator's main(). Dollars DERIVED, never measured: point $0.01890, ceiling $0.09833. GPU 0 GPU-h. An overrun STOPS the run; it does not get a new budget. SO-3a's 0.334 and SO-3aR's 1.800 core-min are carried in the pre-registration AS SPENT AND NAMED AS WASTE and are never folded into this item's actual/predicted ratio.",
+
+ "memory_floor_gb": 16.0,
+ "cap_core_min_registered": 115.0,
+
+ "enqueued_by": "PREPARED BY the dafoam lab-lane that built SO-3aR2. NOT ENQUEUED, NOT ARMED, NOT FILED. This lane started no container of any kind and spent zero solver core-minutes.",
+
+ "_arming_preconditions": "TWO, both driven at freeze time on the host and both re-runnable by the supervisor before arming. (1) G-PINS: `python3 so3ar2_pin_census.py` must exit 0 -- at freeze it enumerated 26 pin-like constants BY ROLE across 11 sources with 0 findings. (2) G-COLL: `python3 so3ar2_collision_leg.py` must exit 0 AND its stdout must carry limbs L2 and L3 as `collided: True` -- a green that has not seen red is not a reading. Neither instrument runs at run time, so nothing in the chain driver hashes them; their bytes are fixed by PREREGISTRATION.md section 10 in the same commit, and nothing detects an edit to them between that commit and arming except the supervisor's check against the sha.",
+
+ "_what_this_item_repairs": "SO-3aR died at arm 2 of 5 with `pyDAFoam Error: /mnt/X-S/0.0001 already exists, moving failed!` because three DAFoamBuilders shared one case directory. SO-3aR2 gives each operating point its own run_directory (mp0/ mp1/ mp2/), ported from A2's curriculum_D6R. Cause class BOOKKEEPING/INSTRUMENT: a LAB REGRESSION, not an upstream defect and not physics. Whether upstream's own multipoint tutorial is also latently broken is OPEN and UNTESTED and is NOT FILED ANYWHERE."
+}
