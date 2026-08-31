@@ -1,0 +1,124 @@
+CASE 3 SWEEP LEVEL RESCALE -- CLOSED FORM, NO SOLVER RAN
+========================================================================
+
+INPUTS (tag / basis):
+  rho_air   1.2          kg/m3   REGISTERED  directive 3.3, air properties
+  cp_air    1005         J/kgK   REGISTERED  directive 3.3
+  k_air     0.026        W/mK    REGISTERED  directive 3.3
+  mu_air    1.8e-05      Pa.s    REGISTERED  directive 3.3
+  k_Al      167          W/mK    REGISTERED  directive 3.3, aluminium housing
+  k_core    40           W/mK    REGISTERED  directive 3.3, representative winding pack
+  T_inf     288          K       REGISTERED  directive 3.3, fluid inlet T
+  D_duct    0.25         m       REGISTERED  directive 3.2, D = 0.25 m
+  r_o       0.0375       m       DERIVED     0.3*D/2 = 0.075/2, directive 3.2
+  r_i       0.0335       m       DERIVED     r_o - 4 mm wall, directive 3.2
+  L_hous    0.125        m       DERIVED     0.5*D, directive 3.2
+  r_bore    0.006        m       ASSUMED     shaft bore radius; NOT in the directive, chosen by judgement. Its effect is bounded below (BORE SENSITIVITY block).
+
+DERIVED: Pr = 0.695769   D_h = 0.1750 m   A_housing = 0.029452 m2
+DERIVED: R_wall = 8.599742e-04 K/W   R_core = 1.410124e-02 K/W
+
+h [W/m2K] at the four REGISTERED airspeeds:
+  U (m/s)                 10         20         30         40
+  Dittus-Boelter        33.4       58.2       80.5      101.4
+  flat-plate avg        58.9      102.6      141.9      178.7
+  ratio FP/DB          1.763      1.763      1.763      1.763
+
+========================================================================
+1. THE ORIGINAL DIRECTIVE LEVELS {100, 300, 600, 1000} W
+
+== T_max [degC], Dittus-Boelter (pessimistic) -- ORIGINAL ==
+  P(W)\U          10         20         30         40
+    100       117.9       74.7       58.5       49.8 
+    300       324.0*     194.3      145.8      119.8 
+    600       633.1*     373.8*     276.8*     224.8*
+   1000      1045.3*     613.1*     451.5*     364.8*
+  points above 200 C: 9 of 16
+
+== T_max [degC], flat plate (optimistic) -- ORIGINAL ==
+  P(W)\U          10         20         30         40
+    100        74.0       49.4       40.3       35.3 
+    300       192.2      118.6       91.1       76.3 
+    600       369.5*     222.3*     167.4      137.8 
+   1000       605.9*     360.7*     269.0*     219.8*
+  points above 200 C: 6 of 16
+
+  ORIGINAL over-bound count: 9 of 16 (DB)   6 of 16 (FP)
+
+========================================================================
+2. THE INCOMPATIBILITY -- why NO full-factorial rectangle can clear the bound
+   while still delivering the 120 C isotherm of directive 3.6.
+
+   Dittus-Boelter:
+     to BRACKET the 120 C isotherm at U = 40 m/s, max(P) >=    300.5 W
+     to keep every point under 200 C at U = 10 m/s, max(P) <=    179.7 W
+        300.5 >    179.7  ->  INCOMPATIBLE by a factor 1.672
+
+   flat plate:
+     to BRACKET the 120 C isotherm at U = 40 m/s, max(P) >=    512.9 W
+     to keep every point under 200 C at U = 10 m/s, max(P) <=    313.3 W
+        512.9 >    313.3  ->  INCOMPATIBLE by a factor 1.637
+
+   Holds under BOTH estimators, so it is not an artefact of the h model.
+   Minimum unavoidable flagged points on any bracketing rectangle: 1 (DB).
+
+   The 120 C isotherm, P [W] at which T_max = 120 C:
+     U (m/s)            10         20         30         40
+     DB              102.0      175.8      240.8      300.5
+     FP              177.9      304.1      413.7      512.9
+   The 200 C bound, P [W] at which T_max = 200 C:
+     DB              179.7      309.5      424.0      529.1
+     FP              313.3      535.4      728.5      903.2
+
+========================================================================
+3. CANDIDATE LEVEL SETS
+
+  level set                        over(DB) over(FP)  isotherm bracketed?      widest iso gap [W]
+  ORIGINAL      100/300/600/1000          9        6  ALL FOUR                 300
+  supervisor's   50/100/200/300           2        0  only U = [10, 20, 30]    100
+  dead lane A    60/120/200/320           3        1  ALL FOUR                 120
+  THIS LANE      80/155/230/305           2        0  ALL FOUR                 75
+  min-flag       80/130/175/305           1        0  ALL FOUR                 130
+
+========================================================================
+4. RECOMMENDED SET [80, 155, 230, 305] W  (ASSUMED levels; U_inf levels UNCHANGED)
+
+== T_max [degC], Dittus-Boelter (pessimistic) -- RECOMMENDED ==
+  P(W)\U          10         20         30         40
+     80        97.3       62.7       49.8       42.8 
+    155       174.6      107.6       82.5       69.1 
+    230       251.9*     152.4      115.3       95.3 
+    305       329.1*     197.3      148.0      121.6 
+  points above 200 C: 2 of 16
+
+== T_max [degC], flat plate (optimistic) -- RECOMMENDED ==
+  P(W)\U          10         20         30         40
+     80        62.1       42.5       35.2       31.2 
+    155       106.5       68.5       54.2       46.6 
+    230       150.8       94.4       73.3       62.0 
+    305       195.1      120.3       92.4       77.4 
+  points above 200 C: 0 of 16
+
+  MARGIN TO THE 200 C BOUND, Dittus-Boelter (negative = above the bound):
+  P(W)\U          10         20         30         40
+     80        102.7      137.3      150.2      157.2
+    155         25.4       92.4      117.5      130.9
+    230        -51.9       47.6       84.7      104.7
+    305       -129.1        2.7       52.0       78.4
+
+  Points within 50 K of the bound under DB (the model cannot call these):
+    P = 155 W, U = 10 m/s: margin +25.4 K
+    P = 230 W, U = 20 m/s: margin +47.6 K
+    P = 305 W, U = 20 m/s: margin +2.7 K
+
+========================================================================
+5. SENSITIVITY TO THE ONE ASSUMED INPUT (r_bore), at the worst cell
+    r_bore = 0.0001 m -> R_core = 1.5914e-02 K/W, T_max(305 W, 10 m/s) =  329.69 C (delta +0.55 K)
+    r_bore = 0.0030 m -> R_core = 1.5295e-02 K/W, T_max(305 W, 10 m/s) =  329.50 C (delta +0.36 K)
+    r_bore = 0.0060 m -> R_core = 1.4101e-02 K/W, T_max(305 W, 10 m/s) =  329.14 C (delta +0.00 K)
+    r_bore = 0.0100 m -> R_core = 1.2151e-02 K/W, T_max(305 W, 10 m/s) =  328.54 C (delta -0.59 K)
+    r_bore = 0.0150 m -> R_core = 9.5019e-03 K/W, T_max(305 W, 10 m/s) =  327.73 C (delta -1.40 K)
+
+    The convective term dominates: r_bore moves T_max by a few K across a
+    150x range of the assumption, while FP vs DB moves it by tens of K.
+    The ASSUMED bore is therefore NOT what decides any flag.
