@@ -1849,3 +1849,156 @@ it here rather than letting it surface as an unexplained red**, and it is the co
 the alternative was publishing a stamp I knew to be false to keep a ledger tidy.
 
 **No rule is minted from this.** The freeze binds, and the remedy already exists as a tool.
+
+---
+
+## 17. DATED SECTION, 2026-08-31T17:50Z — **RULING ON cfd's F28 REFERRAL: THE LANE'S READING IS CONFIRMED IN ITS RESULT AND CORRECTED IN ITS GROUND — THERE ARE TWO QUESTIONS HERE, NOT ONE, AND THEY ARE GOVERNED BY DIFFERENT CLAUSES. PLUS A FAIL-OPEN GUARD THE DIFF NAMES IN PASSING AND NOBODY HAS BOOKED**
+
+Referred by `cfd-supervisor` for this team's ruling. **§2d/§2d.1 are this team's charter, so this
+is a ruling and not an opinion**, and it is made after reading `make_mesh.py`'s diff **as a
+diff** (`SUPERVISION_CHARTER` §3 check 1) rather than from the referral's summary.
+
+### 17.1 CONFIRMED: §2d.1 IS NOT ENGAGED, AND THE LANE READ THE CLAUSE CORRECTLY
+
+§2d.1's operative sentence, quoted from the charter at `docs/charters/VERIFICATION_CHARTER.md`:
+
+> **"A change on the grading path made after the first graded solve is permitted when, and only
+> when, all four hold…"**
+
+**The trigger is *after the first graded solve*.** F28 has had none — `5a851ca1` states *"NO
+SOLVER HAS RUN"* and *"THE COMPARATOR AND THE LAUNCHER ARE COMMITTED AND HAVE NOT BEEN RUN"*,
+and the referral reports five registered gated rung roots verified absent with **zero of the 400
+core-min cap spent**. **An exception is not needed where the rule it excepts has not bitten.**
+The lane's instinct to document all four conditions anyway is right and costs nothing.
+
+**And its condition (2) claim is corroborated by the registration's own text, which I checked
+rather than accepted:** `F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md:1419` describes
+`cellVolumeRatio` as *"a mesh-quality diagnostic that **grades nothing in**…"*. **So the finding
+instrument grades nothing, and it delivered a result AGAINST its finder's own proposed
+redesign** — which is condition (2) in its strongest available form. An instrument that does not
+know the wanted direction is good; one that delivered the *unwanted* direction is better.
+
+### 17.2 CORRECTED: THE PRE-COMPUTE LIMB DOES NOT COVER THE WHOLE REFERRAL. THE STAGE 0 RECORD IS A **PUBLISHED** RECORD
+
+The referral treats this as one question. **It is two, and only the first is pre-compute.**
+
+**(A) The five gated rungs — thrust vs airspeed.** No compute can have answered them; the roots
+do not exist and none of the cap is spent. **The ordinary pre-compute limb of rule 2 applies**:
+the amendment is legal and **must state the condition and how it was checked, naming the run
+directory that does not exist.** Confirmed as the lane has it.
+
+**(B) The STAGE 0 record at `5a851ca1` — and this one is NOT pre-compute.** That commit
+**published numbers graded against gates**: max non-orthogonality **57.87 / 57.92 / 57.95
+against a 65 gate**, max skewness **1.24 / 1.26 / 1.29 against 4**, zero negative volumes.
+**A gate was reached and answered.** Superseding it is therefore not a pre-compute amendment at
+all — it is a **correction to a published record**, which **§2d.1's own exclusion list assigns
+elsewhere**, in its third excluded case:
+
+> *"A rung whose defect is found after it reports… That is a correction to a **published**
+> record under W-4, made with every measurement shown byte-identical across the re-run, and it
+> is governed by the amendment rules and not by this one."*
+
+**So the STAGE 0 supersession is governed by the amendment rules, not by §2d.1 and not by the
+pre-compute limb — and that is a STRICTER obligation, not a looser one.** The D420 standard
+carried in that sentence is explicit: **every measurement is shown byte-identical across the
+re-run.** Operationally, for the re-generated meshes: **where a published figure is unchanged,
+show it byte-identical; where it moved, quantify the movement.** *"The meshes were rebuilt"* is
+not a discharge of that.
+
+**Why the distinction is not pedantry:** under the pre-compute limb a record may simply be
+replaced. Under the amendment rules it must be **superseded with its predecessor's numbers still
+legible and its deltas quantified** — which is precisely what a reader of a Roache ladder will
+need, because §17.3 is about to make those old numbers evidence.
+
+### 17.3 ⚠⚠ THE DIFF CARRIES A CONSEQUENCE LARGER THAN THE REFERRAL STATES, AND IT GOES TO RULE 5
+
+From `make_mesh.py`'s own repair comment, read by me in the diff:
+
+> *"The defect therefore fired in a DIFFERENT column at each level and not at all at L3, so the
+> three meshes were not geometrically similar and MESH_STANDARD 9.2 similarity did not hold
+> across the Roache ladder."*
+
+**That is the finding.** Measured consequences in the same comment: **L1 column c1 took a first
+axial cell of 0.02255 m where 3.5e-4 m was prescribed — a factor of 64**, with a face-adjacent
+cell-volume jump of **28,735 against a mesh median of 1.22**; **L2 column c2 took 0.015925 m
+where 8.86e-4 m was prescribed — a factor of 18**, across half the lip; **L3 unaffected.**
+
+**A Roache triple presupposes geometrically similar meshes. These three were not.** An observed
+order computed on them would have been measuring **the defect's differential firing across
+levels**, not the discretisation — so it would not merely have failed to converge, it would have
+been **meaningless while looking well-behaved.** Under rule 5 such a row is `NOT A RESULT`; the
+sharper point is that **the ladder would have reported a number with no referent at all.**
+
+**And it lands squarely on STAGE 0's own headline claim**, which is why §17.2(B)'s stricter
+obligation matters: `5a851ca1` argues *"The three levels now sit within 0.08 degrees of each
+other, which is the signature that matters for a Roache ladder: THIS MESH DOES NOT DEGRADE UNDER
+REFINEMENT."* **That 0.08-degree agreement was computed across three meshes that were not
+geometrically similar.** The claim is not thereby false — it may well survive regeneration —
+but **its evidence is superseded, and it must be re-earned rather than carried forward.**
+
+**cfd found this themselves, before any solve, with an instrument that grades nothing, and
+referred it rather than landing it. That is the process working.**
+
+### 17.4 THE REPAIR ITSELF, READ AS A DIFF: IT MOVES NO GATE, AND IT IS A REFUSAL
+
+**It cannot have been chosen to fit an answer, and the reason is structural rather than a matter
+of trust.** The repair **raises `ValueError`**; it does not clamp, warn-and-continue, or correct.
+*"NOTHING IS CLAMPED AND NOTHING IS WARNED-AND-CONTINUED"* — and **a refusal cannot select a
+direction.** The one new constant, `N1_REL_TOL = 1.0e-9`, is an **identity tolerance on
+`length == first`**, not a quality band: **loosening it admits fictions, it does not admit nicer
+meshes.** No gate, threshold, cap or label is touched. **The generator now either produces a
+mesh or refuses to.**
+
+**The second instance is guarded though it never fired** — `_series_sum` with `n == 1` returned
+`h_first` and ignored `h_last`, unreachable only because `level_counts` floors column counts at
+2 — and it is guarded *"rather than left as a trap for the next edit."* **That is rule 14's
+shape (a lesson is not applied until EVERY call site asserts it) and §2l's *remove the
+possibility, not the instance*, applied unprompted to a latent twin.** Correct, and worth saying
+so.
+
+### 17.5 A FAIL-OPEN GUARD THE DIFF NAMES IN PASSING AND NOBODY HAS BOOKED — WHICH IS THIS FILE'S BUSINESS
+
+From the same comment, explaining how the defect walked past the guard that existed to stop it:
+
+> *"the `>= 40 cells around the lip` refusal below still passed because **it counts cells and
+> does not size them**."*
+
+**Half the lip carried an 18× oversized cell and the lip guard reported OK.** That is this file's
+subject exactly: **a guard that answers a different question than the one it is trusted for.**
+It is not a dead lever — it fires on a genuine under-count — but **on the failure it was
+positioned to catch, it could not have failed.** Booked here as **cfd's to dispose of, not
+mine**: they may size as well as count, or record why counting is the right scope. **I am not
+mandating a repair — the 14-day plumbing freeze binds this team too, and naming a finding is not
+minting a rule.**
+
+### 17.6 THE FOURTH REGISTRATION DEFECT: THE SHA IS THE FREEZE, NOT THE PROSE
+
+Line 3 reads `FROZEN. Status at freeze: ARMED — never run.` and *"Frozen by the commit that
+carries this file"*; `:1204-1206` still reads `**UNFROZEN. PENDING.**` and `Do not launch.`
+**Both were verified by me at those line numbers.**
+
+**RULING: line 3 governs, and not because it is higher up.** `CLAUDE.md` rule 2 freezes a
+registration **by sha**; line 3 merely *describes* the operative fact, which is the commit. The
+`:1204` footer is a **stale revision-2 drafting artifact** that the freeze commit did not strike.
+**A stale sentence cannot un-freeze a commit.**
+
+**The lane was RIGHT not to edit it.** Striking it would move line numbers above the addendum at
+`:1363`, and **rule 6 requires `lines whose number changed above this section: 0`** — other
+records cite these files by line, and one such citation sits inside an executable check.
+**Recorded, not edited, is the correct disposition and I endorse it.**
+
+**What makes the contradiction non-actionable rather than merely disclosed** — and this is the
+part worth having on the record — is that **`run_f28.sh` refuses to fire without a check-1 token
+that no agent may supply on a supervisor's behalf.** **The launcher interlock, not the prose, is
+what prevents a reader acting on `Do not launch.`** A disclosure that relies on everyone reading
+carefully would not be enough; an interlock is.
+
+**It stands as defect 4 of 4 on Sanaa's desk, and none of the four is cured by this ruling.**
+
+### 17.7 WHAT THIS RULING DOES NOT DO
+
+**No verdict moves; F28 has produced none.** **No clause is amended** — the freeze binds this
+team, and every disposition above is an existing clause applied. **I have not authorised Stage
+1:** my §3 check 1 read here covers `make_mesh.py` only. **`analyse_f28.py` has not been read by
+me**, the launcher is correctly interlocked against that, and **no agent may supply that token
+on my behalf** — including on the strength of this section.
