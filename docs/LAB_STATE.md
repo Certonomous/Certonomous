@@ -10036,6 +10036,238 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T20:45Z — T24's TWELVE ARE MID-FLIGHT AND ITS COMPARATOR WAS NEVER WRITTEN; THE COMPLETION MARKER IS FROZEN; TEN FOSSILS LANDED AGAINST AN AUTHORISATION WHOSE OWN DIFF CLAIM DOES NOT REPRODUCE
+
+*(Pure insertion by a heat-transfer `lab-lane` at the supervisor's instruction, with **zero existing lines edited or deleted**. The `**Section last written:**` line at the top of this section is stale and is DELIBERATELY NOT EDITED — editing it would be a deletion. **Every figure below was re-derived by this lane from the named artefact**, not transcribed from the commissioning brief; where this lane's reading DIFFERS from the brief it is boarded under "WHERE I DIFFER FROM MY SUPERVISOR" rather than silently fixed. Items this lane did not check itself are tagged **VERIFY**. Repository HEAD **at the moment this text was composed** was `b79a6b8c`; the true parent of this block's own commit is whatever the CAS asserted, and that — not this sentence — is authoritative (the 17:52Z correction below is this team's own precedent for why.)*
+
+> **THE HEADING ABOVE EXPIRED WHILE THIS BLOCK WAS BEING WRITTEN, AND IS KEPT VERBATIM RATHER THAN QUIETLY REPAIRED.** It was commissioned when twelve cases were running. At 2026-08-31T20:44:06Z, **four have LANDED** — all four `T24_P080_U*` — and **eight are still mid-flight** [MEASURED]. The heading is left as issued because it is honestly timestamped, and this note, not a rewrite, is how this team has handled expiry all day.
+
+---
+
+### LAST COMMITS (this team), newest first — all six verified by `git log` [MEASURED]
+
+| sha | committed (UTC) | what |
+|---|---|---|
+| `f52361c4` | 20:39:37Z | the **ten queue fossils deleted by explicit path** under `88530a3b` |
+| `3b053709` | 20:37:52Z | **`mark_done_t24.py` frozen**, **490 lines**, and worktree byte-identical to HEAD |
+| `d8262317` | 20:25:17Z | T24 concurrency-contention measurement |
+| `810d78aa` | 20:16:59Z | T24 launch of all twelve |
+| `73e9452c` | 20:01:51Z | T24 builds the twelve cases |
+| `b9057489` | 19:55:46Z | **T24 pre-registration, frozen before any compute** |
+
+---
+
+### LIVE JOBS — re-derived by this lane at **2026-08-31T20:44:06Z** from `ps`, `readlink /proc/<pid>/cwd` and each case's own `log.solve`
+
+All twelve are `chtMultiRegionSimpleFoam`, **1 rank each**, under **`timeout 2700s`**, in `verification/runs/T-family/T24_runs/T24_P{080,155,230}_U{10,20,30,40}`, `endTime` **10000** [MEASURED].
+
+**FOUR HAVE LANDED — this is new since the commissioning brief:**
+
+| case | last `Time` | `End` lines | `STATUS.<case>` | `ExecutionTime` s | core-min MEASURED | vs POINT 30.0321 | cap use of 45.0 |
+|---|---:|---:|---|---:|---:|---:|---:|
+| `T24_P080_U10` | 10000 | 1 | present | 2251.46 | **37.524** | 1.249× | 83.4 % |
+| `T24_P080_U20` | 10000 | 1 | present | 2258.31 | **37.639** | 1.253× | 83.6 % |
+| `T24_P080_U30` | 10000 | 1 | present | 2300.38 | **38.340** | 1.277× | **85.2 %** |
+| `T24_P080_U40` | 10000 | 1 | present | 2235.52 | **37.259** | 1.241× | 82.8 % |
+
+**EIGHT STILL RUNNING.** Marginal rate is measured over the 92 s between two samples this lane took itself (20:42:34Z → 20:44:06Z), never from a start-to-now average, which contention makes meaningless:
+
+| case | pid | last `Time` | marginal rate | remaining s | elapsed s | cap headroom s | **projected spare s** |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `T24_P155_U10` | 332337 | 9956 | 5.087 it/s | ≈9 | 2306 | 394 | **≈385** |
+| `T24_P155_U20` | 335574 | 8526 | 5.185 it/s | ≈284 | 2061 | 639 | **≈355** |
+| `T24_P155_U30` | 336295 | 8131 | 5.185 it/s | ≈360 | 1996 | 704 | **≈344** |
+| `T24_P155_U40` | 338635 | 8095 | 5.435 it/s | ≈350 | 1931 | 769 | **≈419** |
+| `T24_P230_U10` | 340050 | 7647 | 5.087 it/s | ≈463 | 1866 | 834 | **≈371** |
+| `T24_P230_U20` | 342158 | 7208 | 5.185 it/s | ≈538 | 1801 | 899 | **≈361** |
+| `T24_P230_U30` | 345300 | 6778 | 5.130 it/s | ≈628 | 1736 | 964 | **≈336** |
+| `T24_P230_U40` | 371062 | 6610 | 5.413 it/s | ≈626 | 1671 | 1029 | **≈403** |
+
+Every `cwd` was read from `/proc/<pid>/cwd` and matches its case directory [MEASURED]. **All eight are projected to COMPLETE inside cap, none projected to cap; the tightest is `T24_P230_U30` at ≈336 s spare.** *This remains a PROJECTION and not a result* — a SIMPLE-scheme solver does not run at constant rate, and the only thing that converts it into a result is an `End` line.
+
+---
+
+### **THE HEADLINE, AND IT IS NOT SOFTENED: T24 HAS NO COMPARATOR AND NEVER DID.**
+
+**`analyse_t24.py` does not exist** — not on disk anywhere under `/home/ubuntu`, not in any scratchpad, and not anywhere in git history. `git log --all -- '*analyse_t24*'` returns **nothing**; so does `git log --all -- '*mutation_controls_t24*'` [MEASURED]. **`mutation_controls_t24.py` does not exist either.**
+
+**The absence was verified with a reader shown able to see a non-zero, per `CLAUDE.md` rule 3 — a zero from an unproven finder is not evidence:**
+
+- The **same** `find` invocation that returns no `analyse_t24.py` returns **37 other `analyse_t*.py` files**, including `verification/runs/T-family/T23_runs/analyse_t23.py` and `.../T20_runs/analyse_t20.py` [MEASURED].
+- The **same** `git log --all` that returns nothing for `analyse_t24` returns `c8f7a805` for `analyse_t23` [MEASURED].
+- The same finder returns **four** `mutation_controls_t*.py` (T16c, T19b, T20, T20c) and none for T24 [MEASURED].
+- The only T24-named Python on disk is `build_t24.py` (in `T24_runs/` and copied into all twelve case directories) and `mark_done_t24.py` [MEASURED].
+
+**A commissioning brief asserted that a lane had been authoring one. That premise was FALSE.** **T24 GRADING IS `BLOCKED` ON AN INSTRUMENT NOBODY WROTE.** One is being authored now, deliberately **blind to the case output**, against the registration frozen at `b9057489`. Until it is frozen, **no T24 number may be quoted as a verdict** — the twelve solves are a data set with no reader.
+
+---
+
+### PRE-REGISTRATION CHECK — done personally by the supervisor (`SUPERVISION_CHARTER` §3.4), RE-VERIFIED INDEPENDENTLY BY THIS LANE, and it holds
+
+`docs/campaigns/T-family/T24_PREREGISTRATION.md`:
+
+- **sha256 identical across all three copies** — worktree, `HEAD`, and the freeze commit `b9057489`: **`2f3f7310bceac91fed32bcb465ecc375f370d9c215ffe6e1a4a40db884df0e98`**, **1073 lines** [MEASURED].
+- **`git diff b9057489 HEAD` on that path is EMPTY — 0 bytes** [MEASURED]. The frozen file **is** the file in play.
+- **Chronology: freeze 19:55:46Z → build 20:01:51Z → launch 20:16:59Z.** The freeze preceded the solver launch by **21 min 13 s** and the case-build commit by **6 min 05 s** [MEASURED, `git log --format=%cI`].
+
+`mark_done_t24.py` is frozen at `3b053709`, **490 lines**, and `git diff HEAD` on it is empty [MEASURED].
+
+---
+
+### T24 IS A MAP RUNG, NOT A GATED TRIPLE — and quoting a triple from it is a registered CATEGORY ERROR
+
+§0.3 registers, verbatim: **"NO ROACHE TRIPLE, NO GCI, NO OBSERVED ORDER, NO NUSSELT NUMBER, NO HEAT-BALANCE CLOSURE. Every point runs at L1 only,"** and **"Any Roache classification, GCI or observed order quoted from a T24 artifact is a CATEGORY ERROR"** [REGISTERED, verified by this lane against the frozen file].
+
+The gates are **B1/B2/B3 on Q1 = max(T) over `housing` in °C**, at `T24_PREREGISTRATION.md:224-228` [REGISTERED]:
+
+| gate | condition | met | **not met** |
+|---|---|---|---|
+| **B1** | Q1 < 200.0 °C | PASS | **`PASS`, FLAGGED "beyond assumption range"** |
+| **B2** | Q1 > 0.0 °C | PASS | **`GATE FAIL`** |
+| **B3** | Q1 ≥ Q2 and Q1 ≠ Q2 | PASS | **`NOT A RESULT`** |
+
+**B1 unmet is a FLAGGED `PASS` and EXPLICITLY NOT A `GATE FAIL`** — the registration says so in its own words at line 228. **`CLAUDE.md` rule 5 is not waived here; it is ABSENT:** a single mesh level admits no triple, so there is no row whose triple could be non-`CONVERGING`. §0.3 states that distinction itself, which is why it is not this lane's improvisation.
+
+---
+
+### ⚠ THE REGISTERED GUARD THE OBVIOUS TEMPLATE DROPS — read this before anyone copies `analyse_t23.py`
+
+**T24 §7.1 registers, before compute:** the `Ux` exclusion from the convergence assertion is justified **PER CASE by that case's OWN measured max|Ux|/max|Uz|, never recited from T23**, and **"a ratio above 1e-12 REFUSES the exclusion for that case and the row reports `Ux` asserted"** [REGISTERED, verified verbatim].
+
+**`analyse_t23.py:582-610` computes that ratio and PRINTS it — and carries no threshold test and no refusal branch on it** [MEASURED, read as code by this lane]. Its `conv` flag is built only from `ASSERT_RESID`; the ratio feeds two `print` calls and nothing else. Every `1e-12` in that file is a **selftest** assertion or a Q1/Q2 equality check, none of them on this ratio.
+
+**The rungs are near-identical, so copying T23 is the natural move — and it inherits a guard that does not guard.** Boarded here so the comparator now being authored has to add it deliberately rather than discover its absence after grading.
+
+---
+
+### ⚠ THE `STATUS` CLOBBER — HAZARD RETIRED BY MEASUREMENT, AND THE OBVIOUS CULPRITS ARE BOTH INNOCENT
+
+An earlier framing warned that `mark_done_t24.py:144-151` **refuses on an ABSENT `STATUS.<case>`** (§3.5a registered that the runner CLOBBERS the file; it did not anticipate DELETION), and that twelve completed physics runs refusing on a bookkeeping file would be the shape Sanaa's universal rule forbids.
+
+**That hazard is RETIRED, by measurement, not by argument.** All four landed cases have a `STATUS.<case>` **PRESENT**, 93 bytes, carrying exactly one key — `launcher_rc=0 end=<utc> note=exit-status-of-the-launch-argv-NOT-the-solver-rc` [MEASURED on all four]. **The runner clobbers; it does not delete.** The refusal branch does not fire. It is recorded as retired rather than dropped silently, because it was a live worry ten minutes earlier and a later reader deserves to know why it stopped being one.
+
+**The triage, and it is not the obvious answer — BOTH obvious culprits are innocent:**
+
+- **NOT a stale daemon.** `scripts/queue_runner.py` mtime is **20:17:09Z** and the daemon (**pid 374025**) started **20:18:08Z**, so **the live daemon DOES carry the repair** [MEASURED].
+- **NOT a cfd defect.** The repair is **R5** at `scripts/queue_runner.py:496-525`: the runner now writes `STATUS.queue.<case_id>`, a namespace it owns, and "can therefore never occupy the launcher's `STATUS.<case_id>`" [MEASURED, read as code]. It is sound and it works.
+- **The repair simply arrived too late for these twelve.** All twelve launched **20:01:19Z–20:16:15Z**, i.e. **54 seconds to 16 minutes before the repair reached disk**; `T24_P080_U10`'s queue entry records `_launch.status_file = .../STATUS.T24_P080_U10`, the launcher's namespace, claimed by the OLD runner at launch time [MEASURED, supervisor; this lane independently confirmed the resulting file shape on four cases]. A repair cannot retroactively rewrite an already-detached wrapper. **ALL TWELVE WILL THEREFORE CLOBBER.**
+
+**Do not dispatch anyone to fix the daemon or the runner. Neither is broken.**
+
+**The consequence is benign for physics, which is the whole point.** `mark_done_t24.py:185-207` **derives `rc` from `log.solve` and refuses `launcher_rc` even at 0** — "because a 0 there is the shape of the setsid trap" — and `:163-168` reports the missing infrastructure fields as a **NOTE, never as a completion conjunct** (L-342) [MEASURED, read as code]. **Sanaa's universal rule holds: the clobber costs bookkeeping, not the runs**, and the marker was built in advance for exactly this shape.
+
+> **OPERATIONAL CONSEQUENCE FOR RULE 12, AND IT IS LOAD-BEARING: per-case core-minutes must be taken from `ExecutionTime` in each case's own `log.solve`, NEVER from `STATUS` — `core_min` is one of the clobbered keys.** The four landed figures in the LIVE JOBS table above were taken that way.
+
+---
+
+### THE FOSSIL DELETION, AND WHAT IT COST TO BELIEVE
+
+Ten paths landed at **`f52361c4`** — **10 files, 306 deletions, 0 insertions** [MEASURED, `git show --stat`].
+
+**THE AUTHORISATION'S OWN "0 NON-RUNNER DIFFS" CLAIM DOES NOT REPRODUCE.** This lane re-measured every one of the ten, comparing the deleted queue copy at `f52361c4~1` against its `launched/` counterpart at `HEAD`, parsing both as JSON: **9 of the 10 DIFFER in `_field_classes`; only `T5_S_m.json` is identical** [MEASURED, independently of the supervisor and of the survey lane, all three agreeing].
+
+The **queue copy is the richer text** and the loss is in the classification of evidence. Specimen `T16_MC_c.json`, and the loss is **larger than first reported** — **three classes differ, not one** [MEASURED]:
+
+- **`infrastructure`** loses **`"the ExecutionTime line count"`** — which is **`CLAUDE.md` rule 4's fifth conjunct** — and also loses `"the STATUS RECORD itself (ruling R-RC: the rc VALUE is physics, the rc RECORD is infrastructure)"`.
+- **`physics_critical`** loses its explicit field list: the queue copy names `"fields T U p_rgh phi at endTime"` and `"written inside run_one_t16.sh's foreground wrapper"`; the launched copy degrades both to `"endTime fields"` and `"the detached wrapper"`.
+- **`rule`** loses an entire sentence recording that the ExecutionTime count is infrastructure **deliberately** — "it is the misclassification `docs/L342_GRADER_AUDIT.md` found in `T14_runs/mark_done_t14.py` and it is not repeated in `mark_done_t16.py`."
+
+**This is live, not historical: cfd's `9e356f09` repaired that exact record class tonight.**
+
+**Deleted anyway**, on the list's load-bearing discriminator — no `.py` or `.sh` reads any of the ten by path, verified personally by the verification supervisor [TRANSCRIBED; **VERIFY** — this lane did not re-run that sweep] — and because the bytes survive at `HEAD~1`.
+
+> **REFERRED TO VERIFICATION: strike and restate the "0 non-runner diffs" line, and RE-MEASURE the other seven paths (ansys 2, cfd 1, dafoam 4) BEFORE their owners land them on it.** An authorisation whose stated measurement does not reproduce on the first team to check it should not carry six more deletions unexamined.
+
+**`verification/queue/heat-transfer/T5b_c.json` stays `BLOCKED` and was NOT deleted.** Measured: the queue copy **is tracked**; its `launched/` counterpart is **on disk (4263 bytes) but NOT tracked by git** [MEASURED]. Deleting the queue copy would strand the last tracked trace of that entry.
+
+---
+
+### ⚠ AGAINST MYSELF — T21 IS IN BREACH OF A CLAUSE THAT NAMES THE SUPERVISOR
+
+`VERIFICATION_CHARTER` §2m.3 (v1.26) starts a **four-hour freeze clock** at the earlier of first commit or file mtime, and says **"a supervisor who lets a draft pass four hours has failed the rule, not the draft's author."**
+
+`docs/campaigns/T-family/T21_PREREGISTRATION.md` is **UNTRACKED** (`git ls-files --error-unmatch` errors on it), **1245 lines**, sha256 **`9a7ddbb1370da54627273cd66b7f39abfce92ae446a2dec6dd18909a7ebabfaa`**, mtime **2026-08-31T16:00:48Z** [ALL MEASURED]. **It passed four hours at 20:00:48Z**, and §2m.6's non-retroactivity does not reach it — v1.26 landed 15:16Z, **before** the clock started [TRANSCRIBED for the v1.26 landing time; **VERIFY**].
+
+**It has NOT been frozen, and the reason is a conflict INSIDE §2m.3 itself.** The same clause requires a freeze to be **COMPLETE** — "gate, threshold, cap, label, **grading path**" — and says a freeze missing any of those **"is not a short freeze, it is not a freeze, and §2m does not license one."** T21 has:
+
+- **gate** — Q1 `dT_wall`; **threshold** — ±0.8600 mK about 0.0859974153 K; **cap** — 20.0 core-min hard; **label** — present.
+- **NO grading path.** No comparator, builder or launcher exists; §3/§5/§6 are a **specification, not code**. This lane's own sweep found **no T21 artefact of any kind** on disk beyond the pre-registration itself, and **`verification/runs/T-family/T21_runs/` DOES NOT EXIST** [MEASURED].
+
+**So §2m.3 simultaneously ORDERS a freeze on the spot and FORBIDS the only freeze available.**
+
+> **REFERRED TO VERIFICATION as a charter-internal conflict.** It is not being resolved unilaterally, and an incomplete document is not being frozen merely to stop a clock — that would be the letter of §2m.3 defeating its own stated purpose.
+
+**Nothing is at risk meanwhile, and this is stated so the exposure is not overestimated: T21 authorises nothing, `T21_runs/` does not exist, and no T21 compute has run. The exposure is PAPERWORK, NOT PHYSICS.**
+
+---
+
+### RUNGS WITHOUT VERDICTS
+
+| rung | state | what it is waiting on |
+|---|---|---|
+| **T24** | **eight mid-flight, four landed; `BLOCKED` on the instrument** | `analyse_t24.py` does not exist; **no T24 number is a verdict until it is written and frozen** |
+| **T21** | **unfrozen; §2m.3 breach; REFERRED** | the charter-internal conflict above; no compute has run |
+| **T20** | **`NOT A RESULT` on its own registered terms** | **V5** at `T20_PREREGISTRATION.md:1062` makes a refusal on the planted **+10 %** arm a **whole-rung `NOT A RESULT`**, and **`T20_LC_P10` DOES NOT EXIST** [MEASURED]. `analyse_t20.py` **IS** frozen at `e4877567`, **2011 lines** [MEASURED]. **§2d.1 referral still UNRULED.** |
+| **T16c** | no verdict; instrument sound | comparator now **TRACKED** at `46d090f6`; **blindness INTACT — no `gate_t16*` exists anywhere on disk** [MEASURED, and the same finder sees other `gate_*` artefacts]. Three limbs **L19 / L20 / L34** remain untested [TRANSCRIBED; **VERIFY**]. |
+| **T22** | feasibility **ANSWERED**; **no verdict assertable** | a feasibility output is never gradeable. **FILING INCOMPLETE:** `T22_LAUNCHER_REPAIR.diff`, `queue_drafts/T22_CHTb_L1_R2.json` and the whole `T22_CHTb_L1_FAILED_LAUNCH1_20260831T163511Z/` tree are **untracked**, and **six tracked files** under `T22_CHTb_L1/` are modified against HEAD [MEASURED]. |
+| **T18** | **`PASS` ×3** | its **S8-carrying successor is owed**; `analyse_t18.py --selftest` **must not be run until that successor exists**. Ceiling is registered: reference is EXACT, so T18 scores V and **can never reach `HOLDS`** [MEASURED, `gate_t18.json` key `ceiling`]. |
+
+---
+
+### RULE 12 — ALREADY DISCHARGED, DO NOT DUPLICATE
+
+**Every id below was verified by this lane to occur EXACTLY ONCE in `docs/COST_CALIBRATION.md`, against a bogus-id negative control that returned 0** [MEASURED — the reader was shown able to return both 1 and 0]:
+
+| row id | covers |
+|---|---|
+| `C-20260831T164745.937132Z-3fc3bd39` | T19b, stage 1 |
+| `C-20260831T164745.937182Z-82edc690` | T19b, stage 3 |
+| `C-20260831T172527.907664Z-b006f781` | T22 |
+| `C-20260831T172757.247519Z-34cbf5b1` | a self-correction |
+| `C-20260831T195952.923534Z-ca60f6bd` | T20 |
+
+**T24's row is NOT YET OWED.** It falls due when the twelve land **and are graded**. `grep -ci 't24'` over the calibration ledger returns **0** [MEASURED] — nothing has been pre-emptively filed.
+
+> **LEADING INDICATOR ONLY, AND EXPLICITLY NOT THE CALIBRATION ROW:** the four landed cases measured **37.259–38.340 core-min** against a registered **POINT of 30.0321 core-min** (MEASURED, mean of four T23 cases) — a **mean ratio of 1.255**, i.e. ~25 % over POINT, with worst cap utilisation **85.2 %** against the hard **45.0 core-min** CAP [MEASURED / DERIVED]. **No cap has been breached and none is projected to be.** The gap's evident cause is **contention** — twelve 1-rank solvers on one 16-vCPU box — which §5.3 registered as the residual cost risk **before the fact**. Marginal rates rose from ≈4.9–5.4 it/s to **5.09–5.44 it/s** as the four `P080` cases freed cores, which is that same contention releasing. **This paragraph is a forecast, not a filing;** the real row is computed from all twelve at grading, with contention named separately from misprediction per `COMPUTE_BUDGET_CHARTER` §6.
+
+---
+
+### NEXT ACTIONS
+
+1. **Grade T24 the moment the comparator is frozen and the twelve are marked — never before.** The comparator must be authored blind to the case output, and must add the §7.1 per-case 1e-12 refusal that `analyse_t23.py` does not have.
+2. **Resolve the §2m.3 / T21 conflict with verification.** Not a unilateral call.
+3. **T18's S8 successor.**
+4. **T22 filing close-out** — three untracked artefacts and six modified tracked files.
+5. **Chase the T20 §2d.1 referral**, still UNRULED.
+
+---
+
+### ON SANAA'S DESK — heat-transfer's
+
+- The **T10a view-factor defect** as upstream candidate **#4** (**PARKED**, rule 7 — a draft, `NOT FILED`).
+- **K2a rack row module** awaiting approval.
+- **D389's S13 normalisation** — ~24× looser than it reads on an absolute temperature; **re-grades the whole thermal corpus**, and **no single rung may take it**.
+- **T15b's §2d.1.**
+- **NEW: the T20 §2d.1 referral.**
+- **NEW: the §2m.3 charter-internal conflict** (freeze-now vs freeze-completely), raised by this team **against itself**.
+
+---
+
+### WHERE I DIFFER FROM MY SUPERVISOR
+
+Boarded rather than silently corrected, as instructed.
+
+1. **"TWELVE ARE MID-FLIGHT" HAS EXPIRED. Four have landed.** At 20:44:06Z, `T24_P080_U10/U20/U30/U40` all read last `Time = 10000` with exactly one `End` line and a `STATUS` file present. The brief's framing was true when issued (20:34:55Z) and is not true now.
+2. **THE RATES ARE HIGHER AND THE MARGINS ARE WIDER, NOT TIGHTER.** The brief measured **4.04–4.44 it/s** and cap headroom **143–463 s**, "tightest at `T24_P230_U30` (143 s)". This lane measures **5.09–5.44 it/s** and a tightest **projected spare of ≈336 s**, still at `T24_P230_U30` — the same case, but **≈2.3× more margin**. The cause is not a measurement disagreement: the four `P080` completions freed cores and contention fell. **The brief's conclusion — all twelve complete inside cap — is unchanged and now better supported.**
+3. **`T24_P230_U40` IS NOW THE ROOMIEST CASE, NOT THE SECOND-TIGHTEST.** The brief put it at 172 s headroom; it now has the **largest projected spare (≈403 s)** of the eight, because it started last and is running fastest.
+4. **THE FREEZE-TO-COMPUTE MARGIN IS 21 min ONLY IF "COMPUTE" MEANS THE SOLVER LAUNCH.** Freeze 19:55:46Z → **build 20:01:51Z is 6 min 05 s**; → launch 20:16:59Z is 21 min 13 s. If mesh generation counts as compute, the true margin is **six minutes, not twenty-one**. Either way the freeze is genuinely pre-compute and rule 2 holds; the figure is narrowed here so nobody quotes 21 minutes for the wrong boundary.
+5. **THE `T16_MC_c` SPECIMEN LOSS IS LARGER THAN BRIEFED.** The brief named the `infrastructure` class. Measured: **three** classes differ — `infrastructure`, `physics_critical` **and** `rule` — and `infrastructure` loses the `STATUS RECORD` entry as well as the ExecutionTime line count. The referral to verification is **stronger** than as framed, not weaker.
+6. **T22's "six tracked log files" IS SIX TRACKED FILES, OF WHICH FIVE ARE LOGS.** The sixth is **`run_t22.sh`**, a script, not a log — a modified launcher script is a different kind of exposure from a modified log and should not be filed under the same description.
+7. **THE ABSENT-`STATUS` HAZARD DID NOT FIRE, AND I CONFIRMED THAT BEFORE THE CORRECTION REACHED ME.** This lane measured `STATUS` present on the landed cases independently; the supervisor's mid-task correction then arrived with the same finding plus the daemon/R5 triage, which is carried above in its corrected form. **The instruction not to patch `mark_done_t24.py` while data was landing was right and the guard was never loosened.**
+8. **PLACEMENT AMBIGUITY IN THE BRIEF, RESOLVED TOWARD THE STATED PRINCIPLE.** The brief said to insert "immediately after the `CORRECTION 2026-08-31T17:55Z` block header region" **and** "as the newest block at the TOP of the section's addendum stack ... newest-first". Those two conflict: a 20:45Z block placed *below* a 17:55Z block is not newest-first. This block is therefore placed **directly beneath the section header and ABOVE the 17:55Z correction**, honouring the stated ordering principle. **Zero existing lines were edited or deleted either way.**
+
+---
+
 ##### CORRECTION 2026-08-31T17:55Z — **THE "16 411 DELETIONS" HAZARD BOARDED BELOW HAS CLEARED IN TEN MINUTES, AND THE SHARED INDEX NOW POINTS AT THIS BOARD BLOCK INSTEAD.**
 
 Both halves measured just now, and both replace figures below that were true when taken and are not true now.
