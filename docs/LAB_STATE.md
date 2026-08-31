@@ -4671,9 +4671,61 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T16:33:55Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T16:41:14Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22b — **`SO-3aF`: THE RUN'S OWN `converged_alphas=0` IS THE INSTRUMENT'S ERROR AND NOT THE PHYSICS' — ALL THREE ALPHAS CONVERGED ON DAFoam's OWN TOLERANCE STATEMENT, AND I VERIFIED IT AGAINST THE ARTEFACTS MYSELF WITH MY OWN PLANTED CONTROL. THE BRACKET IS FEASIBLE. AND I NEARLY MADE THE EXACT BANNER-MISREADING ERROR I WAS SENT TO CHECK FOR. SEPARATELY: THE CALIBRATION LEDGER IS **NOT** BLOCKED — A LANE'S BLOCKER IS OVERTURNED BY MEASUREMENT** (2026-08-31T16:5xZ, `date -u` at write)
+
+##### 1. ⚠⚠ THE RECORDED ZERO WAS FALSE, AND IT IS `CLAUDE.md` RULE 3 IN ITS PUREST FORM
+
+`STATUS.SO3AF` records **`declared_alphas=3 executed_alphas=3 converged_alphas=0`** `[MEASURED, that file]`. **All three converged.** Verified by me against the artefacts, not relayed:
+
+| alpha | DAFoam's own statement | min residual | tol | stop | cap | CD | CL |
+|---|---|---|---|---|---|---|---|
+| 3 | present **×1** | **9.671227e-09** | 1e-08 | **443** | 1000 | 0.01723938 | 0.31190 |
+| 5 | present **×1** | **9.822716e-09** | 1e-08 | **435** | 1000 | 0.02091051 | **0.49877** |
+| 7 | present **×1** | **9.907086e-09** | 1e-08 | **424** | 1000 | 0.02726805 | 0.66398 |
+
+`[MEASURED, /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility/out/primal_alpha_{3,5,7}.13918623195176.log]`. **Three DIFFERENT stopping iterations, all below the 1000 cap — convergence-driven, not truncation.** The line is DAFoam's: *"Minimal residual 9.671227459413947e-09 satisfied the prescribed tolerance 1e-08"*, and `primalMinResTol` in the runScript is that tolerance.
+
+**MY OWN PLANTED CONTROL, so my non-zero means something (rule 3):** on a byte-exact copy I replaced the statement with a non-satisfying one; the count went **1 → 0**. **The reader I used distinguishes converged from non-converged**, so the three positives above are admissible rather than assumed. The run-root logs are root-owned 644; nothing was planted in place, and the originals are *proved* untouched rather than assumed.
+
+**THE MECHANISM OF THE FALSE ZERO IS NAMED:** `v0` of the reader tested for the literal `"Primal solution converged"` — **a string DAFoam never emits**. A column headed `converged` made a null read as a finding. That is *"a zero from a reader not shown able to see a non-zero"*, verbatim.
+
+##### 2. ⚠⚠⚠ AND I NEARLY MADE THE SAME ERROR WHILE CHECKING IT — THE MOST USEFUL THING IN THIS BLOCK
+
+My first verification grep matched `convergence criteri|tolerance` and returned **5 hits per log**, whose visible text reads **`SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.`** — **the OPPOSITE of a convergence statement.** Had I stopped there I would have concluded the lane was wrong and the alphas unconverged, **and I would have re-published the original false zero as a supervisor's correction.**
+
+**BOTH STATEMENTS COEXIST IN EVERY LOG: the SIMPLE banner 4×, DAFoam's verdict 1×** `[MEASURED]`. OpenFOAM's SIMPLE loop announces that *`controlDict`* carries no `residualControl`; **DAFoam applies its OWN primal tolerance and stops the solve** — two different mechanisms, one log. **A reader keyed on the banner reports every converged solve as unconverged.** This is the **same class** as the FPE-trapping banner this family has been bitten by twice: *a banner announcing the ABSENCE of one mechanism, sitting beside the PRESENCE of another.* **A MATCH IS NOT A MEANING, and the supervisor's own verification attempt reproduced the defect class it was verifying.** Recorded as a FINDING; **it spawns no rule and no tool** (plumbing freeze).
+
+##### 3. THE FEASIBILITY READING — A READING, NEVER A VERDICT
+
+`prereg=FEASIBILITY` under Sanaa's 16:51Z ruling, so **its outputs are not gradeable as verdicts and this carries none.**
+
+**THE ALPHA BRACKET IS FEASIBLE.** CD monotone increasing across the bracket → **`P3` HIT**. CL at the centre angle **0.4987652641542319** against `CL_target = 0.5` — **0.247 % low** → **`P2` HIT**, and it is a genuine corroboration rather than a manufactured one: the runScript states the operating point is *supplied per solve, NOT trimmed to `CL_target`*, so the agreement was not imposed. Lift slope **0.093435 → 0.082606 /deg**, ratio **0.8841** — 85.2 % → 75.3 % of the thin-airfoil 0.109662 /deg `[DERIVED from the MEASURED CL values]`. **Nothing is near stall.** The top angle sitting on a measurably flatter part of the curve is a **measured** reason to prove the FD plateau *per pair* at the bracket ends in `SO-3a` rather than inherit it from alpha0. **Indicator only** — a real attachment claim needs wall shear, which this rung did not buy. **No re-drive needed.**
+
+##### 4. COST — RULE 12, AND THE MISS IS IN COLD START, NOT IN WORK
+
+Predicted **1.5** core-min, actual **0.5833** `[MEASURED, STATUS.SO3AF]`, **ratio 0.389**. **≈$0.0005 `[DERIVED at $0.0513/core-h, NOT MEASURED]`.** Waste **0.000** core-min, named separately per `COMPUTE_BUDGET_CHARTER` §6. The over-prediction is of **cold start** (~11.7 s/cold primal against a 3.755 s warm anchor — cold ≈ 3× warm, not the 4× assumed), not of the physics.
+
+##### 5. ⚠⚠ THE CALIBRATION LEDGER IS **NOT** BLOCKED — A LANE'S BLOCKER OVERTURNED BY MY MEASUREMENT, AND THIS ONE LEAVES THIS FAMILY
+
+A lane reported the owed rows unfileable because `check_record_reconciliation.py` cannot see tool-allocated ids, inferring it **from the module's import list** and **honestly marking it `VERIFY` rather than measured.** **IT IS FALSE.** The module imports **`parse_record_ids`** (not only `parse_ids`) and calls it at **twelve sites**; `parse_record_ids` reads **BOTH id spaces**. **Its own planted controls cover exactly this and read back `FOUND` from disk**, including one naming the feared configuration verbatim: *"a TOOL-ALLOCATED row unlanded in the working copy … the configuration in which a legacy-only reader returns PASS over a row it cannot see"* `[MEASURED]`. **Verification already built this, to the fail-closed + planted-control standard, under Sanaa's own directive.**
+
+**THE LEDGER'S REAL STATE, measured with the rc captured WITHOUT a pipe:** `TRUE rc = 4`, `VERDICT: FAIL`, cause **`DUPLICATE IDS — committed: C-217 / worktree: C-217`** `[MEASURED]`. **`C-217` is CLOSURE's row and closure is stood down by Sanaa's order.** So the `rc=4` is neither ours to clear nor a reason to withhold our rows: an append-only record accepts our append while another team's duplicate stands. **The earlier `exit 7` shape-audit block is CLEARED.** Also measured: `append_record.py --dry-run` **alone** exits **2 on a USAGE error** (`--rows` is required) — **not** a refusal of content, and a trap for anyone reading exit codes without the full argv. Correction dispatched to the lane that owns the rows.
+
+##### 6. THE LANE'S CONDUCT, RECORDED BECAUSE IT IS THE STANDARD
+
+It **led with its own error**: it nearly reported a fail-open defect that did not exist, having captured **`tail`'s exit code through a pipe** instead of python's — re-measured without the pipe, `rc=2`, correct. **It then discarded a finding it had already drafted** when the premise it was handed (the exit-7 block) failed measurement. **It declined to hand-append around a tool and declined to edit a shared guard that is verification's.** And it marked its one unmeasured claim **`VERIFY`** — **which is the only reason I knew to check it, and checking it overturned it.** *A lane that labels its inference as an inference is worth more than one that is right by luck.*
+
+**⚠ The pipe-rc trap is not the lane's alone: I made the same capture in this session and caught it on re-read.** Both instances are recorded, neither spawns a rule.
+
+##### 7. LANE COMMIT
+
+**`fd2f06b9`** — `SO-3aF` reader finished; controls run on disk; `converged_alphas=0` shown to be the instrument's error. Four paths, foreign = 0 asserted before and verified after. Reader at `/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/feasibility_SO3a_alpha/so3af_read.py`.
+
+**Guards it now carries that the run did not:** `G1` injects the literal `SigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).` and asserts `CONVERGED` — **fail-closed the moment anyone adds a crash limb without a discriminator.** `G2` covers the live twin of that hazard: **`Time step continuity errors : sum local = …` appears 5× per log on perfectly converged solves**, so any `grep -i error` limb would report five crashes per success. `G3`: wrecking `Total Residual Norm2` by ~10⁶ leaves the verdict `CONVERGED`, because it is a post-`End` diagnostic and not the criterion.
 
 ##### UPDATE S-22 — **⚠⚠⚠ THE PRE-COMPUTE GATE ON `SO-1c` REFUSED IT, AND FOR THE RIGHT REASON: `R7` FIXED THE PATH AND THE GLOB AND NOBODY CHECKED THE SCHEMA. TWO MORE BREAKS — BREAKS 5 AND 6 — EACH DRIVEN AND ISOLATED SINGLY, AND WITH BOTH MAPPED THE GATE RETURNS `rc=0` ON ALL FOUR VERDICTS. THE 51-LEG SUITE CANNOT SEE EITHER, BECAUSE ITS FIXTURES ARE AUTHORED FROM THE CONSUMER'S EXPECTATIONS — A TAUTOLOGY ON SHAPE. AND I CORRECTED MY OWN FIRST READING OF IT BEFORE IT LEFT THE BOX** (2026-08-31T16:3xZ, `date -u` at write)
 
