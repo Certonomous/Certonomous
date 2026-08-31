@@ -1,0 +1,38 @@
+{
+  "_what_this_file_is": "THIS IS A CANDIDATE. IT IS NOT A REGISTRATION, IT IS NOT INSTALLED, AND NOTHING READS IT. It is a draft of the case entry that WOULD be added to T20_registered.json under cases.T20_LC_P10 if -- and only if -- verification rules that DEAD_LEVER_AUDIT.md section 24.4(d) ('IT LANDS ONCE, in one commit, with the proof attached') does not bar a second transcribing commit under section 24's licence now that condition (a)'s stated blocker is discharged. That ruling is OPEN. Until it is granted, T20_LC_P10 remains STOPPED under section 24.4(a) per T20_prose_cases_7b93b2c8.json._stopped, it is ABSENT from T20_registered.json, and run_one_t20.sh:80-84 independently REFUSES it (exit 2, UNREGISTERED). Heat-transfer is the beneficiary of the reading that would let this land and does not self-grant it (CLAUDE.md rule 9). The referral is docs/campaigns/T-family/T20_P10_REFERRAL_24_4d.md. This file is ALSO not a queue entry: it carries no launch_cmd, because nothing here is launchable.",
+  "_would_be_installed_at": "verification/runs/T-family/T20_runs/T20_registered.json -> cases.T20_LC_P10",
+  "_prereg_path": "docs/campaigns/T-family/T20_PREREGISTRATION.md",
+  "_prereg_commit": "7b93b2c805598987ab405cb7901642d909257264",
+  "_freeze_check": "MEASURED 2026-08-31 by this lane: the working-tree pre-registration is BYTE-EQUAL to the committed blob at 7b93b2c8; sha256 both sides 915704ff385d9919...",
+  "_field_kinds": "Every key below is exactly one of the two kinds DEAD_LEVER_AUDIT section 24.3 fixes: TRANSCRIBED (carries a *_source_section citation into the frozen prose) or DERIVED (carries a *_derivation naming its rule and its transcribed inputs). NO KEY IS NEITHER. In particular there is NO per-case q_volumetric: build_t20c.py reads the BASE 5000 from T20_registered.json physics.q_volumetric (global) and the PLANTED 5500 from the frozen document's own sentence at S7.2 :793-794, parsed from the committed blob -- never from a case entry. A q_volumetric key here would be INERT at the builder (build_t20.py:146 consults the global block only) and would be REFUSED by check_t20_transcription.py, whose EVIDENCE map (:56-70) has no entry for it, as 'NEITHER transcribed nor derived -- new registration content post-compute (24.4(a))'.",
+  "_delta_against_T20_LC_f": "MEASURED field by field. All THIRTEEN value-carrying keys hold values IDENTICAL to T20_LC_f's -- nx ny nz cells deltaT endTime steps executiontime_expected point_core_min cap_core_min timeout_s graded, and the derived timeout_derivation string, because S11.2 :1017 gives P10 the same 240 / 3000 / 0.1584 / 1.80 as :1013 gives f, and S9 :873 gives it the same base mesh / 240 / 1.5 / 4500 / 3000 as :869 gives f. SIX keys MUST differ and do: role, and all five *_source_section citations, which must resolve to P10's OWN rows (S9 :873, S11.2 :1017) and not to f's (:869, :1013). A citation pointing at another case's row resolves at 7b93b2c8 but certifies the wrong row, which section 24.5 bars. 'The f entry with the name changed' is therefore true of the NUMBERS and false of the CITATIONS and of role.",
+  "entry": {
+    "role": "PLANTED ARM, +10 percent volumetric source. Identical to T20_LC_f in mesh, step and horizon; the ONLY registered difference is the fvOptions explicit source. Graded: Q3 planted arm.",
+    "nx": 20,
+    "ny": 12,
+    "nz": 1,
+    "cells": 240,
+    "mesh_source_section": "S9 run-set table :873 -- 'T20_LC_P10 | base | 240' ; S11.2 :1017 -- 240 cells. Base mesh, 20 x 12 x 1, per S6.3 'base (c,m,f,D,P10) 20 x 12 = 240 cells, dy 2.5 mm'",
+    "deltaT": 1.5,
+    "endTime": 4500.0,
+    "steps": 3000,
+    "ladder_source_section": "S9 :873 -- deltaT 1.5, endTime 4500; S7.2 :793-794 -- 'identical case with fvOptions explicit source 5500 (= 5000 x 1.10) and nothing else changed', which pins the time ladder to T20_LC_f's",
+    "executiontime_expected": 3000,
+    "executiontime_source_section": "S9 :873 -- steps 3000 = endTime 4500 / deltaT 1.5; S11.2 :1017 -- 3000 steps",
+    "point_core_min": 0.1584,
+    "cap_core_min": 1.8,
+    "cost_source_section": "S11.2 :1017 -- T20_LC_P10 240 cells, 3000 steps, POINT 0.1584, CAP 1.80",
+    "timeout_s": 108,
+    "timeout_derivation": "cap_core_min 1.80 x 60 s / ranks 1 = 108 s exactly. THE ONE REGISTERED RULE, fixed by T20_LC_c's precedent (cap 0.80 -> 48 s) and forbidden to vary by case, DEAD_LEVER_AUDIT section 24.4(b). MEASURED: T20_LC_f's installed timeout_s is 108, which is the same rule on the same cap.",
+    "graded": true,
+    "graded_source_section": "S9 :873 column 'graded' reads 'Q3 planted arm'. The boolean follows the mapping every installed entry already uses: a column naming a Q is true (f 'Q1, Q2, Q3', D 'Q2 (Q1 reported)'), a column naming no Q is false (m 'triple only', Sc/Sf 'invariance'). P10 names Q3."
+  },
+  "_what_this_entry_does_NOT_carry_and_why": "It carries NO builder selection and NO planted-source field, and it must not. The registration says WHAT the case is (mesh, step, horizon, cost, cap); the PLANT carries itself, out of the frozen document, at build time. build_t20c.py REFUSES (exit 2) if the override is requested for any case other than the one S7.2 :793-794 names, if the value is anything but that sentence's own, if planted != factor x base in exact rational arithmetic, if the document's base disagrees with physics.q_volumetric, if the pinning sentence is absent or not unique, or if the working-tree document is one byte off the committed blob. A `builder` or `planted_source` key added here would be neither transcribed nor derived and would be barred by 24.4(a).",
+  "_interlocks_that_would_still_stand_after_a_grant": [
+    "1. build_t20c.py LIVE_TREE_PLANTED_INTERLOCK (:125, enforced :338): REFUSES (exit 2, 'NOT AUTHORISED') to emit the planted case anywhere inside this rung's own directory. Lifting it is verification's ruling to make, and it is a one-line, dated, disclosed edit made BEFORE this builder's first compute.",
+    "2. run_one_t20.sh:80-84: REFUSES (exit 2, UNREGISTERED) any case absent from T20_registered.json. Installing this entry is what clears that one, and only that one.",
+    "3. The strict completion rule at grading (CLAUDE.md rule 4): rc=0, End line, last time == endTime, fields present, ExecutionTime count == endTime, every field newer than the case's own 0/T. Unchanged and not touched by any of this."
+  ],
+  "_cost": "POINT 0.1584 core-min, per-case CAP 1.80 core-min, ranks 1. The rung TOTAL CAP is 16.0 core-min (hard) per S11.2 :1018 and is UNCHANGED -- P10's 0.1584 is already inside the registered TOTAL POINT 1.9559, because S11.2's total was frozen over all SEVEN rows. USD DERIVED, NOT MEASURED: POINT = $0.000135, CAP = $0.001539 at the owner-stated $0.0513/core-h (REPORTED-BY-OWNER 2026-08-21/22). The box cannot read its own billing, COMPUTE_BUDGET_CHARTER section 5.",
+  "_drafted_by": "heat-transfer lab-lane, 2026-08-31, on the heat-transfer-supervisor's brief. NOTHING WAS INSTALLED, NOTHING WAS TRANSCRIBED, NO SOLVER RAN, AND T20_registered.json WAS NOT WRITTEN."
+}
