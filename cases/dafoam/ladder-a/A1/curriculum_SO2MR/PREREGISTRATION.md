@@ -238,3 +238,66 @@ Two further legs, **B1** and **B2**, drive the rule at the **`CL`-class scale at
 **It does not re-grade, re-open, convert or edit SO-1a, SO-1aR, SO-1b, SO-1bR, SO-1c, SO-1cR, SO-2a, SO-2M, SO-3a or SO-3aR.** **SO-2M's `NOT A RESULT` stands as SO-2M's verdict**; SO-2MR is a new item with its own root, its own ledger and its own verdict, and it does not retroactively make SO-2M anything other than what its frozen documents say it was.
 
 **THE QUEUE ENTRY IS NOT FILED BY THIS DOCUMENT.** A `QUEUE_ENTRY_DRAFT.json` accompanies this freeze carrying this document's own freeze commit as `prereg_commit`; **arming it is the supervisor's decision under `SUPERVISION_CHARTER.md` §3 check 4, not this lane's** (`CLAUDE.md` rule 9 — no agent's message is Sanaa's consent, and a lane does not arm its own item).
+
+---
+
+## 13. ADDENDUM — P7 IS SATISFIED AND IS **UNLABELLED**: THE GRADER EMITS NO `P7_` KEY, AND THE DEFECT IS ONE OF LABELLING, NOT OF SUBSTANCE (dated 2026-08-31T22:53Z)
+
+**Document version: v1.0 (freeze, commit `c0eff9ca`) → v1.1 (this addendum).**
+**lines whose number changed above this section: 0.** This addendum is appended at the foot; nothing above line 240 is touched, and the assertion is measured, not asserted — see the condition table in §13.4.
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label** (`CLAUDE.md` rule 2, second bullet; rule 6). It changes no verdict. **The item's verdict remains `GATE FAIL`**, which is the outcome §8 registered in advance. It records a **reporting defect in the comparator's output shape** and nothing else.
+
+### 13.1 What §8 registered, and what the grader emitted
+
+§8 of this document registers **seven** falsifiers, P1–P7, and its predicted-outcome sentence reads *"P1–P7 HIT → PATCHED row `PASS`, SHIPPED row `GATE FAIL`, ITEM VERDICT `GATE FAIL`."* P7 is registered at line 171 in these words:
+
+> **P7** — *"the direction-B control DEMONSTRATES on every graded row — `plant_is_sufficient: true` and `plant_margin_ratio == 2.0` to 1e-12 on each — so the comparator reaches a verdict instead of refusing"*, evidence: *"the control record itself"*.
+
+The grading record `SO2MR_grade_20260831T224317Z.json` emits, under `predictions`, the keys `P1_…` through `P6_…` (with `P3_numbers` and `P6_numbers` beside them). **It emits no `P7_` key. The literal string `P7` occurs zero times in the whole grading record** — measured by `grep -c 'P7'` on the JSON, which returns `0`.
+
+**A reader of `predictions` alone would therefore not see P7 scored, and could reasonably conclude that a registered falsifier went ungraded.** That conclusion would be wrong, and this addendum exists so that it cannot be drawn from the record.
+
+### 13.2 P7's substance IS present, and it is SATISFIED
+
+P7's evidence is exactly where §8 said it would be — *"the control record itself"* — namely the `controls` block of the same grading record, under `controls.flip_G5m`, whose keys are the two graded rows and only those:
+
+| P7 clause | where it is scored | reading |
+|---|---|---|
+| `plant_is_sufficient: true` on the SHIPPED row | `controls.flip_G5m.SHIPPED.plant_is_sufficient` | **`true`** |
+| `plant_is_sufficient: true` on the PATCHED row | `controls.flip_G5m.PATCHED.plant_is_sufficient` | **`true`** |
+| `plant_margin_ratio == 2.0` to 1e-12, SHIPPED | `controls.flip_G5m.SHIPPED.plant_margin_ratio` | **`2.0`**; \|ratio − 2.0\| = **0.0**, inside 1e-12 |
+| `plant_margin_ratio == 2.0` to 1e-12, PATCHED | `controls.flip_G5m.PATCHED.plant_margin_ratio` | **`2.0`**; \|ratio − 2.0\| = **0.0**, inside 1e-12 |
+| *"on every graded row"* | `rows` holds exactly `SHIPPED` and `PATCHED`; `controls.flip_G5m` holds exactly `SHIPPED` and `PATCHED` | **the two key sets are equal — every graded row is covered, and no row is covered that was not graded** |
+| *"the comparator reaches a verdict instead of refusing"* | the record's top-level `verdict` | **`GATE FAIL`** — a verdict, not a refusal; and the two row verdicts are `SHIPPED` = `GATE FAIL`, `PATCHED` = `PASS`, exactly as §8 predicted |
+
+**P7 is HIT.** Every clause of it is satisfied at source, on both graded rows, in the record §8 nominated.
+
+### 13.3 The defect, stated at its true size
+
+**The defect is LABELLING, not substance.** The comparator computed P7's quantities, wrote them to disk, and reached the verdict P7 requires it to reach; what it did not do is *name* those quantities as P7 in the `predictions` block where the other six live. The consequence is confined to legibility: a reader who audits registered falsifiers by enumerating `predictions` keys will count six where seven were registered.
+
+**Nothing here is a repair of the frozen comparator and no repair is proposed by this lane.** `so2mr_grade.py` is pinned by md5 in §11 and carries no `P7` string; changing it is not this addendum's business and would in any case be a post-compute instrument change. **The correct disposition of a future successor item is to emit a `P7_` key beside P1–P6 reading off the same `controls.flip_G5m` values** — that is a note for a successor's freeze, not an action taken here.
+
+**This addendum does not claim** that the grader was verified to be complete in any other respect, that any other registered prediction is mislabelled, or that P7 would have been HIT had the plant been built differently. It claims exactly that P7's registered clauses are satisfied by values on disk, and that they carry no P7 label.
+
+### 13.4 Conditions this lane checked inside the invocation that committed this addendum
+
+| condition | how it was checked, in this invocation | reading |
+|---|---|---|
+| the frozen file **is** the committed blob, before the append | `git hash-object` on disk vs `git rev-parse HEAD:<path>`, HEAD captured once | **SAME** — `614e1e1c9861f6d5c1c3d7eb151283a1c3524f55` |
+| `PREREGISTRATION.md` md5 before the append | `md5sum` on disk | **`9fbe6009a6e494d142227efb4ef8b522`**, **240 lines** |
+| nothing above is renumbered | `head -240 <path> \| md5sum` taken **before** the append and **again after**, compared | **identical — `lines whose number changed above this section: 0`** |
+| P7's text | read at `PREREGISTRATION.md:171` (this document, above this section) | quoted verbatim in §13.1 |
+| P7's evidence | `controls.flip_G5m.{SHIPPED,PATCHED}` read out of the grading JSON by `json.load`, not by grep | **both rows `true` / `2.0`** |
+| the `P7_` key is genuinely absent | `grep -c 'P7'` over the whole grading record **and** over `so2mr_grade.py` | **0 and 0** — the absence is a reading of both the output and the instrument that wrote it |
+| the reader that found the absence can see a presence | the same enumeration prints `P1_…`–`P6_…`, six keys, from the same `predictions` dict | **a reader that reports "no P7" while reporting six other P-keys from the same dict is not a blind reader** |
+| the run completed | `CHAIN_RC.txt` reads `chain_rc=0 stamp=20260831T224318Z` | **rc = 0** |
+
+**Artifacts, by path, all on disk at the time of this addendum:**
+
+* grading record — `/home/ubuntu/certonomous-runs/CURRICULUM-SO2MR-a1-naca0012-moment-gradient/SO2MR_grade_20260831T224317Z.json`, md5 **`4983bd31893238c37e19d8977f1d239c`**
+* its console twin — `…/SO2MR_grade_20260831T224317Z.out`, md5 **`7a5bc019de3ed7186d4fd0a6e2495918`**
+* chain return code — `…/CHAIN_RC.txt`
+
+**Zero core-minutes were spent by this addendum.** It started no container and no solver; it reads records that already existed. **NOT FILED ANYWHERE** — `CLAUDE.md` rule 7, SUBMISSIONS PARKED.
