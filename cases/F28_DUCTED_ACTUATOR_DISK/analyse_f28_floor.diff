@@ -1,0 +1,589 @@
+--- cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_candidate.py (before Addendum 3's floored-criterion wiring)
++++ cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_candidate.py (after)
+@@ -218,19 +218,45 @@
+ made here: it is a change to a launcher, it returns to the supervisor as its own
+ diff, and this lane does not make it unasked.
+ 
+-ADDENDUM 3's STATIONARITY FLOOR IS STILL NOT WIRED, AND section 6.3 NOW REFUSES
+-RATHER THAN GRADING WITHOUT IT.  Addendum 3 registers thrust stationarity as
+-`ptp <= max(0.001*|T_mean|, T_floor)`, `T_floor = 5.934119457e-04 N` IN 5-DEGREE
+-SECTOR NEWTONS, and Addendum 3 section 6 grades V(b) on it.  Nothing in the
+-superseded comparator implements it, so section 6.3 could return `GATE REACHED`
+-on magnitude and sign alone while a REGISTERED channel went unevaluated -- the
+-same class of defect as (4).  IMPLEMENTING it is a separate act (the
+-sector-versus-full-annulus frame is a factor of `WEDGE_SCALE` = 72 wide, and the
+-full-annulus value 4.2726e-02 N is a DIFFERENT NUMBER), so this candidate does
+-not implement it and does not invent a threshold.  It REFUSES.  A refusal moves
+-no number a verdict depends on; it can only withhold a verdict, which is what
+-section 2d's own boundary question permits.  The supervisor may strike the
+-refusal in one line once the criterion is wired.
++ADDENDUM 3's FLOORED STATIONARITY CRITERION IS NOW WIRED, AND section 6.3's
++STANDING REFUSAL IS STRUCK.  Addendum 3 (registration commit 0a62c5c6, under
++Sanaa's personal approval at `5dd94f4f`) registers thrust stationarity as
++`ptp <= max(0.001*|T_mean|, T_floor)` over the last 2000 iterations, IN
++5-DEGREE SECTOR NEWTONS, and its section 6 grades V(b) on it.  The earlier
++candidate implemented nothing and REFUSED rather than issuing `GATE REACHED`
++with a registered channel unevaluated; the supervisor ruled that refusal correct
++and standing until the criterion was wired.  It is now wired, and five things
++carry the weight:
++
++  (a) `T_floor` IS DERIVED, NEVER PASTED.  `assert_floor_derivation` runs
++      Addendum 3 section 4's chain from constants already frozen above and
++      REFUSES AT IMPORT unless it reproduces section 4's `A_disk`, section 6.2
++      control C3's 42.7257 N and Addendum 3's 5.934119457e-04 N, each to half
++      the last digit the registration prints.  The literals are asserted
++      against the derivation; the derivation is never fitted to the literals.
++  (b) THE FRAME IS PROVED, NOT ASSERTED.  `assert_stationarity_frame` requires
++      `T_total == -(last windowed total_x) * WEDGE_SCALE` BIT-EXACTLY, so the
++      series is demonstrably the pre-multiplication quantity taken from the
++      column that was actually graded -- not a frame inferred from a comment.
++      A slip here is a factor of 72 in the PERMISSIVE direction and would have
++      rescued the zero-source arm (Addendum 3 section 5).
++  (c) THE READER CARRIES ITS OWN PLANT.  `plant_into_stationarity_window`
++      plants into the FIRST ROW OF THE WINDOW -- the row no other control
++      addresses -- and requires `ptp` to move AND `T_mean` to move by exactly
++      the displacement over the window.  The last-row plant already on
++      `forcesDuct` certifies `T_total` and certifies nothing about 1999 of the
++      2000 graded rows.
++  (d) `ptp` AND `T_mean` KEEP `read_ptp_f28.py:8`'s DEFINITIONS, including its
++      plain `sum(w)/len(w)`, because Addendum 3 registers them as "unchanged
++      from" that file -- not a re-derivation, however better.
++  (e) THE FLOOR IS THRUST-ONLY, ENFORCED.  Addendum 3 section 3's final
++      paragraph leaves the disk mass-flow row unfloored; `stationarity_criterion`
++      REFUSES any quantity outside `FLOORED_QUANTITIES`, so the floor cannot
++      reach a second registered row by a caller's copy-paste.
++
++An UNSTATIONARY V(b) is now `NOT A RESULT` through the verdict field, not
++through a refusal: stationarity is a registered criterion with a threshold, and
++a comparator refuses for instrument failures, not for failing gates.
+ 
+ -------------------------------------------------------------------------------
+ THE THREE SILENT FACTORS THIS COMPARATOR EXISTS TO CATCH
+@@ -352,14 +378,61 @@
+     "forcesDuct":    ("force.dat", "total_x"),
+ }
+ 
+-# Addendum 3 (registration, commit 0a62c5c6), REGISTERED AND NOT WIRED.  These
+-# are carried as DATA inside section 6.3's refusal text, not as a live criterion:
+-# this candidate does not implement the channel and does not invent a threshold.
+-# THE FRAME IS THE THING THAT BITES -- the floor is in 5-DEGREE SECTOR NEWTONS,
+-# and the full-annulus value 4.2726e-02 N is a DIFFERENT NUMBER (Addendum 3 s.5).
+-STATIONARITY_FLOOR_SECTOR_N = 5.934119457e-04
+-STATIONARITY_REL = 0.001
+-STATIONARITY_WINDOW_ITERS = 2000
++# =============================================================================
++# ADDENDUM 3's FLOORED THRUST-STATIONARITY CRITERION -- WIRED, AND DERIVED
++# =============================================================================
++# Registration Addendum 3 (commit 0a62c5c6), section 3, as struck and corrected
++# by Addendum 4.  THE CRITERION IN FORCE:
++#
++#     ptp <= max( STATIONARITY_REL * |T_mean| , T_floor )
++#
++# over the last STATIONARITY_WINDOW_ITERS iterations, `ptp = max(Fx) - min(Fx)`
++# and `T_mean = mean(Fx)` over that window, BOTH UNCHANGED FROM
++# `read_ptp_f28.py:8`.  The limbs are joined by `max`, so the test is THE MORE
++# PERMISSIVE OF THE TWO and can never divide by a vanishing denominator.
++#
++# THE FLOOR IS DERIVED HERE, NOT PASTED.  Addendum 3 section 4 exists to forbid
++# exactly a floor that arrives as a literal: a threshold chosen once the answers
++# are in hand is what pre-registration exists to prevent, and a pasted constant
++# cannot be told apart from one by reading it.  Every input below is already
++# frozen above -- `A_DISK` from section 4's geometry, `DELTA_P_CTRL` from
++# section 9.3's registered triple point, `WEDGE_SCALE` from section 2.6 -- and
++# the chain runs section 4's four steps in order.  The registration's PRINTED
++# figures appear below only as ASSERTION TARGETS: the constant is asserted
++# against the derivation, never the derivation against the constant.
++STATIONARITY_REL = 0.001                # section 8's 0.1 %, as a fraction
++STATIONARITY_WINDOW_ITERS = 2000        # section 8; `read_ptp_f28.py:30`
++
++# Step 1 is `A_DISK` above.  Steps 2-4:
++T_DISK_REF_FULL_N   = DELTA_P_CTRL * A_DISK             # 42.7256600888 N
++T_DISK_REF_SECTOR_N = T_DISK_REF_FULL_N / WEDGE_SCALE   # 0.593411945678 N
++STATIONARITY_FLOOR_SECTOR_N = STATIONARITY_REL * T_DISK_REF_SECTOR_N
++
++# THE WRONG FRAME, NAMED SO IT CANNOT BE REACHED BY ACCIDENT.  Addendum 3
++# section 5: applied to sector data this value would have RESCUED the
++# zero-source arm (0.020422 N < 0.042726 N), and that near-miss is recorded
++# there as the exact error the section exists to foreclose.  It is defined so
++# refusals and diagnostics can PRINT it; NO criterion in this file compares
++# against it, and `assert_stationarity_frame` proves the frame by identity
++# against the graded column rather than by anyone's reading of a template.
++STATIONARITY_FLOOR_FULL_N = STATIONARITY_REL * T_DISK_REF_FULL_N
++
++# The registration's own printed figures, quoted ONLY to be asserted against.
++# Three different sections, so one transcription slip cannot satisfy all three.
++REG_A_DISK_M2                   = 0.0427257        # section 4
++REG_T_DISK_REF_FULL_N           = 42.7257          # section 6.2, control C3
++REG_STATIONARITY_FLOOR_SECTOR_N = 5.934119457e-04  # Addendum 3 section 4,
++                                                   # re-affirmed by Addendum 4
++
++# Addendum 3 section 3, FINAL PARAGRAPH -- a boundary, not a note:
++#   "The disk mass-flow stationarity row of section 8 is NOT touched.  Sanaa's
++#    approval names the thrust floor.  A mass-flow floor is not derived, not
++#    registered and not in force."
++# CLAUDE.md rule 9: the approval's width is the width of the change and no
++# wider.  `stationarity_criterion` REFUSES any quantity outside this tuple, so
++# a floor cannot reach a second registered row by a caller's copy-paste -- the
++# leak has to DEFEAT A GUARD, not merely go unnoticed.
++FLOORED_QUANTITIES = ("thrust",)
+ 
+ 
+ class Refusal(Exception):
+@@ -371,6 +444,71 @@
+     sys.exit(2)
+ 
+ 
++def assert_floor_derivation():
++    """THE DERIVED FLOOR IS CHECKED AGAINST THE REGISTRATION -- IN THAT DIRECTION.
++
++    Five agreements.  The first two are EXACT-EQUALITY checks that the geometry
++    constants frozen above are literally Addendum 3 section 4's chain, written
++    differently: section 4 gives `r_hub = 0.3 D / 2` where line 304 above writes
++    `0.15 * D`, and a chain that is only *described* as matching is not a chain.
++    The remaining three are agreements with numbers frozen in THREE DIFFERENT
++    sections, so a single transcription slip cannot satisfy them all:
++
++        A_disk            vs section 4's registered            0.0427257 m^2
++        T_disk_ref,full   vs section 6.2 control C3's analytic 42.7257 N
++        T_floor (sector)  vs Addendum 3 section 4's            5.934119457e-04 N
++
++    Each tolerance is HALF THE LAST DIGIT THE REGISTRATION PRINTS, so the test
++    is exactly "agrees to every digit that section prints" -- not a slack band
++    sized until the assertion passed.  Addendum 3 section 4 says the value is
++    "defensible to 4 s.f." and that "nothing turns on any digit beyond the
++    first"; these tolerances are far tighter than that and are therefore a
++    stricter test than the registration requires, never a looser one.
++
++    It runs AT IMPORT.  A comparator whose floor does not reproduce the
++    registered one must not be importable, let alone gradeable.
++    """
++    for name, lhs, rhs, expr in (
++            ("r_tip", R_TIP, D / 2.0 - 0.01 * D, "D/2 - 0.01 D"),
++            ("r_hub", R_HUB, 0.3 * D / 2.0, "0.3 D / 2")):
++        if lhs != rhs:
++            refuse("THE FLOOR'S GEOMETRY CHAIN IS NOT SECTION 4's: this file's "
++                   "%s is %.17g and Addendum 3 section 4's `%s` is %.17g.  The "
++                   "floor is derived from these, so a chain that only LOOKS "
++                   "like section 4's is a pasted constant with extra steps."
++                   % (name, lhs, expr, rhs))
++    out = {"r_tip_m": R_TIP, "r_hub_m": R_HUB,
++           "chain": "A_disk = pi (r_tip^2 - r_hub^2); T_full = delta_p A_disk; "
++                    "T_sector = T_full / WEDGE_SCALE; T_floor = %g T_sector"
++                    % STATIONARITY_REL}
++    for name, derived, registered, tol, unit, where in (
++            ("A_disk", A_DISK, REG_A_DISK_M2, 5.0e-8, "m^2",
++             "registration section 4"),
++            ("T_disk_ref,full", T_DISK_REF_FULL_N, REG_T_DISK_REF_FULL_N,
++             5.0e-5, "N", "registration section 6.2, control C3"),
++            ("T_floor,sector", STATIONARITY_FLOOR_SECTOR_N,
++             REG_STATIONARITY_FLOOR_SECTOR_N, 5.0e-14, "N",
++             "registration Addendum 3 section 4")):
++        if not abs(derived - registered) <= tol:
++            refuse("THE DERIVED FLOOR DOES NOT REPRODUCE THE REGISTERED ONE: "
++                   "%s derives to %.17g %s and %s registers %.17g %s, a "
++                   "difference of %.3e against a tolerance of %.3e (half the "
++                   "last digit the registration prints).  Addendum 3 section 4 "
++                   "derives the floor from frozen inputs precisely so that this "
++                   "disagreement is loud.  REFUSING RATHER THAN GRADING AGAINST "
++                   "A THRESHOLD THE REGISTRATION DOES NOT CARRY."
++                   % (name, derived, unit, where, registered, unit,
++                      abs(derived - registered), tol))
++        out[name] = {"derived": derived, "registered": registered,
++                     "abs_difference": abs(derived - registered),
++                     "tolerance": tol, "unit": unit, "authority": where}
++    return out
++
++
++# Runs at import.  Nothing below is reachable with a floor that disagrees.
++FLOOR_DERIVATION = assert_floor_derivation()
++
++
+ # =============================================================================
+ # OpenFOAM FIELD I/O -- the REAL reader.  The plant travels through this.
+ # =============================================================================
+@@ -1454,6 +1592,308 @@
+ 
+ 
+ # =============================================================================
++# ADDENDUM 3's FLOORED THRUST STATIONARITY -- READER, CRITERION, FRAME PROOF
++# AND PLANTED CONTROL
++# =============================================================================
++def _fo_window_values(case, name, filename, column, end_time, age_ref,
++                      window=STATIONARITY_WINDOW_ITERS):
++    """The last `window` values of ONE column of the graded function-object file.
++
++    THE FILE IS THE ONE `_select_fo_row` ALREADY CHOSE, and it is chosen BY
++    CALLING THAT FUNCTION rather than by repeating its logic.  Every guard the
++    check-1 reads certified therefore fires here unchanged and without being
++    touched: the file is NAMED not discovered, the clause-6 age guard runs on
++    `postProcessing`, the strict-`>` tie refusal runs, and the last row is
++    checked against `endTime`.  A second implementation of that selection would
++    be a second thing to keep right, and it would drift.
++
++    THE WINDOW IS THE LAST `window` DATA ROWS, which is `read_ptp_f28.py:64`'s
++    `rows[-2000:]` exactly.  Section 8 and Addendum 3 both say "the last 2000
++    ITERATIONS"; rows and iterations coincide only where the function object
++    writes every iteration, which is true of every F28 arm on disk (15,000 rows
++    for 15,000 iterations).  This reader follows the FROZEN READER's definition
++    because Addendum 3 registers the criterion as "unchanged from
++    `read_ptp_f28.py:8`", and it RECORDS the window's first and last `Time` and
++    its sample count in the output so the two readings are visibly the same on
++    any case where they are -- and visibly different on any case where they are
++    not.  Nothing here decides that question; it reports it.
++
++    A file with fewer than `window` rows REFUSES.  `read_ptp_f28.py:61` already
++    refuses a short window -- "a short window is not the registered criterion" --
++    and a comparator may not be more permissive than the reader whose
++    definitions it inherits.
++    """
++    row, path = _select_fo_row(case, name, filename, end_time, age_ref)
++    if row is None:
++        raise Refusal("no `%s` output under %s/postProcessing" % (name, case))
++    if column not in row:
++        raise Refusal("`%s` carries no %r column; columns: %s"
++                      % (name, column, sorted(row)))
++    hdr, vals, times = None, [], []
++    for line in open(path, errors="replace"):
++        if line.startswith("#"):
++            hdr = line
++        elif line.strip():
++            if hdr is None:
++                raise Refusal("%s carries data before any header line" % path)
++            cols = hdr.lstrip("#").split()
++            f = line.split()
++            if len(cols) != len(f):
++                raise Refusal("%s: %d header columns, %d data columns -- the "
++                              "reader will not guess the alignment"
++                              % (path, len(cols), len(f)))
++            if "Time" not in cols or column not in cols:
++                raise Refusal("%s: header %s carries no %r/`Time` column"
++                              % (path, cols, column))
++            times.append(float(f[cols.index("Time")]))
++            vals.append(float(f[cols.index(column)]))
++    if not vals:
++        raise Refusal("%s has no data rows" % path)
++    if len(vals) < window:
++        raise Refusal("%s carries %d data rows and the registered stationarity "
++                      "window is %d (section 8; `read_ptp_f28.py:30`).  A SHORT "
++                      "WINDOW IS NOT THE REGISTERED CRITERION -- "
++                      "`read_ptp_f28.py:61` refuses it in those words, and this "
++                      "comparator will not be more permissive than the reader "
++                      "whose definitions Addendum 3 says it inherits."
++                      % (path, len(vals), window))
++    return vals[-window:], times[-window], times[-1], path
++
++
++def _ptp_and_mean(values):
++    """`ptp` and `T_mean` WITH `read_ptp_f28.py:8`'s DEFINITIONS AND ARITHMETIC.
++
++    Addendum 3 section 3 registers the criterion "where `ptp = max(Fx) -
++    min(Fx)` over the window and `T_mean = mean(Fx)` over the same window, BOTH
++    UNCHANGED FROM `read_ptp_f28.py:8`".  So the mean is `sum(w) / len(w)` --
++    plain left-to-right summation, the expression at `read_ptp_f28.py:65` -- and
++    NOT `math.fsum`.  Compensated summation is a better estimator and a
++    DIFFERENT REGISTERED QUANTITY, and "better" is not a licence to substitute
++    one definition for another inside a frozen criterion.
++
++    MEASURED, and disclosed because it bounds what this choice is worth: on all
++    three arms on disk the two summations agree BIT FOR BIT, so no selftest limb
++    can distinguish them and none claims to.  The definition is matched because
++    it is the registered one, not because a difference was found.
++    """
++    lo, hi = min(values), max(values)
++    mean = sum(values) / len(values)
++    return lo, hi, mean, hi - lo
++
++
++def stationarity_criterion(ptp, mean, quantity):
++    """`ptp <= max( STATIONARITY_REL * |mean| , T_floor )` -- Addendum 3 s.3.
++
++    THE FLOOR APPLIES TO THRUST AND TO NOTHING ELSE, and that is enforced here
++    rather than trusted to call sites.  Addendum 3 section 3's final paragraph
++    leaves the disk mass-flow stationarity row untouched: Sanaa's approval names
++    the thrust floor, so a mass-flow floor is not derived, not registered and
++    not in force.  A criterion function that accepted any caller's quantity
++    would make the boundary a matter of who calls it, and the next reader
++    grading a second row would inherit an unapproved gate change by
++    copy-and-paste.  So the guard is IN THE CRITERION: `quantity` is required
++    and is refused unless it is registered as floored.
++    """
++    if quantity not in FLOORED_QUANTITIES:
++        refuse("THE ABSOLUTE STATIONARITY FLOOR IS NOT REGISTERED FOR %r.  "
++               "Addendum 3 section 3, final paragraph: \"The disk mass-flow "
++               "stationarity row of section 8 is NOT touched.  Sanaa's approval "
++               "names the thrust floor.  A mass-flow floor is not derived, not "
++               "registered and not in force.\"  The approval's width is the "
++               "width of the change and no wider (CLAUDE.md rule 9).  The only "
++               "floored quantity is %s; grade %r against the UNFLOORED "
++               "criterion registered for it, or obtain an approval for a floor "
++               "-- which no agent at any level may grant."
++               % (quantity, " / ".join(repr(q) for q in FLOORED_QUANTITIES),
++                  quantity))
++    rel = STATIONARITY_REL * abs(mean)
++    floor = STATIONARITY_FLOOR_SECTOR_N
++    limit = max(rel, floor)
++    # The limbs are joined by `max`, so the governing term is whichever is
++    # larger.  A tie is reported as FLOOR, because the floor is the limb that
++    # does not depend on the run -- reporting the run-dependent one on a tie
++    # would name a term that could move under a re-read.
++    governing = "FLOOR" if floor >= rel else "RELATIVE"
++    return {"quantity": quantity,
++            "criterion": "ptp <= max(%g * |T_mean|, T_floor)" % STATIONARITY_REL,
++            "authority": "registration Addendum 3 section 3, in force; the "
++                         "struck relative-only form is not evaluated",
++            "frame": "5-degree SECTOR newtons (Addendum 3 section 5)",
++            "window_iters": STATIONARITY_WINDOW_ITERS,
++            "ptp_N": ptp, "T_mean_N": mean,
++            "relative_limb_N": rel, "floor_limb_N": floor,
++            "limit_N": limit, "governing_limb": governing,
++            "floor_over_relative": (floor / rel) if rel > 0.0 else None,
++            "ptp_over_limit": ptp / limit,
++            "pass": ptp <= limit}
++
++
++def thrust_stationarity(case, end_time, age_ref):
++    """V(b)'s registered thrust-stationarity channel, IN SECTOR NEWTONS.
++
++    Graded on the SAME file and the SAME column as `T_total` -- `forcesDuct`'s
++    `force.dat`, `total_x` -- taken RAW, with no sign flip and no `WEDGE_SCALE`.
++    `read_ptp_f28.py:53` takes the same column with no scale factor, and
++    Addendum 3 section 5 registers the floor in that frame for that reason.
++    `assert_stationarity_frame` then PROVES the frame instead of asserting it.
++    """
++    filename, column = FO_GRADED["forcesDuct"]
++    vals, t_first, t_last, path = _fo_window_values(
++        case, "forcesDuct", filename, column, end_time, age_ref)
++    lo, hi, mean, ptp = _ptp_and_mean(vals)
++    res = stationarity_criterion(ptp, mean, "thrust")
++    res.update({"file": os.path.abspath(path), "column": column,
++                "n_samples": len(vals),
++                "window_first_Time": t_first, "window_last_Time": t_last,
++                "window_Time_span": t_last - t_first + 1.0,
++                "min_N": lo, "max_N": hi,
++                "last_value_sector_N": vals[-1]})
++    return res
++
++
++def assert_stationarity_frame(st, t_total_N):
++    """THE CLAUSE THE WHOLE CHANGE STANDS OR FALLS ON, PROVED NOT ASSERTED.
++
++    Addendum 3 section 5 names the sector-versus-full-annulus frame as exactly
++    that, and a slip is wrong BY A FACTOR OF 72 in the PERMISSIVE direction: the
++    full-annulus floor 4.2726e-02 N applied to sector data would have RESCUED
++    the zero-source arm (ptp 0.020422 N), which is the error that section exists
++    to foreclose.  So the frame is not taken from `controlDict.template`'s
++    comment, nor from this file's own docstrings.  It is proved by identity
++    against THE ACTUAL GRADED COLUMN:
++
++        `total_thrust` computes  T_total = -(raw `total_x` at endTime) * 72
++
++    If the value THIS reader took from `total_x` at `endTime` reproduces the
++    graded `T_total` BIT-EXACTLY under that one transformation, then this
++    reader's series is the PRE-multiplication, PRE-sign-flip quantity -- sector
++    newtons -- and it is the same column of the same file `T_total` came from.
++    Bit-exact, not tolerant: both sides are the same product of the same two
++    doubles, so anything but equality means a different column, a different
++    file, a different row, or a scale factor that has crept in.
++    """
++    implied = -st["last_value_sector_N"] * WEDGE_SCALE
++    if implied != t_total_N:
++        refuse("SECTOR-FRAME PROOF FAILED, AND THE FLOOR IS UNUSABLE WITHOUT "
++               "IT: the stationarity reader's last windowed sample is %.17g "
++               "from column %r of %s, which implies T_total = %.17g N, and the "
++               "graded T_total is %.17g N.  The stationarity floor "
++               "%.9e N is registered in 5-DEGREE SECTOR NEWTONS (Addendum 3 "
++               "section 5); the full-annulus value is %.4e N, a DIFFERENT "
++               "NUMBER a factor of %g away, and applying it to sector data "
++               "would move the criterion in the PERMISSIVE direction.  This "
++               "comparator will not grade a floor whose frame it cannot prove."
++               % (st["last_value_sector_N"], st["column"], st["file"],
++                  implied, t_total_N, STATIONARITY_FLOOR_SECTOR_N,
++                  STATIONARITY_FLOOR_FULL_N, WEDGE_SCALE))
++    return {"identity": "T_total == -(last windowed total_x) * WEDGE_SCALE",
++            "last_windowed_total_x_sector_N": st["last_value_sector_N"],
++            "WEDGE_SCALE": WEDGE_SCALE,
++            "implied_T_total_N": implied, "graded_T_total_N": t_total_N,
++            "bit_exact": True,
++            "frame_proved": "5-degree SECTOR newtons",
++            "floor_sector_N": STATIONARITY_FLOOR_SECTOR_N,
++            "floor_full_annulus_N_NOT_USED": STATIONARITY_FLOOR_FULL_N}
++
++
++def plant_into_stationarity_window(case, end_time, age_ref,
++                                   window=STATIONARITY_WINDOW_ITERS):
++    """THE PLANTED CONTROL ON THE STATIONARITY WINDOW (standing rule 3).
++
++    `plant_into_function_object` certifies the LAST row -- the one row
++    `_select_fo_row` returns.  `ptp` and `T_mean` are graded numbers computed
++    from `window` rows, and that control never touches `window - 1` of them, so
++    it certifies the wrong thing here: a window reader that silently graded only
++    the final row, or averaged some other set of rows, would sail through it.
++
++    THIS plant therefore goes into THE FIRST ROW OF THE WINDOW -- inside the
++    graded window, and the one row no other control in this file addresses.
++
++    The displacement is `(max - min) + PLANT_FO`, and that is not a taste: it
++    GUARANTEES a new maximum, because the perturbed sample is at least
++    `min + (max - min) + PLANT_FO > max` wherever the chosen row sat in the
++    range.  A plant whose visibility depends on the data is a control that can
++    be silently absent on the next case.  TWO things must then move, and the
++    second is the one that matters: `ptp` must increase (the reader is not
++    blind), and `T_mean` must move by EXACTLY the displacement over the window
++    (the reader averaged THE WINDOW and not some other set of rows -- an
++    arithmetic identity a last-row-only or wrong-length reader cannot satisfy).
++    The negative limb requires both to return EXACTLY after a byte-exact
++    restore.
++    """
++    filename, column = FO_GRADED["forcesDuct"]
++    before_stat = thrust_stationarity(case, end_time, age_ref)
++    _row, path = _select_fo_row(case, "forcesDuct", filename, end_time, age_ref)
++    snap = ArtifactSnapshot(path)
++    lines = snap.text().splitlines(keepends=True)
++    hdr_i = max(i for i, ln in enumerate(lines) if ln.startswith("#"))
++    data_i = [i for i, ln in enumerate(lines)
++              if ln.strip() and not ln.startswith("#")]
++    if len(data_i) < window:
++        raise Refusal("cannot plant into the stationarity window of %s: %d data "
++                      "rows, window %d" % (path, len(data_i), window))
++    tgt = data_i[-window]                   # THE FIRST ROW OF THE WINDOW
++    cols = lines[hdr_i].lstrip("#").split()
++    ci = cols.index(column)
++    before = float(re.findall(r"\S+", lines[tgt])[ci])
++    delta = (before_stat["max_N"] - before_stat["min_N"]) + PLANT_FO
++    tol = plant_tol(max(abs(before), abs(delta), abs(before_stat["T_mean_N"])))
++    a, b = _token_spans(lines[tgt])[ci]
++    try:
++        planted = list(lines)
++        planted[tgt] = lines[tgt][:a] + repr(before + delta) + lines[tgt][b:]
++        _atomic_write_text(path, "".join(planted))
++        after = thrust_stationarity(case, end_time, age_ref)
++        d_ptp = after["ptp_N"] - before_stat["ptp_N"]
++        d_mean = after["T_mean_N"] - before_stat["T_mean_N"]
++        if d_ptp <= 0.0:
++            refuse("PLANTED CONTROL ON THE STATIONARITY WINDOW DID NOT FIRE: "
++                   "%.6g was added to column %r (index %d) of the FIRST ROW OF "
++                   "THE WINDOW (data row %d of %d) in %s -- a displacement "
++                   "chosen to guarantee a new maximum -- and `ptp` read back "
++                   "%.17g where it was %.17g.  V(b)'s registered stationarity "
++                   "verdict is computed from this reader, and a zero from a "
++                   "reader not shown able to see a non-zero is not evidence."
++                   % (delta, column, ci, len(data_i) - window + 1, len(data_i),
++                      path, after["ptp_N"], before_stat["ptp_N"]))
++        if abs(d_mean - delta / window) > tol:
++            refuse("PLANTED CONTROL ON THE STATIONARITY WINDOW AVERAGED THE "
++                   "WRONG ROWS: %.6g was added to ONE row of the %d-row window "
++                   "of %s, so `T_mean` must move by exactly %.6g and it moved "
++                   "by %.6g (difference %.3e against tolerance %.3e).  `ptp` "
++                   "moved, so the reader is not blind -- it is reading a "
++                   "DIFFERENT SET OF ROWS than the registered window, which is "
++                   "the failure a last-row plant cannot see."
++                   % (delta, window, path, delta / window, d_mean,
++                      abs(d_mean - delta / window), tol))
++        snap.restore()
++        twin = thrust_stationarity(case, end_time, age_ref)
++        if (twin["ptp_N"] != before_stat["ptp_N"]
++                or twin["T_mean_N"] != before_stat["T_mean_N"]):
++            refuse("PLANTED CONTROL ON THE STATIONARITY WINDOW NEGATIVE LIMB "
++                   "FAILED: after a byte-exact restore of %s the reader reports "
++                   "ptp %.17g / mean %.17g where it reported %.17g / %.17g.  A "
++                   "reader that reports the plant on every input passes a "
++                   "fire-only test and is worthless."
++                   % (path, twin["ptp_N"], twin["T_mean_N"],
++                      before_stat["ptp_N"], before_stat["T_mean_N"]))
++    finally:
++        snap.restore()
++    ident = snap.verify_unchanged(
++        "the planted control on the stationarity window")
++    return {"reader": "thrust_stationarity", "file": os.path.abspath(path),
++            "column": column, "column_index": ci,
++            "row": "first of the %d-row window" % window,
++            "row_index_in_file": tgt, "window": window,
++            "plant_N": delta, "value_before": before,
++            "ptp_before_N": before_stat["ptp_N"], "ptp_planted_N": after["ptp_N"],
++            "mean_shift_expected_N": delta / window,
++            "mean_shift_observed_N": d_mean,
++            "fired": True, "unperturbed_twin_silent": True,
++            "artifact_byte_identical": True, "artifact": ident}
++
++
++# =============================================================================
+ # SECTION 6.2 -- THE PLANTED CONTROL, C1..C4
+ # =============================================================================
+ def control_6_2(case_plant, case_baseline, case_c4, end_time, rc_plant,
+@@ -1598,17 +2038,34 @@
+     # MEASURED, returned a MOMENT where the force file carries a force.
+     plant = plant_into_function_object(case_empty, "forcesDuct",
+                                        FO_GRADED["forcesDuct"][1], end_time, age)
++    # THE SECOND PLANT ON THE SAME FILE, ON A DIFFERENT READER.  The control
++    # above certifies the LAST ROW, which is all `T_total` needs; Addendum 3's
++    # channel grades 2000 rows, and a control on one of them certifies nothing
++    # about the other 1999.  Both fire before either number is believed.
++    plant_window = plant_into_stationarity_window(case_empty, end_time, age)
+     t = total_thrust(case_empty, end_time, age)
+     t_total = t["T_duct"]
+     frac = abs(t_total) / abs(t_total_loaded_N)
+     ok_mag = frac < TOL_C6_3
+     ok_sign = t_total < 0.0
++    # ADDENDUM 3's FLOORED CRITERION, WIRED.  Addendum 3 section 6 grades V(b)
++    # on it -- "not the struck relative-only form" -- under Sanaa's approval at
++    # `5dd94f4f`.  The frame is PROVED against the graded column before the
++    # criterion is read, because a floor evaluated in the wrong frame is wrong
++    # by 72 in the permissive direction (Addendum 3 section 5).
++    stat = thrust_stationarity(case_empty, end_time, age)
++    frame = assert_stationarity_frame(stat, t_total)
++    ok_stat = stat["pass"]
+     res = {"section": "6.3", "U_inf_m_s": U_INF_PASS,
+            "T_total_N": t_total, "T_total_loaded_reference_N": t_total_loaded_N,
+            "fraction_of_loaded": frac, "tolerance": TOL_C6_3,
+            "magnitude_pass": ok_mag, "sign_pass_must_be_drag": ok_sign,
++           "thrust_stationarity": stat, "stationarity_pass": ok_stat,
++           "sector_frame_proof": frame, "floor_derivation": FLOOR_DERIVATION,
+            "completion": comp, "write_format": wf, "planted_control": plant,
+-           "verdict": "GATE REACHED" if (ok_mag and ok_sign) else "NOT A RESULT"}
++           "planted_control_stationarity": plant_window,
++           "verdict": ("GATE REACHED" if (ok_mag and ok_sign and ok_stat)
++                       else "NOT A RESULT")}
+     if not ok_sign:
+         refuse("section 6.3: T_total = %+.6g N is POSITIVE with delta_p = 0.  "
+                "Under section 2.5's convention that is NET THRUST FROM NOTHING. "
+@@ -1616,29 +2073,17 @@
+                "well as the magnitude closes the hole the directive's 'small' "
+                "leaves open." % t_total)
+ 
+-    # ADDENDUM 3's STATIONARITY CHANNEL IS REGISTERED AND NOT IMPLEMENTED HERE.
+-    # Refusing is not a threshold and moves no number; it withholds a verdict.
+-    refuse("SECTION 6.3 CANNOT BE GRADED BY THIS COMPARATOR: Addendum 3 of the "
+-           "registration (commit 0a62c5c6, section 6) grades V(b) on THRUST "
+-           "STATIONARITY under `ptp <= max(%g * |T_mean|, T_floor)` over the "
+-           "last %d iterations, with `T_floor = %.9e N` IN 5-DEGREE SECTOR "
+-           "NEWTONS -- and NOTHING IN THIS FILE IMPLEMENTS IT.  Magnitude and "
+-           "sign were both evaluated and are reported above (T_total = %+.6g N, "
+-           "%.4f%% of the loaded reference), but a `GATE REACHED` issued while "
+-           "a REGISTERED channel goes unevaluated is a verdict on a criterion "
+-           "that was never applied -- the same defect class as a registered "
+-           "guard with no call site.  REFUSING RATHER THAN DEGRADING.\n"
+-           "  WIRING IT IS A SEPARATE ACT, and the frame is what will bite: the "
+-           "floor above is in SECTOR newtons because `forcesDuct` writes the "
+-           "wedge patches only and `WEDGE_SCALE = %g` is applied DOWNSTREAM of "
+-           "the file.  The full-annulus floor is %.4e N and is a DIFFERENT "
+-           "NUMBER; mixing the two frames is wrong by a factor of %g and would, "
+-           "on the arms now on disk, have RESCUED the zero-source arm "
+-           "(Addendum 3 section 5, recorded there as the exact error that "
+-           "section exists to foreclose)."
+-           % (STATIONARITY_REL, STATIONARITY_WINDOW_ITERS,
+-              STATIONARITY_FLOOR_SECTOR_N, t_total, 100 * frac, WEDGE_SCALE,
+-              STATIONARITY_REL * A_DISK * DELTA_P_CTRL, WEDGE_SCALE))
++    # ADDENDUM 3's CHANNEL IS NOW EVALUATED, so the refusal that stood here --
++    # "SECTION 6.3 CANNOT BE GRADED BY THIS COMPARATOR" -- is struck.  It was
++    # correct while the criterion was unwired: a `GATE REACHED` issued while a
++    # REGISTERED channel went unevaluated is a verdict on a criterion that was
++    # never applied.  It is now applied, its frame is proved, its floor is
++    # derived and its reader carries its own plant, and an UNSTATIONARY V(b) is
++    # reported as `NOT A RESULT` through the verdict field above rather than
++    # through a refusal -- because stationarity is a REGISTERED CRITERION with a
++    # threshold, not a defect in the instrument.  The comparator still refuses
++    # (exit 2) for every instrument failure: a blind plant, an unprovable frame,
++    # a floor that does not reproduce the registration, a short window.
+     return res
+ 
+ 

@@ -1910,3 +1910,121 @@ polyMesh artifact; the arithmetic on them, the binding-term table in §1 and the
 byte-identity assertion above were re-derived by `cfd-supervisor` personally. Zero
 core-minutes: no solver ran. Committed by `cfd-supervisor` personally, because it strikes
 a sentence in a document that alters a registered criterion.*
+
+---
+
+## ADDENDUM 5 — 2026-08-31 — THE REPAIRED COMPARATOR AND LAUNCHER ARE INSTALLED AT THE REGISTERED GRADING PATH, UNDER §2d.1's POST-COMPUTE EXCEPTION
+
+**Version 1.5.** **Lines whose number changed above this section: 0.** Pure append;
+nothing above is edited, struck or renumbered. This addendum **alters no gate, no
+threshold, no cap and no label.** It records a change to the *instrument* at the
+registered grading path, which rule 2 fixes at the pre-registration commit, and it
+discloses that change under `VERIFICATION_CHARTER` §2d.1.
+
+### 1. WHAT IS INSTALLED, WITH HASHES ON BOTH SIDES
+
+| Path | Superseded (md5) | Installed (md5) |
+|---|---|---|
+| `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` | `f217d293762b0a644a95f32fb63b850f` | `a2b21ba79e0060c283182fc2bb3f6352` |
+| `cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh` | `24683bf8e5953c87d735ad993aac56f2` | `e02bfa8340147261d743973effe2e34d` |
+
+Both superseded files are preserved in git history and both replacements were
+committed as candidates before installation (`analyse_f28_candidate.py`,
+`run_f28_candidate.sh`), so the substitution is reconstructible byte-for-byte.
+
+### 2. THE LIMB: POST-COMPUTE, NOT PRE-COMPUTE
+
+`VERIFICATION_CHARTER` §2d.2 (ruling `05088e94`) fixes that gates close at **first
+compute, feasibility included**, and this charter's own F28 ruling (§ at :4228) holds
+that F28's gates closed at the **earliest `started_utc` of the feasibility runs**.
+**The pre-compute limb does not apply and is not invoked.** This installation stands
+on §2d.1's **post-compute repair exception** or it does not stand at all.
+
+### 3. THE FOUR CONDITIONS
+
+**(1) A DEMONSTRABLE ERROR, NOT A PREFERENCE.** Four, each independently
+demonstrated by execution rather than by reading:
+
+- **The planted control reached zero graded numbers.** `plant_into_p` certified an
+  array length (`vals` at :471, used only at :472 and :477) and no graded quantity.
+  All six graded readers were uncontrolled.
+- **The `volumeMode` guard was permanently blind.** `read_fvoptions_source` took the
+  **first** regex match across the file; line 6 of the live `constant/fvOptions` is a
+  banner comment quoting `volumeMode specific;` verbatim, so the reader returned
+  `specific` **whatever line 56 said**. The comment explaining why the guard mattered
+  was the thing that blinded it.
+- **A sibling file shadowed the graded one.** `postProcessing/forcesDuct/0/` holds
+  `force.dat` **and** `moment.dat` with identical column names and Time values;
+  `"moment"` sorts after `"force"` and a `>=` tie-break took the last visitor, so the
+  comparator read `total_x = -4.3230998769e-19` (a moment) where the force is
+  `-3.2288097331e-01`. §6.3's registered **sign** gate would have been decided by the
+  sign of a rounding-level moment component.
+- **§6.3's refusal branch was unpassable.** The reader refused any `su[0] <= 0.0`, and
+  the registered `delta_p = 0` empty duct sets `Su_x = 0`; §9.2 requires **both** V
+  controls before any gated solve, so **no gated F28 solve could ever have launched.**
+
+**(2) THE INSTRUMENT THAT ESTABLISHED THEM GRADES NOTHING — the load-bearing
+condition.** `f28_comparator_control_selftest.py` is a **mutation harness**: it plants
+defects and requires limbs to go red. It issues no verdict and cannot know which
+direction a verdict wants. Independently, `verification` drove the repaired guard with
+**its own adversarial cases** and passed it at `a20b7281`. The blind-guard defect was
+found by **running** the guard, not by any number it produced.
+
+**(3) DISCLOSURE, NAMING THE INSTRUMENT, QUANTIFYING WHAT MOVED.** This section is
+that disclosure. Measured, by `cfd-supervisor` personally:
+
+- Selftest **141 PASS / 0 FAIL, 29 mutation limbs** (18 pre-existing + 11 new), every
+  limb red when its own logic is reverted, `__pycache__` cleared before each run.
+- Addendum 3's floored criterion, previously registered and unimplemented, is now
+  **wired**, and reproduces **both** frozen tables on the real arms — Addendum 3 §7's
+  `ptp` and margins (0.020421899 / 34.4×, 0.060453719 / 101.9×, 0.063349822 / 106.8×)
+  and Addendum 4 §1's `|T_mean|` and floor/relative (0.003308274 / 179.372×,
+  0.333724642 / 1.778×, 0.313215680 / 1.895×). **The FLOOR governs on all three and
+  all three FAIL. Not one arm was rescued** — the outcome Addendum 3 §7 registered in
+  advance is unchanged by wiring it.
+- `T_floor` is **derived in code** from frozen inputs and asserted against the
+  registration in that direction, at tolerances of half the last printed digit. The
+  derived double `5.9341194567807194e-04` is deliberately **not bit-equal** to the
+  printed literal (2.193e-14 apart), which is the tell distinguishing a derivation
+  from a paste. Re-derived independently by the supervisor: agreement exact.
+- §11.1's virgin-case guard, registered with **zero call sites**, now has one, in the
+  launcher, at the only position where it measures anything.
+
+**(4) PRE-REPAIR VALUES BESIDE THE PUBLISHED ONES — SATISFIED BY DISCLOSING A
+MEASURED ABSENCE**, per `§2d.3` (`4e5cd6c0`), which permits conditions (3) and (4) to
+be met that way when the absence is **measured and named** rather than asserted.
+**There are no pre-repair published values, because there are no graded solves.**
+Measured: **36 run directories** under `verification/runs/F28_runs/`, **zero** carrying
+any grading marker; no verdict of the fixed vocabulary is recorded anywhere in that
+tree. Independently, `scripts/check_comparator_freeze.py` — which walks `cases/` as
+well as `verification/` — classifies **both** `analyse_f28.py` and
+`analyse_f28_candidate.py` as **NO-MARKERS**. The named artifacts that do not exist:
+no `F28_G*` run directory, no `F28_RESULTS.md`, no row in any ledger citing an F28
+number.
+
+**An honest caveat, recorded rather than relied upon:** because the freeze checker
+reports F28 as NO-MARKERS, **no automated instrument polices this installation in
+either direction.** It is disclosed here because it is disclosed, not because a tool
+caught it.
+
+### 4. WHAT DID NOT MOVE
+
+Nothing that either independent check-1 read found sound: **C3's two arms**, the
+refusing `fvOptions` reader, **C4's one-way limb**, **§6.3's SIGN requirement**, and
+the six completion clauses. Verified after the floor wiring by diffing the installed
+file against the blob `verification` graded (`9716705937171346fcf3688a779bbc61`): **46
+lines removed, 491 added, and the only function-level removal is §6.3's own refusal
+text** — the sentence this addendum exists to strike.
+
+### 5. WHAT THIS ADDENDUM DOES NOT DO
+
+It **does not authorise compute**. It removes the last instrument obstacle to Stage 1;
+whether Stage 1 launches, under what cap and against which rows, is governed by the
+frozen sections above, rule 2 and rule 12, unchanged. **F28 remains `PENDING` and no
+row is graded by this document.**
+
+*Installed and recorded by `cfd-supervisor` personally. Both check-1 reads — the
+comparator's floored-criterion diff and the launcher's guard-virgin diff — were read
+as diffs **and exercised against their own artifacts** by the supervisor, not
+delegated and not relayed, after this team certified a permanently blind guard twice
+on a read alone (`9c223449`). Zero solver core-minutes.*

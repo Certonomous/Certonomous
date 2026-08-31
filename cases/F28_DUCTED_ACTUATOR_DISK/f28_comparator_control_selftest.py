@@ -145,7 +145,16 @@ def nine(x):
 
 
 def build_fixture(with_source=True, dp_up=-8.4652590895e+02,
-                  dp_dn=-8.4652590895e+02 + 1000.0 / 1.2):
+                  dp_dn=-8.4652590895e+02 + 1000.0 / 1.2,
+                  end_time=END_TIME, n_force_rows=3):
+    """`end_time` and `n_force_rows` default to the values every pre-existing
+    limb was written against, so adding them changes no fixture already in use.
+
+    They exist because Addendum 3's stationarity channel grades a 2000-row
+    window: the section 6.3 fixture needs a `forcesDuct` series LONGER than the
+    registered window, and a fixture whose series is shorter than the criterion
+    would test the refusal instead of the criterion.
+    """
     fx = tempfile.mkdtemp(prefix="f28fx_")
     _tmpdirs.append(fx)
     os.makedirs(os.path.join(fx, "0"))
@@ -163,12 +172,12 @@ def build_fixture(with_source=True, dp_up=-8.4652590895e+02,
     # produced must be NEWER than it.
     open(os.path.join(fx, "0", "U"), "w").write("dummy 0/U age anchor\n")
     os.utime(os.path.join(fx, "0", "U"), (T0, T0))
-    tdir = os.path.join(fx, "%g" % END_TIME)
+    tdir = os.path.join(fx, "%g" % end_time)
     os.makedirs(tdir)
     shutil.copy(os.path.join(SRC_RUN, "14000", "p"), os.path.join(tdir, "p"))
 
-    rows = [(int(END_TIME) - 2, None), (int(END_TIME) - 1, None),
-            (int(END_TIME), None)]
+    rows = [(int(end_time) - 2, None), (int(end_time) - 1, None),
+            (int(end_time), None)]
     write_series(os.path.join(fx, "postProcessing", "diskPlaneUp", "0",
                               "surfaceFieldValue.dat"),
                  SFV_HEADER % ("planeUp", "areaAverage(p)"),
@@ -182,15 +191,42 @@ def build_fixture(with_source=True, dp_up=-8.4652590895e+02,
                  SFV_HEADER % ("planeFlow", "areaNormalIntegrate(U)"),
                  [(t, ["%.10e" % 2.1887020890e-02] ) for t, _ in rows])
     # `forces` writes BOTH of these, with IDENTICAL column names and times.
+    frows = [int(end_time) - n_force_rows + 1 + i for i in range(n_force_rows)]
     write_series(os.path.join(fx, "postProcessing", "forcesDuct", "0",
                               "force.dat"),
                  FORCE_HEADER % "Force",
-                 [(t, nine(-3.2288097331e-01)) for t, _ in rows])
+                 [(t, nine(-3.2288097331e-01)) for t in frows])
     write_series(os.path.join(fx, "postProcessing", "forcesDuct", "0",
                               "moment.dat"),
                  FORCE_HEADER % "Moment",
-                 [(t, nine(-4.3230998769e-19)) for t, _ in rows])
+                 [(t, nine(-4.3230998769e-19)) for t in frows])
     return fx, os.path.join(fx, "0", "U"), tdir
+
+
+def real_arm_fixture(arm, end_time=15000.0):
+    """A case directory carrying ONE real arm's `force.dat`, unaltered.
+
+    The acceptance limb reproduces the registration's own table, and it must do
+    so THROUGH THE WIRED CODE from THE ARTIFACT ON DISK -- not from numbers
+    typed into this file.  So the arm's `postProcessing/forcesDuct/0/force.dat`
+    is COPIED BYTE-FOR-BYTE (`shutil.copy2`, contents and mtime), the age anchor
+    is dated behind it, and the comparator's own reader chain does the rest.
+    Nothing else about the arm is fabricated because nothing else is read.
+    """
+    src = os.path.join(REPO, "verification", "runs", "F28_runs", arm,
+                       "postProcessing", "forcesDuct", "0", "force.dat")
+    if not os.path.isfile(src):
+        return None, None
+    fx = tempfile.mkdtemp(prefix="f28arm_")
+    _tmpdirs.append(fx)
+    os.makedirs(os.path.join(fx, "0"))
+    dst = os.path.join(fx, "postProcessing", "forcesDuct", "0", "force.dat")
+    os.makedirs(os.path.dirname(dst))
+    shutil.copy2(src, dst)
+    age = os.path.join(fx, "0", "U")
+    open(age, "w").write("dummy 0/U age anchor\n")
+    os.utime(age, (os.path.getmtime(dst) - 1000, os.path.getmtime(dst) - 1000))
+    return fx, age
 
 
 print("=== F28 COMPARATOR CONTROL SELFTEST ===")
@@ -529,17 +565,137 @@ check("the strict completion rule still has all six clauses plus clause 7",
       all(("clause %d" % i) in open(CANDIDATE).read() for i in range(1, 8)))
 
 # ---------------------------------------------------------------------------
-print("=== LIMB GROUP 9 -- ADDENDUM 3's UNWIRED CHANNEL IS NOT GRADED ===")
+print("=== LIMB GROUP 9 -- ADDENDUM 3's FLOOR IS DERIVED, NOT PASTED ===")
+# Limb group 9 previously asserted that the channel was NOT graded and that
+# section 6.3 REFUSED.  That refusal was correct while the criterion was
+# unwired and the supervisor ruled it standing "until the criterion is wired"
+# (CHECK1_ANALYSE_F28_CANDIDATE.md, ruling 1).  It is wired, so the limb that
+# certified its absence is replaced by limbs that certify its presence.
 src = open(CANDIDATE).read()
-check("section 6.3 REFUSES rather than grading without the registered "
-      "stationarity channel",
-      "SECTION 6.3 CANNOT BE GRADED BY THIS COMPARATOR" in src)
-check("the refusal names the SECTOR frame and the full-annulus value",
-      "5-DEGREE SECTOR" in src and "STATIONARITY_FLOOR_SECTOR_N" in src)
-check("the floor is carried in sector newtons, not full-annulus newtons",
-      abs(cand.STATIONARITY_FLOOR_SECTOR_N - 5.934119457e-04) < 1e-13,
-      "full-annulus would be %.4e N, a factor of %g away"
-      % (0.001 * cand.A_DISK * 1000.0, cand.WEDGE_SCALE))
+# The struck refusal's text SURVIVES IN A COMMENT, because a change is disclosed
+# by naming what it removed.  So this limb asks the question limb group 8b was
+# built for -- is the live line what the comment says? -- and answers it the
+# same way: EVERY surviving occurrence must be on a comment line.  (Written the
+# obvious way, as a bare `not in src`, this limb FAILED against a correctly
+# wired file, caught by the comment it was reading.  Kept as measured.)
+_hits = [ln for ln in src.splitlines()
+         if "SECTION 6.3 CANNOT BE GRADED BY THIS COMPARATOR" in ln]
+check("the standing 'CANNOT BE GRADED' refusal is STRUCK from the LIVE code",
+      _hits and all(ln.lstrip().startswith("#") for ln in _hits),
+      "%d surviving occurrence(s), all in comments disclosing the strike"
+      % len(_hits))
+d = cand.FLOOR_DERIVATION
+check("the geometry chain IS Addendum 3 section 4's, by exact equality",
+      cand.R_TIP == cand.D / 2.0 - 0.01 * cand.D
+      and cand.R_HUB == 0.3 * cand.D / 2.0,
+      "r_tip = D/2 - 0.01 D = %.17g m, r_hub = 0.3 D / 2 = %.17g m"
+      % (cand.R_TIP, cand.R_HUB))
+for nm, unit in (("A_disk", "m^2"), ("T_disk_ref,full", "N"),
+                 ("T_floor,sector", "N")):
+    e = d[nm]
+    check("%-16s derived %.12g %s agrees with %s's %.12g"
+          % (nm, e["derived"], unit, e["authority"].split(", ")[0]
+             .replace("registration ", ""), e["registered"]),
+          e["abs_difference"] <= e["tolerance"],
+          "|diff| %.3e <= %.3e (half the last digit printed)"
+          % (e["abs_difference"], e["tolerance"]))
+check("T_floor is the DERIVED product, bit-for-bit, not the printed literal",
+      cand.STATIONARITY_FLOOR_SECTOR_N
+      == 0.001 * ((1000.0 * cand.A_DISK) / cand.WEDGE_SCALE)
+      and cand.STATIONARITY_FLOOR_SECTOR_N != 5.934119457e-04,
+      "%.17e derived; the registration prints %.9e, and the two are NOT the "
+      "same double -- which is the tell that the code derives rather than "
+      "pastes" % (cand.STATIONARITY_FLOOR_SECTOR_N, 5.934119457e-04))
+check("the floor is in SECTOR newtons, and the full-annulus value is named "
+      "but never compared against",
+      abs(cand.STATIONARITY_FLOOR_FULL_N
+          - cand.WEDGE_SCALE * cand.STATIONARITY_FLOOR_SECTOR_N) < 1e-15
+      and "STATIONARITY_FLOOR_FULL_N" not in src.split(
+          "def stationarity_criterion")[1].split("def thrust_stationarity")[0],
+      "sector %.6e N, full-annulus %.6e N, factor %g apart"
+      % (cand.STATIONARITY_FLOOR_SECTOR_N, cand.STATIONARITY_FLOOR_FULL_N,
+         cand.WEDGE_SCALE))
+
+# MUTATION -- THE FRAME SLIP, made in the derivation itself: scale to the full
+# annulus instead of the sector.  This is the exact 72x error Addendum 3
+# section 5 exists to foreclose, and the import-time assertion must kill it.
+FRAME_SLIP = [("STATIONARITY_FLOOR_SECTOR_N = STATIONARITY_REL "
+               "* T_DISK_REF_SECTOR_N",
+               "STATIONARITY_FLOOR_SECTOR_N = STATIONARITY_REL "
+               "* T_DISK_REF_FULL_N")]
+ok, msg = refuses(mutant, FRAME_SLIP, "floor_frame_slip")
+check("MUTATION: a floor derived in the FULL-ANNULUS frame REFUSES AT IMPORT",
+      ok, msg[:120])
+check("...and it is the DERIVATION assertion that caught it",
+      "THE DERIVED FLOOR DOES NOT REPRODUCE THE REGISTERED ONE" in msg)
+ok, msg = refuses(mutant, FRAME_SLIP + [
+    ("        if not abs(derived - registered) <= tol:\n",
+     "        if False and abs(derived - registered) <= tol:\n")],
+    "floor_no_assert")
+check("MUTATION: with that assertion reverted the 72x-wrong floor IMPORTS "
+      "CLEAN", not ok, msg[:100])
+
+# MUTATION -- the literal pasted back in place of the chain.  It must still
+# import (the literal IS the registered value), but it must no longer be the
+# derived double: the limb above is what distinguishes the two.
+mPaste = mutant([("STATIONARITY_FLOOR_SECTOR_N = STATIONARITY_REL "
+                  "* T_DISK_REF_SECTOR_N",
+                  "STATIONARITY_FLOOR_SECTOR_N = 5.934119457e-04")],
+                "floor_pasted")
+check("MUTATION: a PASTED floor is a different double from the derived one",
+      mPaste.STATIONARITY_FLOOR_SECTOR_N
+      != cand.STATIONARITY_FLOOR_SECTOR_N,
+      "pasted %.17e vs derived %.17e -- %.3e apart, which is why the check "
+      "above is an equality against the CHAIN and not against the literal"
+      % (mPaste.STATIONARITY_FLOOR_SECTOR_N, cand.STATIONARITY_FLOOR_SECTOR_N,
+         abs(mPaste.STATIONARITY_FLOOR_SECTOR_N
+             - cand.STATIONARITY_FLOOR_SECTOR_N)))
+# ...and a WRONG geometry chain must not be rescued by the printed literal.
+ok, msg = refuses(mutant, [("R_HUB        = 0.15 * D",
+                            "R_HUB        = 0.10 * D")], "hub_wrong")
+check("MUTATION: a wrong hub radius REFUSES AT IMPORT", ok,
+      "on the exact-equality check against `0.3 D / 2`"
+      if "GEOMETRY CHAIN IS NOT SECTION 4" in msg else msg[:110])
+
+print("=== LIMB GROUP 9b -- THE FLOOR IS THRUST-ONLY (Addendum 3 s.3) ===")
+# Addendum 3 section 3, final paragraph: the disk mass-flow stationarity row is
+# NOT touched, and a mass-flow floor is "not derived, not registered and not in
+# force".  This is the boundary of Sanaa's approval, so it is enforced in code.
+r = cand.stationarity_criterion(1.0e-05, -0.33372464, "thrust")
+check("the criterion evaluates THRUST", r["governing_limb"] in ("FLOOR",
+                                                                "RELATIVE"),
+      "limit %.6e N, governing %s" % (r["limit_N"], r["governing_limb"]))
+check("FLOORED_QUANTITIES registers thrust AND NOTHING ELSE",
+      cand.FLOORED_QUANTITIES == ("thrust",), repr(cand.FLOORED_QUANTITIES))
+for q in ("disk mass flow", "mdot", "mass_flow", "diskFlow"):
+    ok, msg = refuses(cand.stationarity_criterion, 1.0e-05, 2.1887e-02, q)
+    check("the floor REFUSES to be applied to %r" % q, ok
+          and "NOT REGISTERED FOR" in msg)
+# MUTATION -- revert the guard's OWN logic.  THE FLOOR THEN LEAKS ONTO THE
+# MASS-FLOW ROW: `diskFlow`'s stationarity would be graded against a threshold
+# that is not derived, not registered and not approved.
+mLeak = mutant([("    if quantity not in FLOORED_QUANTITIES:\n",
+                 "    if False and quantity not in FLOORED_QUANTITIES:\n")],
+               "floor_leak")
+leaked = None
+try:
+    leaked = mLeak.stationarity_criterion(1.0e-05, 2.1887e-02, "disk mass flow")
+except SystemExit:
+    pass
+check("MUTATION: with the guard reverted THE FLOOR LEAKS ONTO THE MASS-FLOW "
+      "ROW", leaked is not None
+      and leaked["floor_limb_N"] == cand.STATIONARITY_FLOOR_SECTOR_N,
+      "a mass flow of %.6g kg/s would be graded against a THRUST floor of "
+      "%.6e N -- an unregistered gate on a second row, in the wrong units"
+      % (2.1887e-02, (leaked or {}).get("floor_limb_N", float("nan"))))
+check("the criterion has exactly ONE call site, and it grades thrust",
+      src.count("stationarity_criterion(") == 2
+      and 'stationarity_criterion(ptp, mean, "thrust")' in src,
+      "%d occurrences: the definition and one call"
+      % src.count("stationarity_criterion("))
+check("no floor constant appears anywhere in the C2 mass-flow block",
+      "STATIONARITY_FLOOR" not in
+      src.split("# C2 -- disk mass flow")[1].split("# C3 --")[0])
 
 print("=== LIMB GROUP 10 -- END-TO-END PLUMBING OF control_6_2 / control_6_3 ===")
 # >>> THE VERDICTS BELOW ARE NOT RESULTS AND MUST NEVER BE CITED AS ONE.  The
@@ -550,10 +706,10 @@ print("=== LIMB GROUP 10 -- END-TO-END PLUMBING OF control_6_2 / control_6_3 ===
 # >>> pieces each pass in isolation and whose wiring is untested is half-checked.
 
 
-def finish_case(fx, tdir):
+def finish_case(fx, tdir, end_time=END_TIME):
     """Give a fixture the things `completion()` requires."""
     with open(os.path.join(fx, "log.simpleFoam"), "w") as fh:
-        for i in range(int(END_TIME)):
+        for i in range(int(end_time)):
             fh.write("ExecutionTime = %g s  ClockTime = %d s\n" % (i * 0.1, i))
         fh.write("End\n")
     for f in ("U", "k", "omega", "nut"):
@@ -608,7 +764,12 @@ if ran:
 
 # The EMPTY DUCT: `delta_p = 0`, so `Su_x = 0` -- exactly what the launcher
 # writes for section 6.3, and exactly what the superseded reader refused.
-EMPTY_CASE = finish_case(*build_fixture()[::2])
+# Its `forcesDuct` series is LONGER THAN THE REGISTERED 2000-ROW WINDOW,
+# because section 6.3 now grades Addendum 3's stationarity channel on it.
+LONG_END = 2100.0
+EMPTY_CASE = finish_case(*build_fixture(end_time=LONG_END,
+                                        n_force_rows=int(LONG_END))[::2],
+                         end_time=LONG_END)
 fv_e = os.path.join(EMPTY_CASE, "constant", "fvOptions")
 _loaded = open(fv_e).read()          # read BEFORE opening for write: "w" truncates
 assert "((166666.66666666666 0 0) 0)" in _loaded, "fixture fvOptions unexpected"
@@ -616,18 +777,20 @@ open(fv_e, "w").write(_loaded.replace("((166666.66666666666 0 0) 0)",
                                       "((0 0 0) 0)"))
 os.utime(fv_e, (T_NEW, T_NEW))
 # Drag: T_duct must be negative, so total_x must be POSITIVE before the flip.
+# A CONSTANT series, so `ptp` is exactly zero and the fabricated fixture passes
+# stationarity: what limb group 10 tests is that the wiring EXECUTES, and a
+# fixture that failed the criterion would not distinguish "wired" from "broken".
 write_series(os.path.join(EMPTY_CASE, "postProcessing", "forcesDuct", "0",
                           "force.dat"), FORCE_HEADER % "Force",
-             [(int(END_TIME) - 2, nine(4.0e-03)),
-              (int(END_TIME) - 1, nine(4.0e-03)),
-              (int(END_TIME), nine(4.0e-03))])
+             [(int(LONG_END) - int(LONG_END) + 1 + i, nine(4.0e-03))
+              for i in range(int(LONG_END))])
 
 ok_old, msg_old = refuses(old.read_fvoptions_source, EMPTY_CASE)
 check("MUTATION (the superseded reader): REFUSES the registered zero source, "
       "so section 6.3 could never pass", ok_old, msg_old[:130])
-src = cand.read_fvoptions_source(EMPTY_CASE, zero_source_expected=True)
+src_fv = cand.read_fvoptions_source(EMPTY_CASE, zero_source_expected=True)
 check("candidate accepts a zero source ONLY where one is registered",
-      src["Su"][0] == 0.0)
+      src_fv["Su"][0] == 0.0)
 ok, _ = refuses(cand.read_fvoptions_source, EMPTY_CASE)
 check("...and REFUSES the same file when no zero source is registered", ok)
 neg = open(fv_e).read().replace("((0 0 0) 0)", "((-1.0 0 0) 0)")
@@ -639,11 +802,291 @@ check("...and STILL refuses a -x source even with a zero source registered",
 open(fv_e, "w").write(neg.replace("((-1.0 0 0) 0)", "((0 0 0) 0)"))
 os.utime(fv_e, (T_NEW, T_NEW))
 
-ok, msg = refuses(cand.control_6_3, EMPTY_CASE, 42.7256601, END_TIME, 0)
-check("control_6_3 runs end to end and REFUSES on the unwired stationarity "
-      "channel", ok, msg.split("\n")[0][:110])
-check("...and it got far enough to plant on forcesDuct and test sign/magnitude",
-      "Addendum 3" in msg and "SECTOR NEWTONS" in msg)
+try:
+    v_b = cand.control_6_3(EMPTY_CASE, 42.7256601, LONG_END, 0)
+    ran_b, why_b = True, ""
+except SystemExit as e:
+    v_b, ran_b, why_b = None, False, "SystemExit(%r)" % (e.code,)
+except Exception as e:                                          # noqa: BLE001
+    v_b, ran_b, why_b = None, False, "%s: %s" % (type(e).__name__, e)
+check("control_6_3 runs end to end WITH the stationarity channel wired",
+      ran_b, why_b)
+if ran_b:
+    check("both plants on `forcesDuct` fired -- the last row AND the window",
+          v_b["planted_control"]["fired"]
+          and v_b["planted_control_stationarity"]["fired"]
+          and v_b["planted_control_stationarity"]["artifact_byte_identical"],
+          "window plant into %s, %.6g N"
+          % (v_b["planted_control_stationarity"]["row"],
+             v_b["planted_control_stationarity"]["plant_N"]))
+    check("the sector-frame proof is part of the record and is BIT-EXACT",
+          v_b["sector_frame_proof"]["bit_exact"]
+          and v_b["sector_frame_proof"]["implied_T_total_N"]
+          == v_b["T_total_N"])
+    check("the floor derivation is carried into the graded record",
+          v_b["floor_derivation"]["T_floor,sector"]["derived"]
+          == cand.STATIONARITY_FLOOR_SECTOR_N)
+    check("magnitude, SIGN and stationarity are ALL three evaluated",
+          set(("magnitude_pass", "sign_pass_must_be_drag",
+               "stationarity_pass")) <= set(v_b))
+    print("       [NOT A RESULT -- fabricated fixture, no solver ran] "
+          "structural verdict field = %r" % v_b["verdict"])
+
+# THE SIGN GATE STILL BINDS, AND IT BINDS AHEAD OF STATIONARITY.  A positive
+# T_total on a delta_p = 0 duct is NOT A RESULT regardless of magnitude
+# (Addendum 3 section 6: "untouched"), and a PERFECTLY stationary series must
+# not buy its way past that.  The series below is constant -- ptp exactly 0, so
+# stationarity passes outright -- and negative, so T_total comes out positive.
+write_series(os.path.join(EMPTY_CASE, "postProcessing", "forcesDuct", "0",
+                          "force.dat"), FORCE_HEADER % "Force",
+             [(1 + i, nine(-4.0e-03)) for i in range(int(LONG_END))])
+ok, msg = refuses(cand.control_6_3, EMPTY_CASE, 42.7256601, LONG_END, 0)
+check("a PERFECTLY stationary but THRUST-POSITIVE V(b) is still refused on "
+      "SIGN", ok and "NET THRUST FROM NOTHING" in msg, msg.split(".")[0][:100])
+
+# AN UNSTATIONARY V(b) IS `NOT A RESULT`, AND IT IS NOT A REFUSAL.  This is the
+# behavioural half of striking the standing refusal: a REGISTERED CRITERION
+# with a threshold reports its failure through the verdict field, and the
+# comparator keeps its exit-2 refusals for instrument failures.  Section 9.2
+# then consumes that `NOT A RESULT` and no gated solve is launched -- the same
+# outcome the refusal produced, reached the way the registration registers it.
+# The oscillation is sized so MAGNITUDE and SIGN both still pass: `ptp` of
+# 2.0e-03 N is 3.4x over the floor, while |T_total| stays at 0.84 % of the
+# loaded reference, well inside section 6.3's 2 %.  A fixture that failed two
+# gates at once would not show which limb carried the verdict.
+_noisy = [(1 + i, nine(4.0e-03 + (2.0e-03 if i % 2 else 0.0)))
+          for i in range(int(LONG_END))]
+write_series(os.path.join(EMPTY_CASE, "postProcessing", "forcesDuct", "0",
+                          "force.dat"), FORCE_HEADER % "Force", _noisy)
+try:
+    v_ns = cand.control_6_3(EMPTY_CASE, 42.7256601, LONG_END, 0)
+    ran_ns, why_ns = True, ""
+except SystemExit as e:
+    v_ns, ran_ns, why_ns = None, False, "SystemExit(%r)" % (e.code,)
+check("an UNSTATIONARY V(b) returns `NOT A RESULT` and does NOT refuse",
+      ran_ns and v_ns["stationarity_pass"] is False
+      and v_ns["verdict"] == "NOT A RESULT"
+      and v_ns["magnitude_pass"] and v_ns["sign_pass_must_be_drag"],
+      "ptp %.6g N against a limit of %.6e N (governing %s): magnitude and sign "
+      "both PASS and the verdict is still %r, carried by the stationarity limb "
+      "alone"
+      % ((v_ns or {}).get("thrust_stationarity", {}).get("ptp_N", float("nan")),
+         (v_ns or {}).get("thrust_stationarity", {}).get("limit_N",
+                                                         float("nan")),
+         (v_ns or {}).get("thrust_stationarity", {}).get("governing_limb", "?"),
+         (v_ns or {}).get("verdict", why_ns)))
+write_series(os.path.join(EMPTY_CASE, "postProcessing", "forcesDuct", "0",
+                          "force.dat"), FORCE_HEADER % "Force",
+             [(1 + i, nine(4.0e-03)) for i in range(int(LONG_END))])
+
+# ---------------------------------------------------------------------------
+print("=== LIMB GROUP 11 -- THE WINDOW READER AND ITS PLANTED CONTROL ===")
+st = cand.thrust_stationarity(EMPTY_CASE, LONG_END, os.path.join(EMPTY_CASE,
+                                                                 "0", "U"))
+check("the window reader takes the registered %d rows, not the whole series"
+      % cand.STATIONARITY_WINDOW_ITERS,
+      st["n_samples"] == cand.STATIONARITY_WINDOW_ITERS
+      and st["window_last_Time"] == LONG_END,
+      "%d of %d rows on disk, Time %g..%g"
+      % (st["n_samples"], int(LONG_END), st["window_first_Time"],
+         st["window_last_Time"]))
+pw = cand.plant_into_stationarity_window(EMPTY_CASE, LONG_END,
+                                         os.path.join(EMPTY_CASE, "0", "U"))
+check("plant fires on the stationarity window",
+      pw["fired"] and pw["unperturbed_twin_silent"],
+      "row %d (%s), plant %.6g N, mean shift %.6g N observed vs %.6g expected"
+      % (pw["row_index_in_file"], pw["row"], pw["plant_N"],
+         pw["mean_shift_observed_N"], pw["mean_shift_expected_N"]))
+check("force.dat is BYTE-IDENTICAL after the window control",
+      pw["artifact_byte_identical"], "sha256 %s" % pw["artifact"]["sha256"][:16])
+
+# MUTATION A -- a window reader that silently grades ONLY THE FINAL ROW.  This
+# is the defect the LAST-ROW plant cannot see, and it is why this control
+# exists: `plant_into_function_object` passes on such a reader.
+LASTROW_ONLY = [("    return vals[-window:], times[-window], times[-1], path",
+                 "    return [vals[-1]] * window, times[-window], "
+                 "times[-1], path")]
+mJ = mutant(LASTROW_ONLY, "window_lastrow_only")
+ok, msg = refuses(mJ.plant_into_stationarity_window, EMPTY_CASE, LONG_END,
+                  os.path.join(EMPTY_CASE, "0", "U"))
+check("MUTATION: a reader that grades only the FINAL ROW is REFUSED", ok,
+      msg[:100])
+check("...and it is the WINDOW plant's refusal that caught it",
+      "PLANTED CONTROL ON THE STATIONARITY WINDOW" in msg, msg[:90])
+r_lastrow = mJ.plant_into_function_object(EMPTY_CASE, "forcesDuct", "total_x",
+                                          LONG_END, os.path.join(EMPTY_CASE,
+                                                                 "0", "U"))
+check("...and the pre-existing LAST-ROW plant passes that same broken reader, "
+      "which is exactly why a second control was needed", r_lastrow["fired"])
+
+# MUTATION B -- revert the window control's OWN refusals on top of the same
+# broken reader.  The blind reader must now sail through.
+mK = mutant(LASTROW_ONLY + [
+    ("        if d_ptp <= 0.0:\n", "        if False and d_ptp <= 0.0:\n"),
+    ("        if abs(d_mean - delta / window) > tol:\n",
+     "        if False and abs(d_mean - delta / window) > tol:\n")],
+    "window_no_refusal")
+ok, msg = refuses(mK.plant_into_stationarity_window, EMPTY_CASE, LONG_END,
+                  os.path.join(EMPTY_CASE, "0", "U"))
+check("MUTATION: with the window control's refusals reverted the blind reader "
+      "PASSES", not ok, msg[:90])
+
+# MUTATION C -- a reader that averages the WRONG 2000 rows: `ptp` still moves,
+# so only the mean identity can catch it.  This is the half of the control that
+# a fire-only test would never exercise.
+mL = mutant([("    return vals[-window:], times[-window], times[-1], path",
+              "    return vals[-window:] + vals[:1], times[-window], "
+              "times[-1], path")], "window_wrong_rows")
+ok, msg = refuses(mL.plant_into_stationarity_window, EMPTY_CASE, LONG_END,
+                  os.path.join(EMPTY_CASE, "0", "U"))
+check("MUTATION: a reader averaging the WRONG rows is caught by the MEAN "
+      "identity", ok and "AVERAGED THE WRONG ROWS" in msg, msg[:100])
+
+# THE SHORT WINDOW.  `read_ptp_f28.py:61` refuses one; so must this.
+SHORT_CASE = finish_case(*build_fixture()[::2])
+ok, msg = refuses(cand.thrust_stationarity, SHORT_CASE, END_TIME,
+                  os.path.join(SHORT_CASE, "0", "U"))
+check("a series SHORTER than the registered window is REFUSED", ok,
+      "3 rows against a registered window of %d"
+      % cand.STATIONARITY_WINDOW_ITERS)
+mM = mutant([("    if len(vals) < window:\n",
+              "    if False and len(vals) < window:\n")], "short_window")
+ok, msg = refuses(mM.thrust_stationarity, SHORT_CASE, END_TIME,
+                  os.path.join(SHORT_CASE, "0", "U"))
+check("MUTATION: with that refusal reverted a 3-row window is GRADED", not ok,
+      "a 3-sample `ptp` graded against a 2000-sample criterion")
+
+# ---------------------------------------------------------------------------
+print("=== LIMB GROUP 12 -- THE SECTOR FRAME IS PROVED, NOT ASSERTED ===")
+AGE_E = os.path.join(EMPTY_CASE, "0", "U")
+st = cand.thrust_stationarity(EMPTY_CASE, LONG_END, AGE_E)
+t_e = cand.total_thrust(EMPTY_CASE, LONG_END, AGE_E)["T_duct"]
+fr = cand.assert_stationarity_frame(st, t_e)
+check("the frame proof holds against THE ACTUAL GRADED COLUMN, bit-exactly",
+      fr["implied_T_total_N"] == t_e,
+      "last windowed total_x = %.10g (sector N) -> x(-72) -> T_total = %.10g N, "
+      "which is the graded value to the bit" % (st["last_value_sector_N"], t_e))
+# MUTATION -- WEDGE_SCALE applied inside the window reader, i.e. the series
+# handed to the criterion in FULL-ANNULUS newtons.  A 72x frame slip.
+mN = mutant([("            vals.append(float(f[cols.index(column)]))",
+              "            vals.append(float(f[cols.index(column)]) "
+              "* WEDGE_SCALE)")], "frame_slip_reader")
+st_bad = mN.thrust_stationarity(EMPTY_CASE, LONG_END, AGE_E)
+ok, msg = refuses(mN.assert_stationarity_frame, st_bad, t_e)
+check("MUTATION: a series scaled to the FULL ANNULUS is REFUSED by the frame "
+      "proof", ok and "SECTOR-FRAME PROOF FAILED" in msg, msg[:100])
+mO = mutant([("            vals.append(float(f[cols.index(column)]))",
+              "            vals.append(float(f[cols.index(column)]) "
+              "* WEDGE_SCALE)"),
+             ("    if implied != t_total_N:\n",
+              "    if False and implied != t_total_N:\n")], "frame_no_proof")
+ok, msg = refuses(mO.assert_stationarity_frame,
+                  mO.thrust_stationarity(EMPTY_CASE, LONG_END, AGE_E), t_e)
+check("MUTATION: with the proof reverted the 72x-wrong series is ACCEPTED",
+      not ok, msg[:90])
+
+# ---------------------------------------------------------------------------
+print("=== LIMB GROUP 13 -- THE ACCEPTANCE TEST: REPRODUCE THE "
+      "REGISTRATION'S OWN TABLE ===")
+# Addendum 3 section 7 (PREREGISTRATION.md:1757-1761) and Addendum 4 section 1
+# (:1853-1857) publish the three feasibility arms read against the floored
+# criterion.  THE WIRED CODE IS DRIVEN ON THOSE ARMS' OWN `force.dat` FILES and
+# must reproduce which limb governs, the ratios to the printed digits, and all
+# three readings -- WITHOUT ANY NUMBER BEING TUNED TO THE TABLE.  A disagreement
+# here is a finding about the registration or the code, never a licence to
+# adjust either.  These are FEASIBILITY rows carrying no verdict of the fixed
+# vocabulary; "FAIL"/"PASS" below are readings of a criterion, exactly as
+# Addendum 3 section 7 says of its own table.
+REGISTERED = [
+    # arm, ptp (s.7), |T_mean| (Add.4 s.1), rel limb, floor/rel (Add.4),
+    # ptp/floor margin (s.7)
+    ("FEAS_L1_dp0_U20_A2",            0.020421899, 0.003308274,
+     3.308274e-06, 179.372, 34.4),
+    ("FEAS_L1_dp1000_U20_A2",         0.060453719, 0.333724642,
+     3.337246e-04, 1.778, 101.9),
+    ("FEAS_L1_dp1000_U20_A2_BCPROBE", 0.063349822, 0.313215680,
+     3.132157e-04, 1.895, 106.8),
+]
+print("  %-30s %14s %14s %13s %8s %9s %8s %6s"
+      % ("arm", "ptp (N)", "|T_mean| (N)", "rel limb (N)", "govern",
+         "floor/rel", "ptp/flr", "read"))
+rp_spec = importlib.util.spec_from_file_location(
+    "read_ptp_f28_ref", os.path.join(HERE, "read_ptp_f28.py"))
+rp = importlib.util.module_from_spec(rp_spec)
+rp_spec.loader.exec_module(rp)
+for arm, r_ptp, r_absmean, r_rel, r_ratio, r_margin in REGISTERED:
+    fxa, agea = real_arm_fixture(arm)
+    if fxa is None:
+        check("acceptance arm %s is on disk" % arm, False,
+              "force.dat absent -- the acceptance test cannot be driven")
+        continue
+    s = cand.thrust_stationarity(fxa, 15000.0, agea)
+    print("  %-30s %14.9f %14.9f %13.6e %8s %9.3f %8.1f %6s"
+          % (arm, s["ptp_N"], abs(s["T_mean_N"]), s["relative_limb_N"],
+             s["governing_limb"], s["floor_over_relative"],
+             s["ptp_N"] / s["floor_limb_N"], "PASS" if s["pass"] else "FAIL"))
+    check("  %s: ptp reproduces the registered %.9f N" % (arm, r_ptp),
+          abs(s["ptp_N"] - r_ptp) <= 5e-10,
+          "read %.9f N from the arm's own force.dat" % s["ptp_N"])
+    check("  %s: |T_mean| reproduces the registered %.9f N" % (arm, r_absmean),
+          abs(abs(s["T_mean_N"]) - r_absmean) <= 5e-10,
+          "read %.9f N" % abs(s["T_mean_N"]))
+    check("  %s: relative limb reproduces the registered %.6e N"
+          % (arm, r_rel), abs(s["relative_limb_N"] - r_rel) <= 5e-11)
+    check("  %s: the FLOOR governs, as Addendum 4 registers" % arm,
+          s["governing_limb"] == "FLOOR")
+    check("  %s: floor/relative reproduces the registered %.3fx"
+          % (arm, r_ratio), abs(s["floor_over_relative"] - r_ratio) <= 5e-4,
+          "%.6f" % s["floor_over_relative"])
+    check("  %s: the ptp/floor margin reproduces Addendum 3 s.7's %.1fx"
+          % (arm, r_margin),
+          abs(s["ptp_N"] / s["floor_limb_N"] - r_margin) <= 5e-2,
+          "%.4f" % (s["ptp_N"] / s["floor_limb_N"]))
+    check("  %s: FAILS the floored criterion, as registered" % arm,
+          not s["pass"])
+    # THE `max` JOIN IS ONE-WAY, and Addendum 3 section 6 says so plainly: the
+    # floor moves the criterion in the PERMISSIVE direction.  Addendum 4 then
+    # struck section 3's claim that the change is "inert on the loaded arms" --
+    # it relaxes them by 1.778x and 1.895x.  So the floored limit must be >=
+    # the struck relative-only limit on EVERY arm, never below it.
+    check("  %s: the floored limit is >= the struck relative-only limit "
+          "(the `max` join is permissive, per Addendum 3 s.6 / Addendum 4)"
+          % arm, s["limit_N"] >= s["relative_limb_N"],
+          "limit %.6e N vs relative-only %.6e N -- %s by %.3fx"
+          % (s["limit_N"], s["relative_limb_N"],
+             "relaxed" if s["limit_N"] > s["relative_limb_N"] else "unchanged",
+             s["limit_N"] / s["relative_limb_N"]))
+    check("  %s: the window spans %d iterations, so rows and iterations "
+          "coincide here" % (arm, cand.STATIONARITY_WINDOW_ITERS),
+          s["window_Time_span"] == float(cand.STATIONARITY_WINDOW_ITERS),
+          "Time %g..%g" % (s["window_first_Time"], s["window_last_Time"]))
+    # `ptp` and `T_mean` ARE `read_ptp_f28.py`'s, not a re-derivation: the
+    # frozen reader is run on the same file and the doubles must be IDENTICAL.
+    lo, hi, mean, _pct, _t0, _t1 = rp.ptp_percent(rp.read_total_x(fxa))
+    check("  %s: ptp and T_mean are BIT-IDENTICAL to read_ptp_f28.py's" % arm,
+          s["T_mean_N"] == mean and s["ptp_N"] == hi - lo
+          and s["min_N"] == lo and s["max_N"] == hi,
+          "mean %.17g, ptp %.17g -- same doubles, not merely equal to the "
+          "printed digits" % (mean, hi - lo))
+
+# THE 72x ERROR, MADE VISIBLE AS A VERDICT FLIP RATHER THAN AS AN ARGUMENT.
+fx0, age0 = real_arm_fixture("FEAS_L1_dp0_U20_A2")
+if fx0 is not None:
+    s0 = cand.thrust_stationarity(fx0, 15000.0, age0)
+    would_pass_full = s0["ptp_N"] <= max(s0["relative_limb_N"],
+                                         cand.STATIONARITY_FLOOR_FULL_N)
+    check("the FULL-ANNULUS floor would have RESCUED the zero-source arm, and "
+          "the SECTOR floor does not",
+          would_pass_full and not s0["pass"],
+          "ptp %.9f N: against the sector floor %.6e N it FAILS by %.1fx; "
+          "against the full-annulus floor %.6e N it would PASS.  That flip is "
+          "the whole content of Addendum 3 section 5, and it is why the frame "
+          "is proved by identity in limb group 12 rather than read off a "
+          "comment." % (s0["ptp_N"], cand.STATIONARITY_FLOOR_SECTOR_N,
+                        s0["ptp_N"] / cand.STATIONARITY_FLOOR_SECTOR_N,
+                        cand.STATIONARITY_FLOOR_FULL_N))
+print("       [FEASIBILITY -- no verdict of the fixed vocabulary attaches to "
+      "any row above; 'FAIL' is a reading of a criterion, per Addendum 3 s.7]")
 
 print()
 for d in _tmpdirs:

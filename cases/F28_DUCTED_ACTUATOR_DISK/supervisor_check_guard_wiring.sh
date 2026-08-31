@@ -3,9 +3,26 @@
 # Drives the function extracted verbatim from run_f28_candidate.sh.
 set -o pipefail
 CAND=/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/run_f28_candidate.sh
-LIVE=/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py
 NEW=/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_candidate.py
 WORK=$(mktemp -d /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/supchk.XXXXXX)
+
+# THE FAIL-CLOSED LIMB IS PINNED TO THE SUPERSEDED BLOB, NOT TO WHATEVER IS
+# INSTALLED.  Before installation this limb read the live `analyse_f28.py`, which
+# carried `guard_virgin_case` but NO `--guard-virgin` entry point, so it exited 2
+# on a virgin directory as well as a dirty one.  Installing the candidate made
+# that premise false and the limb went green for a reason that had nothing to do
+# with what it was testing.  A limb whose meaning changes when the tree changes
+# is not a control -- so the superseded comparator is fetched BY BLOB, and the
+# fail-closed property stays tested forever rather than accidentally.
+LIVE="$WORK/superseded_analyse_f28.py"
+# 9c223449 is the last commit before installation; its blob at the registered
+# grading path IS the superseded comparator, and the md5 below is asserted, not
+# assumed, so this limb cannot quietly start testing something else.
+git -C /home/ubuntu/Certonomous show 9c223449:cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py > "$LIVE" 2>/dev/null
+if [ "$(md5sum "$LIVE" | cut -d' ' -f1)" != "f217d293762b0a644a95f32fb63b850f" ]; then
+  echo "REFUSED: could not fetch the superseded comparator blob f217d293...; the"
+  echo "fail-closed limb would silently test the installed file instead."; exit 9
+fi
 echo "function source md5: $(md5sum "$CAND" | cut -d' ' -f1)"
 
 # Extract the function verbatim: from its def line to the first line that is exactly '}'
