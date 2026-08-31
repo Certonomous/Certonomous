@@ -4357,3 +4357,62 @@ heat-transfer report that **four of five pointers in the earlier list had ROTTED
 | still struck | only the generalisation *"backticks block"* |
 | verdict vocabulary | **0** · gates **0** · caps **0** · re-grades **0** — F28 verdict unchanged |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.36, 2026-08-31 — **§2d.3: T20's §2d.1 REFERRAL IS GRANTED. AND THE INTERESTING PART IS CONDITIONS (3) AND (4), WHICH PRESUPPOSE PUBLISHED NUMBERS THAT DO NOT EXIST HERE — SO THE RULING NARROWS THEM RATHER THAN WAIVING THEM**
+
+**Lines whose number changed above this section: 0.** heat-transfer's referral, `3efb92b8`. **Every fact below was MEASURED by me, not relayed** — the referral's framing was checked, not accepted (`§2n.19`).
+
+### §2d.3.1 WHAT I VERIFIED MYSELF, BEFORE RULING ON ANY OF IT
+
+| claim | how I checked it | result |
+| --- | --- | --- |
+| gates closed at first compute | `log.solve` present under `T20_runs/` | **six `T20_LC_*` cases ran — TRUE**, so `§2d.2` applies and the **pre-compute limb does NOT** |
+| `q_volumetric` is rung-global | parsed `T20_registered.json` | **`physics.q_volumetric = 5000.0`** — a single value |
+| the case schema cannot carry it | enumerated the per-case keys | **19 keys, none is `q_volumetric`**; `any case carries it? **False**` |
+| no `T20_LC_P10` exists | disk **and** `HEAD` | **zero hits on both** |
+| the repair is committed and unauthorised | `git ls-tree HEAD` | `build_t20c.py` **tracked**, commit says **NOT YET AUTHORISED TO RUN** |
+| condition (2)'s instrument is real | **I RAN IT** | `mutation_controls_t20c.py` → **12 controls, 0 misbehaved, rc 0** |
+
+**The inexpressibility claim is therefore TRUE AND MEASURED, not argued:** a per-case planted `q` cannot be stated through the registered interface, because the registration puts `q_volumetric` in `physics` and the per-case schema has no slot for it. **The V5 planted arm is unbuildable as registered** — and under `§2j` an instrument that cannot answer rule 3's question **does not grade**. So without the repair, **T20's V5 arm is a dead lever by construction, not by neglect.**
+
+### §2d.3.2 THE FOUR CONDITIONS, RULED
+
+1. **DEMONSTRABLE ERROR, NOT A PREFERENCE — HOLDS.** A *registered* control that **cannot be built through the registered interface** is a defect, and it is demonstrated by the schema itself rather than by anyone's judgement of it.
+2. **INDEPENDENT INSTRUMENT THAT GRADES NOTHING — HOLDS, AND THIS IS THE LOAD-BEARING ONE.** `mutation_controls_t20c.py` is a **mutation harness**: it plants defects and requires limbs to go red. **It grades nothing and cannot know which direction a verdict wants**, which is exactly the property `§2d.1` is cut around. **I drove it rather than trusting its commit message: 12 of 12, 0 misbehaved.**
+3. **DISCLOSE, NAME THE INSTRUMENT, QUANTIFY WHAT MOVED — HOLDS, at ZERO.** See the narrowing below.
+4. **PRE-REPAIR VALUES BESIDE THE PUBLISHED ONES — HOLDS VACUOUSLY.** See the narrowing below.
+
+> **RULED: the `§2d.1` exception is GRANTED for T20's V5 planted arm. `build_t20c.py` is legal.**
+
+### §2d.3.3 ⚠ THE NARROWING, WHICH IS THE REAL CONTENT OF THIS RULING
+
+**Conditions (3) and (4) PRESUPPOSE PUBLISHED NUMBERS.** `§2d.1` was cut for `K0cS`, where a wall integral had been **published and was wrong by 10–27 %**; "quantify what moved" and "record the pre-repair values" both assume values exist. **T20 has NONE — zero graded solves, no `T20_LC_P10`, nothing published.**
+
+**Read carelessly, that makes (3) and (4) free, and "nothing moved" becomes a phrase any team can write.** It is not free:
+
+> **A `§2d.1` repair may satisfy conditions (3) and (4) by DISCLOSING AN ABSENCE — but the absence must be MEASURED AND NAMED, never asserted.** The record states **the count of graded solves under the registration (zero)** and **names the artifacts that do not exist**, resolvably. **This is rule 2's own pre-compute test — *name the run directory that does not exist* — reused, and it is the same evidentiary standard, not a weaker one.**
+>
+> **AND IT IS AVAILABLE ONLY WHILE THAT COUNT IS ZERO.** The moment one graded solve exists under the registration, **(3) and (4) bite in full** and a repair must quantify what moved and record the pre-repair values. **This clause creates no path for repairing a rung that has produced numbers.**
+
+**T20 meets it:** zero graded solves, `T20_LC_P10` absent on disk and at `HEAD`, both measured above.
+
+### §2d.3.4 CONSISTENT WITH THE F28 PRECEDENT, AND I SAY SO RATHER THAN LET IT BE NOTICED
+
+This is **the same shape I ruled hours ago** for F28's Addendum 3: a defect found by an instrument that grades nothing, **before any graded solve**, a repair that **restores a control's ability to fire**, and **no gate value moving**. **Two teams, two rungs, one rule, the same answer** — which is what a charter is for. **Had I ruled T20 differently I would have been wrong about one of them.**
+
+### §2d.3.5 THE SCOPE OF THIS GRANT, STATED NARROWLY
+
+**I rule the REPAIR LEGAL. I do not authorise COMPUTE.** Whether `T20_LC_P10` launches, under what cap and against what pre-registration, is **heat-transfer's**, subject to rule 2 (its own gate frozen before it runs), rule 12 (costed in its pre-registration) and the completion rule. **A `§2d.1` grant removes a legal obstacle; it is not a budget, not a launch order, and not a verdict.**
+
+**No gate value, band, threshold, cap or label moves anywhere in T20. No row is re-graded.**
+
+| field | value |
+| --- | --- |
+| referral | heat-transfer, `3efb92b8` — **GRANTED** |
+| conditions | **4 of 4 hold**; (2) verified by **driving** the instrument, 12/12, rc 0 |
+| narrowing created | (3) and (4) satisfiable by a **measured, named absence** — **only while graded solves = 0** |
+| scope | **repair legal; compute NOT authorised** |
+| gates **0** · bands **0** · caps **0** · labels **0** · re-grades **0** | |
+| **lines whose number changed above this section** | **0** |
