@@ -1,0 +1,89 @@
+{
+  "_what_this_file_is": "T20 cases FROZEN IN THE PRE-REGISTRATION PROSE at commit 7b93b2c805598987ab405cb7901642d909257264 and NOT present in T20_registered.json. This file is NOT a registration and creates nothing: every value below is a VERBATIM TRANSCRIPTION from the frozen prose, with the line cited beside it. T20_registered.json is NEVER written by build_t20b.py, which hashes it before and after every build and REFUSES if it moved by one byte. Whether these values may be moved INTO that JSON is a separate rule-2 question, REFERRED TO VERIFICATION AND UNRULED; this file exists precisely so that question does not gate the runs.",
+  "_prereg_path": "docs/campaigns/T-family/T20_PREREGISTRATION.md",
+  "_prereg_commit": "7b93b2c805598987ab405cb7901642d909257264",
+  "_source_tables": "S9 run-set table (:867-873) for mesh/deltaT/endTime/steps/role; S11.2 POINT/CAP table (:1011-1017) for cost. timeout_s follows the registered derivation cap_core_min x 60 / ranks, the same formula T20_registered.json states for T20_LC_c (cap 0.80 -> 48 s).",
+  "_ladder_note": "THE REGISTERED ROACHE LADDER IS TEMPORAL: deltaT 6.0 / 3.0 / 1.5 s at r = 2 on the FIXED 240-cell mesh (:177, :525). T20_LC_Sc and T20_LC_Sf are a SPATIAL INVARIANCE PAIR, NOT a triple: S5.2 (:559-570) pre-registers that a spatial triple returns EXACT and therefore NOT A RESULT, and that space is checked by invariance against T20_LC_f to within 0.1 x band = 2.85 mK, predicted < 1e-6 K.",
+  "cases": {
+    "T20_LC_m": {
+      "role": "temporal triple -- MEDIUM. Graded: triple only.",
+      "nx": 20, "ny": 12, "nz": 1, "cells": 240,
+      "mesh_source_section": "S9 run-set table :868 -- base mesh, 240 cells",
+      "deltaT": 3.0, "endTime": 4500.0, "steps": 1500,
+      "ladder_source_section": "S5.1 :177 'Temporal triple dt = 6.0 / 3.0 / 1.5 s'; S9 :868",
+      "executiontime_expected": 1500,
+      "executiontime_source_section": "S9 :868 -- steps 1500 = endTime 4500 / deltaT 3.0",
+      "point_core_min": 0.1042, "cap_core_min": 1.2, "timeout_s": 72,
+      "timeout_derivation": "cap_core_min 1.20 x 60 s / ranks 1 = 72 s exactly",
+      "cost_source_section": "S11.2 :1012 -- T20_LC_m 240 cells, 1500 steps, POINT 0.1042, CAP 1.20",
+      "graded": false,
+      "graded_source_section": "S9 :868 column 'graded' reads 'triple only'"
+    },
+    "T20_LC_f": {
+      "role": "temporal triple -- FINE; THE GRADED LEVEL. Graded: Q1, Q2, Q3.",
+      "nx": 20, "ny": 12, "nz": 1, "cells": 240,
+      "mesh_source_section": "S9 run-set table :869 -- base mesh, 240 cells",
+      "deltaT": 1.5, "endTime": 4500.0, "steps": 3000,
+      "ladder_source_section": "S5.1 :177, :525; S9 :869 -- 'the graded level'",
+      "executiontime_expected": 3000,
+      "executiontime_source_section": "S9 :869 -- steps 3000 = endTime 4500 / deltaT 1.5",
+      "point_core_min": 0.1584, "cap_core_min": 1.8, "timeout_s": 108,
+      "timeout_derivation": "cap_core_min 1.80 x 60 s / ranks 1 = 108 s exactly",
+      "cost_source_section": "S11.2 :1013 -- T20_LC_f 240 cells, 3000 steps, POINT 0.1584, CAP 1.80",
+      "graded": true,
+      "graded_source_section": "S9 :869 column 'graded' reads 'Q1, Q2, Q3'"
+    },
+    "T20_LC_Sc": {
+      "role": "SPATIAL INVARIANCE, coarse mesh. NOT a ladder level and NOT part of any triple.",
+      "nx": 10, "ny": 6, "nz": 1, "cells": 60,
+      "mesh_source_section": "S9 run-set table :870 and S5.2 :568 -- 'T20_LC_Sc (60 cells, 10 x 6)'",
+      "deltaT": 1.5, "endTime": 4500.0, "steps": 3000,
+      "ladder_source_section": "S5.2 :567-570 -- invariance at the GRADED deltaT (1.5 s)",
+      "executiontime_expected": 3000,
+      "executiontime_source_section": "S9 :870 -- steps 3000",
+      "point_core_min": 0.1558, "cap_core_min": 1.8, "timeout_s": 108,
+      "timeout_derivation": "cap_core_min 1.80 x 60 s / ranks 1 = 108 s exactly",
+      "cost_source_section": "S11.2 :1014 -- T20_LC_Sc 60 cells, 3000 steps, POINT 0.1558, CAP 1.80",
+      "graded": false,
+      "graded_source_section": "S9 :870 column 'graded' reads 'invariance'"
+    },
+    "T20_LC_Sf": {
+      "role": "SPATIAL INVARIANCE, fine mesh. NOT a ladder level and NOT part of any triple.",
+      "nx": 40, "ny": 24, "nz": 1, "cells": 960,
+      "mesh_source_section": "S9 run-set table :871 and S5.2 :568 -- 'T20_LC_Sf (960 cells, 40 x 24)'",
+      "deltaT": 1.5, "endTime": 4500.0, "steps": 3000,
+      "ladder_source_section": "S5.2 :567-570 -- invariance at the GRADED deltaT (1.5 s)",
+      "executiontime_expected": 3000,
+      "executiontime_source_section": "S9 :871 -- steps 3000",
+      "point_core_min": 0.1684, "cap_core_min": 1.8, "timeout_s": 108,
+      "timeout_derivation": "cap_core_min 1.80 x 60 s / ranks 1 = 108 s exactly",
+      "cost_source_section": "S11.2 :1015 -- T20_LC_Sf 960 cells, 3000 steps, POINT 0.1684, CAP 1.80",
+      "graded": false,
+      "graded_source_section": "S9 :871 column 'graded' reads 'invariance'"
+    },
+    "T20_LC_D": {
+      "role": "MODULE-STEP REGIME ROW. Graded: Q2 (Q1 reported). Single level, no triple.",
+      "nx": 20, "ny": 12, "nz": 1, "cells": 240,
+      "mesh_source_section": "S9 run-set table :872 -- base mesh, 240 cells",
+      "deltaT": 0.01, "endTime": 300.0, "steps": 30000,
+      "ladder_source_section": "S6.4 :181 -- 'the module's own step, dt = 0.01 s'; S9 :872",
+      "executiontime_expected": 30000,
+      "executiontime_source_section": "S9 :872 -- steps 30000 = endTime 300 / deltaT 0.01",
+      "point_core_min": 1.1336, "cap_core_min": 6.8, "timeout_s": 408,
+      "timeout_derivation": "cap_core_min 6.80 x 60 s / ranks 1 = 408 s exactly",
+      "cost_source_section": "S11.2 :1016 -- T20_LC_D 240 cells, 30000 steps, POINT 1.1336, CAP 6.80",
+      "graded": true,
+      "graded_source_section": "S9 :872 column 'graded' reads 'Q2 (Q1 reported)'"
+    }
+  },
+  "_stopped": {
+    "T20_LC_P10": {
+      "verdict": "STOPPED under DEAD_LEVER_AUDIT.md section 24.4 condition (a). NOT TRANSCRIBED. This case does not get a best guess.",
+      "what_the_prose_does_pin": "The value IS pinned and IS citable: S7.2 :793-794 -- 'Planted (T20_LC_P10): identical case with fvOptions explicit source 5500 (= 5000 x 1.10) and nothing else changed.' So the STOP is NOT because the number is unsourced.",
+      "why_it_stops_anyway": "THE BUILDER CANNOT HONOUR IT, AND TRANSCRIBING IT WOULD CREATE A DEAD LEVER. build_t20.py:146 writes the fvOptions source from the GLOBAL block, `ph['q_volumetric']`, and never consults a per-case value; the case schema (T20_LC_c) carries NO per-case physics field at all. A `q_volumetric` key added to the P10 case entry would therefore be INERT: the builder would emit 5000, and the tree would be byte-identical to T20_LC_f while the registration claimed it was the +10 percent planted arm. That is a registered lever connected to nothing -- the exact failure class this audit file is named for -- and it is worse than an absent case because it would silently pass a planted control that never actually planted anything.",
+      "what_would_be_needed": "A per-case physics override honoured by the builder. That is a SECOND builder change; T20's one in-flight instrument pass under the 2026-08-31 plumbing freeze is spent on constant/g (build_t20b.py). NOT proposed here and NOT requested -- recorded only, so the next reader knows why six became five.",
+      "consequence_disclosed": "Q3's planted arm (S12 verdict map V5, :1062) cannot run without P10, and V5's refusal makes the whole rung NOT A RESULT. So T20 CANNOT REACH A FULL GRADED RESULT on the five cases transcribed here. That limit is stated up front rather than discovered at grading."
+    }
+  },
+  "_ceiling": "DEAD_LEVER_AUDIT section 24.4(e): S11.2's table has exactly SEVEN rows; T20_LC_c is registered and at most SIX transcribe. FIVE are transcribed here (m, f, Sc, Sf, D) and ONE stops (P10). No case absent from that table may ever be added by this route."
+}
