@@ -1,0 +1,15 @@
+{
+ "gate": "G14-0",
+ "generator": "/home/ubuntu/certonomous-runs/A2-mach-wing/genWingMesh.py",
+ "md5": "dab5e959187ab2e2bfb4e2c0ded0feb6",
+ "resolution_read": {
+  "N": 39.0,
+  "s0": 0.001,
+  "marchDist": 300.0,
+  "cMax": 0.1
+ },
+ "smoothing_active": {},
+ "reasons": [],
+ "verdict": "PASS",
+ "ast_assert_count": 0
+}
