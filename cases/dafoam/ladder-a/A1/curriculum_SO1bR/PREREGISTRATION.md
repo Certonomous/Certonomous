@@ -652,3 +652,210 @@ and this amendment.
   copied, renamed, edited or moved.
 * **Nothing is sent, filed, uploaded, registered, posted or commented outside this box.**
   **SUBMISSIONS ARE PARKED.**
+
+## AMENDMENT 2 — 2026-08-31 — THE AGGREGATE CALL-SITE REPAIR: A VARIABLE DESTROYED BY ITS OWN FIRST USE, AND THE FALSE `BLOCKED_AGGREGATE` IT WAS GUARANTEED TO WRITE
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0** — proved in §A2.7 by
+byte comparison of the pre-append prefix, not asserted.
+
+**FIRST COMPUTE HAS OCCURRED** (MESH, 2.117 core-min, 2026-08-31T15:04:35Z), so gates are
+closed and this lands as a **dated amendment**, not a re-freeze. It **alters no gate, no
+threshold, no band, no cap and no label** — see §A2.5, which also states plainly the one
+thing this repair *does* change.
+
+### A2.1 THE DEFECT
+
+`so1br_chain_driver.sh:83` assigned the **script path**:
+
+    AGG="$HERE/so1br_aggregate_memory.py"
+
+`so1br_chain_driver.sh:206` then **overwrote that path with the script's own JSON output**:
+
+    AGG=$(python3 "$AGG" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+
+The variable is **destroyed by its own first use.** The call therefore succeeds exactly once
+and is **guaranteed to fail on every arm after the first**.
+
+**IT WOULD NOT HAVE CRASHED, AND THAT IS THE WHOLE PROBLEM.** On arm 2 the substitution
+returns empty, line 208's `json.load(sys.stdin)` raises `JSONDecodeError` on empty input, the
+`ok` test can never again be true, and the loop polls every `AGG_POLL_S = 30` s to
+`AGG_BOUND_S = 14400` s — **four hours** — before writing `chain=BLOCKED_AGGREGATE` and
+`note=AGGREGATE_BLOCKED_AT_BOUND`.
+
+**THAT RECORD WOULD HAVE BEEN FALSE.** MemAvailable was **28.90 GiB** against a **30.6 GiB**
+ceiling and a 4.0 GiB arm cap when the run was stopped: nothing was over the ceiling and
+nothing was blocked. The `O-P_aggregate_series.txt` that the record cites as its evidence
+held **six rows of bare timestamps with nothing after them**, because line 207 wrote the
+empty variable into it. **A run guaranteed to produce a false record is why the item was
+stopped**, on the precedent of `W3_chain_r4` and `SO2a`.
+
+### A2.2 WHY THE FROZEN HARNESS COULD NOT SEE IT — THE FINDING THAT OUTLIVES THIS ITEM
+
+SO-1bR's Stage-1 and Stage-2 instruments drove **27 units end to end** and **43 of 43** on
+G-ROOT.5, and **not one of them could have caught this.** The defect does not live in any
+unit. **It lives in the TRANSITION BETWEEN ARMS**, and every one of those units was driven
+**once**.
+
+> **An instrument selftest that exercises each unit a single time is STRUCTURALLY BLIND to a
+> variable destroyed by its own first use.** Unit count is not coverage. A harness that
+> drives every unit once and reports 43/43 is reporting the number of things it looked at,
+> not the number of states the program can reach. **A loop must be driven at least twice
+> before its state is claimed to be tested.**
+
+This is registered as a finding against the harness design, not against the lane that wrote
+it: the §18.3 instrument table and the G-ROOT.5 battery both did exactly what they said, and
+what they said was not enough.
+
+### A2.3 THE REPAIR — A RENAME, AND NOTHING WIDER
+
+A **distinct variable holds the result**, so the path is never overwritten:
+
+| driver line (post-repair) | change |
+|---|---|
+| `:83` | **UNCHANGED** — still `AGG="$HERE/so1br_aggregate_memory.py"`, byte-identical to the frozen blob |
+| `:121`, `:126` | **UNCHANGED** — the startup existence check and md5 registration still read `$AGG`, which is still the path |
+| `:215` | **NEW** — the call-site guard (§A2.4) |
+| `:216` | `AGG_JSON=$(python3 "$AGG" …)` — the result no longer lands in `AGG` |
+| `:217`, `:218`, `:224`, `:228` | result consumers now read `$AGG_JSON` |
+
+**ASSERTED SUBSTITUTION, both directions, measured:**
+
+* bare-`$AGG` tokens on **executable** lines — **BEFORE: 9** (2 assignments, 7 uses).
+  **AFTER: 6.**
+* **The precise assertion, and it is deliberately not the blanket one:** bare `$AGG` still
+  appears on five executable lines **because on every one of them it correctly holds the
+  PATH** (`:83` assign, `:121` existence check, `:126` md5 registration, `:215` guard, `:216`
+  interpreter argument). **What is ZERO is bare `$AGG` read as the RESULT: all five result
+  consumers now read `$AGG_JSON`.** Claiming "zero occurrences of the old form" would have
+  been false, and a substitution audit that overstates itself is worse than none.
+* `AGG_JSON` occurrences on executable lines: **5**.
+* `bash -n` on the repaired driver: **PASS (rc = 0)**.
+
+**NOTHING ELSE IN THAT LOOP IS DESTROYED BY ITS OWN USE.** A scan for the pattern
+`X=$( … $X … )` over the whole file returns four matches, and **three are not the defect**:
+`IMG` (`:174`) and `s` (`:190`) re-read the variable **after a `;`**, i.e. the new value, and
+`MIN`/`MAX` (`:191`) are **running accumulators that are supposed to read their previous
+value**. Only `AGG` consumed its variable as a **filename** and overwrote it with unrelated
+content. **The repair is a rename; it was not widened.**
+
+### A2.4 THE CALL-SITE GUARD — RULE 14's ACTUAL LESSON
+
+§18.3 asserts that a dependency **exists** before any md5 is taken. **It asserts it ONCE, AT
+STARTUP, when `AGG` still held a path, and nothing re-asserted that the variable still held a
+path AT THE POINT OF USE.** That is the hole this defect walked through, and it is precisely
+what `CLAUDE.md` rule 14 says: **a lesson is not applied until EVERY call site asserts it.**
+
+Immediately before the invocation:
+
+    test -f "$AGG" || { … note=AGG_PATH_DESTROYED_AT_CALL_SITE … CHAIN_RC=4; break 2; }
+
+`break 2` leaves the `while` **and** the arm loop, landing exactly where the existing
+`AGG_BLOCKED` break lands (`:227` post-repair, `:217` before it), so **no path from the guard
+reaches the launcher** and that line did not need to change. A future destruction now
+**refuses loudly at its first use** instead of polling silently for four hours and then lying
+about why.
+
+### A2.5 WHAT THIS REPAIR CHANGES, AND WHAT IT DOES NOT — STATED SEPARATELY ON PURPOSE
+
+**IT CHANGES THE ITEM'S OUTCOME, AND THAT IS ITS ENTIRE POINT.** Before the repair every arm
+after the first was guaranteed to reach a **false** `BLOCKED_AGGREGATE`; after it, the chain
+is executable. **It would be false to write "items that would previously have failed and
+would now pass: 0."** The count is not zero — it is **every arm after the first**, and
+saying so is the condition of being allowed to make the change at all.
+
+**WHAT IT DOES NOT CHANGE — and this is the assertion that is actually load-bearing:**
+
+* **No gate, threshold, band, cap or label.** `SO1BR-CAP-MANIFEST v1 MESH=5.0 O-P=25.0
+  E-P=30.0 O-S=25.0 E-S=30.0 CEILING=115.0` untouched; `AGG_CEILING_GIB = 30.6`,
+  `H5_FLOOR_GIB = 8.0`, `AGG_POLL_S = 30`, `AGG_BOUND_S = 14400` all untouched; the 20.2
+  core-min point, band `[11.0, 58.0]` and 115.0 ceiling untouched; `G-SO1AR`, `G-CPUSET`,
+  `G-ROOT.5`, `G-CAP-PREREG` and `ALREADY_BOUGHT` untouched.
+* **The GRADING path is not touched.** `so1br_grade.py` and `so1br_grade_cli.py` are
+  byte-unchanged. **The comparator has never run**: no graded solve has occurred, so no
+  verdict can have been moved by this edit in either direction.
+* **No threshold was made easier to pass.** The guard can only ever **refuse**; it has no
+  branch that lets anything through that the unrepaired code would have stopped.
+
+**`VERIFICATION_CHARTER.md` §2d.1, all four conditions:** (1) a **demonstrable error**, not a
+preference — the variable is destroyed by its own first use, mechanically and reproducibly;
+(2) established by an instrument **independent of the hypothesis** — it was established by
+**Python's own `can't open file` error and the interpreter's traceback**, and the interpreter
+grades nothing and cannot know which direction a verdict should move; (3) the repair is
+**registered before it is relied on** — this amendment lands in the **same commit** as the
+change it describes; (4) the change is **shown failing before it is shown passing** (§A2.6).
+
+### A2.6 THE TWO-ARM CONTROL — KNOWN POSITIVE FIRST
+
+A fix not shown failing before it is shown passing is not shown to fix anything. The
+aggregate block was extracted **verbatim** from the driver (asserted a byte-for-byte
+substring of the real file) and driven across **two arms** with the real
+`so1br_aggregate_memory.py`, the real `AGG_CEILING_GIB = 30.6` and the real 4 GiB arm cap:
+
+| direction | driver bytes | arm 1 | arm 2 | series rows |
+|---|---|---|---|---|
+| **KNOWN POSITIVE** | **unrepaired** | proceeds, real JSON | **`python3: can't open file '…/{"live_caps_GiB": 0.0, …}'`**, then `JSONDecodeError`, then a **FALSE** `AGGREGATE_BLOCKED_AT_BOUND` / `rc=6` | **4 rows, every one `NF=1`** — bare timestamps, exactly the production artefact |
+| **REPAIRED** | repaired | proceeds, real JSON | **proceeds, real JSON** | both arms `NF=15` |
+| **GUARD CONTROL** | repaired, `AGG` deliberately destroyed between arms | proceeds | **guard fires at first use**: `AGG_PATH_DESTROYED_AT_CALL_SITE`, `rc=4`, `chain=ABORT reason=agg_path_destroyed` | **no series file written at all** — no false evidence created |
+
+The known positive reproduces the production failure **including its false record and its
+`NF=1` series**, so the harness is shown able to see the thing it later reports absent
+(`CLAUDE.md` rule 3).
+
+### A2.7 RE-REGISTERED md5 — STRUCK, NOT REWRITTEN
+
+**STRUCK — §A1.3's instrument-table row for the chain driver (line 509 of this document as it
+stood):**
+
+> ~~`| EXECUTED — chain driver | so1br_chain_driver.sh | **yes** | deb458122c0793a6f73568312e0fa735 | 16768 |`~~
+
+**RE-REGISTERED, this amendment:**
+
+| role | path | md5 | bytes |
+|---|---|---|---|
+| EXECUTED — chain driver | `so1br_chain_driver.sh` | **`1c5adb42c018dc5237cb9367542f2437`** | **17832** |
+
+**Every other pinned instrument is BYTE-UNCHANGED**, verified by md5 against the `HEAD` blob:
+`so1br_run_arm.sh` `9e1b626d…`, `so1br_grade.py` `9736ca91…`, `so1br_grade_cli.py`
+`f8dfc85d…`, `so1br_precondition.py` `447eaada…`, `so1br_aggregate_memory.py` `709ab0b9…`,
+`so1br_decomposeParDict` `e6f1b006…`, `so1b_of.py` `0f14244b…`, `so1b_runScript.py`
+`0557da51…`. **The driver's own md5 is the only pin that moved.**
+
+**PREFIX-INVARIANCE PROOF.** `PREREGISTRATION.md` before this append: **654 lines, 44,718
+bytes**. The append is performed by `scripts/append_block.py` from a **file**, never a
+heredoc, so no shell sees the body. First 44,718 bytes and first 654 lines of the result
+compared to the whole original with `cmp`: **identical, rc = 0**; all 15 `## ` headings at
+identical line numbers. The comparison is **shown able to fail**: the same byte-prefix
+comparison against a candidate built from a copy mutated at line 509 — the struck md5 row —
+reports **rc = 1 and names line 509**. **Lines whose number changed above this section: 0.**
+
+### A2.8 RESTART — WHAT THE DRIVER'S OWN BYTES PERMIT
+
+Read from the driver, not recalled:
+
+* **The run root merely EXISTING does not refuse.** `:135` is `mkdir -p "$BASE"`. There is no
+  clause anywhere that refuses on the root's existence.
+* **A LIVE driver refuses (exit 3).** `:154-157` refuse only if `$PIDFILE` exists **and** that
+  pid is live. The pidfile was removed by the `EXIT` trap at `:166` and the driver process is
+  dead, so this clause does not fire.
+* **`ALREADY_BOUGHT` (`:181-185`) refuses any arm carrying an `rc=0` ledger row**, with a
+  `break` that aborts the **whole chain** at `CHAIN_RC=3`. MESH's ledger row reads
+  `ARM=MESH … rc=0 wall_s=127 ranks=1 core_min=2.117 cap_core_min=5.0`, so **re-passing MESH
+  would refuse the entire restart.**
+
+**Therefore the correct restart passes the four remaining arms only — `O-P E-P O-S E-S` — into
+the existing run root.** MESH's completed arm is **kept, not re-run and not deleted**: its
+2.117 core-min stands, its 13 output entries and the 7-entry `base/` remain in place, and the
+later arms consume them. **No disposal is required and nothing is deleted.** The cap frame is
+unaffected: MESH's 5.0 is already spent against the 115.0 ceiling, leaving 110.0 registered
+for the four arms whose caps sum to exactly that.
+
+### A2.9 WHAT THIS AMENDMENT DOES NOT CLAIM
+
+* It does **not** claim SO-1bR has produced a verdict. At the time of writing, one arm of five
+  has run and **the comparator has never executed.**
+* It does **not** re-open the rule-2 pre-compute condition, which was satisfied at
+  2026-08-31T15:01:00Z and **consumed** by the 15:01:22Z launch. The §2b gate is CLOSED.
+* It does **not** claim the repaired chain will pass. It claims only that the chain can now
+  reach the arms it was registered to buy, and that the record it writes will be true.
+* **Nothing is sent, filed, uploaded, registered, posted or commented outside this box.
+  SUBMISSIONS ARE PARKED.**

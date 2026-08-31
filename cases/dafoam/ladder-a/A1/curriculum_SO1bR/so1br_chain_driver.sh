@@ -203,19 +203,29 @@ for ARM in $ARMS; do
   # ---- every wait written to STATUS.<arm>; refuse-and-BLOCK at the bound.
   WAITED=0; AGG_SERIES="$BASE/${ARM}_aggregate_series.txt"; AGG_BLOCKED=no
   while true; do
-    AGG=$(python3 "$AGG" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
-    echo "$(date -u +%s) $AGG" >> "$AGG_SERIES"
-    if [ "$(printf '%s' "$AGG" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
+    # ---- CALL-SITE GUARD (ADDENDUM 3, 2026-08-31; CLAUDE.md rule 14) ---------
+    # $AGG must STILL name the registered script AT THE POINT OF USE.  The
+    # startup existence check (:121) and the md5 registration (:126) both ran
+    # while AGG held a path, and NOTHING re-asserted it here -- so when the old
+    # line below overwrote AGG with its own JSON output, the second arm polled
+    # silently to AGG_BOUND_S and wrote a FALSE BLOCKED_AGGREGATE record.
+    # A lesson is not applied until EVERY call site asserts it.  `break 2`
+    # leaves the while AND the arm loop, landing exactly where :217's break
+    # lands, so no path from here reaches the launcher.
+    test -f "$AGG" || { echo "ABORT AGG no longer names an existing file at the point of use: [$AGG]"; echo "rc=4 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=AGG_PATH_DESTROYED_AT_CALL_SITE permission=$PERMISSION" >> "$BASE/STATUS.$ARM"; echo "chain=ABORT arm=$ARM reason=agg_path_destroyed stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=4; break 2; }
+    AGG_JSON=$(python3 "$AGG" "$(cap_mem_gib "$ARM")" "$AGG_CEILING_GIB")
+    echo "$(date -u +%s) $AGG_JSON" >> "$AGG_SERIES"
+    if [ "$(printf '%s' "$AGG_JSON" | python3 -c "import sys,json; print(1 if json.load(sys.stdin).get('ok') else 0)")" = "1" ]; then break; fi
     if [ "$WAITED" -ge "$AGG_BOUND_S" ]; then
       echo "ABORT AGGREGATE still over $AGG_CEILING_GIB GiB after ${WAITED}s.  BLOCKED.  Series: $(basename "$AGG_SERIES")"
       echo "rc=6 stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM note=AGGREGATE_BLOCKED_AT_BOUND waited=$WAITED series=$(basename "$AGG_SERIES") permission=$PERMISSION" >> "$BASE/STATUS.$ARM"
       echo "chain=BLOCKED_AGGREGATE arm=$ARM waited=$WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; AGG_BLOCKED=yes; break
     fi
-    echo "AGGREGATE_WAIT waited=$WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM $AGG" >> "$BASE/STATUS.$ARM"
+    echo "AGGREGATE_WAIT waited=$WAITED stamp=$(date -u +%Y%m%dT%H%M%SZ) arm=$ARM $AGG_JSON" >> "$BASE/STATUS.$ARM"
     sleep "$AGG_POLL_S"; WAITED=$((WAITED+AGG_POLL_S))
   done
   if [ "$AGG_BLOCKED" = "yes" ]; then CHAIN_RC=6; break; fi
-  echo "SO1BR_AGGREGATE arm=$ARM waited=$WAITED $AGG"
+  echo "SO1BR_AGGREGATE arm=$ARM waited=$WAITED $AGG_JSON"
   echo "SO1BR_DRIVER arm=$ARM image=$IMG begin=$(date -u +%Y%m%dT%H%M%SZ) ppid_now=$PPID permission=$PERMISSION"
   bash "$LAUNCHER" "$ARM" "$IMG" > "$BASE/${ARM}_launch.out" 2>&1
   rc=$?
