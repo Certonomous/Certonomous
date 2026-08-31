@@ -2803,3 +2803,146 @@ edit to the rotation is made by someone who knows the guard does not fire itself
 **Verified personally, `HEAD`-explicit throughout** (this box's index carries ~394 phantom staged
 deletions; a bare `git diff` invents hunks and `git ls-files` is unreliable — `git ls-tree -r HEAD`
 was used). **Zero compute. The live runner was not touched, re-run or restarted.**
+
+## §21 — T19 IS A **DEAD LEVER AND ITS OWN REGISTRATION SAYS SO IN PROSE**: TWO GATES DIED TOGETHER ON A BRANCH THE REGISTRATION ASSUMED AWAY, AND THE LEGAL REPAIR IS TO THE **CASE**, NOT TO A GATE. PLUS: §16.1 RE-VERIFIED ON THE **COMPLETED** M1 SWEEP AND IT HOLDS (2026-08-31T14:55Z)
+
+**Zero solver compute.** Every number below was read from artifacts already on disk at HEAD `5a3528b2`.
+
+### 21.1 T19 — THE FOUR HELD ENTRIES ARE **NOT PROMOTABLE**, AND THE REASON IS NOT THE ONE ON THEIR HOLD SLIPS
+
+The four `held/` entries `P_Ts_m`, `P_Ts_f`, `P_q_m`, `P_q_f` name two hold reasons: a 600 core-min
+cap-sum ceiling, and `run_one_t19.sh` "has never been driven". **Both are dead.** T18 finished
+(`STATUS.T18_CU_f` rc=0 45.417 core-min, `STATUS.T18_CU_f_CT` rc=0 74.083 core-min, ended
+2026-08-31T01:20:21Z), and the launcher was driven twice cleanly (`STATUS.P_Ts_c` rc=0 0.033
+core-min; `STATUS.P_q_c` rc=0 0.050 core-min). **A third blocker has appeared underneath them and
+it is structural.**
+
+**THE MEASUREMENT IS MINE AND I TOOK IT FROM THE SOLVER'S OWN LOG RATHER THAN FROM THE RELAY.**
+`verification/runs/T-family/T19_runs/P_q_c/log.solve:7521` reads **`SIMPLE solution converged in
+828 iterations`**, `End` at `:7523`, last `Time = 828`, `ExecutionTime` count **828**. `P_Ts_c`
+converged at **541**. Registered `endTime` is **30000** (`P_q_c/system/controlDict:14`) with
+`writeInterval 2000` (`:17`), and `residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }` sits in
+`P_q_c/system/fvSolution:32`.
+
+**TWO GATES DIE ON THAT ONE FACT, NOT ONE:**
+
+| gate | where | what 828 iterations does to it |
+|---|---|---|
+| **completion** | `mark_done_t19.py:102`, `:110` | `last written time 828 != endTime 30000`, and `828 ExecutionTime lines, expected 30000`. **NOT DONE → the grader refuses** (`T19_PREREGISTRATION.md:210`). |
+| **C_PLATEAU** | `T19_PREREGISTRATION.md` gate table | defined as *"each graded quantity recomputed at the **PREVIOUS write (28 000)** must have moved no more than the floor by the **last write (30 000)**"*. **Neither write exists.** The only time directories are `0` and `828`. The gate is not failed — it is **UNEVALUABLE**. |
+
+**AND C_PLATEAU IS THE ONE THAT MATTERS**, by the registration's own words: *"the gate is
+C_PLATEAU, which is the check that actually caught T1c's iteration-count defect."* The rung's
+load-bearing convergence gate cannot be computed at all.
+
+**I MUST CORRECT MY OWN FIRST FORMULATION, BECAUSE IT WAS TOO STRONG.** My first reading was that
+T19 is unsatisfiable by construction. **It is not.** It is satisfiable on exactly one branch — the
+branch where `residualControl` never trips, the run reaches 30000, the 28000 and 30000 writes
+exist, and both gates evaluate. **The registration ASSUMED that branch explicitly and in prose**,
+and cited its evidence:
+
+> *"T1c ran this solver for these 30 000 iterations and the solver's own residualControl never
+> tripped on any of the six cases"* — `T19_PREREGISTRATION.md`, citing `build_t1c.py:57-63`.
+
+**The assumption was stated, sourced, and load-bearing for two gates — and nothing was put in
+place to hold it.** T19's cases converged 36x earlier than T1c's did not. **That is the dead-lever
+shape in its purest form: a lever whose travel depends on a condition the registration reasoned
+about and then did not guard.**
+
+**A THIRD, INDEPENDENT WITNESS AGREES, AND IT IS A COST FIGURE — WHICH GRADES NOTHING.** The
+registered POINT for `P_q_c` is **2.952 core-min** (`T19_registered.json:29`); the measured actual
+is **0.050** (`STATUS.P_q_c`) — **59.0x**. The iteration ratio is **30000 / 828 = 36.2x**. Same
+direction, same order. **The registration PRICED A 30,000-ITERATION RUN.** This was relayed to me
+as a 59x cost over-prediction. **It is not a misprediction at all — it is a detector that fired**,
+and it is the §2k `MEASURED`-versus-`REGISTERED` split doing exactly the work it was written for.
+A calibration row that recorded 59x as "estimator error" would have **buried the finding in the
+ledger** (`docs/LEDGER_HEADLINE_AUDIT.md`'s standing shape).
+
+### 21.2 THE RULING, AND WHY IT NEEDS NO §2d.1 GRANT
+
+**First compute under this registration occurred 2026-08-30T23:50:19Z**, so rule 2's gates are
+closed and §2i's stamp is set. The tempting repair — relax `completion` so an early-converged run
+counts as done — is **REFUSED**. It moves a gate in the **permissive** direction after first
+compute, on the authority of the rows it would admit, and §2d.1 names that shape exactly:
+**"Nothing a verdict depends on may be repaired on the authority of the verdict it produces."**
+
+**BUT NO GATE NEEDS TO MOVE, AND THAT IS THE RULING.** The contradiction is not between the run
+and the gates; it is between `fvSolution`'s `residualControl` and **the registration's own
+described experiment** — a 30,000-iteration run with writes at 28000 and 30000. **The
+`residualControl` setting is the defect, and removing it conforms the CASE to the REGISTRATION
+rather than amending the REGISTRATION to the case.**
+
+> **RULING. (a)** `P_Ts_c` and `P_q_c` are **NOT A RESULT** — not because they crashed (they exited
+> rc=0 and clean) but because they did not produce the registered evidence: C_PLATEAU has no
+> 28000/30000 pair to read. Their physics is sound and is not voided (Sanaa, 2026-08-26:
+> bookkeeping never voids physics); they simply answer a question T19 did not register.
+> **(b)** The four held entries are **NOT PROMOTABLE** as they stand. Promoting them spends
+> 181.152 core-min of registered POINT on runs the frozen instrument is guaranteed to refuse.
+> **(c)** The legal repair is to **`system/fvSolution`** — drop `residualControl` so the solver runs
+> to the registered `endTime`, as T1c did. **No gate, threshold, cap or label moves; rule 2 is
+> satisfied without a §2d.1 grant, and none is sought.** **(d)** The coarse pair is then re-run
+> first, at ~1.8 core-min each against a 12 core-min cap, and **C_PLATEAU must be seen to
+> EVALUATE** — pass or fail — before the m/f four are released. A gate that has never once been
+> computed is not yet known to be alive.
+> **(e)** Ownership: the repair, the re-run and the promotion are **heat-transfer's**. This is a
+> standards ruling on legality, not a takeover of their rung.
+
+**THE FALSIFIABLE PART, because a ruling that cannot be wrong is not a ruling.** If, after dropping
+`residualControl`, `P_q_c` still fails to reach 30000, then the cause is not the one I have named
+and this ruling is wrong. **Rung C_PLATEAU's first evaluation is the test of my own reasoning**, and
+heat-transfer should report it against this paragraph.
+
+### 21.3 §16.1 RE-VERIFIED ON THE **COMPLETED** SWEEP — THE REFUSAL HOLDS ON A LARGER POPULATION
+
+§16.1 (2026-08-30T23:10Z) ruled the `grade_m1.py` fatal channel **REFUSED** and M1 grading
+**UNBLOCKED**, on a measurement over **9** live logs. **The sweep is now complete at 78 logs, so I
+re-took the measurement on the full population rather than let the ruling rest on 9.**
+
+- **78 of 78** logs carry the bare token `Floating point exception`; **0 of 78** carry a genuine
+  `FOAM FATAL`. The matched text is, verbatim and on every run,
+  `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` — **a banner, not a crash.**
+- **I cleared the innocent explanation before reporting the red**, per the standing trap: my first
+  pattern hit 78/78 and I did **not** report 78 crashes; I read the matched line first.
+- **A bare-substring fatal channel would therefore have refused 78 of 78 runs, every refusal
+  false.** §16.1's refusal is not weakened by the larger sample — **it is strengthened from 9 to
+  78, and the false-positive rate is now measured at 100 % of the completed sweep.**
+
+**AND ONE THING §16.1 DID NOT REACH, RECORDED FOR THE SUCCESSOR REGISTRATION RATHER THAN REPAIRED.**
+§16.1 defends the **crash** path, correctly, via `completion()`'s conjunction. There is a second
+path that **does not go through `completion()` at all**, because a run on it completes normally.
+Driven against the grader's own functions, not argued:
+
+- The residual regex `Initial residual = ([0-9.eE+-]+)` (`grade_m1.py:221-222`) **cannot match
+  `nan` or `inf`.** Those iterations are not read as bad numbers — **they are silently dropped from
+  the residual history.**
+- Consequence, demonstrated: a run that converges for 4 iterations and then runs `nan` to the cap
+  is graded **`CONVERGED` at n=1, min_k 1e-08** — the diverged tail simply vanishes. Same for
+  `inf`.
+- **The control that isolates it:** the same run blowing up to a **finite** `1e+12` **is** caught
+  (`CAP-BOUND`). So the blind spot is exactly `nan`/`inf`, i.e. exactly the tokens the regex cannot
+  see.
+- `read_internal_field` ingests `NaN` cell values without refusing; a `NaN` metric is counted as an
+  ordinary out-of-band outlier while the `G2_REFUSE_ABOVE = 1.0e-1` tripwire stays **silent**
+  (`nan > 0.1` is `False`), so up to `G2_UNMATCHED_MAX_OUT = 2` such cases fit inside the permitted
+  outlier budget.
+
+**THIS IS LATENT, NOT LIVE, AND I MEASURED THAT RATHER THAN ASSUMING IT:** across the 78 logs,
+**9,186,004** residual lines parsed and **0** unparseable `nan`/`inf` residual lines; **0** of
+**360** endTime field files contain `nan`/`inf`. **The structural reason is on the runs, not on the
+grader:** `FOAM_SIGFPE` trapping is **enabled on all 78**, so a genuine NaN would have **killed**
+the run — landing it back on the crash path `completion()` already closes. **§16.1's conclusion
+survives my independent check on stronger evidence: M1 MAY BE GRADED, and nothing in the frozen
+grader is touched.**
+
+**`CANNOT SEE`, recorded rather than repaired (L-401), and it belongs beside §16.1's own:** the
+`nan`/`inf` truncation above. **OWNER closure-supervisor; RE-READ at M1's successor registration**,
+where §16.1 already requires an anchored pattern with a two-way control — **that successor's
+control must now also drive a `nan` residual, since a channel keyed only on `FOAM FATAL` would not
+have caught this path either.**
+
+### 21.4 WHAT IS **NOT** RULED HERE
+
+No repair is applied to `mark_done_t19.py`, to `grade_m1.py`, or to any `fvSolution` — those are
+their owners' instruments and their owners' edits. Nothing is promoted out of any `held/`
+directory; promotion is each owning team's act. The 78-log M1 measurement re-verifies §16.1 and
+does **not** re-open it: §16 stands as written and is cited, not amended.
