@@ -235,3 +235,132 @@ supervisor's / verification team's to set, not this lane's):
 VMFL005 has its own converging triple: **YES**. Wedge-geometry candidate: **~a
 quarter to ~half** of the deviation (0.2542 % / 51 % under fixed-Q; 0.1270 % / 26 %
 under fixed-V_avg) — does not close it.
+
+---
+
+## CAUSE CLASS — dated companion block, appended 2026-08-31 (Sanaa's GRADING TRANSPARENCY ORDER, item 2)
+
+**Lines whose number changed above this section: 0** (append-only at the foot; the 237
+lines above are a byte-for-byte prefix, pre-append SHA-256
+`f0a7fe3f8349c58f60815f7410ff6c3f966a962cd063c8b068a8f0f136100b1e`).
+
+**Authority & mechanics.** Sanaa's order `4116024a`
+(`etc/sessions/2026-08-31T2055Z_sanaa_grading_transparency_order.md`), read at source
+(rule 9). Class set, precedence and format are **verification's**, not this team's:
+`VERIFICATION_CHARTER` §2n.1 (the closed eight, her verbatim text), **§2n.3 (precedence:
+assign the LOWEST-NUMBERED class the grading record supports — `1 BUDGET/KILL` … `8
+PHYSICS-FAIL` — you may not claim a physics cause until every referee cause is
+excluded)**, §2n.4 (`UNCLASSED` is fail-closed, not a ninth class, never physics-adverse),
+§2n.5 (headline split), **§2n.10/§2n.11 (the class lands as this APPENDED companion block
+keyed by row id in the schema below — NOT a 14th register column, which would edit all 51
+landed rows; this file is ansys's contribution file; `COVERAGE_MATRIX.md` carries the
+census only)**, §2n.14/§2n.15 (`6fcc7fb6`: `GATE-DESIGN` joins the capability-exclusion
+list). **Zero compute — a reading of committed records, no re-runs** (§2n.7). Row ids are
+**references** into `ANSYS_VALIDATION_REGISTER.md` (never double-counted). "REGISTER L*n*"
+below = `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` at that line, whose
+verdict cell carries the grading record's own words and cites its artifacts.
+
+**Row-count reconciliation (read cell-by-cell from each row's own verdict cell, never a
+file-wide grep — a naive grep over backticked verdict words returns ~88 PASS from prose
+and is nonsense).** 51 rows, ids 1–51 no gaps (43 in `**N**` form, 8 in `**#N**` form; the
+five-column `#1`–`#4` at register L193–196 are the tier cross-reference table, told from
+rows by COLUMN COUNT, and excluded): **PASS 10 · NOT A RESULT 28 · GATE REACHED 8 · GATE
+FAIL 3 · BLOCKED 1 · PENDING 1 = 51 ✓**. Non-`PASS` = **41** (PASS carries no class, §2n.8).
+
+| row | case | verdict (rule 1, unchanged) | CAUSE CLASS | citation resolving at HEAD |
+|---|---|---|---|---|
+| 1 | VMFL001 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L24 — frozen comparator refused (exit 2): frozen to read `U_gateAxis.*`+header, v2606 writes header-less `gateAxis_p_U.xy`; reader defect, physics unjudged |
+| 4 | VMFL051 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L27 — gate value inside band 2.14×, but rule-5 step-1 plateau clause disqualifies (L1&L2 fail); the registered plateau clause, not the solve |
+| 5 | VMFL045 (run 1) | `NOT A RESULT` | `UNCLASSED` | REGISTER L28 — `rhoCentralFoam` crashed on 1st timestep (missing `e` energy-solver entry inherited from inviscid VMFL051); a fatal case-config crash, no gradeable answer, fits none of the eight (not a cap/external death, not a referee defect). Row 7 (`PASS`) carries VMFL045's capability |
+| 6 | VMFL003 (run 1) | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L29 — comparator applied rule 5; all levels miss the frozen residual floor (<1e-8) while Δp is plateaued; the registered residual clause is the disqualifier |
+| 8 | VMFL007 (run 1) | `NOT A RESULT` | `UNCLASSED` | REGISTER L32 — case DIVERGED (p→9.45e144; L2 SIGFPE at iter 9065); solver-internal divergence, no cap/external death, no gradeable number; fits none of the eight |
+| 9 | VMFL003-M2 arm A | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L34 — same residual-floor clause; `gate_verdict_before_rule5=GATE FAIL` turned `NOT A RESULT` by rule 5 |
+| 10 | VMFL003-M2 arm B | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L36 — same residual clause. Prose (§2n.3): a latent physics signal (realizableKE Δp −6.95% vs Colebrook) is present but ranks class 7 `MODEL-LIMIT`; precedence takes 5 |
+| 11 | VMFL003-M2 arm C | `NOT A RESULT` | `BUDGET/KILL` | REGISTER L37 — `PER_ARM_CAP=40` core-min fired (39.93/40), no `End` line, rule 4 fails; run did not finish |
+| 12 | VMFL003-M2 arm D | `NOT A RESULT` | `BUDGET/KILL` | REGISTER L38 — cap fired to the second (rc=124, 39.99/40) |
+| 14 | VMFL010 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L40 — Roache triple `OSCILLATORY` (rule 5 step 2); value 0.26% from ref but the refinement/triple cannot grade the flow-split quantity |
+| 16 | VMFL059 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L42 — `rightWall` triple `EXACT` (378/378/378): mis-specified gate quantity pinned to a BC value; clean solve at all levels |
+| 17 | VMFL022 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L43 — Roache triple `OSCILLATORY`; cavitation onset mesh-dependent (L1 stayed single-phase) so the triple crosses a regime boundary and cannot grade |
+| 18 | VMFL021 | `NOT A RESULT` | `NAMING/PLUMBING` | REGISTER L44 — L3 killed by a run-dir collision (a rival lane dispatched onto the same case; ruled `docs/ansys_verification/VMFL021_022_COLLISION_RULING.md`). Precedence 2 over the also-present `writeInterval`>`endTime` no-field-written defect (class 3 `BOOKKEEPING`), narrated here in prose |
+| 19 | VMFL017 | `PENDING` | `UNCLASSED` | REGISTER L45 — registered instrument `rhoSimpleFoam` diverges (`Negative initial temperature T0` at shock); solver-internal divergence, no fitting class; superseded by row 32 |
+| 20 | VMFL036 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L433 — arm A Cd inside the registered Schiller–Naumann band; empirical-correlation reference caps the tier at `GATE REACHED` |
+| 21 | VMFL033 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L460 — two levels not plateaued + Roache `OSCILLATORY` (R=−398.5); the registered settling clause refuses, named before compute |
+| 22 | VMFL023 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L461 — St inside band, triple `CONVERGING`; experimental St–Re correlation caps the tier |
+| 23 | VMFL021-R2 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L462 — Cd inside band, `CONVERGING`; Nurick (1976) experimental reference caps the tier |
+| 24 | VMFL002 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L463 — dP & outlet-T inside band, both triples `CONVERGING`; textbook/correlation reference caps the tier |
+| 25 | VMFL004 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L464 — inherited iterative-convergence check (Uy/p<1e-7) mis-applied to a 1-D fully-developed flow (normalization noise); comparator defect; gate value is a textbook PASS |
+| 26 | VMFL011 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L465 — comparator refused (exit 2) on a mis-calibrated planted-zero control (single-point plant diluted ~1/√N by an averaging RMS reader) |
+| 27 | VMFL076 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L466 — both gates met but rule 5 step 2 `OSCILLATORY` triple; family refined past its own asymptotic range |
+| 29 | VMFL064 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L468 — reader defect: took FIRST wall-shear sign change, refused when the profile did not start negative ("no reattachment found"); all levels ran clean |
+| 30 | VMFL064-R2 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L513 — reader fixed (LAST crossing in window); LR/s inside band; experimental reattachment reference caps the tier |
+| 31 | VMFL011-R2 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L549 — same planted-zero mis-calibration as row 26 |
+| 32 | VMFL017-R2 | `NOT A RESULT` | `BUDGET/KILL` | REGISTER L574 — registered per-level cap fired (rc=124); run did not finish |
+| 33 | VMFLGPU001 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L595 — null-range plateau guard refused a demonstrably-live channel (a dead field and a converged one look identical to the tolerance); guard defect, repaired in row 39 |
+| 34 | VMFLGPU002 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L605 — GPU grid triple `OSCILLATORY` (R=−0.197); rule 5 step 2 |
+| 35 | VMFL076-R2 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L609 — both gates met on a `CONVERGING` triple (repair of row 27); reference caps the tier |
+| 36 | VMFL011-R3 | `GATE FAIL` | `PHYSICS-FAIL` | REGISTER L611 — `rms_vs_benchmark`=0.03409 vs 0.030 (+13.6%) at L3 on a `CONVERGING` triple whose GCI (~3.3%, row 38) is ≪ the miss; proven instrument (planted controls seen; GPU≡CPU to 12 digits); byte-identical gate (empty 77-line diff), prereg predicted the fail. The converged laminar triangular-cavity solution genuinely misses the Jyotsna–Vanka benchmark |
+| 37 | VMFL007-R2 | `NOT A RESULT` | `INSTRUMENT` | REGISTER L613 — comparator refused (exit 2) on its planted-zero control (linear-solver/preconditioner screening slate; gate not applied) |
+| 38 | VMFLGPU003 | `GATE FAIL` | `PHYSICS-FAIL` | REGISTER L615 — same physics as row 36 (GPU path): rms +13.6% at L3, `CONVERGING` (GCI 3.303% ≪ miss), limb A GPU verified, limb B GPU≡CPU 4.6e-12 |
+| 39 | VMFLGPU001-R2 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L616 — both limbs held, `CONVERGING` (repair of row 33); Taylor–Couette exact-theory reference → `GATE REACHED` max |
+| 40 | VMFLGPU007 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L624 — plateau clause IG3 refuses: wall-T channel still travelling at endTime (ptp 0.0238K > 0.0001K, monotone 238→36×); registered endTime/plateau spec inadequate for a slow-settling channel |
+| 41 | VMFLGPU004 | `BLOCKED` | `REFERENT-CEILING` | REGISTER L626 — the manual's `Reference` cell is genuinely empty (read from PDF pp.233–234 under rule 15): the reference is not obtainable. Driving inputs also absent, narrated in prose |
+| 42 | VMFLGPU005 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L628 — comparator GRADED (exit 0); rule 5 disqualified 4 of 7 channels (C1/C2 triples); limb B GPU verified. Prose: latent turbulent-cavity model context (declared modelling difference) ranks class 7; precedence takes 5 |
+| 43 | VMFLGPU007-R2 | `GATE REACHED` | `REFERENT-CEILING` | REGISTER L662 — comparator GRADED, both gates met (repair of row 40); reference caps the tier |
+| #44 | VMFL063 | `GATE FAIL` | `GATE-DESIGN` | REGISTER L725 — limb A LR/2t=5.60 vs 4.0 (+40%) at L3, but the triple's `GCI_fine`=120.62% (p=0.143) EXCEEDS the 40% deviation, so the miss cannot be attributed to physics vs under-resolution; the registered triple (P_MIN=0.05, no GCI ceiling) graded an unconverged result → ungradeable-as-registered. NOT `PHYSICS-FAIL` (fail-closed, §2n.3) — JUDGMENT, see note B |
+| #45 | VMFL069 | `NOT A RESULT` | `UNCLASSED` | REGISTER L726 — solver died of SIGFPE at step 69 (rc=136); solver-internal crash (deltaT=1s in `interFoam`, a setup/numerics config), no gradeable answer, fits none of the eight |
+| #47 | VMFL038 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L728 — triple `DIVERGENT` (R=9.05) on an ANISOTROPIC y-only refinement that violates the Richardson/Roache premise; gate quantity τ_w pinned by a discrete conservation identity — Sanaa's canonical `GATE-DESIGN` example |
+| #49 | VMFL006 | `NOT A RESULT` | `GATE-DESIGN` | REGISTER L758 — jointly-unsatisfiable convergence clause: L1/L2 T-residual flat at the machine floor tripping a null-range refusal, L3 still descending (window max 6.18e-8 > 1e-9 floor) at endTime; no level satisfies both limbs; physics clean (every L3 station 10.9× inside band) |
+
+### Census (this file's rows only; verification folds it into `COVERAGE_MATRIX.md`)
+
+| class (precedence #) | count | rows |
+|---|---|---|
+| `BUDGET/KILL` (1) | 3 | 11, 12, 32 |
+| `NAMING/PLUMBING` (2) | 1 | 18 |
+| `BOOKKEEPING` (3) | 0 | — (row 18's bookkeeping defect subsumed under NAMING by precedence) |
+| `INSTRUMENT` (4) | 7 | 1, 25, 26, 29, 31, 33, 37 |
+| `GATE-DESIGN` (5) | 15 | 4, 6, 9, 10, 14, 16, 17, 21, 27, 34, 40, 42, #44, #47, #49 |
+| `REFERENT-CEILING` (6) | 9 | 20, 22, 23, 24, 30, 35, 39, 41, 43 |
+| `MODEL-LIMIT` (7) | 0 | — |
+| `PHYSICS-FAIL` (8) | 2 | 36, 38 |
+| `UNCLASSED` | 4 | 5, 8, 19, #45 |
+| **total non-`PASS`** | **41** | (PASS: 10 rows carry no class — 2, 3, 7, 13, 15, 28, #46, #48, #50, #51) |
+
+### Headline split (§2n.5)
+
+**2 physics-adverse (`PHYSICS-FAIL`: #36 VMFL011-R3, #38 VMFLGPU003 — one physics, the
+laminar triangular-cavity benchmark miss on CPU + GPU; `MODEL-LIMIT`: none) / 35
+non-physics (`GATE-DESIGN` 15, `REFERENT-CEILING` 9, `INSTRUMENT` 7, `BUDGET/KILL` 3,
+`NAMING/PLUMBING` 1, `BOOKKEEPING` 0) / `UNCLASSED` 4 (#5, #8, #19, #45).**
+
+### Notes and findings
+
+- **Note A — the two verified indications.** #49 → `GATE-DESIGN` and #47 → `GATE-DESIGN`
+  were checked against their own records and confirmed (see table). #47 is Sanaa's own
+  τ_w-conservation-identity example. **VMFL070 has NO register row** (grep of the register:
+  zero hits) — so there is nothing to backfill and no class to assign; if it was retired it
+  never landed as a credential.
+- **Note B — #44 is the one genuine judgment call, flagged for overrule.** Its record labels
+  it `GATE FAIL` (LR/2t +40%). I did **not** class it `PHYSICS-FAIL` because its own triple
+  reports `GCI_fine`=120.62%, i.e. the numerical uncertainty EXCEEDS the 40% discrepancy —
+  by Roache's own principle a physics attribution is unsupportable, and §2n.3 fail-closes
+  away from physics. Classed `GATE-DESIGN` (the registered triple graded an unconverged
+  result). Contrast rows 36/38, where GCI ~3.3% ≪ the 13.6% miss, which is what makes those
+  a clean `PHYSICS-FAIL`. If Sanaa reads #44 as a physics failure the count becomes 3.
+- **Note C — the `UNCLASSED` finding (§2n.7 expects some; a zero-`UNCLASSED` backfill should
+  be disbelieved).** All 4 `UNCLASSED` rows share one gap: a run that produced **no gradeable
+  answer** because the **solver crashed or diverged** (#8, #19 divergence; #5, #45 fatal
+  crash) — which is neither a cap/external death (`BUDGET/KILL`'s verbatim definition) nor a
+  referee defect. **The closed eight has no bucket for solver-internal divergence/crash.**
+  Reported as a finding to verification/Sanaa: either widen `BUDGET/KILL` ("run did not
+  finish" already its §2n.3 rationale) or add a class. These 4 are fail-closed OUT of
+  physics-adverse and are the third headline figure.
+- **Note D — capability (§2n.6, exclusions now 4 incl. `GATE-DESIGN`, `6fcc7fb6`).** Of the 41
+  non-`PASS` rows, only rows 36/38 (`PHYSICS-FAIL`) bear on "can the lab do this physics";
+  every other non-`PASS` row is referee trouble or `UNCLASSED`. `PASS`/`GATE REACHED` rows
+  answer the capability question and are unaffected by this block.
+
+Drafted by `ansys-lane-opus48` (`claude-opus-4-8[1m]`) for the
+`ansys-verification-supervisor`, 2026-08-31. Classes are the grading records' assignments
+read cell-by-cell (§2n.2), not recollection; the supervisor's read and verification's audit
+govern. Overrulable.
