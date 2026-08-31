@@ -19649,6 +19649,54 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T20:25:51Z — **SANAA CLOSED THE §2h.3 REFERRAL AND VMFL038-R2's GROUND IS NOW PERMANENT LAW. I READ IT AT SOURCE BEFORE BELIEVING THE PEER WHO TOLD ME, AND IN DOING SO FOUND THAT `§2h.6` NOW NAMES TWO DIFFERENT RULES.**
+
+**Written by `ansys-verification-supervisor` personally. Stamp from `date -u` in the writing invocation.**
+
+#### THE REFERRAL ON MY DESK IS OFF IT — RESOLVED IN THIS TEAM'S FAVOUR
+
+The **§2h.3 referral** listed in my 19:5x entry under *"On Sanaa's desk"* is **CLOSED.** She ruled it 2026-08-31; `VERIFICATION_CHARTER` v1.27 carries it as `§2h.6.1`–`§2h.6.6` at commit `27a49bda`, on her verbatim words at `5dd94f4f`.
+
+**THE RULE:** a reference that is the exact or manufactured solution of the **same continuum PDE the solver discretises** is `PASS`-capable under §2h.4's five conditions declared before compute; a reference from a **different model** — nozzle relations, shock tables, lumped or series-resistance paths, correlations, experiment — **caps at `GATE REACHED`, however exact its own algebra.** The test is **sameness of model, never exactness of algebra.**
+
+**`VMFL038-R2` limb A STANDS AS GRADED and its `PASS`-capability is permanent law rather than the interim classification it rested on.** My 19:5x line — *"depends on §2h governing by express classification, which it does until she rules"* — is now **spent**: she has ruled, and the dependency is discharged. **No number on that row moves and none needed to.**
+
+**I DID NOT TAKE THIS FROM THE RELAY.** `verification-supervisor` notified me, and a peer's message is not Sanaa's consent (`CLAUDE.md` rule 9). I read `27a49bda` and the amendment text myself before writing a line of law from it. **The relay was accurate in every particular** — a finding about this instance, not a licence to skip the read next time.
+
+#### THE DEFECT I FOUND BY DOING THAT READ — `§2h.6` IS OCCUPIED TWICE
+
+**MEASURED in `docs/charters/VERIFICATION_CHARTER.md` at `27a49bda`:** `§2h.6` labels **two different rules** — v1.19 (2026-08-27) line **2882**, `§2h.6 NON-RETROACTIVITY`; and v1.27 (2026-08-31) line **3604ff**, the exact-PDE rule. **Four live citations point at the older meaning**: lines `2895`, `2974`, `3104`, `3588`. **The sharp edge is inside the new amendment itself** — `§2h.6.4` is headed *"IT IS PROSPECTIVE"*, which **is** the old `§2h.6`'s doctrine, so one amendment uses one label both for the rule it states and for the rule bounding it.
+
+**WHY IT REACHES ME AND IS NOT PEDANTRY:** a `PASS`-capable registration must cite its ground on a document that is then **FROZEN**. A bare `§2h.6` in one of mine would name two rules, **one of which defeats the claim it is offered to support**, and a frozen document cannot be repaired afterwards. **The citation must be unambiguous at the freeze or not at all.**
+
+**REPORTED, NOT REPAIRED.** Their charter is theirs; I changed nothing in it and **proposed no number**. `SendMessage` to `verification-supervisor` **failed — not a reachable address from here**; the finding is **routed via the chief** and is on the board as the durable channel.
+
+#### WHAT I COMMITTED
+
+**`879d7726` — `ANSYS_VERIFICATION_CHARTER` v1.6**, appended at the foot, prior file verified an **exact byte prefix in the same invocation as the write**, lines changed above: **0**. `§11.1` is **not edited** and stands on the page including the point 2 this overtakes.
+- **§12.1** records the closure and the source-read.
+- **§12.2** makes the classification a **REGISTRATION PRECONDITION**: every registration now names the continuum model the solver discretises, names the model the manual's reference number is the exact solution of, answers **`SAME` or `DIFFERENT`** with reasoning, and where `SAME` and `PASS` are claimed declares §2h.4's five conditions — **all before the freeze.** This is `§11.2` applied to the reference: *"which model is this the exact solution of?"* **is** a gate question, because its two answers give different ceilings.
+- **§12.3** bans a bare `§2h.6` in this territory; the form is subclause + version + date + name.
+- **§12.4** no row promoted, demoted or re-graded — the rule is **prospective**; `§11.1`'s experimental cap is **CONFIRMED**, not weakened.
+
+#### THE HAZARD THIS PUTS ON THE REMAINING CAMPAIGN — AND IT IS LARGE
+
+**A good number of VM cases carry closed-form references that are exact for a REDUCED model rather than for the PDE our solver integrates** — isentropic nozzle relations, normal-shock tables, friction-factor and Nusselt correlations. **Every one of those caps at `GATE REACHED` however clean its algebra.** This changes what fraction of the remaining denominator can ever become a credential, and it must be settled **case by case at registration**. A haiku lane is surveying the register and every not-yet-computed registration for exactly this now.
+
+#### CROSS-TEAM AUDIT OF ROW #46 — RECEIVED, AND ITS CORRECTION RUNS IN MY FAVOUR
+
+`verification` audited `VMFL069-R2` row #46 (`FAIL_OPEN_GATE_AUDIT` §15). **`PASS` STANDS**; freeze sound, hashes matched three ways, all three qualifications on the row's face before the audit opened. Their substantive correction: **Qualification 3 OVERSTATES the exposure for limbs A and B and UNDERSTATES how sharply it lands on limb C**, where `l2_profile_error` is the one graded quantity whose computation changes with the level **and** the limb claiming a near-zero.
+
+**I DO NOT ACCEPT THE HALF THAT FAVOURS ME WITHOUT CHECKING IT.** Their ground for *"exposure close to nil"* on A/B is that the **comparison** is a level-independent scalar band. But a planted-zero control tests the **READER**, not the comparison — and at L3 the reader binds a different mesh with a different cell count. **What must transfer to L3 is the reader's ability to see a perturbation in L3's bytes, which is not what level-independence of the comparison establishes.** If that holds, A/B exposure is **larger than the audit credits**, and the correction should be smaller in my favour than offered. **Being audited generously is not a reason to bank it** — an unnecessarily capped row and an over-credited one are equally inaccurate (`§11.1`'s closing finding, run in the other direction). Under check against the comparator now.
+
+**THEIR ASK — the planted controls fired at L3, not L1 only — is legitimate and I have a legal question on it that is mine to rule:** row #46's grading path is **frozen post-compute**. If the control reaches L3 by **invocation**, it is a control-coverage repair and legal. **If it needs a source edit, the frozen comparator is NOT edited** (`CLAUDE.md` rule 6, §2d) — the coverage lands in the **next** registration's comparator, prospectively, and row #46 takes a dated addendum. **The same lane is establishing which of the two it is.** I have ruled nothing until it reports.
+
+#### STATE UNCHANGED FROM 19:5x EXCEPT AS ABOVE
+
+**No ansys solver running. No compute launched by this entry.** `VMFL038-R2` still **frozen, not yet queued** — queue entry and empty run root remain the immediate next step, and its registration predates §12.2 so §12.2 does not reach it (`§2h.6.4`, prospective). Register **50 rows**, nine credentials. **On Sanaa's desk: the six, MINUS the §2h.3 referral now ruled, PLUS the `§2h.6` label collision routed via the chief.**
+
+**VERIFY (stated, not filled in):** the A/B reader-exposure argument above is **my reasoning, not yet checked against the comparator source**; and the survey of reference types across the register and the open registrations is **in flight, not returned.**
+
 ### 2026-08-31T19:5xZ — **VMFL006-R2 IS A `PASS` — THE NINTH CREDENTIAL AND THE FIRST TIME THIS TEAM HAS CONVERTED ITS OWN `NOT A RESULT` INTO ONE BY REPAIR. AND A LANE PROVED MY VMFL038-R2 GATE COULD NEVER HAVE GRADED — A DESIGN ERROR OF MINE, CAUGHT BY A THEOREM AND A MEASUREMENT.**
 
 **Written by `ansys-verification-supervisor` personally. Every §1 check is mine.**
