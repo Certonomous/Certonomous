@@ -20710,6 +20710,22 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T22:48:59Z — **CORRECTION to the stand-down entry immediately below: THE SESSION WAS NOT ZERO-COMPUTE, AND THE VMFL007-R3 PINNING PROBE DID RUN — IT COMPLETED BEFORE THE WITHDRAWAL REACHED IT AND ITS RESULT FORBIDS THE FREEZE, FAIL-CLOSED.**
+
+**Written by `ansys-verification-supervisor` personally. A fact changed under me after I dictated the stand-down entry: the VMFL007-R3 lane reports the pinning probe had ALREADY RUN AND COMPLETED before my withdrawal arrived. The board is the only channel to the next session, so it must be true. The landed entry below is NOT rewritten (it was already committed, `14837ab3`); these four corrections supersede the specific lines they name.**
+
+1. **"Rungs without verdicts" — VMFL007-R3.** Read not "freeze BLOCKED on the uncancelled-but-unexecuted pinning probe" but: **freeze BLOCKED on TWO cleared-first conditions — the pinning probe RAN (2.8 core-min, before the withdrawal, under valid authorisation) and its result FAILS the pre-fixed rule; see correction 3.**
+
+2. **Compute — the session was NOT zero-compute.** Not "ZERO core-minutes, $0.00" but: **2.8 core-min total (168 wall-s serial), $0.0024 DERIVED at $0.0513/core-h owner-stated — the VMFL007-R3 pinning probe, which ran and completed under my authorisation BEFORE I withdrew it; the withdrawal stopped nothing because nothing was still running. No other solver ran. Session was NOT zero-compute; it was 2.8 core-min of diagnostic, no graded run.** The one-line summary's "ZERO core-minutes, $0.00" likewise reads: **2.8 core-min diagnostic, $0.0024 DERIVED (one probe), ZERO graded verdicts.**
+
+3. **VMFL007-R3 blocker — the probe's real, decisive result** (replaces the "AUTHORISED, then CANCELLED by the stand-down" bullet): **THE PROBE RAN AND ITS RESULT FORBIDS THE FREEZE, fail-closed.** L1 (25×25, arm A5) CONVERGED: `dp = 60 437.9488 Pa`, plateau ptp 0.0000 (bit-flat), dev −0.1388 % (inside the band). L2 (50×50, arm A5) DIVERGED — SIGFPE / core dump at iteration ~13 275, `U` residual rising then blowing up to ~1e308. So `d21` is UNMEASURED, `d21/ptp` CANNOT be evaluated, and the pre-fixed rule (`d21/ptp >= 100`) is UNSATISFIED → **DO NOT FREEZE**. The 100× threshold was NOT adjusted. A script's naive `d21/ptp = 1.0` from the diverged series is garbage/garbage and is flagged in `PINNING_PROBE_RESULT.md` as not a measurement.
+
+   **AND A SEPARATE, HARDER BLOCKER SURFACED:** arm A5 is **NOT mesh-robust** — it converges at 25×25 and diverges at 50×50, so **NO graded Roache triple can run on it.** A resumed effort must FIRST find an arm that converges on 25/50/100, THEN re-run the probe to clear the pinning rule. This is a solver-robustness finding the single-grid R2 slate could never have surfaced — cause-class-is-not-repair-class, a third time.
+
+4. **Commits — add `e9b46885`:** VMFL007-R3 draft — `§2h.8.1` citation fix + `§12.2` SAME ruling folded in + `PINNING_PROBE_RESULT.md` + NOT-READY-TO-FREEZE banner. (This is the in-flight commit the landed entry footnoted; it landed immediately after `14837ab3`.)
+
+**Everything else in the entry below stands.** No verdict, gate, band, cap or register byte moved by this correction; it corrects the board's compute and probe-status facts only.
+
 ### 2026-08-31T22:46:18Z — **TEAM STOOD DOWN ON SANAA'S INSTRUCTION. THE REPAIR PROGRAMME IS 14 ROWS, NOT 35 — AND FOUR OF HER FIVE TIERS WERE ALREADY EMPTY BEFORE WE OPENED THEM.**
 
 **Written by `ansys-verification-supervisor` personally. Standing down: Sanaa directed all focus to her demo cases, and this team to commit and stop until she re-forms it. No ansys compute is running and none is queued.**
