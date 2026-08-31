@@ -270,3 +270,137 @@ containers on the box AFTER: 19 (BEFORE was 19)
 run root ABSENT after the test (freeze condition): YES
 
 SO1c guard selftest: 51 legs driven, 0 fail, 1 leg NOT DRIVEN and named (never counted)
+
+================================================================================
+AMENDMENT R8 DRIVE -- 2026-08-31.  Appended; nothing above is rewritten.
+driver md5 AT CAPTURE: 1e73e66e9a7db205bc75e6e6b0695f57   (was 3870a8d4c58861fce5a7e9437f89474a at R7)
+suite  md5 AT CAPTURE: 9af9fa67e072e77733f8c27d73dadae2   (was ca79882b8933a8502da96063ad2119da at R7)
+grader md5 AT CAPTURE: 367f9fc25b3b34535cb2cddfafdc06b1   UNCHANGED -- the grading path is fixed at the pre-registration commit
+run root ABSENT at capture: YES   CONTROL, the same reader on SO-1bR's root: EXISTS
+================================================================================
+
+THE FOUR STATES.  R7 reported three; the fourth exists because states 1 and 2
+together are the proof that the suite could not see the defect IN EITHER
+DIRECTION -- 51 legs, 0 fail, before AND after the change that decided whether
+this item could launch at all.
+
+  state 1  frozen driver 3870a8d4 + frozen suite ca79882b -> 51 legs, 0 fail, rc 0
+  state 2  REPAIRED driver     + frozen suite ca79882b -> 51 legs, 0 fail, rc 0
+           ^^ THE FINDING: the suite is green on the broken driver AND green on
+              the repaired one.  Its greenness carries ZERO information here.
+  state 2b frozen driver 3870a8d4 + R8 suite            -> 63 legs, 6 FAIL, rc 1
+           ^^ THE KNOWN POSITIVE: (e8) (e8b) (e9b) (e10b) (e11b) (e13)
+  state 3  REPAIRED driver     + R8 suite               -> 63 legs, 0 fail, rc 0
+
+HONEST CAVEAT ON WHICH LEGS DISCRIMINATE.  (e9) (e10) (e11) (e12) also return
+rc=7 against the FROZEN driver -- for the WRONG REASON: it dies on the top-level
+gates miss (break 5) before reaching the branch each leg aims at.  A control that
+passes for the wrong reason is not a control, so each was strengthened to assert
+the refusal's OWN STATED REASON.  Those assertions -- (e9b) (e10b) (e11b) -- are
+what fail in state 2b.  The bare rc=7 legs do not, and this record says so.
+
+KNOWN POSITIVES FOR THE (a5c) RE-SCOPE, driven in a scratch copy with R7's own
+leg run alongside; every restore verified byte-identical by md5:
+  one byte appended to so1c_decomposeParDict_simple : R8 (a5c) [BAD]  R7 (a5c) [OK ]
+  MD5_XN renamed AND so1c_xn.py deleted            : R8 (a5c) [BAD]  R7 (a5c) [OK ]
+  one hex digit flipped in the MD5_TUT_FFD pin     : R8 (a5d) [BAD]  R7 has no such leg
+  a THIRTEENTH pin added, driven by nobody         : R8 (a5e) [BAD]  R7 has no such leg
+
+ALL TWELVE md5 PINS RE-DRIVEN AFTER THE R8 EDITS: 12 of 12 CURRENT ON DISK,
+control-checked with a deliberately wrong pin (the reader discriminates).
+
+THE REAL PRODUCER ARTEFACT THROUGH THE REPAIRED GATE -- the driver's own block,
+extracted verbatim from the frozen file, never re-implemented:
+  G-SO1B gates read at grade.gates (20 gate(s))
+  SO1C_G_SO1B_PASS grade=SO1bR_grade_20260831T160245Z.json gates_at=grade.gates
+    rows=PATCHED,SHIPPED gopt=PASS/PASS gcl=PASS/PASS channels=2
+    item_verdict_deliberately_not_read=yes
+  rc=0
+
+--------------------------- STATE 3, IN FULL ---------------------------
+SO1c GUARD SELFTEST  stamp=20260831T164346Z
+run root ABSENT before the test: YES
+containers on the box BEFORE: 19
+
+  [OK ] (a1) G-ROOT.1 BASE is not this item's registered run root -> ABORT (rc=3)
+  [OK ] (a2) G-ROOT.1/.2 BASE = SO-1bR's OWN RUN ROOT -> ABORT (the root this item READS) (rc=3)
+  [OK ] (a3) G-ROOT.1/.2 BASE = D6's LIVE run root -> ABORT before any staging (rc=3)
+  [OK ] (a4) SO-1a's and SO-1b's run roots are BOTH in FORBIDDEN_ROOTS
+  [OK ] (a5) ... and SO-1a's is too
+  [OK ] (a5b) AMENDMENT R7: SO-1bR's run root -- the root this item now READS -- is in FORBIDDEN_ROOTS too, ADDED BESIDE SO-1b's and never replacing it
+  [OK ] (a5c) ALL SIX IN-REPO md5 PINS IN THE DRIVER EQUAL THE FILES THEY PIN (6 compared), and an EMPTY read on either side REFUSES -- a stale pin aborts the chain rc=4 before any container.  The six MD5_TUT_* pins name OUT-OF-TREE tutorial inputs and are driven by (a5d); the exclusion is STATED, not silent
+  [OK ] (a5d) ALL SIX OUT-OF-TREE MD5_TUT_* PINS EQUAL THE TUTORIAL INPUTS THEY PIN under /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible (6 compared), empty reads REFUSING -- the driver asserts these at :197-199 with exit 4, so a moved checkout is the same death mode as a stale in-repo pin
+  [OK ] (a5e) THE PIN LIST IS COMPLETE: the driver carries 12 MD5_* pins and (a5c)+(a5d) drove 12 of them -- R7's (a5c) drove 4 of 12 under a label that claimed all of them, and no leg could see the gap
+  [OK ] (a6) G-ROOT.3 a FOREIGN ITEM= ledger row -> ABORT (rc=3)
+  [OK ] (b1) a LIVE foreign driver pid + a non-registered root -> ABORT (root guard first) (rc=3)
+  [OK ] (b2) ORDER BY LINE NUMBER: G-ROOT.5 pass :305 < first `rm -rf $WORK` :483 < `docker run` :615
+  [OK ] (g0) POSITIVE CONTROL: the REAL launcher against the REAL frozen document does NOT abort on G-CAP-PREREG (it reaches the root guard) -- a check that only ever refuses is not a check
+  [OK ] (g1) a document cap of 40.0 against the launcher's registered 30.0 -> ABORT rc=65 BEFORE any container (rc=65)
+  [OK ] (g2) a CEILING that is not the sum of the caps -> ABORT rc=65 (rc=65)
+  [OK ] (g3) the manifest line DELETED -> ABORT rc=65 (rc=65)
+  [OK ] (g4) the pre-registration ABSENT -> ABORT rc=65 (rc=65)
+  [OK ] (g5) a document RANKS_N of 1 against the launcher's 4 -> ABORT rc=65 (a core-minute cap means nothing without its rank count) (rc=65)
+  [OK ] (c1) an UNREGISTERED arm name (SO-1a's X-S) past the root guards -> ABORT rc=64, no rank count (rc=64)
+  [OK ] (c2) every solver arm is registered at 4 ranks; MESH at 1
+  [OK ] (c3) every np=4 arm is pinned to FOUR DISTINCT cores 10,11,12,13
+  [OK ] (c4) 10,11,12,13 is DISJOINT from D6's 2,3,4,14 and D4-SHIPPED's 5,6,7,9
+  [OK ] (c5) the decomposition is resolved FROM THE ARM NAME: Ns->scotch, Ni->simple
+  [OK ] (d1) an N arm whose row's SO-1b optimum is ABSENT -> ABORT (root guard fires first; see d3 for the guard itself) (rc=3)
+  [OK ] (d2) ORDER: G-CAP-PREREG :370 < G-OPTDEP :470 < first `rm -rf $WORK` :483 -- every guard precedes every destructive step
+  [OK ] (d3) G-OPTDEP refuses an absent own-row optimum with rc=5
+  [OK ] (d4) the staged so1b_E.json is LABELLED a staged input in the launcher's own log line
+  [OK ] (d5) THE AGE-GUARD ORDER: the staged input is `cp -a`d BEFORE the age datum is touched, so a staged input is always OLDER than the datum and can never satisfy an age clause
+  [OK ] (e1) G-SO1B: PATCHED G-OPT PASS, SHIPPED G-OPT PASS, both G-CL PASS -> PROCEED (rc=0)
+  [OK ] (e2) G-SO1B: the SHIPPED row at GATE REACHED is ACCEPTED -- a deformed mesh at an iterate is still a design point (registered asymmetry) (rc=0)
+  [OK ] (e3) G-SO1B: the PATCHED row at GATE REACHED is REFUSED rc=7 -- the control must be a real optimum (rc=7)
+  [OK ] (e4) G-SO1B: a row whose re-solve did not recover the lift (G-CL not PASS) -> REFUSED rc=7 (rc=7)
+  [OK ] (e5) G-SO1B: PATCHED G-OPT NOT A RESULT -> REFUSED rc=7 (rc=7)
+  [OK ] (e6) G-SO1B READS THE SPECIFIC GATES, NOT SO-1b's ITEM VERDICT -- gating on the item verdict would kill SO-1c in SO-1b's own predicted outcome (SO-1b predicts item GATE FAIL)
+  [OK ] (e7) NO executable line of the driver reads SO-1b's G5E FD gate -- this item buys its own FD table at np=4, and DAFOAM_CHARTER.md section 5 forbids carrying an FD reference across np
+  [OK ] (e8) THE REAL PRODUCER ARTEFACT -- COPIED FROM /home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt, NEVER AUTHORED HERE -- through the driver's OWN extracted gate -> PROCEED rc=0.  THIS IS THE LEG R7 DID NOT HAVE: against the frozen driver it refuses rc=7 twice over, first on the top-level gates read (break 5) and then on the row label (break 6) (rc=0)
+  [OK ] (e8b) ... and the gate RECORDS WHICH REGISTERED LOCATION it read the gates from (gates_at=grade.gates).  A relocation that is not recorded is indistinguishable from a search, and the difference is the whole check
+  [OK ] (e9) FAIL-CLOSED, DRIVEN ON THE REAL ARTEFACT: the gates mapping DELETED at BOTH registered locations -> REFUSED rc=7.  A relocated read that stopped refusing on genuine absence would have turned a red gate green by removing the gate (rc=7)
+  [OK ] (e9b) ... AND IT REFUSED FOR ITS OWN REASON.  The rc alone does not discriminate: the FROZEN driver also returns 7 here, on the top-level miss that IS break 5.  A control that passes for the wrong reason is not a control, so the refusal's stated reason is asserted, not just its code
+  [OK ] (e10) THE TWO LOCATIONS ARE REGISTERED, NOT SEARCHED FOR: the SAME gates mapping, every verdict intact, moved to an UNREGISTERED location (results.gates) -> REFUSED rc=7.  A read that hunts until it finds something always finds something, and would have 'repaired' break 5 by deleting the check (rc=7)
+  [OK ] (e10b) ... AND IT REFUSED FOR ITS OWN REASON: the refusal names the registered locations it looked in and did not find them, rather than falling through to the old top-level miss
+  [OK ] (e11) THE SWAPPED ARTEFACT, AND THE ACCEPTANCE CONDITION OF AMENDMENT R8: the SHIPPED row's REAL E artefact placed in E-P -> STILL REFUSED rc=7.  The row-label assertion exists to catch an artefact sitting in the WRONG DIRECTORY, and R8's mapping keeps it doing that because the two rows' registered label sets are DISJOINT (rc=7)
+  [OK ] (e11b) ... and the refusal NAMES THE OFFENDING LABEL IT ACTUALLY FOUND (row='S' sitting in the PATCHED directory) -- a refusal that does not say what it saw is not a finding
+  [OK ] (e12) ... and the SWAP IN THE OTHER DIRECTION: the PATCHED row's REAL E artefact placed in E-S -> STILL REFUSED rc=7.  Both directions are driven because a mapping that is disjoint in one direction only is not disjoint (rc=7)
+  [OK ] (e13) THE ROW-LABEL MAPPING IS WRITTEN OUT IN FULL and NO executable line derives it as row[0].  row[0] agrees with the producer only by the coincidence that PATCHED and SHIPPED share first letters with P and S; a check that is true by coincidence has stopped being a check, and it would silently accept a row named 'PORPOISE' in the PATCHED directory
+  [OK ] (h0) the G-SO1B-SELECT block EXTRACTS from the frozen driver (a suite that runs its own copy of the code proves nothing about the code that ships)
+  [OK ] (h1) G-SO1B-SELECT: ZERO SO1bR_grade_*.json -> BLOCKED rc=7 (the frozen v1.0 branch, unchanged) (rc=7)
+  [OK ] (h1b) ... and the status line still reads reason=no_grade -- the pre-existing no-launch branch is byte-preserved
+  [OK ] (h2) G-SO1B-SELECT: EXACTLY ONE grade artefact -> PROCEED rc=0 (rc=0)
+  [OK ] (h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied
+  [OK ] (h3) THE R5 DEFECT, DRIVEN: TWO grade artefacts -> REFUSED rc=7.  The frozen v1.0 form was `ls -1t ... | head -1`, which would have SILENTLY TAKEN THE NEWER ONE by mtime (rc=7)
+  [OK ] (h3b) ... naming BOTH candidates and recording reason=grade_selection_ambiguous -- a refusal that does not say what it could not choose between is not a finding
+  [OK ] (h4) G-MESHREF-SELECT: ONE MESH_*.log carrying ONE points-sha256 -> PROCEED rc=0 (rc=0)
+  [OK ] (h4b) ... the reference is the ONE sha from the ONE NAMED file, and the SELECTION RECORD beside it names that file and the candidate count
+  [OK ] (h5) THE R1 DEFECT, DRIVEN: TWO MESH_*.log in SO-1b's root -> REFUSED rc=4.  The frozen v1.0 form was a MULTI-FILE `grep ... | head -4`, and under ugrep multi-file output order is a RACE (rc=4)
+  [OK ] (h5b) ... naming BOTH candidates, and NO reference file is written -- the ambiguous read never reaches disk
+  [OK ] (h6) G-MESHREF-SELECT: ONE MESH_*.log carrying ZERO points-sha256 lines -> REFUSED rc=4 (a reference that names no mesh is not a reference) (rc=4)
+  [OK ] (h7) G-MESHREF-SELECT: ONE MESH_*.log carrying TWO points-sha256 lines -> REFUSED rc=4.  This is the input that used to reach the GRADER and publish as a MESH-REGENERATION-DETERMINISM finding (rc=4)
+  [OK ] (h8) NO EXECUTABLE line of the driver still selects with `ls -1t` or `head -4` (residue=0), and the sweep pattern was PROVEN on a planted known positive first (probe=2 of 2)
+  [OK ] (f1) the instrument refuses an unregistered mode -> rc=64 (rc=64)
+  [OK ] (f2) the instrument refuses with no -optimum path -> rc=64 (rc=64)
+  [OK ] (f3) the instrument cross-asserts nprocs against MPI AND against the dictionary
+  [OK ] (f4) the instrument refuses an optimum artefact whose libidwarp md5 is another row's
+  [NOT DRIVEN] (a0+) G-ROOT.5 leg (a) POSITIVE side -- "a RUNNING container already
+      carries this item's prefix and arm".  Driving it requires CREATING a container,
+      and this registration is made under an explicit ZERO-CONTAINERS-CREATED
+      instruction.  IT IS NOT COUNTED AS PASSING.  Its NEGATIVE side is driven above
+      (no so1c_ container exists, and the guard passes).  The one-line command that
+      drives the positive side, for the supervisor to run BEFORE first compute:
+        sudo -n docker run -d --name so1c_Ns-P_selftest --cpus=0.1 --cpuset-cpus=15 \
+             --memory=64m alpine sleep 30 >/dev/null && \
+        BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv \
+             bash so1c_run_arm.sh Ns-P dafoam-idwarp-rot:v1 ; echo rc=$? ; \
+        sudo -n docker rm -f so1c_Ns-P_selftest
+      EXPECTED: rc=3, "ABORT G-ROOT.5 a RUNNING container already carries this item's
+      prefix and arm".
+
+(a0) NEGATIVE side of G-ROOT.5 leg (a): so1c_ containers RUNNING = 0 (expected 0)
+containers on the box AFTER: 19 (BEFORE was 19)
+run root ABSENT after the test (freeze condition): YES
+
+SO1c guard selftest: 63 legs driven, 0 fail, 1 leg NOT DRIVEN and named (never counted)

@@ -133,7 +133,52 @@ try:
     g = json.load(open(grade_path))
 except Exception as exc:
     refuse("SO-1b's grade artefact is unreadable (%s): %r" % (grade_path, exc))
-gates = g.get("gates") or {}
+# ---- AMENDMENT R8, 2026-08-31.  BREAK 5: THE GATES ARE NESTED ONE LEVEL DOWN.
+# The frozen v1.0 form was `gates = g.get("gates") or {}`, a TOP-LEVEL read.
+# SO-1b wrote its grade dict AT the top level; SO-1bR WRAPS that same dict under
+# `grade` and carries verdict / verdict_line / G_SO1AR / upstream_provenance
+# beside it.  Against the real artefact the top-level read found nothing and the
+# gate refused with "SO-1b's grade names no G-OPT/G-CL verdict" -- A SENTENCE
+# THAT IS FALSE OF THE ARTEFACT: every gate SO-1c asks for exists one level down
+# and every one of them reads PASS.
+#
+# THE TWO LOCATIONS ARE NAMED, NOT SEARCHED FOR.  This is deliberately NOT a
+# recursive hunt for any dict called "gates": a read that goes looking until it
+# finds something will always find something, and would have "repaired" this
+# defect by removing the check instead of relocating it.  Exactly two locations
+# are registered; a gates mapping anywhere else is NOT accepted, and neither is
+# its absence.  THE ACCEPTANCE BELOW IS UNTOUCHED -- only where the verdicts are
+# read from moves, never which verdicts are demanded or what they must say.
+GATES_LOCATIONS = (
+    ("<top level>.gates", lambda d: d.get("gates")),          # SO-1b, v1.0 shape
+    ("grade.gates",       lambda d: (d.get("grade") or {}).get("gates")),  # SO-1bR
+)
+gates = None
+gates_at = None
+for _name, _get in GATES_LOCATIONS:
+    try:
+        _cand = _get(g)
+    except Exception:
+        _cand = None
+    if isinstance(_cand, dict) and _cand:
+        gates, gates_at = _cand, _name
+        break
+if gates is None:
+    refuse("SO-1b's grade artefact carries NO gates mapping at either REGISTERED "
+           "location (%s).  Top-level keys present: %r.  An unreadable dependency "
+           "is not a licence to proceed."
+           % (", ".join(n for n, _ in GATES_LOCATIONS), sorted(g.keys())))
+sys.stderr.write("G-SO1B gates read at %s (%d gate(s))\n" % (gates_at, len(gates)))
+# ---- AMENDMENT R8, 2026-08-31.  BREAK 6: THE ROW LABEL IS A REGISTERED MAPPING.
+# SO-1bR labels its per-row artefacts with the DIRECTORY SUFFIX ('P'/'S') rather
+# than the row name.  The mapping is WRITTEN OUT IN FULL and is deliberately not
+# derived as `row[0]`: row[0] happens to agree only because PATCHED and SHIPPED
+# share first letters with P and S, and a check that is true by coincidence has
+# stopped being a check.  The two label sets are DISJOINT, which is what keeps
+# the assertion doing its job -- it exists to catch AN ARTEFACT SITTING IN THE
+# WRONG DIRECTORY, and a SHIPPED artefact placed in E-P still refuses.
+ROW_DIR = {"PATCHED": "P", "SHIPPED": "S"}
+ROW_LABELS = {"PATCHED": ("PATCHED", "P"), "SHIPPED": ("SHIPPED", "S")}
 ACCEPT = {"PATCHED": ("PASS",), "SHIPPED": ("PASS", "GATE REACHED")}
 for row in ("PATCHED", "SHIPPED"):
     gopt = (gates.get("G-OPT_%s" % row) or {}).get("verdict")
@@ -149,7 +194,7 @@ for row in ("PATCHED", "SHIPPED"):
         refuse("SO-1b's %s row G-CL reads %r, not PASS.  A design point whose "
                "re-solve did not recover the lift has no real flow at it." % (row, gcl))
     # ---- CHANNEL (ii): SO-1b's own O artefact, re-read WITHOUT the grade
-    o_path = os.path.join(so1b_base, "O-%s" % ("P" if row == "PATCHED" else "S"), "so1b_O.json")
+    o_path = os.path.join(so1b_base, "O-%s" % ROW_DIR[row], "so1b_O.json")
     try:
         o = json.load(open(o_path))
     except Exception as exc:
@@ -165,7 +210,7 @@ for row in ("PATCHED", "SHIPPED"):
         if not o.get(k):
             refuse("SO-1b's %s optimum artefact carries no %r" % (row, k))
     # ---- and the E artefact SO-1c actually reads
-    e_path = os.path.join(so1b_base, "E-%s" % ("P" if row == "PATCHED" else "S"), "so1b_E.json")
+    e_path = os.path.join(so1b_base, "E-%s" % ROW_DIR[row], "so1b_E.json")
     try:
         e = json.load(open(e_path))
     except Exception as exc:
@@ -176,12 +221,16 @@ for row in ("PATCHED", "SHIPPED"):
     if int(e["nprocs"]) != 1:
         refuse("SO-1b's %s post-optimum artefact records nprocs=%r; the serial "
                "reference must be np = 1" % (row, e["nprocs"]))
-    if e["row"] != row:
-        refuse("SO-1b's %s directory holds an artefact labelled row=%r -- a row is "
-               "an image hash, never a directory name" % (row, e["row"]))
-print("SO1C_G_SO1B_PASS grade=%s rows=PATCHED,SHIPPED gopt=%s/%s gcl=PASS/PASS "
+    if e["row"] not in ROW_LABELS[row]:
+        refuse("SO-1b's %s directory holds an artefact labelled row=%r -- the only "
+               "labels REGISTERED for this row are %s.  A row is an image hash or "
+               "that row's registered directory suffix, never an arbitrary "
+               "directory name, and the two rows' label sets are DISJOINT so a "
+               "swapped artefact cannot satisfy this."
+               % (row, e["row"], " or ".join(repr(x) for x in ROW_LABELS[row])))
+print("SO1C_G_SO1B_PASS grade=%s gates_at=%s rows=PATCHED,SHIPPED gopt=%s/%s gcl=PASS/PASS "
       "channels=2 item_verdict_deliberately_not_read=yes"
-      % (os.path.basename(grade_path),
+      % (os.path.basename(grade_path), gates_at,
          (gates.get("G-OPT_PATCHED") or {}).get("verdict"),
          (gates.get("G-OPT_SHIPPED") or {}).get("verdict")))
 GSO1B

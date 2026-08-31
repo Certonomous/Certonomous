@@ -630,3 +630,279 @@ that produced this table**, and leg `(a5c)` now re-verifies them on every drive.
 pre-compute gate is the supervisor's. **SO-1c has spent 0 core-minutes and this amendment spends
 none.** It moves no gate, threshold, band, cap, label, cost or prediction; it retires nothing; and
 it makes **more** things refuse and **nothing** pass that could previously have been refused.
+---
+
+## AMENDMENT R8 — 2026-08-31, PRE-COMPUTE. **`R7` REPAIRED THE PATH AND THE GLOB AND NOBODY CHECKED THE SCHEMA: THE GATE REFUSED THE REAL ARTEFACT WITH A SENTENCE THAT IS FALSE OF IT.** The document is **v1.3**. No gate, threshold, band, cap, label, cost or prediction moves.
+
+### R8.0 RULE 6 — NOTHING ABOVE THIS LINE MOVED, PROVED BY BYTE COMPARISON
+
+**Lines whose number changed above this section: 0.** The **632 lines / 76,291 bytes** above the
+horizontal rule that opens this section are **byte-identical** to `PREREGISTRATION.md` at HEAD
+immediately before this amendment. The proof is a **byte comparison made in the same shell
+invocation as the append**: the HEAD blob was extracted with `git show <HEAD>:<path>`, `cmp`'d
+against the working copy **before** the append, and `cmp`'d again against the **first 76,291 bytes
+of the appended file** afterwards. **`git diff` was deliberately not used** — it reads the shared
+index, which under concurrency reports stale (`git status reads stale under concurrency`; rule 10).
+Nothing above was struck, rewritten or renumbered. **`R6`'s and `R7`'s text is untouched**: this
+amendment supersedes by stating, never by overwriting. **The header still reads
+`Version 1.0. FROZEN.` deliberately** — that line is a true statement about the frozen document,
+and rewriting it is exactly the edit rule 6 forbids. The version bump is carried here, as `R6` and
+`R7` carried their own.
+
+### R8.1 THE RULE-2 CONDITION, AND HOW IT WAS CHECKED — WITH A CONTROL, NOT AN ASSERTION
+
+`CLAUDE.md` rule 2 makes amendments legal **before first compute** and requires the condition be
+stated **and how it was checked**, naming the run directory that does not exist.
+
+| check | result |
+|---|---|
+| `test -e /home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv` | **ABSENT** |
+| **CONTROL — the same reader, on a root that DOES exist** | `/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt` → **EXISTS** |
+
+**The control is not decoration.** An "absent" from a reader not shown able to see an existing
+directory is not evidence (`CLAUDE.md` rule 3). **SO-1c has burned ZERO core-minutes, started no
+container, created no run root and holds no `LAUNCH_LOG.tsv` row.** Gates are open; this amendment
+is the **ordinary pre-compute path** of rule 2, and **`VERIFICATION_CHARTER.md` §2d.1 is NOT
+reached for and is not needed.** The freeze sha is `bd7f68d67f3de225eac6425650f2fd4cda1dd579`,
+re-derived **by path** (`git log --format=%H --diff-filter=A -- <path>`, exactly one commit, an
+ancestor of HEAD) and never from a commit subject.
+
+### R8.2 WHAT WAS BROKEN — TWO THINGS, EACH ISOLATED SINGLY
+
+`R7` re-pointed this item from `SO-1b` to `SO-1bR` and fixed **the path and the glob** — the two
+things a path-shaped search finds. **It left the SCHEMA, which no path-shaped search can reach.**
+The `SO-1b` → `SO-1bR` relaunch did not only rename the run root: it **WRAPPED the grade artefact**
+and **relabelled the per-row artefacts**.
+
+| # | break | where | what the real artefact does |
+|---|---|---|---|
+| **5** | the gates are read at the **top level** | `gates = g.get("gates") or {}` | `SO-1bR` writes them at **`g["grade"]["gates"]`**, alongside `verdict`, `verdict_line`, `G_SO1AR`, `upstream_provenance` |
+| **6** | the row label is compared against the **row name** | `if e["row"] != row` | `SO-1bR` labels its `E` artefacts **`row='P'` / `row='S'`**, the directory suffix |
+
+**Break 5's refusal states a reason that is FALSE OF THE ARTEFACT.** The frozen gate refuses
+`rc=7` with *"SO-1b's grade names no G-OPT/G-CL verdict for the PATCHED row (G-OPT=None
+G-CL=None). An unreadable dependency is not a licence to proceed."* At the nested path **all four
+verdicts this gate demands read `PASS`** — `G-OPT_PATCHED`, `G-OPT_SHIPPED`, `G-CL_PATCHED`,
+`G-CL_SHIPPED` — beside `grade.rows = {PATCHED: PASS, SHIPPED: PASS}`, in a mapping of **20**
+gates. **The dependency is not unreadable. It is readable one level down and it says yes.**
+
+**Break 6 is visible only once break 5 is repaired alone.** With only the nesting mapped, the gate
+refuses again on a different limb: *"SO-1b's PATCHED directory holds an artefact labelled
+`row='P'` — a row is an image hash, never a directory name."* **A one-shot "repair everything then
+re-run" would have shown one green and hidden break 6 inside it.**
+
+**Filing `SO-1c` in this state would have bought a GUARANTEED `exit 7 BLOCKED_G_SO1B` at zero
+core-minutes** — nominally the registered no-launch branch `N2`, and therefore nominally
+defensible. **It would have been MANUFACTURING a `BLOCKED` verdict**, because the refusal fires
+for a schema reason and not for the physics `N2` exists to detect. An empty queue is visible; a
+fabricated `BLOCKED` is a lie that reads as a result.
+
+### R8.3 THE FENCE — REGISTERED BEFORE THE WORK, NOT AFTER
+
+**WHAT `R8` CHANGES, AND IT IS ONLY THIS:** the `G-SO1B` gate's **read path** for the gates
+mapping, and its **row-label comparison**.
+
+**WHAT `R8` DOES NOT CHANGE.** The **ACCEPTANCE IS UNTOUCHED**, character for character:
+`PATCHED` requires `G-OPT` **`PASS`**; `SHIPPED` accepts **`PASS` or `GATE REACHED`**; **both**
+rows require `G-CL` **`PASS`**; `SO-1b`'s **ITEM VERDICT stays deliberately unread**; **`G5E`
+stays unread on both rows** (`DAFOAM_CHARTER.md` §5 forbids carrying an FD reference across `np`,
+and this item buys its own FD table at `np = 4`). Both **independent channels** stand, and a
+channel disagreement still refuses. **No gate, threshold, band, cap, label, cost or prediction
+moves.** **`so1c_grade.py` IS NOT TOUCHED** — it is the grading path fixed at the pre-registration
+commit, and its md5 `367f9fc25b3b34535cb2cddfafdc06b1` is unmoved.
+
+**AND THE REPAIR MUST NOT WEAKEN THE CONTROL IT PASSES THROUGH.** This is the acceptance condition
+of the amendment, and it is registered as three obligations, each discharged by a **driven** leg in
+§R8.5: the gates read must be **explicit about the nested location and must still refuse on genuine
+absence**; the row-label mapping must be **explicit, not `row[0]`**; and **a swapped artefact must
+still refuse**. A repair that turns a red test green without preserving what the test was **for**
+is the one move forbidden here.
+
+### R8.4 THE REPAIRS, AND WHY THESE SHAPES
+
+**BREAK 5 — two REGISTERED locations, NAMED, never hunted for.**
+
+```
+GATES_LOCATIONS = (
+    ("<top level>.gates", lambda d: d.get("gates")),                      # SO-1b, v1.0 shape
+    ("grade.gates",       lambda d: (d.get("grade") or {}).get("gates")), # SO-1bR
+)
+```
+The first location that yields a **non-empty dict** wins; if neither does, the gate **REFUSES**,
+naming both locations it looked in and printing the artefact's actual top-level key list. **This is
+deliberately NOT a recursive search for any dict called `gates`.** A read that hunts until it finds
+something will always find something, and would have "repaired" break 5 **by removing the check**.
+Exactly two locations are accepted; the same mapping moved anywhere else is refused (leg `(e10)`).
+The chosen location is **RECORDED** — `gates_at=` on the `SO1C_G_SO1B_PASS` line, and a stderr note
+— because **a relocation that is not recorded is indistinguishable from a search.**
+
+**BREAK 6 — an EXPLICIT registered mapping, and the `row[0]` shortcut deliberately refused.**
+
+```
+ROW_DIR    = {"PATCHED": "P", "SHIPPED": "S"}
+ROW_LABELS = {"PATCHED": ("PATCHED", "P"), "SHIPPED": ("SHIPPED", "S")}
+```
+`ROW_DIR` replaces the two inline `("P" if row == "PATCHED" else "S")` expressions that built the
+`O-` and `E-` paths, so the directory suffix is now written down once. `ROW_LABELS` replaces the
+comparison. **The scratch probe that first isolated break 6 used `e["row"] not in (row, row[0])`,
+and that is NOT what lands.** `row[0]` agrees with the producer **only by the coincidence that
+`PATCHED` and `SHIPPED` share first letters with `P` and `S`** — cute, fragile, and it would
+silently accept a row labelled `'PORPOISE'` in the `PATCHED` directory. **The two label sets are
+DISJOINT, and that disjointness is what keeps the assertion doing its job**: the check exists to
+catch **an artefact sitting in the wrong directory**, and a `SHIPPED` artefact placed in `E-P`
+still refuses. Driven in **both** directions, legs `(e11)`/`(e12)`.
+
+### R8.5 THE EVIDENCE, IN FOUR STATES — THE FIX IS SHOWN FAILING BEFORE IT IS SHOWN FIXED
+
+`R7` reported three states. **This amendment reports four, and the fourth is the one that matters**,
+because states 1 and 2 together are the proof that the suite could not see the defect **in either
+direction**.
+
+| state | driver | suite | legs | fail | rc |
+|---|---|---|---|---|---|
+| **1 — baseline, as frozen** | frozen `3870a8d4` | frozen `ca79882b` | **51** | **0** | 0 |
+| **2 — driver repaired, fixtures NOT** | **repaired** | frozen `ca79882b` | **51** | **0** | 0 |
+| **2b — THE KNOWN POSITIVE: new suite, FROZEN driver** | frozen `3870a8d4` | **`R8`** | **63** | **6** | 1 |
+| **3 — all repairs** | **repaired** | **`R8`** | **63** | **0** | 0 |
+
+**STATE 2 IS THE FINDING.** The suite was green on the broken driver and **green on the repaired
+one**. Its greenness carries **zero information** about this defect: 51 legs, 0 fail, before and
+after a change that decided whether this item could launch at all.
+
+**STATE 2b, the six legs that fail against the frozen driver** — `(e8)`, `(e8b)`, `(e9b)`,
+`(e10b)`, `(e11b)`, `(e13)`.
+
+**AND AN HONEST CAVEAT ABOUT WHICH LEGS ACTUALLY DISCRIMINATE.** `(e9)`, `(e10)`, `(e11)` and
+`(e12)` **pass against the frozen driver too** — the frozen gate returns `rc=7` on all four, but
+for the **wrong reason**: it dies on the top-level gates miss (break 5) before it ever reaches the
+branch each leg is aiming at. **A control that passes for the wrong reason is not a control.** So
+each was strengthened to assert **the refusal's own stated reason**, not merely its code: `(e9b)`
+and `(e10b)` require the refusal to name the registered locations it searched, and `(e11b)`
+requires it to name the offending label it actually found (`row='S'` in the `PATCHED` directory).
+Those three assertions are what fail in state 2b; the bare `rc=7` legs do not, and this amendment
+says so rather than counting them as evidence they are not.
+
+**THE MANDATORY SWAP LEG, DRIVEN, BOTH DIRECTIONS:**
+
+| leg | fixture | expected | measured |
+|---|---|---|---|
+| `(e11)` | the **SHIPPED** row's **real** `E` artefact placed in **`E-P`** | REFUSE `rc=7` | **`rc=7`**, *"holds an artefact labelled `row='S'`"* |
+| `(e12)` | the **PATCHED** row's **real** `E` artefact placed in **`E-S`** | REFUSE `rc=7` | **`rc=7`** |
+
+**THE REAL ARTEFACT THROUGH THE REPAIRED GATE**, the driver's own 59-line block **extracted
+verbatim** by the suite's own mechanism and never re-implemented:
+
+```
+G-SO1B gates read at grade.gates (20 gate(s))
+SO1C_G_SO1B_PASS grade=SO1bR_grade_20260831T160245Z.json gates_at=grade.gates
+  rows=PATCHED,SHIPPED gopt=PASS/PASS gcl=PASS/PASS channels=2
+  item_verdict_deliberately_not_read=yes
+rc=0
+```
+
+### R8.6 THE ROOT CAUSE — WHY 51 GREEN LEGS SAW NEITHER BREAK, AND WHAT THE NEW FIXTURES CATCH
+
+`R7`'s suite is genuinely good in its design: leg `(h0)` asserts the harness **EXTRACTS** the
+`G-SO1B` block from the frozen driver rather than running a copy, which is right. **AND IT IS
+STRUCTURALLY BLIND HERE, BECAUSE ITS FIXTURES ARE HAND-BUILT FROM THE CONSUMER'S EXPECTATIONS.**
+`mkgrade` writes `{"gates": {...}}` at the **top level** and labels its `E` artefacts
+`'PATCHED'`/`'SHIPPED'` — **exactly the shape the gate reads**. So the suite proves that the gate
+reads the shape the fixture writes, and that the fixture writes the shape the gate reads.
+
+**THAT IS A TAUTOLOGY ON SCHEMA, AND NO NUMBER OF LEGS ESCAPES IT. A self-test whose fixtures are
+authored from the consumer's expectations CANNOT DETECT A PRODUCER-SIDE SCHEMA CHANGE.**
+
+**THE REPAIR: THE POSITIVE PATH IS ANCHORED IN A REAL PRODUCER ARTEFACT.** The new fixture is
+**COPIED out of the producer's own run root** — the real `SO1bR_grade_20260831T160245Z.json` and
+the real `O-P`/`O-S`/`E-P`/`E-S` artefacts — and is **never authored in the test**. The producer's
+path is **read from the frozen driver's own `SO1B_BASE`**, so the fixture follows the item's
+registered dependency rather than a path typed into a test. **THE SYNTHETIC NEGATIVES ARE KEPT AND
+NONE IS WEAKENED**: they drive refusal branches a passing real artefact can never reach. What is
+new is that **the PASS is now paid for by a real producer's bytes.**
+
+**WHAT THIS CATCHES THAT 51 LEGS DID NOT, STATED PLAINLY:** any change by `SO-1b`/`SO-1bR` to
+**where** it writes its gates, **what** it names its rows, **which** keys its `O` and `E`
+artefacts carry, or **what** its `ipopt.exit_line` says — the entire producer-side schema — now
+fails leg `(e8)` on the next run of the suite, instead of surfacing as a `BLOCKED` verdict at a
+supervisor's pre-compute gate. Legs `(e9)`/`(e10)` additionally hold the relocated read
+**fail-closed**, so the schema tolerance cannot silently widen into "find gates anywhere".
+
+**RECORDED AS A FINDING. IT SPAWNS NO RULE AND NO TOOL** — Sanaa's plumbing freeze
+(`etc/sessions/2026-08-31T1544Z_sanaa_plumbing_freeze.md`, read at source) forbids exactly that,
+and this instrument repair is done **once**, to the fail-closed + planted-control standard, after
+which the topic closes.
+
+**A leg NOT driven, named rather than counted:** legs `(e8)`–`(e13)` require the producer's run
+root to be on the box. If it is absent the suite prints `[NOT DRIVEN]` and **does not increment
+`N`** — following the suite's existing convention for the `G-ROOT.5` positive side. A leg that was
+not driven must never inflate a pass count.
+
+### R8.7 LEG `(a5c)` — RULING: KEEP, RE-SCOPE, DO NOT STRIKE
+
+`(a5c)` drives the driver's md5 pins so a stale pin cannot abort the chain `rc=4` before any
+container. **It is right in kind and its known positive is real.** It is **NOT struck**: a leg that
+catches the death mode on four pins is worth more than no leg. **Two defects, both DRIVEN rather
+than argued, and both re-driven here rather than taken on report:**
+
+**`SO1C-A5C-DEF-1` (SCOPE).** The driver carries **TWELVE** `MD5_*` pins; `R7`'s leg drove
+**FOUR**, under a printed label reading *"EVERY md5 PIN IN THE DRIVER EQUALS THE FILE IT PINS"* —
+**false of 4-of-12**. Two it missed, `MD5_DECOMP_SCOTCH` and `MD5_DECOMP_SIMPLE`, pin **in-repo**
+files this item stages and the driver asserts at `:266-268` with `exit 4`.
+
+**`SO1C-A5C-DEF-2` (FAIL-OPEN).** Rename a pin variable **and** delete its file and both reads are
+empty; `[ "" = "" ]` is **true** and the leg goes **GREEN**. **Absence of a signal read as absence
+of a problem.**
+
+**THE KNOWN POSITIVES, DRIVEN IN A SCRATCH COPY, WITH `R7`'s LEG RUN ALONGSIDE:**
+
+| mutation | `R8` `(a5c)` | `R7` `(a5c)` | restored |
+|---|---|---|---|
+| one byte appended to `so1c_decomposeParDict_simple` | **`[BAD]`** | **`[OK ]`** — blind | md5 back to `194c330803077f0ffa4341f468c09768` |
+| `MD5_XN` renamed **and** `so1c_xn.py` deleted | **`[BAD]`** | **`[OK ]`** — empty = empty | both files md5-identical |
+| one hex digit flipped in the `MD5_TUT_FFD` pin | `(a5d)` **`[BAD]`** | *(no such leg)* | driver md5 restored |
+| a **thirteenth** pin added and driven by nobody | `(a5e)` **`[BAD]`** | *(no such leg)* | driver md5 restored |
+
+Every restore was verified by md5 against the pre-mutation value **in the same invocation**, and
+the mutated tree was finally `diff -r`'d clean against the case directory.
+
+**THE REPAIRS.** `(a5c)` is **widened to all SIX in-repo pins** and **an empty read on either side
+now REFUSES**, naming which side was empty. **Its label is corrected to what it actually asserts.**
+**THE EXCLUSION IS STATED, NOT SILENT:** the six `MD5_TUT_*` pins name **out-of-tree** upstream
+tutorial inputs under the driver's own `TUT_SRC`, which this repository does not hold constant —
+and rather than excuse them, **new leg `(a5d)` drives all six**, because the driver asserts them at
+`:197-199` with `exit 4` and a moved checkout is the same death mode as a stale in-repo pin. **New
+leg `(a5e)` asserts the COVERAGE ITSELF**: that the driver carries 12 pins and that `(a5c)` + `(a5d)`
+drove 12 of them. It goes red the moment a thirteenth pin is added without being driven, so
+`SO1C-A5C-DEF-1` cannot recur silently. **`(a5d)` and `(a5e)` read their file lists and their
+`TUT_SRC` FROM THE FROZEN DRIVER**, never from paths re-typed into the test.
+
+### R8.8 EVERY PIN RE-DRIVEN AFTER THE EDITS, AND THE md5s THAT MOVED
+
+**Changing `so1c_chain_driver.sh` does not stale a pin — and that was CHECKED, not assumed.** The
+driver is **not self-pinned**, and no executable file pins the driver or the suite: a search for
+the driver's md5 returned **1** file (this document, a documentary table) and **0** `.sh`/`.py`
+files — **a zero from a reader shown able to see a non-zero** (rule 3).
+
+**ALL TWELVE PINS RE-DRIVEN AFTER THE `R8` EDITS: 12 of 12 CURRENT ON DISK**, control-checked with
+a deliberately wrong pin to prove the reader discriminates. **No pin will abort the chain**, which
+is the `W3` death mode this item lost a launch to on 08-28.
+
+| instrument | md5 at `R7` | md5 at `R8` | why it moved |
+|---|---|---|---|
+| `so1c_chain_driver.sh` | `3870a8d4c58861fce5a7e9437f89474a` | **`1e73e66e9a7db205bc75e6e6b0695f57`** | breaks 5 + 6 |
+| `so1c_groot5_selftest.sh` | `ca79882b8933a8502da96063ad2119da` | **`9af9fa67e072e77733f8c27d73dadae2`** | real-producer fixtures; `(a5c)` re-scope; `(a5d)`, `(a5e)` |
+| `so1c_grade.py` | `367f9fc25b3b34535cb2cddfafdc06b1` | **unchanged** | **the grading path fixed at the pre-registration commit — NOT TOUCHED** |
+| `so1c_run_arm.sh` | `12dd18eced7b67f04348cd29363d31e1` | **unchanged** | the launcher is not implicated in either break |
+
+### R8.9 WHAT THIS AMENDMENT DOES NOT DO
+
+It does **not** move a gate, threshold, band, cap, label, cost or prediction. It does **not** touch
+`so1c_grade.py` or `so1c_run_arm.sh`. It does **not** edit `R6`'s or `R7`'s text, or any line above
+§R8.0. It **removes no leg and weakens no leg** — every one of `R7`'s 51 legs still runs and still
+asserts what it asserted. It **repairs no other item's copy of this defect**: `SO-1a`'s and
+`SO-1b`'s own suites carry the same consumer-authored-fixture shape, and that is a **finding for
+the supervisor**, not a change this lane may make in another item's frozen instruments. It
+**spawns no procedural rule and no general-purpose tool**, per the plumbing freeze. It **files,
+sends, uploads, registers, posts and comments nothing** (rule 7; SUBMISSIONS PARKED). It does
+**not** enqueue `SO-1c` on its own authority — the queue entry is filed separately, against the
+supervisor's `SUPERVISION_CHARTER.md` §3 check 4 discharged on the sha.

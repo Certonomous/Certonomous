@@ -65,14 +65,76 @@ legc "(a5b) AMENDMENT R7: SO-1bR's run root -- the root this item now READS -- i
 # (a5c) AMENDMENT R7.  NOTHING DROVE THE DRIVER'S OWN md5 PINS.  Adding SO-1bR to
 # FORBIDDEN_ROOTS changed so1c_run_arm.sh and stale-ed MD5_LAUNCHER; the suite stayed
 # GREEN and the chain would have aborted rc=4 before any container -- the W3 death mode.
-PINFAIL=0
-for pv in MD5_LAUNCHER:so1c_run_arm.sh MD5_GRADER:so1c_grade.py MD5_XN:so1c_xn.py MD5_RUNSCRIPT:so1c_runScript.py; do
+#
+# RE-SCOPED AND FAIL-CLOSED BY AMENDMENT R8, 2026-08-31.  RULING: KEEP, RE-SCOPE,
+# DO NOT STRIKE -- the leg is right in kind and its known positive is real (a
+# one-byte mutation of so1c_run_arm.sh drove it [BAD] naming pinned-vs-actual).
+# TWO DEFECTS, BOTH MEASURED BEFORE BEING REPAIRED:
+#   SO1C-A5C-DEF-1 (SCOPE).  The driver carries TWELVE MD5_* pins and R7's leg
+#     drove FOUR, under a printed label reading "EVERY md5 PIN IN THE DRIVER" --
+#     false of 4-of-12.  Two it missed, MD5_DECOMP_SCOTCH and MD5_DECOMP_SIMPLE,
+#     pin IN-REPO files this item stages and the driver asserts at :266-268 with
+#     exit 4; a one-byte edit to so1c_decomposeParDict_simple left this leg GREEN
+#     while the chain would abort exit 4 before any container -- the exact death
+#     mode the leg exists to prevent, alive on a different pin.  R8 widens (a5c)
+#     to ALL SIX IN-REPO pins and drives the other six in (a5d).
+#   SO1C-A5C-DEF-2 (FAIL-OPEN).  Rename the pin variable AND delete its file and
+#     both reads are empty; [ "" = "" ] is TRUE and the leg went GREEN.  ABSENCE
+#     OF A SIGNAL READ AS ABSENCE OF A PROBLEM.  An empty read now REFUSES.
+# THE LABEL BELOW SAYS WHAT THE LEG ACTUALLY ASSERTS.  THE EXCLUSION IS STATED,
+# NOT SILENT: the six MD5_TUT_* pins name OUT-OF-TREE upstream tutorial inputs
+# under the driver's own TUT_SRC, which this repository does not hold constant --
+# they are driven by (a5d) as a leg of their own, so no pin is left unexamined,
+# and (a5e) asserts the two legs between them cover every pin the driver carries.
+PINFAIL=0; PINSEEN=0
+for pv in MD5_LAUNCHER:so1c_run_arm.sh MD5_GRADER:so1c_grade.py MD5_XN:so1c_xn.py \
+          MD5_RUNSCRIPT:so1c_runScript.py \
+          MD5_DECOMP_SCOTCH:so1c_decomposeParDict_scotch \
+          MD5_DECOMP_SIMPLE:so1c_decomposeParDict_simple; do
   v=${pv%%:*}; f=${pv##*:}
   p=$(grep -oP "(?<=^$v=)[0-9a-f]{32}" "$HERE/so1c_chain_driver.sh")
-  a=$(md5sum "$HERE/$f" | cut -d" " -f1)
+  a=$(md5sum "$HERE/$f" 2>/dev/null | cut -d" " -f1)
+  if [ -z "$p" ]; then echo "    PIN UNREADABLE $v: the driver carries no 32-hex pin under that name (renamed or deleted variable) -- an EMPTY read is a REFUSAL, not a match"; PINFAIL=1; continue; fi
+  if [ -z "$a" ]; then echo "    FILE UNREADABLE $f: no md5 (file absent or unreadable) -- an EMPTY read is a REFUSAL, not a match"; PINFAIL=1; continue; fi
+  PINSEEN=$((PINSEEN+1))
   [ "$p" = "$a" ] || { echo "    PIN MISMATCH $v pinned=$p actual=$a ($f)"; PINFAIL=1; }
 done
-legc "(a5c) EVERY md5 PIN IN THE DRIVER EQUALS THE FILE IT PINS -- a stale pin aborts the chain rc=4 before any container" $PINFAIL
+[ "$PINSEEN" = "6" ] || { echo "    PIN COUNT $PINSEEN in-repo pins compared, expected 6"; PINFAIL=1; }
+legc "(a5c) ALL SIX IN-REPO md5 PINS IN THE DRIVER EQUAL THE FILES THEY PIN ($PINSEEN compared), and an EMPTY read on either side REFUSES -- a stale pin aborts the chain rc=4 before any container.  The six MD5_TUT_* pins name OUT-OF-TREE tutorial inputs and are driven by (a5d); the exclusion is STATED, not silent" $PINFAIL
+
+# (a5d) AMENDMENT R8.  The other six pins, driven rather than excused.  These pin
+# the upstream tutorial INPUT bytes under the driver's own TUT_SRC; the driver
+# asserts them at :197-199 with exit 4 before it stages anything, so a checkout
+# that moved under this item kills the chain exactly as a stale in-repo pin does.
+# The path is READ FROM THE FROZEN DRIVER, never re-typed here.
+TUT_SRC=$(grep -oP '(?<=^TUT_SRC=)\S+' "$HERE/so1c_chain_driver.sh")
+TUTFAIL=0; TUTSEEN=0
+if [ -z "$TUT_SRC" ]; then
+  echo "    TUT_SRC UNREADABLE: no TUT_SRC assignment in the driver"; TUTFAIL=1
+else
+  for pv in MD5_TUT_RUNSCRIPT:runScript.py MD5_TUT_GEN:genAirFoilMesh.py MD5_TUT_PREPROC:preProcessing.sh \
+            MD5_TUT_PS:profiles/NACA0012PS.profile MD5_TUT_SS:profiles/NACA0012SS.profile \
+            MD5_TUT_FFD:FFD/wingFFD.xyz; do
+    v=${pv%%:*}; f=${pv##*:}
+    p=$(grep -oP "(?<=^$v=)[0-9a-f]{32}" "$HERE/so1c_chain_driver.sh")
+    a=$(md5sum "$TUT_SRC/$f" 2>/dev/null | cut -d" " -f1)
+    if [ -z "$p" ]; then echo "    PIN UNREADABLE $v: no 32-hex pin under that name -- an EMPTY read is a REFUSAL"; TUTFAIL=1; continue; fi
+    if [ -z "$a" ]; then echo "    FILE UNREADABLE $TUT_SRC/$f: no md5 -- an EMPTY read is a REFUSAL"; TUTFAIL=1; continue; fi
+    TUTSEEN=$((TUTSEEN+1))
+    [ "$p" = "$a" ] || { echo "    PIN MISMATCH $v pinned=$p actual=$a ($TUT_SRC/$f)"; TUTFAIL=1; }
+  done
+  [ "$TUTSEEN" = "6" ] || { echo "    PIN COUNT $TUTSEEN out-of-tree pins compared, expected 6"; TUTFAIL=1; }
+fi
+legc "(a5d) ALL SIX OUT-OF-TREE MD5_TUT_* PINS EQUAL THE TUTORIAL INPUTS THEY PIN under $TUT_SRC ($TUTSEEN compared), empty reads REFUSING -- the driver asserts these at :197-199 with exit 4, so a moved checkout is the same death mode as a stale in-repo pin" $TUTFAIL
+
+# (a5e) AMENDMENT R8.  THE COVERAGE ASSERTION ITSELF, so SO1C-A5C-DEF-1 cannot
+# recur silently: R7's leg drove 4 of 12 under a label claiming every pin, and
+# nothing in the suite could notice.  A pin nobody drives is the W3 death mode
+# waiting on a different variable name.  This leg goes RED the moment a
+# thirteenth pin is added without being driven.
+PINS_IN_DRIVER=$(grep -cE '^MD5_[A-Z_0-9]+=[0-9a-f]{32}' "$HERE/so1c_chain_driver.sh")
+[ "$PINS_IN_DRIVER" = "12" ] && [ "$((PINSEEN+TUTSEEN))" = "12" ]
+legc "(a5e) THE PIN LIST IS COMPLETE: the driver carries $PINS_IN_DRIVER MD5_* pins and (a5c)+(a5d) drove $((PINSEEN+TUTSEEN)) of them -- R7's (a5c) drove 4 of 12 under a label that claimed all of them, and no leg could see the gap" $?
 
 mkdir -p "$TMP/root3" && chmod 777 "$TMP/root3"
 echo "ITEM=SO1b" > "$TMP/root3/ledger.txt"
@@ -184,8 +246,8 @@ PY
 export SO1B="$TMP/so1b"
 # The G-SO1B block is exercised through the driver's OWN python, extracted verbatim
 # from the frozen file -- never a re-implementation of it.
-gso1b() { # gso1b -> rc
-  python3 - "$SO1B/SO1bR_grade_x.json" "$SO1B" <<'PY' >"$TMP/e.out" 2>&1
+gso1b_at() { # gso1b_at <grade_path> <so1b_base> -> rc
+  python3 - "$1" "$2" <<'PY' >"$TMP/e.out" 2>&1
 import json, os, sys, re
 drv = os.environ["DRIVER"]
 src = open(drv).read()
@@ -195,6 +257,10 @@ sys.argv = ["x", sys.argv[1], sys.argv[2]]
 exec(compile(body, "G-SO1B", "exec"), g)
 PY
   echo $?
+}
+gso1b() { # gso1b -> rc.  The synthetic fixture, unchanged; now the one-argument
+          # case of gso1b_at so the extraction exists in exactly ONE place.
+  gso1b_at "$SO1B/SO1bR_grade_x.json" "$SO1B"
 }
 export DRIVER
 mkgrade PASS PASS PASS PASS
@@ -216,6 +282,101 @@ if grep -n -- "G5E" "$DRIVER" | grep -qv ':[[:space:]]*#'; then
   echo "  [BAD] (e7) an EXECUTABLE line of the driver reads SO-1b's G5E FD gate"; FAIL=$((FAIL+1))
 else
   echo "  [OK ] (e7) NO executable line of the driver reads SO-1b's G5E FD gate -- this item buys its own FD table at np=4, and DAFOAM_CHARTER.md section 5 forbids carrying an FD reference across np"
+fi
+
+# =========================================================================
+# AMENDMENT R8, 2026-08-31 -- THE POSITIVE PATH IS ANCHORED IN A REAL PRODUCER
+# ARTEFACT, BECAUSE 51 GREEN LEGS SAW NEITHER BREAK 5 NOR BREAK 6.
+#
+# WHY THIS BLOCK EXISTS, STATED PLAINLY.  Every G-SO1B fixture above is HAND-BUILT
+# by `mkgrade` FROM THE CONSUMER'S EXPECTATIONS: it writes {"gates": {...}} at the
+# TOP LEVEL and labels its E artefacts 'PATCHED'/'SHIPPED' -- which is exactly the
+# shape the gate reads.  So the suite proved that the gate reads the shape the
+# fixture writes, and the fixture writes the shape the gate reads.  THAT IS A
+# TAUTOLOGY ON SCHEMA, AND NO NUMBER OF LEGS ESCAPES IT.  A self-test whose
+# fixtures are authored from the consumer's expectations CANNOT DETECT A
+# PRODUCER-SIDE SCHEMA CHANGE.  SO-1b -> SO-1bR wrapped the grade dict under
+# `grade` and labelled the E artefacts 'P'/'S'; the suite stayed 51/0 across both
+# changes, and the defect was found only by a supervisor driving the real file by
+# hand at the pre-compute gate.
+#
+# THE REPAIR: the fixtures below are COPIED OUT OF THE PRODUCER'S OWN RUN ROOT and
+# are never authored here.  The producer's path is READ FROM THE FROZEN DRIVER, so
+# the fixture follows the driver's registered dependency rather than a path typed
+# into a test.  THE SYNTHETIC NEGATIVES ABOVE ARE KEPT AND NONE IS WEAKENED: they
+# drive refusal branches that a real artefact, which passes, can never reach.
+# WHAT IS NEW IS THAT THE **PASS** IS NOW PAID FOR BY A REAL PRODUCER'S BYTES.
+# =========================================================================
+SO1B_REAL=$(grep -oP '(?<=^SO1B_BASE=)\S+' "$DRIVER")
+REALG=$(ls -1 "$SO1B_REAL"/SO1bR_grade_*.json 2>/dev/null | head -1)
+realfix() { # realfix <destdir> -- COPY the producer's artefacts; author nothing
+  rm -rf "$1" || return 4
+  mkdir -p "$1/O-P" "$1/O-S" "$1/E-P" "$1/E-S" || return 4
+  cp -a "$REALG" "$1/" || return 4
+  for d in O-P O-S; do cp -a "$SO1B_REAL/$d/so1b_O.json" "$1/$d/so1b_O.json" || return 4; done
+  for d in E-P E-S; do cp -a "$SO1B_REAL/$d/so1b_E.json" "$1/$d/so1b_E.json" || return 4; done
+  return 0
+}
+if [ -n "$SO1B_REAL" ] && [ -n "$REALG" ] && [ -f "$SO1B_REAL/E-P/so1b_E.json" ] && [ -f "$SO1B_REAL/O-P/so1b_O.json" ]; then
+  RF="$TMP/so1b_real"; realfix "$RF"; RG="$RF/$(basename "$REALG")"
+
+  leg "(e8) THE REAL PRODUCER ARTEFACT -- COPIED FROM $SO1B_REAL, NEVER AUTHORED HERE -- through the driver's OWN extracted gate -> PROCEED rc=0.  THIS IS THE LEG R7 DID NOT HAVE: against the frozen driver it refuses rc=7 twice over, first on the top-level gates read (break 5) and then on the row label (break 6)" 0 "$(gso1b_at "$RG" "$RF")"
+  grep -q "gates_at=grade.gates" "$TMP/e.out"
+  legc "(e8b) ... and the gate RECORDS WHICH REGISTERED LOCATION it read the gates from (gates_at=grade.gates).  A relocation that is not recorded is indistinguishable from a search, and the difference is the whole check" $?
+
+  # (e9) FAIL-CLOSED.  R8 RELOCATED THE READ; IT DID NOT MAKE IT OPTIONAL.
+  python3 - "$RG" "$RF/nogates.json" <<'PY'
+import json, sys
+g = json.load(open(sys.argv[1]))
+g.pop("gates", None)
+(g.get("grade") or {}).pop("gates", None)
+json.dump(g, open(sys.argv[2], "w"))
+PY
+  leg "(e9) FAIL-CLOSED, DRIVEN ON THE REAL ARTEFACT: the gates mapping DELETED at BOTH registered locations -> REFUSED rc=7.  A relocated read that stopped refusing on genuine absence would have turned a red gate green by removing the gate" 7 "$(gso1b_at "$RF/nogates.json" "$RF")"
+  grep -q "NO gates mapping at either REGISTERED location" "$TMP/e.out"
+  legc "(e9b) ... AND IT REFUSED FOR ITS OWN REASON.  The rc alone does not discriminate: the FROZEN driver also returns 7 here, on the top-level miss that IS break 5.  A control that passes for the wrong reason is not a control, so the refusal's stated reason is asserted, not just its code" $?
+
+  # (e10) THE LOCATIONS ARE NAMED, NOT HUNTED FOR.
+  python3 - "$RG" "$RF/wrongloc.json" <<'PY'
+import json, sys
+g = json.load(open(sys.argv[1]))
+gt = (g.get("grade") or {}).pop("gates")
+g.pop("gates", None)
+g["results"] = {"gates": gt}
+json.dump(g, open(sys.argv[2], "w"))
+PY
+  leg "(e10) THE TWO LOCATIONS ARE REGISTERED, NOT SEARCHED FOR: the SAME gates mapping, every verdict intact, moved to an UNREGISTERED location (results.gates) -> REFUSED rc=7.  A read that hunts until it finds something always finds something, and would have 'repaired' break 5 by deleting the check" 7 "$(gso1b_at "$RF/wrongloc.json" "$RF")"
+  grep -q "NO gates mapping at either REGISTERED location" "$TMP/e.out"
+  legc "(e10b) ... AND IT REFUSED FOR ITS OWN REASON: the refusal names the registered locations it looked in and did not find them, rather than falling through to the old top-level miss" $?
+
+  # (e11) THE SWAP.  R8's REGISTERED ACCEPTANCE CONDITION.
+  cp -a "$RF/E-S/so1b_E.json" "$RF/E-P/so1b_E.json"
+  leg "(e11) THE SWAPPED ARTEFACT, AND THE ACCEPTANCE CONDITION OF AMENDMENT R8: the SHIPPED row's REAL E artefact placed in E-P -> STILL REFUSED rc=7.  The row-label assertion exists to catch an artefact sitting in the WRONG DIRECTORY, and R8's mapping keeps it doing that because the two rows' registered label sets are DISJOINT" 7 "$(gso1b_at "$RG" "$RF")"
+  grep -q "labelled row='S'" "$TMP/e.out"
+  legc "(e11b) ... and the refusal NAMES THE OFFENDING LABEL IT ACTUALLY FOUND (row='S' sitting in the PATCHED directory) -- a refusal that does not say what it saw is not a finding" $?
+  realfix "$RF"
+
+  # (e12) AND THE SWAP IN THE OTHER DIRECTION.
+  cp -a "$RF/E-P/so1b_E.json" "$RF/E-S/so1b_E.json"
+  leg "(e12) ... and the SWAP IN THE OTHER DIRECTION: the PATCHED row's REAL E artefact placed in E-S -> STILL REFUSED rc=7.  Both directions are driven because a mapping that is disjoint in one direction only is not disjoint" 7 "$(gso1b_at "$RG" "$RF")"
+  realfix "$RF"
+
+  # (e13) THE MAPPING IS EXPLICIT, NOT DERIVED FROM THE FIRST LETTER.
+  N=$((N+1))
+  if grep -q 'ROW_LABELS = {"PATCHED": ("PATCHED", "P"), "SHIPPED": ("SHIPPED", "S")}' "$DRIVER" \
+     && ! grep -n 'row\[0\]' "$DRIVER" | grep -qv ':[[:space:]]*#'; then
+    echo "  [OK ] (e13) THE ROW-LABEL MAPPING IS WRITTEN OUT IN FULL and NO executable line derives it as row[0].  row[0] agrees with the producer only by the coincidence that PATCHED and SHIPPED share first letters with P and S; a check that is true by coincidence has stopped being a check, and it would silently accept a row named 'PORPOISE' in the PATCHED directory"
+  else
+    echo "  [BAD] (e13) the row-label mapping is not the registered explicit form, or an executable line derives it as row[0]"; FAIL=$((FAIL+1))
+  fi
+else
+  cat <<'NOREAL'
+  [NOT DRIVEN] (e8-e13) THE REAL-PRODUCER FIXTURE LEGS.  SO-1b's run root, or its
+      grade / O / E artefacts, are not on this box, so the producer-anchored
+      positive path cannot be driven.  NOT COUNTED AS PASSING -- N is not
+      incremented.  The synthetic legs (e1-e7) above still ran, and they are
+      exactly the legs that were 51/0 while breaks 5 and 6 were live.
+NOREAL
 fi
 
 # ------------------------------------------- AMENDMENT R6: THE TWO SELECTION SITES
