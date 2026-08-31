@@ -1,0 +1,1497 @@
+{
+ "root": "/home/ubuntu/closure-data/multimodel_sweep",
+ "roots": {
+  "kOmega/AR_14_Ret_180": {
+   "dirs": [
+    "0",
+    "0.orig",
+    "constant",
+    "dynamicCode",
+    "system"
+   ],
+   "files": {
+    "0.orig/U": {
+     "bytes": 1104,
+     "mtime": 1787852555,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0.orig/k": {
+     "bytes": 1084,
+     "mtime": 1787852555,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0.orig/nut": {
+     "bytes": 1058,
+     "mtime": 1787852555,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0.orig/omega": {
+     "bytes": 1100,
+     "mtime": 1787852555,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0.orig/p": {
+     "bytes": 1013,
+     "mtime": 1787852555,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "0/U": {
+     "bytes": 1104,
+     "mtime": 1788133429,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0/k": {
+     "bytes": 1084,
+     "mtime": 1788133427,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0/nut": {
+     "bytes": 1058,
+     "mtime": 1788133427,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0/omega": {
+     "bytes": 1100,
+     "mtime": 1788133427,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0/p": {
+     "bytes": 1013,
+     "mtime": 1788133427,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "STATUS": {
+     "bytes": 400,
+     "mtime": 1788136492,
+     "sha256": "64f4caf3e829ed5301c208648aadec63af901799b6d4d61f53e7b49e76af397d"
+    },
+    "STATUS.M1_kOmega__AR_14_Ret_180": {
+     "bytes": 95,
+     "mtime": 1788136492,
+     "sha256": "2ca9a692e7bc629295f17529dc4fd2bc0d6a04ede69d893731341e2b2ccec973"
+    },
+    "caseDef": {
+     "bytes": 244,
+     "mtime": 1787852555,
+     "sha256": "ba23a5e83539700bd47f51f4bd72e4ff558a58a9d5ff30a02ed44f9cd0f69dce"
+    },
+    "constant/polyMesh/boundary": {
+     "bytes": 1898,
+     "mtime": 1785048069,
+     "sha256": "a067417d1a699d9f9770945f37f50f03ce6160b704a7faa205a6bbc5e3926246"
+    },
+    "constant/polyMesh/cellZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "6b08c8ecffa2f1711bcb0c3d1d0ac9f120ee194988850fcd3fb49d8b52a988c1"
+    },
+    "constant/polyMesh/faceZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "40fe516682e07bd98d09b85011cd5150d70608f95a0d78df890eed2c7d36b26f"
+    },
+    "constant/polyMesh/faces": {
+     "bytes": 3370113,
+     "mtime": 1785048069,
+     "sha256": "72d11bc942128ad2776f1622b3fa61a8a1f1ffefa02f1eceee52baf3b39f63b8"
+    },
+    "constant/polyMesh/neighbour": {
+     "bytes": 356451,
+     "mtime": 1785048069,
+     "sha256": "be05c707fe057640800cfa5b062dce9e367adbf049d9c889dd24df3f08e951bd"
+    },
+    "constant/polyMesh/owner": {
+     "bytes": 723964,
+     "mtime": 1785048069,
+     "sha256": "2c9c8c0a76d2cd9a70e198fe81e6fbebe1d529c91b9efbfa97d7ad3ae715f5e5"
+    },
+    "constant/polyMesh/pointZones": {
+     "bytes": 709,
+     "mtime": 1785048069,
+     "sha256": "01aed944aeba08c4c14cd0a05a9ba212bed5574f185a0bdbf5d56e5c3371276f"
+    },
+    "constant/polyMesh/points": {
+     "bytes": 2314648,
+     "mtime": 1785048069,
+     "sha256": "8a239c43f36ad51ebafa515bc7b53b21bb7997ef3bea35bd47f506bdf13baea4"
+    },
+    "constant/transportProperties": {
+     "bytes": 792,
+     "mtime": 1787852555,
+     "sha256": "39a7a82a74c54df0eedd154171ba9765091e9d683ee6d317280b997a3c2879c5"
+    },
+    "constant/turbulenceProperties": {
+     "bytes": 811,
+     "mtime": 1787852555,
+     "sha256": "6e94a55a7f5f5c03c02803940d50e9acd2f0ec1f83ae47b5bb48b30ed1740bf4"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/SHA1Digest": {
+     "bytes": 42,
+     "mtime": 1788133429,
+     "sha256": "5d726298ed4cc0c8eb2c369101db8690623c1cf25ea5222a3ac7bb498867b6b7"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/files": {
+     "bytes": 192,
+     "mtime": 1788133429,
+     "sha256": "78d16546e315f2fceb2e1b932e703f7100ddcded39d25c5e1190a73b20390f37"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/linux64GccDPInt32Opt/codeStreamTemplate.C.dep": {
+     "bytes": 15771,
+     "mtime": 1788133429,
+     "sha256": "5547707bff42e9ec5cf45e5e1eaf5318003e8ba802cfed368d93e80008d9c881"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/linux64GccDPInt32Opt/codeStreamTemplate.o": {
+     "bytes": 474680,
+     "mtime": 1788133430,
+     "sha256": "0b11d307df803c748629c1bf14555733a574f2f2cf545c6424f629974e2338fa"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/linux64GccDPInt32Opt/options": {
+     "bytes": 356,
+     "mtime": 1788133429,
+     "sha256": "78978aa507ed52f76deac2e0517ac00eda285fddc6e8a0c2e86c7691211e08a9"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/linux64GccDPInt32Opt/sourceFiles": {
+     "bytes": 45,
+     "mtime": 1788133429,
+     "sha256": "23363ae503635fe33a74a11b743c28f8de371790bffc8c31010ce6ffe59a3e36"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/linux64GccDPInt32Opt/variables": {
+     "bytes": 99,
+     "mtime": 1788133429,
+     "sha256": "3ac5ee58023d0da1af28ff6c734926937f258ef7b95eaa2b59eb6ab738945a7c"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/Make/options": {
+     "bytes": 119,
+     "mtime": 1788133429,
+     "sha256": "35b615d345b7ba7d405e8c1b054c4db8ed19d48e3ae953a3c57c73cc86ad65bd"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1788133429,
+     "sha256": "36973d3ea6bc7980ccb11ed298064048d99affe220220484a57db6ec99c4a6d0"
+    },
+    "dynamicCode/_0e02adce01fccac078a359e6f07384004ada7d58/lnInclude/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1788133429,
+     "sha256": "36973d3ea6bc7980ccb11ed298064048d99affe220220484a57db6ec99c4a6d0"
+    },
+    "dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0e02adce01fccac078a359e6f07384004ada7d58.so": {
+     "bytes": 317840,
+     "mtime": 1788133431,
+     "sha256": "f7bce3be9d4d3f2130ed57cd3c9f2e650156739ed81adc4d8d8b982234fdacae"
+    },
+    "fieldDef": {
+     "bytes": 134,
+     "mtime": 1787852555,
+     "sha256": "796600b2dc51f825be647e39af7f083e6daf5bc034eb57c293551036092eec55"
+    },
+    "launcher.queue.out": {
+     "bytes": 151,
+     "mtime": 1788136492,
+     "sha256": "86ebd6dd317fe3f4c9109efa55df0dc64ace5c139ef008cbda7e63e120e229a1"
+    },
+    "log.checkMesh": {
+     "bytes": 4237,
+     "mtime": 1788133428,
+     "sha256": "cac5aa383ed9b52456a0cc19afcb53e7e13aa17250aada3eeaf5eee4361f1bc6"
+    },
+    "log.run": {
+     "bytes": 20292406,
+     "mtime": 1788136492,
+     "sha256": "72303233bc39a84c33e1ab03784c74ae7aeb15cc7d9df263c9b1f26a62ec3e43"
+    },
+    "system/controlDict": {
+     "bytes": 1098,
+     "mtime": 1787852555,
+     "sha256": "ebd4496bab3a979984c6f614641a554886c77bc0330d95448e6e60188858994e"
+    },
+    "system/convergenceProbes": {
+     "bytes": 816,
+     "mtime": 1787852555,
+     "sha256": "851eec1e27b97d2e28eb3056fbc6a4e86b8063546d5346eb4fba25bc7d633d46"
+    },
+    "system/decomposeParDict": {
+     "bytes": 747,
+     "mtime": 1787852555,
+     "sha256": "56e60da57a9a08bc74f3ab8ee3726c4207af9a80ae022edca6f916b19d4114ff"
+    },
+    "system/faceValues": {
+     "bytes": 1288,
+     "mtime": 1787852555,
+     "sha256": "b427e11d0cf26644dbabece27350ccaa876542623707f856454f270672ed3095"
+    },
+    "system/fvOptions": {
+     "bytes": 1093,
+     "mtime": 1787852555,
+     "sha256": "3c60002f3fb71ef5e8188c0d986ab505dde9d53ef44d71f4d1734e64d04a72cb"
+    },
+    "system/fvSchemes": {
+     "bytes": 1735,
+     "mtime": 1787852555,
+     "sha256": "a82aabc3df41fbf4e3330820b1d8f2263ad671fb417760ebe76b174460272e6d"
+    },
+    "system/fvSolution": {
+     "bytes": 1419,
+     "mtime": 1787852555,
+     "sha256": "b02e8cc8ed1cadcd490dedccda68d83805d08bc39b3a28bfde3a4dd0468dd8a3"
+    },
+    "system/residuals": {
+     "bytes": 896,
+     "mtime": 1787852555,
+     "sha256": "17b3af22b6f57ced2b13c09512f5e751918d1c4bc8128f6eb0247b480b3766db"
+    },
+    "system/singleGraphDiag": {
+     "bytes": 1107,
+     "mtime": 1787852555,
+     "sha256": "83af1d582708ba1582bb986693aa7821391c4fd9ed57a17fd0944dfd8e56cddd"
+    },
+    "system/wallValues": {
+     "bytes": 1044,
+     "mtime": 1787852555,
+     "sha256": "9523d55dfeb57069050d2eb4b88d36f776b274ae748995a9718eb2753eac7f34"
+    }
+   },
+   "n_files": 48
+  },
+  "kOmega/AR_1_Ret_180": {
+   "dirs": [
+    "0",
+    "0.orig",
+    "constant",
+    "dynamicCode",
+    "system"
+   ],
+   "files": {
+    "0.orig/U": {
+     "bytes": 1104,
+     "mtime": 1787852555,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0.orig/k": {
+     "bytes": 1084,
+     "mtime": 1787852555,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0.orig/nut": {
+     "bytes": 1058,
+     "mtime": 1787852555,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0.orig/omega": {
+     "bytes": 1100,
+     "mtime": 1787852555,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0.orig/p": {
+     "bytes": 1013,
+     "mtime": 1787852555,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "0/U": {
+     "bytes": 1104,
+     "mtime": 1787882160,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0/k": {
+     "bytes": 1084,
+     "mtime": 1787882159,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0/nut": {
+     "bytes": 1058,
+     "mtime": 1787882159,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0/omega": {
+     "bytes": 1100,
+     "mtime": 1787882159,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0/p": {
+     "bytes": 1013,
+     "mtime": 1787882159,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "STATUS": {
+     "bytes": 395,
+     "mtime": 1787882373,
+     "sha256": "acbfcc1896dce20cfde97e3cb860db06d30faa59bf7b26517a971f7a7670d62d"
+    },
+    "STATUS.M1_kOmega__AR_1_Ret_180": {
+     "bytes": 95,
+     "mtime": 1787882373,
+     "sha256": "efd2a8213c569fe0a6e0e6d40e045599e7b2c99ba4e4f37f02892d39d8239300"
+    },
+    "caseDef": {
+     "bytes": 244,
+     "mtime": 1787852555,
+     "sha256": "ebd1e58baea3cd29f2649dc3be68d68731ce43601e6cea7f15f5f454337ce3e4"
+    },
+    "constant/polyMesh/boundary": {
+     "bytes": 1884,
+     "mtime": 1785048069,
+     "sha256": "482d9510abee12e9695c2330ea894fd2ea9f2c9d2b7176052323dc5d2981df0a"
+    },
+    "constant/polyMesh/cellZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "6b08c8ecffa2f1711bcb0c3d1d0ac9f120ee194988850fcd3fb49d8b52a988c1"
+    },
+    "constant/polyMesh/faceZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "40fe516682e07bd98d09b85011cd5150d70608f95a0d78df890eed2c7d36b26f"
+    },
+    "constant/polyMesh/faces": {
+     "bytes": 197963,
+     "mtime": 1785048069,
+     "sha256": "28b237d37c091f5b023bd473d61391d148c6734ea45a4fea29a5fbbfe81a9473"
+    },
+    "constant/polyMesh/neighbour": {
+     "bytes": 20321,
+     "mtime": 1785048069,
+     "sha256": "53257a7af604db4ff76b815d796cfa80ac3efb9a79cee30b815286399fdb2a90"
+    },
+    "constant/polyMesh/owner": {
+     "bytes": 40867,
+     "mtime": 1785048069,
+     "sha256": "124cbf7227176163e6a7c78420823309c9d932d5ee574be16e767d5f3c61bdd0"
+    },
+    "constant/polyMesh/pointZones": {
+     "bytes": 709,
+     "mtime": 1785048069,
+     "sha256": "01aed944aeba08c4c14cd0a05a9ba212bed5574f185a0bdbf5d56e5c3371276f"
+    },
+    "constant/polyMesh/points": {
+     "bytes": 170439,
+     "mtime": 1785048069,
+     "sha256": "e4561ccfb765119023c0be425537a2ab814401a0fd0c9112f176eb72ba2c6354"
+    },
+    "constant/transportProperties": {
+     "bytes": 792,
+     "mtime": 1787852555,
+     "sha256": "39a7a82a74c54df0eedd154171ba9765091e9d683ee6d317280b997a3c2879c5"
+    },
+    "constant/turbulenceProperties": {
+     "bytes": 811,
+     "mtime": 1787852555,
+     "sha256": "6e94a55a7f5f5c03c02803940d50e9acd2f0ec1f83ae47b5bb48b30ed1740bf4"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/SHA1Digest": {
+     "bytes": 42,
+     "mtime": 1787882160,
+     "sha256": "1fc83d6828bd61904b0a8872d43dd8d204ba3f0dfc42a897eb730bcb80e56548"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/files": {
+     "bytes": 192,
+     "mtime": 1787882160,
+     "sha256": "da0d97bd5d383ba4674e27fe179211f2a67c14490ea3e818b94b9a0f966bb43e"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/codeStreamTemplate.C.dep": {
+     "bytes": 15771,
+     "mtime": 1787882160,
+     "sha256": "5547707bff42e9ec5cf45e5e1eaf5318003e8ba802cfed368d93e80008d9c881"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/codeStreamTemplate.o": {
+     "bytes": 474680,
+     "mtime": 1787882162,
+     "sha256": "c5e2e5c24745a88e15d8c6e28ed50909a814fee15eab66a75885f3c0b6d2994b"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/options": {
+     "bytes": 356,
+     "mtime": 1787882160,
+     "sha256": "78978aa507ed52f76deac2e0517ac00eda285fddc6e8a0c2e86c7691211e08a9"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/sourceFiles": {
+     "bytes": 45,
+     "mtime": 1787882160,
+     "sha256": "23363ae503635fe33a74a11b743c28f8de371790bffc8c31010ce6ffe59a3e36"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/variables": {
+     "bytes": 99,
+     "mtime": 1787882160,
+     "sha256": "65b5ac4c2a9744e637456bb6a658deed8a137b9bec1fd86d7d581982975a7270"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/options": {
+     "bytes": 119,
+     "mtime": 1787882160,
+     "sha256": "ae0b9f7bb9eda10c1439efae2d005fe6d5eec5a11e13d1c2a804dd6f8a2dd28a"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1787882160,
+     "sha256": "8ece33cf002ae1b69f0486e790194d8fe9bdc79e3ac72b968746889fbb87020d"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/lnInclude/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1787882160,
+     "sha256": "8ece33cf002ae1b69f0486e790194d8fe9bdc79e3ac72b968746889fbb87020d"
+    },
+    "dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_809f2569d4e803be6b8719b7556614be079850b9.so": {
+     "bytes": 317840,
+     "mtime": 1787882162,
+     "sha256": "9e8f060d126d420c6df87d1816a5b69c3266c3eeb409aa5dd4cf65375ad2e663"
+    },
+    "fieldDef": {
+     "bytes": 134,
+     "mtime": 1787852555,
+     "sha256": "796600b2dc51f825be647e39af7f083e6daf5bc034eb57c293551036092eec55"
+    },
+    "launcher.queue.out": {
+     "bytes": 149,
+     "mtime": 1787882373,
+     "sha256": "3fb8594b647a6e8506b8f9e9b13f6e59660ada4de328daf94507b2cd16fcda07"
+    },
+    "log.checkMesh": {
+     "bytes": 4228,
+     "mtime": 1787882159,
+     "sha256": "214f313c5b59e3379964e76278d6fababa36e96131490c7dcdbc6ab1bf17a1d9"
+    },
+    "log.run": {
+     "bytes": 21331754,
+     "mtime": 1787882373,
+     "sha256": "cc276afc85e24e12af76b336e7c70dbab54f82e74787f038faae3d8d70932a11"
+    },
+    "system/controlDict": {
+     "bytes": 1098,
+     "mtime": 1787852555,
+     "sha256": "ebd4496bab3a979984c6f614641a554886c77bc0330d95448e6e60188858994e"
+    },
+    "system/convergenceProbes": {
+     "bytes": 816,
+     "mtime": 1787852555,
+     "sha256": "851eec1e27b97d2e28eb3056fbc6a4e86b8063546d5346eb4fba25bc7d633d46"
+    },
+    "system/decomposeParDict": {
+     "bytes": 747,
+     "mtime": 1787852555,
+     "sha256": "56e60da57a9a08bc74f3ab8ee3726c4207af9a80ae022edca6f916b19d4114ff"
+    },
+    "system/faceValues": {
+     "bytes": 1288,
+     "mtime": 1787852555,
+     "sha256": "b427e11d0cf26644dbabece27350ccaa876542623707f856454f270672ed3095"
+    },
+    "system/fvOptions": {
+     "bytes": 1093,
+     "mtime": 1787852555,
+     "sha256": "3c60002f3fb71ef5e8188c0d986ab505dde9d53ef44d71f4d1734e64d04a72cb"
+    },
+    "system/fvSchemes": {
+     "bytes": 1735,
+     "mtime": 1787852555,
+     "sha256": "a82aabc3df41fbf4e3330820b1d8f2263ad671fb417760ebe76b174460272e6d"
+    },
+    "system/fvSolution": {
+     "bytes": 1419,
+     "mtime": 1787852555,
+     "sha256": "b02e8cc8ed1cadcd490dedccda68d83805d08bc39b3a28bfde3a4dd0468dd8a3"
+    },
+    "system/residuals": {
+     "bytes": 896,
+     "mtime": 1787852555,
+     "sha256": "17b3af22b6f57ced2b13c09512f5e751918d1c4bc8128f6eb0247b480b3766db"
+    },
+    "system/singleGraphDiag": {
+     "bytes": 1107,
+     "mtime": 1787852555,
+     "sha256": "83af1d582708ba1582bb986693aa7821391c4fd9ed57a17fd0944dfd8e56cddd"
+    },
+    "system/wallValues": {
+     "bytes": 1044,
+     "mtime": 1787852555,
+     "sha256": "9523d55dfeb57069050d2eb4b88d36f776b274ae748995a9718eb2753eac7f34"
+    }
+   },
+   "n_files": 48
+  },
+  "kOmega/AR_7_Ret_180": {
+   "dirs": [
+    "0",
+    "0.orig",
+    "constant",
+    "dynamicCode",
+    "system"
+   ],
+   "files": {
+    "0.orig/U": {
+     "bytes": 1104,
+     "mtime": 1787852555,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0.orig/k": {
+     "bytes": 1084,
+     "mtime": 1787852555,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0.orig/nut": {
+     "bytes": 1058,
+     "mtime": 1787852555,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0.orig/omega": {
+     "bytes": 1100,
+     "mtime": 1787852555,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0.orig/p": {
+     "bytes": 1013,
+     "mtime": 1787852555,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "0/U": {
+     "bytes": 1104,
+     "mtime": 1788133754,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0/k": {
+     "bytes": 1084,
+     "mtime": 1788133752,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0/nut": {
+     "bytes": 1058,
+     "mtime": 1788133752,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0/omega": {
+     "bytes": 1100,
+     "mtime": 1788133752,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0/p": {
+     "bytes": 1013,
+     "mtime": 1788133752,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "STATUS": {
+     "bytes": 399,
+     "mtime": 1788135243,
+     "sha256": "c3dc5efe613a8b12699bed18177392d4ab2ce4bef7f54323ac8e18f227a614dc"
+    },
+    "STATUS.M1_kOmega__AR_7_Ret_180": {
+     "bytes": 95,
+     "mtime": 1788135243,
+     "sha256": "47f57a8c8a3d88abae14ffec58d5b6ea21f0c3e993c1cfc91f2ad89923cee93a"
+    },
+    "caseDef": {
+     "bytes": 244,
+     "mtime": 1787852555,
+     "sha256": "39743fdd05ceb7f58356a33e0eee98daf416b7a66a93294dfa53377d51df66ff"
+    },
+    "constant/polyMesh/boundary": {
+     "bytes": 1894,
+     "mtime": 1785048069,
+     "sha256": "c3eba5f48dae3ecbc551d82be199d4abbe70aba6e6523fbd01d932bf5b215fad"
+    },
+    "constant/polyMesh/cellZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "6b08c8ecffa2f1711bcb0c3d1d0ac9f120ee194988850fcd3fb49d8b52a988c1"
+    },
+    "constant/polyMesh/faceZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "40fe516682e07bd98d09b85011cd5150d70608f95a0d78df890eed2c7d36b26f"
+    },
+    "constant/polyMesh/faces": {
+     "bytes": 1594268,
+     "mtime": 1785048069,
+     "sha256": "222faef7cdc9790ef1379da8a9b49dfc3cbb887391f5eec45c74a87f918e4725"
+    },
+    "constant/polyMesh/neighbour": {
+     "bytes": 162266,
+     "mtime": 1785048069,
+     "sha256": "32773358efba3a26629cc8ecfa9caa766f6d5ba06132a1a393b3b5273b846023"
+    },
+    "constant/polyMesh/owner": {
+     "bytes": 329330,
+     "mtime": 1785048069,
+     "sha256": "b1de0d29f46713fd9b482d68f0bab8cd2e7c8f9dd28a3391c557fa5503ec9bae"
+    },
+    "constant/polyMesh/pointZones": {
+     "bytes": 709,
+     "mtime": 1785048069,
+     "sha256": "01aed944aeba08c4c14cd0a05a9ba212bed5574f185a0bdbf5d56e5c3371276f"
+    },
+    "constant/polyMesh/points": {
+     "bytes": 1150360,
+     "mtime": 1785048069,
+     "sha256": "e20d310dc824850112451f71ec307127884b241be38d64b08a210f3d1f8eb59c"
+    },
+    "constant/transportProperties": {
+     "bytes": 792,
+     "mtime": 1787852555,
+     "sha256": "39a7a82a74c54df0eedd154171ba9765091e9d683ee6d317280b997a3c2879c5"
+    },
+    "constant/turbulenceProperties": {
+     "bytes": 811,
+     "mtime": 1787852555,
+     "sha256": "6e94a55a7f5f5c03c02803940d50e9acd2f0ec1f83ae47b5bb48b30ed1740bf4"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/SHA1Digest": {
+     "bytes": 42,
+     "mtime": 1788133754,
+     "sha256": "380fa314b0943bb2a41939d5e0bff82c0e24fc7dc6a277fb52319e4fe3bf3d3f"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/files": {
+     "bytes": 192,
+     "mtime": 1788133754,
+     "sha256": "add5d75eb030cf02c40fa8ed10b1022e3da566424895667ff8b3857d23fc751c"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/linux64GccDPInt32Opt/codeStreamTemplate.C.dep": {
+     "bytes": 15771,
+     "mtime": 1788133754,
+     "sha256": "5547707bff42e9ec5cf45e5e1eaf5318003e8ba802cfed368d93e80008d9c881"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/linux64GccDPInt32Opt/codeStreamTemplate.o": {
+     "bytes": 474680,
+     "mtime": 1788133755,
+     "sha256": "5d537705d3d30ade3a01f210b348264da6b82a83026a5440b990d33ea09f9e55"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/linux64GccDPInt32Opt/options": {
+     "bytes": 356,
+     "mtime": 1788133754,
+     "sha256": "78978aa507ed52f76deac2e0517ac00eda285fddc6e8a0c2e86c7691211e08a9"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/linux64GccDPInt32Opt/sourceFiles": {
+     "bytes": 45,
+     "mtime": 1788133754,
+     "sha256": "23363ae503635fe33a74a11b743c28f8de371790bffc8c31010ce6ffe59a3e36"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/linux64GccDPInt32Opt/variables": {
+     "bytes": 99,
+     "mtime": 1788133754,
+     "sha256": "5a55158d5e42266fb92e54f8fc3ed058604289ab73bb1d14982d283bb75f391d"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/Make/options": {
+     "bytes": 119,
+     "mtime": 1788133754,
+     "sha256": "df8d33c923368830de927c90a6b297950e77a03ef59287f06453d8dbb002fe60"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1788133754,
+     "sha256": "ffe4007caa107471f6e726d9fbd35dc7cfbc54b1f3206954747a2086e072c72c"
+    },
+    "dynamicCode/_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188/lnInclude/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1788133754,
+     "sha256": "ffe4007caa107471f6e726d9fbd35dc7cfbc54b1f3206954747a2086e072c72c"
+    },
+    "dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_43087bdc49a28d0aa8dd44fc55b7ae96fb49d188.so": {
+     "bytes": 317840,
+     "mtime": 1788133755,
+     "sha256": "0c1030a05666c734f58b4cd0d17e738153a442cb0e1ebd23fc607422af0f4ca1"
+    },
+    "fieldDef": {
+     "bytes": 134,
+     "mtime": 1787852555,
+     "sha256": "796600b2dc51f825be647e39af7f083e6daf5bc034eb57c293551036092eec55"
+    },
+    "launcher.queue.out": {
+     "bytes": 150,
+     "mtime": 1788135243,
+     "sha256": "91e8fe2718f4ce267e4f136434c3a1924be6afd261610a49c1c6418dbc373410"
+    },
+    "log.checkMesh": {
+     "bytes": 4235,
+     "mtime": 1788133753,
+     "sha256": "9b9662461a81dc98c64ef9f9218be2e7f7eb8ad12ccff729d5d5fa0f8d602b49"
+    },
+    "log.run": {
+     "bytes": 23524217,
+     "mtime": 1788135243,
+     "sha256": "fd29aceb6f04def6bdba935e1c792dd8faeba68029bd1e7168e4d7e7045e7306"
+    },
+    "system/controlDict": {
+     "bytes": 1098,
+     "mtime": 1787852555,
+     "sha256": "ebd4496bab3a979984c6f614641a554886c77bc0330d95448e6e60188858994e"
+    },
+    "system/convergenceProbes": {
+     "bytes": 816,
+     "mtime": 1787852555,
+     "sha256": "851eec1e27b97d2e28eb3056fbc6a4e86b8063546d5346eb4fba25bc7d633d46"
+    },
+    "system/decomposeParDict": {
+     "bytes": 747,
+     "mtime": 1787852555,
+     "sha256": "56e60da57a9a08bc74f3ab8ee3726c4207af9a80ae022edca6f916b19d4114ff"
+    },
+    "system/faceValues": {
+     "bytes": 1288,
+     "mtime": 1787852555,
+     "sha256": "b427e11d0cf26644dbabece27350ccaa876542623707f856454f270672ed3095"
+    },
+    "system/fvOptions": {
+     "bytes": 1093,
+     "mtime": 1787852555,
+     "sha256": "3c60002f3fb71ef5e8188c0d986ab505dde9d53ef44d71f4d1734e64d04a72cb"
+    },
+    "system/fvSchemes": {
+     "bytes": 1735,
+     "mtime": 1787852555,
+     "sha256": "a82aabc3df41fbf4e3330820b1d8f2263ad671fb417760ebe76b174460272e6d"
+    },
+    "system/fvSolution": {
+     "bytes": 1419,
+     "mtime": 1787852555,
+     "sha256": "b02e8cc8ed1cadcd490dedccda68d83805d08bc39b3a28bfde3a4dd0468dd8a3"
+    },
+    "system/residuals": {
+     "bytes": 896,
+     "mtime": 1787852555,
+     "sha256": "17b3af22b6f57ced2b13c09512f5e751918d1c4bc8128f6eb0247b480b3766db"
+    },
+    "system/singleGraphDiag": {
+     "bytes": 1107,
+     "mtime": 1787852555,
+     "sha256": "83af1d582708ba1582bb986693aa7821391c4fd9ed57a17fd0944dfd8e56cddd"
+    },
+    "system/wallValues": {
+     "bytes": 1044,
+     "mtime": 1787852555,
+     "sha256": "9523d55dfeb57069050d2eb4b88d36f776b274ae748995a9718eb2753eac7f34"
+    }
+   },
+   "n_files": 48
+  },
+  "kOmega/PH_Breuer": {
+   "dirs": [
+    "0",
+    "0.orig",
+    "constant",
+    "system"
+   ],
+   "files": {
+    "0.orig/U": {
+     "bytes": 1628,
+     "mtime": 1787852555,
+     "sha256": "13a97ccc2053ce76da3af8a101f61a4159a86ed3e9ec7a338dc5cf437d733e24"
+    },
+    "0.orig/k": {
+     "bytes": 1641,
+     "mtime": 1787852555,
+     "sha256": "e68776b0fc986a91a6153493e967712794242582850115508b3520769456bf72"
+    },
+    "0.orig/nut": {
+     "bytes": 1649,
+     "mtime": 1787852555,
+     "sha256": "9b1b7f897a273d2fac1f059162f9d3dc5d85644eec59d530806e46ae9857ca9e"
+    },
+    "0.orig/omega": {
+     "bytes": 1781,
+     "mtime": 1787852555,
+     "sha256": "83c2a6e6f7e6cd8ddfbfbfd58a4e52a2d9fd9a294ab0ffa9983e165cd472073c"
+    },
+    "0.orig/p": {
+     "bytes": 1541,
+     "mtime": 1787852555,
+     "sha256": "85885b9d5ab57886f6c6d13817be8ec7cb8e76008f3004af5ce1be6d40ed21e4"
+    },
+    "0/U": {
+     "bytes": 1628,
+     "mtime": 1788134209,
+     "sha256": "13a97ccc2053ce76da3af8a101f61a4159a86ed3e9ec7a338dc5cf437d733e24"
+    },
+    "0/k": {
+     "bytes": 1641,
+     "mtime": 1788134208,
+     "sha256": "e68776b0fc986a91a6153493e967712794242582850115508b3520769456bf72"
+    },
+    "0/nut": {
+     "bytes": 1649,
+     "mtime": 1788134208,
+     "sha256": "9b1b7f897a273d2fac1f059162f9d3dc5d85644eec59d530806e46ae9857ca9e"
+    },
+    "0/omega": {
+     "bytes": 1781,
+     "mtime": 1788134208,
+     "sha256": "83c2a6e6f7e6cd8ddfbfbfd58a4e52a2d9fd9a294ab0ffa9983e165cd472073c"
+    },
+    "0/p": {
+     "bytes": 1541,
+     "mtime": 1788134208,
+     "sha256": "85885b9d5ab57886f6c6d13817be8ec7cb8e76008f3004af5ce1be6d40ed21e4"
+    },
+    "STATUS": {
+     "bytes": 396,
+     "mtime": 1788135711,
+     "sha256": "89b8c8deec5708e82afe7240c554ed8803a88c21127191ebfb6b6ef73619822a"
+    },
+    "STATUS.M1_kOmega__PH_Breuer": {
+     "bytes": 95,
+     "mtime": 1788135711,
+     "sha256": "c95246cb1fb2288c271a1d7e694c7c870d23bbdcb2e8d32c74b260ba7a8811b6"
+    },
+    "constant/polyMesh/boundary": {
+     "bytes": 2779,
+     "mtime": 1785048069,
+     "sha256": "762a0d7573bfa3d59d063fc863bac799045090f1b88d198abaeaee0f5ef33ca9"
+    },
+    "constant/polyMesh/cellZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "6b08c8ecffa2f1711bcb0c3d1d0ac9f120ee194988850fcd3fb49d8b52a988c1"
+    },
+    "constant/polyMesh/faceZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "40fe516682e07bd98d09b85011cd5150d70608f95a0d78df890eed2c7d36b26f"
+    },
+    "constant/polyMesh/faces": {
+     "bytes": 1605341,
+     "mtime": 1785048069,
+     "sha256": "05f8f07e48b19f66187143046d12719109cad9aba16be5f1b09640293f805810"
+    },
+    "constant/polyMesh/neighbour": {
+     "bytes": 164721,
+     "mtime": 1785048069,
+     "sha256": "cd4ba794201a006db5193757beb4eaa7ff52b93bd4ca6673ce33c908850223f6"
+    },
+    "constant/polyMesh/owner": {
+     "bytes": 331807,
+     "mtime": 1785048069,
+     "sha256": "079d62c33e23dd7ce0f30f97b10b03fb2126c7ba1ab06c391c62a03f3332226e"
+    },
+    "constant/polyMesh/pointZones": {
+     "bytes": 709,
+     "mtime": 1785048069,
+     "sha256": "01aed944aeba08c4c14cd0a05a9ba212bed5574f185a0bdbf5d56e5c3371276f"
+    },
+    "constant/polyMesh/points": {
+     "bytes": 1092331,
+     "mtime": 1785048069,
+     "sha256": "cd8d0adeaa075d8829f84c3bd308ee9f63b612e7a9bef60b657a82c5a957b4c1"
+    },
+    "constant/polyMesh/sets/wallFaceSet": {
+     "bytes": 1555,
+     "mtime": 1785048069,
+     "sha256": "b0a8f2274462fd249628eb87a4ec1884e71ea4a7165258a05b9aba180978a2e1"
+    },
+    "constant/polyMesh/sets/wallFaces": {
+     "bytes": 1553,
+     "mtime": 1785048069,
+     "sha256": "30e9f8e83fc0ba0d860f3a71f428060918d804b619b8539c9085f9fcd9dc89b7"
+    },
+    "constant/transportProperties": {
+     "bytes": 1067,
+     "mtime": 1787852555,
+     "sha256": "579f636b7ea9bb48c7eda8b6de26e6c646a3d3487665a78e8d70a87036101d70"
+    },
+    "constant/turbulenceProperties": {
+     "bytes": 1015,
+     "mtime": 1787852555,
+     "sha256": "a2cfa31e9360377e5ee3945279bff2c208afb30cc7671fc3da8e0b54d6cba8d0"
+    },
+    "fieldDef": {
+     "bytes": 146,
+     "mtime": 1787852555,
+     "sha256": "9554b9e2504ed44770a78fc8c1003b734ee795f95d4123dcaecf255ff91b5276"
+    },
+    "launcher.queue.out": {
+     "bytes": 147,
+     "mtime": 1788135711,
+     "sha256": "67e778ed422b175a277cf3a158eaf598562359b213a598dda46eabde7415f824"
+    },
+    "log.checkMesh": {
+     "bytes": 4937,
+     "mtime": 1788134208,
+     "sha256": "be9623c008fb8215113418e05f97b66e4a0e566b192b9c6d15798067f489e4a6"
+    },
+    "log.run": {
+     "bytes": 13432331,
+     "mtime": 1788135711,
+     "sha256": "0d9b7fcb74aef47d1a2c2e96a45188fc07763561cbb36d1c9c55b5d9985f80bb"
+    },
+    "system/bottomValues": {
+     "bytes": 1073,
+     "mtime": 1787852555,
+     "sha256": "a2847b40c592079bf72077e1a6c8d555e11cbe4e3d0660a4e4606d9ef812d04a"
+    },
+    "system/controlDict": {
+     "bytes": 1290,
+     "mtime": 1787852555,
+     "sha256": "90f034ac5121c00cb339656faf79d29c65894d5eafe0668abd920a26af674923"
+    },
+    "system/convergenceProbes": {
+     "bytes": 1108,
+     "mtime": 1787852555,
+     "sha256": "65620e1f960fd81d21fdd517cfd48def4b471747bf07699ef706ee9cc3083cfb"
+    },
+    "system/decomposeParDict": {
+     "bytes": 747,
+     "mtime": 1787852555,
+     "sha256": "b03dd89999bfd6ed8e6a532e6258a1bb6aa6b5ce4d4aea8d3d9973794bb3fa91"
+    },
+    "system/fvOptions": {
+     "bytes": 1034,
+     "mtime": 1787852555,
+     "sha256": "0acc5c86ebef57b27da4fd286bdc9a508d4c831303171647b15b9aa5dd308291"
+    },
+    "system/fvSchemes": {
+     "bytes": 2335,
+     "mtime": 1787852555,
+     "sha256": "f5e1daa4611347597a7907966cee00f315a606a49596388c98d36db85b71a279"
+    },
+    "system/fvSolution": {
+     "bytes": 2186,
+     "mtime": 1787852555,
+     "sha256": "71b3592119410412e4be1a100806902411b844886c6ab0cee84fc477f1382c2c"
+    },
+    "system/residuals": {
+     "bytes": 896,
+     "mtime": 1787852555,
+     "sha256": "17b3af22b6f57ced2b13c09512f5e751918d1c4bc8128f6eb0247b480b3766db"
+    },
+    "system/singleGraph_x0": {
+     "bytes": 1123,
+     "mtime": 1787852555,
+     "sha256": "25a85d050a3434dbd4ef64513c6e628c1f49252015035118cc5c024c70cd8a95"
+    },
+    "system/singleGraph_x1": {
+     "bytes": 1119,
+     "mtime": 1787852555,
+     "sha256": "4314d60b0379a26bc25a0dce0369514ed9272b784daf6ad2118abb7ffe070dac"
+    },
+    "system/singleGraph_x2": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "f0e3c39b6a883278c0520228c8b6f3ae2ff08046d3bb5742050f47f7a6ac69e7"
+    },
+    "system/singleGraph_x3": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "01fe1470e0331ea418666805b86896e914a6413cd39056bc051d39ee38df11ee"
+    },
+    "system/singleGraph_x4": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "944178972660a23aa4a284a299aeeaac77abaf5aff22b6bbc1150e5390957600"
+    },
+    "system/singleGraph_x5": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "ec9be08a3836cf16a467b0ccd66bb57a5c632db9ce2d2f94d612a57e9863a539"
+    },
+    "system/singleGraph_x6": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "dc8e02ee92b05c59e005c548e1d233dc61698573c32417c5777e00b8ac88d4dd"
+    },
+    "system/singleGraph_x7": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "0e1523683640f360ef1dba5396d4e44a809ed2302307d0314d94530f685e4966"
+    },
+    "system/singleGraph_x8": {
+     "bytes": 1119,
+     "mtime": 1787852555,
+     "sha256": "a928d8ec1ead4a3f05d2cbb31572cf9c04433f1a1e91f081c3290cb0e77c9798"
+    },
+    "system/topoSetDict": {
+     "bytes": 1279,
+     "mtime": 1787852555,
+     "sha256": "e7b41034e44c10eca256b34d96b961b1f7c68918783b95b73adcfa566d68a3d0"
+    }
+   },
+   "n_files": 46
+  },
+  "kOmegaSST_null/AR_1_Ret_180": {
+   "dirs": [
+    "0",
+    "0.orig",
+    "constant",
+    "dynamicCode",
+    "system"
+   ],
+   "files": {
+    "0.orig/U": {
+     "bytes": 1104,
+     "mtime": 1787852555,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0.orig/k": {
+     "bytes": 1084,
+     "mtime": 1787852555,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0.orig/nut": {
+     "bytes": 1058,
+     "mtime": 1787852555,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0.orig/omega": {
+     "bytes": 1100,
+     "mtime": 1787852555,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0.orig/p": {
+     "bytes": 1013,
+     "mtime": 1787852555,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "0/U": {
+     "bytes": 1104,
+     "mtime": 1787874617,
+     "sha256": "8462a05fa8dce60093aa1a34251596667acdf50bcd2ef704277cd00b1414ec49"
+    },
+    "0/k": {
+     "bytes": 1084,
+     "mtime": 1787874616,
+     "sha256": "1e755bd0d840c3a5ede274b64054993ddbb0a7f9e9f31967c59e29ef6f91a131"
+    },
+    "0/nut": {
+     "bytes": 1058,
+     "mtime": 1787874616,
+     "sha256": "dcfa06be2390ad4f85da29040a6800a5960d6ce0a2a190b5a2fe766ac160c602"
+    },
+    "0/omega": {
+     "bytes": 1100,
+     "mtime": 1787874616,
+     "sha256": "a84d8a12c28b51e093e4f3ab0de814b15510f5d6c777be90e7048531798a0176"
+    },
+    "0/p": {
+     "bytes": 1013,
+     "mtime": 1787874616,
+     "sha256": "da1762534f4ab70f4c07d2bde4bffe55f37ad499798f9fd9bc888cfa15d59232"
+    },
+    "STATUS": {
+     "bytes": 403,
+     "mtime": 1787874830,
+     "sha256": "c74aa83a1fcc73a16184134e32e52674eaba3a34222c7f0facd9267ca43e2a68"
+    },
+    "STATUS.M1_kOmegaSST_null__AR_1_Ret_180": {
+     "bytes": 95,
+     "mtime": 1787874830,
+     "sha256": "dd2d3ea5f01864193aa429bb42ce6e651eee28b4a41741cbcf80ccbc724af3ba"
+    },
+    "caseDef": {
+     "bytes": 244,
+     "mtime": 1787852555,
+     "sha256": "ebd1e58baea3cd29f2649dc3be68d68731ce43601e6cea7f15f5f454337ce3e4"
+    },
+    "constant/polyMesh/boundary": {
+     "bytes": 1884,
+     "mtime": 1785048069,
+     "sha256": "482d9510abee12e9695c2330ea894fd2ea9f2c9d2b7176052323dc5d2981df0a"
+    },
+    "constant/polyMesh/cellZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "6b08c8ecffa2f1711bcb0c3d1d0ac9f120ee194988850fcd3fb49d8b52a988c1"
+    },
+    "constant/polyMesh/faceZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "40fe516682e07bd98d09b85011cd5150d70608f95a0d78df890eed2c7d36b26f"
+    },
+    "constant/polyMesh/faces": {
+     "bytes": 197963,
+     "mtime": 1785048069,
+     "sha256": "28b237d37c091f5b023bd473d61391d148c6734ea45a4fea29a5fbbfe81a9473"
+    },
+    "constant/polyMesh/neighbour": {
+     "bytes": 20321,
+     "mtime": 1785048069,
+     "sha256": "53257a7af604db4ff76b815d796cfa80ac3efb9a79cee30b815286399fdb2a90"
+    },
+    "constant/polyMesh/owner": {
+     "bytes": 40867,
+     "mtime": 1785048069,
+     "sha256": "124cbf7227176163e6a7c78420823309c9d932d5ee574be16e767d5f3c61bdd0"
+    },
+    "constant/polyMesh/pointZones": {
+     "bytes": 709,
+     "mtime": 1785048069,
+     "sha256": "01aed944aeba08c4c14cd0a05a9ba212bed5574f185a0bdbf5d56e5c3371276f"
+    },
+    "constant/polyMesh/points": {
+     "bytes": 170439,
+     "mtime": 1785048069,
+     "sha256": "e4561ccfb765119023c0be425537a2ab814401a0fd0c9112f176eb72ba2c6354"
+    },
+    "constant/transportProperties": {
+     "bytes": 792,
+     "mtime": 1787852555,
+     "sha256": "39a7a82a74c54df0eedd154171ba9765091e9d683ee6d317280b997a3c2879c5"
+    },
+    "constant/turbulenceProperties": {
+     "bytes": 814,
+     "mtime": 1787852555,
+     "sha256": "ddfbd17effc13a6e81ddc9da5471860bce32f597ca1eca3dafa291788e09f46c"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/SHA1Digest": {
+     "bytes": 42,
+     "mtime": 1787874617,
+     "sha256": "1fc83d6828bd61904b0a8872d43dd8d204ba3f0dfc42a897eb730bcb80e56548"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/files": {
+     "bytes": 192,
+     "mtime": 1787874617,
+     "sha256": "da0d97bd5d383ba4674e27fe179211f2a67c14490ea3e818b94b9a0f966bb43e"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/codeStreamTemplate.C.dep": {
+     "bytes": 15771,
+     "mtime": 1787874618,
+     "sha256": "5547707bff42e9ec5cf45e5e1eaf5318003e8ba802cfed368d93e80008d9c881"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/codeStreamTemplate.o": {
+     "bytes": 474696,
+     "mtime": 1787874620,
+     "sha256": "e64d31874c84ce11b7b5f466f2f0a5e743fcb06f882634ac725aae61268c8668"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/options": {
+     "bytes": 356,
+     "mtime": 1787874617,
+     "sha256": "78978aa507ed52f76deac2e0517ac00eda285fddc6e8a0c2e86c7691211e08a9"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/sourceFiles": {
+     "bytes": 45,
+     "mtime": 1787874618,
+     "sha256": "23363ae503635fe33a74a11b743c28f8de371790bffc8c31010ce6ffe59a3e36"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/linux64GccDPInt32Opt/variables": {
+     "bytes": 99,
+     "mtime": 1787874617,
+     "sha256": "65b5ac4c2a9744e637456bb6a658deed8a137b9bec1fd86d7d581982975a7270"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/Make/options": {
+     "bytes": 119,
+     "mtime": 1787874617,
+     "sha256": "ae0b9f7bb9eda10c1439efae2d005fe6d5eec5a11e13d1c2a804dd6f8a2dd28a"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1787874617,
+     "sha256": "8ece33cf002ae1b69f0486e790194d8fe9bdc79e3ac72b968746889fbb87020d"
+    },
+    "dynamicCode/_809f2569d4e803be6b8719b7556614be079850b9/lnInclude/codeStreamTemplate.C": {
+     "bytes": 2172,
+     "mtime": 1787874617,
+     "sha256": "8ece33cf002ae1b69f0486e790194d8fe9bdc79e3ac72b968746889fbb87020d"
+    },
+    "dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_809f2569d4e803be6b8719b7556614be079850b9.so": {
+     "bytes": 317848,
+     "mtime": 1787874620,
+     "sha256": "44b0a002664501b06f0a441e60bd7cef8520970deb89a17a8250bbefdfcabc0c"
+    },
+    "fieldDef": {
+     "bytes": 134,
+     "mtime": 1787852555,
+     "sha256": "796600b2dc51f825be647e39af7f083e6daf5bc034eb57c293551036092eec55"
+    },
+    "launcher.queue.out": {
+     "bytes": 157,
+     "mtime": 1787874830,
+     "sha256": "a0da011f6c2938ad6f82113bb2b7fa21f65854c4acaeb224f120a8697ae4ea84"
+    },
+    "log.checkMesh": {
+     "bytes": 4244,
+     "mtime": 1787874616,
+     "sha256": "0fcabfaeced0c41aada28ea61877d6b9743a47fe03aaace1d0e432ea92bd42c5"
+    },
+    "log.run": {
+     "bytes": 16992919,
+     "mtime": 1787874830,
+     "sha256": "1ea2d68a464e147b17fe7a04b5a090d63d826cca5ef02ac6d35a6774dac2e810"
+    },
+    "system/controlDict": {
+     "bytes": 1098,
+     "mtime": 1787852555,
+     "sha256": "ebd4496bab3a979984c6f614641a554886c77bc0330d95448e6e60188858994e"
+    },
+    "system/convergenceProbes": {
+     "bytes": 816,
+     "mtime": 1787852555,
+     "sha256": "851eec1e27b97d2e28eb3056fbc6a4e86b8063546d5346eb4fba25bc7d633d46"
+    },
+    "system/decomposeParDict": {
+     "bytes": 747,
+     "mtime": 1787852555,
+     "sha256": "56e60da57a9a08bc74f3ab8ee3726c4207af9a80ae022edca6f916b19d4114ff"
+    },
+    "system/faceValues": {
+     "bytes": 1288,
+     "mtime": 1787852555,
+     "sha256": "b427e11d0cf26644dbabece27350ccaa876542623707f856454f270672ed3095"
+    },
+    "system/fvOptions": {
+     "bytes": 1093,
+     "mtime": 1787852555,
+     "sha256": "3c60002f3fb71ef5e8188c0d986ab505dde9d53ef44d71f4d1734e64d04a72cb"
+    },
+    "system/fvSchemes": {
+     "bytes": 1735,
+     "mtime": 1787852555,
+     "sha256": "a82aabc3df41fbf4e3330820b1d8f2263ad671fb417760ebe76b174460272e6d"
+    },
+    "system/fvSolution": {
+     "bytes": 1419,
+     "mtime": 1787852555,
+     "sha256": "b02e8cc8ed1cadcd490dedccda68d83805d08bc39b3a28bfde3a4dd0468dd8a3"
+    },
+    "system/residuals": {
+     "bytes": 896,
+     "mtime": 1787852555,
+     "sha256": "17b3af22b6f57ced2b13c09512f5e751918d1c4bc8128f6eb0247b480b3766db"
+    },
+    "system/singleGraphDiag": {
+     "bytes": 1107,
+     "mtime": 1787852555,
+     "sha256": "83af1d582708ba1582bb986693aa7821391c4fd9ed57a17fd0944dfd8e56cddd"
+    },
+    "system/wallValues": {
+     "bytes": 1044,
+     "mtime": 1787852555,
+     "sha256": "9523d55dfeb57069050d2eb4b88d36f776b274ae748995a9718eb2753eac7f34"
+    }
+   },
+   "n_files": 48
+  },
+  "kOmegaSST_null/PH_Breuer": {
+   "dirs": [
+    "0",
+    "0.orig",
+    "constant",
+    "system"
+   ],
+   "files": {
+    "0.orig/U": {
+     "bytes": 1628,
+     "mtime": 1787852555,
+     "sha256": "13a97ccc2053ce76da3af8a101f61a4159a86ed3e9ec7a338dc5cf437d733e24"
+    },
+    "0.orig/k": {
+     "bytes": 1641,
+     "mtime": 1787852555,
+     "sha256": "e68776b0fc986a91a6153493e967712794242582850115508b3520769456bf72"
+    },
+    "0.orig/nut": {
+     "bytes": 1649,
+     "mtime": 1787852555,
+     "sha256": "9b1b7f897a273d2fac1f059162f9d3dc5d85644eec59d530806e46ae9857ca9e"
+    },
+    "0.orig/omega": {
+     "bytes": 1781,
+     "mtime": 1787852555,
+     "sha256": "83c2a6e6f7e6cd8ddfbfbfd58a4e52a2d9fd9a294ab0ffa9983e165cd472073c"
+    },
+    "0.orig/p": {
+     "bytes": 1541,
+     "mtime": 1787852555,
+     "sha256": "85885b9d5ab57886f6c6d13817be8ec7cb8e76008f3004af5ce1be6d40ed21e4"
+    },
+    "0/U": {
+     "bytes": 1628,
+     "mtime": 1788130892,
+     "sha256": "13a97ccc2053ce76da3af8a101f61a4159a86ed3e9ec7a338dc5cf437d733e24"
+    },
+    "0/k": {
+     "bytes": 1641,
+     "mtime": 1788130891,
+     "sha256": "e68776b0fc986a91a6153493e967712794242582850115508b3520769456bf72"
+    },
+    "0/nut": {
+     "bytes": 1649,
+     "mtime": 1788130891,
+     "sha256": "9b1b7f897a273d2fac1f059162f9d3dc5d85644eec59d530806e46ae9857ca9e"
+    },
+    "0/omega": {
+     "bytes": 1781,
+     "mtime": 1788130891,
+     "sha256": "83c2a6e6f7e6cd8ddfbfbfd58a4e52a2d9fd9a294ab0ffa9983e165cd472073c"
+    },
+    "0/p": {
+     "bytes": 1541,
+     "mtime": 1788130891,
+     "sha256": "85885b9d5ab57886f6c6d13817be8ec7cb8e76008f3004af5ce1be6d40ed21e4"
+    },
+    "STATUS": {
+     "bytes": 404,
+     "mtime": 1788132394,
+     "sha256": "fc07163138d274295051adccccd2f40773a635f595cfde5c6fa5e0c5f7864b68"
+    },
+    "STATUS.M1_kOmegaSST_null__PH_Breuer": {
+     "bytes": 95,
+     "mtime": 1788132394,
+     "sha256": "1cf594207e801be9d0347ae66297315cfa9ca7365e467a2fdc17d5699283a90b"
+    },
+    "constant/polyMesh/boundary": {
+     "bytes": 2779,
+     "mtime": 1785048069,
+     "sha256": "762a0d7573bfa3d59d063fc863bac799045090f1b88d198abaeaee0f5ef33ca9"
+    },
+    "constant/polyMesh/cellZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "6b08c8ecffa2f1711bcb0c3d1d0ac9f120ee194988850fcd3fb49d8b52a988c1"
+    },
+    "constant/polyMesh/faceZones": {
+     "bytes": 708,
+     "mtime": 1785048069,
+     "sha256": "40fe516682e07bd98d09b85011cd5150d70608f95a0d78df890eed2c7d36b26f"
+    },
+    "constant/polyMesh/faces": {
+     "bytes": 1605341,
+     "mtime": 1785048069,
+     "sha256": "05f8f07e48b19f66187143046d12719109cad9aba16be5f1b09640293f805810"
+    },
+    "constant/polyMesh/neighbour": {
+     "bytes": 164721,
+     "mtime": 1785048069,
+     "sha256": "cd4ba794201a006db5193757beb4eaa7ff52b93bd4ca6673ce33c908850223f6"
+    },
+    "constant/polyMesh/owner": {
+     "bytes": 331807,
+     "mtime": 1785048069,
+     "sha256": "079d62c33e23dd7ce0f30f97b10b03fb2126c7ba1ab06c391c62a03f3332226e"
+    },
+    "constant/polyMesh/pointZones": {
+     "bytes": 709,
+     "mtime": 1785048069,
+     "sha256": "01aed944aeba08c4c14cd0a05a9ba212bed5574f185a0bdbf5d56e5c3371276f"
+    },
+    "constant/polyMesh/points": {
+     "bytes": 1092331,
+     "mtime": 1785048069,
+     "sha256": "cd8d0adeaa075d8829f84c3bd308ee9f63b612e7a9bef60b657a82c5a957b4c1"
+    },
+    "constant/polyMesh/sets/wallFaceSet": {
+     "bytes": 1555,
+     "mtime": 1785048069,
+     "sha256": "b0a8f2274462fd249628eb87a4ec1884e71ea4a7165258a05b9aba180978a2e1"
+    },
+    "constant/polyMesh/sets/wallFaces": {
+     "bytes": 1553,
+     "mtime": 1785048069,
+     "sha256": "30e9f8e83fc0ba0d860f3a71f428060918d804b619b8539c9085f9fcd9dc89b7"
+    },
+    "constant/transportProperties": {
+     "bytes": 1067,
+     "mtime": 1787852555,
+     "sha256": "579f636b7ea9bb48c7eda8b6de26e6c646a3d3487665a78e8d70a87036101d70"
+    },
+    "constant/turbulenceProperties": {
+     "bytes": 1018,
+     "mtime": 1787852555,
+     "sha256": "72deb1ea1923feb0eaca3e739e77bdb4d231e9c8bc527b38c1099b73acd25c4d"
+    },
+    "fieldDef": {
+     "bytes": 146,
+     "mtime": 1787852555,
+     "sha256": "9554b9e2504ed44770a78fc8c1003b734ee795f95d4123dcaecf255ff91b5276"
+    },
+    "launcher.queue.out": {
+     "bytes": 155,
+     "mtime": 1788132394,
+     "sha256": "20befb9d9188f4c5a698a82b68fe7543b8cf2ddf91d789cdeff86ff552913649"
+    },
+    "log.checkMesh": {
+     "bytes": 4952,
+     "mtime": 1788130891,
+     "sha256": "c9fede619ab5b389ef0ef62c052d7ea5323ebf22f85b883523210f45f9f1b21a"
+    },
+    "log.run": {
+     "bytes": 13335647,
+     "mtime": 1788132394,
+     "sha256": "69ee76bb58c9d54463303e79570732fb514c8eadeb71fbdc04ee199104b7dde2"
+    },
+    "system/bottomValues": {
+     "bytes": 1073,
+     "mtime": 1787852555,
+     "sha256": "a2847b40c592079bf72077e1a6c8d555e11cbe4e3d0660a4e4606d9ef812d04a"
+    },
+    "system/controlDict": {
+     "bytes": 1290,
+     "mtime": 1787852555,
+     "sha256": "90f034ac5121c00cb339656faf79d29c65894d5eafe0668abd920a26af674923"
+    },
+    "system/convergenceProbes": {
+     "bytes": 1108,
+     "mtime": 1787852555,
+     "sha256": "65620e1f960fd81d21fdd517cfd48def4b471747bf07699ef706ee9cc3083cfb"
+    },
+    "system/decomposeParDict": {
+     "bytes": 747,
+     "mtime": 1787852555,
+     "sha256": "b03dd89999bfd6ed8e6a532e6258a1bb6aa6b5ce4d4aea8d3d9973794bb3fa91"
+    },
+    "system/fvOptions": {
+     "bytes": 1034,
+     "mtime": 1787852555,
+     "sha256": "0acc5c86ebef57b27da4fd286bdc9a508d4c831303171647b15b9aa5dd308291"
+    },
+    "system/fvSchemes": {
+     "bytes": 2335,
+     "mtime": 1787852555,
+     "sha256": "f5e1daa4611347597a7907966cee00f315a606a49596388c98d36db85b71a279"
+    },
+    "system/fvSolution": {
+     "bytes": 2186,
+     "mtime": 1787852555,
+     "sha256": "71b3592119410412e4be1a100806902411b844886c6ab0cee84fc477f1382c2c"
+    },
+    "system/residuals": {
+     "bytes": 896,
+     "mtime": 1787852555,
+     "sha256": "17b3af22b6f57ced2b13c09512f5e751918d1c4bc8128f6eb0247b480b3766db"
+    },
+    "system/singleGraph_x0": {
+     "bytes": 1123,
+     "mtime": 1787852555,
+     "sha256": "25a85d050a3434dbd4ef64513c6e628c1f49252015035118cc5c024c70cd8a95"
+    },
+    "system/singleGraph_x1": {
+     "bytes": 1119,
+     "mtime": 1787852555,
+     "sha256": "4314d60b0379a26bc25a0dce0369514ed9272b784daf6ad2118abb7ffe070dac"
+    },
+    "system/singleGraph_x2": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "f0e3c39b6a883278c0520228c8b6f3ae2ff08046d3bb5742050f47f7a6ac69e7"
+    },
+    "system/singleGraph_x3": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "01fe1470e0331ea418666805b86896e914a6413cd39056bc051d39ee38df11ee"
+    },
+    "system/singleGraph_x4": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "944178972660a23aa4a284a299aeeaac77abaf5aff22b6bbc1150e5390957600"
+    },
+    "system/singleGraph_x5": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "ec9be08a3836cf16a467b0ccd66bb57a5c632db9ce2d2f94d612a57e9863a539"
+    },
+    "system/singleGraph_x6": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "dc8e02ee92b05c59e005c548e1d233dc61698573c32417c5777e00b8ac88d4dd"
+    },
+    "system/singleGraph_x7": {
+     "bytes": 1115,
+     "mtime": 1787852555,
+     "sha256": "0e1523683640f360ef1dba5396d4e44a809ed2302307d0314d94530f685e4966"
+    },
+    "system/singleGraph_x8": {
+     "bytes": 1119,
+     "mtime": 1787852555,
+     "sha256": "a928d8ec1ead4a3f05d2cbb31572cf9c04433f1a1e91f081c3290cb0e77c9798"
+    },
+    "system/topoSetDict": {
+     "bytes": 1279,
+     "mtime": 1787852555,
+     "sha256": "e7b41034e44c10eca256b34d96b961b1f7c68918783b95b73adcfa566d68a3d0"
+    }
+   },
+   "n_files": 46
+  }
+ },
+ "taken_utc": "2026-08-31T15:07:05Z",
+ "what_this_is": "BYTE FINGERPRINT of the six M1 evidence roots, taken by the M1-C drafting lane BEFORE it wrote anything, so a later reader can PROVE the drafting did not touch them. Re-run this same walk and compare. Nothing here was modified, moved, deleted or re-run."
+}
