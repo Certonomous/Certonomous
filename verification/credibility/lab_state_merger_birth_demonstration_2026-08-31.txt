@@ -1,0 +1,120 @@
+BIRTH DEMONSTRATION -- scripts/merge_lab_state.py
+VERIFICATION_CHARTER §2j (the birth requirement), §2j.2 (the real code path),
+§2j.3 (the demonstration is an artefact, not a claim)
+CLAUDE.md standing rule 3 (planted-zero control)
+
+Instrument   : scripts/merge_lab_state.py  (+ scripts/lab_state_sources.py)
+What it does : regenerates docs/LAB_STATE.md from the seven per-team sources
+               under docs/lab_state/.
+Date         : 2026-08-31
+Repo HEAD at demonstration : c428cbed419a8e3f74adc74af5845c9d656ca8e1
+Driven by    : verification-team lab-lane, on verification-supervisor's brief
+Compute      : 0 core-minutes (no solver; pure file I/O)
+
+WHY THIS FILE EXISTS SEPARATELY FROM `--selftest`
+-------------------------------------------------
+`merge_lab_state.py --selftest` drives 30 cases, including both limbs of a
+planted control, on a scratch tree. EVERY BYTE IT READS WAS WRITTEN BY THE
+SELFTEST HARNESS. Per §2j.2 -- "ask who WROTE the bytes the control reads; if
+the answer is the control itself or the test harness rather than the real
+producer, the birth requirement is NOT met, however green the selftest" -- the
+selftest is therefore NOT the birth demonstration. It proves the merger's logic.
+This file is the birth demonstration: the sentinel is planted into the REAL
+source file, at its REAL path, by the SAME producer that writes it in
+production, and read by the REAL merger through its ordinary code path.
+
+WHO WROTE THE BYTES EACH LIMB READS
+-----------------------------------
+Reader under test : scripts/merge_lab_state.py, invoked exactly as the nightly
+                    wrapper invokes it (only --out redirected, so the live board
+                    was never written; the READ path -- the thing under test --
+                    is unmodified).
+Bytes read        : /home/ubuntu/Certonomous/docs/lab_state/verification.md
+Producer of those : the file-edit tool acting on that real path -- the same
+                    mechanism the verification-supervisor uses to update its own
+                    board section. Not the merger. Not the selftest harness.
+                    Not a fixture.
+
+HONEST LIMIT, stated because §2j.2 is about exactly this: docs/lab_state/ was
+created today by scripts/split_lab_state.py, so NO supervisor has yet written
+one of these files in the course of ordinary board work. The producer mechanism
+is production-identical; the production HISTORY is one day long. The first real
+supervisor board update is the moment this demonstration becomes historical
+rather than prospective, and nothing here claims otherwise.
+
+LIMB 0 -- the reader is not pre-firing (before any plant)
+---------------------------------------------------------
+  source sha256 (verification.md)  90ef3beee43a6c1a10618e63d7f0aef7...
+  merged board A                   3684163 bytes
+  sha256 A                         dcb3328fb4b3ffa5b436b31f655b3e78...
+  occurrences of the sentinel in A 0
+
+LIMB 1 -- POSITIVE: the reader SEES a non-zero written by the real producer
+---------------------------------------------------------------------------
+  planted into docs/lab_state/verification.md, by the edit tool, at its real
+  path, one line:
+      PLANTED-SENTINEL-BIRTH-2026-08-31-7f3ab19c
+
+  source sha256 (planted)          84197a593806417f26e4391efb289802...
+  occurrences in the source        1
+  merged board B                   3684207 bytes   (A + 44 bytes)
+  sha256 B                         65335fb55ccf0390d465aa35fed1ce44...
+  occurrences of the sentinel in B 1        <-- THE READER SEES IT
+
+LIMB 2 -- NEGATIVE: the reader is SILENT when the signal is gone
+-----------------------------------------------------------------
+  sentinel removed from the real source by the same edit tool.
+
+  source sha256 (restored)         90ef3beee43a6c1a10618e63d7f0aef7...
+                                   == the pre-plant sha, byte-for-byte:
+                                   the real board source is unharmed.
+  occurrences in the source        0
+  merged board C                   3684163 bytes
+  sha256 C                         dcb3328fb4b3ffa5b436b31f655b3e78...
+  occurrences of the sentinel in C 0        <-- THE READER IS SILENT
+  sha256 C == sha256 A             YES
+
+  A CONTROL WITH ONLY A POSITIVE LIMB IS A DETECTOR THAT FIRES ON EVERYTHING
+  (§2j.3). The negative limb here is stronger than "the sentinel is absent":
+  the unplanted board is BYTE-IDENTICAL to the pre-plant board, so the plant
+  was the only delta in 3.68 MB, and the merger is neither adding nor losing
+  anything of its own.
+
+COLLATERAL PROOF taken at the same time
+----------------------------------------
+  concat(the seven sources) == docs/LAB_STATE.md  : True, 3683065 bytes both
+  merged board              == HEADER + docs/LAB_STATE.md : True
+                               (header 1098 bytes, board 3683065 bytes,
+                                merged 3684163 bytes)
+
+  i.e. the merger reproduces the hand-maintained board it was migrated from,
+  exactly, plus a header that says the file is generated.
+
+SELFTEST, and its mutation controls
+------------------------------------
+  python3 scripts/merge_lab_state.py --selftest    -> 30/30 cases, rc 0
+
+  The selftest was itself mutation-tested: five clauses of the validator were
+  removed one at a time in a scratch copy and the selftest was re-run. Each
+  removal broke exactly the cases that clause exists to protect -- so the
+  30 green cases are a measured population, not an empty one:
+
+    clause removed                          selftest result
+    ---------------------------------------------------------------------
+    missing source refused -> skipped       C1, C12, C13 FAIL (26/30)
+    '## ' heading-count clause              C6 FAIL          (28/30)
+    merged-board-copy clause                C10 FAIL         (28/30)
+    heading-only truncation guard           C4 FAIL          (28/30)
+  (F1 also fails under mutation because the scratch copy has no
+   harness/teams.yaml; that failure is an artefact of the mutation rig,
+   not of the clause under test, and is named rather than netted out.)
+
+  One real fail-open was found and fixed inside the selftest during this work:
+  the refusal-checking helper returned `(why in str(e)) or True`, which would
+  have passed EVERY refusal case on ANY error, including the wrong error. With
+  the fix in place, removing the merged-board-copy clause makes C10 fail even
+  though the build still raised -- because the refusal raised was the wrong
+  one. That is the clause's own control, and it was earned by a defect.
+
+VERDICT: the birth requirement is MET for scripts/merge_lab_state.py, subject
+to the honest limit named above (production history is one day long).
