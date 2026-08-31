@@ -18234,3 +18234,106 @@ it sharpens the reading of rule 10's existing post-commit step.
 **Evidence:** `1941e22d` and `e426f63b` tree objects both `d6f59703c4819126de50cd61685a437dbf4c75f7`;
 `git log -S` attribution; `git show HEAD:docs/LAB_STATE.md` carrying the block; the four
 landed-file integrity checks, all clean.
+
+---
+
+## L-418 — THE SHARED INDEX IS STALE **BY CONSTRUCTION** UNDER OUR OWN PROTOCOL, AND A BARE `git commit` WOULD **DELETE** REAL FILES RATHER THAN MERELY REVERT THEM. THE COUNT IS A **SAWTOOTH**, NOT A RAMP — SO "IT KEEPS GROWING" AND "SOMEBODY STAGED THOSE DELETIONS" ARE BOTH WRONG, AND THE SECOND IS AN ACCUSATION
+
+**Frame.** Everything measured below was measured on this box between **2026-08-31T22:49Z and 23:01Z**, across HEADs `7f9c5b6e` → `1d077919` → `9ccb8331` → `a368b35b` → `64589fcc` → `a6ed5e4c` → `fc818f6a` — seven HEADs in twelve minutes, which is itself the operating condition this lesson describes. Every figure carries the sha and the clock because **the quantity is non-stationary** (L-307): a number here without a stamp is void.
+
+### What was escalated, and what is actually true
+
+This was escalated as *"21 staged deletions"*, with the implication that somebody had **staged** them. **The framing was wrong in three separate ways, and the third is the one that matters:**
+
+1. **Nobody staged anything.** Not one of the deletions is an act. They are the arithmetic difference between a stale index and a moving HEAD.
+2. **The count is not fixed and does not merely grow — it is a SAWTOOTH.** It was measured at **10** and rose to **13** in eight minutes, and it is reset to zero on a timer. The readings *21*, then *28*, then *10* are not a contradiction and not evidence of anyone unstaging: they are three samples of a sawtooth taken at unknown phase.
+3. **But the danger is entirely real and is WORSE than "stale in the reverting direction".** A bare `git commit` at 22:49Z would not have reverted ten files — it would have **deleted ten files that exist on disk**, and reverted eight others.
+
+### The mechanism, confirmed directly
+
+The private-index protocol (`CLAUDE.md` rule 10) exports `GIT_INDEX_FILE` at a scratch path, does `read-tree` / `update-index` / `write-tree` / `commit-tree` / `update-ref` **against that private index**, and **never writes `.git/index`**. So a file landed by a private commit is present at HEAD and has **no entry in the shared index at all**. `git diff --cached` compares index against HEAD, and a path present in HEAD and absent from the index is reported, correctly and unavoidably, as a **staged deletion**.
+
+**Measured at 2026-08-31T22:49:16Z, HEAD `7f9c5b6e`:** `git diff --cached --name-only --diff-filter=D | wc -l` = **10**, and `--diff-filter=M` = **8**. **All ten paths exist on disk** — checked one at a time with `test -e`, not inferred. They are the outputs of four commits landed in the preceding four minutes (`1c8c5838`, `e9b46885`, `b6a56f20`, `7f9c5b6e`) by three different teams.
+
+**A second, independent instrument agrees.** `comm -23` of `git ls-tree -r HEAD --name-only` against `git ls-files` — a set difference that never calls `git diff` at all — names **the same 10 paths**, exactly. Two readers built on different plumbing, one answer.
+
+### The planted control, because a count is not evidence unless the reader is shown able to be wrong
+
+A private copy of the index was built with `read-tree HEAD` and asked the same question:
+
+* unperturbed copy of HEAD → **0 deletions** (the reader reports a zero when there is nothing to see);
+* after `git update-index --force-remove -- docs/LESSONS.md` → **exactly 1, and it named `docs/LESSONS.md`** (the reader sees a planted non-zero and identifies it).
+
+The shared index was re-read after the control and still stood at **10** — the control touched nothing. **A zero from this reader is now a reading, not a blind spot** (rule 3).
+
+### TWO LIMBS, AND RULE 10 STATES ONLY THE SECOND
+
+This is the part that is new, and it was measured rather than argued:
+
+| what a private commit does | what the shared index then shows | what a bare `git commit` would do |
+|---|---|---|
+| **ADDS** a path | a staged **deletion** of a file that exists on disk | **DELETES the file** |
+| **MODIFIES** an existing path | a staged **modification** holding the pre-commit blob | **REVERTS the change** |
+
+**Both limbs were driven, deliberately, on this box.** A peer's commit `1d077919` at 22:53:22Z added files and the deletion count went **10 → 11**. This lane's own commit `9ccb8331` at 22:54:22Z *modified* an already-tracked file (a 63-line addendum) and the deletion count did **not** move — it stayed 11 — while the modification count went **8 → 9**. Immediately afterwards, `git diff --cached --stat` on that one path read **`63 deletions(-)`**: the index held blob `614e1e1c` (the pre-addendum bytes) against HEAD's `4adc6892`. **A bare commit in that second would have silently un-written an addendum that had just been landed correctly.**
+
+Rule 10's stated reason is the *modification* limb — *"stale in the reverting direction (measured: would have reverted 402 lines across six files)"*. **The deletion limb is a second, independent reason for rule 10, and it is the more destructive of the two**: a reverted modification leaves a file whose history holds the lost text; a deleted file is gone from the worktree and has to be found in a commit nobody is looking for.
+
+### THE SAWTOOTH — this is where the escalation's "grows without bound" is FALSIFIED
+
+Sampled every 20 s, one row per change (HEAD and the on-disk check printed beside every reading):
+
+| UTC | HEAD | staged D | of which exist on disk | staged M | `.git/index` mtime | what happened |
+|---|---|---|---|---|---|---|
+| 22:51:42 | `7f9c5b6e` | 10 | **10** | 8 | 22:46:27 | baseline |
+| 22:53:22 | `1d077919` | 11 | **11** | 8 | 22:46:27 | a peer commit **added** paths |
+| 22:54:22 | `9ccb8331` | 11 | **11** | **9** | 22:46:27 | **this lane's commit MODIFIED a path — D flat, M +1** |
+| 22:55:02 | `a368b35b` | 12 | **12** | 9 | 22:46:27 | a peer commit added paths |
+| 22:57:02 | `64589fcc` | 13 | **13** | 9 | 22:46:27 | a peer commit added paths |
+| 22:59:43 | `a6ed5e4c` | 13 | **13** | 9 | 22:46:27 | last sample before the cron |
+| **23:00:03** | `a6ed5e4c` | **0** | **0** | **0** | **23:00:01** | **`index_autoclear.sh` fired — the tooth resets, HEAD unchanged** |
+| 23:01:23 | `fc818f6a` | 0 | 0 | 1 | 23:00:01 | the next tooth begins |
+
+**The reset was captured directly and is not inferred:** between 22:59:43Z and 23:00:03Z the counts went **13 → 0** and **9 → 0** with **HEAD unmoved at `a6ed5e4c`**, while `.git/index`'s mtime jumped to **23:00:01** — matching the autoclear log line `2026-08-31T23:00:01Z read-tree HEAD done planted_check=OK` to the second. Nothing was committed and nothing was deleted; only the index was re-read.
+
+**Every staged deletion, at every sample, is a file that exists on disk.** The on-disk column is not decoration: it is what separates *"the index is stale"* from *"somebody deleted things"*, and it read 100 % at every sample.
+
+**And the growth is bounded.** `scripts/index_autoclear.sh` runs `git read-tree HEAD` against the shared index **every 15 minutes** (`*/15 * * * *`), under `flock`, wired at `86f58af3` on **2026-08-31T15:44:23Z** under Sanaa's PLUMBING FREEZE directive (`etc/sessions/2026-08-31T1544Z_sanaa_plumbing_freeze.md`). Its log carries **30 runs, `planted_check=OK` on every one**. So since 15:44Z today the quantity is a **sawtooth with a ≤15-minute tooth**, not a ramp: it climbs one step per private commit that adds paths, and drops to zero at each quarter hour.
+
+**This is why the three escalated readings disagree, and nobody unstaged anything.** 21, 28 and 10 are three samples at unknown phase. **A single reading of this quantity, without its UTC stamp and its HEAD, carries no information at all** — which is L-307's rule arriving in a second place.
+
+### What this does NOT mean — the protocol is CORRECT and must not be abandoned
+
+**This is not corruption and it is not sabotage.** No agent did anything wrong to produce it. It is the designed and correct behaviour of a protocol whose entire purpose is that **concurrent agents never fight over one index**, and it is what stops a lane committing a peer's half-finished work. `scripts/index_autoclear.sh` is likewise correct and is not criticised here.
+
+**The protocol stays. The bare commit is what is forbidden**, and it was already forbidden — this lesson supplies a second reason, not a new rule.
+
+### THE SUPERSESSION THIS LESSON OWES — L-92
+
+**L-92 already names this mechanism**, and named it first: *"every commit made the private-index way leaves a committed file with no index entry."* Nothing here displaces it. But **one sentence of L-92 is now stale and is superseded by measurement**:
+
+> L-92, as written: *"it is not a fixed backlog that someone will eventually clear; it is a **monotonically growing set**, and it grows fastest exactly when the lab is busiest."*
+
+**As of `86f58af3` (2026-08-31T15:44Z) that sentence is false on the shared index.** Somebody did clear it, on a timer, every fifteen minutes. **L-92's second clause survives intact and is confirmed** — it does grow fastest when the lab is busiest, which is exactly what the four-step climb above shows. **L-92's own subject — an *instrument* that reads the index — is if anything made worse by the clear, not better**, because the instrument's error now depends on where in the fifteen-minute tooth it happens to run (see L-416, which measured a freshly cleared index naming **every tracked path** as differing).
+
+*L-92 is not edited by this lesson; the original sentence is quoted above and retained, per `MEMORY_ARCHITECTURE.md` §8.1, and the correction lives here where the measurement is.*
+
+### Options, NAMED AND NOT TAKEN — the index is the chief's call
+
+**No remedy is proposed, attempted or recommended by this lane, and the escalation stands open.** Three are named only so the decision has a menu, each with the risk that disqualifies a lane from taking it:
+
+1. **Leave it exactly as it is.** *Risk:* none introduced; the standing exposure is that any bare commit, by any agent or any tool, destroys up to a tooth's worth of files. **This is the status quo and it is already protected by rule 10.**
+2. **Shorten the auto-clear tooth.** *Risk:* strictly reduces the size of the tooth, never the existence of it — a bare commit inside any window still destroys whatever landed in that window — and it multiplies the L-416 condition, where a freshly cleared index makes `git diff-index` name every tracked path.
+3. **Refuse a bare commit mechanically** (a `pre-commit` hook that exits non-zero when `GIT_INDEX_FILE` is unset). *Risk:* a hook is `.git/`-local, is not tracked, does not survive a clone, and would be a new gate on every agent's commit path — and **installing anything that can refuse a peer's commit is not a lane's decision**.
+
+**Nothing above is an action. `CLAUDE.md` rule 10: an unexpected change is inspected, never reverted; the index is chief's call.**
+
+### What was NOT verified, stated plainly
+
+* **The 21 and 28 readings could not be reproduced or dated.** No record of when they were taken survives, so "they straddled a cron boundary" is an **inference** consistent with the sawtooth, not a measurement.
+* **What wrote `.git/index` at 22:46:27Z was not identified.** That timestamp falls on no `*/15` boundary. L-416's addendum records the identical unattributed write at 21:40:53Z and reaches the same limit: at least four ordinary commands would produce it, and the write identifies neither its command nor its author.
+* **The pre-15:44Z history was not reconstructed.** Whether the count was genuinely unbounded before the auto-clear existed is **untested here**; it is what L-92 asserts, and L-92's evidence is its own, not this lesson's.
+
+**Related:** L-92 (the mechanism, first, and the sentence superseded above), L-416 (the auto-clear seen from the `git diff-index` side, and the same unattributed index write), L-368 (landed-ness is a question about `HEAD`; `git status` answers about the INDEX), L-307 (this quantity is non-stationary — no figure without a sha and a stamp), L-294 (`git ls-files` reads the INDEX), L-223 (HEAD moves between two bash calls, which is why the whole protocol is one invocation), L-253 (the protocol leaves the worktree stale by design), rule 10 and rule 3.
+
+**Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. THIS LESSON SPAWNS NO RULE, NO TOOL AND NO PROCEDURE.** Rule 10 is unchanged and needs no extra step; `scripts/index_autoclear.sh` is correct and is not touched. It supplies rule 10 with a **second, independent and more destructive reason**, and it retires the belief that the count is a ramp.
