@@ -388,8 +388,14 @@ READERS = {
 # seven hand-spelled control keys survived the row-label collapse, which is the
 # same shape in miniature -- and a DEAD DIVERGENCE LIMB (`if "S" in X and "P" in X`
 # could never be true after the collapse, so the shipped-vs-patched reading had
-# silently vanished), which is why U102 exists and brings the count to 89.
-EXPECTED_UNITS = 89
+# silently vanished), which is why U102 exists and brings the count to 89.  Then
+# 91, for U41b and U41c: once the fixture could source the REAL launcher, a
+# STRUCTURALLY VALID ledger row carrying a non-numeric value reached a bare
+# `float()` and CRASHED the comparator with a traceback and zero gate readings.
+# The hand-written fallback row could only ever be UNPARSEABLE, so that branch had
+# never been reached in 89 green units.  The guard now refuses BY NAME, and U41c
+# checks the refusal actually names the column.
+EXPECTED_UNITS = 91
 
 
 class Refusal(Exception):
@@ -451,10 +457,23 @@ LEDGER_RE = re.compile(
     r"log=(?P<log>\S+)")
 
 
-def _infra_float(v):
+def _infra_float(v, field=None):
+    """A non-numeric INFRASTRUCTURE field REFUSES with its name, and does not
+    raise.  A CRASH IS NOT A VERDICT: an unhandled ValueError here exits with a
+    traceback and no gate readings, which is the D6-GRADER-DEF-1 shape wearing a
+    different hat.  Found by driving the fixture through the REAL launcher --
+    the hand-written fallback row could only ever be UNPARSEABLE, so this branch
+    had never been reached."""
     if v is None or v == NOT_MEASURED:
         return None
-    return float(v)
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        refuse("ledger", {"non_numeric_field_in_a_STRUCTURALLY_VALID_row":
+                          {"field": field, "value": str(v)[:80]},
+                          "note": ("the row matched the registered format but carries a value "
+                                   "that is not a number; that is a MALFORMED artefact and "
+                                   "REFUSES, it does not raise")})
 
 
 def read_ledger(path):
@@ -479,16 +498,26 @@ def read_ledger(path):
                                    ("delivered", g["delivered"]), ("siblings_pre", g["sibpre"]),
                                    ("siblings_post", g["sibpost"]), ("log", g["log"]))
                     if v is None or NOT_MEASURED in str(v)]
+        try:
+            _nums = {"rc": int(g["rc"]), "wall_s": int(g["wall_s"]), "ranks": int(g["ranks"]),
+                     "core_min": float(g["core_min"]), "cap_core_min": float(g["cap"]),
+                     "enforced_core_min": float(g["ecore"])}
+        except (TypeError, ValueError) as exc:
+            refuse("ledger", {"non_numeric_PHYSICS_field": {"row": line.strip()[:200],
+                                                            "error": repr(exc)[:160]},
+                              "note": "a physics field that is not a number REFUSES (L-342)"})
         row = {"ARM": g["ARM"], "ROW": g["ROW"], "IMG": g["IMG"], "DIGEST": g["DIGEST"],
-               "rc": int(g["rc"]), "wall_s": int(g["wall_s"]), "ranks": int(g["ranks"]),
-               "core_min": float(g["core_min"]), "cap_core_min": float(g["cap"]),
-               "enforced_core_min": float(g["ecore"]), "memory": g["mem"],
+               "memory": g["mem"],
                "inspect_exit": (None if (not parts or parts[0] == NOT_MEASURED) else parts[0]),
                "oomkilled": (parts[1] if len(parts) > 1 else None),
-               "memavail_pre_GiB": _infra_float(g["mempre"]), "memavail_post_GiB": _infra_float(g["mempost"]),
+               "memavail_pre_GiB": _infra_float(g["mempre"], "memavail_pre_GiB"),
+               "memavail_post_GiB": _infra_float(g["mempost"], "memavail_post_GiB"),
                "cpuset": g["cpuset"], "delivered": g["delivered"], "siblings_pre": g["sibpre"],
                "siblings_post": g["sibpost"], "log": g["log"], "source": "ledger_row",
                "infra_not_measured": infra_nm}
+        # The numeric fields are merged in AFTER their guarded conversion above, so
+        # a non-numeric value REFUSES by name instead of raising inside the literal.
+        row.update(_nums)
         if row["ARM"] in rows:
             refuse("ledger", {"duplicate_arm_row": row["ARM"],
                               "note": "two records for one run is the defect"})
@@ -2023,7 +2052,7 @@ def _ledger_rows_via_launcher(k):
     for arm in ARMS_DECLARED:
         ke = NOT_MEASURED if arm in k["rc_record"] else k["ke"].get(arm, k["rc"][arm])
         cmd = ('. %s --source-only >/dev/null 2>&1; '
-               'so3a_ledger_row %s %s img %s %d 60 %d %s %s 600 %s 12g "%s %s" 20.00 %s %s '
+               'so3a_ledger_row %s %s img %s %d 60 %d %s %s 600 %s 12g "%s %s" 20.00 "%s" "%s" '
                '"%s" "" "" %s x'
                % (LAUNCHER_PATH, arm, ARM_ROW[arm], IMG_DIGEST[ARM_ROW[arm]], k["rc"][arm],
                   ARM_RANKS[arm], k["cm"][arm], CAPS[arm], CAPS[arm], ke, k["oom"][arm],
@@ -2456,6 +2485,18 @@ def selftest(tmp):
          len(r["completion"]["arms"]) == N_DECLARED)
     unit("U41 R1 a PRESENT-BUT-GARBAGE ledger row REFUSES, never skipped",
          refused(_fix(tmp, tw(mpost="not a number at all here"))))
+    unit("U41b R1 a STRUCTURALLY VALID row carrying a NON-NUMERIC field REFUSES BY NAME "
+         "and does not raise -- a crash is not a verdict",
+         refused(_fix(tmp, tw(mpost="abc"))))
+    _nonnum = None
+    try:
+        grade(_fix(tmp, tw(mpost="abc")))
+    except Refusal as _exc:
+        _nonnum = json.loads(str(_exc))
+    unit("U41c R1 that refusal NAMES the offending field, so a reader is not left "
+         "guessing which column was garbage",
+         _nonnum is not None
+         and "memavail_post_GiB" in json.dumps(_nonnum))
     unit("U42 R7 the age datum resolved to the COMPRESSED twin on every solver arm",
          all(r["age_datum_resolution"][a]["is_compressed_twin"]
              for a in ARMS_DECLARED if ARM_KIND[a] == "SOLVER"))
