@@ -17743,3 +17743,85 @@ more. `CLAUDE.md` is Sanaa's; no agent edits it, and neither of us proposes a wo
 **NOT CLAIMED:** that anything enforces items 1–3. Rule 11 is a rule with no instrument on this file,
 exactly as L-408's call site 2 is a discipline with no instrument. Saying so is the point; a lesson
 that implies a guard exists is worse than one that admits there is none.
+
+### L-408 ADDENDUM 2 (2026-08-31T00:17Z) — IF THE TWO CANDIDATE EXPLANATIONS PREDICT THE SAME THING, THE OBSERVATION IS NOT WEAK EVIDENCE, IT IS **NO** EVIDENCE — EIGHT INSTANCES, THREE AGENTS, ONE EVENING
+
+**Second dated addendum to L-408. No new `L-` number** — this is the same finding at its full
+strength, and splitting it would fragment the eight instances that are the whole argument. The
+L-408 block and Addendum 1 above are **not rewritten**.
+
+**THE RULE, IN ITS STRONGEST FORM:**
+
+> **A single reading, not computed against the alternative, is not evidence.**
+> If the two candidate explanations predict the **same** thing, the observation does not weakly
+> support either — **it discriminates between nothing, and reporting it as support is how a wrong
+> method validates itself.**
+
+Addendum 1 recorded the shape for a *method* — a wrong one that agrees with a right one validates
+itself and diverges silently later. This addendum records that the same shape governs **evidence**,
+**inference**, **audit** and **the harness you just fixed**, and gives eight instances in one
+evening across three agents. **One instance is a lapse; eight is a mechanism.**
+
+**THE INSTANCES.** Every one sits on a correctly measured number. **Not one was a measurement
+failure.**
+
+| # | who | the verified part | the unchecked inference above it |
+|---|---|---|---|
+| 1 | cfd lane | `docs/LESSONS.md` block count 408, distinct 405, tail-max 407 — all three correct | "so a **count** would have collided" — the block count would have been **right**; the *distinct* count was the colliding one |
+| 2 | cfd lane | a bare `git diff` genuinely printed four foreign hunks | "so the tree is dirty and I am blocked" — `git diff` reads the **poisoned index**; against `HEAD` all four hunks were mine |
+| 3 | cfd lane | the first post-restart launch was `heat-transfer` | "so the live evidence does not discriminate" — **it does, at launch 2**; both codes predict `heat-transfer` at launch 1, which is exactly why one reading said nothing |
+| 4 | cfd-supervisor | two sets of counts genuinely disagreed | *"a peer has appended since"* — **written as the explanation, never checked.** No peer had. `L-391` recurring, in the team that self-reported `L-391` |
+| 5 | cfd-supervisor | no `TEAMS` index is taken modulo `len(order)` anywhere — true, checked, still true | "therefore the defect is **unrepresentable**" — a claim about **every future edit**, which no reading of current code can establish |
+| 6 | *(audit finding)* | check 1 verified the code correctly | **an overclaim ABOUT the code survived a read OF the code.** A supervisor's read certifies what the code does, never what may be said about it — a real and previously unrecorded limit of check 1 |
+| 7 | cfd lane | the old-logic counterfactual `['heat-transfer','dafoam','dafoam','dafoam']` was correctly simulated | **from a harness that held the QUEUE SHAPE FIXED.** dafoam held exactly **one** entry, so under the old logic that launch **drains** dafoam and tick 3's head is `closure`. The tail was unreachable |
+| 8 | verification | re-derived the controls, the 40/63, the edge cases, the cross-team sweep | **endorsed the lane's characterisation of the live evidence in its own voice without simulating it**, inside a block closing *"every number above was re-derived by this supervisor personally"* |
+
+**INSTANCE 7 IS THE ONE I WOULD KEEP IF I COULD KEEP ONLY ONE.** Verification had raised, as audit
+finding 4, that control R1 held the queue shape fixed and therefore structurally excluded the very
+regime that masked the defect in production. **Within hours of accepting that finding, the same lane
+reproduced the identical assumption in an ad-hoc hand-simulation** written to check something else.
+The general form:
+
+> **A HARNESS ASSUMPTION, ONCE REMOVED FROM THE HARNESS, SURVIVES IN THE HAND-SIMULATION THE AUTHOR
+> REACHES FOR NEXT.** Fixing the control does not fix the author's model, and the throwaway
+> calculation is where the old model goes on living — unreviewed, because it is "just a check".
+
+**INSTANCE 8 IS THE ONE AN AUDIT IS LEAST LIKELY TO CATCH, AND VERIFICATION RECORDED IT AGAINST
+ITSELF.** The lane's report was wrong **in the auditor's favour**: it *understated* its own evidence.
+**Understated evidence is the claim an auditor is least likely to challenge, because accepting it
+costs the auditor nothing and looks like rigour.** The operational rule that falls out is sharper
+than "check everything":
+
+> **A CLAIM THAT FLATTERS THE CHECKER IS EXACTLY THE ONE TO RE-DERIVE.** Scepticism aimed only at
+> claims that would cost you something to accept is not scepticism, it is bookkeeping.
+
+**AND THE DECIDING FACT IN THE WHOLE EXCHANGE WAS ESTABLISHED BY NEITHER PARTY UNTIL IT WAS ASKED
+FOR.** Instance 3's discriminator holds only if `len(order) == 3` at that tick: had
+`ansys-verification` also held work, `len(order) = 4`, `2 % 4 = 2`, **and the old code predicts
+`closure` too — the discriminator vanishes entirely.** It was closed afterwards by conservation:
+queued `closure` entries plus launches since the tick equals exactly the count the runner printed
+(`27 + 5` at one reading, `24 + 8` at a later one — **the identity is stable because every launch
+moves one entry from one side to the other**), with zero refused entries and zero `REFUSED` lines,
+so every entry is accounted for and the three silent teams held nothing. **Both parties had already
+called the point settled before anyone computed the number it depended on.**
+
+**WHY THIS KEEPS HAPPENING, which is the part worth more than the tally.** In all eight, the
+measurement was sound and cheap, and the inference was free and unexamined. **The explanation is
+always cheaper to write than to verify, which is precisely why it arrives first** (`L-391`). A
+verified number sitting directly beneath an unverified sentence reads as one verified object —
+**and every one of these eight passed its own author's review.**
+
+**OPERATIONAL RESIDUE — four rules, all mechanical:**
+
+1. **Compute both branches. Never inspect one and reason about the other.** If you cannot state what
+   the *alternative* predicts, you have not tested anything.
+2. **Before quoting an observation as support, ask what the competing explanation predicts.**
+   Identical predictions mean the observation is inert — say so rather than banking it.
+3. **When you catch yourself writing the explanation for a discrepancy, stop and check it instead**
+   (`L-391`).
+4. **Re-derive the claim that flatters you**, including — especially — one that arrives understated
+   and costs you nothing to accept.
+
+**NOT CLAIMED:** that any instrument enforces these. None does. They are disciplines, and this
+entry says so rather than implying a guard exists — the same honesty Addendum 1 insisted on, and the
+reason instance 5 is in the table at all.
