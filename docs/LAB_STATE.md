@@ -4671,9 +4671,79 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T20:20:34Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T20:58:38Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22n — **SANAA'S FIVE QUESTIONS ANSWERED, AND THREE OF THE FIVE FRAMINGS I WAS HANDED WERE WRONG. `SO-3aR` = `NOT A RESULT` ON A LAB REGRESSION `A2` HAD ALREADY SOLVED. ⚠ AND THE SAME DEFECT CLASS — PUBLISHING AHEAD OF THE CHECK — FIRED THREE TIMES TONIGHT ACROSS TWO AGENTS** (2026-08-31T20:58:38Z, `date -u` at write)
+
+##### 1. SANAA'S FIVE QUESTIONS ANSWERED — AND THREE OF THE FIVE FRAMINGS I WAS HANDED WERE WRONG
+
+- **Q1 IDWarp patch.** **PERMANENT in exactly one image**, `dafoam-idwarp-rot:v1`, digest `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35` `[MEASURED, docs/dafoam/TOOLCHAIN_INVENTORY.md:410]`. It covers **`D-A` only**; **`D-A2` survives it** — ONERA M6 reads **1.26 %** after the patch, **as predicted** `[MEASURED, docs/dafoam/PRIOR_WORK_INVENTORY.md:195]`. The image was **never pushed to any registry**, so patched rows are **NOT reproducible off this box** — ⚠ *marked: the local tag carries no registry host, which is CONSISTENT WITH but does not PROVE "never pushed"; nothing on disk records a push, and nothing on disk could record its absence. Reported, not measured.* Shipped arms still run **unpatched BY DESIGN** under the two-row rule. **The version string is useless as identity:** both builds report IDWarp **2.6.2** and both `libidwarp.so` are **491,344 bytes**; **only the md5 separates them** — `f0fcb488e0e98156575cd19548e91663` shipped, `85f59e87253e0a71a813f64ca6e4c425` patched `[MEASURED, TOOLCHAIN_INVENTORY.md:409-410, :432]`. **Charter §11 — the hash is the identity, the version string is not — is vindicated by measurement, not by argument.**
+
+- **Q2 parallel transpose (`D-B`).** **NOT FIXED — no patch exists, and none was ever written. `BLOCKED`.** The `SO1aR` evidence cited to me is **`D-A`'s**, and it was measured at **`ranks=1` (serial) on every arm** `[MEASURED, run-root ledger, all five arms `ranks=1`]` — **a serial run cannot exercise a parallel defect.** `SO1aR`'s own `patchV[1]` control reads **exactly `0.000 %`** shipped-vs-patched `[MEASURED, curriculum_SO1aR/RESULTS.md:96]`, which is what **localises the defect to the mesh-warping path**. **"SO1bR: SHIPPED still fails" is FALSE — `SO-1bR` is `PASS` with BOTH rows `PASS`** (⚠ *cited to `SO-1c`'s independent gate reading `gopt=PASS/PASS gcl=PASS/PASS channels=2`, both rows, both channels — `docs/LAB_STATE.md` §S-21; there is **no `RESULTS.md` on disk** under `curriculum_SO1bR/`, and I say so rather than cite a file that is not there*). **`D-B` was measured on `A4` Ahmed** — np=4 `scotch`, **8.95 %** against FD, cross-residual **`328.8× ‖b‖`** while the KSP itself reports convergence (`PetscConvergedReason: 2`, true-residual 1.7e-07) `[MEASURED, docs/dafoam/PRIOR_WORK_INVENTORY.md:137, :196]` — and it is **explicitly DEAD for `A1`**.
+
+- **Q3 multipoint.** **0 successes. No converged multipoint optimum has ever existed in this lab.** **`D6R` died `EXIT: Invalid number in NLP function or derivative detected.` at 73 of a registered `max_iter` 80 majors, with 673 alpha cutbacks** — **both figures CORRECT** `[MEASURED, curriculum_D6RG/RESULTS.md:101-104]`. **`D6` did NOT die that way** — it hit the **container deadline, `rc=124` at `wall_s=30008`, and printed no `EXIT:` line at all** `[MEASURED, run-root ledger `ARM=O_mp rc=124 wall_s=30008 ranks=4 core_min=2000.533`]`. **`D6`/`D6R` are the `A2` 3-D MACH wing, `DARhoSimpleFoam`, COMPRESSIBLE at M ≈ 0.288, multipoint on a CL target `{0.4, 0.5, 0.6}`** `[d6r_opt_runScript.py:55-59]` — **NOT NACA0012, NOT incompressible, NOT alpha.** That description belonged to `SO-3a` and had been **fused onto `D6`/`D6R` on the chief's board.** ⚠ **Cost figure corrected against its artefacts:** the **`~4,405 core-min` is the sum over FIVE multipoint run roots** — `D6` 2000.533 + `D6R` (2257.933 + 24.2) + `D6RACC2` 119.933 + `SO-3a` 0.334 + `SO-3aR` 1.800 = **4,404.7 core-min MEASURED**. **The four OPTIMISATION ATTEMPTS alone (`D6`, `D6R`, `SO-3a`, `SO-3aR`) are 4,284.8**; `D6RACC2` is `D6R`'s accuracy arm, not a fifth attempt. **"4 attempts" and "~4,405 core-min" are both true and are NOT true of the same set** — stated here rather than left to be inferred.
+
+- **Q4 compressible optimisation.** **ALREADY DONE AND PASSED — `D8R` is a two-row `PASS`**: `A6` CRM, `DARhoSimpleCFoam`, M 0.85, **`EXIT: Optimal Solution Found.` on BOTH rows** (SHIPPED at 12 majors, PATCHED at 8, both against 30) `[MEASURED, curriculum_D8R/RESULTS.md:107-108, read twice — frozen grader JSON and the two named arm logs]`, **endpoint FD 20 of 20 `PASS`, 0 `GATE FAIL`, 0 `NOT A RESULT`, zero sign flips** `[:40]`. **The real never-attempted gap is 2-D compressible.** ⚠ **I PUBLISHED THIS ONE WRONG FIRST** — I sent *"no compressible optimisation"* ahead of my own verifying lane and corrected it minutes later.
+
+- **Q5.** Multipoint on a compressible SOLVER **has** happened — `D6`/`D6R`, **4,282.7 core-min MEASURED** at M 0.288 (the "~4,283" figure, and it is exactly `D6` + `D6R`) — **but Mach multipoint never has.** **`SO-3b` is a STUB, not a pre-registration:** its own first screen reads *"It is not a rule-2 freeze and may never be cited as one"* `[cases/dafoam/ladder-a/A1/SO3b_STUB.md:6]`. Zero core-min.
+
+- ⚠ **No `DAFOAM_CHARTER` clause makes a gradient gate `PASS` a precondition of an optimisation.** §2 requires a **TABLE**, not a pass — verbatim: *"No DAFoam gradient enters a record, a report or an optimisation without a finite-difference table beside it."* Items have optimised on failing shipped gradients (`D4-SHIPPED`, `D8R`'s shipped row). **The precedence I was told was charter law is in fact Sanaa's `SO-3b` ruling, scoped to `SO-3b` alone.**
+
+##### 2. `SO-3aR` = `NOT A RESULT` — AND THE CAUSE IS A LAB REGRESSION, NOT AN UPSTREAM DEFECT
+
+Commits `3a7e5219` and `17982ed5`. **`chain_rc=1`, executed 1 of 5, 1.800 core-min MEASURED** (MESH 0.267 + X-S 1.533, both `ranks=1`) / **$0.0015 DERIVED** at $0.0513/core-h (REPORTED-BY-OWNER, never measured). Calibration row **`C-20260831T204530.092810Z-e03cf43f`** `[docs/COST_CALIBRATION.md:335]`, predicted **22.0**, ratio **0.082**, attributed to **TRUNCATION AT ARM 2 OF 5, NOT MISPREDICTION** — both arms that ran finished far inside their own registered caps (MESH used 5.3 % of its 5.0 cap; X-S 10.2 % of its 15.0), so nothing here says the lab priced the arms badly.
+
+**Positive content — the furthest this lab has ever reached into a multipoint gradient:** all three multipoint primals CONVERGED —
+
+- `CD = [0.01723938072177922, 0.020910510045267394, 0.027268054119716875]`
+- `CL = [0.31189588769251864, 0.49876526085592926, 0.6639763551107052]`
+- **`J = 0.02180598162892116`** `[MEASURED, curriculum_SO3aR/RESULTS.md:151-153]`
+
+— **and scenario `point0`'s multipoint ADJOINT COMPLETED**, renaming `443 -> 0.0001` at log line 1827 `[:166, :196]`. **`point1` then died:** `pyDAFoam Error: /mnt/X-S/0.0001 already exists, moving failed!`, raised at `pyDAFoam.py:1543` in `renameSolution` `[:179, and the arm log line 1868 quoted in the calibration row]`.
+
+**ROOT CAUSE: `so3ar_runScript.py` gives each of `point0`/`point1`/`point2` its own `DAFoamBuilder` (`:245`) but NO per-point `run_directory`**, so three `DASolver`s rename into one `/mnt/X-S/0.0001`. **`A2`'s `D6R` had already solved exactly this** — `RUN_DIRS = {"cl04": "mp04", "cl05": "mp05", "cl06": "mp06"}` at **`d6r_opt_runScript.py:59`**, documented in that file's own docstring. **`A1` did not carry `A2`'s isolation forward.** ⚠ **I first called this an UPSTREAM DEFECT CANDIDATE** on the strength of upstream's tutorial sharing a directory; **that was my overreach and I corrected it.** A lane then weakened it further **in the direction of caution**: upstream passes **ONE shared `dafoam_builder`** to both scenarios where `SO-3aR` constructs **THREE**, so the collision **plausibly cannot arise upstream at all.** Recorded **OPEN/UNTESTED, not as a defect.**
+
+**No two-row verdict is possible — `X-P` and `F-P` never ran.**
+
+##### 3. ⚠⚠ THE SAME DEFECT CLASS FIRED THREE TIMES TONIGHT, ACROSS TWO AGENTS
+
+**A claim published ahead of the check that would have tested it.** (i) **My Q4 answer**, sent under time pressure with the verifying lane still in flight. (ii) **A lane writing "check_filing.py total is UNCHANGED" into a commit message from a run against the PRE-COMMIT tree** — it went **44 -> 46**, both new violations its own; `17982ed5`'s subject carries that correction in the lane's own words. (iii) **Earlier today, my own "ZERO sentinel-valued pins" while my check printed 3** (disclosed in `S-22m` §1 and not rewritten here).
+
+**The lane caught and corrected its own instance unprompted, which is the standard.** I re-ran `check_filing.py` myself at HEAD: **44 violations across 9 rules, 0 of them naming `SO3aR`** `[MEASURED, this invocation]` — **the corrected claim is true.** **The urgency of a question is not evidence about its answer.**
+
+##### 4. ⚠ AN ESCALATION I REFUSED TO ACT ON
+
+Sanaa's directive `bda2d8cc` reads, verbatim:
+
+> yes so the dafoam team can do the compressible using the patched gradients, and we need to find a solution for multipoint optmization (both compresisble and incompressible=
+
+The **reading appended to it** states that `SO-3b` *"becomes the compressible vehicle under this authorisation once SO-3a's gradient rung stands."* **Her EARLIER ruling gated `SO-3b` behind the SHIPPED gradient gate passing, and retiring a gate is reserved to her (rule 9). Her new words do not mention `SO-3b`.**
+
+**I am proceeding with SINGLE-POINT 2-D COMPRESSIBLE OPTIMISATION, which is unambiguously authorised and touches no gate, and I am NOT releasing `SO-3b`.** Also **stale in that reading:** *"SO-3a alpha multipoint in flight"* — **`SO-3a` and `SO-3aR` are both dead.**
+
+##### 5. ⚠ A BLOCKER UNDER THE NEW AUTHORISATION: THE PATCHED GRADIENT'S PLATEAU IS NOT PROVED
+
+The authorisation rests on the **`D15`/`D16` PATCHED rows.** Their plateau rule requires the middle step agree with only **ONE** neighbour: `PLATEAU_TOL_PCT = 10.0` at `d15_grade.py:75`, and the refusal at `:358` is **`if min(nb) > PLATEAU_TOL_PCT`** — **`min`, so one side clearing is enough** `[MEASURED, source read]`.
+
+**`D15`'s patched headline component `shape[7]` — the 1.657 % figure — clears on ONE SIDE ONLY.** Its neighbour pair is **`[1.156 %, 21.630 %]`**: it agrees with the 1e-2 neighbour and **misses the 1e-4 neighbour by 21.63 %** `[MEASURED, `D15_grade_20260827T114315Z.json`, the component whose `rel_err_pct` is 1.6572653179889794]`.
+
+**Neither `D15` nor `D16`'s `RESULTS.md` publishes the step table** that charter §3 and `VERIFICATION` §7 require — **zero occurrences of a per-step FD column in either file** `[MEASURED, this invocation]` — **though `D8R`'s does** (`FD @ h=0.3 | FD @ h=0.1 | FD @ h=0.03 | plateau neighbour %`, `curriculum_D8R/RESULTS.md:63, :73`). **Charter §2 says no gradient enters an OPTIMISATION without an FD table beside it, and a one-sided plateau is not that table.**
+
+**A lane is building the table from existing frozen data (NO NEW COMPUTE); if it comes back one-sided, a cheap FD step-sweep rung gates the optimisation.**
+
+##### 6. STATE
+
+**Live lanes:** `SO-4M` multipoint root-cause freeze; the 2-D compressible optimisation rung; the `D15`/`D16` plateau table. **No dafoam solver is running.**
+
+**Rungs without verdicts:** `SO-2M` `NOT A RESULT` already recorded (registered plant too small to cross its own band — **the `SO-2MR` ruling in `S-22m` §4 stands**); `SO-2M` arming and the `SO2M_chain.json` INDEX item still owed.
+
+**`cases/dafoam/INDEX.md` was last touched 2026-08-22 18:34 and carries ZERO entries for `SO-2M`, `SO-3a` or `SO-3aR`** `[MEASURED: `git log -1` on the path returns `85397209`, 2026-08-22 18:34:48Z; a case-insensitive count of `SO-2M|SO-3a` in the file returns **0**]` — **the gap is the whole SO-series.**
+
+**Documentation defect to repair:** `docs/dafoam/TOOLCHAIN_INVENTORY.md` §3 and §4 are **STALE** — the file's own Amendment 1 (§A1.2) and Amendment 2 (§A2.1) already declare §3's image list stale — **and §4's heading LITERALLY READS *"4. The IDWarp rotation patch is NOT in any container image"*** `[:151]`, which is **true only of the patch SOURCE**; a reader who stops before the amendments **concludes the opposite of the truth.**
+
+**On Sanaa's desk:** **all five defect drafts `NOT FILED`**; the **4,282.7 core-min MEASURED already spent on multipoint optimisation on a compressible solver whose SHIPPED gradient stands at `GATE FAIL`**; and the upstream draft **`cases/dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` is STALE** — its evidence base is the **incompressible tutorial only**, and **the `D15`/`D16` compressible reach evidence, the strongest the lab holds, is not in it.** **`cases/dafoam/PATCH_getRotationMatrix3d.md` carries no literal `NOT FILED` string** — **zero occurrences in the whole file** `[MEASURED, this invocation]`, a rule-7 / §10 first-screen gap. **Reported, not repaired.**
 
 ##### UPDATE S-22m — **`SO-2M` = `NOT A RESULT` WITH EVERY ARM CLEAN: THE COMPARATOR REFUSED BECAUSE THE REGISTERED PLANT IS TOO SMALL TO CROSS ITS OWN BAND ON A FUNCTIONAL 14× LARGER THAN THE ONE IT WAS SIZED FOR. `SO-3aR` LIVE. ⚠ AND I COMMITTED A CLAIM OF "ZERO" THAT MY OWN CHECK HAD JUST PRINTED AS "3"** (2026-08-31T20:2xZ, `date -u` at write)
 
