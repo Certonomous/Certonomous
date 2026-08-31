@@ -443,3 +443,190 @@ Re-derived in the invocation that wrote this section. **§7's table above is fro
 ### R6.8 WHAT THIS AMENDMENT DOES NOT DO
 
 It **does not enqueue SO-1c** — that is the supervisor's call, and `SUPERVISION_CHARTER.md` §3 check 4 is discharged by the supervisor on the sha, not by this document. It lands **nothing** on SO-1a or on W3, whose gates are **CLOSED** — SO-1a's defect is recorded here as evidence and is **not repaired in its frozen instrument**. It files, sends, uploads, registers, posts and comments **nothing** (rule 7; SUBMISSIONS PARKED). It repairs no other item's copy of this defect: `so1a_grade.py:122–125` still carries the bare token, and that is a **finding for the supervisor**, not a change this lane may make post-compute.
+---
+
+## AMENDMENT R7 — 2026-08-31, PRE-COMPUTE. **THE PRECONDITION POINTED AT A RUN ROOT THAT DOES NOT EXIST AND NEVER WILL.** The document is **v1.2**. No gate, threshold, band, cap, label, cost or prediction moves.
+
+### R7.0 RULE 6 — NOTHING ABOVE THIS LINE MOVED, PROVED BY BYTE COMPARISON
+
+**Lines whose number changed above this section: 0.** The **445 lines / 63,764 bytes** above the
+horizontal rule that opens this section are **byte-identical** to `PREREGISTRATION.md` at HEAD
+immediately before this amendment — compared against the **HEAD blob** with `git show`, never
+against `git diff`, which reads the shared index and is unreliable under concurrency. Nothing
+above was struck, rewritten or renumbered. **The header still reads `Version 1.0. FROZEN.`
+deliberately** — that line is a true statement about the frozen document, and rewriting it is
+exactly the edit rule 6 forbids. The version bump is carried here, as R6 carried its own.
+
+### R7.1 THE RULE-2 CONDITION, AND HOW IT WAS CHECKED — WITH A CONTROL, NOT AN ASSERTION
+
+`CLAUDE.md` rule 2 makes amendments legal **before first compute** and requires the condition be
+stated **and how it was checked** — naming the run directory that does not exist.
+
+| check | result |
+|---|---|
+| `ls -d /home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv` | **No such file or directory** |
+| `ls -d /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt` | **No such file or directory** |
+| **CONTROL — the same lister, on a root that DOES exist** | returns `CURRICULUM-SO1bR-a1-naca0012-dragmin-opt` |
+
+**The control is not decoration.** A "does not exist" from a reader not shown able to see an
+existing directory is not evidence (`CLAUDE.md` rule 3). **SO-1c has burned ZERO core-minutes,
+started no container and created no run root.** Gates are open; this amendment is the ordinary
+path and **`VERIFICATION_CHARTER.md` §2d.1 is NOT reached for and is not needed.**
+
+### R7.2 WHAT WAS BROKEN — FOUR THINGS, NOT ONE, AND THE FOURTH IS THE DANGEROUS ONE
+
+SO-1b aborted at `rc=7` **before staging** and was re-registered as **SO-1bR**, which completed:
+`chain=COMPLETE`, five arms `rc=0`, verdict `PASS`, 17.934 core-min. **Its run root has a
+different name, and four things in this item pinned the old one.**
+
+| # | break | where | class |
+|---|---|---|---|
+| **1** | the precondition **root** | `so1c_chain_driver.sh:30` (`SO1B_BASE=`) — one line, and every downstream use at `:106`, `:216`, `:217`, `:236`, `:247` goes through `$SO1B_BASE` | run-time abort |
+| **2** | the **grade-json glob** `SO1b_grade_*.json` vs SO1bR's `SO1bR_grade_*.json` | `so1c_chain_driver.sh:106`, messages `:109`, `:116` | run-time BLOCK |
+| **3** | **the suite's own fixtures** | `so1c_groot5_selftest.sh` — the `G-SO1B-SELECT` fixtures | **A GREEN THAT TESTS NOTHING** |
+| **4** | the **(a2) negative fixture** | `so1c_groot5_selftest.sh:55` | control **degradation** |
+
+**BREAK 3 IS WHY THIS AMENDMENT TOUCHES THE SUITE AT ALL, AND IT IS NOT A COSMETIC GAP.** Leg
+`(h0)` asserts the suite **extracts the `G-SO1B-SELECT` block from the frozen driver** rather than
+running its own copy — which is the right design and is exactly what makes Break 3 bite. Repairing
+Break 2 alone leaves the fixtures matching nothing, and **`(h3)` — the R5 uniqueness repair, the
+whole reason `G-SO1B-SELECT` exists — still returns `rc=7`, but on the `no_grade` branch instead
+of the ambiguity branch. Right code, wrong reason.** A control that cannot fail is not a control.
+
+**Break 4:** `(a2)` used SO-1b's root to prove the launcher refuses *"the root this item READS"*.
+That root no longer exists, so the leg had degraded to proving refusal of a **nonexistent**
+directory — strictly weaker than registered.
+
+### R7.3 A FIFTH ITEM, CAUSED BY THE REPAIR ITSELF, AND IT IS THE `W3` DEATH MODE
+
+Adding SO-1bR's root to `FORBIDDEN_ROOTS` **changed `so1c_run_arm.sh`, and the driver PINS that
+file** (`MD5_LAUNCHER`, asserted at `:53` before staging and again at `:293` before every arm).
+
+**MEASURED, by driving the driver's own assertion:** pinned `777c33117dd65d882a9be04d27c07526`
+against actual `12dd18eced7b67f04348cd29363d31e1` → `md5sum -c` **FAILED, rc=1**. The chain would
+have aborted **`exit 4`, `ABORT launcher md5 drifted before staging`, before any container** —
+precisely the failure that cost `W3` a launch on 2026-08-28.
+
+**AND THE 50-LEG SUITE PASSED ANYWAY.** Nothing in this item drove the driver's md5 pins against
+the files they pin. `MD5_LAUNCHER` is **RE-PINNED** to `12dd18eced7b67f04348cd29363d31e1` and a
+new leg `(a5c)` now drives **all four** pins.
+
+**`(a5c)` IS PROVED ABLE TO FAIL, ON THE REAL FILE, BEFORE ITS PASS IS BELIEVED** (§2j): a
+one-byte mutation of `so1c_run_arm.sh` drove it to **`[BAD]`, naming the mismatch**
+(`pinned=12dd18ec… actual=a9636fe1…`); the file was restored byte-identically and the leg returned
+`[OK]`. **A control that has only ever passed is not shown to be a control.**
+
+### R7.4 THE EVIDENCE, IN THREE STATES — THE KNOWN POSITIVE CAME FIRST
+
+**Editing a test fixture is the one move in this repair that could be used to make a failing test
+pass, so the burden is on the repair to show it did not.**
+
+| state | suite | legs | fail |
+|---|---|---|---|
+| **A — BASELINE**, before any change | as frozen | **49** | **0** |
+| **B — KNOWN POSITIVE**, driver glob repaired, fixtures NOT yet | Break 2 only | **49** | **3** — `(h2)`, `(h2b)`, `(h3b)`; **and `(h3)` GREEN ON THE WRONG BRANCH** |
+| **C — AFTER**, all repairs | this amendment | **51** | **0** |
+
+**State B is the whole argument.** The fix was **shown failing before it was shown fixed**. In
+state C, `(h3b)` asserts the literal string **`reason=grade_selection_ambiguous`** — not merely
+`rc=7` — so the ambiguity branch is proved reachable and proved taken.
+
+**Legs whose status changed, in either direction:** `(h2)`, `(h2b)`, `(h3b)` B→C `[BAD]`→`[OK]`;
+`(h3)` B→C `[OK]`→`[OK]` **but on a different branch, which is the point**; `(a2)` now fires on a
+root that exists. **Legs added: `(a5b)`, `(a5c)`. Legs removed: none. Legs weakened: none.**
+
+### R7.5 WHAT MOVED, AND WHAT EXPLICITLY DID NOT
+
+**MOVED — five call sites and two documents:**
+
+1. `so1c_chain_driver.sh:30` — `SO1B_BASE` → SO-1bR's run root.
+2. `so1c_chain_driver.sh:106/:109/:116` — the glob and its two operator-facing messages → `SO1bR_grade_*.json`.
+3. `so1c_chain_driver.sh:37` — `MD5_LAUNCHER` re-pinned (§R7.3).
+4. `so1c_run_arm.sh` — SO-1bR's root **ADDED** to `FORBIDDEN_ROOTS`.
+5. `so1c_groot5_selftest.sh` — fixtures → `SO1bR_grade_*`; the `(a2)` fixture → SO-1bR's root; legs `(a5b)`, `(a5c)` added.
+6. `PREREGISTRATION.md` — this section only.
+7. `QUEUE_ENTRY_DRAFT.json` — precondition path, plus the **md5 pin** of §R7.6.
+
+**DID NOT MOVE — and this is the part a future auditor should check first, because *"we edited
+the test"* is exactly the sentence that should attract suspicion:**
+
+* **NO GATE, THRESHOLD, BAND, CAP, LABEL, COST OR PREDICTION.** `np = 4`, the cpuset, the memory
+  floor, `G-NP`, `G-XSTAR`, `G-MESHID`, `G-COLD`, `G-SO1B`'s decision logic, every band and every
+  registered outcome are untouched.
+* **THE CONTROL ITSELF IS UNTOUCHED. ONLY THE FIXTURES MOVED.** `G-SO1B-SELECT`'s logic —
+  enumerate, refuse on zero, refuse on more than one, record the selection — is byte-unchanged.
+  **The fixtures changed so that an EXISTING control can fire against the artefact names that now
+  exist.** No assertion was weakened, none was deleted, and no `[BAD]` was turned green by
+  lowering a bar.
+* **`so1c_grade.py` IS NOT TOUCHED.** md5 `367f9fc25b3b34535cb2cddfafdc06b1`, unchanged from R6.
+  **It is THE GRADING PATH, fixed at the pre-registration commit, and it is not churned by this
+  amendment.**
+* **`FORBIDDEN_ROOTS` was ADDED TO, NEVER SUBSTITUTED.** SO-1b's dead root **stays**, because leg
+  `(a4)` asserts that literal string is present in the launcher and a substitution would fail it —
+  and because forbidding a root that no longer exists costs nothing. **Both entries are asserted
+  present afterwards**, by `(a4)` and the new `(a5b)`. The addition is purely protective:
+  SO-1bR's root is now a root this item **READS**, and it must never be written into.
+* **The E/O artefact filenames DID NOT MOVE.** SO-1bR still writes `so1b_E.json` and
+  `so1b_O.json`; **only the root and the grade prefix changed**, and nothing was renamed to
+  "match" the R convention.
+
+### R7.6 THE md5 PIN — the repair for the class, not just the instance
+
+`QUEUE_ENTRY_DRAFT.json` now carries **`precondition_artifact_md5`
+= `9b1a965c5108245679df87801653aae6`** (`E-S/so1b_E.json`, 9,991 bytes), **independently verified
+by two readers** on 2026-08-31.
+
+**PINNING BY PATH ALONE IS WHAT LET A PATH CHANGE BECOME A SILENT SEMANTIC BREAK.** A path pin
+answers *"is something there?"*; a content pin answers *"is it the thing I registered?"* With the
+hash, a substituted, truncated or regenerated artefact **REFUSES** instead of resolving to the
+wrong file.
+
+### R7.7 THREE DISCLOSURES, NONE OF WHICH THIS AMENDMENT REPAIRS
+
+1. **`so1c_grade.py:124` carries a DEAD CONSTANT** — `SO1B_BASE = "…CURRICULUM-SO1b-…"`, **defined
+   once and referenced zero times** (measured). It names a root that no longer exists. **It is
+   left in place deliberately**, on the supervisor's ruling: the grading path's md5 is not churned
+   to delete a constant with no references. **It is recorded here so the next reader is not misled
+   by it.**
+2. **`PREREGISTRATION.md:416` carries a typographic defect in R6's prose** — the grader md5 is
+   written `367f9fc25b3b34535cb2cddfafdc06b1R`, with a stray trailing `R`. **The executable pin at
+   `so1c_chain_driver.sh:38` is correct** and was verified against the file. Prose only; nothing
+   executes it; **not corrected, because R6 is frozen and this is disclosure, not repair.**
+3. **The suite did not drive the driver's md5 pins before this amendment** (§R7.3). That gap is
+   now closed by `(a5c)`, and it is named rather than quietly filled.
+
+### R7.8 THE PATTERN, RECORDED WHERE IT IS LOAD-BEARING AND NOWHERE ELSE
+
+**SO-1b broke because it globbed `SO1a_grade_*.json` when SO-1aR wrote `SO1aR_grade_*.json`.
+SO-1c broke because it globs `SO1b_grade_*.json` when SO-1bR writes `SO1bR_grade_*.json`.** The
+`R`-suffix re-registration convention **systematically breaks every downstream consumer that pins
+by name, and the repair of each rung is precisely what breaks the next.**
+
+**Break 3 is that shape a THIRD time and is the strongest instance, because it is
+self-referential: the fix to the driver broke the suite that guards the driver.**
+
+**No `L-` number is taken here and no naming rule is proposed** — the 2026-08-31 plumbing freeze
+forbids new procedural rules, and the first two instances are already recorded at `L-412`. This
+paragraph sits in this amendment because it is **the reason `§R7.6`'s content pin exists**, which
+is load-bearing, and for no other reason.
+
+### R7.9 INSTRUMENTS — the three whose md5 moved, and the reason each moved
+
+| instrument | md5 BEFORE | md5 AFTER | why |
+|---|---|---|---|
+| `so1c_chain_driver.sh` | `55614d4aa953fee29ceccbc7c1785baf` | **`3870a8d4c58861fce5a7e9437f89474a`** | Breaks 1 + 2, and the `MD5_LAUNCHER` re-pin |
+| `so1c_run_arm.sh` | `777c33117dd65d882a9be04d27c07526` | **`12dd18eced7b67f04348cd29363d31e1`** | one line ADDED to `FORBIDDEN_ROOTS` |
+| `so1c_groot5_selftest.sh` | *(not previously tabled)* | **`ca79882b8933a8502da96063ad2119da`** | Breaks 3 + 4, legs `(a5b)`/`(a5c)` |
+| `so1c_grade.py` | `367f9fc25b3b34535cb2cddfafdc06b1` | **unchanged** | the grading path is not churned |
+| `so1c_xn.py` | `63d13c88fb915ab7695d6f1a9383a4ed` | **unchanged** | |
+
+**All four of the driver's pins were verified to equal the files they pin, in the same invocation
+that produced this table**, and leg `(a5c)` now re-verifies them on every drive.
+
+### R7.10 WHAT THIS AMENDMENT DOES NOT DO
+
+**It does not launch, enqueue, or authorise anything.** No queue entry is filed; the
+`QUEUE_ENTRY_DRAFT.json` is a draft and remains one. **Enqueueing is not authorisation** and the
+pre-compute gate is the supervisor's. **SO-1c has spent 0 core-minutes and this amendment spends
+none.** It moves no gate, threshold, band, cap, label, cost or prediction; it retires nothing; and
+it makes **more** things refuse and **nothing** pass that could previously have been refused.

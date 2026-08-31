@@ -113,6 +113,7 @@ FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
 /home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
 /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
 /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
+/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt
 /home/ubuntu/certonomous-runs/A2-mach-wing
 /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
 /home/ubuntu/dafoam-tutorials

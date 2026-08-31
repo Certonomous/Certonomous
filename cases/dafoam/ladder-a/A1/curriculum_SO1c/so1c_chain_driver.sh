@@ -27,14 +27,14 @@ GRADER="$HERE/so1c_grade.py"
 IMG_SHIPPED=dafoam/opt-packages:latest
 IMG_PATCHED=dafoam-idwarp-rot:v1
 BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv
-SO1B_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
+SO1B_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt
 TUT_SRC=/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
 PERMISSION=bc0e687e
 H5_FLOOR_GIB=8.0; H5_SAMPLES=45; H5_WINDOW_S=60; AGG_CEILING_GIB=30.6
 AGG_POLL_S=30; AGG_BOUND_S=14400
 # The launcher and grader are FROZEN (PREREGISTRATION.md section 7/8);
 # asserted before EVERY arm so a mid-chain edit cannot change what runs.
-MD5_LAUNCHER=777c33117dd65d882a9be04d27c07526
+MD5_LAUNCHER=12dd18eced7b67f04348cd29363d31e1   # RE-PINNED by AMENDMENT R7, 2026-08-31 (was 777c33117dd65d882a9be04d27c07526; SO-1bR's run root ADDED to FORBIDDEN_ROOTS)
 MD5_GRADER=367f9fc25b3b34535cb2cddfafdc06b1   # RE-PINNED by AMENDMENT R6, 2026-08-28 (was 32af1c494db6884144151c7e7d7e81af)
 MD5_RUNSCRIPT=0557da51f6f179f6de865144343c499f
 MD5_XN=63d13c88fb915ab7695d6f1a9383a4ed
@@ -103,17 +103,17 @@ echo "$MD5_GRADER  $GRADER" | md5sum -c - || { echo "ABORT grader md5 drifted be
 # files is the SAME BLOCKED branch as before, byte-for-byte; MORE THAN ONE is a
 # NEW refusal.  The selection is RECORDED either way: the chosen file AND the
 # full candidate list.
-SO1B_GRADE_CANDS=$(ls -1 "$SO1B_BASE"/SO1b_grade_*.json 2>/dev/null)
+SO1B_GRADE_CANDS=$(ls -1 "$SO1B_BASE"/SO1bR_grade_*.json 2>/dev/null)
 if [ -z "$SO1B_GRADE_CANDS" ]; then SO1B_GRADE_N=0; else SO1B_GRADE_N=$(printf '%s\n' "$SO1B_GRADE_CANDS" | wc -l); fi
 if [ "$SO1B_GRADE_N" -eq 0 ]; then
-  echo "ABORT G-SO1B no SO1b_grade_*.json under $SO1B_BASE."
+  echo "ABORT G-SO1B no SO1bR_grade_*.json under $SO1B_BASE."
   echo "  SO-1c verifies the gradient AT SO-1b's OPTIMUM; with no graded optimum"
   echo "  there is no design point to verify at.  BLOCKED at ZERO core-minutes."
   echo "chain=BLOCKED_G_SO1B reason=no_grade stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "${BASE}.STATUS.preflight" 2>/dev/null
   exit 7
 fi
 if [ "$SO1B_GRADE_N" -ne 1 ]; then
-  echo "ABORT G-SO1B $SO1B_GRADE_N files match SO1b_grade_*.json under $SO1B_BASE."
+  echo "ABORT G-SO1B $SO1B_GRADE_N files match SO1bR_grade_*.json under $SO1B_BASE."
   echo "  THIS DRIVER REFUSES TO PICK ONE.  Which grade is THE grade is a FINDING,"
   echo "  not an ordering question.  BLOCKED at ZERO core-minutes.  Candidates:"
   printf '    %s\n' $SO1B_GRADE_CANDS

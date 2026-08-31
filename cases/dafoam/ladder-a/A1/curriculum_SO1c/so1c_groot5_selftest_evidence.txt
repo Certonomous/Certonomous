@@ -183,3 +183,90 @@ containers on the box AFTER: 18 (BEFORE was 18)
 run root ABSENT after the test (freeze condition): YES
 
 SO1c guard selftest: 49 legs driven, 0 fail, 1 leg NOT DRIVEN and named (never counted)
+
+================================================================================
+AMENDMENT R7 DRIVE -- 2026-08-31.  Appended; nothing above is rewritten.
+Three states, KNOWN POSITIVE FIRST (a fix not shown failing beforehand is not
+shown to fix anything):
+  A BASELINE  (as frozen)                     : 49 legs, 0 fail
+  B KNOWN POS (driver glob fixed, fixtures not): 49 legs, 3 fail -- (h2),(h2b),(h3b)
+                                                and (h3) GREEN ON THE WRONG BRANCH
+  C AFTER     (all repairs)                   : 51 legs, 0 fail
+(a5c) PLANTED CONTROL: a one-byte mutation of so1c_run_arm.sh drove it [BAD],
+naming pinned=12dd18eced7b67f04348cd29363d31e1 actual=a9636fe101802bbbdb674f1e90c8a6fb;
+restored byte-identically and it returned [OK].  Proved able to refuse.
+--------------------------------------------------------------------------------
+SO1c GUARD SELFTEST  stamp=20260831T161346Z
+run root ABSENT before the test: YES
+containers on the box BEFORE: 19
+
+  [OK ] (a1) G-ROOT.1 BASE is not this item's registered run root -> ABORT (rc=3)
+  [OK ] (a2) G-ROOT.1/.2 BASE = SO-1bR's OWN RUN ROOT -> ABORT (the root this item READS) (rc=3)
+  [OK ] (a3) G-ROOT.1/.2 BASE = D6's LIVE run root -> ABORT before any staging (rc=3)
+  [OK ] (a4) SO-1a's and SO-1b's run roots are BOTH in FORBIDDEN_ROOTS
+  [OK ] (a5) ... and SO-1a's is too
+  [OK ] (a5b) AMENDMENT R7: SO-1bR's run root -- the root this item now READS -- is in FORBIDDEN_ROOTS too, ADDED BESIDE SO-1b's and never replacing it
+  [OK ] (a5c) EVERY md5 PIN IN THE DRIVER EQUALS THE FILE IT PINS -- a stale pin aborts the chain rc=4 before any container
+  [OK ] (a6) G-ROOT.3 a FOREIGN ITEM= ledger row -> ABORT (rc=3)
+  [OK ] (b1) a LIVE foreign driver pid + a non-registered root -> ABORT (root guard first) (rc=3)
+  [OK ] (b2) ORDER BY LINE NUMBER: G-ROOT.5 pass :305 < first `rm -rf $WORK` :483 < `docker run` :615
+  [OK ] (g0) POSITIVE CONTROL: the REAL launcher against the REAL frozen document does NOT abort on G-CAP-PREREG (it reaches the root guard) -- a check that only ever refuses is not a check
+  [OK ] (g1) a document cap of 40.0 against the launcher's registered 30.0 -> ABORT rc=65 BEFORE any container (rc=65)
+  [OK ] (g2) a CEILING that is not the sum of the caps -> ABORT rc=65 (rc=65)
+  [OK ] (g3) the manifest line DELETED -> ABORT rc=65 (rc=65)
+  [OK ] (g4) the pre-registration ABSENT -> ABORT rc=65 (rc=65)
+  [OK ] (g5) a document RANKS_N of 1 against the launcher's 4 -> ABORT rc=65 (a core-minute cap means nothing without its rank count) (rc=65)
+  [OK ] (c1) an UNREGISTERED arm name (SO-1a's X-S) past the root guards -> ABORT rc=64, no rank count (rc=64)
+  [OK ] (c2) every solver arm is registered at 4 ranks; MESH at 1
+  [OK ] (c3) every np=4 arm is pinned to FOUR DISTINCT cores 10,11,12,13
+  [OK ] (c4) 10,11,12,13 is DISJOINT from D6's 2,3,4,14 and D4-SHIPPED's 5,6,7,9
+  [OK ] (c5) the decomposition is resolved FROM THE ARM NAME: Ns->scotch, Ni->simple
+  [OK ] (d1) an N arm whose row's SO-1b optimum is ABSENT -> ABORT (root guard fires first; see d3 for the guard itself) (rc=3)
+  [OK ] (d2) ORDER: G-CAP-PREREG :370 < G-OPTDEP :470 < first `rm -rf $WORK` :483 -- every guard precedes every destructive step
+  [OK ] (d3) G-OPTDEP refuses an absent own-row optimum with rc=5
+  [OK ] (d4) the staged so1b_E.json is LABELLED a staged input in the launcher's own log line
+  [OK ] (d5) THE AGE-GUARD ORDER: the staged input is `cp -a`d BEFORE the age datum is touched, so a staged input is always OLDER than the datum and can never satisfy an age clause
+  [OK ] (e1) G-SO1B: PATCHED G-OPT PASS, SHIPPED G-OPT PASS, both G-CL PASS -> PROCEED (rc=0)
+  [OK ] (e2) G-SO1B: the SHIPPED row at GATE REACHED is ACCEPTED -- a deformed mesh at an iterate is still a design point (registered asymmetry) (rc=0)
+  [OK ] (e3) G-SO1B: the PATCHED row at GATE REACHED is REFUSED rc=7 -- the control must be a real optimum (rc=7)
+  [OK ] (e4) G-SO1B: a row whose re-solve did not recover the lift (G-CL not PASS) -> REFUSED rc=7 (rc=7)
+  [OK ] (e5) G-SO1B: PATCHED G-OPT NOT A RESULT -> REFUSED rc=7 (rc=7)
+  [OK ] (e6) G-SO1B READS THE SPECIFIC GATES, NOT SO-1b's ITEM VERDICT -- gating on the item verdict would kill SO-1c in SO-1b's own predicted outcome (SO-1b predicts item GATE FAIL)
+  [OK ] (e7) NO executable line of the driver reads SO-1b's G5E FD gate -- this item buys its own FD table at np=4, and DAFOAM_CHARTER.md section 5 forbids carrying an FD reference across np
+  [OK ] (h0) the G-SO1B-SELECT block EXTRACTS from the frozen driver (a suite that runs its own copy of the code proves nothing about the code that ships)
+  [OK ] (h1) G-SO1B-SELECT: ZERO SO1bR_grade_*.json -> BLOCKED rc=7 (the frozen v1.0 branch, unchanged) (rc=7)
+  [OK ] (h1b) ... and the status line still reads reason=no_grade -- the pre-existing no-launch branch is byte-preserved
+  [OK ] (h2) G-SO1B-SELECT: EXACTLY ONE grade artefact -> PROCEED rc=0 (rc=0)
+  [OK ] (h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied
+  [OK ] (h3) THE R5 DEFECT, DRIVEN: TWO grade artefacts -> REFUSED rc=7.  The frozen v1.0 form was `ls -1t ... | head -1`, which would have SILENTLY TAKEN THE NEWER ONE by mtime (rc=7)
+  [OK ] (h3b) ... naming BOTH candidates and recording reason=grade_selection_ambiguous -- a refusal that does not say what it could not choose between is not a finding
+  [OK ] (h4) G-MESHREF-SELECT: ONE MESH_*.log carrying ONE points-sha256 -> PROCEED rc=0 (rc=0)
+  [OK ] (h4b) ... the reference is the ONE sha from the ONE NAMED file, and the SELECTION RECORD beside it names that file and the candidate count
+  [OK ] (h5) THE R1 DEFECT, DRIVEN: TWO MESH_*.log in SO-1b's root -> REFUSED rc=4.  The frozen v1.0 form was a MULTI-FILE `grep ... | head -4`, and under ugrep multi-file output order is a RACE (rc=4)
+  [OK ] (h5b) ... naming BOTH candidates, and NO reference file is written -- the ambiguous read never reaches disk
+  [OK ] (h6) G-MESHREF-SELECT: ONE MESH_*.log carrying ZERO points-sha256 lines -> REFUSED rc=4 (a reference that names no mesh is not a reference) (rc=4)
+  [OK ] (h7) G-MESHREF-SELECT: ONE MESH_*.log carrying TWO points-sha256 lines -> REFUSED rc=4.  This is the input that used to reach the GRADER and publish as a MESH-REGENERATION-DETERMINISM finding (rc=4)
+  [OK ] (h8) NO EXECUTABLE line of the driver still selects with `ls -1t` or `head -4` (residue=0), and the sweep pattern was PROVEN on a planted known positive first (probe=2 of 2)
+  [OK ] (f1) the instrument refuses an unregistered mode -> rc=64 (rc=64)
+  [OK ] (f2) the instrument refuses with no -optimum path -> rc=64 (rc=64)
+  [OK ] (f3) the instrument cross-asserts nprocs against MPI AND against the dictionary
+  [OK ] (f4) the instrument refuses an optimum artefact whose libidwarp md5 is another row's
+  [NOT DRIVEN] (a0+) G-ROOT.5 leg (a) POSITIVE side -- "a RUNNING container already
+      carries this item's prefix and arm".  Driving it requires CREATING a container,
+      and this registration is made under an explicit ZERO-CONTAINERS-CREATED
+      instruction.  IT IS NOT COUNTED AS PASSING.  Its NEGATIVE side is driven above
+      (no so1c_ container exists, and the guard passes).  The one-line command that
+      drives the positive side, for the supervisor to run BEFORE first compute:
+        sudo -n docker run -d --name so1c_Ns-P_selftest --cpus=0.1 --cpuset-cpus=15 \
+             --memory=64m alpine sleep 30 >/dev/null && \
+        BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv \
+             bash so1c_run_arm.sh Ns-P dafoam-idwarp-rot:v1 ; echo rc=$? ; \
+        sudo -n docker rm -f so1c_Ns-P_selftest
+      EXPECTED: rc=3, "ABORT G-ROOT.5 a RUNNING container already carries this item's
+      prefix and arm".
+
+(a0) NEGATIVE side of G-ROOT.5 leg (a): so1c_ containers RUNNING = 0 (expected 0)
+containers on the box AFTER: 19 (BEFORE was 19)
+run root ABSENT after the test (freeze condition): YES
+
+SO1c guard selftest: 51 legs driven, 0 fail, 1 leg NOT DRIVEN and named (never counted)

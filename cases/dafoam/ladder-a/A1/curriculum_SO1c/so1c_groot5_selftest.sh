@@ -52,14 +52,27 @@ echo
 # ---------------------------------------------------------------- G-ROOT.1/.2/.3
 BASE="$TMP/not_the_registered_root" bash "$LAUNCHER" Ns-P dafoam/opt-packages:latest >"$TMP/a1.out" 2>&1
 leg "(a1) G-ROOT.1 BASE is not this item's registered run root -> ABORT" 3 $?
-BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt bash "$LAUNCHER" Ns-P dafoam/opt-packages:latest >"$TMP/a2.out" 2>&1
-leg "(a2) G-ROOT.1/.2 BASE = SO-1b's OWN RUN ROOT -> ABORT (the root this item READS)" 3 $?
+BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt bash "$LAUNCHER" Ns-P dafoam/opt-packages:latest >"$TMP/a2.out" 2>&1
+leg "(a2) G-ROOT.1/.2 BASE = SO-1bR's OWN RUN ROOT -> ABORT (the root this item READS)" 3 $?
 BASE=/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint bash "$LAUNCHER" Ns-P dafoam/opt-packages:latest >"$TMP/a3.out" 2>&1
 leg "(a3) G-ROOT.1/.2 BASE = D6's LIVE run root -> ABORT before any staging" 3 $?
 grep -q "CURRICULUM-SO1b-a1-naca0012-dragmin-opt" "$HERE/so1c_run_arm.sh"
 legc "(a4) SO-1a's and SO-1b's run roots are BOTH in FORBIDDEN_ROOTS" $?
 grep -q "CURRICULUM-SO1a-a1-naca0012-dragmin-gradient" "$HERE/so1c_run_arm.sh"
 legc "(a5) ... and SO-1a's is too" $?
+grep -q "CURRICULUM-SO1bR-a1-naca0012-dragmin-opt" "$HERE/so1c_run_arm.sh"
+legc "(a5b) AMENDMENT R7: SO-1bR's run root -- the root this item now READS -- is in FORBIDDEN_ROOTS too, ADDED BESIDE SO-1b's and never replacing it" $?
+# (a5c) AMENDMENT R7.  NOTHING DROVE THE DRIVER'S OWN md5 PINS.  Adding SO-1bR to
+# FORBIDDEN_ROOTS changed so1c_run_arm.sh and stale-ed MD5_LAUNCHER; the suite stayed
+# GREEN and the chain would have aborted rc=4 before any container -- the W3 death mode.
+PINFAIL=0
+for pv in MD5_LAUNCHER:so1c_run_arm.sh MD5_GRADER:so1c_grade.py MD5_XN:so1c_xn.py MD5_RUNSCRIPT:so1c_runScript.py; do
+  v=${pv%%:*}; f=${pv##*:}
+  p=$(grep -oP "(?<=^$v=)[0-9a-f]{32}" "$HERE/so1c_chain_driver.sh")
+  a=$(md5sum "$HERE/$f" | cut -d" " -f1)
+  [ "$p" = "$a" ] || { echo "    PIN MISMATCH $v pinned=$p actual=$a ($f)"; PINFAIL=1; }
+done
+legc "(a5c) EVERY md5 PIN IN THE DRIVER EQUALS THE FILE IT PINS -- a stale pin aborts the chain rc=4 before any container" $PINFAIL
 
 mkdir -p "$TMP/root3" && chmod 777 "$TMP/root3"
 echo "ITEM=SO1b" > "$TMP/root3/ledger.txt"
@@ -158,7 +171,7 @@ import json, sys, os
 b = os.environ["SO1B"]
 json.dump({"gates": {"G-OPT_PATCHED": {"verdict": sys.argv[1]}, "G-OPT_SHIPPED": {"verdict": sys.argv[2]},
                      "G-CL_PATCHED": {"verdict": sys.argv[3]}, "G-CL_SHIPPED": {"verdict": sys.argv[4]}}},
-          open(os.path.join(b, "SO1b_grade_x.json"), "w"))
+          open(os.path.join(b, "SO1bR_grade_x.json"), "w"))
 for rk, d in (("PATCHED", "P"), ("SHIPPED", "S")):
     json.dump({"ipopt": {"exit_line": "EXIT: Optimal Solution Found."},
                "shape_opt": ["0.1"], "patchV_opt": ["10.0", "1.13"]},
@@ -172,7 +185,7 @@ export SO1B="$TMP/so1b"
 # The G-SO1B block is exercised through the driver's OWN python, extracted verbatim
 # from the frozen file -- never a re-implementation of it.
 gso1b() { # gso1b -> rc
-  python3 - "$SO1B/SO1b_grade_x.json" "$SO1B" <<'PY' >"$TMP/e.out" 2>&1
+  python3 - "$SO1B/SO1bR_grade_x.json" "$SO1B" <<'PY' >"$TMP/e.out" 2>&1
 import json, os, sys, re
 drv = os.environ["DRIVER"]
 src = open(drv).read()
@@ -221,19 +234,19 @@ else
 fi
 
 mkdir -p "$TMP/gsel0" "$TMP/gsel1" "$TMP/gsel2" "$TMP/gbase"
-leg "(h1) G-SO1B-SELECT: ZERO SO1b_grade_*.json -> BLOCKED rc=7 (the frozen v1.0 branch, unchanged)" 7 "$(runsel "$TMP/sel_grade.sh" "$TMP/gsel0" "$TMP/gbase/x")"
+leg "(h1) G-SO1B-SELECT: ZERO SO1bR_grade_*.json -> BLOCKED rc=7 (the frozen v1.0 branch, unchanged)" 7 "$(runsel "$TMP/sel_grade.sh" "$TMP/gsel0" "$TMP/gbase/x")"
 grep -q "reason=no_grade" "$TMP/gbase/x.STATUS.preflight" 2>/dev/null
 legc "(h1b) ... and the status line still reads reason=no_grade -- the pre-existing no-launch branch is byte-preserved" $?
-: > "$TMP/gsel1/SO1b_grade_20260828T000000Z.json"
+: > "$TMP/gsel1/SO1bR_grade_20260828T000000Z.json"
 RC1=$(runsel "$TMP/sel_grade.sh" "$TMP/gsel1" "$TMP/gbase/y"); OUT1=$(cat "$TMP/sel.out")
 leg "(h2) G-SO1B-SELECT: EXACTLY ONE grade artefact -> PROCEED rc=0" 0 "$RC1"
-case "$OUT1" in *"G_SO1B_GRADE_SELECTED file=$TMP/gsel1/SO1b_grade_20260828T000000Z.json n_candidates=1"*) legc "(h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied" 0 ;;
+case "$OUT1" in *"G_SO1B_GRADE_SELECTED file=$TMP/gsel1/SO1bR_grade_20260828T000000Z.json n_candidates=1"*) legc "(h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied" 0 ;;
   *) legc "(h2b) ... and THE SELECTION IS RECORDED: the chosen file and the candidate count are printed, not implied" 1 ;; esac
-: > "$TMP/gsel2/SO1b_grade_20260828T000000Z.json"; : > "$TMP/gsel2/SO1b_grade_20260828T010000Z.json"
+: > "$TMP/gsel2/SO1bR_grade_20260828T000000Z.json"; : > "$TMP/gsel2/SO1bR_grade_20260828T010000Z.json"
 RC2=$(runsel "$TMP/sel_grade.sh" "$TMP/gsel2" "$TMP/gbase/z"); OUT2=$(cat "$TMP/sel.out")
 leg "(h3) THE R5 DEFECT, DRIVEN: TWO grade artefacts -> REFUSED rc=7.  The frozen v1.0 form was \`ls -1t ... | head -1\`, which would have SILENTLY TAKEN THE NEWER ONE by mtime" 7 "$RC2"
 N=$((N+1))
-if echo "$OUT2" | grep -q "SO1b_grade_20260828T000000Z.json" && echo "$OUT2" | grep -q "SO1b_grade_20260828T010000Z.json" && grep -q "reason=grade_selection_ambiguous" "$TMP/gbase/z.STATUS.preflight" 2>/dev/null; then
+if echo "$OUT2" | grep -q "SO1bR_grade_20260828T000000Z.json" && echo "$OUT2" | grep -q "SO1bR_grade_20260828T010000Z.json" && grep -q "reason=grade_selection_ambiguous" "$TMP/gbase/z.STATUS.preflight" 2>/dev/null; then
   echo "  [OK ] (h3b) ... naming BOTH candidates and recording reason=grade_selection_ambiguous -- a refusal that does not say what it could not choose between is not a finding"
 else
   echo "  [BAD] (h3b) ... naming BOTH candidates and recording reason=grade_selection_ambiguous"; FAIL=$((FAIL+1))
