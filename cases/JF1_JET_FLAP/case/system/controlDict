@@ -1,0 +1,85 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| JF1 jet-flap airfoil -- L1 FEASIBILITY, UNBLOWN NACA 0012, alpha = 0        |
+| LABEL: feasibility.  No gate, threshold or verdict attaches to this run.    |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         8000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   1000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    forceCoeffs
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        log             no;
+
+        patches         (airfoil jetSlot);
+        rho             rhoInf;
+        rhoInf          1.0;
+
+        // Aref = c * span = 1.0 * 0.01 = 0.01 so the coefficients are PER UNIT
+        // SPAN despite the one-cell-thick 0.01 m mesh.  Getting this wrong
+        // rescales CL and Cd by 100.
+        liftDir         (0 1 0);
+        dragDir         (1 0 0);
+        pitchAxis       (0 0 1);
+        magUInf         10.0;
+        lRef            1.0;
+        Aref            0.01;
+        CofR            (0.25 0 0);
+    }
+
+    yPlus
+    {
+        type            yPlus;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        log             yes;
+    }
+
+    minMaxU
+    {
+        type            fieldMinMax;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   100;
+        fields          (U p);
+        log             no;
+    }
+
+    contErr
+    {
+        type            solverInfo;
+        libs            ("libutilityFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (U p k omega);
+        log             no;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,13 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object nut; }
+// LOW-Re WALL TREATMENT, RECORDED AND FIXED FOR THE WHOLE LADDER:
+// nutLowReWallFunction (nut = 0 at the wall) + omegaWallFunction, valid at y+ <= 1.
+dimensions      [0 2 -1 0 0 0 0];
+internalField   uniform 3e-05;
+boundaryField
+{
+    airfoil     { type nutLowReWallFunction; value uniform 0; }
+    jetSlot     { type nutLowReWallFunction; value uniform 0; }
+    farfield    { type calculated; value uniform 3e-05; }
+    front       { type empty; }
+    back        { type empty; }
+}

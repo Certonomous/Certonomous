@@ -1,0 +1,17 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object omega; }
+// omega_inf = k_inf / (nu * (nut/nu)) with nut/nu = 3 -> 1.5e-04 / 3e-05 = 5.0 1/s.
+// RECORDED DEPARTURE: Sanaa section 1.4 offers TWO farfield omega recipes that
+// DISAGREE.  omega = sqrt(k)/(Cmu^0.25 L) with L = 0.1 c gives 0.2236 1/s, i.e.
+// a freestream eddy-viscosity ratio nut/nu = 67, which contaminates the boundary
+// layer.  The section's own alternative "or via viscosity ratio nut/nu = 3" is
+// taken here and the 22x discrepancy is reported as a finding.
+dimensions      [0 0 -1 0 0 0 0];
+internalField   uniform 5.0;
+boundaryField
+{
+    airfoil     { type omegaWallFunction; value uniform 5.0; }
+    jetSlot     { type omegaWallFunction; value uniform 5.0; }
+    farfield    { type inletOutlet; inletValue uniform 5.0; value uniform 5.0; }
+    front       { type empty; }
+    back        { type empty; }
+}

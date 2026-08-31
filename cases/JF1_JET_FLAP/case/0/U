@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// UNBLOWN row: alpha = 0, U_inf = (10 0 0).  jetSlot is a WALL in this row.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (10 0 0);
+boundaryField
+{
+    airfoil     { type noSlip; }
+    jetSlot     { type noSlip; }   // RECORDED: unblown -> the base is a solid wall
+    farfield    { type freestreamVelocity; freestreamValue uniform (10 0 0); value uniform (10 0 0); }
+    front       { type empty; }
+    back        { type empty; }
+}

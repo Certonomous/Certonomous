@@ -1,0 +1,12 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object k; }
+// k_inf = 1.5 (I U_inf)^2, I = 0.001 -> 1.5e-04 m2/s2   (Sanaa section 1.4)
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 1.5e-04;
+boundaryField
+{
+    airfoil     { type fixedValue; value uniform 1e-10; }
+    jetSlot     { type fixedValue; value uniform 1e-10; }
+    farfield    { type inletOutlet; inletValue uniform 1.5e-04; value uniform 1.5e-04; }
+    front       { type empty; }
+    back        { type empty; }
+}

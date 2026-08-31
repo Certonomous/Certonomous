@@ -1,0 +1,4 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// Re_c = U_inf c / nu = 10 * 1 / 1e-5 = 1.0e6   (Sanaa CASE 1 section 1.1)
+transportModel  Newtonian;
+nu              1.0e-05;
