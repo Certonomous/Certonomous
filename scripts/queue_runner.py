@@ -678,9 +678,18 @@ def rotation_order(queues: dict, rr_state: dict) -> list[str]:
     expressions were individually reasonable. The SECOND UNIT SYSTEM IS ELIMINATED:
 
       * State is the LAST-LAUNCHED TEAM NAME. A name has no unit system and cannot be
-        taken modulo the wrong length -- the defect is not fixed, it is UNREPRESENTABLE.
+        taken modulo the wrong length.
       * Rotation happens in TEAMS-index space; filtering happens AFTERWARDS. No TEAMS
         index is ever taken modulo `len(order)`, which was the whole defect.
+
+    WHAT KEEPS IT GONE IS THE CONTROL, NOT THE REPRESENTATION -- and the stronger word is
+    struck deliberately. This docstring first said the defect was "UNREPRESENTABLE". It is
+    not: `rr_state` is an untyped plain `dict` and nothing structurally forbids a future
+    edit from re-adding `rr_state["cursor"]` and a modulus beside it. What actually defends
+    the property is R1/R1-NEG in --selftest, which fails on any implementation that starves
+    a team. Say "a regression is caught by R1", never "the defect cannot exist" -- an
+    overclaim about a guard is how the next one gets waved through.
+    (Verification cross-team audit, 2026-08-31, finding 1.)
 
     It is also strictly fairer than the original intent: a team with no work on one tick
     KEEPS ITS PLACE in the global rotation instead of being silently renumbered by a
@@ -694,6 +703,28 @@ def rotation_order(queues: dict, rr_state: dict) -> list[str]:
     i = TEAMS.index(last) + 1 if last in TEAMS else 0
     rotated = TEAMS[i:] + TEAMS[:i]
     return [t for t in rotated if queues.get(t)]
+
+
+def legacy_cursor_note(rr_state: dict) -> str | None:
+    """The one-shot log line for pre-repair `rr_state`, or None if there is nothing to say.
+
+    THE TAIL OF THIS SENTENCE IS CONDITIONAL AND MUST STAY SO. When `last_team` is ALSO
+    present it correctly wins, and the tick resumes AFTER it rather than at the head of
+    TEAMS. The first version of this line claimed the head UNCONDITIONALLY and was simply
+    false in that case -- behaviour right, sentence wrong (verification cross-team audit,
+    2026-08-31, finding 6). AN EVIDENCE LINE THAT LIES IS THE FAILURE THIS LAB KEEPS PAYING
+    FOR, and this file already carries one struck miscitation for the same reason.
+
+    Split out of tick() so the sentence can be ASSERTED by control R5 against both state
+    shapes, rather than reviewed by eye. A log line nothing checks is a claim nothing tests.
+    """
+    if "cursor" not in rr_state or rr_state.get("cursor_legacy_noted"):
+        return None
+    last = rr_state.get("last_team")
+    where = (f"this tick resumes AFTER the last-launched team {last!r}"
+             if last in TEAMS else "this tick starts from the head of TEAMS")
+    return ("ROTATION: legacy integer 'cursor' state present and IGNORED -- rotation now "
+            f"keys on the last-launched TEAM NAME; {where}")
 
 
 def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
@@ -729,9 +760,9 @@ def tick(root: Path, log: Log, busy_ceiling: float, core_fraction: float,
     # inferred. `rr_state` is process-local (created fresh in main(), never persisted),
     # so a restart already starts clean; this branch exists for an in-process caller
     # holding pre-repair state, and the selftest plants exactly that.
-    if "cursor" in rr_state and not rr_state.get("cursor_legacy_noted"):
-        log("ROTATION: legacy integer 'cursor' state present and IGNORED -- rotation now "
-            "keys on the last-launched TEAM NAME; this tick starts from the head of TEAMS")
+    note = legacy_cursor_note(rr_state)
+    if note is not None:
+        log(note)
         rr_state["cursor_legacy_noted"] = True
     order = rotation_order(queues, rr_state)
     any_refused = False
@@ -1555,6 +1586,30 @@ def selftest() -> int:
           "from the head of TEAMS and no index is taken modulo len(order)",
           legacy_order == [t for t in TEAMS if t in live],
           f"order={legacy_order}")
+
+    # R5: THE LEGACY-CURSOR LOG LINE MUST NOT LIE IN EITHER STATE SHAPE. The first version
+    # said "starts from the head of TEAMS" unconditionally; with `last_team` ALSO present
+    # the rotation correctly resumes AFTER it, so the sentence was false in that case
+    # (verification cross-team audit 2026-08-31, finding 6). Behaviour was right and the
+    # EVIDENCE LINE was wrong, which is the harder defect to see and the one this lab has
+    # paid for before -- so the sentence is now asserted, not reviewed by eye.
+    note_bare = legacy_cursor_note({"cursor": 4})
+    note_both = legacy_cursor_note({"cursor": 4, "last_team": "closure"})
+    head_order = rotation_order({t: ["e"] for t in live}, {"cursor": 4})
+    both_order = rotation_order({t: ["e"] for t in live}, {"cursor": 4, "last_team": "closure"})
+    check("R5 legacy-cursor note is TRUE in both state shapes: 'head of TEAMS' only when "
+          "last_team is absent, 'resumes AFTER' when it is present",
+          note_bare is not None and "head of TEAMS" in note_bare
+          and note_both is not None and "resumes AFTER" in note_both
+          and "head of TEAMS" not in note_both,
+          f"bare={(note_bare or '')[-38:]!r} both={(note_both or '')[-38:]!r}")
+    check("R5b the note matches what the rotation ACTUALLY did -- the 'head' wording goes "
+          "with an order starting at the head of TEAMS, the 'resumes' wording does not",
+          head_order[0] == [t for t in TEAMS if t in live][0] and both_order[0] != head_order[0],
+          f"head_order={head_order[0]} both_order={both_order[0]}")
+    check("R5c the note is ONE-SHOT: already-noted state returns None and logs nothing",
+          legacy_cursor_note({"cursor": 4, "cursor_legacy_noted": True}) is None
+          and legacy_cursor_note({}) is None)
 
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
