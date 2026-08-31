@@ -6,8 +6,8 @@ Built to Demo Standard v2 output rules R1-R10.  Nothing drawn by this script is
 user-visible internal language: no case identifiers, no staging words, no gate or
 verdict vocabulary, no rule/lesson/docket numbers, no solver dictionary names, no
 talk of lab process.  Every figure carries a plain-English caveat box, a compute
-line with the up-front allowance beside the spend, and reference curves named by
-their source.
+line with the UP-FRONT ESTIMATE beside the spend (an estimate, never a cap or a
+guard -- both of those flatter us), and reference curves named by their source.
 
 INTERNAL NOTES (this file is not user-visible; the FIGURES are).
 
@@ -25,9 +25,18 @@ INTERNAL NOTES (this file is not user-visible; the FIGURES are).
     + 0.139 Cmu) ).  The series is INSIDE the root.  Values reproduce the
     registered table to 10 digits (0.4234034434 / 0.6047756775 / 0.8687421542 /
     1.2594769538) and that identity is asserted at run time.
-  * Spence (1956) itself has not been read here; the working form is taken from
-    ARC R&M 3304 p.5 eq. 2, which reports Spence's solution.  The figures
-    therefore name BOTH, and no figure claims agreement has been "verified".
+  * ATTRIBUTION, CORRECTED.  The formula implemented here is Williams, Butler &
+    Wood's OWN interpolation fit, not Spence's expression.  Printed p.5 of ARC
+    R&M 3304 introduces eq. (2) verbatim as "The following simple interpolation
+    formulae fit the computed values for c_f/c = 0 (T.E. blowing)..." and
+    attaches NO reference number to it.  Printed p.3 credits Spence with the
+    underlying two-dimensional problem and ref 26 on printed p.17 is Spence
+    (1956), but that is the problem, not this fit.  Naming Spence here would
+    assert the formula is his and the 1961 authors merely rendered it; the page
+    says otherwise, and nobody in this lab has read Spence (1956) -- it returns
+    HTTP 403 and is not on the box.  The figures therefore cite Williams, Butler
+    & Wood alone, in the identical wording the result sheet uses, and no figure
+    claims agreement has been "verified".
   * NOT ONE of the five completed runs met the convergence target on all five
     channels.  The turbulence-energy channel is the laggard everywhere and
     degrades monotonically with blowing.  Said plainly on the figures.
@@ -72,6 +81,22 @@ SWEEP = [                      # (directory, Cmu, reference area required)
 SWEEP_TIME = 8000
 LIVE = "JF1_P1_L1_CMESH_PHYSICS"
 LIVE_AREF = 1.0
+
+# UPFRONT ESTIMATES -- what was forecast BEFORE these ran, which is what R8
+# requires.  NOT the caps and NOT the runaway guard: a cap is a stopping rule
+# and forecasts nothing, and quoting one in place of the forecast turns a
+# 2.07x overrun into a fake underrun.
+#   SWEEP_ESTIMATE_EACH -- verification/campaign/JF1_PREREGISTRATION.md section
+#     12, the "G1-G5 C_mu_jet map, L1 (5 points)" row: 5 runs at 11.36
+#     core-min each, subtotal 56.79.  The string "45.0" that the RUN_STATUS
+#     files carry as "cap_core_min" appears ZERO times in that registration.
+#   LIVE_ESTIMATE_CORE_MIN -- staged upfront at 90.5 core-min (ranks 4,
+#     assumed parallel efficiency 0.75) in the live run's queue entry, and
+#     carried as the predicted figure in docs/COST_CALIBRATION.md.  The 200
+#     core-min figure previously quoted here was a runaway guard, not a
+#     forecast.
+SWEEP_ESTIMATE_EACH = 11.36
+LIVE_ESTIMATE_CORE_MIN = 90.5
 
 # registered ten-digit values the theory function must reproduce
 THEORY_CHECK = {0.05: 0.4234034434, 0.10: 0.6047756775,
@@ -149,8 +174,9 @@ def cost_line(fig, text):
 
 # -------------------------------------------------------------------- theory --
 def cl_theory(cmu, tau=TAU):
-    """Jet-flap lift from Spence's 1956 solution, in the form given by
-    ARC R&M 3304 p.5 eq. 2.  The bracket sits INSIDE the square root."""
+    """Jet-flap thin-aerofoil lift (C_L)_inf, from the interpolation fit given
+    as eq. (2) on printed p.5 of Williams, Butler & Wood, ARC R&M 3304 (1961).
+    The bracket sits INSIDE the square root."""
     if cmu <= 0.0:
         return 0.0
     series = 1.0 + 0.151 * math.sqrt(cmu) + 0.139 * cmu
@@ -214,6 +240,10 @@ def digest_sweep(base):
                         cd_aero=float(cd[i]), scatter=scatter, res=res,
                         aref=aref, iters=int(t[i]),
                         core_min=float(st.get("core_min_MEASURED", "nan")),
+                        # read but DELIBERATELY NOT DRAWN.  The launcher labels
+                        # this 45.0 a "Registered cap"; the string 45.0 appears
+                        # zero times in the registration and it is not a
+                        # forecast.  The figures quote SWEEP_ESTIMATE_EACH.
                         cap=float(st.get("cap_core_min", "nan")),
                         ranks=int(st.get("ranks", "1"))))
     return out
@@ -262,18 +292,26 @@ def main():
 
     blown = [r for r in rows if r["cmu"] > 0]
     spend = sum(r["core_min"] for r in rows)
-    allow = sum(r["cap"] for r in rows)
 
     st_live = run_state(os.path.join(base, LIVE))
     live_core_min = st_live["exec_time_s"] * 4.0 / 60.0
-    live_allow = 3000.0 * 4.0 / 60.0
 
-    cost_sweep = ("Computer time for the five calculations on this chart: "
-                  "%.0f core-minutes used against a %.0f core-minute allowance "
-                  "set before they were run." % (spend, allow))
-    cost_live = ("Computer time for this calculation: %.0f core-minutes used "
-                 "against a %.0f core-minute allowance set before it was run."
-                 % (live_core_min, live_allow))
+    # The UPFRONT ESTIMATE, not a cap or a guard.  R8 asks for the forecast we
+    # made before spending, so an overrun is stated as an overrun.
+    #   sweep : 11.36 core-min per calculation x 5, registered before any ran
+    #   live  : 90.5 core-min, staged before it ran
+    sweep_estimate = SWEEP_ESTIMATE_EACH * len(SWEEP)
+    live_estimate = LIVE_ESTIMATE_CORE_MIN
+
+    cost_sweep = ("Computer time for the five calculations on this chart: we "
+                  "estimated %.1f core-minutes before running them and used "
+                  "%.1f — %.2f times our estimate."
+                  % (sweep_estimate, spend, spend / sweep_estimate))
+    cost_live = ("Computer time for this calculation: we estimated %.1f "
+                 "core-minutes before running it and used %.1f — %.1f %% over "
+                 "our estimate."
+                 % (live_estimate, live_core_min,
+                    100.0 * (live_core_min / live_estimate - 1.0)))
 
     conv_note = (
         "  •  None of these calculations reached the convergence target that\n"
@@ -313,8 +351,10 @@ def main():
     cg = np.linspace(1e-5, 0.45, 400)
     th = np.array([cl_theory(c) for c in cg])
     ax.plot(cg, th, "-", color=THEORY_C, lw=2.4, zorder=4,
-            label="Jet-flap theory: Spence (1956), in the form given by\n"
-                  "ARC R&M 3304 p.5 eq. 2  —  $C_L \\propto \\sqrt{C_\\mu}$")
+            label="jet-flap thin-aerofoil theory, $(C_L)_\\infty$  —  "
+                  "Williams, Butler & Wood,\n"
+                  "ARC R&M 3304 (1961), eq. (2)  —  "
+                  "$C_L \\propto \\sqrt{C_\\mu}$")
 
     slope = cl_theory(0.40) / 0.40
     ax.plot(cg, slope * cg, "--", color=LINEAR_C, lw=2.0, zorder=3,
@@ -674,11 +714,12 @@ def main():
               % (r["cmu"], R["p"], R["Ux"], R["Uy"], R["k"], R["omega"],
                  "YES" if ok else "NO"))
     print()
-    print("sweep compute    : %.2f core-min used / %.1f core-min allowed"
-          % (spend, allow))
-    print("live run compute : %.2f core-min used / %.1f core-min allowed "
-          "(4 ranks, %.0f s so far)"
-          % (live_core_min, live_allow, st_live["exec_time_s"]))
+    print("sweep compute    : %.2f core-min used / %.2f core-min ESTIMATED "
+          "up front (%.3fx)" % (spend, sweep_estimate, spend / sweep_estimate))
+    print("live run compute : %.2f core-min used / %.2f core-min ESTIMATED "
+          "up front (%.3fx, 4 ranks, %.0f s)"
+          % (live_core_min, live_estimate, live_core_min / live_estimate,
+             st_live["exec_time_s"]))
     print("live run state   : iteration %d of 20000, p residual %.3e, "
           "clipping on %.1f %% of iterations since %s"
           % (st_live["last_time"], st_live["res"]["p"], frac,
