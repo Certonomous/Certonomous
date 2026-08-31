@@ -10198,6 +10198,144 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T21:17:52Z — T24 IS GRADED `PASS` ×12 AND THE RUNG IS CLOSED; ITS OWN FROZEN REGISTRATION PREDICTED EXACTLY THIS AND SAID SO IN ADVANCE; TWELVE OF TWELVE LINEARITY DEPARTURES SHARE A SIGN AND NOBODY KNOWS WHY
+
+*(Pure insertion by a heat-transfer `lab-lane` at the supervisor's instruction, with **zero existing lines edited or deleted**. The `**Section last written:**` line above is stale and is DELIBERATELY NOT EDITED — editing it would be a deletion. **Every figure below was re-derived by this lane from the named artefact**, not transcribed from the commissioning brief; where this lane's reading DIFFERS from the brief, or from a record this team has already committed, it is boarded under "WHERE I DIFFER FROM MY SUPERVISOR" rather than silently fixed. Items this lane did not check itself are tagged **VERIFY**. HEAD when this text was composed was `aa1ac179`; the true parent of this block's own commit is whatever the CAS asserted, and that — not this sentence — is authoritative.)*
+
+---
+
+### 0. THE VERDICT, AND THE FRAMING THAT MUST TRAVEL WITH IT
+
+**T24 = `PASS` ×12.** Twelve `chtMultiRegionSimpleFoam` Case-3 motor-in-duct rows `T24_P{080,155,230}_U{10,20,30,40}`. **Zero flags** (`flag: null` on all twelve) and **zero refusals** [MEASURED, `verification/runs/T-family/T24_runs/gate_t24.json`, all twelve `rows` entries]. **Case 3 is now 16/16 `PASS` across T23 + T24.**
+
+**AND THE CLEAN SWEEP CONFIRMS A REGISTERED PREDICTION; IT DISCOVERS NOTHING.** T24's own frozen registration said so **before compute**, at `docs/campaigns/T-family/T24_PREREGISTRATION.md:232-241`: *"B1 IS A WEAK DISCRIMINATOR ON THIS ROW SET"* and *"Zero flags was never the requirement of this tier and must not be engineered for."* §2.4 predicted the smallest B1 margin at **+118.2 K at (230 W, 10 m/s)**; the measured minimum is **118.2156 K at exactly that point** [MEASURED; the minimum over all twelve `B1_margin_K`, at `P_loss_W` 230 / `U_inf_ms` 10]. A registration that names its own weakest gate in advance and is then vindicated to four figures is a good registration — it is not a discovery.
+
+**THE TIER'S LIMITS, STATED SO NO READER CAN INFER MORE THAN WAS EARNED.** T24 is a **PHYSICALITY tier, L1 only**: **no Roache triple, no GCI, no observed order, and no grid-convergence error bar on any of the twelve points** (§0.3). **Buoyancy is OFF** (`g = 0 0 0`), so **§3.4's Richardson criterion is VACUOUS and is not a passing check** — it cannot fail on this row set and must never be counted as one that held.
+
+### 0a. SANAA'S COMMENDATION — her words, 2026-08-31, boarded BESIDE §0 and not in place of it
+
+> **"Beautiful work on the 16/16."**
+
+Received via the supervisor after this block was commissioned. The relay states what earned it: **the map, the blind comparator, the falsified-then-corrected model, and the honest VERIFY flags.** It is boarded here deliberately **below** §0's framing and not instead of it: she commended the honesty, so **a commendation that erased the caveat would forfeit the thing she praised.** 16/16 still confirms a registered prediction and still discovers nothing.
+
+### 1. COMMITS THIS SESSION — all twelve verified by `git log` [MEASURED]
+
+| sha | what |
+|---|---|
+| `3b053709` | `mark_done_t24.py` frozen |
+| `f52361c4` | ten queue fossils deleted by explicit path |
+| `474e3eff` | the prior board block |
+| `d8262317` | T24 concurrency-contention measurement |
+| **`d9082bfb`** | **T24 comparator FROZEN** — `analyse_t24.py` + `mutation_controls_t24.py`, authored **BLIND** |
+| `10818c4e` / `53bc88d4` / `b8eb5b62` / `80a69bb2` | T22 filing close-out (launcher repair, failed-launch-1 tree, launch-2 mesh logs, R2 queue draft) |
+| `f2e4d7a4` | `GRADING_CHAIN.md` under Sanaa's transparency order |
+| **`cc5f1af4`** | **the T24 VERDICT** — 25 files, 2,624 insertions |
+| `c667c10f` | the T24 cost-calibration row |
+
+### 2. RULE 2 VERIFIED BY HASH, AND THE FREEZE'S TIMING IS THE EVIDENCE
+
+The worktree `verification/runs/T-family/T24_runs/analyse_t24.py` **IS** the file frozen at `d9082bfb`: both hash to **sha256 `ef72d5754231ce6ca650b9bf957fe1a0c5fec84ea8dcf9feacce711ede3eee6a`** (git blob `fecc077b`), and HEAD's copy hashes identically [MEASURED, this lane, `git show d9082bfb:<path> | sha256sum` against `sha256sum <worktree path>`]. The comparator was **authored BLIND**: **six of the twelve cases had already reached `Time = 10000`** when it was written, and no `log.solve`, time directory or field output was read — the lane developed against forged trees and learned the `START` file format from the launcher SOURCE. Gates were frozen at `b9057489` **twenty-one minutes before the solvers launched**. `gate_t24.json` itself records `frozen_at: b9057489`, `frozen_document: docs/campaigns/T-family/T24_PREREGISTRATION.md`, `plant_K: 0.001234`, `rung: T24` [MEASURED, top-level keys].
+
+### 3. THE MEASURED NUMBERS, all re-derived from `gate_t24.json` by this lane [MEASURED]
+
+| quantity | measured | note |
+|---|---|---|
+| `Q1` range | **23.590 – 81.784 °C** | across the twelve |
+| `Q1 − Q2` separation | **0.3923 – 1.6273 K** | **B3 is genuinely non-degenerate** — the two probes never collapse |
+| `ux/uz` ratio | **1.561e-16 – 2.189e-16** | against §7.1's **1e-12** refusal threshold, four orders clear |
+| planted control | **1.234e-03 read back on BOTH readers, ×12** | floor **1e-06**, i.e. ~3 orders of detection headroom |
+| mesh identity | **ONE distinct `points_sha256` set** across all twelve | core / fluid / housing triple identical; `mesh_identical_to_T23: true` ×12 |
+| smallest B1 margin | **118.2156 K** at (230 W, 10 m/s) | §2.4 predicted **+118.2** at that exact point |
+| linearity departure | **+0.0031 % … +0.9853 %**, **12 of 12 POSITIVE** | 2 % contingency **did not fire** on any row (`linearity_contingency_fired: false` ×12) |
+| convergence assertion | `true` ×12 | |
+
+### 4. THE ONE OPEN QUESTION — tagged VERIFY, and NO MECHANISM IS CLAIMED
+
+**All twelve linearity departures are POSITIVE**, spanning **+0.0031 % to +0.9853 %**. The 2 % contingency **correctly did not fire**, and §2.4 registers this quantity as **reported, never gated** — so **nothing here touches a verdict**. But **12/12 sharing a sign is p ≈ 0.0005 under a random-sign null**: that is **systematic, not scatter**, and the departure **grows as the temperature rise gets small**. **This lane proposes no mechanism and asserts none.** It is boarded so that the next rung inherits the question rather than the reassurance.
+
+### 5. COST — rule 12 calibration [MEASURED]
+
+**457.0753 core-min MEASURED**, summed from the twelve `ExecutionTime` figures at **1 rank** (`= 27,424.52 s ÷ 60`). Re-derived by this lane independently from `gate_t24.json`'s own per-row `execution_time_s`: **the sum of `execution_time_s ÷ 60` equals the sum of `core_min` to 457.075333, exactly** [MEASURED]. **The source was never `STATUS`** — §3.5a prohibits it, and **the prohibition earned its keep: the `core_min` field was CLOBBERED in all twelve** (see §7).
+
+- **Ratio 1.2683** against the registered subset POINT of 360.4 core-min.
+- **84.64 % of the 540.0 subset cap**; **worst single case `T24_P155_U30` at 39.0853 core-min = 86.86 % of the 45.0 per-case cap**. **Zero cases capped.**
+- **$0.3908 — DERIVED, NOT MEASURED** (owner-stated $0.0513/core-h; the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5).
+- Ledger row **`C-20260831T210913.811885Z-2663ea60`**, verified present at `docs/COST_CALIBRATION.md:336` [MEASURED].
+- **Contention +26.83 % mean** vs T23's four-concurrent mean, against the **26.7 % – 29.9 %** bracket the contention note recorded from two probes **before any case had landed** — **0.13 points off its lower edge.**
+
+### 6. ⚠ CORRECTIONS AGAINST ME AND AGAINST THIS TEAM'S OWN COMMITTED RECORD
+
+**(1) THE LAUNCH LOADAVGS. Boarded as a correction against TWO lanes and, now, against a THIRD reading — this team's own committed cost row.** The measured sequence **in launch order** (20:01:19Z → 20:16:15Z), so nobody re-derives it again:
+
+**5.40, 5.69, 3.91, 3.42, 3.81, 5.82, 6.02, 6.67, 7.63, 8.66, 9.76, 11.15** — against `nproc` **16** [MEASURED, twelve `T24_P*/START.T24_P*` via `gate_t24.json`'s `start` block].
+
+- I originally reported *"rising monotonically 5.40 → 11.15"*. **It is not monotonic and 5.40 is not the floor.** I read one START file and generalised; the rest of that sentence was **partly fabricated**.
+- Another lane **sorted the values and called the sorted list monotonic** — the same error from the opposite direction.
+- **AND A THIRD, WHICH IS THIS TEAM'S OWN: the committed cost row `c667c10f` says the sequence *"dips to 3.42 at `T24_P080_U40` and 3.81 at `T24_P155_U10`"*. `T24_P155_U10` at 3.81 is a RISE from 3.42, not a dip.** The **only two descending steps** are 5.69 → **3.91 at `T24_P080_U30`** and 3.91 → **3.42 at `T24_P080_U40`**, which is the global minimum; from there it climbs monotonically to 11.15. Boarded here rather than edited into the ledger row, which is a filed record.
+- **§5.5's ruling is UNCHANGED in every version of this:** the threshold turns **only on the maximum**, **11.15 < 16**, so **no case is excluded and all twelve are calibration-eligible** — where §5.5 expected in advance *"to exclude some of the twelve by construction"*.
+
+**(2) THE `cpu_s/wall_s` BAND — the first correction replaced one splice with another, and this is the second correction.** I originally quoted **"0.9912–0.9974"**, a splice of my own twelve-case probe (0.9912–0.9966) and the contention note's probe (0.9950–0.9974). The cost row `c667c10f` corrected that to *"0.9950–0.9974 as the note itself reports"*. **The note does not report that as one band.** `T24_CONCURRENCY_CONTENTION_NOTE.md:72-73` reports **0.9963 – 0.9974 PER SOLVER** and **0.9950 AGGREGATE over all twelve** — **two different quantities**, and pinning a per-solver band's lower edge to an aggregate is a category splice, not a range. **No conclusion moves**: wall-seconds and CPU-seconds agree to better than 0.5 % on either reading, so the ~27 % is real CPU time on a resident core and is charged in full.
+
+### 7. STATUS CLOBBER — now MEASURED at 12 of 12, not partial [MEASURED]
+
+Every one of the twelve `STATUS.T24_P*_U*` files carries **only** `launcher_rc`, `end` and `note` — the `core_min` field is **DESTROYED in all twelve** — and there are **ZERO `STATUS.queue.*` files anywhere under `T24_runs/`** [MEASURED: `find … -name 'STATUS.queue*'` returns 0; key-extraction over all twelve returns the same single-line key set]. This turns the earlier *prediction* "all twelve will clobber" into a **measured fact**. **cfd's R5 namespace repair is EXONERATED, NOT DISPROVEN:** all twelve launched before the repair reached disk at 20:17:09Z, so this rung **does not test it**. Proving it needs a case launched after **20:18:08Z**.
+
+### 8. ⚠ HAZARD — `docs/capability/heat-transfer_GRID.md` — BINDING ON THE NEXT AMENDER
+
+The worktree copy is **BEHIND HEAD and is NOT a byte-prefix of it** [MEASURED, this lane]:
+
+- HEAD: **51,081 B**, sha256 **`817fa809fd50fc63d58ba115ed460e3811f8c223b70fcd14c8dd24332b2adc09`**
+- disk: **44,728 B**, sha256 **`0081a485f9912a30bc031f451a921d9e505051019ddc9b4aa27acc33b730eaee`**
+- first divergence **byte 8,945, line 47**; **exactly two lines differ, 47 and 59.**
+
+**A `--stat` therefore looks trivial and the danger is entirely invisible in it.** Both differing lines are **capability rows carrying struck correction chains**. Committing the worktree copy would revert line 47 from *"CAVEATS — 3 cases"* to *"2 cases"* and line 59 from *"2 graded cases"* to *"1 graded case"*, **erasing the struck record of the corrections** — and under rule 6 that struck chain **is** the evidentiary content. **BINDING: any amendment to that file is built from `git show HEAD:docs/capability/heat-transfer_GRID.md`, never from the worktree.** Left as found — **inspected, never reverted.**
+
+### 9. ⚠ HAZARD — the SHARED INDEX carries staged deletions
+
+Every commit this team makes is immune, because the private-index protocol reads its tree from HEAD. **A bare `git commit` is not.** **Left exactly as found; the index is the chief's call. Nobody should "fix" it with a reset.**
+
+### 10. CAUSE CLASSES — backfill COMPLETE (Sanaa's order, `4116024a`)
+
+**11 physics-adverse / 15 non-physics**: GATE-DESIGN 7, REFERENT-CEILING 4, INSTRUMENT 3, BUDGET/KILL 1 **INFERRED**, BOOKKEEPING 0, NAMING/PLUMBING 0. Plus **18 non-PASS verdicts the eight classes cannot receive**, and **9+ rungs with no verdict**, which take none. **T24 is `PASS` ×12 and carries no class.**
+
+**THREE TAXONOMY GAPS REFERRED TO SANAA. NO NINTH CLASS MINTED** — her freeze is in force and rules spawn only with her approval:
+
+- **GAP A — "did not iteratively converge"** (14 verdicts). **This team's single largest non-PASS mode has no class.**
+- **GAP B — "a registered prediction refuted by a correct measurement"** (11 verdicts). **A scientific success currently wearing a failure label.**
+- **GAP C — upstream non-lab tool defect** (`viewFactorsGen`).
+
+**AND A CONTRADICTION THAT IS HERS TO RULE, NOT OURS: K0d is GATE-DESIGN per its own record, and that CONTRADICTS Sanaa's own worked example, which lists K0d under BOOKKEEPING.** Boarded unresolved.
+
+### 11. RUNGS WITHOUT VERDICTS
+
+- **T21** — unfrozen. **§2m.3 conflict:** the clause orders a freeze **on the spot** AND forbids freezing one that lacks a grading path. **Referred to verification.**
+- **T20** — **NO VERDICT EXISTS.** No `gate_t20.json`. **My earlier "NOT A RESULT" reading was a prediction about a verdict not yet issued and is WITHDRAWN.**
+- **T16c** — **blind**, no `gate_t16*` anywhere. **Intact, and must stay so.**
+- **T18** — `PASS` ×3, but `analyse_t18.py:509`'s selftest limb produced a file **byte-identical to the real `gate_t18.json`**. **`--selftest` MUST NOT BE RUN** until the S8 successor exists.
+- **T5, T19, T1cU, K0e** — no verdict.
+
+### 12. OWED
+
+- **The K0cT bare-`FAIL` correction** — item 2 of this lane's brief, **landing as its own separate commit**; see §13 for the path correction.
+- **Four `LAB_STATE.md` lines — `:818`, `:2491`, `:2610`, `:2769` — still read `BLOCKED` for T8 where the verdict is `NOT A RESULT`** (`T8_VERDICT_2026-08-26.md:29-32`). **Not ours to edit.** Boarded because **anyone backfilling T8's cause class from the board rather than from its verdict record will get the wrong class.**
+- **`T24_RESULTS.md` DOES NOT EXIST** — neither under `verification/runs/T-family/T24_runs/` nor under `docs/campaigns/T-family/` [MEASURED, this lane]. **§6.5's full per-row residual record is still owed, and the Case 3 map report does not substitute for it.**
+- **T18's S8 successor.**
+- **The `run_t24.sh` `pgrep` false zero**, repaired in the **SUCCESSOR launcher only**: `solvers_already_running` reads `0` from a 17-char pattern matched against a 15-char truncated `comm`, and **all twelve START files duly record `solvers_already_running: "0"`** [MEASURED]. That zero is **NOT MEASURED and never was** — it is structurally incapable of being anything but zero. **The committed artefact stands unaltered as the record of what actually ran.**
+
+### 13. WHERE I DIFFER FROM MY SUPERVISOR
+
+1. **PATH — the K0cT artefacts are NOT where the brief places them.** The brief cited `verification/runs/T-family/K0cT_runs/gate_k0ct.json`; **that directory does not exist.** The file is **`verification/runs/F14-cooling-ladder/K0cT_runs/gate_k0ct.json`**, and the prose record is **`docs/campaigns/F14-cooling-ladder/K0cT_RESULTS.md`**. K0cT is an **F14-cooling-ladder** rung, not a T-family one [MEASURED].
+2. **The loadavg "dip at `T24_P155_U10`" is wrong in the committed cost row as well as in my brief** — see §6(1). 3.81 is a rise, not a dip.
+3. **The `cpu_s/wall_s` correction in `c667c10f` is itself a splice** — see §6(2). The note's per-solver band is 0.9963–0.9974; 0.9950 is an aggregate.
+4. **The planted control's 1.234e-03 is not one float.** Across the 24 reads there are **three distinct bit patterns** (e.g. `0.0012340000000108375` and `0.0012339999999539941`) — all equal to 1.234e-03 to 13 significant figures, all ~3 orders above the 1e-06 floor. The conclusion is unchanged; **the plant is a live control on both readers ×12**. Boarded because "seen at 1.234e-03 ×12" reads as bit-identity and it is not.
+5. **The 26.7 %–29.9 % figure is a MEASUREMENT from two probes, not a registered pre-compute bracket.** `T24_CONCURRENCY_CONTENTION_NOTE.md` titles itself *"a MEASUREMENT, for the calibration row to cite"* and states at `:60` *"THE MEASUREMENT"*. It was taken **before any case landed**, which is what makes the +26.83 % outcome meaningful — but it is **not a pre-registered gate** and must not be cited as one. **VERIFY:** this lane did not establish independently that the note's probes preceded every landing; it relies on the note's own timestamps and on `d8262317`.
+
+### 14. ON SANAA'S DESK
+
+The **Case 3 map report** (in draft; **it STAYS IN THE REPOSITORY** — the lab is permanently private, rule 8); the **three taxonomy gaps**; the **K0d contradiction**; **T20's §2d.1 referral** (unruled); the **§2m.3 / T21 conflict**. Standing: the **T10a view-factor defect** as upstream candidate #4; the **K2a rack-row module**; **D389's S13 normalisation**; **T15b's §2d.1**.
+
+---
+
 ##### ADDENDUM 2026-08-31T20:45Z — T24's TWELVE ARE MID-FLIGHT AND ITS COMPARATOR WAS NEVER WRITTEN; THE COMPLETION MARKER IS FROZEN; TEN FOSSILS LANDED AGAINST AN AUTHORISATION WHOSE OWN DIFF CLAIM DOES NOT REPRODUCE
 
 *(Pure insertion by a heat-transfer `lab-lane` at the supervisor's instruction, with **zero existing lines edited or deleted**. The `**Section last written:**` line at the top of this section is stale and is DELIBERATELY NOT EDITED — editing it would be a deletion. **Every figure below was re-derived by this lane from the named artefact**, not transcribed from the commissioning brief; where this lane's reading DIFFERS from the brief it is boarded under "WHERE I DIFFER FROM MY SUPERVISOR" rather than silently fixed. Items this lane did not check itself are tagged **VERIFY**. Repository HEAD **at the moment this text was composed** was `b79a6b8c`; the true parent of this block's own commit is whatever the CAS asserted, and that — not this sentence — is authoritative (the 17:52Z correction below is this team's own precedent for why.)*
