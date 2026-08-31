@@ -252,3 +252,123 @@ the only item whose registered P5 component is also the component the defect lan
 cited upward, it is cited as one of two clean points (with D16), never as the first point of a Mach
 trend.** Its `shape[3]` SHIPPED row at 4.0839 % is inside the band and is a `PASS`; the item's
 `GATE FAIL` rests on `shape[0]`, `shape[6]` and `shape[7]`, three components, not one.
+
+---
+
+## The FD-plateau disclosure on the PATCHED row's `CD` `shape[7]` — added 2026-08-31, dated section, appended
+
+**NOT FILED ANYWHERE.** Nothing in this section, or in the material it cites, is filed, sent, emailed,
+uploaded, posted, registered or commented outside this box, now or ever (`CLAUDE.md` rule 7;
+`DAFOAM_CHARTER.md` §10). SUBMISSIONS PARKED, and sending is Sanaa's decision alone.
+
+**Lines whose number changed above this section: 0.** This section is appended at the foot, after the
+2026-08-27 check-3 sweep, and nothing above it is edited. Proved mechanically, not asserted: the
+pre-edit file is git blob **`32dda1aa8532028ad331ea338067dc835756554e`**, **254 lines**; a byte
+comparison of that blob against the **first 254 lines** of the post-edit file is **empty**. Every line
+above is byte-identical and this section begins at line **255**.
+
+**Document version.** This record carries no numeric version field; it versions itself by **dated
+appended sections**, the convention its own 2026-08-27 check-3 sweep established. The bump is
+therefore that count — **dated appended sections 1 → 2**. No numeric version is invented here.
+
+**IT MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP, NO LABEL AND NO VERDICT.** D15's item verdict stays
+**`GATE FAIL`**; the rows stay SHIPPED **`GATE FAIL`** / PATCHED **`PASS`**; band D 5.0 % per
+component, band E 5.0 % aggregate, the registered 10.0 % plateau tolerance, the 165.0 core-min ceiling
+and every per-arm cap, and the scored outcomes of P1–P6b all stand exactly as recorded above. Gates
+closed at first compute (`CLAUDE.md` rule 2) and nothing here reopens one. **This is a disclosure of
+what the registered plateau rule was and was not entitled to conclude — not a regrade.** No compute
+was spent: **0.000 core-min**.
+
+### 1. What was measured, and by what
+
+A frozen, controlled, zero-solver-compute measurement at commit **`f032d94e`** read this item's own
+frozen artefacts — no re-run, no regrade — and established that the **PATCHED row's FD plateau is NOT
+PROVED** on one component of the graded objective. The instrument is
+`/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D19/d19_step_table.py` and the record is
+**`/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D19/D15_D16_FD_STEP_TABLE.md`**. Its
+sources are this item's frozen graded JSON
+`/home/ubuntu/certonomous-runs/CURRICULUM-D15-a1-naca0012-subsonic/D15_grade_20260827T114315Z.json`
+(field `gates.G5_PATCHED.G5_{CD,CL}.components[].plateau_neighbour_pct`) and the raw endpoints in
+`.../CURRICULUM-D15-a1-naca0012-subsonic/{F-S,F-P}/d15_F.json`, from which the reader reproduced the
+grader's published aggregate **0.047405 %** to 1e-9.
+
+| PATCHED row, this item | components with a **two-sided** plateau | the exception |
+|---|---|---|
+| objective **`CD`** | **4 of 5** | **`shape[7]` — ONE-SIDED: coarse-side `1.1559 %`, FINE-side `21.6299 %`** |
+| `CL` (G5c) | **5 of 5**, worst neighbour `1.7174 %` | — |
+
+The two neighbour figures are the grader's own, unrounded:
+`plateau_neighbour_pct = [1.1558573362510012, 21.629874553458254]` on `CD` `shape[7]`, against the
+registered tolerance of 10.0 %. The three registered steps are `{1e-2, 1e-3, 1e-4}`, graded at the
+middle.
+
+### 2. Why the row still passed the rule that graded it
+
+`d15_grade.py:75` sets `PLATEAU_TOL_PCT = 10.0`, and `:356-358` refuses only when **both** neighbours
+miss:
+
+    nb = [abs(d[0] - ref) / abs(ref) * 100.0, abs(d[2] - ref) / abs(ref) * 100.0]
+    if min(nb) > PLATEAU_TOL_PCT:
+        c.update({"verdict": "NOT A RESULT", "reason": "NO_PLATEAU"})
+
+**`min`, not `max`.** A component that agrees with one neighbour and misses the other by any margin
+whatever passes. **This is not a defect in the grader and it is not corrected here**: the rule was
+frozen before this item's first compute, it graded exactly what it froze, and amending it now is
+precisely what rule 2 forbids. It is a statement about entitlement. The registered rule is entitled to
+conclude that the graded step is **not isolated**; it is **not** entitled to conclude that the step
+sits in a **plateau**, because a plateau is flat on both sides and a one-sided agreement is a
+boundary. `VERIFICATION_CHARTER.md` §7 step 1 asks for the two- or three-point mini-sweep that
+demonstrates the step *sits in* the plateau; on `CD` `shape[7]` that demonstration is one-sided.
+
+### 3. The break is NOT DIAGNOSED, and this section does not pretend it is
+
+The indication is strong. `shape[7]` is the smallest component in the set — **1.135 %** of the `CD`
+adjoint vector norm, against `shape[6]`'s **76.414 %** — and its fine-step signal-to-noise against
+baseline bit-repeatability is **248.8**, two to four orders below every other fine-step S/N in the
+measurement (next lowest 7,992; highest 2.1 × 10⁶). That is where subtractive cancellation appears
+first. **But the arithmetic does not close.** An S/N of 248.8 bounds the induced error near **0.40 %**,
+and the observed break is **21.6299 %** — roughly **50× larger than that bound explains**. The bound is
+also the weakest available: `CD_baseline` versus `CD_baseline_repeat` measures rerun determinism on the
+same mesh, not the convergence-tolerance scatter of a primal restarted on a *perturbed* mesh, which is
+the noise that actually matters and which this item's artefacts **do not measure at all**.
+**Cancellation is a hypothesis with a gap in it and is recorded as one, never as the cause.** Settling
+it needs a step sweep (or a forward-AD reference, which has no step), not an assertion.
+
+For contrast, and read from the same artefacts: the companion item D16 carries the mirror-image failure
+on the *other* function — its PATCHED `CL` `shape[6]` is one-sided at the **COARSE** end
+(`14.0978 %` coarse, `1.1268 %` fine) — and that one **is** diagnosed as truncation / shock motion
+under a 1e-2 perturbation at S/N 901,738. D15's break is at the **FINE** end and is not.
+
+### 4. The consequence, stated narrowly — the SHIPPED failures are UNAFFECTED
+
+**This item's `GATE FAIL` and its cause class stand.** The SHIPPED row's worst component is
+**44.8738 %** on `CD` `shape[6]` against a 5.0 % band — nearly nine times the band and an order of
+magnitude beyond any plateau ambiguity — and `shape[6]`'s plateau is **fully two-sided**
+(neighbours 3.3285 % / 0.3357 %), as is `shape[0]`'s at **12.2745 %** (0.1592 % / 0.5808 %). §6 above
+records that the item's `GATE FAIL` rests on three components; **two of those three sit on
+fully two-sided plateaus and either one alone carries the row verdict.** The
+`PHYSICS-FAIL — against the SHIPPED TOOLCHAIN` cause class assigned to this row in
+`docs/dafoam/GRADING_CHAIN.md` therefore stands unchanged; **this section does not edit that file.**
+
+**One honest refinement rather than a blanket claim.** The third failing SHIPPED component *is*
+`CD` `shape[7]` — the one-sided one — at **20.4223 %**, which is **not** an order of magnitude clear of
+the 21.6299 % fine-side excursion and must not be quoted as though it were. Two things keep it
+standing anyway: the row verdict does not depend on it, and the **shipped-versus-patched divergence on
+that component, `15.583 %` as published in §4 above, involves no FD reference at all** — it is
+`|J_shipped − J_patched| / |J_shipped|` on the two adjoint totals, so an imprecision in the shared FD
+reference is common-mode and cannot produce it. The two rows are graded against the *same* `d_ref` at
+the *same* step.
+
+**What is qualified is one thing only: the PATCHED row's PRECISION on `CD` `shape[7]`.** Its
+1.6573 % agreement with FD (grader field `rel_err_pct = 1.6572653179889794`; §3 above rounds it to
+1.6570 %, the same number to four significant figures — noted so the two readings are not mistaken for
+two measurements) was demonstrated against a reference whose step placement is bracketed on one side.
+That is a smaller claim than "the gradient is wrong", and this section makes no larger one. The
+PATCHED aggregate of **0.047405 %** and the row's `PASS` are untouched.
+
+### 5. What this section does not do
+
+It does not regrade; it does not amend `PLATEAU_TOL_PCT` or the `min`/`max` reading retrospectively;
+it does not touch `docs/dafoam/GRADING_CHAIN.md`, `docs/capability/dafoam_GRID.md`, the D19
+registration or anything under `curriculum_D19/`; and it creates no successor item. What a future item
+registers is a future item's business.
