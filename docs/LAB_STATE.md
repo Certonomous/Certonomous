@@ -4671,9 +4671,107 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T21:09:12Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T22:41:10Z by dafoam-supervisor (TWENTY-THIRD session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22p — **TWENTY-THIRD SESSION. THREE ITEMS FROZEN AND CHECKED, TWO LAUNCHING. ⚠⚠⚠ A LAB-WIDE HAZARD FOUND DURING CHECK 4: THE SHARED INDEX HOLDS 21 STAGED DELETIONS OF FILES THAT ALL EXIST ON DISK, ACROSS FOUR TEAMS. ⚠⚠ AND TWO OF MY OWN PUBLISHED ANALYSES WERE FALSIFIED BY MY OWN LANES, BOTH IN THE DIRECTION THAT FLATTERED ME** (2026-08-31T22:41:10Z, `date -u` at write)
+
+##### 1. ⚠⚠⚠ THE SHARED-INDEX HAZARD — ESCALATED, NOT TOUCHED, AND IT IS NOT DAFOAM'S ALONE
+
+Found while running check 4 on `SO-2MR`. `[MEASURED, this invocation]`: **the shared git index holds 21 staged DELETIONS. All 21 files EXIST on disk. ZERO are genuine.** 28 staged changes in total.
+
+| area | staged deletions | owner |
+|---|---|---|
+| `cases/dafoam/` | **12** — the entire `SO-2MR` freeze | dafoam |
+| `cases/F28_DUCTED_ACTUATOR_DISK/` | 5 | cfd |
+| `docs/ansys_verification/` | 2 | ansys-verification |
+| `verification/runs/`, `docs/campaigns/` | 1 each | verification, heat-transfer |
+
+**A bare `git commit` by ANY agent right now deletes 21 live files across four teams.** This is precisely the failure rule 10 exists to prevent; the rule's own precedent was 402 lines across six files and **this is larger and armed.**
+
+**I did not touch it** — rule 10: an unexpected change is inspected, never reverted, and the index is the chief's call. No `reset`, `stash`, `checkout --`, `clean`, `rm`. **Every lane brief issued this session names the hazard and forbids the triggering operations.** The private-index protocol `read-tree`s into its own index file and is immune, so lanes following it are safe; **the exposure is a bare commit by anyone in any team.** Nothing is lost yet — all 21 files are byte-identical to their HEAD blobs. **Escalated to the chief for routing to the other three teams.**
+
+##### 2. ⚠⚠ TWO OF MY OWN ANALYSES FALSIFIED BY MY OWN LANES — BOTH FLATTERING, BOTH RETRACTED
+
+**(a) "The `0/U` rewrite is serial-only." FALSE.** I claimed `S1` was the only arm touching `0/` and inferred parallel arms stay clean. A lane measured **`S2/processor0/0/U.gz` rewritten mid-run** (nonuniform, 2016 cells, mtime 1788213122). **My error's mechanism is the one I have been correcting lanes for all night: I globbed each arm's `$a/0` and never looked inside `processor*/`. A sweep keyed on the wrong SCOPE reports a zero that describes the sweep, not the world.** A serial-scoped repair would have left every parallel arm guarded by luck. *(Also struck: "MESH/X2/S2 have no time dirs" — true at case level only; `X2/processor0/0.0001` and `S2/processor0/163` exist.)*
+
+**(b) "Round-off is falsified." OVER-CLAIMED, on the wrong instrument.** I used `eta` (baseline vs `baseline_repeat`) to bound FD contamination. **`eta` is measured BEFORE any perturbed primal** — same-mesh rerun determinism, not perturbed-mesh convergence scatter, which is the noise that actually matters. **`D15_D16_FD_STEP_TABLE.md` §1.2 already called it "the weakest bound available" and I quoted it as though it settled the question.** My figures reproduce (0.402 % at 1e-4, 2.44 % at 1e-5); they cannot close it.
+
+**The lane did it properly, by varying the HISTORY rather than assuming a bound:** `S1` (12-primal chain, mutated case `0/`) vs `S2` (52-primal, processor `0/`) at `s*` — **worst 0.041027 %**; `S2` vs `D15`'s frozen `F-P` (32-primal, separate run 2026-08-27), 28 readings — **worst 0.003385 %**, most exactly 0.000000 %, baselines bit-identical. **Three histories, one number: the FD values are NOT suspect.** The conclusion I reached survives; my reasoning for it did not, and the difference matters because the next question would have been answered wrong.
+
+**MECHANISM, correctly identified by the lane and adopted:** not a generic warm-start — **the `patchV` design variable is APPLIED by rewriting `0/U`'s inlet BC**. Measured: `inletValue (99.75762098674072 6.958236491079174 0)`, `atan = 3.99°` = exactly the last `patchV[1] − 0.01` evaluation off a 4.0° baseline. OpenFOAM then writes the whole object under `writeCompression`.
+
+##### 3. `D19` — COMPRESSIBLE SINGLE-POINT RAN TONIGHT, AND ITS GRADE IS REFUSED
+
+**Ran 21:44→21:54Z, TWELVE MINUTES BEFORE THIS SESSION OPENED**, under Sanaa's `bda2d8cc` patched-gradients authorisation. Prereg `f032d94e`; A1 NACA0012, `DARhoSimpleFoam`, M 0.288, PATCHED row throughout. **Four arms `rc=0`, `chain_rc=0`, `G9` toolchain OK on all four. 8.683 core-min against 8.7 registered.** Phase 2 held itself back with no human in the loop: `chain=PHASE1_COMPLETE_PHASE2_NOT_LAUNCHED_NOT_AUTHORISED`. **The lane that ran it died at the session kill — the run outlived its watcher and sat unread for eighteen minutes.**
+
+**GRADER REFUSED, `REFUSE G1 age_datum_moved`**, `recorded 1788213189` (arm launch stamp) vs `rederived 1788213232` (= `S1/0/U.gz` mtime, 43 s into a 51 s run). **CAUSE CLASS: INSTRUMENT** — rule 4's premise that `0/T` is touched last at launch is **false for DAFoam**. The guard refused rather than degrading, which is correct; the datum moved FORWARD, making it stricter, not looser. **No physics invalidated. `D19` PHASE 1 HAS NO GRADED VERDICT.**
+
+**⚠ A SECOND `D19` DEFECT NOBODY HAD REPORTED: THE FILE-COUNT CLAUSE PASSED BY COINCIDENCE.** `S1/0` held **9 files before and 9 after — but SIX of the nine filenames changed** (`T`→`T.gz`, `U`→`U.gz`, `p`, `nut`, `nuTilda`, `alphat`) under `writeCompression`. **A COUNT IS NOT AN IDENTITY.** Had the mtime clause not fired, the count clause would have waved through a directory whose every graded file had been replaced.
+
+**THE PLATEAU DID NOT CLOSE** — `all_two_sided=False`, `score_pct=21.629866`. **And I measured the component structure myself** `[MEASURED, S2/d19_S.json]`, neighbour diffs coarse→fine (h = 3e-2, 1e-2, 1e-3, 1e-4, 1e-5):
+
+| component | neighbour diffs | reading |
+|---|---|---|
+| `shape[0]` | 0.94, 0.16, 0.58, 5.95 % | plateau 1e-3…1e-4 |
+| `shape[3]` | 1.28, 0.26, 0.44, 4.58 % | plateau 1e-3…1e-4 |
+| `shape[6]` | **56.56**, 3.45, 0.34, 2.00 % | plateau fine; only the COARSE end bad |
+| `patchV[1]` | 0.21, **0.008**, 0.23, 1.99 % | clean throughout |
+| `shape[7]` | 41.81, 1.14, **21.63**, **264.40** % | **BROKEN — and it changes SIGN at 1e-5** |
+
+**FOUR OF FIVE COMPONENTS HAVE A CLEAN PLATEAU.** `shape[7]`'s `|dCD|` is **2.07e-4** against siblings **7.2e-3 / 9.3e-3 / 1.42e-2** — **35× to 70× smaller. IT IS A NEAR-NULL COMPONENT** `[MEASURED]`. `[INFERENCE, flagged]` a component two orders below its siblings is where one absolute step ladder shared across all components fails. **Corroboration:** `D16`'s independent failure is `CL` `shape[6]` at the COARSE end (14.0978 %) — **the same component failing the same way on a different functional.**
+
+**COST CALIBRATION `C-20260831T223116.831784Z-f2a2dd3d`: predicted 8.7, actual 8.683, ratio 0.998 — AND THAT IS CANCELLATION, WHICH IS THE FINDING.** MESH **2.34× over**, X2 **1.85× over** (measured contention: `delivered_cores_mean 0.5792` against `ranks=2`, `max_nr_throttled=33`), S2 **0.71× under**, S1 **0.85× under**. **A ratio of 0.998 concealing a 2.34× miss is exactly the number that flatters us.** The 8.683 bought no graded verdict.
+
+##### 4. `D19R` FROZEN `5a809989` — CHECK 1 DONE BY ME, NOT CLEARED TO LAUNCH
+
+**The lane refused my bracket instruction and was right.** I said widen both directions; **widening is measured-worse both ways** — coarser than 3e-2 the primal *fails* (`A_stepsize_study.md`); finer than 1e-5 `shape[7]` has already changed sign. **Range held, spacing HALVED**: `shape` {3e-2, 1e-2, **3e-3**, 1e-3, **3e-4**, 1e-4, **3e-5**, 1e-5}.
+
+**⚠ AND IT CLOSED A TRAP I WOULD HAVE WALKED INTO:** half-decade neighbours deviate less for a purely geometric reason, so **grading against them would have RELAXED `G19-1b` BY REGRIDDING, with nobody editing a threshold.** `G19R-1b-N` freezes neighbours **decade-separated**; half-decades are candidate centres only. Strictness byte-for-byte D19's. Registered residual, stated not hidden: `V-NOPLATEAU` reads *"no plateau of half-decade width or greater"*, never *"no plateau"*.
+
+**CHECK 1, MINE, AND I DROVE IT RATHER THAN READING IT:** all 7 legs of `d19r_age_guard.py --selftest` fire — RED-1…RED-5 refuse (including mtime EQUAL, and a mutated input at unchanged count 9→9), GREEN-1 accepts **D19's exact false refusal**, GREEN-2 clean. `rc=0` under **both `python3` and `python3 -O`**. Plant verified: `K=5.0` → **50.0000 pp** against band 10.0 → CROSSES; `K=0.5` → **5.0000 pp** → DOES NOT CROSS, red leg drove red.
+
+**⚠ MY OWN ADVERSARIAL PROBE FOUND A DEFECT THE LANE'S SELFTEST STRUCTURALLY CANNOT SEE.** In `build_manifest` the write-target exclusion is **DESCRIPTIVE, NOT ENFORCING** — the first loop only appends to `excluded`; entries come from the caller's `input_subdirs` and nothing makes the two agree. **I drove it:** `build_manifest(arm, ['0','system'])` → record says `excluded_write_targets: ['0']` **while `0/U` is pinned in the same manifest.** **FAIL-CLOSED** (it would refuse every run, never pass a bad one) so it is not a correctness hole — but **it is a record asserting what the code does not guarantee**, tonight's recurring defect class. **The selftest cannot catch it because its fixture is authored from the consumer's own expectations — a tautology on shape.** Repair ordered with a red leg. Minor also named: `datum = int(st_mtime)` truncates DOWN against a float `amt`, erring permissive by <1 s.
+
+**NOT CLEARED TO LAUNCH — grading path ABSENT** (`d19r_xf.py`, `d19r_runScript.py`, `d19r_select_step.py`, `d19r_precondition.py`, `d19r_run_arm.sh`, `d19r_chain_driver.sh`, `d19r_grade.py`). Rule 2 fixes the grading path AT the pre-registration commit. **13.6 core-min predicted, 93.0 cap.** **Its own registered `P1` predicts `GATE FAIL` / `V-NOPLATEAU` — so the compressible optimisation most likely does NOT launch tonight, and that is stated up rather than softened.**
+
+##### 5. `SO-2MR` FROZEN `c0eff9ca` — CHECK 4 **PASS** — LAUNCHING
+
+Freeze ancestor of HEAD, exactly one ADD, **prereg blob at HEAD byte-identical to the blob at the freeze** (`614e1e1c`), **all 12 files disk==HEAD blob**, **all six pins CURRENT not merely SET** (launcher, grader, xm, runScript, decomposeParDict, and `so2mr_xm.py:65 PRODUCER_MD5`), **run root ABSENT verified against a positive control**, 0 containers.
+
+**⚠ THE LANE FOUND A REAL DEFECT PRE-FREEZE AND IT IS THE SAME DEATH AS `SO-3a`:** three md5 pins (`MD5_LAUNCHER`, `MD5_GRADER`, `MD5_XM`) inherited from `SO-2M` through the item-token rename were **stale the instant the rename ran — because the rename rewrites the very bytes they pin.** Left as found, **`SO-2MR`'s own `NL-4` FREEZE branch would have refused its first arm.** Caught this time by the by-role census.
+
+**`K = 2.0` registered at freeze**, `P = K·(band_D/100)·|d_ref|`, sign AWAY from `d_ref` so no cancellation is reachable → **10.000000 % of `|d_ref|` against a 5.0 band, exactly 2× the crossing threshold**; SO-2M's absolute plant was **2.479781 %**, short by **2.016307×**. Sufficiency leg **B3** moves `K` to 0.5 and **requires the refusal `PLANT_NOT_SUFFICIENT_BY_CONSTRUCTION` BY NAME** (a bare "refused" would accept an unrelated crash). **80/80 grader units under `python3` AND `python3 -O`**; pin selftest `pass=26 fail=0`, `pins_exist=14 == pins_driven=14`. **11.0 core-min point / 79.0 ceiling.**
+
+##### 6. `SO-3aR2` FROZEN `181fd627` — CHECK 4 **PASS**, CHECK 1 **PASS AND DRIVEN BY ME** — ARMING
+
+Freeze ancestor, exactly one ADD, prereg blob HEAD==freeze, **all 17 files disk==HEAD blob**, **run root ABSENT** against a positive control. **AND THE CHECK THE LANE CORRECTLY SAID ONLY I COULD DO:** `so3ar2_pin_census.py` and `so3ar2_collision_leg.py` are arming preconditions that nothing hashes at run time — **both verified UNMOVED since the freeze sha.**
+
+**I DROVE BOTH INSTRUMENTS MYSELF.** Collision leg `rc=0`: **L1 GREEN** on the frozen fix (`run_directories ['mp0','mp1','mp2']`, `distinct_parents True`, `collided False`); **L2 RED** on this item's own bytes with the `run_directory` keyword deleted; **L3 RED on `SO-3aR`'s OWN FROZEN BYTES, read-only — the file that actually died in production** — returning `run_directories ['.','.','.']` and `pyDAFoam Error: …/0.0001 already exists, moving failed!`. **I independently verified `md5(curriculum_SO3aR/so3ar_runScript.py) = 53ba67c95461f86a585cb7ec7cdc2b39`, exactly as the leg claims.** `L4b` proves the launcher-staging check able to fail; **`L5` the blinded extractor REFUSES (`NO_BUILDERS_FOUND`) rather than reporting "no collisions" — exit 2 is the ABSENCE of a reading, neither green nor red.** Census `rc=0`: **26 pin-like constants by ROLE across 11 sources**, 0 undisposed / 0 stale / 0 dead / 0 unpinned consumers / 0 drift.
+
+**Honest limit carried, not buried:** `pyDAFoam.py` is not on this host, so the destination NAME is a model reconstructed from measured log strings; the collision itself is not modelled and **the structural claim does not depend on the naming rule.**
+
+**`PLANT_K = 3.0`** → 15 % against a 5 % band; sufficiency driven RED at `0.2` — **SO-2M's geometry exactly** (1 % inside a 5 % band). The absolute plant is **kept where it is correct** (read-back controls graded at 1e-12 against an exactly known value, no band to cross) rather than blanket-converted. **Plateau: ONE-SIDED carried UNCHANGED**, because a repair must not be confounded with a threshold change — but the two-sided reading is **SCORED as `P-PLAT2`** with a forward consequence, not annotated "diagnostic only". **`G-IC0`** measures the `0/` rewrite per point and **is REPORTED WITH ITS NUMBER, NEVER GATED**; falsifier by MAGNITUDE, anchored on D19's `eta_raw`. **22.1 core-min point, band [14.0, 60.0], ceiling 115.0.** MESH anchor moved 0.19→0.30 on SO-3aR's measured 0.267 — **a miss corrected, not a range widened**; cap unchanged at 5.0.
+
+**Three defects in the lane's OWN first draft, all found by driving and all in the document:** the leg counted call *sites* and read a loop construction as `ONE_SHARED_BUILDER` (right destinations by luck, false label — and that distinction is exactly why this record does NOT call upstream broken); L2's mutation deleted a line carrying a closing paren so the mutant did not parse; and **L4 read GREEN on the exact mutation it exists to catch**, because `mp1` also appears in the `G-IC0` block.
+
+##### 7. ⚠ A NEW TRANSFERABLE DEFECT CLASS: A MECHANICAL RENAME MOVES TOKENS, IT CANNOT MAKE PROSE TRUE
+
+`SO-3aR`'s queue entry carried a **falsified citation created by its own derivation**: the rename turned `feasibility_SO3a_alpha` — **a real directory** — into `feasibility_SO3aR_alpha`, **which is not one.** The lane refused to carry the parent's ~30-field annotation block forward and said why in the file. **Every item in this family is derived from its parent by mechanical rename, so this class is presumptively present elsewhere.** A sweep of other items' queue entries and derived prose is **OWED and not yet dispatched.**
+
+##### 8. STATE
+
+**Lanes 3/3.** `SO-2MR` arm+launch; `SO-3aR2` arm+launch (I set `prereg_commit` from its `UNSET-AT-DRAFT-TIME` sentinel — the validator refuses the draft on exactly that field); `D19R` building its absent grading path. **The multipoint FEASIBILITY fallback is CANCELLED** — it existed only because the real gradient rung would not be ready, and `SO-3aR2` now is; running both would burn compute to answer one question twice.
+
+**Rungs without verdicts:** `D19` phase 1 (**ran, refused, ungraded**); `D19R` (frozen, grading path absent); `SO-2MR`, `SO-3aR2` (frozen, launching); `SO-3D` (**frozen `cd398ee8`, NOT launched — Stage 1 is a LOG REPLAY, zero solver core-min, 6 core-min predicted**, reaching a pathology the lab already paid 4,258.5 core-min for; stages 2–3 named but not frozen); `SO-3b` (**STUB, explicitly not a rule-2 freeze**, zero core-min).
+
+**On Sanaa's desk:** (1) **does `bda2d8cc` release `SO-3b`** from the shipped-gradient gate? — `SO3b_STUB.md:35` predates her 20:37 directive and **nothing mechanical enforces the ordering** (`:43`); (2) **the `G19-1b` gate-design question** — one near-null component vetoes an item four of five components support; `G19R-1e` computes the disposition as EVIDENCE either way and **explicitly cannot launch phase 2**; (3) the **21-deletion shared-index hazard**, four teams; (4) five defect drafts **`NOT FILED`**; (5) `PATCH_getRotationMatrix3d.md` carries **no literal `NOT FILED` string**; (6) `UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` **STALE** — incompressible tutorial only, missing the `D15`/`D16` compressible reach evidence.
+
+**Owed and unassigned:** `SO-2M`'s calibration row (**6.250 core-min as WASTE from a CONTROL failure, not a solver failure**, never folded into a ratio) — `docs/COST_CALIBRATION.md` carries **zero SO-2M rows** against 8 for `SO-2a` by the same reader; the seven frozen documents / seven lines carrying the wrong `non-finite` characterisation (`S-22o` §6) still need dated addenda; `GRADING_CHAIN.md:63`'s over-reach; the rename-artefact sweep in §7.
+
+**Blocked:** multipoint compressible, on (1) above — **and on nothing technical.**
+
 
 ##### UPDATE S-22o — **⚠⚠ CORRECTION AGAINST THIS SECTION'S OWN RECORD: `D6R`'s CAUSE CLASS IS `BOOKKEEPING`, NOT PHYSICS. SANAA IS RIGHT — THERE WAS NO GRADIENT FAILURE IN THE MULTIPOINT COMPRESSIBLE CASE BECAUSE **NO GRADIENT WAS EVER MEASURED**. TWO HEADINGS OF MINE READING "ITS FAILURE IS PHYSICS" ARE STRUCK AND LEFT STANDING BELOW. ⚠ AND THE BRIEF THAT SENT ME TO FIX IT CARRIED AN OVER-REACH OF ITS OWN, WHICH I AM NOT PROPAGATING** (2026-08-31T21:09:12Z, `date -u` at write)
 
@@ -16032,6 +16130,61 @@ INTERPRETATIONs; K2a; **D389's S13 normalisation**; D495; the T10a upstream draf
 clause 5 is a lab-wide invariant or a description of the T1b steady-state instance.
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
+
+**Section last written:** 2026-08-31T22:47Z by cfd-supervisor personally (`date -u` in the committing shell). **THIRTY-FOURTH BOARD WRITE.** Where this conflicts with anything below, this block wins.
+
+### 🔴 BLOCKED ON SANAA, AND IT IS TONIGHT'S DEMO ITEM
+
+**JF1 P1 cannot launch: the permission classifier denied it twice** — once to my lane on the direct `bash run_jf1_p1_cmesh.sh`, and once to me on `cp` of the validated queue entry into `verification/queue/cfd/`. **I did not route around either denial** and did not reach for another tool to write that file, because the denial's intent is to gate solver launches. Everything else is green: launcher `--preflight` returns **rc 0 at zero compute**, freeze VERIFIED EXACT, entry passes `queue_entry_check.py` rc 0, meshes admissible, daemon alive (pid 374025). **One authorised act starts it.** Either add a Bash permission rule, or run:
+
+```
+cp /home/ubuntu/Certonomous/cases/JF1_JET_FLAP/queue_drafts/STAGED_2026-08-31T2230Z/JF1_P1_L1_CMESH_PHYSICS.json /home/ubuntu/Certonomous/verification/queue/cfd/
+```
+
+### Commits this session — four, all mine, all private-index with post-commit verify
+
+- **`eecb17e4`** — F28 comparator + launcher **INSTALLED** at the registered grading path; **Addendum 5** (pure append, first 110,741 bytes byte-identical, 0 lines renumbered).
+- **`2f8e37c5`** — JF1 C-ladder verified, P1 staged.
+- **`249ff7f3`** — board (contains a false sentence, corrected below).
+- **`c18eff93`** — F28 gate (b), guard-virgin wiring.
+
+### ⚠ CORRECTION AGAINST MYSELF — I committed a false absence at `249ff7f3`
+
+I wrote, and reported upward, that **"No uncapping directive was found anywhere in `etc/sessions/`"** and declined a relayed instruction on that basis. **The directive exists:** `etc/sessions/2026-08-31T2045Z_sanaa_f28_next_fix_jf1_uncapped.md`, commit **`1dcdb677`** — *"Also, I am removing all cap on JF1. My priority is that it runs more than saving budget."* **The relay was right and I was wrong.** Mechanism: my first grep used terms her sentence does not contain; my second would have found it but I piped it through `head -12` and **reported truncated output as a fact about the world** — the defect class booked at `0da8e25e` hours earlier. **Ordering checked:** the "ENFORCE runner-side caps" ruling is `1405c265` at **15:05Z**; the JF1 uncapping is **20:45Z**, later and JF1-specific. It governs.
+
+### Two more of my own numbers the lane corrected, both re-derived by me
+
+- **45.0 core-min is NOT a registered number** — absent from the frozen 152,436-byte registration. It lives at `run_jf1.sh:64` / `run_jf1_blown.sh:51`, **both falsely labelled "Registered cap … never raised (rule 12)"**. Imported into P1 it would have stopped the row unconverged at ~13,266 iterations on the authority of a number nobody registered. **The false label is unrepaired — those two launchers are post-first-compute and their repair is a successor's. VERIFY.**
+- **My rate was 24.9 % high.** I quoted 4.2378e-03 core-min/iter (a 468-iteration pilot at load 22.81). Re-derived from the five rows' own `core_min_MEASURED`: mean 23.496660 / 8000 iters, × the 1.154962 cell ratio = **3.392219e-03**, so 20,000 iters = **67.84 core-min at rank 1**, not 84.8.
+
+### F28 — BOTH STAGE 1 GATES DISCHARGED AND INSTALLED. Still `PENDING`; no compute authorised
+
+- Installed: `analyse_f28.py` `f217d293…` → **`a2b21ba7…`**; `run_f28.sh` `24683bf8…` → **`e02bfa83…`**.
+- **Gate (c) exercised by me:** floor re-derived independently, agrees to the last bit; derived double deliberately **not** bit-equal to the printed literal (2.193e-14). All three arms reproduce **both** frozen tables — ptp 0.020421899/0.060453719/0.063349822 at 34.4×/101.9×/106.8×, |T_mean| 0.003308274/0.333724642/0.313215680 at 179.372×/1.778×/1.895×. **FLOOR governs all three, all three FAIL, not one rescued.** Selftest 141 PASS / 0 FAIL / 29 mutation limbs.
+- **The age guard refused my own wrong `end_time`** (I derived 14000 from time dirs; the series reaches 15000) — it caught me committing the exact defect it exists to catch.
+- **My brief to the lane conflated Addendum 3 §7 with Addendum 4 §1**; the lane implemented against the registration, not against me, and was right. Second time tonight.
+- **Installation broke one of my own control limbs** — the fail-closed limb read *whatever was installed* and so changed meaning at install. Now pinned to the superseded blob with md5 asserted. 11/11 before, 11/11 after.
+- Nothing either check-1 read found sound moved: against the blob verification graded, **46 removed / 491 added, only function-level removal is §6.3's own refusal.**
+
+### Correction owed to verification (routed, not edited)
+
+`verification/credibility/CHECK1_ANALYSE_F28_VERIFICATION.md`'s residue — *"read_volVectorField still has zero call sites … dead code … strike it or wire it"* — **it is already struck**, zero definitions in the blob they graded. True of the superseded file, false of the candidate. Their item (4) is CLOSED.
+
+### JF1 — C-ladder PASS, all four gated metrics, measured by re-running checkMesh
+
+L1/L2/L3 = **46,180 / 86,638 / 161,006** cells (exactly the registered table); max non-orth **33.5851 / 34.5869 / 35.3964** (gate 65); max skew **0.251125 / 0.231077 / 0.223786** (gate 4); **zero** negative volumes. Achieved refinement **1.363223 / 1.369706**, reproducing the registered figures. Logs: `verification/runs/JF1_jet_flap/mesh/L{1,2,3}/checkMesh_verify_2026-08-31T2210Z.log`. Two traps caught: **Aref must be 1.0, not `case_blown`'s 0.01** (C-mesh `t_z` = 1.0 m — copying the blown dict reports CL/Cd **100× too large**, and `forceCoeffs.C:328` guards only a missing or zero Aref, never a wrong one); and `run_jf1.sh:214`'s `grep -q "^Mesh OK"` would have **refused this run at launch** — no C-mesh level prints it, the sole failing check being the aspect-ratio advisory nothing gates.
+
+**My rulings:** caps — Sanaa's 20:45Z governs, no budget cap, rule-12 bookkeeping continues; I raised the lane's runaway guard 110.0 → **200.0** because 110 could kill a healthy run below efficiency 0.62, which is the budget-stop she abolished. Ranks — I asked for 8, the lane answered **4** (the registered §9.4 value) with correct arithmetic; **I overruled my own 8.**
+
+### Live jobs — ZERO cfd solvers. Box idle. Queue depth 0, daemon alive and hungry
+
+### Rungs without verdicts
+
+**F28** `PENDING`, Stage 1 instrument-ready, zero graded rows. **JF1** — five O-mesh feasibility rows complete but not converged, ungraded by construction; P1 blocked on permission; gate G blocked on grading rulings. **R5** `PENDING`.
+
+### On Sanaa's desk
+
+(1) **The P1 launch permission — tonight, for the demo.** (2) The three JF1 grading rulings: cos τ comparand, §4.5 `Mesh OK` contradiction, freeze-check widening.
 
 **Section last written:** 2026-08-31T22:23Z by cfd-supervisor personally (`date -u` read in the committing shell invocation). **THIRTY-THIRD BOARD WRITE — post the 22:06Z session-limit restart, and post Sanaa's 22:13Z DEMO TONIGHT directive.** Everything below this block predates it and is retained, not deleted; where it conflicts, **this block wins.** Stamp carried on the first line per the practice this section fixed at the previous write.
 
