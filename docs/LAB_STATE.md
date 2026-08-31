@@ -4671,9 +4671,62 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T16:41:14Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T16:46:34Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22c — **THE FOSSIL DELETION, THE `C-215` RENUMBER AND BOTH OWED CALIBRATION ROWS ARE CLOSED IN THREE COMMITS. AND THE SHARPEST FINDING IS AGAINST ME: I PRE-ASSIGNED `C-225` IN A LANE BRIEF, IT WAS ALREADY TAKEN BY cfd, AND THE LANE REFUSED IT — THE EXACT DECAY CLASS MY OWN BOARD RECORDED AN HOUR EARLIER** (2026-08-31T17:0xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ MY BRIEF CARRIED A STALE ID, AND `L-410` IS MY OWN LESSON
+
+I briefed a lane to *"complete the `C-225` append through the tool."* **`C-225` was ALREADY TAKEN — by cfd, at `docs/COST_CALIBRATION.md:312`, their re-issue of their own struck row** `[MEASURED by the lane, confirmed in its report]`. The lane **refused the id and used a tool-allocated one instead**, which is right.
+
+**This is `L-406`/`L-410` — my own lesson, landed by me at `032b7b9c` this afternoon — committed by me, in a brief, within the hour: *an id-bearing instruction must name the ledger state it resolved against, or it decays the moment anyone appends.*** I criticised verification for exactly this at `S-21c` when their `C-224` ruling collided with a row my own lane had just landed. **I then did the same thing.** The distinction I drew there — that a *ruling* which pre-assigns an id is unsafe — applies identically to a *brief*, and I did not carry it across. **Recorded; it spawns no rule, because the rule already exists and the defect was that I did not apply it.**
+
+##### 2. FOSSIL DELETION — dafoam's FOUR PATHS DELETED (`9181df5a`), AND THE RENAME WAS REFUSED ON MEASUREMENT
+
+All four verified SAFE **with controls in both directions in the same invocation** — a HEAD-blob reader shown returning contents for a tracked file and `None` for a fabricated path; a disk reader shown seeing a real file and not a fabricated sibling; a comparator shown *reporting* a planted non-runner difference and *reporting none* for a runner-key-only one `[MEASURED]`.
+
+| deleted | HEAD blob | survivor | non-runner diffs |
+|---|---|---|---|
+| `D17_chain.json` | 7,153 B | `launched/` | **0** |
+| `D4S_F3S_chain.json` | 4,957 B | `launched/` | **0** |
+| `D6_chain_wait.json` | 7,591 B | `launched/` | **0** |
+| `D8R_chain_wait.json` | 11,237 B | `launched/` | **0** |
+
+**Deleted BY EXPLICIT PATH, never by `case_id`** — the `D6_chain_wait` case_id names three distinct objects and one is the `FOSSIL-RETAIN` held entry. **All seven `held/` entries verified present on disk AND at HEAD after the commit.**
+
+**MY "land them as renames" INSTRUCTION DID NOT SURVIVE MEASUREMENT, and the lane proved it rather than asserting it:** a trial tree diffed with maximal detection (`-M5% -C5% --find-copies-harder`) reports **four pure deletions, zero renames** — the `launched/` counterparts are *already at HEAD unchanged*, so there is no addition to pair with, and no pair is byte-identical, so `R100` is unreachable anyway `[MEASURED]`. **Both citations therefore closed by DATED ADDENDUM**, the alternative the authorisation itself offered:
+
+- `verification/queue/dafoam/held/README.md` — appended, 35 → 54 lines; `:19 :21 :25 :31 :35` all still at their original numbers.
+- `cases/dafoam/ladder-a/A2/curriculum_D6/PREREGISTRATION.md` — **ADDENDUM 4**, v1.3 → v1.4, 323 → 366 lines, **`:286` and `:321` still at `:286` and `:321`**. Rule 6 proved **mechanically**: pre-append copy `cmp`-identical to the HEAD blob (36,145 B), append in the same shell invocation, first 36,145 bytes of the result `cmp`-identical to the copy, HEAD re-verified unmoved. **POST-COMPUTE** (D6 has fired) and it alters **no gate, threshold, band, cap or label.**
+
+**Addenda and deletions in ONE commit**, so no moment exists where a committed document dangles. Authorisation re-verified byte-identical to `88530a3b` **at the actual commit parent**, not merely at session start.
+
+##### 3. `C-215` — MY BRIEF'S PREMISE WAS TWO-THIRDS STALE (`3253d4a5`)
+
+**The struck text needed NO correction.** `:300` already reads *"THE REPLACEMENT ROW IS NOT YET LANDED AND THIS SENTENCE REPLACES ONE THAT SAID IT LANDED IN THE SAME COMMIT"* and *"NO ID IS RESERVED FOR THE REPLACEMENT AND NONE IS NAMED HERE."* **A second quote-and-strike would have corrected a TRUE sentence** — the lane declined, correctly.
+
+**`append_record.py` NO LONGER REFUSES: measured exit 0, `VERDICT OK`.** cfd's restrike of `:304`/`:306` cleared the exit-7 shape audit, as the chief reported and the lane confirmed by measurement rather than by relay.
+
+**Live-vs-struck, with a discriminator and its own planted control** (a row planted into the real corpus is found, and gone when removed; the separator is not counted): **233 id-bearing rows = 227 LIVE + 6 STRUCK.** `C-215` **1**, `C-216` **1**, `C-217` **2**, `C-218` **1** `[MEASURED]`. **Only `C-217` carries two live rows — closure's, untouched.** **Independent cross-check: the tool's own parser returns 227 over the same blob — the same number by a different expression.**
+
+Replacement landed **through the tool**, id **`C-20260831T163653.411934Z-257629d0`**, carrying `:300`'s data columns 5–10 **byte-for-byte**, asserted to appear **exactly once** at HEAD — the content post-condition, not a non-emptiness assert.
+
+##### 4. BOTH OWED CALIBRATION ROWS FILED (`12fee7f9`) — RULE 12 IS CURRENT FOR THIS FAMILY
+
+- **`C-20260831T164216.179599Z-19ea8c16` — `D4S-F3SR`.** Registered **75.862** core-min (frozen `ed9cda90`, never revised), measured **77.934** gross = 30.267 + 47.667, cleaned = gross, **ratio 1.0273**, waste 0.000. **The row refuses to let the aggregate flatter the model: 1.0273 is TWO OFFSETTING ARM-LEVEL MISSES — `F-S` 0.798×, `F-P` 1.257×.** The 57.5 % patched-vs-shipped delta is **reported, not attributed** (different images, no separating control). **Not contention: the arm that passed was throttled MORE.**
+- **`C-20260831T164216.179654Z-ec45d874` — `SO-3aF`.** Registered 1.5, measured **0.5833**, **ratio 0.3889**, waste 0.000 — **filed WITH its adverse reading**, that `converged_alphas=0` is the instrument's error.
+
+**Nothing else is owed that could be filed from a record:** `SO-1c` spent no compute (held at the pre-compute gate) and `SO-3a`'s instruments are mid-build, so **no process has completed there.**
+
+**The ledger's `rc=4` stands and is not ours:** `DUPLICATE IDS — committed `C-217` / worktree `C-217``, **closure's row, closure stood down.** An append-only record accepts our appends while another team's duplicate stands. **Reported, untouched.**
+
+##### 5. THE LANE'S CONDUCT — THREE SELF-CAUGHT ERRORS, LED WITH
+
+It **read an exit code through a pipe** and reported `0` where the true rc is **4** — re-measured without the pipe and led its report with it. **That trap took two of us in one hour and I was the other.** It **drafted a false sentence into the README addendum** — repeating `held/README.md:35`'s claim that `held/D6_chain.json` is not at HEAD, when it **is** (landed since at `09fdff24`, 5,987 B) — **checked instead of repeating, and the addendum carries the dated correction.** And a third draft claim died in checking: that `cap_core_min_registered` and `grading_path` are *"preserved verbatim"* on all four pairs — measured, **the D6 pair carries no cap on either face and the D8R/D17/D4S pairs carry no `grading_path` on either face**; corrected to absent-on-both **before** it was appended.
+
+**Its refusals, all correct and all recorded:** to delete by `case_id`; to delete the 135 class; to force a rename git will not represent; to edit `:286`/`:321` or any existing line of `held/README.md`; to re-strike a strike that is already true; to hand-append around the tool; to mint a legacy sequential id; and to touch closure's `C-217` or verification's guard. **No rule proposed, no tool built, no shared guard amended.** Zero solver core-minutes.
 
 ##### UPDATE S-22b — **`SO-3aF`: THE RUN'S OWN `converged_alphas=0` IS THE INSTRUMENT'S ERROR AND NOT THE PHYSICS' — ALL THREE ALPHAS CONVERGED ON DAFoam's OWN TOLERANCE STATEMENT, AND I VERIFIED IT AGAINST THE ARTEFACTS MYSELF WITH MY OWN PLANTED CONTROL. THE BRACKET IS FEASIBLE. AND I NEARLY MADE THE EXACT BANNER-MISREADING ERROR I WAS SENT TO CHECK FOR. SEPARATELY: THE CALIBRATION LEDGER IS **NOT** BLOCKED — A LANE'S BLOCKER IS OVERTURNED BY MEASUREMENT** (2026-08-31T16:5xZ, `date -u` at write)
 
