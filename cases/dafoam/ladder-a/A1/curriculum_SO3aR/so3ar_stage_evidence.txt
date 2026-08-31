@@ -1,0 +1,69 @@
+SO-3aR STAGE EVIDENCE -- written by the drive, not by hand.
+captured 2026-08-31T20:10:08Z on the host, zero solver core-min.
+
+=== so3ar_pin_census.py (BY-ROLE) ===
+ENUMERATED 23 pin-like constants across 10 sources (E-NAME 19, E-SHAPE 23, both 19)
+CONSUMER SITES shell-checkfile=23 shell-reference=1166 python=10
+TUT_SRC (read from so3ar_chain_driver.sh, not hard-coded) = /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+
+PIN                                        KIND      VALUE                              DISPOSITION
+so3ar_chain_driver.sh:MD5_AGG              LOCAL     709ab0b98ef0302a3a3a318588f9493f   = md5(so3ar_aggregate_memory.py)
+so3ar_chain_driver.sh:MD5_DECOMP           LOCAL     e6f1b0060944bc86d6dff56480ad2bd4   = md5(so3ar_decomposeParDict)
+so3ar_chain_driver.sh:MD5_GRADER           LOCAL     67c386b4548825361418f757f653b9fa   = md5(so3ar_grade.py)
+so3ar_chain_driver.sh:MD5_LAUNCHER         LOCAL     a2cc2da84d5ccccd93d4a121a592a3f3   = md5(so3ar_run_arm.sh)
+so3ar_chain_driver.sh:MD5_RUNSCRIPT        LOCAL     53ba67c95461f86a585cb7ec7cdc2b39   = md5(so3ar_runScript.py)
+so3ar_chain_driver.sh:MD5_STOP_MARKER      LOCAL     b25ac488f91c35d636b109b765abc339   = md5(so3ar_stop_marker.sh)
+so3ar_chain_driver.sh:MD5_TUT_FFD          TUTORIAL  6ddf378b028d03d8a18270488bee1759   = md5(TUT_SRC/FFD/wingFFD.xyz)
+so3ar_chain_driver.sh:MD5_TUT_GEN          TUTORIAL  681f10659eb90457fca13fc933008b93   = md5(TUT_SRC/genAirFoilMesh.py)
+so3ar_chain_driver.sh:MD5_TUT_PREPROC      TUTORIAL  4a9395452540705686acf94898aa33af   = md5(TUT_SRC/preProcessing.sh)
+so3ar_chain_driver.sh:MD5_TUT_PS           TUTORIAL  51dfed28e1bdb4cd33e0d8d7dabd586a   = md5(TUT_SRC/profiles/NACA0012PS.profile)
+so3ar_chain_driver.sh:MD5_TUT_RUNSCRIPT    TUTORIAL  0557da51f6f179f6de865144343c499f   = md5(TUT_SRC/runScript.py)
+so3ar_chain_driver.sh:MD5_TUT_SS           TUTORIAL  4a6b8ef4501494c7693b71e88a2eabbf   = md5(TUT_SRC/profiles/NACA0012SS.profile)
+so3ar_chain_driver.sh:MD5_XF               LOCAL     aa213384d92f6e07de90c40167854ce9   = md5(so3ar_xf.py)
+so3ar_grade.py:IMG_DIGEST[PATCHED]         DIGEST    sha256:2927768a16acdea0330180fff95 NAMED EXCLUSION from A2/A3 -- a sha256 image digest is not an md5 and an image is not a file
+so3ar_grade.py:IMG_DIGEST[SHIPPED]         DIGEST    sha256:9d45679d55fd47f5ca7afd99cab NAMED EXCLUSION from A2/A3 -- a sha256 image digest is not an md5 and an image is not a file
+so3ar_grade.py:SO_MD5[PATCHED]             CONTAINER 85f59e87253e0a71a813f64ca6e4c425   NOT LOCALLY RESOLVABLE -- libidwarp.so @ PATCHED image; verified only by G9 against the value the container prints
+so3ar_grade.py:SO_MD5[SHIPPED]             CONTAINER f0fcb488e0e98156575cd19548e91663   NOT LOCALLY RESOLVABLE -- libidwarp.so @ SHIPPED image; verified only by G9 against the value the container prints
+so3ar_run_arm.sh:IMG_PATCHED_DIGEST        DIGEST    sha256:2927768a16acdea0330180fff95 NAMED EXCLUSION from A2/A3 -- a sha256 image digest is not an md5 and an image is not a file
+so3ar_run_arm.sh:IMG_SHIPPED_DIGEST        DIGEST    sha256:9d45679d55fd47f5ca7afd99cab NAMED EXCLUSION from A2/A3 -- a sha256 image digest is not an md5 and an image is not a file
+so3ar_run_arm.sh:MD5_DECOMP                LOCAL     e6f1b0060944bc86d6dff56480ad2bd4   = md5(so3ar_decomposeParDict)
+so3ar_run_arm.sh:MD5_RUNSCRIPT             LOCAL     53ba67c95461f86a585cb7ec7cdc2b39   = md5(so3ar_runScript.py)
+so3ar_run_arm.sh:MD5_XF                    LOCAL     aa213384d92f6e07de90c40167854ce9   = md5(so3ar_xf.py)
+so3ar_xf.py:PRODUCER_MD5                   LOCAL     53ba67c95461f86a585cb7ec7cdc2b39   = md5(so3ar_runScript.py)
+
+A4 dead pins: 0
+A5 unpinned consumer sites: 0  (informational hash-vs-local comparisons, not pin sites: 2)
+A6 table-versus-code target drift: 0  (targets resolved through each file's own shell variable map, not by pattern)
+A7 stale disposition rows: 0
+
+PIN CENSUS GREEN -- 23 pin-like constants enumerated BY ROLE across 10 sources; every one carries a registered disposition, every md5-kind pin holds a real md5, every resolvable pin EQUALS the file it pins, no pin is dead, no consumer is unpinned, no table row is stale, and the extractor was shown able to see a planted change in every source.
+
+=== so3ar_groot5_selftest.sh -- the (x15)/(p) block ===
+(x15/p) BY-ROLE PIN CENSUS and THE PRODUCER PIN
+  [OK ] (x15) PIN CENSUS GREEN on the real tree: 23 pin-like constants enumerated BY ROLE across every instrument, each with a registered disposition, each md5-kind pin holding a real md5 and equal to the file it pins
+  [OK ] (x15a) SENTINEL PLANTED (the SO-3a death mode) -- census RED on A2, 1 finding(s), from ONE mutation
+  [OK ] (x15b) STALE WELL-FORMED md5 PLANTED -- census RED on A3, 1 finding(s), from ONE mutation
+  [OK ] (x15c) NEW UNPINNED CONSUMER PLANTED -- census RED on A5, 1 finding(s), from ONE mutation
+  [OK ] (x15d) NEW UNDISPOSED PIN PLANTED (name-role) -- census RED on A1, 1 finding(s), from ONE mutation
+  [OK ] (x15e) SHAPE-ONLY PIN PLANTED (no MD5 in the name) -- census RED on A1, 1 finding(s), from ONE mutation
+  [OK ] (x15f) CONSUMER DELETED, PIN LEFT DEAD -- census RED on A4, 1 finding(s), from ONE mutation
+  [OK ] (p4) RULE 3: with its python extractor blinded the census REFUSES (exit 2) and reports NOTHING -- a zero from a reader not shown able to see a non-zero is not evidence
+  [OK ] (p1) THE PRODUCER PIN IS SET AND CORRECT: so3ar_xf.py:PRODUCER_MD5 = 53ba67c95461f86a585cb7ec7cdc2b39 = md5(so3ar_runScript.py).  SO-3a shipped this constant holding UNSET-PRODUCER-PIN-SENTINEL-FAILS-CLOSED and died on it in a container
+  [OK ] (p2) PIN REFUSES ON A MUTATED PRODUCER: exit 2, 'SO3AR_XF REFUSE producer md5 6bd92e3cab87... != frozen 53ba67c95461...' -- the pin is live, not decorative
+  [OK ] (p3) RESTORE PROVED BY HASH: md5 before=53ba67c95461f86a585cb7ec7cdc2b39, mutated=6bd92e3cab87f30f1a71b7f253df4631, after restore=53ba67c95461f86a585cb7ec7cdc2b39 -- byte-identical to the original and demonstrably different from the mutant
+  [OK ] (p3b) PIN PASSES ON THE REAL PRODUCER: no 'REFUSE producer md5' on stderr, so execution reached the checks BEYOND the pin.  Stated at its true strength: on this HOST the next step needs mpi4py and fails there (rc=1), which is a DIFFERENT failure and is why the discriminator is the refusal TOKEN and never the exit status
+SO3aR G-ROOT5 SELFTEST pass=83 fail=0 2026-08-31T20:09:14Z
+
+=== suite totals ===
+  python3   grade   units run: 92   failures: 0
+  python3 -O grade   units run: 92   failures: 0
+  python3   xf    SO-3aR INSTRUMENT DRIVE -- so3ar_xf.py, derived from so2a_xg.py
+  python3   xf    DRIVE 34 checks, 0 fail
+  python3 -O xf    SO-3aR INSTRUMENT DRIVE -- so3ar_xf.py, derived from so2a_xg.py
+  python3 -O xf    DRIVE 34 checks, 0 fail
+  G-ROOT.5   SO3aR G-ROOT5 SELFTEST pass=83 fail=0 2026-08-31T20:09:14Z
+
+=== U100 row-label sweep (rule 14) ===
+  [OK ] U100 ROW-LABEL every built SO-3aR instrument is free of short-form row literals and positional row derivations (10 files swept, 0 not yet built)
+  [OK ] U101 ROW-LABEL the SAME sweep goes RED on a planted bad call site, in BOTH languages -- an empty sweep is a claim about the pattern until it does
+  [OK ] U101b ROW-LABEL the SUFFIX-GLOB rule fires on a suffix glob AND stays silent on the registered full-name table -- the rule that was missing from the SHELL rule set, and the reason the fourth consumer was swept eight times unseen

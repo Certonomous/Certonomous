@@ -1,0 +1,59 @@
+SO-3aR so3ar_xf.py DRIVE EVIDENCE -- written by the drive, not by hand.
+Every line below is a reading taken at the timestamp of this file.
+
+SO-3aR INSTRUMENT DRIVE -- so3ar_xf.py, derived from so2a_xg.py
+parent md5 85b2a416e75141096967fe7e13b02e28  child md5 aa213384d92f6e07de90c40167854ce9
+
+A. THE COLLISION CHECK (the D4S-F3SR hole: a rename verified COMPLETE is
+   structurally blind to a NEW NAME COLLIDING WITH A VARIABLE ALREADY IN USE)
+  [OK ] A1 every old form is GONE from every executable line of the child: {"so2a_": 0, "SO2A_": 0, "SO2a": 0, "so2a_xg": 0, "CONSTRAINTS": 0, "CON_SIZES_EXPECTED": 0, "con_vector": 0, "thickcon": 0, "volcon": 0, "rcon": 0, "read_constraints": 0, "CON_NAMES": 0, "tb_note": 0}
+  [OK ] A1b PLANTED POSITIVE: the SAME counter on the PARENT sees 12 of 13 old forms non-zero -- A1's zeros are readings, not a blind counter
+  [OK ] A2 no name INTRODUCED by this derivation was already bound in the parent to something else: 0 of 27 collide {}
+  [OK ] A2b every CARRIED-FORWARD name holds the SAME ROLE in both files (a filename stays a filename, only its item prefix moves): 0 of 10 wrong {}
+  [OK ] A2c PLANTED POSITIVE: the SAME detector, handed three names that ARE bound in the parent (STEPS, COMPONENTS, PLANT), reports all three -- A2's zero is a reading of the names, not a detector that finds nothing
+  [OK ] A3 GATE: every name that EVER holds a path in the child is bound EXACTLY ONCE in its scope -- the SO1bR `AGG=$(python3 "$AGG")` shape is structurally impossible here.  path-holding names=7, rebound={}
+  [OK ] A3b PLANTED POSITIVE: the SAME gate, on a file carrying the SO1bR defect verbatim (a path name reassigned to its own call result), FLAGS it: {"AGG@<module>": {"n": 2, "path": true}}
+  [RPT] A3c BROAD role-change sweep (REPORTED, NEVER GATED): 5 hits, each reviewed by name:
+        b1@<module>:main                       [(662, 'CALL'), (664, 'LITERAL')]  -- a baseline reading; the fallback to b0 is DISCLOSED in the emitted eta_note
+        d@<module>:main                        [(558, 'CONST'), (562, 'CALL'), (564, 'CONST')]  -- a scalar alpha or None; never a path; None is the not-resolved sentinel
+        eta_raw@<module>:main                  [(671, 'CONST'), (674, 'CALL')]  -- a running max over the graded quantities; same role throughout
+        k@<module>:main                        [(709, 'CALL'), (710, 'NAME'), (715, 'CALL'), (716, 'NAME')]  -- the step key returned by fd_at, in the FD loop and again in the TB loop
+        row@<module>:ctrl_readback_check       [(429, 'CONST'), (438, 'CALL')]  -- the control row or None; None is the not-found sentinel
+  [OK ] A3d every hit of the broad sweep is REVIEWED BY NAME in this evidence file; unreviewed=[]
+  [OK ] A4 zero `assert` statements in the instrument (L-332: python3 -O strips them)
+  [OK ] A4b the assert counter is shown COUNTING a planted assert -- a zero from a counter not shown able to count is not evidence
+  [OK ] A5 PRODUCER_MD5 IS SET TO A REAL MD5 AND EQUALS ITS PRODUCER: 53ba67c95461f86a585cb7ec7cdc2b39 = md5(so3ar_runScript.py).  SO-3a shipped this constant holding a sentinel, its container started, and its solver exited 2 in ten seconds on 'SO3A_XF REFUSE producer md5 ... != frozen UNSET-PRODUCER-PIN-SENTINEL-FAILS-CLOSED'
+  [OK ] A5b THE SENTINEL STATE IS PROVED DETECTABLE: the same predicate this leg uses reads FALSE on SO-3a's shipped value, so A5's green is a reading of the constant and not of the predicate
+
+B. THE WRITERS, DRIVEN ON THE HOST (no container, no MPI, no openmdao)
+  [OK ] B1 the module imports on the host: nothing at module scope needs mpi4py, numpy, openmdao or dafoam
+  [OK ] B2 EVALS_DECLARED is COMPUTED from the constants and equals the 34 section 4 registers (2 baseline + 4x3x2 FD + 4x1x2 TB): 34
+  [OK ] B3 the registered angles are line 4's three, to the last digit: [3.13918623195176, 5.13918623195176, 7.13918623195176]
+  [OK ] B4 the weights are EQUAL and sum to 1 to 1e-15: 1.0
+  [OK ] B5 `patchV` is NOT in COMPONENTS -- line 4's registered removal, checked in code
+  [OK ] B6 weighted_J sums in the registered order: J(0.01,0.02,0.03) = 0.019999999999999997
+  [OK ] B7 build_fd_row's central difference is (plus-minus)/(2h) on J and on every scenario's CD and CL: dJ=2.0000000000000018
+  [OK ] B8 a FAILED step is WRITTEN with ok:False and its error, never omitted (G-EVALFAIL / D6-GRADER-DEF-1)
+
+C. THE RULE-3 PLANTED CONTROL, DRIVEN IN BOTH DIRECTIONS THROUGH THE
+   REAL WRITER AND THE REAL READER, ON DISK
+  [OK ] C1 (+) THE LIVE PLANT IS SEEN: the real writer's control row, read back off disk by the real reader, shows 7 exact zeros and 7 planted derivatives at PLANT/(2h) = 0.617
+  [OK ] C2 (-) A DEAD PLANT REFUSES: every planted derivative reads 0.0 where PLANT/(2h) was written -> reason=plant_not_seen
+  [OK ] C3 (-) A ZERO SIDE THAT IS NOT EXACTLY ZERO REFUSES, at 1e-18 -- the gate is EXACT and has no tolerance: reason=zero_side_not_zero
+  [OK ] C4 (-) A CONTROL THAT EMPTIES THE TUPLE IT TESTS REFUSES, NOT PASSES (Sanaa 2026-08-28): reason=control_tuple_EMPTY_or_short n_zero_side=1
+  [OK ] C5 (-) AN ABSENT control row REFUSES and is named ABSENT, not malformed: reason=control_row_absent
+  [OK ] C6 (-) an UNREADABLE jsonl REFUSES rather than raising: reason=jsonl_unreadable
+
+D. THE ARTEFACT RECORDS, ROUND-TRIPPED THROUGH JSON
+  [OK ] D1 the X record carries the PER-SCENARIO adjoint rows G-MP-STRUCT sums, not only the assembled J row: ['CD0', 'CD1', 'CD2', 'CL0', 'CL1', 'CL2', 'J']
+  [OK ] D2 the X record carries the alphas READ BACK FROM THE MODEL beside the registered ones, so G-ALPHA compares two independently sourced lists
+  [OK ] D3 the X record declares NO optimiser and says so in a field a gate can read (G-NOOPT)
+  [OK ] D4 the F record carries evaluations_declared=34 and evaluations_failed=1 PER ARM with the failing tags named -- P-EVAL is scored, not asserted
+  [OK ] D5 the F record carries tb_steps = {'shape': [1e-08]} -- the charter-4 trivial baseline is REGISTERED IN THE ARTEFACT before its own run: {'shape': [1e-08]}
+
+E. THE DELIBERATE MUTATION -- THE KNOWN POSITIVE, DRIVEN FIRST
+  [OK ] E0 the mutation target was FOUND in the source (a mutation that does not apply proves nothing)
+  [OK ] E1 THE MUTANT FAILS: an instrument whose planted J no longer moves by PLANT is REFUSED by the real reader -- reason=plant_not_seen.  The pass in C1 is therefore a reading of the code, not of the test
+  [OK ] E2 the instrument on disk is BYTE-IDENTICAL after the mutation drive: aa213384d92f6e07de90c40167854ce9 == aa213384d92f6e07de90c40167854ce9
+
+DRIVE 34 checks, 0 fail
