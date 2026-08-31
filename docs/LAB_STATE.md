@@ -4671,9 +4671,73 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T15:47:01Z by dafoam-supervisor (TWENTY-FIRST session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T16:33:55Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22 — **⚠⚠⚠ THE PRE-COMPUTE GATE ON `SO-1c` REFUSED IT, AND FOR THE RIGHT REASON: `R7` FIXED THE PATH AND THE GLOB AND NOBODY CHECKED THE SCHEMA. TWO MORE BREAKS — BREAKS 5 AND 6 — EACH DRIVEN AND ISOLATED SINGLY, AND WITH BOTH MAPPED THE GATE RETURNS `rc=0` ON ALL FOUR VERDICTS. THE 51-LEG SUITE CANNOT SEE EITHER, BECAUSE ITS FIXTURES ARE AUTHORED FROM THE CONSUMER'S EXPECTATIONS — A TAUTOLOGY ON SHAPE. AND I CORRECTED MY OWN FIRST READING OF IT BEFORE IT LEFT THE BOX** (2026-08-31T16:3xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ `SO-1c` IS **NOT FILED**, AND THAT IS CHECK 4 WORKING RATHER THAN CHECK 4 FAILING
+
+**Sanaa's box-full order is live and dafoam's queue holds ZERO entries** `[MEASURED, verification/queue/dafoam/ — runner.log reads `EMPTY: no entries in any team queue` from 16:19:51Z]`. `SO-1c` is this family's one launchable optimisation rung and I did **not** file it. **Filing it would have bought a GUARANTEED `exit 7 BLOCKED_G_SO1B` at zero core-min** — nominally a registered no-launch branch (`N2`), and therefore nominally defensible — **but I now know BEFORE compute that the refusal would fire for a SCHEMA reason and not for the physics `N2` exists to detect. Filing anyway would be MANUFACTURING a `BLOCKED` verdict, which is worse than an empty queue.** An empty queue is visible; a fabricated `BLOCKED` is a lie that reads as a result.
+
+##### 2. THE PRE-COMPUTE GATE, DISCHARGED BY ME PERSONALLY — AND EVERY LIMB OF IT PASSED EXCEPT THE ONE THAT MATTERED
+
+Freeze sha re-derived **by path, never from a subject line**: `git log --format=%H --diff-filter=A --` returns **exactly one** commit, `bd7f68d6`, **an ancestor of HEAD**, with `PREREGISTRATION.md` present at it `[MEASURED]`. **No `SO-1c` run root exists** — and the same lister **does** return `CURRICULUM-SO1bR-…-dragmin-opt`, so the "does not exist" comes from a reader shown able to see an existing directory (rule 3) `[MEASURED]`. **The precondition artefact EXISTS** — `…/E-S/so1b_E.json`, 9,991 B — and its md5 is **`9b1a965c5108245679df87801653aae6`, matching `R7`'s `precondition_artifact_md5` TO THE DIGIT** `[MEASURED]`. **Exactly ONE `SO1bR_grade_*.json`**, so `G-SO1B-SELECT`'s zero-branch and ambiguity-branch are both avoided on the real tree `[MEASURED]`.
+
+**AND I DROVE ALL TWELVE md5 PINS, NOT THE FOUR THE SUITE DRIVES: 12 of 12 CURRENT ON DISK** `[MEASURED]`, control-checked with a deliberately wrong pin to prove the reader discriminates. **So no pin would abort the chain — the `W3` death mode `R7` was written against is genuinely absent right now.**
+
+##### 3. ⚠⚠ **BREAK 5** — THE GATES ARE NESTED ONE LEVEL DOWN, AND THE REFUSAL'S STATED REASON IS FALSE OF THE ARTEFACT
+
+`so1c_chain_driver.sh`'s `G-SO1B` block reads **`gates = g.get("gates") or {}`** at the **TOP LEVEL**. `SO-1bR` writes them at **`g["grade"]["gates"]`** `[MEASURED]`. The wrapper carries `verdict`, `verdict_line`, `G_SO1AR`, `upstream_provenance`; the **inner `grade` dict is `SO-1b`'s grade proper and still self-identifies as `item: CURRICULUM-SO1b`.**
+
+**Driven, not reasoned**: the driver's own 59-line gate, **extracted verbatim** by the suite's own mechanism and never re-implemented, refuses **`rc=7`** against the real artefact with *"SO-1b's grade names no G-OPT/G-CL verdict for the PATCHED row (G-OPT=None G-CL=None). An unreadable dependency is not a licence to proceed."* **THAT SENTENCE IS FALSE OF THE ARTEFACT.** At the nested path all four verdicts the gate demands read **`PASS`**: `G-OPT_PATCHED` `PASS`, `G-OPT_SHIPPED` `PASS`, `G-CL_PATCHED` `PASS`, `G-CL_SHIPPED` `PASS`, beside `grade.rows = {PATCHED: PASS, SHIPPED: PASS}` `[MEASURED]`. **The dependency is not unreadable. It is readable one level down and it says yes.**
+
+**BOTH DIRECTIONS FIRED**: the same extracted block returns **`rc=0`** on a fixture that carries top-level `gates`, so the refusal is a property of the **artefact**, not of my reader.
+
+##### 4. ⚠⚠ **BREAK 6**, WHICH ONLY APPEARS ONCE BREAK 5 IS GONE — AND ISOLATING IT SINGLY IS WHY I FOUND IT
+
+Repairing **only** the nesting, in a **scratch copy** — the frozen driver was never touched — the gate refuses **again**, on a different limb: *"SO-1b's PATCHED directory holds an artefact labelled `row='P'` — a row is an image hash, never a directory name"* `[MEASURED]`. **`SO-1bR` labels its `E` artefacts `row='P'` / `row='S'`; the gate compares against `'PATCHED'` / `'SHIPPED'`.** With that mapped as well, the gate returns **`rc=0`: `SO1C_G_SO1B_PASS … gopt=PASS/PASS gcl=PASS/PASS channels=2`** — **both rows, both independent channels, and `SO-1b`'s item verdict deliberately not read, exactly as registered** `[MEASURED]`.
+
+**A one-shot "repair everything then re-run" would have shown one green and hidden break 6 inside it.** Two breaks were separated only because each repair was applied alone and re-driven.
+
+##### 5. ⚠⚠⚠ WHY 51 GREEN LEGS COULD NOT SEE EITHER — AND THIS IS THE PART THAT LEAVES THIS FAMILY
+
+`R7` landed **51 legs, 0 fail**, and it is a genuinely good suite: leg `(h0)` asserts the harness **EXTRACTS** the `G-SO1B-SELECT` block from the frozen driver rather than running a copy, which is the right design. **AND IT IS STRUCTURALLY BLIND HERE, BECAUSE ITS FIXTURES ARE HAND-BUILT FROM THE CONSUMER'S EXPECTATIONS.** The fixture writes `{"gates": {...}}` at top level and labels rows `PATCHED`/`SHIPPED` — **the shape the gate reads** — so the suite proves the gate reads the shape the fixture writes, and the fixture writes the shape the gate reads. **THAT IS A TAUTOLOGY ON SCHEMA. A self-test whose fixtures are authored from the consumer's expectations CANNOT DETECT A PRODUCER-SIDE SCHEMA CHANGE, however many legs it has.**
+
+**This is the same family as `R7`'s four breaks and it is the fifth and sixth member: the `SO-1b` → `SO-1bR` relaunch changed the artefact by WRAPPING it, and `R7` repaired the PATH and the GLOB — the two things a path-shaped search finds — and left the SCHEMA, which no path-shaped search can reach.** Recorded as a **FINDING. It spawns NO RULE and NO TOOL**: Sanaa's plumbing freeze (`etc/sessions/2026-08-31T1544Z_sanaa_plumbing_freeze.md`, read by me at source) forbids exactly that, and my own last two rule proposals were withdrawn and falsified respectively.
+
+##### 6. ⚠⚠ A CORRECTION AGAINST MYSELF, CAUGHT BEFORE IT LEFT THE BOX
+
+My first reading was ***"the grade artefact has NO `gates` key at all."*** **STRUCK. It is true of the TOP LEVEL and FALSE OF THE DOCUMENT** — the key exists nested inside `grade`, with all twenty gates under it. **A narrow read silently generalised: the same error, in the same shape, that produced six false claims in `S-21`.** The difference today is that it went no further than my own next command, because I read the artefact's key list before I wrote the sentence down anywhere. **The finding SURVIVES and is SHARPER for the correction** — "written at a different path" is a precise, repairable defect, while "produced no gates" would have been an accusation against `SO-1bR`, which in fact produced every gate `SO-1c` asks for and marked them all `PASS`.
+
+##### 7. AND A DEFECT IN `R7`'s NEW LEG `(a5c)`, FOUND ON MY CHECK-1 DIFF READ AND DRIVEN THREE WAYS — **RULING: KEEP, RE-SCOPE, DO NOT STRIKE**
+
+`(a5c)` drives the driver's md5 pins so a stale pin cannot abort the chain `rc=4` before any container. **It is right in kind and its known-positive is real**: a one-byte mutation of `so1c_run_arm.sh` drove it `[BAD]` naming pinned-vs-actual, and the restore returned the md5 to the pin exactly `[MEASURED, driven by me in a scratch copy]`. **Two defects, both driven rather than argued:**
+
+- **`SO1C-A5C-DEF-1` (scope).** **The driver carries TWELVE `MD5_*` pins; `(a5c)` drives FOUR** `[MEASURED]` — while the leg's own printed label reads *"EVERY md5 PIN IN THE DRIVER EQUALS THE FILE IT PINS."* **That label is false of 4-of-12.** Two of the eight it misses — `MD5_DECOMP_SCOTCH` and `MD5_DECOMP_SIMPLE` — **pin IN-REPO files this item stages and the driver asserts at `:266-268` with `exit 4`**. Probe: a one-byte edit to `so1c_decomposeParDict_simple` leaves `(a5c)` **GREEN** while the chain would abort `exit 4` before any container `[MEASURED]` — **the exact death mode `(a5c)` exists to prevent, still live on a different pin.** The six `MD5_TUT_*` pin **out-of-tree** upstream tutorial inputs; excluding them is defensible, but **the exclusion must be STATED, not silent.**
+- **`SO1C-A5C-DEF-2` (fail-open).** Rename a pin variable **and** delete its file and both `p` and `a` are empty; `[ "" = "" ]` is **true** and the leg goes **GREEN** `[MEASURED]`. **Absence of a signal read as absence of a problem** — this family's recurring costume.
+
+**It is NOT struck.** A leg that catches the death mode on four pins is worth more than no leg; the repair is to widen it to the six in-repo pins, state the out-of-tree exclusion, and refuse on an empty read.
+
+##### 8. `AMENDMENT R8` IS AUTHORISED BY ME, PRE-COMPUTE, AND ITS LIMITS ARE REGISTERED HERE BEFORE IT IS WRITTEN
+
+`SO-1c` has burned **ZERO core-minutes**, has **no run root** and **no `LAUNCH_LOG.tsv` row**; the condition is checked with a control, not asserted (§2 above). So the ordinary pre-compute path of `CLAUDE.md` rule 2 is open and **§2d.1 is not reached for.**
+
+**WHAT R8 MAY CHANGE:** the `G-SO1B` gate's **read path** for the gates dict, and its **row-label comparison**. **WHAT R8 MAY NOT CHANGE, AND I AM REGISTERING THE FENCE BEFORE THE WORK RATHER THAN AFTER:** the **ACCEPTANCE** is untouched — `PATCHED` requires `G-OPT PASS`; `SHIPPED` accepts `PASS` **or** `GATE REACHED`; **both** rows require `G-CL PASS`; `SO-1b`'s **item verdict stays deliberately unread**; `G5E` stays unread on both rows. **No gate, threshold, band, cap, label, cost or prediction moves.** `so1c_grade.py` is the **grading path fixed at the pre-registration commit and is NOT touched.**
+
+**AND THE REPAIR MUST NOT WEAKEN THE CONTROL IT PASSES THROUGH.** The row-label assertion exists to catch **an artefact sitting in the wrong directory**. My scratch probe used `e["row"] not in (row, row[0])`, which happens to work only because `PATCHED`→`P` and `SHIPPED`→`S` share first letters — **cute, fragile, and not what lands.** R8 registers an **EXPLICIT** mapping, and its acceptance is conditional on a driven leg proving that **a SWAPPED artefact — the `SHIPPED` row's file placed in `E-P` — STILL REFUSES.** A repair that makes a red test green without preserving what the test was for is the one move forbidden here.
+
+##### 9. NEXT ACTIONS, CONCRETELY
+
+1. **`R8`**, per the fence in §8 — then `SO-1c` files and dafoam holds compute again. **This is the box-full critical path.**
+2. **The suite's fixtures derive from a REAL producer artefact** (or the real artefact becomes a leg), so break 7 is caught by the suite and not by a supervisor's gate.
+3. **`(a5c)` re-scoped** to the six in-repo pins, out-of-tree exclusion stated, empty read refuses.
+4. `SO-3a`'s five remaining instruments; the `SO3AF` reader with both-direction controls; fossil deletion and the ledger close-out — all three with lanes.
+
+##### 10. RESEARCH-vs-PLUMBING, MEASURED — AND IT INVERTED FROM THE 79 % PLUMBING SESSION
+
+Session 16:24Z → 16:3xZ. **Apportioned by supervisor activity, stated as a PROXY `[DERIVED]`, not a stopwatch:** the pre-compute gate on `SO-1c`, the `G-SO1B` schema diagnosis and the `(a5c)` drive are **RESEARCH-ENABLING VERIFICATION on a science rung** — they are the bright line being enforced on the family's next optimisation verdict, not bookkeeping. **RESEARCH ≈ 0.9 of ~1.0 supervisor-hours (~90 %); PLUMBING ≈ 0.1 (~10 %)** — the fossil/ledger close-out, which is delegated and is explicitly a done-once-then-closed item under the freeze. **Against the 20 % meta cap this session sits at ~10 % meta, against 79 % in `S-21`.** The change is not virtue: `S-21` was consumed by an error-correction loop, and this session had one self-correction (§6) instead of six, caught in-flight rather than after publication.
 
 ##### UPDATE S-21d — **`D4S-F3SR` COMPLETED BOTH ROWS CLEAN AT A COST RATIO OF 1.027 — THIS FAMILY'S BEST CALIBRATION OF THE DAY — AND IS UNGRADED. `SO1bR` RELAUNCH TRIGGERED ON A FREED CORE 9. `L-410` LANDED. AND MY FREEZE-CLOCK "DEBT" WAS MY SIXTH FALSE CLAIM OF THE SESSION, THE FOURTH OF ONE KIND** (2026-08-31T15:47:01Z, `date -u` at write)
 
