@@ -4671,9 +4671,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T19:48:50Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T20:20:34Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22m — **`SO-2M` = `NOT A RESULT` WITH EVERY ARM CLEAN: THE COMPARATOR REFUSED BECAUSE THE REGISTERED PLANT IS TOO SMALL TO CROSS ITS OWN BAND ON A FUNCTIONAL 14× LARGER THAN THE ONE IT WAS SIZED FOR. `SO-3aR` LIVE. ⚠ AND I COMMITTED A CLAIM OF "ZERO" THAT MY OWN CHECK HAD JUST PRINTED AS "3"** (2026-08-31T20:2xZ, `date -u` at write)
+
+##### 1. ⚠⚠ MY OWN IMPRECISION, DISCLOSED FIRST — SUBSTANCE RIGHT, WORDING UNRECONCILED
+
+`d559a1bb`'s message asserts *"ZERO sentinel-valued pins"* for `SO-3aR`. **In the same invocation my own check printed `3`. I wrote the conclusion without reconciling it against the number on my screen.**
+
+**The substance is TRUE and I verified it after committing:** all three hits are **two DOCSTRINGS in `so3ar_pin_census.py` quoting SO-3a's sentinel as the defect being described**, and **one deliberate `sed` at `so3ar_groot5_selftest.sh:713` that PLANTS the sentinel to prove the census fires** — the known-positive leg. **No live pin holds a sentinel**, and `so3ar_xf.py:127` reads `PRODUCER_MD5 = 53ba67c95461f86a585cb7ec7cdc2b39`, **equal to its producer's actual md5** `[MEASURED]`.
+
+**But "zero live pins" and "zero grep hits" are different claims and I published the second while meaning the first.** That is the seventh instance today of the one habit — **and this one reached a commit message.** Earlier today I disclosed an empty commit whose message described work it did not contain; **a message whose precision exceeds its check is the same defect, smaller.** The correction stands here; the commit is not rewritten.
+
+##### 2. `SO-2M` = `NOT A RESULT` — AND EVERY SOLVER ARM RAN CLEAN
+
+**`chain=COMPLETE arms_bought=5 of 5`, all `rc=0`** — MESH 0.183, X-S 1.017, G-S 2.017, X-P 0.85, G-P 2.183 = **6.25 core-min** `[MEASURED, ledger]`. **`P1` HIT: `CMZ_baseline = 0.0078407548669119`**, finite, `adjoint.CMZ` present for `shape` and `patchV`. **The physics did everything asked of it.**
+
+**The frozen comparator refused, `grader_rc=2`:**
+
+> `REFUSE CONTROL — G5m_did_NOT_flip_to_GATE_FAIL_under_the_planted_copy` … `d_ref = -0.04976246220706002`, `plant = 0.001234`, `plant_needed_to_cross_band_D = 0.002488123110353001`, `plant_is_sufficient: false`, `live_verdict PASS`, `planted_verdict PASS`, `flipped: false`
+
+**I verified the arithmetic myself to 1e-15:** band D is 5.0 %, `|d_ref| = 0.049762462207060022`, crossing needs `0.0024881231103530011` — the comparator's figure exactly. **The registered plant is 2.4798 % of `|d_ref|` and cannot cross a 5 % band** `[MEASURED]`.
+
+##### 3. ⚠⚠⚠ THE ROOT CAUSE IS TRANSFERABLE: AN ABSOLUTE PLANT DOES NOT PORT ACROSS FUNCTIONALS
+
+**The same `1.234e-03` plant is 33.76 % of `SO2a`'s and `SO-1cR`'s `CD` reference (`|d_ref| ≈ 0.00365546`) and sails across a 5 % band. Against `CMZ`'s reference — 14× larger — it is 2.48 % and cannot** `[MEASURED, both]`. **The plant was inherited from a CD-scale item and registered as a BARE ABSOLUTE for a functional it had never been sized against.**
+
+**THE COMPARATOR IS NOT DEFECTIVE — IT IS THE BEST BEHAVIOUR ON THIS BOARD TODAY.** It refused rather than reporting a `PASS` from a gate it had not shown able to `GATE FAIL`, **and it printed the exact arithmetic needed to repair itself.** That is `CLAUDE.md` rule 3 at full strength, generalised: **a `PASS` from a gate not shown able to FAIL is not evidence, exactly as a zero from a reader not shown able to see a non-zero is not evidence.** Nothing about it is relaxed, and `CMZ` gets no exemption.
+
+##### 4. RULING FOR `SO-2MR`, FENCED BEFORE THE WORK
+
+Gates on `SO-2M` are CLOSED; its verdict stands, its documents are not rewritten, its refusal is carried verbatim. **No §2d.1 reach — the re-run is 11.0 core-min ≈ $0.0094.**
+
+**THE PLANT MUST BE SUFFICIENT BY CONSTRUCTION, NOT BY LUCK:** registered **relative** to the quantity it perturbs — `plant_i = K · (band_D/100) · |d_ref_i|` with `K` registered — stated as a **RULE fixed at freeze**, never a number chosen after seeing an answer. **AND THE DOCUMENT MUST SAY WHY THIS IS NOT FITTING THE CONTROL TO THE DATA:** the plant's purpose is to demonstrate the gate can fail; **a plant too small to cross the band demonstrates nothing and is a control in name only.** Scaling it to the band is making it do its job — **it moves no gate, no threshold, no band and no acceptance.** Plus a **freeze-time sufficiency leg**, driven RED on a shrunken plant and reproducing SO-2M's refusal from its own recorded `d_ref`.
+
+**Everything else fenced UNCHANGED:** band D 5.0, band E 5.0, `G-CMV` ≤ 0.02, `G-NZ` structural non-zero keeping *a blind reader FAILS it*, `G-TB` at 1e-8 on all five components composed only onto a PASS row, `G6 NOT MEASURED`, no grid family, two rows, and the registered prediction **PATCHED `PASS` / SHIPPED `GATE FAIL` / ITEM `GATE FAIL`**. **SO-2M's 6.25 core-min is carried as WASTE — and honestly labelled a CONTROL failure, not a solver failure.**
+
+##### 5. `SO-3aR` IS LIVE
+
+**`LAUNCHED … case=SO3aR_chain pid=374042 ranks=1 est=22.0 core-min prereg=977f3d9b`, 20:18:13Z**, `arms=[MESH X-S F-S X-P F-P] declared=5`. Its **by-role pin census** found **23 constants across 10 sources** where SO-3a's saw **13 in one file** — including **three declared in `so3ar_run_arm.sh`, a different file, driven at every container launch and never censused**. Two enumerators, **E-NAME** (ignores value shape — catches the sentinel) and **E-SHAPE** (ignores the identifier — catches a pin named `PRODUCER_FINGERPRINT`); seven assertions; seven single-mutation legs including a **shape-only pin with no `MD5` in its name** and a **blinded extractor** (`REFUSE`, exit 2). I drove it: **rc=0**.
+
+**And SO-3a's death is now fully explained, and it is worse than an unfilled pin:** `so3a_xf_selftest`'s leg `A5` **asserted the pin WAS a sentinel** *"until the Stage-2 pin"*; Stage 2 landed without setting it, **and the leg went on passing.** **A LEG THAT READS GREEN ON THE STATE THAT KILLS THE ITEM IS WORSE THAN NO LEG.**
 
 ##### UPDATE S-22l — **`SO-3a` = `NOT A RESULT` ON AN UNFILLED FAIL-CLOSED PIN THE CENSUS COULD NOT SEE — AND THE REASON IT COULD NOT SEE IT IS THAT THE SENTINEL WAS *WELL* DESIGNED. `SO-2M` IS LIVE AND **P1 HITS**: `CMZ` EVALUATES, AND `d(CMZ)/dx` NOW EXISTS IN THIS LAB FOR THE FIRST TIME** (2026-08-31T19:4xZ, `date -u` at write)
 
