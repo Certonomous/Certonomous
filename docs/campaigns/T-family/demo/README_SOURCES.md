@@ -404,7 +404,11 @@ corrected breakpoints. `checkMesh` reports **960 cells**, matching the baseline.
 builder having a line that writes it. The builder's own assertion block also
 refuses on its absence. This is the check the family paid for once already.
 
-**Neither case is queued and neither is launched.** No solver was invoked.
+**The 0.25 s case is not queued and not launched, and this lane invoked no
+solver.** ~~Neither case is queued and neither is launched.~~ — see the dated
+correction at the foot of Part 3: **that sentence was true when written at
+~23:25Z and was false 6 minutes later**, because `T25_MOD_L1` was solved by
+somebody at 23:31Z while this work was in progress.
 
 ### Caveat box
 
@@ -469,10 +473,56 @@ names it separately.
    `SUPERVISION_CHARTER.md` §3's four checks are the supervisor's own and none
    is claimed here. In particular the diff of `build_t25.py` is a
    measurement-script diff and is the supervisor's to read as a diff.
-9. **Neither module case has been solved, and no cost has been incurred by
-   either.** Everything reserved on sheet C is still reserved. The only compute
-   spent today on this case family is meshing: `blockMesh` on the new case and
-   one scratch rebuild for the reproducibility audit, seconds each at 1 rank.
+9. ~~**Neither module case has been solved, and no cost has been incurred by
+   either.**~~ **FALSE WITHIN MINUTES OF BEING WRITTEN — see the correction
+   immediately below.** It held for the 0.25 s case and does not hold for the
+   0.5 s case.
+
+---
+
+### DATED CORRECTION, 2026-08-31 — `T25_MOD_L1` WAS SOLVED MID-TASK, NOT BY THIS LANE
+
+**Reported, not adjudicated and not graded.** This lane invoked no solver: its
+only executions were `build_t25.py`, `blockMesh` inside it, `foamDictionary`,
+`checkMesh`, `pdflatex`, `pdftotext`, `grep` and `git`. It was dispatched with
+an explicit prohibition on launching this case and on repairing the refused
+queue entry to obtain a launch, and it did neither.
+
+**What is on disk, measured read-only after the fact.** At the start of this
+task `T25_MOD_L1` held `0.orig`, `CASE.txt`, `constant`, `log.blockMesh` and
+`system` and nothing else — the state Part 2 above records. It now additionally
+holds 181 time directories (`0` through `900` at 5 s), `log.solve`,
+`log.launch`, `LAUNCH.out`, `postProcessing/` and a `STATUS.T25_MOD_L1`.
+Timestamps put the whole solve at **2026-08-31 23:31:22–23:31:24Z**, between
+this lane's build of the second case (23:24Z) and its first commit.
+
+| what | measured |
+|---|---|
+| `STATUS.T25_MOD_L1` | `rc=0`, `wall_s=1`, `ranks=1`, `core_min=0.017`, `capped=no`, `timeout_s=600`, `checkmesh_rc=0`, `note=clean`, `tag=FEASIBILITY`, `gated=no` |
+| `log.solve` | exactly one `End` line; zero `FOAM FATAL`; last `Time = 900`, equal to the registered `endTime`; 1800 `ExecutionTime` lines |
+| fields at `900/module/` | `T` and `p` — the field list `CASE.txt` registers for this case, no more and no less |
+| age guard | `900/module/T` at 23:31:24.499 is newer than `0/module/T` at 23:31:23.676 |
+| route | **not the queue.** The entry is still at `verification/queue/heat-transfer/refused/T25_MOD_L1.json`, unmoved since 22:24:58Z, and `verification/queue/LAUNCH_LOG.tsv` carries no row for any T25 case. The launcher was run directly. |
+
+**NO VERDICT IS DECLARED HERE AND NONE MAY BE READ INTO THE TABLE.** The rung is
+ungated feasibility: it carries no gate, no threshold, no band and no
+pre-registration, and `CASE.txt` says on its face that nothing it produces may
+be graded. One clause of the completion rule is also not a clean fit and is
+flagged rather than waved through: the rule reads `ExecutionTime` count ==
+`endTime`, and here the count is 1800 against an `endTime` of 900 because
+`deltaT` is 0.5 — a step count, not a time. **Whether that clause is satisfied,
+and whether this launch was authorised at all, are both the supervisor's to
+rule on, not this lane's.**
+
+**Consequence for sheet C, flagged and deliberately NOT acted on.** The sheet
+says in customer-visible text that the module *"is built and checked but not yet
+solved"*. For the 0.5 s case that is now stale. This lane did **not** change it,
+for two reasons: rewriting customer text to announce a solve would mean standing
+behind a run this lane has neither read nor is entitled to grade, and the
+sentence is entangled with the very launch question the supervisor must settle
+first. **The five reserved frames remain empty and correct** — no result has
+been read from the new time directories by anyone, so there is nothing to fill
+them with either way.
 
 ---
 
