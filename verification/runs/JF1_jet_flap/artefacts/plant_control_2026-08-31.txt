@@ -1,0 +1,209 @@
+{
+  "mutation": {
+    "substrate": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU010_A0",
+    "case_id": "JF1_L1_BLOWN_CMU010_A0",
+    "utc": "2026-08-31T21:22:33Z",
+    "preparation": [
+      "byte-level copy (shutil.copytree, mtimes preserved) of /home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU010_A0",
+      "P1 removed 31 intermediate time directories (250..7750); under the pinned writeInterval 20000 only `0` and `N_stop` exist",
+      "P2 system/controlDict endTime 8000 -> 20000, top-level writeInterval 1000 -> 20000 (section 8.1 clause 3 pin, :1615)",
+      "P3 SYNTHESISED the 3a signature: final-iteration initial residuals driven below 1e-6 ({'Ux': '3.237e-07->3.237e-09', 'Uy': '3.632e-06->3.632e-08', 'k': '2.550e-05->2.550e-07', 'omega': '1.887e-08->1.887e-10', 'p': '1.268e-05->1.268e-07'}) and `SIMPLE solution converged in 8000 iterations` inserted before `End`. NO JF1 RUN ON THIS BOX EVER CONVERGED; without this step no positive control exists and every limb is vacuous.",
+      "P4 wrote artefacts/RUN_STATUS.JF1_L1_BLOWN_CMU010_A0.txt in the section 9.2 key=value form; the substrate's root-level whitespace RUN_STATUS is NOT at the registered path (:1807-1810)",
+      "P5 set 0/U mtime strictly older than every field in 8000/ (clause 6 age guard, :1666)"
+    ],
+    "positive_control": {
+      "rc": 0,
+      "refusal_code": null,
+      "stderr": "",
+      "passed": true
+    },
+    "limbs": [
+      {
+        "limb": "M1",
+        "clause": "8.1(1) rc",
+        "required": "refuse",
+        "expected_code": "R-COMPLETION-1-RC",
+        "rc": 2,
+        "refusal_code": "R-COMPLETION-1-RC",
+        "stderr": "REFUSED[R-COMPLETION-1-RC]: clause 1 (:1606): solver_rc = '137', not 0, in /tmp/jf1_mutation_20260831T212233Z/M1/artefacts/RUN_STATUS.JF1_L1_BLOWN_CMU010_A0.txt. A crash is a FINDING; the row is NOT A RESULT.",
+        "passed": true
+      },
+      {
+        "limb": "M2",
+        "clause": "8.1(2) End",
+        "required": "refuse",
+        "expected_code": "R-COMPLETION-2-END",
+        "rc": 2,
+        "refusal_code": "R-COMPLETION-2-END",
+        "stderr": "REFUSED[R-COMPLETION-2-END]: clause 2 (:1608): no `End` line in /tmp/jf1_mutation_20260831T212233Z/M2/log.simpleFoam (last line: 'SIMPLE solution converged in 8000 iterations'). rc = 0 and the log disagree.",
+        "passed": true
+      },
+      {
+        "limb": "M3",
+        "clause": "8.1(3) pin controlDict",
+        "required": "refuse",
+        "expected_code": "R-PIN-CONTROLDICT",
+        "rc": 2,
+        "refusal_code": "R-PIN-CONTROLDICT",
+        "stderr": "REFUSED[R-PIN-CONTROLDICT]: clause 3 PIN FAILS on /tmp/jf1_mutation_20260831T212233Z/M3/system/controlDict (:1615-1616): endTime = '15000' (registered '20000'). A run whose termination settings were changed is not a run of this registration.",
+        "passed": true
+      },
+      {
+        "limb": "M4",
+        "clause": "8.1(3) pin fvSolution",
+        "required": "refuse",
+        "expected_code": "R-PIN-FVSOLUTION",
+        "rc": 2,
+        "refusal_code": "R-PIN-FVSOLUTION",
+        "stderr": "REFUSED[R-PIN-FVSOLUTION]: clause 3 PIN FAILS on /tmp/jf1_mutation_20260831T212233Z/M4/system/fvSolution (:1616-1618): p = '1e-04' (registered 1e-06). All five residual channels are held to the SAME order 1e-6 (:990).",
+        "passed": true
+      },
+      {
+        "limb": "M5",
+        "clause": "8.1(3a) converged N != N_stop",
+        "required": "refuse",
+        "expected_code": "R-TERM-3A-N-MISMATCH",
+        "rc": 2,
+        "refusal_code": "R-TERM-3A-N-MISMATCH",
+        "stderr": "REFUSED[R-TERM-3A-N-MISMATCH]: clause 3a (:1626): the converged line names N = 7999 but the last time directory is 8000. The integer in that line must BE the last time directory; the log and the written fields disagree about where the run ended.",
+        "passed": true
+      },
+      {
+        "limb": "M6",
+        "clause": "8.1(3a) N_stop < 2000",
+        "required": "refuse",
+        "expected_code": "R-TERM-3A-BELOW-2000",
+        "rc": 2,
+        "refusal_code": "R-TERM-3A-BELOW-2000",
+        "stderr": "REFUSED[R-TERM-3A-BELOW-2000]: clause 3a (:1627): N_stop = 1900 < 2000. Below 2 000 the section 5.5 plateau window (|dCL| and |dCd| over the LAST 2 000 iterations) does not exist and the clause is unevaluable. NOT A RESULT, with N_stop printed; a finding about the case, never a pass.",
+        "passed": true
+      },
+      {
+        "limb": "M7",
+        "clause": "8.1(3b) THE CAP",
+        "required": "refuse",
+        "expected_code": "R-TERM-3B-CAP",
+        "rc": 2,
+        "refusal_code": "R-TERM-3B-CAP",
+        "stderr": "REFUSED[R-TERM-3B-CAP]: clause 3b CAP HIT (:1641): N_stop = 20000 == the registered iteration cap 20000 and the log carries no converged line. Section 5.5's registered words apply verbatim -- a run that hits the cap is NOT A RESULT, never `close enough`. It is not a refusal to be argued with.",
+        "passed": true
+      },
+      {
+        "limb": "M8",
+        "clause": "8.1(3c) THE EARLY STOP",
+        "required": "refuse",
+        "expected_code": "R-TERM-3C-EARLY-STOP",
+        "rc": 2,
+        "refusal_code": "R-TERM-3C-EARLY-STOP",
+        "stderr": "REFUSED[R-TERM-3C-EARLY-STOP]: clause 3c EARLY STOP (:1646): N_stop = 8000 < 20000 and there is NO converged line naming it. The run stopped early for a reason that is not convergence -- divergence, FatalError, a signal, an OOM kill, a wall-clock timeout, a lost MPI rank, a truncated log or a hand-stopped solve. rc = '0'; `End` present = True; last log line 'End'; fatal token 'Floating point excep",
+        "passed": true
+      },
+      {
+        "limb": "M9a",
+        "clause": "8.1(4) field deleted",
+        "required": "refuse",
+        "expected_code": "R-COMPLETION-4-FIELDS",
+        "rc": 2,
+        "refusal_code": "R-COMPLETION-4-FIELDS",
+        "stderr": "REFUSED[R-COMPLETION-4-FIELDS]: clause 4 (:1657): fields ['nut'] absent from /tmp/jf1_mutation_20260831T212233Z/M9a/8000. This family's registered list is `U p k omega nut`; the thermal family's `T alphat p_rgh` do not exist here and are not required.",
+        "passed": true
+      },
+      {
+        "limb": "M9b",
+        "clause": "8.1(5) ExecutionTime line removed",
+        "required": "refuse",
+        "expected_code": "R-COMPLETION-5-EXECTIME",
+        "rc": 2,
+        "refusal_code": "R-COMPLETION-5-EXECTIME",
+        "stderr": "REFUSED[R-COMPLETION-5-EXECTIME]: clause 5 (:1661): 7999 `ExecutionTime` lines in /tmp/jf1_mutation_20260831T212233Z/M9b/log.simpleFoam but N_stop = 8000. The log and the written fields disagree about how many iterations were taken. NOT `== endTime` -- that clause was STRUCK at :1586-1588.",
+        "passed": true
+      },
+      {
+        "limb": "M10",
+        "clause": "8.1(6) age guard",
+        "required": "refuse",
+        "expected_code": "R-COMPLETION-6-AGE",
+        "rc": 2,
+        "refusal_code": "R-COMPLETION-6-AGE",
+        "stderr": "REFUSED[R-COMPLETION-6-AGE]: AGE GUARD, clause 6 (:1666): fields ['U', 'p', 'k', 'omega', 'nut'] at N_stop = 8000 are NOT newer than /tmp/jf1_mutation_20260831T212233Z/M10/0/U. `0/U` dates the run that was allowed to produce the answer; a field older than it came from some other run.",
+        "passed": true
+      }
+    ],
+    "failed_limbs": [],
+    "verdict": "GATE REACHED",
+    "why": "the prepared clean copy PASSES section 8.1 and all 11 mutation limbs REFUSE with the specific refusal code of the clause each mutates."
+  },
+  "plants": {
+    "rc": 0,
+    "stdout": [
+      {
+        "name": "PLANT 1 -- CL reader",
+        "reader": "foam_io_jf1.read_cl",
+        "graded_quantity": "CL_aero -> CL_total (gate G, gate THEORY)",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU010_A0/postProcessing/forceCoeffs/0/coefficient.dat",
+        "planted": 0.001234,
+        "line_index": 8012,
+        "before": 0.54884644062,
+        "after": 0.55008044062,
+        "delta": 0.0012340000000000684,
+        "tol": 1e-09,
+        "passed": true
+      },
+      {
+        "name": "PLANT 1 negative limb",
+        "blind_reader_delta": 0.0,
+        "fired": true
+      },
+      {
+        "name": "PLANT 2 -- jet mass-flow reader",
+        "reader": "foam_io_jf1.read_jet_sum_phi",
+        "graded_quantity": "jet mass-flow relative mismatch (section 7.4)",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU010_A0/postProcessing/jetMassFlow/0/surfaceFieldValue.dat",
+        "line_index": 84,
+        "planted_pct": 2.0,
+        "reported_pct": 2.0000000008934395,
+        "flagged": true,
+        "clean_sum_phi": -0.001369306411,
+        "planted_sum_phi": -0.16127616066858735,
+        "expected_m3_s": 0.15811388300841897,
+        "tol": 1e-06,
+        "passed": true
+      },
+      {
+        "name": "PLANT 2 negative limb",
+        "blind_reported_pct": 99.13397458531387,
+        "fired": true
+      },
+      {
+        "name": "PLANT 3 (disk-routed) -- ADDITION beyond the frozen text",
+        "reader": "foam_io_jf1.read_cl -> cl_total -> theory_rel_diff",
+        "graded_quantity": "gate THEORY relative difference",
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU010_A0/postProcessing/forceCoeffs/0/coefficient.dat",
+        "diff_true": 0.009804026683926985,
+        "diff_planted": 0.007763600711273566,
+        "expected_shift": -0.0020404259726533066,
+        "tol": 1e-09,
+        "passed": true
+      },
+      {
+        "name": "PLANT 3 -- theory-difference channel",
+        "reader": "foam_io_jf1.theory_rel_diff",
+        "graded_quantity": "gate THEORY relative difference |CL_total - CL_theory|/CL_theory",
+        "artifact": "section 7.3 registered CL_theory = 0.6047756775",
+        "fed_true": 0.6047756775,
+        "fed_wrong": 0.6060096775,
+        "diff_true": 0.0,
+        "diff_wrong": 0.002040425972653236,
+        "expected_shift": 0.0020404259726533066,
+        "tol": 1e-09,
+        "passed": true
+      },
+      {
+        "name": "PLANT 3 negative limb",
+        "constant_shift": 0.0,
+        "fired": true
+      }
+    ],
+    "stderr": ""
+  }
+}
