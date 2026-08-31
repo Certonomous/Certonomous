@@ -1,0 +1,521 @@
+% ---------------------------------------------------------------------------
+% ACT D -- MULTIPOINT SHAPE OPTIMISATION (INCOMPRESSIBLE) -- one-page
+% customer-facing result sheet.  Written under the DEMO STANDARD v2 output
+% rules R1-R10.
+%
+% Self-contained: no external figure file, no packages beyond a base TeX Live
+% install (no tikz/pgfplots on this box).  All three figures are native LaTeX
+% picture environments, so the output is vector at any zoom.
+% Compile: pdflatex ACT_D_shape_optimisation_sheet.tex
+%
+% PROVENANCE OF EVERY USER-VISIBLE NUMBER (not rendered; for the lab only).
+%   Angle sweep, coefficients, residuals:
+%     /home/ubuntu/certonomous-runs/CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient
+%       /X-P_20260831T225359Z_614905.log  lines 1563-1564, 1693-1694, 1823-1824
+%       residual lines 1561, 1691, 1821 ("satisfied the prescribed tolerance 1e-08")
+%   Reproduction (second, earlier, independent run of the same three angles):
+%     /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility
+%       /out/primal_alpha_{3,5,7}.13918623195176.log lines 564-567
+%     Largest relative difference over all six values: 6.6129e-09 (C_L, 5.139 deg);
+%     the other four values are bit-identical between the two runs.
+%   Derivatives, finite-difference table, step-size sweep, assembly identity,
+%   wrong-step control:
+%     .../CURRICULUM-SO3aR2-.../SO3aR2_grade_20260831T230221Z.json
+%       gates.G5J.PATCHED.{G5J_objective,G5C_lift_per_scenario,
+%                          G_MP_STRUCT_assembly_identity,G_TB_trivial_baseline}
+%   Mesh cell count: .../MESH_20260831T224345Z_603001.log ("cells: 4032")
+%   Compute used per stage: .../CURRICULUM-SO3aR2-.../ledger.txt
+%     MESH 0.167 + X-S 2.517 + F-S 4.367 + X-P 2.517 + F-P 4.75 = 14.318 core-min
+%     wall 10 + 151 + 262 + 151 + 285 = 859 s
+%   Feasibility-check wall/core-min/cap -- A DIFFERENT RUN ROOT, and it has no
+%   ledger.txt; its figures come from its own status file:
+%     /home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility
+%       /STATUS.SO3aF   -> wall_s=35 ranks=1 core_min=0.5833 cap_core_min=8.0
+%   Upfront estimate 22.1 core-min and the 5 per cent acceptance limit:
+%     cases/dafoam/ladder-a/A1/curriculum_SO3aR2/PREREGISTRATION.md lines 75-77, 226
+%   Case setup (U0=10, nu=1.5e-5, A0=0.1, chord 1 m, 5x2x2 shape controls,
+%   thickness/volume/radius constraints):
+%     .../CURRICULUM-SO3aR2-.../so3ar2_runScript.py lines 143, 151, 331-344,
+%     379-381; MESH/constant/transportProperties; MESH/FFD/wingFFD.xyz
+%
+% FIGURE SPECIFICATIONS (all three drawn below in native picture units,
+% 1 unit = 1 mm; these notes state what each drawing means and how it is built).
+%
+%   FIG 1  DESCENT DIRECTION ON THE SECTION -- the money visual.
+%     Geometry: NACA0012 to true scale, chord 1 m -> 62 mm, x to the right from
+%     the leading edge, y vertical, EQUAL ASPECT (no thickness exaggeration).
+%     Axes: x is chord station x/c, dimensionless; y is section thickness in the
+%     same length units.  No y axis is drawn because the section is to scale.
+%     Arrows: the NEGATIVE of the verified derivative of the weighted-mean drag
+%     coefficient with respect to each surface control -- i.e. the direction
+%     that LOWERS drag -- normalised so the largest is 7.5 mm.
+%       control at x/c=0.245, lower surface : dJ/ds = -0.012248354486 m^-1
+%           -> descent +y, 5.51 mm, one arrow (single-surface control)
+%       control at x/c=0.500, upper surface : dJ/ds = +0.012013942626 m^-1
+%           -> descent -y, 5.41 mm, one arrow (single-surface control)
+%       leading-edge thickness control       : dJ/ds = +0.016660787054 m^-1
+%           -> descent = thicker, 7.50 mm, drawn as a PAIR (this control moves
+%              upper and lower surfaces symmetrically)
+%       trailing-edge thickness control      : dJ/ds = +0.006202686046 m^-1
+%           -> descent = thicker, 2.79 mm, drawn as a PAIR
+%     Colour: blue = single-surface control, orange = symmetric pair.
+%     Scale bar: a 7.5 mm arrow = 0.0167 per metre of control travel.
+%     Only the four controls checked against finite differences are drawn; the
+%     other four shape controls are not verified and are not shown.
+%
+%   FIG 2  STEP-SIZE CHECK.
+%     x: finite-difference step, logarithmic, 1e-4 to 1e-2 (metres of control
+%        travel); 1e-4 -> 0 mm, 1e-3 -> 20 mm, 1e-2 -> 40 mm.
+%     y: (finite-difference estimate - computed derivative) / |computed
+%        derivative| x 100, from -5 to +11 per cent; y_mm = (percent + 5)*1.625.
+%     Shaded band: the +/-5 per cent acceptance limit fixed before the run.
+%     Four lines, one per checked control; values (h=1e-4, 1e-3, 1e-2, per cent):
+%        x/c=0.245 lower   : +0.5847, +0.0464, +0.5315
+%        x/c=0.500 upper   : +0.6258, +0.0418, +0.0937
+%        leading-edge thick: -0.2733, -3.9012, +10.2563
+%        trailing-edge thick: +1.2476, +0.1448, +0.2215
+%
+%   FIG 3  POLAR.
+%     x: angle of attack, 3.0 to 7.5 deg -> 0 to 38 mm.
+%     Left axis: lift coefficient 0.30-0.70 -> 0 to 24 mm, filled circles,
+%       solid line.  Right axis: drag coefficient 0.015-0.030 -> 0 to 24 mm,
+%       open squares, dashed line.  Three solved points on each curve.
+%     Error bars are smaller than the markers (Table 2) and are not drawn.
+%     No experimental reference curve exists for this section at this
+%     condition, so none is plotted.
+% ---------------------------------------------------------------------------
+\documentclass[9pt,a4paper]{article}
+\usepackage[margin=8mm,top=6mm,bottom=3mm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+
+\definecolor{band}{rgb}{0.87,0.91,0.96}
+\definecolor{accent}{rgb}{0.10,0.32,0.60}
+\definecolor{warm}{rgb}{0.72,0.30,0.06}
+\definecolor{rulegrey}{rgb}{0.45,0.45,0.45}
+\definecolor{boxgrey}{rgb}{0.96,0.96,0.94}
+\definecolor{foil}{rgb}{0.78,0.78,0.76}
+
+\renewcommand{\footnotesize}{\fontsize{6.4}{7.05}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{5.7}{6.3}\selectfont}
+\renewcommand{\arraystretch}{1.03}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5pt}
+\setlength{\tabcolsep}{3.2pt}
+\pagestyle{empty}
+
+\newcommand{\rolesig}[1]{\textbf{\footnotesize#1}}
+
+\begin{document}
+\fontsize{7.3}{8.5}\selectfont
+
+% ---------------------------------------------------------------- title -----
+{\fontsize{13.5}{15}\selectfont\bfseries Multipoint shape optimisation of an
+aerofoil section}\\[1.5pt]
+{\fontsize{8.6}{10}\selectfont The gradients that will drive it, verified at
+three angles of attack --- incompressible, steady, two-dimensional}\\[2pt]
+{\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
+{\footnotesize \textbf{Shape optimisation runs next.} This sheet is the step
+before it: the derivatives that tell the optimiser which way to move the
+surface, checked against an independent calculation. No optimisation iteration
+has been taken, so there is no shape change and no drag-reduction figure here.}
+
+% --------------------------------------------- assumption beat + table 1 ----
+\vspace{2.5pt}
+\begin{minipage}[t]{0.505\textwidth}
+\textbf{One thing we changed in your request}
+
+\vspace{1pt}
+{\footnotesize You asked for the shape to be optimised across three Mach
+numbers. At ten metres per second the flow is incompressible --- Mach $\approx
+0.03$ (Table 1), where compressibility corrections are a fraction of a per
+cent. Mach is not a parameter of this problem: three Mach points would be three
+copies of the same run, and you would pay three times for one answer. Angle of
+attack is where the shape actually trades off, so that is the sweep to optimise
+across.\\[2pt]
+\textbf{The problem we set up.} Minimise the drag coefficient averaged over
+three angles of attack, weighted equally, with one shared set of surface
+controls serving all three --- so a single shape must work across the range
+rather than being tuned to one point. Minimum thickness, minimum enclosed area
+and minimum leading-edge radius are held as constraints. The angles, the
+weights and the acceptance limit on the derivative check were all written down
+and frozen before the solver started.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.475\textwidth}
+\textbf{Table 1 --- Operating condition.}
+
+\vspace{1.5pt}
+{\fontsize{6.7}{7.9}\selectfont
+\begin{tabular}{@{}l r l >{\raggedright\arraybackslash}p{22mm}@{}}
+\toprule
+Quantity & Value & Unit & Uncertainty / basis \\
+\midrule
+Freestream speed $U$        & $10$                 & m\,s$^{-1}$    & exact input \\
+Chord $c$                   & $1$                  & m              & exact input \\
+Viscosity $\nu$ (kinematic) & $1.5\times10^{-5}$   & m$^2$\,s$^{-1}$& exact input \\
+Reynolds number $Uc/\nu$    & $6.67\times10^{5}$   & ---            & derived, exact \\
+Mach number $U/a$           & $0.029$              & ---            & derived, $a=340$\,m\,s$^{-1}$ \\
+$1/\sqrt{1-M^{2}}$          & $1.0004$             & ---            & textbook \\
+Angles of attack $\alpha$   & $3.139$, $5.139$, $7.139$ & deg       & fixed beforehand \\
+Mesh                        & $4\,032$             & cells          & counted \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1pt}
+{\scriptsize $a$ is the speed of sound in standard sea-level air. The Mach
+row is a property of the stated speed and of standard air, not a finding of
+this work: nothing on this sheet is a compressibility measurement.}
+\end{minipage}
+
+% ------------------------------------ fig 1 + table 3  |  table 2 + fig 2 ---
+\vspace{1pt}
+\begin{minipage}[t]{0.545\textwidth}
+\textbf{Figure 1 --- Which way the optimiser would move the surface.}
+Arrows point in the direction that lowers the averaged drag; length is
+proportional to how strongly. Drawn from the four verified derivatives in
+Table 3, section at true scale.
+
+\vspace{1.5pt}
+\setlength{\unitlength}{1mm}
+\begin{picture}(83,23)(-5,-11.5)
+  % ---- chord line ---------------------------------------------------------
+  \linethickness{0.4pt}
+  {\color{foil}\multiput(0,0)(3,0){21}{\rule{1.6mm}{0.25pt}}}
+  % ---- aerofoil upper surface (NACA0012, chord 62 mm) ---------------------
+  \linethickness{0.55pt}
+  \qbezier(0.00,0.00)(0.09,0.49)(0.31,0.75)
+  \qbezier(0.31,0.75)(0.53,0.99)(0.78,1.18)
+  \qbezier(0.78,1.18)(1.15,1.43)(1.55,1.62)
+  \qbezier(1.55,1.62)(2.30,1.96)(3.10,2.21)
+  \qbezier(3.10,2.21)(4.65,2.59)(6.20,2.90)
+  \qbezier(6.20,2.90)(7.75,3.13)(9.30,3.31)
+  \qbezier(9.30,3.31)(10.85,3.45)(12.40,3.56)
+  \qbezier(12.40,3.56)(15.50,3.69)(18.60,3.72)
+  \qbezier(18.60,3.72)(21.70,3.69)(24.80,3.60)
+  \qbezier(24.80,3.60)(27.90,3.46)(31.00,3.29)
+  \qbezier(31.00,3.29)(34.10,3.07)(37.20,2.82)
+  \qbezier(37.20,2.82)(40.30,2.56)(43.40,2.27)
+  \qbezier(43.40,2.27)(46.50,1.96)(49.60,1.63)
+  \qbezier(49.60,1.63)(52.70,1.28)(55.80,0.89)
+  \qbezier(55.80,0.89)(57.35,0.70)(58.90,0.50)
+  \qbezier(58.90,0.50)(60.45,0.29)(62.00,0.08)
+  % ---- aerofoil lower surface ---------------------------------------------
+  \qbezier(0.00,0.00)(0.09,-0.49)(0.31,-0.75)
+  \qbezier(0.31,-0.75)(0.53,-0.99)(0.78,-1.18)
+  \qbezier(0.78,-1.18)(1.15,-1.43)(1.55,-1.62)
+  \qbezier(1.55,-1.62)(2.30,-1.96)(3.10,-2.21)
+  \qbezier(3.10,-2.21)(4.65,-2.59)(6.20,-2.90)
+  \qbezier(6.20,-2.90)(7.75,-3.13)(9.30,-3.31)
+  \qbezier(9.30,-3.31)(10.85,-3.45)(12.40,-3.56)
+  \qbezier(12.40,-3.56)(15.50,-3.69)(18.60,-3.72)
+  \qbezier(18.60,-3.72)(21.70,-3.69)(24.80,-3.60)
+  \qbezier(24.80,-3.60)(27.90,-3.46)(31.00,-3.29)
+  \qbezier(31.00,-3.29)(34.10,-3.07)(37.20,-2.82)
+  \qbezier(37.20,-2.82)(40.30,-2.56)(43.40,-2.27)
+  \qbezier(43.40,-2.27)(46.50,-1.96)(49.60,-1.63)
+  \qbezier(49.60,-1.63)(52.70,-1.28)(55.80,-0.89)
+  \qbezier(55.80,-0.89)(57.35,-0.70)(58.90,-0.50)
+  \qbezier(58.90,-0.50)(60.45,-0.29)(62.00,-0.08)
+  % ---- arrows: the direction that lowers drag ------------------------------
+  \linethickness{0.6pt}
+  % leading-edge thickness control -- symmetric pair, longest (7.50 mm)
+  \put(1.86,2.05){{\color{warm}\vector(0,1){7.50}}}
+  \put(1.86,-2.05){{\color{warm}\vector(0,-1){7.50}}}
+  \put(0,11.3){\makebox(0,0)[l]{\scriptsize\color{warm}leading edge}}
+  % lower surface at x/c = 0.245 -- upward (5.51 mm)
+  \put(15.19,-3.68){{\color{accent}\vector(0,1){5.51}}}
+  \put(13.6,-6.6){\makebox(0,0)[c]{\scriptsize\color{accent}$x/c=0.245$}}
+  % upper surface at x/c = 0.500 -- downward (5.41 mm)
+  \put(31.00,3.29){{\color{accent}\vector(0,-1){5.41}}}
+  \put(31.00,5.3){\makebox(0,0)[c]{\scriptsize\color{accent}$x/c=0.500$}}
+  % trailing-edge thickness control -- symmetric pair (2.79 mm)
+  \put(60.14,0.35){{\color{warm}\vector(0,1){2.79}}}
+  \put(60.14,-0.35){{\color{warm}\vector(0,-1){2.79}}}
+  \put(62.5,-6.6){\makebox(0,0)[r]{\scriptsize\color{warm}trailing edge}}
+  % ---- scale bar ----------------------------------------------------------
+  \linethickness{0.5pt}
+  \put(66,1){\line(0,1){7.5}}
+  \put(65.3,1){\line(1,0){1.4}}
+  \put(65.3,8.5){\line(1,0){1.4}}
+  \put(67.4,4.75){\makebox(0,0)[l]{\scriptsize $0.0167\,\mathrm{m^{-1}}$}}
+  % ---- axis label ---------------------------------------------------------
+  \put(31,-10.2){\makebox(0,0)[c]{\scriptsize chord station $x/c$ --- section
+      to true scale, chord $c=1\,\mathrm{m}$}}
+\end{picture}
+
+\vspace{0.5pt}
+{\scriptsize Blue arrows are single-surface controls; orange pairs move both
+surfaces, and at both edges the objective wants the section \emph{thicker}.
+This is the local direction of steepest drag reduction at your current shape
+--- the thickness, area and radius constraints will bend the actual step.}
+
+\vspace{2pt}
+\textbf{Table 3 --- The derivative check.} Each surface control's effect on the
+averaged drag, computed two independent ways.
+
+\vspace{1.5pt}
+{\fontsize{6.7}{7.9}\selectfont
+\begin{tabular}{@{}l r r r@{}}
+\toprule
+Surface control & Computed, m$^{-1}$ & Finite difference, m$^{-1}$ &
+  \begin{tabular}{@{}r@{}}Difference,\\ \% of computed\end{tabular} \\
+\midrule
+Lower surface, $x/c=0.245$ & $-0.012248$ & $-0.012243$ & $0.046$ \\
+Upper surface, $x/c=0.500$ & $+0.012014$ & $+0.012019$ & $0.042$ \\
+Leading-edge thickness     & $+0.0167$   & $+0.0160$   & $\mathbf{4.06}$ \\
+Trailing-edge thickness    & $+0.006203$ & $+0.006212$ & $0.145$ \\
+\midrule
+\multicolumn{3}{@{}l}{Acceptance limit, fixed before the run} & $5.00$ \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1pt}
+{\scriptsize Each value carries one digit beyond its own difference column, so
+no digit is printed that the check does not support. Units are per metre of
+control travel; chord is $1\,\mathrm{m}$, so this is also per chord. Lift
+derivatives were checked the same way at all three angles: worst disagreement
+$1.185\,\%$, best $0.004\,\%$.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.435\textwidth}
+\textbf{Table 2 --- The three solved operating points.}
+
+\vspace{1.5pt}
+{\fontsize{6.7}{7.9}\selectfont
+\begin{tabular}{@{}r r r l@{}}
+\toprule
+$\alpha$, deg & $C_D$, --- & $C_L$, --- &
+  \begin{tabular}{@{}l@{}}Run-to-run reproduction,\\ relative\end{tabular} \\
+\midrule
+$3.139$ & $0.0172394$ & $0.311896$ & $0$ (identical to last digit) \\
+$5.139$ & $0.0209105$ & $0.498765$ & $6.6\times10^{-9}$ \\
+$7.139$ & $0.0272681$ & $0.663976$ & $0$ (identical to last digit) \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1pt}
+{\scriptsize These three points were solved twice, in two separate runs made
+hours apart; the largest relative difference across all six values is
+$6.6\times10^{-9}$. That column is repeatability, not accuracy. Drag rises
+monotonically across the range, and lift at the middle angle is $0.498765$
+against your $0.500$ design target.}
+
+\vspace{2pt}
+\textbf{Figure 2 --- Step-size check.} The finite-difference estimate against
+the computed derivative, as the difference step is varied.
+
+\vspace{1.5pt}
+\setlength{\unitlength}{1mm}
+\begin{picture}(58,30)(-8,-5.5)
+  \put(0,0){{\color{band}\rule{40mm}{16.25mm}}}
+  \linethickness{0.4pt}
+  \put(0,0){\line(1,0){40}}
+  \put(0,0){\line(0,1){27}}
+  {\color{rulegrey}\multiput(0,8.125)(3,0){14}{\rule{1.7mm}{0.3pt}}}
+  % y ticks: -5, 0, +5, +10
+  \multiput(0,0)(0,8.125){4}{\line(-1,0){1.2}}
+  \put(-1.8,-0.8){\makebox(0,0)[r]{\scriptsize $-5$}}
+  \put(-1.8,7.3){\makebox(0,0)[r]{\scriptsize $0$}}
+  \put(-1.8,15.5){\makebox(0,0)[r]{\scriptsize $+5$}}
+  \put(-1.8,23.6){\makebox(0,0)[r]{\scriptsize $+10$}}
+  \put(-6.8,13.5){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize difference, \%}}}
+  % x ticks
+  \multiput(0,0)(20,0){3}{\line(0,-1){1.2}}
+  \put(0,-3.3){\makebox(0,0)[c]{\scriptsize $10^{-4}$}}
+  \put(20,-3.3){\makebox(0,0)[c]{\scriptsize $10^{-3}$}}
+  \put(40,-3.3){\makebox(0,0)[c]{\scriptsize $10^{-2}$}}
+  \put(20,-5.7){\makebox(0,0)[c]{\scriptsize difference step, m of control travel}}
+  \put(1.5,16.9){\makebox(0,0)[l]{\scriptsize acceptance band, $\pm5\,\%$}}
+  % leading-edge thickness control -- step sensitive
+  \linethickness{0.5pt}
+  {\color{warm}\qbezier(0,7.68)(10,4.74)(20,1.79)
+   \qbezier(20,1.79)(30,13.29)(40,24.79)
+   \put(0,7.68){\circle*{1.1}}\put(20,1.79){\circle*{1.1}}\put(40,24.79){\circle*{1.1}}
+   \put(2,23.5){\makebox(0,0)[l]{\scriptsize leading-edge thickness}}}
+  % the other three controls
+  {\color{accent}\qbezier(0,9.07)(10,8.63)(20,8.20)
+   \qbezier(20,8.20)(30,8.60)(40,8.99)
+   \qbezier(0,9.14)(10,8.66)(20,8.19)
+   \qbezier(20,8.19)(30,8.23)(40,8.28)
+   \qbezier(0,10.15)(10,9.25)(20,8.36)
+   \qbezier(20,8.36)(30,8.42)(40,8.48)
+   \put(0,9.07){\circle*{0.9}}\put(20,8.20){\circle*{0.9}}\put(40,8.99){\circle*{0.9}}
+   \put(0,9.14){\circle*{0.9}}\put(20,8.19){\circle*{0.9}}\put(40,8.28){\circle*{0.9}}
+   \put(0,10.15){\circle*{0.9}}\put(20,8.36){\circle*{0.9}}\put(40,8.48){\circle*{0.9}}
+   \put(5,11.9){\makebox(0,0)[l]{\scriptsize the other three controls}}}
+\end{picture}
+
+\vspace{0.5pt}
+{\scriptsize The comparison is made at the middle step, chosen before the run.
+Three controls sit flat across the whole range; the leading-edge thickness
+control is step-sensitive, which is why it is the largest entry in Table 3.}
+\end{minipage}
+
+% --------------- checked + table 4  |  caveat box + figure 3 ----------------
+\vspace{2pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
+\begin{minipage}[t]{0.605\textwidth}
+\textbf{What was checked, and what was not}
+
+\vspace{1pt}
+{\footnotesize
+$\bullet$ \textbf{The drag derivatives are verified against finite differences
+of the same solver, to within $4.06\,\%$ at worst} and $0.042\,\%$ at best, on
+all four checked controls, against a $5\,\%$ limit fixed before the run
+(Table 3). \textbf{Lift derivatives are verified the same way to within
+$1.185\,\%$ at worst}, at all three angles --- twelve further comparisons.\\
+$\bullet$ \textbf{The check was proved able to fail.} The same comparison was
+repeated at a deliberately unsuitable step: none of the four controls agreed
+there, disagreeing by $94$ to $113\,\%$. The check is measuring the derivative,
+not returning agreement by construction.\\
+$\bullet$ \textbf{The multipoint sum is exact.} The derivative of the averaged
+objective equals the weighted sum of the three individual drag derivatives to
+better than $2\times10^{-13}$ relative, on every checked control.\\
+$\bullet$ \textbf{Every operating point converged}: the solver's residual fell
+below its $10^{-8}$ tolerance at all three angles, in both runs.\\
+$\bullet$ \textbf{Verified; no experimental comparison is available for this
+section at this condition,} so the derivative check is against an independent
+numerical calculation and nothing here is validated against test data.\\
+$\bullet$ \textbf{No grid-refinement study was run} (one mesh, $4\,032$ cells)
+and \textbf{no optimiser has run} --- the records were searched for
+optimisation-iteration history and there is none.}
+
+\vspace{3pt}
+\textbf{Table 4 --- Compute: what we said upfront, and what it cost.}
+One core-minute is one processor core running for one minute.
+
+\vspace{1.5pt}
+{\fontsize{6.7}{7.9}\selectfont
+\begin{tabular}{@{}l r r r r@{}}
+\toprule
+Stage & \begin{tabular}{@{}r@{}}Stated upfront,\\ core-min\end{tabular}
+      & \begin{tabular}{@{}r@{}}Used,\\ core-min\end{tabular}
+      & \begin{tabular}{@{}r@{}}Wall\\ clock, s\end{tabular}
+      & \begin{tabular}{@{}r@{}}Used /\\ upfront\end{tabular} \\
+\midrule
+Feasibility check (ran first) & $8.0$ (upper limit) & $0.583$  & $35$  & $0.07$ \\
+Derivative verification       & $22.1$ (estimate)   & $14.318$ & $859$ & $\mathbf{0.65}$ \\
+\midrule
+Total                         & ---                 & $14.901$ & $894$ & --- \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1pt}
+{\scriptsize Used and wall-clock figures are read from the run records. Derived
+cost \$0.0127 at \$0.0513 per core-hour --- derived, not metered.}
+
+\vspace{1.5pt}
+{\footnotesize \textbf{A short check ran before we committed the verification
+budget.} It solved the three angles once each --- thirty-five seconds --- to
+confirm the bracket was sensible and that your lift target sat inside it, and
+cost $4.1\,\%$ of the work it protected. The dollar figure is small because
+this is a two-dimensional section on $4\,032$ cells; cost scales with cell
+count and with the number of operating points.}
+
+\end{minipage}\hfill
+\begin{minipage}[t]{0.375\textwidth}
+\colorbox{boxgrey}{\begin{minipage}[t]{0.955\textwidth}
+{\footnotesize\textbf{Read this before you use the numbers}\\[1pt]
+$\bullet$ Shape optimisation runs next; today's work verifies the gradients
+that drive it. No optimiser step has been taken --- there is no improved shape
+and no drag saving on this sheet.\\
+$\bullet$ Everything here is this aerofoil section at $10\,\mathrm{m\,s^{-1}}$
+and Reynolds number $6.67\times10^{5}$, between $3.139$ and $7.139$ degrees ---
+nothing outside that range, and nothing about stall.\\
+$\bullet$ One mesh, $4\,032$ cells, so no coefficient here has a mesh error bar.\\
+$\bullet$ Four of the eight surface controls were checked; no claim is made
+about the other four.\\
+$\bullet$ The run was serial, on one core, and a derivative verified at one
+core count is a statement about that core count.\\
+$\bullet$ Figure 1 is the steepest-descent direction at the current shape; the
+constraints will bend the optimiser's actual step.}
+\end{minipage}}
+
+\vspace{3pt}
+\textbf{Figure 3 --- Polar.} Lift and drag against angle of attack; three
+solved points each.
+
+\vspace{1.5pt}
+\setlength{\unitlength}{1mm}
+\begin{picture}(43,28)(-7.5,-5.5)
+  \linethickness{0.4pt}
+  \put(0,0){\line(1,0){26}}
+  \put(0,0){\line(0,1){24}}
+  \put(26,0){\line(0,1){24}}
+  \multiput(5.78,0)(5.78,0){4}{\line(0,-1){1.1}}
+  \put(5.78,-3.1){\makebox(0,0)[c]{\scriptsize 4}}
+  \put(11.56,-3.1){\makebox(0,0)[c]{\scriptsize 5}}
+  \put(17.33,-3.1){\makebox(0,0)[c]{\scriptsize 6}}
+  \put(23.11,-3.1){\makebox(0,0)[c]{\scriptsize 7}}
+  \put(13,-5.5){\makebox(0,0)[c]{\scriptsize $\alpha$, deg}}
+  % left axis C_L 0.30..0.70
+  \multiput(0,0)(0,6){5}{\line(-1,0){1.1}}
+  \put(-1.7,-0.8){\makebox(0,0)[r]{\scriptsize 0.30}}
+  \put(-1.7,11.2){\makebox(0,0)[r]{\scriptsize 0.50}}
+  \put(-1.7,23.2){\makebox(0,0)[r]{\scriptsize 0.70}}
+  \put(-7.0,12){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize $C_L$, ---}}}
+  % right axis C_D 0.015..0.030
+  \multiput(26,0)(0,8){4}{\line(1,0){1.1}}
+  \put(27.7,-0.8){\makebox(0,0)[l]{\scriptsize 0.015}}
+  \put(27.7,7.2){\makebox(0,0)[l]{\scriptsize 0.020}}
+  \put(27.7,15.2){\makebox(0,0)[l]{\scriptsize 0.025}}
+  \put(27.7,23.2){\makebox(0,0)[l]{\scriptsize 0.030}}
+  % C_L, solid, filled circles
+  \linethickness{0.5pt}
+  \qbezier(0.80,0.71)(6.6,6.3)(12.36,11.93)
+  \qbezier(12.36,11.93)(18.1,16.9)(23.92,21.84)
+  \put(0.80,0.71){\circle*{1.1}}\put(12.36,11.93){\circle*{1.1}}
+  \put(23.92,21.84){\circle*{1.1}}
+  \put(9.5,14.0){\makebox(0,0)[r]{\scriptsize $C_L$}}
+  % C_D, dashed, open squares
+  \multiput(0.80,3.58)(1.284,0.653){9}{\rule{0.9mm}{0.4pt}}
+  \multiput(12.36,9.46)(1.284,1.130){9}{\rule{0.9mm}{0.4pt}}
+  \put(0.10,2.88){\framebox(1.4,1.4){}}
+  \put(11.66,8.76){\framebox(1.4,1.4){}}
+  \put(23.22,18.93){\framebox(1.4,1.4){}}
+  \put(24.5,12.0){\makebox(0,0)[r]{\scriptsize $C_D$}}
+\end{picture}
+
+\vspace{0.5pt}
+{\scriptsize Error bars are smaller than the markers (Table 2). No experimental
+data exists for this section at this condition, so no reference curve is
+drawn.}
+
+\end{minipage}
+
+% ------------------------------------------------------------- voices -------
+\vspace{2pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}
+
+\vspace{1pt}
+{\footnotesize
+\rolesig{Lead Researcher.} The change worth your attention is the sweep
+variable. Three Mach points at this speed would have been three copies of one
+answer; angle of attack is where the section actually has to compromise, and
+Table 2 shows why. One shape must serve all three angles, so the objective is
+their equally weighted average, not one point with the others left to follow.
+
+\rolesig{Lead Engineer.} Figure 1 is the actionable picture: your section's
+drag objective wants a blunter leading edge above all, then a thinner
+mid-chord, then a slightly fuller trailing edge. That is the local direction,
+not the answer --- the optimisation that runs next follows it under your
+thickness and area constraints and returns the shape and the saving. If you
+want the trade made against a lift constraint instead, say so before it starts
+--- the lift derivatives are already verified, so it costs nothing to add.
+
+\rolesig{Lead Numericist.} A gradient you have not checked is a direction you
+are guessing at, so we checked all sixteen --- four surface controls on drag
+and the same four on lift at each of three angles --- against independently
+computed finite differences. Worst disagreement $4.06\,\%$, against a
+$5\,\%$ limit written down before the run and not chosen after seeing the
+answer; the check was driven at a deliberately wrong step to prove it can fail,
+and it did, on all four. What has no error bar is the mesh: one level, no
+refinement study. Say so and we will price one.}
+
+\vspace{1pt}
+{\scriptsize All figures on this sheet are read from run records retained on
+disk; coefficients are printed to six significant figures.}
+
+\end{document}
