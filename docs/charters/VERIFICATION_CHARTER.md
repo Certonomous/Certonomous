@@ -3378,3 +3378,111 @@ opens.
 | worked counter-examples shipped | **1** (`T16`/`C_ORDER`) |
 | **lines whose number changed above this section** | **0** |
 
+
+---
+
+## Amendment — v1.25, 2026-08-31 — **§2k.9: MY OWN §2k.1 WAS INCOMPLETE AND heat-transfer FALSIFIED IT WITH A SPECIMEN. THE SET IS NOW EIGHT, STILL CLOSED, AND LAB-WIDE — because team-local was the one option guaranteed to produce six dialects**
+
+**Lines whose number changed above this section: 0.**
+
+**§2k.1 published five tags and §2k.6 called the set CLOSED. The closure principle was right. THE
+COUNT WAS WRONG, and heat-transfer showed it with a case rather than an argument.** Their proposal
+is `docs/campaigns/T-family/PROVENANCE_TAGGING_PROPOSAL_2026-08-31.md`, adopted team-locally and
+**deliberately not imposed lab-wide** — the correct routing, and it is why this ruling is clean.
+
+### §2k.9.1 THE FALSIFICATION, AND I ADOPT THEIR ARGUMENT OVER MY OWN FIRST INSTINCT
+
+Their **§R-P.4**: ***"`BORROWED` MAY NOT HIDE INSIDE `DERIVED`."*** A value measured on a
+**different object** and asserted to apply here is:
+
+- **not `MEASURED`** — not on this object;
+- **not `DERIVED`** — there is no rule taking it from *this* object's own data;
+- **not `EXTRAPOLATED`** — nothing is being extended along a fit;
+- **not `REGISTERED`** — registration says a value is *frozen*, not where it came from; a
+  registered value may be measured **or** borrowed, so the tag is **orthogonal**, not a home;
+- **not `REPORTED-BY-OWNER`** — the box **can** verify it; the source rung is on this disk.
+
+**My own first instinct was to map `BORROWED` onto `MEASURED` with an origin field. That is wrong
+and their clause says why: it would assert an observation of an object nobody observed.** I adopt
+their reading.
+
+**The same test applied to the other two:** `ASSUMED` — *chosen by judgement, with **no measurement
+anywhere behind it*** — is a claim about the **absence of a measurement at the root of the chain**,
+which no other tag makes. `TRANSCRIBED` — *copied from another record rather than re-derived from
+the artifact* — is a **fidelity claim about a copy step**, and their specimen shows it earning its
+keep: a `1.528×` transposed into a heat-transfer census **belongs to `F22_LAMB_OSEEN`, a cfd rung**
+(`COST_CALIBRATION.md:229`, `C-153`). **A cross-team mis-attribution that no other tag would have
+surfaced.**
+
+### §2k.9.2 THE SPECIMEN THAT DECIDES IT — a two-hop borrow, and the miss compounds
+
+    T20 rate 2.80e-07  ←  borrowed from T17's reading
+    T17 registered 1.64e-07  ←  borrowed from T14
+    2.80e-07 / 1.64e-07 = 1.707
+
+**T20's rate is the T14 borrow multiplied by T17's measured miss OF THAT SAME BORROW.** The error
+did not merely propagate — **it compounded, and nothing in the number shows it.**
+
+**AND THEY EXCLUDED THE INNOCENT EXPLANATION BEFORE CLAIMING THE GUILTY ONE, which is why I accept
+the attribution.** T17's registered `0.137` core-min against an actual `0.233` is **1.7007×**, and
+`T17_CY_c` **ran ALONE** — `02:25:17Z` to `02:25:31Z`, the next T17 case starting `16:15:56Z`, a
+gap of **49,825 s (13 h 50 m)**. **So the miss is the BORROWING, not contention.** That is the
+control this team demands of others, done unprompted against their own registration.
+
+### §2k.9.3 THE RULING
+
+**THE SET IS EIGHT AND REMAINS CLOSED:** `MEASURED` · `DERIVED` · `EXTRAPOLATED` · `REGISTERED` ·
+`REPORTED-BY-OWNER` · **`BORROWED`** · **`ASSUMED`** · **`TRANSCRIBED`**.
+
+**§2k.6 IS UPHELD, NOT WEAKENED.** A number that fits none of the eight is still **NOT REPORTABLE**,
+and the sixth-state refusal stands verbatim. **What changed is the count, once, on evidence** — and
+**the bar for any future change is now stated so this cannot become a drifting vocabulary:**
+
+> **A NEW TAG IS ADMITTED ONLY ON A SPECIMEN SHOWING THAT AN EXISTING TAG WOULD BE *FALSE*, NOT
+> MERELY COARSE.** *"The existing tag loses detail"* is not sufficient — that is what the mandatory
+> fields below are for. **`BORROWED` cleared this bar; a ninth tag must clear it too.**
+
+**LAB-WIDE, NOT TEAM-LOCAL, AND THE REASONING IS NOT A PREFERENCE:**
+
+1. **The three already exist VERBATIM in FROZEN records** — `T17_registered.json`
+   (`cost.rate_provenance`), `T20_PREREGISTRATION.md:999-1001`, `T17_CY_f.json:21`. **Rule 6 forbids
+   rewriting them**, so ruling the words team-local would not remove them from the lab's records; it
+   would only make them unreadable outside one team.
+2. **Team-local is the one option that GUARANTEES the dialect problem** it was meant to avoid: six
+   teams meeting the same gap independently mint six words for it. **A shared vocabulary of eight
+   beats a private vocabulary of three plus five unwritten ones.**
+3. **heat-transfer did not impose it, and that restraint should not cost them the ruling.**
+
+### §2k.9.4 MANDATORY FIELDS — the reason each tag exists is a field, not the word
+
+| tag | MUST also carry |
+|---|---|
+| **`BORROWED`** | **the object the value was measured on**, and where that source is itself borrowed, **the chain stated to its MEASURED ROOT, with its depth.** A borrow of a borrow is disclosed as such. |
+| **`ASSUMED`** | that **no measurement lies behind it**, and **what would falsify it** |
+| **`TRANSCRIBED`** | **the record it was copied from**, by path and line |
+
+**The chain-depth clause is the whole point of `BORROWED` and is not optional.** §2k.9.2's specimen
+is a **depth-2** borrow whose compounding is invisible in the value; **a depth-1 disclosure would
+have hidden exactly the thing that mattered.** A borrowed value at depth *n* has had *n*
+opportunities to stop applying, and **none of them is visible in the number.**
+
+### §2k.9.5 WHAT THIS DOES NOT DO
+
+**It does not make a tagged number correct** (§2k's own limit, restated). It **adds no verdict
+word** — rule 1 is closed and untouched, and none of the eight may sit where a verdict belongs. It
+**re-grades nothing**: registrations already carrying these words in frozen text are **compliant as
+written**, and this amendment is what makes them readable lab-wide rather than a defect to repair.
+
+**The `REPORTING_CHARTER` elevation of §2k remains PROPOSED and on Sanaa's desk, now covering
+eight tags rather than five.**
+
+| amendment record | **v1.25** |
+|---|---|
+| tags in the closed set | **5 → 8**, once, on a specimen |
+| §2k.6's refusal-not-a-tag principle | **UPHELD verbatim** |
+| bar for a ninth tag | **stated** — an existing tag must be shown FALSE, not coarse |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** · verdict vocabulary changed | **0** |
+| re-grades authorised | **0** |
+| **lines whose number changed above this section** | **0** |
+

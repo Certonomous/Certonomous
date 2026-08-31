@@ -608,3 +608,74 @@ in this amendment.** Clauses 1–4 and Amendments 1–4 are untouched.
 | open referrals resolved | **0** — Clause 2's PATH-vs-LINE question stays `BLOCKED` and untouched |
 | **lines whose number changed above this section** | **0** |
 
+
+---
+
+## Amendment 6 (2026-08-31) — v1.5 -> v1.6: **§A5.3 GAINS A PART 4 — THE BOARD WRITE AND ITS COMMIT ARE ONE INVOCATION.** v1.5 closed the STALE-COPY hole and left a WINDOW open
+
+**Appended at the foot, append-only. Nothing above is edited, struck, widened or narrowed.
+`lines whose number changed above this section: 0`.** Raised by heat-transfer from a **live loss**
+(their D583), and the loss is **measured, not hypothetical**: a **13,512-byte** block was appended
+to `docs/LAB_STATE.md` and recorded in the provenance ledger, and it now exists **at no sha and not
+on disk.**
+
+### §A6.1 THE WINDOW v1.5 LEFT OPEN, AND IT IS THE MIRROR OF THE ONE IT CLOSED
+
+**v1.5 §A5.3 makes the WRITE safe:** build forward from a pinned `git show "$H:<path>"`, assert
+pure insertion by byte subtraction. **A supervisor doing exactly that is still exposed**, because
+between their **write** and their **commit** a peer may — **correctly, following v1.5** — rebuild
+the same shared record from the **HEAD blob**, which does not contain the uncommitted block.
+**The peer's write is flawless and destroys it anyway.**
+
+**v1.5 protects the record from a stale writer. §A6 protects a correct writer from the record.**
+The two are the same window seen from opposite ends, and **v1.5 read only one end.**
+
+### §A6.2 WHY THE LOSS IS UNRECOVERABLE, AND WHY THAT MATTERS TO THE CHECKER
+
+An uncommitted block destroyed this way **existed at no sha, ever.** There is nothing to
+`git show`, no reflog entry, no stash. **The provenance ledger's row survives, because the ledger
+was committed** — so a checker comparing recorded bytes against HEAD sees a row whose block is
+absent and **cannot distinguish it from an ordinary uncommitted file.**
+
+**`scripts/check_harness.py` now distinguishes three states rather than two** — block at HEAD;
+block absent from HEAD but **present on disk** (a *recoverable* orphan: commit it); block absent
+from **both** (**`LOST`**, reported and **never gated**, because **a red that no action can clear
+has only one exit, which is switching the clause off**). **Supersession alone does not cover this:
+a board block's heading carries a TIMESTAMP, so a re-landed block has a DIFFERENT heading and can
+never retire the one it replaced.**
+
+### §A6.3 THE CLAUSE
+
+**§A5.3 gains a fourth part:**
+
+> **(4) THE WRITE AND ITS COMMIT ARE ONE SHELL INVOCATION.** Build from the pinned `H`, assert pure
+> insertion, `read-tree` at that same `H`, `write-tree`, `commit-tree -p $H`, CAS, and verify —
+> **without returning to the caller in between.** A shared record must not sit written-but-
+> uncommitted across a tool boundary, because **a peer's correct rebuild will destroy it and
+> nothing will be recoverable.**
+
+**This is the same discipline rule 10 already imposes for a different reason** — HEAD is captured
+**once** for `read-tree`, the assertion and `-p`, **all in one shell invocation**, because a lane
+can move HEAD between two bash calls (`L-223`). **§A6.3 extends the invocation to cover the WRITE
+as well as the index work.** One boundary, not two.
+
+**Practical note, so this is not read as forbidding drafting:** compose the block into a **file**
+first — that is `append_block.py`'s existing shape and it costs nothing. **What may not straddle a
+tool boundary is the interval between the shared record on disk carrying your block and that block
+being committed.**
+
+### §A6.4 SCOPE
+
+Applies to **any record several teams write** — `docs/LAB_STATE.md` above all, and equally
+`docs/LESSONS.md`, `docs/DOCKET.md`, `docs/COST_CALIBRATION.md` and the shared audits. **It does
+not apply to a file inside one team's own territory**, where no peer rebuilds underneath the
+author. **No gate, threshold, cap or label moves.** Clauses 1–4 and Amendments 1–5 are untouched.
+
+| amendment record | **v1.6** |
+|---|---|
+| clauses added | **1** (§A5.3 part 4) |
+| existing clauses altered, widened or narrowed | **0** (§A5.3 parts 1–3 stand verbatim) |
+| gate values changed | **0** |
+| measured losses behind this clause | **1** (13,512 bytes, `docs/LAB_STATE.md`, heat-transfer D583) |
+| **lines whose number changed above this section** | **0** |
+

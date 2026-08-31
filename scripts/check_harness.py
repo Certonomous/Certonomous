@@ -419,7 +419,7 @@ def provenance_verdict(records, read_bytes):
     return out
 
 
-def orphan_verdict(records, head_bytes):
+def orphan_verdict(records, head_bytes, disk_bytes=None):
     """ORPHAN LEDGER ROWS: a row COMMITTED at HEAD whose block is NOT at HEAD.
 
     append_block.py writes the ledger row and leaves committing to the caller --
@@ -440,12 +440,32 @@ def orphan_verdict(records, head_bytes):
                        -> False   out of this repo           -> not graded
     """
     out = []
-    for r in records:
+    # SUPERSESSION -- THE SAME KEY provenance_verdict USES, AND ITS ABSENCE HERE WAS A
+    # DEFECT MEASURED BY heat-transfer 2026-08-31 (their D583). The shape: a block is
+    # appended and ledger-recorded, and BEFORE it is committed another team correctly
+    # rebuilds the shared board from the HEAD blob (COMMIT_INTEGRITY v1.5 s A5.3) --
+    # which destroys the uncommitted block. Its author then re-appends and commits.
+    # THE FIRST ROW'S BYTES THEN EXIST AT NO SHA, EVER, so without supersession this
+    # clause raises a PERMANENT orphan FAIL that no action can clear -- and a red that
+    # cannot be cleared is worse than no clause, because the only way out is to switch
+    # it off. The later row for the same (target, section) retires the earlier one, for
+    # exactly the reason it does in provenance_verdict: a rewritten section makes no
+    # claim about the file the earlier row described.
+    last = {}
+    for i, r in enumerate(records):
+        if r.get("_bad"):
+            continue
+        last[(r.get("target"), r.get("section") or r.get("sha256"))] = i
+    for i, r in enumerate(records):
         if r.get("_bad"):
             out.append(("fail", "ledger line %s" % r.get("_line"),
                         "unparseable at HEAD: %s" % r["_bad"]))
             continue
         label = "%s :: %s" % (r.get("target", "?"), (r.get("section") or "")[:60])
+        if last[(r.get("target"), r.get("section") or r.get("sha256"))] != i:
+            out.append(("skip", label, "retired by a later write to the same heading "
+                        "-- an earlier row makes no claim about today's file"))
+            continue
         try:
             want = base64.b64decode(r.get("body_b64", ""))
         except Exception as exc:
@@ -463,11 +483,37 @@ def orphan_verdict(records, head_bytes):
             continue
         if want in blob:
             out.append(("ok", label, "%d bytes present at HEAD" % len(want)))
-        else:
+            continue
+        # THREE STATES, NOT TWO -- measured on heat-transfer's D583, 2026-08-31.
+        # Absent from HEAD but PRESENT ON DISK is a RECOVERABLE orphan: somebody
+        # owns an uncommitted file and committing it clears this. Absent from BOTH
+        # is LOST -- the block was destroyed before it was ever committed (a peer
+        # correctly rebuilt the shared board from the HEAD blob while it sat
+        # uncommitted), so ITS BYTES EXIST AT NO SHA AND NEVER WILL. Failing on
+        # LOST produces a red THAT NO ACTION CAN CLEAR, and the only way out of an
+        # unclearable red is to switch the clause off -- so it is REPORTED, loudly
+        # and distinctly, and never gated. Supersession alone does not cover this:
+        # a board block's heading carries a TIMESTAMP, so a re-landed block has a
+        # DIFFERENT heading and can never retire the one it replaced.
+        on_disk = None if disk_bytes is None else disk_bytes(r.get("target", ""))
+        if on_disk is not None and on_disk is not False and want in on_disk:
+            out.append(("fail", label,
+                        "RECOVERABLE ORPHAN: this row is COMMITTED and its %d recorded "
+                        "bytes ARE PRESENT ON DISK but NOT at HEAD. Somebody owns an "
+                        "uncommitted file; committing it clears this."
+                        % len(want)))
+        elif disk_bytes is None:
             out.append(("fail", label,
                         "ORPHAN: this row is COMMITTED but its %d recorded bytes are "
-                        "NOT in %s AT HEAD. The row was committed without its block."
-                        % (len(want), r.get("target"))))
+                        "NOT in %s AT HEAD." % (len(want), r.get("target"))))
+        else:
+            out.append(("lost", label,
+                        "LOST, NOT GATED: %d recorded bytes are at NO sha and NOT on "
+                        "disk. The block was destroyed before it was committed -- a peer "
+                        "rebuilt the shared record from the HEAD blob while it sat "
+                        "uncommitted. NO ACTION CAN CLEAR THIS, so it is reported and "
+                        "never gated; the write protocol that prevents it is "
+                        "COMMIT_INTEGRITY_STANDARD v1.5." % len(want)))
     return out
 
 
@@ -594,17 +640,30 @@ def check_provenance(strict=False):
             return False
         return _head(target)
 
-    o_graded = 0
-    for status, label, msg in orphan_verdict(head_recs, head_bytes):
+    def disk_bytes(target):
+        if not target or os.path.isabs(target):
+            return False
+        p = os.path.join(REPO, *target.split("/"))
+        if not os.path.exists(p):
+            return None
+        with open(p, "rb") as fh:
+            return fh.read()
+
+    o_graded, o_lost = 0, 0
+    for status, label, msg in orphan_verdict(head_recs, head_bytes, disk_bytes):
         if status == "fail":
             fail("orphan-row", "%s -- %s" % (label, msg)); o_graded += 1
         elif status == "ok":
             o_graded += 1
+        elif status == "lost":
+            o_lost += 1
+            warn("orphan-row", "%s -- %s" % (label, msg))
         else:
             pass
     print("  ....  ORPHAN PASS: %d committed row(s) checked against HEAD, %d in "
-          "flight (append not yet committed -- legitimate, not graded)%s"
-          % (o_graded, inflight, ", %d unparseable" % bad if bad else ""))
+          "flight (append not yet committed -- legitimate, not graded)%s%s"
+          % (o_graded, inflight, ", %d unparseable" % bad if bad else "",
+             ", %d LOST (reported, never gated)" % o_lost if o_lost else ""))
 
 
 STAMP_CASES = [
@@ -831,6 +890,41 @@ def provenance_selftest():
     ograde("orphan target gone SPEAKS", [row], lambda t: None, ["fail"])
     ograde("landed row SILENT", [row], lambda t: b"before" + body + b"after", ["ok"])
     ograde("orphan out-of-repo NOT graded", [row], lambda t: False, ["skip"])
+
+    # LIMBS 15-16, THE DESTROYED-AND-RELANDED SHAPE (heat-transfer D583, 2026-08-31).
+    # A block is appended and recorded; before it is committed another team correctly
+    # rebuilds the board from the HEAD blob and the uncommitted block is destroyed, so
+    # ITS BYTES EXIST AT NO SHA EVER. The author re-appends and commits. The FIRST row
+    # must be RETIRED, not failed forever -- a red no action can clear is worse than no
+    # clause. The SECOND row is still graded on its merits, which limb 16 proves.
+    lost = b"\n## board probe\n\nthe destroyed block\n"
+    reland = b"\n## board probe\n\nthe RE-LANDED block\n"
+    r_lost = dict(target="docs/LAB_STATE.md", section="board probe",
+                  body_b64=base64.b64encode(lost).decode())
+    r_reland = dict(target="docs/LAB_STATE.md", section="board probe",
+                    body_b64=base64.b64encode(reland).decode())
+    ograde("destroyed+relanded: 1st RETIRED", [r_lost, r_reland],
+           lambda t: b"header" + reland + b"tail", ["skip", "ok"])
+    # and the supersession must NOT become a blanket amnesty: if the SURVIVING row is
+    # itself an orphan, it still fails.
+    ograde("supersession is NOT amnesty", [r_lost, r_reland],
+           lambda t: b"neither block is here", ["skip", "fail"])
+
+    # LIMBS 17-19: the THREE STATES must be distinguished, and the distinguishing
+    # input is THE DISK. Same row, same HEAD, three different disk answers.
+    def og3(label, disk, want):
+        nonlocal bad, n
+        n += 1
+        got = orphan_verdict([row], lambda t: b"HEAD lacks it", disk)
+        st = [x for x, _, _ in got]
+        if st != want:
+            print("  FAIL  selftest    %-28s wanted %r got %r -- %s"
+                  % (label, want, st, " | ".join(m for _, m2, m in got))); bad += 1
+        else:
+            print("  ok    selftest    %-28s %s" % (label, "/".join(st)))
+    og3("RECOVERABLE orphan is a FAIL", lambda t: b"x" + body + b"y", ["fail"])
+    og3("LOST is REPORTED not gated", lambda t: b"nowhere", ["lost"])
+    og3("target absent on disk -> LOST", lambda t: None, ["lost"])
 
     # LIMB 15, THE REAL ONE: a genuine git repository, a real commit of the LEDGER
     # ONLY, and the orphan detected through `git show HEAD:` -- not a lambda.
