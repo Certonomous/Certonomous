@@ -4671,9 +4671,45 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T18:33:57Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T18:42:10Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22k — **`SO-3a` IS ARMED AND LIVE — SANAA'S ALPHA-MULTIPOINT GRADIENT RUNG IS ON THE BOX. A FOURTH ROW-LABEL CONSUMER WAS FOUND BECAUSE THE SWEEP THAT SAID "ZERO" WAS BLIND IN ONE LANGUAGE, AND BOTH OF MY OWN COMMIT GUARDS REFUSED CORRECT WORK TODAY — THE FAILURE MODE TO PREFER** (2026-08-31T18:4xZ, `date -u` at write)
+
+##### 1. LIVE
+
+**`LAUNCHED team=dafoam case=SO3a_chain pid=275297 ranks=1 est=22.0 core-min prereg=1a06a7d6`, 18:40:53Z.** `chain=started arms=[MESH X-S F-S X-P F-P] declared=5` `[MEASURED]`. Sanaa's ruling honoured to the letter: **the gradient-verification rung runs FIRST and STANDS ALONE before any optimisation iteration** — no optimiser in this item; the parent's driver block is **removed, not merely unreached**.
+
+**Check 4, mine, on every limb:** freeze `1a06a7d6` by path (`--diff-filter=A`, exactly one), ancestor of HEAD, prereg present at it; **13 pins declared, 13 driven by me, 0 stale**, with a wrong pin proving the reader discriminates; `so3a_grade.py` byte-identical to its committed blob; **`MD5_UNSET` occurrences are COMMENTS documenting its deletion, not live pins** — 32 zeros is a *well-formed* md5 and would have counted as real, so deleting it beats leaving it defined.
+
+**⚠ AND I CAUGHT MY OWN RUN-ROOT CHECK BEING WRONG:** my first pass globbed `CURRICULUM-SO3a*` and **matched `CURRICULUM-SO3aF`, the FEASIBILITY rung — a different item.** Re-measured against the driver's own `BASE=` line, the registered root `…-alpha-multipoint-gradient` **does not exist**, against a control that does list an existing root. **A glob is not an identifier.**
+
+##### 2. ⚠⚠ THE FOURTH CONSUMER, AND THE GENERALISATION IS THE VALUABLE PART
+
+`so3a_chain_driver.sh:img_of` derived the row from an **arm-name suffix glob** — *the exact derivation the launcher's own repair comment declares forbidden, two files from the comment forbidding it.*
+
+**WHY EIGHT FILES OF SWEEPING MISSED IT:** the sweep carried a suffix rule in its **Python** rule set and **none in its shell** rule set, and the one unrepaired site was shell. **THE SWEEP RETURNED ZERO — A STATEMENT ABOUT ITS RULE SET, NOT ABOUT THE CODE.** That is the `SO-1c` shape one layer up: there a **fixture** concealed the break; here **the sweep's own asymmetry** did.
+
+**Honest size, measured rather than dramatised:** it could **not** have reached a wrong verdict — the launcher independently re-derives the row from the **image digest** and then refuses an undeclared arm at `exit 64`. **A latent second line, not a live hole.** Repaired **before** pinning, because the pins are what freeze the bytes, and **the new rule's known positive is the real file** (flags `chain_driver:133`, zero legitimate lists).
+
+**Suite: 321 legs, 0 failures, 0 NOT DRIVEN** — grade 92/0 under `python3` and `python3 -O`, xf 33/0, `G-ROOT.5` 71/0. Leg `(e5)` was the one undriven at the start, **named rather than inferred**, and is now exercised and passing. The amendment's evidence legs **flipped** to post-amendment — *a leg passing identically before and after would not have been testing the pin.*
+
+##### 3. THE LANE'S TWO SELF-CATCHES, AND ONE OF THEM WAS AGAINST MY BRIEF
+
+**A COMPOUND MUTANT CANNOT ATTRIBUTE A DETECTION.** Its first drive planted **six mutations at once** and it began writing up a fail-open on the `PLANT` constant; the grade suite had already refused on a *different* mutation in the same tree, so the xf suite's independent reaction was **never observed**. Re-run **one constant at a time**, the reading **inverts: 17 of 17 registered constants are caught.**
+
+**AND IT CORRECTED MY BRIEF.** I quoted the FPE banner as `SigFpe : Enabling floating point exception trapping`; the real artefact on this box says **`trapFpe: Floating point exception trapping enabled`**. It checked the reader against the **real producer log** rather than against me — **had it trusted my brief it would have "repaired" a working discriminator.** **Third time today a lane has caught an error in a brief of mine**, and the pattern in all three is the same: I supplied a remembered string where the lane went and read the artefact.
+
+##### 4. ⚠ BOTH OF MY COMMIT GUARDS REFUSED CORRECT WORK TODAY — AND THAT IS THE RIGHT DIRECTION
+
+**First:** I asserted `--stat` output would name my case directory; `--stat` **abbreviates paths**, so a correct 4-path staging counted as 3 and refused. **Second, just now:** I asserted two paths would change; the case-directory draft was **already at HEAD** from the lane's commit and byte-identical, so `--add` was a genuine no-op and only one path moved. **Both times the staging was right and my expectation was wrong.**
+
+**Then the vanishing-path hazard fired on ME.** Between two shell invocations **the runner took the entry**, so `update-index --add` on the drop path failed *"does not exist and --remove not passed"* and **aborted the whole call** — precisely the mechanism I have warned every lane about all session, which elsewhere produces an empty commit whose message describes work it does not contain. **Nothing was lost: the guard refused rather than landing a false record, and the surviving `launched/` record is what this commit carries.**
+
+##### 5. STATE
+
+**Running: `SO-3a`** (pid 275297, 22.0 core-min est, ~15–25 min). **Queue: 0.** One lane live on **`SO-2M`**'s three rulings — G-TB step to 1e-8, band E and `MIN_GRADED` shown able to fail, `G-ROW` driven — then its P1 probe and READY. **Ledger mints remain HELD**; `SO-1cR`'s and `SO-3a`'s calibration rows are **owed and held**, not lost.
 
 ##### UPDATE S-22j — **⚠⚠⚠ I EXECUTED A BARE `git commit` AGAINST THE SHARED INDEX BY ACCIDENT — RULE 10's MOST FORBIDDEN OPERATION — AND IT WAS A NO-OP ONLY BY LUCK. SO-2M COULD NOT HAVE LAUNCHED: ITS OWN NL-2 GATE REFUSED ITS OWN CORRECT PRODUCER OVER LINE ORDER. THREE RULINGS GIVEN; IT IS **NOT** ARMED** (2026-08-31T18:3xZ, `date -u` at write)
 
