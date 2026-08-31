@@ -95,8 +95,20 @@ STEPS = {
 # the registered middle step (PREREGISTRATION.md section 5, G-TB).
 TB_STEPS = {
     "shape":  [1.0e-8],
-    "patchV": [1.0e-6],
+    "patchV": [1.0e-8],
 }
+# RULING 1 (dafoam-supervisor, 2026-08-31), CODE BROUGHT TO THE FROZEN DOCUMENT.
+# This dict read {"shape": [1e-8], "patchV": [1e-6]} until this repair.  The 1e-6
+# was INHERITED from SO-1a's real on-disk artefact (its tb_steps reads
+# {'patchV': [1e-06], 'shape': [1e-08]}), never from any registration of THIS item:
+# PREREGISTRATION.md section 5 (G-TB) and section 8 (P6) register h = 1e-8 for ALL
+# FIVE components and mention 1e-6 nowhere.  The document is the evidentiary object
+# and the code is the implementation, so the CODE moved.  The repair MOVES NO
+# THRESHOLD (nothing to register) and makes the control STRICTLY STRONGER: patchV
+# steps are DEGREES against aoa0 = 5.139, so 1e-8 deg is a RELATIVE step of ~2e-9,
+# deep in subtractive cancellation, which is what a trivial baseline that MUST FAIL
+# wants; 1e-6 is the larger, less trivially wrong step and is likelier to agree
+# with the adjoint by accident and so turn G-TB into a control that cannot fail.
 # The REGISTERED SUBSET (PREREGISTRATION.md section 6): SO-1a's and SO-2a's four
 # shape functions, so the three items' readings sit on the same components, PLUS
 # patchV[1] (angle of attack), which carries G-NZ.

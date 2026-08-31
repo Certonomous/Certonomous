@@ -218,6 +218,83 @@ if ! echo "$out" | grep -q 'SO2M_DRIVER arm=MESH image='; then
 else bad "(nl1c) the driver proceeded to the launcher after the wait expired"; fi
 
 # =============================================================================
+# G-ROW (rc=4) -- RULING 3, 2026-08-31.  THE ROW-DERIVATION SAFETY IS DRIVEN.
+#
+# WHY THIS EXISTS.  so2m_run_arm.sh derives the row TWICE from two independent
+# sources: once from the IMAGE (its name is resolved to a DIGEST, the digest is
+# checked against the registered one, and ROW falls out of that case), and once
+# from the ARM NAME (-S/MESH -> SHIPPED, -P -> PATCHED).  G-ROW then requires the
+# two to AGREE and refuses with rc=4 when they do not.  That cross-check is what
+# makes the three shell-side row derivations in this item defensible -- but until
+# this section it was ASSERTED AND NEVER DRIVEN.  This family lost a run on
+# 2026-08-31 (SO-1c) to a row-derivation safety that was believed rather than
+# exercised, so G-ROW is now shown REFUSING when the two sources disagree and
+# PASSING when they agree.
+#
+# NO CONTAINER IS STARTED.  The refusing direction reaches rc=4 at G-ROW, which is
+# upstream of every staging and launch line.  The agreeing direction runs on a
+# second sandbox copy carrying a SENTINEL `exit 0` immediately after G-ROW's own
+# pass line, so the launcher stops at the gate under test; both sandbox deltas are
+# PRINTED and COUNTED below rather than taken on trust.
+# =============================================================================
+GROW_ROOT="$TMP/grow_root"; mine "$GROW_ROOT"
+mkdir -p "$GROW_ROOT/base/system"; chmod 777 "$GROW_ROOT"
+cp -a "$HERE/so2m_runScript.py" "$HERE/so2m_xm.py" "$GROW_ROOT/"
+cp -a "$HERE/so2m_decomposeParDict" "$GROW_ROOT/base/system/decomposeParDict"
+SBL="$TMP/grow_launcher.sh"; mine "$SBL"
+sed "s|^REGISTERED_BASE=.*|REGISTERED_BASE=$GROW_ROOT|" "$LAUNCHER" > "$SBL"
+echo "  [--] G-ROW SANDBOX DELTA (refusing direction; the only difference from the frozen launcher):"
+diff "$LAUNCHER" "$SBL" | sed 's/^/       /'
+GD=$(diff "$LAUNCHER" "$SBL" | grep -c '^[<>]')
+if [ "$GD" -eq 2 ]; then
+  ok "(gr0) the G-ROW sandbox launcher differs from the frozen one by EXACTLY the REGISTERED_BASE line (2 diff lines) -- printed above.  G-ROOT.1 refuses a BASE that is not the registered root, so a copy is the only way to reach G-ROW without creating the real run root"
+else bad "(gr0) the G-ROW sandbox launcher differs by $GD lines, not 2"; fi
+
+# (gr1) DISAGREEMENT, direction one: an arm registered SHIPPED handed the PATCHED image.
+out=$(bash "$SBL" G-S dafoam-idwarp-rot:v1 2>&1); rc=$?
+if [ "$rc" -eq 4 ] \
+   && echo "$out" | grep -q 'ABORT G-ROW arm G-S is registered on the SHIPPED row; got ROW=PATCHED' \
+   && ! echo "$out" | grep -q 'D4S_G_ROW_PASS'; then
+  ok "(gr1) G-ROW REFUSES rc=4 when the two derivations DISAGREE: the IMAGE-DIGEST-derived row reads PATCHED (sha256:2927768a...) while the ARM-NAME-derived row reads SHIPPED for G-S.  Two sources, one comparison, and the refusal names both -- so the cross-check is reading two values, not one value against itself"
+else bad "(gr1) rc=$rc (expected 4): $(echo "$out" | tail -2)"; fi
+
+# (gr2) DISAGREEMENT, the MIRROR direction -- a gate that only refuses one way is half a gate.
+out=$(bash "$SBL" G-P dafoam/opt-packages:latest 2>&1); rc=$?
+if [ "$rc" -eq 4 ] \
+   && echo "$out" | grep -q 'ABORT G-ROW arm G-P is registered on the PATCHED row; got ROW=SHIPPED'; then
+  ok "(gr2) G-ROW REFUSES rc=4 in the MIRROR direction too: G-P handed the SHIPPED image.  The refusal is symmetric, so it is not a one-sided test that happens to catch one swap"
+else bad "(gr2) rc=$rc (expected 4): $(echo "$out" | tail -2)"; fi
+
+# (gr3) MESH is registered on SHIPPED by a REGISTERED DELTA (mesh generation does
+# not touch IDWarp).  The arm-name derivation must carry that, not just the suffix.
+out=$(bash "$SBL" MESH dafoam-idwarp-rot:v1 2>&1); rc=$?
+if [ "$rc" -eq 4 ] && echo "$out" | grep -q 'ABORT G-ROW arm MESH is registered on the SHIPPED row; got ROW=PATCHED'; then
+  ok "(gr3) G-ROW REFUSES rc=4 for MESH on the PATCHED image -- MESH carries no -S suffix, so this shows the arm-name derivation encodes the REGISTERED delta (MESH runs SHIPPED) and not merely a suffix test"
+else bad "(gr3) rc=$rc (expected 4): $(echo "$out" | tail -2)"; fi
+
+# (gr4)+(gr5) AGREEMENT.  Second sandbox: the BASE line plus a SENTINEL that stops
+# the launcher at the gate under test, so the PASSING direction starts NO container.
+SBL2="$TMP/grow_launcher_pass.sh"; mine "$SBL2"
+sed -e "s|^REGISTERED_BASE=.*|REGISTERED_BASE=$GROW_ROOT|" \
+    -e '/^echo "D4S_G_ROW_PASS row=\$ROW digest=\$GOT_DIGEST"$/a exit 0   # SELFTEST SENTINEL: stop AT the gate under test; nothing is staged and no container starts' \
+    "$LAUNCHER" > "$SBL2"
+echo "  [--] G-ROW SANDBOX DELTA (agreeing direction; BASE line + the sentinel):"
+diff "$LAUNCHER" "$SBL2" | sed 's/^/       /'
+GD2=$(diff "$LAUNCHER" "$SBL2" | grep -c '^[<>]')
+if [ "$GD2" -eq 3 ]; then
+  ok "(gr4) the agreeing-direction sandbox differs from the frozen launcher by EXACTLY 3 diff lines -- the REGISTERED_BASE line and ONE added sentinel -- both printed above.  The sentinel is what keeps a PASSING G-ROW from proceeding to stage and launch, which would be ARMING and is the SUPERVISOR's decision"
+else bad "(gr4) the agreeing sandbox differs by $GD2 lines, not 3"; fi
+out=$(bash "$SBL2" G-S dafoam/opt-packages:latest 2>&1); rc=$?
+if [ "$rc" -eq 0 ] \
+   && echo "$out" | grep -q 'D4S_G_ROW_PASS row=SHIPPED digest=sha256:9d45679d' \
+   && ! echo "$out" | grep -q 'ABORT G-ROW'; then
+  ok "(gr5) G-ROW PASSES when the two derivations AGREE: G-S on dafoam/opt-packages:latest prints D4S_G_ROW_PASS row=SHIPPED with the digest.  Taken with (gr1)-(gr3) this makes the refusal a READING of a disagreement rather than a gate that refuses everything"
+else bad "(gr5) rc=$rc (expected 0 at the sentinel): $(echo "$out" | tail -3)"; fi
+if [ ! -d "$GROW_ROOT/G-S" ] && [ ! -d "$GROW_ROOT/MESH" ] && [ -z "$(ls "$GROW_ROOT"/*.log 2>/dev/null)" ]; then
+  ok "(gr6) NOTHING WAS STAGED AND NO ARM LOG EXISTS in the G-ROW sandbox root after all five drives -- every one of them stopped at or before G-ROW, upstream of staging and launch"
+else bad "(gr6) the G-ROW sandbox root carries staged work: $(ls -1 "$GROW_ROOT" | tr '\n' ' ')"; fi
+
+# =============================================================================
 # WHAT IS NOT DRIVEN, STATED PLAINLY RATHER THAN OMITTED
 # =============================================================================
 echo "  [--] NOT DRIVEN, AND WHY: the container-based G-ROOT.5 legs SO-2a drives"
@@ -235,7 +312,8 @@ echo "       never a passing one."
 DECOY="$TMP/DECOY_not_written_by_this_selftest"
 echo "a real file a peer might have written" > "$DECOY"
 rm -rf "$TMP/nl1" "$TMP/nl2" "$TMP/nl2b" "$TMP/nl3" "$TMP/nl4" "$TMP/nl1_root" "$TMP/nl3_root" \
-       "$TMP/nl2b_root" "$TMP/corrupt_driver.sh"
+       "$TMP/nl2b_root" "$TMP/corrupt_driver.sh" "$TMP/grow_root" "$TMP/grow_launcher.sh" \
+       "$TMP/grow_launcher_pass.sh"
 if [ -f "$DECOY" ] && [ "$(head -c 6 "$DECOY")" = "a real" ]; then
   ok "(z1) DRIVEN: the named cleanup removed only paths this selftest recorded creating, and the DECOY it did not create SURVIVED byte-intact"
 else bad "(z1) the decoy did not survive the cleanup"; fi

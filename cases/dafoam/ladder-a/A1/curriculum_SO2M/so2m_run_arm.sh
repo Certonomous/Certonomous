@@ -203,7 +203,7 @@ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33a
 
 # ---- FROZEN INSTRUMENT HASHES (PREREGISTRATION.md §7, verbatim) ----------
 MD5_RUNSCRIPT=ae4a73429dd6972dc804b76d9a44aa05   # so2m_runScript.py = byte copy of the shipped INCOMPRESSIBLE tutorial runScript.py
-MD5_XM=2bf45db9197c49d37bed30e55f6ff2ef                                 # so2m_xm.py (set at freeze)
+MD5_XM=19c9eb89f6d12d93b22be96a65320650                                 # so2m_xm.py (RULING 1 repair 2026-08-31; was 2bf45db9197c49d37bed30e55f6ff2ef)
 MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4      # so2m_decomposeParDict (numberOfSubdomains 1, scotch)
 
 ARM="${1:-}"; IMG="${2:-}"

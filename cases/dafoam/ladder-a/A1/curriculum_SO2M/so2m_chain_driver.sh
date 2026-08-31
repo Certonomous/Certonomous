@@ -57,10 +57,16 @@ DECLARED_ARMS=5                       # the declared program: five arms (section
 # the MD5_* variables OUT OF THIS FILE'S OWN BYTES and checks each -- so "every
 # pin" is a count, not a claim (SO-1c's driver carried twelve pins and its leg
 # drove four while claiming every one).
-MD5_LAUNCHER=3a4300c0545f23a1be5794449db01595
-MD5_GRADER=4c355c3fb07276bee72cdd09a707638e
+# RULING 1 + RULINGS 2/3 REPAIR, 2026-08-31, PRE-COMPUTE (this item has burned 0
+# core-min and started no container).  Three pins moved because three files moved:
+#   MD5_LAUNCHER 3a4300c0545f23a1be5794449db01595 -> e12d510a35300e3d3412cb474c4a566c
+#   MD5_GRADER   4c355c3fb07276bee72cdd09a707638e -> e08238ccbc38725c0186b73049cf518e
+#   MD5_XM       2bf45db9197c49d37bed30e55f6ff2ef -> 19c9eb89f6d12d93b22be96a65320650
+# No gate, threshold, cap or label moved with them.
+MD5_LAUNCHER=e12d510a35300e3d3412cb474c4a566c
+MD5_GRADER=e08238ccbc38725c0186b73049cf518e
 MD5_RUNSCRIPT=ae4a73429dd6972dc804b76d9a44aa05
-MD5_XM=2bf45db9197c49d37bed30e55f6ff2ef
+MD5_XM=19c9eb89f6d12d93b22be96a65320650
 MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
 # the shipped tutorial's INPUT bytes, frozen here because the checkout is not
 MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f

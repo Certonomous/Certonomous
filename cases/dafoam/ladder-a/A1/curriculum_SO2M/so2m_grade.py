@@ -183,7 +183,14 @@ MAX_EXCLUDED_PCT = 75.0      # PREREGISTRATION.md section 6
 NEAR_ZERO_ABS = 1.0e-14
 COMPONENTS_REGISTERED = [["shape", 0], ["shape", 3], ["shape", 6], ["shape", 7], ["patchV", 1]]
 STEPS_REGISTERED = {"shape": [1.0e-2, 1.0e-3, 1.0e-4], "patchV": [1.0e-1, 1.0e-2, 1.0e-3]}
-TB_STEPS_REGISTERED = {"shape": [1.0e-8], "patchV": [1.0e-6]}
+TB_STEPS_REGISTERED = {"shape": [1.0e-8], "patchV": [1.0e-8]}
+# RULING 1 (dafoam-supervisor, 2026-08-31).  BEFORE: {"shape": [1e-8], "patchV":
+# [1e-6]}.  AFTER: 1e-8 on BOTH, which is what PREREGISTRATION.md section 5 (G-TB)
+# and section 8 (P6) FREEZE for all five components; 1e-6 appears nowhere in that
+# document.  The 1e-6 was carried forward from SO-1a's real artefact (tb_steps
+# {'patchV': [1e-06], 'shape': [1e-08]}), which is where the fixture's tb block
+# comes from -- so the FIXTURE is repaired at the same registered location rather
+# than the DOCUMENT being amended to fit the code.  No threshold moves.
 TB_MAX_PASSING = 1
 CTRL_STEP = 1.0e-3
 PLANT = 1.234e-03
@@ -220,7 +227,9 @@ G6_SENTENCE = ("NOT MEASURED -- AV-2 measured that seeding forward mode makes th
 NO_GCI_SENTENCE = ("THERE IS NO GRID FAMILY IN THIS ITEM -- one mesh, 4,032 cells, no "
                    "refinement triple.  NO GCI IS QUOTED and no row may carry one "
                    "(standing rule 5).")
-EXPECTED_UNITS = 66
+EXPECTED_UNITS = 74   # 66 before the 2026-08-31 rulings; +3 (TB0/TB1/TB2, ruling 1)
+                      # +5 (E1/E2/E3/M1/M2, ruling 2).  Legs are ADDED, none removed,
+                      # none weakened.
 
 
 class Refusal(Exception):
@@ -1438,7 +1447,7 @@ def _augment_real_X(j, adj_err_pct=None, flip=(), nz_zero=False, cmz_base=None,
 
 def _augment_real_F(j, xj, err_pct=0.5, err_by_comp=None, flip=(), noplateau=(),
                     tb_pass=(), ctrl_ok=True, ctrl_tuple=None, drop_dkey=False,
-                    fd_fail=(), cmz_base=None):
+                    fd_fail=(), cmz_base=None, tb_steps=None):
     """Add the SO-2M keys to a REAL SO-1a F artefact, at the REGISTERED locations.
 
     The FD table is made consistent with the X artefact's CMZ adjoint so the clean
@@ -1486,12 +1495,31 @@ def _augment_real_F(j, xj, err_pct=0.5, err_by_comp=None, flip=(), noplateau=(),
             v["CMZ_minus"] = repr(0.0)
         tbs = TB_STEPS_REGISTERED[dv][0]
         tbmul = 1.001 if (dv, idx) in tb_pass else 3.0
-        for skey, v in (row.get("tb") or {}).items():
+        # RULING 1.  The REAL parent artefact's tb block is keyed at SO-1a's OWN
+        # trivial-baseline step -- patchV 1e-6, read off disk.  THIS item registers
+        # h = 1e-8 on all five components, so the fixture is RE-KEYED AT THE
+        # REGISTERED LOCATION: the outer repr(step) key AND the inner "step" field,
+        # which is the one read_F actually parses (float(v["step"])).  The registered
+        # step is not bent to the parent's; the parent's block is moved to it.
+        tb_new = {}
+        for _skey, v in (row.get("tb") or {}).items():
+            v = dict(v)
+            v["step"] = tbs
             v[DKEY_OF_OUTPUT[GRADED_OUTPUT] if not drop_dkey else "dCmz"] = repr(j_adj * tbmul)
             v["CMZ_plus"] = repr(0.0)
             v["CMZ_minus"] = repr(0.0)
+            tb_new[repr(tbs)] = v
+        row["tb"] = tb_new
     j["CMZ_baseline"] = repr(-0.0031 if cmz_base is None else cmz_base)
     j["CMZ_baseline_repeat"] = j["CMZ_baseline"]
+    # RULING 1: the parent artefact declares SO-1a's tb_steps; this item's producer
+    # declares THIS item's.  Set at the registered location.  Leg TB0 below drives
+    # read_F REFUSING when this field carries the OLD 1e-6, so this assignment is
+    # not a way of walking past the check -- it is the check's positive control.
+    if tb_steps is None:
+        j["tb_steps"] = {dv: list(v) for dv, v in TB_STEPS_REGISTERED.items()}
+    else:
+        j["tb_steps"] = tb_steps
     j["outputs"] = list(OUTPUTS)
     j["graded_output"] = GRADED_OUTPUT
     j["d_key_of_output"] = dict(DKEY_OF_OUTPUT)
@@ -1513,6 +1541,7 @@ def _real_fixture(tmp, tweak=None):
          "err": {rl: {} for rl in ROW_LABELS}, "err_pct": {rl: 0.5 for rl in ROW_LABELS},
          "flip": {rl: () for rl in ROW_LABELS}, "noplateau": {rl: () for rl in ROW_LABELS},
          "fd_fail": {rl: () for rl in ROW_LABELS}, "tb_pass": {rl: () for rl in ROW_LABELS},
+         "tb_steps": {rl: None for rl in ROW_LABELS},
          "nz_zero": {rl: False for rl in ROW_LABELS}, "cmz_base": {rl: -0.0031 for rl in ROW_LABELS},
          "cmz_scale": {rl: FIXTURE_CMZ_FROM_CL for rl in ROW_LABELS},
          "ctrl_ok": {rl: True for rl in ROW_LABELS}, "ctrl_tuple": {rl: None for rl in ROW_LABELS},
@@ -1574,7 +1603,7 @@ def _real_fixture(tmp, tweak=None):
                                      noplateau=k["noplateau"][rl], tb_pass=k["tb_pass"][rl],
                                      ctrl_ok=k["ctrl_ok"][rl], ctrl_tuple=k["ctrl_tuple"][rl],
                                      drop_dkey=k["drop_dkey"][rl], fd_fail=k["fd_fail"][rl],
-                                     cmz_base=k["cmz_base"][rl])
+                                     cmz_base=k["cmz_base"][rl], tb_steps=k["tb_steps"][rl])
                 jf["identity"] = ident
                 json.dump(jf, open(art, "w"), indent=1, sort_keys=True)
             if k["terminal"][arm]:
@@ -1897,6 +1926,101 @@ def selftest(tmp):
          r["gates"]["per_row"]["PATCHED"]["G_TB_trivial_baseline"]["verdict"] == "PASS"
          and r["rows"]["PATCHED"] == "PASS"
          and r["predictions"]["P6_trivial_baseline_fails_at_least_4_of_5_on_each_row"] == "HIT")
+
+    # ==== RULING 1 (2026-08-31) DRIVEN: the trivial-baseline step is 1e-8 on ALL ====
+    # ==== FIVE components, and that constant is shown LOAD-BEARING in both       ====
+    # ==== directions.  Before this repair the code carried patchV 1e-6, inherited ====
+    # ==== from SO-1a's real artefact and registered NOWHERE in this item's frozen ====
+    # ==== document.  The document was NOT amended to fit the code.               ====
+    unit("TB0 (RULING 1, REFUSAL DIRECTION) an F artefact declaring the PRE-REPAIR "
+         "tb_steps {shape:[1e-8], patchV:[1e-6]} is REFUSED by read_F -- so the "
+         "registered 1e-8 is enforced against the producer and is not merely written "
+         "down.  Reverting TB_STEPS_REGISTERED to 1e-6 turns this leg RED.",
+         refused(_real_fixture(tmp, tw(tb_steps={"SHIPPED": {"shape": [1.0e-8],
+                                                             "patchV": [1.0e-6]}}))))
+    r = grade(_real_fixture(tmp))
+    tbc = {(c["dv"], c["idx"]): c for c in
+           r["gates"]["per_row"]["PATCHED"]["G_TB_trivial_baseline"]["components"]}
+    unit("TB1 (RULING 1, POSITIVE DIRECTION) the patchV[1] trivial-baseline probe is "
+         "FOUND AND GRADED at the registered step 1e-8 -- tb_step reads 1e-08 and the "
+         "reason is NOT TB_PROBE_FAILED_OR_ABSENT, so the repaired step is a location "
+         "the reader actually reaches rather than a constant nothing looks up",
+         tbc[("patchV", 1)].get("tb_step") == 1.0e-8
+         and tbc[("patchV", 1)].get("reason") != "TB_PROBE_FAILED_OR_ABSENT"
+         and tbc[("patchV", 1)]["tb_verdict"] == "GATE FAIL"
+         and all(c.get("tb_step") == 1.0e-8 for c in tbc.values()))
+    r = grade(_real_fixture(tmp, tw(tb_pass={"PATCHED": (("patchV", 1),)})))
+    unit("TB2 (RULING 1) the SAME patchV[1] probe at 1e-8 reads PASS when the wrong "
+         "step is made to AGREE -- so TB1's GATE FAIL is a reading of the number and "
+         "not a stuck verdict from a missing key (1 of 5 passing, inside TB_MAX_PASSING)",
+         r["gates"]["per_row"]["PATCHED"]["G_TB_trivial_baseline"]
+          ["n_passing_band_D_at_the_WRONG_step"] == 1
+         and [c for c in r["gates"]["per_row"]["PATCHED"]["G_TB_trivial_baseline"]
+              ["components"] if c["dv"] == "patchV"][0]["tb_verdict"] == "PASS"
+         and r["gates"]["per_row"]["PATCHED"]["G_TB_trivial_baseline"]["verdict"] == "PASS")
+
+    # ==== RULING 2 (2026-08-31): BAND E AND THE MIN_GRADED FLOOR ARE SHOWN ABLE ====
+    # ==== TO FAIL.  Both constants previously survived deliberate mutation with  ====
+    # ==== the suite still green (AGG_BAND_PCT 5.0 -> 500.0 and MIN_GRADED 2 -> 0 ====
+    # ==== both left 66/66), i.e. HALF OF G5m's BRIGHT LINE WAS WIRED AND NEVER   ====
+    # ==== EXERCISED (L-314).  A band that cannot fail is not a band.             ====
+    r = grade(_real_fixture(tmp))
+    g5c = r["gates"]["per_row"]["PATCHED"]["G5m"]
+    unit("E1 (band E, the PASSING direction) the clean fixture's AGGREGATE "
+         "vector-relative error is %.6f %% and band_E reads PASS strictly inside the "
+         "registered 5.0 %%" % g5c["aggregate_rel_err_pct"],
+         g5c["band_E"] == "PASS" and g5c["aggregate_rel_err_pct"] < 5.0
+         and g5c["aggregate_rel_err_pct"] > 0.0)
+    r = grade(_real_fixture(tmp, tw(err_pct={"SHIPPED": 20.0})))
+    g5e = r["gates"]["per_row"]["SHIPPED"]["G5m"]
+    unit("E2 (band E, THE FAILING direction -- THIS LEG IS THE MUTATION DETECTOR) a "
+         "20 %% planted error on every graded pair of the shipped row puts the "
+         "AGGREGATE at %.4f %%, ABOVE the registered 5.0 %%, and band_E reads GATE "
+         "FAIL.  Widening AGG_BAND_PCT to 500.0 flips this to PASS and turns this leg "
+         "RED, which is the property the mutation previously did not have."
+         % g5e["aggregate_rel_err_pct"],
+         g5e["band_E"] == "GATE FAIL"
+         and g5e["aggregate_rel_err_pct"] > AGG_BAND_PCT
+         and g5e["aggregate_rel_err_pct"] > 5.0
+         and g5e["aggregate_rel_err_pct"] < 500.0
+         and r["rows"]["SHIPPED"] == "GATE FAIL")
+    _per_pair = [c["rel_err_pct"] for c in g5e["components"] if c.get("rel_err_pct") is not None]
+    unit("E3 (band E, THE STRUCTURAL READING, MEASURED NOT ASSERTED) the aggregate "
+         "(%.4f %%) is <= the LARGEST per-pair relative error (%.4f %%) on the same "
+         "fixture.  Bands D and E share a denominator convention, so the l2 aggregate "
+         "is bounded by the worst pair and band E at the SAME 5.0 %% threshold can "
+         "never be the SOLE cause of a GATE FAIL.  Band E is a confirmation, not an "
+         "independent gate -- STATED, not hidden behind E2's green."
+         % (g5e["aggregate_rel_err_pct"], max(_per_pair)),
+         bool(_per_pair) and g5e["aggregate_rel_err_pct"] <= max(_per_pair) + 1.0e-9)
+    r = grade(_real_fixture(tmp, tw(noplateau={"SHIPPED": (("shape", 0), ("shape", 3),
+                                                           ("shape", 6), ("shape", 7))})))
+    g5m1 = r["gates"]["per_row"]["SHIPPED"]["G5m"]
+    unit("M1 (MIN_GRADED, THE FAILING direction -- THIS LEG IS THE MUTATION DETECTOR) "
+         "four of five pairs excluded NO_PLATEAU leaves ONE graded pair, and the row "
+         "reads NOT A RESULT with the reason naming THE MINIMUM-GRADED-PAIRS FLOOR "
+         "specifically.  Lowering MIN_GRADED to 0 makes the excluded-percentage clause "
+         "bind instead, the reason changes, and this leg goes RED.",
+         g5m1["verdict"] == "NOT A RESULT" and g5m1["n_graded"] == 1
+         and g5m1["aggregate_rel_err_pct"] is None
+         and g5m1["reason"].startswith("fewer than %d graded pairs" % MIN_GRADED)
+         and g5m1["min_graded_required"] == MIN_GRADED
+         and r["rows"]["SHIPPED"] == "NOT A RESULT")
+    r = grade(_real_fixture(tmp, tw(noplateau={"SHIPPED": (("shape", 0), ("shape", 3),
+                                                           ("shape", 6))})))
+    g5m2 = r["gates"]["per_row"]["SHIPPED"]["G5m"]
+    unit("M2 (MIN_GRADED, the PASSING direction) THREE exclusions leave exactly TWO "
+         "graded pairs -- the floor itself -- and grading PROCEEDS to an aggregate "
+         "(%s) instead of refusing.  So M1's refusal is a reading of the COUNT and not "
+         "a row that refuses whenever anything is excluded.  Together with M1 this "
+         "also MEASURES that with five candidates the floor is reachable only at "
+         "80 %% exclusion, i.e. it is subsumed by MAX_EXCLUDED_PCT = %.0f %% and can "
+         "never bind alone -- STATED, not hidden."
+         % (g5m2["aggregate_rel_err_pct"] is not None, MAX_EXCLUDED_PCT),
+         g5m2["n_graded"] == 2 and g5m2["excluded_pct"] == 60.0
+         and g5m2["verdict"] in ("PASS", "GATE FAIL")
+         and g5m2["aggregate_rel_err_pct"] is not None
+         and g5m1["excluded_pct"] == 80.0)
 
     # ============ G1, the five clauses, R-RC, and the infrastructure split ===========
     unit("A1u rc=1 on X-P -> REFUSAL", refused(_real_fixture(tmp, tw(rc={"X-P": 1}, ke={"X-P": 1}))))
