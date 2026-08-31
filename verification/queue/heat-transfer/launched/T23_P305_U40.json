@@ -1,0 +1,51 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T23_P305_U40",
+  "prereg_commit": "fe666fd5d3cf148b1266bf693d1199cec3c7d607",
+  "prereg_path": "docs/campaigns/T-family/T23_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/run_t23.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40",
+  "ranks": 1,
+  "cost_core_min_estimate": 30.8,
+  "cap_core_min_registered": 100.0,
+  "memory_floor_gb": 2.0,
+  "cost_basis": "POINT 30.8 core-min is DERIVED, NOT MEASURED, and is REGISTERED at T23_PREREGISTRATION.md section 5.2, frozen at fe666fd5 BEFORE this case existed. 39,680 cells x 10,000 iterations = 3.968e08 cell-iterations at 4.6476e-06 s per cell-iteration = 1,844 s = 30.7 core-min, rounded to 30.8. The rate is the conservative end of a MEASURED bracket read from two anchors' own log.solve ExecutionTime lines (T5_CUBE_m 216,214 cells / 4,490.88 s = 4.1541e-06; T5_CUBE_f 896,531 cells / 20,833.54 s = 4.6476e-06), both chtMultiRegionSimpleFoam at 1 rank. A MEASURED SAME-GEOMETRY ANCHOR NOW EXISTS AND IS NAMED RATHER THAN USED: T22_CHTb_L1 completed 2026-08-31T17:21:42Z at 839.23 s for 39,680 cells x 5,000 iterations = 4.22999e-06 s per cell-iteration, INSIDE that bracket. It is NOT substituted into this figure, because section 5.2 was FROZEN before T22 finished and a frozen cost may not be re-fitted to a later measurement; the T22 number is disclosed here so the reader can see the registered estimate is ~9 percent conservative rather than wrong, and the calibration owed at completion (rule 12, T23 section 5.4) will state the ratio against the REGISTERED 30.8 and not against a retrofitted number. CAP 100.0 core-min is REGISTERED at section 5.2 and is ENACTED, not merely written: TIMEOUT_S=6000 at 1 rank inside run_t23.sh (cap_core_min = TIMEOUT_S * RANKS / 60). An overrun STOPS the run and does not get a new budget (CLAUDE.md rule 12, COMPUTE_BUDGET_CHARTER.md:197); the queue runner's CAP_OVERRUN.txt only REPORTS. USD DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge $0.0513/core-h (REPORTED-BY-OWNER 2026-08-21/22; the box cannot read its own billing, COMPUTE_BUDGET_CHARTER.md section 5): POINT $0.02634, CAP $0.08550. Four-case subset POINT 123.2 core-min / $0.1053, CAP 400.0 core-min / $0.3420, inside the directive's own 700 core-min Case 3 cap.",
+  "enqueued_by": "heat-transfer lab-lane, 2026-08-31, at heat-transfer-supervisor's dispatch, under Sanaa's ruling '5. Rescale' (etc/sessions/2026-08-31T1615Z_sanaa_six_answers.md, the chief's verbatim capture read at source) and her 2026-08-31T15:45Z standing order that the box must be full. THE PRE-REGISTRATION WAS COMMITTED BEFORE THIS CASE DIRECTORY EXISTED, which is the whole point of rule 2: commit fe666fd5 froze T23_PREREGISTRATION.md while verification/runs/T-family/T23_runs did NOT EXIST, and that absence was re-verified inside the committing invocation under a live planted control. The case was built afterwards, from the frozen document's own registered values. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT claimed as performed here. No agent's message is Sanaa's consent (CLAUDE.md rule 9).",
+  "gradeable": "YES -- and this is the FIRST Case 3 entry of which that is true. prereg_commit is a real frozen sha, not the FEASIBILITY tag. This case is graded ONLY against the PHYSICALITY TIER registered at T23 section 1 line 4: B1 (T_max < 200 degC -> PASS, else PASS FLAGGED 'beyond assumption range'), B2 (T_max > 0 degC, else GATE FAIL), B3 (Q1 >= Q2 and Q1 != Q2, else NOT A RESULT). IT IS GRADED AGAINST NOTHING ELSE. No Nusselt correlation, no Roache triple, no GCI, no observed order, no heat-balance closure -- all four DEFERRED at T23 section 4 with reasons, and section 1 line 5 registers NO LADDER, so a single mesh level admits no triple and any Roache classification quoted from a T23 artifact is a category error. y+ is MEASURED AND REPORTED, never gated (section 4.4).",
+  "predictions_reported_never_gated": "T_max at P = 305 W, U = 40 m/s: Dittus-Boelter 121.6 degC, flat plate 77.4 degC. BOTH ARE DERIVED FROM A LUMPED 1-D SERIES-RESISTANCE MODEL AND NEITHER IS A GATE. T23 section 6.2 registers the contingency one-way: if the solved value disagrees with BOTH closures by more than the 1.763x spread between them, the LUMPED MODEL is the thing falsified -- a finding about the level-selection instrument -- and B1/B2/B3 are unchanged, because they grade the solved temperature and not the model.",
+  "why_this_point": "THE 120 degC ISOTHERM BRACKET. T23 section 2.3 proves no lower top power can reach the isotherm at U = 40 m/s: the DB isotherm there is 300.5 W and 305 W sits just above it. This is the single crossing the registered subset can deliver; TRACING the isotherm across the map is DEFERRED to the twelve points of section 6.4.",
+  "mesh": "39,680 cells (35,200 fluid + 3,360 core + 1,120 housing), MEASURED from this case's own three checkMesh logs against docs/standards/MESH_STANDARD.md 3.1 (non-ortho hard gate 70 deg), 3.2 (skewness hard gate 4), 3.3 (aspect ratio advisory 1000). 'Mesh OK' in ALL THREE regions. Max skewness 0.109152072608, a factor of 37 below its gate. Max aspect ratio 162.627654918 / 1.80065562436 / 1.26018522089, below the 1000 advisory. NEGATIVE VOLUMES: ZERO IN ALL THREE REGIONS, read as the DIRECT quantity and not as an absence of a warning -- every region's reported MINIMUM cell volume is strictly positive (6.73948906288e-11, 1.31317246204e-09, 5.86080893703e-10 m^3) and checkMesh reports 'Cell volumes OK' for each. The mesh is IDENTICAL across all four cases by construction: P_loss and U_inf enter fvOptions and the fluid boundary values, never the blockMeshDict, so the four cases differ ONLY in the source power and the inlet condition.",
+  "parameters_verified": "READ BACK FROM THE BUILT CASE, not assumed from the builder's constants. endTime 10000 == T23 section 3.1's registered iteration count; writeInterval 10000; writeFormat ascii, writePrecision 12, writeCompression off, timePrecision 12 == section 3.2 (registered for B3, the anti-degeneracy control, whose whole content is that two readers must return DIFFERENT numbers and which fails as a false positive if two values round to one string). P_sector = 4.23611111111 W in constant/core/fvOptions, against 305 x 5/360 = 4.236111111111111 [DERIVED] -- the wedge power factor, entered as the SECTOR's share so the 305 W is the full 360-degree motor loss. volumeMode absolute, so OpenFOAM divides by the volume IT measured and no hand-computed V_core enters the case. The source field is h (enthalpy), NOT T: an fvOptions entry on T is never matched to the solid energy equation and produces a SILENT ZERO that converges cleanly. Fluid inlet U = (0 0 40) m/s. constant/g = (0 0 0) per section 3.3 -- which is also why section 3.4 declares directive 3.3's Ri < 0.1 check VACUOUS here (Ri = 0 identically) and expressly REFUSES to report it as a passing check. TIMEOUT_S=6000 in run_t23.sh.",
+  "age_guard": "CLEAN. run_t23.sh refuses if $CASE/0 or any [1-9]* time directory exists, copies 0.orig to 0, and touches 0/housing/T LAST so that file dates the run allowed to produce the answer. A DISCLOSURE MADE RATHER THAN HIDDEN: splitMeshRegions -cellZones -overwrite writes a 0/ holding ONLY cellToRegion -- no solution field -- and this build produced one. It was MOVED ASIDE to 0_BUILD_ARTEFACT_cellToRegion_from_splitMeshRegions/, NOT DELETED, after asserting it held zero non-cellToRegion files. The case now carries no 0/ and no numeric time directory.",
+  "launcher_provenance": "run_t23.sh is run_t22.sh with CASE, NAME and TIMEOUT_S changed and NOTHING ELSE. It carries the three repaired guards this lane DROVE before T22's second launch: (a) refuse if the bashrc file is absent -> exit 2; (b) set +u / source / set -u with || true; (c) post-source 'command -v' solver resolution refusal -> exit 2. Both refusal arms were driven in a scratch copy and returned exit 2 writing no 0/, no log.solve and no STATUS; a positive control on the real bashrc and real solver reached and EXECUTED the solver (log.solve carrying 'Exec : chtMultiRegionSimpleFoam'), and the paired negative control on the UNREPAIRED script reproduced launch 1's exact signature. rc is captured INSIDE the wrapper on the line immediately after the solver call, never around a setsid line.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T23_P305_U40 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-31T17:36:17Z",
+    "pid": 198194,
+    "sid": 198194,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/STATUS.T23_P305_U40",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/launcher.queue.out",
+    "started_epoch": 1788197777.750589
+  }
+}
