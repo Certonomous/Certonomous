@@ -2757,3 +2757,49 @@ dirty one, is a RESULT and is filed as one** — not an absence of news. It is a
 `N-C` entries the stale index could not see, which is the concrete cost of the drift: **the lab
 had already done this work and the index said the family had one entry.**
 
+
+## §20 — A CONTROL WITH NO TRIGGER: `queue_runner.py --selftest` IS FIRED ONLY BY HAND, AND IT NOW GUARDS THE SCHEDULER'S FAIRNESS PROPERTY (2026-08-31T00:40Z)
+
+**Found while auditing cfd's `bec46169` at cfd-supervisor's request** (ruling at `docs/LAB_STATE.md`
+UPDATE V-33). **It is not a defect in that commit and it is not a reason to refuse it.** It is the
+standing hazard the commit walked into, and it is this audit's business rather than cfd's.
+
+### 20.1 THE LEVER
+
+`scripts/queue_runner.py --selftest` is the ONLY thing that runs controls **R1** (fairness over all
+63 non-empty subsets of `TEAMS`) and **R1-NEG** (the same control against the pre-repair logic,
+required to FAIL). After `bec46169` those two controls are what defends the round-robin against a
+future edit re-introducing an integer cursor — **the state representation does not defend it, a
+control does.**
+
+**Nothing fires it.** `scripts/queue_runner.sh` launches `--daemon`. `scripts/check_harness.py`
+never calls it. No hook, no cron, no pre-commit. **It fired once, by the lane, before deploy.**
+
+### 20.2 WHY THIS IS THE DEAD-LEVER SHAPE AND NOT MERELY A GAP
+
+The defect `bec46169` repaired — a `TEAMS`-space cursor read modulo a filtered length — **survived
+41 existing `check()` calls**, verified: `grep` for `rotat|fairness|starv` over the pre-repair
+selftest returns one docstring line and no control. **The controls that existed all passed against
+the broken code, which is the definition of measuring nothing.** The repair adds six controls that
+do discriminate (independently reproduced by this audit: NEW 0 starving / OLD 40 of 63). **A
+control that discriminates and is never run is in exactly the position the absent control was in
+the day before.**
+
+### 20.3 THE SIBLING ALREADY ON RECORD, SAME INSTRUMENT
+
+`VERIFICATION_CHARTER.md:3094` already carries the same shape against this same file: the
+GPU-exclusivity clause is exercised by a `--selftest` that **INJECTS** entries setting
+`gpu: exclusive` while **zero real entries set that field**. **Two controls on one instrument, both
+alive only inside a fixture nobody triggers.** That repetition is what promotes this from an
+observation to an audit entry.
+
+### 20.4 WHAT IS **NOT** RULED HERE
+
+**No repair is ordered and no wiring is done by this audit.** `scripts/queue_runner.py` is cfd's
+instrument and the wiring decision is cfd's; whether `--selftest` becomes a gate rather than a
+report is a threshold question and **not one an audit takes on its own**. Recorded so the next
+edit to the rotation is made by someone who knows the guard does not fire itself.
+
+**Verified personally, `HEAD`-explicit throughout** (this box's index carries ~394 phantom staged
+deletions; a bare `git diff` invents hunks and `git ls-files` is unreliable — `git ls-tree -r HEAD`
+was used). **Zero compute. The live runner was not touched, re-run or restarted.**
