@@ -4671,9 +4671,90 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** @@STAMP@@ by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T21:09:12Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22o — **⚠⚠ CORRECTION AGAINST THIS SECTION'S OWN RECORD: `D6R`'s CAUSE CLASS IS `BOOKKEEPING`, NOT PHYSICS. SANAA IS RIGHT — THERE WAS NO GRADIENT FAILURE IN THE MULTIPOINT COMPRESSIBLE CASE BECAUSE **NO GRADIENT WAS EVER MEASURED**. TWO HEADINGS OF MINE READING "ITS FAILURE IS PHYSICS" ARE STRUCK AND LEFT STANDING BELOW. ⚠ AND THE BRIEF THAT SENT ME TO FIX IT CARRIED AN OVER-REACH OF ITS OWN, WHICH I AM NOT PROPAGATING** (2026-08-31T21:09:12Z, `date -u` at write)
+
+##### 1. SANAA'S WORDS, AND WHAT IS STRUCK
+
+Verbatim, commit `5e782552`: *"I saw in the dafoam conversations that there was actually no gradient failure in the multipoint compressible case and that the issue was a bookeeping one! this is what led me to ask for these clear denominations/separations."*
+
+**She is right and this section was wrong.** The corrected class is landed in `docs/dafoam/GRADING_CHAIN.md` (`24a0d442`, §"CORRECTION, 2026-08-31"), which is this family's cause-class record of authority. Three statements in **this** section are struck on this point and are **deliberately left in place, unrewritten**, so the correction is disclosed rather than hidden:
+
+- **`:5706` — `S-20c`'s own heading**, *"`D6R` = `NOT A RESULT`, MEASURED RATHER THAN PREDICTED, **AND ITS FAILURE IS PHYSICS**"* — **STRUCK as to "ITS FAILURE IS PHYSICS".** The verdict `NOT A RESULT` stands; the cause class does not.
+- **`:5826` — `S-20b` §5's heading**, *"`D6R` — THE RUN OUTLIVED ITS WATCHER, **AND ITS FAILURE IS PHYSICS**"* — **STRUCK on the same clause.**
+- **`:5832`** — *"the optimiser reader has no branch for a **non-finite** IPOPT exit"* — **STRUCK as to "non-finite" only.** `D6R-GRADER-DEF-2` is real and its planted control (0 matches of `^Objective\.+:` in D6R against exactly 1 in D4's control log) stands untouched; what was never established is that the exit was non-finite.
+
+**Carried forward and NOT struck:** `:5714` and `:5828` quote the IPOPT `EXIT:` line, 73 of 80 majors, 673 cutbacks and 7 restoration majors. **Every one of those figures is correct.** What was wrong was reading the *string* as a diagnosis. `:4686` (`S-22n` §1 Q3) quotes the same line factually and assigns no cause class — **not struck.**
+
+⚠ **A premise of my assigning brief was false and I say so rather than working around it:** the brief located the D6R classification in `S-22n`. **It is not there.** `S-22n` never assigns a cause class; the "failure is physics" claims are in `S-20b` and `S-20c`, written 2026-08-30, two sessions earlier. The correction is filed here at the head of the section regardless, because that is where a reader arrives first.
+
+##### 2. THE EVIDENCE IS THE GRADING RECORD, NOT THE MESSAGE — AND I RE-READ IT MYSELF
+
+From `cases/dafoam/ladder-a/A2/curriculum_D6RG/D6RG_regrade.json`, read this invocation:
+
+- `grade/G-D6R-1`, `G-D6R-2`, `G-D6R-3`, `G-D6R-4` — **all four `verdict = NOT A RESULT`, `reason = ARM_DID_NOT_RUN`.** Four consecutive keys.
+- `grade/G1/arms_not_run` — **`F_mp` and `REF_off`, both `state = NOT_RUN`, `reason = REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`, `stop_arm = ACC_mp`, `stop_rc = 124`, each annotated *"the arm bought 0 core-min"*.** **`F_mp` IS THE FINITE-DIFFERENCE ARM.** This family's bright line (`DAFOAM_CHARTER.md` §2) requires an FD table beside any gradient; **for D6R that table was never produced.**
+- `grade/G-D6R-OPT` — D6R's own frozen grader refused on a **record** defect: `n_exit = 1`, **`n_obj = 0`**, `no_final_objective_or_exit` on `O_mp/opt_IPOPT.txt`. The exit line was written; the final objective line was not.
+
+**Solve produced answers; the stamp was impossible. That is `BOOKKEEPING`.** Separately and not folded in, a second non-physics finding on the same item: `grade/G10/verdict = GATE FAIL`, the cap gate — the `D6R-CAP-FRAME-2` ruling in `S-20c` §6 stands unchanged.
+
+**What D6R licenses in EITHER direction: nothing about the multipoint gradient.** It is not evidence that the gradient is wrong and it is not evidence that it is right.
+
+##### 3. WHY THE IPOPT STRING MISLED — STATED TO THE PRECISION THE RECORD SUPPORTS
+
+`SO3D`'s frozen `PREREGISTRATION.md` §3 is the careful reading and I adopt it as written there rather than restating it more strongly:
+
+- **MEASURED (`SO3D` §2 A1, `O_mp_20260828T162849Z_1898072.log:264052-264053`):** the exception text is `success && IsFiniteNumber(ret) evaluated false: Error evaluating the objective function`. The guard at `IpOrigIpoptNLP.cpp:487` is a **conjunction whose failure is disjunctive** — a false boolean `success` **or** a non-finite value prints the identical `EXIT:` string. It also names the **objective**, not the gradient.
+- **MEASURED (A4, A7):** **671** `Primal solution failed!` banners against **673** alpha cutbacks — near 1:1 between DAFoam's own boolean failure flag and IPOPT's evaluation errors.
+- **MEASURED:** the objective printed immediately before the last cutback is **finite**, `{'obj.J': array([0.0222388])}`.
+
+⚠ **AND HERE IS THE OVER-REACH I WAS HANDED AND AM NOT PROPAGATING.** My brief, and `GRADING_CHAIN.md:63`, state *"a sweep of every `CD:`/`CL:` print across 264,607 lines returns ZERO non-finite tokens"* as a measured result. **What the record actually supports is narrower.** `SO3D` §3 fact 3 declares a pre-freeze search of `CD:`/`CL:` prints **for `nan`** returning **0** — an explicitly **ungated declared observation**, not a graded measurement — while `SO3D` §2:64 states in terms: **"No non-finite census has been computed."** The **full** census over all non-finite tokens (`nan`/`-nan`/`inf`/`-inf`, any case) is **registered prediction `P1` and gate `G-SO3D-1`, still uncomputed**, with a planted control `PLANT-A` registered to prove the reader can see one. **Generalising `nan` to "non-finite" and a declaration to a measurement is exactly the class of slip this correction exists to end.** The `BOOKKEEPING` class does **not** depend on it: it rests on `ARM_DID_NOT_RUN` × 4 and `n_obj = 0`, and the IPOPT reading is corroboration.
+
+##### 4. WHAT DOES **NOT** CHANGE — `D15`/`D16` ARE THE CONTRAST CASE
+
+**`D15` and `D16` STAND as `PHYSICS-FAIL` against the SHIPPED TOOLCHAIN and are not touched by this correction.** Their FD arms **did** run, the FD tables exist, and the shipped adjoint disagrees with a **measured** referee — `D15` worst **44.87 %** (`shape[6]`), `D16` **5.1511 %** (`shape[0]`). `SO-1aR`'s shipped row likewise (`shape[6]` **637.757 %** with a sign flip). **That is the whole point of the distinction: where an FD referee exists and the adjoint misses it, the class is physics; where no referee was ever produced, no physics claim is available in either direction.**
+
+**Revised headline split for this family: 3 physics-adverse / 6 non-physics — and all three physics-adverse rows are against the SHIPPED TOOLCHAIN, none against the lab.**
+
+The `S-22n` §5 blocker is unaffected and still owed: `D15`'s **patched** `shape[7]` plateau is one-sided at `[1.156 %, 21.630 %]` — that bears on the *patched* row's precision, not on the shipped row's failure.
+
+##### 5. THE SWEEP — WHERE THE MISCLASSIFICATION TRAVELLED, AND WHERE IT DID NOT
+
+Nine target files plus `docs/dafoam/`, `docs/capability/`, `cases/dafoam/`, `docs/campaigns/`, `verification/` and `docs/charters/` swept for any line naming `D6`/`D6R`/`D6RG`/"multipoint compressible" beside a gradient-, physics-, NaN-, non-finite- or adjoint-failure characterisation.
+
+- **`docs/LAB_STATE.md` — 244 `D6`-family lines in the dafoam section, 9 in all five other sections combined. Every characterisation hit is inside dafoam.** The non-dafoam nine are contention notes, queue/fossil bookkeeping and a correct *"`D6` = `NOT A RESULT` by comparator refusal with zero gate readings"* on the chief's board (`:1377`). **Nothing to route to another team, and nothing of another team's touched.**
+- **`docs/capability/dafoam_GRID.md`, `dafoam_GRID_AUDIT.md`, `METRICS_SUMMARY.md` — ZERO occurrences** of `D6`, `D6R`, "multipoint", "PHYSICS-FAIL" or "physics-adverse". **The misclassification never reached a shared capability artifact.**
+- **`docs/DOCKET.md`, `docs/LESSONS.md`, `docs/NUMERICS_KNOWLEDGE.md` — no D6R cause-class claim.** Their `D6` hits are the unrelated docket-id `D6`/`N-D6` families and `L-` provenance for `curriculum_D6`'s cap-frame lesson.
+- **`docs/COST_CALIBRATION.md` `C-217` (`:301`) — ALREADY CORRECT.** It quotes the `EXIT:` line strictly as a **program-length** fact (priced 80 majors, stopped at 73, *"Rate right, program short"*). No cause class. Not edited.
+- **`cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md` — ALREADY CORRECT, and it is the document that got there first.** Its §3 is headed *"THE FALSE PREMISE THIS FREEZE CORRECTS"* and rejects the value-channel framing on measured grounds. `SO3D` remains the right vehicle for the one genuinely physical phenomenon here — the multipoint primal-failure contrast, **D6R 68.68 % (671/977)** and **D6 66.42 % (546/822)** against **D4 2.222 %** and **D5 1.170 %** single-point on the same base mesh and image digest — **thirtyfold, real, and still never the subject of a graded verdict.**
+
+##### 6. ⚠ FIVE FROZEN DOCUMENTS CARRY THE WRONG CHARACTERISATION — REFERRED, NOT EDITED
+
+Rule 6: a frozen file is never rewritten. **I edited none of these**; each needs a **dated addendum** appended at its foot, which is the supervisor's call and not a lane's:
+
+| file:line | wording | note |
+|---|---|---|
+| `curriculum_D6R/RESULTS.md:183` | *"the run ended on a **non-finite NLP value** rather than on any registered stopping condition"* | **Positive assertion, unsupported.** The strongest one on disk. |
+| `curriculum_D6R/RESULTS.md:185, :188` | *"the **evaluation pathology** D6 exhibited came back intensified"*; *"nothing about **why the primal returns non-finite values** at trial geometries"* | Presupposes the value channel. |
+| `curriculum_D6RG/RESULTS.md:286` | *"Nothing about WHY the primal returns non-finite values at trial geometries"* | Same presupposition, inside a *"does not establish"* clause. |
+| `curriculum_D6RG/PREREGISTRATION.md:157` | same sentence | Frozen pre-registration; first compute done. |
+| `curriculum_D6RACC2/PREREGISTRATION.md:188` | same sentence | Frozen pre-registration; first compute done. |
+| `curriculum_SO3a/PREREGISTRATION.md:183` | *"`Invalid number in NLP function or derivative detected` is **IPOPT saying the model handed me a NaN**"* | **The clearest statement of the wrong reading anywhere in the repository.** |
+| `curriculum_SO3aR/PREREGISTRATION.md:182` | *"the failure one level down that IPOPT was reporting — **an evaluation returning a non-finite value**"* | Milder form of the same. |
+
+**None of these moves a gate, threshold, cap or label**, so all seven are addendum-eligible; and `SO3a`/`SO3aR` both already state that D6R's proximate mode is **structurally unreachable** in their own items, which limits the damage.
+
+##### 7. TWO INCIDENTAL FINDINGS FROM THE SWEEP, NEITHER REPAIRED
+
+- ⚠ **The verdict of record cites a scratchpad path.** `D6RG_regrade.json`'s `grade/G1/arms_not_run/{F_mp,REF_off}/chain_record` both point at `/tmp/claude-1000/…/scratchpad/d6rg/exec1/root_D6R/STATUS.chain`. **`CLAUDE.md` rule 13 / L-186: the scratchpad is wiped and a repository document never cites a scratch path.** The `ARM_DID_NOT_RUN` finding itself is unaffected — it is carried in the JSON's own `reason` fields — but **the artifact it cites is gone.** Reported, not repaired.
+- **`GRADING_CHAIN.md:63` carries the §3 over-reach above.** That file is corrected and outside a lane's remit to re-open; flagged for the supervisor.
+
+##### 8. WHAT I DID NOT DO
+
+No compute, no solver, no re-run. **No frozen document edited. No other team's `LAB_STATE` section edited. `docs/dafoam/GRADING_CHAIN.md` not edited.** The only change is this block plus the section stamp; `docs/LAB_STATE.md` carried no uncommitted changes at HEAD before it.
 
 ##### UPDATE S-22n — **SANAA'S FIVE QUESTIONS ANSWERED, AND THREE OF THE FIVE FRAMINGS I WAS HANDED WERE WRONG. `SO-3aR` = `NOT A RESULT` ON A LAB REGRESSION `A2` HAD ALREADY SOLVED. ⚠ AND THE SAME DEFECT CLASS — PUBLISHING AHEAD OF THE CHECK — FIRED THREE TIMES TONIGHT ACROSS TWO AGENTS** (2026-08-31T20:58:38Z, `date -u` at write)
 
