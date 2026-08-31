@@ -99,8 +99,8 @@
 \definecolor{boxgrey}{rgb}{0.96,0.96,0.94}
 \definecolor{foil}{rgb}{0.78,0.78,0.76}
 
-\renewcommand{\footnotesize}{\fontsize{6.4}{7.05}\selectfont}
-\renewcommand{\scriptsize}{\fontsize{5.7}{6.3}\selectfont}
+\renewcommand{\footnotesize}{\fontsize{6.4}{6.85}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{5.7}{6.1}\selectfont}
 \renewcommand{\arraystretch}{1.03}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.5pt}
@@ -180,7 +180,7 @@ Table 3, section at true scale.
 
 \vspace{1.5pt}
 \setlength{\unitlength}{1mm}
-\begin{picture}(83,23)(-5,-11.5)
+\begin{picture}(83,21)(-5,-10.5)
   % ---- chord line ---------------------------------------------------------
   \linethickness{0.4pt}
   {\color{foil}\multiput(0,0)(3,0){21}{\rule{1.6mm}{0.25pt}}}
@@ -224,7 +224,7 @@ Table 3, section at true scale.
   % leading-edge thickness control -- symmetric pair, longest (7.50 mm)
   \put(1.86,2.05){{\color{warm}\vector(0,1){7.50}}}
   \put(1.86,-2.05){{\color{warm}\vector(0,-1){7.50}}}
-  \put(0,11.3){\makebox(0,0)[l]{\scriptsize\color{warm}leading edge}}
+  \put(0,10.3){\makebox(0,0)[l]{\scriptsize\color{warm}leading edge}}
   % lower surface at x/c = 0.245 -- upward (5.51 mm)
   \put(15.19,-3.68){{\color{accent}\vector(0,1){5.51}}}
   \put(13.6,-6.6){\makebox(0,0)[c]{\scriptsize\color{accent}$x/c=0.245$}}
@@ -242,7 +242,7 @@ Table 3, section at true scale.
   \put(65.3,8.5){\line(1,0){1.4}}
   \put(67.4,4.75){\makebox(0,0)[l]{\scriptsize $0.0167\,\mathrm{m^{-1}}$}}
   % ---- axis label ---------------------------------------------------------
-  \put(31,-10.2){\makebox(0,0)[c]{\scriptsize chord station $x/c$ --- section
+  \put(31,-9.3){\makebox(0,0)[c]{\scriptsize chord station $x/c$ --- section
       to true scale, chord $c=1\,\mathrm{m}$}}
 \end{picture}
 
@@ -388,23 +388,28 @@ One core-minute is one processor core running for one minute.
 
 \vspace{1.5pt}
 {\fontsize{6.7}{7.9}\selectfont
-\begin{tabular}{@{}l r r r r@{}}
+\begin{tabular}{@{}l r r r r c@{}}
 \toprule
 Stage & \begin{tabular}{@{}r@{}}Stated upfront,\\ core-min\end{tabular}
       & \begin{tabular}{@{}r@{}}Used,\\ core-min\end{tabular}
       & \begin{tabular}{@{}r@{}}Wall\\ clock, s\end{tabular}
-      & \begin{tabular}{@{}r@{}}Used /\\ upfront\end{tabular} \\
+      & \begin{tabular}{@{}r@{}}Used /\\ upfront\end{tabular}
+      & \begin{tabular}{@{}c@{}}Live?\end{tabular} \\
 \midrule
-Feasibility check (ran first) & $8.0$ (upper limit) & $0.583$  & $35$  & $0.07$ \\
-Derivative verification       & $22.1$ (estimate)   & $14.318$ & $859$ & $\mathbf{0.65}$ \\
+Feasibility check, ran first & $8.0$ cap      & $0.583$  & $35$  & $0.07$ & --- \\
+Derivative verification      & $22.1$         & $14.318$ & $859$ & $\mathbf{0.65}$ & --- \\
+\quad geometry and mesh      & ---            & $0.167$  & $10$  & ---   & yes \\
+\quad three points re-solved, with gradients & --- & $2.517$ & $151$ & --- & yes \\
 \midrule
-Total                         & ---                 & $14.901$ & $894$ & --- \\
+Total                        & ---            & $14.901$ & $894$ & ---   & \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1pt}
-{\scriptsize Used and wall-clock figures are read from the run records. Derived
-cost \$0.0127 at \$0.0513 per core-hour --- derived, not metered.}
+{\scriptsize The indented rows are parts of the row above, not additions to it.
+Tables 2 and 3 were computed ahead; the two indented stages are short enough to
+repeat live. Figures are read from the run records; derived cost \$0.0127 at
+\$0.0513 per core-hour --- derived, not metered.}
 
 \vspace{1.5pt}
 {\footnotesize \textbf{A short check ran before we committed the verification
@@ -412,7 +417,7 @@ budget.} It solved the three angles once each --- thirty-five seconds --- to
 confirm the bracket was sensible and that your lift target sat inside it, and
 cost $4.1\,\%$ of the work it protected. The dollar figure is small because
 this is a two-dimensional section on $4\,032$ cells; cost scales with cell
-count and with the number of operating points.}
+count and with operating points.}
 
 \end{minipage}\hfill
 \begin{minipage}[t]{0.375\textwidth}
@@ -494,28 +499,25 @@ drawn.}
 \rolesig{Lead Researcher.} The change worth your attention is the sweep
 variable. Three Mach points at this speed would have been three copies of one
 answer; angle of attack is where the section actually has to compromise, and
-Table 2 shows why. One shape must serve all three angles, so the objective is
-their equally weighted average, not one point with the others left to follow.
+Table 2 shows why. One shape must serve all three, so the objective is their
+equally weighted average.
 
 \rolesig{Lead Engineer.} Figure 1 is the actionable picture: your section's
 drag objective wants a blunter leading edge above all, then a thinner
-mid-chord, then a slightly fuller trailing edge. That is the local direction,
-not the answer --- the optimisation that runs next follows it under your
-thickness and area constraints and returns the shape and the saving. If you
-want the trade made against a lift constraint instead, say so before it starts
---- the lift derivatives are already verified, so it costs nothing to add.
+mid-chord and a slightly fuller trailing edge. That is the local direction, not
+the answer --- the optimisation that runs next follows it under your thickness
+and area constraints and returns the shape and the saving. Want the trade made
+against a lift constraint instead? The lift derivatives are already verified,
+so it costs nothing to add.
 
 \rolesig{Lead Numericist.} A gradient you have not checked is a direction you
 are guessing at, so we checked all sixteen --- four surface controls on drag
 and the same four on lift at each of three angles --- against independently
 computed finite differences. Worst disagreement $4.06\,\%$, against a
-$5\,\%$ limit written down before the run and not chosen after seeing the
-answer; the check was driven at a deliberately wrong step to prove it can fail,
-and it did, on all four. What has no error bar is the mesh: one level, no
-refinement study. Say so and we will price one.}
-
-\vspace{1pt}
-{\scriptsize All figures on this sheet are read from run records retained on
-disk; coefficients are printed to six significant figures.}
+$5\,\%$ limit written down before the run, not after seeing the answer; the
+check was driven at a deliberately wrong step to prove it can fail, and it did.
+What has no error bar is the mesh: one level, no refinement study --- say so and
+we will price one. Every figure on this sheet is read from a run record
+retained on disk.}
 
 \end{document}
