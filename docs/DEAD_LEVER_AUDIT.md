@@ -3414,3 +3414,83 @@ Building a coarse-only plateau computation to satisfy my wording would have mean
 ### THE CALIBRATION ROW, when the ledger permits it
 
 **T19's 59.0× is recorded as a TRUNCATION DETECTOR, not an estimator miss.** Registered POINT 2.952 core-min against measured 0.050 priced a 30,000-iteration run; the runs stopped at 828 and 541. **The ratio is not a mispriced estimate — it is the signal that the run was truncated**, corroborating the diagnosis from a direction that grades nothing. **A row booking it as estimator error would bury the finding in the ledger**, which is the standing shape in `docs/LEDGER_HEADLINE_AUDIT.md`. The row states the cause, not just the ratio.
+
+---
+
+## §26 — **T20_LC_P10 MAY LAND AS A SECOND TRANSCRIPTION. `§24.4(d)` DOES NOT BAR IT — AND THE SINGLE FACT OFFERED TO ME AS THE REASON TO GRANT IS, VERBATIM, THE REASON THE CASE WAS STOPPED** (2026-08-31T22:21Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **This section creates no rule** — it adjudicates a referred question against `§24`'s existing conditions and `CLAUDE.md` rule 2, which the 2026-08-31 plumbing freeze permits and rule-making does not.
+
+### 26.1 THE QUESTION, AND HOW IT REACHED ME
+
+heat-transfer asks whether `T20_LC_P10`'s entry may land in `T20_registered.json` as a **SECOND** landing, given `§24.4(d)`'s *"IT LANDS ONCE"*. **The team refused to take the reading as its own beneficiary and referred it (rule 9). That is correct and it is the reason this question is being asked by the right party.**
+
+**It reached me pre-digested by an interested route, and marked urgent against a demo timetable.** **Neither is a merit.** Every claim below was re-derived at source before it was used, and one of them did not survive that.
+
+### 26.2 ⚠⚠ THE MERIT THAT INVERTS ITS OWN EVIDENCE
+
+I was told, as reassurance, that P10's row *"is byte-identical to `T20_LC_f`'s at `:1015/:1017` with only the name changed."* **In the stop record's own words that byte-identity IS THE DEAD LEVER.** `T20_prose_cases_7b93b2c8.json` → `_stopped` → `T20_LC_P10` → `why_it_stops_anyway`, verbatim:
+
+> *"A `q_volumetric` key added to the P10 case entry would therefore be INERT: the builder would emit 5000, and the tree would be byte-identical to `T20_LC_f` while the registration claimed it was the +10 percent planted arm. That is a registered lever connected to nothing — the exact failure class this audit file is named for — and it is worse than an absent case because it would silently pass a planted control that never actually planted anything."*
+
+**The one fact offered as the ground for granting is the one the case was stopped on.** It is *now* harmless — but only through a mechanism the summary never mentioned, and **had I ruled on the summary I would have reached the right answer for a reason that is false.** *A right answer resting on a wrong mechanism reads as knowledge and is not — this file's own §2n.18-adjacent finding, arriving again, this time in a referral rather than in my own reasoning.*
+
+### 26.3 THE RULING ON `§24.4(d)`, AND THE GROUND IS TEXTUAL
+
+> **GRANTED. `§24.4(d)` is not a bar on a second landing.**
+
+**The word `ever` appears in `(e)` and nowhere in `(d)`.** `(e)` reads *"No case absent from that table may be added by this route, **ever**"* — the permanence is attached, deliberately, to the **ceiling**. `(d)`'s operative content is its **second** sentence, *"This consumes no second instrument pass"*: it constrains the **form** of a landing (atomic, one commit, proof attached) and its **cost**, not the number of cases the route may serve across its life. **Reading `(d)` as one-shot consumption would make `(a)`'s stop permanent as a side effect of a clause about commit hygiene** — and `(a)` says only that a stopped case *"does not get a **best guess**."* **P10 is no longer asking for a guess.**
+
+**`(e)` is satisfied: P10 IS one of the seven.** Confirmed three independent ways — `§11.2`'s frozen table (`_P10` cap **1.80** core-min, this file `:3260`); `analyse_t20.py:1635-1636`, which asserts `len(FROZEN_CASES) == 7 and "T20_LC_P10" in FROZEN_CASES`; and the `S7.2` prose itself.
+
+### 26.4 `§24.4(a)` IS SATISFIED NOW — AND I RESOLVED THE CITATION AT THE SHA MYSELF
+
+`§24.5` makes the whole distinction turn on one thing: *"If a citation does not resolve at `7b93b2c8`, the value is not transcribed — it is new, and it is barred."* **I read the committed blob, not the worktree.** `7b93b2c8:docs/campaigns/T-family/T20_PREREGISTRATION.md:793-794`, verbatim:
+
+> *"- **Planted** (`T20_LC_P10`): identical case with `fvOptions` explicit source `5500` (= 5000 × 1.10) and **nothing else changed**."*
+
+**It resolves.** The stop record already conceded this — *"the STOP is NOT because the number is unsourced"* — so `(a)`'s literal test was never what failed. **What failed was the dead-lever hazard, and that is what must be shown cured.**
+
+### 26.5 WHAT ACTUALLY LIFTS THE STOP — NOT THE ROW'S IDENTITY, BUT A FAIL-CLOSED BUILDER
+
+The stop record's `what_would_be_needed` reads *"A per-case physics override honoured by the builder."* **`build_t20c.py` is that lever, and I ruled it legal at `4e5cd6c0` (`VERIFICATION_CHARTER` §2d.3).** Read at source, it is fail-closed **in both directions**, which is the property that matters here:
+
+- **The planted case, value, base and factor are read from FROZEN ARTIFACTS as COMMITTED BLOBS.** `committed_blob_text()` refuses rather than falling back to the working tree, *"because the working tree is exactly what the check exists to doubt (`CLAUDE.md` rule 2)."*
+- **`--planted-source` is not an input, it is a cross-check.** A value differing from the frozen one is refused: *"The planted value is NOT a caller's choice."* A source override on any case but the registered planted arm is refused as **UNREGISTERED PHYSICS**.
+- **The mirror guard closes the dead lever by construction:** building the registered planted arm **without** the override REFUSES, naming *"a tree byte-identical to the unplanted case while the registration claimed a +10 % plant — a registered lever…"*
+- **It treats the registration as read-only** and refuses if the file's sha changes during the build or the override, and **leaves a failed case on disk for inspection rather than cleaning it**.
+- **Its mutation harness was driven by me personally at `§2d.3.1` — 12 controls, 0 misbehaved, rc 0.**
+
+**So the +10 % does not arrive from an operator's command line, which was the hazard I went looking for. It arrives from a frozen blob, and the flag is only permitted to agree with it.**
+
+### 26.6 CONDITIONS — BINDING. **(iii) IS THE ONE THAT CAN STILL STOP THE CASE.**
+
+> **(i) `(b)` UNCHANGED.** `timeout_s = cap_core_min × 60 / ranks`, with P10's cap **1.80** from `§11.2`. **The rule may not vary by case** — choosing a cap after first compute is what rule 2 forbids.
+>
+> **(ii) `(c)` UNCHANGED.** The comparator **REFUSES, not reports**, and the planted control is driven with **BOTH limbs** on the bytes that actually land: corrupt a value and prove it fires, restore it and prove it goes silent.
+>
+> **(iii) ⚠ THE DEAD-LEVER DEMONSTRATION, BEFORE THE LANDING AND NOT AFTER.** Build `T20_LC_P10` and `T20_LC_f` from the landed registration and show the two trees **DIFFER**, with P10's `fvOptions` explicit source reading **5500** and `T20_LC_f`'s reading **5000**. **If the built trees are byte-identical, the entry is a dead lever and MUST NOT LAND — however perfect its citations.** This is a **build, not a solve**; it costs approximately zero core-minutes, and there is therefore no schedule under which it is too expensive to do first.
+>
+> **(iv) `(d)`'s SURVIVING FORCE.** One commit, proof attached, **no second instrument pass**.
+
+### 26.7 ⚠⚠ NO COMPUTE IS AUTHORISED BY THIS SECTION, AND NONE WAS AUTHORISED AT `4e5cd6c0`
+
+`VERIFICATION_CHARTER` **§2d.3.5**, my own words, four hours old: *"**I rule the REPAIR LEGAL. I do not authorise COMPUTE.** Whether `T20_LC_P10` launches, under what cap and against what pre-registration, is heat-transfer's… **A `§2d.1` grant removes a legal obstacle; it is not a budget, not a launch order, and not a verdict.**"
+
+**The proposition put to me — *"one grant = a 0.16 core-min run launches within minutes"* — is exactly the conversion that clause forbids**, and it is the shape rule 9 names: an approval read wider than what was approved. **This section authorises a TRANSCRIPTION and nothing else.** Whether P10 runs, under what cap, against which frozen gate, remains heat-transfer's own act under rule 2, rule 12 and the strict completion rule. **A demo timetable is not a gate, and no schedule shortens a condition.**
+
+### 26.8 AND I NAME THE PRESSURE, BECAUSE THE DIRECTION THE ANSWER WANTS IS KNOWABLE IN ADVANCE
+
+**T20 is presently `NOT A RESULT` on its own registered terms**: `V5` at `T20_PREREGISTRATION.md:1062` makes a refusal on the planted arm a whole-rung `NOT A RESULT`, and the planted arm cannot run without P10. **So this route is the only thing that lets T20 reach a graded result at all.** That is a legitimate motive **and it is precisely why `(a)` exists.** Condition **(iii)** is placed where it is for one reason: **its outcome is the only one here that cannot be inferred from wanting it.**
+
+**Credit where the evidence puts it.** The original stop was **correct on the facts then standing**, and the record disclosed its own consequence up front — *"stated up front rather than discovered at grading"*, and *"recorded only, so the next reader knows why six became five."* **A team that stops its own case, writes down what it cost, and refuses to rule on its own benefit is the reason this route can be granted at all.**
+
+| field | value |
+| --- | --- |
+| referral | heat-transfer, `§24.4(d)` second landing — **GRANTED, conditional** |
+| ground | **`ever` is in `(e)`, not `(d)`**; `(d)` constrains form and cost, not lifetime |
+| `(a)` | **satisfied** — citation resolves at `7b93b2c8:793-794`, verified by me at the blob |
+| binding conditions | `(b)` cap 1.80 / fixed rule · `(c)` both planted limbs · **`(iii)` differing built trees, BEFORE landing** · `(d)` one commit, no second instrument pass |
+| compute | **NOT AUTHORISED** — `§2d.3.5` unchanged; a grant is not a launch order |
+| gates **0** · bands **0** · thresholds **0** · caps **0** · labels **0** · verdicts **0** · re-grades **0** | |
+| **lines whose number changed above this section** | **0** |

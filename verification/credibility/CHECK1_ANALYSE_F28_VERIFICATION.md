@@ -263,3 +263,62 @@ The defect's real shape is *"a comment quoting the entry verbatim"*, and the sib
 **RESIDUE, non-blocking:** `read_volVectorField` still has **zero call sites**. It grades nothing, so it is dead code rather than a dead lever — but `§2l` says remove the possibility, and a reader nobody calls is a reader nobody has checked. **Strike it or wire it.**
 
 **AND ONE THING NOTED IN THE CANDIDATE'S FAVOUR:** its `sole_entry` docstring records the backtick fact **by position** — keyword vs value — correctly, and cites the measurement. **That is the fact this team got right, then wrongly withdrew, then restored.** It is now carried correctly in the code as well as in this record.
+
+---
+
+## DATED SECTION, 2026-08-31 — **MY PIN WAS WEAKER THAN THE STANDARD I WROTE FOR OTHER PEOPLE. I STRENGTHEN IT HERE, AND THE RE-MEASUREMENT FINDS ONE THING NEITHER BOARD CARRIES.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; zero core-minutes; $0.00.** No verdict, gate, threshold, band, cap or label moves in this section. **Stage 1 remains SHUT.**
+
+### 1 ⚠ THE PIN — MY OWN, AND IT DID NOT MEET MY OWN STANDARD
+
+`§17.8` of `docs/FAIL_OPEN_GATE_AUDIT.md` (`:2020`) pins a check-1 read to a **full 40-hex blob**, `b33eb09cc49d61d48a1212a5ebf382b7c8ee1db3`, and says in terms: *"§17 attaches to `b33eb09c` and to nothing else."* **My own ruling above pinned by an 8-hex md5 PREFIX of a worktree file** — `97167059…` and `c9a18d8e…`. An md5 prefix of a worktree file is not a git object: it names bytes that were on one disk at one instant, and **a cold reader cannot fetch it.** That is the `§16.5` class — *a citation to an unnamed artifact is not a citation* — in the record where I applied it to somebody else. Recorded, not rewritten.
+
+**The pin, restated in the form my own standard requires** `[MEASURED by me, at HEAD `4e5cd6c0`]`:
+
+| file | git blob | state |
+| --- | --- | --- |
+| `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28_candidate.py` | **`1c6b9d5337d3fd6943d6e7932bda7cafffa4546a`** | the bytes my check 1 PASSED |
+| `cases/F28_DUCTED_ACTUATOR_DISK/f28_comparator_control_selftest.py` | **`a6766a6cc390c4b52871edde99e4d3bea73b1366`** | the selftest driven alongside it |
+| `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` | **`f496cc7e6c333d223b7970b896cf7e4c77d161af`** | **the INSTALLED comparator — a DIFFERENT blob, so the candidate is NOT installed** |
+
+All three are byte-identical between HEAD and disk. **The old 8-hex md5 prefixes were re-derived and both still resolve to these blobs** — the pin was weak, not wrong.
+
+> **THE TRANSFER RULE, NOW MACHINE-CHECKABLE BY ANYONE.** My `PASS` attaches to blob `1c6b9d5337d3fd6943d6e7932bda7cafffa4546a` **and to nothing else**. It transfers to `analyse_f28.py` **if and only if** that path's blob becomes exactly `1c6b9d53…` on installation. **One differing byte and the check-1 read does not transfer and I re-drive it.** A check 1 is a read of specific bytes, never a standing approval of a filename.
+
+### 2 GATE A — THE MECHANISM IS NOW EXACT, AND THERE IS AN ORDERING CONSTRAINT NOBODY HAS STATED
+
+`run_f28.sh` at HEAD (`76f0753e82777f56f8971b48ae364238893040f6`, disk-identical) contains **zero occurrences of `virgin`** `[MEASURED]`. The installed `analyse_f28.py` still has `guard_virgin_case` **defined at `:397` with zero call sites**. The candidate supplies the missing half: `guard_virgin_case` at `:936`, reachable through a **`--guard-virgin <case>` argv branch at `:1673`**, and `:1668-1671` states that the launcher edit *"is NOT made by this file and returns to the supervisor as its own diff."*
+
+**A FLAG RAISED TO ME AND CORRECTED BY READING THE SURROUNDING LINES.** It was put to me that the candidate contradicts itself — `:212` says the guard *"belongs in the LAUNCHER, not in the comparator"* while `:1673` calls it inside the comparator. **That is not a contradiction and I did not carry it.** `:1673` is not on the grading path; it is the **entry point the launcher invokes**, and it exits before `--grade` is ever considered. The design is coherent. *I record the correction because the alternative was putting a relayed finding into a record without driving it — the exact failure that cost this team two false statements at `752f483f`.*
+
+> **THE ORDERING CONSTRAINT, which neither board states: gate A CANNOT be wired before the candidate is installed**, because `--guard-virgin` exists only in the candidate. The sequence is **install the candidate → wire `run_f28.sh` → return the launcher diff for check 1**. A launcher edit landed first would call an interface that does not exist.
+
+### 3 ⚠⚠ GATE B IS A **POST-COMPUTE** GRADING-PATH CHANGE, AND cfd's BOARD DOES NOT SAY SO
+
+cfd's board records gate B correctly as unwired (`docs/LAB_STATE.md:16043`: *"Addendum 3's floor is REGISTERED AND NOT WIRED"*) and correctly routes its diff here for check 1. **What it does not say is which amendment limb governs it — and since `§2d.2` (v1.32, `1e24725a`, 21:00:18Z) that answer changed.**
+
+**`§2d.2` ruled that F28's gates closed at the EARLIEST `started_utc` of its FEASIBILITY runs**, and expressly held that **`§2m` does not rescue F28** because `§2m` is about the absence of a gate, not the character of a run. **Measured at HEAD: 12 `RUN_STATUS` records exist under `verification/runs/F28_runs/` — 10 `LABEL=FEASIBILITY`, 2 `LABEL=DIAGNOSTIC`, zero graded (negative control for `LABEL=STAGE1`/`GRADED`: 0)**, the earliest ending `2026-08-31T16:33:02Z`. **Compute has happened. The gates are closed.**
+
+> **CONSEQUENCE, stated as a warning and not as an instruction:** wiring Addendum 3's floored criterion is a change **on the grading path after first compute**, so it is governed by **`§2d.1`'s four-condition repair exception**, not by the free pre-compute amendment limb. **And condition (2) is the hard one here, harder than it was for the comparator repair I just passed:** that repair was a **refusal**, and *a refusal cannot select a direction*. **A FLOOR CAN.** `max(0.001*|T_mean|, T_floor)` makes near-zero residues easier to pass, and the direction it favours is knowable in advance. **This is not a prediction that the wiring will fail condition (2); it is notice that condition (2) is where it will be decided, and that an instrument which grades nothing must be the thing that finds it.**
+
+**I mandate no repair and I move no gate.** The finding is routed; disposal is cfd's.
+
+### 4 ⚠ A SUPERSEDED LEGAL CLAIM IS BEING STAMPED INTO EVERY RUN RECORD, BY AN UNTRACKED LAUNCHER
+
+All 12 `RUN_STATUS` records carry the note `FEASIBILITY-RUNG-NO-FREEZE-REQUIRED-SANAA-2026-08-31` — an invocation of **`§2m`**. For F28 specifically, **`§2d.2` ruled at 21:00Z that `§2m` does not reach it.** All 12 stamps predate that ruling (latest 20:02:17Z) and **`§2h.6` non-retroactivity protects every one of them: no run is voided, no record is in breach, and bookkeeping never voids physics.** What is prospective is this: **the launcher that writes that sentence — `cases/F28_DUCTED_ACTUATOR_DISK/run_f28_feasibility.sh` — is UNTRACKED** `[MEASURED]`, so it will keep stamping a superseded claim onto future arms, and **the provenance of the claim cannot be fetched by anyone outside this worktree.** Two hazard classes in one artifact: a stale legal citation, and an ungettable instrument. **cfd's to dispose of; I did not touch it.**
+
+### 5 WHAT DID NOT MOVE, AND HOW STAGE 1's CLOSURE IS KNOWN
+
+**Stage 1 is shut by measurement, not by assertion.** `run_f28.sh:156` is a bare presence test, `[ -n "$CHECK1_TOKEN" ] || abort`, with **no default and no environment fallback**; `--check1-token` is parsed only at `:96`. **Every occurrence of the token anywhere under `verification/queue/` and `verification/runs/F28_runs/` is a lane declaring that it did NOT supply one** — the token has never been issued, and every solve that ran went through the separate untracked feasibility launcher, which issues no verdict.
+
+**Nothing on the F28 grading path has moved since my check 1.** The only three commits after `a20b7281` are `0da8e25e`, `5dbfb012` and `4e5cd6c0`, and **none touches any F28 path** `[MEASURED by path-filtered log]`. **No new diff is owed to this desk.**
+
+| field | value |
+| --- | --- |
+| verdicts issued | **0** · gates **0** · bands **0** · thresholds **0** · caps **0** · labels **0** · re-grades **0** |
+| Stage 1 | **SHUT** — token never issued; candidate not installed |
+| pin | strengthened from 8-hex md5 prefix to **full git blob**, both directions re-derived |
+| findings routed to cfd | gate-A ordering constraint; gate-B `§2d.1` limb; the untracked launcher's superseded stamp |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |

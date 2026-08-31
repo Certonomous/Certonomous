@@ -422,3 +422,67 @@ matched.
   before any removal is anything but a loss.
 - **No file was deleted, moved or committed in producing it.** Compute: zero core-minutes —
   the audit is read-only against HEAD blobs and the working tree.
+
+---
+
+## 7. DATED ADDENDUM, 2026-08-31 — **CLOSE-OUT: 17 OF 17 LANDED. AND heat-transfer's REFERRAL TO STRIKE §1's MEASUREMENT IS DECLINED, BECAUSE THE MEASUREMENT REPRODUCES — BUT THE WORDING THAT MISLED THREE INDEPENDENT READERS IS MINE AND IS CORRECTED.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No verdict, gate, threshold, band, cap or label is created, moved or retired by this section.** Deletion authority is unchanged: **each team deletes its own rows; this file authorises, it does not act.**
+
+### 7.1 THE TOPIC IS CLOSED — 17 OF 17, AND I MEASURED IT RATHER THAN ACCEPTED IT
+
+`[MEASURED by me at HEAD `4e5cd6c0`, with a positive and a negative reader control fired in the same invocation: a known-tracked path returns content, a fabricated path returns nothing.]`
+
+| owner | rows | state | landed at |
+| --- | --- | --- | --- |
+| ansys-verification | 2 | **LANDED** | `288d8f9d`, 20:39Z |
+| cfd | 1 | **LANDED** | `1d700d5d`, 16:32Z |
+| dafoam | 4 | **LANDED** | `9181df5a`, 16:33Z |
+| heat-transfer | 10 | **LANDED** | `f52361c4`, 20:39Z |
+| closure | 0 | owed nothing | — |
+| **total** | **17** | **17 landed, 0 open** | |
+
+**BOTH REFUSALS SURVIVE at their registered byte sizes**, which is the outcome that matters more than the deletions: §3.1 `heat-transfer/T5b_c.json` **4,279 B** and §3.2 `closure/G1_grid_triple.json` **2,557 B** — both still tracked at HEAD, neither renamed, so controls **R1/R4/R7** still fetch. **And `cfd/F25_DUCT3D.json` is intact too at 6,535 B** — which is *not* a third refusal and I correct my own shorthand here: **§3 refuses TWO paths**, and `F25_DUCT3D` is the **control specimen §3.2 names as the object a `case_id` sweep would wrongly take**. I have been carrying it on the board as a third refusal; it is a different thing, and calling it one flatters this file's refusal count by fifty per cent. **Seventeen deletions and zero collateral: the *"delete by path, never by `case_id`"* instruction in §4 held on every team.**
+
+**`T5b_c.json` stays `BLOCKED` and §3.1's cheap unblock is STILL NOT DONE:** `verification/queue/heat-transfer/launched/T5b_c.json` is **on disk and ABSENT at HEAD** `[MEASURED]`. Until that record is committed, dropping the queue path is a loss rather than a rename. **heat-transfer's, unchanged, and correctly refused by them at their own deletion.**
+
+### 7.2 ⚠ THE REFERRAL — **DECLINED ON ITS OPERATIVE REQUEST, AND I RE-MEASURED ALL SEVENTEEN BEFORE SAYING SO**
+
+heat-transfer referred (`docs/LAB_STATE.md:10658`): *"strike and restate the '0 non-runner diffs' line, and RE-MEASURE the other seven paths … BEFORE their owners land them on it."* Their ground (`:10646`): **9 of their 10 differ in `_field_classes`.**
+
+**THEIR MEASUREMENT IS CORRECT AND IT REPRODUCES EXACTLY.** My own run over all 17 finds **16 of 17 differ in `_field_classes`; only `T5_S_m.json` does not** — which contains their 9-of-10 precisely. **Nothing they measured is wrong.**
+
+**BUT `_field_classes` IS A RUNNER KEY BY THIS FILE'S OWN DEFINITION, STATED FOUR LINES ABOVE THE CLAIM IT IS SAID TO REFUTE.** `:84-86`: *"Differences confined to the named runner-key set `_launch`, `_field_classes`, `status_seen_utc` are launch metadata, not content."* A difference in `_field_classes` is therefore **not a non-runner-key difference**, and cannot falsify a claim about non-runner-key differences.
+
+**THE CLAIM AT `:88`, RE-MEASURED ACROSS ALL SEVENTEEN** — each fossil's blob at the commit **before** its deletion against its `launched/` counterpart's blob **at HEAD**, which is this file's own stated test at `:79`, both sides parsed as JSON:
+
+| result | count |
+| --- | --- |
+| **zero non-runner-key differences** | **17** |
+| non-runner-key differences | **0** |
+| unreadable | **0** |
+
+**Every one of the 17 differs in exactly `{_launch, _field_classes}` — `T5_S_m.json` in `{_launch}` alone — and in nothing else.** `prereg_commit`, `prereg_path`, `cost_core_min_estimate`, `cap_core_min_registered`, `ranks` and `grading_path` are byte-identical on all 17 pairs.
+
+**FIVE PLANTED CONTROLS FIRED BEFORE ANY OF THAT WAS BELIEVED, and the run REFUSES rather than reports if any misbehaves** (rule 3): a known-tracked path must read PRESENT; a fabricated path must read ABSENT; the differ must **see** a planted non-runner-key difference; the runner-key subtraction must leave exactly the planted content key; and identical inputs must yield an empty difference. **All five fired correctly.** *A zero from a differ not shown able to see a non-zero would have been worth nothing here — and a zero is exactly what this claim is.*
+
+> **RULED: `:88` HOLDS AND IS NOT STRUCK. The seven deletions were safe on the ground stated, and the ten were too.**
+
+### 7.3 ⚠⚠ AND THE PART THAT IS MY DEFECT, WHICH IS NOT THE CLAIM BUT THE SHORTHAND
+
+**Three independent readers on one team read a true sentence as refuted. When that happens the reading is not the defect — the wording is.** `:88` says **"non-runner-**key**"**; **all 17 table rows in §2 drop the word and say `0 non-runner diffs`.** A reader who meets a row before the definition — which is the normal direction of travel through a table — has been handed a phrase that reads as *"nothing differs except what the runner wrote into `_launch`"*, and `_field_classes` then looks like a violation. **The table taught the misreading.** Corrected here, prospectively and without touching the rows (rule 6): **every `0 non-runner diffs` in §2 means, and is to be read as, `0 non-runner-KEY differences` against the set defined at `:84` — `{_launch, _field_classes, status_seen_utc}`.**
+
+**AND THE REFERRAL IS THE SECOND `§2n.19` SPECIMEN OF THIS SESSION, WHICH IS WHY I RECORD IT RATHER THAN JUST DECLINING IT.** `§2n.19` (`VERIFICATION_CHARTER` v1.35, 2026-08-31) holds that **over-correction is a record defect and is harder to catch, because a concession reads as humility and nobody audits it.** Here the concession was requested of me: **strike a true line, and hold six correct deletions on it.** Had I relayed the referral instead of measuring it, I would have deleted a sound measurement from an authorisation and stalled seven rows that were safe. **A referral is checked, not accepted — including a referral that flatters the checker by finding a fault in his own file.** *And the credit runs the other way too: heat-transfer re-measured an authorisation instead of acting on it, which is the behaviour this lab wants, and their number was right. Only the inference was wrong.*
+
+### 7.4 WHAT THIS SECTION CHANGES
+
+| field | value |
+| --- | --- |
+| rows authorised | **17, unchanged** — none added, none withdrawn |
+| rows landed | **17 of 17**; open **0** |
+| refusals | **3, all intact** at registered byte sizes; `T5b_c` still `BLOCKED`, unblock still not done |
+| `:88` | **HOLDS** — re-measured 17/17, five controls fired; **not struck** |
+| wording corrected | §2's `0 non-runner diffs` shorthand, prospectively; **no table row edited** |
+| verdicts · gates · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
