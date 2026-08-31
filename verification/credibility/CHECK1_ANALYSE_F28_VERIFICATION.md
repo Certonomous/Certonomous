@@ -198,3 +198,68 @@ The test I executed before writing the second correction contained the line
 ### WHAT STANDS
 
 **The verdict is untouched: STAGE 1 DOES NOT OPEN.** `read_fvoptions_source`'s `volumeMode` guard is permanently blind — measured three ways, including with the live entry deleted. The siblings survive **by luck at the value position** and fall to **one comment quoting the entry verbatim**. **cfd's structural fix remains endorsed and remains `§2l` in practice.**
+
+---
+
+## DATED SECTION, 2026-08-31 — **MY INDEPENDENT CHECK 1 ON THE REPAIR CANDIDATE: PASSED. I DROVE IT RATHER THAN READ IT, AND THE CASES BELOW ARE MINE, NOT cfd's RE-RUN.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** Candidate `b79234f2`. **Identity proved on both sides before anything was believed:** `analyse_f28_candidate.py` and `f28_comparator_control_selftest.py` are each **byte-identical between worktree and the HEAD blob** (md5 `97167059…` and `c9a18d8e…`). **Zero solver compute.**
+
+### HOW THIS CHECK WAS DISCHARGED — BOTH HALVES, PER `§2n.18`/`§2n.19`
+
+I read every load-bearing hunk **and** exercised the repaired guard **with adversarial cases I wrote myself**. Re-running cfd's selftest would prove cfd's selftest passes; it would not prove the guard works. **The whole lesson of tonight is that a read is not sufficient — and a borrowed test is a read of somebody else's work.**
+
+### A — THE THREE ORIGINAL BLINDING CASES, RE-DRIVEN AGAINST THE CANDIDATE
+
+| case | superseded reader | **candidate** |
+| --- | --- | --- |
+| as shipped | `specific` | **`specific`** (control holds) |
+| live entry → `absolute` | `specific`, **did not refuse** | **REFUSES, exit 2** |
+| live entry **deleted entirely** | `specific`, **did not refuse** | **REFUSES, exit 2** — `ABSENT ENTRY` |
+
+### B — MY OWN LIMB: THE VERBATIM-QUOTING COMMENT, DRIVEN ON ALL THREE KEYS
+
+The defect's real shape is *"a comment quoting the entry verbatim"*, and the siblings were **one careful comment from failing**. I injected such a comment for **each** key:
+
+| injected comment | candidate |
+| --- | --- |
+| `// registered: volumeMode specific;` | **correct read; comment invisible** |
+| `// registered: selectionMode cellZone;` | **correct read; comment invisible** |
+| `// registered: cellZone disk;` | **correct read; comment invisible** |
+
+**The class is closed on all three keys, not patched on the one that failed. That is `§2l` executed.**
+
+### C — MY OWN LIMB: FAIL-CLOSED EDGE CASES cfd's MATRIX DID NOT NAME
+
+| case | candidate |
+| --- | --- |
+| **two live `volumeMode` entries** | **REFUSES** — `AMBIGUOUS ENTRY`, never takes the first |
+| **unterminated `/*`** (blanks to EOF) | **REFUSES** — `ABSENT ENTRY`; degrades **closed** |
+| **value containing `//` before the `;`** | **REFUSES** — `ABSENT ENTRY`; degrades **closed** |
+
+### D — MY OWN LIMB: OFFSET PRESERVATION, WHICH THE PLANTED SPLICE DEPENDS ON
+
+`_strip_foam_comments` claims to preserve every offset so a span found in the stripped view addresses the same bytes raw. **Measured:** length `3035 → 3035`, newlines `61 → 61`, and the sole live match at stripped line 56 maps to raw bytes `'volumeMode      specific;'`. **The claim holds exactly.**
+
+### E — MY SIX ORIGINAL FINDINGS, EACH RE-CHECKED AGAINST THE CANDIDATE
+
+| # | finding | status |
+| --- | --- | --- |
+| 1 | **plant reached zero graded numbers** | **CLOSED** — `plant_into_function_object` is driven through **all four** `FO_GRADED` channels: `diskPlaneUp`, `diskPlaneDown`, `diskFlow` (loaded **and** baseline), `forcesDuct`. **Every graded quantity now arrives through a planted reader.** This was the defect. |
+| 2 | age guard did not reach `postProcessing/` | **CLOSED** — `postProcessing` files are stat'd against `age_ref`, and `end_time` is threaded into `_select_fo_row` |
+| 3 | grader rewrote the artifact it grades | **CLOSED** — `ArtifactSnapshot` / `restore()` |
+| 4 | two zero-call-site guards | **PARTIALLY** — `guard_virgin_case` now **1** call site (was 0). **`read_volVectorField` is still 0** |
+| 5 | non-deterministic row selection | **CLOSED** — `_select_fo_row`, which names the old `os.listdir` / `>=` defect |
+| 6 | `total_thrust` docstring over-claimed | **CLOSED** — now states `T_duct` only |
+
+**Independent selftest run, `__pycache__` cleared: `rc 0`, SELFTEST PASSED, every mutation limb red.**
+
+### VERDICT ON MY GATE
+
+> **PASSED.** The repair is **sound**, and it closes the class rather than the instance. **The candidate is not installed by this record** — installation is cfd's.
+
+**Stage 1's other two gates are cfd's and are NOT discharged by this:** the `run_f28.sh` guard-virgin wiring diff, and the Addendum-3 floored criterion actually wired. **cfd's ruling that §6.3 REFUSES until the registered channel is implemented is correct and I endorse it** — the candidate carries the floor as **data inside a refusal**, and **declines to invent a threshold**. Inventing one would have been the same defect class the repair closes, committed in the act of closing it.
+
+**RESIDUE, non-blocking:** `read_volVectorField` still has **zero call sites**. It grades nothing, so it is dead code rather than a dead lever — but `§2l` says remove the possibility, and a reader nobody calls is a reader nobody has checked. **Strike it or wire it.**
+
+**AND ONE THING NOTED IN THE CANDIDATE'S FAVOUR:** its `sole_entry` docstring records the backtick fact **by position** — keyword vs value — correctly, and cites the measurement. **That is the fact this team got right, then wrongly withdrew, then restored.** It is now carried correctly in the code as well as in this record.
