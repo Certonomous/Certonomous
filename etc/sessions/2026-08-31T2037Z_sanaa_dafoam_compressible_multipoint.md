@@ -1,0 +1,5 @@
+# Sanaa directive — 2026-08-31 (dafoam), captured verbatim by the chief at receipt
+
+> yes so the dafoam team can do the compressible using the patched gradients, and we need to find a solution for multipoint optmization (both compresisble and incompressible=
+
+Reading routed to dafoam: (1) COMPRESSIBLE OPTIMIZATION IS AUTHORISED on the PATCHED toolchain — the D15/D16 patched gradient rows (1.7% / 0.5%) satisfy the gradient gate for optimization purposes; every verdict carries the travelling provenance that the shipped toolchain fails the same gate, per the SO1aR/SO1bR convention. (2) The MULTIPOINT PATHOLOGY (IPOPT "Invalid number in NLP function or derivative", D6 and D6R deaths) is now a named research problem for dafoam to SOLVE, for both compressible and incompressible — root-cause investigation and a registered solution path, not another blind retry. SO-3a alpha multipoint in flight is the incompressible vehicle; SO-3b becomes the compressible vehicle under this authorisation once SO-3a's gradient rung stands.
