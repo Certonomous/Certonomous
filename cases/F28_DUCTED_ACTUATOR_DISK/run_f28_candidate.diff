@@ -1,0 +1,141 @@
+--- cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh	2026-08-31 17:29:01.952333609 +0000
++++ cases/F28_DUCTED_ACTUATOR_DISK/run_f28_candidate.sh	2026-08-31 22:17:51.282233043 +0000
+@@ -126,6 +126,107 @@
+ abort() { echo "ABORT: $*" >&2; exit 1; }
+ 
+ # -----------------------------------------------------------------------------
++# SECTION 11.1's VIRGIN-CASE GUARD, WIRED TO ITS INSTRUMENT.
++#
++# Section 11.1: "A guard refuses a case where `0` or any time directory already
++# exists."  The instrument that implements it is `guard_virgin_case` in the
++# comparator, reached through `analyse_f28.py --guard-virgin <case>`.  Until
++# this function existed that guard HAD NO CALL SITE and section 11.1 was
++# enforced by no instrument at all -- CHECK1_ANALYSE_F28_CANDIDATE.md ruling 2:
++# "the candidate makes it *callable*, not *called*."
++#
++# THE CALL IS DRIVEN, NOT TRUSTED.  On 2026-08-31 this team certified, TWICE at
++# supervisor level, a guard that was PERMANENTLY BLIND: a regex matched a banner
++# comment, the refusal branch was unreachable, and it was caught only when
++# somebody RAN it (commit 9c223449).  A guard whose refusal has not been
++# DEMONSTRATED is not a guard, and reading its source is not a demonstration.
++# So every invocation first makes the guard FIRE on a directory it KNOWS is
++# dirty and PASS on one it KNOWS is virgin, and refuses to proceed unless all
++# three exit codes are observed.  The discrimination is BEHAVIOURAL -- three
++# exit codes -- and NEVER a match on the guard's own message: matching text is
++# the exact defect this control exists to catch.
++#
++# It therefore fails CLOSED on the state of the tree as this was written: the
++# comparator currently installed at `analyse_f28.py` carries `guard_virgin_case`
++# but NOT the `--guard-virgin` entry point, so it exits 2 on a VIRGIN directory
++# as well.  The driven control reads that as "cannot distinguish" and aborts,
++# instead of mistaking a usage error for a refusal or -- far worse -- taking a
++# blanket exit 2 as proof the guard is watching.
++#
++# A NON-EXISTENT `$target` IS THE NORMAL CASE at both call sites and PASSES:
++# measured, `guard_virgin_case` returns cleanly on a path that does not exist
++# (its listdir is guarded by `if os.path.isdir(case) else []`).
++#
++# The probe tree is built under `mktemp -d` and torn down with `rmdir` ONLY,
++# which refuses a non-empty directory.  NO `rm -rf` IS ADDED TO THIS FILE;
++# nothing this function deletes can be a run record; nothing is written under
++# `verification/runs/`.
++# -----------------------------------------------------------------------------
++guard_virgin_section_11_1() {
++  local target="$1"
++  local phase_saved="$PHASE"
++  PHASE="guard-virgin-section-11.1"
++
++  [ -n "$target" ] || abort "guard_virgin_section_11_1 was called with no case
++    directory; section 11.1's guard cannot be applied to nothing."
++
++  local analyser="$REPO/cases/$CASE_ID/analyse_f28.py"
++  [ -x "$analyser" ] || abort "section 11.1's guard has no instrument:
++    $analyser is missing or not executable.  The guard is \`guard_virgin_case\`
++    reached through \`--guard-virgin\`, and section 11.1 is enforced by nothing
++    without it."
++
++  local probe rc_zero rc_time rc_virgin rc_target
++  probe=$(mktemp -d "${TMPDIR:-/tmp}/f28_guard_probe.XXXXXX") \
++    || abort "cannot create the section 11.1 guard's driven-control directory"
++  mkdir -p "$probe/dirty_zero/0" "$probe/dirty_time/1500" "$probe/virgin" \
++    || abort "cannot populate the section 11.1 guard's driven-control
++    directory: $probe"
++
++  python3 "$analyser" --guard-virgin "$probe/dirty_zero" >/dev/null 2>&1
++  rc_zero=$?
++  python3 "$analyser" --guard-virgin "$probe/dirty_time" >/dev/null 2>&1
++  rc_time=$?
++  python3 "$analyser" --guard-virgin "$probe/virgin" >/dev/null 2>&1
++  rc_virgin=$?
++
++  rmdir "$probe/dirty_zero/0" "$probe/dirty_time/1500" "$probe/dirty_zero" \
++        "$probe/dirty_time" "$probe/virgin" "$probe" 2>/dev/null \
++    || echo "NOTE: the guard's probe tree at $probe was not empty and is left in
++    place; \`rmdir\` deletes nothing non-empty and nothing there is a record." >&2
++
++  [ "$rc_zero" != "0" ] || abort "THE SECTION 11.1 GUARD IS BLIND.
++    \`$analyser --guard-virgin\` returned 0 on a directory carrying a \`0\`
++    directory.  A guard whose refusal cannot be demonstrated firing is not a
++    guard -- two supervisor-level check-1 reads certified exactly this failure
++    on 2026-08-31 (9c223449).  NOTHING IS LAUNCHED."
++  [ "$rc_time" != "0" ] || abort "THE SECTION 11.1 GUARD IS BLIND TO TIME
++    DIRECTORIES.  \`$analyser --guard-virgin\` returned 0 on a directory
++    carrying the time directory \`1500\`.  NOTHING IS LAUNCHED."
++  [ "$rc_virgin" = "0" ] || abort "THE SECTION 11.1 GUARD CANNOT DISTINGUISH: it
++    returned $rc_virgin on a VIRGIN directory as well as on both dirty ones, so
++    a non-zero from it on this run's case would prove NOTHING.  The usual cause
++    is a comparator at $analyser that carries \`guard_virgin_case\` but not the
++    \`--guard-virgin\` entry point, in which case the 2 is a USAGE error wearing
++    a refusal's exit code.  Install the comparator that carries the entry point."
++
++  python3 "$analyser" --guard-virgin "$target"
++  rc_target=$?
++  [ "$rc_target" = "0" ] || abort "SECTION 11.1: THE VIRGIN-CASE GUARD REFUSED
++    $target (\`analyse_f28.py --guard-virgin\` exit $rc_target; its reason is on
++    stderr immediately above).  \"A guard refuses a case where \`0\` or any time
++    directory already exists.\"  NO RUN IN THIS CASE IS EVER STARTED ON TOP OF
++    AN EXISTING ONE.  This launcher has created nothing in that directory and
++    has deleted nothing: an unexpected time directory is INSPECTED, never
++    cleared, and clearing it is not this script's decision."
++
++  echo "  section 11.1 guard on $target: VIRGIN.  Driven control fired this
++  invocation: dirty \`0/\` -> exit $rc_zero, dirty \`1500/\` -> exit $rc_time,
++  virgin -> exit $rc_virgin."
++  PHASE="$phase_saved"
++}
++
++# -----------------------------------------------------------------------------
+ # GUARDS -- every one of them before any compute
+ # -----------------------------------------------------------------------------
+ PHASE="guards"
+@@ -217,6 +318,15 @@
+ 
+ if [ "$PREFLIGHT" = "1" ]; then
+   PHASE="preflight-complete-zero-compute"
++  # `--preflight` documents itself as running EVERY GUARD at zero compute, and
++  # a guard preflight does not run is a guard preflight cannot discover broken.
++  # So section 11.1's guard is exercised HERE TOO, and BEFORE the `mkdir -p
++  # "$RUN_DIR"` on the next line for the same reason it precedes the assemble
++  # `mkdir`: this branch creates the very directory the guard inspects, so a
++  # guard placed after it is guarding its own footprint.  This is where a
++  # comparator that cannot answer `--guard-virgin` is found -- at zero compute,
++  # not at phase=assemble on the gated run.
++  guard_virgin_section_11_1 "$RUN_DIR"
+   mkdir -p "$RUN_DIR" || abort "cannot create $RUN_DIR"
+   echo "PREFLIGHT COMPLETE AT ZERO COMPUTE.  Nothing was meshed and nothing solved."
+   exit 0
+@@ -226,6 +336,14 @@
+ # ASSEMBLE THE CASE
+ # -----------------------------------------------------------------------------
+ PHASE="assemble"
++# SECTION 11.1's GUARD, AT THE ONLY POSITION WHERE IT STILL MEASURES ANYTHING.
++# The very next line CREATES `$RUN_DIR/0`.  A guard one statement later would be
++# reading THIS LAUNCHER'S OWN FOOTPRINT, and -- measured, not assumed, in
++# `f28_guard_virgin_wiring_selftest.sh` limbs 12-15 -- it then returns REFUSE for
++# a dirty case AND for a virgin one alike: not a guard that fires less often, a
++# guard that has stopped discriminating, and one that would block every
++# legitimate run until somebody deleted it.  The position is load-bearing.
++guard_virgin_section_11_1 "$RUN_DIR"
+ mkdir -p "$RUN_DIR/system" "$RUN_DIR/constant" "$RUN_DIR/0" \
+   || abort "cannot create $RUN_DIR"
+ cp -a "$MESH_SRC/constant/polyMesh" "$RUN_DIR/constant/" || abort "mesh copy failed"
