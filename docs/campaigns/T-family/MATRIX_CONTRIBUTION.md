@@ -1339,3 +1339,116 @@ be.**
 | items owed by this team | **2** named + **3** further defects found while filing (§4) |
 | row ids left as `(id owed)` | **11 of 12** classed entries — §2n.10's ids are **references** into an enumerated table, and this file's 153-row enumeration lives in the audit record (§2n.11). **Only `S24` could be resolved at HEAD** (`:258`); the rest are left owed rather than invented, because an invented reference is worse than an absent one in a schema whose ids exist to prevent double-counting |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## ADDENDUM 1 to the cause-class block, 2026-08-31 — **TWO CITED FIGURES CORRECTED, ONE OWED ITEM CLOSED, AND A BOUND OF MY OWN THAT DID NOT BOUND WHAT IT SOUNDED LIKE**
+
+**Appended, not edited** — §2n.10's own rule for this schema is that a later correction is
+**a new dated block citing the old, never an edit**, and standing rule 6 says the same of
+any record others cite by line. **No row above is touched.**
+
+**NOTHING IN THE HEADLINE MOVES: 8 physics-adverse / 12 non-physics / 28 `UNCLASSED`
+stands, every class stands, every verdict stands.** Two of the *figures quoted inside
+citations* were superseded, and one owed item was already closed by another lane while this
+block was being written.
+
+### 1. K0cT — the graded denominator was inflated; the class is untouched
+
+The `MODEL-LIMIT` row for the K0cT rung cites `docs/campaigns/F14-cooling-ladder/K0cT_RESULTS.md:19`,
+which reads *"GATE FAIL. 8 of 18 graded rows failed."* **That denominator is wrong.**
+[MEASURED at source in `verification/runs/F14-cooling-ladder/K0cT_runs/gate_k0ct.json`:
+`graded_rows` **n = 14** — 8 `FAIL`, 6 `PASS`; plus a **separate** `reported_never_graded`
+list, **n = 4** — `R2`, `R4`, `R11`, `R13`, the four peak-**location** rows, each carrying
+`verdict: "PASS"`. 14 + 4 = 18.] The prose reaches 18 by folding four never-graded rows into
+the graded denominator, and counts them among its "PASS ×10" when the artefact holds them
+out.
+
+**Corrected figure: the graded failure rate is 8 of 14 = 57.1 %, not 8 of 18 = 44.4 %** —
+and note the direction: **the error ran in the flattering direction, and the correction
+makes this rung look worse, not better.**
+
+**The citation is EXTENDED, not replaced.** `:19` stays — it is the line the verdict lives
+on — and is now read together with the dated amendment at the foot of that same file,
+**`K0cT_RESULTS.md:677-776`**, landed at commit **`103659ee`**, which quotes and strikes the
+figure without editing the Verdict section. **The `MODEL-LIMIT` class does not move: 8
+failures against any denominator is a `GATE FAIL`, and the model-class mechanism is
+untouched.**
+
+### 2. K0cX — same defect class, already corrected in its own file
+
+**Found by sweeping the sibling rungs rather than waiting to be told.** The `MODEL-LIMIT`
+row for K0cX quotes *"24 of 60 graded rows, 0 of 3 models passed"* from `K0cX_RESULTS.md:21`.
+**That file already corrects itself** at `:417-422`, a before/after table this block's own
+citation string already pointed at: `kOmegaSST` 10 of **20** → 10 of **14**; `kEpsilon`
+7 of **20** → 7 of **14**; `LaunderSharmaKE` 7 of **20** → 7 of **14**; the `laminar` control
+12 of **20** → 12 of **14**; **the rung 24 of 60 → `GATE FAIL`, 24 of 42.**
+
+**Read the K0cX row's denominator as 24 of 42.** Class unchanged; *"0 of 3 models passed"*
+unchanged.
+
+### 3. K0cS — checked and CLEAN, which is what bounds the defect
+
+[MEASURED: `verification/runs/F14-cooling-ladder/K0cS_runs/gate_k0cs.json` carries
+`graded_rows` **n = 20** (14 `GATE FAIL`, 6 `PASS`) and **no `reported_never_graded` key at
+all.**] **K0cS's "14 of 20" is correct as stated and needs nothing.** The
+never-graded-rows-in-the-denominator defect touches **two of the three K0c model rungs, not
+the family** — and it is stated here because a defect found twice is worth bounding
+explicitly rather than leaving a reader to assume the third is rotten too.
+
+### 4. OWED 1 IS CLOSED — and it did not close the way this block said it would
+
+**§4's OWED 1 recorded the bare-`FAIL` cells in `gate_k0ct.json` as owed under D-5. It is
+closed, by amendment `103659ee`, and D-5 was NOT the instrument.** A lane established that
+**D-5's closed scope does not reach that file**: D-5's corpus is the markdown verdict-cell
+corpus `scripts/check_verdict_cells.py` enumerates, and its three legacy cells are named
+individually in D472 as `V5:1070`, `V14:1080`, `V15:1081`. **`gate_k0ct.json` is a machine
+artefact and appears in that corpus nowhere**, so applying D-5 there would have been
+**extension by analogy of a ruling Sanaa closed on three named cells** — rule 9 — rather
+than execution of it.
+
+**The artefact was left BYTE-UNTOUCHED, and correctly.** It is the deterministic output of a
+frozen comparator that hard-codes the string, so a hand-edit is **silently reverted on the
+next run** — a correction that does not survive its own instrument is not a correction.
+**D-5's method is quote-and-strike, which a JSON cannot carry**; the amendment is the quote
+and the strike. **Read §4's OWED 1 as CORRECTED-BY-AMENDMENT, not as outstanding.**
+
+### 5. ⚠ MY OWN BOUND WAS TRUE ON ITS MEASURE AND MISLEADING IN ITS WORDING
+
+§4 said: *"`gate_k0ct.json` is the ONLY file carrying bare-`FAIL` cells — 8 cells in 1 file,
+not a family-wide condition."* **On the measure I actually ran — `graded_rows[*].verdict`,
+which is the only measure D-5 could bear on — that is CORRECT and it survives re-checking.**
+But *"8 cells in 1 file"* reads as a bound on the file's bare-`FAIL` content, and it is not
+one. **Full census, measured here at HEAD:**
+
+| file | bare `"FAIL"` strings | of which verdict cells | the rest |
+| --- | --- | --- | --- |
+| `verification/runs/F14-cooling-ladder/K0cT_runs/gate_k0ct.json` | **73** | **8** (`.graded_rows[].verdict`) | **56** control/mutation expectations (`.controls.C3.rows[]` and `.C3_mutation[]`, keys `required` / `base_verdict` / `regraded_verdict`), **7** convergence-criterion states, **2** control row verdicts |
+| `verification/runs/T-family/T10a_runs/gate_t10a.json` | **17** | **0** | **17**, every one under `.controls[].must` |
+| `verification/runs/T-family/T1_runs/gate_t1b.json` | **1** | **0** | **1**, under `.controls[].must` |
+
+**AND THE REASON THIS MATTERS IS NOT BOOKKEEPING.** A bulk *"correct every bare `FAIL` in
+the run trees"* sweep — the obvious reading of my sentence, and the obvious next task to
+dispatch from it — **would have rewritten 56 registered mutation-control expectations in
+K0cT and 18 more in two other rungs.** `.controls[].must = "FAIL"` is a registered
+statement that **a control MUST return `FAIL`**; flipping it to `GATE FAIL` does not correct
+a verdict, it **silently disarms the control** — and a disarmed control is the planted-zero
+failure mode standing rule 3 exists to prevent, arriving disguised as a vocabulary tidy-up.
+**A control that must fail is not a verdict cell and must never be "corrected".** That
+distinction is why the amendment route was right and an edit sweep would have been a
+defect, and it is recorded here so nobody re-derives it the expensive way.
+
+### 6. What this addendum does not do
+
+| field | value |
+| --- | --- |
+| headline figures changed | **0** — 8 / 12 / 28 stands |
+| classes changed | **0** · verdicts changed | **0** · gates, bands, caps | **0** · re-runs | **0** |
+| citations withdrawn | **0** — `K0cT_RESULTS.md:19` and `K0cX_RESULTS.md:21` are **extended** with their corrections, not replaced, so every citation in the block still resolves at HEAD (§2n.2) |
+| figures corrected | **2** — K0cT 8 of 18 → **8 of 14 (57.1 %)**; K0cX 24 of 60 → **24 of 42**. Both move in the **unflattering** direction |
+| rungs swept to bound the defect | **3** — K0cT (defective), K0cX (self-corrected), K0cS (**clean**) |
+| owed items closed | **1** — §4 OWED 1, by `103659ee`, on a different instrument than this block predicted |
+| owed items still open | **1** — §4 OWED 2, the four stale `BLOCKED` lines for T8 on `LAB_STATE.md`, **unchanged and still live** |
+| corrections to this block's own prose | **1** — §5 above, my bare-`FAIL` bound |
+| new compute | **0 core-minutes** |
+| **lines whose number changed above this section** | **0** |
