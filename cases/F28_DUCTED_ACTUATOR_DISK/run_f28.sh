@@ -253,9 +253,43 @@ grep -q 'volumeMode      specific;' "$RUN_DIR/constant/fvOptions" \
   Section 2.4: under \`absolute\` the supplied number is divided by the
   cell-zone volume and the case still meshes, still runs, still converges and
   produces an entirely wrong map."
-grep -q "__" "$RUN_DIR/constant/fvOptions" "$RUN_DIR/system/controlDict" \
-  "$RUN_DIR/0/k" "$RUN_DIR/0/omega" \
-  && abort "an unsubstituted __PLACEHOLDER__ survived into the assembled case"
+# THE PLACEHOLDER GUARD AND THE MANDATORY-ENTRY GUARD.
+#
+# The predecessor here swept four files for a BARE `__`.  That guard was RIGHT
+# TO EXIST -- it fired on a real unsubstituted placeholder in the feasibility
+# path -- but its RULE was wrong in both directions, and each direction alone
+# would have killed every gated run:
+#   too loose : `controlDict.template:2` reads "__PLACEHOLDERS__ are
+#               substituted by run_f28.sh", so the sweep aborted at
+#               phase=assemble on this case's OWN header comment, always.
+#   too tight : it never looked at `0/U.pending`, the ONLY file carrying
+#               `__U_INF__`, so a failed free-stream substitution was invisible.
+# The repair is PRECISION, NOT PERMISSIVENESS.  `check_assembled_case.py`
+# sweeps the WHOLE assembled tree (system, constant less polyMesh, 0) with two
+# limbs: NAMED -- every token listed below must be absent, since `sed ... g`
+# substitutes in comments too, so a survivor anywhere means the sed did not
+# fire; and GENERIC, COMMENT-STRIPPED -- no undeclared `__UPPER__` token in a
+# position the OpenFOAM parser actually reads.  A placeholder that matters is
+# in a VALUE position by construction; one inside a comment cannot reach the
+# solver.  That, not spelling, is the line.  `--selftest` carries both limbs
+# INCLUDING THE NEGATIVES.
+#
+# The second guard is the v2606 `writeFields` trap: `fieldValue.C:98` reads it
+# with `dict.readEntry`, default `MUST_READ` (`dictionary.H:686-692`), so a
+# `surfaceFieldValue` or `volFieldValue` that omits it is an MPI_ABORT AT
+# STARTUP.  `fieldValue.H:57` documents it as OPTIONAL, default false -- THE
+# HEADER TABLE IS WRONG AND THE CODE IS THE AUTHORITY.  Same family as the
+# `volumeMode` finding above, opposite direction: that one defaults silently
+# and wrongly, this one aborts loudly.
+CHECKER="$REPO/cases/$CASE_ID/check_assembled_case.py"
+[ -x "$CHECKER" ] || abort "the assembled-case guard is missing: $CHECKER"
+python3 "$CHECKER" placeholders "$RUN_DIR" --tokens \
+  __END_TIME__ __WRITE_INTERVAL__ __SU_X__ __DELTA_P__ __U_INF__ \
+  __K_INIT__ __OMEGA_INIT__ \
+  || abort "the assembled case did not survive the placeholder guard"
+python3 "$CHECKER" fieldvalues "$RUN_DIR/system/controlDict" \
+  || abort "the assembled controlDict omits a MANDATORY fieldValue entry; in
+  v2606 that is an MPI_ABORT at startup, not a bad number"
 
 # THE AGE GUARD'S ANCHOR.  `0/U` is written LAST, so its mtime dates the run
 # that was allowed to produce the answer (CLAUDE.md rule 4, section 11.1

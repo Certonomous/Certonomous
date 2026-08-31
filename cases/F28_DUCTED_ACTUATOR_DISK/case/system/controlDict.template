@@ -100,6 +100,17 @@ functions
         }
         operation       areaAverage;
         fields          (p);
+        // MANDATORY in v2606, and FATAL if absent: fieldValue.C:98 reads it
+        // with dict.readEntry, whose default readOpt is MUST_READ
+        // (dictionary.H:686-692) -- omitting it is an MPI_ABORT at STARTUP,
+        // not a bad number.  FALSE, not true: the comparator reads only the
+        // reduced series `postProcessing/<name>/<t>/surfaceFieldValue.dat`
+        // (analyse_f28.py `function_object_series`), which writeFile emits
+        // regardless of this flag; `true` would additionally demand the fatal
+        // `surfaceFormat` entry (surfaceFieldValue.C:1297) and write one
+        // surface file per object per write interval -- 3 x 15000 files
+        // nobody reads, against a 400 core-min cap.
+        writeFields     false;
         writeControl    timeStep;
         writeInterval   1;
     }
@@ -120,6 +131,17 @@ functions
         }
         operation       areaAverage;
         fields          (p);
+        // MANDATORY in v2606, and FATAL if absent: fieldValue.C:98 reads it
+        // with dict.readEntry, whose default readOpt is MUST_READ
+        // (dictionary.H:686-692) -- omitting it is an MPI_ABORT at STARTUP,
+        // not a bad number.  FALSE, not true: the comparator reads only the
+        // reduced series `postProcessing/<name>/<t>/surfaceFieldValue.dat`
+        // (analyse_f28.py `function_object_series`), which writeFile emits
+        // regardless of this flag; `true` would additionally demand the fatal
+        // `surfaceFormat` entry (surfaceFieldValue.C:1297) and write one
+        // surface file per object per write interval -- 3 x 15000 files
+        // nobody reads, against a 400 core-min cap.
+        writeFields     false;
         writeControl    timeStep;
         writeInterval   1;
     }
@@ -140,6 +162,17 @@ functions
         }
         operation       areaNormalIntegrate;
         fields          (U);
+        // MANDATORY in v2606, and FATAL if absent: fieldValue.C:98 reads it
+        // with dict.readEntry, whose default readOpt is MUST_READ
+        // (dictionary.H:686-692) -- omitting it is an MPI_ABORT at STARTUP,
+        // not a bad number.  FALSE, not true: the comparator reads only the
+        // reduced series `postProcessing/<name>/<t>/surfaceFieldValue.dat`
+        // (analyse_f28.py `function_object_series`), which writeFile emits
+        // regardless of this flag; `true` would additionally demand the fatal
+        // `surfaceFormat` entry (surfaceFieldValue.C:1297) and write one
+        // surface file per object per write interval -- 3 x 15000 files
+        // nobody reads, against a 400 core-min cap.
+        writeFields     false;
         writeControl    timeStep;
         writeInterval   1;
     }
