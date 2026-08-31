@@ -1,0 +1,106 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -case L3
+Date   : Aug 31 2026
+Time   : 22:10:15
+Host   : ip-172-31-43-247
+PID    : 472356
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/mesh/L3
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+Check mesh...
+
+Time = constant
+
+Mesh stats 
+    points:           323652
+    internal points:  0
+    faces:            644844
+    internal faces:   321192
+    cells:            161006
+    faces per cell:   6
+    boundary patches: 5
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     161006
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology
+    jetSlot             22       46       ok (non-closed singly connected)  
+    airfoil             374      750      ok (non-closed singly connected)  
+    farfield            1244     2488     ok (non-closed singly connected)  
+    back                161006   161826   ok (non-closed singly connected)  
+    front               161006   161826   ok (non-closed singly connected)  
+    ".*"                323652   323652   ok (closed singly connected)      
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-25.0025 -25.0025 -0.5) (26 25.0025 0.5)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (-1.02692e-17 6.73636e-18 3.72418e-14) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 152700, number of cells 16824
+  <<Writing 16824 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 2.85745e-10. Maximum face area = 1.81264.  Face area magnitudes OK.
+    Min volume = 2.85745e-10. Max volume = 0.711275.  Total volume = 2281.97.  Cell volumes OK.
+    Mesh non-orthogonality Max: 35.3964 average: 6.23332
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.223786 OK.
+    Coupled point location match (average 0) OK.
+
+Failed 1 mesh checks.
+
+End
+

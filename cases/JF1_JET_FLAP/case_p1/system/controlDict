@@ -1,0 +1,155 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| JF1 jet-flap airfoil -- STAGE P, ROW P1.                                     |
+|   C_mu_jet = 0.1, alpha = 0, tau = 30 deg, LEVEL L1 C-TOPOLOGY (46,180 cells)|
+|                                                                             |
+| LABEL: physics/diagnostic.  JF1_PREREGISTRATION.md section 6 line 1234       |
+| answers "Gated?" for stage P with "No.  Diagnostic only."  NO GATE, NO       |
+| THRESHOLD AND NO VERDICT OF THE FIXED VOCABULARY ATTACHES TO ANY RUN THIS    |
+| DICTIONARY PRODUCES.  No PASS, no GCI, no observed order, no theory          |
+| comparison.  If it disagrees with the registration that is a FINDING.        |
+|                                                                             |
+| TWO DISCLOSED DEPARTURES FROM THE FROZEN DOCUMENT, BOTH CARRIED HERE RATHER  |
+| THAN BURIED, AND BOTH LEGAL ONLY BECAUSE THIS ROW IS UNGRADED:               |
+|                                                                             |
+| D1. writeInterval is 1000, NOT the 20000 that section 5.5 registers and      |
+|     section 8.1 clause 3 PINS.  Reason, and it is arithmetic not preference: |
+|     this row runs under a 45.0 core-min cap whose derived wall allowance     |
+|     (cap x 60 / ranks) is SHORTER than the measured time to reach            |
+|     endTime 20000.  With writeInterval 20000 a capped run writes NO time     |
+|     directory at all and produces nothing -- no fields, no y+, no forces.    |
+|     A diagnostic row that cannot deposit a diagnostic is not a diagnostic.   |
+|     CONSEQUENCE, STATED SO NOBODY HAS TO DISCOVER IT: section 8.1 clause 3's |
+|     controlDict pin will REFUSE any run made with this dictionary.  That is  |
+|     correct and intended -- this row is not gradeable and must not be        |
+|     gradeable.  EVERY GATED ROW (G1-G9) MUST CARRY writeInterval 20000.      |
+|     run_jf1_p1_cmesh.sh refuses to run any row but the P1 diagnostic, so the |
+|     departure cannot leak into a graded row.                                 |
+|                                                                             |
+| D2. Aref is 1.0, NOT the 0.01 that case_blown/system/controlDict carries.    |
+|     THIS IS A CORRECTION, NOT A DEPARTURE, and copying the blown feasibility |
+|     dictionary onto this mesh would have reported CL and Cd 100x TOO LARGE.  |
+|     Aref = c * t_z.  The O-mesh of the five completed feasibility rows had   |
+|     t_z = 0.01 m, so Aref = 0.01 was right THERE.  The registered            |
+|     C-topology has t_z = 1.0 m EXACTLY -- make_jf1_mesh.py:429-432 REFUSES   |
+|     any other value, citing frozen section 5.6 -- and checkMesh measures the |
+|     bounding box z-extent as (-0.5, 0.5), i.e. 1.0 m, on all three levels.   |
+|     Aref = 1.0 * 1.0 = 1.0.  forceCoeffs.C:164 reads Aref verbatim and its   |
+|     guard at :328 catches only a MISSING or zero value, never a wrong one.   |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;                  // section 5.5, registered
+stopAt          endTime;
+endTime         20000;              // section 5.5, registered ITERATION CAP
+deltaT          1;                  // section 5.5, registered
+writeControl    timeStep;           // section 5.5, registered
+writeInterval   1000;               // DEPARTURE D1 above (registered: 20000)
+purgeWrite      0;                  // section 5.5, registered
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    forceCoeffs
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        log             no;
+
+        // patches (airfoil) ONLY -- frozen registration's own dictionary
+        // (JF1_PREREGISTRATION.md:1192): jetSlot is an INLET, not a wall, and
+        // including it would put the jet's own pressure force into CL_aero and
+        // DOUBLE-COUNT it against the explicit jet-reaction term of
+        // CL_total = CL_aero + C_mu_jet sin(tau + alpha).
+        patches         (airfoil);
+        rho             rhoInf;
+        rhoInf          1.0;
+
+        // AIRFOIL FRAME, frozen section 1.6a: the mesh does not move with
+        // alpha; alpha = 0 here so liftDir/dragDir are the axes.
+        liftDir         (0 1 0);
+        dragDir         (1 0 0);
+        pitchAxis       (0 0 1);
+        magUInf         10.0;
+        lRef            1.0;
+        Aref            1.0;         // DEPARTURE/CORRECTION D2 above
+        CofR            (0.25 0 0);
+    }
+
+    yPlus
+    {
+        // Frozen gate line 7 is max(y+) <= 1 and frozen section 6 line 1234
+        // makes "y+ MEASURED" one of stage P's registered products.  No
+        // C-mesh row has ever measured it -- all three birth certificates
+        // carry measured y+ as PENDING and print only an ESTIMATE.
+        //
+        // writeControl timeStep / interval 250, NOT writeTime.  MEASURED
+        // REASON: the 2026-08-31T15:35Z pilot wrote a yPlus.dat of TWO LINES,
+        // header only and ZERO data rows, because `writeControl writeTime`
+        // first fires at writeInterval and that pilot stopped before it.  At
+        // 250 the quantity exists from iteration 250 onward whatever the run
+        // does afterwards -- an early residualControl exit or a cap kill.
+        type            yPlus;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   250;
+        log             yes;
+    }
+
+    jetMassFlow
+    {
+        // Frozen line-6 physicality quantity (jet mass flow through jetSlot
+        // vs rho h V_j, <= 0.5 %), and frozen section 6 makes "mass-flow
+        // closure MEASURED" a stage-P product.  REPORTED, NOT GATED here.
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      patch;
+        name            jetSlot;
+        operation       sum;
+        fields          (phi);
+        writeControl    timeStep;
+        writeInterval   100;
+        writeFields     no;
+        log             no;
+    }
+
+    minMaxU
+    {
+        // Frozen section 5.5a blow-up guard quantity, REPORTED.
+        type            fieldMinMax;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   100;
+        fields          (U p k omega nut);
+        log             no;
+    }
+
+    contErr
+    {
+        // Frozen section 5.5 residual channels and the O6 continuity value,
+        // which frozen section 5.5/O6 requires REPORTED on every row.
+        type            solverInfo;
+        libs            ("libutilityFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (U p k omega);
+        log             no;
+    }
+}
+
+// ************************************************************************* //
