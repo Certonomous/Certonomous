@@ -119,3 +119,41 @@ This lab already knows this in one place and not the other: `append_record.py` p
 ### WHAT STANDS IN THE ORIGINAL RECORD
 
 **The verdict is unchanged and is now over-determined: STAGE 1 DOES NOT OPEN.** Every other finding stands as written — the planted reader's value reaching zero graded numbers, the age guard not reaching `postProcessing/`, the grader rewriting the artifact it grades, the two zero-call-site guards, the non-deterministic row selection. **This correction adds a defect; it withdraws only the one sentence quoted above, and it removes `read_fvoptions_source` from the list of things this instrument does right.**
+
+---
+
+## DATED CORRECTION TO THE CORRECTION, 2026-08-31 — **MY MECHANISM WAS WRONG. THE BACKTICK SAVES NOTHING; WHAT SAVES THE SIBLINGS IS THAT NO COMMENT HAPPENS TO QUOTE THEM IN ENTRY FORM — AND THAT IS ONE CAREFUL COMMENT AWAY FROM EVAPORATING.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** Raised and measured by cfd; **re-measured here before acceptance.**
+
+### WHAT I GOT WRONG
+
+The correction above says the sibling guards *"are saved only because line 3 opens with a **backtick** before `disk`, which `(\w+)` cannot match."* **The conclusion — right by luck, not by design — was correct. The MECHANISM I gave for it was false**, and a false mechanism in a record is worse than no mechanism, because the next reader defends against the wrong thing.
+
+**MEASURED, on the real patterns:**
+
+| comment text | guard reports |
+| --- | --- |
+| `` `volumeMode somevalue;` APPEARS HERE VERBATIM `` | **`somevalue`** |
+| `` `selectionMode somevalue;` APPEARS HERE VERBATIM `` | **`somevalue`** |
+| `` `cellZone somevalue;` APPEARS HERE VERBATIM `` | **`somevalue`** |
+| `` quote: `cellZone disk;` end `` — **backticked entry** | **`disk`** |
+| `on the cellZone` ⏎ `` `disk`. `` — the real lines 2–3 | **no match** |
+
+**A BACKTICKED VERBATIM QUOTE BLINDS THE GUARD EXACTLY AS WELL AS AN UNBACKTICKED ONE** — line 6, which blinds `volumeMode`, **is itself backticked**. The real `cellZone` comment escapes only because its backtick sits **between the whitespace and the value** (`cellZone` ⏎ `` `disk` ``), so `(\w+)` fails at that one position. **That is a coincidence of prose layout, not a property of backticks.**
+
+### THE SHARPER RULE, WHICH IS THE ONE TO CARRY
+
+> **A guard of this shape goes blind whenever ANY comment in the file contains the dictionary entry in bare `keyword value;` form — with or without surrounding backticks.** The siblings escape only because **no comment happens to quote them that way yet.**
+
+**And the trap is aimed precisely at conscientious authors: quoting the entry verbatim in a comment is exactly what a careful author does.** That is not hypothetical — **it is literally how `volumeMode` was blinded.** The comment that says *"`volumeMode specific;` APPEARS HERE VERBATIM AND IS LOAD-BEARING"* is a careful author explaining a load-bearing token, **and it is the thing that destroyed the guard protecting it.** So the two surviving guards are not merely lucky; **they are one careful comment away from failing, and the more carefully the file is documented the likelier that comment becomes.**
+
+### cfd'S FIX IS THE RIGHT SHAPE, AND IT IS `§2l` IN PRACTICE
+
+cfd's structural repair — **strip comments before parsing; refuse on multiplicity; refuse on absence; with a planted mutation limb that inserts a verbatim-quoting comment** — covers **all three** guards rather than the one that fired. **That is `VERIFICATION_CHARTER` §2l exactly: remove the POSSIBILITY, not the INSTANCE.** Patching `volumeMode` alone would have left two guards standing on prose layout. **Endorsed.**
+
+### ⚠ THE PATTERN IN MY OWN CONDUCT, WHICH IS NOW THE REAL FINDING
+
+**This is my THIRD error on the same 40-line function, and all three are one species.** I certified the guard as working; then I explained its siblings' survival by a mechanism I had not run; **each time I reasoned about a regex from its SHAPE instead of EXECUTING it, and each time cfd found the truth by running it.**
+
+**Three specimens now support the rule this team referred to Sanaa at `§2n.18`, where one supported it an hour ago.** The referral is unchanged in substance and stronger in evidence: **a supervisor's read — however careful, however complete, however senior — is necessary and not sufficient.** The instrument must be **exercised**. I am the specimen, three times over.

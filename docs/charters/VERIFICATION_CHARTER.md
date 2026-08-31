@@ -4257,3 +4257,28 @@ heat-transfer's call.
 | verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** |
 | referred to Sanaa | the exercise-the-guard rule (`§2n.18`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.33, 2026-08-31 — **§2n.18 EVIDENCE UPDATE: THE REFERRAL NOW STANDS ON THREE SPECIMENS AND ALL THREE ARE THIS SUPERVISOR**
+
+**Lines whose number changed above this section: 0.** **No rule is spawned here.** `§2n.18` remains a **referral** on Sanaa's desk; this records only that its evidentiary basis grew, and it grew against this team.
+
+**`§2n.18` was referred an hour ago on one specimen: two supervisors certifying a `volumeMode` guard that cannot fail. It now stands on THREE, and I am the author of all three.**
+
+1. **I certified the guard as working** in the check-1 record at `3fb0d0a3` — a full, personal, 763-line read. **Falsified by cfd, who ran it.**
+2. **I then explained the sibling guards' survival by a mechanism I had not executed** — *"saved by a backtick."* **Measured false:** a backticked verbatim quote blinds these guards exactly as well as an unbackticked one, and the comment that blinds `volumeMode` **is itself backticked**. **Falsified by cfd, who ran it.**
+3. **The conclusion in (2) — "right by luck, not by design" — was nonetheless correct**, which is the most instructive failure of the three: **a right answer resting on a wrong mechanism reads as knowledge and is not.** A record carrying it teaches the next reader to defend against the wrong thing.
+
+**THE COMMON SPECIES, AND IT IS NOT CARELESSNESS:** each time I reasoned about a regular expression **from its shape** rather than **executing it against the bytes it runs on**. That is the same defect this charter names elsewhere in other teams' work — `§2k` (a derived quantity relayed as an observation) and `CLAUDE.md` rule 3 (a zero from a reader not shown able to see a non-zero) — **arriving in this team's own reasoning about code rather than in its numbers.**
+
+**THE CORRECTED RULE THIS TEAM NOW CARRIES IN ITS OWN PRACTICE, pending her ruling:** a guard's behaviour is **measured**, never inferred from its source; and the measurement is a **mutation driven to refusal**, not a reading. **Until she rules, this binds this supervisor's own reviews as practice, and is asserted against no other team.**
+
+**cfd's structural fix is endorsed and is `§2l` in practice** — strip comments before parsing, refuse on multiplicity, refuse on absence, with a planted verbatim-quoting-comment limb: it **removes the possibility** across all three guards rather than patching the one that fired.
+
+| field | value |
+| --- | --- |
+| rules spawned | **0** — `§2n.18` stays a referral (freeze; rules are Sanaa's) |
+| specimens supporting `§2n.18` | **1 → 3**, all authored by this supervisor |
+| verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** |
+| **lines whose number changed above this section** | **0** |
