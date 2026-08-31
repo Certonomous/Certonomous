@@ -1,0 +1,53 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T22_CHTb_L1",
+  "prereg_commit": "FEASIBILITY",
+  "prereg_path": "verification/runs/T-family/T22_runs/T22_FEASIBILITY_NOTE.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T22_runs/T22_CHTb_L1/run_t22.sh"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T22_runs/T22_CHTb_L1",
+  "ranks": 1,
+  "cost_core_min_estimate": 15.4,
+  "cost_basis": "POINT 15.4 core-min is DERIVED, NOT MEASURED, from TWO MEASURED lab anchors, and the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Anchors, both chtMultiRegionSimpleFoam at 1 rank, 5000 iterations, read from their own log.solve ExecutionTime lines: T5_runs/T5_CUBE_m 216,214 cells in 4,490.88 s = 4.1541e-06 s per cell-iteration; T5b_runs/T5_CUBE_f 896,531 cells in 20,833.54 s = 4.6476e-06 s per cell-iteration. T22 is 39,680 cells (35,200 fluid + 3,360 core + 1,120 housing, from its three checkMesh logs) x 5,000 iterations = 1.984e08 cell-iterations, giving 824 s (13.74 core-min) at the _m rate and 922 s (15.37 core-min) at the _f rate; the registered point is the conservative end of that measured bracket. NAMED MISMATCHES, disclosed not absorbed: both anchors are Cartesian with ONE solid region and no volumetric source, while T22 is a 5-degree wedge with TWO solids and a sector-scaled source; and the box is contended (two T19b solvers live at filing). CAP 50.0 core-min is REGISTERED and is hard-coded as TIMEOUT_S=3000 at 1 rank inside run_t22.sh (cap_core_min = TIMEOUT_S * RANKS / 60), 3.25x the point estimate to absorb both. USD DERIVED, NOT MEASURED, at the owner-stated c7a.4xlarge rate $0.0513/core-h (REPORTED-BY-OWNER 2026-08-21/22): POINT = $0.0132, CAP = $0.0428.",
+  "cap_core_min_registered": 50.0,
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "heat-transfer lab-lane, 2026-08-31, at heat-transfer-supervisor's dispatch. UNREGISTERED FEASIBILITY RUNG filed under Sanaa's ruling read at source, etc/sessions/2026-08-31T1551Z_sanaa_queue_ruling_yes_yes.md -- 'Unregistered feasibility and physics rungs are queue-legal, tagged prereg=FEASIBILITY or prereg=PHYSICS; the runner accepts them and their outputs are never gradeable as verdicts. Heat-transfer files T22, T19b, T20 now.' -- and her answer '1. Yes file' at etc/sessions/2026-08-31T1615Z_sanaa_six_answers.md. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is NOT claimed as performed here. No agent message is Sanaa's consent (CLAUDE.md rule 9).",
+  "_schema_note": "Fields above are queue_entry_check.py REQUIRED_FIELDS plus cap_core_min_registered, which queue_runner.py cap_watch reads. Fields below are heat-transfer annotations the validator ignores; they carry the disclosure ON THE ENTRY'S FACE, not only in the tag.",
+  "gradeable": "NO. NOT GRADEABLE AS A VERDICT, EVER. prereg_commit is the exact tag FEASIBILITY (queue_entry_check.py:114, Sanaa 2026-08-31, 9154c8ef). T22 IS UNREGISTERED: no docs/campaigns/T-family/T22_PREREGISTRATION.md exists in the working tree or at any commit -- checked, not assumed (git ls-files returns nothing for T22). THIS RUN PRODUCES NO GRADED VALUE, REACHES NO BAND, AND NEEDS NO COMPARATOR. analyse_t22.py does not exist and is not required to. No number this run emits may be quoted as a result, a deviation, or a comparison against any reference, and none of PASS / GATE REACHED / GATE FAIL / NOT A RESULT applies to it, because those five grade a registered gate and there is no gate here. Nothing it produces may be carried into a future graded T22 rung; a graded T22 would re-measure under its own frozen gates. The FEASIBILITY tag is Sanaa's route for the UNREGISTERED case and does NOT license a graded run without its committed freeze.",
+  "the_one_question": "Does chtMultiRegionSimpleFoam advance this THREE-REGION 5-degree WEDGE case -- fluid + housing + core, TWO conjugate mappedWall interfaces, and a sector-scaled volumetric source in the innermost solid -- from its 0.orig state without dying, and do its residuals fall? WHY SOURCE INSPECTION CANNOT ANSWER IT: the lab's only measured chtMultiRegionSimpleFoam precedent (T5_CUBE_m / T5_CUBE_f) is CARTESIAN WITH A SINGLE SOLID REGION. Whether the solver's runtime handling of wedge front/back patches survives at TWO region-coupled interfaces is a property of execution, not of build_t22.py, and no reading of either settles it. checkMesh passing is a statement about the MESH, not about the solver on it. THE QUESTION IS ANSWERED BY ANY OUTCOME -- clean completion, a cap at 3000 s, or a crash -- and a crash most informatively of all (a crash is a finding until triage says otherwise, SUPERVISION_CHARTER.md section 3). That is what makes this a feasibility rung and not a graded one.",
+  "no_solver_has_run": "MEASURED 2026-08-31T16:28Z in the cwd, WITH A PLANTED CONTROL (standing rule 3): 0/ ABSENT; numeric time directories 0; log.solve* 0; STATUS.* and START.* 0; postProcessing/ 0; processor*/ 0. The identical find predicates run against a synthetic case carrying 500/, log.solve and STATUS.PLANT returned 1, 1 and 1 -- so the sweep was SHOWN ABLE TO SEE A NON-ZERO before its zero was believed. The only logs present are the four build/inspection logs (log.blockMesh, log.splitMeshRegions, log.checkMesh.{fluid,core,housing}); build_t22.py carries a hard refusal on solver names and the launch lives in the separate run_t22.sh so a builder can never launch.",
+  "mesh": "39,680 cells total. MEASURED from the three checkMesh logs, against docs/standards/MESH_STANDARD.md 3.1 (non-ortho hard gate 70 deg), 3.2 (skewness hard gate 4), 3.3 (aspect ratio advisory above 1000). fluid 35,200 cells: max non-ortho 0, max skewness 0.109152072608, min cell volume 6.73948906288e-11 m^3, max aspect ratio 162.627654918, Mesh OK. core 3,360 cells: max non-ortho 0, max skewness 0.103363600467, min cell volume 5.86080893703e-10, max aspect ratio 1.26018522089, Mesh OK. housing 1,120 cells: max non-ortho 0, max skewness 0.108291019105, min cell volume 1.31317246204e-09, max aspect ratio 1.80065562436, Mesh OK. NEGATIVE VOLUMES: ZERO IN ALL THREE REGIONS -- read as the direct quantity, every region's reported MINIMUM cell volume is strictly positive, not merely as an absence of a warning. THE MESH PASSES ITS OWN GATE WITH MARGIN: skewness is a factor of 37 below its gate; aspect ratio 162.6 is below the 1000 advisory and sits alongside non-ortho 0 and skew 0.109, nowhere near 3.3's combined flag (AR > 1000 WITH non-ortho > 60 or skew > 2). An earlier build put the core block on the axis with a collapsed edge and checkMesh returned max skewness 9.2966987286e+146 on 140 zero-area axis faces; the 6 mm shaft bore at build_t22.py R_BORE replaced it. The obvious mesh was measured failing before it was fixed.",
+  "cap_enforcement": "The 50.0 core-min cap is ENACTED by timeout 3000s INSIDE run_t22.sh, which returns rc 124 on expiry and records capped=1 in STATUS.T22_CHTb_L1. The queue runner's CAP_OVERRUN.txt only REPORTS and never kills (queue_runner.py cap_watch); the wrapper's own timeout is what stops the run, as CLAUDE.md rule 12 and COMPUTE_BUDGET_CHARTER.md:197 require. rc is captured INSIDE the wrapper on the line immediately after the solver call, never around a setsid line, because setsid/timeout parents return 0 for every outcome.",
+  "age_guard": "CLEAN at filing, checked twice. run_t22.sh refuses if $CASE/0 or any [1-9]* time directory exists, then copies 0.orig to 0 and touches 0/housing/T LAST so that file dates the run allowed to produce the answer. queue_entry_check.py AGE-GUARD makes the same check at filing time. 0.orig is not a time directory under queue_entry_check.py TIME_DIR and is correctly not flagged.",
+  "completion_rule_note": "If this run caps at 3000 s it will NOT satisfy standing rule 4 (last time == endTime). That is STATED IN ADVANCE and is not a defect: rule 4 governs whether a run may produce a graded answer, and this run may not produce one under any outcome. Its question is answered by completion, cap or crash alike.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T22_CHTb_L1 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-31T16:35:11Z",
+    "pid": 140701,
+    "sid": 140701,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/T-family/T22_runs/T22_CHTb_L1/STATUS.T22_CHTb_L1",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/T-family/T22_runs/T22_CHTb_L1/launcher.queue.out",
+    "started_epoch": 1788194111.7400324,
+    "status_seen_utc": "2026-08-31T16:36:11Z"
+  }
+}
