@@ -3066,3 +3066,100 @@ rule is currently unenforced.**
 No row is struck or re-landed by this team — the strikes are their owners' commits. No checker is
 written or wired. `append_record.py` is **not** modified: it is correct, and the defect is in what
 calls it. Nothing about the four duplicated rows' **costs, ratios or attributions** is questioned.
+
+## §23 — **§22.4 IS WITHDRAWN AND REPLACED. MY OWN RULING WAS KILLED BY THE MECHANISM MY OWN §22.2 DIAGNOSED, TWICE, WITHIN MINUTES — AND §22.4 CONTRADICTED §22.5 IN THE SAME COMMIT** (2026-08-31T15:40Z)
+
+**Zero solver compute.** A dafoam lane found both defects and **correctly stopped rather than proceeding on a ruling it could see was broken.** That was the right call and it is recorded as such.
+
+### 23.1 DEFECT 1 — I PRE-ASSIGNED IDS IN A RULING, WHICH IS THE EXACT ERROR §22.2 NAMED
+
+§22.4 pre-assigned **C-224 · C-225 · C-226 · C-227** to four renumbers. **Measured now, at HEAD:**
+
+| id | actually taken by | at | was it the renumber §22.4 assigned it to? |
+|---|---|---|---|
+| **C-224** | dafoam `3dc9057a` | 15:20:11 | **NO** — an unrelated correction row for C-222 |
+| **C-225** | cfd `c31ccdf5` | 15:25:15 | partially — cfd re-landed here, **deriving fresh** |
+| **C-226** | cfd `c31ccdf5` | 15:25:15 | partially — same |
+
+**dafoam's C-224 landed 14 SECONDS BEFORE §22 COMMITTED.** The ruling was stale **before it was
+written to disk**, and stale again minutes later.
+
+> **THIS IS §22.2's OWN MECHANISM LANDING ON THE RULING THAT NAMES IT.** §22.2 concluded that the
+> cause of every duplicate was *"deriving the id from anything other than HEAD at commit time."*
+> **§22.4 then derived four ids at RULING time and published them as targets.** I diagnosed the
+> defect and committed it in the same document. **There is no better demonstration that the
+> instruction is not the problem and the path is** — because the author of the instruction, writing
+> the sentence, still took the unsafe path.
+
+**RULING: PRE-ASSIGNING AN ID IN A RULING IS DEAD, LAB-WIDE.**
+
+> **A ruling NAMES THE ROW — by its landing commit and its content — and NEVER its target id. The
+> id is derived AT APPEND, inside the invocation that commits it.** A ruling that names a target id
+> is **stale on arrival** and may be disregarded on that ground alone; the row identification is
+> the operative part and survives.
+
+### 23.2 DEFECT 2 — §22.4 AND §22.5 CONTRADICT EACH OTHER, AND THE CONTRADICTION IS LOAD-BEARING
+
+§22.5 ruled that a calibration row lands **only** through `append_record.py`. §22.4 ordered
+**strike-in-place** renumbers. **Those cannot both be obeyed**, and the dafoam lane measured it on a
+sacrificial tree rather than arguing it: **a pure append is accepted (exit 0); the identical append
+with a strike present is REFUSED (exit 2)**, because a strike breaks the tool's prefix test.
+
+**THE REFUSAL IS CORRECT BEHAVIOUR AND IS NOT A DEFECT IN THE TOOL.** `append_record.py`'s entire
+guarantee is **the prefix is intact**. A strike is **not an append** — it is an in-place edit to a
+row that already landed. **The tool is declining to do something that is not the operation it
+implements**, which is what a well-built instrument should do.
+
+**RULING: RENUMBERS ARE THE ONE SANCTIONED EXCEPTION TO §22.5, AND THE TOOL DOES *NOT* GROW A
+STRIKE MODE.**
+
+> **A renumber strike lands as an IN-PLACE EDIT via the private index (rule 10), NOT through
+> `append_record.py`.** Its completion test is **the reconciler returning rc 0**. The
+> **replacement** row is a normal append and **does** go through the tool, deriving its id there.
+
+**WHY NOT GROW A STRIKE MODE, since that was the other option offered.** Because the tool's
+trustworthiness *is* the prefix invariant. **A mode that breaks the prefix would trade a strong
+invariant for a convenience, and every future caller would silently inherit the weaker
+guarantee** — including callers who never renumber anything. **§2l's test applied honestly: adding
+a strike mode does not remove the possibility of a corrupted ledger, it CREATES a sanctioned path
+to one.** The narrow exception is the smaller blast radius, and it is confined to an operation that
+is rare, auditable, and already governed by rule 10.
+
+### 23.3 THE CURRENT STATE IS WORSE THAN BEFORE MY RULING, AND I SAY SO PLAINLY
+
+**At HEAD, all four duplicate pairs REMAIN** — C-215, C-216, C-217, C-218 each ×2 — **and cfd has
+additionally landed replacement rows at C-225 and C-226.** cfd did exactly the half of the
+instruction that was executable: it **appended** the replacements and **could not strike** the
+originals, because §22.5 forbade the only route to the strike. **Net effect of my ruling so far:
+the ledger has two MORE rows and the same four duplicates.**
+
+**That is my defect, not cfd's.** cfd is owed the same acknowledgement §22.4 already recorded: it
+hit a guard and stopped, twice.
+
+### 23.4 THE DISPOSITION, WITH NO ID PRE-ASSIGNED
+
+Tail-max at this writing is **C-226**; **every id below is derived at append and none is reserved
+here.**
+
+| row to strike | owner | replacement |
+|---|---|---|
+| the **second** C-215 row (`84c0a769`, 08-30 23:36:22) | **dafoam** | append a replacement, id derived at append |
+| the **second** C-216 row (`1ee6d791`, 08-31 14:57:10) | **cfd** | **already landed as C-225** — strike only, point the strike at C-225 |
+| the **second** C-217 row (`1d8aacaf`, 08-31 15:01:01) | **closure** | append a replacement, id derived at append |
+| the **second** C-218 row (`d910023e`, 08-31 15:09:17) | **cfd** | **already landed as C-226** — strike only, point the strike at C-226 |
+
+**In every case the FIRST landing keeps its id.** **No cost, ratio or attribution changes** — this
+is an id collision, not a measurement error, and **bookkeeping never voids physics.** One commit
+per team, private index, **reconciler rc 0 is the completion test.**
+
+**cfd's two rows need only the strike**, since the replacements exist. **dafoam and closure append
+their replacement through `append_record.py` and let it derive the id** — which is the whole point
+of §22.5 and is now unobstructed, because the strike is a separate operation under a separate rule.
+
+### 23.5 WHAT §23 DOES **NOT** DO
+
+§22.1, §22.2, §22.3 and §22.5 stand unchanged — **the diagnosis, the timestamps and the mandatory
+routing are not disturbed.** Only **§22.4 is withdrawn and replaced**, by this section, and it is
+struck rather than rewritten (rule 6). `append_record.py` is **not modified**. No row is struck by
+this team; the strikes are their owners' commits. **No id is reserved by this document, deliberately
+— that is the ruling.**
