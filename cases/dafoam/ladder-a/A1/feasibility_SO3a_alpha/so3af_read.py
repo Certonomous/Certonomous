@@ -51,14 +51,34 @@ def last_match(text: str, pats: list[re.Pattern]) -> float | None:
     return val
 
 
+CD_SERIES = re.compile(r"^CD:\s*([-+0-9.eE]+)", re.M)
+
+
 def read_alpha(log: Path) -> dict:
     text = log.read_text(errors="replace")
     resids = [float(m.group(1)) for m in RES.finditer(text)]
+
+    # CONVERGENCE IS MEASURED FROM THE FUNCTIONAL, NOT FROM A BANNER.
+    # The first cut of this reader tested for the string "Primal solution
+    # converged". DAFoam never prints it on this path -- the only convergence
+    # word in these logs is OpenFOAM's "SIMPLE: no convergence criteria found.
+    # Calculations will run for 1000 steps." -- so the check read False for
+    # three solves that were in fact converged, and the run root's
+    # STATUS.SO3aF carries converged_alphas=0 for that reason and not because
+    # anything failed to converge. The planted control is what exposed it: the
+    # reader saw a synthetic CL while returning a null convergence.
+    cds = [float(m.group(1)) for m in CD_SERIES.finditer(text)]
+    cd_rel = None
+    if len(cds) >= 2 and cds[-1] != 0.0:
+        cd_rel = abs(cds[-1] - cds[-2]) / abs(cds[-1])
+
     return {
         "log": str(log),
         "CL": last_match(text, PATTERNS["CL"]),
         "CD": last_match(text, PATTERNS["CD"]),
-        "converged_line": CONVERGED in text,
+        "n_cd_prints": len(cds),
+        "cd_rel_change": cd_rel,
+        "converged_line": (cd_rel is not None and cd_rel < 1.0e-5),
         "n_residual_lines": len(resids),
         "final_residual": resids[-1] if resids else None,
         "max_residual": max(resids) if resids else None,
@@ -142,7 +162,15 @@ def main() -> int:
         if abs(s1) > 0:
             ratio = s2 / s1
             print(f"slope ratio upper/lower: {ratio:.4f}")
-            print(f"thin-airfoil reference 2*pi/rad = {2*math.pi/180.0:.6f} /deg")
+            # 2*pi per RADIAN converted to per DEGREE is 2*pi*(pi/180) = 2*pi**2/180
+            # = 0.109662 /deg. The first cut of this line printed 2*pi/180 = 0.034907,
+            # which is the same number divided by pi -- wrong by a factor of pi, and it
+            # appears in the 2026-08-31T161116Z reading in this rung's run root.
+            # The SLOPE RATIO above is unaffected: it is formed from measured slopes
+            # only and never touches this constant.
+            print(f"thin-airfoil reference 2*pi/rad = {2*math.pi*math.pi/180.0:.6f} /deg")
+            print(f"  measured lower pair is {100*s1/(2*math.pi*math.pi/180.0):.1f}% of thin-airfoil, "
+                  f"upper pair {100*s2/(2*math.pi*math.pi/180.0):.1f}%")
             print("  ratio near 1.0 -> bracket is in the linear, attached range.")
             print("  ratio materially below 1.0 -> lift going nonlinear at the top "
                   "of the bracket: SEPARATION ONSET SIGNATURE, and SO-3a's "

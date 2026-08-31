@@ -136,8 +136,13 @@ CORE_MIN="$(python3 -c "print(round($WALL*$RANKS/60.0, 4))")"
 sudo -n docker logs "$NAME" > "$ROOT/ALPHA_${STAMP}.log" 2>&1
 
 # EXECUTED is counted from the container's own emitted markers, never assumed.
-EXECUTED="$(grep -c '^SO3AF_ALPHA_END .* rc=0' "$ROOT/ALPHA_${STAMP}.log" 2>/dev/null || echo 0)"
-CONVERGED="$(grep -c '^SO3AF_ALPHA_CONVERGED ' "$ROOT/ALPHA_${STAMP}.log" 2>/dev/null || echo 0)"
+# `grep -c` PRINTS 0 AND EXITS 1 when there is no match, so `|| echo 0` appends a
+# SECOND zero and the variable becomes the two-line string "0\n0". That is what put
+# a stray bare 0 on its own line in STATUS.SO3aF and in the driver's COUNTS line on
+# the 20260831T161116Z run. `|| true` keeps grep's own count and drops the exit.
+EXECUTED="$(grep -c '^SO3AF_ALPHA_END .* rc=0' "$ROOT/ALPHA_${STAMP}.log" 2>/dev/null || true)"
+CONVERGED="$(grep -c '^SO3AF_ALPHA_CONVERGED ' "$ROOT/ALPHA_${STAMP}.log" 2>/dev/null || true)"
+EXECUTED="${EXECUTED:-0}"; CONVERGED="${CONVERGED:-0}"
 
 {
   echo "item=$ITEM stamp=$STAMP container=$NAME"
