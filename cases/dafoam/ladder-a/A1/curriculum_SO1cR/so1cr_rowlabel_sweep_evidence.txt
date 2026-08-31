@@ -1,0 +1,31 @@
+SO-1cR ROW-LABEL CALL-SITE SWEEP -- THE FOUR-STATE REGISTERED DRIVE
+generated 2026-08-31T17:37:52Z
+sweep md5: 0c371040cf403477a5e67fa0c83cb7d9
+
+STATE 1 -- THE KNOWN-BROKEN PREDECESSOR (curriculum_SO1c's own frozen instruments,
+           copied under SO-1cR's names).  MUST BE RED AND MUST NAME EVERY SITE.
+UNREPAIRED ROW-LABEL CALL SITE  so1cr_run_arm.sh:468  if d['row']!='$ROW': sys.stderr.write('G-OPTDEP artefact row %r != this arm row %r\n'%(d['row'],'$ROW')); sys.
+MAPPING ABSENT OR NOT THE REGISTERED FORM in so1cr_run_arm.sh: got None
+UNREPAIRED ROW-LABEL CALL SITE  so1cr_grade.py:997  ifref.get("row")!=ARM_ROW[arm]:
+MAPPING ABSENT OR NOT THE REGISTERED FORM in so1cr_grade.py: got None
+FIXTURE WRITES THE BARE DIRECTORY NAME as the artefact's row label in so1cr_grade.py -- that is SO-1c's concealing fixture, restored
+FIXTURE DOES NOT DERIVE THE ROW LABEL FROM THE REGISTERED MAPPING in so1cr_grade.py -- call site (4) is unasserted
+rc=1  (1 = findings, the expected state here)
+
+STATE 2 -- THE REPAIRED SO-1cR TREE.  MUST BE CLEAN.
+rc=0  (0 = clean)
+
+STATE 3 -- A FOURTH CALL SITE NOBODY REGISTERED, planted into a COPY of the repaired grader.
+UNREPAIRED ROW-LABEL CALL SITE  so1cr_grade.py:1007  ifref.get("row")!=ARM_ROW[arm]:
+rc=1  (1 = the planted site was found)
+
+STATE 4 -- FAIL CLOSED.  A consumer that is absent is MISSING, never clean.
+MISSING CONSUMER so1cr_run_arm.sh -- the sweep cannot see a file that is not there
+MISSING CONSUMER so1cr_grade.py -- the sweep cannot see a file that is not there
+rc=1
+
+SHIPPED BYTES UNMOVED ACROSS ALL FOUR STATES:
+bb8c08410a446f6336acdf13711785dd  so1cr_chain_driver.sh
+52d991ce80a1af30523a9f7253286e3b  so1cr_run_arm.sh
+a13cd4e7b53c5051abe697da485c3433  so1cr_grade.py
+0c371040cf403477a5e67fa0c83cb7d9  so1cr_rowlabel_sweep.py

@@ -1,0 +1,159 @@
+SO-1cR GRADER SELFTEST EVIDENCE
+generated 2026-08-31T17:37:50Z
+so1cr_grade.py md5: a13cd4e7b53c5051abe697da485c3433
+
+=== python3 ===
+  [OK ] U1 clean fixture -> item PASS; both rows PASS; every arm PASS
+  [OK ] U2 clean fixture -> G-M2, G-MESHID, G-METHOD (both rows), G9, G10, G12 all PASS
+  [OK ] U3 the np-INVARIANCE BAND IN THE ARTEFACT IS THE STANDARD'S, NOT BAND D: s_g == 1.0e-3, s_J == 2.2e-5, and s_g is EXACTLY 50x tighter than band D expressed as a fraction (5.0 % -> 5.0e-2)
+  [OK ] U4 band D / band E / plateau are BYTE-IDENTICAL to SO-1a's inherited constants
+  [OK ] U5 PLANTED 5 % np=4-vs-np=1 disagreement on the PATCHED scotch arm -> G-NP GATE FAIL, that arm GATE FAIL, the PATCHED row GATE FAIL, item GATE FAIL
+  [OK ] U6 a disagreement of 5e-4 -- INSIDE the 1.0e-3 band -- still PASSES: the gate discriminates, it does not merely refuse
+  [OK ] U7 a disagreement of 2e-3 -- JUST OUTSIDE the band -- FAILS.  The band's two sides are both driven, so it is a threshold and not a direction
+  [OK ] U8 PLANTED SIGN FLIP at flat index 6 on the SHIPPED scotch arm -> flip counted, G-NP GATE FAIL even though the magnitude is unchanged
+  [OK ] U9 PLANTED 1e-3 OBJECTIVE spread -> s_J GATE FAIL on its own far tighter band (2.2e-5) with the gradient untouched
+  [OK ] U10 an objective spread of 1e-5 is INSIDE 2.2e-5 and PASSES
+  [OK ] U11 REFUSAL when the staged serial reference is not np = 1 -- the comparison basis must be the serial arm, never another parallel one
+  [OK ] U12 CHANNEL DISAGREEMENT: the instrument's carried copy of the serial reference differs from the comparator's own read of the same file -> REFUSAL
+  [OK ] U13 a scotch arm 5e-3 from the serial reference is ALSO 5e-3 from its `simple` twin -> G-METHOD GATE FAIL on the SHIPPED row: the METHOD axis fires independently of the np axis
+  [OK ] U14 G-METHOD names `simple 4x1x1` as the REFERENCE limb and the convention is registered in the artefact, not chosen after the numbers
+  [OK ] U15 an arm whose artefact names the WRONG decomposition method -> REFUSAL (a gradient that cannot name its decomposition is not a result)
+  [OK ] U16 an artefact whose nprocs is 2 where 4 is registered -> REFUSAL, cross-asserted against the dictionary's own numberOfSubdomains
+  [OK ] U17 a `simple` arm whose SUBDIVISION is (2 2 1) not (4 1 1) -> REFUSAL: for `simple` the subdivision is part of the disclosure, not only the method name
+  [OK ] U18 the clean artefact RECORDS the decomposition column section 5 requires (method, n_subdomains and, for `simple`, the subdivision)
+  [OK ] U19 an arm that solved at a DIFFERENT design point from SO-1b's x* -> REFUSAL
+  [OK ] U20 G-XSTAR labels itself an IDENTITY ASSERTION ON A CONSUMED INPUT, not a gate on the design vector -- D13 measured the design vector non-unique 15/15
+  [OK ] U66 THE PRODUCER'S OWN LABEL PASSES.  The staged artefact carries row='P'/'S' -- exactly what SO-1bR writes to E-P/E-S, verified on disk -- and G-XSTAR PASSES on every solver arm.  SO-1c's equality form REFUSED this, in preflight and again at grading; this is the state the item died in
+  [OK ] U67 AND THE REGISTERED LABEL IS READ BACK, NOT INFERRED: the artefact's row is the PRODUCED suffix and the arm's registered row is the FULL name, and BOTH are named in the gate's own record
+  [OK ] U68 THE OTHER REGISTERED LABEL ALSO PASSES.  row='PATCHED'/'SHIPPED' is the second member of each row's registered set, so an artefact written by a producer that labels by row NAME is accepted too -- the mapping accepts BOTH and invents NEITHER
+  [OK ] U69 SWAP DIRECTION 1 -- a SHIPPED artefact staged under optref/PATCHED/ (and a PATCHED artefact under optref/SHIPPED/) STILL REFUSES.  The label sets are DISJOINT, so no swapped artefact can satisfy the assertion
+  [OK ] U70 SWAP DIRECTION 2 -- the same swap by FULL NAME rather than by suffix STILL REFUSES.  A repair that fixed only the suffix form would pass this and be wrong
+  [OK ] U71 AN UNREGISTERED LABEL REFUSES.  row='PORPOISE' shares its first letter with PATCHED, so a check derived as `row[0]` would ACCEPT it -- which is the whole reason the mapping is written out in full and is not derived
+  [OK ] U72 THE TWO REGISTERED LABEL SETS ARE DISJOINT, asserted arithmetically rather than trusted from the comment beside them -- if they ever intersect, a swapped artefact becomes acceptable and the gate silently stops being a check
+  [OK ] U21 this item's mesh `points` sha256 DIFFERS from SO-1b's -> G-MESHID GATE FAIL and item GATE FAIL: 'the same mesh' is asserted, not assumed
+  [OK ] U22 SO-1b's mesh fingerprint ABSENT -> NOT A RESULT, never a pass: mesh identity is a PHYSICS precondition of the comparison the standard defines
+  [OK ] U23 PLANTED 7 % FD error on the SHIPPED scotch arm -> that component GATE FAIL, the arm GATE FAIL, item GATE FAIL -- WITH G-NP still PASSING, which is exactly the hole AV-1's own section 8 says G-NP alone cannot close
+  [OK ] U24 PLANTED 7 % error on the CONSTRAINT gradient only -> G5cN GATE FAIL with G5N (CD) still PASS: the constraint gradient fails independently
+  [OK ] U25 three no-plateau components on one arm -> 2 graded < 3 -> that arm's G5N NOT A RESULT, row NOT A RESULT, item NOT A RESULT
+  [OK ] U26 the DELIBERATELY WRONG step AGREES on 5/5 of one arm -> G-TB GATE FAIL and that arm's verdict WITHDRAWN to NOT A RESULT (rule-5 direction)
+  [OK ] U27 ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, arm PASS: the gate has a registered tolerance, not a hair trigger
+  [OK ] U28 THE DEFECT THIS GATE EXISTS TO REMOVE: an arm whose HOST core-min (30.4) is ABOVE its 30.0 cap while its CONTAINER core-min (29.9) is inside -> G10 PASSES, because the cap is enforced in the container frame and is graded there
+  [OK ] U29 AND THE CAP STILL BITES: container core-min 30.8 above the 30.0 cap -> G10 GATE FAIL.  The frame was corrected, the cap was NOT widened
+  [OK ] U30 an UNREADABLE container clock -> G10 falls back to the HOST frame AND SAYS SO, and the arm is named in the fallback list: a limb that could not be evaluated in its own frame is reported, never silently passed
+  [OK ] U31 the COST claim uses the HOST frame and the CAP GATE uses the CONTAINER frame, and the two totals are BOTH reported with their difference
+  [OK ] U32 rc=1 on one arm -> REFUSAL
+  [OK ] U33 OOMKilled=true -> REFUSAL
+  [OK ] U34 terminal marker absent -> REFUSAL
+  [OK ] U35 artefact OLDER than the age datum -> REFUSAL (rule 4)
+  [OK ] U36 FOAM FATAL ERROR at rc = 0 -> REFUSAL (C5 refuses regardless of rc)
+  [OK ] U37 harness rc 0 vs kernel exit 1 -> REFUSAL
+  [OK ] U38 (R-RC) the rc RECORD absent while C2-C5 all hold -> rc value NOT MEASURED, the implied rc = 0 written as an INFERENCE, verdict unchanged PASS
+  [OK ] U39 (R-RC) the rc RECORD absent AND the terminal marker missing -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U40 THE D4S-F3S CLASS: the STAGED so1b_E.json is OLDER than the age datum on every solver arm, and the item still PASSES -- an age guard checks only what the run PRODUCES, and the staged input is excluded BY NAME
+  [OK ] U41 (AV-1/AV-2) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz and the guard PASSES -- the defect that cost AV-1 and AV-2 their items
+  [OK ] U42 (AV-1/AV-2) the datum GENUINELY ABSENT in BOTH registered names -> REFUSAL: resolution by existence still refuses when neither name exists
+  [OK ] U43 BOTH grader-level plants are SEEN -- the FD plant on two arms AND the np-INVARIANCE plant, which shows THE HEADLINE GATE ITSELF able to fail
+  [OK ] U44 the instrument CTRL planted row broken -> REFUSAL (a reader not shown able to see a non-zero is not evidence)
+  [OK ] U45 a PATCHED arm carrying the SHIPPED library hash -> G9 GATE FAIL (G-ROWX: a row is an image hash, never a directory name)
+  [OK ] U46 an arm off its registered per-arm cpuset -> G12 GATE FAIL
+  [OK ] U47 delivered cores 2.10 below the 3.0 floor AT np = 4 -> G12 GATE FAIL.  The floor did not apply in SO-1a or SO-1b, where every arm was np = 1
+  [OK ] U48 cells 4033 -> G-M2 GATE FAIL and P_A MISS
+  [OK ] U49 ast.Assert count = 0 in so1cr_grade.py and so1cr_xn.py (L-332)
+  [OK ] U50 the assert counter SEES a planted assert (=1) -- a counter never shown counting is not a counter
+  [OK ] U51 the registered CEILING equals the sum of the registered caps
+  [OK ] U52 P_3 (the design-point claim) is registered NOT_MEASURED with its reason, so an absent AV-1R baseline can never become a silent HIT
+  [OK ] U53 THE SIGN-FLIP LIMB IS NOT INDEPENDENTLY LOAD-BEARING, AND THIS UNIT SAYS SO: the planted flip drives s_g to >10x the band on its own, so `SIGN_FLIP_MAX 0 -> 9` is an INERT MUTATION that proves nothing.  The limb is kept because the standard registers it and because it NAMES the failure mode
+  [OK ] U54 THE DEFECT R6 REMOVES, DRIVEN: OpenFOAM's STARTUP BANNER `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` -- a notice that the solver is PROTECTED -- planted into checkMesh.log is NOT flagged and the item still reads PASS.  BEFORE THIS AMENDMENT THIS EXACT LINE REFUSED WITH ZERO GATES EVALUATED, which is what SO-1a's grader did on a clean 5-arm run.  The plant is CROSS-ASSERTED byte-identical to /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log:18
+  [OK ] U55 THE SUPPRESSION IS NOT SILENT: the PASS record counts exactly ONE excluded benign line, names the FILE it came from (checkMesh.log, NOT the arm log) and prints WHY it is benign
+  [OK ] U56 AND THE OTHER DIRECTION: a REAL `FOAM FATAL ERROR` block in the SAME artefact -- the SCRIPT-arm path that fired on SO-1a -- STILL REFUSES
+  [OK ] U57 THE EXCLUSION IS PER LINE, NOT PER FILE: a REAL SIGFPE crash (`Foam::sigFpe::sigHandler(int)` + `Floating point exception (core dumped)`) SITTING BESIDE the benign banner in one file STILL REFUSES.  This is the unit that proves the repair did not simply blind C5 to SIGFPE
+  [OK ] U58 THE SECOND, SMALLER DEFECT: the refusal NAMES THE FILE AND LINE of every hit, and the named file is `checkMesh.log`.  SO-1a's refusal named the ARM log for a token that appears nowhere in it -- a reader sent to the wrong file
+  [OK ] U59 THE LINE SPLIT LOSES NO TOKEN: each of the 10 registered FATAL_TOKENS, planted ALONE on a line that is not an enablement notice, STILL REFUSES.  A scanner rewritten from whole-file to line-by-line is measured, not assumed
+  [OK ] U65 THE ADOPTED HANDLER SYMBOL IS INDEPENDENTLY LOAD-BEARING, AND THIS UNIT IS WHY IT IS NOT DECORATION: a stack trace whose ONLY fatal string is `Foam::sigFpe::sigHandler(int)` -- an FPE crash whose shell line never reached the log -- REFUSES.  The token is HARD-CODED here, not read from FATAL_TOKENS, so removing it from that tuple FLIPS THIS UNIT.  U59 alone could not: it is defined in terms of the tuple, so a mutation that empties the tuple also empties U59's loop, and the mutation measured INERT before this unit existed
+  [BAD] U64 NOT DRIVEN ON THE REAL LOG: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S0_20260828T162848Z_1898005.log is not on this box.  The synthetic banner plant (U54) is driven and CROSS-ASSERTED against SO-1a's own checkMesh.log where present; this unit is recorded as not driven rather than quietly passed
+  [OK ] U60 TWO files match MESH_*.log in the run root -> NOT A RESULT labelled a READER CONDITION, with BOTH candidates named.  BEFORE THIS AMENDMENT the last-wins loop SILENTLY PICKED ONE and the item read PASS -- an ambiguity resolved in favour of a pass
+  [OK ] U61 THE :934 DEFECT, DRIVEN: SO-1b's fingerprint carrying TWO distinct sha256s -- what the driver's `head -4` produced from a multi-log root -- now reads NOT A RESULT, READER CONDITION.  BEFORE THIS AMENDMENT IT PUBLISHED AS `MESH_REGENERATION_IS_NOT_DETERMINISTIC` AND GATE FAIL: a reader defect wearing a fluent physics sentence
+  [OK ] U62 AND THE REPAIR DOES NOT BLUNT THE GATE: ONE candidate, ONE sha each side, MISMATCHED -> GATE FAIL with the PHYSICS sentence and cause_class MESH_FINDING.  The physics reason is now emitted ONLY where the comparison actually ran
+  [OK ] U63 THE NON-MISMATCH IS NOT FLAGGED, AND THE SELECTION IS ON THE RECORD: one candidate, PASS, with the CHOSEN FILE and the FULL CANDIDATE LIST printed beside the verdict -- a selection a reader cannot see is not a selection
+
+SO1cR grader selftest: 72 units, 1 fail
+  FAIL: U64 NOT DRIVEN ON THE REAL LOG: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S0_20260828T162848Z_1898005.log is not on this box.  The synthetic banner plant (U54) is driven and CROSS-ASSERTED against SO-1a's own checkMesh.log where present; this unit is recorded as not driven rather than quietly passed
+rc=1
+
+=== python3 -O (asserts stripped; the ROW_LABELS disjointness check is a raise, not an assert) ===
+  [OK ] U1 clean fixture -> item PASS; both rows PASS; every arm PASS
+  [OK ] U2 clean fixture -> G-M2, G-MESHID, G-METHOD (both rows), G9, G10, G12 all PASS
+  [OK ] U3 the np-INVARIANCE BAND IN THE ARTEFACT IS THE STANDARD'S, NOT BAND D: s_g == 1.0e-3, s_J == 2.2e-5, and s_g is EXACTLY 50x tighter than band D expressed as a fraction (5.0 % -> 5.0e-2)
+  [OK ] U4 band D / band E / plateau are BYTE-IDENTICAL to SO-1a's inherited constants
+  [OK ] U5 PLANTED 5 % np=4-vs-np=1 disagreement on the PATCHED scotch arm -> G-NP GATE FAIL, that arm GATE FAIL, the PATCHED row GATE FAIL, item GATE FAIL
+  [OK ] U6 a disagreement of 5e-4 -- INSIDE the 1.0e-3 band -- still PASSES: the gate discriminates, it does not merely refuse
+  [OK ] U7 a disagreement of 2e-3 -- JUST OUTSIDE the band -- FAILS.  The band's two sides are both driven, so it is a threshold and not a direction
+  [OK ] U8 PLANTED SIGN FLIP at flat index 6 on the SHIPPED scotch arm -> flip counted, G-NP GATE FAIL even though the magnitude is unchanged
+  [OK ] U9 PLANTED 1e-3 OBJECTIVE spread -> s_J GATE FAIL on its own far tighter band (2.2e-5) with the gradient untouched
+  [OK ] U10 an objective spread of 1e-5 is INSIDE 2.2e-5 and PASSES
+  [OK ] U11 REFUSAL when the staged serial reference is not np = 1 -- the comparison basis must be the serial arm, never another parallel one
+  [OK ] U12 CHANNEL DISAGREEMENT: the instrument's carried copy of the serial reference differs from the comparator's own read of the same file -> REFUSAL
+  [OK ] U13 a scotch arm 5e-3 from the serial reference is ALSO 5e-3 from its `simple` twin -> G-METHOD GATE FAIL on the SHIPPED row: the METHOD axis fires independently of the np axis
+  [OK ] U14 G-METHOD names `simple 4x1x1` as the REFERENCE limb and the convention is registered in the artefact, not chosen after the numbers
+  [OK ] U15 an arm whose artefact names the WRONG decomposition method -> REFUSAL (a gradient that cannot name its decomposition is not a result)
+  [OK ] U16 an artefact whose nprocs is 2 where 4 is registered -> REFUSAL, cross-asserted against the dictionary's own numberOfSubdomains
+  [OK ] U17 a `simple` arm whose SUBDIVISION is (2 2 1) not (4 1 1) -> REFUSAL: for `simple` the subdivision is part of the disclosure, not only the method name
+  [OK ] U18 the clean artefact RECORDS the decomposition column section 5 requires (method, n_subdomains and, for `simple`, the subdivision)
+  [OK ] U19 an arm that solved at a DIFFERENT design point from SO-1b's x* -> REFUSAL
+  [OK ] U20 G-XSTAR labels itself an IDENTITY ASSERTION ON A CONSUMED INPUT, not a gate on the design vector -- D13 measured the design vector non-unique 15/15
+  [OK ] U66 THE PRODUCER'S OWN LABEL PASSES.  The staged artefact carries row='P'/'S' -- exactly what SO-1bR writes to E-P/E-S, verified on disk -- and G-XSTAR PASSES on every solver arm.  SO-1c's equality form REFUSED this, in preflight and again at grading; this is the state the item died in
+  [OK ] U67 AND THE REGISTERED LABEL IS READ BACK, NOT INFERRED: the artefact's row is the PRODUCED suffix and the arm's registered row is the FULL name, and BOTH are named in the gate's own record
+  [OK ] U68 THE OTHER REGISTERED LABEL ALSO PASSES.  row='PATCHED'/'SHIPPED' is the second member of each row's registered set, so an artefact written by a producer that labels by row NAME is accepted too -- the mapping accepts BOTH and invents NEITHER
+  [OK ] U69 SWAP DIRECTION 1 -- a SHIPPED artefact staged under optref/PATCHED/ (and a PATCHED artefact under optref/SHIPPED/) STILL REFUSES.  The label sets are DISJOINT, so no swapped artefact can satisfy the assertion
+  [OK ] U70 SWAP DIRECTION 2 -- the same swap by FULL NAME rather than by suffix STILL REFUSES.  A repair that fixed only the suffix form would pass this and be wrong
+  [OK ] U71 AN UNREGISTERED LABEL REFUSES.  row='PORPOISE' shares its first letter with PATCHED, so a check derived as `row[0]` would ACCEPT it -- which is the whole reason the mapping is written out in full and is not derived
+  [OK ] U72 THE TWO REGISTERED LABEL SETS ARE DISJOINT, asserted arithmetically rather than trusted from the comment beside them -- if they ever intersect, a swapped artefact becomes acceptable and the gate silently stops being a check
+  [OK ] U21 this item's mesh `points` sha256 DIFFERS from SO-1b's -> G-MESHID GATE FAIL and item GATE FAIL: 'the same mesh' is asserted, not assumed
+  [OK ] U22 SO-1b's mesh fingerprint ABSENT -> NOT A RESULT, never a pass: mesh identity is a PHYSICS precondition of the comparison the standard defines
+  [OK ] U23 PLANTED 7 % FD error on the SHIPPED scotch arm -> that component GATE FAIL, the arm GATE FAIL, item GATE FAIL -- WITH G-NP still PASSING, which is exactly the hole AV-1's own section 8 says G-NP alone cannot close
+  [OK ] U24 PLANTED 7 % error on the CONSTRAINT gradient only -> G5cN GATE FAIL with G5N (CD) still PASS: the constraint gradient fails independently
+  [OK ] U25 three no-plateau components on one arm -> 2 graded < 3 -> that arm's G5N NOT A RESULT, row NOT A RESULT, item NOT A RESULT
+  [OK ] U26 the DELIBERATELY WRONG step AGREES on 5/5 of one arm -> G-TB GATE FAIL and that arm's verdict WITHDRAWN to NOT A RESULT (rule-5 direction)
+  [OK ] U27 ONE component passing at the wrong step is inside TB_MAX_PASSING -> G-TB PASS, arm PASS: the gate has a registered tolerance, not a hair trigger
+  [OK ] U28 THE DEFECT THIS GATE EXISTS TO REMOVE: an arm whose HOST core-min (30.4) is ABOVE its 30.0 cap while its CONTAINER core-min (29.9) is inside -> G10 PASSES, because the cap is enforced in the container frame and is graded there
+  [OK ] U29 AND THE CAP STILL BITES: container core-min 30.8 above the 30.0 cap -> G10 GATE FAIL.  The frame was corrected, the cap was NOT widened
+  [OK ] U30 an UNREADABLE container clock -> G10 falls back to the HOST frame AND SAYS SO, and the arm is named in the fallback list: a limb that could not be evaluated in its own frame is reported, never silently passed
+  [OK ] U31 the COST claim uses the HOST frame and the CAP GATE uses the CONTAINER frame, and the two totals are BOTH reported with their difference
+  [OK ] U32 rc=1 on one arm -> REFUSAL
+  [OK ] U33 OOMKilled=true -> REFUSAL
+  [OK ] U34 terminal marker absent -> REFUSAL
+  [OK ] U35 artefact OLDER than the age datum -> REFUSAL (rule 4)
+  [OK ] U36 FOAM FATAL ERROR at rc = 0 -> REFUSAL (C5 refuses regardless of rc)
+  [OK ] U37 harness rc 0 vs kernel exit 1 -> REFUSAL
+  [OK ] U38 (R-RC) the rc RECORD absent while C2-C5 all hold -> rc value NOT MEASURED, the implied rc = 0 written as an INFERENCE, verdict unchanged PASS
+  [OK ] U39 (R-RC) the rc RECORD absent AND the terminal marker missing -> REFUSAL: R-RC relaxes a missing record, never a positive reading of failure
+  [OK ] U40 THE D4S-F3S CLASS: the STAGED so1b_E.json is OLDER than the age datum on every solver arm, and the item still PASSES -- an age guard checks only what the run PRODUCES, and the staged input is excluded BY NAME
+  [OK ] U41 (AV-1/AV-2) every solver arm's datum resolves to the COMPRESSED twin 0/U.gz and the guard PASSES -- the defect that cost AV-1 and AV-2 their items
+  [OK ] U42 (AV-1/AV-2) the datum GENUINELY ABSENT in BOTH registered names -> REFUSAL: resolution by existence still refuses when neither name exists
+  [OK ] U43 BOTH grader-level plants are SEEN -- the FD plant on two arms AND the np-INVARIANCE plant, which shows THE HEADLINE GATE ITSELF able to fail
+  [OK ] U44 the instrument CTRL planted row broken -> REFUSAL (a reader not shown able to see a non-zero is not evidence)
+  [OK ] U45 a PATCHED arm carrying the SHIPPED library hash -> G9 GATE FAIL (G-ROWX: a row is an image hash, never a directory name)
+  [OK ] U46 an arm off its registered per-arm cpuset -> G12 GATE FAIL
+  [OK ] U47 delivered cores 2.10 below the 3.0 floor AT np = 4 -> G12 GATE FAIL.  The floor did not apply in SO-1a or SO-1b, where every arm was np = 1
+  [OK ] U48 cells 4033 -> G-M2 GATE FAIL and P_A MISS
+  [OK ] U49 ast.Assert count = 0 in so1cr_grade.py and so1cr_xn.py (L-332)
+  [OK ] U50 the assert counter SEES a planted assert (=1) -- a counter never shown counting is not a counter
+  [OK ] U51 the registered CEILING equals the sum of the registered caps
+  [OK ] U52 P_3 (the design-point claim) is registered NOT_MEASURED with its reason, so an absent AV-1R baseline can never become a silent HIT
+  [OK ] U53 THE SIGN-FLIP LIMB IS NOT INDEPENDENTLY LOAD-BEARING, AND THIS UNIT SAYS SO: the planted flip drives s_g to >10x the band on its own, so `SIGN_FLIP_MAX 0 -> 9` is an INERT MUTATION that proves nothing.  The limb is kept because the standard registers it and because it NAMES the failure mode
+  [OK ] U54 THE DEFECT R6 REMOVES, DRIVEN: OpenFOAM's STARTUP BANNER `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` -- a notice that the solver is PROTECTED -- planted into checkMesh.log is NOT flagged and the item still reads PASS.  BEFORE THIS AMENDMENT THIS EXACT LINE REFUSED WITH ZERO GATES EVALUATED, which is what SO-1a's grader did on a clean 5-arm run.  The plant is CROSS-ASSERTED byte-identical to /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log:18
+  [OK ] U55 THE SUPPRESSION IS NOT SILENT: the PASS record counts exactly ONE excluded benign line, names the FILE it came from (checkMesh.log, NOT the arm log) and prints WHY it is benign
+  [OK ] U56 AND THE OTHER DIRECTION: a REAL `FOAM FATAL ERROR` block in the SAME artefact -- the SCRIPT-arm path that fired on SO-1a -- STILL REFUSES
+  [OK ] U57 THE EXCLUSION IS PER LINE, NOT PER FILE: a REAL SIGFPE crash (`Foam::sigFpe::sigHandler(int)` + `Floating point exception (core dumped)`) SITTING BESIDE the benign banner in one file STILL REFUSES.  This is the unit that proves the repair did not simply blind C5 to SIGFPE
+  [OK ] U58 THE SECOND, SMALLER DEFECT: the refusal NAMES THE FILE AND LINE of every hit, and the named file is `checkMesh.log`.  SO-1a's refusal named the ARM log for a token that appears nowhere in it -- a reader sent to the wrong file
+  [OK ] U59 THE LINE SPLIT LOSES NO TOKEN: each of the 10 registered FATAL_TOKENS, planted ALONE on a line that is not an enablement notice, STILL REFUSES.  A scanner rewritten from whole-file to line-by-line is measured, not assumed
+  [OK ] U65 THE ADOPTED HANDLER SYMBOL IS INDEPENDENTLY LOAD-BEARING, AND THIS UNIT IS WHY IT IS NOT DECORATION: a stack trace whose ONLY fatal string is `Foam::sigFpe::sigHandler(int)` -- an FPE crash whose shell line never reached the log -- REFUSES.  The token is HARD-CODED here, not read from FATAL_TOKENS, so removing it from that tuple FLIPS THIS UNIT.  U59 alone could not: it is defined in terms of the tuple, so a mutation that empties the tuple also empties U59's loop, and the mutation measured INERT before this unit existed
+  [BAD] U64 NOT DRIVEN ON THE REAL LOG: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S0_20260828T162848Z_1898005.log is not on this box.  The synthetic banner plant (U54) is driven and CROSS-ASSERTED against SO-1a's own checkMesh.log where present; this unit is recorded as not driven rather than quietly passed
+  [OK ] U60 TWO files match MESH_*.log in the run root -> NOT A RESULT labelled a READER CONDITION, with BOTH candidates named.  BEFORE THIS AMENDMENT the last-wins loop SILENTLY PICKED ONE and the item read PASS -- an ambiguity resolved in favour of a pass
+  [OK ] U61 THE :934 DEFECT, DRIVEN: SO-1b's fingerprint carrying TWO distinct sha256s -- what the driver's `head -4` produced from a multi-log root -- now reads NOT A RESULT, READER CONDITION.  BEFORE THIS AMENDMENT IT PUBLISHED AS `MESH_REGENERATION_IS_NOT_DETERMINISTIC` AND GATE FAIL: a reader defect wearing a fluent physics sentence
+  [OK ] U62 AND THE REPAIR DOES NOT BLUNT THE GATE: ONE candidate, ONE sha each side, MISMATCHED -> GATE FAIL with the PHYSICS sentence and cause_class MESH_FINDING.  The physics reason is now emitted ONLY where the comparison actually ran
+  [OK ] U63 THE NON-MISMATCH IS NOT FLAGGED, AND THE SELECTION IS ON THE RECORD: one candidate, PASS, with the CHOSEN FILE and the FULL CANDIDATE LIST printed beside the verdict -- a selection a reader cannot see is not a selection
+
+SO1cR grader selftest: 72 units, 1 fail
+  FAIL: U64 NOT DRIVEN ON THE REAL LOG: /home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S0_20260828T162848Z_1898005.log is not on this box.  The synthetic banner plant (U54) is driven and CROSS-ASSERTED against SO-1a's own checkMesh.log where present; this unit is recorded as not driven rather than quietly passed
+rc=1
