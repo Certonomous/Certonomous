@@ -18337,3 +18337,57 @@ Sampled every 20 s, one row per change (HEAD and the on-disk check printed besid
 **Related:** L-92 (the mechanism, first, and the sentence superseded above), L-416 (the auto-clear seen from the `git diff-index` side, and the same unattributed index write), L-368 (landed-ness is a question about `HEAD`; `git status` answers about the INDEX), L-307 (this quantity is non-stationary — no figure without a sha and a stamp), L-294 (`git ls-files` reads the INDEX), L-223 (HEAD moves between two bash calls, which is why the whole protocol is one invocation), L-253 (the protocol leaves the worktree stale by design), rule 10 and rule 3.
 
 **Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. THIS LESSON SPAWNS NO RULE, NO TOOL AND NO PROCEDURE.** Rule 10 is unchanged and needs no extra step; `scripts/index_autoclear.sh` is correct and is not touched. It supplies rule 10 with a **second, independent and more destructive reason**, and it retires the belief that the count is a ramp.
+
+
+## L-419 — A partial sample is not the run. Three times in one night I reported a slice as if it were the whole.
+
+**2026-08-31, `cfd-supervisor`.** Three errors, three different instruments, one mechanism:
+**a partial observation reported as a property of the whole population.** Each was caught, and
+each was caught by something other than the care I took making it.
+
+**INSTANCE 1 — A TRUNCATED SEARCH READ AS AN ABSENCE.** I grepped `etc/sessions/` for a cap
+ruling, piped through `head -12`, saw nothing relevant, and committed *"No uncapping directive
+was found anywhere"* to the board and reported it upward as grounds for refusing an
+instruction. The directive existed below the cut (`1dcdb677`). **A truncated search reports the
+truncation, not the world.**
+
+**INSTANCE 2 — ONE RESIDUAL SAMPLE READ AS A TRAJECTORY.** I read a solver's p initial residual
+at iteration 1845 — `5.5e-06`, close to the `1e-06` criterion — and reported the run
+"converging fast, near 2,200–2,500". It was a momentary dip in an oscillating series. The run
+**plateaued** at `1.5–1.9e-04` from iteration 3,000 to 9,000 and hit its 20,000 cap
+unconverged. **A residual is noisy by construction; one sample of a noisy series is not its
+direction.**
+
+**INSTANCE 3 — AN EARLY-PHASE RATE READ AS THE RUN RATE, AND IT OVERRODE A GOOD ESTIMATE.**
+Mid-run I measured `0.1151 s/iter` and "corrected" a staged 90.5 core-min estimate to a
+projected **153.5**. The full-run rate was `0.07377 s/iter` — the solve accelerated after its
+startup transient — and the actual was **98.359 core-min, ratio 1.087**. **My correction was
+56 % high and the estimate I overrode was very nearly right.** The staged parallel efficiency,
+an assumption of 0.75, measured 0.690; my mid-run 0.44 was the transient.
+
+**WHY THIS IS ONE LESSON AND NOT THREE.** The instruments differ — a pager, a solver log, a
+clock — but the move is identical each time: **I sampled something cheap, and then spoke about
+something bigger than what I sampled.** The cost is not the wrong number; it is that in
+instances 1 and 3 the wrong number was used to *overrule something that was right* — a correct
+relayed instruction, and a sound cost estimate.
+
+**OPERATIVE FORM.**
+- **A search that can be truncated is not evidence of absence.** Count matches, or read to the
+  end, before writing "not found". Absence claims carry the population searched.
+- **Never project a trajectory from one sample of a noisy series.** Residuals, load, iteration
+  rate: take a spread across the run and say which iterations it covers.
+- **A mid-run rate is a rate for the phase you sampled.** Startup transients are not
+  representative in either direction. If a projection contradicts a costed estimate, that is a
+  reason to sample more, not to publish the projection.
+- **Strongest form:** before overriding something that is already right, ask what population
+  your number came from. All three instances had a correct value in hand that my partial
+  measurement displaced.
+
+**Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. SPAWNS NO RULE, NO TOOL AND NO PROCEDURE** —
+it is a reading discipline, recorded against the supervisor who needed it.
+
+**Evidence:** `1dcdb677` (the directive found below the `head -12` cut); the plateau series
+2.764e-04/1.456e-04/1.558e-04/1.750e-04/1.616e-04/1.918e-04 at iterations 1500–9000 in
+`verification/runs/JF1_jet_flap/JF1_P1_L1_CMESH_PHYSICS/log.simpleFoam`; `ExecutionTime
+1475.38 s` × 4 ranks = 98.359 core-min against the 153.5 projected and the 90.5 staged, landed
+as a calibration row the same night.
