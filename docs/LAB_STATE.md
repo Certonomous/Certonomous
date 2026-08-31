@@ -19075,6 +19075,71 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T17:4xZ — **VMFL033-R2 IS A `PASS` — THE EIGHTH CREDENTIAL. VMFL038 IS `NOT A RESULT`. I REJECTED TWO LANE REPORTS FOR CONTRADICTING "FACTS I ESTABLISHED PERSONALLY" AND ON BOTH COUNTS THE LANE WAS RIGHT AND MY FACT HAD EXPIRED.**
+
+**Written by `ansys-verification-supervisor` personally. Every check in §1 is mine.**
+
+#### §1 — THE TWO VERDICTS, VERIFIED BY ME BEFORE I REPEATED THEM UPWARD
+
+**`3f957bdd` — VMFL033-R2 `PASS`, register row #48.** Gate is the **temperature channel only**: `max|T−T_ex|/(T_peak−T1)` = **1.962465e-03** against the frozen **0.01** band, **inside by 5.10×**. **I recomputed the entire triple independently from the three level values** (284.153139038 / 284.141801258 / 284.139349004 K) and reproduce the lane exactly: **R = 0.216290 `CONVERGING`**, **p_obs = 2.2090**, **GCI_fine = 0.000298 %** against a 10 % ceiling. Planted control fired at **ALL THREE LEVELS**, two channels each — the design requirement I laid down after rows #44 and #46, met for the first time. **7.9167 core-min MEASURED** vs ~10.3 EXTRAPOLATED → **0.769**.
+
+**`6ba99979` — VMFL038 `NOT A RESULT`, row #47.** R = 9.051035629; **`p` and `GCI` both `None` — the row quotes no uncertainty it is not entitled to**, which is the whole point of the anisotropic-refinement finding. **7.75 core-min MEASURED** vs 6 REGISTERED → **1.292**.
+
+**THE TWO CALIBRATION RATIOS ARE ONE ERROR IN MIRROR IMAGE, and this is the reusable part.** VMFL038 over-ran because its estimate scaled by **cells** while iterations grew faster than cells; VMFL033-R2 under-ran because its estimate scaled R1's **whole level time** by 5 when a level costs `F + k·iters` and fixed setup does not scale with `endTime` — the fitted 3.84/5.0 = **0.768** reproduces the measured **0.769** at all three levels independently. **Both extrapolated along the wrong variable.** Owed to `NUMERICS_KNOWLEDGE`.
+
+**RULE 6 PROVEN BY MEASUREMENT, NOT ASSERTED.** The `ENFORCE` addendum on the frozen `VMFL033-R2/PREREGISTRATION.md`: sha256 of lines 1–327 is **identical before and after** (`5c1ae92fc09f6bfc`), **zero lines changed above the addendum**, and **line 121 still reads `ENFORCE` — struck, never rewritten.** 327 → 414 lines, 87 insertions. Both commits are ancestors of HEAD with **zero deletions** (16 and 13 files).
+
+#### THREE QUALIFICATIONS RIDE THE `PASS`, ALL ON THE ROW'S FACE — I VERIFIED EACH IS ACTUALLY THERE
+
+1. **THE CASE MISSED ITS OWN REGISTERED EXPECTATION.** `EXPECT_T_TOL = 0.001` was frozen beside the 0.01 gate; the achieved 1.962465e-03 **misses it by 1.962×**. **We passed on the looser of two bands we had frozen ourselves.**
+2. **Refinement converges to a limit ~5.9 GCI-widths from the exact closed form**, and Richardson extrapolation closes only **11.9 %** of the gap. Same shape as VMFL005's `N-AV7`. **This does not overturn the PASS** — the gate is the pointwise quantity, frozen at 0.01 before any field existed — and **the mechanism is not diagnosed and is not claimed.**
+3. **L3, the level the gate is read at, cleared the plateau refusal by 3.25 %** — ptp/scale 9.675e-07 against a 1.0e-06 threshold. The clause worked; a reader is entitled to know it was that close.
+
+#### A DEFECT I FOUND IN A CREDENTIAL ROW — AND THEN THE LANE FALSIFIED MY DIAGNOSIS OF IT
+
+**Row #48 printed `d21` and `d32` TRANSPOSED**: `d21 = −2.4523e-03, d32 = −1.1338e-02`. With f = 284.153139/284.141801/284.139349, d21 is **−1.133778e-02** and d32 is **−2.452254e-03**. **R computed from the row's own printed values gives 4.624, not the 0.216291 the row also prints** — a credential row whose numbers do not reproduce its own stated result. Corrected in `a6e0ce56` as a **strike-in-place with a dated note** (29 insertions, 1 deletion — the rewritten row line; **zero file deletions**), matching the register's own existing `~~…~~ **STRUCK, NOT REWRITTEN**` convention. `lines whose number changed above this section: 0` **proven by measurement**: SHA-256 of lines 1–728 identical in the HEAD blob and on disk.
+
+**AND MY DIAGNOSIS WAS WRONG. I briefed it as "a one-row transcription slip." IT IS NOT, AND THE DISTINCTION IS LOAD-BEARING.** The row is a **faithful** transcription: `grade_vmfl033_r2.py:427` binds `d32, d21 = f2 - f1, f3 - f2` — **the FROZEN COMPARATOR ITSELF uses the two names the other way round**, and the stdout it printed carries those labels. Every derived quantity then uses those variables **consistently** (`R = d21/d32`, `p = ln|d32/d21|/ln r`, `fex`, `gci`), so **the arithmetic is correct standard Roache and only the two LABELS are non-standard.** The lane copied the labels it was handed and did not edit the frozen file (rules 2 and 6). **No verdict anywhere is affected.**
+
+**THE REAL FINDING IS WIDER THAN THE ROW: THIS TEAM'S OWN COMPARATORS DISAGREE WITH EACH OTHER ON THE CONVENTION.** Non-standard binding in **`VMFL033-R2`, `VMFL033`, `VMFL003` and both `VMFL003_M2`** comparators; **standard** binding in `VMFL069` and `VMFL069-R2`. Row #48 was the **only** register row that prints these labels (rows #21, #9, #10 do not), so no other row is affected and none was edited. **A reader who recomputes `R` from printed labels gets the wrong number on any future row from the non-standard half of our own toolkit.** Recorded as a finding under the 14-day rule freeze — **it spawns no rule and no tool**, and the frozen comparators are not touched. **Not yet checked, and I say so rather than imply coverage: whether those other comparators' labels reached any `RESULTS.md` outside this register.**
+
+**One disclosure the lane volunteered against its own convenience:** the row's `GCI_fine` in kelvin (8.467e-04 K) is back-converted from the **already-rounded** 0.000298 %; unrounded it is 8.4598e-04 K, a 0.09 % gap. It changes nothing (the "5.93 ×" claim holds at 5.9306 unrounded and 5.9255 rounded) and it is now **labelled derived-from-a-rounded-value rather than left to read as measured.**
+
+#### TWO CORRECTIONS AGAINST MYSELF, AND THEY SHARE ONE MECHANISM WITH THE LOAD-AVERAGE ERROR
+
+**I rejected two lane reports on the ground that they "contradicted facts I established personally." ON BOTH COUNTS THE LANE WAS RIGHT AND MY FACT HAD EXPIRED.**
+
+1. **THE ARCHIVES HAVE MOVED AND MY OWN DEFINITION IS STALE.** I dismissed a scout for giving the archive root as `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/`. **My own `find` and `du`: it EXISTS, 123 files, 2.5 GB.** `LOCATIONS.md:748` names it the **canonical home**, *"moved (not copied) from the repository root"*; `:751` records the repository-root copy as **"gone — moved."** **Both paths in my brief and in my agent definition are ABSENT.** So **D-6 — the archives' canonical-home ruling my brief calls my FIRST ACTION — is RESOLVED AND EXECUTED**, and I was carrying a stale map while grading its contents.
+2. **THE PRE-REGISTRATION CENSUS WAS RIGHT.** I rejected "41/41 case directories have a `PREREGISTRATION.md`" because I had personally established VMFL006 had none. **My own count: 43 directories, 41 with a prereg, 2 without — and the 2 are `_repairs` and `_template`, which are not cases. 41/41 is TRUE.** My "established fact" expired at **17:16:25Z**, when my own lane committed `e28a6a29` *"VMFL006 FREEZE — first pre-registration ever"* — **before the scout ran.** The state changed under me and I judged the scout against a stale reading of my own work.
+
+> **THE MECHANISM, WHICH IS THE SAME ONE AS THE LOAD-AVERAGE ERROR AND THE `grade`-vs-`GRADING*` ERROR: I compared a fresh measurement against a stale one and trusted the stale one because it was MINE.** §11.3 says a queue state is a reading with a shelf life; **it applies to a supervisor's own knowledge, and most sharply in a session where this team is changing the very facts it is reasoning from.** Recorded as a lesson under the 14-day rule freeze — **it spawns no rule and no tool.**
+
+What I got right and keep: the first scout's solver list did name binaries that are not in this build, and that part stays rejected.
+
+#### THE FREEZE-AHEAD ANSWER, AND IT REFRAMES THE WHOLE REMAINING POOL
+
+**Manual census: 22 cases print a TABLE of target numbers, 56 print only a FIGURE. Of the 22, 15 cite an ANALYTICAL reference — and this team has ALREADY TAKEN essentially all of them** (001, 002, 003, 005, 006, 007, 023, 045, 050, 051, 059, 064). **`VMFL034` is the only untaken TABLE + ANALYTICAL case.** On the obvious criterion the pool is one case wide.
+
+**THE OBVIOUS CRITERION IS THE WRONG ONE, AND THIS TEAM'S OWN RECORD TODAY PROVES IT.** A printed 4-decimal table is a **transcription**, not an exact solution — it carries a 1.406470e-04 rounding floor, which is exactly why VMFL006's comparator was deliberately moved **OFF** the manual's Target column onto the lab's own full-double-precision Graetz evaluation. Meanwhile **three of this team's last four registrations were FIGURE cases gated on closed forms the lab derived itself**: VMFL069-R2 (exact two-layer solution, `PASS`), VMFL033-R2 (exact Brinkman solution, `PASS`), VMFL038 (exact Bird–Stewart–Lightfoot parabola).
+
+> **RULING `[lab-attributed]`: the selection criterion is NOT "does the manual print a table." It is "does this case's continuum model admit an exact solution this lab can derive and verify independently, with the manual used for SETUP ONLY." On that criterion the pool is 56 FIGURE cases wide, not 1 — and the resulting gate is STRONGER than the printed table, not weaker, because a lab-derived closed form has no transcription floor.** This is a reading of existing charter machinery (§11.1 plus the reference-kind ladder), not a new rule; the 14-day freeze is respected.
+
+#### STATE
+
+**Commits:** `9f7056d7` (VMFL033-R2 queue), `cf132138` (board), `e28a6a29` (VMFL006 freeze — **first prereg ever**), `4a3f1387` (VMFL006 queue), `6ba99979` (VMFL038 `NOT A RESULT`), `3f957bdd` (VMFL033-R2 `PASS`), `a6e0ce56` (row #48 correction), + this board.
+
+**Live.** Two opus lanes: VMFL006 grading; the row-#48 transposition correction. **No ansys solver running.**
+
+**Rungs without verdicts.** **VMFL006** — ran to completion (3000/3000/3000, `End` 1, time dirs {0,3000}), **grading in flight**. Freeze `e28a6a29` 17:16:25Z vs earliest run-root byte 17:18:52Z = **+147 s**, root absent at the freeze, all four frozen files identical on disk/freeze/HEAD, **1.633 core-min MEASURED** inside a 0.8–8.4 EXTRAPOLATED bracket. Its clause-5 adaptation (`scalarTransportFoam` emits **no** `ExecutionTime` line — count 0 unanchored) was **declared before compute** and holds exactly. **Its row must carry the §12 caveat: git cannot prove `TOL = 0.01` predates the first VMFL006 field, and the 6.8561 %-off smoke is an argument from direction, NOT proof.** VMFLGPU006 blocked on evidence; VMFLGPU004 `BLOCKED` (#41); VMFLGPU008/009/010 untouched.
+
+**FREEZE-AHEAD 0** against Sanaa's floor of 3. VMFL006 went frozen-to-finished in **twelve minutes** — the same way VMFL069-R2 emptied the queue. **Success emptying the queue is still a planning defect and it is mine.**
+
+**Next.** (1) Register three cases on the corrected criterion above. (2) `NUMERICS_KNOWLEDGE` entry on the two mirrored cost-extrapolation errors. (3) The verification team's audit ask on row #46 — fire the **existing** controls on L3's bytes as a separate diagnostic; it moves no gate and cannot touch the row. (4) The fossil deletions stay **REFUSED** pending the list owner's re-verification.
+
+**On Sanaa's desk (six)**, plus three: the runner-cap `ENFORCE` misstatement (cross-team); **`scripts/append_record.py` uncommitted with the HEAD version unable to import — the ledger at HEAD cannot be reproduced from HEAD**; and the C-id doctrine conflict, where Sanaa's 2026-08-31 "no more counters" supersedes `CLAUDE.md` rule 11's maximum-number rule for ledger ids while briefs lab-wide still repeat the old form.
+
+**VERIFY:** VMFL006's verdict, unknown to me at this writing; whether `VMFL034`'s population-balance physics has a solver on this box; and the mechanism behind VMFL033-R2's qualification 2, which is **named and deliberately not claimed**.
+
 ### 2026-08-31T16:4xZ — **VMFL038 IS `NOT A RESULT`, AND THE REASON IS BETTER THAN THE ONE ITS OWN COMPARATOR GAVE: ITS ROACHE TRIPLE WAS TAKEN ON A ONE-DIMENSIONAL REFINEMENT. VMFL033-R2 IS RUNNING. AND A CLAIM I PUT IN A LANE BRIEF IS NOW FALSE INSIDE FROZEN BYTES.**
 
 **Written by `ansys-verification-supervisor` personally. Every check in §1 is mine, run with my own commands, and none of it is relayed.**
