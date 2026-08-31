@@ -458,3 +458,54 @@ that proves the reader of §4b can see a non-zero.
 > machine record of a transient copy rather than a handoff pointer, and this lane has **left it as
 > executed** — editing an instrument's own output after the fact would be a worse defect than the one
 > it discloses. **No path in this prose document is a scratch path.**
+
+---
+
+## ADDENDUM A-1 — 2026-08-31: §3.1 READS D6R's DEATH AS A NON-FINITE VALUE, AND THE GRADING RECORD DOES NOT SUPPORT THAT READING
+
+**Dated 2026-08-31. APPENDED ONLY.** Lane: dafoam `lab-lane`, on the `dafoam-supervisor`'s ruling.
+**NOT FILED ANYWHERE.** Nothing in this addendum is filed, sent, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7). **SUBMISSIONS PARKED.**
+
+**⚠ THIS ADDENDUM MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP, NO LABEL AND NO VERDICT.** D6R's item verdict `NOT A RESULT` stands **exactly** as recorded. Every gate reading, every count, every core-minute figure and every citation in §0–§9 above stands exactly as recorded. This addendum qualifies **the causal reading three sentences place on an IPOPT message** and nothing else.
+
+**VERSION CONVENTION — read from this document rather than invented.** This file carries **no numeric version field** and never has; there is no `Version n.n` line anywhere above. The convention this family uses for it is **dated, appended, sequentially-lettered sections** — as `cases/dafoam/ladder-a/A2/curriculum_D6R/PREREGISTRATION.md:526` (`AMENDMENT 1 — 2026-08-28`) and `cases/dafoam/ladder-a/A1/curriculum_SO3aR/PREREGISTRATION.md:265` (`ADDENDUM A-1`) do. **This section therefore conforms as `ADDENDUM A-1`, dated, and no version number is invented for a document that has none.**
+
+**lines whose number changed above this section: 0** — proved mechanically, not asserted. Before a byte was appended, this file's pre-edit bytes were copied aside (**30,324 bytes, 460 lines**). After appending, the post-edit file's leading **30,324** bytes were compared byte-for-byte against that copy (`cmp -n 30324`, exit 0). **The comparison was run with a live planted control in the same invocation** (`CLAUDE.md` rule 3): a second copy was made with **one byte altered on line 183 — a NON-BLANK line, and the very line this addendum qualifies** (`n` → `o` at column 0) — and the same reader was required to **see** it before an empty diff was accepted as evidence. A prior lane planted on a blank line and collected a false "identical"; that failure is why the plant here is on a load-bearing line and why the reader's non-zero reading is reported below beside its zero.
+
+### 1. THE SENTENCES, STRUCK, NOT REWRITTEN
+
+§3.1 contains three statements that a reader takes as a cause. They stand, struck, and remain legible:
+
+> ~~"…and the run ended on a **non-finite NLP value** rather than on any registered stopping condition."~~ (`:183`)
+
+> ~~"…and the **evaluation pathology D6 exhibited came back intensified**."~~ (`:185`)
+
+> ~~"nothing about **why** the primal returns non-finite values at trial geometries."~~ (`:187–188`)
+
+The **counts** in §3.1 — 673 cutbacks, 7 restoration majors, 73 of 80 majors — are measurements and are **untouched**. What is qualified is the noun: *"non-finite value"* names a **cause the record does not establish**, and the third sentence, written to disclaim, in fact **presupposes** it — it declines to explain a mechanism whose existence has never been measured.
+
+### 2. WHAT THE RECORD ACTUALLY SUPPORTS
+
+**D6R's recorded cause is `BOOKKEEPING`, not a gradient failure and not a physics failure — because NO GRADIENT WAS EVER MEASURED.** From the verdict of record, `cases/dafoam/ladder-a/A2/curriculum_D6RG/D6RG_regrade.json`:
+
+* `grade/G-D6R-1`, `G-D6R-2`, `G-D6R-3`, `G-D6R-4` — **all four `verdict = NOT A RESULT`, `reason = ARM_DID_NOT_RUN`.**
+* `grade/G1/arms_not_run` lists **`F_mp` — the FD arm, this family's bright-line referee — and `REF_off`**, each `state = NOT_RUN`, `reason = REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`, `stop_arm = ACC_mp`, `stop_rc = 124`. **The finite-difference table `DAFOAM_CHARTER.md` §2 requires beside any gradient was never produced.**
+* D6R's own frozen grader refused on a **record** defect, not a numeric one: `{"REFUSE": "G-D6R-OPT", "n_exit": 1, "n_obj": 0, "no_final_objective_or_exit": "<copy>/O_mp/opt_IPOPT.txt"}` (quoted in this document at `:60`). The exit line was written; the final objective line was not.
+
+**AND THE IPOPT MESSAGE DOES NOT SAY WHAT §3.1 READS INTO IT.** `EXIT: Invalid number in NLP function or derivative detected.` is printed by a guard at `IpOrigIpoptNLP.cpp:487` whose condition is `success && IsFiniteNumber(ret)` — **a conjunction that fails DISJUNCTIVELY**: on a false *status* **OR** on a non-finite *value*, printing the identical string either way. The measured exception text, `success && IsFiniteNumber(ret) evaluated false: Error evaluating the objective function` (`cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md:47`, fact A1, citing `O_mp_20260828T162849Z_1898072.log:264052-264053`), **is itself the disjunction and does not identify which limb tripped.**
+
+**Corroboration for the failed-status limb, taken from the grading record rather than from the message's wording:**
+
+* `D6RG_regrade.json` `grade/G-D6R-OPT` carries **`S1_line_search_failing: true`** with **`S2_dual_infeasibility_not_decreasing: false`**.
+* **671 `Primal solution failed!` banners against 673 alpha cutbacks** — near 1:1 between DAFoam's own **boolean** failure signal and IPOPT's evaluation errors (`curriculum_SO3D/PREREGISTRATION.md:50`, `:53`, `:78`).
+* The objective printed immediately before the final cutback is **finite at `0.0222388`** (`curriculum_SO3D/PREREGISTRATION.md:79`).
+
+### 3. WHAT THIS ADDENDUM DOES NOT CLAIM, STATED SO IT CANNOT BE READ AS MORE
+
+**The value limb is NOT excluded, and no non-finite census has been computed.** `cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md:64` says so in terms: *"No non-finite census has been computed."* What exists is an **ungated pre-freeze search for the literal token `nan`** returning 0 over the `CD:`/`CL:` prints (same file, `:80`, fact 3) — **a search for one token is not a census of non-finite values**, and generalising it would repeat the exact over-statement this addendum exists to correct (recorded and withdrawn at `docs/dafoam/GRADING_CHAIN.md`, "CORRECTION WITHIN THE CORRECTION"). The full census is **SO3D's registered prediction `P1` / gate `G-SO3D-1`, still uncomputed** (`:108`, `:124`), with planted control **`PLANT-A`** registered and waiting (`:145`).
+
+**So the honest state is: the failed-status limb is corroborated, the non-finite-value limb is neither established nor excluded, and the item's class does not depend on either.** `BOOKKEEPING` rests on `ARM_DID_NOT_RUN` × 4 and `n_obj = 0`.
+
+**In either direction, D6R licenses no physics claim** — it is not evidence that the multipoint gradient is wrong, and not evidence that it is right. The one real, measured phenomenon here is separate and ungraded: multipoint primal-failure rate **D6R 68.68 % (671/977)** against **D4 2.222 %** and **D5 1.170 %** single-point on the same base mesh and image digest — a thirty-fold contrast that is what `SO3D` exists to investigate.
+
+**Governing record for this correction:** `docs/dafoam/GRADING_CHAIN.md`, §"Cause classes" row **D6R** and the appended **CORRECTION, 2026-08-31**.

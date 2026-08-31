@@ -285,3 +285,38 @@ Nothing about an **optimum** — no optimiser runs. **Nothing at np ≠ 1**: a g
 **The reader is demonstrably able to report BOTH readings and reports `12 of 12` here, so the existence claim is a reading and not an inference from the md5 table.** The md5 table in §7 is unchanged and every value in it still equals the file it names and the blob committed at the freeze sha — verified by hashing the committed blob against the worktree bytes, **11 of 11 tracked instruments AGREE**.
 
 **NOTHING ELSE IN §7 IS AMENDED**, and no gate, threshold, cap, label, band, angle, weight, step, guard form or prediction is touched by this addendum.
+
+---
+
+## ADDENDUM A-2 — 2026-08-31: §6 NAMES THE FAILURE IPOPT WAS REPORTING AS "AN EVALUATION RETURNING A NON-FINITE VALUE", AND THE GRADING RECORD DOES NOT SUPPORT THAT
+
+**Dated 2026-08-31. APPENDED ONLY.** Lane: dafoam `lab-lane`, on the `dafoam-supervisor`'s ruling.
+**NOT FILED ANYWHERE.** Nothing in this addendum is filed, sent, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7). **SUBMISSIONS PARKED.**
+
+**⚠ THE ITEM IS DEAD AND ITS GATES ARE CLOSED. THIS ADDENDUM IS DISCLOSURE ONLY AND CHANGES NO REGISTERED CONTENT.** SO-3aR has had compute and its item verdict **`NOT A RESULT` STANDS EXACTLY AS RECORDED** — cause class `NAMING/PLUMBING` per `docs/dafoam/GRADING_CHAIN.md`. Under `VERIFICATION_CHARTER.md` §2b a post-compute change may land only as a dated addendum that cannot alter a gate, threshold, cap or label, and this one alters none. **NO GATE, NO THRESHOLD, NO BAND, NO CAP, NO LABEL, NO VERDICT, NO ANGLE, NO WEIGHT, NO STEP, NO DISCARD FRACTION, NO GUARD FORM AND NO REGISTERED PREDICTION IS MOVED.** In particular **`REGISTERED PREDICTION P-EVAL` at `:184` is untouched** — it is registered as a **disjunction** (*"fails **or** returns a non-finite value"*), which is the correct form, and it is neither narrowed nor widened here. §7's md5 table, the twelve instruments, `ADDENDUM A-1` and every guard form above stand exactly as frozen.
+
+**VERSION CONVENTION — read from this document rather than invented.** This document's appended-section convention is **sequentially-lettered, dated addenda that declare NO numeric version**: line 3 reads `**Version 1.0. FROZEN.**` and `ADDENDUM A-1` at `:265` bumped nothing — it carries only `**Dated 2026-08-31T20:13:51Z. APPENDED ONLY.**`. **This section conforms exactly: it is `ADDENDUM A-2`, dated, and declares no version number, because inventing one where this document's own last addendum declined to take one would be a change to its convention rather than compliance with it.** Line 3 is not edited.
+
+**lines whose number changed above this section: 0** — proved mechanically, not asserted. Before a byte was appended, this file's pre-edit bytes were copied aside (**47,891 bytes, 287 lines**). After appending, the post-edit file's leading **47,891** bytes were compared byte-for-byte against that copy (`cmp -n 47891`, exit 0), so §0–§10, §7's md5 table and `ADDENDUM A-1` are byte-identical and **every citation into them by line number still resolves**. **The comparison ran with a live planted control in the same invocation** (`CLAUDE.md` rule 3): a second copy carried **one byte altered on line 182 — a NON-BLANK line, and the exact line this addendum qualifies** (`S` → `T` at column 0) — and the reader had to **see** that alteration before its zero on the real file was accepted as evidence. A prior lane planted on a blank line and collected a false "identical"; that is why the plant here sits on the load-bearing line.
+
+### 1. THE SENTENCE, STRUCK, NOT REWRITTEN
+
+§6's second sentence stands, struck, and remains legible:
+
+> ~~"**What IS reachable is the failure one level down that IPOPT was reporting** — an evaluation returning a **non-finite value** —"~~ (`:182`)
+
+**§6 is right that the proximate mode is unreachable and right to say so.** What is qualified is the confident naming of *what IPOPT was reporting*. The message is printed by a guard at `IpOrigIpoptNLP.cpp:487` whose condition is `success && IsFiniteNumber(ret)` — **a conjunction that fails DISJUNCTIVELY**, throwing on `eval_f` returning **`success == false`** (a boolean **status**, not a number) **OR** on a non-finite value, and printing **the identical `EXIT:` string either way** (`cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md:74`). The measured D6R exception text — `success && IsFiniteNumber(ret) evaluated false: Error evaluating the objective function` (same file `:47`) — **is itself the disjunction and names no limb.** The honest form of the clause is *"an evaluation FAILING — by flag or by value, undetermined"*, which is exactly the form `P-EVAL` already takes and §6's prose did not.
+
+### 2. WHAT THE RECORD ACTUALLY SUPPORTS ABOUT D6/D6R
+
+**D6R's recorded cause class is `BOOKKEEPING`, not a gradient failure and not a physics failure — because NO GRADIENT WAS EVER MEASURED.** From `cases/dafoam/ladder-a/A2/curriculum_D6RG/D6RG_regrade.json`: `grade/G-D6R-1..4` **all four `verdict = NOT A RESULT`, `reason = ARM_DID_NOT_RUN`**; `grade/G1/arms_not_run` lists **`F_mp` — the FD arm, this family's bright-line referee — and `REF_off`**, each `state = NOT_RUN`, `reason = REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`, `stop_arm = ACC_mp`, `stop_rc = 124`; and D6R's own frozen grader refused on a **record** defect — `n_exit = 1`, **`n_obj = 0`**, `no_final_objective_or_exit`. **The FD table `DAFOAM_CHARTER.md` §2 requires beside any gradient was never produced.**
+
+**Corroboration for the failed-status limb, from the grading record rather than the message's wording:** `grade/G-D6R-OPT` carries **`S1_line_search_failing: true`** with **`S2_dual_infeasibility_not_decreasing: false`**; **671 `Primal solution failed!` banners against 673 alpha cutbacks**, near 1:1 between DAFoam's **boolean** failure signal and IPOPT's evaluation errors; objective **finite at `0.0222388`** immediately before the final cutback (`curriculum_SO3D/PREREGISTRATION.md:50`, `:53`, `:78`, `:79`). **This document's own two measured citations in §6 — the primal FAILING at FD steps 5e-2 and 1e-1, and AV-2's 5/5 `AnalysisError(... Primal solution failed!)` rows — are both FLAG observations, not observed non-finite values**, and they support the amplification arithmetic `1 − (1−p)³ ≈ 3p` exactly as written. The arithmetic is untouched.
+
+### 3. WHAT THIS ADDENDUM DOES NOT CLAIM
+
+**The non-finite-value limb is NOT excluded, and no non-finite census has been computed.** `curriculum_SO3D/PREREGISTRATION.md:64` says so in terms. What exists is an **ungated pre-freeze search for the literal token `nan`** returning 0 over the `CD:`/`CL:` prints (`:80`, fact 3) — **a one-token search is not a census of non-finite values**, and generalising it would be the same slip this addendum exists to correct (recorded and withdrawn at `docs/dafoam/GRADING_CHAIN.md`, "CORRECTION WITHIN THE CORRECTION"). The census is **SO3D's registered prediction `P1` / gate `G-SO3D-1`, still uncomputed** (`:108`, `:124`), planted control **`PLANT-A`** waiting (`:145`).
+
+**So the honest state is:** the failed-status limb is corroborated, the non-finite-value limb is neither established nor excluded, and D6R's class rests on neither. **D6R licenses no physics claim in either direction**, and §6's rationale must not be read as importing one.
+
+**Governing record:** `docs/dafoam/GRADING_CHAIN.md`, cause-class row **D6R** and the appended **CORRECTION, 2026-08-31**.

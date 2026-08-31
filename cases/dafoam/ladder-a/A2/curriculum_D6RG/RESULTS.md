@@ -328,3 +328,38 @@ did not recur. `O_mp`'s optimiser outcome is `UNCLASSIFIED`. `G10` fails on `O_m
 | frozen predecessor | `cases/dafoam/ladder-a/A2/curriculum_D6R/d6r_grade.py`, `.../PREREGISTRATION.md` |
 
 **No path above is a scratch path** (L-186).
+
+---
+
+## ADDENDUM A-1 — 2026-08-31: A "DOES NOT ESTABLISH" BULLET IN §8 PRESUPPOSES THE CAUSE IT DECLINES TO EXPLAIN
+
+**Dated 2026-08-31. APPENDED ONLY.** Lane: dafoam `lab-lane`, on the `dafoam-supervisor`'s ruling.
+**NOT FILED ANYWHERE.** Nothing in this addendum is filed, sent, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7). **SUBMISSIONS PARKED.**
+
+**⚠ THIS ADDENDUM MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP, NO LABEL AND NO VERDICT.** D6R's verdict `NOT A RESULT` stands exactly as recorded; `G10 = GATE FAIL` stands exactly as recorded; every gate reading, count, md5 and core-minute figure above stands exactly as recorded. **All gates are D6R's own and this addendum touches none of them.** What is qualified is one clause's presupposition about cause.
+
+**VERSION CONVENTION — read from this document rather than invented.** This file carries **no numeric version field**; there is no `Version n.n` line above. Its family's convention is **dated, appended, sequentially-lettered sections** (`curriculum_D6R/PREREGISTRATION.md:526`, `curriculum_SO3aR/PREREGISTRATION.md:265`). **This section conforms as `ADDENDUM A-1`, dated, and invents no version number for a document that has none.**
+
+**lines whose number changed above this section: 0** — proved mechanically. The pre-edit bytes were copied aside first (**20,925 bytes, 330 lines**); after appending, the post-edit file's leading **20,925** bytes were compared byte-for-byte against that copy (`cmp -n 20925`, exit 0). **A live planted control ran in the same invocation** (`CLAUDE.md` rule 3): a second copy carried **one byte altered on line 286 — a NON-BLANK line, and the exact line this addendum qualifies** (`N` → `O` at column 4) — and the reader was required to **see** it before the empty diff was accepted. Planting on a blank line yields a false "identical"; that is why the plant sits on the load-bearing line.
+
+### 1. THE SENTENCE, STRUCK, NOT REWRITTEN
+
+§8's first "Does not establish" bullet stands, struck, and remains legible:
+
+> ~~"**Nothing about WHY the primal returns non-finite values at trial geometries.**"~~ (`:286`)
+
+The bullet was written to **disclaim**, and in the disclaiming it **asserts**: it takes as given that the primal *does* return non-finite values, and declines only to explain why. **The record establishes the failures; it does not establish that they are non-finite values rather than boolean failure flags.**
+
+### 2. WHAT THE RECORD SUPPORTS INSTEAD
+
+**D6R's recorded cause is `BOOKKEEPING`. No gradient was ever measured** — from this item's own output, `D6RG_regrade.json`: `grade/G-D6R-1..4` all read `verdict = NOT A RESULT`, `reason = ARM_DID_NOT_RUN`; `grade/G1/arms_not_run` lists **`F_mp` (the FD arm) and `REF_off`** as `NOT_RUN`, `reason = REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`, `stop_arm = ACC_mp`, `stop_rc = 124`. D6R's own frozen grader refused on `n_exit = 1`, **`n_obj = 0`**, `no_final_objective_or_exit` — recorded verbatim in this document at `:33` and `:59`.
+
+**The IPOPT message is disjunctive and does not name a limb.** `IpOrigIpoptNLP.cpp:487` guards on `success && IsFiniteNumber(ret)` and throws on a **false status OR** a **non-finite value**, printing `EXIT: Invalid number in NLP function or derivative detected.` either way (`curriculum_SO3D/PREREGISTRATION.md:74`). The measured exception text, `success && IsFiniteNumber(ret) evaluated false: Error evaluating the objective function` (same file `:47`), is itself the disjunction.
+
+**Corroboration for the failed-status limb, from the grading record:** `grade/G-D6R-OPT` carries **`S1_line_search_failing: true`** and **`S2_dual_infeasibility_not_decreasing: false`**; **671 `Primal solution failed!` banners against 673 cutbacks**; and the objective printed immediately before the final cutback is **finite at `0.0222388`** (`curriculum_SO3D/PREREGISTRATION.md:50`, `:53`, `:78`, `:79`).
+
+### 3. WHAT IS NOT CLAIMED
+
+**No non-finite census has been computed** — `curriculum_SO3D/PREREGISTRATION.md:64` states it in terms. The only search on record is an **ungated pre-freeze search for the literal token `nan`** returning 0 over the `CD:`/`CL:` prints (`:80`, fact 3); **a one-token search is not a census**, and treating it as one would repeat the over-statement withdrawn in `docs/dafoam/GRADING_CHAIN.md`. The census is **SO3D's registered `P1` / gate `G-SO3D-1`, still uncomputed** (`:108`, `:124`), planted control **`PLANT-A`** waiting (`:145`). **The non-finite-value limb is therefore neither established nor excluded**, and `BOOKKEEPING` does not depend on it: it rests on `ARM_DID_NOT_RUN` × 4 and `n_obj = 0`.
+
+**Governing record:** `docs/dafoam/GRADING_CHAIN.md`, cause-class row **D6R** and the appended **CORRECTION, 2026-08-31**.

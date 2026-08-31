@@ -250,3 +250,38 @@ in the same shell invocation** (rule 11).
 non-finite primal evaluations. **Nothing is sent, filed, uploaded, registered, posted or
 commented outside this box** (rule 7) — "filed in the queue" means the local
 `verification/queue/` directory and nothing else.
+
+---
+
+## ADDENDUM A-1 — 2026-08-31: §7's FIRST BULLET PRESUPPOSES A CAUSE THE GRADING RECORD DOES NOT SUPPORT
+
+**Dated 2026-08-31. APPENDED ONLY. POST-COMPUTE — THE GATES OF §3 ARE CLOSED AND NONE OF THEM MOVES.** Lane: dafoam `lab-lane`, on the `dafoam-supervisor`'s ruling.
+**NOT FILED ANYWHERE.** Nothing in this addendum is filed, sent, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7). **SUBMISSIONS PARKED.**
+
+**⚠ THIS ADDENDUM MOVES NO GATE, NO THRESHOLD, NO BAND, NO CAP, NO LABEL AND NO VERDICT** — the only thing `VERIFICATION_CHARTER.md` §2b permits a post-compute addendum to do, and the only thing this one does. This document's freeze at **`5563f78533391e8ec5842db915ff70ebd7663685`** stands; every registered gate, cap, label, md5 and cost line above stands exactly as frozen; the item's verdict stands exactly as graded. **This addendum is disclosure only: it qualifies a causal presupposition in one prose bullet of §7 and registers nothing.**
+
+**VERSION CONVENTION — read from this document rather than invented.** This file carries **no numeric version field**; there is no `Version n.n` line above. The family's convention for it is **dated, appended, sequentially-lettered sections** (`curriculum_D6R/PREREGISTRATION.md:526` `AMENDMENT 1 — 2026-08-28`; `curriculum_SO3aR/PREREGISTRATION.md:265` `ADDENDUM A-1`). **This section conforms as `ADDENDUM A-1`, dated, and invents no version number for a document that has none.** It is styled an ADDENDUM, not an AMENDMENT, because compute has happened and §2b permits only addenda thereafter.
+
+**lines whose number changed above this section: 0** — proved mechanically. The pre-edit bytes were copied aside before anything was appended (**16,290 bytes, 252 lines**); afterwards the post-edit file's leading **16,290** bytes were compared byte-for-byte against that copy (`cmp -n 16290`, exit 0). **A live planted control ran in the same invocation** (`CLAUDE.md` rule 3): a second copy carried **one byte altered on line 157 — a NON-BLANK line, and the exact line this addendum qualifies** (`N` → `O` at column 4) — and the reader had to **see** it before the empty diff was accepted as evidence. A plant on a blank line returns a false "identical"; that is why this one is on the load-bearing line.
+
+### 1. THE SENTENCE, STRUCK, NOT REWRITTEN
+
+§7's first bullet stands, struck, and remains legible:
+
+> ~~"**Nothing about WHY the primal returns non-finite values at trial geometries.** D6R's §6 declines that and prices it separately. **This item does not open it.**"~~ (`:157–158`)
+
+The clause is a disclaimer that **asserts while declining**: it treats *"the primal returns non-finite values"* as settled and withholds only the explanation. **The record settles that evaluations failed. It does not settle that they failed by returning non-finite values.**
+
+### 2. WHAT THE RECORD SUPPORTS INSTEAD
+
+**D6R's recorded cause is `BOOKKEEPING`; no gradient was ever measured.** From this item's own graded output, `D6RG_regrade.json`: `grade/G-D6R-1..4` all `verdict = NOT A RESULT`, `reason = ARM_DID_NOT_RUN`; `grade/G1/arms_not_run` lists **`F_mp` (the FD referee) and `REF_off`** as `NOT_RUN`, `reason = REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`, `stop_arm = ACC_mp`, `stop_rc = 124`. D6R's own frozen grader refused on a record defect — `n_exit = 1`, **`n_obj = 0`**, `no_final_objective_or_exit` in `O_mp/opt_IPOPT.txt`. §7's second bullet already records, correctly and unchanged, that **`F_mp` and `REF_off` never ran**; this addendum only draws the consequence the first bullet stepped past.
+
+**The IPOPT message is disjunctive.** `IpOrigIpoptNLP.cpp:487` guards on `success && IsFiniteNumber(ret)`, throwing on a **false status OR** a **non-finite value** and printing `EXIT: Invalid number in NLP function or derivative detected.` either way (`cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md:74`). The measured exception text (`:47`) is itself that disjunction and names no limb.
+
+**Corroboration for the failed-status limb, from the grading record:** `grade/G-D6R-OPT` carries **`S1_line_search_failing: true`**, **`S2_dual_infeasibility_not_decreasing: false`**; **671 `Primal solution failed!` banners against 673 cutbacks**; objective **finite at `0.0222388`** immediately before the final cutback (`curriculum_SO3D/PREREGISTRATION.md:50`, `:53`, `:78`, `:79`).
+
+### 3. WHAT IS NOT CLAIMED
+
+**No non-finite census has been computed** (`curriculum_SO3D/PREREGISTRATION.md:64`, in terms). The only search on record is an **ungated pre-freeze search for the literal token `nan`** returning 0 over the `CD:`/`CL:` prints (`:80`); **that is not a census of non-finite values**, and generalising it would repeat the over-statement withdrawn in `docs/dafoam/GRADING_CHAIN.md`. The census is **SO3D's registered `P1` / gate `G-SO3D-1`, still uncomputed** (`:108`, `:124`), planted control **`PLANT-A`** waiting (`:145`). **The non-finite-value limb is neither established nor excluded**, and the class does not rest on it.
+
+**Governing record:** `docs/dafoam/GRADING_CHAIN.md`, cause-class row **D6R** and the appended **CORRECTION, 2026-08-31**.

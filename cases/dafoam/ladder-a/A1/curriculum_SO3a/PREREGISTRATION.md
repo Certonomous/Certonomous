@@ -337,3 +337,48 @@ Checked by `test -f`, file by file, **before a single md5 was taken**: **`presen
 ### 7. NOT ENQUEUED, NOT FILED, NOT ARMED
 
 **NOTHING IS FILED BY THIS AMENDMENT.** The queue entry stays in this case directory and is validated **OUT OF PLACE, WITHOUT `--require-binding`**. **TEAM-BINDING IS `NOT CHECKED`** — an unchecked condition, never a passing one; `--require-binding` out of place returns rc = 2 **by design**, and its refusal is the ABSENCE of a check, not a failed one. **In-place validation is ARMING and arming is the supervisor's**, not this lane's. `SUPERVISION_CHARTER.md` §3 check 4 is discharged on the sha, not on this sentence. **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7). A `docs/COST_CALIBRATION.md` row is **OWED AND HELD**, not filed, pending the committed-state repair of `scripts/append_record.py`.
+
+---
+
+## ADDENDUM A-1 — 2026-08-31: §6 SAYS IPOPT'S MESSAGE MEANS "THE MODEL HANDED ME A NaN". IT DOES NOT, AND THE GRADING RECORD DOES NOT SUPPORT IT
+
+**Version 1.2.** Dated **2026-08-31**, appended at the foot. Lane: dafoam `lab-lane`, on the `dafoam-supervisor`'s ruling.
+**NOT FILED ANYWHERE.** Nothing in this addendum is filed, sent, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7). **SUBMISSIONS PARKED.**
+
+**⚠ THE ITEM IS DEAD AND ITS GATES ARE CLOSED. THIS ADDENDUM IS DISCLOSURE ONLY AND CHANGES NO REGISTERED CONTENT.** SO-3a had first compute at **2026-08-31T18:40:53Z** — two containers, **0.334 core-min**, `chain = STOPPED_AT_FIRST_NONZERO`, `grader_rc = 2` — and its item verdict **`NOT A RESULT`, written by the frozen comparator which REFUSED rather than degrading, STANDS EXACTLY AS RECORDED.** Under `VERIFICATION_CHARTER.md` §2b a post-compute change may land only as a dated addendum that cannot alter a gate, threshold, cap or label, and this one alters none. **NO GATE, NO THRESHOLD, NO BAND, NO CAP, NO LABEL, NO VERDICT, NO ANGLE, NO WEIGHT, NO STEP, NO GUARD FORM AND NO REGISTERED PREDICTION IS MOVED.** In particular **`REGISTERED PREDICTION P-EVAL` at `:190` is untouched** — it is registered as a **disjunction** (*"fails **or** returns a non-finite value"*), which is exactly the correct form, and it is neither narrowed nor widened here. The nine instruments, their md5 pins, the TEN LINES, §0–§10 and `AMENDMENT S2-1` all stand as frozen.
+
+**VERSION CONVENTION — read from this document rather than invented.** This document versions itself **numerically**, and the bump is **declared inside the newest appended section rather than by editing line 3**: line 3 still reads `**Version 1.0. FROZEN.**` and `AMENDMENT S2-1` at `:257` declared `**Version 1.1.**` at `:259` without touching it. **This section conforms: it declares `Version 1.2` here, and line 3 is not edited.** It is styled an **ADDENDUM**, not an amendment, because first compute has happened and §2b permits only addenda thereafter — the naming follows `curriculum_SO3aR/PREREGISTRATION.md:265`.
+
+**lines whose number changed above this section: 0** — proved mechanically, not asserted. Before a byte was appended, this file's pre-edit bytes were copied aside (**68,697 bytes, 339 lines**). After appending, the post-edit file's leading **68,697** bytes were compared byte-for-byte against that copy (`cmp -n 68697`, exit 0), so §0–§10, the TEN LINES and `AMENDMENT S2-1` are byte-identical and **every citation into them by line number still resolves**. **The comparison ran with a live planted control in the same invocation** (`CLAUDE.md` rule 3): a second copy carried **one byte altered on line 183 — a NON-BLANK line, and the exact line this addendum qualifies** (`W` → `X` at column 2) — and the reader was required to **see** that alteration before its zero on the real file was accepted as evidence. A prior lane planted on a blank line and collected a false "identical"; that is why the plant here sits on the load-bearing line, and why the reader's non-zero is reported beside its zero.
+
+### 1. THE SENTENCE, STRUCK, NOT REWRITTEN
+
+This is the clearest statement of the wrong reading anywhere in this repository, and it stands, struck, and remains legible:
+
+> ~~"`Invalid number in NLP function or derivative detected` is IPOPT saying *the model handed me a NaN*, and a multipoint model hands back a NaN when **any one** of its scenarios fails to solve."~~ (`:183`)
+
+**IPOPT is not saying that.** The message is printed by a guard at `IpOrigIpoptNLP.cpp:487` whose condition is `success && IsFiniteNumber(ret)` — **a conjunction that fails DISJUNCTIVELY**. It throws `Eval_Error` when `eval_f` returned **`success == false`** — a boolean **status**, not a number — **OR** when the returned value is non-finite, and it prints **the identical `EXIT:` string in both cases** (`cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md:74`). The measured D6R exception text — `success && IsFiniteNumber(ret) evaluated false: Error evaluating the objective function` (same file `:47`, fact A1, citing `O_mp_20260828T162849Z_1898072.log:264052-264053`) — **is itself the disjunction and does not identify which limb tripped.**
+
+The **second half** of the struck sentence is nearer the mark than the first and is worth separating: *a multipoint model that loses one scenario returns a failure*. Whether it returns it **as a flag or as a number** is precisely the open question. DAFoam's own signal in the D6R log is the **boolean** banner `Primal solution failed!`, not a printed NaN.
+
+### 2. WHAT THE RECORD ACTUALLY SUPPORTS ABOUT D6/D6R
+
+This section's D6/D6R history is the ground the sentence stands on, so the correction to that history belongs here.
+
+**D6R's recorded cause class is `BOOKKEEPING`, not a gradient failure and not a physics failure — because NO GRADIENT WAS EVER MEASURED.** From `cases/dafoam/ladder-a/A2/curriculum_D6RG/D6RG_regrade.json`:
+
+* `grade/G-D6R-1`, `G-D6R-2`, `G-D6R-3`, `G-D6R-4` — **all four `verdict = NOT A RESULT`, `reason = ARM_DID_NOT_RUN`.**
+* `grade/G1/arms_not_run` lists **`F_mp` — the finite-difference arm, this family's bright-line referee — and `REF_off`**, each `state = NOT_RUN`, `reason = REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`, `stop_arm = ACC_mp`, `stop_rc = 124`. **The FD table `DAFOAM_CHARTER.md` §2 requires beside any gradient was never produced.**
+* D6R's own frozen grader refused on a **record** defect: `n_exit = 1`, **`n_obj = 0`**, `no_final_objective_or_exit` in `O_mp/opt_IPOPT.txt`.
+
+**Corroboration for the failed-status limb, taken from the grading record rather than from the message's wording:** `grade/G-D6R-OPT` carries **`S1_line_search_failing: true`** with **`S2_dual_infeasibility_not_decreasing: false`**; **671 `Primal solution failed!` banners against 673 alpha cutbacks**, near 1:1 between DAFoam's boolean failure signal and IPOPT's evaluation errors; and the objective printed immediately before the final cutback is **finite at `0.0222388`** (`curriculum_SO3D/PREREGISTRATION.md:50`, `:53`, `:78`, `:79`).
+
+**The counts this section quotes are measurements and are untouched** — 73 of 80 majors, 673 cutbacks, 9.219178082191782 per major, 7 restoration majors, and its careful refusal to quote any D6 per-major rate as measured. What is qualified is only the causal gloss on the `EXIT:` string.
+
+### 3. WHAT THIS ADDENDUM DOES NOT CLAIM
+
+**The non-finite-value limb is NOT excluded, and no non-finite census has been computed.** `curriculum_SO3D/PREREGISTRATION.md:64` states it in terms: *"No non-finite census has been computed."* What exists is an **ungated pre-freeze search for the literal token `nan`** returning 0 over the `CD:`/`CL:` prints (same file `:80`, fact 3) — **a search for one token is not a census of non-finite values**, and generalising it would be the same slip this addendum exists to correct (recorded and withdrawn at `docs/dafoam/GRADING_CHAIN.md`, "CORRECTION WITHIN THE CORRECTION"). The census is **SO3D's registered prediction `P1` / gate `G-SO3D-1`, still uncomputed** (`:108`, `:124`), with planted control **`PLANT-A`** registered and waiting (`:145`).
+
+**So the honest state is:** the failed-status limb is corroborated, the non-finite-value limb is neither established nor excluded, and D6R's class rests on neither — `BOOKKEEPING` rests on `ARM_DID_NOT_RUN` × 4 and `n_obj = 0`. **D6R licenses no physics claim in either direction**, and this document's §6 rationale must not be read as importing one.
+
+**Governing record:** `docs/dafoam/GRADING_CHAIN.md`, cause-class row **D6R** and the appended **CORRECTION, 2026-08-31**.
