@@ -3248,3 +3248,83 @@ completely idle box with no peer commits at all** — no concurrency is required
 **So §23.1's ruling is not merely prudent, it is forced:** a pre-assigned block is **unsatisfiable
 except in one exact ordering nobody controls.** `NAME THE ROW, NEVER THE ID` stands, and this is its
 mechanical justification rather than its motivation.
+
+## §24 — T20's SIX CASES MAY BE TRANSCRIBED INTO THE JSON. **IT IS A MECHANICAL TRANSCRIPTION OF AN ALREADY-FROZEN REGISTRATION, NOT A POST-COMPUTE EDIT — AND THE REGISTRATION'S OWN SCHEMA ALREADY ENCODES THE TEST** (2026-08-31T16:05Z)
+
+**Zero solver compute.** Referred question, ruled on facts I measured at source rather than on the referral.
+
+### 24.1 THE FACTS, VERIFIED
+
+- **The prose freeze is real and pins all seven cases.** `T20_PREREGISTRATION.md` §11.2 at
+  **`7b93b2c8`** carries a table with, per case, **cells · steps · POINT core-min · per-case CAP**:
+  `T20_LC_c` 0.80, `_m` 1.20, `_f` 1.80, `_Sc` 1.80, `_Sf` 1.80, `_D` 6.80, `_P10` 1.80, TOTAL
+  **POINT 1.9559 / CAP 16.0 (hard)**.
+- **`T20_registered.json` at HEAD holds exactly one case**, `T20_LC_c`.
+- **The launcher independently refuses an unregistered case** (`run_one_t20.sh`, `REGJSON` fixed
+  at `:48`), reading `cases[CASE]['timeout_s']` and exiting 2 on `UNREGISTERED`.
+- **First compute HAS occurred** — `STATUS.T20_LC_c` exists — so T20's gates are **closed** and
+  §2i's stamp is set. This is squarely a rule-2 question.
+
+### 24.2 THE RULING — **LEGAL**, and it needs no §2d.1 grant
+
+> **Copying the six prose-frozen cases into `T20_registered.json` is a LEGAL MECHANICAL
+> TRANSCRIPTION.** The values were pinned in §11.2 at `7b93b2c8`, which **predates their first
+> compute**. Rule 2's entire evidentiary content is that *the gate could not have been chosen to
+> fit the answer* — **a value pinned at a pre-compute sha and transcribed byte-equal cannot have
+> been so chosen**, and a comparator proves it mechanically rather than on assurance.
+
+**The edit changes WHICH FILE CARRIES the values, not WHAT THEY SAY.** No gate, threshold, cap or
+label moves. **This is the same move ruled in §21 for T19** — *conform the mechanism to the
+registration, rather than amend the registration to the mechanism* — and like that one it needs no
+§2d.1 exception, and **none is sought.**
+
+### 24.3 THE TEST IS ALREADY IN THE REGISTRATION'S OWN SCHEMA, AND `T20_LC_c` IS ITS WORKED EXAMPLE
+
+This is why the ruling is narrow rather than a general licence. Every field in the existing
+`T20_LC_c` entry is **exactly one of two kinds**:
+
+1. **TRANSCRIBED** — carries a `*_source_section` citation into the frozen prose
+   (`mesh_source_section`, `ladder_source_section`, `executiontime_source_section`,
+   `cost_source_section`, `graded_source_section`).
+2. **DERIVED** — carries a `*_derivation` naming its rule and its transcribed inputs. The specimen:
+   `timeout_s = 48` with `timeout_derivation = "cap_core_min 0.80 x 60 s / ranks 1 = 48 s exactly"`.
+
+**⚠ `timeout_s` IS NOT PINNED IN THE PROSE ANYWHERE** — measured: the frozen document contains no
+`timeout_s`. **So the launcher's gate value is DERIVED, not transcribed**, and that is the single
+place this could have gone wrong.
+
+### 24.4 CONDITIONS — binding, and (a) is the one that can stop a case
+
+> **(a) EVERY FIELD in each of the six new entries must be TRANSCRIBED-with-a-citation or
+> DERIVED-with-a-stated-rule. A FIELD THAT IS NEITHER IS NEW REGISTRATION CONTENT POST-COMPUTE AND
+> IS FORBIDDEN.** If any of the six requires such a field, **that case does not transcribe and
+> stops** — it does not get a best guess.
+>
+> **(b) `timeout_s` is DERIVED by ONE rule, fixed by `T20_LC_c`'s precedent:
+> `cap_core_min × 60 / ranks`. THE RULE MAY NOT VARY BY CASE.** Applying a different rule to any of
+> the six would be choosing a cap after first compute, which is exactly what rule 2 forbids.
+>
+> **(c) THE COMPARATOR MUST REFUSE, NOT REPORT.** The check against
+> `T20_prose_cases_7b93b2c8.json` exits non-zero on any mismatch, and carries a **planted control
+> with BOTH limbs** (rule 3, §2j): corrupt a value and prove it fires; restore it and prove it goes
+> silent. **A transcription checker not shown able to detect a mistranscription certifies nothing**,
+> and §2j.2 applies — the bytes the control reads must be written by the real producer, not by the
+> control.
+>
+> **(d) IT LANDS ONCE**, in one commit, with the proof attached. This consumes no second instrument
+> pass.
+>
+> **(e) SEVEN IS THE CEILING.** §11.2's table has exactly seven rows; one is registered, six
+> transcribe. **No case absent from that table may be added by this route, ever.**
+
+### 24.5 THE HONEST LIMIT — what this does NOT license
+
+**This licenses transcription of values ALREADY FROZEN AT A PRE-COMPUTE SHA AND CITABLE BY LINE.**
+It does **not** license *"the prose says roughly this, so I will write a number"*. **If a citation
+does not resolve at `7b93b2c8`, the value is not transcribed — it is new, and it is barred.** The
+difference between those two is the whole ruling, and it is why condition (a) is written as a stop
+rather than a caution.
+
+**It creates no new rule.** It applies rule 2 and the registration's own existing schema to a
+referred question, which is adjudication rather than rule-making — stated explicitly because the
+2026-08-31 plumbing freeze bars new procedural rules and this section must not be read as one.
