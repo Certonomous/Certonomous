@@ -118,6 +118,18 @@ import difflib, hashlib, json, os, sys
 tut, prod, tut_md5_want, prod_md5_want = sys.argv[1:5]
 INSERTIONS = (
     "L0 = 1.0",
+    # THE CLOSING BRACE OF THE PRECEDING FUNCTION ENTRY IS PART OF THE INSERTION AND
+    # IT COMES FIRST IN THE DIFF, NOT LAST.  Adding a new entry to `daOptions
+    # ["function"]` after an existing one makes unified diff attribute a NEW
+    # `        },` line at the TOP of the added block; the pre-existing brace stays
+    # as the closer.  This tuple is compared ORDER-SENSITIVELY at :42, so listing
+    # this line last refused the item's OWN CORRECT producer with rc=4 BLOCKED at
+    # arm zero -- the ten added lines were already EXACTLY these ten as a multiset
+    # (driven: sorted-equal True, ordered-equal False, `        },` at diff index 1
+    # against registered index 9).  Both md5 clauses passed throughout; only the
+    # ORDER was wrong.  The order is now the DIFF's order, and it is the diff that
+    # is the measurement.
+    "        },",
     '        "CMZ": {',
     '            "type": "moment",',
     '            "source": "patchToFace",',
@@ -126,7 +138,6 @@ INSERTIONS = (
     '            "center": [0.25, 0.0, 0.05],',
     "            # NOTE. We scale it with -1 because DAFoam's CMZ calculation is positive for nose down",
     '            "scale": -1.0 / (0.5 * U0 * U0 * A0 * L0),',
-    "        },",
 )
 def md5(p):
     return hashlib.md5(open(p, "rb").read()).hexdigest()

@@ -158,7 +158,17 @@ SB2b="$TMP/nl2b"; mine "$SB2b"
 mkdir -p "$SB2b"
 cp -a "$HERE"/so2m_*.sh "$HERE"/so2m_*.py "$HERE"/so2m_decomposeParDict "$SB2b/" 2>/dev/null
 sed -i "s|^BASE=.*|BASE=$TMP/nl2b_root|" "$SB2b/so2m_chain_driver.sh"
-out=$(bash "$SB2b/so2m_chain_driver.sh" 2>&1); rc=$?
+# THIS LEG MUST REACH NL-2 AND THEN STOP BEFORE ANYTHING IS STAGED OR LAUNCHED.
+# It previously invoked the driver with NO ARM, which aborts at the usage test
+# (rc=64) BEFORE NL-2 runs -- so the one leg whose whole job was to show the REAL
+# producer PASSING never reached the check, and the ordering defect that refused
+# that producer with rc=4 sat behind a leg that could not see it.  A leg that
+# cannot reach its subject does not merely miss a break, it CONCEALS one.
+# The arm is now passed, and the root is PRE-CREATED so NL-3 refuses with rc=3
+# immediately AFTER NL-2 has printed its verdict: the producer check is exercised
+# and the chain still stages nothing and starts NO container.
+mkdir -p "$TMP/nl2b_root"; mine "$TMP/nl2b_root"
+out=$(bash "$SB2b/so2m_chain_driver.sh" MESH 2>&1); rc=$?
 if echo "$out" | grep -q 'SO2M_PRODUCER_OK'; then
   ok "(nl2c) DRIVEN CONTROL: the REAL producer PASSES NL-2 -- its ten added lines ARE exactly the registered insertions and it removes nothing, so (nl2)'s refusal is a reading of the diff"
 else bad "(nl2c) the real producer did not pass NL-2: $(echo "$out" | tail -3)"; fi
