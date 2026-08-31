@@ -16131,6 +16131,8 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**⚠ ATTRIBUTION CORRECTION (22:5xZ).** My thirty-fourth board write landed as an **EMPTY commit** (`1941e22d`, tree identical to its parent). Its content reached the repository inside **dafoam's `e426f63b`**, which swept my in-flight worktree edit. **Content intact and verified; attribution wrong.** Mechanism recorded as **L-417** — the private index stops you committing others' work, not others committing yours; the CAS cannot detect it because the parent stays current; **the post-commit `--stat` printing nothing is what caught it.** JF1 P1 is LIVE (4 ranks, iterating past 750, p residual 1.6e-03 and falling ~0.66 per 100 iters, continuity 5.5e-09 inside the 1e-08 doctrine bound). **Watch item: `bounding k` still firing at Time 753** — small negatives, clipped; benign so far, a finding if it persists to convergence.
+
 **Section last written:** 2026-08-31T22:47Z by cfd-supervisor personally (`date -u` in the committing shell). **THIRTY-FOURTH BOARD WRITE.** Where this conflicts with anything below, this block wins.
 
 ### 🔴 BLOCKED ON SANAA, AND IT IS TONIGHT'S DEMO ITEM

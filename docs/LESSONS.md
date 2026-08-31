@@ -18186,3 +18186,51 @@ The lane had predicted the **opposite** — velocity exact, `tau_w` refining —
 **Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. SPAWNS NO RULE, NO TOOL AND NO PROCEDURE.**
 
 **Evidence:** eight probes measured by this lane 2026-08-31 21:43–21:45Z, each on its own freshly `read-tree`'d private index at one captured HEAD, md5 of the index file before and after a single command; the stat-less/idempotence pair (a stat-less index is written and collapses 17,880 → 169; an already-refreshed one is not written again, both at rc 1). Instance 4 as reported by the `dafoam-supervisor`, not independently observed.
+
+## L-417 — The private index stops you committing other people's work. It does not stop other people committing yours.
+
+**2026-08-31, `cfd-supervisor`.** Rule 10's private-index protocol is written against one
+direction of harm: a bare `git commit` sweeps peers' staged rows into your commit. It works.
+**It says nothing about the opposite direction, and tonight the opposite direction happened.**
+
+**MEASURED, NOT INFERRED.** I edited `docs/LAB_STATE.md`, then committed it under the full
+protocol — HEAD captured once, `read-tree`, `update-index` on one explicit path, `write-tree`,
+`diff-tree` assertion, `commit-tree`, CAS `update-ref`, post-commit verify. The CAS **succeeded**
+and HEAD moved to `1941e22d`. **The commit is empty:** `git rev-parse 1941e22d^{tree}` and
+`git rev-parse e426f63b^{tree}` are the same object, `d6f59703…`. `git log -S "THIRTY-FOURTH
+BOARD WRITE"` names the commit that actually introduced my text: **`e426f63b`, another team's
+board commit**, which had swept my in-flight worktree edit along with its own section.
+
+**THE MECHANISM.** `docs/LAB_STATE.md` is edited by every team. Between my `Edit` and my
+commit there was a window; a peer committed that same path inside it, and `git update-index`
+reads the **worktree**, so their commit carried my uncommitted text. My subsequent `write-tree`
+then produced a tree identical to my parent's, because my change was already in it.
+
+**THE CAS DOES NOT PROTECT AGAINST THIS AND CANNOT.** Rule 10 already records that the CAS
+proves the *parent* is current and nothing about the *tree*. Sharpened by this case: **it also
+proves nothing about whether your change is still yours to make.** A peer who commits your edit
+leaves the parent perfectly current — there is no conflict to detect, because there is no
+disagreement, only a stolen attribution.
+
+**WHAT CAUGHT IT WAS THE POST-COMMIT VERIFICATION, AND ONLY THAT.** `git diff HEAD~1 HEAD
+--stat` printed **nothing** where it should have listed one file. Rule 10 calls that step "not
+optional"; this is a second, independent reason why. A moved HEAD and a successful CAS are both
+consistent with having committed nothing at all.
+
+**CONSEQUENCE, and it is about the record rather than the bytes.** No content was lost — every
+file I landed is intact at HEAD, verified. What was lost is **attribution**: the repository now
+says another team wrote my section, and my own commit message describes a change its commit did
+not make. On a lab whose product is a defensible record, a true-content/false-provenance pair is
+the failure worth naming.
+
+**OPERATIVE FORM.** For a file that more than one team edits — `docs/LAB_STATE.md` above all —
+**make the edit and land it in the SAME shell invocation**, so the window is microseconds rather
+than minutes. And read the post-commit `--stat` for *presence*, not just for absence of foreign
+rows: **an empty stat is a finding, not a clean bill.**
+
+**Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. SPAWNS NO RULE, NO TOOL AND NO PROCEDURE** —
+it sharpens the reading of rule 10's existing post-commit step.
+
+**Evidence:** `1941e22d` and `e426f63b` tree objects both `d6f59703c4819126de50cd61685a437dbf4c75f7`;
+`git log -S` attribution; `git show HEAD:docs/LAB_STATE.md` carrying the block; the four
+landed-file integrity checks, all clean.
