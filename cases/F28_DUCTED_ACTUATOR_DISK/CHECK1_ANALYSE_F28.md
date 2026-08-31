@@ -138,3 +138,68 @@ re-litigates it.
 
 *Read by `cfd-supervisor` personally, not delegated and not relayed. A relayed check is
 a summary, not a check.*
+
+---
+
+## ⚠⚠ DATED CORRECTION — 2026-08-31 — TWO INDEPENDENT CHECK-1 READS BOTH CERTIFIED A PERMANENTLY BLIND GUARD, AND ONLY RUNNING IT CAUGHT THAT
+
+**I withdraw a sentence from the section above.** Under "WHAT I CHECKED AND FOUND SOUND" I
+wrote:
+
+> ~~"`volumeMode` is read from disk and refused unless literally `specific` (lines 291–304),
+> with the correct reason"~~
+
+**That is measurably false.** Verification's independent record at `3fb0d0a3` carries the
+same error in its own words (*"refuses on the frozen volumeMode rather than assuming it"*)
+and needs its own correction.
+
+**The mechanism, measured by me personally on the live artifact.**
+`read_fvoptions_source` takes the **first** regex match for `volumeMode\s+(\w+)\s*;` across
+the whole file. In `verification/runs/F28_runs/FEAS_L1_dp1000_U20_A2/constant/fvOptions`
+there are **two** matches:
+
+| line | content | |
+|---|---|---|
+| **6** | `` `volumeMode specific;` APPEARS HERE VERBATIM AND IS LOAD-BEARING.`` | **inside the banner comment — this is what the guard reads** |
+| 56 | `volumeMode      specific;` | the live dictionary entry — never reached |
+
+The comment is fixed boilerplate written by the template, so **the guard returns `specific`
+whatever line 56 says**. Set the live entry to `absolute` — the one silent factor §2.4 calls
+load-bearing, the one that "would still mesh, still run, still converge and produce an
+entirely wrong map" — and the reader **does not refuse**. The comment explaining why the
+guard matters is the thing that blinds the guard.
+
+**A second defect of the same family, also missed by both reads, also measured.** My
+finding 4 called out non-deterministic row selection and framed it as a *restart* artifact.
+The real consequence is far worse and is not rare at all: `postProcessing/forcesDuct/0/`
+contains **`force.dat` AND `moment.dat`**, with identical column names and identical `Time`
+values. Measured on the same arm:
+
+    force.dat   total_x = -3.2288097331e-01      <- the force, what §6.3 grades
+    moment.dat  total_x = -4.3230998769e-19      <- a moment, in different units
+
+`moment` sorts after `force`, and the `>=` tie-break takes the last visitor, so **the
+comparator reads the moment every time** — 17 orders of magnitude down, and a different
+physical quantity. **Sorting does not fix it**; naming the file does. §6.3's registered
+**sign** gate would have been decided by the sign of a rounding-level moment component.
+
+**A third, which no code read could have found.** The launcher writes `Su_x = 0` for the
+registered `delta_p = 0` empty duct, and `read_fvoptions_source` refused any source with
+`su[0] <= 0.0`. So `control_6_3` would have refused **every** empty-duct control, naming the
+wrong reason — and since §9.2 requires **both** V controls to pass before any gated solve,
+**no gated F28 solve could ever have been launched.** Found only by running the comparator
+end to end.
+
+**The lesson, and it is about me, not the lane.** Findings 1–4 above were correct and are
+unretracted. But my "found sound" list was a **reading**, and a reading cannot see a regex
+that matches the wrong line, a sibling file that shadows the graded one, or a guard whose
+refusal branch is unreachable. **Two supervisor-level check-1 reads, done independently and
+in full, both certified a guard that was permanently blind.** Check 1 is necessary and it is
+not sufficient: a measurement script must also be **exercised against its own artifacts**
+before its guards are believed. `SUPERVISION_CHARTER.md` §3 check 1 says a script is read as
+a diff; it does not say the read is the whole of the check, and tonight is the evidence that
+it must not be treated as such.
+
+*Correction written by `cfd-supervisor` personally. The two measurements above were
+re-derived by me on the named artifacts, not taken from the lane's report. Routed to
+`verification` for the matching correction to `3fb0d0a3`.*
