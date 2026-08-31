@@ -19594,6 +19594,50 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T19:5xZ — **VMFL006-R2 IS A `PASS` — THE NINTH CREDENTIAL AND THE FIRST TIME THIS TEAM HAS CONVERTED ITS OWN `NOT A RESULT` INTO ONE BY REPAIR. AND A LANE PROVED MY VMFL038-R2 GATE COULD NEVER HAVE GRADED — A DESIGN ERROR OF MINE, CAUGHT BY A THEOREM AND A MEASUREMENT.**
+
+**Written by `ansys-verification-supervisor` personally. Every §1 check is mine.**
+
+#### VMFL006-R2 — `PASS`, ROW **#50**. THE FIRST REPAIR-TO-CREDENTIAL CONVERSION.
+
+R1 died `NOT A RESULT` (row #49) on a **clean solve** — the physics was never in question. R2 changed **one thing**: a convergence clause that no real run could satisfy became one that any converged run can. **`endTime` 3000 -> 8000 with `RES_FLOOR` UNCHANGED at 1e-9 — more iterations, not a looser floor** — and the null-range refusal replaced by a positive proof-of-descent.
+
+**Verified by me, not relayed:** triple at x = 0.10 m **0.354896103 / 0.354983201 / 0.355020182**, R = **0.42459 CONVERGING**, p = **1.2359**, GCI_fine **0.009608 %** against a 1 % ceiling — I recomputed all of it. Worst station **0.096545 %**, 10.4x inside the band. Verdict read by me out of `GRADING_VMFL006.json`. **Planted-zero FIRED AT ALL THREE LEVELS** (reader_delta = PLANT = 0.001234 each) — the restructure that runs the controls BEFORE any refusing clause, closing the L1-only weakness rows #44/#46/#49 all carry. **Freeze `c067c56f` 18:35:57Z vs earliest run-root byte 18:37:48Z = +111 s**, root absent at the freeze, five frozen files identical disk/freeze/HEAD. **4.8833 core-min MEASURED** (L1 0.2 / L2 0.75 / L3 3.933) vs point 4.4 -> **ratio 1.110** (C-20260831T185058…). **The git-provenance caveat rides the credential itself — register row #50 column 7, verbatim, unsoftened: "THIS ROW MAY NOT BE CITED AS A CLEAN PREDICTION-FIRST FREEZE OF THE BAND."**
+
+**THE REGISTERED PREDICTION HELD, RESOLVED BY MEASUREMENT:** R2's design predicted all three levels reach a bit-exact flat plateau at the machine floor. They did — window max **8.874e-15 / 9.989e-15 / 9.938e-15**, and R1's L3 (6.18e-8, still descending at 3000) now reaches 9.938e-15. The clause that graded R1 UNSATISFIABLE grades all three CONVERGED.
+
+#### VMFL038-R2 — A DESIGN ERROR OF MINE, CAUGHT BY A LANE WITH A PROOF AND A MEASUREMENT. THE MOST VALUABLE THING ANY LANE DID TODAY.
+
+**I ordered the gate as a Roache triple on wall shear stress. THAT GATE COULD NEVER HAVE GRADED, and the lane proved it BEFORE compute rather than discovering it after.**
+
+**THE PROOF (I checked it myself):** in a conservative finite-volume scheme the face fluxes telescope **exactly**. Sum x-momentum over a wall-normal column in the developed region: free-surface shear (zero) minus wall shear; streamwise terms cancel on an x-uniform field; the pressure source sums to `(dp/L)*delta` identically. **So tau_w is fixed by conservation on ANY mesh at ANY refinement.** Measured: **39.24000000001422 Pa, 3.62e-13 relative.** A tau_w triple is structurally `EXACT` -> rule 5 limb (2) -> `NOT A RESULT`, whatever the mesh — **R1's own registered outcome #3, which R1 predicted would not happen. It would have.**
+
+**AND MY PREDICTION WAS EXACTLY BACKWARDS.** I said velocity would be machine-exact (unusable) and tau_w would refine (gradeable). The reverse is true: the discrete profile carries a **constant** K·h²/8 shift (measured **1.226250e-04** vs predicted **1.226250e-04**, six significant figures), which leaves the wall gradient untouched and puts genuine second-order error in `u_bar`. **This case would have burned a SECOND time on a gate I designed twice.**
+
+**THE LAW, verified by me against the charter text:** §2h.2 rules expressly that §2f.3's `GATE REACHED` cap does NOT reach a floor-demonstration limb, because that clause's ground is INVERTED — the discretisation error IS the claim. §2h.4 makes such a limb `PASS`-capable where all five conditions are declared before compute; §2h.3's referral to Sanaa concerns only the WORDING of the CONTINUUM row, and *"until she rules, §2h governs by express classification."* The lane's explicit disclaimer that this does not decide the referred question is what ANSYS §11.1 point 2 requires.
+
+**THE REDESIGN, FROZEN at `9a6aea9b`:** LIMB A — `tau_w = 39.24 Pa`, NO TRIPLE, a floor demonstration under §2h.4's five conditions (each declared and individually discharged in §5.1), band `FLOOR_REL = 1e-8`. LIMB B — `u_bar = 0.1308 m/s`, WITH the Roache triple, discretisation error `K h²/6` provably 2nd order, band **`TOL_B = 0.5 %` FIXED BY WHAT A KNOWN PAST DEFECT DOES TO IT** — R1's measured L3 `u_bar` deficit was 0.82 %, so the band GATE FAILs that run; `P_MIN = 1.0`, `GCI_MAX = 0.02`. And limb B matches the manual's own face: the only printed VMFL038 result is Figure .38.2, a velocity profile — the manual prints no wall shear.
+
+**THE REQUIREMENT I ADDED, on the row's face:** because tau_w is exact **by the conservation structure of the scheme**, **limb A verifies CONSERVATION, not ACCURACY** — a real claim a flux-assembly bug would break, but very nearly tautological, and it must not carry weight it has not earned. The frozen bytes say so in those words. **Limb B is where this case's verification content lives.** Isotropic ladder confirmed: (Nx,Ny) 90×20 / 180×40 / 360×80, cells 1800/7200/28800 (×4), dx/dy = 4 CONSTANT — the property R1 lacked. Freeze verified by me: ancestor of HEAD, four files identical, run root ABSENT, `--selftest` 45/45.
+
+#### THE RECORD-UPDATE DUTY — DRAFTED, VERIFIED BY ME, DISPATCHED TO LAND
+
+Four records, each RECORDING an experience or fact and minting NO rule/tool/procedure (Sanaa's 14-day freeze): **L-413** the satisfiable-convergence-clause experience; **L-414** the writer-side §11.3 queue race (the runner scans the FILESYSTEM not git and launched VMFL006-R2 off disk before its queue commit — the empty commit was corrected honestly, not reverted); **L-415** the conservation-identity finding (provenance-flagged as the VMFL038-R2 lane's relayed measurements); **N-AV14** the scalarTransportFoam Graetz residual descent. **I spot-checked N-AV14 against the raw `solverInfo.dat` and confirmed the crossings to the iteration (315/996/3436) — after first mis-reading the column myself and catching it.** Numbering re-derived: LESSONS max 412, N-AV max 13.
+
+#### STATE
+
+**Commits:** VMFL006-R2 chain (`c067c56f` freeze, `a974d458` queue, `97047f4e` RESULTS, `e14760a7` row #50, `bdad9db4` calibration); VMFL038-R2 chain (`bb274804` 1/4, `19d3562f` 2/4, `afe867cf` 3/4 comparator, `9a6aea9b` FREEZE 4/4). The lessons/N-AV commit lands next.
+
+**Live.** VMFL038-R2 **frozen, not yet queued** — the queue entry and empty run root are the immediate next step. No ansys solver running. Records commit in flight.
+
+**Rungs without verdicts.** VMFL038-R2 (frozen, PASS-capable on limb A floor + limb B triple). VMFLGPU006 blocked on evidence; VMFLGPU004 `BLOCKED` (#41); VMFLGPU008/009/010 untouched.
+
+**FREEZE-AHEAD 1** (VMFL038-R2), rising toward Sanaa's floor of 3 as it queues. **Register: 50 rows, 50 distinct ids, 1–50, no gaps, no repeats. TWO PASSES today (VMFL033-R2 #48, VMFL006-R2 #50); nine credentials total.**
+
+**On Sanaa's desk (six)**, plus: `scripts/append_record.py` uncommitted with the HEAD version unable to import (ledger at HEAD not reproducible from HEAD); the C-id doctrine conflict vs rule 11; the runner-cap `ENFORCE` misstatement; and the §2h.3 referral (split the CONTINUUM row so an exact/manufactured-solution reference is `PASS`-capable) — **this team's VMFL038-R2 now depends on §2h governing by express classification, which it does until she rules.**
+
+**VERIFY (stated, not filled in):** VMFL038-R2's verdict, unknown until it runs; whether any tool parses this register's row ids; and the per-launcher frozen-blob attestation, established from run roots rather than by hashing each file.
+
 ### 2026-08-31T18:1xZ — **VMFL006 IS `NOT A RESULT` ON A CLAUSE DEFECT, NOT A SOLVE DEFECT — ITS PHYSICS WOULD HAVE PASSED 10.9× INSIDE THE BAND. ITS ROW COLLIDED WITH #44 AND I CAUGHT IT. BOTH ROUTED LAUNCHER DEFECTS COME BACK NEGATIVE, DRIVEN RATHER THAN ASSERTED.**
 
 **Written by `ansys-verification-supervisor` personally.**
