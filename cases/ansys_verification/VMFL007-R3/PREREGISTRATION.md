@@ -1,11 +1,30 @@
 # VMFL007-R3 — Non-Newtonian (power-law) Flow in a Pipe — PRE-REGISTRATION **DRAFT**
 
-**STATUS: DRAFT — NOT FROZEN. THIS IS NOT THE FREEZE COMMIT.**
-Drafted by `ansys-lane-opus48` on 2026-08-31T22:26:34Z (UTC, `date -u`), HEAD
-`f5d117c4d0ac6fa13bbbc920cb91724ffe7821dc`, at the direction of
-`ansys-verification-supervisor`. The freeze commit, the compute authorisation and
-the §12.2 SAME/DIFFERENT ruling are the supervisor's, not this lane's. Nothing here
-has run; no core-minute has been spent; no gate is frozen.
+**STATUS: DRAFT — NOT FROZEN — ⛔ NOT READY TO FREEZE — FREEZE BLOCKED. THIS IS NOT THE FREEZE COMMIT.**
+
+> **⛔ DO NOT FREEZE THIS REGISTRATION. The freeze is BLOCKED on the pinning
+> probe, which was RUN and did NOT clear its pre-fixed decision rule.** A pinning
+> probe (L1+L2, arm A5) executed 2026-08-31 (see `PINNING_PROBE_RESULT.md` beside
+> this file): **L1 converged cleanly; L2 DIVERGED (SIGFPE) with arm A5, so no valid
+> L2 Δp exists and d21/ptp COULD NOT be evaluated.** The pre-fixed rule
+> (`d21/ptp ≥ 100`, fail-closed, the supervisor's, unchanged) is therefore
+> **UNSATISFIED**, and the gate quantity's non-pinning is **ARGUED, NOT MEASURED.**
+> A future lane must NOT read the `SAME` / `PASS`-capable ruling below as
+> readiness: two independent blockers stand — (a) the pinning question is
+> unmeasured, and (b) **arm A5 is not mesh-robust (converges at 25×25, diverges at
+> 50×50)**, so no graded triple can run on it as configured. **Freezing requires
+> BOTH: a solver arm proven stable across the whole family, AND a re-run probe that
+> clears `d21/ptp ≥ 100`.** Neither exists yet.
+
+Drafted by `ansys-lane-opus48` on 2026-08-31T22:26:34Z (UTC, `date -u`), HEAD at
+draft time `f5d117c4`, at the direction of `ansys-verification-supervisor`. Updated
+2026-08-31 with the supervisor's §12.2 ruling (§4), the executed pinning-probe
+result (§5), and the `§2h.8.1` citation correction. **The file is a DRAFT, so these
+are direct edits, not frozen-file amendments.** The freeze commit and any further
+compute are the supervisor's — and both are stood down tonight by Sanaa's demo
+priority. Nothing in the graded run has run; the diagnostic probe consumed **2.8
+core-min** under an authorisation later withdrawn (the probe had already completed
+when the withdrawal arrived); no gate is frozen.
 
 **Cites:** register row #37 (VMFL007-R2, the single-grid solver/preconditioner
 slate, `NOT A RESULT`) and row #8 (VMFL007 run 1). Re-grades neither; both stand.
@@ -20,17 +39,17 @@ Per `ANSYS_VERIFICATION_CHARTER` §11.2 (v1.5, 2026-08-30) a registration may no
 reach its freeze commit with an open gate question. Three items are the
 supervisor's and are flagged in place below:
 
-1. **§12.2 SAME/DIFFERENT (the crux — §4 below).** This lane RECOMMENDS `SAME`
-   and therefore `PASS`-capable, but the ruling is the supervisor's. If the honest
-   answer is `DIFFERENT`, the ceiling is `GATE REACHED` and §6's band still stands.
-2. **The conservation-identity / pinning proof-by-measurement (§5 below).** This
-   lane argues from physics that the gate quantity moves with the mesh and builds a
-   fail-closed pinning-refusal into the comparator, but a *measured* d21/d32 needs a
-   two-level coarse solve, which is compute this lane is not authorised to launch.
-   **A pre-freeze pinning probe is the supervisor's to authorise or waive.**
-3. **The solver arm (§10 below): A5 (PBiCGStab/DIC) recommended, A3 (PCG/DIC) the
-   alternative.** Recommend, not decide.
-
+1. **§12.2 SAME/DIFFERENT (the crux — §4 below).** **RULED `SAME`, `PASS`-capable,
+   by `ansys-verification-supervisor` 2026-08-31** (verbatim ruling folded into §4).
+   The ruling stands. `DIFFERENT` is not the fallback — the condition is met.
+2. **The conservation-identity / pinning proof-by-measurement (§5 below).** **STILL
+   OPEN — this is the freeze blocker.** The pinning probe was RUN 2026-08-31 and did
+   NOT clear the pre-fixed rule (`d21/ptp ≥ 100`): L2 DIVERGED with arm A5, so d21 is
+   unmeasured. Δp non-pinning is ARGUED, not MEASURED. **A re-run probe on a
+   mesh-robust solver arm is required before any freeze** (§5, `PINNING_PROBE_RESULT.md`).
+3. **The solver arm (§10 below).** **A5 (PBiCGStab/DIC) is DISPROVEN as the graded
+   arm** — it converges at 25×25 but diverges at 50×50 (probe, §5/§10). A mesh-robust
+   configuration must be found and proven across the family before freeze.
 ---
 
 ## 2. Case identity and ground truth
@@ -151,8 +170,16 @@ they are the reason the pinning/convergence controls (§5, §9) are not optional
 `ANSYS_VERIFICATION_CHARTER` §12.2 point 4 whenever `SAME`/`PASS` is sought.
 Conditions cited as `VERIFICATION_CHARTER §2h.4 (v1.17, 2026-08-27, the five
 floor-demonstration conditions)` and the ceiling rule as `VERIFICATION_CHARTER
-§2h.6.1 (v1.27, 2026-08-31, the exact-PDE rule)` — the §12.3 (v1.6, 2026-08-31)
+§2h.8.1 (v1.28, 2026-08-31, the exact-PDE rule)` — the §12.3 (v1.6, 2026-08-31)
 citation form; a bare `§2h.6` is banned in this territory.
+
+> **CITATION CORRECTED PRE-FREEZE, SUBSTANCE UNMOVED.** An earlier draft cited the
+> exact-PDE rule as `§2h.6.1 (v1.27)`. That address is superseded: `VERIFICATION_CHARTER`
+> v1.28 (2026-08-31, `§2h.8`) renumbered the exact-PDE rule `§2h.6.1`→`§2h.8.1` with
+> **its words unchanged**, because `§2h.6` denotes non-retroactivity alone and a bare
+> `§2h.6` would name two rules, one of which defeats the claim. Verified at source
+> (`VERIFICATION_CHARTER` lines 3750, 3756–3759, 3791). `§2h.4`'s address was **not**
+> renumbered (still `§2h.4`, v1.17). The file is a DRAFT, so this is a direct edit.
 
 1. **Reference is the exact solution of the SAME continuum model.** Argued in (3):
    YES conditional on the frozen developed-inlet BC. This is the load-bearing
@@ -177,12 +204,37 @@ citation form; a bare `§2h.6` is banned in this territory.
    nothing about meshes not run. (For a triple this is satisfied a fortiori — the
    triple is the across-mesh instrument the floor demo lacks.)
 
-**PASS path if the supervisor rules `SAME`:** `§2h.6.1` makes the reference
+**PASS path (the supervisor RULED `SAME`):** `§2h.8.1` makes the reference
 `PASS`-capable (not capped at `GATE REACHED`); the triple returns `CONVERGING`
 (rule 5 step 3); `PASS` iff the finest Δp is inside §6's band. This is the exact
-route register row #28 (VMFL004-R2) took to a landed `PASS`. **DIFFERENT fallback:**
-ceiling `GATE REACHED`, hard-coded in the comparator, §6's band unchanged. **This
-lane does NOT manufacture PASS-capability; it argues `SAME` and hands the ruling up.**
+route register row #28 (VMFL004-R2) took to a landed `PASS`. **This lane did NOT
+manufacture PASS-capability; it argued `SAME` and handed the ruling up.**
+
+### §12.2 RULING — `SAME`, `PASS`-capable — `ansys-verification-supervisor`, 2026-08-31 (dated ruling line on a DRAFT, folded in at the supervisor's instruction; this is NOT the freeze)
+
+> Ruling, recorded as given by the supervisor: **§12.2 = `SAME`, `PASS`-capable**,
+> cited `VERIFICATION_CHARTER §2h.8.1 (v1.28, 2026-08-31, the exact-PDE rule)`. The
+> supervisor read the frozen `0/U` (blob `b626d65a`) at source: the inlet is a
+> `codedFixedValue` imposing u(r) = u_max(1−(r/R)^3.5), u_max = 3.142857 — the exact
+> fully-developed Rabinowitsch-Mooney profile the manual's p.29 BC specifies. On that
+> BC the flow is unidirectional and x-invariant, so **(u·∇)u vanishes IDENTICALLY —
+> not as a small parameter** — and the full incompressible power-law NS momentum
+> equation the solver discretises reduces **EXACTLY** to the 1-D ODE
+> `0 = −dp/dx + (1/r)d/dr(r·τ)` that the closed form solves. **Full model = reduced
+> model exactly. This is NOT the VMFL029 trap** (there the closed form solved a
+> structurally different rank-one non-elliptic PDE and ellipticity was not a small
+> parameter; here the two models coincide because the convective term is identically
+> zero under the imposed developed inlet). **The determination rests entirely on that
+> one frozen input** — a flat inlet would be `DIFFERENT`. `DIFFERENT` is not the
+> fallback because the condition is met; the `GATE REACHED` fallback would stand only
+> if the pinning probe (§5) fails.
+>
+> **STATUS OF THE ONLY REMAINING CONDITION:** `§2h.8.1`'s `PASS`-capability requires
+> `§2h.4`'s five conditions **and** — per this team's practice — a gradeable
+> (non-pinned, converging) triple. Condition 1 (SAME) is now RULED. **But the
+> registration is NOT thereby freezable:** the gradeability of the triple is exactly
+> what the §5 pinning probe was to establish, and that probe DID NOT clear its rule
+> (§5). **A `SAME` ruling does not make a pinned-or-undiagnosed gate gradeable.**
 
 ## 5. Gate quantity and the conservation-identity / pinning analysis
 
@@ -213,28 +265,44 @@ that made VMFL003-M2's f_dev bit-identical between levels. **Argued NOT pinned:*
   disclosed, and it is precisely NOT the f_dev pinning because the GATE carries the
   radial information the diagnostic lacked.
 
-**HONEST GAP — proof by measurement, which this lane cannot furnish.** The
-supervisor's standing requirement is d21, d32 and the plateau noise floor,
-*measured*, before the gate is proposed (as VMFL021-R2 gave d21 0.006570,
-d32 0.021953 vs ptp 2.14e-05). That measurement requires at least two converged
-solves, which is the graded run itself, and **this lane is directed not to launch.**
-Two things stand in its place, and the second is fail-closed:
+**⛔ THE PINNING PROBE WAS RUN 2026-08-31 AND DID NOT CLEAR ITS RULE — THE FREEZE IS
+BLOCKED.** Full record beside this file: `PINNING_PROBE_RESULT.md`. The supervisor
+authorised a two-level diagnostic probe (L1 25×25, L2 50×50, arm A5, scratch OUTSIDE
+the runs tree, cap 3 core-min) with the decision rule **fixed in advance and
+fail-closed: `d21/ptp ≥ 100` → not pinned → proceed; `< 100` → pinned → do not
+freeze.** Measured:
 
-1. **A recommended pre-freeze pinning probe (the supervisor's to authorise):** run
-   L1 (25×25) and L2 (50×50) to convergence in a scratch directory OUTSIDE
-   `verification/runs/` (Clause B smoke geometry), read Δp at each, and confirm
-   d21 = |Δp(L2)−Δp(L1)| exceeds the functional plateau noise by a wide margin
-   (target ≳ 100×, matching the VMFL021-R2 precedent) BEFORE freezing. Est. ≤ ~3
-   core-min. If d21 is at the plateau floor, Δp IS pinned and this registration is
-   dead before it runs — say so and do not freeze.
-2. **A pinning-refusal clause in the comparator (fail-closed backstop at grading):**
-   the comparator REFUSES (`NOT A RESULT`) if the triple's d21 or d32 falls at or
-   below the per-level plateau noise floor (structurally EXACT → rule 5 limb 2).
-   So even absent the pre-freeze probe, a pinned quantity cannot be graded as a
-   result.
+- **L1 (25×25, A5): CONVERGED.** Δp = **60 437.9488 Pa**, plateau peak-to-peak
+  **0.0000 Pa** (bit-flat over the last 6000 of 30000 iterations); dev −0.1388 % from
+  the reference — inside §6's band already at the coarsest level.
+- **L2 (50×50, A5): DIVERGED.** SIGFPE / core dump at iteration ≈ 13 275; the U
+  residual was rising (≈ 0.07 and climbing) and Δp blew up to ≈ 1e308 (garbage).
+  **No valid L2 Δp exists.**
 
-**The single-grid A3/A5 evidence does NOT prove non-pinning** (it is one mesh) — and
-it raises a different flag handled in §9.
+**Consequence: `d21 = |Δp(L2)−Δp(L1)|` is UNMEASURED** — L2 produced no converged
+value — **so `d21/ptp` cannot be evaluated and the rule is UNSATISFIED. Fail-closed:
+DO NOT FREEZE.** Two distinct blockers now stand, and both must be cleared before any
+freeze:
+
+1. **The pinning question is STILL OPEN.** Δp non-pinning is ARGUED (above; L1's
+   clean converged value is consistent with it and refutes nothing) but **NOT
+   MEASURED** — no d21 exists. The pre-fixed `d21/ptp ≥ 100` rule stands, unexecuted
+   to a valid result, and must be re-run to a PASS on a solver that survives L2.
+2. **Arm A5 is NOT mesh-robust.** It converged at 25×25 and diverged at 50×50, so
+   **no graded triple can run on A5 as configured.** A mesh-robust configuration must
+   be found and proven across all three levels FIRST — likely tighter relaxation
+   (U 0.7 → lower; p already 0.3), a Krylov U solver (PBiCGStab for U rather than
+   `smoothSolver`), and/or SIMPLEC (`consistent yes`). **This is a solver-robustness
+   investigation the single-grid R2 slate could not have surfaced** — it is the same
+   "cause class is not repair class" pattern as VMFL007 itself.
+
+**The fail-closed pinning-refusal in the comparator (§11) stays regardless** — belt
+and suspenders: even a future probe that clears the rule does not exempt the graded
+comparator from refusing if d21 collapses on the real triple.
+
+**Standing anchors for the re-run rule** (the supervisor's, unchanged): VMFL021-R2
+measured ≈ 300× and was sound; VMFL003-M2 measured d21 = 0 exactly and was pinned;
+the 100× threshold is fixed and is not adjusted to fit any probe return.
 
 ## 6. Gate and tolerance
 
@@ -322,14 +390,23 @@ L-413):**
 comparator; the numbers above are recommendations for the supervisor to fix at the
 freeze.**
 
-## 10. Solver arm — recommend, do not decide
+## 10. Solver arm — A5 DISPROVEN by the probe; a mesh-robust arm must be found first
 
-**Recommend A5 (PBiCGStab/DIC).** PBiCGStab is the more robust Krylov solver for the
-non-symmetric, strongly non-linear shear-thinning momentum system than PCG (which
-assumes SPD); it is one of the two arms the R2 slate found survived (A3 71.9, A5
-63.3; A1/A2/A4/A6 diverged to 1e+135–1e+161). **A3 (PCG/DIC) is the alternative and
-a useful independent cross-check on L1.** The frozen `fvSolution` for the graded
-triple is one arm; its blob is asserted by the launcher.
+**⛔ A5 (PBiCGStab/DIC) is DISPROVEN as the graded arm.** The §5 probe measured it:
+A5 converged at 25×25 (L1) but **DIVERGED (SIGFPE) at 50×50 (L2)**. A single-grid
+survivor is not a mesh-robust solver, and the R2 slate — being single-grid — could
+not have shown this. **No graded triple can be frozen on A5 as configured.**
+
+*(Superseded recommendation, kept for the record:* A5 was recommended pre-probe as
+the more robust of the R2 slate's two single-grid survivors (A3 71.9, A5 63.3;
+A1/A2/A4/A6 diverged to 1e+135–1e+161). The probe overturned it.*)*
+
+**What a mesh-robust arm probably needs** (a solver-robustness investigation, the
+supervisor's to scope; NOT decided here): tighter under-relaxation (U 0.7 → e.g.
+0.5; p already 0.3), a Krylov U solver (`PBiCGStab`/`DIC` for U rather than
+`smoothSolver`/`symGaussSeidel`), and/or SIMPLEC (`consistent yes`). Any candidate
+must be proven to converge on **all three** levels (25/50/100) before it can be the
+frozen arm — that proof is itself the first thing a resumed VMFL007-R3 effort does.
 
 **The 12 % A3/A5 disagreement is itself the argument for the §9 clause:** if two
 DIC arms still disagree beyond the plateau tolerance on any graded level, one is not
@@ -403,15 +480,22 @@ graded levels should converge in a few thousand iterations; scaling by cells:
   `.../VMFL007_R3`, and `verification/runs/.../VMFL007_R3` are all absent too.
 - Neither VM2026R1 archive copy is written, moved or deleted by any run.
 
-## 14. What is NOT decided here (the supervisor's, before freeze)
+## 14. Status of each open item (updated 2026-08-31 after the probe and the stand-down)
 
-1. **§12.2 SAME/DIFFERENT** — this lane recommends `SAME`/`PASS`-capable; the ruling
-   and the resulting hard-coded ceiling are the supervisor's.
-2. **The pinning proof-by-measurement** — authorise the §5.1 two-level probe, or
-   accept the §5.2 fail-closed refusal as sufficient.
-3. **The solver arm** — A5 recommended, A3 the alternative.
+1. **§12.2 SAME/DIFFERENT** — **RULED `SAME`, `PASS`-capable** by the supervisor (§4).
+   Closed.
+2. **The pinning proof-by-measurement** — **⛔ OPEN, THE FREEZE BLOCKER.** The probe
+   ran and did NOT clear `d21/ptp ≥ 100` (L2 diverged, d21 unmeasured; §5). Must be
+   re-run on a mesh-robust arm.
+3. **The solver arm** — **⛔ OPEN. A5 DISPROVEN** (diverges at L2; §10). A mesh-robust
+   arm must be found and proven across all three levels first.
 4. **The frozen numeric constants** — `residualControl`, the plateau window W and
-   fraction, `P_MIN`, the per-level caps — to be fixed in the comparator at freeze.
-5. **The freeze commit itself**, and the compute authorisation, are the supervisor's.
+   fraction, `P_MIN`, GCI ceiling, per-level caps — still to be fixed at freeze.
+5. **The freeze commit and any further compute** — the supervisor's, and **stood down
+   tonight** by Sanaa's demo priority.
 
-**END OF DRAFT — NOT FROZEN.**
+**⛔ NET: NOT READY TO FREEZE. Two hard blockers (items 2 and 3) stand. A resumed
+effort starts by finding a solver arm that converges on 25/50/100, then re-runs the
+pinning probe to a `d21/ptp ≥ 100` PASS. Only then do items 4–5 arise.**
+
+**END OF DRAFT — NOT FROZEN — NOT READY TO FREEZE.**
