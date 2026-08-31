@@ -30,8 +30,20 @@ import os
 import re
 import sys
 
-DIAG = ("/home/ubuntu/Certonomous/verification/runs/F28_runs/"
-        "DIAG_mesh_L1_aspectRatio/constant/")
+# The directory holding the `checkMesh -writeAllFields` output.  It defaults to
+# the L1 diagnostic case this script was written against; ADDENDUM 1's
+# supersession needed the SAME reader on L2 and L3 and on the rebuilt meshes, so
+# it is overridable by environment rather than being copied and edited (a copied
+# reader is a second reader, and two readers are two chances to be wrong).
+DIAG = os.environ.get(
+    "F28_DIAG_DIR",
+    "/home/ubuntu/Certonomous/verification/runs/F28_runs/"
+    "DIAG_mesh_L1_aspectRatio/constant/")
+
+# Size of the high-aspect-ratio set `checkMesh` reported for THIS mesh.  It is a
+# per-mesh number, not a constant; passing the wrong one silently reports the
+# column share of the wrong set.
+HIGH_AR_N = int(os.environ.get("F28_HIGH_AR_N", "2228"))
 
 # Column boundaries of the L1 generator, for locating a defect by column.
 COLB = [("X_IN", -2.50), ("X_NOSE", -0.03), ("X_B", -0.0025),
@@ -135,9 +147,9 @@ def main():
     print("      perfectly smooth wedge mesh purely because cell volume ~ r.")
 
     print("\n=== COLUMN SHARE OF THE HIGH-ASPECT-RATIO SET ===")
-    order = sorted(range(N), key=lambda j: -ar_s[j])[:2228]
-    print("  of the 2228 highest-AR cells, %d have r < 1e-3 m"
-          % sum(1 for j in order if cy[j] < 1e-3))
+    order = sorted(range(N), key=lambda j: -ar_s[j])[:HIGH_AR_N]
+    print("  of the %d highest-AR cells, %d have r < 1e-3 m"
+          % (HIGH_AR_N, sum(1 for j in order if cy[j] < 1e-3)))
     for k in range(len(COLB) - 1):
         n = sum(1 for j in order if COLB[k][1] <= cx[j] < COLB[k + 1][1])
         if n:

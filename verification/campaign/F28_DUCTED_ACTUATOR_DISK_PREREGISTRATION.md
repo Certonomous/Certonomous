@@ -1448,3 +1448,87 @@ core-min cap remains entirely unspent.**
 *Drafted by a `lab-lane` for `cfd-supervisor`, 2026-08-31, on the supervisor's
 ruling. The supervisor's `SUPERVISION_CHARTER.md` §3 check 1 — measurement-script
 diffs read as diffs — is theirs and is not delegated to this lane.*
+
+
+---
+
+## ADDENDUM 2 — 2026-08-31 — CORRECTING ADDENDUM 1, AND THE FIRST CONVERGENCE EVIDENCE
+
+**Version 1.2.** **Lines whose number changed above this section: 0.** This is a pure
+append; Addendum 1 and everything above it are untouched, and the correction below is
+made by adding, never by rewriting (`CLAUDE.md` rule 6).
+
+### 1. ADDENDUM 1 IS WRONG ABOUT L3, AND THE CORRECTION MAKES THE DEFECT WORSE
+
+Addendum 1 records that the `n == 1` generator defect left **"L3 — none harmful"**. **That
+is false and is struck.** Read back from the birth certificates by the supervisor
+personally, comparing `BIRTH_L3.json` against `BIRTH_L3_A1.json` leaf by leaf:
+
+    /axial_distributions/c4/cells            [1, 6]  ->  [3, 4]
+    /axial_distributions/c4/length_fraction  0.18    ->  0.43
+    /axial_distributions/c4/q                [1.0, 0.999228092363919]
+                                             ->  [1.0460517444002169, 1.0266389980295716]
+
+**Column `c4` at L3 is the actuator-disk column itself** — the cell zone carrying the
+momentum source this case exists to model. The defect therefore fired at **every level of
+the ladder**, in a different column each time: **L1 c1, L2 c2, L3 c4.** Addendum 1's
+"a different column each time, and not at L3" is corrected to "a different column each
+time, at every level".
+
+**How the error was made, recorded because the reading method is the lesson.** The first
+read-back compared a key named `axial` and reported **"NONE"** at all three levels. The
+certificates name that block `axial_distributions`, so the reader was comparing two empty
+dictionaries and finding them equal. **A reader that had not been shown able to see a
+difference reported no difference** — the false zero `CLAUDE.md` rule 3 exists to forbid,
+produced here by a supervisor, not by a lane. The correct reading walks every leaf and
+reports the count it found (11), so the negative is backed by a positive.
+
+### 2. FIRST CONVERGENCE EVIDENCE: THE FEASIBILITY ARMS DO NOT CONVERGE
+
+Recorded as disclosure. **No gate is altered, no threshold moved, no label changed**, and
+these are `FEASIBILITY` rows under Sanaa's 2026-08-31T15:13Z ruling, so nothing here is
+gradeable and no verdict vocabulary attaches.
+
+Both L1 arms (`FEAS_L1_dp0_U20_A2`, `FEAS_L1_dp1000_U20_A2`) ran to the **full 15,000
+iteration rigor cap** with `solver_rc 0` and an `End` line, and **neither converged**:
+
+- **`p` never moves.** With `nNonOrthogonalCorrectors 1` there are two `p` solves per
+  outer iteration; `residualControl` gates on the **first**. Sampled on the dp=0 arm:
+  0.619 / 0.345 / 0.438 / 0.626 / 0.472 / 0.586 / 0.518 / 0.512 / 0.577 / 0.514 at
+  iterations 1500 through 15000. **Zero decay across 15,000 iterations.** The second
+  (non-orthogonal corrector) solve reads ~2.1e-03 and is **not** the gating quantity;
+  reporting it as "p converged" is a misreading this record forecloses.
+- **The registered absolute criterion fails by 181x.** §2.5 registers thrust stationarity
+  `|dT| < 0.1 %` over the last 2000 iterations. Measured on `forcesDuct` for the dp=1000
+  arm: peak-to-peak **18.1149 %** over the final 2000 iterations (min −0.356179,
+  max −0.295725, mean −0.333724 N). This is an **absolute** criterion and it is therefore
+  not explicable as residual-normalisation artifact.
+- **The unsteadiness is BROADBAND, not periodic.** A spectrum of the final 6000 iterations
+  returns only the window length and its harmonics (6000/3000/2000/1500) with a **top-four
+  power share of 2.2 %**, while the mean drifts just **0.783 %** between the two halves.
+  **There is no discrete shedding frequency.** The mean is nearly settled while the
+  instantaneous force chatters — the signature of localised noise, not of a limit cycle.
+
+**What is NOT established, and is not to be read into the above:** the cause. The
+remaining candidates are the untouched axis-column aspect ratio (53,458, byte-identical
+across the rebuild), the residual face-adjacent volume jump of 33.5 **located at the duct
+trailing edge x ≈ 0.1992 — the same patch whose integrated force is the noisy quantity**,
+the farfield pressure anchoring, the wedge non-planarity, and the relaxation. A
+zero-compute residual-localisation diagnostic is in flight. **No gated rung may be bought
+against a configuration that cannot satisfy its own registered convergence criteria**, and
+under rule 5 clause (1) any row resting on such a level is `NOT A RESULT` whatever its
+value.
+
+### 3. A COMPLETION-RULE TRAP IN THE FEASIBILITY PATH, DISCLOSED
+
+The feasibility launcher sets `writeInterval 2000` against `endTime 15000`; 15000 is not a
+multiple of 2000, so **the last field write is at time 14000** and `CLAUDE.md` rule 4's
+*last time == endTime* and *fields present at endTime* clauses **fail** on these arms
+despite `rc 0` and an `End` line. That is tolerable only because these rows are
+feasibility and are never graded. The gated `run_f28.sh` substitutes `ITER_CAP`, so the
+clause remains satisfiable on the gated path — **verified, not assumed** — but the gated
+path then writes fields **once, at the end**, so a run stopped early leaves nothing. Both
+facts are recorded here rather than discovered during a graded rung.
+
+*Appended by `cfd-supervisor` personally, 2026-08-31. Items 1 and 2 were re-derived on
+disk by the supervisor rather than taken from a lane's report.*

@@ -1,0 +1,331 @@
+{
+  "aspect_ratio_note": "MESH_STANDARD sections 3.3 and 11.4: the aspect ratio is RECORDED and is NOT a gate.  checkMesh's own 'Failed N mesh checks' on these levels is the high-aspect-ratio check alone.  For calibration, the NASA TMR reference flat-plate grids measure 66643 to 74041 (MESH_STANDARD section 4).",
+  "axial_distributions": {
+    "c0": {
+      "h_left": 0.23208524969802077,
+      "h_right": 0.0001917028951268095,
+      "junction_jump": 1.0,
+      "mode": "single",
+      "q": [
+        0.9061086858139067
+      ]
+    },
+    "c1": {
+      "cells": [
+        14,
+        19
+      ],
+      "h_left": 0.00019170289512680815,
+      "h_right": 0.00013693063937629155,
+      "junction_jump": 1.0003469565038403,
+      "length_fraction": 0.45,
+      "mode": "two-segment",
+      "q": [
+        1.2113059862497986,
+        1.1701395130816041
+      ]
+    },
+    "c2": {
+      "cells": [
+        43,
+        8
+      ],
+      "h_left": 0.00013693063937629155,
+      "h_right": 0.0006572670690061993,
+      "junction_jump": 1.0016105659166694,
+      "length_fraction": 0.75,
+      "mode": "two-segment",
+      "q": [
+        1.0581050894959128,
+        1.1213799864987908
+      ]
+    },
+    "c3": {
+      "cells": [
+        12,
+        21
+      ],
+      "h_left": 0.0006572670690061993,
+      "h_right": 0.0006846531968814577,
+      "junction_jump": 0.9964331688462336,
+      "length_fraction": 0.36,
+      "mode": "two-segment",
+      "q": [
+        1.0932804542402237,
+        1.0483191613322114
+      ]
+    },
+    "c4": {
+      "cells": [
+        3,
+        4
+      ],
+      "h_left": 0.0006846531968814577,
+      "h_right": 0.0006846531968814577,
+      "junction_jump": 1.011237261532327,
+      "length_fraction": 0.43,
+      "mode": "two-segment",
+      "q": [
+        1.0460517444002169,
+        1.0266389980295716
+      ]
+    },
+    "c5": {
+      "cells": [
+        36,
+        30
+      ],
+      "h_left": 0.0006846531968814577,
+      "h_right": 0.0006572670690061993,
+      "junction_jump": 1.00881886408319,
+      "length_fraction": 0.55,
+      "mode": "two-segment",
+      "q": [
+        1.0530865851721334,
+        1.06559375993348
+      ]
+    },
+    "c6": {
+      "cells": [
+        38,
+        90
+      ],
+      "h_left": 0.0006572670690061993,
+      "h_right": 0.010954451150103323,
+      "junction_jump": 1.000133620550974,
+      "length_fraction": 0.13,
+      "mode": "two-segment",
+      "q": [
+        1.0846503564994392,
+        1.002170779051406
+      ]
+    },
+    "c7": {
+      "h_left": 0.010954451150103323,
+      "h_right": 0.19710808209630187,
+      "junction_jump": 1.0,
+      "mode": "single",
+      "q": [
+        1.0387586550203793
+      ]
+    }
+  },
+  "blockMeshDict_sha256": "676cc6f19937c28450f50abb8c7c6d8d3bdaa46dcec1178249a18f2434a03330",
+  "blocks": 36,
+  "case": "F28_DUCTED_ACTUATOR_DISK",
+  "cells": 105712,
+  "cells_from_checkMesh_log": 105712,
+  "checkMesh": {
+    "aspect_ratio_flagged": true,
+    "aspect_ratio_label_form": "COLON_FLAGGED",
+    "avg_non_orthogonality": 10.537051,
+    "cell_volume_ratio": 21366113621494.098,
+    "cell_volume_status": "OK",
+    "cells": 105712,
+    "checkMesh_verdict": "Failed 1 mesh checks.",
+    "geometric_directions": 2,
+    "max_aspect_ratio": 53659.692,
+    "max_cell_volume": 0.014526457,
+    "max_non_orthogonality": 57.946807,
+    "max_skewness": 1.2926671,
+    "min_cell_volume": 6.7988298e-16,
+    "wedge_angles_deg_DIAGNOSTIC_ONLY": {
+      "back": 2.5,
+      "front": 2.5
+    }
+  },
+  "checkMesh_log": "/home/ubuntu/Certonomous/verification/runs/F28_runs/mesh_L3_A1/log.checkMesh",
+  "disclosure": "Actuator-disk representation; no rotor.",
+  "generating_command": "make_mesh.py --level 3",
+  "geometry_diagnostics": {
+    "A_disk_m2": 0.042725660088821185,
+    "cprime_min_clearance_m": [
+      0.001363627691439745,
+      0.0024236418138252336
+    ],
+    "cprime_nose_slope_requested": [
+      1.6,
+      1.4
+    ],
+    "cprime_nose_slope_used": [
+      1.6,
+      1.4
+    ],
+    "disk_zone_cells_axial": 7,
+    "disk_zone_cells_radial": 80,
+    "full_annulus_disk_zone_volume_m3": 0.00021362830044410592,
+    "lip_cells_inner": 51,
+    "lip_cells_outer": 77,
+    "lip_cells_wrap_total": 128,
+    "nose_max_slope_deg": 35.112011184422194,
+    "pprime_min_sector_deg": 32.0053832080835,
+    "pprime_sectors_deg": {
+      "B_in": 57.9946167919165,
+      "B_out": 54.46232220802562,
+      "bg_inner": 32.0053832080835,
+      "bg_outer": 35.53767779197438,
+      "bg_upstream_inner": 90.0,
+      "bg_upstream_outer": 90.0
+    },
+    "r_exit_m": 0.116619037896906,
+    "tail_cone_half_angle_deg": 20.556045219583464,
+    "wedge_disk_zone_volume_m3": 2.96705972839036e-06
+  },
+  "grading_read_back_from_written_dict": {
+    "multiGrading_bodies": [
+      "(( (0.13 0.296875 20.21721098) (0.87 0.703125 0.8244902668) ) ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(( (0.13 0.296875 20.21721098) (0.87 0.703125 0.8244902668) ) 0.02334873025 1)",
+      "(( (0.13 0.296875 20.21721098) (0.87 0.703125 0.8244902668) ) 11.93782594 1)",
+      "(( (0.13 0.296875 20.21721098) (0.87 0.703125 0.8244902668) ) 42.82888145 1)",
+      "(( (0.13 0.296875 20.21721098) (0.87 0.703125 0.8244902668) ) 70.22669952 1)",
+      "(( (0.36 0.3636363636 2.667149883) (0.64 0.6363636364 0.3891611881) ) ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(( (0.36 0.3636363636 2.667149883) (0.64 0.6363636364 0.3891611881) ) 0.02334873025 1)",
+      "(( (0.36 0.3636363636 2.667149883) (0.64 0.6363636364 0.3891611881) ) 11.93782594 1)",
+      "(( (0.36 0.3636363636 2.667149883) (0.64 0.6363636364 0.3891611881) ) 42.82888145 1)",
+      "(( (0.36 0.3636363636 2.667149883) (0.64 0.6363636364 0.3891611881) ) 70.22669952 1)",
+      "(( (0.43 0.4285714286 1.094224252) (0.57 0.5714285714 0.9241590649) ) ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(( (0.43 0.4285714286 1.094224252) (0.57 0.5714285714 0.9241590649) ) 0.02334873025 1)",
+      "(( (0.43 0.4285714286 1.094224252) (0.57 0.5714285714 0.9241590649) ) 11.93782594 1)",
+      "(( (0.43 0.4285714286 1.094224252) (0.57 0.5714285714 0.9241590649) ) 42.82888145 1)",
+      "(( (0.43 0.4285714286 1.094224252) (0.57 0.5714285714 0.9241590649) ) 70.22669952 1)",
+      "(( (0.45 0.4242424242 12.08649079) (0.55 0.5757575758 0.0591183622) ) ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(( (0.45 0.4242424242 12.08649079) (0.55 0.5757575758 0.0591183622) ) 11.93782594 1)",
+      "(( (0.45 0.4242424242 12.08649079) (0.55 0.5757575758 0.0591183622) ) 70.22669952 1)",
+      "(( (0.55 0.5454545455 6.112837034) (0.45 0.4545454545 0.1584315277) ) ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(( (0.55 0.5454545455 6.112837034) (0.45 0.4545454545 0.1584315277) ) 0.02334873025 1)",
+      "(( (0.55 0.5454545455 6.112837034) (0.45 0.4545454545 0.1584315277) ) 11.93782594 1)",
+      "(( (0.55 0.5454545455 6.112837034) (0.45 0.4545454545 0.1584315277) ) 42.82888145 1)",
+      "(( (0.55 0.5454545455 6.112837034) (0.45 0.4545454545 0.1584315277) ) 70.22669952 1)",
+      "(( (0.75 0.8431372549 10.72036916) (0.25 0.1568627451 0.4484668992) ) ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(( (0.75 0.8431372549 10.72036916) (0.25 0.1568627451 0.4484668992) ) 0.02334873025 1)",
+      "(( (0.75 0.8431372549 10.72036916) (0.25 0.1568627451 0.4484668992) ) 11.93782594 1)",
+      "(( (0.75 0.8431372549 10.72036916) (0.25 0.1568627451 0.4484668992) ) 42.82888145 1)",
+      "(( (0.75 0.8431372549 10.72036916) (0.25 0.1568627451 0.4484668992) ) 70.22669952 1)"
+    ],
+    "n_blocks_parsed": 36,
+    "simpleGrading_bodies": [
+      "(0.0008260020634 ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(0.0008260020634 11.93782594 1)",
+      "(0.0008260020634 70.22669952 1)",
+      "(17.99342381 ( (0.69 0.825 1093.752131) (0.31 0.175 0.03911215825) ) 1)",
+      "(17.99342381 0.02334873025 1)",
+      "(17.99342381 11.93782594 1)",
+      "(17.99342381 42.82888145 1)",
+      "(17.99342381 70.22669952 1)"
+    ]
+  },
+  "level": 3,
+  "mesh_script": "case/mesh/make_mesh.py",
+  "mesh_script_sha256": "c27bcd73903c5d0dedb3530eb1cc705914adcccdda1db080b0871da623fbac89",
+  "planted_controls": {
+    "C-A_equals_form": "FIRED",
+    "C-B_colon_form": "FIRED",
+    "C-C_absent_form": "SILENT (correctly reported ABSENT)",
+    "C-D_derived_ratio": "FIRED (1.510075e+12)",
+    "C-E_negative_volume": "FIRED (MIN_NEGATIVE, ratio withheld)",
+    "C-F_plant": "FIRED at 61.234567; unperturbed twin SILENT"
+  },
+  "radial_distributions": {
+    "O_band": {
+      "h_outer": 0.00023458344484505021,
+      "h_wall": 5.477225575051662e-06,
+      "q": [
+        1.101132049533525
+      ]
+    },
+    "ROW_I": {
+      "cells": [
+        66,
+        14
+      ],
+      "h_left": 5.477225575051662e-06,
+      "h_right": 0.00023458344484505021,
+      "junction_jump": 0.9988354813423853,
+      "length_fraction": 0.69,
+      "mode": "two-segment",
+      "q": [
+        1.113659942365703,
+        1.2831685572512033
+      ]
+    },
+    "ROW_O1": {
+      "h_left": 0.00023458344484505021,
+      "h_right": 0.016474021093755422,
+      "junction_jump": 1.0,
+      "mode": "single",
+      "q": [
+        1.1253606606164626
+      ]
+    },
+    "ROW_O2": {
+      "h_left": 0.016474021093755422,
+      "h_right": 0.19666399638741638,
+      "junction_jump": 1.0,
+      "mode": "single",
+      "q": [
+        1.0553862174376007
+      ]
+    }
+  },
+  "refinement_against_next_coarser": {
+    "coarser_cells": 58292,
+    "coarser_certificate": "/home/ubuntu/Certonomous/cases/F28_DUCTED_ACTUATOR_DISK/case/mesh/BIRTH_L2_A1.json",
+    "coarser_level": 2,
+    "formula": "r = (N_fine / N_coarse)^(1/2), section 5",
+    "note": "The registered TARGETS were r_32 = 1.35401 and r_21 = 1.34840 from 30000/55000/100000.  These are the ACHIEVED values from the ACTUAL counts.  Section 5 registers the NON-CONSTANT-RATIO Roache formulation and FORBIDS the constant-r shortcut here.",
+    "r_achieved": 1.3466590889988155,
+    "r_ge_1_3": true,
+    "r_required_min": 1.3,
+    "this_cells": 105712
+  },
+  "registered_gates_section_5": {
+    "max_non_orthogonality_lt_65": true,
+    "max_skewness_lt_4": true,
+    "zero_negative_volumes": true
+  },
+  "registration": "verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md",
+  "stage": "Stage 0 -- mesh and checkMesh only.  NO SOLVER HAS RUN.",
+  "stage0_verdict": "GATE REACHED",
+  "wedge_angle_note": "MESH_STANDARD section 13: checkMesh's printed wedge angle derives from wedgePolyPatch::cosAngle_, a SUMMED and NEVER RENORMALISED mean of face normals whose error floor GROWS WITH THE FACE COUNT. It is recorded here as a DIAGNOSTIC and IS NOT GATED, by this case or by anything downstream of it.",
+  "y_plus_histogram": null,
+  "y_plus_status": "PENDING_FIRST_SOLVE -- y+ needs u_tau and u_tau needs a solved field; Stage 0 runs no solver.",
+  "y_plus_target_basis": {
+    "derivation": "U_ref 45 m/s (the largest registered ideal exit velocity, 40.8 m/s at delta_p = 2000 Pa, with margin); nu 1.5e-5 m^2/s; L 0.2 m; Cf = 0.058 Re_L^-0.2; u_tau = sqrt(0.5 Cf) U_ref = 1.9 m/s; y(y+=1) = nu/u_tau = 7.9e-6 m.  The requested first cell is 1.0e-5 m at L1 and scales as 1/r with the level.",
+    "first_cell_height_measured_m": {
+      "axis": {
+        "n_faces": 0,
+        "status": "PATCH_EMPTY"
+      },
+      "ductInner": {
+        "first_cell_max_m": 5.522087298997253e-06,
+        "first_cell_mean_m": 4.968149830227424e-06,
+        "first_cell_min_m": 1.7265061380937159e-06,
+        "n_faces": 157,
+        "status": "OK"
+      },
+      "ductOuter": {
+        "first_cell_max_m": 7.713408086029226e-06,
+        "first_cell_mean_m": 5.293397396001755e-06,
+        "first_cell_min_m": 3.0307367670584174e-06,
+        "n_faces": 157,
+        "status": "OK"
+      },
+      "farfield": {
+        "first_cell_max_m": 0.19647681600000058,
+        "first_cell_mean_m": 0.19647681600000055,
+        "first_cell_min_m": 0.19647681600000053,
+        "n_faces": 468,
+        "status": "OK"
+      },
+      "hub": {
+        "first_cell_max_m": 9.513223899795423e-06,
+        "first_cell_mean_m": 6.252094429898112e-06,
+        "first_cell_min_m": 5.14660278289359e-06,
+        "n_faces": 190,
+        "status": "OK"
+      }
+    },
+    "first_cell_height_requested_m": 5.477225575051662e-06,
+    "target": "y+ <= 1 on ductInner, ductOuter and hub (section 5)"
+  }
+}
