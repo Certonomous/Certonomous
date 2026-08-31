@@ -1,0 +1,9 @@
+# Sanaa's directive — 2026-08-31 PLUMBING FREEZE, captured verbatim by the chief at receipt
+
+> [SANAA-DIRECT] PLUMBING FREEZE — three architectural fixes, then no more rules about files:
+>
+> Index auto-clear: yes. Wire the locked git read-tree HEAD cron. The shared index is never used by anyone under rule 10, so this can clobber nothing. Stop re-clearing by hand.
+> No more counters. Lesson/docket/row ids become tool-allocated at append time from timestamp+hash — no sequential numbers anywhere, so collision and stale-tail are impossible, not policed. Boards become per-team files (one writer each), merged into the lab board by a nightly tool — no shared-file splicing by agents, ever.
+> Rule freeze, 14 days: no new procedural or bookkeeping rules from any team. Lessons still get recorded; they do not spawn rules or tools without my approval. Meta-work cap (20%) becomes measured and reported — every report's headline carries "research-vs-plumbing hours" for the session. Instrument repairs are done once, with the fail-closed + planted-control standard, then the topic closes. the reason i feel gthe need to impose this is because we keep falling in these loops/ circles so lets sort this out this way no more plumbing issues.
+
+Routing: (1) cron wired by the chief's hand this session (flock-locked `git read-tree HEAD`, every 15 min). (2) The two builds are SANCTIONED BY THIS DIRECTIVE (they are her approval): tool-allocated timestamp+hash ids in the append tools, and per-team board files with a nightly merger — verification builds both to the fail-closed + planted-control standard, once, then the topic closes; existing historical ids are never renumbered. (3) Rule freeze 14 days from 2026-08-31: no new procedural/bookkeeping rules from any team; lessons recorded without spawning rules or tools absent her approval; every report headline carries research-vs-plumbing hours, measured. Relayed to all standing teams; closure receives it on re-formation.
