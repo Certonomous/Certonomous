@@ -3709,3 +3709,132 @@ claim is still caught by §2f.3 however impeccable its referent.
 | open, referred to heat-transfer | `§2h.5` / `T9a-R1c`'s series-resistance referent under `§2h.6.1` |
 | retrospective effect | **none** — prospective only; no row promoted, no row demoted |
 | amendment record | **v1.27** |
+
+---
+
+## Amendment — v1.28, 2026-08-31 — **§2h.8: A LABEL REPAIR, NOT A RULE CHANGE. `§2h.6` NAMED TWO RULES AT ONCE — MINE, ONE COMMIT OLD — AND THE EXACT-PDE RULE TAKES THE FREE NUMBER**
+
+**Lines whose number changed above this section: 0.**
+
+**Nothing in this amendment moves a gate, a band, a threshold, a cap, a label or a
+verdict. It moves a NUMBER ON A CLAUSE.** Read it as bookkeeping and it is bookkeeping —
+but it is bookkeeping that decides whether a `PASS`-capable registration can cite its
+own ground, which is why it lands as law rather than as a note.
+
+### §2h.8.0 THE DEFECT, AND WHO FOUND IT
+
+**`§2h.6` is occupied twice in this document, and I wrote the second one.**
+
+- **v1.19, 2026-08-27, line 2882** — `§2h.6 NON-RETROACTIVITY`.
+- **v1.27, 2026-08-31, line 3604ff** — `§2h.6.1`–`§2h.6.6`, the exact-PDE rule.
+
+**Four live citations already point at the older meaning** — lines `2895`, `2974`, `3104`
+and `3588` — and **the sharp edge is inside my own new amendment**: `§2h.6.4` is headed
+*"IT IS PROSPECTIVE"*, which **is** the old `§2h.6`'s doctrine. One amendment used one
+label both for the rule it states and for the rule that bounds it.
+
+**FOUND BY `ansys-verification`, and found in the one way that works.** They were told
+by a peer that Sanaa had ruled; under standing rule 9 they **did not take the peer's
+word**, went to `27a49bda` and read the bytes — and the collision fell out of that read.
+They **reported it and repaired nothing**: my file untouched, no number proposed, the
+finding routed rather than acted on. **That is the correct handling of a defect in
+another team's territory, and it is recorded here as such.** They then banned a bare
+`§2h.6` in their own territory (`ANSYS_VERIFICATION_CHARTER` §12.3) rather than wait for
+me. **A team that protects itself from another team's defect while declining to edit
+that team's file is doing exactly what the cross-team audit mandate asks of it.**
+
+**I record the ugly half plainly: this team audits other teams for exactly this, and
+`879d7726`'s subject line — a charter label naming two rules at once — was written about
+MY document, sixteen minutes after I committed the collision.**
+
+### §2h.8.1 THE RULING — THE EXACT-PDE RULE IS `§2h.8`, AND `§2h.6` IS NON-RETROACTIVITY ALONE
+
+> **`§2h.6` denotes NON-RETROACTIVITY (v1.19) and nothing else.** The four existing
+> citations at lines `2895`, `2974`, `3104` and `3588` resolve to it correctly and are
+> **undisturbed**.
+>
+> **The EXACT-PDE RULE is `§2h.8`.** Its six subclauses map ONE-TO-ONE and in order onto
+> the v1.27 text: `§2h.6.1` → **`§2h.8.1`**, `§2h.6.2` → **`§2h.8.2`**, `§2h.6.3` →
+> **`§2h.8.3`**, `§2h.6.4` → **`§2h.8.4`**, `§2h.6.5` → **`§2h.8.5`**, `§2h.6.6` →
+> **`§2h.8.6`**. **The words of each are unchanged.** `§2h.7` is not free — v1.19 gave it
+> to the `§2g.4` narrowing — so the exact-PDE rule takes the next free number, `§2h.8`.
+
+**`§2h.8.1` therefore reads, verbatim as v1.27 wrote it:** a reference that is the
+**exact or manufactured solution of the same continuum PDE the solver discretises** is
+`PASS`-capable under `§2h.4`'s five conditions declared before compute; a reference from
+a **different model** — nozzle relations, shock tables, lumped or series-resistance
+paths, correlations, experiment — **caps at `GATE REACHED`, however exact its own
+algebra.** The test is **sameness of model, never exactness of algebra.**
+
+### §2h.8.2 THE v1.27 BLOCK IS NOT EDITED, AND WHY THAT IS THE WHOLE POINT
+
+**Standing rule 6: frozen files are never edited.** The v1.27 amendment **stands on the
+page exactly as committed at `27a49bda`**, including its own `§2h.6.x` numbering and
+including `§2h.6.4`'s heading. **I did not go back and renumber it, and the temptation to
+do so is precisely the failure this rule exists to stop** — a document whose history is
+tidied is a document whose citations cannot be checked against what was actually frozen.
+
+**So this amendment is a MAPPING, not a rewrite.** A reader who meets `§2h.6.1` in the
+v1.27 block, or in a record frozen between `27a49bda` and now, reads it through
+`§2h.8.1`. **The substance is identical; only the address changed.**
+
+### §2h.8.3 A BARE `§2h.6` IS NON-CONFORMING LAB-WIDE FROM TODAY
+
+**`ansys-verification` banned it in their territory. I adopt the ban for the lab**, in
+their form, because the reasoning is theirs and it is right: a `PASS`-capable
+registration must cite its ground on a document that is then **FROZEN**, and a frozen
+document cannot be repaired afterwards. **A bare `§2h.6` in such a registration would
+name two rules, one of which — non-retroactivity — DEFEATS the claim the citation is
+offered to support.** The citation must be unambiguous **at the freeze** or not at all.
+
+> **THE CITATION FORM, lab-wide:** subclause **+ version + date + name**. For the
+> exact-PDE rule: **`VERIFICATION_CHARTER §2h.8.1 (v1.28, 2026-08-31, the exact-PDE
+> rule)`**. For non-retroactivity: **`VERIFICATION_CHARTER §2h.6 (v1.19, 2026-08-27,
+> non-retroactivity)`**. **A bare `§2h.6` is non-conforming and a grader may refuse it.**
+
+### §2h.8.4 THIS AMENDMENT IS NOT A SUBSTANTIVE CHANGE, AND NON-RETROACTIVITY DOES NOT BITE
+
+**A registration frozen between `27a49bda` and this amendment that cites `§2h.6.1` for
+the exact-PDE rule IS VALID and stays valid.** Non-retroactivity (`§2h.6`, v1.19) bars a
+registration from claiming the **benefit of a clause that did not exist**. The clause
+existed — Sanaa ruled it, it was law from `27a49bda` — and **only its number moves here.**
+A rule against back-dated SUBSTANCE is not a rule against correcting an address, and
+stretching it that far would convert a protection into a trap.
+
+**Equally, and for the same reason, this amendment creates no `PASS` and destroys none.**
+`VMFL038-R2` limb A **stands as graded** (`§2h.8.4`, formerly `§2h.6.4`) and its
+`PASS`-capability is **permanent law, not interim classification** — that was Sanaa's
+ruling and nothing here touches it. **`ansys-verification` has already read that at
+source for itself**, so it is confirmed to them rather than announced.
+
+### §2h.8.5 THE OPEN REFERRAL SURVIVES THE RENUMBER, UNCHANGED
+
+**`§2h.5` / `T9a-R1c`'s series-resistance referent remains open and remains
+heat-transfer's to answer**, now against **`§2h.8.1`**. The question is unchanged: *is
+the referent the exact solution of the equations the solver discretises, or a reduction
+of them?* If a reduction, `§2h.5`'s `PASS` availability falls to `GATE REACHED`
+**prospectively**; if the rung is already graded, `§2h.8.4` protects the row and the
+correction is to the **classification**, not to the verdict. **I still do not decide it.**
+
+### §2h.8.6 THE LESSON I AM WILLING TO STATE AGAINST MYSELF
+
+**A clause number is an instrument.** This team requires every other team to cite its
+ground precisely, refuses gates whose comparator was not frozen, and audits labels for a
+living — and it minted a duplicate address in its own constitution because it appended a
+new subclause to a family without re-deriving which numbers in that family were already
+taken. **That is `CLAUDE.md` rule 11's own defect class — a number assigned from the
+shape of the thing rather than from the maximum actually present — committed in the
+document that teaches it.** The re-derivation is one `grep`; it was not run.
+
+| field | value |
+| --- | --- |
+| defect | `§2h.6` occupied twice — v1.19 non-retroactivity, v1.27 exact-PDE |
+| found by | **`ansys-verification`**, by reading `27a49bda` at source under rule 9; reported, **not repaired** |
+| ruled | exact-PDE rule is **`§2h.8`**; `§2h.6` is **non-retroactivity alone** |
+| clauses renumbered | `§2h.6.1`–`§2h.6.6` → **`§2h.8.1`–`§2h.8.6`**, one-to-one, **words unchanged** |
+| v1.27 block | **NOT EDITED** — stands as frozen (rule 6) |
+| gate values changed | **0** · bands | **0** · caps | **0** · labels | **0** · verdicts | **0** |
+| rows re-graded | **0** — `VMFL038-R2` limb A stands as graded |
+| new duty created | **1** — the citation form; a bare `§2h.6` is non-conforming lab-wide |
+| open, still referred | `§2h.5` / `T9a-R1c` → heat-transfer, now against `§2h.8.1` |
+| **lines whose number changed above this section** | **0** |
