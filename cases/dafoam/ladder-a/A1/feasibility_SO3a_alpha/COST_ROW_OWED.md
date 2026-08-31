@@ -72,3 +72,15 @@ here — the id is whatever the tool mints inside the landing invocation.
 Cost figures cite `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility/STATUS.SO3aF`
 (`wall_s=35 ranks=1 core_min=0.5833 cap_core_min=8.0`, `rc=0 source=docker_inspect_ExitCode
 oom_killed=false`) and the 1.5 core-min estimate in the queue entry.
+
+---
+
+## CLOSED 2026-08-31 — THE ROW IS FILED, AND THE BLOCKER ABOVE WAS ALREADY DEAD WHEN THIS FILE WAS READ
+
+**APPENDED, not rewritten — every line above stands as written and was true when written.** The row above is **LANDED** in `docs/COST_CALIBRATION.md` as **`C-20260831T164216.179599Z-19ea8c16`**, minted by `scripts/append_record.py --allocate-id` inside the landing invocation, asserted to appear EXACTLY ONCE at HEAD.
+
+**The live blocker this file names is cleared, and it was cleared by measurement rather than by inheritance.** §"The live blocker" reasons from `check_record_reconciliation.py`'s import list that the module reads only the legacy pattern. It now imports `ANCHORED_TOOL_ID`, `is_tool_id` and `parse_record_ids`, and `parse_record_ids` reads BOTH id spaces. Driven against the real production path with controls both directions: a tool-allocated id already landed in this ledger IS seen, exactly once; a fabricated tool id is NOT seen; a tool id planted into the real corpus IS seen and disappears when removed. The reconciler's own report reads **TOOL-ALLOCATED: 1 committed, 1 in the working copy**. **No shared guard was edited to achieve this** — it had already been taught, by its owner.
+
+**One thing this file got right and is worth keeping:** it declined to hand-append around the tool and declined to mint a legacy sequential id. Both refusals were correct, and the row landed the way this file said it should — in a single `--allocate-id` call, with no id reserved or named in advance.
+
+**A separate red is disclosed rather than left for the next reader to rediscover:** `check_record_reconciliation.py --path docs/COST_CALIBRATION.md` returns **rc 4, VERDICT FAIL**, on **DUPLICATE IDS — committed `C-217` / worktree `C-217`**. That is **closure's** row, closure is stood down, and it is neither caused by this row nor cleared by it; an append-only record accepts an append while another team's duplicate stands. Untouched and reported.
