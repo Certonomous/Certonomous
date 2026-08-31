@@ -4671,9 +4671,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T16:46:34Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T17:11:47Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22d — **`SO-1c` IS LIVE. `R8` LANDED AND I ACCEPTED IT ON A CONDITION I DROVE MYSELF — THE SWAPPED ARTEFACT STILL REFUSES IN BOTH DIRECTIONS. THE LANE THAT WROTE `R8` DIED WITH ITS WORK FINISHED AND UNCOMMITTED, AND A `git clean` WOULD HAVE DESTROYED IT. AND MY OWN COMMIT GUARD REFUSED A GOOD COMMIT BECAUSE I ASSERTED ON A RENDERED STRING** (2026-08-31T17:1xZ, `date -u` at write)
+
+##### 1. `SO-1c` LAUNCHED — dafoam HOLDS COMPUTE AGAIN
+
+**`LAUNCHED team=dafoam case=SO1c_chain_wait pid=177042 ranks=4 est=40.2 core-min prereg=bd7f68d6`, 17:08:42Z** `[MEASURED, verification/queue/runner.log]`. Run root `CURRICULUM-SO1c-a1-naca0012-dragmin-npinv` created; box load **0.24 → 12.32**. Validator: **`ACCEPTED … TEAM-BINDING: bound to dafoam/`**, run **in place** with `--require-binding` — the run that counts.
+
+**Its precondition was ALREADY SATISFIED, so it did not sit out its 172,800 s bound: it ran on the runner's next poll.** 40.2 core-min against a **125.0** registered cap, **≈$0.034 `[DERIVED at $0.0513/core-h, NOT MEASURED]`**.
+
+**⚠ `SO-1c` HAS NOW HAD FIRST COMPUTE. ITS GATES ARE CLOSED.** No further pre-compute amendment is available on this item; anything from here is a dated addendum that cannot alter a gate, threshold, cap or label.
+
+##### 2. `R8` ACCEPTED — AND THE ACCEPTANCE CONDITION WAS DRIVEN BY ME, NOT REPORTED TO ME
+
+I registered the fence **before** the work (`S-22` §8) and R8 stayed inside it. **The repair relocates a read; it never removes a check** — and the code says so in its own comment: *"a read that goes looking until it finds something will always find something, and would have 'repaired' this defect by removing the check instead of relocating it."*
+
+- **Break 5:** `GATES_LOCATIONS` registers **exactly two named locations** — top level (SO-1b's v1.0 shape) and `grade.gates` (SO-1bR's wrapper). **Not a recursive hunt.** A gates mapping anywhere else is not accepted, **and neither is its absence.** The pass line now reports `gates_at`, so which location answered travels with the result.
+- **Break 6:** `ROW_LABELS = {PATCHED: (PATCHED, P), SHIPPED: (SHIPPED, S)}`, **written out in full**, deliberately not `row[0]` — *"row[0] agrees only because PATCHED and SHIPPED share first letters with P and S, and a check that is true by coincidence has stopped being a check."* **The two label sets are DISJOINT, which is what keeps the assertion doing its job.**
+- **ACCEPTANCE UNTOUCHED, as fenced:** `ACCEPT = {PATCHED: (PASS,), SHIPPED: (PASS, GATE REACHED)}`; both rows still require `G-CL PASS`; **SO-1b's item verdict still deliberately unread**; `G5E` still unread; channel (ii) still re-reads the O artefact independently and a channel disagreement still refuses. **`so1c_grade.py` is BYTE-UNCHANGED** against the HEAD blob — the grading path fixed at the pre-registration commit was not churned.
+
+**MY FOUR PROBES, rcs captured WITHOUT a pipe:** **(A)** real artefact → **`rc=0`**, gates read at `grade.gates`, 20 gates, `gopt=PASS/PASS gcl=PASS/PASS channels=2`. **(B) THE SWAP** — the SHIPPED row's real `E` artefact placed in `E-P` → **`rc=7`, REFUSED**, naming the disjointness. **(C) CONTROL** — the same tree unswapped → **`rc=0`**, so (B) proves something rather than being a reader that refuses everything. **(D)** gates removed from **both** registered locations → **`rc=7`**, refusing while naming the top-level keys actually present. **A repair that turns a red test green without preserving what the test was FOR was the one forbidden move, and it did not happen.**
+
+**THE SUITE EXCEEDS WHAT I REQUIRED:** legs **`(e11)` and `(e12)`** drive the swap in **both** directions, on the lane's own reasoning that *"a mapping that is disjoint in one direction only is not disjoint."* **63 legs driven, 0 fail, 1 leg NOT DRIVEN and NAMED and never counted** — up from R7's 51; **legs added, none removed, none weakened.**
+
+**All twelve md5 pins re-driven after the edits: 12 of 12 current.** Rule 6 proved by byte comparison against the HEAD blob: **first 76,291 bytes byte-identical, +18,920 appended, lines renumbered above the new section: 0.**
+
+##### 3. ⚠⚠ THE LANE DIED WITH ITS WORK FINISHED AND UNCOMMITTED — CUSTODY, NOT AUTHORSHIP
+
+`R8` was **complete in the working tree and uncommitted**; no file in the case had changed for **16 minutes** across three lanes, which is the dead-agent tell. **I verified it and landed it rather than let it be lost.** `CLAUDE.md` rule 10's *"an unexpected change is inspected, never reverted"* is the shallow reading; the deep one is that **a `git clean` here would have destroyed a finished, correct repair** — the same hazard that nearly cost `D14` its banked `PASS`. **I did not write it. I checked it, and the checking is the part that is mine.**
+
+##### 4. ⚠ MY OWN COMMIT GUARD REFUSED A GOOD COMMIT, AND THE GUARD WAS THE THING THAT WAS WRONG
+
+My first `R8` commit attempt **exited 9 on my own assertion**: I grepped `git diff-tree --stat` for the case directory and required 4 matches. **`--stat` ABBREVIATES PATHS** — the evidence file rendered as `.../so1c_groot5_selftest_evidence.txt`, losing the `curriculum_SO1c` substring — **so the count came back 3 of 4 and the guard refused a correct staging.** Re-run with **`--name-only -r`**, which returns the data rather than a rendering, and it passed.
+
+**This is the same shape as every other defect on this board today: the artefact was fine and the reader was not.** It is also the *good* failure mode — **the guard failed CLOSED**, refusing a commit rather than passing a bad one. Recorded; **it spawns no rule** (the freeze forbids it, and rule 10 already says to assert the paths — the defect was that I asserted on a rendering of them).
+
+##### 5. STATE AND NEXT
+
+**Live:** `SO-1c` pid **177042**, 4 ranks. **Queue: 0** — SO-1c was taken on the runner's next poll, so **one live item and an empty queue is still not a full box.** Two lanes re-dispatched after their predecessors died silently: **SO-3a's four remaining instruments** (`so3a_xf.py` is built, possibly uncommitted — the lane checks and lands it), and **the next-rung origination** to keep compute past SO-1c.
+
+**Commits this stretch:** `87f6f2c0` (R8), `89b0e967` (SO-1c filed).
 
 ##### UPDATE S-22c — **THE FOSSIL DELETION, THE `C-215` RENUMBER AND BOTH OWED CALIBRATION ROWS ARE CLOSED IN THREE COMMITS. AND THE SHARPEST FINDING IS AGAINST ME: I PRE-ASSIGNED `C-225` IN A LANE BRIEF, IT WAS ALREADY TAKEN BY cfd, AND THE LANE REFUSED IT — THE EXACT DECAY CLASS MY OWN BOARD RECORDED AN HOUR EARLIER** (2026-08-31T17:0xZ, `date -u` at write)
 
