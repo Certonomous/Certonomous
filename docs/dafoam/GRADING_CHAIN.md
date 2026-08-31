@@ -41,13 +41,37 @@ Per §2 of the order: one of exactly eight, assigned **by the grading record** a
 | **SO-2M** | `NOT A RESULT` | **GATE-DESIGN** | Every arm `rc=0`, physics clean; the **registered plant** was too small to cross its own band. The comparator was correct; the gate as registered was defective. |
 | **SO-1c** | `NOT A RESULT` | **INSTRUMENT** | Row-label break in call sites the R8 repair never swept. |
 | **D6** | `NOT A RESULT` | **BUDGET/KILL** | Container deadline `rc=124` at 30,008 s; **no `EXIT:` line at all**. `CURRICULUM-D6…/ledger.txt`. |
-| **D6R** | `NOT A RESULT` | **PHYSICS-FAIL** *(flagged, see below)* | `EXIT: Invalid number in NLP function or derivative detected.` at 73/80 majors, 673 cutbacks. |
+| **D6R** | `NOT A RESULT` | **BOOKKEEPING** *(corrected 2026-08-31T21:0xZ — was filed PHYSICS-FAIL; see the correction below)* | D6R's own frozen grader refused on `{"REFUSE": "G-D6R-OPT", "n_exit": 1, "n_obj": 0, "no_final_objective_or_exit": ".../O_mp/opt_IPOPT.txt"}`. **All four gradient gates read `ARM_DID_NOT_RUN`** — `D6RG_regrade.json` `grade/G-D6R-{1,2,3,4}/reason`. |
 | **SO-1aR shipped row** | `GATE FAIL` | **PHYSICS-FAIL — against the SHIPPED TOOLCHAIN** | `shape[6]` 637.757 % with a sign flip vs a proven FD referee. |
 | **D15 / D16 shipped rows** | `GATE FAIL` | **PHYSICS-FAIL — against the SHIPPED TOOLCHAIN** | D15 worst 44.87 % (`shape[6]`); D16 5.1511 % (`shape[0]`). |
 
 **Two qualifications this family will not paper over:**
 
 - **`PHYSICS-FAIL` against the shipped toolchain is a finding about DAFoam, not about this lab's ability to do physics.** The instrument is proven and the answer is genuinely wrong — so the class is right — but the capability question in §3 of the order should read these rows as *the shipped toolchain cannot do this*, not *the lab cannot*. The patched rows pass the same gates.
-- **⚠ D6R's class is flagged for Sanaa.** The eight classes do not cleanly hold *a solve that dies on a non-finite value before any gate is ever read*. `PHYSICS-FAIL`'s definition says "band genuinely missed" — but **no band was read**; the recorded verdict rests on a comparator refusal with zero of eleven gate readings. Classing it `INSTRUMENT` would hide a real numerics break behind referee trouble, which is exactly what the order forbids. It is filed **PHYSICS-FAIL** as the honest reading of her stated purpose — "what breaks due to physics/numerics without a plausible explanation" — with the mismatch disclosed rather than smoothed. **Whether that needs a clarified definition is Sanaa's call, not this family's.**
+---
+
+## ⚠⚠ CORRECTION, 2026-08-31 — D6R WAS FILED `PHYSICS-FAIL` AND THAT WAS WRONG
+
+**Sanaa, on reading this family's conversations:** *"I saw in the dafoam conversations that there was actually no gradient failure in the multipoint compressible case and that the issue was a bookeeping one! this is what led me to ask for these clear denominations/separations."* (`etc/sessions/…`, commit `5e782552`.) **She is right, and this document had it wrong in its first version.** The correction is recorded here rather than by silently rewriting the row.
+
+**There is no gradient failure in D6R because NO GRADIENT WAS EVER MEASURED.** From the verdict of record, `curriculum_D6RG/D6RG_regrade.json`:
+
+- `grade/G-D6R-1/reason`, `G-D6R-2`, `G-D6R-3`, `G-D6R-4` — **all four read `ARM_DID_NOT_RUN`**, each `NOT A RESULT`, with per-point `cl04`/`cl05`/`cl06` likewise `ARM_DID_NOT_RUN`.
+- `grade/G1/arms_not_run` — **`F_mp` (the FD arm) and `REF_off` never ran**, `REGISTERED_CHAIN_STOPPED_AT_FIRST_NONZERO`. `F_mp` is the arm that "reads the optimiser endpoint" — the finite-difference referee. **The FD table this family's bright line requires was never produced.**
+- D6R's own frozen grader refused on a **record** defect: `n_exit = 1`, **`n_obj = 0`**, `no_final_objective_or_exit` in `O_mp/opt_IPOPT.txt` — the exit line was written, the final objective line was not.
+
+**And the IPOPT message that made this look like physics is misleading.** `EXIT: Invalid number in NLP function or derivative detected.` comes from a guard at `IpOrigIpoptNLP.cpp:487` that fails **disjunctively** — on a false *status* OR a non-finite *value* — and prints the same string either way. Measured on the log: **671 `Primal solution failed!` banners against 673 cutbacks** (near 1:1); the objective printed immediately before the final cutback is **finite at `0.0222388`**; and a sweep of every `CD:`/`CL:` print across **264,607 lines returns ZERO non-finite tokens** (the only `NAN` strings sit in pyOptSparse's post-mortem table, written *after* the EXIT). **The guard tripped on failed primal status, not on a bad number.**
+
+**Correct class: `BOOKKEEPING`.** Solve produced answers; the stamp was impossible. Second, separate non-physics finding on the same item, not folded in: `grade/G10/verdict = GATE FAIL` — the cap gate.
+
+**What this item does NOT license, in either direction:** no physics claim, favourable or adverse, can rest on D6R. It is not evidence that the multipoint gradient is wrong, and it is not evidence that it is right.
+
+**The one real physical phenomenon here is separate, ungraded, and is what `SO3D` exists to investigate:** multipoint primal-failure rate **D6R 68.68 % (671/977)** and **D6 66.42 % (546/822)**, against **D4 2.222 % (3/135)** and **D5 1.170 % (2/171)** single-point on the same base mesh, same image digest, identical `primalMinResTol`. **A thirty-fold contrast** — real, measured, and never yet the subject of a graded verdict.
+
+**Why I got it wrong:** I reasoned from the IPOPT message's *wording* to a physics cause, instead of from the grading record — the precise failure this order exists to end, committed inside the document written to comply with it. The order's rule is that the class is assigned **by the grading record**; had I opened `D6RG_regrade.json` before classifying, `ARM_DID_NOT_RUN` was sitting in four consecutive keys.
+
+**Revised headline split for this family: 3 physics-adverse / 6 non-physics** — and **all three physics-adverse rows are against the SHIPPED TOOLCHAIN, none against the lab.**
+
+**D15/D16 re-checked against their records under this same order and they STAND as `PHYSICS-FAIL`**, unlike D6R: their FD arms *did* run, FD tables exist, and the shipped adjoint genuinely disagrees with a measured FD referee (D15 worst **44.87 %** on `shape[6]`, 3 of 5 components outside band D; D16 **5.1511 %** on `shape[0]`). Those are real gradient failures of the shipped toolchain. The separate weakness recorded at bullet 10's neighbourhood — that D15's **patched** `shape[7]` plateau is one-sided at `[1.156 %, 21.630 %]` — bears on the *patched* row's precision, not on the shipped row's failure, which sits an order of magnitude outside any plateau ambiguity.
 
 **Not yet classified, and deliberately not guessed:** the AV-pair `BLOCKED` rows require the FAD-primal record to be read before `MODEL-LIMIT` or `PHYSICS-FAIL` can be assigned. The order says the class is assigned by the grading record; classifying from memory would breach it.
