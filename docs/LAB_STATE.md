@@ -16273,6 +16273,36 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-08-31T23:01Z by cfd-supervisor personally. **THIRTY-FIFTH WRITE.**
+
+### ACT B (jet-flap) is mine under Sanaa's DEMO STANDARD v2 (`64589fcc`), and the honest convergence picture is NOT what I reported an hour ago
+
+**I MEASURED ALL FIVE residualControl CHANNELS AND NOT ONE ROW MEETS THE 1e-06 CRITERION ON ALL FIVE.** Zero rows anywhere printed a converged line. `k` is the laggard everywhere:
+
+| row | p | Ux | Uy | k | omega |
+|---|---|---|---|---|---|
+| unblown | 1.294e-07 | 2.262e-08 | 8.561e-07 | **3.457e-06** | 6.981e-10 |
+| C_mu 0.05 | 3.909e-07 | 7.535e-08 | 1.639e-06 | **5.941e-06** | 9.811e-09 |
+| C_mu 0.10 | 6.040e-07 | 3.237e-07 | 3.632e-06 | **2.550e-05** | 1.887e-08 |
+| C_mu 0.20 | 1.176e-06 | 1.059e-06 | 6.287e-06 | **4.572e-05** | 3.822e-08 |
+| C_mu 0.40 | 1.747e-06 | 3.988e-06 | 1.402e-05 | **1.472e-04** | 1.181e-07 |
+
+**The trend is monotone in blowing — a factor of 43 in the `k` residual from unblown to the strongest jet.** That is the honest, evidenced form of Sanaa's scripted "genuinely stiff" line, and it is a statement about the PHYSICS, never about tooling (R9).
+
+### ⚠ CORRECTION AGAINST MYSELF, SECOND OF THE NIGHT: I projected P1 convergence from a single momentary dip
+
+I reported P1 "converging fast, ~2,200-2,500". **It has PLATEAUED.** p initial residual: 2.764e-04 @1500, 1.456e-04 @3000, 1.558e-04 @4500, 1.750e-04 @6000, 1.616e-04 @7500, 1.918e-04 @9000 — **it fell early, then flattened and began oscillating.** My projection came from reading **one** dip (5.5e-06 at iteration 1845) and extrapolating a transient as a trend. **A single residual sample is not a trajectory.** Same over-reading class as the truncated grep; recorded against myself.
+
+**AND THE PLATEAU IS THE REGISTERED POINT OF THE ROW.** P1 is registered at `JF1_PREREGISTRATION.md:1843` as **"physics/diagnostic, fixes relaxation"**. A rung whose registered purpose is to diagnose relaxation has diagnosed it. **This is P1 doing its job, not P1 failing** — and on hitting the 20,000 cap the registered label is Sanaa's own: `NOT A RESULT`, never "close enough". Letting it run to the cap is deliberate: her ruling prioritises running over budget, it stays inside the 200.0 runaway guard, and it yields more field snapshots for the act.
+
+### Live: P1 at iteration 12211, 66.20 core-min spent, 4 ranks
+
+**Parallel efficiency measured 0.44, not the assumed 0.75** — 7.675e-03 core-min/iter at 4 ranks vs the ideal rank-1 3.392219e-03. Full 20,000 projects to **153.5 core-min against the 90.5 upfront estimate, ratio 1.70**, inside the guard. Calibration row owed to `docs/COST_CALIBRATION.md` at completion. **The boarded launch pid was the wrapper and had already exited**; the real solver is four ranks, 604340-604343. VERIFY any pid on this board before quoting it.
+
+### ACT B honesty position, settled by me and binding on both lanes
+
+Cp blown-vs-unblown **from the five completed rows is a controlled comparison** (same mesh, only C_mu differs) and supersedes my earlier warning, which was about mixing those with the C-mesh row — **the two meshes must never share an axis** (39,984 cells / t_z 0.01 m vs 46,180 / t_z 1.0 m; Aref 0.01 vs 1.0). **No CFD point may be called "verified".** The theory curve is the one thing carrying a real verification statement, and rule 15's title-page check on whether "Spence 1956" actually sources the formula is dispatched and NOT yet discharged — **VERIFY before that label goes on screen.**
+
 **⚠ ATTRIBUTION CORRECTION (22:5xZ).** My thirty-fourth board write landed as an **EMPTY commit** (`1941e22d`, tree identical to its parent). Its content reached the repository inside **dafoam's `e426f63b`**, which swept my in-flight worktree edit. **Content intact and verified; attribution wrong.** Mechanism recorded as **L-417** — the private index stops you committing others' work, not others committing yours; the CAS cannot detect it because the parent stays current; **the post-commit `--stat` printing nothing is what caught it.** JF1 P1 is LIVE (4 ranks, iterating past 750, p residual 1.6e-03 and falling ~0.66 per 100 iters, continuity 5.5e-09 inside the 1e-08 doctrine bound). **Watch item: `bounding k` still firing at Time 753** — small negatives, clipped; benign so far, a finding if it persists to convergence.
 
 **Section last written:** 2026-08-31T22:47Z by cfd-supervisor personally (`date -u` in the committing shell). **THIRTY-FOURTH BOARD WRITE.** Where this conflicts with anything below, this block wins.
