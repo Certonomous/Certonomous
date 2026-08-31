@@ -1532,3 +1532,290 @@ facts are recorded here rather than discovered during a graded rung.
 
 *Appended by `cfd-supervisor` personally, 2026-08-31. Items 1 and 2 were re-derived on
 disk by the supervisor rather than taken from a lane's report.*
+
+---
+
+## ADDENDUM 3 — 2026-08-31 — AN ABSOLUTE STATIONARITY FLOOR: A GATE CHANGE MADE UNDER SANAA'S EXPLICIT APPROVAL
+
+**Version 1.3.** **Lines whose number changed above this section: 0.** This is a pure
+append; Addendum 2, Addendum 1 and everything above them are untouched. The assertion
+was **verified, not asserted**: the first 87,911 bytes of this file were byte-compared
+against the blob of `verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md`
+at the commit preceding this one and found identical (`cmp`, rc 0).
+
+### 1. WHAT THIS IS, STATED PLAINLY SO IT IS NOT BLURRED
+
+**This addendum ALTERS A REGISTERED CRITERION on a frozen registration after first
+compute.** `CLAUDE.md` rule 2 forbids exactly that to an ordinary addendum: after first
+compute *"changes land only as dated addenda that cannot alter a gate, threshold, cap or
+label."* This is **not** an ordinary addendum, and it is **not** a repair under
+`VERIFICATION_CHARTER.md` §2d.1's four-condition exception. It is a **gate change**, and
+it is lawful for one reason only:
+
+> **Sanaa approved it personally.** Captured verbatim by the chief at receipt in
+> `etc/sessions/2026-08-31T2016Z_sanaa_three_rulings_runner_2h3_f28floor.md`, committed
+> at **`5dd94f4f624cb71b6a56172ccf7927df9d6705e9`**:
+>
+> > *"About your questions : queue_runner : deploy it," "§2h.3": exact-PDE rule, "F28
+> > floor": approved"*
+>
+> and the chief's routing in the same file: *"(3) F28 absolute stationarity floor —
+> APPROVED as a gate change; cfd lands it as a dated amendment on the frozen
+> registration citing her approval, with the empty-duct V(b) gate graded against the
+> floored criterion."*
+
+**The approval's width is the width of the change and no wider** (`CLAUDE.md` rule 9).
+It authorises **an absolute floor beside the existing relative thrust-stationarity
+criterion**, and **V(b) graded against the floored criterion**. It reopens **no** other
+gate, threshold, cap or label: §9.3's Roache bands, §9.4's theory gate, §9.6's momentum
+balance, §10's 400 core-min cap, §8's 15,000-iteration rigor cap and every registered
+label stand exactly as frozen. Nothing in this addendum is Sanaa's consent to anything
+else, and no agent's message is her consent (rule 9).
+
+### 2. THE DEFECT — A CRITERION THAT DIVIDES BY A VANISHING DENOMINATOR
+
+§8's convergence table (the *"Thrust stationarity"* row, registering the directive's
+§2.5) reads `|dT_total| < 0.1 %` over the last 2000 iterations. It is **relative and
+carries no absolute floor.** The reader that implements it, `read_ptp_f28.py:8`, fixes
+the operational form:
+
+    ptp% = ( max(Fx) - min(Fx) ) / |mean(Fx)| * 100
+
+Measured on `postProcessing/forcesDuct/0/force.dat` column `total_x`, final 2000
+samples (iterations 13001–15000), on the three L1 feasibility arms that exist:
+
+| Arm | `mean` (N) | `ptp` **absolute** (N) | `ptp` **percent** |
+|---|---|---|---|
+| `FEAS_L1_dp0_U20_A2` — **zero momentum source** | +0.003308274 | **0.020421899** | **617.2977 %** |
+| `FEAS_L1_dp1000_U20_A2` | −0.333724642 | **0.060453719** | **18.1149 %** |
+| `FEAS_L1_dp1000_U20_A2_BCPROBE` | −0.313215680 | **0.063349822** | **20.2256 %** |
+
+**The zero-source arm is the QUIETEST of the three in newtons and the LOUDEST by
+thirty-four times in percent.** Nothing physical changed between those two statements;
+the percentage divides by a denominator that goes to zero as the source does. The
+criterion does not measure stationarity on such an arm — it measures the smallness of
+the mean.
+
+**And it is degenerate on precisely the case it was written to validate.** §6.3
+registers V(b) as the **empty-duct pass-through**: L1, `delta_p = 0`, `U_inf = 30 m/s`,
+whose `|T_total|` is *"drag-only and `< 2 %` of the loaded-case thrust"* — that is, V(b)
+is registered **because** its thrust is near zero. Under the unfloored criterion, the
+nearer V(b) comes to the physics it is registered to demonstrate, the more certainly it
+fails its own stationarity test. That is a defect in the criterion, not a finding about
+the duct.
+
+**The reader already saw the pole and could only stand at it.** `read_ptp_f28.py:66-68`
+refuses when `mean` is **exactly** zero — *"the percentage normalisation is
+undefined"*. It has no defence against a mean that is merely **near** zero, which is the
+case that actually occurs. The refusal is correct and is untouched by this addendum.
+
+**A window-sensitivity finding, recorded because it is further evidence for the floor
+and against the percentage.** Widening the window on the zero-source arm from the
+registered 2000 samples to 2001 (adding iteration 13000) leaves `ptp` **absolute**
+unchanged to all nine printed digits (0.020421899 N) while moving `mean` from
+0.003308274 to 0.003306474 N and `ptp` **percent** from 617.2977 % to 617.6337 %. The
+absolute measure is window-stable; the percentage is not, because the drift lives
+entirely in the denominator. (The 617.6337 % figure quoted in the cfd supervisor's brief
+is the 2001-sample reading; `read_ptp_f28.py`'s registered `rows[-2000:]` gives
+617.2977 %. **Neither changes any verdict below**, which fails by 34x either way.)
+
+### 3. THE ORIGINAL CRITERION, STRUCK, AND THE FLOORED CRITERION BESIDE IT
+
+Originals are struck, never rewritten (`CLAUDE.md` rule 6).
+
+**STRUCK** — §8, *"Thrust stationarity"* row, as frozen:
+
+> ~~`|dT_total| < 0.1 %` over the last 2000 iterations~~
+> ~~— operationally `ptp <= 0.001 * |T_mean|`, relative, with no absolute floor.~~
+
+**IN FORCE from this addendum** — thrust stationarity passes when
+
+> **`ptp <= max( 0.001 * |T_mean| , T_floor )`**
+
+over the last 2000 iterations, where `ptp = max(Fx) - min(Fx)` over the window and
+`T_mean = mean(Fx)` over the same window, both unchanged from `read_ptp_f28.py:8`.
+
+The two limbs are joined by `max`, so the test is **the more permissive of the
+relative criterion and the absolute floor**, and it can therefore never divide by a
+vanishing denominator. On any arm carrying real load the relative limb still governs
+(it exceeds the floor once `|T_mean| > T_floor / 0.001 = T_disk_ref,sector`), so this
+change is inert on exactly the runs the original criterion graded correctly.
+
+**The disk mass-flow stationarity row of §8 is NOT touched.** Sanaa's approval names
+the thrust floor. A mass-flow floor is not derived, not registered and not in force.
+
+### 4. `T_floor` IS DERIVED FROM THE CASE'S OWN REFERENCE SCALE — IT IS NOT CHOSEN
+
+A floor chosen after the numbers are in hand is the thing pre-registration exists to
+prevent. This one is a fixed fraction of the case's own registered thrust scale at its
+own registered triple point, and every input is a number already frozen above.
+
+**Step 1 — the disk annulus, from §4's registered geometry, re-derived rather than
+copied:**
+
+    D      = 0.25 m                                    (section 4)
+    r_tip  = D/2 - 0.01 D = 0.125 - 0.0025 = 0.1225 m  (section 4; the declared 1% D tip-gap band)
+    r_hub  = 0.3 D / 2    = 0.0375 m                   (section 4; hub diameter 0.3 D)
+
+    r_tip^2 - r_hub^2 = 0.01500625 - 0.00140625 = 0.01360000 m^2
+    A_disk = pi * 0.01360000 = 0.0427256601 m^2
+
+This **agrees with §4's registered `A_disk` = 0.0427257 m^2** to every digit §4 prints.
+§4's disk is annular (hub 9.00 % of duct frontal area, tip-gap band a further 3.96 %),
+and the derivation above uses §4 as written — no departure from §4 was found and none is
+taken.
+
+**Step 2 — the thrust scale at the registered triple point.** §9.3 fixes the G-gate
+triple point at `delta_p = 1000 Pa`, `U_inf = 20 m/s`, `sigma = 1.0`. Over the **full
+360° annulus**:
+
+    T_disk_ref,full = delta_p * A_disk = 1000 * 0.0427256601 = 42.7256601 N
+
+This **agrees with §6.2's control C3**, which registers the same product analytically as
+**42.7257 N**. The floor therefore inherits a number already frozen and already made
+into a planted control, rather than introducing a new one.
+
+**Step 3 — wedge-scale it to the sector actually solved.** §4 registers
+`WEDGE_SCALE = 72.0 (= 360/5)`; the mesh is a single 5° wedge one cell thick, so the
+solved domain is **1/72 of the full annulus**:
+
+    T_disk_ref,sector = 42.7256601 / 72 = 0.593411946 N
+
+**Step 4 — the floor is one part in a thousand of that scale**, the same 0.1 % the
+original criterion already registers, now measured against a fixed reference instead of
+against the run's own mean:
+
+    T_floor = 0.001 * 0.593411946 = **5.934119457e-04 N**   (5.934e-04 N, defensible to 4 s.f.)
+
+**Defensible digits.** Every input is exact-by-registration (`D`, the 0.01 D band, the
+0.3 D hub, `delta_p`, `WEDGE_SCALE`), so the only truncation is `pi`. The value is quoted
+to 4 significant figures — **`T_floor = 5.934e-04 N`** — and nothing below turns on any
+digit beyond the first.
+
+### 5. UNITS — THE FLOOR IS IN **SECTOR** NEWTONS, BECAUSE THE MEASURED QUANTITY IS
+
+This is the clause on which the whole change stands or falls, so it is stated as a
+verified fact with its artifacts.
+
+`controlDict.template` lines 15–17 record that `forcesDuct` is *"the duct force, wedge
+patches only; the comparator multiplies by `WEDGE_SCALE = 72` and flips the sign."* The
+multiplication happens **downstream of the file**. `read_ptp_f28.py:53` takes column
+`total_x` straight from `force.dat` with **no scale factor applied**, and its own
+docstring (line 11) notes the percentage is *"invariant to ... `WEDGE_SCALE = 72`"* —
+true of a ratio, and **false of an absolute floor**.
+
+Therefore the three `mean` and `ptp` values in §2 above are **5° sector newtons**, and
+`T_floor` is registered in **5° sector newtons** to match. Stated once so it can never be
+misapplied: if the floor is ever evaluated against a quantity that has **already** been
+multiplied by `WEDGE_SCALE`, the corresponding value is
+
+    T_floor,full = 0.001 * 42.7256601 = 4.2726e-02 N
+
+and the two must never be mixed. A floor applied in the wrong frame would be wrong by a
+factor of 72 — and, applied full-scale to sector data, would have **rescued the
+zero-source arm** (0.020422 N < 0.042726 N). That near-miss is recorded here deliberately:
+it is the exact error this section exists to foreclose.
+
+### 6. V(b) IS NOW GRADED AGAINST THE FLOORED CRITERION
+
+Per Sanaa's approval as routed. §6.3's empty-duct pass-through control, and its
+consumption by §9.2 (*"both must pass before any gated solve is launched"*), are graded
+on thrust stationarity using the floored criterion of §3 above, **not** the struck
+relative-only form.
+
+**What this changes about how V(b) reads.** V(b) runs at `delta_p = 0` and is registered
+to produce a small, drag-only, near-zero `T_total`. Under the struck criterion its
+stationarity test was mathematically degenerate — an arbitrarily quiet V(b) could be
+reported as arbitrarily unstationary, purely as an artifact of its small mean, and the
+control could not be passed by any amount of genuine quietness. Under the floored
+criterion V(b) is asked a physically meaningful question: **is the duct force steady to
+within one part in a thousand of the disk's own loaded thrust scale?** That is a question
+a converged empty duct can answer yes to and an unconverged one cannot.
+
+**What this does NOT change about V(b), stated so the approval is not read wider than it
+is:** the `< 2 %`-of-loaded-thrust magnitude assertion of §6.3 is **untouched**; the
+**sign** requirement is **untouched** — a positive `T_total` on V(b) remains
+`NOT A RESULT` regardless of magnitude, because a duct with no source that generates
+thrust from nothing is not a stationarity question; and §9.2's requirement that **both**
+V controls pass before any gated solve is **untouched**.
+
+**The one-way property is honestly stated, not glossed.** §9.3 registers that the gate
+can only turn a `PASS` or `GATE FAIL` **into** `NOT A RESULT`, never the reverse. This
+floor moves in the **permissive** direction on stationarity, and stationarity feeds
+rule 5 clause (1) ("any level not iteratively converged → `NOT A RESULT`"). So a floored
+criterion **can** in principle admit a level the relative test would have excluded. That
+is the intended effect on the degenerate near-zero case, and it is exactly why §7 below
+exists and is not optional.
+
+### 7. THE HONESTY TEST — THE FLOOR WAS NOT SIZED TO RESCUE ANYTHING
+
+The floor was derived in §4 from frozen inputs alone, and **then** applied to the three
+measured arms. Had it turned any currently-failing arm into a passing one, the change
+would have been referred back to the supervisor unwritten, because a threshold that
+rescues the answer in front of it was sized to fit that answer. It did not.
+
+| Arm | `ptp` (N) | relative limb `0.001·\|mean\|` (N) | floor (N) | criterion in force (N) | struck criterion | **floored criterion** | margin |
+|---|---|---|---|---|---|---|---|
+| `FEAS_L1_dp0_U20_A2` | 0.020421899 | 3.3083e-06 | 5.9341e-04 | 5.9341e-04 | FAIL | **FAIL** | 34.4x over |
+| `FEAS_L1_dp1000_U20_A2` | 0.060453719 | 3.3372e-04 | 5.9341e-04 | 5.9341e-04 | FAIL | **FAIL** | 101.9x over |
+| `FEAS_L1_dp1000_U20_A2_BCPROBE` | 0.063349822 | 3.1322e-04 | 5.9341e-04 | 5.9341e-04 | FAIL | **FAIL** | 106.8x over |
+
+**All three arms fail the floored criterion. Not one arm was rescued.** The nearest arm
+misses by a factor of 34. Note that on all three the **floor**, not the relative limb, is
+the binding term — which is the point: the criterion is now anchored to the case's
+thrust scale rather than to whatever the run's mean happened to be.
+
+**Addendum 2 item 2 therefore stands unchanged.** The feasibility arms do not converge,
+and they do not converge under the floored criterion either. This addendum removes a
+mathematical degeneracy from a criterion; it removes no failure and it converts no
+`NOT A RESULT`. Nothing above is a verdict of the fixed vocabulary in any case — these
+are `FEASIBILITY` rows under Sanaa's 2026-08-31T15:13Z ruling, and "FAIL"/"PASS" in the
+table above are readings of a criterion, not gate verdicts.
+
+### 8. PRECEDENT — THE SAME DEGENERACY WAS ANTICIPATED IN JF1, AND MET DIFFERENTLY
+
+`verification/campaign/JF1_PREREGISTRATION.md` lines 1548–1549 register the identical
+shape at `C_mu_jet = 0`: a *"relative mismatch `0/0`"*, disposed as **"`N/A — not run`,
+recorded as `N/A`, never as `0.0 %` and never as a pass"**, with lines 1760–1763 binding
+the comparator never to emit `N/A` as a pass — both citing standing rule 3.
+
+**The same defect, a different lawful remedy, and the difference is the reason this one
+needed Sanaa.** JF1's degenerate checks are *optional at the pole* — there is no jet, so
+there is nothing to measure and `N/A` is the honest answer. F28's V(b) is **not**
+optional at the pole: it is the validation control itself, it must be run, and it must
+be graded. `N/A` would mean a required control cannot be evaluated, which is
+`NOT A RESULT` for the case under §9.2. So the pole had to be removed from the criterion
+rather than stepped around, and removing it is a gate change — which no agent at any
+level may make. Hence `5dd94f4f`.
+
+### 9. WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not authorise Stage 1.** Stage 1 remains unauthorised. `analyse_f28.py` was
+  **not read** by the drafting lane and remains unread; no check-1 token was used,
+  requested or manufactured in preparing this addendum.
+- **It does not touch code.** `run_f28.sh`, `run_f28_bcprobe.sh`, `analyse_f28.py`,
+  `read_ptp_f28.py`, the mesh script and every dictionary are **unmodified**. The floored
+  criterion is registered here as the criterion in force; wiring it into the comparator is
+  a separate, later act, and until that is done and its diff read as a diff
+  (`SUPERVISION_CHARTER.md` §3 check 1) **no run is graded against it**.
+- **It does not re-grade anything.** No existing row's verdict changes, and §2's three
+  arms remain feasibility rows carrying no verdict vocabulary.
+- **It does not move the mass-flow criterion, any Roache band, the theory gate, the
+  iteration cap or the cost cap.**
+
+### 10. COST
+
+**Zero core-minutes.** No solver ran. The three arms in §2 were read from `force.dat`
+files already on disk (`verification/runs/F28_runs/<arm>/postProcessing/forcesDuct/0/
+force.dat`, 15,004 lines each, present and re-read for this addendum); the derivation in
+§4 is arithmetic on frozen numbers. Estimate and actual are both zero, ratio undefined
+and reported as such rather than as 1.0 — `CLAUDE.md` rule 12's calibration row is not
+owed for a zero-compute act and none is manufactured.
+
+*Drafted by a `cfd` lane, 2026-08-31, at zero compute. `A_disk`, `T_disk_ref` and
+`T_floor` were re-derived from §4 rather than copied, and independently agree with §4's
+registered `A_disk` and §6.2's control C3. The three arms were re-measured from
+`force.dat` by this lane rather than taken from the brief; the one figure that disagreed
+with the brief is disclosed in §2. **This addendum alters a registered criterion and is
+therefore committed by `cfd-supervisor` personally**, who owns the §3 check-4 stamp on
+the freeze it amends.*
