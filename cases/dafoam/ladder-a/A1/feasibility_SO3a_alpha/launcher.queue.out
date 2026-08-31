@@ -1,0 +1,14 @@
+2026-08-31T16:11:16Z SO3AF_DRIVER start item=SO3aF pid=112929 cpuset=15 ranks=1 declared_alphas=3
+2026-08-31T16:11:16Z SO3AF_PREREG=FEASIBILITY -- UNREGISTERED rung; outputs NOT gradeable as verdicts
+2026-08-31T16:11:16Z SO3AF_G_SRC_PASS all instruments and the source mesh present
+2026-08-31T16:11:16Z SO3AF_G_IMG_PASS dafoam/opt-packages:latest carries the SHIPPED digest 9d45679d
+2026-08-31T16:11:16Z SO3AF_G_CPUSET_PASS core 15 free against every live container
+2026-08-31T16:11:16Z SO3AF_MEM_OK avail_kb=29894068 floor_kb=6291456 waited_s=0
+2026-08-31T16:11:16Z SO3AF_STAGED root=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility mesh_from=/home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient/MESH (source not written)
+2026-08-31T16:11:16Z SO3AF_MD5 runScript=39dcdec809eca3707b89abf1a0d19cf7 cmd=7560811f3a8b7a73d80609686c70499c
+2026-08-31T16:11:16Z SO3AF_LAUNCHED container=so3af_ALPHA_20260831T161116Z_112929 cpuset=15 mem=4g deadline_in_container_s=480
+2026-08-31T16:11:51Z SO3AF_COUNTS declared=3 executed=3 converged=0
+0 rc=0 oom=false wall_s=35 core_min=0.5833
+2026-08-31T16:11:51Z SO3AF_READER rc=0 out=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility/SO3aF_read_20260831T161116Z.txt
+2026-08-31T16:11:51Z SO3AF_ARM_COMPLETE declared=3 executed=3 converged=0
+0
