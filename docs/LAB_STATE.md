@@ -16033,7 +16033,61 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
-**Section last written:** 2026-08-31T20:41:42Z by cfd-supervisor personally (`date -u` read in the committing shell invocation). **THIRTY-SECOND BOARD WRITE — post the 20:5xZ accidental-stop restart.** Everything below this block predates it and is retained, not deleted; where it conflicts, **this block wins.**
+**Section last written:** 2026-08-31T22:23Z by cfd-supervisor personally (`date -u` read in the committing shell invocation). **THIRTY-THIRD BOARD WRITE — post the 22:06Z session-limit restart, and post Sanaa's 22:13Z DEMO TONIGHT directive.** Everything below this block predates it and is retained, not deleted; where it conflicts, **this block wins.** Stamp carried on the first line per the practice this section fixed at the previous write.
+
+### Last commit
+
+- **`c18eff93`** — F28 **gate (b)**, the section 11.1 guard-virgin wiring. 5 files, 1,224 insertions, **pure addition**. Post-commit verify showed exactly my paths. **NOT INSTALLED**; `run_f28.sh` untouched at md5 `24683bf8e5953c87d735ad993aac56f2`.
+
+### ⚠ A RELAYED INSTRUCTION CONTRADICTED SANAA'S OWN RULING AND I DID NOT EXECUTE IT
+
+I was briefed that the JF1 rows are **"uncapped by her ruling, still costed."** I looked for that ruling before removing a registered cap. Her actual words today, item 3 of her rulings: **"Runner-side cap enforcement: ENFORCE — rule 12 means what it says; an overrun stops the run, STATUS written, artifacts preserved, no more advisory-only."** That is the opposite. **No uncapping directive was found anywhere in `etc/sessions/`.** I declined that one clause under rule 9 and executed the rest of the demo directive in full — **nothing is blocked by the refusal.** If an uncapping exists, it needs to be produced as her words; VERIFY.
+
+### F28 — Stage 1 has ONE gate left, not two
+
+- **Gate (b) DISCHARGED** at `c18eff93`. Diff 3 hunks / 109 lines added / **0 removed**; guard at :346 with the `$RUN_DIR/0` `mkdir` at :347, and :329/:330 in `--preflight`. **My own 11-limb matrix: 11 PASS**, not the lane's 21. Three limbs the lane did not run: `postProcessing/` **accepted** (over-refusal — a guard that refuses everything is equally broken), `0.5/` refused, and the guard never creates the directory it inspects.
+- **The wiring FAILS CLOSED today and is inert until the comparator installs.** Installed `analyse_f28.py` has `guard_virgin_case` at :397 but **no `--guard-virgin` entry point**, so it exits 2 on a **virgin** directory too — a usage error wearing a refusal's exit code. Reproduced independently: rc 1, `CANNOT DISTINGUISH`, zero compute.
+- **`set -e` hazard checked before the control was believed** — `rc=$?` after a failing command aborts under errexit. `run_f28.sh` carries only `set -o pipefail` (:54) and `set +u`/`set -u` at :423/:426, both **after** both call sites. Safe because measured.
+- **Gate (c) OUTSTANDING** — Addendum 3's floored stationarity criterion actually wired, with its own check-1 read. Lane live. **§6.3's refusal stands until then.**
+- **Installation is legal on `§2d.1`'s POST-compute exception** (charter's own F28 ruling at :4228), and tonight's **`§2d.3`** (`4e5cd6c0`) lets conditions (3)/(4) be met by **disclosing a measured absence**. Measured by me: **36 run directories under `verification/runs/F28_runs/`, ZERO carrying any grading marker.** `check_comparator_freeze.py` independently classes both F28 comparators **NO-MARKERS** — and is therefore **blind to the installation**, which I name rather than benefit from.
+- **Candidate identity proved on all three sides**: `analyse_f28_candidate.py` md5 `9716705937171346fcf3688a779bbc61` identical in worktree, at HEAD, and at `b79234f2` — the blob verification graded at `a20b7281` (PASSED).
+
+### Correction owed to verification, routed not edited
+
+`verification/credibility/CHECK1_ANALYSE_F28_VERIFICATION.md` closes with *"read_volVectorField still has zero call sites… it is dead code… Strike it or wire it."* **It is already struck** — `def read_volVectorField` occurs **zero** times in the blob they graded; the candidate records the strike at :80 and :527. The sentence is true of the **superseded** `analyse_f28.py` (defined :181, no caller) and false of the candidate. Their item (4) "PARTIAL" is **CLOSED**. Theirs to correct by dated addendum.
+
+### JF1 — SANAA'S TOP PRIORITY TONIGHT, lane live
+
+Her verbatim (`f03cd863`, `etc/sessions/2026-08-31T2213Z_sanaa_demo_tonight_priorities.md`): *"cfd team must set up the JF1 case asap … i need them today in order to shoot a demo tn"*. Deliverable is **a running case with presentable fields**, not a graded result.
+
+- **Check 4 discharged personally:** P1 is a registered row — `JF1_PREREGISTRATION.md:1843` `| P1 | P | 0.1 | 0 | L1 | physics/diagnostic, fixes relaxation |`, estimate 11.36 core-min at :1971. Registration committed `12b1bd84`, byte-identical to HEAD, md5 `20b7d0fd426ca18fa10ec486fccf6ffa`. **Cleared to launch on compute grounds.**
+- Order reset: **L1 C-mesh first** (L2/L3 deferred — the ladder serves grading, which is blocked), then `run_jf1_p1_cmesh.sh`, then P1 as **`prereg=PHYSICS`**, then remaining C_mu points.
+- **The 2700 s kill diagnosed, not deleted.** `run_jf1.sh:65` / `run_jf1_blown.sh:52` — it was only ever 45.0 core-min expressed as rank-1 wall clock. New launcher **derives** `WALL_ALLOWANCE_S = CAP_CORE_MIN*60/RANKS`. Same budget, honest clock. **Parallel ranks** are the real fix for a demo deadline: buys wall time, **not** budget, and the cost_basis must keep those separate.
+- **Four of Sanaa's own numbers were not being used** (`etc/sessions/2026-08-30T2300Z_sanaa_four_new_case_families.md`, CASE 1): iteration cap **20,000** (case built to 8,000), family cap **300 core-min** with **117.4833 measured spent → 182.52 remaining**, blow-up guard **max|U| < 2 V_j**, and her full convergence criterion. Her label on hitting the cap is fixed in her words: *"hit cap -> NOT A RESULT, never 'close enough'."*
+- **⚠ CAP TENSION, named before launch:** at the measured 4.2378e-03 core-min/iteration, 20,000 iterations ≈ **84.8 core-min** at rank 1 — above the 45.0 per-row figure and ~46 % of the whole remaining family budget for one row. **The tighter cap governs**, so P1 may stop on budget short of convergence. Lane must state which cap binds, at what iteration count, **in the launcher header before launch**.
+- Demo output: fields + Cp/jet-sheet plots per Katie's conventions, **every plot carrying an explicit ungraded label**. This team withdrew a "converged coarse field" headline once tonight (`c214776e`); an unconverged field labelled as such is presentable, unlabelled it is a false claim on camera.
+
+### Live jobs — **cfd has ZERO solvers running** as of 22:23Z. Box idle, load 1.55
+
+Three lanes live: F28 gate (b) **returned and landed**; F28 gate (c) floored criterion; JF1 C-mesh + P1.
+
+### ⚠ Queue depth 0 — the recorded breach is LIVE
+
+`verification/queue/cfd/` holds only `README.md` and `launched/`. The daemon is **alive** (pid 374025, up 6737 s) and would consume anything staged. JF1 P1 is the first row that closes it.
+
+### Rungs without verdicts
+
+**F28** `PENDING`, Stage 1 unauthorised, zero graded rows. **JF1** — five L1 feasibility rows rule-4 complete but **not converged**; ungraded by construction tonight; gate G heading for `BLOCKED` on budget; two frozen-registration defects unresolved. **R5** pre-compute and `PENDING`.
+
+### On Sanaa's desk
+
+The three JF1 rulings (cos τ comparand, Mesh OK contradiction, freeze-check widening), unchanged and awaited — **plus** a request for the uncapping source if one exists.
+
+### Next actions
+
+Read gate (c)'s diff personally when the lane returns; install comparator + launcher **together** (they are inseparable — the wiring is inert alone); then Stage 1. Land P1 and its plots for the demo. Dispatch a queue-filling survey across the F-series when a lane frees.
+
+**THIRTY-SECOND BOARD WRITE — post the 20:5xZ accidental-stop restart.** Everything below this block predates it and is retained, not deleted; where it conflicts, **this block wins.**
 
 **⚠ STAMP DEFECT REPAIRED IN THIS WRITE, AND IT HAD REGRESSED.** `scripts/check_harness.py` uses `STAMP_RE.search(body)` — it takes the **FIRST** stamp in the section. Before this block, the first stamp in `## cfd` was **`2026-08-25T20:31:57Z`**, six days stale, because every block written since was appended above it *without a stamp line*. The harness was reporting `WARN cfd STALE — territory committed 0a62c5c6 at 2026-08-31T20:34:29Z, section last changed c214776e at 16:42:07Z (stamped 2026-08-25T20:31:57Z)`. This section repaired exactly this defect once already (the 2026-08-25T19:19:23Z stamp repair below) and **it came back**, because the repair fixed the value and not the practice. The practice: **every cfd block written at the top of this section carries its own `Section last written:` stamp on its first line.** The historical stamps below are preserved, not deleted.
 
