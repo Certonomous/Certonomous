@@ -4206,3 +4206,54 @@ heat-transfer's call.
 | verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** · rows edited **0** |
 | rows requiring re-evaluation | **0** — census is 0 classed / 153 `UNCLASSED` (`§2n.16`) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.32, 2026-08-31 — **§2d.2: RULE 2 GOVERNS AND MY OWN §2d IS THE OUTLIER — GATES CLOSE AT FIRST COMPUTE, NOT AT THE FIRST GRADED SOLVE. Plus §2n.17, a backfill trap another team measured, and a referral I will not spawn as a rule**
+
+**Lines whose number changed above this section: 0.**
+
+### §2d.2 THE RULING F28's A1.8 REFERRED, AND IT GOES AGAINST THIS CHARTER'S OWN WORDING
+
+**THE TENSION, STATED FAIRLY.** `CLAUDE.md` rule 2 closes gates ***"after first compute."*** **My `§2d` closes them at ***"the first graded solve."*** F28 has **feasibility compute** (`verification/runs/F28_runs/FEAS_*`) and **zero graded solves**, so the two texts give opposite answers, and the registration's own **A1.8 referred exactly this and left it UNRULED**.
+
+> **RULING: `CLAUDE.md` RULE 2 GOVERNS. Gates close at the FIRST COMPUTE under the registration — feasibility compute included — and `§2d`'s narrower wording is a DEFECT IN THIS CHARTER, corrected here prospectively.**
+
+**THE GROUND, AND IT IS THIS CHARTER'S OWN §2g.** v1.16 holds that **a pre-registration cannot EXCEPT a standing rule.** The identical logic binds *a fortiori* on **me**: `CLAUDE.md` is Sanaa's and this charter is mine, so **a charter clause cannot except a standing rule either.** `§2d`'s *"first graded solve"* is **strictly narrower** than rule 2's *"first compute"* — it would hold gates open through compute that rule 2 has already closed them after. **A narrower charter clause does not get to shrink a standing rule; it gets corrected.**
+
+**AND THIS CHARTER ALREADY AGREES WITH RULE 2 ELSEWHERE — §2d IS THE ODD ONE OUT.** `§2i` (v1.18) states that **the freeze BITES WHEN COMPUTE BEGINS** and fixes the stamp as **the EARLIEST `started_utc` under the registration**, with no graded-solve qualifier anywhere in it. **So the conflict was never between me and Sanaa; it was between §2d and §2i, and §2i is the one that is right.**
+
+**§2m DOES NOT RESCUE F28, and I checked rather than assumed.** v1.26's `[SANAA-DIRECT]` `§2m` holds that **a FEASIBILITY RUNG has no gate to freeze, so rule 2 never reached it.** Its object is a rung **with no gate at all**. F28 **has** a gate, and feasibility compute **under a gated registration** is compute under that registration. **§2m is about the absence of a gate, not the character of the run.**
+
+**THE CONSEQUENCE FOR F28, AND THE OUTCOME SURVIVES.** The gates closed at the **earliest `started_utc` of the feasibility runs**, so **the pre-compute amendment limb did NOT apply and the lane's stated ground was wrong.** But **the lane checked all four `§2d.1` repair conditions anyway** — and those are the **post-compute** limb. **The amendment is therefore LEGAL, on the exception rather than on the limb it invoked: the result stands and only its ground moves.** **The lane's belt-and-braces caution is the only reason there is anything to save, and it is commended rather than merely noted** — a lane that satisfies the stricter test it does not believe it needs is the reason a supervisor's ruling can go against it without destroying its work.
+
+**PROSPECTIVE ONLY** (`§2h.6`, v1.19, non-retroactivity): no verdict already earned is disturbed, and no registration is retroactively in breach for having relied on `§2d`'s wording while it stood.
+
+### §2n.17 ⚠ A BACKFILL TRAP, MEASURED BY heat-transfer BEFORE ANYONE HIT IT
+
+**Folded into `§2n`'s backfill mechanics so every team inherits the warning.** Measured by a heat-transfer backfill lane, **`98d8733a`**:
+
+> **The obvious vocabulary tidy — "correct every bare `FAIL` string to `GATE FAIL` in the run trees" — would SILENTLY DISARM 74 REGISTERED CONTROLS ACROSS THREE RUNGS.** `.controls[].must = "FAIL"` is **a registered statement that a control MUST RETURN `FAIL`** — an assertion, **not a verdict cell**. Flipping it does not tidy a label; **it disarms the control.**
+>
+> **THE SAFE MEASURE IS `graded_rows[].verdict` ONLY.** A backfill or a vocabulary sweep touches **verdict cells** and **never** a control's `must` field.
+
+**This is `CLAUDE.md` rule 3's failure mode wearing a tidy-up's clothes** — a guard silently switched off by a change that looks like housekeeping — and it is the same class as `§2n.7`'s named backfill hazard, arriving from a direction `§2n.7` did not anticipate. **The lane also bounded the reported never-graded defect to two of three K0c rungs by sweeping the third and finding it clean**, which is the right shape: a defect is bounded by measurement, not by assumption.
+
+### §2n.18 REFERRED TO SANAA, NOT SPAWNED — CHECK 1 IS NECESSARY AND NOT SUFFICIENT
+
+**Tonight two independent supervisors performed full, personal, non-delegable check-1 reads of `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` and BOTH certified a guard that cannot fail.** `read_fvoptions_source`'s first-match regex hits a **banner comment** and reports `volumeMode specific` **even when the live entry says `absolute` and even when it is deleted entirely** — measured by driving it, and recorded at `verification/credibility/CHECK1_ANALYSE_F28_VERIFICATION.md`. **cfd found it by RUNNING the file. Neither of us found it by reading it.**
+
+> **CANDIDATE STANDING RULE, referred and NOT enacted:** *a measurement script's guards are not believed until they have been **exercised** against the artifacts they guard — driven to their refusal by a mutation, as `CLAUDE.md` rule 3 already requires of a reader. A supervisor's read is necessary and not sufficient.*
+
+**It is NOT spawned as a rule here.** Rules spawn only with Sanaa's approval under the 14-day freeze, and **this team does not get to except that because the finding is embarrassing to it.** Recorded, referred, and left for her.
+
+| field | value |
+| --- | --- |
+| clause added | `§2d.2`, `§2n.17`, `§2n.18` |
+| ruled | **rule 2 governs**; `§2d`'s *"first graded solve"* is corrected to **first compute** |
+| conflict resolved | `§2d` vs `§2i` — **`§2i` was already right** |
+| F28 | amendment **LEGAL on `§2d.1`'s post-compute exception**, not on the limb it invoked; **outcome stands, ground moves** |
+| retrospective effect | **none** — prospective only (`§2h.6`) |
+| verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** |
+| referred to Sanaa | the exercise-the-guard rule (`§2n.18`) |
+| **lines whose number changed above this section** | **0** |

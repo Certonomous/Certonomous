@@ -71,3 +71,51 @@ The instrument is **well built** and most of it is right, and a review that only
 5. **Do not mutate the graded artifact** — plant into a copy, or assert `writePrecision` and restore the original bytes.
 
 **This is scope, not instruction.** The instrument is cfd's, the registration is cfd's, and the repair is cfd's to design; §2d.1's repair exception governs whether any of it may touch a frozen comparator. **Stage 1 stays gated until a re-read.**
+
+---
+
+## DATED CORRECTION, 2026-08-31 — **I CERTIFIED A PERMANENTLY BLIND GUARD AS WORKING, AND SO DID cfd. THE READ WAS NOT THE PROBLEM; READING WAS.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** Raised by cfd, who withdrew the same sentence from their own record at `9c223449`. **Verified here by me, by exercise rather than by re-reading.**
+
+### THE SENTENCE THAT IS FALSE
+
+My section *"WHAT IS NOT WRONG WITH IT"* asserts: ***"`read_fvoptions_source` refuses on the frozen `volumeMode` rather than assuming it."*** **That is false, and it is struck.**
+
+`read_fvoptions_source` uses `re.search(r"volumeMode\s+(\w+)\s*;", t)` over the **whole file** and takes the **FIRST** match. In `constant/fvOptions` the first occurrence is **line 6 — a banner COMMENT**, which reads:
+
+> `` `volumeMode specific;` APPEARS HERE VERBATIM AND IS LOAD-BEARING. ``
+
+The **live entry is at line 56**. **The guard never reaches it.**
+
+### MEASURED, ON THE REAL FILE, BY DRIVING IT — NOT BY LOOKING AT IT AGAIN
+
+Against `verification/runs/F28_runs/FEAS_L1_dp1000_U20/`, through the real `read_fvoptions_source`:
+
+| what was done to the LIVE entry (line 56) | what the guard reported |
+| --- | --- |
+| untouched (`specific`) | `specific` |
+| **mutated to `absolute`** — the exact silent-rescale failure §2.4 exists to catch | **`specific` — DID NOT REFUSE** |
+| **deleted entirely** | **`specific` — DID NOT REFUSE** |
+
+**The guard cannot fail.** It reports `specific` for every possible state of the entry it claims to check, **including the entry's absence** — and the comment that defeats it is the comment explaining why the token is load-bearing.
+
+### THE SIBLINGS, CHECKED BECAUSE RULE 14 REQUIRES EVERY CALL SITE
+
+Same function, same first-match pattern. **`selectionMode` matches line 54 and `cellZone` matches line 55 — both the live entries, both correct.** But `cellZone` also appears in the header comment at line 2, and the pattern's `\s+` **crosses newlines**; it is saved only because line 3 opens with a **backtick** before `disk`, which `(\w+)` cannot match. ***Both siblings are right by luck, not by design***, and the same `\s`-crosses-a-newline trap is already documented in this lab at `scripts/append_record.py:463-469`.
+
+### ⚠ THE META-FINDING, AND IT IS THE PART THAT MATTERS
+
+**Two independent supervisors performed a full, personal, non-delegable check-1 read of this file and BOTH certified a guard that cannot fail.** cfd read it as a diff; I read all 763 lines and traced every graded quantity to its reader. **Neither of us caught it, and the defect is a two-line regex against a file we both had open.**
+
+**cfd's discovery route is the whole lesson: they found it by RUNNING the thing, not by reading it.** So:
+
+> **`SUPERVISION_CHARTER` §3 check 1 is NECESSARY AND NOT SUFFICIENT. A measurement script's guards are not believed until they have been EXERCISED against the artifacts they guard — driven to their refusal by a mutation, exactly as `CLAUDE.md` rule 3 requires of a reader.**
+
+This lab already knows this in one place and not the other: `append_record.py` pairs **every** refusal limb with a driven mutation that must flip it, and that discipline is why its selftest is worth something. **The F28 comparator has a planted control on `p` and no exercised control on any guard in `read_fvoptions_source`.** A guard never driven into its refusal is a guard nobody has seen work — and this one has now been driven, and does not.
+
+**Referred to Sanaa as a candidate standing rule; NOT spawned as one**, because rules spawn only with her approval under the 14-day freeze.
+
+### WHAT STANDS IN THE ORIGINAL RECORD
+
+**The verdict is unchanged and is now over-determined: STAGE 1 DOES NOT OPEN.** Every other finding stands as written — the planted reader's value reaching zero graded numbers, the age guard not reaching `postProcessing/`, the grader rewriting the artifact it grades, the two zero-call-site guards, the non-deterministic row selection. **This correction adds a defect; it withdraws only the one sentence quoted above, and it removes `read_fvoptions_source` from the list of things this instrument does right.**
