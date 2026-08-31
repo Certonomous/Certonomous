@@ -373,3 +373,187 @@ whoever owns FILING_CHARTER, as a filing-policy question with a design component
 analysis only, with three comparator invocations on scratch copies; total well under
 1 core-minute, which is below the resolution at which the COMPUTE_BUDGET_CHARTER
 requires a costed row.*
+
+---
+
+## 9. RULING ON THE AGE-GUARD REFERENT — 2026-08-31 — heat-transfer supervisor
+
+**Amendment status (rule 6).** This section is **appended**. Nothing above it is
+edited, re-numbered or rewritten. **`lines whose number changed above this section: 0`**
+— and that assertion is **verified by measurement, not written on faith**: immediately
+before this append the file measured **375 lines** with sha256
+`4a54ccd4f1e1547196572cc2bfd3e52294ee36e08f6bd2c70bbfdc24e2131660`; immediately after,
+`head -375` of the file hashes to that same value. The document above carries no
+version field; this is its first amendment and is numbered **v1.1** here.
+
+This section records a **RULING**, not a proposal. §7's "audit only" status stands for
+everything above; the determination below is what disposes of §7 item 1.
+
+---
+
+### 9.1 The ruling
+
+**Run-tree `0/` IS NOT TO BE TRACKED.**
+
+The reason is this audit's own decisive measurement at §5.3, **re-verified
+independently before this ruling was recorded**: **git does not preserve mtimes.**
+
+| Artifact | mtime | content sha256 (first 16) |
+|---|---|---|
+| `T20_LC_c/0.orig/cellRegion/T` on disk | 2026-08-31 16:43:05 | `0d653150b8e007c4` |
+| the same blob at HEAD | *(git stores none)* | `0d653150b8e007c4` |
+| that blob extracted from HEAD, §5.3's measurement | 2026-08-31 22:59:04 | `0d653150b8e007c4` |
+| that blob extracted from HEAD, **this ruling's re-measurement** | 2026-08-31 23:06:21 | `0d653150b8e007c4` |
+
+The two extractions disagree with each other by seven minutes and each agrees with the
+wall clock at the moment it ran. That is not a discrepancy between them — **it is the
+phenomenon itself**: the extracted mtime is the extraction time, and nothing else. The
+content is byte-identical in every row.
+
+**The age guard reads MTIME. Git carries CONTENT.**
+
+Therefore **tracking `0/` would not restore what a `git clean` destroys.** A referent
+restored from git carries a checkout-time mtime, exactly as a launcher-regenerated one
+does.
+
+And it is worse than merely useless. **It would look like a cure and is not one.** A
+tracked referent that restores with the wrong mtime buys **false confidence** in
+exchange for repository weight, and false confidence in a standing guard is the more
+expensive of the two. The repair is refused on that ground, not on the ground of cost.
+
+---
+
+### 9.2 Classification
+
+**This is A DURABILITY CONCERN ABOUT RE-VERIFICATION, NOT A CORRECTNESS HOLE.**
+
+The classification is grounded in the measured fail-closed result, **in both
+directions**.
+
+**Absence direction.** All three comparators exercised in §4 with two-arm live controls
+**refuse** when the referent is absent:
+
+- `mark_done_t1b_L4.py` flipped **`PASS`** to
+  **`NOT DONE — no 0/T, so the run cannot be dated`** (§4.2);
+- `mark_done_t3.py` added **exactly one** fail line (§4.1);
+- `analyse_t20.py`'s **conjunct 6** raised, and **stopped recording `mtime_0_T`** (§4.3).
+
+**Restore direction — they refuse there too**, because a regenerated `0/` carries a
+mtime **NEWER** than the endTime fields. Measured for `analyse_t20.py` at §5.1 item 3,
+and **re-measured independently while recording this ruling**, on a scratch copy of
+`T3_runs/D_m` outside the repository:
+
+- **control arm** (`0/T` present) — no age-guard complaint;
+- **plant arm** (`0/T` removed) — exactly one new line,
+  `no 0/T, so the run's start cannot be dated`;
+- **restore-the-plant arm** (`0/T` put back) — that line disappears again, so the delta
+  is caused by the plant and by nothing else, and the reader is demonstrably live;
+- **regeneration arm** (`cp -r 0.orig 0`, then `touch 0/T`) —
+  `time 28000 holds fields OLDER than 0/T (T,U,p_rgh,alphat,phi,nut,k,omega) -- not
+  written by this run`.
+
+*Disclosed rather than trimmed:* a pre-existing
+`20000 ExecutionTime lines, expected 28000` failure was present in **all four** arms of
+that re-measurement, so this control never reached a `PASS` and is weaker than §4.2's
+clean `PASS → NOT DONE` flip. Being constant across arms it does not confound the
+delta, and the appear/disappear behaviour of the age-guard line across the plant and
+restore arms carries the finding on its own.
+
+**No path was found by which the loss of `0/` converts into a wrongly-passed case.**
+Every verdict already written in this family was produced with the referent present on
+disk. That is why this is a durability concern and not a hole.
+
+---
+
+### 9.3 What IS lost — recorded without softening
+
+After a `git clean`, **the completion check on an already-graded case can no longer be
+re-run and passed.** The other five clauses of rule 4 survive in tracked artifacts; the
+sixth does not, and §5.1 item 3 establishes that regeneration restores only the
+comparator's *refusal*, never its ability to certify.
+
+**A verdict that cannot be re-checked is weaker than one that can.**
+
+This ruling does not repair that, and does not present the refusal of the obvious
+repair as though the problem had gone away. The weakness is real, it is unfixed, and it
+is stated here so that it cannot later be discovered as a surprise.
+
+---
+
+### 9.4 The durable cure — IDENTIFIED, AND NOT TAKEN
+
+The cure that would actually work is **recording the referent's mtime AS DATA in a
+tracked artifact at grading time** — committing the number the guard reads, rather than
+the file whose mtime git will not carry.
+
+That is:
+
+- **a design change to the completion instrument, not a filing change**;
+- a change that **touches frozen comparators**, which rule 6 forbids editing outside a
+  dated amendment with its own justification;
+- **not taken tonight, and not by a lane.**
+
+It is recorded here as identified so that the next agent to meet this question does not
+have to re-derive it, and so that nobody mistakes §9.1's refusal for a finding that
+nothing can be done.
+
+---
+
+### 9.5 Scope of this ruling
+
+This ruling disposes of **run-tree `0/` only**.
+
+It does **not** reach `0.orig/`. The larger gap this audit uncovered at §2 and recorded
+at §7 item 4 — that of the referent-bearing run cases, a large majority have **no
+tracked `0.orig/` either**, so the case cannot be regenerated from git at all — is
+**not ruled on here**. `0.orig/` is **case definition rather than run output**, so the
+FILING_CHARTER reasoning that keeps `0/` out does not obviously reach it, and
+FILING_CHARTER is **not heat-transfer's to amend**. That question is referred to the
+chief for routing in
+`docs/campaigns/T-family/FILING_REFERRAL_0ORIG_REPRODUCIBILITY.md`.
+
+---
+
+### 9.6 Counts re-derived at this ruling — one figure above does not reproduce
+
+The §2 census was re-derived independently at HEAD `62ceaac0` before this ruling was
+recorded, by the method §2 states. Almost all of it reproduces exactly — the four
+tracked `T11_runs` referents, the 45 non-applicable cases and their three shapes
+(34 `viewFactorField`, 10 `U p`, 1 `U k nut omega p`), the 98.1% headline, the
+`0.orig/` split of **85 tracked against 127 untracked**, and the §2 per-rung tally in
+**every rung but one**.
+
+Two figures do not reproduce, and §2 is **not** rewritten to match — the divergence is
+disclosed here and carried in full in the referral named at §9.5:
+
+1. **`T5_runs`**: §2 tallies **8** untracked thermal referents; the re-derivation finds
+   **7**. `T5_runs` holds exactly seven cases with a `T`-bearing `0/`; the eighth
+   directory, `X_2d`, has `0/` = `U k nut omega p` and no `T` anywhere beneath it, and
+   is already counted in the 45. The consequential figures shift by one:
+   **212** referent-bearing, **208** untracked, **127** with neither.
+2. **`0.orig/` absent entirely**: §2 records **1**; the re-derivation finds **0** among
+   referent-bearing cases. The 38 cases lacking `0.orig/` on disk are all
+   `viewFactorField`-only or `reproducer/`, none of them referent-bearing.
+
+Neither figure changes any conclusion in this document, and neither is load-bearing for
+§9.1 or §9.2, whose evidence is measurement of behaviour rather than of population.
+§8's unresolved 259-versus-263 enumeration discrepancy is **also not resolved by this
+ruling**; the re-derivation lands on **263**, the higher of §8's two figures.
+
+---
+
+### 9.7 Verdict vocabulary
+
+No gate is graded by this ruling, so **no verdict from the rule-1 vocabulary is claimed**.
+§6 stands unchanged. What is recorded is a disposition of a filing question and a
+classification of a finding, both grounded in measurements cited above by artifact.
+
+*Compute: negligible. Filesystem and static analysis, one `git archive` extraction and
+four invocations of `mark_done_t3.py` on a scratch copy outside the repository; total
+well under 1 core-minute, below the resolution at which COMPUTE_BUDGET_CHARTER requires
+a costed row. Estimate-versus-actual (rule 12): pre-registered as negligible, incurred
+negligible, ratio ~1 — no calibration row is opened for a sub-resolution spend.*
+
+*No file on disk under `verification/runs/T-family/` was modified by this ruling; the
+`mark_done_t3.py` arms ran on a scratch copy, which was deleted, and the T3 run tree was
+confirmed byte-identical to HEAD afterwards.*
