@@ -3486,3 +3486,115 @@ eight tags rather than five.**
 | re-grades authorised | **0** |
 | **lines whose number changed above this section** | **0** |
 
+
+## Amendment — v1.26, 2026-08-31 — **[SANAA-DIRECT] §2m: THE FREEZE CLOCK. A FEASIBILITY RUNG HAS NO GATE TO FREEZE, SO RULE 2 NEVER REACHED IT — AND A DRAFT MAY NOT BE POLISHED PAST FOUR HOURS**
+
+**Lines whose number changed above this section: 0.**
+
+**Sanaa's words, verbatim, 2026-08-31** (captured at
+`etc/sessions/2026-08-31T1513Z_sanaa_freeze_clock_and_so3_ruling.md`, commit `927924f1`; that
+session file is not edited — this section is the amendment):
+
+> Effective immediately, cfd and heta transfer teams: start the L1 feasibility solves on Cases 1
+> and 2 NOW — no freeze required for feasibility/physics rungs, never was. Freeze in 10-line
+> template form within 4 hours; anything a draft still "needs" after that becomes a W-3 amendment
+> after first fields exist. New standing rule — FREEZE CLOCK: a prereg draft older than 4 hours
+> without a freeze auto-escalates to the supervisor, who freezes the template version on the spot.
+> First report on any new case must contain a converged coarse field, or one line saying why not —
+> not a document status.
+
+### §2m.1 WHY "NEVER WAS" IS LITERALLY TRUE, AND WHY THAT MATTERS MORE THAN AN EXCEPTION WOULD
+
+**Rule 2's freeze attaches to the GATE.** Its entire evidentiary content is that *the gate could
+not have been chosen to fit the answer* — so its object is a gate, a threshold, a cap and a label.
+**A rung that declares none of those has nothing for rule 2 to bite on.** This is therefore **not
+an exception to rule 2 and not a widening of it**: it is the observation that rule 2's object is
+**absent**, which is exactly what "never was" asserts. **Recording it as an exception would have
+been the more dangerous drafting**, because an exception invites the question *what else qualifies*
+— and the answer here is structural, not discretionary.
+
+**THE CONSEQUENCE IS IMMEDIATE AND IT IS THE POINT: the moment a gate exists, the freeze is back,
+with nothing weakened.** §2m does not move the freeze later for any gated run; it identifies runs
+that never had one to move.
+
+### §2m.2 WHAT A FEASIBILITY/PHYSICS RUNG IS — and the boundary is SELF-POLICING, not a judgement call
+
+A rung is **feasibility/physics** when it declares **no gate, no threshold, no band and no
+pre-registered label**, and asks only: *does this run at all, and what does the physics look like?*
+
+> **THE PRICE, AND IT IS WHAT KEEPS THE CLASSIFICATION HONEST: A FEASIBILITY RUNG'S OUTPUT IS NOT
+> A VERDICT AND MAY NOT BE REPORTED AS ONE.** It may emit **no** word from the fixed vocabulary —
+> not `PASS`, not `GATE REACHED`, not `GATE FAIL`. Its numbers are reportable as **observations**,
+> tagged per `REPORTING_CHARTER`'s eight-tag rule, and **nothing may be cited from it as a
+> result.**
+
+**This is the whole anti-abuse mechanism and it needs no policing instrument.** The tempting
+misuse — reclassify gated work as "feasibility" to skip the freeze — **costs the reclassifier the
+ability to claim anything**. A team that wants a verdict must freeze; a team that freezes nothing
+gets no verdict. **The two cannot be had together, and no auditor has to adjudicate intent.**
+
+**A feasibility rung that later wants a verdict does not get one retroactively.** It freezes a
+registration and **runs again**. Fields already on disk are evidence about the physics and may
+inform the registration; they are **not** the registration's answer, because they existed before
+the gate did — which is `§2d` in its original form.
+
+### §2m.3 THE FREEZE CLOCK — and the clock's START is defined here, because an undefined clock is unenforceable
+
+- **A pre-registration draft reaches four hours old without a freeze → it AUTO-ESCALATES to its
+  supervisor, who freezes the TEMPLATE version ON THE SPOT.** The supervisor does not first
+  improve it.
+- **THE CLOCK STARTS AT THE EARLIER OF: the draft's first commit, or its file mtime on disk** —
+  the **earlier**, deliberately, so that **touching, moving, renaming or re-writing the file cannot
+  reset it.** A clock a draft can restart by being edited is a clock that rewards polishing, which
+  is the exact behaviour this rule exists to end.
+- **Ten lines is a FLOOR, not a target**, and the template version is a **complete** freeze: gate,
+  threshold, cap, label, grading path. A freeze missing any of those is not a short freeze, it is
+  **not a freeze**, and §2m does not license one.
+- **Everything a draft still "needs" after the freeze becomes a W-3 amendment AFTER first fields
+  exist** — never a pre-freeze delay. Post-compute, `§2b` and `§2d`/`§2d.1` govern what such an
+  amendment may touch, **and §2m changes neither.**
+
+**THIS IS A STANDING SUPERVISOR DUTY.** It joins the four non-delegable checks in practice though
+not in `SUPERVISION_CHARTER` §3's enumeration: **a supervisor who lets a draft pass four hours has
+failed the rule, not the draft's author.**
+
+### §2m.4 WHAT §2m DOES **NOT** DO — stated as flatly as possible, because this is the clause most easily misread
+
+1. **It does not permit ANY gated solve to run unfrozen.** Rule 2 is untouched, in full force, and
+   the freeze still **precedes** the first gated run.
+2. **It does not shorten, weaken or waive any freeze requirement** — it removes **draft-polishing
+   time**, not pre-registration.
+3. **It creates no new verdict, retires no gate, and re-grades nothing.**
+4. **It does not make a feasibility rung's numbers citable.** See §2m.2.
+5. **It does not reach `§2j`'s birth requirement:** an instrument that grades anything still owes
+   its planted control **before** it grades, feasibility rung or not, because §2j attaches to the
+   INSTRUMENT rather than to the rung.
+
+### §2m.5 THE REPORTING LIMB
+
+> **The first report on any new case carries a CONVERGED COARSE FIELD, or ONE LINE saying why not —
+> never a document status.**
+
+*"Pre-registration drafted"*, *"template under review"*, *"awaiting freeze"* are **not reportable
+first-report content.** The unit of progress on a new case is **a field on disk**, and where there
+is none the report owes the **reason**, in one line, not the paperwork's state. This limb is a
+reporting rule and is cross-referenced into `REPORTING_CHARTER`; **where the two are read together
+the requirement is the same one, not two.**
+
+### §2m.6 SCOPE
+
+Lab-wide standing rule, effective 2026-08-31, **prospective**. Drafts already older than four hours
+at this date are escalated **on their next touch or their team's next report**, not retroactively
+declared in breach — the same non-retroactivity `§2h.6`, `§2i.4` and `§2j.4` applied against this
+team's own interest.
+
+| | |
+|---|---|
+| amendment record | **v1.26** |
+| clause added | **§2m** (freeze clock; feasibility rungs) |
+| rule 2 weakened, narrowed or excepted | **0 — its object is absent, not waived** |
+| gated solves permitted to run unfrozen | **0** |
+| existing clauses altered | **0** · gate values changed | **0** |
+| verdict vocabulary changed | **0** · re-grades authorised | **0** |
+| new duty created | **1** — the four-hour clock, on supervisors |
+| **lines whose number changed above this section** | **0** |
