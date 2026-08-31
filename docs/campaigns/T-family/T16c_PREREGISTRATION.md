@@ -350,3 +350,172 @@ pretending to decide something it has not.* **T16c decides.** The station rule o
 §4 is complete, its failure branch is registered, its metric and threshold are
 carried from T16's own file, and nothing here awaits a further finding. **It is
 ready to freeze. It needs a supervisor to do it.**
+
+---
+
+## AMENDMENT 1 — 2026-08-31 — document version 1.0 → 1.1
+
+**lines whose number changed above this section: 0**
+
+*(The frozen bytes carried no version field. They are designated **v1.0**
+retrospectively by this amendment, which is **v1.1**. This section is APPENDED
+AT THE FOOT: not one byte above it is edited, reordered or renumbered, so every
+record that cites this document by line — including the citations that sit
+inside an executable check — still resolves to the text it was written against.
+`CLAUDE.md` rule 6.)*
+
+**FROZEN AT** commit `8ff2cf36`, sha256 of the v1.0 bytes
+`0b425c40974581484f9ce91c44ad7bb3d4956fb1e81dad0ce03e7ba7e01bcd3f`.
+This amendment changes that digest **by construction**; the v1.0 digest above
+remains the one the freeze was taken on and the one any grading of the v1.0
+text must cite.
+
+**NO GATE MOVES.** Nothing in this amendment alters a gate, threshold, band,
+cap, label, metric, station rule, candidate set, failure branch or cost. It
+corrects two statements of **fact** that the frozen bytes carry and that are now
+false, and it discloses two readings. `VERIFICATION_CHARTER.md` §9 forbids
+moving a gate after first compute and none is moved here.
+
+---
+
+### (a) THE STATUS HEADER AT LINE 3 IS **STRUCK** AND SUPERSEDED
+
+**STRUCK — line 3, verbatim:**
+
+> **STATUS: DRAFT. NOT FROZEN. NOT COMMITTED. AUTHORISES NO GRADING.**
+
+**SUPERSEDED BY:** **This document IS FROZEN, IS COMMITTED, and DOES authorise
+grading** once the comparator is frozen and the supervisor has read its diff
+personally. The supervisor froze it at commit `8ff2cf36` on 2026-08-31.
+
+**The struck text is struck, not rewritten**, and the original wording is quoted
+above so that a reader of the v1.0 bytes meets the correction rather than a
+silent replacement.
+
+**WHY THE HEADER EXISTED, AND WHY THAT REASONING IS AFFIRMED RATHER THAN
+REVERSED.** The authoring lane declined to freeze its own registration
+**deliberately and CORRECTLY**. `SUPERVISION_CHARTER.md` §3 check 4 —
+pre-registration **committed** before compute — is the supervisor's **personal
+and non-delegable** act, and a lane that freezes its own registration has
+self-certified the one check the charter reserves to the supervisor. That is the
+substitution `CLAUDE.md` rule 9 names. **The lane was right to decline and the
+supervisor was right to perform it.**
+
+**The error is narrow and is only this: the header was left standing after the
+freeze.** A document whose first screenful says `NOT FROZEN` while its git
+history says frozen will eventually be read by someone who trusts the prose,
+which is the whole failure mode `NOT FILED` and `DRAFT` banners exist to
+prevent — a banner that has gone stale does the opposite of its job.
+
+**§11 IS NOT STRUCK.** Lines 4–8 and §11 (lines 330–352) are an accurate
+**historical** account of why the drafting lane did not freeze the document, and
+they remain accurate as history. Only line 3's **present-tense status claim** is
+falsified by the freeze. §11's closing line — *"It is ready to freeze. It needs
+a supervisor to do it."* — was true when written and has since been satisfied.
+
+---
+
+### (b) §3's LINE-NUMBER CLAIM DOES NOT REPRODUCE, AND THE ERROR **UNDERSTATES** THE FINDING
+
+**STRUCK — §3, lines 158–161, the measurement claim:**
+
+> **MEASURED in the frozen file:** the `C_ORDER` refusal is at
+> `analyse_t16.py:573-576`. `W1_T` is first computed at `analyse_t16.py:582`.
+> **Nine lines.** The witness that produced verification's entire diagnosis sits
+> **nine lines below** the guard that made it unreachable.
+
+**MEASURED 2026-08-31 in `verification/runs/T-family/T16_runs/analyse_t16.py`,
+re-taken line by line:**
+
+| what | line | tag |
+|---|---|---|
+| `W1_T_max` is COMPUTED, inside `readers()` | `:353` | **MEASURED** |
+| `readers()` is CALLED for the graded time | `:570` | **MEASURED** |
+| the result is bound into `reads[lv]` | `:572` | **MEASURED** |
+| the `C_ORDER` refusal | `:573-576` | **MEASURED** — unchanged, §3 was right here |
+| `:582` merely COPIES `r["W1_T_max"]` into `c["W1_T"]` | `:582` | **MEASURED** |
+| `W1_T` is first PRINTED | `:589` | **MEASURED** |
+
+**THE CORRECTION.** `W1_T` is **not** first computed at `:582`. It is computed
+at `:353` and is already in hand, bound to a local, at `:572` — **three lines
+ABOVE the guard**, not nine below it. `:582` is a copy into the record, and
+`:589` is the first print.
+
+**THE ERROR RUNS IN THE DIRECTION THAT UNDERSTATES THE FINDING, WHICH IS WHY IT
+IS WORTH AN AMENDMENT RATHER THAN A SHRUG.** §3 described a witness that was
+**never reached**. What the code actually does is worse: **the witness value is
+COMPUTED, RETURNED, AND HELD IN A LIVE LOCAL, AND IS THEN DISCARDED UNREAD when
+the guard on the next line refuses.** The diagnosis that verification eventually
+reconstructed was sitting in `r["W1_T_max"]` at the moment the process exited.
+
+**This STRENGTHENS the `D576`-shaped diagnosis that §3 registers; it does not
+weaken it.** A diagnostic that is merely unreachable is a scheduling defect. A
+diagnostic that is *computed and thrown away* is the same defect with the cost
+already paid — the information existed, was free, and was destroyed by ordering
+alone. §3's registered remedy is **unchanged and is if anything better
+motivated**: `W1_v`, `W1_g` and `W1_T` are computed and PRINTED before any
+gate-(1) clause can refuse, **reported unconditionally, including on a refusing
+run.**
+
+**No gate, threshold, band, cap or label moves under this correction.** §3
+registers a **reporting order**, not a number, and the reporting order is
+unchanged.
+
+---
+
+### (c) DISCLOSURES — two readings recorded here so they are not lost
+
+**(c.1) THE `y/b` MAPPING RESOLVES TO THE NEAREST CELL CENTRE.** §4 fixes the
+station on the FINE level and then applies it to coarse and medium **"by
+physical coordinate `y/b`, not by index"**, but does not say how a `y/b` falling
+between two cell centres resolves. At refinement `r = 2` exact coincidence is
+**arithmetically impossible** — the fine index `j` maps to `2i + 0.5` on the
+coarser level, which is never an integer — so a resolution rule is **forced**,
+and leaving the silence unresolved would make the rung permanently unexecutable.
+
+**RESOLVED: nearest cell centre.** Recorded as a disclosure and **not** as a new
+registration, because it adds no threshold and cannot be tuned to fit an answer:
+**the station is selected on the fine level by §4's frozen rule BEFORE any
+mapping occurs**, so the mapping never participates in choosing the station. The
+**mapping residual is MEASURED and PRINTED per level** rather than assumed
+negligible. The three-level consistency clause of §4 is unaffected and still
+independently re-tests `W1_T <= 1.0e-06` at the mapped location on every level.
+
+**(c.2) `exact_t16.py` IS UNPINNED — AN OPEN EXPOSURE, NOT A SOLVED PROBLEM.**
+§5 registers **exactly one** pin, `T16_registered.json`. `exact_t16.py` supplies
+band constants to the comparator and is **not pinned**, so a change there could
+move a band without producing a refusal.
+
+**NO PIN IS ADDED, AND THE AUTHORING LANE'S REFUSAL TO ADD ONE IS UPHELD.** A
+pin the frozen document does not register **is a new gate**, and §9 forbids
+moving a gate. Adding one to close an exposure would be the exposure's cure
+committing the exposure's disease. Its digest is therefore reported as
+`provenance_reported_not_gated`.
+
+**THE EXPOSURE STAYS OPEN AND IS ESCALATED TO VERIFICATION.** Closing it
+requires a **successor registration** — a T16d that registers the additional
+pins — **not a patch to this document or its comparator.**
+
+**The same exposure has a second limb, MEASURED 2026-08-31 and recorded here for
+the same escalation.** `analyse_t16.py` is likewise unpinned, and for four
+constants the comparator restates — `CONV_FLOOR`, `G_TOL`, `MASS_FLOOR`,
+`PLAT_FLOOR` — **this document registers no literal at all**; it binds them only
+by the phrases *"Every other floor … carried over byte-identically"* (§1 line 4,
+`:104-105`) and §6's clause list (`:256-259`). **MEASURED: the names
+`CONV_FLOOR` and `G_TOL` occur ZERO times in the v1.0 bytes.** Their authority
+therefore runs through an unpinned parent file. `check_t16c_transcription.py`
+checks them against that parent and **discloses the chain rather than closing
+it**; closing it needs the same successor registration.
+
+---
+
+### (d) WHAT THIS AMENDMENT DOES NOT DO
+
+- It does **not** move a gate, threshold, band, cap, label or metric.
+- It does **not** relax the `1.0e-06` `C_PROFILE` tolerance. §18.4 clause 2.
+- It does **not** compute or report any T16 or T16c graded value. **None
+  exists**, and none was computed in the invocation that wrote this amendment.
+- It does **not** add a pin, a refusal or a rule. See (c.2).
+- It does **not** edit one byte above this section, and does not renumber one
+  line above it: **lines whose number changed above this section: 0**.
+- It **files nothing anywhere.** `CLAUDE.md` rule 7.

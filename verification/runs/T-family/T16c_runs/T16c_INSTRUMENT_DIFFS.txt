@@ -1,0 +1,571 @@
+T16c_INSTRUMENT_DIFFS.txt
+=========================
+Every difference between `analyse_t16c.py` and its predecessor
+`analyse_t16.py`, with the reason for each and the frozen clause that
+authorises it.
+
+STATUS: THE SUPERVISOR'S PERSONAL DIFF READ IS COMPLETE (2026-08-31) AND ITS
+FOUR RULINGS ARE RECORDED IN PART F.  THIS FILE IS NOT FROZEN.  THE COMPARATOR
+IS NOT YET FROZEN AS A GRADING INSTRUMENT.  NO T16c GRADED VALUE HAS BEEN
+COMPUTED AND `analyse_t16c.py` HAS NEVER BEEN RUN AGAINST THE LIVE T16 TREE.
+
+AUTHORITY.  The only authority for every gate, threshold, band, cap and label
+below is the FROZEN pre-registration
+
+    docs/campaigns/T-family/T16c_PREREGISTRATION.md
+    sha256 0b425c40974581484f9ce91c44ad7bb3d4956fb1e81dad0ce03e7ba7e01bcd3f
+    frozen by the supervisor at commit 8ff2cf36
+
+MEASURED in this lane's invocation: the working-tree copy of that document
+hashes to the digest above and is byte-identical to the blob at 8ff2cf36.
+
+PARENT INSTRUMENT DIGESTS, MEASURED in this invocation:
+    T16_registered.json  aead91aaab8480f6a4321a3d9eb01536d9ceb4cbfb7a3774426cea608ae72845
+                         (this IS the digest section 5 pins -- MEASURED equal)
+    exact_t16.py         7ecc61a782d9018177b1eea2dabe3dbe049c74179c13e903d80ded2b6487692b
+    build_t16.py         cb19b3e32faf2cdbd94542b87e1cb4666f52547fe78ca01d2e2bca105999abb0
+    analyse_t16.py       1a5c79e57d4144abb165702fd900c0c99aa1c03f5cbb24a547b7a085d4d4562f
+
+VERDICT VOCABULARY, CLAUDE.md rule 1: PASS / GATE REACHED / GATE FAIL /
+NOT A RESULT / BLOCKED / PENDING.  This file states no verdict about T16c.
+
+
+===========================================================================
+PART A -- THE THREE DIFFERENCES THE FROZEN DOCUMENT REQUIRES
+===========================================================================
+
+A1.  `C_ORDER` IS SPLIT INTO `C_TRANSPOSE` AND `C_PROFILE`.
+     Authorises: frozen document section 6 ("REPLACED -- exactly one clause"),
+     section 1 line 3 and line 4.
+     WAS: analyse_t16.py:573-576, one refusal --
+
+         if not r["T_monotone"] or abs(r["T_slope_rel"]) > 1e-6:
+             refuse("... C_ORDER ... a transposed cell ordering or a field
+                     that is not the solution")
+
+     IS:  analyse_t16c.py C_TRANSPOSE at the (iii) block, threshold
+          C_TRANSPOSE_TOL = 0.5, REFUSES (exit 2); and C_PROFILE in the (v)
+          block, tolerance C_PROFILE_TOL = 1.0e-06, a GATE (1) clause
+          returning NOT A RESULT.
+     REASON: the one clause evaluated "does the station row's T match the
+          linear profile to 1e-06?" while PUBLISHING "a transposed cell
+          ordering" -- two propositions six orders of magnitude apart at one
+          tolerance.  The ordering was fine and the field WAS the solution, so
+          the published diagnosis was FALSE.
+     THE 1e-06 IS NOT RELAXED (frozen document section 9, section 1 line 4).
+          It is carried over unchanged and MOVED to a station where the
+          referent is valid.  `_station_floor_identity_check()` REFUSES if
+          C_PROFILE_TOL is ever not 1.0e-06, so "not relaxed" is structural.
+     THE SPLIT OF CONSEQUENCE IS ITSELF A DIFFERENCE: C_TRANSPOSE REFUSES,
+          C_PROFILE returns NOT A RESULT.  T16 REFUSED ON PHYSICS.  A statement
+          about the INSTRUMENT refuses; a statement about the SOLUTION is
+          graded.  This is the substance of the repair, not its packaging.
+     THE REFUSAL TEXT NO LONGER NAMES A CAUSE.  A transposed ordering, a
+          uniform field and a field that is not the solution ALL produce the
+          -1.0 signature.  Publishing one member of the family as if it were
+          the finding is the exact error T16c exists to repair, so the new
+          text names the family and diagnoses nothing.
+
+A2.  `W1_v`, `W1_g` AND `W1_T` ARE READ AND PRINTED FOR ALL THREE LEVELS
+     BEFORE ANY GUARD CAN REFUSE.
+     Authorises: frozen document section 3, section 1 line 7 (ii).
+     WAS: analyse_t16.py -- `r = readers(...)` at :570, the C_ORDER refusal at
+          :573-576, `c["W1_T"]` assigned at :582, the W1 values PRINTED at
+          :589-598.  The refusal at :573 exits before the print at :589.
+     IS:  step (ii) reads and prints all three witnesses for all three levels;
+          step (iii) is the first clause that can refuse.  Each step completes
+          over ALL THREE LEVELS before the next begins -- a per-level loop that
+          refused at (iii) on the coarse level would destroy the medium and
+          fine witnesses, which is the same failure with a smaller radius.
+     REASON: D576's shape.  A diagnostic downstream of a guard that fires on
+          physics is a diagnostic you lose exactly when you need it.
+          Verification's entire T16 diagnosis (velocity developed, temperature
+          not) came from W1_T and W1_g, and the guard made it unreachable.
+
+     *** A CORRECTION AGAINST THE FROZEN DOCUMENT, RAISED FOR THE SUPERVISOR
+     AND CHANGING NO GATE. ***  Frozen section 3 states "W1_T is first computed
+     at analyse_t16.py:582.  Nine lines."  MEASURED, the value is computed
+     INSIDE `readers()` at :353, which is called at :570 -- THREE LINES ABOVE
+     the guard, not nine below.  Line :582 is where it is copied into the gate
+     record; the first PRINT is :589.  So the witness's value already existed
+     when the guard refused and was DISCARDED unread.  The frozen document's
+     word "computed" is loose; its CONCLUSION is correct and is if anything
+     understated -- the number was not merely unreached, it was in hand and
+     thrown away.  No gate, threshold, band, cap or label depends on this
+     sentence, so under rule 2 it is addendum material at most and this lane
+     changes nothing.  Reported rather than quietly implemented around.
+
+A3.  THE STATION-SELECTION RULE OF SECTION 4 IS IMPLEMENTED AS FROZEN.
+     Authorises: frozen document section 4, in full.
+     NEW CODE: `candidate_rows()`, `w1_T_at()`, `select_station()`,
+          `row_at_y()`, `y_over_b()`, `station_metric_agreement()`, and the
+          (iv) block of `grade()`.
+     METRIC:      W1_T(j), T16's OWN witness (analyse_t16.py:340-354).  NOT a
+                  new metric -- `station_metric_agreement()` MEASURES the fast
+                  scanner equal to the frozen reader at three rows per level
+                  and REFUSES on any disagreement.
+     THRESHOLD:   STATION_FLOOR_T, BOUND BY NAME to W1_FLOOR_T
+                  (analyse_t16.py:116) rather than restated as a literal, and
+                  `_station_floor_identity_check()` REFUSES if the two ever
+                  differ.  "Not a new number" is therefore structural.
+     SELECTION:   smallest j in the candidate set satisfying the threshold ON
+                  THE FINE LEVEL, then applied to c and m BY y/b, not by index.
+     CANDIDATE SET: the FORMULA (every interior row whose registered witness
+                  offsets all lie inside the domain), never a list, so it is
+                  level-independent.
+     TIE-BREAK:   none possible under a strict inlet-to-outlet scan.
+     THREE-LEVEL CONSISTENCY: the selected y/b must independently satisfy the
+                  threshold on all three levels, else NOT A RESULT.
+     UNREACHABLE BRANCH: if no j qualifies, NOT A RESULT; the station is NOT
+                  relocated, the threshold NOT loosened, the candidate set NOT
+                  widened, and NO VALUE is recorded for any graded row.
+
+     DISCLOSED SILENCE IN THE FROZEN DOCUMENT, filled openly and not quietly:
+     section 4 says the station is applied to c and m "by physical coordinate
+     y/b" and does NOT say how a y/b falling between two cell centres is
+     resolved.  EXACT coincidence is arithmetically IMPOSSIBLE at r = 2 -- a
+     fine centre is (j+0.5)/N_f, a coarse centre is (i+0.5)/(N_f/2), and
+     equating them gives j = 2i + 0.5, never an integer.  NEAREST CENTRE is the
+     reading implemented, and the residual |y_level - y_selected| is MEASURED
+     and PRINTED for every level so a reader can see how far the mapping moved.
+     THE SUPERVISOR SHOULD RULE ON THIS READING.
+
+
+===========================================================================
+PART B -- DIFFERENCES THE STANDING RULES REQUIRE
+(each can only ever REFUSE where T16 would have graded, never the reverse)
+===========================================================================
+
+B1.  STRICT COMPLETION (rule 4) IS VERIFIED IN THE COMPARATOR.
+     WAS: analyse_t16.py:541-544 checks ONLY that `DONE.<case>` exists and
+          defers every other conjunct to `mark_done_t16.py`.
+     IS:  `strict_completion()` checks ALL of rule 4 -- rc = 0 from STATUS; an
+          `End` line; last time == endTime; the registered fields present at
+          endTime; ExecutionTime line count == endTime; and THE AGE GUARD,
+          every field at endTime NEWER than the case's own `0/T`.
+     READING TAKEN, AND IT IS A READING: frozen section 1 line 7 (i) says
+          "strict completion (rule 4) -- unchanged".  That can mean "this
+          clause is not a T16c repair target" or "do exactly what T16's
+          comparator did".  This implementation takes the FIRST reading,
+          because rule 4 is a standing rule that binds every agent whether or
+          not a brief repeats it, and it says comparators REFUSE rather than
+          degrade.  NO THRESHOLD MOVES: every number is the registration's or
+          rule 4's own text.  THE SUPERVISOR SHOULD RULE ON THIS READING.
+     THE REQUIRED FIELD TUPLE IS NOT HARD-CODED AND NOT COPIED BY HABIT.  It is
+          LOADED from the pinned registration's `completion.needed_fields`, and
+          the comparator REFUSES if the registration carries none rather than
+          inventing a list.  MEASURED, that list is
+
+              ["T", "U", "p_rgh", "phi"]
+
+          which is NEITHER the thermal-family tuple (T U p_rgh alphat nut k
+          omega) NOR T19b's laminar tuple (T U p_rgh alphat).  T16's three
+          cases carry `simulationType laminar` in constant/momentumTransport,
+          so no nut/k/omega is written; MEASURED, each endTime directory holds
+          T, U, alphat, p, p_rgh, phi.  T16 registers `phi` and not `alphat`.
+          Requiring the thermal tuple here would refuse three good solves --
+          the K0d defect, which cost 829 core-minutes.
+
+B2.  THE SECTION 5 sha256 PIN.
+     Authorises: frozen document section 5.
+     NEW: `pin()` REFUSES (exit 2) unless `T16_registered.json` at its absolute
+          path hashes to aead91aa...72845.  Every floor section 1 line 4
+          carries over lives inside that one file, so "not one floor moved" is
+          a MEASUREMENT rather than a promise, and a moved gate fails closed
+          instead of grading quietly.
+     ADOPTED FROM: the T19b construction (T19b_runs/analyse_t19b.py).
+     DISCLOSED GAP: the frozen document pins ONE file.  `exact_t16.py`,
+          `build_t16.py` and `analyse_t16.py` are HASHED AND PRINTED but NOT
+          GATED, and their digests are recorded above and in the output json as
+          `provenance_reported_not_gated`.  This lane did NOT add a second
+          refusal: section 9 forbids moving a gate, and a pin the frozen
+          document does not register is a new gate.  THE HONEST CONSEQUENCE:
+          `exact_t16.py` supplies the referent constants (G_REG, Y_STAR, U_STAR,
+          Y_MAX, SHEAR_RATIO), so a change there could move a band without
+          firing a refusal.  THIS IS A RESIDUAL EXPOSURE AND IT IS THE
+          SUPERVISOR'S TO RULE ON, not this lane's to close by fiat.
+
+B3.  PLANTED-ZERO CONTROL FOR THE NEW READER (rule 3).
+     NEW: `station_metric_planted_control()`.  `w1_T_at()` decides WHERE the
+          rung is graded; a blind one would select the first candidate row
+          whatever the field said, and every "the temperature is developed
+          here" would be worthless.
+     PREDICATE, AND ITS PROVENANCE.  The FAMILY'S RELATIVE FORM
+
+              PLANT*(1-1e-9) <= (got - base) <= PLANT*(1+1e-9) + 1e-12
+
+          following T1_runs/analyse_pesweep.py:141, T1_runs/analyse_dts.py:594
+          and T1_runs/analyse_dts_p.py:226 -- ALL THREE READ AT SOURCE in this
+          lane's invocation, all three carrying
+          `ok = (got >= PLANT * (1.0 - 1e-9)) and (got <= rec + PLANT + 1e-12)`.
+     DELIBERATELY NOT analyse_t3.py:327's `passed = (seen >= PLANT - 1e-15)`.
+          MEASURED at run time by the comparator and printed: one ULP at
+          T_hot = 300 K is 5.684342e-14 K, so the 1e-15 slack is 0.01759 ULP --
+          BELOW a single ULP, leaving the control decided by the sign of a
+          several-ULP residual wiggle in a difference of two ~300 K numbers.
+          The chosen relative slack PLANT*1e-9 = 1.234e-12 K is 21.71 ULP:
+          above the noise it must tolerate and 1e9 below the signal it must
+          see.  Both ratios are READINGS the comparator takes, not recollections.
+     TWO FURTHER CHOICES, DISCLOSED BECAUSE A CONTROL THAT QUIETLY PICKED A
+     FAVOURABLE CELL WOULD BE WORTHLESS:
+        * THE CELL AND SIGN.  The plant goes into the GLOBAL ARGMAX cell over
+          the registered witness offsets, with the sign that ADDS to the
+          difference already there.  A fixed-sign plant into a cell whose
+          existing difference is opposite returns |d| - PLANT, which is below
+          PLANT*(1-1e-9) for any real |d|, and would RED a perfectly good
+          reader.  At the argmax with an additive sign, got = base + PLANT
+          exactly, so the two-sided window is arithmetic.
+        * THE DELTA, NOT THE VALUE.  `got >= PLANT` alone is passed by a BLIND
+          reader whenever the real signal already exceeds the plant -- which is
+          precisely the developing-region rows where this reader decides
+          things.  The family's form carries that hole because there the real
+          signal is small; here it is not, so the control is taken on the
+          MOVEMENT.  Selftest limb L26 drives a blind reader against this
+          predicate and shows it red.
+
+B4.  THE CARRIED-OVER CONTROLS MOVE TO THE GRADED STATION.
+     `planted_zero_controls()` is otherwise carried over byte-identically, but
+     is taken at the row section 4 SELECTS rather than at T16's registered
+     station.  REASON: a control that sits on a row the verdict does not use is
+     not a control of the verdict.
+
+B5.  `readers()` TAKES THE ROW AS A PARAMETER.
+     With `j_row=None` it is byte-for-byte T16's behaviour at the registered
+     station, including its witness rows.  With `j_row=j` it is section 4's
+     metric and the graded readers at the selected station -- the SAME reader
+     at another row.
+
+B6.  NO `assert` STATEMENT ANYWHERE (L-332).  Every refusal is `sys.exit(2)`
+     and fires identically under `python3 -O`.  Limb L36 counts asserts by AST
+     and drives the counter on a PLANTED assert to show it can see one; limb
+     L40 re-runs a guard probe under `-O`.
+
+B7.  THE VERDICT IS WRITTEN BY `apply_gate()` AND BY NOTHING ELSE (rule 5).
+     Carried over byte-identically.  The band verdict is computed FIRST and the
+     final verdict is either it or NOT A RESULT: the gate is ONE-WAY and can
+     only turn a PASS or GATE FAIL INTO NOT A RESULT, never the reverse.  GCI
+     is quoted only in the CONVERGING branch, which is reachable only on a
+     monotone triple; the monotone flag is PRINTED beside the state so the
+     invariant is visible rather than trusted.
+
+
+===========================================================================
+PART C -- THE S8 APPARATUS (entirely new; no counterpart in analyse_t16.py)
+===========================================================================
+
+WHY.  `analyse_t18.py:509` carries `grade(HERE, ...)` with HERE the LIVE
+`T18_runs` directory.  It fired on 2026-08-31 and produced
+`T18_runs/T18_SELFTEST_SIDE_EFFECT_NOT_A_GRADE_20260831T151045Z.json`, which is
+BYTE-IDENTICAL (sha256 335bbec520a20ff4..., as reported to this lane) to the
+`gate_t18.json` written five minutes later.  A selftest that touches the live
+tree manufactures a verdict nobody registered, and a verdict nobody registered
+is indistinguishable from one somebody did.  analyse_t16.py's selftest has no
+such arm today, but it also has no guard preventing one from being added.
+
+S8a  `_selftest_root_guard()` REFUSES (exit 2) if a selftest arm's grading root
+     IS, CONTAINS or IS CONTAINED BY a live root, comparing REALPATHS.  It is
+     the first statement of `_selftest_grade()`, before any read.
+     LIVE_ROOTS = (T16_runs, T16c_runs).  T16c_runs is included because a
+     selftest grading its own directory would write gate_t16c.json beside the
+     comparator -- the same defect wearing a different path.
+S8b  Every forged tree carries `FORGED_BY_T16C_SELFTEST_NOT_A_RUN` at its root
+     and `_selftest_grade()` REFUSES without it.  S8a is a PATH test and a
+     symlink defeats a path test; S8b is a POSITIVE marker that only the forge
+     writes, which no real run tree can acquire by accident.
+S8c  `_RootWatch` records every read under each live root for the whole
+     selftest, allowing only the frozen parent instruments.  A ZERO FROM THAT
+     WATCHER IS NOT EVIDENCE until it is shown able to see a non-zero, so a
+     deliberate read is PLANTED into each watcher and checked before clearing.
+S8d  A source-level AST detector counts DIRECT `grade(...)` calls inside the
+     selftest and forge bodies; it must be 0, every route going through
+     `_selftest_grade`.  The SAME detector is driven on a planted
+     `grade(HERE, ...)` source and must return 1 -- a detector never shown able
+     to see a non-zero is not evidence.
+S8e  `sys.dont_write_bytecode = True` BEFORE the parent imports, so importing
+     `exact_t16` and `build_t16` cannot create `T16_runs/__pycache__` -- a
+     WRITE into a frozen tree performed by the act of reading it.  Pattern
+     taken from E4a2_runs/analyse_e4a2.py:47.
+
+MEASURED, this lane's invocation: limb L32 drives S8a against the REAL live
+root and it refuses at exit 2 with the watcher recording 0 new reads under the
+live tree; L33 drives S8b; L34 drives S8a through a symlink; L35 drives S8d
+with its planted control; L38/L39 report the watcher verdicts.  Independently
+of the comparator's own watchers, a fingerprint of all 198 entries under
+`T16_runs` (path + mtime + size) taken before and after the selftest, and again
+around the whole mutation sweep, was IDENTICAL.
+
+
+===========================================================================
+PART D -- THE FORGE AND THE SELFTEST
+===========================================================================
+
+D1.  THE FORGE gains a development law
+        T(j,i) = T_lin(i) + entry_amp * dT * ramp(y_j) * sin(pi Y_i)
+     with y_j = (j+0.5)/N the PHYSICAL streamwise coordinate, so the law is
+     IDENTICAL on all three levels and nothing is level-indexed.
+     A SMOOTH decay was tried and REJECTED for a real reason, not convenience:
+     under any smooth decay the "smallest j" rule lands the station EXACTLY at
+     the floor crossing, the three-level clause then turns on a mapping
+     residual of up to half a coarse cell, and the limb would measure the
+     forge's steepness rather than the rule.  With a ramp to exactly zero the
+     crossing is unambiguous on every level.
+     THAT FRAGILITY IS NOT A FORGE ARTEFACT AND IS NOT HIDDEN: on a real solve
+     the station WILL sit at the floor crossing, and how much margin c and m
+     then have at the same y/b is not something this comparator can promise.
+     It PRINTS each level's W1_T and mapping residual for exactly that reason.
+D2.  `bump_about_b` IS ADDED BECAUSE THE STATION MOVED.  analyse_t16.py's forge
+     indexes its witness and mass perturbations off `build_t16.STATION_B` --
+     T16's registered station at 48b.  T16c grades where section 4 selects, so
+     a perturbation at 48b lands 40b from the graded row and the W1 and C_MASS
+     limbs would go green while testing nothing.  MEASURED as two dead limbs,
+     not reasoned about.  This is the first thing the repair breaks in the
+     inherited harness and is recorded as such.
+D3.  `_carried_over_identity()` is new.  Frozen section 6 CLAIMS the carried
+     content is byte-identical; this MEASURES it by AST source extraction
+     against the pinned parent (23 functions, 10 constants, MEASURED "Differing:
+     none").  It is enforced in the SELFTEST and NOT on the grading path: the
+     frozen document registers exactly ONE sha256 refusal and section 9 forbids
+     moving a gate, so this file will not add a second refusal that could flip
+     a graded verdict.
+D4.  The selftest grows from T16's limbs to 40 (L01-L40) and every limb runs
+     against a SYNTHETIC forged tree in a scratch directory.
+
+
+===========================================================================
+PART F -- THE SUPERVISOR'S FOUR RULINGS, 2026-08-31, AND WHAT THEY CHANGED
+===========================================================================
+
+The supervisor completed the personal check-1 diff read of `analyse_t16c.py`
+(SUPERVISION_CHARTER section 3 check 1, non-delegable) and issued four rulings.
+This PART records what each one did to the instrument.  The rulings are the
+supervisor's; the MEASUREMENTS below are this lane's, taken in this invocation.
+
+F1.  RULING 1 -- THE `y/b` RESOLUTION: NEAREST CENTRE IS ACCEPTED.
+     A3 raised the silence in frozen section 4: the fine-level station is
+     applied to coarse and medium "by physical coordinate `y/b`, not by index",
+     and the document does not say how a `y/b` between two cell centres
+     resolves.  At `r = 2` exact coincidence is ARITHMETICALLY IMPOSSIBLE
+     (`j = 2i + 0.5` is never an integer), so a rule is FORCED and the silence
+     could not be left open without making the rung permanently unexecutable.
+     RULED: nearest cell centre, KEPT AS IMPLEMENTED, with the per-level
+     mapping residual PRINT retained.
+     WHY IT ADDS NO GATE, in the ruling's own terms: it introduces no
+     threshold; the station is selected on the FINE level by the frozen rule
+     BEFORE any mapping occurs, so the mapping cannot be tuned to fit an
+     answer; and the residual is MEASURED and printed per level rather than
+     assumed.  Disclosed in AMENDMENT 1 (c.1) of the frozen document.
+
+F2.  RULING 2 -- THE UNPINNED `exact_t16.py`: NO PIN IS ADDED.  *** THIS IS A
+     NAMED OPEN EXPOSURE, NOT A SOLVED PROBLEM. ***
+     B2 raised it: frozen section 5 registers EXACTLY ONE pin
+     (`T16_registered.json`); `exact_t16.py` supplies band constants and is
+     unpinned, so a change there could move a band without a refusal.
+     RULED: DO NOT ADD A PIN.  A pin the frozen document does not register IS
+     A NEW GATE, and section 9 forbids moving a gate.  The authoring lane
+     declined to add one and that judgement is UPHELD.  Its digest continues to
+     be reported as `provenance_reported_not_gated`.
+     STATUS: *** OPEN ***, and ESCALATED TO VERIFICATION.  Closing it requires
+     a SUCCESSOR REGISTRATION -- a T16d that registers the additional pins --
+     NOT a patch to this comparator or to the frozen document.  It is recorded
+     here as an open exposure and must not be read as discharged.
+     SECOND LIMB OF THE SAME EXPOSURE, MEASURED in this invocation and NEW:
+     `analyse_t16.py` is likewise unpinned, and for FOUR of the constants the
+     comparator restates -- `CONV_FLOOR`, `G_TOL`, `MASS_FLOOR`, `PLAT_FLOOR`
+     -- the frozen document registers NO LITERAL AT ALL.  MEASURED: the names
+     `CONV_FLOOR` and `G_TOL` occur ZERO times in the frozen v1.0 bytes.  They
+     are bound only by section 1 line 4's "Every other floor ... carried over
+     byte-identically" (:104-105) and section 6's clause list (:256-259), so
+     their authority chain runs through the unpinned parent.  F3's checker
+     READS that chain and DISCLOSES it; it does not close it.  Same escalation,
+     same successor registration.  Disclosed in AMENDMENT 1 (c.2).
+
+F3.  RULING 3 -- THE TRANSCRIBED CONSTANTS GET A TRANSCRIPTION CHECKER.
+     NEW FILE: `check_t16c_transcription.py`, beside the comparator, modelled
+     directly on the working `../T20_runs/check_t20_transcription.py`.
+     THE GAP IT CLOSES, stated exactly.  `analyse_t16c.py:285-306` restates
+     eight floors and tolerances.  `_station_floor_identity_check()` at
+     :316-319 compares them ONLY TO EACH OTHER and to a hardcoded literal.
+     `_carried_over_identity()` at :2293 additionally compares them to the
+     PARENT.  Neither closes the remaining link: NOTHING asserted that the
+     values are what the FROZEN DOCUMENT registers.  A constant could agree
+     with the parent, agree with itself, and still not be what was registered.
+     THE CONSTANTS ARE LEGITIMATE.  They are TRANSCRIPTIONS of a frozen
+     registration -- section 1 line 4 registers them at :103 and :104-105 --
+     and NOT invented gates.  The checker adds NO threshold and MOVES NO gate:
+     it sits OFF the grading path, is never imported by the comparator, and can
+     only refuse; it can never let a run grade that would otherwise refuse.
+     PROPERTIES, each one load-bearing:
+       - REFUSES (exit 2); it does not report.  A printed warning that lets a
+         bad transcription stand certifies nothing.
+       - Parses BOTH source files with `ast`.  It NEVER imports and NEVER
+         executes the comparator -- an importing checker would run the
+         comparator's module-level path finder and could not then be trusted
+         inert with respect to the live tree.  It also means stale bytecode
+         cannot invert its controls, which is the real defence; the controls
+         clear `__pycache__` as well.
+       - Locates every registration BY LINE in the frozen document and quotes
+         the registered text, REFUSING if the citation has drifted off its
+         line.  Other records cite this document by line, so drift is itself a
+         finding rather than a nuisance.
+       - THE PIN IS ON THE FROZEN PREFIX, NOT THE WHOLE FILE.  The first 19,049
+         bytes -- the blob frozen at 8ff2cf36 -- must hash to
+         0b425c40974581484f9ce91c44ad7bb3d4956fb1e81dad0ce03e7ba7e01bcd3f.
+         This is rule 6 expressed as arithmetic: an edit AT OR ABOVE the foot
+         refuses, while a DATED AMENDMENT APPENDED BELOW is the legal route and
+         does not trip it.  Pinning the whole file would have forced the check
+         to be switched off every time rule 6 was OBEYED, and a check that must
+         be disabled to comply with the rule it enforces is worse than none.
+         Citations resolve in the PREFIX ONLY, so no one can discharge a
+         mismatch by appending a line at the foot carrying the missing quote.
+     TWO AUTHORITIES, RECORDED RATHER THAN SMOOTHED OVER.  8 constants are
+     checked against a LITERAL the frozen document states; 6 are checked
+     BY_REFERENCE against the parent the document binds them to (see F2).
+     Pretending all 14 had a frozen literal would be the same error the file
+     exists to catch.
+     MEASURED, real run, this invocation: rc 0, CERTIFIED -- 14 constants and
+     1 name-binding (`STATION_FLOOR_T = W1_FLOOR_T`, which section 4 :187-188
+     registers as "Not a new number", so the source must BIND THE NAME and a
+     numerically-agreeing literal is refused).
+     MEASURED, `--selftest`: 26 limbs, 26 green, 0 failed -- one ULP planted on
+     each of the 14 constants (each REFUSES on its own limb), a one-byte edit
+     inside the frozen prefix (REFUSES), a one-byte truncation (REFUSES), a
+     legal foot amendment (rc 0, SILENT -- the negative arm that proves the pin
+     does not punish rule 6), a registration appended at the foot failing to
+     satisfy a citation (REFUSES), citation drift (REFUSES, 14 detected), a
+     +1 ULP drift in the PARENT under a BY_REFERENCE constant (REFUSES -- the
+     parent authority is genuinely read, not assumed), `STATION_FLOOR_T`
+     rebound to an agreeing literal (REFUSES), a deleted constant (REFUSES),
+     the unperturbed files silent both FIRST and LAST, and the planted-assert
+     counter shown able to see a planted assert (0 real, 1 planted).
+
+F4.  RULING 4 -- THE RULE-6 FOOT AMENDMENT TO THE FROZEN DOCUMENT.
+     ONE dated amendment was APPENDED AT THE FOOT of
+     `docs/campaigns/T-family/T16c_PREREGISTRATION.md` as AMENDMENT 1,
+     2026-08-31, version 1.0 -> 1.1.  NOT ONE BYTE ABOVE IT WAS EDITED.
+     (a) The line-3 header "STATUS: DRAFT.  NOT FROZEN.  NOT COMMITTED.
+         AUTHORISES NO GRADING." is STRUCK and SUPERSEDED, not rewritten: the
+         supervisor froze the document at 8ff2cf36.  The amendment records that
+         the authoring lane declined to freeze its own registration
+         DELIBERATELY AND CORRECTLY (check 4 is the supervisor's personal,
+         non-delegable act) -- the lane was right to decline, the supervisor
+         was right to perform it, and the ONLY error is that a stale banner was
+         left standing after the freeze.  Section 11 is NOT struck: it is
+         accurate HISTORY and only line 3's present-tense status claim is
+         falsified.
+     (b) Section 3's line-number claim is STRUCK and corrected.  MEASURED in
+         `../T16_runs/analyse_t16.py` this invocation:
+             `W1_T_max` COMPUTED inside `readers()`      :353
+             `readers()` CALLED for the graded time      :570
+             result bound into `reads[lv]`               :572
+             the `C_ORDER` refusal                       :573-576  (as frozen)
+             `:582` merely COPIES it into the record     :582
+             first PRINT                                 :589
+         Section 3 says `W1_T` is "first computed at :582, nine lines" below
+         the guard.  It is computed at :353 and is ALREADY IN HAND at :572 --
+         THREE LINES ABOVE THE GUARD.
+         THE ERROR UNDERSTATES THE FINDING, which is why it earned an
+         amendment rather than a shrug: section 3 described a witness that was
+         never REACHED; the code actually COMPUTES the witness, RETURNS it,
+         HOLDS IT IN A LIVE LOCAL, and then DISCARDS IT UNREAD when the guard
+         on the next line refuses.  A diagnostic that is merely unreachable is
+         a scheduling defect; a diagnostic computed and thrown away is the same
+         defect with the cost already paid.  This STRENGTHENS the D576-shaped
+         diagnosis section 3 registers.  NO gate, threshold, band, cap or label
+         moves: section 3 registers a REPORTING ORDER, not a number.
+     (c) Rulings 1 and 2 are disclosed in the amendment as (c.1) and (c.2).
+     THE RULE-6 ASSERTION WAS VERIFIED BEFORE COMMIT, NOT MERELY WRITTEN.
+     MEASURED: the frozen v1.0 blob (19,049 bytes, 352 lines) is an EXACT BYTE
+     PREFIX of the amended file (28,050 bytes, 521 lines); all 352 lines above
+     the amendment compare IDENTICAL; line 3 is unchanged IN PLACE.  The
+     literal assertion `lines whose number changed above this section: 0` is
+     therefore TRUE, and it was checked by measurement because other records
+     cite this document by line and at least one citation sits inside an
+     executable check.
+
+===========================================================================
+PART G -- MUTATION CONTROLS: ONE REPAIR, THREE DEFECTS, ALL MEASURED
+===========================================================================
+
+G1.  *** REPAIRED: L30's CONTROL TRUNCATED THE LOG INSTEAD OF EDITING IT. ***
+     WAS, at analyse_t16c.py:2116-2117 --
+
+         lambda tmp: open(<log.solve>, "w").write(
+             open(<log.solve>).read().replace("End\n", ""))
+
+     `open(p, "w")` TRUNCATES the file at the moment it is EVALUATED, and
+     Python evaluates it BEFORE the argument expression `open(p).read()`.  The
+     read therefore returned the empty string and the control EMPTIED
+     log.solve rather than removing one line.  An emptied log has no
+     `ExecutionTime` lines either, so the refusal came from the COUNT conjunct
+     at :515 and the `End`-line conjunct at :511 -- the one L30 names -- was
+     NEVER EXERCISED.  The limb printed green while testing a different clause.
+     IS: `_strip_end_line()`, a named helper that READS FIRST, WRITES SECOND,
+     and then READS THE FILE BACK, refusing unless the End line is gone AND the
+     ExecutionTime count is UNCHANGED.  A control not shown to have planted
+     what it claims is not a control.
+     MEASURED -- the four-cell control for the repair itself.  M31 disables
+     EXACTLY the :511 conjunct, so L30 must redden under it:
+         pre-repair  / unmutated  ->  L30 green,  0 red
+         pre-repair  / M31        ->  L30 green,  0 red   <-- THE DEAD LIMB
+         post-repair / unmutated  ->  L30 green,  0 red
+         post-repair / M31        ->  L30 RED,    1 red (L30 only)  <-- EXACT
+     Confirmed independently by the harness: `mutation_controls_t16c.py
+     --only M20,M21,M31,M35` classifies M31 as EXACT, reddening L30 and
+     nothing else.  The full comparator selftest remains 40/40 green.
+
+     RECORDED, NOT REPAIRED -- three limbs whose labels OVERSTATE what they
+     prove.  Each was MEASURED as a MISS (reddened NOTHING), not reasoned
+     about.  They are named here rather than left inside a "40/40 green"
+     summary, which is the whole reason this harness exists.
+
+G2.  L19 IS NOT ISOLATED BY M20.  M20 forces `c["mass_ok"] = True` to test
+     `C_MASS`.  MEASURED: MISS -- reddened NOTHING.  The forged tree satisfies
+     `C_MASS` by construction, so forcing the clause true changes no outcome
+     and L19's green says nothing about whether `C_MASS` can fail.
+G3.  L20 IS NOT ISOLATED BY M21.  M21 forces the `C_REV` conjunct true.
+     MEASURED: MISS -- reddened NOTHING.  Same shape: the forge has no reversed
+     cell, so the clause is never the one deciding the verdict.
+G4.  L34 DOES NOT ISOLATE THE realpath CLAUSE.  M35 removes `os.path.realpath`
+     from S8a so an innocently-named symlink to the live tree passes the PATH
+     test.  MEASURED: MISS -- reddened NOTHING, because S8b's forge-sentinel
+     requirement STILL STOPS the symlinked tree.  The limb's label claims the
+     realpath clause is verified; what is actually verified is that S8a AND
+     S8b together stop it.  The realpath clause has NO control that isolates
+     it, and defence-in-depth is the reason -- which is a good property of the
+     apparatus and a bad property of the claim.
+     NOT REPAIRED under this ruling.  Isolating them needs either a forge that
+     violates each clause or a mutation that disables the covering guard too;
+     both are instrument work beyond the repair authorised here, and inventing
+     either now would be a new procedural tool under the 14-day rule freeze.
+
+===========================================================================
+PART E -- WHAT THIS FILE DOES NOT CLAIM
+===========================================================================
+
+E1.  NO T16c GRADED VALUE HAS BEEN COMPUTED.  The comparator has never been run
+     against T16_MC_c/m/f.  Which station section 4 selects on the real solves,
+     and what G1/G1b/G2/G3 then read, are UNKNOWN to this lane by construction.
+E2.  The three solves are carried over UNEXAMINED (frozen section 10 item 1).
+     This lane inspected the comparator, not the fields.
+E3.  This file states no verdict.  It is an instrument description.
+E4.  Of the two readings and one residual exposure raised for the supervisor,
+     TWO ARE NOW RULED and ONE REMAINS RAISED (PART F, 2026-08-31):
+       - the nearest-centre mapping in A3      -> RULED, ACCEPTED (F1)
+       - the unpinned `exact_t16.py` in B2     -> RULED: NO PIN.  *** THE
+         EXPOSURE ITSELF STAYS OPEN *** and is escalated to verification;
+         closing it needs a successor registration (T16d), not a patch (F2)
+       - the rule-4 reading in B1              -> STILL RAISED, NOT RULED
+E5.  The correction in A2 against the frozen document changes no gate,
+     threshold, band, cap or label.  This lane has edited NO FROZEN BYTE: the
+     only change to `T16c_PREREGISTRATION.md` is AMENDMENT 1, APPENDED AT THE
+     FOOT under rule 6, and the frozen v1.0 blob is an exact byte prefix of the
+     result -- MEASURED, F4.
+E6.  NO T16 GRADED VALUE WAS COMPUTED IN THE INVOCATION THAT WROTE PARTS F AND
+     G, and `analyse_t16c.py` was NEVER RUN against
+     `verification/runs/T-family/T16_runs/`.  Every selftest and every mutation
+     control ran against SYNTHETIC forged trees in scratch directories.
+     MEASURED live-tree control: 161 entries under `T16_runs` fingerprinted
+     (path + mtime + size) before and after the mutation sweep -- IDENTICAL.
+E7.  The three limbs in G2-G4 are NOT VERIFIED by their current controls and
+     are recorded as such.  A green limb with no control that reddens it is a
+     decoration, and this file names them rather than reporting 40/40.
