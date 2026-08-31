@@ -321,3 +321,46 @@ bash /home/ubuntu/Certonomous/cases/dafoam/_common/dafoam_wait_then_launch.sh
 `verification/queue/dafoam/D6_chain_wait.json` (`prereg_commit e43bdf61…`) is re-filed with **`prereg_commit` = the commit that lands this addendum**, every other field unchanged (the wrapper argv, precondition `<D5 run root>/CHAIN_DONE`, bound 86,400 s, cost 1,694.7, floor 24.0, ranks 4); `scripts/queue_entry_check.py` rc 0 on the new file; the previous file moves to `held/D6_chain_wait.e43bdf61.json` as the record, marked SUPERSEDED in `held/README.md`; nothing deleted. Enqueueing is not authorisation — check 4 is the supervisor's.
 
 **Condition, and how it was checked:** `test -e /home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint` → **false** (2026-08-26T22:52:12Z); `sudo -n docker ps -a` carries no `d6_` name; no `d6_chain_driver` or `dafoam_wait_then_launch` process for `D6_chain_wait` exists; `verification/queue/dafoam/launched/` holds no `D6_chain_wait*`; D5's `CHAIN_DONE` does not exist (D5 r3 is HELD, not launched). First compute on this item has not occurred.
+
+# ADDENDUM 4 — 2026-08-31 — **POST-COMPUTE, RECORDS ONLY** — the queue entry this file names as "the live entry" at `:286` and `:321` is DELETED FROM HEAD; the record survives, unchanged in every registered field, at `verification/queue/dafoam/launched/D6_chain_wait.json`
+
+**Version 1.3 → 1.4. Lines whose number changed above this section: 0.** Proved mechanically, not asserted: immediately before the append a byte copy of this file was taken and `cmp`'d against `git cat-file -p HEAD:cases/dafoam/ladder-a/A2/curriculum_D6/PREREGISTRATION.md` (identical, 0 differing bytes); the append was made in the **same shell invocation**; and the first `N` bytes of the resulting file, where `N` is the byte length of that pre-append copy, were `cmp`'d against the copy and are identical. Every byte above this line is the byte that was there before, so no line above can have changed number. Written by dafoam `lab-lane` for `dafoam-supervisor` under the fossil-deletion close-out; permission `bc0e687e`.
+
+**THIS IS A DATED ADDENDUM, NOT AN EDIT** (`CLAUDE.md` rule 6). **It alters NO gate, threshold, band, cap, label, cost, prediction, arm, cpuset, memory floor or grading path.** It records where a record moved. **Unlike Addenda 1–3, this one is POST-COMPUTE** — D6 has fired (`/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint` exists and carries `CHAIN_DONE` and the `O_mp` arm's logs), so rule 2's post-compute clause governs: gates are closed and this addendum changes none of them. **Zero core-minutes**: the deletion and its verification are read-only against HEAD blobs and the working tree.
+
+## A4.1 What became false on its face, and why it could not be corrected in place
+
+Two sentences in this frozen file path-address the D6 queue entry at its **drop path**:
+
+- **`:286`** (Addendum 2, §A2.3): *"The live entry is **`verification/queue/dafoam/D6_chain_wait.json`**: `case_id D6_chain_wait`, `prereg_commit` = the commit that lands this addendum, … `ranks 4`, `cost_core_min_estimate 1694.7` (§4, unchanged), `memory_floor_gb 24.0`, `permission bc0e687e`."*
+- **`:321`** (Addendum 3, §A3.3): *"`verification/queue/dafoam/D6_chain_wait.json` (`prereg_commit e43bdf61…`) is re-filed with `prereg_commit` = the commit that lands this addendum, every other field unchanged…"*
+
+On 2026-08-31 that path was **deleted from HEAD** under the committed authorisation `verification/credibility/QUEUE_FOSSIL_DELETION_LIST.md` §2 row 6 (landed `88530a3b`; verified an ancestor of the deleting HEAD and byte-identical to its committed blob at deletion time), which is the confirmation Sanaa's ruling of that day required — her answer 6, verbatim: *"Yes the 17 verified safe path onlys"* (`etc/sessions/2026-08-31T1615Z_sanaa_six_answers.md`). The deletion list names the consequence itself, at its §5: *"That sentence becomes false-on-its-face at HEAD after deletion and cannot be corrected in place… the fix, if any, is a dated addendum, and it is dafoam's call."* This is that addendum. **Rule 6 forbids editing the sentences and they are not edited** — `:286` and `:321` stand as their authors wrote them.
+
+## A4.2 The record that survives, and the four zeros are plant-controlled
+
+| | drop path — DELETED from HEAD | surviving record — AT HEAD |
+|---|---|---|
+| path | `verification/queue/dafoam/D6_chain_wait.json` | `verification/queue/dafoam/launched/D6_chain_wait.json` |
+| HEAD blob | 7,591 B | 7,841 B |
+| on disk | no (moved by the runner at launch) | yes |
+| non-runner-key differences | — | **0** |
+
+**Every field this registration named at `:286` and `:321` is preserved verbatim at the surviving path**: `case_id D6_chain_wait`, `prereg_commit 0aa9a82a…` (the Addendum-3 commit), `ranks 4`, `cost_core_min_estimate 1694.7`, `memory_floor_gb 24.0`, `permission bc0e687e`, the `dafoam_wait_then_launch.sh` argv, the precondition `<D5 run root>/CHAIN_DONE` and the 86,400 s bound. The only differences are the runner-written keys `_launch` and `_field_classes`. **Corroboration, named as corroboration and not as the survivor:** `verification/queue/LAUNCH_LOG.tsv:83` — 2026-08-27T13:49:03Z, pid 790394, 4 ranks, cost 1694.7, `prereg_commit 0aa9a82a442305f8b8b064004317693ea9f1957d`. That file is **not at HEAD**, which is exactly why the committed `launched/` record and not the log is the load-bearing survivor.
+
+**Planted controls, both directions, in the same invocation as the measurement** (`CLAUDE.md` rule 3 — a zero from a reader not shown able to see a non-zero is not evidence): the HEAD-blob reader returned the full contents of a known-tracked file and `None` for a fabricated path; the disk reader saw a file that exists and did not see a fabricated sibling; and the difference comparator was shown to **report** a planted non-runner-key difference and to **report none** for a planted runner-key-only difference. The "0 non-runner-key differences" above is therefore a measurement, not a blind reader.
+
+## A4.3 The rename that would have preserved the citation was TRIED and is NOT REPRESENTABLE
+
+`R-QCOMMIT.9` offers the closure that would have left `:286` and `:321` resolving: *"the launched record lands as a RENAME of the committed root entry — git's `R100`, same blob, new path."* It is unavailable here, for two independent reasons, both measured rather than assumed:
+
+1. **There is no addition to pair the deletion with.** `launched/D6_chain_wait.json` was already at HEAD and unchanged before this commit, so the deleting commit contains a removal and nothing else. A trial tree was built in a private index and diffed against HEAD with maximal detection (`git diff-tree -M5% -C5% --find-copies-harder`): it reports **four pure deletions and zero renames**.
+2. **`R100` is unreachable in principle.** The two blobs are not byte-identical (7,591 B vs 7,841 B) because the runner wrote `_launch` and `_field_classes` into the copy it moved.
+
+So the fallback in the same section is what is landed: this addendum, and a matching appended note in `verification/queue/dafoam/held/README.md`.
+
+## A4.4 What a future reader should do with `:286` and `:321`
+
+**Read both as naming `verification/queue/dafoam/launched/D6_chain_wait.json`.** The entry described there was filed, was validated, was consumed by the runner at 13:49:03Z on 2026-08-27 and produced the D6 chain; its registered content is intact at the `launched/` path, at HEAD. What moved is the address, not the record. **The deletion was keyed on the explicit path, never on `case_id`** — `case_id D6_chain_wait` names three distinct objects in this repository, and one of them, `verification/queue/dafoam/held/D6_chain_wait.e43bdf61.json` (this registration's own Addendum-2 generation, carrying `cap_core_min_registered 2230.0` sourced to `:93-99` of this file), is ruled **FOSSIL-RETAIN** and was verified present on disk and at HEAD after the deleting commit. A `case_id`-keyed deletion would have taken it and destroyed a `launcher_rc=124` record.
+
+**Nothing is sent, filed, uploaded, registered, posted or commented** (rule 7; `DAFOAM_CHARTER.md` §10).
