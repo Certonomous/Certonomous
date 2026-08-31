@@ -54,10 +54,30 @@ see) → where the verdict lands.**
    `postProcessing` forces/coefficients and `READOUT.txt` **→** *(NO READER — the only
    Python in `cases/JF1_JET_FLAP/` is `build_jf1.py`, a mesh generator; there is no
    comparator)* **→** frozen `JF1_PREREGISTRATION.md` gates **→** *(NO PLANTED CONTROL —
-   none exists anywhere in the case)* **→** *(no results record)*. **Five L1 rows have
-   been run and there is nothing in this lab that can grade them.** Cause class:
-   **INSTRUMENT**, and it is prior to every other JF1 question — a gate cannot fail or
-   pass through a comparator that was never written.
+   none exists anywhere in the case)* **→** *(no results record)*. **JF1 has no comparator,
+   so STAGE G CANNOT BE GRADED WHEN IT ARRIVES.** Cause class: **INSTRUMENT**, and it is
+   prior to every other JF1 question — a gate cannot fail or pass through a comparator that
+   was never written.
+
+   **⚠ CORRECTION, 2026-08-31, to my own first version of this bullet — made within the hour,
+   by the lane I asked to check it, and verified at the line by me before accepting.** I
+   first wrote *"five L1 rows have been run and there is nothing in this lab that can grade
+   them"*, which reads as retrospective waste. **That is wrong and I withdraw it.** Those
+   rows are registered **feasibility** and score nothing by design: every `RUN_STATUS`
+   carries `label feasibility` and `gate NONE -- this run scores nothing`, and frozen §6 at
+   `:1233` answers stage F's "Gated?" with *"**No.** Nothing here is a result."* **They are
+   ungraded BY REGISTRATION, not by instrument failure**, and a missing comparator is not
+   why. The forward-looking sentence above is the true one, and it is still serious.
+   **Two things that make the position better than my first version implied, both verified:**
+   (a) the comparator's **specification is frozen and unusually complete** — §8.1's six
+   completion clauses with the `controlDict`/`fvSolution` pin, §8.2's three named plants
+   **plus ten mutation limbs M1–M10 tabulated at `:1714-1725` with the required outcome for
+   each**, §8.3's verdict emission, and §8.4's registered refusal list at `:1744-1758`. The
+   hard, rule-2-critical part — deciding **pre-compute** what the instrument must refuse —
+   **is done and frozen.** What is absent is **transcription of a frozen spec, not design.**
+   (b) §8.1's clauses and §8.4's refusal list contain **no `checkMesh` clause**, so bullet
+   6's §4.5 `Mesh OK` contradiction does **not** block writing the comparator. It stays open
+   on Sanaa's desk; it is not a blocker on the instrument track.
 
 6. **JF1 GATES — two defects in the frozen document itself, both mine to escalate and
    neither mine to fix.** (a) §4.5's hard-gate table at `:763` requires `checkMesh` to
