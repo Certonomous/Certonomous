@@ -840,3 +840,146 @@ about the tree.
 **Lines whose number changed above this section: 0** — verified by hashing the prior file
 as an exact byte prefix of this one in the same invocation as the write, not merely
 asserted.
+
+---
+
+## Amendment 1.6 — 2026-08-31 — **§11.1's REFERRAL IS CLOSED, IN THIS TEAM'S FAVOUR, BY SANAA; THE TEST AT REGISTRATION IS SAMENESS OF MODEL AND NEVER EXACTNESS OF ALGEBRA; AND A BARE `§2h.6` CITATION IS BANNED IN THIS TERRITORY BECAUSE THE LABEL NOW DENOTES TWO DIFFERENT RULES**
+
+**Version 1.6.** Appended at the foot, below Amendment 1.5. **Nothing above this line is
+rewritten, amended or struck** — not §1's verbatim directive, not the §3 roster, not the
+§5 verdict path, not the §6 register rules, not the §8 lane-cap exception, and not
+Amendments 1.3, 1.4 or 1.5. **§11.1 is not edited**, including the point 2 this amendment
+reports as overtaken; it stands on the page and §12.1 records what happened to it. Every
+clause below is **additive**. The version bump is declared here rather than by editing the
+§283 amendment table, the form Amendment 1.3 established for this file.
+
+**Nothing below retires, widens or narrows a gate, threshold, band, cap or charter clause.**
+Those remain Sanaa's alone (`ESCALATION_CHARTER` §4.1, D539). **The rule recorded here is
+hers, not this team's**, and this amendment does no more than carry it into the place where
+this team's registrations are written.
+
+### §12.1 THE REFERRAL AT §11.1 POINT 2 IS CLOSED, AND THIS TEAM DID NOT CLOSE IT
+
+**§11.1 point 2 committed this team to a silence:** *"This team does not decide that
+question and no case of ours may claim to have decided it."* **That silence was correct
+and is now spent.** Sanaa ruled the referral on 2026-08-31; `VERIFICATION_CHARTER` v1.27
+carries it as `§2h.6.1`–`§2h.6.6` at commit `27a49bda`, on her verbatim words captured at
+`5dd94f4f`.
+
+> **`§2h.6.1`** — *"A reference that is the EXACT (or manufactured) SOLUTION OF THE SAME
+> CONTINUUM PDE THE SOLVER DISCRETISES is `PASS`-capable, when §2h.4's five conditions are
+> met and declared in the registration before compute. A reference drawn from a DIFFERENT
+> MODEL — nozzle relations, shock tables, lumped or series-resistance paths, correlations,
+> experiment — CAPS AT `GATE REACHED`, HOWEVER EXACT ITS OWN ALGEBRA."*
+
+**THE AUTHORITY CHAIN WAS WALKED AT SOURCE, NOT TAKEN FROM THE RELAY.** This team learned
+of the ruling from `verification-supervisor`, and a peer's message is not Sanaa's consent
+(`CLAUDE.md` rule 9). The supervisor therefore read `27a49bda` and the amendment text
+personally before writing a line of this clause. **The relay proved accurate in every
+particular and nothing in it was overstated** — that is a finding about this instance, not
+a licence to skip the read next time.
+
+**THE INSTANCE.** `§2h.6.4` confirms **`VMFL038-R2` limb A STANDS AS GRADED**, and its
+`PASS`-capability is **permanent law rather than the interim classification** its standing
+rested on until today. **No number on that row moves and none needed to.** What changed is
+that the row's ground no longer depends on a ruling that had not been made.
+
+### §12.2 THE QUESTION THIS TEAM ASKS AT REGISTRATION, AND IT IS NOT "HOW EXACT IS THE REFERENCE"
+
+**The discriminating question is *is this the solution of the equations my solver is
+discretising?*** — never *how exact is this reference?* **Those two come apart precisely
+where the cap matters**, and an Ansys verification manual is an unusually rich source of
+places where they do.
+
+**THE HAZARD IS SPECIFIC TO THIS TEAM'S SOURCE MATERIAL, WHICH IS WHY IT IS WRITTEN DOWN
+HERE.** A good number of VM cases carry closed-form reference results that are exact for a
+**reduced** model rather than for the PDE the lab's solver integrates. A closed-form
+isentropic nozzle relation is unimpeachable algebra for quasi-1D isentropic flow while the
+solver discretises 2D/3D RANS; a normal-shock table is exact for the Rankine-Hugoniot jump
+conditions, which is not the system a shock-capturing scheme integrates across a smeared
+numerical shock. **In both the algebra is perfect and the referent is the wrong object.**
+Under `§2h.6.1` those cap at `GATE REACHED` however clean the algebra, and the residual
+they leave is **model-form error**, which no grid triple bounds.
+
+**WHERE IT IS SETTLED: IN THE REGISTRATION, BEFORE COMPUTE. NEVER AT GRADING.** This is
+`§11.2` applied to the reference rather than to the gate — a registration may not reach its
+freeze commit with an open gate question, and *"which model is this reference the exact
+solution of?"* **is** a gate question, because its two answers give different ceilings.
+Every registration from this team therefore states, on its face and before the freeze:
+
+1. **the continuum model the lab's solver discretises for this case**, named as equations;
+2. **the model the manual's reference number is the exact solution of**, named the same way;
+3. **whether those are the same model**, answered `SAME` or `DIFFERENT`, with the reasoning; and
+4. where `SAME` is claimed and `PASS` is sought, **`§2h.4`'s five conditions declared
+   explicitly** — all five still bind and none is softened by `§2h.6`.
+
+**A limb whose answer to (3) is `DIFFERENT`, or which cannot be classified at all, is
+registered at `GATE REACHED` from the outset.** `§2f.3`'s default — unclassifiable is
+`CONTINUUM` — is untouched, as is `§11.1` point 4.
+
+**AND THE CEILING IS THE ONE THE CHARTER IMPOSES, NEVER THE MOST CONSERVATIVE AVAILABLE.**
+`§11.1`'s closing finding governs this clause in both directions: an unnecessarily capped
+row is as inaccurate as an overclaimed one, and *"we were being careful"* is not a defence
+for a wrong label either way. `§12.2` is not an instruction to cap by reflex; it is an
+instruction to **classify**, and to do it where it can still be got right.
+
+### §12.3 A BARE `§2h.6` IS NEVER CITED IN THIS TERRITORY — THE LABEL DENOTES TWO RULES
+
+**MEASURED, at `docs/charters/VERIFICATION_CHARTER.md` as of `27a49bda`:** the label
+`§2h.6` is occupied twice.
+
+- **v1.19, 2026-08-27, line 2882** — `§2h.6 NON-RETROACTIVITY`.
+- **v1.27, 2026-08-31, line 3604ff** — `§2h.6.1`–`§2h.6.6`, the exact-PDE rule.
+
+**Four standing citations already point at the v1.19 meaning** and on a plain reading now
+resolve to the wrong clause: lines `2895`, `2974`, `3104` (*"NOT RETROACTIVE (§2h.6's
+principle...)"*) and `3588` (*"the same non-retroactivity §2h.6, §2i.4 and §2j.4"*).
+**The sharp edge is inside the new amendment itself:** `§2h.6.4` is headed *"IT IS
+PROSPECTIVE"*, which is the doctrine of the **old** `§2h.6` — so one amendment uses the
+same label for the rule it states and for the rule it relies on to bound it.
+
+> **RULE. No pre-registration, register row, ruling or record of this team ever cites a
+> bare `§2h.6`. The citation form is `VERIFICATION_CHARTER §2h.6.1 (v1.27, 2026-08-31, the
+> exact-PDE rule)`** — subclause, version, date and name. It is unambiguous whichever way
+> the label is later resolved, and **it survives a renumber**, which a bare label does not.
+
+**WHY THIS IS NOT PEDANTRY, and it is the reason the rule is here rather than in a note.**
+Under `§2h.6.1` a `PASS`-capable registration must declare its ground **before compute**,
+which means citing the clause by number on a document that is then **frozen**. A bare
+`§2h.6` in one of ours would name two rules, **one of which defeats the claim it is offered
+to support**. A frozen document cannot be repaired afterwards (`CLAUDE.md` rule 6,
+`VERIFICATION_CHARTER` §2d), so the citation must be unambiguous **at the freeze or not at
+all.**
+
+**THE DEFECT IS REPORTED, NOT REPAIRED, AND THE REPAIR IS NOT THIS TEAM'S.**
+`VERIFICATION_CHARTER` belongs to `verification`; whether the fix is a renumber of the new
+clauses, of the old, or a disambiguating note is theirs, and whether renumbering a clause
+that four live citations depend on is Sanaa's under D539's logic is theirs to judge.
+**This team changed nothing in their file and proposed no number.** `§12.3` binds only
+this team's own citations, which is the part this team may bind.
+
+### §12.4 WHAT THIS AMENDMENT DOES NOT DO
+
+- **It creates no retrospective `PASS`.** `§2h.6.4` is prospective: a row capped at
+  `GATE REACHED` before 2026-08-31 is **not** promoted, and **no row in the ANSYS
+  VALIDATION REGISTER is promoted, demoted or re-graded by this amendment.** The
+  availability of `PASS` is a property of a registration frozen **after** the rule and
+  declaring `§2h.4`'s conditions before compute.
+- **It does not disturb `§11.1` points 1, 3 or 4**, which stand in full. **Point 3's
+  experimental cap is CONFIRMED rather than weakened** — `§2h.6.1` names experiment among
+  the different-model references that cap at `GATE REACHED`, which is the same conclusion
+  this team reached independently on its own `VMFL063` registration and for the same
+  reason: a triple bounds discretisation error and says nothing about model-form error.
+- **It does not weaken `CLAUDE.md` rule 5.** A level not iteratively converged or not
+  plateaued is `NOT A RESULT` whatever the referent, and the one-way conversion is
+  unchanged. `§2h.6.6` says so explicitly and `§2f.2`'s *"no triple never means no rule 5"*
+  is untouched.
+- **It does not license a continuum claim.** `§2h.4` condition 4 tests the registration's
+  own sentence: **a floor demonstration WORDED as a continuum claim IS a continuum claim**,
+  however impeccable its referent. This team's registrations are read against their own
+  wording, not against their intent.
+- **It does not reach `§2h.5` / `T9a-R1c`.** `§2h.6.5` flags that a series-resistance
+  referent may sit on the wrong side of `§2h.6.1` and refers the question to
+  **heat-transfer**. That is their rung and their registration; **this team offers no view
+  and takes none.**
+
