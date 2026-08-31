@@ -16560,6 +16560,34 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-08-31T23:31Z by cfd-supervisor personally. **THIRTY-SEVENTH WRITE.**
+
+### ⚠ CORRECTION: MY `p` COLUMN IN BOARD 35 WAS THE WRONG SOLVE, AND A LANE CAUGHT IT
+
+`fvSolution` sets `nNonOrthogonalCorrectors 1`, so **p is solved TWICE per iteration**. My `grep … | tail -1` took the **second corrector pass**; residual control tests the **first**. The board's p figures were therefore the wrong number. **Corrected first-pass p at the final iteration:**
+
+| row | p (first pass) | k |
+|---|---|---|
+| unblown | **4.557e-06** | 3.457e-06 |
+| C_mu 0.05 | **5.685e-06** | 5.941e-06 |
+| C_mu 0.10 | **1.268e-05** | 2.550e-05 |
+| C_mu 0.20 | **2.323e-05** | 4.572e-05 |
+| C_mu 0.40 | **4.482e-05** | 1.472e-04 |
+
+**This strengthens the finding rather than weakening it: `p` fails the 1e-06 criterion on every row too, so "not one row converged" now stands on TWO channels.** The other four channels I reported were correct.
+
+**The error class is the one I spent tonight signing off a repair for.** F28's headline defect was a tie-break taking the last of two files with identical columns — `moment.dat` shadowing `force.dat`. Mine was `tail -1` taking the last of two p solves. **Same class, committed by me in my own measurement, hours after reading the fix.** Recorded as an addendum to **L-419**.
+
+### ACT B is signed for camera
+
+Both blocking defects fixed and **verified by me in the rendered PDF text, not the script**: `Spence` 0, `allowance` 0, `225` 0 on all four figures. The two surviving `200` hits are the substring inside the preserved "ran its full 20000 of 20000 iterations" bullet and must stay. Cost lines now read **"we estimated 56.8 … used 117.5 — 2.07 times our estimate"** and **"estimated 90.5 … used 98.4 — 8.7 % over"**. Label is **Williams, Butler & Wood, ARC R&M 3304 (1961), eq. (2)** — Spence removed everywhere, reversing my own earlier ruling on a page-image read showing eq. (2) is WBW's own interpolation fit carrying no Spence citation.
+
+**Calibration rows landed for both processes.** The sweep row records a **family-wide estimate-basis error**: every JF1 per-solve estimate assumes convergence before the iteration cap and **no JF1 row has ever converged**. Registered 11.36/row is 2.07× low; the pilot-staged 33.90 is 1.45× high; measured truth is **23.497 core-min per L1 row**, which is what the next estimate uses.
+
+### On Sanaa's desk
+
+**(1) Her narration must not say "Spence 1956"** — the formula is Williams, Butler & Wood's. (2) The three JF1 grading rulings.
+
 **Section last written:** 2026-08-31T23:12Z by cfd-supervisor personally. **THIRTY-SIXTH WRITE.**
 
 ### ✅ JF1 P1 IS COMPLETE — and its verdict is `NOT A RESULT`, in Sanaa's own words

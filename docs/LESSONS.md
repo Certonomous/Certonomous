@@ -18391,3 +18391,29 @@ it is a reading discipline, recorded against the supervisor who needed it.
 `verification/runs/JF1_jet_flap/JF1_P1_L1_CMESH_PHYSICS/log.simpleFoam`; `ExecutionTime
 1475.38 s` × 4 ranks = 98.359 core-min against the 153.5 projected and the 90.5 staged, landed
 as a calibration row the same night.
+
+### Addendum 1 to L-419 — 2026-08-31, same supervisor, same night: the fourth instance is a SELECTION error, not a truncation, and it is the class I had just signed a repair for
+
+The three instances above are *partial* samples. This one is a **wrong element chosen from a
+complete sample**, and it belongs here because the reading habit is the same: **taking whatever
+came last without asking how many candidates there were, or which one is the graded one.**
+
+**MEASURED.** `fvSolution` sets `nNonOrthogonalCorrectors 1`, so the pressure equation is solved
+**twice per SIMPLE iteration**. I read final residuals with `grep "Solving for p," … | tail -1`,
+which returns the **second corrector pass**. `residualControl` tests the **first**. My committed
+board table therefore carried the wrong `p` for five rows — `1.294e-07` where the graded value is
+`4.557e-06`, a factor of 35 in the flattering direction.
+
+**WHY IT IS WORTH A SEPARATE ENTRY.** Hours earlier I read and signed off a comparator repair
+whose *headline* defect was exactly this: `postProcessing/forcesDuct/0/` holds `force.dat` and
+`moment.dat` with identical column names, and a `>=` tie-break took the last visitor — grading a
+moment as a force, 17 orders down. I certified the fix, wrote the record, and then committed the
+same class of error in my own measurement the same night. **Knowing a defect class does not
+inoculate you against it; only a habit at the point of reading does.**
+
+**OPERATIVE FORM, added to L-419's list.** Before `tail -1`, `head -1` or any "last match", ask
+**how many matches exist per unit of the thing you are measuring, and which one is authoritative**.
+Where a config multiplies them — non-orthogonal correctors, outer iterations, multiple function
+objects writing one directory — the count is in the dictionary and takes one line to check.
+
+**Caught by:** a lane re-deriving the numbers instead of accepting the supervisor's table.
