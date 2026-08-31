@@ -109,8 +109,10 @@ band, floor, cap or ceiling.**
                  u_bar = (dp/L)*delta^2/(3*mu)  and  (2/3)*u_max      -> 0.1308 m/s
 4.  CEILING    : LIMB A: PASS-capable as a FLOOR DEMONSTRATION under VERIFICATION
                  sec.2h.4's five conditions (no triple; sec.2f.3 does not reach it --
-                 sec.2h.2). LIMB B: PASS-capable on a CONVERGING triple under ANSYS
-                 sec.11.1 -> CLAUDE.md rule 5 step 3.
+                 sec.2h.2). IT VERIFIES CONSERVATION, NOT ACCURACY, and its PASS is a
+                 floor demonstration and nothing more (sec.5.1a).
+                 LIMB B: PASS-capable on a CONVERGING triple under ANSYS sec.11.1 ->
+                 CLAUDE.md rule 5 step 3. THIS IS WHERE THE VERIFICATION CONTENT IS.
 5.  GATES      : LIMB A (no triple): |tau_w - 39.24|/39.24 <= FLOOR_REL = 1e-8 at
                  EVERY level run, AND the three levels agree with each other to 1e-8.
                  LIMB B (triple):    |u_bar - 0.1308|/0.1308 <= TOL_B = 0.005 at the
@@ -409,6 +411,27 @@ It says **nothing** about meshes not run (`§2h.4` cond. 5) and it makes **no co
 claim** — it does not say the solution is correct to 1e-8; it says the discretisation
 error is below 1e-8 at the three meshes measured.
 
+### 5.1a THE HONEST LIMIT OF LIMB A, REQUIRED ON THE ROW'S FACE BY THE SUPERVISOR
+
+> **LIMB A VERIFIES CONSERVATION, NOT ACCURACY. Its `PASS` is a floor demonstration and
+> nothing more.**
+
+Because `tau_w` is exact **by the conservation structure of the scheme** (§3.3), limb A
+does not test how accurately the solver resolves anything. **It tests that the
+implementation conserves momentum, which it does by construction.** That is a real
+claim — a genuine coding error in the flux assembly, a wrong `nu`, a mis-set boundary
+condition or the kinematic/physical confusion of §5.4 would all break it, and the
+`--selftest` shows the 800x falsifier failing the limb by eleven orders — **but it is
+very nearly tautological, and no reader may be allowed to mistake it for an accuracy
+result.**
+
+**These three sentences are carried onto the register row verbatim**, not paraphrased
+and not relegated to a footnote. **Limb A's cleanliness must not carry weight it has
+not earned.** *Where this case's real verification content lives is `LIMB B`* — a
+genuine, second-order, mesh-refined discretisation-error measurement against an exact
+solution, and it is the only limb of this registration that can be wrong in an
+interesting way.
+
 **WHY IT IS `PASS`-CAPABLE, AND UNDER WHICH CLAUSE.** `VERIFICATION §2f.3` caps a
 CONTINUUM limb without a triple at `GATE REACHED`. `§2h.2` ruled that that cap **does
 not reach a floor demonstration**, because §2f.3's ground — *"discretisation error is
@@ -418,7 +441,7 @@ claim. `§2h.4` gives the five conditions, all five declared here before compute
 | # | condition | how R2 meets it |
 |---|---|---|
 | 1 | the reference is the exact solution of the SAME continuum model | Bird/Stewart/Lightfoot p.45 reduces the steady, fully-developed, unidirectional, laminar, constant-property incompressible Navier-Stokes **exactly** to `mu u'' = dp/dz`. Model-form error zero by construction. |
-| 2 | iterative error separately gated by rule 5 limb (1), one-way | §6's disjunctive clause; a level failing it is `NOT A RESULT` regardless of the floor result. |
+| 2 | iterative error separately gated by rule 5 limb (1), one-way | §6.2's disjunctive clause, discharged in the comparator's PHASE 4, which runs **before** limb A is evaluated in PHASE 6. **A level that fails it makes limb A `NOT A RESULT` regardless of how perfectly `tau_w` sits on 39.24, and no path in the comparator can turn an unconverged level into a `PASS` — the refusal is `exit 2` and there is no branch past it.** `§2f.2`: **"No triple" NEVER means "no rule 5."** Only limb (2), the triple-state gate, is unreachable for limb A; **limb (1) fires in full.** The `--selftest` arm `still-descending REFUSED` drives it. |
 | 3 | round-off stated with its magnitude and shown negligible | §5.3. |
 | 4 | the wording makes no continuum claim | the sentence above. |
 | 5 | the claim is bounded by the levels actually run | the sentence names the three cell counts and nothing else. |
@@ -457,13 +480,27 @@ The band is fixed by what a **known past defect** would do to it:
 - It would not absorb the manual's units defect: a geometry wrong by the printed factor
   reads 100x high and fails by four orders.
 
-**THE GCI CEILING, BESIDE THE `P_MIN` FLOOR.** `GCI_MAX = 0.02`. A `CONVERGING` triple
-whose value sits inside `TOL_B` but whose fine-grid GCI **exceeds** `GCI_MAX` is
-**`NOT A RESULT`, not `PASS`**: the discretisation uncertainty would be larger than the
-band it must sit inside, and a `PASS` cannot be certified through it. This is the
-instrument fix bought twice already (VMFL063 GCI 120.62 %, VMFL069-R2 GCI 145.91 %).
-Rule 5 permits the gate to turn a would-be `PASS` into `NOT A RESULT`; it never permits
-the reverse.
+**AND THE PRACTICE THAT BAND EMBODIES, NAMED SO IT CAN BE REUSED.** *A band is set by
+what a KNOWN PAST DEFECT does to it, never by what the coming run is expected to do.*
+R1 is the past defect, its 0.82 % deficit is a measured number in a committed grading
+record, and `TOL_B = 0.5 %` is chosen because it **fails that run**. A band chosen for
+comfort proves nothing when it passes; a band demonstrated to fail against real prior
+data is worth more than any argument about it. **This lane recommends the practice to
+the team as a standing one.**
+
+**THE GCI CEILING, BESIDE THE `P_MIN` FLOOR — AND WHY EACH IS TIGHTENED FROM R1.**
+
+| knob | R1 | R2 | why it moved |
+|---|---|---|---|
+| `P_MIN` observed-order floor | **0.05** | **1.0** | R1's floor was so low that almost any monotone triple would clear it — it could not distinguish systematic refinement from noise that happened to shrink. Every scheme in `fvSchemes` is formally second order, so **a family that cannot demonstrate even FIRST order has not demonstrated systematic refinement**, whatever its `R`. `P_MIN = 1.0` is a floor on the instrument, fixed a priori, and §10 predicts `p = 2.0000000`, so it carries a factor-of-two margin against the prediction it is meant to test. |
+| `GCI_MAX` fine-grid ceiling | **0.02** (registered but on a band of the same 0.02) | **0.02** (on a band of **0.005**) | The number is unchanged; **what changed is that it is now FOUR TIMES the band it qualifies rather than equal to it.** Under R1 a GCI exactly at the ceiling was exactly the band — the ceiling could never bite before the band did. Under R2 the ceiling is the one that bites first for any uncertainty above 0.5 %, which is what a ceiling is for. |
+
+A `CONVERGING` triple whose value sits inside `TOL_B` but whose fine-grid GCI
+**exceeds** `GCI_MAX` is **`NOT A RESULT`, not `PASS`**: the discretisation uncertainty
+would be larger than the band it must sit inside, and a `PASS` cannot be certified
+through it. This is the instrument fix bought twice already (VMFL063 GCI 120.62 %,
+VMFL069-R2 GCI 145.91 %). Rule 5 permits the gate to turn a would-be `PASS` into
+`NOT A RESULT`; it never permits the reverse.
 
 ### 5.3 ROUND-OFF, WITH ITS MAGNITUDE (`§2h.4` condition 3)
 
@@ -793,7 +830,7 @@ reported **separately**; the ROW verdict is the **weakest** limb verdict, in the
 
 | # | outcome | the condition that produces it |
 |---|---|---|
-| 1 | **`PASS` on limb A** | `tau_w` within `FLOOR_REL = 1e-8` of 39.24 at all three levels AND mesh-invariant to 1e-8, with every level iteratively converged. A floor demonstration under `§2h.4`. |
+| 1 | **`PASS` on limb A** | `tau_w` within `FLOOR_REL = 1e-8` of 39.24 at all three levels AND mesh-invariant to 1e-8, with every level iteratively converged. **A floor demonstration under `§2h.4`, and nothing more: it verifies CONSERVATION, not ACCURACY (§5.1a), and the row must say so in those words.** |
 | 2 | **`PASS` on limb B** | triple `CONVERGING` with `p >= 1.0`, L3 inside the 0.5 % band, fine-grid GCI <= 2 %. A credential. |
 | 3 | **`GATE FAIL` on limb A** | `tau_w` outside `1e-8` at any level, or the levels disagreeing by more than `1e-8`. **This falsifies §3.3's conservation proof and would be the single most valuable finding R2 can produce**, and it is recorded with its numbers, not explained away. |
 | 4 | **`GATE FAIL` on limb B** | triple `CONVERGING` but L3 outside the 0.5 % band. Includes the geometry falsifier (a 100x reading if the printed dimensions were right after all) and the R1-style iterative deficit (0.82 % would fail). |
@@ -882,5 +919,13 @@ is recorded in the freeze commit message.
   generally. Limb A rests on `§2h.4`'s five express conditions and nothing wider.
 - **`u_max` is a diagnostic, not a result.** No verdict rests on it, precisely because
   it is predicted machine-exact (the VMFL070 trap).
+- **A `PASS` on limb A IS NOT AN ACCURACY RESULT.** `LIMB A VERIFIES CONSERVATION, NOT
+  ACCURACY. Its `PASS` is a floor demonstration and nothing more.` It establishes that
+  the implementation conserves momentum — which it does by construction — and it is
+  very nearly tautological. **The register row carries those sentences verbatim.**
+  Where this case's real verification content lives is limb B.
+- **It does not claim limb A tested the solver's accuracy anywhere.** A reader wanting
+  an accuracy statement about this case must read limb B's value, its band, its
+  observed order and its GCI, and nothing else.
 - **Nothing here is sent anywhere.** Submissions are parked; the manual is proprietary
   Ansys documentation held for this lab's private use (`CLAUDE.md` rules 7 and 8).
