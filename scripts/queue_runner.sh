@@ -35,8 +35,34 @@
 # standing never-idle order. That is a real cost and it is accepted knowingly,
 # with one mandatory mitigation: the condition must ANNOUNCE ITSELF rather
 # than present as unexplained silence, so on failure this script writes
-# RUNNER_SELFTEST_FAILED.<utc>.txt beside runner.log carrying the rc and the
+# RUNNER_SELFTEST_FAILED.txt beside runner.log carrying the rc and the
 # failing check names, and logs the refusal to runner.log and runner.restarts.log.
+#
+# THE MARKER HAS A FIXED NAME AND IS OVERWRITTEN, NOT ACCUMULATED (2026-08-31,
+# cfd-supervisor ruling). It was first written as RUNNER_SELFTEST_FAILED.<utc>.txt,
+# which cron would have produced 60 times an hour and 1,440 times a day INTO THE
+# QUEUE ROOT during exactly the incident someone was trying to read -- and it made
+# the reader sort filenames to find the current one. Measured before the fix: two
+# invocations, two files. THE MARKER ANSWERS ONE QUESTION -- "IS IT FAILING RIGHT
+# NOW?" -- so it needs a FIXED ADDRESS, not a sorting instruction. Nothing is lost:
+# the HISTORY already goes where history belongs, appended to runner.restarts.log
+# and runner.log on every refusal.
+#
+# AND IT IS REMOVED ON A SUCCESSFUL START. A marker that outlives its own condition
+# is an evidence line that lies: a reader would find RUNNER_SELFTEST_FAILED.txt
+# sitting beside a healthy running daemon. That is the same class as the log-line
+# defect verification caught in finding 6 -- a mechanism behaving correctly while
+# its evidence tells the reader something untrue. The removal is LOGGED, so "it was
+# failing and now is not" stays visible in the log rather than silently vanishing.
+#
+# ACCEPTED AND DELIBERATELY NOT FIXED (2026-08-31, cfd-supervisor ruling), recorded
+# so a future reader does not "discover" it and add a mechanism unasked: cron calls
+# this wrapper every minute, so while the runner is DOWN each minute pays the ~5 s
+# selftest, and two wrappers could both pass the gate and both try to start. That is
+# SAFE -- the runner's own pidfile lock refuses the second copy -- and it is not
+# worth a new lock on a hot path to save seconds in a failure state we deliberately
+# made loud. The 5 s is paid only when the runner is down, which is precisely when a
+# selftest SHOULD be running.
 #
 # DELIBERATELY ABSENT, and neither is an oversight:
 #   * NO RETRY LOOP. A retry converts a hard refusal into a slow one and hides
@@ -66,12 +92,16 @@ SELFTEST_OUT=$(python3 "$REPO/scripts/queue_runner.py" --selftest 2>&1)
 SELFTEST_RC=$?
 if [ "$SELFTEST_RC" -ne 0 ]; then
   UTC=$(date -u +%FT%TZ)
-  MARK="$QDIR/RUNNER_SELFTEST_FAILED.$(date -u +%Y%m%dT%H%M%SZ).txt"
+  MARK="$QDIR/RUNNER_SELFTEST_FAILED.txt"   # FIXED NAME, OVERWRITTEN -- see header
   {
     printf '%s RUNNER NOT STARTED -- queue_runner.py --selftest FAILED, rc=%s\n\n' "$UTC" "$SELFTEST_RC"
     printf 'The queue runner is FAIL-CLOSED on its own selftest (see the header of\n'
-    printf 'scripts/queue_runner.sh for why). NOTHING IS SCHEDULED while this file is\n'
-    printf 'the newest RUNNER_SELFTEST_FAILED marker and no runner is alive.\n\n'
+    printf 'scripts/queue_runner.sh for why). NOTHING IS SCHEDULED while this file\n'
+    printf 'EXISTS and no runner is alive. This file has a FIXED NAME and is\n'
+    printf 'OVERWRITTEN on each refusal, so it always describes the LATEST attempt --\n'
+    printf 'there is no set of markers to sort through, and it is DELETED when a start\n'
+    printf 'succeeds. Its presence therefore means the gate is refusing RIGHT NOW.\n'
+    printf 'The per-attempt HISTORY is in runner.restarts.log and runner.log.\n\n'
     printf 'THIS IS NOT A SILENT FAILURE AND MUST NOT BE TREATED AS ONE: the queue is\n'
     printf 'not draining because the runner REFUSED TO START, not because it is idle.\n\n'
     printf -- '--- failing checks and verdict line ---\n'
@@ -84,6 +114,15 @@ if [ "$SELFTEST_RC" -ne 0 ]; then
   printf '%s SELFTEST-GATE: runner NOT started, --selftest rc=%s -- see %s\n' \
       "$UTC" "$SELFTEST_RC" "$MARK" >> "$QDIR/runner.log"
   exit 3
+fi
+
+# The gate passed. A marker from an earlier refusal must NOT outlive its condition --
+# RUNNER_SELFTEST_FAILED.txt beside a healthy daemon is an evidence line that lies.
+# Removal is LOGGED so the recovery stays visible rather than silently vanishing.
+if [ -f "$QDIR/RUNNER_SELFTEST_FAILED.txt" ]; then
+  rm -f "$QDIR/RUNNER_SELFTEST_FAILED.txt"
+  printf '%s queue_runner.sh: --selftest now PASSES; cleared RUNNER_SELFTEST_FAILED.txt\n' \
+      "$(date -u +%FT%TZ)" | tee -a "$QDIR/runner.log" >> "$QDIR/runner.restarts.log"
 fi
 
 setsid nohup python3 "$REPO/scripts/queue_runner.py" --daemon >> "$QDIR/runner.out" 2>&1 < /dev/null &

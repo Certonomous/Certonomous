@@ -95,6 +95,41 @@ grep -q "SELFTEST-GATE" "$TMP/verification/queue/runner.log" 2>/dev/null \
   && say 0 "control - : refusal logged to runner.log, where a reader looks" \
   || say 1 "control - : refusal NOT logged to runner.log"
 
+# The marker must have a FIXED NAME. A per-attempt name would put 1,440 files a day in
+# the queue root during exactly the incident someone is reading, and would force the
+# reader to sort filenames to find the current one (cfd-supervisor ruling 2026-08-31).
+[ "$(basename "${mark:-none}")" = "RUNNER_SELFTEST_FAILED.txt" ] \
+  && say 0 "control - : marker has the FIXED name RUNNER_SELFTEST_FAILED.txt, not a per-attempt name" \
+  || say 1 "control - : marker name is not fixed  [$(basename "${mark:-none}")]"
+
+# --------------------------------------- control -- : a SECOND failure OVERWRITES
+# This is the limb that would have caught the original defect: it accumulated, and
+# nothing asserted that it did not.
+first_body=$(cat "$mark" 2>/dev/null | head -1)
+STUB_SELFTEST_RC=1 bash "$TMP/scripts/queue_runner.sh" >/dev/null 2>&1
+n_marks=$(ls "$TMP"/verification/queue/RUNNER_SELFTEST_FAILED* 2>/dev/null | wc -l)
+second_body=$(cat "$TMP/verification/queue/RUNNER_SELFTEST_FAILED.txt" 2>/dev/null | head -1)
+[ "$n_marks" = 1 ] \
+  && say 0 "control -- : a SECOND failure OVERWRITES -- exactly one marker file, never a pile  [n=$n_marks]" \
+  || say 1 "control -- : markers ACCUMULATED across failures  [n=$n_marks]"
+[ -n "$second_body" ] && [ "$second_body" != "$first_body" ] \
+  && say 0 "control -- : the overwritten marker describes the LATEST attempt (its stamp moved)" \
+  || say 1 "control -- : marker did not refresh on the second failure"
+
+# --------------------------------------- control + + : recovery CLEARS the marker
+# A marker that outlives its condition is an evidence line that lies: it would sit
+# beside a healthy daemon. Same class as the finding-6 log-line defect.
+rm -f "$STUB_DAEMON_MARK"
+STUB_SELFTEST_RC=0 bash "$TMP/scripts/queue_runner.sh" >/dev/null 2>&1
+for _ in 1 2 3 4 5 6 7 8 9 10; do [ -f "$STUB_DAEMON_MARK" ] && break; sleep 0.2; done
+cleared=no; [ ! -f "$TMP/verification/queue/RUNNER_SELFTEST_FAILED.txt" ] && cleared=yes
+[ "$cleared" = yes ] && [ -f "$STUB_DAEMON_MARK" ] \
+  && say 0 "control + + : a successful start CLEARS the stale marker (it cannot outlive its condition)" \
+  || say 1 "control + + : stale marker survived a successful start  [cleared=$cleared]"
+grep -q "cleared RUNNER_SELFTEST_FAILED" "$TMP/verification/queue/runner.log" 2>/dev/null \
+  && say 0 "control + + : the clearing is LOGGED, so recovery stays visible instead of vanishing" \
+  || say 1 "control + + : marker cleared SILENTLY -- the recovery left no record"
+
 # ------------------------------------------------- control -- : already-alive short circuit
 # A live runner must short-circuit BEFORE the gate, or every cron minute would pay 5 s of
 # selftest and a restart storm would serialise behind it.
