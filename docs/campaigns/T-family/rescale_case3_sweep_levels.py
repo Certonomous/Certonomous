@@ -15,6 +15,31 @@ PROVENANCE TAGS on every input are in the dict `INPUTS` and are printed.
 Recovered from and re-derived against the pre-kill lane's scratch drafts
 `rescale.py` (16:18:21Z) and `cand.py` (16:19:24Z); this file is the
 repository copy, because the scratchpad is not a handoff channel (L-186).
+
+CORRECTION 2026-08-31, AGAINST THE COMMIT THAT LANDED THIS FILE (`173d797c`).
+That commit message asserts, as the rule-2 pre-compute evidence, that "a grep
+for the 16-point map across docs/campaigns/T-family/, verification/ and cases/
+returns zero files".  THAT SENTENCE IS FALSE AND THIS BLOCK IS THE CORRECTION.
+The grep ran as a background command; its output file was read WHILE STILL
+BEING WRITTEN, and the empty partial was reported as the complete result.
+
+THE GREP RETURNS 11 FILES, NOT ZERO [MEASURED, re-run to completion]:
+  - nine are the false-positive class -- snappyHexMesh logs containing the
+    literal string "16 points" (mesh diagnostics, nothing to do with Case 3);
+  - `verification/runs/T-family/T22_runs/T22_CHTb_L1/build_t22.py:6` names the
+    SINGLE benign feasibility point "P_loss = 300 W, U_inf = 20 m/s", not a map;
+  - `docs/campaigns/T-family/T21_PREREGISTRATION.md:51` and `:106` are the only
+    real mentions of the map, and BOTH DISCLAIM IT: ":51" reads "nothing about
+    the 16-point P_loss x U_inf map.  Those are separate rungs with separate
+    registrations and this document may not be cited as covering them", and
+    T21 is untracked and headed "DRAFT.  NOT FROZEN.  NOT COMMITTED.
+    AUTHORISES NOTHING."
+
+THE CONCLUSION IS UNCHANGED AND IS NOW BETTER SUPPORTED, WHICH IS EXACTLY WHY
+THE FALSE EVIDENCE HAD TO BE CORRECTED RATHER THAN LEFT TO STAND: no document
+registers the 16-point map, and the one document that mentions it says in terms
+that it registers nothing about it.  The absent run directories named in that
+commit message were checked by direct `ls` and are unaffected by this error.
 """
 import math
 
