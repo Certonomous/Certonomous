@@ -3113,3 +3113,178 @@ charter refused three times this week.**
 this team's own territory** and one this team **wrote and owns**. §2j is written by the team it
 most immediately indicts, and that is the reason it is admissible rather than a reason to soften
 it.
+
+---
+
+## Amendment — v1.22, 2026-08-31 — **§2k: EVERY NUMBER CARRIES ITS PROVENANCE. A DERIVED QUANTITY RELAYED AS AN OBSERVATION IS A FALSE EVIDENCE CLAIM EVEN WHEN THE NUMBER IS RIGHT**
+
+**Lines whose number changed above this section: 0.**
+
+**Occasion.** An ansys lane relayed a **derived** quantity upward with its provenance stripped — a
+**fitted extrapolation reported as an observation**. **The number was right.** The team caught it
+themselves and corrected it unprompted, which is why this is a clause and not an incident.
+
+**THIS IS NOT A NEW IDEA AND IT IS IMPORTANT THAT IT IS NOT.** `CLAUDE.md` rule 12 already carries
+the two-value form for **one** quantity: a cost is **`reported-by-owner, not measured`** because
+the box cannot read its own billing, and dollars are **`derived, not measured`** from
+core-minutes. **§2k generalises that existing discipline from costs to every number**, because
+nothing about the hazard was ever specific to money.
+
+### §2k.1 THE VOCABULARY — five tags, and they are not verdict words
+
+| tag | means | the question it answers |
+|---|---|---|
+| **MEASURED** | read from an artifact that a real producer wrote, still on disk | *what happened?* |
+| **DERIVED** | computed from measured values by a stated rule | *what follows arithmetically?* |
+| **EXTRAPOLATED** | obtained by extending a fit or model **beyond** the data | *what would follow if the model holds?* |
+| **REGISTERED** | frozen in a pre-registration or a dict — **an intention** | *what did we ask for?* |
+| **REPORTED-BY-OWNER** | stated by a person or a system this box cannot verify | *what were we told?* |
+
+**A number relayed upward without a tag is NOT REPORTABLE.** Not "discouraged" — a reader cannot
+tell which of five different things they are holding, and four of them are not observations.
+
+**⚠ THESE TAGS ARE NOT VERDICTS AND MAY NEVER BE WRITTEN WHERE A VERDICT BELONGS.** Standing rule
+1's vocabulary — `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING` —
+is **untouched and remains closed.** A provenance tag qualifies a **number**; a verdict grades a
+**gate**. **`EXTRAPOLATED` is not a verdict, and a row whose verdict cell reads `DERIVED` has lost
+its verdict.** This clause adds a field beside the value; it does not add a word to rule 1.
+
+### §2k.2 THE DECISIVE TEST, and it is one question
+
+> **NAME THE ARTIFACT THAT WOULD HAVE TO EXIST FOR THIS NUMBER TO BE `MEASURED`, THEN CHECK
+> WHETHER IT EXISTS.**
+
+If you can name the file and it is on disk, the number is **MEASURED** and the record cites the
+path. If you can name it and it does **not** exist, the number is **DERIVED**, **EXTRAPOLATED** or
+**REGISTERED**, and **which one is decided by what you did instead of reading it.** If you cannot
+name the artifact at all, the number is **REPORTED-BY-OWNER** at best.
+
+**The failure mode this catches is not lying. It is the honest author who computed something
+correctly and then described it in the vocabulary of observation** — *"the Courant number is 0.9"*
+when what is true is *"we asked for at most 0.9"*.
+
+### §2k.3 THE WORKED EXAMPLE, MEASURED ON THIS BOX, AND IT SPANS NINE ORDERS OF MAGNITUDE
+
+ansys ruled, correctly, that **a declared `maxCo` records an INTENTION and only the log records
+what happened.** Verified independently here on the two run roots:
+
+| | `adjustTimeStep` | **REGISTERED** `maxCo` | **MEASURED** max Courant, from the solver's own log |
+|---|---|---|---|
+| `VMFL069` (R1) | **`no`** | declared | **2 869 282 454** |
+| `VMFL069-R2` | **`yes`** | declared | **1.175** (mean ≈ 0.605, over 53 699 Courant lines) |
+
+**With `adjustTimeStep no` the `maxCo` entry limited NOTHING** — R2's own `controlDict` says so in
+its header — **so R1 ran at a Courant number of 2.87 × 10⁹ while its dict declared a bound.**
+**The REGISTERED value and the MEASURED value differ by nine orders of magnitude on the same case
+family**, and every word in the dict was true: it recorded what was asked for. **Nothing but the
+log could have told anyone what happened.**
+
+**This is §2k's whole argument in one case: `REGISTERED` and `MEASURED` are different tags because
+they are different facts, and the gap between them is not bounded by anyone's good intentions.**
+
+### §2k.4 THE CONSEQUENCE FOR GATES — and it is a gate change, so it is prospective only
+
+**A gate on a quantity that a dict merely DECLARES is not a gate on that quantity.** A transient
+registration that intends to bound the Courant number **gates on the REALISED Courant read from
+the log**, never on the declared `maxCo`, and states which it used.
+
+**PROSPECTIVE ONLY, and this is not a courtesy.** Changing what a gate reads is a **gate change**,
+barred after first compute by standing rule 2. **ansys landed this on the running `VMFL069-R2` as
+DISCLOSURE, NOT AS A GATE, and that is correct** — the run's gates closed when compute began, and
+a disclosure that alters no threshold is exactly what rule 2 leaves available. **§2k.4 binds the
+NEXT transient registration and re-grades nothing.** (§2j.4's principle, applied again.)
+
+### §2k.5 WHAT THIS SECTION BINDS, AND WHAT IT ONLY PROPOSES — stated plainly rather than assumed
+
+**BINDING NOW, on this team's own authority:** every number **this team** relays upward, and every
+number **this team accepts in a cross-team gate audit**, carries a tag. **An audited claim whose
+numbers are untagged is `NOT MEASURED` until the owning team supplies the tags** — this team's
+audit mandate reaches other teams' evidence, and this is the standard that evidence is read
+against.
+
+**PROPOSED, NOT ENACTED, AND ON SANAA'S DESK:** elevating §2k into `REPORTING_CHARTER` as a
+**lab-wide obligation on all six teams' upward reports.** **`REPORTING_CHARTER` is not in this
+team's folder scope**, and a clause binding how five other teams report is not this supervisor's
+to impose merely because the reasoning is sound. **The draft is §2k.1–§2k.2 verbatim; the decision
+is Sanaa's.** Meanwhile ansys has amended its own charter (Amendment 1.6) and any team may adopt
+§2k in its own — **which is the route Sanaa's 2026-08-30 directive already opens** (*"each teams
+updates their own charters and standards"*).
+
+**NOT CLAIMED:** that tagging makes a number correct. **A tag records how a number was obtained,
+not whether it is right**, and a correctly-tagged `EXTRAPOLATED` value can still be wrong. §2k
+closes one specific hole — **a reader unable to tell an observation from a projection** — and
+closes nothing else.
+
+| amendment record | **v1.22** |
+|---|---|
+| clauses added | **1** (§2k) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** |
+| verdict vocabulary changed | **0** — rule 1 is closed and untouched; tags are not verdicts |
+| retroactive re-grades authorised | **0** — §2k.4 is prospective |
+| items placed on Sanaa's desk | **1** (the `REPORTING_CHARTER` elevation) |
+| **lines whose number changed above this section** | **0** |
+
+
+---
+
+## Amendment — v1.23, 2026-08-31 — **§2k.6: THE SIXTH STATE IS A REFUSAL, NOT A TAG. A NUMBER THAT CANNOT HONESTLY TAKE ONE OF THE FIVE IS NOT REPORTABLE AT ALL**
+
+**Lines whose number changed above this section: 0.** **Added on cfd's referral, BEFORE §2k had
+been applied to anything**, and disclosed as a separate amendment rather than folded silently into
+v1.22 — **an appended block is append-only even when it is minutes old and even when it is mine.**
+
+**cfd concurred with §2k, adopted it as practice, referred the charter home here, and proposed the
+clause below. It is a real improvement and I adopt it.**
+
+### §2k.6 THE HOLE IN v1.22, NAMED BY ITS FIRST READER
+
+§2k.1 says an untagged number is not reportable. **It did not say what happens when a number
+resists ALL FIVE tags** — and the tempting move is to invent a sixth tag (`INFERRED`, `ASSUMED`,
+`APPARENT`) and pass the number on wearing it. **That move is refused.**
+
+> **A number that cannot honestly take one of the five tags IS NOT REPORTABLE. The correct action
+> is to STOP AND ESTABLISH ITS PROVENANCE, never to widen the vocabulary until the number fits.**
+
+**THE VOCABULARY IS CLOSED FOR THE SAME REASON RULE 1's IS.** A tag set that grows to accommodate
+whatever needs reporting stops discriminating; the sixth tag becomes the drawer everything
+awkward goes into, and the clause quietly becomes decoration.
+
+### §2k.7 WHY THIS IS THE LOAD-BEARING HALF — the moment of failed classification IS the catch
+
+cfd's ground, and it is better than the clause it improves: **the worst error of the night —
+*"a peer has appended since"*, invented on the spot to explain a discrepancy — FITS NO TAG.** It
+was not measured, not derived from anything, not extrapolated from a fit, not registered anywhere,
+and nobody reported it. **It was manufactured to make a disagreement go away.**
+
+**So the failure to classify is not an inconvenience on the way to reporting — IT IS THE DETECTION
+EVENT.** A number that resists all five tags is, in that moment, **announcing that nobody knows
+where it came from**, and that is exactly when it is cheap to catch. **Reaching for a sixth tag
+converts the lab's best available alarm into a formatting decision.**
+
+**The operational form:** when no tag fits, the number does not go upward. What goes upward is the
+**absence** — *"this figure has no provenance and is withheld"* — which is reportable, honest, and
+actionable, where the number itself was none of those.
+
+### §2k.8 SCOPE, and one document explicitly NOT touched
+
+**§2k.6 binds exactly what §2k.5 binds and no more:** this team's own upward numbers and the
+numbers this team accepts in a cross-team gate audit. **The `REPORTING_CHARTER` elevation remains
+PROPOSED and on Sanaa's desk**; cfd has adopted §2k as practice in its own territory, which is the
+route Sanaa's 2026-08-30 directive opens.
+
+**`RESULT_PRIORITY_CHARTER.md` IS NOT TOUCHED BY THIS AMENDMENT AND MUST NOT BE.** It stands at
+**v0.5 carrying Sanaa's own header — *"still need to think abt this"*** — so its orderings are
+**proposals, not law**, and **anything reaching into it is DRAFTED FOR HER RATIFICATION, never
+landed.** Noted here because §2k concerns how evidence is qualified, which sits adjacent to how
+results are ranked, and **adjacency is not authority.**
+
+| amendment record | **v1.23** |
+|---|---|
+| clauses added | **1** (§2k.6–§2k.8) |
+| tags added to §2k.1's vocabulary | **0 — the set is CLOSED at five, deliberately** |
+| existing clauses altered, widened or narrowed | **0** |
+| verdict vocabulary changed | **0** — rule 1 untouched |
+| documents drafted-for-ratification rather than landed | **1** (`RESULT_PRIORITY_CHARTER`, untouched) |
+| **lines whose number changed above this section** | **0** |
+
