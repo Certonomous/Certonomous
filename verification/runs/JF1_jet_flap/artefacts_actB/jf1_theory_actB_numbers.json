@@ -1,0 +1,158 @@
+{
+  "source": {
+    "citation": "Williams, J., Butler, S. F. J. and Wood, M. N. (1961), 'The Aerodynamics of Jet Flaps', Aeronautical Research Council Reports and Memoranda No. 3304, H.M.S.O. 1963, printed p.5 eq. (2), printed p.3 section 2.",
+    "file": "docs/papers/powered_lift_and_ducted_propulsion/williams_butler_wood_1961_arc_rm3304_aerodynamics_of_jet_flaps.pdf",
+    "rule15_title_page": "PDF p.1, read as a 200 dpi page image on 2026-08-31: 'ROYAL AIRCRAFT ESTABLISHMENT BEDFORD' (library stamp) / 'R. & M. No. 3304' / royal arms / 'MINISTRY OF AVIATION' / 'AERONAUTICAL RESEARCH COUNCIL REPORTS AND MEMORANDA' / 'The Aerodynamics of Jet Flaps' / 'By J. WILLIAMS, S. F. J. BUTLER and M. N. WOOD' / 'LONDON: HER MAJESTY'S STATIONERY OFFICE' / '1963' / 'THIRTEEN SHILLINGS NET'",
+    "rule15_eq2_introduction": "PDF p.6 = printed p.5, read as a 200 dpi page image on 2026-08-31: 'The following simple interpolation formulae fit the computed values for c_f/c = 0 (T.E. blowing) at C_mu'-values of 1 and 4 and asymptotically as C_mu' -> 0.'  NO reference number is attached to eq. (2) on that page.",
+    "rule15_spence_attribution": "PDF p.4 = printed p.3, read as a 200 dpi page image on 2026-08-31: 'The two-dimensional problem was solved by Spence using a treatment akin to classical \"mean line\" theory, both for ejection from the trailing edge[26] and over a plain (hinged) flap[27].'  This attributes the UNDERLYING THEORY to Spence; the interpolation formula of eq. (2) is printed by Williams, Butler and Wood and carries no Spence citation.",
+    "rule15_reference_26": "PDF p.18 = printed p.17, read as a 170 dpi page image on 2026-08-31: '26  D. A. Spence -- The lift-coefficient of a thin, jet-flapped wing. Proc. Roy. Soc. A. Vol. 238. pp. 46 to 68. 1956.'",
+    "rule15_jet_reaction": "PDF p.4 = printed p.3, read as a 200 dpi page image on 2026-08-31: 'The total lift C_L on the jet-flap aerofoil represents a considerable magnification of the direct jet-reaction lift C_mu sin(theta + alpha) from the corresponding vertical component of the jet momentum, because of the additional pressure lift on the aerofoil.'",
+    "spence_1956_held_by_this_lab": false
+  },
+  "tau_rad": 0.5235987755982988,
+  "alpha_deg": 0.0,
+  "theory": [
+    {
+      "C_mu": 0.0,
+      "S": 1.0,
+      "dCL_dtau": 0.0,
+      "dCL_dalpha": 6.283185307179586,
+      "CL_total": 0.0,
+      "jet_reaction": 0.0,
+      "CL_circulation": 0.0,
+      "marginal": Infinity,
+      "CL_total_wrong_grouping": 0.0,
+      "wrong_grouping_bias_pct": 0.0
+    },
+    {
+      "C_mu": 0.05,
+      "S": 1.040714626460247,
+      "dCL_dtau": 0.808641011199773,
+      "dCL_dalpha": 6.564135591170634,
+      "CL_total": 0.4234034433627714,
+      "jet_reaction": 0.024999999999999998,
+      "CL_circulation": 0.3984034433627714,
+      "marginal": 4.330993611757607,
+      "CL_total_wrong_grouping": 0.4319368082383048,
+      "wrong_grouping_bias_pct": 2.0154216998707897
+    },
+    {
+      "C_mu": 0.1,
+      "S": 1.0616503926685426,
+      "dCL_dtau": 1.1550364625046627,
+      "dCL_dalpha": 6.720811631033862,
+      "CL_total": 0.6047756775388318,
+      "jet_reaction": 0.049999999999999996,
+      "CL_circulation": 0.5547756775388317,
+      "marginal": 3.131472752632871,
+      "CL_total_wrong_grouping": 0.6231392095224649,
+      "wrong_grouping_bias_pct": 3.0364203895177466
+    },
+    {
+      "C_mu": 0.2,
+      "S": 1.0953292529204937,
+      "dCL_dtau": 1.6591752973660183,
+      "dCL_dalpha": 6.982687633388912,
+      "CL_total": 0.8687421542037905,
+      "jet_reaction": 0.09999999999999999,
+      "CL_circulation": 0.7687421542037906,
+      "marginal": 2.2939277807988883,
+      "CL_total_wrong_grouping": 0.9092079796854798,
+      "wrong_grouping_bias_pct": 4.657978812916763
+    },
+    {
+      "C_mu": 0.4,
+      "S": 1.1511007853370852,
+      "dCL_dtau": 2.405423794928928,
+      "dCL_dalpha": 7.433641471342603,
+      "CL_total": 1.2594769538198,
+      "jet_reaction": 0.19999999999999998,
+      "CL_circulation": 1.0594769538198001,
+      "marginal": 1.7156972357632425,
+      "CL_total_wrong_grouping": 1.3512848267359638,
+      "wrong_grouping_bias_pct": 7.289365052510455
+    }
+  ],
+  "measured": [
+    {
+      "iterations": 8000.0,
+      "CL_aero": 5.5059547188e-05,
+      "CL_aero_mean_tail": 5.5332857019115e-05,
+      "half_range_tail": 5.616077265000003e-07,
+      "window": 1000,
+      "C_mu": 0.0,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_UNBLOWN_A0",
+      "residuals": {
+        "Ux": 2.262157197e-08,
+        "Uy": 8.560841036e-07,
+        "p": 1.29421145e-07,
+        "omega": 6.980940666e-10,
+        "k": 3.456679125e-06
+      }
+    },
+    {
+      "iterations": 8000.0,
+      "CL_aero": 0.40573319856,
+      "CL_aero_mean_tail": 0.40573284365148,
+      "half_range_tail": 4.1902499997581444e-07,
+      "window": 1000,
+      "C_mu": 0.05,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU005_A0",
+      "residuals": {
+        "Ux": 7.535477151e-08,
+        "Uy": 1.63911251e-06,
+        "p": 3.908796133e-07,
+        "omega": 9.81088571e-09,
+        "k": 5.940614787e-06
+      }
+    },
+    {
+      "iterations": 8000.0,
+      "CL_aero": 0.54884644062,
+      "CL_aero_mean_tail": 0.54884663899516,
+      "half_range_tail": 6.162699999756605e-07,
+      "window": 1000,
+      "C_mu": 0.1,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU010_A0",
+      "residuals": {
+        "Ux": 3.236829761e-07,
+        "Uy": 3.631566377e-06,
+        "p": 6.040485633e-07,
+        "omega": 1.88692222e-08,
+        "k": 2.55019563e-05
+      }
+    },
+    {
+      "iterations": 8000.0,
+      "CL_aero": 0.7439992343,
+      "CL_aero_mean_tail": 0.74401380237886,
+      "half_range_tail": 2.9012400000028027e-05,
+      "window": 1000,
+      "C_mu": 0.2,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU020_A0",
+      "residuals": {
+        "Ux": 1.059330377e-06,
+        "Uy": 6.286557218e-06,
+        "p": 1.176285151e-06,
+        "omega": 3.821777854e-08,
+        "k": 4.571881063e-05
+      }
+    },
+    {
+      "iterations": 8000.0,
+      "CL_aero": 1.0099941613,
+      "CL_aero_mean_tail": 1.0099980678428,
+      "half_range_tail": 5.762800000086443e-06,
+      "window": 1000,
+      "C_mu": 0.4,
+      "case_dir": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU040_A0",
+      "residuals": {
+        "Ux": 3.988485278e-06,
+        "Uy": 1.402313484e-05,
+        "p": 1.746655656e-06,
+        "omega": 1.18085919e-07,
+        "k": 0.0001472112101
+      }
+    }
+  ]
+}
