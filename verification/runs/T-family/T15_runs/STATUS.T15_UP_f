@@ -1,0 +1,13 @@
+case=T15_UP_f
+rc=0
+wall_s=71749
+ranks=1
+core_min=1195.817
+timeout_s=156000
+capped=no
+checkmesh_rc=0
+solver=buoyantBoussinesqPimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/buoyantBoussinesqPimpleFoam
+note=clean
+started_utc=2026-08-27T08:57:37Z
+ended_utc=2026-08-28T04:53:26Z

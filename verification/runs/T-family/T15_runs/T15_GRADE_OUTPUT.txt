@@ -1,0 +1,14 @@
+C_OP operand identity: nu, beta, TRef, b0, w0, g'0 READ FROM THE CASE; F0 recomputed 0.013028813053 matches CASE.txt to 2.49e-12
+B1 ODE residuals at z=3: entrainment 3.741e-10 momentum 1.029e-10 dF/dz 1.735e-15; h^2 ratios 3.999, 4.000 -> PASS
+B2 flux identities Q^2/(pi M)=b^2, M/Q=w, F/Q=g': worst relative 4.953e-16 -> PASS
+B3 source ON the similarity solution: z0 = -0.694444444 m (BELOW the source plane), w(0)=0.600000000 vs w0=0.600000000 (rel 0.00e+00), g'(0) rel 1.61e-16, F0 rel 0.00e+00 -> PASS
+B4 independent RK4 route: worst |num-closed|/closed 1.535e-13; fitted exponents n_w -0.333333333333 n_T -1.666666666667 n_Q 1.666666666667 (worst deviation 6.706e-14) -> PASS
+MEASURED geometry (0/Cx, 0/Cz, 0/V written by OpenFOAM): r1 = 0.00416270092325 m, r2 = 0.00971296882092 m, r2/r1 = 2.333333333 PRINTED AND ASSERTED NOWHERE (T8 GROUND 2); dz = 0.0125 m; wedge->annulus SCALE 72.091466 measured from the mesh's own volume (flat-sided nominal 2pi/sin(5deg) = 72.091466, relative difference 2.374e-12, REPORTED)
+C_CO   max Courant: whole run 1.1528 (REPORTED), window [120, 240] 0.9870 (gate, floor 1.00) -> ok
+C_STAT window drift 0.00064 of the mean (floor 0.050), 1201 samples over [120, 240] -> ok
+REPORTED epsilon/k bounding: 0 lines over 24000 steps = 0.00000 per step
+virtual origin z0 = +0.078337 m from the b(z) x-intercept (T8 section 12 S4's registered route; the MTT closed form puts it at -0.694444 m for alpha = 0.12) -- REPORTED, and the exponents refitted at z0 = 0 are reported below
+planted-zero control w_axis(POINT) PASS: plant 0.001234 x reader scale 0.711717 in 2 cell(s), recovered 0.000878259, floor 1e-07 x scale
+planted-zero control T_axis(POINT) PASS: plant 0.001234 x reader scale 303.495 in 2 cell(s), recovered 0.374513, floor 1e-07 x scale
+planted-zero control b_th(INTEGRATING) PASS: plant 0.001234 x reader scale 0.471346 in 123 cell(s), recovered 0.00369158, floor 1e-07 x scale
+REFUSE: planted-zero control S1(FLUCTUATION): a CONSTANT offset of one mean moved sigma/mean by 9.95e-05 -- a working fluctuation reader must be nearly blind to a constant offset; this one is not
