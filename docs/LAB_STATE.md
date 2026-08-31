@@ -9352,6 +9352,56 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T15:40Z — **T19b IS FROZEN AT `b52ed93b`, AND ON THE WAY TO WRITING IT I MEASURED THAT T19's SECOND DEFECT HAS ALREADY FIRED ON T18 AND PRODUCED A FILE BYTE-IDENTICAL TO A REAL GATE OUTPUT.**
+
+*(Pure insertion. The `**Section last written:**` line above is now stale and is DELIBERATELY NOT EDITED, because the supervisor required this write to land with zero deletions; editing it would be a deletion. Written by a heat-transfer `lab-lane`; items this lane did not check itself are tagged **VERIFY**.)*
+
+**LAST COMMIT: `b52ed93be3e8937ca9e99823822d3b883abad0b9`** — *"heat-transfer FREEZE T19b — SUCCESSOR TO T19, REPAIRING TWO DEFECTS, AND NOT ONE GATE MOVES."* Five paths, **2 876 insertions, 0 deletions**, landed under the rule-10 private-index protocol with the tree-delta assertion, the 40-hex sha assertion (L-382) and the post-commit verify all green [MEASURED].
+
+**T19b — WHAT WAS FROZEN.** `T19b_PREREGISTRATION.md` plus `build_t19b.py`, `analyse_t19b.py`, `mutation_controls_t19b.py` and `T19b_INSTRUMENT_DIFFS.txt` under `verification/runs/T-family/T19b_runs/`. **NOT ENQUEUED.** No gate, threshold, band, cap or label moves and **no §2d.1 grant is sought or needed**, per `DEAD_LEVER_AUDIT.md` §21.2. The repair is to the CASE: `build_t19b.py` drops the `residualControl` block that `build_t19.py:211` wrote, and **nothing else** — 72 emitted files per side, identical file lists, 66 byte-identical, the six `fvSolution` differing by exactly one deleted line with zero added [MEASURED]. `analyse_t19b.py` **defines and copies no gate**: it loads T19's own frozen `T19_registered.json` and `exact_t19.py` by absolute path under sha256 pins and REFUSES rather than grades if either digest fails, so a moved gate stops the comparator [MEASURED]. Six mutation controls each redden **exactly one** limb. **T19b is genuinely blind** — `find /` for `gate_t19*` returns zero hits anywhere on the box, it was never committed, and `T19_runs` holds zero DONE markers [MEASURED, four sweeps].
+
+> ### ⚠⚠ THE FINDING THIS LANE DID NOT GO LOOKING FOR, AND IT IS THE MOST IMPORTANT LINE HERE
+>
+> **T19's second defect — a selftest limb calling `grade(HERE, …)` against a LIVE run tree — HAS ALREADY FIRED ON T18, TODAY, AND IT IS STILL ARMED.**
+>
+> - `analyse_t18.py:509` carries the **identical** `grade(HERE, …)` limb [MEASURED, static grep; **this lane deliberately did NOT execute `analyse_t18.py --selftest`**, because `T18_runs` now holds **4 DONE markers** and running it would drive the real grading path across the live tree again].
+> - `verification/runs/T-family/T18_runs/T18_SELFTEST_SIDE_EFFECT_NOT_A_GRADE_20260831T151045Z.json` is on disk, written **15:06:21Z**, and `gate_t18.json` was written **15:11:44Z**. **Their sha256 are the same: `335bbec520a20ff4…`. THE TWO FILES ARE BYTE-IDENTICAL** [MEASURED].
+> - **So the selftest side effect produced EXACTLY the real gate output, five minutes before the real grading run.** Whoever named that file named it honestly, and the name is the only thing separating a selftest artifact from a verdict. **A file whose name is the only thing keeping it out of the record is one rename from being a result nobody registered.**
+> - **This converts T19b's S8 clause from a precaution into a demonstrated necessity**, and it means D574's class has a *realised* member, not just a predicted one. **OWNER: heat-transfer. T18's successor must carry S8, and until it does, `analyse_t18.py --selftest` must not be run.**
+
+**VERDICTS TODAY**
+
+| item | verdict | evidence |
+|---|---|---|
+| **T18** | **PASS ×3** — G1/G2/G3, observed orders **1.9996 / 2.0006 / 2.0130**, GCI **0.00214 % / 0.01041 % / 0.01543 %** [MEASURED by this lane from `T18_runs/gate_t18.json`]. Spend **125.516 core-min** = 0.533 + 5.483 + 45.417 + 74.083, all four `rc=0 capped=no note=clean` [MEASURED, the four `STATUS.T18_CU_*`] | matrix tier **GATE REACHED**, with **P the missing column** — an analytic referent scores V and never P **[VERIFY — supervisor's tier judgement, not re-derived here]** |
+| **`P_q_c` / `P_Ts_c`** | **NOT A RESULT** on verification's `998dc230` ruling, `DEAD_LEVER_AUDIT.md` §21.2 | The supervisor **withdrew their own weaker `BLOCKED`** and recorded why: rule 5 clause (1) reaches "not plateaued" with **no triple required**, so NOT A RESULT is available without one **[VERIFY — the withdrawal is the supervisor's own act; this lane confirmed only the ruling text and the underlying 828/541 measurements]** |
+| **`T20_LC_c`** | **BLOCKED** | `STATUS.T20_LC_c`: `rc=1 core_min=0.000 note=SOLVER_NONZERO_EXIT` [MEASURED] |
+| **`T15_UP_f`** | **BLOCKED** | `STATUS.T15_UP_f`: `rc=0 core_min=1195.817 capped=no note=clean` [MEASURED] — **the run is clean; the block is downstream of it [VERIFY — this lane did not establish the blocking cause]** |
+| **`T8_MTT_m`** | **a finding under triage, NOT written off** | `STATUS.T8_MTT_m`: `rc=136 core_min=2.500` [MEASURED] — 136 = 128+8, i.e. SIGFPE. A crash is a finding until triage says otherwise |
+
+**CASE 4 FEASIBILITY: ANSWERED YES, AND THIS LANE RE-MEASURED IT RATHER THAN RELAYING IT.** `chtMultiRegionFoam` completed a **solid-only** case with `fluid ()`. Tree: `verification/runs/T-family/T20_runs/T20_LC_FEAS_20260831T151828Z`. All [MEASURED]: `STATUS.T20_LC_FEAS` **`rc=0`**, `solver=chtMultiRegionFoam`, `core_min=0.0500`; `system/controlDict` **`endTime 4500`**; **750 `ExecutionTime` lines**; **zero occurrences of "fluid" in `log.solve`**; and the fix, `constant/g` **`value (0 0 0)`**, present. **The 30 written time directories from 150 to 4500 are on disk.**
+
+**TWO DISCLOSURES THAT MUST NOT BE LOST**
+
+1. **T20's gated run is NO LONGER ANALYST-BLIND.** Its pre-registered predictions have been seen. **The bands were frozen first, so rule 2 survives** — but **any future T20 grading must declare the loss of blindness on its face.** It is not a defect; it is a fact that stops being true if nobody writes it down. **[VERIFY — supervisor's disclosure, relayed; this lane did not reconstruct who saw what and when.]**
+2. **`analyse_t18.py`'s selftest state is `16 ok / 1 FAIL` — unit (v), the live-tree arm, EXPECTED-INVERTED — and it has NEVER been PASS.** `T18_GRADE_OUTPUT.txt` is still on disk, untouched, and **is now false**: its recorded content is `REFUSE: no DONE.T18_CU_m` at exit 2, while `T18_runs` now holds **4 DONE markers** [MEASURED by this lane — the file's content and the marker count]. The `16 ok / 1 FAIL` figure itself is **[VERIFY]**: this lane would not run that selftest, for the reason in the box above.
+
+**RUNGS WITHOUT VERDICTS.** T19b (frozen, never built, never run); T19's own six (superseded — the coarse pair is the falsification specimen, the m/f four stay in `held/`); T20 (registered, comparator not yet written); T16c (**owed and unwritten all session** **[VERIFY]**); T15b (§2d.1 pending on Sanaa's desk **[VERIFY]**).
+
+**NEXT ACTIONS, in order.**
+1. **Build T19b's six cases** into `verification/runs/T-family/T19b_runs/` — `build_t19b.py --root <T19b_runs>`. Zero solver compute.
+2. **Stage 1 only: launch `P_q_c` and `P_Ts_c`.** POINT 5.904 core-min, CAP 24, `timeout 720` each. Both arms together (C_ID compares them). Reuse `run_one_t19.sh --case-dir <T19b_runs>/<case> --timeout 720` **unedited** — but treat this as the launcher's smoke test in a new run root, because ARM A is undriven there.
+3. **THE STAGING GATE IS A HARD STOP: `C_PLATEAU` must be SEEN TO EVALUATE — pass or fail — before the m/f four are released.** An UNEVALUABLE C_PLATEAU is not a pass. This is also the test of verification's §21.2 reasoning, and **P0 says so: if `P_q_c` still stops early, the ruling is wrong and heat-transfer reports it as wrong against that paragraph.**
+4. **File the stage-1 `docs/COST_CALIBRATION.md` row**, and it **must** carry the sentence that T19's 59.0× was a truncation detector and not an estimator miss — otherwise the ledger loses the finding.
+5. **Write T16c.** It has been owed all session.
+6. **Give T18 a successor carrying S8**, on the box above.
+
+**ON SANAA'S DESK** *(all **[VERIFY]** — relayed by the supervisor, not re-derived by this lane)*: the queue-directory **write permission**; the **Case 3 sweep re-scaling** — **8 of 16 points sit above her own 200 °C bound**; **T15b's §2d.1**; **D389**; **T10a**; **K2a**.
+
+**BLOCKED**: the **lab queue** (a permission classifier — nothing can run regardless, which is why this was freeze-ahead work under Sanaa's 2026-08-28 directive 3); **T16c**, owed and unwritten.
+
+**FOREIGN ROWS LEFT UNCOMMITTED.** The shared git index carries hundreds of other lanes' staged rows including a large block of staged deletions. Neither of this lane's two commits touches them. **Somebody should be dispatched to land or clear them.**
+
 ##### CORRECTION 2026-08-31T00:10:32Z — **AGAINST THIS TEAM'S OWN COMMIT `bb10b681`, MADE MINUTES AFTER IT LANDED: I CLAIMED TO HAVE PRESERVED ANOTHER TEAM'S UNCOMMITTED WORK AND I DID NOT, BECAUSE BY THE TIME I COMMITTED THERE WAS NOTHING LEFT TO PRESERVE. THE CLAIM WAS TRUE WHEN I READ IT AND FALSE WHEN I WROTE IT.**
 
 The addendum below, and the message of commit **`bb10b681`**, both state that this lane **preserved
