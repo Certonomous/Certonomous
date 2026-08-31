@@ -1,0 +1,3 @@
+2026-08-31T22:25:20Z REFUSED by queue_runner; validator reasons:
+SCHEMA: 'prereg_path' must be a non-empty string
+SCHEMA: 'prereg_commit' must be a full 40-character lowercase hex sha. An abbreviated sha is ambiguous and a pre-registration freeze cannot rest on an ambiguous referent. The only other accepted values are the exact tags ['FEASIBILITY', 'PHYSICS'] (Sanaa 2026-08-31, 9154c8ef), which declare an UNREGISTERED feasibility or physics rung whose outputs are NEVER gradeable as verdicts. The match is exact and case-sensitive: 'feasibility' and 'FEASIBILITY_2' are refused.

@@ -1,0 +1,44 @@
+{
+  "team": "heat-transfer",
+  "case_id": "T25_MOD_L1",
+  "tag": "FEASIBILITY",
+  "gated": false,
+  "prereg_commit": null,
+  "prereg_path": null,
+  "prereg_status": "NONE -- UNGATED FEASIBILITY RUNG. No frozen pre-registration exists and none is required: Sanaa's feasibility-first ruling, etc/sessions/2026-08-31T1513Z_sanaa_freeze_clock_and_so3_ruling.md section 1, verbatim 'no freeze required for feasibility/physics rungs, never was'. This entry therefore fixes NO gate, NO threshold, NO band and NO label, and nothing this case produces may be graded or cited as a result. The case's own provenance block is at verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1/CASE.txt.",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/run_one_t25.sh",
+    "--case-dir",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1",
+    "--timeout",
+    "600",
+    "--no-detach"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1",
+  "ranks": 1,
+  "solver": "chtMultiRegionFoam",
+  "region": "module",
+  "endTime": 900.0,
+  "deltaT": 0.5,
+  "n_steps": 1800,
+  "n_cells": 960,
+  "cost_core_min_estimate": 1.0,
+  "cap_core_min_registered": 10.0,
+  "cost_basis": "POINT 1.0 core-min. SCALED FROM A MEASURED NUMBER, and the scaling is stated so it can be checked: T20's 240-cell 3000-step chtMultiRegionFoam solid-only case cost a MEASURED 0.017 core-min (1.02 core-s), i.e. 0.34 ms per step at 240 cells. T25_MOD_L1 is 960 cells (4.0x) and 1800 steps (0.6x), giving 2.4 core-s of solve by linear scaling; the POINT is set to 1.0 core-min (60 core-s), ~25x that, because per-step cost is NOT the dominant term here -- this case writes 180 field sets and runs a probes function object EVERY time step (1800 probe writes), and T20's own feasibility probe measured 90.7 percent of its wall time as startup and I/O rather than solving (T20_LC_FEAS: 3 s wall against 0.28 s ExecutionTime). The I/O term, not the cell count, is what this estimate is guessing at, and it is a GUESS: this is the lab's first 8-block multi-patch chtMultiRegionFoam case and no measured I/O rate exists for it. CAP 10.0 core-min hard = 10x POINT (timeout 600 wall s at 1 rank); the headroom is deliberate and reflects that the POINT rests on an unmeasured I/O term. An overrun STOPS THE RUN and does not get a new budget (CLAUDE.md rule 12). USD: POINT $0.000855, CAP $0.00855, at $0.0513/core-h -- that rate is REPORTED-BY-OWNER (Sanaa 2026-08-21/22) and every dollar figure here is DERIVED, NOT MEASURED: the box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5).",
+  "calibration_owed": "Rule 12's estimate-versus-actual clause binds this run. At completion the actual core-minutes are read from STATUS.T25_MOD_L1 (wall_s x ranks / 60), the ratio actual/predicted is stated, the gap is attributed between contention, waste and misprediction with waste named separately, and a row is appended to docs/COST_CALIBRATION.md. The I/O term is the figure this run exists to calibrate. STATUS carries loadavg_at_launch and nproc so a contended reading is disclosed at the point of measurement rather than argued about afterwards.",
+  "memory_floor_gb": 0.5,
+  "enqueued_by": "heat-transfer lab-lane [lab-attributed], under the demo order etc/sessions/2026-08-31T2213Z_sanaa_demo_tonight_priorities.md ('Heat transfer team must laubch the battery case asap') and the feasibility-first ruling of 2026-08-31T1513Z. Physics and geometry are the directive's own (etc/sessions/2026-08-30T2300Z_sanaa_four_new_case_families.md sections 4.2-4.5); every departure is enumerated in CASE.txt under SIMPLIFICATIONS.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.T25_MOD_L1 (rc captured INSIDE the detached wrapper)",
+      "the case's own log.solve End line, endTime fields, and the 0/module/T age guard"
+    ],
+    "infrastructure": [
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "loadavg_at_launch",
+      "LAUNCH_LOG.tsv row"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the run and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). This run carries no verdict in any case: it is FEASIBILITY."
+  }
+}
