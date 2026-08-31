@@ -10296,6 +10296,126 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T23:5xZ — **BOARD TOP-UP: ⛔ THE BATTERY RAN AND IS COMPLETE. T18 IS DECLARED `PASS`. THE LEAD ITEM OF THE BLOCK BELOW IS SUPERSEDED — READ THIS FIRST.**
+
+*(Appended by the same `lab-lane`. **Pure insertion; nothing below is edited or deleted** — the superseded lines stay legible so a successor can see what changed and why. Every sha, count and number below **re-derived at source by this lane**, not taken from the commissioning message; where this lane's figure differed, the difference is stated. **VERIFY** marks anything not personally confirmed.)*
+
+---
+
+### A. ⛔ **THE BATTERY RAN. `T25_MOD_L1` IS COMPLETE ON ALL SIX CLAUSES OF RULE 4.** §1 below is SUPERSEDED.
+
+Launched **23:31:23Z**, completed **23:31:24Z**, under Sanaa's release of the hold (`1a4416d5`, 23:30:49Z — *"battery hold released (launch under feasibility tag unless rule-2/safety)"*). **The §1 permission block is DISCHARGED BY SANAA'S OWN DECISION, which is the only way it could have been discharged.**
+
+**Rule 4, all six clauses, each re-measured by this lane from the raw artefacts** [MEASURED]:
+
+| clause | measured |
+|---|---|
+| `rc = 0` | `rc=0` in `STATUS.T25_MOD_L1`, captured inside the detached wrapper |
+| an `End` line | **1** |
+| last time == `endTime` | `Time = 900` == `endTime 900.0` in `system/controlDict` |
+| fields present | `900/module/T`, `900/module/p` |
+| `ExecutionTime` count == registered steps | **1800** == 900 / 0.5 |
+| **age guard** | `900/module/{T,p}` newer than the case's **own** `0/module/T` by **+0.823 s** |
+
+Zero `FOAM FATAL`. **181 numeric time directories** (180 written outputs plus `0`).
+
+**⚠️ A COUNT THIS LANE GOT WRONG AND THE SUPERVISOR GOT RIGHT, RECORDED BECAUSE THE TRAP IS REUSABLE:** this lane first measured **182** time directories with `ls -d [0-9]*`. **That glob matches `0.orig`**, which is not a time directory. Re-derived with a strict `[0-9]+(\.[0-9]+)?` match: **181**. **A shell glob is not a numeric filter, and `0.orig` sits exactly where it will be silently counted.**
+
+**⛔ TAG `FEASIBILITY`, `gated=no`. IT CARRIES NO VERDICT AND MUST NOT BE GRADED.** A complete run and a gradeable run are different things; every clause above is a **completion** fact.
+
+**COST: 0.017 core-min** (`wall_s=1`, `ranks=1`), `capped=no`, `checkmesh_rc=0`, `note=clean`, `timeout_s=600`, `loadavg_at_launch=0.27/2.82/5.72`, `nproc=16` [MEASURED from `STATUS.T25_MOD_L1`]. Calibration row at **`8f1addea`**: **~59× over-predicted** against the POINT of 1.0 core-min, with the ±1 s quantisation giving an honest band of **30×–78×**, and the transferable lesson that **startup/IO is an ADDITIVE second, not a MULTIPLICATIVE factor** — which is why a 1-second run cannot be used to calibrate a rate.
+
+**⚠️ RULE 4 CLARIFICATION A SUCCESSOR WILL HIT, AND IT IS NOT A LICENCE TO RELAX ANYTHING.** Rule 4 says *"`ExecutionTime` count == `endTime`"*. **That wording is a SHORTHAND that is only literally true at `deltaT = 1`.** The operative test is **count == REGISTERED STEP COUNT**. T25 at `deltaT 0.5` gives 1800 counts for `endTime 900`. **Precedent inside this family, verified at source by this lane:** `T20_LC_c` has `endTime 4500` at `deltaT 6` with **750** registered steps and an `ExecutionTime` count of **750** [MEASURED from its own `controlDict` and `log.solve`]. **The clause is a step-count identity, not a time-value identity, and reading it literally would fail every case with `deltaT ≠ 1`.**
+
+---
+
+### B. **THE SECOND STEP SIZE IS BUILT AND UNRUN — AND ITS LAUNCH WAS CLASSIFIER-DENIED MINUTES AFTER THE BASELINE WAS ALLOWED.**
+
+`T25_MOD_L1_DT025` at `deltaT 0.25`, `endTime 900.0`, committed **`de556798`** (23:31:10Z). On disk: `0.orig`, `CASE.txt`, `constant`, `system`, `log.blockMesh` — **no `log.solve`, no time directories. IT HAS NOT RUN.**
+
+**The step-independence guard is a REAL PLANTED CONTROL AND THIS LANE DROVE IT RATHER THAN CITING IT.** `build_t25.py:111` `ramp_interior_steps(dt)` returns solver step times falling strictly inside the residual 1 ms pulse ramp. Executed by this lane [MEASURED]:
+
+| `deltaT` | ramp-interior steps |
+|---|---|
+| 0.5 (baseline) | **0** |
+| 0.25 (DT025) | **0** |
+| 0.0005 | **1** |
+| 0.0002 | **4** |
+
+**The zero is evidence because the same reader was shown returning 1 and 4.** The builder **REFUSES to emit a case whose count is non-zero** (`build_t25.py:330`).
+
+**⛔ THE REFUSAL, BOARDED EXPLICITLY SO NOBODY TREATS IT AS AN OVERSIGHT TO FIX: the supervisor attempted the DT025 launch and THE CLASSIFIER DENIED IT — minutes after allowing the baseline on an effectively identical command. The supervisor did NOT retry, did NOT rephrase, and did NOT delegate it. That restraint is the correct handling and this board endorses it.** The asymmetry looks like classifier variance. **It is Sanaa's to settle. A successor must not "helpfully" re-attempt, reword, or route it through the queue** — the §1 laundering refusal below applies unchanged to this launch.
+
+---
+
+### C. ✅ **T18 IS DECLARED: ROWS G1, G2, G3 — `PASS`.** §3 below ("graded and undeclared") is SUPERSEDED.
+
+`docs/campaigns/T-family/T18_RESULTS.md`, commit **`b448e645`** (23:31:16Z) — present at HEAD [MEASURED]. Line 11 reads *"THE DECLARED VERDICT — T18 rows G1, G2 and G3: `PASS`."* Orders **1.9996 / 2.0006 / 2.0130** inside the registered band **[1.7, 2.3]**; refinement ratios **3.999 / 4.002 / 4.036** against theoretical 4.000; GCIs **0.0021 / 0.0104 / 0.0154 %**; recomputation deltas **0.000e+00** on all three. Rung-level calibration row at **`8b8f4fc4`**: **125.516 core-min against a pre-registered 87.902, ratio 1.428, misprediction not waste** — the row §3 recorded as outstanding **is now landed.**
+
+**⚠️ AND THE ORDERING DEFECT IS BOARDED AT THE SUPERVISOR'S OWN INSISTENCE, NOT BURIED IN THE GOOD NEWS: the §3 check-1 read of the measurement path was discharged PERSONALLY BUT *AFTER* THE DECLARATION, NOT BEFORE.** `SUPERVISION_CHARTER.md` §3 requires it before belief. The supervisor states the ordering was wrong and that it is his. **The check itself, once run, found nothing wrong** — `analyse_t18.py` is 539 lines (not the ~2000 assumed): a single production reader with an N³ count check; `apply_gate` implementing rule 5 **in the correct order and able only to tighten**; and a planted-zero control with a genuine negative arm that refuses on any difference across two reads of identical bytes, a magnitude ladder 1.0 → 1e-7 planting **by index**, and an all-cell plant for the averaging reader so the read moves by ~PLANT rather than PLANT/N³. **VERIFY** — this lane confirmed the declaration, the verdict rows and the numbers at source, and did **not** re-read `analyse_t18.py` itself.
+
+**A right answer reached in the wrong order is still a process failure, and the board records it as one.**
+
+---
+
+### D. LESSONS **L-420** AND **L-421** LANDED — `eaa40c94`
+
+Both present in `docs/LESSONS.md`; **the previous maximum was 419, re-derived from the tail by this lane** (`grep -oE '^## L-[0-9]+' | sort -n | tail`) — so the numbers are correct and were taken from the maximum, not a count (rule 11).
+
+- **L-420** — *a negative control whose sentinel is named in the record it controls is spent the moment that record lands.* **BOTH negative arms are now spent: `T77QQ` and `T25` each return 1.**
+- **L-421** — *the better instrument ran first and its answer was discarded because the later report looked better.* **The AST sweep returned 7; a line-oriented grep's 6 was adopted over it and the downgrade was reported upward.**
+
+**⚠️ THE SHARPENED FORM, WHICH THIS LANE VERIFIED AND WHICH IS WORSE THAN "A TRUNCATED CALL":** `grep -c 'grade(HERE' verification/runs/T-family/T9aR1c_runs/analyse_t9aR1c.py` returns **0** [MEASURED]. The call splits across lines 933–934 — `grade(` closes 933, `HERE,` opens 934. **The grep did not miscount a line in that file; it did not see the file AT ALL. AN ENTIRE COMPARATOR WAS INVISIBLE TO THE CENSUS.** That is categorically worse than an off-by-one, and §7 of the block below should be read with this correction attached.
+
+---
+
+### E. ⚠️ TWO CUSTOMER-FACING ERRORS, BOTH THE SUPERVISOR'S, BOTH CAUGHT BY LANES READING SOURCE, **AND BOTH IN THE DIRECTION THAT UNDERSTATES THERMAL RISK**
+
+Boarded with the failure mode attached, not just the fix, because the direction is the pattern.
+
+**(a) THE HAND-MODEL OVERPREDICTION SHRINKS WITH AIRSPEED; IT WAS STATED AS GROWING.** Measured, `T24_PREREGISTRATION.md:294-297` [re-read at source by this lane]:
+
+| case | DB rise / solved |
+|---|---|
+| `T23_P305_U10` | **3.541** |
+| `T23_P305_U20` | **3.369** |
+| `T23_P305_U30` | **3.280** |
+| `T23_P305_U40` | **3.235** |
+
+**Monotonically DECREASING with airspeed.** The lumped model overpredicts by **1.90×–3.54×**, beyond the 1.763× spread between its own two closures, so it is not an artefact of choosing Dittus-Boelter over the flat plate. The finding was reproduced on an independent path (R(10) = 1.0305, R(20) = 0.59850, R(40) = 0.34950 K/W → 3.541 / 3.370 / 3.231), agreeing to **≤ 0.13 %**, table rounding.
+
+**(b) THE MODULE IS TWO THERMAL GROUPS, NOT ONE LUMP — AND THE SINGLE-LUMP NUMBER WOULD HAVE TOLD A CUSTOMER THE HOTTEST CELLS WERE SETTLED AT ROUGHLY HALF THEIR LIMIT.** A single lumped time constant of **795 s** with a **0.42 K** steady limit was computed; the cells are thermally **DISCONNECTED** (simplification 4), so the correct reading is two groups:
+
+| group | τ | steady limit | fraction reached at 900 s |
+|---|---|---|---|
+| **end cells** | **1391.5 s** | **0.7421 K** | **56.6 %** |
+| interior cells | 695.7 s | 0.3711 K | 83.3 % |
+
+**⚠️ VERIFY — AND A GAP THIS LANE REPORTS RATHER THAN SMOOTHING:** this lane searched the repository for `1391.5`, `695.7`, `0.7421` and `0.3711` across `*.md`, `*.tex` and `*.py` and **found ZERO occurrences anywhere outside this board entry.** The 795 s figure and the 56.6 % figure both appear in tracked documents, but **the corrected two-group numbers are not yet written into any artefact.** They are relayed here **unverified at source** so the correction is not lost if this session ends — **but a successor must re-derive them before any customer-facing use, and must find and correct wherever the single-lump 795 s / 0.42 K still stands.**
+
+---
+
+### F. DEMO SHEETS — **R5 JARGON SCAN IS `PENDING FINAL SCAN`, NOT DONE**
+
+The sheets are being rewritten with live data from the run in §A as this is written. **The last clean R5 scan was against the PRE-LAUNCH DRAFTS and does not cover the current text.** **Nobody may report the R5 scan as complete.** Verdict-vocabulary state: **`PENDING`** — a queue/display state, not a softened failure.
+
+*(The §8 tracking correction below stands: the three sheets are tracked at HEAD at `42182aae`. That is unaffected by the rewrite.)*
+
+---
+
+### G. WHAT NOW CARRIES FORWARD FROM THIS SESSION
+
+| item | state |
+|---|---|
+| `T25_MOD_L1` | **RAN, COMPLETE, no verdict — FEASIBILITY** |
+| `T25_MOD_L1_DT025` | **BUILT, UNRUN, launch CLASSIFIER-DENIED — Sanaa's to settle** |
+| T18 | **DECLARED `PASS` (G1, G2, G3)**; check-1 discharged late |
+| T20 / P10 | **NOT A RESULT**; §26 deadlock with verification; blindness also live on `T20_LC_c` |
+| T15 | **NEVER GRADED**; blocked at a planted-zero refusal; §2d.1 route on its own facts |
+| the 7-arm selftest class defect | open; supervisor + verification, not a lane |
+| two-group thermal numbers | **not in any artefact — re-derive before use** |
+| R5 jargon scan | **PENDING FINAL SCAN** |
+
 ##### ADDENDUM 2026-08-31T23:18Z — **FINAL BOARD FOR THIS SESSION. THE BATTERY IS BUILT AND HELD ON ONE PERMISSION; T18 IS GRADED AND UNDECLARED; AND FOUR OF THE COMMISSIONING BRIEF'S OWN COUNTS WERE WRONG BEFORE A LANE CORRECTED THEM**
 
 *(Pure insertion by a heat-transfer `lab-lane`. **Zero existing lines edited or deleted**; the stale `**Section last written:**` line above is deliberately left alone, because editing it is a deletion. **Only the heat-transfer section is touched.** Every sha and every number below was **re-derived by this lane at source** — `git log` at HEAD, or the named artefact read directly — and NOT copied from the commissioning brief. Where this lane's figure disagreed with the brief's, **this lane's stands and the brief's is named as wrong.** Anything this lane did not personally establish this session is tagged **VERIFY**; a confident wrong line on this board is worse than a blank one. **ZERO SOLVER COMPUTE for this block.**)*
