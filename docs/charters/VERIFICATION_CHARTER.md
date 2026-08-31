@@ -3288,3 +3288,93 @@ results are ranked, and **adjacency is not authority.**
 | documents drafted-for-ratification rather than landed | **1** (`RESULT_PRIORITY_CHARTER`, untouched) |
 | **lines whose number changed above this section** | **0** |
 
+
+---
+
+## Amendment — v1.24, 2026-08-31 — **§2l: REMOVE THE POSSIBILITY, NOT THE INSTANCE. Three repairs landed on one night in three teams' territory turned out to be one move, and it is worth naming rather than rediscovering a fourth time**
+
+**Lines whose number changed above this section: 0.**
+
+**Occasion.** Three repairs landed on 2026-08-30/31, by three different teams, against three
+unrelated defects. **Reading them side by side they are the same move**, and none of them fixes
+the thing that broke.
+
+### §2l.1 THE THREE SPECIMENS, each cited to its own record
+
+| | the defect | the ORDINARY fix nobody took | what was done instead |
+|---|---|---|---|
+| **DERIVE, DON'T MAINTAIN** | `NUMERICS_KNOWLEDGE`'s FAMILY INDEX had drifted **8 entries** — `N-C` listed `N-C1` alone against an actual `N-C7`. **Five of seven families were correct, and the only two stale were the two that had GROWN.** | *update the index; assign someone to keep it fresh* | the index is **generated from the tail** by `scripts/check_numerics_index.py`, and `check_harness [5/5]` asserts it. **A hand-maintained derived value does not drift less when watched more.** (`DEAD_LEVER_AUDIT` §19) |
+| **MOVE THE SAFETY INTO THE PATH** | An **unquoted heredoc** command-substituted prose. **Three teams lost bytes to it in ONE AFTERNOON**, including the lab's only handoff channel, **each team already knowing the rule.** | *be careful with heredocs* | `scripts/append_block.py` reads the body **from a FILE as BYTES, so no shell ever sees it**, asserts every substitution, and reverts on any byte difference. (`L-403`, `L-405`) |
+| **MAKE THE BAD STATE UNREPRESENTABLE** | The queue runner's round-robin cursor lived in **two unit systems** — written as an index into the 6-tuple `TEAMS`, read modulo the *filtered* list. **Not a bias: an ABSORBING STATE. 12 of 12 launches went to one team while the log looked healthy.** | *correct the modulus* | state is the **last-launched TEAM NAME**, which **has no unit system and cannot be taken modulo the wrong length**. cfd's own words: *"the defect is not fixed, it is UNREPRESENTABLE."* (`bec46169`) |
+
+**In none of the three was the ordinary fix wrong.** Each would have worked, that day, on that
+instance. **Each also leaves the defect one plausible edit away from returning**, and in two of the
+three it already had returned before anyone acted.
+
+### §2l.2 THE TEST — one question, and it is answerable
+
+> **AFTER THIS REPAIR, WHAT WOULD IT TAKE TO REINTRODUCE THE DEFECT?**
+>
+> If the answer is *"an edit a careful person could plausibly make"* — **the possibility is still
+> there and only the instance was removed.**
+> If the answer is *"you would have to reinstate the mechanism itself"* — **the possibility is
+> gone.**
+
+A corrected modulus is one keystroke from being wrong again, and **the original was invisible
+precisely because both expressions were individually reasonable**. A team name cannot be taken
+modulo anything. **That difference is the whole clause.**
+
+### §2l.3 WHEN TO REACH FOR IT — because "always" is wrong and would be expensive
+
+**Two triggers, either sufficient:**
+
+1. **RECURRENCE.** The same defect has landed more than once, anywhere in the lab. Twice is a
+   pattern; a third occurrence is a statement about the mechanism rather than about the people.
+2. **EFFORT ASYMMETRY — the safe path is HARDER than the unsafe one.** `L-405`'s evidence is the
+   canonical form: **three careful teams hitting one defect in one afternoon is not three lapses,
+   it is evidence that the safe path cost more than the unsafe one.** Where that is true, no
+   amount of discipline is load-bearing, because discipline is exactly the thing being taxed.
+
+**A first occurrence with no asymmetry gets the ORDINARY FIX.** Reaching for this move on a
+one-off is over-engineering, and this clause does not license it.
+
+### §2l.4 THE HONEST LIMIT, AND IT HAS A WORKED COUNTER-EXAMPLE FROM THE SAME NIGHT
+
+**Not every defect has a possibility that can be removed, and pretending otherwise produces
+elaborate machinery around a judgement that still has to be made.**
+
+**`T16`/`C_ORDER` is the counter-example** (`DEAD_LEVER_AUDIT` §18). A guard hunting a **−1.0**
+transposed-ordering signal carried a **1e-06** tolerance and fired on **−7.4e-05** of real physics.
+**There is no way to make "a tolerance mis-sized for the defect it hunts" unrepresentable.** The
+remedy there was **split the clause and size each tolerance to its own signal** — a judgement about
+what the guard is *for*, which no construction can take over. **§2l does not reach it, and a lane
+citing §2l to avoid making that judgement has misread this section.**
+
+**AND THE FAILURE MODE OF THE PRINCIPLE ITSELF, named so it can be caught:** claiming a state is
+*unrepresentable* when it has merely become **inconvenient**. The claim is checkable by §2l.2's
+question, asked honestly and in writing. **"It would be weird to write that now" is not
+unrepresentability.**
+
+### §2l.5 SCOPE
+
+**Binding on this team's own repairs, and it is the standard this team's cross-team gate audits
+read a repair against** — an audited repair that fixes an instance where the possibility was
+removable is **not thereby refused**, but the record says which was done and why. **§2l changes no
+gate, retires nothing, and creates no verdict.**
+
+**Elevation to `docs/standards/INNOVATION_STANDARD.md` — where a principle about how the lab
+BUILDS things arguably belongs — is PROPOSED, NOT TAKEN.** That file is not in this team's folder
+scope. **Drafted here, in this team's own charter, for Sanaa to elevate if she wants it lab-wide**;
+any team may adopt §2l in its own charter meanwhile, which is the route her 2026-08-30 directive
+opens.
+
+| amendment record | **v1.24** |
+|---|---|
+| clauses added | **1** (§2l) |
+| existing clauses altered, widened or narrowed | **0** |
+| gate values changed | **0** |
+| verdict vocabulary changed | **0** |
+| specimens cited, each to its own record | **3** |
+| worked counter-examples shipped | **1** (`T16`/`C_ORDER`) |
+| **lines whose number changed above this section** | **0** |
+

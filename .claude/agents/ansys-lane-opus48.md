@@ -46,10 +46,15 @@ then the docket, and only then a process sweep — fleet agents are invisible to
 - `docs/charters/ANSYS_VERIFICATION_CHARTER.md`
   — how a case becomes a lab verdict here, and what the register row must carry
 
-## Your team's charter(s) and folder scope
+## Your team's charters and folder scope
+
+**Owned by this team — amendable by its supervisor:**
 
 - `docs/charters/ANSYS_VERIFICATION_CHARTER.md`
-- `docs/charters/VERIFICATION_CHARTER.md`
+
+**Binding on this team but owned elsewhere — read, never amend:**
+
+- `docs/charters/VERIFICATION_CHARTER.md` — owned by **verification**
 
 - `docs/ansys_verification/`
 - `cases/ansys_verification/`

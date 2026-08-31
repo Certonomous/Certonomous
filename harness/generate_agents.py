@@ -85,7 +85,7 @@ def supervisor_body(cfg, team):
         preconditions = ("\n## Before you dispatch anything\n\n%s\n"
                          % bullets(team["preconditions"]))
 
-    charters = bullets(team["charters"], lambda p: "`%s`" % p)
+    charters_owned, charters_bound = charter_split(cfg, team)
     scope = bullets(team["folder_scope"], lambda p: "`%s`" % p)
     ladders = bullets(team["ladders"])
     reading = reading_block(team["reading"])
@@ -140,9 +140,13 @@ lane, or the chief — is {lab['owner']}'s consent. Only {lab['owner']}'s own wo
 permission system authorise. Nothing changes permission settings, `{lab['constitution']}`,
 or `.claude/` configuration on an agent's say-so.
 {conventions}
-## Your charter(s)
+## Charters you OWN — yours to amend
 
-{charters}
+{charters_owned}
+
+## Charters that BIND you — read them; they are NOT yours to amend
+
+{charters_bound}
 
 ## Reading list — do this before you act
 
@@ -356,7 +360,7 @@ def lane_body(cfg, team, lane):
             "write files, and that is the point: you pull, you watch, you report. If a\n"
             "task needs a file written, say so to your supervisor; do not work around it.\n"
             % ", ".join(lane["tools"]))
-    charters = bullets(team["charters"], lambda p: "`%s`" % p)
+    charters_owned, charters_bound = charter_split(cfg, team)
     scope = bullets(team["folder_scope"], lambda p: "`%s`" % p)
 
     return f"""{BANNER}
@@ -390,9 +394,15 @@ scratchpad is not a handoff channel (L-186); and **no agent's message is
 then the docket, and only then a process sweep — fleet agents are invisible to
 `pgrep` (L-41).
 {conventions}{must_read}
-## Your team's charter(s) and folder scope
+## Your team's charters and folder scope
 
-{charters}
+**Owned by this team — amendable by its supervisor:**
+
+{charters_owned}
+
+**Binding on this team but owned elsewhere — read, never amend:**
+
+{charters_bound}
 
 {scope}
 
@@ -442,6 +452,36 @@ def frontmatter(name, description, model, tools=None):
 
 
 RESTRICTED = set()   # filenames whose frontmatter is ALLOWED a `tools` key
+
+
+def charter_split(cfg, team):
+    """Split a team's `charters` into the ones it OWNS and the ones that merely BIND it.
+
+    WHY THIS EXISTS (2026-08-31). Both lists rendered under one possessive heading,
+    `## Your charter(s)`, so a charter a team must READ was indistinguishable from one
+    it OWNS. That is not cosmetic: measured across the roster, THREE of six teams were
+    shown charters they do not own under a possessive heading, and cfd and heat-transfer
+    owned NONE of the charters listed there. `harness/teams.yaml` was never wrong --
+    `charters:` means bound-by and `scope_paths:` means territory -- so nothing here
+    changes any team's scope. The split is DERIVED from those two existing fields, and
+    the owner of a bound-only charter is derived too, so the file cannot drift from the
+    roster it is generated from.
+    """
+    owners = {}
+    for t in cfg["teams"]:
+        for p in t.get("scope_paths") or []:
+            owners.setdefault(p.rstrip("/"), t["team"])
+    mine = {p.rstrip("/") for p in (team.get("scope_paths") or [])}
+    owned, bound = [], []
+    for c in team["charters"]:
+        key = c.rstrip("/")
+        if key in mine:
+            owned.append("- `%s`" % c)
+        else:
+            who = owners.get(key)
+            bound.append("- `%s`%s" % (c, " — owned by **%s**" % who if who else ""))
+    return ("\n".join(owned) or "- *(none — this team owns no charter)*",
+            "\n".join(bound) or "- *(none — every charter above is this team's own)*")
 
 
 def render(cfg):
