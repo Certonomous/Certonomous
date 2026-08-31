@@ -493,8 +493,36 @@ def launch(entry: dict, path: Path, root: Path, log: Log, archive: bool = True) 
     case_id = entry["case_id"]
     argv = entry["launch_cmd"]
     quoted = " ".join("'" + str(a).replace("'", "'\"'\"'") + "'" for a in argv)
-    status = cwd / f"STATUS.{case_id}"
+    # R5 (verification/campaign/R5_RUNNER_STATUS_COLLISION_PREREGISTRATION.md, frozen at
+    # 52632a2d, candidate (a) of its §3.2): the runner writes `STATUS.queue.<case_id>` -- a
+    # name IT owns -- and can therefore never occupy the launcher's `STATUS.<case_id>`.
+    # The collision is impossible BY CONSTRUCTION, not policed by an exists() test: §3.1
+    # REFUSED that design on a measured fact -- 117 of 134 entries already had a file at
+    # the old target, so an exists() guard would have refused 87 % of the lab's queue on
+    # the day it landed, and nothing in this file archives or removes that file
+    # (archive_previous_records() is handed `launched_dir`, never `cwd`).
+    # Measured damage this prevents: cases/F27_WOMERSLEY_PIPE (cap_core_min and
+    # spent_core_min destroyed, 2026-08-28) and the four T23_P305_U* cases
+    # (2026-08-31), whose launcher record carried rc, wall_s, ranks, core_min,
+    # cap_core_min, timeout_s, capped and solver, and whose launcher.queue.out is 0 bytes
+    # -- so unlike F27 there was no stdout copy to recover them from.
+    status = cwd / f"STATUS.queue.{case_id}"
     out = cwd / "launcher.queue.out"
+    # FAIL CLOSED. `case_id` is validated only as a non-empty string
+    # (queue_entry_check.py:199) -- nothing upstream stops it carrying a path separator,
+    # so `cwd / f"STATUS.queue.{case_id}"` can escape `cwd` and truncate an arbitrary
+    # file. If the record path is not a direct child of `cwd` inside the runner's own
+    # `STATUS.queue.` namespace, the launch is REFUSED HERE, before anything is created,
+    # moved or truncated: the entry file, the launcher's STATUS and launcher.queue.out
+    # are all left exactly as found. Uncertainty resolves toward not destroying data.
+    # Raising is safe for the other five teams: main()'s per-tick `except Exception`
+    # logs and continues, so one malformed entry cannot stop the queue.
+    if (os.sep in case_id or (os.altsep and os.altsep in case_id)
+            or status.parent != cwd or status.name != f"STATUS.queue.{case_id}"):
+        raise ValueError(
+            f"REFUSING TO LAUNCH case_id={case_id!r}: the runner's record path {status} is "
+            f"not a direct child of cwd {cwd} in the runner's own 'STATUS.queue.' "
+            f"namespace. Nothing was written, moved or truncated.")
     # The STATUS file records the LAUNCH ARGV's exit status -- an INFRASTRUCTURE
     # record (L-342). It never claims the solver's rc: a launcher that refused at zero
     # compute and exited 0 would otherwise read as a completed solve (heat-transfer
@@ -883,10 +911,14 @@ def selftest() -> int:
     (root / "cfd" / "SELFTEST_OK.json").write_text(json.dumps(good))
     r = tick(root, log, 100.0, 1.0, 0.2, rr, measure=quiet)
     for _ in range(50):
-        if (case_dir / "STATUS.SELFTEST_OK").exists():
+        if (case_dir / "STATUS.queue.SELFTEST_OK").exists():
             break
         time.sleep(0.1)
-    st = (case_dir / "STATUS.SELFTEST_OK").read_text() if (case_dir / "STATUS.SELFTEST_OK").exists() else ""
+    # R5: the runner's record is `STATUS.queue.<case_id>`. The three path references in
+    # this control move with it; the `_field_classes` check below deliberately does NOT,
+    # because it reads the unchanged descriptive string at the meta["_field_classes"] site.
+    st = ((case_dir / "STATUS.queue.SELFTEST_OK").read_text()
+          if (case_dir / "STATUS.queue.SELFTEST_OK").exists() else "")
     n_launch = len((root / "LAUNCH_LOG.tsv").read_text().splitlines()) if (root / "LAUNCH_LOG.tsv").exists() else 0
     check("valid entry -> LAUNCHED once, STATUS launcher_rc=0 (labelled as launcher rc), entry moved to launched/",
           r == "LAUNCHED" and n_launch == 1 and st.startswith("launcher_rc=0") and "NOT-the-solver-rc" in st and
@@ -1045,7 +1077,7 @@ def selftest() -> int:
     rearm_dir = tmp / "case_rearm"; rearm_dir.mkdir()
     rearm = dict(good); rearm["case_id"] = "SELFTEST_REARM"; rearm["cwd"] = str(rearm_dir)
     rearm["cap_core_min_registered"] = 1.0                   # 60 s at 1.00x, ranks 1
-    rearm_status = rearm_dir / "STATUS.SELFTEST_REARM"
+    rearm_status = rearm_dir / "STATUS.queue.SELFTEST_REARM"   # R5: the runner's own record
     rec_a = launch_case("SELFTEST_REARM.json", rearm, rearm_status)
     a_utc, a_pid, a_epoch = rec_a["_launch"]["utc"], rec_a["_launch"]["pid"], rec_a["_launch"]["started_epoch"]
     cap_watch(root, log, now=a_epoch + 10_000.0)                     # finished: nothing, however late
@@ -1107,7 +1139,7 @@ def selftest() -> int:
     for tag, fn in (("mut", no_archive), ("fix", launch)):
         d2 = tmp / f"case_rearm2_{tag}"; d2.mkdir()
         e2 = dict(rearm); e2["case_id"] = f"SELFTEST_REARM2_{tag}"; e2["cwd"] = str(d2)
-        s2 = d2 / f"STATUS.SELFTEST_REARM2_{tag}"
+        s2 = d2 / f"STATUS.queue.SELFTEST_REARM2_{tag}"          # R5: the runner's own record
         r_old = launch_case(f"SELFTEST_REARM2_{tag}.json", e2, s2)
         s2.unlink()                                              # never seen by the watcher (T5_C)
         time.sleep(1.1)
@@ -1225,7 +1257,7 @@ def selftest() -> int:
 
     def gpu_wait_status(cdir: Path, name: str) -> None:
         for _ in range(50):
-            if (cdir / f"STATUS.{name}").exists():
+            if (cdir / f"STATUS.queue.{name}").exists():         # R5: the runner's own record
                 return
             time.sleep(0.1)
 
@@ -1610,6 +1642,170 @@ def selftest() -> int:
     check("R5c the note is ONE-SHOT: already-noted state returns None and logs nothing",
           legacy_cursor_note({"cursor": 4, "cursor_legacy_noted": True}) is None
           and legacy_cursor_note({}) is None)
+
+
+    # ------------------------------------------------------------------ R5 controls
+    # R5_RUNNER_STATUS_COLLISION_PREREGISTRATION.md, frozen 52632a2d. The runner must
+    # never occupy `cwd/STATUS.<case_id>`, the name a case's own launcher writes.
+    # Measured damage: F27_WOMERSLEY_PIPE (2026-08-28) and the four T23_P305_U* cases
+    # (2026-08-31), all clobbered to the runner's 93-byte three-key line.
+    #
+    # EVERY LIMB BELOW DRIVES THE REAL PRODUCER -- queue_runner.launch()'s own
+    # detached Popen wrapper -- in the production-shape scratch root built above. No
+    # limb hand-writes a STATUS file and then grades its own handwriting.
+    import hashlib
+    import importlib.util
+
+    # The sentinel is a shape THE RUNNER'S FORMAT CANNOT PRODUCE: it carries the two
+    # fields whose loss is the whole point (`cap_core_min`, `spent_core_min`) and no
+    # `launcher_rc=`. "Was it destroyed" is therefore answered by CONTENT, never by
+    # mtime -- a same-second overwrite would defeat an mtime reading.
+    SENTINEL = ("rc=0\nwall_s=1740\nranks=8\ncore_min=232.0\ncap_core_min=680\n"
+                "spent_core_min=265.4666666666666\ntimeout_s=7200\ncapped=no\n")
+
+    def _sha(p: Path) -> str:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+
+    def _plant(d: Path, case: str) -> tuple[Path, str]:
+        """Plant the launcher's record at the contested path and return its digest."""
+        f = d / f"STATUS.{case}"
+        f.write_text(SENTINEL)
+        return f, _sha(f)
+
+    def _run_entry(case: str, d: Path, launch_fn=launch) -> str:
+        e = dict(good); e["case_id"] = case; e["cwd"] = str(d)
+        (root / "cfd" / f"{case}.json").write_text(json.dumps(e))
+        r = tick(root, log, 100.0, 1.0, 0.2, rr, launch_fn=launch_fn, measure=quiet)
+        for _ in range(50):                      # wait for the DETACHED wrapper to finish
+            if (d / f"STATUS.queue.{case}").exists() or (d / f"STATUS.{case}").exists():
+                break
+            time.sleep(0.1)
+        time.sleep(0.2)
+        return r
+
+    # --- R5-a POSITIVE LIMB: the planted launcher record SURVIVES BYTE-IDENTICAL, and
+    #     the runner's own record is still written (a "fix" that just stops writing
+    #     would pass any naive collision check, so both halves are one check).
+    d_keep = tmp / "case_r5_keep"; d_keep.mkdir()
+    planted, sha_before = _plant(d_keep, "SELFTEST_R5_KEEP")
+    r_keep = _run_entry("SELFTEST_R5_KEEP", d_keep)
+    sha_after = _sha(planted) if planted.exists() else "<GONE>"
+    qrec = d_keep / "STATUS.queue.SELFTEST_R5_KEEP"
+    qtext = qrec.read_text() if qrec.exists() else ""
+    stamped_path = json.loads(
+        (root / "cfd" / "launched" / "SELFTEST_R5_KEEP.json").read_text()
+    )["_launch"]["status_file"] if (root / "cfd" / "launched" / "SELFTEST_R5_KEEP.json").exists() else ""
+    check("R5-a planted launcher STATUS.<case_id> survives a REAL launch byte-identical, "
+          "AND the runner still writes its own STATUS.queue.<case_id> whose absolute path "
+          "is what _launch.status_file stamps",
+          sha_after == sha_before and planted.read_text() == SENTINEL and
+          "cap_core_min=680" in planted.read_text() and
+          re.match(r"^launcher_rc=\d+ end=\S+ note=", qtext) is not None and
+          stamped_path == str(qrec) and r_keep == "LAUNCHED",
+          f"tick={r_keep} sha_equal={sha_after == sha_before} runner_rec={qtext.strip()[:60]!r} "
+          f"stamped={stamped_path!r}")
+
+    # --- R5-b THE PLANT IS SHOWN VISIBLE (rule 3: a reader not shown able to see a
+    #     non-zero cannot report a zero). The SAME fixture and the SAME reader are
+    #     driven through the UNREPAIRED producer -- this very file with the R5 hunk
+    #     reverted and nothing else changed -- and the plant MUST be destroyed. If this
+    #     limb does not fire, R5-a's survival is a blind reader, not a repair.
+    # The mutation is applied BY LINE, not by substring: a substring mutator whose
+    # pattern also occurs in its own source matches itself, and the count assert that
+    # is supposed to make a no-op impossible then reads 2 and fails for the wrong
+    # reason. Both counts are required to be exactly 1, so a mutation that silently
+    # did nothing cannot reach the check below.
+    _src = Path(__file__).read_text()
+    _n_rename = _n_guard = 0
+    _mut_lines = []
+    for _ln in _src.splitlines(keepends=True):
+        _s = _ln.strip()
+        if _s == 'status = cwd / f"STATUS.queue.{case_id}"':
+            _ln = _ln.replace("STATUS.queue.{case_id}", "STATUS.{case_id}")
+            _n_rename += 1
+        elif _s.startswith("if (os.sep in case_id or"):
+            _ln = _ln.replace("if (os.sep", "if False and (os.sep")
+            _n_guard += 1
+        _mut_lines.append(_ln)
+    _mut_src = "".join(_mut_lines)
+    _mut_ok = _n_rename == 1 and _n_guard == 1
+    _mut_file = tmp / "queue_runner_UNREPAIRED.py"
+    _mut_file.write_text(_mut_src)
+    _spec = importlib.util.spec_from_file_location("qr_r5_unrepaired", _mut_file)
+    _unrepaired = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_unrepaired)
+    d_kill = tmp / "case_r5_kill"; d_kill.mkdir()
+    planted2, sha2_before = _plant(d_kill, "SELFTEST_R5_KILL")
+    r_kill = _run_entry("SELFTEST_R5_KILL", d_kill, launch_fn=_unrepaired.launch)
+    killed_text = planted2.read_text() if planted2.exists() else ""
+    check("R5-b MUTATION/VISIBILITY LIMB: the same plant, the same reader, driven through "
+          "the UNREPAIRED launch() (R5 hunk reverted, nothing else) IS DESTROYED -- "
+          "sentinel gone, runner format in its place. The guard is load-bearing and the "
+          "reader is not blind",
+          _mut_ok and _mut_src != _src and r_kill == "LAUNCHED" and
+          "cap_core_min=680" not in killed_text and killed_text != SENTINEL and
+          killed_text.startswith("launcher_rc="),
+          f"mutation_applied={_mut_ok} tick={r_kill} after={killed_text.strip()[:60]!r}")
+
+    # --- R5-c NEGATIVE LIMB: nothing planted, nothing to protect -> the guard must NOT
+    #     fire and the launch must be entirely normal. A repair that refuses everything
+    #     passes R5-a; only this limb distinguishes a guard from a brick.
+    d_neg = tmp / "case_r5_neg"; d_neg.mkdir()
+    n_before = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    r_neg = _run_entry("SELFTEST_R5_NEG", d_neg)
+    n_after = len((root / "LAUNCH_LOG.tsv").read_text().splitlines())
+    check("R5-c NEGATIVE LIMB: no pre-existing file -> normal launch; entry moved to "
+          "launched/, exactly ONE new LAUNCH_LOG row, STATUS.queue.<case_id> written, and "
+          "the launcher's STATUS.<case_id> is NOT created by the runner",
+          r_neg == "LAUNCHED" and n_after - n_before == 1 and
+          (d_neg / "STATUS.queue.SELFTEST_R5_NEG").exists() and
+          not (d_neg / "STATUS.SELFTEST_R5_NEG").exists() and
+          (root / "cfd" / "launched" / "SELFTEST_R5_NEG.json").exists() and
+          not (root / "cfd" / "SELFTEST_R5_NEG.json").exists(),
+          f"tick={r_neg} new_rows={n_after - n_before}")
+
+    # --- R5-d RELAUNCH IS NOT BLOCKED. This is the limb candidate (b) -- "refuse when
+    #     the target already exists" -- would have failed on 117 of the 134 entries on
+    #     disk (§3.1). The same case is launched twice into a cwd that HOLDS a launcher
+    #     record throughout; both launches proceed and the plant survives both.
+    (root / "cfd" / "launched" / "SELFTEST_R5_KEEP.json").unlink()
+    r_re = _run_entry("SELFTEST_R5_KEEP", d_keep)
+    check("R5-d relaunch into a cwd holding a launcher STATUS.<case_id> is NOT blocked; "
+          "the plant survives the second launch too, byte-identical",
+          r_re == "LAUNCHED" and planted.exists() and _sha(planted) == sha_before,
+          f"tick={r_re} sha_equal={planted.exists() and _sha(planted) == sha_before}")
+
+    # --- R5-e FAIL CLOSED, BOTH LIMBS. `case_id` is validated only as a non-empty
+    #     string (queue_entry_check.py:199), so a path separator in it would let the
+    #     record path ESCAPE cwd and truncate an arbitrary file. Positive limb: launch()
+    #     REFUSES and writes nothing -- a file outside the cwd survives byte-identical
+    #     and the entry is not moved. Negative limb: the identical fixture with a clean
+    #     case_id launches, so the refusal is a reading and not a brick.
+    d_esc = tmp / "case_r5_esc"; d_esc.mkdir()
+    victim = tmp / "STATUS.queue.VICTIM"                  # one directory ABOVE the cwd
+    victim.write_text(SENTINEL)
+    sha_v = _sha(victim)
+    esc = dict(good); esc["case_id"] = "../STATUS.queue.VICTIM#"; esc["cwd"] = str(d_esc)
+    esc_path = root / "cfd" / "SELFTEST_R5_ESC.json"
+    esc_path.write_text(json.dumps(esc))
+    refused_ok = False
+    try:
+        launch(esc, esc_path, root, log)
+    except ValueError as exc:
+        refused_ok = "REFUSING TO LAUNCH" in str(exc)
+    check("R5-e FAIL-CLOSED POSITIVE LIMB: a case_id carrying a path separator makes "
+          "launch() REFUSE before any write -- the file it would have escaped onto is "
+          "byte-identical, the entry file was not moved, and no launched/ record exists",
+          refused_ok and _sha(victim) == sha_v and esc_path.exists() and
+          not (root / "cfd" / "launched" / "SELFTEST_R5_ESC.json").exists(),
+          f"refused={refused_ok} victim_intact={_sha(victim) == sha_v}")
+    esc_path.unlink()
+    d_ok = tmp / "case_r5_esc_ok"; d_ok.mkdir()
+    r_ok = _run_entry("SELFTEST_R5_ESC_OK", d_ok)
+    check("R5-e FAIL-CLOSED NEGATIVE LIMB: the same fixture with a clean case_id launches "
+          "normally -- the refusal above distinguishes, it does not simply always fire",
+          r_ok == "LAUNCHED" and (d_ok / "STATUS.queue.SELFTEST_R5_ESC_OK").exists(),
+          f"tick={r_ok}")
 
     shutil.rmtree(tmp)  # scratch root only, created by mkdtemp above
     n_fail = sum(1 for _, ok, _ in checks if not ok)
