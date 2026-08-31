@@ -1,8 +1,8 @@
 SO-1cR GUARD SELFTEST EVIDENCE
-generated 2026-08-31T17:39:33Z by the dafoam lab-lane building SO-1cR
+generated 2026-08-31T17:43:40Z by the dafoam lab-lane building SO-1cR
 python: Python 3.12.3
 instrument md5s at the time of this run:
-  bb8c08410a446f6336acdf13711785dd  so1cr_chain_driver.sh
+  fe09e286ffac802a638ad098528198f6  so1cr_chain_driver.sh
   52d991ce80a1af30523a9f7253286e3b  so1cr_run_arm.sh
   a13cd4e7b53c5051abe697da485c3433  so1cr_grade.py
   1ffadf39206d5bb732dcfcf0288ba628  so1cr_xn.py
@@ -10,7 +10,7 @@ instrument md5s at the time of this run:
   eeffa1ec56804cc76dd3a8c98fc31e0e  so1cr_groot5_selftest.sh
   3008a7a677c8614d84c6b66f388af30c  PREREGISTRATION.md
 
-SO1cR GUARD SELFTEST  stamp=20260831T173933Z
+SO1cR GUARD SELFTEST  stamp=20260831T174340Z
 run root ABSENT before the test: YES
 containers on the box BEFORE: 19
 

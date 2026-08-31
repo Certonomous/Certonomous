@@ -395,8 +395,8 @@ done
 # ---- (6) the FROZEN grader on the artefacts (zero compute); its rc is INFRASTRUCTURE (L-342)
 GSTAMP=$(date -u +%Y%m%dT%H%M%SZ)
 if echo "$MD5_GRADER  $GRADER" | md5sum -c - > /dev/null; then
-  python3 "$GRADER" --root "$BASE" --out "$BASE/SO1c_grade_${GSTAMP}.json" > "$BASE/SO1c_grade_${GSTAMP}.out" 2>&1; GRC=$?
-  echo "grader_rc=$GRC stamp=$GSTAMP out=SO1c_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
+  python3 "$GRADER" --root "$BASE" --out "$BASE/SO1cR_grade_${GSTAMP}.json" > "$BASE/SO1cR_grade_${GSTAMP}.out" 2>&1; GRC=$?
+  echo "grader_rc=$GRC stamp=$GSTAMP out=SO1cR_grade_${GSTAMP}.json note=comparator-exit-status-NOT-the-verdict" >> "$STATUS"
 else
   echo "grader_rc=NOT_RUN stamp=$GSTAMP note=grader-md5-drifted-at-chain-end" >> "$STATUS"
 fi
