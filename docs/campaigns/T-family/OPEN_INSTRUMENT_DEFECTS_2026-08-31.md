@@ -312,3 +312,119 @@ what the arm proves, not about what it writes.
 
 **None of the three was closed in this session, and none is repaired by this
 document.**
+
+---
+
+## ADDENDUM 1 — 2026-08-31, same session, after the body above was committed at `ec3860fa`
+
+**Nothing above is edited or struck. Lines whose number changed above this
+section: 0.** This addendum **corrects one count in the context paragraph** and
+**widens Finding 2 from one rung to six**. Both corrections make the record worse
+for the lab, not better, which is why they are appended rather than left for a
+successor to find.
+
+### A1.1 — How the error was caught, stated plainly
+
+The context paragraph's census came from `grep -rn --include=*.py "grade(HERE"`.
+**That pattern is structurally blind to a call whose argument list is wrapped
+across a newline**, and one such call exists. It was caught by two artifacts this
+lane had already set aside: an unrestricted background `grep` over the whole
+`T-family` run tree that had been abandoned when it timed out, and T18's own
+incident record, whose table at
+`verification/runs/T-family/T18_runs/T18_SELFTEST_INCIDENT_RECORD.md:117-126`
+lists a `T9aR1c` entry the committed census does not contain. **The census was
+re-run with a newline-tolerant regex** (`grade\(\s*\n?\s*HERE`) over every
+`analyse_t*.py` in the tree.
+
+**The lesson is the lab's own rule 3 turned on a grep**: a reader was trusted
+without being shown able to see the shape it was hunting. A literal-string sweep
+for a source construction is exactly such a reader.
+
+### A1.2 — CORRECTED CENSUS
+
+| figure | as committed above | **corrected** |
+|---|---:|---:|
+| textual occurrences in `.py` | 25 | **26** |
+| **EXECUTABLE calls** | 6 | **7** |
+| commented-out | 1 | 1 (unchanged, `analyse_t19b.py:898`) |
+
+The seventh executable call is **`verification/runs/T-family/T9aR1c_runs/analyse_t9aR1c.py:933-934`**,
+wrapped — `grade(` closes line 933, `HERE,` opens line 934 — and carrying a
+`quiet_ref=True` keyword the other six do not have. The full corrected executable
+set is `analyse_t9aR1b.py:367`, **`analyse_t9aR1c.py:933`**, `analyse_t14.py:468`,
+`analyse_t15.py:918`, `analyse_t17.py:616`, `analyse_t18.py:509`,
+`analyse_t19.py:691`.
+
+**THE RETRACTION IN THE PARAGRAPH ABOVE IS UNAFFECTED AND IS STRENGTHENED.** The
+seventh call's `json_out` is
+`os.path.join(tempfile.gettempdir(), "t9ar1c_never.json")` [MEASURED, line 934].
+So it is **7 of 7** writing into `gettempdir()`, not 6 of 6: **still no live-tree
+write, still a dead control arm, still not contamination.** Anyone re-raising the
+contamination alarm is still re-raising a retracted claim.
+
+*(Separately checked and NOT a survivor of the retracted wording:
+`T18_GRADE_OUTPUT_20260831T151113Z.txt.NOTE.txt:17` says the arm "calls
+`grade(HERE, ...)` **against** the LIVE run tree", which is the **read**-side
+claim and is true. It is named here so a successor does not mistake it for the
+retracted write-claim and delete a correct sentence.)*
+
+### A1.3 — FINDING 2 IS NOT A T15 DEFECT. IT IS A FAMILY-WIDE ONE, AND SIX RUNGS CARRY IT
+
+Every one of the seven arms asserts some form of *"live tree, no DONE marker(s)
+→ exit 2 REFUSE"*, and each fires `grade()` at its **own** live run directory.
+The clause can only be exercised where that directory has **no** DONE marker.
+Markers actually on disk [MEASURED this session, directory listings]:
+
+| comparator | `DONE.*` on disk | is the arm's named precondition true? |
+|---|---:|---|
+| `T9aR1b_runs` | 3 | **NO** |
+| `T9aR1c_runs` | 3 | **NO** |
+| `T14_runs` | 4 | **NO** |
+| `T15_runs` | 1 | **NO** |
+| `T17_runs` | 4 | **NO** |
+| `T18_runs` | 4 | **NO** |
+| `T19_runs` | **0** | **YES — the only arm still testing its own clause** |
+
+**Six of the seven arms are pointed at trees whose DONE markers make the clause
+they name unreachable.** T19 is the sole survivor, and only because its rung has
+not been marked yet — **which means T19's arm dies the moment T19 is marked.**
+
+**The mechanism is spreading, and it is dated.** T18's incident record states
+that completing its marker set at **2026-08-31T14:57:46Z** is what removed the
+condition its arm asserts on: *"Before marking: selftest 17/17, grading refuses.
+After marking: grading runs, selftest 16/17. There is no state in which both
+hold, and marking is a precondition of grading."* [CITED, `T18_SELFTEST_INCIDENT_RECORD.md`
+via `T18_GRADE_OUTPUT_20260831T151113Z.txt.NOTE.txt:17-23`.] **Marking a rung
+DONE is a precondition of grading it, so every rung converts its own arm from
+live to dead on the way to a verdict.** This is not six independent mistakes; it
+is one construction that self-destructs on the normal path.
+
+### A1.4 — WHAT IS MEASURED HERE, AND WHAT IS EXPLICITLY NOT
+
+**MEASURED for all six:** the arm's named precondition is false, because the DONE
+markers are present.
+
+**NOT MEASURED, and not guessed:** which of the two failure modes each of the four
+unexamined rungs lands in. A dead arm prints **`ok`** if some *other* conjunct
+refuses on that tree (T15's mode — silently green, proving nothing), and prints
+**`FAIL`** if nothing else refuses (T18's mode — honestly red and visible). That
+disposition is known only for **T15** (green, from S1 — measured) and **T18**
+(red — cited). For **`T9aR1b`, `T9aR1c`, `T14` and `T17` it is UNKNOWN**, and
+this lane did not determine it, because determining it means running the
+comparators and each run produces side-effect artifacts in rungs this lane has no
+registration to touch. **A successor must not assume the T15 mode for all four.**
+
+### A1.5 — CONSEQUENCE FOR THE TABLE ABOVE
+
+Row 2 of "FOR THE SUCCESSOR" is **too narrow as written** — it names T15 alone.
+It is not rewritten; read it with this addendum. The corrected scope:
+
+| # | Rung | Open item | Blocks | Route |
+|---|---|---|---|---|
+| 2′ | **T9aR1b, T9aR1c, T14, T15, T17, T18** | the live-tree DONE-marker arm cannot fire; six comparators | no verdict — **but it means six selftests carry an arm that proves nothing** | post-compute instrument change per rung, §2d.1 route; **T19 is unaffected only until it is marked** |
+
+**This is now a class defect across the T-family's selftest layer and is above a
+single lane's disposition.** It is boarded, not repaired, and it goes to
+heat-transfer's supervisor and to verification together — the six rungs are not
+all heat-transfer's to rule on, and the construction is shared with comparators
+other teams cite.
