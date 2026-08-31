@@ -253,8 +253,8 @@ independent finite-difference evaluation of the same expression to eight figures
 
 \textbf{{Checked.}} The unblown section returns a surface lift coefficient of
 {sci(measured[0.00]['CL_aero'], 3)} at zero incidence, as a symmetric section
-must. The same reader that produced that near-zero produced $1.01$ at the
-strongest blowing, so the zero is a real measurement and not a blind instrument.
+must. The same calculation gave $1.01$ at the strongest blowing, so the
+near-zero reflects the physics, not a calculation that could only give zero.
 
 \textbf{{Not checked.}} \emph{{None of the solved points in Table~2 is offered as
 verified against anything.}} The solutions are still tightening: no condition has
