@@ -355,12 +355,54 @@ def cprime_out(x: float) -> float:
 # spacing is PRESCRIBED at each column boundary at a value the geometry needs,
 # and each column solves a two-segment distribution to meet both of its ends.
 
+N1_REL_TOL = 1.0e-9    # relative tolerance on the n == 1 identity length==first
+
+
 def solve_ratio(length: float, n: int, first: float) -> float:
     """Per-cell ratio q of the geometric series with n cells, first cell
-    `first`, summing to `length`.  Refuses rather than degrades."""
+    `first`, summing to `length`.  Refuses rather than degrades.
+
+    THE n == 1 BRANCH USED TO BREAK THAT PROMISE, AND IT BROKE IT SILENTLY.
+    A one-cell segment delivers a cell of size `length`.  It delivers `first`
+    only when `length == first`, which is a coincidence, not an identity.  The
+    old branch returned q = 1.0 unconditionally and BEFORE computing `target`,
+    so `seg()` then reported `last = first * q**0 = first` -- the REQUESTED
+    size, never the delivered one -- and `distribution()` scored its
+    junction-match against that fiction and preferred it, because a fiction
+    matches perfectly.
+
+    MEASURED CONSEQUENCE at the time of the repair (F28, this generator):
+      * L1 column c1 received a first axial cell of 0.02255 m where 3.5e-4 m
+        was prescribed at X_NOSE -- a factor of 64 -- immediately downstream of
+        the centrebody nose apex, giving a face-adjacent cell-volume jump of
+        28,735 against a mesh median of 1.22.
+      * L2 column c2 received 0.015925 m where 8.86e-4 m was prescribed at
+        X_LIPEND -- a factor of 18 -- which is half the lip, while the
+        `>= 40 cells around the lip` refusal below still passed because it
+        counts cells and does not size them.
+      * L3 was not affected in any harmful way.
+    The defect therefore fired in a DIFFERENT column at each level and not at
+    all at L3, so the three meshes were not geometrically similar and
+    MESH_STANDARD 9.2 similarity did not hold across the Roache ladder.
+
+    The repair is a REFUSAL, not a correction: `n == 1` is legal only when the
+    segment length IS the requested first-cell size.  Callers that search over
+    candidate splits (`distribution`) catch ValueError and skip the candidate,
+    so an inadmissible one-cell segment is now rejected by the search instead
+    of winning it.  If no admissible split exists the caller refuses outright.
+    NOTHING IS CLAMPED AND NOTHING IS WARNED-AND-CONTINUED.
+    """
     if n < 1:
         raise ValueError("n < 1")
     if n == 1:
+        if abs(length - first) > N1_REL_TOL * max(abs(first), TOL):
+            raise ValueError(
+                "n == 1 delivers a cell of size %.12g, but %.12g was requested "
+                "as the first cell (relative error %.3g > %.3g). A one-cell "
+                "segment cannot honour a first-cell size other than its own "
+                "length." % (length, first,
+                             abs(length - first) / max(abs(first), TOL),
+                             N1_REL_TOL))
         return 1.0
     target = length / first
 
@@ -408,8 +450,17 @@ def multi(entries) -> str:
 
 
 def _series_sum(h_first: float, h_last: float, n: int) -> float:
+    # SECOND, LATENT INSTANCE OF THE SAME DEFECT CLASS -- guarded, never fired.
+    # With n == 1 this returned h_first and ignored h_last, so
+    # `solve_end_spacing`'s bisection on the LEFT-unknown limb searched a
+    # constant and would have returned an arbitrary answer.  It never fired
+    # because every caller passes a column cell count and `level_counts` floors
+    # those at 2.  It is guarded rather than left as a trap for the next edit.
     if n == 1:
-        return h_first
+        raise ValueError(
+            "_series_sum with n == 1 cannot honour two independent end "
+            "spacings (h_first=%.12g, h_last=%.12g); a one-cell series has one "
+            "size, its own length." % (h_first, h_last))
     q = (h_last / h_first) ** (1.0 / (n - 1))
     if abs(q - 1.0) < 1e-14:
         return h_first * n

@@ -1204,3 +1204,247 @@ sweep has NOT been run and nothing here should be read as saying it has.**
 *Drafted by a `lab-lane` for `cfd-supervisor`, 2026-08-30. **UNFROZEN. `PENDING`.**
 The supervisor's `SUPERVISION_CHARTER.md` §3 check 4 — pre-registration committed
 before compute — is theirs and has not been performed. Do not launch.*
+
+---
+
+## ADDENDUM 1 — 2026-08-31 — GENERATOR DEFECT `n == 1`; ALL THREE MESHES SUPERSEDED
+
+**Version 1.1.** **Lines whose number changed above this section: 0.**
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label.** It records a
+defect in the mesh generator, supersedes the mesh artifacts built with it, and
+refers three registration-level defects upward. Nothing above is rewritten; the
+struck material is struck here, in place, by reference.
+
+### A1.1 The condition rule 2 requires, and how it was checked
+
+Amendments before first compute are legal and must state the condition and name
+the run directory that does not exist. **No gated compute has occurred against
+this case.** Checked on disk 2026-08-31, not taken from a report: the registered
+gated rung roots `verification/runs/F28_runs/{L1_dp1000_U20, L2_dp1000_U20,
+L3_dp1000_U20, OPEN_iter3, CTRL_PLANT}` **do not exist**; zero gated rung
+directories exist under `verification/runs/F28_runs/`; and zero
+`launcher.queue.out` files exist there outside `FEAS_*` and `DIAG_*`. The
+registered 400 core-min cap remains **entirely unspent**.
+
+**§A1.1 corrects one statement in the freeze notice at line 14 as a matter of
+present fact, not of gate.** That notice records that `verification/runs/*F28*`
+did not exist. It was true when written. It is no longer:
+`verification/runs/F28_runs/` now holds three built meshes, six
+feasibility/diagnostic run directories and their logs. **None is a gated rung and
+none graded anything.** The freeze's evidentiary content — that the gates could
+not have been chosen to fit an answer — is untouched, because no answer exists.
+
+### A1.2 The defect
+
+`case/mesh/make_mesh.py`'s `solve_ratio()` returned `q = 1.0` in its `n == 1`
+branch **unconditionally, and before computing `target = length / first`**,
+without ever testing that `length == first`. A one-cell segment delivers a cell
+of size `length`; it delivers `first` only by coincidence. `seg()` then reported
+`last = first * q**0 = first` — the **requested** size, never the delivered one —
+and `distribution()` scored its junction match against that fiction and
+**preferred it, because a fiction matches perfectly.**
+
+The function's own docstring said *"Refuses rather than degrades."* It advertised
+the property it violated.
+
+**Quantified, per level:**
+
+| level | column | station | prescribed | delivered | factor |
+|---|---|---|---|---|---|
+| L1 | c1 | `X_NOSE` | 3.5e-4 m | **0.02255 m** | **64×** |
+| L2 | c2 | `X_LIPEND` | 8.86e-4 m | **0.015925 m** | **18×** |
+| L3 | — | — | — | — | none harmful |
+
+Consequences measured on the built L1 mesh: a face-adjacent cell-volume jump of
+**28,735** at the c0|c1 interface at the centrebody nose apex, against a mesh
+median of 1.22 and a p99 of 4.27. At L2 the `>= 40 cells around the lip` refusal
+in the generator still passed while one of those cells was 0.0159 m long — half
+the lip — because that check counts cells and does not size them.
+
+**The defect fired in a DIFFERENT column at each level and not at all at L3.**
+The three meshes were therefore not geometrically similar and **MESH_STANDARD
+§9.2 similarity did not hold across this Roache ladder.** Had the solves run, the
+triple could not have been `CONVERGING` for the right reason.
+
+`read_back_grading()` could not catch it: it reads back the grading **string**,
+not the achieved first-cell **size**.
+
+### A1.3 The repair, and what it did not change
+
+The repair is a **refusal**: `n == 1` is legal only when `length == first` to a
+stated relative tolerance of 1e-9, else `solve_ratio` raises, as its docstring
+already promised. Nothing is clamped, corrected or warned-and-continued.
+`distribution()`'s search catches the refusal and skips the candidate, so an
+inadmissible one-cell segment is now **rejected by the search instead of winning
+it**. A second, latent instance of the same defect class in `_series_sum()` is
+guarded; it had never fired.
+
+Both limbs are tested by
+`cases/F28_DUCTED_ACTUATOR_DISK/f28_grading_guard_selftest.py` — the guard must
+refuse the planted L1 c1 and L2 c2 cases and must accept a legitimate
+`length == first` segment.
+
+**CELL COUNTS AND REFINEMENT RATIOS ARE UNCHANGED**, stated explicitly because
+"unchanged" is a result:
+
+| | L1 | L2 | L3 | r(L2/L1) | r(L3/L2) |
+|---|---|---|---|---|---|
+| before | 31,752 | 58,292 | 105,712 | 1.354936 | 1.346659 |
+| after | 31,752 | 58,292 | 105,712 | 1.354936 | 1.346659 |
+
+The before row is the **measured** count from `BIRTH_L{1,2,3}.json` and each
+`checkMesh` log; the after row is the generator's prediction, which reproduces
+the measured counts exactly on the unchanged path. Counts depend only on `nx` and
+`nr` from `level_counts()`, which the guard does not touch; the guard changes only
+**which split** the optimiser selects within a fixed cell count. **`r` does not
+move, so no question of a changed refinement ratio arises.**
+
+**Newly disclosed by the repair, and not itself repaired:** the honest best split
+for L1 column c1 carries an internal junction jump of **3.65×** (previously
+reported as a fictional 1.04). With `nx["c1"] = 18` cells, ends of 3.5e-4 and
+2.5e-4 m, and the 1.36 per-cell growth cap, no better split exists. The mesh was
+never good there; the fiction concealed it. Changing `BASE_NX` **would** move cell
+counts and `r` and is therefore **not** done here.
+
+### A1.4 SUPERSEDED ARTIFACTS
+
+Every artifact below was produced by the defective generator
+(`mesh_script_sha256 4fd876031c5d9fc6cd9d32cfa4ed59462473be8d2147f4496b241fe39c0c54d5`)
+and is **SUPERSEDED**. Its numbers are not struck from the record and are not
+rewritten; they are marked superseded and retained for comparison, per §2d.1
+condition (4).
+
+- `case/mesh/BIRTH_L1.json`, `BIRTH_L2.json`, `BIRTH_L3.json` — all three.
+- `verification/runs/F28_runs/mesh_L{1,2,3}/`, and the `blockmesh_L*.txt` and
+  `checkmesh_L*.txt` logs beside them.
+- **The STAGE 0 record at commit `5a851ca1`** — identified as superseded here
+  rather than silently replaced.
+- The three `FEAS_*` and three `DIAG_*` feasibility/diagnostic run directories,
+  which ran on the L1 mesh built by the defective generator. Their SIGFPE deaths
+  (rc 136) are **not** thereby explained — see §A1.5.
+
+No replacement mesh has been built at the time of writing.
+
+### A1.5 What is NOT concluded
+
+The mesh-conditioning hypothesis for the three SIGFPE deaths is **not**
+established and is **not** falsified. It is now understood to be **right in
+direction and possibly wrong in mechanism**: the leading candidate has moved from
+the high-aspect-ratio axis columns to the 64× junction discontinuity at the nose
+apex. The axis aspect ratio is a **second** candidate, not the leading one, and
+neither is established. **No probe has been run.** A probe was pre-registered with
+both readings fixed in advance at
+`verification/runs/F28_runs/PROBE_PRECOMMITTED_READINGS.md` and was **not run**,
+because the defect voided its decision rule before it started; that file's
+Reading A is struck there by its own dated addendum.
+
+### A1.6 THREE REGISTRATION-LEVEL DEFECTS REFERRED UPWARD — NOT REPAIRED HERE
+
+These are defects in **this frozen document**, not in the generator. Under rule 2
+they cannot be repaired by the lane or the team that wrote them. **They are
+recorded and referred. Nothing below has been acted on.**
+
+1. **THE `y+ <= 1` REQUIREMENT CONTRADICTS THIS DOCUMENT'S OWN ARITHMETIC.**
+   Line 478 registers first-cell `y+ <= 1` on duct inner, duct outer and hub.
+   The registered spacing target is `Y_FIRST_L1 = 1.0e-5 m`. This document's own
+   friction basis (U = 45 m/s, nu = 1.5e-5 m²/s, L = 0.2 m,
+   `Cf = 0.058 Re_L^-0.2`) gives `u_tau = 2.03 m/s` and `y(y+ = 1) = 7.40e-6 m`;
+   the generator's own comment records 1.9 m/s and 7.9e-6 m. **On either figure
+   the registered target is 1.27× to 1.35× the spacing the requirement needs.**
+   The gate cannot be met by the frozen spacing anywhere on L1, even where the
+   spacing is delivered exactly as prescribed. **This is NOT repaired by changing
+   the spacing to meet the gate** — that would be choosing the number that makes
+   the gate pass, which is what pre-registration exists to prevent. Per-column
+   `y+` ESTIMATES are tabulated in §A1.7.
+
+2. **THE DOCUMENT CONTRADICTS ITSELF ON ITS OWN FREEZE STATUS.** Line 3 reads
+   `FROZEN. Status at freeze: ARMED — never run.` The closing lines immediately
+   above this addendum read `**UNFROZEN. `PENDING`.**` and `Do not launch.` — a
+   drafting footer from revision 2 (`03dbcc14`) that the freeze commit `76ce0ed5`
+   did not strike. **The document is frozen**; line 3 and the freeze commit
+   govern. The stale footer is identified here and is **not edited**, because
+   editing it would move line numbers above this section.
+
+3. **THE FREEZE NOTICE'S "NO COMPUTE" STATEMENT IS NOW STALE AS PRESENT FACT.**
+   See §A1.1. It was true when written and its evidentiary content survives.
+
+### A1.7 `y+` PER COLUMN — ESTIMATES, NEVER MEASUREMENTS
+
+`y+` can only be measured after a solve. Every figure below is an **ESTIMATE**
+computed as `y_achieved * u_tau / nu` with a single reference `u_tau = 2.03 m/s`
+from the flat-plate correlation above. **Stated as assumptions, not as findings:**
+the correlation is a zero-pressure-gradient flat plate; it ignores the duct's
+internal acceleration, the stagnation region at the nose apex, the lip suction
+peak and the tail-cone thickening; and it applies one reference `u_tau` to three
+different walls. The true `y+` will differ, and on the lip it will differ a lot.
+
+Because `ROW_I`'s radial spec is a **ratio** applied to rows of varying height,
+the achieved first cell is `1.0e-5 * (H_local / 0.085)` and varies along each
+wall. L1, at the column boundaries:
+
+| wall | station | achieved 1st cell | `y+` ESTIMATE |
+|---|---|---|---|
+| hub | `X_NOSE` | 1.647e-5 m | **2.22** |
+| hub | `X_B` | 1.527e-5 m | **2.06** |
+| hub | `X_LIPEND` | 1.069e-5 m | **1.44** |
+| hub | `X_DISK_0` … `X_DISK_1` | 1.000e-5 m | **1.35** |
+| hub | `L_DUCT` | 1.343e-5 m | **1.81** |
+| ductInner | `X_B` | 1.566e-5 m | **2.11** |
+| ductInner | `X_LIPEND` … `L_DUCT` | 1.000e-5 m | **1.35** |
+| ductOuter | `X_B` | 1.356e-5 m | **1.83** |
+| ductOuter | `X_LIPEND` … `L_DUCT` | 1.000e-5 m | **1.35** |
+
+**The registered requirement is met at no station on L1 on this estimate.** The
+best case is 1.35 at the disk station, where the spacing is exactly as
+registered; the worst is 2.22 on the hub at the nose apex. The spacing variation
+makes it worse; it is not the origin. The origin is defect 1 of §A1.6.
+
+### A1.8 `VERIFICATION_CHARTER.md` §2d.1 — CONDITION BY CONDITION
+
+§2d.1's four-condition repair exception governs a change **on the grading path
+made after the first graded solve**. **This lane's position is that §2d.1 is not
+strictly engaged here, because no graded solve has occurred** — §2d closes gates
+after *first compute*, and there has been none, so the ordinary pre-compute
+amendment limb of rule 2 applies instead. The documentation is supplied anyway,
+as instructed, because the clause is `verification`'s to interpret and not this
+team's. **This team does not rule on it.**
+
+- **(1) Repairs a DEMONSTRABLE ERROR rather than a preference — MET.** A one-cell
+  segment 0.02255 m long was reported to its caller as 3.5e-4 m. The delivered
+  and reported values are both computable in closed form and differ by 64×. No
+  preference is involved and no tuning parameter was chosen.
+- **(2) Established by an instrument INDEPENDENT OF THE HYPOTHESIS — MET, and
+  this is the load-bearing one.** The error was found by `checkMesh`'s
+  `cellVolumeRatio` field — a mesh-quality diagnostic that **grades nothing in
+  this case**, knows nothing of thrust, `sigma` or any registered band, and
+  cannot have been selected to move a verdict in a wanted direction. It was found
+  while measuring a quantity **predicted to refute** the lane's own proposed
+  redesign, and it did refute it. The reader was proved live by a planted control
+  before any extremum was reported, and the first plant was **refused** by the
+  reader's own guard for not being extreme enough — that refusal is recorded. The
+  recomputation of `cellVolumeRatio` from `owner`/`neighbour` and `cellVolume`
+  reproduces `checkMesh`'s written field on all 31,752 cells.
+- **(3) The record discloses it, names that instrument, and QUANTIFIES WHAT MOVED
+  — MET.** This addendum. Instrument named in (2). Movement quantified in §A1.2
+  and §A1.3: 64× and 18× spacing errors, a 28,735 neighbour volume jump, and cell
+  counts and `r` explicitly unchanged.
+- **(4) Pre-repair values recorded beside the published ones — MET.** §A1.3's
+  table carries before and after. §A1.4 retains the superseded artifacts rather
+  than deleting them. The superseded generator sha is recorded in §A1.4.
+
+**Referred to `verification` for ruling: whether §2d.1 is engaged at all before
+first compute, and if so whether the four conditions are met as claimed.** This
+team asserts the facts and does not rule on the clause.
+
+### A1.9 Cost
+
+All work in this addendum is **pre-compute analysis and generator repair**. No
+solver ran. Single-core Python over artifacts already on disk: **under 1.0
+core-min**, which at the recorded $0.0513/core-h is **under $0.001, DERIVED and
+not measured** — the box cannot read its own billing. **The registered 400
+core-min cap remains entirely unspent.**
+
+*Drafted by a `lab-lane` for `cfd-supervisor`, 2026-08-31, on the supervisor's
+ruling. The supervisor's `SUPERVISION_CHARTER.md` §3 check 1 — measurement-script
+diffs read as diffs — is theirs and is not delegated to this lane.*
