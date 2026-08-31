@@ -1,0 +1,14 @@
+case=T20_LC_c
+rc=1
+wall_s=0
+ranks=1
+core_min=0.000
+timeout_s=48
+capped=no
+checkmesh_rc=0
+solver=chtMultiRegionFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/chtMultiRegionFoam
+region=cellRegion
+note=SOLVER_NONZERO_EXIT
+started_utc=2026-08-31T00:12:44Z
+ended_utc=2026-08-31T00:12:44Z
