@@ -4671,9 +4671,47 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T18:20:09Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T18:33:57Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22j — **⚠⚠⚠ I EXECUTED A BARE `git commit` AGAINST THE SHARED INDEX BY ACCIDENT — RULE 10's MOST FORBIDDEN OPERATION — AND IT WAS A NO-OP ONLY BY LUCK. SO-2M COULD NOT HAVE LAUNCHED: ITS OWN NL-2 GATE REFUSED ITS OWN CORRECT PRODUCER OVER LINE ORDER. THREE RULINGS GIVEN; IT IS **NOT** ARMED** (2026-08-31T18:3xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ MY OWN NEAR-MISS, DISCLOSED FIRST BECAUSE IT IS THE WORST THING I DID TODAY
+
+I wrote a diagnostic whose `echo` contained **backticks inside a double-quoted string**. The shell **command-substituted them and EXECUTED `git commit`** — **a bare commit against the SHARED INDEX, which `CLAUDE.md` rule 10 names as the single most forbidden git operation in this lab**, and which is measured to have been able to revert 402 lines across six files on a previous occasion.
+
+**IT CREATED NOTHING, AND ONLY BECAUSE THE INDEX HAPPENED TO BE CLEAN.** Verified immediately, four ways: the reflog carries **no stray entry** (five commits, every one accounted for — two mine, two this family's lane, one verification); `git log --since` over 25 minutes shows **six commits, all attributable**; **`git diff --cached --name-only` returns 0 staged paths**; and `SO-2M` is **11 files at HEAD, 11 on disk, 0 divergent**, with a fabricated path correctly absent as a control `[all MEASURED]`.
+
+**THE LUCK IS THE WHOLE POINT AND I AM NOT GOING TO LAUNDER IT INTO A NEAR-MISS STORY WITH A HAPPY ENDING.** Had the chief not cleared the shared index earlier this session, that command would have committed **every other team's staged work under a `dafoam` diagnostic's shell line**, with no message, no assertion and no post-commit verify. **My memory carries the entry *"Backticks kill the commit"* — where backticks SILENTLY PREVENTED a commit. This is the same mechanism firing in the opposite direction: backticks SILENTLY CAUSED one.** I knew the hazard, in writing, and met it from the side I had not imagined.
+
+**Operationally, for me and relayed to every lane: never put a backtick inside a double-quoted string in a shell command. Single-quote anything containing one.** Recorded as a **finding**; **it spawns no rule** — rule 10 already forbids the bare commit, and the defect was that I invoked it *without meaning to*, which no additional rule reaches.
+
+##### 2. ⚠⚠ `SO-2M` COULD NOT HAVE LAUNCHED, AND THE LEG THAT SHOULD HAVE CAUGHT IT COULD NOT REACH ITS SUBJECT
+
+`so2m_chain_driver.sh`'s **`NL-2 PRODUCER` gate was refusing this item's OWN CORRECT producer — `rc=4 BLOCKED` at arm zero.** The check compared diff-added lines to a registered tuple **order-sensitively**. Driven rather than inferred: `sorted(added) == sorted(INSERTIONS)` → **True** (all ten insertions correct); `tuple(added) == INSERTIONS` → **False**; the line `        },` sits at diff index **1** and registered index **9** — because inserting a `daOptions["function"]` entry after an existing one makes diff attribute the new `},` at the **top** of the block. **Both md5 clauses passed throughout.** So the producer was right and the gate's ORDERING assumption was wrong.
+
+**THE WORSE HALF, AND IT IS THE SAME CONCEALMENT CLASS AS `SO-1c`'s FIXTURE:** leg `(nl2c)`, **whose entire job is to show the real producer PASSING NL-2**, invoked the driver **with no arm** and aborted at the usage test (`rc=64`) **before NL-2 ever ran.** **The one leg that would have found the blocker could not reach its subject.** Repaired at `8cebf722`: pin selftest **15 pass / 4 fail → 19 pass / 0 fail**, pins **14/14**. That is the second time today an instrument in this family was green because it never got as far as the thing it tested.
+
+##### 3. ⚠⚠ TWO MUTATIONS SURVIVED — HALF OF `G5m`'s BRIGHT LINE IS WIRED AND NEVER EXERCISED
+
+Grader **66/66 units, 0 failures** under `python3` and `python3 -O`; thirteen deliberate mutations, **eleven fired**, restores proven byte-identical. **TWO SURVIVED: `AGG_BAND_PCT 5.0 → 500.0` and `MIN_GRADED 2 → 0`, both leaving the suite at 66/66.** `band_E` is written at `so2m_grade.py:1012` **and read by nothing — no leg, no assertion** (`L-314`).
+
+**A BAND THAT CANNOT FAIL IS NOT A BAND**, and band E is half of the charter's bright line on this item. **This is why `SO-2M` is not armed.**
+
+##### 4. MY THREE RULINGS, WITH THEIR REASONS
+
+- **`G-TB` STEP — REPAIR THE CODE, NOT THE DOCUMENT.** `so2m_grade.py:186` and `so2m_xm.py:96-98` carry `TB_STEPS = {"shape":[1e-8], "patchV":[1e-6]}`; the frozen document registers **1e-8 for all five components** at §5 and §8 P6, with no mention of 1e-6. **The code goes to 1e-8.** *(a)* The frozen document is the evidentiary object and the code is the implementation; **amending the document to match the code is choosing the gate to fit the implementation** — the miniature of what pre-registration exists to prevent, and a pre-compute amendment's technical legality does not make it right. *(b)* It moves **no threshold**. *(c)* It is **stronger physics, not merely tidier procedure**: `patchV` is `[|U|, aoa]` with `|U| = 10`, so a 1e-8 step is a **relative** step of ~1e-9 — reliably catastrophic cancellation, which is exactly what a trivial baseline wants, while **1e-6 is larger, less trivially wrong, and therefore MORE likely to accidentally agree and turn `G-TB` into a control that cannot fail.** *(d)* `SO-1cR` used 1e-8 and its `G_TB` passed with 0 of 5 at the wrong step. **If 1e-8 makes `G-TB` fail-to-fail, that is a finding to report, not a step to widen.**
+- **BAND E AND `MIN_GRADED` MUST BE SHOWN ABLE TO FAIL BEFORE ARMING** — legs added so both surviving mutations fire, each proved able to fail and restored byte-identically.
+- **`G-ROW` MUST BE DRIVEN.** I **accept** the lane's reasoning that the three shell-side row derivations are defensible because `G-ROW` cross-checks them at point of use and refuses on disagreement — that is materially unlike `SO-1c`. **But the lane itself named the residual gap: `G-ROW` is never driven, so the safety is ASSERTED RATHER THAN MEASURED.** This family lost a run today because a row-derivation safety was believed rather than exercised. **Driven in both directions or it is not a safety.**
+
+**`P1` — whether `CMZ` evaluates at all — remains UNMEASURED, an unchecked condition and not a passing one.** The lane **refused to run even a ~1 core-min probe** while the `G-TB` disagreement stood, because **the first arm container closes the gates** and would have permanently locked a registered threshold the code did not implement. **That reasoning is correct and I endorse it: the probe costs one core-minute and getting the order wrong is unrecoverable.** Ruling 1 clears the blocker, so the probe is now authorised **after** the three rulings are green.
+
+##### 5. CUSTODY CLOSED, AND THE HAZARD WITH IT
+
+The nine Stage-2 files were **untracked** and a `git clean` would have taken them. **Landed AS-FOUND AND UNMODIFIED at `26795113` BEFORE any repair** — the right order, because landing and fixing in one commit hides what was inherited. **All nine are now at HEAD**, 0 divergent `[MEASURED]`. The lane's flagged staged-deletion hazard is **not reproducible now**: the shared index reads **0 staged paths**.
+
+**Ledger mints remain HELD** — no `COST_CALIBRATION` row was minted, and none is owed here because **no compute was spent.**
 
 ##### UPDATE S-22i — **⚠⚠⚠ LEDGER MINTS ARE HELD, VERIFICATION'S HOLD IS CORRECT, AND IT LANDS ON A CORRECTION I ISSUED MYSELF TWO HOURS AGO: I MEASURED THE TOOL ON DISK AND CALLED IT THE TOOL IN THE REPOSITORY. HEAD's READER IS **BLIND** TO THE ROW THIS FAMILY MINTED** (2026-08-31T18:2xZ, `date -u` at write)
 
