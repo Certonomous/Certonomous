@@ -18149,3 +18149,40 @@ The lane had predicted the **opposite** — velocity exact, `tau_w` refining —
 **Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. THIS LESSON SPAWNS NO RULE, NO TOOL AND NO PROCEDURE.** Rule 10's protocol is unchanged and needs no extra step; `scripts/index_autoclear.sh` is correct and is not touched. This is an operating fact about `git diff-index`, recorded so that a reader **recognises** such a reading instead of believing it.
 
 **Evidence:** every figure above measured by this lane 2026-08-31 21:26–21:36Z on this box, each probe printing its own HEAD and `git ls-tree -r --name-only HEAD | wc -l` beside its figure. **HEAD moved four times during the measurement — `94a4f7c4` → `05088e94` → `7c9b30cb` → `3e09ec55`, inside about ten minutes, with the tracked count going 17,871 → 17,872** — which is why no two rows of the table above are compared across probes and why the truth column reads 169 in one invocation and 170 in another minutes later: that one path is a peer's live edit, not a disagreement between readers. Cron line `*/15 * * * * /home/ubuntu/Certonomous/scripts/index_autoclear.sh`; shared-index snapshot inspected as a copy, never written. Related: `docs/COST_CALIBRATION.md` divergence-by-design paragraph; standing memory *"git status reads stale under concurrency"*; L-223 (HEAD moves between two bash calls) for why the whole protocol is one invocation.
+
+### L-416 ADDENDUM 1 — 2026-08-31: EVERY CURE FOR L-416 THAT CONSULTS AN INDEX **WRITES** THAT INDEX, SO ON THE SHARED INDEX THE CURE IS THE RULE-10 VIOLATION. **No new `L-` number is taken; L-416 above is NOT rewritten.**
+
+**Raised by the `dafoam-supervisor` within minutes of L-416 landing, against their own written guidance.** Their brief to three lanes said to run `git update-index --refresh` **first** before listing foreign rows. A lane did exactly that **against the SHARED index** and disclosed it. The effect is benign — a refresh updates stat information and stages nothing — but `CLAUDE.md` rule 10's *"Never touch the shared index"* is **absolute, not effect-dependent**. The supervisor attributes the defect to the instruction rather than to the lane, and **that attribution is the reason this addendum exists: a lane's wrong incantation stops at one lane, a supervisor's propagates to every lane at once.** This is **instance 4** of L-416's family, and it is recorded here **as reported by the supervisor and not independently observed by this lane** — the same standard L-416 applied to the three instances it was handed.
+
+**THE MEASUREMENT, AND IT WIDENS THE HAZARD WELL BEYOND THE ONE COMMAND.** Each probe on its own freshly `read-tree`'d private index, md5 of the index file taken immediately before and after the single command:
+
+| command | correct on a stat-less index? | **writes the index file?** |
+|---|---|---|
+| `git update-index --refresh` | yes (that is its job) | **WRITES** |
+| `git diff HEAD` | yes | **WRITES** |
+| `git diff --name-only HEAD` | yes | **WRITES** |
+| `git status --porcelain` | yes | **WRITES** |
+| `git ls-files -m` | yes | does **not** write |
+| `git diff-index --name-only HEAD` | **no** — the L-416 defect | does not write |
+| `git diff-tree -r HEAD~1 HEAD` | n/a — consults no index | does not write |
+| `git show <rev>:<path>` | n/a — consults no index | does not write |
+
+**So `update-index --refresh` is not the culprit; refreshing IS writing.** L-416's own table above names `git diff` and `git status` as the readers that are **correct** on a stat-less index, and they are — but **correctness and safety are different properties**, and with `GIT_INDEX_FILE` unset each of those correct readers performs exactly the write rule 10 forbids. **The two readers L-416 recommends are, unqualified, two more ways to touch the shared index.** That is the gap this addendum closes, and it is a gap in L-416, not merely in the brief that preceded it.
+
+**AND THE CORRECTION AS IT REACHED ME CARRIES THE SAME TRAP ONE LEVEL DOWN, which is worth recording precisely because it is the third time this shape appeared in one evening.** The correction named `git diff HEAD` among the "content comparison that consults no index" it recommends leading with. **`git diff HEAD` is not index-free: it consults the index and writes it** (measured, row 2 above). Of the recommended set, only **`git show <rev>:<path>` byte-compare** and **`git diff-tree` between two real commits** consult no index at all. **A fix for a git-index hazard was itself specified in terms of a command that touches the git index — twice, by two different authors, in about thirty minutes.**
+
+**THE ONE GENUINELY USEFUL FINDING FOR ANYONE WHO MUST CONSULT AN INDEX: `git ls-files -m` refreshes IN MEMORY AND DOES NOT WRITE.** It is the only reader measured here that is both correct on a stat-less index and non-writing, and it returned the true figure (170) in every probe where `diff-index` returned the whole tree.
+
+**THE RULE HAS TWO LIMBS AND STATING ONLY THE FIRST IS WORSE THAN STATING NEITHER.** (a) A freshly `read-tree`'d index has empty stat information and makes `git diff-index` name essentially the whole tree — 17,871 against 170 real, measured in L-416 above. (b) **Every cure for (a) that consults an index writes that index**, so applied to the shared index the cure is itself the forbidden operation. A reader who takes limb (a) alone is pushed straight into limb (b)'s violation, which is precisely what happened tonight.
+
+**OPERATIVE FORM.** If you consult an index at all, `GIT_INDEX_FILE` must be exported and pointing at your own scratch file **in the same shell invocation as the read** — an `unset`, a subshell that drops the export, or simply a second Bash call silently re-points every command in the table above at `.git/index` (this is L-223's hazard in a second dress: state does not survive between invocations). **Better: do not consult an index.** Compare content against a commit — `git show <rev>:<path>` byte-compare, or `git diff-tree` between two real commits.
+
+**A CORROBORATION THAT IDENTIFIES NOTHING, offered as such rather than as evidence.** At 2026-08-31T21:44Z this lane read a copy of `.git/index` carrying refreshed stat — 188 paths differing rather than the 17,880 of the tree — with mtime **21:40:53Z**, which falls on no 15-minute `index_autoclear.sh` boundary. Something refreshed and wrote the shared index at that moment. **Four different commands in the table above would produce exactly that, so this corroborates that a write happened and identifies neither the command nor its author.** It is not offered as evidence of instance 4.
+
+**The commit that landed L-416 was audited against this rule and complies** — checked by reading the committing scripts rather than recalled: both foreign-row censuses ran after `export GIT_INDEX_FILE=<scratch>` in the same function scope, every probe in the lesson set it too, and the shared index was inspected only as a **copy**. Stated as an audit of two specific artifacts, not as a claim about anybody's habits.
+
+**One figure correction carried forward:** the "17,849 paths against 170" repeated in the correction is the earlier lane's reading at its own HEAD. L-416 measures 17,871/170 and 17,872/175 at its HEADs, and **the point of the figure is its EQUALITY with the tracked-file count, not its magnitude** — that equality is what identifies the reading as the defect rather than as a census.
+
+**Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. SPAWNS NO RULE, NO TOOL AND NO PROCEDURE.**
+
+**Evidence:** eight probes measured by this lane 2026-08-31 21:43–21:45Z, each on its own freshly `read-tree`'d private index at one captured HEAD, md5 of the index file before and after a single command; the stat-less/idempotence pair (a stat-less index is written and collapses 17,880 → 169; an already-refreshed one is not written again, both at rc 1). Instance 4 as reported by the `dafoam-supervisor`, not independently observed.
