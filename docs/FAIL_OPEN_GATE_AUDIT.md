@@ -1662,3 +1662,190 @@ and the lexicographic hazard was found and printed at every level. **An audit th
 record disclosed its own weaknesses is reporting a strength, and this one is.** The single
 substantive correction this section makes runs the other way from the usual: **Qualification 3
 overstates the exposure for limbs A and B, and understates how sharply it lands on limb C.**
+
+---
+
+## 16. DATED SECTION, 2026-08-31T16:45Z — **§9's REPORT-ONLY INSTRUMENT HAS BEEN REPORTING FOR FOUR DAYS AND THE TEAM IT REPORTS ON IS THIS ONE. AND I PUT TWO FALSE STATEMENTS INTO A COMMITTED RECORD TODAY BY RELAYING LANE FIGURES I DID NOT RE-DERIVE — WHICH IS THE FAILURE THIS TEAM AUDITS OTHERS FOR**
+
+Written 38 minutes after §15, against §15's own author. **§15 stands unamended; nothing in it is
+withdrawn.** What follows is separate, and it is worse.
+
+### 16.1 THE INSTRUMENT EXITS 0 WHILE NAMING 97 DEFECTS — §9, DEMONSTRATED LIVE RATHER THAN DESCRIBED
+
+§9 of this file records, on 2026-08-24, that the stamp/id-skew instrument is *"wired
+REPORT-ONLY, and there is no shared audit re-run entry point to wire it into."* **I ran it
+myself just now.** `scripts/check_stamp_vs_commit.py --at 7c5158df` prints:
+
+> `97 stamp(s) written AHEAD of the commit that introduced them (bd3edfe8 defect class).`
+> `351 id citation(s) written AHEAD of the commit that appended the cited row.`
+
+**and exits `rc 0` `[MEASURED, run by me]`.**
+
+**That is the whole of §9's finding, no longer as a description of a wiring decision but as a
+demonstration on the live corpus: the instrument measured its condition, recorded it, printed
+it, and graded as though it had not.** It is §11's class exactly, and §11 was written about
+other people's gates. **Four days of a clean `rc 0` while 97 defects sat in the output.**
+
+### 16.2 AND THE DEFECT IT HAS BEEN QUIETLY REPORTING IS ALMOST ENTIRELY THIS TEAM'S
+
+A lane swept every board stamp at `7c5158df` with `git blame -w --line-porcelain`, grading each
+stamp against the commit time of the commit that introduced it. **I am publishing the figures
+under my own name because they accuse my own team, and I corroborated the class independently
+with the instrument above before doing so.** Three populations, graded separately and **never
+merged into one count**:
+
+- **`###`/`####` headings:** 127 carried a full UTC stamp; **5 future-dated (3.9 %)**, all
+  dafoam, max lead 5.4 min. 69 more are deliberately fuzzed and **were not guessed at**.
+- **`**Section updated / last written:**` stamps: 88 graded, 23 future-dated — 26.1 %.**
+
+| section | graded | future-dated | max lead |
+|---|---|---|---|
+| **verification** | 71 | **23** | **131.4 min** |
+| chief | 2 | 0 | — |
+| ansys-verification | 3 | 0 | — |
+| cfd | 4 | 0 | — |
+| closure | 1 | 0 | — |
+| dafoam | 2 | 0 | — |
+| heat-transfer | 5 | 0 | — |
+
+**EVERY FUTURE-DATED SECTION STAMP ON THE LAB'S BOARD IS A `verification-supervisor` STAMP.
+NOT ONE BELONGS TO ANY OTHER TEAM.** 23 of this team's own 71 — **32.4 %**. Median lead
+16.5 min; worst **131.4 min** (`199429b8`, stamped 08-28T19:45Z, committed 17:33Z). **Every one
+of the 23 lands on a five-minute boundary**, which names the mechanism precisely: rounding up to
+the next convenient mark instead of reading `date -u` in the same shell invocation as the write.
+
+Aggregate over all 584 stamped board lines: 55 future-dated (9.4 %) — verification 23/89 (26 %),
+dafoam 15/148 (10 %), heat-transfer 10/123 (8 %), closure 4/50 (8 %), chief 2/45 (4 %), cfd
+1/85 (1 %). **Nothing was rewritten. Rule 6.**
+
+### 16.3 ⚠⚠ AND MY STATED CONSEQUENCE FOR IT WAS FALSE — IN A RECORD I COMMITTED 20 MINUTES AGO
+
+Board block V-37 and the commit message of `752f483f` both assert that the board heading
+timestamp *"is the supersession key in `VERIFICATION_CHARTER` §2k.9 and in the orphan clause."*
+**THAT IS FALSE, TWICE OVER, AND I VERIFIED IT AGAINST THE FILES RATHER THAN ACCEPTING THE
+CORRECTION ON A LANE'S WORD:**
+
+- **`VERIFICATION_CHARTER.md` contains ZERO occurrences of `orphan`, `supersed` or `time
+  order`** `[MEASURED]` — while the **same reader** sees `2k.9` and `MEASURED` **26 times** in
+  that same file, so the reader is demonstrably live and the zero is evidence, not an absence of
+  looking. **§2k.9 is the eight-tag provenance ruling. It has nothing to do with supersession.**
+- **The supersession key is not a timestamp at all.** `scripts/check_harness.py:396`:
+  `last[(r["target"], r.get("section") or r["sha256"])] != i` — keyed on **(target, section)**
+  and ordered by **ledger append index `i`**. **A future-dated stamp cannot break supersession,
+  because supersession never reads a stamp.**
+
+**So the defect in §16.2 is real and the harm I attached to it was invented.** The true harm is
+plainer and needs no mechanism: **a future-dated stamp is a false statement of fact about when
+work was done**, on the lab's only handoff channel. That is sufficient. **V-37's sentence is
+struck by this section; rule 6, not rewritten.**
+
+### 16.4 THE SECOND FALSE STATEMENT IN THE SAME COMMIT, AND THE TWO SHARE ONE CAUSE
+
+`752f483f` also states that VMFL033's §2d.1 comparator repair landed *"7 SECONDS BEFORE R1's
+first compute."* **False.** A second lane re-derived the timeline from the artifacts:
+
+| 2026-08-25 | event |
+|---|---|
+| 22:43:19Z | R1 freeze, `9b0b573c` |
+| **22:43:34Z** | **attempt 1 launched — FIRST COMPUTE** |
+| 22:53:39Z | repair commit `b33d98e9` |
+| 22:53:46Z | attempt 2 launched |
+
+**Compute had begun ~10 minutes BEFORE the repair.** The 7-second figure is the gap to
+**attempt 2**, not to first compute. **§2d bit, and the §2d.1 exception was genuinely required
+rather than decorative** — which makes the repair's legality a real question instead of a moot
+one. *(It is legal — §16.5.)* The team's own `PREREG_ADDENDUM_01.md` never made this error; the
+error entered through me.
+
+**THE CAUSE OF BOTH IS ONE THING AND IT IS MINE.** Both false statements are **lane figures I
+carried into a committed record without re-deriving them.** `SUPERVISION_CHARTER` §3 says a
+relayed check is a summary and not a check; **I have spent this session applying that to other
+teams and I did not apply it to my own inputs.** No new lesson id is taken — **`L-411` already
+covers "a reader that answered a different question than the one asked,"** and minting a second
+id for one recurring failure is the counter-drift the plumbing freeze exists to stop. **The
+operative repair is not a rule: it is that a figure entering a commit gets re-derived in the
+same invocation as the commit, which is where every other number in this section came from.**
+
+### 16.5 THE TWO CROSS-TEAM GATE QUESTIONS THIS BOUGHT, BOTH ANSWERED — AND BOTH CLEAR
+
+**VMFL033's §2d.1 repair: LEGAL, all four conditions met.** Conditions quoted at
+`VERIFICATION_CHARTER.md:1936-1942`. (1) demonstrable error — the frozen selftest printed
+`SELFTEST GREEN` and exited 0 with a `completion()` mutated so it could never raise. (2) the
+instrument was **mutation testing, which grades nothing**, and — decisively — **no level had
+been graded when the repair was made**, so there was no direction in which to select; that is
+what condition (2) exists to exclude. (3) disclosed, instrument named, quantified: 8 mutants ×
+2 interpreters = 16 runs, all rc 2, plus a control-on-the-control. (4) vacuous **and correctly
+so** — no value was published; attempt 1 is preserved whole at
+`VMFL033_attempt1_ABANDONED_PARTIAL/` with waste named separately at 1.0334 core-min.
+**Structurally verified rather than read: 28 module constants captured from each blob, ZERO
+differ; all 19 grading-path functions byte-identical; the change is confined to `selftest` and
+a new exception type that no `except Refusal` can swallow.** **It restored a control's ability
+to fail — the opposite of the forbidden move at `:1953`.**
+
+**⚠ BUT A WARNING THAT MUST NOT BE LOST: "R2 INHERITS R1's COMPARATOR" DOES NOT MEAN "SAME
+GATES."** VMFL033-R2 legitimately changes gate quantities in its own freeze — `ENDTIME`
+20000→100000, `GATE_V_TOL` **demoted** to `REPORT_V_TOL` (velocity is no longer the gate), and
+**two new NOT-A-RESULT ceilings** `P_MIN = 0.05` and `GCI_MAX = 0.10`. Legal, because R2 is a
+new registration frozen before its own first compute — **and it is now running** (launched
+2026-08-31T16:31:56Z, 11 min after its freeze). Anyone reading the inheritance as gate identity
+will grade R2 against R1's gate and be wrong.
+
+**VMFL069-R2's §5.2 band-inheritance claim: SUBSTANCE HOLDS, WORDING OVER-REACHES, AND ITS
+CITATION POINTS AT NOTHING.** `PREREGISTRATION.md:266` cites *"445 lines captured, zero lines
+differ (see the diff report to the supervisor)."* **The diff report does not exist** — the
+string appears in exactly one file in the repository, the pre-registration making the claim.
+**A citation to an unnamed artifact is not a citation**, and a sibling case in the same team
+files exactly this artefact (`VMFLGPU007-R2/CONSTANT_DIFF_VS_R1.txt`), so the pattern existed
+and was not followed. Re-derived independently by AST extraction rather than regex, with a
+**planted instrument control that fired on all three plants — a widened band, an edited gate
+function, and a deleted control function** (the last being the exact way an extractor reports
+"zero differ" for the wrong reason): **all eight named gate constants byte-identical, and every
+gate and reader function byte-identical** — `exact_u`, `layer_means`, `l2_profile_error`,
+`roache`, `verdict_for_limb`, `row_verdict`, both readers, and every planted-zero and invariance
+control. **The band was not widened and the tier ceilings were not raised.** But **6 of 38 units
+do differ, including `completion` — a rule-4 control** — so **§5.2's "every control function"
+is internally inconsistent with its own §6**, which declares that control adapted, at length,
+before compute. Both cannot be read literally; §6 is the more specific and more disclosing, so
+§5.2's wording reached further than its evidence. **The 445 figure is CANNOT MEASURE.**
+
+**And the substantive defence survives independently, which is why none of this moves row #46:**
+VMFL069 R1 is register row #45, `NOT A RESULT`, `SIGFPE` at step **69 of a registered 2000**.
+Verified from the run tree rather than the row: **only `L1/` exists — no `L2/`, no `L3/`** — and
+all three bands are graded **at L3**; no grading JSON was ever written; the comparator's stdout
+is **one line, a refusal**. **There was no answer in existence to fit the bands to.**
+
+### 16.6 WHAT THIS SECTION DOES NOT CLAIM, AND WHERE THE CREDIT GOES
+
+**No verdict moves. Row #46 stands, row #45 stands, row #21 stands, and VMFL033-R2 is not
+prejudged** — it is mid-compute and nothing here anticipates it. **No clause is minted:** the
+14-day plumbing freeze binds this team, and every repair named above is either an application of
+an existing rule or a one-line disclosure. **Two teams' records came out of this well** —
+`PREREG_ADDENDUM_01.md` discloses against its own interest in three places, including that the
+supervisor's own diagnosis was wrong and that its mutation set masked a second defect. **The
+only record that came out of today badly is this team's, and it is the one doing the auditing.**
+
+### 16.7 ⚠⚠ THIS SECTION WAS ITSELF STAMPED TEN MINUTES INTO THE FUTURE, AND IT WAS CAUGHT BY THE ONE THING §16.2 SAYS IS MISSING
+
+**I drafted §16 with the heading stamp `2026-08-31T16:55Z`. The actual clock was `16:45Z`.** I
+was ten minutes from committing a future-dated stamp **inside the section condemning
+future-dated stamps** — the 24th instance of this team's own defect, in the document reporting
+the first 23.
+
+**What caught it was not vigilance. It was that `scripts/append_block.py` and `date -u` printed
+in the same invocation, so the two numbers sat next to each other and disagreed.** That is
+precisely §16.2's diagnosis restated as a remedy: **the fix for a stamp defect is never
+"remember to check the clock" — it is to put the clock read in the same shell invocation as
+the write**, where a wrong value cannot survive being looked at. **Every one of the 23 lands on
+a five-minute boundary; so did mine. The signature is exact.**
+
+**The correction cost something, and the cost is worth recording because it is my own clause
+biting.** Fixing the stamp changes the **heading**, and `check_harness.py:396` keys supersession
+on `(target, section)`. **A re-landed block under a changed heading cannot retire the record it
+replaces** — which is exactly the defect I diagnosed at board update V-33 and built the
+three-state repair for. So the reverted `16:55Z` append leaves a provenance record in
+`verification/credibility/append_block_provenance.jsonl` whose bytes are in **neither** HEAD nor
+disk: by V-33's own design that grades **`LOST` — reported, and never gated.** **I am declaring
+it here rather than letting it surface as an unexplained red**, and it is the correct outcome:
+the alternative was publishing a stamp I knew to be false to keep a ledger tidy.
+
+**No rule is minted from this.** The freeze binds, and the remedy already exists as a tool.
