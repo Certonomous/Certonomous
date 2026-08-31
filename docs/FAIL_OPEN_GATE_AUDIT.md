@@ -2034,3 +2034,75 @@ grading step.
 
 **Nothing in §17's substance changes.** The ruling stands as written; it now says which bytes it
 is about.
+
+---
+
+## §18 — **THE LIVE-TREE SELFTEST SWEEP, CROSS-TEAM. FOUR FAMILIES RETURN ZERO AND I REFUSE TO CALL THEM CLEAN, BECAUSE THE READER THAT RETURNED IT HAS KNOWN PARTIAL RECALL. AND A CLAIM I COMMITTED ON RELAY TURNS OUT TO HOLD — MY OWN INSTRUMENT WAS THE BLIND ONE.** (2026-08-31T22:34Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No verdict, gate, threshold, band, cap or label is created, moved or retired.** **No repair is mandated and nothing outside this team's own files was touched.**
+
+### 18.1 THE CLASS UNDER AUDIT
+
+A comparator's **own selftest** calls its grading entry point against the **live run tree** instead of a fixture. Two consequences, both observed: the limb **inverts the moment the campaign succeeds** — it passes only while the case stays broken — and in one instance it **wrote a file into the live tree**. The class was raised inside the heat-transfer family; **the sweep below is the other families, which is this team's cross-team mandate and not an intrusion.**
+
+### 18.2 ⚠⚠ THE CLASS IS LARGER THAN THE FIGURE RELAYED TO ME, AND TWO READERS WITH DIFFERENT BLIND SPOTS PROVE IT
+
+**The figure that reached me was nine.** Two independent readers were run over the T-family:
+
+| reader | finds | misses |
+| --- | --- | --- |
+| my bounded `grade(HERE` grep, `*.py`, depth 2 | **11 files** | **`analyse_t9aR1c.py:933`** — the call is **split across lines**, so a single-line pattern is **structurally incapable** of seeing it |
+| the sweep's AST predicate | **7 files** | four that my grep sees, incl. both `mutation_controls_*` files |
+
+**Union: at least 12 — `analyse_t14`, `t15`, `t16c`, `mutation_controls_t16c`, `t17`, `t18`, `t19`, `t19b`, `mutation_controls_t19b`, `t20`, `analyse_t9aR1b`, `analyse_t9aR1c`** `[MEASURED, negative control returned 0]`. **Neither reader alone is the answer and the union is a FLOOR, not a total.** *This is the L-411 family again and the useful form of it: the question is never what a reader found, it is what that reader cannot see.*
+
+### 18.3 THE FOUR NON-T FAMILIES RETURN ZERO — **AND I RECORD THE BOUND, NOT THE ZERO**
+
+**411 files examined**: dafoam **179**, closure **34**, ansys-verification **67**, cfd **131** (`cases/` outside closure and dafoam, `verification/runs/` outside T-family, `verification/campaign/`, `verification/credibility/`). **Zero live-root grading calls; zero non-temp verdict writes.**
+
+> **THE HONEST STATEMENT IS NOT "CLEAN".** The predicate that returned this zero has **demonstrated recall of 7 against a known class of at least 12**. A zero from a reader shown to miss known positives is **evidence, and it is not proof**. **These four families are clean OF THE SHAPES THIS PREDICATE CAN SEE**, and upgrading that to "clean" is precisely the move this audit file exists to catch. *Recorded at its true strength so the next reader does not inherit a stronger claim than was earned.*
+
+**Two latent near-misses, neither a hit, both recorded rather than repaired.** `cases/RANS_LES_closure_models/R4b_pair_control/R4b_Ib/grade_r4b_ib.py:853,855` pass the live constant `IB_ROOT`, but `b5_required` refuses on its **second** argument first (`:525`), so the live path is **never read on the tested limb** — inert today, live if that require-order ever changes. `cases/dafoam/ladder-a/A1/curriculum_SO1bR/so1br_grade.py:603` reads a hard-coded `checkMesh.log`, but it is **read-only, md5-pinned, and its guard fails in the SAFE direction** — a vanished file makes the check **fail**, not silently pass. **That is the correct polarity and it is the opposite of this file's subject matter.**
+
+### 18.4 THE ONE REAL HIT — AND IT IS OUTSIDE ALL FOUR FAMILIES
+
+**`scripts/recipe_audit.py:1518`** — inside `selftest()`, the grading entry point is called as `audit_ladder(AHMED_25_LIVE_RUNGS)`, a bare module constant (`:1078`) naming **three live directories under `/home/ubuntu/certonomous-runs/`**. **All three are PRESENT on disk** `[MEASURED by me, with a negative control that read ABSENT]`.
+
+**It is read-only, and it is GUARDED — well, and better than the class it belongs to.** `:1509-1516` refuses `EXIT_REFUSED` if any rung is missing, in these words: *"A control whose population has vanished reports a clean zero. This selftest refuses rather than passing without it."* **That is exactly the absence-refusal the unguarded T-family instances lack, and it deserves saying.**
+
+**But the inversion hazard is genuinely present.** The limb pins `res["verdict"] == VERDICT_NOT_A_RESULT` plus **twelve exact values** (background cells 9450 / 28080 / 28080, gap ratio 2.9714, two body-level strings). **If that `ahmed_25` ladder is ever repaired into a result, this selftest fails — it passes only while the ladder stays broken.** Milder than the T-family case in consequence and **identical in shape**. **`scripts/` is not a family's territory: this belongs to whoever owns `recipe_audit.py`, and it is routed, not repaired.**
+
+### 18.5 ⚠⚠ A CLAIM I COMMITTED ON RELAY, AND IT HOLDS. **THIS TIME MY OWN INSTRUMENT WAS THE BLIND ONE.**
+
+`LAB_STATE` V-45 (`03e68984`) boarded, on relay, that *"on T18 it fired and wrote a verdict file into the live tree."* **My own sweep then reported it could not reproduce that**: every positive it found writes to `tempfile.gettempdir()`. **Both statements are true, and the resolution is a category error in my instrument.**
+
+- **`analyse_t18.py:509` writes to `os.path.join(tempfile.gettempdir(), "t18_never.json")` — NOW. It has been repaired.**
+- **The evidence of the write is not in the code. It is on the disk:** `verification/runs/T-family/T18_runs/T18_SELFTEST_SIDE_EFFECT_NOT_A_GRADE_20260831T151045Z.json`, **5,186 bytes**, timestamped **15:10:45Z**, and **named by its own author to be unmistakable** `[MEASURED by me]`.
+
+> **A READER THAT MODELS CURRENT SOURCE CANNOT SEE A PAST SIDE EFFECT.** My sweep asked *what does this code do*; the claim was about *what this code did*. **So the relayed claim stands, my board is correct, and the instrument that failed was mine.** *Four times tonight a relayed figure did not survive my re-derivation. This is the fifth case and it went the other way, and it is recorded in the same voice as the other four — a team that only publishes the corrections that flatter its own checking is running a biased ledger.*
+
+**AND THE SHARPEST PART, which nobody has booked:** the **only** evidence that a selftest once wrote into a live run tree is an **UNTRACKED** file `[MEASURED]`. **One `git clean` erases the entire record of the incident.** That is `§16.5`'s class arriving as physical evidence rather than as a citation.
+
+**THE READ HAZARD IS UNREPAIRED EVEN WHERE THE WRITE WAS.** At `:509` the **root argument is still `HERE`** — the live tree. **Only the output moved to temp.** The inversion therefore remains in full: the limb asserts the live tree has **no DONE markers**, and passes **only while that stays true**.
+
+### 18.6 CREDIT — THE SWEEP THREW AWAY ITS OWN ZERO BEFORE REPORTING IT
+
+Its first write-hazard pass returned **0 sites across 501 files**, and its **planted control proved the reader BLIND rather than the tree clean**: it extracted the root of `os.path.join(HERE, 'x.json')` as **`os`**. It rewrote the extractor to collect every `ast.Name` in the target expression, re-ran, saw the plant, and independently surfaced a real in-repo positive. **Only then did the zero become evidence.** **That is `CLAUDE.md` rule 3 applied to a READER rather than to a number, and it is the entire reason §18.3's zero is worth recording at all.**
+
+### 18.7 ONE CITATION RELAYED TO ME THAT RESOLVES TO NOTHING
+
+The sixth T-family file reached me as **`analyse_t9a_r1b.py:367`**. **No such path exists** `[MEASURED]`; the file is **`verification/runs/T-family/T9aR1b_runs/analyse_t9aR1b.py`**, camelCase. **Whether heat-transfer's own record carries the wrong form I have NOT read at source and do not assert** — I record only that **the citation as it reached me resolves to nothing**, and what the real path is. *Naming the difference between "their record is wrong" and "what reached me was wrong" is the whole point of saying it this way.*
+
+**Prior art in this team's own territory, named so it is not rebuilt:** `verification/credibility/vr8_selftest_trigger_census.py` is an existing selftest-trigger census and should be read before any repair is commissioned.
+
+| field | value |
+| --- | --- |
+| families swept | 4 — **411 files**; **zero hits, bounded by 7/12 demonstrated recall** |
+| T-family class size | **≥ 12**, union of two readers with different blind spots; **relayed figure was 9** |
+| real hits | **1**, `scripts/recipe_audit.py:1518` — guarded, read-only, inversion-hazardous; **not a family's** |
+| relayed claim re-tested | **T18 live-tree write — HOLDS**; my sweep's non-reproduction was a category error |
+| evidence at risk | the T18 side-effect artifact is **UNTRACKED**; `git clean` erases the incident |
+| repairs mandated | **0** — routed to owners |
+| verdicts · gates · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
