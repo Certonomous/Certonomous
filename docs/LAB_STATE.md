@@ -18316,6 +18316,156 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T15:1xZ — **VMFL069-R2 IS A `PASS` — THIS TEAM'S SEVENTH CREDENTIAL AND ITS FIRST ON A CASE IT WATCHED FAIL FIRST. THE RUN WAS NOT KILLED BY THE REBOOT: IT COMPLETED UNATTENDED AT 09:00:42Z AND SAT UNGRADED FOR SIX HOURS — THE SECOND TIME IN THREE DAYS. AND THE BOX IS AT 92.9 % CPU WITH ZERO SOLVERS RUNNING.**
+
+**Written by `ansys-verification-supervisor` personally. Every check in §1 is mine, run with my own commands, and none of it is relayed.**
+
+#### THE BRIEF THAT RESUMED ME WAS WRONG ON ITS CENTRAL FACT, AND THE CORRECTION IS THE GOOD NEWS
+
+I was told VMFL069-R2 was **RUNNING** when the box stopped and rebooted at 14:35Z, that the reboot **KILLED IT MID-RUN** at L1 of 3, and that I should establish where it died and re-enqueue it. **None of that is true, and I established it before acting on any of it.**
+
+**VMFL069-R2 RAN ALL THREE LEVELS TO COMPLETION AND FINISHED AT 2026-08-31T09:00:42Z — five hours thirty-four minutes BEFORE the reboot.** The fleet died to a session limit at ~00:55Z, so no agent was alive to see L2 or L3 land. **There was nothing to restart, no interruption clause to consult, and no registration question to answer.** The restart question the brief posed was real and correctly posed — it simply had no occasion to arise, and I would rather report that than perform the analysis I was asked for on a premise I had already falsified.
+
+#### §1 — WHAT I VERIFIED PERSONALLY BEFORE BELIEVING ANY OF IT
+
+A `PASS` is the largest claim this team makes and the only one that becomes a credential, so it got the hardest scrutiny I have. **All nine of these are my own measurements:**
+
+1. **Freeze identity.** All three frozen files `git hash-object` **byte-identical** to their blobs at the freeze commit `7fe979a5` **and** at HEAD — `PREREGISTRATION.md` `7c209caf…`, `grade_vmfl069_r2.py` `8e0b4c3f…`, `run_vmfl069_r2.sh` `f03d771e…`. These are the same two blob ids each of `RUN_RC.L1/L2/L3` independently recorded at launch, so **the launcher hashed at launch the same bytes I hashed after.**
+2. **Pre-registration committed BEFORE compute** (§3 check 4). `7fe979a5` is an ancestor of HEAD, dated **2026-08-30T23:48:19Z**; the first field write is **23:51:23Z**. **Three minutes four seconds.** The freeze is not merely earlier, it is earlier *and* the run root did not exist when it landed.
+3. **Completion under rule 4, at all three levels, with the anchored pattern.** `^Time = ` **84,765 / 170,395 / 341,828**; `^ExecutionTime` **84,765 / 170,395 / 341,828**; `^End` **1 / 1 / 1**; last `Time = 1000` == `endTime` everywhere. **THE PATTERN TRAP IS REAL AND I NAME IT: a bare `Time =` also matches inside every `ExecutionTime = ` line and would have doubled every count.** The registered clause-5 adaptation — `ExecutionTime` count == `Time` count, declared at §6.1 **before compute** because `adjustTimeStep yes` makes `#steps == endTime` unsatisfiable — holds **exactly to the unit** at every level.
+4. **The age guard**, from my own `stat`: every field at `endTime` strictly newer than its own level's `0/U`, by **10 m 46 s / 1 h 02 m 38 s / 7 h 55 m 52 s**.
+5. **The gate constants, extracted by me from the frozen comparator** and diffed against R1's: `REF_LOWER 10.0`, `REF_UPPER 50/3`, `REF_WHOLE 40/3`, `TOL 0.01`, `FS 1.25`, `RATIO 2.0`, `P_MIN 0.05`, `TIER_CEILING {A:PASS,B:PASS,C:PASS}` — **byte-identical in R1 and R2.** The registration's claim that the bands are *inherited* rather than *re-derived* is therefore true, and it is load-bearing: R1's gate was never reached, so **no VMFL069 gate quantity has ever existed on this box for a band to have been fitted to.**
+6. **The twelve case inputs**, each hashed by me against its HEAD blob: **12 checked, 0 differing.**
+7. **The comparator's own selftest, re-run by me this session: 70 checks, 70 PASS, 0 FAIL, rc 0.** It contains an end-to-end arm proving **the gate CAN return `GATE FAIL`** — a `CONVERGING` but out-of-band synthetic run gives ROW VERDICT `GATE FAIL`. **An instrument that has only ever been seen to pass is unproven; this one has been driven to the unfavourable answer.** That is Sanaa's 2026-08-28 birth requirement, discharged on the instrument that produced this credential.
+8. **The verdict, limbs and triples read by me out of `GRADING_VMFL069_R2.json`**, not out of any lane's report.
+9. **The realised Courant and the alpha bounds over the complete L1 log**, streamed by me: max Courant **1.17494265228** over **84,766** reports, max interface Courant **exactly 0**, `Min(alpha)` **exactly 0** and `Max(alpha)` **exactly 1**.
+
+#### THE VERDICT
+
+**ROW `PASS`** — `PREREGISTRATION` §11 **outcome 1**, named before compute as *"the target"*. The row takes the worst limb and all three are `PASS`.
+
+| limb | quantity | L1 / L2 / L3 | finest vs exact | triple | p | GCI_fine |
+|---|---|---|---|---|---|---|
+| **A** | volume-mean `u_x`, lower (ν=0.1) | 10.059969 / 10.026565 / **10.012428** | **0.124282 %** vs **10** | `CONVERGING` | 1.240540 | **0.1295 %** |
+| **B** | volume-mean `u_x`, upper (ν=0.02) | 16.497029 / 16.566393 / **16.612664** | **0.324018 %** vs **50/3** | `CONVERGING` | 0.584067 | **0.6976 %** |
+| **C** | normalised L2 profile error | 0.01264016 / 0.00676147 / **0.00349595** | **0.349595 %** vs **0** | `CONVERGING` | 0.848178 | **145.9103 %** |
+
+Band **1.0 %**, one number for all three limbs. Every `R` strictly in (0,1), every triple monotone, so every GCI is legitimately quotable. **Rule 5 had no occasion to fire** — nothing `DIVERGENT`, `STAGNANT`, `OSCILLATORY` or `EXACT`, no `p` below `P_MIN = 0.05`.
+
+**The ceiling is `PASS` and the ground is not taste:** the reference is the **exact solution of the same continuum model the solver discretises**, so model-form error is **zero by construction** and the residual is discretisation error. Charter §11.1. **No Ansys number is used anywhere; the manual prints Figure .69.2 only and the figure was never read, digitised or compared against.**
+
+#### THREE QUALIFICATIONS ON THE ROW'S FACE, NONE IN A FOOTNOTE
+
+**A credential this team cannot defend against its own evidence is worth less than no credential.**
+
+1. **LIMB C's GCI IS 145.9103 % — LARGER THAN THE VALUE IT QUALIFIES, and worse than the 120.62 % row #44 is written down for.** Band ±0.00510095 about a value of 0.00349595. **And the louder tell, which a grading lane found and I had missed: `f_extrapolated = −0.0005848115` — A NEGATIVE L2 ERROR NORM, impossible for the quantity it estimates.** Stated on the other side and NOT offered as a cure: limb C's reference is exactly **0**, so a *relative* GCI on a quantity converging to zero inflates by arithmetic rather than by evidence of a bad solve, and the absolute upper edge 0.008597 is still inside the frozen 0.01. **Limb C's `PASS` is carried by its point value alone and its stated uncertainty does not support it.**
+2. **LIMB B's DEVIATION PLUS ITS OWN GCI EXCEEDS THE FROZEN BAND** — 0.324018 % + 0.697621 % = **1.021639 % against 1.000000 %**; the GCI alone eats **69.8 %** of the band. **I had checked that the GCI was under the band and stopped there, which is the weaker test; the lane applied the stronger one.** The frozen gate tests the **point value**, as registered before compute, and returns `PASS`. **Rule 2 closed that gate and I do not move it.** But *"this limb's PASS would not survive the addition of its own error bar"* is a true sentence about a credential and it goes on the row. Limb A by contrast is clean: 0.2538 % combined, and its absolute GCI slightly **exceeds** its deviation from exact, so **the exact answer lies inside limb A's own uncertainty band** — which is what a healthy GCI does.
+3. **THE PLANTED CONTROL FIRED AT L1 ONLY.** Both registered channels did fire, on real solver bytes copied to a tempdir, written **to disk**, read back through the **production** readers: `U_x` plant +0.666667 read back to **1.110e-15**, moving limb A by exactly the plant and **out of the band**; `alpha.fluid1` plant +0.05 read back to **4.163e-17**, driving the interface-stationarity clause to **REFUSE (exit 2)**. **But `grade_vmfl069_r2.py:1347-1350` hard-codes `"L1"` — so THE READERS THAT PRODUCED THE L3 NUMBERS THIS GATE IS DECIDED ON WERE NEVER SHOWN ABLE TO SEE A NON-ZERO ON L3's OWN BYTES.** Permitted by the freeze (inherited byte-unchanged from R1), so not a departure — and the same weakness row #44 carries. **That is the third row I have written this sentence on and it becomes a design requirement, not a disclosure, for everything this team freezes next: the plant fires at EVERY level.**
+
+#### THE SCIENCE, WHICH OUTLIVES THE CREDENTIAL: R1's DEATH WAS NUMERICAL, AND THAT IS NOW MEASURED RATHER THAN ARGUED
+
+§1 and §11 named **both** branches in advance and **expressly declined to predict which** — (a) a numerical CFL instability that `maxCo = 1` removes, or (b) a **physical** two-layer instability that `maxCo` cannot prevent, landing outcome 4 and meaning the registered case has no stable laminar steady state at all.
+
+**Interface Courant was exactly 0 — max AND min — at every one of 596,988 steps across three complete solves. `Min(alpha)` exactly 0 and `Max(alpha)` exactly 1 across 2,387,952 alpha reports, zero departures at either bound. Phase-1 volume fraction exactly 0.5 throughout. And the bit-exactness SURVIVES MESH REFINEMENT.** Against R1's interface Courant **141.7** at step 65 and alpha **−2.37e23** by step 68: **branch (a) is what happened. Outcome 4 did not land.**
+
+§6.2's physical argument — equal densities, zero surface tension, interface parallel to `U`, therefore identically zero wall-normal flux — **was previously backed by 2,005 scratch-probe steps covering 5 % of one level's physical time. It now stands on 596,988 steps across three levels.** Realised convective Courant maxima **1.174943 / 1.172501 / 1.140559**, all **+14 to +17 %** over the declared ceiling, every peak inside the **first two seconds of a 1,000 s run**, and the overshoot **shrinking with refinement** — interFoam's expected one-step lag, not drift.
+
+**A registered prediction resolved by measurement is worth more than the row it sits on.**
+
+#### RULE 12 CALIBRATION — AND THE PROBE'S OWN PREDICTION IS CONFIRMED
+
+**549.2501 core-min MEASURED** against a **REGISTERED point estimate of 822** → **ratio 0.6682**. Per level **0.9528 / 0.6950 / 0.6599**. Cap used **10.985 %** of 5,000, margin **9.10×**, `endTime` never reduced. **$0.46961 DERIVED, NOT MEASURED** at the owner-stated $0.0513/core-h — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5).
+
+**§A1.1 predicted before compute that fixed per-step overhead would make linear-in-cells extrapolation OVER-estimate L3. Confirmed:** per-cell-per-step cost **falls** with refinement, **29.770 → 21.532 → 20.392 µs**; a two-term fit gives **2.5606 ms fixed per step + 0.019767 ms per cell**, and that misprediction accounts for **272.71 of the 272.75 core-min gap**. Step counts: probe-anchored **84,817** against measured **84,765** — **+0.061 %**, 52 steps.
+
+**WASTE: 0 core-min** — three levels launched, three completed, `rc = 0` each, no restart, no re-mesh. **Contention named separately and never absorbed into the ratio:** the launch snapshot showed loadavg 7.56 with 6 peer `simpleFoam` live, but the logs' own ExecutionTime against ClockTime give **1.00295 / 1.00060 / 1.00008** — at most **+0.295 %**, so contention was effectively nil and the pre-freeze probe's 9.5 % inflation is an identified component of the over-estimate. **The rule-12 stall heuristic is cleared BY MEASUREMENT, not assertion:** L2 and L3 both exceed the 3,600 wall-s stall flag and neither is a stall, because a stall shows wall ≫ CPU and these show 1.0006 and 1.00008.
+
+#### A CORRECTION AGAINST MYSELF, AND A NUMBER I ALMOST PUT ON THIS BOARD
+
+**I briefed the grading lane that the registered cost bracket was "79–822". §A1.1 reads 76–890. The lane went to the file and corrected me.** My own board carries **both** figures in different blocks and I relayed the wrong one from memory. **This is the same mechanism that has caught me repeatedly — I relay a number from my memory of a record instead of from the record — and it is exactly the failure the provenance-tag rule was adopted to stop.** Sanaa approved elevating that rule to `REPORTING_CHARTER` today; it originated in this team's own self-correction, and it is still catching me.
+
+**THREE CORRECTIONS AGAINST MYSELF IN ONE SESSION, AND THEY SHARE ONE MECHANISM.** (1) the cost bracket relayed from memory instead of from §A1.1; (2) load average read as CPU utilisation; (3) a HEAD-side grep matching `grade` compared against a disk-side `find` matching only `GRADING*`. **In every case I COMPARED OR RELAYED TWO QUANTITIES WITHOUT CHECKING THAT BOTH SIDES MEASURE THE SAME THING.** That is one fault, not three, and it is more specific than "be careful": **before a comparison is believed, BOTH SIDES OF IT MUST BE SHOWN TO BE THE SAME KIND OF MEASUREMENT** — the same pattern, the same units, the same population. Two of the three were caught by lanes I had sent to confirm me; the third I caught myself only because I stopped to check what was actually consuming the CPU. **A lane sent to confirm a supervisor is worth more when it comes back disagreeing, and twice today one did.** This is owed to `docs/LESSONS.md`.
+
+**AND THE ONE I CAUGHT BEFORE IT TRAVELLED:** I was about to report *"the box is not idle — load average 24.7 on 16 cores."* **That would have been FALSE, and false in exactly the direction that excuses my empty queue.** Load average counts uninterruptible I/O sleepers, and roughly twenty agents — my own lanes included, streaming 1.6 GB of solver logs — were inflating it. **Measured properly: CPU is 92.9 % busy (3-second `/proc/stat` delta) and there are ZERO OpenFOAM solver processes on this box.** The top consumers are `ugrep` at 200 %, `python3`, `claude` and `bfs`. **The CPU is being spent on the agent fleet's own searching, not on science.** A load average is not a utilisation measurement, and I nearly reported one as if it were.
+
+#### HEADLINE METRICS (Sanaa's 2026-08-27 §2)
+
+| metric | reading | clock |
+|---|---|---|
+| **CPU busy** | **92.9 %** MEASURED | 15:10Z |
+| **OpenFOAM solvers running** | **ZERO** MEASURED | 15:10Z |
+| **GPU** | instance **STOPPED**, unreachable (`No route to host`); meter off, **0 idle cost** | 14:54Z |
+| **Queue depth, ALL SIX teams** | **0 pending** — ansys 0 (2 held, both GPU; 8 launched), cfd 0, closure 0, dafoam 0, heat-transfer 0, verification 0 | 14:54Z |
+| **Runner** | alive, **pid 1605**, logging `EMPTY` every 60 s since 14:35:15Z | 14:54Z |
+
+**IDLE, ACCOUNTED HONESTLY AND KEPT IN SEPARATE BUCKETS:**
+
+- **09:00:42Z → 09:30:00Z = 29.3 min** — box up, my L3 finished, no ansys compute.
+- **09:30:00Z → 14:35:00Z = 305 min POWERED OFF.** **The meter is off. This is NOT billable idle and NOT any team's defect** — the box was stopped, and reporting it as idle would overstate the waste by five hours.
+- **14:35:00Z → 15:10Z = 35 min UP with ZERO solvers lab-wide.**
+
+**No solver has run on this box since 09:00:42Z — my own L3 finishing. That is 64 minutes of up-time with no case computing, past Sanaa's 30-minute threshold, and it is an auto-boarded defect under her §2. The cause is a lab-wide empty queue, and my team's share of it is FREEZE-AHEAD 0 against her floor of 3, which is my planning defect and nobody else's.**
+
+The honest mitigation, which I state without hiding behind it: my queue drained because **the one frozen `PASS`-capable item I had RAN AND SUCCEEDED.** That is a different failure from never having filled it — but it is still a failure, because a freeze-ahead of 3 exists precisely so that success does not empty the queue.
+
+#### A CLAIM I REJECTED — "12 CASES RAN BUT UNGRADED"
+
+A sweep I sent to hunt for more unattended completions came back with **twelve**. **I rejected it.** It listed all twelve as **present in the register** — and **a register row IS a landed verdict**, so they were graded; three of them (#26, #36, #38) are verdicts on this very board. Its own method note admitted it searched **case root only, not subdirectories**, and its summary contradicted its table on whether two cases were in the register at all — the same internal-inconsistency tell that exposed the fabricated-rows lane.
+
+**I then produced a false finding of my own off the back of that rejection, and a lane broke it within the hour.** I reported grading artefacts *"existing at HEAD and ABSENT FROM DISK"* — VMFL011 7/1, VMFL059 **1 at HEAD / 0 on disk** — and called it a broken evidence chain in the credentials document. **IT IS FALSE AND I WITHDRAW IT ENTIRELY. All nine cases align perfectly: 7/7, 2/2, 2/2, 3/3, 3/3, 2/2, 2/2, 2/2, 1/1.**
+
+**The bug was mine and it is embarrassingly plain once seen: my HEAD-side pattern matched `grade`, which catches the `grade_*.py` COMPARATOR SCRIPTS under `cases/`, while my disk-side `find` looked only for `GRADING*` and `RESULTS*` and never for `grade*`. Two different patterns, compared as though symmetric.** VMFL059's phantom "missing" artefact is `cases/ansys_verification/VMFL059/grade_vmfl059.py`, **9,552 bytes, sitting on disk.** I sent the lane to confirm my numbers and it came back and corrected them, which is the only reason this did not reach a record.
+
+**WHAT SURVIVES, AND IT IS REAL:** `verification/runs/ansys_verification/` **has no consistent git tracking policy at all**, and **nothing in it is gitignored** — so the untracked files are simply untracked, not deliberately excluded. Measured: VMFL003 **504/504 (100 %)**, VMFL001 62/161 (38 %), VMFL003_M2 59/2366 (2.5 %), VMFL004 1/104 (0.9 %), VMFL002 1/140 (0.7 %), **VMFL069-R2 0/167 (0 %)**. **That is a filing-policy gap in my own territory, it is mine to rule, and ruling 1 above is the first half of the answer** — an explicit small-evidence-set commit with the bulk left on disk by design rather than by accident. **The general policy for the territory is owed and I do not have it yet.**
+
+#### RULINGS I MADE THIS SESSION `[lab-attributed]`
+
+1. **The 1.6 GB of solver logs do NOT go into git.** Sanaa's 2026-08-27 §1 puts logs and attempt dirs out of git. **The small evidence set is committed by explicit path list** — records, grading JSON, stdout, selftest, `RUN_RC.*`, cost and launch records, birth certificates — and the logs and time directories stay on disk, cited by absolute path with sizes and mtimes. The row says **which artefacts are committed and which are on disk only**, so no auditor has to infer it.
+2. **`RESULTS.md` stays in the run root** per `FILING_CHARTER` ("run outputs, never beside the prose describing it"). Row #45 cites R1's at the case directory; **that was the deviation, not this one. Row #45 is NOT retro-edited** — it is a landed record and rule 6 does not permit tidying it.
+3. **The `C-215`/`C-216` duplicate ids in `COST_CALIBRATION.md` are a real finding and NOT ours to fix.** Reported, named in the commit message, untouched. **I will not have this team edit a peer's ledger rows to make a clean number appear.**
+4. **VMFL038's gate is WALL SHEAR STRESS, not velocity** — see below.
+
+#### RESTOCK — VMFL038 IS BETTER THAN I RANKED IT, AND THE MANUAL IS WRONG BY A FACTOR OF 100
+
+I ranked VMFL038 **last** on solver risk, expecting a VOF interface (VMFL069's fragility) or a wall-film model (VMFL072's blocker). **I was wrong on both.** Manual and archive agree it is **single-phase, laminar, gravity OFF, pressure-driven**, with the free surface a **zero-shear boundary** — carried by steady `simpleFoam`, verified present. **No Courant fragility, no toolchain blocker.** Conditions (A) and (B) both met: Bird, Stewart & Lightfoot p.45 gives the exact falling-film parabola, an exact solution of the model the solver discretises, from a named primary reference. **`PASS`-capable.**
+
+**THE MANUAL'S PRINTED GEOMETRY IS WRONG BY EXACTLY 100×.** It prints `1 m X 18 m`; the self-consistent geometry is **0.01 m × 0.18 m**. Verified by my own arithmetic, three independent identities agreeing: `ρ g sinβ L = 800 × 9.81 × 0.5 × 0.18 = 706.32 Pa` reproduces the manual's own printed outlet pressure **exactly**; the closed form then gives `u_max = 0.1962 m/s`, reproducing the archive's plotted reference **exactly**; and the printed **1:18 aspect ratio** is itself consistent. Building to the printed absolute dimensions gives `u_max = 19.62 m/s` — **ratio 99.99999999999996.** A units error, m for cm.
+
+**MY RULING, WHICH STRENGTHENS THE LANE'S PACKAGE: DERIVE THE GEOMETRY FROM THE MANUAL, NOT THE ARCHIVE.** The lane took `δ = 0.01 m` from the x-range of the archive's **reference curve** — gate-adjacent, and unnecessary. `L = Δp/(ρ g sinβ) = 0.18 m` comes from the manual's **own printed numbers**; `δ = L/18` from its **own printed aspect ratio**. **The case is therefore constructible from the manual alone, with the archive as corroboration only, and no archive dependency in the gate chain at all.** A setup input may come from the archive; a gate value may not, ever — and the cleanest way to honour that line is not to stand near it.
+
+**AND THE GATE IS `tau_w = 39.24 Pa`, NOT VELOCITY.** A 2nd-order scheme reproduces the exact parabola to round-off, so a velocity triple would be **`EXACT`** → rule 5 limb (2) → **`NOT A RESULT`**. **That is precisely the trap that retired VMFL070, and catching it BEFORE the freeze is worth more than the case.** Wall shear stress is a one-sided near-wall gradient carrying genuine O(Δy) truncation error, so it refines. `τ_w = μ·2u_max/δ` and `τ_w = (Δp/L)·δ` — **two independent derivations, both 39.24 Pa, agreeing exactly**, and I checked both myself. Ceiling `PASS`, tol 2 %, **`GCI_MAX = 2 %` registered beside it**, triple `Ny = {40,80,160}` at r = 2, cap 15 core-min ($0.0128 DERIVED).
+
+**VMFL024 is DEFERRED.** Condition (A) **fails** — the reference is experimental (Sugimoto & Iguchi 2002) with no closed form for the transient VOF spin-up, so the ceiling is `GATE REACHED` at best; the manual omits the layer split; and the lane **refused to cost it**, correctly, because the prior ~1300 core-min is `BORROWED` off a cross-family transfer scaled from a **diverging** run. **A lane that says "I don't know" when it doesn't is worth more than one that produces a number.**
+
+#### STATE
+
+**Commits:** **`b243a2c9`** — VMFL069-R2 graded through the frozen comparator. **15 files, 1,229 insertions, ZERO deletions, 70,336 bytes (0.07 MB)**, verified by me after the fact: **zero `log.interFoam` and zero time-directory paths**, exactly as ruling 1 requires, and no foreign path. **`79d2e467`** — the register row and the calibration row. This board.
+
+#### SANAA'S SECOND DIRECTIVE SET, 15:13Z — THE **FREEZE CLOCK**, AND IT ENDS THE IDLE TONIGHT
+
+Her words, verbatim, at `etc/sessions/2026-08-31T1513Z_sanaa_freeze_clock_and_so3_ruling.md`: *"no freeze required for feasibility/physics rungs, never was … FREEZE CLOCK: a prereg draft older than 4 hours without a freeze auto-escalates to the supervisor, who freezes the template version on the spot. First report on any new case must contain a converged coarse field, or one line saying why not — not a document status."* Named to cfd and heat-transfer; **the FREEZE CLOCK is lab-wide and binds this pipeline.**
+
+**Applied immediately: VMFL038's L1 coarse solve is launched WITHOUT waiting for the freeze**, because it never needed one. **That is what puts compute back on this box tonight**, and it is a better answer than the scoping probe I was contemplating an hour ago.
+
+**AND THE ONE LINE I HELD AGAINST IT, because the two rules meet here and the meeting point is where a gate gets fitted:** the feasibility solve may converge and report *that* it converged — iterations, residuals, wall time, rc, mesh quality. **It may NOT compute `tau_w`, and nothing about it may move the band.** The 2 % tolerance is **a-priori and I ruled it BEFORE any VMFL038 field existed anywhere on this box**; that ruling is on the record in my brief and in this block, timestamped ahead of the first field. **A band fixed before the field exists cannot be fitted to the field** — which is exactly why feasibility-first costs us nothing in evidentiary value, and exactly why the ordering has to be provable rather than asserted. The feasibility run also stays **out of** `verification/runs/ansys_verification/VMFL038/`, whose non-existence is the graded run's rule-2 §0 condition and age guard. **An idle box is a defect; a poisoned age guard is a destroyed case, and I will not trade the second for the first.**
+
+**FREEZE CLOCK started on VMFL038 at ~15:14Z; template freeze due by ~19:14Z.**
+
+**Live.** Runner **pid 1605**, `--daemon`, alive since 14:35:15Z. **NO ansys solver running; no solver of any team running.** Lanes: VMFL038 freeze in flight; the tracking-gap audit in flight.
+
+**Rungs without verdicts.** **VMFL038** (freezing). VMFLGPU006 blocked on evidence (NASA TM X-3224 absent from this box). VMFLGPU004 `BLOCKED` (#41), reopened by the chief's ruling 7 — its infeasibility claim was found FALSE. VMFLGPU008/009/010 untouched. **The two held queue entries are both GPU and cannot fill a CPU queue.**
+
+**FREEZE-AHEAD 0, going to 1 when VMFL038 lands, against Sanaa's floor of 3. Mine to answer for.** The route to 3 is her own 2026-08-28 amendment — *"freeze-ahead counts repair-registrations; queue depth 0 with open findings is impossible by definition"* — and this team now holds **two findings that are exactly that shape, both TRIPLY evidenced tonight**: **R-COURANT-1**, gate on the **realised** Courant read from the log rather than the **declared** ceiling read from the dict (R1 declared `maxCo 1e6` and died; R2's comparator cannot see the realised 1.1749; a declared ceiling records an intention, only the log records what happened); and **R-GCI-1**, a **GCI ceiling beside the `P_MIN` floor** (VMFL063 at 120.62 %, VMFL069-R2 limb C at 145.91 %, and now limb B's *deviation + GCI* exceeding its band — a **new** failure mode the existing instrument cannot see).
+
+**Referred to `verification`, not ruled here:** whether a Roache band should be tested against **deviation + GCI** rather than the point value alone. **That is lab-wide Roache machinery and not mine to move**; I adopt it as a forward design requirement for this team's own registrations and refer the general question, exactly as I referred the rule-4 adaptive-time-stepping question.
+
+**Sanaa's 2026-08-31 rulings received and read.** GPU starts when AWS allows — my two held entries become live then. **Both charter elevations approved, and the provenance-tag rule going to `REPORTING_CHARTER` originated in this team's own self-correction of 2026-08-30.** Runner-side cap enforcement is now **ENFORCE**, so my registered caps are hard-stops, not advisory — VMFL038's 15 core-min against a ~6 core-min triple carries 2.5× margin under that regime.
+
+**On Sanaa's desk (six)**, unchanged.
+
+**VERIFY (not established by me, said plainly rather than filled in):** the cause of the HEAD-vs-disk tracking gap and whether anything is sole surviving evidence; whether peer solvers were running in the 09:00→09:30 window; the register's row-level `PASS` count beyond the six the register enumerates itself; and VMFL038's τ_w triple behaviour, which **cannot** be probed without computing the gate quantity and is therefore an a-priori design expectation with a stated falsifier, not a measurement.
+
+
 ### 2026-08-30T23:5xZ — **VMFL069-R2 IS FROZEN (`7fe979a5`), QUEUED (`fd7afc1c`) AND RUNNING — the first `PASS`-capable case this team has had in flight. The outcome-4 detector was DRIVEN TO REFUSAL 10/10. And a lane corrected TWO MORE figures I had relayed upward as measurements, which makes a PATTERN and earns a STANDING RULE.**
 
 **Written by `ansys-verification-supervisor` personally. Every check below is mine.**
