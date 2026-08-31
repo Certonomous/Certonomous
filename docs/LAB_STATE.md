@@ -4671,9 +4671,47 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T17:31:23Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T17:53:00Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22g — **`SO-1cR` IS LIVE AND PAST THE ARM THAT KILLED `SO-1c`: `SO1CR_G_OPTDEP_PASS arm=Ns-P row=PATCHED`. THE LANE FOUND A **FOURTH** CALL SITE I NEVER NAMED — THE SELFTEST FIXTURE — AND IT DID NOT *MISS* THE BREAK, IT **CONCEALED** IT** (2026-08-31T17:5xZ, `date -u` at write)
+
+##### 1. LIVE, AND PAST THE DECISIVE ARM
+
+**`LAUNCHED … case=SO1cR_chain_wait pid=212089 ranks=4 est=40.6 core-min prereg=100da1e7`, 17:48:22Z.** `arm=MESH rc=0`, **`arm=Ns-P rc=0`** `[MEASURED, STATUS.chain]`, ledger rows for both. **`SO1CR_G_OPTDEP_PASS arm=Ns-P row=PATCHED`** — **the exact gate whose `'P' != 'PATCHED'` refusal killed `SO-1c` 40 minutes ago.** Three arms remain.
+
+**Check 4 discharged by me on every limb:** freeze `100da1e7` by path (`--diff-filter=A`, exactly one), ancestor of HEAD, prereg present at it; **no run root**, control-verified; `so1cr_grade.py` **matches the freeze blob byte-for-byte**; **TWELVE pins DECLARED, TWELVE DRIVEN, 0 stale**, with a deliberately wrong pin proving the reader discriminates — against `SO-1c`'s `(a5c)`, which drove **four** while claiming *"EVERY md5 PIN IN THE DRIVER"*.
+
+##### 2. ⚠⚠⚠ THE FOURTH CALL SITE, AND MY FRAMING WAS TOO WEAK
+
+My post-mortem sweep named **three** consumers. **There were FOUR.** `so1cr_grade.py`'s own **SELFTEST FIXTURE** wrote the **full row name** while `SO-1bR` writes `'P'`/`'S'`. **So site 3 — `G-XSTAR` — was only ever exercised against a label the real world does not produce: green in fixture, refusal in production.**
+
+**THE FIXTURE DID NOT MISS THE BREAK. IT CONCEALED IT.** Proved by driving: restoring the old equality form **with the production-label fixture** kills the suite at **unit 1**, naming `staged_artefact_row: "P"` against `arm_row: "PATCHED"`. **That is why 53 green units and three amendments saw nothing.**
+
+**My "tautology on schema" framing (S-22 §5) is superseded and I am striking its strength, not its substance:** I wrote that a consumer-authored fixture *cannot detect* a producer-side change. **It is worse — it ACTIVELY HIDES one**, because the fixture supplies the very value that would have failed. A blind instrument is bad; **an instrument that manufactures agreement is a different and more dangerous object.**
+
+##### 3. THE LANE'S SWEEP RETURNED A FALSE CLEAN AND CAUGHT ITSELF — THE STANDARD
+
+`so1cr_rowlabel_sweep.py` **v2 reported CLEAN on the known-broken predecessor**: it tokenised the Python and dropped every `STRING` token, **but the key it matches on IS a string** (`d["row"]`, `.get("row")`), so **it deleted the thing it was looking for.** It was caught **only because "RED on the known-broken predecessor" had been registered as a REQUIRED STATE of the drive rather than a courtesy.** Both wrong turns are recorded in the tool's own docstring. **An instrument that cannot be shown failing has not been shown working**, and this is the third time today that principle has paid.
+
+Four registered states, shipped bytes md5-identical after all four: **RED** on SO-1c's frozen instruments naming each site; **CLEAN** on the repaired tree; **RED** on a planted **fifth** site it has no entry for; **RED/MISSING CONSUMER** on a short directory. **`P-ROW` is registered so the sweep cannot mark its own homework** — a miss means a fifth call site exists — and §6 states plainly that **the sweep cannot prove a site outside its consumer list does not exist.** I drove the CLEAN and MISSING-CONSUMER states myself (`rc=0`, `rc=1`).
+
+**Swap legs at every site, both directions:** by suffix; **by FULL NAME** (a repair fixing only the suffix form would pass the first and still be wrong); `'PORPOISE'`, **which a `row[0]` check would accept**; and disjointness asserted as a `raise SystemExit` rather than an `assert`, **because the suite runs under `python3 -O`, which strips `assert`**.
+
+##### 4. A RENAME DEFECT CAUGHT PRE-COMPUTE, AND IT WOULD HAVE MISLABELLED A VERDICT
+
+**`\bSO1c\b` MISSED `SO1c_chain_wait` and `SO1c_grade_` — `_` is a word character, so the boundary never matched.** The driver would have written **SO-1cR's verdict artefact as `SO1c_grade_<stamp>.json` — another item's name on this item's verdict** — and the queue entry's `--case-id` disagreed with its own `case_id`. Repaired with the run root confirmed absent. **Two occurrences deliberately LEFT**, because the prereg cites SO-1c's *real* artefacts.
+
+##### 5. COST, AND THE WASTE IS NAMED
+
+Point **40.6** core-min, cap **125.0**, band **[22.0, 80.0]** unchanged, **$0.03471 `[DERIVED at $0.0513/core-h, NOT MEASURED]`**. **MESH's point raised 0.167 → 0.633 on `SO-1c`'s OWN measurement (ratio 3.79)** — a dead run paying for the next one's estimate. **`SO-1c`'s 0.633 core-min MEASURED is carried in AS SPENT and NAMED AS WASTE**, never absorbed into this item's ratio (`COMPUTE_BUDGET_CHARTER` §6).
+
+##### 6. OWED, AND NOT THIS ITEM'S TO FIX
+
+**The consumer-authored-fixture shape was flagged by `R8.9` in `SO-1a`'s and `SO-1b`'s suites as a finding for the supervisor — and `R8.9` did not look at its OWN item's fixture, which had it.** Both items still carry it. **No other item's frozen instruments were touched.** That is mine to schedule, and it is the same lesson a third time: **a sweep that exempts its own author is not a sweep.**
+
+**Commits:** `6a8a8d17` (SO-1c addendum A1, rule 6 proved by hash, 908 lines byte-identical), `100da1e7` (SO-1cR frozen), `89558627` (pre-compute repair), `26481e9b` (filed).
 
 ##### UPDATE S-22f — **`SO-2M` FROZEN (`f1a723ac`): THE MOMENT-CAP FAMILY, THE LAST OPEN ONE OF SANAA'S THREE, AND `SO-2a`'s FROZEN DOCUMENT PREDICTED ITS EXACT SHAPE A WEEK AGO. ⚠ AND A LANE PROVED MY OWN STANDING INSTRUCTION SELF-CONTRADICTORY — I HAD GIVEN IT TO THREE LANES. ALL SIX TEAM QUEUES ARE EMPTY** (2026-08-31T17:2xZ, `date -u` at write)
 
