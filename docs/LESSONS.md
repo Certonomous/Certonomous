@@ -17825,3 +17825,85 @@ verified number sitting directly beneath an unverified sentence reads as one ver
 **NOT CLAIMED:** that any instrument enforces these. None does. They are disciplines, and this
 entry says so rather than implying a guard exists — the same honesty Addendum 1 insisted on, and the
 reason instance 5 is in the table at all.
+
+## L-409 — A DISCRETISATION ERROR GATED AT AN ITERATIVE TOLERANCE IS UNSATISFIABLE ON EVERY FINITE MESH, AND NO INSTRUMENT CAN TELL YOU SO
+
+**Class:** unsatisfiable-by-construction. **Found in:** `F23b_HP_WEDGE`, 2026-08-31,
+`BLOCKED` at phase A0. **Cost of finding it:** ≈3.82 core-min, wholly wasted.
+**Applies to:** every acceptance test, birth control, plateau criterion or arm-branch rule
+in this lab that puts a threshold on a **solution-level quantity**.
+
+**THE MISTAKE, IN ONE SENTENCE.** `F23b` set its arm-acceptance test at
+`|1 − Ubar| ≤ 1e−10` — a **bulk-velocity error**, which is a **discretisation** quantity —
+using a number that only ever makes sense as an **iterative** tolerance.
+
+**WHY THAT CAN NEVER PASS.** A discretisation error floors at the mesh's own truncation
+error. More iterations do not move it; **only mesh refinement does.** An iterative residual
+falls toward machine zero as you iterate; a solution error falls toward `C·h^p` and stops.
+Gating the second with a tolerance meant for the first asks the solver for an answer the
+mesh cannot represent.
+
+**THE TELL, AND IT WAS ON THE PAGE BEFORE ANYTHING RAN.** The registration's own §12
+predicted `f·Re` per level, and the case's own relation `f·Re = 64/Ubar` inverts those
+predictions into predicted `|1 − Ubar|` of **1.215525e−04 / 3.002806e−05 / 7.141864e−06**
+for coarse / medium / fine. **The document predicted, at the very level it gated, a value
+1,215,525× its own acceptance threshold — and 71,419× at its finest level.** No compute was
+required to see this. **Two numbers in one frozen document, never divided into each other.**
+
+**WHY EVERY INSTRUMENT PASSED WHILE THE GATE WAS UNREACHABLE — this is the part that
+generalises.** The reader read correctly. The refusal fired correctly. The launcher captured
+rc correctly, inside the wrapper. `simpleFoam` exited 0. **Every control in the chain worked
+exactly as designed, and the outcome was still impossible.** A planted-zero control
+(rule 3) does not help: it proves a reader can *see* a non-zero, not that the threshold it
+compares against is *reachable*. **Reachability is a property of the gate, not of the
+instrument, and no instrument can check it.**
+
+**HOW THE CITATION LAUNDERED ITSELF, because this is the recurring shape.** §A1.5 justified
+the control by citing a real, correct measurement: F23 §7's *"`Ux` 2.3e−16 by iteration
+4,000"*. That citation is **sound for the clause it supports** — the acceptance's `Ux`
+initial-residual clause, which is genuinely iterative. But the acceptance had **two**
+clauses, and the evidence covered **one**. **Evidence for one clause was applied to two
+because both clauses were called "convergence".** The word is the same; the quantities are
+not.
+
+**WHAT TO DO INSTEAD.**
+1. **Name the class of every gated quantity before setting its threshold:** is this an
+   **iterative residual** (falls with iteration, floor ≈ machine precision) or a
+   **solution/discretisation error** (falls with refinement, floor = `C·h^p`)? Write the
+   answer into the registration.
+2. **Derive a solution-error threshold from the level's own predicted `h^p` error, with a
+   stated margin** — never from a residual tolerance, and never by picking a number that
+   clears an observed value, which is choosing a gate to fit an answer.
+3. **Run the division at registration time.** If the document predicts the gated quantity
+   anywhere, divide the prediction by the threshold. **A ratio in the thousands or millions
+   means the gate is unreachable and the freeze is about to make it permanent.**
+4. **A citation supports the clause it measured, and no other clause.** When one piece of
+   evidence is offered for a two-clause test, ask which clause it is evidence *for*.
+5. **THE SATISFIABILITY CHECK, and it is the general form of all four above.** Before any
+   freeze, name **one concrete outcome that would PASS every clause simultaneously** —
+   actual numbers, on the actual mesh, at the actual iteration count. Not "a converged run":
+   a *specific* run. **If you cannot construct one, the registration has no passing outcome
+   and freezing it makes that permanent.** This costs minutes before a freeze and is
+   unrepairable after one.
+
+**A SECOND INSTANCE, FOUND THE SAME DAY AND — THE POINT — FOUND BEFORE COMPUTE.** Hours
+after `F23b` ended, a freeze-readiness audit of `JF1_PREREGISTRATION.md` (jet-flap airfoil,
+still unfrozen) found the same class by a different mechanism: **§8.1's completion clauses
+require `last time == endTime`, while §5.5/§8.4 make hitting the 20,000-iteration cap a
+refusal.** With `residualControl` active every *converged* run stops early and clause 3
+refuses it; with a fixed `endTime` and no `residualControl` every run hits the cap and §8.4
+refuses it. **As drafted, the comparator refuses every possible run.** The document had
+carefully adapted clause 4 (field list) and clause 6 (age guard against `0/U` rather than
+`0/T`) for this family — and never adapted clauses 3 and 5 for an early-exit run.
+
+**Two instances, two mechanisms, one class, one day: a registration can be internally
+consistent, carefully reasoned, individually correct in every clause, and still have NO
+SATISFIABLE OUTCOME.** `F23b` cost 3.82 core-min and is unrepairable. `JF1` cost **zero**,
+because it was checked while rule 2's pre-compute amendment window was still open. **That
+difference is the entire practical content of this lesson.**
+
+**THE COST OF NOT DOING THIS IS PERMANENT, and that is why it is a lesson and not a note.**
+Rule 2 closes a registration's gates at first compute. An unreachable threshold discovered
+**after** the first solve **cannot be amended** — not by addendum, because an addendum may
+not alter a gate, a threshold, a cap or a label. `F23b` did not fail; **it ended.** The work
+survives only as a new registration under a new sha.
