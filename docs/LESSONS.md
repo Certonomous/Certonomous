@@ -18417,3 +18417,61 @@ Where a config multiplies them — non-orthogonal correctors, outer iterations, 
 objects writing one directory — the count is in the dictionary and takes one line to check.
 
 **Caught by:** a lane re-deriving the numbers instead of accepting the supervisor's table.
+
+
+## L-420 — A negative control whose sentinel is named in the record it controls is spent the moment that record lands
+
+**2026-08-31, `heat-transfer` lane.** A lane establishing that no prior T25 row existed in
+`docs/COST_CALIBRATION.md` did it properly: a word-boundary search under a **two-armed control**
+— positive arms `T18` → 2 lines and `T23` → 5 lines, proving the reader could see a hit; negative
+arms `T77QQ` → 0 and `T25` → 0. Sound when it ran. But the row it then wrote (`8f1addea`, id
+`C-20260831T234136.682040Z-89696a12`, `docs/COST_CALIBRATION.md:347`) **names `T77QQ` in its own
+record-ref cell as the negative arm.** Re-run against HEAD, that arm now returns **1 line**, and
+`T25` returns **1** for the same reason. **The negative control is a false positive forever
+after** — a later auditor re-running it concludes either that the reader is broken or that a
+`T77QQ` row exists.
+
+**GENERAL FORM.** A negative control is a control only while its sentinel is absent from the
+artifact under test. Writing the sentinel into that artifact is what makes the control
+auditable — and is what destroys it. **The two goods are in genuine tension; there is no free
+fix.**
+
+**CURE — AN OPTION SET, AND NONE OF THESE HAS BEEN TESTED.** (a) Draw the sentinel from outside
+the artifact's own vocabulary, so writing the record cannot introduce it. (b) Record the
+control's METHOD and RESULT without echoing the literal token. (c) Record the token and mark the
+control **spent**, requiring a fresh one on any re-derivation. **Tested: none.** This is a
+warning, not a procedure.
+
+**Credit:** the lane flagged this itself, in the same session, rather than leaving it to be found
+later as a broken control by whoever re-ran it.
+
+## L-421 — The better instrument ran first and I discarded its answer, because the later report looked better
+
+**2026-08-31, `heat-transfer-supervisor`. My error, recorded against me.**
+
+I swept the T-family comparators for `grade(HERE, ...)` call sites with an **AST walk**
+(`ast.walk` for a `Call` whose `func` is `Name` `grade` and whose first positional argument is
+`Name` `HERE`) and got **SEVEN**. A lane later ran a line-oriented `grep -rn "grade(HERE"` and
+reported **SIX**. **I adopted the six and relayed the downgrade upward as a correction to my own
+earlier number.**
+
+The six was wrong. `verification/runs/T-family/T9aR1c_runs/analyse_t9aR1c.py:933-934` wraps the
+call across a newline — `grade(` closes 933, `HERE,` opens 934, carrying a `quiet_ref=True`
+keyword the other six call sites lack — and that file contains **zero** line-visible
+`grade(HERE`, so a line-oriented reader is blind to the entire call site, not merely to its first
+line. A later lane re-derived **SEVEN** by AST and independently by count — 25 line-visible
+textual occurrences + 1 wrapped = **26**. The correction landed at `e6f9380c`,
+`docs/campaigns/T-family/OPEN_INSTRUMENT_DEFECTS_2026-08-31.md:347` (`25` → **`26`**) and
+`:351-352`.
+
+**THE TRANSFERABLE CONTENT IS NOT "grep misses wrapped calls."** That is the detail. It is:
+**when two instruments disagree, the question is which one can see the SHAPE being hunted — not
+which ran more recently, and not which came with more detail.** A syntax-aware reader and a
+line-oriented reader are not two opinions about one question.
+
+**AND RULE 3 ALREADY ANSWERED IT.** Neither count was admissible until its reader had been shown
+able to see the shape it was looking for. **One planted wrapped call, one command**, settles it
+in either direction. The planted-zero rule was in force and I did not apply it to a census.
+
+**AGGRAVATING FACTOR, stated plainly:** the later report was more detailed and better formatted
+than my own sweep, and **I let presentation stand in for instrument quality.**
