@@ -4671,9 +4671,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T18:42:10Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T19:48:50Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22l — **`SO-3a` = `NOT A RESULT` ON AN UNFILLED FAIL-CLOSED PIN THE CENSUS COULD NOT SEE — AND THE REASON IT COULD NOT SEE IT IS THAT THE SENTINEL WAS *WELL* DESIGNED. `SO-2M` IS LIVE AND **P1 HITS**: `CMZ` EVALUATES, AND `d(CMZ)/dx` NOW EXISTS IN THIS LAB FOR THE FIRST TIME** (2026-08-31T19:4xZ, `date -u` at write)
+
+##### 1. `SO-3a` = `NOT A RESULT`, WITH ITS NUMBERS — INSTRUMENT, NOT PHYSICS
+
+`MESH rc=0` (0.167 core-min); **`X-S rc=2` after 10 s, `oomkilled=false`**; `chain=STOPPED_AT_FIRST_NONZERO`, **executed 1 of 5 declared**, `grader_rc=2`, and the **frozen comparator wrote `NOT A RESULT` rather than degrading** `[MEASURED]`. **Total burn 0.334 core-min ≈ $0.0003**, carried as **WASTE**, not absorbed into any ratio.
+
+**Every preflight gate passed** — `G-ROOT`, `G-ROOT.5`, `CAP_ASSERT`, `HOST_PRE`, staged md5s, `G-ROW`, `IMAGE_OK`, `G-COLD`, `CMDFILE`, `RUNAWAY_GUARD`. A container **started** and the solver exited 2. The decisive log line:
+
+> `SO3A_XF REFUSE producer md5 c0821199159026ec597549ee034b73ac != frozen UNSET-PRODUCER-PIN-SENTINEL-FAILS-CLOSED`
+
+**`so3a_xf.py:111` carried its OWN producer pin, never filled.** **THE PIN WORKED** — it refused rather than running against an unverified producer, and `c0821199…` is in fact the *correct* current md5 of `so3a_runScript.py`. **Fail-closed did exactly its job. The item simply could never have launched.**
+
+##### 2. ⚠⚠⚠ THE IRONY IS THE FINDING: THE SENTINEL WAS INVISIBLE *BECAUSE* IT WAS WELL DESIGNED
+
+`SO-3a`'s frozen document at `:303` **deleted** the sentinel `MD5_UNSET` **precisely because 32 zeros is a WELL-FORMED md5** that a pin-counting leg would miscount as a real pin. **`so3a_xf.py`'s sentinel is the BETTER design — deliberately NOT md5-shaped, so it can never accidentally match.**
+
+**AND THAT IS EXACTLY WHY THE PIN CENSUS COULD NOT SEE IT.** The census counts **md5-SHAPED** constants; a deliberately non-md5-shaped sentinel is **outside its rule set**. It reported **13 of 13** — *right about thirteen md5-shaped pins and silent about a fourteenth that was not one.* **THE PROPERTY THAT MAKES THE SENTINEL SAFE AGAINST FALSE MATCHING MAKES IT INVISIBLE TO THE CENSUS THAT WOULD HAVE FLAGGED IT UNSET.**
+
+**MY OWN CHECK 4 INHERITED THAT BLINDNESS.** I drove the 13 md5-shaped driver pins and **never asked whether any file carried a pin that is not md5-shaped.** My sweep's rule set was the defect. **That is the third time today a zero in this family was a statement about a RULE SET rather than about the CODE** — after the row-label sweep blind in shell, and the fixture that concealed rather than missed. **The generalisation is now stable enough to state once: A CENSUS KEYED ON THE SHAPE OF A VALUE CANNOT SEE A SENTINEL CHOSEN FOR NOT HAVING THAT SHAPE. Sweep by ROLE, never by SHAPE.**
+
+##### 3. I APPLIED THE LESSON TO `SO-2M` BEFORE ARMING IT — AND THAT IS THE ONLY REASON IT IS SAFE
+
+Before arming I swept `SO-2M` **for the CLASS, not the instance**: every pin-like constant whose value is **not** a 32-hex md5, and every `UNSET`/`SENTINEL` token in any instrument. **`SO-2M` carries none — and the same reader DOES find `so3a_xf.py:111` in the same invocation**, so the zero is **measured, not blind** `[MEASURED]`. `so2m_xm.py:65` carries `PRODUCER_MD5 = ae4a73429dd6972dc804b76d9a44aa05`, and it is **not merely SET but CURRENT** — equal to the live md5 of `so2m_runScript.py`. **SET IS NOT CORRECT, AND I CHECKED CORRECT.**
+
+Rest of check 4: freeze `f1a723ac` by path (exactly one, ancestor of HEAD), **prereg blob at HEAD byte-identical to the blob at the freeze**; registered run root **absent**, read from the driver's own `BASE=` line **and not from a glob** — the glob trap cost me an hour when `CURRICULUM-SO3a*` matched the *feasibility* rung; **11/11 driver pins current**; grading path matches its blob; nothing uncommitted or untracked.
+
+##### 4. ⚠ `SO-2M` IS LIVE AND **P1 HITS** — THE ITEM'S FIRST REAL RISK IS CLEARED
+
+**`LAUNCHED … case=SO2M_chain pid=292530 ranks=1 est=11.0 core-min prereg=f1a723ac`, 19:43:59Z.** `arm=MESH rc=0`; **`arm=X-S rc=0`, 61 s wall, 1.017 core-min against a 12.0 cap** `[MEASURED]`.
+
+**`P1` — whether `CMZ` evaluates at all on `DASimpleFoam` — HITS.** `X-S/so2m_X.json` carries **`CMZ_baseline = 0.0078407548669119`**, finite, and **`adjoint.CMZ` present for both `shape` and `patchV`** `[MEASURED]`. **`d(CMZ)/dx` HAS NEVER HAD AN FD TABLE IN THIS LAB, AND THE FUNCTIONAL AND ITS ADJOINT NOW EXIST HERE FOR THE FIRST TIME.**
+
+**`G-CMV` looks well inside its registered band on this early reading** — `|CMZ_baseline| = 0.00784` against a registered ceiling of **0.02** — but **that is a reading, not a verdict**: no gate is scored until the chain completes and the frozen comparator grades it. Three arms remain (`G-S`, `X-P`, `G-P`).
+
+**Cost so far 1.184 core-min of a registered 11.0**, and **the estimate is holding to the digit**: `X-S` measured **1.017**, which is *exactly* SO-1a's measured `X-S` anchor the registration used.
+
+##### 5. STATE
+
+**Running: `SO-2M`** (pid 292530, ~3 arms remaining). **Queue 0.** One lane on **`SO-3aR`**, the successor — gates on `SO-3a` are closed, its verdict stands, its documents are not rewritten, and **I am not reaching for §2d.1 when a 22 core-min re-run costs $0.019.** `SO-3aR`'s registered requirement is **a pin census that sweeps BY ROLE, proved able to fail on a planted sentinel AND on a stale md5.** Ledger mints remain **HELD**; `SO-1cR`, `SO-3a` and `SO-2M` rows are **owed and held**.
 
 ##### UPDATE S-22k — **`SO-3a` IS ARMED AND LIVE — SANAA'S ALPHA-MULTIPOINT GRADIENT RUNG IS ON THE BOX. A FOURTH ROW-LABEL CONSUMER WAS FOUND BECAUSE THE SWEEP THAT SAID "ZERO" WAS BLIND IN ONE LANGUAGE, AND BOTH OF MY OWN COMMIT GUARDS REFUSED CORRECT WORK TODAY — THE FAILURE MODE TO PREFER** (2026-08-31T18:4xZ, `date -u` at write)
 
