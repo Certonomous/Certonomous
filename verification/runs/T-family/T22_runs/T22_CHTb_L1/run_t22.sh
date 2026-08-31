@@ -23,7 +23,24 @@ TIMEOUT_S=3000                 # cap 50.0 core-min at 1 rank
 FOAM_BASHRC="/usr/lib/openfoam/openfoam2606/etc/bashrc"
 SOLVER="chtMultiRegionSimpleFoam"
 
+# --- 0. THE SOLVER MUST BE REACHABLE.  Ported verbatim in shape from
+# run_one_t20.sh:130-138, which launched five T20 cases clean on 2026-08-31.
+# LAUNCH 1 OF THIS CASE DIED HERE: `set -u` was in force when the bashrc was
+# sourced, and etc/bashrc aborts the shell under `set -u` (WM_PROJECT_DIR
+# unbound).  The `>/dev/null 2>&1` swallowed the message, which is why
+# launcher.queue.out was 0 bytes.  Three guards, and only these three:
+#   (a) refuse if the bashrc file is absent;
+#   (b) lift `set -u` across the source, and `|| true` on the source itself;
+#   (c) refuse if the solver does not RESOLVE after sourcing -- a guard that
+#       makes a future environment failure loud instead of silent.
 [ -f "$FOAM_BASHRC" ] || { echo "REFUSE: no OpenFOAM environment at $FOAM_BASHRC" >&2; exit 2; }
+set +u
+# shellcheck disable=SC1090
+. "$FOAM_BASHRC" >/dev/null 2>&1 || true
+set -u
+SOLVER_PATH="$(command -v "$SOLVER" 2>/dev/null || true)"
+[ -n "$SOLVER_PATH" ] || { echo "REFUSE: solver '$SOLVER' is NOT RESOLVABLE after sourcing ${FOAM_BASHRC}. Nothing ran, no STATUS written." >&2; exit 2; }
+
 cd "$CASE" || exit 2
 
 # Rule 4 age guard: refuse a case that already carries a 0/ or a time directory.
@@ -40,8 +57,9 @@ cp -r 0.orig 0 || exit 2
 # the answer.  Every field at endTime must be NEWER than this file.
 touch 0/housing/T
 
-# shellcheck disable=SC1090
-. "$FOAM_BASHRC" >/dev/null 2>&1
+# The bashrc was sourced ABOVE, before the age guard, with `set -u` lifted and
+# the solver's resolution checked.  The source that used to sit HERE, under
+# `set -u`, is the line that killed launch 1; it is not repeated.
 
 T0=$(date +%s)
 timeout "${TIMEOUT_S}s" "$SOLVER" > log.solve 2>&1
