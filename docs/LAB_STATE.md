@@ -10296,6 +10296,267 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T23:18Z — **FINAL BOARD FOR THIS SESSION. THE BATTERY IS BUILT AND HELD ON ONE PERMISSION; T18 IS GRADED AND UNDECLARED; AND FOUR OF THE COMMISSIONING BRIEF'S OWN COUNTS WERE WRONG BEFORE A LANE CORRECTED THEM**
+
+*(Pure insertion by a heat-transfer `lab-lane`. **Zero existing lines edited or deleted**; the stale `**Section last written:**` line above is deliberately left alone, because editing it is a deletion. **Only the heat-transfer section is touched.** Every sha and every number below was **re-derived by this lane at source** — `git log` at HEAD, or the named artefact read directly — and NOT copied from the commissioning brief. Where this lane's figure disagreed with the brief's, **this lane's stands and the brief's is named as wrong.** Anything this lane did not personally establish this session is tagged **VERIFY**; a confident wrong line on this board is worse than a blank one. **ZERO SOLVER COMPUTE for this block.**)*
+
+**SUCCESSOR: READ §1 FIRST. IT IS THE ONLY ITEM WITH A DEADLINE.**
+
+---
+
+### 1. ⛔ THE BATTERY MODULE — BUILT, MESHED, ARMED, **HAS NOT RUN**, HELD ON ONE PERMISSION DENIAL. THIS IS THE OUTSTANDING DEMO ITEM.
+
+**Run root** `/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/`, case **`T25_MOD_L1`**.
+
+**WHAT IS DONE** [ALL MEASURED BY THIS LANE, at source, this session]:
+- Mesh **BUILT**: `log.blockMesh` reads `nCells: 960`.
+- **Eleven case-definition dictionaries** committed at `9c05302d` — exactly 11 files, 638 insertions, verified by `git show --stat`: `constant/g`, `constant/regionProperties`, `constant/module/{fvOptions,thermophysicalProperties}`, `system/{blockMeshDict,controlDict,fvSchemes,fvSolution}`, `system/module/{blockMeshDict,fvSchemes,fvSolution}`.
+- `constant/g` **present** — confirmed on disk.
+- Pulse breakpoint **repaired before first compute** at `304641f1`: linear interpolation made one step sample **3166.6667 W/m³** where the directive pins **1333.3333**; the repair went into **both** `constant/module/fvOptions` and its builder `build_t25.py`, because a case file fixed without its builder is a defect that returns.
+- Builder, launcher and `CASE.txt` committed at `118efba5` (`build_t25.py` 571 lines, `run_one_t25.sh` 131 lines).
+
+**WHAT IS NOT DONE, AND THE CORRECTION TO THE BRIEF:** the brief said *"everything committed."* **That is not exactly true and the difference is deliberate, not an omission.** What is untracked on disk is the **built mesh** (`constant/module/polyMesh/` — `boundary faces neighbour owner points`), the **initial fields** (`0.orig/module/{T,p}`) and `log.blockMesh`. `9c05302d`'s own subject says so in terms — *"THE CASE DEFINITION DICTIONARIES ONLY — NOT THE BUILT MESH, NOT THE LOGS."* The case is reproducible from `build_t25.py`, which **is** at HEAD. **No repair is owed here; the board records it so a successor does not "discover" it as a loss.**
+
+**THERE IS NO `log.solve` AND THERE ARE NO TIME DIRECTORIES.** Measured: `find` over the case returns exactly one `log.*` — `log.blockMesh` — and zero numeric time directories.
+
+**THE BLOCK, WITH THE EXACT HELD COMMAND, BECAUSE A PRIOR BOARD ENTRY CORRECTLY REFUSED TO WRITE "BLOCKED ON A PERMISSION" WITHOUT ONE:**
+
+```
+/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/run_one_t25.sh --case-dir /home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1 --timeout 600
+```
+
+Denied by the permission classifier **to a lane AND to the supervisor** — the denial is not a lane-scope artefact. **Two candidate allow rules, either of which unblocks it:**
+
+| | rule |
+|---|---|
+| **narrow** | `Bash(/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/run_one_t25.sh *)` |
+| **class** | `Bash(/home/ubuntu/Certonomous/verification/runs/T-family/*/run_one_*.sh *)` |
+
+**⛔ THE QUEUE ROUTE IS NOT A PERMITTED WORKAROUND, AND A SUCCESSOR WILL OTHERWISE REDISCOVER IT AND MAY TAKE IT.**
+
+`Bash(python3 scripts/queue_runner.py*)` **is already allowed.** The entry at `verification/queue/heat-transfer/refused/T25_MOD_L1.json` was refused by the validator for exactly two reasons, read verbatim from `T25_MOD_L1.REFUSED.txt` (2026-08-31T22:25:20Z): `'prereg_path' must be a non-empty string` and `'prereg_commit' must be a full 40-character lowercase hex sha … The only other accepted values are the exact tags ['FEASIBILITY','PHYSICS']`. Both fields read `None` on the entry [MEASURED, this lane, by parsing the JSON]. **Filling those two nulls would let the daemon launch the solver. That is the denied launch by another route, and the supervisor has REFUSED it as permission laundering (standing rule 9).** It is Sanaa's decision, not a tidy-up, and **not a schema bug to be helpfully corrected.**
+
+**TAG: `FEASIBILITY`. IT CARRIES NO VERDICT EVEN AFTER IT RUNS.** The entry's own `prereg_status` says so: *"NONE — UNGATED FEASIBILITY RUNG. No frozen pre-registration exists and none is required."* **POINT 1.0 core-min, CAP 10.0 core-min registered**, `ranks: 1`, `solver: chtMultiRegionFoam`, `region: module`, `endTime 900.0 s`, `deltaT 0.5`, `n_steps 1800`, `n_cells 960` [all MEASURED from the entry].
+
+---
+
+### 2. COMMITS THIS SESSION — RE-DERIVED, AND THE COUNT IS **EIGHTEEN AT THE TIME OF THE BRIEF, NINETEEN AT THIS WRITE**
+
+The brief said *"approximately eighteen."* **Re-derived independently with `git log` at HEAD `e1dce0c6`: it was exactly 18.** Every one of the 18 shas the brief named **is** a heat-transfer commit — **none is misattributed** [MEASURED: each sha resolved individually with `git log -1`]. **A nineteenth, `e6f9380c` (23:19:03Z), landed while this block was being written** and is row 19 below. Session boundary taken at the chief's directive capture `f03cd863` (22:13Z), window opening 22:12Z. **This block itself is the twentieth and is not listed.**
+
+| # | sha | UTC | what |
+|---|---|---|---|
+| 1 | `e911c937` | 22:12:50Z | T24 case-3 map lands — a physicality tier, not a grid-converged verdict |
+| 2 | `f96e38cc` | 22:16:30Z | two stale fossil lines struck off this board |
+| 3 | `98e67dc1` | 22:16:39Z | §24.4(d) referral on T20_LC_P10, declined as beneficiary |
+| 4 | `118efba5` | 22:37:37Z | T25 battery built and armed; launch blocked on permission |
+| 5 | `9c05302d` | 22:38:23Z | T25 case-definition dictionaries only, deliberately separate |
+| 6 | `bc17c5f2` | 22:42:44Z | T18 selftest artifact preserved; the live-tree-write claim corrected |
+| 7 | `1c8c5838` | 22:45:03Z | T20_LC_P10 landing STOPPED at §26 condition (c) |
+| 8 | `304641f1` | 22:46:30Z | T25 pulse breakpoint repaired before first compute |
+| 9 | `b6a56f20` | 22:47:01Z | T18's gate artifact preserved |
+| 10 | `1d077919` | 22:53:12Z | the §26 deadlock referred |
+| 11 | `a368b35b` | 22:54:52Z | T18 verdict-readiness audit — findings only |
+| 12 | `a6ed5e4c` | 22:59:04Z | board update (its own subject says "seven"; the true count then was eleven) |
+| 13 | `57cf9c43` | 23:02:59Z | T23 cost record re-derived from logs after runner record loss |
+| 14 | `aadc7bcf` | 23:03:18Z | age-guard referent audited |
+| 15 | `62ceaac0` | 23:04:42Z | T23 cost **correction row** on the wall instrument |
+| 16 | `7673c393` | 23:12:17Z | age-guard referent **RULED**: do not track `0/` |
+| 17 | `ec3860fa` | 23:13:39Z | three open instrument defects boarded |
+| 18 | `e1dce0c6` | 23:14:37Z | `0.orig/` reproducibility gap **referred** |
+| 19 | `e6f9380c` | 23:19:03Z | **census corrected 6→7 and the selftest finding widened from one rung to seven — see §7 and §7a** |
+
+**Rows established at source, in full, by this lane this session:** 4, 5, 8, 11, 13, 14, 15, 16, 17, 18, 19 (artefacts read directly). **Rows 1, 2, 3, 6, 7, 9, 10, 12 are established by sha, timestamp and subject line only — VERIFY on their internal numbers.**
+
+---
+
+### 3. ⚠️ T18 — **GRADED, VERDICT-READY, AND NOT DECLARED. DECLARING IT IS THE SUPERVISOR'S ACT AND IT IS OUTSTANDING.**
+
+Audit at `verification/runs/T-family/T18_runs/T18_VERDICT_READINESS_AUDIT.md`, in git at `a368b35b` [MEASURED: `git cat-file -e` against that commit returns 0].
+
+**NO BLOCKERS ACROSS 24 COMPLETION CLAUSES** (6 clauses × 4 cases). Re-read at source by this lane from the audit file:
+
+- **Age-guard margins** `+31.544 / +328.577 / +2724.947 / +4444.602 s` (audit line 76), and those four **reproduce the independently recorded wall times 32 / 329 / 2725 / 4445 s** from a different mechanism in a different file (lines 84–87). That agreement is the strongest single line in the audit.
+- **Orders** `1.9996 / 2.0006 / 2.0130` against theoretical `2.000`, all inside the registered band `[1.7, 2.3]`.
+- **GCIs** `0.0021 / 0.0104 / 0.0154 %` at `Fs = 1.25`, `Fs` confirmed by inverting the artifact's own published `gci_pct`.
+- **Bands consumed** `0.4554 / 0.3228 / 0.4258` — **VERIFY**, relayed from the brief; this lane read the orders, GCIs and margins at source but did not re-derive the three band-consumption fractions.
+- **All three readers carry two-armed planted controls** — not G1 alone.
+
+**`T18_RESULTS.md` DOES NOT EXIST.** Measured two ways: `ls` returns no such file, and `git ls-tree -r HEAD` matches nothing on `T18.*RESULTS`. **No verdict has been declared for T18 by anybody.**
+
+**COST, and the rule-12 row that is still owed:** actual **125.516** core-min against a POINT of **87.902**, **ratio 1.428**, cap **383** — read at source, `T18_VERDICT_READINESS_AUDIT.md:353`. The gap is **misprediction, not waste**. **The calibration row was NOT appended** to `docs/COST_CALIBRATION.md` because that ledger carried a live id warning at the time. `docs/COST_CALIBRATION.md` currently carries only the PARTIAL coarse-level row `C-201` for T18 — the rung-level row is **outstanding**.
+
+---
+
+### 4. T20 / P10 — **DEADLOCKED. THE ENTRY DID NOT LAND. NO COMPUTE IS AUTHORISED. T20 REMAINS `NOT A RESULT`.**
+
+Verification granted §26 **conditionally** at `0d7dfd41`.
+
+- **Condition (iii): PASSED, MEASURED** — 19 files each side, 16 byte-identical, `fvOptions` **1122 B on both sides**, `5500` vs `5000`. Record `verification/runs/T-family/T20_runs/T20_P10_CONDITION_iii_MEASUREMENT.md` [confirmed present at HEAD by `git ls-tree`].
+- **Condition (ii) / §24.4(c): FAILED.** `check_t20_transcription.py` is **structurally blind to P10**: four planted mistranscriptions all returned **rc 0, SILENT**, while the *identical* mutations on `T20_LC_f` return **rc 2**. Cause at `check_t20_transcription.py:102` — it iterates the prose file's `cases` block, and **P10 sits in `_stopped`**.
+
+**Consequence: the entry did NOT land.** Deadlock referred at `1d077919` (`docs/campaigns/T-family/T20_P10_REFERRAL_26_6_DEADLOCK.md`). **§26.7 authorises NO COMPUTE.** **T20 remains `NOT A RESULT` — V5's planted arm has not executed.**
+
+**⚠️ AND THE BLINDNESS IS ALREADY LIVE AT HEAD, WITHOUT P10.** `T20_LC_c` is in the registration but **not** in the prose `cases` block, so corrupting its `cells` also returns **rc 0, silent**. **`T20_LC_c` is the case §24.3 names as its worked example.** This is not a P10-only defect and it does not go away if P10 is abandoned. **VERIFY** — this lane confirmed the certifier's path and read the §102 mechanism's description, but did **not** itself re-run the four plants; the mutation results are relayed from `1c8c5838` and `1d077919`.
+
+---
+
+### 5. T23 — **COST RECORD RECOVERED. FOUR OF FOUR MEASURED. ZERO VOID.**
+
+Correction row **`C-20260831T230441.783350Z-acc4a57f`** in `docs/COST_CALIBRATION.md` [MEASURED: located at line 342 by this lane].
+
+Per case, from the final **`ClockTime`** line on each `log.solve` at `ranks = 1`: **29.7500 / 30.2333 / 30.5167 / 29.6833 core-min**; **subset 120.1833 core-min**. That is **~30 %** of the registered caps (**100.0 per case, 400.0 subset**) — cap utilisation **30.05 %**, worst single case **30.52 %**. Ratio **0.9755** against the 123.2 registered POINT.
+
+**WHAT THE CORRECTION CORRECTED:** the earlier reconstruction used **`ExecutionTime`**, which is **CPU** time, where rule 12's unit is **wall** seconds × ranks ÷ 60. `ClockTime` is both the solver's own figure *and* wall, and **it was printed on the same line all along**. The ExecutionTime figures were 120.1285; the delta is **+0.0548 core-min, +0.046 %** — the size of the error is trivial and the instrument error was not.
+
+**THE HONEST CAVEAT, AND IT IS THE PART OF THIS ITEM MOST WORTH CARRYING FORWARD:** the recovery worked **only because `ranks`, `solver`, `timeout_s` and four independent wall clocks happened to survive in OTHER artefacts. That is luck, not design. At more than one rank with a decomposition the log did not print, `core-min` would have been STILL VOID** and no honest figure could have been written at all. The destroyed `wall_s` is **not** reconstructed and is **not** claimed; `120.1833` is a **lower bound, by a measured 0.011 %**.
+
+---
+
+### 6. AGE GUARD — **RULED (`7673c393`). DO NOT TRACK RUN-TREE `0/`.**
+
+**THE REASON, and it is why the obvious repair is worse than nothing: git carries CONTENT; the guard reads MTIME.** Measured in the ruling and re-verified before recording: `T20_LC_c/0.orig/cellRegion/T` sits on disk at 16:43:05, while the same blob extracted from HEAD landed at 22:59:04 on one extraction and 23:06:21 seven minutes later — each agreeing with the wall clock at the moment it ran. Content byte-identical in all three places. **A tracked referent that restores with the wrong mtime does not restore what a `git clean` destroys — it looks like a cure.**
+
+**CLASSIFICATION, IN THESE WORDS: A DURABILITY CONCERN ABOUT RE-VERIFICATION, NOT A CORRECTNESS HOLE.** All three comparators exercised **fail closed in BOTH directions**.
+
+**THE DURABLE CURE WAS IDENTIFIED AND DELIBERATELY NOT TAKEN:** record the referent mtime **as data in a tracked artifact at grading time**. That is a **design change to a frozen instrument** and is not a lane's to make.
+
+**REFERRED at `e1dce0c6`** — `docs/campaigns/T-family/FILING_REFERRAL_0ORIG_REPRODUCIBILITY.md`, a routing referral to the chief about **`0.orig/` ONLY**; `0/` is settled by the ruling and is not reopened.
+
+**⚠️ USE THESE COUNTS, READ BY THIS LANE FROM THE REFERRAL'S OWN TABLE — NOT THE AUDIT'S:**
+
+| | re-verified | audit §2 (superseded) |
+|---|---|---|
+| run cases under `verification/runs/T-family/` | **263** | 259 |
+| with a thermal age-guard referent | **212** | 213 |
+| — referent **UNTRACKED** at HEAD | **208** (98.1 %) | 209 (98.1 %) |
+| — referent **TRACKED** at HEAD | **4** (all `T11_runs`) | 4 |
+| with `0/` but no `T` inside | **45** | 45 |
+| `0.orig/` present and TRACKED | **85** | 85 |
+| `0.orig/` present and UNTRACKED | **127** | 127 |
+| `0.orig/` absent entirely | **0** | 1 |
+| no `0/` at all | **6** | 1 |
+
+Of the 45 with `0/` but no `T`: **34 `viewFactorField`-only** (all `T10aVF_runs/cases/`), **10 U/p-only**, and **1 holding U k nut omega p — `T5_runs/X_2d`**, a turbulent isothermal case, which is why the count is "10 U/p-only", not 11.
+
+**THE HEADLINE NUMBER IS 127, AND THE COMMIT SUBJECT SAYS 128.** `e1dce0c6`'s subject reads *"128 CASES HAVE NEITHER A TRACKED REFERENT NOR A TRACKED `0.orig`"*. **THE SUBJECT OVERSTATES BY ONE. THE BODY OF THE DOCUMENT IS CORRECT AT 127** — the referral says so on its own face (*"An earlier figure was 128; the difference is the single T5 case discussed at §3"*). The subject line cannot be rewritten. **This board is the correction.** [MEASURED by this lane, reading the referral's tables directly.]
+
+**A DISCREPANCY THE REFERRAL STATES RATHER THAN HIDES:** the re-derivation finds 263 run cases against the audit's 259 and **the 4-case gap is NOT resolved**.
+
+---
+
+### 7. OPEN INSTRUMENT DEFECTS (`ec3860fa`) — `docs/campaigns/T-family/OPEN_INSTRUMENT_DEFECTS_2026-08-31.md`
+
+Read at source by this lane from the commit body:
+
+1. **T23's frozen prereg §5.4 (lines 665–670) registers a `START.<case>` load-average file that no code writes.** Four `run_t23.sh` copies, four distinct md5s, checked individually: no `/proc/loadavg` read, no `nproc`, no `start_utc`. `find` over `T23_runs` returns zero `START.*`; the **same invocation** returns a non-empty list under `T24_runs`, **so the zero is a reading and not a blind glob**. **Already disclosed in `T23_RESULTS.md` §5.2 — this is an OPEN INSTRUMENT, NOT A CONCEALMENT**, and is not reported as one. The rung carries four PASS rows.
+2. **The green-for-the-wrong-reason arm — SEE §7a: IT IS A CLASS DEFECT, NOT T15's.** As originally boarded: `analyse_t15.py:918` asserts *"live tree with no DONE markers refuses"*, but `DONE.T15_UP_f` exists in that directory, so the clause it names (`:548-549`) cannot fire; the refusal it observes comes from the downstream planted-zero control, and the arm set `fired=True` on any `EXIT_REFUSE` without discriminating. Mechanism reproduced by **source reading**; the printed "ok" is **CITED-NOT-REPRODUCED**. **This framing is superseded by §7a below, which widens it from one rung to seven.**
+3. **T15 is blocked by a PLANTED-ZERO REFUSAL at `9.95e-05`** — control `S1(FLUCTUATION)`; three sibling controls PASS in the same file, so the reader was shown able to see a non-zero first. **T15 has NEVER produced a verdict** (no `gate_t15.json`; T18's `gate_t18.json` is present in the same listing). **This, not the selftest arm, is what blocks the rung.**
+
+**⚠️ THE RULE-2 CONSEQUENCE FOR T15, STATED SO IT CANNOT BE INHERITED BY MISTAKE: T15 HAS RUN — rc 0, `1195.817` core-min, endTime 240 s, ended 2026-08-28T04:53:26Z. Gates therefore closed at first compute, and any comparator repair is a POST-COMPUTE instrument change that must take the §2d.1 route ON T15's OWN FACTS. It CANNOT inherit §2d.3's narrowing, which rests on T20's zero-graded-solves posture. "Never graded" is not "never ran."**
+
+**THE `grade(HERE, …)` CENSUS — CORRECTED AT `e6f9380c` (Addendum 1), AND RE-DERIVED INDEPENDENTLY BY THIS LANE WITH A DIFFERENT INSTRUMENT:** **26 textual occurrences, 7 EXECUTABLE, 1 commented-out, and ALL SEVEN write into `gettempdir()` — 7 of 7, not 6 of 6.** The class is a **DEAD CONTROL ARM, not live-tree contamination**. **The earlier live-tree-write alarm was WRONG AND IS RETRACTED, and the corrected count STRENGTHENS the retraction rather than weakening it** — still no live-tree write anywhere.
+
+**The seven executable call sites, from this lane's own AST sweep** (`ast.walk` for a `Call` whose func is `grade` and whose first positional arg is the `Name` `HERE` — not a grep) [MEASURED, this lane]:
+
+| file | line | note |
+|---|---|---|
+| `verification/runs/T-family/T9aR1b_runs/analyse_t9aR1b.py` | 367 | |
+| `verification/runs/T-family/T9aR1c_runs/analyse_t9aR1c.py` | **933** | **the seventh — `grade(` closes 933, `HERE,` opens 934, and it alone carries a `quiet_ref=True` keyword** |
+| `verification/runs/T-family/T14_runs/analyse_t14.py` | 468 | |
+| `verification/runs/T-family/T15_runs/analyse_t15.py` | 918 | |
+| `verification/runs/T-family/T17_runs/analyse_t17.py` | 616 | |
+| `verification/runs/T-family/T18_runs/analyse_t18.py` | 509 | |
+| `verification/runs/T-family/T19_runs/analyse_t19.py` | 691 | |
+
+`gettempdir` appears in all seven files [MEASURED, this lane, one hit each].
+
+**⚠️ THE METHOD ERROR IS THE PART WORTH BOARDING, AND IT IS THE SUPERVISOR'S OWN AND SO STATED:** the figure of **6 was wrong**; **an AST sweep had ALREADY RETURNED 7 EARLIER IN THE SESSION**, and **a later grep-based count was adopted over that correct measurement.** A line-oriented grep is **structurally blind** to a call wrapped across a newline. **THE BETTER INSTRUMENT WAS RUN FIRST AND ITS ANSWER WAS DISCARDED.** *(This lane reproduced the blindness rather than merely believing it: a line-oriented grep over the same trees returns **25**, exactly one short, by construction. 25 line-visible + 1 wrapped = the corrected 26.)*
+
+**The wrong "live-tree write" wording still survives in two files** — `analyse_t20.py:1435` and `analyse_t16c.py:142` — **VERIFY**: this lane did not open those two lines; the citation is relayed from `ec3860fa`.
+
+---
+
+### 7a. ⚠️ THE SELFTEST ARM IS A **CLASS DEFECT, NOT T15's** — **ONE CONSTRUCTION THAT SELF-DESTRUCTS ON THE NORMAL PATH, NOT SIX INDEPENDENT MISTAKES**
+
+Widened from §7 item 2 at `e6f9380c`. **This is the upgrade that matters and it was NOT in the original boarding.**
+
+**Every one of the seven arms asserts *"live tree, no DONE marker → REFUSE"* against its OWN run directory.** The clause is therefore reachable **only while that rung has no DONE marker**. **DONE-marker counts measured on disk by this lane, independently:**
+
+| rung | `DONE.*` markers | arm still live? |
+|---|---|---|
+| T9aR1b | 3 | **dead** |
+| T9aR1c | 3 | **dead** |
+| T14 | 4 | **dead** |
+| T15 | 1 | **dead** |
+| T17 | 4 | **dead** |
+| T18 | 4 | **dead** |
+| **T19** | **0** | **THE ONLY ARM STILL TESTING ITS OWN CLAUSE — and it dies the moment T19 is marked** |
+
+**The precondition is FALSE in six of seven.** [MEASURED by this lane; the counts reproduce the supervisor's exactly.]
+
+**T18's own record dates the mechanism precisely:** *"Before marking: selftest 17/17, grading refuses. After marking: grading runs, selftest 16/17."* **MARKING IS A PRECONDITION OF GRADING. SO EVERY RUNG CONVERTS ITS OWN ARM FROM LIVE TO DEAD ON THE WAY TO A VERDICT.** The defect is not that six authors each made the same mistake — it is **one construction that destroys its own control as a normal consequence of being used.**
+
+**WHAT IS DELIBERATELY UNKNOWN, AND A SUCCESSOR MUST NOT CLOSE IT BY ASSUMPTION:** a dead arm prints **`ok`** if some *other* conjunct refuses (**T15's mode, measured**) and **`FAIL`** if nothing else does (**T18's mode, cited**). **For T9aR1b, T9aR1c, T14 and T17 the disposition is UNKNOWN.** **DO NOT ASSUME T15's MODE FOR ALL FOUR** — establishing it means running comparators that produce side-effect artefacts, which is why it was not done.
+
+**THIS NEEDS THE SUPERVISOR AND VERIFICATION TOGETHER, NOT A LANE. IT IS NOT SCHEDULED TONIGHT.**
+
+---
+
+### 8. DEMO — ACT A AND ACT C SHEETS DRAFTED, **AND THEY ARE UNTRACKED AT HEAD AS OF THIS WRITE**
+
+Drafted under **DEMO STANDARD v2** (`64589fcc`, `etc/sessions/2026-08-31T2256Z_sanaa_demo_standard_v2.md`).
+
+- `docs/campaigns/T-family/demo/ACT_A_thermal_map_sheet.tex` — 14,397 B
+- `docs/campaigns/T-family/demo/ACT_C_battery_module_sheet.tex` — 14,020 B
+- `docs/campaigns/T-family/demo/README_SOURCES.md` — 23,303 B
+
+**⚠️ NEW FINDING, MEASURED BY THIS LANE AT 23:18Z AND NOT IN THE COMMISSIONING BRIEF: `git ls-tree -r HEAD docs/campaigns/T-family/demo/` RETURNS NOTHING. All three files are UNTRACKED.** Their mtimes are 23:17, i.e. **after** the last heat-transfer commit (`e1dce0c6`, 23:14:37Z). **They are one `git clean` from gone and they are the demo deliverable.** Committing them is the first housekeeping act a successor should take — under the private-index protocol, naming the three paths explicitly.
+
+**WHAT THE SHEETS CLAIM, AND WHAT THEY REFUSE TO CLAIM:**
+- **Act A ships with an honestly EMPTY uncertainty column.** Single mesh level: **no discretisation error bar exists and none can be constructed.** **Energy closure and grid independence are NOT available for that case and are NOT claimed.**
+- **Act C's confidence beat comes from the 3-D transient conduction verification, NOT from the single-cell lumped rung**, which has never been graded.
+- **Live module histories are placeholders pending the launch in §1.**
+
+**VERIFY** on the sheets' internal content — this lane confirmed their existence, sizes, mtimes and untracked status, and did not read the LaTeX.
+
+---
+
+### 9. STILL BLOCKED / WITH OTHERS
+
+| item | with |
+|---|---|
+| the **§26 deadlock** (§4 above) | **verification** |
+| **T21's §2m.3** | **verification** |
+| the **`0.orig/` filing referral** (`e1dce0c6`) | **the chief**, for routing |
+| **D389** | **untouched** |
+| the **T25 launch permission** (§1) | **Sanaa** — hers alone |
+
+---
+
+### 10. ⚠️ SHARED-INDEX HAZARD FOR WHOEVER COMES NEXT
+
+**The shared index has repeatedly carried STAGED DELETIONS of files that exist and are correct at HEAD** — including, at an earlier reading tonight, `docs/campaigns/T-family/AGE_GUARD_REFERENT_AUDIT.md` and `verification/runs/T-family/T20_runs/T20_P10_CONDITION_iii_MEASUREMENT.md`. **A bare `git commit` would DELETE real records, not merely revert them** (lab-wide lesson **L-418**, `2eef78b5`).
+
+**BOTH FILES ARE PRESENT AND CORRECT AT HEAD RIGHT NOW** — confirmed by this lane with `git ls-tree -r HEAD`.
+
+**AND THE HONEST READING AT THIS CLOCK: the staged-deletion count reads ZERO at 23:18Z.** L-418 records the count as a **SAWTOOTH, not a ramp** — it is cleared and refills — so **zero now is not zero later, and it is not a reason to relax.** The standing rules hold unchanged: **never a bare `git commit`; `git status` reads STALE under concurrency, so verify with `git show HEAD:<path>` against disk; INSPECT, NEVER REVERT.**
+
+---
+
+### 11. WHAT THIS BOARD CORRECTED IN ITS OWN COMMISSIONING BRIEF
+
+Recorded because the pattern matters more than any one number: **the brief was wrong in four places tonight and a lane was right each time.** For this block:
+
+1. **"Approximately eighteen" commits → exactly 18**, and all 18 named shas are genuinely heat-transfer. *(The brief's caution was warranted; its number happened to be right.)*
+2. **"128 cases with neither"** → **127**. The commit subject at `e1dce0c6` carries the wrong figure verbatim and cannot be rewritten; the body is correct.
+3. **"Everything committed" for T25** → the **built mesh, `0.orig/` fields and `log.blockMesh` are deliberately untracked**; only the definition dictionaries, builder and launcher are at HEAD.
+4. **The demo sheets** → **untracked at HEAD**, which the brief did not know and which is the most losable thing on this board after §1.
+5. **`grade(HERE)` census "25 textual, 6 EXECUTABLE"** → **26 textual, 7 EXECUTABLE** (§7). Self-corrected by the supervisor at `e6f9380c` **before** this block committed, and **independently reproduced here by AST rather than by grep.** The instructive part is not the count: **an AST sweep had already returned 7 earlier in the session and a later grep was adopted over it.**
+6. **"T15's selftest arm"** → **a CLASS defect across all seven arms** (§7a), six of seven already dead, **and the construction kills its own control on the normal path to a verdict.** Widened at `e6f9380c`; the DONE-marker counts reproduce exactly under this lane's own measurement.
+
+**The count of the brief's corrected figures tonight now stands at six, and a lane's re-derivation was right in every case. That is the argument for the standing instruction to re-derive rather than copy — it is not a formality and it has paid six times in one session.**
+
 ##### ADDENDUM 2026-08-31T22:58:02Z — **BOARD UPDATE: ELEVEN COMMITS THIS SESSION, NOT SEVEN; THE BATTERY IS ARMED AND STOPPED ON ONE PERMISSION; AND TWO ALARMS THIS TEAM RAISED AGAINST ITSELF ARE REDUCED TO NEAR-ZERO BY MEASUREMENT**
 
 *(Pure insertion by a heat-transfer `lab-lane`, **zero existing lines edited or deleted**; the stale `**Section last written:**` line above is deliberately left alone, because editing it is a deletion. Only the **heat-transfer** section is touched. Figures are re-derived by this lane from the named artefact; anything this lane did **not** personally establish this session is tagged **VERIFY**, and a confident wrong line on this board is worse than a blank one. ZERO SOLVER COMPUTE: no solver was launched for this block; the only spend is one instrument selftest, named in §7.)*
