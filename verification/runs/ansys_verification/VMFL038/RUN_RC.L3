@@ -1,0 +1,23 @@
+rc = 0
+level = L3
+state = FINISHED
+wait_rc = 0
+wall_s = 372
+ranks = 1
+core_min = 6.2
+total_core_min_so_far = 7.75
+timeout_s = 807
+cap_core_min = 15
+endTime = 30000
+last_time_in_log = 13330
+End_lines = 1
+SIMPLE_converged_lines = 1
+latest_time_dir = /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L3/13330
+ny = 160
+detach_wrapper_pid = 72186
+detach_wrapper_sid = 70361
+prereg_blob = a1ac010431a3e65f8a4ee9af8b0edadf81d1f248
+comparator_blob = 04a2606e11ecfb36dd59e65606aab6f8e9990d38
+solver_bin = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+utc = 2026-08-31T15:51:35Z
+note = rc captured INSIDE the detached subshell; 124 = the RUNNING-TOTAL cap fired. endTime is NEVER reduced to fit a cap (rule 12). L-342 INFRASTRUCTURE.

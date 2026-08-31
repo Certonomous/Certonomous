@@ -1,0 +1,17 @@
+=== VMFL038 launcher  utc=2026-08-31T15:43:48Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038
+  freeze OK  cases/ansys_verification/VMFL038/PREREGISTRATION.md  a1ac010431a3e65f8a4ee9af8b0edadf81d1f248
+  freeze OK  cases/ansys_verification/VMFL038/grade_vmfl038.py  04a2606e11ecfb36dd59e65606aab6f8e9990d38
+  case inputs OK: 9 files, each byte-identical to its HEAD blob
+  controls OK: --selftest 52/52 PASS; python3 and python3 -O agree on PASS 52/52, FAIL 0/0, rc 0/0; AST marker in both
+  simpleFoam = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+--- L1  Ny=40  remaining 15 of 15 core-min  timeout 900s
+  birth certificate: cells=7200 meshOK=True maxSkew=1.6653347134e-13 maxAR=4.0 maxNonOrtho=0.0
+done L1: 14s = 0.2333 core-min (running total 0.2333 of 15), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L1/2093
+--- L2  Ny=80  remaining 14.7667 of 15 core-min  timeout 886s
+  birth certificate: cells=14400 meshOK=True maxSkew=1.66533458105e-13 maxAR=8.0 maxNonOrtho=0.0
+done L2: 79s = 1.3167 core-min (running total 1.55 of 15), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L2/5340
+--- L3  Ny=160  remaining 13.45 of 15 core-min  timeout 807s
+  birth certificate: cells=28800 meshOK=True maxSkew=1.66533454797e-13 maxAR=16.0 maxNonOrtho=0.0
+done L3: 372s = 6.2 core-min (running total 7.75 of 15), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L3/13330
+=== VMFL038 launcher done, overall rc=0, total 7.75 core-min of 15
+grade with: python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL038/grade_vmfl038.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038 --out /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/GRADING_VMFL038.json

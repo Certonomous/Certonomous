@@ -1,0 +1,5 @@
+VMFL038  (VM2026R1 p.131-132)  VERDICT: NOT A RESULT
+  tau_w L1/L2/L3 = 39.234403 / 39.209012 / 38.979197 Pa
+  finest 38.979197 vs analytical 39.24 Pa, deviation 0.6646 % , band 2.0 %  -> NOT A RESULT
+  triple DIVERGENT, p = n/a, GCI_fine = n/a (ceiling 2.0 %)
+  velocity DIAGNOSTIC (not gated): u_max 0.194458 (analytic 0.1962), u_bar 0.129723 (analytic 0.1308), RMS/u_max 6.123e-03, machine_exact=False

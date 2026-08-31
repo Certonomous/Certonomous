@@ -1,0 +1,13 @@
+{
+  "blockMeshDict_sha": "07c31209901e4d627705918e1d16c4132ef0de99",
+  "cells": 28800,
+  "faces": 115540,
+  "failed_checks": 0,
+  "level": "L3",
+  "max_aspect_ratio": 16.0,
+  "max_non_orthogonality": 0.0,
+  "max_skewness": 1.66533454797e-13,
+  "mesh_ok": true,
+  "minted_utc": "2026-08-31T15:45:22Z",
+  "points": 58282
+}

@@ -1,0 +1,21 @@
+case = VMFL038
+manual_page = 131-132
+supersedes = nothing -- FIRST registration of this case
+launched_utc = 2026-08-31T15:43:48Z
+freeze_commit_head = 5bd012b4c98c611bd84264ec42940474d614baac
+prereg = cases/ansys_verification/VMFL038/PREREGISTRATION.md
+prereg_blob = a1ac010431a3e65f8a4ee9af8b0edadf81d1f248
+comparator = cases/ansys_verification/VMFL038/grade_vmfl038.py
+comparator_blob = 04a2606e11ecfb36dd59e65606aab6f8e9990d38
+launcher_blob_on_disk = 83e897ba2efdc83431b60eabc5ef2cb1df89b907
+levels = L1 L2 L3
+ranks = 1
+cap_core_min = 15  (RUNNING TOTAL across levels)
+endTime = 30000
+smoke_mode = no
+solver_bin = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+level L1 : rc=0 wall_s=14 core_min=0.2333 total=0.2333 cap=15 timeout_s=900 last_time=2093 End_lines=1 converged_lines=1 latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L1/2093
+level L2 : rc=0 wall_s=79 core_min=1.3167 total=1.55 cap=15 timeout_s=886 last_time=5340 End_lines=1 converged_lines=1 latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L2/5340
+level L3 : rc=0 wall_s=372 core_min=6.2 total=7.75 cap=15 timeout_s=807 last_time=13330 End_lines=1 converged_lines=1 latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038/L3/13330
+total_core_min = 7.75
+finished_utc = 2026-08-31T15:51:35Z
