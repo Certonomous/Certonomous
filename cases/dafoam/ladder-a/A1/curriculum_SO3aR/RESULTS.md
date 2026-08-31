@@ -298,10 +298,89 @@ The ledger row is at `docs/COST_CALIBRATION.md`, id **`C-20260831T204530.092810Z
 
 ## 9. Artifacts
 
-Preserved in this case directory (previously untracked; landed with this record):
+### 9.1 The two runner artifacts are NOT tracked, and why
 
-- `cases/dafoam/ladder-a/A1/curriculum_SO3aR/STATUS.queue.SO3aR_chain`
-- `cases/dafoam/ladder-a/A1/curriculum_SO3aR/launcher.queue.out`
+`STATUS.queue.SO3aR_chain` and `launcher.queue.out` sit on disk in this case
+directory, **untracked, and they stay untracked.** They were staged into a first
+version of this commit and `scripts/check_filing.py` **refused them**, twice, under
+rule **`R6-RUNARTIFACT`**:
+
+> *"a queue-runner artifact is a RUN OUTPUT and belongs under
+> `verification/runs/<CAMPAIGN>/`, not in the case's input directory
+> (`FILING_CHARTER`; `CLAUDE.md` WHERE THINGS LIVE; Sanaa 2026-08-27: logs and
+> attempt dirs stay out of git)."*
+
+The rule is not a shape-match that got lucky: `check_filing.py` carries planted
+controls for both limbs — `cases/X/launcher.queue.out` must flag,
+`verification/runs/CAMP/L1/launcher.queue.out` must not, and `cases/X/STATUS.md`
+must not. The sibling pair at
+`cases/dafoam/ladder-a/A1/feasibility_SO3a_alpha/{STATUS.SO3AF,launcher.queue.out}`
+**is tracked and is itself flagged by the same rule** — it is a standing violation,
+not a precedent, and it was the reasoning that led this lane astray. A tracked
+violation is not a licence to add two more.
+
+**Preservation is served instead by quoting them verbatim in §9.2 below.** A results
+record is a legitimate case document; the bytes are in git, inside a document that
+is allowed to hold them, and the runner artifacts stay out of `cases/` as the rule
+requires. Their absolute paths on this box:
+`/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/STATUS.queue.SO3aR_chain`
+and `…/launcher.queue.out`.
+
+### 9.2 The two runner artifacts, verbatim
+
+`STATUS.queue.SO3aR_chain` (1 line, 93 bytes):
+
+```
+launcher_rc=1 end=2026-08-31T20:22:15Z note=exit-status-of-the-launch-argv-NOT-the-solver-rc
+```
+
+Note the artifact's own caveat: `launcher_rc` is **the exit status of the launch
+argv, NOT the solver rc**. The solver rc is `X-S rc=1` in `ledger.txt` and
+`STATUS.X-S`, and that is what §2 cites.
+
+`launcher.queue.out` (33 lines, 3,634 bytes):
+
+```
+SO3AR_DEPS_EXIST n=7 checked_before_any_md5=yes
+/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/so3ar_run_arm.sh: OK
+/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/so3ar_grade.py: OK
+/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/so3ar_aggregate_memory.py: OK
+/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/so3ar_stop_marker.sh: OK
+/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/runScript.py: OK
+/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/genAirFoilMesh.py: OK
+/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/preProcessing.sh: OK
+/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/profiles/NACA0012PS.profile: OK
+/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/profiles/NACA0012SS.profile: OK
+/home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/FFD/wingFFD.xyz: OK
+SO3AR_ROOT_STAGED base=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient stamp=20260831T201813Z mode=777 permission=bc0e687e
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/so3ar_runScript.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/so3ar_xf.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/base/system/decomposeParDict: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/base/genAirFoilMesh.py: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/base/preProcessing.sh: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/base/profiles/NACA0012PS.profile: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/base/profiles/NACA0012SS.profile: OK
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/base/FFD/wingFFD.xyz: OK
+SO3AR_DRIVER start=20260831T201813Z pid=374044 ppid=374043 sid=374043 cwd=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR arms=[MESH X-S F-S X-P F-P] declared=5 permission=bc0e687e
+/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/so3ar_run_arm.sh: OK
+SO3AR_H5_WINDOW arm=MESH n=45 window_s=60 floor_GiB=16.0 min_GiB=27.23 max_GiB=27.5 samples_below_floor=0 waited_s=0 file=MESH_h5_window_20260831T201813Z.txt
+SO3AR_AGGREGATE arm=MESH waited=0 {"live_caps_GiB": 0.0, "live": [], "this_cap_GiB": 12.0, "host_noncontainer_rss_GiB": 3.37, "aggregate_GiB": 15.37, "ceiling_GiB": 30.6, "ok": true}
+SO3AR_DRIVER arm=MESH image=dafoam/opt-packages:latest begin=20260831T201919Z ppid_now=374043 permission=bc0e687e
+SO3AR_DRIVER arm=MESH end=20260831T201936Z rc=0
+/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3aR/so3ar_run_arm.sh: OK
+SO3AR_H5_WINDOW arm=X-S n=45 window_s=60 floor_GiB=16.0 min_GiB=26.98 max_GiB=27.45 samples_below_floor=0 waited_s=0 file=X-S_h5_window_20260831T201936Z.txt
+SO3AR_AGGREGATE arm=X-S waited=0 {"live_caps_GiB": 0.0, "live": [], "this_cap_GiB": 12.0, "host_noncontainer_rss_GiB": 3.43, "aggregate_GiB": 15.43, "ceiling_GiB": 30.6, "ok": true}
+SO3AR_DRIVER arm=X-S image=dafoam/opt-packages:latest begin=20260831T202041Z ppid_now=374043 permission=bc0e687e
+SO3AR_DRIVER arm=X-S end=20260831T202215Z rc=1
+SO3AR_STOP_MARKER written=/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/SO3aR_STOP_MARKER.json verdict=PENDING chain_rc=1 declared=5 executed=1 truncated=True
+SO3AR_DRIVER end=20260831T202215Z chain_rc=1 declared=5 executed=1
+```
+
+The `verdict=PENDING` on the second-to-last line is the same display/queue state
+§1 disposes of, echoed by the driver from the stop marker it had just written. It
+is not the item verdict.
+
+### 9.3 Run-root artifacts
 
 Outside git, in the run root
 `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/`
