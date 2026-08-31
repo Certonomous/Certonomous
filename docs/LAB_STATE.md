@@ -4671,9 +4671,60 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T17:15:15Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T17:31:23Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22f — **`SO-2M` FROZEN (`f1a723ac`): THE MOMENT-CAP FAMILY, THE LAST OPEN ONE OF SANAA'S THREE, AND `SO-2a`'s FROZEN DOCUMENT PREDICTED ITS EXACT SHAPE A WEEK AGO. ⚠ AND A LANE PROVED MY OWN STANDING INSTRUCTION SELF-CONTRADICTORY — I HAD GIVEN IT TO THREE LANES. ALL SIX TEAM QUEUES ARE EMPTY** (2026-08-31T17:2xZ, `date -u` at write)
+
+##### 1. ⚠⚠ MY VALIDATION INSTRUCTION CANNOT BE OBEYED, AND A LANE MEASURED IT RATHER THAN ARGUING WITH ME
+
+I have been telling lanes to *"validate with `queue_entry_check.py` **IN PLACE** with `--require-binding`"* **and** *"report it **READY** — do not file it."* **THOSE CANNOT BOTH HOLD.** Measured by me, rc captured directly:
+
+**`--require-binding` on a path outside `verification/queue/<team>/` returns `rc=2`, REFUSED**, with the tool's own words: *"TEAM-BINDING could NOT be checked. **This refusal is the ABSENCE of a check, not a failed one.** Validate the QUEUED copy in place — that is the validation that counts."* `[MEASURED]`. **"In place" MEANS the queue drop directory**, and the runner (pid 111265) polls every 60 s, **so in-place validation IS ARMING.** There is no way to perform the binding check without arming the entry.
+
+**I gave that contradiction to THREE lanes.** Corrected sequence, dispatched to both live lanes: the lane validates **without** `--require-binding` (rc 0 out of place, everything but the binding), reports **READY** with **TEAM-BINDING: NOT CHECKED** — an *unchecked* condition, never a passing one — and **I** then do check 4, copy to the queue, and run `--require-binding` in place. **That single act is both the binding check and the arming, which is correct, because arming is the supervisor's act and not the lane's.** My own practice on `SO-1c` was already this; only my wording was wrong.
+
+**The lane refused to claim a check it had not performed, and said so in those terms.** That is the behaviour that makes a lane worth having.
+
+##### 2. `SO-2M` — THE RUNG, DERIVED FROM THE RECORD RATHER THAN ASSIGNED BY ME
+
+I deliberately did **not** name the rung, having pre-assigned a stale ledger id in a brief an hour earlier. The lane derived it, and **I verified every load-bearing citation myself, with a control** (a fabricated token returns 0 in the same file, so the reader discriminates):
+
+Sanaa names three SO-2 families — *"thickness/area/volume, lift equality, moment cap — one per rung."* **Two are closed by FROZEN DOCUMENTS, not by anyone's preference:**
+- **thickness/area/volume** — bought by `SO-2a`.
+- **lift equality** — `SO2a/PREREGISTRATION.md` §0.1(1): the equality constraint is **declared inside the SO-1 problem itself** (`so2a_runScript.py:176`, trimmed at `:203`), and `dCL/dx` is already **SO-1a's `G5c`**, PATCHED aggregate **0.021237769014679053 %** `[MEASURED, SO1a/RESULTS.md — verified by me to the digit]`. **Registering it again would re-buy a gate SO-1a already carries.**
+- **moment cap — THE ONLY OPEN FAMILY**, and `SO-2a` §0.1(2) said so in advance, in its own words: *"A MOMENT CAP DOES NOT EXIST IN THIS CASE AND CANNOT BE ADDED WITHOUT CHANGING THE PRODUCER … a third `force`/`moment` function added to `daOptions` … puts a **NEW, NEVER-FD-VERIFIED FUNCTIONAL** into the graded set. **That is a larger item and it is not first.**"*
+
+**`SO-2M` IS THAT LARGER ITEM. A frozen document written a week ago named the next rung's exact shape, and the ladder walked into it.** That is what pre-registration is *for*, and it is the first time this family has had the experience from the pleasant side.
+
+**Prior-work check:** `PRIOR_WORK_INVENTORY.md` carries **zero** moment functionals — every `CM` hit is `rcm` matrix reordering. Namespace `SO2M|SO-2M`: **no hit** against a known positive of **39** files matching `SO2a` in the same tree. Run root **absent**, beside a known positive on SO-2a's root in the same invocation. **`d(CMZ)/dx` has never had an FD table in this lab.**
+
+##### 3. THE REGISTRATION, AND THE GATE I MOST WANT ON THE RECORD
+
+Frozen at **`f1a723ac`**, template form under the FREEZE CLOCK. **`CMZ` and `d(CMZ)/d(shape, patchV)`, two toolchain rows, NO OPTIMISER.**
+
+**`G-NZ` IS THE DESIGN I LIKE BEST: a STRUCTURAL NON-ZERO on `d(CMZ)/d(patchV[1])` — the exact MIRROR of `SO-2a`'s exact-zero gate. A BLIND READER FAILS IT INSTEAD OF PASSING IT.** `SO-2a`'s `PASS` was admissible only because planted controls proved the reader could see a non-zero; **`G-NZ` needs no such crutch, because a reader that sees nothing scores a `GATE FAIL` rather than a clean sheet.** That is a strictly better shape and it should propagate.
+
+Also registered: `G-CMV` `|CMZ_baseline| ≤ 0.02` (symmetric section about the quarter chord); `G5m` band D ≤ 5 % per pair **with sign**, band E ≤ 5 % aggregate; `G-TB` at `h = 1e-8` must fail, **composed only onto a PASS row** (SO-2a §7.4's own defect, inherited deliberately: *a comparator that converts findings into refusals is worse than one that refuses too often*); **G6 `NOT MEASURED`** with AV-2's measured primal failure as the stated reason; **no grid family — "NO GCI IS QUOTED" written explicitly, not silently omitted.**
+
+**FD table:** 5 components, three steps each, central, 42 primals per G arm, **plateau proved PER PAIR** (middle step agrees with a neighbour to 10 %, else `NO_PLATEAU`; `NEAR_ZERO` below 1e-14; every exclusion counted and named; `<2` graded pairs or `>75 %` excluded → **`NOT A RESULT`**).
+
+**Falsifiers P1–P6, each able to MISS. Predicted: PATCHED `PASS`, SHIPPED `GATE FAIL`, ITEM `GATE FAIL` — the GATE FAIL REGISTERED, NOT AVOIDED.** *"A **P5 miss would be the more interesting result** — it would mean the defect behind SO-1a's shipped `CD` aggregate of 40.481353490548585 % does not reach a moment functional."* **P1 — that `CMZ` evaluates at all — is UNVERIFIED and is the first real risk; a P1 miss closes the family in the negative for ~1 core-min, which is a genuine result.**
+
+**Cost: point 11.0 core-min, ceiling 79.0; $0.009405 / $0.067545 `[DERIVED at $0.0513/core-h, NOT MEASURED]`.** Every anchor MEASURED from this box's own ledgers.
+
+##### 4. `SO-2M` IS **NOT** FILEABLE YET, AND THE LANE WAS RIGHT TO REFUSE
+
+**`so2m_chain_driver.sh` DOES NOT EXIST.** `queue_entry_check.py`'s `EXEC` check verifies only that `cwd` is a directory and **cannot see an absent argv script**, so filing today buys **a stale `LAUNCHED` record and a dead run** (`L-344`). **Stage 2 is dispatched.** A fourth lane holds it.
+
+**One stale-frozen-text hazard I cleared before it could mislead that lane:** `SO-2a` §7.3 states in frozen text that `so2a_groot5_selftest.sh` *"IS NOT PRESENT"*. **It exists — 20,187 B, executable, with an 11,162 B driven evidence file beside it** `[MEASURED]`. The PENDING condition was discharged before SO-2a was enqueued; **the frozen sentence simply predates the file, which is the normal consequence of rule 6.** Relayed to the lane so it does not "discover" an absence as a finding — **the same error I made this morning from the other direction with the FREEZE CLOCK.**
+
+##### 5. ⚠⚠ ALL SIX TEAM QUEUES ARE EMPTY — LAB-WIDE, NOT dafoam's ALONE
+
+`ansys-verification 0, cfd 0, closure 0, dafoam 0, heat-transfer 0, verification 0` `[MEASURED]`, runner logging `EMPTY` every 60 s, box load **1.47** and falling. **Against Sanaa's box-full order and the standing FREEZE-AHEAD ≥ 3 this is a lab-wide planning defect.** Reported upward; **not acted on outside my territory.**
+
+**dafoam's honest position: nothing of mine is fileable this minute.** `SO-2M` needs Stage 2, `SO-1cR` is in build, `SO-3a` is 5 of 9 instruments. **Four lanes, all research.** That is the cost of having spent two cycles on one schema defect I should have swept for once.
 
 ##### UPDATE S-22e — **⚠⚠⚠ `SO-1c` = `NOT A RESULT`. IT DIED AT ITS SECOND ARM ON THE *SAME* BREAK `R8` REPAIRED, IN TWO CALL SITES `R8` NEVER TOUCHED — AND THE SCOPE OF `R8` WAS SET BY MY OWN FENCE, WHICH SAID "THE ROW-LABEL COMPARISON" IN THE SINGULAR. THIS IS `CLAUDE.md` RULE 14, IT IS MINE, AND THIS TIME IT COST COMPUTE** (2026-08-31T17:1xZ, `date -u` at write)
 
