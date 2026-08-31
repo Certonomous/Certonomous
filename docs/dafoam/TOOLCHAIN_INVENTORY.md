@@ -88,7 +88,7 @@ different build of the file; in the image on this box today the sub-PC line is *
 
 ---
 
-## 3. Container images: what exists and what they differ by
+## 3. Container images: what exists and what they differ by — **SUPERSEDED 2026-08-31: THIS IMAGE LIST IS STALE and is not the live record. See Amendment 4 (§A4), Amendment 3 (§A3.2), Amendment 2 (§A2.1) and Amendment 1 §A1.1–A1.3. Original heading text preserved verbatim above this marker; no line was inserted, moved or renumbered.**
 
 `sudo -n docker images` (2026-08-21):
 
@@ -148,7 +148,7 @@ versions are identical across all three (§6a).
 
 ---
 
-## 4. The IDWarp rotation patch is NOT in any container image
+## 4. The IDWarp rotation patch is NOT in any container image — **SUPERSEDED 2026-08-31: TRUE OF THE PATCH *SOURCE* ONLY. `dafoam-idwarp-rot:v1` DOES carry a rebuilt `libidwarp.so` (md5 `85f59e87253e0a71a813f64ca6e4c425`, digest `sha256:2927768a16ac…`). Do not quote this heading without this clause. See Amendment 4 (§A4), Amendment 3 (§A3.1–A3.2) and Amendment 1 §A1.3. Original heading text preserved verbatim above this marker; no line was inserted, moved or renumbered.**
 
 This is the most operationally important fact in this file, and it is easy to get wrong.
 
@@ -682,3 +682,173 @@ the live two-row record.**
 * **The three images §A1.2 recorded but did not characterise — `dafoam-idwarp-rot:v1`,
   `dafoam-subpclu:v2`, `dafoam-team:v1` — are still not characterised here beyond their hashes.**
   An identifier is not a description, and inventing one would be the defect §A1.2 exists to close.
+
+---
+
+## AMENDMENT 4 — 2026-08-31, dafoam lane, UNDER THE SUPERVISOR'S RULING. §3's AND §4's HEADINGS CARRY AN IN-PLACE SUPERSESSION MARKER APPENDED TO THE END OF THE EXISTING HEADING LINE. TWO LINES CHANGED, ZERO LINES MOVED, AMENDMENT 3's REFERRAL IS CLOSED.
+
+**NOT FILED ANYWHERE.** Nothing in this amendment was sent, emailed, filed, uploaded, registered,
+posted or commented (`CLAUDE.md` rule 7). Zero compute: no solver, no container, no image read — the
+only commands run were file reads, `git grep` over tracked files, `sha256sum`, and the byte-level
+comparison described below.
+
+**Version.** This file still carries **no semantic version string anywhere**. Its only version marker
+is the **amendment ordinal**, and the bump is therefore **Amendment 3 → Amendment 4**. No `vN.N` is
+invented here (§A3 made the same finding and it is re-affirmed, not re-derived).
+
+### A4.1 THE RULING THIS AMENDMENT EXECUTES, AND WHAT IT CHANGED
+
+§A3.4 referred a decision upward: §4's heading misleads a cold reader, and the two obvious repairs
+— rewording the heading, or inserting a banner above it — either destroy the original wording or
+shift every line number below. **The supervisor ruled a third instrument**, which §A3.4 anticipated
+as option (c): **append a supersession marker to the END of the existing heading line itself**, so
+the original words survive byte-for-byte as a prefix, the line remains exactly one line, and **every
+line number in the file is unchanged**. This is a strike-and-mark, not a rewrite.
+
+**Exactly two lines were modified — `:91` and `:151` — and no others.**
+
+**Line 91, BEFORE** (59 bytes):
+
+````
+## 3. Container images: what exists and what they differ by
+````
+
+**Line 91, AFTER** (344 bytes; the 59 bytes above are bytes 1–59 of it, unaltered):
+
+````
+## 3. Container images: what exists and what they differ by — **SUPERSEDED 2026-08-31: THIS IMAGE LIST IS STALE and is not the live record. See Amendment 4 (§A4), Amendment 3 (§A3.2), Amendment 2 (§A2.1) and Amendment 1 §A1.1–A1.3. Original heading text preserved verbatim above this marker; no line was inserted, moved or renumbered.**
+````
+
+**Line 151, BEFORE** (61 bytes):
+
+````
+## 4. The IDWarp rotation patch is NOT in any container image
+````
+
+**Line 151, AFTER** (485 bytes; the 61 bytes above are bytes 1–61 of it, unaltered):
+
+````
+## 4. The IDWarp rotation patch is NOT in any container image — **SUPERSEDED 2026-08-31: TRUE OF THE PATCH *SOURCE* ONLY. `dafoam-idwarp-rot:v1` DOES carry a rebuilt `libidwarp.so` (md5 `85f59e87253e0a71a813f64ca6e4c425`, digest `sha256:2927768a16ac…`). Do not quote this heading without this clause. See Amendment 4 (§A4), Amendment 3 (§A3.1–A3.2) and Amendment 1 §A1.3. Original heading text preserved verbatim above this marker; no line was inserted, moved or renumbered.**
+````
+
+**Why the correction is inside the marker and not merely a pointer.** §4's heading is quoted
+elsewhere in the repository **by line** — `docs/LAB_STATE.md:4836` lifts it verbatim as `[:151]`.
+A marker that said only *"see Amendment 3"* would leave the misleading sentence intact as the thing
+a reader copies. Putting the narrow reading **in the same line** means the correction travels with
+any future quotation of that line.
+
+### A4.2 `lines whose number changed above this section: 0` — PROVED, NOT ASSERTED
+
+The file was snapshotted before the edit: **684 lines, 44,436 B, sha256
+`40d06340d692c1f50afaa8b05e92d77c20ae8853b27df3bfe87d8a7907a6a1c1`**, confirmed **byte-identical to
+the HEAD blob `4174ca41` at `30d92060` by content comparison** (`git show HEAD:<path>` piped to a
+file and `cmp`-ed — no index was consulted, so a stale or foreign index could not have produced a
+false clean).
+
+After the two markers were appended, the snapshot and the working file were compared **line by line
+on raw bytes**. The result:
+
+| quantity | before | after |
+|---|---|---|
+| total lines | **684** | **684** |
+| lines differing, expected (`:91`, `:151`) | — | **2** |
+| lines differing, unexpected | — | **0** |
+| non-exempt lines compared | — | 683, of which 546 non-blank and identical |
+| `:91` embedded newline / CR | — | none; exactly one line |
+| `:151` embedded newline / CR | — | none; exactly one line |
+| file still ends in LF | yes | yes |
+
+So lines `1`–`90`, `92`–`150` and `152`–`684` are **byte-identical**, and the amendment material
+below is appended at the foot, below `:684`. **`lines whose number changed above this section: 0`.**
+
+**The comparison reader was controlled before its clean reading was believed** (`CLAUDE.md` rule 3).
+A copy of the snapshot with **exactly one byte altered on non-blank line `:409`** — the `SHIPPED`
+digest row, inside the very population being certified clean — was fed to the same reader, which
+reported **`differing, UNEXPECTED: [409]` → DIFFERENT**. An unmodified copy read **IDENTICAL**, and
+a copy with one line inserted above `:91` read **LINE COUNT DIFFERS**. Only then was "identical"
+accepted as evidence.
+
+**An honest note on a control that first misfired.** The initial plant flipped bit 0x20 of byte 12
+of `:409`, which happened to be `*` (`0x2A`) — and `0x2A ^ 0x20 = 0x0A`, a **newline**. That plant
+therefore split the line and was caught by the *line-count* path, proving nothing about the
+*per-line byte* path it was meant to exercise. It was re-planted as a printable single-byte
+substitution (`SHIPPED` → `SHIPPEE`) with three asserts — same length, exactly one byte differing,
+no `0x0A` introduced — and only that second control licenses the table above. A control that passes
+for the wrong reason is not a control.
+
+### A4.3 WHY AN IN-PLACE SAME-LINE MARKER AND NOT A BANNER — THE SEVEN CITATIONS
+
+§A3.3 swept the repository and found **eight line-number citations into this file, seven of them
+below §3's heading at `:91`**. A banner line inserted at the head of §3 shifts all seven. Two are
+load-bearing beyond bookkeeping: **`:142`** is cited by
+`cases/dafoam/ladder-b/B3/decomposition_peak_rss/PREREGISTRATION.md:386` as the authority for a
+**falsifier that voids an arm** (absence of the sub-LU banner ⇒ the arm ran stock ⇒ the arm is
+void), and **`:409-410`** is where a registered toolchain freeze
+(`cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md:261`) reads its digests. The same-line
+marker shifts none of them, which is its entire virtue.
+
+**All eight targets were re-verified after the edit and every one still resolves to what its citing
+record claims:**
+
+| cites | still holds |
+|---|---|
+| `:32` | §1's **pyHyp 2.6.1** row — unchanged |
+| `:124-129` | §3's md5 / line-count table — unchanged |
+| `:128-129` | stock and `dafoam-subpclu:v1` md5 rows — unchanged |
+| `:142` | the `subpclu` patch row and its **sub-LU banner falsifier** — unchanged |
+| `:151` | §4's heading — **unchanged as a prefix, plus the supersession marker** |
+| `:409-410` | §A1.1's two digest rows, both sha256s and both md5s — unchanged |
+| `:432` | the "both report `2.6.2`, both 491,344 B" note — unchanged |
+| `:481` | Amendment 2's internal pointers `A1.1 (:405–:410)`, `A1.2 (:435 ff.)` — unchanged |
+
+**`:151` is the one target whose bytes changed, and it changed in the strictly informative
+direction.** `docs/LAB_STATE.md:4836` cites it for the proposition *"§4's heading literally reads …
+which is true only of the patch SOURCE"*. That citation is **more** true after the edit than before:
+the line now carries both the heading it quotes and the correction the citing record supplies from
+outside. No citing record is invalidated; one is made self-contained.
+
+**The absent executable check, re-measured, not inherited.** §A3.3 reported as a measured negative
+that no script, test, comparator or selftest reads this file. **This lane re-ran that check rather
+than inheriting it**, because the safety of the edit depends on it: `git grep -ln TOOLCHAIN_INVENTORY
+-- '*.py' '*.sh'` returns **nothing**, and the same reader run over `docs/*` returns six files — so
+the zero is a **live zero from an instrument shown able to return hits**, not an uncontrolled one.
+No executable consumer exists; nothing can break on the heading string.
+
+### A4.4 A CONSEQUENCE THAT IS DISCLOSED RATHER THAN QUIETLY FIXED
+
+**§A3.1 block-quotes §4's heading verbatim at `:568`**, introduced by the words *"its heading reads,
+in full"*. After this amendment that quotation records the heading's **pre-marker** text. **Line 568
+is NOT edited** — Amendment 3 is itself frozen material and `CLAUDE.md` rule 6 forbids rewriting it;
+originals are struck, never rewritten. It stands as the dated historical record of what `:151` read
+between 2026-08-21 and 2026-08-31, and this section is the strike that marks it as such. A reader
+comparing `:568` with `:151` sees exactly the change this amendment made, which is the intended
+behaviour of an append-only record.
+
+### A4.5 WHAT THIS AMENDMENT DOES NOT CHANGE
+
+* **No gate, threshold, band, cap, label or verdict moves.** Nothing is retired, re-graded or
+  re-scored. No run, arm or row changes status. This is a documentation repair with no numerical
+  consequence anywhere in the lab.
+* **No original wording is deleted or reworded.** Both headings survive byte-for-byte as the prefix
+  of their own line. Nothing above `:684` is struck, edited, reordered or renumbered except the two
+  appends recorded in §A4.1.
+* **§A1.3 stands exactly as written** and remains the section that makes §4's heading technically
+  true; `:151`'s marker restates its distinction rather than replacing it.
+* **§A3.2 remains the live two-row record**, and its digests are not re-measured here — this
+  amendment started no container and inherits them by citation.
+* **`docs/dafoam/README.md:21`'s "388 lines" is still not invalidated.** It describes the original
+  body ending at `:388`; this append adds only below `:684`, and the two markers add no lines at all.
+
+### A4.6 AMENDMENT 3's REFERRAL IS CLOSED
+
+§A3.4 referred upward the choice between (a) leaving §4's heading standing, (b) amending it in place
+and re-pointing all seven citations, and (c) some third instrument. **The supervisor chose (c), and
+this amendment executes it.** Option (b) — the one that would have required re-pointing seven
+citations — was **not** taken, and no citation needed re-pointing.
+
+**The referral opened at §A3.4 is hereby CLOSED.** The cold-reader defect it recorded as
+**UNRESOLVED** is **RESOLVED at the point of reading**: a reader who reads §3 or §4 and stops now
+reads the supersession marker in the same line as the heading, and cannot take away the opposite of
+the truth. **The standing reading of this file is now: §3's image list is stale (§A1.2, §A2.1,
+and the marker at `:91`); §4's heading is true only of the patch SOURCE (§A1.3, and the marker at
+`:151`); and §A3.2 is the live two-row record.**
