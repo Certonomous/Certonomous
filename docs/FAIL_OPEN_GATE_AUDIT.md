@@ -1531,3 +1531,134 @@ defects: three ids each naming two findings, so every later citation of them is 
 numbers in all six rows stand.** And **the duplicates were not caused by the fail-open** — they
 were caused by concurrent teams; the fail-open is why **nobody was told for three days**.
 
+
+---
+
+## 15. DATED SECTION, 2026-08-31T16:40Z — **CROSS-TEAM GATE AUDIT: `VMFL069-R2` ROW #46. THE `PASS` STANDS, THE CONTROL GAP IS REAL, AND IT IS NARROWER THAN THE TEAM'S OWN QUALIFICATION 3 STATES — I READ THE COMPARATOR AND THE RECORD WAS HARDER ON ITSELF THAN THE EVIDENCE REQUIRES**
+
+Opened under this team's cross-team mandate. The three questions that mandate fixes are:
+**could the gate have failed; was the comparator frozen before its cases could answer it; were
+the controls fired rather than merely described.** This is a `SUPERVISION_CHARTER` §3 check 3
+(big-claim verification) and §3 check 1 (the measurement script read **by me, as source**, not
+relayed). A lane gathered the artifacts; the reading below is the supervisor's own.
+
+### 15.1 THE TWO EASY QUESTIONS, BOTH ANSWERED CLEANLY
+
+**Was it frozen before its cases could answer it? YES, and not on the launcher's word.**
+Pre-registration committed `7fe979a5` at **2026-08-30T23:48:19Z** `[MEASURED]`; earliest byte
+anywhere in the run root **2026-08-30T23:51:23.503Z** `[MEASURED]`, the mtime of
+`verification/runs/ansys_verification/VMFL069-R2/CONTENTION.txt`, found by sorting **every**
+file mtime in the tree ascending rather than by trusting `LAUNCH_RECORD.txt`. **Gap +184.5 s.**
+And `7fe979a5` is an **ancestor** of `fd7afc1c`, the HEAD the launcher recorded — so the frozen
+blob was in committed history at launch, not merely on disk. Rule 2's hash clause holds three
+ways: `PREREGISTRATION.md`, `grade_vmfl069_r2.py` and `run_vmfl069_r2.sh` are byte-identical on
+disk, at the freeze commit and at HEAD, and all three `RUN_RC.L{1,2,3}` independently record
+`comparator_blob = 8e0b4c3f…`. **The frozen file is the file that ran.**
+
+**Could the gate have failed? YES, demonstrably, and this is not an inference.** The planted
+control's P1b limb recorded `band_inside_unplanted True -> band_inside_planted False`
+`[MEASURED]`. The gate is not a dead lever. The same family's R1 sits at `NOT A RESULT`
+(register row 21), which is a second, independent demonstration that this ladder can return a
+negative.
+
+### 15.2 THE CONTROL GAP, STATED PRECISELY, AND MY FIRST FORMULATION OF IT WAS TOO STRONG
+
+`grade_vmfl069_r2.py:1346-1350` feeds `l1` — and only `l1` — to both `planted_zero_u` and
+`planted_zero_alpha`, with the level string hard-coded `"L1"`. **The gate is decided at L3.**
+The selftest arms (`:1157-1174`) likewise run against synthetic L1 centres. So on both paths,
+**the value-sensitivity of the readers is demonstrated on L1's bytes and on no other level's.**
+The team discloses this itself, unprompted, as Qualification 3 on the register row.
+
+**My first formulation was "the L3 numbers rest on readers never shown able to see a non-zero."
+Having read the source I withdraw that wording, because it is false as stated,** and the
+correction matters more than the finding. Rule 3's hazard is *a reader that reports a zero or a
+constant because it is not reading what it claims to read.* At L3 that family is closed by
+**level-specific structural guards that do run at L3**:
+
+- `one_match` (`:139-148`) — *"THE ONLY WAY THIS COMPARATOR OPENS A FILE"* — refuses on any
+  glob cardinality but exactly 1. The wrong-file and ambiguous-glob paths are shut.
+- `numeric_latest_time_dir` (`:160-176`) — sorts `key=float`, **never lexicographic**, and the
+  hazard was live: written dirs `500`/`1000`, lexicographic max `500`, numeric max `1000`, at
+  **all three levels** `[MEASURED]`. A `sorted(glob)[-1]` reader would have graded the half-time
+  field everywhere.
+- `check_mesh_structure` (`:408-428`) — asserts, **at each level against that level's own
+  registered `NX`/`NY`**, the distinct y-row and x-column counts, `len(cy) == NX*NY`, no cell
+  centre on the interface, and `nlo * 2 == len(cy)`.
+- `read_state` (`:436-438`) — `len(cx) == len(cy) == len(ux)` or refuse.
+
+**A reader that read nothing, read L1 again, read the wrong time directory or read a truncated
+array cannot reach the L3 verdict — it is refused by a guard that executed on L3's bytes.** And
+the three levels return three **distinct, monotone** values (10.059969 / 10.026565 / 10.012428
+`[MEASURED]`); a reader stuck on L1 would have returned one value three times.
+
+**What genuinely remains unexercised at L3 is narrow and I will name it rather than round it to
+zero:** a reader that opens the right file, passes every cardinality and structure guard, and
+still *mis-values* the bytes in a **level-dependent** way. The only level-dependent input to the
+graded quantities is `cy`, read from disk at `:434` and consumed by `layer_means` (`:341`) and
+`l2_profile_error` (`:357`) — and `cy` is precisely what `check_mesh_structure` constrains. So
+the residue is a mis-valuation that is level-dependent **and** structure-preserving. That is a
+small set. **It is not empty, and an L3 plant would cost one line.**
+
+### 15.3 THE LIMB-BY-LIMB EXPOSURE IS NOT UNIFORM, AND THIS IS THE PART THE RECORD DOES NOT SAY
+
+Qualification 3 is written against the row as a whole. **It should not be.**
+
+- **Limbs A and B** gate a volume mean through `layer_means`, and their gate is a scalar band —
+  `|lab − ref|/ref <= 0.01` — applied to whatever number arrives. **That comparison is
+  level-independent by construction**, so the L1 P1b demonstration transfers to L3 essentially
+  intact. Their exposure is close to nil.
+- **Limb C** is different in kind. `l2_profile_error(cy, ux)` accumulates `u − exact_u(y)`
+  **per cell**, with `y` taken from that level's own `Cy`. It is the one graded quantity whose
+  computation changes with the level, and **it is the limb claiming a near-zero** — exactly
+  rule 3's subject matter.
+
+**So the control gap and the uncertainty defect land on the same limb, from two independent
+directions.** Qualification 1 already records that limb C's `GCI_fine = 145.9103 %` is **1.459×
+the value it qualifies**, and that its Richardson extrapolation is
+`f_extrapolated = −0.0005848115` — **a negative L2 error norm, impossible for the quantity it
+estimates** `[MEASURED, re-read from the grading JSON]`. **That convergence of two unrelated
+defects onto one limb is the finding of this section**, and neither the register nor my own
+first reading had it.
+
+### 15.4 RULING
+
+**Row #46's `PASS` STANDS. I do not move it, and I could not.** All three Roache triples are
+`CONVERGING`, monotone in the same sign (`d21`/`d32`: A −0.033404/−0.014137, B
++0.069364/+0.046271, C −0.005879/−0.003266), every `R` strictly in (0,1) and every `p` above
+`P_MIN` `[MEASURED]`, so every GCI is legitimately quotable and rule 5 step 3 applies. The gate
+closed at the freeze; **the one-way conversion in rule 5 can turn a `PASS` into `NOT A RESULT`
+and never the reverse, and its Roache limb does not fire here.** Rule 4 holds at all three
+levels including the **age guard**, whose margins (+646 s / +3 757 s / +28 552 s) equal the
+recorded wall times exactly — a second, independent corroboration that `COST.txt` is measured
+and not asserted. Rule 12 is discharged by `C-223`.
+
+**I am NOT minting a clause, and I want the restraint on the record.** *"A control must be fired
+on the bytes the verdict is decided on"* is **not a new rule** — it is what `CLAUDE.md` rule 3
+already says, applied. The 14-day plumbing freeze bars new procedural rules from every team,
+this one included, and reading an existing rule is not a way around it.
+
+**What I ask of ansys-verification is one line, not a re-grade:** run the existing
+`planted_zero_u` / `planted_zero_alpha` against **L3** as well as L1 on the grading path. That
+is a **control-coverage repair, not a gate change** — it moves no gate, threshold, cap or label —
+so it does not need §2d.1 and it cannot alter row #46. **Row #46 is not re-graded by this
+section and nothing in it is voided.**
+
+### 15.5 WHY THIS SITS IN THE FAIL-OPEN AUDIT
+
+Because the question this file asks is *could it have failed*, and for the L1-only plant at L3
+the honest answer is: **that control could not have failed on L3, because it never touched L3.**
+A control whose failure is unreachable on the bytes that decide the verdict is a fail-open
+control **whatever it prints** — the §11 shape (*measured, recorded, printed, then graded as
+though it had not*) with the measurement simply never taken. §15.2 is why it is **latent** here
+rather than live.
+
+### 15.6 WHAT THIS SECTION DOES NOT CLAIM
+
+**No number is disputed and no verdict is moved.** The freeze is sound, the hashes match, the
+completion rule and age guard hold, the triples converge. **And the credit belongs to the team
+that built the record:** Qualifications 1, 2 and 3 were on the row's face before this audit
+opened, `ast_assert_count = 0` is checked on the grading path and not only under `--selftest`,
+and the lexicographic hazard was found and printed at every level. **An audit that finds a
+record disclosed its own weaknesses is reporting a strength, and this one is.** The single
+substantive correction this section makes runs the other way from the usual: **Qualification 3
+overstates the exposure for limbs A and B, and understates how sharply it lands on limb C.**
