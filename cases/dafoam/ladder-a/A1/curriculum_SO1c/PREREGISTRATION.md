@@ -906,3 +906,86 @@ the supervisor**, not a change this lane may make in another item's frozen instr
 sends, uploads, registers, posts and comments nothing** (rule 7; SUBMISSIONS PARKED). It does
 **not** enqueue `SO-1c` on its own authority — the queue entry is filed separately, against the
 supervisor's `SUPERVISION_CHARTER.md` §3 check 4 discharged on the sha.
+
+---
+
+## ADDENDUM A1 — 2026-08-31, **POST-COMPUTE. THIS IS NOT AN AMENDMENT AND ALTERS NO GATE.** SO-1c's ITEM VERDICT IS **`NOT A RESULT`**, AND ITS SUCCESSOR IS **SO-1cR**.
+
+### A1.0 RULE 6 AND RULE 2 — WHAT THIS ADDENDUM MAY AND MAY NOT DO
+
+**`lines whose number changed above this section: 0`.** Nothing above this line was edited, struck or renumbered. **This item has had FIRST COMPUTE** (a container started at 2026-08-31T17:09:55Z), so under `VERIFICATION_CHARTER.md` §2b **its gates are CLOSED**. This addendum therefore **alters no gate, threshold, band, cap, label, cost or prediction**, and **changes no instrument**. It records an OUTCOME and NAMES A SUCCESSOR, which is all a post-compute addendum may do.
+
+**`VERIFICATION_CHARTER.md` §2d.1's four-condition repair exception is DELIBERATELY NOT REACHED FOR.** The re-run costs ~40.6 core-min, about **$0.03471 derived**, so straining a clause buys nothing that a successor does not buy more honestly. The family's established shape for this situation is a successor item (SO-1a → SO-1aR, SO-1b → SO-1bR, AV-1 → AV-1R).
+
+### A1.1 WHAT HAPPENED, MEASURED
+
+SO-1c launched **2026-08-31T17:08:42Z** (pid 177042) and **stopped at its second arm 176 s later**.
+
+| arm | rc | measured |
+|---|---|---|
+| `MESH` | **0** | **0.633 core-min**, ranks = 1, wall 38 s, `DIGEST=sha256:9d45679d…`, `D4S_IDWARP_SO_MD5: f0fcb488e0e98156575cd19548e91663` — `ledger.txt` in this item's run root |
+| `Ns-P` | **5** | aborted in **PREFLIGHT**, **no container started**, 0 core-min |
+| `Ni-P`, `Ns-S`, `Ni-S` | — | never reached |
+
+`Ns-P`'s abort, verbatim from `Ns-P_launch.out`:
+
+> `G-OPTDEP artefact row 'P' != this arm row 'PATCHED'`
+> `ABORT G-OPTDEP the optimum artefact for row PATCHED is unparseable or is another row's. REFUSED.`
+
+`STATUS.chain`: `chain=STOPPED_AT_FIRST_NONZERO arm=Ns-P rc=5`.
+
+### A1.2 THE ITEM VERDICT, CARRIED VERBATIM AND NOT RESTATED IN FRIENDLIER WORDS
+
+**The frozen comparator ran and REFUSED rather than degrading** (`grader_rc = 2` — an INFRASTRUCTURE status, never the verdict). From `SO1c_grade_20260831T171139Z.json`, verbatim:
+
+```
+{
+ "item": "CURRICULUM-SO1c",
+ "verdict": "NOT A RESULT",
+ "refusal": "{\"REFUSE\": \"G1\", \"detail\": {\"arm_absent_from_ledger\": \"Ns-P\", \"inspect_record_candidates\": [], \"note\": \"exactly one surviving inspect record may stand in for a missing row.  R-RC covers the rc RECORD only: DIGEST, cpuset and core_min are PHYSICS fields and have no fallback channel here.\"}}"
+}
+```
+
+**SO-1c's ITEM VERDICT IS `NOT A RESULT`.** It stands. **This addendum does not convert it, soften it, or reinterpret it**, and **no later record may present SO-1cR's answer as if it were SO-1c's first answer.**
+
+**THE REFUSAL IS CORRECT AND IT NAMES A DOWNSTREAM SYMPTOM.** `Ns-P` is absent from the ledger *because* it aborted before any container wrote a row. The comparator was honest about what it could see; it was not in a position to diagnose. **The diagnosis is A1.3.**
+
+### A1.3 THE ROOT CAUSE — AND IT IS `R8`'s FENCE, WHICH WAS TOO NARROW
+
+**SO-1bR labels its per-row artefacts `'P'` / `'S'`** (read from disk: `E-P/so1b_E.json` → `row='P'`, `E-S/so1b_E.json` → `row='S'`). SO-1c's consumers compared that field against `'PATCHED'` / `'SHIPPED'`.
+
+**`AMENDMENT R8` REPAIRED THIS IN `so1c_chain_driver.sh:224` AND NOWHERE ELSE.** R8's registered fence named *"the row-label comparison"* — **singular** — scoped to the one site that lane had found. **`R8.9` above even states, correctly, that R8 does not touch `so1c_grade.py` or `so1c_run_arm.sh`.** It did not say that those two files contain the same comparison. **Three more call sites were live**, and a lane building SO-1cR swept for them:
+
+| # | site | disposition |
+|---|---|---|
+| 1 | `so1c_chain_driver.sh:224` | repaired by R8 |
+| 2 | **`so1c_run_arm.sh:468`** `if d['row']!='$ROW'` | **UNREPAIRED — THIS IS WHAT KILLED THE RUN** |
+| 3 | **`so1c_grade.py:997`** `G-XSTAR`, `if ref.get("row") != ARM_ROW[arm]` | **UNREPAIRED — would have refused at GRADING even had (2) passed** |
+| 4 | **`so1c_grade.py:1687`**, the selftest **FIXTURE**, `"row": rowname` | **UNREPAIRED, AND IT IS WHY (3) LOOKED GREEN.** The fixture wrote the FULL row name; the real producer writes the suffix. So (3) was only ever exercised against a label the real world does not produce |
+
+**THIS IS `CLAUDE.md` RULE 14 — *"a lesson is not applied until EVERY call site asserts it"* — AND THE FAILURE IS AT LANE LEVEL, IN THIS ITEM, NOT IN THE PRODUCER.** SO-1bR's labels are not wrong; SO-1c's consumers were.
+
+**`R8.9`'s LAST-PARAGRAPH FINDING WAS RIGHT AND WAS AIMED ONE ITEM TOO FAR AWAY.** R8 flagged *"`SO-1a`'s and `SO-1b`'s own suites carry the same consumer-authored-fixture shape"* as a finding for the supervisor. **`SO-1c`'s own suite carried it too, and R8 did not look at its own item's fixture.**
+
+### A1.4 THE SUCCESSOR
+
+**`SO-1cR` — `cases/dafoam/ladder-a/A1/curriculum_SO1cR/PREREGISTRATION.md`**, registered fresh and frozen before any compute of its own, run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO1cR-a1-naca0012-dragmin-npinv`. It carries every gate, band, cap, acceptance asymmetry, no-launch branch and prediction of this document **unchanged in substance**, and adds:
+
+* the row-label repair at **all three** call sites with the registered disjoint mapping `ROW_LABELS = {"PATCHED": ("PATCHED", "P"), "SHIPPED": ("SHIPPED", "S")}`, never `row[0]`;
+* the fixture repaired so it writes **what the producer writes**;
+* a **rule-14 sweep** over every consumer, shown RED on **this item's own frozen instruments** as its positive control;
+* **swap legs in both directions** at every repaired site.
+
+**SO-1c's run root is added to SO-1cR's launcher `FORBIDDEN_ROOTS`**: it holds a graded row and must never be written by another item's launcher.
+
+### A1.5 THE COST OF THIS ITEM, CLOSED
+
+**Registered point: 40.2 core-min. Actual incurred: 0.633 core-min MEASURED** (the `MESH` arm; `$0.00054` DERIVED at $0.0513/core-h, reported-by-owner, **not measured** — the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5).
+
+**The ratio actual/predicted is NOT quoted for the item, and the reason is stated rather than left implicit: the item did not run.** A 0.633-against-40.2 ratio would describe an item that stopped at arm 2 of 5, not an estimating error, and reporting it as calibration would be false. **What IS a calibration row is the `MESH` arm alone, which completed**: registered **0.167**, actual **0.633**, **ratio 3.79**. Attribution: **misprediction**, not contention and not waste — the three anchor measurements (C-154, C-156, C-158) were all of the same 4,032-cell pyHyp mesh at 1 rank, and this arm did the same work; the box was at load1 = 15.06 with 28.8 GiB free, so contention is not the explanation offered. **SO-1cR raises its registered MESH point to 0.633 accordingly.**
+
+**The 0.633 core-min is WASTE and is named as waste** (`COMPUTE_BUDGET_CHARTER.md` §6). It bought a mesh SO-1cR does **not** inherit — SO-1cR is registered self-contained and regenerates its own — so it is **not** absorbed into SO-1cR's ratio.
+
+### A1.6 WHAT THIS ADDENDUM DOES NOT DO
+
+It does **not** alter a gate, threshold, band, cap, label, cost or prediction of this item. It does **not** edit any line above §A1.0. It does **not** change `so1c_grade.py`, `so1c_run_arm.sh`, `so1c_chain_driver.sh` or any other instrument of this item — **the frozen instruments stay exactly as they ran**, which is what makes them usable as SO-1cR's positive control. It does **not** re-grade this item, and it does **not** convert `NOT A RESULT` into anything. It does **not** repair SO-1a's or SO-1b's copies of the consumer-authored-fixture shape — that remains **a finding for the supervisor**, not a change this lane may make in another item's frozen instruments. It **spawns no procedural rule and no general-purpose tool**, per the 2026-08-31 plumbing freeze. It **files, sends, uploads, registers, posts and comments nothing** (rule 7; SUBMISSIONS PARKED).
