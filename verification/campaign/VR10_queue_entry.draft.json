@@ -1,0 +1,47 @@
+{
+  "_DRAFT_NOT_ENQUEUED": "THIS FILE IS A DRAFT AND IS NOT IN A QUEUE DROP PATH. It sits in verification/campaign/, which no runner reads. Nothing here is enqueued, and ENQUEUEING WOULD NOT BE AUTHORISATION EITHER (QUEUE_ENTRY_STANDARD section 1): no entry is authorised by virtue of sitting in a queue directory, and no agent's message is Sanaa's consent (standing rule 9).",
+  "_ceiling": "PASS is reachable: this is an INSTRUMENT gate, not a physics claim, so no CONTINUUM cap applies. No physics verdict can be produced by this item.",
+  "_scope": "PAPER SIDECAR FIDELITY. The sidecar is the ONLY thing a text sweep can see, so a PDF without one is invisible and a 'we do not hold this' answer over it is a FALSE NEGATIVE. Standing rule 15 is the sharper half: a sidecar that EXISTS but belongs to a DIFFERENT document passes every presence check and satisfies rule 15 not at all. This item gates on AGREEMENT, not existence.",
+  "_predicted_outcome": "GATE FAIL PREDICTED on presence alone. Measured at drafting: 144 PDFs, 48 with no sidecar and 1 with a 77-byte stub -- 49 already failing before a single agreement check. NO PREDICTION IS MADE about the MISMATCH count, which has never been measured on the full corpus and is this item's actual news; it may be zero.",
+  "_smoke": "Driven with --selftest before enqueue: 7 cases, 0 failures, rc 0 -- AFTER ITS COMPARATOR FAILED ITS OWN DISCRIMINATION LIMB, disclosed in the pre-registration. The first comparator scored CONTENT-TOKEN overlap and gave 0.985 for a faithful pairing but 0.481 FOR A DELIBERATELY WRONG ONE, because two unrelated CFD papers share half their vocabulary. Replaced by 8-WORD VERBATIM PHRASE matching, a structural property rather than a tuned number; re-driven on a HARD pairing (two papers by the SAME authors) it gives faithful 0.859 vs wrong 0.094, separation 0.765. Limb X3 ASSERTS that separation rather than assuming it. Page-1 text comes from pdftotext, THE REAL PRODUCTION EXTRACTOR (section 2j.2).",
+  "_verdict_vocabulary": "PASS = every paper carries a sidecar agreeing with its own first page. GATE FAIL = any paper is MISSING, STUB or MISMATCH. NOT A RESULT = a control limb misbehaves, including X3's separation collapsing. BLOCKED = no extractor, or docs/papers unreadable. A PDF the extractor cannot read is REPORTED AND NOT GATED.",
+  "_cost_arithmetic": "pdftotext page-1 MEASURED over 8 real PDFs: 0.183 s / 8 = 0.0229 s per PDF; projected 0.0229 x 144 = 3.3 s wall x 1 rank / 60 = 0.055 core-min. Registered 12 s x 1 / 60 = 0.2 core-min, carrying VR6's measured 3.3x busy/quiet contention tax rather than the raw sample. Cap 120 s x 1 / 60 = 2.0 core-min, ~10x. Dollars DERIVED-NOT-MEASURED: estimate 0.2/60 x 0.0513 = $0.000171, cap $0.00171.",
+  "_cwd_is_unique": "cwd is this rung's OWN run directory and is UNIQUE: it is NOT the repository root, NOT verification/monitor (VR5's) and NOT verification/credibility (VR6's). queue_runner.py:497 keys launcher.queue.out on the cwd ALONE with a truncating redirect, so two entries sharing a cwd destroy each other's stdout -- VR5 MEASURED 24 such records already destroyed across 11 shared cwds, including VR1-VR3's at the repository root. THE DIRECTORY MUST BE CREATED BEFORE ENQUEUE: scripts/queue_entry_check.py evaluates Path(cwd).is_dir(). Filing run output under verification/runs/verification/<CASE_ID>/ also matches VR1-VR4 and repairs the inconsistency VR5/VR6 introduced by writing into their launch cwds.",
+  "_prereg_commit_is_a_PLACEHOLDER": "The 40 zeros in prereg_commit are a DELIBERATE, UNMISTAKABLE placeholder and NOT a freeze. The enqueuing supervisor must replace it with the sha of the commit that lands the pre-registration, having PERSONALLY verified the committed blob IS the file that will run (SUPERVISION_CHARTER section 3 check 4, which may never be delegated). scripts/queue_entry_check.py REFUSES this entry until then, which is the intended behaviour: a freeze that does not exist yet must not validate.",
+  "_launch_cmd_asserted": "launch_cmd[1] was asserted PRESENT and READABLE on disk at drafting, because scripts/queue_entry_check.py does NOT check it (cfd, 2026-08-28): an entry naming an absent script validates rc 0 and dies at launch behind a LAUNCHED record.",
+  "_field_classes": {
+    "physics_critical": [
+      "the driver's own rc, captured INSIDE the detached wrapper",
+      "the STATUS.<case_id> file under the registered cwd"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). Bookkeeping never voids physics (Sanaa, 2026-08-26)."
+  },
+  "cap_core_min_registered": 2.0,
+  "case_id": "VR10_PAPER_SIDECAR_FIDELITY",
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Dollars are DERIVED, NOT MEASURED. ZERO SOLVER COMPUTE: this is a static read-only analysis and the estimate is interpreter time. COSTED ON THE CONTENDED BOX (load average 7.8-15.0 over 16 cores at drafting; the box was at 28.5 earlier the same day), never on the flattering quiet-box figure.",
+  "cost_core_min_estimate": 0.2,
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/verification/VR10_PAPER_SIDECAR_FIDELITY",
+  "enqueued_by": "NOT ENQUEUED. Drafted by a verification lab-lane, 2026-08-31, for the verification-supervisor's personal section 3 check-1 diff read and check-4 freeze. ENQUEUEING IS NOT AUTHORISATION and no agent's message is Sanaa's consent (standing rule 9).",
+  "launch_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/verification/credibility/vr10_paper_sidecar_fidelity.py"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "0000000000000000000000000000000000000000",
+  "prereg_path": "verification/campaign/VR10_PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "verification",
+  "verdict_state": "PENDING -- not yet run, and not yet enqueued.",
+  "_the_referral_is_not_ruled_on": "The 34% sidecar gap is ALREADY ON SANAA'S DESK as a referred item. This item does NOT rule on it, propose a remedy or re-open the referral. It exists because THE RECORD AND THE DISK DISAGREE: the 2026-08-30 board entry records the gap as 'closed by extracting' and the disk on 2026-08-31 still shows 48 PDFs with no sidecar. A discrepancy between the record and the disk is verification's own business whatever else is referred."
+}

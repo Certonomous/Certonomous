@@ -1,0 +1,46 @@
+{
+  "_DRAFT_NOT_ENQUEUED": "THIS FILE IS A DRAFT AND IS NOT IN A QUEUE DROP PATH. It sits in verification/campaign/, which no runner reads. Nothing here is enqueued, and ENQUEUEING WOULD NOT BE AUTHORISATION EITHER (QUEUE_ENTRY_STANDARD section 1): no entry is authorised by virtue of sitting in a queue directory, and no agent's message is Sanaa's consent (standing rule 9).",
+  "_ceiling": "PASS is reachable: this is an INSTRUMENT gate, not a physics claim, so no CONTINUUM cap applies. No physics verdict can be produced by this item.",
+  "_scope": "LEDGER DUPLICATE ADJUDICATION. Rule 11 assigns ids from the TAIL-MAX, never a count; the residual hazard is the DUPLICATE, which makes count and tail-max disagree so a count-derived id COLLIDES. Rule 11 also establishes some duplicates are deliberate (L-43). So the question is whether every duplicate is ACCOUNTED FOR. Ledgers L- / D- / C-. N- IS OUT OF SCOPE: check_numerics_index.py already owns it via check_harness stage [5/5] (section 19).",
+  "_predicted_outcome": "PASS PREDICTED -- AND THE SUPERVISOR SHOULD WEIGH THAT BEFORE FILING. Measured at drafting: 7 duplicates, ALL adjudicated. The three L- pairs are explicit deliberate second blocks; the four C- pairs were ruled by THIS TEAM at DEAD_LEVER_AUDIT section 22, commit 524a70bd, ~40 minutes before drafting. Run today this item would grade work its own supervisor had just finished and would produce NO NEW FINDING. Its value is prospective monitoring only. The gate CAN fail: limb P4 shows withholding the audit flips L-43 to UNADJUDICATED.",
+  "_smoke": "Driven with --selftest before enqueue: 8 cases, 0 failures, rc 0. Controls read real ledgers written by team supervisors and the real DEAD_LEVER_AUDIT. A first draft parsed ZERO N- ids with a plausible regex, which is why N- is excluded: 'I cannot read this ledger' and 'this ledger is clean' are the same output from a broken parser (section 2j.2, and section 19's own C3/C4 controls).",
+  "_verdict_vocabulary": "PASS = every duplicate id is adjudicated. GATE FAIL = any is unadjudicated. NOT A RESULT = a control limb misbehaves. BLOCKED = a ledger cannot be read. An ADJUDICATED duplicate is EXPLAINED, NOT CLEARED: where section 22 records a renumber as OWED, the debt is printed beside the verdict.",
+  "_cost_arithmetic": "selftest measured 0.105 s wall x 1 rank / 60 = 0.00175 core-min on the contended box; registered 3 s x 1 / 60 = 0.05 core-min; cap 30 s x 1 / 60 = 0.5 core-min, ~10x. Dollars DERIVED-NOT-MEASURED: estimate $0.0000428, cap $0.000428.",
+  "_cwd_is_unique": "cwd is this rung's OWN run directory and is UNIQUE: it is NOT the repository root, NOT verification/monitor (VR5's) and NOT verification/credibility (VR6's). queue_runner.py:497 keys launcher.queue.out on the cwd ALONE with a truncating redirect, so two entries sharing a cwd destroy each other's stdout -- VR5 MEASURED 24 such records already destroyed across 11 shared cwds, including VR1-VR3's at the repository root. THE DIRECTORY MUST BE CREATED BEFORE ENQUEUE: scripts/queue_entry_check.py evaluates Path(cwd).is_dir(). Filing run output under verification/runs/verification/<CASE_ID>/ also matches VR1-VR4 and repairs the inconsistency VR5/VR6 introduced by writing into their launch cwds.",
+  "_prereg_commit_is_a_PLACEHOLDER": "The 40 zeros in prereg_commit are a DELIBERATE, UNMISTAKABLE placeholder and NOT a freeze. The enqueuing supervisor must replace it with the sha of the commit that lands the pre-registration, having PERSONALLY verified the committed blob IS the file that will run (SUPERVISION_CHARTER section 3 check 4, which may never be delegated). scripts/queue_entry_check.py REFUSES this entry until then, which is the intended behaviour: a freeze that does not exist yet must not validate.",
+  "_launch_cmd_asserted": "launch_cmd[1] was asserted PRESENT and READABLE on disk at drafting, because scripts/queue_entry_check.py does NOT check it (cfd, 2026-08-28): an entry naming an absent script validates rc 0 and dies at launch behind a LAUNCHED record.",
+  "_field_classes": {
+    "physics_critical": [
+      "the driver's own rc, captured INSIDE the detached wrapper",
+      "the STATUS.<case_id> file under the registered cwd"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). Bookkeeping never voids physics (Sanaa, 2026-08-26)."
+  },
+  "cap_core_min_registered": 0.5,
+  "case_id": "VR9_LEDGER_DUPLICATE_ADJUDICATION",
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Dollars are DERIVED, NOT MEASURED. ZERO SOLVER COMPUTE: this is a static read-only analysis and the estimate is interpreter time. COSTED ON THE CONTENDED BOX (load average 7.8-15.0 over 16 cores at drafting; the box was at 28.5 earlier the same day), never on the flattering quiet-box figure.",
+  "cost_core_min_estimate": 0.05,
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/verification/VR9_LEDGER_DUPLICATE_ADJUDICATION",
+  "enqueued_by": "NOT ENQUEUED. Drafted by a verification lab-lane, 2026-08-31, for the verification-supervisor's personal section 3 check-1 diff read and check-4 freeze. ENQUEUEING IS NOT AUTHORISATION and no agent's message is Sanaa's consent (standing rule 9).",
+  "launch_cmd": [
+    "python3",
+    "/home/ubuntu/Certonomous/verification/credibility/vr9_ledger_duplicate_adjudication.py"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "0000000000000000000000000000000000000000",
+  "prereg_path": "verification/campaign/VR9_PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "verification",
+  "verdict_state": "PENDING -- not yet run, and not yet enqueued."
+}
