@@ -20538,6 +20538,58 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T22:26:00Z — **THREE OF SANAA'S FIVE REPAIR TIERS ARE EMPTY ON INSPECTION, AND THE REASON IS A DEFECT IN HOW I BUILT THE QUEUE: I CLASSED 41 ROWS BY WHY THEY FAILED AND NEVER ASKED WHETHER THEY WERE ALREADY REPAIRED.**
+
+**Written by `ansys-verification-supervisor` personally. Every §3 check below is mine.**
+
+#### THE HEADLINE — HER ORDERING IS SOUND; MY QUEUE WAS NOT
+
+Sanaa's order is `BUDGET/KILL` → `NAMING` → `INSTRUMENT` → `REFERENT-CEILING` → `GATE-DESIGN`, easiest to hardest. **Tiers 1, 2 and 3 all turned out EMPTY, for two different reasons, and neither is a criticism of her ordering.**
+
+- **Tier 1 `BUDGET/KILL` (3 rows) — EMPTY, all three refused** (`92e3db1a`). Rows 11/12 reclassed to `GATE-DESIGN`: the kill removed nothing (the gate quantity was within **1 ppm of its final value by iteration 268** and was killed at **5949**; **94.3 %** of the rung's 141.025 core-min was spent after the answer stopped moving), and a bigger cap cannot convert either row because the COMPLETE levels already fail the frozen convergence leg. Row 32 correctly classed but wrongly placed — its full triple costs **~$1053 DERIVED, 42× the blanket**, and its root cause is an instrument mismatch.
+- **Tier 2 `NAMING/PLUMBING` (1 row) — EMPTY, already repaired 2026-08-26** (`5558d6d6`). Row 18's successor is register row **#23 `GATE REACHED`**: `Cd = 0.634868`, **2.398 %** relative inside a 5 % band, triple `CONVERGING`, `GCI_fine` **0.5524 %**. Row 18 has **zero residual coverage** — it produced no gate value at all.
+- **Tier 3 `INSTRUMENT` (6 CPU rows) — EMPTY of instrument work. FIVE already superseded**: row 1 → **#2 `PASS`**, row 25 → **#28 `PASS`**, rows 26/31 → **#36 `GATE FAIL` on a proven instrument**, row 29 → **#30 `GATE REACHED`**. The sixth, row 37, is **not an instrument defect at all**.
+
+> **THE DEFECT IS MINE AND I STATE IT WITHOUT SOFTENING.** I built `REPAIR_QUEUE.md` from the cause-class backfill, which classed 41 non-`PASS` rows by **why they failed** and **never asked whether a later row had already repaired them**. **The supersession facts were written on the rows' own faces the whole time** — the register says *"Re-run of row #1"*, *"re-registration of row #25"*, *"cites rows #26 and #31"* in plain text. I verified four of them myself against the register rather than taking a lane's word. **The queue overstates the backlog and every tier we open discovers it one tier at a time.** A full supersession sweep of all 35 rows is the next dispatch.
+
+#### AND A CORRECTION TO MY OWN LAST BOARD ENTRY, WHICH WAS WRONG
+
+My 21:2x entry stated **"the `PASS`-capable pool from this manual is EXHAUSTED"** and that freeze-ahead must be rebuilt from `GATE REACHED` work. **That is not right.** Row 37's real successor, **VMFL007-R3**, is a candidate `PASS` at **~12–35 core-min**: the manual prints a **closed-form** reference (Rabinowitsch–Mooney, Hughes & Brighton 1991), target **60.52 kPa**, Fluent 60.41 (ratio 0.998), CFX 61.52 (ratio 1.0165). **Whether its §12.2 is `SAME` or `DIFFERENT` is MINE to rule and I have not ruled it** — the reference is exact for a *fully-developed, unidirectional, axisymmetric* reduction, and whether that is the same continuum system our solver integrates is exactly the VMFL029 trap, where the only closed form was exact for a rank-one NON-elliptic reduction and the honest answer was `DIFFERENT`. **A lane is drafting it with that question posed adversarially against its own claim.**
+
+#### `_field_classes` — A FINDING THAT LOOKED LIKE A CREDENTIAL PROBLEM AND IS NOT (`a109d333`)
+
+`scripts/queue_runner.py:549` copies the authored queue entry; **`:555` ASSIGNS over `_field_classes` unconditionally** — no merge, no `setdefault`, no guard. **3 of 3 ansys entries that ever authored one were clobbered; 13 of 13 launched records carry the generic template; 0 carry anything else.** The innocent "enriched afterwards" reading is measured **false**: the authored text predates its launch by **46 min** (VMFL063), **~1 min** (VMFL069-R2) and the same minute (VMFL033-R2).
+
+**NO CREDENTIAL MOVES, and I checked the exonerating half hardest.** No ansys comparator reads the queue JSON — measured, zero files. Rows **#46** and **#48** were never graded against the weakened list. **Bookkeeping never voids physics.**
+
+> **THE HAZARD IS THE DIRECTION.** The template is a **subset** of what authors write, so the overwrite can only ever **DEMOTE** a field out of the refusing set — **it can loosen a gate and can never tighten one.** Other teams' graders **do** read `_field_classes` (F17–F27 grade scripts, `r2_host_scope_driver.py`), so there it is executable. **REPORTED, NOT REPAIRED** — `queue_runner.py` is not this team's territory and I proposed no patch. **Prospectively for us: a case-specific physics-critical set belongs in the FROZEN COMPARATOR, where it is executable, not in a queue entry, where it is discarded.**
+
+#### TWO CORRECTIONS TO MY OWN COMMITTED DOCUMENTS, BOTH CAUGHT BY LANES READING SOURCE
+
+1. **`REPAIR_QUEUE.md` line 37 had both §2n class numbers wrong AND the precedence inverted.** I wrote *"`GATE-DESIGN` (4) beats `BUDGET/KILL` (8)"*. `VERIFICATION_CHARTER` §2n.1 (line 3861ff, read by me at source) is **1 `BUDGET/KILL` … 5 `GATE-DESIGN` … 8 `PHYSICS-FAIL`**, and under lowest-wins `BUDGET/KILL` would **beat** `GATE-DESIGN`. **The rows 11/12 reclass survives on its own legs** — §2n.3 ranks only classes **the record supports**, and the record does not support `BUDGET/KILL` at all. **A cited number is not a checked number.** The correction moves rows 11/12 **out** of the capability-permitting set (§2n.15: classes 2–5 are capability-EXCLUDED) — **it costs us a capability claim and we take it, because it is the accurate class.**
+2. **The register id-cell audit before row #52** (`3d1ad93e`): **one namespace, rows 1..51, complete, no gaps, no duplicates. Next id is `**#52**`,** hash format — and *"hash format"* means the literal `#` prefix, nothing to do with a commit hash. **THE FINDING: six `**#N**` cells are NOT row ids** — `#1`–`#4` (lines 193–196) and `#42`/`#43` (716–717) are **citations inside dated addenda**. **The obvious regex returns 57 cells, a false maximum of 43, and duplicates that are not duplicates — which I know because my own haiku lane ran it tonight and reported exactly that.** The hazard was found by firing on us.
+
+#### VMFL029 ACCURACY PASS — THE DECLINE HOLDS; ITS CITATION DID NOT
+
+Every decisive number **AGREES**: the tensor eigenvalues **1.1000121e-05 / 0.999989**, condition number **9.09e+04**, the archive's self-contradiction (**computed zero eigenvector at −150.00°** vs its orthotropic block's **(0,1,0)** at 90°), the pointwise Cauchy orders **−1.31 / −0.95 / +5.24**, the conservation-pinning **6.48e-13 / 2.61e-12 / 1.04e-11**, and the cost arithmetic (10,500 core-h × $0.0513 = **$538.65**, **21.5×** the $25 pre-authorisation).
+
+**The `p_obs` 0.62 / 0.69 gap is resolved and is a labelling gap, not an error:** they are **L∞** orders (`cases/ansys_verification/VMFL029/PREREGISTRATION.md:53-54`); the companion **L2** orders are 0.83 / 1.13. A recompute in a different norm gave 0.58 / 0.56. **My board quoted them unlabelled — they must carry their norm.**
+
+**A RULE-13 DEFECT IN A COMMITTED RECORD, and it is mine to fix:** `VMFL029_DECLINED.md` cites the tensor at a **`/tmp` scratch path**. **A repository document never cites a scratch path.** The durable citation is the archive `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/VM2026R1_FLUENT_ARCHIVES/VMFL029_WB.wbpz` (311,039 bytes), member `VMFL029_WB_1_files/import_files/VMFL029_aniso.cas` — **byte-identity confirmed, MD5 `d4ceceaf8518e65a65a9dcd253bbfe45` from both the scratch copy and `unzip -p` of the archive.**
+
+#### **⚠ MY OWN AGENT BRIEF NAMES TWO ARCHIVE PATHS THAT DO NOT EXIST**
+
+Measured by me: `/home/ubuntu/Certonomous/VM2026R1_Fluids/` **DOES NOT EXIST**, and `docs/papers/verification_validation/VM2026R1_Fluids/` **DOES NOT EXIST**. The archives are at **`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/` — 123 files, 2,650,121,385 bytes**, matching my brief's description of the *repository-root* copy exactly. **The archives were moved and the dead partial copy removed; my harness brief still names the old paths.** **VERIFY: whether a committed D-6 ruling authorised this move — I have not yet confirmed one exists, and a 2.5 GB move without a ruling would be a different and worse finding than a stale brief.**
+
+#### STATE
+
+**Commits this session:** `a109d333` (`_field_classes` finding), `5558d6d6` (tier 2 empty + §2n correction), `3d1ad93e` (register id-cell audit).
+**Verdicts issued: NONE.** No row graded, no row re-graded, no verdict moved, **no register byte changed.**
+**Compute: ZERO core-minutes.** No ansys solver running; box idle. Ten credentials; register 51 rows.
+**Rungs without verdicts:** VMFL007-R3 (drafting, ceiling unruled); VMFL029 `DECLINED`; VMFLGPU004 `BLOCKED` (#41); VMFLGPU006 blocked on evidence; VMFLGPU008/009/010 untouched; 7 GPU queue rows blocked on stopped hardware.
+**Next actions:** rule VMFL007-R3's §12.2; the full 35-row supersession sweep; repair `VMFL029_DECLINED.md`'s scratch citation; confirm the D-6 archive ruling.
+**On Sanaa's desk:** the 4 `UNCLASSED` rows await her taxonomy ruling (solver-internal divergence has no bucket in the closed eight); **and the news that three of her five tiers are empty, so the repair programme is far smaller than 35 rows and its remaining work is concentrated in the two HARDEST tiers.**
+
 ### 2026-08-31T21:2xZ — **VMFL029 IS DECLINED — OUR LAST CLEAN `PASS` CANDIDATE. THE FEASIBILITY THAT PROVED IT UNVIABLE ALSO SPENT ITS REGISTRATION, AND THAT TENSION IS THE FINDING. PLUS: I COMMITTED A PEER'S UNFINISHED LINE AND REPAIRED IT.**
 
 **Written by `ansys-verification-supervisor` personally.**
