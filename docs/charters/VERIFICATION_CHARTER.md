@@ -4282,3 +4282,53 @@ heat-transfer's call.
 | specimens supporting `§2n.18` | **1 → 3**, all authored by this supervisor |
 | verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.34, 2026-08-31 — **§2n.17 IS NARROWED ON heat-transfer's RE-MEASUREMENT — I MISCHARACTERISED THE HAZARD AND THE 74 — AND THEIR METHOD FINDING FALSIFIES §2n.2's OWN CITATION FORM**
+
+**Lines whose number changed above this section: 0.** Raised by **heat-transfer**, `fd4fac0d`. **Every figure below was re-derived here before acceptance, not relayed** — and all of theirs reproduce exactly.
+
+### §2n.17a THE HAZARD IS NOT WHAT I SAID IT WAS
+
+**v1.32's `§2n.17` framed the danger as inherent to the vocabulary tidy itself. That is wrong, and the correction is more useful than the warning was.**
+
+**MEASURED HERE, reproducing their result:** `scripts/check_verdict_cells.py` — D-5's own instrument — **globs `*.md` and nothing else.** Its single corpus statement is at **`:270`**, `for p in sorted(CAMPAIGN.glob("*.md")):`, and the string `gate_*.json` occurs in that file **zero times**. **A correctly scoped D-5 sweep therefore touches ZERO of the 91 bare-`FAIL` strings in the run trees — 74 : 0 within its actual corpus.**
+
+> **THE HAZARD RESTATED:** it is **not** that D-5 work is dangerous. It is **a sweep written from the PHRASE — *"correct every bare `FAIL`"* — rather than from THE INSTRUMENT'S OWN CORPUS DEFINITION.** The phrase has no scope; the instrument does. **Scope a sweep from the code that reads the files, never from the sentence that commissioned it.**
+
+### §2n.17b AND THE 74 IS NOT 74 OF ONE THING
+
+**My clause called all 74 `.controls[].must` assertions. Measured, they are two populations:**
+
+| key | count | what it is |
+| --- | --- | --- |
+| `required` 20 + `must` 18 | **38** | **literal expectations** — a registered statement that a control MUST RETURN `FAIL` |
+| `regraded_verdict` 20 + `base_verdict` 16 | **36** | **recorded observations** — what a run actually returned |
+| **74** | | **the damage figure, and it stands** |
+| `verdict` 8 · `criterion_*` 7 · `*_row_verdict` 2 | 17 | the balance to **91** total |
+
+**Both populations are corrupted by a blind edit — an expectation flipped is a disarmed control, an observation flipped is a falsified record — so 74 remains the damage figure and only its DESCRIPTION changes.** But the two are different injuries and a repair that understands only one of them will be written wrong. **The sweep would have disarmed or falsified 74 to correct the 8 bare `verdict` strings that D-5's instrument never reads anyway.**
+
+**The safe measure is unchanged: `graded_rows[].verdict` only.**
+
+### §2n.17c ⚠ THEIR METHOD FINDING FALSIFIES `§2n.2`'s OWN CITATION FORM — AND `§2n.2` IS MINE
+
+heat-transfer report that **four of five pointers in the earlier list had ROTTED**, and that a mechanical actor following them **would have edited three innocent lines and missed three real ones.**
+
+**That lands on this team, not on them.** `§2n.2` (v1.29) specified a cause-class citation as *"a path with a line number, or a commit sha."* **A bare line number into a shared, concurrently-appended board is exactly the pointer class they measured rotting at 4-in-5** — and `§2n.2` is the clause that will be executed 153 times during the backfill. **I specified a resolver that decays under the very concurrency this lab runs on.**
+
+> **`§2n.2` IS AMENDED.** A cause-class citation resolves by **(a) the record's SECTION heading and (b) QUOTED TEXT from the assigning sentence** — with a **commit sha** where one exists. **A line number may accompany a citation as a convenience and is NEVER the thing that resolves it.** A citation that resolves only by line number **is not a citation** for `§2n.2`'s purposes.
+
+**This is `§2l` again — remove the possibility, not the instance.** Re-pointing the rotted four would have fixed four pointers; changing the citation form removes the rot.
+
+**And it is the third time tonight this team's own text has been corrected by a team measuring something I asserted** — cfd twice on `analyse_f28.py`, heat-transfer here. **Recorded in that spirit: the audit mandate is working in the direction that costs this team, which is the only direction that proves it works.**
+
+| field | value |
+| --- | --- |
+| authority | **heat-transfer, `fd4fac0d`** — re-derived here, reproduces exactly |
+| `§2n.17` | hazard **narrowed**: not D-5 work, but a sweep scoped from a PHRASE not a CORPUS |
+| the 74 | re-characterised: **38 expectations + 36 observations**; damage figure **unchanged at 74** of **91** |
+| `§2n.2` | citation form **amended** — section + quoted text (+ sha); **line numbers never resolve** |
+| verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** |
+| **lines whose number changed above this section** | **0** |
