@@ -17037,6 +17037,85 @@ infrastructure defects void a cost claim, never physics). Session commits: `76ce
 `1ee6d791` (R1 verdict + C-216), `bcc9562d` (F23b triage + L-409 + D584). **All via the private-index
 protocol; shared index never touched.**
 
+
+---
+
+### SESSION 2026-08-31, UPDATE 2 — 15:32Z, cfd-supervisor personally. BOTH CASES NOW FROZEN; FEASIBILITY SOLVES STILL OWED.
+
+**FREEZE CLOCK (Sanaa, `927924f1`, started 15:14Z, expires ~19:14Z): SATISFIED FOR BOTH.**
+**F28 `76ce0ed5`** — full form, exceeds the template requirement. **JF1 `12b1bd84`** — 10-line
+template, frozen **15:29Z, 15 minutes in**. Both **ARMED — never run**.
+
+**⚠ WHY JF1 WAS FROZEN AHEAD OF ITS OWN FEASIBILITY SOLVE — the reasoning a successor most needs.**
+The drafting lane found the sharpest question in this case: **rule 2 closes gates at *first
+compute*, not first *gated* compute**, so a feasibility field could be argued to close the
+window — *"the single most likely way this case repeats F23b."* Sanaa ruled feasibility needs no
+freeze and scores nothing, and that governs. **I did not resolve the tension by argument. I
+removed it:** freeze before any field exists and the question cannot arise. `F23b` died because a
+threshold became unamendable the moment a solver ran.
+
+**FOUR RULINGS AT FREEZE, all mine, all recorded with author in the document.** **O4** gate V
+`BLOCKED` (sole comparand is y+ = 9.664 wall-function vs this case's y+ ≤ 1 — different wall
+treatment, different mesh family; no comparand manufactured; absence filed as **FINDING JF1-V1**).
+**O6 continuity gated at `1e-6`, NOT the proposed `1e-8`** — the lane could not derive `1e-8` from
+the document's own arithmetic, and **L-409 is exactly about gating on a number you cannot derive**;
+actual value REPORTED (exemplar predicts 3.0e-09). **O3** branch B + S2 sensitivity (11.36
+core-min, 3.8 % of cap) — a 22.36× `nut_inf` choice defended only by argument gets measured.
+**O7** cap stays at **Sanaa's 300**, registered total **282.00** core-min with S2, slack 18.00,
+**$0.2314 `[DERIVED]`**; an L3 re-run makes gate G **`BLOCKED` on budget** and escalates rather
+than consuming a reserve that does not exist.
+
+**A REAL GATE DEFECT CAUGHT AND VERIFIED BY ME, NOT RELAYED — THE ROACHE INDICES WERE INVERTED.**
+§4.2/§7.2 labelled the **coarse** pair (L1→L2) as `r_21`. Since `GCI_fine = Fs|eps_21|/(r_21^p−1)`,
+the published **fine-grid** GCI would have been computed from the **largest** difference. I
+reproduced it on the exemplar triple: **0.2471 % correct vs 0.4629 % inverted — 1.87× overstated,
+carrying the wrong label** `[DERIVED]`. Mapping now registered `f_1 = L3`; the comparator refuses a
+triple whose mapping does not match.
+
+**TWO DEPARTURES ON SANAA'S DESK, written into the freeze so they cannot be lost.** (1) **Cell
+counts 13.3–14.1 % above her §1.3 targets** — 46 180 / 86 638 / 161 006 vs ~40k/~75k/~140k. Her `~`
+marks a target; her §1.4 makes `max(y+) ≤ 1` physics. A gate beats a target. **If she reads the
+counts as binding, the constraint set is not simultaneously satisfiable and JF1 is `BLOCKED` — her
+call.** (2) **Her theory formula's GROUPING is wrong**, not its constants: the series sits INSIDE
+the root with `4πC_μ′`, her form high by √S, **+2.02/+3.04/+4.66/+7.29 %** across the sweep. A
+constants-only check returns "all three correct" and freezes a growing one-signed bias.
+
+**CALIBRATION — MY OWN INSTRUMENT WAS THE DEFECT.** Rows re-landed **C-216 → C-225**, **C-218 →
+C-226** (`c31ccdf5`) through `append_record.py --expect-first-id`, whose gate derives max itself.
+**Cause was NOT a stale tail: my pattern `^\| C-[0-9]+` matched only UNDECORATED rows — strict saw
+114 ids, discriminated sees 227, missing 113 including 219–224** `[MEASURED]`. dafoam had landed
+C-215/216/217/218 **in bold**. **This is L-312 unapplied, under rule 14** (a lesson is not applied
+until every call site asserts it). **The guard I was praised for shared the blind pattern and could
+never have caught this class.** I also withdrew a wrong all-clear I gave the chief — I had checked
+for duplicates with the same blind instrument. **⚠ Old rows REMAIN at C-216/C-218: `append_record.py`
+refuses truncation AND any prefix edit, so "renumber" is not expressible through the mandated tool.
+Duplicates at 215/216/217/218 persist; 215/217 are dafoam's and closure's. Verification's to close.**
+
+**L-409 gained ADDENDUM 1 and D585** (`c4fadb21`) — the successor lane, told to falsify my F23b
+finding, showed the observed `9.692465e-04` is **BELOW** A0's converged floor `1.946614e-03`, so it
+is a **mid-transient sample, not a floor reading**, and `|1−Ubar| ≤ 1e−10` is unsatisfiable only for
+the **conjunction**, not the clause alone — which is **worse**, since a one-sided ceiling on a
+quantity that transits its target can be PASSED at an unconverged state. **Verdict unchanged.**
+
+**⚠ FEASIBILITY SOLVES STILL OWED AND THIS IS THE OPEN ITEM.** Sanaa ordered L1 feasibility on both
+cases NOW. **No launch lines yet. Queue depth 0 all six teams; runner 1605 logging `EMPTY` every
+60 s; no solver on the box** `[MEASURED]`. JF1: `cases/JF1_JET_FLAP/case/` created 15:26Z, mesh
+still being built — the registered normal distribution was over-determined (85 cells at g=1.1417
+from y1=2.345869e-05 reaches **12.91 m, not 25 m**) and had to be re-derived; **it now closes at
+y1 = 5.0e-06, N = 97, g = 1.149626**, and a deeper defect was found — **`y1` had been sized from
+`Cf(x=c)`, the chord station where `u_tau` is MINIMUM, while §7.4 gates `max(y+)`, so `max(y+) ≤ 1`
+was UNREACHABLE on every level** (≈4.4 on L1). F28: no case dir yet.
+
+**⚠ SendMessage TO RUNNING LANES IS BLOCKED by the permission classifier** — I could not redirect
+the two in-flight lanes to Sanaa's feasibility order and dispatched a fresh lane for Case 1 instead.
+Flagged, not worked around.
+
+**Lanes live — 2:** JF1 L1 feasibility (`a63d7986`), F28 Stage 0 + comparator (`a956849e`).
+**Next actions:** launch lines to Sanaa the moment either meshes; check-1 diff read on the F28
+comparator and on JF1's; runner cap enforcement per Sanaa's ruling 3 (**`queue_runner.py` only —
+`check_commit_size.py` is a DIFFERENT object and stays advisory**); fossil deletion — **1 path,
+by explicit path only, PATH NOT YET RECEIVED**.
+
 ## verification
 
 **Section updated:** 2026-08-31T15:35Z by verification-supervisor. **Zero solver compute.** `VERIFICATION_CHARTER` **v1.26 (§2m)**; `REPORTING_CHARTER` + `INNOVATION_STANDARD` amended on Sanaa's approval; `DEAD_LEVER_AUDIT` **§21, §22**.
