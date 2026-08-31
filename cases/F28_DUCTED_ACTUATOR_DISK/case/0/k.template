@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- turbulent kinetic energy.  k = 1.5 (I * U_ref)^2 with I = 0.01;
+  __K_INIT__ is substituted by the launcher and RECORDED PER RUN.
+  Low-Re wall treatment (y+ <= 1), registration section 8: kLowReWallFunction
+  reduces to the resolved-sublayer form and is HELD FIXED ACROSS ALL THREE
+  LEVELS -- a wall treatment that changes between levels destroys the Roache
+  triple.  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object k; }
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform __K_INIT__;
+boundaryField
+{
+    inlet      { type inletOutlet; inletValue uniform __K_INIT__;
+                 value uniform __K_INIT__; }
+    outlet     { type inletOutlet; inletValue uniform __K_INIT__;
+                 value uniform __K_INIT__; }
+    farfield   { type inletOutlet; inletValue uniform __K_INIT__;
+                 value uniform __K_INIT__; }
+    hub        { type kLowReWallFunction; value uniform __K_INIT__; }
+    ductInner  { type kLowReWallFunction; value uniform __K_INIT__; }
+    ductOuter  { type kLowReWallFunction; value uniform __K_INIT__; }
+    axis       { type empty; }
+    front      { type wedge; }
+    back       { type wedge; }
+}

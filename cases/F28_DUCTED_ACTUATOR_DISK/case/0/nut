@@ -1,0 +1,21 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- turbulent viscosity.  nutLowReWallFunction returns nut = 0 at the
+  wall, which is the RESOLVED-SUBLAYER treatment the y+ <= 1 mesh is built for
+  (registration section 8).  CHOSEN ONCE AND HELD FIXED ACROSS ALL THREE
+  LEVELS.  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object nut; }
+dimensions      [0 2 -1 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    inlet      { type calculated; value uniform 0; }
+    outlet     { type calculated; value uniform 0; }
+    farfield   { type calculated; value uniform 0; }
+    hub        { type nutLowReWallFunction; value uniform 0; }
+    ductInner  { type nutLowReWallFunction; value uniform 0; }
+    ductOuter  { type nutLowReWallFunction; value uniform 0; }
+    axis       { type empty; }
+    front      { type wedge; }
+    back       { type wedge; }
+}

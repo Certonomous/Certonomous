@@ -1,0 +1,29 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- velocity.  __U_INF__ is substituted by the launcher; NO DICTIONARY IS
+  EVER HAND-EDITED.  Registration section 2.5: freestream and bulk flow are +x,
+  upstream is -x, and thrust is positive in -x.
+  Section 7 / 2.3: the STATIC cases (U_inf = 0) draw from rest through a
+  farfield totalPressure / inletOutlet pair with p_0 = 0; the same pair is used
+  in forward flight with the inlet velocity set, so the boundary treatment does
+  not change between the arms of the section 9.4 ratio.
+  Axis is `empty` -- the v2606 wedge + empty-axis pattern (section 4).
+  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (__U_INF__ 0 0);
+boundaryField
+{
+    inlet     { type inletOutlet; inletValue uniform (__U_INF__ 0 0);
+                value uniform (__U_INF__ 0 0); }
+    outlet    { type inletOutlet; inletValue uniform (0 0 0);
+                value uniform (__U_INF__ 0 0); }
+    farfield  { type inletOutlet; inletValue uniform (__U_INF__ 0 0);
+                value uniform (__U_INF__ 0 0); }
+    hub        { type noSlip; }
+    ductInner  { type noSlip; }
+    ductOuter  { type noSlip; }
+    axis       { type empty; }
+    front      { type wedge; }
+    back       { type wedge; }
+}

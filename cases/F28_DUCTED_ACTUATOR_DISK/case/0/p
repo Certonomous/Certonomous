@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- KINEMATIC pressure (p/rho, m^2/s^2).  simpleFoam is incompressible and
+  carries no rho; the comparator multiplies by RHO = 1.2 once, in one named
+  place, to report Pa.  Registration section 7: totalPressure with p_0 = 0 on
+  the farfield and inlet, fixedValue 0 at the outlet.
+  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    inlet      { type totalPressure; p0 uniform 0; value uniform 0; }
+    outlet     { type fixedValue; value uniform 0; }
+    farfield   { type totalPressure; p0 uniform 0; value uniform 0; }
+    hub        { type zeroGradient; }
+    ductInner  { type zeroGradient; }
+    ductOuter  { type zeroGradient; }
+    axis       { type empty; }
+    front      { type wedge; }
+    back       { type wedge; }
+}

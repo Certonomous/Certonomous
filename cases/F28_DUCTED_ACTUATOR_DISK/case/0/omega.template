@@ -1,0 +1,25 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- specific dissipation.  omega = k^0.5 / (C_mu^0.25 * L_t) with
+  L_t = 0.1 D; __OMEGA_INIT__ is substituted by the launcher and RECORDED PER
+  RUN.  omegaWallFunction in v2606 blends to the resolved-sublayer form at
+  y+ <= 1 and is HELD FIXED ACROSS ALL THREE LEVELS (section 8).
+  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class volScalarField; object omega; }
+dimensions      [0 0 -1 0 0 0 0];
+internalField   uniform __OMEGA_INIT__;
+boundaryField
+{
+    inlet      { type inletOutlet; inletValue uniform __OMEGA_INIT__;
+                 value uniform __OMEGA_INIT__; }
+    outlet     { type inletOutlet; inletValue uniform __OMEGA_INIT__;
+                 value uniform __OMEGA_INIT__; }
+    farfield   { type inletOutlet; inletValue uniform __OMEGA_INIT__;
+                 value uniform __OMEGA_INIT__; }
+    hub        { type omegaWallFunction; value uniform __OMEGA_INIT__; }
+    ductInner  { type omegaWallFunction; value uniform __OMEGA_INIT__; }
+    ductOuter  { type omegaWallFunction; value uniform __OMEGA_INIT__; }
+    axis       { type empty; }
+    front      { type wedge; }
+    back       { type wedge; }
+}

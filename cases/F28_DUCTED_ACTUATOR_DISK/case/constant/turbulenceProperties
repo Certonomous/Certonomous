@@ -1,0 +1,6 @@
+FoamFile { version 2.0; format ascii; class dictionary; object turbulenceProperties; }
+// F28 -- registration section 8: kOmegaSST, LOW-Re wall treatment (y+ <= 1).
+// The nut wall treatment is chosen ONCE and HELD FIXED across all three levels;
+// a wall treatment that changes between levels destroys the Roache triple.
+simulationType  RAS;
+RAS { RASModel kOmegaSST; turbulence on; printCoeffs on; }

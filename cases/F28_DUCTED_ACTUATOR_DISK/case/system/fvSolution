@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- linear solvers and SIMPLE.  Registration section 8: consistent yes;
+  relaxation p 0.3 / U 0.7 (the static cases may need U 0.5 -- WHICHEVER IS USED
+  IS RECORDED PER RUN AND HELD FIXED ACROSS THE TRIPLE); nNonOrthogonalCorrectors 1;
+  residual convergence 1e-6 on p, Ux, Ur, k, omega, ALL CHANNELS AT THE SAME ORDER.
+  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+
+solvers
+{
+    p       { solver GAMG; smoother GaussSeidel; tolerance 1e-9; relTol 0.01; }
+    "(U|k|omega)"
+            { solver smoothSolver; smoother symGaussSeidel;
+              tolerance 1e-10; relTol 0.01; nSweeps 1; }
+}
+
+SIMPLE
+{
+    consistent                  yes;
+    nNonOrthogonalCorrectors    1;
+    residualControl { p 1e-6; U 1e-6; k 1e-6; omega 1e-6; }
+}
+
+relaxationFactors
+{
+    equations { p 0.3; U 0.7; k 0.7; omega 0.7; }
+}

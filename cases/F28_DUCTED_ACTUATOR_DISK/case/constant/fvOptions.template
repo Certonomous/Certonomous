@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- THE ACTUATOR DISK.  A uniform axial momentum source on the cellZone
+  `disk`.  NO BLADES, NO SWIRL, NO ROTATION.  "Actuator-disk representation; no
+  rotor" (registration section 2.1).
+
+  `volumeMode specific;` APPEARS HERE VERBATIM AND IS LOAD-BEARING.
+  Registration section 2.4, from the v2606 source on this box
+  (src/fvOptions/sources/general/semiImplicitSource/SemiImplicitSource.C):
+    :534    volumeMode is READ WITH A `get`, not a defaulted lookup -- it is a
+            REQUIRED entry.
+    :537-540  `absolute` sets VDash_ = V_ (the CELL-ZONE VOLUME);
+              `specific` leaves VDash_ = 1.
+    :348,:357,:367  the supplied value is DIVIDED BY VDash_.
+    :224    the class constructor's own default is vmAbsolute.
+  So the same number means a TOTAL OVER THE ZONE under `absolute` and a
+  PER-UNIT-VOLUME DENSITY under `specific`.  Under `absolute` this case would
+  still mesh, still run, still converge to tight residuals, and produce a
+  smooth, monotone, entirely wrong map.  `specific` is additionally
+  WEDGE-INVARIANT: a per-unit-volume density is the same number at any wedge
+  angle, whereas `absolute` would have to be rescaled by 5/360 and is one
+  silent factor of 72 away from being wrong.
+
+  THE VALUE IS AN ACCELERATION, NOT A FORCE DENSITY, AND THAT IS NOT THE
+  DIRECTIVE'S ARITHMETIC.  Sanaa's CASE 2 section 2.3 writes
+  `injectionRateSuSp = delta_p / t` in N/m^3.  That is correct for a
+  COMPRESSIBLE solver.  `simpleFoam` is INCOMPRESSIBLE: its momentum equation
+  is divided by rho and `constant/transportProperties` carries only nu, so the
+  source the solver needs is
+
+        Su_x = delta_p / (rho * t)   [m/s^2]
+             = 1000 / (1.2 * 0.005)  = 166666.666666667
+
+  The two readings differ by rho = 1.2 -- A FACTOR OF 1.2, which is exactly the
+  size that reads as a modelling detail rather than an error.  Control C3
+  (registration section 6.2) computes T_disk two independent ways and closes on
+  it: arm (a) is analytic from delta_p, arm (b) integrates THIS number over the
+  built cellZone and multiplies by WEDGE_SCALE = 72.
+  REPORTED TO THE SUPERVISOR AS A DEPARTURE FROM THE DIRECTIVE'S UNITS.
+
+  Sign, registration section 2.5: the source is +x -- it accelerates the fluid
+  DOWNSTREAM.  Thrust is positive in -x and every reported force is the -x
+  component times -1.
+
+  delta_p for THIS file: __DELTA_P__ Pa.  Su_x = delta_p/(rho*t) is substituted
+  section 9.3 / 9.4 / 9.6 gate loading).  Other loadings are written by
+  `constant/fvOptions.template` through the launcher; NO DICTIONARY IS EVER
+  HAND-EDITED.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object fvOptions; }
+
+actuatorDisk
+{
+    type            vectorSemiImplicitSource;
+    selectionMode   cellZone;
+    cellZone        disk;
+    volumeMode      specific;
+    sources
+    {
+        U           ((__SU_X__ 0 0) 0);
+    }
+}

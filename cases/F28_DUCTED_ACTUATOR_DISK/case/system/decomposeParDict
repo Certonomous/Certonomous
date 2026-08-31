@@ -1,0 +1,12 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- registration section 11.2: the decomposition METHOD AND SEED are BOTH
+  RECORDED AS REQUIRED FIELDS in every run record, and THE SAME DECOMPOSITION IS
+  USED ACROSS ALL THREE LEVELS.  `scotch` is deterministic for a given mesh and
+  rank count but carries no user seed, so the seed recorded per run is the
+  literal string below; a record whose seed field is absent is incomplete.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object decomposeParDict; }
+numberOfSubdomains 4;
+method          scotch;
+// SEED: scotch/OpenFOAM-v2606 default strategy, no user seed exposed.
+// Recorded per run as decomposition_seed = "scotch-default-v2606".

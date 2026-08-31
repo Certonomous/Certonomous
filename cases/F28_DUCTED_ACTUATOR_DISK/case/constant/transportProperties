@@ -1,0 +1,6 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// F28 -- air, registration section 4: rho = 1.2 kg/m^3, nu = 1.5e-5 m^2/s.
+// simpleFoam is INCOMPRESSIBLE and carries only nu; rho enters the reported
+// forces through RHO_REF in the launcher and the comparator, never from here.
+transportModel  Newtonian;
+nu              1.5e-05;

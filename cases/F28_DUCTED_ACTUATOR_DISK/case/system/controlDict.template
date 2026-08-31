@@ -1,0 +1,146 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  F28 -- controlDict.  __PLACEHOLDERS__ are substituted by run_f28.sh; NO
+  DICTIONARY IS EVER HAND-EDITED (registration section 5).
+
+  The function objects below are THE ONES THE COMPARATOR READS.  If a name
+  changes here it must change in `analyse_f28.py` in the same commit, because
+  the comparator REFUSES rather than guessing when an output is missing:
+
+    diskPlaneUp / diskPlaneDown  -> areaAverage(p) either side of the disk
+                                    cellZone.  C1's quantity (section 6.2).
+                                    TWO SEPARATE objects, because OpenFOAM
+                                    writes one file per surfaceFieldValue.
+    diskFlow                     -> areaNormalIntegrate(U) through the disk
+                                    plane.  C2's quantity.
+    forcesDuct                   -> the duct force, wedge patches only; the
+                                    comparator multiplies by WEDGE_SCALE = 72
+                                    and flips the sign (sections 2.5, 2.6).
+    forcesHub                    -> the centrebody force, reported beside it.
+
+  The sampled planes are CLIPPED IN RADIUS to the disk annulus
+  [r_hub, r_tip] = [0.0375, 0.1225] so that C1 averages the pressure across the
+  DISK, not across the tip-gap band as well.  The clip bounds are written out
+  in full below rather than derived, so a reader can check them against
+  section 4 without running anything.
+
+  Iteration cap 15000 (section 8).  HIT CAP -> NOT A RESULT, NEVER
+  "CLOSE ENOUGH".  That cap is a RIGOR clause and is NOT touched by the compute
+  cost-lift (section 2.7).
+
+  Actuator-disk representation; no rotor.
+\*---------------------------------------------------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt           endTime;
+endTime         __END_TIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __WRITE_INTERVAL__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable false;
+
+functions
+{
+    residuals
+    {
+        type            solverInfo;
+        libs            ("libutilityFunctionObjects.so");
+        fields          (p U k omega);
+        writeResidualFields false;
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+
+    forcesDuct
+    {
+        type            forces;
+        libs            ("libforces.so");
+        patches         (ductInner ductOuter);
+        rho             rhoInf;
+        rhoInf          1.2;          // section 4; simpleFoam carries no rho
+        CofR            (0 0 0);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+
+    forcesHub
+    {
+        type            forces;
+        libs            ("libforces.so");
+        patches         (hub);
+        rho             rhoInf;
+        rhoInf          1.2;
+        CofR            (0 0 0);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+
+    diskPlaneUp
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      sampledSurface;
+        name            planeUp;
+        sampledSurfaceDict
+        {
+            type        plane;
+            planeType   pointAndNormal;
+            pointAndNormalDict { point (0.0665 0 0); normal (1 0 0); }
+            // clipped to the disk annulus: r_hub = 0.0375, r_tip = 0.1225
+            bounds      (0.0660 0.03745 -1) (0.0670 0.12255 1);
+            interpolate true;
+        }
+        operation       areaAverage;
+        fields          (p);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+
+    diskPlaneDown
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      sampledSurface;
+        name            planeDown;
+        sampledSurfaceDict
+        {
+            type        plane;
+            planeType   pointAndNormal;
+            pointAndNormalDict { point (0.0735 0 0); normal (1 0 0); }
+            bounds      (0.0730 0.03745 -1) (0.0740 0.12255 1);
+            interpolate true;
+        }
+        operation       areaAverage;
+        fields          (p);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+
+    diskFlow
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      sampledSurface;
+        name            planeFlow;
+        sampledSurfaceDict
+        {
+            type        plane;
+            planeType   pointAndNormal;
+            pointAndNormalDict { point (0.0735 0 0); normal (1 0 0); }
+            bounds      (0.0730 0.03745 -1) (0.0740 0.12255 1);
+            interpolate true;
+        }
+        operation       areaNormalIntegrate;
+        fields          (U);
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+}
