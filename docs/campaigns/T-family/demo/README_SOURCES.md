@@ -162,16 +162,44 @@ does not exist would have been the more serious of the two brief errors.
 
 | figure | value | source |
 |---|---|---|
-| upfront estimate, 305 W subset | 123.2 core-min REGISTERED | `docs/COST_CALIBRATION.md:325`, row `C-20260831T183346.079343Z-d971eca8` |
-| upfront estimate, 80/155/230 W subset | 360.4 core-min REGISTERED | `CASE3_MAP_RESULTS.md` §8 table, line 514 |
-| **sheet's "upfront estimate 483.6 core-minutes"** | 123.2 + 360.4 | **sum of the two registered figures, computed by this lane** |
-| actual, 305 W subset | 120.1285 core-min MEASURED | `COST_CALIBRATION.md:325` |
-| actual, other twelve | 457.0753 core-min MEASURED | `CASE3_MAP_RESULTS.md` §8, line 517 |
-| **sheet's "used 577.2 core-minutes"** | 577.2038 | §8, line 596, stated at source as the sum |
-| **sheet's ratio 1.19** | 577.2038 / 483.6 = 1.1936 | **derived by this lane** from the two rows above |
+**REVISED 2026-08-31 — THE FUSED 483.6 FIGURE IS GONE FROM THE SHEET.** It was
+this lane's arithmetic sum of two separately registered estimates, and no
+combined estimate is registered anywhere. The sheet now reports the two phases
+as the two phases they are; every figure below is read from a record, and
+nothing on the sheet is a sum this lane invented.
+
+| figure | value | source |
+|---|---|---|
+| phase 1 (four points at 305 W, four-at-once) — upfront estimate | 123.2 core-min REGISTERED | `docs/COST_CALIBRATION.md:325`, row `C-20260831T183346.079343Z-d971eca8`, column "estimate" |
+| phase 1 — actual | 120.1285 core-min MEASURED | same row, "actual" column, from the four `log.solve` `ExecutionTime` lines |
+| phase 1 — ratio, sheet prints 0.98 | 0.9751 | same row, ratio column — **registered at source, not derived here** |
+| phase 2 (twelve points at 80/155/230 W, twelve-at-once) — upfront estimate | 360.4 core-min REGISTERED | `CASE3_MAP_RESULTS.md` §8 table, line 514 |
+| phase 2 — actual | 457.0753 core-min MEASURED | same table, line 517 |
+| phase 2 — ratio, sheet prints 1.27 | 1.2683 | same table, line 518 — **stated at source, not derived here** |
+| **sheet's "total used 577.2 core-minutes"** | 577.2038 | §8, line 596, stated at source as the sum of the two measured actuals |
 | attribution: machine sharing, twelve-at-once on 16 cores against an estimate calibrated at four-at-once | §8, lines 537–549 | measured penalty 26.7–29.9 % by two matched-band probes |
 | derived cost $0.49 | $0.102710 + $0.3908 | `COST_CALIBRATION.md:325` and `CASE3_MAP_RESULTS.md:524` |
 | rate $0.0513/core-h, owner-stated not metered | `CLAUDE.md` rule 12; `COMPUTE_BUDGET_CHARTER.md` §5 | the sheet says so in customer language |
+
+**WHY SPLIT RATHER THAN LABEL THE SUM.** Both were open under R8, which asks for
+compute used and the upfront estimate and does not ask for one fused number.
+Splitting is the better read for three reasons, and the third is the decisive
+one:
+
+1. Every figure on the sheet then comes from a record. The fused 483.6 and the
+   ratio 1.19 derived from it existed nowhere but on that sheet.
+2. A reader takes "upfront estimate 483.6" for a budget that was set. None was.
+3. **The split carries the information the fused figure destroyed.** Phase 1
+   came in at 0.98 and phase 2 at 1.27. The sheet's own next sentence explains
+   the overrun as machine sharing — and the two ratios are that explanation,
+   visible: the four-at-once phase, the basis the estimate was calibrated on,
+   landed on its estimate; the twelve-at-once phase did not. Averaged into
+   1.19, the effect is smeared across both phases and the sentence explaining it
+   has nothing to point at.
+
+Total *used* is kept, because 577.2038 is stated as a sum at source (§8:596) and
+is not this lane's arithmetic. No total *estimate* is printed, because none
+exists.
 
 ---
 
@@ -220,6 +248,15 @@ and says nothing about experiment.
 Source: `verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1/CASE.txt`
 (the case's own provenance block) and `build_t25.py`.
 
+**THE MODULE NOW EXISTS AT TWO TIME STEPS** (built 2026-08-31, neither solved):
+
+| case | deltaT | steps to 900 s | built by |
+|---|---|---|---|
+| `T25_MOD_L1` | 0.5 s | 1800 | `build_t25.py --case-dir ... T25_MOD_L1` |
+| `T25_MOD_L1_DT025` | 0.25 s | 3600 | `build_t25.py --case-dir ... T25_MOD_L1_DT025 --delta-t 0.25` |
+
+Every physical row in the table below is shared by both cases and is unchanged.
+
 | sheet value | source | line |
 |---|---|---|
 | 8 cells | `CASE.txt` "n cells 8" | 24 |
@@ -256,6 +293,16 @@ user-visible text, so the sheet says only that the module is built and checked
 but not yet solved. **The supervisor should rule on which account is correct
 before anyone repeats "pending approval" out loud.**
 
+**SUPERVISOR'S RULING, 2026-08-31 — QUESTION CLOSED.** The sheet stays exactly
+as written above. The module is built and not yet solved, and **nothing about
+queues, validators, permissions or approvals appears in any customer-facing
+text** — R9. No explanation is added to the sheet. Two further instructions
+carried with the ruling and are recorded here because a later editor will need
+them: the solver launch is **denied**, and the refused queue entry's null
+`prereg_path` / `prereg_commit` fields **may not be repaired to obtain a
+launch** — that is the denied launch by another route. Neither the second case
+built today nor any other module case has been queued or launched.
+
 The case is in any event tagged `FEASIBILITY` and its own `CASE.txt` (lines
 3–4, 13–17) states that it carries no gate, no band and no verdict, and that
 nothing it produces may be graded. Sheet C's reserved frames are consistent
@@ -273,20 +320,91 @@ data that fills it.
 | 2 | Figure 2 — spread across the module | hottest-minus-coldest cell, K, against time, s |
 | 3 | Table 2 — peak and time-to-peak, per cell | eight rows: peak temperature °C, time to peak s, uncertainty (from placeholder 5, or "not quantified" if only one step size is run) |
 | 4 | Energy conservation | heat in (34 080 J) against heat stored plus heat removed, both integrated to 900 s, closure in %; R5 wording when filled is recorded in the comment |
-| 5 | Time-step check | peak temperature and time-to-peak at two step sizes |
+| 5 | Time-step check | peak temperature and time-to-peak at 0.5 s and 0.25 s |
 
 **Nothing is drawn in any of them. No curve, no number, no trend, no
 illustrative sketch.**
 
-**On the second step size:** the dispatch calls it "the planned two-step-size
-check". The plan exists — the directive
-(`etc/sessions/2026-08-30T2300Z_sanaa_four_new_case_families.md` §4.5, lines
-434–436) registers a ladder `dt = 0.02 / 0.01 / 0.005 s` at a refined mesh
-level — but the as-built feasibility case steps at `dt = 0.5 s`
-(`CASE.txt:42`), and **no second step size is fixed for this case.** The sheet
-therefore promises "two time-step sizes" and names neither; the LaTeX comment
-records exactly this, so nobody later fills the frame with a step size that was
-never registered.
+**On the second step size — the gap is CLOSED, and closed by building, not by
+weakening the sentence.** The earlier state of this file recorded that the sheet
+promised "two time-step sizes" and named neither, because only `dt = 0.5 s`
+existed. That is no longer true. `T25_MOD_L1_DT025` was built on 2026-08-31 at
+`dt = 0.25 s`, and the sheet now names both sizes. The frame stays reserved and
+empty: **naming a step size is not solving at it**, and no number may be written
+into that frame until both cases have run.
+
+The directive's own ladder (`etc/sessions/2026-08-30T2300Z_sanaa_four_new_case_families.md`
+§4.5, lines 434–436) registers `dt = 0.02 / 0.01 / 0.005 s` **at a refined mesh
+level**, which is a different thing and is not what was built. 0.25 s is
+**half of the as-built 0.5 s and is chosen by this lane**, for the reason that
+halving is what makes the comparison a step-*independence* statement rather than
+a comparison of two arbitrary steps. It is a build choice on an ungated
+feasibility case, not a registered threshold, and it is not presented as one.
+
+### How the second case was built, and what was checked on it
+
+**Built by the builder, not by hand.** `build_t25.py` took a new `--delta-t`
+argument (default `0.5`, so the default invocation is what it always was) and
+`DT` became a parameter threaded through `fv_options`, `control_dict` and
+`case_txt`. Nothing was copied and hand-edited.
+
+**Reproducibility audit of that change, measured.** The builder was re-run at
+default step into a scratch directory and every file diffed against the on-disk
+`T25_MOD_L1`: **11 of 13 byte-identical**; the two that differ are
+`constant/module/fvOptions` and `CASE.txt`, and both differ **only in comment
+and provenance text** — the `fvOptions` diff with comments stripped is **empty**,
+and the `CASE.txt` change is an **appended block**, so every original line of
+`CASE.txt` keeps its original line number and the citations above still resolve.
+`T25_MOD_L1` was **not** rebuilt; no built case was touched.
+
+**The two cases differ in exactly one solver-read entry.** Comments stripped,
+all thirteen dictionaries of the two cases were diffed pairwise: twelve are
+identical and `system/controlDict` differs on one line, `deltaT 0.5` against
+`deltaT 0.25`. Nothing else moved.
+
+**The pulse-table sampling condition is now a guard, not a comment.** The
+breakpoint repair rests on the claim that no solver step lands strictly inside
+the residual 1 ms ramp between the `59.999` and `60.000` breakpoints. That claim
+was previously asserted in a comment and evaluated by nobody. `build_t25.py`
+now computes it in exact decimal arithmetic (`Fraction` over the decimal
+strings, so it is a statement about the times the solver reaches, not about
+binary rounding), refuses to emit a case for which the count is non-zero, and
+writes the count into both `fvOptions` and `CASE.txt`.
+
+| deltaT, s | steps strictly inside (59.999, 60.000) |
+|---|---|
+| 0.5 (the baseline) | **0** |
+| **0.25 (the new case)** | **0** |
+| 0.1 | 0 |
+| 0.01 | 0 |
+| 0.001 | 0 |
+| 0.0005 | **1** — at 59.9995 |
+| 0.0002 | **4** |
+
+The last two rows are the **planted control** (`CLAUDE.md` rule 3): a zero from
+a checker never shown able to return non-zero is not evidence. This checker
+returns non-zero when non-zero is the truth, and returns 0 at 0.25 s. **The
+breakpoint fix survives this step refinement.** It would not survive a step
+finer than 1 ms, and the builder now refuses rather than emitting such a case
+quietly.
+
+**Every dictionary validated with `foamDictionary`, rc 0 on all 14** —
+`system/{controlDict,fvSchemes,fvSolution,blockMeshDict}`,
+`system/module/{blockMeshDict,fvSchemes,fvSolution}`,
+`constant/{regionProperties,g}`,
+`constant/module/{thermophysicalProperties,fvOptions}`,
+`0.orig/module/{T,p}`, `constant/module/polyMesh/boundary`. Read back through
+`foamDictionary -entry -value` rather than by trusting the writer: `deltaT`
+`0.25`, `endTime` `900`, `application` `chtMultiRegionFoam`, `g` `(0 0 0)`, and
+the pulse table `((0 5000) (59.999 5000) (60 1333.33) (900 1333.33))` — the
+corrected breakpoints. `checkMesh` reports **960 cells**, matching the baseline.
+
+**`constant/g` is present**, 357 bytes, `dimensions [0 1 -2 0 0 0 0]`,
+`value (0 0 0)` — verified on disk after the build, not inferred from the
+builder having a line that writes it. The builder's own assertion block also
+refuses on its absence. This is the check the family paid for once already.
+
+**Neither case is queued and neither is launched.** No solver was invoked.
 
 ### Caveat box
 
@@ -311,6 +429,9 @@ never registered.
 | no run hit its ceiling | audit, `capped` column all `no`, total cap 383 core-min | | 349–353 |
 | derived $0.107 actual against $0.075 predicted | audit | | 363–364 |
 | module run: upfront 1.0 core-min, hard ceiling 10.0 core-min | `verification/queue/heat-transfer/refused/T25_MOD_L1.json`, `cost_core_min_estimate` and `cap_core_min_registered` | | — |
+| **the sheet now attributes that 1.0 to the 0.5 s solve specifically** | the record above is for `T25_MOD_L1` and for no other case | | — |
+| **"the 0.25 s solve takes twice as many steps"** | 3600 against 1800 to the same 900 s endTime — arithmetic on `deltaT`, and the only claim the sheet makes about the finer case's cost | | — |
+| **no estimate is quoted for the 0.25 s solve** | **none exists.** No estimate was registered for it and this lane did not invent one. Doubling 1.0 would have been a guess wearing a record's clothes | | — |
 | "the estimate rests on a file-writing rate this configuration has never been measured at" | same file, `cost_basis`: *"The I/O term, not the cell count, is what this estimate is guessing at, and it is a GUESS: this is the lab's first 8-block multi-patch chtMultiRegionFoam case and no measured I/O rate exists for it."* | | — |
 | **not yet spent** | the case has no `log.solve` and no `STATUS` on disk | | — |
 
@@ -326,37 +447,86 @@ names it separately.
    shrinks. Corrected in the sheet; see Part 1, Table 2.
 2. **"Radiation … bounded separately" (sheet A brief) — NOT SUPPORTED.** No
    radiative bound exists. Corrected in the sheet; see Part 1, caveat box.
-3. **"Launch held pending an approval" (sheet C brief) — NOT VERIFIED.** The
-   queue record shows a validator refusal on schema grounds. Not written into
-   the sheet either way; flagged here for the supervisor.
+3. ~~**"Launch held pending an approval" (sheet C brief) — NOT VERIFIED.**~~
+   **CLOSED 2026-08-31 by the supervisor's ruling**: the sheet stays as written,
+   nothing about queues, validators, permissions or approvals appears in
+   customer-facing text, and no explanation is added. See Part 2.
 4. **Total heat 34 080 J is DERIVED, not stated at source.** The arithmetic is
    printed on the sheet.
-5. **The 483.6 core-min upfront figure on sheet A is a SUM computed by this
-   lane** from two separately registered figures; neither registration states a
-   combined estimate. The ratio 1.19 is derived from it.
+5. ~~**The 483.6 core-min upfront figure on sheet A is a SUM computed by this
+   lane.**~~ **RESOLVED 2026-08-31 — the fused figure is off the sheet.** The
+   two phases are reported separately, each estimate and each ratio read from
+   its own record. See Part 1.
 6. **The one-sentence physical explanation on sheet A is lane-attributed
-   framing, not a measured mechanism.** No mechanism is on record.
-7. **The second time-step size for the module is not registered anywhere.** The
-   directive's ladder is for a different mesh level; the sheet names no value.
-8. **Neither sheet was reviewed by the supervisor before I wrote this file.**
+   framing, not a measured mechanism.** No mechanism is on record. (The word
+   "passage" in it was changed to "flow path" — see Part 4.)
+7. ~~**The second time-step size for the module is not registered anywhere.**~~
+   **CLOSED 2026-08-31 by building the case.** 0.25 s is a lane build choice on
+   an ungated feasibility case, not a registered threshold, and is stated as
+   such in Part 2. **The frame remains empty: naming the two step sizes is not
+   solving at them.**
+8. **Neither sheet has been reviewed by the supervisor.**
    `SUPERVISION_CHARTER.md` §3's four checks are the supervisor's own and none
-   is claimed here.
+   is claimed here. In particular the diff of `build_t25.py` is a
+   measurement-script diff and is the supervisor's to read as a diff.
+9. **Neither module case has been solved, and no cost has been incurred by
+   either.** Everything reserved on sheet C is still reserved. The only compute
+   spent today on this case family is meshing: `blockMesh` on the new case and
+   one scratch rebuild for the reproducibility audit, seconds each at 1 rank.
 
 ---
 
 ## PART 4 — THE JARGON CHECK, RUN ON MY OWN OUTPUT
 
-Command run against both `.tex` files, case-sensitive, before commit:
+**RE-RUN 2026-08-31 after the edits above, on FOUR files: both `.tex` sources
+and the `pdftotext -layout` extraction of both rendered PDFs.** The rendered
+text is checked as well as the source, because what a reader sees is the PDF.
+
+Sweep 1, case-sensitive:
 
 ```
-grep -c -E 'T18|T20|T23|T24|T25|Case 3|PASS|GATE|NOT A RESULT|BLOCKED|PENDING|pre-registration|rule |L-|D-|docket|lesson|patch|defect|instrument'
+grep -E -o 'T18|T20|T23|T24|T25|Case 3|PASS|GATE|NOT A RESULT|BLOCKED|PENDING|pre-registration|rule |L-|D-|docket|lesson|patch|defect|instrument'
 ```
 
-**Result: 0 hits in each file, including in the LaTeX comments.** The comments
-were kept clean as well, though they are not user-visible.
+Sweep 2, case-insensitive — **`permission`, `approval` and `queue` were added
+this time**, since a leak there would be an R9 violation of exactly the kind
+the supervisor's ruling turns on:
 
-Two near-misses that were deliberately written around and are worth recording
-so a later editor does not reintroduce them:
+```
+grep -E -i -o 'pass|gate|blocked|pending|rung|tier|verdict|prereg|permission|approval|queue'
+```
+
+| file | case-sensitive | case-insensitive |
+|---|---|---|
+| `ACT_A_thermal_map_sheet.tex` | **0** | **1** |
+| `ACT_C_battery_module_sheet.tex` | **0** | **0** |
+| sheet A, rendered PDF text | **0** | **1** |
+| sheet C, rendered PDF text | **0** | **0** |
+
+**`permission`, `approval`, `queue`, `prereg`, `verdict`, `rung`, `tier`,
+`blocked` and `pending` return zero everywhere, in both files, source and
+rendered.**
+
+**PLANTED CONTROL.** A zero from a checker not shown able to see a non-zero is
+not evidence (`CLAUDE.md` rule 3). Both sweeps were run against a planted line
+reading `GATE FAIL on T25, see rule 4 and the docket; approval pending in the
+queue.` — **4 hits case-sensitive, 4 hits case-insensitive.** The sweeps can see
+what they are hunting.
+
+**THE ONE RESIDUAL HIT, NAMED RATHER THAN HIDDEN.** Sheet A's opening line reads
+"Conjugate heat transfer, steady, axisymmetric duct sector." **`Conjugate`
+contains the substring `gate`.** It is the correct technical name for the
+physics being solved and it is the customer's own vocabulary; rewriting it to
+dodge a substring would make the sheet worse to read (R10) and would be evasion
+of a check rather than compliance with the rule behind it. **It is reported, not
+removed.** No internal vocabulary is present anywhere in either file.
+
+One collision WAS removed, because removing it cost nothing: sheet A's phrase
+"the real passage" became "the real flow path". `passage` contains `pass`;
+`flow path` reads at least as well. Recorded so a later editor does not put
+"passage" back.
+
+Two near-misses from the first pass, still standing:
 
 - `\rule{...}` is used for horizontal rules and for the shaded region. It
   matches `rule` but **not** the searched token `rule ` (with the trailing
@@ -364,6 +534,12 @@ so a later editor does not reintroduce them:
   here so the check's zero is understood rather than assumed.
 - The word "patches" was replaced by "channel-facing surfaces" throughout sheet
   C, and "the comparator/marker" language of the sources appears nowhere.
+
+**Compile state at the same commit:** `pdflatex -interaction=nonstopmode
+-halt-on-error`, **rc 0 and exactly one page for each of the two sheets**
+(`pdfinfo` `Pages: 1`). Sheet A briefly went to two pages when the cost
+paragraph was split; the prose was tightened rather than the content dropped,
+and it is back to one page.
 
 ---
 

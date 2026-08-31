@@ -185,7 +185,7 @@ a matter of picking the wrong correlation. The overshoot is \emph{largest at
 the lowest airspeed} ($3.54\times$ at $10\,\mathrm{m\,s^{-1}}$, falling to
 $3.24\times$ at $40\,\mathrm{m\,s^{-1}}$). \emph{Why:} the hand method collapses
 the whole cooling path onto one resistance taken from a fully-developed
-correlation, while the real passage is a short annular gap in which the flow is
+correlation, while the real flow path is a short annular gap in which the flow is
 still developing and the surface removes heat considerably better than the
 correlation allows.}
 
@@ -258,12 +258,15 @@ $\bullet$ Nothing is claimed between the four airspeeds solved.}
 
 % -------------------------------------------------------------- cost --------
 \vspace{2pt}
-{\footnotesize\textbf{Compute.} Upfront estimate $483.6$ core-minutes; used
-$577.2$ core-minutes, a ratio of $1.19$. The excess is machine sharing --- the
-last twelve points ran twelve-at-once on one sixteen-core machine, where the
-estimate was calibrated at four-at-once. Derived cost $\$0.49$ at
-$\$0.0513$ per core-hour; the rate is stated by the machine's owner, not
-metered on the machine.}
+{\footnotesize\textbf{Compute.} Costed in two phases, and reported as two
+because no combined estimate was ever fixed. \emph{First four points, four at a
+time:} estimate $123.2$ core-minutes, used $120.1$, ratio $0.98$.
+\emph{Remaining twelve, twelve at a time on one sixteen-core machine:} estimate
+$360.4$, used $457.1$, ratio $1.27$. Total used $577.2$ core-minutes. The
+overrun is entirely in the second phase and it is machine sharing --- that
+estimate was calibrated at four-at-once. Derived cost $\$0.49$ at $\$0.0513$ per
+core-hour; the rate is stated by the machine's owner, not metered on the
+machine.}
 
 % ------------------------------------------------------------- voices -------
 \vspace{2pt}

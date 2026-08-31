@@ -9,6 +9,10 @@
 % step-size comparison exists yet. NOTHING IS DRAWN OR TABULATED THERE. Each
 % placeholder carries a LaTeX comment naming exactly what fills it.
 %
+% The module exists at BOTH time steps the sheet names, 0.5 s and 0.25 s, each
+% emitted by the same builder and identical in every other respect. Neither is
+% solved. The sheet therefore names the two step sizes and draws nothing.
+%
 % Every user-visible number on this sheet traces to a source artifact by file
 % and line, and so does the content of each reserved frame below. That mapping
 % lives in README_SOURCES.md in this directory; it is not repeated here, so
@@ -170,7 +174,9 @@ $\mathrm{s}$. Not yet solved.}
 % FILLED BY: per-cell table, 8 rows: cell index; peak temperature, degC;
 % time at which that peak occurs, s; time to steady (dT/dt < 0.01 K/s), s.
 % Uncertainty column to be filled from the step-size comparison of
-% PLACEHOLDER 5, or to read "not quantified" if only one step size is run.
+% PLACEHOLDER 5 once both step sizes are solved, and to read "not quantified"
+% until then. It is a step-size sensitivity and nothing more: a single mesh
+% says nothing about mesh error and the column must not imply that it does.
 \reserved{\textwidth}{14mm}{\textbf{Table 2 --- Peak and time-to-peak, per cell}\\[2pt]
 Reserved. Eight rows: peak temperature, $^{\circ}\mathrm{C}$; time to peak,
 $\mathrm{s}$; uncertainty. Not yet solved.}
@@ -187,14 +193,16 @@ $\mathrm{J}$; closure in \%. Not yet solved.}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.32\textwidth}
 % ---- PLACEHOLDER 5 -------------------------------------------------------
-% FILLED BY: the same module re-solved at a second, smaller time step; peak
-% temperature and time-to-peak compared between the two step sizes, difference
-% quoted in K and in s. The planned ladder for the refined level is
-% dt = 0.02 / 0.01 / 0.005 s; the as-built feasibility case steps at 0.5 s.
-% The second step size for THIS case is not yet fixed -- do not name one here.
+% FILLED BY: the same module re-solved at half the time step; peak temperature
+% and time-to-peak compared between the two, difference quoted in K and in s.
+% BOTH cases now exist on disk: one steps at 0.5 s, one at 0.25 s, and they
+% differ in that single entry and in nothing else. Both were emitted by the
+% same builder, so neither is a hand-copied tree. Neither has been solved, so
+% this frame stays empty and no difference may be written into it.
 \reserved{\textwidth}{14mm}{\textbf{Time-step check}\\[2pt]
 Reserved. Peak temperature, $^{\circ}\mathrm{C}$, and time to peak,
-$\mathrm{s}$, at two time-step sizes. Not yet solved.}
+$\mathrm{s}$, at time steps of $0.5\,\mathrm{s}$ and $0.25\,\mathrm{s}$.
+Not yet solved.}
 \end{minipage}
 
 % ------------------------------------------------------------ caveats -------
@@ -232,10 +240,12 @@ two-dimensional problem across a jump to three dimensions and from $2\,500$ to
 $512\,000$ cells; we said in advance it could be low by up to about
 $3\times$ and it was low by $1.43\times$. No run hit its ceiling. Derived cost
 $\$0.107$ against $\$0.075$ predicted.\\[3pt]
-\emph{Module run:} upfront estimate $1.0$ core-minute, with a hard ceiling of
-$10.0$ core-minutes at which the run stops. \textbf{Not yet spent --- the module
-has not been solved.} The wide ceiling is deliberate: the estimate rests on a
-file-writing rate this configuration has never been measured at.\\[3pt]
+\emph{Module run:} upfront estimate $1.0$ core-minute for the
+$0.5\,\mathrm{s}$ solve, with a hard ceiling of $10.0$ core-minutes at which it
+stops; the $0.25\,\mathrm{s}$ solve takes twice as many steps. \textbf{Nothing
+is spent yet --- neither has been solved.} The wide ceiling is deliberate: the
+estimate rests on a file-writing rate this configuration has never been
+measured at.\\[3pt]
 Costs are derived at $\$0.0513$ per core-hour, a rate stated by the machine's
 owner rather than metered on the machine.}
 \end{minipage}
@@ -268,7 +278,9 @@ using less than half of it, a numerical error bar of $0.0154\,\%$ at worst, and
 a measured order of accuracy of $2.00$ against a theoretical $2.00$. Section 3
 is empty because the module has not run. When it does, the first two figures we
 report --- before any temperature --- are the cumulative energy closure and the
-comparison at a second time step.\vspace{-3pt}}
+comparison between the two time steps, $0.5\,\mathrm{s}$ and
+$0.25\,\mathrm{s}$, which is what tells you the answer is set by the physics and
+not by the step size.\vspace{-3pt}}
 
 \vspace{1pt}
 {\color{rulegrey}\rule{\textwidth}{0.4pt}}\\[0.5pt]
