@@ -1379,6 +1379,182 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**FOURTEENTH SESSION, SECOND WRITE, 2026-08-31T15:55Z (closure-supervisor). HALTED BY SANAA
+MID-TURN TO SAVE TOKENS. THIS IS THE HANDOFF. SUPERSEDES THE BLOCK BELOW ON THE M1 GRADING
+BAR, WHICH IS LIFTED, AND ON A NUMBER I RELAYED THAT WAS FALSE.**
+
+**═══ I RELAYED A FALSE ZERO AND I AM CORRECTING IT AT THE TOP, NOT IN A FOOTNOTE ═══**
+The block below reports the M1 corpus as carrying **0** occurrences of `Floating point
+exception` and `sigFpe`. **THAT IS WRONG.** I re-measured **all 78 M1 `log.run` files, every
+byte, 1.63 GiB**, with an overlapped chunk reader and a two-sided recognition control
+(present-token 78/78, absent-token 0/78 — **READER PROVEN**):
+`trapFpe: Floating point exception trapping enabled` **78/78** · bare `Floating point
+exception` **78/78** · narrow `Foam::sigFpe::sigHandler` **0/78** · `FOAM FATAL` **0/78**.
+**EVERY M1 log carries the banner at line 18; NO M1 log carries a genuine fatal.**
+**THE MECHANISM IS WORTH MORE THAN THE CORRECTION, AND IT IS G2's FAILURE IN THE OPPOSITE
+COSTUME.** The lane that produced the zero **HAD a planted control and reported it PASSING**.
+But the banner sits at **line 18 of a 16-21 MB log** and its fixture was a **small synthetic
+file** that fell entirely inside the reader's window — **so the control never exercised the
+reader's WINDOWING at all.** G2's selftest passed because its synthetic log was **CLEANER**
+than any real log; this one passed because its synthetic log was **SMALLER**. **Both of that
+lane's two reader defects were SCALE defects** — the 4 MiB chunk boundary it caught itself,
+and this window it did not.
+**THE RULE, AND IT IS BINDING ON EVERY BIRTH DEMONSTRATION THIS TEAM WRITES: A PLANTED
+CONTROL MUST MATCH THE REAL ARTEFACT'S *SCALE*, NOT MERELY ITS CONTENT.** At least one
+negative fixture must be a real multi-MB log read END TO END. If a reader windows a file at
+all, the window must be DECLARED and a token demonstrated OUTSIDE it. **A reader that only
+ever sees the first or last N KB of a 20 MB log must say so.**
+
+**═══ THE M1 GRADING BAR IS LIFTED. VERIFICATION RULED, AND MY OWN MEASUREMENT CONFIRMS
+THEIR PREMISE ON MY OWN CORPUS ═══**
+`DEAD_LEVER_AUDIT` §16.1: *"THE FINDING IS TRUE. THE REPAIR IS REFUSED. M1 GRADING IS
+UNBLOCKED."* **I ACCEPT IT, and not on relay** — the 78/78 above is their premise, measured
+by me. **A bare-substring fatal channel would have refused 100 % of M1.** And **0/78 genuine
+fatals means the frozen comparator's missing channel had NOTHING TO CATCH on this corpus, so
+it changed no verdict.** *"The repair is refused"* is also right on my own reasoning: M1 has
+consumed compute, rule 2 has closed its gates, and repairing a frozen comparator post-compute
+**in the flattering direction** is exactly what G1 declined to do. **My position and theirs
+converge; I was wrong only about whether grading had to WAIT.**
+**⚠ THE BAR IS LIFTED FOR *THIS* CORPUS ONLY. The missing channel remains a real defect for
+the NEXT one** — a crashed solve would still sail through — which is why M1b survives as
+**forward protection**, no longer as the thing that unblocks grading.
+**VERIFICATION'S CANNOT-SEE IS THE MORE VALUABLE HALF AND IS ROUTED INTO M1b:** the residual
+regex **silently DROPS `nan`/`inf` iterations**, so a converge-then-diverge run grades
+**CONVERGED at n=1**. LATENT not live (0 unparseable in 9.19 M lines). **THE TRAP TO NAME: a
+parser that DROPS unparseable lines produces a SMALLER n rather than an error, so the failure
+is invisible — it reads as a short but healthy run.** M1b must therefore also assert that
+**the iteration count it parsed EQUALS the count the log actually contains**, not merely that
+the residuals it *did* parse converged.
+
+**═══ WHAT LANDED, AND WHAT IT DOES NOT CLAIM ═══**
+**`e831a4a6`** three halted instruments · **`ddf32f0c`** their two pre-registration drafts.
+**ALL FIVE ARE UNFROZEN AND UNREVIEWED. I HAVE NOT PERFORMED CHECK 1 ON ANY OF THEM.** Both
+python files carry a **12-line refusal banner** so a reader learns that before reading a line
+of code. **NOTHING ANY OF THEM PRODUCES IS A RESULT.** They are committed for one reason:
+**the four R4b instruments once sat untracked through a 32-hour shutdown, one checkout from
+gone.** Both prereg drafts **self-declare NOT FROZEN, which I CHECKED rather than assumed** —
+L-354 instance five was M1's own frozen document whose closing line still said NOT FROZEN.
+**A LANE SELF-REPORT I FALSIFIED IN MY OWN FAVOUR'S OPPOSITE DIRECTION:** the M1b lane
+reported its file *"does not currently parse"*. **`ast.parse` succeeds on BOTH python files.**
+That does not make them complete — they are mid-authoring — but **an agent's report of its own
+brokenness is evidence, not a measurement**, and a supervisor should not repeat a defect claim
+it can cheaply falsify **in either direction**.
+
+**═══ M1-C IS COSTED FROM MEASURED PER-ARM RATES, AND ITS FOUR FINDINGS OUTRANK ITS TABLE ═══**
+Six arms, **estimate 226.570 / cap 330.339 core-min = $0.194 / $0.282 [DERIVED]**, versus M1's
+registered 91.190/132.971 for the same six — **x2.48**. Method validated against known
+answers: truncating the two completed siblings at the failed arms' iteration counts and
+projecting gave pred/actual **1.021, 1.003, 0.999, 1.000**.
+**(1) THERE IS NO RESTART POINT.** All six have `writeControl timeStep` / `writeInterval
+20000` — the only write is AT 20000 and all six hold `0/` and nothing else. **Caps must cover
+the FULL 20000, not the remainder**; a remainder-sized cap would stop the run before it
+reached where the first attempt already got.
+**(2) `PH_Breuer`'s COST IS NOT STATIONARY, AND THE CAUSE IS MEASURED.** Per-iteration cost
+rises **0.065 -> 0.33 s/iter**, tracking the GAMG pressure solver's linear-iteration count
+**~30 -> 194**, from about iteration 10,600 — **IDENTICALLY ON BOTH ARMS**, which ran on
+different nights at concurrency 6.06 vs 8.99, **so it is the CASE, not the BOX.** Hard ceiling:
+`fvSolution maxIter 200`, and the last **1,737** pressure solves are pinned at exactly 200.
+**THIS IS A NUMERICAL FINDING, NOT A COSTING ONE, AND IT IS UNRESOLVED.** A case whose pressure
+solve saturates its iteration ceiling is not obviously converging at all.
+**(3) `kOmega/AR_14_Ret_180` DISAGREES WITH ITS SIBLING BY 18.5 %** (self 3603 s vs
+sibling-scaled 3040 s); its rate ratio 1.26 sits **outside the 0.827-1.218 range measured
+across all 35 completed pairs**, and it ran at LOWER concurrency, so contention does not
+explain it. Conservative cap taken; **anomaly left visible, not smoothed.**
+**(4) THE EVIDENCE IS PROVABLY UNTOUCHED:** sha256, size and mtime of all 46-48 files in each
+of the six roots, captured BEFORE anything was written. **Six empty run roots exist** at
+`/home/ubuntu/closure-data/m1c_completion/` so `EXEC` passes (closing D540/L-353) while the
+birth guard passes on a positive reading. **The guard is SOLVED, NOT DEFEATED.**
+
+**═══ RULINGS OPEN ON MY DESK — NAMED SO THEY ARE NOT DECIDED BY DEFAULT ═══**
+**(a)** R4b-Ib's **parent sha256 pin** and **`R4b-I-ROOT-GUARD`** are a **fifth and sixth**
+change beyond the four I authorised. Neither moves a band; both fall out of the wrapper
+architecture. The lane **flagged rather than took** them — correct.
+**(b)** Three M1-C caps exceed **rule 12's 3600-wall-second stall heuristic**.
+**(c)** Both `AR_1_Ret_180` arms are flagged `excluded_by_supervisor` **with NO reason stated
+in M1's registration** — its only registered exclusion is `NASA_2DWMH`. If they are out the
+totals become 215.825 / 314.672 core-min. **An exclusion without a registered reason is a
+finding.**
+**(d)** M2, unruled since 08-28 — no frozen generator **and** no fatal channel in 758 lines.
+
+**═══ UNTRACKED AND AT RISK — ENUMERATED RATHER THAN SWEPT ═══**
+**~91 further untracked files in closure territory predate this session and are NOT
+committed:** `M1_multimodel_sweep/QUEUE_ENTRIES_DRAFT/` **(79 files, already a named HAZARD)**
+· `M2_kepsilon_family/QUEUE_ENTRIES/` (3) · `docs/papers/closure/_DUPLICATES/` (7) ·
+`Bae2022_SciMARL_GPU/` (1) · `Sirignano2020_DPM_GPU/` (1) · `R4b_pair_control/
+PREREGISTRATION.md` · `Ling2016_TBNN/gpu/arm2/LAUNCH_CHECKLIST.md` ·
+`docs/closure/DOCKET_ROW_DRAFT_R3_PROVENANCE.md` · `MANIFEST_OLD_UNVERIFIED.md`.
+**Sanaa said save everything, and the honest way to honour that is to make them FINDABLE
+rather than sweep 91 uninspected files into the permanent record.** Committing a known hazard
+blind is not preservation. **They are on disk and now listed; none is lost.**
+
+**NEXT SESSION, IN ORDER.** **(1) GRADE M1 — the bar is lifted and this is closure's first
+real verdict set.** Grade the **72** complete arms; the **6** are incomplete. **PARTITION, DO
+NOT AVERAGE: `AR_14_Ret_180` and `AR_7_Ret_180` are ASYMMETRIC PAIRS** (kOmega absent,
+kOmegaSST_null present) and **cannot support a model-to-model comparison at all**;
+`PH_Breuer` is symmetrically absent and therefore still comparable. **(2)** Read all three
+draft instruments **AS DIFFS, personally** (check 1), rule (a)-(c), run `check_filing.py` and
+`queue_entry_check.py`, then freeze **document-and-instrument in ONE commit** and file —
+depth **0 -> 7+**. **Check 4 is mine and inheritable from nobody: R4b-I's `enqueued_by` still
+carries the build lane's written REFUSAL to claim it, and that refusal was CORRECT under rule
+9.** **(3)** Land **L-409** (the `all()`-over-presence lesson) and this session's scale-control
+lesson. **(4)** M2. **(5)** D551's L4 from a measured pilot. **(6) FS2 and FS5 are STANDING
+GATES, permanently re-armed — absent from this list because they never close, not because
+they are done.**
+
+**COST THIS SESSION: 0 core-min of NEW SOLVER compute [MEASURED]; 0 GPU-hours [MEASURED];
+$0.00.** Lane overhead ~5 core-min [DERIVED from wall clock]. **The box ran no solver: queue
+depth stayed 0 and I did NOT clear that violation.** I declined to clear it by filing R4b-I,
+which was **measured to die at launch** — filing something that dies is the APPEARANCE of
+compliance. **C-217 landed for the compute that DID happen** (774.267 actual / 1,293.198
+registered, **ratio 0.5987**).
+
+**COMMITS THIS SESSION (4):** `1d8aacaf` C-217 · `efce061b` board 1 · `e831a4a6` three halted
+instruments · `ddf32f0c` their two prereg drafts.
+
+**ON SANAA'S DESK — UNCHANGED, AND SHE IS BACK.** **(a) GPU: YES** for Ling arm 2 —
+`gpu/arm2/PREREGISTRATION.md` frozen 2026-08-24T16:27:45Z, **re-verified by me across the
+reboot, disk == HEAD `6b0724db…`** with a recognition control. Estimate 3-32 GPU-h, **CAP 40
+GPU-h = $32.19 [DERIVED]** at $0.8048/GPU-h [REPORTED-BY-OWNER]. **Its predecessor ALREADY
+LOST** — arm 1 returned `NOT A RESULT` on a full-batch optimiser where the paper updates
+**342,014 times per epoch**. Capacity **already demonstrated**: arm 1 ran 10.7054 GPU-h on
+this same L4 class. **Two console reads owed BY HER AND NO AGENT:** `gpu1`'s shutdown
+attribute must read **stop**, not terminate; console price supersedes the list. **And arm 1
+idled 7.88 GPU-h = $6.34 [DERIVED] after finishing because no agent existed to report
+completion — a dark card is a failure whoever holds it.**
+**(b) THE R4b INCREMENT RULING**, owed since 08-28 — **but it now buys LESS than it appears
+to**, because `:861-876` leaves G1, G3-G7 as **unconditional `PENDING` stubs** and the
+aggregator tests `PENDING` **before** `GATE REACHED`, so **even a perfect G2 is structurally
+overridden.** Her ruling unblocks the PERMISSION; **R4b-Ib must unblock the INSTRUMENT.**
+**SUBMISSIONS REMAIN PARKED (rule 7).**
+
+**═══ TWO THINGS FOR THE COLD RESUME THAT ARE NOT ON ANY OTHER BOARD ═══**
+**⚠ (i) THE GPU ARM IS *NOT FILED*, SO NO DAEMON WILL LAUNCH IT. I am contradicting the
+handoff I was given, which said it "stays queued for when Sanaa starts the card — the GPU
+queue daemon launches it without you". IT IS NOT QUEUED.** `Ling2016_TBNN/gpu/arm2` is
+**FROZEN, COSTED, AND DELIBERATELY UNFILED**, because its entry has **NO `host` FIELD** and
+`queue_runner.py:785` defaults a missing `host` to **`local`** — **filing it as it stands
+would fire a GPU arm ON THE CPU BOX.** That omission is benign for CPU items and is exactly
+why R4b-I could ignore it; **it is NOT benign here.** **CONSEQUENCE, AND SOMEBODY MUST ACT ON
+IT: if Sanaa starts `gpu1` expecting the card to pick this up, NOTHING WILL HAPPEN and the
+card will idle** — the failure mode that already cost **7.88 GPU-h = $6.34 [DERIVED]** on arm
+1. **The entry must be written with an EXPLICIT `host` and filed BEFORE the card is started,
+and that is one commit of work, not a campaign.**
+**(ii) A FOSSIL-DELETION LIST IS OWED TO CLOSURE BY VERIFICATION AND WILL ARRIVE AFTER I
+STOP.** It is **NOT LOST — it WAITS.** Nothing in it is to be executed by whoever finds it
+first: a deletion list touching this territory meets the standing hazard at the head of this
+section — **several closure paths are STAGED-AS-DELETED while existing untracked on disk**,
+so a list of "files to remove" and a list of "files git already thinks are gone" are
+**dangerously easy to confuse**. **INSPECT, NEVER REVERT; the index is the chief's call.**
+
+**BLOCKED.** M1 grading — **no longer blocked**, just not yet run. All three drafts — behind
+**my** check 1 and freeze, none behind the box. R4b solve arm — Sanaa **plus** its own grader.
+
+**VERIFY (NOT checked by me):** `check_filing.py` and `queue_entry_check.py` on all five new
+files (baseline was rc=1, 40 violations, none under `R4b_pair_control`); the `_dev` B3
+record's arithmetic (I read its verdict, not its numbers); RC1/RC2's on-disk state; whether
+`launched/`'s 81 files reconcile to 78 M1 + 3.
+
+
 **FOURTEENTH SESSION, FIRST WRITE, 2026-08-31T15:10Z (closure-supervisor). NEWEST FIRST.**
 **SUPERSEDES THE BLOCKS BELOW ON WHY R4b-I IS NOT FILED — THE REASON THEY GIVE HAS EXPIRED AND
 THE TWO REAL REASONS ARE WORSE — AND ON M1's COMPLETION COUNT, WHICH IS 72, NOT 76.**
