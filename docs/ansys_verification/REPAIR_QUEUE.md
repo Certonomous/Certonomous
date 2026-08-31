@@ -19,11 +19,28 @@ Cap-hit reruns; the cheapest conversions on the register. **The rule-12 line: th
 
 | row | case | record cited |
 |---|---|---|
-| 11 | VMFL003-M2 arm C | REGISTER L37 — `PER_ARM_CAP=40` fired at **39.93/40**, no `End` line, rule 4 fails |
-| 12 | VMFL003-M2 arm D | REGISTER L38 — cap fired to the second, **rc=124, 39.99/40** |
+| ~~11~~ | ~~VMFL003-M2 arm C~~ | **RECLASSED `GATE-DESIGN` 2026-08-31 — moved to tier 5. See the ruling below.** |
+| ~~12~~ | ~~VMFL003-M2 arm D~~ | **RECLASSED `GATE-DESIGN` 2026-08-31 — moved to tier 5. See the ruling below.** |
 | ~~32~~ | ~~VMFL017-R2~~ | **MOVED TO THE BACK OF THE QUEUE 2026-08-31 — see the ruling below. Row 32 itself is UNTOUCHED and stands as `NOT A RESULT`.** |
 
 **Rows 11 and 12 are two arms of ONE case, so a single successor converts both.** Both successors dispatched 2026-08-31.
+
+### RULING — **THE `BUDGET/KILL` TIER IS EMPTY. ALL THREE ROWS FAILED INSPECTION, AND SANAA'S "EASIEST" BUCKET CONTAINS NOTHING.**
+
+Two lanes were dispatched to build the three successors. **Both refused, and both were right to.** Rows 11/12 below, row 32 further down. Neither wrote a registration; neither spent a core-minute of solver time.
+
+**ROWS 11 AND 12 — RECLASSED `BUDGET/KILL` → `GATE-DESIGN`, moved to tier 5.**
+
+- **The kill removed nothing.** The gate quantity `dp_pa` reached **within one part in 10⁹ of its own final value by iteration 268** at arm D's killed level — which was killed at **5949**. Rung-wide, of **141.025 core-min** consumed, **132.952 — 94.3 %** — was spent *after* the graded quantity was already within 1 ppm of final. **The cap was not too small for the physics; the frozen `endTime` was ~80× larger than the physics needed.**
+- **A bigger cap cannot convert either row, and no assumption about the unfinished iterations is required.** The frozen convergence leg is `RESID_TOL = 1.0e-8` on `p, Ux, k, ε/ω`. **Arm C's three Roache gate levels are ALL COMPLETE at `endTime` with `rc=0`, and all three FAIL that leg** (L3: k 1.861e−08, ε 7.967e−08). **Arm D's L1 and L2 both ran to `endTime` and both fail** (L2: Ux 5.127e−08, k 1.221e−07, ω 1.116e−06). **Rule 5 step 1 puts the disqualifier at the COMPLETE levels**, so whatever the killed level would have done, both arms are already `NOT A RESULT`.
+- **The clause is UNMEETABLE, not merely unmet.** ε/ω park at 1.39e−08–7.97e−08 at **every level of every arm** — and **arms A and B ran the full `endTime` on the full budget and hit the same floor** (rows 9, 10). **A defect that survives an unlimited budget is not a budget defect.** It is the same clause behind rows 6, 9 and 10, which are already `GATE-DESIGN`.
+- **§2n.3 requires the LOWEST-NUMBERED class the record supports**, and `GATE-DESIGN` (4) beats `BUDGET/KILL` (8). The original classing was sound on what was visible then — "cap fired, no `End`, rule 4 fails" — and this is a refinement on deeper evidence, not an error.
+- **§12.2 = DIFFERENT**: the 21,744 Pa reference is the **Moody-chart smooth-pipe branch, an empirical correlation**, which the exact-PDE rule names explicitly. Ceiling `GATE REACHED`; `PASS` unavailable and none sought.
+- **A THIRD CONSERVATION-PINNING, and this one lands on a diagnostic rather than the gate.** The `f_dev` diagnostic is built from `pSlabA − pSlabB`, and that slab difference is **bit-identical between L2 and L3 in all four arms — d21 = 0 exactly** — because fully-developed pipe pressure is exactly linear in x and the 500-mesh slab faces are a subset of the 1000-mesh faces. **`f_dev` carries zero axial-mesh information by construction.** The **gate** quantity is *not* pinned (d21 = 0.0745–0.338 Pa, ~7,700× the iterative plateau noise), so the registered gate is sound — only the secondary diagnostic is affected.
+
+**THE SUCCESSOR IS NOT MINE TO AUTHORISE.** The only clause a clean successor could carry unchanged is the one proved unmeetable, so a successor requires **changing a convergence threshold** — and a threshold change is **Sanaa's** under `ESCALATION` §4.1 / D539. **Referred, not decided here.**
+
+**AND THE RULE-2 DOOR IS NOW SHUT ON THESE ARMS.** Establishing all of the above required reading the graded values — **C/L3 = 20,451.523 Pa (−5.943 %)** and **D/L3 = 20,349.106 Pa (−6.414 %)**, both outside the frozen ±2.5 % band. **Any gate, band, threshold, cap, ceiling or label written for these arms from now on is written by someone who has seen the answer.** This is the **third** time today that establishing whether a repair was possible consumed the prediction-first claim on the repair — after VMFL029 and VMFL038. **It is a standing design constraint, not an accident:** where a repair's viability is itself in question, the only clean escape is a threshold fixed by an a-priori argument, as VMFL038-R2's limb-B 0.5 % was.
 
 ### RULING — ROW 32 IS CORRECTLY CLASSED AND WRONGLY PLACED: **CAUSE CLASS IS NOT REPAIR CLASS**
 
