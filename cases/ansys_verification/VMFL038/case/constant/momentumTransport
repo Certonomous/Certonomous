@@ -1,0 +1,3 @@
+FoamFile { version 2.0; format ascii; class dictionary; object momentumTransport; }
+// VM2026R1 p.131 Physics/Models: "Laminar Flow".
+simulationType  laminar;

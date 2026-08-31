@@ -1,0 +1,21 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// VMFL038 - Falling film over an inclined plane, VM2026R1 p.131-132.
+// SINGLE-PHASE, LAMINAR, GRAVITY-OFF, PRESSURE-DRIVEN (PREREGISTRATION sec.2):
+// the driving head is imposed ENTIRELY as the outlet gauge pressure; there is no
+// gravity vector, no VOF and no wall-film model. The free surface is a ZERO-SHEAR
+// boundary (symmetryPlane), NOT a VOF interface.
+//
+// The flow is pressure-driven, so NO velocity is prescribed at either pressure
+// boundary: U is zeroGradient at inlet and outlet and the profile is whatever the
+// pressure gradient produces. wall = the inclined plane, no-slip. freeSurface =
+// zero shear. Started from rest; the converged answer is independent of the guess.
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (0 0 0);
+boundaryField
+{
+    inlet        { type zeroGradient; }
+    outlet       { type zeroGradient; }
+    wall         { type noSlip; }
+    freeSurface  { type symmetryPlane; }
+    frontAndBack { type empty; }
+}

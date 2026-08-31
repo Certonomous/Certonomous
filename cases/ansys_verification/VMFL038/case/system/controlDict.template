@@ -1,0 +1,31 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    runTime;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // KINEMATIC wall shear stress (m2/s2) on the inclined plane. Written at the
+    // residualControl-terminated stop. The comparator reads the x-component on the
+    // `wall` patch, takes |.|, multiplies by rho = 800 to get PHYSICAL Pa, and
+    // averages over the fully-developed streamwise window (grade_vmfl038.py).
+    wallShearStress
+    {
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        patches         (wall);
+        writeControl    writeTime;
+        executeControl  writeTime;
+    }
+}

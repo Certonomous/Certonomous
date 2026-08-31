@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*/
+FoamFile { version 2.0; format ascii; class dictionary; object blockMeshDict; }
+// VMFL038 - Falling film over an inclined plane, VM2026R1 p.131-132.
+//
+// GEOMETRY DERIVED FROM THE MANUAL'S OWN PRINTED NUMBERS (PREREGISTRATION sec.2,
+// RULING 2), the archive cited only as corroboration and NEVER as a source:
+//   L     = Delta_p / (rho*g*sin(beta)) = 706.32 / (800*9.81*sin(30deg)) = 0.18 m
+//   delta = L / 18                      = 0.01 m   (manual's printed 1:18 ratio)
+// The manual's PRINTED "1 m X 18 m" is a metre-for-centimetre UNITS ERROR, exactly
+// 100x the self-consistent geometry (MANUAL_DEFECT_geometry_units.md). It is NOT
+// used; the derived 0.01 m x 0.18 m is.
+//
+// 2-D PLANAR (empty front/back). Single block, UNIFORM grading -- a uniform mesh
+// is load-bearing: 2nd-order FV reproduces the exact parabolic velocity to
+// round-off on it, which is WHY the gate is wall shear and not velocity (RULING 1).
+//
+//   x : streamwise (flow direction), 0 -> L = 0.18 m,  Nx = 180 FIXED across the
+//       whole triple (the wall-shear truncation error lives in the film-normal
+//       direction only, so only Ny is refined -- PREREGISTRATION sec.4).
+//   y : film-normal, 0 (the inclined plane, no-slip WALL) -> delta = 0.01 m
+//       (the zero-shear free surface). __NY__ substituted by run_vmfl038.sh per
+//       level: L1=40, L2=80, L3=160, ratio r = 2.
+//   z : span, 1 cell, empty.
+scale 1;
+
+vertices
+(
+    (0.00  0.00  -0.005)   // 0
+    (0.18  0.00  -0.005)   // 1
+    (0.18  0.01  -0.005)   // 2
+    (0.00  0.01  -0.005)   // 3
+    (0.00  0.00   0.005)   // 4
+    (0.18  0.00   0.005)   // 5
+    (0.18  0.01   0.005)   // 6
+    (0.00  0.01   0.005)   // 7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (180 __NY__ 1) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    // pressure inlet, x = 0
+    inlet       { type patch;         faces ( (0 3 7 4) ); }
+    // pressure outlet, x = L = 0.18 m
+    outlet      { type patch;         faces ( (1 2 6 5) ); }
+    // THE INCLINED PLANE, y = 0 -- no-slip WALL the wall shear is graded on
+    wall        { type wall;          faces ( (0 1 5 4) ); }
+    // the free surface, y = delta = 0.01 m -- ZERO SHEAR (symmetryPlane)
+    freeSurface { type symmetryPlane; faces ( (3 2 6 7) ); }
+    frontAndBack { type empty; faces ( (0 1 2 3) (4 5 6 7) ); }
+);
