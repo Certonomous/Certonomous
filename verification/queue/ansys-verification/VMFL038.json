@@ -1,0 +1,21 @@
+{
+  "team": "ansys-verification",
+  "case_id": "VMFL038",
+  "prereg_commit": "c5ae8427a1e649b61a6362daa6b988911075fb2c",
+  "prereg_path": "cases/ansys_verification/VMFL038/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/ansys_verification/VMFL038/run_vmfl038.sh",
+    "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL038",
+  "ranks": 1,
+  "cost_core_min_estimate": 6,
+  "cap_core_min_registered": 15,
+  "cap_core_min_shape": "THE 15 IS A RUNNING TOTAL ACROSS ALL THREE SOLVES (L1, L2, L3), NOT A PER-LEVEL CAP. run_vmfl038.sh draws it down level by level (REMAIN = max(0, 15 - TOTAL_CORE_MIN); TIMEOUT_S = int(REMAIN*60/RANKS); TIMEOUT_S <= 0 aborts BUDGET EXHAUSTED exit 2). The real per-run guard is the launcher's own `setsid timeout` with rc captured INSIDE the detached subshell (L-336: setsid timeout returns 0 for every outcome when rc is taken outside the wrapper). An overrun STOPS the run at the first non-zero rc; later levels are not launched. PREREGISTRATION.md sec.7.",
+  "cost_basis": "DERIVED, NOT MEASURED. Estimate 6 core-min is the pre-registered figure at PREREGISTRATION.md sec.7, frozen before graded compute; cap 15 core-min running total across the three solves. Dollars: 6 core-min = 0.1 core-h = $0.00513, and the 15 core-min cap = 0.25 core-h = $0.01283, both at the owner-stated c7a.4xlarge rate of $0.0513/core-h -- reported-by-owner and DERIVED, never measured, because this box cannot read its own billing (COMPUTE_BUDGET_CHARTER sec.5). Zero GRADED solver core-minutes have been spent on VMFL038; the only compute so far is a scratch feasibility solve (L1, converged 2093 iters, 13.4 wall-s) and a scratch Clause-B smoke (L1 endTime 10, 0.0167 core-min), neither in the graded run tree.",
+  "memory_floor_gb": 2.0,
+  "enqueued_by": "ansys-lane-opus48, on the ansys-verification supervisor's FREEZE-CLOCK reordering of 2026-08-31 relaying Sanaa's directive of 2026-08-31T15:13Z. THE FREEZE IS COMMIT c5ae8427a1e649b61a6362daa6b988911075fb2c, at which the graded run root verification/runs/ansys_verification/VMFL038/ DID NOT EXIST (checked 2026-08-31T15:38:49Z). The supervisor's SUPERVISION_CHARTER sec.3 check 4 (pre-registration committed before compute) is the supervisor's own; this lane performed the mechanical freeze verification (grade_vmfl038.py --verify-frozen: PREREGISTRATION.md and grade_vmfl038.py disk == HEAD blob, rc 0) and does not substitute for it (CLAUDE.md rule 9).",
+  "cwd_note": "cwd IS THE RUN ROOT, NOT THE CASE DIRECTORY (ANSYS_VERIFICATION_CHARTER sec.11.4, FILING_CHARTER R6): scripts/queue_runner.py writes STATUS.<case_id>, the wrapper stdout and CAP_OVERRUN.txt INTO cwd, which must not land beside the frozen pre-registration, comparator and inputs. The run root was created EMPTY at enqueue time (2026-08-31, after the freeze) purely to satisfy the validator's AGE-GUARD/cwd-exists clause, which refuses a cwd that does not exist because Popen(cwd=) raises FileNotFoundError. THE RULE-4 AGE GUARD IS UNCONSUMED: the directory is EMPTY -- no 0/, no numeric time directory, no level directory -- and run_vmfl038.sh's age guard tests $RUN_ROOT/$L per level, not $RUN_ROOT. PREREGISTRATION.md sec.0 and sec.11 record that the run root DID NOT EXIST at the freeze; this line records the post-freeze change of state.",
+  "prereg_commit_verified": "disk == HEAD blob at c5ae8427 for both PREREGISTRATION.md (a1ac010431a3e65f8a4ee9af8b0edadf81d1f248) and grade_vmfl038.py (04a2606e11ecfb36dd59e65606aab6f8e9990d38), by grade_vmfl038.py --verify-frozen and the launcher's own launch-time HEAD-blob comparison; all 9 case inputs also hash equal to their HEAD blobs."
+}
