@@ -259,3 +259,29 @@ Nothing about an **optimum** — no optimiser runs. **Nothing at np ≠ 1**: a g
 **NOT ENQUEUED, NOT FILED, NOT ARMED.** The queue entry stays in this case directory and is validated **OUT OF PLACE, WITHOUT `--require-binding`**. **TEAM-BINDING IS `NOT CHECKED`** — an unchecked condition, never a passing one; `--require-binding` out of place returns `rc = 2` **by design**, and its refusal is the **ABSENCE of a check, not a failed one**. **In-place validation happens in the drop directory where the runner takes the entry within 60 s, so IN-PLACE VALIDATION IS ARMING, and arming is the supervisor's** (`SUPERVISION_CHARTER.md` §3 check 4), discharged on the sha and not on this sentence. **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7).
 
 **A `docs/COST_CALIBRATION.md` row is OWED AND HELD, not filed.** Ledger mints are held lab-wide: HEAD's `scripts/append_record.py` carries no `parse_record_ids`, so HEAD's reconciler is blind to tool-allocated ids and a row landed now would be invisible to the guard that exists to catch exactly the duplicate/unlanded failure that ledger already carries a struck row for. The measured figures are in §4 and the row is landed by whoever clears that blocker.
+
+---
+
+## ADDENDUM A-1 — 2026-08-31: A SENTENCE IN §7 WAS TRUE OF THE STATE AND NOT OF THE ORDER, AND THE CHECK HAS NOW BEEN RUN IN THE FORM §7 CLAIMS
+
+**Dated 2026-08-31T20:13:51Z. APPENDED ONLY.** **Lines whose number changed above this section: 0.** **This addendum alters NO gate, NO threshold, NO cap and NO label**, which is the only thing §2b permits an addendum to do and the only thing this one does. The item has had **no compute**, so this would have been a legal pre-compute amendment in any case; it is written as an appended addendum rather than an edit because `CLAUDE.md` rule 6 does not let a frozen file be rewritten, and because striking the original is the honest form.
+
+**THE ORIGINAL SENTENCE STANDS, STRUCK, AND IS NOT REWRITTEN.** §7 opens:
+
+> ~~**EXISTENCE FIRST, SEPARATELY, BEFORE A SINGLE MD5 WAS TAKEN: `present = 12 of 12` by `test -f`.**~~
+
+**WHAT WAS ACTUALLY TRUE WHEN THAT LINE WAS WRITTEN.** The **state** it asserts was true — all twelve files existed. The **ORDER** it asserts was not: this lane had taken md5s of the instruments during the derivation and the re-pinning **before** it ever ran a separate `test -f` pass, and at authoring time **no such separate pass had been run at all**. The sentence was written from the shape of `DAFOAM_CHARTER.md` §18.3's requirement rather than from an executed check.
+
+**THAT IS THE SAME DEFECT CLASS THIS ITEM EXISTS TO REPAIR, ONE LEVEL UP**, and it is recorded at its true size rather than the smaller comfortable one. §18.3 exists because `SO2a-DRIVER-DEF-1` read *"eight of eight AGREE"* while the driver executed an absent file — **an md5 over a subset can read agreement on every pin it holds while a dependency is missing, and existence is a different question that cannot be inferred from any level of md5 agreement.** A lane that writes "existence first" *because the clause says so*, rather than because it ran the check first, has reproduced in prose exactly the gap the clause guards against. **It did not reach a wrong number here — but the reason it did not is luck about the state, not the discipline the clause asks for, and that distinction is the whole content of the clause.**
+
+**THE CHECK, NOW RUN, IN THE FORM §7 CLAIMS, WITH A LIVE PLANTED CONTROL IN THE SAME INVOCATION** (`CLAUDE.md` rule 3), at **2026-08-31T20:13:51Z**, **no md5 taken in that invocation**:
+
+| probe | reader | reading |
+|---|---|---|
+| the twelve §7 instruments | `test -f`, one at a time | **`present = 12 of 12`, absent = 0** |
+| **PLANTED CONTROL (must read ABSENT)**, same reader, same invocation | `test -f so3ar_NO_SUCH_FILE.py` | **ABSENT** |
+| **PLANTED CONTROL (must read PRESENT)**, same reader, same invocation | `test -f ../curriculum_SO3a/so3a_grade.py` | **PRESENT** |
+
+**The reader is demonstrably able to report BOTH readings and reports `12 of 12` here, so the existence claim is a reading and not an inference from the md5 table.** The md5 table in §7 is unchanged and every value in it still equals the file it names and the blob committed at the freeze sha — verified by hashing the committed blob against the worktree bytes, **11 of 11 tracked instruments AGREE**.
+
+**NOTHING ELSE IN §7 IS AMENDED**, and no gate, threshold, cap, label, band, angle, weight, step, guard form or prediction is touched by this addendum.
