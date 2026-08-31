@@ -216,7 +216,18 @@ def _selftest(tmpdir):
             lambda ny=ny: check_aspect_ratio(180, ny),
         )
 
-    # 6. no asserts in this file's own bytes
+    # 6. MARKER_MESHGEN_MAIN -- the CLI path the launcher actually calls, end to end.
+    #    A selftest that exercises only the library functions leaves main()'s own
+    #    formatting untested; this one shipped a TypeError there and the smoke, not the
+    #    selftest, caught it. It does not recur.
+    print("MARKER_MESHGEN_MAIN")
+    for lvl in ("L1", "L2", "L3"):
+        outp = os.path.join(tmpdir, "cli." + lvl)
+        rc = main(["--level", lvl, "--template", tpl, "--out", outp])
+        check("main() CLI path returns 0 at %s and writes the file" % lvl, rc == 0 and os.path.exists(outp))
+    refuses("main() refuses with neither --level nor --nx/--ny", lambda: main(["--template", tpl, "--out", os.path.join(tmpdir, "x")]))
+
+    # 7. no asserts in this file's own bytes
     import ast as _ast
 
     with open(os.path.abspath(__file__)) as fh:
@@ -254,7 +265,7 @@ def main(argv):
     dx, dy, ar = check_aspect_ratio(nx, ny)
     counts = generate(args.template, args.out, nx, ny)
     print(
-        "MESH OK  Nx=%d Ny=%d Nz=1  cells=%d  dx=%.6e dy=%.6e  dx/dy=%.6f  -> %s"
+        "MESH OK  Nx=%d Ny=%d Nz=%d  cells=%d  dx=%.6e dy=%.6e  dx/dy=%.6f  -> %s"
         % (counts[0], counts[1], counts[2], counts[0] * counts[1], dx, dy, ar, args.out)
     )
     return 0

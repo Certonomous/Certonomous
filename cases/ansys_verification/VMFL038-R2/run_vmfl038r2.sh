@@ -131,6 +131,7 @@ python3 -O "$SCRIPT_DIR/make_mesh_vmfl038r2.py" --selftest > /tmp/vmfl038r2_mg.$
 grep -qF 'MARKER_MESHGEN_VALUEPOS' /tmp/vmfl038r2_mg.$$   || { echo "ABORT: mesh generator did not DRIVE the value-position discriminator"; exit 2; }
 grep -qF 'MARKER_MESHGEN_ASPECT'   /tmp/vmfl038r2_mg.$$   || { echo "ABORT: mesh generator did not DRIVE the aspect-ratio guard"; exit 2; }
 grep -qF 'MARKER_MESHGEN_TOKENSET' /tmp/vmfl038r2_mg.$$   || { echo "ABORT: mesh generator did not DRIVE the token-subset guard"; exit 2; }
+grep -qF 'MARKER_MESHGEN_MAIN'     /tmp/vmfl038r2_mg.$$   || { echo "ABORT: mesh generator did not exercise its own CLI path (a TypeError once lived there)"; exit 2; }
 grep -qF 'MARKER_MESHGEN_AST assert_count=0' /tmp/vmfl038r2_mg.$$.O || { echo "ABORT: mesh generator AST marker absent under python3 -O"; exit 2; }
 echo "  mesh generator OK: --selftest green under both interpreters, all three guards driven"
 rm -f /tmp/vmfl038r2_mg.$$ /tmp/vmfl038r2_mg.$$.O
