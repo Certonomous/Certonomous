@@ -2365,3 +2365,42 @@ repaired silently.**
   and lands as its own commit with its own planted control — under `VERIFICATION_CHARTER` v1.13,
   the assembler carries a measured sha-resolution rate, so amending it re-measures that rate from
   committed blobs over the same sample, with a mutation shown to move the rows.
+
+---
+
+## DATED SECTION, 2026-08-31 — **[SANAA-DIRECT] THE STANDING CAPABILITY DEFINITION AND THE CAUSE CLASS ENTER THE MATRIX; AND THE TIER ORDERING HER DEFINITION PRESUPPOSES IS RULED, BECAUSE IT WAS WRITTEN DOWN NOWHERE**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`, proved by a byte-prefix check against the HEAD blob in the same invocation as the write.** Appended by the verification-supervisor. **Zero compute; this section buys none and reports none.**
+
+**Authority:** Sanaa's GRADING TRANSPARENCY ORDER, 2026-08-31, captured verbatim at `4116024a` (`etc/sessions/2026-08-31T2055Z_sanaa_grading_transparency_order.md`), **read at source before this was written** (standing rule 9). Her bullet 3 directs that the standing definition *"gets merged with the appropriate md files dedicated to the grading/lab capabilities."* **This file is the primary such target because it is where the rubric lives (§1, `:42-58`) and it is the only file in the lab that DEFINES the word `SURVEYED` (`:50-58`).** The full mechanics are `VERIFICATION_CHARTER` **§2n** (v1.29–v1.30).
+
+### A. THE STANDING DEFINITION — her words, so the question never needs asking again
+
+> **"Can the lab run and post-process X?"** is answered **`YES`** exactly when X has a row at **`SURVEYED`-or-better** whose cause classes **exclude `INSTRUMENT`, `BOOKKEEPING` and `NAMING/PLUMBING`**.
+>
+> *"Everything else is referee trouble, and referee trouble never again wears a physics costume in any report I read."* — Sanaa, `4116024a`
+
+**Her purpose, in her own words, and it governs how every clause below is read:** *"This is mostly for me to start separating what breaks due t physics/ numerics without a plausible explanation vs what breaks according to the theory vs what breaks bc of bookeeping etc."*
+
+### B. ⚠ THE TIER ORDERING — RULED HERE, BECAUSE `SURVEYED`-OR-BETTER CANNOT BE EVALUATED WITHOUT ONE
+
+**MEASURED: no file in this repository states an ordinal ranking of the five tiers.** They are defined at `:50-58` and operatively assigned at `:200-209`, and nothing orders them. Her definition is **inoperative** until one exists.
+
+> **RULING `[lab-attributed]`:** **`HOLDS` > `GATE REACHED` > `SURVEYED` > { `NOT HELD` , `NEVER RUN` }**
+> — therefore **`SURVEYED`-or-better = { `SURVEYED` , `GATE REACHED` , `HOLDS` }**.
+
+**The ground is this file's own Ruling 1.** Its final form (`:200-209`) assigns the top three by **counting green V/G/P columns** — `HOLDS` 3, `GATE REACHED` 1–2, `SURVEYED` 0 — so those three are **already totally ordered by a monotone quantity in this rubric**. The other two are assigned by a **different predicate** and neither can outrank `SURVEYED`: `NOT HELD` is *"an honest FAIL, or a blocker"* — a gate that **returned FAIL** — and `NEVER RUN` is *"no solver has run in this class."* **A row that failed, and a row that never ran, cannot be "better" than a row carrying breadth evidence.** They are not ordered against each other here because nothing turns on it.
+
+**THE STANDING THIS RULING CLAIMS, STATED PLAINLY:** `:26-41` of this file discloses that the rubric and the five tier words are **the chief's reconstruction** and that ***"Sanaa has not ruled on the rubric."*** This ordering is therefore `[lab-attributed]` and **is the first thing to fall if she rules otherwise.** It is made because her definition cannot be applied without it, not because the question is settled.
+
+### C. THE CAUSE CLASS IN THIS MATRIX — WHERE IT LIVES AND WHERE IT DOES NOT
+
+Every non-`PASS` **verdict** now carries exactly one of eight cause classes (`VERIFICATION_CHARTER` §2n.1), assigned **by the grading record and cited** (§2n.2), chosen by the **precedence order** when a row fits two (§2n.3), and **`UNCLASSED`** — fail-closed, not a ninth class — where the record supports none (§2n.4).
+
+- **A CAUSE CLASS ATTACHES TO A VERDICT, NEVER TO A TIER.** §1.1 (`:60-79`) fences the tier vocabulary from `CLAUDE.md` rule 1's verdict vocabulary, and that fence stands: *a tier states what a row's coverage is, a verdict states what a gate did.* **A matrix row carrying a tier and no verdict takes no class** — and is not thereby capable.
+- **THE 153 ROWS ARE NOT ENUMERATED IN THIS FILE** (`:828`: *"Full table in the audit record"*), and the five family contributions carry **five different table shapes**. **There is no shared schema here to add a column to.** So **each family appends its own cause-class block to its own contribution file**, in the single schema fixed at `VERIFICATION_CHARTER` §2n.10, and **this file carries the CENSUS only**.
+- **THE CENSUS IS NOT YET FILLED, AND SAYING SO IS THE POINT.** No family has backfilled at the time of writing, so the honest census is **153 rows, 0 classed, `UNCLASSED` 153**. **That figure is published rather than withheld** (§2n.4): an unexplained row is not evidence that nothing is wrong with it. It will fall as each team backfills **its own** rows from **existing records, with no re-runs** (§2n.7).
+
+### D. WHAT THIS SECTION DOES NOT DO
+
+**It moves no tier, re-grades no row, and edits nothing above it.** It adds no sixth tier word and changes none of the five. **It does not touch §1's rubric** — the V/G/P columns and their rulings 1–7 stand exactly as written. And it **does not make `docs/CAPABILITY_GRID.md` the home of this definition**: that file is **generated** (`docs/CAPABILITY_GRID.md:1,3`, by `scripts/assemble_capability_grid.py`), a hand edit there is destroyed on the next assembly, and — **measured** — the word `SURVEYED` does not appear in it at all, because it runs on Sanaa's separate three-word capability vocabulary. **The grid cross-references this section; it does not restate it.**

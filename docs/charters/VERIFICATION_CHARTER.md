@@ -4014,3 +4014,140 @@ class at all, because there is nothing to explain.
 | new duty created | **3** — class every non-`PASS`; headline split; backfill own rows |
 | referred to Sanaa | whether `GATE-DESIGN` (and `BUDGET/KILL`) join her three capability exclusions |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.30, 2026-08-31 — **§2n.9–§2n.13: THE CAUSE CLASS MEETS THE REAL FILES, AND THREE OF ITS FOUR MECHANICS HAD TO CHANGE. A COLUMN CANNOT BE ADDED TO AN APPEND-ONLY REGISTER, AND `SURVEYED-OR-BETTER` PRESUPPOSED AN ORDERING NOBODY HAD WRITTEN DOWN**
+
+**Lines whose number changed above this section: 0.**
+
+**v1.29 designed §2n against Sanaa's order. This amendment is what a survey of the actual
+files did to that design** — four findings, three of which forced a mechanic to change.
+**Recorded as a correction to my own amendment of ninety minutes ago**, because the
+alternative is a rule that cannot be executed against the files it names.
+
+### §2n.9 ⚠ `SURVEYED-OR-BETTER` PRESUPPOSED A TIER ORDERING THAT IS WRITTEN DOWN NOWHERE
+
+**MEASURED:** the five tiers — `HOLDS` / `GATE REACHED` / `SURVEYED` / `NOT HELD` /
+`NEVER RUN` — are defined at `docs/COVERAGE_MATRIX.md:50-58` and operatively re-stated at
+`:200-209`, **and no file in this repository states an ORDINAL RANKING of them.** Sanaa's
+standing definition (§2n.6) says *"`SURVEYED`-or-better"*, which **cannot be evaluated
+without one.** A `grep` for a tier ordering across `docs/` returns only two teams' own
+`GRADING_CHAIN.md` files quoting her phrase back.
+
+**This is a gap, not a formatting problem, and her bullet 1 says to call it what it is.**
+
+> **RULING `[lab-attributed]`, and overrulable by her:** the ordering is
+> **`HOLDS` > `GATE REACHED` > `SURVEYED` > { `NOT HELD` , `NEVER RUN` }**, and therefore
+> **`SURVEYED`-or-better = { `SURVEYED` , `GATE REACHED` , `HOLDS` }.**
+
+**THE GROUND, so this is derived rather than asserted.** Ruling 1's final form
+(`:200-209`) assigns the top three by **counting green V/G/P columns** — `HOLDS` 3,
+`GATE REACHED` 1–2, `SURVEYED` 0 — so those three are **already totally ordered by a
+monotone quantity in the matrix's own rubric**. The remaining two are assigned by a
+**different predicate** and neither can be "better" than `SURVEYED`: `NOT HELD` is *"an
+honest FAIL, or a blocker"* — a gate that **returned FAIL** — and `NEVER RUN` is *"no
+solver has run in this class"*. **A row that failed and a row that never ran cannot
+outrank a row carrying breadth evidence**, so both sit below, and this ruling does not
+order them against each other because nothing turns on it.
+
+**⚠ THE STANDING I AM CLAIMING FOR THIS, STATED HONESTLY:** `docs/COVERAGE_MATRIX.md:26-41`
+discloses that the rubric and the five tier words are **the CHIEF'S reconstruction** and
+that ***"Sanaa has not ruled on the rubric."*** So this ordering is `[lab-attributed]`,
+made because her definition is **inoperative without it**, and it is the first thing to
+fall if she rules otherwise.
+
+### §2n.10 ⚠ THE REGISTER CANNOT TAKE A COLUMN — AND IT HAS ALREADY SOLVED THIS ONCE
+
+**MEASURED, and it defeats v1.29's wording.** `ANSYS_VALIDATION_REGISTER.md:5-7` is
+explicit: ***"a row is never edited after it lands; a correction or a re-run is a new row
+citing the old one."*** The register's main table (`:22`) carries **13 columns and 51
+landed rows, 41 of them non-`PASS`**. **Adding a 14th column edits every one of those 51
+rows** — forbidden by the register's own law and by standing rule 6.
+
+**Sanaa's order says the register "gets a cause-class column". Her SUBSTANCE is that the
+register must carry the classification; "column" is the shape she reached for, and the
+shape is the one thing the file forbids.** Serving the substance and breaking the file
+would be obeying an instruction rather than answering it (rule 9).
+
+> **RULING: the cause class lands as an APPENDED, DATED COMPANION BLOCK keyed by row id,
+> never as a column edit.** Schema, fixed:
+> `| row | case | verdict (rule 1, unchanged) | CAUSE CLASS | citation resolving at HEAD |`
+
+**THIS IS PRECEDENT, NOT INVENTION, AND I VERIFIED IT PERSONALLY AT SOURCE.** The register
+has **already added an entire new classification dimension to landed rows this way**: the
+**tier** addendum at `:185-196` carries exactly this shape —
+`| row | case | verdict (rule 1, unchanged) | tier | the reason, as ruled |` — with four
+rows whose `#1`–`#4` are **references into the main table, not new rows**. Its own scoping
+line names the tier vocabulary, and its rows are marked *"the
+`ansys-verification-supervisor`'s rulings, recorded as such and **overrulable**."* **The
+file solved this problem once already and the cause class simply uses the same door.**
+
+**Two consequences, both deliberate.** The companion block's row ids are **references**, so
+they are **never double-counted** in any census. And a later re-classification is **a new
+dated block citing the old**, exactly as a re-run is a new row — **never an edit**.
+
+### §2n.11 THE MATRIX HAS NO SHARED ROW SCHEMA TO ADD A COLUMN TO EITHER
+
+**MEASURED:** `docs/COVERAGE_MATRIX.md` is the matrix (`docs/LAB_STATE.md:144,175` name it
+as verification's §1 product), its authoritative count is **153 rows** (`:965`, census at
+`:967-974` — dafoam 58 / closure 6 / heat-transfer 37 / cfd 48 / ansys 4), **and those 153
+rows are not enumerated in it.** `:828` says so: *"Full table in the audit record."* They
+live in **five family files with five different table shapes** — compare §3.3's 6-column
+closure header against §3.6's 5-column ansys header.
+
+> **RULING: each family appends its own cause-class block to its OWN contribution file, in
+> the SINGLE schema of §2n.10**, and `COVERAGE_MATRIX.md` carries **the census only** — a
+> per-class, per-family count plus the `UNCLASSED` figure. The five contribution files are
+> `cases/RANS_LES_closure_models/MATRIX_CONTRIBUTION.md`,
+> `cases/dafoam/MATRIX_CONTRIBUTION.md`,
+> `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md`,
+> `verification/campaign/MATRIX_CONTRIBUTION.md` (cfd's, filed there because cfd has no
+> single case root) and `docs/ansys_verification/COVERAGE_ROWS.md`.
+
+**A matrix tier is not a verdict** (`COVERAGE_MATRIX.md:60-79`; `LAB_STATE.md:165-171`),
+so **a cause class attaches to the row's VERDICT, never to its tier.** A row with a tier
+and no verdict takes **no** class — and is not thereby capable (§2n.4).
+
+### §2n.12 `docs/CAPABILITY_GRID.md` IS GENERATED — A HAND EDIT THERE IS OVERWRITTEN
+
+**MEASURED:** `docs/CAPABILITY_GRID.md:1` states it is *"assembled from the family tables
+at HEAD"*, `:3` names `scripts/assemble_capability_grid.py`. **Text merged into it by hand
+is destroyed on the next assembly** — a silent loss, and exactly the dead-lever shape this
+team audits.
+
+**And a second measured surprise: `SURVEYED` IS NOT IN THE CAPABILITY GRID'S VOCABULARY AT
+ALL.** The grid runs on **Sanaa's own three words** — `CAN DO` / `CAN DO, CAVEATS` /
+`CAN NOT DO` (`docs/CAPABILITY_GRID.md:5`). `SURVEYED` occurs there **zero times**; it is a
+**matrix** tier. **So her standing definition answers a CAPABILITY question in MATRIX
+vocabulary**, and the two documents do not share a word.
+
+> **RULING: the standing definition's home is `docs/COVERAGE_MATRIX.md`** — the file that
+> **defines** `SURVEYED` (`:50-58`) and **holds the rubric** (`:42-58`, the only rubric in
+> the lab; `VERIFICATION_CHARTER` has none, checked). The capability grid **cross-references
+> it** rather than restating it, and any text that must appear in the assembled grid goes
+> **through the family sources or the assembler**, never by hand-editing the output.
+
+### §2n.13 ⚠ A HAZARD IN ANOTHER TEAM'S FILE, FOUND IN PASSING — REPORTED, NOT TOUCHED
+
+**`docs/capability/heat-transfer_GRID.md`: the worktree copy is BEHIND `HEAD` and is NOT a
+byte-prefix of it.** HEAD blob 51,081 B; disk 44,728 B; **first divergence at byte 8,944**,
+inside the `conduction · laminar (no flow) · 2D` cell, where HEAD carries three
+strikethrough corrections and disk carries one.
+
+**Because the divergence is MID-FILE, the strict byte-prefix restoration proof this lab
+relies on does not apply** — and **an append to the disk copy followed by a commit would
+revert about 6.3 KB of committed heat-transfer corrections.** Anyone amending that file
+must build from `git show HEAD:docs/capability/heat-transfer_GRID.md`, **never** the
+worktree copy. **Inspected, never reverted** (rule 10); it is heat-transfer's file and
+heat-transfer's call.
+
+| field | value |
+| --- | --- |
+| authority | Sanaa `4116024a` for §2n; **`[lab-attributed]`** for §2n.9's ordering |
+| corrects | **v1.29's own mechanics** — "column" was unexecutable against two of its targets |
+| clauses added | `§2n.9`–`§2n.13` |
+| verdict vocabulary changed | **0** · gates | **0** · caps | **0** · re-grades | **0** · rows edited | **0** |
+| referred to Sanaa | the tier **ordering** (§2n.9); the capability-exclusion list (§2n.6 note 2) |
+| routed to heat-transfer | the `heat-transfer_GRID.md` worktree divergence (§2n.13) |
+| **lines whose number changed above this section** | **0** |
