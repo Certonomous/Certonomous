@@ -1,0 +1,144 @@
+SO-1bR SELFTEST EVIDENCE -- lane AA, dafoam, 2026-08-30
+Both passes run with __pycache__ CLEARED FIRST and sys.dont_write_bytecode=True set
+ABOVE any import.  ZERO solver compute: nothing meshed, nothing solved, no container.
+EXPECTED_UNITS = 47 was written into so1br_grade.py BEFORE the first execution.
+
+date -u: Sun Aug 30 23:55:21 UTC 2026
+HEAD at capture: 5060e626
+
+======================== PASS 1 of 2 : python3 ========================
+SO1bR SELFTEST -- optimized=False  scratch=/tmp/so1br_selftest_ftgykfpo
+
+[G-SO1AR] the registered input
+  PASS U01_input_exists                                           /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/SO1aR_grade_20260828T171830Z.json
+  PASS U02_input_md5_matches_registered                           md5=194c0440b8e36e8044795449c7df7edb
+  PASS U03_real_input_decision_PROCEED                            decision=PROCEED
+  PASS U04_two_channels_agree                                     gate=PASS top=PASS
+  PASS U05_patched_G5_and_G5c_both_PASS                           G5_CD=PASS G5c_CL=PASS
+  PASS U06_MUSTFLAG_input_absent_refuses                          {"REFUSE": "G-SO1AR", "detail": {"note": "the registered input is pinned by ABSOLUTE PATH;
+  PASS U07_MUSTFLAG_input_md5_moved_refuses                       {"REFUSE": "G-SO1AR", "detail": {"note": "the input is pinned by md5 so a successor artefa
+  PASS U08_MUSTFLAG_gates_G5_PATCHED_absent_refuses               the exact shape that closed SO-1b
+  PASS U09_MUSTFLAG_rows_PATCHED_absent_refuses                   {"REFUSE": "G-SO1AR", "detail": {"note": "the second channel is STRUCTURAL, not optional; 
+  PASS U10_MUSTFLAG_channel_disagreement_refuses                  {"REFUSE": "G-SO1AR", "detail": {"channel_disagreement": "u10", "gates.G5_PATCHED.row_verd
+  PASS U11_MUSTFLAG_wrong_but_present_G5_CD_no_launch             well-formed and WRONG -> decision=REFUSE (a frozen clause fired, not a parse error)
+  PASS U12_MUSTFLAG_wrong_but_present_G5c_CL_no_launch            the CONSTRAINT gradient is graded as an equal -> decision=REFUSE
+  PASS U13_MUSTFLAG_input_unreadable_refuses                      {"REFUSE": "G-SO1AR", "detail": {"err": "JSONDecodeError('Expecting property name enclosed
+  PASS U14_frozen_SO1b_glob_cannot_see_registered_input           pattern SO1a_grade_*.json matched ['SO1a_grade_20260828T023132Z.json'] -- the ruling, executed
+
+[G-PROV] the travelling shipped GATE FAIL
+  PASS U15_shipped_row_status_is_GATE_FAIL                        rows.SHIPPED='GATE FAIL' rows.PATCHED='PASS'
+  PASS U16_shipped_G5_CD_detail_travels                           GATE FAIL 3/5 agg 40.481353% sign_flips=1
+  PASS U17_shipped_G5c_CL_detail_travels                          GATE FAIL 4/5 agg 4.326954% band_D=GATE FAIL band_E=PASS
+  PASS U18_worst_component_shape6_travels_with_its_sign_flip      shape[6] 637.7570% sign_flip=True
+  PASS U19_verdict_line_carries_the_literal_GATE_FAIL_bytes       token present, 346 bytes
+  PASS U20_MUSTFLAG_shipped_row_stripped_refuses                  {"REFUSE": "G-PROV", "detail": {"note": "no SO-1bR verdict may be emitted without the upst
+  PASS U21_MUSTFLAG_shipped_gate_detail_stripped_refuses          {"REFUSE": "G-PROV", "detail": {"gates.G5_SHIPPED_absent": "u21", "note": "the row word al
+  PASS U22_MUSTFLAG_shipped_row_laundered_to_PASS_refuses         {"REFUSE": "G-PROV", "detail": {"note": "the registration asserts the upstream SHIPPED row
+  PASS U23_MUSTFLAG_emit_without_provenance_refuses               {"REFUSE": "G-PROV", "detail": {"note": "the requirement is a CALL SITE, not a footnote: a
+  PASS U24_MUSTFLAG_GATE_FAIL_token_lost_in_transit_refuses       the unquoted-heredoc shape (e779bdc7)
+  PASS U25_MUSTFLAG_verdict_line_bytes_differ_refuses             landed bytes compared against intended bytes (L-405)
+  PASS U26_MUSTNOTFLAG_well_formed_emit_passes                    verdict unchanged
+  PASS U27_MUSTFLAG_verdict_outside_fixed_vocabulary_refuses      {"REFUSE": "G-PROV", "detail": {"verdict_outside_the_fixed_vocabulary": "roughly converged
+
+[G-C5R] the trapFpe repair, on REAL log bytes
+  PASS U28_real_checkMesh_md5_and_SO1aR_fixture_agree             preserved=22aa9cfa6725eb904123aefaebf63cfd fixture=22aa9cfa6725eb904123aefaebf63cfd
+  PASS U29_real_banner_line_18_is_byte_identical                  checkMesh.log:18
+  PASS U30_FROZEN_predicate_DOES_hit_the_real_banner              so1b_grade.py:420-423 on real bytes -> ['Floating point exception']  THE DEFECT, EXECUTED
+  PASS U31_REPAIRED_predicate_clears_the_real_banner              0 fatal sites, 1 benign exclusion, token NOT deleted
+  PASS U32_REPAIRED_predicate_flags_the_non_line_initial_MPI_crash a '^' anchor would MISS this; the exclusion form does not
+  PASS U33_REPAIRED_predicate_flags_the_sigFpe_handler_symbol     extra positive token adopted from so1ar_grade.py:202
+  PASS U34_every_token_still_fires_when_planted_on_its_own_line   10/10 tokens, none lost to the line split
+  PASS U35_benign_line_1_does_not_suppress_a_real_crash_later     benign at line 1, fatal at line 382
+
+[ADOPTION] the frozen predecessor
+  PASS U36_frozen_grader_md5_matches_registered                   88157ca3c04798750e97b87ca3d02a15
+  PASS U37_frozen_grader_on_disk_is_the_committed_blob            f7ba5f7b5d405f8d4d6dbc82bb538397ac8dff09
+  PASS U38_frozen_FATAL_TOKENS_carries_the_bare_FPE_token         THE trapFpe ANSWER: so1b_grade.py:133 carries the bare substring token
+  PASS U39_rebind_audit_names_are_exactly_the_registered_set      rebound=['fatal_tokens_in']
+  PASS U40_MUSTFLAG_unregistered_rebind_is_caught                 {"REFUSE": "REBIND_AUDIT", "detail": {"actual": ["fatal_tokens_in", "g_cl"], "expected": [
+  PASS U41_refusals_raise_through_the_frozen_modules_own_refuse   type is so1b_grade.Refusal
+  PASS U42_frozen_bands_and_thresholds_did_not_move               25 constants checked, 0 moved
+  PASS U43_shape6_is_in_the_frozen_COMPONENTS_REGISTERED          the component three instruments finger is IN the registered set: [['shape', 0], ['shape', 3], ['shape', 6], ['shape', 7], ['patchV', 1]]
+
+[HYGIENE]
+  PASS U44_zero_assert_in_so1br_grade                             ast.Assert count = 0
+  PASS U45_zero_assert_in_so1br_precondition                      ast.Assert count = 0
+  PASS U46_no_forward_AD_dependency_anywhere_in_the_instrument_set 0 forward-AD tokens in 5 files; derivative mode is REVERSE in of.py and runScript.py
+  PASS U47_no_pycache_written_beside_any_frozen_case              strays=[]
+
+units run = 47 / EXPECTED_UNITS = 47 ; failures = 0 ; optimized = False
+SO1bR SELFTEST PASS 47/47 (counted against the frozen EXPECTED_UNITS)
+
+======================== PASS 2 of 2 : python3 -O =====================
+SO1bR SELFTEST -- optimized=True  scratch=/tmp/so1br_selftest_gxqnb8r5
+
+[G-SO1AR] the registered input
+  PASS U01_input_exists                                           /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/SO1aR_grade_20260828T171830Z.json
+  PASS U02_input_md5_matches_registered                           md5=194c0440b8e36e8044795449c7df7edb
+  PASS U03_real_input_decision_PROCEED                            decision=PROCEED
+  PASS U04_two_channels_agree                                     gate=PASS top=PASS
+  PASS U05_patched_G5_and_G5c_both_PASS                           G5_CD=PASS G5c_CL=PASS
+  PASS U06_MUSTFLAG_input_absent_refuses                          {"REFUSE": "G-SO1AR", "detail": {"note": "the registered input is pinned by ABSOLUTE PATH;
+  PASS U07_MUSTFLAG_input_md5_moved_refuses                       {"REFUSE": "G-SO1AR", "detail": {"note": "the input is pinned by md5 so a successor artefa
+  PASS U08_MUSTFLAG_gates_G5_PATCHED_absent_refuses               the exact shape that closed SO-1b
+  PASS U09_MUSTFLAG_rows_PATCHED_absent_refuses                   {"REFUSE": "G-SO1AR", "detail": {"note": "the second channel is STRUCTURAL, not optional; 
+  PASS U10_MUSTFLAG_channel_disagreement_refuses                  {"REFUSE": "G-SO1AR", "detail": {"channel_disagreement": "u10", "gates.G5_PATCHED.row_verd
+  PASS U11_MUSTFLAG_wrong_but_present_G5_CD_no_launch             well-formed and WRONG -> decision=REFUSE (a frozen clause fired, not a parse error)
+  PASS U12_MUSTFLAG_wrong_but_present_G5c_CL_no_launch            the CONSTRAINT gradient is graded as an equal -> decision=REFUSE
+  PASS U13_MUSTFLAG_input_unreadable_refuses                      {"REFUSE": "G-SO1AR", "detail": {"err": "JSONDecodeError('Expecting property name enclosed
+  PASS U14_frozen_SO1b_glob_cannot_see_registered_input           pattern SO1a_grade_*.json matched ['SO1a_grade_20260828T023132Z.json'] -- the ruling, executed
+
+[G-PROV] the travelling shipped GATE FAIL
+  PASS U15_shipped_row_status_is_GATE_FAIL                        rows.SHIPPED='GATE FAIL' rows.PATCHED='PASS'
+  PASS U16_shipped_G5_CD_detail_travels                           GATE FAIL 3/5 agg 40.481353% sign_flips=1
+  PASS U17_shipped_G5c_CL_detail_travels                          GATE FAIL 4/5 agg 4.326954% band_D=GATE FAIL band_E=PASS
+  PASS U18_worst_component_shape6_travels_with_its_sign_flip      shape[6] 637.7570% sign_flip=True
+  PASS U19_verdict_line_carries_the_literal_GATE_FAIL_bytes       token present, 346 bytes
+  PASS U20_MUSTFLAG_shipped_row_stripped_refuses                  {"REFUSE": "G-PROV", "detail": {"note": "no SO-1bR verdict may be emitted without the upst
+  PASS U21_MUSTFLAG_shipped_gate_detail_stripped_refuses          {"REFUSE": "G-PROV", "detail": {"gates.G5_SHIPPED_absent": "u21", "note": "the row word al
+  PASS U22_MUSTFLAG_shipped_row_laundered_to_PASS_refuses         {"REFUSE": "G-PROV", "detail": {"note": "the registration asserts the upstream SHIPPED row
+  PASS U23_MUSTFLAG_emit_without_provenance_refuses               {"REFUSE": "G-PROV", "detail": {"note": "the requirement is a CALL SITE, not a footnote: a
+  PASS U24_MUSTFLAG_GATE_FAIL_token_lost_in_transit_refuses       the unquoted-heredoc shape (e779bdc7)
+  PASS U25_MUSTFLAG_verdict_line_bytes_differ_refuses             landed bytes compared against intended bytes (L-405)
+  PASS U26_MUSTNOTFLAG_well_formed_emit_passes                    verdict unchanged
+  PASS U27_MUSTFLAG_verdict_outside_fixed_vocabulary_refuses      {"REFUSE": "G-PROV", "detail": {"verdict_outside_the_fixed_vocabulary": "roughly converged
+
+[G-C5R] the trapFpe repair, on REAL log bytes
+  PASS U28_real_checkMesh_md5_and_SO1aR_fixture_agree             preserved=22aa9cfa6725eb904123aefaebf63cfd fixture=22aa9cfa6725eb904123aefaebf63cfd
+  PASS U29_real_banner_line_18_is_byte_identical                  checkMesh.log:18
+  PASS U30_FROZEN_predicate_DOES_hit_the_real_banner              so1b_grade.py:420-423 on real bytes -> ['Floating point exception']  THE DEFECT, EXECUTED
+  PASS U31_REPAIRED_predicate_clears_the_real_banner              0 fatal sites, 1 benign exclusion, token NOT deleted
+  PASS U32_REPAIRED_predicate_flags_the_non_line_initial_MPI_crash a '^' anchor would MISS this; the exclusion form does not
+  PASS U33_REPAIRED_predicate_flags_the_sigFpe_handler_symbol     extra positive token adopted from so1ar_grade.py:202
+  PASS U34_every_token_still_fires_when_planted_on_its_own_line   10/10 tokens, none lost to the line split
+  PASS U35_benign_line_1_does_not_suppress_a_real_crash_later     benign at line 1, fatal at line 382
+
+[ADOPTION] the frozen predecessor
+  PASS U36_frozen_grader_md5_matches_registered                   88157ca3c04798750e97b87ca3d02a15
+  PASS U37_frozen_grader_on_disk_is_the_committed_blob            f7ba5f7b5d405f8d4d6dbc82bb538397ac8dff09
+  PASS U38_frozen_FATAL_TOKENS_carries_the_bare_FPE_token         THE trapFpe ANSWER: so1b_grade.py:133 carries the bare substring token
+  PASS U39_rebind_audit_names_are_exactly_the_registered_set      rebound=['fatal_tokens_in']
+  PASS U40_MUSTFLAG_unregistered_rebind_is_caught                 {"REFUSE": "REBIND_AUDIT", "detail": {"actual": ["fatal_tokens_in", "g_cl"], "expected": [
+  PASS U41_refusals_raise_through_the_frozen_modules_own_refuse   type is so1b_grade.Refusal
+  PASS U42_frozen_bands_and_thresholds_did_not_move               25 constants checked, 0 moved
+  PASS U43_shape6_is_in_the_frozen_COMPONENTS_REGISTERED          the component three instruments finger is IN the registered set: [['shape', 0], ['shape', 3], ['shape', 6], ['shape', 7], ['patchV', 1]]
+
+[HYGIENE]
+  PASS U44_zero_assert_in_so1br_grade                             ast.Assert count = 0
+  PASS U45_zero_assert_in_so1br_precondition                      ast.Assert count = 0
+  PASS U46_no_forward_AD_dependency_anywhere_in_the_instrument_set 0 forward-AD tokens in 5 files; derivative mode is REVERSE in of.py and runScript.py
+  PASS U47_no_pycache_written_beside_any_frozen_case              strays=[]
+
+units run = 47 / EXPECTED_UNITS = 47 ; failures = 0 ; optimized = True
+SO1bR SELFTEST PASS 47/47 (counted against the frozen EXPECTED_UNITS)
+
+=========== DRIVER ENTRY POINT: so1br_precondition.py standalone ===========
+PROCEED item=SO1bR input=SO1aR_grade_20260828T171830Z.json md5=194c0440b8e36e8044795449c7df7edb G5_CD=PASS G5c_CL=PASS row_PATCHED=PASS upstream_item_verdict=GATE FAIL upstream_row_SHIPPED=GATE FAIL
+exit status: 0
+
+=========== PRESERVED ARTEFACTS UNCHANGED (read the disk, not git) ===========
+194c0440b8e36e8044795449c7df7edb  /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/SO1aR_grade_20260828T171830Z.json
+22aa9cfa6725eb904123aefaebf63cfd  /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/MESH/checkMesh.log
+
+=========== STRAY BYTECODE AFTER BOTH PASSES (must be empty) ===========
+(end of stray listing)
