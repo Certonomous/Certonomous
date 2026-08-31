@@ -1,0 +1,34 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application     buoyantSimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   __WRITEINTERVAL__;   // endTime % writeInterval == 0 is ASSERTED by the launcher
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // The settling series the plateau clause reads.  Written EVERY iteration, so the
+    // FIXED 500-sample window of the comparator is available with a known count.
+    Tmean
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        fields          (T);
+        operation       volAverage;
+        regionType      all;
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   1;
+        log             false;
+    }
+}
