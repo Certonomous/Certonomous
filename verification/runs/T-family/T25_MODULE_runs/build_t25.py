@@ -270,6 +270,23 @@ def fv_options():
 // asks: scalarSemiImplicitSource with a time-dependent Function1 table.
 //   0 <= t < 60 s   : {P_TAKEOFF} W/cell / {V_CELL:.6e} m3 = {Q_TAKEOFF:.6f} W/m3
 //   60 <= t <= 900 s: {P_CRUISE} W/cell / {V_CELL:.6e} m3 = {Q_CRUISE:.6f} W/m3
+//
+// BREAKPOINT PLACEMENT -- repaired 2026-08-31, BEFORE first compute.
+// OpenFOAM's Function1 table defaults interpolationScheme to "linear"
+// (v2606 src/OpenFOAM/primitives/functions/Function1/Table/TableBase.C,
+// getOrDefault<word>("interpolationScheme", "linear", keyType::LITERAL)),
+// so the two breakpoints around the pulse edge are the ends of a RAMP, not
+// a step.  The ramp originally spanned 59.999 -> 60.001, straddling t = 60;
+// with deltaT {DT} the solver lands exactly on t = 60.000, mid-ramp, and
+// sampled 3166.666667 W/m3 there -- but the directive pins t = 60 in the
+// CRUISE branch (60 <= t <= 900), i.e. {Q_CRUISE:.6f} W/m3.  The file
+// contradicted the directive at exactly one instant.  The ramp now ENDS at
+// 60.000, so t = 60 samples the cruise endpoint exactly and the takeoff
+// branch is unaffected for every t <= 59.999.
+// Residual: a 1 ms ramp in (59.999, 60.000) remains -- a piecewise-linear
+// table cannot represent a true discontinuity.  At deltaT {DT} no step falls
+// inside it; a deltaT finer than 1 ms would sample it, and that is the
+// condition under which this placement must be revisited.
 
 volumetricHeatSource
 {{
@@ -284,7 +301,7 @@ volumetricHeatSource
             (
                 (  0.000  {Q_TAKEOFF:.6f})
                 ( 59.999  {Q_TAKEOFF:.6f})
-                ( 60.001  {Q_CRUISE:.6f})
+                ( 60.000  {Q_CRUISE:.6f})
                 ({T_END:.3f}  {Q_CRUISE:.6f})
             );
             implicit    none;
