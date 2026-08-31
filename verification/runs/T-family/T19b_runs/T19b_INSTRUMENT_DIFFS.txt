@@ -1,0 +1,562 @@
+T19b INSTRUMENT DIFFS -- unified diffs of the two successor instruments against their
+FROZEN T19 parents, plus the emitted-tree comparison. Generated 2026-08-31T15:21:56Z.
+Repository HEAD at generation: c4fadb215f8749739516c2d5a633c3b7ae31476b
+
+PARENTS VERIFIED BYTE-IDENTICAL TO THEIR HEAD BLOBS AT GENERATION TIME:
+  exact_t19.py           worktree 053e2b50ee1d7526eb5b32a61ec53fdf1b49b014  HEAD 053e2b50ee1d7526eb5b32a61ec53fdf1b49b014  IDENTICAL
+  T19_registered.json    worktree d63e8a4bf5ef8b3a5982940b044b08c75d9b4da0  HEAD d63e8a4bf5ef8b3a5982940b044b08c75d9b4da0  IDENTICAL
+  build_t19.py           worktree d28e32a379afdda9f8c23be173953106f1609785  HEAD d28e32a379afdda9f8c23be173953106f1609785  IDENTICAL
+  analyse_t19.py         worktree 0bafecd0a4bece177d2735fd41cb044b47aa2fba  HEAD 0bafecd0a4bece177d2735fd41cb044b47aa2fba  IDENTICAL
+  mark_done_t19.py       worktree 13117be1af47e0153877f98e1b93feb339f217b2  HEAD 13117be1af47e0153877f98e1b93feb339f217b2  IDENTICAL
+  run_one_t19.sh         worktree 21c774c0b10776a0f0c7236c8215b9c4a68ac76b  HEAD 21c774c0b10776a0f0c7236c8215b9c4a68ac76b  IDENTICAL
+
+================= 1. build_t19.py -> build_t19b.py =================
+--- verification/runs/T-family/T19_runs/build_t19.py	2026-08-27 19:17:40.661401600 +0000
++++ verification/runs/T-family/T19b_runs/build_t19b.py	2026-08-31 15:10:59.882825643 +0000
+@@ -1,7 +1,22 @@
+ #!/usr/bin/env python3
+-"""Build T19's registered cases: fully developed laminar forced convection
++"""Build T19b's registered cases: fully developed laminar forced convection
+ between PARALLEL PLATES, 2-D Cartesian (the planar partner of T1c's wedge pipe).
+ 
++T19b IS T19's SUCCESSOR AND ITS ONLY SUBSTANTIVE DIFFERENCE FROM build_t19.py IS
++THAT fv_solution() DOES NOT EMIT A `residualControl` BLOCK.  build_t19.py:211
++wrote `residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }`, and on T19 that tripped
++on both cases that ran: P_q_c stopped at 828 iterations and P_Ts_c at 541,
++against the registered endTime 30000.  Rule 4's `last time == endTime` then
++cannot hold and C_PLATEAU -- which compares the graded quantities between the
++writes at 28000 and 30000 -- has no pair to read and is UNEVALUABLE.
++DEAD_LEVER_AUDIT.md section 21.2 ruled the legal repair is to the CASE and not
++to a gate: drop residualControl so the solver runs to the registered endTime as
++T1c did.  NO GATE, THRESHOLD, BAND, CAP OR LABEL MOVES.  Nothing else in this
++file changes: the mesh, the fields, the boundary conditions, the schemes,
++endTime, writeInterval and the ladder are byte-identical to the parent's, and
++selftest limb `no-residualControl` plus the tree comparison registered in
++T19b_PREREGISTRATION.md section 4 measure that rather than assert it.
++
+ SOLVER.  `buoyantBoussinesqSimpleFoam` with `simulationType laminar` and
+ `beta = 0`, exactly as T1c (build_t1c.py:219 "ZERO GRAVITY IS THE POINT"):
+ with beta = 0 the momentum equation is decoupled from T and the solver is a
+@@ -35,7 +50,7 @@
+ 
+ NO assert (L-332).  Every refusal is sys.exit(2).
+ 
+-usage: build_t19.py --root DIR [--case NAME ...] [--no-mesh] | --check-levels | --selftest
++usage: build_t19b.py --root DIR [--case NAME ...] [--no-mesh] | --check-levels | --selftest
+ """
+ import argparse
+ import os
+@@ -208,7 +223,16 @@
+         "    \"(U|T)\"\n    {\n        solver          PBiCGStab;\n        preconditioner  DILU;\n"
+         "        tolerance       1e-12;\n        relTol          0.01;\n    }\n}\n"
+         "SIMPLE\n{\n    nNonOrthogonalCorrectors 0;\n    pRefCell        0;\n    pRefValue       0;\n"
+-        "    residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }\n}\n"
++        # THE ONE SUBSTANTIVE DELTA FROM build_t19.py:211, WHICH WROTE
++        #     "    residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }\n"
++        # HERE.  It is deleted, not relaxed and not made configurable: an
++        # absolute residual floor is DELIBERATELY NOT this rung's gate
++        # (T19_PREREGISTRATION.md section 3, carried over verbatim), and with the
++        # block present the solver stopped at 828/541 iterations against the
++        # registered endTime 30000, taking rule-4 completion and C_PLATEAU down
++        # with it.  Removing it conforms the CASE to the registration rather than
++        # amending the registration to the case (DEAD_LEVER_AUDIT.md 21.2).
++        "}\n"
+         "relaxationFactors\n{\n    fields { p_rgh 0.3; }\n    equations { U 0.7; T 0.7; }\n}\n")
+ 
+ 
+@@ -295,6 +319,22 @@
+         print("  [%s] the Ts arm writes fixedValue 400 K on BOTH walls" % ("ok " if ok else "FAIL"))
+         if not ok:
+             fails.append("ts-arm")
++        # ---- T19b's OWN limb: the repair is READ BACK OFF DISK, and the
++        # detector is shown able to fail on the same invocation.  A limb that
++        # cannot fail is the defect T19b exists to repair.
++        fvs = open(os.path.join(case, "system", "fvSolution")).read()
++        det_clean = ("residualControl" in fvs)
++        det_planted = ("residualControl" in fvs.replace(
++            "    pRefValue       0;\n", "    pRefValue       0;\n"
++            "    residualControl { p_rgh 1e-9; U 1e-9; T 1e-9; }\n"))
++        ok = (not det_clean) and det_planted and ("SIMPLE" in fvs)
++        print("  [%s] the built fvSolution emits NO residualControl block (detector on the clean "
++              "file: %s; the SAME detector on a copy with build_t19.py:211's line planted back in: "
++              "%s -- so the green is not tautological)"
++              % ("ok " if ok else "FAIL", "absent" if not det_clean else "PRESENT",
++                 "PRESENT" if det_planted else "absent"))
++        if not ok:
++            fails.append("no-residualControl")
+         got = set(os.listdir(os.path.join(case, "0.orig")))
+         ok = got == {"U", "p_rgh", "T", "alphat"}
+         print("  [%s] 0.orig holds exactly {U, p_rgh, T, alphat} -- the LAMINAR field set, with no "
+
+================= 2. analyse_t19.py -> analyse_t19b.py =============
+--- verification/runs/T-family/T19_runs/analyse_t19.py	2026-08-27 19:26:23.469993050 +0000
++++ verification/runs/T-family/T19b_runs/analyse_t19b.py	2026-08-31 15:16:29.961742245 +0000
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""T19 -- the FROZEN comparator.  Fully developed laminar forced convection
++"""T19b -- the FROZEN comparator.  Fully developed laminar forced convection
+ between PARALLEL PLATES, Re_Dh = 100, Pr = 0.71, buoyantBoussinesqSimpleFoam
+ with `simulationType laminar` and beta = 0, three levels ny = 20/40/80 across
+ the full gap (r = 2 in both directions), two wall arms.
+@@ -17,6 +17,43 @@
+ function that writes a verdict.
+ 
+ Exit: 0 graded, 2 REFUSAL.
++
++============================================================================
++WHAT T19b CHANGES FROM analyse_t19.py, AND WHAT IT DOES NOT
++============================================================================
++NOT ONE GATE, THRESHOLD, BAND, FLOOR, CAP OR LABEL MOVES, and that is enforced
++mechanically rather than promised: this file loads T19's OWN frozen
++`T19_registered.json` FROM T19_runs BY EXPLICIT PATH, pinned by sha256, and
++imports T19's OWN frozen `exact_t19.py` the same way.  The gate file is not
++copied, not edited and not re-derived; if either parent file's bytes differ from
++the pin, this comparator REFUSES rather than grades.
++
++THE ONE REPAIR is to the SELFTEST.  analyse_t19.py:691-694 drove its limb
++"live tree, no DONE markers -> exit 2 REFUSE" by calling `grade(HERE, ...)`,
++where HERE is the LIVE T19_runs directory.  It passed only because nothing had
++been marked DONE -- a D574-class false green, and worse than stale: once DONE
++markers exist that limb runs the real grading path against a live run tree as a
++side effect of its own selftest.
++
++The replacement adopts T20_PREREGISTRATION.md section 10.1's registered S8
++clause: NO SELFTEST LIMB MAY READ, STAT OR GLOB A LIVE RUN TREE, and the
++invariance is MEASURED, not promised.  Three independent detectors, each with a
++planted control, enforce it:
++  (S8a) the whole limb set runs TWICE in one invocation -- once against a
++        synthetic run root that is EMPTY, once against one FULLY POPULATED with
++        six cases, time directories, STATUS and DONE markers -- and the two
++        result structures must be BYTE-IDENTICAL;
++  (S8b) a filesystem WATCHER records every read under the run root while the
++        limbs execute and must record ZERO.  Rule 3: the watcher is PLANTED
++        first, with a deliberate read it must see, and only then reset -- a zero
++        from a watcher not shown able to see a non-zero is not evidence;
++  (S8c) a second watcher over T19_runs, allowing ONLY the two pinned parent
++        instruments, so that the FALSIFICATION SPECIMEN (P_q_c/828, P_Ts_c/541)
++        is measured to be untouched rather than asserted to be.
++  (S8d) a source-level detector: the name `HERE` does not occur anywhere inside
++        the selftest functions, with a planted control proving the detector sees
++        one when it is there.
++============================================================================
+ """
+ import argparse
+ import json
+@@ -28,7 +65,49 @@
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+-sys.path.insert(0, HERE)
++EXIT_OK, EXIT_REFUSE = 0, 2
++
++
++def refuse(msg):
++    print("REFUSE: " + msg)
++    sys.exit(EXIT_REFUSE)
++
++
++# --------- THE PARENT'S FROZEN INSTRUMENTS, BY EXPLICIT PATH AND PINNED -------
++# T19b does not copy, restate or re-derive a single registered number.  It grades
++# against T19's OWN frozen gate file and T19's OWN frozen analytic referent, both
++# loaded from T19_runs by absolute path and both pinned by sha256.  A digest that
++# does not reproduce is a REFUSAL, never a warning: it is the only mechanism by
++# which "no gate moved" can be a measurement rather than a claim.
++PARENT = os.path.join(os.path.dirname(HERE), "T19_runs")
++REG_PATH = os.path.join(PARENT, "T19_registered.json")
++REG_SHA256 = "84b3652a5187f04efeddb5b14cc91b2d1c5d9952b7608243bdd0078773a040b4"
++EXACT_PATH = os.path.join(PARENT, "exact_t19.py")
++EXACT_SHA256 = "aeaae65c9e849c8a40d9594e412e3a1bc63ebe79274f5bc704837570cf52545d"
++
++
++def sha256_of(path):
++    import hashlib
++    h = hashlib.sha256()
++    with open(path, "rb") as fh:
++        for chunk in iter(lambda: fh.read(1 << 16), b""):
++            h.update(chunk)
++    return h.hexdigest()
++
++
++def pin(path, want, what):
++    if not os.path.isfile(path):
++        refuse("the frozen parent instrument %s is missing at %s -- T19b grades against T19's "
++               "own frozen files and will not substitute a copy" % (what, path))
++    got = sha256_of(path)
++    if got != want:
++        refuse("%s at %s has sha256 %s but T19b pins %s -- the file that would run is NOT the "
++               "frozen file, so no gate can be shown to be unmoved" % (what, path, got, want))
++    return got
++
++
++pin(EXACT_PATH, EXACT_SHA256, "exact_t19.py")
++sys.path.insert(0, PARENT)
+ sys.path.insert(0, os.path.join(REPO, "scripts"))
+ import exact_t19 as EX                                                  # noqa: E402
+ from roache_triple import STAGNANT_FLOOR, P_MIN, FS, gci_equal, PLANT   # noqa: E402
+@@ -38,18 +117,14 @@
+ Q_CASES = {lv: "P_q_%s" % lv for lv in LEVELS}
+ REFINEMENT = 2.0
+ DIM = 2
+-EXIT_OK, EXIT_REFUSE = 0, 2
+-
+-
+-def refuse(msg):
+-    print("REFUSE: " + msg)
+-    sys.exit(EXIT_REFUSE)
+ 
+ 
+ def load_registered(root=None):
+-    p = os.path.join(root or HERE, "T19_registered.json")
++    p = os.path.join(root, "T19_registered.json") if root else REG_PATH
+     if not os.path.isfile(p):
+         refuse("no T19_registered.json -- the gate is not registered")
++    if root is None:
++        pin(p, REG_SHA256, "T19_registered.json")
+     reg = json.load(open(p))
+     fl = reg.get("roache_floors", {})
+     if fl.get("STAGNANT_FLOOR") != STAGNANT_FLOOR or fl.get("P_MIN") != P_MIN:
+@@ -295,7 +370,17 @@
+     reading residuals" (build_t1c.py:57-63).  Gate (1) here is the PLATEAU test
+     below, which compares the graded quantity between the last two writes -- the
+     check that actually caught T1c's iteration-count defect.  An End line is a
+-    completion conjunct and is checked by mark_done_t19.py, not here."""
++    completion conjunct and is checked by mark_done_t19.py, not here.
++
++    T19b CORRECTION, AND IT IS THE WHOLE MORAL OF THIS RUNG.  The sentence above
++    is T19's, carried over verbatim because the DECISION it justifies -- an
++    absolute residual floor is not this rung's gate -- is unchanged and may not
++    be changed.  But the T1c fact it rests on was BORROWED and never measured on
++    T19, and on T19 IT WAS FALSE: with build_t19.py:211's residualControl in
++    place the solver's own control tripped on both cases that ran, at 828 and
++    541 iterations against endTime 30000.  T19b removes the setting from the
++    CASE (build_t19b.py) so that the borrowed condition is made TRUE by
++    construction instead of assumed.  The borrow is now guarded, not deleted."""
+     log = os.path.join(case_dir, "log.solve")
+     if not os.path.isfile(log):
+         return None, "no log.solve"
+@@ -475,7 +560,16 @@
+               % (rid, vals["f"], rf, (vals["f"] - rf) / rf,
+                  R[rid].get("predicted_rel_deviation", float("nan")), lo, hi,
+                  vals["c"], vals["m"], vals["f"], fmt_tr(tr), verdict, (" [" + note + "]") if note else ""))
+-    out = dict(rung="T19",
++    out = dict(rung="T19b",
++               supersedes="T19",
++               gate_source=dict(
++                   path=REG_PATH, sha256=REG_SHA256,
++                   note="T19's OWN frozen T19_registered.json, loaded by explicit path and pinned. "
++                        "No gate, threshold, band, floor, cap or label is defined, copied or "
++                        "re-derived by T19b; DEAD_LEVER_AUDIT.md 21.2 forbids moving one and none "
++                        "moves. The repair is to the CASE (build_t19b.py drops residualControl)."),
++               referent_source=dict(path=EXACT_PATH, sha256=EXACT_SHA256,
++                                    note="T19's OWN frozen exact_t19.py, unmodified"),
+                scope="FORCED CONVECTION, LAMINAR, 2-D: fully developed parallel-plate channel; "
+                      "NOT turbulent, NOT 3-D, NOT conjugate; the entrance region is solved but not graded",
+                ceiling="GATE REACHED at best -- the reference is EXACT/derived, so this rung scores V and "
+@@ -593,11 +687,119 @@
+     open(os.path.join(root, "DONE.%s" % name), "w").write("done\n")
+ 
+ 
+-def selftest():
++class _RootWatch(object):
++    """S8b/S8c -- RULE 3 APPLIED TO THE SELFTEST ITSELF.
++
++    Records every filesystem READ under `root` for the duration of the `with`
++    block, by replacing the seven call routes through which this comparator can
++    reach a run tree: builtins.open, os.listdir, os.scandir, os.path.isfile,
++    os.path.isdir, os.path.exists and glob.glob.  Paths in `allow` are permitted
++    and are not counted.  The originals are restored in __exit__, and nesting is
++    LIFO-safe.
++
++    A ZERO FROM THIS WATCHER IS NOT EVIDENCE UNTIL THE WATCHER HAS BEEN SHOWN
++    ABLE TO SEE A NON-ZERO, so selftest() plants a deliberate read it must
++    record, checks the record, and only then clears it.
++    """
++
++    def __init__(self, root, allow=()):
++        self.root = os.path.abspath(root)
++        self.allow = set(os.path.abspath(a) for a in allow)
++        self.hits = []
++        self._saved = None
++        self._in = False
++
++    def _note(self, p):
++        if self._in:
++            return
++        self._in = True
++        try:
++            if isinstance(p, bytes):
++                p = p.decode("utf-8", "replace")
++            if not isinstance(p, str):
++                p = os.fspath(p)
++            ap = os.path.abspath(p)
++            if (ap == self.root or ap.startswith(self.root + os.sep)) and ap not in self.allow:
++                self.hits.append(ap)
++        except Exception:
++            pass
++        finally:
++            self._in = False
++
++    def __enter__(self):
++        import builtins
++        import glob as _glob
++        self._saved = (builtins.open, os.listdir, os.scandir, os.path.isfile,
++                       os.path.isdir, os.path.exists, _glob.glob)
++        w = self
++
++        def wrap(fn):
++            def g(path, *a, **k):
++                if isinstance(path, (str, bytes)) or hasattr(path, "__fspath__"):
++                    w._note(path)
++                return fn(path, *a, **k)
++            return g
++        builtins.open = wrap(self._saved[0])
++        os.listdir = wrap(self._saved[1])
++        os.scandir = wrap(self._saved[2])
++        os.path.isfile = wrap(self._saved[3])
++        os.path.isdir = wrap(self._saved[4])
++        os.path.exists = wrap(self._saved[5])
++        _glob.glob = wrap(self._saved[6])
++        return self
++
++    def __exit__(self, *exc):
++        import builtins
++        import glob as _glob
++        (builtins.open, os.listdir, os.scandir, os.path.isfile,
++         os.path.isdir, os.path.exists, _glob.glob) = self._saved
++        return False
++
++
++def _here_refs_in_selftest(src=None):
++    """S8d -- the SOURCE-LEVEL detector.  Counts references to the name `HERE`
++    inside the selftest functions.  analyse_t19.py:691 held exactly ONE --
++    `grade(HERE, ...)`, HERE being the LIVE T19_runs directory -- and that single
++    reference is the whole defect T19b repairs.  The count must be 0 here, and
++    selftest() drives this same function on a PLANTED source to show it returns
++    a non-zero when the reference is present."""
++    import ast as _a
++    tree = _a.parse(src if src is not None else open(__file__).read())
++    n = 0
++    for node in _a.walk(tree):
++        if isinstance(node, _a.FunctionDef) and node.name in ("_limbs", "selftest",
++                                                              "_populate_run_root"):
++            for sub in _a.walk(node):
++                if isinstance(sub, _a.Name) and sub.id == "HERE":
++                    n += 1
++    return n
++
++
++def _populate_run_root(root):
++    """S8a pass B: a run root FULLY POPULATED at the registered ladder -- all six
++    case directories, `0/`, the 28000 and 30000 writes, the three registered
++    fields, log.solve, STATUS.<case> and DONE.<case>.  Nothing in the limb set is
++    allowed to notice."""
++    for lv, (nx, ny) in (("c", (120, 20)), ("m", (240, 40)), ("f", (480, 80))):
++        for arm, pre in (("Ts", "P_Ts_"), ("q", "P_q_")):
++            nm = pre + lv
++            _forge(root, nm, nx, ny, arm)
++            with open(os.path.join(root, "STATUS.%s" % nm), "w") as fh:
++                fh.write("case=%s\nrc=0\nwall_s=1\nranks=1\ncore_min=0.017\nnote=synthetic\n" % nm)
++
++
++def _limbs(reg, run_root):
++    """THE WHOLE LIMB SET.  Every limb forges its own synthetic tree in a scratch
++    directory it creates and removes.  `run_root` is handed in ONLY so that S8
++    can MEASURE invariance: no limb may read, stat or glob it, and the two
++    watchers plus _here_refs_in_selftest() enforce that rather than promise it.
++
++    Returns the outcome structure S8a compares between the two passes: the list
++    of failed limb labels, and the (exit code, verdict vector) of every forged
++    grading run."""
+     import ast
+     fails = []
+-    reg = load_registered()
+-    print("analyse_t19 selftest:")
++    probe = []
+     fired = False
+     tmpj = tempfile.mkdtemp(prefix="t19reg_")
+     try:
+@@ -653,6 +855,7 @@
+         finally:
+             shutil.rmtree(tmp, ignore_errors=True)
+     code, res = run_forged()
++    probe.append(("value-control", code, [r["verdict"] for r in res["rows"]] if res else None))
+     rows = {r["row"]: r for r in res["rows"]} if res else {}
+     ok = (code == 0 and rows and all(rows[k]["verdict"] == "PASS" for k in ("G1", "G2", "G3"))
+           and all(abs(rows[k]["observed_order"] - 2.0) < 0.2 for k in ("G1", "G2", "G3"))
+@@ -664,36 +867,68 @@
+     if not ok:
+         fails.append("value-control")
+     code, res = run_forged(drift=1e-3)
++    probe.append(("plateau", code, [r["verdict"] for r in res["rows"]] if res else None))
+     ok = (code == 0 and res and all(r["verdict"] == "NOT A RESULT" for r in res["rows"]))
+     print("  [%s] C_PLATEAU broken (f.Re moved 1e-3 between the last two writes) -> gate (1) "
+           "-> NOT A RESULT x3" % ("ok " if ok else "FAIL"))
+     if not ok:
+         fails.append("plateau")
+     code, res = run_forged(asym=1.0)
++    probe.append(("sym", code, [r["verdict"] for r in res["rows"]] if res else None))
+     ok = (code == 0 and res and all(r["verdict"] == "NOT A RESULT" for r in res["rows"]) and not res["gate1"]["ok"])
+     print("  [%s] C_SYM broken (a field antisymmetric about the mid-plane) -> gate (1) -> NOT A RESULT x3"
+           % ("ok " if ok else "FAIL"))
+     if not ok:
+         fails.append("sym")
+     code, res = run_forged(bad_mass=1e-3)
++    probe.append(("mass", code, [r["verdict"] for r in res["rows"]] if res else None))
+     ok = (code == 0 and res and all(r["verdict"] == "NOT A RESULT" for r in res["rows"]))
+     print("  [%s] C_MASS broken (bulk velocity 0.1 percent off U0) -> gate (1) -> NOT A RESULT x3"
+           % ("ok " if ok else "FAIL"))
+     if not ok:
+         fails.append("mass")
+     code, res = run_forged(err=30.0)
++    probe.append(("gate-fail", code, [r["verdict"] for r in res["rows"]] if res else None))
+     ok = (code == 0 and res and {r["row"]: r["verdict"] for r in res["rows"]}["G1"] == "GATE FAIL")
+     print("  [%s] forged f.Re perturbation 30/ny^2 -> G1 outside its band -> GATE FAIL" % ("ok " if ok else "FAIL"))
+     if not ok:
+         fails.append("gate-fail")
+-    fired = False
++    # ------------------------------------------------------------------------
++    # THE REPAIRED LIMB.  analyse_t19.py:691 read
++    #     grade(HERE, os.path.join(tempfile.gettempdir(), "t19_never.json"), reg)
++    # with HERE the LIVE T19_runs directory.  That limb passed only because no
++    # DONE marker existed, and the day one did it would have driven the real
++    # grading path across a live run tree as a side effect of a selftest.
++    #
++    # The replacement forges its own tree and is STRICTLY STRONGER than the
++    # original: the six cases are fully readable and complete, and ONLY the DONE
++    # markers are removed -- so the refusal is ATTRIBUTABLE to the DONE check
++    # rather than to the absence of any case at all, which is all the parent's
++    # empty live tree ever demonstrated.  It also asserts NO json was written.
++    fired, wrote, ncases = False, True, 0
++    tmp = tempfile.mkdtemp(prefix="t19b_nodone_")
+     try:
+-        grade(HERE, os.path.join(tempfile.gettempdir(), "t19_never.json"), reg)
+-    except SystemExit as e:
+-        fired = (e.code == EXIT_REFUSE)
+-    print("  [%s] live tree, no DONE markers -> exit 2 REFUSE" % ("ok " if fired else "FAIL"))
+-    if not fired:
+-        fails.append("live")
++        for lv, (nx, ny) in (("c", (120, 20)), ("m", (240, 40)), ("f", (480, 80))):
++            _forge(tmp, "P_Ts_%s" % lv, nx, ny, "Ts")
++            _forge(tmp, "P_q_%s" % lv, nx, ny, "q")
++        for f in os.listdir(tmp):
++            if f.startswith("DONE."):
++                os.remove(os.path.join(tmp, f))
++        ncases = len([f for f in os.listdir(tmp) if f.startswith("P_")])
++        out = os.path.join(tmp, "t19b_never.json")
++        try:
++            grade(tmp, out, reg)
++        except SystemExit as e:
++            fired = (e.code == EXIT_REFUSE)
++        wrote = os.path.isfile(out)
++    finally:
++        shutil.rmtree(tmp, ignore_errors=True)
++    ok = fired and not wrote and ncases == 6
++    print("  [%s] SYNTHETIC tree, %d complete cases but NO DONE markers -> exit 2 REFUSE and no "
++          "gate json written (S8: no limb touches a live run tree)" % ("ok " if ok else "FAIL", ncases))
++    if not ok:
++        fails.append("no-DONE-refusal")
++    probe.append(("no-DONE-refusal", fired, wrote, ncases))
+     src = open(__file__).read()
+     n0 = sum(isinstance(n, ast.Assert) for n in ast.walk(ast.parse(src)))
+     n1 = sum(isinstance(n, ast.Assert) for n in ast.walk(ast.parse(src + "\nassert 1\n")))
+@@ -702,6 +937,91 @@
+           % ("ok " if ok else "FAIL", n0, n1))
+     if not ok:
+         fails.append("ast")
++    return dict(fails=fails, probe=probe)
++
++
++def selftest():
++    """S8, driven.  The limb set runs TWICE in one invocation against two
++    synthetic run roots -- one EMPTY, one FULLY POPULATED -- under two filesystem
++    watchers, and the two outcome structures must be byte-identical."""
++    reg = load_registered()
++    print("analyse_t19b selftest -- the limb set runs TWICE (S8: empty vs fully populated run "
++          "root) and the two outcomes must be byte-identical:")
++    results, watched = {}, {}
++    for tag, populate in (("A/EMPTY-run-root", False), ("B/POPULATED-run-root", True)):
++        rr = tempfile.mkdtemp(prefix="t19b_rr_")
++        try:
++            if populate:
++                _populate_run_root(rr)
++            npop = len(os.listdir(rr))
++            print("-- pass %s (%d entries in the synthetic run root) --" % (tag, npop))
++            with _RootWatch(PARENT, allow=(REG_PATH, EXACT_PATH)) as pw, _RootWatch(rr) as rw:
++                # RULE 3.  Plant a read each watcher MUST see before its zero is
++                # allowed to mean anything.  Both probe paths are chosen NOT to
++                # exist, so nothing is learned about either tree -- only about
++                # the watchers.
++                os.path.isfile(os.path.join(rr, "DONE.PLANTED_PROBE_NOT_A_CASE"))
++                os.path.isfile(os.path.join(PARENT, "P_q_c", "PLANTED_PROBE_NOT_A_FILE"))
++                planted = (len(rw.hits), len(pw.hits))
++                rw.hits, pw.hits = [], []
++                res = _limbs(reg, rr)
++            results[tag] = res
++            watched[tag] = dict(planted=planted, rr_hits=sorted(set(rw.hits)),
++                                parent_hits=sorted(set(pw.hits)), npop=npop)
++        finally:
++            shutil.rmtree(rr, ignore_errors=True)
++
++    fails = list(results["A/EMPTY-run-root"]["fails"])
++    for lbl in results["B/POPULATED-run-root"]["fails"]:
++        if lbl not in fails:
++            fails.append(lbl)
++    print("S8 -- the invariance and access measurements:")
++
++    a = json.dumps(results["A/EMPTY-run-root"], sort_keys=True)
++    b = json.dumps(results["B/POPULATED-run-root"], sort_keys=True)
++    ok = (a == b)
++    print("  [%s] S8a INVARIANCE: the outcome structure over an EMPTY run root (0 entries) is "
++          "BYTE-IDENTICAL to the one over a FULLY POPULATED run root (%d entries, six complete "
++          "cases with DONE markers)" % ("ok " if ok else "FAIL", watched["B/POPULATED-run-root"]["npop"]))
++    if not ok:
++        fails.append("S8a-invariance")
++        print("      A: %s\n      B: %s" % (a[:400], b[:400]))
++
++    ok = all(watched[t]["planted"][0] >= 1 and watched[t]["planted"][1] >= 1 for t in watched)
++    print("  [%s] S8b/S8c PLANTED CONTROL (rule 3): a deliberate read under each watched root was "
++          "SEEN -- run-root watcher %s, T19_runs watcher %s (pass A); a zero from a watcher not "
++          "shown able to see a non-zero would not be evidence"
++          % ("ok " if ok else "FAIL", watched["A/EMPTY-run-root"]["planted"][0],
++             watched["A/EMPTY-run-root"]["planted"][1]))
++    if not ok:
++        fails.append("S8-planted-control")
++
++    ok = all(not watched[t]["rr_hits"] for t in watched)
++    print("  [%s] S8b: NO limb read, listed or stat-ed the run root in either pass (%d + %d "
++          "recorded reads)" % ("ok " if ok else "FAIL", len(watched["A/EMPTY-run-root"]["rr_hits"]),
++                               len(watched["B/POPULATED-run-root"]["rr_hits"])))
++    if not ok:
++        fails.append("S8b-run-root-touched")
++        print("      touched: %s" % watched["A/EMPTY-run-root"]["rr_hits"][:6])
++
++    ok = all(not watched[t]["parent_hits"] for t in watched)
++    print("  [%s] S8c: NO limb read anything under T19_runs beyond the two PINNED instruments -- "
++          "the FALSIFICATION SPECIMEN (P_q_c/828, P_Ts_c/541) is measured untouched, not asserted "
++          "untouched (%d recorded reads)"
++          % ("ok " if ok else "FAIL", len(watched["A/EMPTY-run-root"]["parent_hits"])))
++    if not ok:
++        fails.append("S8c-parent-touched")
++        print("      touched: %s" % watched["A/EMPTY-run-root"]["parent_hits"][:6])
++
++    n_here = _here_refs_in_selftest()
++    n_planted = _here_refs_in_selftest("def _limbs(reg, run_root):\n    return grade(HERE, run_root)\n")
++    ok = (n_here == 0 and n_planted == 1)
++    print("  [%s] S8d: `HERE` references inside the selftest functions = %d (the SAME detector on a "
++          "planted `grade(HERE, ...)` source returns %d, so the zero is planted, not blind) -- "
++          "analyse_t19.py:691 held exactly one" % ("ok " if ok else "FAIL", n_here, n_planted))
++    if not ok:
++        fails.append("S8d-here-detector")
++
+     print("SELFTEST %s (%d failed)" % ("PASS" if not fails else "FAIL", len(fails)))
+     return 0 if not fails else 1
+ 
+@@ -710,7 +1030,7 @@
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--selftest", action="store_true")
+     ap.add_argument("--root", default=HERE)
+-    ap.add_argument("--json", default=os.path.join(HERE, "gate_t19.json"))
++    ap.add_argument("--json", default=os.path.join(HERE, "gate_t19b.json"))
+     a = ap.parse_args()
+     if a.selftest:
+         return selftest()
