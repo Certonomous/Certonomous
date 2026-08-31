@@ -1,0 +1,180 @@
+{
+  "rung": "T18",
+  "scope": "SOLID-ONLY 3-D transient conduction (T11c); NOT conjugate, NOT a flow case",
+  "ceiling": "GATE REACHED at best -- the reference is EXACT, so this rung scores V and never P; it can never reach HOLDS",
+  "Bi": 1.0,
+  "Fo_end": 0.2,
+  "N": {
+    "c": 20,
+    "m": 40,
+    "f": 80
+  },
+  "refinement_ratio": 2.0,
+  "dim": 3,
+  "factor_of_safety": 1.25,
+  "floors": {
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05,
+    "source": "scripts/roache_triple.py (imported)"
+  },
+  "gate1": {
+    "ok": true,
+    "why": "",
+    "time_integration": {
+      "c": {
+        "ok": true,
+        "worst_final_residual": 9.9929880573638e-13,
+        "why": ""
+      },
+      "m": {
+        "ok": true,
+        "worst_final_residual": 9.7197421395142e-13,
+        "why": ""
+      },
+      "f": {
+        "ok": true,
+        "worst_final_residual": 9.9682639507481e-13,
+        "why": ""
+      }
+    },
+    "W0": {
+      "c": 4.007905118896815e-14,
+      "m": 2.0095036745715333e-14,
+      "f": 5.007105841059456e-14
+    }
+  },
+  "planted_zero_controls": {
+    "G1": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 512000,
+      "recovered": 0.0012339999999999574,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 1.0,
+        "0.1": 0.10000000000000009,
+        "0.01": 0.010000000000000009,
+        "0.001234": 0.0012339999999999574,
+        "0.0001": 0.00010000000000010001,
+        "1e-05": 1.0000000000065512e-05,
+        "1e-06": 1.0000000000287557e-06,
+        "1e-07": 1.0000000005838672e-07
+      }
+    },
+    "G2": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 1,
+      "recovered": 0.004164749999999828,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 3.3750000000000004,
+        "0.1": 0.3375,
+        "0.01": 0.03374999999999995,
+        "0.001234": 0.004164749999999828,
+        "0.0001": 0.00033749999999987956,
+        "1e-05": 3.374999999994355e-05,
+        "1e-06": 3.3750000001386837e-06,
+        "1e-07": 3.37499999947255e-07
+      }
+    },
+    "G3": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 1,
+      "recovered": 0.004164749999999939,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 3.3749999999999907,
+        "0.1": 0.3374999999999988,
+        "0.01": 0.033749999999999725,
+        "0.001234": 0.004164749999999939,
+        "0.0001": 0.0003374999999999906,
+        "1e-05": 3.37499999997215e-05,
+        "1e-06": 3.374999999916639e-06,
+        "1e-07": 3.374999997252104e-07
+      }
+    }
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "quantity": "theta_mean, arithmetic mean over the octant's equal-volume cell centres (the midpoint rule; NOT mesh-independent -- its own quadrature error is computed below)",
+      "reference": 0.6175896495857721,
+      "band": [
+        0.6175587701032929,
+        0.6176205290682515
+      ],
+      "value_fine": 0.6176037116500406,
+      "triple": {
+        "c": 0.617762316344722,
+        "m": 0.6176354394025617,
+        "f": 0.6176037116500406
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.999612671718709,
+      "gci_pct": 0.0021412808868618996,
+      "richardson_REPORTED_ONLY": 0.6175931319458533,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 2.2769268037267886e-05
+    },
+    {
+      "row": "G2",
+      "quantity": "theta at (x*,y*,z*) = (0,0,0), the centre of the full cube, separable linear extrapolation from the nearest cell centres in each direction",
+      "reference": 0.8591137894248864,
+      "band": [
+        0.8588990109775302,
+        0.8593285678722427
+      ],
+      "value_fine": 0.8591831159109823,
+      "triple": {
+        "c": 0.8602570319497803,
+        "m": 0.8593978308812478,
+        "f": 0.8591831159109823
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 2.0005730058394593,
+      "gci_pct": 0.010407235340856198,
+      "richardson_REPORTED_ONLY": 0.8591115821438768,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 8.0695347868099e-05
+    },
+    {
+      "row": "G3",
+      "quantity": "theta at (x*,y*,z*) = (1,0,0), the centre of one Robin face on the two symmetry planes, separable linear extrapolation",
+      "reference": 0.5814449853050342,
+      "band": [
+        0.5812705518094426,
+        0.5816194188006257
+      ],
+      "value_fine": 0.581519262000889,
+      "triple": {
+        "c": 0.5826172821253102,
+        "m": 0.5817372839509841,
+        "f": 0.581519262000889
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 2.013027140185909,
+      "gci_pct": 0.015434904851022137,
+      "richardson_REPORTED_ONLY": 0.5814474564450648,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 0.0001277450106751473
+    }
+  ],
+  "C_T": {
+    "case": "T18_CU_f_CT",
+    "G1_fine": 0.6176037116500406,
+    "G1_ct": 0.617601968994698,
+    "move_rel": -2.8216400091394453e-06,
+    "fraction_of_band": 0.05643280018278889
+  }
+}
