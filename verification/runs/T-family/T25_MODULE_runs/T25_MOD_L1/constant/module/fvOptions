@@ -1,0 +1,37 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant/module";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// THE TAKEOFF PULSE -- directive 4.3:411-414, implemented as the directive
+// asks: scalarSemiImplicitSource with a time-dependent Function1 table.
+//   0 <= t < 60 s   : 15.0 W/cell / 3.000000e-03 m3 = 5000.000000 W/m3
+//   60 <= t <= 900 s: 4.0 W/cell / 3.000000e-03 m3 = 1333.333333 W/m3
+
+volumetricHeatSource
+{
+    type            scalarSemiImplicitSource;
+    selectionMode   all;
+    volumeMode      specific;
+    sources
+    {
+        h
+        {
+            explicit    table
+            (
+                (  0.000  5000.000000)
+                ( 59.999  5000.000000)
+                ( 60.001  1333.333333)
+                (900.000  1333.333333)
+            );
+            implicit    none;
+        }
+    }
+}
+
+// ****************************************************************** //
