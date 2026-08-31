@@ -1,0 +1,71 @@
+{
+  "team": "dafoam",
+  "case_id": "SO1a_chain",
+  "prereg_commit": "7bd91ef98861daa90a69350c3671e50c921a4ca7",
+  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_SO1a/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1a/so1a_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "F-S",
+    "X-P",
+    "F-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1a",
+  "ranks": 1,
+  "cost_core_min_estimate": 7.4,
+  "cap_core_min_registered": 75.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 7.4 core-min derived from MEASURED like-for-like anchors, not from sibling estimates (PREREGISTRATION.md section 4): MESH 0.167 core-min MEASURED, the same figure in COST_CALIBRATION C-154 (D15), C-156 (D16) and C-158 (AV-1) on this same 4,032-cell pyHyp mesh at 1 rank; X-S/X-P 1.1 each from C-158's AV-1 X1-S = 1.017 core-min MEASURED, which is the SAME arm this item runs (incompressible A1 tutorial, np=1, compute_totals(of=[CD,CL],wrt=[shape,patchV]), shipped image); F-S/F-P 2.5 each derived from C-154's D15 F-S minus X-S = 2.066 core-min for >=31 compressible primals at np=2, scaled x0.5 incompressible and x1.5 for np=1 wall, 42 primals plus setup. Band [4.0, 22.0]. Per-arm caps MESH 5.0, X 10.0, F 25.0; CEILING 75.0 core-min = sum of caps, each enforced as a deadline INSIDE its container (MESH 300 s, X 600 s, F 1500 s, all at 1 rank). Dollars DERIVED, not measured: $0.00633 point, $0.0641 at the ceiling. Already spent and billed in section 4: 0 core-min of solver compute -- the only containers this lane started were the G-ROOT.5 selftest's sacrificial sleep (--cpus=0.1, 64m, removed in the same script).",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "dafoam-supervisor via lane D (lane's read: git cat-file -e on 7bd91ef98861daa90a69350c3671e50c921a4ca7^{commit} and on <sha>:cases/dafoam/ladder-a/A1/curriculum_SO1a/PREREGISTRATION.md both present; the five DELTAS diffs and both selftest evidence files are in the case directory for the supervisor's own check 1 and check 4). ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 is the supervisor's own and is not discharged by this file.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered the runner's cap watch reads. Fields below are dafoam annotations the validator ignores.",
+  "ladder": "Sanaa's SHAPE-OPTIMIZATION LADDER, directives 2026-08-27T16:54Z section 4: 'SO-1 NACA0012 subsonic drag-min at fixed lift; then RAE2822 transonic.' Pattern per case: FD-verified gradient rung -> optimization rung -> post-optimum verification -> D7R attribution. THIS ENTRY IS RUNG 1 OF 4 AND NOTHING MORE. SO-1b, SO-1c and the attribution step are separate registrations and are deliberately NOT frozen, because SO-1b's gates would depend on this rung's answer.",
+  "capability_grid_cell": "2D . steady . incompressible -- gradients computed + FD-verified. The CD column already carries a reading (reverify_patched_idwarp_np1 SHIPPED 11.43 %, D13 PATCHED PASS); what is NEW is the CONSTRAINT gradient dCL/dx, which no A1 record has ever FD-verified, and which is what carries CL == 0.5 into SO-1b.",
+  "regime": "2D steady incompressible: DASimpleFoam, U0 = 10.0 m/s, p0 = 0, nuTilda0 = 4.5e-5, aoa0 = 5.13918623195176 deg, CL_target = 0.5, Spalart-Allmaras with wall functions, primalMinResTol 1.0e-8, 4,032 cells, symmetry planes z=0 / z=0.1. Objective CD; EQUALITY constraint CL == CL_target (so1a_runScript.py:174). M ~ 0.03.",
+  "np_1_by_registration": "every arm runs at np = 1 (DAFOAM_CHARTER.md section 5, serial before parallel; A4's measured 16,600x decomposition effect removed from the chain rather than assumed absent). CONSEQUENCE REGISTERED IN PREREGISTRATION.md section 8: a gradient verified at one np is a statement about that np, so SO-1b must either run at np = 1 or buy its own verification at its np.",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (MESH, X-S, F-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (X-P, F-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md sections 1, 6, 10): X and F are bought on both images on one mesh generated once in the shipped image.",
+  "trivial_baseline_G_TB": "DAFOAM_CHARTER.md section 4 is INSTRUMENTED, not merely named: the same probe at a DELIBERATELY WRONG step h = 1e-8 (shape) / 1e-6 (patchV), five orders below the registered middle step, in the cancellation regime where the FD numerator is at or below the measured primal repeatability eta (D15 measured 1.30e-10 on this mesh). G-TB PASSES iff AT MOST 1 of 5 components passes band D at the wrong step; 2 or more and the G5 verdict for that row is WITHDRAWN to NOT A RESULT. D15, D16 and D17 named no trivial baseline at all.",
+  "age_guard_datum": "RESOLVED BY EXISTENCE, NEVER BY NAME. AV-1 (0b3ebaa4) and AV-2 (3e2cbf74) both returned NOT A RESULT on 2026-08-27 with every arm rc = 0 and every physics artefact intact, because their frozen graders pinned DATUM_REF = '0/U' while this tutorial's writeCompression on (system/controlDict:27) rewrites it as 0/U.gz on a SERIAL arm. Here both names are candidates, the one found is RECORDED, writeCompression is READ from the arm's own controlDict, and the refusal fires only when NEITHER exists -- DRIVEN by grader unit U24 and launcher legs f1/f2/f3. The launcher performs the same resolution and writes the name it used to .so1a_age_datum_ref. P9 predicts the compressed twin on all four solver arms and is scored mechanically.",
+  "R_RC": "Sanaa's directives 2026-08-27 section 0, applied: rc VALUE is physics, rc RECORD is infrastructure. The five rule-4 clauses are PRINTED INDIVIDUALLY per arm -- C1 rc value, C2 terminal marker, C3 artefact present, C4 age guard, C5 no fatal token. An absent rc record reads NOT MEASURED only when C2-C5 all hold; the implied rc = 0 is printed as an INFERENCE with its basis named and is never graded as a measurement; a FOAM FATAL ERROR or signal token REFUSES regardless of rc; an absent record with a NON-ZERO harness rc also refuses.",
+  "cpuset": "9 -- ONE core, every arm np = 1. DISCLOSED OVERLAP with D4-SHIPPED's registered 5,6,7,9. At np = 1 the grader's delivered-cores floor does not apply, so the overlap costs WALL TIME and cannot fail G12; it is registered as a cost exposure in PREREGISTRATION.md section 4 and the band [4.0, 22.0] is set wide enough to absorb it. Never silently re-pinned.",
+  "deadline_in_container_s": "MESH 300 s; X-S/X-P 600 s; F-S/F-P 1500 s -- all at 1 rank, each equal to cap x 60 / ranks, asserted by the launcher against the registered cap to 0.02 core-min before the container starts.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient -- asserted ABSENT by test -e at 2026-08-27T17:03:56Z, 17:19:26Z, 17:19:28Z and 17:20:52Z. The driver creates it on the first fire and stages nothing on a second.",
+  "guards_before_launch": "G-ROOT.1 registered root; G-ROOT.2 forbidden roots named (D4, D4-SHIPPED, D4-SHIPPED-R, D5, D6, D14, D14M, D7R, D7FR, D12R*, D13, D15, D16, D17, AV-1, AV-2, A2-mach-wing, the tutorial checkout, certonomous-runs, the repo); G-ROOT.3 ledger ITEM; G-ROOT.4 ALREADY_BOUGHT; G-ROOT.5 live so1a_<ARM>_ container / live driver pid holding the root; G-ROW arm-suffix vs image row; md5s of the producer, instrument, decomposeParDict and six tutorial inputs; image digest by RepoDigest; H5 45 samples / 60 s floor 8.0 GiB; aggregate wait-and-retry bounded 14,400 s. ALL DRIVEN: so1a_groot5_selftest_evidence.txt 25/25, including the NEW leg (f) that drives the age-datum-by-existence resolution in all three states.",
+  "controls_driven": "so1a_grade_selftest_evidence.txt: 35/35 under python3 AND python3 -O; ast.Assert = 0 in so1a_grade.py and so1a_xf.py with the counter shown counting a planted assert (=1); instrument planted-zero CTRL with disk read-back refusal; grader-level plant re-read through the same reader; five NEW driven controls U24 (datum absent both names), U26/U27/U28 (R-RC), U29/U30 (fatal and signal tokens at rc=0), U31 (trivial baseline agrees -> withdrawal), U33 (constraint gradient fails alone).",
+  "predictions": "P1 cells 4,032; P2 CL baseline [0.45,0.55]; P3 CD baseline [0.015,0.028]; P4 patched CD 5/5 in band D; P5 shipped shape[6] outside band D or sign-flipped; P6 patched CONSTRAINT gradient dCL/dx 5/5 and aggregate <= 1.0 % (a MISS stops the ladder at SO-1a and that is the finding); P7 trivial baseline fails >= 4 of 5; P8 total core-min in [4.0,22.0]; P8b MESH wall <= 120 s; P9 the age datum resolves to the COMPRESSED twin on every solver arm. REGISTERED OUTCOME: all HIT -> SHIPPED row GATE FAIL, PATCHED row PASS, item GATE FAIL.",
+  "permission_record": "Sanaa's verbatim permission for detached launches boarded at bc0e687e. NOTHING in this item is filed, sent, uploaded, registered, posted or commented outside this box (CLAUDE.md rule 7; DAFOAM_CHARTER.md section 10).",
+  "verdict_state": "PENDING",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.SO1a_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_launch": {
+    "utc": "2026-08-28T02:16:34Z",
+    "pid": 1708870,
+    "sid": 1708870,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1a/STATUS.SO1a_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1a/launcher.queue.out",
+    "started_epoch": 1787883394.4832366,
+    "status_seen_utc": "2026-08-28T02:31:40Z"
+  }
+}

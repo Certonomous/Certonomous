@@ -1,0 +1,74 @@
+{
+  "team": "dafoam",
+  "case_id": "AV1R_chain",
+  "prereg_commit": "0c019d922a537b0f9cae13f6646537e328e6e6bf",
+  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_AV1R/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV1R/av1r_chain_driver.sh",
+    "MESH",
+    "X1-S",
+    "X2-S",
+    "X4-S",
+    "X1-P",
+    "X2-P",
+    "X4-P"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV1R",
+  "ranks": 4,
+  "cost_core_min_estimate": 19.3,
+  "cap_core_min_registered": 95.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). 19.3 core-min DERIVED from named anchors (PREREGISTRATION.md section 4: C-31 D1-C' 1.483 core-min primal+adjoint on this 4,032-cell mesh at np=1; C-71 D13 per start 5.15-6.38; C-135 D14-M mesh 0.1833; parallel efficiency 0.8 / 0.6 assumed at np=2 / 4 and graded by P4), NOT measured. THE POINT IS DELIBERATELY NOT MOVED onto the predecessor AV-1's MEASURED 9.102 core-min: an estimate is not tuned to a measurement taken after the freeze it belongs to; the gap is a calibration finding and the completion row compares against BOTH figures. Per-arm caps MESH 5.0, X1 10.0, X2 15.0, X4 20.0; CEILING 95.0 core-min = sum of caps, each enforced as a deadline INSIDE its container. Dollars DERIVED, not measured: $0.0165 point, $0.0812 at the ceiling.",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "dafoam-supervisor, explicitly and in writing, after lane C declined to enqueue on its own authority. ENQUEUEING IS NOT AUTHORISATION: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is the supervisor's own and is discharged on freeze sha 0c019d92. Filed by lane C; lane's own read: git cat-file -e on the freeze sha and on <sha>:<prereg_path> both present, cwd holds no 0/ and no numeric time directory, run root asserted ABSENT.",
+  "_schema_note": "Fields above are the validator's REQUIRED_FIELDS plus the optional cap_core_min_registered. Fields below are dafoam annotations the validator ignores.",
+  "successor_to": "curriculum_AV1 (freeze 0b3ebaa4, verdict NOT A RESULT at 23dccf38). AV-1 is NOT re-graded, NOT repaired and NOT superseded as a record. VERIFICATION_CHARTER.md section 2d.1 was REFUSED [lab-attributed]; av1_grade.py is untouched at 0b3ebaa4.",
+  "what_changed_from_the_predecessor": "ONE substantive change: G1's age-guard datum is resolved BY EXISTENCE over a registered candidate set ('0/U','0/U.gz'; '0.orig/U','0.orig/U.gz' on MESH), never by name -- none REFUSES, more than one REFUSES as ambiguous; the datum FILE anchors its own recorded epoch to within 5 s; the resolved reference may be NEWER than the datum (the writeCompression rewrite) but never OLDER; writeCompression is READ from the arm's own system/controlDict and RECORDED, never gated. EVERY band, threshold, verdict rule, control and prediction P1-P7 is carried forward VERBATIM from 0b3ebaa4, frozen before AV-1's first container started.",
+  "driven_control_on_the_relaxed_guard": "7 selftest units UD1-UD7, EXPECTED_UNITS raised 24 -> 31 so the count is itself a gate; 31/31 under python3 AND python3 -O, ast.Assert 0 (av1r_grade_selftest_evidence.txt). UD4 is the control: with NEITHER candidate on disk the guard STILL REFUSES. Driven additionally against the REAL AV-1 artefacts (av1r_datum_control_evidence.txt): 7 of 7 arms resolve, 5 by 0/U and 2 by 0/U.gz, self-delta 0 s; a planted empty directory makes the guard FIRE and a planted 0/U.gz is SEEN. That diagnostic grades nothing and AV-1 remains NOT A RESULT.",
+  "standard": "docs/dafoam/ADJOINT_VERIFICATION_STANDARD.md section 3 (np-invariance), v1.0b; Sanaa's 068c2bf0 sec.6",
+  "capability_grid_cell": "2D . steady . incompressible -- np-invariance evidence for the gradient column's 'what was checked'; NO grid verdict moves on this item alone (no FD table)",
+  "regime": "2D steady incompressible: DASimpleFoam, U0=10 m/s, aoa 5.139 deg, SA, 4,032 cells (A1's mesh, the incompressible tutorial)",
+  "precondition_artifact": "none -- independent of every other item; the driver's own guards (G-ROOT.1-.5, root staging on first fire only, ALREADY_BOUGHT, six tutorial-input md5s, instrument md5s, image digest per row, G-ROW, H5 window floor 8.0 GiB, aggregate wait-and-retry) are its preconditions and every one refuses before a core-second is spent. G-ROOT.1-.5 driven from birth: 19 pass / 0 fail (av1r_groot5_selftest_evidence.txt).",
+  "images": {
+    "SHIPPED": "dafoam/opt-packages:latest sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc (MESH, X1-S, X2-S, X4-S)",
+    "PATCHED": "dafoam-idwarp-rot:v1 sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35 (X1-P, X2-P, X4-P)"
+  },
+  "two_row_rule": "the DAFoam verdict is two rows or it is not a verdict (DAFOAM_CHARTER.md section 6): every X arm is bought on both images on one mesh",
+  "container_memory_cap": "4g (6g at np=4)",
+  "cpuset": "0,1 for MESH/X1/X2; 0,1,12,15 for X4-S/X4-P -- REGISTERED (PREREGISTRATION.md section 5), the supervisor's placement",
+  "deadline_in_container_s": "MESH 300 s (1 rank); X1 600 s (1 rank); X2 450 s (2 ranks); X4 300 s (4 ranks)",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AV1R-a1-naca0012-npinv (asserted ABSENT at freeze, before and after the G-ROOT.5 selftest; the driver creates it on the first fire)",
+  "grader_md5_frozen": "b5c1d0092c6d2a2608ad3cc0899ed0fd (av1r_grade.py; asserted by the chain driver before staging and again before the grade)",
+  "rc_capture": "INSIDE the detached driver: per arm the launcher reads rc = docker inspect .State.ExitCode (and OOMKilled) BEFORE docker rm (no --rm), writes the ledger row and <ARM>_<stamp>.inspect.txt; at chain end the frozen grader av1r_grade.py runs on the artefacts (its rc is INFRASTRUCTURE, L-342). STATUS.AV1R_chain launcher_rc is the driver's exit, NOT the verdict.",
+  "permission_record": "Sanaa's verbatim permission boarded at bc0e687e; CPU spend under $25/run pre-authorised (CLAUDE.md rule 12).",
+  "verdict_state": "PENDING",
+  "predicted_outcome_registered_before_launch": "P1-P9 HIT; both rows PASS; item PASS (PREREGISTRATION.md section 9)",
+  "_launch": {
+    "utc": "2026-08-28T07:01:39Z",
+    "pid": 1769242,
+    "sid": 1769242,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV1R/STATUS.AV1R_chain",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_AV1R/launcher.queue.out",
+    "started_epoch": 1787900499.9253273,
+    "status_seen_utc": "2026-08-28T07:14:35Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.AV1R_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "team": "dafoam",
+  "case_id": "D5_chain_r4",
+  "prereg_commit": "5d02ee0bea099a2d41248aa32c3b5fea79702655",
+  "prereg_path": "cases/dafoam/ladder-a/A2/curriculum_D5/PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/d5_chain_driver.sh",
+    "F48",
+    "O192",
+    "ACC192",
+    "F192"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5",
+  "ranks": 4,
+  "cost_core_min_estimate": 773.434,
+  "cost_basis": "derived: the REMAINING arms' predictions under D5 ADDENDUM 3, UNCHANGED by ADDENDUM 4 -- F48 47.267 + O192 638.9 + ACC192 40.0 + F192 47.267 = 773.434 core-min. This is exactly 40.0 lower than r3's 813.434, and the difference IS ACC48's prediction, now BOUGHT (rc=0, 35.8 core-min measured 13:38:12-13:47:09Z, inside the Addendum-3 registered band [35.0, 60.0] at its lower edge, ratio 0.895 -- a pre-registered prediction HIT). O48 is likewise bought (rc=0, 684.533 core-min measured). F48's r3 fire is WASTE on its own C-row: 0.733 core-min spent, nothing bought, cause D5-LAUNCHER-DEF-1 -- named separately and NEVER absorbed into any ratio (COMPUTE_BUDGET_CHARTER.md section 6). $0.66 at the owner-stated c7a.4xlarge $0.0513/core-h, REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). Caps UNMOVED per arm: O 800.0 / ACC 60.0 / F 120.0; item ceiling UNMOVED at 1,960.0; deadline INSIDE each container at its cap wall (F 1,800 s, asserted live by control 5c).",
+  "memory_floor_gb": 16.0,
+  "enqueued_by": "dafoam-supervisor via lane B. Supervisor check 2 (crash triage) was discharged by the supervisor PERSONALLY before this lane began; check 1 (the launcher diff read as a diff) is owed on d5_run_arm_DELTAS_addendum4.diff, committed in the case directory; check 4 is the supervisor's own on the sha. ENQUEUEING IS NOT AUTHORISATION.",
+  "precondition_artifact": "INFORMATIONAL -- the runner evaluates no precondition; the driver evaluates its own. Run root /home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density PRESENT (not re-staged); ledger.txt carries ITEM=D5 on line 1 with rc=0 rows for O48 and ACC48 (both BOUGHT, both refused by ALREADY_BOUGHT) and the rc=124 / rc=127 waste rows; O48/OptView.hst present, consumed by F48 from O48/ as section 2 registers. The stray empty root-owned $BASE/F48/ left by the defect is LEFT IN PLACE as evidence and is inert. Before each arm: launcher md5, windowed H5 floor 16.0 GiB, ALREADY_BOUGHT, aggregate memory wait-and-retry, then G-ROOT.1-.5, cap assert, staged-instrument md5s, digest-only image identity, G-ROW (PATCHED only), G-COLD, and now the ADDENDUM 4 workdir guards.",
+  "permission": "bc0e687e",
+  "_schema_note": "Fields above precondition_artifact are the validator's REQUIRED_FIELDS. The rest are dafoam annotations the validator ignores.",
+  "image_row": "PATCHED",
+  "image": "dafoam-idwarp-rot:v1",
+  "image_digest": "sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35",
+  "container_memory_caps": "12g on every arm (Addendum 1)",
+  "cpuset": "8,10,11,13 -- REGISTERED (PREREGISTRATION.md section 5b); disjoint from D4-SHIPPED's 5,6,7,9 (its F3/ACC chain runner-fired 20:50:06Z, live at enqueue), from D6's 2,3,4,14 and from W2R's 12",
+  "aggregate_at_enqueue": "D4-SHIPPED 12g live + this 12g + host non-container RSS ~3 GiB = ~27 GiB < 30.6 -> the driver's aggregate guard passes without waiting; a third 12g sibling would make it wait-and-retry (poll 30 s, bound 14,400 s)",
+  "rc_capture": "INSIDE the chain driver: rc per arm is the frozen launcher's exit = docker inspect .State.ExitCode read before docker rm (no --rm); appended to STATUS.<arm> in the run root as rc=<n> stamp=<utc> arm=<arm> source=launcher_exit=docker_inspect_ExitCode ...; STATUS.chain carries the chain state; CHAIN_DONE (fixed name, Addendum 3 A3.5) receives one appended line when the started chain ends, success or stop. Never the $? of a setsid/timeout line; the runner's own STATUS.D5_chain_r3 launcher_rc is an INFRASTRUCTURE record (L-342).",
+  "guards_before_each_arm": "launcher md5 asserted (245341836829b1247b8d6efc794b7d08); windowed H5 (45 samples / 60 s, refuse on ANY sample < 16.0 GiB); ALREADY_BOUGHT; aggregate memory (live caps + 12 GiB + host non-container RSS < 30.6 GiB) in the WAIT-AND-RETRY form; then the launcher's G-ROOT.1-.3, G-ROOT.5, cap assertion (ACC 60.0 core-min = 900 s at 4 ranks), staged-instrument md5s, digest-only image identity, G-ROW (PATCHED only), G-COLD.",
+  "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density -- PRESENT (staged 17:42:43Z; O48/ complete; ACC48/ partial from r2, re-staged cold by the launcher; r2 STATUS files preserved as STATUS.ACC48.deadline_20260826T204405Z and STATUS.chain.acc48_stop_20260826T204405Z)",
+  "status_files": [
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.chain",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.ACC48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.F48",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.O192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.ACC192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/STATUS.F192",
+    "/home/ubuntu/certonomous-runs/CURRICULUM-D5-a2-wing-ffd-density/CHAIN_DONE"
+  ],
+  "grading_path": "cases/dafoam/ladder-a/A2/curriculum_D5/d5_grade.py md5 c87c7a64657107dec4f5b7d1e634ffe6 -- UNCHANGED by ADDENDUM 4 (26/26 under python3 and python3 -O at Addendum 3)",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.D5_chain_r4 (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "why_r4": "r3 (launched/D5_chain_r3.json, runner-fired 13:37:08Z pid 776691) BOUGHT ACC48 (rc=0, 35.8 core-min) and then stopped at F48 with rc=127 in 11 s / 0.733 core-min: D5-LAUNCHER-DEF-1, the container's working directory was spelled $ARM where the launcher's own $WORK -- and PREREGISTRATION.md section 2 -- put the F arm in O48/. Docker created /mnt/F48 empty and root-owned through the bind mount and `bash /mnt/F48/d5_cmd.sh` exited 127 on a file that had been correctly written to O48/ with the md5 the launcher printed. Repaired by D5 ADDENDUM 4 (5d02ee0bea099a2d41248aa32c3b5fea79702655), which moves NO gate, threshold, cap, band, label, prediction, cpuset or cost. The runner never re-fires a launched entry, so this is the re-fire entry. ACC48 AND O48 ARE OMITTED FROM THE ARM LIST: each carries an rc=0 ledger row and the driver's ALREADY_BOUGHT guard (d5_chain_driver.sh:101) would refuse the chain at rc=3 and ZERO COMPUTE if either were listed -- a second record for one run is the defect.",
+  "instrument_md5s_at_this_commit": {
+    "d5_run_arm.sh": "8fb1a94c8deeb5d2ea596b05a452dac0 (was 245341836829b1247b8d6efc794b7d08)",
+    "d5_chain_driver.sh": "cf0bb2083eebf3333453f5a564189c89 (was 728c0b47df91755e4dd5a7a8f075c9ae; MD5_LAUNCHER re-pinned and asserted to agree with the launcher at this commit)",
+    "d5_grade.py": "c87c7a64657107dec4f5b7d1e634ffe6 -- UNCHANGED. The grading path is NOT touched by Addendum 4; every gate function, band, cap and composition rule stands as frozen at Addendum 3."
+  },
+  "controls_at_this_commit": "d5_addendum4_control.sh pass=12 fail=0 at 2026-08-27T16:45:20Z, ALL ZERO COMPUTE, evidence committed beside it. Includes the PLANTED CONTROL on the static reader (a copy with the defect restored must be counted, rule 3), the guard planted to refuse the exact rc=127 shape AND to PASS the registered value, and the real launcher run on the REAL r3 root for arm F48 with a bogus image: exit 4 at the digest read before any rm -rf / cp -a / docker run, with D4_CAP_ASSERT arm=F48 registered_core_min=120.0 read LIVE to prove no cap moved, ledger.txt md5 unchanged and O48/ mtime unchanged.",
+  "_launch": {
+    "utc": "2026-08-28T07:00:34Z",
+    "pid": 1768658,
+    "sid": 1768658,
+    "status_file": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/STATUS.D5_chain_r4",
+    "wrapper_out": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D5/launcher.queue.out",
+    "started_epoch": 1787900434.9000204,
+    "status_seen_utc": "2026-08-28T07:02:39Z"
+  }
+}
