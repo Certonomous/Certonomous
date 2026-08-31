@@ -1,0 +1,58 @@
+COMPANION NOTE to T18_GRADE_OUTPUT_20260831T151113Z.txt
+THE AUTHORISED T18 GRADING RUN. Graded under disclosure; read this note with the output.
+
+Run UTC:      2026-08-31T15:11:13Z
+Exit code:    0
+Wall:         31 s at 1 rank = 0.517 core-min [MEASURED]
+Comparator:   analyse_t18.py, git blob 66477e3945f4a622c014613e941d671e0e5525b8,
+              sha256(first16) 2372422cde2e47f8 -- worktree == HEAD == the freeze table
+              at docs/campaigns/T-family/T18_PREREGISTRATION.md:314. AGREE, three ways.
+JSON written: verification/runs/T-family/T18_runs/gate_t18.json (first time this path
+              has ever been written; the rung had never been successfully graded)
+
+THE SELFTEST RESULT, STATED HONESTLY AND NEVER AS PASS
+
+    16 ok / 1 FAIL (unit (v), live-tree arm, EXPECTED-INVERTED)
+
+Unit (v) at analyse_t18.py:509 calls grade(HERE, ...) against the LIVE run tree --
+`HERE` hardcoded at :38, NOT the --root argument, which that call ignores -- to assert
+that an incomplete DONE-marker set raises SystemExit(EXIT_REFUSE). Completing the
+marker set at 2026-08-31T14:57:46Z removed the condition the arm asserts on, so the
+refusal can no longer fire and the arm can no longer assert. Before marking: selftest
+17/17, grading refuses. After marking: grading runs, selftest 16/17. There is no state
+in which both hold, and marking is a precondition of grading.
+
+RULING UNDER WHICH THIS GRADE PROCEEDED
+
+heat-transfer-supervisor, 2026-08-31, [lab-attributed], on the T16 precedent: GRADING
+MAY PROCEED. The supervisor verified the grading path at source (:265-356) and holds
+that unit (v)'s inversion touches no grading clause, the 16 passing units covering
+everything a grade depends on. Binding conditions, all honoured by this run:
+  - No frozen byte was edited -- not the selftest, not anything else. Rule 2 bars it;
+    the repair belongs to a successor registration, not to this run.
+  - The selftest result is stated as the string above, everywhere, never as PASS.
+  - stdout went to a NEW timestamped file. T18_GRADE_OUTPUT.txt (the stale 2026-08-28
+    refusal, mtime 2026-08-28T16:36:45Z) was NOT written, overwritten or deleted.
+
+DISCLOSED PROPERTY OF THE INSTRUMENT, carried here so no later reader has to rediscover
+it: theta_at (:123-126) is separable linear interpolation with linear EXTRAPOLATION past
+the last cell centre. G3 sits at x* = 1.0, the boundary, so G3's value is extrapolated on
+EVERY level and its triple carries that error. If G3 ever diverges from G1/G2 that is the
+first place to look, and it is a disclosed property, not a new defect.
+
+A LEGIBILITY DEFECT OF THE SELFTEST'S OUTPUT, recorded so it is not re-reported as a gate
+discrepancy: grade() prints its own three row lines to stdout at :331-333, and the
+selftest calls run_forged four separate times, so four sets of row lines interleave with
+the unit result lines. A GATE FAIL row seen in selftest output comes from
+run_forged(err=3.0) at :481-483, which is DESIGNED to drive G1 outside its band -- not
+from the value control at :461-470, which asserts all three verdicts PASS, |p - 2.0| < 5e-2
+and all three planted controls PASS. Settled at source by the supervisor. The freeze
+table, the unit and the code agree; only the interleaved printing misleads.
+
+SEPARATE ARTIFACT, NOT A RESULT: T18_SELFTEST_SIDE_EFFECT_NOT_A_GRADE_20260831T151045Z.json
+(5186 bytes, md5 bba51110b76b6f0763a46e68c2c170ba) is the side-effect output produced by
+unit (v) on its way to failing. It is sealed hazard evidence and none of its numbers are
+this rung's values. See its own companion .txt.
+
+Filed by: heat-transfer lab-lane, 2026-08-31. Rung-level verdict, and the rung's ceiling,
+belong to the heat-transfer supervisor; this note records the run, not a rung verdict.

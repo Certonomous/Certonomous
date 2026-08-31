@@ -1,0 +1,14 @@
+verifying the analytic reference before any comparison:
+  exact_t18.verify: PDE residual 1.00e-05 (falls as h^2, ratio 4.00); symmetry grads 0.0e+00; Robin 8.0e-08; IC 4.9e-05; permutation-symmetric; Simpson agrees to 5.9e-10; cross-checks vs T11 AND T14 registered values PASS (Bi=1 Fo=0.2)
+  level c: reached endTime, every step converged: True
+  level m: reached endTime, every step converged: True
+  level f: reached endTime, every step converged: True
+  W0 permutation-symmetry witness: c 4.01e-14, m 2.01e-14, f 5.01e-14
+planted-zero control G1  PASS: plant 0.001234 in 512000 cell(s), recovered 0.001234, floor 1e-07
+planted-zero control G2  PASS: plant 0.001234 in 1 cell(s), recovered 0.00416475, floor 1e-07
+planted-zero control G3  PASS: plant 0.001234 in 1 cell(s), recovered 0.00416475, floor 1e-07
+G1  fine=0.6176037117 ref=0.6175896496 dev=+2.277e-05 band=[0.6175588, 0.6176205] triple=(6.17762316e-01, 6.17635439e-01, 6.17603712e-01) CONVERGING p=1.9996 GCI=2.1413e-03% -> PASS
+G2  fine=0.8591831159 ref=0.8591137894 dev=+8.070e-05 band=[0.8588990, 0.8593286] triple=(8.60257032e-01, 8.59397831e-01, 8.59183116e-01) CONVERGING p=2.0006 GCI=1.0407e-02% -> PASS
+G3  fine=0.5815192620 ref=0.5814449853 dev=+1.277e-04 band=[0.5812706, 0.5816194] triple=(5.82617282e-01, 5.81737284e-01, 5.81519262e-01) CONVERGING p=2.0130 GCI=1.5435e-02% -> PASS
+C-T temporal-bias control (REPORTED, never gated): G1 moves -2.822e-06 relative = 0.056 of the band
+wrote /home/ubuntu/Certonomous/verification/runs/T-family/T18_runs/gate_t18.json

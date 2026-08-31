@@ -1,0 +1,61 @@
+THIS FILE IS NOT THE GRADING RUN. ITS VALUES ARE NOT THIS RUNG'S VALUES.
+DO NOT CITE ANY NUMBER FROM THE COMPANION .json AS A T18 RESULT.
+
+Companion to: T18_SELFTEST_SIDE_EFFECT_NOT_A_GRADE_20260831T151045Z.json
+Sealed:       2026-08-31T15:10:45Z
+Bytes:        5186
+md5:          bba51110b76b6f0763a46e68c2c170ba
+Origin:       /tmp/t18_never.json (copied; md5 verified identical at copy, source and
+              destination compared in the same shell invocation)
+
+WHAT THIS IS
+
+An UNINTENDED SIDE EFFECT of `analyse_t18.py --selftest`, not a grading run and not
+a result. Selftest unit (v), at analyse_t18.py:509, is:
+
+    grade(HERE, os.path.join(tempfile.gettempdir(), "t18_never.json"), reg)
+
+`HERE` (analyse_t18.py:38) is the LIVE run tree -- hardcoded, and NOT the `--root`
+argument, which this call ignores. The unit exists to assert that grading a tree
+whose DONE-marker set is incomplete raises SystemExit(EXIT_REFUSE). To make that
+assertion it must actually CALL grade() on the live tree, and when the refusal does
+not fire, grade() runs to completion and writes this JSON.
+
+WHY IT EXISTS NOW AND DID NOT BEFORE
+
+The DONE-marker set for T18 was completed at 2026-08-31T14:57:46Z (DONE.T18_CU_m,
+DONE.T18_CU_f, DONE.T18_CU_f_CT written; DONE.T18_CU_c pre-existing from
+2026-08-28T16:36:20Z). grade() refuses unless all three graded-level markers exist.
+Before that timestamp the refusal fired and unit (v) passed; after it, the refusal
+cannot fire and unit (v) FAILS -- and produces this artifact on its way to failing.
+
+The arm is not asserting something broken. THE CAMPAIGN'S OWN SUCCESS HAS RENDERED
+IT UNABLE TO ASSERT AT ALL. Before marking: selftest 17/17, grading refuses. After
+marking: grading runs, selftest 16/17. There is no state in which both hold, and
+marking is a precondition of ever grading.
+
+Honest selftest result, to be stated this way everywhere and NEVER as PASS:
+
+    16 ok / 1 FAIL (unit (v), live-tree arm, EXPECTED-INVERTED)
+
+RETAINED AS THE PHYSICAL DEMONSTRATION OF THE D574-CLASS HAZARD
+
+This file is kept as evidence that a frozen selftest can silently produce real
+graded output against the live tree as a byproduct of a control arm. It is retained
+as a hazard specimen, NOT as a result. The same construction was found independently
+in analyse_t19.py:691-694.
+
+It was preserved from /tmp because /tmp does not survive a reboot and this box
+rebooted on 2026-08-31 at 14:35Z.
+
+HANDLING
+
+Sealed. The lane that wrote this note did not open the .json to read its graded
+values, quoted no figure from it, and let no figure from it reach any report. The
+authorised grading run for T18 is a SEPARATE artifact, named
+T18_GRADE_OUTPUT_<UTC>Z.txt with its own companion note. The stale 2026-08-28
+refusal in T18_GRADE_OUTPUT.txt is untouched evidence of a different defect class
+and its disposition belongs to the heat-transfer supervisor.
+
+Filed by: heat-transfer lab-lane, on the heat-transfer-supervisor's 2026-08-31
+preservation instruction [lab-attributed]. No frozen byte was edited to produce it.
