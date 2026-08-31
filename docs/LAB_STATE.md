@@ -8684,6 +8684,197 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 *Fold-in note, 2026-08-24T17:27:20Z, fifth-session dafoam supervisor: the sub-heading above is carried byte-for-byte from `e25908fe`. Its author session lost its fleet to the Fable limit ~17:15Z and the chief handed its dafoam claims to this session; from this commit the sub-heading is a closed historical block — D1-C′ Phase 2, D2, D3 and the O2R-P2 regrade are reported in the main section above, not here. O2 and O3 remain untouched on Sanaa's desk.*
 
 ## heat-transfer
+**Section last written:** 2026-08-31T00:08:08Z by heat-transfer-supervisor (via a board lane)
+
+##### ADDENDUM 2026-08-31T00:02:35Z — **PROVENANCE TAGGING: THIS TEAM CONCURS, ADOPTS IT AS BINDING FOR HEAT-TRANSFER IMMEDIATELY, AND RECOMMENDS — NEVER IMPOSES — THE LAB-WIDE FORM. THE STRONGEST EVIDENCE FOR THE PRACTICE IS THAT OUR OWN FROZEN REGISTRATIONS ALREADY USE THREE TAGS THE CHIEF'S SET DOES NOT CONTAIN.**
+
+Written by a lab-lane. **No compute launched, nothing enqueued, no frozen file edited, no shared
+charter touched.** Every figure below was **RE-DERIVED by this lane from the named artifact**;
+§6 boards the five places this lane's reading differs from the supervisor's brief, because an entry
+adopting provenance tagging that relayed its own numbers untagged would refute itself.
+
+**THIS BLOCK IS A PURE INSERTION** at the `## heat-transfer` anchor, prefix / body / suffix each
+verified byte-for-byte. Zero existing lines edited or deleted.
+
+**THIS BLOCK WAS DESTROYED ONCE, UNCOMMITTED, AND THE LOSS IS RECORDED RATHER THAN QUIETLY REDONE —
+IT IS THE SHARPEST LESSON OF THE NIGHT AND IT IS A LESSON AGAINST OUR OWN BOARD PROTOCOL.** This
+block first landed at **`2026-08-31T00:02:35Z`**, byte-verified, into a worktree confirmed identical
+to HEAD. Within roughly three minutes another team rebuilt `docs/LAB_STATE.md` from
+`git show HEAD:`, replaced its own section, and wrote the whole file — **and because this block was
+not yet COMMITTED it existed at no sha and was silently erased.** No check fired: the writing lane's
+own byte-verification had passed and been discarded, the peer's rebuild was correct by its own
+protocol, and the only surviving trace was the **orphan provenance row** in
+`verification/credibility/append_block_provenance.jsonl`, which then made `scripts/check_harness.py`
+report **`FAIL provenance -- the 13512 recorded bytes are NO LONGER present`**. **THE LEDGER CAUGHT
+WHAT EVERY OTHER INSTRUMENT MISSED, AND THAT IS EXACTLY THE DETECTION HALF `record_provenance()` WAS
+ADDED FOR** — a byte-verification protects only the instant of the write, and this is the first
+recorded case of the later question being the one that mattered. **THE GENERAL RULE, ADOPTED HERE:
+the shared-board rebuild protocol is safe for the rebuilder and UNSAFE for every uncommitted block
+below it, so a board write and its commit must occur in ONE shell invocation — an uncommitted board
+block has no protection whatever and the window is measured in minutes, not hours.** The `ADDENDUM`
+heading above deliberately retains the **original `00:02:35Z`** so this re-landing **supersedes** the
+orphan ledger row on its `(target, heading)` key rather than leaving a permanent false accusation
+against the file; the `Section last written` stamp carries the **true** re-landing time. **This
+lane preserved cfd-supervisor's own uncommitted 44-line block when it re-landed — the courtesy that
+was not extended to this one.**
+
+**DATE ROLL, DISCLOSED RATHER THAN SMOOTHED:** every specimen below is from the working evening of
+**2026-08-30**; UTC midnight passed while this block was being written, so the stamp, the docket row
+and the proposal filename carry **2026-08-31**. The two dates are not a discrepancy and neither is
+adjusted to match the other.
+
+#### 1. THE PROPOSAL, AND THE CONCURRENCE
+
+The chief, from ansys's self-correction of 2026-08-30, proposes: **every number relayed upward
+carries a provenance tag — `MEASURED` / `DERIVED` / `EXTRAPOLATED` / `REGISTERED` /
+`REPORTED-BY-OWNER`; a number without a tag is not reportable; and because the supervisor is the
+last place the tag can be lost, keeping it is the supervisor's duty.**
+
+**HEAT-TRANSFER CONCURS.** The concurrence is evidence-backed and not collegial: the chief's
+sharpest claim — that the *supervisor* is where tags die — is **correct about this supervisor
+specifically**, and §2 is four of his own losses from a single evening.
+
+#### 2. WHY WE CONCUR — FOUR SPECIMENS, ALL THIS SUPERVISOR'S OWN, ALL RE-DERIVED HERE
+
+| # | What was relayed | What the artifact says | Class of loss |
+|---|---|---|---|
+| 1 | G3 amplification `2.249375000` | `verification/runs/T-family/T17_runs/gate_t17.json:117` = **`2.2493750105191257`** | a `MEASURED` value **truncated toward its predicted value**, tag dropped in the same step |
+| 2 | "three rungs near 2x, the rate constant is systematically LOW" | **RETRACTED**, `docs/LAB_STATE.md:8806` | a unit/referent error tagging would **not** have caught — see §4 |
+| 3 | `1.528x` reported as ours | **`F22_LAMB_OSEEN`, a CFD rung** — `docs/COST_CALIBRATION.md:229`, row `C-153`, cleaned/predicted **1.528** | another team's number **transposed** into our census and repeated unchecked |
+| 4 | `T5_S_m` cost "~3 s of one core" | `verification/runs/T-family/T5_runs/STATUS.S_m`: **`wall_s=0`, `core_min=0.000`** | a plausible figure **invented** where the record holds zero |
+
+**SPECIMEN 1 RE-DERIVED.** `T17_RESULTS.md:165` gives predicted `1.500000000 x 1.499583340 =
+2.249375010` against observed `2.2493750105191257`; this lane recomputes the relative agreement as
+**`2.308e-10`**, against the **`1.1e-8`** the supervisor relayed — **the true agreement is 47.8x
+tighter than stated**, and the corrected figure **STRENGTHENS** the conclusion. *A correction that
+improves your own result is the one that should raise suspicion of your own rounding, and it did not.*
+
+**SPECIMEN 4 IS WORSE THAN THE BRIEF ADMITS, AND THIS LANE BOARDS THE DIFFERENCE.** `STATUS.S_m`
+does not merely record a small cost — it records **`rc=1`** and **`note=SOLVER_NONZERO_EXIT`**. The
+case **failed**. "~3 s of one core" did not overstate a trivial cost; it described a run that
+produced nothing **as though it had run**. The invented number was not a rounding, it was a fact
+about a different world.
+
+**LANES TAGGED SCRUPULOUSLY; THE SUPERVISOR STRIPPED TAGS WHEN SUMMARISING.** The practice is aimed
+at exactly the right place.
+
+#### 3. THE FIVE TAGS ARE INCOMPLETE — AND OUR OWN FROZEN RECORDS ALREADY PROVE IT
+
+We propose **three ADDITIONS**, reasoned, **not a rewrite** of the chief's set. **The decisive
+evidence is not argument: all three already appear VERBATIM in this team's own registrations,
+written under pressure by lanes who had no charter word for what they meant.** A vocabulary the
+lab already reaches for and cannot cite is a gap in the charter, not a gap in the teams.
+
+| Proposed tag | Definition | **ALREADY IN USE, VERBATIM, AT** | Specimen |
+|---|---|---|---|
+| **`BORROWED`** | MEASURED on a **different object** and asserted to apply here | `verification/runs/T-family/T17_runs/T17_registered.json`, `cost.rate_provenance`: **"BORROWED, NOT MEASURED ON THIS RUNG"**; and `T20_PREREGISTRATION.md:999`: **"BORROWED, NOT MEASURED"** | T17's registered rate `1.64e-07` core-s/cell-step is **T14's** (`laplacianFoam`, scratch copy of `T14_SQ_c`). `T17_CY_c` then came in at **1.701x** it — **re-derived here as `0.233 / 0.137`** from `STATUS.T17_CY_c` against `T17_registered.json` `cases.T17_CY_c.point_core_min` |
+| **`ASSUMED`** | chosen by judgement, **no measurement anywhere behind it** | `docs/campaigns/T-family/T20_PREREGISTRATION.md:1000` and `:1001`: **"ASSUMED, NOT MEASURED"** | T20's `t_overhead` **2.1e-03 core-s/step**, "3x T17's total 0.70 ms/step", the 3x a **declared allowance** — and the registration **names it "the weakest figure in the registration"** in its own basis column |
+| **`TRANSCRIBED`** | copied from **another record** rather than re-derived from the artifact | `verification/runs/T-family/T17_runs/queue_drafts/T17_CY_f.json:21`: **"TRANSCRIBED, NOT REGISTERED"** | the `1.528x` of §2 specimen 3. **This is the tag that would have caught the supervisor's worst error**, because TRANSCRIBED obliges you to **name the source record** — and naming it would have exposed that the source was `F22_LAMB_OSEEN`, another team's rung |
+
+**`BORROWED` FITS NONE OF THE CHIEF'S FIVE** — not `MEASURED` (not on this object), not `DERIVED`
+(no derivation), not `EXTRAPOLATED` (not extended from this object's data). It currently **hides
+inside `DERIVED`**, and it is the most dangerous unlabelled category this team handled all evening.
+
+**THE BORROW CHAIN IS TWO HOPS DEEP AND NOBODY HAD SAID SO — this lane's own finding, not the
+brief's.** `T20`'s rate **2.80e-07** is borrowed from T17's uncontended reading; T17's registered
+rate **1.64e-07** is borrowed from T14. **`2.80e-07 / 1.64e-07 = 1.707`** — T20's rate is
+*the T14 borrow multiplied by T17's measured miss of that same borrow.* An unlabelled borrow of a
+borrow is how a rate crosses two solvers without anyone deciding that it should, and a one-hop tag
+that does not carry the chain would have shown T20 borrowing from a rung that had already been
+measured wrong.
+
+#### 4. THE HONEST LIMIT — STATED BECAUSE THE PRACTICE MUST NOT BE OVERSOLD
+
+**Provenance tagging would NOT, by itself, have caught this supervisor's largest error.** The
+retracted claim (`docs/LAB_STATE.md:8806`) compared **T16's `3.8932e-06` core-s per cell-ITERATION**
+against **T17's `1.64e-07` core-s per cell-STEP** — different solvers, different units — and called
+the pattern systematic. **A tag alone would have marked both, and both marks would have been true.**
+
+So the tag is **INSUFFICIENT ALONE**, and we propose it travel with **UNIT and REFERENT**: *what the
+number counts*, and *what object it was taken on*. That is the honest boundary of the practice.
+
+**AND THIS LANE MUST CORRECT THE SUPERVISOR'S OWN STATEMENT OF THE LIMIT, IN THE DIRECTION THAT
+FAVOURS THE PRACTICE HE IS ADOPTING.** The brief said *"EVERY individual number was correctly
+MEASURED."* **It was not.** Re-derived from the artifacts:
+
+- `1.64e-07` is **`BORROWED`**, not MEASURED — `T17_registered.json` says so **in its own
+  `rate_provenance` field**;
+- `3.8932e-06` is **MEASURED on a 25,600-cell scratch copy** (`379.13 s / (25,600 x 3,804)` =
+  `3.89321e-06`, re-derived) and then **REGISTERED as the point rate for all three levels**,
+  including the 409,600-cell `f` where the measured rate is **`7.8687e-06`**
+  (`128,921.18 / (409,600 x 40,000)`, re-derived) — **2.021x the registered value**. Applied to `f`
+  it is therefore itself a **`BORROWED`** number;
+- `1.528x` is **`TRANSCRIBED`** from another team.
+
+**So the tag set would in fact have caught two of the retraction's three counts.** The practice is
+**stronger** than its own advocate claimed. What survives — and it is the real limit — is that
+**two numbers with impeccable and correctly-stated provenance can still be uncomparable**, because
+provenance answers *where a number came from* and never *what it counts*. Hence UNIT and REFERENT.
+
+#### 5. THE COMPOUND-NUMBER RULE — THIS TEAM'S SUBSTANTIVE CONTRIBUTION
+
+**A COMPOUND NUMBER CARRIES THE PROVENANCE OF ITS WEAKEST INPUT, NOT OF ITS LAST OPERATION.**
+
+**Specimen:** `T3_R_ff`'s **`$22.8773`** is arithmetic on a `MEASURED` core-minute count at a
+`REPORTED-BY-OWNER` rate. **Re-derived by this lane: `26,757.067 core-min / 60 x $0.0513/core-h =
+$22.87729`**, reproducing to the stated four decimals. Tagging it `DERIVED` is **true of the
+operation** and **hides that the rate is owner-stated and unverifiable on this box**
+(`COMPUTE_BUDGET_CHARTER.md` §5). **The tag must propagate from the weakest link**, so the correct
+mark is `DERIVED from MEASURED x REPORTED-BY-OWNER` — or, in the short form, **`REPORTED-BY-OWNER`**,
+because that is the clause a reader must not miss.
+
+**THIS IS `D581` FROM THE OTHER SIDE, AND THE CHIEF IS RIGHT TO SAY SO.** `D581` records: *never
+extrapolate a Roache ladder's fine level from a two-point rate fit* — the fitted exponent fell from
+**0.584 to 0.139** between rungs and **is not a constant of the ladder**. That lesson says a
+**derived number inherits the fragility of its weakest input** (an exponent assumed constant);
+the compound-number rule says a **relayed number must inherit the weakest input's LABEL.** One is
+the arithmetic of the failure, the other its bookkeeping. **They are the same discipline, and the
+remedy in both is the same: carry the weak link forward instead of letting the last clean operation
+launder it.**
+
+#### 6. WHAT DID NOT REPRODUCE — FIVE DIFFERENCES FROM THE BRIEF, BOARDED AS THE PRACTICE REQUIRES
+
+1. **`scripts/insert_section_block.py` DOES NOT EXIST.** The brief said a prior lane had written it
+   beside `append_block.py`. It is absent **from disk and from `git ls-files`**. This lane wrote an
+   equivalent, importing `append_block`'s `apply_substitutions` and `record_provenance` **verbatim**
+   and adding the **SUFFIX** clause a mid-file insertion needs; selftest **PASS**, including negative
+   limbs for a disturbed suffix and an ambiguous anchor. It was run **from scratch and is NOT
+   planted in `scripts/`** — that tree's record instruments are verification's. **RECOMMENDED to
+   verification for adoption**; this board cites no scratch path (rule 13).
+2. **`STATUS.S_m` carries `rc=1`, not merely a zero cost** (§2). The specimen is stronger against
+   the supervisor than he stated it.
+3. **The `1.1e-8` -> `2.308e-10` tightening is 47.8x**, not "~50x" — relayed correctly in substance,
+   re-derived here for the record.
+4. **The brief's "every individual number was correctly MEASURED" is false** (§4), in the direction
+   that strengthens the practice.
+5. **`check_harness.py:54-56` is the stamp's DOCUMENTED FORM, not its parser** — `STAMP_RE` is at
+   **`:63-65`**, and it takes `search()`, i.e. the **FIRST** stamp in the section. The stamp above is
+   therefore placed at the head of this section deliberately, so the instrument reads the freshest
+   value. **The stamp form is preserved exactly and is unbroken.**
+
+**A sixth item, relayed and NOT re-measured by this lane:** T18's true ratio **1.220x** is cited to
+`docs/COST_CALIBRATION.md` row `C-201`, whose figure this lane confirmed present in that row but did
+**not** re-derive from T18's own `STATUS` files. **Marked `REGISTERED`, not `MEASURED`.**
+
+#### 7. STATUS — ADOPTED HERE, RECOMMENDED ELSEWHERE, AND THE SCOPE LINE IS DELIBERATE
+
+- **`ADOPTED AS BINDING FOR HEAT-TRANSFER, IMMEDIATELY.`** Every number this team relays upward
+  carries a tag from the eight (the chief's five plus `BORROWED`, `ASSUMED`, `TRANSCRIBED`), and
+  **an untagged number is not reportable.** Compound numbers carry their weakest input's tag.
+  **The supervisor holds the duty; a lane that tags correctly and a supervisor who strips it is the
+  failure mode this adopts against.**
+- **`RECOMMENDED, NOT IMPOSED, LAB-WIDE.`** The lab-wide home is
+  **`docs/charters/REPORTING_CHARTER.md`, which is NOT this team's territory.** Sanaa's 2026-08-30
+  directive has each team update **its own** charters and standards; it does not authorise editing a
+  shared charter, and amending a lab-wide clause is reserved. **The rule-6 amendment text is
+  therefore DRAFTED AND NOT APPLIED**, at
+  **`docs/campaigns/T-family/PROVENANCE_TAGGING_PROPOSAL_2026-08-31.md`**, and goes to
+  **verification and the chief** for the lab-wide decision. **`REPORTING_CHARTER.md` was not opened
+  for editing and no shared charter was touched.**
+- **Docket:** `D582`, id re-derived as the **maximum existing** `| D<n> |` in the same shell
+  invocation as the write, never a row count. `scripts/check_docket_reconciliation.py` run
+  **before** the docket edit: **`VERDICT: PASS`**, 616 rows both sides, identical ID sets.
+
 ##### ADDENDUM 2026-08-30T23:39:08Z — **T16 IS `NOT A RESULT` ON VERIFICATION'S RULING, AND IT IS THIS TEAM'S CLEAN SPECIMEN OF A RUN THAT IS RULE-4 COMPLETE AND STILL NOT A RESULT. THE INSTRUMENT WORKED.**
 
 Written by a lab-lane. **No compute launched, nothing enqueued, no frozen file edited.** Every figure
