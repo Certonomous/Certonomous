@@ -338,9 +338,14 @@ IMG_SHIPPED_DIGEST=sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33a
 # it holds while a file this launcher copies is still missing.  Existence is a
 # DIFFERENT question from md5 agreement and cannot be inferred from any level of
 # it.  so3a_chain_driver.sh:60-71 makes the same choice for the same reason.
-MD5_UNSET=00000000000000000000000000000000
-MD5_RUNSCRIPT=$MD5_UNSET
-MD5_XF=$MD5_UNSET
+# ---- STAGE-2 AMENDMENT, 2026-08-31: THE PINS ARE SET, ALL NINE TOGETHER.
+# The fail-closed sentinel `MD5_UNSET` is REMOVED rather than left defined at
+# 32 zeros, for two reasons.  It has no remaining consumer; and a dead constant
+# whose VALUE is a well-formed md5 is a fail-open waiting to be re-used -- and it
+# would be counted as a pin by the completeness leg that now compares
+# pins-DECLARED against pins-DRIVEN.
+MD5_RUNSCRIPT=c0821199159026ec597549ee034b73ac   # so3a_runScript.py
+MD5_XF=6b0736be079b3f510f7bd59ae2114ff1          # so3a_xf.py
 # so3a_decomposeParDict is ADOPTED BYTE-IDENTICALLY from the parent (one line
 # changed from the tutorial's: numberOfSubdomains 1), it EXISTS, and this is the
 # value so3a_chain_driver.sh:70 already pins it at.  It is not a partial table: it

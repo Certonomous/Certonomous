@@ -53,20 +53,31 @@ DECLARED_ARMS=5                          # (e) section 5 Requirement 4
 #
 # ---- INSTRUMENT PINS -- section 18.3: EXISTENCE IS ASSERTED BEFORE ANY MD5 AND
 # ---- NO MD5 IS CLAIMED FOR A FILE THAT DOES NOT EXIST.
-# The five pins below are UNSET at this Stage-2 increment because their files do
-# not exist yet (section 7 rows 2,3,4,5,7 are still ABSENT).  THE SENTINEL FAILS
-# CLOSED: `md5sum -c` cannot match it, so this driver REFUSES to stage rather
-# than run against an unpinned instrument.  A placeholder that PASSED would be
-# precisely the SO2a-DRIVER-DEF-1 shape -- an md5-agreement control reading
-# agreement while a file the frozen code executes is missing.
-MD5_UNSET=00000000000000000000000000000000
-MD5_LAUNCHER=$MD5_UNSET
-MD5_GRADER=$MD5_UNSET
-MD5_RUNSCRIPT=$MD5_UNSET
-MD5_XF=$MD5_UNSET
+# SUPERSEDED PARAGRAPH, STRUCK RATHER THAN DELETED so the history of this table is
+# readable: until the Stage-2 amendment five of these pins were the fail-closed
+# sentinel `$MD5_UNSET`, because section 7 rows 2,3,4,5,7 did not exist and an md5
+# claimed for an absent file is the SO2a-DRIVER-DEF-1 shape -- an agreement control
+# reading agreement while a file the frozen code executes is missing.  THAT
+# CONDITION IS DISCHARGED: all nine exist, checked by `test -f` before any md5 was
+# taken (the loop below), and the sentinel is gone.  The paragraph is kept because
+# a comment that still described an unset table over a set one is precisely the
+# doc-versus-code contradiction this item's own (x5) leg exists to refuse.
+# ---- STAGE-2 AMENDMENT, 2026-08-31.  ALL NINE INSTRUMENTS EXIST, SO THE PINS ARE
+# ---- SET -- ALL OF THEM, TOGETHER, WHICH IS THE ONLY ORDER SECTION 18.3 ALLOWS.
+# `MD5_UNSET` is DELETED, not left defined.  Its value (32 zeros) is a WELL-FORMED
+# md5, so a dead sentinel would (a) be counted as a real pin by the completeness
+# leg that now compares pins-DECLARED against pins-DRIVEN, and (b) sit in the file
+# as a fail-open one edit away from being re-used.  A stale pin aborts this chain
+# rc=4 BEFORE any container -- the W3 death mode -- so every pin below was computed
+# from the FINAL bytes of the file it pins, after the last code edit, and each is
+# DRIVEN against that file by so3a_groot5_selftest.sh's (x12)/(x13)/(x14).
+MD5_LAUNCHER=a5948480eadc57de00c27f84c057a66c   # so3a_run_arm.sh
+MD5_GRADER=c5ccf28138caccd6eac1ad02cb13fa9a     # so3a_grade.py -- THE GRADING PATH (section 10)
+MD5_RUNSCRIPT=c0821199159026ec597549ee034b73ac  # so3a_runScript.py
+MD5_XF=6b0736be079b3f510f7bd59ae2114ff1         # so3a_xf.py
 MD5_AGG=709ab0b98ef0302a3a3a318588f9493f
 MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4
-MD5_STOP_MARKER=$MD5_UNSET
+MD5_STOP_MARKER=d44e05f9d6097821502570fd3c70ebe7  # so3a_stop_marker.sh
 # the shipped tutorial's INPUT bytes, frozen here because the checkout is not
 MD5_TUT_RUNSCRIPT=0557da51f6f179f6de865144343c499f
 MD5_TUT_GEN=681f10659eb90457fca13fc933008b93
@@ -130,7 +141,46 @@ echo "SO3A_DRIVER start=$(date -u +%Y%m%dT%H%M%SZ) pid=$$ ppid=$PPID sid=$(ps -o
 echo "chain=started arms=[$ARMS] declared=$DECLARED_ARMS pid=$$ stamp=$(date -u +%Y%m%dT%H%M%SZ) permission=$PERMISSION" >> "$STATUS"
 mem_gib() { python3 -c "print('%.2f' % ($(awk '/MemAvailable/{print $2}' /proc/meminfo)/1048576.0))"; }
 cap_mem_gib() { echo 12; }   # every arm 12 GiB (PREREGISTRATION.md section 5)
-img_of() { case "$1" in MESH|*-S) echo "$IMG_SHIPPED" ;; *-P) echo "$IMG_PATCHED" ;; *) echo "" ;; esac; }
+# ---- THE ARM -> ROW -> IMAGE MAPPING, AS A REGISTERED TABLE OVER FULL ARM NAMES.
+# ---- THIS WAS THE FOURTH CONSUMER, AND IT WAS FOUND BY SWEEPING FOR IT.
+# This line read `case "$1" in MESH|*-S) ... *-P) ...` -- the ARM-NAME SUFFIX GLOB
+# that so3a_run_arm.sh's own G-ROW comment names as forbidden, in the words of the
+# SO-1c post-mortem: SO-1c died at its second arm because one call site of a row
+# label was repaired and the others were not.  The launcher WAS repaired to a
+# registered `row_of` table; the comparator registers the same mapping as
+# `ARM_ROW`; the selftest's (x4) leg cross-checks those two.  THIS FILE WAS THE
+# ONE NOBODY SWEPT -- the comparator's row-label sweep carried a suffix rule in its
+# PYTHON rule set and none in its SHELL rule set, so the single surviving instance
+# was in the one language the sweep could not see it in.
+#
+# MEASURED, not asserted: `img_of Q-S` returned the SHIPPED image.  The chain
+# driver takes its arms from the command line (`ARMS="$*"`), so an undeclared arm
+# reaches this function.  It did NOT reach a wrong verdict, because the launcher
+# independently re-derives ROW from the IMAGE DIGEST and then refuses when
+# `row_of Q-S` is empty (exit 64) -- defence in depth held, and saying so is the
+# honest size of the finding.  A guard that cannot fire while another stands is
+# still a guard that must not be wrong.
+#
+# The label sets are DISJOINT (SHIPPED/PATCHED are the only two, and no arm name
+# is a row name), so a swapped artefact still refuses; an arm that is not one of
+# the five DECLARED names falls through to the empty case and the caller aborts.
+row_of_arm() {
+  case "$1" in
+    MESH)  echo SHIPPED ;;
+    X-S)   echo SHIPPED ;;
+    F-S)   echo SHIPPED ;;
+    X-P)   echo PATCHED ;;
+    F-P)   echo PATCHED ;;
+    *)     echo "" ;;
+  esac
+}
+img_of() {
+  case "$(row_of_arm "$1")" in
+    SHIPPED) echo "$IMG_SHIPPED" ;;
+    PATCHED) echo "$IMG_PATCHED" ;;
+    *)       echo "" ;;
+  esac
+}
 CHAIN_RC=0
 for ARM in $ARMS; do
   IMG=$(img_of "$ARM"); test -n "$IMG" || { echo "ABORT arm $ARM names no registered row"; echo "chain=ABORT arm=$ARM reason=no_row stamp=$(date -u +%Y%m%dT%H%M%SZ)" >> "$STATUS"; CHAIN_RC=64; break; }

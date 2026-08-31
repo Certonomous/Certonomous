@@ -395,7 +395,15 @@ READERS = {
 # The hand-written fallback row could only ever be UNPARSEABLE, so that branch had
 # never been reached in 89 green units.  The guard now refuses BY NAME, and U41c
 # checks the refusal actually names the column.
-EXPECTED_UNITS = 91
+# 91 -> 92 on 2026-08-31, BUMPED DELIBERATELY WITH ITS REASON, which is what this
+# constant exists to force.  The added unit is U101b: the row-label sweep's SHELL
+# rule set had no suffix-glob rule while its PYTHON rule set always had one, and
+# the single unrepaired consumer of the arm->row mapping in this item
+# (so3a_chain_driver.sh's `img_of`) was in shell -- so eight files were swept and
+# the fourth call site was structurally invisible.  U101b proves the new rule
+# fires on a suffix glob AND stays silent on the registered full-name table.
+# No gate, threshold, cap or label moved; this adds a check and removes none.
+EXPECTED_UNITS = 92
 
 
 class Refusal(Exception):
@@ -623,6 +631,19 @@ _ROW_SWEEP_SH = (
     (re.compile(r"""\$\{\s*ARM\s*:\s*-?\d+\s*(:\s*\d+\s*)?\}"""),
      "a row label sliced out of the ARM name in shell rather than read from the "
      "registered arm->row mapping"),
+    # ---- THE ASYMMETRY THAT HID THE FOURTH CONSUMER, CLOSED.
+    # The PYTHON rule set above has carried a suffix rule from the start
+    # (`.endswith("-S")`).  The SHELL rule set did NOT, and the ONE surviving
+    # unrepaired call site in this item -- `so3a_chain_driver.sh`'s `img_of`,
+    # `case "$1" in MESH|*-S) ... *-P)` -- was in shell, so the sweep swept it and
+    # saw nothing.  A sweep that carries a rule in one language and not the other
+    # reports a zero that is a statement about the rule set, not about the code.
+    # The pattern is the WILDCARD suffix glob specifically: a case list of FULL
+    # arm names (`X-S|X-P)`) is the registered form and must NOT be flagged.
+    (re.compile(r"\*-[SP]\)"),
+     "a row (or a row's image) derived from an ARM-NAME SUFFIX GLOB rather than "
+     "from the registered full-name arm->row table -- the SO-1c derivation, and "
+     "the form a glob cannot refuse an undeclared arm in"),
 )
 
 
@@ -2705,6 +2726,30 @@ def selftest(tmp):
     unit("U101 ROW-LABEL the SAME sweep goes RED on a planted bad call site, in BOTH "
          "languages -- an empty sweep is a claim about the pattern until it does",
          len(row_label_call_sites(bad_py)) >= 2 and len(row_label_call_sites(bad_sh)) >= 1)
+
+    # ---- U101b.  THE SUFFIX-GLOB RULE, PROVED ABLE TO FAIL ON ITS OWN.
+    # U101's shell plant is caught by the two OLDER shell rules, so it would stay
+    # green with the suffix rule deleted -- it cannot speak for the rule that was
+    # actually missing.  This plant carries ONLY the suffix-glob form, assembled
+    # from parts so this file does not itself contain the token the sweep hunts,
+    # and it must be caught by exactly the rule whose absence let
+    # so3a_chain_driver.sh's `img_of` through eight files of sweeping.
+    # The DISCRIMINATOR is the second half: a case list of FULL arm names is the
+    # REGISTERED form and must come back CLEAN through the same reader in the same
+    # unit -- a rule that flagged both would forbid the repair it is asking for.
+    glob_sh = os.path.join(tmp, "planted_suffix_glob.sh")
+    star = chr(42)
+    with open(glob_sh, "w") as fh:
+        fh.write('pick() { case %s$1%s in MESH|%s-S) echo A ;; %s-P) echo B ;; esac; }\n'
+                 % (q, q, star, star))
+    clean_sh = os.path.join(tmp, "registered_full_name_table.sh")
+    with open(clean_sh, "w") as fh:
+        fh.write('pick() { case %s$1%s in X-S|X-P) echo A ;; F-S|F-P) echo B ;; esac; }\n'
+                 % (q, q))
+    unit("U101b ROW-LABEL the SUFFIX-GLOB rule fires on a suffix glob AND stays silent "
+         "on the registered full-name table -- the rule that was missing from the SHELL "
+         "rule set, and the reason the fourth consumer was swept eight times unseen",
+         len(row_label_call_sites(glob_sh)) >= 1 and row_label_call_sites(clean_sh) == [])
 
     unit("U102 DIVERGENCE the shipped-vs-patched limb actually RAN and reports a number "
          "(it was DEAD until the row-label sweep found its stale short-form keys)",

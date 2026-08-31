@@ -200,3 +200,25 @@ oversight, and the driver is NOT RUNNABLE in it BY DESIGN.
 NOT CLAIMED ANYWHERE IN THIS FILE: that SO-3a is queueable; that any gate has
 been exercised on real artefacts; that any solver compute was spent (ZERO was);
 that the four built files have been driven inside a container (they have not).
+
+================================================================================
+SUPERSEDED IN PART -- 2026-08-31T18:3xZ, by AMENDMENT S2-1 in PREREGISTRATION.md
+================================================================================
+THE HEADER OF THIS FILE IS NOW FALSE AND IS CORRECTED HERE RATHER THAN REWRITTEN.
+It reads "4 of the 9 registered instruments exist" and "NO AMENDMENT IS LANDED".
+Both were true when this file was written and neither is true now:
+
+  * present = 9 of 9, asserted by `test -f` before any md5 was taken;
+  * AMENDMENT S2-1 IS LANDED at the foot of PREREGISTRATION.md, version 1.1,
+    appended only -- the first 253 lines were proved BYTE-IDENTICAL to HEAD's
+    blob, so "lines whose number changed above this section: 0" is a measurement
+    and not a claim;
+  * the md5 pin table is SET for all nine.  so3a_chain_driver.sh DECLARES 13
+    MD5_* pins and (x12)+(x13) DRIVE 13; so3a_run_arm.sh declares and drives 3
+    more.  The fail-closed sentinel MD5_UNSET is DELETED from both files.
+
+The increment-1 readings ABOVE this line are left exactly as they were taken.
+They are a true record of a state that has since changed, and a stale file that
+contradicts the document it supports is the same doc-versus-code defect this
+item's own (x5) leg exists to refuse -- which is why this note exists rather than
+an edit above.

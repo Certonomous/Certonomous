@@ -251,3 +251,89 @@ Nothing about an **optimum** — no optimiser runs, and the "optimization conver
 **Committed BEFORE any container starts** (rule 2). **The grading path is fixed at this commit** as `cases/dafoam/ladder-a/A1/curriculum_SO3a/so3a_grade.py`, **and its md5 is NOT yet assertable because the file does not exist** (§7) — the md5 is fixed at the Stage-2 amendment, which is itself before first compute, and the amendment must state its own rule-2 condition and how it was checked.
 
 **NOT ENQUEUED. NO QUEUE ENTRY IS FILED BY THIS COMMIT, AND ENQUEUEING IS NOT AUTHORISATION** in any case: `SUPERVISION_CHARTER.md` §3 check 4 is the supervisor's own and is discharged on the sha, not on this sentence. **SUBMISSIONS PARKED** — nothing in this item or its artefacts is filed, sent, uploaded, registered, posted or commented outside this box, now or on completion, and **sending is Sanaa's decision alone** (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10).
+
+---
+
+## AMENDMENT S2-1 — STAGE 2: THE NINE INSTRUMENTS EXIST, THE md5 PINS ARE SET, AND ONE UNREPAIRED CALL SITE WAS FOUND AND REPAIRED
+
+**Version 1.1.** Dated **2026-08-31**, appended at the foot. Lane: dafoam `lab-lane`.
+**Lines whose number changed above this section: 0.** This amendment is APPENDED ONLY; §0–§10 and the TEN LINES are untouched, and every citation into them by line number still resolves.
+
+**⚠ THIS AMENDMENT MOVES NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** §7 permits Stage 2 to add md5s and code and forbids it to alter a gate, a threshold, a cap or a label. Driven rather than asserted: every registered constant was mutated ONE AT A TIME in a byte-identical copy and the comparator's suite went non-zero on **17 of 17** — band D 5.0, band E 5.0, plateau 10.0, `NEAR_ZERO` 1e-14, `MIN_GRADED_PAIRS` 3, `MP_STRUCT_TOL` 1e-10, `ALPHA_TOL_ABS` 1e-12, `TB_MAX_PASSING` 1, `CELLS_EXPECTED` 4032, ceiling 115.0, the `F-S` cap, `PLANT`, `CTRL_STEP`, the weights, the step set, the TB step and the component set. **The pins are BEHAVIOURAL, not documentary** — widening band D to 7.0 does not trip a text comparison, it makes unit U61 (a 6 % error must be `GATE FAIL`) fail. That is the stronger form, and its limitation is stated: a change to a band AND to the unit that pins it would pass, and only `(f3)`'s ceiling grep reads this document's own bytes.
+
+### 1. THE RULE-2 CONDITION, RE-CHECKED AT THIS AMENDMENT, WITH ITS OWN PLANTED CONTROL
+
+> **The run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO3a-a1-naca0012-alpha-multipoint-gradient` STILL DOES NOT EXIST**, at **2026-08-31T18:32:25Z**, checked by running the commands.
+
+| probe | reader | reading |
+|---|---|---|
+| target | `test -e` on the run root | **FALSE** — absent |
+| **PLANTED CONTROL, same reader, same invocation** | `test -e` on `CURRICULUM-SO1a-a1-naca0012-dragmin-gradient` | **TRUE** — present |
+| target | `find -maxdepth 2 -iname '*SO3a-a1*'` | **0 hits** |
+| **PLANTED CONTROL, same reader** | `find -maxdepth 2 -iname '*SO2a*'` | **5 hits** |
+
+**Both readers are shown able to report a non-zero and both report zero for SO-3a.** This amendment is therefore **BEFORE FIRST COMPUTE**, where §2b makes it legal. **Zero solver core-minutes have been spent.** The only compute this amendment burned is the G-ROOT.5 suite's sacrificial 64 MB container, which is the selftest §7.3 registers as a precondition of enqueueing; it is not a solver arm and buys no measurement.
+
+### 2. §18.3 STEP 1 — EXISTENCE OF ALL NINE, ASSERTED FIRST AND SEPARATELY, BEFORE ANY MD5
+
+Checked by `test -f`, file by file, **before a single md5 was taken**: **`present = 9 of 9`.** §7's table read `present = 0 of 9` at the freeze; the condition it names — *"the amendment is OWED when rows 2, 3, 4, 5 and 7 exist, and not before"* — is discharged. Every file is tracked in git and byte-identical to its committed blob at the commit this amendment lands in.
+
+### 3. §18.3 STEP 2 — THE MD5 TABLE, CLAIMED ONLY NOW THAT EVERY FILE EXISTS
+
+| # | file | md5 | parent (§7 col. 3) |
+|---|---|---|---|
+| 1 | `so3a_chain_driver.sh` | `4f5148b741059dd5abd92d5cb9cc4757` | `so2a_chain_driver.sh` |
+| 2 | `so3a_run_arm.sh` | `a5948480eadc57de00c27f84c057a66c` | `so2a_run_arm.sh` |
+| 3 | `so3a_xf.py` | `6b0736be079b3f510f7bd59ae2114ff1` | `so2a_xg.py` |
+| 4 | `so3a_grade.py` — **THE GRADING PATH (§10)** | `c5ccf28138caccd6eac1ad02cb13fa9a` | `so2a_grade.py` |
+| 5 | `so3a_runScript.py` | `c0821199159026ec597549ee034b73ac` | `so2a_runScript.py` + D6's assembly |
+| 6 | `so3a_aggregate_memory.py` | `709ab0b98ef0302a3a3a318588f9493f` | `so1br_aggregate_memory.py` |
+| 7 | `so3a_groot5_selftest.sh` | `5cd8bc4edcc8bbc5b319da8db417b26e` | `so2a_groot5_selftest.sh` |
+| 8 | `so3a_decomposeParDict` | `e6f1b0060944bc86d6dff56480ad2bd4` | the tutorial's, ONE line changed |
+| 9 | `so3a_stop_marker.sh` | `d44e05f9d6097821502570fd3c70ebe7` | **new — NO PARENT** |
+
+**§10 is hereby satisfied:** the grading path `so3a_grade.py` is fixed at `c5ccf28138caccd6eac1ad02cb13fa9a`, before first compute.
+
+### 4. PINS DRIVEN VERSUS PINS DECLARED — THE NUMBER, NOT A LABEL
+
+`so3a_chain_driver.sh` **DECLARES 13** `MD5_*` pins and **`(x12)`+`(x13)` DRIVE 13**, each compared against the file it pins; `so3a_run_arm.sh` declares and drives **3** more at every launch. **13 of 13 and 3 of 3 EQUAL the files they pin.**
+
+**Why this is counted and not claimed.** SO-1c's leg **drove 4 pins of 12** under a printed label reading *"EVERY md5 PIN IN THE DRIVER"*, and **no leg could see the gap** — the label was the only thing asserting completeness, and a label is not a count. A stale pin aborts this chain at **rc = 4 before any container starts**, which is the W3 death mode: a whole run lost to a string. `(x14)` therefore re-counts the declared side **out of the driver's own bytes** and compares it to the driven count, and `(x14b)` proves it can move: a pin appended to a planted copy takes the declared count 13 → 14 and turns `(x14)` red. `(x12b)` plants a stale `MD5_GRADER` and the comparison goes red, so the thirteen matches are readings of files rather than of a pattern.
+
+**The fail-closed sentinel `MD5_UNSET` is DELETED from both files, not left defined.** Its value was 32 zeros — a *well-formed* md5 — so a dead sentinel would have been counted as a real pin by `(x14)` and would have sat in the tree as a fail-open one edit from re-use.
+
+**Registered consequence, stated so it is not discovered later:** `MD5_LAUNCHER` and `MD5_GRADER` now pin the FINAL bytes of the launcher and the grading path. **Any further edit to either file breaks the chain at rc = 4 and requires a re-pinning addendum.** That is the intended cost of freezing.
+
+### 5. THE RULE-14 SWEEP — A FOURTH CONSUMER WAS FOUND, AND IT WAS FOUND BY LOOKING FOR IT
+
+`CLAUDE.md` rule 14: *a lesson is not applied until EVERY call site asserts it.* The arm→row mapping had **four** consumers in this item. Three were registered tables — `so3a_run_arm.sh:row_of()`, `so3a_grade.py:ARM_ROW`, cross-checked by `(x4)`. **The fourth was `so3a_chain_driver.sh:img_of()`, and it still derived the row from an ARM-NAME SUFFIX GLOB** — `case "$1" in MESH|*-S) ... *-P)` — the exact derivation the launcher's OWN repair comment names as forbidden, two files away from the comment forbidding it.
+
+**Why eight files of sweeping never saw it, which is the real finding.** `row_label_call_sites()` carried a suffix rule in its **PYTHON** rule set (`.endswith("-S")`) and **none in its SHELL rule set**. The single unrepaired site was in shell. **The sweep swept it and returned zero — a zero that was a statement about the rule set, not about the code.** This is the SO-1c shape one layer up: there, the fixture concealed the break; here, the sweep's own asymmetry did.
+
+**Measured, not asserted:** `img_of Q-S` returned the **SHIPPED** image, and the driver takes its arms from the command line (`ARMS="$*"`), so an undeclared arm reaches it. **It could not reach a wrong verdict**: the launcher independently re-derives `ROW` from the **image digest** and then refuses because `row_of Q-S` is empty (exit 64). **Defence in depth held, and the honest size of the finding is that this was a latent second line, not a live hole** — recorded at its true size rather than the larger false one.
+
+**Repaired and instrumented:**
+1. `img_of` now reads a registered full-name table `row_of_arm`, label sets **disjoint**, an undeclared arm falling through to the empty case and refusing.
+2. The **shell** rule set gained the suffix-glob rule, and its **known positive is the real file** — the rule flags `chain_driver:133` and flags **zero** of the legitimate full-name lists (`X-S|X-P)` etc.), which is stronger evidence than a plant.
+3. **U101b** proves the new rule fires on a suffix glob **and stays silent on the registered full-name table** — a rule that flagged both would forbid the repair it demands. U101's existing shell plant could not speak for it: it is caught by the two older shell rules and would stay green with the new rule deleted.
+4. **`(x11)`** asserts all **three** call sites agree on all 5 declared arms, `(x11b)` that the driver too refuses `Q-S`, `(x11c)` proves the comparison red on a planted copy. `(x4)` compared two agreeing sites and was green throughout; **two agreeing call sites say nothing about a third.**
+5. `EXPECTED_UNITS` **91 → 92**, bumped deliberately with its reason recorded at the constant, which is what that guard exists to force.
+
+### 6. WHAT WAS DRIVEN — §7's STAGE-2 OBLIGATIONS (a)–(f), EACH WITH ITS READING
+
+| owed | discharged |
+|---|---|
+| (a) existence first, then md5s | `present = 9 of 9` by `test -f` before any md5; §2, §3 above |
+| (b) mechanical §18.3 extraction | **20** `$HERE/`-style path references and local imports extracted from all nine and resolved against this directory: **0 absent** (`..` and `reference` are directories and both exist) |
+| (c) comparator end to end under `python3` AND `python3 -O`; `ast.Assert` = 0 | grade **92 units / 0 failures** in BOTH modes; xf **33 / 0** in BOTH; `ast.Assert` = **0** in all five python files, and the **same counter reads 1 on a planted assert** (L-332) |
+| (d) G-ROOT.1–.5 both directions incl. must-flag | `so3a_groot5_selftest.sh` **71 legs, 0 fail**: live container → exit 3, live pid cwd → exit 3, stale pidfile → NOT blocked, must-proceed, `ITEM=D4` ledger → exit 3 with the same ledger on this item ACCEPTED |
+| (e) rule-3 planted control shown REFUSING | xf `E1`: an instrument whose planted `J` no longer moves by `PLANT` is REFUSED by the real reader, `reason=plant_not_seen`; `E2` proves the instrument byte-identical afterwards |
+| (f) rule-2 re-checked with its own planted control | §1 above |
+
+**TOTAL: 250 python-side legs + 71 G-ROOT.5 legs, 0 failures, 0 `NOT EXERCISED`.**
+
+**THE AMENDMENT'S OWN EVIDENCE, registered in the selftest before it was taken.** `(e1)`, `(e2)` and `(e3)` were written to read the **PRE-AMENDMENT** fail-closed refusal and to name what they become. On this drive all three **FLIPPED to POST-AMENDMENT**: the pins verify and G-ROW refuses on its own terms. `(e5)` — the SHIPPED digest, the one leg that stood **NOT EXERCISED** because the launcher refused before resolving an image — is now **EXERCISED and PASSING**. **A leg that passed identically before and after would not have been testing the pin.**
+
+### 7. NOT ENQUEUED, NOT FILED, NOT ARMED
+
+**NOTHING IS FILED BY THIS AMENDMENT.** The queue entry stays in this case directory and is validated **OUT OF PLACE, WITHOUT `--require-binding`**. **TEAM-BINDING IS `NOT CHECKED`** — an unchecked condition, never a passing one; `--require-binding` out of place returns rc = 2 **by design**, and its refusal is the ABSENCE of a check, not a failed one. **In-place validation is ARMING and arming is the supervisor's**, not this lane's. `SUPERVISION_CHARTER.md` §3 check 4 is discharged on the sha, not on this sentence. **SUBMISSIONS PARKED** (`CLAUDE.md` rule 7). A `docs/COST_CALIBRATION.md` row is **OWED AND HELD**, not filed, pending the committed-state repair of `scripts/append_record.py`.

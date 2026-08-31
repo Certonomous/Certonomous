@@ -534,5 +534,131 @@ if [ "$SW_N" -eq 0 ]; then
   ok "(x10) row-label sweep: 0 short-form literals and 0 positional derivations across $SW_P instruments ($SW_A not built)"
 else bad "(x10) row-label sweep found $SW_N call sites across $SW_P instruments"; fi
 
+# ---- x11 THE THIRD CALL SITE OF THE ARM -> ROW MAPPING: THE CHAIN DRIVER.
+# (x4) compares the LAUNCHER against the COMPARATOR and was green while a THIRD
+# consumer -- so3a_chain_driver.sh's `img_of` -- derived the row from an ARM-NAME
+# SUFFIX GLOB.  Two agreeing call sites say nothing about a third.  This leg reads
+# the driver's OWN registry out of its OWN bytes (no re-spelling here) and
+# requires all three to agree on every declared arm AND to refuse an undeclared
+# one.  It is proved able to fail on a planted copy below.
+DRV="$HERE/so3a_chain_driver.sh"
+drv_row() { sed -n '/^row_of_arm() {/,/^}/p' "$1" > "$2"; }
+X11T="$(mktemp -d)"; CREATED+=("$X11T")
+drv_row "$DRV" "$X11T/reg.sh"
+if [ ! -s "$X11T/reg.sh" ]; then
+  bad "(x11) the chain driver carries no readable row_of_arm registry"
+else
+  drvfail=0
+  for a in $ARMS_D; do
+    dr=$(bash -c ". '$X11T/reg.sh'; row_of_arm $a")
+    lr=$(bash -c ". '$L' --source-only >/dev/null 2>&1; row_of $a")
+    gr=$(gconst "G.ARM_ROW['$a']")
+    { [ "$dr" = "$lr" ] && [ "$dr" = "$gr" ]; } || { drvfail=1; echo "      $a driver=$dr launcher=$lr comparator=$gr"; }
+  done
+  [ "$drvfail" -eq 0 ] && ok "(x11) the arm -> row mapping agrees across ALL THREE call sites (driver, launcher, comparator) on all 5 declared arms" \
+                       || bad "(x11) the THREE call sites of the arm -> row mapping DISAGREE"
+  UNDD=$(bash -c ". '$X11T/reg.sh'; row_of_arm Q-S")
+  [ -z "$UNDD" ] && ok "(x11b) the DRIVER too refuses an undeclared arm (Q-S -> no row); the suffix glob it replaced returned the SHIPPED image for exactly that arm, MEASURED" \
+                 || bad "(x11b) the driver handed undeclared arm Q-S the row '$UNDD'"
+  # KNOWN POSITIVE: the three-way comparison must go RED on a planted copy.
+  cp -a "$DRV" "$X11T/drv_planted.sh"
+  python3 - "$X11T/drv_planted.sh" <<'PYD'
+import sys
+p = sys.argv[1]; s = open(p).read()
+open(p, "w").write(s.replace("    X-P)   echo PATCHED ;;", "    X-P)   echo SHIPPED ;;", 1))
+PYD
+  drv_row "$X11T/drv_planted.sh" "$X11T/reg_planted.sh"
+  KPD=$(bash -c ". '$X11T/reg_planted.sh'; row_of_arm X-P")
+  [ "$KPD" = "SHIPPED" ] \
+    && ok "(x11c) KNOWN POSITIVE: the driver-side comparison sees a planted X-P -> SHIPPED, so (x11)'s agreement is a reading of the driver's bytes" \
+    || bad "(x11c) the driver-side comparison could not be made to fail (read $KPD)"
+fi
+rm -rf "$X11T"
+
+# =============================================================================
+# (x12)-(x14) THE md5 PIN TABLE: PINS DRIVEN vs PINS DECLARED.
+#
+# SO-1c's equivalent leg DROVE FOUR PINS OF TWELVE under a printed label reading
+# "EVERY md5 PIN IN THE DRIVER", and NO leg could see the gap -- the label was the
+# only thing asserting completeness, and a label is not a count.  A stale pin
+# aborts this chain at rc=4 BEFORE any container starts, so an undriven pin is a
+# whole run lost to a string.
+#
+# So the count is DERIVED FROM THE FILE, not written here: (x12) drives every
+# IN-REPO pin, (x13) every OUT-OF-TREE tutorial pin, and (x14) asserts that
+# driven == declared by re-counting the declared pins out of the driver's own
+# bytes.  An EMPTY read on either side is a REFUSAL, never a match -- two empty
+# strings compare equal, which is how a renamed pin variable passes a naive check.
+# =============================================================================
+echo ""
+echo "(x12-x14) md5 PIN TABLE -- pins DRIVEN versus pins DECLARED"
+DRVF="$HERE/so3a_chain_driver.sh"
+TUT_SRC=$(grep -oP '^TUT_SRC=\K\S+' "$DRVF" | tr -d '"' | head -1)
+
+pin_of() { grep -oP "^$1=\K[0-9a-f]{32}" "$DRVF" | head -1; }
+PINFAIL=0; PINSEEN=0
+while read -r v f; do
+  p=$(pin_of "$v")
+  a=$([ -f "$HERE/$f" ] && md5sum "$HERE/$f" | cut -d' ' -f1)
+  if [ -z "$p" ]; then echo "      PIN UNREADABLE $v: no 32-hex pin under that name (renamed or deleted variable) -- an EMPTY read REFUSES"; PINFAIL=1; continue; fi
+  if [ -z "$a" ]; then echo "      FILE UNREADABLE $f: no md5 (absent or unreadable) -- an EMPTY read REFUSES"; PINFAIL=1; continue; fi
+  PINSEEN=$((PINSEEN+1))
+  [ "$p" = "$a" ] || { echo "      PIN MISMATCH $v pinned=$p actual=$a ($f)"; PINFAIL=1; }
+done <<'PINS'
+MD5_LAUNCHER so3a_run_arm.sh
+MD5_GRADER so3a_grade.py
+MD5_RUNSCRIPT so3a_runScript.py
+MD5_XF so3a_xf.py
+MD5_AGG so3a_aggregate_memory.py
+MD5_DECOMP so3a_decomposeParDict
+MD5_STOP_MARKER so3a_stop_marker.sh
+PINS
+[ "$PINSEEN" = "7" ] || { echo "      PIN COUNT $PINSEEN in-repo pins compared, expected 7"; PINFAIL=1; }
+[ "$PINFAIL" -eq 0 ] && ok "(x12) ALL SEVEN IN-REPO md5 PINS IN THE DRIVER EQUAL THE FILES THEY PIN ($PINSEEN compared), empty reads REFUSING.  The six MD5_TUT_* pins name OUT-OF-TREE tutorial inputs and are driven by (x13); the exclusion is STATED, not silent" \
+                     || bad "(x12) an in-repo md5 pin does not equal the file it pins"
+
+TUTFAIL=0; TUTSEEN=0
+while read -r v f; do
+  p=$(pin_of "$v")
+  a=$([ -f "$TUT_SRC/$f" ] && md5sum "$TUT_SRC/$f" | cut -d' ' -f1)
+  if [ -z "$p" ]; then echo "      PIN UNREADABLE $v -- an EMPTY read REFUSES"; TUTFAIL=1; continue; fi
+  if [ -z "$a" ]; then echo "      FILE UNREADABLE $TUT_SRC/$f -- an EMPTY read REFUSES"; TUTFAIL=1; continue; fi
+  TUTSEEN=$((TUTSEEN+1))
+  [ "$p" = "$a" ] || { echo "      PIN MISMATCH $v pinned=$p actual=$a ($TUT_SRC/$f)"; TUTFAIL=1; }
+done <<'TPINS'
+MD5_TUT_RUNSCRIPT runScript.py
+MD5_TUT_GEN genAirFoilMesh.py
+MD5_TUT_PREPROC preProcessing.sh
+MD5_TUT_PS profiles/NACA0012PS.profile
+MD5_TUT_SS profiles/NACA0012SS.profile
+MD5_TUT_FFD FFD/wingFFD.xyz
+TPINS
+[ "$TUTSEEN" = "6" ] || { echo "      PIN COUNT $TUTSEEN out-of-tree pins compared, expected 6"; TUTFAIL=1; }
+[ "$TUTFAIL" -eq 0 ] && ok "(x13) ALL SIX OUT-OF-TREE MD5_TUT_* PINS EQUAL THE TUTORIAL INPUTS THEY PIN under $TUT_SRC ($TUTSEEN compared) -- the driver asserts these with exit 4, so a moved checkout is the same death mode as a stale in-repo pin" \
+                     || bad "(x13) an out-of-tree tutorial md5 pin does not equal the file it pins"
+
+PINS_DECLARED=$(grep -cE '^MD5_[A-Z_0-9]+=[0-9a-f]{32}' "$DRVF")
+PINS_DRIVEN=$((PINSEEN+TUTSEEN))
+if [ "$PINS_DECLARED" = "$PINS_DRIVEN" ]; then
+  ok "(x14) THE PIN LIST IS COMPLETE: the driver DECLARES $PINS_DECLARED MD5_* pins and (x12)+(x13) DROVE $PINS_DRIVEN of them.  SO-1c drove 4 of 12 under a label claiming all of them; this leg counts the declared side out of the driver's own bytes, so a pin ADDED and not driven turns it RED"
+else
+  bad "(x14) PINS DECLARED=$PINS_DECLARED but PINS DRIVEN=$PINS_DRIVEN -- a pin was added to the driver and no leg drives it"
+fi
+# KNOWN POSITIVE: (x12) and (x14) must both be able to go red.
+KPP="$(mktemp -d)"; CREATED+=("$KPP")
+cp -a "$DRVF" "$KPP/drv.sh"
+sed -i 's/^MD5_GRADER=[0-9a-f]\{32\}/MD5_GRADER=deadbeefdeadbeefdeadbeefdeadbeef/' "$KPP/drv.sh"
+KPIN=$(grep -oP '^MD5_GRADER=\K[0-9a-f]{32}' "$KPP/drv.sh" | head -1)
+KACT=$(md5sum "$HERE/so3a_grade.py" | cut -d' ' -f1)
+[ -n "$KPIN" ] && [ "$KPIN" != "$KACT" ] \
+  && ok "(x12b) KNOWN POSITIVE: the pin comparison sees a planted stale MD5_GRADER (${KPIN:0:12}... != ${KACT:0:12}...) -- (x12)'s seven matches are readings of the files, not of the pattern" \
+  || bad "(x12b) the pin comparison could not be made to fail"
+printf 'MD5_NEWTHING=%s\n' "$KACT" >> "$KPP/drv.sh"
+KPD2=$(grep -cE '^MD5_[A-Z_0-9]+=[0-9a-f]{32}' "$KPP/drv.sh")
+[ "$KPD2" -eq "$((PINS_DECLARED+1))" ] \
+  && ok "(x14b) KNOWN POSITIVE: an UNDRIVEN pin added to a planted copy moves the declared count $PINS_DECLARED -> $KPD2, so (x14) would go RED on exactly the SO-1c gap" \
+  || bad "(x14b) the declared-pin count could not be made to move (read $KPD2)"
+rm -rf "$KPP"
+
 echo "SO3a G-ROOT5 SELFTEST pass=$PASS fail=$FAIL $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 [ "$FAIL" -eq 0 ]
