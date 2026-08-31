@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006 -- scalarTransportFoam.
+
+  NO residualControl.  The run reaches endTime on EVERY level, so CLAUDE.md rule
+  4's "last time == endTime" clause is met literally and unambiguously, and the
+  cost of every level is known at freeze time.  Iterative convergence is NOT
+  asserted by an early exit: it is MEASURED by the frozen comparator from the
+  `residuals` function object's own file on disk, against a FIXED window and a
+  FIXED absolute floor registered in PREREGISTRATION.md sec.7 (PREREG_TEMPLATE
+  Amendment 4).
+
+  L-338 (do not gate convergence on a degenerate channel): T is the ONLY equation
+  this solver solves.  There is no momentum solve here and therefore no transverse
+  velocity or pressure channel whose residual is normalisation noise.  The
+  convergence clause gates on T and on nothing else, and that is stated rather
+  than left to be inferred.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+
+solvers
+{
+    T
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        nSweeps         2;
+        tolerance       1e-14;
+        relTol          0.01;
+    }
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+}
+
+relaxationFactors
+{
+    equations
+    {
+        T       0.7;
+    }
+}

@@ -1,0 +1,18 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006.  DT is the BINARY DIFFUSIVITY D_AB = 1.43e-05 m2/s (manual p.27),
+  read by scalarTransportFoam.  rho = 1 kg/m3 and mu = 1.0e-05 Pa-s (manual
+  p.27) give nu = 1e-05 m2/s and Sc = nu/D_AB = 0.6993006993; Re_D = rho*Uavg*2R/mu
+  = 500, laminar, as the manual states.  The momentum equation is NOT solved:
+  the fully developed parabola the manual prescribes is imposed exactly (see
+  make_u_vmfl006.py), so nu never enters the graded run and is recorded here for
+  the record only.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      physicalProperties;
+}
+
+DT              1.43e-05;

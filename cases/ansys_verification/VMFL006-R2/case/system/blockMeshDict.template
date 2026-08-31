@@ -1,0 +1,85 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006 -- Multicomponent Species Transport in Pipe Flow
+  (Ansys Fluid Dynamics Verification Manual, Release 2026 R1, pp. 27-28).
+
+  Axisymmetric WEDGE, one cell thick, `wedge` front/back patches -- the v2606
+  idiom already proven in this team on VMFL003/VMFL005/VMFL007.  Reused as SETUP
+  KNOWLEDGE ONLY: no gate, band or reference of those cases is reused and no
+  frozen file of theirs is touched.
+
+  Pipe axis is +x, 0 <= x <= L = 0.1 m; radius R = 0.0025 m (manual p.27).
+  Wall vertices sit at EXACT radius R:
+        y_w = R cos(2.5 deg) = 0.0024976205539546445
+        z_w = R sin(2.5 deg) = 1.0904846841334003e-04
+  so |(y_w, z_w)| = R to machine precision (NOT y = R, z = R tan a, which would
+  put the wall at R/cos a).
+
+  AXIAL: UNIFORM, __NX__ cells, and __NX__ is ALWAYS A MULTIPLE OF 10, so a mesh
+  FACE lies exactly at each of the ten gate stations x = 0.01 ... 0.10 m on every
+  level of the grid family.  The mixing-cup average is then taken on REAL MESH
+  FACES carrying the solver's OWN conserved flux -- nothing is interpolated onto
+  a constructed plane.
+
+  RADIAL: GRADED FINE AT THE WALL, total ratio __RGRAD__ (last cell / first cell
+  = 0.25, i.e. 4x refinement towards the wall).  The concentration boundary layer
+  grows from the wall and is thinnest at the first gate station (delta/R ~
+  sqrt(2 tau) = 0.15 at x = 0.01 m), which is exactly where the gate is tightest.
+  The total ratio is HELD FIXED across the whole r = 2 family, so doubling __NR__
+  halves the wall cell -- a clean ratio-2 family in the near-wall spacing too.
+
+  N-AV9 -- THE AZIMUTHAL DEFICIT IS NOT REMOVED BY THIS MESH OR BY ANY REFINEMENT
+  OF IT.  A flat-sided 5 deg wedge has cross-sectional area 0.9987312439537492 of
+  the true circular sector (deficit 0.1268756046250763 %) and wall area
+  0.9996827203920081 of the true arc (deficit 0.03172796079918827 %); their ratio
+  is exactly sec(2.5 deg) = 1.0009526851633199.  The wedge volumetric flow rate is
+  therefore 0.5*sin(5 deg)*R^2*Uavg = 2.7236169608643178e-07 m3/s, NOT the true
+  sector value pi*R^2*(5/360)*Uavg = 2.7270769562411397e-07 m3/s.  The frozen
+  conservation control in grade_vmfl006.py uses the FLAT-WEDGE value.  The signed
+  effect on the GRADED quantity is carried in PREREGISTRATION.md sec.11.
+
+  __NX__, __NR__, __RGRAD__ substituted by run_vmfl006.sh; this template is never
+  edited by a run.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+mergeType points;   // wedge geometry -- merge the coincident axis points
+
+scale   1;
+
+vertices
+(
+    (0.0  0                       0                      )   // 0  inlet  axis
+    (0.1  0                       0                      )   // 1  outlet axis
+    (0.0  0.0024976205539546445  -1.0904846841334003e-04 )   // 2  inlet  wall back
+    (0.1  0.0024976205539546445  -1.0904846841334003e-04 )   // 3  outlet wall back
+    (0.0  0.0024976205539546445   1.0904846841334003e-04 )   // 4  inlet  wall front
+    (0.1  0.0024976205539546445   1.0904846841334003e-04 )   // 5  outlet wall front
+);
+
+blocks
+(
+    hex (0 1 3 2  0 1 5 4) (__NX__ __NR__ 1) simpleGrading (1 __RGRAD__ 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet  { type patch; faces ( (0 2 4 0) ); }
+    outlet { type patch; faces ( (1 3 5 1) ); }
+    walls  { type wall;  faces ( (2 3 5 4) ); }
+    wedge1 { type wedge; faces ( (0 2 3 1) ); }
+    wedge2 { type wedge; faces ( (0 1 5 4) ); }
+);
+
+mergePatchPairs
+(
+);

@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006 -- scalarTransportFoam, steady, one passive scalar T (= mass fraction
+  of species A) on a PRESCRIBED fully-developed Poiseuille velocity field.
+
+  div(phi,T) is SECOND ORDER (linearUpwind).  Plain central differencing is not
+  used: the cell Peclet number on the coarsest level is u*dx/D_AB = 2*5e-4/1.43e-5
+  = 70, and the inlet lip carries a genuine step discontinuity in T (0.5 -> 0.9),
+  so central differencing would ring.  First-order upwind is not used either: it
+  would smear the concentration boundary layer and bias the mixing-cup average
+  exactly where the gate is tightest (the first stations).  linearUpwind is
+  formally second order, which is the order registered in PREREGISTRATION.md.
+
+  AXIAL DIFFUSION IS KEPT.  laplacian(DT,T) is solved in all directions; the
+  Graetz reference neglects it.  Pe = Uavg*R/D_AB = 174.8 (Re_D*Sc = 349.65 on
+  the diameter), and the resulting bias on the graded quantity is carried in
+  PREREGISTRATION.md sec.11 -- it is NOT silently absorbed.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,T)      Gauss linearUpwind grad(T);
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
