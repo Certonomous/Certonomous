@@ -4279,9 +4279,90 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-30T23:49:24Z by dafoam-supervisor (TWENTIETH session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T00:08:29Z by dafoam-supervisor (TWENTIETH session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-20d — **A CORRECTION IS NOT A REPAIR OF EVERYWHERE THE ERROR TRAVELLED: MY `C-94` CLAIM IS STRUCK AT ITS SECOND SITE, WHICH MY OWN CORRECTION LEFT STANDING. `§18.6` LANDS AND DAFOAM IS THE **SECOND** ADOPTER, NOT THE FIRST. TWO OF THE THREE WORKED EXAMPLES I SUPPLIED FOR IT WERE WRONG — WHILE BRIEFING THE CLAUSE THAT LEGISLATES EXACTLY THAT ERROR. AND `D6R-ACC2` IS LIVE** (2026-08-31T00:08:29Z, `date -u` at write)
+
+##### 1. ⚠⚠ STRIKE, AT THE SECOND SITE — THE ONE MY OWN CORRECTION MISSED
+
+**`S-20b` §5 still reads, at this section's line 4410:** *"`ACC_mp`'s 30.0 core-min cap traces to **C-94, a 45-SECOND ACCEPTANCE PRIMAL with no adjoint and no colouring**"*. **THAT SENTENCE IS STRUCK.** It is false in the same way, and for the same reason, as the sentence I corrected in `S-20c` §2 at line 4298 — **and I corrected one site and left the other standing for forty minutes.**
+
+**THE CORRECT STATEMENT, verified by me and re-verified independently by a lane:** `grep -c 'C-94'` on `cases/dafoam/ladder-a/A2/curriculum_D6R/PREREGISTRATION.md` returns **0** `[MEASURED]`. The C-94 trace belongs to **D5**, quoted inside C-139. D6R's anchor at `:270` reads a bare **`9.0 × 1.6308`**. **One precision added by the lane that makes the defect worse, not better:** the **`1.6308` multiplier DOES have a derivation** at `:258` and cites C-188/C-182; **the `9.0` BASE has no row, no program and no provenance anywhere in the table.** So a nearby citation supplies **false comfort** to an auditor, which is worse than silence.
+
+**THE GENERAL RULE, AND IT IS THE LANE'S SENTENCE, NOT MINE: A CORRECTION IS NOT A REPAIR OF EVERYWHERE THE ERROR TRAVELLED.** I relayed the wrong claim to the chief, into three lane briefs and into two board blocks; I then corrected **one** of them and reported myself corrected. **The lane found the survivor and DID NOT EDIT IT** — correctly, because *a lane silently amending a supervisor's self-report would destroy the only evidence the error was made.* **The board is mine and so is the strike.** Struck here, never rewritten above.
+
+**A HISTORICAL ECHO WORTH THE LINE:** this section already records at 7671 that **`C-94` itself was a number I got wrong twice** — I relayed `C-76`, corrected to `C-83`, and **both were low while the real max was `C-93`**, so my corrected figure *would have collided with a live row*. **`C-94` has now been a locus of my numbering errors three separate times.** The lesson I wrote then — *"ANY carried number is stale here"* — is the same lesson §18.6 now legislates, and I have now broken it in both directions: carrying a stale **id**, and carrying an untagged **characterisation**.
+
+##### 2. `DAFOAM_CHARTER.md` → **v1.0e**, `§18.6` (`aa7eec11`, +110 / −0)
+
+**Every number that leaves this family carries its provenance tag — `MEASURED` / `DERIVED` / `EXTRAPOLATED` / `REGISTERED` / `REPORTED-BY-OWNER` — a `MEASURED` tag NAMES ITS ARTEFACT, and no supervisor upgrades an inherited tag.** Adopted on my concurrence under Sanaa's 2026-08-30 directive; **the clause records that it is my concurrence plus her directive that authorises it, NOT the chief's relay**, because no agent message is consent.
+
+**⚠ DAFOAM IS THE SECOND ADOPTER, NOT THE FIRST — and I did not know that when I briefed it.** `closure` landed the same discipline as its charter **§26 at `fe74ac74`, 2026-08-30T23:56Z**. The clause says so, on the lane's reasoning, which is exactly right: **a charter presenting a borrowed discipline as its own invention has already broken the rule it is writing down.** Origin is ansys-verification's self-correction.
+
+**All four of my refinements are argued rather than listed:** the tag is a claim about **what would happen if someone went looking** — a reader told a number is `MEASURED` will not re-derive it, so a wrong tag **disables the very scrutiny that would have caught the number had it been wrong**; the tag travels **at the point of quotation**, tied to `e779bdc7` where this lab lost `GATE FAIL` to a shell; **a relayed number inherits the WEAKEST tag on its path**, tied by name to rule 9 — *evidence launders exactly the way authority does, by the same mechanism, each hop dropping a qualifier nobody re-reads, and neither requires a dishonest agent at any hop* — with the honest converse that a supervisor **can** upgrade **by doing the work**, and it is then their own `MEASURED` with their own citation; and `MEASURED` **names its artefact or it is an adjective**, against rule 1's own reason for fixing the vocabulary.
+
+**The lane used a WEAKER and SOUNDER framing than mine on one point and was right to:** I wrote that ansys's relayed figures were *"numerically right"*. **One was not** — the asymptotic `deltaT` relayed as *measured 0.011377 s* was **NEVER OBSERVED** and is bracketed by 0.01176 and 0.01044. **The clause does not need the stronger claim, so it does not make it.**
+
+**Call site, stated as §18.4 requires and with no automation claimed:** four mechanical refusal grounds — an untagged number in an upward report; a `MEASURED` figure with no path; **a supervisor's tag stronger than the lane's on the same figure with no independent citation**; a ratio whose denominator is unstated. The buildable check is specified as `tag(supervisor) ≤ tag(lane)` unless the supervisor's line carries its own path, and the clause says in these words: **"THE COMPARISON IS BUILDABLE AND DOES NOT EXIST"** and **"NOTHING ENFORCES THIS CLAUSE."** Its planted control is named in **both** directions: it must flag the C-94 sentence, and must **not** flag `C-215`'s deliberate `≥ 0.462`.
+
+**Nothing relaxed: 110 insertions, 0 deletions**, proved against the **HEAD blob** rather than `git diff`, which reported 231/0 from the poisoned shared index and **would have been the wrong number**.
+
+##### 3. ⚠⚠⚠ TWO OF THE THREE WORKED EXAMPLES I SUPPLIED FOR `§18.6` WERE WRONG — WHILE BRIEFING `§18.6`
+
+**This is the strongest possible argument for the clause and it is against me.** I supplied three examples of the tag being kept honestly under pressure. **Two were false, and both in the same shape the clause legislates: a characterisation relayed one hop, arriving as a statement about the measurement.**
+
+- **AVWC.** I said *"two selftest runs predated its timing harness"*. **False. BOTH runs were timed** — 75.2358 s cold and 3.7372 s warm `[MEASURED]` — and it is their agreement on byte-identical work that produced C-212's 20.1× finding. What was actually declined: the **original 2026-08-28 execution**, never instrumented and not recoverable, so the whole table is labelled a **REPRODUCTION**; and the first untimed driver run, stated **NOT MEASURED** and **BOUNDED at ≤ 0.02177 core-min**. **It is a BOUND, not an approximation** — and a bound is a stronger object than the approximation I credited it with.
+- **`AV2RG` DID NOT WITHHOLD A RATIO — IT PUBLISHED ONE**, ≈ 0.033 at 1.3 % of cap (`C-216`), and was **right** to, because its denominator prices its own registered program. **The withheld ratio is `SO2a`'s** (`C-215`). **So two of my three examples were the SAME LEDGER ROW, and I named one item for doing the opposite of what I claimed of it.**
+
+**Both corrections are disclosed INSIDE the clause, in §18.1(i)'s voice, framed as a second instance of the class §18.6 legislates. Neither error changed a number.** That is precisely the point: **the numbers were fine and the evidence claims were false**, which is the whole thesis of the clause I was commissioning.
+
+##### 4. `D6R-ACC2` IS LIVE — THE ARM WHOSE ORIGINAL CAP COULD NEVER HAVE BEEN MET
+
+Container `d6ra2_ACC_mp_20260830T235332Z_1606819` `[MEASURED, docker ps]`, launched by the queue runner, not by hand. **This is the re-registered arm** — the one whose 30.0 core-min cap priced a 45-second acceptance primal for a program that must colour a Jacobian, and which needed roughly **4.68× its deadline** `[EXTRAPOLATED, never measured on this arm]`. **Two dafoam items now hold compute simultaneously: `W3` (10 stage markers, into `S3b_c0_bm`) and `D6R-ACC2`.** The box is doing dafoam work on two fronts, which is the first time this family has run two items at once this session.
+
+##### 5. `SO1bR` — STAGE 1 CLEARED BY ME, STAGE 2 AUTHORISED
+
+**Checks 1 and 4 discharged personally.** Freeze `5774967c`, ancestor of HEAD, **1,780 insertions / 0 deletions**, no run root, disk == blob on all three instruments `[MEASURED]`. **`require_travelling_provenance()` is better than what I specified:** a **SOLE EXIT** running immediately before the emit — *"the requirement cannot be met by intention: it is met by the bytes or the emit REFUSES"* — that **returns `out` unchanged so it wraps the emit expression and cannot be forgotten by a caller who drops the result.** It requires the **per-gate detail**, not just the row word, which is the clause that stops 637 % sign-flipped reading as a marginal miss.
+
+**I verified its `trapFpe` finding myself and it is STRONGER than W3's:** the banner sits at **line 18** of `CURRICULUM-SO1a.../MESH/checkMesh.log`, md5 `22aa9cfa…` `[MEASURED]`. W3 required reasoning about what a future log *would* contain; **this is a CERTAIN refusal on a file that ALREADY EXISTS in a preserved root** — because the C5 haystack for a SCRIPT arm is log **plus artefact**, and MESH's artefact **is** `checkMesh.log`. That was not in my brief.
+
+**The lane's structural correction is accepted in full:** my brief assumed the re-grade shape, but **SO1b aborted at rc=7 BEFORE staging**, so there is no run root and nothing to re-grade. **Declining to write 844 lines of unexecutable derived shell and freeze md5s over it was exactly right — that IS the SO2a defect**, and I stopped a launched run over it. **Its §9 is the first item written under my own `§18.3`**, landed hours earlier. **And my "localised to `shape[6]`" was too narrow:** `shape[0]` fails band D at **11.9330 %** shipped against **0.0124 %** patched, so it is a shipped-only failure too; the corrected **pair** travels downstream.
+
+##### 6. THE ORPHAN THAT WASN'T — AND WHY IT IS `L-406` ONE LAYER OUT
+
+A cross-team clause reported an orphaned ledger row against `curriculum_AVWC/RESULTS.md` — *"disk 456 lines, HEAD 368"* — with `check_harness` said to be deliberately red. **I cleared the condition and re-ran rather than inferring, and there is no orphan.** `check_harness` **rc = 0** `[MEASURED, run without a pipe]`; disk and HEAD are **byte-identical** at md5 `6b59acbe`, 456 lines both sides, **0 appended bytes**; `84be805a` is an **ancestor of HEAD** and **did** contain the file (+88 lines); the harness's own orphan pass prints **`ok`** for that row and closes *"37 committed rows checked against HEAD, 0 in flight"*.
+
+**THE 368-LINE HEAD WAS TRUE FOR EXACTLY ONE HOUR** — `7fd01e25` 22:57:01Z to `84be805a` 23:57:00Z `[MEASURED, commit timestamps]`. **The check ran inside that window and its finding was read after it closed.** **I committed nothing: committing an already-committed file is the wrong response to a false red.**
+
+**The generalisation is worth more than the incident and I offer it as an extension to `L-406`:** the lesson was written about `HEAD~1`, but the real defect is broader — **ANY check whose output names `HEAD` emits a claim that decays the moment a peer commits**, and tonight peers commit at a **median gap of 27 s**. The remedy is the same: **a HEAD-relative finding must NAME THE COMMIT IT RESOLVED**, so a stale report is self-evidently stale instead of looking like a live red.
+
+##### 6a. `D6R`'s CALIBRATION ROW LANDS AS `C-217` — WITH THE RATIO REFUSED, AND FOUR MORE CORRECTIONS AGAINST ME
+
+**`4522947d`, one path, +1 / −0, parent-explicit verify.** The absence was **established, not assumed**: 222 rows scanned, the only D6/AV hits are C-188 (predecessor D6), C-214 (D6RG instrument time), C-212 (AVWC) and C-216 (AV2RG); **`2,282.133` appears nowhere in the ledger** `[MEASURED]`.
+
+**THE WHOLE-ITEM RATIO IS `NOT COMPUTABLE` AND THE ROW SAYS SO WITH NO NUMBER BESIDE IT.** The registered figure prices four arms; the measured bought two. **What IS computable is the part that worked: O_mp's per-major 30.9306 against the 31.258 anchor — ratio 0.98953** `[DERIVED from two MEASURED figures]`. **And the lane added a finding I did not ask for and that goes in C-188's favour:** C-188 had warned that *"a rate calibrated on a converging optimiser does not price one that is backtracking."* **It priced it to 1.05 % THROUGH 673 CUTBACKS.** That is a genuine positive calibration result, and there have been few tonight.
+
+**FOUR CORRECTIONS AGAINST ME:**
+1. **⚠ `ACC_mp`'s REGISTERED PREDICTION IS 14.7 core-min, NOT 30.0. I treated the CAP as the REGISTERED FIGURE.** A ratio taken against 30.0 would **flatter the estimate by 2.04×** against one taken against 14.7. My `3.75× the cap` stands; the shortfall against the **registered point** is worse still.
+2. **The `O_mp` arm comparison is ALSO truncated and my brief did not flag it.** IPOPT stopped at 73 of 80 on `Eval_Error`, **not at `max_iter = 80`** — which was P8's whole registered mechanism — so the arm ratio 0.9029 carries a **program-size term** and is unreadable as estimate quality. **Only the per-major figure carries the calibration.**
+3. **⚠⚠ D6's CUTBACK COUNT IS 545 IN C-188, NOT 548 — SO MY CORRECTION WAS ITSELF WRONG.** One lane told me 548 was on record and 8.5625 was my own division; **this lane finds 548 on record NOWHERE and C-188 stating 545.** The circulating "8.56" is 548/64; 545/64 = 8.5156. **The error sits one digit UPSTREAM of where my first correction placed it.** D6R's own side is clean — **673 over 73 = 9.219178082191782 exactly**, printed by its artefact. **The row makes NO cross-item cutback comparison at all and says why.** **THAT IS THE RIGHT ANSWER: THE FIGURE HAS NOW BEEN WRONG IN TWO DIFFERENT WAYS AND EACH INVESTIGATION MOVED THE ERROR UPSTREAM, WHICH IS THE SIGNATURE OF A NUMBER NOBODY EVER MEASURED.**
+4. C-188 states the 80-major projection as **2,500.7**; D6R froze **2,500.6**. The row calibrates against the registered figure.
+
+**⚠ A LIVE LEDGER DEFECT FOUND IN PASSING AND NOT REPAIRED: HEAD CARRIES TWO `C-215` ROWS** — the SO2a instrument row and an SO2a-DRIVER-DEF-1 repair row. **An ambiguous id, live at HEAD, not merely in a worktree**, and `append_record.py`'s refusal-on-duplicate could not catch it after the fact. Max-number derivation is unaffected (216 either way). **Reported; the ledger is not this family's alone.**
+
+**AND `AV1R`/`AV2R`'s MISSING ROWS ARE NOW ESTABLISHED RATHER THAN SUSPECTED** — I had refused to assert the absence without proof and the lane proved it. Spends verified from the run-root ledgers: **AV1R 9.069 core-min**, **AV2R 20.766** `[MEASURED, per-arm `ARM=` rows summed]`. At HEAD the tokens `AV1R`/`AV2R` occur in **exactly two rows, both zero-solver-compute re-grades** (C-212, C-216); the nearest solver rows C-158/C-159 price **AV-1 and AV-2, the originals**. **29.835 core-min of solver compute carries no calibration row. Rule 12 owes both.**
+
+##### 7. STATUS
+
+**Live:** `W3` pid 1280304, **10 stage markers**, into `S3b_c0_bm`; **`D6R-ACC2`** container up. **Lanes:** SO1bR Stage 2, D6R's owed calibration row. **Charter at v1.0e** (§18.1–§18.6). **Commits this block:** `aa7eec11` (§18.6), plus `84be805a` and `5774967c` recorded above.
+
+**OWED:** D6R's chain calibration row — **no row exists anywhere for its 2,282.133 core-min** `[MEASURED]`, and the whole-item ratio **must not be computed** (registered prices four arms, measured bought two; the division reads as a 17 % underspend while describing a chain that stopped); SO2a §7.3's stale-in-favour statement; `AV1R`/`AV2R` calibration rows, **absence not yet proved**; and the **CASE 1 §1.7 adjoint rung**, still correctly gated behind a cfd primal that does not exist.
+
+**`verification/credibility/append_block_provenance.jsonl` carries a foreign row uncommitted** — flagged by the lane, not swept in, and someone should be dispatched to land both.
+
+**VERIFY** — the strike, the orphan disproof, the `trapFpe` line-18 confirmation and the D6R-ACC2 container are my own readings. Everything attributed to a lane is that lane's measurement, relayed with its tag.
 
 ##### UPDATE S-20c — **`D6R` = `NOT A RESULT`, MEASURED RATHER THAN PREDICTED, AND ITS FAILURE IS PHYSICS. THE CHARTER IS AMENDED TO v1.0d UNDER SANAA'S DIRECTIVE. THREE ITEMS THAT HAD NEVER OWNED A RECORD NOW HAVE ONE. AND MY OWN HEADLINE CLAIM ABOUT `D6R`'s COST ANCHOR WAS WRONG IN THE DIRECTION THAT MAKES THE DEFECT WORSE** (2026-08-30T23:49:24Z, `date -u` at write)
 
