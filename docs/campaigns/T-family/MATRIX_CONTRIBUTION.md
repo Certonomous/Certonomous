@@ -1058,3 +1058,284 @@ public primary source.** **That affects the ansys-verification team, not this
 one, and no thermal row is re-scored on it here.** It is recorded because it is
 now settled lab-wide and because a future thermal row that cites the manual
 would inherit it. **No such row exists today.**
+
+---
+
+## DATED SECTION, 2026-08-31 — **HEAT-TRANSFER'S CAUSE-CLASS COMPANION BLOCK, under Sanaa's GRADING TRANSPARENCY ORDER (`4116024a`)**
+
+**Mechanism, and why this file.** `VERIFICATION_CHARTER.md` §2n.11 rules that the matrix has
+**no shared row schema to add a column to**, and that **each family appends its own
+cause-class block to its OWN contribution file** in the single schema fixed at §2n.10, with
+`docs/COVERAGE_MATRIX.md` carrying **the census only**. §2n.11 names this file by explicit
+path as heat-transfer's destination. **This block is an APPEND, built from
+`git show HEAD:docs/campaigns/T-family/MATRIX_CONTRIBUTION.md`. No row above it is edited,
+and no verdict, band, gate, threshold, cap or tier anywhere in this file is altered by it.**
+
+**Schema, fixed at §2n.10 and matched literally:**
+`| row | case | verdict (rule 1, unchanged) | CAUSE CLASS | citation resolving at HEAD |`
+
+**Precedence, ruled at §2n.3 — assign the LOWEST-NUMBERED class the grading record
+supports:** `1 BUDGET/KILL`, `2 NAMING/PLUMBING`, `3 BOOKKEEPING`, `4 INSTRUMENT`,
+`5 GATE-DESIGN`, `6 REFERENT-CEILING`, `7 MODEL-LIMIT`, `8 PHYSICS-FAIL`. **Exactly ONE
+class per verdict**; every other cause present is narrated **in prose** and never in the
+column. Only **7 and 8** say anything about the lab's ability to do physics. The governing
+principle: **you may not claim a physics cause until every referee cause is excluded.**
+
+**`UNCLASSED` is fail-closed (§2n.4)** — the **absence** of a class, never a value of one.
+It is published as its own third figure, never folded into either half of the headline
+(§2n.5), and an `UNCLASSED` row **may not be counted toward any capability claim.**
+
+**v1.31 (`bfa678a0`) adds NO ninth class.** §2n.15 added `GATE-DESIGN` to the
+**capability-exclusion** list, making it four (`NAMING/PLUMBING`, `BOOKKEEPING`,
+`INSTRUMENT`, `GATE-DESIGN`); the closed set of eight is untouched and §2n.1's "no ninth
+class" stands. **Nothing in this block mints a class, and no taxonomy gap is referred.**
+
+### THE HEADLINE — three figures, §2n.5
+
+> **8 physics-adverse / 12 non-physics / 28 `UNCLASSED`.**
+>
+> **Physics-adverse, listed individually:** `PHYSICS-FAIL` — T1c L0, T10a B1.
+> `MODEL-LIMIT` — K0cS rung, K0cT rung, K0cT Nusselt re-grade, K0cX rung, T9a R1, T9aD C1.
+>
+> **Non-physics, broken out by class:** `BUDGET/KILL` **0** · `NAMING/PLUMBING` **0** ·
+> `BOOKKEEPING` **1** · `INSTRUMENT` **3** · `GATE-DESIGN` **4** · `REFERENT-CEILING` **4**.
+>
+> **`UNCLASSED` 28** — published, not hidden, and **none of it counts toward any capability
+> claim.**
+
+**COUNTING CONVENTION, stated so the figures can be checked rather than trusted.** The unit
+is **one entry per verdict as the grading record itself states it.** A record that verdicts
+rows individually (T3's G1–G4) contributes one per row; a record that issues a single
+determination over a row family (K0f's *"every row: `NOT A RESULT`"*) contributes one. Where
+an entry covers several individually-verdicted rows, the multiplicity is stated in the row
+itself. **Four F14 outcomes are excluded from all three figures — see §3.**
+
+---
+
+### 1. PHYSICS-ADVERSE — 8 verdicts, classes 7 and 8
+
+| row | case | verdict (rule 1, unchanged) | CAUSE CLASS | citation resolving at HEAD |
+| --- | --- | --- | --- | --- |
+| (id owed) | T1c L0 — `Nu`, constant `Ts` | `GATE FAIL` | **`PHYSICS-FAIL`** | `docs/campaigns/T-family/T1c_RESULTS.md:14` — 0.0865 % against a 0.0301 % band, triple **CONVERGING** p 1.854; `:123` (*"The GATE FAIL is real and is not excused"*) |
+| (id owed) | T10a B1 — box ceiling `q″` | `GATE FAIL` | **`PHYSICS-FAIL`** | `docs/campaigns/T-family/T10a_RESULTS.md:65` — 0.12463 % against 0.07676 %, triple **CONVERGING** p 1.480; `:339-341` |
+| (id owed) | K0cS — the rung | `GATE FAIL` | **`MODEL-LIMIT`** | `docs/campaigns/F14-cooling-ladder/K0cS_RESULTS.md:21` — 14 of 20 graded rows failed, **0 models passed**; literature basis `K0c_THERMAL_CLOSURE_SYNTHESIS.md:592-594` (*"This inherent deficiency in isotropic-viscosity hypotheses"*) |
+| (id owed) | K0cT — the rung | `GATE FAIL` | **`MODEL-LIMIT`** | `docs/campaigns/F14-cooling-ladder/K0cT_RESULTS.md:19` (*"GATE FAIL. 8 of 18 graded rows failed."*); `:217`; literature basis as above |
+| (id owed) | K0cT — Nusselt re-grade (2 rows) | `GATE FAIL` | **`MODEL-LIMIT`** | `docs/campaigns/F14-cooling-ladder/K0cT_NUSSELT_REGRADE.md:9`; `:65-66` (−16.79 % and −24.75 %, at 3.09 and 4.57 × `u_val`); `:108` |
+| (id owed) | K0cX — the rung | `GATE FAIL` | **`MODEL-LIMIT`** | `docs/campaigns/F14-cooling-ladder/K0cX_RESULTS.md:21` — 24 of 60 graded rows, **0 of 3 models passed**; `:418-422` |
+| (id owed) | T9a R1 — wall `T` interface 1 | `GATE FAIL` | **`MODEL-LIMIT`** | `docs/campaigns/T-family/T9a_RESULTS.md:39` — 0.00069 % against 0.00026 %, triple **CONVERGING** p 1.738; `:64` (2.41 mK, 2.63 bands outside) |
+| (id owed) | T9aD C1 — H-C contrast jump | `GATE FAIL` | **`MODEL-LIMIT`** | `docs/campaigns/T-family/T9aD_RESULTS.md:56` — shrink factors 0.0323 / 0.0320 / 0.0371 against a registered `[3, 30]`; *"it grew 27–31×"*; `:191`; `:562` |
+
+**A NOTE THAT MUST TRAVEL WITH THE SIX `MODEL-LIMIT` ROWS.** Their classing rests on
+`K0c_THERMAL_CLOSURE_SYNTHESIS.md` and on the T9a records establishing these as
+**literature-documented properties of the model class**, not as this lab's solver being
+wrong about reality. **§2n.3 places `MODEL-LIMIT` ABOVE `PHYSICS-FAIL` deliberately**, and
+the reason cuts against the lab: ranking it higher is what stops the lab **flattering
+itself by claiming a genuine discovery where the textbook already said so.** These are
+**expected failures, correctly measured** — not lab defeats, and emphatically not lab
+findings. No reader may lift them as either.
+
+**AND THE TWO `PHYSICS-FAIL` ROWS ARE THE EXPENSIVE ONES.** Class 8 is reachable **only**
+when every referee cause is excluded, which is what makes it worth something when claimed.
+Both rows carry **CONVERGING** triples and proven instruments, so neither can retreat into
+a referee explanation. **They are this family's only two claims that the solver is wrong
+about the world, and they are made deliberately.**
+
+---
+
+### 2. NON-PHYSICS — 12 verdicts, classes 1–6
+
+| row | case | verdict (rule 1, unchanged) | CAUSE CLASS | citation resolving at HEAD |
+| --- | --- | --- | --- | --- |
+| (id owed) | K0d — the rung, aborted **before first compute** | `BLOCKED` | **`BOOKKEEPING`** (3) | `docs/campaigns/F14-cooling-ladder/K0d_PREFLIGHT_EXECUTABILITY_FINDING.md:3` — **zero core-seconds consumed**, no case built, run directory never created; §2.1 `:44-53` (the frozen registration names `omega` literally, one exemption); §2.2 `:55-76` (three registered `RNGkEpsilon` cases **cannot** write `omega`, shown with both branches of a planted control visible); §2.3 `:80-88` (the comparator then refuses for the whole rung — **no `DONE` marker can ever be earned, i.e. the stamp is impossible**) |
+| (id owed) | T16 `T16_MC_c` | `BLOCKED` | **`INSTRUMENT`** (4) | `docs/campaigns/T-family/T16_RESULTS.md:11`; `:13-14` — **the record assigns the cause itself**: *"The block is an instrument defect, not a property of the run"*; all six completion limbs pass on a hand reading at `:53-62`; `:67`. ⚠ **subsequently lifted** — `DONE.T16_MC_c` exists (`docs/LAB_STATE.md:11137`; marker blob `efcf7852` at `:11121`) while `T16_RESULTS.md:11` still reads `BLOCKED` at HEAD (§4) |
+| (id owed) | T16 `T16_MC_f` — the `C_ORDER` refusal | `NOT A RESULT` | **`INSTRUMENT`** (4) | `docs/DEAD_LEVER_AUDIT.md:2590-2600` — *"`C_ORDER`'s declared purpose is catching a transposed cell ordering, which reads −1.0. The observed value is −7.4e-05"*; `:2585-2589` (the quantity **mesh-converges to a non-zero value** and is therefore a physical feature of the solution, not numerical error); ruled at commit **`df69751b`** |
+| **S24** | T10a — S0, S1 (inner / outer sphere `q″`) — **2 verdicts** | `NOT A RESULT` ×2 | **`INSTRUMENT`** (4) | `docs/campaigns/T-family/T10a_RESULTS.md:62-63` — both triples **DIVERGENT**, orders −3.253 and −1.838, no band armed; **cause confirmed** at `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md:258` (row S24, *"the `viewFactorsGen` row-sum defect"*) and `docs/campaigns/T-family/T10aVF_RESULTS.md:340`. **Prose note, §5: the defective utility is upstream OpenFOAM, not this lab's reader** |
+| (id owed) | T1c L4 — `Nu` at the station **as originally registered** | `NOT A RESULT` | **`GATE-DESIGN`** (5) | `docs/campaigns/T-family/T1c_RESULTS.md:18`; ground `:100-108` — **the registered sampling station is the named defective item**: it checked thermal **entry** length and never thermal **saturation**, and at the registered `x/D = 40` the driving difference has fallen by **3792×**, to 0.0026 K out of 10 K, by *"a closed-form law which contains no solved quantity and could have been evaluated before a case existed"* |
+| (id owed) | T8 — the rung | `NOT A RESULT` | **`GATE-DESIGN`** (5) | `docs/campaigns/T-family/T8_VERDICT_2026-08-26.md:134` — **the registered item is named outright**: *"THE REGISTERED STEADY FORMULATION REACHES A CONVERGED STATE AT NO RESOLUTION, IN THREE DIFFERENT WAYS"*; `:24` (a three-level, grid-spanning demonstration that **the registered formulation** does not converge); `:117` (*"The defect is not numerical"* — which is what excludes the `UNCLASSED` reading) |
+| (id owed) | T4b — the rung (G1, G2, G3) — **3 verdicts** | `NOT A RESULT` ×3 | **`GATE-DESIGN`** (5) | `docs/campaigns/T-family/T4b_RESULTS.md:4`; ground `:105-108` — **the registered `endTime` schedule is the named defective item**: the field change at the registered `endTime` **GROWS by nearly three orders of magnitude** while the registered schedule 20 000 / 30 000 / 40 000 rises by only 1.5× per level |
+| (id owed) | T10a-VF — VF-3, VF-4, VF-6, VF-7 — **4 verdicts** | `GATE FAIL` ×4 | **`GATE-DESIGN`** (5) | `docs/campaigns/T-family/T10aVF_RESULTS.md:317-321` — **the registered items are named**: VF-4's four failures are *"near-zero-prediction convex patches where the **registered tolerance carried no faceting allowance**"*, and VF-7 fails *"because `intTol` is a ray-shrink epsilon, **not a quadrature tolerance**"*; `:326` |
+| (id owed) | T9a — R3 (`η`), R4 (fin tip ratio) — **2 verdicts** | `GATE REACHED` ×2 (reported, not graded) | **`REFERENT-CEILING`** (6) | `docs/campaigns/T-family/T9a_RESULTS.md:41-42`; `:101-102` — *"Had there been no floor, both would have been GATE FAIL"*; both bands (0.00077 %, 0.00011 %) sit **below the 0.025 % referent floor**, so the referent caps the tier |
+| (id owed) | T9aH — FR3, FR4 — **2 verdicts** | `GATE REACHED` ×2 | **`REFERENT-CEILING`** (6) | `docs/campaigns/T-family/T9aH_RESULTS.md:31-32` — both **CONVERGING**, orders 1.990 and 1.997; `:118`; `:371-372` |
+| (id owed) | K2c-B — raised-floor / perforated-tile validation rung | `NOT OBTAINED` (no gate armed; no solve run) | **`REFERENT-CEILING`** (6) | `docs/campaigns/F14-cooling-ladder/K2c_RACK_ROW_VALIDATION_SEARCH.md:176-178` (*"Filed NOT OBTAINED in its entirety"*); `:232`; candidate table `:35-41` — **seven measurement primaries, every one Unpaywall `is_oa: false`, no repository copy** |
+| (id owed) | K0f — **the rung verdict only** (its ten rows are `UNCLASSED`, §3) | `GATE REACHED` | **`REFERENT-CEILING`** (6) | `docs/campaigns/F14-cooling-ladder/K0f_RESULTS.md:3` — *"unreached column `P` (Blay, Mergui and Niculae 1992 `NOT OBTAINED`)"*; `:74` — the registration's best-reachable-verdict expectation, `GATE REACHED` **naming `P`**, printed as a **HIT**, so **the ceiling was predicted before compute and is the referent's, not the gate's** |
+
+---
+
+### 3. `UNCLASSED` — 28, published under §2n.4 and counting toward NO capability claim
+
+**`UNCLASSED` is not a soft verdict and not a formatting gap.** §2n.4: it reads **with the
+force of the most disqualifying class**, and a rising count is *"a finding about the lab's
+records."* Every row below is here because **the grading record does not support a class**,
+not because nobody looked.
+
+**3.1 Records that report a measured state and name no defective registered item — 26**
+
+| rung | rows | verdict | citation resolving at HEAD |
+| --- | --- | --- | --- |
+| T3 | G1, G2, G3, G4 | `NOT A RESULT` ×4 | `docs/campaigns/T-family/T3_RESULTS.md:202-205` — every level `NOT CONV / NOT CONV / NOT CONV` |
+| T4 | G1, G2, G3 | `NOT A RESULT` ×3 | `docs/campaigns/T-family/T4_RESULTS_2026-08-26.md:86-88` — gate (1); triples DIVERGENT / OSCILLATORY / OSCILLATORY |
+| T9aH | FR0, FR1, FR2 | `NOT A RESULT` ×3 | `docs/campaigns/T-family/T9aH_RESULTS.md:28-30` — OSCILLATORY, OSCILLATORY, DIVERGENT |
+| T1b-L4 | **X0, X1, X3, X4** | `NOT A RESULT` ×4 | `docs/campaigns/T-family/T1b_L4_GRADE_RULING_2026-08-25.md:18-21` — DIVERGENT p −0.4129; STAGNANT +0.4350, +0.4217, +0.4058 |
+| T10a-R | RX2, RX3, RQ1, RQ2 | `GATE FAIL` ×4 | `docs/campaigns/T-family/T10aR_RESULTS.md:189-190`, `:276-279`, `:390-395` |
+| T10a-R2 | RR4a, RR4b, RR6a, RR6b, RR7 | `GATE FAIL` ×5 | `docs/campaigns/T-family/T10aR2_RESULTS.md:47-52`; `:60` |
+| T10a-R2 | RR2, RR5 | `NOT A RESULT` ×2 | `docs/campaigns/T-family/T10aR2_RESULTS.md:45`, `:49` — triple **OSCILLATORY** |
+| **E4a** | the rung (R1, G1, G2, N1, D1) | `NOT A RESULT` | **the record REFUSES to name a cause, in terms** — `docs/campaigns/T-family/E4a_RESULTS.md:294-298`: *"This lane has deliberately **not** classified that as solver non-convergence, as a gate defect, or as anything else — it reports the measurement and stops."* Also `:152-154`: whether the registered gate measures solver drift or write-precision flicker *"is a gate question, and gates are closed after first compute"* |
+| **K0f** | all ten graded rows, as one determination | `NOT A RESULT` ×10 | `docs/campaigns/F14-cooling-ladder/K0f_RESULTS.md:48`, `:65`, `:71` — no level converged under the registered §7.1 criterion; **but the record declines to call §7.1 defective**, records that §7.1 itself registers an extension of +20 000 iterations, and states *"that decision is the supervisor's, and this record makes no recommendation"* |
+| **K2b-U3** | the 3D unsteadiness question | `NOT A RESULT` | `docs/campaigns/F14-cooling-ladder/K2bU3_RESULTS.md:10-12` — *"OUTCOME P3 — UNDECIDABLE AT THIS PRICE. Test D was never run"*; `:102` — *"the registered gate fired first, exactly as designed"* |
+
+**WHY `K2b-U3` IS `UNCLASSED` AND NOT `BUDGET/KILL`, THOUGH PRICE IS THE STATED GROUND.**
+Her class 1 is *"cap hit or external death (meter, box)"*. **No cap was hit and nothing
+died.** A registered gate stopped the arm **before** the ≈ 42 core-min of Test D was spent —
+that is the gate working exactly as designed, which is the opposite of a budget event.
+Classing it `BUDGET/KILL` would be assignment **from the shape of the failure**, which
+§2n.2 forbids in terms. **Fail-closed under §2n.4.**
+
+**WHY THE FOURTEEN NON-CONVERGENCE ROWS ARE NOT SWEPT INTO `GATE-DESIGN`.** Where a record
+**names the registered item that failed**, this block uses `GATE-DESIGN` and says which item
+— T1c L4's station, T8's steady formulation, T4b's `endTime` schedule, T10a-VF's tolerance
+and `intTol`. **Where the record names only the measured state, assigning a class would be
+plausibility rather than citation.** And it would do something worse: it would **bury a
+physics/numerics signal inside a clerical-sounding label** — fourteen rows saying *this flow
+would not settle* reported as paperwork. That is the inversion her order exists to end,
+running in the direction it is easiest to miss: **not referee trouble wearing a physics
+costume, but physics wearing a referee costume.** `UNCLASSED` keeps them visible and
+uncounted, which is the honest place for them.
+
+**3.2 Four F14 outcomes with NO rule-1 verdict — EXCLUDED FROM ALL THREE FIGURES, not silently classed**
+
+| rung | outcome label as written | citation resolving at HEAD |
+| --- | --- | --- |
+| K0cP | `FORM` | `docs/campaigns/F14-cooling-ladder/K0cP_RESULTS.md:10` |
+| K0cQ | `SMALL` | `docs/campaigns/F14-cooling-ladder/K0cQ_RESULTS.md:14` |
+| K0cR | `WORSE` | `docs/campaigns/F14-cooling-ladder/K0cR_RESULTS.md:13` |
+| K0cS — `LaunderSharmaKE` arm | `REFUSED` | `docs/campaigns/F14-cooling-ladder/K0cS_RESULTS.md:20`, `:141-143` |
+
+**These are registered hypothesis-outcome labels, each defensible in its own record and
+each pre-registered before compute — and none of them is one of rule 1's six words.** A
+cause class attaches to a **verdict**. **There is no verdict here to attach one to**, so
+these four are excluded from the physics-adverse figure, the non-physics figure **and** the
+`UNCLASSED` figure. **Recording them as excluded is the point:** classing them would
+manufacture verdicts, and omitting them silently would hide four graded F14 arms from a
+census. Whether a registered outcome label may occupy a `Verdict:` field is **not this
+team's to rule** and is referred with the owed item in §4.
+
+**3.3 Rungs and rows that take NO CLASS because no verdict is settled**
+
+**§2n.11: a row carrying a tier and no verdict takes no class — and is not thereby capable.**
+
+| item | standing | why no class | citation resolving at HEAD |
+| --- | --- | --- | --- |
+| **T24** | **`PASS` ×12** | a cause class attaches to **non-`PASS`** verdicts only | `verification/runs/T-family/T24_runs/gate_t24.json` — 12 × `"verdict": "PASS"`; graded `cc5f1af4`, comparator frozen `d9082bfb` |
+| **T1b B0, B2, B4, B6** | **two verdicts by design, neither picked** | the rung displays `PASS` against its frozen comparator **and** a rule-5 reading of `NOT A RESULT`; **a class presupposes a settled verdict** | `docs/campaigns/T-family/T1b_RESULTS.md:29,31,33,35` (all four `PASS`; triples DIVERGENT p −0.219 / −0.150 / −0.059 and STAGNANT +0.010); `:316` (docket D440) |
+| **T19** | no verdict exists | no `*_RESULTS.md`, no `gate_t19.json` at HEAD | `docs/campaigns/T-family/T19_PREREGISTRATION.md` (registration only) |
+| **T20** | no verdict exists | as T19 | `docs/campaigns/T-family/T20_PREREGISTRATION.md` (registration only) |
+| **T20_LC_c** | no verdict exists | as T19 | as T20 |
+| **T15_UP_f** | no verdict exists | comparator **refused**; cause in prose below, class withheld | see below |
+
+**T15_UP_f — cause recorded in prose, class withheld.** The frozen comparator refuses on a
+planted-zero control: *"REFUSE: planted-zero control S1(FLUCTUATION): a CONSTANT offset of
+one mean moved sigma/mean by 9.95e-05 — a working fluctuation reader must be nearly blind
+to a constant offset; this one is not"* — final line of
+`verification/runs/T-family/T15_runs/T15_GRADE_OUTPUT.txt`. **The cause is an instrument
+defect and is recorded as such, in prose. It carries NO CLASS on two independent grounds,
+either sufficient:** (1) **no verdict exists**, and §2n.11 gives a verdictless row no class;
+(2) ⚠ **the cited artifact is UNTRACKED — on disk, absent from `HEAD`**, so under §2n.2
+*"a class with no resolving citation is not a class."* **Behind that refusal sits
+1 195.817 core-min of clean solve.** The comparator is doing exactly what standing rule 3
+requires — **refusing rather than degrading** — so this is the lab working, not failing.
+
+---
+
+### 4. OWED BY THIS TEAM — recorded as owed, and deliberately **NOT** performed in this commit
+
+**One item per commit** (standing rule 10). Recording them here is what makes them collectable.
+
+**OWED 1 — a bare `FAIL` in this team's own machine record.**
+`verification/runs/F14-cooling-ladder/K0cT_runs/gate_k0ct.json` carries **8 cells reading
+bare `"verdict": "FAIL"`** in `graded_rows[*].verdict`, while
+`docs/campaigns/F14-cooling-ladder/K0cT_RESULTS.md:19` reads **`GATE FAIL`** in prose.
+Under **D-5 (CLOSED 2026-08-24)** legacy bare-`FAIL` cells are corrected to `GATE FAIL` by
+their owning team, **by quote-and-strike, never rewritten**. **Another lane holds this
+item. SCOPE MEASURED HERE so it can be sized before dispatch: every tracked `gate_*.json`
+under `verification/runs/F14-cooling-ladder/K0c*_runs/` and
+`verification/runs/T-family/*_runs/` was swept, and `gate_k0ct.json` is the ONLY file
+carrying bare-`FAIL` cells — 8 cells in 1 file, not a family-wide condition.**
+
+**OWED 2 — ⚠ FOUR STALE `BLOCKED` LINES ON THE BOARD FOR T8, AND THE WARNING THAT MUST
+TRAVEL WITH THEM.** `docs/LAB_STATE.md:818`, `:2491`, `:2610`, `:2769` still read
+**`BLOCKED`** for T8 where the verdict of record is **`NOT A RESULT`**
+(`docs/campaigns/T-family/T8_VERDICT_2026-08-26.md:29-32`, which names those four lines
+itself). **ANYONE BACKFILLING T8's CAUSE CLASS FROM THE BOARD RATHER THAN FROM T8's OWN
+VERDICT RECORD WILL GET `BOOKKEEPING` INSTEAD OF `GATE-DESIGN`** — a stale `BLOCKED` reads
+as a stamp failure, and T8's actual ground is that **the registered steady formulation
+converges at no resolution.** **This is the same error, from the same cause, that was made
+and retracted on K0d during this very backfill** (§6): reading a mechanism out of a record
+and treating the mechanism as the class. **It is live on the board right now.**
+
+**Three further defects found while filing — none corrected here; none is a gate, band or verdict:**
+
+- **`T16_RESULTS.md` is stale in two places:** `:7` still reads *"Rung verdict at this
+  writing: `PENDING`. One of three levels has landed"* when **all three have landed**
+  (`docs/LAB_STATE.md:11137`), and `:11`'s `BLOCKED` for `T16_MC_c` was **lifted** when the
+  repaired marker wrote `DONE.T16_MC_c` (`:11121`, blob `efcf7852`). §2's row is filed on
+  the verdict **as the record carries it at HEAD**, with the lift disclosed in the row.
+- **`verification/runs/T-family/T15_runs/T15_GRADE_OUTPUT.txt` is UNTRACKED** — 2 118 B on
+  disk, absent from `HEAD`. It is the sole record of T15_UP_f's planted-zero refusal and of
+  the 1 195.817 core-min behind it. **An untracked grading artifact cannot be cited under
+  §2n.2 and is one `rm -rf` from being a number with no artifact.**
+- **The four F14 outcome labels of §3.2** (`FORM`, `SMALL`, `WORSE`, `REFUSED`) sitting in
+  `Verdict:` fields — the same question as OWED 1, in prose rather than in JSON.
+
+---
+
+### 5. ONE PROSE NOTE THE COLUMN CANNOT CARRY — the `viewFactorsGen` defect is UPSTREAM
+
+§2n.3 requires that where several causes are present the column carries one and **the rest
+are narrated in prose.** This is that narration, and it is the only one this block needs.
+
+**T10a S0/S1 (row S24) is filed `INSTRUMENT`, and that is correct under the eight** — the
+physics is unjudged. **But the defective instrument is an OpenFOAM pre-processing utility,
+not this lab's comparator, reader or guard.** The defect has a single named cause, a
+closed-form size and a one-key workaround, all characterised by this team
+(`docs/campaigns/T-family/T10aVF_RESULTS.md:340`), with an upstream draft at
+`docs/upstream/T10a_viewFactorsGen_rowsum_NOT_FILED.md` carrying **`NOT FILED`** in its
+opening lines — **standing rule 7; filing is Sanaa's decision alone and is taken by her.**
+
+**Why the distinction is worth stating and is not pedantry.** §2n.15 now excludes
+`INSTRUMENT` from any `YES` to *"can the lab run and post-process X?"*. **So filing an
+upstream defect as `INSTRUMENT` reports it as OUR referee being broken, when what it
+actually establishes is a characterised limit on what the lab can compute with the
+toolchain it has.** *"Our reader is broken"* is fixable by this team this afternoon; *"the
+solver's toolchain is broken"* is a capability boundary. **The class stays `INSTRUMENT` —
+the set is closed and nothing here mints a ninth — and the distinction lives in this
+paragraph, which is exactly where §2n.3 says it belongs.**
+
+---
+
+### 6. WHAT THIS BLOCK DOES NOT DO, AND ONE ERROR MADE AND RETRACTED IN THE COURSE OF WRITING IT
+
+**AN EARLIER DRAFT OF THIS BLOCK FILED K0d AS `GATE-DESIGN` AND REPORTED IT AS A
+CONTRADICTION OF SANAA'S OWN EXAMPLE. THAT WAS WRONG AND NOTHING WAS COMMITTED.** The
+`BOOKKEEPING`/`GATE-DESIGN` pair is settled by §2n.3's precedence — **assign the
+lowest-numbered class the record supports**, and `BOOKKEEPING` (3) outranks `GATE-DESIGN`
+(5) — and §2n.3's own validation section grades her anchors under that order and states the
+answer outright at `docs/charters/VERIFICATION_CHARTER.md:3937`: **"arm O and K0d → 3"**.
+**Her example was already tested and already correct.** The error was reading a *mechanism*
+out of the record (the gate could not be graded as registered) and treating the mechanism
+as the class, when §2n.3 says the mechanism is narrated in prose and the column carries one
+class chosen by precedence. **It is recorded here rather than quietly fixed, because the
+same error is sitting live on the board for T8 (§4, OWED 2) and the retraction is what
+makes that warning credible.** **Nothing was referred to Sanaa on K0d, and nothing should
+be.**
+
+| field | value |
+| --- | --- |
+| authority | **Sanaa `4116024a`** (the order), **`6fcc7fb6`** (the v1.31 ruling); **`VERIFICATION_CHARTER.md` §2n.1–§2n.16** for the closed set, the precedence, the schema (§2n.10) and this destination (§2n.11) |
+| classes minted | **0** — the set of eight is closed (§2n.1); **no taxonomy gap is referred and no ninth class is proposed** |
+| verdicts changed | **0** · gates | **0** · bands | **0** · thresholds | **0** · caps | **0** · re-grades | **0** · re-runs | **0** |
+| rows above this section edited | **0** — an append, built from `git show HEAD:` bytes |
+| new compute | **0 core-minutes** — backfill from existing records, as her order specifies (*"cheap, no re-runs"*) |
+| referred to Sanaa | **0** |
+| items owed by this team | **2** named + **3** further defects found while filing (§4) |
+| row ids left as `(id owed)` | **11 of 12** classed entries — §2n.10's ids are **references** into an enumerated table, and this file's 153-row enumeration lives in the audit record (§2n.11). **Only `S24` could be resolved at HEAD** (`:258`); the rest are left owed rather than invented, because an invented reference is worse than an absent one in a schema whose ids exist to prevent double-counting |
+| **lines whose number changed above this section** | **0** |
