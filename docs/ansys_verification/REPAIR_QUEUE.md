@@ -21,9 +21,24 @@ Cap-hit reruns; the cheapest conversions on the register. **The rule-12 line: th
 |---|---|---|
 | 11 | VMFL003-M2 arm C | REGISTER L37 — `PER_ARM_CAP=40` fired at **39.93/40**, no `End` line, rule 4 fails |
 | 12 | VMFL003-M2 arm D | REGISTER L38 — cap fired to the second, **rc=124, 39.99/40** |
-| 32 | VMFL017-R2 | REGISTER L574 — registered per-level cap fired (**rc=124**); run did not finish |
+| ~~32~~ | ~~VMFL017-R2~~ | **MOVED TO THE BACK OF THE QUEUE 2026-08-31 — see the ruling below. Row 32 itself is UNTOUCHED and stands as `NOT A RESULT`.** |
 
 **Rows 11 and 12 are two arms of ONE case, so a single successor converts both.** Both successors dispatched 2026-08-31.
+
+### RULING — ROW 32 IS CORRECTLY CLASSED AND WRONGLY PLACED: **CAUSE CLASS IS NOT REPAIR CLASS**
+
+A lane was dispatched to build row 32's successor and **stopped without writing one**, which is what it was told to do if the premise failed. The premise failed, and I verified every decisive fact myself:
+
+- **The cap firing was REGISTERED IN ADVANCE.** Pre-Compute Amendment 2 §E, frozen at `45328f8a`, predicted *"L1 is expected to stop at its own cap with rc 124 … and the case is NOT A RESULT."* **I confirmed that text is in the frozen blob.** The run record agrees exactly: `rc=124`, `wall_s=18000`, `core_min=300.0` against `cap_core_min=300`, `End_lines=0`. **This was never an accidentally-undersized cap — it was a cap set ~56× below a known intrinsic cost to BUY A MEASUREMENT OF THAT COST, and all three §E projections landed to ~1 %.** A registered probe that did exactly what it said it would is not a repairable failure.
+- **The run was progressing, not diverging** — `Cd` decayed smoothly 0.8138 → 0.7985 over 8 bounded samples, Δt held at `maxCo` 0.2, 98.68 % CPU-bound. But it reached only **0.2254 of ONE flow-through** of the 12.673 in the frozen `endTime`: the forces are 48× the target because the starting vortex has not convected off the aerofoil, not because anything is wrong.
+- **NO CAP RESIZE MAKES THIS AFFORDABLE.** From the measured rate: L1 alone **16,871 core-min = $14.42 DERIVED**; the **full triple ≈ 1,231,583 core-min ≈ $1,053.00 DERIVED — 42× the $25/run blanket**, with L3 alone at $923.18. `maxCo` 0.2 → 0.5 buys only 2.5×. **There is no evidence-sized cap that reaches a gradeable triple.**
+- **The root cause is the INSTRUMENT.** Row #19 records that the registered `rhoSimpleFoam` **diverged** (`Negative initial temperature T0` at shock formation), forcing the switch to `rhoCentralFoam` — explicit and *acoustically* CFL-limited, and fundamentally mismatched to a **steady** transonic aerofoil at Re = 6.5e6. The cap firing is the symptom.
+- **§12.2 = DIFFERENT** (RAE 2822 wind-tunnel experiment, Cook/McDonald/Firmin AGARD AR-138). **Ceiling `GATE REACHED`; `PASS` unavailable.** The lane declined to manufacture `PASS`-capability, as Sanaa's order requires.
+- **Conservation-identity check: `Cd`/`Cl` are NOT pinned** — transonic drag is set by shock position/smearing and near-wall resolution, both genuinely mesh-sensitive. So the quantity *is* gradeable in principle; the refinement numbers cannot be had without the infeasible triple.
+
+> **THE GENERAL FINDING, AND IT BEARS ON SANAA'S ORDERING: A ROW'S CAUSE CLASS DESCRIBES WHY IT FAILED, NOT HOW HARD IT IS TO FIX.** Row 32 is *correctly* classed `BUDGET/KILL` — the record plainly supports it — but its repair is an **instrument change**, which is a fresh registration and one of the *hardest* repairs, not the easiest. Sanaa's easiest-to-hardest order assumes cause class predicts repair difficulty; **for this row it does not.** Row 32 therefore moves to the back of the queue and is **not** counted among the cheap conversions. **`BUDGET/KILL` actionable-as-cheap is 2 rows (11, 12), not 3.**
+
+**Row 32's real successor, when it is reached, is a solver decision for the supervisor to authorise:** a steady / LTS-pseudo-transient / dual-time implicit density-based formulation, or a shock-robustified steady `rhoSimpleFoam` that addresses row #19's negative-temperature failure — converging in thousands of pseudo-steps rather than ~2.8e7 acoustic ones. **A single-grid L1-only re-registration is available at ~$18.75 and is explicitly NOT recommended:** no triple, capped at `GATE REACHED` twice over, on the coarsest mesh where transonic drag is most corrupted — the likely outcome is a single-grid `GATE FAIL` that answers nothing.
 
 ## 2 — `NAMING/PLUMBING` (1 row)
 
