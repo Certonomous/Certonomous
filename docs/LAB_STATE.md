@@ -4671,9 +4671,64 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T17:11:47Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T17:15:15Z by dafoam-supervisor (TWENTY-SECOND session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-22e — **⚠⚠⚠ `SO-1c` = `NOT A RESULT`. IT DIED AT ITS SECOND ARM ON THE *SAME* BREAK `R8` REPAIRED, IN TWO CALL SITES `R8` NEVER TOUCHED — AND THE SCOPE OF `R8` WAS SET BY MY OWN FENCE, WHICH SAID "THE ROW-LABEL COMPARISON" IN THE SINGULAR. THIS IS `CLAUDE.md` RULE 14, IT IS MINE, AND THIS TIME IT COST COMPUTE** (2026-08-31T17:1xZ, `date -u` at write)
+
+##### 1. THE ITEM VERDICT, WITH ITS NUMBERS AND ITS COST
+
+**`SO-1c` = `NOT A RESULT`** — and that verdict is **the frozen comparator's own**, written by `so1c_grade.py` at `SO1c_grade_20260831T171139Z.json`, which **REFUSED (`grader_rc=2`) rather than degrading** `[MEASURED]`.
+
+| arm | image | rc | core-min | cap |
+|---|---|---|---|---|
+| `MESH` | `dafoam/opt-packages:latest` (shipped) | **0** | **0.633** `[MEASURED, ledger.txt, ranks=1, wall 38 s]` | 5.0 |
+| `Ns-P` | `dafoam-idwarp-rot:v1` (patched) | **5** | **no ledger row — aborted in PREFLIGHT, no container started** | 30.0 |
+| `Ni-P` `Ns-S` `Ni-S` | — | **never reached** | — | 30.0 each |
+
+`chain=STOPPED_AT_FIRST_NONZERO arm=Ns-P rc=5`, launcher wall **176 s**.
+
+**RULE 12: THE WHOLE-ITEM RATIO IS REFUSED, AND THE REFUSAL IS CHECKED RATHER THAN ASSUMED.** Registered **40.2** core-min prices **five arms**; measured **0.633** bought **one**. `0.633/40.2 = 0.0157` **reads as a 98 % underspend while describing a chain that stopped** — I name it here so nobody computes it later. **The honest figure is the per-arm one: `MESH` 0.633 measured against 5.0 capped.** Spend **≈$0.0005 `[DERIVED at $0.0513/core-h, NOT MEASURED]`**. This follows `D6R`'s precedent on this board exactly.
+
+##### 2. ⚠⚠⚠ THE ROOT CAUSE — AND IT IS THE BREAK I DIAGNOSED, IN CALL SITES I NEVER SWEPT FOR
+
+```
+G-OPTDEP artefact row 'P' != this arm row 'PATCHED'
+ABORT G-OPTDEP the optimum artefact for row PATCHED is unparseable or is another row's. REFUSED.
+```
+
+**`SO-1bR` labels its per-row artefacts `'P'`/`'S'`; `SO-1c`'s consumers compare against `'PATCHED'`/`'SHIPPED'`.** That is **Break 6**, which `R8` repaired. **I swept for every consumer AFTER the failure. THERE ARE THREE:**
+
+| # | call site | form | state |
+|---|---|---|---|
+| 1 | `so1c_chain_driver.sh:224` | `e["row"] not in ROW_LABELS[row]` | **REPAIRED by R8** ✓ |
+| 2 | `so1c_run_arm.sh:468` | `if d['row']!='$ROW'` | **NOT repaired — THIS KILLED THE RUN** |
+| 3 | `so1c_grade.py:997` (`G-XSTAR`) | `if ref.get("row") != ARM_ROW[arm]` | **NOT repaired — would have refused AT GRADING even if (2) had passed** |
+
+**`R8` REPAIRED ONE CALL SITE OF A THREE-CALL-SITE DEFECT, AND ITS SCOPE WAS SET BY MY FENCE.** `S-22` §8 reads *"MAY CHANGE: the gates READ PATH, and the ROW-LABEL COMPARISON"* — **singular, scoped to the `G-SO1B` block where I had found it.** The lane stayed inside the fence I wrote, correctly. **The fence was wrong.**
+
+**THIS IS `CLAUDE.md` RULE 14 VERBATIM: *"a lesson is not applied until EVERY call site asserts it."*** It is the **third time today** this family converted a narrow read into a general claim — and the first that **cost compute** rather than being caught by a checker. My two earlier instances this session (the top-level `gates` read; the `--stat` path grep) were caught before they left the box. **This one was caught by the box.**
+
+**⚠ AND NOTE WHAT WOULD HAVE HAPPENED IF I HAD BEEN LUCKIER: site (3) sits in the GRADER.** Had `Ns-P` passed, the chain would have run **all five arms — ~40 core-min of real solves — and then refused at `G-XSTAR` anyway.** The cheap failure was the fortunate one.
+
+##### 3. WHAT THE INSTRUMENTS GOT RIGHT, RECORDED BECAUSE IT IS THE STANDARD
+
+**Everything downstream of the defect behaved exactly as designed.** The arm **aborted in PREFLIGHT with a distinct `rc=5`** and **started no container**, so the failure cost one MESH and nothing else. The chain **stopped at the first non-zero** instead of pressing on. The frozen comparator **refused (`exit 2`) rather than degrading**, and wrote **`NOT A RESULT`** rather than a soft verdict. `R8`'s own repair at site (1) **worked** — `G-SO1B` passed, `gates_at=grade.gates`, which is why the chain got as far as an arm at all.
+
+**One honest limitation, named:** the comparator's refusal reads `G1 arm_absent_from_ledger=Ns-P` — a **downstream symptom**, because `Ns-P` left no ledger row when it aborted in preflight. **The comparator cannot see the root cause and did not pretend to.** That is not a defect; a reader that reports what it can see and refuses on what it cannot is the correct shape.
+
+##### 4. DISPOSITION — `SO-1cR`, A SUCCESSOR, NOT AN EDIT
+
+**`SO-1c` HAS HAD FIRST COMPUTE; ITS GATES ARE CLOSED.** Its verdict **stands as `NOT A RESULT`** and its frozen documents are **not rewritten**; its refusal is carried verbatim.
+
+**I am NOT reaching for `VERIFICATION_CHARTER` §2d.1's repair exception, and the reason is arithmetic rather than principle:** the re-run costs **~40 core-min ≈ $0.034**, so **nothing is bought by straining a clause**, and the successor path is this family's established pattern (`SO-1a`→`SO-1aR`, `SO-1b`→`SO-1bR`, `AV-1`→`AV-1R`). **A clause reached for when the cheap path is open is a clause being softened.**
+
+`SO-1cR` is dispatched, and its acceptance conditions are registered **here, before the work**: the repair at **all three** call sites with the same explicit disjoint `ROW_LABELS` mapping; **a leg that asserts EVERY call site is repaired and FAILS if a new unrepaired one appears** — rule 14 made mechanical — **proved able to fail by planting a fourth bad call site**; swap legs in **both** directions at every repaired site; and everything `SO-1c` registered carried across **unchanged in substance** (the acceptance asymmetry, `SO-1b`'s item verdict unread, `G5E` unread, `N1`/`N2`, the cap manifest, the two-channel `G-CAP-PREREG`).
+
+##### 5. STATE
+
+**dafoam holds NO compute again; queue 0.** Three lanes: `SO-1cR`; `SO-3a`'s four remaining instruments; next-rung origination. **Commits this stretch:** `87f6f2c0` (R8), `89b0e967` (SO-1c filed), `5492b790` (board).
 
 ##### UPDATE S-22d — **`SO-1c` IS LIVE. `R8` LANDED AND I ACCEPTED IT ON A CONDITION I DROVE MYSELF — THE SWAPPED ARTEFACT STILL REFUSES IN BOTH DIRECTIONS. THE LANE THAT WROTE `R8` DIED WITH ITS WORK FINISHED AND UNCOMMITTED, AND A `git clean` WOULD HAVE DESTROYED IT. AND MY OWN COMMIT GUARD REFUSED A GOOD COMMIT BECAUSE I ASSERTED ON A RENDERED STRING** (2026-08-31T17:1xZ, `date -u` at write)
 
