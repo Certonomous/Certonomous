@@ -1,0 +1,78 @@
+VMFL033-R2 -- Viscous Heating in an Annulus.  COMPARATOR OUTPUT.
+manual p.119; reference Bird, Stewart & Lightfoot (1960), CLOSED FORM.
+R2 succeeds R1 (row #21, NOT A RESULT); R1 is NOT touched.  ONE change: endTime 20000->100000.
+run root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL033-R2
+
+VMFL033-R2 comparator --selftest   (ZERO compute; no run directory is read)
+------------------------------------------------------------------------------
+  ast guard    this comparator carries 0 assert statements (required: 0)
+  ast guard    a file containing an `assert` is REFUSED (guard proven to FIRE)
+  closed form  BCs exact: v(1)=0.0e+00 v(2)=1  T(1)=273 T(2)=274
+  BVP control  n=100  max|v_num-v_ex|=3.038e-06  max|T_num-T_ex|=2.599e-03
+  BVP control  n=200  max|v_num-v_ex|=7.595e-07  max|T_num-T_ex|=6.499e-04
+  BVP control  n=400  max|v_num-v_ex|=1.899e-07  max|T_num-T_ex|=1.625e-04
+  BVP control  T error falls 4.00x per doubling -> 2nd order -> DERIVATION CONFIRMED
+  energy bal   total dissipation 1256.63706 W = net wall outflow 1256.63706 W (rel 0.00e+00) -- an INDEPENDENT route to C1_T/T_peak/T_avg/q_wall CLOSES
+  roache       every state SEEN; an exact 2nd-order triple returns p=2 to 1e-9
+  plateau      500-sample floor REFUSES; a null range REFUSES; a growing series is REJECTED (ptp/scale = 2.879e-02 > 1.0e-06)
+  time dir     numeric-max selects '100000' (lexicographic '9' would MISREAD); two names for one time REFUSE
+  readers      UNIFORM field REFUSED; count/header mismatch REFUSED; headerless vector REFUSED
+  completion   an EMPTY level dir is REFUSED; a level recording rc=1 is REFUSED
+  plant        0.001234 planted on disk into a real field file, production reader saw 0.001234
+  verdict      PASS, GATE FAIL and every NOT-A-RESULT cause (plateau, triple, GCI_MAX, P_MIN) are all REACHABLE from decide_verdict
+------------------------------------------------------------------------------
+SELFTEST GREEN
+
+==============================================================================
+THE CLOSED FORM, evaluated (no digitisation, zero reference error)
+==============================================================================
+  v(r) = 0.666666666666667 r + (-0.666666666666667)/r
+  T(r) = -(133.333333333333)/r^2 + (-142.826809048007) ln r + (406.333333333333)
+  interior peak  r = 1.36640517879   T = 290.331779356 K   (walls are 273 / 274 K)
+  viscous-heating rise above T1, the T normaliser : 17.3317793559 K
+  volume-average T (the Roache functional)        : 284.133655141 K
+  inner-wall conductive flux -k dT/dr|_R1         : -123.839857619 W/m2
+  ENERGY BALANCE (independent): dissipation 1256.63706 W == net wall outflow 1256.63706 W
+
+==============================================================================
+THE GRID FAMILY  (radial refinement, r = 2; theta held FIXED at 8 cells)
+==============================================================================
+  L1_nr32    cells=256    Tavg=284.153139038  |T-T_ex|max=1.0508e-01 K (6.0629e-03 of the 17.33 K rise)
+             worst final residual=9.97e-13   plateau ptp/scale=0.000e+00 over n_window=500 (floor 500)  lexicographic_would_have_misread=False
+             [DIAGNOSTIC, NOT A DISCRIMINATOR] |v-v_ex|max=7.9275e-04 (7.9275e-04 of wall speed)  max|v_r|=1.55e-07
+  L2_nr64    cells=512    Tavg=284.141801258  |T-T_ex|max=4.8301e-02 K (2.7868e-03 of the 17.33 K rise)
+             worst final residual=1.00e-12   plateau ptp/scale=0.000e+00 over n_window=500 (floor 500)  lexicographic_would_have_misread=False
+             [DIAGNOSTIC, NOT A DISCRIMINATOR] |v-v_ex|max=4.3653e-04 (4.3653e-04 of wall speed)  max|v_r|=3.96e-08
+  L3_nr128   cells=1024   Tavg=284.139349004  |T-T_ex|max=3.4013e-02 K (1.9625e-03 of the 17.33 K rise)
+             worst final residual=7.32e-12   plateau ptp/scale=9.675e-07 over n_window=500 (floor 500)  lexicographic_would_have_misread=False
+             [DIAGNOSTIC, NOT A DISCRIMINATOR] |v-v_ex|max=3.4683e-04 (3.4683e-04 of wall speed)  max|v_r|=9.99e-09
+
+  CONTROLS -- planted-zero (rule 3), to DISK, through the production reader, AT EVERY LEVEL:
+    L1_nr32    field plant 0.001234 -> reader saw 0.00123400000001 ;  geom x2 -> radius 1.01546342 -> 2.03092684 (required 2.03092684)
+    L2_nr64    field plant 0.001234 -> reader saw 0.00123400000001 ;  geom x2 -> radius 1.00759285 -> 2.0151857 (required 2.0151857)
+    L3_nr128   field plant 0.001234 -> reader saw 0.00123400000001 ;  geom x2 -> radius 1.00367241 -> 2.00734483 (required 2.00734483)
+
+==============================================================================
+ROACHE TRIPLE on the volume-average temperature (rule 5) -- THE PHYSICS DISCRIMINATOR
+==============================================================================
+  f_coarse=284.153139038  f_med=284.141801258  f_fine=284.139349004
+  d32=-1.1338e-02  d21=-2.4523e-03  R=0.216291  state=CONVERGING
+  observed order p_obs = 2.2090 (formal p_f = 2; floor P_MIN = 0.050)
+  GCI_fine at Fs = 1.25 : 0.000298%   (ceiling GCI_MAX = 10.0%)   Richardson f_ex = 284.138672223
+  exact volume-average = 284.133655141 ; the Richardson limit is 5.0171e-03 K from it
+
+==============================================================================
+THE GATE, frozen before compute, applied at the finest level
+==============================================================================
+  G_T temperature (THE GATE, physics discriminator):
+      max|T - T_ex| / (Tpeak - T1) = 1.962465e-03   band 0.01   -> INSIDE
+  velocity (REPORTED, NOT A DISCRIMINATOR -- independent of every material property):
+      max|v - v_ex| / (Om2*R2) = 3.468273e-04   report band 0.01   -> within
+  REGISTERED EXPECTATIONS (reported either way, NEVER the gate):
+      E_T T within 0.001 : NOT MET      E_v v within 0.001 : MET
+
+==============================================================================
+  VMFL033-R2 VERDICT: PASS
+  the TEMPERATURE band is met at the finest level on a CONVERGING triple (GCI within ceiling, order above floor); a converging triple bounds the discretisation error, so PASS is available per charter Sec.11.1
+  CEILING: PASS-CAPABLE per ANSYS_VERIFICATION_CHARTER Sec.11.1 (2026-08-30) -- a limb declaring a Roache triple that returns CONVERGING is graded by rule 5 step 3.  R1's frozen line 33 (GATE REACHED) predates Sec.11.1 by five days and is NOT edited (rule 6).
+==============================================================================

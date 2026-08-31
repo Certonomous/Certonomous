@@ -325,3 +325,90 @@ re-derived not transcribed.]
 - **The velocity channel's non-discriminator status is a grading-honesty change
   from R1**, which gated on velocity too. It is disclosed here, motivated by the
   VMFL070/VMFL061 trap, and touches no physics.
+
+---
+
+## ADDENDUM 1 — 2026-08-31, POST-COMPUTE. A FALSE STATEMENT OF FACT AT LINE 121, CORRECTED WITHOUT EDITING IT.
+
+**Version: v1.0 → v1.1.** **Lines whose number changed above this section: 0.**
+Asserted by measurement, not by intention: the SHA-256 of lines 1–327 of this
+file is `51c2d3a72d8fd1a9138997fe20958c41863290ab61d10cca259398e69dd42491`
+both before and after this addendum was appended, and that is also the SHA-256
+of the whole file as it stood at the freeze commit `7c5158df`. Nothing above
+this line was touched, reflowed or renumbered. Other records cite this file by
+line number and one such citation sits inside an executable check.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Every band,
+ceiling, floor, per-level cap, expectation and tier below and above stands
+exactly as frozen: `GATE_T_TOL` 0.01, `REPORT_V_TOL` 0.01, `EXPECT_T_TOL` 0.001,
+`EXPECT_V_TOL` 0.001, `P_MIN` 0.05, `GCI_MAX` 10 %, `FS_ROACHE` 1.25,
+`PLATEAU_PTP_REL` 1.0e-06, `PLATEAU_MIN` 500, caps 8 / 12 / 20 core-min,
+`endTime` 100000, tier PASS-capable. This addendum records a **fact about the
+world** that the frozen text stated wrongly. It is filed under `CLAUDE.md`
+rule 6 (a departure is disclosed in a dated amendment appended at the foot,
+never by editing the frozen bytes) and rule 2 (after first compute, changes land
+only as dated addenda that cannot alter a gate, threshold, cap or label).
+
+### THE FALSE STATEMENT
+
+**Line 121 of this file** reads, inside the COST + CAP rationale:
+
+> *"and Sanaa's runner-side cap enforcement is now ENFORCE (2026-08-31)"*
+
+**That is FALSE.** Two artifacts on disk say the opposite, and both were read
+directly rather than recalled:
+
+- `docs/standards/RUNNER_CAP_ENFORCEMENT_CLAUSE.md:3` —
+  **"Status: ADVISORY. INERT. OFF. Not switched on, and no agent may switch it on."**
+- `scripts/queue_runner.py:14-16` — *"WHAT IT NEVER DOES. It never kills
+  anything: a cap is a runaway guard that REPORTS (`CAP_OVERRUN.txt` … or
+  `ESTIMATE_OVERRUN.txt` …) and never terminates."* The same file adds, at
+  `:557` and `:616`, that this non-enforcement is a property of the runner as
+  built and **not** a permission any charter grants.
+
+**Provenance of the error, stated rather than left anonymous:** the claim came
+from the supervising agent's brief for this registration and was written into
+the freeze without being checked against the two artifacts above. No agent
+message is a substitute for reading the artifact — including a supervisor's.
+The original sentence is **struck by this addendum and is not rewritten in
+place**; it stays on the page, wrong, with this correction beneath it, because
+a frozen document that can be silently corrected has no evidentiary value.
+
+### NOTHING WAS EVER UNPROTECTED — MEASURED, NOT ASSERTED
+
+The false sentence would matter if it meant the run was capped only in prose.
+It did not, because **the queue runner was never the operative guard for this
+case.** The operative guard is this registration's own launcher:
+
+- `run_vmfl033_r2.sh:130` — `TIMEOUT_S=$(python3 -c "print(int($CAP*60/$RANKS))")`
+- `run_vmfl033_r2.sh:133` — `( cd $D && timeout ${TIMEOUT_S}s buoyantSimpleFoam … )`
+
+so every level ran inside a hard `timeout` derived from its own registered cap,
+in the executable path, per level. **Confirmed LIVE in this run**, from
+`verification/runs/ansys_verification/VMFL033-R2/launcher.queue.out`:
+
+    LAUNCH L1_nr32  nr=32  cap=8 core-min  timeout=480s
+    LAUNCH L2_nr64  nr=64  cap=12 core-min timeout=720s
+    LAUNCH L3_nr128 nr=128 cap=20 core-min timeout=1200s
+
+and **8 core-min × 60 s ÷ 1 rank = 480 s exactly**, matching L1's granted
+timeout; likewise 12 → 720 s and 20 → 1200 s. Each level's `RUN_RC.txt` records
+the same `timeout_s_granted`. The caps were therefore enforced by termination
+throughout, by a mechanism independent of the inert runner clause. The measured
+levels used 20.0 % / 20.1 % / 19.5 % of their caps, so the guard was never
+approached — but it was armed, and that is the point.
+
+### WHAT THE ERROR DOES AND DOES NOT REACH
+
+The false sentence sits inside the **rationale for cap SIZING**, not inside any
+cap, band or label. Its argument was: *because the runner now enforces, a cap
+set too tight would kill R2 the way R1 died, so carry ~3.8× headroom.* The
+premise is false; **the conclusion was independently correct anyway**, because
+the launcher's own `timeout` really does kill a level at its cap, so headroom
+really was needed. The caps 8 / 12 / 20 stand unchanged and are not reopened.
+
+No gated value, no completion clause, no control and no verdict depends on the
+struck sentence. **The verdict graded against this freeze is unaffected.**
+
+*Filed by the opus lane that graded VMFL033-R2, 2026-08-31T17:15Z, at the
+supervisor's ruling. Carried also on the register row for this case.*

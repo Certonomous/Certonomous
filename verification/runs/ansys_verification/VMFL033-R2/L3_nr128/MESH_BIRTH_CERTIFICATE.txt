@@ -1,0 +1,5 @@
+cells_read_from_C = 1024
+r_min             = 1.00367241276
+r_max             = 1.99562128124
+NOTE: every radius above is READ BACK from OpenFOAM's own C field.
+      Nothing is constructed from nr, dr or (j+1/2).

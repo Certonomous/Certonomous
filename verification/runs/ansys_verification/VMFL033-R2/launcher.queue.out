@@ -1,0 +1,9 @@
+FREEZE VERIFIED  HEAD=9f7056d71c8c8afeb0262e44e2a1e9d24332d9f3  prereg=215d726716f9a7cea4d82c13ec1c239a84726316  comparator=8ad8047c5ec830f5a84ef6046d422307a7da3915
+COMPARATOR SELFTEST GREEN
+LAUNCH L1_nr32 nr=32 cap=8 core-min timeout=480s
+LEVEL L1_nr32 rc=0 wall=96s 1.6000 core-min; fields present for closure 'laminar': T U p p_rgh C
+LAUNCH L2_nr64 nr=64 cap=12 core-min timeout=720s
+LEVEL L2_nr64 rc=0 wall=145s 2.4167 core-min; fields present for closure 'laminar': T U p p_rgh C
+LAUNCH L3_nr128 nr=128 cap=20 core-min timeout=1200s
+LEVEL L3_nr128 rc=0 wall=234s 3.9000 core-min; fields present for closure 'laminar': T U p p_rgh C
+ALL LEVELS DONE (graded)

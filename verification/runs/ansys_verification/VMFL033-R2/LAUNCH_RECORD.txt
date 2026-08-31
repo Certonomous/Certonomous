@@ -1,0 +1,8 @@
+utc            = 2026-08-31T16:31:57Z
+mode           = graded
+HEAD           = 9f7056d71c8c8afeb0262e44e2a1e9d24332d9f3
+prereg_blob    = 215d726716f9a7cea4d82c13ec1c239a84726316
+comparator_blob= 8ad8047c5ec830f5a84ef6046d422307a7da3915
+endTime        = 100000
+writeInterval  = 100000
+ranks          = 1
