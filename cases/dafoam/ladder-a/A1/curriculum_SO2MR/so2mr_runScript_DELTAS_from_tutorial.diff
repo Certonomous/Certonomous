@@ -1,0 +1,26 @@
+--- /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible/runScript.py	2026-07-28 00:14:57.960856102 +0000
++++ /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2MR/so2mr_runScript.py	2026-08-31 17:33:52.292889601 +0000
+@@ -34,6 +34,7 @@
+ CL_target = 0.5
+ aoa0 = 5.13918623195176
+ A0 = 0.1
++L0 = 1.0
+ # rho is used for normalizing CD and CL
+ rho0 = 1.0
+ 
+@@ -65,6 +66,15 @@
+             "patchVelocityInputName": "patchV",
+             "scale": 1.0 / (0.5 * U0 * U0 * A0 * rho0),
+         },
++        "CMZ": {
++            "type": "moment",
++            "source": "patchToFace",
++            "patches": ["wing"],
++            "axis": [0.0, 0.0, 1.0],
++            "center": [0.25, 0.0, 0.05],
++            # NOTE. We scale it with -1 because DAFoam's CMZ calculation is positive for nose down
++            "scale": -1.0 / (0.5 * U0 * U0 * A0 * L0),
++        },
+     },
+     "adjEqnOption": {"gmresRelTol": 1.0e-6, "pcFillLevel": 1, "jacMatReOrdering": "rcm"},
+     "normalizeStates": {
