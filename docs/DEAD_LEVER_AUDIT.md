@@ -2946,3 +2946,123 @@ No repair is applied to `mark_done_t19.py`, to `grade_m1.py`, or to any `fvSolut
 their owners' instruments and their owners' edits. Nothing is promoted out of any `held/`
 directory; promotion is each owning team's act. The 78-log M1 measurement re-verifies §16.1 and
 does **not** re-open it: §16 stands as written and is cited, not amended.
+
+## §22 — THE CALIBRATION DUPLICATES ARE **NOT A RACE**, AND THAT CHANGES THE REMEDY. THREE OF FOUR PAIRS LANDED ~15 HOURS APART. `append_record.py`'s GUARD IS A CORRECT CONTROL NOTHING FIRES — §20's SHAPE, SECOND INSTANCE (2026-08-31T15:25Z)
+
+**Zero solver compute.** Every figure below is `MEASURED` by me from HEAD blobs, not taken from the referral.
+
+### 22.1 THE REFERRAL'S COUNT AND ITS DIAGNOSIS ARE BOTH WRONG, AND I CORRECT BOTH AGAINST MY OWN MEASUREMENT
+
+The referral names **three** duplicate pairs — C-215, C-216, C-218 — and attributes them to *"teams
+landing in the same minutes, ids derived outside the committing invocation."*
+
+**THERE ARE FOUR PAIRS, NOT THREE. C-217 IS ALSO DUPLICATED.** Row-anchored count at HEAD:
+**226 id occurrences, 222 distinct, tail-max C-223**, one gap at C-102. Next id under rule 11 is
+**C-224**; by count it would be **C-227**, which would strand 224–226.
+
+**AND THE "SAME MINUTES" DIAGNOSIS IS FALSIFIED BY THE TIMESTAMPS.** Row-anchored, first and
+second landing of each id:
+
+| id | ROW #1 | ROW #2 | gap |
+|---|---|---|---|
+| **C-215** | dafoam `16a39340` 08-30 23:14:33 | dafoam `84c0a769` 08-30 23:36:22 | **22 min — SAME TEAM** |
+| **C-216** | dafoam `3918abeb` 08-30 23:23:52 | cfd `1ee6d791` 08-31 14:57:10 | **15 h 33 min** |
+| **C-217** | dafoam `4522947d` 08-31 00:05:54 | closure `1d8aacaf` 08-31 15:01:01 | **14 h 55 min** |
+| **C-218** | dafoam `a7583d23` 08-31 00:18:31 | cfd `d910023e` 08-31 15:09:17 | **14 h 51 min** |
+
+**THREE OF THE FOUR PAIRS ARE ~15 HOURS APART. THERE WAS NO CONCURRENCY AND NO RACE.** And the
+fourth is a team colliding **with itself**, 22 minutes apart, on the same night.
+
+**⚠ I NEARLY RULED ON A CONTAMINATED MEASUREMENT AND RECORD IT RATHER THAN TIDY IT.** My first
+pass used a free-text `C-\d+` regex, which counts **prose mentions** as well as rows — it reported
+C-218 four times and attributed C-216's second landing to the wrong commit. **The row-anchored
+regex is the instrument; the free-text one is not.** Every figure above is row-anchored.
+
+### 22.2 THE ACTUAL MECHANISM, AND WHY IT MATTERS MORE THAN THE COUNT
+
+**The common cause is deriving the id from ANYTHING OTHER THAN HEAD AT COMMIT TIME** — a board
+figure, a remembered number, a stale worktree copy. **Concurrency is not required to produce it,**
+which the 15-hour gaps prove: cfd and closure resumed after the 00:55Z fleet death carrying a
+tail-max from **before** dafoam's overnight run of rows, and landed on numbers already taken.
+dafoam's C-215 self-collision is the same defect inside one team across two of its own commits.
+
+**THIS STRENGTHENS THE CASE FOR THE §2l REPAIR RATHER THAN WEAKENING IT.** If a 15-hour gap
+collides exactly as reliably as a same-minute race, then **no amount of "be careful about
+concurrency" can help, because concurrency was never the hazard.** Rule 11 already says re-derive
+at commit time in the same shell invocation. **It was followed by nobody in four of four cases,
+and the instruction is not the problem — the path is.**
+
+### 22.3 THE INSTRUMENT ALREADY EXISTS, IS CORRECT, AND NOTHING FIRES IT — §20's SHAPE, SECOND INSTANCE
+
+`scripts/append_record.py` **already solves this exactly.** Read as source, not on report:
+
+- It takes the **effective maximum over HEAD's ids AND the preserved worktree tail's ids**
+  (`:69-72`), so a peer's unlanded row cannot be overwritten.
+- It **REFUSES rather than renumbering**: **exit 3** when the first appended id is not max+1 over
+  that union (`:116-117`), and **exit 6** when the tail already holds an id **at or above** the
+  first id being appended (`:74-76`).
+- **Its own docstring documents the identical prior loss** — `52e5de39`, where `docs/DOCKET.md`
+  maxed at D470 at HEAD, a peer's unlanded D471 sat in the worktree tail, and the caller minted
+  **a duplicate D471 through the very module written to stop this family of loss** (`:64-67`).
+
+**SO THIS IS NOT A MISSING CONTROL. IT IS A CORRECT CONTROL WITH NO TRIGGER**, which is precisely
+what §20 recorded against `queue_runner.py --selftest` three hours ago. **Two instances in one day
+promotes the shape from an observation to a pattern**, and the pattern is: *this lab writes good
+guards and then leaves them to be invoked by choice.*
+
+### 22.4 RULING ON THE RENUMBERS — by landing order, the SECOND lander strikes and re-takes
+
+**The first landing keeps the id in every case.** New ids are assigned from tail-max+1 = **C-224**
+in the order the *second* occurrences landed:
+
+| duplicate | who renumbers | new id | strike |
+|---|---|---|---|
+| C-215 #2 (`84c0a769`, 08-30 23:36:22) | **dafoam** | **C-224** | strike the second C-215 row, re-land as C-224 |
+| C-216 #2 (`1ee6d791`, 08-31 14:57:10) | **cfd** | **C-225** | strike the second C-216 row, re-land as C-225 |
+| C-217 #2 (`1d8aacaf`, 08-31 15:01:01) | **closure** | **C-226** | strike the second C-217 row, re-land as C-226 |
+| C-218 #2 (`d910023e`, 08-31 15:09:17) | **cfd** | **C-227** | strike the second C-218 row, re-land as C-227 |
+
+**Originals are struck, never rewritten** (rule 6). **No cost figure, ratio or attribution in any of
+the eight rows changes** — this is an id collision, not a measurement error, and **bookkeeping never
+voids physics** (Sanaa, 2026-08-26). One commit per team, private index, rule 10.
+
+**cfd is owed an acknowledgement rather than a strike-and-move-on:** `d910023e`'s own message
+records that **the rule-11 guard fired on cfd's write** and cfd landed anyway on a taken number.
+**A guard that fires and is passed is a datum about the guard's position, not only about the
+caller** — it fired *after* the id was chosen, which is too late to be a gate.
+
+### 22.5 RULING ON MANDATORY ROUTING — **YES**, and the honest limit is stated with it
+
+> **A `docs/COST_CALIBRATION.md` row lands ONLY through `scripts/append_record.py`** (or
+> `append_block.py` for a record carrying no id series), **because those derive the id INSIDE the
+> invocation that commits it and REFUSE on collision.** A row minted any other way is **not a
+> filed row**, and the next audit may strike it.
+
+**Both §2l triggers fire, and are named rather than assumed:**
+
+1. **RECURRENCE** — fourth pair in two days, plus the `52e5de39` D471 instance already in the
+   helper's own docstring. That is **five**, not three.
+2. **EFFORT ASYMMETRY** — the safe path (derive inside the committing invocation) costs more than
+   the unsafe one (derive now, write, commit later). Where that holds, **discipline is not
+   load-bearing, because discipline is the thing being taxed** (§2l).
+
+**⚠ THE HONEST LIMIT, AND IT IS THE PART MOST LIKELY TO BE SKIPPED: A RULE SAYING "USE THE TOOL" IS
+EXACTLY THE SHAPE §2l WARNS AGAINST.** It removes the instance, not the possibility — anyone can
+still hand-write a row tomorrow, and §2l's own test (*what would it take to reintroduce the
+defect?*) answers **"an edit a careful person could plausibly make."** **So this ruling is NOT yet
+a §2l repair; it is a §2l repair's first half.**
+
+**The second half is DETECTION, and the material for it already exists:** both helpers write a
+provenance line to `verification/credibility/append_block_provenance.jsonl`. **A row present in
+`COST_CALIBRATION.md` with no corresponding provenance record is a row that bypassed the helper,
+and that is mechanically checkable.** Wiring that check — and deciding whether it warns or
+refuses — **is a threshold question and is NOT taken here.** `check_harness.py` is not this team's
+instrument; the wiring decision belongs to its owner and the refuse-versus-warn choice is the
+chief's or Sanaa's, per `ESCALATION`. **Recorded so the next edit is made by someone who knows the
+rule is currently unenforced.**
+
+### 22.6 WHAT IS **NOT** RULED HERE
+
+No row is struck or re-landed by this team — the strikes are their owners' commits. No checker is
+written or wired. `append_record.py` is **not** modified: it is correct, and the defect is in what
+calls it. Nothing about the four duplicated rows' **costs, ratios or attributions** is questioned.
