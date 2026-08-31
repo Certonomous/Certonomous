@@ -20123,6 +20123,39 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T21:2xZ — **VMFL029 IS DECLINED — OUR LAST CLEAN `PASS` CANDIDATE. THE FEASIBILITY THAT PROVED IT UNVIABLE ALSO SPENT ITS REGISTRATION, AND THAT TENSION IS THE FINDING. PLUS: I COMMITTED A PEER'S UNFINISHED LINE AND REPAIRED IT.**
+
+**Written by `ansys-verification-supervisor` personally.**
+
+**VMFL029 DECLINED on three independently sufficient grounds, each measured** (full record `docs/ansys_verification/VMFL029_DECLINED.md`, ruling commit `f3e554ef`):
+1. **`p_obs` 0.62 / 0.69 against a formal order of 2**, pointwise Cauchy orders repeatedly **negative** — a declared triple returns `OSCILLATORY` → `NOT A RESULT` (rule 5 step 2). Asymptotic range needs **~3015 cells/side = 10,500 core-hours ≈ $538.65 DERIVED, 21.5× the $25/run pre-authorisation**, for one row.
+2. **§12.2 answers DIFFERENT.** The solver discretises constant-SPD `div(K grad T)=0`; the only closed form is the exact solution of the **rank-one, NON-ELLIPTIC** `∂²T/∂s²=0`, differing by **2.07e-01 K on the gate profile itself**. Ellipticity is not a small parameter. The exact-PDE rule caps that at `GATE REACHED`, so **`PASS` was never available**.
+3. **The feasibility spent the registration.**
+
+**THE TENSOR, computed by me and not relayed:** eigenvalues **1.1000121e-05 / 0.999989**, condition number **9.09e+04** — a four-place truncation of an EXACTLY singular matrix (with √3/4 the eigenvalues are [2.8e-17, 1.0]). **The archive contradicts itself:** its orthotropic block names the near-zero direction (0,1,0) while the matrix's zero eigenvector lies at −150° along (0.866, 0.5). The manual prints no values at all.
+
+> **THE GENERAL LESSON — a real tension, not anyone's mistake:** where a gate quantity's **viability** is itself in question, feasibility and registration pull against each other. You cannot show a gate is gradeable without computing it, and computing it forfeits prediction-first on any band chosen afterwards. **The escape is a band fixed a-priori before any field exists** — as VMFL038-R2's limb-B 0.5 % was, set by what a KNOWN PAST DEFECT does to it. **The lane wrote NO band at all and disclosed this against its own work. That was correct.**
+
+**CONSERVATION-PINNING FIRED A SECOND TIME TODAY.** Net wall heat flux sits at the solver floor on every mesh — `|NET|/scale` **6.48e-13 / 2.61e-12 / 1.04e-11** at N = 40/80/160, **zero mesh information**, exactly the VMFL038 `τ_w` shape. Single-wall flux refines at `p_obs` 1.02, T at x = 0.5 at 0.93. **It is now a standing pre-freeze check for this team.**
+
+**GAINED AND KEPT:** `solidFoam` + `constAnIso` genuinely does anisotropic conduction, **proved by a manufactured solution rather than by reading a dictionary** — two 60×60 runs differing ONLY in the `coordinateSystem` rotation gave max errors **2.604e-05 K vs 1.067e-01 K, a factor 4,100**. A general SPD tensor is representable (`constAnIso` + `coordinateSystem` **is** the eigendecomposition `R diag(k) Rᵀ`); a rank-one projection is not, and could not be by any elliptic solver.
+
+**SCOPE RULING:** the draft's §11 well-conditioned-SPD alternative is good verification work and is **NOT this team's mandate** — our charter is the Ansys manual's cases, and a manufactured-solution case of our own design earns no manual credential. **Referred to `verification`.**
+
+#### A MISTAKE OF MINE, CAUGHT BY MY OWN GUARD, AND REPAIRED
+
+**My board splice asserted and refused** — my anchor named the `19:5xZ` entry, but a `20:25:51Z` entry had landed above it while I was stopped. **The assertion did exactly its job.** But the commit ran anyway on the same invocation and `update-index --add docs/LAB_STATE.md` staged the **worktree** copy — which carried **dafoam-supervisor's unfinished edit, a literal `@@STAMP@@` placeholder** mid-replacement at line 4674. **I committed a peer's half-written line.** Restored here to its pre-commit value `2026-08-31T20:58:38Z`, by line number, with their worktree untouched — **their edit is theirs to finish.**
+
+**THE LESSON, and it is mine:** the private-index protocol protects the **index**, not the **worktree**. `update-index --add <path>` on a shared file stages whatever a peer happens to have half-written in it. **A shared multi-writer file must be staged only after asserting that the lines I did not intend to touch are byte-identical to HEAD** — an assertion I make routinely for frozen files and did not make here. Sanaa's per-team board files with a nightly merger would remove this hazard entirely.
+
+**SANAA'S TRANSPARENCY ORDER:** item 1 discharged — `docs/ansys_verification/GRADING_CHAIN.md` at `d5c315f1`, ten bullets, **three links marked FINDING** (L1-only plants on rows #44/#46/#49; `grade_vmfl033_r2.py` has no JSON mode; the register's two id formats). Items 2–3 dispatched; **verification owns the register column mechanics** and the lane is barred from unilaterally restructuring 51 rows.
+
+**HEADLINE SPLIT (her form): 0 physics-adverse / 4 non-physics — all `GATE-DESIGN`.** Not one of this team's failures today was the solver getting physics wrong; every one was our own gate design. **That is not flattering, and it is exactly the separation her order exists to make visible.**
+
+**STATE.** Ten credentials. Register **51 rows, max 51, no gaps**; next row **#52 in hash format**. No ansys solver running. **FREEZE-AHEAD 0, and the `PASS`-capable pool from this manual is EXHAUSTED** — the remaining untaken cases are RANS-turbulent, multiphase, radiation or combustion, capped at `GATE REACHED` however clean the run. **Freeze-ahead must now be built from honest `GATE REACHED` work, and that is a change of plan Sanaa should see.**
+
+**VERIFY:** which tensor VMFL029 actually is; whether `VMFLGPU004`'s `3d.csv` (p. 233) carries Figure .29.2's curve — a §12.2 classification input, **never a gate value**.
+
 ### 2026-08-31T20:25:51Z — **SANAA CLOSED THE §2h.3 REFERRAL AND VMFL038-R2's GROUND IS NOW PERMANENT LAW. I READ IT AT SOURCE BEFORE BELIEVING THE PEER WHO TOLD ME, AND IN DOING SO FOUND THAT `§2h.6` NOW NAMES TWO DIFFERENT RULES.**
 
 **Written by `ansys-verification-supervisor` personally. Stamp from `date -u` in the writing invocation.**
