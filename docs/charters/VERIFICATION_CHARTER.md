@@ -3838,3 +3838,179 @@ document that teaches it.** The re-derivation is one `grep`; it was not run.
 | new duty created | **1** — the citation form; a bare `§2h.6` is non-conforming lab-wide |
 | open, still referred | `§2h.5` / `T9a-R1c` → heat-transfer, now against `§2h.8.1` |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.29, 2026-08-31 — **[SANAA-DIRECT] §2n: THE CAUSE CLASS. EVERY NON-`PASS` VERDICT NAMES WHY, FROM A CLOSED SET OF EIGHT — AND THE PRECEDENCE THAT DECIDES A ROW FITTING TWO IS FAIL-CLOSED AWAY FROM PHYSICS**
+
+**Lines whose number changed above this section: 0.**
+
+**Sanaa's GRADING TRANSPARENCY ORDER, 2026-08-31**, captured verbatim by the chief at
+`4116024a` (`etc/sessions/2026-08-31T2055Z_sanaa_grading_transparency_order.md`). **Read at
+source before this was written** (standing rule 9 — no agent message is her consent,
+including the one that carried this). **Her order passes her own 14-day rule freeze by its
+own terms:** rules spawn only with her approval, and this **is** her approval.
+
+**Her stated purpose, in her words, is the thing this amendment must serve:** *"This is
+mostly for me to start separating what breaks due t physics/ numerics without a plausible
+explanation vs what breaks according to the theory vs what breaks bc of bookeeping etc."*
+And: ***"referee trouble never again wears a physics costume in any report I read."***
+Every mechanic below is chosen to make that sentence true, and where a choice was
+available I took the one that makes a physics claim **harder**, never easier.
+
+### §2n.1 THE CLOSED SET OF EIGHT — HER TEXT, NOT A PARAPHRASE
+
+Every non-`PASS` verdict carries **exactly one** of these. **No free text, no ninth class,
+no synonyms** — the same discipline §2 already imposes on the verdict vocabulary itself.
+
+| # | class | her definition, verbatim | her anchor |
+| --- | --- | --- | --- |
+| 1 | **`BUDGET/KILL`** | *"cap hit or external death (meter, box)"* | JF1's pending item |
+| 2 | **`NAMING/PLUMBING`** | *"paths, ids, directories, collisions"* | SO3aR's shared run dir |
+| 3 | **`BOOKKEEPING`** | *"record/STATUS/rc/ledger failure; solve fine, stamp impossible"* | arm O, K0d |
+| 4 | **`INSTRUMENT`** | *"comparator/reader/guard defect; physics unjudged"* | banner-match, blind readers |
+| 5 | **`GATE-DESIGN`** | *"the gate itself was defective or ungradeable as registered"* | τ_w conservation identity, F28's no-floor criterion |
+| 6 | **`REFERENT-CEILING`** | *"result fine; the reference caps the tier … or isn't obtainable"* | T18, T16 |
+| 7 | **`MODEL-LIMIT`** | *"physics missed where the literature says this model class misses. Expected failure, correctly measured."* | SST hump +13.9 %, turbulent cavities |
+| 8 | **`PHYSICS-FAIL`** | *"proven instrument, band genuinely missed. The solver's answer is wrong vs reality."* | dam break +11 % |
+
+**Only classes 7 and 8 say anything about the lab's ability to do physics.** Her rule,
+unaltered: *"Only the first two say anything about the lab's ability to do physics."*
+(She numbers them first in her list; they are 7 and 8 in the precedence order below, and
+**the set is identical** — the renumbering is precedence, not a change of membership.)
+
+### §2n.2 THE CLASS IS ASSIGNED BY THE GRADING RECORD AND CITED LIKE ANY CLAIM
+
+Her rule: *"the class is assigned by the grading record, cited like any claim."* Operationally:
+
+> A cause-class cell carries **the class AND a citation that resolves at `HEAD`** to the
+> grading record that assigns it — a path with a line number, or a commit sha. **A class
+> with no resolving citation is not a class**, exactly as a number with no artifact is not
+> a measurement (§2k).
+
+**A supervisor may not assign a class from recollection, from a case's reputation, or from
+the shape of the failure.** If the grading record does not support a class, the row is
+`UNCLASSED` (§2n.4) and that is a **finding**, not a formatting gap.
+
+### §2n.3 ⚠ THE PRECEDENCE ORDER — THE MECHANIC THAT ACTUALLY DECIDES THINGS
+
+**A real row commonly fits two classes, and her order does not say which wins.** This is
+the gap that would otherwise generate a referral per case, so it is ruled here.
+
+> **Assign the LOWEST-NUMBERED class in §2n.1's table that the grading record supports.**
+> `1` is most disqualifying, `8` least. **A verdict carries exactly ONE class**; where more
+> than one cause is present, the grading record narrates the rest **in prose** and the
+> column still carries one.
+
+**THE ORDER IS NOT INVENTED — IT IS READ OFF HER OWN DEFINITIONS.** `PHYSICS-FAIL` is
+defined by her as *"**proven instrument**, band genuinely missed"*, and `INSTRUMENT` as
+*"comparator/reader/guard defect; **physics unjudged**"*. **A row cannot be a physics
+failure while its instrument is unproven — her two definitions are already mutually
+exclusive in that direction.** The precedence generalises that one relation to all eight:
+**you may not claim a physics cause until every referee cause is excluded.** That is
+exactly *"referee trouble never again wears a physics costume."*
+
+**THE RATIONALE FOR EACH STEP DOWN, stated so it can be overruled rather than rediscovered:**
+
+- **`BUDGET/KILL` first** — the run did not finish, so **no answer was produced to be wrong**.
+- **`NAMING/PLUMBING` second** — a path/id/collision defect puts **the identity of the graded
+  object in doubt**; you may have measured the wrong artifact correctly.
+- **`BOOKKEEPING` third** — the answer exists and the record cannot carry it, so the verdict
+  is about the stamp, not the solve. Her own gloss: *"solve fine, stamp impossible."*
+- **`INSTRUMENT` fourth** — her words are decisive: **physics unjudged**. No number arrived.
+- **`GATE-DESIGN` fifth, BELOW `INSTRUMENT`, and this is the one genuinely close call.** With
+  a blind reader you never obtained the number the gate would have judged, so **you cannot
+  demonstrate on data that the gate was ungradeable** — the instrument defect is the nearer
+  cause. **Recorded as a ruling with its reasoning exposed, because it is arguable.**
+- **`REFERENT-CEILING` sixth** — *"result fine"* by her own definition; the limit is external.
+- **`MODEL-LIMIT` seventh, ABOVE `PHYSICS-FAIL` — and this placement is load-bearing.** A
+  known, literature-documented model-class miss must **never** be reported as the lab's
+  solver being wrong about reality. It is an **expected failure, correctly measured**, and
+  ranking it above `PHYSICS-FAIL` is what stops the lab flattering itself in the other
+  direction — by claiming a genuine discovery where the textbook already said so.
+- **`PHYSICS-FAIL` last** — reachable **only** when everything else is excluded, which is
+  what makes it worth something when it is claimed.
+
+**VALIDATION, RUN BEFORE THIS ORDER WAS ADOPTED: all eight of her own anchors were graded
+under it, and every one lands in the class she put it in.** Dam break → 8; SST hump →
+7; T18/T16 → 6; τ_w identity and F28's no-floor → 5; banner-match and blind readers → 4;
+arm O and K0d → 3; SO3aR's run dir → 2; JF1's pending → 1. **An order that moved any of her
+anchors would have been wrong by construction, and this one moves none.**
+
+### §2n.4 `UNCLASSED` IS FAIL-CLOSED, AND IT IS NOT A NINTH CLASS
+
+> A non-`PASS` row whose grading record does not support any class is **`UNCLASSED`**.
+> **`UNCLASSED` is the ABSENCE of a class, never a value of it**, and it reads with the
+> force of the **most** disqualifying class: an `UNCLASSED` row **may not be counted toward
+> any capability claim** (§2n.6) and **may not be reported in the physics-adverse half of a
+> headline** (§2n.5).
+
+**Why this direction.** The alternative — treating an unclassed row as harmless until
+someone objects — is the fail-open this team audits for a living. **A row nobody has
+explained is not evidence that nothing is wrong with it.** An `UNCLASSED` count is
+therefore **published, not hidden**, and a rising one is a finding about the lab's records.
+
+### §2n.5 THE HEADLINE SPLIT
+
+Her rule, unaltered: every report headline carries
+**`N physics-adverse (list) / M non-physics (by class)`**.
+
+- **physics-adverse** = classes **7 `MODEL-LIMIT`** and **8 `PHYSICS-FAIL`** only, listed individually.
+- **non-physics** = classes **1–6**, broken out **by class** rather than totalled.
+- **`UNCLASSED` is reported as its own third figure** and is **never** silently folded into
+  either half. Folding it into "non-physics" would assert something nobody has established.
+
+### §2n.6 THE STANDING CAPABILITY DEFINITION
+
+Her rule, so the question never needs asking again:
+
+> **"Can the lab run and post-process X?"** is answered **`YES`** exactly when X has a row
+> at **`SURVEYED`-or-better** whose cause classes **exclude `INSTRUMENT`, `BOOKKEEPING` and
+> `NAMING/PLUMBING`** (classes 4, 3 and 2). **Everything else is referee trouble**, and
+> referee trouble is never reported as a physics limitation.
+
+**Three notes this team adds, none of which narrows her rule:**
+
+1. **`UNCLASSED` rows do not answer `YES`** (§2n.4). An unexplained row cannot demonstrate a capability.
+2. **`BUDGET/KILL` (1) and `GATE-DESIGN` (5) are NOT in her exclusion list**, and this
+   amendment **does not add them**. Her list is exactly three and it is hers to widen.
+   **Recorded as an observation, not a change:** a `GATE-DESIGN` row arguably also fails to
+   demonstrate a capability. **Referred to her; not acted on.**
+3. This definition **merges into the capability and coverage documents** as a dated
+   amendment citing `4116024a`, per her bullet 3 — it is not confined to this charter.
+
+### §2n.7 BACKFILL — CHEAP, NO RE-RUNS, AND IT MAY NOT INVENT
+
+Her rule: *"backfilled from existing records — cheap, no re-runs."*
+
+- **Each team backfills its OWN rows.** Verification designs the column and audits it; it
+  does not class another team's verdicts, exactly as it does not delete another team's rows.
+- **No solve is re-run for a backfill, ever.** A class that would require new compute to
+  establish is a class the record does not support — so the row is **`UNCLASSED`** (§2n.4).
+- **⚠ THE BACKFILL'S OWN FAILURE MODE, NAMED IN ADVANCE:** the pressure on a backfilling
+  supervisor is to reach for the class that **reads best** for their team, from memory,
+  because the row is old and the record is thin. **§2n.2 is what forbids it:** the class
+  needs a citation resolving at `HEAD`. **A backfill that produces zero `UNCLASSED` rows
+  across a large register should be disbelieved and audited** — this team will audit it —
+  because it is far likelier that recollection filled the gaps than that every historical
+  record happened to name its cause.
+
+### §2n.8 WHAT THIS AMENDMENT DOES NOT DO
+
+**It does not touch the verdict vocabulary** (§2): a cause class is an **attribute of a
+non-`PASS` verdict**, never a verdict, never a softener, and it **cannot convert one verdict
+into another**. **It does not weaken rule 5** — a row whose triple is not `CONVERGING` is
+`NOT A RESULT` whatever its class. **It does not re-grade anything:** no row's verdict moves
+because a class was added to it. **And it creates no `PASS`** — a `PASS` carries no cause
+class at all, because there is nothing to explain.
+
+| field | value |
+| --- | --- |
+| authority | **Sanaa, `4116024a`, verbatim, read at source** |
+| clause added | **§2n** (`§2n.1`–`§2n.8`) |
+| classes | **8, closed set, her text** · precedence **ruled** (`§2n.3`) · `UNCLASSED` **fail-closed** (`§2n.4`) |
+| anchors reproduced | **8 of 8** — the order moves none of her examples |
+| verdict vocabulary changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
+| new duty created | **3** — class every non-`PASS`; headline split; backfill own rows |
+| referred to Sanaa | whether `GATE-DESIGN` (and `BUDGET/KILL`) join her three capability exclusions |
+| **lines whose number changed above this section** | **0** |
