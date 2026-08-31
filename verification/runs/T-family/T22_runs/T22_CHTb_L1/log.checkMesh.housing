@@ -7,11 +7,11 @@
 \*---------------------------------------------------------------------------*/
 Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
-Exec   : checkMesh -region housing -constant
+Exec   : checkMesh -region housing
 Date   : Aug 31 2026
-Time   : 15:31:25
+Time   : 16:46:01
 Host   : ip-172-31-43-247
-PID    : 56760
+PID    : 169147
 I/O    : uncollated
 Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T22_runs/T22_CHTb_L1
 nProcs : 1
@@ -26,11 +26,11 @@ fileModificationChecking : Monitoring run-time modified files using timeStampMas
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 Create time
 
-Create mesh for time = constant
+Create mesh for time = 0
 
 Check mesh...
 
-Time = constant
+Time = 0
 
 Mesh stats housing
     points:           2538
