@@ -20708,6 +20708,80 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-08-31T22:46:18Z — **TEAM STOOD DOWN ON SANAA'S INSTRUCTION. THE REPAIR PROGRAMME IS 14 ROWS, NOT 35 — AND FOUR OF HER FIVE TIERS WERE ALREADY EMPTY BEFORE WE OPENED THEM.**
+
+**Written by `ansys-verification-supervisor` personally. Standing down: Sanaa directed all focus to her demo cases, and this team to commit and stop until she re-forms it. No ansys compute is running and none is queued.**
+
+#### THE SESSION IN ONE LINE
+
+**Seven commits, ZERO verdicts, ZERO core-minutes, $0.00.** Not one solver ran. Every finding came from artifacts already on disk — and the session's whole content is that **the work we were ordered to do had largely already been done, and nobody had checked.**
+
+#### THE HEADLINE — THE BACKLOG IS 14, NOT 35 (`e042d09d`)
+
+| bucket | n |
+|---|---|
+| `SUPERSEDED-COMPLETE` | **12** |
+| `SUPERSEDED-PARTIAL` | **0** |
+| `CEILING-TERMINAL` | **8** |
+| `SOURCE-BLOCKED` | **1** |
+| **GENUINELY OPEN — CPU** | **12** |
+| **GENUINELY OPEN — GPU** | **2** |
+
+**21 rows — 60 % — were already closed, already terminal, or blocked by the manual.** The 14 collapse to **8 root defects**; 6 startable. All open CPU work: **301.5 core-min = $0.26 DERIVED** (`$0.0513/core-h`, box cannot read its billing).
+
+**FOUR OF SANAA'S FIVE TIERS ARE EMPTY.** Tier 1 `BUDGET/KILL` — all three rows refused. Tier 2 `NAMING` — its one row repaired 2026-08-26, successor row #23. Tier 3 `INSTRUMENT` — five of six superseded, the sixth needs a fresh triple not an instrument fix. **Tier 4 `REFERENT-CEILING` — the register's `GATE REACHED` rows number exactly EIGHT and ALL EIGHT ARE TIER 4**: the tier's job was to convert its rows into clean `GATE REACHED` credentials and **they already were.** **Eleven of the twelve open CPU rows are `GATE-DESIGN` work.** Her easiest-to-hardest order front-loaded four empty tiers and essentially **all** the real work sits in the hardest one. *That is not a criticism of the ordering — the cheap end was simply already done.*
+
+**GPU blockage was overstated 3.5×:** of seven rows called GPU-blocked, **two** actually wait on hardware (34, 42). Two superseded, two already ran and landed `GATE REACHED`, one blocked by the manual.
+
+> **THE DEFECT WAS MINE.** I built `REPAIR_QUEUE.md` from the cause-class backfill, which asked **why each row failed** and never asked **whether it had already been repaired.** The supersession facts were on the rows' own faces the whole time — the register literally says *"Re-run of row #1"*, *"re-registration of row #25"*, *"Cites superseded rows #26 and #31"*. I verified four myself against the register rather than banking a lane's word.
+
+#### ⚠ VMFL007-R3 IS **NOT** READY TO FREEZE. READ THIS BEFORE TOUCHING IT.
+
+`cases/ansys_verification/VMFL007-R3/PREREGISTRATION.md` is a **DRAFT** (`f577d5ff`). It carries a `§12.2` = **`SAME`, `PASS`-capable** ruling made by me personally, and **that is exactly what makes it dangerous**: it reads like a ready registration and it is not.
+
+- **`§12.2` = `SAME`, `PASS`-capable — MY ruling, verified at source.** I read the frozen `0/U` myself (`codedFixedValue`, `u_max` 3.142857, exponent 3.5 for n = 0.4): it imposes the exact fully-developed Rabinowitsch–Mooney profile the manual's p. 29 BC specifies. On that BC `(u·∇)u` vanishes **identically**, so the full power-law NS our solver discretises reduces **EXACTLY** — not asymptotically — to the 1D ODE the closed form solves. **Not the VMFL029 trap**, where the closed form solved a structurally different rank-one NON-elliptic PDE. **The whole ruling hinges on that one frozen input: a FLAT inlet would be `DIFFERENT`.**
+- **THE PINNING QUESTION IS UNRESOLVED AND THE FREEZE IS BLOCKED ON IT.** `Dp` is **ARGUED** not-pinned and **NOT MEASURED**. Global axial force balance gives `Dp·A_cross = ∫τ_w`, so **if `τ_w` were pinned, `Dp` would be too**, by the same telescoping that made VMFL038's `τ_w` exact to 3.62e-13 on every mesh. **I made an equally plausible argument on VMFL038 this morning and it was wrong.**
+- **The probe that would settle it was AUTHORISED, then CANCELLED by the stand-down.** Its decision rule is **fixed in advance and fail-closed** and must not be adjusted to fit a later result: `d21/ptp ≥ 100` → not pinned → proceed; `< 100` → pinned → the Roache triple is structurally `EXACT` → rule 5 limb 2 → **DO NOT FREEZE**, redesign or decline. **Anchors: VMFL021-R2 measured ~300× and was sound; VMFL003-M2 measured `d21 = 0` exactly and was pinned.**
+- Band **0.5 %** around **60 521.969 Pa** is carried **byte-identical from run 1's freeze**, so it is a-priori and the probe **cannot** spend the registration — it answers only *gradeable or not*. That is the escape VMFL029's finding identified.
+
+#### THE CITATION DEFECT — AND IT LANDED ON THE TEAM THAT REPORTED IT (`61acff86`, charter **v1.7**)
+
+The exact-PDE rule **moved to `§2h.8.1`** (`VERIFICATION_CHARTER` v1.28, line 3750): `§2h.6` is **non-retroactivity alone**, the six subclauses map one-to-one, **words unchanged**. **The renumbering exists because THIS TEAM reported the `§2h.6` label collision this morning** — and I then cited the **old** address in my own `§12.2` ruling hours later. **Caught by a lane reading source, corrected pre-freeze.** Charter **v1.7 `§12.5`** lands it: appended at the foot, **lines whose number changed above: 0**, prior file verified an **exact byte prefix** (68,530 bytes), line 901 **not edited** — `§12.5` supersedes it rather than rewriting it. **No verdict, gate, band, cap or register byte moved.**
+
+**The only permitted form in this territory is now** `VERIFICATION_CHARTER §2h.8.1 (v1.28, 2026-08-31, the exact-PDE rule)`. A bare `§2h.6` was already banned for naming two rules; it is now **also the wrong rule**.
+
+> **THE LESSON, and it is mine twice over: A TEAM THAT FINDS A CITATION DEFECT IS NOT IMMUNE TO IT.** *"A cited number is not a checked number"* was written into `REPAIR_QUEUE.md` this evening after **both** its `§2n` class numbers proved wrong and the precedence inverted. It applies with full force to the supervisor who wrote it. **Re-read the address at source at every freeze.**
+
+#### `_field_classes` — LOOKED LIKE A CREDENTIAL PROBLEM, IS NOT (`a109d333`)
+
+`scripts/queue_runner.py:549` copies the authored entry; **`:555` ASSIGNS over `_field_classes` unconditionally.** **3 of 3 ansys entries clobbered; 13 of 13 launched records generic; 0 otherwise.** The innocent reading is measured **false** — authored text predates launch by **46 min** / **~1 min** / same minute. **NO CREDENTIAL MOVES:** no ansys comparator reads the queue JSON (measured, zero files), so rows **#46**/**#48** were never graded against it. **Bookkeeping never voids physics.** **The hazard is the DIRECTION** — the template is a *subset*, so the overwrite can only ever **loosen** a gate. Other teams' graders **do** read the field. **REPORTED, NOT REPAIRED** — not our territory, no patch proposed. **Prospectively: a case-specific physics-critical set belongs in the FROZEN COMPARATOR, not a queue entry.**
+
+#### ⚠ MY OWN HARNESS BRIEF SENDS EVERY FUTURE ANSYS SUPERVISOR TO DEAD PATHS
+
+**D-6 is fully discharged** — ruled 2026-08-24 under charter §9, closed `dccfea07` with **123/123 sha match and the planted control FIRING**, Sanaa's approval at D496. Canonical home **`/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/`** (123 files, 2,650,121,385 bytes). No repository document cites a dead path. **There was no unruled 2.5 GB move.**
+
+**But `harness/teams.yaml` carries SIX references to the retired paths and ZERO to the canonical home**, and its line 361 still issues the D-6 question as an **OPEN FIRST ACTION**. **I was told to rule D-6 as my first action this session; it has been closed for a week.** Had I obeyed the brief literally instead of reading the disk, I would have re-litigated a settled ruling against two directories that do not exist. **Not this team's file to edit** (`scripts/check_harness.py` gates it) — routed to the chief.
+
+#### REGISTER — ID AUDIT DONE, AND IT INDICTED OUR OWN METHOD (`3d1ad93e`)
+
+**One namespace, rows 1..51, complete, no gaps, no duplicates. Next id `**#52**`, hash format** — *"hash format"* means the literal `#`, nothing to do with a commit hash. **THE FINDING: six `**#N**` cells are NOT row ids** — `#1`–`#4` (lines 193–196) and `#42`/`#43` (716–717) are **citations inside dated addenda**. **The obvious regex returns 57 cells, a false maximum of 43, and duplicates that are not duplicates — which I know because my own haiku lane ran it tonight and reported exactly that.** The hazard was found by firing on us.
+
+**Register is also internally inconsistent on referent ceilings, in BOTH directions:** rows 17, 18, 19, 32 assert *"experimental → CAN buy P"*, which `§2h.8.1` contradicts; row 37 says *"buys V, never P"*, which **understates** and independently corroborates the `SAME` ruling above. **No byte changed, no verdict moved** — `§2h.8.4` is non-retroactive. **Anyone citing those rows is quoting superseded doctrine.**
+
+#### STATE AT STAND-DOWN
+
+**Commits (7):** `a109d333` `_field_classes` finding · `5558d6d6` tier 2 empty + `§2n` correction · `3d1ad93e` register id audit · `f5d117c4` board · `f577d5ff` VMFL007-R3 **draft, not freeze** · `e042d09d` supersession sweep · `61acff86` charter **v1.7**. *(A `§2h.8.1` citation correction to the VMFL007-R3 draft was dispatched and lands separately; it was in flight when this was written.)*
+
+**Verdicts: NONE.** No row graded, re-graded, promoted or demoted. **No register byte changed.** **Compute: ZERO core-minutes, $0.00.** Ten credentials; register 51 rows. Nothing running, nothing queued.
+
+**Rungs without verdicts:** VMFL007-R3 **draft, freeze BLOCKED on the uncancelled-but-unexecuted pinning probe**; VMFL029 `DECLINED`; rows 34, 42 GPU-blocked; VMFLGPU004 `BLOCKED` (#41, six named absences in the manual); VMFLGPU006 blocked on evidence; VMFLGPU008/009/010 untouched.
+
+**Next actions when re-formed, in order:** (1) run the VMFL007-R3 pinning probe under its **pre-fixed** rule and freeze only if it passes; (2) fold the sweep's corrected counts into `REPAIR_QUEUE.md`; (3) repair `VMFL029_DECLINED.md`'s **rule-13 scratch-path citation** — durable citation is archive `.../VM2026R1_FLUENT_ARCHIVES/VMFL029_WB.wbpz` (311,039 bytes), member `VMFL029_WB_1_files/import_files/VMFL029_aniso.cas`, MD5 `d4ceceaf8518e65a65a9dcd253bbfe45`; (4) the six cheapest open `GATE-DESIGN` rows.
+
+**On Sanaa's desk:** the **4 `UNCLASSED`** rows (solver-internal divergence has no bucket in the closed eight); **rows 6/9/10/11/12 are ONE repair** needing a frozen-threshold change (`ESCALATION` §4.1 / D539); **the four-empty-tiers finding**; and **the stale `harness/teams.yaml`**.
+
+**VERIFY (stated, not filled in):** `§2h.8.4`'s preservation-of-frozen-citations clause is taken from a lane's report — **I read `§2h.8.1` at line 3750 and the mandated form at 3791 myself, but NOT `§2h.8.4`.** And the sweep's per-row cost extrapolations are from each case's own `COST.txt`; I spot-checked none of them.
+
 ### 2026-08-31T22:26:00Z — **THREE OF SANAA'S FIVE REPAIR TIERS ARE EMPTY ON INSPECTION, AND THE REASON IS A DEFECT IN HOW I BUILT THE QUEUE: I CLASSED 41 ROWS BY WHY THEY FAILED AND NEVER ASKED WHETHER THEY WERE ALREADY REPAIRED.**
 
 **Written by `ansys-verification-supervisor` personally. Every §3 check below is mine.**
