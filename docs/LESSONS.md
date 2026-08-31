@@ -18059,3 +18059,24 @@ not, and go measure that.** If the answer is *"nothing specific"*, you have a st
 not a diagnosis. I had demanded exactly this of another team the same day — crediting
 them for excluding the innocent explanation *before* claiming the guilty one — and did
 not apply it to myself.
+
+## L-412 — The re-registration suffix breaks every downstream consumer that pins by name, and each rung's repair is what breaks the next
+
+**2026-08-31, dafoam.** A failed item is re-registered by appending `R` — `SO-1a` → `SO-1aR`, `SO-1b` → `SO-1bR`. The successor writes its artefacts under its OWN name: a run root `CURRICULUM-SO1bR-…` instead of `CURRICULUM-SO1b-…`, a grade file `SO1bR_grade_*.json` instead of `SO1b_grade_*.json`. **Every downstream item that pinned the predecessor BY NAME therefore stops resolving — silently, because the name is still syntactically valid and merely matches nothing.**
+
+**IT HAS NOW HAPPENED TWICE, ONE RUNG APART, BY THE SAME MECHANISM.**
+
+- **`SO-1b` ← `SO-1aR`.** `so1b_chain_driver.sh:113` globbed `SO1a_grade_*.json`. `SO-1aR` wrote `SO1aR_grade_*.json`. The glob could not match, the dependency check fired unexamined, and **the item closed at `rc=7` on 2026-08-28T02:31:50Z.** The repair was `SO-1bR`.
+- **`SO-1c` ← `SO-1bR`.** `PREREGISTRATION.md:58` pins `/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt/E-S/so1b_E.json` **by absolute path with no md5**; `G-SO1B` globs `SO1b_grade_*.json`. `SO-1bR` completed at 16:02:45Z and wrote the artefact — 9,991 bytes, md5 `9b1a965c5108245679df87801653aae6` — under `CURRICULUM-SO1bR-…`. **The pinned root does not exist and never will**, since `SO-1b` aborted before staging `[MEASURED, both roots listed with the existing one as the control]`. `SO-1c`'s registration mentions `SO1bR` **zero times**.
+
+**THE STRUCTURE, WHICH IS THE POINT: THE REPAIR OF EACH RUNG IS THE EVENT THAT BREAKS THE NEXT.** `SO-1bR` existed *because* the suffix broke `SO-1b`; creating it broke `SO-1c` by the identical mechanism. **This is not a mistake anybody made twice — it is a property of the convention**, and it will recur at every rung where a predecessor is re-registered and a successor pins by name.
+
+**WHY IT IS INVISIBLE UNTIL IT FIRES.** A name-pin that no longer resolves is not a syntax error, an exception or a non-zero rc. A glob matches nothing; an absolute path is simply absent. **The failure surfaces only where something checks existence — and if that check runs inside the dependency gate itself, the item closes on its own gate and looks like a legitimate refusal.** `SO-1b` closed at `rc=7` and read as a working guard.
+
+**WHAT ACTUALLY CATCHES IT.** Nothing about the name. **The second instance was caught PRE-COMPUTE only because the artefact was checked against the address the consumer would really read, rather than against the fact that it had been produced** — the artefact existed, the item was still blocked, and those are different questions. **"The dependency has been produced" and "the consumer can resolve it" are not the same claim, and the first is the one everyone checks.**
+
+**A pin by PATH ALONE is the weaker half of the defect.** `SO-1c` pinned by path with no md5, so a path change was free to become a semantic break. **A pin carrying BOTH path and content hash cannot silently resolve to the wrong file, and cannot silently resolve to nothing without saying so.**
+
+**Recorded under Sanaa's 2026-08-31 PLUMBING FREEZE. THIS LESSON SPAWNS NO RULE, NO TOOL AND NO NAMING CONVENTION** — the freeze permits recording and forbids the rest, and the correct response here is that a reader hitting a re-registration knows to check the consumers, not that a new procedure exists to police it.
+
+**Evidence:** `so1b_chain_driver.sh:113`; `curriculum_SO1c/PREREGISTRATION.md:58`; `SO1bR_grade_20260831T160245Z.json` (`chain=COMPLETE`, verdict `PASS`, 17.934 core-min of a 115.0 ceiling); both run roots listed with the existing one as the control. **Second instance caught pre-compute, before `SO-1c` burned anything, and repaired under rule 2's own pre-compute amendment form.**
