@@ -1,0 +1,142 @@
+SO-1bR STAGE 2 EVIDENCE -- lane AA, dafoam
+Captured Mon Aug 31 00:17:24 UTC 2026 ; HEAD at capture 2026dbb4
+ZERO solver compute: no mesh, no solve, no arm. The only containers started were the
+harness sacrificial sleep containers, named explicitly, 0.1 CPU / 64 MB, removed by name.
+
+=================== 1. SWEEP -- KNOWN POSITIVE FIRST (standing rule 3) ===================
+A sweep that cannot see the defect it was written for has zeros that mean nothing.
+Pointed at the tree exported from the commit BEFORE the SO-2a repair:
+
+SWEEP root=/tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/prerepair/cases/dafoam
+shell files walked (os.walk, not grep): 2
+references resolved: 19   PRESENT 18   ABSENT 1   RUNTIME 0
+item                                           referenced                         verdict
+----------------------------------------------------------------------------------------------------
+ladder-a/A1/curriculum_SO2a                    $HERE/so2a_aggregate_memory.py     ABSENT
+KNOWN-POSITIVE OK: so2a_aggregate_memory.py reported ABSENT in 1 place(s).
+  /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/prerepair/cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_chain_driver.sh -> /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/prerepair/cases/dafoam/ladder-a/A1/curriculum_SO2a/so2a_aggregate_memory.py
+
+=================== 2. SWEEP -- LIVE TREE ===================
+SWEEP root=cases/dafoam
+shell files walked (os.walk, not grep): 85
+references resolved: 456   PRESENT 437   ABSENT 0   RUNTIME 19
+
+
+SO-1bR rows (every reference the driver and launcher resolve):
+ladder-a/A1/curriculum_SO1bR                   $BASE/ledger.txt                   RUNTIME
+ladder-a/A1/curriculum_SO1bR                   $BASE/so1b_of.py                   RUNTIME
+ladder-a/A1/curriculum_SO1bR                   $BASE/so1b_runScript.py            RUNTIME
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1b_of.py                   PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1b_runScript.py            PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1br_aggregate_memory.py    PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1br_grade_cli.py           PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1br_precondition.py        PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1br_run_arm.sh             PRESENT
+ladder-a/A1/curriculum_SO1bR                   $TUT_SRC/genAirFoilMesh.py         PRESENT
+ladder-a/A1/curriculum_SO1bR                   $TUT_SRC/preProcessing.sh          PRESENT
+ladder-a/A1/curriculum_SO1bR                   $TUT_SRC/runScript.py              PRESENT
+ladder-a/A1/curriculum_SO1bR                   $BASE/so1b_of.py                   RUNTIME
+ladder-a/A1/curriculum_SO1bR                   $BASE/so1b_runScript.py            RUNTIME
+ladder-a/A1/curriculum_SO1bR                   $HERE/PREREGISTRATION.md           PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1b_of.py                   PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1b_runScript.py            PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1br_chain_driver.sh        PRESENT
+ladder-a/A1/curriculum_SO1bR                   $HERE/so1br_run_arm.sh             PRESENT
+
+RUNTIME rows above are $BASE/... paths created by the driver staging step; their
+SOURCES ($HERE/so1b_of.py, $HERE/so1b_runScript.py) are PRESENT two lines up.
+
+=================== 3. BYTE-IDENTITY OF THE ADOPTED SIBLINGS ===================
+  so1b_runScript.py          -> so1b_runScript.py          cmp=IDENTICAL  diff -u lines=0  md5=0557da51f6f179f6de865144343c499f
+  so1b_of.py                 -> so1b_of.py                 cmp=IDENTICAL  diff -u lines=0  md5=0f14244bee5fafc698e80060782a7606
+  so1b_decomposeParDict      -> so1br_decomposeParDict     cmp=IDENTICAL  diff -u lines=0  md5=e6f1b0060944bc86d6dff56480ad2bd4
+  so1b_aggregate_memory.py   -> so1br_aggregate_memory.py  cmp=IDENTICAL  diff -u lines=0  md5=709ab0b98ef0302a3a3a318588f9493f
+
+=================== 4. CPUSET, READ FROM docker inspect ===================
+Before the drive (00:14Z): d12y_w3_S3b_c0_bm_... cpuset=1 ; d6ra2_ACC_mp_... cpuset=2,3,4,14
+Core 9 (the registered placement) held by NOTHING.
+Now:
+  d6ra2_ACC_mp_20260830T235332Z_1606819 cpuset=2,3,4,14
+
+=================== 5. W3 TRIAGE -- A CRASH IS A FINDING UNTIL TRIAGE SAYS OTHERWISE ===================
+OBSERVED: W3 driver pid 1280304 was alive at 00:14Z and gone at 00:16Z, its window
+overlapping this harness drive (00:15:21-00:15:30Z).  TRIAGED, NOT WAVED THROUGH.
+FINDING: W3 COMPLETED NORMALLY.  It was not disturbed.
+  * its last arm S3b_c1_ap wrote its log at 00:15:15 and its L-252 .log.ok sentinel at 00:15:18;
+  * it then wrote its OWN grading outputs cd_n20, cd_n40, cd_n80 at 00:15:20-21 and closed
+    manifest.jsonl and ledger.txt at 00:15:22.  A KILLED DRIVER WRITES NO GRADING OUTPUTS.
+  * its ledger carries 13 rows, ALL rc=0, and ZERO STOPPED or ABORT lines.
+  * this harness NEVER NAMED W3 run root: leg (d) exercised six OTHER roots and all six
+    refused at G-ROOT.1 with rc=3 before any write.  The 1-second overlap is coincidence.
+
+=================== 6. G-ROOT.5 HARNESS -- FULL DRIVE ===================
+SO1bR G-ROOT.5 SELFTEST 2026-08-31T00:15:21Z
+  launcher       = /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1bR/so1br_run_arm.sh  md5=9e1b626dc26b7ee04ea4ed4c7cffdff1
+  parent selftest= /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1bR/../curriculum_SO1b/so1b_groot5_selftest.sh md5=128555d15c342668cd35939e0133345c
+  [OK ] (o1) order is EVIDENCE not a claim: G-ROOT.5 completes at :320, G-CPUSET at :351, first destructive op at :422
+  [OK ] (o2) zero backticks on executable lines of the launcher
+  [OK ] (o3) zero backticks on executable lines of the driver
+  [OK ] (o4) the driver executes NO SO1a_grade glob -- the ruling, checked in the bytes that will run
+  [OK ] (p1) run root ABSENT before the test: /home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt
+  [OK ] (p2) DECOY planted and NOT recorded in CREATED[]: STATUS.SO1bR_chain_DECOY_not_created_by_this_selftest md5=38d4d37b2ed10982ffa8ba3bb407c1ab
+  [OK ] (a) live container so1br_O-P_selftest_20260831T001521Z -> rc=3 (REGISTERED CODE): ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [so1br_O-P_selftest_20260831T00
+  [OK ] (b) live pid 1630517 cwd=/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt -> rc=3: ABORT G-ROOT.5 driver pidfile /home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt/so1br_driver.pid names LIVE p
+  [OK ] (b2) stale pidfile ignored; launcher went on to the L-251 mode check (rc=4) -- nothing staged
+  [OK ] (c) clear -> G-ROOT.5 passes; L-251 mode check aborts (rc=4) before any staging
+  [OK ] (d) BASE=CURRICULUM-SO1b-a1-naca0012-dragmin-opt -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=CURRICULUM-SO1a-a1-naca0012-dragmin-gradient -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=CURRICULUM-D4-a2-wing-cdmin -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=CURRICULUM-D15-a1-naca0012-subsonic -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (d) BASE=CURRICULUM-AV1-a1-naca0012-npinv -> rc=3 G-ROOT.1 REFUSED
+  [OK ] (h1) MUST-FLAG a live container on cpuset 9 -> rc=3 G-CPUSET REFUSED: ABORT G-CPUSET a RUNNING container already holds cpuset 9: [so1brcpuprobe_20260831T001523Z(cpuset=9) ]
+  [OK ] (h2) G-ROOT.5 PASSED first, so the refusal above is G-CPUSET's own and not a G-ROOT.5 hit
+  [OK ] (h3) MUST-NOT-FLAG core 9 clear -> G-CPUSET PASSES and the launcher proceeds to the L-251 check (rc=4): SO1BR_G_CPUSET_PASS arm=O-P cpuset=9 live_holders=none
+  [OK ] (e1) O-P on the SHIPPED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e2) MESH on the PATCHED image -> rc=4 G-ROW REFUSED before any staging
+  [OK ] (e3) O-S on the SHIPPED image -> G-ROW passes, arm REFUSES (rc=5) for want of MESH/ -- nothing staged
+  [OK ] (e3) no arm directory was created
+  [OK ] (e4) E-S with no O-S/so1b_O.json -> rc=5 G-EDEP REFUSED
+  [OK ] (e4) no arm directory was created
+  [OK ] (f1) plain 0/U present -> resolved 0/U
+  [OK ] (f2) only the COMPRESSED twin present -> resolved 0/U.gz, NOT a refusal -- this is what killed AV-1 and AV-2
+  [OK ] (f3) DRIVEN CONTROL -- NEITHER registered name present -> NONE, and launcher and grader both REFUSE
+  [OK ] (f4) the LAUNCHER carries the by-existence branch for the solver arms
+  [OK ] (f5) the LAUNCHER records the resolved datum NAME, under the grader's FROZEN filename
+  [OK ] (g0) the frozen pre-registration is present for the preflight to read: /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1bR/PREREGISTRATION.md
+  [OK ] (g1) real launcher vs real pre-registration -> preflight PASSES: SO1BR_G_CAP_PREREG_PASS arm=O-P prereg=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1bR/PREREGISTRATION.md head_channel=NOT_MEASURED sum_of_ca
+  [OK ] (g2a) the planted-cap mutant differs from the frozen launcher by exactly one constant (2 diff lines)
+  [OK ] (g2b) a launcher enforcing 40.0 against a registered 25.0 -> rc=65 REFUSED before any container
+  [OK ] (g3) a CEILING that is not the sum of the registered caps -> rc=65 REFUSED
+  [OK ] (g4) a pre-registration carrying NO manifest line -> rc=65 REFUSED (a missing gate is never a passing gate)
+  [OK ] (g5) the pre-registration absent -> rc=65 REFUSED
+  [OK ] (g6) channel (b), the HEAD comparison, REPORTS its own state rather than assuming one: head_channel=NOT_MEASURED -- NOT_MEASURED is the correct reading BEFORE the freeze commit, when this amendment is not yet at HEAD; channel (a) binds regardless, and this is stated rather than papered over
+  [OK ] (z1) W3-SELFTEST-DEF-1 CONTROL: the decoy this selftest did NOT create SURVIVED the named cleanup, byte-intact
+  [OK ] (z2) temporary run root EMPTY after every invocation (0 entries)
+  [OK ] (z3) run root ABSENT after the test (the freeze condition): test -e /home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt -> false
+  [OK ] (z4) no so1br* container survives in ANY state (ps -a, not ps)
+  [OK ] (z5) the CASE DIRECTORY is byte-unchanged: listing and content digests both match
+SO1bR G-ROOT5 SELFTEST pass=43 fail=0 2026-08-31T00:15:30Z
+
+HARNESS EXIT STATUS: 0
+
+=================== 7. DERIVATION REPORTS (asserted N-before / 0-after) ===================
+--- launcher ---
+DERIVED /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1bR/so1br_run_arm.sh
+  parent md5 e8b48ee0940a08e5170490da679a6b0c -> child md5 9e1b626dc26b7ee04ea4ed4c7cffdff1
+  substitutions applied (each asserted N-before / 0-after):
+(re-derivation is idempotent; the substitution table is in section A1.3 of the amendment
+ and the full deltas in so1br_run_arm_DELTAS_from_so1b.diff)
+
+DELTAS diff sizes:
+  so1br_run_arm_DELTAS_from_so1b.diff        218 lines
+  so1br_chain_driver_DELTAS_from_so1b.diff   325 lines
+  so1br_groot5_selftest_DELTAS_from_so1b.diff 314 lines
+
+CONTROL -- number of diff lines touching a threshold, cap, digest, floor, poll or bound: 0
+
+=================== 8. FREEZE CONDITION RESTORED ===================
+SO1bR run root exists: NO
+so1br* containers in ANY state (ps -a): 0
+ls -d /home/ubuntu/certonomous-runs/CURRICULUM-SO1b* -> ls: cannot access '/home/ubuntu/certonomous-runs/CURRICULUM-SO1b*': No such file or directory
+CONTROL that the reader can see a non-zero -- ls -d ...*SO1* -> 1 entry/entries

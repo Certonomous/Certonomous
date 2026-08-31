@@ -1,0 +1,218 @@
+--- curriculum_SO1b/so1b_run_arm.sh	2026-08-27 19:28:05.219444967 +0000
++++ curriculum_SO1bR/so1br_run_arm.sh	2026-08-31 00:07:58.273612269 +0000
+@@ -1,39 +1,34 @@
+ #!/usr/bin/env bash
+-# Curriculum SO-1b arm launcher -- NACA0012 INCOMPRESSIBLE (DASimpleFoam)
+-# drag-min-at-fixed-lift, the FD-VERIFIED GRADIENT RUNG of Sanaa's shape-
+-# optimisation ladder SO-1.  TWO ROWS (shipped + patched), adjoint X + central-FD
+-# table F on BOTH the objective CD and the equality constraint CL.
+-#
+-# DERIVED from `cases/dafoam/ladder-a/A1/curriculum_D15/d15_run_arm.sh`
+-# (md5 796a2de5b894e8fcdbfab99af6fbf09d) with the REGISTERED DELTAS listed in
+-# PREREGISTRATION.md section 7 and recorded in so1b_run_arm_DELTAS_from_d15.diff:
+-# item/root names; the INCOMPRESSIBLE tutorial as the source; forbidden roots
+-# extended with D15's, D16's, D17's, AV-1's and AV-2's; RANKS 1 ON EVERY ARM
+-# (DAFOAM_CHARTER.md section 5, serial before parallel); cpuset 9; the cap table;
+-# the staged instruments; the arm commands.  Container-printed strings (D4S_*)
+-# are inherited UNCHANGED so the grader greps what the launcher writes.
+-#
+-# THE AGE-GUARD DATUM IS RESOLVED BY EXISTENCE HERE TOO, AND ITS NAME IS RECORDED.
+-# AV-1 and AV-2 both returned NOT A RESULT on 2026-08-27 with every physics
+-# artefact intact because a frozen grader pinned the datum to the NAME `0/U` while
+-# this tutorial's `writeCompression on` rewrites it as `0/U.gz` on a serial arm.
+-# This launcher resolves the datum over BOTH names and writes the one it used to
+-# `.so1b_age_datum_ref` beside the epoch, so the grader is not left inferring it.
+-#
+-# CAP DISCIPLINE (the failure this file exists not to repeat).  A peer lane
+-# today registered a 3.0 core-min cap and its launcher enforced 6.0 by
+-# copy-forward with no assertion.  Here the caps are NOT arguments.  They are
+-# constants in the table below, the table is reproduced verbatim in
+-# PREREGISTRATION.md §8, this file's md5 is frozen there, and the launcher
+-# ASSERTS that the wall timeout it is about to enforce equals CAP_CORE_MIN*60/RANKS
+-# to the second.  A cap that disagrees aborts the arm before the container runs.
+-#
+-# `set -e` DOES NOT GATE at the top level of a harness Bash call and
+-# `( set -e; ... )` does not gate either.  Every step below gates explicitly
+-# with `|| { echo ABORT...; exit N; }`.
++# Curriculum SO-1bR arm launcher -- DERIVED from
++# `cases/dafoam/ladder-a/A1/curriculum_SO1b/so1b_run_arm.sh`
++# (md5 e8b48ee0940a08e5170490da679a6b0c) with the REGISTERED DELTAS listed in
++# PREREGISTRATION.md AMENDMENT 1 section A1.3 and recorded in
++# `so1br_run_arm_DELTAS_from_so1b.diff`.
++#
++# WHY THIS FILE IS DERIVED AND NOT ADOPTED BYTE-IDENTICALLY.  Adopting the parent
++# unchanged would write `ITEM=SO1b` into SO-1bR's ledger -- a provenance lie that
++# G-ROOT.3 would then read as CORRECT -- and would assert SO-1b's frozen
++# pre-registration manifest rather than this item's, so SO-1bR's caps would be
++# checked against a document that does not govern it.
++#
++# THE DELTA SET IS EXACTLY: item name; registered run root; the two forbidden
++# roots added (SO-1b's own and SO-2a's); the container-name prefix; the driver
++# pidfile; the pre-registration path and its manifest tag; the three renamed
++# emitted strings; and ONE NEW GUARD, G-CPUSET, described where it stands.
++# NO THRESHOLD, CAP, BAND, RANK COUNT, IMAGE DIGEST, REFUSAL CLAUSE OR EXIT CODE
++# IS TOUCHED, and the DELTAS diff is the evidence rather than this sentence.
++#
++# NAMES THAT DELIBERATELY DO **NOT** CHANGE, because they are FROZEN CONSTANTS OF
++# THE COMPARATOR this item runs (`curriculum_SO1b/so1b_grade.py`, unedited on
++# disk) and renaming them would break the grader that must read this launcher's
++# output:  `.so1b_age_datum` and `.so1b_age_datum_ref` (DATUM_FILE :127);
++# `so1b_O.json` / `so1b_E.json` (ARTEFACT :116-117); `so1b_runScript.py` and
++# `so1b_of.py`, which are BYTE-IDENTICAL COPIES of the parent's and whose names
++# the container command line and the staged-md5 assertion both carry; and every
++# `D4S_*` / `SO1B_*` string the CONTAINER prints, inherited UNCHANGED so the
++# grader greps what the launcher writes.
+ #
+-# 8.2: NO --rm, so `docker inspect .State.ExitCode/.State.OOMKilled` survives
+-# the arm and the KERNEL's verdict is read, not the harness's.
++# The inherited comments below describe machinery that is unchanged.
+ set -uo pipefail
+ 
+ # ===========================================================================
+@@ -57,8 +52,8 @@
+ # fire is ceremony -- and this is the guard standing between a re-fire and
+ # 384 MB of irreplaceable graded evidence.
+ # ===========================================================================
+-ITEM=SO1b
+-REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
++ITEM=SO1bR
++REGISTERED_BASE=/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt
+ BASE="${BASE:-$REGISTERED_BASE}"
+ 
+ # ---- G-ROOT.1 -- BASE must be THIS item's registered root, normalised, so a
+@@ -97,6 +92,8 @@
+ /home/ubuntu/certonomous-runs/CURRICULUM-AV1-a1-naca0012-npinv
+ /home/ubuntu/certonomous-runs/CURRICULUM-AV2-a1-naca0012-duality
+ /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
++/home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
++/home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient
+ /home/ubuntu/certonomous-runs/A2-mach-wing
+ /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
+ /home/ubuntu/dafoam-tutorials
+@@ -149,7 +146,7 @@
+ # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
+ # loadavg -- `uptime` will lie.  Censused before and after every arm.
+ container_census() {
+-  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^so1b_" | tr '\n' ',' | sed 's/,$//'
++  sudo -n docker ps --format '{{.Names}}' 2>/dev/null | grep -v "^so1br_" | tr '\n' ',' | sed 's/,$//'
+ }
+ 
+ # ---- REGISTERED CAP TABLE (PREREGISTRATION.md §4, verbatim) ---------------
+@@ -201,8 +198,8 @@
+ MD5_DECOMP=e6f1b0060944bc86d6dff56480ad2bd4      # so1b_decomposeParDict (numberOfSubdomains 1, scotch)
+ 
+ ARM="${1:-}"; IMG="${2:-}"
+-test -n "$ARM" || { echo "ABORT usage: so1b_run_arm.sh <MESH|O-P|E-P|O-S|E-S> <image>"; exit 64; }
+-test -n "$IMG" || { echo "ABORT usage: so1b_run_arm.sh <MESH|O-P|E-P|O-S|E-S> <image>"; exit 64; }
++test -n "$ARM" || { echo "ABORT usage: so1br_run_arm.sh <MESH|O-P|E-P|O-S|E-S> <image>"; exit 64; }
++test -n "$IMG" || { echo "ABORT usage: so1br_run_arm.sh <MESH|O-P|E-P|O-S|E-S> <image>"; exit 64; }
+ RANKS=$(ranks_of "$ARM"); test -n "$RANKS" || { echo "ABORT arm $ARM carries no registered rank count"; exit 64; }
+ 
+ # ===========================================================================
+@@ -232,13 +229,13 @@
+ # `docker run`; the line numbers are printed by the selftest and quoted in
+ # PREREGISTRATION.md section 7 so the ordering is evidence, not a claim.
+ # ===========================================================================
+-PREREG=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md
++PREREG=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO1bR/PREREGISTRATION.md
+ REPO=/home/ubuntu/Certonomous
+-MANIFEST_TAG="SO1B-CAP-MANIFEST v1"
++MANIFEST_TAG="SO1BR-CAP-MANIFEST v1"
+ test -f "$PREREG" || { echo "ABORT G-CAP-PREREG the frozen pre-registration is absent: $PREREG"; exit 65; }
+ MAN_DISK=$(grep -a -m1 -F "$MANIFEST_TAG" "$PREREG" || true)
+ test -n "$MAN_DISK" || { echo "ABORT G-CAP-PREREG the pre-registration names no $MANIFEST_TAG line"; exit 65; }
+-MAN_HEAD=$(git -C "$REPO" show "HEAD:cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md" 2>/dev/null | grep -a -m1 -F "$MANIFEST_TAG" || true)
++MAN_HEAD=$(git -C "$REPO" show "HEAD:cases/dafoam/ladder-a/A1/curriculum_SO1bR/PREREGISTRATION.md" 2>/dev/null | grep -a -m1 -F "$MANIFEST_TAG" || true)
+ if [ -z "$MAN_HEAD" ]; then
+   MAN_HEAD_STATE=NOT_MEASURED
+ else
+@@ -269,7 +266,7 @@
+   echo "ABORT G-CAP-PREREG the registered CEILING $CEIL_REG is not the sum of the registered caps ($CAP_SUM)."
+   exit 65
+ fi
+-echo "SO1B_G_CAP_PREREG_PASS arm=$ARM prereg=$PREREG head_channel=$MAN_HEAD_STATE sum_of_caps=$CAP_SUM ceiling=$CEIL_REG manifest=[$MAN_DISK]"
++echo "SO1BR_G_CAP_PREREG_PASS arm=$ARM prereg=$PREREG head_channel=$MAN_HEAD_STATE sum_of_caps=$CAP_SUM ceiling=$CEIL_REG manifest=[$MAN_DISK]"
+ 
+ # ---- G-EDEP -- AN E ARM WITHOUT ITS OWN ROW'S OPTIMUM IS REFUSED HERE, which
+ # ---- is BEFORE G-ROOT.5, before `sudo -n rm -rf "$WORK"` and before the
+@@ -283,7 +280,7 @@
+ esac
+ if [ -n "$NEEDO" ]; then
+   test -f "$NEEDO" || { echo "ABORT G-EDEP arm $ARM requires its own row's optimisation artefact: $NEEDO"; exit 5; }
+-  echo "SO1B_G_EDEP_PASS arm=$ARM optimum_artefact=$NEEDO md5=$(md5sum "$NEEDO" | cut -d' ' -f1)"
++  echo "SO1BR_G_EDEP_PASS arm=$ARM optimum_artefact=$NEEDO md5=$(md5sum "$NEEDO" | cut -d' ' -f1)"
+ fi
+ 
+ 
+@@ -296,13 +293,13 @@
+ # ----   (b) a driver pidfile in the run root naming a LIVE pid that is not an
+ # ----       ancestor of this process (a second driver), or whose cwd is the
+ # ----       run root.  A stale pidfile (dead pid) does not block.
+-LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^so1b_${ARM}_" 2>/dev/null | grep "^so1b_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
++LIVE_SAME_ARM=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^so1br_${ARM}_" 2>/dev/null | grep "^so1br_${ARM}_" | head -3 | tr '\n' ',' | sed 's/,$//')
+ if [ -n "$LIVE_SAME_ARM" ]; then
+   echo "ABORT G-ROOT.5 a RUNNING container already carries this item's prefix and arm: [$LIVE_SAME_ARM]"
+   echo "  Re-staging would remove the live arm directory under it.  REFUSED."
+   exit 3
+ fi
+-PIDFILE="$BASE/so1b_driver.pid"
++PIDFILE="$BASE/so1br_driver.pid"
+ if [ -f "$PIDFILE" ]; then
+   DPID=$(tr -dc '0-9' < "$PIDFILE" | head -c 12)
+   if [ -n "$DPID" ] && kill -0 "$DPID" 2>/dev/null; then
+@@ -322,6 +319,37 @@
+ fi
+ echo "D4S_G_ROOT5_PASS arm=$ARM live_same_arm_containers=none driver_pidfile=$([ -f "$PIDFILE" ] && echo present_owner_is_ancestor_or_stale || echo absent)"
+ 
++# ---- G-CPUSET -- NEW IN SO-1bR.  THE PLACEMENT IS REGISTERED AND CANNOT MOVE,
++# ---- SO THE COLLISION IS GUARDED RATHER THAN RE-PINNED.
++#
++# The frozen comparator this item runs carries `CPUSET_REGISTERED = "9"`
++# (so1b_grade.py:209) and `g_placement` GATE FAILs any arm whose ledger cpuset
++# differs (:1023), with G12 composing straight into the item verdict (:1164).
++# RE-PINNING SO-1bR TO A FREE CORE WOULD THEREFORE REGISTER A GUARANTEED
++# GATE FAIL -- the same class of defect as firing into a guaranteed no-launch,
++# which is the reason SO-1b was stopped in the first place.  So the placement
++# STAYS 9, and the real risk -- CONCURRENCY on that core -- is read live instead.
++#
++# cpuset 9 is the whole SO ladder's registered placement (SO-1a :146, SO-1b :147,
++# SO-2a :178) and also sits inside D4-SHIPPED's registered 5,6,7,9.  A registered
++# overlap costs WALL TIME and cannot fail G12 at np = 1 (the delivered-cores floor
++# does not apply when ARM_RANKS == 1).  What CANNOT be waved through is another
++# container ACTUALLY RUNNING on core 9 while this arm is timed against a cap.
++# This guard reads that, from `docker inspect`, and REFUSES rather than contends.
++CPUSET_HOLDERS=$(sudo -n docker ps --format '{{.Names}}' 2>/dev/null | while IFS= read -r _n; do
++  [ -z "$_n" ] && continue
++  _cs=$(sudo -n docker inspect --format '{{.HostConfig.CpusetCpus}}' "$_n" 2>/dev/null)
++  case ",$_cs," in *",$CPUSET,"*) printf '%s(cpuset=%s) ' "$_n" "$_cs" ;; esac
++done)
++if [ -n "$CPUSET_HOLDERS" ]; then
++  echo "ABORT G-CPUSET a RUNNING container already holds cpuset $CPUSET: [$CPUSET_HOLDERS]"
++  echo "  The registered placement cannot move -- so1b_grade.py:209 pins"
++  echo "  CPUSET_REGISTERED=9 and g_placement GATE FAILs anything else -- so a live"
++  echo "  collision is REFUSED rather than re-pinned.  Nothing staged."
++  exit 3
++fi
++echo "SO1BR_G_CPUSET_PASS arm=$ARM cpuset=$CPUSET live_holders=none"
++
+ CAP=$(cap_core_min "$ARM")
+ MEM=$(cap_memory "$ARM")
+ test -n "$CAP" || { echo "ABORT unknown arm $ARM -- no registered cap"; exit 64; }
+@@ -382,7 +410,7 @@
+ echo "D4_IMAGE_OK row=$ROW image=$IMG digest=$GOT_DIGEST"
+ 
+ STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
+-NAME="so1b_${ARM}_${STAMP}"
++NAME="so1br_${ARM}_${STAMP}"
+ WORK="$BASE/$ARM"
+ LOG="$BASE/${ARM}_${STAMP}.log"
+ 
+@@ -432,7 +460,7 @@
+   AGE_DATUM=$(stat -c '%Y' "$WORK/$DATUM_NAME")
+   echo "$AGE_DATUM" > "$WORK/.so1b_age_datum"
+   echo "$DATUM_NAME" > "$WORK/.so1b_age_datum_ref"
+-  echo "SO1B_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
++  echo "SO1BR_WRITE_COMPRESSION $(grep -a writeCompression "$WORK/system/controlDict" 2>/dev/null | head -1 | tr -d ';')"
+   echo "D4_G_COLD OK arm=$ARM age_datum_epoch=$AGE_DATUM datum_file=$DATUM_NAME resolved_by=EXISTENCE"
+ fi
+ 

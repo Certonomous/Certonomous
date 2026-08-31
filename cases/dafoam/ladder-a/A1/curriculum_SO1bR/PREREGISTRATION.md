@@ -443,3 +443,212 @@ checked** — this section is that statement.
 * **No SO-1aR grade JSON was copied, renamed, edited or moved** (§1a).
 * **Nothing is sent, filed, uploaded, registered, posted or commented outside this box**
   (rule 7). **SUBMISSIONS ARE PARKED.**
+
+---
+
+## AMENDMENT 1 — 2026-08-31 — STAGE 2 REGISTERED: THE DERIVED DRIVER AND LAUNCHER
+
+**Version 1.0 → 1.1.** Lines whose number changed above this section: **0** — proved by
+byte comparison of the pre-append prefix, not by inspection.
+
+**Authority:** the dafoam supervisor discharged checks 1 and 4 on the Stage-1 freeze
+`5774967c` personally and authorised Stage 2. **This amendment is written BEFORE any
+compute**, which is when rule 2 permits an amendment, and it states its condition and how
+it was checked in §A1.9. **Solver compute remains ZERO at this freeze.**
+
+### A1.1 WHAT STAGE 2 ADDS, AND THE ONE SUBSTANTIVE DELTA
+
+§12 registered that a chain cannot run without a derived driver and launcher, that neither
+existed, and that no md5 would be registered for a file that did not exist. **They now
+exist and are frozen here.**
+
+**THE ONE SUBSTANTIVE DELTA IS THE PRECONDITION.** SO-1b evaluated its dependency inside
+an **inline heredoc** (`so1b_chain_driver.sh:102-138`) that globbed `SO1a_grade_*.json`.
+That form is **untestable by construction** — no selftest can drive a heredoc that exists
+only inside a shell script — and on 2026-08-28T02:31:50Z it fired and closed the item at
+rc = 7. SO-1bR replaces those **79 lines** with a **49-line call to an md5-pinned FILE**,
+`so1br_precondition.py`, which 27 units drive end to end on the real artefact. Everything
+else is names and hashes.
+
+**Both derived files were produced by an ASSERTED substitution list**, not typed by hand:
+every substitution required a stated occurrence count **before** and **zero** of the old
+form **after**, so a no-op or partial rename is impossible — the `append_block.py` / L-405
+discipline applied to a derivation. The launcher passed **12 post-conditions**, the driver
+**13**, and the DELTAS diffs are the evidence rather than these sentences.
+
+**NOT ONE THRESHOLD, CAP, BAND, CEILING, POLL, BOUND, FLOOR, RANK COUNT, IMAGE DIGEST,
+REFUSAL CLAUSE OR EXIT CODE WAS CHANGED**, and that is asserted mechanically: the
+post-conditions check the cap table, the ranks table, both image digests, `H5_FLOOR_GIB`,
+`AGG_CEILING_GIB`, `AGG_POLL_S`, `AGG_BOUND_S` and the chain exit codes byte-for-byte.
+
+### A1.2 NAMES THAT DELIBERATELY DO NOT CHANGE, AND WHY
+
+The comparator this item runs is `curriculum_SO1b/so1b_grade.py`, **unedited on disk**. Its
+frozen constants name files. Renaming them would break the grader:
+
+| name kept | frozen at | what breaks if renamed |
+|---|---|---|
+| `.so1b_age_datum`, `.so1b_age_datum_ref` | `so1b_grade.py:127` | the age guard finds no datum → every arm `NOT A RESULT` |
+| `so1b_O.json`, `so1b_E.json` | `so1b_grade.py:116-117` | C3 artefact-present refuses on every solver arm |
+| `so1b_runScript.py`, `so1b_of.py` | staged-md5 assertion + the container command line | the arm cannot start |
+| `SO1B_O_WRITTEN`, `SO1B_E_WRITTEN` | `so1b_grade.py:118-119` | C2 terminal-marker refuses |
+| every `D4S_*` container-printed string | inherited | the ledger loses the strings the grader greps |
+
+`so1b_runScript.py` and `so1b_of.py` are **byte-identical copies** of the parent's, proved
+by `cmp` and by `diff -u` producing **zero lines**, with the parent's md5s unchanged.
+
+### A1.3 §18.3 INSTRUMENT TABLE — EVERY FILE THE DRIVER AND LAUNCHER EXECUTE, IMPORT OR COPY
+
+**EXISTENCE IS ASSERTED BEFORE ANY md5**, per this family's charter §18.3 and because
+SO-2a's §7 table passed 8-of-8 md5 agreement while the ninth dependency had never existed
+in any commit. **Sibling dependencies are enumerated, not only instruments** — that is the
+distinction SO-2a's table could not draw.
+
+| role | file | EXISTS | md5 | bytes |
+|---|---|---|---|---|
+| EXECUTED — chain driver | so1br_chain_driver.sh | **yes** | deb458122c0793a6f73568312e0fa735 | 16768 |
+| EXECUTED — arm launcher | so1br_run_arm.sh | **yes** | 9e1b626dc26b7ee04ea4ed4c7cffdff1 | 34506 |
+| EXECUTED by the driver — precondition | so1br_precondition.py | **yes** | 447eaada4a896fc5f8b0f4ced4cb2af8 | 22928 |
+| EXECUTED by the driver — grader entry | so1br_grade_cli.py | **yes** | f8dfc85d827f6fbf66ec425753fbd669 | 6868 |
+| IMPORTED by the entry point (Stage-1 frozen) | so1br_grade.py | **yes** | 9736ca91c9c111877f86dc048b38e929 | 37704 |
+| EXECUTED by the driver in its poll loop | so1br_aggregate_memory.py | **yes** | 709ab0b98ef0302a3a3a318588f9493f | 2264 |
+| COPIED by the driver into the run root | so1br_decomposeParDict | **yes** | e6f1b0060944bc86d6dff56480ad2bd4 | 1049 |
+| COPIED by the driver, run in-container | so1b_runScript.py | **yes** | 0557da51f6f179f6de865144343c499f | 9657 |
+| COPIED by the driver, run in-container | so1b_of.py | **yes** | 0f14244bee5fafc698e80060782a7606 | 30885 |
+| IMPORTED at runtime by so1br_grade.py | curriculum_SO1b/so1b_grade.py | **yes** | 88157ca3c04798750e97b87ca3d02a15 | 98745 |
+| G-ROOT.5 harness | so1br_groot5_selftest.sh | **yes** | dcad79ba6ca13371162d4c69bd5e3661 | 18247 |
+
+**THE TABLE IS NOT THE ONLY GUARD.** The driver itself now carries a
+`SO1BR_DEPS_PRESENT` block that asserts **existence of all seven files it executes or
+copies BEFORE any md5 is checked**, so a missing file cannot reach a hash check at run
+time either. A table is a claim at freeze time; the block is a call site at run time, and
+rule 14 says a lesson is not applied until every call site asserts it.
+
+**SWEEP RESULT** — `scripts/sweep_dafoam_script_references.py`, `os.walk` and never a
+recursive grep. **VALIDATED AGAINST A KNOWN POSITIVE FIRST**: pointed at the tree exported
+from the commit **before** the SO-2a repair it reports `so2a_aggregate_memory.py` **ABSENT**
+in 1 place, so its zeros mean something (standing rule 3). Result on the live tree is
+recorded in `so1br_stage2_evidence.txt`.
+
+### A1.4 SO1BR-CAP-MANIFEST — THE LINE THE LAUNCHER READS
+
+The launcher's `G-CAP-PREREG` preflight checks the caps it would enforce against **this
+document**, on two channels, before any container. The line it reads:
+
+SO1BR-CAP-MANIFEST v1 MESH=5.0 O-P=25.0 E-P=30.0 O-S=25.0 E-S=30.0 CEILING=115.0
+
+**These are SO-1b's own registered caps, INHERITED AND NOT RE-DERIVED BY THIS LANE**, and
+`CEILING=115.0` is their exact sum, which the preflight recomputes and refuses on a
+mismatch. Channel (b) compares the line on disk against the same line at `git show HEAD:`;
+before this amendment is committed that channel correctly reads `NOT_MEASURED` and channel
+(a) binds regardless — reported, never composed into a pass it did not earn.
+
+### A1.5 G-CPUSET — THE ONE NEW GUARD, AND A CORRECTION TO THE STAGE-2 BRIEF
+
+**The brief asked me to pick a placement colliding with neither W3 (cpuset 1) nor SO-2a
+(cpuset 9). MEASURED, THAT INSTRUCTION CANNOT BE FOLLOWED AS WRITTEN, AND FOLLOWING IT
+WOULD REGISTER A GUARANTEED `GATE FAIL`.**
+
+The frozen comparator carries `CPUSET_REGISTERED = "9"` (`so1b_grade.py:209`).
+`g_placement` sets `cs_ok = r.get("cpuset") == CPUSET_REGISTERED` (`:1023`) and **GATE
+FAILs** any arm whose ledger cpuset differs; G12 composes straight into the item verdict
+(`:1164`). Re-pinning SO-1bR to a free core would therefore make **every arm fail G12** —
+firing into a guaranteed outcome, the exact defect class that stopped SO-1b and SO-2a.
+Rebinding `CPUSET_REGISTERED` is not open either: the Stage-1 registered rebind set is
+exactly `("fatal_tokens_in",)` and is frozen.
+
+**SO THE PLACEMENT STAYS 9 AND THE COLLISION IS GUARDED INSTEAD OF RE-PINNED.** `G-CPUSET`
+is new in `so1br_run_arm.sh`: it reads every running container's `HostConfig.CpusetCpus`
+from `docker inspect` and **REFUSES (exit 3) if any live container already holds core 9**,
+rather than contending for it. This is strictly stronger than re-pinning: re-pinning
+avoids a *registered* overlap that at np = 1 costs only wall time and cannot fail G12,
+while G-CPUSET prevents the *actual concurrency* that would distort a capped measurement.
+
+**THE LIVE READING AT THIS FREEZE, taken from `docker inspect` and not assumed:** two
+containers running — W3's `d12y_w3_S3b_c0_bm_...` on **cpuset 1** and
+`d6ra2_ACC_mp_...` on **cpuset 2,3,4,14**. **Core 9 is held by nothing.** cpuset 9 is the
+whole SO ladder's registered placement (SO-1a `:146`, SO-1b `:147`, SO-2a `:178`) and also
+sits inside D4-SHIPPED's registered `5,6,7,9`; those are registered overlaps with dormant
+items, disclosed here and not silently re-pinned. **G-CPUSET is driven in BOTH directions**
+in the G-ROOT.5 harness, leg (h).
+
+### A1.6 G-ROOT.5 — SO-1bR'S OWN CLAUSE AND ITS OWN CODE, ESTABLISHED NOT ASSUMED
+
+SO-1bR's G-ROOT.5 is inherited verbatim from SO-1b: **"a live arm is never re-staged"**,
+**refusal code EXIT 3**, on two live readings taken before any destructive act — (a) a
+running container carrying `so1br_<ARM>_`, (b) a driver pidfile naming a live pid that is
+not an ancestor of the launcher, or whose cwd is the run root. **A stale pidfile does not
+block.** SO-1bR's launcher does **not** refuse merely because the run root exists; that
+clause belongs to the D12R2/W3 chain driver's phase 1 (exit 6). This was **read out of
+SO-1bR's own bytes**, not carried over from a sibling's registration.
+
+**Cleanup discipline (W3-SELFTEST-DEF-1):** the harness removes only paths it recorded in
+`CREATED[]` at the moment it made them, by name, never by glob; it plants a **decoy it did
+not create** and requires the decoy to survive byte-intact; and it proves it wrote nothing
+into the case directory by comparing both a listing digest and a content digest before and
+after. Observed outcomes are in `so1br_stage2_evidence.txt`.
+
+### A1.7 COST (rule 12, with §18.2's cache-state term)
+
+**Solver compute: ZERO core-minutes at this freeze.** No mesh, no solve, no arm. The only
+containers started are the harness's sacrificial `sleep` containers, named explicitly,
+capped at 0.1 CPU and 64 MB, and removed by name.
+
+| | |
+|---|---|
+| Stage 2 instrument work, sizing basis | **FILE COUNT** 11 instruments + 2 frozen parents read; **COPY COUNT** 4 byte-identical copies + ~6 scratch mutants |
+| Cache-state term | file-count term ≈ 0.013 s cold / 0.002 s warm at the registered 1.0 and 0.15 s per 1,000 files. As at §11 the **dominant term is not page cache** — here it is `docker run`/`docker rm` round-trips in the harness, which are seconds each and are unaffected by page cache. **Do not carry §11's 2.0× forward and do not carry C-212's 20.1× forward**: three items, three different dominant terms |
+| Registered estimate, Stage-2 instruments | **4.00 core-min**, ranks = 1 (the G-ROOT.5 harness dominated by ~30 launcher invocations and 2 sacrificial containers) |
+| Cap, Stage-2 instruments | **12.00 core-min.** An overrun **stops the item** |
+| Registered estimate, THE CHAIN ITSELF | **20.2 core-min point, band [11.0, 58.0]**, ceiling **115.0 core-min** — SO-1b's own registered figures, **INHERITED AND NOT RE-DERIVED BY THIS LANE**, and now binding on SO-1bR because §A1.4 registers the same cap table the launcher enforces |
+| Rate | **$0.0513 / core-h**, c7a.4xlarge, owner-stated 2026-08-21/22 |
+| Dollars | Stage-2 instruments **$0.00342 DERIVED**; the chain at its 20.2 core-min point **$0.017271 DERIVED** — **DERIVED, NOT MEASURED** |
+| `cost_basis` | **REPORTED-BY-OWNER, NOT MEASURED** (`COMPUTE_BUDGET_CHARTER.md` §5) |
+
+A calibration row is owed in `docs/COST_CALIBRATION.md` at completion, its id **re-derived
+from the tail as the maximum existing number in the committing shell invocation**.
+
+### A1.8 WHAT STAGE 2 STILL MAY NOT CONCLUDE
+
+* **Nothing about the physics, the mesh, the solver or an optimum.** No arm has run.
+* **No new gate, threshold, band, cap or label**, except `G-CPUSET`, which can only
+  **refuse**; it can never turn a failing arm into a passing one.
+* **Nothing about `shape[6]` at the optimum.** §3's prediction P-S6 stands unmeasured.
+* **A `REFUSE` that stays `REFUSE` is a result and is reported as one.**
+
+**Honest disclosure, unchanged from §10:** the instruments were exercised during
+development; this is not an outcome-blind freeze and does not claim to be.
+
+### A1.9 RULE-2 CONDITION, RE-CHECKED AT THIS AMENDMENT
+
+**Amendments before first compute are legal and must state the condition and how it was
+checked.** Checked at this amendment, 2026-08-31, by running the commands:
+
+* `ls -d /home/ubuntu/certonomous-runs/CURRICULUM-SO1b*` → **`No such file or directory`,
+  rc = 2, ZERO entries.** No SO-1b and no SO-1bR run root exists.
+* **The reader is proved able to see a non-zero** (rule 3): the same command shape,
+  `ls -d /home/ubuntu/certonomous-runs/*SO1*`, returns **one** entry,
+  `CURRICULUM-SO1a-a1-naca0012-dragmin-gradient`.
+* The G-ROOT.5 harness **refuses to run at all** if the run root exists, creates it empty,
+  empties it by name, removes it with `rmdir` (which refuses a non-empty directory), and
+  **asserts its absence afterwards** — so the freeze condition is re-established by the
+  harness itself and its restoration is a printed leg, not a promise.
+* **No ledger, no arm directory, no `SO1bR_grade_*.json` and no `RESULTS.md` exists.**
+
+### A1.10 WHAT LANDS FROM STAGE 2, AND WHAT DOES NOT
+
+**Lands:** the eleven files of §A1.3, the two DELTAS diffs, `so1br_stage2_evidence.txt`,
+and this amendment.
+
+**Does not land:**
+
+* **Nothing is enqueued and `verification/queue/` is not opened.** The supervisor holds the
+  pre-compute gate; enqueueing is their check, not this lane's.
+* **Nothing is launched.** No arm, no chain, no solver container.
+* **No edit to any frozen file.** `so1b_grade.py`, `so1b_chain_driver.sh`,
+  `so1b_run_arm.sh`, `so1br_grade.py` and `so1br_precondition.py` are byte-unchanged; this
+  amendment is **appended** through `scripts/append_block.py`, so no shell saw its body.
+* **`curriculum_SO1a/` untouched. W3's files and run root untouched.** No SO-1aR JSON
+  copied, renamed, edited or moved.
+* **Nothing is sent, filed, uploaded, registered, posted or commented outside this box.**
+  **SUBMISSIONS ARE PARKED.**
