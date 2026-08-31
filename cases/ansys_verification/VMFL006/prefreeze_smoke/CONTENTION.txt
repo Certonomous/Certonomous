@@ -1,0 +1,9 @@
+sampled_utc = 2026-08-26T22:54:31Z
+loadavg = 16.18 15.89 15.94
+nproc = 16
+mem_available_MB = 24632
+-- other solver processes on the box at launch --
+      5 python3
+      1 pimpleFoam
+      1 icoFoam
+      1 dockerd

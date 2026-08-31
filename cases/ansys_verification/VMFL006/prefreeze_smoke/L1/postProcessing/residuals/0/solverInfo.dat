@@ -1,0 +1,22 @@
+# Solver information
+# Time              	T_solver            	T_initial           	T_final             	T_iters             	T_converged         
+1                   	smoothSolver	1.000000000000e+00	1.080232993980e-03	4	true
+2                   	smoothSolver	1.775503037860e-01	3.528328588010e-04	4	true
+3                   	smoothSolver	8.238934629330e-02	2.415209640510e-04	4	true
+4                   	smoothSolver	5.069605496020e-02	1.871881598820e-04	4	true
+5                   	smoothSolver	3.647590569490e-02	1.535030705780e-04	4	true
+6                   	smoothSolver	2.884105537850e-02	1.305233646290e-04	4	true
+7                   	smoothSolver	2.406758303210e-02	1.133178562900e-04	4	true
+8                   	smoothSolver	2.082636985170e-02	1.000669877430e-04	4	true
+9                   	smoothSolver	1.845973551940e-02	8.946127391100e-05	4	true
+10                  	smoothSolver	1.662782352140e-02	8.067824949400e-05	4	true
+11                  	smoothSolver	1.517980443070e-02	7.338081304650e-05	4	true
+12                  	smoothSolver	1.400854337940e-02	6.724639104460e-05	4	true
+13                  	smoothSolver	1.302357177100e-02	6.194050837670e-05	4	true
+14                  	smoothSolver	1.218658976320e-02	5.733207585710e-05	4	true
+15                  	smoothSolver	1.145235211790e-02	5.323470174990e-05	4	true
+16                  	smoothSolver	1.081628515990e-02	4.963858863930e-05	4	true
+17                  	smoothSolver	1.025920353820e-02	4.645798467240e-05	4	true
+18                  	smoothSolver	9.766445847460e-03	4.362487372570e-05	4	true
+19                  	smoothSolver	9.326962010150e-03	4.108564178350e-05	4	true
+20                  	smoothSolver	8.926987061450e-03	3.877529523010e-05	4	true

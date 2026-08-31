@@ -1,0 +1,17 @@
+launched_utc = 2026-08-26T22:54:31Z
+mode = smoke
+prereg = cases/ansys_verification/VMFL006/PREREGISTRATION.md
+prereg_sha_head =   freeze check SKIPPED (smoke): cases/ansys_verification/VMFL006/PREREGISTRATION.md not yet at HEAD
+NOT-AT-HEAD
+comparator = cases/ansys_verification/VMFL006/grade_vmfl006.py
+comparator_sha_head =   freeze check SKIPPED (smoke): cases/ansys_verification/VMFL006/grade_vmfl006.py not yet at HEAD
+NOT-AT-HEAD
+u_writer = cases/ansys_verification/VMFL006/make_u_vmfl006.py
+u_writer_sha_head =   freeze check SKIPPED (smoke): cases/ansys_verification/VMFL006/make_u_vmfl006.py not yet at HEAD
+NOT-AT-HEAD
+launcher_sha_disk = 3b1204c62e5df573e67d54d841177ae5bc86cc28
+cap_core_min = 18
+endTime = 20
+ranks = 1
+rgrad = 0.25
+launch_authority = bc0e687e (Sanaa's permission boarded verbatim)

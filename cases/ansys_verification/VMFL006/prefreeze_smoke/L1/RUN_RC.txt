@@ -1,0 +1,15 @@
+rc = 0
+level = L1
+endTime = 20
+wall_s = 0
+ranks = 1
+core_min = 0.0
+timeout_s = 1080
+nx = 200
+nr = 20
+rgrad = 0.25
+prereg_sha =   freeze check SKIPPED (smoke): cases/ansys_verification/VMFL006/PREREGISTRATION.md not yet at HEAD
+NOT-AT-HEAD
+comparator_sha =   freeze check SKIPPED (smoke): cases/ansys_verification/VMFL006/grade_vmfl006.py not yet at HEAD
+NOT-AT-HEAD
+finished_utc = 2026-08-26T22:54:32Z

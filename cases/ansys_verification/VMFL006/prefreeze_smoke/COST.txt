@@ -1,0 +1,6 @@
+total_wall_s = 0
+ranks = 1
+total_core_min = 0.0
+cap_core_min = 18
+mode = smoke
+cost_basis = owner-stated rate $0.0513/core-h (c7a.4xlarge, Sanaa 2026-08-21/22); REPORTED-BY-OWNER, NOT MEASURED -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md sec.5). Dollars are DERIVED.

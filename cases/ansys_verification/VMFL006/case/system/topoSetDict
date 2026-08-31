@@ -1,0 +1,163 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006.  NINE faceZones, one at each interior gate station x = 0.01 ... 0.09 m.
+  THE TENTH STATION, x = 0.10 m, IS THE OUTLET PATCH ITSELF and needs no zone --
+  the outlet boundary IS that plane exactly, so it is read with
+  `regionType patch; name outlet;` in controlDict.  Using a faceZone there would
+  ask a zone to carry boundary faces for no gain.
+
+  WHY FACEZONES AND NOT A SAMPLED PLANE.  The gate quantity is the MASS-WEIGHTED
+  (mixing-cup) average of the species mass fraction, which the manual defines on
+  p.28 as "the mass-weighted average of the normalized species mass fraction A at
+  x-locations".  A mixing cup is sum(phi*T)/sum(phi) over a cross-section, and phi
+  -- the volumetric flux the solver actually conserves -- exists ONLY on real mesh
+  faces.  Reading it on a faceZone therefore takes the solver's OWN conserved flux
+  directly: no constructed geometry and no interpolation enters the gate.  A
+  sampledSurface plane would have to interpolate, and an areaAverage would
+  silently return the WRONG (area-weighted) statistic -- which is precisely the
+  quantity this team measured to be 78 % away from the manual's numbers
+  (PREREGISTRATION.md sec.3).
+
+  blockMeshDict.template always uses an axial count that is a MULTIPLE OF 10 and
+  UNIFORM axial spacing, so a mesh face lies exactly at each station on every
+  level of the r = 2 family.  The box half-width 1e-6 m below is far smaller than
+  half the finest cell (dx = 1.25e-4 m on L3), so exactly one face plane is
+  captured per station -- and grade_vmfl006.py REFUSES if any zone's face count
+  is not the level's radial cell count.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+actions
+(
+    {
+        name    f_x01;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.009999000 -1 -1) (0.010001000 1 1);
+    }
+    {
+        name    x01;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x01;
+    }
+    {
+        name    f_x02;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.019999000 -1 -1) (0.020001000 1 1);
+    }
+    {
+        name    x02;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x02;
+    }
+    {
+        name    f_x03;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.029999000 -1 -1) (0.030001000 1 1);
+    }
+    {
+        name    x03;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x03;
+    }
+    {
+        name    f_x04;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.039999000 -1 -1) (0.040001000 1 1);
+    }
+    {
+        name    x04;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x04;
+    }
+    {
+        name    f_x05;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.049999000 -1 -1) (0.050001000 1 1);
+    }
+    {
+        name    x05;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x05;
+    }
+    {
+        name    f_x06;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.059999000 -1 -1) (0.060001000 1 1);
+    }
+    {
+        name    x06;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x06;
+    }
+    {
+        name    f_x07;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.069999000 -1 -1) (0.070001000 1 1);
+    }
+    {
+        name    x07;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x07;
+    }
+    {
+        name    f_x08;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.079999000 -1 -1) (0.080001000 1 1);
+    }
+    {
+        name    x08;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x08;
+    }
+    {
+        name    f_x09;
+        type    faceSet;
+        action  new;
+        source  boxToFace;
+        box     (0.089999000 -1 -1) (0.090001000 1 1);
+    }
+    {
+        name    x09;
+        type    faceZoneSet;
+        action  new;
+        source  setToFaceZone;
+        faceSet f_x09;
+    }
+);

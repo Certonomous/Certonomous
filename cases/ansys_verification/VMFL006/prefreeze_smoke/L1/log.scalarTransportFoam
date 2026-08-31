@@ -1,0 +1,320 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : scalarTransportFoam
+Date   : Aug 26 2026
+Time   : 22:54:32
+Host   : ip-172-31-43-247
+PID    : 606642
+I/O    : uncollated
+Case   : /tmp/claude-1000/-home-ubuntu/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/vmfl006_scratch/L1
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 20 steps.
+
+Reading field T
+
+Reading field U
+
+Reading transportProperties
+
+Reading diffusivity DT
+
+Reading/calculating face flux field phi
+
+No finite volume options present
+
+Calculating scalar transport
+
+Courant Number mean: 2000.00000001 max: 3983.19343084
+surfaceFieldValue mixCup_x01:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x01:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x02:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x02:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x03:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x03:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x04:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x04:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x05:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x05:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x06:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x06:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x07:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x07:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x08:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x08:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x09:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x09:
+    operation     = sum
+
+
+surfaceFieldValue mixCup_x10:
+    operation     = weightedAverage
+    weight field  = (phi)
+
+
+surfaceFieldValue flux_x10:
+    operation     = sum
+
+
+Time = 1
+
+smoothSolver:  Solving for T, Initial residual = 1, Final residual = 0.00108023299398, No Iterations 4
+Time = 2
+
+smoothSolver:  Solving for T, Initial residual = 0.177550303786, Final residual = 0.000352832858801, No Iterations 4
+Time = 3
+
+smoothSolver:  Solving for T, Initial residual = 0.0823893462933, Final residual = 0.000241520964051, No Iterations 4
+Time = 4
+
+smoothSolver:  Solving for T, Initial residual = 0.0506960549602, Final residual = 0.000187188159882, No Iterations 4
+Time = 5
+
+smoothSolver:  Solving for T, Initial residual = 0.0364759056949, Final residual = 0.000153503070578, No Iterations 4
+Time = 6
+
+smoothSolver:  Solving for T, Initial residual = 0.0288410553785, Final residual = 0.000130523364629, No Iterations 4
+Time = 7
+
+smoothSolver:  Solving for T, Initial residual = 0.0240675830321, Final residual = 0.00011331785629, No Iterations 4
+Time = 8
+
+smoothSolver:  Solving for T, Initial residual = 0.0208263698517, Final residual = 0.000100066987743, No Iterations 4
+Time = 9
+
+smoothSolver:  Solving for T, Initial residual = 0.0184597355194, Final residual = 8.9461273911e-05, No Iterations 4
+Time = 10
+
+smoothSolver:  Solving for T, Initial residual = 0.0166278235214, Final residual = 8.0678249494e-05, No Iterations 4
+Time = 11
+
+smoothSolver:  Solving for T, Initial residual = 0.0151798044307, Final residual = 7.33808130465e-05, No Iterations 4
+Time = 12
+
+smoothSolver:  Solving for T, Initial residual = 0.0140085433794, Final residual = 6.72463910446e-05, No Iterations 4
+Time = 13
+
+smoothSolver:  Solving for T, Initial residual = 0.013023571771, Final residual = 6.19405083767e-05, No Iterations 4
+Time = 14
+
+smoothSolver:  Solving for T, Initial residual = 0.0121865897632, Final residual = 5.73320758571e-05, No Iterations 4
+Time = 15
+
+smoothSolver:  Solving for T, Initial residual = 0.0114523521179, Final residual = 5.32347017499e-05, No Iterations 4
+Time = 16
+
+smoothSolver:  Solving for T, Initial residual = 0.0108162851599, Final residual = 4.96385886393e-05, No Iterations 4
+Time = 17
+
+smoothSolver:  Solving for T, Initial residual = 0.0102592035382, Final residual = 4.64579846724e-05, No Iterations 4
+Time = 18
+
+smoothSolver:  Solving for T, Initial residual = 0.00976644584746, Final residual = 4.36248737257e-05, No Iterations 4
+Time = 19
+
+smoothSolver:  Solving for T, Initial residual = 0.00932696201015, Final residual = 4.10856417835e-05, No Iterations 4
+Time = 20
+
+smoothSolver:  Solving for T, Initial residual = 0.00892698706145, Final residual = 3.87752952301e-05, No Iterations 4
+surfaceFieldValue mixCup_x01 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x01) of T = 0.548579723936
+
+surfaceFieldValue flux_x01 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x01) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x02 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x02) of T = 0.549743472301
+
+surfaceFieldValue flux_x02 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x02) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x03 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x03) of T = 0.549754479711
+
+surfaceFieldValue flux_x03 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x03) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x04 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x04) of T = 0.549754532162
+
+surfaceFieldValue flux_x04 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x04) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x05 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x05) of T = 0.549754532314
+
+surfaceFieldValue flux_x05 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x05) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x06 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x06) of T = 0.549754532314
+
+surfaceFieldValue flux_x06 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x06) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x07 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x07) of T = 0.549754532314
+
+surfaceFieldValue flux_x07 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x07) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x08 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x08) of T = 0.549754532314
+
+surfaceFieldValue flux_x08 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x08) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x09 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(x09) of T = 0.549754532314
+
+surfaceFieldValue flux_x09 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(x09) of phi = 2.72361696087e-07
+
+surfaceFieldValue mixCup_x10 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    weightedAverage(outlet) of T = 0.5497929423
+
+surfaceFieldValue flux_x10 write:
+    total faces   = 20
+    total area    = 2.72361696085e-07
+
+    sum(outlet) of phi = 2.72361696087e-07
+
+End
+

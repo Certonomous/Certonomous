@@ -1,0 +1,336 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006 -- Multicomponent Species Transport in Pipe Flow, manual pp.27-28.
+  scalarTransportFoam (steady: ddtSchemes = steadyState) carrying T = the mass
+  fraction of species A, with DT = D_AB = 1.43e-05 m2/s from
+  constant/physicalProperties.  The MOMENTUM EQUATION IS NOT SOLVED: 0/U is the
+  cell-averaged analytic Poiseuille profile emitted by make_u_vmfl006.py, so the
+  velocity field is EXACTLY the one the Graetz reference assumes rather than a
+  discrete approximation to it carrying its own error.
+
+  endTime IS AN ITERATION COUNT (steady).  __ENDTIME__ is substituted by
+  run_vmfl006.sh from the value FROZEN in PREREGISTRATION.md; there is no
+  residualControl, so every level reaches endTime and rule 4's
+  last-time == endTime clause is exact.  Convergence is MEASURED by the frozen
+  comparator from the `residuals` function object's own file.
+
+  THREE instruments are written per gate station and all three are read:
+    mixCup_xNN : weightedAverage of T with weightField phi -- THE MIXING CUP, the
+                 manual's own definition of the reported quantity (p.28).
+    flux_xNN   : sum(phi) over the same zone -- the ORIENTATION AND CONSERVATION
+                 control.  If any face of a zone were oriented against the flow
+                 the weighted average would be silently wrong and this sum would
+                 not equal the FLAT-WEDGE volumetric flow rate
+                 0.5*sin(5 deg)*R^2*Uavg = 2.7236169608643178e-07 m3/s.  (It is
+                 NOT the true circular-sector value 2.7270769562411397e-07: the
+                 ratio of the two is exactly sin(t)/t, N-AV9's area deficit.)
+  The zone AREA is deliberately NOT written as a gate instrument: it is
+  derivable from the mesh by construction and is an IDENTITY under
+  VERIFICATION_CHARTER sec.2a -- reportable, never gateable.  The conservation
+  control above is the one that a wrong treatment can fail.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+application     scalarTransportFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    runTime;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    residuals
+    {
+        type            solverInfo;
+        libs            (utilityFunctionObjects);
+        fields          (T);
+        writeResidualFields false;
+        writeControl    timeStep;
+        writeInterval   1;
+    }
+    mixCup_x01
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x01;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x01
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x01;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x02
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x02;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x02
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x02;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x03
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x03;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x03
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x03;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x04
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x04;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x04
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x04;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x05
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x05;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x05
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x05;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x06
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x06;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x06
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x06;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x07
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x07;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x07
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x07;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x08
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x08;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x08
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x08;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x09
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x09;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x09
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      faceZone;
+        name            x09;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    mixCup_x10
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            outlet;
+        operation       weightedAverage;
+        weightField     phi;
+        fields          (T);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+    flux_x10
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        regionType      patch;
+        name            outlet;
+        operation       sum;
+        fields          (phi);
+        writeFields     false;
+        writeControl    writeTime;
+        executeControl  writeTime;
+        log             true;
+    }
+}

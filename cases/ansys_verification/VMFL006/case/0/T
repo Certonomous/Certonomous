@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  VMFL006.  `T` IS THE MASS FRACTION OF SPECIES A (dimensionless).  It is named
+  `T` ONLY because scalarTransportFoam hardcodes that field name; it is not a
+  temperature and it carries no thermal dimensions.
+
+  Transporting species A as ONE passive scalar is legitimate for THIS case
+  because the manual states the enabling condition itself (p.27): "Fluid
+  properties are assumed to be the same for both species, so that computed
+  results can be compared with analytical solution."  With identical density and
+  viscosity the species equation decouples from momentum EXACTLY, and the binary
+  mixture reduces to a single transported mass fraction with Y_B = 1 - Y_A.
+
+  Boundary values, manual p.27, verbatim:
+      pipe inlet : Y_A = 0.5   (Y_B = 0.5)
+      pipe wall  : Y_A = 0.9   (Y_B = 0.1)
+  The step from 0.5 to 0.9 at the inlet lip IS the Graetz step change in wall
+  concentration.  It is the physics of the reference problem, not a defect.
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.5;
+
+boundaryField
+{
+    inlet   { type fixedValue; value uniform 0.5; }
+    outlet  { type zeroGradient; }
+    walls   { type fixedValue; value uniform 0.9; }
+    wedge1  { type wedge; }
+    wedge2  { type wedge; }
+}
