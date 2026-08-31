@@ -16577,6 +16577,165 @@ Read the M6 bad-face localisation **personally** and rule on whether hypothesis 
 ### Live jobs and utilisation
 
 **cfd measured compute this session: 1.4333 core-min** (M6 v2 trial, 86 wall s × 1 rank), **$0.0012 derived not measured.** Three lanes live at cap: F12 firing the frozen replication (1 rank, ≤ 6.0 core-min), F2 conversion in registration, M6 TE study firing an m=1 variant batch. **Box load ~8–9 of 16 ≈ 50–56 %, still under Sanaa's 80–90 % target, and cfd's share is still small.** The F2 batch harness and the M6 variant batch are this team's instruments for closing that gap and both are being built to run 8–12 abreast.
+
+---
+
+### SESSION 2026-08-31T14:46Z — written by cfd-supervisor personally, after the ~00:55Z fleet kill and the 14:35Z reboot
+
+**TWO PREMISES IN MY OWN BRIEF WERE WRONG AND I CORRECTED THEM FROM THE LOGS BEFORE ACTING ON THEM.**
+(1) **The box-stop window was 09:29:18Z → 14:35:15Z, not 00:55Z → 14:35Z.** `verification/queue/runner.log`
+runs continuously to 09:29:18Z then jumps to a `START` at 14:35:15Z; `uptime -s` gives boot 14:35:01.
+(2) **No cfd work was lost to the stop.** The last cfd `LAUNCHED` line is 00:45:13Z and every tick from
+~00:46Z reads `EMPTY: no entries in any team queue`. **The queue DRAINED before the stop.**
+(3) **The F23b queue entry WAS dropped** — I was asked whether it ever was. It was, at 00:23:32Z, after one
+`HELD` at 00:22:27Z for core headroom. It ran. It is now `BLOCKED`. Do not re-drop it.
+
+**RUNNER GATE VERIFIED BY NAME, NOT ASSUMED.** `verification/queue/runner.restarts.log` final line:
+`2026-08-31T14:35:15Z queue_runner.sh: (re)started runner pid 1605 (--selftest PASS)`, matched by
+`runner.log` `START pid=1605 … HEAD=5a3528b2`. **`5a3528b2` is my own marker fix, and a sweep of the queue
+root for `RUNNER_SELFTEST*` returns ZERO files** — the fix behaving as designed under its own first reboot.
+
+### ⚠⚠ ON THE CHIEF'S DESK, URGENT — THE SHARED INDEX IS ONE BARE COMMIT FROM DELETING 595 LIVE FILES
+
+**696 staged deletions; 595 name paths that are still present on disk.** Verified by me independently of the
+lane that found it. They include **the whole of `cases/F23b_HP_WEDGE/` (all 17 tracked files)**, **BOTH
+pre-registrations** (`F23b_HP_WEDGE_PREREGISTRATION.md`, `R1_F3S_SELECTOR_REPAIR_PREREGISTRATION.md`),
+**`JF1_PREREGISTRATION.md` itself**, and **R1's birth-control evidence** (`BR1_BIRTH_CONTROL_EVIDENCE.json`
+and all six `BR1_producer_artifacts/*.raw`). **A single bare `git commit` by any agent deletes them from
+HEAD** — the exact failure rule 10 exists to prevent, staged and waiting. **Per rule 10 I INSPECTED AND DID
+NOT REVERT; the index is the chief's call.** Every commit I made this session went through the private-index
+protocol with the `diff-tree` assert before and the `git diff HEAD~1 HEAD --stat` verify after.
+
+### VERDICTS THIS SESSION
+
+**`R1_F3S_SELECTOR_REPAIR` — `PASS`**, all eight gates. **0.132375 core-min** actual vs **0.200** predicted,
+**ratio 0.662**, cap 0.300 not breached, **$0.000113 derived not measured**, zero waste. Record
+`verification/campaign/R1_F3S_SELECTOR_REPAIR_RESULTS.md`; calibration row **C-216**.
+**I could not award this from the record.** It stores each control as a 60-character truncated line, so
+`G-R1-3`'s required substrings (`UNIQUE-SELECTOR`, `matched   : 2`, both basenames) and `G-R1-5`'s
+`matched   : 0` **are not in it at all**. I read `selector_controls.py` as code (check 1): `_expect_refusal`
+raises on any missing substring, on any exit code but 2, and — the clause that matters — **on a selector that
+RETURNS instead of refusing**. `G-R1-8`'s set I re-derived on disk rather than believed: 8,542 files under
+the fired rung + 3 named singles = **8,545**, matching `n_hashed` exactly.
+
+**`F23b_HP_WEDGE` — `BLOCKED`.** ≈**3.82 core-min gross, WHOLLY WASTED**, $0.00327 derived, no cap breached.
+Record `verification/campaign/F23b_HP_WEDGE_RESULTS.md`; **L-409**; **D584**.
+**The label is right and the cause everyone assumed is wrong.** `|1 − Ubar|` is a DISCRETISATION error gated
+at an ITERATIVE tolerance of `1e-10`. Proof is internal to the frozen file: inverting §12's own predicted
+`f·Re` through the case's own `f·Re = 64/Ubar` gives predicted `|1 − Ubar|` of **1.215525e−04 / 3.002806e−05
+/ 7.141864e−06**, so **§5.5 gates the coarse level 1,215,525× below its own prediction** — and the finest
+level 71,419× below. **A0, ARM-P and ARM-F were all unsatisfiable at every level.** §A1.5 cited F23 §7's
+`Ux 2.3e−16`, which is genuinely iterative and supports only the acceptance's SECOND clause: **evidence for
+one clause applied to two because both were called "convergence".** Every instrument passed while the gate
+was unreachable — **reachability is a property of the gate, not the instrument, and no planted control can
+see it.** **NOT REPAIRABLE:** first compute occurred under `57d31dde`, rule 2 closes the gates, an addendum
+may not alter a threshold. **F23b ENDS.**
+
+**⚠ THE DECIDING ARTIFACT IS GONE.** `run_f23b.sh:87` writes the pre-ladder to `${TMPDIR:-/tmp}/…` and copies
+nothing back; the reboot wiped A0's `log.simpleFoam`, `log.build`, `log.decomposePar`, `RC.txt` and all four
+`processor*/` trees. **`9.692465e-04` is UNCITABLE** and survives only as prose in `launcher.queue.out` —
+which is why the finding above rests on the registration's predictions, not on it. (Avoiding `STATUS.*` was
+correct: `scripts/queue_runner.py:496` truncates that name unconditionally. `/tmp` was the wrong fix.)
+
+### F28 FROZEN — check 4 done personally
+
+`verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md` **FROZEN at `76ce0ed5`, ARMED — never
+run.** Four things re-derived on disk, not taken from the drafting lane: **no compute exists** (no run root,
+no case dir, no queue entry — that absence IS the freeze's evidentiary content); **the cost arithmetic
+closes**, 4+30+70+40+240 = **384 vs cap 400**, re-added by me rather than read off the table's own column;
+the theory constant **`2^(1/3) = 1.2599210498948732` verified THREE ways** (SymPy, Chew p.5 eq (7),
+Geldenhuys p.7's *"26% more"*), both PDFs rule-15 title-page verified; and **the rule-11 id is a MAXIMUM not
+a count** — `git ls-tree -r HEAD` returns exactly one `F28` path, this document, so max-excluding-self is 27.
+**What I did NOT verify, stamped into the banner:** mesh script, comparator and launcher **do not yet
+exist**; the freeze fixes the GATES, it does not certify an INSTRUMENT that has not been built, and each is
+subject to check 1 when it is.
+
+**§14.2 DISPOSED, AND MY BRIEF HAD IT BACKWARDS.** I was told the `High_order_grid_convergence.pdf`
+title-page verification was F28's outstanding gate. **It was neither outstanding nor a gate.** I did that
+verification personally on 2026-08-25 and it is committed at
+`docs/standards/High_order_grid_convergence_PROVENANCE.md`: **the filename is FALSE.** The document is
+**Ekaterinaris 2005, Progress in Aerospace Sciences 41, 192–300**, carrying on discriminated counts over
+66,033 words **Roache 0, GCI 0, Richardson 0, grid refinement 0, verification 0** — the naive `grep -i` 17
+for "Roache" is 17 hits inside **"app-roache-s"**. Consequence for F28: **none.** Its triple, `p ∈ [1.3,
+2.5]`, `GCI_fine < 3%` and `Fs = 1.25` come from rule 5, `MESH_STANDARD.md` §9 and Roache.
+
+### JF1 — AUDITED, **DO NOT FREEZE**, and the pre-compute window is still open so the repairs cost ZERO
+
+Seven hard blockers. **Blocker 1 is L-409's exact class, found a SECOND time in one day:** §8.1 requires
+`last time == endTime` while §5.5/§8.4 make a cap hit a refusal — with `residualControl` every converged run
+stops early and is refused; without it every run hits the cap and is refused. **As drafted the comparator
+refuses EVERY POSSIBLE RUN.** Also: the `jetSlot` frame says "rotated with alpha" against an airfoil-frame
+mesh, which silently restores the `sin(τ)` bias §1.6 spends forty lines refuting (1.23% on the tightest arm);
+**k = 0 and ω = 0 at the unblown `jetSlot`**, which its own §7.4 "ω > 0 everywhere" check makes NOT A RESULT;
+and §4.3's normal distribution is over-determined (85 cells at growth 1.1417 from y1 = 2.345869e-05 reaches
+**12.91 m, not 25 m**; closing at 25 m needs g = 1.1515, breaking the ≤1.15 cap).
+
+**MY RULING ON O4 (gate V): OPTION (c) — V IS `BLOCKED`; gate on G and THEORY alone.** Sanaa's §1.5 asks for
+a regression against **our own record, same mesh family**. The only candidate, `cases/tmr/naca0012_status.json`,
+is a single coarse rung at **y+ = 9.664 — a WALL-FUNCTION solution** — against JF1's y+ ≤ 1 low-Re case with
+no wall functions. **A different wall treatment is a different mesh family**, which is decisive before any of
+that record's other weaknesses. **The absence is recorded as a FINDING about this lab's coverage: we hold no
+unblown NACA 0012 record at low-Re wall treatment fit to be a V comparand.** I did not manufacture one.
+
+**The theory gate — the part that had to be right — is verified on the page.** Spence (1956) is NOT on this
+box and no Spence claim is made; the secondary is **Williams, Butler & Wood, ARC R&M 3304**, rule-15
+title-page verified in its sidecar. Constants **0.151 / 0.139 / 0.219 all correct**, but **the directive's
+GROUPING is wrong** — the series sits INSIDE the square root with `4πC_μ′`, and the directive's form is high
+by √S: **+2.0154 / +3.0364 / +4.6580 / +7.2894 %** at C_mu = 0.05/0.1/0.2/0.4. A constants-only check would
+have returned "all three correct" and frozen a one-signed growing bias into the gate.
+
+### Live jobs
+
+**Box was IDLE at session start with all queues empty — that was the emergency and it is being fixed.**
+Runner pid **1605** alive, `--selftest PASS`, idling on an empty queue. Three lanes live at cap: **F28 Stage 0**
+(mesh + checkMesh, 3 levels, no solver, 4 core-min budgeted), **F23c successor registration** (drafting; its
+first job is to try to FALSIFY my F23b finding), **JF1 pre-compute amendments** (five repairs + my O4 ruling).
+
+### Rungs without verdicts, named including the embarrassing ones
+
+**F28** — frozen, ARMED, never run; no verdict and none owed until it runs. **JF1** — unfrozen, `PENDING`,
+7 blockers, must not freeze. **F23c** — does not exist yet. **F23b** — CLOSED `BLOCKED`. **R1** — CLOSED
+`PASS`. Everything else in cfd territory is as the previous session left it and **I have NOT re-verified it
+this session — treat those rows as VERIFY.**
+
+### Next actions
+
+Read the F28 comparator as a **diff** before any number from it is believed (check 1) — Stage 1's planted
+control is gated behind that read. Rule **O2** (blunt-base Cd band) and **O3** (freestream branch, 22.36× in
+`nut_inf`) on JF1, then re-audit and freeze it. Check 4 on F23c when drafted. Restock the queue with F28
+Stage 1 and the F23c ladder as they clear.
+
+### On Sanaa's desk
+
+1. **The shared-index hazard above** — 595 live files one bare commit from deletion. Chief's call on the
+   index; hers if it needs a ruling.
+2. **F28's cap is an UPWARD departure**: **400 core-min vs her §2.8's 320**, disclosed, because her own
+   arithmetic (144 + 240 = 384) does not close against 320. $0.342 derived. She may overrule.
+3. **D539 — and my brief mislabelled it.** It is **not** a runner cap-enforcement item. D539 is
+   verification's ruling that `scripts/check_commit_size.py` **stays ADVISORY**, and that **no agent may flip
+   it to blocking — only Sanaa.** Its clause (b) says she must not be asked yet: the **15 `LOGS` firings must
+   each be classified true or false positive first**, because *a refusal rate is not a defect rate* — 8.0%
+   refused is not 8.0% defective, and only `EMPTY` has been classified (1 of 1 a true positive, D538).
+   **So the honest restatement is: this item is NOT ready for her desk, and the work that would make it ready
+   is the 15-firing classification, which nobody has done.** `ATTEMPT` also fired **zero** times in 200
+   commits and is only reachable-by-plant.
+4. **JF1 gate V is `BLOCKED` for want of a comparand this lab does not hold** — a coverage gap, not a defect.
+
+### Blocked
+
+**F23b — permanently.** Rule 2 closed its gates at first compute; the threshold is a gate, a threshold, a cap
+and a label at once, so no addendum reaches it. Unblocked only by the F23c successor under a new sha.
+
+### Cost calibration
+
+**R1: predicted 0.200, actual 0.132375, ratio 0.662**, misprediction on the conservative side, no waste,
+filed **C-216**. **F23b: ≈3.82 core-min gross, 100% waste**, named separately and never absorbed; A0 overran
+its own line item **5.33×** because §9.1's coarse rate does not transfer to a 1,024-cell case, and **the
+launcher charges only the `mpirun`**, leaving ≈1.95 core-min outside every running total (L-342 —
+infrastructure defects void a cost claim, never physics). Session commits: `76ce0ed5` (F28 freeze),
+`1ee6d791` (R1 verdict + C-216), `bcc9562d` (F23b triage + L-409 + D584). **All via the private-index
+protocol; shared index never touched.**
+
 ## verification
 
 **Section updated:** 2026-08-31T15:05Z by verification-supervisor. **Zero solver compute.** `DEAD_LEVER_AUDIT` **§21** landed at `998dc230`. All numbers tagged per `VERIFICATION_CHARTER` §2k.9 (eight tags).
