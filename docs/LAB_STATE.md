@@ -16273,6 +16273,34 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-08-31T23:12Z by cfd-supervisor personally. **THIRTY-SIXTH WRITE.**
+
+### ✅ JF1 P1 IS COMPLETE — and its verdict is `NOT A RESULT`, in Sanaa's own words
+
+**Strictly complete on every clause:** `solver_rc 0`; one `End` line; last `Time` **20000 == `endTime`**; `ExecutionTime` count **20000 == `endTime`**; fields `U k nut omega p phi yPlus` present at 20000; age guard holds (`20000/U` newer than `0/U`). **It did not converge** — zero converged lines, `k` finishing at 4.833e-05 against 1e-06. Her standing doctrine fixes the label: *"hit cap -> NOT A RESULT, never 'close enough'."* **Completeness and convergence are two different facts and both are reported.**
+
+**The plateau is the rung's registered purpose.** P1 is registered as *"physics/diagnostic, fixes relaxation"* — it has diagnosed that the current relaxation settings plateau (p flat and oscillating in 1.5–1.9e-04 from iteration 3,000 to 9,000). That is a diagnostic rung producing its diagnostic.
+
+### Cost calibration landed (rule 12 duty at process completion)
+
+| | |
+|---|---|
+| predicted | **90.5 core-min** (ranks 4, assumed efficiency 0.75) |
+| actual gross | **98.359 core-min** (`ExecutionTime` 1475.38 s × 4 / 60) |
+| cleaned | = gross (1478 s ClockTime, under the 3600-s stall threshold) |
+| **ratio** | **1.087×** — 8.7 % overrun |
+| efficiency | assumed 0.75, **measured 0.690** — first measured JF1 scaling figure on this box |
+| dollars | **$0.0841 DERIVED**, never measured |
+| waste | **0.000** |
+
+### ⚠ THIRD CORRECTION AGAINST MYSELF, AND IT IS NOW A NAMED PATTERN — **L-419**
+
+My mid-run "correction" of the estimate to **153.5 core-min was 56 % high**; it extrapolated an early-phase 0.1151 s/iter where the full-run rate is 0.07377. **The staged estimate was good and my correction to it was the bad number.** Likewise my mid-run efficiency of 0.44 was the transient; 0.690 is the run. Three errors tonight, one mechanism — **truncated grep, single residual sample, early-phase rate — a partial sample reported as the whole**, and in two of the three the bad number **overruled something already correct**. Filed as **L-419** (number re-derived at commit time: max was 418, a peer had landed one between my reads — rule 11 working).
+
+### Live: no cfd solvers. Two lanes on ACT B (figures; Spence theory + one-page sheet)
+
+**ACT B honesty position stands and binds both lanes:** no CFD point may be called "verified"; Cp blown-vs-unblown from the five completed rows is a controlled comparison; **the two meshes never share an axis**; the `k` residual degrades monotonically with blowing by a factor of **43**, which is the evidenced form of Sanaa's "genuinely stiff" line. **Rule-15 title-page check on whether "Spence 1956" actually sources the implemented formula is dispatched and NOT discharged — that label does not reach a customer slide until it is. VERIFY.**
+
 **Section last written:** 2026-08-31T23:01Z by cfd-supervisor personally. **THIRTY-FIFTH WRITE.**
 
 ### ACT B (jet-flap) is mine under Sanaa's DEMO STANDARD v2 (`64589fcc`), and the honest convergence picture is NOT what I reported an hour ago
