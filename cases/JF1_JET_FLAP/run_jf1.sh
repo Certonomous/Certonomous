@@ -58,7 +58,7 @@ finish() {
   # and a refusal at zero compute would permanently block the rung.  Before the
   # staging step the status therefore goes beside the case, not under the run
   # root.  Neither path is named STATUS.* (queue_runner.py:496 truncates those).
-  if [ "${STAGE}" = "init" ] || [ "${STAGE}" = "guard" ]; then
+  if [ "${STAGE}" = "init" ] || [ "${STAGE}" = "guard" ] || [ "${STAGE}" = "foamenv" ]; then
     STATUS="${CASE_DIR}/RUN_STATUS.${CASE_ID}.guard.txt"
   else
     mkdir -p "$RUN_ROOT" 2>/dev/null || true
@@ -106,8 +106,26 @@ fi
 
 [ -f "${FOAM_BASHRC}" ] || { echo "REFUSED: OpenFOAM bashrc absent"; exit 3; }
 
+# THE ENVIRONMENT STEP IS PART OF THE PREFLIGHT, AND THAT IS NOT A REFINEMENT.
+# Attempt 1 (2026-08-31T15:38:32Z, rc 1, stage_at_exit "mesh", retained at
+# .../JF1_L1_UNBLOWN_A0.attempt1_FAILED_2026-08-31T1538Z) died on the `source`
+# below: the OpenFOAM bashrc expands variables that are unset, and under `set -u`
+# a non-interactive shell EXITS on that.  The preflight had returned rc 0 because
+# it exited BEFORE this line -- it tested only the part that was never going to
+# fail.  A preflight that stops short of the environment is not a preflight.
+STAGE="foamenv"
+set +u
+# shellcheck disable=SC1090
+source "${FOAM_BASHRC}" "" > /dev/null 2>&1 || true
+set -u
+command -v simpleFoam > /dev/null 2>&1 || { echo "REFUSED: simpleFoam not on PATH after sourcing the OpenFOAM environment"; exit 3; }
+command -v checkMesh  > /dev/null 2>&1 || { echo "REFUSED: checkMesh not on PATH after sourcing the OpenFOAM environment"; exit 3; }
+
 if [ "${PREFLIGHT}" = "1" ]; then
-  echo "PREFLIGHT OK -- guards pass, cap ${CAP_CORE_MIN} core-min, zero compute"
+  echo "PREFLIGHT OK -- guards pass, OpenFOAM environment live"
+  echo "  simpleFoam : $(command -v simpleFoam)"
+  echo "  checkMesh  : $(command -v checkMesh)"
+  echo "  cap ${CAP_CORE_MIN} core-min, zero compute"
   exit 0
 fi
 
@@ -124,9 +142,6 @@ python3 "${CASE_DIR}/build_jf1.py" \
     --out "${RUN_ROOT}" --level L1 --slot-type wall \
     > "${RUN_ROOT}/log.build_jf1" 2>&1 \
   || { echo "MESH BUILD FAILED"; exit 4; }
-
-# shellcheck disable=SC1090
-source "${FOAM_BASHRC}" "" > /dev/null 2>&1
 
 STAGE="checkMesh"
 checkMesh -case "${RUN_ROOT}" > "${RUN_ROOT}/log.checkMesh" 2>&1 || true
