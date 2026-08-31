@@ -1,0 +1,36 @@
+{
+  "team": "dafoam",
+  "case_id": "SO2M_chain",
+  "prereg_commit": "f1a723ac3a0d8da5c9e54ab7a0a80127ab366f26",
+  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_SO2M/PREREGISTRATION.md",
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2M",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2M/so2m_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "G-S",
+    "X-P",
+    "G-P"
+  ],
+  "ranks": 1,
+  "cost_core_min_estimate": 11.0,
+  "cap_core_min_registered": 79.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER, not measured -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). POINT 11.0 core-min is the registered figure at PREREGISTRATION.md section 9 and every anchor under it is MEASURED core-minutes read from ledgers on this box, not an estimate and not a relayed number: SO-1a F-S 3.583 and F-P 3.433 core-min for the IDENTICAL 42-primal five-component FD arm this item's G arms run (/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/ledger.txt); SO-1a X-S 1.017 and X-P 1.200 for one primal plus compute_totals over TWO functionals, carried WITH MARGIN to 1.50 each because this item's X arms add one further adjoint solve for the third functional CMZ rather than reduced; SO-2a MESH 0.167 and SO-1a MESH 0.183, carried at 0.20. Per-arm points MESH 0.20 + X-S 1.50 + G-S 3.60 + X-P 1.50 + G-P 3.50 = 10.30, registered as POINT 11.0 carrying margin. THE CAP FRAME IS EXACT AND IS NOT DERIVED: per-arm caps MESH 5.0, X-S 12.0, G-S 25.0, X-P 12.0, G-P 25.0 sum to the registered CEILING 79.0 core-min (gate G10). Dollars: $0.009405 at the point and $0.067545 at the 79.0 ceiling -- DERIVED at the rate above, NOT MEASURED. Both are far under $25 and therefore pre-authorised; the figure is stated anyway because a blanket is not a per-item read (CLAUDE.md rules 9 and 12). An overrun STOPS the run and does not get a new budget. Already spent on this item: 0.00 core-min -- no container has started, the run root /home/ubuntu/certonomous-runs/CURRICULUM-SO2M-a1-naca0012-moment-gradient was ABSENT at 2026-08-31T17:18:59Z beside a known positive on SO-2a's root read in the same invocation, and the four NO-LAUNCH branches (PREREGISTRATION.md section 10) each terminate at 0.00 core-min with a NON-ZERO rc: NL-1 AGGREGATE rc=6 on a BOUNDED 14400 s wait that never blocks-and-continues, NL-2 PRODUCER rc=4, NL-3 ROOT rc=3, NL-4 FREEZE rc=5.",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "DRAFT -- NOT FILED, NOT ENQUEUED, AND NOT AUTHORISED. Prepared by a dafoam lab-lane on 2026-08-31 and left at the case directory. THE PRE-COMPUTE GATE IS THE SUPERVISOR'S: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is personal and may never be delegated, and queue_entry_check.py says the same in its own header -- enqueueing is not authorisation and no entry is authorised by virtue of sitting in a queue directory. TWO CONDITIONS MUST BOTH HOLD BEFORE THIS FILE IS COPIED TO verification/queue/dafoam/. (1) STAGE 2, WHICH HAS NOW LANDED -- superseding the earlier clause here, which was written when the driver did not yet exist and warned that filing it then would be recorded LAUNCHED and die (L-344). so2m_xm.py, so2m_run_arm.sh, so2m_chain_driver.sh and so2m_grade.py all exist, their md5 table is pinned in the driver and DRIVEN as a census by so2m_pin_selftest.sh, and their self-tests pass under BOTH python3 and python3 -O (L-332): grader 74/74 both modes, pin + no-launch 26/26. Three of those files were repaired PRE-COMPUTE on 2026-08-31 under the supervisor's rulings 1-3 (the trivial-baseline step brought to the registered 1e-8 on all five components; band E and the MIN_GRADED floor given legs that fire under mutation; G-ROW driven in both directions) -- no gate, threshold, cap or label moved. (2) THE SUPERVISOR'S OWN CHECK 4. This lane asserts only that the prereg blob at f1a723ac3a0d8da5c9e54ab7a0a80127ab366f26 is the frozen document and that it was committed before any compute; the reading of it is the supervisor's. VALIDATION STATUS, STATED HONESTLY: this file was validated OUT OF PLACE, so TEAM-BINDING was NOT CHECKED -- an unchecked condition, not a passing one. It is checked only when the QUEUED copy is validated in place, and that run is the validation that counts. SUBMISSIONS PARKED (CLAUDE.md rule 7): nothing about this item is sent, filed, uploaded, registered, posted or commented outside this box.",
+  "_field_classes": {
+    "physics_critical": [
+      "the arm rc VALUE from docker inspect .State.ExitCode",
+      "the arm terminal marker, artefact presence, age guard and per-line fatal-token scan"
+    ],
+    "infrastructure": [
+      "cost_core_min_estimate",
+      "cap_core_min_registered",
+      "memory_floor_gb",
+      "the runner's _launch block and LAUNCH_LOG.tsv row",
+      "the grader's own rc"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  }
+}
