@@ -3381,3 +3381,36 @@ The id cell was rewritten to `| **STRUCK — was C-216** |`, which **escapes the
 No register edit. No record edit, and no revert of `533f9620`. `STRUCK_SHAPES` is **not** created. `L-404` is referred to its owner, not adjudicated.
 
 **AND TOOL-ALLOCATED ID ALLOCATION IS NOT ENABLED ON ANY RECORD**, on a prerequisite the building lane declared against its own work rather than shipping past it: `check_record_reconciliation.py` parses **only** the legacy `RECORDS` patterns, so **a tool-allocated id is INVISIBLE to its unlanded-work and duplicate reports.** Enabling allocation before that module reads the tool-id pattern alongside the legacy one would create ids that the lab's own duplicate detector **cannot see** — the blind-reader failure of §22.2 ADDENDUM 1 and `L-312`, rebuilt deliberately. **The two changes land together or not at all.**
+
+## §21 ADDENDUM 1 — **T19b CONFIRMS THE §21 FALSIFIER, AND MY CONDITION (d) WAS IMPRECISELY WORDED. IT IS DISCHARGED; STAGE 2 RELEASES** (2026-08-31T16:25Z)
+
+**No new § number taken; §21 is clarified by this dated addendum and is NOT rewritten (rule 6).**
+
+### The falsifier did not fire, and I verified that myself rather than on report
+
+§21 shipped a falsifier: *"if, after dropping `residualControl`, `P_q_c` still fails to reach 30000, then the cause is not the one I have named and this ruling is wrong."* **Measured by me at `verification/runs/T-family/T19b_runs/`:** both `P_Ts_c` and `P_q_c` carry the complete write series `2000 … 28000 30000`, **zero** `SIMPLE solution converged` lines, and **last `Time = 30000`** on both — against T19's 828 and 541. **The named cause was correct: the defect was `residualControl` in the case, not the completion gate.** The repair was to the case and no gate moved, exactly as ruled.
+
+### ⚠ CONDITION (d) WAS IMPRECISE AND THE CONFLATION IS MINE
+
+(d) required C_PLATEAU be *"seen to EVALUATE — pass or fail"* before releasing the m/f four. **That wording conflates two different things:**
+
+1. **the gate's INPUTS exist** — checkable coarse-only, and
+2. **the gate's VALUE has been computed** — which the frozen `analyse_t19b.py` will only do with **all six cases DONE** (*"the whole rung is graded or none of it is"*).
+
+**The dead-lever concern in §21 was entirely about (1).** What made C_PLATEAU dead was that the writes it consumes — 28000 and 30000 — **could not exist** while `residualControl` truncated every run. **A gate whose inputs cannot exist is dead. A gate whose inputs exist but whose value is computed at rung completion is an ordinary rung-level gate**, and that is precisely how T19 froze it. **I wrote (d) as though those were the same thing. They are not, and the sentence should have read "its inputs must be shown to exist."**
+
+### THE LANE WAS RIGHT TO REFUSE AN AD-HOC PLATEAU PATH, AND THAT REFUSAL DECIDES THIS
+
+Building a coarse-only plateau computation to satisfy my wording would have meant **running an unfrozen instrument beside a frozen grader that explicitly refuses partial grading.** That is a **worse fault than the one (d) was written to prevent** — it trades a hypothetical dead gate for an actual freeze violation.
+
+**A condition that can only be satisfied by violating a freeze is a defective condition, and the thing to repair is the condition, not the freeze.** The lane declining to build the side path is the correct reading of the charter over the correct reading of my sentence, and it should be credited as such.
+
+### RULING — option (i)
+
+> **(d) IS DISCHARGED.** The **28000/30000 write pair existing on both coarse cases** satisfies its intent: **the thing that made C_PLATEAU unevaluable is demonstrably gone.** **Stage 2 — build and run the m/f four — is RELEASED**, and **C_PLATEAU is computed at rung grading, by the frozen grader, exactly as registered.** No ad-hoc plateau path is built, and none may be.
+
+**What would still stop stage 2, so this is a gate and not a formality:** the write pair absent on either coarse case, or `mark_done` non-zero on either. **Both verified satisfied at this writing.** And §21's other conditions are untouched — the coarse pair remains `NOT A RESULT` under T19's own registration, and T19b is the rung that answers the question.
+
+### THE CALIBRATION ROW, when the ledger permits it
+
+**T19's 59.0× is recorded as a TRUNCATION DETECTOR, not an estimator miss.** Registered POINT 2.952 core-min against measured 0.050 priced a 30,000-iteration run; the runs stopped at 828 and 541. **The ratio is not a mispriced estimate — it is the signal that the run was truncated**, corroborating the diagnosis from a direction that grades nothing. **A row booking it as estimator error would bury the finding in the ledger**, which is the standing shape in `docs/LEDGER_HEADLINE_AUDIT.md`. The row states the cause, not just the ratio.
