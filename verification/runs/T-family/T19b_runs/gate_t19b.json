@@ -1,0 +1,371 @@
+{
+  "rung": "T19b",
+  "supersedes": "T19",
+  "gate_source": {
+    "path": "/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/T19_registered.json",
+    "sha256": "84b3652a5187f04efeddb5b14cc91b2d1c5d9952b7608243bdd0078773a040b4",
+    "note": "T19's OWN frozen T19_registered.json, loaded by explicit path and pinned. No gate, threshold, band, floor, cap or label is defined, copied or re-derived by T19b; DEAD_LEVER_AUDIT.md 21.2 forbids moving one and none moves. The repair is to the CASE (build_t19b.py drops residualControl)."
+  },
+  "referent_source": {
+    "path": "/home/ubuntu/Certonomous/verification/runs/T-family/T19_runs/exact_t19.py",
+    "sha256": "aeaae65c9e849c8a40d9594e412e3a1bc63ebe79274f5bc704837570cf52545d",
+    "note": "T19's OWN frozen exact_t19.py, unmodified"
+  },
+  "scope": "FORCED CONVECTION, LAMINAR, 2-D: fully developed parallel-plate channel; NOT turbulent, NOT 3-D, NOT conjugate; the entrance region is solved but not graded",
+  "ceiling": "GATE REACHED at best -- the reference is EXACT/derived, so this rung scores V and never P; it can never reach HOLDS",
+  "Re": 100.0,
+  "Pr": 0.71,
+  "x_station": 0.8,
+  "x_plus": 0.28169014084507044,
+  "ny": {
+    "c": 20,
+    "m": 40,
+    "f": 80
+  },
+  "refinement_ratio": 2.0,
+  "dim": 2,
+  "factor_of_safety": 1.25,
+  "floors": {
+    "STAGNANT_FLOOR": 0.5,
+    "P_MIN": 0.05,
+    "source": "scripts/roache_triple.py (imported)"
+  },
+  "gate1": {
+    "ok": true,
+    "why": "",
+    "plateau_and_residuals": {
+      "Ts_c": {
+        "ok": true,
+        "plateau": {
+          "t_last": "30000",
+          "t_prev": "28000",
+          "d_Nu": 2.992433083337472e-12,
+          "d_fRe": 1.4177770069069168e-13
+        },
+        "residuals": {
+          "Ux": {
+            "last_initial": 1.34390262321874e-15,
+            "last_final": 1.34390262321874e-15,
+            "n_solves": 30000
+          },
+          "T": {
+            "last_initial": 9.642051774567812e-13,
+            "last_final": 9.642051774567812e-13,
+            "n_solves": 30000
+          },
+          "p_rgh": {
+            "last_initial": 5.944064956322344e-13,
+            "last_final": 5.944064956322344e-13,
+            "n_solves": 30000
+          }
+        },
+        "why": ""
+      },
+      "q_c": {
+        "ok": true,
+        "plateau": {
+          "t_last": "30000",
+          "t_prev": "28000",
+          "d_Nu": 2.153259872824239e-16,
+          "d_fRe": 1.4177770069069168e-13
+        },
+        "residuals": {
+          "Ux": {
+            "last_initial": 1.34390262321874e-15,
+            "last_final": 1.34390262321874e-15,
+            "n_solves": 30000
+          },
+          "T": {
+            "last_initial": 9.53275171310181e-13,
+            "last_final": 9.53275171310181e-13,
+            "n_solves": 30000
+          },
+          "p_rgh": {
+            "last_initial": 5.944064956322344e-13,
+            "last_final": 5.944064956322344e-13,
+            "n_solves": 30000
+          }
+        },
+        "why": ""
+      },
+      "Ts_m": {
+        "ok": true,
+        "plateau": {
+          "t_last": "30000",
+          "t_prev": "28000",
+          "d_Nu": 1.5989752609298e-12,
+          "d_fRe": 1.0182354959199468e-13
+        },
+        "residuals": {
+          "Ux": {
+            "last_initial": 6.43250638890164e-16,
+            "last_final": 6.43250638890164e-16,
+            "n_solves": 30000
+          },
+          "T": {
+            "last_initial": 9.67029631135469e-13,
+            "last_final": 9.67029631135469e-13,
+            "n_solves": 30000
+          },
+          "p_rgh": {
+            "last_initial": 1.066573719445027e-12,
+            "last_final": 1.198941037121919e-13,
+            "n_solves": 30000
+          }
+        },
+        "why": ""
+      },
+      "q_m": {
+        "ok": true,
+        "plateau": {
+          "t_last": "30000",
+          "t_prev": "28000",
+          "d_Nu": 1.1858313368348465e-14,
+          "d_fRe": 1.0182354959199468e-13
+        },
+        "residuals": {
+          "Ux": {
+            "last_initial": 6.43250638890164e-16,
+            "last_final": 6.43250638890164e-16,
+            "n_solves": 30000
+          },
+          "T": {
+            "last_initial": 9.95326762712107e-13,
+            "last_final": 9.95326762712107e-13,
+            "n_solves": 30000
+          },
+          "p_rgh": {
+            "last_initial": 1.066573719445027e-12,
+            "last_final": 1.198941037121919e-13,
+            "n_solves": 30000
+          }
+        },
+        "why": ""
+      },
+      "Ts_f": {
+        "ok": true,
+        "plateau": {
+          "t_last": "30000",
+          "t_prev": "28000",
+          "d_Nu": 3.1103632655990002e-12,
+          "d_fRe": 2.5024843308684468e-14
+        },
+        "residuals": {
+          "Ux": {
+            "last_initial": 5.221342717983546e-16,
+            "last_final": 5.221342717983546e-16,
+            "n_solves": 30000
+          },
+          "T": {
+            "last_initial": 9.977597289820683e-13,
+            "last_final": 9.977597289820683e-13,
+            "n_solves": 30000
+          },
+          "p_rgh": {
+            "last_initial": 2.112259177886124e-12,
+            "last_final": 2.303139463727459e-13,
+            "n_solves": 30000
+          }
+        },
+        "why": ""
+      },
+      "q_f": {
+        "ok": true,
+        "plateau": {
+          "t_last": "30000",
+          "t_prev": "28000",
+          "d_Nu": 0.0,
+          "d_fRe": 2.5024843308684468e-14
+        },
+        "residuals": {
+          "Ux": {
+            "last_initial": 5.221342717983546e-16,
+            "last_final": 5.221342717983546e-16,
+            "n_solves": 30000
+          },
+          "T": {
+            "last_initial": 9.95680164051288e-13,
+            "last_final": 9.95680164051288e-13,
+            "n_solves": 30000
+          },
+          "p_rgh": {
+            "last_initial": 2.112259177886124e-12,
+            "last_final": 2.303139463727459e-13,
+            "n_solves": 30000
+          }
+        },
+        "why": ""
+      }
+    },
+    "C_MASS": {
+      "Ts_c": 2.035408878479454e-15,
+      "q_c": 2.035408878479454e-15,
+      "Ts_m": 4.625929269271486e-15,
+      "q_m": 4.625929269271486e-15,
+      "Ts_f": 2.4054832200211726e-15,
+      "q_f": 2.4054832200211726e-15
+    },
+    "C_ID": {
+      "c": 0.0,
+      "m": 0.0,
+      "f": 0.0
+    },
+    "C_SYM": {
+      "Ts_c": {
+        "T": 3.410605131648481e-13,
+        "U": 7.28583859910259e-17
+      },
+      "q_c": {
+        "T": 8.526512829121202e-13,
+        "U": 7.28583859910259e-17
+      },
+      "Ts_m": {
+        "T": 5.115907697472721e-13,
+        "U": 1.214306433183765e-16
+      },
+      "q_m": {
+        "T": 1.4210854715202004e-12,
+        "U": 1.214306433183765e-16
+      },
+      "Ts_f": {
+        "T": 1.1368683772161603e-12,
+        "U": 1.5265566588595902e-16
+      },
+      "q_f": {
+        "T": 2.5011104298755527e-12,
+        "U": 1.5265566588595902e-16
+      }
+    }
+  },
+  "Nu_wall_asymmetry_REPORTED_ONLY": {
+    "c": {
+      "lo": 8.249616601409858,
+      "hi": 8.249616601411695
+    },
+    "m": {
+      "lo": 8.238914180477163,
+      "hi": 8.238914180474751
+    },
+    "f": {
+      "lo": 8.236201599859324,
+      "hi": 8.236201599864144
+    }
+  },
+  "fRe_wall_shear_route_REPORTED_ONLY": {
+    "c": 95.52238805970151,
+    "m": 95.88014981273281,
+    "f": 95.9700093720736
+  },
+  "planted_zero_controls": {
+    "Nu_H": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 1,
+      "recovered": 0.0020896870403710466,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 1.200012880451844,
+        "0.1": 0.1627272007255698,
+        "0.01": 0.01687337391376076,
+        "0.001234": 0.0020896870403710466,
+        "0.0001": 0.00016942162635302793,
+        "1e-05": 1.6942790443508216e-05,
+        "1e-06": 1.6942852845147627e-06,
+        "1e-07": 1.6942851388535018e-07
+      }
+    },
+    "fRe": {
+      "status": "PASS",
+      "plant": 0.001234,
+      "cells_planted": 80,
+      "recovered": 2808.0355555555484,
+      "negative_arm": 0.0,
+      "demonstrated_detection_floor": 1e-07,
+      "ladder": {
+        "1": 2275555.55555555,
+        "0.1": 227555.55555555507,
+        "0.01": 22755.555555555504,
+        "0.001234": 2808.0355555555484,
+        "0.0001": 227.5555555555556,
+        "1e-05": 22.75555555555654,
+        "1e-06": 2.2755555555578297,
+        "1e-07": 0.22755555555617946
+      }
+    }
+  },
+  "rows": [
+    {
+      "row": "G1",
+      "quantity": "f.Re at the registered station, from the AXIAL PRESSURE GRADIENT between the two columns straddling it (second order in dy). The first-order wall-shear route is computed too and is REPORTED, never graded.",
+      "reference": 96.0,
+      "band": [
+        95.9232,
+        96.07679999999999
+      ],
+      "value_fine": 95.97000937207427,
+      "triple": {
+        "c": 95.52238805969479,
+        "m": 95.88014981272394,
+        "f": 95.97000937207427
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.9932552701411062,
+      "gci_pct": 0.039257873854382896,
+      "richardson_REPORTED_ONLY": 96.00015000024814,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": -0.0003124023742263245,
+      "predicted_rel_deviation": -0.000312
+    },
+    {
+      "row": "G2",
+      "quantity": "Nu for uniform wall heat flux at the registered station, q\"Dh/(k(T_w - T_m)), with T_w reconstructed from the cell value and the imposed gradient by the same discrete relation OpenFOAM uses (T_w = T_cell + gradient*dy/2) and T_m the mass-flux-weighted bulk mean",
+      "reference": 8.235294200908305,
+      "band": [
+        8.22211773018685,
+        8.248470671629759
+      ],
+      "value_fine": 8.236201599861733,
+      "triple": {
+        "c": 8.249616601410779,
+        "m": 8.238914180475957,
+        "f": 8.236201599861733
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.9801992592732367,
+      "gci_pct": 0.013976880501152611,
+      "richardson_REPORTED_ONLY": 8.235280668617376,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 0.00011018415751658315,
+      "predicted_rel_deviation": 0.000619
+    },
+    {
+      "row": "G3",
+      "quantity": "Nu for uniform wall temperature at the registered station, q\"Dh/(k(T_w - T_m)) with T_w the imposed 400 K and q\" reconstructed from the near-wall cell by the same discrete relation",
+      "reference": 7.540700874069418,
+      "band": [
+        7.514308421010175,
+        7.567093327128661
+      ],
+      "value_fine": 7.543209307508371,
+      "triple": {
+        "c": 7.543378217000218,
+        "m": 7.543245498691451,
+        "f": 7.543209307508371
+      },
+      "triple_state": "CONVERGING",
+      "observed_order": 1.8746572323358375,
+      "gci_pct": 0.00022485887874404062,
+      "richardson_REPORTED_ONLY": 7.543195738247674,
+      "band_verdict": "PASS",
+      "verdict": "PASS",
+      "note": "",
+      "rel_deviation": 0.0003326525585411803,
+      "predicted_rel_deviation": 0.00141
+    }
+  ]
+}
