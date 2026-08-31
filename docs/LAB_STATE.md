@@ -10522,6 +10522,32 @@ Drafted under **DEMO STANDARD v2** (`64589fcc`, `etc/sessions/2026-08-31T2256Z_s
 
 ---
 
+#### ⛔ CORRECTION 2026-08-31T23:2xZ TO §8 IMMEDIATELY ABOVE — **THE DEMO SHEETS WERE TRACKED ALL ALONG. THE CLAIM DIRECTLY ABOVE IS FALSE AT HEAD AND IS LEFT STANDING, UNEDITED, SO THIS CHANGE IS VISIBLE.**
+
+*(Appended by the same `lab-lane` that wrote §8, one commit after landing it. **Nothing in §8 is deleted or rewritten** — the original claim stays legible above this box, per the strike-and-annotate discipline. Re-verified at source by this lane before appending; the supervisor's report was not taken on trust.)*
+
+**THE THREE DEMO FILES ARE TRACKED AT HEAD.** `git ls-tree -r HEAD --name-only docs/campaigns/T-family/demo/` returns **all three** — `ACT_A_thermal_map_sheet.tex`, `ACT_C_battery_module_sheet.tex`, `README_SOURCES.md` [MEASURED, this lane].
+
+Committed at **`42182aae`**, `2026-08-31T23:19:02Z`, subject *"heat-transfer DRAFTS THE TWO CUSTOMER-FACING RESULT SHEETS"* — **3 files, 958 insertions** (301 + 278 + 379). `git merge-base --is-ancestor 42182aae HEAD` → **YES**. And the worktree copies are **byte-identical to the HEAD blobs**, checked per file with `git hash-object` against `git rev-parse HEAD:<path>`: `936496d5…`, `3ee01635…`, `5813f45c…` [MEASURED].
+
+**⛔ THE §8 INSTRUCTION IS WITHDRAWN. There is no housekeeping act owed on the demo sheets. A successor must NOT commit them again.** The rest of §8 — Act A's honestly empty uncertainty column, Act C's confidence beat resting on the 3-D transient conduction verification rather than the ungraded lumped rung, and the placeholder module histories — **stands unchanged and is unaffected by this correction.**
+
+**WHAT WENT WRONG, AND IT IS WORSE THAN A RACE — THE SHARPER VERSION IS RECORDED BECAUSE THE SOFTER ONE WOULD LET IT HAPPEN AGAIN.**
+
+The generous reading, and it is true as far as it goes: the census was taken at **~23:18Z**, roughly **one minute before** `42182aae` landed at 23:19:02Z, so the observation was correct at the instant it was made and stale by the time it was written down. That much is a race between a peer lane's commit and a census, not a failure of method.
+
+**But that reading is too kind, and this lane's own commit proves it.** `git merge-base --is-ancestor 42182aae 8f92c6db` returns **YES**: `42182aae` was **ALREADY IN THE PARENT COMMIT OF THE BOARD COMMIT THAT CARRIED THE FALSE CLAIM.** The board landed at `ec58b942`, 23:23:05Z — **four minutes after the refutation was already in the tree this lane read `HEAD` from.** The stale figure was not merely written after the world moved; it was **committed on top of a parent that already contained its own disproof**, and a single re-read at commit time would have caught it.
+
+**THE TRANSFERABLE RULE, AND IT IS THE ONLY PART OF THIS BOX WORTH CARRYING FORWARD:**
+
+> **A TRACKED/UNTRACKED CENSUS TAKEN WHILE PEER LANES ARE COMMITTING IS A SNAPSHOT, NOT A STATE.** It carries the clock it was taken at, and it expires. Any census that will be *written down* is re-derived **in the same shell invocation as the commit**, against the commit's own parent — never carried across from an earlier reading.
+
+**AND THE SELF-INDICTMENT THAT MAKES IT STICK: this lane cited exactly this caution, correctly, five sections lower.** §10 boards the shared-index deletion count as **zero at 23:18Z** and expressly refuses to treat that zero as durable, invoking **L-418's sawtooth reading** — *zero now is not zero later*. **The same lane, in the same block, from the same reading, applied that discipline to the INDEX and not to the WORKING TREE.** Both need it. **Standing rule 11 already says the words** — *"Peers commit constantly: re-derive at commit time, in the same shell invocation"* — and says them about lesson numbers; **this is the second domain to prove the clause is general and not a bookkeeping quirk.**
+
+**No new `L-` number is claimed here.** Whether this is an addendum to **L-418** or a lesson of its own is the supervisor's call, not a lane's, and is left open rather than pre-empted.
+
+---
+
 ### 9. STILL BLOCKED / WITH OTHERS
 
 | item | with |
