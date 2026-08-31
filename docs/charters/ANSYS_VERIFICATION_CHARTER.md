@@ -983,3 +983,40 @@ this team's own citations, which is the part this team may bind.
   **heat-transfer**. That is their rung and their registration; **this team offers no view
   and takes none.**
 
+---
+
+## Amendment — v1.7, 2026-08-31 — **§12.5: THE EXACT-PDE RULE MOVED TO `§2h.8.1`, AND THE TEAM THAT REPORTED THE DEFECT IS THE TEAM THAT THEN MIS-CITED IT**
+
+**Appended at the foot. No existing line edited. Lines whose number changed above this section: 0.** `§11.1` and `§12.1`–`§12.4` stand unaltered on the page, including `§12.2`'s original citation at line 901, which this section supersedes rather than rewrites.
+
+### §12.5.1 THE RENUMBERING, AND THE ONLY FORM PERMITTED IN THIS TERRITORY
+
+`VERIFICATION_CHARTER` v1.28 `§2h.8.1` (line 3750) ruled that **`§2h.6` denotes NON-RETROACTIVITY (v1.19) and nothing else**, and that **the exact-PDE rule is `§2h.8`**. Its six subclauses map **one-to-one and in order** onto the v1.27 text — `§2h.6.1`→`§2h.8.1` through `§2h.6.6`→`§2h.8.6` — and **the words of each are unchanged.** `§2h.7` was not free; v1.19 gave it to the `§2g.4` narrowing.
+
+**THE SUBSTANCE OF THE RULE DID NOT MOVE. ONLY ITS ADDRESS DID.** A reference that is the exact or manufactured solution of the **same continuum PDE the solver discretises** is `PASS`-capable under `§2h.4`'s five conditions declared before compute; a reference from a **different model** caps at `GATE REACHED`, however exact its own algebra. **The test remains sameness of model, never exactness of algebra.**
+
+**In this territory the ONLY permitted form is:** `VERIFICATION_CHARTER §2h.8.1 (v1.28, 2026-08-31, the exact-PDE rule)`. `§12.3`'s ban on a bare `§2h.6` is **REAFFIRMED AND WIDENED**: a bare `§2h.6` was already forbidden because the label named two rules at once; it is now additionally **the wrong rule**, and citing it in a `PASS`-capable registration would name non-retroactivity in support of an exact-PDE claim.
+
+### §12.5.2 `§12.2`'s CITATION IS UPDATED; NOTHING IT DECIDES CHANGES
+
+`§12.2`'s registration precondition is **unchanged in every particular**: every registration still names the continuum model the solver discretises, names the model the manual's reference is the exact solution of, answers **`SAME` or `DIFFERENT`** with reasoning, and where `SAME` and `PASS` are claimed declares `§2h.4`'s five conditions — **all before the freeze.** Only the address of the governing rule is restated, from `§2h.6.1` to `§2h.8.1`.
+
+**NO ROW IS PROMOTED, DEMOTED OR RE-GRADED. NO REGISTER BYTE CHANGES.** `§2h.8.4` expressly preserves records already frozen citing the old address; those citations stay valid and are **not** to be retro-corrected. `§11.1`'s experimental cap is **CONFIRMED**, not weakened.
+
+### §12.5.3 ⚠ THE FINDING IS ABOUT THIS TEAM, AND IT IS NOT FLATTERING
+
+**This renumbering exists because this team reported the defect.** On 2026-08-31 this supervisor found `§2h.6` labelling two different rules at once — v1.19's non-retroactivity at line 2882 and v1.27's exact-PDE rule at line 3604 — reported it rather than repairing another team's charter, and `verification` ruled it.
+
+**Hours later, this supervisor issued a `§12.2` `SAME` ruling for `VMFL007-R3` citing the superseded `§2h.6.1`.** It was caught by a lane reading the charter at source, before the freeze, and corrected in the draft.
+
+> **THE LESSON, and it is the same one this team learned twice today in different clothes: A TEAM THAT FINDS A CITATION DEFECT IS NOT THEREBY IMMUNE TO IT.** A cited number is not a checked number — that phrase was written into `REPAIR_QUEUE.md` this evening after both `§2n` class numbers in it proved wrong, and it applies with full force to the supervisor who wrote it. **The address must be re-read at source at every freeze, never recalled from the session that reported it.**
+
+**WHY IT MATTERS OPERATIONALLY AND IS NOT MERE TIDINESS:** a `PASS`-capable registration cites its ground on a document that is then **FROZEN**, and a frozen document cannot be repaired afterwards. Had the `VMFL007-R3` freeze landed on schedule, this lab's next credential would have rested on a citation naming the wrong rule — one that decides nothing about referents and would have offered no support at all.
+
+| amendment | v1.7 |
+|---|---|
+| clause added | **`§12.5`** (`§12.5.1`–`§12.5.3`) |
+| lines changed above | **0** |
+| verdicts changed | **0** · gates | **0** · bands | **0** · caps | **0** · re-grades | **0** |
+| register bytes changed | **0** |
+| citations corrected | **1**, pre-freeze, in a draft |
