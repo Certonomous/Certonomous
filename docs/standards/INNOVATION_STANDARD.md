@@ -204,3 +204,81 @@ proposal JSONs, and the recorded lessons are the current extent of adoption.
 - Verification and Validation in Computational Fluid Dynamics, Oberkampf and
   Trucano, Sandia report SAND2002-0529, for the benchmark-first evidence
   discipline the path mirrors.
+
+## Amendment record: **[SANAA-DIRECT] REMOVE THE POSSIBILITY, NOT THE INSTANCE — `VERIFICATION_CHARTER` §2l IS ELEVATED HERE** (2026-08-31)
+
+Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`,
+proved by a byte-prefix check against HEAD in the commit that lands this section — the first
+**11335** bytes are byte-identical, **206** lines before. This is the first amendment section in
+this file; the `## Sources` list above is unchanged.
+
+**Sanaa's words, verbatim, 2026-08-31** (captured at
+`etc/sessions/2026-08-31T1505Z_sanaa_rulings_six.md`, commit `1405c265`; that session file is not
+edited):
+
+> (2) Both charter elevations approved (provenance tags → REPORTING_CHARTER; §2l →
+> INNOVATION_STANDARD).
+
+**WHY IT LANDS HERE.** §2l is a principle about **how this lab builds things**, which is this
+standard's subject. It was drafted in `VERIFICATION_CHARTER` §2l (`95db2a82`, v1.24) because that
+is the file its author owns, and proposed rather than taken. **`VERIFICATION_CHARTER` §2l is NOT
+rewritten and remains the origin text** (rule 6).
+
+### The rule
+
+> **When a defect recurs, ask what would have to be true for it to be IMPOSSIBLE — and build
+> that, rather than fixing the instance in front of you.**
+
+It came from noticing that **three repairs landed by three teams against three unrelated defects
+on one night were the same move**, and that **none of the obvious fixes would have removed the
+defect** — only the instance.
+
+### The three forms it takes
+
+1. **DERIVE, DON'T MAINTAIN.** A value computed from its source cannot drift from it. The
+   numerics FAMILY INDEX is generated from the tail because **a hand-maintained derived value
+   does not drift less when watched more.**
+2. **MOVE THE SAFETY INTO THE PATH.** `append_block.py` reads a block body from a **file, as
+   bytes, so no shell ever sees it** — removing the whole class of quoting and expansion faults
+   rather than escaping this one body correctly.
+3. **MAKE THE BAD STATE UNREPRESENTABLE.** The queue runner keys on a **team NAME** rather than
+   an integer cursor, so the starvation bug has no state to live in.
+
+### The test — one question, and it is answerable
+
+> **After this repair, what would it take to reintroduce the defect?**
+
+- *"An edit a careful person could plausibly make"* → **the possibility is still there; only the
+  instance was removed.**
+- *"You would have to reinstate the mechanism itself"* → **it is gone.**
+
+**In none of the three was the ordinary fix WRONG** — each would have worked that day on that
+instance — **and in two of the three the defect had already returned before anyone acted.**
+
+### WHEN TO REACH FOR IT, because "always" is wrong and would be expensive
+
+Two triggers, and **a first occurrence with no asymmetry gets the ordinary fix**:
+
+- **RECURRENCE.** Three careful teams hitting one defect in one afternoon **is not three lapses;
+  it is evidence the safe path was harder** (the `L-405` form).
+- **EFFORT ASYMMETRY** — the safe path costing more than the unsafe one. Where that holds,
+  **discipline is not load-bearing, because discipline is the thing being taxed.**
+
+### THE HONEST LIMIT, AND IT SHIPS ITS OWN COUNTER-EXAMPLE
+
+From the same night: `T16`/`C_ORDER`. A guard hunting a **−1.0** signal carried a **1e-06**
+tolerance and fired on real physics. **There is no way to make "a tolerance mis-sized for the
+defect it hunts" unrepresentable.** The remedy was to split the clause and size each tolerance to
+its own signal — **a judgement no construction can take over.** **§2l does not reach it, and
+citing §2l to avoid making that judgement is a misreading of it.**
+
+The principle's own failure mode is named too: **claiming a state is *unrepresentable* when it has
+merely become inconvenient to reach.** That claim is checkable — by the test above — and must be
+made, not assumed.
+
+### Scope
+
+Advisory on **method**, and it creates **no gate and no threshold**. It never licenses a
+post-compute change to a frozen artifact: rule 2 and `VERIFICATION_CHARTER` §2d/§2d.1 govern that
+and are untouched here. Where §2l and a freeze conflict, **the freeze wins** and the redesign
+waits for the successor registration.

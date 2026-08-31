@@ -1074,3 +1074,86 @@ team's starved queue and not its own has built a one-way instrument** — the sh
 repair-registrations**. Where `N = 0`, the report states **either** that the team has **no open
 findings** — a claim, checkable against its own audit rows — **or** that it is in violation and
 names the findings it has not yet frozen. **`0` on its own is no longer a reportable value.**
+
+## Amendment record, continued: **[SANAA-DIRECT] EVERY REPORTED NUMBER CARRIES A PROVENANCE TAG. THE SET IS EIGHT AND IT IS CLOSED — `VERIFICATION_CHARTER` §2k IS ELEVATED HERE** (2026-08-31)
+
+Appended at the foot; nothing above edited. `lines whose number changed above this section: 0`,
+proved by a byte-prefix check against HEAD in the commit that lands this section — the first
+**62886** bytes are byte-identical, **1076** lines before.
+
+**Sanaa's words, verbatim, 2026-08-31** (captured at
+`etc/sessions/2026-08-31T1505Z_sanaa_rulings_six.md`, commit `1405c265`; **that session file is
+NOT edited** — this section is the amendment):
+
+> (2) Both charter elevations approved (provenance tags → REPORTING_CHARTER; §2l →
+> INNOVATION_STANDARD).
+
+**WHY IT LANDS HERE RATHER THAN STAYING WHERE IT WAS WRITTEN.** §2k governs how a number is
+**REPORTED** — not how it is measured, gated or graded. It was drafted in
+`VERIFICATION_CHARTER` §2k (`e5296105`, v1.22/v1.23) because that is the file its author owns,
+and its author said so at the time and proposed the move rather than making it.
+**`VERIFICATION_CHARTER` §2k is NOT rewritten and remains the origin text** (rule 6); this
+section is the operative rule for reports.
+
+### The eight tags, and the set is CLOSED
+
+**Every number in a report carries exactly one of:**
+
+`MEASURED` · `DERIVED` · `EXTRAPOLATED` · `REGISTERED` · `REPORTED-BY-OWNER` · `BORROWED` ·
+`ASSUMED` · `TRANSCRIBED`
+
+**A number that fits none of the eight is `NOT REPORTABLE`.** This is the load-bearing half and
+it is a **refusal, not a ninth tag**: the moment of failed classification **is** the catch. A
+reporter who cannot say where a number came from has discovered something about the number, and
+the correct output is to say so — not to reach for the nearest adjective.
+
+### Mandatory fields — the reason each tag exists is a field, not the word
+
+| tag | MUST also carry |
+|---|---|
+| `MEASURED` | the artifact it was read from, by path |
+| `DERIVED` | the rule and the inputs it was computed from |
+| `EXTRAPOLATED` | the range extrapolated from, and to |
+| `REGISTERED` | the registration and line it is frozen at |
+| `REPORTED-BY-OWNER` | that this box cannot verify it, and who stated it |
+| **`BORROWED`** | **the object the value was measured on**, and where that source is itself borrowed, **the chain stated to its MEASURED ROOT, with its depth** |
+| **`ASSUMED`** | that **no measurement lies behind it**, and **what would falsify it** |
+| **`TRANSCRIBED`** | **the record it was copied from**, by path and line |
+
+**The chain-depth clause is not optional.** A borrowed value at depth *n* has had *n*
+opportunities to stop applying and **none of them is visible in the number.**
+
+### The count was FIVE and it is now EIGHT, corrected once, on a specimen
+
+§2k.1 published five tags and §2k.6 called the set closed. **The closure principle was right; the
+count was not**, and it was falsified by `heat-transfer` with a case rather than an argument
+(`7990c3d9`, v1.25 §2k.9). The deciding specimen is a **two-hop borrow whose error compounds
+invisibly**: `T20`'s **2.80e-07** ← T17's reading ← T17 registered **1.64e-07** ← T14, giving
+**2.80e-07 / 1.64e-07 = 1.707** — T20's rate is the T14 borrow **multiplied by T17's measured
+miss of that same borrow**. Not propagation, **compounding**, and nothing in the value shows it.
+**A depth-1 disclosure would have hidden exactly the thing that mattered**, which is why the
+chain-depth field is mandatory above.
+
+### The bar for a ninth tag, written so this cannot become a drifting vocabulary
+
+> **A NEW TAG IS ADMITTED ONLY ON A SPECIMEN SHOWING THAT AN EXISTING TAG WOULD BE *FALSE*, NOT
+> MERELY COARSE.** *"The existing tag loses detail"* is not sufficient — that is what the
+> mandatory fields are for.
+
+### THE HONEST LIMIT — this is a REPORTING rule, and it is NOT a gate
+
+**Tagging cannot turn a `PASS` into a `GATE FAIL`.** A number's provenance changes how it must be
+**stated**, never what verdict it earns. Any gate consequence is **prospective only** and belongs
+to a registration that pre-registers it, never to this section retroactively. A report that is
+correct in its values and untagged is **incomplete, not wrong** — and it is fixed by tagging it,
+not by re-running anything.
+
+### Scope
+
+Binds every report from every team, from this date. **Not retroactive:** reports already written
+are not void and are not to be re-tagged as a compliance exercise; where an old figure is
+**re-quoted** in a new report it acquires a tag at that point. The eight words already exist
+verbatim in frozen records (`T17_registered.json`, `T20_PREREGISTRATION.md:999-1001`,
+`T17_CY_f.json:21`) which rule 6 forbids rewriting — **a shared vocabulary of eight beats a
+private vocabulary of three plus five unwritten ones**, which was the whole argument for ruling
+it lab-wide rather than team-local.
