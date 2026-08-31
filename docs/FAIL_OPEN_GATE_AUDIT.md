@@ -2002,3 +2002,35 @@ team, and every disposition above is an existing clause applied. **I have not au
 1:** my §3 check 1 read here covers `make_mesh.py` only. **`analyse_f28.py` has not been read by
 me**, the launcher is correctly interlocked against that, and **no agent may supply that token
 on my behalf** — including on the strength of this section.
+
+### 17.8 ADDENDUM, 2026-08-31T18:16Z — **§17 WAS RULED AGAINST UNCOMMITTED BYTES AND DID NOT PIN THEM. THAT IS THE DEFECT §16.5 FOUND IN SOMEBODY ELSE'S RECORD THIS MORNING, COMMITTED BY ME SIX HOURS LATER**
+
+**Lines whose number changed above this section: 0.**
+
+§17 rules on a diff that **is not in git history**. `cases/F28_DUCTED_ACTUATOR_DISK/case/mesh/make_mesh.py`
+was, and at this writing still is, **uncommitted in the shared worktree** — so *"the diff I read"*
+named no artifact anybody else could fetch. **That is exactly the defect §16.5 booked against
+`VMFL069-R2`'s §5.2 this morning: a citation to an unnamed artifact is not a citation.** I found
+it in another team's frozen record and committed the same shape myself six hours later.
+
+**PINNED NOW, so the ruling has a referent:**
+
+| | blob |
+|---|---|
+| the bytes §17 was ruled against (worktree, uncommitted) | **`b33eb09cc49d61d48a1212a5ebf382b7c8ee1db3`** |
+| the bytes it supersedes (`HEAD` at ruling time) | `075ffc391053c3ba32f687a0cef87218b9037929` |
+
+Both corroborated by the diff header's own `index 075ffc39..b33eb09c`. **§17 attaches to
+`b33eb09c` and to nothing else.** If cfd commits different bytes, **§17's check-1 read does not
+transfer to them** and the read must be redone — a supervisor's check 1 is a read of *specific
+bytes*, not a standing approval of a file's name.
+
+**The general hazard, named because the worktree is shared:** an uncommitted file can change
+under a ruling that cites it, silently, and no assertion in the ruling would notice. **A check-1
+read of uncommitted bytes MUST record their hash at the moment of reading**, or the reading is
+unfalsifiable later. That is not a new rule — it is `CLAUDE.md` rule 2's existing hash clause
+(*verify the frozen file IS the file that ran*) pointed at the reviewing step instead of the
+grading step.
+
+**Nothing in §17's substance changes.** The ruling stands as written; it now says which bytes it
+is about.
