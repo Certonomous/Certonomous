@@ -1,24 +1,55 @@
 # F28 — DUCTED ACTUATOR DISK: THRUST vs AIRSPEED — PRE-REGISTRATION
 
-> ## THIS IS AN UNFROZEN DRAFT. IT IS NOT A PRE-REGISTRATION YET.
+> ## FROZEN. **Status at freeze: ARMED — never run.**
 >
-> **Verdict: `PENDING`.** No compute has been launched under this document and none
-> may be. The document is committed only so the work is not lost; it carries **no
-> freeze sha**, and nothing in it is binding until `cfd-supervisor` performs
-> `SUPERVISION_CHARTER.md` §3 check 4 personally and freezes it in a commit that
-> says so. **A lane may not freeze its own registration and this lane has not.**
+> **Frozen by the commit that carries this file**, 2026-08-31, by `cfd-supervisor`
+> personally under `SUPERVISION_CHARTER.md` §3 check 4. **After first compute the
+> gates, thresholds, cap and labels below are CLOSED**; changes land only as dated
+> addenda that cannot alter a gate, a threshold, a cap or a label, and originals are
+> struck, never rewritten (`CLAUDE.md` rule 2).
 >
-> Until that freeze: the run root does not exist, no queue entry exists, no solver
-> has run.
+> **THE FOUR THINGS THE SUPERVISOR VERIFIED PERSONALLY BEFORE STAMPING THIS, each
+> re-derived on disk rather than taken from the drafting lane's report:**
 >
-> **REVISION 2, 2026-08-30.** The three questions this lane raised in §14 and declined
-> to decide — the ill-posed forward-flight balance, the under-specified open-disk
-> reference, and the cost arithmetic that does not close — have all been **ruled by
-> `cfd-supervisor`** and are now registered in §9.6/§9.6a, §7.1 and §2.7/§10.
-> **§14 records each ruling with its author.** No question in this document is now
-> open, none was decided by the lane that raised it, and **none was decided after
-> seeing a result, because no compute has been run.** The document is still
-> **UNFROZEN**; the freeze is the supervisor's act and has not occurred.
+> 1. **NO COMPUTE HAS OCCURRED.** `verification/runs/*F28*` does not exist,
+>    `cases/*F28*` does not exist, and no `F28` entry exists anywhere under
+>    `verification/queue/`. The gates below are therefore still open in the only sense
+>    rule 2 cares about: **they could not have been chosen to fit an answer, because
+>    there is no answer.** This is the freeze's entire evidentiary content.
+> 2. **THE COST ARITHMETIC CLOSES, and it is the defect that sank the previous
+>    draft.** §10's stages sum 4 + 30 + 70 + 40 + 240 = **384 core-min against the
+>    registered cap of 400** — re-added by the supervisor, not read off the table's own
+>    "Running" column. §2.8's original 320 would not have held it (the earlier draft's
+>    144 + 240 = 384 > 320 is exactly the arithmetic that failed), which is why the cap
+>    is an **upward, disclosed** departure and why it goes to Sanaa's desk as one.
+> 3. **THE THEORY CONSTANT IS VERIFIED, NOT REMEMBERED — three independent ways**, per
+>    the directive's own instruction that *"the constants written here are to be
+>    checked, not trusted"*: this lane's SymPy derivation (§3.1), **Chew, Gan & Hesse
+>    (2021) printed p.5 eq (7)** (§3.2), and **Geldenhuys (2015) printed p.7** (§3.3),
+>    whose *"26% more"* is `(2 x 1)^(1/3)` in words. `2^(1/3) = 1.2599210498948732`,
+>    re-evaluated by the supervisor. Both PDFs carry **title-page verification per
+>    standing rule 15 / L-144**, and §3.2 discloses that its source is the Glasgow
+>    Enlighten accepted version, not the AIAA version of record.
+> 4. **THE RULE-11 ID IS A MAXIMUM, NOT A COUNT.** `git ls-tree -r HEAD` returns
+>    exactly **one** path containing `F28` — this document itself — so the maximum
+>    existing `F` number excluding this file is **27** and `F28` is correct. The id is
+>    hereby **CONFIRMED, no longer PROVISIONAL.**
+>
+> **What the supervisor did NOT verify, stated so the stamp is not read wider than it
+> is:** the mesh script, the comparator and the launcher **do not yet exist**. Their
+> shas are registered at §5, §11.6 and §12 as artifacts to be recorded when written,
+> and **each is subject to check 1 — the supervisor reads the measurement code as a
+> diff before any number from it is believed.** This freeze fixes the *gates*; it does
+> not certify an *instrument* that has not been built.
+>
+> **REVISION 2, 2026-08-30, retained as the record of how the document reached
+> freezable state.** The three questions this lane raised in §14 and declined to
+> decide — the ill-posed forward-flight balance, the under-specified open-disk
+> reference, and the cost arithmetic that does not close — were all **ruled by
+> `cfd-supervisor`** and are registered in §9.6/§9.6a, §7.1 and §2.7/§10. **§14 records
+> each ruling with its author.** No question in this document was open at freeze, none
+> was decided by the lane that raised it, and **none was decided after seeing a result,
+> because no compute had been run.**
 
 - **Team:** cfd
 - **Rung id:** `F28` — **PROVISIONAL.** Derived from the tail per rule 11 (maximum
@@ -1026,7 +1057,48 @@ seeing any result — no compute has been run.**
 - **OPEN-3** removed a self-inflicted scope cut. The earlier draft's truncation is
   **withdrawn** and named as withdrawn in §10.1 rather than quietly deleted.
 
-### 14.2 One item remains open, and it is NOT a gate
+### 14.2 One item remains open, and it is NOT a gate — **DISPOSED AT FREEZE, 2026-08-31**
+
+> **⚠ SUPERVISOR'S DISPOSITION, 2026-08-31, added at the freeze commit. The item below
+> is CLOSED and it was never a blocker. The lane was right to raise it and right about
+> where it would lead.**
+>
+> **The directive has already been actioned, and it was actioned by this team.** The
+> title-page verification the lane correctly demanded was performed by the cfd
+> supervisor personally on **2026-08-25** and is committed at
+> **`docs/standards/High_order_grid_convergence_PROVENANCE.md`**. Its finding, in one
+> line: **the filename is false.** The document is **Ekaterinaris, J.A. (2005),
+> "High-order accurate, low numerical diffusion methods for aerodynamics", Progress in
+> Aerospace Sciences 41 (2005) 192–300**, DOI `10.1016/j.paerosci.2005.03.003` — a
+> 109-page review of high-order discretisation schemes.
+>
+> **It contains no grid-convergence verification apparatus at all.** Discriminated
+> (`\b…\b`) counts over the full 66,033-word extraction: **Roache 0, GCI 0,
+> Richardson 0, grid refinement 0, mesh refinement 0, verification 0.** The naive
+> `grep -i` count of 17 for "Roache" is **17 instances of the substring inside
+> "app-roache-s"** — every one. Had that count been believed, the record would have
+> reported a paper citing Roache seventeen times, which is the exact opposite of the
+> truth **and in the exact direction that would have justified writing GCI lessons
+> into the mesh standard.**
+>
+> **THE CONSEQUENCE FOR THIS REGISTRATION, WHICH IS THE ONLY QUESTION §14.2 ASKED:
+> NONE.** F28's Roache triple (§9.3), its observed-order band `p in [1.3, 2.5]`, its
+> `GCI_fine < 3%` and its `Fs = 1.25` owe **nothing** to that paper and could not have.
+> They come from `CLAUDE.md` rule 5, `MESH_STANDARD.md` §9 and Roache himself. There is
+> no unactioned grid-convergence directive bearing on this document, and **the paper
+> the directive names could not have borne on it in any case.**
+>
+> **Standing prohibition, restated here because this registration is exactly the kind
+> of document that would tempt someone to cite it:** any clause of the form *"the
+> grid-convergence literature says X, per `High_order_grid_convergence.pdf`"* is a
+> **fabrication** and is struck on sight, in this file or any other.
+>
+> **What remains genuinely open is a different and smaller thing, and it is not F28's:**
+> the paper *is* valuable to cfd — WENO 160, shock 89, numerical diffusion 6, tip
+> vortex 5 — and bears on **F1/ONERA M6's η = 0.99 tip-vortex Cp row** and on F2/F12's
+> shock rows, through the **scheme and numerical-diffusion** rows of
+> `docs/NUMERICS_KNOWLEDGE.md`. That mining is tracked separately from this case and
+> **blocks nothing here.**
 
 **Not blocking this registration; raised for the supervisor's disposition.**
 
