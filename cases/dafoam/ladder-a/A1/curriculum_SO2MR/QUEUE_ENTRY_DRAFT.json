@@ -1,0 +1,41 @@
+{
+  "team": "dafoam",
+  "case_id": "SO2MR_chain",
+  "prereg_commit": "c0eff9ca9330dd310fcfbe7a77f13e2ec1ec8cca",
+  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_SO2MR/PREREGISTRATION.md",
+  "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2MR",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO2MR/so2mr_chain_driver.sh",
+    "MESH",
+    "X-S",
+    "G-S",
+    "X-P",
+    "G-P"
+  ],
+  "ranks": 1,
+  "cost_core_min_estimate": 11.0,
+  "cap_core_min_registered": 79.0,
+  "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER (Sanaa 2026-08-21/22, corroborated at Xiao2016_EnKF/PREREGISTRATION.md:197) and NOT MEASURED BY THIS BOX -- the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5), so every dollar figure here is DERIVED at that reported rate and none of them is a measurement. POINT 11.0 core-min is the registered figure at PREREGISTRATION.md section 9. THE ANCHORS ARE THIS ITEM'S PREDECESSOR'S OWN MEASURED CORE-MINUTES, read from its ledger and not estimated or relayed: SO-2M ran the IDENTICAL five-arm program -- same 42 primals per G arm, same five components, same np=1, same 4032-cell mesh -- at MESH 0.183, X-S 1.017, G-S 2.017, X-P 0.85, G-P 2.183 core-min (curriculum_SO2M/RESULTS.md:185-189). Per-arm points MESH 0.20 + X-S 1.50 + G-S 3.60 + X-P 1.50 + G-P 3.50 = 10.30, registered as POINT 11.0 carrying margin, with SO-1a's measured F-S 3.583 and F-P 3.433 as the upper anchors on the G arms. The point and the ceiling are deliberately SO-2M's unchanged figures so that this item's calibration row is directly comparable with its predecessor's rather than re-baselined against a measurement that exists only because the predecessor ran. THE CAP FRAME IS EXACT AND IS NOT DERIVED: per-arm caps MESH 5.0, X-S 12.0, G-S 25.0, X-P 12.0, G-P 25.0 sum to the registered CEILING 79.0 core-min (gate G10). Dollars: $0.009405 at the point (11.0 core-min = 0.1833333 core-h) and $0.067545 at the 79.0 ceiling (1.3166667 core-h) -- DERIVED at the rate above, NOT MEASURED. Both are far under $25 and therefore pre-authorised; the figure is stated anyway because a blanket is not a per-item read (CLAUDE.md rules 9 and 12). An overrun STOPS the run and does not get a new budget. ALREADY SPENT ON THIS ITEM: 0.00 core-min -- no container has started, the run root /home/ubuntu/certonomous-runs/CURRICULUM-SO2MR-a1-naca0012-moment-gradient was ABSENT at 2026-08-31T22:15:13Z read beside a known positive on SO-2M's existing root in the same invocation, and re-confirmed absent with zero so2mr_ containers by the pin selftest's own (o0)/(z3)/(z4) legs. The four NO-LAUNCH branches (PREREGISTRATION.md section 10) each terminate at 0.00 core-min with a NON-ZERO rc: NL-1 AGGREGATE rc=6 on a BOUNDED 14400 s wait that never blocks-and-continues, NL-2 PRODUCER rc=4, NL-3 ROOT rc=3, NL-4 FREEZE rc=5. SEPARATELY AND NOT INSIDE ANY RATIO: SO-2M spent 6.250 core-min ($0.005344 DERIVED) which is WASTE attributable to a CONTROL failure (GATE-DESIGN -- an under-sized registered plant), explicitly NOT a solver failure, since every SO-2M arm returned rc=0. COMPUTE_BUDGET_CHARTER.md section 6 requires that waste be named separately and never absorbed into this item's actual/predicted calibration ratio.",
+  "memory_floor_gb": 8.0,
+  "enqueued_by": "DRAFT -- NOT FILED, NOT ENQUEUED, AND NOT AUTHORISED. Prepared by a dafoam lab-lane on 2026-08-31 and left at the case directory, which is where a draft another agent must read belongs (CLAUDE.md rule 13 -- the scratchpad is never a handoff channel). THE PRE-COMPUTE GATE IS THE SUPERVISOR'S: SUPERVISION_CHARTER.md section 3 check 4 (pre-registration committed before compute) is personal and may never be delegated, and enqueueing is not authorisation -- no entry is authorised by virtue of sitting in a queue directory. NO AGENT'S MESSAGE IS SANAA'S CONSENT (CLAUDE.md rule 9), and this lane does not arm its own item. STAGE 1 AND STAGE 2 BOTH LANDED IN THE FREEZE COMMIT c0eff9ca9330dd310fcfbe7a77f13e2ec1ec8cca, unlike SO-2M whose instruments followed its gates: so2mr_xm.py, so2mr_run_arm.sh, so2mr_chain_driver.sh, so2mr_grade.py and so2mr_pin_selftest.sh all exist and are pinned by md5 in PREREGISTRATION.md section 11, so there is no L-344 exposure here (a filed entry whose launch argv is absent is recorded LAUNCHED and dies -- the argv above resolves to a file that exists at the pinned hash). SELF-TESTS DRIVEN GREEN AT FREEZE, ZERO CONTAINERS AND ZERO CORE-MINUTES: grader 80/80 under BOTH python3 and python3 -O (L-332 -- -O strips assert, and a control living in an assert is absent in production), pin and no-launch selftest pass=26 fail=0 with pins_exist=14 EQUAL to pins_driven=14, so 'every pin' is a census and not a claim. THE ONE SUBSTANTIVE DELTA FROM SO-2M is the direction-B plant, now registered as a RULE relative to the quantity it perturbs -- P = K*(band_D/100)*|d_ref| with K = 2.0 FIXED AT FREEZE and the sign AWAY from d_ref -- making the planted copy cross band D by construction with 100 percent margin at any functional scale. It moves NO gate, NO threshold, NO band and NO acceptance: band D stays 5.0, band E stays 5.0, and every row's verdict is still computed from the LIVE artefact. Its sufficiency leg is DRIVEN RED (leg B3 moves K to 0.5 and requires the refusal PLANT_NOT_SUFFICIENT_BY_CONSTRUCTION by name), and leg B0 re-derives SO-2M's recorded refusal from SO-2M's own d_ref to 1e-15 as the known positive. THIS LANE ASSERTS ONLY that the prereg blob at c0eff9ca9330dd310fcfbe7a77f13e2ec1ec8cca is the frozen document and that it was committed before any compute; the READING of it is the supervisor's and a relayed check is a summary, not a check. VALIDATION STATUS, STATED HONESTLY: this file has been validated NOWHERE -- it was written out of place and no validator has been run against it, so TEAM-BINDING IS AN UNCHECKED CONDITION, NOT A PASSING ONE. It is checked only when a QUEUED copy is validated in place, and that run is the validation that counts. SUBMISSIONS PARKED (CLAUDE.md rule 7): nothing about this item is sent, filed, uploaded, registered, posted or commented outside this box.",
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.SO2MR_chain (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342). Bookkeeping never voids physics (Sanaa, universal rule 2026-08-26)"
+  }
+}

@@ -317,3 +317,37 @@ stated rather than left to be discovered.
 nothing; it adds no number that was not already written in a cited artefact; it does not edit
 `docs/dafoam/GRADING_CHAIN.md` (that page is the supervisor's), `docs/dafoam/README.md` §3, or any
 frozen document. **Zero solver core-minutes.**
+
+---
+
+## Addendum 2026-08-31 (dafoam lane, later the same day) — ONE ROW ABOVE HAS BEEN OVERTAKEN BY EVENTS: SO-2MR IS NOW A FROZEN ITEM
+
+**Nothing above this line was edited.** The SO-2MR row in the addendum above is left standing
+**exactly as written**, because it was a true reading of the disk when it was taken — the directory
+then held scripts only, carried no `PREREGISTRATION.md`, and `git ls-files` on it returned nothing.
+This note supersedes that row rather than rewriting it, which is this file's own convention.
+
+| item | what changed | the reading now |
+|---|---|---|
+| `ladder-a/A1/curriculum_SO2MR/` | **FROZEN and TRACKED**, commit `c0eff9ca9330dd310fcfbe7a77f13e2ec1ec8cca` | pair files: `PREREGISTRATION.md` (Stages 1 **and** 2 in one freeze) + `QUEUE_ENTRY_DRAFT.json`; **no `RESULTS.md`, because nothing has run.** Run tree: **none — the run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO2MR-a1-naca0012-moment-gradient` is ABSENT**, read at 2026-08-31T22:15:13Z beside a known positive on SO-2M's existing root. **Verdict: none, and none is claimed** — zero containers, zero core-minutes, no queue entry filed. Arming is the supervisor's check-4 decision, not a lane's |
+
+**Why the successor exists, in one line, since the table above records SO-2M's cause class as
+GATE-DESIGN and stops there:** SO-2M's registered direction-B plant was a **bare absolute**
+`1.234e-03`, which is **2.479781 %** of `CMZ`'s reference `|d_ref| = 0.049762462207060022` against a
+5.0 % band — it could not cross, so the comparator refused rather than report a `PASS` from a gate it
+had not shown able to `GATE FAIL`. SO-2MR registers the plant as a **rule relative to the quantity it
+perturbs**, `P = K · (band_D/100) · |d_ref|` with **`K = 2.0` fixed at freeze**, which crosses the
+band by construction with 100 % margin at any functional scale. **No gate, threshold, band, cap or
+label moved with it**, and SO-2M's `NOT A RESULT` stands unaltered.
+
+**QUEUE ENTRIES, since this index has never carried them and the SO series is the family's densest
+user of them.** Every path below was confirmed present on disk when this note was written:
+`verification/queue/dafoam/launched/` holds `SO1a_chain.json`, `SO1b_chain_wait.json`, `SO1bR.json`,
+`SO1bR_r2.json`, `SO1c_chain.json`, `SO1cR_chain_wait.json`, **`SO2M_chain.json`** (`prereg_commit`
+`f1a723ac3a0d8da5c9e54ab7a0a80127ab366f26`, `cost_core_min_estimate` 11.0, `cap_core_min_registered`
+79.0), `SO2a_chain.json` and `SO2a_chain.2026-08-30T231326Z.json`; `verification/queue/dafoam/refused/`
+holds `SO3AF.json` with its `SO3AF.REFUSED.txt`. **There is no queue entry for SO-3a, SO-3aR or
+SO-2MR, and none is invented here** — SO-2MR's is a `QUEUE_ENTRY_DRAFT.json` sitting in its case
+directory, deliberately **not filed**.
+
+**This note moves no gate, re-grades nothing, and spent zero solver core-minutes.**
