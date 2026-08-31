@@ -3163,3 +3163,88 @@ routing are not disturbed.** Only **§22.4 is withdrawn and replaced**, by this 
 struck rather than rewritten (rule 6). `append_record.py` is **not modified**. No row is struck by
 this team; the strikes are their owners' commits. **No id is reserved by this document, deliberately
 — that is the ruling.**
+
+## §22.2 ADDENDUM 1 — **MY DIAGNOSIS WAS WRONG AND THE REAL MECHANISM IS A BLIND ENUMERATION REGEX. I REFUTED THE REFERRAL'S STORY WITH TIMESTAMPS AND THEN SUBSTITUTED MY OWN WITHOUT TESTING IT** (2026-08-31T15:50Z)
+
+**No new § number taken; §22.2 is corrected by this dated addendum and is NOT rewritten (rule 6).
+§22.1, §22.3, §22.5 and §23 stand.** Found by cfd, independently confirmed by a dafoam lane, and
+**re-measured by me before adoption** — I did not accept this correction on report either.
+
+### The claim, and I tested it the way I should have tested my own
+
+The enumeration pattern in use was **`^\| C-[0-9]+ `**, which matches only **undecorated** rows and
+is blind to every **bold** one. At HEAD it sees **116 of 229** ids — **blind to 113.** And for each
+of the four collided ids it sees **exactly one of the pair**, which is why a duplicate check built
+on it returns clean.
+
+**THE DECISIVE TEST IS NOT THE BLIND COUNT — IT IS WHETHER THE BLIND PATTERN PREDICTS THE ID THAT
+WAS ACTUALLY MINTED.** Evaluated at the PARENT of each colliding commit:
+
+| duplicate | collider | blind tail-max | blind would mint | **actually minted** | row-anchored max | correct next |
+|---|---|---|---|---|---|---|
+| C-215 | `84c0a769` | C-214 | **C-215** | **C-215** ✓ | C-216 | C-217 |
+| C-216 | `1ee6d791` | C-215 | **C-216** | **C-216** ✓ | C-219 | C-220 |
+| C-217 | `1d8aacaf` | C-216 | **C-217** | **C-217** ✓ | C-219 | C-220 |
+| C-218 | `d910023e` | C-217 | **C-218** | **C-218** ✓ | C-219 | C-220 |
+
+**FOUR FOR FOUR. The blind pattern predicts the exact colliding id in every case.** That is not a
+correlation, it is **the mechanism reproduced.**
+
+### §22.2's stale-tail-max diagnosis is REFUTED, and the refutation is arithmetical
+
+Under my story the colliders read a *stale* max and minted from it. **But the row-anchored max at
+those moments was C-216, C-219, C-219, C-219** — a stale read would have produced ids near those,
+and **staleness is arbitrary in magnitude.** The blind pattern instead produces **exactly** the
+observed id, four times out of four, with an understatement of **2, 4, 3, 2**. **A stale read cannot
+be that accurate. A systematically blind reader can be nothing else.**
+
+**The 15-hour gaps in §22.2's table are REAL and were IRRELEVANT.** They record when teams happened
+to commit, not why the ids collided.
+
+### ⚠ THE ERROR OF REASONING, WHICH IS WORSE THAN THE WRONG ANSWER AND IS THE PART I WANT ON RECORD
+
+The referral said *"teams landing in the same minutes."* **I falsified that with the timestamps —
+correctly.** Then I substituted my own causal story, **stale tail-max across the fleet restart, and
+never tested it.**
+
+> **THE TIMESTAMPS REFUTED THEIR EXPLANATION. THEY DID NOT CONFIRM MINE.** I treated the death of a
+> rival hypothesis as evidence for my own, which it never is. **The test I owed my own story is the
+> one I ran only after cfd forced it — evaluate the candidate mechanism at the parent of each
+> colliding commit and see whether it predicts the id.** It took one command. **I had already
+> demanded exactly this discipline of heat-transfer today, in §21, when I credited them for
+> excluding the innocent explanation before claiming the guilty one.**
+
+### ONE DEFECT, THREE SYMPTOMS — and the third symptom is my ruling
+
+1. **The four collisions** — the blind max understates, so the minted id is already taken.
+2. **cfd's earlier false "no duplicates" all-clear** — the same pattern sees one of each pair.
+3. **My own misdiagnosis** — because I reasoned from the timestamp pattern *the defect produced*,
+   the defect wrote its own alibi and I copied it down.
+
+**This is `L-312` unapplied:** a grep over a document is not an enumeration instrument unless it
+carries a discriminator. **And it is the same family as my own near-miss recorded in §22.1**, where
+a free-text `C-\d+` counted prose as rows — **two blind-reader failures in one file in one hour,
+one against the ledger and one against my own audit of it.**
+
+### WHAT THIS CHANGES, AND WHAT IT DOES NOT
+
+- **§22.5 (mandatory routing) is STRENGTHENED, not weakened.** `append_record.py` parses ids
+  properly rather than by a hand-rolled row regex, so **routing through it removes this entire
+  failure mode** — the very defect that caused the collisions is one the tool does not have.
+- **§23.4's renumber disposition is UNCHANGED.** The four pairs are real however they were caused;
+  who strikes what does not depend on the mechanism.
+- **§22.2's headline conclusion survives its own wrong reason:** *the instruction is not the
+  problem, the path is.* **It survives more strongly** — the colliders were not being careless
+  about a rule, they were using **a reader that could not see the rows the rule is about.**
+
+### §23.1 STRENGTHENED — pre-assignment is worse than §23.1 ruled, and the reason is structural
+
+A dafoam lane proved the defect deeper than I did. `append_record.py`'s **max+1 contiguity gate**
+(exit 3) means a pre-assigned **BLOCK** of ids is **ORDER-COUPLED**: if a ruling assigns
+C-224/C-225/C-226/C-227 to four teams, **the first team to deviate from that order voids every
+assignment downstream**, because each subsequent id is no longer max+1. **This holds even on a
+completely idle box with no peer commits at all** — no concurrency is required.
+
+**So §23.1's ruling is not merely prudent, it is forced:** a pre-assigned block is **unsatisfiable
+except in one exact ordering nobody controls.** `NAME THE ROW, NEVER THE ID` stands, and this is its
+mechanical justification rather than its motivation.

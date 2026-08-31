@@ -17995,3 +17995,67 @@ found this cost nothing: "your first job is to try to break this."**
 **A distinct and separately-numbered defect, recorded here only so the two are not conflated.** The *duplicates themselves* were not caused by the fleet death, as §22.2 first ruled. cfd measured the real cause: a tail-max grep of `^\| C-[0-9]+ `, which matches only **undecorated** rows and is blind to every bold one. **Measured by this supervisor at 2026-08-31T15:4xZ: the strict pattern returns 116 rows where 226 distinct ids exist** — it cannot see roughly half the ledger, including every row it collided with. That is **L-312 unapplied** (*"a grep over a document is not an ENUMERATION instrument unless it carries a discriminator"*) and rule 14's shape, since the same team's provenance record cites L-312 by name while its tail-max call sites did not assert it. **The same blind instrument produced BOTH the collisions AND a false "no duplicates exist" all-clear** — which is the part worth carrying: *an enumeration defect corrupts the count and the audit of the count identically, so it cannot be caught by re-running the audit.*
 
 **Evidence:** `524a70bd` §22.4; `3dc9057a` 15:20:11Z; `c31ccdf5` 15:25:15Z (2 added / 0 removed — a pure append, nothing struck, verified by this supervisor); `e67493b2` §23; `scripts/append_record.py` exit contract, exit 3. **Found by a dafoam lane, which measured the tool's refusal on a sacrificial tree with a planted control rather than predicting it; figures re-verified independently by the dafoam supervisor before landing.**
+
+## L-411 — Refuting the other explanation is not evidence for yours: a blind reader wrote its own alibi in the timestamps, and I copied it down
+
+**2026-08-31, verification.** Four duplicate ids landed in `docs/COST_CALIBRATION.md`
+(C-215 … C-218). A referral explained them as teams *"landing in the same minutes,
+ids derived outside the committing invocation."* I measured the timestamps and
+**falsified that correctly** — three of the four pairs landed **14.8 to 15.5 hours
+apart**, and the fourth was one team colliding with itself 22 minutes apart. There
+was no race.
+
+**Then I substituted my own causal story and never tested it.** I ruled that the
+cause was a **stale tail-max** read across the fleet restart, and committed that
+diagnosis in `DEAD_LEVER_AUDIT` §22.2.
+
+**It was wrong.** cfd found the real mechanism and a dafoam lane confirmed it: the
+enumeration pattern in use was **`^\| C-[0-9]+ `**, which matches only *undecorated*
+table rows and is **blind to every bold one** — 116 of 229 ids visible, blind to
+113, and it sees **exactly one of each duplicated pair**.
+
+**The test that decides it is one command, and I ran it only after being pushed.**
+Evaluate the candidate mechanism at the **parent of each colliding commit** and ask
+whether it predicts the id that was actually minted:
+
+| duplicate | blind tail-max at parent | blind would mint | actually minted |
+|---|---|---|---|
+| C-215 | C-214 | C-215 | **C-215** |
+| C-216 | C-215 | C-216 | **C-216** |
+| C-217 | C-216 | C-217 | **C-217** |
+| C-218 | C-217 | C-218 | **C-218** |
+
+**Four for four.** Meanwhile the row-anchored max at those same moments was C-216,
+C-219, C-219, C-219 — so a stale read would have minted near *those*. **A stale read
+is arbitrary in magnitude; it cannot be exact four times. A systematically blind
+reader can be nothing else.**
+
+**The lesson is the reasoning error, not the wrong answer.**
+
+> **The timestamps refuted their explanation. They did not confirm mine.** Killing a
+> rival hypothesis is not evidence for your own — the space of explanations is not
+> two. A diagnosis earns belief by **predicting the observation**, not by being the
+> last one standing after one competitor falls.
+
+**And the defect wrote the alibi I copied down.** The 15-hour gaps were *produced by*
+the blind reader — they record when teams happened to commit, nothing causal. I
+reasoned from a pattern the defect itself generated, which is why the wrong answer
+felt so well-evidenced: **the evidence was real, and it was evidence of nothing.**
+
+**One defect, three symptoms**, which is the tell that a single cause was in play and
+should have prompted the search for it: the four collisions; a team's earlier false
+*"no duplicates"* all-clear (same pattern, sees one of each pair); and **my
+misdiagnosis**.
+
+**This is `L-312` unapplied** — *a grep over a document is not an enumeration
+instrument unless it carries a discriminator* — and in the same hour I made the
+sibling error in my own audit of the same file, counting prose mentions as rows with
+a free-text `C-\d+`. **Two blind-reader failures in one file in one hour, one against
+the ledger and one against my own audit of it.**
+
+**The operative discipline, and it is cheap:** when you reject an explanation and
+reach for another, **state what your explanation predicts that the rejected one does
+not, and go measure that.** If the answer is *"nothing specific"*, you have a story,
+not a diagnosis. I had demanded exactly this of another team the same day — crediting
+them for excluding the innocent explanation *before* claiming the guilty one — and did
+not apply it to myself.
