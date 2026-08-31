@@ -17907,3 +17907,71 @@ Rule 2 closes a registration's gates at first compute. An unreachable threshold 
 **after** the first solve **cannot be amended** — not by addendum, because an addendum may
 not alter a gate, a threshold, a cap or a label. `F23b` did not fail; **it ended.** The work
 survives only as a new registration under a new sha.
+
+### L-409 ADDENDUM 1 — 2026-08-31: THE CLAIM WAS TOO STRONG AS WRITTEN, AND THE CORRECTION MAKES THE DEFECT WORSE. **No new `L-` number is taken; L-409 above is NOT rewritten.**
+
+**Who found it:** the lane I dispatched to build `F23b`'s successor, whose **first instruction was to
+try to falsify my finding before building on it**. It nearly did. That is the instruction working,
+and the outcome is recorded here rather than quietly absorbed.
+
+**WHAT L-409 GOT WRONG, STRUCK:** ~~that `|1 − Ubar| ≤ 1e−10` is unsatisfiable on every finite
+mesh~~. **That is exact for the CONJUNCTION and for any converged checkpoint, and it is FALSE for
+the `|1 − Ubar|` clause read alone.**
+
+**The mechanism I missed.** `cases/F23b_HP_WEDGE/case/0/U.template` sets `internalField (0 0 0)` —
+**the flow starts from rest** — so `Ubar` climbs from **0** to its converged **1.0019466**, and
+`|1 − Ubar|` therefore **TRANSITS ZERO on the way up**. The reader takes the **minimum over 40
+checkpoints**. A checkpoint landing on that crossing passes a `1e−10` ceiling **by sampling
+accident**. Read alone, the clause is not unsatisfiable; it is worse than unsatisfiable.
+
+**WHY THE DEFECT IS WORSE, NOT LESSER, AND THIS IS THE POINT OF THE ADDENDUM.** An unsatisfiable
+gate **fails loudly and always**. A one-sided ceiling on a quantity that **transits its target** can
+be **PASSED, for entirely the wrong reason, at a state that is not converged.** `F23b` was saved
+from that only by an accident of conjunction: `grade_f23b.py:766` requires **both** clauses at **one**
+checkpoint —
+
+```
+ok = (err <= EX.ARM_UBAR_TOL) and (ux is not None) and (ux <= EX.ARM_UX_RES_TOL)
+```
+
+— and the two are **mutually exclusive in time**. `|1 − Ubar|` is near zero **early**, while the
+`Ux` residual is still large; the `Ux` residual reaches `1e−12` only **late**, when `|1 − Ubar|` has
+settled onto its discretisation floor. **The conjunction is unsatisfiable exactly as L-409 says.**
+Had the registration gated on the bulk-velocity clause **alone**, A0 would have been at risk of
+**ACCEPTING a mid-transient state and certifying a reader on it.**
+
+**A SECOND CORRECTION, AND IT STRIKES A NUMBER I PUBLISHED.** L-409 and `D584` described A0's
+observed **9.692465e-04** as sitting *"on the same discretisation-error family, at the magnitude a
+16-cell radial resolution implies."* ~~That is wrong.~~ Re-deriving from the frozen model's own
+`exact_f23b.discrete(nr)`, which returns `ubar_h` directly:
+
+| NR | converged `\|1 − Ubar\|` |
+|---|---|
+| **16 (A0)** | **1.946614e−03** |
+| 64 (coarse) | 1.215525e−04 |
+| 128 (medium) | 3.002806e−05 |
+| 256 (fine) | 7.141857e−06 |
+
+**A0's observed 9.692465e-04 is BELOW its own converged floor of 1.946614e-03**, and a monotone
+approach from rest **cannot** produce a value below the floor it approaches. **So the observation is
+a MID-TRANSIENT SAMPLE, not a reading of the discretisation floor at all.** The lab therefore does
+**not** know what A0's converged value was and **cannot now find out** — the `/tmp` tree is gone.
+**`9.692465e-04` must not appear in any record as A0's converged discretisation error.** It is only
+ever "what the launcher reported".
+
+*(The `64/f·Re` inversion in L-409 and `D584` is unaffected and was independently reproduced to
+1e−16 at all three ladder levels; `f_re(1.0)` returns exactly 64.0. The coarse/medium/fine
+predictions and their 1,215,525× and 71,419× ratios stand.)*
+
+**THE REMEDY GAINS A CLAUSE, and it is the durable part of this addendum.** L-409's step 2 said to
+derive a solution-error threshold from the level's own `h^p` prediction with a stated margin. **Make
+it TWO-SIDED.** A one-sided ceiling on a quantity that starts far from its target and approaches it
+**cannot distinguish "converged onto the floor" from "passing through on the way".** A lower limb
+turns the test from a coincidence detector into a control, and satisfies the identity requirement
+that a **wrong** treatment must **fail** it. The successor registers
+`delta_pred(NR)/10 ≤ |1 − Ubar| ≤ 10 × delta_pred(NR)` for exactly this reason.
+
+**AND A NOTE ON HOW THIS WAS CAUGHT, because it is the cheapest lesson here.** The finding was
+published in a commit, a lesson and a docket row **before** it was attacked. It was corrected within
+the hour because the next lane was told to attack it rather than build on it. **The instruction that
+found this cost nothing: "your first job is to try to break this."**

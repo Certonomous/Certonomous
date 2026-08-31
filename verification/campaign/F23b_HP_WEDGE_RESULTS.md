@@ -58,12 +58,16 @@ exactly `64.0` at `Ubar = 1`, verified. Inverting it, `Ubar_h = 64 / f·Re_h`:
 whose own registered prediction sits 1.2 million times above that threshold.** Even the
 **finest** level of the ladder is predicted 71,419× above it.
 
-A0's observed **9.692465e-04** at 1,024 cells is 9,692,465× the threshold and sits on the
-same discretisation-error family, at the magnitude a 16-cell radial resolution implies.
+~~A0's observed **9.692465e-04** at 1,024 cells is 9,692,465× the threshold and sits on the
+same discretisation-error family, at the magnitude a 16-cell radial resolution implies.~~
+**STRUCK 2026-08-31 — see §2.3. The observation is BELOW A0's own converged floor of
+1.946614e−03 and is therefore a MID-TRANSIENT SAMPLE, not a floor reading.**
 
 **ARM-P could not have accepted. ARM-F could not have accepted. A0 could not have
 accepted.** The branch rule of §5.5 had no reachable accepting outcome at any level, under
-any relaxation, after any number of iterations.
+any relaxation, after any number of iterations. **This conclusion STANDS — but it rests on
+the CONJUNCTION of the acceptance's two clauses, not on the `|1 − Ubar|` clause alone.
+See §2.3, added after a lane was told to falsify this finding and very nearly did.**
 
 ### 2.1 Where the registration's reasoning went wrong, precisely
 
@@ -95,6 +99,59 @@ discretisation floor.
 **That decomposition is what makes the finding airtight.** Drive the iteration to machine
 zero and the readings fall — to the §12 floor of `~1.2e−04` at coarse, and no further. The
 threshold sits six orders **below the floor**.
+
+### 2.3 CORRECTION, 2026-08-31 — MY OWN CLAIM WAS TOO STRONG, AND THE TRUTH IS WORSE
+
+**Added after the lane building the successor was instructed to falsify this finding before
+building on it. It nearly did, and what it found sharpens the verdict rather than softening
+it.**
+
+**What is struck:** the claim that the `1e−10` threshold is unsatisfiable *as a property of
+`|1 − Ubar|`*. **The case `0/U.template` sets `internalField (0 0 0)` — the flow starts from
+REST** — so `Ubar` climbs from 0 to its converged 1.0019466 and `|1 − Ubar|` **transits
+zero on the way up**. The reader takes the **minimum over 40 checkpoints**, so a checkpoint
+landing on that crossing would pass a `1e−10` ceiling **by sampling accident**.
+
+**Why this makes the defect worse.** An unsatisfiable gate fails loudly and always. **A
+one-sided ceiling on a quantity that transits its target can be PASSED, for entirely the
+wrong reason, at a state that is not converged.** `F23b` was saved from certifying its
+reader on a mid-transient state **only by an accident of conjunction**:
+`grade_f23b.py:766` is
+
+```
+ok = (err <= EX.ARM_UBAR_TOL) and (ux is not None) and (ux <= EX.ARM_UX_RES_TOL)
+```
+
+— **both clauses at ONE checkpoint** — and the two are **mutually exclusive in time**.
+`|1 − Ubar|` is near zero **early**, while the `Ux` residual is still large; `Ux` reaches
+`1e−12` only **late**, once `|1 − Ubar|` has settled onto its floor. **The conjunction is
+unsatisfiable exactly as §2 concludes, so the `BLOCKED` verdict and every consequence drawn
+from it stand unchanged.**
+
+**A number I published is struck.** Re-deriving from the frozen model's own
+`exact_f23b.discrete(nr)`, which returns `ubar_h` directly:
+
+| NR | converged `\|1 − Ubar\|` |
+|---|---|
+| **16 (A0)** | **1.946614e−03** |
+| 64 (coarse) | 1.215525e−04 |
+| 128 (medium) | 3.002806e−05 |
+| 256 (fine) | 7.141857e−06 |
+
+**A0's observed 9.692465e-04 is BELOW its own converged floor**, and a monotone approach
+from rest cannot produce a value below the floor it approaches. **The observation is a
+mid-transient sample, not a discretisation-floor reading.** The lab does not know A0's
+converged value and, the `/tmp` tree being gone, **cannot now find out**. `9.692465e-04`
+must never be quoted as A0's converged discretisation error — only as *what the launcher
+reported*.
+
+**The `64/f·Re` inversion is unaffected**: independently reproduced to 1e−16 at all three
+ladder levels, with `f_re(1.0)` returning exactly 64.0. **The 1,215,525× and 71,419× ratios
+stand.**
+
+**Recorded because the process is the point:** this finding was committed, lessoned and
+docketed *before* it was attacked, and corrected within the hour *because* the next lane was
+told to attack it rather than build on it. That instruction cost nothing.
 
 ---
 
