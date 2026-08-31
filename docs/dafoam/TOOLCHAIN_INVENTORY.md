@@ -536,3 +536,149 @@ All four were measured inside the images at zero compute while registering
 The only outbound act in the item that produced these readings was an **inbound** retrieval of
 public upstream test material; **no image was pushed anywhere and none is installable by any
 reader.**
+
+---
+
+## AMENDMENT 3 — 2026-08-31, dafoam lane. §3 AND §4 ARE STALE TO A COLD READER; §4's HEADING IS THE SENTENCE MOST LIKELY TO BE QUOTED AGAINST THE TRUTH. NO IN-PLACE BANNER WAS PLACED, AND THE SWEEP THAT DECIDED THAT IS RECORDED HERE.
+
+**NOT FILED ANYWHERE.** Nothing in this amendment was sent, emailed, filed, uploaded, registered,
+posted or commented (`CLAUDE.md` rule 7). No image was pushed to any registry; none is installable
+by any reader. Zero compute: no solver, no container started. The only commands run for this
+amendment were file reads, `git grep` / `grep` over the working tree, and two
+`sudo -n docker inspect` reads of image **metadata**.
+
+**Appended at the foot, never in place. `lines whose number changed above this section: 0`.**
+This is *proved*, not asserted: the file was snapshotted before the append
+(538 lines, 33,564 B, sha256 `9c0609832a6dc91ec2e9ae9cf88a31e7f14107c24c67d9a205c4ffca5f916ed1`,
+byte-identical to the HEAD blob `905af3af` at `d680c0d3`), and after the append the first 538 lines
+were re-hashed and compared against that snapshot. The comparison was itself controlled: a copy of
+the snapshot with **one byte altered on non-blank line 151** (§4's heading) was fed to the same
+reader, which reported DIFFERENT — so the "identical" reading below is a reading a live instrument
+produced, not a no-op (`CLAUDE.md` rule 3).
+
+**Version.** This file carries **no semantic version string anywhere** — not in its header, not in
+Amendment 1, not in Amendment 2. Its only version marker is the **amendment ordinal**, and the bump
+this amendment carries is therefore **Amendment 2 → Amendment 3**. No `vN.N` is invented here.
+
+### A3.1 WHAT §3 AND §4 WERE TRUE OF, AND WHEN
+
+**§3** (`:91`–`:147`) was measured **2026-08-21** from `sudo -n docker images` and lists **four**
+images. **§4** (`:151`–`:181`) was measured the same day, and its heading reads, in full:
+
+> `## 4. The IDWarp rotation patch is NOT in any container image`
+
+On 2026-08-21 that heading was true of the box in every sense a reader could take it. It is **no
+longer true as a plain reading**, and it has not been for some time: `dafoam-idwarp-rot:v1` exists
+and carries a rebuilt IDWarp library. The heading survives only under the narrow reading §A1.3
+already fixed — *the patch **source** is in no image* — and that reading is three sections below the
+heading, in an amendment a cold reader has no reason to reach.
+
+**The defect is therefore not self-contradiction. This file is internally consistent.** §A1.2
+(`:435` ff.) and §A2.1 (`:476` ff.) both already declare §3 stale, and §A1.3 (`:449` ff.) already
+separates the patch source from the rebuilt binary so that §4 is not contradicted. **The defect is
+that a reader who reads §3 and §4 and stops concludes the exact opposite of the truth**, and §4's
+heading is the single sentence in this file most likely to be lifted and quoted out of its context.
+
+### A3.2 WHAT IS TRUE NOW — by digest and by library md5, the only discriminator that works
+
+| row | image | digest | `libidwarp.so` md5 | size |
+|---|---|---|---|---|
+| **SHIPPED** | `dafoam/opt-packages:latest` | `sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc` | `f0fcb488e0e98156575cd19548e91663` | 491,344 B |
+| **PATCHED-ROT** | `dafoam-idwarp-rot:v1` | `sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35` | `85f59e87253e0a71a813f64ca6e4c425` | 491,344 B |
+
+**Both digests re-read live for this amendment at 2026-08-31T21:36:24Z** with
+`sudo -n docker inspect --format '{{.Id}}' <tag>` — image metadata only, **no container started**.
+Both returned exactly the values above. This is the **third** independent dated reading of the same
+pair: A1.1 on 2026-08-26, A2.2 on 2026-08-27T19:03:34Z, this one on 2026-08-31.
+
+**The two `libidwarp.so` md5s are NOT re-measured here and that is stated rather than glossed:**
+reading the library inside an image requires **starting a container**, which this amendment's
+zero-container scope forbids. They are inherited by citation from §A1.1 (`:409`–`:410`), which
+records where each was measured — `cases/dafoam/MATRIX_CONTRIBUTION.md:113` and `:114`, and, printed
+from inside the loading process, `cases/dafoam/ladder-a/A1/curriculum_D1/RESULTS.md:361-363`
+(PATCHED, three containers) against `:364` (SHIPPED).
+
+**Why the md5 and nothing else.** Both libraries report IDWarp **`2.6.2`** and both are **491,344
+bytes**. The version string discriminates nothing and the file size discriminates nothing. §A1.1's
+note at `:431`–`:433` already says this; it is repeated here because it is the reason §4's heading
+misleads rather than merely dates.
+
+### A3.3 WHY NO BANNER WAS PLACED AT THE HEAD OF §3 OR §4 — THE CITATION SWEEP
+
+The obvious repair is a "STALE — see Amendment 1" banner at the head of §3 and §4. **It was
+considered and rejected on measured evidence**, because it shifts every line number below it and
+`CLAUDE.md` rule 6 exists precisely because other records cite this file **by line**.
+
+A sweep for every reference to `TOOLCHAIN_INVENTORY.md` anywhere in the repository — tracked,
+untracked and gitignored, across `cases/`, `docs/`, `scripts/`, `sdk/`, `verification/` and
+`harness/` — found **74 tracked hits in 43 files** plus untracked hits in
+`cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION_DRAFT.md` and `docs/lab_state/dafoam.md`.
+The reader was controlled with a positive plant (a file known to contain the token, fed to the same
+reader, which returned it), so the sweep is not an uncontrolled zero.
+
+**Of those, the citations that pin a LINE NUMBER — each target verified to resolve to what its
+citing record says it resolves to:**
+
+| citing record | cites | the cited line actually holds |
+|---|---|---|
+| `cases/dafoam/ladder-a/A2/curriculum_D14/PREREGISTRATION_DRAFT.md:41` | `:32` | §1's **pyHyp 2.6.1** row |
+| `cases/dafoam/ladder-b/B3/decomposition_peak_rss/PREREGISTRATION.md:94` | `:124-129` | §3's *"Measured difference between the images"* md5/line-count table |
+| `cases/dafoam/ladder-b/W4_M1M2_PREREGISTRATION.md:277` | `:128-129` | §3's stock and `subpclu:v1` md5 rows |
+| `cases/dafoam/ladder-b/B3/decomposition_peak_rss/PREREGISTRATION.md:386` | `:142` | §3's `subpclu` patch row — **the sub-LU banner whose absence voids an arm** |
+| `docs/LAB_STATE.md:4836` | `[:151]` | **§4's heading itself** |
+| `cases/dafoam/ladder-a/A1/curriculum_SO1b/PREREGISTRATION.md:261` | `:409-410` | §A1.1's two digest rows |
+| `docs/LAB_STATE.md:4774` | `:410`, `:409-410`, `:432` | the PATCHED row, both rows, the version-string note |
+| **this file, Amendment 2** (`:481`) | `A1.1 (:405–:410)`, `A1.2 (:435 ff.)` | its own internal pointers |
+
+**A banner at the head of §3 would break seven of these eight.** Only `:32` sits above §3 and would
+survive. Two of the seven are load-bearing beyond bookkeeping: `:142` is cited by a
+pre-registration as the authority for a **falsifier** (*absence of the sub-LU banner ⇒ the arm ran
+stock ⇒ the arm is void*), and `:409-410` is the pair a registered toolchain freeze reads its
+digests from. **Routing around a real citation to obtain a tidier document is not a repair**, and
+this amendment does not do it.
+
+**On executable checks, an honest negative.** `CLAUDE.md` rule 6 states that for frozen files
+generally *"one citation sits inside an executable check."* **For THIS file the sweep found no such
+check, and that is reported as a measured absence rather than assumed either way.** No script, test,
+comparator or selftest in the repository reads `TOOLCHAIN_INVENTORY.md` at all — the sweep over
+`*.py` and `*.sh` returns nothing. The nearest executable touch is `harness/teams.yaml:179`, which
+names the file in the dafoam team's reading list; `harness/generate_agents.py:55-56` renders that
+path and its `why` string into `.claude/agents/dafoam-supervisor.md:55`, and
+`scripts/check_harness.py` regenerates and diffs. That check consumes the **path string only** — never
+the file's content, never a line number — so it is unaffected by an append and would have been
+unaffected by a banner too. `cases/dafoam/sweep_assert_under_O.py` and
+`cases/dafoam/sweep_claim_prints_under_O.py` scan the dafoam folder scope but filter to `.py`/`.sh`,
+so this `.md` is outside their population. **The line-number citations alone decide the repair; the
+absent executable check neither strengthens nor weakens that.**
+
+### A3.4 THE COLD-READER PROBLEM IN §4's HEADING IS **UNRESOLVED**, AND IS ABOVE THIS LANE'S LEVEL
+
+**This amendment does not fix the defect it documents.** §4's heading still reads *"The IDWarp
+rotation patch is NOT in any container image"*, and a reader who stops before the amendments will
+still conclude the opposite of the truth. The only repairs that would fix it at the point of reading
+— rewording the heading, or inserting a banner above it — are **edits to a frozen file that shift
+lines other records cite**, and `CLAUDE.md` rule 6 forbids the lane from making that call.
+
+**What is referred upward, and to whom.** The choice between (a) leaving §4's heading standing with
+this amendment as its only correction, (b) amending the heading in place and re-pointing all seven
+line-number citations in the same commit, or (c) some third instrument — is a supervisor's decision
+at least, and arguably a charter question, since it trades rule 6's freeze against a record that
+misleads a cold reader. **Until it is decided, the standing reading of this file is: §3's image list
+is stale (§A1.2, §A2.1); §4's heading is true only of the patch SOURCE (§A1.3); and §A3.2 above is
+the live two-row record.**
+
+### A3.5 WHAT THIS AMENDMENT DOES NOT CHANGE
+
+* **No gate, threshold, band, cap or label moves.** Nothing is retired. No statement above is
+  struck, edited, reordered or renumbered.
+* **§A1.3 stands exactly as written.** The distinction it draws — no image carries the patch
+  **source**; `dafoam-idwarp-rot:v1` carries a **rebuilt binary** — is what keeps §4 technically
+  true, and this amendment relies on it rather than replacing it.
+* **§7's row for the W5 bind-mount route stands.** The image route is a later, separate way of
+  reaching a patched IDWarp; rows measured on it cite `2927768a16ac`, not the mount.
+* **`docs/dafoam/README.md:21`'s "388 lines" is not invalidated.** It describes this file's
+  original body, which ends at `:388`; every line at and below `:389` is amendment material appended
+  after that count was taken, and this append adds only below `:538`.
+* **The three images §A1.2 recorded but did not characterise — `dafoam-idwarp-rot:v1`,
+  `dafoam-subpclu:v2`, `dafoam-team:v1` — are still not characterised here beyond their hashes.**
+  An identifier is not a description, and inventing one would be the defect §A1.2 exists to close.
