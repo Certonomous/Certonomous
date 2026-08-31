@@ -61,7 +61,61 @@ so3a_ledger_row() {
   echo "ARM=$1 ROW=$2 IMG=$3 DIGEST=$4 rc=$5 wall_s=$6 ranks=$7 core_min=$8 cap_core_min=$9 enforced_wall_s=${10} enforced_core_min=${11} memory=${12} inspect(exit,oomkilled)=[${13}] memavail_pre_GiB=${14} memavail_post_GiB=${15} cpuset=${16} delivered_cores_mean=[${17}] siblings_pre=[${18}] siblings_post=[${19}] log=${20} stamp=${21}"
 }
 
-# `--source-only` defines the functions above and RETURNS.  It must come before
+# ===========================================================================
+# THE REGISTERED TABLES LIVE ABOVE `--source-only`, AND THAT IS A SO-3a DELTA.
+#
+# The parent defined cap_core_min/cap_memory/ranks_of and its cpuset BELOW the
+# early return, so `--source-only` exposed the LEDGER ROW and nothing else.  A
+# cross-file check therefore could not READ the launcher's registered values,
+# and on 2026-08-31 a mutation drive MEASURED the consequence: changing CPUSET
+# 14 -> 7 and the X-arm cap 15.0 -> 9.0 left the comparator's 91-unit suite
+# fully GREEN, because the fixture passes those values in as ARGUMENTS from the
+# COMPARATOR'S own constants and never reads the launcher's.
+#
+# These are PURE TABLES: they read nothing, write nothing, and abort nothing.
+# Moving them above the early return exposes them to so3a_groot5_selftest.sh's
+# (x) legs and changes no runtime behaviour -- EVERY GUARD, EVERY READ AND
+# EVERY DESTRUCTIVE ACT REMAINS BELOW IT, which is the property the parent's
+# comment is actually protecting.
+# ===========================================================================
+
+CPUSET=14   # see the placement disclosure below, at first use
+
+cap_core_min() {
+  case "$1" in
+    MESH)     echo 5.0 ;;
+    X-S|X-P)  echo 15.0 ;;
+    F-S|F-P)  echo 40.0 ;;
+    *)  echo "" ;;
+  esac
+}
+
+cap_memory() {
+  case "$1" in
+    MESH|X-S|X-P|F-S|F-P) echo 12g ;;
+    *) echo "" ;;
+  esac
+}
+
+ranks_of() {
+  case "$1" in
+    MESH|X-S|X-P|F-S|F-P) echo 1 ;;
+    *) echo "" ;;
+  esac
+}
+
+row_of() {
+  case "$1" in
+    MESH)  echo SHIPPED ;;
+    X-S)   echo SHIPPED ;;
+    F-S)   echo SHIPPED ;;
+    X-P)   echo PATCHED ;;
+    F-P)   echo PATCHED ;;
+    *)     echo "" ;;
+  esac
+}
+
+# `--source-only` defines the functions and TABLES above and RETURNS.  It must come before
 # every guard, every read and every destructive act, and it must not be
 # reachable from a normal invocation: the launcher's first positional argument
 # is an ARM NAME, and no arm is called `--source-only`.
@@ -111,6 +165,42 @@ fi
 # ---- so the abort says WHOSE evidence it just protected rather than only that
 # ---- something did not match.  Explicit, because the specific message is what
 # ---- a future reader in a hurry actually acts on.
+#
+# ---- SO-3a REGISTERED DELTA, AND IT IS A REPAIR OF AN INHERITED FICTION.
+# ---- The list this file was derived from was READ AGAINST THE DISK on
+# ---- 2026-08-31 rather than trusted.  TWO of its SO entries name roots that DO
+# ---- NOT EXIST -- `CURRICULUM-SO1b-a1-naca0012-dragmin-opt` and
+# ---- `CURRICULUM-SO1c-a1-naca0012-postopt` -- while FOUR roots that DO exist,
+# ---- and hold real evidence, were NOT PROTECTED AT ALL:
+# ----   CURRICULUM-SO1bR-a1-naca0012-dragmin-opt      (SO-1b's actual successor)
+# ----   CURRICULUM-SO1c-a1-naca0012-dragmin-npinv     (SO-1c, LIVE on this box)
+# ----   CURRICULUM-SO2a-...-geometric-constraint-gradient
+# ----   CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility
+# ---- SO-2a's root is the one THIS ITEM'S OWN PREREGISTRATION line 5 cites as
+# ---- the MEASURED basis for SO-2a's PASS.
+# ----
+# ---- AND THE HONEST SIZE OF THE FINDING, because the first draft of this
+# ---- comment OVERSTATED IT and the drive said so.  All four roots were ALREADY
+# ---- refused -- at G-ROOT.1, not here -- because G-ROOT.1 requires BASE to
+# ---- resolve to THIS ITEM'S registered root and refuses everything else.  It
+# ---- was measured: each of the four was driven through this launcher and each
+# ---- returned rc=3 `ABORT G-ROOT.1`.  G-ROOT.2 is therefore a SECOND LINE OF
+# ---- DEFENCE THAT CANNOT FIRE WHILE G-ROOT.1 STANDS, and this repair does not
+# ---- close a live hole.  What a stale list DOES cost is real but smaller: the
+# ---- refusal message names WHOSE evidence was protected, and a list naming two
+# ---- roots that do not exist while omitting four that do would say the wrong
+# ---- thing, or nothing, on the day G-ROOT.1 is ever weakened or normalised
+# ---- differently.  Recording the smaller true finding rather than the larger
+# ---- false one is the point.
+# ---- This is the SO-1b lesson in another costume: SO-1b pinned its dependency
+# ---- BY GLOB, the glob could not match the successor artefact `SO1aR_grade_*`,
+# ---- and it fired into a guaranteed outcome.  A GUARD PINNED TO A NAME THAT
+# ---- MOVED PROTECTS NOTHING AND SAYS NOTHING WHILE IT FAILS.  The dead entries
+# ---- are KEPT -- a name that is free today can be taken tomorrow, and keeping
+# ---- them costs one string comparison each -- and the four live ones are ADDED.
+# ---- so3a_groot5_selftest.sh drives every entry that is ON DISK and prints
+# ---- `not_on_disk` beside the rest rather than reporting a refusal it did not
+# ---- see.
 FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
 /home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-a2-wing-cdmin
 /home/ubuntu/certonomous-runs/CURRICULUM-D4-SHIPPED-R-a2-wing-cdmin
@@ -132,6 +222,10 @@ FORBIDDEN_ROOTS="/home/ubuntu/certonomous-runs/CURRICULUM-D4-a2-wing-cdmin
 /home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient
 /home/ubuntu/certonomous-runs/CURRICULUM-SO1b-a1-naca0012-dragmin-opt
 /home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-postopt
+/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt
+/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv
+/home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient
+/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility
 /home/ubuntu/certonomous-runs/A2-mach-wing
 /home/ubuntu/dafoam-tutorials/NACA0012_Airfoil/incompressible
 /home/ubuntu/dafoam-tutorials
@@ -187,7 +281,6 @@ echo "D4S_G_ROOT_PASS item=$ITEM base=$BASE_REAL ledger_clean=yes"
 # -- but a disjoint placement is AVAILABLE here, and taking it is cheaper than
 # reporting the exposure.  G12 compares this value against so3a_grade.py's
 # CPUSET_REGISTERED, so the two cannot drift apart silently.
-CPUSET=14
 
 # For containerised MPI the conditioning variable is CONCURRENT CONTAINERS, not
 # loadavg -- `uptime` will lie.  Censused before and after every arm.
@@ -208,14 +301,6 @@ container_census() {
 #   X-P      1       15.0            900 s             12g
 #   F-S      1       40.0           2400 s             12g
 #   F-P      1       40.0           2400 s             12g
-cap_core_min() {
-  case "$1" in
-    MESH)     echo 5.0 ;;
-    X-S|X-P)  echo 15.0 ;;
-    F-S|F-P)  echo 40.0 ;;
-    *)  echo "" ;;
-  esac
-}
 # SECTION 5: 12 GiB per arm, RAISED from the family's 4 g convention with the
 # arithmetic shown -- D13 MEASURED peak RSS 1.70 GiB for this 4,032-cell 2-D case
 # at np = 1, and three DASolver instances in one process is bounded CRUDELY above
@@ -223,20 +308,8 @@ cap_core_min() {
 # [EXTRAPOLATED] and NOT a measurement -- no multipoint arm has ever run on this
 # case -- so 12 g carries better than 2x headroom over it, and the item's own
 # first arm MEASURES it.
-cap_memory() {
-  case "$1" in
-    MESH|X-S|X-P|F-S|F-P) echo 12g ;;
-    *) echo "" ;;
-  esac
-}
 # np = 1 ON EVERY ARM by registration: DAFOAM_CHARTER.md section 5 (serial before
 # parallel), and A4's 16,600x decomposition effect is removed from the chain.
-ranks_of() {
-  case "$1" in
-    MESH|X-S|X-P|F-S|F-P) echo 1 ;;
-    *) echo "" ;;
-  esac
-}
 
 # ---- REGISTERED TOOLCHAIN, BY DIGEST, never by tag (DAFOAM_CHARTER §11) ---
 # PATCHED IDWarp : dafoam-idwarp-rot:v1
@@ -371,16 +444,6 @@ test "$GOT_DIGEST" = "$WANT" || { echo "ABORT digest mismatch $IMG got=$GOT_DIGE
 # every DECLARED arm by its FULL NAME, so an undeclared arm falls through to the
 # empty case and REFUSES, and it is the same mapping so3a_grade.py registers as
 # ARM_ROW (MESH/X-S/F-S -> SHIPPED, X-P/F-P -> PATCHED).
-row_of() {
-  case "$1" in
-    MESH)  echo SHIPPED ;;
-    X-S)   echo SHIPPED ;;
-    F-S)   echo SHIPPED ;;
-    X-P)   echo PATCHED ;;
-    F-P)   echo PATCHED ;;
-    *)     echo "" ;;
-  esac
-}
 WANT_ROW=$(row_of "$ARM")
 test -n "$WANT_ROW" || {
   echo "ABORT arm $ARM carries no registered row.  SO-3a declares MESH X-S F-S X-P F-P"
