@@ -789,3 +789,130 @@ any comparator, does not alter the rung's `GATE FAIL` verdict, and does not
 correct the `:19` denominator. **It records one thing: the eight
 `graded_rows[*].verdict` cells reading bare `FAIL` are to be read as
 `GATE FAIL`.**
+
+---
+
+## AMENDMENT 2026-08-31T21:31:00Z — `:19`'s GRADED DENOMINATOR, CORRECTED BY QUOTE-AND-STRIKE. This record's SECOND amendment
+
+**lines whose number changed above this section: 0**
+
+**Amendment sequence — this record carries no numeric version field, so the
+version bump is the amendment ordinal.** This is **amendment 2**. Amendment 1 is
+`2026-08-31T21:21:36Z` immediately above; **it is not altered, not superseded and
+not renumbered**, and it referred this discrepancy upward at its own §3 rather
+than deciding it. **This amendment is the ruling on that referral**, made by the
+heat-transfer supervisor, whose call a Verdict-section figure is under rule 2's
+post-compute discipline. **No gate, threshold, cap, band, label or verdict moves.**
+Zero compute.
+
+### 1. THE STRIKE — quoted verbatim from `:19`, and never rewritten in place
+
+> ~~`**GATE FAIL. 8 of 18 graded rows failed.**`~~   **— STRUCK. The denominator
+> is wrong.**
+
+**The corrected statement of this rung is: `GATE FAIL`. 8 of 14 GRADED rows
+failed, with 4 peak-location rows reported and counted toward nothing.**
+
+The line at `:19` is left byte-unchanged where it stands, per rule 6. The
+corrected reading is this section.
+
+### 2. WHAT THE ARTEFACT SAYS [MEASURED at source]
+
+Read directly out of
+`verification/runs/F14-cooling-ladder/K0cT_runs/gate_k0ct.json` (55,976 B), the
+comparator's own output:
+
+| key | n | contents |
+|---|---:|---|
+| `graded_rows` | **14** | **8 `FAIL`** — R0, R1, R3, R5, R9, R10, R12, R14; **6 `PASS`** — R6, R7, R8, R15, R16, R17 |
+| `reported_never_graded` | **4** | **R2, R4, R11, R13** — the four mid-height peak-**location** rows |
+
+**14 + 4 = 18.** The prose reaches 18 by folding the four never-graded rows into
+the graded denominator, while the artefact holds them out under its own
+`retired_because`: *"Charter 2c: the +/- 5 mm band is as large as the 4-6 mm wall
+distance it locates; the lo-Ra upward band's upper edge lies outside the 76 mm
+cavity; and all nine cases pass, including the laminar control C1_hi_c_laminar."*
+
+**The two rates:**
+
+| statement | rate |
+|---|---:|
+| true graded failure rate, 8 of 14 | **57.1 %** |
+| as `:19` implies, 8 of 18 | **44.4 %** |
+
+### 3. THE `PASS` ×10 AT `:27` IS THE SAME DEFECT, AND IS STRUCK WITH IT
+
+> ~~`| Peak locations (4 rows), mid-height and upper temperatures (4 rows), antisymmetry (2 rows) | **PASS** ×10 |`~~   **— STRUCK on its count.**
+
+**Actual graded `PASS` is 6, not 10.** Decomposed against the artefact [MEASURED]:
+
+- **peak locations, 4 rows** — R2, R4, R11, R13 — are the `reported_never_graded`
+  four. They each carry `verdict: "PASS"` **inside the artefact's own
+  never-graded list**, which is how they came to be counted; **they were never
+  graded and are not passes.** They are reported, and counted toward nothing.
+- **mid-width temperatures at y/H = 0.50 and 0.70, 4 rows** — R6, R7 (lo), R15,
+  R16 (hi) — **graded `PASS` ×4.**
+- **antisymmetry, 2 rows** — R8, R17 — **graded `PASS` ×2.**
+
+**4 graded + 2 graded = 6 graded `PASS`; the other 4 are the held-out rows.**
+The corrected cell reads: **peak locations (4 rows) NEVER GRADED and counted
+toward nothing; mid-width temperatures (4 rows) and antisymmetry (2 rows)
+`PASS` ×6.**
+
+### 4. THE VERDICT WORD DOES NOT MOVE, AND THE ERROR RAN TOWARD FLATTERY
+
+**`GATE FAIL` is unaffected on either denominator** — eight failures out of any
+denominator is a `GATE FAIL`, and Specification Section 2.5 makes VALIDATED
+eligibility conditional on passing *every* row of Section 2.4. Nothing at `:29-33`
+changes.
+
+**What moves is how bad the rung reads, and the uncorrected figure read better
+than the truth.** 8 of 18 is a 44.4 % failure rate; the rung actually failed
+**57.1 %** of the rows it graded, and the evidence base was overstated by
+**28.6 %** — a reader was told 18 graded rows had been decided when 14 had, and
+four of the remainder could not have failed because they were never graded.
+**It errs in the direction that flatters the rung, and that is why it is
+corrected rather than left.**
+
+### 5. THIS IS A REPEAT OF A CLASS THIS FAMILY HAS ALREADY CORRECTED ONCE
+
+**`docs/campaigns/F14-cooling-ladder/K0c_RESULTS.md:546` is the same defect,
+already caught and corrected on itself**, and now reads: *"The corrected
+statement of this rung is: GATE PASS, 0 of 20 GRADED rows failed, with 4 identity
+rows reported and counted toward nothing."* There, the four folded rows were
+`energy_balance` identity rows and the rung **passed**, so the fold cost the
+record 20 % of its claimed evidence base and no verdict. Here the four folded
+rows are retired peak-location rows and the rung **failed**, so the fold flatters
+the failure rate.
+
+**Same mechanism, same family, opposite direction of consequence, second
+occurrence.** The lesson this record can offer: **a denominator quoted in a
+Verdict section must be read out of the comparator's graded list, never off the
+row count of the table beneath it.**
+
+### 6. THE CITATION CONSEQUENCE — recorded so this amendment is discoverable from it
+
+The cause-class backfill cites this record's `:19` as the citation for K0cT's
+**`MODEL-LIMIT`** class, at
+`docs/campaigns/T-family/MATRIX_CONTRIBUTION.md:1122`, quoting the struck line
+verbatim (*"GATE FAIL. 8 of 18 graded rows failed."*), and again at `:1256`.
+**The class does not change.** It is `GATE FAIL` on either denominator and the
+mechanism — the gradient-diffusion closure, attributed at `:35-43` and unchanged
+here — is untouched. **But the citation resolves to a line carrying a false
+figure**, so it is named here: **any reader arriving at `:19` from that backfill,
+or from `docs/CAPABILITY_GRID.md:154` or
+`docs/capability/heat-transfer_GRID.md:62` — both of which repeat "`GATE FAIL`
+8 of 18" — must read this section instead.**
+
+**Those three files are NOT edited by this amendment**, two of them being outside
+this team's territory. They are referred, with their line numbers, to the
+heat-transfer supervisor and through them to their owners.
+
+### 7. WHAT THIS AMENDMENT DOES NOT DO
+
+It does not edit `:19`, `:27` or any other line above this section (asserted: 0
+lines above changed number). It does not edit `gate_k0ct.json` or
+`analyse_k0ct.py`, does not re-run any comparator, does not touch amendment 1,
+and does not alter the rung's `GATE FAIL` verdict or any band, threshold, cap or
+label. **It records two things: the graded denominator is 14, not 18; and the
+graded `PASS` count is 6, not 10.**
