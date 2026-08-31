@@ -132,7 +132,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import control_kind  # noqa: E402
 import append_record  # noqa: E402
-from append_record import RECORDS, parse_ids, split_id  # noqa: E402
+from append_record import (ANCHORED_TOOL_ID, RECORDS, is_tool_id,  # noqa: E402
+                           parse_ids, parse_record_ids, split_id)
 
 # CLAUDE.md rule 14, made mechanical: the id pattern table is THE table in
 # append_record.py, imported. If a second copy is ever pasted into this module
@@ -142,6 +143,13 @@ from append_record import RECORDS, parse_ids, split_id  # noqa: E402
 assert RECORDS is append_record.RECORDS, (
     "the id pattern table must be the imported append_record.RECORDS, never a "
     "second copy in this module (CLAUDE.md rule 14)")
+# THE SAME ASSERTION FOR THE TOOL-ALLOCATED SPACE (Sanaa's PLUMBING FREEZE
+# directive, 2026-08-31). Both spaces are read here, and both come from the one
+# module that mints ids -- so the writer and the reconciler cannot disagree
+# about what a tool-allocated id is either.
+assert ANCHORED_TOOL_ID is append_record.ANCHORED_TOOL_ID, (
+    "the tool-allocated id table must be the imported "
+    "append_record.ANCHORED_TOOL_ID, never a second copy (CLAUDE.md rule 14)")
 
 EXIT_PASS = 0
 EXIT_FAIL_WRITEBACK_OWED = 1
@@ -222,6 +230,18 @@ CONTROL_FORMS = {
         # difference and cannot cancel it against the other.
         "head_only": "\n## L-9101 — em-dash form, planted in the committed blob only\n",
         "worktree_only": "\n## L-9102. period form, planted in the working copy only\n",
+        "tool_forms": {
+            "## L-20260831T090000.000001Z-0000a001 — a tool-allocated lesson heading": "L-20260831T090000.000001Z-0000a001",
+            "## L-20260831T090000.000002Z-0000a002 — a heading whose own prose cites L-20260831T090000.000002Z-0000a002": "L-20260831T090000.000002Z-0000a002",
+        },
+        "tool_negatives": [
+            "a mid-sentence mention of L-20260831T090000.000009Z-0000a009 in prose",
+            "## D-20260831T090000.000009Z-0000a009 — another record's prefix",
+            "## L-20260831T090000Z-0000a009 — second resolution, not the format",
+        ],
+        "tool_base": "\n## L-20260831T090000.000010Z-0000b010 — tool-allocated, on BOTH sides\n",
+        "tool_head_only": "\n## L-20260831T090000.000011Z-0000b011 — tool-allocated, committed blob only\n",
+        "tool_worktree_only": "\n## L-20260831T090000.000012Z-0000b012 — tool-allocated, working copy only\n",
     },
     "docs/NUMERICS_KNOWLEDGE.md": {
         # Kept exactly as it was: both live entry forms and both series, because
@@ -239,6 +259,21 @@ CONTROL_FORMS = {
         "base": "# Numerics\n\n**N-B9000. on both sides, must not appear in either difference**\n",
         "head_only": "\n## N-X9101. planted in the committed blob only\n",
         "worktree_only": "\n**N-B9102. planted in the working copy only**\n",
+        # Both live entry forms again -- bold and h2 -- because a tool-allocated
+        # entry is written in whichever form its author uses, and a reader blind
+        # to one drops it from both sides.
+        "tool_forms": {
+            "**N-20260831T090000.000003Z-0000a003. a tool-allocated numerics entry**": "N-20260831T090000.000003Z-0000a003",
+            "## N-20260831T090000.000004Z-0000a004. an h2 entry whose prose cites N-20260831T090000.000004Z-0000a004": "N-20260831T090000.000004Z-0000a004",
+        },
+        "tool_negatives": [
+            "a mid-sentence mention of N-20260831T090000.000009Z-0000a009 in prose",
+            "**C-20260831T090000.000009Z-0000a009. another record's prefix**",
+            "**N-20260831T090000.000009Z-0000a09. seven hex, not eight**",
+        ],
+        "tool_base": "\n**N-20260831T090000.000010Z-0000b010. tool-allocated, on BOTH sides**\n",
+        "tool_head_only": "\n## N-20260831T090000.000011Z-0000b011. tool-allocated, committed blob only\n",
+        "tool_worktree_only": "\n**N-20260831T090000.000012Z-0000b012. tool-allocated, working copy only**\n",
     },
     "docs/DOCKET.md": {
         # Rows, not headings. The bold form is live in the file and is the form
@@ -260,6 +295,18 @@ CONTROL_FORMS = {
                  "| D9000 | on both sides, must not appear in either difference | lane |\n"),
         "head_only": "| D9101 | planted in the committed blob only | lane |\n",
         "worktree_only": "| D9102 | planted in the working copy only | lane |\n",
+        "tool_forms": {
+            "| D-20260831T090000.000005Z-0000a005 | a tool-allocated docket row | lane |": "D-20260831T090000.000005Z-0000a005",
+            "| D-20260831T090000.000006Z-0000a006 | a row whose own cell cites D-20260831T090000.000006Z-0000a006 | lane |": "D-20260831T090000.000006Z-0000a006",
+        },
+        "tool_negatives": [
+            "a mid-sentence mention of D-20260831T090000.000009Z-0000a009 in prose",
+            "| N-20260831T090000.000009Z-0000a009 | another record's prefix | lane |",
+            "| D-20260831T090000.000009Z-0000A009 | upper-case hex, not the format | lane |",
+        ],
+        "tool_base": "| D-20260831T090000.000010Z-0000b010 | tool-allocated, on BOTH sides | lane |\n",
+        "tool_head_only": "| D-20260831T090000.000011Z-0000b011 | tool-allocated, committed blob only | lane |\n",
+        "tool_worktree_only": "| D-20260831T090000.000012Z-0000b012 | tool-allocated, working copy only | lane |\n",
     },
     "docs/COST_CALIBRATION.md": {
         # TRAP, carried over from the pattern's own comment in append_record.py:
@@ -278,8 +325,42 @@ CONTROL_FORMS = {
                  "| C-9000 | 2026-08-24 | verification | on both sides | \n"),
         "head_only": "| C-9101 | 2026-08-24 | verification | committed blob only |\n",
         "worktree_only": "| C-9102 | 2026-08-24 | verification | working copy only |\n",
+        # THE RECORD THAT PAID FOR THIS BUILD. `C-217` is a live duplicate here,
+        # minted by two teams each reading the same maximum, and it is the row
+        # Sanaa's 2026-08-31 directive names by mechanism. So this is the record
+        # whose tool-allocated forms most need to be seen by this reader.
+        "tool_forms": {
+            "| C-20260831T090000.000007Z-0000a007 | 2026-08-31 | verification | a tool-allocated cost row |": "C-20260831T090000.000007Z-0000a007",
+            "| C-20260831T090000.000008Z-0000a008 | 2026-08-31 | verification | a row whose own cell cites C-20260831T090000.000008Z-0000a008 |": "C-20260831T090000.000008Z-0000a008",
+        },
+        "tool_negatives": [
+            "a mid-sentence mention of C-20260831T090000.000009Z-0000a009 in prose",
+            "| L-20260831T090000.000009Z-0000a009 | 2026-08-31 | verification | another record's prefix |",
+            "| C-20260831-090000.000009Z-0000a009 | 2026-08-31 | verification | no T separator, not the format |",
+        ],
+        "tool_base": "| C-20260831T090000.000010Z-0000b010 | 2026-08-31 | verification | tool-allocated, on BOTH sides |\n",
+        "tool_head_only": "| C-20260831T090000.000011Z-0000b011 | 2026-08-31 | verification | tool-allocated, committed blob only |\n",
+        "tool_worktree_only": "| C-20260831T090000.000012Z-0000b012 | 2026-08-31 | verification | tool-allocated, working copy only |\n",
     },
 }
+
+#: EVERY record carries the tool-allocated keys, or this module does not load.
+#: The 2026-08-24 defect was a record falling through to another record's
+#: shapes; the same drift in the tool-allocated space would be worse, because a
+#: record with no tool forms would report PASS over rows it cannot see and its
+#: control would still read RECOGNITION on the legacy half alone.
+_TOOL_KEYS = ("tool_forms", "tool_negatives", "tool_base", "tool_head_only",
+              "tool_worktree_only")
+_TOOL_GAPS = {p: [k for k in _TOOL_KEYS if k not in spec]
+              for p, spec in CONTROL_FORMS.items()}
+_TOOL_GAPS = {p: missing for p, missing in _TOOL_GAPS.items() if missing}
+if _TOOL_GAPS:  # pragma: no cover - a load-time refusal
+    raise SystemExit(
+        f"REFUSED: these records carry no tool-allocated control forms: "
+        f"{_TOOL_GAPS}. Every registered record is read in BOTH id spaces, so "
+        f"every one needs planted forms in its own tool-allocated vocabulary "
+        f"(Sanaa's PLUMBING FREEZE directive 2026-08-31; CLAUDE.md rule 3, "
+        f"rule 14).")
 
 # REFUSE ON DISAGREEMENT, never pick one. The two tables are keyed the same or
 # this module does not load: a record that gains a pattern but no control forms
@@ -301,7 +382,25 @@ def sort_key(entry_id: str) -> tuple[str, int, str]:
 
     Lexical sort puts `L-99` after `L-146` and `N-B9` after `N-B26`; the docket
     module records that defect allocating an id taken weeks earlier.
+
+    A TOOL-ALLOCATED id has no series and no number, and `split_id` would carve
+    one out of the tail of its hash -- `C-20260831T...-a3f91c4d` would read as
+    series `C-20260831T...-a3f91c`, number 4, suffix `d`. That is stable enough
+    to sort by and it is nonsense to read, so tool ids are keyed on their PREFIX
+    and their own text instead: every field of the id is fixed width, so within
+    a prefix the plain-string order IS chronological order, to the microsecond.
+
+    WHERE THEY SIT RELATIVE TO THE LEGACY IDS, measured rather than claimed,
+    because the obvious sentence is wrong for one of the four records: a tool
+    id's key prefix always carries a hyphen (`C-`, `L-`, `N-`, `D-`), and three
+    of the legacy series carry one too, so tool ids sort FIRST in
+    COST_CALIBRATION, LESSONS and NUMERICS. The docket's legacy series is a
+    bare letter (`D`), and `"D" < "D-"`, so there the tool ids sort LAST. That
+    is a display artefact and it is written down instead of tidied, because the
+    verdict is over SETS and no ordering can change it.
     """
+    if is_tool_id(entry_id):
+        return (entry_id.split("-", 1)[0] + "-", 0, entry_id)
     return split_id(entry_id)
 
 
@@ -372,30 +471,45 @@ def run_disk_control(path: str) -> dict:
     that could not run is never scored as one that passed.
     """
     spec = CONTROL_FORMS[path]
-    head_id = parse_ids(spec["head_only"], RECORDS[path])
-    wt_id = parse_ids(spec["worktree_only"], RECORDS[path])
-    base_id = parse_ids(spec["base"], RECORDS[path])
+    # BOTH ID SPACES ON BOTH SIDES. Each side carries a LEGACY plant and a
+    # TOOL-ALLOCATED plant, so one planted repo answers both halves of the
+    # question this module now has to answer, and a reader blind to either half
+    # loses a named plant rather than merely reporting a smaller number.
+    head_id = parse_record_ids(spec["head_only"] + spec["tool_head_only"], path)
+    wt_id = parse_record_ids(
+        spec["worktree_only"] + spec["tool_worktree_only"], path)
+    base_id = parse_record_ids(spec["base"] + spec["tool_base"], path)
     names = {
-        "committed": f"an id planted in the committed blob of {path} only, read "
-                     f"back with git show, is named IN HEAD NOT IN THE WORKTREE",
-        "worktree": f"a different id planted in the working copy of {path} only "
-                    f"is named IN THE WORKTREE NOT IN HEAD",
+        "committed": f"BOTH ids planted in the committed blob of {path} only -- "
+                     f"one legacy, one TOOL-ALLOCATED -- read back with git "
+                     f"show, are named IN HEAD NOT IN THE WORKTREE",
+        "worktree": f"both different ids planted in the working copy of {path} "
+                    f"only -- one legacy, one TOOL-ALLOCATED -- are named IN "
+                    f"THE WORKTREE NOT IN HEAD",
         "exit": f"the worktree-only plant in {path} drives the exit code to "
                 f"UNLANDED WORK, not to PASS",
+        "tool_alone": f"a TOOL-ALLOCATED row unlanded in the working copy of "
+                      f"{path} is named on its own, with every legacy plant "
+                      f"removed -- the configuration in which a legacy-only "
+                      f"reader returns PASS over a row it cannot see",
     }
     planted = {v: False for v in names.values()}
     negative = {f"an id present on BOTH sides of {path} is reported as a "
                 f"difference": False}
     # Plant the zero on the plants themselves: an unreadable plant and a reader
     # that cannot see it look identical from the outside, and only one of them
-    # is this module failing.
-    if not (head_id and wt_id and base_id):
+    # is this module failing. TWO ids per side now, so the length is asserted --
+    # a reader that saw only the legacy half would still satisfy a truthiness
+    # test and the control would pass while blind.
+    if not (len(head_id) == 2 and len(wt_id) == 2 and len(base_id) == 2):
         return {"planted": planted, "negative": negative}
 
     box = Path(tempfile.mkdtemp(prefix="recrec_"))
     try:
-        committed = spec["base"] + spec["head_only"]
-        worktree = spec["base"] + spec["worktree_only"]
+        committed = spec["base"] + spec["tool_base"] + spec["head_only"] \
+            + spec["tool_head_only"]
+        worktree = spec["base"] + spec["tool_base"] + spec["worktree_only"] \
+            + spec["tool_worktree_only"]
         repo = _plant_repo(box, path, committed, worktree)
         head_text, why = read_committed(repo, "HEAD", path)
         if head_text is None:
@@ -404,11 +518,33 @@ def run_disk_control(path: str) -> dict:
         got = reconcile(head_text, wt_text, path,
                         ledger=control_kind.ControlLedger(
                             claim_class="the planted control's own run"))
-        planted[names["committed"]] = head_id[0] in got["head_only"]
-        planted[names["worktree"]] = wt_id[0] in got["worktree_only"]
+        planted[names["committed"]] = set(head_id) <= set(got["head_only"])
+        planted[names["worktree"]] = set(wt_id) <= set(got["worktree_only"])
         planted[names["exit"]] = got["exit"] == EXIT_FAIL_UNLANDED
         negative[next(iter(negative))] = bool(
             set(base_id) & (set(got["head_only"]) | set(got["worktree_only"])))
+
+        # THE TOOL-ONLY LIMB, planted separately and deliberately. Above, a
+        # legacy plant sits beside the tool plant on each side, so a reader
+        # blind to tool ids would still drive the exit code non-zero off the
+        # legacy plant alone -- the exact shape in which a broken reader looks
+        # like a working one. Here the legacy plants are REMOVED from the
+        # difference: the ONLY thing separating the two sides is a
+        # tool-allocated row, so a legacy-only reader returns PASS and this limb
+        # fails.
+        tool_only_wt = parse_record_ids(spec["tool_worktree_only"], path)
+        repo2 = _plant_repo(box / "tool", path,
+                            spec["base"] + spec["tool_base"],
+                            spec["base"] + spec["tool_base"]
+                            + spec["tool_worktree_only"])
+        head2, _why2 = read_committed(repo2, "HEAD", path)
+        if head2 is not None:
+            got2 = reconcile(head2, (repo2 / path).read_text(), path,
+                             ledger=control_kind.ControlLedger(
+                                 claim_class="the tool-only planted run"))
+            planted[names["tool_alone"]] = (
+                set(tool_only_wt) == set(got2["worktree_only"])
+                and got2["exit"] == EXIT_FAIL_UNLANDED)
     except (RuntimeError, OSError):
         # Left as NOT FOUND -- see the docstring. Refusing is the point.
         pass
@@ -434,14 +570,28 @@ def run_controls(path: str, *, deep: bool = True) -> control_kind.ControlLedger:
     """
     pattern = RECORDS[path]
     spec = CONTROL_FORMS[path]
-    planted = {f: (want in parse_ids(f, pattern))
+    planted = {f: (want in parse_record_ids(f, path))
                for f, want in spec["forms"].items()}
     ledger = control_kind.ControlLedger(claim_class=f"an id in {path}")
     ledger.plant(f"{Path(path).stem} entry forms",
                  vocabulary=f"{path} entries",
                  planted=planted,
-                 negative={n: bool(parse_ids(n, pattern))
+                 negative={n: bool(parse_record_ids(n, path))
                            for n in spec["negatives"]})
+    # THE TOOL-ALLOCATED VOCABULARY, scored as its own control so a record whose
+    # tool forms go unseen cannot be carried by its legacy forms into a
+    # RECOGNITION verdict. The equality `== [want]` is deliberate and stronger
+    # than membership: one of the two forms CITES ITS OWN ID in its own prose,
+    # which `allocate_into_rows` produces legitimately, and an unanchored reader
+    # counts that row TWICE -- turning a correct row into a duplicate FAIL. Only
+    # an exact-list assertion catches that.
+    ledger.plant(f"{Path(path).stem} TOOL-ALLOCATED entry forms",
+                 vocabulary=f"{path} entries with ids minted by "
+                            f"append_record.py (Sanaa 2026-08-31)",
+                 planted={f: (parse_record_ids(f, path) == [want])
+                          for f, want in spec["tool_forms"].items()},
+                 negative={n: bool(parse_record_ids(n, path))
+                           for n in spec["tool_negatives"]})
     if deep:
         ledger.plant(f"{Path(path).stem} plants read back from disk",
                      vocabulary=f"{path} rows planted on ONE SIDE ONLY",
@@ -451,10 +601,19 @@ def run_controls(path: str, *, deep: bool = True) -> control_kind.ControlLedger:
 
 def reconcile(committed_text: str, worktree_text: str, path: str,
               ledger: "control_kind.ControlLedger | None" = None) -> dict:
-    """Pure, so the controls and any test can drive it on fixtures."""
+    """Pure, so the controls and any test can drive it on fixtures.
+
+    READS BOTH ID SPACES. `parse_record_ids` is the legacy pattern OR this
+    record's anchored tool-allocated pattern, so an id minted by
+    `append_record.py --allocate-id` is reconciled by exactly the same machinery
+    as `L-404` -- named in the right direction, counted for duplicates, and
+    driving the same exit code. Reading the legacy pattern alone would have made
+    every tool-allocated row invisible to this guard on the day allocation was
+    first used, which is a fail-open of this module's own audited class.
+    """
     pattern = RECORDS[path]
-    committed_ids = parse_ids(committed_text, pattern)
-    worktree_ids = parse_ids(worktree_text, pattern)
+    committed_ids = parse_record_ids(committed_text, path)
+    worktree_ids = parse_record_ids(worktree_text, path)
     committed_set, worktree_set = set(committed_ids), set(worktree_ids)
 
     head_only = sorted(committed_set - worktree_set, key=sort_key)
@@ -486,7 +645,11 @@ def reconcile(committed_text: str, worktree_text: str, path: str,
         verdict, code = "PASS", EXIT_PASS
 
     return {
-        "path": path, "pattern": pattern, "verdict": verdict, "exit": code,
+        "path": path, "pattern": pattern,
+        "tool_pattern": ANCHORED_TOOL_ID[path],
+        "n_tool_committed": sum(1 for i in committed_ids if is_tool_id(i)),
+        "n_tool_worktree": sum(1 for i in worktree_ids if is_tool_id(i)),
+        "verdict": verdict, "exit": code,
         "n_committed": len(committed_ids), "n_worktree": len(worktree_ids),
         "head_only": head_only, "worktree_only": worktree_only,
         "committed_duplicates": committed_dupes,
@@ -503,9 +666,12 @@ def render(result: dict, rev: str, worktree_file: Path) -> None:
     print(f"  committed side   : {rev}:{result['path']}")
     print(f"  worktree side    : {worktree_file}")
     print(f"  id pattern       : {result['pattern']}")
+    print(f"  tool-id pattern  : {result['tool_pattern']}")
     print(f"  entries parsed   : {result['n_committed']} committed, "
           f"{result['n_worktree']} in the working copy (counts are diagnostic "
           f"only -- the verdict is over ID SETS)")
+    print(f"  of those, TOOL-ALLOCATED : {result['n_tool_committed']} "
+          f"committed, {result['n_tool_worktree']} in the working copy")
     print("-" * 78)
     if result["head_only"]:
         print("IN HEAD, NOT IN THE WORKTREE -- landed and never written back. "
@@ -582,6 +748,37 @@ MUTANTS = [
      "append_record.py",
      '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*(C-\\d+)\\s*(?:~~|\\*\\*)*\\s*\\|",',
      '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*(C\\d+)\\s*(?:~~|\\*\\*)*\\s*\\|",'),
+    # ---- the TOOL-ALLOCATED half (Sanaa 2026-08-31) ----------------------
+    # THE MUTANT THAT MATTERS MOST: the reconciler reading the LEGACY pattern
+    # alone, which is exactly what this module did before this build. It is
+    # spelled as a one-word revert -- `parse_record_ids` back to `parse_ids` --
+    # because that one word IS the coupling. If this mutant survives, the
+    # tool-allocated ids are being written into records nothing reads, and the
+    # controls above are decoration.
+    ("the reconciler reverted to the LEGACY pattern alone -- the coupling "
+     "removed, so every tool-allocated row goes unseen",
+     "check_record_reconciliation.py",
+     "    committed_ids = parse_record_ids(committed_text, path)\n"
+     "    worktree_ids = parse_record_ids(worktree_text, path)",
+     "    committed_ids = parse_ids(committed_text, pattern)\n"
+     "    worktree_ids = parse_ids(worktree_text, pattern)"),
+    # The ANCHOR dropped: the tool id is then recognised anywhere on a line, so
+    # a row citing its own id -- which `allocate_into_rows` produces by design --
+    # is counted twice and a correct record reads as carrying a duplicate.
+    ("the tool-id reader UNANCHORED, so a row citing its own id reads as a "
+     "duplicate and a prose mention reads as an entry",
+     "append_record.py",
+     '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*({id})\\s*(?:~~|\\*\\*)*\\s*\\|",\n}',
+     '    "docs/COST_CALIBRATION.md": r"({id})",\n}'),
+    # The microsecond field dropped from the body -- the resolution the write
+    # side's own planted control forced, because two agents minting in the same
+    # SECOND is the normal case here. A reader on the old format sees none of
+    # today's ids.
+    ("the tool-id body reverted to SECOND resolution, so no id minted by the "
+     "current writer parses at all",
+     "append_record.py",
+     'TOOL_ID_BODY = r"\\d{8}T\\d{6}\\.\\d{6}Z-[0-9a-f]{8}"',
+     'TOOL_ID_BODY = r"\\d{8}T\\d{6}Z-[0-9a-f]{8}"'),
     # Not a pattern mutant: the fall-through that WAS the 2026-08-24 defect.
     # Give one record another record's forms and the selftest must go non-zero.
     # ANCHORED BY THE PRECEDING LINE, and the harness proved why on its first
@@ -664,9 +861,9 @@ def selftest(run_mutation: bool = True) -> int:
                 shutil.rmtree(box, ignore_errors=True)
 
     print("-" * 78)
-    print(f"  {len(CONTROL_FORMS)} records x 2 controls each = "
-          f"{2 * len(CONTROL_FORMS)} controls; {n_mutants} mutants; "
-          f"{len(failures)} failure(s)")
+    print(f"  {len(CONTROL_FORMS)} records x 3 controls each (legacy forms, "
+          f"TOOL-ALLOCATED forms, disk plants) = {3 * len(CONTROL_FORMS)} "
+          f"controls; {n_mutants} mutants; {len(failures)} failure(s)")
     for line in failures:
         print(f"    FAILURE: {line}")
     print("-" * 78)

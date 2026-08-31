@@ -256,6 +256,136 @@ class PatternTests(unittest.TestCase):
         self.assertEqual(result["head_only"], ["D9", "D99", "D146", "D1000"])
 
 
+#: Two well-formed tool-allocated docket ids, in the format
+#: `append_record.allocate_id` mints (Sanaa's PLUMBING FREEZE directive,
+#: 2026-08-31): prefix, a fixed-width UTC stamp to the MICROSECOND, 8 hex.
+TOOL_A = "D-20260831T154707.481920Z-a3f91c4d"
+TOOL_B = "D-20260831T154707.481921Z-6cebd14b"
+
+
+class ToolAllocatedIdTests(unittest.TestCase):
+    """THE COUPLING. `append_record.py --allocate-id` mints ids of a form the
+    legacy `[A-G]\\d` pattern structurally cannot match -- a hyphen stands where
+    a digit must be. Without these, a tool-allocated row unlanded in a worktree
+    is UNLANDED WORK that this module reports as PASS: the exact fail-open class
+    this team audits. Every test names WHICH id in WHICH direction.
+    """
+
+    def test_a_tool_allocated_row_is_parsed_as_a_row(self):
+        self.assertEqual(MOD.parse_ids(rows(TOOL_A, TOOL_B)), [TOOL_A, TOOL_B])
+
+    def test_the_legacy_pattern_alone_is_blind_to_it(self):
+        """The plant, shown able to fail: the OLD reader sees none of them.
+
+        Without this limb the test above could pass under a reader that had
+        quietly widened the legacy pattern, and the coupling would be untested.
+        """
+        import re
+        self.assertEqual(
+            re.findall(MOD.ID_PATTERN, rows(TOOL_A, TOOL_B), re.M), [])
+
+    def test_a_tool_allocated_row_only_in_the_worktree_is_unlanded_work(self):
+        repo = TempDocketRepo(rows("D1"))
+        try:
+            repo.set_worktree(rows("D1", TOOL_A))
+            code, payload = run_check(repo.path)
+            self.assertEqual(payload["worktree_only"], [TOOL_A])
+            self.assertEqual(payload["head_only"], [])
+            self.assertEqual(code, MOD.EXIT_FAIL_UNLANDED)
+        finally:
+            repo.close()
+
+    def test_a_tool_allocated_row_only_in_head_is_writeback_owed(self):
+        repo = TempDocketRepo(rows("D1", TOOL_A))
+        try:
+            repo.set_worktree(rows("D1"))
+            code, payload = run_check(repo.path)
+            self.assertEqual(payload["head_only"], [TOOL_A])
+            self.assertEqual(payload["worktree_only"], [])
+            self.assertEqual(code, MOD.EXIT_FAIL_WRITEBACK_OWED)
+        finally:
+            repo.close()
+
+    def test_a_duplicate_tool_allocated_id_is_a_fail(self):
+        result = MOD.reconcile(rows("D1", TOOL_A), rows("D1", TOOL_A, TOOL_A))
+        self.assertEqual(result["worktree_dupes"], [TOOL_A])
+        self.assertEqual(result["exit_code"], MOD.EXIT_FAIL_DUPLICATE)
+
+    def test_a_row_citing_its_own_id_in_its_own_cell_is_ONE_row(self):
+        """`allocate_into_rows` fills EVERY placeholder on a line, so a row may
+        carry its own id twice by design. An unanchored reader counts that twice
+        and this module then FAILS a correct docket for a duplicate."""
+        text = HEADER + f"| {TOOL_A} | superseded by {TOOL_A}, see above |\n"
+        self.assertEqual(MOD.parse_ids(text), [TOOL_A])
+
+    def test_a_tool_id_mentioned_in_prose_is_not_a_row(self):
+        text = HEADER + f"| D1 | a finding, unlike {TOOL_A} which is elsewhere |\n"
+        self.assertEqual(MOD.parse_ids(text), ["D1"])
+
+    def test_another_records_prefix_is_not_a_docket_row(self):
+        """The four id spaces are kept apart BY THE PREFIX; a `C-` id in the
+        docket's first cell is a filing error, not a docket row."""
+        text = HEADER + "| C-20260831T154707.481920Z-a3f91c4d | wrong record |\n"
+        self.assertEqual(MOD.parse_ids(text), [])
+
+    def test_a_malformed_tool_id_is_not_a_row(self):
+        """Second resolution and upper-case hex are both rejected: the fixed
+        width is what makes a plain-string sort chronological."""
+        text = (HEADER
+                + "| D-20260831T154707Z-a3f91c4d | second resolution |\n"
+                + "| D-20260831T154707.481920Z-A3F91C4D | upper-case hex |\n")
+        self.assertEqual(MOD.parse_ids(text), [])
+
+    def test_legacy_and_tool_rows_reconcile_together(self):
+        """Both spaces in one docket, both directions at once, named by id."""
+        result = MOD.reconcile(rows("D1", TOOL_A), rows("D1", TOOL_B))
+        self.assertEqual(result["head_only"], [TOOL_A])
+        self.assertEqual(result["worktree_only"], [TOOL_B])
+
+    def test_the_tool_pattern_is_printed_in_both_output_modes(self):
+        result = MOD.reconcile(rows("D1"), rows("D1"))
+        self.assertEqual(result["tool_id_pattern"], MOD.TOOL_ID_PATTERN)
+        text = MOD.render(result, "HEAD", "docs/DOCKET.md", Path("docs/DOCKET.md"))
+        self.assertIn(MOD.TOOL_ID_PATTERN, text)
+
+    def test_an_unreachable_append_record_REFUSES_and_never_falls_back(self):
+        """The coupling breaking must be LOUD, not silent.
+
+        This module is loaded from a temp directory by
+        `mutation_harness_control_kind.py`, so `import append_record` can
+        genuinely fail. The rule is that it REFUSES and names the module. It
+        must never quietly read `ID_PATTERN` alone -- that is the blind reader
+        this build exists to remove, and it would go blind exactly when the
+        coupling had broken. Driven by relocating the real script somewhere no
+        `scripts/append_record.py` exists at or above the working directory.
+        """
+        box = tempfile.mkdtemp()
+        try:
+            far = Path(box) / "far" / "scripts"
+            far.mkdir(parents=True)
+            (far / TARGET.name).write_text(TARGET.read_text())
+            (far / "control_kind.py").write_text(
+                (REPO / "scripts" / "control_kind.py").read_text())
+            run_from = Path(box) / "run"
+            run_from.mkdir()
+            done = subprocess.run(
+                [sys.executable, str(far / TARGET.name)],
+                cwd=str(run_from), capture_output=True, text=True)
+            self.assertNotEqual(done.returncode, 0)
+            self.assertIn("REFUSED", done.stderr)
+            self.assertIn("append_record", done.stderr)
+        finally:
+            import shutil
+            shutil.rmtree(box, ignore_errors=True)
+
+    def test_the_tool_pattern_is_the_minting_modules_own_object(self):
+        """Imported, never copied: one definition, so the writer and this
+        reader cannot disagree about what a tool-allocated id is."""
+        import append_record  # noqa: PLC0415 - deliberate, see docstring
+        self.assertIs(MOD.TOOL_ID_PATTERN,
+                      append_record.ANCHORED_TOOL_ID["docs/DOCKET.md"])
+
+
 class ExitContractTests(unittest.TestCase):
     """0 PASS / 1 write-back owed / 2 unlanded / 3 UNKNOWN, end to end."""
 

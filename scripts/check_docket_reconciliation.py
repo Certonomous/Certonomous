@@ -113,6 +113,72 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import control_kind  # noqa: E402
 
+
+def _import_append_record():
+    """`append_record`, found wherever this module has been RELOCATED to, or a
+    REFUSAL. Never a fallback to this module's own `ID_PATTERN` literal.
+
+    WHY THIS IS NOT A PLAIN IMPORT, MEASURED 2026-08-31 RATHER THAN FORESEEN.
+    This file is loaded FROM A TEMPORARY DIRECTORY by
+    `scripts/mutation_harness_control_kind.py`, which copies it and
+    `control_kind.py` into a temp dir and points the suite at them by
+    `*_PATH` env vars. The `sys.path.insert` above is keyed on THIS FILE'S
+    `__file__`, so in that configuration the temp dir is the only place a
+    sibling can be found -- and `append_record.py` is not there. A bare
+    `import append_record` therefore raised, the test module failed to LOAD,
+    and unittest reported one module-level `ERROR: test_control_kind` naming no
+    method. That harness scores kills BY NAME, so nothing matched any aimed
+    test and ALL NINE mutants read SURVIVED against a GREEN control: 9 killed
+    on a pristine tree against 0 killed with the new import. A mutation harness
+    that kills nothing and a subject that is perfectly tested are the same exit
+    code, which is the decay this lab has now recorded three times.
+
+    SO IT SEARCHES, AND THEN IT REFUSES. The candidate directories, in order:
+    this file's own directory (the normal case, already on `sys.path`); then a
+    `scripts/` directory found by walking up from the CURRENT WORKING
+    DIRECTORY, which is how a relocated copy finds the repository it belongs
+    to. The found directory is APPENDED to `sys.path`, never prepended, so a
+    relocated copy still imports the `control_kind` sitting BESIDE it -- which
+    is the substitution that harness exists to perform, and mutant M1 only
+    reddens if it really happened.
+
+    AND IT FAILS CLOSED. If no `append_record` can be found this module
+    REFUSES with a non-zero exit and names what is missing. It does NOT fall
+    back to reading `ID_PATTERN` alone. That fallback is precisely the blind
+    reader this build exists to remove -- and it would be blind in exactly the
+    situation where the coupling had broken, which is the worst moment to go
+    quiet. Ruled by verification-supervisor, 2026-08-31.
+    """
+    try:
+        import append_record as module
+        return module
+    except ImportError:
+        pass
+    cwd = Path.cwd().resolve()
+    for base in (cwd, *cwd.parents):
+        candidate = base / "scripts" / "append_record.py"
+        if not candidate.is_file():
+            continue
+        sys.path.append(str(candidate.parent))
+        try:
+            import append_record as module
+            return module
+        except ImportError:
+            sys.path.remove(str(candidate.parent))
+    raise SystemExit(
+        "REFUSED: scripts/check_docket_reconciliation.py cannot import "
+        "`append_record`, which holds the TOOL-ALLOCATED id pattern this "
+        "module reconciles against (Sanaa's PLUMBING FREEZE directive, "
+        f"2026-08-31). Searched this file's own directory "
+        f"({Path(__file__).resolve().parent}) and every `scripts/` directory "
+        f"from {Path.cwd().resolve()} upwards. This is a REFUSAL and not a "
+        "fallback: reading `ID_PATTERN` alone would silently miss every "
+        "`| D-<timestamp>-<hash> |` row, which is the unlanded work this "
+        "module exists to name.")
+
+
+append_record = _import_append_record()
+
 EXIT_PASS = 0
 EXIT_FAIL_WRITEBACK_OWED = 1
 EXIT_FAIL_UNLANDED = 2
@@ -134,16 +200,55 @@ DEFAULT_REV = "HEAD"
 #: See "THE PATTERN, AND THE TRAP IT WAS BUILT AROUND" above.
 ID_PATTERN = r"^\|\s*(?:\*\*|~~)*\s*([A-G]\d+[a-z]?)\s*(?:~~|\*\*)*\s*\|"
 
-_ID_RE = re.compile(ID_PATTERN, re.M)
+#: THE SECOND ID SPACE (Sanaa's PLUMBING FREEZE directive, 2026-08-31: "no more
+#: counters ... ids become tool-allocated at append time from timestamp+hash").
+#: IMPORTED, NEVER COPIED, and asserted to be the one object the MINTING module
+#: holds -- so the writer and this reconciler cannot disagree about what a
+#: tool-allocated id is. `ID_PATTERN` above stays a literal because it predates
+#: that module and because this module's mutation harness anchors four mutants
+#: on its exact text; adding a second literal here would have been a drift
+#: waiting to happen, and importing costs nothing.
+#:
+#: WHY THIS LANDED IN THE SAME COMMIT AS THE MINTING. A `| D-20260831T... |` row
+#: sitting unlanded in a worktree is UNLANDED WORK -- the thing this module
+#: exists to name -- and `ID_PATTERN` cannot see it: `[A-G]\d` requires a digit
+#: where a hyphen now stands. This module would have returned PASS over it. A
+#: writer whose reader cannot see it is a dead lever the day it ships.
+TOOL_ID_PATTERN = append_record.ANCHORED_TOOL_ID[DEFAULT_PATH]
+assert TOOL_ID_PATTERN is append_record.ANCHORED_TOOL_ID[DEFAULT_PATH], (
+    "the tool-allocated id pattern must be the imported "
+    "append_record.ANCHORED_TOOL_ID entry, never a copy (CLAUDE.md rule 14)")
+
+# EXACTLY ONE CAPTURING GROUP EACH, asserted rather than assumed: `parse_ids`
+# reads group 1 or group 2 of the two-branch alternation below, so a pattern
+# that grew a second group would silently shift the numbering and the reader
+# would return a fragment of an id as an id.
+for _label, _pat in (("ID_PATTERN", ID_PATTERN),
+                     ("TOOL_ID_PATTERN", TOOL_ID_PATTERN)):
+    _n = re.compile(_pat).groups
+    if _n != 1:  # pragma: no cover - a load-time refusal
+        raise SystemExit(
+            f"REFUSED: {_label} has {_n} capturing groups, not 1. Spell every "
+            f"inner group `(?:...)`; parse_ids depends on the numbering.")
+del _label, _pat, _n
+
+_COMBINED_ID_RE = re.compile(f"(?:{ID_PATTERN})|(?:{TOOL_ID_PATTERN})", re.M)
 
 
 def parse_ids(text: str) -> list[str]:
     """Every docket row ID in *text*, in the order the rows appear.
 
+    BOTH ID SPACES: a legacy `| D586 |` and a tool-allocated
+    `| D-20260831T154707.481920Z-a3f91c4d |`. Both branches are anchored to the
+    row's FIRST CELL, so neither a range note nor a mid-sentence mention of an
+    id in a row's prose is read as a row -- the property the legacy pattern was
+    built around, carried to the new space rather than assumed to be inherited.
+
     Duplicates are preserved here so a caller can see them; the comparison
     itself is over sets.
     """
-    return _ID_RE.findall(text)
+    return [m.group(1) if m.group(1) is not None else m.group(2)
+            for m in _COMBINED_ID_RE.finditer(text)]
 
 
 def sort_key(row_id: str) -> tuple[str, int, str]:
@@ -152,7 +257,15 @@ def sort_key(row_id: str) -> tuple[str, int, str]:
     `sort -u` on these sorts lexically, which puts `D99` after `D146`. The
     guide's own section 11 records that defect being run as written and
     allocating an ID that had been taken weeks earlier.
+
+    A TOOL-ALLOCATED id has no section number to sort on. Every field of it is
+    fixed width, so within its prefix the plain-string order IS chronological
+    order to the microsecond, and it is keyed on its own text under section
+    `D`, ahead of the numbered rows. That is a DISPLAY choice; the verdict is
+    over ID SETS and no ordering can change it.
     """
+    if append_record.is_tool_id(row_id):
+        return (row_id.split("-", 1)[0], 0, row_id)
     match = re.match(r"([A-G])(\d+)([a-z]?)", row_id)
     if match is None:  # pragma: no cover - parse_ids cannot produce this
         return ("Z", 0, row_id)
@@ -215,6 +328,45 @@ def run_controls() -> control_kind.ControlLedger:
                  vocabulary="docs/DOCKET.md table rows",
                  planted=planted,
                  negative={negative_form: bool(parse_ids(negative_form))})
+
+    # THE TOOL-ALLOCATED VOCABULARY, scored as its OWN control (Sanaa
+    # 2026-08-31). Not folded into the control above, because a ledger that
+    # reached RECOGNITION on the legacy decorations alone would carry a reader
+    # blind to the new space straight to PASS -- which is the whole failure this
+    # build exists to prevent.
+    #
+    # The assertions are EXACT LISTS, not membership. `allocate_into_rows` fills
+    # every placeholder ON A LINE, so a row may legitimately cite its own id in
+    # its own cell; an unanchored reader counts that row TWICE and this module's
+    # duplicate branch then returns FAIL on a correct row. Only `== [expect]`
+    # catches that, and the second form below is exactly such a row.
+    tool_forms = {
+        "| D-20260831T090000.000005Z-0000a005 | a tool-allocated docket row |":
+            "D-20260831T090000.000005Z-0000a005",
+        "| D-20260831T090000.000006Z-0000a006 | a row whose own cell cites "
+        "D-20260831T090000.000006Z-0000a006 |":
+            "D-20260831T090000.000006Z-0000a006",
+        "| **D-20260831T090000.000007Z-0000a007** | a bold tool-allocated row |":
+            "D-20260831T090000.000007Z-0000a007",
+    }
+    # NEGATIVES: shapes that must NOT be read as rows. A prose mention (the
+    # property the legacy pattern already has, carried across rather than
+    # assumed); another record's prefix, which is what makes the four id spaces
+    # non-colliding; and two malformed bodies, because the fixed-width format is
+    # what makes a plain-string sort chronological and a reader that tolerates a
+    # short one has given that up.
+    tool_negatives = [
+        "a mid-sentence mention of D-20260831T090000.000009Z-0000a009 in prose",
+        "| C-20260831T090000.000009Z-0000a009 | another record's prefix |",
+        "| D-20260831T090000Z-0000a009 | second resolution, not the format |",
+        "| D-20260831T090000.000009Z-0000A009 | upper-case hex, not the format |",
+    ]
+    ledger.plant("TOOL-ALLOCATED docket row ids",
+                 vocabulary="docs/DOCKET.md rows whose id was minted by "
+                            "append_record.py (Sanaa 2026-08-31)",
+                 planted={f: (parse_ids(f) == [expect])
+                          for f, expect in tool_forms.items()},
+                 negative={n: bool(parse_ids(n)) for n in tool_negatives})
     return ledger
 
 
@@ -284,6 +436,11 @@ def reconcile(committed_text: str, worktree_text: str,
         "committed_row_count": len(committed_ids),
         "worktree_row_count": len(worktree_ids),
         "id_pattern": ID_PATTERN,
+        "tool_id_pattern": TOOL_ID_PATTERN,
+        "n_tool_committed": sum(1 for i in committed_ids
+                                if append_record.is_tool_id(i)),
+        "n_tool_worktree": sum(1 for i in worktree_ids
+                               if append_record.is_tool_id(i)),
         "control_kind": ledger.kind,
         "zero_verdict": zero_verdict,
         "zero_because": zero_why,
@@ -301,11 +458,17 @@ def render(result: dict, rev: str, path: str, worktree_file: Path) -> str:
     out.append(f"  committed side   : {rev}:{path}")
     out.append(f"  worktree side    : {worktree_file}")
     out.append(f"  id pattern       : {result['id_pattern']}")
+    out.append(f"  tool-id pattern  : {result.get('tool_id_pattern', '')}")
     out.append(
         "  rows parsed      : "
         f"{result['committed_row_count']} committed, "
         f"{result['worktree_row_count']} in the working copy "
         "(counts are diagnostic only -- the verdict is over ID SETS)"
+    )
+    out.append(
+        "  of those, TOOL-ALLOCATED : "
+        f"{result.get('n_tool_committed', 0)} committed, "
+        f"{result.get('n_tool_worktree', 0)} in the working copy"
     )
     for side, dupes in (("HEAD", result.get("committed_dupes") or []),
                         ("THE WORKTREE", result.get("worktree_dupes") or [])):
@@ -440,6 +603,7 @@ def _unknown(args: argparse.Namespace, why: str, repo: Path) -> int:
         "exit_code": EXIT_UNKNOWN,
         "because": why,
         "id_pattern": ID_PATTERN,
+        "tool_id_pattern": TOOL_ID_PATTERN,
         "rev": args.rev,
         "path": args.path,
         "repo": str(repo),

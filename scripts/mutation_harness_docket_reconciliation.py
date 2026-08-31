@@ -182,6 +182,84 @@ MUTANTS: list[tuple[str, str, str, str, tuple[str, ...]]] = [
             "test_a_duplicate_is_not_reported_as_unlanded_work",
         ),
     ),
+    (
+        "M12-tool-allocated-ids-unseen",
+        "the reader reverts to the LEGACY pattern alone, which is what this "
+        "module held before Sanaa's PLUMBING FREEZE directive of 2026-08-31 was "
+        "built. `append_record.py --allocate-id` mints "
+        "`| D-20260831T154707.481920Z-a3f91c4d |`, and `[A-G]\\d` cannot match "
+        "it -- a hyphen stands where a digit must be. Every tool-allocated row "
+        "then goes unseen IN BOTH DIRECTIONS, so the differences cancel and a "
+        "docket carrying unlanded work reads PASS. This is the dead-lever "
+        "mutant: if it survives, ids are being written that nothing reads.",
+        "    return [m.group(1) if m.group(1) is not None else m.group(2)\n"
+        "            for m in _COMBINED_ID_RE.finditer(text)]",
+        "    return re.compile(ID_PATTERN, re.M).findall(text)",
+        (
+            "test_a_tool_allocated_row_is_parsed_as_a_row",
+            "test_a_tool_allocated_row_only_in_the_worktree_is_unlanded_work",
+            "test_a_tool_allocated_row_only_in_head_is_writeback_owed",
+            "test_legacy_and_tool_rows_reconcile_together",
+        ),
+    ),
+    (
+        "M13-tool-pattern-unanchored",
+        "the tool-id reader is taken from the UNANCHORED helper instead of the "
+        "entry-position anchor, so a tool id is recognised anywhere on a line. "
+        "`allocate_into_rows` fills EVERY placeholder on a line by design, so a "
+        "row citing its own id is then counted twice and this module returns "
+        "FAIL-DUPLICATE on a correct docket; a mid-sentence mention becomes a "
+        "row as well. The anchor is the property, not a detail of spelling.\n"
+        "        THE IDENTITY ASSERT IS MUTATED WITH IT, DELIBERATELY, and the "
+        "first spelling of this mutant is why: swapping the pattern alone "
+        "tripped that assert at IMPORT, so the suite reported one module-level "
+        "ERROR named `sdk.tests.test_docket_reconciliation` and NOT ONE of the "
+        "aimed method names -- the harness scored SURVIVED against a defect it "
+        "had in fact prevented outright. A mutant that CRASHES the subject "
+        "proves nothing about the tests; it has to INJECT the defect and leave "
+        "the module importable. Measured 2026-08-31: 13 killed / 1 survived / "
+        "0 new failures on the aimed set, which is the crash signature, not a "
+        "weak-test signature.",
+        "TOOL_ID_PATTERN = append_record.ANCHORED_TOOL_ID[DEFAULT_PATH]\n"
+        "assert TOOL_ID_PATTERN is append_record.ANCHORED_TOOL_ID[DEFAULT_PATH], (",
+        "TOOL_ID_PATTERN = append_record.tool_id_pattern(DEFAULT_PATH)\n"
+        "assert isinstance(TOOL_ID_PATTERN, str), (",
+        (
+            "test_a_row_citing_its_own_id_in_its_own_cell_is_ONE_row",
+            "test_a_tool_id_mentioned_in_prose_is_not_a_row",
+            "test_the_tool_pattern_is_the_minting_modules_own_object",
+        ),
+    ),
+    (
+        "M14-tool-pattern-not-published",
+        "the tool-id pattern stops being reported, so a reader inherits a "
+        "verdict over TWO id spaces while being shown only one of them -- the "
+        "M8 defect, in the space M8 did not know about.",
+        '        "tool_id_pattern": TOOL_ID_PATTERN,\n'
+        '        "n_tool_committed": sum(1 for i in committed_ids',
+        '        "tool_id_pattern": "",\n'
+        '        "n_tool_committed": sum(1 for i in committed_ids',
+        ("test_the_tool_pattern_is_printed_in_both_output_modes",),
+    ),
+    (
+        "M15-unreachable-append-record-degrades-silently",
+        "the REFUSAL that fires when `append_record` cannot be imported becomes "
+        "a silent fallback to a tool-id pattern that matches nothing. The "
+        "module then loads, prints a verdict, and is blind to every "
+        "tool-allocated row -- and it is blind EXACTLY in the configuration "
+        "where the coupling has broken, which is the worst moment to go quiet. "
+        "This is the fail-open shape in its purest form: not a wrong answer, a "
+        "confident one produced by a reader that stopped being able to see.",
+        "    raise SystemExit(\n"
+        '        "REFUSED: scripts/check_docket_reconciliation.py cannot import "',
+        "    import types\n"
+        "    return types.SimpleNamespace(\n"
+        '        ANCHORED_TOOL_ID={"docs/DOCKET.md": r"(?!)"},\n'
+        "        is_tool_id=lambda row_id: False)\n"
+        "    raise SystemExit(\n"
+        '        "REFUSED: scripts/check_docket_reconciliation.py cannot import "',
+        ("test_an_unreachable_append_record_REFUSES_and_never_falls_back",),
+    ),
 ]
 
 
