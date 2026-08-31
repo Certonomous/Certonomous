@@ -173,18 +173,47 @@ def stamp_sentinel(run_root, arm, mount_sources):
         fh.write("%s %s\n" % (ITEM, arm))
         fh.flush()
         os.fsync(fh.fileno())
-    return spath, int(os.stat(spath).st_mtime)
+    return spath, os.stat(spath).st_mtime          # full precision -- see check_arm
 
 
 # ============================================================================
 # L3 -- the input manifest, by CONTENT, with the write targets excluded by name
 # ============================================================================
+def is_write_target(name):
+    head = name.split(os.sep)[0]
+    return head in SOLVER_WRITE_TARGETS or head.startswith("processor")
+
+
 def build_manifest(arm_dir, input_subdirs):
     entries, excluded = [], []
+
+    # ---- THE EXCLUSION IS ENFORCING, NOT DESCRIPTIVE -----------------------
+    # Found by the dafoam-supervisor's adversarial probe at check 1 and
+    # reproduced by this lane: the `excluded` list below is built by LISTING the
+    # arm, while `entries` are built from the CALLER's `input_subdirs`, and
+    # nothing made the two agree.  `build_manifest(arm, ["0", "system"])`
+    # produced a manifest whose `excluded_write_targets` field said `["0"]`
+    # while its own entries pinned `0/T` and `0/U` -- **a record asserting
+    # something the code did not guarantee**, which is the defect class that has
+    # burned this lab repeatedly.  It was fail-closed (it would refuse every run,
+    # never pass a bad one), so it was never a correctness hole; it was a false
+    # assertion, and a false assertion in an evidence artefact is the thing this
+    # guard exists to prevent.
+    #
+    # It REFUSES rather than silently filtering `input_subdirs`, so a caller's
+    # mistake is SURFACED rather than absorbed.  Driven red by RED-7.
+    for sub in input_subdirs:
+        if is_write_target(sub):
+            refuse("MANIFEST_INPUT_IS_WRITE_TARGET",
+                   {"input_subdir": sub,
+                    "write_targets": list(SOLVER_WRITE_TARGETS) + ["processor*"],
+                    "note": "a manifest may not pin a path the solver writes -- that "
+                            "is the D19 age-datum defect in a second location.  The "
+                            "caller is refused, not silently corrected."})
+
     for name in sorted(os.listdir(arm_dir)):
         full = os.path.join(arm_dir, name)
-        if os.path.isdir(full) and (name in SOLVER_WRITE_TARGETS
-                                    or name.startswith("processor")):
+        if os.path.isdir(full) and is_write_target(name):
             excluded.append({"path": name, "reason":
                              "SOLVER WRITE TARGET -- measured: DAFoam rewrites "
                              "0/U (and processor*/0/U) mid-run when the patchV DV "
@@ -230,7 +259,14 @@ def check_arm(arm_dir, artefacts, sentinel, manifest, mount_sources):
     assert_sentinel_outside_mounts(sentinel, mount_sources)
     if not os.path.isfile(sentinel):
         refuse("AGE_DATUM_ABSENT", {"sentinel": sentinel})
-    datum = int(os.stat(sentinel).st_mtime)
+    # FULL-PRECISION DATUM.  This was `int(...)`, which truncated the datum DOWN
+    # while artefact mtimes stayed float -- erring PERMISSIVE by up to one second.
+    # The supervisor raised it as a docstring mismatch; this lane's own probe
+    # showed it was worse than that: a sentinel at 1000.9 with an artefact at
+    # 1000.5 -- an artefact GENUINELY OLDER than the launch -- was ACCEPTED.
+    # A sub-second window is still a window, and "strictly greater" is what the
+    # guard claims.  Fixed rather than documented.  Driven red by RED-6.
+    datum = os.stat(sentinel).st_mtime
     check_manifest(arm_dir, manifest)
     seen = []
     for art in artefacts:
@@ -309,7 +345,7 @@ def selftest():
 
         print("D19R AGE GUARD -- CONTROLS")
         print("  sentinel      : %s" % spath)
-        print("  datum epoch   : %d" % datum)
+        print("  datum epoch   : %.6f  (FULL PRECISION -- not truncated; RED-6)" % datum)
         print("  manifest      : %d input files; write targets excluded by name: %s"
               % (manifest["n_entries"],
                  [x["path"] for x in manifest["excluded_write_targets"]]))
@@ -377,6 +413,38 @@ def selftest():
             got = json.loads(str(exc))["REFUSE"]
         leg("RED-4", "AGE_DATUM_INSIDE_MOUNT", got,
             "(a datum the solve could write is refused AT LAUNCH)")
+
+        # RED-6  SUB-SECOND STALE ARTEFACT.  Regression leg for the truncated
+        # datum: sentinel at T+0.9, artefact at T+0.5 -- the artefact is GENUINELY
+        # OLDER than the launch.  Under `int(datum)` this was ACCEPTED (measured).
+        base = int(datum) + 100
+        os.utime(spath, (base + 0.9, base + 0.9))
+        _touch(os.path.join(arm_dir, art), base + 0.5, b"{}")
+        leg("RED-6", "ARTEFACT_NOT_NEWER_THAN_DATUM",
+            _guard_result(arm_dir, [art], spath, manifest, mounts),
+            "(artefact 0.4 s OLDER than launch -- the truncation window)")
+        os.utime(spath, (datum, datum))
+        _touch(os.path.join(arm_dir, art), datum + 40, b"{}")
+
+        # RED-7  THE MANIFEST MAY NOT PIN A SOLVER WRITE TARGET.  The exclusion is
+        # ENFORCING, not descriptive.  This leg is the one the original selftest
+        # STRUCTURALLY COULD NOT SEE, because it only ever passed a correct
+        # `input_subdirs` -- a fixture authored from the consumer's expectations is
+        # a tautology on shape.  Found by the supervisor's adversarial probe.
+        got7 = None
+        try:
+            build_manifest(arm_dir, ["0", "system"])
+        except Refusal as exc:
+            got7 = json.loads(str(exc))["REFUSE"]
+        leg("RED-7", "MANIFEST_INPUT_IS_WRITE_TARGET", got7,
+            "(caller pins 0/ -- REFUSED, not silently filtered)")
+        got7b = None
+        try:
+            build_manifest(arm_dir, ["processor0"])
+        except Refusal as exc:
+            got7b = json.loads(str(exc))["REFUSE"]
+        leg("RED-7b", "MANIFEST_INPUT_IS_WRITE_TARGET", got7b,
+            "(processor* is a write target too)")
 
         # ---- rule 3: the RELATIVE plant, both legs --------------------------
         print()

@@ -349,3 +349,50 @@ Existence is asserted by `test -e` **before** any md5 is taken, inside the asser
 ## 12. STATUS
 
 **`PENDING`.** Frozen, **not enqueued**, no run root, **zero D19R solver core-minutes spent**. **Launching is the `dafoam-supervisor`'s call**, requires the §11 ABSENT files committed first, and requires the supervisor's personal check 4 — *pre-registration committed before compute* — to be satisfied against **this** committed blob. **This lane does not launch on its own initiative and does not treat any brief as that go-ahead.**
+
+---
+
+## AMENDMENT 1 — 2026-08-31 — THE §11 INSTRUMENTS ARE BUILT, DRIVEN AND FROZEN; AND TWO DEFECTS IN THIS ITEM'S OWN AGE GUARD ARE DISCLOSED AND REPAIRED
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.** This section is appended at the foot; §0–§12 are byte-unchanged. `CLAUDE.md` rule 6.
+
+**PRE-COMPUTE, AND THE CONDITION IS STATED AND WAS CHECKED, as `CLAUDE.md` rule 2 requires.** The registered run root **`/home/ubuntu/certonomous-runs/CURRICULUM-D19R-a1-naca0012-subsonic-plateau` DOES NOT EXIST**, checked this invocation by `ls -d` (`No such file or directory`), and **no container carries this item's `d19r_` prefix**, checked by `docker ps` (count 0). **Zero D19R solver core-minutes have been spent.** Gates, thresholds, bands, caps, labels and predictions are therefore still open to amendment and **none of them is amended here** — this amendment adds no gate, moves no threshold and changes no prediction.
+
+### A1.1 The §11 ABSENT files are now PRESENT, frozen, and each was DRIVEN
+
+| file | md5 at freeze | driven |
+|---|---|---|
+| `d19r_age_guard.py` | `e7f1ccb1794a163548f7dfefe8912a30` | `--selftest` rc 0 — ten legs, §A1.2 |
+| `d19r_runScript.py` | `a5e18503ea29d0e37c3cf1668533cd34` | header md5 `d1efc43583fbeb59fb5116816b055a07` — **byte-identical to D15's and D19's**, which is what `G19R-1a` rests on |
+| `d19r_xf.py` | `a0f44316bd961204e41e438464f834d4` | compiles; modes `X`/`S8`/`N2`/`S1`/`R1` |
+| `d19r_select_step.py` | `e5e1566b3b11685a13e75820703a0bbb` | `--selftest` rc 0 — six CONTROL-N cases incl. two new R1-blindness cases; CONTROL P both legs; CONTROL D flips the decision |
+| `d19r_precondition.py` | `c66fff1e4d07573d774523b5e39ad813` | `--selftest` rc 0 — 1 accepted, 6 refused; reads D15's real graded JSON, md5 `73e02ebf49b6459e40abc2d6525d7bea` |
+| `d19r_grade.py` | `707ccb0c8ace88d7f171a2e7299fde13` | `--selftest` rc 0 — 12 checks |
+| `d19r_run_arm.sh` | `cb420118f799762158efa3e886f9f576` | `bash -n` OK; refusal paths rc 64 |
+| `d19r_chain_driver.sh` | `1daf1acd6f8230fc0f715f693d5f298e` | `bash -n` OK; refusal paths rc 64, incl. the retired arm name `S2` |
+
+**Every frozen md5 constant inside the scripts was verified to resolve to the real file** — a stale hash aborts every launch, so the check is run, not assumed.
+
+**`G19R-1b-N` VALIDATED AGAINST D19's REAL DATA, and this is the load-bearing check.** Applied to D19's measured `S2/d19_S.json` at the level D19 graded, the decade rule returns **21.6299 %**, binding on `shape[7]`/`CD` — **reproducing D19's own registered `selector.out` figure `score_pct=21.629866`**. Every other component is comfortably two-sided (worst other **3.3318 %**). **The half-decade refinement therefore provably does not relax the gate**, which is the claim §1.3 makes and which is now measured rather than argued.
+
+### A1.2 ⚠ TWO DEFECTS IN `d19r_age_guard.py` — DISCLOSED, REPAIRED, AND DRIVEN RED
+
+Found at the `dafoam-supervisor`'s check 1 by their own adversarial probe, and **reproduced independently by this lane before either was touched.** Both are disclosed here rather than quietly fixed, because the guard's own evidence artefact is the thing this item asks a reader to trust.
+
+**(a) THE WRITE-TARGET EXCLUSION WAS DESCRIPTIVE, NOT ENFORCING.** `build_manifest` built its `excluded_write_targets` record by listing the arm, while its entries came from the caller's `input_subdirs`, and nothing made the two agree. Reproduced: `build_manifest(arm, ["0", "system"])` emitted a manifest whose `excluded_write_targets` said `["0"]` while its own entries pinned `0/T` and `0/U`. **A record asserting something the code did not guarantee** — the defect class this guard exists to prevent. It was **fail-closed** (it would refuse every run, never pass a bad one), so it was never a correctness hole; it was a false assertion. **Repaired by an assert that REFUSES a caller passing a write target, rather than silently filtering it, so a caller's mistake is surfaced rather than absorbed.**
+
+**(b) THE DATUM WAS TRUNCATED AND ERRED PERMISSIVE — AND IT WAS WORSE THAN REPORTED.** `datum = int(os.stat(sentinel).st_mtime)` truncated down while artefact mtimes stayed float. The supervisor raised it as a departure from the docstring's "strictly greater". **This lane's own probe showed it admitted a genuinely stale artefact**: sentinel at 1000.9, artefact at 1000.5 — the artefact **older than the launch** — was **ACCEPTED**. A sub-second window is still a window. **Fixed to full precision rather than documented.**
+
+**Why the original selftest could not see (a):** it only ever passed a correct `input_subdirs`. **A fixture authored from the consumer's own expectations is a tautology on shape**, and this lab lost an item to exactly that this morning. The lesson is recorded here, not only in the code.
+
+**The guard now has TEN legs and every one fires** (`--selftest` rc 0 under both `python3` and `python3 -O`): `RED-1` stale artefact → refused; `RED-2` mtime equal → refused; `RED-3` input content mutated at unchanged count 9→9 → refused; `RED-4` sentinel inside the mount → refused at launch; `RED-5` manifest entry missing → refused; **`RED-6` artefact 0.4 s older than launch — defect (b)'s regression → refused**; **`RED-7`/`RED-7b` caller pins `0/` or `processor0` — defect (a)'s regression → refused**; `GREEN-1` D19's exact false refusal → accepted; `GREEN-2` clean → accepted.
+
+**AND THE GUARD WAS DRIVEN AGAINST D19's REAL MUTATED ARM DIRECTORY, not only the fixture.** A copy of D19's actual `S1/` — the one whose `0/T` no longer exists, whose `0/` holds `T.gz U.gz alphat.gz epsilon k nuTilda.gz nut.gz omega p.gz`, and whose `0/U.gz` the solver rewrote — was staged, sentinel-stamped and manifested (25 input entries, `0` excluded by name). With `0/U.gz` rewritten **after** the sentinel and the artefact newer still: **ACCEPTED — D19's false refusal does not recur on the real directory.** With the artefact then set older than the sentinel: **REFUSED, `ARTEFACT_NOT_NEWER_THAN_DATUM`.** Green and red, both on real data.
+
+### A1.3 What is still owed before launch, and what this amendment does NOT do
+
+**It does not authorise a launch.** Launching remains the `dafoam-supervisor`'s call and requires their personal check 4 — *pre-registration committed before compute* — against the committed blob carrying **this** amendment. **This lane does not launch on its own initiative.**
+
+**It does not change a gate, a threshold, a band, a cap, a label or a prediction.** `G19R-1b` keeps `max`, keeps 10.0 %, and keeps all five components; `shape[7]` is not excluded; `P1` still predicts `GATE FAIL` / `V-NOPLATEAU`.
+
+**Named honestly as untested-until-launch:** no arm has run, so the container path, the MPI launch, the `N2` repeatability arm and the `R1` `kappa` computation have been driven only through their host-side validation and refusal paths. **`R1`'s ladder is a prediction, not a measurement**: at D19's measured values `kappa` would be ≈ **68.43**, which truncates the ladder's coarsest rung against the registered `3e-2` ceiling and leaves **three** rungs. The real `kappa` comes from D19R's own `S8` and may differ.
