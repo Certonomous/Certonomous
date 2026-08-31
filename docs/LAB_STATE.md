@@ -10198,6 +10198,185 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-08-31T21:34:54Z — T8's `NOT A RESULT` IS THE VERDICT OF RECORD AND **THREE OF THE FOUR BOARD POINTERS TO ITS STALE COUNTERPARTS HAVE ROTTED IN FIVE DAYS**; A BULK BARE-`FAIL` SWEEP OF THE RUN TREES WOULD DISARM **74** REGISTERED CONTROL CELLS TO CORRECT **8** — AND **D-5's OWN INSTRUMENT NEVER READS THOSE FILES AT ALL**
+
+*(Pure insertion by a heat-transfer `lab-lane` at the supervisor's instruction, with **zero existing lines edited or deleted**. The `**Section last written:**` line at the head of this section is stale and is DELIBERATELY NOT EDITED — editing it would be a deletion. **Every figure below was re-derived by this lane from the named artefact**, not transcribed from the commissioning brief; where this lane's reading DIFFERS from the brief it is boarded under §6 "WHERE I DIFFER FROM MY SUPERVISOR" rather than silently fixed. Items this lane did not check itself are tagged **VERIFY**. HEAD when this text was composed was `3e09ec55`; the true parent of this block's own commit is whatever the CAS asserted, and that — not this sentence — is authoritative. ZERO COMPUTE: no solver was launched for this block.)*
+
+---
+
+### 1. T8 SUPERSESSION — the verdict of record, and the one class it may be filed under
+
+**`T8 = NOT A RESULT`.** The verdict record is `docs/campaigns/T-family/T8_VERDICT_2026-08-26.md`, landed at commit `0686c7b2`, authored `2026-08-26T03:18:44+00:00` [MEASURED, `git log`]. Its own words at `:9-10`, quoted verbatim:
+
+> ## **T8 = `NOT A RESULT`**
+> **Not `BLOCKED`. Not `GATE FAIL`. Not `PENDING`.**
+
+**Two independent grounds, neither sharing an instrument with the other, and ground 2 alone suffices.** Ground 2, verified by this lane at `T8_VERDICT_2026-08-26.md:91-97`: §12 S3 of the frozen pre-registration registers the axis extrapolation **`(9f₁ − f₂)/8`**, whose precondition is **`r₂ = 3·r₁`**. Measured on the built level-`c` mesh from the cell centres OpenFOAM itself wrote, **`r₂/r₁ = 2.333313`**, against the exact wedge-centroid value **`7/3 = 2.333333`** — **not 3**. `resolve_planes` refuses; **no row can be graded at all**. This ground needs no convergence argument and is untouched by anything the solver did.
+
+**Cause class: `GATE-DESIGN` (5).** Already filed, at `docs/campaigns/T-family/MATRIX_CONTRIBUTION.md:1154`, on the ground that the record **names the registered item that failed** — which is exactly what `VERIFICATION_CHARTER.md` §2n.2 requires. [MEASURED, both files read at HEAD.]
+
+**⚠ ANYONE BACKFILLING T8's CAUSE CLASS FROM THIS BOARD INSTEAD OF FROM ITS VERDICT RECORD GETS `BOOKKEEPING` (3) AND IS WRONG.** A stale `BLOCKED` reads as an administrative absence and pulls the lowest-numbered class §2n.3's precedence will support. The verdict record, not the board, is the citable source. This hazard is already boarded at `MATRIX_CONTRIBUTION.md:1269`; it is repeated here because the board is where the wrong reading is available.
+
+---
+
+### 2. ⚠ THE FOUR-POINTER CLAIM IS ITSELF WRONG — AND THIS IS THE MORE IMPORTANT HALF OF THIS BLOCK
+
+`T8_VERDICT_2026-08-26.md:29-32` names four board lines said to still read `BLOCKED` for T8: **`:818`, `:2491`, `:2610`, `:2769`** (and `:3898` as reading `PENDING`).
+
+**MEASURED BY THIS LANE AT HEAD — ONLY `:818` IS WHAT THE POINTER SAYS IT IS.**
+
+| pointer | what it reads at HEAD | verdict on the pointer |
+|---|---|---|
+| `:818` | `- **T8** — **\`BLOCKED\`** post-fire.` | **CORRECT** |
+| `:2491` | `controls and **none on the fatal channel**.` | **ROTTED** — unrelated controls sentence |
+| `:2610` | a `` `cap_core_min_registered` `` fragment | **ROTTED** |
+| `:2769` | *(blank line)* | **ROTTED** |
+| `:3898` | a `git status` staleness sentence (L-307) | **ROTTED** — the `PENDING` it named is gone |
+
+**Four of five pointers, four days and eighteen hours old, and four have rotted.** `docs/LAB_STATE.md` is append-only and stands at **26 187 lines** at HEAD [MEASURED, `git show HEAD:docs/LAB_STATE.md | wc -l`]. The verdict record was written when the file was shorter; every insertion above a pointer moves it.
+
+#### 2a. THE TRUE SET OF STALE T8-`BLOCKED` BOARD STATEMENTS — FOUR, AND ONLY ONE OF THEM WAS IN THE ORIGINAL POINTER SET
+
+Swept by this lane over the whole file at HEAD (`grep -n 'T8' | grep -i blocked`, then every hit read in context):
+
+| line | text | ruling |
+|---|---|---|
+| **`:818`** | `- **T8** — **\`BLOCKED\`** post-fire.` | **STALE T8-`BLOCKED`** |
+| **`:8930`** | `#### ⚠⚠⚠ T8 IS \`BLOCKED\` — §12 S3 REGISTERED A FORMULA WHOSE PRECONDITION ITS OWN REGISTERED MESH CANNOT SATISFY.` | **STALE T8-`BLOCKED`** |
+| **`:9049`** | *"**`BLOCKED` stands on T8 regardless** — under either reading, no gate verdict is reachable under that pre-registration."* | **STALE T8-`BLOCKED`** — not in the brief's set, found by this lane |
+| **`:9208`** | *"**`BLOCKED` stands on T8 and K0d.**"* | **STALE T8-`BLOCKED`** — not in the brief's set, found by this lane |
+| `:8797` | *"K0d is not in Bucket A at all — it is `BLOCKED` on a grader that does not exist … **T8 is, and it was never counted.**"* | **NOT AN INSTANCE** — the `BLOCKED` attaches to **K0d**; "T8 is" asserts Bucket-A membership |
+| `:13215` | `SESSION certonomous-69 — … K0d IS RULED \`BLOCKED\`, AND §2d.1 IS THE WRONG INSTRUMENT FOR T8` | **NOT AN INSTANCE** — `BLOCKED` attaches to **K0d** |
+| `:10320` | a heat-transfer lane's own note **quoting** the four rotted pointers | **NOT AN INSTANCE** — a citation of the problem |
+| `:13539` | T8's plume theory *"is **not** blocked"* | **NOT AN INSTANCE** — different context, opposite polarity; do not sweep it in |
+
+**So the true set is `:818`, `:8930`, `:9049`, `:9208` — and only `:818` survives from the original four.** Two of the four (`:9049`, `:9208`) are additions this lane found and the brief did not carry.
+
+#### 2b. ⚠ AND THEY ARE NOT "WRONG" — THEY ARE CLOSED HISTORICAL BLOCKS THAT WERE TRUE WHEN WRITTEN
+
+Every one of the four sits under a block dated **before** the verdict of `2026-08-26T03:18:44Z` [MEASURED, governing headers read]:
+
+- `:818` — under `### EVENING RULINGS AND DISPATCH — chief, certonomous-d8, **2026-08-25**` (`:700`).
+- `:8930`, `:9049`, `:9208` — under `### ELEVENTH SESSION …`, *"Section block written: **2026-08-25T21:12Z** by dafoam-supervisor"* (`:8606`, `:8608`), which declares in its own text: **"Every block below this one is a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE; nothing in them is superseded and this session re-opens none of them."**
+
+**They were the verdict of record when they were written.** The verdict record's phrasing — that they *"are owed a correction by their owners"* — asks for an **edit to blocks that declare themselves carried byte-for-byte**, in a file the lab treats as append-only. **This lane will not make that edit and holds it should not be made.** The correct remedy for a superseded statement in an append-only historical record is a **dated supersession block**, which is what this is. §6 records the disagreement.
+
+Note also that three of the four live in the **`dafoam`** section span (`:4672`–`:10197`), not this team's. A heat-transfer lane editing them would be a cross-territory edit as well as a historical-block edit.
+
+#### 2c. THE METHOD FINDING — BOARD THIS AS THE GENERAL LESSON, IT IS NOT ABOUT T8
+
+> **Citing an unfrozen, append-only shared file by bare line number is structurally fragile, and `docs/LAB_STATE.md` is exactly such a file.**
+
+Frozen files are safe to cite by line **precisely because** `CLAUDE.md` rule 6 makes every amendment assert *"lines whose number changed above this section: 0"*. **`LAB_STATE.md` carries no such guarantee and nobody freezes it.** Four pointers, five days, three rotted (four counting `:3898`).
+
+**The damage this would have done is concrete, not hypothetical: an agent acting mechanically on those four pointers would have edited three innocent lines — two of them in another team's section — and would have missed `:8930`, `:9049` and `:9208` entirely.** A "correct the four stale lines" task is a corrupting task, and it looks like a chore.
+
+> **THE RULE: cite this board by SECTION AND QUOTED TEXT, never by bare line number.** A quote survives insertion; a line number does not. Where a line number is genuinely useful, pair it with the quote so a reader can tell rot from a real hit.
+
+---
+
+### 3. ⚠⚠ CROSS-TEAM HAZARD — A BARE-`FAIL` SWEEP OF THE RUN TREES WOULD DISARM 74 REGISTERED CONTROL CELLS TO CORRECT 8
+
+**D-5 is CLOSED (2026-08-24, Sanaa's ratification, `docs/DOCKET.md` D496).** Its ruling, quoted from that row: *"the 3 legacy bare-`FAIL` cells are corrected to `GATE FAIL` by their owning teams by quote-and-strike, never rewritten"*.
+
+**A sweep phrased "correct every bare `FAIL` in the run trees" — the obvious next task to dispatch from that ruling — would do serious damage.** Census re-derived independently by this lane, walking every JSON value in all **60** `verification/runs/**/gate_*.json` files at HEAD and counting exact string `"FAIL"`:
+
+| file / JSON path | count | what it is |
+|---|---:|---|
+| `F14-cooling-ladder/K0cT_runs/gate_k0ct.json` — `.graded_rows[].verdict` | **8** | **verdict cells** |
+| same file — `.controls.C3.rows[]` + `.C3_mutation[]`, keys `required` / `base_verdict` / `regraded_verdict` | **56** | mutation-control machinery |
+| same file — `.cases.*.convergence.criterion_{a_Nu,b_S,c_Uy}` | **7** | convergence states |
+| same file — `.controls.C1.S_row_verdict`, `.controls.C2.velocity_row_verdict` | **2** | control row verdicts |
+| `T-family/T10a_runs/gate_t10a.json` — `.controls[].must` | **17** | registered control expectations |
+| `T-family/T1_runs/gate_t1b.json` — `.controls[].must` | **1** | registered control expectation |
+| **TOTAL** | **91** | of which **8** are verdict cells |
+
+**`gate_k0ct.json` alone carries 73; `gate_t10a.json` 17; `gate_t1b.json` 1; every other one of the 60 files carries zero.** The census reproduces the brief exactly and reproduces the table already committed at `MATRIX_CONTRIBUTION.md:1426-1428`.
+
+**74 of the 91 are control-block cells, not verdicts. `.controls[].must = "FAIL"` is a registered statement that a control MUST return `FAIL`. Flipping it to `GATE FAIL` does not correct a verdict — it DISARMS the control, which then passes when it should fire.** That is a blinded reader arriving disguised as a vocabulary tidy-up: **`CLAUDE.md` standing rule 3's exact failure mode.** Damage-to-benefit **74 : 8**.
+
+**REFINEMENT THIS LANE OWES ON THE 74 (§6 item 2).** The 74 are not all literal `must`/`required` expectations. Broken out: **38** are literal registered expectations (`.controls[].must` 17 + 1, `.C3.rows[].required` 10, `.C3_mutation[].required` 10) and **36** are recorded observed verdicts inside the control blocks (`base_verdict` 8 + 8, `regraded_verdict` 10 + 10). Editing either kind corrupts the control — a `required`/`must` edit disarms it, a `base_verdict`/`regraded_verdict` edit falsifies what it observed — so **74 is the right damage figure**, but the sentence "74 registered statements that a control MUST return `FAIL`" over-claims and the correct reading is "74 control-block cells, 38 of them literal MUST/required expectations."
+
+#### 3a. ⚠ AND D-5's OWN INSTRUMENT NEVER READS THESE FILES — measured, and it is a stronger result than the ratio
+
+`scripts/check_verdict_cells.py` — the instrument that produced D-5's finding and its "3 bare `FAIL` cells (V5:1070, V14:1080, V15:1081)" reading — takes its corpus from `sorted(CAMPAIGN.glob("*.md"))` at `:270`, where `CAMPAIGN` resolves via `scripts/lab_paths.py:345` to **`verification/campaign`**. [MEASURED, both files read at HEAD.]
+
+**Its corpus is campaign markdown grading records. It does not read `verification/runs/**/gate_*.json` at all.** So **none of the 91** is inside D-5's governed corpus, and the ratio understates the case: within the run trees the benefit of a D-5 sweep is not 8, it is **arguably 0**, because D-5's own instrument would not have flagged a single one of them. The 8 `graded_rows[].verdict` cells are genuine rule-1 vocabulary departures and deserve the record's attention — but they were never D-5's business and they are **already discharged by dated amendment at `103659ee`**, not owed to any sweep.
+
+#### 3b. ⚠ AND ANY HAND-EDIT OF `gate_k0ct.json` IS SILENTLY REVERTED, WITH NO ERROR AND NO TRACE
+
+`gate_k0ct.json` is the deterministic output of `verification/runs/F14-cooling-ladder/K0cT_runs/analyse_k0ct.py`, which **hard-codes the bare literal `"FAIL"` in nine places** [MEASURED, `grep -c '"FAIL"'` = 9], including `:644-646` (the three convergence criteria), `:779` (the graded-row verdict), `:876` (`want = "FAIL"` — the mutation control's own expectation), `:943` and `:995` (the C1/C2 row verdicts). **Re-running the comparator regenerates every one of the 91.** A hand-edit therefore vanishes on the next run without an error, without a diff anyone reads, and without a trace — the worst possible failure mode for a correction that a later reader will believe was made.
+
+**This is why this team's own correction landed as a dated amendment (`103659ee`, `docs/campaigns/F14-cooling-ladder/K0cT_RESULTS.md`, +118/−0) with the JSON left BYTE-UNTOUCHED.** Any other team facing a bare-`FAIL` cell in a generated artefact owes the same route: amend the prose record, never the generated file, and if the vocabulary must change in the artefact then it changes in the generator, which is frozen and therefore needs its own amendment.
+
+**Board this as a warning to every team doing D-5 work, not just ours.** The narrow measure (`.graded_rows[].verdict`) is what a verdict-vocabulary correction governs; the broad measure is what makes a hand-edit dangerous; **a sweep written against the wrong one does real damage**, and the two measures differ by 9×.
+
+---
+
+### 4. COMMITS SINCE THE LAST BOARD BLOCK — all five verified by `git log` [MEASURED]
+
+| sha | authored (UTC) | what | diff |
+|---|---|---|---|
+| `103659ee` | 21:22:57 | K0cT bare-`FAIL` corrected **by amendment**, artefact byte-untouched — *"THERE ARE 73 OF THEM, NOT 8"* | +118 / −0, 1 file |
+| `2c3e23be` | 21:23:58 | cause-class companion block — 8 physics-adverse / 12 non-physics / 28 `UNCLASSED` | +281 / −0, 1 file |
+| `a25720f1` | 21:28:28 | **T15 PRESERVATION** — the previously **UNTRACKED** `T15_GRADE_OUTPUT.txt`, sole record of the S1 planted-zero **REFUSAL** and of **1 195.817 core-min** of clean solve | **+415 / −0, 11 files** |
+| `98d8733a` | 21:28:49 | cause-class ADDENDUM 1 — K0cT denominator + K0cX sibling corrections, both in the **unflattering** direction; carries the 74-control bound | +113 / −0, 1 file |
+| `8bb2f520` | 21:30:08 | T16_RESULTS.md AMENDMENT 1 — both staleness claims reproduced at source; the verdict one recorded as **lifted without being moved** | +108 / −0, 1 file |
+
+**All five are insertion-only. Zero deletions across all five.** `a25720f1` is the one that mattered most: a rung's sole provenance for 1 195.817 core-min, and the planted-zero refusal that is the reason T15 carries no verdict, existed **only as an untracked file** until it landed.
+
+---
+
+### 5. THREE VERDICT-WORD RULINGS OWED ON `T16_RESULTS.md` — RECORDED AS OWED, **NOT ACTED ON**
+
+`docs/campaigns/T-family/T16_RESULTS.md` is stale in **three** places, not two, and all three carry a rule-1 vocabulary word [MEASURED at HEAD]:
+
+| line | what it reads | why stale |
+|---|---|---|
+| **`:1`** *(the title)* | `… — **PARTIAL**, 2026-08-27T18:45Z: \`T16_MC_c\` landed COMPLETE but is **BLOCKED**; the frozen marker refuses every real OpenFOAM log` | carries **both** `PARTIAL` and `BLOCKED`; the marker no longer refuses |
+| **`:7`** | `**Rung verdict at this writing: \`PENDING\`.** One of three levels has landed.` | **all three levels** have landed; and `PENDING` is a queue state (rule 1), not a rung verdict |
+| **`:11`** | `**Case verdict, \`T16_MC_c\`: \`BLOCKED\`.**` | the instrument defect that caused it is repaired |
+
+**EVIDENCE THAT THE BLOCK LIFTED** [all MEASURED by this lane]:
+
+1. The marker defect was repaired at **`5bcbaf8c`** (2026-08-27T19:21:45Z, +601/−8): the frozen matcher's FPE limb matched the `trapFpe` **startup banner**, so it refused every T16 case, clean or crashed, identically.
+2. `verification/runs/T-family/T16_runs/mark_done_t16.py` on disk hashes to git blob **`efcf7852…`**, **byte-identical** to the blob at `5bcbaf8c` **and** at HEAD — the repaired instrument is the one on disk and nothing has drifted.
+3. `DONE.T16_MC_c` exists, dated **2026-08-27 19:18:24**, content *"strict rule met on the PHYSICS-CRITICAL conjuncts P1-P5"*. `DONE.T16_MC_m` (2026-08-27 21:28) and `DONE.T16_MC_f` (2026-08-30 23:19) likewise.
+4. Costs, from `T16_runs/COST_CALIBRATION_C217_DRAFT_ROW.txt`: **`T16_MC_c` 12.400 core-min**, **`T16_MC_m` 223.417**, **`T16_MC_f` 2 151.950** — total **2 387.767** against a registered CAP of 2 400.
+
+**MY RULING — BOARDED AS MINE, AND EXPLICITLY OVERTURNABLE BY THE SUPERVISOR OR BY SANAA:**
+
+> **`T16_MC_c`'s `BLOCKED` IS LIFTED.** The instrument defect that caused it is repaired at `5bcbaf8c`, the repaired instrument is byte-identical on disk and at HEAD, and completion is established by a marker the repaired instrument wrote.
+>
+> **NO REPLACEMENT VERDICT IS ASSIGNED. The rung is UNGRADED**, and **no T16 value may be computed until its comparator is frozen and read by the supervisor.**
+>
+> **T16's blindness is INTACT and must stay so: no `gate_t16*.json` exists anywhere in the repository** [MEASURED, `find . -name 'gate_t16*'` returns nothing]. Anyone who computes a T16 number before that comparator is frozen destroys the only thing that makes the eventual verdict worth anything.
+
+**AND ITS CONSEQUENCE, WHICH MUST NOT BE QUIETLY DROPPED.** The cause-class block carries the row **`T16 T16_MC_c` → `BLOCKED` → `INSTRUMENT` (4)** at `MATRIX_CONTRIBUTION.md:1150`, resting on that `BLOCKED` verdict. **That class was correct for the verdict of record at the time; the verdict has since been lifted, so the row is SUPERSEDED and must not be counted live.** The affected figures are the headline's non-physics breakout at `MATRIX_CONTRIBUTION.md:1101` — `INSTRUMENT` **3** — and the non-physics total in the headline at `:1095` — **12**. **This lane does not restate them**; the arithmetic belongs to the next cause-class pass, which must also decide whether an `UNGRADED` rung contributes a row at all. *(The `MATRIX_CONTRIBUTION.md:1150` row already carries a ⚠ "subsequently lifted" note; what is new here is that the note now has a ruling behind it and the two headline figures are named as owing a restatement.)*
+
+---
+
+### 6. WHERE I DIFFER FROM MY SUPERVISOR
+
+1. **The set of stale T8-`BLOCKED` board lines is FOUR, not two.** The brief named `:818` and `:8930`. This lane's sweep also finds **`:9049`** (*"`BLOCKED` stands on T8 regardless"*) and **`:9208`** (*"`BLOCKED` stands on T8 and K0d"*). The brief's exclusions of `:10320` (a citation of the problem) and `:13539` (opposite polarity) are **correct and reproduced**; this lane additionally excludes `:8797` and `:13215`, where the `BLOCKED` attaches to **K0d**, not T8.
+
+2. **"74 registered statements that a control MUST return `FAIL`" over-claims.** Measured split: **38** literal `must`/`required` expectations, **36** recorded `base_verdict`/`regraded_verdict` observations inside the control blocks. **74 remains the correct damage figure** — both kinds are corrupted by an edit — but the characterisation should be "74 control-block cells, 38 of them literal MUST/required".
+
+3. **"Owed a correction by their owners" is the wrong remedy for the four board lines, and this lane declines to make the edit.** All four sit in blocks dated **2026-08-25**, i.e. **before** the 2026-08-26T03:18:44Z verdict; they were the verdict of record when written. Two of them sit under a header that declares its contents *"a CLOSED HISTORICAL BLOCK carried BYTE-FOR-BYTE"*. Editing them would breach that declaration, breach the append-only convention of this file, and — for three of the four, which sit in the **`dafoam`** section span — cross a territory line. **A dated supersession block is the remedy, and this is it.**
+
+4. **The D-5 framing understates the hazard.** D-5's instrument (`scripts/check_verdict_cells.py`) globs `verification/campaign/*.md` and **never reads the run-tree gate JSONs**, so all 91 sit outside D-5's corpus. The ratio is not 74 : 8 within D-5's remit; within D-5's remit it is **74 : 0**. The 8 are still real rule-1 departures and were still worth correcting — and were corrected, by amendment, at `103659ee`.
+
+**Agreed and reproduced without change:** the T8 verdict and both grounds; `2.333313` vs `7/3`; `GATE-DESIGN` (5) and the `BOOKKEEPING` (3) trap; the 91 / 73 / 17 / 1 census and its full path breakdown; the five commits and their diffs; all three T16 core-minute figures; the byte-identical `efcf7852` marker hash; the absence of any `gate_t16*.json`.
+
+---
+
+### 7. OWED — NOT DONE BY THIS LANE, AND NOT TO BE MISTAKEN FOR DONE
+
+- **`T16_RESULTS.md:1`, `:7`, `:11`** — three stale verdict lines. The **ruling** is recorded above; the **file is unedited by this lane**. The route is a dated amendment at the foot (rule 6), as `8bb2f520` began. **Supervisor's call.**
+- **`MATRIX_CONTRIBUTION.md:1095` and `:1101`** — the non-physics total (**12**) and the `INSTRUMENT` count (**3**) owe a restatement once the `T16_MC_c` supersession is accepted. **Deliberately not restated here.**
+- **The four superseded board statements** (`:818`, `:8930`, `:9049`, `:9208`) — superseded by this block, **not edited**, by the reasoning in §2b and §6.3.
+- **NOTHING SENT.** No draft, note, defect report or record has been sent, filed, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7).
+
 ##### ADDENDUM 2026-08-31T21:17:52Z — T24 IS GRADED `PASS` ×12 AND THE RUNG IS CLOSED; ITS OWN FROZEN REGISTRATION PREDICTED EXACTLY THIS AND SAID SO IN ADVANCE; TWELVE OF TWELVE LINEARITY DEPARTURES SHARE A SIGN AND NOBODY KNOWS WHY
 
 *(Pure insertion by a heat-transfer `lab-lane` at the supervisor's instruction, with **zero existing lines edited or deleted**. The `**Section last written:**` line above is stale and is DELIBERATELY NOT EDITED — editing it would be a deletion. **Every figure below was re-derived by this lane from the named artefact**, not transcribed from the commissioning brief; where this lane's reading DIFFERS from the brief, or from a record this team has already committed, it is boarded under "WHERE I DIFFER FROM MY SUPERVISOR" rather than silently fixed. Items this lane did not check itself are tagged **VERIFY**. HEAD when this text was composed was `aa1ac179`; the true parent of this block's own commit is whatever the CAS asserted, and that — not this sentence — is authoritative.)*
