@@ -6,7 +6,7 @@
  "team": "dafoam",
  "case_id": "SO3aR2_chain",
 
- "prereg_commit": "UNSET-AT-DRAFT-TIME-SUPERVISOR-SETS-THIS-AT-ARMING",
+ "prereg_commit": "181fd627924c9108000f5259dd30fd87cc0daf3f",
  "_prereg_commit_note": "DELIBERATELY NOT A SHA, AND DELIBERATELY NOT SHA-SHAPED so it can never be mistaken for one. The freeze commit does not exist when this draft is written -- this file is inside it. The supervisor sets this field at arming from `git log --format=%H --diff-filter=A -- cases/dafoam/ladder-a/A1/curriculum_SO3aR2/PREREGISTRATION.md`, DERIVED and not recalled, and the validator's FULL_SHA check refuses this entry until then. That refusal is the intended state of a draft: fail-closed, never fail-open.",
 
  "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_SO3aR2/PREREGISTRATION.md",
