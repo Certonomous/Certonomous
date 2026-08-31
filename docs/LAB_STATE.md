@@ -4731,7 +4731,7 @@ Nine target files plus `docs/dafoam/`, `docs/capability/`, `cases/dafoam/`, `doc
 - **`docs/COST_CALIBRATION.md` `C-217` (`:301`) — ALREADY CORRECT.** It quotes the `EXIT:` line strictly as a **program-length** fact (priced 80 majors, stopped at 73, *"Rate right, program short"*). No cause class. Not edited.
 - **`cases/dafoam/ladder-a/A2/curriculum_SO3D/PREREGISTRATION.md` — ALREADY CORRECT, and it is the document that got there first.** Its §3 is headed *"THE FALSE PREMISE THIS FREEZE CORRECTS"* and rejects the value-channel framing on measured grounds. `SO3D` remains the right vehicle for the one genuinely physical phenomenon here — the multipoint primal-failure contrast, **D6R 68.68 % (671/977)** and **D6 66.42 % (546/822)** against **D4 2.222 %** and **D5 1.170 %** single-point on the same base mesh and image digest — **thirtyfold, real, and still never the subject of a graded verdict.**
 
-##### 6. ⚠ FIVE FROZEN DOCUMENTS CARRY THE WRONG CHARACTERISATION — REFERRED, NOT EDITED
+##### 6. ⚠ SIX FROZEN DOCUMENTS, SEVEN LINES, CARRY THE WRONG CHARACTERISATION — REFERRED, NOT EDITED
 
 Rule 6: a frozen file is never rewritten. **I edited none of these**; each needs a **dated addendum** appended at its foot, which is the supervisor's call and not a lane's:
 
