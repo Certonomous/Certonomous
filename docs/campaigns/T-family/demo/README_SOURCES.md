@@ -14,7 +14,7 @@ Deliverables in this directory:
 | file | act | state |
 |---|---|---|
 | `ACT_A_thermal_map_sheet.tex` | A — motor-in-duct thermal map | complete; compiles to **one page**, `pdflatex`, rc 0 |
-| `ACT_C_battery_module_sheet.tex` | C — battery module under a takeoff pulse | confidence section complete; module results **reserved and empty** (not run); one page, rc 0 |
+| `ACT_C_battery_module_sheet.tex` | C — battery module under a takeoff pulse | **complete**; confidence section and module results both measured; four of five frames filled from the solved run, the step-size frame still reserved; one page, rc 0 |
 
 Both `.tex` files are self-contained: no external figure, no package beyond a
 base TeX Live install. **This box has no `tikz`/`pgfplots`** (`kpsewhich`
@@ -95,7 +95,7 @@ unaffected and is quoted as briefed.
 
 **The one-sentence physical reason on the sheet** ("the hand method collapses
 the whole cooling path onto one resistance taken from a fully-developed
-correlation, while the real passage is a short annular gap in which the flow is
+correlation, while the real flow path is a short annular gap in which the flow is
 still developing and the surface removes heat considerably better than the
 correlation allows") is **lane-attributed engineering framing of a measured
 result, not a measured mechanism.** No mechanism is claimed at source; the
@@ -274,12 +274,35 @@ Every physical row in the table below is shared by both cases and is unchanged.
 The sheet shows the arithmetic for both derived figures (stack height and total
 heat) beneath the table, so a reader can check them without this file.
 
-### The module has not run — and what the sheet says about that
+### The module HAS now run — sheet C carries measured results
 
-**Measured state of `T25_MOD_L1` on disk:** the case directory holds
+**SUPERSEDED, 2026-08-31 23:31Z.** Everything in the two subsections below was
+true when written and is kept because the ruling it records is still binding.
+`T25_MOD_L1` was solved at 23:31:22–24Z under Sanaa's release directive
+(`etc/sessions/2026-08-31T2330Z_sanaa_battery_release_sheets.md`, commit
+`1a4416d5`, timestamped 23:30:49Z — **read at source by this lane, not taken on
+relay**): *"Battery hold released — launch the module now under the feasibility
+tag (unless the hold reason is a rule-2/safety issue; then state it in one line
+first)."* The hold reason was neither rule-2 nor safety. The launch was the
+supervisor's, direct rather than through the queue.
+
+**Completion, measured:** `rc=0`; one `End` line; zero `FOAM FATAL`; last
+`Time = 900` equal to `endTime`; 1800 `ExecutionTime` lines; fields at
+`900/module/` are `T` and `p`, the list `CASE.txt` registers; age guard holds
+(`900/module/T` newer than `0/module/T`). 181 time directories at 5 s spacing.
+
+**The `ExecutionTime` count clause, raised by this lane and answered.** Standing
+rule 4 reads *"`ExecutionTime` count == `endTime`"*, and here the count is 1800
+against an `endTime` of 900. **The wording is shorthand that is literally true
+only at `deltaT` 1; the operative test is the count against the REGISTERED STEP
+COUNT.** Precedent checked by this lane at source rather than accepted on
+relay: `T20_LC_c` has `endTime` 4500 at `deltaT` 6 and an `ExecutionTime` count
+of **750** — count ≠ `endTime` there too, on a case that is complete. 1800 =
+900 / 0.5 satisfies the clause. Recorded here so the next reader does not
+re-raise it.
+
+**Original state, for the record:** before that launch the case directory held
 `0.orig`, `CASE.txt`, `constant`, `log.blockMesh`, `system` and nothing else.
-**No time directories, no `log.solve`, no `STATUS`, no `DONE` marker.** The
-mesh was built; the solver never ran.
 
 **⚠ THIRD DEPARTURE FROM THE BRIEF, REPORTED RATHER THAN WRITTEN IN.** The
 dispatch says the launch "is held pending an approval". **I could not verify
@@ -308,22 +331,146 @@ The case is in any event tagged `FEASIBILITY` and its own `CASE.txt` (lines
 nothing it produces may be graded. Sheet C's reserved frames are consistent
 with that: they promise figures, not verdicts.
 
-### The five reserved placeholders
+### The five placeholders — FOUR NOW FILLED FROM MEASURED DATA, ONE STILL RESERVED
 
-Each is a visibly empty framed box carrying a short "Reserved / Not yet solved"
-label, and each is preceded by a LaTeX comment (not user-visible) naming the
-data that fills it.
-
-| # | frame on the sheet | LaTeX comment says it is filled by |
+| # | frame on the sheet | state |
 |---|---|---|
-| 1 | Figure 1 — per-cell temperature histories | eight curves, cell temperature °C against time s, 0–900 s, from the probe at each cell centre |
-| 2 | Figure 2 — spread across the module | hottest-minus-coldest cell, K, against time, s |
-| 3 | Table 2 — peak and time-to-peak, per cell | eight rows: peak temperature °C, time to peak s, uncertainty (from placeholder 5, or "not quantified" if only one step size is run) |
-| 4 | Energy conservation | heat in (34 080 J) against heat stored plus heat removed, both integrated to 900 s, closure in %; R5 wording when filled is recorded in the comment |
-| 5 | Time-step check | peak temperature and time-to-peak at 0.5 s and 0.25 s |
+| 1 | Figure 1 — per-cell temperature histories | **FILLED.** Eight curves drawn from the solved fields; they fall on two |
+| 2 | Figure 2 — spread across the module | **FILLED.** Hottest-minus-coldest cell against time |
+| 3 | Table 2 — peak and time-to-peak, per cell | **FILLED.** Eight rows; uncertainty column reads `n/q` |
+| 4 | Energy conservation | **FILLED.** Closed to 99.85 % |
+| 5 | Time-step check | **STILL RESERVED AND EMPTY** |
 
-**Nothing is drawn in any of them. No curve, no number, no trend, no
-illustrative sketch.**
+**Frame 5 stays empty and that is a decision, not an omission.**
+`T25_MOD_L1_DT025` is built, committed and verified but **has not been solved**.
+A step-independence claim needs both arms; a comparison drawn from one step size
+would be worse than an empty frame. The sheet's caption says only that the
+second comparison *is not yet available* — **nothing about why**, per R9.
+The supervisor recorded that the launch of that case was refused to them and
+that they would neither retry it, rephrase it, nor route it through a lane;
+this lane did not launch it either. That reasoning is internal and appears
+nowhere in customer-facing text.
+
+### The module results — every user-visible number and where it came from
+
+Source: the 181 time directories of
+`verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1/`, read by
+`verification/runs/T-family/T25_MODULE_runs/analyse_t25.py` (written for this,
+carrying its own planted control; see below). **Probe output was NOT used —
+see the probe hazard below.**
+
+| sheet value | measured | how |
+|---|---|---|
+| peak 20.27 °C / rise 0.420 K, cells 1 and 8 | 293.419751 K | volume-average over the 120 mesh cells of each end cell at `900/module/T` |
+| peak 20.16 °C / rise 0.309 K, cells 2–7 | 293.309239 K | same, interior cells |
+| time to peak, 900 s, every cell | 900 s | the maximum over all 181 samples is the last one for all eight cells |
+| hottest point anywhere, 20.30 °C | rise 0.449031 K | maximum of the internal field at 900 s, located at the insulated casing |
+| rise at end of takeoff, 0.117 K | 0.116901 K | end cells at t = 60 s |
+| spread 0.111 K at 900 s | 0.110512 K | max minus min of the eight volume-averages; monotone over the whole window |
+| removal 22.1 W against 32 W in, 69 % | 22.1230 W | `h·A·(T_face−293)` summed over the 280 channel faces at 900 s |
+| takeoff 7 200 J / cruise 26 880 J / total 34 080 J | exact | `8×15×60`, `8×4×840` — arithmetic on the duty cycle, shown on the sheet |
+| **interior six identical, end pair identical** | difference `0.000e+00` K in both groups | the evidence that the mechanism is purely geometric |
+
+**Figures 1 and 2 are generated from the solved fields, not drawn by hand.** The
+`\qbezier` polylines were emitted by a script reading the same arrays as the
+tables, so a curve and the number beside it cannot disagree.
+
+### Energy closure — three terms measured separately, and the planted control
+
+**Closed to 99.854 %**, 49.71 J of 34 080 J unaccounted.
+
+| term | value | how it was obtained |
+|---|---|---|
+| heat in | 34 080.0000 J | the duty cycle |
+| stored at 900 s | 20 212.0325 J | `ρ·cp·V_c·(T_c−293)` summed over all 960 mesh cells |
+| removed | 13 818.2587 J | `h·A_f·(T_f−293)` over the 280 channel faces, trapezoid over the 181 writes |
+| accounted | 34 030.2912 J | sum of the two above |
+
+**No term is derived from another** — the closure is a real check rather than an
+identity. Cell volumes and face areas come out of
+`constant/module/polyMesh` and are asserted against the registered geometry
+(960 cells, total volume 0.024000 m³, 280 channel faces totalling 1.4000 m²);
+the reader refuses if any assertion fails.
+
+**The 0.146 % residual is attributed to sampling, not physics, and the
+attribution is argued rather than assumed:** the removal term is integrated at
+the 5 s field-write interval while the solver steps at 0.5 s, and `Q_out` is
+concave over the window, so a trapezoid under-counts it — **the sign of the
+residual is the sign curvature predicts.** That is a defensible reading, not a
+proof; decomposing it further needs a finer write interval. Heat-in and stored
+energy are exact.
+
+**PLANTED CONTROL (`CLAUDE.md` rule 3).** `analyse_t25.py --selftest` copies the
+case, adds exactly +1.000000 K to all 960 internal temperatures at t = 900, and
+re-reads through the same parser. **The reader saw +1.000000 K on the per-cell
+mean and +60000.0000 J of stored energy against an expected +60000.0000 J.**
+A reader never shown able to see a non-zero cannot be trusted with a zero; this
+one can, so its numbers are admissible.
+
+### Table 3 — the two-group time constant, and a correction recorded
+
+At steady state each cell must reject its own 4 W through its own cooled area,
+**because there is no cell-to-cell conduction path** (`CASE.txt` simplification
+4 — the eight blocks are thermally disconnected). So there are two groups, not
+one. Areas are mesh-derived, not assumed:
+
+| | end cells 1, 8 | interior 2–7 |
+|---|---|---|
+| cooled area | 0.100 m² | 0.200 m² |
+| time constant `ρ·cp·V/(h·A)` | 1 391.5 s | 695.7 s |
+| settles near `P/(h·A)` | 0.7421 K | 0.3711 K |
+| reached at 900 s | 0.4198 K | 0.3092 K |
+| fraction of settled | 56.6 % | 83.3 % |
+| still rising at 900 s | 1.0026 K/h | 0.4638 K/h |
+
+**⚠ A SUPERVISOR CORRECTION, RECORDED SO IT IS AUDITABLE RATHER THAN INVISIBLE.**
+The supervisor's instruction was to put a **single** time constant and steady
+limit on the sheet — 795 s and 0.42 K — computed by lumping the module as one
+body. This lane was told to verify that arithmetic rather than accept it, did,
+and **it reproduces exactly for the module MEAN** (`ρ·cp·V` = 60 000.0 J/K,
+`h·A` = 75.4600 W/K, τ = 795.12 s, 900 s = 1.1319 τ, mean steady rise 0.4241 K,
+`1−exp(−900/τ)` = 0.6776 against a measured removal fraction of 0.6913).
+**But the lumped model is invalid on this geometry**, for the reason above, and
+it is invalid in the unsafe direction: 0.42 K would have told a customer the
+hottest cells are essentially settled when they are at 56.6 % of a limit near
+0.74 K — close to a doubling, on the cells the sheet's own caveat calls
+design-dominant. The measured rates of rise settle it: **the end cells are the
+furthest from equilibrium, which is the reverse of what a single τ implies.**
+The supervisor accepted the correction in full. **They note this is the second
+time in one session that their own arithmetic produced a customer-facing claim
+understating a thermal risk** — the first being the sheet-A assertion that the
+hand-model overprediction grows with airspeed when at source it shrinks (Part 1
+above). Both were caught by reading the source rather than trusting the relay.
+
+**0.7421 K is presented on the sheet as a CONSERVATIVE UPPER figure, with its
+reason given**, because the thermal disconnection is a modelling simplification
+rather than a fact about a real pack: busbars, casing conduction or coolant
+cross-talk would let the cooler interior share the load and bring it down. A
+number presented as conservative with its reason is trustworthy; the same
+number presented flat invites a reader to discover the assumption later and
+distrust everything near it.
+
+### ⚠ PROBE HAZARD — INTERNAL, AND DELIBERATELY NOT ON THE SHEET
+
+`system/controlDict` places three probes at the geometric centres of cells 1, 4
+and 8. **Two of those points sit exactly on internal mesh faces**, and OpenFOAM
+snapped them to different cells on the two ends of a geometrically symmetric
+module. At 900 s the probes read **293.434 / 293.320 / 293.419 K** — an apparent
+0.015 K asymmetry between two cells that are mirror images.
+
+**The volume-averaged fields show the asymmetry does not exist**: cells 1 and 8
+agree to `0.000e+00` K, as do the interior six. The probe reading is a sampling
+artefact of point placement, not physics.
+
+**Nothing on the sheet comes from probe output.** For the next person building a
+module case: **do not place a probe at a cell centre that coincides with a mesh
+face** — with an even division count in a direction, the block centre is a face.
+Offset the probe, or read volume averages.
+
+~~**Nothing is drawn in any of them.**~~ **SUPERSEDED:** four of the five now
+carry measured data, as the table above records. **Nothing is drawn in frame 5,
+and nothing may be: no curve, no number, no trend, no illustrative sketch, and
+above all no comparison inferred from a single step size.**
 
 **On the second step size — the gap is CLOSED, and closed by building, not by
 weakening the sentence.** The earlier state of this file recorded that the sheet
@@ -437,7 +584,35 @@ somebody at 23:31Z while this work was in progress.
 | **"the 0.25 s solve takes twice as many steps"** | 3600 against 1800 to the same 900 s endTime — arithmetic on `deltaT`, and the only claim the sheet makes about the finer case's cost | | — |
 | **no estimate is quoted for the 0.25 s solve** | **none exists.** No estimate was registered for it and this lane did not invent one. Doubling 1.0 would have been a guess wearing a record's clothes | | — |
 | "the estimate rests on a file-writing rate this configuration has never been measured at" | same file, `cost_basis`: *"The I/O term, not the cell count, is what this estimate is guessing at, and it is a GUESS: this is the lab's first 8-block multi-patch chtMultiRegionFoam case and no measured I/O rate exists for it."* | | — |
-| **not yet spent** | the case has no `log.solve` and no `STATUS` on disk | | — |
+| ~~not yet spent~~ | **SUPERSEDED — the module ran.** See the calibration row below | | — |
+
+**ESTIMATE-VERSUS-ACTUAL, `CLAUDE.md` rule 12.** The module run is a process
+completion and carries its comparison:
+
+| figure | value | basis |
+|---|---|---|
+| upfront estimate | **1.0 core-min** REGISTERED | `verification/queue/heat-transfer/refused/T25_MOD_L1.json`, `cost_core_min_estimate` |
+| registered cap | **10.0 core-min** hard, enacted as `timeout 600s` | same file; `STATUS` confirms `timeout_s=600`, `capped=no` |
+| **actual** | **0.017 core-min** MEASURED | `STATUS.T25_MOD_L1`: `wall_s=1`, `ranks=1`, `core_min=0.017` |
+| **ratio actual/predicted** | **0.017** | DERIVED |
+| cap utilisation | 0.17 % of the registered 10.0 | DERIVED |
+| waste | **0.0 core-min** — the case launched clean on the first attempt | MEASURED, named separately per the budget charter §6 and not folded into the ratio |
+| derived cost | **$0.0000145**, under a hundredth of a penny | DERIVED at the owner-stated $0.0513/core-h, NOT metered |
+
+**Attribution: MISPREDICTION, by roughly 60×, and in the safe direction.** The
+estimate's own `cost_basis` said what it was guessing at, verbatim: *"The I/O
+term, not the cell count, is what this estimate is guessing at, and it is a
+GUESS: this is the lab's first 8-block multi-patch `chtMultiRegionFoam` case and
+no measured I/O rate exists for it."* The guess was far too pessimistic — 960
+cells of solid-only implicit conduction over 1800 steps is trivial work, and the
+181 field writes cost far less than feared. **The transferable figure: this
+configuration runs at about 5.6e-4 core-min per 100 steps at 960 cells.** The
+sheet states the over-estimate plainly rather than quietly banking it.
+
+**A LEDGER ROW IS OWED AND IS NOT THIS LANE'S TO WRITE.** Rule 12 requires this
+comparison to land in `docs/COST_CALIBRATION.md` under that file's append rules.
+The run was the supervisor's, the ledger is shared, and this lane did not append
+to it. **Flagged to the supervisor as outstanding** rather than left implied.
 
 Note that the audit's own selftest spend of 0.777 core-min (audit line 373) is
 **not** folded into the 125.516 figure on the sheet, matching the audit, which
@@ -471,8 +646,26 @@ names it separately.
    solving at them.**
 8. **Neither sheet has been reviewed by the supervisor.**
    `SUPERVISION_CHARTER.md` §3's four checks are the supervisor's own and none
-   is claimed here. In particular the diff of `build_t25.py` is a
-   measurement-script diff and is the supervisor's to read as a diff.
+   is claimed here. In particular the diffs of `build_t25.py` **and of the new
+   `analyse_t25.py`** are measurement-script diffs and are the supervisor's to
+   read as diffs. `analyse_t25.py` produced every module number on sheet C.
+10. **The 0.146 % energy residual is ATTRIBUTED, not decomposed.** The
+   sampling argument is supported by the sign of the residual matching what
+   curvature predicts, which is evidence and not proof. Separating write-interval
+   error from anything else needs a run with a finer write interval, which was
+   not done.
+11. **Sheet C quotes no numerical error bar on any module number, and none
+   exists.** One mesh, one time step. The 0.25 s case is built but unsolved, so
+   even the step-size sensitivity is unmeasured. Nothing on the sheet implies
+   otherwise.
+12. **The 0.7421 K settled figure is analytic, not solved.** It is
+   `P/(h·A)` per cell group, exact for this configuration because the cells are
+   thermally independent and the boundary condition is linear — but the module
+   was never run to steady state, so no solved value corroborates it. It is
+   labelled on the sheet as a conservative upper estimate with its reason.
+13. **A `docs/COST_CALIBRATION.md` row is owed for the module run and this lane
+   did not write it.** The comparison itself is above (1.0 estimated against
+   0.017 measured, ratio 0.017); the ledger append is the supervisor's.
 9. ~~**Neither module case has been solved, and no cost has been incurred by
    either.**~~ **FALSE WITHIN MINUTES OF BEING WRITTEN — see the correction
    immediately below.** It held for the 0.25 s case and does not hold for the
@@ -552,6 +745,16 @@ grep -E -i -o 'pass|gate|blocked|pending|rung|tier|verdict|prereg|permission|app
 | `ACT_C_battery_module_sheet.tex` | **0** | **0** |
 | sheet A, rendered PDF text | **0** | **1** |
 | sheet C, rendered PDF text | **0** | **0** |
+
+**RE-RUN AGAIN 2026-08-31 after sheet C was filled with the solved results —
+counts unchanged, all four files, both sweeps:** case-sensitive **0 / 0 / 0 / 0**;
+case-insensitive **1 / 0 / 1 / 0**, the single hit still being `Conjugate` on
+sheet A and nothing else. **Sheet C returns zero on both sweeps in source and in
+rendered text even after gaining four filled frames, three tables, two figures,
+a headline block and a rewritten caveat box.** `permission`, `approval` and
+`queue` remain at zero across all four files — checked explicitly, since the
+step-size frame's caption is exactly where such a leak would have appeared and
+it says only that the comparison *is not yet available*.
 
 **`permission`, `approval`, `queue`, `prereg`, `verdict`, `rung`, `tier`,
 `blocked` and `pending` return zero everywhere, in both files, source and

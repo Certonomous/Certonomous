@@ -2,43 +2,49 @@
 % ACT C -- BATTERY MODULE UNDER A TAKEOFF PULSE -- one-page customer-facing
 % result sheet, written under the DEMO STANDARD v2 output rules R1-R10.
 %
-% STATE OF THIS SHEET: the confidence section is complete and every number in
-% it is measured. The module results section is a LAYOUT with EMPTY
-% PLACEHOLDERS -- the eight-cell module is built and checked but has not been
-% solved, so no history, no spread, no time-to-peak, no energy closure and no
-% step-size comparison exists yet. NOTHING IS DRAWN OR TABULATED THERE. Each
-% placeholder carries a LaTeX comment naming exactly what fills it.
+% STATE OF THIS SHEET: the confidence section and the module results are both
+% complete and every number in both is measured. The module was solved over
+% the full 900 s at a 0.5 s step; the eight per-cell histories, the spread,
+% the peak table and the energy closure are all read from the solution files
+% on disk by a reader that carries its own planted control.
 %
-% The module exists at BOTH time steps the sheet names, 0.5 s and 0.25 s, each
-% emitted by the same builder and identical in every other respect. Neither is
-% solved. The sheet therefore names the two step sizes and draws nothing.
+% ONE FRAME REMAINS RESERVED AND DELIBERATELY EMPTY: the step-size comparison.
+% The module exists at a second, halved step of 0.25 s, built by the same
+% builder and identical in every other respect, but it has NOT been solved.
+% A step-independence claim needs both arms. Nothing is inferred, drawn or
+% interpolated from one step size into that frame.
 %
-% Every user-visible number on this sheet traces to a source artifact by file
-% and line, and so does the content of each reserved frame below. That mapping
-% lives in README_SOURCES.md in this directory; it is not repeated here, so
-% that this file carries no internal identifiers at all.
+% Every user-visible number traces to a source artifact by file and line.
+% That mapping lives in README_SOURCES.md in this directory; it is not
+% repeated here, so that this file carries no internal identifiers at all.
+%
+% The two curves of Figure 1 and the one curve of Figure 2 are generated
+% directly from the solved fields, not drawn by hand.
 %
 % Self-contained: no external figure file, no packages beyond a base TeX Live
 % install (no tikz/pgfplots on this box). Vector output at any zoom.
 % Compile: pdflatex ACT_C_battery_module_sheet.tex
 % ---------------------------------------------------------------------------
 \documentclass[9pt,a4paper]{article}
-\usepackage[margin=10mm,top=7mm,bottom=5mm]{geometry}
+\usepackage[margin=10mm,top=5mm,bottom=3mm]{geometry}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{xcolor}
+\usepackage{graphicx}
 \usepackage[T1]{fontenc}
 
 \definecolor{rulegrey}{rgb}{0.45,0.45,0.45}
 \definecolor{boxgrey}{rgb}{0.96,0.96,0.94}
 \definecolor{holdgrey}{rgb}{0.62,0.62,0.62}
 \definecolor{holdfill}{rgb}{0.975,0.975,0.975}
+\definecolor{keyfill}{rgb}{0.93,0.945,0.965}
 
-\renewcommand{\footnotesize}{\fontsize{6.9}{7.9}\selectfont}
-\renewcommand{\scriptsize}{\fontsize{6.4}{7.5}\selectfont}
-\renewcommand{\arraystretch}{1.02}
+\renewcommand{\footnotesize}{\fontsize{6.9}{7.5}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{6.4}{7.0}\selectfont}
+\renewcommand{\tiny}{\fontsize{5.6}{6.1}\selectfont}
+\renewcommand{\arraystretch}{0.96}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0.5pt}
+\setlength{\parskip}{0.4pt}
 \pagestyle{empty}
 
 \newcommand{\rolesig}[1]{\textbf{\footnotesize#1}}
@@ -46,49 +52,43 @@
 % A reserved, visibly empty frame. Nothing is drawn inside it, deliberately.
 \newcommand{\reserved}[3]{%
   \fcolorbox{holdgrey}{holdfill}{\begin{minipage}[t][#2][c]{#1}
-    \centering{\footnotesize\color{holdgrey}#3}
+    \centering{\tiny\color{holdgrey}#3}
   \end{minipage}}}
 
 \begin{document}
-\fontsize{8}{9.5}\selectfont
-\enlargethispage{16pt}
+\fontsize{7.8}{8.7}\selectfont
+\enlargethispage{26pt}
 
 % ---------------------------------------------------------------- title -----
-{\fontsize{14}{16}\selectfont\bfseries Battery module under a takeoff power pulse}\\[1.5pt]
-{\fontsize{8.8}{10}\selectfont Eight air-cooled cells, a 60-second high-power
+{\fontsize{13.5}{15}\selectfont\bfseries Battery module under a takeoff power pulse}\\[1pt]
+{\fontsize{8.6}{9.8}\selectfont Eight air-cooled cells, a 60-second high-power
 takeoff phase, then cruise to 900 seconds}\\[2pt]
 {\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
 {\footnotesize Transient conduction in the cells with convective cooling on the
-channel faces. \textbf{Status: the confidence check below is complete and
-measured. The module is built and checked but not yet solved, so its results
-sections are reserved and deliberately empty.}}
+channel faces, solved over the full 900 seconds. Every number below is read from
+the solution; the one comparison not yet available is marked as such.}
 
 % -------------------------------------------------- 1. confidence beat ------
-\vspace{1.5pt}
-\textbf{1. Before we spend anything on your module: what our transient
+\vspace{1pt}
+\textbf{1. Before we spent anything on your module: what our transient
 conduction machinery is worth}
 
-\vspace{1pt}
-{\footnotesize We solved a three-dimensional transient conduction problem that
-has a closed-form answer --- a uniform block, initially hot, cooled on its faces
-by a fixed convective coefficient: the same physics as a cell losing heat to a
-cooling channel --- and compared three independent readings of our solution
-against that exact answer. Temperatures are the dimensionless excess
-$\theta = (T-T_{\infty})/(T_{0}-T_{\infty})$ at Biot number $Bi = 1.0$ and
-Fourier number $Fo = 0.2$. Success criteria, the tolerance on each reading and
-the labels were fixed before the first solver started.}
+\vspace{0.5pt}
+{\footnotesize We solved a three-dimensional transient conduction problem with a
+closed-form answer --- a uniform block, initially hot, cooled on its faces by a
+fixed convective coefficient, the same physics as a cell losing heat to a
+cooling channel --- and compared three independent readings against it.
+Temperatures are the dimensionless excess
+$\theta = (T-T_{\infty})/(T_{0}-T_{\infty})$ at $Bi = 1.0$, $Fo = 0.2$. Success
+criteria and tolerances were fixed before the first solver started.}
 
-\vspace{2pt}
-\textbf{Table 1 --- Solved against the exact conduction solution.} Three
-quantities, three mesh levels each ($20$, $40$, $80$ cells per side; finest
-$512\,000$ cells).
-
-\vspace{2pt}
-{\fontsize{7.2}{8.5}\selectfont
+\vspace{1.5pt}
+{\fontsize{6.7}{7.7}\selectfont
 \begin{tabular}{l rr r r r r r}
+\multicolumn{8}{l}{\textbf{Table 1 --- Solved against the exact conduction solution.} Three mesh levels each ($20$, $40$, $80$ per side; finest $512\,000$ cells).}\\
 \toprule
-Reading of the solution & Exact & Solved & Deviation & Tolerance & Grid-refinement & Observed & Refinement \\
-(dimensionless $\theta$, --) & value & (finest) & from exact, \% & used, \% & uncertainty, \% & order, -- & ratio, -- \\
+Reading of the solution & Exact & Solved & Deviation & Tolerance & Grid-refine. & Observed & Refine. \\
+(dimensionless $\theta$) & value & (finest) & exact, \% & used, \% & uncert., \% & order & ratio \\
 \midrule
 Average through the block        & 0.6175896496 & 0.6176037117 & $+0.00228$ & 45.5 & 0.0021 & 1.9996 & 3.999 \\
 Temperature at the block centre  & 0.8591137894 & 0.8591831159 & $+0.00807$ & 32.3 & 0.0104 & 2.0006 & 4.002 \\
@@ -96,195 +96,368 @@ Temperature at a cooled face     & 0.5814449853 & 0.5815192620 & $+0.01277$ & 42
 \bottomrule
 \end{tabular}}
 
-\vspace{2pt}
-{\footnotesize\textbf{All three readings are verified against the exact
-conduction solution to within $0.013\,\%$} --- the largest of the three
-deviations from the exact value, not an average and not a tolerance. Each also
-used less than half of the tolerance allowed for it before the run (worst
-$45.5\,\%$). The grid-refinement column is the numerical error bar on the
-finest-mesh value, largest $0.0154\,\%$. Observed order is how fast the error
-falls under mesh refinement: $1.9996$/$2.0006$/$2.0130$ against a theoretical
-$2.000$, with errors falling by $3.999$/$4.002$/$4.036$ against a theoretical
-$4.000$ for halving the cell size. \textbf{Second-order accurate by measurement,
-not by assertion.}}
+\vspace{1.5pt}
+{\footnotesize\textbf{Verified against the exact conduction solution to within
+$0.013\,\%$} --- the largest of the three deviations, not an average and not a
+tolerance. Each used under half its allowed tolerance (worst $45.5\,\%$), at a
+measured order of accuracy of $2.00$ against a theoretical $2.00$:
+\textbf{second-order accurate by measurement, not assertion.}}
 
 % ---------------------------------------- 2. what the module is -------------
 \vspace{1.5pt}
 {\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
-\textbf{2. The module we have built, and the duty cycle it will be driven with}
+\textbf{2. The module, the duty cycle, and what the eight cells did}
 
-\vspace{2pt}
-\begin{minipage}[t]{0.485\textwidth}
-{\fontsize{7.2}{8.5}\selectfont
+\vspace{1.5pt}
+\begin{minipage}[t]{0.35\textwidth}
+{\fontsize{6.8}{7.8}\selectfont
 \begin{tabular}{l r l}
 \toprule
 Quantity & Value & Unit \\
 \midrule
 Cells in the stack                  & 8      & -- \\
-Cell length, along the flow         & 100    & mm \\
-Cell thickness                      & 30     & mm \\
+Cell, along flow $\times$ thick     & 100$\times$30 & mm \\
 Cooling channel gap                 & 3      & mm \\
 Stack height, overall               & 261    & mm \\
-Depth modelled                      & 1.0    & m (per unit depth) \\
+Depth modelled                      & 1.0    & m \\
 \midrule
-Takeoff heat, per cell              & 15     & W \\
-Takeoff phase duration              & 60     & s \\
-Cruise heat, per cell               & 4      & W \\
-Total duration simulated            & 900    & s \\
+Takeoff heat, per cell, for 60 s    & 15     & W \\
+Cruise heat, per cell, to 900 s     & 4      & W \\
 Initial and coolant temperature     & 293    & K \\
 \midrule
-Total heat put into the module      & 34\,080 & J \\
+Heat in, takeoff phase              & 7\,200  & J \\
+Heat in, cruise phase               & 26\,880 & J \\
+Heat in, total                      & 34\,080 & J \\
+\bottomrule
+\end{tabular}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\textwidth}
+\vspace{-1mm}
+{\footnotesize\textbf{Figure 1 --- Every cell, through the whole duty cycle.}
+Rise above the $293\,\mathrm{K}$ coolant. Eight curves are drawn and fall on
+two: the interior six agree to six decimals, and so do the end pair.}
+
+\vspace{1mm}
+\setlength{\unitlength}{1mm}\begin{picture}(76,25)(-8,-5.5)
+\put(0,0){\line(1,0){60.0}}\put(0,0){\line(0,1){17.0}}
+\put(0.00,0){\line(0,-1){0.9}}\put(0.00,-4.0){\makebox(0,0)[b]{\tiny 0}}
+\put(20.00,0){\line(0,-1){0.9}}\put(20.00,-4.0){\makebox(0,0)[b]{\tiny 300}}
+\put(40.00,0){\line(0,-1){0.9}}\put(40.00,-4.0){\makebox(0,0)[b]{\tiny 600}}
+\put(60.00,0){\line(0,-1){0.9}}\put(60.00,-4.0){\makebox(0,0)[b]{\tiny 900}}
+\put(0,0.00){\line(-1,0){0.9}}\put(-1.3,0.00){\makebox(0,0)[r]{\tiny 0.0}}
+\put(0,7.56){\line(-1,0){0.9}}\put(-1.3,7.56){\makebox(0,0)[r]{\tiny 0.2}}
+\put(0,15.11){\line(-1,0){0.9}}\put(-1.3,15.11){\makebox(0,0)[r]{\tiny 0.4}}
+\put(4.00,0.00){\line(0,1){0.8}}
+\put(4.00,1.40){\line(0,1){0.8}}
+\put(4.00,2.80){\line(0,1){0.8}}
+\put(4.00,4.20){\line(0,1){0.8}}
+\put(4.00,5.60){\line(0,1){0.8}}
+\put(4.00,7.00){\line(0,1){0.8}}
+\put(4.00,8.40){\line(0,1){0.8}}
+\put(4.00,9.80){\line(0,1){0.8}}
+\put(4.00,11.20){\line(0,1){0.8}}
+\put(4.00,12.60){\line(0,1){0.8}}
+\put(4.00,14.00){\line(0,1){0.8}}
+\put(4.00,15.40){\line(0,1){0.8}}
+\put(4.00,16.80){\line(0,1){0.8}}
+\put(4.00,17.60){\makebox(0,0)[b]{\tiny takeoff ends}}
+\linethickness{0.5pt}
+\qbezier(0.00,0.00)(0.83,0.94)(1.67,1.87)
+\qbezier(1.67,1.87)(2.50,2.79)(3.33,3.72)
+\qbezier(3.33,3.72)(4.17,4.19)(5.00,4.67)
+\qbezier(5.00,4.67)(5.83,4.89)(6.67,5.10)
+\qbezier(6.67,5.10)(7.50,5.31)(8.33,5.52)
+\qbezier(8.33,5.52)(9.17,5.73)(10.00,5.93)
+\qbezier(10.00,5.93)(10.83,6.14)(11.67,6.34)
+\qbezier(11.67,6.34)(12.50,6.54)(13.33,6.74)
+\qbezier(13.33,6.74)(14.17,6.94)(15.00,7.14)
+\qbezier(15.00,7.14)(15.83,7.33)(16.67,7.53)
+\qbezier(16.67,7.53)(17.50,7.72)(18.33,7.91)
+\qbezier(18.33,7.91)(19.17,8.10)(20.00,8.29)
+\qbezier(20.00,8.29)(20.83,8.48)(21.67,8.67)
+\qbezier(21.67,8.67)(22.50,8.85)(23.33,9.03)
+\qbezier(23.33,9.03)(24.17,9.21)(25.00,9.39)
+\qbezier(25.00,9.39)(25.83,9.57)(26.67,9.75)
+\qbezier(26.67,9.75)(27.50,9.93)(28.33,10.10)
+\qbezier(28.33,10.10)(29.17,10.28)(30.00,10.45)
+\qbezier(30.00,10.45)(30.83,10.62)(31.67,10.79)
+\qbezier(31.67,10.79)(32.50,10.96)(33.33,11.12)
+\qbezier(33.33,11.12)(34.17,11.29)(35.00,11.46)
+\qbezier(35.00,11.46)(35.83,11.62)(36.67,11.78)
+\qbezier(36.67,11.78)(37.50,11.94)(38.33,12.10)
+\qbezier(38.33,12.10)(39.17,12.26)(40.00,12.42)
+\qbezier(40.00,12.42)(40.83,12.57)(41.67,12.73)
+\qbezier(41.67,12.73)(42.50,12.88)(43.33,13.03)
+\qbezier(43.33,13.03)(44.17,13.19)(45.00,13.34)
+\qbezier(45.00,13.34)(45.83,13.49)(46.67,13.63)
+\qbezier(46.67,13.63)(47.50,13.78)(48.33,13.93)
+\qbezier(48.33,13.93)(49.17,14.07)(50.00,14.22)
+\qbezier(50.00,14.22)(50.83,14.36)(51.67,14.50)
+\qbezier(51.67,14.50)(52.50,14.64)(53.33,14.78)
+\qbezier(53.33,14.78)(54.17,14.92)(55.00,15.05)
+\qbezier(55.00,15.05)(55.83,15.19)(56.67,15.33)
+\qbezier(56.67,15.33)(57.50,15.46)(58.33,15.59)
+\qbezier(58.33,15.59)(59.17,15.73)(60.00,15.86)
+\linethickness{0.22pt}
+\qbezier(0.00,0.00)(0.83,0.93)(1.67,1.86)
+\qbezier(1.67,1.86)(2.50,2.75)(3.33,3.65)
+\qbezier(3.33,3.65)(4.17,4.10)(5.00,4.54)
+\qbezier(5.00,4.54)(5.83,4.71)(6.67,4.89)
+\qbezier(6.67,4.89)(7.50,5.06)(8.33,5.23)
+\qbezier(8.33,5.23)(9.17,5.39)(10.00,5.55)
+\qbezier(10.00,5.55)(10.83,5.71)(11.67,5.87)
+\qbezier(11.67,5.87)(12.50,6.02)(13.33,6.17)
+\qbezier(13.33,6.17)(14.17,6.32)(15.00,6.47)
+\qbezier(15.00,6.47)(15.83,6.61)(16.67,6.76)
+\qbezier(16.67,6.76)(17.50,6.89)(18.33,7.03)
+\qbezier(18.33,7.03)(19.17,7.17)(20.00,7.30)
+\qbezier(20.00,7.30)(20.83,7.43)(21.67,7.56)
+\qbezier(21.67,7.56)(22.50,7.69)(23.33,7.81)
+\qbezier(23.33,7.81)(24.17,7.93)(25.00,8.05)
+\qbezier(25.00,8.05)(25.83,8.17)(26.67,8.29)
+\qbezier(26.67,8.29)(27.50,8.40)(28.33,8.52)
+\qbezier(28.33,8.52)(29.17,8.63)(30.00,8.74)
+\qbezier(30.00,8.74)(30.83,8.84)(31.67,8.95)
+\qbezier(31.67,8.95)(32.50,9.05)(33.33,9.16)
+\qbezier(33.33,9.16)(34.17,9.26)(35.00,9.36)
+\qbezier(35.00,9.36)(35.83,9.45)(36.67,9.55)
+\qbezier(36.67,9.55)(37.50,9.64)(38.33,9.74)
+\qbezier(38.33,9.74)(39.17,9.83)(40.00,9.92)
+\qbezier(40.00,9.92)(40.83,10.00)(41.67,10.09)
+\qbezier(41.67,10.09)(42.50,10.18)(43.33,10.26)
+\qbezier(43.33,10.26)(44.17,10.34)(45.00,10.43)
+\qbezier(45.00,10.43)(45.83,10.50)(46.67,10.58)
+\qbezier(46.67,10.58)(47.50,10.66)(48.33,10.74)
+\qbezier(48.33,10.74)(49.17,10.81)(50.00,10.89)
+\qbezier(50.00,10.89)(50.83,10.96)(51.67,11.03)
+\qbezier(51.67,11.03)(52.50,11.10)(53.33,11.17)
+\qbezier(53.33,11.17)(54.17,11.24)(55.00,11.30)
+\qbezier(55.00,11.30)(55.83,11.37)(56.67,11.43)
+\qbezier(56.67,11.43)(57.50,11.50)(58.33,11.56)
+\qbezier(58.33,11.56)(59.17,11.62)(60.00,11.68)
+\put(60.70,15.86){\makebox(0,0)[l]{\tiny cells 1, 8}}
+\put(60.70,11.68){\makebox(0,0)[l]{\tiny cells 2--7}}
+\put(30.00,-5.9){\makebox(0,0)[b]{\tiny time, s}}
+\put(-7.0,8.50){\rotatebox{90}{\makebox(0,0)[b]{\tiny rise above coolant, K}}}
+\end{picture}
+\end{minipage}
+
+% ---------------------------------------- 3. the headline -------------------
+\vspace{1pt}
+\colorbox{keyfill}{\begin{minipage}{0.988\textwidth}
+\vspace{1pt}
+{\footnotesize\textbf{Three things this result should change about how you size
+the pack.} \textbf{(1) The takeoff pulse is not what sets your peak.} Only
+$0.117\,\mathrm{K}$ of the rise has arrived when the takeoff phase ends.
+Takeoff puts in $7\,200\,\mathrm{J}$; cruise puts in $26\,880\,\mathrm{J}$,
+because it lasts fourteen times longer --- the cruise soak is the design driver.
+\textbf{(2) The module is not uniform.} The two end cells are cooled on one
+face against the interior cells' two, which gives them twice the time constant
+and twice the settled temperature. \textbf{(3) The window closes before the
+cells that matter stop rising.} The end cells reach $0.420\,\mathrm{K}$ at
+$900\,\mathrm{s}$ and are heading for roughly $0.74\,\mathrm{K}$; at that point
+the channel is still removing only $22.1\,\mathrm{W}$ of the $32\,\mathrm{W}$
+going in. \textbf{$0.420\,\mathrm{K}$ is where the hottest cells are when the
+clock stops, not where they are going.}\\[1.5pt]
+\textbf{Energy conservation checked: closed to $99.85\,\%$.} Of the
+$34\,080\,\mathrm{J}$ put in, $20\,212\,\mathrm{J}$ is stored in the cells and
+$13\,818\,\mathrm{J}$ left through the channel faces --- measured separately,
+agreeing to $0.15\,\%$.}
+\vspace{1pt}
+\end{minipage}}
+
+\vspace{1.5pt}
+\begin{minipage}[t]{0.325\textwidth}
+{\fontsize{6.8}{7.9}\selectfont
+\begin{tabular}{c r r r l}
+\multicolumn{5}{l}{\textbf{Table 2 --- Peak per cell}}\\
+\toprule
+Cell & Peak & Rise & Time to & Uncer- \\
+     & $^{\circ}$C & K & peak, s & tainty \\
+\midrule
+1 & 20.27 & 0.420 & 900 & n/q \\
+2 & 20.16 & 0.309 & 900 & n/q \\
+3 & 20.16 & 0.309 & 900 & n/q \\
+4 & 20.16 & 0.309 & 900 & n/q \\
+5 & 20.16 & 0.309 & 900 & n/q \\
+6 & 20.16 & 0.309 & 900 & n/q \\
+7 & 20.16 & 0.309 & 900 & n/q \\
+8 & 20.27 & 0.420 & 900 & n/q \\
 \bottomrule
 \end{tabular}}
 
-\vspace{1.5pt}
-{\footnotesize Stack height is $8\times30\,\mathrm{mm}$ of cell plus
-$7\times3\,\mathrm{mm}$ of channel; total heat is
-$8\times(15\,\mathrm{W}\times60\,\mathrm{s}+4\,\mathrm{W}\times840\,\mathrm{s})$
---- both arithmetic on the rows above.}
+{\tiny Every cell peaks at $900\,\mathrm{s}$ because that is where the run
+ends, not because it turns over. Hottest point anywhere:
+$20.30\,^{\circ}\mathrm{C}$, at the insulated casing. ``n/q'' = not quantified
+--- one mesh, one time step.}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.485\textwidth}
-% ---- PLACEHOLDER 1 -------------------------------------------------------
-% FILLED BY: eight per-cell temperature histories, T(t) in degC against t in s,
-% 0 to 900 s, one curve per cell, from the probe output at the centre of each
-% of the eight cells (probes written every time step). Axes: x = time, s;
-% y = cell temperature, degC. Cells 1 and 8 expected apart from 2-7 (one
-% cooled face against two) -- but NOT drawn until solved.
-\reserved{\textwidth}{17mm}{\textbf{Figure 1 --- Per-cell temperature histories}\\[2pt]
-Reserved. Eight curves, cell temperature in $^{\circ}\mathrm{C}$ against time in
-$\mathrm{s}$, $0$ to $900\,\mathrm{s}$.\\[2pt]
-Not yet solved. Nothing is drawn here.}
+\begin{minipage}[t]{0.325\textwidth}
+{\footnotesize\textbf{Figure 2 --- Spread across the module}}
 
-\vspace{2pt}
-% ---- PLACEHOLDER 2 -------------------------------------------------------
-% FILLED BY: module spread (max over cells minus min over cells) in K against
-% time in s, one curve, same probe data as Figure 1.
-\reserved{\textwidth}{11mm}{\textbf{Figure 2 --- Spread across the module}\\[2pt]
-Reserved. Hottest-minus-coldest cell, $\mathrm{K}$, against time,
-$\mathrm{s}$. Not yet solved.}
-\end{minipage}
+\vspace{0.5mm}
+\setlength{\unitlength}{1mm}\begin{picture}(62,17)(-8,-5.5)
+\put(0,0){\line(1,0){52.0}}\put(0,0){\line(0,1){10.0}}
+\put(0.00,0){\line(0,-1){0.9}}\put(0.00,-4.0){\makebox(0,0)[b]{\tiny 0}}
+\put(26.00,0){\line(0,-1){0.9}}
+\put(52.00,0){\line(0,-1){0.9}}\put(52.00,-4.0){\makebox(0,0)[b]{\tiny 900}}
+\put(0,0.00){\line(-1,0){0.9}}\put(-1.3,0.00){\makebox(0,0)[r]{\tiny 0.00}}
+\put(0,4.17){\line(-1,0){0.9}}\put(-1.3,4.17){\makebox(0,0)[r]{\tiny 0.05}}
+\put(0,8.33){\line(-1,0){0.9}}\put(-1.3,8.33){\makebox(0,0)[r]{\tiny 0.10}}
+\linethickness{0.5pt}
+\qbezier(0.00,0.00)(0.72,0.02)(1.44,0.04)
+\qbezier(1.44,0.04)(2.17,0.09)(2.89,0.14)
+\qbezier(2.89,0.14)(3.61,0.22)(4.33,0.29)
+\qbezier(4.33,0.29)(5.06,0.38)(5.78,0.47)
+\qbezier(5.78,0.47)(6.50,0.56)(7.22,0.65)
+\qbezier(7.22,0.65)(7.94,0.74)(8.67,0.84)
+\qbezier(8.67,0.84)(9.39,0.94)(10.11,1.04)
+\qbezier(10.11,1.04)(10.83,1.15)(11.56,1.26)
+\qbezier(11.56,1.26)(12.28,1.37)(13.00,1.48)
+\qbezier(13.00,1.48)(13.72,1.59)(14.44,1.71)
+\qbezier(14.44,1.71)(15.17,1.83)(15.89,1.94)
+\qbezier(15.89,1.94)(16.61,2.07)(17.33,2.19)
+\qbezier(17.33,2.19)(18.06,2.31)(18.78,2.44)
+\qbezier(18.78,2.44)(19.50,2.57)(20.22,2.70)
+\qbezier(20.22,2.70)(20.94,2.83)(21.67,2.96)
+\qbezier(21.67,2.96)(22.39,3.09)(23.11,3.23)
+\qbezier(23.11,3.23)(23.83,3.36)(24.56,3.50)
+\qbezier(24.56,3.50)(25.28,3.64)(26.00,3.78)
+\qbezier(26.00,3.78)(26.72,3.92)(27.44,4.06)
+\qbezier(27.44,4.06)(28.17,4.20)(28.89,4.34)
+\qbezier(28.89,4.34)(29.61,4.49)(30.33,4.63)
+\qbezier(30.33,4.63)(31.06,4.78)(31.78,4.92)
+\qbezier(31.78,4.92)(32.50,5.07)(33.22,5.22)
+\qbezier(33.22,5.22)(33.94,5.37)(34.67,5.52)
+\qbezier(34.67,5.52)(35.39,5.67)(36.11,5.82)
+\qbezier(36.11,5.82)(36.83,5.97)(37.56,6.12)
+\qbezier(37.56,6.12)(38.28,6.27)(39.00,6.42)
+\qbezier(39.00,6.42)(39.72,6.57)(40.44,6.73)
+\qbezier(40.44,6.73)(41.17,6.88)(41.89,7.04)
+\qbezier(41.89,7.04)(42.61,7.19)(43.33,7.34)
+\qbezier(43.33,7.34)(44.06,7.50)(44.78,7.65)
+\qbezier(44.78,7.65)(45.50,7.81)(46.22,7.96)
+\qbezier(46.22,7.96)(46.94,8.12)(47.67,8.27)
+\qbezier(47.67,8.27)(48.39,8.43)(49.11,8.59)
+\qbezier(49.11,8.59)(49.83,8.74)(50.56,8.90)
+\qbezier(50.56,8.90)(51.28,9.05)(52.00,9.21)
+\put(26.00,-5.9){\makebox(0,0)[b]{\tiny time, s}}
+\put(-7.0,5.00){\rotatebox{90}{\makebox(0,0)[b]{\tiny spread, K}}}
+\end{picture}
 
-% ---------------------------------------- 3. reserved results ---------------
-\vspace{1.5pt}
-\textbf{3. Results reserved until the module is solved}
-
-\vspace{2pt}
-\begin{minipage}[t]{0.32\textwidth}
-% ---- PLACEHOLDER 3 -------------------------------------------------------
-% FILLED BY: per-cell table, 8 rows: cell index; peak temperature, degC;
-% time at which that peak occurs, s; time to steady (dT/dt < 0.01 K/s), s.
-% Uncertainty column to be filled from the step-size comparison of
-% PLACEHOLDER 5 once both step sizes are solved, and to read "not quantified"
-% until then. It is a step-size sensitivity and nothing more: a single mesh
-% says nothing about mesh error and the column must not imply that it does.
-\reserved{\textwidth}{14mm}{\textbf{Table 2 --- Peak and time-to-peak, per cell}\\[2pt]
-Reserved. Eight rows: peak temperature, $^{\circ}\mathrm{C}$; time to peak,
-$\mathrm{s}$; uncertainty. Not yet solved.}
+\vspace{-1mm}
+{\tiny Hottest minus coldest cell. It grows monotonically to
+$0.111\,\mathrm{K}$ and never turns over.}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.32\textwidth}
-% ---- PLACEHOLDER 4 -------------------------------------------------------
-% FILLED BY: cumulative energy closure -- heat put in (34080 J by the duty
-% cycle) against heat stored in the cells plus heat removed through the
-% channel faces, both integrated to 900 s, closure stated as a percentage.
-% R5 wording when filled: "energy conservation checked: closed to [X]%".
-\reserved{\textwidth}{14mm}{\textbf{Energy conservation}\\[2pt]
-Reserved. Heat in, $\mathrm{J}$, against heat stored plus heat removed,
-$\mathrm{J}$; closure in \%. Not yet solved.}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.32\textwidth}
-% ---- PLACEHOLDER 5 -------------------------------------------------------
-% FILLED BY: the same module re-solved at half the time step; peak temperature
-% and time-to-peak compared between the two, difference quoted in K and in s.
-% BOTH cases now exist on disk: one steps at 0.5 s, one at 0.25 s, and they
-% differ in that single entry and in nothing else. Both were emitted by the
-% same builder, so neither is a hand-copied tree. Neither has been solved, so
-% this frame stays empty and no difference may be written into it.
-\reserved{\textwidth}{14mm}{\textbf{Time-step check}\\[2pt]
-Reserved. Peak temperature, $^{\circ}\mathrm{C}$, and time to peak,
-$\mathrm{s}$, at time steps of $0.5\,\mathrm{s}$ and $0.25\,\mathrm{s}$.
-Not yet solved.}
+\begin{minipage}[t]{0.315\textwidth}
+{\fontsize{6.8}{7.9}\selectfont
+\begin{tabular}{l r r}
+\multicolumn{3}{l}{\textbf{Table 3 --- How far from settled}}\\
+\toprule
+ & End cells & Interior \\
+ & 1, 8 & 2--7 \\
+\midrule
+Cooled area, m$^2$      & 0.100  & 0.200 \\
+Time constant, s        & 1\,392 & 696 \\
+Heading for, K$^{*}$    & 0.742  & 0.371 \\
+Reached at 900 s, K     & 0.420  & 0.309 \\
+Fraction of that        & 57\,\% & 83\,\% \\
+Still rising at, K/h    & 1.00   & 0.46 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{0.5mm}
+{\tiny $^{*}$A \emph{conservative upper} estimate: it assumes each cell is
+thermally on its own, which is how this model is built. Busbars, casing
+conduction or coolant cross-talk in a real pack would pull it down.}
 \end{minipage}
 
 % ------------------------------------------------------------ caveats -------
 \vspace{1.5pt}
 {\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
-\begin{minipage}[t]{0.60\textwidth}
+\begin{minipage}[t]{0.615\textwidth}
 \vspace{0pt}
-\colorbox{boxgrey}{\begin{minipage}{0.97\textwidth}
+\colorbox{boxgrey}{\begin{minipage}{0.975\textwidth}
 {\footnotesize\textbf{Read this before you use anything on this sheet}\\[1pt]
-$\bullet$ \textbf{The cooling channels are not resolved as air flow.} They are
-a convective boundary condition on the channel-facing surfaces. The consequence
-matters: the cell-to-cell spread this model produces comes from the two end
-cells having one cooled face while the six interior cells have two. It does
-\emph{not} include coolant heating along the channel --- a real effect this
-model cannot see.\\
-$\bullet$ The convective coefficient is calculated from the stated channel flow
-($8\,\mathrm{m\,s^{-1}}$ in a $3\,\mathrm{mm}$ gap), not measured, and not
-validated against anything.\\
-$\bullet$ Material properties are representative, not measured for your cells;
-conductivity is treated as equal in all directions.\\
-$\bullet$ The stack ends along the flow direction are insulated; no inlet or
-exit plenum is modelled.\\
-$\bullet$ Cells exchange heat only through the channel faces; no direct
-cell-to-cell contact path is modelled.\\
-$\bullet$ The confidence check of section 1 is on conduction with convective
-surfaces. It says nothing about the channel airflow.}
+$\bullet$ \textbf{The cooling coefficient is estimated, not measured, and your
+peak scales inversely with it.} It is calculated from the stated channel flow
+($8\,\mathrm{m\,s^{-1}}$ in a $3\,\mathrm{mm}$ gap) and validated against no
+test. Settled rise is heat per cell over coefficient times cooled area ---
+\emph{exactly} inverse, so \textbf{a channel that cools half as well gives twice
+the rise.}\\
+$\bullet$ \textbf{The run ends before the module settles.} The end cells are at
+$57\,\%$ of where they are heading, still climbing at $1\,\mathrm{K}$ per hour,
+and approach roughly $0.74\,\mathrm{K}$ --- near double this sheet's peak. That
+$0.74\,\mathrm{K}$ is a \emph{conservative upper} figure: the model gives each
+cell its own cooling and nothing else, so a real pack with busbars, casing
+conduction or coolant cross-talk would come in under it.\\
+$\bullet$ \textbf{Those two multiply, they do not sit side by side.} An
+optimistic coefficient scales the whole curve up and the hottest cells have not
+finished climbing it. \textbf{Do not design against $0.42\,\mathrm{K}$ as if it
+were robust.}\\
+$\bullet$ \textbf{The channels are not resolved as air flow} but as a convective
+condition on the channel-facing surfaces. So Figure 2's spread is end-cell
+geometry and nothing else --- the six interior cells agree to six decimals and
+so do the two end cells, which is how we know. It excludes coolant heating along
+the channel, which this model cannot see and which would separate all eight.\\
+$\bullet$ Properties are representative, not measured for your cells, and
+conductivity is equal in all directions; the stack ends are insulated with no
+plenum; there is no cell-to-cell contact path. \textbf{One mesh and one time
+step, so no numerical error bar is quoted on any module number.} Section 1 says
+nothing about the channel airflow.}
 \end{minipage}}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.375\textwidth}
+\begin{minipage}[t]{0.37\textwidth}
 \vspace{0pt}
 {\footnotesize\textbf{Compute}\\[1pt]
 \emph{Confidence check, section 1:} upfront estimate $87.902$ core-minutes;
 used $125.516$, a ratio of $1.428$. The estimate was scaled from a smaller
 two-dimensional problem across a jump to three dimensions and from $2\,500$ to
-$512\,000$ cells; we said in advance it could be low by up to about
-$3\times$ and it was low by $1.43\times$. No run hit its ceiling. Derived cost
-$\$0.107$ against $\$0.075$ predicted.\\[3pt]
-\emph{Module run:} upfront estimate $1.0$ core-minute for the
-$0.5\,\mathrm{s}$ solve, with a hard ceiling of $10.0$ core-minutes at which it
-stops; the $0.25\,\mathrm{s}$ solve takes twice as many steps. \textbf{Nothing
-is spent yet --- neither has been solved.} The wide ceiling is deliberate: the
-estimate rests on a file-writing rate this configuration has never been
-measured at.\\[3pt]
+$512\,000$ cells; we said in advance it could be low by up to about $3\times$
+and it was low by $1.43\times$.\\[2pt]
+\emph{The module run:} upfront estimate $1.0$ core-minute with a ceiling of
+$10.0$; \textbf{it used $0.017$ core-minutes} --- $1.7\,\%$ of the estimate.
+We over-estimated by roughly $60\times$ and we say so: the estimate was
+dominated by a guess at file-writing cost for a configuration we had never
+measured, and the guess was far too pessimistic. The whole $900\,\mathrm{s}$
+of module physics cost under a tenth of a penny.\\[2pt]
 Costs are derived at $\$0.0513$ per core-hour, a rate stated by the machine's
 owner rather than metered on the machine.}
+
+\vspace{2pt}
+% ---- THE ONE FRAME STILL RESERVED ----------------------------------------
+% FILLED BY: the same module re-solved at half the time step, 0.25 s; peak
+% temperature and time-to-peak compared between the two, difference in K and s.
+% Both cases exist and are built, differing in that one entry and nothing else.
+% The 0.25 s case has NOT been solved. Nothing may be written here until it is:
+% a step-independence claim needs both arms, and a comparison drawn from one
+% step size would be worse than an empty frame.
+\reserved{0.97\textwidth}{11.5mm}{\textbf{Time-step check}\\[1.5pt]
+Peak temperature and time to peak at time steps of $0.5\,\mathrm{s}$ and
+$0.25\,\mathrm{s}$. The second is not yet available; nothing is drawn here.}
 \end{minipage}
 
 % ------------------------------------------------------------- voices -------
-\vspace{2pt}
+\vspace{1pt}
 {\color{rulegrey}\rule{\textwidth}{0.5pt}}
 
-\vspace{1pt}
+\vspace{0.5pt}
 {\footnotesize
-\rolesig{Lead Researcher.} The exact-solution check comes first on purpose. The
-physics your module needs --- heat generated inside a solid, conducted out,
-removed by a convective surface, all changing in time --- is exactly what can be
-checked against a closed-form answer, and we checked it to within
-$0.013\,\%$. That is the basis on which we would ask you to believe a module
-prediction. The module prediction does not exist yet and we will not sketch
-one.
+\rolesig{Lead Researcher.} The exact-solution check came first on purpose and it
+licenses everything after it: heat generated in a solid, conducted out and
+removed by a convective surface is exactly what a closed-form answer can test,
+and we matched it to within $0.013\,\%$. The module result then said something
+clear-cut --- the event you named the case after is not the event that sizes it.
 
-\rolesig{Lead Engineer.} One design point is already worth flagging, and it is
-geometric rather than numerical: the two end cells are cooled on one face and
-the six interior cells on two. Whatever spread this model shows, that asymmetry
-will dominate it. If end-cell temperature matters to you --- on a
-$60\,\mathrm{s}$ takeoff pulse it usually does --- the cheapest option to
-evaluate is a channel outboard of cells 1 and 8, priced as a variant once the
-baseline is solved.
+\rolesig{Lead Engineer.} Size this pack against the cruise soak, not the takeoff
+pulse: the pulse is a fifth of the energy. And the two end cells are your
+problem --- one cooled face against two gives them twice the time constant and
+twice the settled temperature of everything between them. A channel outboard of
+cells 1 and 8 removes that asymmetry outright and is worth pricing first.
 
-\rolesig{Lead Numericist.} Section 1 is a genuine verification: three
-independent readings, each inside a tolerance fixed before the run and each
-using less than half of it, a numerical error bar of $0.0154\,\%$ at worst, and
-a measured order of accuracy of $2.00$ against a theoretical $2.00$. Section 3
-is empty because the module has not run. When it does, the first two figures we
-report --- before any temperature --- are the cumulative energy closure and the
-comparison between the two time steps, $0.5\,\mathrm{s}$ and
-$0.25\,\mathrm{s}$, which is what tells you the answer is set by the physics and
-not by the step size.\vspace{-3pt}}
-
-\vspace{1pt}
-{\color{rulegrey}\rule{\textwidth}{0.4pt}}\\[0.5pt]
-{\scriptsize Filled figures are read from solution files retained on disk;
-reserved frames contain no data and no estimate.}
+\rolesig{Lead Numericist.} Section 1 is a genuine verification; the module run is
+not, and I will not dress it as one --- one mesh, one time step, no numerical
+error bar on any module number. What it carries instead is an energy audit that
+closes to $0.15\,\%$, and that is the check I would want before believing any of
+it.\vspace{-2pt}}
 
 \end{document}
