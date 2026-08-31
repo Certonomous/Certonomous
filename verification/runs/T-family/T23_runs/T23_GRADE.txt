@@ -1,0 +1,93 @@
+T23 -- PHYSICALITY TIER ONLY.  Gates: T23_PREREGISTRATION.md section 1 line 4, FROZEN at fe666fd5.
+NO Nusselt, NO Roache triple, NO GCI, NO observed order, NO heat-balance closure: all four DEFERRED at section 4.
+SECTION 1 LINE 5 REGISTERS NO LADDER.  Every point is L1 only and a SINGLE MESH LEVEL ADMITS NO TRIPLE, so no Roache classification is computed, quoted or quotable from this artifact.
+PLANT = 1.234000e-03 K, IMPORTED from scripts/roache_triple.py:PLANT
+
+=== T23_P305_U10 ===
+  PLANTED-ZERO CONTROL Q1: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 1
+  PLANTED-ZERO CONTROL Q2: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 140
+  Q1 T_max(housing, internalField) = 376.757835 K = 103.6078 degC  [MEASURED]
+  Q2 areaAvg T(housing side of housing_to_fluid, boundaryField) = 374.599827 K = 101.4498 degC  [MEASURED, over 140 faces, total area 4.089318e-04 m2]
+  B3  Q1 >= Q2 and Q1 != Q2 : PASS  (Q1 - Q2 = +2.158008 K)
+  B2  Q1 > 0.0 degC        : PASS
+  B1  Q1 < 200.0 degC      : PASS  (margin +96.3922 K)
+  VERDICT: PASS
+  registered lumped-model predictions [REGISTERED, NOT GATES]: Dittus-Boelter 329.1 degC (solved - DB = -225.49 K), flat plate 195.1 degC (solved - FP = -91.49 K)
+  section 6.2 CONTINGENCY, on the RISE above T_inf = 288.0 K (common to model and solve, so it carries no information about either): solved rise 88.758 K; DB rise/solved rise = 3.541; FP rise/solved rise = 2.031; against the registered closure spread 1.763 -- FIRED
+    THE LUMPED MODEL OF SECTION 2 IS THE THING THAT WAS FALSIFIED, exactly as section 6.2 registered one-way and before compute. It overpredicts the housing temperature rise by 3.54x (DB) and 2.03x (FP), BOTH beyond the 1.763x spread between the two closures, so this is not an artefact of choosing between them. IT CHANGES B1, B2 AND B3 NOT AT ALL -- those grade the SOLVED temperature and not the model -- and it is a finding about the LEVEL-SELECTION INSTRUMENT of section 2, which was never a referent (section 1 line 2).
+  max|Ux| = 2.306527e-15 m/s, max|Uy| = 3.134484e-01 m/s, max|Uz| = 1.053664e+01 m/s ; max|Ux|/max|Uz| = 2.189e-16  [MEASURED on 10000/fluid/U]
+  final initial residuals: Ux 1.265467e-01, Uy 8.241267e-10, Uz 5.571990e-12, h 9.440276e-10, k 9.931450e-10, omega 9.580583e-10, p_rgh 1.273286e-08
+  CONVERGENCE ASSERTION (T23 section 3.1: an ASSERTION on the log, NEVER a stopping rule, and T23 registers NO residual gate): asserted over Uy,Uz,h,p_rgh,k,omega at 1e-06 -- HOLDS
+  Ux IS EXCLUDED FROM THAT ASSERTION, AND HERE IS WHY, MEASURED ON THIS CASE: x is the CIRCUMFERENTIAL direction of a 5-degree wedge one cell thick, so Ux is identically zero BY GEOMETRY -- max|Ux|/max|Uz| = 2.189e-16. Its initial residual reads 1.265467e-01, which is a 0/0 normalisation carrying NO information; a reader that greps the last Ux residual reports every run of this family as unconverged. THIS MOVES NO GATE: T23 has no residual gate at all.
+  y+ on centrebody_down: min 0.3833, max 0.3949, average 0.3882  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on centrebody_up: min 0.4039, max 1.095, average 0.4396  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on duct_wall: min 0.4885, max 1.441, average 0.5246  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on fluid_to_housing: min 0.3951, max 0.4037, average 0.399  [MEASURED, REPORTED, NOT GATED (section 4.4)] <- THE HOUSING SURFACE (section 4.4)
+
+=== T23_P305_U20 ===
+  PLANTED-ZERO CONTROL Q1: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 1
+  PLANTED-ZERO CONTROL Q2: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 140
+  Q1 T_max(housing, internalField) = 342.159829 K = 69.0098 degC  [MEASURED]
+  Q2 areaAvg T(housing side of housing_to_fluid, boundaryField) = 340.334603 K = 67.1846 degC  [MEASURED, over 140 faces, total area 4.089318e-04 m2]
+  B3  Q1 >= Q2 and Q1 != Q2 : PASS  (Q1 - Q2 = +1.825226 K)
+  B2  Q1 > 0.0 degC        : PASS
+  B1  Q1 < 200.0 degC      : PASS  (margin +130.9902 K)
+  VERDICT: PASS
+    REGISTERED IN ADVANCE (section 2.7): this point is UNDECIDED by the level-selection instrument at +2.70 K under the bound, on a model whose two closures differ by 1.763x in h. Whichever way it lands is a registered outcome, not a surprise and not a level-selection error.
+  registered lumped-model predictions [REGISTERED, NOT GATES]: Dittus-Boelter 197.3 degC (solved - DB = -128.29 K), flat plate 120.3 degC (solved - FP = -51.29 K)
+  section 6.2 CONTINGENCY, on the RISE above T_inf = 288.0 K (common to model and solve, so it carries no information about either): solved rise 54.160 K; DB rise/solved rise = 3.369; FP rise/solved rise = 1.947; against the registered closure spread 1.763 -- FIRED
+    THE LUMPED MODEL OF SECTION 2 IS THE THING THAT WAS FALSIFIED, exactly as section 6.2 registered one-way and before compute. It overpredicts the housing temperature rise by 3.37x (DB) and 1.95x (FP), BOTH beyond the 1.763x spread between the two closures, so this is not an artefact of choosing between them. IT CHANGES B1, B2 AND B3 NOT AT ALL -- those grade the SOLVED temperature and not the model -- and it is a finding about the LEVEL-SELECTION INSTRUMENT of section 2, which was never a referent (section 1 line 2).
+  max|Ux| = 3.829139e-15 m/s, max|Uy| = 4.481395e-01 m/s, max|Uz| = 2.089689e+01 m/s ; max|Ux|/max|Uz| = 1.832e-16  [MEASURED on 10000/fluid/U]
+  final initial residuals: Ux 1.370473e-01, Uy 5.477766e-10, Uz 3.754062e-12, h 9.574012e-10, k 9.729099e-10, omega 6.090902e-10, p_rgh 9.923047e-09
+  CONVERGENCE ASSERTION (T23 section 3.1: an ASSERTION on the log, NEVER a stopping rule, and T23 registers NO residual gate): asserted over Uy,Uz,h,p_rgh,k,omega at 1e-06 -- HOLDS
+  Ux IS EXCLUDED FROM THAT ASSERTION, AND HERE IS WHY, MEASURED ON THIS CASE: x is the CIRCUMFERENTIAL direction of a 5-degree wedge one cell thick, so Ux is identically zero BY GEOMETRY -- max|Ux|/max|Uz| = 1.832e-16. Its initial residual reads 1.370473e-01, which is a 0/0 normalisation carrying NO information; a reader that greps the last Ux residual reports every run of this family as unconverged. THIS MOVES NO GATE: T23 has no residual gate at all.
+  y+ on centrebody_down: min 0.7086, max 0.7331, average 0.7187  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on centrebody_up: min 0.7518, max 1.826, average 0.8135  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on duct_wall: min 0.9057, max 2.396, average 0.9741  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on fluid_to_housing: min 0.7334, max 0.7515, average 0.7416  [MEASURED, REPORTED, NOT GATED (section 4.4)] <- THE HOUSING SURFACE (section 4.4)
+
+=== T23_P305_U30 ===
+  PLANTED-ZERO CONTROL Q1: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 1
+  PLANTED-ZERO CONTROL Q2: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 140
+  Q1 T_max(housing, internalField) = 328.588855 K = 55.4389 degC  [MEASURED]
+  Q2 areaAvg T(housing side of housing_to_fluid, boundaryField) = 326.953242 K = 53.8032 degC  [MEASURED, over 140 faces, total area 4.089318e-04 m2]
+  B3  Q1 >= Q2 and Q1 != Q2 : PASS  (Q1 - Q2 = +1.635613 K)
+  B2  Q1 > 0.0 degC        : PASS
+  B1  Q1 < 200.0 degC      : PASS  (margin +144.5611 K)
+  VERDICT: PASS
+  registered lumped-model predictions [REGISTERED, NOT GATES]: Dittus-Boelter 148.0 degC (solved - DB = -92.56 K), flat plate 92.4 degC (solved - FP = -36.96 K)
+  section 6.2 CONTINGENCY, on the RISE above T_inf = 288.0 K (common to model and solve, so it carries no information about either): solved rise 40.589 K; DB rise/solved rise = 3.280; FP rise/solved rise = 1.911; against the registered closure spread 1.763 -- FIRED
+    THE LUMPED MODEL OF SECTION 2 IS THE THING THAT WAS FALSIFIED, exactly as section 6.2 registered one-way and before compute. It overpredicts the housing temperature rise by 3.28x (DB) and 1.91x (FP), BOTH beyond the 1.763x spread between the two closures, so this is not an artefact of choosing between them. IT CHANGES B1, B2 AND B3 NOT AT ALL -- those grade the SOLVED temperature and not the model -- and it is a finding about the LEVEL-SELECTION INSTRUMENT of section 2, which was never a referent (section 1 line 2).
+  max|Ux| = 5.167530e-15 m/s, max|Uy| = 5.443935e-01 m/s, max|Uz| = 3.121971e+01 m/s ; max|Ux|/max|Uz| = 1.655e-16  [MEASURED on 10000/fluid/U]
+  final initial residuals: Ux 3.097094e-02, Uy 5.427521e-10, Uz 3.751892e-12, h 9.540190e-10, k 9.534448e-10, omega 8.724115e-10, p_rgh 1.025923e-08
+  CONVERGENCE ASSERTION (T23 section 3.1: an ASSERTION on the log, NEVER a stopping rule, and T23 registers NO residual gate): asserted over Uy,Uz,h,p_rgh,k,omega at 1e-06 -- HOLDS
+  Ux IS EXCLUDED FROM THAT ASSERTION, AND HERE IS WHY, MEASURED ON THIS CASE: x is the CIRCUMFERENTIAL direction of a 5-degree wedge one cell thick, so Ux is identically zero BY GEOMETRY -- max|Ux|/max|Uz| = 1.655e-16. Its initial residual reads 3.097094e-02, which is a 0/0 normalisation carrying NO information; a reader that greps the last Ux residual reports every run of this family as unconverged. THIS MOVES NO GATE: T23 has no residual gate at all.
+  y+ on centrebody_down: min 1.016, max 1.052, average 1.031  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on centrebody_up: min 1.08, max 2.465, average 1.168  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on duct_wall: min 1.302, max 3.229, average 1.401  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on fluid_to_housing: min 1.052, max 1.079, average 1.064  [MEASURED, REPORTED, NOT GATED (section 4.4)] <- THE HOUSING SURFACE (section 4.4)
+    FINDING: max y+ on the housing surface is 1.079, ABOVE 1. Section 4.4 registers exactly this outcome: it BLOCKS the correlation tier and the map's Roache triple -- NEITHER OF WHICH THIS RUNG CLAIMS -- and it DOES NOT VOID the physicality rows, whose content is a temperature bound and not a heat-transfer coefficient. y+ is REPORTED here and is NOT a gate.
+
+=== T23_P305_U40 ===
+  PLANTED-ZERO CONTROL Q1: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 1
+  PLANTED-ZERO CONTROL Q2: PASS.  negative arm difference exactly 0.0; ladder floor 1e-06 K; read at PLANT 1.234000e-03 K (>= PLANT*(1-1e-9) = 1.234000e-03, RELATIVE predicate); values planted 140
+  Q1 T_max(housing, internalField) = 320.994816 K = 47.8448 degC  [MEASURED]
+  Q2 areaAvg T(housing side of housing_to_fluid, boundaryField) = 319.494845 K = 46.3448 degC  [MEASURED, over 140 faces, total area 4.089318e-04 m2]
+  B3  Q1 >= Q2 and Q1 != Q2 : PASS  (Q1 - Q2 = +1.499971 K)
+  B2  Q1 > 0.0 degC        : PASS
+  B1  Q1 < 200.0 degC      : PASS  (margin +152.1552 K)
+  VERDICT: PASS
+  registered lumped-model predictions [REGISTERED, NOT GATES]: Dittus-Boelter 121.6 degC (solved - DB = -73.76 K), flat plate 77.4 degC (solved - FP = -29.56 K)
+  section 6.2 CONTINGENCY, on the RISE above T_inf = 288.0 K (common to model and solve, so it carries no information about either): solved rise 32.995 K; DB rise/solved rise = 3.235; FP rise/solved rise = 1.896; against the registered closure spread 1.763 -- FIRED
+    THE LUMPED MODEL OF SECTION 2 IS THE THING THAT WAS FALSIFIED, exactly as section 6.2 registered one-way and before compute. It overpredicts the housing temperature rise by 3.24x (DB) and 1.90x (FP), BOTH beyond the 1.763x spread between the two closures, so this is not an artefact of choosing between them. IT CHANGES B1, B2 AND B3 NOT AT ALL -- those grade the SOLVED temperature and not the model -- and it is a finding about the LEVEL-SELECTION INSTRUMENT of section 2, which was never a referent (section 1 line 2).
+  max|Ux| = 6.483336e-15 m/s, max|Uy| = 6.202372e-01 m/s, max|Uz| = 4.152703e+01 m/s ; max|Ux|/max|Uz| = 1.561e-16  [MEASURED on 10000/fluid/U]
+  final initial residuals: Ux 1.400066e-01, Uy 7.235645e-10, Uz 7.719644e-12, h 9.651411e-10, k 9.902131e-10, omega 5.737583e-10, p_rgh 7.689558e-09
+  CONVERGENCE ASSERTION (T23 section 3.1: an ASSERTION on the log, NEVER a stopping rule, and T23 registers NO residual gate): asserted over Uy,Uz,h,p_rgh,k,omega at 1e-06 -- HOLDS
+  Ux IS EXCLUDED FROM THAT ASSERTION, AND HERE IS WHY, MEASURED ON THIS CASE: x is the CIRCUMFERENTIAL direction of a 5-degree wedge one cell thick, so Ux is identically zero BY GEOMETRY -- max|Ux|/max|Uz| = 1.561e-16. Its initial residual reads 1.400066e-01, which is a 0/0 normalisation carrying NO information; a reader that greps the last Ux residual reports every run of this family as unconverged. THIS MOVES NO GATE: T23 has no residual gate at all.
+  y+ on centrebody_down: min 1.315, max 1.362, average 1.334  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on centrebody_up: min 1.398, max 3.054, average 1.512  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on duct_wall: min 1.687, max 4, average 1.818  [MEASURED, REPORTED, NOT GATED (section 4.4)]
+  y+ on fluid_to_housing: min 1.362, max 1.397, average 1.378  [MEASURED, REPORTED, NOT GATED (section 4.4)] <- THE HOUSING SURFACE (section 4.4)
+    FINDING: max y+ on the housing surface is 1.397, ABOVE 1. Section 4.4 registers exactly this outcome: it BLOCKS the correlation tier and the map's Roache triple -- NEITHER OF WHICH THIS RUNG CLAIMS -- and it DOES NOT VOID the physicality rows, whose content is a temperature bound and not a heat-transfer coefficient. y+ is REPORTED here and is NOT a gate.
+
+wrote T23_GRADE.json
