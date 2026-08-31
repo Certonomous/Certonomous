@@ -2404,3 +2404,36 @@ Every non-`PASS` **verdict** now carries exactly one of eight cause classes (`VE
 ### D. WHAT THIS SECTION DOES NOT DO
 
 **It moves no tier, re-grades no row, and edits nothing above it.** It adds no sixth tier word and changes none of the five. **It does not touch §1's rubric** — the V/G/P columns and their rulings 1–7 stand exactly as written. And it **does not make `docs/CAPABILITY_GRID.md` the home of this definition**: that file is **generated** (`docs/CAPABILITY_GRID.md:1,3`, by `scripts/assemble_capability_grid.py`), a hand edit there is destroyed on the next assembly, and — **measured** — the word `SURVEYED` does not appear in it at all, because it runs on Sanaa's separate three-word capability vocabulary. **The grid cross-references this section; it does not restate it.**
+
+---
+
+## DATED SECTION, 2026-08-31 — **[SANAA-RULED] THE TIER ORDERING IS RATIFIED, AND THE CAPABILITY-EXCLUSION LIST BECOMES FOUR**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`, proved by a byte-prefix check against the HEAD blob in the same invocation as the write.** Appended by the verification-supervisor. **Zero compute.**
+
+**Sanaa ruled, 2026-08-31, captured verbatim at `6fcc7fb6`** (`etc/sessions/2026-08-31T2110Z_sanaa_tier_order_gatedesign.md`), **read at source** (standing rule 9):
+
+> **"Tier order confirmed as assumed; yes, GATE-DESIGN joins the excluded classes."**
+
+**This closes both referrals that the earlier dated section of tonight put on her desk.**
+
+### 1. THE TIER ORDERING IS NO LONGER THIS TEAM'S ASSUMPTION
+
+The earlier section ruled the ordering **`[lab-attributed]`** and said in terms it was *"the first thing to fall if she rules otherwise."* **She has ruled that it stands.**
+
+> **`HOLDS` > `GATE REACHED` > `SURVEYED` > { `NOT HELD` , `NEVER RUN` }**, therefore
+> **`SURVEYED`-or-better = { `SURVEYED` , `GATE REACHED` , `HOLDS` }** — **`[SANAA-RULED]`, `6fcc7fb6`.**
+
+**The AUTHORITY changes; the ordering does not.** The ground stated earlier — that §1's Ruling 1 already totally orders the top three by counting green V/G/P columns (3 / 1–2 / 0), while `NOT HELD` and `NEVER RUN` are assigned by a different predicate and neither a row that FAILED nor a row that never ran can outrank a row carrying breadth evidence — **is unaltered and remains the reasoning.** What lifts is the caveat at `:26-41` that *"Sanaa has not ruled on the rubric"*: **she has now ruled on the ORDERING** of the five tier words. **She has still not ruled the V/G/P rubric itself, and that disclosure stands untouched** — this section widens nothing beyond her sentence.
+
+### 2. THE STANDING DEFINITION, AS AMENDED — THE EXCLUSION LIST IS FOUR
+
+> **"Can the lab run and post-process X?"** is answered **`YES`** exactly when X has a row at **`SURVEYED`-or-better** whose cause classes exclude **`INSTRUMENT`**, **`BOOKKEEPING`**, **`NAMING/PLUMBING`** and — **new, `6fcc7fb6`** — **`GATE-DESIGN`**. **`UNCLASSED` rows answer no.**
+
+**Why these four and not five.** Both `GATE-DESIGN` and `BUDGET/KILL` were referred; **she added one.** The principle her list makes exact: **every excluded class is a defect in the lab's OWN refereeing apparatus** — a blind reader, a record that cannot stamp, a path collision, a gate defective as registered. **`BUDGET/KILL` is external** — a cap or a box death — and a row that still reached `SURVEYED`-or-better **did demonstrate the lab can run and post-process X** before the meter stopped it.
+
+### 3. WHAT THIS COSTS, AND WHY IT IS CHEAP ONLY BY TIMING
+
+**No row's answer moves and no re-reading is owed**, because the census published earlier tonight is **153 rows, 0 classed, `UNCLASSED` 153** — **no capability `YES` has been asserted under the three-item list by anyone.** **Had the backfill run first, this widening would have required re-reading every `YES`**, and that is recorded so a future widening is understood to be expensive by default rather than cheap by nature.
+
+**No tier moves, no row is re-graded, and nothing above this section is edited.** The `UNCLASSED` census is unchanged at **153**.

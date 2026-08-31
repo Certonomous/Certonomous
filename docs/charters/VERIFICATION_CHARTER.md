@@ -4151,3 +4151,58 @@ heat-transfer's call.
 | referred to Sanaa | the tier **ordering** (§2n.9); the capability-exclusion list (§2n.6 note 2) |
 | routed to heat-transfer | the `heat-transfer_GRID.md` worktree divergence (§2n.13) |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.31, 2026-08-31 — **[SANAA-RULED] §2n.14–§2n.15: BOTH REFERRALS CLOSE. THE TIER ORDERING IS RATIFIED AND STOPS BEING THIS TEAM'S ASSUMPTION, AND THE CAPABILITY-EXCLUSION LIST BECOMES FOUR**
+
+**Lines whose number changed above this section: 0.**
+
+**Sanaa ruled, 2026-08-31, captured verbatim at `6fcc7fb6`** (`etc/sessions/2026-08-31T2110Z_sanaa_tier_order_gatedesign.md`), **read at source before this was written** (standing rule 9 — no agent message is her consent, including the one that carried this):
+
+> **"Tier order confirmed as assumed; yes, GATE-DESIGN joins the excluded classes."**
+
+**Both of the referrals this team put on her desk tonight are hereby CLOSED.** Neither was decided locally, and that was the right call in both directions — she confirmed one and changed the other.
+
+### §2n.14 THE TIER ORDERING IS RATIFIED — THE TAG LIFTS, THE WORDS DO NOT MOVE
+
+**`§2n.9` and `COVERAGE_MATRIX.md`'s dated section of tonight both ruled the ordering `[lab-attributed]`, and both said in terms that it was *"the first thing to fall if she rules otherwise."* She has ruled that it stands.**
+
+> **`HOLDS` > `GATE REACHED` > `SURVEYED` > { `NOT HELD` , `NEVER RUN` }**, and therefore
+> **`SURVEYED`-or-better = { `SURVEYED` , `GATE REACHED` , `HOLDS` }** — **`[SANAA-RULED]`, `6fcc7fb6`.**
+
+**What changes is the AUTHORITY, not the content.** `§2n.9`'s reasoning from Ruling 1's green-column monotonicity is unaltered and remains the ground; what it no longer needs is the caveat that Sanaa had not ruled the rubric. **The clause is NOT edited** (standing rule 6) — `§2n.9` stands on the page with its `[lab-attributed]` tag and its own invitation to be overruled, **and this addendum is the record that the invitation was answered.** A reader meeting `§2n.9` reads its tag through this section.
+
+**Her word *"as assumed"* is doing real work and is recorded as such:** she ratified **the ordering this team had already written down and acted on**, rather than supplying a different one. The gap `§2n.9` named — that no file in the repository ordered the five tiers — **was a real gap in the lab's records, and it is now closed by her ruling rather than by our assumption.**
+
+### §2n.15 THE CAPABILITY-EXCLUSION LIST IS NOW FOUR
+
+`§2n.6` is amended, on her authority:
+
+> **"Can the lab run and post-process X?"** is answered **`YES`** exactly when X has a row at **`SURVEYED`-or-better** whose cause classes exclude **`INSTRUMENT`**, **`BOOKKEEPING`**, **`NAMING/PLUMBING`** and — **new, `6fcc7fb6`** — **`GATE-DESIGN`**. `UNCLASSED` rows continue to answer **no** (`§2n.4`).
+
+**SHE WAS ASKED ABOUT TWO CLASSES AND ADDED ONE, AND THAT DISCRIMINATION IS DELIBERATE.** `§2n.6` note 2 referred **both** `BUDGET/KILL` (class 1) and `GATE-DESIGN` (class 5). She took `GATE-DESIGN` and left `BUDGET/KILL` where it was. **That is a decision, not an oversight, because the referral named both** — and this team will not re-raise it.
+
+**THE PRINCIPLE HER FOUR-ITEM LIST MAKES EXACT, stated because it is now derivable rather than assumed.** Every one of the four excluded classes is a defect in **the lab's own refereeing apparatus** — a blind reader (`INSTRUMENT`), a record that cannot stamp (`BOOKKEEPING`), a path or id collision (`NAMING/PLUMBING`), a gate defective as registered (`GATE-DESIGN`). **`BUDGET/KILL` is not:** a cap hit or a box death is **external**, and a row that nonetheless reached `SURVEYED`-or-better **did demonstrate that the lab can run and post-process X** before the meter stopped it. **Her list is exactly the set of ways the lab's own instruments can be at fault**, which is precisely *"referee trouble never again wears a physics costume."*
+
+**Consequence, for the record:** the excluded set is now classes **2, 3, 4 and 5** — contiguous in `§2n.3`'s precedence order — and the classes that still permit a capability `YES` are **1 `BUDGET/KILL`, 6 `REFERENT-CEILING`, 7 `MODEL-LIMIT`, 8 `PHYSICS-FAIL`**. **`§2n.3`'s precedence order is untouched:** `GATE-DESIGN` remains class 5 for assignment; only its capability effect changed.
+
+### §2n.16 THIS WIDENING COSTS NO RE-WORK, AND THE REASON IS TIMING — SAID SO IT IS NOT MISTAKEN FOR DESIGN
+
+**Narrowing a capability definition would normally raise a retroactivity question:** a claim published under the three-item list might not survive the four-item one. **It does not arise here, and the reason is luck of sequencing rather than foresight.** The census published tonight is **153 rows, 0 classed, `UNCLASSED` 153** — **no capability `YES` has yet been asserted under the three-item list by anyone**, so there is nothing to re-evaluate and no row's answer moves.
+
+**Had the backfill run first, this widening would have required re-reading every `YES`.** Recorded so a future widening is understood to be expensive by default.
+
+**And nothing here re-grades:** no verdict moves, no tier moves, no gate, band, cap or label moves. A cause class remains an **attribute** of a non-`PASS` verdict.
+
+| field | value |
+| --- | --- |
+| authority | **Sanaa, `6fcc7fb6`, verbatim, read at source** |
+| referrals closed | **2 of 2** — tier ordering (ratified); exclusion list (widened) |
+| `§2n.9` | **tag lifts to `[SANAA-RULED]`; words unchanged; clause NOT edited** (rule 6) |
+| `§2n.6` | exclusion list **3 → 4**, adding `GATE-DESIGN` |
+| `BUDGET/KILL` | **referred and NOT added — her deliberate discrimination; not re-raised** |
+| precedence order | **unchanged** — `GATE-DESIGN` is still class 5 |
+| verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** · rows edited **0** |
+| rows requiring re-evaluation | **0** — census is 0 classed / 153 `UNCLASSED` (`§2n.16`) |
+| **lines whose number changed above this section** | **0** |
