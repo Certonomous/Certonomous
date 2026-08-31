@@ -107,10 +107,25 @@ see) → where the verdict lands.**
    item double-counted across the two dissolved).** **Not one cfd row currently says
    anything about whether this lab can do physics.** Every blocked thing in my territory
    is referee trouble: instruments that cannot see, gates that contradict themselves, and a
-   budget she has since removed. Under her standing definition — *"Can the lab run and
-   post-process X?"* is answered by SURVEYED-or-better with classes **excluding**
-   INSTRUMENT/BOOKKEEPING/NAMING — **F28 and JF1 do not currently qualify**, and the honest
-   reason is my instruments, not the physics.
+   budget she has since removed.
+
+   **UPDATED 2026-08-31 — the capability-exclusion list is now FOUR, not three.** Sanaa,
+   verbatim at `6fcc7fb6`: *"Tier order confirmed as assumed; yes, GATE-DESIGN joins the
+   excluded classes."* Verified at that sha before transcription. The excluded set is
+   therefore **INSTRUMENT, BOOKKEEPING, NAMING/PLUMBING, GATE-DESIGN**, and the tier order
+   `HOLDS > GATE REACHED > SURVEYED > {NOT HELD, NEVER RUN}` is ratified.
+
+   **The consequence for cfd is total, and it is worth stating without softening: every
+   single one of my non-PASS rows now falls in an excluded class.** Five INSTRUMENT and
+   three GATE-DESIGN are all excluded outright; the two BUDGET/KILL rows are dissolved.
+   **So `"Can the lab run and post-process F28 / JF1?"` is not merely unanswered — it is
+   unanswerable from my current rows, and 100 % of the reason is referee trouble.** JF1's
+   `cos τ` defect is GATE-DESIGN and is therefore excluded too, which matters because it is
+   the one item with a physics-shaped surface: it looks like a jet failing a mass-flow
+   check, and it is a comparand that omitted `cos τ` on a jet that matches its own physics
+   to eleven significant figures. **That is exactly the costume her order exists to strip
+   off.** Under the standing definition, F28 and JF1 do not qualify, and the honest reason
+   is my instruments and my gates — not the physics.
 
 *Written by `cfd-supervisor` personally. Every line number and citation was opened and
 checked at the time of writing rather than recalled; the two Sanaa anchors she supplied
