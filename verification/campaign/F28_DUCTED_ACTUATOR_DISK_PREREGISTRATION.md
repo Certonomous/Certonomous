@@ -1819,3 +1819,94 @@ registered `A_disk` and §6.2's control C3. The three arms were re-measured from
 with the brief is disclosed in §2. **This addendum alters a registered criterion and is
 therefore committed by `cfd-supervisor` personally**, who owns the §3 check-4 stamp on
 the freeze it amends.*
+
+---
+
+## ADDENDUM 4 — 2026-08-31 — A FALSE SENTENCE IN ADDENDUM 3 §3, STRUCK ONE COMMIT AFTER I COMMITTED IT
+
+**Version 1.4.** **Lines whose number changed above this section: 0.** Pure append;
+Addenda 3, 2 and 1 and the frozen body are untouched. Verified, not asserted: the HEAD
+blob of this file at the preceding commit is exactly **104,991 bytes**, and
+`cmp -n 104991` against this working file returns **rc 0, identical**.
+
+**This addendum alters NO gate, threshold, cap or label.** The criterion in force is
+still `ptp <= max( 0.001*|T_mean| , T_floor )` with `T_floor = 5.934119457e-04 N` in
+5° sector newtons, exactly as Addendum 3 registered it under Sanaa's approval at
+`5dd94f4f`. What is struck below is a **false statement about that criterion's effect**,
+not the criterion. Rule 2 permits a dated addendum that cannot alter a gate; this one
+cannot and does not. **No new approval is claimed and none is needed.**
+
+### 1. THE FALSE SENTENCE, AND IT IS MINE
+
+**STRUCK** — Addendum 3 §3, final paragraph:
+
+> ~~On any arm carrying real load the relative limb still governs (it exceeds the floor
+> once `|T_mean| > T_floor / 0.001 = T_disk_ref,sector`), so this change is **inert on
+> exactly the runs the original criterion graded correctly**.~~
+
+The parenthetical arithmetic is correct. **The conclusion drawn from it is false**, and
+Addendum 3's own §7 table contradicts it two pages later.
+
+The crossover is `|T_mean| > 0.593411946 N` **in sector newtons**. No arm that exists is
+near it. Re-measured by the supervisor personally:
+
+| Arm | `|T_mean|` (N, sector) | relative limb `0.001·|T_mean|` (N) | floor (N) | **binding term** | floor/relative |
+|---|---|---|---|---|---|
+| `FEAS_L1_dp0_U20_A2` | 0.003308274 | 3.308274e-06 | 5.934119e-04 | **FLOOR** | **179.372x** |
+| `FEAS_L1_dp1000_U20_A2` | 0.333724642 | 3.337246e-04 | 5.934119e-04 | **FLOOR** | **1.778x** |
+| `FEAS_L1_dp1000_U20_A2_BCPROBE` | 0.313215680 | 3.132157e-04 | 5.934119e-04 | **FLOOR** | **1.895x** |
+
+**IN FORCE, replacing the struck sentence:** the floor is the binding term on **every
+arm now on disk, the loaded arms included**, and it **relaxes** the stationarity
+criterion by **1.778x** on `FEAS_L1_dp1000_U20_A2` and **1.895x** on the `BCPROBE` arm.
+The change is **not** inert on the loaded arms. It would become inert only above
+`|T_mean| = 0.593411946 N` sector, and the duct's own mean at the registered triple
+point is **0.562** of that (0.333724642 / 0.593411946), so **no F28 duct-force arm is
+expected to reach the crossover at all**.
+
+**Why this is disclosed rather than quietly left.** It changes no verdict — the loaded
+arm is 101.9x over the floor and was 181x over the relative limb, so it fails either way,
+and Addendum 3 §7's "not one arm was rescued" stands unaltered and re-verified. But
+Addendum 3 §6 already stated honestly that the floor *"moves in the permissive
+direction"* and *"can in principle admit a level the relative test would have
+excluded"*. §3 then asserted the opposite about the same arms. **A frozen document that
+contradicts itself is worse than one that is merely wrong, because a later reader can
+cite whichever half suits them.** §6 was right; §3 was wrong; §3 is struck.
+
+**Whose error this is.** Mine. I verified Addendum 3's measurements against my own
+reader and its arithmetic against §4's geometry before committing, and every one of
+those figures reproduced. **I did not check the document against itself**, which is a
+different act and the one that would have caught this. It was found by a `cfd` lane
+auditing the addendum after I had committed it. Recorded here because "the numbers were
+right" is exactly the reassurance under which a false sentence survives.
+
+### 2. THE COMPLETENESS STATEMENT ADDENDUM 3 OWED AND DID NOT MAKE
+
+Addendum 3 changed a criterion without stating which already-graded rows it touches. The
+answer, checked against **every** `RUN_STATUS.*` file under
+`verification/runs/F28_runs/` rather than inferred: **all twelve F28 run directories
+carry `LABEL=FEASIBILITY` or `LABEL=DIAGNOSTIC`. Zero graded rows exist.** No verdict of
+the fixed vocabulary has ever been issued for this case, so **no graded row is affected
+by the floor** — not "probably none". The case remains `PENDING`.
+
+### 3. §5's SECTOR-NEWTON FRAME IS NOW CORROBORATED ON PHYSICS, NOT ONLY ON CODE
+
+Addendum 3 §5 argued the frame from the code path alone (`read_ptp_f28.py:53` applies no
+scale factor). §5 called that the clause the whole change stands or falls on, so a
+second, independent line of evidence is recorded:
+
+The measured mean duct axial force of **−0.333724642 N sector**, over a duct axial-
+projected patch area of **8.282942e-04 m²** (`ductInner` + `ductOuter`, computed from
+`verification/runs/F28_runs/DIAG_mesh_L1_A1/constant/polyMesh`), implies a mean pressure
+difference of **402.9 Pa** — sensible against the imposed 1000 Pa. In that frame the duct
+carries **0.562** of `T_disk_ref,sector`, matching the *"rotor and shroud approximately
+equal"* split §3.3 already quotes from Geldenhuys p.7. **Read as full-annulus newtons
+instead, the duct would carry 0.78 % of the disk thrust — which is not a ducted fan.**
+The frame is therefore sector newtons on the physics as well as on the code, and the
+factor-72 misapplication §5 forecloses is now excluded twice.
+
+*The patch-area and mesh figures in §3 are a `cfd` lane's measurement from the named
+polyMesh artifact; the arithmetic on them, the binding-term table in §1 and the
+byte-identity assertion above were re-derived by `cfd-supervisor` personally. Zero
+core-minutes: no solver ran. Committed by `cfd-supervisor` personally, because it strikes
+a sentence in a document that alters a registered criterion.*
