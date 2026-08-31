@@ -136,7 +136,7 @@ band, floor, cap or ceiling.**
                  position placeholder discriminators; writeFields on every
                  surfaceFieldValue/volFieldValue.
 10. COST       : EXTRAPOLATED from R1's MEASURED per-cell-per-iteration cost. BRACKET
-                 17.0 - 46.4 core-min (lower = uncontended, upper = the contention
+                 17.0 - 33.8 core-min (lower = uncontended, upper = the contention
                  measured during the probe). CAP 90 core-min RUNNING TOTAL. RANKS=1.
                  Overrun STOPS the run. cost_basis $0.0513/core-h reported-by-owner;
                  dollars DERIVED. 90 core-min = $0.0770 derived.
@@ -566,9 +566,18 @@ satisfied.
 
 | level | cells | `endTime` | `Ux < 1e-10` first at (probe) | margin |
 |---|---|---|---|---|
-| L1 | 1 800 | **8 000** | 1 495 (measured) | 5.4x |
-| L2 | 7 200 | **16 000** | 4 293 (measured) | 3.7x |
-| L3 | 28 800 | **32 000** | ~12 000 (**EXTRAPOLATED** at the measured x2.8 per level) | ~2.7x |
+| L1 | 1 800 | **8 000** | 1 495 (**measured**) | 5.4x |
+| L2 | 7 200 | **16 000** | 4 293 (**measured**) | 3.7x |
+| L3 | 28 800 | **32 000** | **13 246 (measured)** | **2.4x** |
+
+The probe reached 32 423 iterations at 360x80 before its own scratch timeout, which is
+past the registered L3 `endTime`, so all three of these are measurements and none is
+extrapolated. **The probe wrote no field at 360x80** — its `writeInterval` was its own
+`endTime` of 60 000, which it never reached — so **`u_bar` and `tau_w` at L3 have NOT
+been seen at any iteration by anybody**, and §10's L3 point predictions
+(`u_bar = 0.13081021875`, `tau_w = 39.24`) are wholly unobserved. **That is deliberate
+and it is not laziness: converging L3 in scratch would have spent the one piece of
+evidentiary content this freeze still has at full strength.**
 
 `__HIST__` = **100** for all levels, so each level yields 80 / 160 / 320 history
 samples and `endTime % HIST == 0` (asserted by the launcher).
@@ -581,16 +590,18 @@ samples and `endTime % HIST == 0` (asserted by the launcher).
 | **basis** | R1's MEASURED per-cell-per-iteration cost, from `RUN_RC.*`: L1 14 s / (7 200 x 2 093) = **9.29e-7 s**, L2 79 s / (14 400 x 5 340) = **1.028e-6 s**, L3 372 s / (28 800 x 13 330) = **9.69e-7 s**. Uncontended box. |
 | **work** | 8 000 x 1 800 + 16 000 x 7 200 + 32 000 x 28 800 = **1.051e9 cell-iterations** |
 | **ESTIMATE — LOWER BRACKET** | at R1's 9.69e-7 s: 1 018 wall-s = **17.0 core-min** |
-| **ESTIMATE — UPPER BRACKET** | at **2.65e-6 s**, the rate this lane MEASURED during the probe at 28 800 cells **while two peer 4-rank jobs held 8 of 16 cores**: 2 785 wall-s = **46.4 core-min** |
-| **CAP** | **90 core-min, RUNNING TOTAL across L1+L2+L3** — 1.94x the upper bracket. Headroom, and its ground: the upper bracket assumes the contention measured at 18:20Z persists; if it worsens, the cap and not a re-plan is what stops the run. |
+| **ESTIMATE — UPPER BRACKET** | at **1.928e-6 s**, the rate this lane MEASURED end-to-end during the probe at 28 800 cells (32 423 iterations in 1 800 wall-s) **while two peer 4-rank jobs held 8 of 16 cores**: 2 026 wall-s = **33.8 core-min** |
+| **CAP** | **90 core-min, RUNNING TOTAL across L1+L2+L3** — 2.66x the upper bracket and 5.3x the lower. Headroom, and its ground stated rather than assumed: the upper bracket prices the contention measured at 18:20-19:00Z; **the cap must survive contention getting worse, because when it does the cap and not a re-plan is what stops the run** (rule 12). At the cap the run costs $0.0770 derived, so the headroom is bought with four-fifths of a cent. |
 | `cost_basis` | c7a.4xlarge at **$0.0513/core-h**, owner-stated 2026-08-21/22 — **REPORTED-BY-OWNER, NOT MEASURED**; the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5). Dollars are **DERIVED**. |
-| **$ at bracket** | **$0.0145 - $0.0397 derived** |
+| **$ at bracket** | **$0.0145 - $0.0289 derived** |
 | **$ at cap** | **$0.0770 derived** |
 
 **LABEL: EXTRAPOLATED, NOT MEASURED.** No R2 solve has run. The per-cell-per-iteration
 rates are measured (R1's from its own `RUN_RC.*`, the contended one from this lane's
-probe); the iteration counts at L3 are **extrapolated** at the x2.8-per-level scaling
-measured across the probe's L1 and L2.
+probe); the iteration counts are measured at all three levels (the probe ran 360x80 past the
+registered L3 `endTime`). What is EXTRAPOLATED is the **wall time**: no R2 solve has
+run, and the two per-cell-per-iteration rates come from R1's graded run and from this
+lane's probe, not from R2.
 
 **AN OVERRUN STOPS THE RUN (rule 12).** `endTime` is NEVER reduced to fit the cap.
 
