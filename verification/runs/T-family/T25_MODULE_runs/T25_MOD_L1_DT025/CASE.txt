@@ -1,0 +1,108 @@
+T25 -- CASE 4 8-CELL BATTERY MODULE, TAKEOFF PULSE
+==================================================================
+*** UNGATED FEASIBILITY RUN.  NOT GRID-CONVERGED.  NOT GATED.
+*** NO VERDICT.  NO ROACHE TRIPLE.  NO GCI.  NOT A RESULT.
+==================================================================
+
+WHAT THIS IS
+  An 8-cell battery module driven by the directive's takeoff power pulse,
+  built to answer ONE feasibility question: does the module geometry mesh,
+  build and step under chtMultiRegionFoam at v2606, and does it produce
+  per-cell temperature histories with a visible module spread?
+
+WHAT THIS IS NOT
+  It is not a verified result and may not be graded.  The coupled air
+  channel is NOT exercised (see SIMPLIFICATIONS).  No gate, threshold or
+  band exists for any quantity here, and none may be invented after the
+  fact from these numbers.
+
+PROVENANCE OF EVERY VALUE
+  directive = etc/sessions/2026-08-30T2300Z_sanaa_four_new_case_families.md
+
+  n cells                8            directive 4.2:396
+  cell Lx (flow)         0.1 m        directive 4.2:396
+  cell Ly (thickness)    0.03 m       directive 4.2:397
+  cell Lz (unit depth)   1.0 m       directive 4.2:397
+  channel gap            0.003 m      directive 4.2:397-398
+  module height          0.261 m       DERIVED: 8*0.03 + 7*0.003
+  rho                    2500.0 kg/m3  directive 4.2:402
+  cp                     1000.0 J/kgK   directive 4.2:402-403
+  kappa                  3.0 W/mK      directive 4.2:406-407 isotropic fallback, DISCLOSED; anisotropic solidThermo tensorial kappa NOT used
+  T_initial              293.0 K       directive 4.3:418
+  T_inf (coolant)        293.0 K       directive 4.3:418
+  P_takeoff              15.0 W/cell   directive 4.3:412-413
+  P_cruise               4.0 W/cell    directive 4.3:413
+  V_cell                 3.000000e-03 m3  DERIVED: Lx*Ly*Lz
+  q_takeoff              5000.0000 W/m3 DERIVED: P_takeoff/V_cell
+  q_cruise               1333.3333 W/m3 DERIVED: P_cruise/V_cell
+  pulse switch           t = 60.0 s     directive 4.3:411
+  duration               900.0 s      directive 4.3:411, 4.5:437
+  write interval         5.0 s        directive 4.5:437
+  h (channel faces)      53.9 W/m2K   DERIVED from directive 4.4:421-425 (U=8 m/s, Dh=6 mm, Re~3057) via Dittus-Boelter; declared-representative, NOT measured, NOT a gate
+  deltaT                 0.25 s        CHOSEN: solid-only implicit conduction,
+                                      no Courant constraint (no fluid region)
+  mesh                   20x6x1 per cell -> 960 cells total   CHOSEN
+  solver                 chtMultiRegionFoam   directive 4.5:431
+
+SIMPLIFICATIONS -- EVERY ONE A DEPARTURE FROM THE DIRECTIVE, STATED AT SIZE
+  1. THE COOLING CHANNELS ARE NOT MESHED.  Directive 4.4:420-428 registers a
+     coupled air flow (U_inlet 8 m/s, kOmegaSST, turbulentTemperature-
+     CoupledBaffleMixed interfaces).  This rung imposes a convective
+     coefficient on the channel-facing patches instead.  Nothing here says
+     anything about the channel flow, the outlet coolant temperature, or the
+     laminar-vs-SST model-form sensitivity of directive 4.6:465.
+     WHY: a Courant-limited coupled solve at max Co 1 in a 3 mm gap at
+     8 m/s needs dt ~ 4e-5 s; 900 s of that is ~2e7 steps and is not a
+     tonight-sized job.  The reduction is what makes a feasibility answer
+     available at all, and it is disclosed rather than absorbed.
+  2. ISOTROPIC kappa = 3.0 W/mK, not the registered anisotropic
+     (in-plane 25 / through-plane 1).  This is the directive's OWN stated
+     fallback at 4.2:406-407, taken with the DISCLOSE it demands.
+  3. THE FLOW-DIRECTION ENDS ARE ADIABATIC.  Directive 4.2:401 gives a 50 mm
+     inlet plenum and a 100 mm exit plenum; neither is built.
+  4. NO cell-to-cell conduction path (directive 4.4:427-428 puts contact
+     through the channel only in rung A, so this matches rung A).
+  5. h IS DERIVED, NOT MEASURED, and not validated against anything.
+
+WHAT THE MODULE SPREAD IN THIS RUN ACTUALLY MEANS
+  Cells 1 and 8 sit against the adiabatic casing (directive 4.2:408) and are
+  cooled on ONE face; cells 2-7 are cooled on TWO.  The spread this run
+  produces is that geometric asymmetry and nothing else.  It is NOT the
+  coolant-heating-along-the-channel mechanism, which needs the fluid region.
+
+RULE 4 COMPLETION -- the field list for THIS case, measured not inherited
+  Fields expected at <endTime>/module/ : T and p.
+  NOT the thermal-family default T U p_rgh alphat nut k omega -- there is no
+  fluid region and those fields do not and must not exist.  p is present
+  because a solid region of chtMultiRegionFoam requires it (T20's launcher guards on
+  exactly {T, p} for the same reason).
+
+case_dir = /home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1_DT025
+
+==================================================================
+TIME STEP, AND THE PULSE-TABLE SAMPLING CHECK FOR IT
+(appended 2026-08-31 when the step size became a build parameter;
+ every line above this block kept its original line number)
+==================================================================
+  deltaT for THIS case    0.25 s
+  steps to endTime        3600   DERIVED: 900.0 / 0.25
+
+  The step-size family built from this builder:
+    T25_MOD_L1        deltaT 0.5  s   the baseline
+    T25_MOD_L1_DT025  deltaT 0.25 s   half the step, EVERYTHING else identical
+  The two differ in system/controlDict deltaT and in nothing else; both are
+  emitted by build_t25.py, neither is a hand-copied tree.
+
+  THE PULSE EDGE IS A RAMP, AND THIS IS THE CHECK THAT IT IS NOT SAMPLED.
+  constant/module/fvOptions holds a Function1 table whose default
+  interpolation is LINEAR, so the breakpoints at 59.999 and
+  60.000 are the ends of a 1 ms ramp rather than a discontinuity.
+  A solver step landing strictly inside that ramp would sample a heat source
+  that is neither the takeoff value nor the cruise value.
+    solver step times           n * 0.25 s, n = 0 .. 3600
+    steps strictly inside
+      (59.999, 60.000)       0
+  The builder evaluates this in exact decimal arithmetic before writing any
+  dictionary and REFUSES to emit the case if the count is not zero.  It is a
+  guard, not a comment.  A deltaT finer than 1 ms would sample the ramp and
+  the breakpoint placement would have to be revisited.

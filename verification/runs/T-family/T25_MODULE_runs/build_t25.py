@@ -25,6 +25,16 @@
 # first attempt died because constant/g was absent (quarantined at
 # T20_LC_c_FAILED_NO_G_20260831T001244Z).  This builder EMITS constant/g and
 # ASSERTS it on disk before returning.
+#
+# TIME STEP IS A BUILD PARAMETER (--delta-t), added 2026-08-31 so that the
+# step-size comparison is built by this builder rather than hand-copied.  Two
+# cases are emitted from this one file:
+#     T25_MOD_L1        --delta-t 0.5    (as built earlier; the default)
+#     T25_MOD_L1_DT025  --delta-t 0.25   (half the step, everything else equal)
+# The builder now also EVALUATES the pulse-table sampling condition that the
+# breakpoint repair below rests on, and REFUSES if any solver step falls
+# strictly inside the residual ramp.  The condition was previously asserted in
+# a comment only; a condition nothing evaluates is not a guard.
 # =========================================================================
 import argparse
 import os
@@ -33,6 +43,7 @@ import shutil
 import subprocess
 import sys
 import textwrap
+from fractions import Fraction
 
 # ------------------------------------------------------------------ geometry
 N_CELLS   = 8            # directive 4.2:396  "8 prismatic cells in a row"
@@ -83,10 +94,39 @@ H_CONV    = 53.9
 H_BASIS   = ("DERIVED from directive 4.4:421-425 (U=8 m/s, Dh=6 mm, Re~3057) "
              "via Dittus-Boelter; declared-representative, NOT measured, NOT a gate")
 
-DT        = 0.5          # s -- solid-only implicit conduction; no Courant limit
+DT_DEFAULT = 0.5         # s -- solid-only implicit conduction; no Courant limit
 WRITE_INT = 5.0          # s          directive 4.5:437 "every 5 s for fields"
 REGION    = "module"
 SOLVER    = "chtMultiRegionFoam"
+
+# ------------------------------------------------- the residual pulse ramp
+# The Function1 table below interpolates LINEARLY between breakpoints, so the
+# pulse edge is a ramp of finite width, not a step.  These two decimals are the
+# ends of that ramp and are written into the table verbatim, so the check and
+# the dictionary cannot drift apart.
+RAMP_LO_STR = "59.999"
+RAMP_HI_STR = "60.000"
+
+
+def ramp_interior_steps(dt, t_end=T_END):
+    """Solver step times falling STRICTLY inside the residual ramp.
+
+    Exact decimal arithmetic (Fraction over the decimal strings), so this is a
+    statement about the times OpenFOAM will actually reach, not about binary
+    rounding.  Returns the list of offending times; empty is the pass.
+    """
+    d = Fraction(str(dt))
+    lo = Fraction(RAMP_LO_STR)
+    hi = Fraction(RAMP_HI_STR)
+    end = Fraction(str(t_end))
+    n_first = max(int(lo / d) - 1, 0)
+    n_last = int(hi / d) + 1
+    hits = []
+    for n in range(n_first, n_last + 1):
+        t = n * d
+        if lo < t < hi and t <= end:
+            hits.append(t)
+    return hits
 
 
 def header(cls, obj, loc):
@@ -264,7 +304,7 @@ mixture
 """)
 
 
-def fv_options():
+def fv_options(dt):
     return (header("dictionary", "fvOptions", f"constant/{REGION}") + f"""
 // THE TAKEOFF PULSE -- directive 4.3:411-414, implemented as the directive
 // asks: scalarSemiImplicitSource with a time-dependent Function1 table.
@@ -277,16 +317,20 @@ def fv_options():
 // getOrDefault<word>("interpolationScheme", "linear", keyType::LITERAL)),
 // so the two breakpoints around the pulse edge are the ends of a RAMP, not
 // a step.  The ramp originally spanned 59.999 -> 60.001, straddling t = 60;
-// with deltaT {DT} the solver lands exactly on t = 60.000, mid-ramp, and
+// with deltaT 0.5 the solver lands exactly on t = 60.000, mid-ramp, and
 // sampled 3166.666667 W/m3 there -- but the directive pins t = 60 in the
 // CRUISE branch (60 <= t <= 900), i.e. {Q_CRUISE:.6f} W/m3.  The file
 // contradicted the directive at exactly one instant.  The ramp now ENDS at
 // 60.000, so t = 60 samples the cruise endpoint exactly and the takeoff
 // branch is unaffected for every t <= 59.999.
-// Residual: a 1 ms ramp in (59.999, 60.000) remains -- a piecewise-linear
-// table cannot represent a true discontinuity.  At deltaT {DT} no step falls
-// inside it; a deltaT finer than 1 ms would sample it, and that is the
-// condition under which this placement must be revisited.
+// Residual: a 1 ms ramp in ({RAMP_LO_STR}, {RAMP_HI_STR}) remains -- a
+// piecewise-linear table cannot represent a true discontinuity.  THIS CASE
+// STEPS AT deltaT {dt}, and the builder EVALUATED the sampling condition for
+// that step before writing this file: steps falling strictly inside the ramp
+// = {len(ramp_interior_steps(dt))}.  The builder refuses to emit a case for
+// which that count is non-zero.  A deltaT finer than 1 ms would sample the
+// ramp, and that is the condition under which this placement must be
+// revisited.
 
 volumetricHeatSource
 {{
@@ -300,8 +344,8 @@ volumetricHeatSource
             explicit    table
             (
                 (  0.000  {Q_TAKEOFF:.6f})
-                ( 59.999  {Q_TAKEOFF:.6f})
-                ( 60.000  {Q_CRUISE:.6f})
+                ({RAMP_LO_STR:>7}  {Q_TAKEOFF:.6f})
+                ({RAMP_HI_STR:>7}  {Q_CRUISE:.6f})
                 ({T_END:.3f}  {Q_CRUISE:.6f})
             );
             implicit    none;
@@ -313,7 +357,7 @@ volumetricHeatSource
 """)
 
 
-def control_dict():
+def control_dict(dt):
     probes = []
     for idx in (0, 3, 7):                       # cells 1, 4, 8 -- directive 4.5:438
         y0, y1 = cell_y(idx)
@@ -326,7 +370,7 @@ startTime       0;
 stopAt          endTime;
 endTime         {T_END};
 
-deltaT          {DT};
+deltaT          {dt};
 
 writeControl    runTime;
 writeInterval   {WRITE_INT};
@@ -408,7 +452,7 @@ PIMPLE
 """
 
 
-def case_txt(case_dir, n_cells_total):
+def case_txt(case_dir, n_cells_total, dt):
     return f"""T25 -- CASE 4 8-CELL BATTERY MODULE, TAKEOFF PULSE
 ==================================================================
 *** UNGATED FEASIBILITY RUN.  NOT GRID-CONVERGED.  NOT GATED.
@@ -450,7 +494,7 @@ PROVENANCE OF EVERY VALUE
   duration               {T_END} s      directive 4.3:411, 4.5:437
   write interval         {WRITE_INT} s        directive 4.5:437
   h (channel faces)      {H_CONV} W/m2K   {H_BASIS}
-  deltaT                 {DT} s        CHOSEN: solid-only implicit conduction,
+  deltaT                 {dt} s        CHOSEN: solid-only implicit conduction,
                                       no Courant constraint (no fluid region)
   mesh                   {NX}x{NY}x{NZ} per cell -> {n_cells_total} cells total   CHOSEN
   solver                 {SOLVER}   directive 4.5:431
@@ -489,6 +533,34 @@ RULE 4 COMPLETION -- the field list for THIS case, measured not inherited
   exactly {{T, p}} for the same reason).
 
 case_dir = {case_dir}
+
+==================================================================
+TIME STEP, AND THE PULSE-TABLE SAMPLING CHECK FOR IT
+(appended 2026-08-31 when the step size became a build parameter;
+ every line above this block kept its original line number)
+==================================================================
+  deltaT for THIS case    {dt} s
+  steps to endTime        {int(round(T_END / dt))}   DERIVED: {T_END} / {dt}
+
+  The step-size family built from this builder:
+    T25_MOD_L1        deltaT 0.5  s   the baseline
+    T25_MOD_L1_DT025  deltaT 0.25 s   half the step, EVERYTHING else identical
+  The two differ in system/controlDict deltaT and in nothing else; both are
+  emitted by build_t25.py, neither is a hand-copied tree.
+
+  THE PULSE EDGE IS A RAMP, AND THIS IS THE CHECK THAT IT IS NOT SAMPLED.
+  constant/{REGION}/fvOptions holds a Function1 table whose default
+  interpolation is LINEAR, so the breakpoints at {RAMP_LO_STR} and
+  {RAMP_HI_STR} are the ends of a 1 ms ramp rather than a discontinuity.
+  A solver step landing strictly inside that ramp would sample a heat source
+  that is neither the takeoff value nor the cruise value.
+    solver step times           n * {dt} s, n = 0 .. {int(round(T_END / dt))}
+    steps strictly inside
+      ({RAMP_LO_STR}, {RAMP_HI_STR})       {len(ramp_interior_steps(dt))}
+  The builder evaluates this in exact decimal arithmetic before writing any
+  dictionary and REFUSES to emit the case if the count is not zero.  It is a
+  guard, not a comment.  A deltaT finer than 1 ms would sample the ramp and
+  the breakpoint placement would have to be revisited.
 """
 
 
@@ -496,8 +568,23 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--case-dir", required=True)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--delta-t", type=float, default=DT_DEFAULT,
+                    help="solver time step, s (default %(default)s)")
     a = ap.parse_args()
     case = os.path.abspath(a.case_dir)
+    dt = a.delta_t
+
+    # ---- guard: the pulse edge is a ramp; no step may land inside it -------
+    if dt <= 0:
+        sys.exit(f"REFUSE: --delta-t must be positive, got {dt}")
+    hits = ramp_interior_steps(dt)
+    if hits:
+        sys.exit(
+            f"REFUSE: deltaT {dt} s puts {len(hits)} solver step(s) strictly "
+            f"inside the residual pulse ramp ({RAMP_LO_STR}, {RAMP_HI_STR}): "
+            + ", ".join(str(float(t)) for t in hits[:8])
+            + ".  The breakpoint placement must be revisited before a case at "
+              "this step size is built; it is not a matter of rebuilding.")
 
     # ---- guard: never build into a case that already has 0/ or a time dir ---
     if os.path.isdir(case):
@@ -515,13 +602,13 @@ def main():
 
     write(f"{case}/system/blockMeshDict",            block_mesh_dict())
     write(f"{case}/system/{REGION}/blockMeshDict",   block_mesh_dict())
-    write(f"{case}/system/controlDict",              control_dict())
+    write(f"{case}/system/controlDict",              control_dict(dt))
     write(f"{case}/system/fvSchemes",                header("dictionary", "fvSchemes", "system") + FVSCHEMES)
     write(f"{case}/system/fvSolution",               header("dictionary", "fvSolution", "system") + FVSOLUTION)
     write(f"{case}/system/{REGION}/fvSchemes",       header("dictionary", "fvSchemes", f"system/{REGION}") + FVSCHEMES)
     write(f"{case}/system/{REGION}/fvSolution",      header("dictionary", "fvSolution", f"system/{REGION}") + FVSOLUTION)
     write(f"{case}/constant/{REGION}/thermophysicalProperties", thermo())
-    write(f"{case}/constant/{REGION}/fvOptions",     fv_options())
+    write(f"{case}/constant/{REGION}/fvOptions",     fv_options(dt))
     write(f"{case}/0.orig/{REGION}/T",               field_T())
     write(f"{case}/0.orig/{REGION}/p",               field_p())
 
@@ -562,7 +649,7 @@ value           (0 0 0);
         sys.exit(f"REFUSE: blockMesh produced no mesh at {owner}")
 
     n_cells = N_CELLS * NX * NY * NZ
-    write(f"{case}/CASE.txt", case_txt(case, n_cells))
+    write(f"{case}/CASE.txt", case_txt(case, n_cells, dt))
 
     # ---- ASSERTIONS: the guards that are cheap, actually evaluated ----------
     problems = []
@@ -573,6 +660,23 @@ value           (0 0 0);
             problems.append(f"0.orig/{REGION}/{f} ABSENT")
     if not os.path.exists(f"{case}/constant/regionProperties"):
         problems.append("constant/regionProperties ABSENT")
+
+    # Read the step back OFF DISK rather than trusting the variable that wrote
+    # it: the whole point of the second case is that its deltaT differs.
+    cd_text = open(f"{case}/system/controlDict").read()
+    m = re.search(r"^\s*deltaT\s+([0-9.eE+-]+)\s*;", cd_text, re.M)
+    if not m:
+        problems.append("system/controlDict has no deltaT entry")
+    elif float(m.group(1)) != dt:
+        problems.append(
+            f"system/controlDict deltaT reads {m.group(1)} on disk, wanted {dt}")
+
+    # And read the pulse table back, so the sampling check is a check on the
+    # dictionary that will actually be solved, not on this script's constants.
+    fvo_text = open(f"{case}/constant/{REGION}/fvOptions").read()
+    for bp in (RAMP_LO_STR, RAMP_HI_STR):
+        if f"({bp:>7}  " not in fvo_text:
+            problems.append(f"pulse table breakpoint {bp} ABSENT from fvOptions")
     if problems:
         sys.exit("REFUSE: " + "; ".join(problems))
 
@@ -581,7 +685,11 @@ value           (0 0 0);
     print(f"  constant/g present: {os.path.exists(f'{case}/constant/g')}")
     print(f"  q_takeoff  {Q_TAKEOFF:.4f} W/m3 for t < {T_PULSE} s")
     print(f"  q_cruise   {Q_CRUISE:.4f} W/m3 for t >= {T_PULSE} s")
-    print(f"  endTime    {T_END} s at deltaT {DT} s -> {int(T_END/DT)} steps")
+    print(f"  deltaT     {dt} s, read back from disk as {m.group(1)}")
+    print(f"  endTime    {T_END} s at deltaT {dt} s -> "
+          f"{int(round(T_END/dt))} steps")
+    print(f"  ramp ({RAMP_LO_STR}, {RAMP_HI_STR}) interior steps: "
+          f"{len(hits)}   (must be 0)")
 
 
 if __name__ == "__main__":

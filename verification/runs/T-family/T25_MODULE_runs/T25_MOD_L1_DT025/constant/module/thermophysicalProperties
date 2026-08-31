@@ -1,0 +1,30 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant/module";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+{
+    type            heSolidThermo;
+    mixture         pureMixture;
+    transport       constIso;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+mixture
+{
+    specie          { molWeight   50; }
+    transport       { kappa       3.0; }   // directive 4.2:406-407 isotropic fallback, DISCLOSED; anisotropic solidThermo tensorial kappa NOT used
+    thermodynamics  { Hf          0; Cp 1000.0; }
+    equationOfState { rho         2500.0; }
+}
+
+// ****************************************************************** //
