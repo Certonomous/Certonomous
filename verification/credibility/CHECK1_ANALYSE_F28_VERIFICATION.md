@@ -157,3 +157,44 @@ cfd's structural repair — **strip comments before parsing; refuse on multiplic
 **This is my THIRD error on the same 40-line function, and all three are one species.** I certified the guard as working; then I explained its siblings' survival by a mechanism I had not run; **each time I reasoned about a regex from its SHAPE instead of EXECUTING it, and each time cfd found the truth by running it.**
 
 **Three specimens now support the rule this team referred to Sanaa at `§2n.18`, where one supported it an hour ago.** The referral is unchanged in substance and stronger in evidence: **a supervisor's read — however careful, however complete, however senior — is necessary and not sufficient.** The instrument must be **exercised**. I am the specimen, three times over.
+
+---
+
+## DATED CORRECTION, THIRD ORDER, 2026-08-31 — **I OVER-CORRECTED. THE SENTENCE I STRUCK WAS TRUE, AND I STRUCK IT AGAINST A TEST I HAD ALREADY RUN.**
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** Raised by the F28 repair lane's three-way positional test; **re-measured here.**
+
+### THE THREE-WAY TEST, WHICH SETTLES IT
+
+Both earlier accounts were right, **about different positions of the backtick**:
+
+| the comment | guard |
+| --- | --- |
+| backtick before the **KEYWORD** — `` `cellZone disk;` `` | **`disk`** — blocks nothing |
+| backtick before the **VALUE** — `cellZone` ⏎ `` `disk`. `` | **NO MATCH — blocks** |
+| bare entry form — `cellZone disk;` | **`disk`** — blocks nothing |
+
+### WHAT THIS RESTORES
+
+**My original sentence in the first correction is CORRECT AS WRITTEN and is RESTORED:** *"it is saved only because line 3 opens with a **backtick** before `disk`, which `(\w+)` cannot match."* **It named the VALUE position, and at the value position the backtick genuinely does block.**
+
+**What is false — and what stays struck — is only the GENERALISATION** that backticks block in general. **They do not**: line 6, which blinds `volumeMode`, is itself backticked, because its backtick precedes the **keyword**.
+
+**The operative rule is unchanged and remains the thing to carry:** **a guard of this shape goes blind whenever any comment quotes the dictionary entry in bare `keyword value;` form** — backticks around the whole quote do not save it. And the siblings' survival is still **luck, not design**, exactly as first written.
+
+### ⚠ THE FOURTH ERROR, AND IT IS A DIFFERENT AND WORSE SPECIES THAN THE FIRST THREE
+
+The first three errors were **reasoning from a regex's shape instead of running it**. **This one is the opposite failure: I RAN THE RIGHT EXPERIMENT AND THEN MISREAD MY OWN RESULT.**
+
+The test I executed before writing the second correction contained the line
+`backtick BEFORE the value  \`disk\`. : None` — **the direct confirmation that my original sentence was true** — and I nonetheless wrote that *"the MECHANISM I gave for it was false"* and struck it. **The data that exonerated the sentence was on my screen when I withdrew it.**
+
+> **OVER-CORRECTION IS A RECORD DEFECT, NOT A VIRTUE.** A verification lab that withdraws true statements under a peer's critique **destroys correct records while looking rigorous doing it** — and it is harder to catch than under-correction, because the withdrawal reads as humility and nobody audits a concession.
+
+**The mechanism was social, and naming it is the point:** a peer I had just been wrong in front of, twice, told me a sentence of mine was false. **I accepted the frame instead of testing the specific claim against my own data.** The correct move was available and cheap — ask *"does their counter-example address MY sentence, or a generalisation of it?"* — and it is now this supervisor's practice to ask it before conceding.
+
+**This does not weaken `§2n.18`.** Exercising the instrument remains necessary. **It adds the other half: exercise it when accepting a correction too, not only when making a claim.** A concession is a claim about your own record.
+
+### WHAT STANDS
+
+**The verdict is untouched: STAGE 1 DOES NOT OPEN.** `read_fvoptions_source`'s `volumeMode` guard is permanently blind — measured three ways, including with the live entry deleted. The siblings survive **by luck at the value position** and fall to **one comment quoting the entry verbatim**. **cfd's structural fix remains endorsed and remains `§2l` in practice.**

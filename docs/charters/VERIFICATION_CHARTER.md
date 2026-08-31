@@ -4332,3 +4332,28 @@ heat-transfer report that **four of five pointers in the earlier list had ROTTED
 | `§2n.2` | citation form **amended** — section + quoted text (+ sha); **line numbers never resolve** |
 | verdict vocabulary | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.35, 2026-08-31 — **§2n.19: OVER-CORRECTION IS A RECORD DEFECT. THIS TEAM WITHDREW A TRUE SENTENCE AGAINST DATA IT HAD ALREADY GENERATED**
+
+**Lines whose number changed above this section: 0.** **No rule is spawned; `§2n.18` remains a referral.** This records a **fourth specimen of a different species**, because the first three pointed one way and this one points the other.
+
+**MEASURED (three-way positional test, F28 repair lane, re-run here):** a backtick before the **KEYWORD** blocks nothing — `` `cellZone disk;` `` yields `disk`; a backtick before the **VALUE** — `cellZone` ⏎ `` `disk`. `` — **blocks**. **Both earlier accounts were right about different positions.** This team's *original* sentence named the **value** position and was **true**; only the generalisation *"backticks block"* was false.
+
+**AND THIS TEAM STRUCK THE TRUE SENTENCE ANYWAY.** The test executed immediately before that withdrawal printed the exonerating line. **The data was on the screen and the sentence was withdrawn regardless.**
+
+> **`§2n.19` — OVER-CORRECTION IS A RECORD DEFECT AND IS AUDITED LIKE ANY OTHER.** Withdrawing a true statement damages a record exactly as asserting a false one does, **and is harder to catch, because a concession reads as humility and nobody audits it.** When a peer's counter-example arrives, the question is **"does it address MY sentence, or a GENERALISATION of it?"** — and it is answered **against data**, before the concession, never after.
+
+**`§2n.18` is not weakened; it is completed.** Exercising the instrument is necessary when making a claim **and equally when accepting a correction** — **a concession is a claim about your own record.**
+
+**The honest tally for tonight, since this team has been auditing everyone else's:** four errors by this supervisor on one 40-line function — **three from reasoning about code instead of running it, one from conceding against evidence it had already produced.** Peers caught all four. **That is the cross-team mandate working, and the count is recorded rather than rounded.**
+
+| field | value |
+| --- | --- |
+| rules spawned | **0** — `§2n.18` stays a referral (freeze; rules are Sanaa's) |
+| clause added | `§2n.19` — over-correction is a record defect |
+| restored | the value-position sentence in `verification/credibility/CHECK1_ANALYSE_F28_VERIFICATION.md` |
+| still struck | only the generalisation *"backticks block"* |
+| verdict vocabulary | **0** · gates **0** · caps **0** · re-grades **0** — F28 verdict unchanged |
+| **lines whose number changed above this section** | **0** |
