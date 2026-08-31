@@ -1,0 +1,301 @@
+% ---------------------------------------------------------------------------
+% ACT A -- MOTOR-IN-DUCT THERMAL MAP -- one-page customer-facing result sheet.
+% Written under the DEMO STANDARD v2 output rules R1-R10.
+% Every user-visible number on this sheet traces to a source artifact by file
+% and line. That mapping lives in README_SOURCES.md in this directory; it is
+% not repeated here, so that this file carries no internal identifiers at all.
+% Self-contained: no external figure file, no packages beyond a base TeX Live
+% install (no tikz/pgfplots on this box). The plot is a native LaTeX picture,
+% so the output is vector at any zoom.
+% Compile: pdflatex ACT_A_thermal_map_sheet.tex
+% ---------------------------------------------------------------------------
+\documentclass[9pt,a4paper]{article}
+\usepackage[margin=10mm,top=7mm,bottom=5mm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+
+\definecolor{safe}{rgb}{0.88,0.94,0.88}
+\definecolor{limit}{rgb}{0.72,0.12,0.12}
+\definecolor{rulegrey}{rgb}{0.45,0.45,0.45}
+\definecolor{boxgrey}{rgb}{0.96,0.96,0.94}
+
+\renewcommand{\footnotesize}{\fontsize{6.9}{7.9}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{6.4}{7.5}\selectfont}
+\renewcommand{\arraystretch}{1.02}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5pt}
+\pagestyle{empty}
+
+\newcommand{\rolesig}[1]{\textbf{\footnotesize#1}}
+
+\begin{document}
+\fontsize{8}{9.5}\selectfont
+\enlargethispage{30pt}
+
+% ---------------------------------------------------------------- title -----
+{\fontsize{14}{16}\selectfont\bfseries Motor in a cooling duct: thermal envelope}\\[1.5pt]
+{\fontsize{8.8}{10}\selectfont Peak housing temperature over 16 solved operating
+points --- 4 heat loads $\times$ 4 airspeeds}\\[2pt]
+{\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
+{\footnotesize Conjugate heat transfer, steady, axisymmetric duct sector.
+Cooling air at $288\,\mathrm{K}$ ($14.85\,^{\circ}\mathrm{C}$). Housing temperature limit
+$200\,^{\circ}\mathrm{C}$ (customer-stated).}
+
+% ---------------------------------------------------------------- table 1 ---
+\vspace{2pt}
+\textbf{Table 1 --- Peak housing temperature $T_{\max}$, $^{\circ}\mathrm{C}$.}
+Sixteen solved points; all values read from the solution at full write
+precision.
+
+\vspace{2pt}
+\begin{tabular}{r rrrr l}
+\toprule
+ & \multicolumn{4}{c}{\textbf{Airspeed $U_{\infty}$, m\,s$^{-1}$}} & \\
+\cmidrule(lr){2-5}
+\textbf{Heat load $P$, W} & \textbf{10} & \textbf{20} & \textbf{30} & \textbf{40}
+ & \textbf{Numerical uncertainty on every value in the row} \\
+\midrule
+\textbf{80}  &  38.1374 &  29.0795 & 25.5462 & 23.5897 & not quantified (single mesh level) \\
+\textbf{155} &  59.9609 &  42.3896 & 35.5104 & 31.6747 & not quantified (single mesh level) \\
+\textbf{230} &  81.7844 &  55.6997 & 45.4746 & 39.7598 & not quantified (single mesh level) \\
+\textbf{305} & 103.6078 &  69.0098 & 55.4389 & 47.8448 & not quantified (single mesh level) \\
+\bottomrule
+\end{tabular}
+
+\vspace{1.5pt}
+{\footnotesize Every point was solved on one mesh only. A numerical error bar
+needs the same point on at least two more meshes, which was not done --- so no
+error bar exists for these sixteen numbers and none is quoted. Hottest point
+$103.6078\,^{\circ}\mathrm{C}$ at $305\,\mathrm{W}$, $10\,\mathrm{m\,s^{-1}}$:
+$96.3922\,\mathrm{K}$ below the $200\,^{\circ}\mathrm{C}$ limit. Coolest
+$23.5897\,^{\circ}\mathrm{C}$ at $80\,\mathrm{W}$, $40\,\mathrm{m\,s^{-1}}$.}
+
+% ------------------------------------------------- plot + assumption beat ---
+\vspace{1.5pt}
+\begin{minipage}[t]{0.485\textwidth}
+\textbf{Figure 1 --- Operating envelope.} Peak housing temperature against
+airspeed, one curve per heat load. Shaded band is below the limit.
+
+\vspace{2pt}
+\setlength{\unitlength}{1mm}
+\begin{picture}(88,63)(-8,-8)
+  % ---- safe region: everything below the 200 degC line -------------------
+  \put(0,0){{\color{safe}\rule{84mm}{53.33mm}}}
+  % ---- axes ---------------------------------------------------------------
+  \linethickness{0.4pt}
+  \put(0,0){\line(1,0){84}}
+  \put(0,0){\line(0,1){57}}
+  % ---- y ticks and labels, degC ------------------------------------------
+  \multiput(0,13.33)(0,13.33){4}{\line(-1,0){1.4}}
+  \put(-2.2,-0.9){\makebox(0,0)[r]{\scriptsize 0}}
+  \put(-2.2,12.43){\makebox(0,0)[r]{\scriptsize 50}}
+  \put(-2.2,25.77){\makebox(0,0)[r]{\scriptsize 100}}
+  \put(-2.2,39.10){\makebox(0,0)[r]{\scriptsize 150}}
+  \put(-2.2,52.43){\makebox(0,0)[r]{\scriptsize 200}}
+  \put(-7.0,30){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize $T_{\max}$, $^{\circ}\mathrm{C}$}}}
+  % ---- x ticks and labels, m/s -------------------------------------------
+  \multiput(28,0)(28,0){3}{\line(0,-1){1.4}}
+  \put(0,-4.2){\makebox(0,0)[c]{\scriptsize 10}}
+  \put(28,-4.2){\makebox(0,0)[c]{\scriptsize 20}}
+  \put(56,-4.2){\makebox(0,0)[c]{\scriptsize 30}}
+  \put(84,-4.2){\makebox(0,0)[c]{\scriptsize 40}}
+  \put(42,-7.6){\makebox(0,0)[c]{\scriptsize Airspeed $U_{\infty}$, m\,s$^{-1}$}}
+  % ---- the 200 degC limit line -------------------------------------------
+  \linethickness{0.7pt}
+  \multiput(0,53.33)(4,0){21}{{\color{limit}\rule{2.2mm}{0.6pt}}}
+  \put(2,55.0){\makebox(0,0)[l]{{\color{limit}\scriptsize
+      $200\,^{\circ}\mathrm{C}$ housing limit (customer-stated)}}}
+  \put(2,49.3){\makebox(0,0)[l]{\scriptsize safe region}}
+  % ---- curves: 4 measured samples joined by straight segments -------------
+  \linethickness{0.5pt}
+  % 80 W  -> 10.17 7.75 6.81 6.29
+  \qbezier(0,10.17)(14,8.96)(28,7.75)
+  \qbezier(28,7.75)(42,7.28)(56,6.81)
+  \qbezier(56,6.81)(70,6.55)(84,6.29)
+  \put(0,10.17){\circle*{1.1}}\put(28,7.75){\circle*{1.1}}
+  \put(56,6.81){\circle*{1.1}}\put(84,6.29){\circle*{1.1}}
+  % 155 W -> 15.99 11.30 9.47 8.45
+  \qbezier(0,15.99)(14,13.65)(28,11.30)
+  \qbezier(28,11.30)(42,10.39)(56,9.47)
+  \qbezier(56,9.47)(70,8.96)(84,8.45)
+  \put(0,15.99){\circle*{1.1}}\put(28,11.30){\circle*{1.1}}
+  \put(56,9.47){\circle*{1.1}}\put(84,8.45){\circle*{1.1}}
+  % 230 W -> 21.81 14.85 12.13 10.60
+  \qbezier(0,21.81)(14,18.33)(28,14.85)
+  \qbezier(28,14.85)(42,13.49)(56,12.13)
+  \qbezier(56,12.13)(70,11.37)(84,10.60)
+  \put(0,21.81){\circle*{1.1}}\put(28,14.85){\circle*{1.1}}
+  \put(56,12.13){\circle*{1.1}}\put(84,10.60){\circle*{1.1}}
+  % 305 W -> 27.63 18.40 14.78 12.76
+  \linethickness{0.9pt}
+  \qbezier(0,27.63)(14,23.02)(28,18.40)
+  \qbezier(28,18.40)(42,16.59)(56,14.78)
+  \qbezier(56,14.78)(70,13.77)(84,12.76)
+  \put(0,27.63){\circle*{1.3}}\put(28,18.40){\circle*{1.3}}
+  \put(56,14.78){\circle*{1.3}}\put(84,12.76){\circle*{1.3}}
+  % ---- legend, inside the axes where there is white space ----------------
+  \put(55,45.5){\makebox(0,0)[l]{\scriptsize Heat load $P$:}}
+  \linethickness{0.9pt}\qbezier(55,41.5)(58,41.5)(61,41.5)
+  \put(58,41.5){\circle*{1.3}}
+  \put(62.5,41.5){\makebox(0,0)[l]{\scriptsize 305\,W}}
+  \linethickness{0.5pt}
+  \qbezier(55,37.5)(58,37.5)(61,37.5)\put(58,37.5){\circle*{1.1}}
+  \put(62.5,37.5){\makebox(0,0)[l]{\scriptsize 230\,W}}
+  \qbezier(55,33.5)(58,33.5)(61,33.5)\put(58,33.5){\circle*{1.1}}
+  \put(62.5,33.5){\makebox(0,0)[l]{\scriptsize 155\,W}}
+  \qbezier(55,29.5)(58,29.5)(61,29.5)\put(58,29.5){\circle*{1.1}}
+  \put(62.5,29.5){\makebox(0,0)[l]{\scriptsize 80\,W}}
+\end{picture}
+
+\vspace{1pt}
+{\footnotesize Markers are the solved points of Table 1; straight segments join
+them, because four airspeeds were solved and nothing between them was. No
+uncertainty band is drawn --- none exists (single mesh level).}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+\textbf{Table 2 --- Your resistance estimate against the solved answer, at
+$305\,\mathrm{W}$.} Temperatures in $^{\circ}\mathrm{C}$; the ratio is taken on
+the temperature \emph{rise} above the $288\,\mathrm{K}$ air, because the
+air temperature is common to both and carries no information about either.
+
+\vspace{2pt}
+{\fontsize{7.2}{8.5}\selectfont
+\begin{tabular}{r rr r rr}
+\toprule
+$U_{\infty}$ & \multicolumn{2}{c}{Hand estimate, $^{\circ}\mathrm{C}$} &
+Solved & \multicolumn{2}{c}{Overprediction, $\times$} \\
+\cmidrule(lr){2-3}\cmidrule(lr){5-6}
+m\,s$^{-1}$ & duct corr. & flat plate & $^{\circ}\mathrm{C}$ & duct & flat plate \\
+\midrule
+10 & 329.1 & 195.1 & 103.6078 & \textbf{3.541} & \textbf{2.031} \\
+20 & 197.3 & 120.3 &  69.0098 & 3.369 & 1.947 \\
+30 & 148.0 &  92.4 &  55.4389 & 3.280 & 1.911 \\
+40 & 121.6 &  77.4 &  47.8448 & \textbf{3.235} & \textbf{1.896} \\
+\bottomrule
+\end{tabular}}
+
+\vspace{2pt}
+{\footnotesize\textbf{The lumped resistance estimate is high by
+$1.90\times$ to $3.54\times$.} Both closed-form variants overshoot, and they
+overshoot by more than the $1.763\times$ spread between them --- so this is not
+a matter of picking the wrong correlation. The overshoot is \emph{largest at
+the lowest airspeed} ($3.54\times$ at $10\,\mathrm{m\,s^{-1}}$, falling to
+$3.24\times$ at $40\,\mathrm{m\,s^{-1}}$). \emph{Why:} the hand method collapses
+the whole cooling path onto one resistance taken from a fully-developed
+correlation, while the real passage is a short annular gap in which the flow is
+still developing and the surface removes heat considerably better than the
+correlation allows.}
+
+\vspace{2pt}
+\textbf{Table 3 --- What the solved result says you could actually run at
+$20\,\mathrm{m\,s^{-1}}$.}
+
+\vspace{2pt}
+{\fontsize{7.2}{8.5}\selectfont
+\begin{tabular}{l r l}
+\toprule
+Reading & Heat load, W & Basis \\
+\midrule
+Solved and demonstrated        & \textbf{305} & solved \\
+Implied to reach $120\,^{\circ}\mathrm{C}$ & 592 & extrapolated \\
+Implied to reach $200\,^{\circ}\mathrm{C}$ & 1043 & extrapolated \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1.5pt}
+{\footnotesize The two implied loads are arithmetic beyond the highest load ever
+solved ($305\,\mathrm{W}$), on a proportionality checked only inside
+$80$--$305\,\mathrm{W}$. \textbf{They are not measurements.} The demonstrated
+statement is the first row: at least $305\,\mathrm{W}$ at every airspeed tested,
+with at least $96.4\,\mathrm{K}$ of margin at the worst point.}
+\end{minipage}
+
+% -------------------------------------------------------- verification ------
+\vspace{1.5pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
+\textbf{What was checked, and what was not}
+
+\vspace{1pt}
+\begin{minipage}[t]{0.60\textwidth}
+\vspace{0pt}
+{\footnotesize
+$\bullet$ \textbf{All sixteen points met success criteria fixed before running.}
+The acceptance limits, the tolerance on each predicted temperature and the
+labels were written down before the first solver started; sixteen of sixteen
+points met them.\\
+$\bullet$ \textbf{The trends are monotonic and consistent across the whole
+map.} Temperature rises in proportion to heat load at fixed airspeed and falls
+steeply with airspeed at fixed load, with no reversal anywhere.\\
+$\bullet$ \textbf{No grid-refinement check is available and none is claimed} ---
+every point ran on one mesh. \textbf{No energy-conservation check is available
+for this configuration and none is claimed.}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.375\textwidth}
+\vspace{0pt}
+\colorbox{boxgrey}{\begin{minipage}{0.955\textwidth}
+{\footnotesize\textbf{Read this before you use the numbers}\\[1pt]
+$\bullet$ One mesh level per point, so there is no numerical error bar on any
+temperature in Table 1.\\
+$\bullet$ Thermal radiation is not modelled, and no bound on how much it would
+change these temperatures has been computed.\\
+$\bullet$ Buoyancy is switched off. Whether forced airflow genuinely dominates
+is not established here, and the low-airspeed column is where that assumption
+is least comfortable.\\
+$\bullet$ Material properties are representative values, not measured for your
+parts.\\
+$\bullet$ The duct is treated as an axisymmetric sector; no circumferential
+features are represented.\\
+$\bullet$ Near-wall mesh resolution meets its target at $10$ and
+$20\,\mathrm{m\,s^{-1}}$ and exceeds it at $30$ and $40\,\mathrm{m\,s^{-1}}$,
+limiting what may be said about surface heat-transfer coefficients; the
+temperature bound above is unaffected.\\
+$\bullet$ Nothing is claimed between the four airspeeds solved.}
+\end{minipage}}
+\end{minipage}
+
+% -------------------------------------------------------------- cost --------
+\vspace{2pt}
+{\footnotesize\textbf{Compute.} Upfront estimate $483.6$ core-minutes; used
+$577.2$ core-minutes, a ratio of $1.19$. The excess is machine sharing --- the
+last twelve points ran twelve-at-once on one sixteen-core machine, where the
+estimate was calibrated at four-at-once. Derived cost $\$0.49$ at
+$\$0.0513$ per core-hour; the rate is stated by the machine's owner, not
+metered on the machine.}
+
+% ------------------------------------------------------------- voices -------
+\vspace{2pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}
+
+\vspace{1pt}
+{\footnotesize
+\rolesig{Lead Researcher.} The result worth your attention is not the map, it is
+the correction to the sizing method. A lumped resistance estimate of this duct
+runs high by a factor of two to three and a half at every airspeed we solved ---
+a systematic bias, not scatter, and worst at the low-speed end where a designer
+is most likely to be nervous. We would not size this machine from a hand
+resistance model again.
+
+\rolesig{Lead Engineer.} At $305\,\mathrm{W}$ and $10\,\mathrm{m\,s^{-1}}$ ---
+the hardest corner we solved --- the housing sits $96.4\,\mathrm{K}$ below your
+$200\,^{\circ}\mathrm{C}$ limit, and the whole $80$--$305\,\mathrm{W}$ range
+clears both that limit and your $120\,^{\circ}\mathrm{C}$ design target at all
+four airspeeds. Between $80$ and $305\,\mathrm{W}$ at any airspeed in Table 1
+you may scale the temperature by proportion. Do not read between the airspeeds,
+and do not treat Table 3's extrapolated loads as a rating.
+
+\rolesig{Lead Numericist.} The uncertainty column of Table 1 is empty on
+purpose. Each point was solved once, on one mesh; an error bar needs the same
+point on a refined mesh, we did not run one, so there is no honest number to put
+there and we have not invented one. What the sixteen points do support is that
+they met criteria written down in advance and that the trends are monotonic
+throughout. A quantified numerical uncertainty here is a mesh-refinement study
+--- say so and we will price it.}
+
+\vspace{1pt}
+{\color{rulegrey}\rule{\textwidth}{0.4pt}}\\[0.5pt]
+{\scriptsize All figures are read from solution files retained on disk.}
+
+\end{document}

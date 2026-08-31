@@ -1,0 +1,278 @@
+% ---------------------------------------------------------------------------
+% ACT C -- BATTERY MODULE UNDER A TAKEOFF PULSE -- one-page customer-facing
+% result sheet, written under the DEMO STANDARD v2 output rules R1-R10.
+%
+% STATE OF THIS SHEET: the confidence section is complete and every number in
+% it is measured. The module results section is a LAYOUT with EMPTY
+% PLACEHOLDERS -- the eight-cell module is built and checked but has not been
+% solved, so no history, no spread, no time-to-peak, no energy closure and no
+% step-size comparison exists yet. NOTHING IS DRAWN OR TABULATED THERE. Each
+% placeholder carries a LaTeX comment naming exactly what fills it.
+%
+% Every user-visible number on this sheet traces to a source artifact by file
+% and line, and so does the content of each reserved frame below. That mapping
+% lives in README_SOURCES.md in this directory; it is not repeated here, so
+% that this file carries no internal identifiers at all.
+%
+% Self-contained: no external figure file, no packages beyond a base TeX Live
+% install (no tikz/pgfplots on this box). Vector output at any zoom.
+% Compile: pdflatex ACT_C_battery_module_sheet.tex
+% ---------------------------------------------------------------------------
+\documentclass[9pt,a4paper]{article}
+\usepackage[margin=10mm,top=7mm,bottom=5mm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+
+\definecolor{rulegrey}{rgb}{0.45,0.45,0.45}
+\definecolor{boxgrey}{rgb}{0.96,0.96,0.94}
+\definecolor{holdgrey}{rgb}{0.62,0.62,0.62}
+\definecolor{holdfill}{rgb}{0.975,0.975,0.975}
+
+\renewcommand{\footnotesize}{\fontsize{6.9}{7.9}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{6.4}{7.5}\selectfont}
+\renewcommand{\arraystretch}{1.02}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5pt}
+\pagestyle{empty}
+
+\newcommand{\rolesig}[1]{\textbf{\footnotesize#1}}
+
+% A reserved, visibly empty frame. Nothing is drawn inside it, deliberately.
+\newcommand{\reserved}[3]{%
+  \fcolorbox{holdgrey}{holdfill}{\begin{minipage}[t][#2][c]{#1}
+    \centering{\footnotesize\color{holdgrey}#3}
+  \end{minipage}}}
+
+\begin{document}
+\fontsize{8}{9.5}\selectfont
+\enlargethispage{16pt}
+
+% ---------------------------------------------------------------- title -----
+{\fontsize{14}{16}\selectfont\bfseries Battery module under a takeoff power pulse}\\[1.5pt]
+{\fontsize{8.8}{10}\selectfont Eight air-cooled cells, a 60-second high-power
+takeoff phase, then cruise to 900 seconds}\\[2pt]
+{\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
+{\footnotesize Transient conduction in the cells with convective cooling on the
+channel faces. \textbf{Status: the confidence check below is complete and
+measured. The module is built and checked but not yet solved, so its results
+sections are reserved and deliberately empty.}}
+
+% -------------------------------------------------- 1. confidence beat ------
+\vspace{1.5pt}
+\textbf{1. Before we spend anything on your module: what our transient
+conduction machinery is worth}
+
+\vspace{1pt}
+{\footnotesize We solved a three-dimensional transient conduction problem that
+has a closed-form answer --- a uniform block, initially hot, cooled on its faces
+by a fixed convective coefficient: the same physics as a cell losing heat to a
+cooling channel --- and compared three independent readings of our solution
+against that exact answer. Temperatures are the dimensionless excess
+$\theta = (T-T_{\infty})/(T_{0}-T_{\infty})$ at Biot number $Bi = 1.0$ and
+Fourier number $Fo = 0.2$. Success criteria, the tolerance on each reading and
+the labels were fixed before the first solver started.}
+
+\vspace{2pt}
+\textbf{Table 1 --- Solved against the exact conduction solution.} Three
+quantities, three mesh levels each ($20$, $40$, $80$ cells per side; finest
+$512\,000$ cells).
+
+\vspace{2pt}
+{\fontsize{7.2}{8.5}\selectfont
+\begin{tabular}{l rr r r r r r}
+\toprule
+Reading of the solution & Exact & Solved & Deviation & Tolerance & Grid-refinement & Observed & Refinement \\
+(dimensionless $\theta$, --) & value & (finest) & from exact, \% & used, \% & uncertainty, \% & order, -- & ratio, -- \\
+\midrule
+Average through the block        & 0.6175896496 & 0.6176037117 & $+0.00228$ & 45.5 & 0.0021 & 1.9996 & 3.999 \\
+Temperature at the block centre  & 0.8591137894 & 0.8591831159 & $+0.00807$ & 32.3 & 0.0104 & 2.0006 & 4.002 \\
+Temperature at a cooled face     & 0.5814449853 & 0.5815192620 & $+0.01277$ & 42.6 & 0.0154 & 2.0130 & 4.036 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{2pt}
+{\footnotesize\textbf{All three readings are verified against the exact
+conduction solution to within $0.013\,\%$} --- the largest of the three
+deviations from the exact value, not an average and not a tolerance. Each also
+used less than half of the tolerance allowed for it before the run (worst
+$45.5\,\%$). The grid-refinement column is the numerical error bar on the
+finest-mesh value, largest $0.0154\,\%$. Observed order is how fast the error
+falls under mesh refinement: $1.9996$/$2.0006$/$2.0130$ against a theoretical
+$2.000$, with errors falling by $3.999$/$4.002$/$4.036$ against a theoretical
+$4.000$ for halving the cell size. \textbf{Second-order accurate by measurement,
+not by assertion.}}
+
+% ---------------------------------------- 2. what the module is -------------
+\vspace{1.5pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
+\textbf{2. The module we have built, and the duty cycle it will be driven with}
+
+\vspace{2pt}
+\begin{minipage}[t]{0.485\textwidth}
+{\fontsize{7.2}{8.5}\selectfont
+\begin{tabular}{l r l}
+\toprule
+Quantity & Value & Unit \\
+\midrule
+Cells in the stack                  & 8      & -- \\
+Cell length, along the flow         & 100    & mm \\
+Cell thickness                      & 30     & mm \\
+Cooling channel gap                 & 3      & mm \\
+Stack height, overall               & 261    & mm \\
+Depth modelled                      & 1.0    & m (per unit depth) \\
+\midrule
+Takeoff heat, per cell              & 15     & W \\
+Takeoff phase duration              & 60     & s \\
+Cruise heat, per cell               & 4      & W \\
+Total duration simulated            & 900    & s \\
+Initial and coolant temperature     & 293    & K \\
+\midrule
+Total heat put into the module      & 34\,080 & J \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1.5pt}
+{\footnotesize Stack height is $8\times30\,\mathrm{mm}$ of cell plus
+$7\times3\,\mathrm{mm}$ of channel; total heat is
+$8\times(15\,\mathrm{W}\times60\,\mathrm{s}+4\,\mathrm{W}\times840\,\mathrm{s})$
+--- both arithmetic on the rows above.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+% ---- PLACEHOLDER 1 -------------------------------------------------------
+% FILLED BY: eight per-cell temperature histories, T(t) in degC against t in s,
+% 0 to 900 s, one curve per cell, from the probe output at the centre of each
+% of the eight cells (probes written every time step). Axes: x = time, s;
+% y = cell temperature, degC. Cells 1 and 8 expected apart from 2-7 (one
+% cooled face against two) -- but NOT drawn until solved.
+\reserved{\textwidth}{17mm}{\textbf{Figure 1 --- Per-cell temperature histories}\\[2pt]
+Reserved. Eight curves, cell temperature in $^{\circ}\mathrm{C}$ against time in
+$\mathrm{s}$, $0$ to $900\,\mathrm{s}$.\\[2pt]
+Not yet solved. Nothing is drawn here.}
+
+\vspace{2pt}
+% ---- PLACEHOLDER 2 -------------------------------------------------------
+% FILLED BY: module spread (max over cells minus min over cells) in K against
+% time in s, one curve, same probe data as Figure 1.
+\reserved{\textwidth}{11mm}{\textbf{Figure 2 --- Spread across the module}\\[2pt]
+Reserved. Hottest-minus-coldest cell, $\mathrm{K}$, against time,
+$\mathrm{s}$. Not yet solved.}
+\end{minipage}
+
+% ---------------------------------------- 3. reserved results ---------------
+\vspace{1.5pt}
+\textbf{3. Results reserved until the module is solved}
+
+\vspace{2pt}
+\begin{minipage}[t]{0.32\textwidth}
+% ---- PLACEHOLDER 3 -------------------------------------------------------
+% FILLED BY: per-cell table, 8 rows: cell index; peak temperature, degC;
+% time at which that peak occurs, s; time to steady (dT/dt < 0.01 K/s), s.
+% Uncertainty column to be filled from the step-size comparison of
+% PLACEHOLDER 5, or to read "not quantified" if only one step size is run.
+\reserved{\textwidth}{14mm}{\textbf{Table 2 --- Peak and time-to-peak, per cell}\\[2pt]
+Reserved. Eight rows: peak temperature, $^{\circ}\mathrm{C}$; time to peak,
+$\mathrm{s}$; uncertainty. Not yet solved.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+% ---- PLACEHOLDER 4 -------------------------------------------------------
+% FILLED BY: cumulative energy closure -- heat put in (34080 J by the duty
+% cycle) against heat stored in the cells plus heat removed through the
+% channel faces, both integrated to 900 s, closure stated as a percentage.
+% R5 wording when filled: "energy conservation checked: closed to [X]%".
+\reserved{\textwidth}{14mm}{\textbf{Energy conservation}\\[2pt]
+Reserved. Heat in, $\mathrm{J}$, against heat stored plus heat removed,
+$\mathrm{J}$; closure in \%. Not yet solved.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
+% ---- PLACEHOLDER 5 -------------------------------------------------------
+% FILLED BY: the same module re-solved at a second, smaller time step; peak
+% temperature and time-to-peak compared between the two step sizes, difference
+% quoted in K and in s. The planned ladder for the refined level is
+% dt = 0.02 / 0.01 / 0.005 s; the as-built feasibility case steps at 0.5 s.
+% The second step size for THIS case is not yet fixed -- do not name one here.
+\reserved{\textwidth}{14mm}{\textbf{Time-step check}\\[2pt]
+Reserved. Peak temperature, $^{\circ}\mathrm{C}$, and time to peak,
+$\mathrm{s}$, at two time-step sizes. Not yet solved.}
+\end{minipage}
+
+% ------------------------------------------------------------ caveats -------
+\vspace{1.5pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
+\begin{minipage}[t]{0.60\textwidth}
+\vspace{0pt}
+\colorbox{boxgrey}{\begin{minipage}{0.97\textwidth}
+{\footnotesize\textbf{Read this before you use anything on this sheet}\\[1pt]
+$\bullet$ \textbf{The cooling channels are not resolved as air flow.} They are
+a convective boundary condition on the channel-facing surfaces. The consequence
+matters: the cell-to-cell spread this model produces comes from the two end
+cells having one cooled face while the six interior cells have two. It does
+\emph{not} include coolant heating along the channel --- a real effect this
+model cannot see.\\
+$\bullet$ The convective coefficient is calculated from the stated channel flow
+($8\,\mathrm{m\,s^{-1}}$ in a $3\,\mathrm{mm}$ gap), not measured, and not
+validated against anything.\\
+$\bullet$ Material properties are representative, not measured for your cells;
+conductivity is treated as equal in all directions.\\
+$\bullet$ The stack ends along the flow direction are insulated; no inlet or
+exit plenum is modelled.\\
+$\bullet$ Cells exchange heat only through the channel faces; no direct
+cell-to-cell contact path is modelled.\\
+$\bullet$ The confidence check of section 1 is on conduction with convective
+surfaces. It says nothing about the channel airflow.}
+\end{minipage}}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.375\textwidth}
+\vspace{0pt}
+{\footnotesize\textbf{Compute}\\[1pt]
+\emph{Confidence check, section 1:} upfront estimate $87.902$ core-minutes;
+used $125.516$, a ratio of $1.428$. The estimate was scaled from a smaller
+two-dimensional problem across a jump to three dimensions and from $2\,500$ to
+$512\,000$ cells; we said in advance it could be low by up to about
+$3\times$ and it was low by $1.43\times$. No run hit its ceiling. Derived cost
+$\$0.107$ against $\$0.075$ predicted.\\[3pt]
+\emph{Module run:} upfront estimate $1.0$ core-minute, with a hard ceiling of
+$10.0$ core-minutes at which the run stops. \textbf{Not yet spent --- the module
+has not been solved.} The wide ceiling is deliberate: the estimate rests on a
+file-writing rate this configuration has never been measured at.\\[3pt]
+Costs are derived at $\$0.0513$ per core-hour, a rate stated by the machine's
+owner rather than metered on the machine.}
+\end{minipage}
+
+% ------------------------------------------------------------- voices -------
+\vspace{2pt}
+{\color{rulegrey}\rule{\textwidth}{0.5pt}}
+
+\vspace{1pt}
+{\footnotesize
+\rolesig{Lead Researcher.} The exact-solution check comes first on purpose. The
+physics your module needs --- heat generated inside a solid, conducted out,
+removed by a convective surface, all changing in time --- is exactly what can be
+checked against a closed-form answer, and we checked it to within
+$0.013\,\%$. That is the basis on which we would ask you to believe a module
+prediction. The module prediction does not exist yet and we will not sketch
+one.
+
+\rolesig{Lead Engineer.} One design point is already worth flagging, and it is
+geometric rather than numerical: the two end cells are cooled on one face and
+the six interior cells on two. Whatever spread this model shows, that asymmetry
+will dominate it. If end-cell temperature matters to you --- on a
+$60\,\mathrm{s}$ takeoff pulse it usually does --- the cheapest option to
+evaluate is a channel outboard of cells 1 and 8, priced as a variant once the
+baseline is solved.
+
+\rolesig{Lead Numericist.} Section 1 is a genuine verification: three
+independent readings, each inside a tolerance fixed before the run and each
+using less than half of it, a numerical error bar of $0.0154\,\%$ at worst, and
+a measured order of accuracy of $2.00$ against a theoretical $2.00$. Section 3
+is empty because the module has not run. When it does, the first two figures we
+report --- before any temperature --- are the cumulative energy closure and the
+comparison at a second time step.\vspace{-3pt}}
+
+\vspace{1pt}
+{\color{rulegrey}\rule{\textwidth}{0.4pt}}\\[0.5pt]
+{\scriptsize Filled figures are read from solution files retained on disk;
+reserved frames contain no data and no estimate.}
+
+\end{document}
