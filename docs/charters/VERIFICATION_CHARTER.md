@@ -3598,3 +3598,114 @@ team's own interest.
 | verdict vocabulary changed | **0** · re-grades authorised | **0** |
 | new duty created | **1** — the four-hour clock, on supervisors |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## Amendment — v1.27, 2026-08-31 — **[SANAA-DIRECT] §2h.6: THE EXACT-PDE RULE. THE CONTINUUM ROW SPLITS, AND THE TEST IS SAMENESS OF MODEL — NEVER EXACTNESS OF ALGEBRA**
+
+**Lines whose number changed above this section: 0.**
+
+**Sanaa ruled, and I read her words at source before writing law from them** rather than
+from the relay that carried them (rule 9 — no agent message is her consent). Captured
+verbatim at `5dd94f4f`, `etc/sessions/2026-08-31T2016Z_sanaa_three_rulings_runner_2h3_f28floor.md`:
+
+> **`"§2h.3": exact-PDE rule`**
+
+**Her wording is terse, so the substance is the referral she answered**, and §2h.3 is where it
+sits. §2h.3 referred **with recommended wording**: *"split the CONTINUUM row so that exact or
+manufactured solution of the same continuum model is named separately and is `PASS`-capable
+when §2h.4's conditions are met."* **She confirmed it. It is now law rather than an interim
+classification.**
+
+### §2h.6.1 THE RULE
+
+> **A reference that is the EXACT (or manufactured) SOLUTION OF THE SAME CONTINUUM PDE THE
+> SOLVER DISCRETISES is `PASS`-capable, when §2h.4's five conditions are met and declared in
+> the registration before compute.**
+>
+> **A reference drawn from a DIFFERENT MODEL — nozzle relations, shock tables, lumped or
+> series-resistance paths, correlations, experiment — CAPS AT `GATE REACHED`, HOWEVER EXACT
+> ITS OWN ALGEBRA.**
+
+### §2h.6.2 THE TEST IS SAMENESS OF MODEL, AND THE FAILURE MODE IS READING IT AS EXACTNESS
+
+**The discriminating question is not *how exact is this reference?* but *is this the solution
+of the equations my solver is discretising?*** Those come apart, and the place they come apart
+is exactly where the cap is needed:
+
+- **A closed-form isentropic nozzle relation is EXACT ALGEBRA and a DIFFERENT MODEL.** It
+  solves quasi-1D isentropic flow; the solver discretises 2D/3D RANS. The residual between
+  them contains **model-form error**, and no amount of algebraic exactness removes it.
+- **A shock table is exact for the Rankine–Hugoniot jump conditions**, which is not the
+  system a shock-capturing scheme integrates across a smeared numerical shock.
+- **A lumped or series-resistance path is exact for the lumped model**, which is a *reduction*
+  of the field equations, not the field equations.
+
+**In every one of those the algebra is unimpeachable and the referent is still the wrong
+object.** `§2f.3`'s cap exists for precisely that residual, and this amendment does not weaken
+it — **it names the one case where the residual is discretisation error by construction, and
+leaves every other case where it was.**
+
+### §2h.6.3 WHAT IT CONFIRMS RATHER THAN INVENTS
+
+**§2h.4 condition 1 already said this and already called itself load-bearing:** *"the reference
+is the exact or manufactured solution of the same continuum model the solver discretises… this
+is what makes model-form error zero by construction and the residual discretisation error."*
+**What was interim was its AUTHORITY, not its content** — §2h.3 held that **narrowing a cap is
+Sanaa's alone, exactly as retiring a clause is (D539)**, and refused to take it. **She has now
+taken it.** §2h.4's five conditions are **unchanged and all five still bind**; condition 2's
+one-way rule-5 limb is untouched, and **"no triple" still never means "no rule 5" (§2f.2)**.
+
+**§2f.3's CONTINUUM row is hereby SPLIT** — *exact or manufactured solution of the same
+continuum model* becomes its own row, `PASS`-capable under §2h.4; **experiment, correlation and
+every different-model reference remain capped at `GATE REACHED`.** §2h.3's own four-row table
+already carries the ground for the split and is the reference for it.
+
+### §2h.6.4 IT IS PROSPECTIVE, AND GRADED ROWS STAND
+
+**A rule cannot re-grade a closed gate.** Gates close at first compute (rule 2, §2d), and a
+verdict already earned under the classification in force when it was frozen is not disturbed by
+this amendment. **Sanaa confirmed the instance directly: `VMFL038-R2`'s limb A STANDS AS
+GRADED**, and its `PASS`-capability is **permanent law rather than interim classification.**
+ansys-verification is to be told that its row's standing no longer depends on a pending ruling.
+
+**Equally, this amendment creates no retrospective `PASS`.** A row capped at `GATE REACHED`
+under §2f.3 before today is not promoted by it; the availability of `PASS` is a property of a
+registration frozen **after** this rule, declaring §2h.4's conditions before compute.
+
+### §2h.6.5 ⚠ AN OPEN QUESTION THIS RULING CREATES, FLAGGED RATHER THAN GUESSED
+
+**§2h.5 ruled `PASS` available to `T9a-R1c`'s floor limb on what it calls *"an exact
+series-resistance referent."*** **Under §2h.6.1, a series-resistance path is named among the
+different-model references that cap at `GATE REACHED`** — *unless* the solver is discretising
+that same one-dimensional conduction problem, in which case series resistance **is** the exact
+solution of the same continuum model and condition 1 is met.
+
+**Which of those `T9a-R1c` is, this amendment DOES NOT DECIDE, and I will not guess it into
+law.** It is a question about that rung's own registration and it belongs to **heat-transfer**
+to answer against §2h.4 condition 1: *is the referent the exact solution of the equations the
+solver discretises, or a reduction of them?* **If the latter, §2h.5's `PASS` availability falls
+to `GATE REACHED` prospectively — and if the rung is already graded, §2h.6.4 protects the row
+and the correction is to the classification, not to the verdict.** **Raised here because a new
+rule that silently contradicts an old ruling is worse than one that names the contradiction.**
+
+### §2h.6.6 WHAT THIS AMENDMENT DOES NOT DO
+
+**It does not touch §2f.3's cap for anything but the split row.** **It does not weaken rule 5**
+— a level not iteratively converged or not plateaued is `NOT A RESULT` whatever the referent,
+and the one-way conversion is unchanged. **It does not make a floor demonstration into a
+triple:** §2h.4 condition 5 still bounds the claim to the levels actually run, and §2g.3's
+overreaching phrase stays narrowed. **And it does not license a continuum claim** — condition 4
+still tests the registration's own sentence, so a floor demonstration **worded** as a continuum
+claim is still caught by §2f.3 however impeccable its referent.
+
+| field | value |
+| --- | --- |
+| authority | **Sanaa, `5dd94f4f`, verbatim, read at source** |
+| ruled | `§2h.3`'s referral CONFIRMED — the exact-PDE rule |
+| clauses added | `§2h.6.1`–`§2h.6.6` |
+| clauses unchanged | `§2h.4` all five conditions; `§2f.2`; rule 5's one-way limb; `§2g.3` as narrowed |
+| instance confirmed | `VMFL038-R2` limb A **stands as graded**; `PASS`-capability permanent |
+| open, referred to heat-transfer | `§2h.5` / `T9a-R1c`'s series-resistance referent under `§2h.6.1` |
+| retrospective effect | **none** — prospective only; no row promoted, no row demoted |
+| amendment record | **v1.27** |
