@@ -1,0 +1,11 @@
+sampled_utc = 2026-08-30T23:51:23Z
+uptime =  23:51:23 up  1:17,  1 user,  load average: 7.56, 8.54, 13.02
+nproc = 16
+loadavg = 7.56 8.54 13.02
+mem_available_MB = 28932
+-- other solver processes on the box at launch --
+      6 simpleFoam
+      3 python3
+      1 dockerd
+      1 docker
+note = contention at launch; core-minutes are wall_s*RANKS/60 and a busy box inflates wall_s (COMPUTE_BUDGET_CHARTER sec.6: waste is reported, never absorbed)

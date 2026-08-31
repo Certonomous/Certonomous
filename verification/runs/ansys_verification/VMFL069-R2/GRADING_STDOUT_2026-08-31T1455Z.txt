@@ -1,0 +1,18 @@
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 0.05 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+VMFL069-R2  (VM2026R1 p.205)  ROW VERDICT: PASS
+  limb A  volume-mean u_x, LOWER layer (nu = 0.1)
+          L1/L2/L3 = 10.0599692 / 10.0265652 / 10.0124282
+          finest 10.0124282 vs reference 10, deviation 0.124282 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 1.240540, GCI_fine = 0.001295
+  limb B  volume-mean u_x, UPPER layer (nu = 0.02)
+          L1/L2/L3 = 16.497029 / 16.5663926 / 16.6126637
+          finest 16.6126637 vs reference 16.6666667, deviation 0.324018 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 0.584067, GCI_fine = 0.006976
+  limb C  normalised L2 error of the cell-centre profile
+          L1/L2/L3 = 0.012640155 / 0.00676147202 / 0.003495946
+          finest 0.003495946 vs reference 0, deviation 0.349595 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 0.848178, GCI_fine = 1.459103
+  L1: cells 256, alpha drift 0, x-spread 0, plateau 2.74e-07 / 3.25e-07, numeric latest dir 1000 (lexicographic would have read 500)
+  L2: cells 1024, alpha drift 0, x-spread 0, plateau 2.92e-07 / 3.49e-07, numeric latest dir 1000 (lexicographic would have read 500)
+  L3: cells 4096, alpha drift 0, x-spread 7.5e-13, plateau 3.04e-07 / 3.63e-07, numeric latest dir 1000 (lexicographic would have read 500)
+  grading record: verification/runs/ansys_verification/VMFL069-R2/GRADING_VMFL069_R2.json

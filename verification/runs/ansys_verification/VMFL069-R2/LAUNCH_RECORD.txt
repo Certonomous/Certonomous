@@ -1,0 +1,21 @@
+case = VMFL069-R2
+manual_page = 205
+supersedes = nothing -- R2 SUCCESSOR to VMFL069 R1 (NOT A RESULT, rc 136 SIGFPE); R2 does NOT supersede R1, it is a NEW registration with a NEW row
+launched_utc = 2026-08-30T23:51:23Z
+freeze_commit_head = fd7afc1c77e926db8f56333e36df67e8d9e43c74
+prereg = cases/ansys_verification/VMFL069-R2/PREREGISTRATION.md
+prereg_blob = 7c209caf41c7183a8e43b707036535c3b55dd976
+comparator = cases/ansys_verification/VMFL069-R2/grade_vmfl069_r2.py
+comparator_blob = 8e0b4c3f80d6f97d391427536d049dcf75c4d114
+launcher_blob_on_disk = f03d771e8bce8fc11dea84e7021650d7e84c5e58
+levels = L1 L2 L3
+ranks = 1
+cap_core_min = 5000  (RUNNING TOTAL across levels, PREREGISTRATION sec.7)
+endTime = 1000
+smoke_mode = no
+solver_bin = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/interFoam
+level L1 : rc=0 wall_s=646 core_min=10.7667 total=10.7667 cap=5000 timeout_s=300000 last_time=1000 End_lines=1 ExecutionTime_lines=84765 fvOptions=yes latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L1/1000 field_newer_than_0_U=yes
+level L2 : rc=0 wall_s=3757 core_min=62.6167 total=73.3834 cap=5000 timeout_s=299353 last_time=1000 End_lines=1 ExecutionTime_lines=170395 fvOptions=yes latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L2/1000 field_newer_than_0_U=yes
+level L3 : rc=0 wall_s=28552 core_min=475.8667 total=549.2501 cap=5000 timeout_s=295596 last_time=1000 End_lines=1 ExecutionTime_lines=341828 fvOptions=yes latest_time_dir=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L3/1000 field_newer_than_0_U=yes
+total_core_min = 549.2501
+finished_utc = 2026-08-31T09:00:42Z

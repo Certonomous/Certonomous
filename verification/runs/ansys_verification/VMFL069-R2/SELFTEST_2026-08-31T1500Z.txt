@@ -1,0 +1,153 @@
+REFUSING (exit 2): CARDINALITY GUARD: t -- pattern '/tmp/vmfl069_selftest_3k0ylg0k/card/missing.txt' matched 0 paths (need exactly 1)
+REFUSING (exit 2): CARDINALITY GUARD: t -- pattern '/tmp/vmfl069_selftest_3k0ylg0k/card/*.txt' matched 2 paths (need exactly 1); matches: /tmp/vmfl069_selftest_3k0ylg0k/card/only.txt, /tmp/vmfl069_selftest_3k0ylg0k/card/twin.txt
+REFUSING (exit 2): layer_means: 1 of 3 cell centres lie EXACTLY on the interface y = 2; the split is ambiguous
+REFUSING (exit 2): layer_means: one layer holds no cells (lower 2, upper 0) -- the interface is not inside the mesh
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 1e-06 at y = 2.015625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 0.001 of the reference mean (at y = 0.015625), above the frozen 1e-06. The registered solution is x-invariant.
+REFUSING (exit 2): MESH CELL COUNT at L3 is 4095, registered 4096
+REFUSING (exit 2): MESH IS NOT THE REGISTERED ONE at L3: 1 distinct y-rows and 1 distinct x-columns, registered 32 x 128
+REFUSING (exit 2): no End line in /tmp/vmfl069_selftest_3k0ylg0k/bad_noend/L1/log.interFoam
+REFUSING (exit 2): fvOptions WAS NOT APPLIED at L1: the solver log is missing ['Creating finite-volume options from', 'constant/fvOptions', 'Source: streamwisePressureGradient', 'State: active']. OpenFOAM v2606 reads constant/fvOptions if present, system/fvOptions if not, and applies NOTHING WITHOUT AN ERROR if neither exists (fvOptions.C:50-93). The driving pressure gradient is the ONLY forcing in this case, so an unforced run is a quiet zero-velocity case that looks like physics.
+REFUSING (exit 2): /tmp/vmfl069_selftest_3k0ylg0k/bad_shorttime/L1/log.interFoam: last Time 999 != endTime 1000 -- the run did not reach the registered end (CLAUDE.md rule 4)
+REFUSING (exit 2): /tmp/vmfl069_selftest_3k0ylg0k/bad_execcount/L1/log.interFoam: ExecutionTime count 999 != Time-line count 1000. RULE-4 CLAUSE-5 ADAPTATION for adjustTimeStep yes (PREREGISTRATION-R2 sec.6): the step count is variable and no longer equals endTime, so the completion condition is log self-consistency -- every advanced step was timed and none was lost -- combined with last Time == endTime.
+REFUSING (exit 2): /tmp/vmfl069_selftest_3k0ylg0k/bad_adjno/L1/system/controlDict: adjustTimeStep is 'no', not 'yes'. R1 died with adjustTimeStep no and an uncontrolled Courant number; R2 REQUIRES the control.
+REFUSING (exit 2): /tmp/vmfl069_selftest_3k0ylg0k/bad_wrongco/L1/system/controlDict carries maxCo 5 maxAlphaCo 1; the registered pair is 1 / 1
+REFUSING (exit 2): CARDINALITY GUARD: field Cy at L1/1000 -- pattern '/tmp/vmfl069_selftest_3k0ylg0k/bad_nofield/L1/1000/Cy' matched 0 paths (need exactly 1)
+REFUSING (exit 2): AGE GUARD: /tmp/vmfl069_selftest_3k0ylg0k/bad_age/L1/1000/U is not strictly newer than /tmp/vmfl069_selftest_3k0ylg0k/bad_age/L1/0/U -- the field at endTime does not post-date the launch that was allowed to produce it (CLAUDE.md rule 4)
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 1e-06 at y = 2.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+REFUSING (exit 2): STREAMWISE INVARIANCE BROKEN: the widest spread of u_x within a single y-row is 0.001 of the reference mean (at y = 0.4375), above the frozen 1e-06. The registered solution is x-invariant.
+REFUSING (exit 2): NOT PLATEAUED at L1: the layer means changed by 0.001 (lower) and 0.001 (upper) between t = 500 and t = 1000, above the frozen 1e-06. Rule 5 limb (1) makes a level that has not plateaued NOT A RESULT and it is refused here rather than graded.
+REFUSING (exit 2): /tmp/vmfl069_selftest_3k0ylg0k/bad_wrongend/L1/system/controlDict carries endTime 900; the registered endTime is 1000
+REFUSING (exit 2): rc=124 recorded for L1 (124 == the cap fired). A RECORDED non-zero rc is evidence about the SOLVER and refuses (L-342).
+REFUSING (exit 2): time-directory disagreement at /tmp/vmfl069_selftest_3k0ylg0k/good/L2: the log's last Time is 1000, the numerically-latest directory (key=float) is '9999', the LEXICOGRAPHIC maximum is '9999'. A grader that takes sorted(glob())[-1] here reads the wrong artefact.
+REFUSING (exit 2): planted-zero control FAILED (P1a, reader sensitivity) on the VELOCITY channel: planted 0.666666666667 into EVERY internal cell of /tmp/vmfl069_selftest_3k0ylg0k/good/L1/1000/U and the worst read-back discrepancy is 0.666666666667. A reader not shown able to see a non-zero cannot certify a zero (CLAUDE.md rule 3).
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 0.05 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+REFUSING (exit 2): planted-zero control FAILED (P1a) on the ALPHA channel: planted 0.05 into EVERY cell of /tmp/vmfl069_selftest_3k0ylg0k/good/L1/1000/alpha.fluid1, worst read-back discrepancy 0.05 (CLAUDE.md rule 3).
+REFUSING (exit 2): TIER CEILING VIOLATED: limb A emitted 'PASS', above the ceiling 'GATE REACHED' declared for it in the frozen pre-registration
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 0.05 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 0.05 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+REFUSING (exit 2): INTERFACE MOVED: max |alpha - alpha_0| = 0.05 at y = 0.0625, above the frozen 1e-09. The registered case has a NON-DEFORMING interface (manual p.205); a run whose interface moved did not solve it.
+SELFTEST VMFL069-R2 -- Two Phase Poiseuille Flow (VM2026R1 p.205)
+  [PASS] AST guard: ast.Assert count is 0 in this file
+  [PASS] one_match returns the single match
+  [PASS] one_match REFUSES on zero matches
+  [PASS] one_match REFUSES on two matches
+  [PASS] time dirs sort NUMERICALLY: 0/950/2000 -> 2000
+  [PASS] the LEXICOGRAPHIC maximum of 0/950/2000 really is 950 (the live hazard)
+  [PASS] non-numeric directory names are ignored by the time-dir reader
+  [PASS] derived lower-layer mean matches the frozen REF_LOWER to 1e-12
+  [PASS] derived upper-layer mean matches the frozen REF_UPPER to 1e-12
+  [PASS] derived whole-channel mean matches the frozen REF_WHOLE to 1e-12
+  [PASS] exact solution satisfies no-slip at BOTH walls
+  [PASS] exact solution is CONTINUOUS across the interface
+  [PASS] exact solution has CONTINUOUS shear stress across the interface
+  [PASS] global force balance: |tau_bottom| + |tau_top| == GRAD * H
+  [PASS] frozen wall stresses match the derived ones to 1e-12
+  [PASS] frozen interface velocity matches the derived one to 1e-12
+  [PASS] l2_profile_error is ZERO on the exact profile
+  [PASS] layer_means REFUSES when a cell centre lies ON the interface
+  [PASS] layer_means REFUSES when one layer holds no cells
+  [PASS] interface-stationarity clause is QUIET on an unmoved interface
+  [PASS] interface-stationarity clause REFUSES on a moved interface
+  [PASS] x-invariance clause is QUIET on an x-invariant field
+  [PASS] x-invariance clause REFUSES on a streamwise-varying field
+  [PASS] mesh-structure clause is QUIET on the registered L3 mesh
+  [PASS] mesh-structure clause REFUSES on the wrong cell count
+  [PASS] mesh-structure clause REFUSES when a cell CENTRE sits on the interface
+  [PASS] completion() is GREEN on a complete, plateaued, forced, aged run
+  [PASS] completion() records that the LEXICOGRAPHIC latest dir would have misread
+  [PASS] completion() records the registered Courant control from the controlDict
+  [PASS] completion() reports rc NOT MEASURED when RUN_RC is absent (L-342)
+  [PASS] completion REFUSES with no End line
+  [PASS] completion REFUSES when the fvOptions markers are ABSENT (the silent-forcing hazard)
+  [PASS] completion REFUSES when last Time != endTime
+  [PASS] completion REFUSES when the ExecutionTime count != the Time-line count (rule-4 clause-5 adaptation for adjustTimeStep yes)
+  [PASS] completion REFUSES when adjustTimeStep is not yes (R1's fatal setting)
+  [PASS] completion REFUSES when maxCo is not the registered value
+  [PASS] completion REFUSES on a missing field at endTime
+  [PASS] completion REFUSES on an AGE-GUARD violation
+  [PASS] completion REFUSES when the interface moved
+  [PASS] completion REFUSES when the field is not x-invariant
+  [PASS] completion REFUSES when the solve has NOT PLATEAUED
+  [PASS] completion REFUSES when controlDict carries an unregistered endTime
+  [PASS] completion REFUSES on a RECORDED non-zero rc (124 == the cap fired)
+  [PASS] completion REFUSES when the numerically-latest time dir != the log's last Time
+  [PASS] planted zero P1a: the VELOCITY reader SEES a sized all-cell plant
+  [PASS] planted zero P1b: the plant MOVES limb A by exactly the plant and pushes it OUT of the frozen band
+  [PASS] planted zero P1b: the plant RAISES the limb C profile error
+  [PASS] planted zero REFUSES against a BLIND writer on the VELOCITY channel
+  [PASS] planted zero P1a: the ALPHA reader SEES a sized all-cell plant
+  [PASS] planted zero P1b: the ALPHA plant makes the STATIONARITY CLAUSE refuse
+  [PASS] planted zero REFUSES against a BLIND writer on the ALPHA channel
+  [PASS] the blind-writer arm and the cardinality arm refuse for DIFFERENT reasons (L-314 addendum 2: two arms failing with the same message are one arm)
+  [PASS] roache EXACT on three equal values
+  [PASS] roache STAGNANT when one difference is zero
+  [PASS] roache OSCILLATORY when the differences change sign
+  [PASS] roache DIVERGENT when |d32| >= |d21|
+  [PASS] roache CONVERGING with p = 2 on an exactly second-order triple
+  [PASS] roache quotes a GCI ONLY on a CONVERGING triple
+  [PASS] roache calls a triple below the observed-order floor STAGNANT, not CONVERGING
+  [PASS] rule 5 is ONE-WAY: every non-CONVERGING state gives NOT A RESULT whatever the band says
+  [PASS] a CONVERGING triple inside the band gives PASS (the declared ceiling)
+  [PASS] a CONVERGING triple outside the band gives GATE FAIL
+  [PASS] the CEILING GUARD REFUSES when a limb would emit a verdict above its declared ceiling
+  [PASS] the CEILING GUARD is QUIET again once the declared ceiling is PASS
+  [PASS] every verdict this comparator can emit is inside the fixed vocabulary
+  [PASS] ROW verdict is the WORST limb
+VMFL069-R2  (VM2026R1 p.205)  ROW VERDICT: NOT A RESULT
+  limb A  volume-mean u_x, LOWER layer (nu = 0.1)
+          L1/L2/L3 = 10.0032552 / 10.0008138 / 10.0002035
+          finest 10.0002035 vs reference 10, deviation 0.002035 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 2.000000, GCI_fine = 0.000025
+  limb B  volume-mean u_x, UPPER layer (nu = 0.02)
+          L1/L2/L3 = 16.6829427 / 16.6707357 / 16.6676839
+          finest 16.6676839 vs reference 16.6666667, deviation 0.006104 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 2.000000, GCI_fine = 0.000076
+  limb C  normalised L2 error of the cell-centre profile
+          L1/L2/L3 = 0 / 0 / 0
+          finest 0 vs reference 0, deviation 0.000000 %, band 1.0000 % -> NOT A RESULT
+          triple EXACT, p = n/a, GCI_fine = n/a
+  L1: cells 256, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  L2: cells 1024, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  L3: cells 4096, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  grading record: /tmp/vmfl069_selftest_3k0ylg0k/e2e.json
+  [PASS] end-to-end grade of a synthetic EXACT run returns 0
+  [PASS] end-to-end record carries three limbs, each with its declared ceiling
+VMFL069-R2  (VM2026R1 p.205)  ROW VERDICT: PASS
+  limb A  volume-mean u_x, LOWER layer (nu = 0.1)
+          L1/L2/L3 = 10.0432682 / 10.0108146 / 10.0027035
+          finest 10.0027035 vs reference 10, deviation 0.027035 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 2.000407, GCI_fine = 0.000338
+  limb B  volume-mean u_x, UPPER layer (nu = 0.02)
+          L1/L2/L3 = 16.7496745 / 16.6874064 / 16.6718508
+          finest 16.6718508 vs reference 16.6666667, deviation 0.031105 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 2.001061, GCI_fine = 0.000388
+  limb C  normalised L2 error of the cell-centre profile
+          L1/L2/L3 = 0.00444296025 / 0.00111060131 / 0.000277641718
+          finest 0.000277641718 vs reference 0, deviation 0.027764 %, band 1.0000 % -> PASS
+          triple CONVERGING, p = 2.000225, GCI_fine = 1.249791
+  L1: cells 256, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  L2: cells 1024, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  L3: cells 4096, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  grading record: /tmp/vmfl069_selftest_3k0ylg0k/conv.json
+  [PASS] end-to-end: a CONVERGING, in-band synthetic run gives ROW VERDICT PASS
+VMFL069-R2  (VM2026R1 p.205)  ROW VERDICT: GATE FAIL
+  limb A  volume-mean u_x, LOWER layer (nu = 0.1)
+          L1/L2/L3 = 11.603776 / 10.8008789 / 10.4002116
+          finest 10.4002116 vs reference 10, deviation 4.002116 %, band 1.0000 % -> GATE FAIL
+          triple CONVERGING, p = 1.002810, GCI_fine = 0.047969
+  limb B  volume-mean u_x, UPPER layer (nu = 0.02)
+          L1/L2/L3 = 19.3522135 / 18.0043945 / 17.3343913
+          finest 17.3343913 vs reference 16.6666667, deviation 4.006348 %, band 1.0000 % -> GATE FAIL
+          triple CONVERGING, p = 1.008387, GCI_fine = 0.047758
+  limb C  normalised L2 error of the cell-centre profile
+          L1/L2/L3 = 0.17771841 / 0.0888481045 / 0.0444226749
+          finest 0.0444226749 vs reference 0, deviation 4.442267 %, band 1.0000 % -> GATE FAIL
+          triple CONVERGING, p = 1.000316, GCI_fine = 1.249531
+  L1: cells 256, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  L2: cells 1024, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  L3: cells 4096, alpha drift 0, x-spread 0, plateau 0 / 0, numeric latest dir 1000 (lexicographic would have read 500)
+  grading record: /tmp/vmfl069_selftest_3k0ylg0k/fail.json
+  [PASS] end-to-end: a CONVERGING but OUT-OF-BAND synthetic run gives ROW VERDICT GATE FAIL -- the gate can fail
+SELFTEST: 70 checks, 70 PASS, 0 FAIL
+SELFTEST: all checks passed

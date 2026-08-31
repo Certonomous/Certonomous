@@ -1,0 +1,335 @@
+{
+  "ast_assert_count": 0,
+  "band": 0.01,
+  "case": "VMFL069-R2",
+  "case_constants": {
+    "H_m": 4.0,
+    "Lx_m": 2.0,
+    "minus_dpdx_Pa_m": 0.5,
+    "nu_lower_m2_s": 0.1,
+    "nu_upper_m2_s": 0.02,
+    "rho_kg_m3": 1.0,
+    "y_interface_m": 2.0
+  },
+  "field_classes": {
+    "infrastructure": [
+      "RUN_RC.<level>"
+    ],
+    "physics_critical": [
+      "log.interFoam",
+      "U",
+      "p_rgh",
+      "alpha.fluid1",
+      "Cx",
+      "Cy",
+      "system/controlDict"
+    ]
+  },
+  "levels": {
+    "L1": {
+      "adjustTimeStep": "yes",
+      "age_guard": "all 5 fields at 1000 newer than 0/U",
+      "alpha_max_drift": 0.0,
+      "core_min": 10.7667,
+      "deltaT_initial": 0.001,
+      "endTime": 1000.0,
+      "end_lines": 1,
+      "fvOptions_markers": [
+        "Creating finite-volume options from",
+        "constant/fvOptions",
+        "Source: streamwisePressureGradient",
+        "State: active"
+      ],
+      "l2_error": 0.012640155048410429,
+      "last_time": 1000.0,
+      "level": "L1",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L1",
+      "lexicographic_latest_time_dir": "500",
+      "lexicographic_would_have_misread": true,
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L1/log.interFoam",
+      "maxAlphaCo": 1.0,
+      "maxCo": 1.0,
+      "mean_lower": 10.059969190134625,
+      "mean_upper": 16.497029049291875,
+      "mean_whole": 13.27849911971325,
+      "mesh": {
+        "cells": 256,
+        "cells_below": 128,
+        "cols": 8,
+        "rows": 32
+      },
+      "n_exec": 84765,
+      "n_steps_in_log": 84765,
+      "numeric_latest_time_dir": "1000",
+      "plateau": {
+        "rel_change_lower": 2.7372866503387256e-07,
+        "rel_change_upper": 3.2461079711815805e-07,
+        "time_a": "500",
+        "time_b": "1000",
+        "tol": 1e-06
+      },
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/RUN_RC.L1",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "1000",
+      "timeout_s": 300000.0,
+      "wall_s": 646.0,
+      "x_invariance": 0.0,
+      "y_rows": 32
+    },
+    "L2": {
+      "adjustTimeStep": "yes",
+      "age_guard": "all 5 fields at 1000 newer than 0/U",
+      "alpha_max_drift": 0.0,
+      "core_min": 62.6167,
+      "deltaT_initial": 0.001,
+      "endTime": 1000.0,
+      "end_lines": 1,
+      "fvOptions_markers": [
+        "Creating finite-volume options from",
+        "constant/fvOptions",
+        "Source: streamwisePressureGradient",
+        "State: active"
+      ],
+      "l2_error": 0.006761472015121735,
+      "last_time": 1000.0,
+      "level": "L2",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L2",
+      "lexicographic_latest_time_dir": "500",
+      "lexicographic_would_have_misread": true,
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L2/log.interFoam",
+      "maxAlphaCo": 1.0,
+      "maxCo": 1.0,
+      "mean_lower": 10.026565231643282,
+      "mean_upper": 16.566392591786563,
+      "mean_whole": 13.296478911714923,
+      "mesh": {
+        "cells": 1024,
+        "cells_below": 512,
+        "cols": 16,
+        "rows": 64
+      },
+      "n_exec": 170395,
+      "n_steps_in_log": 170395,
+      "numeric_latest_time_dir": "1000",
+      "plateau": {
+        "rel_change_lower": 2.922625416540392e-07,
+        "rel_change_upper": 3.487128929882622e-07,
+        "time_a": "500",
+        "time_b": "1000",
+        "tol": 1e-06
+      },
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/RUN_RC.L2",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "1000",
+      "timeout_s": 299353.0,
+      "wall_s": 3757.0,
+      "x_invariance": 0.0,
+      "y_rows": 64
+    },
+    "L3": {
+      "adjustTimeStep": "yes",
+      "age_guard": "all 5 fields at 1000 newer than 0/U",
+      "alpha_max_drift": 0.0,
+      "core_min": 475.8667,
+      "deltaT_initial": 0.001,
+      "endTime": 1000.0,
+      "end_lines": 1,
+      "fvOptions_markers": [
+        "Creating finite-volume options from",
+        "constant/fvOptions",
+        "Source: streamwisePressureGradient",
+        "State: active"
+      ],
+      "l2_error": 0.0034959460022819886,
+      "last_time": 1000.0,
+      "level": "L3",
+      "level_dir": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L3",
+      "lexicographic_latest_time_dir": "500",
+      "lexicographic_would_have_misread": true,
+      "log": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L3/log.interFoam",
+      "maxAlphaCo": 1.0,
+      "maxCo": 1.0,
+      "mean_lower": 10.01242820393123,
+      "mean_upper": 16.612663667763858,
+      "mean_whole": 13.312545935847544,
+      "mesh": {
+        "cells": 4096,
+        "cells_below": 2048,
+        "cols": 32,
+        "rows": 128
+      },
+      "n_exec": 341828,
+      "n_steps_in_log": 341828,
+      "numeric_latest_time_dir": "1000",
+      "plateau": {
+        "rel_change_lower": 3.0361338759420585e-07,
+        "rel_change_upper": 3.6333368336569047e-07,
+        "time_a": "500",
+        "time_b": "1000",
+        "tol": 1e-06
+      },
+      "rc": 0,
+      "rc_source": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/RUN_RC.L3",
+      "rc_status": "MEASURED",
+      "state": "COMPLETE",
+      "time_dir": "1000",
+      "timeout_s": 295596.0,
+      "wall_s": 28552.0,
+      "x_invariance": 7.500000620552782e-13,
+      "y_rows": 128
+    }
+  },
+  "limb_class": "CONTINUUM-EXACT (exact solution of the SAME continuum model)",
+  "limbs": {
+    "A": {
+      "band": 0.01,
+      "ceiling": "PASS",
+      "class": "CONTINUUM-EXACT (exact solution of the SAME continuum model)",
+      "deviation_rel": 0.001242820393122912,
+      "finest": 10.01242820393123,
+      "inside": true,
+      "per_level": {
+        "L1": 10.059969190134625,
+        "L2": 10.026565231643282,
+        "L3": 10.01242820393123
+      },
+      "quantity": "volume-mean u_x, LOWER layer (nu = 0.1)",
+      "reference": 10.0,
+      "triple": {
+        "R": 0.42321414438701005,
+        "d21": -0.03340395849134303,
+        "d32": -0.01413702771205294,
+        "f_coarse": 10.059969190134625,
+        "f_extrapolated": 10.00205522056295,
+        "f_fine": 10.01242820393123,
+        "f_med": 10.026565231643282,
+        "fs": 1.25,
+        "gci_fine": 0.0012950134519074364,
+        "p": 1.240540249817292,
+        "ratio": 2.0,
+        "state": "CONVERGING"
+      },
+      "unit": "m/s",
+      "verdict": "PASS",
+      "why": "inside the frozen 0.01 band on a CONVERGING triple, against the EXACT solution of the SAME continuum model the solver discretises -- model-form error is zero by construction, so the residual is discretisation error and rule 5 step 3 makes PASS available (PREREGISTRATION sec.3)."
+    },
+    "B": {
+      "band": 0.01,
+      "ceiling": "PASS",
+      "class": "CONTINUUM-EXACT (exact solution of the SAME continuum model)",
+      "deviation_rel": 0.003240179934168594,
+      "finest": 16.612663667763858,
+      "inside": true,
+      "per_level": {
+        "L1": 16.497029049291875,
+        "L2": 16.566392591786563,
+        "L3": 16.612663667763858
+      },
+      "quantity": "volume-mean u_x, UPPER layer (nu = 0.02)",
+      "reference": 16.666666666666668,
+      "triple": {
+        "R": 0.6670806350589422,
+        "d21": 0.06936354249468835,
+        "d32": 0.04627107597729463,
+        "f_coarse": 16.497029049291875,
+        "f_extrapolated": 16.705378426946638,
+        "f_fine": 16.612663667763858,
+        "f_med": 16.566392591786563,
+        "fs": 1.25,
+        "gci_fine": 0.006976211117989543,
+        "p": 0.5840669335248422,
+        "ratio": 2.0,
+        "state": "CONVERGING"
+      },
+      "unit": "m/s",
+      "verdict": "PASS",
+      "why": "inside the frozen 0.01 band on a CONVERGING triple, against the EXACT solution of the SAME continuum model the solver discretises -- model-form error is zero by construction, so the residual is discretisation error and rule 5 step 3 makes PASS available (PREREGISTRATION sec.3)."
+    },
+    "C": {
+      "band": 0.01,
+      "ceiling": "PASS",
+      "class": "CONTINUUM-EXACT (exact solution of the SAME continuum model)",
+      "deviation_rel": 0.0034959460022819886,
+      "finest": 0.0034959460022819886,
+      "inside": true,
+      "per_level": {
+        "L1": 0.012640155048410429,
+        "L2": 0.006761472015121735,
+        "L3": 0.0034959460022819886
+      },
+      "quantity": "normalised L2 error of the cell-centre profile",
+      "reference": 0.0,
+      "triple": {
+        "R": 0.5554859811880217,
+        "d21": -0.005878683033288694,
+        "d32": -0.003265526012839746,
+        "f_coarse": 0.012640155048410429,
+        "f_extrapolated": -0.0005848115094503155,
+        "f_fine": 0.0034959460022819886,
+        "f_med": 0.006761472015121735,
+        "fs": 1.25,
+        "gci_fine": 1.459103454783261,
+        "p": 0.8481775921401881,
+        "ratio": 2.0,
+        "state": "CONVERGING"
+      },
+      "unit": "-",
+      "verdict": "PASS",
+      "why": "inside the frozen 0.01 band on a CONVERGING triple, against the EXACT solution of the SAME continuum model the solver discretises -- model-form error is zero by construction, so the residual is discretisation error and rule 5 step 3 makes PASS available (PREREGISTRATION sec.3)."
+    }
+  },
+  "manual_page": 205,
+  "planted_zero": [
+    {
+      "band_inside_planted": false,
+      "band_inside_unplanted": true,
+      "channel": "U_x",
+      "file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L1/1000/U",
+      "gate_response": "limb A moved by exactly the plant and left the band; limb C rose",
+      "l2_planted": 0.04663984058717722,
+      "l2_unplanted": 0.012640155048410429,
+      "mean_lower_planted": 10.726635856801291,
+      "mean_lower_unplanted": 10.059969190134625,
+      "mean_upper_planted": 17.163695715958543,
+      "mean_upper_unplanted": 16.497029049291875,
+      "n_cells": 256,
+      "passed": true,
+      "plant": 0.6666666666666667,
+      "worst_readback_error": 1.1102230246251565e-15
+    },
+    {
+      "channel": "alpha.fluid1",
+      "file": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L1/1000/alpha.fluid1",
+      "gate_response": "the interface-stationarity clause REFUSED on the planted file",
+      "n_cells": 256,
+      "passed": true,
+      "plant": 0.05,
+      "worst_readback_error": 4.163336342344337e-17
+    }
+  ],
+  "reference": {
+    "derivation": "steady incompressible Navier-Stokes, piecewise-constant viscosity, flat non-deforming interface -- the model the manual declares on p.205; derived in derive_reference() and cross-checked against the frozen constants in --selftest",
+    "kind": "EXACT SOLUTION OF THE SAME CONTINUUM MODEL",
+    "manual_note": "VM2026R1 p.205 prints Figure .69.2 only -- NO numeric Target table. The gate is against the exact solution derived here, NOT against any digitised curve.",
+    "manual_printed_target": null,
+    "mean_lower_m_s": 10.0,
+    "mean_upper_m_s": 16.666666666666668,
+    "mean_whole_m_s": 13.333333333333334,
+    "tau_bottom_wall_Pa": 1.3333333333333333,
+    "tau_top_wall_Pa": -0.6666666666666666,
+    "u_interface_m_s": 16.666666666666668
+  },
+  "run_root": "/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2",
+  "tier_ceilings": {
+    "A": "PASS",
+    "B": "PASS",
+    "C": "PASS"
+  },
+  "title": "Two Phase Poiseuille Flow",
+  "verdict": "PASS",
+  "verdict_note": "the ROW verdict is the WORST limb. All three limbs carry ceiling PASS because the reference is the EXACT solution of the SAME continuum model, so this row CAN be a credential -- and only if every triple is CONVERGING and every limb is inside its band."
+}

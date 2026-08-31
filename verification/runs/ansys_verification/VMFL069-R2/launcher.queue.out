@@ -1,0 +1,20 @@
+=== VMFL069-R2 launcher  utc=2026-08-30T23:51:22Z  run_root=/home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2
+  freeze OK  cases/ansys_verification/VMFL069-R2/PREREGISTRATION.md  7c209caf41c7183a8e43b707036535c3b55dd976
+  freeze OK  cases/ansys_verification/VMFL069-R2/grade_vmfl069_r2.py  8e0b4c3f80d6f97d391427536d049dcf75c4d114
+  case inputs OK: 12 files, each byte-identical to its HEAD blob
+  controls OK: --selftest 70/70 PASS; python3 and python3 -O agree on PASS 70/70, FAIL 0/0, rc 0/0, and both carry the AST guard marker
+  interFoam = /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/interFoam
+--- L1  remaining 5000 of 5000 core-min  ranks 1  timeout 300000s
+  birth certificate: cells=256 meshOK=True maxSkew=2.12721097378e-14 maxAR=2.0 maxNonOrtho=0.0
+  DETACH NOTE (L1): wrapper pid=1605867 SID=1605475 -- expected in this form; gates nothing
+done L1: 646s = 10.7667 core-min (running total 10.7667 of 5000), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L1/1000
+--- L2  remaining 4989.2333 of 5000 core-min  ranks 1  timeout 299353s
+  birth certificate: cells=1024 meshOK=True maxSkew=2.84217094304e-14 maxAR=2.0 maxNonOrtho=0.0
+  DETACH NOTE (L2): wrapper pid=1616470 SID=1605475 -- expected in this form; gates nothing
+done L2: 3757s = 62.6167 core-min (running total 73.3834 of 5000), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L2/1000
+--- L3  remaining 4926.6166 of 5000 core-min  ranks 1  timeout 295596s
+  birth certificate: cells=4096 meshOK=True maxSkew=7.1054273576e-14 maxAR=2.0 maxNonOrtho=0.0
+  DETACH NOTE (L3): wrapper pid=1653999 SID=1605475 -- expected in this form; gates nothing
+done L3: 28552s = 475.8667 core-min (running total 549.2501 of 5000), latest time dir /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/L3/1000
+=== VMFL069-R2 launcher done, overall rc=0, total 549.2501 core-min of 5000
+grade with: python3 /home/ubuntu/Certonomous/cases/ansys_verification/VMFL069-R2/grade_vmfl069_r2.py --run-root /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2 --out /home/ubuntu/Certonomous/verification/runs/ansys_verification/VMFL069-R2/GRADING_VMFL069_R2.json
