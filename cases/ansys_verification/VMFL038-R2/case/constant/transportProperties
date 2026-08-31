@@ -1,0 +1,7 @@
+FoamFile { version 2.0; format ascii; class dictionary; object transportProperties; }
+// VM2026R1 p.131: density 800 kg/m3, viscosity 1 kg/m-s.
+//   nu = mu / rho = 1 / 800 = 0.00125 m2/s
+// The comparator multiplies the incompressible (KINEMATIC) wallShearStress by
+// rho = 800 to recover the PHYSICAL wall shear in Pa (grade_vmfl038.py RHO).
+transportModel  Newtonian;
+nu              0.00125;

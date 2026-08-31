@@ -1,0 +1,90 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+// VMFL038-R2. __ENDTIME__ and __HIST__ are substituted per level by
+// run_vmfl038r2.sh; both are checked in VALUE POSITION after substitution, never by
+// a whole-file token grep (PREREGISTRATION sec.8, requirement 7).
+//
+// THE RUN IS NOT TERMINATED BY residualControl. It runs to a FIXED endTime chosen so
+// that the streamwise-momentum residual has reached its double-precision floor and the
+// gate functionals have stopped moving (PREREGISTRATION sec.6). CLAUDE.md rule 4's
+// canonical clause "last time == endTime" therefore applies IN ITS ORIGINAL FORM; R1's
+// declared adaptation of that clause is WITHDRAWN and not inherited.
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         __ENDTIME__;
+deltaT          1;
+writeControl    runTime;
+writeInterval   __ENDTIME__;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  12;
+timeFormat      general;
+timePrecision   10;
+runTimeModifiable false;
+
+functions
+{
+    // 1. KINEMATIC wall shear stress (m2/s2) on the inclined plane. MUST come FIRST:
+    //    the surfaceFieldValue below reads this field out of the registry, so it has
+    //    to be current at every sampled step. Written as a field at the write time,
+    //    which is endTime; executed every __HIST__ steps so the history channel sees
+    //    a live field. The comparator's LIMB A functional is computed from the WRITTEN
+    //    FIELD FILE, not from this history channel -- the field file is what the
+    //    planted-zero control plants into.
+    wallShearStress
+    {
+        type            wallShearStress;
+        libs            ("libfieldFunctionObjects.so");
+        patches         (wall);
+        writeControl    writeTime;
+        executeControl  timeStep;
+        executeInterval __HIST__;
+        log             false;
+    }
+
+    // 2. HISTORY CHANNEL A -- area-average of the kinematic wall shear over the `wall`
+    //    patch, every __HIST__ steps, to postProcessing/tauHistory/0/surfaceFieldValue.dat.
+    //    Used ONLY by the comparator's PLATEAU clause (sec.6 clause C2). Never a gate
+    //    value.
+    //    `writeFields` IS MANDATORY IN v2606 even though the documentation calls it
+    //    optional: writeFile/fieldValue reads it unconditionally at construction and
+    //    an omission MPI_ABORTs before the first time step. Registered as
+    //    PREREGISTRATION sec.8 requirement 8 and asserted by the launcher.
+    tauHistory
+    {
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      patch;
+        name            wall;
+        operation       areaAverage;
+        fields          (wallShearStress);
+        writeFields     false;
+        surfaceFormat   none;
+        writeControl    timeStep;
+        writeInterval   __HIST__;
+        executeControl  timeStep;
+        executeInterval __HIST__;
+        log             false;
+    }
+
+    // 3. HISTORY CHANNEL B -- volume-average of U over the whole domain, every
+    //    __HIST__ steps, to postProcessing/uBarHistory/0/volFieldValue.dat. Used ONLY
+    //    by the PLATEAU clause. The LIMB B gate functional is a WINDOWED mean computed
+    //    by the comparator from the written U field file (sec.5); this whole-domain
+    //    average is a different number by construction and is never the gate.
+    uBarHistory
+    {
+        type            volFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      all;
+        operation       volAverage;
+        fields          (U);
+        writeFields     false;
+        writeControl    timeStep;
+        writeInterval   __HIST__;
+        executeControl  timeStep;
+        executeInterval __HIST__;
+        log             false;
+    }
+}

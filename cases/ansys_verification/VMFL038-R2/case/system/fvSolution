@@ -1,0 +1,42 @@
+FoamFile { version 2.0; format ascii; class dictionary; object fvSolution; }
+solvers
+{
+    p { solver GAMG; smoother GaussSeidel; tolerance 1e-10; relTol 0.01; }
+    U { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-11; relTol 0.1; }
+}
+SIMPLE
+{
+    nNonOrthogonalCorrectors 0;
+    consistent      yes;
+
+    // NO residualControl. THIS IS THE SECOND CHANGE FROM R1 AND IT IS DELIBERATE.
+    //
+    // R1 stopped the solve on `residualControl { p 1e-10; }`. A pre-freeze diagnostic
+    // probe of this case (PREREGISTRATION sec.0, scratch only, 90x20) measured the
+    // whole residual history and showed why that criterion is the wrong instrument
+    // here:
+    //   * the p initial residual first crosses 1e-10 at iteration 839, at which point
+    //     the streamwise momentum residual is still ~1e-7 and the solution is roughly
+    //     1e-4 relative away from its converged state -- so R1's runs were STOPPED
+    //     WHILE STILL MOVING, and the level-to-level scatter R1 graded as a grid
+    //     triple was iterative error, not discretisation error;
+    //   * the p initial residual then FLOORS: over 300 000 iterations it never went
+    //     below 1.069e-11 and wandered in 1e-11..1e-10. Any residualControl on p
+    //     tighter than ~1e-10 is UNSATISFIABLE on this case;
+    //   * residualControl on U is unusable for a different reason. The transverse
+    //     velocity Uy is machine-zero in this unidirectional film (probe: max|Uy| =
+    //     9.85e-12 m/s), so its NORMALISED residual is a 0/0 artifact -- measured
+    //     wandering between 1e-2 and 6e-1 for 300 000 iterations with no trend. The
+    //     SIMPLE convergence check takes the component maximum, so a U criterion can
+    //     never be met at any tolerance.
+    //   * the streamwise momentum residual DOES descend cleanly: it crosses 1e-12 at
+    //     iteration 2597 and then plateaus at ~3e-13, its double-precision floor.
+    //
+    // So the run is driven to a FIXED endTime past that floor and the comparator
+    // decides convergence, on the DISJUNCTIVE clause of PREREGISTRATION sec.6, which
+    // is satisfiable in BOTH the "descending" and the "floored and flat" regimes. This
+    // is the clause designed against VMFL006's jointly-unsatisfiable failure.
+    //
+    // relaxationFactors are unchanged from R1.
+}
+relaxationFactors { equations { U 0.9; p 0.9; } }

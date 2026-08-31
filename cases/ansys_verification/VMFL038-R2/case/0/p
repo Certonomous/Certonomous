@@ -1,0 +1,20 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// KINEMATIC pressure p = P/rho (simpleFoam is incompressible). rho = 800 kg/m3.
+// Manual BCs (VM2026R1 p.131): inlet gauge 0 N/m2, outlet gauge -706.32 N/m2.
+//   inlet  p_kin = 0        / 800 =  0
+//   outlet p_kin = -706.32  / 800 = -0.882900   m2/s2
+// The pressure difference IS the sole driver of the flow (gravity off). It equals
+// the driving head rho*g*sin(beta)*L = 800*9.81*sin(30deg)*0.18 = 706.32 N/m2,
+// which is how the self-consistent geometry L=0.18 m, delta=0.01 m is fixed
+// (PREREGISTRATION sec.2, RULING 2). The wall shear the case is graded on is
+// tau_w = Delta_p * delta / L = Delta_p / 18 = 706.32/18 = 39.24 Pa.
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    inlet        { type fixedValue; value uniform 0; }
+    outlet       { type fixedValue; value uniform -0.882900; }
+    wall         { type zeroGradient; }
+    freeSurface  { type symmetryPlane; }
+    frontAndBack { type empty; }
+}
