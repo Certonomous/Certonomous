@@ -1379,6 +1379,222 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**FOURTEENTH SESSION, FIRST WRITE, 2026-08-31T15:10Z (closure-supervisor). NEWEST FIRST.**
+**SUPERSEDES THE BLOCKS BELOW ON WHY R4b-I IS NOT FILED — THE REASON THEY GIVE HAS EXPIRED AND
+THE TWO REAL REASONS ARE WORSE — AND ON M1's COMPLETION COUNT, WHICH IS 72, NOT 76.**
+
+**HEADLINE METRICS, measured in this invocation.** Box rebooted **2026-08-31T14:35:01Z**
+(`/proc/stat btime`, cross-checked against `/proc/uptime`, agreeing to the second).
+**ZERO closure solvers live; load 0.18 rising to ~0.3 (15-min) on 16 cores.**
+**closure queue-ready depth 0** — under Sanaa's freeze-ahead floor of 3, **reported as a
+standing-rule violation I have NOT yet cleared, not as a status.** `queue_runner` daemon
+**pid 1605** alive, cwd `/home/ubuntu/Certonomous`, all six queues empty. **GPU 0, none
+attached to this box.** M1's last arm finished **2026-08-31T00:51:46Z**, so closure's
+solver-idle is ~14 h wall of which ~35 min with the box on.
+**⚠ MY FIRST LIVENESS SWEEP MATCHED ITS OWN SHELL** — two `pgrep -af simpleFoam` hits that
+were my own command line. That is the exact trap `run_r4b.sh:69`/`:117` guards against, and
+it read as two live solvers on an idle box. **A liveness reader must exclude itself.**
+
+**═══ MY RULING: THE `_dev/` COMPUTE **IS** FIRST COMPUTE FOR R4b-I. GATES ARE CLOSED AND
+`grade_r4b.py` MAY NOT BE EDITED ═══**
+The block below leaves this open and warns that ruling it hastily is how a precedent gets
+set by accident. **I am ruling it, and on the drafters' own terms rather than my judgment,
+which is what makes it safe to rule.** `QUEUE_ENTRY_DRAFT.json:19` nominates the instrument
+root's NON-EXISTENCE as its own pre-compute condition — *"test -e returned rc=1 at
+2026-08-28T17:20:38Z … holds 0.0 core-minutes"* — and **that condition is FALSE on disk**:
+the root was created **17:39:12Z**, nineteen minutes after the assertion, and holds
+**~11.2 MB** including a **graded B3 birth record reading PASS**. **A registration that
+names its own pre-compute test is bound when that test fails.**
+**I DECLINE THE COUNTER-ARGUMENT, AND THE REASON GENERALISES.** Every artefact there
+self-labels — `COVERAGE.md` opens *"DEV FIXTURE - NOT A REGISTERED ARTEFACT"*, `MODEL.md`
+opens *"DEMONSTRATION - NOT THE REGISTERED MODEL"* — and all of it sits under a `_dev/`
+prefix. **A label an author applies to their own artefact cannot decide whether a rule binds
+them, or any freeze becomes evadable by naming.** Spend compute in a directory called
+`_dev`, declare it unregistered, and rule 2 would never bind anyone again.
+**WHY THIS WAS MINE TO RULE AND NOT SANAA'S: IT RUNS IN THE STRICT DIRECTION.** It CLOSES
+gates and routes to a successor. **Had I ruled the other way — that a frozen instrument may
+still be edited — that LOOSENS a freeze, and loosening is reserved.** The general form,
+offered for the escalation charter: **a supervisor may tighten on their own authority; only
+Sanaa may loosen.** That asymmetry is what let me settle a question my predecessor rightly
+refused to settle in a hurry.
+**CONSEQUENCE: the route is a SUCCESSOR, `R4b-Ib`, document and instrument in ONE commit,
+exactly as G1 -> G1b.** No VERIFICATION §2d.1 exception is needed, and needing none is
+strictly better than exercising one. **`_dev`'s `xi* = 0.05` IS NOT A RESULT.**
+**The SOLVE root `/home/ubuntu/closure-data/r4b` is still ABSENT [MEASURED], so R4b's solve
+arm's own pre-compute window is INTACT.** It must stay absent.
+
+**═══ R4b-I IS `BLOCKED` ON TWO GROUNDS I VERIFIED IN THE CODE MYSELF, EITHER SUFFICIENT ═══**
+The block below blocks it on `run_r4b.sh --selftest` rc=1 at `nonpgrep_mtimes_nonzero
+mtimes=0`. **That rc still holds (14 of 15 checks pass) but its DIAGNOSIS on this board is
+WRONG and its CONCLUSION was right for the wrong reason.**
+**CORRECTION 1.** The check is `find … -maxdepth 3 -type d -mmin -10` — a **TEN-MINUTE
+window**, not "nothing has solved since 08-28". The box DID work overnight: **488 directories
+under `closure-data` touched in the last 24 h.** The check does not ask *did the box work*,
+it asks *is something writing right now*. **On an idle box it is unpassable — and an idle box
+is the very condition the queue is being restocked to fix.**
+**CORRECTION 2, AGAINST MY OWN BOARD'S INFERENCE.** It says `grade_r4b.py:625`'s
+`require(mtimes > 0)` fires on the same condition. **REFUTED.** `b5_runner` does
+`os.makedirs(root/birth/run_r4b)` at `:579` **before** the first capacity read at `:580`, and
+`field_control` has already created `root/birth/grade_r4b`. Both are depth 3 under the find
+root, **so the grader's own footprint makes its own check pass.** Verified by measured
+semantics in a scratch replica: count went **0 -> 3** on the makedirs.
+**AND THAT IS THE MORE DAMNING READING, NOT THE REASSURING ONE. The check is REGISTERED as
+the L-41 answer — proof that the non-pgrep path detects activity `pgrep` cannot see — and it
+detects ITSELF. A check whose reading can never be zero measures nothing.**
+**THE TWO REAL BLOCKERS:**
+**(1) `grade_r4b.py:478` is an unguarded `m = json.load(open(model_json))`** — no
+`os.path.exists`, no `require()`. The draft `launch_cmd` passes no `--model`, so `:1034`
+defaults to an ABSENT `MODEL.json` and it raises **FileNotFoundError: an uncaught traceback
+at exit 1, not a refusal at exit 2, and not a verdict in the vocabulary.** It fires AFTER
+`os.makedirs` at `:477`, so it leaves a partial write and **NO birth record** —
+`write_birth_record` is at `:1037`, downstream of the crash. B1, B2 and B5 never complete.
+**(2) THE REGISTERED HEADLINE IS NOT COMPUTABLE, AND THIS IS THE ONE THAT MATTERS.** `:734`
+declares `gate_set=["B1","B2","B3","B4","B5"]`; `:750` builds the record with **`B1=b1,
+B2=b2, B5=b5`**; **there is no `b3` or `b4` variable anywhere in the file** and `gate_set` is
+consumed NOWHERE — inert metadata. `:1038` takes three verdicts and `:1047` returns
+`0 if all(x=="PASS" for x in v)`. **So a run returns rc=0 and LOOKS EXACTLY LIKE the
+registered "all five PASS -> GATE REACHED" while having graded three of five.** That is worse
+than a failure: nothing downstream detects it. **B3 and B4 were in fact demonstrated into
+`_dev/` on 08-28 — the work was not skipped, the production grader was never wired to it.**
+
+**═══ THE FINDING BIGGER THAN R4b: AN `all()` OVER A SET BUILT BY PRESENCE IS VACUOUSLY
+SATISFIABLE — CANDIDATE `L-409` ═══**
+`:681` is `sub = [v["verdict"] for v in rep.values() if isinstance(v, dict)]`, then
+`all(v == "PASS" for v in sub)`. **The set is whatever dicts HAPPEN to be in `rep`.** B5's
+drive demonstration at `:663` is gated `if case_dir and os.path.isdir(case_dir)`; the draft
+passes no `--built-case`, so the key is **never inserted**, `all()` runs over a shorter set,
+and **B5 PASSES having certified a runner it never ran.** That is a §2j violation in its
+purest form: not a weak control, **no limb at all**.
+**`gate_set` at `:734` is the SAME DEFECT ENLARGED** — a registered list of gates that no
+aggregation iterates. **THE RULE: aggregation must run over the REGISTERED LIST OF REQUIRED
+NAMES, and a name MISSING from the record must be a REFUSAL, never a silent omission.**
+This is D548/L-396's family — *prose asserting what code does not do* — arriving as
+**arithmetic over a set nobody bounded.**
+
+**═══ M1: THE RUN CHAIN IS COMPLETE AND THE COMPLETION COUNT IS 72, NOT 76 ═══**
+Read-only sweep, **nothing graded** (`grade_m1.py` neither run nor imported). **72 arms
+complete** — 20000/20000 `Time =`, 20000 `ExecutionTime`, one `End`, rc=0, fields
+`U k nut omega p phi` in `20000/`, **age guard holds on all 72**. **6 arms INCOMPLETE, all
+one failure mode: the registered wall cap fired** (rc=124, `CAP_EXPIRED`, no `End`, only
+`0/`). **FOUR OF THEM ARE INSIDE THE FILED 76** and were not on this board: `kOmega
+AR_14_Ret_180` (16879/20000), `kOmega AR_7_Ret_180` (19628), and **`PH_Breuer` on BOTH arms**
+(13301 / 13188). Plus the two already-boarded exclusions.
+**THE STRUCTURAL CONSEQUENCE, WHICH IS WORSE THAN THE COUNT.** M1 is a PAIRED two-arm
+comparison. `kOmega` now has **35 of 39**, `kOmegaSST_null` **37 of 39**. `PH_Breuer` failed
+on **both** arms, so that pair is symmetrically absent — missing but still comparable.
+**`AR_14_Ret_180` and `AR_7_Ret_180` failed on `kOmega` ONLY, so those two pairs are
+ASYMMETRIC — one arm present, one absent — and an asymmetric pair cannot be used for a
+model-to-model comparison at all.** Whoever grades this must partition on that, not average
+over it. **I am NOT grading and this is a fact about disk, not a verdict.**
+**THE REBOOT DESTROYED NOTHING**, and the zero carries its control: **0 of 4,981 paths** under
+the run root carry mtime or ctime at/after boot, while **the same reader saw 3 post-reboot
+mtimes elsewhere**. The six incomplete arms were stopped by their own cap **hours earlier**.
+**THE TWO EXCLUDED ARMS ARE UNTOUCHED** — 201,189 and 252,896 `log.run` lines,
+`ctime == mtime`, so nothing has even relinked them.
+**A DEFECT THE SWEEP LANE FOUND IN ITS OWN READER AND FIXED BEFORE REPORTING, recorded
+because it is the right behaviour:** its first pass read **19,999** of 20000 on five arms — a
+newline-anchored pattern straddling a 4 MiB chunk boundary. It added a one-byte overlap,
+**built a fifth planted log with a `\nTime = ` deliberately straddling offset 2^22**, and
+re-ran the whole sweep. **A reader is not trusted because it is careful; it is trusted
+because a plant it could have missed was recovered.**
+
+**═══ C-217 LANDED (`1d8aacaf`) — AND A BLENDED RATE HAS NOW FAILED THIS TEAM THREE TIMES IN
+THREE DIFFERENT DIMENSIONS ═══**
+**Actual 774.267 core-min** (each case's own `STATUS wall_s`, ranks=1) against **1,293.198
+predicted [REGISTERED]** — **ratio 0.5987**; cleaned **648.333 / 1,206.868 = 0.5372**, the 4
+capped arms removed from **both** sides, never from the actual alone. **$0.662 DERIVED, NOT
+MEASURED** at $0.0513/core-h; the box cannot read its own billing.
+**Attribution: ONE BLENDED RATE WRONG IN BOTH DIRECTIONS AT ONCE.** Registered basis 3.30 us
+per cell-iteration; the 72 clean arms ran nearer **1.77 us** (~1.9x pessimistic) while the
+duct `AR_*`/`PH_Breuer` family ran **~1.46x OPTIMISTIC** and hit their caps. Median per-arm
+ratio 0.403, worst 1.459. **The aggregate 0.60 HIDES the only correction worth carrying.**
+**C-190 = a rate under CONTENTION. C-210 = a rate not invariant across GRID SCALE. C-217 = a
+rate not invariant across CASE FAMILY.** Same cause: **a rate carries the conditions it was
+measured under, and a blended constant asserts that it does not.**
+**WASTE NAMED SEPARATELY per COMPUTE_BUDGET §6, absorbed into neither ratio: 125.933 core-min
+= 16.3 % of the spend bought NO field output.** **NO ARM OVERRAN ITS BUDGET** — each stopped
+AT its cap, over by ~1 s of timeout latency. **Rule 12's enforcement worked; the PREDICTION
+failed.** That distinction is what makes M1-C legitimate below.
+
+**═══ LANES IN FLIGHT AT THIS WRITE (3, at the cap) ═══**
+**(a) `M1b`** — successor comparator for M1, G1->G1b precedent. `grade_m1.py` froze
+**2026-08-27T17:40:27Z** (`7b00b3ec`), **one day BEFORE §2j was canonized 08-28**, so **§2j.4
+applies: it is NOT retrospectively void, it is FLAGGED UNDEMONSTRATED.** But §2j.4 covers a
+missing BIRTH DEMONSTRATION; **M1's defect is a MISSING GATE — no fatal channel at all in 988
+lines** — and rule 2 has closed M1's gates now that compute is spent. **Successor, verbatim
+bands, no exception needed.**
+**(b) `R4b-Ib`** — successor per my ruling above; fixes exactly the four defects, all
+STRICTLY STRICTER, no band/threshold/cap/label moved.
+**(c) `M1-C`** — re-run the 6 capped arms to 20000 on **fresh roots**, caps derived from
+**each arm's OWN measured partial rate**, cross-checked against its completed sibling.
+**The originals stay byte-untouched: the birth guard is CORRECT and is not to be defeated.**
+**Its legitimacy rests on a distinction I want on the record: these arms did NOT overrun —
+they stopped AT their cap, as designed. Rule 12 bars giving an OVERRUN a new budget; it does
+not bar a NEW pre-registration with a fresh measured basis, which IS the fresh decision the
+rule exists to require.** M1's own registration is closed and **must not be amended.**
+
+**COST THIS SESSION: 0 core-min of new compute by me [MEASURED]; ~0.1 core-min for the R4b
+survey lane [DERIVED from wall clock]; 0 GPU-hours [MEASURED]; $0.00.** No solver ran.
+
+**COMMITS THIS SESSION (1 so far):** `1d8aacaf` C-217.
+
+**ON SANAA'S DESK — BOTH UNCHANGED, RESTATED BECAUSE SHE IS BACK.**
+**(a) GPU: YES.** `Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md`, frozen **2026-08-24T16:27:45Z**,
+**re-verified by me across the reboot: disk == HEAD `6b0724db…`**, with a recognition control
+confirming the reader could see a present file. Estimate **3-32 GPU-h = $2.41-$25.75
+[DERIVED]**; **CAP 40 GPU-h = $32.19 [DERIVED]** at $0.8048/GPU-h [REPORTED-BY-OWNER,
+published list — **a console read supersedes it**]. **NOT an item invented to fill a card: its
+predecessor ALREADY LOST** — arm 1 returned `NOT A RESULT` because it registered Ling's
+optimiser as full-batch (one update/epoch) when the paper updates after every training point,
+**342,014 updates per epoch, ~3.4e5x**. Arm 2 runs the paper's actual regime and settles
+departure D3 either way. **Capacity is settled by DEMONSTRATION: arm 1 already ran on this
+same g6.xlarge/L4 class for 10.7054 GPU-h gross.** **Two console reads are owed BY HER AND BY
+NO AGENT:** `gpu1`'s shutdown attribute must read **stop**, not terminate; and the console
+price supersedes the list. **The cap cannot be overrun by misprediction** — `P0` is a measured
+pilot INSIDE the frozen run setting epoch count from per-update cost on the actual hardware.
+**AND THE DISCIPLINE THAT COMES WITH A YES: arm 1 idled 7.88 GPU-h = $6.34 DERIVED after
+finishing, because no agent existed to report completion. A dark card is a failure whoever
+holds it.**
+**(b) THE R4b INCREMENT RULING**, owed since 2026-08-28. R4b's solve arm is `BLOCKED` on it
+and `grade_r4b.py:823-827` says so **in code**. **No agent may substitute for it.**
+**⚠ AND A SECOND, CODE-LEVEL REASON THE SOLVE ARM CANNOT DELIVER EVEN IF SHE RULES TOMORROW:**
+`:861-876` leaves **G1, G3, G4, G5, G6, G7 as UNCONDITIONAL `PENDING` STUBS** after the early
+return at `:818-828`, and the aggregator at `:878-882` tests `PENDING` **before**
+`GATE REACHED` — **so even a perfect G2 (12/12 PASS) is structurally overridden and the arm's
+verdict is PINNED at PENDING.** Her ruling unblocks the *permission*; it does not unblock the
+*instrument*. **R4b-Ib must cover the solve-arm grader too, or the ruling buys nothing.**
+**SUBMISSIONS REMAIN PARKED (rule 7).**
+
+**RUNGS WITHOUT VERDICTS.** **M1** — 72 of 78 arms complete on disk, **UNGRADED and BARRED**
+pending M1b · **M1's 6 capped arms** — incomplete, evidence intact, M1-C drafting ·
+**R4b-I** — `BLOCKED`, two code defects, gates now CLOSED by my ruling, successor drafting ·
+**R4b solve arm** — `BLOCKED` on Sanaa **and** structurally pinned at PENDING ·
+**M2** — frozen `e6961d48`, 0 entries; no frozen generator **and** `grade_m2.py` has **no
+fatal channel at all** in 758 lines. **STILL UNRULED, still mine** · **RC1/RC2** — landed
+UNFROZEN; their freeze must be the later commit carrying **document AND instrument together**
+· **Ling arm 2** — frozen, costed, NOT FILED on purpose (needs the card and an explicit
+`host`) · **G1b `xr`** null (D550).
+
+**NEXT ACTIONS.** (1) Land the three lanes' freezes — **read every diff PERSONALLY** (check 1)
+— then FILE, taking depth 0 -> 7+. **Check 4 is mine and is not inheritable: the R4b-I draft's
+`enqueued_by` still carries the build lane's written REFUSAL to claim it, and that refusal was
+CORRECT under rule 9. I replace it in my own words or not at all.** (2) Land `L-409`.
+(3) **Rule on M2** — two reasons against filing, unruled since 08-28. (4) D551's **L4** at
+245,760 cells as a NEW registration, cost from a **measured pilot, never a ratio** — C-217 is
+the third argument for that. (5) D550 `xr`. (6) `fs5_31_3_exit2` addendum; (7) the
+`MANIFEST_OLD_UNVERIFIED.md` line. (8) **FS2 and FS5 are STANDING GATES, permanently re-armed
+— neither is closed and neither is on this list because it is done.**
+
+**BLOCKED.** R4b solve arm — Sanaa's ruling **plus** its own grader. M1 grading — barred until
+M1b. M1-C, M1b, R4b-Ib — behind freezes that are mine, none behind the box.
+
+**VERIFY (NOT checked by me this session):** RC1/RC2's current on-disk state; M2's frozen
+generator question; whether the 81 files in `verification/queue/closure/launched/` reconcile
+exactly to 78 M1 + 3 others; `docs/closure/README.md`'s known disagreement with Ling2016's
+`RESULTS.md`; the `_dev` B3 record's internal consistency (I read its verdict, not its
+arithmetic).
+
+
 **THIRTEENTH SESSION, THIRD WRITE, 2026-08-30T23:56Z (closure-supervisor). ADDS TO THE TWO
 BLOCKS BELOW; supersedes neither. Adopts the provenance-tag convention into this team's
 charter, and records that closure is SOLVING.**
