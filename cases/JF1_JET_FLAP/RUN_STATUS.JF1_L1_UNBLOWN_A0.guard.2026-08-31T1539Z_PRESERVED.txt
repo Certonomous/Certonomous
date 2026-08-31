@@ -1,0 +1,15 @@
+case_id            JF1_L1_UNBLOWN_A0
+label              feasibility
+gate               NONE -- this run scores nothing
+rc                 0
+stage_at_exit      foamenv
+utc_start          2026-08-31T15:39:29Z
+utc_end            2026-08-31T15:39:29Z
+wall_s             0
+ranks              1
+core_min_MEASURED  0.0000
+cap_core_min       45.0
+prereg_commit      2037ae60a82aeb9793a458388bde772c3043be07
+prereg_status      UNFROZEN DRAFT -- lawful for a feasibility rung per
+                   SANAA-DIRECT 927924f1, 2026-08-31.  Not a freeze.
+run_root           /home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_UNBLOWN_A0

@@ -1,0 +1,24 @@
+FoamFile { version 2.0; format ascii; class volVectorField; object U; }
+// JF1 L1 BLOWN row, alpha = 0.  jetSlot is a FLOW PATCH (polyMesh type `patch`),
+// per the FROZEN registration section 5.2a: "jetSlot is a `patch` on every row of
+// the sweep, with the same BC types on every row, and only the numeric values
+// change."  The UNBLOWN feasibility run of 2026-08-31T15:40Z used a WALL slot and
+// therefore does NOT belong to this family -- recorded, not hidden.
+//
+// THE JET IS FIXED IN THE AIRFOIL FRAME AND IS NOT ROTATED WITH alpha
+// (frozen section 5.1, amendment A3; frozen section 1.6a).  At alpha = 0 that is
+// numerically identical to the rotated form, but the BC is written in the frame
+// the registration fixes so the alpha != 0 rows inherit it correctly.
+//
+//     U_jetSlot = V_j (cos tau, -sin tau, 0),  tau = 30 deg = pi/6
+//
+dimensions      [0 1 -1 0 0 0 0];
+internalField   uniform (10 0 0);
+boundaryField
+{
+    airfoil     { type noSlip; }
+    jetSlot     { type fixedValue; value uniform (@VJX@ @VJY@ 0); }
+    farfield    { type freestreamVelocity; freestreamValue uniform (10 0 0); value uniform (10 0 0); }
+    front       { type empty; }
+    back        { type empty; }
+}

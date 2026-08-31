@@ -1,0 +1,24 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object k; }
+// k_inf = 1.5 (I_inf U_inf)^2, I_inf = 0.001 -> 1.5e-04 m2/s2  (frozen section 5.3)
+//
+// JET INLET, FROZEN SECTION 5.2, ONE EXPRESSION FOR EVERY ROW OF THE SWEEP:
+//
+//     k_jet = max( 1.5 (I V_j)^2 , k_inf ),   I = 0.01
+//
+// THE max(...) FLOOR IS NOT DECORATION.  Frozen section 5.2a, amendment A10:
+// without it the unblown point gives k_jet = 0 and omega_jet = 0, section 7.4
+// registers omega > 0 as a BINDING physicality check, and omega = 0 in a
+// kOmegaSST inlet is additionally a division by zero in nut = k/omega.  The
+// floor is INERT on all four blown rows -- at C_mu_jet = 0.05, the smallest
+// blown point, 1.5(I V_j)^2 = 7.5e-02 exceeds k_inf = 1.5e-04 by 500x -- so
+// substituting @KJET@ here reproduces the frozen table to every printed digit.
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 1.5e-04;
+boundaryField
+{
+    airfoil     { type fixedValue; value uniform 1e-10; }
+    jetSlot     { type fixedValue; value uniform @KJET@; }
+    farfield    { type inletOutlet; inletValue uniform 1.5e-04; value uniform 1.5e-04; }
+    front       { type empty; }
+    back        { type empty; }
+}

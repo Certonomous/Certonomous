@@ -1,0 +1,27 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object omega; }
+// JET INLET, FROZEN SECTION 5.2:
+//
+//     omega_jet = max( sqrt(k_jet) / (C_mu_turb^0.25 * l_j) , omega_inf )
+//                 C_mu_turb = 0.09 (the MODEL CONSTANT, never the jet coefficient
+//                 -- frozen section 0 records that the directive collides the two
+//                 symbols and that reading it as C_mu_jet divides by zero at the
+//                 unblown point), C_mu_turb^0.25 = 0.5477225575,
+//                 l_j = 0.07 h = 3.5e-04 m.
+// The max(..., omega_inf) floor is amendment A10 and is inert on every blown row
+// (2020 /s at C_mu_jet = 0.1 exceeds omega_inf = 5.0 /s by 404x).
+//
+// omega_inf = 5.0 1/s.  RECORDED DEPARTURE carried over from the unblown row:
+// Sanaa section 1.4 offers TWO farfield omega recipes that disagree by 22x.
+// sqrt(k)/(Cmu^0.25 L) with L = 0.1 c gives 0.2236 1/s, i.e. a freestream
+// eddy-viscosity ratio nut/nu = 67 which contaminates the boundary layer; the
+// section's own alternative "or via viscosity ratio nut/nu = 3" is taken.
+dimensions      [0 0 -1 0 0 0 0];
+internalField   uniform 5.0;
+boundaryField
+{
+    airfoil     { type omegaWallFunction; value uniform 5.0; }
+    jetSlot     { type fixedValue; value uniform @OMEGAJET@; }
+    farfield    { type inletOutlet; inletValue uniform 5.0; value uniform 5.0; }
+    front       { type empty; }
+    back        { type empty; }
+}

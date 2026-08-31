@@ -1,0 +1,14 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object p; }
+// Kinematic pressure (incompressible).  jetSlot zeroGradient per the frozen
+// section 5.1 table: the jet is momentum-specified, so its pressure is taken
+// from the interior rather than imposed.
+dimensions      [0 2 -2 0 0 0 0];
+internalField   uniform 0;
+boundaryField
+{
+    airfoil     { type zeroGradient; }
+    jetSlot     { type zeroGradient; }
+    farfield    { type freestreamPressure; freestreamValue uniform 0; value uniform 0; }
+    front       { type empty; }
+    back        { type empty; }
+}

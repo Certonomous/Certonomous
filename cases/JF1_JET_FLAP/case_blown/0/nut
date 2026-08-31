@@ -1,0 +1,15 @@
+FoamFile { version 2.0; format ascii; class volScalarField; object nut; }
+// LOW-Re WALL TREATMENT, frozen section 5.1, identical on every level and run:
+// nutLowReWallFunction (nut = 0 at the wall) + omegaWallFunction, valid at y+ <= 1.
+// jetSlot is `calculated` because it is an INLET, not a wall -- frozen section 5.1
+// table.  A wall function on an inlet patch is the defect this line prevents.
+dimensions      [0 2 -1 0 0 0 0];
+internalField   uniform 3e-05;
+boundaryField
+{
+    airfoil     { type nutLowReWallFunction; value uniform 0; }
+    jetSlot     { type calculated; value uniform 0; }
+    farfield    { type calculated; value uniform 3e-05; }
+    front       { type empty; }
+    back        { type empty; }
+}

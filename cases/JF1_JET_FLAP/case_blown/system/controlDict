@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| JF1 jet-flap airfoil -- L1 FEASIBILITY, BLOWN, alpha = 0, tau = 30 deg       |
+|                                                                             |
+| LABEL: feasibility.  NO GATE, NO THRESHOLD, NO VERDICT OF THE FIXED          |
+| VOCABULARY ATTACHES.  It scores nothing, counts toward no result column, and |
+| no GCI, observed order or PASS may be computed or implied from it.           |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         8000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   1000;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  10;
+writeCompression off;
+timeFormat      general;
+timePrecision   8;
+runTimeModifiable false;
+
+functions
+{
+    forceCoeffs
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        log             no;
+
+        // patches (airfoil) ONLY.  THIS IS THE FROZEN REGISTRATION'S OWN
+        // DICTIONARY (JF1_PREREGISTRATION.md:1192, "jetSlot is NOT a wall and is
+        // NOT included"):  jetSlot is an inlet, and including it would put the
+        // jet's own pressure force into CL_aero and DOUBLE-COUNT it against the
+        // explicit jet-reaction term of CL_total = CL_aero + C_mu_jet sin(tau+alpha).
+        // The unblown feasibility run of 15:40Z used (airfoil jetSlot), which is
+        // defensible only because its slot was a solid WALL.  It is not this row.
+        patches         (airfoil);
+        rho             rhoInf;
+        rhoInf          1.0;
+
+        // Aref = c * span = 1.0 * 0.01 = 0.01 so coefficients are PER UNIT SPAN
+        // despite the one-cell-thick 0.01 m mesh.  Aref = 1.0 would report CL and
+        // Cd 100x too small (forceCoeffs.C:164 reads Aref verbatim, and its
+        // guard at :328 catches only a MISSING or zero value, never a wrong one).
+        liftDir         (0 1 0);
+        dragDir         (1 0 0);
+        pitchAxis       (0 0 1);
+        magUInf         10.0;
+        lRef            1.0;
+        Aref            0.01;
+        CofR            (0.25 0 0);
+    }
+
+    yPlus
+    {
+        type            yPlus;
+        libs            ("libfieldFunctionObjects.so");
+
+        // writeControl timeStep / interval 250, NOT writeTime.  REASON, MEASURED:
+        // the 2026-08-31T15:35Z pilot wrote a yPlus.dat of TWO LINES, HEADER ONLY
+        // AND ZERO DATA ROWS, because `writeControl writeTime` first fires at
+        // writeInterval = 1000 and that pilot stopped at Time = 468.  max(y+) <= 1
+        // is FROZEN GATE LINE 7; a gate whose quantity is never written is
+        // unverifiable by construction.  At 250 the quantity exists from iteration
+        // 250 onward whatever the run does afterwards -- including an early
+        // residualControl convergence or a wall-clock cap kill.
+        writeControl    timeStep;
+        writeInterval   250;
+        log             yes;
+    }
+
+    jetMassFlow
+    {
+        // DIAGNOSTIC for the frozen line-6 physicality quantity (jet mass flow
+        // through jetSlot vs rho h V_j, <= 0.5 %).  REPORTED, NOT GATED: this is a
+        // feasibility row and NO gate scores on it.  It is here because the single
+        // most useful thing a blown feasibility run can tell us is whether the jet
+        // boundary condition actually delivers the momentum it was asked for.
+        type            surfaceFieldValue;
+        libs            ("libfieldFunctionObjects.so");
+        regionType      patch;
+        name            jetSlot;
+        operation       sum;
+        fields          (phi);
+        writeControl    timeStep;
+        writeInterval   100;
+        writeFields     no;
+        log             no;
+    }
+
+    minMaxU
+    {
+        type            fieldMinMax;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   100;
+        fields          (U p);
+        log             no;
+    }
+
+    contErr
+    {
+        type            solverInfo;
+        libs            ("libutilityFunctionObjects.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (U p k omega);
+        log             no;
+    }
+}
+
+// ************************************************************************* //
