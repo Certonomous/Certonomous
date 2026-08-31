@@ -95,6 +95,23 @@ REQUIRED_FIELDS = (
 )
 
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+# Sanaa's ruling, 2026-08-31 (commit 9154c8ef): an UNREGISTERED feasibility or
+# physics rung is queue-legal when it says so in place of a freeze sha, and its
+# outputs are NEVER gradeable as verdicts.
+#
+# FAIL-CLOSED BY CONSTRUCTION, and the shape matters: this is an EXACT-MATCH
+# membership test against a frozen two-element set, not a prefix, not a regex,
+# not case-insensitive. "feasibility", "FEASIBILITY_2", "PHYSICS-RUN" are all
+# REFUSED. A tag that admitted variants would be a hole in the one field whose
+# whole job is to say whether a freeze exists -- and the substitute for a sha
+# must be harder to write by accident than a sha, not easier.
+#
+# Downstream, COMMIT-EXISTS and PREREG-AT-COMMIT already return [] for any
+# value FULL_SHA does not match, deferring to SCHEMA, so a tagged entry skips
+# them without any change to either guard. That is deliberate: the freeze
+# checks are not weakened, they simply have no referent to check.
+UNREGISTERED_PREREG_TAGS = frozenset({"FEASIBILITY", "PHYSICS"})
 # An OpenFOAM time directory: 0, 0.1, 250, 1e-05, 2.5e+03.
 TIME_DIR = re.compile(r"^[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?$")
 
@@ -183,11 +200,19 @@ def check_schema(entry: dict, root: Path, entry_path=None) -> list[str]:
         if not isinstance(entry[field], str) or not entry[field].strip():
             fail.append(f"SCHEMA: {field!r} must be a non-empty string")
 
-    if not isinstance(entry["prereg_commit"], str) or not FULL_SHA.match(entry["prereg_commit"]):
+    _pc = entry["prereg_commit"]
+    if not isinstance(_pc, str) or not (
+        FULL_SHA.match(_pc) or _pc in UNREGISTERED_PREREG_TAGS
+    ):
         fail.append(
             "SCHEMA: 'prereg_commit' must be a full 40-character lowercase hex "
             "sha. An abbreviated sha is ambiguous and a pre-registration freeze "
-            "cannot rest on an ambiguous referent."
+            "cannot rest on an ambiguous referent. The only other accepted "
+            f"values are the exact tags {sorted(UNREGISTERED_PREREG_TAGS)} "
+            "(Sanaa 2026-08-31, 9154c8ef), which declare an UNREGISTERED "
+            "feasibility or physics rung whose outputs are NEVER gradeable as "
+            "verdicts. The match is exact and case-sensitive: 'feasibility' and "
+            "'FEASIBILITY_2' are refused."
         )
 
     if isinstance(entry.get("prereg_path"), str):
@@ -695,6 +720,26 @@ def selftest() -> int:
                 {**_base_entry(head, live_prereg, str(clean)), "ranks": 0},
                 "RANKS",
             ),
+            # --- Sanaa 9154c8ef: the unregistered-rung tags are EXACT-MATCH.
+            # These three prove the acceptance cannot be widened by accident.
+            (
+                "prereg tag in lower case",
+                {**_base_entry(head, live_prereg, str(clean)),
+                 "prereg_commit": "feasibility"},
+                "SCHEMA",
+            ),
+            (
+                "prereg tag with a suffix",
+                {**_base_entry(head, live_prereg, str(clean)),
+                 "prereg_commit": "FEASIBILITY_2"},
+                "SCHEMA",
+            ),
+            (
+                "a word that is neither a sha nor a sanctioned tag",
+                {**_base_entry(head, live_prereg, str(clean)),
+                 "prereg_commit": "PENDING"},
+                "SCHEMA",
+            ),
         ]
 
         for name, entry, owner in controls:
@@ -736,6 +781,31 @@ def selftest() -> int:
                 f"{head[:12]} and prereg_path {live_prereg!r} both verified "
                 f"present in git, and cwd {clean} free of any time directory."
             )
+
+        # --- positive control for the unregistered-rung tags ---------------
+        # A refusal-only demonstration would not show the tags actually WORK.
+        # Each sanctioned tag must be ACCEPTED, and must be accepted with a
+        # NONEXISTENT sha-shaped referent nowhere in play -- proving the tag
+        # path genuinely bypasses COMMIT-EXISTS/PREREG-AT-COMMIT rather than
+        # quietly passing because some other sha happened to validate.
+        for tag in sorted(UNREGISTERED_PREREG_TAGS):
+            tagged = {**_base_entry(head, live_prereg, str(clean)),
+                      "prereg_commit": tag}
+            tfails = validate(tagged, root, None)
+            if tfails:
+                problems.append(
+                    f"CONTROL FAILED (prereg tag {tag}): a queue-legal "
+                    f"unregistered rung was refused by {tfails}. Sanaa's "
+                    f"9154c8ef ruling makes this entry legal; refusing it "
+                    f"blocks the feasibility work it exists to allow."
+                )
+            else:
+                lines.append(
+                    f"CONTROL FIRED (prereg tag {tag}): ACCEPTED with no freeze "
+                    f"sha, while 'feasibility', '{tag}_2' and 'PENDING' are all "
+                    f"refused by SCHEMA above -- the acceptance is exact-match "
+                    f"and cannot be widened by case or suffix."
+                )
 
         # ==================================================================
         # R-AGE-CWD controls A / B / C, and the three planted failures the
