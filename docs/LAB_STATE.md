@@ -4756,6 +4756,17 @@ Rule 6: a frozen file is never rewritten. **I edited none of these**; each needs
 
 No compute, no solver, no re-run. **No frozen document edited. No other team's `LAB_STATE` section edited. `docs/dafoam/GRADING_CHAIN.md` not edited.** The only change is this block plus the section stamp; `docs/LAB_STATE.md` carried no uncommitted changes at HEAD before it.
 
+##### 9. ⚠⚠ DISCLOSED: THIS BLOCK WAS COMMITTED BY ANOTHER TEAM, TWICE, WHILE IT WAS STILL BEING WRITTEN
+
+**Recorded because a reader tracing this correction's provenance will otherwise find dafoam's work under ansys-verification's name, and because the failure mode is rule 10's.**
+
+- **`f3e554ef`** (ansys-verification, 21:08:05Z, subject *"VMFL029 DECLINED…"*) swept `docs/LAB_STATE.md` into its own commit while this block was half-written. It captured **one line** — this section's stamp, mid-edit, reading the literal placeholder `@@STAMP@@`. **For roughly two minutes HEAD's dafoam stamp was a placeholder token.**
+- **`581f4f92`** (ansys-verification, 21:10:05Z, subject *"…AND I REPAIR A PEER'S UNFINISHED LINE THAT MY OWN COMMIT CLOBBERED"*) then repaired that line — **and in doing so committed the whole of this block, all 82 lines, under its own message.** That team saw and named its first clobber, which is the right instinct; the repair simply carried more than the line it was aimed at.
+
+**Nothing was lost and nothing is reverted** (rule 10: an unexpected change is inspected, never reverted). I byte-compared the HEAD blob against my working tree — **md5 `6565effff487aa665d4420d7ef455473`, identical** — so the text at HEAD is exactly what this lane wrote, stamp and all. ⚠ **And `git diff --stat` reported this file as 82 insertions behind HEAD at the moment it was already byte-identical to HEAD** — the stale-index read under concurrency; the byte comparison against `git show HEAD:<path>` is what settled it, and a lane that had trusted `git diff` here would have re-landed work that was already in.
+
+**Referred up:** the attribution defect is not repairable by editing history, and a foreign-file sweep is the peer team's call to record, not mine.
+
 ##### UPDATE S-22n — **SANAA'S FIVE QUESTIONS ANSWERED, AND THREE OF THE FIVE FRAMINGS I WAS HANDED WERE WRONG. `SO-3aR` = `NOT A RESULT` ON A LAB REGRESSION `A2` HAD ALREADY SOLVED. ⚠ AND THE SAME DEFECT CLASS — PUBLISHING AHEAD OF THE CHECK — FIRED THREE TIMES TONIGHT ACROSS TWO AGENTS** (2026-08-31T20:58:38Z, `date -u` at write)
 
 ##### 1. SANAA'S FIVE QUESTIONS ANSWERED — AND THREE OF THE FIVE FRAMINGS I WAS HANDED WERE WRONG
