@@ -247,3 +247,73 @@ family's own §7 hygiene rule makes a half-applied rename worse than none.
 | `ladder-a/A6/rung_n16_fixed_reference/` | `PREREGISTRATION.md` | `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/` |
 | `ladder-a/A4/shipped_optimisation_np1/` | `PREREGISTRATION.md`, `RESULTS.md` | `/home/ubuntu/certonomous-runs/P3-a4-opt-shipped/` |
 | `ladder-a/A2/per_component_table/` | `RESULTS.md` (zero compute, no prereg) | `/home/ubuntu/certonomous-runs/P3-a2-percomponent/` |
+
+---
+
+## Addendum 2026-08-31 (dafoam lane) — the SO-series backfill: 12 directories that existed on disk and had NO index row
+
+**Why this addendum exists.** `docs/dafoam/GRADING_CHAIN.md` bullet 9 is a finding, not a
+formatting note: *"Nothing links a graded verdict to `docs/dafoam/README.md` §3 or to
+`cases/dafoam/INDEX.md` … `INDEX.md` was last touched 2026-08-22 and carries **zero** entries for
+SO-2M, SO-3a or SO-3aR — the whole SO-series is unindexed."* This addendum closes that gap for the
+SO series by hand, which is exactly the point bullet 9 makes: **this hop is a person reading a
+page, and nothing automates it.**
+
+**Nothing above this line was edited.** No existing row, table, column or section was altered, moved
+or renamed; the 2026-08-22 addendum's three columns are reproduced here unchanged and in order, with
+two columns appended that apply to this addendum's rows only. **No frozen `PREREGISTRATION.md` or
+`RESULTS.md` was touched by this backfill, and zero compute was spent.**
+
+**The verdict column is a citation, never a summary.** Every verdict is the word the artefact
+carries, read from that artefact; where an item has no verdict this table says so rather than
+supplying one. **Where an item's ORIGINAL grader refused and a SUCCESSOR later produced a verdict,
+both are stated** — the family's convention (`curriculum_SO1a/RESULTS.md` §1,
+`curriculum_AV1R/RESULTS.md` §1) is that the original is struck as superseded *for the run* and is
+NOT struck as a fact about the item's own frozen path.
+
+**The CAUSE CLASS column** is Sanaa's GRADING TRANSPARENCY ORDER of 2026-08-31
+(`etc/sessions/2026-08-31T2055Z_sanaa_grading_transparency_order.md`, committed `4116024a`): every
+non-`PASS` verdict carries one of exactly eight classes, **assigned by the grading record and cited
+like any claim**. A `PASS` carries none. Only `PHYSICS-FAIL` and `MODEL-LIMIT` say anything about the
+lab's ability to do physics. Classes already fixed by `docs/dafoam/GRADING_CHAIN.md` are **carried
+from it, not re-derived**; the one class this table assigns that GRADING_CHAIN does not carry
+(SO-1b) is marked `[NEW]` and is the supervisor's to ratify, since that page is theirs.
+
+| new directory | pair files | run tree (outside the repo) | verdict of record, with the artefact it is read from | CAUSE CLASS |
+|---|---|---|---|---|
+| `ladder-a/A1/curriculum_SO1a/` | `PREREGISTRATION.md`, `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO1a-a1-naca0012-dragmin-gradient/` | ORIGINAL ~~`NOT A RESULT`~~ (struck as superseded for the run), G1 refusal on the bare substring `Floating point exception` in `checkMesh.log` — `SO1a_grade_20260828T023132Z.json` → `verdict`, `refusal`. CURRENT **`GATE FAIL`** by successor SO-1aR, SHIPPED `GATE FAIL` / PATCHED `PASS` — `curriculum_SO1a/RESULTS.md` §1 | **PHYSICS-FAIL — against the SHIPPED TOOLCHAIN** (`GRADING_CHAIN.md`, row "SO-1aR shipped row") |
+| `ladder-a/A1/curriculum_SO1aR/` | `PREREGISTRATION.md`, `RESULTS.md` | re-grade of SO-1a's preserved root — same tree, no root of its own | **`GATE FAIL`**, rows `{"SHIPPED": "GATE FAIL", "PATCHED": "PASS"}` — `.../CURRICULUM-SO1a-.../SO1aR_grade_20260828T171830Z.json` → `verdict`, `rows`; `curriculum_SO1aR/RESULTS.md` §3. Worst component `shape[6]` **637.7570 %** with a sign flip | **PHYSICS-FAIL — against the SHIPPED TOOLCHAIN** (`GRADING_CHAIN.md`, same row) |
+| `ladder-a/A1/curriculum_SO1b/` | `PREREGISTRATION.md`; **no `RESULTS.md`** | **none — nothing was ever launched** | **`BLOCKED`** on this item's OWN registered no-launch branch (`PREREGISTRATION.md` §1a), **zero core-minutes spent**. Verbatim from `curriculum_SO1b/G_SO1A.20260828T023149Z.txt` and `LAUNCH.SO1b_chain_wait.20260828T021949Z_1712764.out` (both in-git, in the case directory): *"ABORT G-SO1A the SO-1a PATCHED row is not PASS on BOTH G5 (dCD/dx) and G5c (dCL/dx) … the SO-1b item verdict is BLOCKED"*, `reading: REFUSE no_gates.G5_PATCHED in=SO1a_grade_20260828T023132Z.json` | **INSTRUMENT** `[NEW]` — the gate read a REFUSAL, not a failing gradient: SO-1a's grader had evaluated **zero** gates on a false positive (`so1a_grade.py:122-125` bare substring, `:420` appending `checkMesh.log`, whose line 18 is OpenFOAM's `trapFpe:` **enablement banner** — `docs/COST_CALIBRATION.md` C-205). The successor pair settles it: SO-1aR's PATCHED row is `PASS` and SO-1bR then ran to `PASS`. Physics was never what stopped this item |
+| `ladder-a/A1/curriculum_SO1bR/` | `PREREGISTRATION.md`; **⚠ no `RESULTS.md` — SEE THE FLAG BELOW** | `/home/ubuntu/certonomous-runs/CURRICULUM-SO1bR-a1-naca0012-dragmin-opt/` | **`PASS`**, rows `{"SHIPPED": "PASS", "PATCHED": "PASS"}` — `SO1bR_grade_20260831T160245Z.json` → `verdict`, `grade.rows`, `refusal: null`. The same artefact's `verdict_line` carries the qualification and it travels with the `PASS`: *"RESTS ON THE PATCHED ROW OF CURRICULUM-SO1aR, WHOSE ITEM VERDICT IS GATE FAIL AND WHOSE SHIPPED ROW IS GATE FAIL … THE SHIPPED TOOLCHAIN FAILED THE GRADIENT THIS RESULT RESTS ON"* | — (`PASS` carries no class) |
+| `ladder-a/A1/curriculum_SO1c/` | `PREREGISTRATION.md`; no `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO1c-a1-naca0012-dragmin-npinv/` | **`NOT A RESULT`** — `SO1c_grade_20260831T171139Z.json` → `verdict`, `refusal`: `{"REFUSE": "G1", "detail": {"arm_absent_from_ledger": "Ns-P", …}}` | **INSTRUMENT** (`GRADING_CHAIN.md`, row SO-1c: *"Row-label break in call sites the R8 repair never swept"* — the break is why the arm is absent from the ledger under the label the grader looks for) |
+| `ladder-a/A1/curriculum_SO1cR/` | `PREREGISTRATION.md`; no `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO1cR-a1-naca0012-dragmin-npinv/` | **`PASS`**, rows `{"SHIPPED": "PASS", "PATCHED": "PASS"}` — `SO1cR_grade_20260831T175758Z.json` → `verdict`, `rows`. Its trivial baseline is one of this family's two live controls: it failed **5 of 5** components with two sign flips (`GRADING_CHAIN.md` bullet 6) | — (`PASS` carries no class) |
+| `ladder-a/A1/curriculum_SO2M/` | `PREREGISTRATION.md`; no `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO2M-a1-naca0012-moment-gradient/` | **`NOT A RESULT`** — `SO2M_grade_20260831T195531Z.json` → `verdict`, `refusal`: `{"REFUSE": "CONTROL", "detail": {"G5m_did_NOT_flip_to_GATE_FAIL_under_the_planted_copy": {…"plant": 0.001234, "flipped": false, "live_verdict": "PASS"…}}}`. **Every arm `rc=0` and the physics is clean; the comparator refused rather than degrade** | **GATE-DESIGN** (`GRADING_CHAIN.md`, row SO-2M: the **registered plant** was too small to cross its own band — `1.234e-03` is 2.48 % of `CMZ`'s reference against a 5 % band D. The comparator was correct; the gate as registered was defective) |
+| `ladder-a/A1/curriculum_SO2MR/` | **none — scripts only; NO `PREREGISTRATION.md` and NOT TRACKED at HEAD** (`git ls-files` returns nothing) | none | **no verdict, and none is claimed.** Nothing is registered and nothing has run. Listed only so the census is complete and so no reader mistakes the directory for a case; **it is a peer's live, unfinished work and this addendum did not touch it** | — (no verdict exists) |
+| `ladder-a/A1/curriculum_SO2a/` | `PREREGISTRATION.md`; no `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO2a-a1-naca0012-geometric-constraint-gradient/` | **`PASS`**, rows `{"SHIPPED": "PASS", "PATCHED": "PASS"}` — `SO2a_grade_20260831T002529Z.json` → `verdict`, `rows` | — (`PASS` carries no class) |
+| `ladder-a/A1/curriculum_SO3a/` | `PREREGISTRATION.md`; no `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO3a-a1-naca0012-alpha-multipoint-gradient/` | **`NOT A RESULT`** — `SO3a_grade_20260831T184321Z.out` (**there is no `.json` for this item; the `.out` is the only grade artefact on disk**), last two lines: *"NOT A RESULT -- the comparator REFUSED"* then `{"REFUSE": "G1", "detail": {"C3_artefact_absent": ".../X-S/so3a_X.json", "arm": "X-S"}}` | **INSTRUMENT** (`GRADING_CHAIN.md`, row SO-3a: unfilled fail-closed producer pin, `so3a_xf.py:111`; the extractor refused before any physics was read) |
+| `ladder-a/A1/curriculum_SO3aR/` | `PREREGISTRATION.md`, `RESULTS.md` | `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aR-a1-naca0012-alpha-multipoint-gradient/` | **`NOT A RESULT`** — `curriculum_SO3aR/RESULTS.md` §1, on two independent grounds on disk; grade artefact `SO3aR_grade_20260831T202215Z.out` (**`.out` only, no `.json`**): `{"REFUSE": "G1", "detail": {"C3_artefact_absent": ".../X-S/so3ar_X.json", "arm": "X-S"}}`. **The stop marker's `"verdict": "PENDING"` is NOT the item verdict** and that record says so in the same breath, quoting its own `"verdict_source": "NO READABLE COMPARATOR VERDICT AT THIS ADDRESS"` | **NAMING/PLUMBING** (`GRADING_CHAIN.md`, row SO-3aR: one shared run directory, three scenarios, no per-point `run_directory`, all renaming to `0.0001`) |
+| `ladder-a/A1/feasibility_SO3a_alpha/` (SO-3aF) | `FEASIBILITY_NOTE.md`, `COST_ROW_OWED.md` — **deliberately not a pre-registration** | `/home/ubuntu/certonomous-runs/CURRICULUM-SO3aF-a1-naca0012-alpha-feasibility/` | **No verdict, and none is possible.** The note's own opening line: *"THIS IS NOT A PRE-REGISTRATION AND ITS OUTPUTS ARE NEVER GRADEABLE AS VERDICTS."* It files with `prereg_commit = "FEASIBILITY"` under Sanaa's ruling of 2026-08-31 (`etc/sessions/2026-08-31T1513Z_sanaa_freeze_clock_and_so3_ruling.md:5`), encoded lab-wide at `scripts/queue_entry_check.py:114`. **Writing `PENDING` or `NOT A RESULT` here would be a category error**, so neither is written | — (not gradeable by construction) |
+
+### ⚠ TWO GAPS THIS BACKFILL FOUND AND DID NOT PAPER OVER
+
+**1. SO-1bR's verdict of record exists ONLY outside git.** `SO1bR_grade_20260831T160245Z.json`
+carries `PASS` on both rows in the preserved run root, and **no `RESULTS.md` exists for the item —
+neither on disk nor at HEAD.** The row above is written from the grade artefact, which is the
+authority; **no `RESULTS.md` was manufactured for it**, because writing a first results record for an
+item this lane did not grade is a supervisor's call and not a lane's (the precedent is
+`curriculum_AVWC/RESULTS.md` §10, which refused the same step for AV-1R and was later executed on the
+supervisor's own instruction). This is `GRADING_CHAIN.md` bullet 8 in the live: **between the
+comparator writing a verdict and a `RESULTS.md` landing, the verdict of record exists only on disk,
+outside version control.** SO-1c, SO-1cR, SO-2M, SO-2a and SO-3a are in the same state — a graded
+verdict and no in-git record — and are listed here so the count is known: **six items, one addendum
+row each, zero `RESULTS.md` between them.**
+
+**2. SO-3a and SO-3aR have `.out` grade artefacts and NO `.json`.** Every other SO item in this
+table has both. The `.out` carries the refusal string verbatim and is cited above as the artefact of
+record; a reader who expects the machine-readable payload will not find one, and that absence is
+stated rather than left to be discovered.
+
+**What this addendum does not do.** It moves no gate, band, threshold, cap or label; it re-grades
+nothing; it adds no number that was not already written in a cited artefact; it does not edit
+`docs/dafoam/GRADING_CHAIN.md` (that page is the supervisor's), `docs/dafoam/README.md` §3, or any
+frozen document. **Zero solver core-minutes.**
