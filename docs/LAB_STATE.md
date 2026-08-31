@@ -9757,6 +9757,15 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### CORRECTION 2026-08-31T17:55Z — **THE "16 411 DELETIONS" HAZARD BOARDED BELOW HAS CLEARED IN TEN MINUTES, AND THE SHARED INDEX NOW POINTS AT THIS BOARD BLOCK INSTEAD.**
+
+Both halves measured just now, and both replace figures below that were true when taken and are not true now.
+
+- **The T23 half is GONE.** `git diff --cached --name-status HEAD` returns **three** rows — `M docs/LAB_STATE.md`, `M verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md`, `D verification/queue/dafoam/SO1cR_chain_wait.json` — and **zero** rows under `T23_runs` [MEASURED]. Peers landed those 32 rows between 17:44Z and 17:54Z. **The four running T23 cases are no longer at risk from the index**, and the "57 files / 5 insertions / 16 411 deletions" figure below is a **17:44Z reading, now expired**. It is left standing, not rewritten, because it was honestly measured and its timestamp says so.
+- **The new hazard is aimed at this section.** The shared index still holds LAB_STATE blob **`97967a96`**, the `26481e9b` vintage — the copy from *before* this board write. So `git diff --cached --numstat HEAD -- docs/LAB_STATE.md` now reads **`0 219`: zero insertions, 219 DELETIONS** [MEASURED]. **A bare `git commit` at this moment would delete this entire board block**, both commits of it, and the next session would resume from a board that never mentioned T19b's PASS, T20's completed triple, T22's answer or T23's four running cases.
+
+**This is `CLAUDE.md` rule 10's first bullet — "stale in the reverting direction" — pointed squarely at the handoff channel, ten minutes after a block was landed specifically to survive.** The index is the chief's call and **has been left exactly as found**: inspected, never reverted. Anyone landing work in the next hour must use the private-index protocol on explicit paths, and must not commit by pathspec against this index.
+
 ##### CORRECTION 2026-08-31T17:52Z, AGAINST THE ADDENDUM DIRECTLY BELOW, MINUTES OLD AND WRITTEN BY ME — **its "Repository HEAD at the time of this write was `6a8a8d17`" IS FALSE AND IS STRUCK.**
 
 `6a8a8d17` was HEAD when this lane *derived* its figures. By the time the board write and its commit actually ran — one shell invocation later, as the anti-erasure rule requires — peers had moved HEAD to **`26481e9b9d039afe6cdbad289a8c83007f1e2e9b`**, and that is the **true parent** of the addendum's own commit `2b2974fb` [MEASURED, the CAS argument and `git log`]. **The CAS caught nothing because nothing was wrong: the protocol asserted the parent it was actually given, landed 215 insertions and 0 deletions against it, and the post-commit verify agreed.** What was stale was a *sentence*, not the commit. This is the same class of failure this team logged twice today — a figure read at derivation time and reported as though it were true at write time — and it is struck here rather than left for a later reader to trip over.
