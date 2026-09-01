@@ -1,0 +1,66 @@
+========================================================================
+T25R2_L1   (mesh L1)   source-reused, section 2.5
+========================================================================
+  cells        module   3840 + coolant  12768 =  16608   (registered 16608)
+  solid volume 0.024 m3 = 8 x 0.003 m3   (section 2.1 geometry, EXACT)
+  ACROSS EACH 3 mm GAP: 24 cells, on all 7 channels, COUNTED from distinct cell-centre y at x = 0.04875 m   (registered 24)
+  ACROSS EACH 30 mm CELL: 12 cells, on all 8 cells   (registered 12)
+  STREAMWISE dx in the cell zone: 2.5 mm, uniform   (registered 2.5 mm)
+  INLET AREA 0.021 m2 = 7 x 0.003 x 1.000, EXACT; mdot at rho 1.2, U 8 = 0.20160 kg/s   (section 4.4 registers 0.20160)
+  COUPLED INTERFACE: 560 faces on module == 560 on coolant = 7 channels x 2 faces x NX 40   (section 2.5's registered assertion)
+  numerics     nOuterCorrectors 10 (registered 10); five LITERAL final-sweep keys present; p_rgh tolerance 1e-08
+  pulse        [(0.0, 100000.0), (59.999, 100000.0), (60.0, 25000.0), (900.0, 25000.0)] W/m3, no step time inside the ramp at deltaT 0.5
+  checkMesh module   Mesh OK=True maxNonOrth=0 (<70) maxSkew=6.661e-14 (<4)
+  checkMesh coolant  Mesh OK=True maxNonOrth=0 (<70) maxSkew=1.665e-13 (<4)
+  0 / time dirs present: []  (rule 4's guard requires NONE)
+========================================================================
+T25R2_L1_OC20   (mesh L1)   source-reused, section 2.5
+========================================================================
+  cells        module   3840 + coolant  12768 =  16608   (registered 16608)
+  solid volume 0.024 m3 = 8 x 0.003 m3   (section 2.1 geometry, EXACT)
+  ACROSS EACH 3 mm GAP: 24 cells, on all 7 channels, COUNTED from distinct cell-centre y at x = 0.04875 m   (registered 24)
+  ACROSS EACH 30 mm CELL: 12 cells, on all 8 cells   (registered 12)
+  STREAMWISE dx in the cell zone: 2.5 mm, uniform   (registered 2.5 mm)
+  INLET AREA 0.021 m2 = 7 x 0.003 x 1.000, EXACT; mdot at rho 1.2, U 8 = 0.20160 kg/s   (section 4.4 registers 0.20160)
+  COUPLED INTERFACE: 560 faces on module == 560 on coolant = 7 channels x 2 faces x NX 40   (section 2.5's registered assertion)
+  numerics     nOuterCorrectors 20 (registered 20); five LITERAL final-sweep keys present; p_rgh tolerance 1e-08
+  pulse        [(0.0, 100000.0), (59.999, 100000.0), (60.0, 25000.0), (900.0, 25000.0)] W/m3, no step time inside the ramp at deltaT 0.5
+  checkMesh module   Mesh OK=True maxNonOrth=0 (<70) maxSkew=6.661e-14 (<4)
+  checkMesh coolant  Mesh OK=True maxNonOrth=0 (<70) maxSkew=1.665e-13 (<4)
+  0 / time dirs present: []  (rule 4's guard requires NONE)
+========================================================================
+T25R2_L2   (mesh L2)   source-reused, section 2.5
+========================================================================
+  cells        module   8640 + coolant  28728 =  37368   (registered 37368)
+  solid volume 0.024 m3 = 8 x 0.003 m3   (section 2.1 geometry, EXACT)
+  ACROSS EACH 3 mm GAP: 36 cells, on all 7 channels, COUNTED from distinct cell-centre y at x = 0.0508333 m   (registered 36)
+  ACROSS EACH 30 mm CELL: 18 cells, on all 8 cells   (registered 18)
+  STREAMWISE dx in the cell zone: 1.66667 mm, uniform   (registered 1.66667 mm)
+  INLET AREA 0.021 m2 = 7 x 0.003 x 1.000, EXACT; mdot at rho 1.2, U 8 = 0.20160 kg/s   (section 4.4 registers 0.20160)
+  COUPLED INTERFACE: 840 faces on module == 840 on coolant = 7 channels x 2 faces x NX 60   (section 2.5's registered assertion)
+  numerics     nOuterCorrectors 10 (registered 10); five LITERAL final-sweep keys present; p_rgh tolerance 1e-08
+  pulse        [(0.0, 100000.0), (59.999, 100000.0), (60.0, 25000.0), (900.0, 25000.0)] W/m3, no step time inside the ramp at deltaT 0.5
+  checkMesh module   Mesh OK=True maxNonOrth=0 (<70) maxSkew=1.332e-13 (<4)
+  checkMesh coolant  Mesh OK=True maxNonOrth=0 (<70) maxSkew=2.914e-13 (<4)
+  0 / time dirs present: []  (rule 4's guard requires NONE)
+========================================================================
+T25R2_L2_DT025   (mesh L2)   source-reused, section 2.5
+========================================================================
+  cells        module   8640 + coolant  28728 =  37368   (registered 37368)
+  solid volume 0.024 m3 = 8 x 0.003 m3   (section 2.1 geometry, EXACT)
+  ACROSS EACH 3 mm GAP: 36 cells, on all 7 channels, COUNTED from distinct cell-centre y at x = 0.0508333 m   (registered 36)
+  ACROSS EACH 30 mm CELL: 18 cells, on all 8 cells   (registered 18)
+  STREAMWISE dx in the cell zone: 1.66667 mm, uniform   (registered 1.66667 mm)
+  INLET AREA 0.021 m2 = 7 x 0.003 x 1.000, EXACT; mdot at rho 1.2, U 8 = 0.20160 kg/s   (section 4.4 registers 0.20160)
+  COUPLED INTERFACE: 840 faces on module == 840 on coolant = 7 channels x 2 faces x NX 60   (section 2.5's registered assertion)
+  numerics     nOuterCorrectors 10 (registered 10); five LITERAL final-sweep keys present; p_rgh tolerance 1e-08
+  pulse        [(0.0, 100000.0), (59.999, 100000.0), (60.0, 25000.0), (900.0, 25000.0)] W/m3, no step time inside the ramp at deltaT 0.25
+  checkMesh module   Mesh OK=True maxNonOrth=0 (<70) maxSkew=1.332e-13 (<4)
+  checkMesh coolant  Mesh OK=True maxNonOrth=0 (<70) maxSkew=2.914e-13 (<4)
+  0 / time dirs present: []  (rule 4's guard requires NONE)
+========================================================================
+CELL-COUNT RATIO L2/L1 = 2.2500 EXACTLY = r^2 at r = 1.5 in two resolved directions   (section 2.2)
+The two L1 arms share one mesh: T25R2_L1 16608 == T25R2_L1_OC20 16608.
+The two L2 arms share one mesh: T25R2_L2 37368 == T25R2_L2_DT025 37368.
+
+NO VERDICT. This script grades nothing and is not in section 11's freeze table. Every line above is a MEASUREMENT taken from the staged polyMesh and the staged dictionaries.
