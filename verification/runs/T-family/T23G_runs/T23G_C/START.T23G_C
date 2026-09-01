@@ -1,0 +1,13 @@
+case=T23G_C
+start_utc=2026-09-01T03:59:16Z
+ranks=1
+timeout_s=1500
+cap_core_min=25.0
+point_core_min=7.56
+endTime=10000   # LEVEL INVARIANT, identical at all three levels
+nproc=16
+loadavg=0.84 1.35 1.80
+solver=chtMultiRegionSimpleFoam
+solver_path=/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/bin/chtMultiRegionSimpleFoam
+prereg=docs/campaigns/T-family/T23G_PREREGISTRATION.md v1.1
+note=box load recorded BEFORE the solver line, not after

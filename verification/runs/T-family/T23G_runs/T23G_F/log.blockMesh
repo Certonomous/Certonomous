@@ -1,0 +1,145 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Sep 01 2026
+Time   : 03:52:19
+Host   : ip-172-31-43-247
+PID    : 1099617
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T23G_runs/T23G_F
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 14
+		Number of boundary faces : 38
+		Number of defined boundary faces : 38
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+Creating block offsets
+Creating merge list (topological search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 1.16840893536e-05 .. 0.000467363574145
+        j : 0.0015625 .. 0.0015625
+        k : 0.0032714540524 .. 0.0032714540524
+
+    Block 1 cell size :
+        i : 0.000843750000002 .. 0.000843750000002
+        j : 0.0015625 .. 0.0015625
+        k : 0.0041438417997 .. 0.0041438417997
+
+    Block 2 cell size :
+        i : 0.00062066519347 .. 1.55166298368e-05
+        j : 0.0015625 .. 0.0015625
+        k : 0.010032459094 .. 0.010032459094
+
+    Block 3 cell size :
+        i : 0.000572916666667 .. 0.000572916666667
+        j : 0.000446428571429 .. 0.000446428571429
+        k : 0.000523432648384 .. 0.000523432648384
+
+    Block 4 cell size :
+        i : 0.000249999999998 .. 0.000249999999998
+        j : 0.000446428571429 .. 0.000446428571429
+        k : 0.00292249895348 .. 0.00292249895348
+
+    Block 5 cell size :
+        i : 1.16840893536e-05 .. 0.000467363574145
+        j : 0.000446428571429 .. 0.000446428571429
+        k : 0.0032714540524 .. 0.0032714540524
+
+    Block 6 cell size :
+        i : 0.000843750000002 .. 0.000843750000002
+        j : 0.000446428571429 .. 0.000446428571429
+        k : 0.0041438417997 .. 0.0041438417997
+
+    Block 7 cell size :
+        i : 0.00062066519347 .. 1.55166298368e-05
+        j : 0.000446428571429 .. 0.000446428571429
+        k : 0.010032459094 .. 0.010032459094
+
+    Block 8 cell size :
+        i : 1.16840893536e-05 .. 0.000467363574145
+        j : 0.001875 .. 0.001875
+        k : 0.0032714540524 .. 0.0032714540524
+
+    Block 9 cell size :
+        i : 0.000843750000002 .. 0.000843750000002
+        j : 0.001875 .. 0.001875
+        k : 0.0041438417997 .. 0.0041438417997
+
+    Block 10 cell size :
+        i : 0.00062066519347 .. 1.55166298368e-05
+        j : 0.001875 .. 0.001875
+        k : 0.010032459094 .. 0.010032459094
+
+Adding cell zones
+    0	fluid
+    1	core
+    2	housing
+No patch pairs to merge
+
+Writing polyMesh with 3 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (-0.00545242342067 0.00599428932949 -0.25) (0.00545242342067 0.124881027698 0.5)
+  nPoints: 319290
+  nCells: 158720
+  nFaces: 635804
+  nInternalFaces: 316516
+----------------
+Cell Zones
+----------------
+  zone 0 (size: 140800) name: fluid
+  zone 1 (size: 13440) name: core
+  zone 2 (size: 4480) name: housing
+----------------
+Patches
+----------------
+  patch 0 (start: 316516 size: 220) name: inlet
+  patch 1 (start: 316736 size: 220) name: outlet
+  patch 2 (start: 316956 size: 640) name: duct_wall
+  patch 3 (start: 317596 size: 160) name: centrebody_up
+  patch 4 (start: 317756 size: 200) name: centrebody_down
+  patch 5 (start: 317956 size: 32) name: housing_ends
+  patch 6 (start: 317988 size: 96) name: core_ends
+  patch 7 (start: 318084 size: 280) name: core_bore
+  patch 8 (start: 318364 size: 158720) name: front
+  patch 9 (start: 477084 size: 158720) name: back
+
+End
+

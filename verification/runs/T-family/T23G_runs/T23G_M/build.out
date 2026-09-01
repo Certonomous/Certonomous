@@ -1,0 +1,7 @@
+phase A: dictionaries written
+blockMesh rc=0
+splitMeshRegions rc=0
+fluid    patches: ['inlet', 'outlet', 'duct_wall', 'centrebody_up', 'centrebody_down', 'front', 'back', 'fluid_to_housing']
+housing  patches: ['housing_ends', 'front', 'back', 'housing_to_core', 'housing_to_fluid']
+core     patches: ['core_ends', 'core_bore', 'front', 'back', 'core_to_housing']
+phase C: 0.orig fields written

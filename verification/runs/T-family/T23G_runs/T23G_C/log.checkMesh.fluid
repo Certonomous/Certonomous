@@ -1,0 +1,114 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -region fluid
+Date   : Sep 01 2026
+Time   : 03:52:16
+Host   : ip-172-31-43-247
+PID    : 1096886
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T23G_runs/T23G_C
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Foam::Time&, const Foam::argList&)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+Check mesh...
+
+Time = constant
+
+Mesh stats fluid
+    points:           18032
+    internal points:  0
+    faces:            35415
+    internal faces:   17385
+    cells:            8800
+    faces per cell:   6
+    boundary patches: 8
+    point zones:      0
+    face zones:       0
+    cell zones:       3
+
+Overall number of cells of each type:
+    hexahedra:     8800
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology
+    inlet               55       112      ok (non-closed singly connected)  
+    outlet              55       112      ok (non-closed singly connected)  
+    duct_wall           160      322      ok (non-closed singly connected)  
+    centrebody_up       40       82       ok (non-closed singly connected)  
+    centrebody_down     50       102      ok (non-closed singly connected)  
+    front               8800     9016     ok (non-closed singly connected)  
+    back                8800     9016     ok (non-closed singly connected)  
+    fluid_to_housing    70       142      ok (non-closed singly connected)  
+    ".*"                18030    18032    ok (closed singly connected)      
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    CellZone            Cells        Points       Volume       BoundingBox
+    fluid               8800         18032        0.000464717143949 (-0.00545242342067 0.0374643083093 -0.25) (0.00545242342067 0.124881027698 0.5)
+    core                0            0            0            (1e+150 1e+150 1e+150) (-1e+150 -1e+150 -1e+150)
+    housing             0            0            0            (1e+150 1e+150 1e+150) (-1e+150 -1e+150 -1e+150)
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-0.00545242342067 0.0374643083093 -0.25) (0.00545242342067 0.124881027698 0.5)
+    Mesh has 2 geometric (non-empty/wedge) directions (0 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Wedge front with angle 2.50000000008 degrees
+    Wedge back with angle 2.50000000008 degrees
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (5.39965893974e-15 -1.12110570605e-15 2.06774243537e-18) OK.
+    Max cell openness = 2.47900346701e-16 OK.
+    Max aspect ratio = 166.762113833 OK.
+    Minimum face area = 8.04359121332e-08. Maximum face area = 8.17863513101e-05.  Face area magnitudes OK.
+    Min volume = 2.63049827239e-10. Max volume = 2.49982075983e-07.  Total volume = 0.000464717143949.  Cell volumes OK.
+    Mesh non-orthogonality Max: 0 average: 0
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.109151289726 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+End
+
