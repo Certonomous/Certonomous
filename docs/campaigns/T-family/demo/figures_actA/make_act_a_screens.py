@@ -9,7 +9,18 @@ WHAT IT WRITES (all into this directory, beside this file):
   actA_radial_profile.{pdf,svg,csv}   radial cut through the hottest solid cell
   actA_monitor_replay.{pdf,svg,csv}   16 tiles, replayed from the run monitors
   actA_assumption_beat.{pdf,svg,csv}  hand model vs coupled solve
+  actA_assumptions.{pdf,svg}          the assumptions box
   actA_screen_data.json               everything above, for a re-render
+
+THE PEAK IS IN THE CORE, NOT THE HOUSING.  Until 2026-09-01 every peak on this
+screen set was the maximum over the HOUSING region, and the margin to the
+200 degC limit was computed from it.  The core region is MEASURED here to run
+1.067 to 4.142 K hotter at every one of the sixteen points, so that peak
+understated the body's true peak and OVERSTATED the margin -- the direction
+that hurts whoever reads it.  Both peaks are now carried, the margin is
+computed on the CORE, and `peak_T_degC` is the core value because the core is
+where the peak is.  The housing peak keeps its own key and its own column and
+is never called the hottest point.
 
 THE UNCERTAINTY COLUMN IS HONESTLY EMPTY.  All sixteen points ran at a single
 grid.  A discretisation error bar needs at least three grids; none exists and
@@ -18,10 +29,18 @@ not a number.  What IS a real measured quantity is the MARGIN TO THE 200 degC
 limit, and that is what the envelope screen draws -- labelled as margin to the
 limit so it cannot be read as a numerical error bar.
 
-PLANTED-ZERO CONTROL, CLAUDE.md rule 3, on all three distinct readers:
-  peak-temperature field reader -- the frozen comparator's own control, reused
-  radial-profile reader         -- mesh_reader_actA.planted_profile_control
-  monitor-trace reader          -- planted_monitor_control, below
+THE ANCHOR CHECK DIFFERENCES UNROUNDED VALUES.  It used to round the
+measurement to four decimals before subtracting a four-decimal expectation,
+which manufactures an exact zero out of arithmetic rather than agreement.  A
+zero produced by rounding is not evidence, for the same reason a zero from a
+blind reader is not.  The registered gate stays at 5e-5 K, unchanged; only the
+defect in the instrument is repaired.
+
+PLANTED-ZERO CONTROL, CLAUDE.md rule 3, on all FOUR distinct readers:
+  peak core-temperature reader   -- planted_core_control, below
+  peak housing-temperature field -- the frozen comparator's own control, reused
+  radial-profile reader          -- mesh_reader_actA.planted_profile_control
+  monitor-trace reader           -- planted_monitor_control, below
 A reader that cannot see the plant REFUSES; it does not degrade.
 
 Naming: no internal identifier, case name or process word appears in any
@@ -31,6 +50,7 @@ physics -- watts and metres per second.
 import csv
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -59,6 +79,24 @@ LIMIT_C = 200.0                 # the engineering temperature limit
 DESIGN_C = 120.0                # the design isotherm
 ENDTIME = "10000"
 PLANT = MR.PLANT                # 1.234e-03 K
+# The frozen T24 comparator's registered control apparatus, IMPORTED so that
+# this file cannot quietly hold a different ladder or a different tolerance.
+LADDER = A24.LADDER             # section 3.6 clause 3, the magnitude ladder
+PLANT_REL_SLACK = A24.PLANT_REL_SLACK           # clause 5, RELATIVE, 1e-9
+
+# The three mesh regions of this body.  `core` is the heat-generating solid and
+# is where the peak temperature is; `housing` is the aluminium wall around it.
+SOLID_REGIONS = ("core", "housing")
+MESH_REGIONS = ("fluid", "housing", "core")
+
+# 0.1 degC SIGNIFICANT FIGURES on every temperature and temperature difference
+# DISPLAYED IN A FIGURE, per the 2026-09-01 figure standard, until the grid
+# triple lands.  It is applied to figure text only.  It is NOT applied to the
+# JSON or the CSV, which are the record and not a display, and it is NOT
+# applied to instrument evidence -- a planted magnitude of 1.234e-03 K or an
+# anchor residual of 3.7e-05 K rounded to 0.1 K becomes 0.0 and stops being
+# evidence at all, which is the very defect the anchor check above repairs.
+T_FMT = "%.1f"
 
 # The sixteen landed points: (power W, airspeed m/s, run root, case dir name).
 POINTS = ([(80, u, T24_ROOT, "T24_P080_U%d" % u) for u in (10, 20, 30, 40)] +
@@ -109,6 +147,133 @@ def save(fig, stem):
 def refuse(msg):
     sys.stderr.write("REFUSE: %s\n" % msg)
     raise SystemExit(2)
+
+
+# ==========================================================================
+# READER A2 -- THE PEAK CORE TEMPERATURE, and its planted-zero control.
+#
+# The frozen comparator reads Q1 = max(T) over the HOUSING only, because that
+# is what T23/T24 registered as their bound.  The body's actual peak is in the
+# CORE, which is measured here to sit 1.067 to 4.142 K above the housing at
+# every one of the sixteen points.  A screen that quotes the housing peak as
+# the peak understates it and overstates the margin to the limit.
+#
+# The frozen `planted_zero_control` cannot be reused for this reader: it pins
+# the field path to `<endTime>/housing/T` at its own line 466, so its restore
+# and its clause-8 no-write check both look at the wrong file for a core
+# reader.  The nine clauses are therefore reimplemented here against the core
+# field, with PLANT, the magnitude LADDER and the relative sizing tolerance
+# ALL IMPORTED from the frozen comparator rather than restated.
+# ==========================================================================
+
+def core_field(case_dir):
+    return os.path.join(case_dir, ENDTIME, "core", "T")
+
+
+def read_core_peak(case_dir):
+    """max(T) over the whole core region.  Reader path: internalField, window
+    delimited by the field's OWN header through the frozen comparator."""
+    lines, first, n = A24.internal_window(core_field(case_dir))
+    return max(float(lines[first + i]) for i in range(n))
+
+
+def plant_core_peak(case_dir, mag):
+    """Plant `mag` into the HOTTEST core internalField cell, BY LINE INDEX
+    computed from the field's own header.  Returns the count planted."""
+    p = core_field(case_dir)
+    lines, first, n = A24.internal_window(p)
+    vals = [float(lines[first + i]) for i in range(n)]
+    j = max(range(n), key=lambda i: vals[i])
+    lines[first + j] = "%.12g" % (vals[j] + mag)        # writePrecision 12
+    open(p, "w").write("\n".join(lines))
+    return 1
+
+
+def clear_local_pycache():
+    """The frozen clause 9, extended to this directory.  A stale bytecode cache
+    INVERTS a mutation control; PYTHONDONTWRITEBYTECODE does not fix it."""
+    A24.clear_pycache()
+    p = os.path.join(HERE, "__pycache__")
+    if os.path.isdir(p):
+        shutil.rmtree(p, ignore_errors=True)
+
+
+def planted_core_control(case_dir, label="peak core-temperature reader"):
+    """The frozen comparator's nine clauses, against the CORE field.
+
+    Clause 1 copy-first with a refusal if the scratch resolves inside the case;
+    clause 2 negative arm at bitwise 0.0 with NO tolerance; clause 3 the
+    imported magnitude ladder, measured rung by rung; clause 4 refuse if the
+    reader is blind; clause 5 the RELATIVE sizing predicate
+    `at_plant >= PLANT*(1-1e-9)`; clause 8 the case is checked to be unwritten
+    and the scratch is removed in a `finally`; clause 9 the bytecode caches are
+    cleared first.  REFUSES rather than degrades."""
+    clear_local_pycache()                                       # clause 9
+    case_real = os.path.realpath(case_dir)
+    scratch = tempfile.mkdtemp(prefix="actAcore_")
+    dest = os.path.join(scratch, os.path.basename(case_dir))
+    try:
+        # CLAUSE 1: COPY FIRST, NEVER WRITE INTO THE CASE.
+        if os.path.realpath(scratch) == case_real \
+           or os.path.realpath(scratch).startswith(case_real + os.sep):
+            refuse("core control scratch %s resolves INSIDE the case %s -- "
+                   "clause 1 forbids writing into the case under any "
+                   "circumstance" % (scratch, case_real))
+        shutil.copytree(case_dir, dest, symlinks=True,
+                        ignore=shutil.ignore_patterns("log.solve", "*.py",
+                                                      "postProcessing"))
+        if os.path.realpath(dest).startswith(case_real + os.sep):
+            refuse("core control copy %s resolves INSIDE the case" % dest)
+        pristine = open(core_field(dest)).read()
+
+        # CLAUSE 2: NEGATIVE ARM.  Bitwise 0.0, no absolute tolerance.
+        a = read_core_peak(dest)
+        b = read_core_peak(dest)
+        if (b - a) != 0.0:
+            refuse("%s NEGATIVE ARM: the reader is NOISY -- two reads of "
+                   "identical bytes differ by %r, and the registered threshold "
+                   "is bitwise 0.0 with no tolerance" % (label, b - a))
+        base = a
+
+        # CLAUSE 3: POSITIVE ARM, the MEASURED ladder, exact and epsilon-free.
+        rungs, floor, at_plant, n_planted = [], None, None, None
+        for mag in LADDER:
+            open(core_field(dest), "w").write(pristine)
+            cnt = plant_core_peak(dest, mag)
+            got = read_core_peak(dest) - base
+            rungs.append((float(mag), float(got), int(cnt)))
+            if got != 0.0:
+                floor = mag if floor is None else min(floor, mag)
+            if mag == PLANT:
+                at_plant, n_planted = got, cnt
+        open(core_field(dest), "w").write(pristine)
+
+        # CLAUSE 4: REFUSE IF THE READER IS BLIND.
+        if floor is None:
+            refuse("%s POSITIVE ARM: the reader is BLIND -- no magnitude in "
+                   "the imported ladder produced a non-zero read. An "
+                   "instrument that cannot see a planted perturbation is not "
+                   "entitled to certify a peak or a margin" % label)
+
+        # CLAUSE 5: THE ONLY SIZING TOLERANCE, AND IT IS RELATIVE.
+        if at_plant is None:
+            refuse("%s: PLANT was not exercised by the ladder" % label)
+        if not (at_plant >= PLANT * (1.0 - PLANT_REL_SLACK)):
+            refuse("%s: read at PLANT is %.6e K, below the registered RELATIVE "
+                   "predicate PLANT*(1-1e-9) = %.6e K"
+                   % (label, at_plant, PLANT * (1.0 - PLANT_REL_SLACK)))
+
+        # CLAUSE 8: the case was never written to, CHECKED not asserted.
+        if open(core_field(case_dir)).read() != open(core_field(dest)).read():
+            refuse("%s: the case file and the restored copy differ -- the "
+                   "control may have written into the case" % label)
+        return dict(passed=True, region="core", planted_K=float(PLANT),
+                    read_K=float(at_plant), detection_floor_K=float(floor),
+                    n_cells_planted=int(n_planted), base_K=float(base),
+                    ladder_K=[r[0] for r in rungs],
+                    ladder_read_K=[r[1] for r in rungs])
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)              # clause 8
 
 
 # ==========================================================================
@@ -212,53 +377,103 @@ def planted_monitor_control(path, mag=PLANT):
 # ==========================================================================
 
 def build_map():
+    """Both solid peaks at every point.  `peak_T_degC` is the CORE value
+    because the core is where the peak is; the housing peak keeps its own key
+    and is never presented as the hottest point.  Every margin and every rise
+    is computed from the core, which is the conservative direction and the only
+    one that does not overstate how much room is left to the limit."""
     rows = []
     for p_w, u_ms, root, case in POINTS:
         cdir = os.path.join(root, case)
-        t_k = A24.read_Q1(cdir)                 # frozen comparator's reader
-        t_c = t_k - KELVIN_C
+        core_k = read_core_peak(cdir)                   # reader A2, above
+        hous_k = A24.read_Q1(cdir)                      # frozen Q1 reader
+        core_c, hous_c = core_k - KELVIN_C, hous_k - KELVIN_C
         rows.append(dict(power_W=p_w, airspeed_ms=u_ms,
-                         peak_T_degC=t_c,
-                         rise_above_inlet_K=t_k - T_INF_K,
-                         margin_to_limit_K=LIMIT_C - t_c,
-                         margin_to_design_K=DESIGN_C - t_c,
+                         peak_T_degC=core_c,
+                         peak_T_region="core",
+                         peak_core_T_degC=core_c,
+                         peak_housing_T_degC=hous_c,
+                         core_above_housing_K=core_c - hous_c,
+                         rise_above_inlet_K=core_k - T_INF_K,
+                         housing_rise_above_inlet_K=hous_k - T_INF_K,
+                         margin_to_limit_K=LIMIT_C - core_c,
+                         margin_to_design_K=DESIGN_C - core_c,
+                         housing_margin_to_limit_K=LIMIT_C - hous_c,
                          numerical_uncertainty=UNCERTAINTY_TEXT,
-                         source_field=os.path.join(cdir, ENDTIME, "housing",
-                                                   "T")))
+                         source_field=os.path.join(cdir, ENDTIME, "core", "T"),
+                         source_field_housing=os.path.join(cdir, ENDTIME,
+                                                           "housing", "T")))
     return rows
 
 
+# The five values transcribed from the frozen T23/T24 record, which registered
+# its bound on the HOUSING peak.  The anchor check is therefore a check on the
+# HOUSING peak and stays one; it is not silently re-pointed at the core, which
+# no frozen document carries a value for.
 ANCHORS = {(80, 10): 38.1374, (80, 20): 29.0795, (80, 30): 25.5462,
            (80, 40): 23.5897, (305, 10): 103.6078}
+ANCHOR_QUANTITY = ("peak housing temperature, the quantity the frozen T23/T24 "
+                   "record registered its bound on")
+# REGISTERED, and NOT ADJUSTED HERE.  The instrument below was repaired; the
+# threshold it is read against was left exactly where it was registered,
+# because moving a threshold to suit an outcome is what pre-registration
+# forbids.
+ANCHOR_GATE_K = 5e-5
 
 
 def check_anchors(rows):
+    """Difference the UNROUNDED measurement against the transcribed value.
+
+    The previous form computed `abs(round(measured, 4) - expected)` against a
+    four-decimal table.  Rounding the measurement to the expectation's own
+    precision before subtracting cannot produce anything but an exact zero
+    whenever the two agree to within half a unit in the last place, so the
+    zero it reported was arithmetic, not agreement -- the same family of
+    defect as a zero read by an instrument that has not been shown able to see
+    a non-zero.  The real residuals are reported; the registered 5e-5 K gate is
+    unchanged."""
     out = []
     for r in rows:
         k = (r["power_W"], r["airspeed_ms"])
         if k in ANCHORS:
-            d = abs(round(r["peak_T_degC"], 4) - ANCHORS[k])
+            m = r["peak_housing_T_degC"]
+            d = abs(m - ANCHORS[k])
             out.append(dict(power_W=k[0], airspeed_ms=k[1],
+                            quantity=ANCHOR_QUANTITY,
                             expected_degC=ANCHORS[k],
-                            measured_degC=r["peak_T_degC"],
-                            abs_diff_degC=d, matches=bool(d <= 5e-5)))
+                            measured_degC=m,
+                            abs_diff_degC=d,
+                            gate_K=ANCHOR_GATE_K,
+                            differenced="unrounded on both sides",
+                            matches=bool(d <= ANCHOR_GATE_K)))
     return out
 
 
+MAP_TITLE = "Peak core temperature, 16 operating points"
+MAP_CAPTION = ("Core peak shaded; the table carries both solid peaks and the "
+               "margin computed on the core.")
+
+
 def fig_map_table(rows):
+    """The map shades the CORE peak, which is the body's actual peak, so
+    Sanaa's registered title is true of what is drawn.  The table carries both
+    solid peaks side by side and the margin computed on the core."""
     powers = sorted({r["power_W"] for r in rows})
     speeds = sorted({r["airspeed_ms"] for r in rows})
     grid = np.full((len(powers), len(speeds)), np.nan)
     for r in rows:
         grid[powers.index(r["power_W"]), speeds.index(r["airspeed_ms"])] = \
-            r["peak_T_degC"]
+            r["peak_core_T_degC"]
     vmin, vmax = float(np.nanmin(grid)), float(np.nanmax(grid))
+    hmin = float(min(r["peak_housing_T_degC"] for r in rows))
+    hmax = float(max(r["peak_housing_T_degC"] for r in rows))
 
-    fig = plt.figure(figsize=(9.2, 9.8))
-    gs = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.35], hspace=0.30,
-                          bottom=0.075, top=0.955)
+    fig = plt.figure(figsize=(9.6, 10.0))
+    gs = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.45], hspace=0.28,
+                          bottom=0.055, top=0.945)
 
-    # --- upper: the map as a shaded grid, colour bar UNCLIPPED with min/max
+    # --- upper: the map as a shaded grid, colour bar UNCLIPPED, min and max
+    #     carried by the bar's own END TICKS and nowhere else.
     ax = fig.add_subplot(gs[0])
     norm = mcolors.Normalize(vmin=vmin, vmax=vmax)     # exactly the data range
     im = ax.imshow(grid, cmap="inferno", norm=norm, aspect="auto",
@@ -269,67 +484,70 @@ def fig_map_table(rows):
     ax.set_yticklabels([r"$%d$" % p for p in powers])
     ax.set_xlabel(r"Airspeed $U_\infty$  [m s$^{-1}$]")
     ax.set_ylabel(r"Dissipated power $P$  [W]")
-    ax.set_title("Peak housing temperature over the sixteen solved operating "
-                 "points", fontsize=10)
+    ax.set_title(MAP_TITLE, fontsize=10.5)
     ax.grid(False)
     for i in range(len(powers)):
         for j in range(len(speeds)):
             v = grid[i, j]
             fr = (v - vmin) / (vmax - vmin)
-            ax.text(j, i, r"$%.4f$" % v, ha="center", va="center",
+            ax.text(j, i, r"$" + (T_FMT % v) + "$", ha="center", va="center",
                     fontsize=9.5, color="white" if fr < 0.62 else "black")
     cb = fig.colorbar(im, ax=ax, pad=0.02)
-    cb.set_label(r"Peak temperature  $[^\circ\mathrm{C}]$")
-    cb.ax.text(0.5, -0.045, r"min $%.4f$" % vmin, transform=cb.ax.transAxes,
-               ha="center", va="top", fontsize=7.5)
-    cb.ax.text(0.5, 1.045, r"max $%.4f$" % vmax, transform=cb.ax.transAxes,
-               ha="center", va="bottom", fontsize=7.5)
+    cb.set_label(r"$^\circ$C")
+    mid = np.linspace(vmin, vmax, 5)[1:-1]
+    cb.set_ticks([vmin] + list(mid) + [vmax])
+    cb.set_ticklabels([T_FMT % t for t in [vmin] + list(mid) + [vmax]])
+    cb.ax.tick_params(labelsize=8.0)
 
-    # --- lower: the 16 rows with units and the uncertainty column
+    # --- lower: the 16 rows, BOTH solid peaks, and the uncertainty column
     ax2 = fig.add_subplot(gs[1])
     ax2.axis("off")
     head = ["Power\n[W]", "Airspeed\n[m s$^{-1}$]",
-            "Peak temperature\n[$^\\circ$C]", "Rise above inlet\n[K]",
-            "Margin to 200 $^\\circ$C\n[K]", "Numerical uncertainty\n[K]"]
+            "Peak core\n[$^\\circ$C]", "Peak housing\n[$^\\circ$C]",
+            "Core above\nhousing [K]", "Rise above inlet\n[K]",
+            "Margin to 200 $^\\circ$C\non the core [K]",
+            "Numerical\nuncertainty [K]"]
     body = []
     for r in rows:
         body.append(["%d" % r["power_W"], "%d" % r["airspeed_ms"],
-                     "%.4f" % r["peak_T_degC"],
-                     "%.4f" % r["rise_above_inlet_K"],
-                     "%+.4f" % r["margin_to_limit_K"],
+                     T_FMT % r["peak_core_T_degC"],
+                     T_FMT % r["peak_housing_T_degC"],
+                     "+" + (T_FMT % r["core_above_housing_K"]),
+                     T_FMT % r["rise_above_inlet_K"],
+                     "+" + (T_FMT % r["margin_to_limit_K"]),
                      "not available"])
     tb = ax2.table(cellText=body, colLabels=head, cellLoc="center",
-                   bbox=[0.02, 0.02, 0.96, 0.96],
-                   colWidths=[0.10, 0.12, 0.19, 0.17, 0.19, 0.19])
+                   bbox=[0.01, 0.02, 0.98, 0.96],
+                   colWidths=[0.085, 0.105, 0.125, 0.135, 0.125, 0.135,
+                              0.155, 0.135])
     tb.auto_set_font_size(False)
-    tb.set_fontsize(8.0)
+    tb.set_fontsize(7.8)
     for (r_i, c_i), cell in tb.get_celld().items():
         cell.set_linewidth(0.4)
         if r_i == 0:
-            cell.set_text_props(weight="bold", fontsize=7.6)
+            cell.set_text_props(weight="bold", fontsize=7.2)
             cell.set_facecolor("#e9e9ee")
         else:
             cell.set_facecolor("#ffffff" if r_i % 2 else "#f6f6f8")
-        if c_i == 5 and r_i > 0:
-            cell.set_text_props(color="#7a1f1f", fontsize=7.6)
-    ax2.set_title("The sixteen solved points, with units", fontsize=10, pad=6)
-    fig.text(0.5, 0.030,
-             "Numerical uncertainty column: " + UNCERTAINTY_TEXT + ".",
-             ha="center", va="top", fontsize=8.4, color="#7a1f1f",
-             weight="bold")
-    fig.text(0.5, 0.010,
-             "All sixteen points were solved on one grid. A discretisation "
-             "error bar needs a refinement study; none was run, so none "
-             "exists for any row and none is estimated, interpolated or "
-             "borrowed here.",
-             ha="center", va="top", fontsize=7.6, color="#7a1f1f")
+        if c_i == 2 and r_i > 0:
+            cell.set_text_props(weight="bold")
+        if c_i == 7 and r_i > 0:
+            cell.set_text_props(color="#7a1f1f", fontsize=7.2)
+    ax2.set_title("The sixteen solved points, with units", fontsize=9.5, pad=6)
+    fig.text(0.5, 0.028, MAP_CAPTION, ha="center", va="top", fontsize=8.2,
+             color="#333333")
     return fig, dict(vmin=vmin, vmax=vmax, powers=powers, speeds=speeds,
-                     grid=grid.tolist())
+                     grid=grid.tolist(), housing_min=hmin, housing_max=hmax)
 
 
 # ==========================================================================
 # 2.  THE ENVELOPE
 # ==========================================================================
+
+ENVELOPE_TITLE = "Peak core temperature against airspeed"
+ENVELOPE_CAPTION = ("One curve per dissipated power; the arrow is the measured "
+                    "margin at the hottest solved point.")
+
 
 def fig_envelope(rows):
     powers = sorted({r["power_W"] for r in rows})
@@ -340,12 +558,9 @@ def fig_envelope(rows):
                edgecolor="none")
     ax.axhline(LIMIT_C, color="#b3261e", lw=1.7, zorder=3)
     ax.text(33.0, LIMIT_C + 3.0,
-            r"200 $^\circ$C temperature limit",
+            r"200 $^\circ$C limit",
             color="#b3261e", va="bottom", ha="center", fontsize=8.6,
-            weight="bold", zorder=6)
-    ax.text(33.0, 165.0, "SAFE REGION\n(shaded: below the limit)",
-            color="#2e7d32", fontsize=9.0, ha="center", va="center",
-            weight="bold", zorder=6)
+            zorder=6)
     ax.axhline(DESIGN_C, color="#7a5c00", lw=1.1, ls="--", zorder=3)
     ax.text(37.0, DESIGN_C + 3.5, r"120 $^\circ$C design isotherm",
             color="#7a5c00", va="bottom", ha="center", fontsize=8.4, zorder=6)
@@ -368,8 +583,8 @@ def fig_envelope(rows):
                 zorder=5)
     ax.text(hot["airspeed_ms"] + 0.9,
             0.5 * (LIMIT_C + hot["peak_T_degC"]),
-            "margin to the limit\nat the hottest solved point\n"
-            r"$+%.4f$ K" % hot["margin_to_limit_K"],
+            "margin to the limit\n" + r"$+" + (T_FMT % hot["margin_to_limit_K"])
+            + r"$ K",
             color="#b3261e", fontsize=8.4, va="center", ha="left",
             bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#b3261e",
                       lw=0.6, alpha=0.92), zorder=7)
@@ -378,19 +593,14 @@ def fig_envelope(rows):
     ax.set_ylim(0, 215)
     ax.set_xticks(speeds)
     ax.set_xlabel(r"Airspeed $U_\infty$  [m s$^{-1}$]")
-    ax.set_ylabel(r"Peak housing temperature  $[^\circ\mathrm{C}]$")
-    ax.set_title("Temperature envelope of the solved operating map",
-                 fontsize=10)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.115), ncol=4,
-              fontsize=8.5, framealpha=1.0,
-              title="one curve per dissipated power", title_fontsize=8.0)
-    ax.text(0.012, 0.015,
-            "The double-headed arrow is the MARGIN TO THE 200 $^\\circ$C "
-            "limit, a measured temperature difference.\nIt is not a numerical "
-            "error bar: the sixteen points ran on one grid, so no "
-            "grid-refinement\nuncertainty band exists and none is drawn.",
-            transform=ax.transAxes, fontsize=7.2, color="#444444",
-            va="bottom", ha="left")
+    ax.set_ylabel(r"Peak core temperature  $[^\circ\mathrm{C}]$")
+    ax.set_title(ENVELOPE_TITLE, fontsize=10.5)
+    # The legend sits INSIDE the axes, per the 2026-09-01 figure standard.
+    ax.legend(loc="lower left", ncol=2, fontsize=8.2, framealpha=1.0,
+              borderpad=0.5)
+    fig.subplots_adjust(bottom=0.165)
+    fig.text(0.5, 0.012, ENVELOPE_CAPTION, ha="center", va="bottom",
+             fontsize=8.2, color="#333333")
     return fig, series
 
 
@@ -398,30 +608,51 @@ def fig_envelope(rows):
 # 3.  THE RADIAL PROFILE
 # ==========================================================================
 
-REGION_LABEL = {"core": "heat-generating rotor core\n"
+REGION_LABEL = {"core": "heat-generating core\n"
                         r"solid, $k = 40$ W m$^{-1}$K$^{-1}$",
                 "housing": "aluminium housing wall\n"
                            r"solid, $k = 167$ W m$^{-1}$K$^{-1}$",
                 "fluid": "cooling air annulus\n"
                          r"$k = 0.026$ W m$^{-1}$K$^{-1}$"}
-REGION_SHORT = {"core": "rotor core", "housing": "housing wall",
+REGION_SHORT = {"core": "core", "housing": "housing wall",
                 "fluid": "cooling air"}
 REGION_FACE = {"core": "#d8c8a8", "housing": "#c9d6e3", "fluid": "#eef3ee"}
 
 
 def build_radial(hot_case_dir, others):
-    """Radial cut through the axial station holding the hottest solid cell."""
-    # locate the hottest solid cell's axial position from the case's own field
-    cc, _ = MR.cell_centres(hot_case_dir, "housing")
-    T = MR.read_internal_T(hot_case_dir, "housing")
-    z_hot = float(cc[int(np.argmax(T)), 2])
+    """Radial cut through the axial station holding the hottest solid cell.
+
+    The station used to be located from the HOUSING field alone, which named
+    the hottest HOUSING cell and not the hottest solid cell -- the same
+    housing-only assumption that understated the peak in the map.  Both solid
+    regions are searched here and the winner is measured, not assumed; the
+    two stations are also compared and the comparison is returned so the
+    figure's title can be checked rather than trusted."""
+    hottest = {}
+    for reg in SOLID_REGIONS:
+        cc, _ = MR.cell_centres(hot_case_dir, reg)
+        T = MR.read_internal_T(hot_case_dir, reg)
+        j = int(np.argmax(T))
+        hottest[reg] = dict(region=reg, T_degC=float(T[j] - KELVIN_C),
+                            z_m=float(cc[j, 2]),
+                            r_m=float(np.hypot(cc[j, 0], cc[j, 1])))
+    win = max(hottest.values(), key=lambda d: d["T_degC"])
+    z_hot = win["z_m"]
     prof, z_used = MR.radial_profile(hot_case_dir,
                                      ("core", "housing", "fluid"), z_hot)
     extra = {}
     for label, cdir in others.items():
         p, _ = MR.radial_profile(cdir, ("fluid",), z_hot)
         extra[label] = (p[0][1], p[0][2])
-    return prof, z_used, z_hot, extra
+    locator = dict(
+        hottest_solid_region=win["region"],
+        hottest_solid_T_degC=win["T_degC"],
+        per_region=hottest,
+        stations_agree=bool(abs(hottest["core"]["z_m"]
+                                - hottest["housing"]["z_m"]) < 1e-9),
+        station_separation_m=float(abs(hottest["core"]["z_m"]
+                                       - hottest["housing"]["z_m"])))
+    return prof, z_used, z_hot, extra, locator
 
 
 def region_stats(r_m, T_K):
@@ -444,6 +675,11 @@ def region_stats(r_m, T_K):
 REGION_COLOUR = {"core": "#b5651d", "housing": "#1f5fb3", "fluid": "#2e7d32"}
 
 
+RADIAL_TITLE = "Radial temperature through the hottest cell"
+RADIAL_CAPTION = ("305 W, 10 m/s; each marker is one cell, radius axis broken "
+                  "at the two material interfaces.")
+
+
 def fig_radial(prof, z_used, extra, stats):
     """Four panels sharing one temperature axis.  The three material regions
     get one panel each -- the housing wall is 3.5 mm of a 118 mm radius span
@@ -456,7 +692,7 @@ def fig_radial(prof, z_used, extra, stats):
     fig = plt.figure(figsize=(12.0, 5.2))
     gs = fig.add_gridspec(1, 4, width_ratios=[1.35, 0.85, 1.5, 1.35],
                           wspace=0.10, left=0.055, right=0.985,
-                          top=0.795, bottom=0.185)
+                          top=0.860, bottom=0.130)
 
     ymin = min((p[2] - KELVIN_C).min() for p in prof) - 4.0
     ymax = max((p[2] - KELVIN_C).max() for p in prof) + 16.0
@@ -478,26 +714,15 @@ def fig_radial(prof, z_used, extra, stats):
             plt.setp(ax.get_yticklabels(), visible=False)
         else:
             ax.set_ylabel(r"Temperature  $[^\circ\mathrm{C}]$")
-        note = (r"mean slope" "\n"
-                r"$%.4f$ K mm$^{-1}$" "\n"
-                r"drop over region $%.4f$ K" "\n"
-                r"straight-line fit $R^2 = %.4f$"
-                % (s["mean_slope_K_per_mm"], s["drop_K"], s["r_squared"]))
+        note = (r"mean slope $%.3f$ K mm$^{-1}$" "\n"
+                + r"drop over region $" + (T_FMT % s["drop_K"]) + r"$ K" "\n"
+                + r"straight-line fit $R^2 = %.4f$") \
+            % (s["mean_slope_K_per_mm"], s["r_squared"])
         ax.text(0.5, 0.66, note, transform=ax.transAxes, fontsize=7.6,
                 ha="center", va="center",
                 bbox=dict(boxstyle="round,pad=0.30", fc="white",
                           ec=REGION_COLOUR[reg], lw=0.7, alpha=0.95),
                 zorder=6)
-        if reg != "housing":
-            ax.text(0.5, 0.42,
-                    "curved: a single slope here is a\nregion average, not a "
-                    "local gradient",
-                    transform=ax.transAxes, fontsize=7.0, ha="center",
-                    va="center", color="#7a1f1f", style="italic", zorder=6)
-        else:
-            ax.text(0.5, 0.42, "straight to four decimals",
-                    transform=ax.transAxes, fontsize=7.0, ha="center",
-                    va="center", color="#1f5fb3", style="italic", zorder=6)
 
     # --- fourth panel: the near-wall air at all four airspeeds
     ax2 = fig.add_subplot(gs[3])
@@ -518,41 +743,27 @@ def fig_radial(prof, z_used, extra, stats):
     ax2.text(0.5, 0.30,
              "air gradient at the surface\n"
              r"$%.1f$ K mm$^{-1}$, falling to" "\n"
-             r"$%.4f$ K mm$^{-1}$ in the free stream"
+             r"$%.3f$ K mm$^{-1}$ in the free stream"
              % (s["local_slope_first_K_per_mm"],
                 s["local_slope_last_K_per_mm"]),
              transform=ax2.transAxes, fontsize=7.4, ha="center", va="top",
              bbox=dict(boxstyle="round,pad=0.30", fc="white", ec="#2e7d32",
                        lw=0.7, alpha=0.95))
 
-    fig.suptitle("Radial temperature cut through the hottest solid cell     "
-                 r"$P = 305$ W,   $U_\infty = 10$ m s$^{-1}$,   axial station"
-                 r" $z = %.2f$ mm" % (z_used * 1000.0),
-                 fontsize=10.5, y=0.975)
-    fig.text(0.5, 0.925,
-             "radius axis broken at the two material interfaces so the 3.5 mm "
-             "housing wall is visible; every panel is linear in $r$ and every "
-             "marker is one computational cell",
-             ha="center", fontsize=7.8, color="#444444")
-    fig.text(0.5, 0.045,
-             "THREE MATERIAL REGIONS, THREE DISTINCT MEAN SLOPES "
-             r"($%.4f$ / $%.4f$ / $%.4f$ K mm$^{-1}$) - but only the housing "
-             "wall is a straight line."
-             % (stats["core"]["mean_slope_K_per_mm"],
-                stats["housing"]["mean_slope_K_per_mm"],
-                stats["fluid"]["mean_slope_K_per_mm"]),
-             ha="center", fontsize=8.2, color="#7a1f1f", weight="bold")
-    fig.text(0.5, 0.020,
-             "The rotor core carries a volumetric heat source and the air "
-             "carries a thermal boundary layer, so both are curved; their "
-             "single slopes are region averages and are labelled as such.",
-             ha="center", fontsize=7.6, color="#444444")
+    fig.suptitle(RADIAL_TITLE, fontsize=11.0, y=0.965)
+    fig.text(0.5, 0.030, RADIAL_CAPTION, ha="center", fontsize=8.2,
+             color="#333333")
     return fig
 
 
 # ==========================================================================
 # 4.  THE 16-TILE MONITOR REPLAY
 # ==========================================================================
+
+MONITOR_TITLE = "Housing temperature monitors, sixteen runs"
+MONITOR_CAPTION = ("Upper trace hottest housing point, lower trace coldest; "
+                   "each run's own monitor, unchanged.")
+
 
 def fig_monitor(traces, final_internal):
     fig, axes = plt.subplots(4, 4, figsize=(11.0, 8.2), sharex=True)
@@ -570,7 +781,8 @@ def fig_monitor(traces, final_internal):
             ax.axhline(fin, color="#666666", lw=0.6, ls=":")
             ax.set_title(r"$%d$ W,  $%d$ m s$^{-1}$" % (p, u), fontsize=8.0,
                          pad=3)
-            ax.text(0.97, 0.10, r"settles at $%.4f\ ^\circ$C" % fin,
+            ax.text(0.97, 0.10,
+                    r"settles at $" + (T_FMT % fin) + r"\ ^\circ$C",
                     transform=ax.transAxes, fontsize=6.6, ha="right",
                     color="#333333")
             ax.tick_params(labelsize=6.6)
@@ -579,18 +791,9 @@ def fig_monitor(traces, final_internal):
                 ax.set_ylabel(r"$T$  $[^\circ\mathrm{C}]$", fontsize=7.5)
             if i == 0:
                 ax.set_xlabel("Iteration", fontsize=7.5)
-    fig.suptitle("Solid-body temperature monitors, replayed from the sixteen "
-                 "runs\n"
-                 "upper trace: hottest point in the housing; lower trace: "
-                 "coldest point; band between them", fontsize=10, y=0.975)
-    fig.text(0.5, 0.005,
-             "Every trace is the run's own monitor output, sampled every 100 "
-             "iterations and replayed unchanged. The monitor scans the housing "
-             "cells AND its bounding faces,\nso its settled value sits "
-             "%.4f K above the cell-only peak quoted in the map table at the "
-             "hottest point - both are real readings of the same solution."
-             % final_internal["offset_K"],
-             ha="center", fontsize=7.0, color="#444444")
+    fig.suptitle(MONITOR_TITLE, fontsize=10.5, y=0.975)
+    fig.text(0.5, 0.006, MONITOR_CAPTION, ha="center", fontsize=8.0,
+             color="#333333")
     return fig
 
 
@@ -598,14 +801,27 @@ def fig_monitor(traces, final_internal):
 # 5.  THE ASSUMPTION BEAT
 # ==========================================================================
 
+BEAT_TITLE = "Hand estimate versus coupled solve, 305 W"
+BEAT_CAPTION = ("Both hand correlations overpredict; the gap shrinks as "
+                "airspeed rises.")
+
+
 def fig_assumption(rows):
+    """The hand model against the solve.
+
+    The comparison is made on the HOUSING peak, because that is the quantity
+    the two hand correlations predict: both are surface-convection closures
+    for the wall of the body, and neither carries the internal conduction that
+    puts the core above it.  Comparing them against the core peak would credit
+    the correlations with an overprediction they do not make."""
     speeds = sorted(HAND_MODEL)
-    solved = {u: next(r["peak_T_degC"] for r in rows
+    solved = {u: next(r["peak_housing_T_degC"] for r in rows
                       if r["power_W"] == 305 and r["airspeed_ms"] == u)
               for u in speeds}
-    fig = plt.figure(figsize=(13.4, 4.7))
-    gs = fig.add_gridspec(1, 3, width_ratios=[1.05, 1.30, 0.95], wspace=0.30,
-                          left=0.055, right=0.985, top=0.855, bottom=0.155)
+    fig = plt.figure(figsize=(10.6, 4.9))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.05, 1.30], wspace=0.26,
+                          left=0.070, right=0.980, top=0.840, bottom=0.180)
+    fig.suptitle(BEAT_TITLE, fontsize=10.5, y=0.965)
 
     # --- panel 1: absolute temperatures
     ax = fig.add_subplot(gs[0])
@@ -623,11 +839,11 @@ def fig_assumption(rows):
     ax.set_xticks(xs)
     ax.set_xticklabels([r"$%d$" % u for u in speeds])
     ax.set_xlabel(r"Airspeed $U_\infty$  [m s$^{-1}$]")
-    ax.set_ylabel(r"Peak temperature  $[^\circ\mathrm{C}]$")
-    ax.set_title(r"Hand model against the solve, at $P = 305$ W", fontsize=9.5)
+    ax.set_ylabel(r"Peak housing temperature  $[^\circ\mathrm{C}]$")
+    ax.set_title("Absolute temperature", fontsize=9.5)
     ax.legend(fontsize=7.0, loc="upper right")
 
-    # --- panel 2: the overprediction factor, which SHRINKS with airspeed
+    # --- panel 2: the overprediction factor, which shrinks with airspeed
     ax2 = fig.add_subplot(gs[1])
     duct = [HAND_MODEL[u][0] for u in speeds]
     flat = [HAND_MODEL[u][1] for u in speeds]
@@ -638,7 +854,7 @@ def fig_assumption(rows):
     ax2.text(41.5, flat[-1], "flat-plate\ncorrelation", color="#e0a458",
              fontsize=7.6, va="center", ha="left")
     ax2.axhline(1.0, color="#2f6f8f", lw=1.3, ls="--")
-    ax2.text(8.0, 1.04, "coupled solve (reference, 1.000)", color="#2f6f8f",
+    ax2.text(8.0, 1.04, "coupled solve, reference 1.000", color="#2f6f8f",
              fontsize=7.8, va="bottom", ha="left")
     for u, d, f in zip(speeds, duct, flat):
         dx = -14 if u == speeds[-1] else 0
@@ -653,55 +869,338 @@ def fig_assumption(rows):
     ax2.set_ylim(0.80, 4.05)
     ax2.set_xlabel(r"Airspeed $U_\infty$  [m s$^{-1}$]")
     ax2.set_ylabel("Hand-model rise / solved rise  [-]")
-    ax2.set_title("The hand model's overprediction\nSHRINKS as airspeed rises",
-                  fontsize=9.5)
-    ax2.text(0.47, 0.20,
-             "Largest error at the LOWEST airspeed:\n"
-             r"$%.3f\times$ and $%.3f\times$ at $10$ m s$^{-1}$," "\n"
-             r"falling to $%.3f\times$ and $%.3f\times$ at $40$ m s$^{-1}$."
-             % (duct[0], flat[0], duct[-1], flat[-1]),
-             transform=ax2.transAxes, fontsize=7.4, va="center", ha="center",
-             color="#444444",
-             bbox=dict(boxstyle="round,pad=0.30", fc="white", ec="#bbbbbb",
-                       lw=0.5, alpha=0.95))
+    ax2.set_title("Overprediction factor", fontsize=9.5)
 
-    # --- panel 3: the power the solved rise implies at 20 m/s
-    ax3 = fig.add_subplot(gs[2])
-    rise20 = solved[20] + KELVIN_C - T_INF_K
-    p120 = 305.0 * (DESIGN_C - (T_INF_K - KELVIN_C)) / rise20
-    p200 = 305.0 * (LIMIT_C - (T_INF_K - KELVIN_C)) / rise20
-    names = ["solved\noperating\npoint",
-             "power that\nwould reach\n" + r"120 $^\circ$C",
-             "power that\nwould reach\n" + r"200 $^\circ$C"]
-    vals = [305.0, p120, p200]
-    cols = ["#2f6f8f", "#7a5c00", "#b3261e"]
-    b = ax3.bar(names, vals, color=cols, width=0.55)
-    for rect, v, i in zip(b, vals, range(3)):
-        ax3.text(rect.get_x() + rect.get_width() / 2, v + 22,
-                 (r"$%.0f$ W" % v) + ("\nsolved" if i == 0
-                                      else "\nEXTRAPOLATED"),
-                 ha="center", va="bottom", fontsize=7.6, color=cols[i],
-                 weight="bold" if i == 0 else "normal")
-    ax3.set_ylim(0, 2150)
-    ax3.set_ylabel(r"Dissipated power  [W]")
-    ax3.set_title(r"Power headroom implied at $U_\infty = 20$ m s$^{-1}$",
-                  fontsize=9.5)
-    ax3.text(0.5, 0.985,
-             "The two right-hand bars scale the\n"
-             r"measured $%.3f$ K rise linearly in power." "\n"
-             "The highest power solved anywhere\n"
-             "is 305 W, so both sit beyond\n"
-             "everything that was computed." % rise20,
-             transform=ax3.transAxes, fontsize=6.9, va="top", ha="center",
-             color="#444444",
-             bbox=dict(boxstyle="round,pad=0.28", fc="white", ec="#bbbbbb",
-                       lw=0.5, alpha=0.95))
-    ax3.tick_params(axis="x", labelsize=7.2)
+    # THE THIRD PANEL IS GONE.  It carried two bars labelled EXTRAPOLATED --
+    # the power that would reach 120 degC and the power that would reach
+    # 200 degC at 20 m/s, both obtained by scaling the measured rise linearly
+    # in power past the 305 W that is the highest power solved anywhere.  They
+    # were withdrawn on 2026-09-01 by Sanaa's direction.  The two derived
+    # powers are withdrawn from the bundle with them, so that no downstream
+    # consumer can put back on a screen a number this file no longer draws.
+    fig.text(0.5, 0.020, BEAT_CAPTION, ha="center", fontsize=8.2,
+             color="#333333")
     return fig, dict(solved_degC=solved, duct_factor=dict(zip(speeds, duct)),
                      flat_factor=dict(zip(speeds, flat)),
-                     rise_at_20ms_K=float(rise20),
-                     power_for_120C_at_20ms_W=float(p120),
-                     power_for_200C_at_20ms_W=float(p200))
+                     solved_rise_at_20ms_K=float(solved[20] + KELVIN_C
+                                                 - T_INF_K),
+                     extrapolated_power_headroom="withdrawn 2026-09-01: the "
+                                                 "120 degC and 200 degC power "
+                                                 "bars scaled the measured "
+                                                 "rise past the highest power "
+                                                 "solved and are no longer "
+                                                 "drawn or carried")
+
+
+# ==========================================================================
+# 6.  THE THREE FACTS, MEASURED HERE SO THEY SURVIVE A REGENERATION
+#
+# `reader`, `mesh.n_mesh_cells` and `mesh.geometry_guard` were written into the
+# bundle by hand once.  A hand-written key does not survive the next run of
+# this file, so they are MEASURED here instead: the cell counts from each
+# region's own polyMesh header, and the geometry guard by actually running the
+# frozen comparator's sha256 identity check over all sixteen cases rather than
+# describing it.
+# ==========================================================================
+
+READER_TEXT = (
+    "The peak core temperature is the maximum of T over the core "
+    "internalField, read by `read_core_peak` beside this bundle. The peak "
+    "housing temperature is Q1 of the frozen comparators -- the maximum of T "
+    "over the housing internalField -- read by "
+    "verification/runs/T-family/T23_runs/analyse_t23.py for the four 305 W "
+    "points and verification/runs/T-family/T24_runs/analyse_t24.py for the "
+    "other twelve. Those comparators also carry Q2, the temperature on the "
+    "housing side of the housing_to_fluid interface averaged over the real "
+    "polygon areas of that patch's faces. The margin to the limit is computed "
+    "on the core, which is the hotter of the two solids at every point.")
+
+GEOMETRY_GUARD_TEXT = (
+    "Before any temperature is read, every case's polyMesh points in all "
+    "three regions is asserted byte-identical by sha256 to the registered "
+    "reference mesh (analyse_t24.py:366 points_digest, :378 mesh_identity). A "
+    "missing points file refuses the grading pass rather than waiving the "
+    "check, and a mismatch makes the affected rows NOT A RESULT.")
+
+
+def measure_mesh():
+    """Cell counts per region, MEASURED from each case's own polyMesh header
+    and asserted identical across all sixteen operating points."""
+    per_case = {}
+    for p_w, u_ms, root, case in POINTS:
+        cdir = os.path.join(root, case)
+        per_case[case] = {r: int(MR.n_cells(cdir, r)) for r in MESH_REGIONS}
+    first = per_case[POINTS[0][3]]
+    same = all(v == first for v in per_case.values())
+    if not same:
+        refuse("the sixteen cases do not carry the same cell counts: %r"
+               % per_case)
+    return dict(n_mesh_cells=int(sum(first.values())),
+                cells_by_region=first,
+                n_regions=len(MESH_REGIONS),
+                cells_source="the nCells field of "
+                             "constant/<region>/polyMesh/owner, read in every "
+                             "one of the sixteen cases",
+                identical_across_operating_points=bool(same))
+
+
+def measure_geometry_guard():
+    """RUN the frozen comparator's mesh-identity check over all sixteen cases
+    rather than describe it, and report what it found."""
+    t24_cases = [c for _p, _u, root, c in POINTS if root == T24_ROOT]
+    t23_cases = [c for _p, _u, root, c in POINTS if root == T23_ROOT]
+    ok24, _d24, _ref = A24.mesh_identity(T24_ROOT, t24_cases)
+    ok23, _d23, _r2 = A24.mesh_identity(T23_ROOT, t23_cases,
+                                        ref_root=T23_ROOT)
+    ok = dict(ok24)
+    ok.update(ok23)
+    n_pairs = len(ok) * len(MESH_REGIONS)
+    if not all(ok.values()):
+        bad = sorted(k for k, v in ok.items() if not v)
+        return dict(text=GEOMETRY_GUARD_TEXT, all_identical=False,
+                    n_cases=len(ok), n_region_case_pairs=n_pairs,
+                    mismatched_cases=bad,
+                    result="NOT A RESULT for %d of %d cases: the registered "
+                           "identity claim is false for them"
+                           % (len(bad), len(ok)))
+    return dict(text=GEOMETRY_GUARD_TEXT, all_identical=True,
+                n_cases=len(ok), n_region_case_pairs=n_pairs,
+                mismatched_cases=[],
+                result="all %d cases byte-identical in fluid, housing and "
+                       "core -- %d of %d region-case pairs"
+                       % (len(ok), n_pairs, n_pairs))
+
+
+def measure_radiation():
+    """`radiation neglected` is a MEASURED switch, not a remembered one."""
+    out, cdir = {}, os.path.join(T23_ROOT, "T23_P305_U10")
+    for reg in MESH_REGIONS:
+        p = os.path.join(cdir, "constant", reg, "radiationProperties")
+        if not os.path.isfile(p):
+            refuse("no %s -- the radiation assumption cannot be measured and "
+                   "is not asserted from memory" % p)
+        txt = open(p).read()
+        m = re.search(r"radiationModel\s+(\w+)\s*;", txt)
+        s = re.search(r"^\s*radiation\s+(\w+)\s*;", txt, re.M)
+        if not m or not s:
+            refuse("%s carries no radiation/radiationModel pair" % p)
+        out[reg] = dict(radiation=s.group(1), radiationModel=m.group(1))
+    off = all(v["radiation"] == "off" and v["radiationModel"] == "none"
+              for v in out.values())
+    return dict(per_region=out, radiation_off_everywhere=bool(off))
+
+
+# ==========================================================================
+# 7.  THE ASSUMPTIONS BOX
+# Every limitation here is about the PHYSICS, and every one of them stays.
+# ==========================================================================
+
+def build_assumptions(mesh, guard, rad, radial_locator):
+    return [
+        dict(heading="Single grid",
+             text="All sixteen points ran at one mesh level, %d cells across "
+                  "%d regions. A discretisation error bar needs at least "
+                  "three grids; none was run, so no numerical uncertainty is "
+                  "quoted for any row and none is estimated, interpolated or "
+                  "borrowed."
+                  % (mesh["n_mesh_cells"], mesh["n_regions"]),
+             measured=True),
+        dict(heading="Steady points only",
+             text="Each of the sixteen points is a separate converged steady "
+                  "state. Nothing here says how this body warms up, how long "
+                  "it takes to reach these temperatures, or how it responds "
+                  "to a change in load.",
+             measured=True),
+        dict(heading="Radiation neglected",
+             text="Radiation is switched off in all three regions "
+                  "(radiation off, radiationModel none), so heat leaves the "
+                  "body by conduction and forced convection alone. At the "
+                  "hottest surface temperature solved here a radiative path "
+                  "exists in the real part and is not represented.",
+             measured=bool(rad["radiation_off_everywhere"])),
+        dict(heading="Representative geometry and materials",
+             text="The body is a representative motor-in-duct wedge with "
+                  "constant conductivities of 40, 167 and 0.026 W/mK for "
+                  "core, housing and air. It is not a drawing of any "
+                  "particular product and the properties are not a supplier "
+                  "data sheet.",
+             measured=False),
+        dict(heading="Turbulence is modelled, not resolved",
+             text="The air side uses the k-omega SST closure. Turbulent "
+                  "transport is represented by a model, so the convective "
+                  "heat transfer carries that model's error, and no "
+                  "model-form uncertainty is quoted here.",
+             measured=True),
+        dict(heading="The peak is in the core",
+             text="The hottest solid cell is in the %s at %s degC, %s K above "
+                  "the housing peak. The margin to the 200 degC limit is "
+                  "computed on the core; the housing value is reported beside "
+                  "it and is not the hottest point."
+                  % (radial_locator["hottest_solid_region"],
+                     T_FMT % radial_locator["hottest_solid_T_degC"],
+                     T_FMT % (radial_locator["hottest_solid_T_degC"]
+                              - radial_locator["per_region"]["housing"]
+                              ["T_degC"])),
+             measured=True),
+        dict(heading="Mesh identity is checked, not assumed",
+             text=guard["result"][0].upper() + guard["result"][1:] + ".",
+             measured=True),
+    ]
+
+
+ASSUMPTIONS_WRAP = 118          # characters; measured against the 9.6 in width
+
+
+def _wrap(text, width=ASSUMPTIONS_WRAP):
+    out, line = [], ""
+    for word in text.split():
+        if line and len(line) + len(word) + 1 > width:
+            out.append(line)
+            line = word
+        else:
+            line = (line + " " + word).strip()
+    out.append(line)
+    return out
+
+
+def fig_assumptions(items):
+    """One box, one heading per limitation, and the box is sized from the text
+    rather than guessed at -- an item that runs off the bottom of its own frame
+    is an item a reader does not read."""
+    wrapped = [_wrap(it["text"]) for it in items]
+    head_h, line_h, gap_h = 0.026, 0.0265, 0.028
+    total = sum(head_h + line_h * len(w) + gap_h for w in wrapped)
+    top = 0.885
+    fig = plt.figure(figsize=(9.6, 6.6))
+    ax = fig.add_axes([0.0, 0.0, 1.0, 1.0])
+    ax.axis("off")
+    ax.set_title("What this result assumes", fontsize=12.5, pad=-4, y=0.945)
+    y = top
+    for it, w in zip(items, wrapped):
+        ax.text(0.048, y, it["heading"], fontsize=9.6, weight="bold",
+                va="top", ha="left", color="#1a1a1a")
+        ax.text(0.048, y - head_h, "\n".join(w), fontsize=8.2, va="top",
+                ha="left", color="#333333", linespacing=1.42)
+        y -= head_h + line_h * len(w) + gap_h
+    bottom = top - total - 0.012
+    if bottom < 0.02:
+        refuse("the assumptions box overflows its own frame by %.3f of the "
+               "page -- widen the figure rather than drop an assumption"
+               % (0.02 - bottom))
+    ax.add_patch(Rectangle((0.028, bottom), 0.944, top - bottom + 0.045,
+                           fill=False, ec="#999999", lw=0.8,
+                           transform=ax.transAxes))
+    return fig
+
+
+# ==========================================================================
+# 8.  THE SHEET TEXT, and THE STATEMENTS OF FACT.
+#
+# The figure standard of 2026-09-01 moves every explanation out of the figure
+# and into the sheet beside it, one compact paragraph per figure.  The
+# paragraphs are built here so they say what the figure actually drew.
+# ==========================================================================
+
+def sheet_text(mapmeta, stats, fin, locator):
+    return {
+        "actA_map_table":
+            "The shading is the peak temperature in the core, which is the "
+            "hottest solid at every point. The table carries the housing peak "
+            "beside it and the difference between them, and the margin to the "
+            "200 degC limit is taken from the core because that is the "
+            "smaller of the two margins. The uncertainty column is empty for "
+            "every row: one grid admits no discretisation error bar, and none "
+            "is estimated, interpolated or borrowed.",
+        "actA_envelope":
+            "One curve per dissipated power, each joining the four solved "
+            "airspeeds. The double-headed arrow is the margin from the "
+            "hottest solved point to the 200 degC limit, a measured "
+            "temperature difference and not a numerical error bar; the "
+            "sixteen points ran on one grid, so no grid-refinement band "
+            "exists and none is drawn.",
+        "actA_radial_profile":
+            "The radius axis is broken at the two material interfaces because "
+            "the housing wall is 3.5 mm of a 118 mm span and vanishes on a "
+            "single common axis; each panel stays linear in radius and every "
+            "marker is one computational cell. The core carries a volumetric "
+            "heat source and the air carries a thermal boundary layer, so "
+            "both curve and the single slope printed for each is a region "
+            "average rather than a local gradient. Only the housing wall is "
+            "straight.",
+        "actA_monitor_replay":
+            "Every trace is the run's own monitor output, sampled every 100 "
+            "iterations and shown unchanged. The monitor scans the housing "
+            "cells and the faces bounding them, so its settled value sits "
+            "%.4f K above the housing cell-only peak in the table; both are "
+            "real readings of the same solution. These monitors watch the "
+            "housing, not the core."
+            % fin["offset_K"],
+        "actA_assumption_beat":
+            "Both hand correlations are surface-convection closures for the "
+            "wall, so they are compared against the housing peak, which is "
+            "what they predict. Each overpredicts the temperature rise, most "
+            "at the lowest airspeed, and the overprediction shrinks as "
+            "airspeed rises. The panel that scaled the measured rise into a "
+            "power headroom beyond the highest power solved was withdrawn on "
+            "2026-09-01.",
+        "actA_assumptions":
+            "Every limitation on this sheet is about the physics of the run "
+            "and every one of them still applies to the numbers on the other "
+            "sheets.",
+    }
+
+
+def facts(mesh, controls, anchors):
+    """The statements of fact for the header and the sheets.
+
+    TWO OF THE FOUR SENTENCES AS DICTATED ON 2026-09-01 WERE MEASURABLY FALSE
+    and are not written here in that form.
+
+      * "a planted 0.001 K perturbation" -- the magnitude is 1.234e-03 K in
+        every control, imported from the frozen comparator.  0.001 K is that
+        figure at one significant figure and the readers were never asked for
+        it.
+      * "agreement to 1e-5 K" -- the largest anchor residual is 3.7361e-05 K,
+        3.7 times that.  "Better than 1e-4 K" is true and is what is written.
+
+    The count moved too: there are now FOUR readers under control, not three,
+    because the core reader is new.  Every sentence below is built from the
+    measurements in this run rather than transcribed."""
+    n_ctl = len(controls)
+    mags = sorted({c["planted_K"] for c in controls.values()})
+    if len(mags) != 1:
+        refuse("the controls did not all plant one magnitude: %r" % mags)
+    worst = max(a["abs_diff_degC"] for a in anchors)
+    # The replacement sentence is CHECKED before it is written.  A claim of
+    # "better than 1e-4 K" that has not been measured against 1e-4 K is the
+    # same kind of unverified sentence as the one it replaces.
+    if not (worst < 1.0e-4):
+        refuse("the largest anchor residual is %.6e K, so the sentence "
+               "'agreement better than 1e-4 K' is NOT true and is not written"
+               % worst)
+    return dict(
+        solver="Solver: OpenFOAM chtMultiRegionSimpleFoam, steady conjugate "
+               "heat transfer, k-omega SST.",
+        scale="%d operating points solved on this geometry, %s cells."
+              % (len(POINTS), format(mesh["n_mesh_cells"], ",")),
+        instrument_checks="Instrument checks: %d readers each detected a "
+                          "planted %.3e K perturbation."
+                          % (n_ctl, mags[0]),
+        anchor_check="Anchor check: %d values reproduced from the fields on "
+                     "disk against the frozen record, agreement better than "
+                     "1e-4 K." % len(anchors),
+        anchor_check_largest_residual_K=worst,
+        corrections_to_the_dictated_wording=[
+            "'a planted 0.001 K perturbation' -> the measured magnitude is "
+            "%.3e K, imported from the frozen T24 comparator and never "
+            "redefined." % mags[0],
+            "'three readers' -> there are %d readers under planted-zero "
+            "control, the core reader having been added on 2026-09-01."
+            % n_ctl,
+            "'agreement to 1e-5 K' -> the largest residual measured is "
+            "%.4e K, which is %.1f times 1e-5; 'better than 1e-4 K' is true "
+            "and defensible." % (worst, worst / 1.0e-5),
+        ])
 
 
 # ==========================================================================
@@ -709,7 +1208,6 @@ def fig_assumption(rows):
 # ==========================================================================
 
 def main():
-    out = {}
     print("== READING THE SIXTEEN POINTS")
     rows = build_map()
     anchors = check_anchors(rows)
@@ -723,13 +1221,20 @@ def main():
     print("\n== PLANTED-ZERO CONTROLS (CLAUDE.md rule 3)")
     controls = {}
     hot_dir = os.path.join(T23_ROOT, "T23_P305_U10")
-    c1 = A24.planted_zero_control(hot_dir, "peak-temperature field reader",
+
+    c0 = planted_core_control(hot_dir)
+    controls["peak_core_temperature_reader"] = c0
+    print("   peak core-temperature reader: planted %.6e K, read %.6e K, "
+          "floor %.0e K" % (PLANT, c0["read_K"], c0["detection_floor_K"]))
+
+    c1 = A24.planted_zero_control(hot_dir,
+                                  "peak housing-temperature field reader",
                                   A24.read_Q1, A24.plant_Q1)
-    controls["peak_temperature_field_reader"] = dict(
+    controls["peak_housing_temperature_field_reader"] = dict(
         passed=bool(c1["passed"]), planted_K=PLANT,
         read_K=float(c1["at_plant"]), detection_floor_K=float(c1["floor"]),
         n_cells_planted=int(c1["n_planted"]))
-    print("   peak-temperature field reader: planted %.6e K, read %.6e K, "
+    print("   peak housing-temperature reader: planted %.6e K, read %.6e K, "
           "floor %.0e K" % (PLANT, c1["at_plant"], c1["floor"]))
 
     c2 = MR.planted_profile_control(hot_dir, "housing", 0.1245536)
@@ -744,24 +1249,46 @@ def main():
     print("   monitor-trace reader: planted %.6e K, read %.6e K, %d sample "
           "perturbed" % (PLANT, c3["read_K"], c3["n_perturbed"]))
 
+    print("\n== THE THREE FACTS, MEASURED")
+    mesh = measure_mesh()
+    guard = measure_geometry_guard()
+    rad = measure_radiation()
+    mesh["geometry_guard"] = GEOMETRY_GUARD_TEXT
+    mesh["geometry_guard_result"] = guard["result"]
+    print("   mesh cells  %d across %d regions %r"
+          % (mesh["n_mesh_cells"], mesh["n_regions"], mesh["cells_by_region"]))
+    print("   guard       %s" % guard["result"])
+    print("   radiation   off everywhere: %s"
+          % rad["radiation_off_everywhere"])
+    if not guard["all_identical"]:
+        refuse("the registered mesh-identity claim is false for %r"
+               % guard["mismatched_cases"])
+
     print("\n== FIGURES")
     fig, mapmeta = fig_map_table(rows)
     save(fig, "actA_map_table")
-    print("   map table   min %.4f degC  max %.4f degC"
-          % (mapmeta["vmin"], mapmeta["vmax"]))
+    print("   map table   core %.4f to %.4f degC, housing %.4f to %.4f degC"
+          % (mapmeta["vmin"], mapmeta["vmax"], mapmeta["housing_min"],
+             mapmeta["housing_max"]))
 
     fig, series = fig_envelope(rows)
     save(fig, "actA_envelope")
     hot = min(rows, key=lambda r: r["margin_to_limit_K"])
-    print("   envelope    worst margin %+.4f K at %d W / %d m/s"
-          % (hot["margin_to_limit_K"], hot["power_W"], hot["airspeed_ms"]))
+    print("   envelope    worst core margin %+.4f K at %d W / %d m/s "
+          "(housing would have said %+.4f K)"
+          % (hot["margin_to_limit_K"], hot["power_W"], hot["airspeed_ms"],
+             hot["housing_margin_to_limit_K"]))
 
     others = {str(u): os.path.join(T23_ROOT, "T23_P305_U%d" % u)
               for u in (20, 30, 40)}
-    prof, z_used, z_hot, extra = build_radial(hot_dir, others)
+    prof, z_used, z_hot, extra, locator = build_radial(hot_dir, others)
     stats = {reg: region_stats(r, T) for reg, r, T, _z in prof}
     fig = fig_radial(prof, z_used, extra, stats)
     save(fig, "actA_radial_profile")
+    print("   radial      hottest solid cell is in the %s at %.4f degC; the "
+          "core and housing stations agree: %s"
+          % (locator["hottest_solid_region"], locator["hottest_solid_T_degC"],
+             locator["stations_agree"]))
     for reg in ("core", "housing", "fluid"):
         s = stats[reg]
         print("   radial %-8s slope %+9.4f K/mm  R2 %.5f  local %+9.3f -> "
@@ -773,49 +1300,65 @@ def main():
     for p_w, u_ms, root, case in POINTS:
         traces[(p_w, u_ms)] = read_monitor(monitor_path(root, case))
     hot_final_mon = traces[(305, 10)][1][-1] - KELVIN_C
-    hot_internal = next(r["peak_T_degC"] for r in rows
+    # The monitor scans the HOUSING region and its bounding faces, so it is
+    # compared against the HOUSING cell-only peak.  Comparing it against the
+    # core peak -- now the value in `peak_T_degC` -- would subtract two
+    # different regions and report the difference as an instrument offset.
+    hot_internal = next(r["peak_housing_T_degC"] for r in rows
                         if r["power_W"] == 305 and r["airspeed_ms"] == 10)
     fin = dict(monitor_degC=float(hot_final_mon),
                internal_cells_degC=float(hot_internal),
+               region="housing",
                offset_K=float(hot_final_mon - hot_internal))
     fig = fig_monitor(traces, fin)
     save(fig, "actA_monitor_replay")
-    print("   monitors    16 tiles, %d samples each, monitor peak %.4f degC "
-          "against cell-only peak %.4f degC (offset %.4f K)"
+    print("   monitors    16 tiles, %d samples each, housing monitor peak "
+          "%.4f degC against housing cell-only peak %.4f degC (offset %.4f K)"
           % (len(traces[(305, 10)][0]), fin["monitor_degC"],
              fin["internal_cells_degC"], fin["offset_K"]))
 
     fig, beat = fig_assumption(rows)
     save(fig, "actA_assumption_beat")
-    print("   assumption  duct %s  flat %s"
+    print("   assumption  duct %s  flat %s (extrapolated headroom panel "
+          "withdrawn)"
           % (["%.3f" % beat["duct_factor"][u] for u in (10, 20, 30, 40)],
              ["%.3f" % beat["flat_factor"][u] for u in (10, 20, 30, 40)]))
-    print("   power at 20 m/s: %.1f W to 120 degC, %.1f W to 200 degC "
-          "(both extrapolated)" % (beat["power_for_120C_at_20ms_W"],
-                                   beat["power_for_200C_at_20ms_W"]))
+
+    assumptions = build_assumptions(mesh, guard, rad, locator)
+    fig = fig_assumptions(assumptions)
+    save(fig, "actA_assumptions")
+    print("   assumptions %d items, every physics limitation kept"
+          % len(assumptions))
 
     # ------------------------------------------------------------------ CSV
     with open(os.path.join(HERE, "actA_map_table.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["power_W", "airspeed_m_per_s", "peak_temperature_degC",
-                    "rise_above_inlet_K", "margin_to_200C_limit_K",
-                    "margin_to_120C_design_K", "numerical_uncertainty_K"])
+        w.writerow(["power_W", "airspeed_m_per_s", "peak_core_temperature_degC",
+                    "peak_housing_temperature_degC", "core_above_housing_K",
+                    "rise_above_inlet_K", "margin_to_200C_limit_on_core_K",
+                    "margin_to_120C_design_on_core_K",
+                    "margin_to_200C_limit_on_housing_K",
+                    "numerical_uncertainty_K"])
         for r in rows:
             w.writerow(["%d" % r["power_W"], "%d" % r["airspeed_ms"],
-                        "%.6f" % r["peak_T_degC"],
+                        "%.6f" % r["peak_core_T_degC"],
+                        "%.6f" % r["peak_housing_T_degC"],
+                        "%.6f" % r["core_above_housing_K"],
                         "%.6f" % r["rise_above_inlet_K"],
                         "%.6f" % r["margin_to_limit_K"],
                         "%.6f" % r["margin_to_design_K"],
+                        "%.6f" % r["housing_margin_to_limit_K"],
                         UNCERTAINTY_TEXT])
 
     with open(os.path.join(HERE, "actA_envelope.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["power_W", "airspeed_m_per_s", "peak_temperature_degC",
-                    "margin_to_200C_limit_K", "limit_degC",
+        w.writerow(["power_W", "airspeed_m_per_s",
+                    "peak_core_temperature_degC",
+                    "margin_to_200C_limit_on_core_K", "limit_degC",
                     "design_isotherm_degC"])
         for r in rows:
             w.writerow(["%d" % r["power_W"], "%d" % r["airspeed_ms"],
-                        "%.6f" % r["peak_T_degC"],
+                        "%.6f" % r["peak_core_T_degC"],
                         "%.6f" % r["margin_to_limit_K"], "200", "120"])
 
     with open(os.path.join(HERE, "actA_radial_profile.csv"), "w",
@@ -851,7 +1394,7 @@ def main():
         w.writerow(["airspeed_m_per_s", "power_W",
                     "hand_model_duct_correlation_degC",
                     "hand_model_flat_plate_correlation_degC",
-                    "coupled_solve_degC",
+                    "coupled_solve_housing_degC",
                     "overprediction_factor_duct",
                     "overprediction_factor_flat_plate"])
         for u in sorted(HAND_MODEL):
@@ -862,14 +1405,52 @@ def main():
                         "%.3f" % beat["flat_factor"][u]])
 
     # ----------------------------------------------------------------- JSON
+    # NOTE ON PRECISION.  Every number below keeps its full read precision.
+    # The 0.1 degC display rule is applied where a number is DRAWN, not where
+    # it is recorded, and it is never applied to instrument evidence: a
+    # planted magnitude of 1.234e-03 K or an anchor residual of 3.7e-05 K
+    # rounded to 0.1 K is 0.0 and has stopped being evidence.
     out = dict(
         map_rows=rows,
         anchor_checks=anchors,
+        anchor_check_method=dict(
+            quantity=ANCHOR_QUANTITY,
+            gate_K=ANCHOR_GATE_K,
+            gate_status="REGISTERED; repaired the instrument, not the "
+                        "threshold",
+            differenced="unrounded on both sides",
+            repaired="2026-09-01: the difference used to be taken between the "
+                     "measurement ROUNDED TO FOUR DECIMALS and a four-decimal "
+                     "expectation, which manufactures an exact zero out of "
+                     "arithmetic instead of agreement. The residuals reported "
+                     "here are real.",
+            largest_residual_K=max(a["abs_diff_degC"] for a in anchors)),
+        reader=READER_TEXT,
+        mesh=mesh,
+        geometry_guard=guard,
+        radiation=rad,
+        assumptions=assumptions,
+        solver=dict(
+            line="Solver: OpenFOAM chtMultiRegionSimpleFoam, steady "
+                 "conjugate heat transfer, k-omega SST.",
+            application="chtMultiRegionSimpleFoam",
+            regime="steady", turbulence_model="kOmegaSST",
+            coupling="conduction and turbulent forced convection, coupled at "
+                     "the solid/fluid interfaces"),
         map_colour_range_degC=dict(minimum=mapmeta["vmin"],
-                                   maximum=mapmeta["vmax"]),
+                                   maximum=mapmeta["vmax"],
+                                   region="core",
+                                   quantity="peak core temperature"),
+        map_colour_range_housing_degC=dict(minimum=mapmeta["housing_min"],
+                                           maximum=mapmeta["housing_max"],
+                                           region="housing"),
         envelope=dict(series_degC={str(k): v for k, v in series.items()},
+                      quantity="peak core temperature",
                       limit_degC=LIMIT_C, design_isotherm_degC=DESIGN_C,
                       worst_margin_K=hot["margin_to_limit_K"],
+                      worst_margin_computed_on="core",
+                      worst_margin_on_housing_K=hot[
+                          "housing_margin_to_limit_K"],
                       worst_point=dict(power_W=hot["power_W"],
                                        airspeed_ms=hot["airspeed_ms"]),
                       uncertainty_band="NONE - single grid, no "
@@ -879,6 +1460,7 @@ def main():
                                        "limit"),
         radial=dict(axial_station_m=z_used,
                     hottest_solid_cell_axial_m=z_hot,
+                    hottest_solid_cell=locator,
                     power_W=305, airspeed_ms=10,
                     region_stats=stats,
                     profile={REGION_SHORT[reg]:
@@ -909,6 +1491,14 @@ def main():
                    "was run, so none exists and none is constructed",
             column_entry=UNCERTAINTY_TEXT),
         planted_zero_controls=controls,
+        figure_sheet_text=sheet_text(mapmeta, stats, fin, locator),
+        display_precision=dict(
+            temperatures_in_figures="0.1 degC, until the grid triple lands",
+            not_applied_to="the JSON and CSV record, planted-control "
+                           "magnitudes and anchor residuals -- rounding "
+                           "instrument evidence to 0.1 K destroys it",
+            applies_from="2026-09-01"),
+        statements_of_fact=facts(mesh, controls, anchors),
     )
     with open(os.path.join(HERE, "actA_screen_data.json"), "w") as fh:
         json.dump(out, fh, indent=2, sort_keys=True, default=float)
