@@ -51,8 +51,10 @@ EXIT CODES
 from __future__ import annotations
 
 import argparse
+import contextlib
 import copy
 import hashlib
+import io
 import json
 import re
 import sys
@@ -837,13 +839,80 @@ def plant_counters(events: list[dict]) -> list[str]:
     return invisible
 
 
-def run_all_plants(events: list[dict], stages: tuple[str, ...]) -> None:
+#: The marker the mission-error plant injects. Hand-written, and deliberately
+#: NOT derived from anything the gate matches on: a plant derived from the
+#: pattern under test can only prove the pattern matches itself.
+ERROR_GATE_MARKER = "PLANTED-MISSION-ERROR-7f3a1c"
+
+
+def plant_error_gate(events: list[dict], stages: tuple[str, ...],
+                     live: bool) -> list[str]:
+    """Show the mission-error gate can see a non-zero, and is silent without.
+
+    THIS PLANT EXISTS BECAUSE THE GATE IT GUARDS WAS DEAD. ``report`` branched
+    on ``mode == "live"`` while ``main`` assigned ``mode = f"live ({url})"``,
+    so the comparison was always False, the live limb never ran, and
+    ``meta["error"]`` was never appended to ``failures``. An errored mission
+    printed its error in section 9 of the report and was still graded PASS,
+    measured: with the superseded guard reproduced over a landed 1,283-event
+    log and an error planted, the verdict was PASS and rc 0. Every other
+    reader in this harness carries a plant; this one did not, which is why
+    nothing caught it. It has one now.
+
+    BOTH LIMBS, because a control validated only against failure is half a
+    control. The comparison is DIFFERENTIAL -- the same events graded with and
+    without the planted error -- so it is exact whatever else the run finds:
+    the planted text must appear in the findings when planted, must not when
+    it is not, and the two runs must differ by exactly one finding.
+    """
+    if not live:
+        # Offline collection carries no mission error to gate; saying so is
+        # not a carve-out, it is the branch not existing.
+        return []
+
+    base = {"mission_id": "planted-control", "state": "failed",
+            "route_intent": EXPECTED_INTENT, "route_confidence": 1.0}
+
+    def findings(error) -> list[str]:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            report(events, dict(base, error=error), "planted control", None,
+                   stages, live=True)
+        text = buf.getvalue()
+        head = text.rfind("VERDICT:")
+        return [line.strip()[2:].strip()
+                for line in text[head:].splitlines()
+                if line.startswith("   - ")]
+
+    clean = findings(None)
+    planted = findings(ERROR_GATE_MARKER)
+    invisible: list[str] = []
+    carrying = [f for f in planted if ERROR_GATE_MARKER in f]
+    if not carrying:
+        invisible.append(
+            f"the mission-error gate did not see a planted error: "
+            f"{ERROR_GATE_MARKER!r} is not among the {len(planted)} "
+            f"finding(s) the report returned for it")
+    if any(ERROR_GATE_MARKER in f for f in clean):
+        invisible.append(
+            "the planted mission error appears in a run that did not carry "
+            "one, so the gate is not reading the value it claims to read")
+    if len(planted) != len(clean) + 1:
+        invisible.append(
+            f"planting one mission error changed the finding count from "
+            f"{len(clean)} to {len(planted)}; the gate is not isolated")
+    return invisible
+
+
+def run_all_plants(events: list[dict], stages: tuple[str, ...],
+                   live: bool) -> None:
     """Every plant, before any verdict. Refuses rather than degrading."""
     invisible: list[str] = []
     invisible += plant_language(events)
     invisible += plant_order(events, stages)
     invisible += plant_banner_sync(events)
     invisible += plant_counters(events)
+    invisible += plant_error_gate(events, stages, live)
     if invisible:
         _refuse("PLANTED CONTROLS INVISIBLE, so no clean result from this "
                 "harness is evidence:\n  - " + "\n  - ".join(invisible))
@@ -1015,7 +1084,26 @@ def check_prompt_verbatim() -> list[str]:
 # Reporting
 # ---------------------------------------------------------------------------
 
-def report(events, meta, mode, credentials, stages) -> int:
+def report(events, meta, mode, credentials, stages, *, live: bool) -> int:
+    """Grade a collected mission. ``mode`` is a LABEL; ``live`` is the fact.
+
+    THE TWO USED TO BE ONE ARGUMENT AND THE GRADING WAS DEAD BECAUSE OF IT.
+    This function branched on ``mode == "live"`` while its caller assigned
+    ``mode = f"live ({args.base_url})"``. The comparison was therefore always
+    False, the live limb never ran, and ``meta["error"]`` was never appended
+    to ``failures`` -- a mission that errored printed its error in the
+    collection dump and was still graded PASS. That is the flattering-silence
+    class: a check that cannot fail tells you nothing, and it is worse than a
+    missing check because it occupies the slot where a real one would go.
+
+    THE FIX IS A SEPARATE BOOLEAN, NOT ``mode.startswith("live")``. A prefix
+    test would work today and would still couple a VERDICT to the wording of
+    a DISPLAY string, so re-labelling the banner would silently re-open the
+    same hole. ``live`` is set at the single point where the branch is
+    actually taken -- the ``args.offline`` fork in :func:`main` -- so the
+    grading path and the label can never drift apart again. ``mode`` is now
+    only ever printed.
+    """
     counts = count_events(events)
     failures: list[str] = []
     lines: list[str] = []
@@ -1032,7 +1120,7 @@ def report(events, meta, mode, credentials, stages) -> int:
     for problem in check_prompt_verbatim():
         failures.append(problem)
         say(f"   GATE FAIL  {problem}")
-    if mode == "live":
+    if live:
         intent = meta.get("route_intent")
         confidence = meta.get("route_confidence")
         say(f"   mission          {meta.get('mission_id')}  state={meta.get('state')}")
@@ -1256,14 +1344,21 @@ def main(argv=None) -> int:
         return 2
 
     try:
+        # ``live`` IS SET HERE, AT THE FORK, and is the only thing the
+        # grading path branches on. ``mode`` beside it is a display label and
+        # nothing reads it. Keeping the fact and the label separate is what
+        # stops a re-worded banner from silently disabling a gate again; see
+        # :func:`report`.
         if args.offline:
             events, meta = collect_offline()
             credentials = offline_credentials()
+            live = False
             mode = "offline (in process, nothing bound)"
         else:
             events, meta = collect_live(args.base_url, args.timeout,
                                         Path(args.state_dir))
             credentials = live_credentials(args.base_url)
+            live = True
             mode = f"live ({args.base_url})"
     except urllib.error.URLError as exc:
         print(f"REFUSED: no server answered at {args.base_url}: {exc}. This "
@@ -1281,16 +1376,17 @@ def main(argv=None) -> int:
     # RULE 3, BEFORE ANY VERDICT. Nothing green is printed until every reader
     # has been shown able to see a non-zero.
     try:
-        run_all_plants(events, stages)
+        run_all_plants(events, stages, live)
     except HarnessRefused as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 2
 
     print(f"[planted controls] {len(GATE_PLANTS) + len(CLASS_PLANTS)} language "
-          f"plants, 4 ordering plants, 2 banner-sync plants, 2 counter plants: "
+          f"plants, 4 ordering plants, 2 banner-sync plants, 2 counter plants"
+          f"{', 1 mission-error plant (both limbs)' if live else ''}: "
           f"all visible.")
     print()
-    return report(events, meta, mode, credentials, stages)
+    return report(events, meta, mode, credentials, stages, live=live)
 
 
 if __name__ == "__main__":
