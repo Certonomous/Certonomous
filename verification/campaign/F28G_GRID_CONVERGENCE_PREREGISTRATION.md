@@ -745,3 +745,163 @@ above). Its sha256 is recorded at the commit that lands this addendum.
 
 *Appended by `lab-lane` for `cfd-supervisor`, 2026-09-01, after the check-4 read. No solve
 has been launched at the time of this addendum.*
+
+---
+
+## ADDENDUM 2 — 2026-09-01 — THE COST ANCHOR IS SUPERSEDED TOO, A HEADROOM CONVENTION IS NAMED, AND THE READER ASSUMPTION IS PUT ON THE RECORD
+
+**Version 1.2. Lines whose number changed above this section: 0.** A pure append.
+**No cap, gate, threshold or label moves in this addendum** — Addendum 1's amended cap of
+3,000 core-minutes stands unchanged; only the projection under it is re-anchored.
+
+### A2.1 THE CONDITION, RE-CHECKED RATHER THAN CARRIED FORWARD
+
+`ls -d verification/runs/F28G* verification/runs/F28_runs/F28G*` returns **0
+directories**; `verification/runs/F28_runs/F28G_L1_dp1000_U20/` still does not exist. No
+solve has run. Re-checked at the time of this append, **not** inherited from Addendum 1 —
+an hour-old condition check is not a condition check.
+
+### A2.2 THE ANCHOR MOVED, NOT ONLY THE RATIO — RE-ANCHORED
+
+Addendum 1 flagged that only the *ratio* had been corrected upstream and that this lane
+had **not** re-verified the `4.27e-6 s` per cell per iteration anchor. **Asked, and it had
+moved.** The supervisor re-measured it from the raw jet-flap logs independently of that
+lane's comparator — 250-iteration windows, median of window medians, first window dropped:
+
+| | superseded | measured replacement |
+|---|---|---|
+| `C1` at 39,984 cells | 4.27e-06 s | **3.8115e-06 s** (**−10.74 %**) |
+| `C2` at 89,964 cells | — | **5.6151e-06 s** |
+
+**Verified here rather than accepted:** `C2/C1 = 1.473200` against the stated 1.473, and
+`N2/N1 = 2.250000`. The exponent is taken from **the two measured points**, not from the
+rounded ratio: `log(1.4732)/log(2.25) = 0.477768` (the rounded 1.473 gives 0.477601; the
+difference is 1.7e-04 and moves no row below).
+
+**RE-ANCHORED PROJECTION** — `t_cell = 3.8115e-06 (N/39984)^0.477768`, 15,000 iterations,
+4 ranks:
+
+| level | cells | `t_cell` [s] | wall [s] | core-min |
+|---|---|---|---|---|
+| L1 | 35,544 | 3.6031e-06 | 1,921 | **128.1** |
+| L2 | 79,974 | 5.3080e-06 | 6,368 | **424.5** |
+| L3 | 180,256 | 7.8263e-06 | 21,161 | **1,410.7** |
+| | | | | **1,963 total** (was 2,199) |
+
+**A CONVENTION MISMATCH, NAMED BEFORE IT BECOMES A SPURIOUS DISAGREEMENT.** Addendum 1
+wrote "36 % headroom" meaning **the cap as a fraction ABOVE the projection**
+(`3000/2199 = 1.364`). The supervisor's reply wrote "35 %" meaning **the fraction of the
+cap left UNSPENT** (`(3000−1963)/3000 = 0.346`). Both are correct arithmetic on different
+definitions, and neither of us stated which. **Fixed here, for this document and for its
+calibration row:**
+
+> **HEADROOM IS REPORTED AS THE FRACTION OF THE CAP LEFT UNSPENT BY THE PROJECTION**,
+> `(cap − projection)/cap`. On the re-anchored figures that is **34.6 %**. Under the
+> other convention the same pair reads 52.8 %, and a record that does not say which it
+> means has not reported a number.
+
+**The rate model remains BORROWED AND PROVISIONAL.** Both `C1` and the exponent now come
+from one other case on one other lane; F28 has contributed nothing to it. The calibration
+row owed at completion re-fits the exponent from F28's own three levels, which will be
+this lab's **second** in-case measurement of it and the first on an axisymmetric wedge.
+
+### A2.3 THE FAULT WORTH REMEMBERING IS A GEOMETRIC ASSUMPTION EMBEDDED IN A READER
+
+Recorded in the terms the supervisor asked for, because the next person to write a
+volume-ratio reader on a wedge will make the same assumption:
+
+> **THE APEX IS INSIDE THE CELL.** The first version of
+> `f28_apex_mechanism_check.py` took the minimum and maximum radius over a cell's
+> vertices and treated the result as the cell's radial span. For the last cell of a cone
+> that terminates on the axis, that is false: the cell's inner edge runs from
+> `4.437551e-04` to `0` **within its own axial extent**, so a min/max over its vertices
+> reports a span of `[0, 4.571292e-04]` and turns a thin slanted quadrilateral into a fat
+> rectangle. **It overstated the cell's volume by 34x** — computed `1.078967e-11` against
+> the solver's `3.156857e-13` — and returned a face ratio of **1143.22** where the mesh
+> measures **33.491088**.
+>
+> **This is not an arithmetic slip. It is a geometric assumption embedded in a reader:
+> that a cell is an annulus at constant `r`.** It is silently true for most of a
+> structured wedge mesh and silently false exactly where a body meets the axis — which is
+> the one place such a reader is pointed. The repair is to resolve each cell into its two
+> faces and integrate `V = (theta/2) dx INT_0^1 [r_out(t)^2 - r_in(t)^2] dt` with `r_in`,
+> `r_out` linear, which reproduces both cells to **0.13 %** and their ratio to
+> **0.004 %**. **The two faces cannot be found by grouping vertices on `x` either**:
+> `blockMesh` blends a block's interior from its four edges, so the grid lines tilt and
+> the corners do not share two `x` values. They are separated at the **largest gap in
+> `x`**, and the residual in-face tilt is reported rather than assumed away —
+> **2.400e-09 m against `dx_up` 1.183e-03 m** on the face above.
+
+A draft register entry carrying this is at Appendix B and is **REFERRED, NOT FILED** —
+landing an `N-` entry is the supervisor's call, not this lane's.
+
+### A2.4 §7's COMPARATOR CLAUSE IS DISCLOSED AS NOT YET SATISFIABLE
+
+§7 registers N-T8's value-checking Richardson selftest as a refusal in "the comparator".
+**No such comparator exists.** `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` is the
+parent's §6.2/§6.3 V-controls comparator and carries no Roache triple, no GCI, no
+Richardson extrapolate and no mesh-gate reading — grepped for
+`CONVERGING|DIVERGENT|OSCILLATORY|STAGNANT|GCI|observed order|richardson|f_ext|nonOrtho|skewness`,
+**zero hits**.
+
+**Consequence, stated plainly:** rule 2 requires the grading path fixed at the
+pre-registration commit and verified by hashing the frozen file against the committed
+blob. **For §7 that property does not hold at this document's freeze, because the file it
+names has never been written.** §7's requirements stand as **binding requirements on a
+comparator yet to be written**; they are not, and must not be represented as, a frozen
+grading path.
+
+The supervisor has ruled the team-level fix — **a comparator is committed WITH its
+registration, or the registration names no comparator clause at all** — after finding the
+same defect in JF1G's §11 the same day. That ruling is his to land; it is recorded here
+because this document is one of its two occasions. **This lane is released from writing
+the comparator and has not started it.**
+
+---
+
+## APPENDIX B — DRAFT `N`-ENTRY — **REFERRED, NOT FILED**
+
+**Not filed. Landing it in `docs/NUMERICS_KNOWLEDGE.md` is the supervisor's call.**
+
+> **N-?? . On an axisymmetric wedge, a cell-volume reader that takes min/max over a cell's
+> vertices is exactly wrong where a body meets the axis — the apex is INSIDE the cell, and
+> the error is a factor of 34.**
+>
+> **Class: READER-GEOMETRY.** The assumption is that a structured wedge cell is an annulus
+> at constant `r`, so its radial span is `[min r, max r]` over its vertices. True for most
+> of such a mesh. **False for the last cell of a cone terminating on the axis**, whose
+> inner edge sweeps to zero within its own axial extent: measured on F28 L1, a cell whose
+> faces span `[4.437551e-04, 4.571292e-04]` and `[0, 1.342577e-05]` is reported by that
+> reader as spanning `[0, 4.571292e-04]`, giving `1.078967e-11 m^3` against the solver's
+> `3.156857e-13` — **34.2x** — and a face ratio of **1143.22** against a measured
+> **33.491088**.
+>
+> **The exact relation**, from vertex radii only, with `r_in` and `r_out` linear in `t` and
+> `INT_0^1 (A+Bt)^2 dt = A^2 + AB + B^2/3`:
+> `V = (theta/2) dx INT_0^1 [r_out(t)^2 - r_in(t)^2] dt`. On the pair above it reproduces
+> both volumes to **0.13 %** and their ratio to **0.004 %**.
+>
+> **A SECOND TRAP INSIDE THE FIRST:** the two faces cannot be recovered by grouping the
+> cell's vertices on `x`. `blockMesh` blends a block's interior from its four edges, so the
+> grid lines TILT and a cell reports **three** distinct `x` stations, not two. Split at the
+> largest gap in `x` and **report the residual in-face tilt** — 2.400e-09 m against a
+> `dx` of 1.183e-03 m on the F28 face, four orders below the 84.62-degree tilt the same
+> generator's header documents, but non-zero and not to be assumed away.
+>
+> **A THIRD, ON CENTROIDS:** the volume centroid of a wedge sector spanning `[0, h]` sits
+> at **`2h/3`**, not `h/2`. Substituting a reported cell centre as `h/2` overstates `h` by
+> **4/3**. Measured: `2/3 x 1.342577e-05 = 8.950513e-06` against the reported centre
+> `8.941994e-06`.
+>
+> **How it was caught, because the catching is the lesson.** A published figure read
+> *"33.9 predicted against 33.4911 measured"* and was accepted by nobody: a supervisor
+> substituted the two radii the record itself printed and got **68.11**, and asked for the
+> arithmetic. It turned out the figure was right to 2 % **by the cancellation of two
+> ~+33 % errors** — an over-large `r` from evaluating the cone at the cell centre, and an
+> over-large `h` from doubling a centroid. **An accidental agreement of that quality
+> survives review indefinitely unless someone re-substitutes from the numbers on the page.**
+>
+> *Source: `verification/campaign/F28G_GRID_CONVERGENCE_PREREGISTRATION.md` Addendum 1
+> §A1.2 and Addendum 2 §A2.3; `cases/F28_DUCTED_ACTUATOR_DISK/f28_apex_mechanism_check.py`.*
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-01. No solve has been launched.*
