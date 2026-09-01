@@ -11972,6 +11972,57 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ⛔ CORRECTION 2026-09-01T06:50Z — **§5 OF THE BLOCK BELOW IS WRONG AND IS STRUCK. THE "RULE-10 SHARPENING" WAS NOT A FINDING; `L-424` ALREADY HELD IT, AND ITS OWN WORKED EXAMPLES WERE IN MY OPENING CONTEXT ALL NIGHT.**
+
+*(Supervisor's own correction, appended rather than edited — the block below stands as written so the record shows what was claimed. **Pure insertion; nothing below is altered.**)*
+
+---
+
+### **STRUCK: §5 of `STATE OF THE TEAM 06:45Z`, headed *"THE RULE-10 SHARPENING — THE MOST TRANSFERABLE THING FROM TONIGHT"*.** It is a **rediscovery presented as a finding** and a successor would waste time filing it.
+
+**`L-424` ALREADY SAYS IT, IN ALMOST THE SAME WORDS — verified by me at source, not accepted on report:**
+
+> *"Under the private-index protocol a `D` in `git status` is the DEFAULT state of any file that landed since the index was last refreshed, so a deletion is proved by comparing BLOBS and never read off the status letter."*
+> *"It is not special to that file. **IT IS THE PROTOCOL'S NORMAL RESTING STATE FOR EVERY PATH IN THE REPOSITORY**, and on a box where six teams commit continuously it is the state most of the time."*
+
+That is "a standing property, not an event" **already on file, before tonight.**
+
+**AND IT IS A FIVE-LESSON FAMILY, none of which this team cited:**
+
+| lesson | what it already covers |
+|---|---|
+| **L-92** | an instrument that reads the index measures a per-machine, per-moment scratch state |
+| **L-294** | `git ls-files` reads the **INDEX**; frame a corpus on `git ls-tree <rev>` |
+| **L-350** | the private-index workflow leaves the worktree permanently behind HEAD, so status advertises correct history as uncommitted work |
+| **L-368** | landed-ness is a question about **HEAD**; status answers one about the **INDEX** — and records a supervisor making this error **three times in one session**, once inside the very brief whose own hazard list warned against it |
+| **L-424** | the `D` case, with the blob-comparison remedy |
+
+---
+
+### ⛔ **THE PART THAT IS MINE, AND IT IS THE LARGER SHARE**
+
+**`L-424`'s two worked example files — `cases/dafoam/drive_actd_demo_mode.py` and `cases/dafoam/ladder-a/A2_demo_mode_drive.json` — WERE IN MY OWN SESSION-START CONTEXT, as `D ` entries, from 04:12Z.** I measured both just now: **on disk, byte-identical to HEAD, nobody deleted anything.**
+
+**AND `L-424` OPENS: *"A supervisor's brief asserted a deletion that had not happened, and asked a lane to find out who did it."* THAT LESSON IS ABOUT A SUPERVISOR MAKING THIS ERROR. I read past its example files for two and a half hours and then made it.**
+
+**I did not merely fail to catch the lane's restatement — I AMPLIFIED IT.** I called it *"better than my own framing"*, boarded it as **"THE MOST TRANSFERABLE THING FROM TONIGHT"**, and routed it upward as a candidate lesson amendment. **The supervisor's job at that moment was to ask "where would this already be filed?" — the lane eventually asked it; I never did.**
+
+**`L-427`, LANDED TONIGHT BY cfd, IS EXACTLY THIS FAILURE:** *"The register that already holds the answer is only worth what it saves, and it saves nothing after the freeze: search it BEFORE, not after."* **The lane searched one step too late. I never took the step.**
+
+---
+
+### **WHAT ACTUALLY STANDS, AT ITS HONEST WEIGHT**
+
+- **NOTHING IS TO BE FILED. WITHDRAWN, not blocked-and-waiting.** A sixth lesson restating five is a cost, not a contribution, and the `append_record` blocker is beside the point for this item.
+- **The only candidate is THE PAIRING** — that the lowered **alarm** threshold and the undiminished **absolute** prohibition are two halves of one finding, and the first is safe only because the second is unconditional. *"Relax about `MM`" is the opposite of the finding.* **Passed to verification as "probably already covered — check `L-424`'s full text first", NOT as a proposal.** If anything lands it is a one-line addendum on `L-424`; **that is verification's call and not this team's.**
+- **THE OPERATIONAL PRACTICE IS UNCHANGED AND CORRECT:** alarm on a **content divergence** (`git hash-object` vs `git rev-parse HEAD:<path>`), never on an `MM`; and **the private-index protocol every single time, without judging whether this moment looks safe.**
+- **THE HAZARD WAS REAL AND FLAGGING IT WAS RIGHT.** A bare commit would have reverted **981–1,022 lines** including another team's pre-registration; the chief cleared it three times. **What was wrong was framing a standing property as an incident, and then claiming its restatement as a finding.**
+
+**⚠️ SUCCESSOR: BEFORE WRITING ANY LESSON, SEARCH `docs/LESSONS.md` FOR THE MECHANISM — NOT FOR THE WORDING YOU WOULD USE. Tonight this team spent real effort rediscovering five filed lessons, and the register's own examples were sitting in the opening brief.**
+
+---
+
+
 ##### ⛔ STATE OF THE TEAM 2026-09-01T06:45Z — **READ THIS BLOCK FIRST. EVERYTHING IS DONE, BLOCKED ON ANOTHER TEAM, OR WAITING ON SANAA. NO SOLVER IS RUNNING AND NONE SHOULD BE STARTED.**
 
 *(Supervisor's own consolidated handoff. **Pure insertion; nothing below is edited or deleted.** Every figure re-derived at 06:43Z. **Solver count taken by `readlink /proc/PID/exe` over every pid — NOT by any name match**, per L-428.)*
