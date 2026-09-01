@@ -1888,8 +1888,21 @@ function sweepReset(labels) {
     dirty: false, tick: null,
   };
   setHidden('sweepBox', !names.length);
+  // THE NOTE IS REMOVED, ON SANAA'S DIRECT INSTRUCTION (2026-09-01 ~20:06Z,
+  // her item 1: "Remove: 5 points, advancing together"). It read
+  // `${names.length} points, advancing together` and it said nothing the
+  // screen did not already show: the small multiples ARE the five panels, side
+  // by side, stepping forward together, and a caption asserting that under a
+  // picture of it is the caption telling a viewer what they are looking at.
+  //
+  // IT IS CLEARED RATHER THAN LEFT UNWRITTEN, and that is the whole reason
+  // this is an assignment and not a deletion. `sweepReset` runs once per act;
+  // an act that never wrote the note would inherit the PREVIOUS act's, which
+  // is the stale-label defect this page has already had to fix on the viewport
+  // head. An empty `.sweep-note` has no box of its own and collapses to zero
+  // width, so nothing moves on the screen.
   if (names.length) {
-    $('sweepNote').textContent = `${names.length} points, advancing together`;
+    $('sweepNote').textContent = '';
     drawSweep();
   }
 }
@@ -2673,7 +2686,18 @@ const coolwarm = t => {
 const VIEWPORT_STAGE = {
   geometry: ['Geometry', '02 / surface'],
   grid:     ['Computational grid', '03 / mesh'],
-  field:    ['Solved field', '04 / field'],
+  // "Solved field" IS REMOVED, on Sanaa's direct instruction (2026-09-01
+  // ~20:06Z, her item 4). What stands here is a FALLBACK and not the head a
+  // viewer normally reads: `showFieldImage` now writes the panel's own symbol
+  // and unit into the head ("|U| (m/s)", "p (Pa)"), which is what her figure
+  // rule asks for and is the only honest name for a picture of one quantity.
+  //
+  // IT IS NOT BLANK, AND THAT IS DELIBERATE. `showViewportStage` only writes
+  // the head when the stage has an entry, so an empty entry would leave
+  // "Computational grid" standing over a picture of the flow -- the same
+  // stale-label defect the mesh panel had to be repaired for tonight. A
+  // one-word fallback is reached only by a payload carrying no symbol at all.
+  field:    ['Field', '04 / field'],
   // The same three states, reached by a RENDERED PANEL rather than by a canvas
   // drawing. The heads are deliberately identical: what changed is where the
   // pixels come from, and a viewer is not being told about our plumbing.
@@ -3072,6 +3096,14 @@ function showFieldImage(url, p) {
   img.src = url;
   showViewportStage('field');
   setHidden('viewportEmpty', true);
+  // THE HEAD IS THE QUANTITY'S OWN SYMBOL, not the words "Solved field". The
+  // sequencer titles a field panel with its symbol and unit and the act
+  // declares which ("|U| (m/s)"; "p (Pa)" compressible, "p/rho (m^2/s^2)"
+  // incompressible), so the head names WHAT is on screen instead of asserting
+  // that it was solved. Written AFTER `showViewportStage`, which has just set
+  // the fallback, so a payload with no title keeps a head rather than
+  // inheriting the previous stage's.
+  if (p && p.title) $('viewportHead').textContent = p.title;
   if (p && p.title) subText('viewportLabel', p.title);
   subText('viewportCaption', (p && p.caption) || '');
   $('viewportStats').textContent = '';
