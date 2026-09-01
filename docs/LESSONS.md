@@ -19514,3 +19514,120 @@ asked"*. Operationally, for any supervisor meeting this class of problem:
 `docs/campaigns/T-family/T25R2_RESULTS.md` §14 (addendum);
 `verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md` for the
 similarity failure in the cfd family.
+
+---
+
+## L-430 — A GENERATOR PARAMETER THAT DOES NOT SCALE WITH THE LADDER IS A SIMILARITY DEFECT THAT BUILDS THREE CLEAN MESHES AND A MEANINGLESS OBSERVED ORDER — TWO INSTANCES IN ONE AFTERNOON, IN ONE SCRIPT
+
+Sanaa's convergence-prerequisite directive of 2026-09-01 (`f4c8e466` §0) requires
+three meshes from **one parametric script** with a **uniform refinement ratio `r` in
+every direction**. The obvious way to satisfy it is to call the script three times
+with three values of a `--scale` argument. **That is not sufficient, and the way it
+fails is silent.**
+
+`cases/JF1_JET_FLAP/build_jf1.py` takes `--scale s` and scales tangential counts by
+`s` and near-wall spacing by `1/s`. Two of its other arguments do not scale, and
+**both defects survive every check that looks at the meshes one at a time.**
+
+### Instance 1 — a count SOLVED from a cap does not refine
+
+`--n-rad 0` (the default) solves the wall-normal count from a growth cap rather than
+taking it from the ladder. Shrinking `y1` against a fixed cap barely moves it:
+
+| `s` | wall-normal count, defaulted | wall-normal count, `--n-rad` explicit |
+|---|---|---|
+| 1.00 | 98 | 98 |
+| 1.50 | **100** | **147** |
+| 2.25 | **103** | **220** |
+
+**The defaulted path refines one direction by 1.02 while refining the other by 1.5.**
+Each mesh is individually fine — `checkMesh` is happy, the near-wall constraints
+close, the cell counts look plausible — and the triple measures the *mixture* of two
+refinement ratios instead of the discretisation. It is `F28`'s similarity failure
+arriving through a different door.
+
+**Caught for free, before any solve, because the directive's phrase "uniform
+refinement ratio in every direction" was checked against the generator instead of
+assumed.** The cheap arithmetic that catches it in general: **for a 2-D family the
+total cell-count ratio must be `r²`.** Defaulted, the C2/C1 ratio reads **1.531**;
+repaired it reads **2.2500** against `r² = 2.25`. That one line is now a refusal in
+`cases/JF1_JET_FLAP/run_jf1g.sh`.
+
+### Instance 2 — a SMOOTHING PASS COUNT does not scale, and it shows up in the one quantity similarity requires to be invariant
+
+`--normal-smooth` is a fixed number of Laplacian smoothing passes over the surface
+normals, passed raw (`build_jf1.py:446`). Its consequence is visible in **maximum
+non-orthogonality, which geometric similarity requires to be roughly invariant**:
+it drifted **57.53 → 67.64 → 75.14** across the family.
+
+**The scaling law was derived before it was measured.** A discrete Laplacian's
+diffusion length in node-index space goes as `sqrt(passes)`, so covering the same
+**physical** arc when the node count scales by `s` requires passes `∝ s²`.
+
+| level | `s` | `500·s²` | max non-orthogonality **at `500·s²`** | at the unscaled default 500 |
+|---|---|---|---|---|
+| C1 | 1.000 | 500 | **57.53** | 57.53 |
+| C2 | 1.500 | 1125 | **58.62** | 67.64 |
+| C3 | 2.250 | 2531 | **58.89** | 75.14 |
+
+Sweeping the finest level at 500 / 1125 / **2531** / 4000 / 6000 gives 75.14 / 68.41
+/ **58.89** / 62.62 / 65.87 — a clean interior minimum sitting on the predicted
+value. **Under the `s²` law the quantity is invariant across a 5× cell-count range,
+which is what similarity means.** The generator's own comment already recorded 500 as
+a broad flat minimum *at the baseline resolution*; the law reproduces that minimum at
+every level, and `s = 1` leaves the baseline mesh bit-identical.
+
+### The general rule this buys
+
+> **Every argument of a mesh generator is either scaled with the ladder or is
+> declared invariant with a reason. A ladder is built by enumerating the
+> generator's arguments, not by varying the one called `--scale`.**
+> The two classes to hunt first are **counts solved from a cap** (they refuse to
+> refine) and **fixed iteration or pass counts in a smoother** (they change meaning
+> as the point count grows). Both build meshes that pass every per-mesh check.
+
+**The check that catches the class without knowing which parameter is at fault: a
+quantity that similarity requires to be INVARIANT, measured on all three levels.**
+Cell-count ratio against `r^dim` catches instance 1; max non-orthogonality catches
+instance 2. Neither is visible on one mesh — **similarity is a property of the
+family, and it cannot be checked one mesh at a time.**
+
+### And the third thing, which is a gate defect rather than a mesh defect
+
+The same registration gated its meshes on `checkMesh` printing **`Mesh OK`**. The
+finest level printed instead:
+
+```
+***High aspect ratio cells found, Max aspect ratio: 1012.242839, number of cells 2
+Failed 1 mesh checks.
+```
+
+**Two cells in 202,180 failed the study.** But `docs/standards/MESH_STANDARD.md` §3.3
+is titled **"Aspect ratio: advisory at 1000, never a lone rejection"**, and its
+calibration says a hard gate at 1000 *"would reject every reference-grade
+wall-resolved RANS grid the lab owns"* — the NASA TMR flat-plate references on this
+box measure max aspect ratio **74041 / 69043 / 66643**. The rejected mesh is ~65×
+below them.
+
+> **`Mesh OK` is not a gate. It is a conjunction that silently includes an advisory
+> quantity the lab's own standard says is never a lone rejection.** A mesh gate names
+> the checks it gates — non-orthogonality and skewness are the load-bearing ones —
+> and **reports** aspect ratio and cell-volume ratio.
+
+This is `L-409`'s class, registered by a lane that had read `L-409`'s class the same
+morning in `JF1_GATE6_FINDING.md`. The satisfiability question — *can the finest
+level of a wall-resolved family print `Mesh OK`?* — was answerable from
+`MESH_STANDARD.md` §3.3 alone, **before any mesh was built**, and was not asked.
+
+**Source:** `verification/campaign/JF1G_MESH_GATE_FINDING.md`;
+`verification/campaign/JF1G_GRID_CONVERGENCE_PREREGISTRATION.md` §1, §2.2 (frozen
+`038f4bca`); the `--normal-smooth` sweep and the `checkMesh` logs under
+`verification/runs/JF1_jet_flap/JF1G_P0_*/`.
+
+**Cross-references:** `CLAUDE.md` rules 2, 5; Sanaa's directive `f4c8e466` §0 steps 1
+and 4(b); `L-409` (a gate no run can satisfy); **`L-429`** (the 10× ratio test — that
+lesson governs whether an order study is *readable*, this one governs whether the
+family it is read from is *similar*, and a family that is not similar fails before
+the ratio test is ever reached); `docs/standards/MESH_STANDARD.md` §3.3, §11;
+`verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md` for the
+cell-volume instance of the same class.
