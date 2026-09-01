@@ -12570,6 +12570,35 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 
 
+
+---
+
+##### 📕 **T25R3 IS CLOSED WITH NO GRADEABLE ROW. T25R4 IS REGISTERED AND AWAITS THE SUPERVISOR'S DIFF-READ. `S1` IS THE ONLY THING RUNNING.** (2026-09-01T~17:55Z)
+
+*(Lane block. **Pure insertion; the three blocks below stand unedited.** This is the entry a successor should read first.)*
+
+| what | where |
+|---|---|
+| T25R3 closing record, spend, and the three infrastructure defects | `docs/campaigns/T-family/T25R3_RESULTS.md` (`2908ec2f`) |
+| **T25R4 registration — the successor, awaiting diff-read** | `docs/campaigns/T-family/T25R4_PREREGISTRATION.md` (`771c4c24`) |
+| S1's limitation, registered **before** it completed | `verification/runs/T-family/T25R3_MODULE_runs/S1/LIMITATION.S1.txt` |
+| `mpirun` binds from core 0 — **lab-wide, not this rung** | **`L-431`** |
+| a deliberate halt and a crash leave identical artefacts | **`L-432`** |
+
+**WHAT KILLED T25R3, IN ONE LINE:** `p_rgh` was registered `tolerance 1e-08; relTol 0` — **absolute** — so the convergence standard tightened silently with mesh density. **Median reduction factor actually achieved: L1 ×1.00, L2 ×1.51, L3 ×100.94.** On L1 the pressure solve does *nothing*. Mean GAMG iterations 0.31 / 41.64 / 382.20 — a **1,233× spread** across a ladder built to compare three levels solved to one standard. **No gate was evaluated and no physics number exists.**
+
+**THE LABEL IS REFERRED TO THE SUPERVISOR, NOT CHOSEN.** `NOT A RESULT` fits the rows but normally labels a row that *has* a value; the comparator never ran. `BLOCKED` fits the rung but normally names an *external* obstacle; this one was internal. Neither is clean and this lane declined to force one.
+
+**SPEND: 65.57 core-min against a registered POINT of 1,979.1 and a cap of 7,916 — 0.8 % of cap.** $0.0561, **DERIVED not measured**. The halt is why it cost 65 core-min and not 7,916. Attribution is **misprediction**, named as one: the POINT extrapolated T25R2's L1 rate *linearly in cell count*, which was invalid because per-step cost is dominated by a pressure solve whose iteration count runs 0→382 across the ladder. **The cost model was not merely optimistic; it was measuring a solver that was not running.**
+
+**⛔ `S1` IS LIVE AND MUST NOT BE TOUCHED, RESTARTED OR RE-STAGED.** pids 157525/157526. Leg A finished exactly at `Time = 70.00000000000321` (3,500/3,500); leg B in progress. **It is `DONE` on the completion rule and is NOT a graded physics row** — its own pressure equation is the least solved of the three. **Cite it for cost, for completion-machinery evidence, and as the contention control. Never for a temperature, a flux, an order, a band or a gate.**
+
+**⛔ DO NOT RELAUNCH S2/S3/T2/T4/W30 AS THEY STAND.** They were **halted deliberately**, not crashed; at the measured rates none can reach `endTime` inside its registered `timeout`. They stay staged and verified (192 checks, 0 FAIL) and are superseded by T25R4 anyway.
+
+**WHAT T25R4 CHANGES:** a **mesh-independent** pressure criterion — `tolerance 1e-13` as a **floor only**, `relTol 0.01` intermediate and `1e-3` final — with the floor **proved non-binding on all three levels from measured residuals**, plus **`G-P`**, a 100-step three-level probe whose acceptance (`max(I)/min(I) ≤ 3.0`) **decides whether the ladder launches at all**. The ladder's POINT and CAP are deliberately **unset** until the probe measures them.
+
+---
+
 ---
 
 ##### ✅ **CLARIFICATION 2026-09-01T17:31Z — THE FIVE STOPPED BECAUSE I HALTED THEM DELIBERATELY, NOT BECAUSE THEY CRASHED.** Proven by the launcher's own EXIT trap.
