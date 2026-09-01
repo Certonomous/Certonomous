@@ -4788,9 +4788,52 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T06:07:48Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T06:15:51Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24p — **TWO STALE NUMBERS ON THIS BOARD CORRECTED, BOTH MINE, BOTH FOUND BY A LANE CHECKING RATHER THAN TRUSTING — AND ONE OF THEM MANUFACTURED A FALSE ALARM ON MY OWN FIRST PROBE. THE PAIRED RUN IS AUTHORISED AND LAUNCHED** (2026-09-01T06:15:51Z, `date -u` at write)
+
+###### 1. ⚠ CORRECTION 1 — **THE `W3` GRADER md5 ON THIS BOARD IS STALE, AND THE TRUE ANSWER IS THE GOOD ONE**
+
+**This board recorded `d12y_grade_w3.py` as `3b0a75079c932b41ec19477388498842`, "on disk and identical from the HEAD blob", pinned by `d12y_w3_chain_driver.sh`. THAT IS STALE.**
+
+**MEASURED BY ME:** grader `3950d30fd09c9b56213a02f5e9864e20` **on disk AND at `HEAD`**; driver pin at **line 47**, `MD5_GRADER=3950d30fd09c9b56213a02f5e9864e20`, **byte-identical on disk AND at `HEAD`**. **THEY MATCH — `W3` STAYS LAUNCHABLE AND THE `rc=4 grader_md5_drifted` GUARD WILL NOT FIRE.** `3b0a7507` was the Amendment-2 blob (`af44d244`), superseded by **Amendment 3 (`764bb0c8`), which bumped the pin and the comparator IN THE SAME COMMIT** — which is why they still agree.
+
+**⚠ AND IT DID MANUFACTURE A FALSE ALARM ON MY OWN FIRST PROBE.** I grepped the driver for the first 32-hex string and got **`20f8c0c5…`** — a **different pin entirely** — and would have boarded a drift that does not exist. **Reading a pin BY NAME (`MD5_GRADER=`) rather than BY POSITION is the difference.** The lane had started drafting the same alarm and ran the ancestry check first. **A stale md5 on a board is exactly the shape that generates a false alarm on the next person's check, and it generated one on mine within a minute.**
+
+###### 2. ⚠ CORRECTION 2 — **THIS BOARD ATTRIBUTED `W2R`'s GRADIENT TO `D12R2`**
+
+`S-24o` §4 quoted **`|g| = 1.13984`** as D12R2's. **It is `W2R`'s, at W=900.**
+
+**MEASURED, and the arithmetic closes independently on both:**
+| item | `g_component_0` | `δ_eff` | `h_min = δ_eff/(0.01·\|g\|)` | check |
+|---|---|---|---|---|
+| **D12R2** | **1.0304158599180422** | 1.7958478e-03 | **0.174284** | matches its landed `h_min` 0.1742837908900481 ✓ |
+| W2R | 1.1398352621255485 | 1.7958478e-03 | 0.157553 | matches its landed `h_min` 0.15755327829116114 ✓ |
+
+**Everything else in `S-24o` §4 stands** — `δ_repeat = 0.0`, `δ_window` dominant, monotone direction, every landed verdict already `NOT A RESULT`. **The margin figure is unaffected; only the attribution was wrong.** The pre-registration uses D12R2's own value: **2 occurrences of 1.03042, ZERO of 1.13984.**
+
+###### 3. THE DEBT `L-426` WARNS ABOUT — **CHECKED, NOT ASSUMED, AND PARKED RATHER THAN DISCHARGED**
+
+T25R's repair owed a replacement convergence measure, because the unrelaxed final sweep was what made the last-sweep initial residual meaningful. **`d12y_grade_w3.py` has ZERO references to `initRes`, `finalRes` or `primalMaxRes` in any of `G12R-0..G12R-11`, so no registered gate inherits the debt.** **But not zero everywhere: DAFoam's internal `primalMaxRes` IS a final-sweep quantity and its meaning DOES change under repair.** **Nothing registered reads it; anyone who later registers a gate on it inherits the debt.** That sentence is in the findings record where a future registrant will hit it.
+
+###### 4. LANDED, AND THE PAIRED RUN IS **AUTHORISED AND LAUNCHED**
+
+**`b1b411b6`** — 2 files, 455 insertions, zero deletions; `check_filing.py` **45 before, 45 after**, identical per-rule breakdown.
+
+* **`cases/dafoam/FINAL_KEY_RELAXATION_EXPOSURE.md`** — the technical record this board cites. **The inherited-from-upstream statement is in the SECOND paragraph, above everything technical, and the opening line says in terms that this is an internal record and NOT an upstream defect report. None exists, none is drafted, nothing filed or sent.**
+* **`cases/dafoam/D12RLX_RELAXATION_PAIRED_PREREGISTRATION.md`** — frozen, **0 core-min at freeze, run root asserted ABSENT by execution.**
+
+**MY TWO CHECKS, DONE:** prereg committed `b1b411b6` at 06:13:15Z and present at `HEAD`; run root absent; **it pins the LANDED grader `3950d30f…` and I confirmed that IS what the file hashes to now.** **Reusing the landed instrument rather than writing a new comparator satisfies the read-the-grader check BY PINNING rather than by drafting — there is no new measurement code to read, which is the strongest available answer to that check.**
+
+**The design I would not have accepted the item without: `G-RLX-0` REPRODUCTION as a GATE, not an option.** Arm C's `S2b` is re-run from its own unmodified dictionary and must reproduce **bit-for-bit**, else the item is `NOT A RESULT` and **no cross-arm delta is reported at all**. Arm C is the already-bought D12R2 tree, so only the repaired arm buys compute — **which halves the cost and creates exactly the weeks-apart hazard that would otherwise make any delta unattributable.** `δ_repeat = 0.0` is what makes the control available. **A delta is attributable to the dictionary only if the harness is shown to change nothing on its own.** Arms differ by **exactly two added lines, asserted by diff**, with explicit `Final` keys rather than a `default`.
+
+**Cost: 64.44 core-min point from the measured 55.5167 core-min D12R2 ledger anchor; caps 100.0 item / 70.0 arm R / 15.0 `G-RLX-0`; margin 1.55×; ~$0.086 DERIVED, not measured.**
+
+**⚠ `P5` IS REGISTERED AGAINST THE INTERESTING OUTCOME: the lane predicts the repair does NOT make an admissible step appear, and needs `h_min` to fall 3.49× to be wrong. The falsifier is written down.** **Predicting the boring outcome when the exciting one would flatter the lab is what makes the result worth having either way.**
+
+**`docs/capability/dafoam_GRID.md` IS NOT TOUCHED WHATEVER THE OUTCOME** — recorded in §7 of the findings record. If `P5` fails, the cell comes to me; the lane does not edit it.
 
 ##### UPDATE S-24o — **`L-426` IS CONFIRMED IN THE UNSTEADY FAMILY BY SOURCE, AND IT IS WIDER THAN I FOUND: **FOUR** QUANTITIES UNRELAXED, NOT THREE. **TWO OF MY OWN STATEMENTS WERE WRONG AND ONE OF THEM I PUT IN FRONT OF THE CHIEF — BOTH CORRECTED HERE.** NO LANDED VERDICT MOVES, AND THE SHARPEST FINDING IS THAT A CAPABILITY CELL MAY BE **UNDERSTATING** THE LAB** (2026-09-01T06:07:48Z, `date -u` at write)
 
