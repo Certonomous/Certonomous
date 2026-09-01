@@ -335,6 +335,32 @@ def selftest_load_bearing():
     """Drive the assertion BOTH WAYS on a scratch copy of the rendered sheet.
 
     A second assertion that has never been shown to fire is decoration.
+
+    ⚠ THE REUSABLE TRAP, FOR WHOEVER WRITES THE NEXT ONE OF THESE. A phrase
+    assertion needs TWO DIFFERENT STRINGS, and conflating them is what bit the
+    first draft of this function:
+
+      * THE ASSERTED PHRASE is matched against the RENDERED page, and is written
+        as the sentence reads. LaTeX wraps lines wherever it likes, so the match
+        is done on whitespace-NORMALISED text (:func:`_rendered_text`); without
+        that normalisation a sentence broken across two rendered lines would
+        read as absent and the guard would refuse a perfectly good page.
+
+      * THE NEEDLE that builds the negative arm is matched against the SOURCE,
+        to delete the sentence before recompiling, and must therefore be a
+        fragment that actually sits on ONE SOURCE LINE. The first draft used
+        "empty on purpose", which STRADDLES A LINE WRAP in the .tex and matched
+        nothing.
+
+    The source string and the rendered string are not the same string. A needle
+    chosen by reading the sentence -- the obvious thing to do -- is chosen from
+    neither, and will silently match nothing in the source.
+
+    WHAT SAVED IT was that the arm REFUSED TO BUILD rather than proving nothing:
+    it could not construct its own failure case, and said so, instead of
+    reporting a pass. An arm that cannot build its negative case must refuse,
+    never continue -- otherwise the first draft of this guard would have shipped
+    green having tested exactly nothing.
     """
     import shutil
     import tempfile
