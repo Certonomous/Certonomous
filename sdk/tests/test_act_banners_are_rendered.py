@@ -123,6 +123,57 @@ def test_the_default_map_still_renders_for_an_act_that_declares_nothing():
     assert PLANT not in {t for texts in seen.values() for t in texts}
 
 
+def test_a_banner_reports_whether_it_is_a_deliberate_display_name():
+    """PROVENANCE, WHICH IS WHAT THE PAGE SUPPRESSES ON.
+
+    The page used to hide any banner whose text matched its stage name. That
+    rule exists to hide a banner NOBODY AUTHORED -- the routing key reaching a
+    screen because no display name was ever written -- and it also hid
+    "Meshing", which is Sanaa's own word for that beat and merely happens to be
+    the same string. So the backend now reports which case it is.
+
+    THE THIRD ARM IS THE ONE THAT WAS MEASURED RATHER THAN REASONED ABOUT.
+    ``DemoAct.banners()`` DEFAULTS to returning the whole module map, so every
+    act "declares" it whether or not it overrides anything. Without a test that
+    an inherited value counts as the module's own, the lab's deliberate
+    "Meshing" arrives looking like an act's lazy echo and is suppressed on
+    every act -- the exact defect this change removes, reintroduced by the fix
+    for it. It was.
+    """
+    assert demo_sequencer.resolve_banner({"stage": "meshing"}, None) == (
+        "Meshing", True), "the module's own display name is deliberate"
+    assert demo_sequencer.resolve_banner(
+        {"stage": "meshing"}, {"meshing": "Meshing"}) == ("Meshing", True), (
+        "a value equal to the module default IS the module default, whatever "
+        "map it arrived in")
+    assert demo_sequencer.resolve_banner(
+        {"stage": "meshing"}, {"meshing": "meshing"}) == ("meshing", False), (
+        "an act's banner that merely repeats its routing key is the lazy "
+        "declaration the suppression rule exists to catch")
+    assert demo_sequencer.resolve_banner(
+        {"stage": "meshing"}, {"meshing": "Building it"}) == (
+        "Building it", True)
+
+
+def test_a_stage_with_no_word_of_hers_is_declared_empty_not_left_to_coincide():
+    """The feasibility beat has no word in Sanaa's seven, and says so.
+
+    It carried the literal "feasibility" and went dark because the page hid any
+    banner matching its stage name: the right outcome for the wrong reason. A
+    behaviour that is right by accident is one refactor away from being wrong
+    silently, and that refactor is the provenance rule above -- under which the
+    token would have LIT UP as a routing key on camera.
+    """
+    text, authored = demo_sequencer.resolve_banner({"stage": "feasibility"},
+                                                   None)
+    assert text == "", "the feasibility beat declares no word"
+    assert authored is True, (
+        "an empty banner is a DECLARATION that the stage has no word; it hides "
+        "because it is empty, not because it is suspect, and conflating the "
+        "two is what this whole change is about")
+    assert BANNERS["feasibility"] == ""
+
+
 def test_every_stage_the_contract_fixes_has_a_default_banner():
     """A stage with no banner at all cannot be caught by either test above.
 

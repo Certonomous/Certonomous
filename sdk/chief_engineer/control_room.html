@@ -1851,10 +1851,33 @@ function setStageBanner(p) {
   // — "forming team", "planning", "fleet at work" — are untouched, and so is
   // the live counter, which reads "Solving, iteration N of M" and is the
   // banner's real job during the solve.
+  // NARROWED 2026-09-01: SUPPRESS ON PROVENANCE, NOT ON THE CHARACTERS.
+  //
+  // The rule above is right and its TEST was wrong. It exists to hide a banner
+  // NOBODY AUTHORED — the stage token reaching the screen because no display
+  // name was ever written — and it tested for that by comparing the text to
+  // the stage name. That also hid "Meshing", which is Sanaa's own word for
+  // that beat and merely happens to be the same string. One rule, two very
+  // different cases, indistinguishable by the thing it was testing: her stage
+  // indicator went dark on a stage she had explicitly named.
+  //
+  // The backend now says which case it is. `resolve_banner` reports whether a
+  // banner is a deliberate display name — from the module map or from an act's
+  // own `banners()` — or a lazy declaration that merely repeats the routing
+  // key, and sends that as `authored`. So the leak stays hidden and her word
+  // renders.
+  //
+  // THE EQUALITY TEST SURVIVES AS THE FALLBACK, and deliberately: a payload
+  // from a publisher that does not send `authored` keeps exactly the old
+  // behaviour rather than silently gaining a routing key on screen. Absent
+  // must never read clean.
   const stage = String((p && p.stage) || '');
-  if (stage && text.trim().toLowerCase() === stage.trim().toLowerCase()) {
-    el.hidden = true; el.textContent = ''; return;
-  }
+  const authored = (p && typeof p.authored === 'boolean')
+    ? p.authored
+    : !(stage && text.trim().toLowerCase() === stage.trim().toLowerCase());
+  if (!authored) { el.hidden = true; el.textContent = ''; return; }
+  // An empty banner is a stage DECLARED to have no word (the feasibility beat
+  // has none of hers). It hides because it is empty, not because it is suspect.
   if (!text) { el.hidden = true; el.textContent = ''; return; }
   el.hidden = false; el.textContent = text;
 }

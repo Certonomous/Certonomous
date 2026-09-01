@@ -128,8 +128,7 @@ STAGES: tuple[str, ...] = (
 #: shape and then "Solve complete". This map's "Solving" is reached only by a
 #: solving-stage payload that reader does not claim.
 #:
-#: TWO STAGES OF THE NINE HAVE NO WORD OF HERS, and both are left to suppress
-#: themselves rather than given an invented one. ``assumption`` doubles
+#: TWO STAGES OF THE NINE HAVE NO WORD OF HERS. ``assumption`` doubles
 #: "Planning", which is what it is. ``feasibility`` -- the go/no-go before the
 #: budget is committed -- has no word in her seven, and every candidate
 #: contradicts her ORDER: "Checking" is her word for the beat AFTER solving,
@@ -137,17 +136,27 @@ STAGES: tuple[str, ...] = (
 #: stage that shows no banner; a stage that shows the wrong one is worse, and
 #: that is this package's own doctrine about grids applied to words.
 #:
-#: KNOWN CONFLICT, NOT RESOLVED HERE: her word for ``meshing`` IS "Meshing",
-#: which the page's suppression rule reads as an echo of the stage name and
-#: hides. Her spec and that rule disagree on one stage, no string can satisfy
-#: both, and choosing between them is not this map's call.
+#: ``feasibility`` IS DECLARED EMPTY, NOT SET TO ITS OWN TOKEN. It carried the
+#: literal "feasibility" and went dark because the page suppressed any banner
+#: matching its stage name -- the right outcome for the wrong reason. A
+#: behaviour that is right by accident is one refactor away from being wrong
+#: silently, and the refactor arrived the same evening: the suppression now
+#: keys on PROVENANCE, under which that token would have LIT UP as a routing
+#: key on camera. An empty string says "this stage has no word" as a
+#: declaration, which is what was meant all along.
+#:
+#: "Meshing" IS HERS AND NOW RENDERS. It is the same string as its stage token
+#: and it is not an echo: it is her chosen word for that beat.
+#: ``demo_sequencer.resolve_banner`` reports whether a banner is a deliberate
+#: display name, and the page suppresses on that rather than on the
+#: characters, so a leaked routing key is still hidden and her word is not.
 BANNERS: Mapping[str, str] = {
     "prompt": "Forming the team",
     "restatement": "Planning",
     "assumption": "Planning",
     "geometry": "Reading the geometry",
     "meshing": "Meshing",
-    "feasibility": "feasibility",
+    "feasibility": "",
     "solving": "Solving",
     "gates": "Checking",
     "results": "Report",

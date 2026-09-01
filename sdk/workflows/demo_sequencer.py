@@ -242,13 +242,62 @@ def banner_for_stage(state: dict, banners: "Mapping[str, str] | None" = None
     Left ``None`` the module default is used, so every act that does not
     override is byte-unchanged.
     """
-    stage = state.get("stage")
+    return resolve_banner(state, banners)[0]
+
+
+def resolve_banner(state: dict, banners: "Mapping[str, str] | None" = None
+                   ) -> "tuple[str, bool]":
+    """The banner text, AND whether it is a deliberate display name.
+
+    Returns ``(text, authored)``. ``authored`` is what lets the page suppress
+    on PROVENANCE instead of on string equality, and the distinction is not
+    academic: it is the difference between hiding a leaked routing key and
+    hiding one of Sanaa's own stage words.
+
+    THE RULE THIS REPLACES SUPPRESSED ON EQUALITY. The page hid any banner
+    whose text matched its stage name, which was written to catch a banner
+    nobody authored -- the stage token reaching the screen because no display
+    name existed. It also hid "Meshing", which is her chosen word for that
+    beat and merely happens to be the same string. One rule, two very different
+    cases, indistinguishable by the thing it was testing.
+
+    So provenance is reported here, where it is known:
+
+    * the solving stage's banner comes from the replay reader and is always a
+      deliberate line ("Solving, iteration N of M", "Solve complete");
+    * a word from the module map is the lab's curated display name, deliberate
+      even when it coincides with the stage token;
+    * a word from the ACT's own override that merely repeats the stage token is
+      the lazy declaration this rule exists to catch, and is reported
+      unauthored;
+    * an empty string is a stage DECLARED to have no word, which the page hides
+      because it is empty rather than because it is suspect.
+
+    THE EMPTY CASE IS NOW EXPLICIT AND THAT IS THE POINT. ``feasibility``
+    carried the literal "feasibility" and was hidden by the equality rule --
+    right by accident, and a behaviour that is right by accident is one
+    refactor away from being wrong silently. It is now declared empty.
+    """
+    stage = str(state.get("stage") or "")
     if stage == "solving":
         from chief_engineer.replay_stage import banner_for
 
-        return banner_for(state)
-    source = BANNERS if banners is None else banners
-    return source.get(str(stage), "") or BANNERS.get(str(stage), "")
+        return banner_for(state), True
+    default = BANNERS.get(stage, "")
+    if banners is not None and stage in banners:
+        text = banners[stage]
+        # A VALUE EQUAL TO THE MODULE DEFAULT IS THE MODULE DEFAULT, whatever
+        # map it arrived in. This clause is load-bearing and its absence was
+        # measured rather than reasoned about: ``DemoAct.banners()`` DEFAULTS
+        # to returning ``dict(BANNERS)``, so every act "declares" the whole
+        # module map whether or not it overrides anything. Without this test,
+        # the lab's own deliberate "Meshing" arrived looking like an act's lazy
+        # echo and was suppressed on both acts -- the exact defect this change
+        # exists to remove, reintroduced by the fix for it.
+        if text == default:
+            return text, True
+        return text, text.strip().lower() != stage.strip().lower()
+    return default, True
 
 
 # ---------------------------------------------------------------------------
@@ -298,10 +347,17 @@ class Sequencer:
         # THE ACT'S OWN BANNER MAP, ASKED FOR ONCE AND CACHED. Read here
         # rather than in `banner_for_stage` so the function stays pure and
         # every payload of one act is banner-mapped identically.
-        stamped["banner"] = banner_for_stage(stamped, self._act_banners())
+        text, authored = resolve_banner(stamped, self._act_banners())
+        stamped["banner"] = text
         assert_screen_safe(stamped)
+        # ``authored`` TRAVELS WITH THE BANNER so the page can suppress on
+        # PROVENANCE rather than on string equality. Without it the display has
+        # only the characters to go on, and the characters cannot tell Sanaa's
+        # word "Meshing" from a routing key that leaked because nobody wrote
+        # one. See :func:`resolve_banner`.
         banner_payload = {"stage": stamped.get("stage"),
                           "text": stamped["banner"],
+                          "authored": authored,
                           "for_event": event}
         # INVARIANT 3 applies to the payloads this module generates too, and
         # the banner is one of them. Assembling a whole act and guarding what
@@ -561,6 +617,27 @@ class Sequencer:
 
     def _stage_restatement(self, emit, script, record) -> dict:
         r = self.act.restatement()
+        # SANAA'S COST-PREDICTION BEAT, 2026-09-01 20:56Z, verbatim: "for all
+        # the runs have a beat that predicts the cost and then another one
+        # that compares that cost to the actual cost". This is the FIRST of
+        # the pair; :meth:`_cost_comparison_line` is the second.
+        #
+        # SPOKEN, NOT MERELY PUBLISHED, and that is the whole change here. The
+        # forecast was already in this payload as ``estimate`` and had been
+        # since the stage was written -- but a payload key is a value on a
+        # card, and she asked for a BEAT. Nothing said it aloud, so the
+        # prediction never became a moment in the act; the first time a viewer
+        # met a compute number was at the results stage, where the comparison
+        # has nothing visible to compare against.
+        #
+        # It lives in the SHARED stage rather than in five acts because every
+        # act already supplies ``Restatement.cost_estimate`` -- the contract
+        # has required it since stage 2 existed (DEMO STANDARD R8) -- so all
+        # five inherit the beat with no per-act edit and no act can be wired
+        # up without one.
+        self._say(script,
+                  f"Estimating this run at {r.cost_estimate.on_screen()} "
+                  f"before it starts.", tense="progressive")
         return self._publish(emit, "demo.restatement", {
             "stage": "restatement",
             "restatement": r.restatement,
@@ -1487,9 +1564,28 @@ class Sequencer:
             # OTHER hardware: an unlabelled 56.8 sitting under a projected
             # 23.5 invites a division that is not a ratio of anything.
             "estimate": self._estimate_line(r, replay),
+            **self._cost_comparison_field(r, script),
             **self._certificate_field(),
         })
         return published
+
+    def _cost_comparison_field(self, results, script) -> dict:
+        """The closing half of Sanaa's cost pair, spoken and published.
+
+        SPOKEN AS A BEAT AND CARRIED ON THE CARD. The spoken line is what
+        makes it a beat rather than a field; the payload copy is what keeps it
+        on the results card for a viewer who reads rather than listens. Both
+        come from one string so the two cannot disagree.
+
+        ``tense="past"`` is the results slot, which is where this line
+        belongs: it states a finished fact about a run that has ended. The
+        slot refuses a promise, and this sentence makes none.
+        """
+        line = self._cost_comparison_line(results)
+        if line is None:
+            return {}
+        self._say(script, line, tense="past")
+        return {"cost_comparison": line}
 
     def _certificate_field(self) -> dict:
         """The certificate statement on the results card, or nothing at all.
@@ -1504,6 +1600,64 @@ class Sequencer:
         if closing is None:
             return {}
         return {"certificate": closing.certificate_state}
+
+    def _cost_comparison_line(self, results) -> str | None:
+        """Sanaa's CLOSING cost beat: the actual against the forecast, as a
+        real ratio. Her 20:56Z wording: "final cost within N% of prediction".
+
+        THE RATIO IS COMPUTED, NEVER TYPED, and both numbers come from the
+        act's own records: ``Results.cost_estimate_from_stage_2`` is the
+        forecast stage 2 quoted, ``Results.cost_actual`` is what the run
+        measured. The contract has required both fields on every act since
+        :class:`demo_mode.Results` was written, so this beat needs no per-act
+        edit and cannot be supplied with a number nobody read. Her instruction
+        is explicit that N is whatever the real ratio gives -- "where the ratio
+        is 20%, the beat says 20%" -- so nothing here rounds toward a
+        flattering figure.
+
+        THE TWO NUMBERS MUST DESCRIBE THE SAME MACHINE, and one act's already
+        do not. The jet-flap act measures its sweep on the processors serving
+        these screens and PROJECTS a figure onto a named workstation;
+        :meth:`_estimate_line` carries a standing note that the projection and
+        the forecast are not commensurable. This beat therefore compares
+        ``cost_actual`` against the forecast -- both core-minute records of the
+        machine the forecast was made for -- and never the projection. A ratio
+        of a GPU-station figure to a forecast for other hardware would be a
+        division that is not a ratio of anything.
+
+        Returns ``None`` rather than a sentence when the pair cannot carry a
+        ratio -- a non-numeric value, or a forecast of zero. A beat is dropped
+        in silence; a fabricated percentage is not.
+        """
+        predicted = results.cost_estimate_from_stage_2
+        actual = results.cost_actual
+        try:
+            p = float(predicted.value)
+            a = float(actual.value)
+        except (TypeError, ValueError):
+            return None
+        if p <= 0:
+            return None
+        pct = abs(a - p) / p * 100.0
+        # ONE DECIMAL BELOW TEN PERCENT, NONE ABOVE. "within 0% of the
+        # forecast" is what a bare integer format prints for a 0.4% miss, and
+        # a zero read as exact is a stronger claim than the run supports.
+        shown = f"{pct:.1f}%" if pct < 10 else f"{pct:.0f}%"
+        # "WITHIN" IS A BOUND AND IT IS ONLY HONEST IN ONE DIRECTION. Her
+        # pattern is "final cost within N% of prediction", which reads
+        # correctly while N is small -- the DMR pair is 3% and the sentence is
+        # hers verbatim. Measured on the jet-flap act the first time this beat
+        # ran: 117.5 against a 56.8 forecast, N = 107%, and "within 107% of the
+        # estimate" describes an overrun of more than double as though it were
+        # a tolerance that held. So an overrun says "above" and an underrun
+        # keeps her word. Neither rounds and neither hides the direction; the
+        # two figures follow the percentage in both branches so a viewer can
+        # check the arithmetic on screen.
+        if a <= p:
+            return (f"The final cost is within {shown} of the estimate, "
+                    f"{actual.on_screen()} against {predicted.on_screen()}.")
+        return (f"The final cost is {shown} above the estimate, "
+                f"{actual.on_screen()} against {predicted.on_screen()}.")
 
     def _estimate_line(self, results, replay) -> str:
         """The up-front forecast, labelled, and honest about what it is for.
