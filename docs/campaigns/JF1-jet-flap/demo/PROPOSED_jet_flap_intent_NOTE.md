@@ -55,9 +55,9 @@ Her requirements, and where each is met:
 
 ---
 
-## 2. THE ONE THING THAT NEEDS A RULING BEFORE THIS LANDS
+## 2. THE POLICY QUESTION THIS RAISED, AND HOW IT WAS RESOLVED
 
-`sdk/chief_engineer/router.py:471-477` carries a standing policy, written
+`sdk/chief_engineer/router.py:470-477` carries a standing policy, written
 deliberately and in the router's own voice:
 
 > ONERA M6 is deliberately NOT routed from the control room. Its primal
@@ -67,22 +67,47 @@ deliberately and in the router's own voice:
 
 **Every calculation this screen presents is unconverged by the same standard.**
 Not one of the five met the 1e-06 target set before it ran; the turbulence
-equation imbalance at the last iteration runs from 3.457e-06 to 1.472e-04.
-On the policy as written, this act belongs off the control room exactly as M6
-does.
+equation imbalance at the last iteration runs from 3.457e-06 to 1.472e-04. On
+the policy read literally, this act belongs off the control room exactly as M6
+does. The lane that built this screen refused to resolve that itself and sent
+it up, which was correct: an agent does not get to decide that a policy written
+to protect a customer-facing surface does not apply to its own work.
 
-That policy predates Sanaa's order, and her order is specific: present the
-real run tree, with the 20,000-iteration solution and the real mesh. The two
-cannot both be satisfied by an agent, so the conflict goes up rather than
-being resolved down here. The screen as built takes the most conservative
-reading available to it: it claims no verdict, quotes movement instead of
-convergence, states no discretisation band, and gives no percentage agreement
-with the published curve. But a screen that says all that is still a screen on
-the promotional surface, and the M6 comment says the surface itself is the
-thing being protected.
+**RESOLVED by the cfd supervisor, 2026-09-01, on Sanaa's own words rather than
+on any agent's relay of them.** Two things she wrote, both read at the commits
+that carry them:
 
-**This is not an agent's call. It is Sanaa's, and it should be put to her with
-the achievability answer, not after it.**
+- `etc/sessions/2026-09-01T0140Z_sanaa_demo_recap_five_items.md` at `f9b7a077`:
+  *"all jet flap capabiltiies must appear in the demo"*. Her spelling is hers
+  and is preserved.
+- Her Act B STOP order at `d8ddfe62` requires a display mission presenting
+  **the real JF1 run tree**, and itemises what that means: the blowing sweep,
+  the mesh slice, the 20,000-iteration solution.
+
+She ordered this act onto the GUI, and she ordered it knowing what it presents,
+because she named the contents herself.
+
+**The policy is NOT retired, and nobody here has the standing to retire it.**
+Retiring a standard is reserved to Sanaa. What was ruled instead is narrower
+and turns on what the comment actually governs. That comment is a code comment
+written by a lab agent: it is not a charter clause, not a gate threshold, and
+not a ruling of hers. It governs **gradeable solve missions**, where the
+control room offers to solve something and report a graded result. This is a
+**display mission** presenting finished feasibility runs under her direct
+order, and it carries the honesty framing on its face: no verdict, movement
+over the final 4,000 iterations in place of a tolerance, no discretisation
+band, no percentage agreement with the published curve. The policy does not
+reach that case, and it stays in force, untouched, for everything it does
+reach.
+
+A successor reading this patch beside that comment will ask exactly the
+question this lane asked. This section is here so they get the answer instead
+of the argument.
+
+**What this does not change: the patch stays unapplied.** It is committed as a
+reviewable proposal and goes live only in the one coordinated cross-team
+restart, alongside the thermal screens, the scope-down fix and the GUI
+curation. Nothing here applies to a server Sanaa is sitting in.
 
 ---
 

@@ -8,8 +8,16 @@
 #
 # REQUIRED reading before applying:
 # docs/campaigns/JF1-jet-flap/demo/PROPOSED_jet_flap_intent_NOTE.md
-# Its section 2 carries a policy conflict that is Sanaa's to rule on, and this
-# patch stays unapplied pending that ruling.
+# Its section 2 answers the question a reviewer will ask on reaching
+# router.py:470-477, which says the control room carries only cases that reach
+# a clean result while every calculation here is unconverged. That was resolved
+# on Sanaa's own words: she ordered this act into the demo and itemised what it
+# presents. The policy is NOT retired and still governs gradeable solve
+# missions; this is a display mission and is outside what it reaches.
+#
+# THE PATCH IS STILL NOT APPLIED. It goes live only in the one coordinated
+# cross-team restart, alongside the thermal screens, the scope-down fix and the
+# GUI curation. Nothing here applies to a server Sanaa is sitting in.
 #
 # _OUT_OF_SCOPE_DOMAINS is not touched. Not narrowed, not widened, not reordered.
 #
