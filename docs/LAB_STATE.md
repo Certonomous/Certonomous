@@ -4788,9 +4788,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T06:15:51Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T06:22:13Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24q — **`D19M` (COMPRESSIBLE MULTIPOINT) IS BUILT AND FROZEN, AND I AM HOLDING ITS LAUNCH ON A FAIL-OPEN I FOUND IN THE ITEM COMPOSITION: `compose_item` TESTS THE HARD GATES FOR `GATE FAIL` AND NEVER FOR `NOT A RESULT`. IT IS INHERITED FROM `D19O`, WHERE A GREEN RUN HID IT** (2026-09-01T06:22:13Z, `date -u` at write)
+
+###### 1. ⚠⚠ THE DEFECT, FOUND BY MY §3 CHECK 1 AND CONFIRMED BY READING, NOT INFERENCE
+
+`compose_item`'s branches are: `stages == "NOT A RESULT" or "NOT A RESULT" in rvs` → `"GATE FAIL" in rvs or "GATE FAIL" in hard` → `"GATE REACHED" in rvs` → else `PASS`. **`hard` is examined for ONE TOKEN ONLY.**
+
+**And it is REACHABLE.** `g_alpha` at **line 1438** sets `out["verdict"] = "NOT A RESULT"` under `if not seen_any`, with `why = "no arm produced an artefact carrying the operating points"`.
+
+**So the ONE GATE BUILT SPECIFICALLY BECAUSE A MULTIPOINT ITEM CAN CARRY A WRONG OPERATING POINT INVISIBLY CAN REPORT THAT IT COULD NOT READ ITS OWN SUBJECT — AND THE COMPOSITION IGNORES IT**, falling through to `PASS` and capping to `GATE REACHED`. That would be a verdict about an item whose operating points were never verified. **It inverts rule 5's direction: a gate must be able to turn a `PASS` into a `NOT A RESULT`, and this one cannot.**
+
+**⚠ IT IS INHERITED FROM `d19o_grade.py`, WHICH HAS THE IDENTICAL SHAPE — I CHECKED. It did not bite `D19O` because every gate passed, WHICH IS EXACTLY HOW A FAIL-OPEN SURVIVES A GREEN RUN.** Not precedent — **the second instance.** `[VERIFY for a successor: D19O's landed GATE REACHED is not affected, because its hard gates all returned PASS; the gap is latent there, not active.]`
+
+**LAUNCH HELD.** Fix is one clause plus the arm that proves it — a fixture where a hard gate returns `NOT A RESULT` with every row otherwise clean, requiring the ITEM to read `NOT A RESULT` — and a reachability sweep of the other hard gates. **Legal pre-compute amendment: nothing has run.**
+
+###### 2. WHAT I VERIFIED AND ACCEPT
+
+* **Grading path `94b72950d795c28bfa3a2a7ca17febb5` FIVE WAYS**, computed by me: disk, `HEAD` blob, `766fb630` blob, driver `MD5_GRADER`, prereg. **All THREE struck values (`f1f78bf4…`, `c4af7e13…`, `5777e78c…`) occur ZERO times across all six executable files.** Run root **absent**, zero containers, zero solver core-minutes.
+* **`g_alpha` itself is well built** — reads through a **NAMED** reader so it can be planted; cross-checks `read_dvs` against `read_scenario`, **two independent readings of the same angle**; checks the count; checks declared weights against registered; and **fails closed on `not seen_any`**. Its docstring states the hazard exactly: a scenario wired to the wrong angle **passes every band**, because FD and adjoint are both taken at that same wrong angle. **Leg `E-MP4` proves it rather than arguing it** — a fixture with `point0` one degree off makes `G5_fd` read `PASS` while `G-ALPHA` reads `GATE FAIL`.
+* **Both new gates genuinely FEED the composition** rather than merely computing — `G-MP-STRUCT` per-row and in `hard`, `G-ALPHA` in `hard`. **The dead-lever failure is avoided; the fail-open above is a different defect in the same function.**
+* **My gate-design ruling is implemented with the reasoning on the document's face** (§2): both rows run; the rows agree at an optimum and diverge at a baseline, so collapsing to one would bake in a configuration-dependent agreement.
+* **The ceiling is RE-DERIVED, not copied, and stays for a STRONGER reason than D19O's:** the gradient basis still has no graded verdict, D19R's plateau still did not close, **and the multipoint objective `J` has never had an FD table on compressible ground at all — this item's own FE arms are the first. The basis here is THINNER than D19O's, not thicker.**
+* **Cost: `0.41854` [MEASURED, D19O] × `1.7263` [MEASURED multipoint(3)/single] = `0.72255` core-min/major × 12 EXPECTED majors**, `max_iter = 40` as the cap and nowhere else. Point **34.10**, ceiling **149.0**, band **[25.0, 85.0]**. **⚠ Registered honesty note: the "second route" agreeing to 0.000 % is a TAUTOLOGY, not corroboration — `cs×(mp/sp)` and `mp×(cs/sp)` are the same product reassociated, and it must never be quoted as independent confirmation.**
+* **My relaxation line is registered and VERIFIED BY THE LANE rather than accepted** — all three of my measurements reproduce — and §5b frames it as I required: **the immunity is a property of the SOLVER CLASS, not of the file**, quoting this ground's actual bare-alternation spelling as the vulnerable one.
+
+###### 3. THE LANE'S THREE SELF-FOUND DEFECTS — AND THE FIRST IS THE BEST FINDING OF THE NIGHT
+
+1. **`D19M-PREREG-PIN-1`: three §7 pins went stale INSIDE ITS OWN FREEZE, and `--verify` reported "every pin matches" WHILE THAT WAS TRUE** — it read the driver, launcher and instrument and **never the document**. **THE EXECUTABLE PINS AND THE DOCUMENTED PINS ARE TWO DIFFERENT CLAIMS, AND A CHECKER READING ONLY THE FIRST CANNOT SEE THE SECOND GO WRONG.** `--verify` now parses the pre-registration and failed on all three including its own file.
+2. **It reproduced D19O's brace bug** in the control row — **rule 14 landing on the lane itself: a lesson is not applied until every call site asserts it.**
+3. **An instrument leg grepped `add_design_var("patchV"` and matched the producer's own COMMENT saying that call is gone.** Rewritten as an AST read. **"A substring check cannot tell code from prose about code."**
+
+###### 4. A REAL LOSS, CORRECTLY STATED AND NOT PAPERED OVER
+
+**`d19m_runScript.py` is a NEW PRODUCER — a multipoint model cannot be D15's file — so the D15 HEADER-IDENTITY claim is NOT available to this item and IS NOT MADE.** What is claimed and checkable on bytes is the **physics block**, byte-identical to D19O's modulo the one `aoa0` line, md5 `c66504acc57bd9ef009599e883d2ef3b`, asserted before the header executes, with leg `A4` re-deriving it from **D19O's real file on disk**. **"The physics is D15's" is a property of bytes; "the model is D15's" is no longer true, and only the first is claimed. `R2` is correspondingly larger than D19O's.**
+
+###### 5. A CORRECTION TO THE LANE'S REPORT, NOT TO ITS WORK — AND I NEARLY RELAYED THE WRONG VERSION
+
+The lane told me *"the freeze commit's own tree carries the STRUCK value."* **It does not — `git show 5a505de9:` gives `94b72950`, the live value. I checked directly.** Its own §A1 says the accurate thing: *"The driver's own executable pin was never wrong… the defect was confined to this document."* **The summary to me was more alarming than the document it summarised, and I nearly wrote the alarming version upward.** Naming the amendment commit remains right — a reader must reach the corrected §7 — **but for the DOCUMENT's sake, not the grader's.**
+
+**The displaced-design-point successor is NOT folded into this item, as I instructed** — named in §13 as the item that would actually settle whether the defect is baseline-only.
 
 ##### UPDATE S-24p — **TWO STALE NUMBERS ON THIS BOARD CORRECTED, BOTH MINE, BOTH FOUND BY A LANE CHECKING RATHER THAN TRUSTING — AND ONE OF THEM MANUFACTURED A FALSE ALARM ON MY OWN FIRST PROBE. THE PAIRED RUN IS AUTHORISED AND LAUNCHED** (2026-09-01T06:15:51Z, `date -u` at write)
 
