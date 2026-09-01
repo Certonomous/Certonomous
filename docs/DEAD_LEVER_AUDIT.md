@@ -3494,3 +3494,80 @@ The stop record's `what_would_be_needed` reads *"A per-case physics override hon
 | compute | **NOT AUTHORISED** — `§2d.3.5` unchanged; a grant is not a launch order |
 | gates **0** · bands **0** · thresholds **0** · caps **0** · labels **0** · verdicts **0** · re-grades **0** | |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §27 — **T23G's THREE REFERRED DEFECTS, RULED BEFORE THE GRADE. THE QUESTION THE REFERRAL LEFT OPEN WAS ALREADY CLOSED — BY THE FROZEN REGISTRATION, BEFORE ANY LEVEL RAN. AND ONLY ONE OF THE TWO CANDIDATE REPAIRS IS LEGAL** (2026-09-01T05:54Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No compute is authorised and none is needed** — all three repairs are comparator-side and touch no case directory. **I issue no verdict on T23G: the grade is heat-transfer's, the audit of the grade is mine.**
+
+**The referral:** `docs/campaigns/T-family/T23G_PREFLIGHT_FINDINGS.md`, committed `d9c1cc7a`, blob **`60e54dac31ca8d9c56ba6e2324fb683dad21472f`**, worktree-identical — **so this ruling attaches to pinned bytes and not to a moving file.** It is structured as a referral proposing nothing, and that discipline is the reason it could be ruled on at all.
+
+### 27.1 THRESHOLD: THE GATES ARE CLOSED, SO `§2d.1` GOVERNS ALL THREE
+
+T23G's registration was frozen **03:29:17Z** and amended **03:50:01Z**; the first case artifact is **03:51:37Z**. **Compute has happened.** Under `§2d.2` the gates closed at the earliest `started_utc`, so **the free pre-compute amendment limb is gone** and every one of D1, D2 and D5 must clear `§2d.1`'s four conditions or not land. **I did not look for an exemption category, and I record that deliberately: a reading that exempts a file from `§2d` because a schedule is waiting is the shape rule 9 exists to refuse.**
+
+### 27.2 D1 — **RULED, AND THE DEFINITIONAL QUESTION IS NOT OPEN. THE FROZEN REGISTRATION DECIDED IT AT 03:29:17Z**
+
+The referral's §2.4 states the question without proposing an answer: *"whether Q1 … is defined to include the interface faces or only the internal cells … one reading makes the reference right and the reader narrow while the other makes the reader right and the reference wrong."* **Declining to choose was correct for a lane. But the choice was already made, in the document rule 2 exists to freeze, before a single level ran.**
+
+**`T23G_PREREGISTRATION.md:228`, in §4 — a table whose own heading reads "THE GRADED QUANTITIES — all three, all binding":**
+
+| id | quantity | region | reader path |
+|---|---|---|---|
+| **Q1** | `max(T)` over the whole region | `housing` | **`internalField` of `<endTime>/housing/T`** |
+
+**Q1's reader path is REGISTERED as `internalField`.** `read_max_T` (`analyse_t23g.py:254-259`) reads the `internalField`. **The reader is correct and matches the registration exactly. The REFERENCE is the outlier.**
+
+**And the registration is not inconsistent — it labels both numbers honestly.** The `:794` table that carries `342.1749743329 K` **names its own source in its own column header**: *"MEASURED, from `T23_runs/T23_P305_U20/postProcessing/…/fieldMinMax.dat` row `10000`"*. It is a **disclosure table** — the lane declaring what was knowable at freeze time — and it **never claims that number is Q1 as registered.** **The comparator took the DISCLOSURE number as the reference for a gate that compares against the REGISTERED reader. It picked the wrong one of two clearly-labelled numbers**, and `analyse_t23g.py:150-151` says so on its own face.
+
+> **RULED: the `§2d.1` repair exception is GRANTED for D1, and it is granted for EXACTLY ONE of the two candidate repairs.**
+
+**LEGAL — correct `REPRO_REF_Q1_K` to the `internalField` reading of `T23_P305_U20`.** This restores the gate to comparing the quantity §4 registers.
+
+**REFUSED OUTRIGHT — widening `read_max_T` to include boundary faces.** It **contradicts the frozen §4 reader path**, and it would **move Q1 on all three levels and therefore the entire grid triple, after compute**. That is `§2d.1`'s forbidden shape. **It is also the repair a reader would drift toward if blast radius were ignored, which is why it is refused by name rather than merely not chosen.**
+
+**The four conditions, tested rather than asserted:**
+
+1. **DEMONSTRABLE ERROR, NOT A PREFERENCE — HOLDS.** Established against the frozen registration itself. Gap **1.5145e-02 K** against a **1.0e-06 K** tolerance, four orders past it, with the reference number **located rather than guessed**: `342.1749743330` is the max over the `housing_to_core` boundary patch, 140 faces.
+2. **INDEPENDENT INSTRUMENT THAT GRADES NOTHING — HOLDS, AND IN THE STRONGEST FORM AVAILABLE IN THIS LAB.** The instrument is the **frozen pre-registration** (blob `4b579ea09b14767edd5e6cb6ba038bb87aaf44be`, frozen **before the first case artifact**). **It grades nothing and it was fixed before any level ran, so it cannot know which direction G-REPRO's verdict wants** — which is the entire property condition (2) is cut around. Corroborated by a **near-identity**, which `§2d.1` names explicitly: `read_max_T(T23_P305_U20)` and `read_max_T(T23G_M)` agree **to every printed digit**.
+3. **DISCLOSURE NAMING THE INSTRUMENT AND QUANTIFYING WHAT MOVED — REQUIRED, AND IT IS A CONDITION OF THIS GRANT.** The repair must name `T23G_PREREGISTRATION.md:228` as the authority, quantify the **1.5145e-02 K** move, and **strike the pre-repair constant rather than overwrite it** (rule 6).
+4. **PRE-REPAIR VALUES BESIDE PUBLISHED ONES — SATISFIED BY DISCLOSING A MEASURED ABSENCE**, per `§2d.3`'s narrowing: **T23G has zero graded verdicts and nothing published.** The absence must be **measured and named**, not assumed.
+
+> **⚠ BINDING CONSTRAINT ON THE SOURCE OF THE NEW REFERENCE, AND IT IS THE PART THAT COULD GO WRONG QUIETLY.** The corrected constant must be read from **`T23_P305_U20`, an independent prior case — NEVER from `T23G_M`.** Reading the case being graded would make the gate **pass by construction**, which is fitting the reference to the answer. **The legality lives in the SOURCE, not in the outcome.** That the gate then passes is the true answer and not a manufactured one: **the determinism this gate exists to test SUCCEEDS, measured.**
+
+### 27.3 D2 — **GRANTED, CONDITIONAL ON D5 LANDING WITH IT**
+
+`mark_done_t23.py:77`'s `CASES` tuple does not carry `T23G_C`/`T23G_M`/`T23G_F`, so `require_done` refuses **rc=2** before a field is read. The file is on the grading path by `analyse_t23g.py`'s own §7.2 delegation, so `§2d.1` is engaged.
+
+**Condition (1) HOLDS**, and the error is best named precisely: **the comparator delegates completion to an instrument whose registered scope excludes the very cases it delegates about.** **Condition (2) HOLDS on a guard plus its planted control** — `§2d.1` names *"a guard"* explicitly — and **the control is what makes the refusal evidence**: the same instrument returned `NOT DONE … rc=1` on a name it knows, so **rc=2 is about the name registry and not a blanket failure** (rule 3, applied to a refusal rather than to a zero).
+
+**And the reason this widening cannot select a direction, which is the ruling's real ground:** a name registry is an **allow-list**, and widening an allow-list **cannot make a failing case pass.** It converts *"refused to look"* into *"looked, and the answer is whatever rule 4 says."* **Rule 4's six clauses are untouched**, and **both rc=2 and rc=1 block grading**, so the instrument is **fail-closed before and after.** The probe on the modified scratch copy is **explicitly not a completion verdict** and is not cited here as one.
+
+### 27.4 D5 — **NOT OPTIONAL. IT IS THE CONDITION THAT MAKES D2's GRANT LEGAL**
+
+`grading_path_shas()` (`:989-998`) records three files and **omits `mark_done_t23.py`** — verified by me at source. **D2 means someone is about to edit precisely that file, and as it stands that edit would leave no trace on the artifact's own face.** That **defeats condition (3) at the artifact level**, where it matters most: the point of recording grading-path shas is that a later edit is **visible rather than silent**.
+
+> **RULED: `mark_done_t23.py` is added to `grading_path_shas()` in the SAME commit as the D2 widening, or the D2 grant does not attach.**
+
+Adding a sha recorder is **monotonically disclosure-increasing and cannot move a verdict** — it writes a hash into the record and touches no comparison — so it is **the safest class of grading-path change there is** and clears `§2d.1` on its own terms.
+
+### 27.5 ⚠ MY OWN FINDING, NOT IN THE REFERRAL — **G-REPRO IS STRUCTURALLY INCAPABLE OF SAYING "I COULD NOT MEASURE THIS"**
+
+`analyse_t23g.py:917`: `repro = "PASS" if d_repro <= REPRO_TOL_K else "GATE FAIL"` `[MEASURED at source]`. **A two-branch ternary. `NOT A RESULT` is unreachable for this gate** — and `NOT A RESULT` is precisely rule 5's most important state.
+
+**The consequence, had D1 not been repairable:** the gate would have been **compelled to emit a graded `GATE FAIL` from a comparison of two different quantities**, and `min(verdicts)` (`:949-952`, verified) would have **propagated that bookkeeping artifact to the whole rung as a physics verdict.** A gate that cannot report its own unevaluability does not fail open — **it fails LOUD AND WRONG**, which is harder to catch because it looks like a result. **Recorded as an instrument finding; I mandate no repair**, because the D1 correction makes the gate evaluable on its registered terms.
+
+### 27.6 WHAT THIS RULING DOES NOT DO
+
+**No compute is authorised and none is needed** — the three levels keep solving untouched and **no re-solve is required by any of this.** **I did not touch the registered aggregation** `min(Q1, Q2, Q3, G-REPRO)`: changing it so that G-REPRO cannot cap the rung would be *"the numbers looked wrong, so the band was widened"*, and **I refuse it in advance, by name, so that it is not proposed later under schedule pressure.** **No band, threshold, cap or label moves** — `REPRO_TOL_K = 1.0e-6` is untouched by every repair granted here. **I issue no verdict on T23G.** **A demo timetable is not a gate, and no schedule shortens a condition.**
+
+| field | value |
+| --- | --- |
+| referral | `T23G_PREFLIGHT_FINDINGS.md`, blob `60e54dac`, commit `d9c1cc7a` |
+| `§2d.1` grants | **D1 (one repair of two), D2 (conditional on D5), D5 (mandatory)** |
+| repairs refused by name | **widening `read_max_T` to boundary faces**; **altering the rung aggregation** |
+| verdicts issued | **0** · gates **0** · bands **0** · thresholds **0** · caps **0** · labels **0** · re-grades **0** |
+| compute authorised | **none** — no re-solve needed; comparator-side only |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
