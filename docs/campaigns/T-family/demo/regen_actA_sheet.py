@@ -334,33 +334,49 @@ def _assert_load_bearing_lines_rendered(tex_path):
 def selftest_load_bearing():
     """Drive the assertion BOTH WAYS on a scratch copy of the rendered sheet.
 
-    A second assertion that has never been shown to fire is decoration.
+    ⚠ THE RULE, AND IT IS GENERAL: AN ARM THAT CANNOT CONSTRUCT ITS OWN FAILURE
+    CASE MUST REFUSE, NEVER CONTINUE.
 
-    ⚠ THE REUSABLE TRAP, FOR WHOEVER WRITES THE NEXT ONE OF THESE. A phrase
-    assertion needs TWO DIFFERENT STRINGS, and conflating them is what bit the
-    first draft of this function:
+    A negative arm exists to prove the guard can fail. If it cannot build the
+    broken input it is supposed to detect, it has tested NOTHING -- and if it
+    reports a pass anyway, the guard ships green having proved nothing while
+    looking exactly like a guard that works. That is the most expensive outcome
+    available here, because it is indistinguishable from success.
 
-      * THE ASSERTED PHRASE is matched against the RENDERED page, and is written
-        as the sentence reads. LaTeX wraps lines wherever it likes, so the match
-        is done on whitespace-NORMALISED text (:func:`_rendered_text`); without
-        that normalisation a sentence broken across two rendered lines would
-        read as absent and the guard would refuse a perfectly good page.
+    This applies to every negative arm in this repository, not to phrase
+    assertions alone: the planted zero that must be read back, the mutation that
+    must break the check, the control driven to refusal. All of them must refuse
+    when they cannot construct their own failure, rather than continue.
 
-      * THE NEEDLE that builds the negative arm is matched against the SOURCE,
-        to delete the sentence before recompiling, and must therefore be a
-        fragment that actually sits on ONE SOURCE LINE. The first draft used
-        "empty on purpose", which STRADDLES A LINE WRAP in the .tex and matched
-        nothing.
+    ---- the worked example, which is how this rule got written ----
 
-    The source string and the rendered string are not the same string. A needle
-    chosen by reading the sentence -- the obvious thing to do -- is chosen from
-    neither, and will silently match nothing in the source.
+    A phrase assertion needs TWO DIFFERENT STRINGS, each chosen against the side
+    it will be matched on, and the first draft of this function conflated them:
 
-    WHAT SAVED IT was that the arm REFUSED TO BUILD rather than proving nothing:
-    it could not construct its own failure case, and said so, instead of
-    reporting a pass. An arm that cannot build its negative case must refuse,
-    never continue -- otherwise the first draft of this guard would have shipped
-    green having tested exactly nothing.
+      * THE ASSERTED PHRASE is a RENDERED-side string, written as the sentence
+        reads and matched on whitespace-NORMALISED text
+        (:func:`_rendered_text`). The normalisation is load-bearing in the
+        OPPOSITE direction: LaTeX wraps lines wherever it likes, and without it
+        a sentence broken across two rendered lines reads as absent and the
+        guard REFUSES A PERFECTLY GOOD PAGE. A guard that cries wolf gets
+        disabled, and a disabled guard protects nothing.
+
+      * THE NEEDLE is a SOURCE-side string. Its job is to delete the sentence
+        from the ``.tex`` before recompiling, so it must be a fragment that sits
+        on ONE SOURCE LINE. The first draft used "empty on purpose", which
+        STRADDLES A LINE WRAP in the source and matched nothing.
+
+    The source string and the rendered string are not the same string, and a
+    fragment chosen by reading the sentence -- the obvious thing to do -- is
+    chosen from neither.
+
+    What caught it was the rule at the top: the arm could not build its failure
+    case, and said so, instead of reporting a pass.
+
+    And the negative arm builds a REAL PAGE -- sentence deleted from a scratch
+    copy of the source, then recompiled -- rather than doctoring a string. A
+    doctored string proves the matcher works; a recompiled page proves the guard
+    works.
     """
     import shutil
     import tempfile
