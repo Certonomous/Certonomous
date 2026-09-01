@@ -1666,3 +1666,69 @@ none by reading it**:
 is Sanaa's under the freeze, and this rung enacts none.
 
 <!-- END OF T25R2 PRE-REGISTRATION v1.3 -->
+
+---
+
+## Addendum B3 — 2026-09-01, **THE GATE HAS RUN. DISCLOSURE ONLY.**
+
+**Lines whose number changed above this section: 0.**
+Alters no gate, no threshold, no cap and no label — **the gate it records is the
+one frozen at `bb6e5761` and it was applied unchanged.** **Document v1.4.**
+
+### B3.1 §3.5 IS `GATE FAIL`. EVERY ROW OF THIS RUNG IS `NOT A RESULT`.
+
+Full record: **`docs/campaigns/T-family/T25R2_RESULTS.md`**.
+
+**O1 `PASS`** 1.199542e-03 K ≤ 1.234e-02 · **O2 `PASS`** 6.675809e-04 K ≤
+1.234e-03 · **O3 `GATE FAIL`** **2.315190e-02 K** > 1.234e-02, at t = 60 s.
+All three were required. **The propagation registered at §3.5.4 before any
+compute stands, and no physics number was printed.**
+
+Both arms are `DONE` on all six conjuncts, `rc = 0`, uncapped. **The runs are
+sound; their numbers are not sweep-count independent, which is a different thing
+and is what the rung was built to find out.** Amendment A1's report: the t = 30 s
+solid gap is **5.208e-04 K against the probe's measured 6.02e-03 K** — smaller
+by 11.6×, so the sequence 5 → 10 → 20 is visibly converging. **It gated nothing.**
+
+### B3.2 ⚠ A LATENT INSTRUMENT DEFECT THAT WOULD HAVE VOIDED D2 — **REFERRED, NOT REPAIRED**
+
+Found while characterising the O3 failure. `read_patch_T` accepts only a
+`nonuniform List<scalar>` patch entry and **REFUSES** anything else, expressly
+declining to fall back to `refValue` (§7.2). On the real staged case the coolant
+**inlet** is written as
+
+```
+    inlet { type fixedValue; value uniform 293; }
+```
+
+— a `uniform` entry. **So `read_inlet_T` REFUSES on every written time, and D2
+("outlet > inlet at every written `t > 0`") would have made the whole rung
+`NOT A RESULT` on an instrument refusal even if §3.5 had passed.**
+
+**ROOT CAUSE — THE NIGHT'S RECURRING CLASS, SIXTH INSTANCE, AND AGAIN THIS
+LANE'S:** `--selftest` forged the inlet patch **with** a `nonuniform` value list,
+so the reader was never exercised against the form OpenFOAM actually writes for a
+uniform `fixedValue`. **The fixture did not resemble the situation.**
+
+**NOT REPAIRED, on the same grounds §2d.1 and B1.5 establish and on one more:**
+the grading path is frozen post-compute; conditions (3) and (4) presuppose
+published numbers and **there are none**; the failure direction is a **REFUSAL**,
+which withholds and cannot publish; and **the defect is now unreachable in this
+rung**, because §3.5 fails first and D2 is never evaluated. **Referred to the
+supervisor and to verification, and flagged as something a successor
+registration must fix in its own comparator before it can grade D2 at all.**
+
+### B3.3 THE HALT RECOMMENDATION
+
+**`T25R2_L2` and `T25R2_L2_DT025` are staged, verified, and should NOT be
+launched under this registration.** Their verdict is already registered as
+`NOT A RESULT` by §3.5.4's propagation, they run at 10 sweeps at a **higher**
+Courant number, and both sensitivity panels require two **graded** arms and would
+print `PENDING` regardless. POINT cost of running them anyway: **56.03
+core-min**. **Waste by construction, named rather than absorbed.**
+**The decision is the supervisor's; §7 of the results document prices the
+successor's levers off T25R2's own measured rates.**
+
+Spent: **19.780 core-min of the 390 hard cap, 370.2 unspent**, $0.0169 derived.
+
+<!-- END OF T25R2 PRE-REGISTRATION v1.4 -->
