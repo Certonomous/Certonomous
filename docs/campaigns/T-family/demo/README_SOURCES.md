@@ -477,6 +477,65 @@ reader is not chasing line numbers that have drifted.
   Neither is derived from the other, so the closure is a check and not an
   identity.
 
+### The builder has been independently checked too — and §3 is now closed for Act C
+
+**Discharged 2026-09-01.** The supervisor read `build_t25.py`'s
+physics-determining path themselves. **Sound.** Line citations below were
+re-checked against the file by this lane before being written down.
+
+- **Every physical constant carries its directive line**, so no value on the
+  sheet is a lane invention: geometry at `build_t25.py:49-53` → directive
+  4.2:396-398; `RHO`/`CP` at `:58-59` → 4.2:402-403; `T_INIT`/`T_INF` at
+  `:68-69` → 4.3:418; `P_TAKEOFF`/`P_CRUISE` at `:75-76` → 4.3:412-413.
+  `KAPPA` at `:64` carries `KAPPA_BASIS` at `:65` naming it **the directive's
+  own disclosed fallback**, not a choice this lab made.
+- **`Q_TAKEOFF` and `Q_CRUISE` are DERIVED, not hardcoded** (`:77-78`,
+  `P / V_CELL`), so the W/m³ figures cannot drift from the W/cell the directive
+  pins. **`Q_TAKEOFF` computes to exactly 5000.0 W/m³** — confirmed by
+  evaluation, `Q_TAKEOFF == 5000.0` is `True` — **independently reproducing the
+  value registered on an earlier rung of this family.** A derived quantity
+  landing on a separately registered number is a cross-check, not a
+  coincidence.
+- **Radiation is provably absent, not approximately absent.** `field_T` at
+  `:224-258` sets the channel faces to `externalWallHeatFluxTemperature` /
+  `mode coefficient` / `h constant` / `Ta constant` with **`emissivity 0`**
+  written explicitly — and that literal is present in the emitted `0.orig/module/T`
+  of **both** built cases, checked on disk. So sheet C's silence on radiation is
+  exact rather than a modelling approximation.
+- `casingWalls` `zeroGradient` is cited to directive 4.2:408. The flow-direction
+  `ends` are `zeroGradient` marked *"adiabatic, DISCLOSED"* — an honest
+  disclosure of a choice the directive did **not** pin, and **it should stay
+  disclosed** rather than being quietly promoted to a directive-backed value.
+- **THE RAMP REFUSAL IS LIVE CODE, NOT A COMMENT.** This was checked
+  specifically, because a condition living only in a comment is the dead-lever
+  class — and **this one was exactly that until earlier in this same session**,
+  when it was converted to an executed guard. It is now: `:580` computes
+  `hits = ramp_interior_steps(dt)` and `:581-587` is `if hits: sys.exit(...)`.
+  `ramp_interior_steps` at `:111` uses exact `Fraction` arithmetic over the
+  decimal strings, so it is a statement about the times the solver actually
+  reaches rather than about binary rounding. The emitted comment block also
+  interpolates the **live evaluated count** into the dictionary, so the file
+  carries its own evidence.
+
+**`SUPERVISION_CHARTER.md` §3 IS NOW CLOSED FOR ACT C.** Stated positively,
+because three of the four resolve to something other than a tick:
+
+| §3 check | state |
+|---|---|
+| 1 — measurement-script diffs read as diffs | **DISCHARGED** on both `analyse_t25.py` and `build_t25.py` |
+| 2 — crash triage | **DOES NOT ARISE.** Nothing crashed; the run completed `rc=0` on the first attempt, `note=clean`, waste 0.0 core-min |
+| 3 — big-claim verification before belief | **DISCHARGED.** The supervisor re-derived the two-group time constants and steady limits from mesh-parsed volume and area *before* endorsing the correction, and the measured rates of rise corroborate them from a second direction |
+| 4 — pre-registration committed before compute | **DOES NOT ARISE, BY DESIGN.** This is an ungated feasibility case: no gate, band, threshold or verdict exists, so there is nothing to freeze. That is what the tag means — **not an omission** |
+
+**Nothing on sheet C now rests on an instrument the supervisor has not read.**
+
+**And that changes none of the gaps at items 10–12 of Part 3.** A well-read
+instrument producing an un-error-barred number is still an un-error-barred
+number: 0.7421 K remains analytic and never solved to steady state, and no
+module number carries a numerical error bar, because there is one mesh and one
+time step. **Clean checks are not a substitute for the measurements that were
+not made, and must not be read as softening them.**
+
 ### ⚠ TWO COUPLING HAZARDS IN THE READER — NOT DEFECTS, BUT RECORD THEM
 
 Neither blocks the sheet. Both are written down because a successor editing
@@ -695,14 +754,12 @@ names it separately.
    an ungated feasibility case, not a registered threshold, and is stated as
    such in Part 2. **The frame remains empty: naming the two step sizes is not
    solving at them.**
-8. **PARTLY CLOSED.** `SUPERVISION_CHARTER.md` §3 **check 1 —
-   measurement-script diff — is DISCHARGED** for `analyse_t25.py`: the
-   supervisor read its measurement path themselves and found the instrument
-   sound, with the geometry guard at `:234-252` named as what makes the
-   two-group result trustworthy. See the subsection above. **Still not claimed:
-   the same check on `build_t25.py`, and the remaining three §3 checks on either
-   sheet.** `analyse_t25.py` produced every module number on sheet C, so that
-   was the diff that most needed reading, and it has been read.
+8. ~~**Neither sheet has been reviewed by the supervisor.**~~ **CLOSED
+   2026-09-01 — `SUPERVISION_CHARTER.md` §3 is discharged for Act C.** Check 1
+   read on both `analyse_t25.py` and `build_t25.py`; check 3 discharged by
+   independent re-derivation; checks 2 and 4 do not arise, for stated reasons
+   rather than by default. See the table above. **This closes the process
+   question and closes none of the measurement gaps below.**
 10. **The 0.146 % energy residual is ATTRIBUTED, not decomposed.** The
    sampling argument is supported by the sign of the residual matching what
    curvature predicts, which is evidence and not proof. Separating write-interval
