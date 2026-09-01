@@ -523,17 +523,53 @@ The census in §11.3a showed **two** `chtMultiRegionSimpleFoam` where the second
 reading had three, so the difference was chased rather than noted.
 
 **L1 completed; it did not die.** Pid 364441 is gone because the run ended.
-Every completion clause visible in the log holds:
+**All SIX clauses of the strict completion rule are MET BY MEASUREMENT** — none
+is waived, none is disclosed-as-unmeasured:
 
-| clause | L1 |
-|---|---|
-| `End` line | present |
-| last time == `endTime` | `Time = 6000` against `endTime 6000` |
-| `ExecutionTime` count == `endTime` | 6000 |
-| final time directory | `T23G2_L1/6000/` present |
-| fields at `endTime` | `T U alphat k nut omega p p_rgh phi rho` |
+| # | clause | L1 | source |
+|---|---|---|---|
+| 1 | **`rc = 0`** | **`rc=0`** | `T23G2_L1/STATUS.T23G2_L1` |
+| 2 | `End` line | present | `log.solve` |
+| 3 | last time == `endTime` | `Time = 6000` vs `endTime 6000` | log + `controlDict` |
+| 4 | fields present at `endTime` | fluid `T U alphat k nut omega p p_rgh phi rho`; housing, core `T p` | `6000/` |
+| 5 | `ExecutionTime` count == `endTime` | 6000 | `log.solve` |
+| 6 | **age guard** | `0/T` **19:07:26Z**; all three region `T` at `6000/` **19:24:53Z** — **17 minutes newer on every region** | `stat` |
 
-ClockTime 1047 s. Pids 366391 (L2) and 368069 (L3) remain alive and advancing.
+`FOAM FATAL` 0. ClockTime 1047 s. Pids 366391 (L2) and 368069 (L3) alive and
+advancing.
+
+##### ⛔ A FALSE NEGATIVE ON CLAUSE 1 THAT NEARLY ENTERED THIS RECORD
+
+Clause 1 was first reported as *"no `.rc.*` file exists — NOT MEASURED"*, with a
+ruling attached invoking Sanaa's 2026-08-26 bookkeeping rule to treat the
+missing exit code as an infrastructure gap, disclosed but not fatal.
+
+**The exit code was never missing.** It is in `STATUS.T23G2_L1`, which a search
+for `*.rc.*` cannot match. The file records:
+
+    rc=0
+    wall_s=1047   ranks=1   core_min=17.4500   cap_core_min=45.0
+    note=rc captured inside this wrapper on the line after the solver call
+
+and, separately, `STATUS.queue.T23G2_L1` records `launcher_rc=0` annotated
+*"exit-status-of-the-launch-argv-NOT-the-solver-rc"* — so the launcher's status
+and the solver's status are deliberately kept apart, which is the
+`setsid`-parent-returns-zero discipline done correctly.
+
+**This is §9.7a again, and it nearly cost more than the earlier instances**: a
+negative from a query that could not see the thing it was looking for. It would
+have put a "clause not measured" caveat, and a rule-invoking ruling to excuse
+it, onto a record where the clause is plainly met. **I nearly repeated it in the
+same breath** — my own sweep printed the two STATUS files and I had written the
+label *"(nothing above = no exit code persisted)"* beneath them.
+
+**The prediction that L2 and L3 would inherit the same gap is also wrong.**
+They have no STATUS file yet because **the wrapper writes it after the solver
+returns, and they are still running.** Nothing is missing; it has not happened
+yet. No disclosure is required on any level, and none is made.
+
+**Cost calibration, L1 (rule 12):** 17.45 core-minutes actual against a 17.0
+point estimate — **ratio 1.03** — inside a 45.0 cap, `capped=0`.
 
 **Two reds were raised by my own first sweep and both were cleared by reading
 the line rather than inferring from the count** — an inference either way would
