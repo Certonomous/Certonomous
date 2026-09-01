@@ -18475,3 +18475,105 @@ in either direction. The planted-zero rule was in force and I did not apply it t
 
 **AGGRAVATING FACTOR, stated plainly:** the later report was more detailed and better formatted
 than my own sweep, and **I let presentation stand in for instrument quality.**
+
+## L-422 — A rounding that belongs to the DISPLAY layer will silently eat a measurement's discriminating power, and the number on screen still looks fine
+
+**2026-09-01, dafoam, Act D geometry admission.** `sdk/workflows/geometry_admission.py`'s
+`_read()` preferred `chief_engineer.geometry.load_surface` and fell back to a raw STL reader
+on **any** exception, `ImportError` included. `load_surface` rounds every coordinate to
+**5 decimal places** (`chief_engineer/geometry.py:199, :257, :370`) to keep the JSON it
+streams to a viewport small. That is correct for **drawing** a body and wrong for
+**measuring** one.
+
+**Two consequences, and the second is the one nobody predicted.**
+
+**(1) The reported measurement depended on `sys.path`.** On identical bytes (`md5
+3d41177e144748806382ec98f0fd923d`) the reported thickness was `0.12001006305217743` when
+`chief_engineer` was not importable and `0.12002` when it was — because importability is a
+`sys.path` fact, not a property of the data. **Note which extent moved:** chord and span are
+`1.0` and `3.0`, exact at five decimals and untouched, so **the rounding landed entirely on
+the SMALLEST extent — the one every threshold in that module is computed from.**
+
+**(2) ⚠ It consumed the bottom two orders of magnitude of a check whose entire job is
+detecting a substituted body.** Measured by planting real stretches into the reference
+wing's own span and reading the identity check through both readers:
+
+| planted defect | worst disagreement | what the screen said |
+|---|---|---|
+| none | 2.79e-06 % | below 1e-05 % |
+| 0.05 mm | 3.50e-04 % | 0.00035 % |
+| 1 mm | 7.12e-03 % | 0.00712 % |
+| 10 mm | 7.12e-02 % | 0.0712 % |
+
+**Through the rounded copy a PERFECT match already read 3.3e-04 %.** So a **0.05 mm defect
+was indistinguishable from a file with nothing wrong with it.** The check now resolves to
+**~1.5 µm on a 14 m span**. No verdict moved when it was repaired — both surfaces kept their
+outcomes (`match True` and `match False`) — **which is exactly why it survived: a precision
+loss that changes no outcome today leaves no symptom, and is discovered only when somebody
+asks what the last digits mean.**
+
+**The species.** This is the *same* fault the module was written to repair, one level out.
+The original defect was an **axis convention** belonging to one surface applied to another;
+this is a **rounding convention** belonging to one job (transport) applied to another
+(measurement). **A convention is safe only where it was authored; carried across a boundary
+it becomes an unstated assumption.**
+
+**What to take from it.** When a number is measured, read the artifact's **own bytes**; a
+loader written for a viewport, a report or a plot is not a measurement instrument however
+convenient it is. Where a fallback chain can silently change which reader answered, **record
+which one did** and surface it beside the value (`Surface.read_by`), so a transport-rounded
+reading can never be mixed with an exact one. And **state a measurement's resolution floor
+from the storage format rather than a table of magic epsilons** — here `_float32_step()`
+rounds to float32, increments the bit pattern by one and takes the difference — then refuse
+to print digits below it. **A comment asserting exactness ("read exactly as it arrived") is
+not exactness; that comment was in the file, and it was false in the last decimal.**
+
+---
+
+## L-423 — The private-index assert proves WHICH FILES moved, not WHOSE HUNKS are in them — measured twice in one session, in both directions
+
+**2026-09-01, dafoam.** `CLAUDE.md` rule 10's protocol is followed exactly and still commits
+a stranger's unfinished work, because **`git update-index --add -- <path>` takes the path AS
+IT STANDS ON DISK**, not the hunks the committer authored. If another agent has uncommitted
+edits in the same file, they go in.
+
+**Two instances in one session, in opposite directions, neither breaking any rule:**
+
+1. **`7717e6d7`** — the supervisor made a one-character edit to `MESH_CAPTION` in
+   `sdk/workflows/_a2_shape.py` and committed it. **61 insertions / 14 deletions** where the
+   authored edit was about twenty lines. A live lane's re-route of the identity check went in
+   with it, before that lane had reported it driven.
+2. **`ece8f234`** — a lane committed one hunk of its own in
+   `sdk/workflows/adjoint_optimization.py` and swept in **seven hunks** of a *different*
+   lane's live work on a runtime directive. **Its commit message closes with "Foreign
+   uncommitted rows left alone", which is false of those rows.**
+
+**Why every existing guard passed.** The `diff-tree` assert printed **one path, the
+committer's own** — truthfully. The CAS succeeded, because the parent genuinely was current.
+The post-commit `git diff HEAD~1 HEAD --stat` printed **the same one path**. **Every leg of
+rule 10 is about the SET OF PATHS and no leg is about the CONTENT within a path.** The
+protocol was designed against a different failure — a stale index reverting other people's
+*committed* work — and is simply silent about other people's *uncommitted* work in a file
+you legitimately own.
+
+**The tell, and it was on screen both times: the LINE COUNT.** Twenty lines authored, 61
+reported. Twelve lines authored, 110 reported. **Both committers read past it.** A diffstat
+whose magnitude does not match what you wrote is the cheapest available signal that the path
+contains something you did not author, and it costs nothing to look at.
+
+**Related, same session, same shape:** a lane reported a selftest `rc=2` that was not a
+failing arm at all — it had `cd`'d into `sdk/` earlier in the same compound command, so
+`python3 sdk/workflows/…` resolved to a path that does not exist and the shell's
+file-not-found became a "red". **A red from a path that does not exist reads identically to a
+red from a failing arm.** Confirm the thing you ran is the thing you meant to run before
+reporting its colour.
+
+**Disposition.** Both commits were **inspected, not reverted** — the work was real, on-brief
+and self-consistent, and rule 10 forbids reverting an unexpected change. The corrections are
+the disclosures themselves, and `ece8f234`'s misdescribing message is corrected here rather
+than by rewriting shared history. **This entry is an OBSERVATION, not a new procedural rule:
+a mandatory added step sits behind the plumbing freeze, and the rule proposal is on Sanaa's
+desk rather than in force.** Until she rules, the mitigation is judgement, not machinery —
+**check the diffstat magnitude against what you wrote, and prefer routing a small edit to
+whichever lane is already live in that file over racing it.**
+
