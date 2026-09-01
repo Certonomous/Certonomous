@@ -207,24 +207,39 @@ states) are the machinery. Sanaa's requested header sequence maps onto them as
 follows. **Act A's solving stage sweeps SIXTEEN points, not five**, so the
 counter reads to 16.
 
-| # | Stage (`STAGES`) | Current `BANNERS` value | **Header string Act A must show** |
-|---|---|---|---|
-| 1 | `prompt` | `forming team` | `Forming the team` |
-| 2 | `restatement` | `planning` | `Planning` |
-| 3 | `assumption` | `planning` | `Planning` |
-| 4 | `geometry` | `fleet at work` | `Fleet at work` |
-| 5 | `meshing` | `meshing` | `Meshing` |
-| 6 | `feasibility` | `feasibility` | `Feasibility` |
-| 7 | `solving` | `solving` | `Solving, point N of 16` |
-| 8 | `gates` | `solving` | `Checking` |
-| 9 | `results` | `results` | `Report` |
+**⚠ SUPERSEDED BY THE SHOOTING PROTOCOL (`cfcf766f`), Screen 2.** Her stage list
+is fixed and has **seven** entries, including one this spec previously lacked
+entirely — **`Reading the geometry`**. The mapping below is now hers, not ours;
+`Fleet at work` and `Feasibility` are NOT stage names on her list and must not
+appear in the header.
 
-**cfd dependency D-A7:** rows 8 and 9 do not exist in the machinery. `BANNERS`
-maps `gates` → `"solving"` and `results` → `"results"`; Sanaa asked for
-`Checking` and `Report`. That is a change to `sdk/workflows/demo_mode.py`,
-which is cfd's file. We specify the strings; we do not make the change.
+| # | **Header string Act A must show (Sanaa's Screen 2, verbatim order)** | Underlying `STAGES` entries |
+|---|---|---|
+| 1 | `Forming the team` | `prompt` |
+| 2 | **`Reading the geometry`** | `geometry` |
+| 3 | `Planning` | `restatement`, `assumption` |
+| 4 | `Meshing` | `meshing` |
+| 5 | `Solving (n of 16)` | `feasibility`, `solving` |
+| 6 | `Checking` | `gates` |
+| 7 | `Report` | `results` |
 
-**cfd dependency D-A8:** `Solving, point N of 16` needs a live point index.
+Her wording is `Solving (n of N)`; for Act A, N = 16.
+
+**Note the reordering this forces.** Her sequence reads the geometry at stage 2,
+*before* planning. The contract's `STAGES` order is
+prompt → restatement → assumption → geometry → …, i.e. geometry at position 4,
+*after* planning. **The header must follow her order.** Whether the underlying
+stage walk is reordered to match, or the header maps onto it as above, is cfd's
+call — but the header must never show `Planning` while the geometry panel is
+what the viewer is looking at (her Screen 2: "match what is on screen").
+
+**cfd dependency D-A7:** `Reading the geometry`, `Checking` and `Report` do not
+exist in the machinery. `BANNERS` maps `geometry` → `"fleet at work"`,
+`gates` → `"solving"` and `results` → `"results"`. All three strings are a
+change to `sdk/workflows/demo_mode.py`, which is cfd's file. We specify the
+strings; we do not make the change.
+
+**cfd dependency D-A8:** `Solving (n of 16)` needs a live point index.
 `SolveReplay.sweep_points` is already `len(solved_points())` = 16
 (`motor_thermal_act.py` line 592), so the denominator has a real source; the
 numerator N is a machinery counter.
@@ -360,19 +375,59 @@ are translated into plain words.
 >    perturbation, so a zero from any of them would have been a reading and not
 >    a blind spot. *(already exists in the act, unchanged; counts verified —
 >    `len(planted_zero_controls)` = 4, `planted_K` = 0.001234.)*
-> 3. **NEW — the honest negative.** A three-grid refinement study was run for
->    this body and did not settle: the temperatures moved with the grid too
->    slowly for the study to support an error bar, so no numerical uncertainty
->    is quoted on any row here, and none is drawn.
+> 3. **RE-DRAFTED UNDER SCREEN 8 — see §5.2a.** Every temperature here came from
+>    a single mesh, so no band is drawn on any row yet. The grid convergence
+>    study for this case is running; the band lands in your inbox with the
+>    certificate.
 > 4. No rig or wind tunnel data exists for this configuration, so the
 >    temperatures are shown as solved and no agreement with measurement is
 >    claimed. *(already exists in the act, unchanged.)*
 
-**Line 3 is the one that needs the supervisor's eye.** It states a run happened
-and returned nothing usable — an honest negative, publishable — without using
-`NOT A RESULT` on screen, without quoting the observed order as if it were a
-result, and without implying a band exists. It must NOT be softened to "a grid
-study is in progress": T23G is closed and graded; T23G2 is the one not yet run.
+### 5.2a ⛔ SCREEN 8 AND THE ONE THING THAT COULD MAKE THIS ACT LIE
+
+Her **Screen 8** is binding: *"The platform always runs it; the demo shows it as
+done or as automatically underway, never as absent."* Act A cannot show it as
+done — T23G is `NOT A RESULT` and T23G2 has not run — so Act A takes the
+"automatically underway" form, which is what §5.2 line 3 and the §5.3 closing
+line now say.
+
+**⚠ THAT LINE IS NOT TRUE TODAY, AND SAYING IT WOULD BE THE WORST THING IN THIS
+SPEC.** Measured this session:
+
+- `verification/runs/T-family/T23G2_runs/` — **does not exist.**
+- No T23G2 entry in `verification/queue/heat-transfer/` or its `launched/`.
+- What DOES exist: the committed pre-registration
+  `docs/campaigns/T-family/T23G2_PREREGISTRATION.md` and the builder
+  `docs/campaigns/T-family/build_t23g2.py` (44,788 bytes, mtime 16:59).
+
+So the study is **prepared and not launched.** The sentence *"The grid
+convergence study for this case is running"* is a statement about the present,
+and it is currently false.
+
+**There is exactly one honest way to earn it: launch T23G2 before capture.**
+That is heat-transfer's own work and the supervisor's call, and Sanaa's own
+convergence doctrine (`f4c8e466` §7) already orders it — *"convergence studies
+launch in parallel on every case named above, starting now."* Her §1 names the
+motor explicitly.
+
+**Until it is launched, Act A must not carry the line.** This is flagged as a
+BLOCKING pre-capture item, not a drafting preference. The two lawful states are:
+
+| State | What Screen 8 may say |
+|---|---|
+| T23G2 launched and running | *"The grid convergence study for this case is running; the band lands in your inbox with the certificate."* — her form, honest |
+| T23G2 not launched | **Act A is not ready to shoot.** Do not substitute a softer sentence; launch the study. |
+
+**Why the earlier draft was withdrawn.** The version first committed here said a
+refinement study *"was run… and did not settle."* That is true, and it is a good
+sentence for a lab record — but it narrates the current state of the lab, which
+her preamble bans outright (*"Nothing narrates the current state of the lab"*),
+and it shows the study as effectively absent, which Screen 8 bans. **The
+withdrawal is a presentation change, not a retreat from the finding:** T23G's
+`NOT A RESULT` verdict stands unaltered in `T23G_RESULTS.md`, the uncertainty
+column still carries no invented number, and nothing here claims a band exists.
+What changed is that the screen now points forward to the study that will
+produce the band instead of backward to the one that failed.
 
 **What must NEVER appear on an Act A screen:**
 - any ± , band, GCI, or uncertainty figure on the sixteen-row table;
@@ -455,7 +510,19 @@ Two measured hazards make this more than a wording question:
 > • Anything outside a steady state: warm-up time and response to a load change
 >   are not represented.
 >
-> No certificate number is assigned to this run.
+> The grid convergence study for this case is running. The band lands in your
+> inbox with the certificate.
+
+**⚠ RE-DRAFTED UNDER THE SHOOTING PROTOCOL (`cfcf766f`).** Two changes from the
+version first committed here:
+
+1. **The word "tier" is on her never-list**, so the block names none. It did not
+   before either, but the prohibition is now explicit and the check is recorded.
+2. **The closing line no longer says "No certificate number is assigned."**
+   "ids" is on the never-list, and — more importantly — her **Screen 8** forbids
+   showing the convergence study as absent. The closing line is now her own
+   "lands in your inbox" form. **This is subject to §5.2a: it is honest only once
+   T23G2 is actually launched.**
 
 **Design rule for the machinery, to hand to cfd:** the certificate slot must
 render this block from an explicit "not issued" state, and must have **no code
@@ -598,3 +665,328 @@ and rule 12 both forbid calling that measured.
 **Not missing, confirmed present:** the solved STL, its parts manifest, the mesh
 facts, all sixteen solver logs, all sixteen launched cost records, the monitor
 series for all 16 tiles, and nine of the ten figures.
+
+---
+
+# 9. SHOOTING-PROTOCOL COMPLIANCE (`cfcf766f`, 2026-09-01 ~20:30Z)
+
+Binding for every act. Supersedes conflicting presentation details in §1–§8
+above; where a section was superseded it is marked in place rather than deleted.
+
+## 9.1 ⚡ THE MOTOR BEAT — "the thermal-resistance estimate shown first, then corrected by the coupled solve; envelope with the 200 C line"
+
+We have both halves and they are currently in the **wrong relationship**.
+
+**What is wrong today.** `MotorThermalAct.assumption()` is stage 3 of the
+contract walk, and it already delivers the *correction* — its `finding` field
+states *"the quick estimate is 3.4 times too high"* — **before the coupled solve
+has run on screen.** The estimate is therefore never on screen in its own right;
+it arrives already demolished. The beat's whole content is the gap between the
+two numbers, and a gap cannot land if the viewer never held the first number
+alone.
+
+**Screen A — THE ESTIMATE, ALONE (before the solve).** Shown as the answer an
+engineer would reach for, stated with confidence, no hedging, no foreshadowing
+of the correction.
+
+| Quantity | Value | Source |
+|---|---|---|
+| Method | one-dimensional thermal resistance, duct correlation | `figures_actA/actA_screen_data.json` → `assumption_beat.duct_factor` |
+| Housing temperature, predicted | **197.3 °C** | `T23_GRADE.json` → `T23_P305_U20.predicted_DB_degC` |
+| Predicted rise above inlet air | **182.4 K** | derived: 197.3 − 14.9 °C inlet |
+| Limit | **200 °C** | `actA_screen_data.json` → `envelope.limit_degC` |
+| Margin on this estimate | **2.7 K** | derived |
+
+The line that makes it land, present tense because it is what the team is doing:
+
+> The hand estimate puts the housing at 197.3 °C against a 200 °C limit. On this
+> number the design is marginal, and that is the answer an engineer gets in
+> thirty seconds.
+
+**Screen B — THE COUPLED SOLVE CORRECTS IT (after the solve).** Past tense,
+because it is a result.
+
+| Quantity | Value | Source |
+|---|---|---|
+| Peak housing temperature, solved | **69.0 °C** | `actA_screen_data.json` → `assumption_beat.solved_degC["20"]` |
+| Solved rise above inlet air | **54.2 K** | `assumption_beat.solved_rise_at_20ms_K` |
+| Inlet air | **14.9 °C** | derived: peak − rise; not typed anywhere, so a changed inlet cannot strand a constant |
+| **Overshoot factor** | **3.4×** on temperature rise | `T23_GRADE.json` → `DB_over_solved`, cross-checked in `_correlation_rises()` |
+| Operating point | 305 W, 20 m/s | `PRIMARY` |
+
+> The coupled solve found the housing at 69.0 °C. Measured as rise above the
+> incoming air, the hand estimate ran 3.4 times hot — 182 K predicted against
+> 54 K solved. The design was never marginal.
+
+**Both sides are named on screen.** A bare "3.4 times" invites pairing with
+whichever number is largest in view, and the largest number on this act belongs
+to a different operating point and a different solid. The act's own docstring
+already insists on this and the requirement is retained.
+
+**Screen C — THE ENVELOPE, carrying the 200 °C line.**
+`docs/campaigns/T-family/demo/figures_actA/actA_envelope.pdf`, rendered title
+*"Peak core temperature against airspeed"*, four curves (80, 155, 230, 305 W),
+the **200 °C limit line** and the 120 °C design isotherm both already drawn, and
+the worst margin annotated at **+92.3 K** (305 W, 10 m/s). No change required to
+the figure — only its placement, which is third in this beat.
+
+**Ordering dependency (cfd):** the correction must be sequenced after the
+solving screen. Whether `assumption()` is split into a pre-solve estimate and a
+post-solve correction, or the correction is relocated into `results()`, is
+cfd's call. **The content and both numbers are fixed here.**
+
+## 9.2 SCREEN 3 — ACKNOWLEDGEMENT (mandatory, and NEW for Act A)
+
+One-sentence restatement plus a geometry table with **extent, reference lengths,
+features found**, and confidence stated. Act A had no such table; this is
+genuinely new.
+
+Restatement (already exists, `Restatement.restatement`): *"Solve 16 operating
+points, 4 dissipated powers by 4 duct airspeeds, and report the hottest solid
+temperature and its margin to the limit at each."*
+
+**Geometry table — every value from the parts manifest
+`verification/runs/T-family/T23_runs/display_surface/t23_solved_geometry_parts.json`
+→ `geometry_m`:**
+
+| Quantity | Value |
+|---|---|
+| Axial extent | 0.750 m |
+| Duct inner radius | 0.125 m |
+| Motor body outer radius | 0.0375 m |
+| Housing inner radius | 0.0335 m |
+| Housing wall thickness | 0.004 m |
+| Heated section length | 0.125 m |
+
+**Features found — name what the geometry ACTUALLY has.** Her example list is
+"slot, channels, housing, tip"; for the motor the true features, from
+`part_order`, are:
+
+> **a heated housing** (the 0.125 m heated section), **a duct** around it, and
+> **a centrebody** running the full length upstream and downstream of the
+> housing.
+
+**⛔ And the features it does NOT have must not be listed:** no nose, no tail,
+no struts. The manifest's `declared_omissions` records that the retired surface
+carried three struts and nose/tail cones that were never solved. Screen 3 is
+exactly where a plausible-sounding feature list would reintroduce them.
+
+**Confidence statement**, and it is genuinely strong here:
+
+> Confidence: high. The body is axisymmetric and fully dimensioned, and the mesh
+> was confirmed identical across all sixteen cases before any temperature was
+> read.
+
+*(Backing: `geometry_guard.result` — "all 16 cases byte-identical in fluid,
+housing and core — 48 of 48 region-case pairs".)*
+
+## 9.3 SCREEN 4 — EXPERT DISCUSSION (mandatory; we carry most of it under other names)
+
+Her three named roles, in her order. **Aligning our naming to hers**: our
+existing content lives in `mesh_plan`, `gates` and `Results.limitations` and is
+re-labelled, not rewritten.
+
+**Lead Researcher — physics identified; closure chosen and why (class, known limits):**
+
+> The physics is conjugate heat transfer: a heated core, its housing wall and
+> the cooling air are solved together rather than separately, so the metal and
+> the air set each other's temperature. The closure is k-omega SST, resolved to
+> the wall rather than bridged with a wall function. It is a two-equation
+> eddy-viscosity model — it carries that class's known limit, which is that
+> turbulent transport is modelled rather than resolved, and the heat the air
+> carries away carries that model's error.
+
+*(Closure name is READ, `actA_screen_data.json` → `solver.turbulence_model`,
+never typed — the act already does this.)*
+
+**Lead Engineer — mesh type and target resolution; solver named:**
+
+> A structured wedge mesh of 39,680 cells over three regions — 35,200 in the
+> air, 1,120 in the housing, 3,360 in the core. Wall layers are resolved, not
+> modelled: the near-wall spacing holds the wall unit below one against the
+> heated housing. The solver is OpenFOAM chtMultiRegionSimpleFoam.
+
+*(Cells from `T23_T24_MESH_FACTS.json`; wall units from `T23_GRADE.json.yplus`,
+four surfaces, already tabulated by `mesh_plan()`; solver name cross-checked
+between the log header and the case dictionary by `solver_name()`.)*
+
+**Lead Numericist — schemes, tolerances, and the checks that will run:**
+
+> Steady, so no time step. The checks that will run are set before the solve:
+> every reader is driven with a known planted signal and must detect it, the air
+> mass through the duct must balance in against out, and every value on the
+> results table is re-read from the stored fields against the record written
+> before the runs started.
+
+*(All three already exist: `gates()` planted table — 4 readers, planted
+1.234e-03 K; `gates()` conservation table; and the 5 anchor checks agreeing to
+3.7e-05 K.)*
+
+**Assumptions table — USER-DEFINED vs LAB-DEFINED, every quantity with a value
+and a unit.** New as a split table; the content exists in
+`actA_screen_data.json` → `assumptions` and in `figures_actA/actA_assumptions.pdf`.
+
+| Source | Quantity | Value | Unit |
+|---|---|---|---|
+| USER-DEFINED | Dissipated power, swept | 80, 155, 230, 305 | W |
+| USER-DEFINED | Duct airspeed, swept | 10, 20, 30, 40 | m/s |
+| USER-DEFINED | Temperature limit | 200 | °C |
+| LAB-DEFINED | Core conductivity | 40 | W/m·K |
+| LAB-DEFINED | Housing conductivity | 167 | W/m·K |
+| LAB-DEFINED | Air conductivity | 0.026 | W/m·K |
+| LAB-DEFINED | Design isotherm | 120 | °C |
+| LAB-DEFINED | Closure | k-omega SST, wall-resolved | — |
+| LAB-DEFINED | Symmetry | axisymmetric, 5-degree wedge | deg |
+| LAB-DEFINED | Radiation | off in all three regions | — |
+
+**The one user-assumption correction beat** is §9.1, and it belongs on this
+screen only as the *estimate* half; the correction half waits for the solve.
+
+## 9.4 ⛔ NEVER-LIST AUDIT — PER-OCCURRENCE, WITH RESOLUTION
+
+Her list: *prior runs, replay, agreements, paths, ids, tiers, "not recorded",
+"no solver", "already finished"*. Physics facts stay and are phrased as the
+platform's next automatic step.
+
+### 9.4.1 The "not recorded" occurrences — the table asked for
+
+**Correction to the brief I was given: it is not four occurrences.** The literal
+string `"not recorded in this bundle"` occurs 4 times, but the banned phrase
+`"not recorded"` occurs at **13 sites across two files**, and one of the two
+files is Act A's own act module, which the brief did not mention.
+
+`sdk/workflows/thermal_display.py` (cfd's file):
+
+| Line | Quantity reported unrecorded | Fires? | Value exists on disk? | Resolution | Exact replacement string |
+|---|---|---|---|---|---|
+| 274 | `NOT_RECORDED` constant | — | — | (a) rename | `NOT_RECORDED = "the platform records this automatically"` — or delete once 362/396/527/659-664 are fixed |
+| 362 | joined descriptor parts | conditional | n/a | (b) | `"the platform names this on the next pass"` |
+| 396 | magnitude whose unit is missing | conditional | n/a | (b) | `f"{mag}, unit added on the next pass"` |
+| **454** | **source case** | no — `common` is non-empty | **yes** | **(a), but NOT verbatim** | ⛔ the recorded value is a **filesystem path** and "paths" is itself on the never-list. Use words: `"Sixteen operating points, four powers by four airspeeds"` |
+| **455** | **reader** | **YES, unconditional** | **yes** | **(a)** | `"Peak core temperature is the maximum of T over the core; peak housing temperature is the maximum of T over the housing."` (from `actA_screen_data.json` → `reader`, with the script names and paths stripped) |
+| **458** | **mesh cell count** | **YES, unconditional** | **yes — 39,680** | **(a)** | `39680` (an integer, rendered by the existing `:,` formatter at 661 as `39,680`) |
+| **459** | **geometry guard** | **YES, unconditional** | **yes** | **(a)** | `"All sixteen cases were confirmed identical in the air, the housing and the core before any temperature was read."` |
+| 527 | uncertainty envelope reason | conditional | yes | (a) | the Screen 8 line: `"The grid convergence study for this case is running."` |
+| 659–664 | table fallbacks for the four above | conditional | yes | (a) | once 454–459 carry values, these fallbacks are unreachable; replace the literal anyway with `"the platform adds this automatically"` |
+
+**Three of them — 455, 458, 459 — are UNCONDITIONAL and reach the screen on
+every render.** 454 is conditional and does not currently fire. All four have
+their values on disk, so **resolution (a) applies to all four**, which is the
+honest fix and the one that makes the screen better rather than quieter.
+
+`sdk/workflows/motor_thermal_act.py` (cfd's file — **not in the brief, found in
+this audit**):
+
+| Line | Quantity | Fires? | Value exists? | Resolution | Replacement |
+|---|---|---|---|---|---|
+| 138 | `_cell()` fallback for any missing table value | conditional | varies | (b) | `"the platform adds this automatically"` |
+| 550–551 | wall-unit row on the **mesh resolution table** (Screen 5) — three cells per row | **not today** | **yes** | (a) | dead on current data: `T23_GRADE.json.yplus` carries all four keys (`duct_wall`, `centrebody_up`, `centrebody_down`, `fluid_to_housing`), so the branch never fires. **Still must be changed** — it is one missing key away from putting a banned string on the resolution table Screen 5 requires. |
+
+### 9.4.2 The two other strings I was asked to re-check — both are worse than flagged
+
+Read in context at `thermal_display.py:790–810`, this is the **`thermal-display`
+route — the same route as `m-942be0f630b7`, which §2.2 shows serving the retired
+body.** Its engineer narration is a cluster of violations, not two strings:
+
+| Rendered text | Never-list term |
+|---|---|
+| "a body this lab has **already run**" | prior runs / already finished |
+| "**No solver starts** on this request" | **"no solver"** — explicit |
+| "no new number is produced: **the screens come from that run's own fields**" | replay |
+| "**Reference body received**… The screens below come **from the run that landed for this body, not from the uploaded file**, and the uploaded file is **neither meshed nor solved** by this act" | replay + prior runs |
+
+**This is not a wording problem, it is a route problem.** Her preamble is
+*"Nothing narrates the current state of the lab"*, and this narration exists
+solely to narrate it. It also directly contradicts **Screen 1** ("The user's
+uploaded STL renders immediately") by announcing that the uploaded file is not
+used. **Recommendation: Act A must not be shot through the `thermal-display`
+route at all** — it is shot through the registered `motor-thermal` demo-mode
+act, which narrates none of this. Rewriting these four sentences would leave a
+route whose entire purpose is the thing the protocol forbids.
+
+### 9.4.3 The rest of the never-list on the Act A surface
+
+| Site | Term | Finding |
+|---|---|---|
+| `motor_thermal_act.py:391` | **ids** | `run_id=PRIMARY.name` emits `T23_P305_U20`. Must not reach a screen. |
+| `motor_thermal_act.py:400` | **ids + replay** | `presentation_of="presentation of run T23_P305_U20"` — an id *and* replay framing. Must not reach a screen. |
+| `motor_thermal_act.py:734` | **agreements** | *"no **agreement** with measurement is claimed"*. **Resolved cleanly:** her rule explicitly preserves this as a physics fact and gives the wording — *"no measured data for this configuration"*. **Replacement:** `"There is no measured data for this configuration, so the temperatures are shown as solved."` |
+| `figures_actA/actA_monitor_replay.pdf` | replay | filename only; the rendered title is *"Housing temperature monitors, sixteen runs"* and is clean. **Never display the filename** — "paths" is banned anyway. |
+| §5.2 line 4, my own draft | **agreements** | same fix as line 734; re-drafted below. |
+
+**Re-drafted §5.2 line 4:** *"There is no measured data for this configuration,
+so the temperatures are shown as solved."*
+
+## 9.5 TENSE PASS — past tense for results is RESTORED
+
+Re-read every line drafted in §5 and §9 under the restored rule
+(present/progressive while running, **past tense for results**):
+
+| Line | Verdict |
+|---|---|
+| §9.1 Screen A ("The hand estimate **puts** the housing at 197.3 °C") | present — correct, it is what the team is doing before the solve |
+| §9.1 Screen B ("The coupled solve **found**… the estimate **ran** 3.4 times hot… the design **was** never marginal") | past — correct, these are results |
+| §5.2 line 1 ("**Reproduced** from the fields on disk… **agreeing** to better than 3.7e-05 K") | past — correct |
+| §5.2 line 2 ("four readers each **detected** a planted perturbation") | past — correct |
+| §5.2 line 3 ("Every temperature here **came** from a single mesh… the study **is running**") | past for the result, present for the ongoing study — correct |
+| §5.6 Conclusion ("the motor **stays** clear… the hottest point **sits** 92 K below") | ⚠ **present tense on results — FIX** |
+| §5.3 certificate block ("**was** established / **was NOT** established") | past — correct |
+
+**Re-drafted §5.6 Conclusion, past tense on every result:**
+
+> Across the whole range asked for, the motor stayed clear of its 200 °C limit.
+> The worst case was the highest power at the lowest airspeed, and even there
+> the hottest point in the core sat 92 K below the limit. The hand estimate that
+> prompted this study ran 3.4 times hot, measured as temperature rise above the
+> incoming air. Every number here came from a single mesh; the grid convergence
+> study for this case is running, and the band lands in your inbox with the
+> certificate.
+
+*(The final clause is subject to §5.2a — it is honest only once T23G2 is
+launched.)*
+
+## 9.6 THE PATCH, PREPARED IN OUR TERRITORY
+
+`thermal_display.py` and `motor_thermal_act.py` are **cfd's files and are not
+edited by us.** The changes of §9.4.1 are specified here as **cfd dependency
+D-A9**, to be applied by cfd, with every replacement string given verbatim in
+the tables above and every value's source named.
+
+**D-A9 acceptance check**, for whoever applies it:
+
+    grep -c 'not recorded' sdk/workflows/thermal_display.py sdk/workflows/motor_thermal_act.py   # must be 0 in both
+
+**D-A10:** Act A is shot through the registered `motor-thermal` act only; the
+`thermal-display` route is not used for capture (§9.4.2).
+
+## 9.7 A CLAIM IN MY BRIEF THAT IS FALSE, CORRECTED HERE
+
+I was told that `sdk/workflows/motor_thermal_act.py` and
+`sdk/geometry/t23_solved_geometry.stl` *"DO exist on disk now (mtime 15:37) but
+are NOT tracked at HEAD"*, that the Act A patch was *"left uncommitted"* and is
+*"NOT recoverable"*, and that committing them should be named a cfd dependency.
+
+**Measured: all three of `motor_thermal_act.py`, `t23_solved_geometry.stl` and
+`thermal_display.py` are TRACKED at HEAD and CLEAN against it** —
+`git cat-file -e HEAD:<path>` succeeds and `git diff --quiet HEAD -- <path>`
+reports no difference for each. Nothing is uncommitted and nothing is at risk.
+
+**No such cfd dependency is recorded, because there is nothing to commit.**
+Checklist item 1 is satisfied at HEAD, not merely in a working tree.
+
+## 9.8 THE NINE-BOX SHOOTING CHECKLIST, FOR ACT A
+
+| # | Item | State |
+|---|---|---|
+| 1 | STL is the solved geometry and renders on load | **[x]** `t23_solved_geometry.stl`, sha256 `d2864232…`, tracked and clean at HEAD, guarded by a shape check and a byte-identity check. §2 records the separate retired-body hazard, which is a different question. |
+| 2 | Header stages advance and match what is on screen | **[ ]** blocked on D-A7/D-A8. Three of her seven strings — `Reading the geometry`, `Checking`, `Report` — do not exist in the machinery, and her order puts geometry before planning while the contract puts it after. |
+| 3 | Expert discussion present, assumptions table present | **[ ]** content drafted in §9.2–§9.3; the acknowledgement geometry table and the USER/LAB assumptions split are **new** and not yet built. |
+| 4 | Mesh shown as real cells; resolution table present | **[x]** `actA_mesh_boundary_layer.pdf` (three zooms, 2,806 cells in the 30 mm window) and the four-surface wall-unit table from `mesh_plan()`. ⚠ carries the latent `"not recorded"` branch of §9.4.1. |
+| 5 | Sweep/multipoint monitors as small multiples on one screen | **[ ]** §4 specifies the 4×4 sixteen-tile layout concretely; the component is cfd's and not built. |
+| 6 | Results table, compute line, conclusion | **[x]** sixteen-row table, cost line 578.8 against 483.6 forecast, conclusion re-drafted in past tense at §9.5. |
+| 7 | Report tab populated: plots to the figure standard, summary, next steps | **[~]** nine of ten figures compliant; **`actA_map_table.pdf` carries a table inside the figure** and must be split (§6). "Next steps" is new and is the T23G2 study. |
+| 8 | Convergence study shown done, or the "lands in your inbox" line | **[ ] ⛔ BLOCKING** — the line is drafted but **T23G2 is not launched**, so it is currently false. §5.2a. |
+| 9 | Zero forbidden language on any screen | **[ ]** 13 `"not recorded"` sites across two files (§9.4.1); the `thermal-display` narration cluster (§9.4.2); ids at `motor_thermal_act.py:391,400`; "agreement" at `:734`. |
+
+**Two boxes are blocking and neither is a drafting problem:** box 8 needs T23G2
+launched, and box 9 needs D-A9 applied.
