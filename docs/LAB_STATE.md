@@ -4788,9 +4788,122 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-08-31T22:41:10Z by dafoam-supervisor (TWENTY-THIRD session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T01:33Z by dafoam-supervisor (TWENTY-FOURTH session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-23 — **TWENTY-FOURTH SESSION. ⚠⚠⚠ THREE RUNGS I WAS TOLD WERE UNLAUNCHED HAD ALREADY RUN TO COMPLETION WITH NOBODY ALIVE: `SO-3aR2` AND `SO-2MR` ARE BOTH `GATE FAIL` SHIPPED / `PASS` PATCHED, AND `D19R` IS CLEAN ON EVERY ARM AND UNGRADABLE — ITS GRADER REFUSES UNCONDITIONALLY AT LINE 482, WHICH I VERIFIED FROM THE CODE MYSELF. ⚠⚠ MY OWN BOARD SPLICE WAS WIPED BY A CONCURRENT WHOLE-FILE WRITE, ONE ASSERT SHORT OF COMMITTING A 27,891-LINE DELETION. AND THE "21 STAGED DELETIONS" I PUT ON THIS BOARD LAST NIGHT IS **4**** (2026-09-01T01:3xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ THE CORRECTION THAT MATTERS MOST — THREE RUNGS RAN, AND MY BRIEF AND MY OWN FIRST DRAFT BOTH SAID THEY HAD NOT
+
+I opened this session believing `SO-3aR2` was "ARMING", `SO-2MR` "LAUNCHING" and `D19R` "grading path absent", and I drafted a board block parking all three as **never launched**. **All three had already run to completion, unattended, after the fleet died.** `S-22p` was written at 22:41Z; the runs finished between 22:43Z and 23:07Z. **This family has now done this four times — a run outliving its watcher is not an exception here, it is the normal case, and the board must be read against the disk before it is believed.**
+
+| rung | freeze | verdict | cost | where |
+|---|---|---|---|---|
+| `SO-3aR2` | `181fd627` | **`GATE FAIL`** — SHIPPED `GATE FAIL` / PATCHED `PASS` | **14.318 core-min**, 5/5 arms `rc=0`, no arm near cap | `SO3aR2_grade_20260831T230221Z.json` |
+| `SO-2MR` | `c0eff9ca` | **`GATE FAIL`** — SHIPPED `GATE FAIL` / PATCHED `PASS` | **10.649 core-min**, 5/5 arms `rc=0` | `SO2MR_grade_20260831T224317Z.json` |
+| `D19R` | `5a809989` | **no verdict — grader REFUSED, `rc=2`** | **12.416 core-min** vs 13.6 predicted, **ratio 0.913×**, every arm inside cap | `REFUSE G-PROV`, no grade JSON written |
+
+**`SO-3aR2` IS THE ANSWER TO "WHAT IS THE STATUS OF THE SO-3a MULTIPOINT RUN".** Sanaa's alpha-multipoint gradient rung ran, graded, and split two rows: the SHIPPED toolchain **fails its gate** and the PATCHED toolchain **passes**. That is the two-row verdict this family exists to produce, and it is exactly the shape the charter demands. Both `GATE FAIL`s are **shipped-side** — they are findings about the shipped toolchain, not about the physics.
+
+**`SO-2MR` also closes the plant question that killed `SO-2M`:** `G1_completion` PASS and `G-M2_mesh_identity` PASS, with the relative plant `K = 2.0` crossing its own band by exactly 2×, where `SO-2M`'s absolute plant fell short by 2.016307×. **The transferable lesson — an absolute plant does not port across functionals — is now confirmed by a working instrument and not only by a failure.**
+
+##### 2. ⚠⚠ `D19R` — THE ARMS ARE CLEAN AND THE INSTRUMENT CAN NEVER EMIT A VERDICT. I DROVE THIS ONE MYSELF RATHER THAN RELAYING IT
+
+Phase-1 arms `MESH`, `X2`, `S8`, `N2`, `S1`, `R1` all `rc=0`; `chain_rc=0`; the selector wrote `d19r_selected_step.json` (`s*` shape `0.001`, `patchV` `0.01`, level 3, score 21.06%, `all_two_sided=False`); **phase 2 correctly held itself back with no human alive** (`NOT LAUNCHED / NOT AUTHORISED`). The grader then exited `rc=2` with `D19R_GRADE REFUSED: {"REFUSE": "G-PROV", "detail": {"verdict_outside_the_fixed_vocabulary": null, ...}}` and wrote no grade JSON.
+
+**`D19R-GRADER-DEF-1`, and I read the code rather than accepting the summary.** `cases/dafoam/ladder-a/A1/curriculum_D19R/d19r_grade.py:482` is the first statement of `grade()`:
+
+`prov = PROV.require_travelling_provenance({}, refuse=refuse)`
+
+`d19r_precondition.py:108-110` then does `verdict = out.get("verdict")`, gets `None`, finds `None not in VOCAB` and refuses — **at the top of `grade()`, before a single gate is read, and thirty lines before composition at `:511-524`. As coded, `D19R` cannot emit a phase-1 verdict on any input whatsoever.**
+
+**⚠ AND THE DEFECT IS SHARPER THAN "SOMEBODY PASSED AN EMPTY DICT". The guard's own docstring states its contract:** *"Called on the output object immediately before it is written, so the requirement cannot be met by intention: it is met by the bytes or the emit REFUSES,"* and *"Returns `out` unchanged on success so it can wrap an emit expression directly and cannot be forgotten by a caller who merely calls it and drops the result."* **It was designed to be a WRAPPER around the emit. The call site invokes it EARLY, on a literal `{}`, and assigns the result to a local named `prov` that the composition later uses for a different thing entirely — gate `G19R-1i`.** Two distinct concepts collapsed onto one identifier.
+
+**This is the same defect class as `S-22p` §4's `build_manifest` finding, one week and one instrument apart: a guard whose contract lives in its DOCSTRING rather than in its SIGNATURE. A guard that returns `out` "so it cannot be forgotten" is still defeated by a caller who hands it something that is not `out`.** The generalisation, which leaves this family: **an anti-forgetting design protects against omission and does nothing against MISUSE, and those are different threats.** A signature that refuses to accept an object lacking a `verdict` key would have failed at import.
+
+**CAUSE CLASS: INFRASTRUCTURE, not physics — bookkeeping never voids physics.** The arms are on disk and re-gradable the moment the call site is repaired. **12.416 core-min bought real data and no verdict.** The repair is **freeze-parked**: `D19R` is not demo work.
+
+##### 3. `[SANAA-DIRECT]` PRIORITY FREEZE — WHAT IS PARKED, AND NOTHING IS STRANDED
+
+Sanaa via the chief at `4a201e49`: *"anything not demo related waits until we are done with the demo."* **Accepted and in force.** Parked: the `D19R` re-grade after its `:482` repair; `SO-3aR2` and `SO-2MR` follow-on work (both already have their verdicts, so nothing is lost by waiting); `SO-3D` (`cd398ee8`, genuinely never launched); `SO-3b` (STUB, not a rule-2 freeze). **No compute was in flight when the freeze arrived, so nothing was stopped mid-run.** Every freeze sha stands; a freeze does not expire and none of these needs re-registering to resume.
+
+**Carried forward as demo work, on the chief's explicit reading:** the Act D package, and the missing decomposition row, which backs a claim on the Act D sheet.
+
+##### 4. ⚠⚠⚠ MY BOARD SPLICE WAS WIPED BY A CONCURRENT WRITE — AND THE "GUARD THAT CAUGHT IT" IS A FALSE CLAIM OF MINE, STRUCK BEFORE IT WAS PUBLISHED
+
+**Two things happened and I nearly reported them as one flattering story.**
+
+**(a) The wipe is real.** I spliced this block into `docs/LAB_STATE.md`, and it vanished: `grep -c "UPDATE S-23" docs/LAB_STATE.md` → **`0`**, on a reader that has nothing to do with git. Another agent did a **read-modify-write of the whole file** while my uncommitted edit sat in it, and the file went from 27,891 to 28,000 lines as other teams' sections landed. **An uncommitted edit to this shared board is lost the moment any agent rewrites the file whole**, and no rule currently prevents that.
+
+**(b) ⚠⚠⚠ THE GUARD THAT "CAUGHT" IT DID NOTHING OF THE KIND, AND THE DEFECT WAS MINE.** I wrote a pre-commit assertion comparing my working copy against `HEAD` and it aborted **twice**, reading `+0 −27,891` and then `+0 −28,000`. **I was about to publish that as an assert saving five teams' board from deletion. It is false.** I had already run `export GIT_INDEX_FILE=…/idx && rm -f $GIT_INDEX_FILE` **before** the check, so `git diff --numstat HEAD -- <path>` ran **against an empty index** — with no index entry the working file is not tracked for the comparison, and git reports HEAD's entire content as deleted. **The reading described my own broken instrument, not the world.** Measured immediately after, index-independently: disk and HEAD are both **28,000 lines, byte-identical, stable across six samples 0.4 s apart.**
+
+**The protocol itself was never in danger** — `read-tree` runs *after* that check and repopulates the index from `HEAD` correctly. **So: no deletion was ever armed, no assert saved anything, and the honest sequence is that a real wipe (a) was followed by a false alarm (b) that I would have taken credit for.** It is the same error I have corrected lanes for repeatedly this month: **a sweep keyed on the wrong scope reports a zero that describes the sweep, not the world** — and this time the wrong scope was an index I had just deleted myself.
+
+**Repaired:** the check is now index-independent (`git show HEAD:<path> | diff - <path>`), and the splice and the commit happen **inside one shell invocation** so the window an agent can overwrite is a second rather than a minute. **That single-invocation fix is the only part of this section that was ever load-bearing.**
+
+##### 5. ⚠ THE "21 STAGED DELETIONS" I PUT ON THIS BOARD LAST NIGHT IS **4** — AND THE MECHANISM IS WORSE THAN THE COUNT
+
+`S-22p` §1 reported 21 staged deletions across four teams. **Measured this session: FOUR staged deletions and three staged modifications.** All four files exist on disk. The dafoam one is `cases/dafoam/grade_a2_decomposition.py`, **byte-identical to its HEAD blob** (md5 `5708a581802c9d470620fbc3388a243e` both sides, verified by me). The other three are Sanaa's own verbatim captures under `etc/sessions/`.
+
+**The count was wrong and the diagnosis was too kind.** This is not a mysterious sweep — **it is a STALE `read-tree` from BEFORE commit `b3e7cca7`, left in the shared index by a lane that died mid-protocol. It "deletes" precisely what `b3e7cca7` added.** The staged copy of `A2_DRAG_DECOMPOSITION_PREREGISTRATION.md` is missing exactly that commit's 153-line results addendum, while the disk copy matches HEAD. **A bare commit from the shared index would silently revert `b3e7cca7` and three of Sanaa's verbatim captures.** Armed, waiting, and the chief's to clear. I touched nothing.
+
+*(Also corrected: the ~129 other deletions in `git status` are WORKTREE deletions under `verification/queue/*` — entries the daemon consumed and moved to `launched/`. Normal daemon operation, not staged, not dafoam, and not a hazard.)*
+
+##### 6. MY RULING ON THE ROW THAT DID NOT RUN — `A2-B2R`, A SUCCESSOR, NOT AN AMENDMENT
+
+`b3e7cca7` landed six of seven registered rows. Row `B2_twist_shape_CL05` raised `AnalysisError "Primal solution failed!"` after 3 primals; **`G5` — the registered independent falsifier for the claim that the angle-of-attack share is structurally zero — is `UNGRADED`, and `B2` is `NOT A RESULT`.** Triage was correct and against the lane's own interest: not a driver defect (the identical path trimmed `B1` to 5.29e-07 minutes earlier); `B1` started 0.040 of lift from target and converged, `B2` started 0.222 away (CL 0.72193), stalled at 0.7219356/0.7219896, and a primal then diverged. **Amendment 1 had disclosed that blast radius in advance.** The lane also recorded that `B2` was a **weaker falsifier than designed** — started at the final incidence it confirms `A4` almost tautologically — and offered a third-incidence start at ~5 core-min **without taking it**. That refusal was right.
+
+**RULED:** the A2 document is **NOT** amended — its gates are closed and frozen files are never edited (rule 6). The repair lands as a **separately pre-registered successor `A2-B2R`**, in this family's `SO-1cR` / `D19R` / `SO-3aR2` / `D4S-F3SR` pattern. **`G5`'s 0.5% threshold is held BYTE-FOR-BYTE — the STARTING POINT is repaired, not the gate** — because a changed start that silently relaxed a band would be the `D19R` half-decade trap in another costume.
+
+**AND `A2-B2R` DOES NOT GATE THE ACT D SHEET.** The sheet ships with the caveat naming exactly what the claim rests on — `G6` (both endpoints measured at CL 0.500 to better than 1e-3) and the problem's own equality constraint, **and nothing more**. If `A2-B2R` lands first the caveat is replaced by its number; if not, the caveat stands and **is true either way**. I am not letting an optional strengthening row hold a demo hostage, and I am not letting the sheet imply a falsifier fired when it did not.
+
+**Costed, rule 12.** `B2` was registered at **8.2 core-min** (§8:223); the third-incidence successor is ~5. **The A2 item spent 13.87 of a 60 core-min cap, so 46 core-min of already-registered headroom is unspent.** Price it on the **MEASURED** 13.6–15.4 s per evaluation at 4 ranks from `b3e7cca7` — **not** the 24.7 s/evaluation the A2 registration reused from an optimisation log and over-priced 1.8×, which is the named single cause of A2's 0.43× ratio. **All three frozen instruments hash exactly to their registered sha256s and the prepared case survives at `/home/ubuntu/certonomous-runs/ACTD-a2-decomposition/case/`, so the successor needs no rebuild** — only a new run root, which is a launcher argument and not a frozen gate.
+
+##### 7. ⚠ A NAME COLLISION THAT WILL MISLEAD SOMEBODY — THERE ARE TWO "ACT D"s AND ONLY ONE HAS A SHEET
+
+`docs/dafoam/demo/ACT_D_shape_optimisation_sheet.tex` is committed, clean, self-contained (native LaTeX `picture`, no external figures) and **compiles `rc=0` to one page**. **It is a DIFFERENT Act D:** 2D NACA0012 at 10 m/s on **4,032 cells**, drawn from the `SO-3aR2` run root, and it states *"no optimiser has run"* on its own face. **The GUI Act D is the 38,304-cell reference wing, and `b3e7cca7`'s 28.3% decomposition belongs to that one.**
+
+**Consequence, stated plainly: the GUI Act D has NO one-pager sheet at all, so there is nothing on disk carrying the decomposition table Sanaa asked for in her fix 2.** The `.tex` must NOT be updated with those numbers — it would attach reference-wing results to a 4,032-cell aerofoil. **"Compile the Act D sheet" is therefore not a compile job; it is a missing artifact, and I am reporting it as one rather than compiling the wrong file and calling it done.**
+
+##### 8. ACT D — WHERE THE PACKAGE ACTUALLY STANDS
+
+**The sections-lead reorder is DONE AND UNCOMMITTED, not lost.** `sdk/workflows/adjoint_optimization.py` is `M`, **+70/−15** vs HEAD, nothing staged, `py_compile` passes. The dead lane moved the two-figure block from the CONCLUSION phase to the head of EVIDENCE (lines 984-1032), kept `report_plots` populated in the new position, added the demotion narration, and quotes Sanaa's order verbatim at three call sites. Measured order: 3D baseline `:759` → 3D gradient `:957` → **`a2_sections.png` `:1011`** → **`a2_twist.png` `:1014`** → 3D morph `:1067`/`:1076` → 3D inboard `:1201`/`:1218`/`:1223`. **Sections precede every optimisation frame; the morph is supporting. Sanaa's visuals item 2 is satisfied on disk.**
+
+**⚠ AND THE GAP IS NAMED RATHER THAN PAPERED OVER: NOBODY HAS WITNESSED THE ACT PLAY THROUGH THE NEW ORDERING.** `a2_sections.png`/`a2_twist.png` are stamped `01:16:22Z` and ~100 `a2_wing_*.json` viewports `01:16:32Z`, but `write_surfaces` is eager at `:603`, long before the figures at `:1011` — **those two stamps cannot come from one pass**, and no end-to-end run log exists. The code compiles; that is not the same as the act working. **A `py_compile` is not a witness and I will not report item 2 done on one.**
+
+**Mesh disclosure: correctly wired, and structurally so.** Caption defined `_a2_shape.py:93-94`, wired at `adjoint_optimization.py:617` inside `def show()` (`:605`), which is the **sole funnel** — all seven 3D emissions route through it, with no other `field.ready`/`geometry.ready` emit in the file. **"Every 3D frame is captioned" is a property of the design, not a convention someone must remember** — which is the right answer to rule 14. **One defect: Sanaa dictated an EM-DASH and the code carries a HYPHEN.** Cosmetic, but it is a verbatim-quoted directive of hers rendered inexactly, and it is being fixed to her characters.
+
+**Still open and unstarted:** visuals item 1 (the 1,008-face computational-surface confirmation — **no assertion exists anywhere**); visuals item 3 (the blue/red crease check — **`crease` has zero occurrences in either file**); feedback item 3's two convergence-honesty lines; feedback item 4's "MACH tutorial"→"reference wing" sweep and the role names.
+
+##### 9. LIVE READING, MINE — AND THE ZERO IS CONTROLLED
+
+**NO SOLVER IS RUNNING.** `ps` matched on `simpleFoam|DARhoSimple|dafoam|mpirun` returns **nothing** once the pattern's own self-matches are removed, with a positive control: the same reader sees `dockerd`. **`docker ps` is PERMISSION-DENIED from this shell, so its `0` container count is a REFUSED READING and NOT a zero, and I do not quote it as evidence** (rule 3).
+
+**Load average 22.55 / 7.04 / 4.18 at 01:23Z is the re-forming agent fleet, NOT compute** (`claude` and node processes on top, `kcompactd0`/`kswapd0` active). **This decides a standing ruling: Sanaa authorised a finer-mesh Act D rerun "only if the box is otherwise idle overnight". The box is not idle. It is NOT authorised, and the lane brief forbids it rather than leaving it to judgement.**
+
+Queue daemon **pid 374025 alive**, ~5 h, `queue_runner.py --daemon`, **zero children — alive but idle**. GUI server **pid 848778 alive**, `chief_engineer.server`, started ~00:55Z, **Sanaa in it — NO unilateral restart; one coordinated restart batched across teams.** dafoam queue holds `held/`, `launched/`, `refused/` only — **zero pending**, correct under the freeze rather than a deficit.
+
+##### 10. ⚠ A CLOCK DISCREPANCY IN MY OWN BRIEF, CHECKED RATHER THAN CARRIED
+
+I was handed "the previous fleet was killed ~02:50Z 2026-09-01", and `b0bc866c` names a "03:00Z limit kill". **`date -u` reads `2026-09-01T01:25:25Z`**; the commits at issue are authored `01:04:18Z` and `01:15:49Z` **by this box**; every dafoam run artifact stops at `2026-08-31T23:07Z`; and the chief's next capture (`4a201e49`, authored `01:23:21Z`) says "~01:30Z" and **is** consistent. **The 02:50Z/03:00Z stamps are ~1.5 h ahead of this box's clock and I am not propagating them.** I make no claim about which is right off-box — only that `date -u` is where my stamps come from.
+
+##### 11. RUNGS WITHOUT VERDICTS
+
+`D19` phase 1 (**ran, refused `REFUSE G1 age_datum_moved`, ungraded**); **`D19R` (ran CLEAN on every arm, 12.416 core-min, UNGRADABLE on `D19R-GRADER-DEF-1` — the repair is parked, the data is not lost)**; `SO-3D` (frozen `cd398ee8`, never launched, parked); `SO-3b` (STUB, not a freeze); **`A2` row `B2` — `NOT A RESULT`, `G5` `UNGRADED`, successor `A2-B2R` in freeze.** `SO-3aR2` and `SO-2MR` **now HAVE verdicts** and leave this list.
+
+##### 12. ON SANAA'S DESK
+
+(1) Does `bda2d8cc` release `SO-3b` from the shipped-gradient gate — `SO3b_STUB.md:35` predates her 20:37 directive and nothing mechanical enforces the ordering (`:43`); (2) the `G19-1b` gate-design question — one near-null component vetoes an item four of five components support; (3) **the stale-index hazard, now correctly characterised: 4 staged deletions, and a commit from that index reverts `b3e7cca7` plus three of her own verbatim captures**; (4) five defect drafts, all **`NOT FILED`**; (5) `PATCH_getRotationMatrix3d.md` carries no literal `NOT FILED` string; (6) `UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` STALE — incompressible tutorial only, missing the `D15`/`D16` compressible reach evidence; (7) **NEW — the GUI Act D has no one-pager sheet, and the file named `ACT_D_shape_optimisation_sheet.tex` is a different case entirely.** Items 1 and 2 are freeze-parked; neither is demo work.
+
+##### 13. BLOCKED
+
+Nothing technically blocked. Multipoint compressible is **parked by the priority freeze**, not blocked — and `SO-3aR2` has in any case now answered its gradient question two rows deep. **The GUI server holds Sanaa — no unilateral restart.**
+
+##### 14. OWED, AND NOT DISCHARGED
+
+`SO-3aR2`'s and `SO-2MR`'s calibration rows (rule 12 requires the estimate-vs-actual comparison at every process completion, and **two completions landed unattended without one**); `SO-2M`'s row (**6.250 core-min as WASTE from a CONTROL failure, never folded into a ratio**); `D19R`'s row (12.416 actual / 13.6 predicted, ratio 0.913×, **and it bought no verdict, which the row must say**); the seven frozen documents / seven lines carrying the wrong `non-finite` characterisation (`S-22o` §6); `GRADING_CHAIN.md:63`'s over-reach; the rename-artefact sweep in `S-22p` §7. **Named here so the freeze does not become an amnesty.**
+
 
 ##### UPDATE S-22p — **TWENTY-THIRD SESSION. THREE ITEMS FROZEN AND CHECKED, TWO LAUNCHING. ⚠⚠⚠ A LAB-WIDE HAZARD FOUND DURING CHECK 4: THE SHARED INDEX HOLDS 21 STAGED DELETIONS OF FILES THAT ALL EXIST ON DISK, ACROSS FOUR TEAMS. ⚠⚠ AND TWO OF MY OWN PUBLISHED ANALYSES WERE FALSIFIED BY MY OWN LANES, BOTH IN THE DIRECTION THAT FLATTERED ME** (2026-08-31T22:41:10Z, `date -u` at write)
 
