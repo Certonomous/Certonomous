@@ -19249,3 +19249,88 @@ full retraction. Its nine in-repository AT RISK files stand; its
 | md5 of this file's first 19,166 lines before the append | `3c2455f26319b5171c31219c7779b239` |
 | md5 of this file's first 19,166 lines after the append | `3c2455f26319b5171c31219c7779b239` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+## L-428 — `/proc/PID/comm` is truncated to 15 characters by the kernel, so every name-based process matcher silently misses OUR SOLVERS BY NAME: `pgrep -x chtMultiRegionSimpleFoam` returns nothing while the run is alive
+
+2026-09-01, heat-transfer lane, self-caught while confirming a hold state. **Every
+name in this lab's thermal stack is longer than 15 characters, so this is not a
+curiosity — it is a monitor that reports a running conjugate solve as absent, with no
+error, in the reassuring direction.**
+
+### How it surfaced
+
+Reporting that nothing of mine was running, my own one-liner printed **"a solver of mine
+is running"** — false. That first hit was `pgrep -f` matching its own invoking shell,
+which is **L-10** and needs no restating here. Re-deriving by pid against `/proc`
+instead of believing the one-liner turned up the second, larger defect underneath it.
+
+### The mechanism, and it is the kernel's, not `pgrep`'s
+
+The kernel stores a process name in `task_struct.comm`, sized `TASK_COMM_LEN = 16` —
+**fifteen characters and a NUL**. `/proc/PID/comm` is that field. **Every matcher that
+works on the process NAME reads it, so every one of them sees a truncated string.**
+Measured on this box, three decoys started from copies of `/bin/sleep` renamed to real
+solver names, all three alive at the moment of measurement:
+
+| executable | length | `/proc/PID/comm` | length |
+|---|---|---|---|
+| `chtMultiRegionSimpleFoam` | 24 | `chtMultiRegionS` | 15 |
+| `chtMultiRegionFoam` | 18 | `chtMultiRegionF` | 15 |
+| `buoyantPimpleFoam` | 17 | `buoyantPimpleFo` | 15 |
+
+and, with each of those processes **alive**:
+
+| probe | result |
+|---|---|
+| `pgrep -x chtMultiRegionSimpleFoam` | **0 matches** |
+| `pgrep -x chtMultiRegionFoam` | **0 matches** |
+| `pgrep -x buoyantPimpleFoam` | **0 matches** |
+| `pgrep -x chtMultiRegionS` (the 15-char truncation) | **1 match** |
+| `pgrep -x chtMultiRegionF` | **1 match** |
+| `pgrep -x buoyantPimpleFo` | **1 match** |
+
+**The truncated prefix matches. The name you would actually type never does.**
+
+### Why the warning does not save you
+
+`pgrep` *does* print `pattern that searches for process name longer than 15 characters
+will result in zero matches` — **on stderr**, with **exit status 1**, which is
+indistinguishable from an honest no-match. Both of the shapes a monitor is written in
+therefore discard it:
+
+    pgrep -x chtMultiRegionSimpleFoam 2>/dev/null | wc -l        # -> 0
+    if pgrep -x chtMultiRegionSimpleFoam >/dev/null 2>&1; then   # -> takes the else
+
+Measured: the conditional above **reported NOT RUNNING while one such process was
+alive.** A guard whose only alarm goes to a stream the caller routinely closes is not
+an alarm.
+
+### What is safe, measured rather than assumed
+
+- **`ps -C <name>` does NOT have the bug.** Measured on all three decoys: `ps -C
+  chtMultiRegionSimpleFoam` returned **1 row** where `pgrep -x` returned 0. procps
+  resolves the long form; the two tools disagree, and the disagreement is silent.
+- **`readlink /proc/PID/exe`, iterated over pids, is exact.** It returned **3** for the
+  three decoys — no truncation, and no self-match, because a shell's `exe` is the shell.
+  This is the remedy: **re-derive from `/proc` by pid, and match on the resolved
+  executable path, not on a name or a command line.**
+
+### The kinship, and the reason it is worth a second lesson
+
+**L-10 is `-f` matching TOO MUCH — it sees a process that is not there.** This is `-x`
+matching **TOO LITTLE — it fails to see one that is.** They are opposite errors of the
+same tool and **both fail in the reassuring direction**: one leaves a watcher waiting on
+a finished job, the other tells you a live solve is dead. *Neither ever errs toward
+alarm.* That asymmetry is the transferable part, and it is why a process check is worth
+re-deriving rather than trusting.
+
+**The operational cost here is concrete: a lane reading `pgrep -x` could restart a case
+that is already solving**, which is the one thing the standing rule about not touching
+running solvers exists to prevent.
+
+### The rule
+
+**Never identify a process by name when the name can exceed 15 characters — and in this
+lab it always can.** Match on `readlink /proc/PID/exe` by pid. If a name-based tool must
+be used, `ps -C` is the one measured to work, and `pgrep -x` is not. Never let a
+process check's stderr be closed, and never treat its exit status as the answer.
