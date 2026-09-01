@@ -361,7 +361,7 @@ worse'', which is false of the same wing carrying $C_L=0.722$.}
 square: incidence fixed, lift free, not comparable.}
 
 \vspace{3pt}
-\textbf{Table 3. Every check, its limit, and the one that yields no value.}
+\textbf{Table 3. Every check, its limit, and the one that yielded no value.}
 
 \vspace{1.5pt}
 {\fontsize{6.7}{7.9}\selectfont
@@ -374,7 +374,7 @@ Geometry control & thickness $1.000000$ baseline, $0.500101$ to $1.727944$ final
 Trim tolerance & $|C_L-0.5| = 5.29\times10^{-7}$ & $5\times10^{-4}$ & inside \\
 Completion & six rows clean of seven & seven & six of seven \\
 Design-vector readback & $0.000\times10^{0}$ deviation, all seven rows & $10^{-12}$ & inside \\
-\textbf{Independent re-trim} & \textbf{no value; its flow solve diverges} & $0.5\,\%$ & \textbf{no value} \\
+\textbf{Independent re-trim} & \textbf{no value; its flow solve diverged} & $0.5\,\%$ & \textbf{no value} \\
 Matched-lift endpoints & both at $C_L=0.500$ & $10^{-3}$ & inside \\
 \bottomrule
 \end{tabular}}
@@ -397,18 +397,19 @@ trusted with a zero.}
 \begin{minipage}[t]{0.545\textwidth}
 \colorbox{boxgrey}{\begin{minipage}[t]{0.972\textwidth}
 {\footnotesize\textbf{Read this before you use the numbers}\\[1pt]
-$\bullet$ \textbf{The independent re-trim yields no value, so nothing confirms
+$\bullet$ \textbf{The independent re-trim yielded no value, so nothing confirms
 the zero angle-of-attack share.} That check takes the twisted, reshaped wing
 back to $C_L=0.5$ from a separate start and must land within $0.5\,\%$ of the
-final row. Its flow solve diverges after three attempts. The zero share
+final row. Its flow solve diverged after three attempts. The zero share
 therefore rests on the matched-lift measurement, both endpoints at $C_L=0.500$
 to better than $10^{-3}$, and on the problem's own lift equality constraint.
-\textbf{No test fires to confirm it.}\\
-$\bullet$ \textbf{$38\,304$-cell mesh, chosen for speed; grid independence
-not assessed; result relative to this mesh.}\\
-$\bullet$ \textbf{The optimisation does not reach convergence and this sheet
-does not claim it does.} It is still descending when it stops, and a time limit
-set on the run beforehand is what stops it. Table~5 carries the evidence.\\
+\textbf{No test fired to confirm it.}\\
+$\bullet$ \textbf{$38\,304$-cell mesh, chosen for speed; every number here is
+relative to it.} The grid convergence study for this case is running; the band
+lands in your inbox with the certificate.\\
+$\bullet$ \textbf{The optimisation did not reach convergence and this sheet
+does not claim it did.} It was still descending when it stopped, and a time limit
+set on the run beforehand is what stopped it. Table~5 carries the evidence.\\
 $\bullet$ \textbf{The gradient is graded at a single finite-difference step,
 and the plateau justifying that step is measured on a different and smaller
 case.} Table~5 carries both.\\
@@ -431,7 +432,7 @@ Stated upfront                   & $32$    & \\
 Hard cap, stated with it         & $60$    & never approached \\
 \midrule
 \textbf{Used, gross}             & $\mathbf{13.87}$ & wall $208$\,s $\times\,4$ ranks \\
-\quad of which yields nothing    & $2.76$  & the row that diverges \\
+\quad of which yielded nothing    & $2.76$  & the row that diverged \\
 Used, net of that                & $11.11$ & \\
 \midrule
 \textbf{Used / upfront}          & $\mathbf{0.43}$ & \\
@@ -508,8 +509,8 @@ face. The colour window is fixed across every frame, so one colour is the same
 millimetres throughout.\\[2pt]
 \textbf{Drag against major iteration.} Both axes are dimensionless, and the band
 is the worst derivative group's disagreement with a central finite difference.
-That is a gradient accuracy figure, not a discretisation error bar, and no
-discretisation bar exists for one mesh.
+That is a gradient accuracy figure, not a discretisation error bar; the
+discretisation band arrives with the grid convergence study now running.
 \end{minipage}\hfill
 \begin{minipage}[t]{0.487\textwidth}
 \textbf{Section at the colour boundary.} Two panels on one span station: the
@@ -539,9 +540,10 @@ reduction we report is the arrow in Figure~1, and both of its ends sit on the
 same lift line.
 
 \rolesig{Lead Numericist.} Three things stay open: the re-trim that cross-checks
-the angle-of-attack claim diverges, the finite-difference step comes from a
-plateau on a smaller case, and one mesh means no number here carries a
-discretisation error bar. Everything else meets a limit fixed beforehand.}
+the angle-of-attack claim diverged, the finite-difference step comes from a
+plateau on a smaller case, and the discretisation band for these numbers arrives
+with the grid convergence study now running. Everything else meets a limit fixed
+beforehand.}
 
 % Table 5 sits here rather than in the compute column of page 1 for one
 % measured reason: with it there the sheet ran to THREE pages, and the band
@@ -553,7 +555,7 @@ discretisation error bar. Everything else meets a limit fixed beforehand.}
 \vspace{2pt}
 
 \begin{minipage}[t]{0.487\textwidth}
-\textbf{Table 5. Why the optimisation stops, and the gradient step.}
+\textbf{Table 5. Why the optimisation stopped, and the gradient step.}
 
 \vspace{1.5pt}
 {\fontsize{6.7}{7.9}\selectfont
@@ -577,9 +579,9 @@ Step sweep on this wing           & none \\
 \end{minipage}\hfill
 \begin{minipage}[t]{0.487\textwidth}
 \vspace{11pt}
-{\footnotesize The iteration limit is not reached, and the two first-order
-measures sit above their target. Neither of those ends the run. A time limit
-set on it beforehand does, with twelve of the last fourteen steps still taking
+{\footnotesize The iteration limit was not reached, and the two first-order
+measures sat above their target. Neither of those ended the run. A time limit
+set on it beforehand did, with twelve of the last fourteen steps still taking
 drag down.\\[3pt]
 The finite-difference step is a single value, and the sweep showing that value
 sits on a plateau belongs to a different and smaller case: a two-dimensional

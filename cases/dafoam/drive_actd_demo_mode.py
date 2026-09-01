@@ -200,22 +200,32 @@ def run_checks() -> tuple[dict, bool]:
     # ---- 6. geometry, mesh, gates, results -------------------------------
     geometry = _of(events, "demo.geometry")[0]
     # SECOND STALE LITERAL OF THE SAME CLASS, found by driving this file rather
-    # than by reading it. This spelled out "Solved on this geometry" -- a past
-    # participle -- while its own name says PRESENT TENSE. Sanaa's ~04:20Z
-    # order, quoted verbatim in this team's own
-    # docs/dafoam/demo/check_actD_sheet_face.py:13, is "no internal
-    # information, no past tense, no long sentences"; demo_mode dropped the
-    # leading verb to comply, and this literal then demanded the very string
-    # the order forbids. So the wording is IMPORTED from the act's own geometry
-    # contract instead of spelled, and what is asserted is the load-bearing
-    # content: the measurement AGREES (the sentence is refused outright when it
-    # does not), the sequencer published that contract sentence unaltered, and
-    # it names the measured cell count. Tense itself is not re-litigated here;
-    # every rendered string already goes through the act's screen checker,
-    # which is check 8 below.
+    # than by reading it. This spelled out "Solved on this geometry" while its
+    # own name claimed to be about TENSE. The wording is now IMPORTED from the
+    # act's own geometry contract instead of spelled, and what is asserted is
+    # the load-bearing content: the measurement AGREES (the sentence is refused
+    # outright when it does not), the sequencer published that contract sentence
+    # unaltered, and it names the measured cell count.
+    #
+    # RENAMED 2026-09-01 (20:30Z DIRECTIVE, `cfcf766f`), AND THE NAME WAS THE
+    # DEFECT, NOT THE BODY. This check asserts nothing about tense and never
+    # could: the lab's past-tense pattern
+    # (`docs/dafoam/demo/demo_stages.py:PAST`) does not contain "solved" and
+    # names it BY NAME as a participle used adjectivally that a rule must not
+    # flag. So `"Solved on this geometry"` was never a checker hit under either
+    # form of Sanaa's rule, and the 04:20Z repair that dropped the leading verb
+    # was made on a reading of the order rather than on an instrument going red.
+    # A check whose name claims more than its body is the defect this team
+    # boarded this morning. The name now states what the body proves.
+    #
+    # The wording itself is NOT decided here. The string is produced in
+    # `sdk/workflows/demo_mode.py:solved_geometry_sentence`, which is cfd's; the
+    # observation that the verb-less form now departs from Sanaa's own quoted
+    # Act A pattern with no rule behind it goes to them as a report.
     geom = adjoint_act.ACT.geometry()
     cells_measured = adjoint_act.ACT.mesh_plan().cell_count
-    check("the geometry stage states the solved case in the present tense",
+    check("the geometry stage publishes the act's own contract sentence, "
+          "naming the measured cell count",
           geom.is_solved_geometry()
           and geometry["statement"] == geom.solved_geometry_sentence(
               cells_measured)

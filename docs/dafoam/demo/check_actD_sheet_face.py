@@ -88,7 +88,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from demo_stages import (  # noqa: E402  the tense rule, keyed to the beat
     PAST, PAST_ALTERNATIVES, AMBIGUOUS, PRESENT_AUX, RESULTS, STATIC_REGION,
-    Region, STAGE_NAMES, is_past as _is_past, tense_sweep, coverage,
+    CONVERGENCE_STUDY, Region, STAGE_NAMES, is_past as _is_past, tense_sweep,
+    coverage,
     check_coverage, check_plants as check_tense_plants,
 )
 
@@ -118,13 +119,25 @@ STAGE_MAP = [
            "figure note"),
     Region(r"\\textbf\{Table 3\. Every check", RESULTS, "table 3"),
     Region(r"Read this before you use the numbers", RESULTS, "limitations"),
+    # STAGE 8, AND THE ONLY RUNNING BEAT ON THIS SHEET. Sanaa's screen-8 rule is
+    # that the convergence study is shown done or underway and NEVER as absent,
+    # and her second form -- "the grid convergence study for this case is
+    # running" -- is present progressive sitting between two results bullets.
+    # It is true rather than a device: A1WR is live and A2-GC L1 cap-stopped
+    # with L2 and L3 owed to a successor item. A global tense flag could not
+    # have held this bullet and the beat next to it at the same time; that is
+    # the whole argument for the stage map, standing on one line of one sheet.
+    Region(r"cell mesh, chosen for speed", CONVERGENCE_STUDY,
+           "the grid convergence study, underway"),
+    Region(r"\\textbf\{The optimisation did not reach convergence", RESULTS,
+           "limitations resume"),
     Region(r"\\textbf\{Table 4\. Compute", RESULTS, "compute"),
     Region(r"\\textbf\{Where these numbers come from\.\}", STATIC_REGION,
            "method: where the numbers come from"),
     Region(r"Figure notes", STATIC_REGION, "figure notes"),
     Region(r"\\rolesig\{Lead Researcher\.\}", RESULTS,
            "the three roles, delivering findings"),
-    Region(r"\\textbf\{Table 5\. Why the optimisation stops", RESULTS, "table 5"),
+    Region(r"\\textbf\{Table 5\. Why the optimisation stopped", RESULTS, "table 5"),
 ]
 
 # --------------------------------------------------------------- the floor --

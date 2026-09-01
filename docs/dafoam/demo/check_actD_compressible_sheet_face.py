@@ -89,7 +89,8 @@ from check_actD_sheet_face import (  # noqa: E402  shared, never copied
     RULES as REFERENCE_RULES, STRUCK,
 )
 from demo_stages import (  # noqa: E402  the tense rule, keyed to the beat
-    RESULTS, STATIC_REGION, Region, STAGE_NAMES, tense_sweep, coverage,
+    RESULTS, STATIC_REGION, CONVERGENCE_STUDY, Region, STAGE_NAMES,
+    tense_sweep, coverage,
     check_coverage, check_plants as check_tense_plants,
 )
 
@@ -124,14 +125,29 @@ STAGE_MAP = [
     Region(r"\\textbf\{Figure 2\. Drag and lift at three angles", STATIC_REGION,
            "figure note"),
     Region(r"\\textbf\{Table 3\. The optimiser\.\}", RESULTS, "optimiser table"),
+    # THE ONE ARGUABLE HIT IN EIGHTEEN, LEFT FIRING ON PURPOSE. This block's
+    # "where the estimate stops moving" describes a PLATEAU -- a property of the
+    # step sweep -- rather than a run event, so whether the restored rule reaches
+    # it is genuinely open. It is NOT reworded: an honestly-labelled borderline
+    # is worth more than a confident call, and silencing it by edit would hide
+    # the judgement instead of recording it.
     Region(r"\\textbf\{Table 4\. The gradient, checked at the final shape\.\}",
-           RESULTS, "gradient table"),
+           RESULTS, "gradient table; carries the one arguable hit"),
     Region(r"\\textbf\{Table 5\. Instrument checks\.\}", RESULTS,
            "instrument checks"),
     Region(r"\\textbf\{Table 6\. Compute", RESULTS, "compute"),
     Region(r"\\textbf\{Uncertainty\}", RESULTS, "uncertainty channels"),
     Region(r"\\textbf\{Read this before you use the numbers\}", RESULTS,
            "limitations"),
+    # STAGE 8, the one running beat on this sheet. Sanaa's screen-8 rule is that
+    # the convergence study is shown done or underway and NEVER as absent, and
+    # her second form is present progressive sitting inside a results list. It
+    # is true rather than a device: A1WR is live and A2-GC L1 cap-stopped with
+    # L2 and L3 owed to a successor. No band is claimed and no study is called
+    # finished.
+    Region(r"One grid, \$4\\,032\$ cells, one core\. The grid convergence",
+           CONVERGENCE_STUDY, "the grid convergence study, underway"),
+    Region(r"Three angles between \$2\.787\$", RESULTS, "limitations resume"),
     Region(r"\\textbf\{Assumed, not measured\}", STATIC_REGION,
            "assumptions: quantities with units"),
     Region(r"\\rolesig\{Lead Engineer\.\}", RESULTS,
