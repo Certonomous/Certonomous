@@ -74,9 +74,8 @@ _DISPLAY = {
 # Bodies treated as canonical calibration geometry (collapse into one row).
 _CANONICAL = set(_DISPLAY)
 
-_TIER_RANK = {"VALIDATED": 0, "SOLVER-BACKED": 1, "RESEARCH MODEL": 2,
-              "REFERENCE REGIME MISMATCH": 3, "TREND ONLY": 4,
-              "UNCONVERGED": 5, "NEEDS WORK": 6}
+# From `lab`, the one tier authority -- not a fourth hand-typed ordering.
+_TIER_RANK = lab.TIER_RANK
 
 
 def _credentials_from_disk() -> list[dict]:
@@ -109,7 +108,14 @@ def _credentials_from_disk() -> list[dict]:
         # the coefficient on the reference's own area basis, the same one the
         # reason text quotes a percentage of, and `credential_card` sets it.
         card = lab.credential_card(data["name"], shown, data)
-        card["tier"] = shown["tier"] or "NEEDS WORK"
+        # Same rule as the live panel: a tier is a credential only with a seal
+        # a reader could go and check. Withheld here means withheld on the
+        # curated wall too -- this is the page the lab presents as its product,
+        # and it must not be the softer of the two surfaces.
+        certificate = (data.get("certificate") or data.get("certificate_no")
+                       or data.get("cert"))
+        card["certificate"] = certificate
+        card["tier"] = lab.credential_tier(shown["tier"], certificate)
         cards.append(card)
     cards.sort(key=lambda c: (_TIER_RANK.get(c["tier"], 9), c["name"]))
     return cards
@@ -124,21 +130,22 @@ def _e(value) -> str:
     return html.escape("" if value is None else str(value))
 
 
-# Legacy tier names normalize onto the current fidelity chips before display.
-_LEGACY_TIER_ALIAS = {"TREND ONLY": "SOLVER-BACKED",
-                      "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
-                      "NEEDS WORK": "UNCONVERGED"}
-
-
 def _chip_html(tier: str) -> str:
     """The fidelity chip markup, or '' when the tier is the unlabeled default.
 
     SOLVER-BACKED (a real solve, no experimental comparison) is the standard
-    for this simulation platform and renders no badge. VALIDATED, CONCEPTUAL
-    MODEL, and UNCONVERGED say more than the baseline, so they render.
+    for this simulation platform and renders no badge. Every other tier says
+    more, or less, than that baseline, so it renders.
+
+    This function used to hold its own copy of the legacy mapping, aliasing
+    TREND ONLY and REFERENCE REGIME MISMATCH onto SOLVER-BACKED. Because
+    SOLVER-BACKED is precisely the tier that renders NO chip, the weaker grades
+    did not appear on the wall as a stronger label -- they appeared as no label
+    at all, which is how an inflated card reads as an ordinary one. The mapping
+    now comes from `lab.resolve_tier`, which refuses to raise a tier.
     """
-    resolved = _LEGACY_TIER_ALIAS.get(tier, tier)
-    if resolved == "SOLVER-BACKED":
+    resolved = lab.resolve_tier(tier)
+    if resolved == lab.SOLVER_BACKED:
         return ""
     tier_class = "vt-" + resolved.split()[0].lower()
     return f'<span class="vtier {tier_class}">{_e(resolved)}</span>'
@@ -298,9 +305,20 @@ def build_html(counters: dict, cards: list[dict]) -> str:
     .vt-reference {{ background: rgba(237,161,0,.16); color: #9a6a00; }}
     .vt-trend {{ background: rgba(42,120,214,.14); color: #1e5aa0; }}
     .vt-needs {{ background: rgba(227,73,72,.14); color: #b23433; }}
+    /* Added 2026-09-01. UNCONVERGED, RESEARCH MODEL and TIER UNESTABLISHED
+       had no rule, so `vt-unconverged`, `vt-research` and `vt-tier` fell
+       through to the bare `.vtier` pill. Those three tiers could not
+       previously reach this markup at all -- the legacy mapping resolved the
+       weak ones onto SOLVER-BACKED, which returns no chip. A tier that can now
+       be shown needs somewhere to be shown. */
+    .vt-unconverged {{ background: rgba(227,73,72,.14); color: #b23433; }}
+    .vt-research {{ background: rgba(237,161,0,.16); color: #9a6a00; }}
+    .vt-tier {{ background: rgba(120,128,140,.16); color: #55606e; }}
     @media (prefers-color-scheme: dark) {{
       .vt-validated {{ color: #37c793; }} .vt-reference {{ color: #edb54a; }}
       .vt-trend {{ color: #6aa4e5; }} .vt-needs {{ color: #e88; }}
+      .vt-unconverged {{ color: #e88; }} .vt-research {{ color: #edb54a; }}
+      .vt-tier {{ color: #9aa4b2; }}
     }}
     .cal-suite {{ background: var(--wall-card); border: 1px solid var(--wall-line);
       border-radius: 11px; padding: 4px 8px; }}

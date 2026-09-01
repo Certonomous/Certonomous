@@ -62,9 +62,47 @@ class ChipContract(unittest.TestCase):
                        "source": "test reference"})
         self.assertEqual(verdict["tier"], lab.VALIDATED)
 
-    def test_legacy_names_map_to_chips(self):
-        self.assertEqual(lab.LEGACY_CHIPS["TREND ONLY"], lab.SOLVER_BACKED)
-        self.assertEqual(lab.LEGACY_CHIPS["NEEDS WORK"], lab.UNCONVERGED)
+    def test_legacy_renames_map_to_chips(self):
+        """A retired SPELLING resolves onto the current spelling of that grade."""
+        self.assertEqual(lab.resolve_tier("NEEDS WORK"), lab.UNCONVERGED)
+        self.assertEqual(lab.resolve_tier("CONCEPTUAL MODEL"), lab.CONCEPTUAL)
+
+    def test_weaker_grades_are_never_upgraded_to_solver_backed(self):
+        """The regression guard. This assertion used to run the other way.
+
+        `lab.LEGACY_CHIPS["TREND ONLY"] == lab.SOLVER_BACKED` was a passing
+        test, and it was the defect written down as a requirement: four display
+        surfaces each mapped TREND ONLY and REFERENCE REGIME MISMATCH onto
+        SOLVER-BACKED, which is also the tier that renders no badge.
+        """
+        self.assertEqual(lab.resolve_tier("TREND ONLY"), "TREND ONLY")
+        self.assertEqual(lab.resolve_tier("REFERENCE REGIME MISMATCH"),
+                         "REFERENCE REGIME MISMATCH")
+        self.assertNotIn("TREND ONLY", lab.LEGACY_CHIPS)
+        self.assertNotIn("REFERENCE REGIME MISMATCH", lab.LEGACY_CHIPS)
+
+    def test_no_legacy_mapping_may_raise_a_tier(self):
+        """The rule is checked against the rank table, not against a name list.
+
+        A future entry cannot reintroduce the upgrade quietly: this is the same
+        assertion `lab` runs at import, so the module refuses to load rather
+        than serving an inflated wall.
+        """
+        lab._assert_no_tier_upgrade()
+        for source, target in lab.LEGACY_CHIPS.items():
+            self.assertLessEqual(lab.TIER_RANK[source], lab.TIER_RANK[target],
+                                 f"{source} -> {target}")
+
+    def test_an_unranked_label_does_not_pass_through_as_a_tier(self):
+        for junk in ("EXCELLENT", "probably fine", "", None):
+            self.assertEqual(lab.resolve_tier(junk), lab.UNESTABLISHED, junk)
+
+    def test_a_tier_without_a_certificate_is_not_a_credential(self):
+        self.assertEqual(lab.credential_tier(lab.VALIDATED, "C-2026-0001"),
+                         lab.VALIDATED)
+        for missing in (None, "", "   "):
+            self.assertEqual(lab.credential_tier(lab.VALIDATED, missing),
+                             lab.UNESTABLISHED, repr(missing))
 
 
 class RetiredVocabulary(unittest.TestCase):

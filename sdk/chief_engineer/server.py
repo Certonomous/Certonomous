@@ -95,14 +95,15 @@ def _events_path(mission_id: str) -> Path:
 # The validation wall
 # --------------------------------------------------------------------------
 
-# Earned credentials lead; the honest caveats follow. Legacy tier names in
-# stored records are translated to the current fidelity chips at serve time.
-_TIER_RANK = {"VALIDATED": 0, "SOLVER-BACKED": 1, "RESEARCH MODEL": 2,
-              "UNCONVERGED": 3}
-_LEGACY_TIERS = {"TREND ONLY": "SOLVER-BACKED",
-                 "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
-                 "NEEDS WORK": "UNCONVERGED",
-                 "CONCEPTUAL MODEL": "RESEARCH MODEL"}
+# Earned credentials lead; the honest caveats follow. Ranking and legacy-name
+# handling come from `lab`, the one tier authority, rather than from a private
+# copy here. The private copy this replaces read
+#     _LEGACY_TIERS = {"TREND ONLY": "SOLVER-BACKED",
+#                      "REFERENCE REGIME MISMATCH": "SOLVER-BACKED", ...}
+# -- character-identical to copies in `certificate.py` and `build_wall.py`.
+# Three surfaces, one mapping, written out three times: fixing any one of them
+# would have left the wall this server actually serves still upgrading.
+_TIER_RANK = lab.TIER_RANK
 
 # Owner curation (curation, never number-editing): the wall serves only the
 # bodies the on-screen missions run. The wider graded library stays intact on
@@ -150,7 +151,22 @@ def _credentials() -> list[dict]:
         # applied here, where they are visible, instead of living as a second
         # hand-typed key list that silently drifts from the first.
         card = lab.credential_card(name, shown, data)
-        card["tier"] = _LEGACY_TIERS.get(tier, tier)
+        # A CREDENTIAL is a graded claim plus the seal a reader could check.
+        # This wall was serving four cards reading SOLVER-BACKED with no
+        # certificate behind any of them -- the tier and the seal were never
+        # checked against each other, here or anywhere else in the chain. The
+        # tier is now withheld unless a certificate is on the record. The
+        # measured value, envelope and provenance are untouched and still
+        # render: a missing seal voids the credential, never the measurement.
+        certificate = (data.get("certificate") or data.get("certificate_no")
+                       or data.get("cert"))
+        card["certificate"] = certificate
+        card["tier"] = lab.credential_tier(tier, certificate)
+        if card["tier"] == lab.UNESTABLISHED:
+            card["tier_unestablished_because"] = (
+                "no certificate is recorded for this result"
+                if certificate is None else
+                f"the stored grade {tier!r} is not a tier this lab ranks")
         card["measured"] = (compared if compared is not None
                             else shown["measured"])
         cards.append(card)

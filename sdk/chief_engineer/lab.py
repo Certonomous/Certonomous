@@ -190,14 +190,105 @@ VALIDATED = "VALIDATED"
 SOLVER_BACKED = "SOLVER-BACKED"
 CONCEPTUAL = "RESEARCH MODEL"
 UNCONVERGED = "UNCONVERGED"
-# Retired labels, kept only so historical records still map to a chip.
-LEGACY_CHIPS = {"TREND ONLY": SOLVER_BACKED,
-                "REFERENCE REGIME MISMATCH": SOLVER_BACKED,
-                "NEEDS WORK": UNCONVERGED}
-# Backwards-compatible aliases for older call sites/tests.
-TREND_ONLY = SOLVER_BACKED
-NEEDS_WORK = UNCONVERGED
-REGIME_MISMATCH = SOLVER_BACKED
+
+# Retired labels. These are the honest grade of the records that carry them,
+# so they name THEMSELVES. They used to be defined as
+#     TREND_ONLY = SOLVER_BACKED
+#     REGIME_MISMATCH = SOLVER_BACKED
+# which is not an alias but an upgrade: a record graded "out of tolerance
+# against a published reference" and a record with no comparison at all came
+# out of that pair wearing one chip, and the stronger one. Four display
+# surfaces then repeated the same mapping independently.
+TREND_ONLY = "TREND ONLY"
+REGIME_MISMATCH = "REFERENCE REGIME MISMATCH"
+NEEDS_WORK = "NEEDS WORK"
+CONCEPTUAL_LEGACY = "CONCEPTUAL MODEL"
+
+# What a surface shows when it cannot establish what a run earned. This is NOT
+# a tier: it is the explicit absence of one. It never sorts above a tier and it
+# is never the resolution of a grade that exists.
+UNESTABLISHED = "TIER UNESTABLISHED"
+
+# The single ordering, lower is a stronger claim. Two spellings of one grade
+# share a rank, because a rename is not a regrade. This table is what makes
+# "an alias may not upgrade" a checkable statement rather than an intention.
+TIER_RANK = {
+    VALIDATED: 0,
+    SOLVER_BACKED: 1,
+    CONCEPTUAL: 2, CONCEPTUAL_LEGACY: 2,
+    REGIME_MISMATCH: 3,
+    TREND_ONLY: 4,
+    UNCONVERGED: 5, NEEDS_WORK: 5,
+    UNESTABLISHED: 6,
+}
+
+# RENAMES ONLY: a retired spelling of a grade onto the current spelling of the
+# SAME grade. TREND ONLY and REFERENCE REGIME MISMATCH are deliberately absent:
+# no current chip means what either of them means, so they display as
+# themselves. Adding either one back here cannot be done quietly -- the
+# assertion below refuses to import the module.
+LEGACY_CHIPS = {NEEDS_WORK: UNCONVERGED,
+                CONCEPTUAL_LEGACY: CONCEPTUAL}
+
+
+def _assert_no_tier_upgrade() -> None:
+    """Refuse to import if any legacy mapping would raise a tier's rank.
+
+    L-221/L-222: a lesson is not applied until every call site asserts it. The
+    cheapest way to make every call site assert it is to leave them no mapping
+    of their own to get wrong -- they all call `resolve_tier`, and the rule
+    lives here, next to the data, checked at import on every surface that
+    imports it.
+    """
+    for source, target in LEGACY_CHIPS.items():
+        if source not in TIER_RANK or target not in TIER_RANK:
+            raise AssertionError(
+                f"LEGACY_CHIPS entry {source!r} -> {target!r} names a tier that "
+                f"TIER_RANK does not rank; an unranked tier cannot be checked.")
+        if TIER_RANK[target] < TIER_RANK[source]:
+            raise AssertionError(
+                f"LEGACY_CHIPS would upgrade {source!r} (rank "
+                f"{TIER_RANK[source]}) to {target!r} (rank {TIER_RANK[target]}). "
+                f"A legacy mapping may rename a grade, never raise it.")
+
+
+_assert_no_tier_upgrade()
+
+
+def resolve_tier(tier: str | None) -> str:
+    """The tier a stored record is entitled to DISPLAY.
+
+    Retired spellings are renamed onto their current chip and nothing is ever
+    raised. A string this lab does not rank resolves to ``UNESTABLISHED``
+    rather than passing through: an unrecognised label must not arrive on a
+    surface wearing the authority of a grade just because it was in the file.
+    """
+    text = str(tier or "").strip().upper()
+    if not text:
+        return UNESTABLISHED
+    resolved = LEGACY_CHIPS.get(text, text)
+    return resolved if resolved in TIER_RANK else UNESTABLISHED
+
+
+def credential_tier(tier: str | None, certificate: str | None = None) -> str:
+    """The tier a CREDENTIAL surface may display for a record.
+
+    A tier is a claim about what stands behind a number. A credential is that
+    claim sealed: the certificate is the thing a reader could go and check. With
+    no issued certificate there is nothing to check the claim against, so the
+    surface states ``UNESTABLISHED`` instead of a grade.
+
+    Only the CLAIM is withheld. The measured value, its envelope and its
+    provenance are untouched and still render -- a missing seal is a
+    bookkeeping gap, and bookkeeping never voids physics. What it voids is
+    the credential, which is all this function returns.
+    """
+    resolved = resolve_tier(tier)
+    if resolved == UNESTABLISHED:
+        return resolved
+    if not str(certificate or "").strip():
+        return UNESTABLISHED
+    return resolved
 
 
 def trust(*, relative_error: float | None = None, converged: bool = True,

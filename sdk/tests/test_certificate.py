@@ -256,10 +256,21 @@ class GeometryStudyCertificateTests(unittest.TestCase):
         _, text = self._render(report=report,
                                objective="measure drag — precisely")
         self.assertTrue(text.startswith("%PDF"))
+        # "TREND" was on this list until 2026-09-01, and it did not belong.
+        # The other entries are NARRATION -- how a number was stored, or a
+        # phrase the platform spells differently. Rewriting those changes no
+        # claim. TREND ONLY is a GRADE, and the rail that rewrote it wrote
+        # "SOLVER-BACKED" in its place on the sealed page, so this assertion
+        # was requiring the certificate to overstate its own record. A grade is
+        # rendered, never reworded; the positive assertion below is what
+        # replaces this one.
         for banned in ("\x97",           # em dash in WinAnsi
                        "cached", "stored", "saved", "recorded",
-                       "pre-computed", "real solve", "TREND"):
+                       "pre-computed", "real solve"):
             self.assertNotIn(banned, text)
+        # The planted weak grade must reach the page AS ITSELF.
+        self.assertIn("TREND ONLY", text)
+        self.assertNotIn("SOLVER-BACKED", text)
         # The reproducibility claim, banned as an IDEA rather than as a phrase.
         #
         # This guard used to read "reproducible evidence" and nothing else, and

@@ -40,20 +40,35 @@ _TIER_COLOR = {
     "VALIDATED": (0.13, 0.55, 0.33),
     "SOLVER-BACKED": (0.24, 0.51, 0.82),
     "RESEARCH MODEL": (0.80, 0.53, 0.11),
-    "TREND ONLY": (0.80, 0.53, 0.11),  # legacy records
+    "TREND ONLY": (0.80, 0.53, 0.11),
+    "REFERENCE REGIME MISMATCH": (0.80, 0.53, 0.11),
+    "UNCONVERGED": (0.72, 0.20, 0.20),
     "NEEDS WORK": (0.72, 0.20, 0.20),
+    "TIER UNESTABLISHED": (0.42, 0.46, 0.51),
 }
 _DEFAULT_TIER_COLOR = (0.42, 0.46, 0.51)
 
-# Legacy tier names normalize onto the current fidelity chips before display.
-_LEGACY_TIER_ALIAS = {"TREND ONLY": "SOLVER-BACKED",
-                      "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
-                      "NEEDS WORK": "UNCONVERGED",
-                      "CONCEPTUAL MODEL": "RESEARCH MODEL"}
+
+# The tier authority. Imported at module scope, and deliberately NOT wrapped in
+# a try/except that falls back to a local mapping: a page that cannot reach the
+# authority must fail to import, not quietly print tiers by its own rules. That
+# local-copy pattern is exactly what produced the defect this replaces.
+try:
+    from . import lab as _lab
+except ImportError:  # imported outside the package (scripts put sdk/ on path)
+    from chief_engineer import lab as _lab  # type: ignore
 
 
 def _resolved_tier(tier: str) -> str:
-    return _LEGACY_TIER_ALIAS.get(tier, tier)
+    """The tier this page may print, from the lab's single tier authority.
+
+    This module used to carry its own copy of the legacy mapping, and that copy
+    aliased TREND ONLY and REFERENCE REGIME MISMATCH onto SOLVER-BACKED --
+    which is also the tier that prints NO badge, so a weak grade did not merely
+    read stronger, it disappeared. `lab.resolve_tier` is now the only place any
+    surface maps a tier, and it refuses to raise one.
+    """
+    return _lab.resolve_tier(tier)
 
 # WinAnsi cannot encode these; fold to something it can before laying out text.
 # The em dash is foldable in WinAnsi but banned from the sealed page outright.
@@ -65,13 +80,28 @@ _GLYPH_FOLD = {
     "“": '"', "”": '"', "‘": "'", "’": "'",
 }
 
-# Language rails for the sealed page: no storage narration, no retired TREND
-# label, no "real solve" phrasing (the platform says "selected solver").
-# These rewrite wording only, applied at render time; the evidence seal is
-# computed over the caller's facts upstream and no number is ever touched.
+# Language rails for the sealed page: no storage narration, no "real solve"
+# phrasing (the platform says "selected solver"). These rewrite wording only,
+# applied at render time; the evidence seal is computed over the caller's facts
+# upstream and no number is ever touched.
+#
+# REMOVED 2026-09-01, and this is a correctness fix, not a style change. Two
+# rails used to sit at the head of this tuple:
+#     (re.compile(r"\bTREND[ -]ONLY\b", re.IGNORECASE), "SOLVER-BACKED"),
+#     (re.compile(r"\bTREND\b"), "SOLVER-BACKED"),
+# `_fold` runs this tuple over EVERY string drawn on the page, so those two did
+# not merely tidy prose: they rewrote the trust badge itself. Fixing the tier
+# mapping alone would have left them to launder the corrected badge straight
+# back to SOLVER-BACKED on the way to the canvas.
+#
+# They were also unsound on their own terms. A fixed alternation is blind to
+# every inflection it does not enumerate: the second rail carried no
+# IGNORECASE, so "TREND" was rewritten and "trend" was not, and neither touched
+# "trends" or "trending". A rail that catches some spellings of a label it
+# means to abolish leaves the label on the page under the others, while
+# reporting itself as enforcement. A retired grade is now rendered, not
+# rewritten -- if a record earned TREND ONLY, the page says TREND ONLY.
 _BANNED_LANGUAGE = (
-    (re.compile(r"\bTREND[ -]ONLY\b", re.IGNORECASE), "SOLVER-BACKED"),
-    (re.compile(r"\bTREND\b"), "SOLVER-BACKED"),
     (re.compile(r"\breal[ -]solves\b", re.IGNORECASE), "selected-solver runs"),
     (re.compile(r"\breal[ -]solve\b", re.IGNORECASE), "selected-solver run"),
     (re.compile(r"\bpre[ -]?computed\b", re.IGNORECASE), "prior"),

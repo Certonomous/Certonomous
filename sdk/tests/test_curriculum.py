@@ -28,8 +28,17 @@ def _load(module_name: str):
 generate = _load("generate")
 registry = _load("registry")
 
-from chief_engineer.lab import (NEEDS_WORK, TREND_ONLY, VALIDATED,  # noqa: E402
-                                validate_against_reference)
+# These assertions used to import NEEDS_WORK, TREND_ONLY and REGIME_MISMATCH
+# and check the grader against them. That looked like three tests pinning three
+# distinct weak grades. It was not: `TREND_ONLY` and `REGIME_MISMATCH` were
+# both defined as `SOLVER_BACKED`, so every one of them passed by tautology
+# while the grader recorded the strongest of the three. The constants now name
+# themselves, and these tests assert the literal tier the grader assigns --
+# which is the honest statement of current behaviour, and is NOT the same
+# grade the test names below used to claim. See the module note at
+# `test_out_of_tolerance_against_a_published_reference_records_solver_backed`.
+from chief_engineer.lab import (SOLVER_BACKED, UNCONVERGED,  # noqa: E402
+                                VALIDATED, validate_against_reference)
 
 
 class GeneratorTests(unittest.TestCase):
@@ -111,23 +120,35 @@ class TrustTierTests(unittest.TestCase):
         self.assertEqual(verdict["tier"], VALIDATED)
         self.assertIn("Hoerner", verdict["reason"])
 
-    def test_out_of_tolerance_but_converged_is_trend_only(self):
+    def test_out_of_tolerance_against_a_published_reference_records_solver_backed(self):
+        """Measured current behaviour, and an open question above this test.
+
+        A run compared against Hoerner and landing OUTSIDE the band is recorded
+        with the same chip as a run never compared to anything. This test was
+        named `..._is_trend_only` and asserted `TREND_ONLY`, which was defined
+        as `SOLVER_BACKED`, so it passed while asserting nothing.
+
+        The name is now what the code does. Whether this branch SHOULD record
+        TREND ONLY is a regrade of the lab's product, not a display fix, and is
+        not this change's to make: it is referred, unruled.
+        """
         verdict = validate_against_reference(
             measured_cd=1.6, reference=self.CUBE,
             planform_area=1.0, frontal_area=1.0)
-        self.assertEqual(verdict["tier"], TREND_ONLY)
+        self.assertEqual(verdict["tier"], SOLVER_BACKED)
 
     def test_unconverged_never_validates(self):
         verdict = validate_against_reference(
             measured_cd=1.05, reference=self.CUBE,
             planform_area=1.0, frontal_area=1.0, converged=False)
-        self.assertEqual(verdict["tier"], NEEDS_WORK)
+        self.assertEqual(verdict["tier"], UNCONVERGED)
 
-    def test_bad_mesh_caps_at_trend_even_when_the_number_agrees(self):
+    def test_bad_mesh_records_solver_backed_even_when_the_number_agrees(self):
+        """Named `..._caps_at_trend_...` before; it never capped at anything."""
         verdict = validate_against_reference(
             measured_cd=1.05, reference=self.CUBE,
             planform_area=1.0, frontal_area=1.0, in_validated_regime=False)
-        self.assertEqual(verdict["tier"], TREND_ONLY)
+        self.assertEqual(verdict["tier"], SOLVER_BACKED)
 
     def test_frontal_rebasing_matches_experiment(self):
         # Ahmed: solver reports on planform area; rebased onto frontal it must
@@ -157,10 +178,17 @@ class RegimeTests(unittest.TestCase):
                 "cause": "fully-turbulent RANS reproduces post-drag-crisis separation"}]}}
 
     def test_supercritical_value_is_a_named_regime_mismatch(self):
-        from chief_engineer.lab import REGIME_MISMATCH
+        """The mismatch is named in the REASON; the TIER does not record it.
+
+        This test asserted `verdict["tier"] == REGIME_MISMATCH` with
+        REGIME_MISMATCH defined as SOLVER_BACKED. The named-regime finding is
+        real and is carried by `reason` and `comparison`, which is what the two
+        assertions below check. The tier is SOLVER-BACKED -- same open regrade
+        question as the trend-only branch above.
+        """
         verdict = validate_against_reference(
             measured_cd=0.095, reference=self.SPHERE, solved_reynolds=1.0e5)
-        self.assertEqual(verdict["tier"], REGIME_MISMATCH)
+        self.assertEqual(verdict["tier"], SOLVER_BACKED)
         self.assertIn("supercritical", verdict["reason"])
         self.assertEqual(verdict["comparison"]["matched_regime"], "supercritical")
 
@@ -169,13 +197,16 @@ class RegimeTests(unittest.TestCase):
             measured_cd=0.50, reference=self.SPHERE, solved_reynolds=1.0e5)
         self.assertEqual(verdict["tier"], VALIDATED)
 
-    def test_no_alternate_falls_back_to_trend_not_mismatch(self):
-        # A reference without alternates never produces a regime mismatch.
+    def test_no_alternate_does_not_produce_a_regime_mismatch(self):
+        # A reference without alternates never produces a regime mismatch. The
+        # distinction this test exists for is in `reason`, not in the tier:
+        # both outcomes record SOLVER-BACKED today.
         plain = {"cd": 1.05, "tolerance": 0.15, "area_basis": "frontal",
                  "source": "Hoerner (1965)"}
         verdict = validate_against_reference(
             measured_cd=1.6, reference=plain, solved_reynolds=1.0e5)
-        self.assertEqual(verdict["tier"], TREND_ONLY)
+        self.assertEqual(verdict["tier"], SOLVER_BACKED)
+        self.assertNotIn("supercritical", verdict["reason"])
 
     def test_reynolds_mismatch_note_only_when_out_of_band(self):
         # Sphere solved supercritical (Re above the reference band) — the reason
