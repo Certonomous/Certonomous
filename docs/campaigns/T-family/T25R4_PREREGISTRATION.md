@@ -390,3 +390,149 @@ the committed blob and **REFUSES on a mismatch**.
 NOT A LAUNCH.**
 
 <!-- END OF T25R4 PRE-REGISTRATION v1.0 -->
+
+---
+
+## Amendment A1 — 2026-09-01T~18:20Z, **BEFORE THE PROBE LANDS AND BEFORE ANY LADDER COMPUTE.** The ladder's pricing FORMULA, frozen now so the probe supplies an input and never a choice
+
+**Version v1.1. Lines whose number changed above this section: 0.**
+
+**THE CONDITION UNDER WHICH THIS AMENDMENT IS LEGAL, AND HOW IT WAS CHECKED.**
+Rule 2 permits an amendment **before first compute**. **Checked at writing:** none
+of `verification/runs/T-family/T25R4_MODULE_runs/{S1,S2,S3,T2,T4,W30}` exists —
+only `P1`, `P2`, `P3`, which are the probe and are **not** the ladder. **No ladder
+run has started.** The probe was launched at 18:16:26Z and **had not produced a
+`G-P` verdict when this formula was frozen**, which is the whole point: the
+formula is fixed before its input exists.
+
+**WHY THIS EXISTS.** §3 registered the ladder but declined to price it, and rule
+12 forbids a run without a cost in its pre-registration. **The resolution is not
+to queue uncapped work.** What rule 12 forbids is *choosing a cap after seeing
+the answer*; deriving one from a formula frozen before the answer existed is
+exactly what a pre-registration is for.
+
+### A1.1 THE FORMULA — every symbol defined, every constant a number
+
+Let, for probe level `L ∈ {L1, L2, L3}` measured from `P1`/`P2`/`P3`:
+
+```
+    r(L)  =  ExecutionTime_final(L) / 100          [wall seconds per time step]
+```
+
+Then for each ladder run, with `N(run)` the registered total step count
+(leg A + leg B) and `RANKS = 2`:
+
+```
+    POINT(run)   =  N(run) x r(L(run)) x SWEEP(run) x RANKS / 60      [core-min]
+    CAP(run)     =  M x POINT(run)
+    timeout_s(run) =  CAP(run) x 60 / RANKS
+```
+
+with the constants **frozen here as numbers**:
+
+| symbol | value | basis |
+|---|---|---|
+| `M` (cap margin) | **4.0** | the margin T25R2 and T25R3 both used; and unlike T25R3's, this POINT rests on a rate measured **under the criterion that will actually run** |
+| `SWEEP(run)` | **1.0** for S1, S2, S3, T2, T4 | they run `nOuterCorrectors 15`, exactly as the probe does |
+| `SWEEP(W30)` | **2.0** | W30 runs 30 sweeps. T25R2 measured ×1.83 for a sweep doubling, but **that was under the old criterion where the pressure solve did nothing**. With pressure work now dominating the per-sweep cost, doubling sweeps approaches **×2.0**, and the conservative value is registered rather than the measured-but-inapplicable one. |
+| `N(run)` | 11,800 / 11,800 / 11,800 / 23,600 / 47,200 / 11,800 | §3's registered step counts, unchanged |
+| `L(run)` | L1, L2, L3, L2, L2, L2 | §3's registered mesh levels, unchanged |
+
+### A1.2 ⚠ THE FORMULA IS DELIBERATELY CONSERVATIVE, AND THE DIRECTION IS STATED
+
+**The probe measures `t ∈ [0, 2] s` — which contains the t = 0→1 s ramp and the
+start-up transient, the most expensive 2 seconds of the whole 900 s run.** Cruise
+steps are cheaper. **So `r(L)` OVER-estimates the ladder's mean per-step cost,
+`POINT` over-estimates the ladder's cost, and `CAP` is conservative in the safe
+direction.** This is registered as a known bias rather than presented as an
+unbiased estimate. **A cap that stops a run Sanaa ordered is a bad cap**, and a
+knowingly-high POINT with an honest label is better than a tight one with a
+flattering one. **The actual/predicted ratio at completion will therefore read
+BELOW 1.0 for a reason that is registered here and must not be reported as
+efficiency.**
+
+### A1.3 ⛔ THE CEILING — the safety valve on an unattended daemon
+
+> **IF `Σ CAP(run)` OVER THE SIX LADDER RUNS EXCEEDS `20,000` CORE-MINUTES, THE
+> QUEUED LADDER ENTRIES REFUSE AND ESCALATE TO THE SUPERVISOR. THEY DO NOT
+> LAUNCH.**
+
+20,000 core-min is ~333 core-hours, ~$17 at the recorded rate — **still inside
+the $25 pre-authorisation**, and chosen so that the auto-launch cannot commit the
+lab to a spend larger than that authorisation without a person. **A formula with
+no ceiling handed to a daemon is not a pre-registration, it is a blank cheque.**
+
+### A1.4 What the queued job does, in order, and it may not reorder these
+
+1. Read the `G-P` verdict from its committed artifact. **Anything that is not
+   literally `PASS` → REFUSE, non-zero, reason on stdout.** §A2.
+2. Read `r(L1)`, `r(L2)`, `r(L3)` from the probe's committed artifact.
+3. Compute `POINT`, `CAP`, `timeout_s` from A1.1 **exactly as frozen**.
+4. If `Σ CAP > 20,000` → **REFUSE and escalate** (A1.3).
+5. Write the priced addendum to this document and **commit it**.
+6. **Only then** launch its run.
+
+**Steps 1 and 4 are default-deny.** A missing artifact, an unparseable artifact,
+an absent field or any verdict other than `PASS` **refuses**. The gate is inside
+the job, not in a person's intention to hold the release.
+
+---
+
+## Amendment A2 — 2026-09-01T~18:20Z, **BEFORE ANY LADDER COMPUTE.** `G-P`'s verdict artifact, and the fact that §6.2 of T25R3 was wrong
+
+**Version v1.2. Lines whose number changed above this section: 0.**
+Same legality condition as A1, checked the same way: no ladder run directory exists.
+
+### A2.1 The verdict artifact
+
+`G-P` is decided by `grade_probe_t25R4.py` and written to
+**`verification/runs/T-family/T25R4_MODULE_runs/GP_VERDICT.json`**, committed
+before any ladder entry may read it. Required fields:
+
+```json
+{ "gate": "G-P", "verdict": "PASS" | "GATE FAIL" | "NOT A RESULT",
+  "ratio": <float>, "threshold": 3.0,
+  "mean_iters": {"L1": <float>, "L2": <float>, "L3": <float>},
+  "s_per_step": {"L1": <float>, "L2": <float>, "L3": <float>},
+  "steps_counted": {"L1": 100, "L2": 100, "L3": 100},
+  "prereg_blob": "<sha>" }
+```
+
+**A verdict of `NOT A RESULT` is registered as a possible outcome**: if any probe
+level fails to complete its 100 steps, or its rc is non-zero, or `mean_iters` is
+undefined, **`G-P` is `NOT A RESULT` and the ladder does not launch.** A gate
+that can only say PASS or FAIL cannot express "the probe itself did not run."
+
+### A2.2 ⚠ T25R3 §6.2 WAS WRONG, AND THE CORRECTION IS REGISTERED HERE
+
+T25R3 §6.2 argued that `deltaT 0.02` was safe because `Time.C:1120` guards the
+write **index** with `+ 0.5*deltaT`. **That half is true and the writes did land
+on the correct steps.** What it got wrong is the directory **NAME**.
+
+**MEASURED on T25R3's completed `S1`:** OpenFOAM accumulates `value_ += deltaT_`,
+the drift reached **1.39e-10 s at t = 900**, and `Time::setControls()`
+(`Time.C:245`) **automatically raised `timePrecision` from 12 to 17**. The
+directories are named `900.00000000013904`, `70.00000000000321`,
+`45.000000000001`. **172 of 181 names are drifted.**
+
+> **CONSEQUENCE, AND IT IS THE REASON `S1` READS `NOT DONE`: a name-formatting
+> lookup (`"%g" % 900` → `"900"`) FINDS NOTHING. `S1` is a physically complete,
+> correct run with every registered field on disk, and it was marked NOT DONE BY
+> ITS OWN INSTRUMENT. THE RUN WAS FINE; THE READER WAS BROKEN.**
+
+**REGISTERED FOR T25R4:** every time directory is located **by numeric value**
+with a tolerance of **1e-6 s** — four orders above the measured 1.4e-10 s drift
+and seven orders below the 5 s write interval, so it can neither miss a real
+directory nor select a neighbour. **An ambiguous match REFUSES rather than
+choosing.** Implemented in `analyse_t25R4.py:tdir` and `mark_done_t25R4.py:_tdir`,
+and **driven both ways against S1's real drifted tree**: the old reader refuses
+on t = 45, 70, 300 and 900; the new one resolves all four and still refuses
+t = 12345 and t = 902.
+
+**T25R3's `mark_done_t25R3.py` IS NOT REPAIRED.** It is frozen at §16 of a closed
+rung, and repairing a grading path after seeing its answer is exactly what a
+freeze forbids. **`S1` stands as `NOT DONE` on its registered instrument, with
+the instrument defect recorded** — the same disposition T25R2 §10 took with its
+`read_patch_T` defect, and for the same reason.
+
+<!-- END OF T25R4 PRE-REGISTRATION v1.2 -->
