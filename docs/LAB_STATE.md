@@ -10646,6 +10646,105 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T02:0xZ — **THE THERMAL DISPLAY MISSION IS BUILT AND ONE APPLY FROM LIVE. ACT A WOULD HAVE GONE UP BLANK AND NOW DOES NOT. DT025 IS COMPLETE ON ALL SIX CLAUSES.**
+
+*(Supervisor's own block. **Pure insertion; nothing below edited or deleted**, and the section's `Section last written:` line is left alone so the pure-insertion assert earlier blocks landed under is not broken. **Zero solver compute this session. Nothing under `sdk/` was written by this team. The live GUI server pid 848778 was NEVER restarted and NEVER signalled — Sanaa is inside it.**)*
+
+---
+
+### A. **SANAA IS WAITING ON THIS AND THE ETA IS 2.5–4.5 LANE-HOURS — NOW LARGELY SPENT.**
+
+Her words (`etc/sessions/2026-09-01T0200Z_sanaa_wait_thermal_and_jet_gui.md`): *"I am waiting for all the heat transfer capabiltiies to be added to the GUI alongside the Jet one as well."* Item 5 of her consolidated shoot list (`…0140Z_sanaa_demo_recap_five_items.md`) is this team's and is unchanged.
+
+**⚠️ THE ETA IS GIVEN AS A DURATION, NEVER AS A CLOCK TIME, AND THAT IS DELIBERATE: the box clock and the committed session-capture FILENAMES disagree by 40–85 minutes.** Nobody may reconcile them casually and nobody may quote her an absolute time off a clock this lab has not audited (the standing lesson is to run `date -u` before judging a rate; here the discrepancy is in the filenames, not the box).
+
+### B. ✅ **THE DEAD LANES LOST NOTHING. The patch was COMMITTED, not stranded in scratch.**
+
+`docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch` — landed at **`efd61f8b`**, corrected at **`32b4a816`**, hardened at **`f2b65132`**. Carries two `router.py` hunks, a `scope.py` `CAPABILITIES` hunk and the complete new `sdk/workflows/thermal_display.py`. **`git apply --check` CLEAN against the real tree at HEAD; every symbol it imports resolves.** L-186 held: only committed work survived the kill, and this was committed.
+
+### C. ⛔ **THE FINDING OF THE SESSION: ACT A'S CONTRACT MATCHED ITS OWN LANDED FIGURES 0/5. APPLIED AS IT STOOD, SANAA WOULD HAVE SEEN A BLANK SCREEN.**
+
+Two independent causes, both measured:
+
+1. **Filename case on a case-sensitive filesystem.** The module named `acta_*`; the files landed at `c19e6975` as **`actA_*`**. Two further figures it named were **never built at all**.
+2. **Incompatible bundle schema.** Act C writes `source_case` / `reader` / `mesh` / `instrument_check_*` / `per_cell_table`. **Act A writes NONE of them** — `map_rows` / `envelope` / `radial` / `monitors` / `anchor_checks`, and its controls under **`planted_zero_controls`**.
+
+**⛔ AND CAUSE 2 IS A RULE 3 PROBLEM, NOT A COSMETIC ONE, WHICH IS WHY IT IS THE HEADLINE.** Because the module looked only for `instrument_check_*`, **Act A's instrument-check table would have been SILENTLY SKIPPED IN ITS ENTIRETY** — a screen full of temperatures with no evidence the readers behind them can see anything. The module's whole design is that the planted-zero controls go up **before** any number. **A verification block that renders as nothing is worse than one that renders as "not recorded", and both are worse than a refusal.**
+
+**FIXED, and the fix is a refusal rather than a fallback:** `_instrument_rows` reads both spellings; Act A's `anchor_checks` get a **separate table with their own column names**, because a value re-derived by hand is **not** a planted zero and must not be dressed as one; and **a bundle with no recognisable control block REFUSES** — naming what it looked for, naming what the bundle actually carried, drawing no figure and quoting no number. **Measured on a stripped bundle: rc 2, 0 plots, 0 reports. No temperature reaches the record.**
+
+**Measured, patch applied into a throwaway `git archive HEAD` copy and `thermal_display.main()` driven for both acts:**
+
+| act | rc | plots | tables | reports |
+|---|---|---|---|---|
+| C | 0 | 5 | 5 | 1 |
+| A (pending renders absent, and they ARE absent at HEAD) | 0 | 5 | **6** | 1 |
+| A (pending renders present) | 0 | 7 | 6 | 1 |
+| **control block stripped** | **2** | **0** | 1 | **0** |
+
+### D. ⛔ **A FALSE ZERO MANUFACTURED BY A `dict.get` DEFAULT — MY §3 CHECK 1 FOUND THE CLASS, THE SWEEP FOUND THE EXTENT: 18, NOT 3.**
+
+I read the 837-line module as a diff and found **three** customer-facing values defaulting to `0.0`/`0`, one of them **guarded on a different key than the one it prints** — so a bundle carrying the guard without the value would have put **`under 0.0e+00 K`** on screen. **A zero conjured by `dict.get`'s second argument was never read by anything.** It is worse than the silent-skip defect above: a skipped table is visibly absent, while a fabricated `0.0` looks exactly like a measurement.
+
+**The lane's sweep found 15 more of the same defect in a less dangerous costume** — 14 `float('nan')` defaults across the anchor columns, Act A's sixteen-row table, its colour range, coolest point, limit and monitor offset, and Act C's per-cell table. **17 fixed; the 18th is KEPT and commented** — a `float('inf')` sort sentinel inside `min()` that never reaches a screen cell. **A single helper `_fmt`, taking no numeric default, is now the only route from bundle to screen cell**, so the absence of the pattern below it is checkable by eye rather than by trust.
+
+**The failing arm was driven, which is the only thing that demonstrates a fix:** guard key kept, printed keys deleted from a copy → `not recorded` where the pre-fix module printed `under 0.0e+00 K` and `t = 0 s`. **With the keys present it quotes them unchanged, so the reader was shown able to see the non-zero before its zero was trusted.**
+
+**⚠️ NOTHING ON SCREEN WAS EVER WRONG. I verified every key present in every bundle at HEAD before dispatching. This closed a trap; it did not repair a live error, and it must not be reported as if it had.** A second, non-numeric instance the lane fixed beyond the brief: an anchor check with no `matches` key rendered **`"NO"`** — reporting a disagreement nobody measured, the same fabrication pointing the other way.
+
+**Also fixed:** the instrument table hardcoded `" K"` while the key set admits `planted_W`. Latent only — all six control blocks in the three bundles use `planted_K`.
+
+### E. **A RULING OF MINE, DISCLOSED SO IT CAN BE OVERTURNED ON THE MERITS: `{THERMAL, UNSTEADY}` STANDS.**
+
+`CAPABILITIES` is keyed on the **intent**, and one intent covers two acts whose capabilities genuinely differ: **Act A is sixteen steady operating points; Act C is a 900-second transient.**
+
+- Narrowing to `{THERMAL}` fires a **FALSE SCOPE-DOWN ON ACT C's OWN REGISTERED DEMO PROMPT** — telling Sanaa, on camera, that a run which solved 900 s of history *"solves a single steady state"*. **Certain harm, on the filmed path.**
+- Keeping `UNSTEADY` leaves a **silent over-claim on Act A**, firing only **off** the two registered prompts.
+
+**A false statement on the filmed path is worse than a latent one off it.** But the over-claim may not stay **silent** — her Act B STOP order is explicit that a mission which cannot do what was asked must **say so**. **So Act A now carries a `not_available` row stating it presents sixteen separate steady operating points, holds no time history or transient response, and that the battery act is where time-resolved behaviour lives**, with `satisfied_by = None` so no figure can retire it. **The silence is what made keeping `UNSTEADY` uncomfortable, and the silence is gone.** The per-act key split remains the proper repair and is **referred to whoever owns `scope.py`** — not taken here.
+
+### F. **C6.4 BUILT — the independence table her spec demanded and the per-cell table could not supply.** `16d2910c`
+
+From **two arms already on disk; nothing solved.** Every figure reproduces `T25_STEP_INDEPENDENCE.md` to the digit: end cells 0.419751 → 0.419993 K (**+0.0577 %**), interior 0.309239 → 0.309384 K (**+0.0469 %**), largest disagreement anywhere **3.8448e-04 K at t = 60.0 s, cell 2** (the takeoff-to-cruise breakpoint), unaccounted energy 0.145859 % → 0.073031 %.
+
+**THREE planted controls, and the third is the one that counts:** the screen quantity is a **difference**, so the control plants 1.234e-03 K into a copy of the fine arm and **refuses unless the eight per-cell differences move by exactly that much — worst departure 1.084e-14 K.** A control on the parser is not a control on the differencer.
+
+**⛔ THE CONSTRAINT HELD UNDER A REAL SWEEP, NOT A PROMISE: the ratio 1.997 between the two closure gaps appears NOWHERE** in the pdf, svg, csv or json (PDF streams inflated for the search), alongside `GCI`, `observed order`, `first order`, `Richardson`, `extrapolat` — **all clean.** **Two levels cannot measure an order, and two levels in time with one in space is NOT a Roache triple, so rule 5's machinery does not apply and was not invoked.** That ratio is exactly what would have tempted a reader to write *"first order"* beside it. **The T25 pair remains UNGATED FEASIBILITY carrying NO VERDICT.**
+
+### G. **`T25_MOD_L1_DT025` — COMPLETE ON ALL SIX CLAUSES OF RULE 4**, each re-measured from raw artefacts
+
+`rc = 0` **RECORDED, not merely evidenced** — the wrapper runs the solver in its own foreground so `$?` is the solver's; one `End`; `Time = 900` == `endTime`; the registered `T`/`p` module tuple; **`ExecutionTime` count 3600 == the registered 3600** at `deltaT 0.25` (the clause is a **step-count identity, not a time-value identity** — rule 4's wording is shorthand only literally true at `deltaT = 1`); and the **age guard** at **+1.425 s** at endTime, **+0.068 s** at its tightest across all 180 write times. **181 numeric time directories under a strict regex — the shell glob says 182 and the surplus is `0.orig`.** Zero `FOAM FATAL`, **and that zero is planted**: the reader was shown returning 1 before its 0 was believed.
+
+**⛔ TAG `FEASIBILITY`, `gated=no`. NO VERDICT. A complete run and a gradeable run are different things.**
+
+**COST — the row was ALREADY AT HEAD at `8e566e10`; the cost lane died AFTER its commit, not mid-commit, and nothing was redone.** Actual **0.0167 core-min** on the point, honest band **[0.023, 0.033]** core-min because CPU 1.38 s exceeds the integer wall print of 1 s and the point figure is **provably an understatement**. Against a registered POINT of **2.0** (the queue entry's own machine fields — **not** the baseline's 1.0, which I had wrong until a lane corrected me): **60x–87x over-predicted**, **waste nil and separately named**, attribution **misprediction**. **$1.4e-05 DERIVED at $0.0513/core-h, never measured** — the box cannot read its own billing.
+
+### H. ⚠️ **ON THE CHIEF'S DESK, NOT MINE — A LOADED SHARED INDEX, AGAIN**
+
+The shared index held a **stale staged copy of the patch file, 705 insertions behind the worktree**. **A bare `git commit` by anyone would have reverted this work.** Inspected, **not reverted** (rule 10; the index is the chief's call). Also uncommitted and not this team's: `sdk/chief_engineer/control_room.html`, `sdk/tests/control_room_pacing_harness.js`.
+
+Earlier the same session, `d734e8fd` reverted 74 lines of this board by a stale read-tree — **cfd caught it themselves and restored it at `97fec453` one minute later**, which is the post-commit verify doing precisely its job. **My own re-land aborted on a duplicate guard rather than double-landing.** Boarded because it is the mechanism, not the blame: the private-index protocol writes a whole-file blob, so a tree read before a peer's commit and written after it **reverts silently, in the one direction that leaves no conflict to detect.** The CAS proves the **parent**, never the **tree**.
+
+### I. **TRAPS A SUCCESSOR WILL HIT**
+
+- **Act C's control blocks are split across BOTH bundles** — `actc_screen_data.json` carries two, `actc_step_independence.json` carries the third and is merged **over** it. Stripping only the main bundle returns **rc 0 with the third control still standing** and does **not** reach the refusal. **Both must be stripped, or a working guard reads as broken.**
+- **`sdk/tests/test_scope_down.py` is modified in the worktree by another team.** The `scope.py` hunk may interact with it. **Whoever applies the patch runs that suite BEFORE restarting.**
+- **All three environment variables live in the live server's ENVIRONMENT only, by shell inheritance; the command line names NONE of them.** A restart from a shell that does not export `CHIEF_ADAPTER=openfoam`, `OPENFOAM_RUN_PREFIX=openfoam2606` and `CERTONOMOUS_SOLVE_RANKS=16` loses the adapter and the prefix as well as the rank count, and **every solve silently drops to 1 rank.**
+
+### J. **THE HONEST CEILING, STATED BEFORE THE SHOOT RATHER THAN DISCOVERED DURING IT**
+
+**What is delivered: five real Act A figures and five Act C ones, every missing beat NAMED ON SCREEN.** **What is NOT delivered: her nine-screen spec.** A1–A9 and C1–C9 in full is **16–28 lane-hours**, dominated by a field/mesh/boundary-layer renderer nobody has built.
+
+**⛔ AND ONE ITEM IS NOT AN ESTIMATE AT ALL: C7's transitional-flow sensitivity band. NO RUN ON DISK SUPPLIES IT** — nothing in this campaign varied the flow regime, so there is no band to draw and none was constructed. **She should be told that rather than shown something adjacent.** Likewise **C6.3's outlet temperature does not exist**: `constant/regionProperties` reads `fluid ()` — empty — so there is no coolant stream and none was synthesised; channel-face heat removal (**22.1230 W at 900 s against a 32 W cruise input**) is shown in its place and labelled as what it is.
+
+### K. **NEXT ACTIONS, concrete**
+
+1. **The apply and the ONE coordinated restart** — chief + cfd/GUI lane. **Not this team's: `sdk/` is not our territory and I will not restart a server Sanaa is sitting in.**
+2. **Render check in a browser.** Every count above is from the **emit stream, not a rendered page**. **VERIFY** before the shoot.
+3. **The peer field-renderer lane's outputs** — `actA_temperature_field`, `actA_velocity_field` and four others are on disk **untracked and not at HEAD**. Two are already declared `PENDING` in the screen set and go up automatically if they land. The other four are **not** in the set because their titles could only be guessed; one line each once that lane commits and its README says what they show.
+
+---
+
 ##### ADDENDUM 2026-09-01T01:3xZ — **SANAA'S DEMO FREEZE IS IN FORCE; AND §3 CHECK 1 IS NOW DISCHARGED PERSONALLY ON `analyse_t23.py` AND `analyse_t24.py`, WHICH CLOSES THE LARGEST NAMED GAP IN THE DEMO MATERIAL AND OPENS ONE HONEST ASYMMETRY IN ITS PLACE.**
 
 *(Written by the heat-transfer supervisor personally, not by a lane — §3 reserves this check to the supervisor and a relayed check is a summary, not a check. **Pure insertion; nothing below is edited or deleted, and the section's `Section last written:` line is deliberately left alone** so the pure-insertion assert the block below landed under is not broken. Zero solver compute; no case directory touched; nothing under `sdk/` read or written by this block; the live GUI server at pid 848778 was neither restarted nor signalled.)*
