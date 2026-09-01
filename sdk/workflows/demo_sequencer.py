@@ -721,8 +721,16 @@ class Sequencer:
             # deriving it without staging would still leave a 404.
             namespace = figure_namespace(figure)
             self._stage_figure(namespace, figure)
+            # THE CAPTION IS THE ACT'S AND IT WAS BEING THROWN AWAY.
+            # :class:`demo_mode.Figure` requires a caption, validates it
+            # (one line, at most twenty words) and passes it through
+            # ``check_demo_language`` at construction -- and this call site
+            # published the title alone, so four authored, validated captions
+            # reached nothing on every run of this act. Measured on the
+            # assembled results stage: four of four figures on the wire with
+            # no caption key at all.
             announce_plot(emit, namespace, figure.path,
-                          figure.title)
+                          figure.title, figure.caption)
         if script is not None:
             for table in r.tables:
                 emit_table(emit, script, role=table.role,

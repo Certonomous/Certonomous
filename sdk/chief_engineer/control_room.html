@@ -240,6 +240,30 @@
      foot exactly the height it had before this existed. */
   .viewport-caption { color: var(--dim); line-height: 1.5; }
   .viewport-caption:empty { display: none; }
+  /* THE STAGE BANNER. A banner is a STATE, not a beat: 635 of them arrive on
+     this act and 614 carry a different string, because during the solve the
+     banner IS the iteration counter. It therefore writes one element,
+     latest-wins, and never queues. Bottom-anchored so it cannot collide with
+     the worker-kill banner, which owns the top of the same stage. */
+  .stage-banner { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+                  max-width: calc(100% - 36px); padding: 7px 15px; border-radius: 999px;
+                  background: rgba(6,9,12,.86); border: 1px solid var(--line);
+                  color: var(--fg); font: 11px var(--mono); letter-spacing: .05em;
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stage-banner[hidden] { display: none; }
+  /* A stage card is an entry, styled as one, so the act's nine stages read as
+     part of the same conversation rather than a second feed bolted beside it. */
+  .stage-card .who { color: var(--live); }
+  .stage-card p { margin: 3px 0 0; }
+  .stage-card .sline { display: block; }
+  /* A figure caption renders UNDER ITS OWN FIGURE. It is deliberately not the
+     viewport caption row: that row belongs to the body in the viewport, and a
+     plot's sentence written into it would caption a picture of the wing with a
+     sentence about a graph. */
+  .plots figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+  .plots figcaption { color: var(--dim); font: 10px var(--mono); line-height: 1.45; letter-spacing: .04em; }
+  .plots figcaption:empty { display: none; }
+  .plots figcaption b { color: var(--muted); font-weight: 600; display: block; }
   .legend { display: none; align-items: center; gap: 9px; padding: 9px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
   .legend.on { display: flex; }
   .legend .bar { flex: 1; height: 7px; background: linear-gradient(90deg, #3b4cc0, #7aa0e0, #f2f2f2, #e8926a, #b40426); }
@@ -478,7 +502,7 @@
            result card are SIBLINGS of the stage, never children. An unclosed
            stage-wrap once swallowed them all — the absolute canvas painted the
            body over the charts, and hiding the stage for a race hid the race. -->
-      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here, painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
+      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here, painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div><div class="stage-banner" id="stageBanner" hidden></div></div>
       <div class="viewport-foot" id="viewportFoot"><div class="viewport-foot-row"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div><div class="viewport-caption" id="viewportCaption"></div></div>
       <div class="legend" id="legend"><span class="lg-tag">colour range</span><span id="legendLo">-</span><span class="bar"></span><span id="legendHi">-</span><b id="legendName">pressure</b><span class="lg-phys" id="legendPhys"></span></div>
 
@@ -893,6 +917,45 @@ function dispatch(env) {
     case 'race.lane': raceLane(p); break;
     case 'race.curve': raceCurve(p); break;
     case 'race.result': raceResult(p); break;
+    // ---- DEMO MODE: the nine-stage acts --------------------------------
+    // MEASURED BEFORE THESE EXISTED: this switch has no `default:` branch, so
+    // every unlisted type silently rendered nothing. On the jet-flap act that
+    // was 1,270 of 1,281 events -- the whole act -- on the wire and not on the
+    // page.
+    //
+    // WHY THEY ARE SPLIT BETWEEN PACED AND UNPACED, and this is the whole
+    // design decision. The paced queue exists so text is READABLE, and it
+    // drains at 45 ms per item at its very fastest tier. Measured on the real
+    // act: the solving stage puts 1,225 events on the wire in 44.9 s, a mean
+    // of 36.7 ms per event. 36.7 < 45, so the queue cannot keep up AT ANY
+    // PACING SETTING -- it is not slow, it is structurally behind, and the
+    // backlog grows for the whole stage. Simulated against the real arrival
+    // trace: routing everything through the queue lands the last table 11.6 s
+    // after the solver finished and the run overruns by 13.3 s. FAST pace is
+    // WORSE, not better: its clamp floor is 60 ms, further still from 36.7.
+    //
+    // So: things that ACCUMULATE queue (the file's own existing rule -- an
+    // entry, a table, a plot). Things that are a STATE render on arrival, the
+    // way `race.*` already does one line above, for the same stated reason.
+    // A banner replaces its predecessor; a solve frame is one sample of a
+    // moving curve. Neither accumulates, so neither queues.
+    case 'stage.banner': setStageBanner(p); break;
+    case 'solve.frame': solveFrame(p); break;
+    case 'solve.begin': solveBegin(p); break;
+    case 'solve.point.begin': solvePoint(p); break;
+    case 'solve.point.end': solvePoint(p); break;
+    case 'solve.end': solveEnd(p); break;
+    // The stage boundary carries the act's own agent census for that stage,
+    // which is the fleet numeral. It rides the paced queue so the number lands
+    // on the beat of the stage it belongs to, exactly like `roster.update`.
+    case 'stage.begin': enqueue('stageBegin', p, ts); break;
+    // The nine stage payloads ARE the act's narrative and nothing rendered
+    // them. Nine items on the queue is nine reading beats, which is what the
+    // queue is for.
+    case 'demo.prompt': case 'demo.restatement': case 'demo.assumption':
+    case 'demo.geometry': case 'demo.mesh': case 'demo.feasibility':
+    case 'demo.elapsed': case 'demo.gates': case 'demo.results':
+      enqueue('demoStage', p, ts); break;
     case 'trace.point':
       // In a race, the mc/rom series feed the split-screen lanes, not the
       // single objective trace box.
@@ -1327,6 +1390,9 @@ const APPLY = {
   // is what lets a backed up queue release the numeral early without letting
   // the panel jump the narration.
   roster:     (p, item) => { applyCounts(item); renderRoster(p); },
+  // DEMO MODE. Both are narration-shaped and both accumulate, so both pace.
+  demoStage:  p => addStageCard(p),
+  stageBegin: p => stageBegan(p),
   agentUp:    (p, item) => applyCounts(item),
   workerUp:   (p, item) => applyCounts(item),
   workerDown: (p, item) => applyCounts(item),
@@ -1444,6 +1510,96 @@ function addEntry(p) {
   el.innerHTML = `<span class="who">${esc(p.role||'System')}<time>${stamp(p.at)}</time></span><p>${bulletHTML(p.message, p.verdict ? verdictBadge(p.verdict.tier) : '')}</p>`;
   $('script').appendChild(el); $('script').scrollTop = $('script').scrollHeight;
 }
+
+// ---- DEMO MODE renderers ---------------------------------------------------
+// NOT ONE WORD OF PROSE IS INVENTED HERE, and that is a property worth stating
+// because it is what makes these renderers safe by construction rather than by
+// review. Every sentence a viewer reads below is a string the ACT published,
+// which means it has already been through `demo_mode.assert_screen_safe` at the
+// moment it was published and is covered by the language sweep in
+// `scripts/live_pass_jet_flap.py`. The only fixed text this block adds is the
+// two axis labels on the trace, and those are swept by hand.
+//
+// The keys skipped are the publication guard's own `audit_keys` plus `stage`
+// and `banner`: machine identifiers and the heading, which renders separately.
+// Kept identical to the harness's exclusion set on purpose -- if the two ever
+// disagreed, the sweep would be checking fields the page does not show, or
+// worse, missing fields it does.
+const DEMO_SKIP = new Set(['stage','banner','at','for_event','table_id','beat','event','stage_id','url','file']);
+function stageLines(p) {
+  // String leaves only, in payload order. Booleans and numbers on these
+  // payloads are machine flags (`meshed`, `drawn`, `finished`), not sentences.
+  const out = [];
+  for (const k of Object.keys(p || {})) {
+    if (DEMO_SKIP.has(k)) continue;
+    const v = p[k];
+    if (typeof v === 'string') out.push(v);
+    else if (Array.isArray(v)) v.forEach(x => { if (typeof x === 'string') out.push(x); });
+  }
+  // A value that is already contained in a line above it is the SAME FACT
+  // rendered twice: the meshing stage publishes both "39,984 cells" and the
+  // bare "39,984" it read back off the mesh, and showing the bare number under
+  // the sentence reads as a second, unlabelled quantity. Dropped by containment
+  // rather than by naming the key, so no per-stage list can go stale.
+  return out.filter((s, i) => !out.some((t, j) => j < i && t.includes(s)));
+}
+function addStageCard(p) {
+  const lines = stageLines(p);
+  if (!lines.length) return;
+  const el = document.createElement('div'); el.className = 'entry stage-card';
+  // The heading is the act's OWN banner for that stage ("forming team",
+  // "planning", "meshing"), never the raw stage token. R1: display names, never
+  // slugs -- and `stage` is a routing key whose values are lab words
+  // ("restatement", "feasibility", "gates") that no viewer should read.
+  const head = esc(p.banner || '');
+  el.innerHTML = `<span class="who">${head}</span><p>`
+    + lines.map(s => `<span class="sline">${subScript(esc(s))}</span>`).join('')
+    + `</p>`;
+  $('script').appendChild(el); $('script').scrollTop = $('script').scrollHeight;
+}
+// The act's own agent census for the stage that just opened.
+function stageBegan(p) {
+  const n = Number(p && p.agents);
+  if (!Number.isFinite(n) || n <= 0) return;
+  state.agents = n;
+  state.agentsSeen = Math.max(state.agentsSeen || 0, n);
+  renderAgentCount();
+}
+// THE BANNER IS LATEST-WINS AND UNPACED. See the switch for the measurement
+// that forced this; the short version is that 614 of the 635 banners on this
+// act carry a distinct string because during the solve the banner IS the
+// iteration counter, so there is nothing here to pace and nothing to queue.
+function setStageBanner(p) {
+  const text = (p && p.text) || '';
+  const el = $('stageBanner'); if (!el) return;
+  if (!text) { el.hidden = true; el.textContent = ''; return; }
+  el.hidden = false; el.textContent = text;
+}
+// A solve frame is one sample of a moving curve, not a row of narration. It
+// feeds the trace that already exists (`pushTrace`/`drawTrace`, streaming line
+// with a latest-value annotation) rather than a second chart written here.
+function solveBegin(p) {
+  state.solveSeries = null;
+  setHidden('traceBox', false);
+}
+function solvePoint(p) { /* the banner already carries the point; state only */ }
+function solveFrame(p) {
+  const cl = p && p.coefficients ? p.coefficients.Cl : null;
+  if (cl == null || p.iteration == null) return;
+  // Each sweep point is its own curve: five points solved at five blowing
+  // settings are five runs, and drawing them end to end as one line would
+  // imply a single continuing solve.
+  if (state.solveSeries !== p.label) {
+    state.solveSeries = p.label;
+    state.trace = null;
+  }
+  pushTrace({ series: p.label, x: +p.iteration, y: +cl,
+              // Fixed labels, and the only text this block puts on screen that
+              // the act did not write. Both swept by hand against R5.
+              x_label: 'Iteration', y_label: 'Lift coefficient',
+              title: p.label });
+}
+function solveEnd(p) { state.solveSeries = null; }
 // A transcript table renders in both feeds with the entry styling it sits
 // among. The first event for a table_id creates the table (headers + any
 // rows); append:true events land new rows into that same table, so rows
@@ -2011,9 +2167,25 @@ function drawGeometry() {
 
 function addPlot(p) {
   const url = p.url || (p.file ? `/api/plot/${p.mission||state.mission}/${p.file}` : null);
-  if (!url) return; state.plots.push({ url, title: p.title });
+  if (!url) return; state.plots.push({ url, title: p.title, caption: p.caption });
   const img = document.createElement('img'); img.src = url; img.title = p.title || ''; img.onclick = () => window.open(url,'_blank');
-  $('plots').appendChild(img);
+  // A TITLE IN `img.title` IS A HOVER TOOLTIP AND A FILMED SCREEN HAS NO
+  // MOUSE. Measured: four figures on the jet-flap act, four titles, none of
+  // them visible without a pointer resting on the image. The title and the
+  // act's own caption now render as text under the figure they belong to.
+  //
+  // The caption row under the VIEWPORT is deliberately not used for this: it
+  // captions the body in the viewport, and writing a graph's sentence into it
+  // would put a caption about lift under a picture of a wing.
+  const fig = document.createElement('figure');
+  fig.appendChild(img);
+  if (p.title || p.caption) {
+    const cap = document.createElement('figcaption');
+    cap.innerHTML = (p.title ? `<b>${subScript(esc(p.title))}</b>` : '')
+                  + (p.caption ? subScript(esc(p.caption)) : '');
+    fig.appendChild(cap);
+  }
+  $('plots').appendChild(fig);
   // Plots ride the paced queue and can land AFTER report.ready rendered the
   // memo; re-render so the lab report always embeds every figure.
   if (state.report) renderMemo(state.report);

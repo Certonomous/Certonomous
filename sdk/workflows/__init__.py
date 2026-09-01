@@ -55,14 +55,32 @@ def make_transcript(mission: str, emit=None):
     return Transcript(mission, echo=safe_print, sink=sink)
 
 
-def announce_plot(emit, beat: str, path, title: str) -> None:
-    """Tell the control room a plot is ready so it can render it inline."""
+def announce_plot(emit, beat: str, path, title: str,
+                  caption: str = "") -> None:
+    """Tell the control room a plot is ready so it can render it inline.
+
+    ``caption`` is the ONE LINE that renders under the figure, and it is
+    optional because most callers have none. Twenty-nine of the thirty call
+    sites in this package pass a title only; the thirtieth is the demo-mode
+    results stage, which had four captions already authored and already
+    validated by :class:`demo_mode.Figure` (title at most ten words, caption
+    one line of at most twenty) and dropped every one of them on the floor,
+    because this function had nowhere to put them.
+
+    MEASURED BEFORE IT WAS ADDED: four of four figures on the jet-flap act
+    published a title and no caption, so the caption row under every figure
+    was empty for the whole act while the act's own author had written the
+    text. The keyword is optional, so no existing caller changes behaviour.
+    """
     if emit is None or not path:
         return
     from pathlib import Path as _Path
 
-    emit("plot.ready", {"beat": beat, "file": _Path(path).name, "title": title,
-                        "url": f"/api/plot/{beat}/{_Path(path).name}"})
+    payload = {"beat": beat, "file": _Path(path).name, "title": title,
+               "url": f"/api/plot/{beat}/{_Path(path).name}"}
+    if caption:
+        payload["caption"] = caption
+    emit("plot.ready", payload)
 
 
 def announce_geometry(emit, *, name: str | None = None,
