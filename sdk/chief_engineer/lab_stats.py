@@ -13,8 +13,10 @@ server itself has persisted — and not a padded thousand.
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -188,6 +190,141 @@ def _credentials_root() -> Path:
     if env:
         return Path(env).resolve()
     return (_REPO_ROOT / "models" / "curriculum" / "results").resolve()
+
+
+def _queue_root() -> Path:
+    env = os.environ.get("CERTONOMOUS_QUEUE_ROOT")
+    if env:
+        return Path(env).resolve()
+    return (_REPO_ROOT / "verification" / "queue").resolve()
+
+
+# The runner's own predicate for "this launch record is the current one and not
+# a copy retired by a later launch of the same case_id" -- transcribed from
+# scripts/queue_runner.py:122 (ARCHIVED_RE) so the two cannot drift into
+# disagreeing about which records are live. Skipping the retired copies is a
+# CORRECTNESS requirement here, not tidiness: a retired record still names the
+# SAME status_file as the launch that replaced it, so pairing its old start
+# with that file's new end fabricates an interval nobody ran. Measured
+# 2026-09-01: the 9 retired records on disk contributed a phantom 118.5
+# core-hours that way, one of them (W3_chain) 92.5 core-hours by itself.
+_QUEUE_ARCHIVED_RE = re.compile(r"\.\d{4}-\d{2}-\d{2}T\d{6}Z(\.\d+)?\.json$")
+_QUEUE_END_RE = re.compile(r"end=(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ)")
+
+
+def queue_summary(queue_root: Path | None = None) -> dict[str, Any]:
+    """Measured compute the QUEUE RUNNER has spent, gross, live off disk.
+
+    WHY THIS EXISTS (2026-09-01). The two lifetime tiles on the credentials
+    wall -- "missions run" and "solver core-hours" -- were computed from the
+    mega-batch ledger alone. That ledger's last row was written 2026-07-29
+    11:17 and the batch runner has not written since, so both tiles stood
+    frozen at 208,102 / 239.259 core-h while the lab ran a month of queued,
+    pre-registered campaigns through ``scripts/queue_runner.py``. The tiles
+    were not wrong about the ledger; they were stale about the lab. Nothing
+    here is cached: like ``ledger_summary`` it reads the disk on every call,
+    so the wall now moves as the queue runs and cannot go stale again.
+
+    WHAT IS MEASURED, and from which artefacts. One row per CURRENT launch
+    record under ``verification/queue/<team>/launched/*.json``:
+
+      * start  = that record's ``_launch.started_epoch``, stamped by the
+        runner at ``Popen`` time (queue_runner.py, ``meta["_launch"]``);
+      * end    = the ``end=<utc>`` field of the detached wrapper's own STATUS
+        file, named by ``_launch.status_file``;
+      * ranks  = the entry's registered ``ranks``;
+      * cost   = (end - start) x ranks / 60, the lab's unit (CLAUDE.md rule
+        12: core-minutes = wall s x ranks / 60).
+
+    A record with no STATUS file yet is a run still going or a run whose
+    record was never completed: it is COUNTED AS UNFINISHED and contributes
+    nothing, rather than being given an end time nobody measured.
+
+    BASIS: **GROSS**, as ``COMPUTE_BUDGET_CHARTER.md`` defines it -- the sum
+    over every row in the window with no row excluded for any reason, so it
+    re-derives by summation alone with no judgement. It is deliberately NOT
+    cleaned. The charter's one cleaning rule ("a ledger row over 3600 wall
+    seconds is an infrastructure stall") is justified there by measured
+    clustering in the mega-batch cylinder ledger, whose median row is 2.4
+    seconds; queued T-family and DAFoam solves legitimately run for hours, so
+    that threshold matches 47 of these 265 rows and would delete 90% of the
+    figure (35,802 of 39,535 core-min, measured 2026-09-01) on a rule that was
+    never calibrated for them. Cleaning here would be a judgement wearing a
+    number's clothes, which is the exact failure the charter names.
+
+    HONEST LIMITS, stated rather than left to be rediscovered:
+      * The interval is LAUNCH-TO-COMPLETION wall, so for a chain/wait wrapper
+        it includes time the wrapper spent waiting rather than solving. This
+        figure is therefore an UPPER BOUND on solver compute, on the same
+        gross basis the wall already published.
+      * It covers the queue era only, which opens 2026-08-26T16:40:52Z. Work
+        run between the ledger's last row (2026-07-29) and that date was
+        launched by hand and is in neither source; it is uncounted, not zero.
+    """
+    root = queue_root or _queue_root()
+    out: dict[str, Any] = {
+        "launches_completed": 0, "launches_unfinished": 0,
+        "core_minutes_gross": 0.0, "core_hours_gross": 0.0,
+        "per_team": {}, "window_first_utc": None, "window_last_utc": None,
+        "basis": "gross (no row excluded); launch-to-completion wall x ranks",
+    }
+    if not root.exists():
+        return out
+    core_minutes = 0.0
+    per_team: dict[str, dict[str, Any]] = {}
+    for path in sorted(root.glob("*/launched/*.json")):
+        if _QUEUE_ARCHIVED_RE.search(path.name):
+            continue
+        try:
+            entry = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            continue
+        launch = entry.get("_launch") or {}
+        status = launch.get("status_file")
+        started = launch.get("started_epoch")
+        if not status or started is None:
+            out["launches_unfinished"] += 1
+            continue
+        try:
+            text = Path(status).read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            out["launches_unfinished"] += 1
+            continue
+        match = _QUEUE_END_RE.search(text)
+        if not match:
+            out["launches_unfinished"] += 1
+            continue
+        end = datetime.datetime.strptime(
+            match.group(1), "%Y-%m-%dT%H:%M:%SZ").replace(
+            tzinfo=datetime.timezone.utc).timestamp()
+        wall = end - float(started)
+        if wall < 0:          # clock skew or a STATUS from an earlier launch
+            out["launches_unfinished"] += 1
+            continue
+        try:
+            ranks = float(entry.get("ranks") or 1)
+        except (TypeError, ValueError):
+            ranks = 1.0
+        cost = wall * ranks / 60.0
+        core_minutes += cost
+        out["launches_completed"] += 1
+        team = str(entry.get("team", "unknown"))
+        bucket = per_team.setdefault(team, {"count": 0, "core_minutes": 0.0})
+        bucket["count"] += 1
+        bucket["core_minutes"] += cost
+        utc = launch.get("utc")
+        if utc:
+            if out["window_first_utc"] is None or utc < out["window_first_utc"]:
+                out["window_first_utc"] = utc
+            if out["window_last_utc"] is None or utc > out["window_last_utc"]:
+                out["window_last_utc"] = utc
+    out["core_minutes_gross"] = round(core_minutes, 1)
+    out["core_hours_gross"] = round(core_minutes / 60.0, 3)
+    out["per_team"] = {
+        k: {"count": v["count"], "core_minutes": round(v["core_minutes"], 1)}
+        for k, v in sorted(per_team.items())
+    }
+    return out
 
 
 def read_ledger(ledger_path: Path | None = None) -> list[dict[str, Any]]:
@@ -423,25 +560,55 @@ def _persisted_missions() -> int:
     return sum(1 for _ in root.glob("m-*.json"))
 
 
-def lifetime_counters(ledger_path: Path | None = None) -> dict[str, Any]:
+def lifetime_counters(ledger_path: Path | None = None,
+                      include_queue: bool | None = None) -> dict[str, Any]:
     """The header row: missions run, core-hours, knowledge, anchors, benchmarks.
 
-    ``missions_run`` = real+ROM evaluations in the ledger plus any missions the
-    server itself persisted. Honest, durable, never rounded.
+    ``missions_run`` = real+ROM evaluations in the ledger, plus any missions the
+    server itself persisted, plus completed queue-runner launches. Honest,
+    durable, never rounded.
+
+    ``include_queue`` defaults to "only when no ledger was injected". A caller
+    that passes its own ``ledger_path`` is scoping the counters TO THAT LEDGER
+    -- a fixture, a bundle snapshot, a replay -- and folding this box's live
+    queue into that answer would mix two unrelated worlds. Pass it explicitly to
+    override in either direction.
     """
+    if include_queue is None:
+        include_queue = ledger_path is None
     summary = ledger_summary(ledger_path)
     persisted = _persisted_missions()
+    # The queue era, added 2026-09-01. Both tiles used to end at the mega-batch
+    # ledger, which stopped being written on 2026-07-29, so both stood still
+    # through a month of queued campaigns. The two sources cannot double-count:
+    # the ledger's last row is 2026-07-29T11:17 and the first queue launch is
+    # 2026-08-26T16:40:52Z. A failure to read the queue must never take the wall
+    # down, so it degrades to the ledger-only figure rather than raising.
+    try:
+        queue = queue_summary() if include_queue else None
+    except Exception:
+        queue = None
+    if queue is None:
+        queue = {"launches_completed": 0, "launches_unfinished": 0,
+                 "core_minutes_gross": 0.0, "core_hours_gross": 0.0,
+                 "per_team": {}, "window_first_utc": None,
+                 "window_last_utc": None, "basis": "unavailable"}
     return {
-        "missions_run": summary["evaluations_ok"] + persisted,
-        "solver_core_hours": summary["core_hours"],
+        "missions_run": summary["evaluations_ok"] + persisted
+        + queue["launches_completed"],
+        "solver_core_hours": round(
+            summary["core_hours"] + queue["core_hours_gross"], 3),
+        "queue_core_hours": queue["core_hours_gross"],
         "knowledge_entries": _KNOWLEDGE_ENTRIES + _OPERATING_LESSONS,
         "experimental_anchors": _experimental_anchors(),
         "benchmarks_active": len(_ACTIVE_BENCHMARKS),
         "detail": {
             "ledger_evaluations": summary["evaluations_ok"],
             "ledger_failed": summary["evaluations_failed"],
+            "ledger_core_hours": summary["core_hours"],
             "persisted_missions": persisted,
             "per_solver": summary["per_solver"],
+            "queue": queue,
         },
         # The active-research programmes the credentials view showcases as
         # work in progress (R5): closure challenge, the public challenge

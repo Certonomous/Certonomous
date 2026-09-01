@@ -2228,11 +2228,43 @@ async function loadCredentials() {
     // Header: only the impressive-and-real lifetime tiles (R5). The small-number
     // knowledge / anchors / benchmarks tiles are dropped; the standing of the
     // benchmarks now lives in the ACTIVE RESEARCH section below.
+    // STALENESS REPAIR, 2026-09-01. Both tiles were computed from the
+    // mega-batch ledger alone (cases/mega-batch/ledger.jsonl), whose last row
+    // was written 2026-07-29 11:17. The batch runner has not written since, so
+    // the wall stood at 208,102 missions / 239.3 core-hours through a month of
+    // queued campaigns. lab_stats.queue_summary() now adds the queue era live
+    // off disk and the tiles move on their own again.
+    //
+    // THE FALLBACK BELOW EXISTS ONLY FOR A SERVER PROCESS STARTED BEFORE THAT
+    // MODULE CHANGE. A running python process does not re-import an edited
+    // module, and this page is re-read from disk on every request while the
+    // server is not, so an already-running server keeps serving the ledger-only
+    // payload. When it does -- detected by queue_core_hours being absent, never
+    // by a version guess -- the page adds the queue era from a figure derived
+    // here on 2026-09-01, and when the server is restarted the same key makes
+    // the page defer to the live value instead, so the two can never be added
+    // twice. Derivation of the two constants, re-runnable:
+    //   python3 -c "import sys;sys.path.insert(0,'/home/ubuntu/Certonomous');
+    //     from sdk.chief_engineer import lab_stats;print(lab_stats.queue_summary())"
+    // over verification/queue/<team>/launched/*.json (current records only,
+    // retired copies excluded) paired with each record's own STATUS file:
+    // 256 completed launches, 32,423.5 core-min = 540.392 core-hours GROSS,
+    // window 2026-08-26T16:40:52Z to 2026-08-31T22:44:25Z.
+    const QUEUE_ERA_FALLBACK = { launches: 256, core_hours: 540.392, derived: '2026-09-01' };
     let counters = '';
     if (stats) {
+      const liveQueue = stats.queue_core_hours != null;
+      const missions = (stats.missions_run ?? 0) + (liveQueue ? 0 : QUEUE_ERA_FALLBACK.launches);
+      const coreHours = (+(stats.solver_core_hours ?? 0)) + (liveQueue ? 0 : QUEUE_ERA_FALLBACK.core_hours);
+      const asOf = liveQueue ? 'live off disk' : `queue era as of ${QUEUE_ERA_FALLBACK.derived}`;
       const tiles = [
-        ['missions run', (stats.missions_run ?? 0).toLocaleString(), 'selected-solver + reduced-order evaluations on the durable ledger'],
-        ['solver core-hours', (+(stats.solver_core_hours ?? 0)).toFixed(1), 'measured wall time across solver runs'],
+        ['missions run', missions.toLocaleString(), 'selected-solver and reduced-order evaluations on the durable ledger, plus completed queue launches'],
+        // The basis label is not decoration: COMPUTE_BUDGET_CHARTER.md requires
+        // every published spend figure to say whether it is gross or cleaned,
+        // and this figure is gross on both halves. Gross here is
+        // launch-to-completion wall x ranks, so for a chain wrapper it counts
+        // waiting as well as solving and is an upper bound on solver compute.
+        ['solver core-hours', coreHours.toFixed(1), `measured wall x ranks across solver runs, gross basis, ${asOf}`],
       ];
       counters = `<div class="cred-counters">${tiles.map(([k,v,sub]) =>
         `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span><em>${esc(sub)}</em></div>`).join('')}</div>`;

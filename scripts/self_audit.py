@@ -443,10 +443,75 @@ def check_wall_counters_vs_ledger() -> Result:
         else:
             notes.append(f"{label}: {measured} confirmed")
 
-    compare("missions_run", counters.get("missions_run"), ok_rows)
+    # WHICH PUBLISHED FIGURE THE LEDGER IS EVIDENCE FOR, restated 2026-09-01.
+    # Until today the two headline counters WERE the ledger's two totals, so
+    # this check compared them directly. The mega-batch ledger stopped being
+    # written on 2026-07-29 and the headline now also carries the queue era
+    # (lab_stats.queue_summary, measured off verification/queue/*/launched/),
+    # so a direct comparison would report the repair as a defect and the
+    # ledger halves would go unchecked -- the audit would be loudly wrong in
+    # both directions at once. The ledger is still evidence, for exactly the
+    # ledger-derived halves that lab_stats now publishes beside the headline.
+    # The headline stays bound: the arithmetic identity below is what stops a
+    # wrong headline hiding behind a correct half.
+    #
+    # A wall.json built before that change carries no ledger halves. It is not
+    # re-audited under the new decomposition -- that would be measuring an old
+    # artefact against a new contract -- so the check falls back to the
+    # original comparison and says which contract it applied.
+    ledger_missions = detail_block.get("ledger_evaluations")
+    ledger_hours = detail_block.get("ledger_core_hours")
+    split_published = ledger_missions is not None and ledger_hours is not None
+    if split_published:
+        compare("detail.ledger_evaluations", ledger_missions, ok_rows)
+        compare("detail.ledger_core_hours", ledger_hours,
+                round(ok_seconds / 3600.0, 3), tolerance=0.002)
+        queue_block = detail_block.get("queue") or {}
+        queue_missions = queue_block.get("launches_completed", 0) or 0
+        queue_hours = float(queue_block.get("core_hours_gross", 0.0) or 0.0)
+        persisted = detail_block.get("persisted_missions", 0) or 0
+        # The headline must be its parts and nothing else. This catches a
+        # headline inflated by a source that published no half to back it.
+        head_missions = counters.get("missions_run")
+        expect_missions = int(ledger_missions) + int(persisted) + int(queue_missions)
+        if head_missions is None:
+            problems.append("missions_run: absent from wall.json")
+        elif int(head_missions) != expect_missions:
+            problems.append(
+                f"missions_run: published {head_missions}, but its own published "
+                f"parts sum to {expect_missions} (ledger {ledger_missions} + "
+                f"persisted {persisted} + queue {queue_missions})")
+        else:
+            notes.append(
+                f"missions_run: {head_missions} = ledger {ledger_missions} + "
+                f"persisted {persisted} + queue {queue_missions}, and the "
+                f"ledger half re-derives from the ledger itself")
+        head_hours = counters.get("solver_core_hours")
+        expect_hours = float(ledger_hours) + queue_hours
+        if head_hours is None:
+            problems.append("solver_core_hours: absent from wall.json")
+        elif abs(float(head_hours) - expect_hours) > 0.002:
+            problems.append(
+                f"solver_core_hours: published {head_hours}, but its own "
+                f"published parts sum to {expect_hours:.3f} (ledger "
+                f"{ledger_hours} + queue {queue_hours})")
+        else:
+            notes.append(
+                f"solver_core_hours: {head_hours} = ledger {ledger_hours} + "
+                f"queue {queue_hours} gross, and the ledger half re-derives "
+                f"from the ledger itself")
+        notes.append(
+            "queue half is NOT re-derived here: its evidence is the launch "
+            "records and their STATUS files, not this ledger, so this check "
+            "binds it by arithmetic and does not claim to have measured it")
+    else:
+        notes.append(
+            "wall.json predates the 2026-09-01 ledger/queue split; audited "
+            "under the original contract, headline == ledger totals")
+        compare("missions_run", counters.get("missions_run"), ok_rows)
+        compare("solver_core_hours", counters.get("solver_core_hours"),
+                round(ok_seconds / 3600.0, 3), tolerance=0.002)
     compare("ledger_failed", detail_block.get("ledger_failed"), failed_rows)
-    compare("solver_core_hours", counters.get("solver_core_hours"),
-            round(ok_seconds / 3600.0, 3), tolerance=0.002)
 
     for solver, (count, seconds) in sorted(per_solver.items()):
         published = per_solver_published.get(solver)
