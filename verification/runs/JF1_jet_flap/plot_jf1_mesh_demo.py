@@ -460,11 +460,35 @@ def main():
 
     # ------------------------------------------------------------- compute ---
     flow_core = exec_core_min(os.path.join(flow_dir, "log.simpleFoam"), 4)
+
+    # COST BASIS FOR THE FIVE-ROW SWEEP -- FIXED, DO NOT RE-DERIVE.
+    # Two honest bases exist and they differ by 0.23 %:
+    #   (a) ExecutionTime x ranks / 60 from log.simpleFoam ....... 117.2147
+    #   (b) the sum of each run's own RUN_STATUS core_min_MEASURED  117.4833
+    # The RUN_STATUS basis (b) GOVERNS.  It is the run's own recorded field, it
+    # is what the cost ledger cites, and it is what the Act B lift/pressure
+    # figures quote.  One act must not show two numbers for one quantity, so
+    # this file reads (b) exactly as those figures do.  exec_core_min() below
+    # is still used for the SINGLE flow run, whose RUN_STATUS basis is not in
+    # play on any other figure.  Do not switch this back to (a).
     sweep_core = 0.0
     for d in (SWEEP_UNBLOWN, "JF1_L1_BLOWN_CMU005_A0", "JF1_L1_BLOWN_CMU010_A0",
               "JF1_L1_BLOWN_CMU020_A0", "JF1_L1_BLOWN_CMU040_A0"):
-        sweep_core += exec_core_min(
-            os.path.join(HERE, d, "log.simpleFoam"), 1)
+        case = os.path.join(HERE, d)
+        st = {}
+        for f in os.listdir(case):
+            if f.startswith("RUN_STATUS"):
+                for line in open(os.path.join(case, f)):
+                    q = line.split(None, 1)
+                    if len(q) == 2:
+                        st[q[0]] = q[1].strip()
+        if "core_min_MEASURED" not in st:
+            raise MeshReadError(
+                "no core_min_MEASURED in the RUN_STATUS file for %s -- the "
+                "governing cost basis is unreadable and this figure must not "
+                "fall back to the ExecutionTime basis, which would print a "
+                "second number for the same quantity" % d)
+        sweep_core += float(st["core_min_MEASURED"])
     sweep_est = SWEEP_ESTIMATE_EACH * SWEEP_N
 
     cost_flow = ("Computer time for the calculation these near-wall numbers "
@@ -816,9 +840,11 @@ def main():
     fig.text(0.5, 0.900,
              "A different grid from the flow-field page, and a different "
              "shape of grid: an O-shape that closes around the wing rather "
-             "than\ntrailing behind it. All five blowing strengths were "
-             "computed on this one grid, so the differences between them come "
-             "from the\nblowing alone. %s cells, one cell deep, %.0f mm span."
+             "than\ntrailing behind it. All five calculations ran on this one "
+             "grid: four with the slot open, blowing at different strengths, "
+             "so the differences\namong those four come from the blowing "
+             "alone; the fifth is a reference case with the slot closed. "
+             "%s cells, one cell deep, %.0f mm span."
              % ("{:,}".format(mS.n_cells).replace(",", " "),
                 1e3 * mS.t_z),
              ha="center", va="top", fontsize=10.4, color=INK2, linespacing=1.5)

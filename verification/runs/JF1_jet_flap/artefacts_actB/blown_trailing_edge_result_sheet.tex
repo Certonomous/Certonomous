@@ -14,7 +14,7 @@
 \definecolor{boxrule}{HTML}{C9A227}
 \captionsetup{font=small,labelfont=bf,skip=3pt}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{2pt}
+\setlength{\parskip}{1pt}
 \pagestyle{empty}
 
 \newcommand{\shead}[1]{\vspace{1pt}{\color{navy}\bfseries\large #1}\vspace{1pt}\hrule\vspace{3pt}}
@@ -56,7 +56,7 @@ $\mathrm{d}C_L/\mathrm{d}C_\mu$ [--] & [--] \\
 \end{tabular}
 \end{center}
 
-\vspace{-4pt}
+\vspace{-7pt}
 {\footnotesize The jet-reaction column is the direct vertical component of the
 jet momentum, reported separately and never folded silently into the lift
 column: here it is a \emph{part} of the total, and the pressure-lift column is
@@ -65,7 +65,7 @@ $C_\mu$; it is unbounded as $C_\mu \to 0$, which is the square-root law stated a
 a number. Uncertainty is the arithmetic error of evaluating the published
 expression; the accuracy of the published fit is not stated in the source.}
 
-\shead{Table 2 -- Solved flow field, five blowing conditions}
+\shead{Table 2 -- Solved flow field: four blown conditions and a slot-closed reference}
 
 \begin{center}\small
 \begin{tabular}{ccccccc}
@@ -74,7 +74,7 @@ Jet momentum & Lift from the & Jet reaction & Lift, surface & Movement in the & 
 coefficient & aerofoil surface & (added, not & $+$ jet reaction & last 4{,}000 & equation & from \\
 $C_\mu$ [--] & $C_{L,\mathrm{surface}}$ [--] & measured) [--] & [--] & iterations [--] & imbalance [--] & Table 1 [\%] \\
 \midrule
-0.00 & $5.50595 \times 10^{-5}$ & $0$ & $5.50595 \times 10^{-5}$ & $5 \times 10^{-7}$ & $3.46 \times 10^{-6}$ & --- \\
+0.00$^{\dagger}$ & $5.50595 \times 10^{-5}$ & $0$ & $5.50595 \times 10^{-5}$ & $5 \times 10^{-7}$ & $3.46 \times 10^{-6}$ & --- \\
 0.05 & $4.05733 \times 10^{-1}$ & $2.50000 \times 10^{-2}$ & $4.30733 \times 10^{-1}$ & $5 \times 10^{-7}$ & $5.94 \times 10^{-6}$ & +1.73 \\
 0.10 & $5.48846 \times 10^{-1}$ & $5.00000 \times 10^{-2}$ & $5.98846 \times 10^{-1}$ & $5 \times 10^{-7}$ & $2.55 \times 10^{-5}$ & -0.98 \\
 0.20 & $7.43999 \times 10^{-1}$ & $1.00000 \times 10^{-1}$ & $8.43999 \times 10^{-1}$ & $9 \times 10^{-6}$ & $4.57 \times 10^{-5}$ & -2.85 \\
@@ -83,14 +83,16 @@ $C_\mu$ [--] & $C_{L,\mathrm{surface}}$ [--] & measured) [--] & [--] & iteration
 \end{tabular}
 \end{center}
 
-\vspace{-4pt}
-{\footnotesize The surface column is the lift from integrating pressure and
-shear over the aerofoil only; it does \emph{not} contain the jet reaction, which
-is therefore added explicitly in the fourth column to give a quantity comparable
-with Table~1. ``Movement'' is how much the lift coefficient still shifted over
-the final 4{,}000 iterations. ``Turbulence equation imbalance'' is how far the
-turbulent kinetic energy equation is from being satisfied at the last iteration;
-the target set before running was $1 \times 10^{-6}$.}
+\vspace{-7pt}
+{\footnotesize The surface column integrates pressure and shear over the
+aerofoil only; it does \emph{not} contain the jet reaction, which is added
+explicitly in the fourth column to give a quantity comparable with Table~1.
+``Movement'' is how much the lift still shifted over the final 4{,}000
+iterations. ``Turbulence equation imbalance'' is how far the turbulent kinetic
+energy equation is from being satisfied at the last iteration; the target set
+before running was $1 \times 10^{-6}$. $^{\dagger}$The $C_\mu = 0$ row is a
+reference case with the slot \emph{closed}; the other four have it open and
+differ only in jet strength.}
 
 \vspace{2pt}
 \begin{center}
@@ -157,10 +159,10 @@ values fixed before running to better than $5 \times 10^{-10}$ in lift
 coefficient at every point in Table~1, and the marginal-lift column matches an
 independent finite-difference evaluation of the same expression to eight figures.
 
-\textbf{Checked.} The unblown section returns a surface lift coefficient of
-$5.51 \times 10^{-5}$ at zero incidence, as a symmetric section
-must. The same calculation gave $1.01$ at the strongest blowing, so the
-near-zero reflects the physics, not a calculation that could only give zero.
+\textbf{Checked.} The reference section, slot closed, returns a surface lift
+coefficient of $5.51 \times 10^{-5}$ at zero incidence, as a
+symmetric section must. The same solver and reader gave $1.01$ at the strongest
+blowing, so the near-zero is physics, not a reader that could only give zero.
 
 \textbf{Not checked.} \emph{None of the solved points in Table~2 is offered as
 verified against anything.} The solutions are still tightening: no condition has
@@ -186,8 +188,8 @@ blown case is not a mildly blown case with a different inlet number.
 \role{Lead Numericist} Confidence differs sharply between the two tables.
 Table~1 is arithmetic against a published expression, exact to the digits shown.
 Table~2 has not reached the target set before running: the turbulence equation
-imbalance grows monotonically with blowing, from $3.46 \times 10^{-6}$ unblown to
-$1.47 \times 10^{-4}$ at the strongest jet, a factor of 43. The lift has
+imbalance grows monotonically with blowing, from $3.46 \times 10^{-6}$ at the reference
+to $1.47 \times 10^{-4}$ at the strongest jet, a factor of 43. The lift has
 stopped moving to within the uncertainty column, which is why it is quoted at
 all --- but a settled number is not a converged one. A finer mesh is running;
 until it lands the mesh contribution to the uncertainty is unquantified.

@@ -13,8 +13,17 @@ INTERNAL NOTES (this file is not user-visible; the FIGURES are).
 
   * Two meshes are in play and they are NEVER mixed on one axis.
       - the five completed points (one unblown, four blown) share ONE 39,984-cell
-        mesh and differ ONLY in blowing.  That IS a controlled comparison and the
-        surface-pressure figure uses it.
+        mesh.  Mesh GEOMETRY is byte-identical across all five (md5 of points,
+        faces and owner match).  The CONTROLLED COMPARISON IS THE FOUR BLOWN
+        POINTS AMONG THEMSELVES, and only they.  The unblown point does NOT
+        differ from them in blowing alone: its jetSlot is a polyMesh `wall`
+        while all four blown rows carry `patch`, so the slot is SEALED there,
+        not open with the jet turned down to zero.  It is therefore drawn and
+        labelled as a SEALED-SLOT REFERENCE everywhere it appears -- figure
+        header, legend entry, result-sheet table.  The blown rows' own 0/U
+        headers say the same thing.  Any wording that folds the unblown row
+        into "five calculations differing only in blowing" is FALSE and must
+        not be reintroduced.
       - the live run is a different 46,180-cell mesh.  It supplies the flow-field
         and jet-trajectory figures ONLY, never a point on the lift curve.
   * Reference area differs BY MESH and every coefficient is checked against the
@@ -374,7 +383,11 @@ def main():
             label="Computed lift on the wing surface alone")
     ax.plot([0.0], [rows[0]["cl_aero"]], "^", ms=8.5, color=UNBLOWN_C,
             mfc=UNBLOWN_C, mec="white", mew=1.2, zorder=6,
-            label="No blowing: $C_L = %.5f$ (symmetric wing, zero incidence)"
+            # ONE LINE.  A two-line entry grows the legend box and the
+            # "first 12 % of the momentum" annotation then lands on top of the
+            # entry above it.  The symmetric-section-at-zero-incidence fact is
+            # already in the figure header, so it is not repeated here.
+            label="Reference case, slot closed: $C_L = %.5f$"
                   % rows[0]["cl_aero"])
 
     for r in blown:
@@ -430,10 +443,12 @@ def main():
              "incidence in a 10 m s⁻¹ stream. A 5.0 mm slot at the trailing "
              "edge blows a sheet of air\naimed 30° below the chord line. "
              "$C_\\mu$ is the jet's momentum divided by the oncoming stream's "
-             "dynamic pressure times the chord. All five calculations share one "
-             "mesh of\n39 984 cells and differ only in how hard the slot blows, "
-             "so the differences between them are caused by the blowing and by "
-             "nothing else.",
+             "dynamic pressure times the chord. All five calculations share "
+             "one mesh of 39 984 cells.\nThe four blown cases differ from one "
+             "another only in how hard the slot blows, so the differences "
+             "among those four are caused by the blowing and by nothing "
+             "else.\nThe fifth is the reference case, with the slot closed — "
+             "not the same wing with the jet turned down to zero.",
              ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)
     cost_line(fig, cost_sweep)
     save(fig, "jet_flap_1_lift_vs_blowing")
@@ -454,7 +469,7 @@ def main():
         col = UNBLOWN_C if r["cmu"] == 0 else RAMP[[0.05, 0.10, 0.20, 0.40]
                                                    .index(r["cmu"])]
         ls = (0, (5, 3)) if r["cmu"] == 0 else "-"
-        lab = ("no blowing" if r["cmu"] == 0
+        lab = ("reference: slot closed" if r["cmu"] == 0
                else "$C_\\mu = %.2f$" % r["cmu"])
         for axx, sel in ((axu, y > 0), (axl, y < 0)):
             s = np.argsort(x[sel])
@@ -492,11 +507,13 @@ def main():
 
     banner(fig)
     fig.text(0.5, 0.930,
-             "The same wing and the same mesh in all five curves; only the "
-             "strength of the trailing-edge jet changes. This is a controlled "
-             "comparison:\nnothing else about the calculation differs. Pressure "
+             "The same wing and the same mesh in all five curves. The four "
+             "blown curves differ from one another only in the strength of the "
+             "trailing-edge jet, so that\ncomparison is controlled. The fifth "
+             "curve, dashed grey, is the reference case with the slot closed — "
+             "not the same wing with the jet turned down to zero.\nPressure "
              "is shown in the usual aerodynamic convention with suction upward. "
-             "The area between the\nupper and lower curves is the lift, so the "
+             "The area between the upper and lower curves is the lift, so the\n"
              "widening gap as the jet strengthens IS the lift the blowing "
              "produces.",
              ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)

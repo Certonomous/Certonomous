@@ -33,8 +33,13 @@ INTERNAL NOTES (this file is not user-visible; the FIGURES are).
     to it.  The two must never be mixed.
 
   * TWO MESHES, NEVER ON ONE AXIS.  The five completed calculations share ONE
-    39,984-cell O-topology mesh (span 0.01 m) and differ ONLY in blowing --
-    that is the controlled comparison, and it alone supplies the pressure
+    39,984-cell O-topology mesh (span 0.01 m); mesh GEOMETRY is byte-identical
+    across all five.  THE CONTROLLED COMPARISON IS THE FOUR BLOWN ROWS AMONG
+    THEMSELVES.  The unblown row's jetSlot is a polyMesh `wall` where all four
+    blown rows carry `patch`, so its slot is SEALED, not open at zero jet; it
+    is drawn and labelled as a SEALED-SLOT REFERENCE and must never be
+    described as the same case with the blowing turned off.  That mesh alone
+    supplies the pressure
     figure.  The 46,180-cell C-topology calculation (span 1.0 m) appears ONLY
     in the two-dimensionality figure, where it is a SEPARATE column and no
     coefficient is formed from it.
@@ -509,7 +514,8 @@ def main():
     for r in cps:
         col = UNBLOWN_C if r["cmu"] == 0 else RAMP[CMU_ORDER.index(r["cmu"])]
         ls = (0, (5, 3)) if r["cmu"] == 0 else "-"
-        lab = "no blowing" if r["cmu"] == 0 else "$C_\\mu = %.2f$" % r["cmu"]
+        lab = ("reference: slot closed" if r["cmu"] == 0
+               else "$C_\\mu = %.2f$" % r["cmu"])
         x, y, cp = r["x"], r["y"], r["cp"]
         for axx, axz, sel in ((axu, axzu, y > 0), (axl, axzl, y < 0)):
             s = np.argsort(x[sel])
@@ -566,7 +572,7 @@ def main():
     rows = []
     for r in cps:
         rows.append([
-            "none" if r["cmu"] == 0 else "%.2f" % r["cmu"],
+            "slot closed" if r["cmu"] == 0 else "%.2f" % r["cmu"],
             "%+.4f" % r["stag_cp"],
             "%.5f" % r["stag_x"],
             "±%.5f" % r["stag_ux"],
@@ -594,14 +600,16 @@ def main():
     fig.text(0.5, 0.952,
              "Pressure around the wing, drawn to full scale with nothing cut "
              "off the axis. Same wing, same mesh, same flow speed in all five "
-             "curves; only the strength\nof the trailing-edge jet changes, so "
-             "this is a controlled comparison. Suction is plotted upward, the "
-             "usual aerodynamic convention. The area enclosed between the\n"
-             "upper and lower curves is the lift. The lower row magnifies the "
+             "curves. The four blown\ncurves differ from one another only in "
+             "the strength of the trailing-edge jet, so that comparison is "
+             "controlled; the fifth is the reference case, with the\nslot "
+             "closed. Suction is plotted upward, the usual aerodynamic "
+             "convention. The area enclosed between the upper and lower curves "
+             "is the lift. The lower row\nmagnifies the "
              "first 7.5 % of the chord, where every curve reaches $C_p = +1$ "
-             "— the point at which the\noncoming air is brought to rest. With "
-             "no jet that point sits on the nose; the stronger the jet, the "
-             "further back along the lower surface it moves.",
+             "— the point at which the oncoming air is brought to rest. With "
+             "the slot closed\nthat point sits on the nose; the stronger the "
+             "jet, the further back along the lower surface it moves.",
              ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)
 
     cp_caveat = (

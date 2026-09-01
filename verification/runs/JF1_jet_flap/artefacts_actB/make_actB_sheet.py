@@ -82,8 +82,13 @@ def main() -> int:
             diff = f"{100.0 * (total / theory[c]['CL'] - 1.0):+.2f}"
         else:
             diff = "---"
+        # The C_mu = 0 row is NOT the blown case with the jet turned down: that
+        # calculation was run with the slot CLOSED.  It is a reference, marked
+        # with a dagger and explained in the note under the table.  Never let
+        # it be described as one of five conditions differing only in blowing.
+        cmu_cell = f"{c:.2f}$^{{\\dagger}}$" if c == 0.0 else f"{c:.2f}"
         mrows.append(
-            f"{c:.2f} & {sci(surf)} & {sci(react)} & {sci(total)} & "
+            f"{cmu_cell} & {sci(surf)} & {sci(react)} & {sci(total)} & "
             f"{sci(band, 1)} & {sci(kres, 3)} & {diff} \\\\")
 
     kr0 = measured[0.00]["residuals"]["k"]
@@ -116,7 +121,7 @@ def main() -> int:
 \definecolor{{boxrule}}{{HTML}}{{C9A227}}
 \captionsetup{{font=small,labelfont=bf,skip=3pt}}
 \setlength{{\parindent}}{{0pt}}
-\setlength{{\parskip}}{{2pt}}
+\setlength{{\parskip}}{{1pt}}
 \pagestyle{{empty}}
 
 \newcommand{{\shead}}[1]{{\vspace{{1pt}}{{\color{{navy}}\bfseries\large #1}}\vspace{{1pt}}\hrule\vspace{{3pt}}}}
@@ -154,7 +159,7 @@ $\mathrm{{d}}C_L/\mathrm{{d}}C_\mu$ [--] & [--] \\
 \end{{tabular}}
 \end{{center}}
 
-\vspace{{-4pt}}
+\vspace{{-7pt}}
 {{\footnotesize The jet-reaction column is the direct vertical component of the
 jet momentum, reported separately and never folded silently into the lift
 column: here it is a \emph{{part}} of the total, and the pressure-lift column is
@@ -163,7 +168,7 @@ $C_\mu$; it is unbounded as $C_\mu \to 0$, which is the square-root law stated a
 a number. Uncertainty is the arithmetic error of evaluating the published
 expression; the accuracy of the published fit is not stated in the source.}}
 
-\shead{{Table 2 -- Solved flow field, five blowing conditions}}
+\shead{{Table 2 -- Solved flow field: four blown conditions and a slot-closed reference}}
 
 \begin{{center}}\small
 \begin{{tabular}}{{ccccccc}}
@@ -177,14 +182,16 @@ $C_\mu$ [--] & $C_{{L,\mathrm{{surface}}}}$ [--] & measured) [--] & [--] & itera
 \end{{tabular}}
 \end{{center}}
 
-\vspace{{-4pt}}
-{{\footnotesize The surface column is the lift from integrating pressure and
-shear over the aerofoil only; it does \emph{{not}} contain the jet reaction, which
-is therefore added explicitly in the fourth column to give a quantity comparable
-with Table~1. ``Movement'' is how much the lift coefficient still shifted over
-the final 4{{,}}000 iterations. ``Turbulence equation imbalance'' is how far the
-turbulent kinetic energy equation is from being satisfied at the last iteration;
-the target set before running was $1 \times 10^{{-6}}$.}}
+\vspace{{-7pt}}
+{{\footnotesize The surface column integrates pressure and shear over the
+aerofoil only; it does \emph{{not}} contain the jet reaction, which is added
+explicitly in the fourth column to give a quantity comparable with Table~1.
+``Movement'' is how much the lift still shifted over the final 4{{,}}000
+iterations. ``Turbulence equation imbalance'' is how far the turbulent kinetic
+energy equation is from being satisfied at the last iteration; the target set
+before running was $1 \times 10^{{-6}}$. $^{{\dagger}}$The $C_\mu = 0$ row is a
+reference case with the slot \emph{{closed}}; the other four have it open and
+differ only in jet strength.}}
 
 \vspace{{2pt}}
 \begin{{center}}
@@ -251,10 +258,10 @@ values fixed before running to better than $5 \times 10^{{-10}}$ in lift
 coefficient at every point in Table~1, and the marginal-lift column matches an
 independent finite-difference evaluation of the same expression to eight figures.
 
-\textbf{{Checked.}} The unblown section returns a surface lift coefficient of
-{sci(measured[0.00]['CL_aero'], 3)} at zero incidence, as a symmetric section
-must. The same calculation gave $1.01$ at the strongest blowing, so the
-near-zero reflects the physics, not a calculation that could only give zero.
+\textbf{{Checked.}} The reference section, slot closed, returns a surface lift
+coefficient of {sci(measured[0.00]['CL_aero'], 3)} at zero incidence, as a
+symmetric section must. The same solver and reader gave $1.01$ at the strongest
+blowing, so the near-zero is physics, not a reader that could only give zero.
 
 \textbf{{Not checked.}} \emph{{None of the solved points in Table~2 is offered as
 verified against anything.}} The solutions are still tightening: no condition has
@@ -280,8 +287,8 @@ blown case is not a mildly blown case with a different inlet number.
 \role{{Lead Numericist}} Confidence differs sharply between the two tables.
 Table~1 is arithmetic against a published expression, exact to the digits shown.
 Table~2 has not reached the target set before running: the turbulence equation
-imbalance grows monotonically with blowing, from {sci(kr0, 3)} unblown to
-{sci(kr4, 3)} at the strongest jet, a factor of {k_factor:.0f}. The lift has
+imbalance grows monotonically with blowing, from {sci(kr0, 3)} at the reference
+to {sci(kr4, 3)} at the strongest jet, a factor of {k_factor:.0f}. The lift has
 stopped moving to within the uncertainty column, which is why it is quoted at
 all --- but a settled number is not a converged one. A finer mesh is running;
 until it lands the mesh contribution to the uncertainty is unquantified.
