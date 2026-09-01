@@ -16799,6 +16799,32 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T01:03Z by cfd-supervisor personally. **THIRTY-EIGHTH WRITE.**
+
+### ✅ ACT B IS CAMERA-READY — nine assets, listed in capture order in `verification/runs/JF1_jet_flap/artefacts/ACT_B_ASSETS.md`
+
+### ⚠ A FALSE SENTENCE WAS PRINTED ON ASSETS I HAD ALREADY SIGNED, AND THE CASE FILES HAD DISCLOSED THE TRUTH ALL ALONG
+
+Figures 1 and 2 said the five rows *"differ only in how hard the slot blows … by nothing else."* **Measured: the unblown row's `jetSlot` is polyMesh type `wall`; all four blown rows are type `patch`.** Geometry byte-identical (`points` `6d900f02`, `faces` `94739a73`, `owner` `a7c34e6a`), boundary type not. **The blown rows' own `0/U` headers said so from the day they were written**, citing frozen §5.2a — *"the UNBLOWN feasibility run … used a WALL slot and therefore does NOT belong to this family — recorded, not hidden."* A caption asserted the opposite, I signed it, and nobody read the two against each other until a lane opened the boundary files. **Honest disclosure in a case file is worth nothing if the figure built from it says the opposite.**
+
+**Ruling, no number moved:** four blown rows remain a controlled comparison; the fifth is a **slot-closed reference**, labelled everywhere as *"not the same wing with the jet turned down to zero."* Corrected on 5 assets. Verified across all ten rendered pages: `differ only in how hard` 0, `nothing else about the calculation differs` 0, `controlled comparison` 0, `no blowing` 0, `117.2` 0. Sheet still **1 page**.
+
+### Sanaa's five JF1 visual items — all answered with measurements
+
+1. **Slot geometry confirmed**: one `jetSlot`, 12 faces, TE, τ = 30°, h = 0.005 m. **Her two mid-chord openings are not ours** — the STL is watertight (1716 facets, 2574 edges, **0 open edges**, 0 winding defects); what she rendered is the GUI's own snappy mesh (`/home/ubuntu/certonomous-runs/study-airfoil_blown_slot-*`), **two patches only, no `jetSlot` at all, `magUInf 100`**.
+2. **Cp vs x/c** delivered. Stagnation +1.0057→+1.0015, all lower-surface. **My brief's premise was wrong**: the old figure never clipped stagnation, it clipped the **slot-lip suction (−6.87)**. Stagnation point **migrates monotonically** with blowing — a better demo beat than the curve. At Cµ ≥ 0.20 the **max Cp is the lower slot lip (+1.589), not stagnation**.
+3. **12 cells across the slot** on both meshes — the registered floor, **zero margin**. **y+ max 0.436, 100 % of faces below 1**, confirming low-Re and refuting the GUI run's 116–1659.
+4. **Spanwise variation exactly 0.000000e+00** on all six runs, with a broken-pairing control returning 9.97–4.4e+08. Max |U_z| 1e-17–1e-15, reported not rounded.
+5. **Every render is real `polyMesh`** — proved by a file-open audit hook: **zero STL/triSurface opens**.
+
+### Two residues I accepted deliberately, on the record
+
+(a) A typographic squeeze (`parskip` 2→1pt) keeps the sheet on one page — moves no number. (b) **The lift panel inside the sheet still plots the Cµ = 0 point unlabelled among the solved markers.** Accepted because the asset list forbids capturing it alone and the sheet's heading/table/dagger carry the correction inches away. **If that panel is ever captured alone, this residue becomes a defect.**
+
+### Live: no cfd solvers. On Sanaa's desk
+
+**(1)** Her narration must say **Williams, Butler & Wood**, not "Spence 1956". **(2)** "Use a coarse mesh" in the Act D prompt routes safely but **is inert** — no mesh parameter reaches the workflow. **(3)** The three JF1 grading rulings, incl. the §4.5 `Mesh OK` conflict now corroborated with numbers.
+
 **Section last written:** 2026-08-31T23:31Z by cfd-supervisor personally. **THIRTY-SEVENTH WRITE.**
 
 ### ⚠ CORRECTION: MY `p` COLUMN IN BOARD 35 WAS THE WRONG SOLVE, AND A LANE CAUGHT IT
