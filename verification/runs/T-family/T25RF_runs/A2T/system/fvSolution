@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// The TOP-LEVEL PIMPLE dict is the one chtMultiRegionFoam reads for its outer
+// loop: readPIMPLEControls.H builds an fvSolution on the runTime (there is no
+// top-level mesh) and takes nOuterCorrectors from it.
+//
+// *** THERE IS NO residualControl ON THIS SOLVER'S OUTER LOOP. ***
+// chtMultiRegionFoam.C:109 is a plain `for (oCorr=0; oCorr<nOuterCorr; ++oCorr)`
+// -- NOT pimpleControl -- so the loop runs EXACTLY nOuterCorrectors sweeps every
+// step, unconditionally, and emits no "converged in"/"not converged within"
+// line, ever.  Section 3.5 of the frozen document gates on the LAST-SWEEP
+// initial residuals instead, and says why: a comparator counting zero
+// "not converged" lines in a log that can never contain one would report a
+// PLANTED ZERO as a clean pass.
+//
+// nOuterCorrectors 5 IS ALSO THE COST MODEL'S ASSUMPTION (section 8.1): one
+// PIMPLE step is priced at 5 SIMPLE-equivalent outer iterations.  Changing it
+// changes the registered cost and is not a free edit.
+PIMPLE
+{
+    nOuterCorrectors 10;
+    nNonOrthogonalCorrectors 0;
+}
+
+// ************************************************************************* //

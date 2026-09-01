@@ -1,0 +1,15 @@
+arm=A1
+rung=T25RF
+gated=no
+verdict=NONE_THIS_RUNG_IS_UNGATED
+rc=0
+wall_s=219
+ranks=1
+core_min=3.650
+probe_cap_core_min=30
+timeout_s=480
+capped=no
+solver=chtMultiRegionFoam
+started_utc=2026-09-01T04:34:14Z
+ended_utc=2026-09-01T04:37:53Z
+note=rc-captured-INSIDE-the-detached-wrapper-NOT-around-setsid

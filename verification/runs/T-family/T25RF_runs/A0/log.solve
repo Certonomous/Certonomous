@@ -1,0 +1,404 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : chtMultiRegionFoam
+Date   : Sep 01 2026
+Time   : 04:33:53
+Host   : ip-172-31-43-247
+PID    : 1148727
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/T-family/T25RF_runs/A0
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create fluid mesh for region coolant for time = 0
+
+Create solid mesh for region module for time = 0
+
+*** Reading fluid mesh thermophysical properties for region coolant
+
+    Adding to thermoFluid
+
+Selecting thermodynamics package 
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+    Adding to rhoFluid
+
+    Adding to UFluid
+
+    Adding to phiFluid
+
+    Adding to hRefFluid
+
+    Adding to ghFluid
+
+    Adding to ghfFluid
+
+    Adding to turbulenceFluid
+
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+    Adding to reactionFluid
+
+Combustion model not active: combustionProperties not found
+Selecting combustion model none
+    Adding to radiationFluid
+
+Selecting radiationModel none
+    Adding to KFluid
+
+    Adding to dpdtFluid
+
+    Adding to fieldsFluid
+
+    Adding to QdotFluid
+
+    Adding MRF
+
+No MRF models present
+
+    Adding fvOptions
+
+*** Reading solid mesh thermophysical properties for region module
+
+    Adding to thermos
+
+Selecting thermodynamics package 
+{
+    type            heSolidThermo;
+    mixture         pureMixture;
+    transport       constIso;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+    Adding to radiations
+
+Selecting radiationModel none
+    Adding fvOptions
+
+Creating finite-volume options from "constant/fvOptions"
+
+Selecting finite volume options type scalarSemiImplicitSource
+    Source: volumetricHeatSource
+    State: active
+    - selecting all cells
+    - selected 3840 cell(s) with volume 0.024
+Region: coolant Courant Number mean: 1216 max: 1600
+Region: module Diffusion Number mean: 0.096 max: 0.384
+Create fvMatrixAssembly.
+surfaceFieldValue outlet_hflux:
+    operation     = weightedSum
+    weight field  = (phi)
+
+
+surfaceFieldValue inlet_hflux:
+    operation     = weightedSum
+    weight field  = (phi)
+
+
+surfaceFieldValue outlet_mdot:
+    operation     = sum
+
+
+surfaceFieldValue inlet_mdot:
+    operation     = sum
+
+
+surfaceFieldValue outlet_Tbar:
+    operation     = areaAverage
+
+
+surfaceFieldValue inlet_Tbar:
+    operation     = areaAverage
+
+
+Region: coolant Courant Number mean: 1216 max: 1600
+Region: module Diffusion Number mean: 0.096 max: 0.384
+Time = 0.5
+
+
+Solving for fluid region coolant
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Ux, Initial residual = 1, Final residual = 0.00351120153271, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.999997823744, Final residual = 0.00488864300563, No Iterations 2
+
+Solving energy coupled regions 
+Creating lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.32312053889, Final residual = 0.00188632786025, No Iterations 1
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.999999983729, Final residual = 0.00937346606305, No Iterations 174
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.00792153713385, global = 0.00035133957226, cumulative = 0.00035133957226
+GAMG:  Solving for p_rgh, Initial residual = 0.00662156080684, Final residual = 6.17086713619e-05, No Iterations 160
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.00413594338133, global = -0.000190942816753, cumulative = 0.000160396755507
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0438703883893, Final residual = 0.000195909187308, No Iterations 2
+DILUPBiCGStab:  Solving for k, Initial residual = 1, Final residual = 0.00240181749496, No Iterations 1
+Min/max T:292.999980589 293.006777907
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.421915574711, Final residual = 0.00150457823541, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.536872365448, Final residual = 0.00531479681676, No Iterations 3
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00339044699779, Final residual = 1.59294265626e-06, No Iterations 4
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.119232058141, Final residual = 0.00115528835028, No Iterations 190
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.108996058569, global = -0.00326470073127, cumulative = -0.00310430397577
+GAMG:  Solving for p_rgh, Initial residual = 0.0120436386642, Final residual = 0.000118991697959, No Iterations 190
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.0426955095833, global = 0.00128747045708, cumulative = -0.00181683351869
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.235827690073, Final residual = 0.000499902952528, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.780804730107, Final residual = 0.000946375716364, No Iterations 1
+Min/max T:292.987835801 293.015783489
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.23817992454, Final residual = 0.000721096132993, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.42798495085, Final residual = 0.00296311381448, No Iterations 3
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00115040454638, Final residual = 5.60986845278e-06, No Iterations 3
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.149248017651, Final residual = 0.00147305146127, No Iterations 178
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.135285963004, global = 0.00348649181001, cumulative = 0.00166965829132
+GAMG:  Solving for p_rgh, Initial residual = 0.0111930240767, Final residual = 0.000111603803808, No Iterations 175
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.0557005289977, global = -0.00361229503124, cumulative = -0.00194263673993
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0092953673985, Final residual = 1.09977977295e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.666824602481, Final residual = 0.00354490098112, No Iterations 1
+Min/max T:292.989670548 293.018273321
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.202345776418, Final residual = 0.000596781959462, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.447705393633, Final residual = 0.00297161724657, No Iterations 3
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00225298125721, Final residual = 8.4492105278e-06, No Iterations 3
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.119092241905, Final residual = 0.00118480112944, No Iterations 177
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.184181732472, global = -0.014085918922, cumulative = -0.0160285556619
+GAMG:  Solving for p_rgh, Initial residual = 0.0114155997436, Final residual = 0.000112848503364, No Iterations 176
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.0717174541443, global = 0.00139850642504, cumulative = -0.0146300492368
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0101345325537, Final residual = 9.07645877296e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.697705963514, Final residual = 0.00657587245057, No Iterations 1
+Min/max T:292.977715876 293.018907274
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.334421439688, Final residual = 3.66792047238e-12, No Iterations 18
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.46471914971, Final residual = 8.08119879506e-11, No Iterations 20
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0270429776825, Final residual = 0.000202819222949, No Iterations 6
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.422456462234, Final residual = 0.00413097299649, No Iterations 191
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 1.1351374598, global = 0.0855124663179, cumulative = 0.070882417081
+GAMG:  Solving for p_rgh, Initial residual = 0.00883880991858, Final residual = 9.7143845893e-10, No Iterations 583
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 5.7613515016e-06, global = -2.19334564687e-07, cumulative = 0.0708821977465
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.00491294744781, Final residual = 2.11321492841e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.640063425691, Final residual = 0.00150773866029, No Iterations 1
+Min/max T:291.687778244 293.019193571
+ExecutionTime = 1.87 s  ClockTime = 2 s
+
+Region: coolant Courant Number mean: 1290.18389621 max: 2643.89671687
+Region: module Diffusion Number mean: 0.096 max: 0.384
+Time = 1
+
+
+Solving for fluid region coolant
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.770685406207, Final residual = 0.00617429302021, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.797026984407, Final residual = 0.0022252298471, No Iterations 3
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.061934954993, Final residual = 0.000397948433922, No Iterations 2
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.112571692196, Final residual = 0.00109875446685, No Iterations 188
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 2.27021143298, global = -0.0577223230649, cumulative = 0.0131598746815
+GAMG:  Solving for p_rgh, Initial residual = 0.00891376503453, Final residual = 8.74352150421e-05, No Iterations 187
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 0.657917549282, global = 0.0457562201427, cumulative = 0.0589160948242
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.00762385325128, Final residual = 3.39774812769e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.38941569462, Final residual = 0.000769062263827, No Iterations 1
+Min/max T:290.60666514 293.032000627
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.689677369032, Final residual = 0.00342309786774, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.755115804971, Final residual = 0.00709393061314, No Iterations 2
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.00843507292546, Final residual = 2.88666240417e-05, No Iterations 3
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.108114437087, Final residual = 0.0010592537073, No Iterations 174
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 2.03838589166, global = 0.0642295289785, cumulative = 0.123145623803
+GAMG:  Solving for p_rgh, Initial residual = 0.0114782056507, Final residual = 0.00011308192063, No Iterations 173
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 1.07714821779, global = -0.0723928465669, cumulative = 0.0507527772358
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0204193507706, Final residual = 2.12297718071e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.499770807036, Final residual = 0.000916487052327, No Iterations 1
+Min/max T:289.862885088 293.037266709
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.77444815111, Final residual = 0.00371599725641, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.756157586809, Final residual = 0.00749734319219, No Iterations 2
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0167499418151, Final residual = 6.65904149902e-05, No Iterations 3
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.117939209177, Final residual = 0.00117751905056, No Iterations 190
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 3.38347015841, global = -0.036495739677, cumulative = 0.0142570375588
+GAMG:  Solving for p_rgh, Initial residual = 0.0103663738883, Final residual = 9.82572892252e-05, No Iterations 189
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 1.02249284302, global = 0.0808704632574, cumulative = 0.0951275008162
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0191956044803, Final residual = 8.65643053727e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.549262745448, Final residual = 0.00526217569645, No Iterations 1
+Min/max T:287.502478177 293.036497474
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.700349785201, Final residual = 0.00415650708256, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.600365065048, Final residual = 0.00289342259996, No Iterations 3
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.0242915662308, Final residual = 0.000128353673185, No Iterations 2
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.231909948535, Final residual = 0.00226972288572, No Iterations 170
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 3.60939990489, global = 0.187851588707, cumulative = 0.282979089523
+GAMG:  Solving for p_rgh, Initial residual = 0.0350412354883, Final residual = 0.000341606287434, No Iterations 160
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 2.74300493741, global = -0.139786957536, cumulative = 0.143192131987
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0688543273956, Final residual = 0.00051620466896, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.363331775999, Final residual = 0.000226393912702, No Iterations 1
+Min/max T:288.210511255 293.037472788
+
+Solving for fluid region coolant
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.725153958116, Final residual = 3.41587883774e-12, No Iterations 18
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.688274495935, Final residual = 5.01650427771e-11, No Iterations 18
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.413647332797, Final residual = 0.00274266209591, No Iterations 6
+
+Solving for fluid region coolant
+GAMG:  Solving for p_rgh, Initial residual = 0.577613600267, Final residual = 0.00572993623904, No Iterations 151
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 125.93045659, global = -4.48882770446, cumulative = -4.34563557248
+GAMG:  Solving for p_rgh, Initial residual = 0.0346795165851, Final residual = 9.75390174541e-10, No Iterations 503
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+time step continuity errors (coolant): sum local = 4.86743068389e-05, global = 1.48228701337e-06, cumulative = -4.34563409019
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.297246808503, Final residual = 0.00167602616707, No Iterations 2
+DILUPBiCGStab:  Solving for k, Initial residual = 0.721176400529, Final residual = 0.000852033340704, No Iterations 1
+Min/max T:-73.5413019466 293.083114587
+ExecutionTime = 3.55 s  ClockTime = 4 s
+
+Region: coolant Courant Number mean: 10383.8139932 max: 77025.8934796
+Region: module Diffusion Number mean: 0.096 max: 0.384
+Time = 1.5
+
+
+Solving for fluid region coolant
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.73103614164, Final residual = 0.000963789673278, No Iterations 3
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.651492225266, Final residual = 0.00296372412439, No Iterations 2
+
+Solving energy coupled regions 
+Using lduPrimitiveAssembly: lduAssembly3
+DILUPBiCGStab:  Solving for h, Initial residual = 0.133116018341, Final residual = 0.00098524323166, No Iterations 2
+
+
+--> FOAM FATAL ERROR: (openfoam-2606)
+Negative initial temperature T0: -14.4579431511
+
+    From Foam::scalar Foam::species::thermo<Thermo, Type>::T(Foam::scalar, Foam::scalar, Foam::scalar, Foam::scalar (Foam::species::thermo<Thermo, Type>::*)(Foam::scalar, Foam::scalar) const, Foam::scalar (Foam::species::thermo<Thermo, Type>::*)(Foam::scalar, Foam::scalar) const, Foam::scalar (Foam::species::thermo<Thermo, Type>::*)(Foam::scalar) const) const [with Thermo = Foam::hConstThermo<Foam::rhoConst<Foam::specie> >; Type = Foam::sensibleEnthalpy; Foam::scalar = double; Foam::species::thermo<Thermo, Type> = Foam::species::thermo<Foam::hConstThermo<Foam::rhoConst<Foam::specie> >, Foam::sensibleEnthalpy>]
+    in file ./src/thermophysicalModels/specie/lnInclude/thermoI.H at line 57.
+
+FOAM aborting
+
+[stack trace]
+=============
+#1  Foam::error::simpleExit(int, bool) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+#2  ? in <platforms>/linux64GccDPInt32Opt/lib/libreactionThermophysicalModels.so
+#3  ? in <platforms>/linux64GccDPInt32Opt/lib/libreactionThermophysicalModels.so
+#4  ? in <platforms>/linux64GccDPInt32Opt/lib/libreactionThermophysicalModels.so
+#5  ? in <platforms>/linux64GccDPInt32Opt/lib/libreactionThermophysicalModels.so
+#6  ? in <platforms>/linux64GccDPInt32Opt/bin/chtMultiRegionFoam
+#7  ? in /lib/x86_64-linux-gnu/libc.so.6
+#8  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+#9  ? in <platforms>/linux64GccDPInt32Opt/bin/chtMultiRegionFoam
+=============
+timeout: the monitored command dumped core

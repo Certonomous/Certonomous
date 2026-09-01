@@ -1,0 +1,119 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     chtMultiRegionFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         30;
+deltaT          0.5;
+
+// NO ADAPTIVE STEPPING ON GATED RUNS (directive 4.5, reproducibility).  With
+// adjustTimeStep no, maxCo and maxDi are INERT and are therefore NOT WRITTEN
+// AT ALL -- an inert control in a frozen dictionary is a future reader's trap.
+// The step is derived from the 60 s pulse edge and the ~696 s lumped tau
+// (section 3.3), NOT from a Courant number.  Co ~ 1600 is REPORTED, never
+// controlled; chtMultiRegionFoam is implicit and max Co 1 is a CHOICE.
+adjustTimeStep  no;
+
+// 1800 registered steps.  CLAUDE.md rule 4's ExecutionTime clause is a
+// STEP-COUNT identity, not a time-value identity (section 6.4 conjunct 5).
+
+writeControl    runTime;
+writeInterval   5;
+purgeWrite      0;
+
+// writePrecision 12, NOT the default 6.  At T ~ 293 K six significant figures
+// leave a ~1 mK write quantum, LARGER than the within-cell streamwise signal
+// D3 gates on (10 x PLANT = 1.234e-02 K).  T21 section 2.4.
+writeFormat     ascii;
+writePrecision  12;
+writeCompression off;
+timeFormat      general;
+timePrecision   12;
+runTimeModifiable false;
+
+// INSTRUMENTS.  Every `operation` name below was read out of
+// surfaceFieldValue.C:74-95 at v2606 BEFORE this file was written, because a
+// function object with an unknown operation aborts AT CONSTRUCTION and would
+// throw away the whole solve.  `sum`, `areaAverage` and `weightedSum` are all
+// present there.
+//
+// Heat balance, exact for constant c_p:
+//     H_out - H_in = c_p * ( sum_outlet(phi_f T_f) + sum_inlet(phi_f T_f) )
+// phi is the MASS flux [kg/s] and is NEGATIVE on an inflow face, so the two
+// weightedSum rows ADD rather than subtract.  Section 6.2 integrates them over
+// 900 s and gates |R|/E_gen <= 2 %.
+functions
+{
+    outlet_hflux
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        region          coolant;
+        regionType      patch;
+        name            outlet;
+        operation       weightedSum;
+        weightField     phi;
+        fields          (T);
+        writeControl    timeStep;
+        writeInterval   1;
+        writeFields     false;
+        log             false;
+    }
+    inlet_hflux
+    {
+        $outlet_hflux;
+        name            inlet;
+    }
+    outlet_mdot
+    {
+        $outlet_hflux;
+        operation       sum;
+        fields          (phi);
+    }
+    inlet_mdot
+    {
+        $outlet_mdot;
+        name            inlet;
+    }
+    outlet_Tbar
+    {
+        $outlet_hflux;
+        operation       areaAverage;
+        writeControl    runTime;
+        writeInterval   5;
+    }
+    inlet_Tbar
+    {
+        $outlet_Tbar;
+        name            inlet;
+    }
+    module_minmax
+    {
+        type            fieldMinMax;
+        libs            (fieldFunctionObjects);
+        region          module;
+        fields          (T);
+        writeControl    runTime;
+        writeInterval   5;
+        log             false;
+    }
+}
+
+// ************************************************************************* //

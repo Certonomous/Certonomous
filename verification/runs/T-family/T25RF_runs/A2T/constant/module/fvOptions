@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant/module";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// *** T25RF PROBE -- LOADS REPLACED, DELIBERATELY AND ON THE RECORD. ***
+// Sanaa's 2026-09-01 04:20Z volumetric loads, per
+// docs/campaigns/T-family/T25RF_FEASIBILITY_NOTE.md section 2:
+//   0 <= t < 60 s : 1.0e5 W/m3   (takeoff)
+//   t >= 60 s     : 2.5e4 W/m3   (cruise)
+// The comment block below is INHERITED FROM T25R_L1 AND ITS ARITHMETIC IS
+// STALE -- it describes the 70000/2800 basis this file no longer carries.
+// It is left in place unedited rather than rewritten, so that the provenance
+// of this copy is legible.  THE TABLE, NOT THE COMMENT, IS WHAT RUNS.
+// This probe's endTime is 30 s, so it sits entirely in the takeoff branch.
+
+// THE TAKEOFF PULSE -- section 4.2 (C-RATE FIRST) and section 4.5.
+//   basis: 350 Wh/L high-power aviation pouch; V = 3.000e-03 m3/m;
+//          E = 1050.0 Wh; takeoff 5C at a 4.0 % heat fraction;
+//          cruise 1C at a 0.8 % heat fraction (the fraction scales as I,
+//          because I2R heat scales as I2 while power scales as I).
+//   0 <= t < 60 s   : 210.00 W/cell / 3.000e-03 m3 = 70000.000000 W/m3
+//   60 <= t <= 900 s:   8.400 W/cell / 3.000e-03 m3 = 2800.000000 W/m3
+//
+// REGISTERED PREDICTION, BEFORE THE RUN: the adiabatic bound on the pulse rise
+// is q*t/(rho*cp) = 1.6800 K.  The rise will be of order 1.4-1.7 K, NOT tens
+// of kelvin.  Whatever is measured is the deliverable; the basis was chosen
+// first and the rise was not tuned to it.
+
+volumetricHeatSource
+{
+    type            scalarSemiImplicitSource;
+    active          yes;
+    selectionMode   all;
+    volumeMode      specific;
+    sources
+    {
+        h
+        {
+            explicit    table
+            (
+                (  0.000  100000.000000)
+                ( 59.999  100000.000000)
+                ( 60.000   25000.000000)
+                (900.000   25000.000000)
+            );
+            implicit    none;
+        }
+    }
+}
+
+// ************************************************************************* //

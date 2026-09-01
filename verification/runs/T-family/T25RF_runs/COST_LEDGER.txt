@@ -1,0 +1,8 @@
+arm=A0 rc=134 wall_s=5 core_min=0.083
+core_min=0.083
+arm=A1 rc=0 wall_s=219 core_min=3.650
+core_min=3.650
+arm=A2 rc=0 wall_s=478 core_min=7.967
+core_min=7.967
+arm=A2T rc=0 wall_s=31 core_min=0.517
+core_min=0.517

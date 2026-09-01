@@ -247,3 +247,117 @@ under an 600 s timeout that the runner clamps to the remaining headroom.
 was "A1 and A2 both fail". Both held criteria (a) and (c) and ran to `endTime`
 without a fatal error. The `T25R` section 3.3 refusal of `frozenFlow` therefore
 stands untouched, and this probe records **no departure**.
+
+---
+
+## Addendum A2 — 2026-09-01, the probe's OBSERVATIONS
+
+**Lines whose number changed above this section: 0.**
+
+**NO VERDICT. NO WORD FROM THE FIXED VOCABULARY APPEARS BELOW.** Every number
+here is an **observation** from an ungated feasibility rung (§2m) and **none of it
+may be cited as a result or shown on a demo screen.** Artifacts: `log.solve` and
+`STATUS.<ARM>` in each of `verification/runs/T-family/T25RF_runs/{A0,A1,A2,A2T}/`;
+reader `verification/runs/T-family/T25RF_runs/read_arm_t25RF.py`.
+
+### Arms, against the section 4 reading criteria
+
+| arm | numerics | rc | steps | `End` | (a) min T > 273 K | (b) last-sweep resid < 1e-6 | (c) `sum local` not growing | core-min |
+|---|---|---|---|---|---|---|---|---|
+| A0 | as registered | 134 | 3 of 60 | no | **not held** — min T **-73.54 K**, fatal at t=1.5 | not held | — | 0.083 |
+| A1 | final-sweep relaxation, 5 sweeps | 0 | 60 | yes | **held** — 292.985 / 294.120 K | **not held on `h`** (1.31e-4); `Ux` 6.5e-11, `p_rgh` 7.4e-9 | **held** | 3.650 |
+| A2 | A1 + 10 sweeps | 0 | 60 | yes | **held** — 292.985 / 294.126 K | **not held on `h`** (5.79e-5); `Ux` 3.4e-11, `p_rgh` 7.3e-9 | **held** | 7.967 |
+| A2T | A2 + `p_rgh` tol 1e-8 | 0 | 60 | yes | **held** — identical to A2 | identical to A2 | **held** | 0.517 |
+| A3 | `frozenFlow` | — | **NOT REACHED, NOT RUN** | | | | | 0 |
+
+**Total spend: 12.217 core-min against the 30 core-min cap. The cap was not
+reached and no arm was cap-stopped.**
+
+### 1. The final-sweep relaxation is what separates diverging from advancing
+
+A0 reproduced the 04:09Z divergence under the **new** loads to the same three
+timesteps, the same Courant sequence (max 1600 -> 2643.9 -> 77025.9) and
+`T0 = -14.458` against the reference run's `-14.459` — so **the divergence is
+numerical, not load-driven.** Adding `UFinal`/`hFinal`/`p_rghFinal`/`kFinal`/
+`omegaFinal` relaxation keys — and nothing else — carried the identical case to
+`Time = 30` with `rc = 0`, `End` present, and continuity `sum local` falling from
+2.45e-3 to 4.57e-8 instead of climbing to 125.93. Courant settles at 2655.9 and
+stops moving.
+
+### 2. Criterion (b) was met on `p_rgh` and `Ux` by every surviving arm and on `h` by none
+
+The `h` outer loop converges **linearly and slowly**: doubling the sweeps 5 -> 10
+only takes the last-sweep initial residual 1.31e-4 -> 5.79e-5 while costing 2.18x.
+Read in kelvin rather than in residual units, the last outer sweep at `Time = 30`
+moves max T by **4.4e-4 K at 5 sweeps and 8.3e-5 K at 10**, with an estimated
+~4e-4 K remaining to full outer convergence at 10. **Per section 4 this is
+reported as a stable arm with an incompletely converged outer loop, and is not
+called a failure.**
+
+### 3. The finding a future registration most needs: 5 outer sweeps is not enough at this Courant number
+
+A1 and A2 differ **only** in sweep count, and their trajectories separate and keep
+separating: max T differs by 1.05e-3 K at t=1 s, 3.47e-3 K at t=10 s and
+**6.02e-3 K at t=30 s — 0.53 % of the 1.13 K rise, and still growing.** The
+`T25R` `controlDict` names 10 x PLANT = **1.234e-02 K** as the within-cell signal
+its write precision was chosen for; **the 5-sweep-versus-10-sweep discrepancy is
+already half that scale after 30 s of the 900 s run.** A registration gating
+anything at that scale cannot use 5 outer sweeps, and owes its own outer-loop
+convergence check over the full duration — the gap had not saturated when this
+probe ended.
+
+### 4. The registered `p_rgh` tolerance of 1e-9 is unreachable, and buys nothing
+
+Measured: GAMG stalls at ~4.4e-9 on this system. **266 of 600 `p_rgh` solves in
+A1 and 608 of 1200 in A2 terminated at `maxIter` 1000** without reaching 1e-9, and
+the waste **grows as the solution settles** — A2's cost per step rises from
+1.60 s over steps 1-20 to 11.09 s over steps 21-60, because the better the field
+converges the more solves fall into the stall.
+
+Relaxing the tolerance one digit to 1e-8 (A2T) gives, per the criterion registered
+in Addendum A1 before the arm ran:
+
+- last-sweep `Min/max T` at `Time = 30`: **292.985283351 / 294.125534239 K in both
+  A2 and A2T — agreeing to 0.000e+00 K**, against a required 1e-4 K;
+- `maxIter` terminations: **608 -> 0**;
+- total GAMG iterations: **627,533 -> 25,770, a 24.4x reduction** — a count read
+  from the log and **independent of machine load**;
+- wall cost: 7.967 -> 0.517 core-min (15.4x), and cost per step now *falls* as the
+  field settles (1.04 s -> 0.268 s) instead of rising.
+
+**Those 601,763 discarded iterations changed no digit of the answer.** Per rule 12
+this is named as waste rather than absorbed into a cost ratio.
+
+### 5. Cost calibration for the arms actually run (rule 12)
+
+Predicted in section 5 at 0.00786 core-min/step: A1 0.5, A2 0.9, total ~1.4 for
+these two. Actual: A1 **3.650** (7.3x predicted), A2 **7.967** (8.9x). **The
+estimate was wrong by an order of magnitude, and the whole of the gap is
+attributable — not to contention, but to the `p_rgh` stall of section 4**, which
+the `T25R` cost model's "5 SIMPLE-equivalent outer iterations per step" did not
+represent. A2T, the same physics with the stall removed, cost **0.517 core-min,
+0.86x the section 5 prediction** — i.e. the original per-step estimate was sound
+and the model was missing only the stall.
+
+### 6. Extrapolation to a full 1800-step run, at 1 rank
+
+Split into developing (steps 1-20) and settled (21-60) rates and extended to 1800
+steps: **A1 ~141 core-min, A2 ~329 core-min, A2T ~8.3 core-min.**
+*Caveats, stated:* the probe covers 30 s of a 900 s case and stays inside the
+takeoff branch, so it does not price the 60 s load step-down; the settled rate is
+measured over 40 steps at constant load; and wall-derived core-minutes were taken
+on a shared box with other solvers running, which the GAMG iteration counts are
+free of. A 1800-step run at A2T's numerics should be **priced with margin, not at
+8.3** — but it is nowhere near a 600 core-min cap, and it is **cheaper than the
+`T25R` point estimate of 14.14 core-min while doing twice the outer sweeps.**
+
+### 7. What is NOT concluded here
+
+- **No verdict, and no rung is graded.** T25RF closes nothing.
+- **No departure was taken.** A3 (`frozenFlow`) was never reached; the `T25R`
+  section 3.3 refusal stands untouched.
+- **`build_t25R.py` was not edited, committed or reverted**; its rule-6 referral is
+  untouched. `T25R_L1`, `T25R_L2` and `T25R_L2_DT025` were not written to.
+- **Adopting final-sweep relaxation costs the `T25R` section 3.5 convergence
+  measure** (section 1.1), and any registration that takes these numerics owes a
+  replacement measure. This probe does not supply one.

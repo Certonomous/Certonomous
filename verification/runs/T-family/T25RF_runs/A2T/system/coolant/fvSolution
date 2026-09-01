@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system/coolant";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    rho
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-08;
+        relTol          0;
+    }
+    rhoFinal { $rho; relTol 0; }
+
+    // *** T25RF ARM A2T -- ADDENDUM A1. ***  tolerance 1e-09 -> 1e-08.
+    // Measured in A1/A2: GAMG STALLS at ~4.4e-9 and 44-51 % of all p_rgh solves
+    // terminated at maxIter 1000 without reaching 1e-9.  This arm asks whether
+    // those iterations were buying anything, by requiring the last-sweep
+    // Min/max T at Time=30 to agree with A2's to within 1e-4 K.
+    "p_rgh.*"
+    {
+        solver          GAMG;
+        tolerance       1e-08;
+        relTol          0.01;
+        smoother        GaussSeidel;
+    }
+    p_rghFinal
+    {
+        $p_rgh;
+        tolerance       1e-08;
+        relTol          0;
+    }
+
+    "(U|h|k|omega)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0.01;
+    }
+    "(U|h|k|omega)Final"
+    {
+        $U;
+        tolerance       1e-10;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    momentumPredictor true;
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
+    // frozenFlow IS AVAILABLE at v2606 and IS DELIBERATELY NOT USED.  It would
+    // stop solving momentum entirely and advance energy alone -- a STRONGER
+    // approximation than section 3.3's quasi-steady framing.  Left at its
+    // default false: the full momentum and turbulence equations are solved on
+    // every outer sweep of every time step.  The flow field is SOLVED here,
+    // not imposed.
+}
+
+relaxationFactors
+{
+    // T25RF PROBE ARM.  The FINAL outer sweep is relaxed TOO, which is the
+    // one thing T25R_L1 did not do.  fvMatrix::relax() looks up "UFinal" and
+    // "hFinal" on sweep nOuterCorrectors-1 and T25R_L1's dict had no such
+    // keys, so momentum and energy ran UNRELAXED on that sweep at Co ~ 1600.
+    // OpenFOAM keyword regexes match in FULL: "(U|h|k|omega)" does NOT match
+    // "UFinal".  Every Final key is therefore written out explicitly.
+    //
+    // CONSEQUENCE, STATED RATHER THAN HIDDEN: with the final sweep relaxed,
+    // the last-sweep initial residual is no longer the unrelaxed convergence
+    // measure T25R section 3.5 relied on.  Any registration adopting these
+    // numerics owes a replacement measure.
+    fields
+    {
+        p_rgh       0.3;
+        p_rghFinal  0.3;
+    }
+    equations
+    {
+        U           0.7;
+        UFinal      0.7;
+        h           0.7;
+        hFinal      0.7;
+        k           0.7;
+        kFinal      0.7;
+        omega       0.7;
+        omegaFinal  0.7;
+    }
+}
+
+// ************************************************************************* //
