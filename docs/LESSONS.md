@@ -19164,3 +19164,88 @@ is worth.
 | md5 of this file's HEAD blob before the append | `a8358af33baafe26077a6245c90ea755` |
 | md5 of this file's first 19,063 lines after the append | `a8358af33baafe26077a6245c90ea755` |
 | the two digests | **EQUAL — assertion MEASURED, re-verified after the write** |
+
+---
+
+## L-426 AMENDMENT 1 — 2026-09-01, heat-transfer. The mechanic stands; the SCOPE was wrong in four ways, and the prevalence headline drawn from it is RETRACTED
+
+Appended at the FOOT per `L-304`. **L-426's own text is edited nowhere — not one
+character. Lines whose number changed above this section: 0.**
+
+The measured divergence in `T25R_L1` and the four-step lookup chain are unaltered
+and were re-verified. What follows corrects the *scope* of the condition, which
+was stated more widely than it had been measured.
+
+**(1) `setFinalIteration(true)` is at SIX sites, not four.** Re-measured over the
+v2606 tree: `pimpleControl.C:245`, `:253`;
+`chtMultiRegionFoam/{fluid/solveFluid.H:5, solid/solveSolid.H:24}`; **and
+`chtMultiRegionTwoPhaseEulerFoam/{fluid/solveFluid.H:3, solid/solveSolid.H:3}`**.
+`pisoControl.C:45` is present but **commented out**, so PISO solvers never expose
+a `Final` relaxation key. **No consequence in this repository — verified:
+`chtMultiRegionTwoPhaseEulerFoam` is used in no `controlDict`, script or queue
+entry here.** Recorded because the condition, not the outcome, was incomplete.
+
+**(2) An enumeration cannot see a FORK, and DAFoam runs one.** Reported by the
+dafoam team and carried here **on their authority, not reproduced** — DAFoam is
+not installed on this box, so no lane here can read it: `pimpleControlDF` carries
+the same `loop()` with `setFinalIteration` unguarded and its `Info` behind
+`debug=0`, so **"banner present, iteration lines absent" indicates a LIVE control,
+not an absent one.** Their measurement: **165 of 246 dictionaries across eight
+D12-family run trees exposed**, inherited byte-identical from the upstream
+tutorial. Their landed verdicts remain `NOT A RESULT`; the exposure direction
+cannot manufacture a `PASS`.
+
+**(3) There are TWO escape hatches L-426 does not mention.** `relaxEquation()`
+(`solution.C:401`) and `relaxField()` (`solution.C:326`) **both fall through to a
+`default` key**. A sub-dictionary carrying `default` is immune, as is any key that
+FULL-matches the `Final` name (`".*"`, `".*Final"`). This materially narrows the
+population at risk.
+
+**(4) Three scope corrections inside `chtMultiRegionFoam` itself.**
+- **Solid regions are NOT exposed for relaxation.** `solveSolid.H` calls
+  `hEqn.relax()` at `:10`, **before** `setFinalIteration(true)` at `:24`, so the
+  lookup resolves to the plain key on every sweep. (Their *linear solver* is
+  exposed — `hEqn.solve(h.select(finalIter))` at `:26` — where a miss is a
+  `FatalIOError`, i.e. loud.)
+- **"Only `U` and `h` are exposed" holds only under `coupled`**, which
+  **defaults to false** (`include/createCoupledRegions.H:1`). With `coupled
+  false`, `pEqn.H` and `turbulence.correct()` run *inside* the flag window, so
+  `p_rgh`, `k` and `omega` are exposed too. T25R itself is genuinely `coupled`
+  — `useImplicit true` at `0/coolant/T:46` and `0/module/T:39`, and `log.solve`
+  shows `Create fvMatrixAssembly.` — so **L-426's account of that case stands.**
+- **`nOuterCorrectors` defaults to 1** (`pimpleControl.C:48`) and
+  `finalIter()` is `converged_ || corr_ == nCorrPIMPLE_`
+  (`pimpleControlI.H:94`), so a PIMPLE case that never mentions the key uses
+  `Final` lookups **on its only sweep**, by omission rather than by choice.
+
+**(5) `relax(1)` is not a no-op for equations.** `fvMatrix::relax(alpha)` applies
+the diagonal-dominance clamp `D = max(mag(D), sumOff)` (`fvMatrix.C:1206-1211`)
+*before* dividing by `alpha`, so a block whose factors are all `1` still loses the
+clamp on the final sweep. `GeometricField::relax(alpha)` —
+`prevIter() + alpha*(*this - prevIter())` (`GeometricField.C:1155`) — genuinely is
+a no-op at 1. **The two dictionaries differ in kind, not only in loudness.**
+
+**THE METHODOLOGICAL FINDING, which is the transferable part.** Items (1) and (2)
+are one mistake: **a completeness claim built by enumerating call sites is only as
+wide as the tree enumerated, and reads as exhaustive either way.** Enumeration
+missed a *sibling* inside the tree and a *fork* outside it, and nothing about
+reading the enumeration revealed either. The same error repeated at file scale in
+the prevalence sweep, which walked the git repository and reported the result as
+*the* prevalence, while `CLAUDE.md` states that run trees live outside git —
+**1,791 `fvSolution` files were outside the walk.** *An enumeration answers "what
+did I look at", never "what exists": name the boundary before claiming
+completeness, and ask what lies outside it — a fork, a sibling, a vendored copy,
+an untracked tree.*
+
+**Prevalence, restated honestly.** The sweep note
+`docs/campaigns/T-family/FINAL_RELAXATION_KEY_PREVALENCE_SWEEP.md` carries the
+full retraction. Its nine in-repository AT RISK files stand; its
+**"no other team has a case carrying this defect" is STRUCK.**
+
+| assertion | value |
+|---|---|
+| L-426's own text edited | **none — not one character** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 19,166 lines before the append | `3c2455f26319b5171c31219c7779b239` |
+| md5 of this file's first 19,166 lines after the append | `3c2455f26319b5171c31219c7779b239` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |

@@ -5291,3 +5291,49 @@ the family's actual contents: `N-T4` (`viewFactorsGen` row-sum), `N-T5` (solver 
 grid-convergence facts. The family is in practice **T-family heat-transfer ladder numerics**.
 The scope strings live in the generator, not in this file, so this is recorded as an
 observation rather than acted on.
+
+---
+
+## N-T9 AMENDMENT 1 — 2026-09-01, heat-transfer. Six call sites, not four; two `default` escape hatches; solids not exposed; and the prevalence figure drawn from this fact is retracted
+
+Appended at the FOOT per `L-304`. **N-T9's own text is edited nowhere. Lines
+whose number changed above this section: 0.**
+
+The fact `N-T9` states — final-sweep `Final` lookup, loud in `solvers` and silent
+in `relaxationFactors` — is unchanged and was re-verified. Its **scope** was
+overstated, in the same way and on the same day as `L-426`; the detail is in
+`L-426 AMENDMENT 1`, and the operative corrections for a numerics reader are:
+
+1. **`setFinalIteration(true)` is at SIX sites**, not four:
+   `pimpleControl.C:245`, `:253`;
+   `chtMultiRegionFoam/{fluid/solveFluid.H:5, solid/solveSolid.H:24}`; and
+   `chtMultiRegionTwoPhaseEulerFoam/{fluid/solveFluid.H:3, solid/solveSolid.H:3}`.
+   `pisoControl.C:45` is commented out — **PISO never exposes a `Final`
+   relaxation key.** `simpleControl` has no such call, so a steady block
+   legitimately carrying no `Final` keys **is not a defect.**
+2. **Two escape hatches make a block immune:** a `default` key in the same
+   sub-dictionary (`solution.C:401` for equations, `:326` for fields), or any
+   key that FULL-matches the `Final` name.
+3. **Solid regions are not exposed for relaxation** — `solveSolid.H:10` relaxes
+   before `:24` sets the flag — though their linear solver is.
+4. **`nOuterCorrectors` defaults to 1**, and at 1 the only sweep is the final
+   one, so the trap is reached by omission.
+5. **`relax(1)` is not a no-op for equations** (the dominance clamp at
+   `fvMatrix.C:1206-1211` still runs) but **is** for fields.
+6. **An enumeration of call sites cannot see a fork.** DAFoam's
+   `pimpleControlDF` carries the same `loop()`; reported by the dafoam team and
+   **not reproducible on this box, where DAFoam is not installed.**
+
+**The prevalence figure is retracted.** The sweep note's
+*"no other team has a case carrying this defect"* is **STRUCK**: it walked the
+git repository only, while run trees live outside git, leaving 1,791
+`fvSolution` files outside the walk. Full retraction and corrected condition:
+`docs/campaigns/T-family/FINAL_RELAXATION_KEY_PREVALENCE_SWEEP.md`, Amendment 1.
+
+| assertion | value |
+|---|---|
+| N-T9's own text edited | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 5,293 lines before the append | `864df88a483b9aae412affca3d476c91` |
+| md5 of this file's first 5,293 lines after the append | `864df88a483b9aae412affca3d476c91` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
