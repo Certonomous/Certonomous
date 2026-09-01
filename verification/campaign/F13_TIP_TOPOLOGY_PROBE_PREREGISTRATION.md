@@ -182,3 +182,131 @@ not uncommented, and not routed around. A `GATE REACHED` on mesh admission is
 
 ---
 *Nothing below this line existed when the first candidate was built.*
+
+
+---
+
+## AMENDMENT 1 — 2026-09-01: PREDICTION 1 IS STRUCK AS REFUTED BY A MEASUREMENT THAT PREDATES THIS FILING, AND THE PROBE IS WITHDRAWN
+
+**Version: v1.0 to v1.1.** v1.0 designates this document as committed at `40ca3c35`,
+2026-09-01.
+
+**Lines whose number changed above this section: 0.** Nothing above this heading has been
+edited, reordered, inserted or deleted. This section is appended below the closing rule.
+
+**THIS IS A STRIKING AMENDMENT, NOT AN IMPROVING ONE.** It does not replace a prediction
+with a better one, does not move a gate, threshold, cap or label, and does not improve any
+prediction's odds of scoring well. It records that a registered prediction was **already
+refuted by a measurement on this box before it was written**, and it withdraws the rung.
+An amendment that improves a prediction is what rule 2 exists to prevent; an amendment that
+records a refutation is what it exists to permit.
+
+### The pre-compute condition, and how it was checked
+
+**Checked in the amending invocation itself, not recalled:** `find -type f` over
+`verification/runs/F13_ONERA_M6_runs/SUCCESSOR_tip_topology_trial/` returns **0 files**. The
+tree holds two empty directories (`cap_probe/`, `logs/`) and `ls` of `cap_probe/*` returns
+"No such file or directory". **No candidate mesh, log or `checkMesh` output exists. First
+compute has not occurred**, so amendment is lawful under CLAUDE.md rule 2.
+
+### What was already on the record, and what this filing's author failed to do
+
+**`N-C6` in `docs/NUMERICS_KNOWLEDGE.md`**, landed **2026-08-25 by cfd, from the ONERA M6
+topology study** — three days before this filing and on this exact geometry:
+
+> *"A structured butterfly tip cap on a SHARP trailing edge has a non-orthogonality floor
+> that REFINEMENT MAKES WORSE — the maximum rises to an asymptote and the severe-face
+> fraction rises an order of magnitude."*
+
+Its measured sweep, far-field blocks already repaired so the tip cap is the only mechanism
+above 70°:
+
+| variant | cells | max non-orthogonality | severe (> 70°) | severe fraction |
+|---|---|---|---|---|
+| `t1_SHELL` | 111,872 | **81.5834°** | 516 | 0.158 % |
+| `t6_SHELL_NR16` | 118,784 | **81.9764°** | 1,812 | 0.523 % |
+| `t7_SHELL_NR32` | 128,000 | **82.0355°** | 3,636 | 0.975 % |
+| `t8_SHELL_NR64` | 146,432 | **82.0645°** | 7,200 | 1.694 % |
+
+**§7 prediction 1 of this filing reads: *"At least one of C1 / C2 clears M1, with max
+non-orthogonality in 50–68°."* C1 is the butterfly cap. It was measured at 81.58–82.06° on
+this geometry three days earlier. THE PREDICTION IS STRUCK.**
+
+**The failure is mine and it is not a modelling error — it is a failure to read.** The
+prediction was reasoned from the `nofill` control at 51.2554°: *"a non-degenerate cap only
+has to avoid being worse than the C-grid it attaches to."* That reasoning is wrong, and
+`N-C6`'s operational reading 1 says so and gives a test costing no compute at all.
+
+**§4's candidate ordering is also struck.** This filing presented C1 as changing *topology
+only* and therefore as the safe candidate, and C3 as changing *geometry* and therefore the
+poor one. **The topology-only candidate is the one with the measured floor in the 80s.**
+The ordering was backwards and was relayed upward before it was caught.
+
+### The arc-length criterion, computed here, which withdraws the probe
+
+`N-C6` prescribes: compute the strip-to-core arc-length ratio at the break; a ratio of order
+10 or more predicts a non-orthogonality floor in the 80s **without building anything**. The
+mechanism is at `cases/F13_onera_m6/../topology_study/gen_topo.py:26` — the TE strip joins a
+surface arc of `(1 − U2)·c` to a core edge of `(1 − CORE_S)·t2(U2)·c`, with `j` turning 90°
+across the block.
+
+Computed 2026-09-01 from the registered geometry (`m6_section.py`, `t/c_max = 0.09779` at
+`x/c = 0.3803`), at the registered `U2 = 0.90`, `CORE_S = 0.50`:
+
+| x/c | 0.80 | 0.85 | **0.90** | 0.95 |
+|---|---|---|---|---|
+| `t2` | 0.023670 | 0.018530 | **0.012913** | 0.006961 |
+| **ratio R** | 16.90:1 | 16.19:1 | **15.49:1** | 14.37:1 |
+
+**R = 15.49:1 at the registered break — an independent reproduction of `N-C6`'s recorded
+"~16:1" by a separate route.**
+
+**MOVING THE BREAK DOES NOT ESCAPE IT.** R is nearly flat in `U2`: **18.28:1 at 0.70 falling
+only to 14.37:1 at 0.95.** Because `t2 → 0` at a sharp trailing edge, the numerator and
+denominator shrink together. **That is a property of the section, not of the block
+structure, so it does not care which cap topology is chosen** — which answers C2 (the O-grid
+cap with a rectangular core) without building it.
+
+Over the natural design region — `U2` in [0.70, 0.95], `CORE_S` in [0.30, 0.70] — the
+**minimum is 10.26:1**, still at or above the criterion.
+
+### THE HONEST LIMIT OF THIS ARGUMENT, WHICH IS NOT AS STRONG AS "REFUTED FOR EVERY CANDIDATE"
+
+**The ratio IS escapable in principle, and this amendment will not overstate the case.**
+`R < 10` is reachable at the registered break by shrinking the core: **`R < 10` requires
+`CORE_S < 0.2256` at `U2 = 0.90`** (R = 9.68:1 at `CORE_S = 0.20`; 8.15:1 at 0.05). So the
+premise is refuted **across the registered and natural design region**, and **not** across
+the entire admissible space. A cap with a core below ~23 % scale is **untested**, and this
+amendment records it as an open escape rather than declaring the question closed.
+
+**The evidence against that escape is empirical and is on record, but it is indirect:**
+`N-C6`'s own two core variants moved **away** from the gate, not toward it —
+`t2_SIMCORE` **87.0192°** and `t4_CORE2` **84.8750°** against the `t1_SHELL` baseline
+**81.5834°**. Those varied core *shape* rather than core *scale*, so they bound the question
+without settling it.
+
+### Consequence — the probe is WITHDRAWN, not run
+
+- **§7 prediction 1: STRUCK** (refuted by `N-C6`, which predates this filing).
+- **§4 candidate ordering: STRUCK** (C1 is the measured-worst candidate, not the safe one).
+- **C3 is INADMISSIBLE** on the standing `TSCALE` ruling recorded in `N-C6`: a thickened
+  aerofoil is a different aerofoil, and this is a reason to change the meshing method, never
+  the geometry.
+- **No candidate is built. No compute is spent. Gate M is never evaluated.**
+- **The rung's cost falls from a 4.0 core-min estimate to 0.0 core-min actually spent.** A
+  calibration row is owed under rule 12 recording an item closed at zero spend against a
+  4.0 estimate, with the reason: the answer was already on disk.
+
+**The standing outcome for F13 is unchanged and its CAUSE is corrected:** F13 remains
+**`GATE FAIL`** on the mesh standard at R0 and the case remains **`BLOCKED`** on §5
+admission. What changes is the diagnosis. The earlier reading — *"two collapsed lines in our
+own generator; the ONERA geometry was never the problem"* — is **too kind to the geometry**.
+The collapsed lines are the *generator's* contribution and are real, but the section's
+half-thickness going to **zero at a sharp trailing edge** sets an arc-length ratio that a
+core-based structured cap cannot escape in the design region. **The cause is geometric, and
+that makes it a finding rather than a fixable oversight.**
+
+**What this amendment does NOT claim:** that no cap topology anywhere can mesh this wing
+inside 70°. It claims that the two candidates registered here are answered — one by direct
+measurement, one by a topology-independent geometric ratio — and that the named residual
+(a sub-0.23 core scale) is untested.
