@@ -142,22 +142,59 @@ functions
 }
 FO
 fi
+# The script MUST exit with mpirun's rc. An inner script ending on an echo
+# exits 0 for every outcome -- the same class of trap as the setsid parent.
 mpirun -np $NP python a2gc_level.py 2>&1
-echo "SOLVE_RC=\$?"
+rc=\$?
+echo "SOLVE_RC=\$rc"
+exit \$rc
+INNER
+
+# The whole container stage, written to a file rather than squeezed into a
+# bash -lc string: rc is captured INSIDE, next to the command that produced it,
+# and the peak-RSS sampler does not depend on which cgroup version is mounted.
+cat > "$LEVELDIR/stage.sh" <<INNER
+set -uo pipefail
+source /home/dafoamuser/dafoam/loadDAFoam.sh
+
+# Peak-RSS sampler: sums RSS across every process every 2 s and keeps the max.
+# Independent of cgroup v1 vs v2 layout.
+( peak=0
+  while true; do
+    tot=\$(awk '/^VmRSS:/ {s+=\$2} END {print s+0}' /proc/[0-9]*/status 2>/dev/null)
+    if [ -n "\$tot" ] && [ "\$tot" -gt "\$peak" ] 2>/dev/null; then
+      peak=\$tot
+      awk -v k="\$peak" 'BEGIN {printf "GC_PEAKRSS $LEVEL mib %.1f\n", k/1024}' > /mnt/peak_rss.txt
+    fi
+    sleep 2
+  done ) &
+SAMPLER=\$!
+
+timeout ${CAP_WALL_S}s bash mesh.sh > /mnt/mesh.log 2>&1
+mrc=\$?
+echo "MESH_RC=\$mrc" >> /mnt/mesh.log
+
+if [ "\$mrc" -ne 0 ]; then
+    kill \$SAMPLER 2>/dev/null
+    echo "\$mrc" > /mnt/RC
+    cat /mnt/peak_rss.txt >> /mnt/level.log 2>/dev/null
+    exit \$mrc
+fi
+
+timeout ${CAP_WALL_S}s bash solve.sh > /mnt/level.log 2>&1
+rc=\$?
+kill \$SAMPLER 2>/dev/null
+echo "\$rc" > /mnt/RC
+cat /mnt/peak_rss.txt >> /mnt/level.log 2>/dev/null
+exit \$rc
 INNER
 
 date -u +%s.%N > "$LEVELDIR/t0"
-sudo docker run --rm --name "a2gc_${LEVEL}_\$\$" \
+sudo docker run --rm --name "a2gc_${LEVEL}_$$" \
     --cpuset-cpus="$CPUSET" --memory="$MEM_LIMIT" \
     -e A2GC_LEVEL="$LEVEL" \
-    -v "$LEVELDIR":/mnt -w /mnt "$IMAGE" bash -lc \
-    "source /home/dafoamuser/dafoam/loadDAFoam.sh && \
-     timeout ${CAP_WALL_S}s bash mesh.sh > /mnt/mesh.log 2>&1; \
-     echo MESH_RC=\$? >> /mnt/mesh.log; \
-     timeout ${CAP_WALL_S}s bash solve.sh > /mnt/level.log 2>&1; \
-     rc=\$?; echo \$rc > /mnt/RC; \
-     cat /sys/fs/cgroup/memory.peak 2>/dev/null | \
-       awk '{printf \"GC_PEAKRSS ${LEVEL} mib %.1f\n\", \$1/1048576}' >> /mnt/level.log" \
+    -v "$LEVELDIR":/mnt -w /mnt "$IMAGE" \
+    bash -lc "bash /mnt/stage.sh" \
     > "$LEVELDIR/container.log" 2>&1
 date -u +%s.%N > "$LEVELDIR/t1"
 

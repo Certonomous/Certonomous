@@ -479,3 +479,55 @@ every other row in §9 stands unchanged.
 
 The birth register is unchanged and was re-run after the edit: **9 declared, 9
 born, 7 zero-passing, refusal path 9 of 9.**
+
+---
+
+# AMENDMENT 2 — 2026-09-01T16:27:34Z — PRE-COMPUTE, driver repair
+
+**Version 1.1 -> 1.2. Lines whose number changed above this section: 0.**
+
+**Condition, and how it was checked.** Still **no compute spent**. Run root
+`/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence` checked **absent** at
+2026-09-01T16:27:34Z, read against the same positive control as Amendment 1. **No gate, threshold,
+cap, band or label changes.** This amendment records a repair to the launcher and
+re-pins its md5.
+
+**Three defects found by dry-running the launcher against a stubbed `docker` in
+scratch, before any solver ran.** The rule-4 guard refuses a level directory that
+already exists, so a buggy first launch would have blocked its own retry — which
+is why the dry run happened first.
+
+1. **`rc` would have read 0 for every outcome.** `solve.sh` ended on an
+   `echo`, so the script's exit status was the echo's, not `mpirun`'s. This is
+   the same class of trap as `setsid timeout cmd` returning 0 regardless. A
+   diverged or OOM-killed primal would have been recorded `rc=0` and graded as a
+   standing value. **Repaired:** `rc` is captured next to `mpirun` and the
+   script exits with it.
+2. **The container name was invalid.** `--name "a2gc_${LEVEL}_\$\$"` produced a
+   literal `$$`, which Docker rejects — every launch would have failed, and the
+   placement gate that greps for a running `a2gc_` container would have been
+   testing a name that never existed. **Repaired.**
+3. **The peak-RSS read depended on the cgroup version mounted.** It read
+   `/sys/fs/cgroup/memory.peak` (v2 only). Peak RSS is the anchor Stage M exists
+   to measure and the basis of the L2 BLOCKED prediction in §7, so a silent zero
+   there would have cost the item its memory anchor. **Repaired:** an in-container
+   sampler sums `VmRSS` across all processes every 2 s and keeps the maximum,
+   independent of cgroup layout.
+
+The container stage is now written to `stage.sh` on disk rather than squeezed
+into a `bash -lc` string, so rc is captured beside the command that produced it.
+
+**One disclosure that is not a defect.** Levels run at **np = 12** (cpuset 4-15),
+while the published baseline ran at **np = 4**. Consistency ACROSS the three levels
+is what an order study requires, and it holds. But this family has a **known
+decomposition sensitivity** (`DEFECT_REACH_decomposition_cases.md` names A2 at
+38,304 cells, scotch vs simple at np=4), so **L1's CD is reported against the
+published np=4 value 0.02962051221 as a disclosed reproduction check, not assumed
+to match.** Any difference is reported, never absorbed.
+
+## Superseded md5
+
+| file | md5 |
+|---|---|
+| ~~`cases/dafoam/run_a2gc.sh` — `bd2e764ba92d7707539c900c7e1a91f6`~~ **STRUCK** | superseded by this amendment |
+| `cases/dafoam/run_a2gc.sh` (v1.2) | **`f3baba360a50c8b7592d0a50142d5e28`** |
