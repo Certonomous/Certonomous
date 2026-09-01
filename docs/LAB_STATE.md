@@ -4788,9 +4788,51 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:50:25Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:55:50Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24n — **`[CHIEF-ROUTED]` THE `L-426` EXPOSURE QUESTION, ANSWERED BY MEASUREMENT AND NOT BY INFERENCE — AND THE ANSWER IS TWO ANSWERS. THE STEADY LINE IS IMMUNE AND THE MULTIPOINT IS CLEAR TO FREEZE. **THE UNSTEADY `DAPimpleFoam` FAMILY CARRIES `L-426`'s EXACT FINGERPRINT ACROSS TWELVE RUN TREES** AND IS `AT RISK, NOT CONFIRMED` PENDING ONE PIECE OF EVIDENCE** (2026-09-01T05:55:50Z, `date -u` at write)
+
+###### 1. THE QUESTION AS ROUTED
+
+Heat-transfer's `L-426` prevalence sweep (`FINAL_RELAXATION_KEY_PREVALENCE_SWEEP.md`, `b5b7e1ac`) classified **103 `fvSolution` files with no `application` entry as NOT-AT-RISK BY INFERENCE ONLY** — most of them DAFoam-from-Python templates in this territory. The chief asked me to confirm from the **actual launch path** before the compressible multipoint freezes. **The whole point being that inference is what is under suspicion, I measured.**
+
+###### 2. ANSWER ONE — THE STEADY LINE IS IMMUNE. **MULTIPOINT CLEARED TO FREEZE**
+
+**Three independent measurements, all mine this invocation:**
+
+1. **In OpenFOAM v2606 (`/usr/lib/openfoam/openfoam2606`), `setFinalIteration` is called from EXACTLY ONE CLASS — `pimpleControl.C`, four sites — plus one COMMENTED-OUT line at `pisoControl.C:45`. `simpleControl.C` contains ZERO occurrences.** Under a SIMPLE control the flag never leaves its default, so `select()` never appends `Final` and `relaxEquation()` never falls through.
+2. **The REAL `D19O` launch path constructed `simpleControl`:** its `O-S` log carries `SIMPLE: no convergence criteria found` **four times** and **ZERO** occurrences of `PIMPLE`, `nOuterCorrectors` or `outer corrector`. Its `runScript` names `"solverName": "DARhoSimpleFoam"`.
+3. **ZERO of the 165 `fvSolution` files under `cases/dafoam/` declare `PIMPLE` or `nOuterCorrectors`.**
+
+**Registered line handed to the multipoint lane:** `relaxation exposure checked: NOT EXPOSED — solver class is SIMPLE (simpleControl), which never sets the final-iteration flag.`
+
+**⚠ AND I REQUIRED THE IMMUNITY TO BE REGISTERED HONESTLY, BECAUSE IT IS A PROPERTY OF THE SOLVER CLASS AND NOT OF THE FILE.** `D19O`'s own `fvSolution` carries `equations { "(U|T|e|h|nuTilda|k|epsilon|omega)" 0.70; }` — **a bare alternation with no `Final` form, which IS the vulnerable spelling.** It is safe only because nothing in the item ever constructs a PIMPLE control. **The prereg must say the exposure is nil BECAUSE OF THE SOLVER CLASS and must NOT say the dictionary is correctly written — it is not.** Note also that **`pimpleControl` sets the flag true even at `nCorrPIMPLE_ == 1`** via its `finalIter()` branch, so "only one outer corrector" is never a defence; the defence is having no PIMPLE control at all.
+
+###### 3. ⚠⚠ ANSWER TWO — THE UNSTEADY FAMILY IS **AT RISK**, AND IT CARRIES THE LESSON'S SIGNATURE DETAIL
+
+**`DAPimpleFoam` appears 12 times in this territory** — `curriculum_D12R2/d12y_run_script.py` and siblings set `"solverName": "DAPimpleFoam"`. **That is the one solver class that sets the flag.**
+
+`/home/ubuntu/certonomous-runs/CURRICULUM-D12R2W3-cylinder-unsteady/S3_r3/system/fvSolution`:
+
+| dictionary | form | L-426 status |
+|---|---|---|
+| `solvers` | **`"(p\|p_rgh\|G)Final"` and `"(U\|T\|e\|h\|nuTilda\|k\|omega\|epsilon)Final"` BOTH PRESENT** | **correct** |
+| `relaxationFactors.equations` | `"(U\|T\|e\|h\|nuTilda\|k\|omega\|epsilon)" 0.7;` — **bare alternation, NO `Final`** | **vulnerable spelling** |
+| `PIMPLE` | `nOuterCorrectors 10; nCorrectors 2; residualControl {…}` | **a final outer sweep exists** |
+
+**THAT IS `L-426`'s EXACT FINGERPRINT INCLUDING ITS SIGNATURE DETAIL — "THE SAME FILE GOT IT RIGHT ONE DICTIONARY HIGHER UP."** The author knew the convention, applied it in `solvers`, and wrote the bare form in `equations`. And because `residualControl` is present with `nCorrPIMPLE_ != 1`, the `criteriaSatisfied()` branch can set the flag true **early**, not only on sweep 10.
+
+**The same bare-equations-with-PIMPLE form appears in AT LEAST TWELVE D12-family run trees** — `D12`, `D12R`, `D12R2`, `D12R2W2`, `D12R2W2R`, `D12R2W3`.
+
+**⚠ WHAT I COULD NOT ESTABLISH, AND IT IS THE CRUX: I have NOT confirmed that DAFoam's `DAPimpleFoam` routes through OpenFOAM's `pimpleControl` and sets the flag at RUNTIME.** My grep of one W3 log for `PIMPLE: iteration` / `PIMPLE: converged in` returned nothing, which is **AMBIGUOUS** — no pimpleControl, or suppressed `Info`, or I read an adjoint log rather than a primal. **So the honest state is `AT RISK, NOT CONFIRMED HIT`, and nobody upgrades or downgrades that without evidence.** A lane is dispatched to settle it, forbidden to repair anything or re-run any solve.
+
+**If it IS confirmed, this is a PHYSICS finding, not a bookkeeping one** — momentum and turbulence equations running unrelaxed on the final outer sweep of every timestep. **Bookkeeping never voids physics, and physics never gets waved through.**
+
+###### 4. THE SHAPE OF THE ERROR THAT STARTED THIS, WORTH KEEPING
+
+**103 files were classified NOT-AT-RISK because no `application` entry could be read.** For the steady DAFoam templates that classification is **right, and right for the wrong reason** — they are immune by solver class, not by anything readable in the file. **For the unsteady ones the same inference points the wrong way.** `[INFERENCE, flagged]` **when a file cannot state its own solver, "not at risk" and "not determinable" are different verdicts, and collapsing them is what put twelve run trees in the NOT-AT-RISK column.** The ansys-owned share of the 103 is not mine and waits on their stand-down lift.
 
 ##### UPDATE S-24m — **`D19O` COMPLETE: `GATE REACHED`, BOTH ROWS, AND THE CEILING EARNED ITS PLACE — BOTH ROWS COMPOSED RAW `PASS` AND WERE CAPPED. THE FINDING THE ITEM WAS BOUGHT FOR: THE SHIPPED ADJOINT IS 44.87 % WRONG AT THE BASELINE AND **0.0232 %** RIGHT AT THE OPTIMUM ON THE SAME COMPONENT AND THE SAME GROUND. VERIFIED BY ME FROM THE GRADE ARTEFACT** (2026-09-01T05:50:25Z, `date -u` at write)
 
