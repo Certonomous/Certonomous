@@ -108,3 +108,63 @@ eight module cells. It exits on any mismatch.
 Every figure can be rebuilt from the CSV and JSON files alone. The snapshot CSV
 carries each mesh cell's rectangle, so the field frames redraw from the real
 mesh geometry — never from a surface tessellation.
+
+---
+
+## C6.4 — the step-independence product
+
+Added 2026-09-01 by a heat-transfer `lab-lane`. **Nothing was solved for it.**
+Both arms were already on disk; the generator reads them.
+
+| file | what it is |
+|---|---|
+| `actc_step_independence.{pdf,svg}` | the two step sizes drawn on one axis, the eight per-cell differences, and the numbers as a table under the approved caption |
+| `actc_step_independence.csv` | the eight module cells with both peak rises, the difference in K and in per cent |
+| `actc_step_independence.json` | the same block the display act reads, plus its planted control and its grading statement |
+| `make_act_c_step_independence.py` | the build. Re-run it from this directory |
+
+**It is a separate script rather than a block inside `make_act_c_screens.py` on
+purpose.** That script rewrites every figure it owns, so adding one product
+through it would churn eight vector files whose only change would be an
+embedded timestamp. This one writes only the four files above and merges
+nothing into anybody else's output. The display act reads its JSON as an extra
+bundle merged over `actc_screen_data.json`.
+
+### Source artifacts
+
+| arm | case directory | time step |
+|---|---|---|
+| coarse | `verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1` | 0.5 s |
+| fine | `verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1_DT025` | 0.25 s |
+
+One mesh, two step sizes; the arms' `constant/module/polyMesh/points` share an
+MD5. The parsing is `verification/runs/T-family/T25_MODULE_runs/analyse_t25.py`,
+imported rather than re-implemented. The full reading of the pair, clause by
+clause, is
+`verification/runs/T-family/T25_MODULE_runs/T25_STEP_INDEPENDENCE.md`.
+
+### Planted controls, three of them, and the refusal
+
+1. **Shared parser, coarse arm** — +1.000000 K on all 960 cells at 900 s, seen.
+2. **Shared parser, fine arm** — the same, separately, because a second arm is
+   a second reader target and gets its own control.
+3. **The difference reader** — the quantity on screen is a *difference*, so the
+   control plants +1.234000e-03 K (`scripts/roache_triple.py:169`) into a copy
+   of the fine arm and requires the eight per-cell differences the table is
+   built from to move by exactly that much. Measured worst departure
+   1.084e-14 K. A differencer that cannot see a planted difference cannot be
+   trusted with a small one.
+
+The script also refuses if the two arms cannot be compared term by term
+(differing cell counts, differing write-time counts, or write times that are
+not the same instants), and if either grouping the table quotes — the two end
+cells, the six interior cells — is not one number to the printed precision.
+
+### What this product is not
+
+It is a **two-point step-size check on an ungated feasibility run**. Two levels
+cannot measure an observed order and two step sizes on one mesh are not a
+Roache triple, so rule 5's machinery does not apply and is not invoked: no
+observed order is computed, no GCI is quoted, and no ratio between the two
+energy-closure gaps appears on any surface this generator writes. It carries no
+verdict, no gate and no threshold. The figure says so in its own caption.

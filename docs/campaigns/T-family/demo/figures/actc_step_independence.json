@@ -1,0 +1,123 @@
+{
+  "product": "Act C, C6.4 -- time-step independence, two arms",
+  "record": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_STEP_INDEPENDENCE.md",
+  "case_coarse": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1",
+  "case_fine": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1_DT025",
+  "reader": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/analyse_t25.py",
+  "generator": "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures/make_act_c_step_independence.py",
+  "time_step_coarse_s": 0.5,
+  "time_step_fine_s": 0.25,
+  "n_write_times": 181,
+  "n_module_cells": 8,
+  "instrument_check_step_difference_reader": {
+    "planted_K": 0.001234,
+    "scope": "all 960 mesh cells of the 0.25 s arm at t = 900 s",
+    "reader": "the two-arm per-cell peak-rise differencer",
+    "worst_departure_K": 1.0837468075730605e-14,
+    "seen": true
+  },
+  "caption": "Halving the solver time step from 0.5 s to 0.25 s changed the module's 15-minute peak temperature rise by under 0.0003 K on every one of the eight cells \u2014 0.058 % on the two end cells and 0.047 % on the six interior cells \u2014 and the largest disagreement at any point in the 900-second history was 0.00038 K, at the takeoff-to-cruise power step. Both step sizes close the energy budget to better than 99.85 % of the heat put in, the finer step leaving 0.073 % unaccounted against the coarser step's 0.146 %. This is a two-point step-size check on an ungated feasibility run: it shows the answer barely moves when the step is halved, and it is not a convergence study, carries no error bar and grades nothing.",
+  "step_independence_table": {
+    "headers": [
+      "Quantity",
+      "Time step 0.5 s",
+      "Time step 0.25 s",
+      "Change",
+      "Change, %"
+    ],
+    "rows": [
+      [
+        "Peak rise, end cells 1 and 8, K",
+        "0.419751",
+        "0.419993",
+        "+2.4223e-04",
+        "+0.0577"
+      ],
+      [
+        "Peak rise, interior cells 2\u20137, K",
+        "0.309239",
+        "0.309384",
+        "+1.4516e-04",
+        "+0.0469"
+      ],
+      [
+        "Largest disagreement at any of the 181 write times, K",
+        "\u2014",
+        "\u2014",
+        "3.8448e-04",
+        "at t = 60 s, cell 2"
+      ],
+      [
+        "Heat input left unaccounted by the energy budget, %",
+        "0.145859",
+        "0.073031",
+        "\u2014",
+        "\u2014"
+      ]
+    ]
+  },
+  "per_cell": [
+    {
+      "cell": 1,
+      "peak_rise_K_coarse": 0.4197508510000034,
+      "peak_rise_K_fine": 0.4199930781666694,
+      "difference_K": 0.00024222716666599808,
+      "difference_percent": 0.057707367617938696
+    },
+    {
+      "cell": 2,
+      "peak_rise_K_coarse": 0.3092393266666704,
+      "peak_rise_K_fine": 0.309384485999999,
+      "difference_K": 0.00014515933332859277,
+      "difference_percent": 0.046940773960829456
+    },
+    {
+      "cell": 3,
+      "peak_rise_K_coarse": 0.3092393266666704,
+      "peak_rise_K_fine": 0.309384485999999,
+      "difference_K": 0.00014515933332859277,
+      "difference_percent": 0.046940773960829456
+    },
+    {
+      "cell": 4,
+      "peak_rise_K_coarse": 0.3092393266666704,
+      "peak_rise_K_fine": 0.309384485999999,
+      "difference_K": 0.00014515933332859277,
+      "difference_percent": 0.046940773960829456
+    },
+    {
+      "cell": 5,
+      "peak_rise_K_coarse": 0.3092393266666704,
+      "peak_rise_K_fine": 0.309384485999999,
+      "difference_K": 0.00014515933332859277,
+      "difference_percent": 0.046940773960829456
+    },
+    {
+      "cell": 6,
+      "peak_rise_K_coarse": 0.3092393266666704,
+      "peak_rise_K_fine": 0.309384485999999,
+      "difference_K": 0.00014515933332859277,
+      "difference_percent": 0.046940773960829456
+    },
+    {
+      "cell": 7,
+      "peak_rise_K_coarse": 0.3092393266666704,
+      "peak_rise_K_fine": 0.309384485999999,
+      "difference_K": 0.00014515933332859277,
+      "difference_percent": 0.046940773960829456
+    },
+    {
+      "cell": 8,
+      "peak_rise_K_coarse": 0.4197508510000034,
+      "peak_rise_K_fine": 0.4199930781666694,
+      "difference_K": 0.00024222716666599808,
+      "difference_percent": 0.057707367617938696
+    }
+  ],
+  "largest_abs_diff_K": 0.0003844803333663549,
+  "largest_abs_diff_time_s": 60.0,
+  "largest_abs_diff_cell": 2,
+  "unaccounted_percent_coarse": 0.14585919050300333,
+  "unaccounted_percent_fine": 0.07303102624622682,
+  "grading": "NOT GRADED -- a two-point step-size check on an ungated feasibility run. Two step sizes on one mesh are not enough to put an error bar on the answer, so none is quoted, and this product carries no verdict, no gate and no threshold."
+}
