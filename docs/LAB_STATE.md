@@ -4788,9 +4788,78 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T15:52Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25c`, immediately below. `S-25b` CORRECTS a unit error in `S-25a` §5 that also went upward; `S-25c` WITHDRAWS an inference in `S-25b` §3 and replaces it with a measurement.
+**Section last written:** 2026-09-01T16:13:42Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25d`, immediately below. `S-25b` corrects a unit error in `S-25a` that went upward; `S-25c` replaces an inference in `S-25b` with a measurement; `S-25d` records a SECOND relay error of mine.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25d — **ACT D's PLANTED-CONTROL EVIDENCE IS RESTORED: 24/24, ALL FOUR MUTATION CONTROLS RAN AND WERE CAUGHT. I READ THE GUARD DIFF MYSELF AND ACCEPT IT. ⚠ BUT TWO CHECK **NAMES** NOW CLAIM MORE THAN THEIR BODIES DO, AND ONE OF THEM RESTS ON A DELEGATION I VERIFIED AND FOUND POINTING AT THE WRONG GUARD. AND A SENTENCE I PUT IN A LANE BRIEF WAS WRONG — SECOND RELAY ERROR OF MINE TODAY** (2026-09-01T16:13:42Z, `date -u` at write)
+
+###### 1. THE CONDITION IS CLEARED PROPERLY, NOT TUNED AWAY
+
+**`drive_actd_demo_mode.py` `rc=0`, 24/24 checks held, 347 events over 9 stages, 168 publications — and ALL FOUR MUTATION CONTROLS RAN AND WERE CAUGHT (`all_caught: true`).** The `"skipped": "the clean drive did not hold, so the control was not run"` key is **gone**. **Act D has live planted-control evidence again**, which it did not have when I picked this up. `A2_language_sweep.json` regenerated from a live drive: **0 camera hits, 2,374 camera strings** (was 2,371 — the SDK gained three). **Neither dirty record was reverted; both were re-generated from runs that actually held.**
+
+**My triage stands and is now confirmed by the repair:** the refusal was a guard firing correctly on a cross-team rename, not a physics regression and not a wrong number.
+
+###### 2. I READ THE DIFF. THE COST GUARD IS REPAIRED BETTER THAN I SPECIFIED
+
+`dc77e205`, 59 insertions / 13 deletions across three files. The load-bearing hunk binds the **number**, the **imported** unit, the **basis** and the word **derived**:
+
+```
+check("the cost line is this run's own cost",
+      f"240.1 {SCREEN_COMPUTE_UNIT}" in cost
+      and ("(gross)" in cost or "(cleaned)" in cost)
+      and "derived" in cost, cost)
+```
+
+**Importing `SCREEN_COMPUTE_UNIT` rather than spelling the new noun means a future rename moves both sides together AND a rendered line that DIVERGES from the constant still goes red** — that is the property I asked for and it is correctly built. **Demonstrated to fail: 7 mutations across 4 doors, each turning EXACTLY its watched check red and nothing else** — number bent 240.1→264.1, noun diverged from the constant, basis dropped, `derived` dropped, mesher flipped to meshed-live, sentence stopped naming the cell count, sequencer edited the sentence post-render. **Two further mutations FAILED to be meaningful and were reported rather than quietly replaced** — patching the contract method moved both sides of an equality and proved nothing; patching `_stage_geometry`'s return never reached the emitted payload. **A mutation that proves nothing, disclosed, is worth more than one silently dropped.**
+
+**A SECOND STALE LITERAL THE LANE FOUND BY DRIVING THE FILE RATHER THAN READING IT, AND IT IS THE BETTER CATCH:** the geometry check demanded the literal `"Solved on this geometry"` — **a PAST PARTICIPLE — while Sanaa's ~04:20Z order forbids past tense.** *The check was enforcing a violation of the standing order.* `demo_mode` dropped the leading verb to comply and the literal then broke. **Replaced by an EQUALITY against the act's own geometry contract plus the measured cell count — strictly stronger on content than the old `startswith`.**
+
+###### 3. ⚠ TWO CHECK NAMES NOW OVERSTATE THEIR BODIES — THE DEFECT CLASS I HAVE BOARDED ALL DAY, NOW IN OUR OWN INSTRUMENT
+
+**(a) `"the geometry stage states the solved case in the present tense"` NO LONGER TESTS TENSE.** The body tests `is_solved_geometry()`, sentence equality and the cell count. The lane disclosed the change and justified it as *"tense is not re-litigated here; every rendered string already goes through the act's screen checker, which is check 8 below."*
+
+**I VERIFIED THAT DELEGATION AND IT POINTS AT THE WRONG GUARD.** Check 8 reads, in full: `check("every string this act can produce passed the screen checker", self_check["strings_checked"] > 0, ...)`. **THAT ASSERTS THE CHECKER RAN. IT DOES NOT ASSERT THE CHECKER PASSED.** A "did it run" check wearing a "did it pass" name, cited as cover for a third check that dropped its own subject.
+
+**The coverage does exist — `actd_language_sweep.py` and the face checkers carry `PAST` and `_is_past` with ambiguous-participle controls in both directions, and the sweep reports 0 camera hits over 2,374 strings. So tense IS guarded lab-wide. What is wrong is the CITATION.** **⚠ AND A WRONG CITATION IS THE DANGEROUS FORM: a future reader auditing "do we check tense?" finds a check whose name says yes, follows its pointer to a check whose name says yes, and ticks the box — or removes the real guard believing another one covers it.**
+
+**(b) `"nothing is meshed live and the stage says so"` — THE STAGE DOES NOT SAY SO.** The body tests `mesh["meshed"] is False and "meshed_cells" not in mesh` — **a flag and an absence.** **MEASURED BY ME from the published payload: `{stage, cells, zoom, meshed, drawn, banner}` — there is a FLAG AND NO SENTENCE.** The name asserts a sentence that does not exist.
+
+**RULED: both names are repaired to match their bodies, and check 8 is either strengthened to assert the checker PASSED or renamed to say it only proves it ran.** Queued rather than dispatched — I am at the `SUPERVISION_CHARTER` §8 lane cap of three with the two `SANAA-DIRECT` compute items live, **and these are labels on instruments whose numbers are sound, so they lose to a launch order on priority. Boarded so they cannot be lost.**
+
+###### 4. ⚠⚠ MY OWN ERROR, AND IT IS THE SECOND RELAY ERROR I HAVE MADE TODAY
+
+**I wrote into a lane brief that the mesh stage publishes `meshed: false` *"with a plain sentence"*. IT DOES NOT — it publishes a flag. I took that phrase from the previous lane's report and passed it on WITHOUT READING THE PAYLOAD.** The lane read the payload and corrected me.
+
+**This is the same failure as `S-25b` §1 in a different costume: there I relayed a lane's cost reasoning in the wrong unit; here I relayed a lane's characterisation of a payload I never opened.** **A SUPERVISOR WHO RELAYS A LANE'S CHARACTERISATION OWNS IT — I wrote that sentence in `S-24w` about someone else's mechanism and then did it twice myself inside one session.** The standing correction for me: **a claim about what a file or a payload CONTAINS gets opened before it is written into a brief, because a brief is an instruction and a wrong instruction propagates further than a wrong note.**
+
+###### 5. A LANE THAT CORRECTED ITS OWN LANDED COMMIT MESSAGE RATHER THAN LET IT STAND
+
+Commit `1b15d0d7`'s message states **"0.062 core-min from three timed invocations"**. The true figure is **0.044 core-min across four** (0.39+1.46+0.39+0.40 = 2.64 s). **The lane overstated it, did NOT rewrite history to hide it, and flagged it to me.** **Recorded here because a wrong measured figure in a landed message is a false record however small, and the right response is exactly this one — disclose it in the next record rather than quietly fix or quietly drop it.**
+
+###### 6. RULE 14 APPLIED WITHOUT BEING ASKED, AND THE COUNT IS NOW DERIVED
+
+The inflated `61/61` is repaired **as I ruled — DERIVED, not corrected to 6.** Arms now register themselves through one `arm()` helper that counts and grades in the same call; `total = len(arms)`. **Demonstrated by changing the arm set THREE ways:** baseline 59; one ceiling clause removed → 58; one extra plant per rule → 66 (+7 = the rule count); both harness clauses removed → 57. **After: 59/59, rc=0, 0 face hits. `61` is quoted nowhere.**
+
+**⚠ AND THE LANE EXTENDED IT TO THE SIBLING CALL SITE UNPROMPTED — `check_actD_multipoint_sheet_face.py` carries the identical bare `+ 8`. ITS NUMBER IS CORRECT (47/47 before and after) AND IT WAS DERIVED ANYWAY**, because the compressible checker was written from it, gained two arms, and drifted. **That is `L-221`/`L-222` applied as written — a lesson is not applied until EVERY call site asserts it — and applied to a site that was not yet wrong. Prevention, not correction.**
+
+###### 7. THE MESH BEAT IS RECONCILED TO THE STAGE, NOT THE REVERSE
+
+`ACT_D_multipoint_optimisation_script.md` claimed *"Meshing, live"*, *"the real mesher runs on the uploaded surface"* and *"the grid draws cell by cell"* — **none of which the stage does.** MEASURED: both `FE-P` and `FE-S` under the SO-3 run root hold both of the guard's tells, so the mesher **cannot** run there, and `drawn: false` is published unconditionally. **Corrected the script to the stage. A filmed act whose script narrates a capability the act does not exercise is a false statement on camera, and the guard that stops it is cfd's and is CORRECT — Act D does not work around it.**
+
+**Honest limit the lane stated rather than let pass: no multipoint act is registered** (`registered_acts()` → adjoint-wing, jet-flap, motor-thermal, shock-reflection), **so no payload of THAT act was driven** — the drive exercises `adjoint-wing`.
+
+###### 8. FOR cfd — REPORTED, NEVER PATCHED; NOTHING UNDER `sdk/` TOUCHED
+
+* `adjoint_act.py:428`'s comment *"Measured: demo_sequencer._stage_meshing never reads MeshPlan.command"* is **STALE** — it now does.
+* The mesh stage publishes a **flag and no sentence**; anything upstream describing it as a sentence is wrong (**including my own brief — §4**).
+* `ACT_D_multipoint_optimisation_script.md:175` carries the camera string **`"Optimal Solution Found."`** — past tense, and sitting next to this act's standing *never say optimum* prohibition. **Flagged, not touched; it was outside the lane's brief.** `[VERIFY: the mesh payload's `zoom` string, *"the first of the 39 layers marched from the wing surface"*, carries a past participle. The language sweep reports 0 camera hits over 2,374 strings, so it is EITHER correctly judged an adjectival participle by `_is_past`'s ambiguity controls OR not classified as a camera string. NOT MEASURED BY ME — do not assume either.]`
+
+###### 9. STATE
+
+**`D19M` GRADED AND FILED. Act D's controls LIVE again. Three lanes at the cap:** `shape[7]` closure prereg, wing convergence prereg — **both HELD at stage 1 for my personal pre-registration check** — and the `0–18°` AoA sweeps registering for launch. **Cost of all Act D repair work: 0.242 core-min measured, 1 rank, gross; nothing launched, no solver, no mesher.**
+
+**Nothing filed, sent, posted or published outside the box. `docs/capability/dafoam_GRID.md` untouched.**
 
 ##### UPDATE S-25c — **THE D19 FAMILY IS FULLY INDEXED AND THE HONEST COUNT IS **FIVE ITEMS, THREE GRADED, TWO CARRYING NO VERDICT AT ALL**. ⚠ MY `S-25b` §3 DEAD-LEVER INFERENCE IS NOW **MEASURED ON A SECOND ITEM** AND THE FLAG COMES OFF. AND `D19R2` IS BLOCKED ON A GATE-DESIGN RULING THAT ITS OWN RECORD RESERVES **TO SANAA** — IT GOES ON HER DESK** (2026-09-01T15:52Z, `date -u` at write)
 
