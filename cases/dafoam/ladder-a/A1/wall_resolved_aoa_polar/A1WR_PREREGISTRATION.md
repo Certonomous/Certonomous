@@ -737,3 +737,162 @@ against the new value rather than passing on a stale literal).
 
 Its sha is re-pinned by the commit landing this amendment, superseding the
 v1.0 pin in §11. **The grading path is re-fixed at that commit.**
+
+---
+---
+
+# ADDENDUM A — 2026-09-01 — POST-COMPUTE — v1.1 → v1.2
+
+**`lines whose number changed above this section: 0`**
+
+**⚠ THIS IS AN ADDENDUM, NOT AN AMENDMENT, AND THE DIFFERENCE IS THE POINT.**
+
+## 13.1 FIRST COMPUTE HAS OCCURRED. THE PRE-COMPUTE WINDOW IS CLOSED.
+
+A supervisor instruction of this date directs that a **budget widening be folded
+into the same pre-compute amendment** as the Reynolds correction, on the stated
+premise that *"A1WR has had zero compute and the run root is absent, so raising a
+cap is legal right now under rule 2 and becomes impossible the instant Stage 0
+starts."*
+
+**That premise is stale. Stage 0 has already run.** Checked, not asserted:
+
+- `/home/ubuntu/certonomous-runs/A1WR/` **exists**;
+- `L1/L2/L3/constant/polyMesh/points.gz` are built, timestamped
+  **17:18:17Z, 17:18:22Z and 17:18:35Z**;
+- results are committed at `c6aedca9` (`A1WR_STAGE0_RESULTS.md`), costed at
+  **0.4000 core-min against the registered 40 cap**.
+
+**So the instant the instruction names as the deadline has already passed.**
+Under rule 2, gates, thresholds, caps and labels on this item are **CLOSED**, and
+changes land only as dated addenda that cannot alter them. **No cap is raised by
+this addendum, and none can be.**
+
+**This is the supervisor's own §3 argument applied consistently.** That section
+rules that Sanaa's `44ffe660` approval *"widens budgets for items that have not
+yet run. It does NOT reopen a closed freeze"*, and that A2-GC's caps stand
+because it has had first compute. **A1WR has now had first compute. The same rule
+binds it, and a spending approval does not reach an evidence rule.**
+
+## 13.2 AND THE WIDENING IS NOT NEEDED — WHICH IS WHY THIS COSTS NOTHING
+
+The Stage-2 cap of **800 core-min per arm** was sized with deliberate headroom.
+Re-costed against the **measured** L3 cell count of **130,304** and at the
+**np = 1** now ruled (§13.5), using the measured per-cell-per-iteration anchors:
+
+| arm | s/iteration at 130,304 cells | estimate, np=1 | registered cap | headroom |
+|---|---|---|---|---|
+| incompressible | 0.35625 | **424.5 core-min** | 800 | **1.88×** |
+| compressible | 0.37163 | **442.9 core-min** | 800 | **1.81×** |
+
+**The registered caps hold the run comfortably.** Had they not, the correct
+response would have been a **successor rung sized generously from the start** —
+exactly what §3 of that instruction prescribes for A2-GC L2/L3 — and **not** a
+re-opened freeze here.
+
+*(Iteration count remains EXTRAPOLATED and is still the term most likely to carry
+the error; the caps, not the estimate, are what bind.)*
+
+**Rule 12 is unchanged and is restated on this face: every run is still costed,
+caps still stop runs, waste is still named separately. The approval widens the
+budget, not the bookkeeping. A cap one is confident of is still a cap.**
+
+## 13.3 CHORD — THE MESHED BODY, NOT THE INPUT DATA
+
+The instruction registers **chord = 0.999416** from
+`profiles/NACA0012{PS,SS}.profile`. That is the **input profile's** extent. The
+body the solver actually meshes is the **spline-interpolated surface with the
+blunt TE closed**, and its extent is **0.9988268670** — measured from
+`surfaceMesh.xyz` at **all three built levels**, where it is **identical**, so it
+is a level-invariant property of the family and not an L-430 hazard.
+
+The two differ by **0.0590 %**. **The meshed extent is the one that generates the
+forces**, so it is the value carried here; both are on the record and neither is
+assumed. Re at the meshed chord: **Re_inc = 6.658846e5**, **Re_comp = 6.530209e6**,
+**ratio 9.8068** — the ratio is unchanged, since the chord cancels.
+
+**This changes no gate, threshold, cap or label**, and the §12.4 sizing stands:
+`s0` was derived from ν and u_τ, and a 0.059 % chord shift is far inside the
+19 % margin at the binding level.
+
+## 13.4 `A0` IS A NOMINAL REFERENCE AREA — A NORMALISATION BIAS NOBODY HAD WRITTEN DOWN
+
+`A0 = 0.1` in both run scripts is **chord 1.0 × ZSpan 0.1** — a **nominal**
+planform. The true planform of the meshed body is **0.9988269 × 0.1 =
+0.09988269**. Since the force scaling is `1/(0.5·U²·A0·ρ)`, **every CD and CL this
+family has ever published carries a normalisation bias of +0.1175 % against the
+true area.**
+
+*(The instruction states 0.058 % from the profile chord; measured against the
+meshed body it is **0.1175 %**. Either way the conclusion is identical.)*
+
+**IT IS STATED, AND DELIBERATELY NOT FIXED.** Changing `A0` would break
+comparability with every landed number in this family for a ~0.1 % cosmetic gain.
+It changes no verdict here. **It had simply never been written down, and now it
+is.**
+
+## 13.5 np IS HELD AT 1 — ACCEPTED, AND IT IS THE SAME ARGUMENT AS THE MESH
+
+Ruled and accepted: `DAFOAM_CHARTER` §5 forbids carrying an FD reference across
+`np`, D19M's `G-NP` registers np = 1 always, and **A4 measured a 16,600× spread
+between two decompositions of one mesh.** The coarse AoA sweeps ran **np = 1**.
+
+**A1WR exists to answer whether the 9° break is physics or resolution. Running the
+fine sweep at np > 1 while the coarse ran at np = 1 would change two things at
+once and measure neither.** That is the identical argument this item has already
+made twice — against a 3-D geometry standing in for a finer 2-D mesh (§0.1) and
+against a per-regime mesh (§2.3).
+
+**REGISTERED: np = 1 for every point of both arms.** np > 1 is admissible only
+behind a registered same-np decomposition-invariance control on this mesh, which
+this item does not run.
+
+## 13.6 CONCURRENCY — AND A CORRECTION TO THE PLAN AS RELAYED
+
+Cores are spent on **throughput, not on `np` inside the comparison**. Accepted.
+
+**But the relayed plan states that "38 points across two regimes parallelises
+perfectely". IT DOES NOT, AND ACTING ON THAT WOULD DESTROY THE INSTRUMENT.**
+Stage 2's sweep is a **continuation**: `0/` is reset once, and every point
+inherits its predecessor's converged state **in memory**, ascending. That
+serialisation **is** the continuation, and it is what the coarse sweeps'
+cold controls verified was live (α = 4 converged in 389 iterations continued
+against 441 cold — had they been equal, the "continued" label would have been
+false). **Running the 19 points concurrently would make every point a cold start
+and silently change the design that produced the result under comparison.**
+
+**What actually parallelises, and the registered plan:**
+
+| concurrent process | count | np each |
+|---|---|---|
+| continued sweep, incompressible | 1 | 1 |
+| continued sweep, compressible | 1 | 1 |
+| cold controls (α = 4, 14, 17 × 2 arms), each its own case dir | 6 | 1 |
+| **total concurrent** | **8** | **1** |
+
+Eight np = 1 processes on a 16-vCPU box, with two cfd `simpleFoam` jobs live at
+this write. **The critical path is one continued sweep — ~443 core-min ≈ 7.4 h
+wall — and no amount of core allocation shortens it, because it is serial by
+design.** The cold controls finish alongside it.
+
+## 13.7 ASPECT RATIO — DISPOSITION, AND ZSpan IS NOT CHANGED
+
+`nSpan = 2` means **ONE cell in span**: this is a 2-D aerofoil section extruded
+to a single cell, **not a wing**, and no 3-D quantity may be read off it.
+
+**`ZSpan` and `A0` are therefore NOT changed**, per §13.4's reasoning. The
+Stage-0 red (`Failed 1 mesh checks`, max AR 53,541 / 104,246 / 212,104, against
+the coarse baseline's `Mesh OK` at 97.87) is dispositioned as a **disclosed
+artefact of the single-cell spanwise extrusion**, on the measured evidence in
+`A1WR_STAGE0_RESULTS.md` §2: AR tracks 1/s0 exactly (factors 1.947, 2.035) while
+in-plane dx/dy is constant at 2,000 across all three levels.
+
+**It is dispositioned, not dismissed.** `checkMesh` still exits **rc 0** while
+reporting a failed check, so `G-COMPLETE` and every grader on this item read the
+**log verdict line**, never the exit code alone.
+
+## 13.8 UNCHANGED
+
+§3.4 stands and is untouched by any approval: **the mesh is not re-cut until y+
+passes, and Stage 2 does not launch on a y+ overshoot.** Sanaa's core-power
+approval widens budgets; it does not touch a physics gate.
