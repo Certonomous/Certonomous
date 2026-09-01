@@ -128,6 +128,49 @@ def tail_present(tex_path, pdf_path):
     return False, tail, detail
 
 
+def compile_and_require_tail(tex_path):
+    """Compile ``tex_path`` in place and REFUSE if its last line was dropped.
+
+    The shared body behind every sheet's build path, so a sheet cannot be left
+    looking finished with its final line silently deleted.  Raises
+    ``SystemExit(2)`` on failure; returns the tail line on success.
+    """
+    sys.stdout.flush()          # so a refusal reads in order on a terminal
+    workdir = os.path.dirname(os.path.abspath(tex_path))
+    pdf, _ = compile_tex(tex_path, workdir)
+    if pdf is None:
+        sys.stderr.write("REFUSE: %s does not compile.\n"
+                         % os.path.basename(tex_path))
+        raise SystemExit(2)
+    for ext in (".aux", ".log", ".out"):
+        stale = tex_path[:-4] + ext
+        if os.path.exists(stale):
+            os.remove(stale)
+
+    ok, tail, detail = tail_present(tex_path, pdf)
+    if ok is None:
+        sys.stderr.write("REFUSE: could not judge whether %s rendered its "
+                         "tail.\n" % os.path.basename(tex_path))
+        raise SystemExit(2)
+    if not ok:
+        sys.stderr.write(
+            "\nREFUSE: THE SHEET'S LAST LINE DID NOT REACH THE PAGE.\n"
+            "  sheet:        %s\n"
+            "  missing line: %s\n"
+            "  %s\n"
+            "pdflatex reported success and the page count looks right, and "
+            "the line is gone anyway. On these sheets the last line is a\n"
+            "limitation or a statement of fact Sanaa requires on screen, so "
+            "this silently deletes a caveat and keeps every number.\n"
+            "Shorten the prose above the tail until it fits; do NOT raise "
+            "\\enlargethispage, which hides the loss instead of fixing it.\n"
+            % (os.path.basename(tex_path), tail.strip()[:96], detail))
+        raise SystemExit(2)
+    print("tail check: %s kept its last line on the page"
+          % os.path.basename(tex_path))
+    return tail
+
+
 def compile_tex(tex_path, workdir):
     out = subprocess.run(
         ["pdflatex", "-interaction=nonstopmode", "-halt-on-error",

@@ -191,7 +191,6 @@ def compile_and_check_tail():
     the night it matters, so regenerating runs it and refuses rather than
     leaving a sheet with a missing tail sitting there looking finished.
     """
-    sys.stdout.flush()          # so a refusal reads in order on a terminal
     sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
     try:
         import check_sheet_tail_rendered as TAIL
@@ -200,39 +199,7 @@ def compile_and_check_tail():
                          "missing; the regeneration will not certify a sheet "
                          "it cannot check.\n")
         raise SystemExit(2)
-
-    out = subprocess.run(
-        ["pdflatex", "-interaction=nonstopmode", "-halt-on-error",
-         os.path.basename(SHEET)],
-        cwd=HERE, capture_output=True, text=True)
-    pdf = SHEET[:-4] + ".pdf"
-    if out.returncode != 0 or not os.path.exists(pdf):
-        sys.stderr.write("REFUSE: the regenerated sheet does not compile.\n")
-        raise SystemExit(2)
-    for ext in (".aux", ".log", ".out"):
-        stale = SHEET[:-4] + ext
-        if os.path.exists(stale):
-            os.remove(stale)
-
-    ok, tail, detail = TAIL.tail_present(SHEET, pdf)
-    if ok is None:
-        sys.stderr.write("REFUSE: could not judge whether the sheet's tail "
-                         "rendered.\n")
-        raise SystemExit(2)
-    if not ok:
-        sys.stderr.write(
-            "\nREFUSE: THE SHEET'S LAST LINE DID NOT REACH THE PAGE.\n"
-            "  missing line: %s\n"
-            "  %s\n"
-            "pdflatex reported success and the page count looks right, and "
-            "the line is gone anyway. On this sheet the last line is a\n"
-            "statement of fact Sanaa requires on screen, so this silently "
-            "deletes a caveat and keeps every number. Shorten the prose\n"
-            "above the tail until it fits; do not raise "
-            "\\enlargethispage, which hides the loss instead of fixing it.\n"
-            % (tail.strip()[:96], detail))
-        raise SystemExit(2)
-    print("tail check: the sheet's last line reached the page")
+    TAIL.compile_and_require_tail(SHEET)
 
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
