@@ -321,3 +321,104 @@ def test_a_generator_side_surface_is_refused():
     problems = [p for p in demo_mode.validate_act(strayed_act)
                 if "outside the directory the server reads" in p]
     assert problems, "a generator-side surface must be refused"
+
+
+# -- R5: internal ids are never user-visible --------------------------------
+
+INTERNAL_IDS_ON_SCREEN = [
+    "JF1_L1_BLOWN_CMU020_A0",
+    "F17c_KV40_FLOOR",
+    "M1_kOmegaSST_null__AR_10_Ret_180",
+    "T1b_L4",
+    "See L-419.",
+    "Docket D438 refers.",
+    "tier 2 evidence",
+    "Tier-3",
+    "GATE FAIL on this row",
+    "NOT A RESULT",
+    "the pre-registration fixed it",
+    "Pre-registration frozen.",
+]
+
+
+@pytest.mark.parametrize("text", INTERNAL_IDS_ON_SCREEN)
+def test_an_internal_id_is_seen(text):
+    """Found by running this checker against the replay stage's REAL payload:
+    a case id reaches the screen through the published `labels` list and every
+    string-level check passed it. DEMO STANDARD R5 forbids exactly that."""
+    with pytest.raises(DemoContractError):
+        check_demo_language(text)
+
+
+ALLOWED_NAMES = [
+    "OpenFOAM chtMultiRegionSimpleFoam, steady conjugate heat transfer.",
+    "Williams, Butler and Wood, ARC R&M 3304 (1961), eq. 2.",
+    "Ansys verification manual VMFL033.",
+    "Spence 1956",
+    "NACA 0012 section, chord 1.0 m.",
+    "305 W and 20 m/s.",
+    "39,984 cells.",
+    "Verified against the published curve within 6 percent.",
+    "Energy conservation checked: closed to 0.4 percent.",
+    "Success criteria fixed before running.",
+]
+
+
+@pytest.mark.parametrize("text", ALLOWED_NAMES)
+def test_named_sources_are_not_mistaken_for_internal_ids(text):
+    """R3 names its reference curves and her header names the solver. A
+    checker that ate those would be switched off within the hour."""
+    check_demo_language(text)
+
+
+# -- the geometry check calls its owner, it does not copy its constants -----
+
+def test_geometry_match_pulls_constants_from_the_owning_module():
+    from workflows import _jf1_geometry
+    from workflows.demo_mode import GeometryMatch as GM
+
+    match = GM.from_module("chord", _jf1_geometry,
+                           solved_attr="SOLVED_CHORD_M",
+                           tolerance_attr="SOLVED_GEOMETRY_TOL",
+                           supplied=_jf1_geometry.SOLVED_CHORD_M,
+                           source=HERE, unit="m")
+    assert match.agrees()
+    assert float(match.solved.value) == _jf1_geometry.SOLVED_CHORD_M
+    assert match.tolerance == _jf1_geometry.SOLVED_GEOMETRY_TOL
+    assert not match.relative, "the owning module's tolerance is absolute"
+
+
+def test_the_measured_rescale_still_fails_against_the_owners_tolerance():
+    """0.991114 m against a solved 1.0 m at an absolute 1e-06 m."""
+    from workflows import _jf1_geometry
+    from workflows.demo_mode import GeometryMatch as GM
+
+    match = GM.from_module("chord", _jf1_geometry,
+                           solved_attr="SOLVED_CHORD_M",
+                           tolerance_attr="SOLVED_GEOMETRY_TOL",
+                           supplied=0.991114, source=HERE, unit="m")
+    assert not match.agrees()
+    assert "tolerance 1e-06" in match.disagreement()
+
+
+def test_an_absolute_tolerance_is_not_read_as_a_relative_one():
+    """1e-06 on a height ratio of 0.005 is 2e-04 relative: two hundred times
+    apart. Reading one as the other is its own silent drift."""
+    from workflows.demo_mode import GeometryMatch as GM
+
+    args = dict(quantity="slot height ratio",
+                solved=Measured(0.005, "", HERE),
+                supplied=Measured(0.005045, "", HERE),
+                tolerance=1e-06)
+    assert not GM(**args, relative=False).agrees()
+    assert GM(**args, relative=True).agrees() is False
+
+
+def test_a_missing_constant_is_refused_not_defaulted():
+    from workflows import _jf1_geometry
+    from workflows.demo_mode import GeometryMatch as GM
+
+    with pytest.raises(DemoContractError):
+        GM.from_module("chord", _jf1_geometry, solved_attr="NO_SUCH_CONSTANT",
+                       tolerance_attr="SOLVED_GEOMETRY_TOL", supplied=1.0,
+                       source=HERE)

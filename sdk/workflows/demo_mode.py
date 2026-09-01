@@ -176,6 +176,22 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
     (r"\bsolver:\s*none\b", "name the solver of the run"),
     (r"\bnot\s+recorded\s+in\s+this\s+bundle\b", "state the recorded fact"),
     (r"\bsource\s+case\b", "state the solve as fact"),
+    # DEMO STANDARD R5: "Tier words, case ids, rule numbers, docket/lesson ids,
+    # patch/defect talk: NEVER user-visible." Added after testing this checker
+    # against the replay stage's REAL payload, where a case id reaches the
+    # screen through the `labels` list and every string-level check passed it.
+    # A case id is a token carrying an underscore, a digit and a capital at
+    # once (JF1_L1_BLOWN_CMU020_A0, F17c_KV40_FLOOR, M1_kOmegaSST_null__AR_10).
+    # "chtMultiRegionSimpleFoam" has no underscore and "p_rgh" no digit or
+    # capital, so neither fires.
+    (r"(?<![\w])(?=[\w]*_)(?=[\w]*\d)(?=[\w]*[A-Z])[A-Za-z0-9_]{4,}(?![\w])",
+     "give the point a plain-English label, not a case id"),
+    (r"\bL-\d+\b", "a lesson id is never user-visible"),
+    (r"\bD-?\d{3,}\b", "a docket id is never user-visible"),
+    (r"\btier[-\s]?\d\b", "tier words are never user-visible"),
+    (r"\b(GATE\s+REACHED|GATE\s+FAIL|NOT\s+A\s+RESULT|BLOCKED-GPU)\b",
+     "translate the verdict per R5, e.g. 'verified against X within Y percent'"),
+    (r"\bpre-?registration\b", "say 'success criteria fixed before running'"),
 )
 
 #: A path is anything with a filesystem root, a repository root segment, or a
@@ -483,30 +499,71 @@ class GeometryMatch:
     quantity: str                    # e.g. "chord", "slot height ratio"
     solved: Measured
     supplied: Measured
-    tolerance: float                 # relative, e.g. 1e-4
+    tolerance: float
+    relative: bool = True            # False for an absolute tolerance
 
     def __post_init__(self) -> None:
         check_demo_language(self.quantity, zone="internal")
         if self.tolerance < 0:
             raise DemoContractError("tolerance >= 0")
 
+    @classmethod
+    def from_module(cls, quantity: str, module, *, solved_attr: str,
+                    tolerance_attr: str, supplied: float, source: Path,
+                    unit: str = "", relative: bool = False) -> "GeometryMatch":
+        """Build a match by PULLING the solved constant and tolerance out of
+        the module that owns the surface, never by retyping them.
+
+        A check that travels away from its subject acquires a copy of the
+        subject's constants, and then the two drift silently. So the act names
+        the owning module and the attribute; it does not name the number.
+        For the jet flap that module is ``workflows._jf1_geometry``, whose
+        ``measure_blown_slot`` produced ``supplied`` in the first place.
+
+        ``relative`` defaults to FALSE here because the owning module's
+        tolerance is normally an absolute one, and reading an absolute
+        tolerance as a relative one is its own silent drift: the jet flap's
+        1e-6 m on a chord of 1.0 m and on a height ratio of 0.005 are the same
+        absolute number and two relative numbers two hundred times apart.
+        """
+        try:
+            solved_value = float(getattr(module, solved_attr))
+            tolerance = float(getattr(module, tolerance_attr))
+        except AttributeError as exc:
+            raise DemoContractError(
+                f"{getattr(module, '__name__', module)} does not own "
+                f"{exc.args[0] if exc.args else solved_attr!r}; the solved "
+                f"constant must come from the module that writes the surface")
+        return cls(quantity=quantity,
+                   solved=Measured(solved_value, unit,
+                                   Path(getattr(module, "__file__", source))),
+                   supplied=Measured(supplied, unit, source),
+                   tolerance=tolerance, relative=relative)
+
+    def _gap(self) -> float:
+        solved = float(self.solved.value)
+        supplied = float(self.supplied.value)
+        absolute = abs(supplied - solved)
+        if not self.relative:
+            return absolute
+        return absolute / abs(solved) if solved else float("inf")
+
     def agrees(self) -> bool:
         try:
-            solved = float(self.solved.value)
-            supplied = float(self.supplied.value)
+            return self._gap() <= self.tolerance
         except (TypeError, ValueError):
             return False
-        if solved == 0:
-            return abs(supplied) <= self.tolerance
-        return abs(supplied - solved) / abs(solved) <= self.tolerance
 
     def disagreement(self) -> str:
         solved = float(self.solved.value)
         supplied = float(self.supplied.value)
-        rel = abs(supplied - solved) / abs(solved) if solved else float("inf")
+        gap = self._gap()
+        if self.relative:
+            spread = f"{gap * 100:.2f}% apart, tolerance {self.tolerance * 100:.2f}%"
+        else:
+            spread = f"{gap:.6g} apart, tolerance {self.tolerance:.6g}"
         return (f"{self.quantity}: served {supplied:.6g} {self.supplied.unit} "
-                f"against solved {solved:.6g} {self.solved.unit}, "
-                f"{rel * 100:.2f}% apart, tolerance {self.tolerance * 100:.2f}%")
+                f"against solved {solved:.6g} {self.solved.unit}, {spread}")
 
 
 @dataclass(frozen=True)
