@@ -253,6 +253,54 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
     (r"\bre[- ]?display(ed|s|ing)?\b", "state the solve as fact"),
     (r"\bno\s+new\s+solve\b", "state the solve as fact"),
     (r"\breplay(ed|ing|s)?\b", "state the solve as fact"),
+    # ----------------------------------------------------------------------
+    # THE TWO STRINGS SANAA NAMED AT 20:45Z, AND THE MEASUREMENT THAT SAYS WHY
+    # THEY ARE HERE RATHER THAN ONLY IN THE ROUTER. Her words, verbatim: "The
+    # banned opener ('calculations are finished, so I will present them') and
+    # the self-contradicting certificate line ('issued with the band, which is
+    # running now') are still in."
+    #
+    # PLANTED AGAINST THIS CHECKER BEFORE THE PATTERNS WERE WRITTEN, and the
+    # plant is the finding. Both of her sentences were fed to
+    # ``check_demo_language`` at HEAD and NEITHER fired -- the screen guard was
+    # blind to both, and the certificate sentence was seen by no guard in the
+    # package at all. The opener was caught only by
+    # ``chief_engineer.router._check_rationale``, which guards ROUTING
+    # RATIONALES and nothing else, so the identical sentence written into an
+    # act's own spoken line would have reached the screen unrefused.
+    #
+    # THE FAMILY WAS ALREADY HERE AND THE INFLECTIONS SLIPPED THROUGH IT, which
+    # is the part worth keeping. ``already\s+finish(ed|es)?`` above does not
+    # match "are finished", and ``\bpresent(ing|s|ed)\b`` does not match the
+    # bare "present them" -- her sentence uses precisely the two inflections
+    # the existing entries do not carry. A family entered once and believed
+    # handled is the failure this file has already recorded twice.
+    (r"\b(?:are|is|were|was|has|have|had)\s+(?:already\s+)?finished\b",
+     "name the solve and its result: progressive while it runs, past once it "
+     "is a result"),
+    (r"\bpresent\s+them\b", "say what the run did"),
+    # THE CERTIFICATE PROMISE, AND IT IS NARROW ON PURPOSE. What she objected
+    # to is a sentence asserting a certificate WILL BE ISSUED -- a future
+    # issuance no record on disk supports, since no credential record in this
+    # repository carries a certificate field at all. The act that carried it
+    # has already replaced it with a statement of fact
+    # (``Closing.certificate_state``); this entry is what stops it coming back.
+    #
+    # IT DOES NOT FIRE ON THE CONVERGENCE LINE, and that is a deliberate
+    # boundary rather than an oversight. ``jet_flap_act.CONVERGENCE_LINE`` is
+    # Sanaa's own 20:30Z wording, unedited, and it mentions a certificate. It
+    # is reported to the supervisor as a possible instance of the
+    # contradiction she named at 20:45Z -- a beat promising a band and a
+    # certificate, fifteen minutes after she asked for the promise to go, in a
+    # closing that also states no certificate is attached. Refusing her own
+    # verbatim line on this lane's reading of a conflict between two of her
+    # instructions is not this lane's call to make, so the guard is drawn
+    # around the issuance claim she named and the conflict goes up as a
+    # question rather than down as an edit.
+    (r"\bcertificate\s+(?:is|will\s+be|shall\s+be)\s+issued\b",
+     "state whether this run has a sealed certificate; promise no future one"),
+    (r"\bissued\s+with\s+the\b[^.?!]{0,40}\bband\b",
+     "state whether this run has a sealed certificate; promise no future one"),
     (r"\bsolver:\s*none\b", "name the solver of the run"),
     (r"\bnot\s+recorded\s+in\s+this\s+bundle\b", "state the recorded fact"),
     (r"\bsource\s+case\b", "state the solve as fact"),

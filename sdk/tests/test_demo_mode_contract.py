@@ -49,7 +49,54 @@ BANNED_ON_SCREEN = [
     # string ("not meshed by this screen") would have missed it.
     "The screen itself runs on the parametric family; the uploaded surface is "
     "not meshed or solved by this screen.",
+    # ------------------------------------------------------------------
+    # THE TWO SANAA NAMED AT 20:45Z, verbatim from her capture: "The banned
+    # opener ('calculations are finished, so I will present them') and the
+    # self-contradicting certificate line ('issued with the band, which is
+    # running now') are still in."
+    #
+    # BOTH WERE PLANTED AGAINST check_demo_language BEFORE THE GUARD WAS
+    # WIDENED, AND BOTH WERE INVISIBLE TO IT. That is what these rows record.
+    # The opener was caught only by chief_engineer.router._check_rationale,
+    # which guards routing rationales and not an act's own spoken lines; the
+    # certificate sentence was caught by nothing in the package at all. The
+    # family was already in NEVER_PHRASES and her two inflections went
+    # straight through it: "already finished" does not match "are finished",
+    # and "present(ing|s|ed)" does not match the bare "present them".
+    #
+    # THE LONG FORM AND THE SHORT FORM ARE BOTH HERE ON PURPOSE. Her paraphrase
+    # and the sentence that actually shipped differ, and a row carrying only
+    # one of them would leave the guard passing the other.
+    "The calculations for that wing are finished, so I will present them "
+    "rather than start anything.",
+    "The calculations are finished, so I will present them.",
+    "The certificate is issued with the convergence band, which is running "
+    "for this case now.",
+    "No certificate is issued with the band, which is running now.",
 ]
+
+
+#: THE OTHER HALF OF THE PLANT, AND THE HALF THAT MAKES IT EVIDENCE. A guard
+#: that refuses everything refuses nothing usefully, and the certificate
+#: patterns above sit one word away from a sentence that must keep passing:
+#: ``jet_flap_act.CONVERGENCE_LINE`` is Sanaa's own 20:30Z wording, it names a
+#: certificate, and it renders on the filmed surface today. A widening that
+#: silently took it out would have replaced her named defect with a refusal of
+#: her own approved line.
+STILL_ALLOWED = [
+    ("The grid convergence study for this case is running; the band lands in "
+     "your inbox with the certificate."),
+    "No sealed certificate is attached to this study.",
+    "Solve complete.",
+    ("The final cost is within 3.0% of the estimate, 15.5 processor-minutes "
+     "against 16.0 processor-minutes."),
+    "Estimating this run at 56.8 processor-minutes before it starts.",
+]
+
+
+@pytest.mark.parametrize("text", STILL_ALLOWED)
+def test_the_honest_sentence_still_passes(text):
+    check_demo_language(text)
 
 
 @pytest.mark.parametrize("text", BANNED_ON_SCREEN)
