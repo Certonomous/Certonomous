@@ -257,3 +257,72 @@ engine wins.**
 
 Unchanged: **45 core-min predicted, 90 HARD CAP**, np = 1. Stage 0's ≤ 2 core-min
 is **inside** that envelope. The cap still stops the run.
+
+
+---
+
+# ADDENDUM 1 — 2026-09-01, POST-COMPUTE
+
+**Version 1.1 → 1.2.**
+**Lines whose number changed above this section: 0.**
+**ALTERS NO GATE, THRESHOLD, CAP OR LABEL.** This item has had first compute —
+Stage 0, the coupling gates and 77 frames have all run — so `CLAUDE.md` rule 2
+closes its gates and this can only record, never change.
+
+## SANAA ANSWERED THE SCOPE QUESTION. THE `[lab-attributed]` TAG IS RETIRED.
+
+`etc/sessions/2026-09-01T2021Z_sanaa_paraview_scope_answer.md`, committed
+`a78d5055` at 20:21:06 UTC — verified by reading the file and the commit, not
+relayed. Her words, verbatim:
+
+> *"yes sorry i just meant the geometry and meshses, the other plots with latex
+> and matplolib stay as is (the report plots)"*
+
+**So §1's split is confirmed exactly as it was registered: `pvbatch` for
+geometry, meshes and fields; report plots stay LaTeX/matplotlib.** Nothing in
+this item is reworked and nothing is converted. `G-PV6` — render code and plot
+code separable, one-way import graph — stays in force; it is now insurance
+rather than a hedge.
+
+## §1 IS NOT STRUCK, AND THAT IS DELIBERATE
+
+§1 reads *"⚠ THAT SPLIT IS `[lab-attributed]`, NOT SANAA'S INSTRUCTION"*.
+**That sentence was TRUE WHEN IT WAS WRITTEN and it stays.** The split *was*
+lab-attributed, the file *was* open to being superseded by her, and recording
+that was correct. **Striking a true sentence to attach a later development
+misrepresents the record**: it would make the file read as though the lab had
+always had her answer. The tag is retired *here*, by dated addendum, with the
+original left standing.
+
+## WHY THIS IS WORTH A LINE RATHER THAN A SILENT UPDATE
+
+**The disclosure is what made the question askable.** The lab made a ruling it
+could not source to Sanaa, tagged it as the lab's own rather than passing it off
+as hers, kept the two code paths separable so a reversal would be a routing
+change, and escalated when its chronological support collapsed — and she
+answered in **seven minutes** (the caption directive is committed 20:14:46; her
+answer 20:21:06).
+
+**Had it been recorded as her instruction, there would have been nothing to ask
+and no reason to ask it.** `[lab-attributed]` is not a hedge. It is the thing
+that made the question possible, and it cost one sentence.
+
+## ⚠ AND THE CHRONOLOGY THAT PROMPTED THE ESCALATION WAS ITSELF WRONG
+
+The escalation was argued partly on filename timestamps. **Those are not the
+authority.** Verified independently here by `git log --diff-filter=A`:
+
+| directive file | committed (UTC) |
+|---|---|
+| `…2030Z_sanaa_demo_shooting_protocol.md` | 18:28:58 |
+| `…2050Z_sanaa_install_paraview.md` | 18:33:25 |
+| `…2110Z_sanaa_paraview_everywhere.md` | 18:38:02 |
+| `…2200Z_sanaa_report_tab_reminder.md` | 19:14:59 |
+| `…2014Z_sanaa_captions_bullets_numbers.md` | **20:14:46** |
+| `…2021Z_sanaa_paraview_scope_answer.md` | **20:21:06** |
+
+**Filename order inverts across the `2006Z` naming boundary**: earlier captures
+were named from estimated times running ahead of the box clock. **The
+authoritative sequence is git commit order.** Recorded here because this item's
+§1 reasoning cited a chronology, and a reader checking that reasoning against
+filenames would reach the wrong conclusion.

@@ -7,10 +7,16 @@ plants (G-PV7b/G-PV7c: PASS, b3d36ef3).
 
 WHAT IS RENDERED HERE AND WHAT IS NOT. pvbatch draws GEOMETRY, MESHES AND FIELDS
 -- anything depicting the body, the grid, or a field on it. DATA PLOTS stay
-latexfied matplotlib/native per the figure standard; a ParaView line chart would
-be a worse figure, not a more compliant one. That split is [lab-attributed], is
-recorded as such in §1 of the pre-registration, and is disclosed to be overturned;
-this file is kept separate from any plot code so a reversal is a routing change.
+latexfied matplotlib/native per the figure standard.
+
+THAT SPLIT IS SANAA'S OWN, ANSWERED 2026-09-01 (`a78d5055`,
+`etc/sessions/2026-09-01T2021Z_sanaa_paraview_scope_answer.md`), verbatim:
+"yes sorry i just meant the geometry and meshses, the other plots with latex and
+matplolib stay as is (the report plots)". It was registered as `[lab-attributed]`
+before she answered and Addendum 1 of the pre-registration retires that tag
+without striking the original, which was true when written. This file stays
+separate from any plot code regardless (`G-PV6`) -- now as insurance rather than
+as a hedge.
 
 EVERY FRAME CARRIES ITS PROVENANCE (G-PV2) and every frame is graded for content
 (G-PV7a). Cell counts are asserted against the case's own `checkMesh.log`
