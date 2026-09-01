@@ -343,3 +343,57 @@ D19O registered `P6` (patched endpoint FD would **MISS**) and `P7` (shipped endp
 Gates, thresholds, caps and labels above are closed at first compute. Before then, amendments are legal and must state the condition and how it was checked. **The grading path is fixed at this commit: `d19m_grade.py`, md5 `f1f78bf4e78072057dc13e25cf1ffda9`**, asserted by the driver with `md5sum -c` before staging.
 
 **Not cleared to launch by this document.**
+
+---
+
+## AMENDMENT 1 — 2026-09-01, BEFORE FIRST COMPUTE. **THREE §7 PINS WENT STALE INSIDE THIS DOCUMENT, AND `--verify` COULD NOT SEE IT**
+
+**lines whose number changed above this section: 0.** Appended at the foot; nothing above is edited.
+
+**THE RULE-2 CONDITION.** No compute has happened. The registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-D19M-a1-naca0012-subsonic-multipoint` **DOES NOT EXIST** — re-asserted in the same shell invocation as this amendment, against the same positive control as §11 (D19O's root, which the same reader returns as **EXISTS**). Zero `d19m_` containers have ever existed. The freeze window is open and closes at the first arm.
+
+### A1.1 THE DEFECT — `D19M-PREREG-PIN-1`
+
+**§7's table was authored, and THEN two pinned files were edited.** The `XE` prediction was corrected from **3.10 to 2.60** after the table was written — a better-derived number, and the right correction — which rewrote `d19m_grade.py` (`PREDICTED_CORE_MIN`) and `d19m_chain_driver.sh` (its cost block), and the subsequent `d19m_repin.sh` run rewrote the driver again. **The document went to commit `5a505de945595709dee5f6f8ab3d315145ad1a4e` carrying two hashes that no longer named their files**, and a third (`d19m_repin.sh`, in the suite line) went stale immediately afterward when this amendment's own repair was applied to it.
+
+**THIS IS THE SO-2MR FAILURE, INSIDE A FREEZE**: editing a file rewrites the very bytes every declaration of its md5 pins, so every such declaration is stale the instant the file is saved.
+
+**AND `d19m_repin.sh --verify` REPORTED "every pin matches its file on disk" WHILE IT WAS TRUE.** It was not lying: it read the **DRIVER**, the **LAUNCHER** and the **INSTRUMENT**, and in those three the pins *were* correct — the repin fixpoint had done its job. **What it never read was this document.**
+
+> **THE EXECUTABLE PINS AND THE DOCUMENTED PINS ARE DIFFERENT CLAIMS, AND A CHECK THAT READS ONLY THE FIRST CANNOT SEE THE SECOND GO WRONG.** That is the transferable finding, and it is the same shape as `DAFOAM_CHARTER.md` §18.3's — an md5-agreement control over a subset reads agreement on every pin it holds while something it does not hold is wrong.
+
+**How it was caught:** by re-deriving every §7 hash from disk **after** the commit, as the post-commit verification of the grading path. `git cat-file blob HEAD:…/d19m_grade.py` returned `94b72950…` against a document saying `f1f78bf4…`.
+
+### A1.2 THE REPAIR — THE CHECK NOW READS THE DOCUMENT
+
+`d19m_repin.sh --verify` now parses `PREREGISTRATION.md`'s own pin tables and compares every documented hash against its file, printing `PREREG-DRIFT` per mismatch and **failing**. Driven at this amendment: it reported **all three** stale pins, **including its own file**, which is the leg that matters — a checker blind to itself is the shape this lab keeps paying for.
+
+**NO GATE, THRESHOLD, CAP, BAND, LABEL OR PREDICTION MOVES.** `VERDICT_CEILING = "GATE REACHED"`, `ITEM_CEILING = 149.0`, `PREDICTED_CORE_MIN` Σ = 34.10, bands 5.0/5.0, plateau 10.0, `TB_STEP` 1e-8, `MAX_MAJORS` 40, `EXPECTED_MAJOR_ROWS` 12, `ALPHAS`, `WEIGHTS`, `MP_STRUCT_RTOL` 1e-10, `ALPHA_ABS_TOL` 1e-12, `EXCLUDED_FROM_AGGREGATE`, cpuset 13, np 1 — **all unchanged.** The amendment corrects three RECORDED HASHES and adds one CHECK; it makes more runs refusable and none pass that would previously have failed.
+
+### A1.3 THE CORRECTED PINS
+
+**THE STRUCK VALUES, SPELLED ONCE SO A GREP FOR THEM LANDS HERE:** `d19m_grade.py` was recorded as `f1f78bf4e78072057dc13e25cf1ffda9`; `d19m_chain_driver.sh` as `c4af7e139aa3a90537706ce70138fe41`; `d19m_repin.sh` as `5777e78c20655605fa4138dba81a1009`. **All three are SUPERSEDED and name nothing.**
+
+**THE CORRECT VALUES.** This table is in the same two-column shape as §7's, deliberately, so that `d19m_repin.sh --verify` reads it as a **superseding record** rather than as a second claim — the checker keeps the LAST hash recorded for each file, which is what "carry the value from the amendment" means expressed as code.
+
+| file | md5 |
+|---|---|
+| `d19m_grade.py` | `94b72950d795c28bfa3a2a7ca17febb5` |
+| `d19m_chain_driver.sh` | `4d7ebd5b660d2ea27e6d681d5c3f7e58` |
+| `d19m_repin.sh` | `ba8bd537d2ec78370d34fbecc3bf15ab` |
+
+**`d19m_grade.py` `94b72950d795c28bfa3a2a7ca17febb5` IS THE GRADING PATH.** §15's FREEZE sentence is superseded as to that value only; everything else it says stands.
+
+**Every other §7 row was re-derived from disk at this amendment and is UNCHANGED** — `d19m_run_arm.sh`, `d19m_xf.py`, `d19m_runScript.py`, `d19m_aggregate_memory.py`, `d19m_stall.py`, `d19m_age_guard.py`, `d19m_stop_marker.sh`, `d19m_decomposeParDict`, and the four selftests.
+
+**The driver's own executable pin was never wrong.** `d19m_chain_driver.sh:MD5_GRADER` has carried `94b72950…` since the repin fixpoint, so **no executable path could ever have reached a struck value** — the defect was confined to this document. That is smaller than it looks in one direction and exactly as large as it looks in the other: **a reader taking the pin from §7 would have taken a hash that names nothing.**
+
+**A SECOND DEFECT, IN THE CHECK ITSELF, FOUND BY DRIVING IT AND FIXED BEFORE IT COULD MISLEAD.** The first version of the new prereg check paired a filename with any hash on the same LINE, and §7.1 names `d19m_xf.py` and the **physics-block** md5 `c66504acc57bd9ef009599e883d2ef3b` in one sentence — **two different claims about two different byte ranges.** It reported a false drift. The check now pairs **by adjacency**: the hash must follow the filename with nothing between but table and emphasis markup. **A checker that cannot tell two claims apart is worse than no checker, because it trains its reader to ignore it.**
+
+### A1.4 SUPERSEDED-HASH INDEX
+
+Rule 6 forbids editing above an amendment, so the struck values still stand in §7 and §15. **Swept, not assumed — FOUR occurrences above this section:** §7 row 1 (`c4af7e13…`), §7 row 5 (`f1f78bf4…`), §7's suite line (`5777e78c…`), and §15's FREEZE sentence (`f1f78bf4…`). **A reader of §7 or §15 must carry the values from §A1.3, not from there.** The occurrences inside this amendment are correct in context — they are the landing point for that grep.
+
+### A1.5 STATUS
+
+**Still not cleared to launch.** This amendment corrects three recorded hashes and adds one check; it authorises nothing. The run root is absent and the freeze window closes at the first arm.

@@ -165,6 +165,69 @@ EOF
 done
 
 echo
+# ===========================================================================
+# THE PRE-REGISTRATION'S OWN TABLE IS CHECKED TOO, AND THIS CLOSES A REAL GAP.
+#
+# D19M's section 7 table went STALE the moment a pinned file was edited after the
+# table was written -- MEASURED at this item's own freeze: `d19m_grade.py` and
+# `d19m_chain_driver.sh` were both edited (an XE prediction corrected 3.10 ->
+# 2.60) AFTER section 7 was authored, and the document went to commit carrying
+# two hashes that no longer named their files.  That is the SO-2MR failure, in a
+# freeze, and `--verify` did not see it because it only ever read the DRIVER, the
+# LAUNCHER and the INSTRUMENT.
+#
+# THE EXECUTABLE PINS AND THE DOCUMENTED PINS ARE DIFFERENT CLAIMS, and a check
+# that reads only the first cannot see the second go wrong.
+# ===========================================================================
+if [ "$VERIFY" = "yes" ] && [ -f "$HERE/PREREGISTRATION.md" ]; then
+  echo
+  python3 - "$HERE" <<'EOF'
+import hashlib, os, re, sys
+here = sys.argv[1]
+txt = open(os.path.join(here, "PREREGISTRATION.md")).read()
+
+# THE CHECKER IMPLEMENTS THE DOCUMENT'S OWN READING RULE, AND IT HAS TO.
+# Rule 6 forbids editing above an amendment, so a corrected pin is published at
+# the FOOT while the struck value still stands in section 7 -- and an amendment's
+# own table SPELLS the struck value on purpose, so that a grep for it lands on the
+# correction.  A checker that treated every hash in the file as a live claim would
+# therefore report the amendment's own struck column as drift, which is exactly
+# what the first version of this check did.
+#
+# THE RULE: scan in document order and keep the LAST hash recorded for each file;
+# on a row carrying several hashes (an amendment's STRUCK | CORRECT table), the
+# LAST one on the line wins.  That is precisely what "a reader must carry the
+# value from the amendment, not from section 7" means, expressed as code.
+# PAIRED BY ADJACENCY, not by sharing a line.  A line-wide pairing associated
+# `d19m_xf.py` with the PHYSICS-BLOCK md5, because section 7.1 names both in one
+# sentence -- two different claims about two different byte ranges.  The pattern
+# below requires the hash to FOLLOW the filename with nothing between but table
+# and emphasis markup, so a filename mentioned in prose beside an unrelated hash
+# cannot be mistaken for a pin.
+PAIR = re.compile(r"`(d19m_[A-Za-z_]*(?:\.py|\.sh)?)`(?:\s*\|)?\s*\**`([0-9a-f]{32})`")
+last = {}
+for f, h in PAIR.findall(txt):
+    last[f] = h          # document order; a later record supersedes an earlier
+
+bad = []
+for f, h in sorted(last.items()):
+    full = os.path.join(here, f)
+    if not os.path.isfile(full):
+        bad.append((f, h, "ABSENT")); continue
+    got = hashlib.md5(open(full, "rb").read()).hexdigest()
+    if got != h:
+        bad.append((f, h, got))
+if bad:
+    for f, h, got in bad:
+        print("  PREREG-DRIFT %-28s documented=%s ondisk=%s" % (f, h, got))
+    print("  PREREGISTRATION.md CARRIES %d STALE PIN(S) -- amend it before launch." % len(bad))
+    sys.exit(1)
+seen = last
+print("  PREREG OK  %d documented pin(s) match their files on disk" % len(seen))
+EOF
+  [ $? -ne 0 ] && RC=1
+fi
+
 if [ "$VERIFY" = "yes" ]; then
   [ "$RC" -eq 0 ] && echo "D19M_REPIN VERIFY: every pin matches its file on disk." \
                   || echo "D19M_REPIN VERIFY: **DRIFT** -- a pin does not match its file."
