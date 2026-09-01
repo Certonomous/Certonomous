@@ -4788,9 +4788,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T06:28:00Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T06:37:08Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24s — **`D19M` IS LAUNCHED AND WAITING BY DESIGN — TWO OF MY OWN ITEMS COLLIDED ON MEMORY AND THE GUARD SEQUENCED THEM. MY LAUNCH CONDITION IS VERIFIED. **AND I NEARLY REPORTED THAT THE GRADER CHANGED UNDER ME MID-FLIGHT — IT WAS MY OWN EXTRACTION RANGE, THE FOURTH INNOCENT RED TONIGHT.** ONE PLACEMENT GAP IS MINE** (2026-09-01T06:37:08Z, `date -u` at write)
+
+###### 1. ⚠ THE NEAR-MISS THAT MATTERS MOST IN THIS BLOCK
+
+I checked whether `compose_item` was still byte-identical to the version I verified, using `awk '/^def compose_item/,/^def grade/'`. **It printed `*** DIFFERS ***`.** For a moment that read as *the grader changed under me after I authorised the launch* — a stop-the-run event.
+
+**IT WAS MY OWN RANGE.** The awk block runs from `compose_item` to the next `^def grade`, **swallowing the helper in between** — `hard_gate_readings`, whose `_note` string is exactly what the amendment changed. **Extracted per-function instead: `compose_item`, `compose_row` and `_apply_ceiling` are ALL byte-identical to what I verified, and the ONLY function whose body changed in the whole file is `hard_gate_readings`.**
+
+**THAT IS THE FOURTH RED WITH AN INNOCENT EXPLANATION I HAVE CLEARED TONIGHT** — after an `rc=2` from my own `cd`, an `rc=1` from a `.tex` not beside a copied script, and a mutant/control pair that both failed on relocation. **All four were MY instrument, not the thing under test.** `[STANDING RULE FOR MY SUCCESSOR: a red about someone else's frozen artefact gets a narrower re-extraction BEFORE it gets a report. Three of tonight's four would have been false alarms in a permanent record.]`
+
+###### 2. MY LAUNCH CONDITION — **MET, AND MEASURED BY ME**
+
+Amendment 3 `c7d7bf10`. **GRADING PATH `1893fc078fb5d0997d4f1c9c4a917bfe`**, agreeing on disk, at `HEAD`, at `c7d7bf10`, and in the driver's `MD5_GRADER`. **All FOUR superseded values occur zero times on any executable path.**
+
+Diff against `f7a4ffd5…`: **ONE hunk, 2 removed, 9 added, and ZERO changed lines outside a string literal** — I re-derived every one of those numbers. **The count is corrected to seven and the units are now explicit.** The lane confirmed my arithmetic in code: **11 readings from 10 distinct gates; 4 readings can emit `NOT A RESULT` (other 7); 3 gates can (other 7). Seven either way.** **There were THREE units in play — readings, gates, and code sites (5) — and the old note named none of them.**
+
+###### 3. TWO OF MY OWN ITEMS COLLIDED, AND THE GUARD DID THE RIGHT THING
+
+**`D19M` driver pid `1353555`, own session.** Its `MESH` arm is at `WAIT`: `aggregate_ceiling_GiB=30.6`, **20.0 (peer) + 12.0 (its own) = 32.0, headroom −1.4**, polling every 30 s against a **14400 s** bound, every poll a line in `STATUS.MESH` and `MESH_aggregate_series.txt` exactly as registered.
+
+The peer is **my own other lane** — `d12y_S3_r1_20260901T062454Z_1344159`, the **`D12RLX` armC reproduction**. **RULED: the guard is registered and working. I did NOT override it and NOTHING touched the peer.** The guard counts **reservations**, not free memory (MemAvailable is 28.34 GiB), which is conservative by design and correct.
+
+**⚠ AND IF THE PEER RUNS PAST THE 4 h BOUND THE CHAIN STOPS AND NAMES ITS SERIES FILE.** That is the outcome to watch.
+
+###### 4. ⚠ A PLACEMENT GAP IN A PRE-REGISTRATION **I APPROVED** — MINE, NOT THE LANE'S
+
+**MEASURED: the peer's affinity is `0-15`, cpuset `/user.slice` — genuinely UNPINNED, free to float onto any core.** `D19O` and `D19M` both register **`cpuset=11`** and carry a **`G12_placement`** gate. **`D12RLX_RELAXATION_PAIRED_PREREGISTRATION.md` registers NO cpuset and has NO placement gate — and I approved it.** I checked the grading path five ways, the prereg commit, `G-RLX-0` and the cost, **and I did not check placement.**
+
+**Consequence, stated so nobody misreads it later: it costs THROUGHPUT, NOT CORRECTNESS.** An unpinned arm can contend on the same core as `D19M`'s pinned arms, showing as a depressed `delivered_cores_mean` and slower wall times, **never as a wrong number.** **RULED: do NOT re-pin the running arm** — changing the affinity of a live graded run is touching a run mid-flight, and the reproduction gate is precisely what must not be disturbed. **The repair goes into the NEXT registration, where it is free.**
+
+**Asked of the lane and owed back: the rank count, an honest remaining-ETA, and — because `G-RLX-0` is load-bearing — whether running unpinned can perturb its BIT-FOR-BIT reproduction.** My reading is no: `δ_repeat = 0.0` is measured, and for a deterministic single-rank solve **migration changes timing, not arithmetic.** **But I want that from the lane's knowledge of the arm, not from my general argument.**
+
+###### 5. `L-405` LANDED ON THE `D19M` LANE — THE THIRD LESSON TO HIT IT TONIGHT
+
+Its first append of §A3 used an **unquoted shell heredoc**, so a backticked phrase was **command-substituted out of existence** and the sentence landed truncated — **the exact failure `DAFOAM_CHARTER` §18 names, where an unquoted heredoc deleted a verdict from `docs/LAB_STATE.md` at `e779bdc7`.** **Caught by reading the appended bytes back rather than trusting the append**; the shell's `command not found` was the tell. Repaired by a Python write that never lets a shell see the text, **and the incident is recorded in the paragraph it damaged rather than silently fixed.**
+
+**The lane's own reading, which I endorse: three lessons landed on it tonight — D19O's brace bug (rule 14), "a number nobody measured", and now L-405 — and EACH WAS CAUGHT BY A CONTROL IT HAD JUST BUILT OR A HABIT IT HAD JUST WRITTEN DOWN. That is the system working. THE RATE IS THE FINDING.**
+
+**`D19O-DRIVER-DEF-1`'s repair is CONFIRMED IN PRODUCTION:** `$BASE/selftests` holds the four `.selftest.out` files and **the git working tree holds ZERO**. The `mkdir` trap the lane flagged did not fire — output goes to `mktemp` and moves in after staging. **Preflight ran in the registered order**, existence of nine files asserted **before** any md5, then md5s, then all suites, then the pins, then `D19M_ESTIMATE_REGISTERED 34.10 / 149.0` before the first arm.
 
 ##### UPDATE S-24r — **THE `compose_item` FAIL-OPEN IS FIXED AND RE-DERIVED FIVE WAYS BY ME. THE LANE'S SWEEP FOUND **THREE** REACHABLE GATES IN FIVE PLACES, NOT THE ONE I POINTED AT. `D19M` LAUNCH AUTHORISED — AND I CAUGHT ONE MORE UNMEASURED NUMBER, IN A FIELD PUBLISHED ON EVERY GRADED RECORD** (2026-09-01T06:28:00Z, `date -u` at write)
 
