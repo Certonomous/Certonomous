@@ -896,3 +896,106 @@ reporting a failed check, so `G-COMPLETE` and every grader on this item read the
 §3.4 stands and is untouched by any approval: **the mesh is not re-cut until y+
 passes, and Stage 2 does not launch on a y+ overshoot.** Sanaa's core-power
 approval widens budgets; it does not touch a physics gate.
+
+---
+---
+
+# ADDENDUM B — 2026-09-01 — POST-COMPUTE — v1.2 → v1.3
+
+**`lines whose number changed above this section: 0`**
+
+**On the window, again:** this was directed into "the same pre-compute amendment
+… that window is still open and it closes at Stage 0." **Stage 0 closed at
+17:18Z; see §13.1.** This is therefore an addendum. **It alters no gate,
+threshold, cap or label.** The Stage-2 instruments it adds are landed by the
+mechanism **§11 registered in advance** — *"registered as owed before Stage 2,
+each frozen by a dated addendum to this document before the compute it governs"*
+— so this is executing a pre-registered plan, not retrofitting one. A control
+added here can only make Stage 2 **stricter**, never admit a result the frozen
+gates would have refused, which is rule 5's permitted direction.
+
+## 14.1 THE STACKING DEFECT — EXTERNAL MEASUREMENT, CREDITED AS SUCH
+
+**Relayed from the heat-transfer team, measured by them, not by this lane:**
+concurrent independent `mpirun` invocations each number their ranks from core 0,
+so parallel launches stack every rank onto the first cores while the rest idle.
+
+**It would have bitten this item.** §13.6's eight concurrent processes are exactly
+that shape. A sweep silently stacked on two cores looks like nothing worse than
+**slow — and slow is the failure mode nobody investigates.** We would have paid
+for it in wall-clock and never known why.
+
+## 14.2 EXPLICIT PER-POINT CPUSETS, NOT `--bind-to none`
+
+Both fix the stacking; the cpuset is chosen because it is **deterministic and
+RECORDED**. `--bind-to none` says "not core 0" without saying where, so a later
+reader cannot reconstruct the placement and no gate can check it. It is also
+already this family's practice: D19M cpuset 13, D19O cpuset 11, **the coarse AoA
+sweeps cpusets 14 and 15**, A2-GC 4–15.
+
+**REGISTERED: each concurrent point gets its own explicit ONE-CORE cpuset,
+written into that point's ledger row.** Eight processes (§13.6), eight distinct
+cores, on a 16-vCPU box.
+
+**`G-PLACEMENT`** follows the D19M/D19O `G12_placement` pattern: sample delivered
+cores per point and **publish the reading**. Per D19M's registered reasoning at
+np = 1 it is **NOT COMPOSED** — an overlapping cpuset costs wall time and cannot
+fail a correctness gate. **Stacking is a throughput defect, not a correctness
+one — unless §14.3 turns out otherwise.**
+
+## 14.3 "NO NUMERIC EFFECT" IS NOT IMPORTED. IT IS TESTED.
+
+The relayed claim that `--bind-to none` has no numeric effect is **very likely
+true for a single-threaded np = 1 solve, and "very likely true" is not measured.**
+A relayed check is a summary, not a check.
+
+**The mechanism is live on this image and was verified by this lane, not
+relayed:** `OMP_NUM_THREADS` is **UNSET** while `nproc` reports **16** (measured
+in `dafoam/opt-packages:latest`). If anything underneath — PETSc, BLAS — runs an
+OpenMP reduction, its thread count can vary with how many cores the process can
+see, and a changed reduction order changes summation order and therefore bits.
+Dormant here because these stages are effectively single-threaded; **dormant is
+not absent.**
+
+**AND A MEASUREMENT THAT SETTLES THE COMPARABILITY QUESTION THE PIN WOULD
+OTHERWISE RAISE.** Pinning `OMP_NUM_THREADS=1` is itself a change from the coarse
+sweeps, which ran it unset — the same two-variable trap this item has now refused
+three times. It is **not** a change here, and this is why: measured in the image,
+**a one-core cpuset makes `nproc` report 1**. The coarse sweeps ran one-core
+cpusets (14 and 15), so no OpenMP runtime could have used more than one thread
+there either. **With one-core cpusets the pin makes explicit what the cpuset
+already enforces, so it is provably comparability-neutral rather than merely
+cheap.** Had this item used multi-core cpusets, the pin *would* have been a second
+variable.
+
+**REGISTERED: `OMP_NUM_THREADS=1` is set explicitly in the launcher and the fact
+is recorded in every ledger row.** It removes the mechanism instead of arguing
+about it. An unset variable on a 16-core box is a reproducibility risk **no
+current gate in this lab reads.**
+
+### `G-CONCURRENCY-BITS` — the control, with its falsifier stated in advance
+
+**One point is run TWICE: once with no other A1WR process in flight, and once
+under full concurrent load with the other seven in flight. The CD/CL series must
+be BIT-IDENTICAL.**
+
+- **Falsifier, registered now:** if the two differ **in any bit**, concurrency is
+  **not** numerically free on this ground, the relayed "no numeric effect" claim
+  **does not transfer**, and the sweep's comparability is **in question** — the
+  item reports that rather than proceeding as though it had not happened.
+- **Why it is conclusive rather than suggestive:** this family has **δ_repeat =
+  0.0 measured at np = 1**, so a bit-determinism baseline already exists to
+  compare against.
+- **Cost:** one duplicate point, ~1/38 of a sweep arm, inside the registered caps.
+- **HONEST CAVEAT ON "ALONE":** the box is **not** idle — two cfd `simpleFoam`
+  jobs were live at this write and are not this lane's to stop. "Alone" therefore
+  means **no other A1WR process in flight**, with foreign load disclosed in the
+  row. That weakens the control against *foreign* contention while leaving it
+  fully conclusive against **A1WR's own** concurrency, which is what §14.2
+  introduces and what this control exists to test.
+
+## 14.4 UNCHANGED
+
+np = 1 (§13.5); the continued sweep stays serial and is **not** parallelised
+(§13.6); caps unchanged and not raised (§13.1–13.2); §3.4 stands — **Stage 2 does
+not launch on a y+ overshoot.**
