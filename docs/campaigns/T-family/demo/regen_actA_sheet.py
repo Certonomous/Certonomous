@@ -202,6 +202,7 @@ def compile_and_check_tail():
     _assert_sheet_is_from_current_source_before(SHEET)
     TAIL.compile_and_require_tail(SHEET)
     _assert_sheet_is_from_current_source_after(SHEET)
+    _assert_load_bearing_lines_rendered(SHEET)
 
 
 #: Set by the "before" check and read by the "after" check, in one process.
@@ -262,6 +263,135 @@ def _assert_sheet_is_from_current_source_after(tex_path):
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(HERE))))
+
+
+#: Sentences that must appear on the rendered page, VERBATIM, whatever else is
+#: edited. Amendment 2026-09-01: added after a rebuild showed that asserting the
+#: TAIL protects everything above it against TRUNCATION ONLY.
+#:
+#: WHY THE TAIL ASSERTION IS NOT ENOUGH ON ITS OWN. The shared guard requires the
+#: source's last substantive line as a contiguous phrase on the page, and against
+#: silent bottom truncation that is SUFFICIENT for everything above it: an
+#: overfull page eats upward from the end, so if the last line arrived, so did
+#: every line before it. That reasoning is sound and this assertion does not
+#: replace it.
+#:
+#: But truncation is not the only way a line dies. AN EDIT CAN DELETE A
+#: MID-DOCUMENT SENTENCE WHILE THE TAIL SURVIVES INTACT, and against that the
+#: tail assertion is silent -- it infers the middle from a geometry that only
+#: holds for truncation. This sheet produced two live instances of the editing
+#: shape in one evening: a caption that became FALSE when its table moved to the
+#: sheet, and a cost line that satisfied one requirement while being silent on
+#: two others. Neither was truncation; both were edits.
+#:
+#: The sentence below is the most load-bearing on the sheet. It is the one a
+#: viewer most needs and would least notice missing, and it is the line that
+#: keeps the empty uncertainty column honest rather than looking like an
+#: oversight. It is cheap to assert and it closes the exposure ordering cannot.
+LOAD_BEARING_LINES = (
+    "The uncertainty column of Table 1 is empty on purpose: one mesh level "
+    "supports no error bar, and none is invented.",
+)
+
+
+def _rendered_text(pdf_path):
+    """The page as text, whitespace-normalised so a line wrapped by LaTeX still
+    matches the sentence it was written as."""
+    import subprocess
+
+    out = subprocess.run(["pdftotext", "-q", pdf_path, "-"],
+                         capture_output=True, text=True)
+    if out.returncode != 0:
+        sys.stderr.write("REFUSE: could not read the rendered sheet back.\n")
+        raise SystemExit(2)
+    return " ".join(out.stdout.split())
+
+
+def _assert_load_bearing_lines_rendered(tex_path):
+    """REFUSE unless every load-bearing sentence is on the rendered page.
+
+    Asserted as a CONTIGUOUS PHRASE, not as a set of words. The shared guard's
+    own docstring records why: when Act C's tail was dropped, ZERO of its words
+    were absent from the page, so a bag-of-words test passed over a deleted
+    limitation statement.
+    """
+    pdf = tex_path[:-4] + ".pdf"
+    page = _rendered_text(pdf)
+    missing = [line for line in LOAD_BEARING_LINES
+               if " ".join(line.split()) not in page]
+    if missing:
+        sys.stderr.write(
+            "REFUSE: %d load-bearing sentence(s) are NOT on the rendered "
+            "sheet. The tail may be intact and the sheet still be dishonest -- "
+            "an edit can delete a middle line while the last one survives.\n"
+            % len(missing))
+        for line in missing:
+            sys.stderr.write("   missing: %s\n" % line)
+        raise SystemExit(2)
+    print("load-bearing lines verified present: %d" % len(LOAD_BEARING_LINES))
+
+
+def selftest_load_bearing():
+    """Drive the assertion BOTH WAYS on a scratch copy of the rendered sheet.
+
+    A second assertion that has never been shown to fire is decoration.
+    """
+    import shutil
+    import tempfile
+
+    pdf = SHEET[:-4] + ".pdf"
+    if not os.path.exists(pdf):
+        sys.stderr.write("REFUSE: build the sheet before selftesting.\n")
+        raise SystemExit(2)
+
+    # POSITIVE: the real page must pass.
+    page = _rendered_text(pdf)
+    for line in LOAD_BEARING_LINES:
+        if " ".join(line.split()) not in page:
+            sys.stderr.write("REFUSE: positive arm failed -- %r is not on the "
+                             "real page.\n" % line)
+            raise SystemExit(2)
+
+    # NEGATIVE: a page WITHOUT the sentence must be refused. Built by deleting
+    # the sentence from a scratch copy of the SOURCE and recompiling, so the
+    # arm exercises a genuinely rendered page rather than a doctored string.
+    work = tempfile.mkdtemp(prefix="actA_lb_")
+    try:
+        src = open(SHEET, encoding="utf-8").read()
+        # The sentence is LINE-WRAPPED in the source, so the needle must be a
+        # fragment that actually sits on one source line. "empty on purpose"
+        # straddles the wrap and matched nothing; the negative arm then refused
+        # to build rather than silently proving nothing, which is the arm
+        # working.
+        needle = "uncertainty column of Table"
+        if needle not in src:
+            sys.stderr.write("REFUSE: cannot build the negative arm -- the "
+                             "sentence is not in the source to remove.\n")
+            raise SystemExit(2)
+        cut = "\n".join(l for l in src.splitlines() if needle not in l)
+        scratch_tex = os.path.join(work, os.path.basename(SHEET))
+        open(scratch_tex, "w", encoding="utf-8").write(cut)
+        import subprocess
+        r = subprocess.run(["pdflatex", "-interaction=nonstopmode",
+                            os.path.basename(scratch_tex)],
+                           cwd=work, capture_output=True, text=True)
+        scratch_pdf = scratch_tex[:-4] + ".pdf"
+        if not os.path.exists(scratch_pdf):
+            sys.stderr.write("REFUSE: the negative arm did not compile, so it "
+                             "proves nothing (pdflatex rc=%d).\n" % r.returncode)
+            raise SystemExit(2)
+        cut_page = _rendered_text(scratch_pdf)
+        still = [l for l in LOAD_BEARING_LINES
+                 if " ".join(l.split()) in cut_page]
+        if still:
+            sys.stderr.write("REFUSE: negative arm did NOT fire -- the "
+                             "sentence was removed from the source and still "
+                             "reads as present. The assertion is asleep.\n")
+            raise SystemExit(2)
+        print("load-bearing selftest PASS: present on the real page, absent "
+              "and detected on a page built without it")
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
 
 
 def main():
