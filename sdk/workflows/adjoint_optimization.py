@@ -27,6 +27,18 @@ central finite difference of the full primal, 210 perturbation solves, and the
 whole table is put on screen including the two rows that sit at the noise
 floor. The optimization only appears because that check passed.
 
+THE MAIN VISUAL OF THE SHAPE CHANGE IS THE SECTIONS, not the wing (owner,
+2026-09-01: "Replace the 3D shading as the main visual with section overlays
+at 5 span stations (baseline vs optimized) + the twist-vs-span plot; show the
+3D morph as a supporting frame"). Five sections through the real surface at
+true scale with equal aspect, and the twist by spanwise station, are built and
+put on screen at the head of the result, before a single optimization frame
+plays. The three-dimensional passes follow and are framed on screen as the
+same change seen on the whole wing. The reason is measured rather than
+aesthetic: framed to 14 m of span the change moves the outline about four
+pixels and has to be carried by the painted field, while at section scale it
+is plainly visible.
+
 The optimization delivered drag 28.3% below the untwisted baseline at matched
 lift over 47 major iterations. The baseline is named wherever that figure
 appears, on screen, in the report and on the certificate, and it is built by
@@ -969,6 +981,57 @@ def main(request: str | None = None, params: dict | None = None,
                    ],
                    table_id="gradient-adjoint-optimization")
 
+    # ---------------- Evidence: the shape the optimizer produced ----------
+    # ORDER (owner, 2026-09-01): "Replace the 3D shading as the main visual
+    # with section overlays at 5 span stations (baseline vs optimized) + the
+    # twist-vs-span plot; show the 3D morph as a supporting frame."
+    #
+    # So the two figures are built and put on screen HERE, at the head of the
+    # result, and the three-dimensional passes follow them. They used to be
+    # built at the foot of the act, after all hundred-odd three-dimensional
+    # frames had already played, which made the morph the headline and the
+    # sections a footnote. Only the position moved: the same two builders,
+    # the same artifact names, and the same ``report_plots`` list the report
+    # carries at the end.
+    #
+    # Why the sections are the better headline, in one measured sentence:
+    # framed to 14 m of span the shape change moves the outline about four
+    # pixels, so on the whole wing it has to be carried by the painted field,
+    # while at section scale it is simply visible. The arithmetic behind that
+    # stays in _a2_shape and is never narrated.
+    report_plots = []
+    if shapes:
+        roster.set(CHIEF_ENGINEER, "reading the shape change", "working")
+        _narrate(script.engineer,
+                f"The shape change first.",
+                f"Five sections through the wing, baseline against the "
+                f"optimized surface, and the twist the optimizer added at "
+                f"every station that carries it.")
+        for builder, name, title in (
+                (_a2_shape.section_figure, "a2_sections.png",
+                 "Wing sections, unscaled: baseline against the "
+                 "optimized shape"),
+                (_a2_shape.twist_figure, "a2_twist.png",
+                 "Twist the optimizer added, by spanwise station")):
+            path = builder(shapes, out / name)
+            if path:
+                announce_plot(emit, LABEL, path, title)
+                report_plots.append({"url": f"/api/plot/{LABEL}/{name}",
+                                     "title": title})
+                _beat(_NARRATION_PACE_S)
+        # True scale is a statement about measurement, so the numericist makes
+        # it, exactly as it does for the close-up viewing convention later.
+        # Its second line is the demotion: it tells the viewer that what
+        # follows is the same change seen on the whole wing, not a new result.
+        roster.set(NUMERICIST, "checking the section scale", "working")
+        _narrate(script.numericist,
+                f"Both figures are at true scale with equal aspect. Nothing "
+                f"in them is exaggerated.",
+                f"The three-dimensional views that follow show the same "
+                f"change on the whole wing.")
+        roster.idle(NUMERICIST)
+        roster.idle(CHIEF_ENGINEER)
+
     # ---------------- Evidence: the optimization ----------------
     roster.set(CHIEF_ENGINEER, "reading the optimization history", "working")
     roster.set_workers(RANKS, "gradient-driven shape optimization")
@@ -976,6 +1039,9 @@ def main(request: str | None = None, params: dict | None = None,
     # The wing walks the optimization while the trace descends beside it. The
     # two streams are interleaved on purpose: iteration by iteration, the
     # viewer sees the drag fall and the surface that bought it, together.
+    # SUPPORTING, not the headline (owner, 2026-09-01): the sections above are
+    # the main visual of the shape change, and this pass is what the same
+    # change looks like on the whole wing while the drag falls.
     frames = {f["iter"]: f for f in shapes["frames"]} if shapes else {}
     # ITEM 8 (owner, 2026-07-31): the drag plot carries this act's own
     # measured uncertainty rather than a zero-width band. The figure is the
@@ -1337,21 +1403,10 @@ def main(request: str | None = None, params: dict | None = None,
             f"One adjoint solve buys the whole gradient.",
             f"The gap widens with every design variable added.")
 
-    # The two figures that show the shape change unscaled. Both are drawn from
-    # the same surfaces the viewport streamed.
-    report_plots = []
-    if shapes:
-        for builder, name, title in (
-                (_a2_shape.section_figure, "a2_sections.png",
-                 "Wing sections, unscaled: baseline against the "
-                 "optimized shape"),
-                (_a2_shape.twist_figure, "a2_twist.png",
-                 "Twist the optimizer added, by spanwise station")):
-            path = builder(shapes, out / name)
-            if path:
-                announce_plot(emit, LABEL, path, title)
-                report_plots.append({"url": f"/api/plot/{LABEL}/{name}",
-                                     "title": title})
+    # The two figures that show the shape change unscaled were built and put
+    # on screen at the head of the result, where they lead the act (owner,
+    # 2026-09-01). ``report_plots`` was filled there; the report carries the
+    # same two entries it always did.
 
     knowledge.add(f"Discrete adjoint verified on a {N_DV}-variable wing: "
                   f"worst group {worst:.3g}% against central finite "
