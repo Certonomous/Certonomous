@@ -517,6 +517,42 @@ solvers converged. The uncertainty column stays empty until all three grade
 `CONVERGING`; **if they return `STAGNANT` again, that is the finding and it is
 published as one**, exactly as T23G's was.
 
+#### THIRD READING — 19:25:27Z. L1 HAS FINISHED; L2 AND L3 STILL SOLVING.
+
+The census in §11.3a showed **two** `chtMultiRegionSimpleFoam` where the second
+reading had three, so the difference was chased rather than noted.
+
+**L1 completed; it did not die.** Pid 364441 is gone because the run ended.
+Every completion clause visible in the log holds:
+
+| clause | L1 |
+|---|---|
+| `End` line | present |
+| last time == `endTime` | `Time = 6000` against `endTime 6000` |
+| `ExecutionTime` count == `endTime` | 6000 |
+| final time directory | `T23G2_L1/6000/` present |
+| fields at `endTime` | `T U alphat k nut omega p p_rgh phi rho` |
+
+ClockTime 1047 s. Pids 366391 (L2) and 368069 (L3) remain alive and advancing.
+
+**Two reds were raised by my own first sweep and both were cleared by reading
+the line rather than inferring from the count** — an inference either way would
+have been wrong:
+
+- **6,001 "error" matches in L1** were `time step continuity errors : sum local
+  = …`, OpenFOAM's routine per-iteration diagnostic. My grep pattern was too
+  loose; the count tracked the iteration count exactly, which is the tell.
+- **"Floating point exception" in all three logs** is
+  `trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).` — the
+  solver *enabling* the trap at start-up, not an exception occurring.
+  `FOAM FATAL` count is **0** on all three levels.
+
+**Screen 8 still holds**, and on a stronger footing than before: one level
+complete and two advancing is a study progressing, not merely started. **It
+still licenses nothing about the result** — grading is
+`analyse_t23g2.py`'s to do, on all three levels, and no order or band exists
+until it runs.
+
 **Why the earlier draft was withdrawn.** The version first committed here said a
 refinement study *"was run… and did not settle."* That is true, and it is a good
 sentence for a lab record — but it narrates the current state of the lab, which
@@ -1333,10 +1369,44 @@ also wrong.** Both are now measured from the cases themselves:
 
 **`buoyantBoussinesqSimpleFoam` is run by NEITHER thermal act.** A tree-wide
 sweep of `controlDict` files finds it in `T13_runs` and `T15_runs` — different
-rungs entirely. It entered this discussion through my own brief and I repeated
-it here in the first version of this section, asserting "Act C is the buoyant
-one" without measuring it. **That sentence was mine and it was false**; it is
-struck and replaced by the table above.
+rungs entirely. I repeated it here in the first version of this section,
+asserting "Act C is the buoyant one" without measuring it. **That sentence was
+mine and it was false**; it is struck and replaced by the table above.
+
+### 11.3a Where the wrong solver name actually came from — a stale board line
+
+The assertion did not originate with any agent in this chain. It was traced to
+**`docs/LAB_STATE.md`**, which carries:
+
+> **Lab-wide live compute:** 12 single-core solvers, all
+> `buoyantBoussinesqSimpleFoam`, all owned by heat-transfer.
+
+**Verified stale, by census.** Counting every running process by
+`readlink /proc/<pid>/exe` — not by name and not by `pgrep`, which cannot see
+fleet processes (L-41) — at 19:25Z:
+
+| solver | live |
+|---|---|
+| `chtMultiRegionSimpleFoam` | 2 |
+| `simpleFoam` | 1 |
+| **`buoyantBoussinesqSimpleFoam`** | **0** |
+
+**The chain, and it is the most instructive thing in this file.** A board line
+that was **true when written, about entirely different rungs** → carried into
+briefs as a fact about the demo acts → into this spec → into a desk item that
+would have asked Sanaa to reason about a binary neither act runs. **Nobody lied
+and no single step was careless. The line simply never stopped being quoted, and
+its subject changed underneath it.**
+
+That makes it a worse hazard than an ordinary error, because
+`docs/LAB_STATE.md` is *the only handoff channel between sessions*: a stale line
+there will do this again to somebody else next week. **It sits in the chief's
+section and is not this lane's to edit** — it is flagged upward for correction,
+not reached into.
+
+**The rule that catches it is already at §9.7a, and it applies to a document as
+much as to a shell check:** a claim inherited from a record is not measured
+until you re-derive it. Establish the claim, not just the correction.
 
 **The conclusion is unaffected** — neither solver has a GPU port and neither
 carries the measurement her 5× was taken on, so the `/5` stays unapplied either
