@@ -128,6 +128,11 @@ ACT_D_MODULES = [
     "sdk/workflows/adjoint_optimization.py",
     "sdk/workflows/_a2_shape.py",
     "sdk/workflows/_act_plots.py",
+    # Act D's DEMO MODE plug-in, added 2026-09-01 when the act was wired into
+    # the shared stage sequencer. New code is exactly where a path leaks out of
+    # an error branch or a caption, so it joins both arms of this instrument:
+    # the static scan here, and the second drive below.
+    "sdk/workflows/adjoint_act.py",
 ]
 
 
@@ -196,11 +201,26 @@ def main() -> int:
     if tp.exists():
         transcript = tp.read_text(encoding="utf-8", errors="replace")
 
+    # SECOND ARM: the same act driven through DEMO MODE. The two drives put
+    # DIFFERENT strings on a screen -- the sequencer composes stage headers,
+    # banners, progress lines and an elapsed sentence that the act's own
+    # narration never produces -- so scanning one and not the other would
+    # leave half the camera surface unswept.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from drive_actd_demo_mode import capture as _capture_demo_mode
+
+    demo_events, demo_record, demo_self_check = _capture_demo_mode()
+
     camera, wiring = [], []
 
     for n, ev in enumerate(events):
         for trail, s in walk_strings(ev.get("payload"),
                                      f"emit[{n}]:{ev['event']}"):
+            (wiring if is_wiring(trail) else camera).append((trail, s))
+
+    for n, ev in enumerate(demo_events):
+        for trail, s in walk_strings(ev.get("payload"),
+                                     f"demo[{n}]:{ev['event']}"):
             (wiring if is_wiring(trail) else camera).append((trail, s))
 
     for i, line in enumerate(transcript.splitlines(), 1):
@@ -260,6 +280,17 @@ def main() -> int:
             "etc/sessions/2026-09-01T0340Z_sanaa_demo_mode_binding.md",
         "act_return_code": rc,
         "emitted_events": len(events),
+        "demo_mode_arm": {
+            "why": ("the act is also driven through the shared stage "
+                    "sequencer, which composes stage headers, banners, "
+                    "progress lines and an elapsed sentence the act's own "
+                    "narration never produces"),
+            "driver": "cases/dafoam/drive_actd_demo_mode.py",
+            "emitted_events": len(demo_events),
+            "stages": list(demo_record["stages"]),
+            "strings_checked_by_the_act_itself":
+                demo_self_check["strings_checked"],
+        },
         "camera_strings_scanned": len(camera),
         "wiring_strings_scanned": len(wiring),
         "camera_hits": cam_hits,

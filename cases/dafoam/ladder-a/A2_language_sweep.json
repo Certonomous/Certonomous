@@ -3,8 +3,25 @@
  "_ban_list_source": "etc/sessions/2026-09-01T0340Z_sanaa_demo_mode_binding.md",
  "act_return_code": 0,
  "emitted_events": 226,
- "camera_strings_scanned": 1348,
- "wiring_strings_scanned": 154,
+ "demo_mode_arm": {
+  "why": "the act is also driven through the shared stage sequencer, which composes stage headers, banners, progress lines and an elapsed sentence the act's own narration never produces",
+  "driver": "cases/dafoam/drive_actd_demo_mode.py",
+  "emitted_events": 347,
+  "stages": [
+   "prompt",
+   "restatement",
+   "assumption",
+   "geometry",
+   "meshing",
+   "feasibility",
+   "solving",
+   "gates",
+   "results"
+  ],
+  "strings_checked_by_the_act_itself": 80
+ },
+ "camera_strings_scanned": 2371,
+ "wiring_strings_scanned": 161,
  "camera_hits": [],
  "wiring_hits": [
   {
@@ -1472,6 +1489,41 @@
   },
   {
    "kind": "path",
+   "why": "filename with extension",
+   "match": "mach_tutorial_wing.stl",
+   "context": "/api/geometry?name=mach_tutorial_wing.stl",
+   "where": "demo[14]:geometry.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/geometry",
+   "context": "/api/geometry?name=mach_tutorial_wing.stl",
+   "where": "demo[14]:geometry.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/results/actD_crease_section.png",
+   "context": "/api/plot/results/actD_crease_section.png",
+   "where": "demo[340]:plot.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/results/a2_sections_5station.png",
+   "context": "/api/plot/results/a2_sections_5station.png",
+   "where": "demo[341]:plot.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/results/a2_twist.png",
+   "context": "/api/plot/results/a2_twist.png",
+   "where": "demo[342]:plot.ready.url"
+  },
+  {
+   "kind": "path",
    "why": "absolute home path",
    "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
    "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (0.97s)",
@@ -1486,11 +1538,18 @@
   }
  ],
  "wiring_hits_by_field": {
-  "url": 206,
+  "url": 211,
   "path": 3,
   "stdout:42": 2
  },
  "wiring_trails": [
+  "demo[14]:geometry.ready.url",
+  "demo[340]:plot.ready.file",
+  "demo[340]:plot.ready.url",
+  "demo[341]:plot.ready.file",
+  "demo[341]:plot.ready.url",
+  "demo[342]:plot.ready.file",
+  "demo[342]:plot.ready.url",
   "emit[100]:field.ready.url",
   "emit[102]:field.ready.url",
   "emit[104]:field.ready.url",
@@ -1657,7 +1716,8 @@
   "modules": [
    "sdk/workflows/adjoint_optimization.py",
    "sdk/workflows/_a2_shape.py",
-   "sdk/workflows/_act_plots.py"
+   "sdk/workflows/_act_plots.py",
+   "sdk/workflows/adjoint_act.py"
   ],
   "why": "the drive exercises one path; the refusal branches that never ran on it are exactly where a path leaks into narration, so their literals are scanned too",
   "hits": [
@@ -1793,6 +1853,69 @@
     "kind": "path",
     "match": "a2_wing_gradient.json",
     "literal": "a2_wing_gradient.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 116,
+    "kind": "path",
+    "match": "A2_replay_series.json",
+    "literal": "A2_replay_series.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 117,
+    "kind": "path",
+    "match": "A2_mesh_time.json",
+    "literal": "A2_mesh_time.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 118,
+    "kind": "path",
+    "match": "A2_geometry_identity.json",
+    "literal": "A2_geometry_identity.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 527,
+    "kind": "path",
+    "match": "opt_IPOPT.txt",
+    "literal": "opt_IPOPT.txt"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 529,
+    "kind": "path",
+    "match": "opt_IPOPT.txt",
+    "literal": "opt_IPOPT.txt"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 531,
+    "kind": "path",
+    "match": "OptView.hst",
+    "literal": "OptView.hst"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 533,
+    "kind": "path",
+    "match": "opt_IPOPT.txt",
+    "literal": "opt_IPOPT.txt"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 535,
+    "kind": "path",
+    "match": "opt_IPOPT.txt",
+    "literal": "opt_IPOPT.txt"
+   },
+   {
+    "module": "sdk/workflows/adjoint_act.py",
+    "line": 537,
+    "kind": "path",
+    "match": "opt_run_driver.log",
+    "literal": "opt_run_driver.log"
    }
   ],
   "adjudication": "every static hit is a bare filename, a JSON key or an /api/ route fragment used as DATA -- a file the act opens, a dict key it reads, a URL the viewport fetches by. None is narration and none reaches a camera surface, which is what the drive's zero camera hits independently shows. Each is listed so the claim can be checked rather than taken."

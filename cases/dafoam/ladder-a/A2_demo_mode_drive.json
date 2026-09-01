@@ -1,0 +1,271 @@
+{
+ "_what": "Act D driven end to end through DEMO MODE: what the sequencer published, checked against the record the act reads from.",
+ "_driver": "cases/dafoam/drive_actd_demo_mode.py",
+ "_act": "sdk/workflows/adjoint_act.py",
+ "nothing_launched": "no solver and no mesher ran; the shared sequencer does not read MeshPlan.command and the solver stage reads committed records",
+ "stages_published": [
+  "prompt",
+  "restatement",
+  "assumption",
+  "geometry",
+  "meshing",
+  "feasibility",
+  "solving",
+  "gates",
+  "results"
+ ],
+ "events_emitted": 347,
+ "publications": 168,
+ "solver_frames": 48,
+ "adjoint_events": 100,
+ "displayed_clock": {
+  "total": "20:00",
+  "parts": [
+   {
+    "what": "Up to the last counted iteration",
+    "clock": "18:25",
+    "seconds": 1105.225
+   },
+   {
+    "what": "The evaluation still running when the clock ended",
+    "clock": "1:35",
+    "seconds": 94.775
+   }
+  ]
+ },
+ "pacing_ratio": 3.0006618690490723,
+ "self_check": {
+  "strings_checked": 80,
+  "solver_header_matches_builder": true,
+  "plant_control": {
+   "planted": 0.001234,
+   "row": 17,
+   "objective_recovered": 0.001234,
+   "displayed_time_recovered": 0.001234,
+   "clean_reading_at_that_row": 0.021769928,
+   "reader_is_evidence": true
+  }
+ },
+ "checks": [
+  {
+   "check": "every stage renders in its normal order",
+   "held": true,
+   "detail": [
+    "prompt",
+    "restatement",
+    "assumption",
+    "geometry",
+    "meshing",
+    "feasibility",
+    "solving",
+    "gates",
+    "results"
+   ]
+  },
+  {
+   "check": "every stage published its content",
+   "held": true,
+   "detail": [
+    "prompt",
+    "restatement",
+    "assumption",
+    "geometry",
+    "meshing",
+    "feasibility",
+    "solving",
+    "gates",
+    "results"
+   ]
+  },
+  {
+   "check": "every publication carried a banner",
+   "held": true,
+   "detail": {
+    "banners": 168,
+    "publications": 168
+   }
+  },
+  {
+   "check": "the counter reaches the recorded last iteration",
+   "held": true,
+   "detail": {
+    "reached": 47,
+    "recorded": 47
+   }
+  },
+  {
+   "check": "the counter runs against the cap the run was allowed",
+   "held": true,
+   "detail": 100
+  },
+  {
+   "check": "no counted iteration was dropped to fit",
+   "held": true,
+   "detail": {
+    "published": 48,
+    "recorded": 48
+   }
+  },
+  {
+   "check": "the displayed clock reads twenty minutes",
+   "held": true,
+   "detail": {
+    "stage": "20:00",
+    "act": "20:00"
+   }
+  },
+  {
+   "check": "the parts shown beside it sum to twenty minutes",
+   "held": true,
+   "detail": {
+    "parts": [
+     {
+      "what": "Up to the last counted iteration",
+      "clock": "18:25",
+      "seconds": 1105.225
+     },
+     {
+      "what": "The evaluation still running when the clock ended",
+      "clock": "1:35",
+      "seconds": 94.775
+     }
+    ],
+    "sum_s": 1200.0
+   }
+  },
+  {
+   "check": "the elapsed figure never appears without its basis",
+   "held": true,
+   "detail": "20 minutes. The production configuration, with the linear solvers on GPU."
+  },
+  {
+   "check": "every published value is the recorded one, the clock aside",
+   "held": true,
+   "detail": []
+  },
+  {
+   "check": "the pacing is the ratio the record states",
+   "held": true,
+   "detail": "3601 s measured : 1200 s displayed = 3.0007 : 1"
+  },
+  {
+   "check": "every adjoint linear solve is published",
+   "held": true,
+   "detail": 100
+  },
+  {
+   "check": "the solve the clock ended inside is published as unfinished",
+   "held": true,
+   "detail": {
+    "left_open": 1
+   }
+  },
+  {
+   "check": "the trace ships ragged rather than padded",
+   "held": true,
+   "detail": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "check": "the geometry stage states the solved case in the present tense",
+   "held": true,
+   "detail": "Solved on this geometry, 38304 cells."
+  },
+  {
+   "check": "no surface loaded never appears",
+   "held": true,
+   "detail": "absent"
+  },
+  {
+   "check": "the mesh stage states the cell count and no duration",
+   "held": true,
+   "detail": {
+    "stage": "meshing",
+    "cells": "38304 cells",
+    "zoom": "the first of the 39 layers marched from the wing surface",
+    "drawn": false,
+    "banner": "meshing"
+   }
+  },
+  {
+   "check": "the header names the solver of the source run",
+   "held": true,
+   "detail": "Solver: DAFoam DARhoSimpleFoam on OpenFOAM v2506, steady compressible RANS (Spalart-Allmaras), with a reverse-mode discrete adjoint."
+  },
+  {
+   "check": "the cost line is this run's own cost",
+   "held": true,
+   "detail": "Compute used: 240.1 core-minutes (gross), about $0.21, derived at the recorded rate."
+  },
+  {
+   "check": "the act never says the optimizer converged",
+   "held": true,
+   "detail": "absent"
+  },
+  {
+   "check": "the act never says optimum",
+   "held": true,
+   "detail": "absent"
+  },
+  {
+   "check": "the replay reader was shown a perturbation and read it back",
+   "held": true,
+   "detail": {
+    "planted": 0.001234,
+    "row": 17,
+    "objective_recovered": 0.001234,
+    "displayed_time_recovered": 0.001234,
+    "clean_reading_at_that_row": 0.021769928,
+    "reader_is_evidence": true
+   }
+  },
+  {
+   "check": "every string this act can produce passed the screen checker",
+   "held": true,
+   "detail": 80
+  }
+ ],
+ "all_checks_held": true,
+ "control": {
+  "why": "a green from a checker not shown able to go red is not evidence; each mutation breaks one thing through a different door",
+  "mutations": [
+   {
+    "mutation": "a counted iteration is dropped to fit",
+    "caught": true,
+    "how": "the act refused before publishing",
+    "reds": [
+     "DemoContractError: the counter's last frame reads 46 against a recorded 47"
+    ]
+   },
+   {
+    "mutation": "the parts beside the clock stop summing to it",
+    "caught": true,
+    "how": "checks went red",
+    "reds": [
+     "the parts shown beside it sum to twenty minutes"
+    ]
+   },
+   {
+    "mutation": "one published objective value is bent",
+    "caught": true,
+    "how": "checks went red",
+    "reds": [
+     "every published value is the recorded one, the clock aside"
+    ]
+   },
+   {
+    "mutation": "the time axis is stretched away from the recorded ratio",
+    "caught": true,
+    "how": "checks went red",
+    "reds": [
+     "the act satisfies the demo-mode contract"
+    ]
+   }
+  ],
+  "all_caught": true
+ }
+}
