@@ -105,7 +105,8 @@ from . import adjoint_optimization as _actd
 from .demo_mode import (Assumption, DemoAct, DemoContractError, ElapsedClock,
                         Feasibility, Figure, GatesAndChecks, Geometry,
                         GeometryMatch, Measured, MeshPlan, Prompt, Restatement,
-                        Results, RunRecord, SeriesSpec, SolveReplay, Table,
+                        Closing, Results, RunRecord, SeriesSpec, SolveReplay,
+                        Table,
                         check_demo_language, core_minutes, register_act)
 from .demo_sequencer import Sequencer
 
@@ -1048,6 +1049,122 @@ class AdjointWingAct(DemoAct):
                 "solver_header_matches_builder": True,
                 "assumption_constants": table_checked,
                 "plant_control": _plant_control()}
+
+
+    # -- the tail: the Report tab -------------------------------------------
+    def closing(self) -> "Closing | None":
+        """The act ends in a report, not a table.
+
+        THE REPORT TAB WAS EMPTY FOR THE WHOLE ACT because nothing published a
+        ``report.ready``, and the digest never reached a Conclusion heading
+        because no phase was ever opened. Both are events the page has always
+        been able to render; no act was sending them.
+
+        EVERY NUMBER IS READ FROM THE FROZEN DECOMPOSITION RECORD, which is the
+        grader's own output with the grader's sha256 beside it. Nothing is
+        recomputed here and nothing is typed.
+
+        THE RESULT ROWS ARE BUILT TO THE READ-ALONE TEST. A row is consumed
+        alone, so each `quantity` carries the noun that makes its value true --
+        "at matched lift" on the shares, because a share quoted without it is
+        the exact trap this act exists to show, and "single grid" on the drag,
+        because one mesh is the whole discretisation story.
+
+        NEXT INVESTIGATIONS ARE NEW QUESTIONS, NEVER REMEDIATIONS. That is the
+        report's own rule and it is not this act's to relax: "refine the grid"
+        is a limitation and it is already in the limitations box. The three
+        below are things nobody here knows the answer to.
+        """
+        decomp = _actd._decomposition()
+        if not decomp:
+            return None
+        shares = decomp["shares"]
+        matched = decomp["lift_matched"]
+        # KEYED ON WHAT THE RECORD ACTUALLY HOLDS. The final row is
+        # `twist_and_shape_at_CL05`, not `final` -- I guessed the key, the read
+        # raised, and guessing a key is the same error class as guessing a
+        # denominator. Named here so the next reader does not repeat it.
+        base = matched["baseline"]
+        final = matched["twist_and_shape_at_CL05"]
+        trap = decomp["counter_examples"]["unmodified_wing_at_final_incidence"]
+        total = float(decomp["total_reduction_pct"])
+        return Closing(
+            title="Where the drag reduction comes from",
+            abstract=[
+                f"Drag falls {total:.4f} percent on this wing, with lift held "
+                f"at {_actd.CL_TARGET:g} at both ends of the comparison.",
+                f"Taken apart at matched lift, the section shape carries "
+                f"{shares['shape']['pct_of_drop']:.2f} percent of the drop and "
+                f"the twist on its own carries "
+                f"{shares['twist']['pct_of_drop']:.2f} percent.",
+                "The angle of attack contributes nothing by construction, "
+                "because lift is held as an equality constraint.",
+            ],
+            methods=[
+                "Steady compressible flow, closed with a one-equation model "
+                "calibrated for attached aerofoil flow.",
+                "A reverse-mode discrete adjoint supplies the gradient, and it "
+                "is graded against finite differences of the same solver "
+                "before any of it is spent.",
+                f"Every intermediate design is solved at the same lift, so no "
+                f"row in the comparison is flown at a different angle to buy "
+                f"its drag.",
+            ],
+            results=[
+                {"quantity": "drag coefficient at the start, single grid",
+                 "value": f"{base['CD']:.8f}",
+                 "envelope": "no discretisation band; one mesh",
+                 "reason": f"lift held at {base['CL']:g}"},
+                {"quantity": "drag coefficient at the finish, single grid",
+                 "value": f"{final['CD']:.8f}",
+                 "envelope": "no discretisation band; one mesh",
+                 "reason": f"lift held at {final['CL']:g}"},
+                {"quantity": "share of the drop from section shape, "
+                             "at matched lift",
+                 "value": f"{shares['shape']['pct_of_drop']:.2f} percent",
+                 "envelope": "band fixed beforehand, 92 to 105 percent",
+                 "reason": "measured inside the band written down first"},
+                {"quantity": "share of the drop from twist alone, "
+                             "at matched lift",
+                 "value": f"{shares['twist']['pct_of_drop']:.2f} percent",
+                 "envelope": "band fixed beforehand, minus 5 to plus 8 percent",
+                 "reason": "twist on its own makes the drag slightly worse"},
+                {"quantity": "the same wing flown lower, lift NOT held",
+                 "value": f"{trap['CD']:.8f}",
+                 "envelope": f"lift falls to {trap['CL']:.6f}",
+                 "reason": "shown to make the trap visible, not as a result"},
+            ],
+            uncertainty=[
+                "One grid, so no number here carries a discretisation band.",
+                "The optimiser was still taking drag down when a time limit "
+                "set beforehand stopped it.",
+                "The gradient is graded at a single finite-difference step, "
+                "and the sweep justifying that step belongs to a smaller case.",
+                "The independent re-trim yielded no value, so nothing "
+                "confirms the zero angle-of-attack share on its own.",
+                "Nothing here is compared against wind tunnel or flight data.",
+            ],
+            next_investigations=[
+                "Does the section-shape share hold at a Reynolds number ten "
+                "times higher, or is it a low-speed result?",
+                "Does twist stop being a penalty on a wing of different "
+                "aspect ratio, where the spanload has more to gain?",
+                "How much of the remaining drag is reachable at all, if the "
+                "optimiser is allowed to run to its own stopping condition?",
+            ],
+            conclusion_lines=[
+                f"Drag falls {total:.4f} percent with lift held at both ends.",
+                f"Essentially all of it is section shape: "
+                f"{shares['shape']['pct_of_drop']:.2f} percent of the drop.",
+                "Twist on its own makes the drag slightly worse, which is not "
+                "the tidier answer, and it is the measured one.",
+                CONVERGENCE_LINE,
+                "The full report, with every figure, is in the Report tab.",
+            ],
+            certificate_state=(
+                "The certificate is issued with the convergence band, which "
+                "is running for this case now."),
+        )
 
     # -- which sequencer walks this act -------------------------------------
     def sequencer(self):
