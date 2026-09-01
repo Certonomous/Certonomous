@@ -527,3 +527,32 @@ Each is named rather than papered over. None is a reason not to freeze; each is 
 * **Nothing is filed, sent, posted, uploaded, registered or commented upstream by any agent, ever.** `CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10. **SUBMISSIONS ARE PARKED.**
 
 **Not cleared to launch by this document.** This is a freeze, not an authorisation. The supervisor's pre-registration-committed check and instrument-diff check come first, and §13.3 puts one decision in front of the first arm.
+
+---
+
+## AMENDMENT 1 — 2026-09-01, BEFORE FIRST COMPUTE. R8: THE DRIVEN REFERENCE BYTES ARE NOT IN THE FREEZE TREE, AND `.gitignore` IS WHY
+
+**lines whose number changed above this section: 0.** This section is appended at the foot; nothing above it is edited.
+
+**The rule-2 condition, and how it was checked, at the moment of this amendment.** No compute has happened. The registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation` **does not exist** — re-asserted in the same shell invocation as this amendment's commit, against the same positive control as §11. **No gate, threshold, cap or label is altered by this amendment**; it adds a named residual, which §15 exists to hold.
+
+**What was measured, after this document's first commit, by comparing the case directory on disk against the freeze tree rather than by reading a manifest:**
+
+| file | on disk | in the freeze tree | why |
+|---|---|---|---|
+| `reference/REAL_SO1a_X-S_arm.log` | **yes** | **NO** | excluded by `.gitignore:270`, pattern `cases/dafoam/**/*.log` |
+| `reference/REAL_SO1a_MESH_checkMesh.log` | **yes** | **NO** | same pattern |
+| `so3_xf_drive_evidence.txt` | **yes** | **NO** | not ignored — simply never committed |
+
+**R8 — THE HONEST SIZE, AND IT IS SMALLER THAN IT LOOKS IN ONE DIRECTION AND EXACTLY AS LARGE AS IT LOOKS IN THE OTHER.**
+
+**It does not block the run, and that was checked in the code rather than assumed.** `REFDIR`, `REAL_CHECKMESH` and `REAL_ARMLOG` are module-level **path joins** at `so3_grade.py:2648-2650`; they open nothing. The only three sites that **open** those files are `_fix()` at `:2815` and `:2820` and `selftest()` at `:3304`, all reachable only under `--selftest` (`:3527`). **The grading path — `main()` against a real run root — never reads `reference/`.** The item can cold-start, run and grade from a clean checkout of the freeze commit. **No registered gate is unimplemented and §7.1's finding stands unchanged.**
+
+**What it does cost, and this half is not smaller than it looks.** **`--selftest` cannot be re-driven from a clean checkout of the freeze commit**, because the bytes it drives against are excluded from version control by a repository-wide pattern. And the banner-discriminator readings this document publishes as measurements in §3 — **4×** `SIMPLE: no convergence criteria found`, **5×** `Time step continuity errors`, **1×** the real `Minimal residual … satisfied the prescribed tolerance` statement, all on a run that **converged** — cite `reference/REAL_SO1a_X-S_arm.log`, **an artefact that lives only on this box's disk with nothing in git protecting it.** A number whose artefact is gone is not a result, and these two artefacts are one `rm` from gone.
+
+**This is `gitignored is not filed` in its exact form:** a completeness check that asks git is blind to precisely the files the ignore rule hides, and §7.1's §18.3 extraction — which resolved every dependency **against the freeze tree** — reported `HEAD=N` for `reference` and this lane did not chase it until after the freeze. **Recording that the check saw it and the reader did not is the point.**
+
+**Registered disposition, and no part of it is taken by this lane:**
+1. **The two reference logs and `so3_xf_drive_evidence.txt` are NOT swept into this document's commit.** They are the instrument lane's artefacts, and committing another lane's uncommitted work under cover of one's own path is the L-423 failure. **Landing them is a dispatch, not a side effect**, and it needs a decision about `.gitignore:270` that is above this lane.
+2. **Until they are in a tree, §3's banner counts are labelled here as `MEASURED, ARTEFACT NOT IN THE FREEZE TREE`** — they are true readings of real bytes and they are not reproducible from the freeze commit alone.
+3. **Nothing about the launch decision changes.** The item was not cleared to launch before this amendment and is not cleared by it.
