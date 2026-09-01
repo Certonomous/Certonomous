@@ -18881,6 +18881,67 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T05:24:34Z by cfd-supervisor personally, via a records lane. **FORTY-SECOND WRITE.** Post the ~04:10Z subscription-switch fleet kill. Where this conflicts with anything below, this block wins. *(Records-lane note: HEAD at the time this block was written is `cdafff0e`, NOT `9d033070` — peers committed after the demo_mode.py fix. The `9d033070` citation below is the commit that landed that fix, not current HEAD.)*
+
+### ✅ THE JET-FLAP ACT IS READY FOR THE BOUNCE — the connector landed, and the act now walks nine stages
+
+**The NOT-GO on board 41 is CLEARED.** Intent `jet-flap-display` now routes through `demo_sequencer.run_act("jet-flap")` with the act's emit bound to the mission EventBus. Measured on the real dispatcher shape with Sanaa's exact prompt: **1,281 events, 605 solve frames, 635 stage banners, nine stage-begins in order, three tables.** Before the fix it was **30 events, ZERO banners, ZERO frames**. `validate_act` returns **0 problems** — verified personally by the supervisor at HEAD, not relayed.
+
+**Shape taken: LOCAL, not a dispatcher branch.** `sdk/chief_engineer/server.py` and `router.py` are **byte-untouched** — `git diff --stat` on them returns zero lines, so every other team's intent takes an unchanged path *by construction*. The delegation lives in `sdk/workflows/jet_flap_display.py`; the pre-sequencer body is kept whole and callable as `legacy_main`. A shared `make_act_entry` mechanism now exists so a fifth act is a one-line adoption, with a fork: a selector walks the stages, a selector naming no act reaches the fallback unchanged, and a selector with no fallback **refuses** rather than showing the wrong act.
+
+**BOUNCE RECIPE — verified from `/proc`, not recall.** Server **pid 1103918**, started 03:56:29, cwd `/home/ubuntu/Certonomous/sdk`, `python3 -u -m chief_engineer.server`, env `CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX=openfoam2606 CERTONOMOUS_SOLVE_RANKS=16`. Own process group and session id — genuinely detached; its parent is an ordinary `-bash` from an older session, **not a respawner**. Two traps:
+- **Use `kill 1103918` by explicit pid. NEVER `pkill -f chief_engineer`** — the pattern matches the invoking shell's own command line, kills the shell, and every chained command after it silently never runs.
+- **Port 8765 permits a SECOND binder.** If the old process survives, the survivor keeps answering, the new screens never appear, and **no error is shown anywhere**. Kill and relaunch in SEPARATE invocations with a listener check between; `ss -lptn 'sport = :8765'` must show ZERO before relaunch.
+
+### 🔴 M6 — I TOLD THE CHIEF THE GEOMETRY WAS NOT THE PROBLEM. THAT WAS WRONG.
+
+`N-C6`, landed by our own team 2026-08-25, already measured a butterfly tip cap on this exact geometry at **81.58 → 82.06° rising monotonically to ~82.07**, severe-face fraction rising 10.7× while cells rise only 1.31×. The F13 tip-probe filing (`40ca3c35`) had registered the butterfly cap as expected to clear 50–68°. **The lab had measured the refutation six days earlier, on our own disk, and the filing's author did not consult the register.** The cause is **GEOMETRIC** — strip-to-core arc-length ratio ~16:1 at the break because the section half-thickness goes to **zero** at a sharp trailing edge — so it does not care which cap topology is chosen. My relay that "two collapsed lines in our own generator" were the whole cause was wrong in the flattering direction; the collapsed lines are the generator's contribution, not the floor. **Ruling: the probe does NOT run. F13 is `GATE FAIL` on the mesh standard with a geometric cause**, which is a better finding than an errand. Pre-compute amendment to strike (not improve) prediction 1 is authorised; condition check is `SUCCESSOR_tip_topology_trial/` holding zero files.
+
+### 🔴 MESH STANDARD DEFECT — `checkMesh` PRINTED "Non-orthogonality check OK" AT 81.58° AGAINST OUR 70° GATE
+
+It was testing its **own** internal threshold. **A gate that reads a tool's OK line instead of the reported maximum is reading the wrong instrument.** Clause owed to `docs/standards/MESH_STANDARD.md` (confirm live path; `docs/MESH_STANDARD.md` is a DIFFERENT document): the gate is read off the **reported maximum non-orthogonality**, never off `checkMesh`'s verdict line, citing the 81.58° instance. **NOT YET LANDED — supervisor owns this file and owes the edit.**
+
+### DMR — `NOT A RESULT` on R3, and the two-rung result is UNTOUCHED and SHOOTABLE
+
+`rhoCentralFoam` SIGFPE at t=0.1086 of endTime 0.2 (**54%**), 120 s on 4 ranks. **Gate V3 `NOT A RESULT`** (no reading exists — NOT `GATE FAIL`, nothing was measured against the tolerance). **Gate T `BLOCKED`** — a triple needs three levels, two exist. Cost **8.48 core-min vs 16.0 est, 35.0 cap NOT breached, $0.0073 DERIVED**. The 0.53 ratio is **NOT estimate quality** — it is spend at the point of failure; the forward-usable figure is ~15.5 core-min projected, **within 3% of the filed 16.0, so the estimate was good and the run was not.**
+
+**Triage:** FPE **trapped**, not a silent NaN; `sqrt` of a negative sound-speed argument = locally negative temperature; deltaT steady at max Courant 0.1998 vs registered 0.2, so **not** a timestep runaway; last written field at t=0.10 completely healthy, **zero negatives across all 230,400 cells**. Sudden and local, ~200 steps from clean. **Where the negative first appears is UNDETERMINED** — needs an instrumented re-run, **NOT authorised** under the demo freeze. Landed as `N-C8`, scoped to one benchmark / one solver / one flux-reconstruction pair / one refinement step — a named ceiling with a signature, never a law about `rhoCentralFoam`. **The lane did NOT retune** — the filing makes any scheme/constant/BC/maxCo/rank change a disqualifier, and retuning yields a rung that runs and a triple that means nothing.
+
+**DMR stays GO for filming: Gate V `PASS` at 1/60 and 1/120, 0.15% and 0.17% against a 1.0% tolerance, zero compute, sheet + figure committed.** Freeze provable: prereg committed 22:40:28Z vs earliest artifact 22:43:36Z, blob byte-identical at freeze, at HEAD and on disk today.
+
+**THE 1/180 RUNG IS NOT FILED AND SHOULD NOT BE.** Supervisor's own "exact restriction is lost at r=1.5" objection was **WRONG** — everything restricts onto the common coarsest grid, gcd(60,120,180)=60, block factors [1,2,3] all integers, exact conservative averaging onto the same 14,400 cells as the r=2 case. What survived is the **noise** objection: measured **1.81× worse** per unit absolute noise. Constant-r alternative (80/120/180) is decisively worse — gcd=20, common grid collapses to 1,600 cells. **Clean route when the freeze lifts: a NEW numerics family, all three of 1/60, 1/120, 1/240 with a positivity-preserving limiter — constant r=2, exact restriction, closed-form p, and it CONFRONTS the ceiling instead of avoiding it. ~18 core-min, ~$0.015 DERIVED. Needs its own Gate V at all three levels.**
+
+### 🔴 ADJOINT ACT'S MESHER IS AIMED AT AN UNRECOVERABLE TREE — DAFOAM'S, NOT OURS
+
+The adjoint act's mesh `work_dir` is `/home/ubuntu/certonomous-runs/A2-mach-wing`, a real case tree carrying `system/controlDict`, **inside the outside-git directory that holds the ONLY surviving copy of the transonic M6 solution** (native fields at iteration 6000 already gone; no re-run recovers it). Its declared mesher would have written into it. **Runtime SKIPS (publishes "no grid built", act stays up); the pre-shoot gate REPORTS it** — because a silent skip becomes a permanent skip. **REPORTED ONLY. Not touched, not repointed. Dafoam's file, dafoam's call.**
+
+⛔ **`/home/ubuntu/certonomous-runs/` holds 583 entries outside git. NEVER prune it.**
+
+### The defect class that bit twice in one night — a word-boundary vocabulary check is blind to EVERY inflection
+
+`\b(defect|toolchain|workaround)\b` misses the plurals; `\bPASS\b` misses `PASSED`. **Two independent guards, one blindness — and the second survived BECAUSE the first was fixed**, since the repair created the belief the class was handled. Both closed: `vocab_sweep_jf1.py` (`37c5a692`, whole table audited, 66 hand-written plants one per alternative NOT derived from the pattern, 12 immaterials named with reasons) and `demo_mode.py` (`9d033070`, uppercase inflections only, 8 verdict forms refused and 7 legitimate physics strings still allowed, planted one at a time). **Verdict-shaped words on the filmed path: 4 → 0 across 717 rendered strings.** ⚠ **NO lab-wide sweep for other `\b(...)\b` alternations has been run. Query is any such alternation over a fixed vocabulary. NOT CLAIMED.**
+
+### Live jobs — ZERO cfd solvers. Nothing of mine uncommitted
+
+The `MM` entries in `git status` are the **stale SHARED index** holding staged content from before tonight; worktree matches HEAD. **Untouched, not cleared, not adopted (rule 10). Somebody should be dispatched for whatever is staged there — it is not cfd's.**
+
+### Rungs without verdicts
+
+**JF1** — five rows complete-but-unconverged and **clipping-held** (81.3–97.3% of iterations, continuous through the final one on every row), gate NONE / UNFROZEN DRAFT, **no verdict claimable**. **DMR R3** `NOT A RESULT`, Gate T `BLOCKED`. **F13** `GATE FAIL` on the mesh standard, geometric cause. **F28** `PENDING`, parked. **R5** `PENDING`. **M6** — no gate, ungoverned, DAFoam's run.
+
+### On Sanaa's desk
+
+**(1) TENSE CONFLICT BETWEEN TWO OF HER OWN DIRECTIVES.** 03:40Z DEMO MODE: *"Progressive tense while running … past tense for results."* 04:20Z overnight: *"no past tense"*, flat. Later-and-flatter vs earlier-and-more-specific. **Operating rule until she rules: PRESENT TENSE EVERYWHERE — it is the intersection** (present satisfies 04:20Z outright; past violates it). Supervisor wrongly called the blanket a "relay corruption" — it is HER wording; corrected. **(2)** The four HELD Act B files (`make_actB_sheet.py`, the `.tex`, the `.pdf`, `ACT_B_ASSETS.md`) — commit DENIED by the permission classifier, **not routed around**; disk state is the GOOD version. Concrete cost: the sheet retains **one DejaVu face** and cannot reach "all plots latexfied" until released. **(3)** `cm-super`/`type1cm`/`dvipng`/`ghostscript` missing — matplotlib `usetex` is dead; apt is root, hers alone. **No-root route TAKEN: Latin Modern registered, all 8 figures 0 DejaVu, verified by `pdffonts`, refuses rather than falling back.** **(4)** M6 territory call — the only landed M6 run is DAFoam's. **(5)** The router's standing promotional-surface policy forbids routing M6 from the control room; hers alone to lift. **(6)** The turbulence-clipping limitation on all five JF1 rows — she should hear it before she films. **(7)** Williams, Butler & Wood, ARC R&M 3304 (1961) eq. (2) — **never "Spence 1956"**. **(8)** Which surface she films — the nine-stage act or the display mission; they carry different capability sets.
+
+### Next actions
+
+Land the `MESH_STANDARD.md` non-orthogonality clause (supervisor's own file, owed). Amend the F13 filing pre-compute to strike prediction 1 and record `N-C6`. Run the C2 arc-length ratio check — costs nothing, and should refute the probe's premise for every admissible cap. Adopt the shared `make_act_entry` for the DMR "Mach 10" act. **Heat-transfer's thermal route must NOT be flipped until `replay_history` can read a conjugate multi-region run** — driven end-to-end it publishes 29 events then dies `SequencerRefused`; the CHT reader is heat-transfer's half, the mechanism is ours and is done.
+
+### Unverified, named as such
+
+The 18 pre-existing test failures are **accounted for but not re-run to green** — 11 name a live solver (`chtMultiRegionSimpleFoam` pid 1106873, confirmed alive) and clear when it finishes; 7 are content drift in artifacts other lanes regenerated tonight. `jet_flap_display`'s module docstring still claims a 0.9% geometry disagreement that measurement says no longer exists (chord 1.0, h/c 0.005 to 1e-7) — **latent, legacy path only.** `build_jf1.py` reproducing 39,984 cells is now MEASURED (39,984 == 39,984, read off the mesh) — the earlier citation caveat is discharged.
+
+
 **Section last written:** 2026-09-01T~05:0xZ by cfd-supervisor personally. **FORTY-FIRST WRITE.** Written against an imminent fleet kill (Sanaa switching subscriptions). **Assume the next supervisor knows nothing.** Where this conflicts with anything below, this block wins.
 
 ### 🔴 RESUME HERE — THE JET ACT IS **NOT GO**, AND THE REASON IS ONE MISSING CONNECTOR
