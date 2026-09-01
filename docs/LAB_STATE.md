@@ -11580,6 +11580,78 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T05:25Z — **THE ACT A SHEET WAS 4.07 K OPTIMISTIC ON A THERMAL LIMIT AND IS NOW ON THE CORE. AND THE COMPUTE-LINE "GAP" DOES NOT EXIST — ALL 16 POINTS ARE MEASURED, THEY ARE JUST IN TWO TREES.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone. No solver launched by me; no frozen file edited; nothing under `sdk/` written.)*
+
+---
+
+### A. ⛔ **THE SAFETY-DIRECTION DEFECT — FIXED AT `f4240a4f`, AND IT HAD SURVIVED BECAUSE ONLY ONE OF TWO SURFACES WAS EVER CHECKED**
+
+The Act A sheet quoted the **housing** margin and called it *the* margin. **The core is hotter at all 16 points** — by **1.067465 K** at the mildest and **4.069686 K** at the worst. Worst point 305 W / 10 m/s: sheet said **103.6078 °C / 96.3922 K margin**; truth is **107.677521 °C / 92.322479 K**. **Optimistic, on a thermal limit, on the filmed surface.**
+
+**⚠️ THE ASYMMETRY IS THE LESSON AND IT IS WORSE THAN A TYPO:** `figures_actA/actA_map_table.pdf` **already carried** *"Peak core"*, *"Core above housing"* and *"Margin to 200 °C on the core"* with **+92.3** — while the sheet beside it, **on the same screen**, said **96.4**. **The `ec6341d7` fix landed on the display module and never crossed to the printed sheet.** A viewer could have read both numbers at once. **The control now checks BOTH surfaces; checking one is exactly how this survived.**
+
+**Control driven to refusal against the real unfixed sheet BEFORE being believed: `GATE FAIL`, 5 housing margins found, core margin absent.**
+
+**26 values removed, 27 added, all generated from `actA_map_table.csv` and never typed.** Table 1 all sixteen cells; Table 2 margins **161.8626/140.0391/118.2156/96.3922 → 160.7951/137.9709/115.1467/92.3225**; a new *core above housing* column; coolest point 23.5897 → 24.6762; prose and Lead Engineer 96.4 → 92.3.
+
+**TWO JUDGEMENT CALLS THE LANE MADE BEYOND ITS BRIEF, BOTH CORRECT:**
+- **Table 4's extrapolated loads moved to the core** (592/1043 → **550/969**) — *"an extrapolated capability claim left on the housing is optimistic in the same direction as the defect."* **The method was validated before use**: the formula reproduces the sheet's existing housing 592/1043 exactly, so the same formula on the core is trustworthy.
+- **Two labels my instruction list MISSED**, either of which would have left the wrong pairing available: the subtitle still read *"Peak housing temperature over 16 solved operating points"*, and the envelope's limit line said *"200 °C HOUSING limit"* above a curve replotted on the core. Both corrected; the envelope axis is now `T_max,core`.
+
+**Table 3 deliberately UNTOUCHED and now NAMED** — its correlation comparison legitimately uses the housing, because Dittus-Boelter and the resistance estimate are **surface-convection closures for the wall**. Column header is now *"housing, °C"*. **This matters: an unlabelled temperature invites the wrong pairing, and I made that exact mistake myself tonight** (§E of the 05:00Z block).
+
+---
+
+### B. ⛔ **A REPRODUCIBLE SILENT-DATA-LOSS MODE IN ONE-PAGE LaTeX SHEETS. PAGE COUNT IS NOT EVIDENCE OF COMPLETENESS.**
+
+The wider Table 2 pushed the sheet past one page, and **at three separate settings LaTeX reported "1 page" while SILENTLY DROPPING THE FOOTER — no overfull warning, nothing on the console.** `\enlargethispage` did nothing because **the loss is content volume, not page box**. Fixed by tightening leading to 9.0; footer confirmed with **16.4 pt clearance** measured from the text bounding box.
+
+**This is the SECOND instance** — the pre-fix sheet dropped *"All figures are read from solution files retained on disk"* at source line 302 the same way. **It is therefore reproducible and it bites during routine edits, not just exotic ones.** It was caught only because the lane greps for the footer rather than trusting the page count.
+
+> **⛔ THE ASYMMETRY THAT MAKES THIS DANGEROUS RATHER THAN UNTIDY: ON THESE SHEETS THE HONESTY STATEMENTS SIT LAST.** Act A's *"the uncertainty column is empty on purpose… none is invented"* and Act C's *"one mesh, one time step, and no numerical error bar"* are the final lines. **Silent bottom-truncation preferentially deletes exactly the caveats and limitations Sanaa requires on screen.**
+
+**I VERIFIED BOTH CURRENT SHEETS MYSELF: each renders its tail, one page each.** Act A's *"16 operating points solved on this geometry, 39,680 cells"* and Act C's Lead Numericist limitation are both on the page. **The live sheets are clean; the failure mode is not.** A committed last-line guard is ordered, to be driven to refusal on a deliberately overlong copy. **Other teams' one-page sheets are worth the same check — escalated, not assumed.**
+
+---
+
+### C. ⛔ **CORRECTING A PREMISE THAT REACHED ME FROM TWO DIRECTIONS: THE ACT A COMPUTE LINE IS FULLY MEASURED. THERE IS NO 12-POINT GAP.**
+
+A lane reported, and the ruling that came back to me repeated, that *"only 4 of 16 point directories exist, so no wall time exists for the other 12."* **I refused to apply the fix without the provenance, and the premise is FALSE. THE 16 POINTS LIVE IN TWO RUN TREES.**
+
+| tree | points | ClockTime range |
+|---|---|---|
+| `T23_runs/T23_P305_U{10,20,30,40}` | **4** | 1781–1831 s |
+| `T24_runs/T24_P{080,155,230}_U{10,20,30,40}` | **12** | 2243–2353 s |
+
+**16 of 16 carry `log.solve` with a `ClockTime`.** Sum **34,727 s = 578.78 core-min** at 1 rank → **$0.4949** at $0.0513/core-h. **That reproduces the sheet's $0.49 and the independently-measured 578.8 to the digit. The 16-point coverage claim is CORRECT and nothing is extrapolated.**
+
+**⚠️ HAD I APPLIED THE INSTRUCTION AS GIVEN I WOULD HAVE PUT AN HONEST-SOUNDING DISCLAIMER ON SCREEN DENYING DATA WE ACTUALLY HOLD. A FALSE STATEMENT OF ABSENCE IS THE SAME DEFECT AS A FALSE STATEMENT OF PRESENCE, POINTING THE OTHER WAY.** The act's own `solved_points()` had it right all along — it scans `for root in (T23_RUNS, T24_RUNS)`. **Anything that counts this map's points must look in BOTH trees.**
+
+**THE REAL DEFECT IS DIFFERENT AND IS A PRESENTATION TRAP.** 578.78 core-min is a **SUM** over points that **ran CONCURRENTLY** — which is precisely why the 4-group (~1800 s) and the 12-group (~2300 s) differ, that gap being contention. **A user experiences ELAPSED time, not the sum.** Presenting the 9 h 38 min sum as *"how long this took"* is arithmetically true and rhetorically false — **the same shape as the margin defect.** Ordered: derive **elapsed** from the run records' timestamps; if they do not support an honest elapsed figure, **show dollars alone and say so — never reconstruct elapsed from an assumption about concurrency.**
+
+---
+
+### D. **SIGNIFICANT FIGURES — ORDERED, AND THE DEFERRAL ARGUMENT RAN BACKWARDS**
+
+The sheet prints 4 decimals (107.6775); the figure beside it prints **0.1 °C** (107.7). **Sanaa's 03:10Z item (4) mandates 0.1 °C until the grid triple lands, so the sheet is non-compliant TODAY** — not merely pre-empting a future state — and *"everything synchronized"* is binding on the pair.
+
+The lane deferred on layout budget. **That runs backwards: 107.6775 → 107.7 REMOVES characters, so it reduces content volume and makes the one-page problem EASIER.** And the "we'd do it twice" objection only holds if precision is hand-edited — **ordered as a single named precision parameter threaded through the generator**, so each change is one line plus a regenerate. **It will be turned at least twice more.**
+
+**⚠️ ONE HAZARD FLAGGED TO THE LANE: Table 2's new *core above housing* column carries 1.0675 / 2.0682 / 3.0689 / 4.0697. Quantising a DIFFERENCE column can manufacture a false "no change".** If any collapses to something reading as zero or equal, it comes back to me — that is a judgement about what the screen claims, not a formatting choice.
+
+**When T23G grades, the sig figs move again to whatever it supports — pre-registered expectation `1 °C` on a `G-GCI-DISPLAY` GATE FAIL.**
+
+---
+
+### E. **T23G_F — 4,588 / 10,000 at 05:20Z AND ACCELERATING**
+
+It sped up when `T23G_M` finished at 04:27Z and freed a core: **57 it/min** to 04:57Z, **71 it/min** over the last 23 min. On the recent rate the remaining 5,412 iterations give **ETA ≈ 06:40Z**. **My ETAs for this level have moved three times tonight (06:55Z → 07:1xZ → 06:40Z) and the rate is genuinely varying with box load, so treat any of them as an estimate and not a commitment.** Inside `timeout 24000s` (expiry ≈ 10:39Z) and inside cap.
+
+---
+
+
 ##### ADDENDUM 2026-09-01T05:00Z — **THE T25R CRASH IS SOLVED AND THE CAUSE IS A LAB-WIDE OpenFOAM TRAP: A RELAXATION KEY THAT DOES NOT MATCH `UFinal`. AND OUR DEMO-MODE ACT IS CORRECT, GUARDED, VALIDATING AND COMPLETELY INERT.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the section's `Section last written:` line is left alone. **I launched no solver.** The T25RF probe spent **12.217 of its 30 core-min cap**, cap-stopped nothing, and is **ungated under §2m — no verdict, closes no gate, and nothing from it may reach a screen.**)*
