@@ -4792,6 +4792,44 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23j — **`D19R2` = `NOT A RESULT`, AND THE REPAIR HELD: IT REFUSED THIRTY LINES PAST WHERE `D19R` DIED, ON A REGISTERED GATE AND NOT ON THE OLD DEFECT. ⚠⚠ HAD `D19R`'s WIRING BEEN CORRECT IT WOULD HAVE REFUSED HERE TOO — THE SUCCESSOR WAS NECESSARY AND IS NOT SUFFICIENT. AND I SHARPENED THE MECHANISM: IT IS NOT "THE np=2 ARMS"** (2026-09-01T04:2xZ, `date -u` at write)
+
+##### 1. THE VERDICT, WITH ITS NUMBERS AND ITS COST
+
+**`D19R2` = `NOT A RESULT`.** Grader refused `rc=2`, no grade JSON. `REFUSE G19R-1h / MANIFEST_ENTRY_MUTATED`, arm `X2`, path `system/decomposeParDict`, recorded `68ecc827…` against on-disk `c3f5f05d…`. Record at `cases/dafoam/ladder-a/A1/curriculum_D19R2/RESULTS.md`, commit `944e40a8`. **Cost 0.00096 core-min MEASURED against a 2.0 ceiling; ZERO solver core-minutes, no arm re-run, no run root created.**
+
+**THE REPAIR HELD AND THAT IS THE FINDING.** Execution reached **`G19R-1h`, thirty lines past where `D19R` died at `G-PROV`**. Blockers 1 and 2 are fixed and stayed fixed — the guard I drove green-and-three-ways-red before clearing did exactly what it was cleared to do.
+
+**⚠⚠ AND THE CONSEQUENCE FOR MY OWN ORIGINAL DIAGNOSIS, which is the most useful line in this block: HAD `D19R`'s PROVENANCE WIRING BEEN CORRECT, `D19R` WOULD HAVE REFUSED HERE INSTEAD.** `D19R` phase 1 **could not have produced a verdict on these arms under ANY repair confined to its provenance call site.** I diagnosed `:482` as *the* blocker; it was *a* blocker. **The successor was necessary and is not sufficient**, and the 12.416 core-min `D19R` spent was never going to yield a verdict whatever we fixed at that line.
+
+##### 2. ⚠ I SHARPENED THE MECHANISM, AND THE LANE'S SCOPE CLAIM IS WRONG IN A WAY THAT MATTERS
+
+The lane reported the mutation confined to *"EXACTLY THE THREE np=2 ARMS"*. `[MEASURED BY ME, this invocation]` **ALL SIX ARMS declare `numberOfSubdomains 2` and `method scotch`.** So np is **not** the discriminator and neither is the method. The discriminator is **whether `decomposePar` ACTUALLY RAN**:
+
+| arms | `processor*` dirs | dict mtime | `kahipCoeffs` |
+|---|---|---|---|
+| `X2`, `S8`, `N2` | **2** | 2026-08-31, *during the run* | **1** |
+| `MESH`, `S1`, `R1` | **0** | 2026-08-26, staged and untouched | **0** |
+
+**OpenFOAM writes its default coefficient sub-dicts back into `decomposeParDict` when `decomposePar` executes — and it wrote `kahipCoeffs` while the SELECTED METHOD IS `scotch`.** It emits coefficient blocks for methods it is not even using.
+
+**That last fact changes the disposition, which is why the correction matters rather than being pedantry:** route (2), pre-normalising the dict so the rewrite is a no-op, **is chasing a version-dependent default set the binary chooses to write for methods it is not using.** It is fragile in a way "just write the defaults first" hides. **The guard is right and `system/decomposeParDict` is a write target in any arm that decomposes** — 151 of 152 manifest entries across six arms are byte-identical after five days, and the one that moved is the one OpenFOAM wrote.
+
+##### 3. THE LANE DID NOT FIX IT, AND THAT WAS THE RIGHT CALL
+
+Blockers 1 and 2 were **wiring** — what a successor may repair. **Blocker 3 is a REGISTERED GATE**: `G19R-1h` is *"the input manifest byte-identical"*, and **excluding a path NARROWS what that gate checks** — the moved goalpost the successor route exists to avoid, and my constraint to it was explicit. It touched no gate, no manifest, no excluded-write-targets list, no threshold, and **did not retry with a relaxed reader.** `d19r_age_guard.py:207` already carries `MANIFEST_INPUT_IS_WRITE_TARGET` with the note *"a manifest may not pin a path the solver writes"*, and `X2`'s manifest already excludes `0` by name with a measured reason — **the mechanism exists and is used; this path simply is not on the list.**
+
+**THREE ROUTES, AND ROUTE 1 IS NOT MINE.** (1) Rule `system/decomposeParDict` a write target for `G19R-1h` — **a gate-design question, and `D19R` §5 reserves gate design to Sanaa in terms**; my own brief forbids me widening a gate. (2) Re-run the three decomposing arms with the dict pre-normalised — **NEW COMPUTE**, and fragile per §2. (3) Accept `NOT A RESULT` and leave the compressible gate shut. **The measurement is complete; the ruling is Sanaa's.**
+
+##### 4. ⚠ A CORRECTION TO A FIGURE I RELAYED UPWARD — `L-422`'s SPECIES, THIRD TIME TONIGHT
+
+I reported **"10.084 core-min spent"** on SO-3 to the chief. **It was 8.084.** The lane's reader was `grep -o "core_min=[0-9.]*"`, which **also matches the tail of `enforced_core_min=`** — a CAP, not a spend. It caught this itself when the running total jumped to **530.434 against a 595.0 ceiling** and looked like a near-overrun: **520.0 core-min of CAP values counted as SPEND.** Parsed field-by-field the true rows are `MESH 0.167`, `O-S 7.917`, `XE-S 2.350` — **10.434 core-min at three arms.** **It showed the naive reader wrong on known bytes rather than asserting the new one right**, which is the standard. Nothing downstream used the bad number; it went to the chief in my report, so I correct it here.
+
+##### 5. SO-3 — THREE ARMS LANDED, ALL `rc=0`, ALL INSIDE CAP
+
+`MESH 0.167` (cap 5.0), `O-S 7.917` (cap 240.0, **eleven IPOPT majors**), `XE-S 2.350` against a 3.7 prediction (cap 15.0). Chain running into `FE-S`. **Trend still points below the band's 60.0 lower edge — and my caution is the operative one and the lane is holding to it: `O-P` is the PATCHED optimiser, the rotation defect is exactly what distinguishes the rows, and ~36 is not to harden into an expectation before `O-P` has run. IN PROGRESS, NOT A RESULT.**
+
+
 ##### UPDATE S-23i — **DEMO-MODE PREP DONE: LIVE MESHING IS VIABLE AT 8.021 s, THE STL **IS** THE SOLVED WING TO 1.33 float32 ulp, AND THE LANGUAGE SWEEP IS 0 CAMERA HITS ON A 15/15 PLANTED CONTROL. ⚠⚠ BUT cfd's DEMO CONTRACT REJECTS NINE ACT D STRINGS — TWO OF THEM BECAUSE THEY CONTAIN `CLAUDE.md` RULE 1's OWN VERDICT WORD, USED HONESTLY IN PLAIN ENGLISH. CROSS-FAMILY, ESCALATED, NOT DECIDED** (2026-09-01T04:0xZ, `date -u` at write)
 
 ##### 1. ⚠⚠⚠ THE BLOCKER — A STANDARDS COLLISION, NOT A BAN-LIST VIOLATION
