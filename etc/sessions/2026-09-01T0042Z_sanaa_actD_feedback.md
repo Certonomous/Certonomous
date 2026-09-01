@@ -1,0 +1,11 @@
+# Sanaa feedback — Act D adjoint-optimization GUI discussion, captured verbatim 2026-09-01 ~00:5xZ
+
+> 1. The geometry substitution — must fix. Read the Numericist's table again: the uploaded surface measured span 0.12 m, chord 1.0 m, thickness 3.0 m — a broken/mis-unit STL — and the lab then ran the MACH tutorial wing instead: "Every number below belongs to the MACH tutorial wing." A customer watching this sees: I uploaded my file; you ran something else. Two honest ways out: (a) fix the STL so the uploaded geometry is the wing that gets optimized, or (b) script the admission beat properly — the lab says "your file cannot be a wing: thickness exceeds chord, likely a units or axis-order error; I can't run it. Re-export in metres with span along Y" -> you upload the good file -> it runs. Option (b) is actually a great intelligence beat. Silent substitution is neither.
+>
+> 2. The 28.3% needs its decomposition (your own D7R rule). Twist moved -3 deg outboard, AoA is a design variable, and section shape moved 31% of local thickness — how much of the drag drop is twist (spanload/induced drag) vs section shape vs AoA retrim? Without that table, this is exactly the "30% reduction that was mostly AoA" trap you already caught once. One table: baseline -> twist-only -> twist+shape -> final, Cd at each.
+>
+> 3. Convergence honesty. "12 of 14 steps still descending, band 2.2%" means the optimizer stopped while still improving — say why (iteration cap at 47?) in one plain line. Also nowhere does it state that grid independence was not assessed on this 38k-cell mesh; R6 requires the sentence: "results are relative to this mesh; grid independence not assessed in this act."
+>
+> 4. Small R5/R4 items: "MACH tutorial" is internal-ish (a customer hears "you ran a tutorial") — say "reference wing" or, after fix 1, nothing. Role names: the spec says Lead Researcher / Lead Engineer / Lead Numericist; the script uses Chief — your call, just be consistent across acts. The single FD step with the plateau borrowed from a smaller case is disclosed honestly — fine, keep.
+>
+> To be incorporated now while i come back with more feedback. Any demo that completes let me know so i can check and give feedback again
