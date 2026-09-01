@@ -4791,9 +4791,74 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T19:46:50Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25i` — ParaView proved coupled to the case, the act's two drive paths reconciled, and the screen-8 fix I recorded as closed turns out to have reached the sheets and not the wire. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T20:11:43Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25j` — 53 act frames graded, the polar act stages the refused field, and G-STALL is measured STRUCTURALLY unable to read a caption. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25j — **53 ACT FRAMES RENDERED FROM THE REAL CASES AND GRADED; THE POLAR ACT NOW STAGES THE REFUSED FIELD INSTEAD OF THE NEGATIVE NUMBER. ⚠⚠ AND THE HAZARD I RAISED AS "NO GATE READS PICTURES" IS MEASURED AND WORSE: `G-STALL` IS **STRUCTURALLY INCAPABLE** OF READING A CAPTION — 8/8 DIAGNOSTIC CLAIMS EVADE IT. FIVE TIMES IN THIS ITEM THE INSTRUMENT WAS SOUND AND THE INPUT TO IT WAS WRONG** (2026-09-01T20:11:43Z, `date -u` at write)
+
+###### 1. ⚠⚠ THE FINDING OF THE WHOLE ITEM, AND IT IS THE LANE'S: **GATES CHECK WHAT THEY WERE POINTED AT. THEY DO NOT CHECK THAT YOU POINTED THEM AT THE RIGHT THING.**
+
+**FIVE TIMES in one item the INSTRUMENT was sound and the INPUT to it was wrong. Not one was caught by a gate; every one was caught by a two-sided plant or by OPENING THE ARTEFACT.**
+
+1. **Stage 0 returned `BLOCKED` and the verdict was WRONG** — `ColorBy(d, None)`, invalid in 5.13.3, in the lane's own script. The engine had loaded perfectly. **Acting on it would have registered the entire 5.11.2 + `xvfb` fallback we do not need.**
+2. **Coupling returned `NOT A RESULT` at 0.000074** — the camera was set BEFORE the first `Render`, so ParaView overrode `CameraParallelScale`, the body was ~10 px wide in an 18.6 m O-grid, and a **30 % geometry change moved 74 ppm.** Found by **looking at the frame**, not by reasoning about the statistic.
+3. **The gradient field was a DICT, not an array — and it is PER-FACE:** 1008 values against **1031 points** and **1008 quad faces**. **⚠ HAD THE COUNTS HAPPENED TO AGREE, A PER-FACE FIELD PAINTED ONTO POINTS WOULD HAVE BEEN SILENTLY WRONG AND WOULD HAVE PASSED EVERY GATE IN THE ITEM.** The count is now asserted: **"IT FITTED" IS NOT "IT BELONGS".**
+4. **The wing camera CROPPED THE WING** — span 14.04 m along Z against a hand-tuned `PSCALE` of 3.6. **A frame that silently crops its subject is not blank, has intact provenance and the right cell count, so EVERY GATE PASSES AND ONLY OPENING THE IMAGE CATCHES IT.** Camera now **derived from the mesh bounds** with a 4 % margin, so it cannot be wrong about a geometry it read.
+5. **The caption guard's own mechanism pattern carried `"turbulent wake"` and `"The wake is turbulent here."` WALKED STRAIGHT THROUGH IT** — found by the plant, not by reading. **"A phrase pattern is only as good as the word order its author imagined."** Same shape as the trailing-`\b` trap and the fixture-literal controls: **an author's imagination is not a specification, and only a plant written INDEPENDENTLY of the pattern exposes the gap.**
+
+###### 2. ⚠⚠ `G-STALL` CANNOT SEE A CAPTION — **STRUCTURALLY**, NOT BY TUNING
+
+I raised *"no gate reads pictures"* as a hazard. **The lane measured it and it is worse than I said.**
+
+**`G-STALL` requires the stall word and the angle within sixty characters OF ONE STRING.** On a frame **the ANGLE is in the LABEL and the CLAIM is in the CAPTION — two channels — so the regex can NEVER see them together, however it is tuned.**
+
+| caption | `G-STALL` |
+|---|---|
+| `"the stall angle is 13.0 deg"` | **FIRES** (its C7 control) |
+| `"At 18 deg the flow stalls over the upper surface."` | **FIRES** |
+| **`"The flow separates over the upper surface here."`** | **DOES NOT FIRE** |
+| **`"The wake is shedding behind the section."`** | **DOES NOT FIRE** |
+
+**8 of 8 diagnostic captions evade it entirely.** **THE GUARD THAT EXISTS TO STOP US BINDING A STALL WORD TO A NUMERIC ANGLE IS BLIND TO THE CHANNEL WE JUST STARTED PUBLISHING IN — AND WE ONLY LOOKED BECAUSE WE PUT A PICTURE WHERE AN ARGUMENT USED TO BE.**
+
+**Closed by `cases/dafoam/ladder-a/A1/polar_frame_captions.py`** (`7f2ebf8e`): a **mechanism** pattern carrying words `G-STALL` does not have at all — *separates, shedding, recirculation, reattach, turbulent* — **requiring NO angle anywhere**, plus a **result-voice** pattern for captions presenting a refused iterate as a flow result. **22/22 arms both directions, verified by my own run**; every published caption swept, and each also through `demo_mode.check_demo_language`.
+
+###### 3. ⚠ THE BEST IDEA IN THE ITEM: **TWO ARMS THAT EXIST ONLY TO STOP THE MEMO ROTTING**
+
+One arm asserts that **8/8 forbidden captions STILL evade `G-STALL`**; the other asserts **`G-STALL` still fires on its own C7**. **So if a successor widens `G-STALL`, THE FILE GOES RED and the memo's central factual claim is CORRECTED rather than quietly becoming false.**
+
+**THAT IS AN EXECUTABLE ASSERTION OF A DOCUMENT'S FACTUAL CLAIM, AND THIS LAB HAS NOT DONE IT BEFORE.** **⚠ AND IT WOULD HAVE CAUGHT FOUR OF TODAY'S DEFECTS: the `_note` whose count was wrong in both units; the comment naming a defect that had been repaired; the three checkers enforcing a superseded tense rule; and the sheet quoting `Re 6.54e6` from an ASSUMED chord.** **All four were documents that went stale silently because NOTHING TESTED THEM.** Boarded as a pattern for the lab, not as a detail of this item.
+
+###### 4. THE POLAR ACT STAGES THE REFUSED FIELD — AND THE CAPTION STAYS FLAT ON PURPOSE
+
+**MEASURED BY ME: the sweep's surviving state IS the refused angle** — last point **α = 18.0, `NOT CONVERGED`, `last_time 1000`**, and **only `0`, `0.orig` and `1000` exist in the case**, so the sweep re-solves in place. Rendered, it shows a large separated wake with **visible oscillatory striping**.
+
+**THAT BEATS THE NUMBER AND IT CLOSES THE `S-25i` §5.4 HOLE IN MY OWN STAGING:** the negative `CD` needs a viewer who already knows drag cannot be negative, **and the compressible arm at that same angle offers no absurd number at all.** A visibly disordered wake is legible in either arm.
+
+**⚠ MY RULING, BINDING IN THE MEMO'S §3: THE FRAME IS A CORRELATE OF A REFUSED STATE, NEVER A MECHANISM FOR IT.** Striping can be numerical oscillation, an unconverged transient, **or** a real unsteady structure the steady formulation cannot hold — **we have not measured which and the act may not say.** The refusal rests on **the residual verdict and on nothing in the picture.**
+
+**RULED: THE FLAT CAPTION STAYS.** The lane asked whether it under-sells the beat. **Its own evidence settles it — every vivid alternative it drafted tripped the mechanism guard. IF EVERY ROUTE TO VIVIDNESS REQUIRES AN UNEARNED CLAIM, THEN ON THIS FRAME VIVIDNESS *IS* THE UNEARNED CLAIM.** The drama was never in the adjectives; **it is in what the platform DID.** One factual addition instructed: **the COUNT — 9 converged, 10 refused, 19 run — which adds scale, makes the refusal legible as a POLICY rather than an accident, and asserts nothing about the flow.**
+
+**The converged counterpart is NOT on disk and was NOT faked** — a neighbouring angle relabelled is fabricated provenance. Reported in `render.json` `_not_rendered` and the frames README.
+
+###### 5. THE RENDER PASS — `PASS`, AND `G-PV4` IS THE DISCIPLINE TO COPY
+
+`0b1734c8`: **53 frames, every one graded and provenanced. 1.61 core-min; 1.73 of 90 spent.** `G-PV1a`/`G-PV1b` md5 at run time on **both halves of the pair**; `G-PV7a` on all 53; **`G-PV5` 48/48 morph frames from STORED surfaces, `major_iterations_unmatched 0`, NO INTERPOLATION** — the morph honesty requirement held under a real test rather than a promise.
+
+**⚠ `G-PV4` IS ASSERTED AGAINST `checkMesh.log` AND NEVER AGAINST A SHEET: "a document quoting 38,304 and a mesh holding 38,304 are two different claims."** **That is the exact discipline that would have caught the Reynolds number living on a sheet and nowhere else, and it should be the default for every number a render displays.**
+
+**FILING, MEASURED BEFORE COMMITTING:** 12 MB total. The **10 MB of morph frames stay UNTRACKED** — derived, deterministically regenerable from a tracked JSON plus a tracked script, **and `G-PV7c` MEASURED a re-render as bit-identical, so "regenerable" is a MEASUREMENT here rather than a hope.** The **1.2 MB of stills and `render.json` are TRACKED as the evidence**, with a README stating where the line falls and why. `check_filing.py`: **45 pre-existing, none added.**
+
+###### 6. THE pyHyp QUESTION IS CLOSED ON MY OWN CONDITION
+
+**A1's `preProcessing.sh` is `genAirFoilMesh.py` → `plot3dToFoam` → `autoPatch` → `createPatch` → `renumberMesh`.** Steps 2–5 are host OpenFOAM utilities as I said — **but step 1 is `from pyhyp import pyHyp` at `genAirFoilMesh.py:10`, and I confirmed myself that `pyhyp` raises `ModuleNotFoundError` while `numpy` imports fine, SO THE READER WAS SHOWN A NON-ZERO.** No `volumeMesh.xyz`, no OpenFOAM half. **The host-runnable-mesher option is CLOSED and `generate-once-commit-it` is the shape.**
+
+**⚠ AND A CORRECTION TO A FACT RELAYED TO ME AS DECISIVE: `A2-mach-wing` IS NOT AN M6 TREE.** 28M, `mdolab_wing_surface_mesh.cgns`, `genWingMesh.py`, OpenVSP mesh log — **zero M6 or ONERA markers; I grepped for both.** The transonic M6 work is **`A3-onera-m6-transonic`, 211M, a different tree.** The ruling's SHAPE is unaffected, **but anyone hardening a tree on that sentence would harden the 28M wing and leave the 211M M6 untouched.**
+
+**THE POINT THAT SURVIVES: BOTH TREES ARE VALUABLE AND NEITHER IS PROTECTED BY ANYTHING DESIGNED TO PROTECT IT.** The demo sequencer's guard exists to stop a mesher writing into a case tree; **that it also shields irreplaceable data is a COINCIDENCE OF CONFIGURATION, AND A COINCIDENCE IS NOT A SAFEGUARD.** Raised as its own item on Sanaa's desk — **and Sanaa has M6 slated for rebuild this week, so the 211M tree is the record the rebuild would be measured against.**
+
+**Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25i — **THE PARAVIEW ENGINE RENDERS ON THIS GPU-LESS BOX AND IS PROVED COUPLED TO THE CASE; THE ACT'S TWO DRIVE PATHS NOW PUBLISH IDENTICALLY (29 EVENTS / 7-OF-9 → 347 / 9-OF-9). ⚠ BUT IT UNBLOCKED **THREE** CHECKS, NOT THE TEN I WAS TOLD AND RELAYED — AND THE SCREEN-8 FIX I RECORDED AS CLOSED WAS APPLIED TO THE SHEETS AND NOT TO THE WIRE, WHICH IS HALF MY MISS** (2026-09-01T19:46:50Z, `date -u` at write)
 
