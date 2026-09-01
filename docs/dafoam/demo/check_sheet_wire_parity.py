@@ -62,7 +62,15 @@ os.environ.setdefault("CERTONOMOUS_SWEEP_PACE_MS", "0")
 
 #: The pairs this sweep can compare. A sheet with no act is REPORTED, never
 #: silently skipped: "no act to compare against" is a finding about our
-#: coverage, not an absence of a problem.
+#: coverage, not an absence of a problem. A sweep that scores full marks while
+#: silently not covering three of its subjects is the reader-that-cannot-see-a-
+#: non-zero failure in a new place.
+#:
+#: AND THE GAP IS NOT A LIMITATION OF THIS SWEEP -- IT IS QUEUED WORK SEEN FROM
+#: THE OTHER SIDE. SO-3 (PASS), D19M (GATE REACHED) and D19O (GATE REACHED) were
+#: all ruled shootable, and their SHEETS ARE AHEAD OF THEIR ACTS: the documents
+#: exist and the screens do not. So this coverage gap and the act backlog are
+#: one gap from two directions, and building those acts closes both.
 #: (sheet, act key, the module whose IMPORT registers that act). The module is
 #: named because importing it is what registers the act -- the first run of this
 #: sweep refused with "no act is registered as 'adjoint-wing'", which was the
@@ -103,12 +111,24 @@ CLAIMS = [
           "Sanaa's stage 8: shown as done or as underway, NEVER as absent. "
           "This is the class that was fixed on four sheets and left off the "
           "wire for hours.",
-          # COVERS THE CLAIM, NOT THE TOPIC. `covers=r"convergence stud"` was
-          # the first attempt and the forcing plant caught it: it absorbed a
-          # planted claim that the study was FINISHED AND ATTACHED, which is a
-          # DIFFERENT claim from "underway" and is exactly the sort of new
-          # promise this arm must refuse. A `covers` broad enough to match the
-          # subject swallows every future claim about that subject.
+          # COVERS THE CLAIM, NOT THE TOPIC.
+          #
+          # A GUARD KEYED TO A TOPIC CANNOT DISTINGUISH A CLAIM FROM ITS
+          # NEGATION. `covers=r"convergence stud"` was the first attempt and
+          # the forcing plant caught it: it matches "the convergence study is
+          # running" AND "the convergence study is finished and the band is
+          # attached" -- OPPOSITE STATEMENTS, IDENTICAL MATCH. Any pattern that
+          # names the SUBJECT rather than the ASSERTION has this property, and
+          # it reads as healthy precisely because it matches so much.
+          #
+          # WHAT THAT WOULD HAVE MEANT HERE IS NOT ABSTRACT: A2-GC CAP-STOPPED
+          # AT L1 AND A1WR HAS NOT PRODUCED A FRAME. THERE IS NO BAND. An act
+          # claiming one would have been a false statement, on camera, about
+          # the one thing the convergence doctrine exists to enforce -- and it
+          # would have looked MORE plausible to a viewer than the honest
+          # "underway", because "done" is what a finished platform says. A
+          # premature "done" is worse than an absent line: absence is visible
+          # and a false completion is not.
           covers=r"convergence stud\w*[^.]{0,140}?"
                  r"(running|lands in your inbox|your box|with the certificate)"),
     Claim("three expert voices, not one narrator",

@@ -126,7 +126,14 @@ def run_checks() -> tuple[dict, bool]:
            "publications": sequencer_record["emitted"]})
 
     # ---- 2. the counter --------------------------------------------------
-    frames = _of(events, "solve.frame")
+    # THE MAJOR FRAMES ONLY. The solving stage now also publishes three
+    # labelled TRACE series on the same event, so an unfiltered list no longer
+    # aligns one-to-one with the recorded major rows and the `zip` below would
+    # silently compare a trace against a major row. Filtering by label is the
+    # fix; noticing that a zip can go quietly wrong when its inputs change
+    # length is the reason this comment exists.
+    frames = [f for f in _of(events, "solve.frame")
+              if f.get("label") == "Major iteration"]
     end = _of(events, "solve.end")[0]
     check("the counter reaches the recorded last iteration",
           frames[-1]["iteration"] == int(series["counter_runs_to"]) == 47,

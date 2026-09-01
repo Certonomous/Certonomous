@@ -1278,6 +1278,10 @@ class ActDSequencer(Sequencer):
             if kind == "major":
                 self._publish(emit, "solve.frame", {
                     "stage": "solving",
+                    # THE MAJOR FRAME IS LABELLED so the three trace series
+                    # below can be told from it by a reader that needs the
+                    # per-iteration record rather than the per-trace one.
+                    "label": "Major iteration",
                     "point_index": 1, "points": 1,
                     "iteration": payload["iteration"],
                     "iterations": total,
@@ -1296,6 +1300,43 @@ class ActDSequencer(Sequencer):
                     },
                     "source_row": payload["source_row"],
                 })
+                # -- the traces, as SEPARATE LABELLED SERIES ---------------
+                #
+                # WHY THIS ACT PUBLISHES SERIES AT ALL, given it is ONE run.
+                # Sanaa's stage 5 asks for "sweep or multipoint runs shown
+                # simultaneously as small multiples on one screen (residuals,
+                # force or temperature traces)". Act D is neither a sweep nor
+                # multipoint -- it is a single optimisation -- so the SWEEP
+                # reading of that line does not apply to it. The TRACES reading
+                # does, and it is the one the act already committed to: six
+                # `SeriesSpec` entries with distinct labels and distinct
+                # `drives` values have been declared since the act was written.
+                # THE DECLARATION WAS THERE AND THE WIRE NEVER CARRIED IT --
+                # the same shape as the sequencer this act declared and never
+                # returned, and as the three voices the sheet had and the
+                # screen did not.
+                #
+                # NOTHING HERE IS SYNTHESISED. Every value is the one already
+                # in the frame above, read from the same recorded row, so a
+                # trace cannot disagree with the frame it was split out of.
+                for label, value, drives in (
+                        ("Drag coefficient", payload["objective_cd"], "force"),
+                        ("Constraint violation",
+                         payload["constraint_violation"], "residual"),
+                        ("First order measure",
+                         payload["first_order_measure"], "residual")):
+                    self._publish(emit, "solve.frame", {
+                        "stage": "solving",
+                        "label": label,
+                        "drives": drives,
+                        "point_index": 1, "points": 1,
+                        "iteration": payload["iteration"],
+                        "iterations": total,
+                        "elapsed": _mmss(payload["display_s"]),
+                        "elapsed_s": round(payload["display_s"], 3),
+                        "value": value,
+                        "source_row": payload["source_row"],
+                    })
             else:
                 solve = payload["solve"]
                 self._publish(emit, "solve.adjoint", {
