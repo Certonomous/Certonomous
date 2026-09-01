@@ -1,0 +1,763 @@
+{
+  "what_this_is": "Field renders for the four cooling-airspeed operating points at the highest solved heat load. Every coloured shape is one finite-volume cell of the computational mesh, drawn at its own extent and coloured by its own stored value.",
+  "source_cases": {
+    "10": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10",
+    "20": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U20",
+    "30": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U30",
+    "40": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40"
+  },
+  "source_fields": {
+    "10": {
+      "core": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/10000/core/T",
+      "housing": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/10000/housing/T",
+      "fluid": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/10000/fluid/T"
+    },
+    "20": {
+      "core": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U20/10000/core/T",
+      "housing": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U20/10000/housing/T",
+      "fluid": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U20/10000/fluid/T"
+    },
+    "30": {
+      "core": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U30/10000/core/T",
+      "housing": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U30/10000/housing/T",
+      "fluid": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U30/10000/fluid/T"
+    },
+    "40": {
+      "core": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/10000/core/T",
+      "housing": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/10000/housing/T",
+      "fluid": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/10000/fluid/T"
+    }
+  },
+  "source_velocity_fields": {
+    "10": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/10000/fluid/U",
+    "20": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U20/10000/fluid/U",
+    "30": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U30/10000/fluid/U",
+    "40": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U40/10000/fluid/U"
+  },
+  "source_meshes": {
+    "core": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/constant/core/polyMesh",
+    "housing": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/constant/housing/polyMesh",
+    "fluid": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/constant/fluid/polyMesh"
+  },
+  "registered_geometry_source": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/build_t23.py",
+  "readers_reused": [
+    "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/mesh_reader_actA.py",
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/analyse_t24.py"
+  ],
+  "fields_present_in_the_end_time_directories": {
+    "core": [
+      "T",
+      "p"
+    ],
+    "housing": [
+      "T",
+      "p"
+    ],
+    "fluid": [
+      "T",
+      "U",
+      "alphat",
+      "k",
+      "nut",
+      "omega",
+      "p",
+      "p_rgh",
+      "phi",
+      "rho"
+    ]
+  },
+  "geometry_guard": {
+    "core": {
+      "cells": 3360,
+      "r_min_m": 0.005999999999998854,
+      "r_max_m": 0.033500000000007815,
+      "z_min_m": 0.0,
+      "z_max_m": 0.125,
+      "meridional_area_m2": 0.0034375000000011233,
+      "registered_meridional_area_m2": 0.0034375000000000005,
+      "footprint_is_exact_rectangle": true
+    },
+    "housing": {
+      "cells": 1120,
+      "r_min_m": 0.033500000000007815,
+      "r_max_m": 0.03749999999998035,
+      "z_min_m": 0.0,
+      "z_max_m": 0.125,
+      "meridional_area_m2": 0.000500000000000798,
+      "registered_meridional_area_m2": 0.0004999999999999996,
+      "footprint_is_exact_rectangle": true
+    },
+    "fluid": {
+      "cells": 35200,
+      "r_min_m": 0.03749999999998035,
+      "r_max_m": 0.12500000000026765,
+      "z_min_m": -0.25,
+      "z_max_m": 0.5,
+      "meridional_area_m2": 0.0656250000002476,
+      "registered_meridional_area_m2": 0.06562499999999999,
+      "footprint_is_exact_rectangle": true
+    }
+  },
+  "wedge_plane_pairing": {
+    "core": {
+      "largest_wedge_plane_radius_disagreement_m": 4.336808689942018e-17,
+      "largest_wedge_plane_axial_disagreement_m": 0.0,
+      "pairing_tolerance_m": 1e-12,
+      "smallest_real_radial_cell_dimension_m": 0.001145833333237551,
+      "smallest_real_axial_cell_dimension_m": 0.000892857141999992,
+      "tolerance_headroom_above_artefact": 23058.43009213694,
+      "tolerance_margin_below_smallest_real_feature": 1145833333.237551
+    },
+    "housing": {
+      "largest_wedge_plane_radius_disagreement_m": 9.989925553455237e-14,
+      "largest_wedge_plane_axial_disagreement_m": 0.0,
+      "pairing_tolerance_m": 1e-12,
+      "smallest_real_radial_cell_dimension_m": 0.0004999999999090385,
+      "smallest_real_axial_cell_dimension_m": 0.000892857141999992,
+      "tolerance_headroom_above_artefact": 10.0100846062274,
+      "tolerance_margin_below_smallest_real_feature": 499999999.9090385
+    },
+    "fluid": {
+      "largest_wedge_plane_radius_disagreement_m": 9.990619442845627e-14,
+      "largest_wedge_plane_axial_disagreement_m": 0.0,
+      "pairing_tolerance_m": 1e-12,
+      "smallest_real_radial_cell_dimension_m": 2.3087879545413692e-05,
+      "smallest_real_axial_cell_dimension_m": 0.000892857141999992,
+      "tolerance_headroom_above_artefact": 10.009389364901782,
+      "tolerance_margin_below_smallest_real_feature": 23087879.54541369
+    }
+  },
+  "one_mesh_shared_by_all_four_points": true,
+  "planted_controls": {
+    "10": {
+      "negative_arm": {
+        "two_reads_of_identical_bytes_differ_by": 0.0,
+        "regions": [
+          "core",
+          "housing",
+          "fluid",
+          "fluid velocity"
+        ],
+        "passed": true
+      },
+      "scalar_arm": {
+        "planted_K": 0.001234,
+        "region": "housing",
+        "cell_index": 560,
+        "baseline_value_K": 375.041283652,
+        "read_back_K": 0.0012340000000108375,
+        "detection_floor_K": 1e-06,
+        "ladder_K": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_K": [
+          10.0,
+          1.0,
+          0.10000000000002274,
+          0.009999999999990905,
+          0.0012340000000108375,
+          0.0009999999999763531,
+          9.999999997489795e-05,
+          9.999999974752427e-06,
+          9.999999974752427e-07
+        ],
+        "ladder_change_elsewhere_K": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_K": 0.0,
+        "cells_searched": 39680,
+        "passed": true
+      },
+      "vector_arm": {
+        "planted_m_per_s": 0.001234,
+        "region": "fluid",
+        "component": "axial",
+        "cell_index": 17600,
+        "baseline_axial_m_per_s": 10.2221345866,
+        "read_back_m_per_s": 0.0012340000000001794,
+        "detection_floor_m_per_s": 1e-06,
+        "ladder_m_per_s": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_m_per_s": [
+          10.0,
+          1.0,
+          0.10000000000000142,
+          0.010000000000001563,
+          0.0012340000000001794,
+          0.0010000000000012221,
+          0.0001000000000015433,
+          1.000000000139778e-05,
+          1.0000000010279564e-06
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_m_per_s": 0.0,
+        "largest_change_in_other_components_m_per_s": 0.0,
+        "cells_searched": 35200,
+        "passed": true
+      },
+      "case_tree_unchanged": {
+        "files_checksummed": 50,
+        "sha256_before": "c075bd49514c5c8c3ec3bcc30bfdc5d232bda5d3c12b58df778b289cbd07a30d",
+        "sha256_after": "c075bd49514c5c8c3ec3bcc30bfdc5d232bda5d3c12b58df778b289cbd07a30d",
+        "identical": true
+      }
+    },
+    "20": {
+      "negative_arm": {
+        "two_reads_of_identical_bytes_differ_by": 0.0,
+        "regions": [
+          "core",
+          "housing",
+          "fluid",
+          "fluid velocity"
+        ],
+        "passed": true
+      },
+      "scalar_arm": {
+        "planted_K": 0.001234,
+        "region": "housing",
+        "cell_index": 560,
+        "baseline_value_K": 340.724379139,
+        "read_back_K": 0.0012340000000108375,
+        "detection_floor_K": 1e-06,
+        "ladder_K": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_K": [
+          10.0,
+          1.0,
+          0.0999999999999659,
+          0.009999999999990905,
+          0.0012340000000108375,
+          0.0009999999999763531,
+          9.999999997489795e-05,
+          9.999999974752427e-06,
+          9.999999974752427e-07
+        ],
+        "ladder_change_elsewhere_K": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_K": 0.0,
+        "cells_searched": 39680,
+        "passed": true
+      },
+      "vector_arm": {
+        "planted_m_per_s": 0.001234,
+        "region": "fluid",
+        "component": "axial",
+        "cell_index": 17600,
+        "baseline_axial_m_per_s": 20.3428321355,
+        "read_back_m_per_s": 0.0012340000000001794,
+        "detection_floor_m_per_s": 1e-06,
+        "ladder_m_per_s": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_m_per_s": [
+          10.0,
+          1.0,
+          0.10000000000000142,
+          0.010000000000001563,
+          0.0012340000000001794,
+          0.0010000000000012221,
+          9.999999999976694e-05,
+          9.999999999621423e-06,
+          1.0000000010279564e-06
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_m_per_s": 0.0,
+        "largest_change_in_other_components_m_per_s": 0.0,
+        "cells_searched": 35200,
+        "passed": true
+      },
+      "case_tree_unchanged": {
+        "files_checksummed": 50,
+        "sha256_before": "e755d62be53d109f01c376ccfedbb61fb7f2c552b8e90991ea9c067663a6448b",
+        "sha256_after": "e755d62be53d109f01c376ccfedbb61fb7f2c552b8e90991ea9c067663a6448b",
+        "identical": true
+      }
+    },
+    "30": {
+      "negative_arm": {
+        "two_reads_of_identical_bytes_differ_by": 0.0,
+        "regions": [
+          "core",
+          "housing",
+          "fluid",
+          "fluid velocity"
+        ],
+        "passed": true
+      },
+      "scalar_arm": {
+        "planted_K": 0.001234,
+        "region": "housing",
+        "cell_index": 560,
+        "baseline_value_K": 327.315214125,
+        "read_back_K": 0.0012340000000108375,
+        "detection_floor_K": 1e-06,
+        "ladder_K": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_K": [
+          10.0,
+          1.0,
+          0.0999999999999659,
+          0.009999999999990905,
+          0.0012340000000108375,
+          0.0009999999999763531,
+          9.999999997489795e-05,
+          9.999999974752427e-06,
+          9.999999974752427e-07
+        ],
+        "ladder_change_elsewhere_K": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_K": 0.0,
+        "cells_searched": 39680,
+        "passed": true
+      },
+      "vector_arm": {
+        "planted_m_per_s": 0.001234,
+        "region": "fluid",
+        "component": "axial",
+        "cell_index": 17600,
+        "baseline_axial_m_per_s": 30.4513306512,
+        "read_back_m_per_s": 0.0012340000000001794,
+        "detection_floor_m_per_s": 1e-06,
+        "ladder_m_per_s": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_m_per_s": [
+          10.000000000000004,
+          1.0,
+          0.10000000000000142,
+          0.010000000000001563,
+          0.0012340000000001794,
+          0.0010000000000012221,
+          9.999999999976694e-05,
+          9.999999999621423e-06,
+          1.0000000010279564e-06
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_m_per_s": 0.0,
+        "largest_change_in_other_components_m_per_s": 0.0,
+        "cells_searched": 35200,
+        "passed": true
+      },
+      "case_tree_unchanged": {
+        "files_checksummed": 50,
+        "sha256_before": "4017aa7d5bfcae4b072a3aa71f35082d480b023c29a13eb64432eba58d646add",
+        "sha256_after": "4017aa7d5bfcae4b072a3aa71f35082d480b023c29a13eb64432eba58d646add",
+        "identical": true
+      }
+    },
+    "40": {
+      "negative_arm": {
+        "two_reads_of_identical_bytes_differ_by": 0.0,
+        "regions": [
+          "core",
+          "housing",
+          "fluid",
+          "fluid velocity"
+        ],
+        "passed": true
+      },
+      "scalar_arm": {
+        "planted_K": 0.001234,
+        "region": "housing",
+        "cell_index": 560,
+        "baseline_value_K": 319.837662128,
+        "read_back_K": 0.0012340000000108375,
+        "detection_floor_K": 1e-06,
+        "ladder_K": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_K": [
+          10.0,
+          1.0,
+          0.10000000000002274,
+          0.010000000000047748,
+          0.0012340000000108375,
+          0.0010000000000331966,
+          0.00010000000003174137,
+          1.0000000031595846e-05,
+          9.999999974752427e-07
+        ],
+        "ladder_change_elsewhere_K": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_K": 0.0,
+        "cells_searched": 39680,
+        "passed": true
+      },
+      "vector_arm": {
+        "planted_m_per_s": 0.001234,
+        "region": "fluid",
+        "component": "axial",
+        "cell_index": 17600,
+        "baseline_axial_m_per_s": 40.5561042675,
+        "read_back_m_per_s": 0.0012340000000037321,
+        "detection_floor_m_per_s": 1e-06,
+        "ladder_m_per_s": [
+          10.0,
+          1.0,
+          0.1,
+          0.01,
+          0.001234,
+          0.001,
+          0.0001,
+          1e-05,
+          1e-06
+        ],
+        "ladder_read_m_per_s": [
+          10.0,
+          1.0,
+          0.10000000000000142,
+          0.010000000000005116,
+          0.0012340000000037321,
+          0.0010000000000047748,
+          0.00010000000000331966,
+          1.0000000003174137e-05,
+          1.00000000458067e-06
+        ],
+        "relative_predicate": "read_at_PLANT >= PLANT*(1-1e-9)",
+        "largest_change_anywhere_else_m_per_s": 0.0,
+        "largest_change_in_other_components_m_per_s": 0.0,
+        "cells_searched": 35200,
+        "passed": true
+      },
+      "case_tree_unchanged": {
+        "files_checksummed": 50,
+        "sha256_before": "03de40bc42bb39dc5d72517a9cbceb1ded9821453f386e6450e84c8fb6e303ec",
+        "sha256_after": "03de40bc42bb39dc5d72517a9cbceb1ded9821453f386e6450e84c8fb6e303ec",
+        "identical": true
+      }
+    }
+  },
+  "temperature_shared_colour_scale_degC": [
+    14.795856719000028,
+    107.677521039
+  ],
+  "temperature_per_panel_degC": {
+    "10": [
+      14.845757098000036,
+      107.677521039
+    ],
+    "20": [
+      14.835089253000035,
+      73.11564091400004
+    ],
+    "30": [
+      14.818195838000008,
+      59.56559441600001
+    ],
+    "40": [
+      14.795856719000028,
+      51.98667815700003
+    ]
+  },
+  "temperature_per_panel_per_region_degC": {
+    "10": {
+      "core": [
+        98.83138687600001,
+        107.677521039
+      ],
+      "housing": [
+        98.40099691900002,
+        103.60783477200005
+      ],
+      "fluid": [
+        14.845757098000036,
+        101.81957783000001
+      ]
+    },
+    "20": {
+      "core": [
+        65.03371555800004,
+        73.11564091400004
+      ],
+      "housing": [
+        64.62429195300001,
+        69.009828932
+      ],
+      "fluid": [
+        14.835089253000035,
+        67.16180394100002
+      ]
+    },
+    "30": {
+      "core": [
+        51.91425636900004,
+        59.56559441600001
+      ],
+      "housing": [
+        51.51639604100001,
+        55.43885466800003
+      ],
+      "fluid": [
+        14.818195838000008,
+        53.55615733800005
+      ]
+    },
+    "40": {
+      "core": [
+        44.64103274900003,
+        51.98667815700003
+      ],
+      "housing": [
+        44.251232345999995,
+        47.84481569800005
+      ],
+      "fluid": [
+        14.795856719000028,
+        45.93774729900002
+      ]
+    }
+  },
+  "air_speed_shared_colour_scale_mps": [
+    0.19111122460817498,
+    41.5270388518053
+  ],
+  "air_speed_per_panel_mps": {
+    "10": [
+      0.19111122460817498,
+      10.536643974318643
+    ],
+    "20": [
+      0.6529561484217652,
+      20.896896409478945
+    ],
+    "30": [
+      1.3426496814816289,
+      31.219711539153586
+    ],
+    "40": [
+      2.2472474556426407,
+      41.5270388518053
+    ]
+  },
+  "figure_titles": {
+    "temperature_field": "Temperature field, 305 W",
+    "velocity_field": "Air speed, 305 W",
+    "airspeed_thumbnails": "Temperature at four cooling airspeeds, 305 W",
+    "mesh_boundary_layer": "Computational mesh at the cooled surface, three zooms"
+  },
+  "display_precision": {
+    "drawn_temperature_decimal_places": 1,
+    "drawn_air_speed_decimal_places": 1,
+    "rule": "Sanaa's 2026-09-01 figure standard: 0.1 degC significant figures on temperatures DRAWN in a figure, until the grid triple at 305 W and 20 m/s lands. Instrument evidence -- planted magnitudes, detection floors, the geometry guard, the cell table -- is NEVER rounded and is recorded here at full precision.",
+    "applies_to": "colour-bar tick labels on the field figures and the thumbnails",
+    "does_not_apply_to": "planted_controls, geometry_guard, wedge_plane_pairing, the cell CSV, and every range recorded in this bundle"
+  },
+  "figure_standard": {
+    "source": "/home/ubuntu/Certonomous/etc/sessions/2026-09-01T0310Z_sanaa_actA_figure_header_standard.md",
+    "title_word_limit": 10,
+    "caption_word_limit": 20,
+    "colour_bar_carries": "numeric ticks and the unit only",
+    "extremes_appear": "as the colour bar's end ticks and nowhere else in the figure",
+    "colour_bars_unclipped": true,
+    "one_shared_colour_bar_per_figure": true
+  },
+  "air_temperature_per_panel_degC": {
+    "10": [
+      14.845757098000036,
+      101.81957783000001
+    ],
+    "20": [
+      14.835089253000035,
+      67.16180394100002
+    ],
+    "30": [
+      14.818195838000008,
+      53.55615733800005
+    ],
+    "40": [
+      14.795856719000028,
+      45.93774729900002
+    ]
+  },
+  "near_surface_zoom": {
+    "axial_window_m": [
+      -0.02,
+      0.25
+    ],
+    "radial_window_above_surface_m": 0.002,
+    "cells_drawn": 4344,
+    "temperature_per_panel_degC": {
+      "10": [
+        14.858390124000039,
+        101.81957783000001
+      ],
+      "20": [
+        14.877456339000048,
+        67.16180394100002
+      ],
+      "30": [
+        14.90541343700005,
+        53.55615733800005
+      ],
+      "40": [
+        14.941710528000044,
+        45.93774729900002
+      ]
+    },
+    "air_speed_per_panel_mps": {
+      "10": [
+        0.19746388886302835,
+        8.626705924626192
+      ],
+      "20": [
+        0.677633611652113,
+        17.95400828831996
+      ],
+      "30": [
+        1.3944142773901493,
+        27.368744638779294
+      ],
+      "40": [
+        2.336575870360135,
+        36.82212810730467
+      ]
+    },
+    "radial_axis_stretched_relative_to_axial_by": 40.0,
+    "note": "The right-hand column of the two field figures stretches the radial axis by this factor so the near-surface layer is visible. Both axes carry their own real dimensions in metres; only the picture is stretched."
+  },
+  "vector_output": {
+    "format": "pdf",
+    "svg_written_for": [
+      "mesh_boundary_layer"
+    ],
+    "why": "A field panel holds up to 39680 real cell polygons and SVG stores every one as an uncompressed path element: the field figures come out at 23-26 MB in SVG against 1.6 MB in PDF, which compresses the identical path stream. The PDF is fully vector; no cell is merged, rasterised or dropped."
+  },
+  "first_air_cell_height_m": 2.3087879545413692e-05,
+  "first_air_cell_height_uniform_over_cells": 320,
+  "first_shell_cell_height_range_m": [
+    0.0005000000000089447,
+    0.0005000000000089447
+  ],
+  "wall_resolution_figure": {
+    "quantity": "maximum y+ on the cooled surface",
+    "values": {
+      "10": 0.4037,
+      "20": 0.7515,
+      "30": 1.079,
+      "40": 1.397
+    },
+    "source": "/home/ubuntu/Certonomous/docs/campaigns/T-family/CASE3_MAP_RESULTS.md",
+    "caveat": "ABOVE 1 AT 30 AND 40 m/s. The near-wall mesh does not keep y+ below 1 at the two highest airspeeds, so any wall-resolved reading at those two speeds carries that limit and must be printed with it. Measured and reported; it is not a gated quantity here.",
+    "not_recomputed_here": true
+  },
+  "uncertainty": "No numerical uncertainty is attached to any value in these images. One mesh level was run, so no grid-refinement error estimate exists for them.",
+  "figures": {
+    "temperature_field": [
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_temperature_field.pdf",
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_temperature_field.png"
+    ],
+    "velocity_field": [
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_velocity_field.pdf",
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_velocity_field.png"
+    ],
+    "airspeed_thumbnails": [
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_airspeed_thumbnails.pdf",
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_airspeed_thumbnails.png"
+    ],
+    "mesh_boundary_layer": [
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_mesh_boundary_layer.pdf",
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_mesh_boundary_layer.svg",
+      "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_mesh_boundary_layer.png"
+    ]
+  },
+  "cell_data_csv": "/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/figures_actA/actA_field_cells.csv"
+}
