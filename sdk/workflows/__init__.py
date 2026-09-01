@@ -162,6 +162,18 @@ _BANNED_PHRASES = (
 )
 
 
+#: Greek letters spelled out, which are SYMBOLS wearing the shape of ordinary
+#: lower-case words. A bullet or caption may open with one; see the amendment
+#: inside :func:`check_wording` for why the list has to be enumerated rather
+#: than detected. Closed on purpose: quantity words in English ("pressure",
+#: "velocity", "temperature") are deliberately absent and stay refused.
+_SYMBOL_WORDS = frozenset({
+    "alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta",
+    "iota", "kappa", "lambda", "mu", "nu", "xi", "omicron", "pi", "rho",
+    "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega",
+})
+
+
 def check_wording(text: str) -> None:
     """Raise if ``text`` breaks the on-camera wording doctrine."""
     if "—" in text or " - " in text:
@@ -174,8 +186,59 @@ def check_wording(text: str) -> None:
         stripped = line.strip()
         if stripped.startswith("•"):
             body = stripped[1:].strip()
-            if body and not body[0:1].isupper():
-                raise ValueError(f"bullet must start with a capital letter: {line!r}")
+            # AMENDMENT, 2026-09-01. This read ``not body[0:1].isupper()``, so a
+            # bullet was refused unless it began with a capital LETTER, and a
+            # bullet beginning with a NUMBER was refused.
+            #
+            # THAT PUT THIS RULE IN DIRECT CONFLICT WITH A LATER INSTRUCTION OF
+            # SANAA'S. Her 20:14Z directive, verbatim: "shorten the sentences
+            # and have them in bullet points, and wherever the point can be
+            # made accross with numbers its better." A screen that leads a
+            # bullet with its number is what she asked for, and this rule
+            # refused it. Measured on the battery act, which was written to that
+            # directive: four bullets refused, and every one of them is a
+            # number-led fact -- "8 cells at 30 mm pitch, 7 gaps at 3 mm",
+            # "3,840 solid plus 12,768 coolant = 16,608 cells", "560 matched
+            # faces, 1 to 1", "2 checks before anything is reported". The rule
+            # was rejecting her own instruction, and it does it AT EMISSION, so
+            # the refusal lands on camera rather than in a test.
+            #
+            # THE DEFECT CLASS THE RULE WAS WRITTEN FOR IS UNCHANGED. It exists
+            # to catch a lowercase sentence FRAGMENT pasted into a bullet, and
+            # that is now what it names: a bullet may not begin with a lowercase
+            # letter. A digit still opens a fact, and a symbol still opens a
+            # quantity -- "|U| (m/s)" is the caption form the figure standard
+            # now requires and would have been refused here too.
+            #
+            # STRICTLY PERMISSIVE, WHICH IS WHY IT IS SAFE TO MAKE MID-CAMPAIGN:
+            # every string that passed before still passes, so no act's screens
+            # can change behaviour because of this. Only strings that were
+            # CRASHING are affected.
+            #
+            # A LOWER-CASE *WORD* IS THE DEFECT; A LOWER-CASE *SYMBOL* IS NOT,
+            # and testing the first CHARACTER cannot tell them apart. Written
+            # that way this rule still refused "p/rho (m^2/s^2)" and "p (Pa)",
+            # which are the exact caption forms the figure standard now
+            # REQUIRES -- so one of Sanaa's rules would have been enforced by
+            # crashing on another. The test is therefore the first WORD: an
+            # all-alphabetic lower-case word of two or more letters is prose
+            # starting mid-sentence. "p", "p/rho", "x/c", "|U|", "8" and
+            # "3,840" are none of them.
+            #
+            # ONE CLASS OF LOWER-CASE WORD IS A SYMBOL AND HAS TO BE NAMED,
+            # because nothing about its SHAPE distinguishes it from English:
+            # a Greek letter spelled out. "rho (kg/m^3), 57,600 cells" is the
+            # density caption this campaign actually renders, and by shape
+            # "rho" is a three-letter lower-case word exactly like "the". The
+            # list is closed, it is the Greek alphabet, and it is the only
+            # exemption -- "pressure" and "velocity" are not on it and are
+            # still refused, which is the whole point of the rule.
+            first = body.split()[0] if body.split() else ""
+            if (len(first) > 1 and first.isalpha() and first.islower()
+                    and first not in _SYMBOL_WORDS):
+                raise ValueError(
+                    f"a bullet may open with a capital, a number or a symbol, "
+                    f"but not with a lower-case word: {line!r}")
 
 
 def bullets(sayer, *lines: str, **kwargs):
