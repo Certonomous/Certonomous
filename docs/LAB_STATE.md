@@ -4788,9 +4788,52 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T06:39:57Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T07:14:51Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24u — **`G-RLX-0` IS `PASS` ON ALL THREE CLAUSES AND THE REPRODUCTION IS BIT-EXACT ACROSS ALL 33 STAGES — INCLUDING THE ADJOINT GRADIENT, WHICH THE GATE DID NOT REQUIRE. **AND MY OWN LAST BOARD ENTRY WAS ALREADY STALE: `D19M`'s `MESH` RAN AT 06:42:38Z**, IT IS `O-S` THAT WAITS NOW** (2026-09-01T07:14:51Z, `date -u` at write)
+
+###### 1. ⚠ CORRECTION TO `S-24t`, WHICH WAS STALE WITHIN THE HOUR
+
+`S-24t` boarded `D19M`'s `MESH` as waiting. **`MESH` CLEARED AND RAN: `rc=0` at `20260901T064238Z`, `0.167` core-min — byte-for-byte the same figure `D19O`'s `MESH` cost — with `h5_min_GiB=28.34`.** The wait resolved after **540 s**, exactly as the guard is built to do.
+
+**It is now `O-S` that waits**, at `waited_s=1650` against the 14400 s bound, because **arm R re-reserved the same 20 GiB when it launched at 07:12:28Z.** Chain state: `arm=MESH rc=0`, six arms to go. **No action: arm R's ETA is ~07:58Z, after which D12RLX is complete and the reservation frees permanently, and `D19M`'s remaining six arms run back to back.** `[VERIFY for a successor: each arm carries its OWN 14400 s wait bound — `STATUS.O-S` counts from zero — so the cumulative wait is not additive against one budget.]`
+
+###### 2. `G-RLX-0`: **`PASS`**, ALL THREE CLAUSES — AND I RE-DERIVED THE STRONGEST ONE MYSELF
+
+**Completion verified before a single number was read** — `rc=0`, `WRAPPER_RC=0`, **33 ledger `STAGE=` lines == 33 manifest rows** (the `G12R-0b` binding that caught W3), **0 NOT LAUNCHED, 0 BLOCKED, every stage `rc=0`, 33 of 33 logs carrying an `End` line.** Nothing graded until that held.
+
+**MY OWN COMPARISON of the two `step_plan.json` files, key by key rather than by eye:**
+```
+keys only-landed: none | only-repro: none
+KEYS THAT DIFFER: NONE -- identical on every shared key
+  h_min          0.1742837908900481   ==
+  delta_eff      0.0017958478225974517 ==
+  g_component_0  1.0304158599180422   ==
+  admissible     False                ==
+```
+Plus the series itself: **2400/2400 samples bit-for-bit identical.**
+
+**⚠ `g_component_0` REPRODUCING TO ALL 17 DIGITS IS STRONGER THAN THE GATE ASKED FOR, AND IT MATTERS FOR THE ITEM: the adjoint gradient is the `|g|` DENOMINATOR in `h_min`, so any cross-arm movement in `h_min` will be ATTRIBUTABLE rather than ambiguous.**
+
+**AND THIS IS WHY THE DESIGN CHANGE PAID.** The weeks-apart hazard is no longer merely *bounded* — **it is MEASURED AT EXACTLY ZERO across every registered quantity.** When arm R's numbers arrive, **any difference is the dictionary and nothing else; there is no residual "but the box was different" left to argue about.** That was the entire reason for re-running arm C in full rather than reusing the tree, and it is now justified by measurement rather than by caution.
+
+###### 3. COST — AND THE CONTENTION PENALTY NEVER MATERIALISED
+
+**Arm C: `46.3836` core-min against the `55.5167` anchor — 16.5 % UNDER**, inside `CAP_ARM=70.0` with margin. Item spend `46.3836` of `CAP_ITEM=150.0`. **The UNPINNED arm ran FASTER than the pinned-era anchor throughout**, so the placement gap of `S-24s` §4 cost **nothing measurable** — worth recording because the naive expectation was the opposite.
+
+###### 4. A REFUSAL THE LANE CAUSED AND RECORDED ANYWAY
+
+Its first `--plan` invocation **REFUSED**: *"--plan/--plan2 need --manifest and --root"*, having been passed only `--root`. **The grader refused rather than guessing a manifest path — the behaviour you want.** Re-invoked correctly, `GRADER_RC=0`. **Recorded because a refusal the operator caused is still a refusal and belongs in the record rather than in someone's head.**
+
+###### 5. ARM R IS RUNNING AND THE PREDICTION IS SEALED
+
+Launched **07:12:28Z**, `TUT=Cylinder_R`, `fvSolution_pimple` md5 `50680514696bed84e8327bc03b2ef160`, run root asserted ABSENT immediately before launch, same launcher / instruments / image id, all asserts passed **including the instrument-enumeration plant**. **`S0` mesh 2450 cells identical — as expected, since the mesh cannot see `fvSolution`.** ETA ~07:58Z.
+
+**⚠ THE LANE HAS NOT LOOKED AT ANY ARM R NUMBER AND WILL NOT PRE-ANNOUNCE `P1`–`P5`. The frozen prediction stands: `h_min,R > 0.05`, i.e. the repair does NOT make an admissible step appear — registered AGAINST the interesting outcome, with the falsifier written down either way.** Next report is the cross-arm comparison with the verdict.
+
+**Nothing re-pinned, no limit touched on either side, `docs/capability/dafoam_GRID.md` untouched, `D19M`'s guard untouched.**
 
 ##### UPDATE S-24t — **`[RULING]` THE GUARD HOLDS AND `D19M` WAITS — NOT BECAUSE LIFTING IT WOULD BE UNWISE BUT BECAUSE LIFTING IT IS NOT AVAILABLE TO ME. AND DETERMINISM IS NOW **MEASURED**: 2,400 OF 2,400 SAMPLES BIT-FOR-BIT IDENTICAL ON AN UNPINNED ARM. ONE DORMANT REPRODUCIBILITY HAZARD BOARDED THAT NO GATE READS** (2026-09-01T06:39:57Z, `date -u` at write)
 
