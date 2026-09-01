@@ -146,9 +146,57 @@ BAND_DT_K = (273.15 - T_INF_K, 473.15 - T_INF_K)   # 0 degC .. 200 degC, on dT
 ORDER_BAND = (0.80, 2.50)           # G-ORDER, section 6.2
 GCI_DISPLAY_MAX_K = 0.050           # G-GCI-DISPLAY: half of the 0.1 degC quantum
 GCI_LEGACY_MAX_PCT = 2.0            # G-GCI-LEGACY: T23_PREREGISTRATION.md:518
-REPRO_REF_Q1_K = 342.1749743329     # G-REPRO, section 10.  MEASURED from
-                                    # T23_P305_U20's own fieldMinMax row 10000.
-REPRO_TOL_K = 1.0e-6
+# --- REPAIR R1, 2026-09-01.  VERIFICATION_CHARTER.md §2d.1 exception GRANTED at
+# DEAD_LEVER_AUDIT §27.2 (commit af6af856).  STRUCK, NOT OVERWRITTEN (rule 6):
+# the pre-repair constant stays visible beside the corrected one.
+#
+#   STRUCK:  REPRO_REF_Q1_K = 342.1749743329   # "MEASURED from T23_P305_U20's
+#            own fieldMinMax row 10000"
+#
+# WHY IT WAS WRONG.  The struck value came from the `fieldMinMax` FUNCTION
+# OBJECT, whose max includes BOUNDARY FACE values: it is the max over the
+# `housing_to_core` patch, 342.1749743330 K over 140 faces, MEASURED.  The gate
+# below compares it against `read_max_T`, which reads the `internalField` ONLY.
+# The two are DIFFERENT QUANTITIES, and the struck comment says so on its face.
+#
+# THE AUTHORITY IS THE FROZEN REGISTRATION, WHICH DECIDED THIS BEFORE ANY LEVEL
+# RAN.  `T23G_PREREGISTRATION.md:228` registers Q1's reader path as
+# `internalField` of `<endTime>/housing/T`.  THE READER IS CORRECT AS WRITTEN
+# AND THE REFERENCE WAS THE OUTLIER.  Corroborated three ways:
+#   * :230 registers Q3's reader path the same way, so this correction RESTORES
+#     CONSISTENCY with how every max(T) in this rung is registered rather than
+#     making a one-off judgement about one quantity;
+#   * `T23_PREREGISTRATION.md:159` independently registers the same reader path
+#     for Q1, so the definition is consistent across both registrations;
+#   * `T23_PREREGISTRATION.md:163` had ALREADY recorded that `internalField` and
+#     `boundaryField` are "different pre-derived extents" -- the family wrote the
+#     distinction down in advance, and the constant was taken from the wrong side
+#     of a distinction that was already registered.
+# The registration's own :794 disclosure table names `fieldMinMax` as its source
+# IN ITS OWN COLUMN HEADER and never claims that number is Q1 as registered.
+#
+# WHAT MOVED (§2d.1 condition 3): 1.514540e-02 K, against REPRO_TOL_K = 1.0e-6 K
+# -- four orders of magnitude past the tolerance.
+# PRE-REPAIR PUBLISHED VALUES (§2d.1 condition 4, met per §2d.3.3 by DISCLOSING A
+# MEASURED ABSENCE): NONE.  Zero graded solves exist under this registration, and
+# DONE.T23G_C, DONE.T23G_M, DONE.T23G_F, T23G_GRADED.json and T23G_RESULTS.md are
+# absent both on disk and at HEAD -- measured and named in
+# `docs/campaigns/T-family/T23G_PREFLIGHT_FINDINGS.md` §11.
+#
+# ⚠ THE SOURCE OF THE NEW VALUE, AND THE LEGALITY LIVES HERE RATHER THAN IN THE
+# OUTCOME.  RE-READ FROM `T23_P305_U20` -- AN INDEPENDENT PRIOR CASE -- AND NEVER
+# FROM `T23G_M`, THE CASE BEING GRADED.  Taking the reference from the case under
+# grade would make this gate PASS BY CONSTRUCTION and destroy the determinism
+# control it exists to be.  Artifact:
+# `verification/runs/T-family/T23_runs/T23_P305_U20/10000/housing/T`,
+# internalField, 1120 cells, read by `read_max_T` on 2026-09-01.
+#
+# NOT GRANTED AND NOT DONE: widening `read_max_T` to include boundary faces
+# (REFUSED BY NAME at §27.2, because it contradicts the frozen §4 reader path and
+# would move Q1 on all three levels after compute); any change to `REPRO_TOL_K`;
+# any change to the rung aggregation at the foot of `grade()`.
+REPRO_REF_Q1_K = 342.159828932      # G-REPRO, section 10.  See REPAIR R1 above.
+REPRO_TOL_K = 1.0e-6                # UNTOUCHED by REPAIR R1.
 
 # section 5.1 G-CONV.  Ux is EXCLUDED BY DECISION; section 7.3 carries the
 # reason and this file prints max|Ux|/max|Uz| beside every exclusion.
@@ -976,7 +1024,12 @@ def grade(root):
           "VISIBLE rather than silent.  The third entry is a\n"
           "  DECLARED COUPLING: this comparator imports a sibling rung's "
           "parser so that Q1 and Q2 are read through the same path\n"
-          "  Act A's numbers already come from.\n")
+          "  Act A's numbers already come from.\n"
+          "  THE FOURTH ENTRY IS THE COMPLETION DELEGATE (REPAIR R2, "
+          "DEAD_LEVER_AUDIT §27.4): section 7.2 delegates rule 4 to\n"
+          "  mark_done_t23.py and evaluates it nowhere else, so it is on this "
+          "grading path and is recorded here rather than\n"
+          "  left as the one path member whose edits were silent.\n")
 
     return dict(rung_verdict=rung, quantities=rows, repro=dict(
         verdict=repro, delta_K=d_repro, reference_K=REPRO_REF_Q1_K,
@@ -988,9 +1041,20 @@ def grade(root):
 
 def grading_path_shas():
     out = []
+    # REPAIR R2, 2026-09-01.  §2d.1 exception GRANTED at DEAD_LEVER_AUDIT §27.4,
+    # and it is MANDATORY rather than optional: it is the condition on which
+    # §27.3's D2 grant attaches, and the two land in one commit.
+    # `mark_done_t23.py` is on this rung's grading path by §7.2's own delegation
+    # -- `require_done` calls it and rule 4 is evaluated nowhere else -- but it
+    # was NOT recorded here, so an edit to it left no trace on the artifact's own
+    # face.  D2 widens that very file's CASES tuple, so without this the repair
+    # would have been invisible in the record that exists to make it visible.
+    # Adding a sha recorder is monotonically disclosure-increasing: it writes a
+    # hash into the record, reads no field and moves no comparison.
     for rel in ("verification/runs/T-family/T23G_runs/analyse_t23g.py",
                 "scripts/roache_triple.py",
-                "verification/runs/T-family/T23_runs/analyse_t23.py"):
+                "verification/runs/T-family/T23_runs/analyse_t23.py",
+                "verification/runs/T-family/T23_runs/mark_done_t23.py"):
         p = os.path.join(REPO, rel)
         r = subprocess.run(["git", "hash-object", p], cwd=REPO,
                            capture_output=True, text=True)

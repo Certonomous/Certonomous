@@ -74,7 +74,25 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CASES = ("T23_P305_U10", "T23_P305_U20", "T23_P305_U30", "T23_P305_U40")
+# REPAIR D2, 2026-09-01.  VERIFICATION_CHARTER.md §2d.1 exception GRANTED at
+# DEAD_LEVER_AUDIT §27.3 (commit af6af856), CONDITIONAL on the same commit adding
+# this file to `analyse_t23g.py`'s `grading_path_shas()` (§27.4) -- it does.
+#
+# THE ERROR, NAMED PRECISELY: T23G's comparator delegates rule-4 completion to
+# THIS file (analyse_t23g.py section 7.2, `require_done`) while this file's
+# registered scope EXCLUDED the very cases it was being asked about, so `run()`
+# refused rc=2 before a single field was read.  MEASURED, with a planted control
+# on the refusal: the same instrument returns `NOT DONE ... rc=1` on a name it
+# knows, so rc=2 was about this tuple and not a blanket failure (rule 3, applied
+# to a refusal rather than to a zero).
+#
+# WHY WIDENING THIS CANNOT SELECT A DIRECTION -- the ground of the grant: a name
+# registry is an ALLOW-LIST, and widening an allow-list CANNOT MAKE A FAILING
+# CASE PASS.  It converts "refused to look" into "looked, and the answer is
+# whatever rule 4 says".  THE SIX CLAUSES BELOW ARE UNTOUCHED, and both rc=2 and
+# rc=1 block grading, so this instrument is FAIL-CLOSED BEFORE AND AFTER.
+CASES = ("T23_P305_U10", "T23_P305_U20", "T23_P305_U30", "T23_P305_U40",
+         "T23G_C", "T23G_M", "T23G_F")
 
 # T23 3.5 conjunct 4.  PER REGION, because two of the three regions are solids.
 NEEDED = {
