@@ -1035,3 +1035,167 @@ any solver is launched. The lane stops here.
 
 *Amended 2026-09-01 by the same heat-transfer lane that drafted v1.0, on the
 supervisor's ruling. **No solver has been launched for this rung.***
+
+---
+---
+
+# AMENDMENT A2 — 2026-09-01. **THE INTERFACE PREDICTION, y+ GATED ON EVERY PATCH, AND THE BAND'S AUTHORITY CITED BY LINE**
+
+**Version 1.1 → 1.2.**
+
+**`lines whose number changed above this section: 0`.** Appended at the foot;
+lines 1–1037 of v1.1 are byte-identical and were diffed against the committed
+blob before this section was written. Every citation into v1.0 or A1 by line
+number remains valid.
+
+**THE CONDITION, AND HOW IT WAS CHECKED — `CLAUDE.md` rule 2.** **No compute has
+run.** `verification/runs/T-family/T23G2_runs/` still does not exist; checked by
+`ls`. No solver has been launched for this rung by anyone. Amendments before
+first compute are legal and may alter gates; after first compute they may not.
+
+**AUTHORITY.** The heat-transfer supervisor's status check of 2026-09-01,
+naming four items to be pre-empted before the launch read and one — the
+interface mechanism — to be registered as a prediction that can lose.
+
+## A2.1 THE INTERFACE PREDICTION — REGISTERED BEFORE THE RUN, AND IT CAN LOSE
+
+v1.0 §6 named the conjugate interface's one-sided flux reconstruction as the
+falsifier of the whole reading but **registered no number against it**. A rung
+that can only confirm itself is not worth its compute. **This section fixes
+that.** The two hypotheses make *different, non-overlapping* predictions, and
+the observation that separates them is named in advance.
+
+**The mechanism.** Every graded quantity sits on or behind the solid/fluid
+interface. `compressible::turbulentTemperatureRadCoupledMixed` reconstructs the
+interface flux from **one-sided normal gradients on each side**, which is
+formally **first order in the wall-normal cell size**, on both sides, *regardless
+of the interior scheme*. §1.2 established at source that the condition is
+otherwise correct — implicit coupling, 1:1 face matching, `kappaEff` — so this is
+an order property, not a bug.
+
+| | **H-MESH: the mesh family was the whole problem** | **H-IFACE: the interface term dominates** |
+|---|---|---|
+| predicted p(`Q4`) | **1.0**, in **[0.7, 1.3]** | **≈ 0.4**, in **[0.25, 0.65]** |
+| why | the interior scheme's formal order is 1, and once the ladder is similar and wall-resolved the observed order rises to meet it | the interface reconstruction is first order in the wall-normal cell size, whose refinement is *not* uniform with the bulk, so the composite rate stays sub-first-order |
+| what it predicts about the **band-to-band split** | the observed order is the same whether measured on `Q4` (core, one interface away) or on `Q1` (housing, at the interface) — spread **< 0.05** | the two differ, because they sit at different distances from the interface — spread **> 0.15**, with the housing quantity the *lower* of the two |
+| what it predicts about `T23G_C`'s exclusion | dropping the non-wall-resolved level accounts for most of the gain | dropping it changes little; p stays near 0.375 |
+
+**THE DISCRIMINATING OBSERVATION, NAMED IN ADVANCE:** the **spread between
+p(`Q4`) and p(`Q1`)**. On T23G that spread was **0.0027** (0.3769 vs 0.3796) —
+i.e. **T23G's own data is consistent with H-MESH and gives no support to
+H-IFACE**, because a dominant interface term should already have separated the
+core quantity from the housing quantity and did not. **That is registered here as
+a point against H-IFACE before the run**, so that a later confirmation of H-MESH
+cannot be presented as a bolder result than it is.
+
+**REGISTERED OUTCOMES, all three of which are reportable:**
+1. **p ∈ [0.7, 1.3] with spread < 0.05** → **H-MESH holds.** The mesh family was
+   the problem; the rung is a clean PASS and P1′ holds.
+2. **p ∈ [0.25, 0.65] with spread > 0.15** → **H-IFACE holds.** `G-ORDER`
+   `GATE FAIL`s and — per the supervisor's standing instruction and this record's
+   agreement — **that is the more valuable outcome of the two.** It would be a
+   measured finding about conjugate interface treatment in OpenFOAM's
+   `turbulentTemperatureRadCoupledMixed`, affecting every conjugate rung this lab
+   runs, and it would be written up as a finding, not as a failed grid study.
+3. **p ∈ [0.25, 0.65] with spread < 0.05** → **NEITHER hypothesis is supported.**
+   The rate is sub-first-order and it is *not* the interface, and this record
+   commits in advance to saying that it does not know why rather than adopting
+   whichever story is nearer.
+4. **p > 1.5** → **both are falsified**, and the formal-order reasoning of §1 is
+   wrong, which would itself be a finding about the scheme.
+
+**None of these four is a free pass.** Outcome 1 is the only one in which
+`G-ORDER` passes, and it is the outcome this lane predicts at roughly two-to-one
+against outcome 2 — stated so the prediction is a bet and not a hedge.
+
+## A2.2 STRUCK AND REPLACED: `G-YPLUS` is gated on EVERY wall patch, not only the heat-transfer surface
+
+> **STRUCK.** §5.4's split, which gated max y+ ≤ 1.0 on `fluid_to_housing` only
+> and left `duct_wall`, `centrebody_up` and `centrebody_down` **REPORTED, not
+> gated**, on the ground that they are adiabatic and off the conjugate heat path.
+
+**REGISTERED:** **max y+ ≤ 1.0 on EVERY wall patch, on EVERY level.** Gated, not
+reported.
+
+**Reason the original split was too weak.** Sanaa's §0 point 1 says *"y+ stays
+under 1 on every level where the case is wall-resolved"* — a property of the
+**case**, not of the patches one happens to be grading. The wall condition is
+`nutLowReWallFunction` on all four patches, so all four are wall-resolved
+treatments, and a patch whose y+ exceeds 1 is a patch where that treatment is
+being asked for something it cannot deliver. **A floor that only the patches
+under inspection have to clear is not a floor.**
+
+**This costs nothing, because the design already meets it.** §2.2's registered
+outer-band first-cell heights were chosen precisely so `duct_wall` clears 1;
+predicted maxima are **0.73 / 0.49 / 0.33** there and **0.75 / 0.50 / 0.33** on
+`fluid_to_housing`. **The gate is therefore a real test that the construction
+did what it was designed to do, not a formality** — if the derived grading is
+wrong, this is the gate that catches it.
+
+## A2.3 THE BAND'S AUTHORITY, CITED BY LINE
+
+`G-ORDER`'s band is **[0.5, 1.5]** and not [1.5, 2.5] because the formal order of
+the energy equation's convection term is **ONE**. The authority, by file and
+line, so no future reader has to ask:
+
+> **`verification/runs/T-family/T23G_runs/T23G_F/system/fluid/fvSchemes` line 33:**
+> `    div(phi,h)      bounded Gauss upwind;`
+
+`bounded Gauss upwind` is first-order accurate. Lines 34 and 35 of the same file
+carry `div(phi,k)` and `div(phi,omega)` on the same scheme; line 32 carries
+`div(phi,U) bounded Gauss linearUpwind grad(U)`, which is second order and is the
+**only** second-order convection term in the case. Every quantity this rung
+grades is a temperature, set by the equation on line 33.
+
+Sanaa's §0 point 3 — *"p within 0.5 of the scheme's formal order"* — applied to a
+formal order of 1 gives **[0.5, 1.5]**. **That is her rule, not a relaxation of
+it** (A1.2).
+
+## A2.4 TWO CLAUSES RESTATED BECAUSE THEY ARE WHERE THE DIRECTIVE WAS ALREADY MISSED
+
+Neither is a change; both are restated so the launch read does not have to hunt
+for them.
+
+- **`NR_HOUS = 8` at `T23G2_L1`, THE COARSEST LEVEL.** T23G carried **4** there
+  and `build_t23.py`'s own comment conceded it. The coarsest level is the only
+  place this floor can fail, so it is the only place worth asserting it.
+  `build_t23g2.py` prints the count at every build and the comparator re-reads it
+  from `polyMesh`.
+- **THE FIRST-CELL-HEIGHT CONSTRUCTION IS THE REPAIR.** `d1` is registered per
+  level in the `LEVELS` table and the grading is **derived** by bisection;
+  `report_grading()` prints `L`, `n`, `d1`, `k`, the `simpleGrading` value and the
+  **residual of the cell sum against the band length** at every build, so the
+  arithmetic can be checked without re-deriving it. The script **REFUSES** if the
+  registered `d1` values do not themselves scale by 1.5 to within 0.5 %, and
+  **REFUSES** if any per-cell growth exceeds 1.25.
+
+## A2.5 A PRE-FLIGHT THIS RUNG REQUIRES, AND WHY IT IS NOT OPTIONAL
+
+`build_t23g2.py` adds four function objects that T23G did not have —
+`core_volavg_T`, `housing_volavg_T`, `housing_whf` + `housing_wall_heat`, and
+`housing_patch_T` — to close the gap where T23G's `Q2` had no plateau series at
+all.
+
+**A function object with an unknown key or an unavailable field aborts at
+CONSTRUCTION and throws away the entire solve.** `build_t23.py`'s own comment
+says so in terms. At `T23G2_L3` that would waste up to 1,100 core-minutes.
+
+**REGISTERED AS A REQUIRED PRE-FLIGHT, before the graded launch:** every function
+object must be shown to construct, in a **scratch copy** of a built case, with
+**no graded artifact written** — the safeguard `T23_RESULTS.md` §4 already used
+for its y+ measurement. **The graded run is not launched until the pre-flight
+passes**, and the pre-flight's own cost is reported separately and never folded
+into the campaign ratio.
+
+*`housing_whf` was verified against source before being written into the script:
+`functionObjects/field/wallHeatFlux/wallHeatFluxModels/wall/wallHeatFlux_wall.cxx:254`
+looks up `solidThermo` and `:274` evaluates `kappaEff * snGrad(T)`, so the model
+does support a solid region. The keys `model`, `patches` and `qr` are read from
+`wallHeatFlux.H`'s Usage block. **That is a source read, not a run, and it is not
+a substitute for the pre-flight.***
+
+**This amendment authorises NO COMPUTE.** The build script exists and awaits the
+supervisor's read as a diff; the comparator still does not exist. The lane stops
+here.
+
+*Amended 2026-09-01. **No solver has been launched for this rung.***
