@@ -1,8 +1,21 @@
 # DRAFT amendment for `docs/standards/MESH_STANDARD.md` — the 70° gate is read off the REPORTED MAXIMUM, never off `checkMesh`'s own verdict line
 
-**Status: DRAFT. NOT APPLIED. The cfd supervisor owns `docs/standards/MESH_STANDARD.md` and
-lands this personally after reading it.** Prepared by a cfd lane 2026-09-01. **This file
-edits nothing.** Zero compute.
+> # ⛔ STATUS: **LANDED 2026-09-01 — DO NOT APPLY THIS BLOCK AGAIN.**
+>
+> This proposal **is now §10 of `docs/standards/MESH_STANDARD.md`**, landed at commit
+> **`afedaadcbdd521d3a314d3e3bf7f2585a8e3d26e`** (124 insertions, **0 deletions**, digest
+> assertion `434b6ebe…` before against the first 1,436 lines after — **EQUAL**), with one
+> addition made at landing that is **not** in the text below: §10.3 gained a second table
+> showing the closing `Failed N mesh checks.` line runs **anti-correlated** with §3.1 on this
+> pair (admissible mesh `Failed 2`, inadmissible mesh `Failed 1`).
+>
+> **Applying it a second time would give that standard two §10s.** This file is retained
+> only as the historical record of what was proposed and reviewed. **The live text is in the
+> standard; read it there.**
+
+**Status when written: DRAFT, NOT APPLIED.** Prepared by a cfd lane 2026-09-01 for the cfd
+supervisor, who owns `docs/standards/MESH_STANDARD.md` and landed it personally after reading
+it. **This file edits nothing.** Zero compute.
 
 **RULE-6 FORM, NOT AN IN-PLACE EDIT OF §3.1.** The standard is a frozen file: other records
 cite it by line and at least one citation sits inside an executable check, so editing §3.1

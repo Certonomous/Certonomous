@@ -1,8 +1,31 @@
 # DRAFT lesson for `docs/LESSONS.md` — search the lab's own registers BEFORE freezing a pre-registration
 
-**Status: DRAFT. NOT APPLIED, NOT NUMBERED, NOT COMMITTED to `docs/LESSONS.md`.** Prepared by
-a cfd lane 2026-09-01 on the cfd supervisor's instruction. **This file edits nothing.** Zero
-compute.
+> # ⛔ STATUS: **LANDED 2026-09-01 as `L-427` — DO NOT APPLY THIS BLOCK AGAIN.**
+>
+> This proposal **is now `L-427` in `docs/LESSONS.md`**, landed at commit
+> **`6d09cabb23bad789b4856d1298008054297d802a`**, together with a separate dated **ADDENDUM
+> to `L-425`** recording a second independent instance of the trailing-boundary blindness.
+>
+> **Applying it again would mint a duplicate lesson.** This file is retained only as the
+> historical record of what was proposed and reviewed. **The live text is in the register;
+> read it there.**
+>
+> **The number moved twice while this was being written**, which is why the block that landed
+> carries the numbering demonstration inside it rather than in this preamble: at drafting the
+> register held **426 blocks against a maximum of `L-425`**, and by landing a peer had
+> committed `L-426`, making the correct number **`L-427`**. **The preamble does not land, so
+> evidence left here would have been lost.**
+>
+> **One defect in the landing, disclosed here because this file is where a reader looks for
+> the history:** the commit that landed it also corrupted **8 pre-existing lines** of
+> `docs/LESSONS.md` — a global `str.replace` on the placeholder token `VERDICT`, which is
+> also an ordinary word in that register, rewrote three lesson headings. Caught by the
+> post-commit `--numstat` reporting deletions on a pure append, and repaired at
+> **`ccc946b2fc5eb0f5985c71e87901119beea6dce0`**. No content was lost and no peer commit was
+> clobbered; both were verified line by line.
+
+**Status when written: DRAFT, NOT APPLIED, NOT NUMBERED.** Prepared by a cfd lane 2026-09-01
+on the cfd supervisor's instruction. **This file edits nothing.** Zero compute.
 
 **NUMBERING IS ASSIGNED AT COMMIT, FROM THE TAIL, AND MUST BE RE-DERIVED THEN.** As read
 2026-09-01 the maximum existing number is **`L-425`**, so the next is **`L-426`** — but peers
