@@ -67,8 +67,8 @@ Thickness, enclosed area and leading edge radius are held as constraints.
 Confidence: the gradient path on this section is verified. The optimiser has
 not run this problem before, so the iteration count is a budget, not a
 promise.
-Cost: measured on this machine in core-minutes, stage by stage, and reported
-as the run goes.
+Cost: measured on this machine in processor-minutes, stage by stage, and
+reported as the run goes.
 ```
 
 No estimate figure goes on screen at this beat. The cost the act shows is the
@@ -105,10 +105,7 @@ The uploaded surface renders. It is the section the case is solved on.
 NACA0012 section, chord 1 m, reference area 0.1 m squared.
 ```
 
-### 6. Meshing, live
-
-The real mesher runs on the uploaded surface. The grid draws cell by cell, then
-the wall layer zoom.
+### 6. Meshing
 
 ```
 Meshing.
@@ -126,11 +123,35 @@ Table on screen, wall resolution:
 | First layer height | 2.06 to 4.07 mm |
 | Far field radius | 18.6 m |
 
+**NOT FOR CAMERA.** This beat said "Meshing, live", and that the real mesher
+runs on the uploaded surface and the grid draws cell by cell. **None of the
+three is what the stage does, and the script is corrected to the stage rather
+than the stage to the script.** The shared sequencer refuses to point a live
+mesher at a work directory that looks like a landed case tree, and this act's
+run root is one: measured, both `FE-P` and `FE-S` under
+`CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation` hold **both** of the
+guard's tells, `system/controlDict` and `constant/turbulenceProperties`. So the
+mesher does not run and the stage publishes `meshed: false`. That refusal is
+correct — meshing there could destroy a graded run the age guard makes
+unrepeatable — and this act does not work around it. The grid on screen is this
+run's own `polyMesh`, rendered by `cases/dafoam/render_so3_mesh_figures.py`,
+which refuses rather than draws if its cell count disagrees with the frozen
+grade. The cell by cell draw is a separate renderer that is **not** delivered:
+the stage publishes `drawn: false` unconditionally, and nothing on screen may
+imply a draw that did not occur.
+
+**Honest limit on this note.** No multipoint act is registered in the SDK —
+`registered_acts()` returns `adjoint-wing`, `jet-flap`, `motor-thermal` and
+`shock-reflection` — so no payload of this act was driven. What is measured is
+the shared stage's own behaviour and the guard's predicate against this run
+root's disk, not this act's emitted stage. The reference wing act, which **is**
+built, was driven and does publish `meshed: false`.
+
 ### 7. Check before the budget
 
 ```
 Geometry and grid: 10 seconds, before any optimiser time is committed.
-Cost so far, 0.167 core-minutes, measured on this machine.
+Cost so far, 0.167 processor-minutes, measured on this machine.
 ```
 
 ### 8. Solving
@@ -203,7 +224,8 @@ This verifies the gradient and the optimiser. It is not a better aerofoil.
 Cost line:
 
 ```
-This run costs 14.2 minutes on one core, 14.183 core-minutes, about one cent.
+This run costs 14.2 minutes on one processor, 14.183 processor-minutes,
+about one cent.
 Geometry and grid 0.167, optimisation 6.950, endpoint gradient 2.533,
 independent check 4.533.
 Every one of those is a reading from this run's own clock.
