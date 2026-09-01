@@ -1,0 +1,499 @@
+{
+  "cells": {
+    "T23G_C": {
+      "core": 840,
+      "fluid": 8800,
+      "housing": 280,
+      "total": 9920
+    },
+    "T23G_F": {
+      "core": 13440,
+      "fluid": 140800,
+      "housing": 4480,
+      "total": 158720
+    },
+    "T23G_M": {
+      "core": 3360,
+      "fluid": 35200,
+      "housing": 1120,
+      "total": 39680
+    }
+  },
+  "grading_path": {
+    "scripts/roache_triple.py": "78e56a3bc2c2a07571db1cf3c91f4c2c31f246b8",
+    "verification/runs/T-family/T23G_runs/analyse_t23g.py": "9e4a5f2eb5cc1290da231bb8245d35101f0bfb31",
+    "verification/runs/T-family/T23_runs/analyse_t23.py": "314a2b82b85cd1c620f26d37c1a2613cf76838d6",
+    "verification/runs/T-family/T23_runs/mark_done_t23.py": "ecd457ac87dbdab83498c6a9c0334226c3e66863"
+  },
+  "invariants_checked": 63,
+  "iterative": {
+    "T23G_C": "CONVERGED",
+    "T23G_F": "CONVERGED",
+    "T23G_M": "CONVERGED"
+  },
+  "plateau": {
+    "Q2": "NOT MEASURED",
+    "core": {
+      "T23G_C": "PLATEAUED",
+      "T23G_F": "PLATEAUED",
+      "T23G_M": "PLATEAUED"
+    },
+    "housing": {
+      "T23G_C": "PLATEAUED",
+      "T23G_F": "PLATEAUED",
+      "T23G_M": "PLATEAUED"
+    }
+  },
+  "quantities": {
+    "Q1": {
+      "band": [
+        -14.850000000000023,
+        185.14999999999998
+      ],
+      "band_verdict": "PASS",
+      "dim": 2,
+      "extra_gates": {
+        "G-GCI-DISPLAY": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        },
+        "G-GCI-LEGACY": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        },
+        "G-ORDER": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        }
+      },
+      "fs": 1.25,
+      "iterative_convergence": {
+        "T23G_C": "CONVERGED",
+        "T23G_F": "CONVERGED",
+        "T23G_M": "CONVERGED"
+      },
+      "levels": [
+        {
+          "cells": 9920,
+          "name": "T23G_C",
+          "value": 55.91005561700001
+        },
+        {
+          "cells": 39680,
+          "name": "T23G_M",
+          "value": 54.15982893199998
+        },
+        {
+          "cells": 158720,
+          "name": "T23G_F",
+          "value": 52.81450113400001
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        0.3795840506409787
+      ],
+      "planted_zero": {
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/T-family/T23G_runs/T23G_F/10000/housing/T",
+        "floor": 1e-06,
+        "level": "T23G_F",
+        "n_planted": 1,
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000108375,
+        "reader": "Q1 max(T) housing internalField @T23G_F",
+        "reader_delta": 0.0012340000000108375,
+        "rungs": [
+          [
+            10.0,
+            10.0,
+            1
+          ],
+          [
+            1.0,
+            1.0,
+            1
+          ],
+          [
+            0.1,
+            0.0999999999999659,
+            1
+          ],
+          [
+            0.01,
+            0.009999999999990905,
+            1
+          ],
+          [
+            0.001234,
+            0.0012340000000108375,
+            1
+          ],
+          [
+            0.001,
+            0.0009999999999763531,
+            1
+          ],
+          [
+            0.0001,
+            9.999999997489795e-05,
+            1
+          ],
+          [
+            1e-05,
+            9.999999974752427e-06,
+            1
+          ],
+          [
+            1e-06,
+            9.999999974752427e-07,
+            1
+          ]
+        ]
+      },
+      "plateau": {
+        "T23G_C": "PLATEAUED",
+        "T23G_F": "PLATEAUED",
+        "T23G_M": "PLATEAUED"
+      },
+      "quantity": "Q1",
+      "quantity_verdict": "NOT A RESULT",
+      "reference": null,
+      "states": [
+        "STAGNANT"
+      ],
+      "triples": [
+        {
+          "cells": [
+            9920,
+            39680,
+            158720
+          ],
+          "dim": 2,
+          "e21": 1.3453277979999712,
+          "e32": 1.7502266850000296,
+          "form": "equal",
+          "levels": [
+            "T23G_C",
+            "T23G_M",
+            "T23G_F"
+          ],
+          "order": 0.3795840506409787,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "state": "STAGNANT",
+          "values": [
+            55.91005561700001,
+            54.15982893199998,
+            52.81450113400001
+          ]
+        }
+      ],
+      "value": 52.81450113400001,
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('T23G_C', 'T23G_M', 'T23G_F') is STAGNANT at dim = 2, observed order 0.3796; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone"
+    },
+    "Q2": {
+      "band": [
+        -14.850000000000023,
+        185.14999999999998
+      ],
+      "band_verdict": "PASS",
+      "dim": 2,
+      "extra_gates": {
+        "G-GCI-DISPLAY": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        },
+        "G-GCI-LEGACY": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        },
+        "G-ORDER": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        }
+      },
+      "fs": 1.25,
+      "iterative_convergence": {
+        "T23G_C": "CONVERGED",
+        "T23G_F": "CONVERGED",
+        "T23G_M": "CONVERGED"
+      },
+      "levels": [
+        {
+          "cells": 9920,
+          "name": "T23G_C",
+          "value": 54.070481175442865
+        },
+        {
+          "cells": 39680,
+          "name": "T23G_M",
+          "value": 52.334602784714264
+        },
+        {
+          "cells": 158720,
+          "name": "T23G_F",
+          "value": 50.9975009338857
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        0.3765565176236109
+      ],
+      "planted_zero": {
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/T-family/T23G_runs/T23G_F/10000/housing/T",
+        "floor": 1e-06,
+        "level": "T23G_F",
+        "n_planted": 280,
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.001234000000067681,
+        "reader": "Q2 areaAvg(T) housing_to_fluid boundaryField @T23G_F",
+        "reader_delta": 0.001234000000067681,
+        "rungs": [
+          [
+            10.0,
+            10.000000000000057,
+            280
+          ],
+          [
+            1.0,
+            1.0000000000000568,
+            280
+          ],
+          [
+            0.1,
+            0.10000000000002274,
+            280
+          ],
+          [
+            0.01,
+            0.010000000000047748,
+            280
+          ],
+          [
+            0.001234,
+            0.001234000000067681,
+            280
+          ],
+          [
+            0.001,
+            0.0010000000000331966,
+            280
+          ],
+          [
+            0.0001,
+            0.00010000000003174137,
+            280
+          ],
+          [
+            1e-05,
+            1.0000000031595846e-05,
+            280
+          ],
+          [
+            1e-06,
+            1.0000000543186616e-06,
+            280
+          ]
+        ]
+      },
+      "plateau": null,
+      "quantity": "Q2",
+      "quantity_verdict": "NOT A RESULT",
+      "reference": null,
+      "states": [
+        "STAGNANT"
+      ],
+      "triples": [
+        {
+          "cells": [
+            9920,
+            39680,
+            158720
+          ],
+          "dim": 2,
+          "e21": 1.3371018508285601,
+          "e32": 1.735878390728601,
+          "form": "equal",
+          "levels": [
+            "T23G_C",
+            "T23G_M",
+            "T23G_F"
+          ],
+          "order": 0.3765565176236109,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "state": "STAGNANT",
+          "values": [
+            54.070481175442865,
+            52.334602784714264,
+            50.9975009338857
+          ]
+        }
+      ],
+      "value": 50.9975009338857,
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('T23G_C', 'T23G_M', 'T23G_F') is STAGNANT at dim = 2, observed order 0.3766; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone"
+    },
+    "Q3": {
+      "band": [
+        -14.850000000000023,
+        185.14999999999998
+      ],
+      "band_verdict": "PASS",
+      "dim": 2,
+      "extra_gates": {
+        "G-GCI-DISPLAY": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        },
+        "G-GCI-LEGACY": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        },
+        "G-ORDER": {
+          "value": null,
+          "verdict": "NOT EVALUATED"
+        }
+      },
+      "fs": 1.25,
+      "iterative_convergence": {
+        "T23G_C": "CONVERGED",
+        "T23G_F": "CONVERGED",
+        "T23G_M": "CONVERGED"
+      },
+      "levels": [
+        {
+          "cells": 9920,
+          "name": "T23G_C",
+          "value": 60.00610508
+        },
+        {
+          "cells": 39680,
+          "name": "T23G_M",
+          "value": 58.265640914000016
+        },
+        {
+          "cells": 158720,
+          "name": "T23G_F",
+          "value": 56.923014541999976
+        }
+      ],
+      "monotone": true,
+      "orders": [
+        0.374414225701246
+      ],
+      "planted_zero": {
+        "artifact": "/home/ubuntu/Certonomous/verification/runs/T-family/T23G_runs/T23G_F/10000/core/T",
+        "floor": 1e-06,
+        "level": "T23G_F",
+        "n_planted": 1,
+        "passed": true,
+        "planted": 0.001234,
+        "read_back_delta": 0.0012340000000108375,
+        "reader": "Q3 max(T) core internalField @T23G_F",
+        "reader_delta": 0.0012340000000108375,
+        "rungs": [
+          [
+            10.0,
+            10.0,
+            1
+          ],
+          [
+            1.0,
+            1.0,
+            1
+          ],
+          [
+            0.1,
+            0.10000000000002274,
+            1
+          ],
+          [
+            0.01,
+            0.010000000000047748,
+            1
+          ],
+          [
+            0.001234,
+            0.0012340000000108375,
+            1
+          ],
+          [
+            0.001,
+            0.0010000000000331966,
+            1
+          ],
+          [
+            0.0001,
+            0.00010000000003174137,
+            1
+          ],
+          [
+            1e-05,
+            1.0000000031595846e-05,
+            1
+          ],
+          [
+            1e-06,
+            9.999999974752427e-07,
+            1
+          ]
+        ]
+      },
+      "plateau": {
+        "T23G_C": "PLATEAUED",
+        "T23G_F": "PLATEAUED",
+        "T23G_M": "PLATEAUED"
+      },
+      "quantity": "Q3",
+      "quantity_verdict": "NOT A RESULT",
+      "reference": null,
+      "states": [
+        "STAGNANT"
+      ],
+      "triples": [
+        {
+          "cells": [
+            9920,
+            39680,
+            158720
+          ],
+          "dim": 2,
+          "e21": 1.3426263720000406,
+          "e32": 1.740464165999981,
+          "form": "equal",
+          "levels": [
+            "T23G_C",
+            "T23G_M",
+            "T23G_F"
+          ],
+          "order": 0.374414225701246,
+          "r21": 2.0,
+          "r32": 2.0,
+          "ratio_gap": 0.0,
+          "state": "STAGNANT",
+          "values": [
+            60.00610508,
+            58.265640914000016,
+            56.923014541999976
+          ]
+        }
+      ],
+      "value": 56.923014541999976,
+      "verdict": "NOT A RESULT",
+      "why": "finest triple ('T23G_C', 'T23G_M', 'T23G_F') is STAGNANT at dim = 2, observed order 0.3744; the value, every triple and every order are printed beside it, and NO GCI is quoted because the three values are not monotone"
+    }
+  },
+  "repro": {
+    "delta_K": 0.0,
+    "reference_K": 342.159828932,
+    "tolerance_K": 1e-06,
+    "verdict": "PASS"
+  },
+  "rung_verdict": "NOT A RESULT"
+}

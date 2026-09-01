@@ -1,0 +1,13 @@
+case=T23G_F
+rc=0
+wall_s=8745
+ranks=1
+core_min=145.7500
+cap_core_min=400.0000
+point_core_min=120.88
+timeout_s=24000
+capped=0
+solver=chtMultiRegionSimpleFoam
+end_utc=2026-09-01T06:25:08Z
+note=rc captured inside this wrapper on the line after the solver call, never around a setsid
+note=a capped level is NOT restarted with a bigger number (rule 12)
