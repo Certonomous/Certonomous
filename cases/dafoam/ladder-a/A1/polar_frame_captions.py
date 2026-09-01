@@ -95,13 +95,33 @@ RESULT_VOICE = re.compile(
 #: residual to quote. `1e-8` is the REGISTERED tolerance and the mark says it
 #: was not met; that is a verdict, not a measurement, and the caption does not
 #: dress it as one.
-CAPTIONS: dict[str, str] = {
-    "polar_field_alpha18_not_converged": (
-        "alpha = 18 deg  |  iter 1000/1000  |  tol 1e-8 not met  |  9/19 converged"),
-    "section_grid": (
-        "4032 cells  |  8316 points  |  O-grid"),
-    "section_grid_leading_edge": (
-        "leading edge  |  4032 cells  |  y+ 16.7-92.4"),
+#: BULLETS, NOT ONE LINE, and the change was forced by a measurement rather than
+#: by style. The single-line form ran off the right edge of a 900 px render --
+#: 69 non-background pixels in the last twelve columns, with "converged" sliced
+#: in half on screen -- while every text-side check stayed green. Her rule asks
+#: for bullets and the render agrees with her: short lines fit.
+CAPTIONS: dict[str, list[str]] = {
+    "polar_field_alpha18_not_converged": [
+        "alpha = 18 deg",
+        "iter 1000/1000",
+        "tol 1e-8 not met",
+        "9/19 converged (both arms)",
+    ],
+    "section_grid": [
+        "4032 cells | 8316 points",
+        "O-grid, coarse A1 mesh",
+    ],
+    # THE QUALIFIER LIVES IN THE SAME BULLET AS THE NUMBER, and that was forced
+    # by an arm going red on this very entry. The first version put "coarse A1
+    # mesh" in bullet [0] and "y+ 16.7-92.4" in bullet [1] -- and a bullet is
+    # read on its own, so bullet [1] published a y+ range naming no mesh. That
+    # is the two-channel failure again, one level down from the G-STALL case:
+    # a qualifier one line away from its number is a qualifier the reader of
+    # that line does not have.
+    "section_grid_leading_edge": [
+        "leading edge | 4032 cells",
+        "coarse A1 mesh y+ 16.7-92.4",
+    ],
 }
 
 #: Per-frame caption for the progressive grid reveal. Both numbers are MEASURED
@@ -175,8 +195,87 @@ ALLOWED_PLANTS = [
     "alpha = 18 deg  |  iter 1000/1000  |  9/19 converged",
     "4032 cells  |  8316 points  |  O-grid",
     "r = 0.19 m  |  118/4032 cells",
-    "leading edge  |  4032 cells  |  y+ 16.7-92.4",
+    "coarse A1 mesh  |  4032 cells  |  y+ 16.7-92.4",
 ]
+
+# ---------------------------------------------------------------------------
+# TRAP 2: A NUMBER MUST NAME WHAT IT IS TRUE OF.
+#
+# `CLAUDE.md` rule 3 says the number wins -- but only if the number is TRUE OF
+# THE THING IT SITS NEXT TO, and numeric compression is exactly what invites
+# dropping the qualifier that keeps it true. Heat-transfer measured the case:
+# `y+ < 1` was true on their housing (0.73-0.75) and FALSE on their duct wall
+# (2.40), and a compressed caption would have carried the true-sounding half.
+#
+# FOUR ARE LIVE ON OUR OWN GROUND AND EVERY PLANT BELOW IS ONE WE KNOW IS FALSE
+# WHEN STRIPPED -- which makes them evidence rather than illustration:
+#
+#   y+     the coarse A1 mesh measures y+ 16.7-92.4; A1WR only TARGETS y+ < 1
+#          and has produced no frame. A bare "y+ < 1" is false of every frame
+#          rendered so far.
+#   Re     two of them, one per regime: 6.6628e5 incompressible, 6.5338e6
+#          compressible. A bare "Re 6.5e6" is false of the incompressible arm.
+#   A0     0.1 m^2 is NOMINAL against a true planform of 0.0999416 m^2.
+#   twin   25.985 % is D19M's and false of D19O; 21.652 % is D19O's and false
+#          of D19M. Both are true; NEITHER is true of the other row. A
+#          percentage without its row undoes the whole reason the twin table
+#          beats an assertion.
+#
+# A UNIT IS NOT A QUALIFIER. "m^2" does not say which area.
+#
+# `9/19 converged` is the one number here that needs no arm qualifier, and that
+# is MEASURED rather than assumed: AOAC 9/19 and AOAI 9/19, counted from each
+# arm's own AOA_POINTS.json. The bullet says "(both arms)" because that is what
+# was counted.
+QUALIFIER_RULES: list[tuple[str, re.Pattern, re.Pattern]] = [
+    ("y+ must name its mesh",
+     re.compile(r"\by\+\s*[<>=]|\by\+\s*\d", re.I),
+     re.compile(r"\b(coarse|A1WR|wall-resolved|target|A1 mesh)\b", re.I)),
+    ("Reynolds must name its regime",
+     re.compile(r"\bRe\b\s*[=~]?\s*\d|\bReynolds\b", re.I),
+     re.compile(r"\b(incompressible|compressible)\b", re.I)),
+    ("the reference area must say it is nominal",
+     re.compile(r"\bA0?\s*=\s*0\.1\b", re.I),
+     re.compile(r"\b(nominal|reference)\b", re.I)),
+    ("a drag-reduction percentage must name its row",
+     re.compile(r"\b(25\.985|21\.65\d?|28\.2768|28\.3)\s*(?:%|per cent)", re.I),
+     re.compile(r"\b(D19M|D19O|A2|twist|shape|unconstrained|constrained|"
+                r"CL 0\.5|lift held)\b", re.I)),
+]
+
+
+def qualifier_hits(text: str) -> list[str]:
+    """Every number here that does not name what it is true of."""
+    out = []
+    for name, number, qualifier in QUALIFIER_RULES:
+        if number.search(text) and not qualifier.search(text):
+            out.append(f"unqualified number: {name}")
+    return out
+
+
+#: MUST BE REJECTED: true-sounding numbers stripped of the qualifier that makes
+#: them true. Every one of these is FALSE as written, on our own measurements.
+UNQUALIFIED_PLANTS = [
+    "y+ < 1",                                   # false of every frame we have
+    "y+ 16.7-92.4",                             # true, but of WHICH mesh
+    "Re 6.5e6",                                 # false of the incompressible arm
+    "Reynolds 6.6628e5",                        # true, but of WHICH arm
+    "A0 = 0.1 m^2",                             # nominal, not the true planform
+    "25.985 % drag reduction",                  # D19M's, false of D19O
+    "21.652 % drag reduction",                  # D19O's, false of D19M
+]
+
+#: MUST BE ACCEPTED: the same numbers carrying the noun they are true of.
+QUALIFIED_PLANTS = [
+    "A1WR target y+ < 1",
+    "coarse A1 mesh y+ 16.7-92.4",
+    "Re 6.5338e6 compressible",
+    "Re 6.6628e5 incompressible",
+    "A0 = 0.1 m^2 nominal | planform 0.0999416 m^2",
+    "D19M 25.985 % drag | lift unconstrained",
+    "D19O 21.652 % drag | CL 0.5 held",
+]
+
 
 def caption_hits(text: str) -> list[str]:
     """Every reason this caption may not go on a frame."""
@@ -187,6 +286,7 @@ def caption_hits(text: str) -> list[str]:
         out.append(f"presented as a flow result: {m.group(0)!r}")
     if STALL_CLAIM.search(text):
         out.append("G-STALL: a stall word bound to a numeric angle")
+    out.extend(qualifier_hits(text))
     return out
 
 
@@ -204,6 +304,17 @@ def check() -> int:
         if caption_hits(p):
             blind.append(f"honest caption wrongly rejected: {p!r} "
                          f"-> {caption_hits(p)}")
+
+    # ---- TRAP 2: the qualifier arms, both directions -----------------------
+    for q in UNQUALIFIED_PLANTS:
+        n += 1
+        if not qualifier_hits(q):
+            blind.append(f"unqualified number NOT rejected: {q!r}")
+    for q in QUALIFIED_PLANTS:
+        n += 1
+        if qualifier_hits(q):
+            blind.append(f"qualified number wrongly rejected: {q!r} "
+                         f"-> {qualifier_hits(q)}")
 
     # ---- THE GAP, MEASURED AND ASSERTED RATHER THAN DESCRIBED --------------
     # These arms exist so this file's central factual claim cannot rot: if a
@@ -252,7 +363,8 @@ def check() -> int:
         blind.append("G-STALL no longer fires on its own control C7")
 
     # ---- the published captions themselves ---------------------------------
-    published = list(CAPTIONS.items()) + [
+    published = [(f"{k}[{i}]", b) for k, v in CAPTIONS.items()
+                 for i, b in enumerate(v)] + [
         (f"refusal bullet {i}", b) for i, b in enumerate(REFUSAL_BULLETS)] + [
         ("reveal caption", REVEAL_CAPTION.format(radius=0.19, kept=118, total=4032))]
     for tag, text in published:
