@@ -1,0 +1,50 @@
+{
+  "jet_flap_1_lift_vs_blowing": {
+    "case": "JF1_L1_BLOWN_CMU020_A0",
+    "cells": 39984,
+    "reference_area": 0.01,
+    "superseded": false
+  },
+  "jet_flap_2_chordwise_pressure": {
+    "case": "JF1_L1_BLOWN_CMU020_A0",
+    "cells": 39984,
+    "reference_area": 0.01,
+    "superseded": false
+  },
+  "jet_flap_2_surface_pressure": {
+    "case": "JF1_L1_BLOWN_CMU020_A0",
+    "cells": 39984,
+    "reference_area": 0.01,
+    "superseded": true
+  },
+  "jet_flap_3_flow_field": {
+    "case": "JF1_P1_L1_CMESH_PHYSICS",
+    "cells": 46180,
+    "reference_area": 1.0,
+    "superseded": false
+  },
+  "jet_flap_4_jet_path": {
+    "case": "JF1_P1_L1_CMESH_PHYSICS",
+    "cells": 46180,
+    "reference_area": 1.0,
+    "superseded": false
+  },
+  "jet_flap_5_mesh_flowfield": {
+    "case": "JF1_P1_L1_CMESH_PHYSICS",
+    "cells": 46180,
+    "reference_area": 1.0,
+    "superseded": false
+  },
+  "jet_flap_6_mesh_resolution": {
+    "case": "JF1_P1_L1_CMESH_PHYSICS",
+    "cells": 46180,
+    "reference_area": 1.0,
+    "superseded": false
+  },
+  "jet_flap_7_mesh_forcesweep": {
+    "case": "JF1_L1_BLOWN_CMU010_A0",
+    "cells": 39984,
+    "reference_area": 0.01,
+    "superseded": false
+  }
+}

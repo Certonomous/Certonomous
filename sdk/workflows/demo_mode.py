@@ -228,13 +228,34 @@ _GATE_PHRASES: tuple[str, ...] = (
     "NOT A RESULT", "GATE REACHED", "GATE FAIL", "PASS", "BLOCKED", "PENDING",
 )
 
+#: TRAILING-BOUNDARY BLINDNESS, and it is the second instance in this lab.
+#: ``\bPASS\b`` does NOT match "PASSED": the trailing ``\b`` needs a
+#: non-word character, and "ED" is word characters. Measured on the filmed
+#: surface -- four planted-control lines rendered on the gates table as
+#: "coefficient control PASSED", "elapsed control PASSED" and two more, and
+#: every one of them walked through this checker untouched.
+#:
+#: THE IDENTICAL DEFECT was found and fixed hours earlier in a DIFFERENT file
+#: (``vocab_sweep_jf1.py``, where ``\b(defect|...)\b`` missed "defects"), and
+#: nobody looked here because the first instance had been fixed. Two
+#: independent guards, one blindness. The lesson is not "add PASSED"; it is
+#: that a word-boundary vocabulary check is blind to every inflection of every
+#: word in it, in every file that has one.
+#:
+#: So the final word of each phrase carries its uppercase inflections. Upper
+#: case ONLY, as before: "the flow passes over the slot" is ordinary English
+#: and stays legal, while "PASSED" as a label does not.
+_GATE_TAIL = r"(?:ED|ES|S)?"
+
 
 def _check_gate_words(text: str) -> None:
     """Refuse the gate vocabulary used as a verdict; allow it as English."""
     stripped = text.strip().strip(".:;,").strip()
     for phrase in _GATE_PHRASES:
         words = phrase.split()
-        pattern = r"\b" + r"\s+".join(words) + r"\b"
+        pattern = (r"\b" + r"\s+".join(words[:-1] + [words[-1] + _GATE_TAIL])
+                   if len(words) > 1 else r"\b" + words[0] + _GATE_TAIL)
+        pattern += r"\b"
         # The token itself, in the case the ledger writes it.
         if re.search(pattern, text):
             raise DemoContractError(

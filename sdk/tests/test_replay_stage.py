@@ -114,7 +114,13 @@ class PlantedControls(unittest.TestCase):
         results = self_check(CASE)
         self.assertEqual(len(results), 4)
         for line in results:
-            self.assertIn("PASSED", line)
+            # The marker is "reads back", not a verdict word. R5 keeps the
+            # lab's gate vocabulary off a customer surface, and these lines
+            # render on the gates table; "PASSED" in capitals reads as a
+            # verdict to a viewer. The control still has to SAY it read the
+            # plant back, which is what is asserted.
+            self.assertIn("reads back", line)
+            self.assertNotIn("PASSED", line)
 
     def test_coefficient_reader_refuses_an_absent_column(self):
         with self.assertRaises(ReaderRefused):
@@ -307,7 +313,13 @@ class TheStage(unittest.TestCase):
         self.assertEqual(events, [])
         self.assertEqual(len(history.controls), 4)
         for line in history.controls:
-            self.assertIn("PASSED", line)
+            # The marker is "reads back", not a verdict word. R5 keeps the
+            # lab's gate vocabulary off a customer surface, and these lines
+            # render on the gates table; "PASSED" in capitals reads as a
+            # verdict to a viewer. The control still has to SAY it read the
+            # plant back, which is what is asserted.
+            self.assertIn("reads back", line)
+            self.assertNotIn("PASSED", line)
 
 
 if __name__ == "__main__":

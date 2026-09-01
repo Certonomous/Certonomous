@@ -510,3 +510,77 @@ def test_screen_refusal_class_is_silent_on_clean_text():
                  "Solving, iteration 4,000 of 20,000",
                  "39,984 cells on the force grid"):
         assert screen_refusal_class(good) is None, good
+
+
+# -- trailing-boundary blindness in the gate-word check ----------------------
+
+#: THE SECOND INSTANCE OF ONE DEFECT CLASS IN THIS LAB. `\bPASS\b` does not
+#: match "PASSED" -- the trailing `\b` wants a non-word character and "ED" is
+#: word characters -- so four planted-control lines rendered on the gates
+#: table as "coefficient control PASSED" and walked through the screen guard
+#: untouched. The identical blindness had already been found and fixed hours
+#: earlier in a different file, where `\b(defect|...)\b` missed "defects", and
+#: nobody looked here because the first instance had been fixed.
+#:
+#: The lesson is not "add PASSED". It is that a word-boundary vocabulary check
+#: is blind to every inflection of every word in it, so the inflections are
+#: planted here one at a time rather than assumed to follow from the fix.
+INFLECTED_VERDICTS = (
+    "coefficient control PASSED: a planted value was read back",
+    "elapsed control PASSED",
+    "the band PASSES",
+    "PASSED",
+    "GATE FAILED",
+    "GATE FAILS",
+    "NOT A RESULTS",
+)
+
+#: ORDINARY ENGLISH THAT MUST SURVIVE, because the whole reason this checker
+#: was written narrowly is that one firing on innocent prose gets switched
+#: off. Lower case is not a verdict: a checker that refused "the flow passes
+#: over the slot" would force an act to choose between the rule and plain
+#: description of the physics.
+VERDICT_LOOKALIKES = (
+    "the flow passes over the slot",
+    "the jet passed the trailing edge",
+    "Pass 1 of 2",
+    "a blocked slot",
+    "the run is pending review",
+    "the sweep passes through four blowing levels",
+)
+
+
+@pytest.mark.parametrize("text", INFLECTED_VERDICTS)
+def test_inflected_gate_words_are_refused(text):
+    from workflows.demo_mode import check_demo_language
+
+    with pytest.raises(DemoContractError):
+        check_demo_language(text)
+
+
+@pytest.mark.parametrize("text", VERDICT_LOOKALIKES)
+def test_lower_case_english_is_not_a_verdict(text):
+    from workflows.demo_mode import check_demo_language
+
+    check_demo_language(text)
+
+
+def test_the_four_planted_control_lines_carry_no_verdict_word():
+    """The labels themselves, read from the module that composes them.
+
+    Asserted on the REAL sentences rather than on a copy of them: a test that
+    re-typed the wording would pass while the shipped strings said something
+    else.
+    """
+    from chief_engineer import replay_history
+    from workflows.demo_mode import check_demo_language
+
+    source = Path(replay_history.__file__).read_text(encoding="utf-8")
+    assert "control PASSED" not in source, (
+        "a planted-control line still carries a verdict-shaped word")
+    for line in ("pressure pass control reads back",
+                 "cross-check control reads back",
+                 "elapsed control reads back",
+                 "coefficient control reads back"):
+        assert line in source, f"missing control label: {line}"
+        check_demo_language(line)

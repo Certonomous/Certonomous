@@ -818,9 +818,9 @@ def _plant_pressure_passes(case: Path) -> str:
                 f"into the first 'Solving for p' of iteration "
                 f"{expected_time:g} and the reader returned {value!r}. It is "
                 f"not reading that line at all.")
-        return (f"pressure pass control PASSED: two different sentinels in the "
-                f"two p solves of iteration {expected_time:g}; the reader "
-                f"returned the first-pass sentinel")
+        return (f"pressure pass control reads back: two different sentinels "
+                f"in the two p solves of iteration {expected_time:g}; the "
+                f"reader returns the first-pass sentinel")
 
 
 def _plant_cross_check(case: Path) -> str:
@@ -854,8 +854,8 @@ def _plant_cross_check(case: Path) -> str:
         try:
             read_solve_history(copy)
         except ReaderRefused:
-            return ("cross-check control PASSED: a single corrupted "
-                    "solverInfo p_initial row made the reader refuse")
+            return ("cross-check control reads back: a single corrupted "
+                    "pressure row makes the reader refuse")
         raise ReaderRefused(
             f"CROSS-CHECK CONTROL FAILED on {case}: one row of solverInfo "
             f"p_initial was set to {PLANT!r} and the reader accepted it. The "
@@ -882,8 +882,8 @@ def _plant_elapsed(case: Path) -> str:
                 f"ELAPSED CONTROL FAILED on {case}: planted {PLANT!r} into an "
                 f"ExecutionTime line and the reader did not read it back. The "
                 f"clock on screen is not coming from the log.")
-        return ("elapsed control PASSED: a planted ExecutionTime was read "
-                "back at its own iteration")
+        return ("elapsed control reads back: a planted elapsed time is read "
+                "at its own iteration")
 
 
 def _plant_coefficient(case: Path) -> str:
@@ -913,8 +913,8 @@ def _plant_coefficient(case: Path) -> str:
                 f"COEFFICIENT CONTROL FAILED on {case}: planted {PLANT!r} into "
                 f"the last Cl value and the reader read {seen[-1]!r}; it is "
                 f"reading a different column.")
-        return ("coefficient control PASSED: a planted Cl was read back from "
-                "the Cl column")
+        return ("coefficient control reads back: a planted lift value is "
+                "read from the lift column")
 
 
 def self_check(case: Path | str) -> list[str]:
