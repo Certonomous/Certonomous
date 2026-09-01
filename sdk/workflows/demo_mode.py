@@ -307,22 +307,40 @@ def assert_screen_safe(payload: Mapping) -> None:
     in the run record. This is the sequencer's last gate before publishing, so
     neither can reach a screen through a payload nobody re-read.
     """
-    def walk(node, trail: str) -> None:
+    #: Keys whose values are machine identifiers rather than screen text: an
+    #: event name, a table's id, a beat name. They are carried so a banner and
+    #: the content it describes can be AUDITED as a pair, and they never
+    #: render. Checking them as prose would refuse "demo.prompt" for containing
+    #: a banned word, which is how a guard earns a reputation for crying wolf
+    #: and gets switched off.
+    audit_keys = {"for_event", "table_id", "beat", "event", "stage_id",
+                  "url", "file"}
+
+    def walk(node, trail: str, zone: str) -> None:
         if isinstance(node, Mapping):
             for key, value in node.items():
+                if str(key) in audit_keys:
+                    continue
                 if str(key) in {"presentation_of", "source", "run_root",
                                 "internal", "case_dir"}:
                     raise DemoContractError(
                         f"internal-only field {trail}.{key} would reach the "
                         f"screen; strip it in the act, not in the renderer")
-                walk(value, f"{trail}.{key}")
+                # The zone is a property of WHERE the text lands on screen,
+                # and the payload key is what names that place. Found by
+                # assembling a whole act and guarding what it really
+                # published: the caveat box is the one place the finer
+                # companion grid may be named, and a flat screen-zone walk
+                # refused the act's own limitations list.
+                walk(value, f"{trail}.{key}",
+                     "limitations" if str(key) == "limitations" else zone)
         elif isinstance(node, (list, tuple)):
             for i, value in enumerate(node):
-                walk(value, f"{trail}[{i}]")
+                walk(value, f"{trail}[{i}]", zone)
         elif isinstance(node, str):
-            check_demo_language(node)
+            check_demo_language(node, zone=zone)
 
-    walk(payload, "payload")
+    walk(payload, "payload", "screen")
 
 
 # ---------------------------------------------------------------------------
