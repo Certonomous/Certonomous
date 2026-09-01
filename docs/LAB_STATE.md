@@ -4788,9 +4788,66 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T17:31:03Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25g` — D19T triage, the A1 geometry read from the mesh generator, and the rulings on her core-power approval. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T19:22:04Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25h` — the stage-keyed tense rule, a LIVE screen-8 violation on filmable material, the shootable-run eligibility ruling, and my FOURTH characterisation error of the session. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25h — **THE TENSE RULE IS NOW STAGE-KEYED AND I READ THE DIFF MYSELF: 126/126 ARMS, AND RESTORING THE OLD FLAT RULE TURNS 56 OF THEM RED — THE INSTRUMENT DETECTS ITS OWN PREDECESSOR'S DEFECT. ⚠ OUR SHEETS SHOW THE CONVERGENCE STUDY AS **ABSENT** IN FOUR PLACES, WHICH HER PROTOCOL FORBIDS — A LIVE VIOLATION ON FILMABLE MATERIAL. AND MY FOURTH CHARACTERISATION ERROR OF THE SESSION** (2026-09-01T19:22:04Z, `date -u` at write)
+
+###### 1. ⚠⚠ MY FOURTH ERROR OF THE SAME KIND, AND IT IS NOW A PATTERN AND NOT AN INCIDENT
+
+**I wrote into a lane brief that `cases/dafoam/actd_language_sweep.py` imports and applies `PAST`. IT DOES NOT.** I grepped it myself after the lane corrected me: **its only tense reference is a docstring quoting the 03:40Z TWO-PART rule — the very form Sanaa has now restored.** That file was never on the wrong side of this and **I overstated the blast radius by one file.**
+
+**Today's count: the unit error in `S-25b`, the mesh-payload "plain sentence" in `S-25d`, the mischaracterisation of Sanaa's §5 in `S-25f`, and now this.** **⚠ I WROTE THE STANDING CORRECTION FOR EXACTLY THIS FAILURE MYSELF THIS AFTERNOON — *"a claim about what a file or a payload CONTAINS gets opened before it is written into a brief"* — AND THEN DID IT AGAIN THE SAME DAY.** The diagnosis is not carelessness: **I have been treating brief-writing as a place where approximate recall is acceptable, and it is not, because a brief is an INSTRUCTION and a wrong instruction propagates further and faster than a wrong note.** Four lanes have now corrected me and every one of them was right.
+
+###### 2. THE INSTRUMENT — READ AS A DIFF BY ME, AND ACCEPTED
+
+`d5edd5ca`: `docs/dafoam/demo/demo_stages.py` **new, 519 lines**, plus the three face checkers. **821 insertions / 96 deletions, four paths.** **I read the module in full and ran its controls: 126/126 arms, both directions, both regimes, one arm per alternative.** Its output may now be believed.
+
+**Sanaa's rule has moved TWICE in seventeen hours** — 03:40Z two-part, 04:20Z flat *"no past tense"*, 20:30Z back to two-part with an explicit supersession clause. **Our three checkers implemented the FLAT form, so as of `cfcf766f` they were INVERTED for results text: flagging compliant strings and pushing authors to write results in the present tense, which is itself now the violation. AN INSTRUMENT ENFORCING A SUPERSEDED RULE IS NOT NEUTRAL — IT MANUFACTURES THE WRONG ARTEFACT.**
+
+**The design decision the whole thing turns on: `PRESENT_RUN_NARRATION` is a CLOSED LIST OF RUN-EVENT VERBS, NOT A PRESENT-TENSE DETECTOR.** The mirror-image rule would have fired on every honest sentence in a results section — *"drag is 0.02962051"*, *"Table 3 lists every check"* — which is my own **"a rule that fires on everything fires on nothing"**, avoided by construction rather than by tuning.
+
+**Four more properties worth carrying to any successor instrument:** the regime lives in **ONE table keyed to her eight stages**, and the patterns say what tense *looks like* and never *where it is allowed* — so the next revision edits one table. **Stage 8 is `RUNNING` deliberately**, because her own screen-8 sentence is present progressive sitting beside results and a past form there would be a lie about a study that has not finished — **that single row proves a global flag was never possible.** Anchors are refused unless they match **exactly once AND in document order**, both as refusals rather than warnings. And a third regime `STATIC` carries the definitions and units, **with a 30 % coverage floor that REFUSES if the map is quietly emptied** — because the obvious abuse is to declare the whole document static and sweep clean.
+
+**⚠ AND THE STRONGEST FACT: MUTATION-TESTED, RESTORING THE FLAT RULE TURNS 56 ARMS RED. THE INSTRUMENT DETECTS ITS OWN PREDECESSOR'S DEFECT.** It also found **two pre-existing false positives by arm rather than by reading** — `stopped` missing from the ambiguous set, and `ends` needing an object requirement with `starts` dropped, both justified by strings on our own sheets.
+
+**The measured inversion, and every hit verified to reach the rendered face:** reference wing **0 → 15**, multipoint **0 → 1**, compressible **0 → 2**. **⚠ The sharpest is `"The iteration limit is not reached"` — the EXACT string the old checker's own two-sided control was tuned to PERMIT. Its most carefully-reasoned exception became its most precise inversion.**
+
+###### 3. ⚠⚠ A LIVE COMPLIANCE VIOLATION ON FILMABLE MATERIAL — SCREEN 8
+
+**Her protocol: the convergence study is shown DONE or UNDERWAY, NEVER AS ABSENT. FOUR OF OUR STRINGS SHOW IT AS ABSENT** — `ACT_D_reference_wing_sheet.tex:407` *"grid independence not assessed"*, `:511-512`, `:543-544`, and `ACT_D_aerofoil_section_sheet.tex:391` *"No grid-refinement study was run"*.
+
+**RULED: fixed FIRST, ahead of everything including the tense rewording and ParaView.** And **the honest form is TRUE rather than a device**: A1WR is live and A2-GC L1 cap-stopped with L2/L3 owed, so *"the study is running; the band lands in your inbox"* is a statement about work in flight. **No band is claimed and no study is called finished.**
+
+**RULED on the rewording: TENSE ONLY, NO CONTENT MOVES** — especially *"No test fires to confirm it"*, which carries the `B2`-diverged caveat on the zero-share incidence claim. **A tense repair that quietly softened a caveat would be far worse than the violation it fixed.**
+
+**AND `ACT_D_aerofoil_section_sheet.tex` HAS NO CHECKER AND HAS NEVER BEEN SWEPT.** It gets one or an explicit out-of-scope declaration — **an unswept sheet in a directory of swept sheets is the most dangerous file there, because its cleanliness is inferred from its neighbours.**
+
+**Reconciled: the sheets quote `Re 6.54e6` from an ASSUMED chord of 1.0; the READ chord gives 6.5338e6 → 6.53e6.** Two Reynolds numbers for one case on one filmed surface is the defect this whole day has been about.
+
+###### 4. THE NAMED HOLE — AND IT IS THE RIGHT ONE
+
+**`RUNNING` coverage is ZERO WORDS across all three sheets: they are stage 6/7 artefacts end to end, so the past-tense arm is exercised only by plants.** The real exposure is the **SDK act screens at stages 1–5, and NOTHING SWEEPS THEM FOR TENSE TODAY.** Largest remaining gap, on the far side of the `sdk/` boundary. **OUR SHEETS BEING CLEAN IS NOT EVIDENCE THE ACT SCREENS ARE**, and it goes upward as a named gap rather than being absorbed.
+
+###### 5. ELIGIBILITY RULING — *"ANY RUNS WHOS PHYSICS IS GOOD CAN BE SHOT"*, AND **CONVERGED ≠ PHYSICS GOOD**
+
+* **`SO-3`** incompressible multipoint `PASS` — **physics good unreservedly.**
+* **`D19M`** compressible multipoint `GATE REACHED`, every gate passed — **physics good; the ceiling is about the INHERITED gradient, not this solve.** Shootable **with the CL triple always in frame.** ⚠ **Be exact: the SOLVE is sound, the resulting DESIGN is not one anyone would fly.** 25.98 % bought at lift collapsing to **−0.157** is a converged answer to an ill-posed question — which is why it is her stage-4 **correction beat**, not a headline.
+* **⚠ `D19O`** compressible single point `GATE REACHED` — **HAD NO ACT QUEUED AT ALL, AND IT IS THE BEST OPTIMISATION RESULT WE OWN TO PUT ON CAMERA.** It **CONSTRAINED LIFT**: **21.652 % at CL 0.5 against a target of 0.5.** **A smaller number that is a real aerodynamic result beats a bigger number that is an artefact of an unconstrained objective. The two percentages must NEVER appear side by side as progress — they are not comparable.**
+* **The coarse polar — RULED: it earns its own small act, not a footnote.** Honest limits first: converged to 1e-8, but **wall-modelled at y+ 16.7–92.4, no grid study, no band**, and **our own registered §4.5 says a converged point on an inadequate mesh is not evidence of attached flow.** So it is a **SWEEP DEMONSTRATION, never a validated polar**, and no number from it is a physical prediction. **⚠ AND SHOWING 0–8° WHILE OMITTING 9–18° IS FORBIDDEN — the exact lie-by-omission the pre-registration barred.**
+
+**WHY IT EARNS AN ACT: THE 9° BREAK IS THE STORY, AND IT IS THE SAME BEAT SANAA NAMED FOR THE BATTERY — *"the feature is the refusal."*** Ours, computed: **19 points per regime, both breaking at the same angle to our sampling across a TENFOLD Reynolds change; the platform REFUSED to report the ten failures as physics; the viewer can SEE why, because at α=18° the incompressible arm reports `CD = −0.0244555793`, a NEGATIVE DRAG COEFFICIENT — no aerodynamics is needed to know that is not a measurement; and the platform then LAUNCHED the wall-resolved study, which is live now, so the escalation is real rather than narrated.**
+
+###### 6. TWO RULINGS RECEIVED, ONE ADOPTED AND ONE NOT ENDORSED
+
+**ParaView scope, `[lab-attributed]` and disclosed to Sanaa to overturn — ADOPTED.** **pvbatch for GEOMETRY, MESHES, SOLUTION FIELDS; DATA PLOTS stay latexfied matplotlib.** Checked against her actual words, not the summary: 20:50Z *"showing the mesh. Itll look better"* and 21:10Z *"never that trashy canvas"* — **the canvas she is retiring is the in-browser geometry/mesh renderer, not matplotlib**, and a pvbatch line chart would degrade the very figure standard §7 sets. **Recorded as lab-attributed, NEVER as her instruction**, and the render and plot paths stay separable so a reversal is a routing change.
+
+**⚠ The `D19O`-as-constrained-twin table and its two corrections are NOT ENDORSED BY ME — THEY HAVE NEVER REACHED ME.** I am told they are endorsed elsewhere. **I have not read them and I am not making a fifth unread endorsement today.** On the reasoning **as described**: the **1° sampling** bound is real and must survive onto the face — *"both regimes break between 8° and 9° at 1° sampling"*, **never "the boundary is identical"**. And the Reynolds point is **stronger than "coincidence"**: **if the break were physical stall it should MOVE with Reynolds, and across a tenfold change it did not move by as much as we can see** — more consistent with a numerical or resolution limit than with physics. **But that is WHY WE TEST, NOT PROOF: stall angle is only weakly Re-dependent here, so a real shift could be sub-degree and hide inside our sampling. "This proves it is numerical" would be falsified the moment A1WR lands.**
+
+**Render pass to be pre-registered with a cap — `pvbatch` under `xvfb` is real compute and rule 12 does not exempt it because nothing is being solved. I check the sha before any render runs.**
+
+**Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25g — **`D19T` TRIAGED: NOTHING WAS BOUGHT, THE DRIVER IS SOUND, AND THE CAUSE IS HONESTLY UNDETERMINED BECAUSE ITS OWN STDOUT WAS NEVER REDIRECTED. THE A1 GEOMETRY IS RESOLVED BY READING — **CHORD IS 0.999416, NOT 1.0, AND `A0` IS NOMINAL, SO EVERY `CD`/`CL` THIS FAMILY HAS PUBLISHED CARRIES AN UNSTATED 0.058 % NORMALISATION BIAS.** HER CORE-POWER APPROVAL WIDENS BUDGETS AND DOES NOT REOPEN A CLOSED FREEZE** (2026-09-01T17:31:03Z, `date -u` at write)
 
