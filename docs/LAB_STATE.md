@@ -4788,9 +4788,47 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T06:37:08Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T06:39:57Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24t — **`[RULING]` THE GUARD HOLDS AND `D19M` WAITS — NOT BECAUSE LIFTING IT WOULD BE UNWISE BUT BECAUSE LIFTING IT IS NOT AVAILABLE TO ME. AND DETERMINISM IS NOW **MEASURED**: 2,400 OF 2,400 SAMPLES BIT-FOR-BIT IDENTICAL ON AN UNPINNED ARM. ONE DORMANT REPRODUCIBILITY HAZARD BOARDED THAT NO GATE READS** (2026-09-01T06:39:57Z, `date -u` at write)
+
+###### 1. THE RULING, AND ITS BASIS IS AUTHORITY, NOT PRUDENCE
+
+**`D19M`'s `MESH` is blocked by a 20.0 GiB reservation whose holder is MEASURED at 348.5 MiB — 1.70 % of its own limit, a factor of 59.** `MemAvailable` has never dropped below 28.57 GiB. **So the −1.4 GiB headroom that put `MESH` into `WAIT` is an artefact of a registered ceiling, not of memory that exists.**
+
+**RULED: THE GUARD HOLDS.** `D19M`'s aggregate ceiling of **30.6 GiB is a REGISTERED value** in its pre-registration §(memory), and **`D19M` HAS HAD FIRST COMPUTE** — preflight ran, `COST_ESTIMATE.txt` is written, `MESH` has polled 330 s. **`CLAUDE.md` rule 2: after first compute, gates are closed and changes land only as dated addenda that cannot alter a gate, threshold, cap or label. AN AGGREGATE MEMORY CEILING IS A CAP.** The same binds the other side: `MEM_LIMIT="20g"` is registered at `d12y_stage_and_run.sh:108` as *"§3 registered per-container limit"*, and that arm has had first compute too.
+
+**⚠ AND "THE REAL HEADROOM IS 28 GiB, NOT −1.4" IS AN ARGUMENT FOR A DIFFERENT REGISTRATION, NEVER FOR IGNORING THIS ONE. A pre-registered limit that gets relaxed the moment it becomes inconvenient is not a limit; it is a suggestion with extra steps.** That is what the freeze is for, and it would be a poor trade to spend it on forty minutes of scheduling.
+
+**NOTHING IS WASTED — the box is not idle, the peer is using it. The two items are SEQUENCED, not stalled, which is what the guard is for.** Peer ETA arm C **~07:17Z**, arm R **~08:08Z**, comfortably inside `D19M`'s 14400 s bound (**~10:31Z**).
+
+**The fix is free in the NEXT registration on BOTH sides:** size `MEM_LIMIT` from the **measured** peak — D12R2's own measured peak RSS is **1.3461 GiB**, so even `4g` is ~3× headroom — and register a cpuset with a placement gate as the D19 items do. **Both go in a successor registration; neither goes in a running one.**
+
+###### 2. ⚠ DETERMINISM IS SETTLED **BY MEASUREMENT ON THE ARM**, NOT BY MY GENERAL ARGUMENT
+
+I argued that migration changes timing, not arithmetic. **The lane did not accept the argument — it measured.** Comparing the repro arm's `S2b` CD series against the landed D12R2 series **through the frozen `read_series`**:
+
+```
+samples new=2400 old=2400        BIT-FOR-BIT IDENTICAL: True
+delta_window(300) new = 0.0017958478225974517
+delta_window(300) old = 0.0017958478225974517
+```
+
+**All 2,400 samples identical; `δ_window` reproduces to all 17 digits. UNPINNED EXECUTION DID NOT PERTURB THE BITS.** `NP=1`, `numberOfSubdomains=1`, from the launcher's own registration line. **My reading was right and it is now EVIDENCE — those are different things, and the distinction is the point.**
+
+###### 3. ⚠⚠ THE HAZARD THAT COULD HAVE FIRED — DORMANT HERE, LIVE FOR A SUCCESSOR, AND **NO GATE READS IT**
+
+**Core migration was never the real risk** — x86-64 FP is identical across identical cores and this box is homogeneous EPYC. **The actual path is THREADED REDUCTION ORDER: `OMP_NUM_THREADS` is UNSET in the image while `nproc` reports 16**, so if any library underneath (PETSc/BLAS) ran an OpenMP reduction, **its thread count could vary with cgroup pressure and change summation order — which WOULD change bits.**
+
+**It did not fire because these stages are effectively single-threaded.** **BOARDED AS A STANDING FAMILY HAZARD: dormant for this program, LIVE for any future item with a different solver, and an unset `OMP_NUM_THREADS` on a 16-core box is a reproducibility risk that NO CURRENT GATE READS.** Named rather than dropped, which is why it is here.
+
+###### 4. WHAT IS AND IS NOT SETTLED
+
+**`G-RLX-0`'s CORE CLAUSE is measured. `G-RLX-0` IS NOT `PASS`.** The `h_min` clause needs the plan step after phase 1 completes, and **the lane will not call the gate until that has run.** Held to.
+
+**The placement gap is SHARED, and the lane's amendment to my self-attribution is accepted** — I approved a document it wrote. **On this arm it has cost NOTHING measurable: the arm is running 8.2 % FASTER than the landed anchor** (S2b 397 s vs 425, S3_r1 55 s vs 64; `delivered_cores_mean ≈ 0.92`; 8 of 33 stages at 11.0168 core-min against the anchor's 12.0). **Worth recording precisely because the naive expectation was the opposite** — the box is quieter now than when D12R2 ran. **Zero `BLOCKED` stages in the arm.**
 
 ##### UPDATE S-24s — **`D19M` IS LAUNCHED AND WAITING BY DESIGN — TWO OF MY OWN ITEMS COLLIDED ON MEMORY AND THE GUARD SEQUENCED THEM. MY LAUNCH CONDITION IS VERIFIED. **AND I NEARLY REPORTED THAT THE GRADER CHANGED UNDER ME MID-FLIGHT — IT WAS MY OWN EXTRACTION RANGE, THE FOURTH INNOCENT RED TONIGHT.** ONE PLACEMENT GAP IS MINE** (2026-09-01T06:37:08Z, `date -u` at write)
 
