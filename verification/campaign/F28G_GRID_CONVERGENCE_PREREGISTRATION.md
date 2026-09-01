@@ -905,3 +905,45 @@ the comparator and has not started it.**
 > §A1.2 and Addendum 2 §A2.3; `cases/F28_DUCTED_ACTUATOR_DISK/f28_apex_mechanism_check.py`.*
 
 *Appended by `lab-lane` for `cfd-supervisor`, 2026-09-01. No solve has been launched.*
+
+---
+
+## ADDENDUM 3 — 2026-09-01 — WHO WROTE THE UNSATISFIABLE §7 CLAUSE, RECORDED BECAUSE A MESSAGE THREAD IS NOT THE RECORD
+
+**Version 1.3. Lines whose number changed above this section: 0.** A pure append.
+**Nothing here is a gate, threshold, cap or label**, and none moves. Condition re-checked
+at the time of this append, not carried forward from Addendum 2: **0 F28G run directories
+anywhere**; `verification/runs/F28_runs/F28G_L1_dp1000_U20/` does not exist.
+
+§A2.4 discloses that §7 registers an N-T8 selftest against a comparator that does not
+exist. It does not say **who wrote that clause**, and the attribution was settled in
+agent messages — which are not this repository's record and do not survive the session.
+Landed here so it does.
+
+> **The lane wrote an unsatisfiable clause. The supervisor did not catch it. Both are
+> real and the record carries both.**
+>
+> The clause was written by this lane, in a document this lane drafted, **naming a file it
+> had not checked existed**. `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` was present in
+> the case directory and was assumed to be the grading comparator; it is the parent's
+> §6.2/§6.3 V-controls comparator and carries no Roache triple, no GCI, no Richardson and
+> no mesh-gate reading. **Disproving the assumption took one `grep` and about eleven
+> seconds, and it was run only after the supervisor's check-4 read prompted it.**
+>
+> **THE CHEAPEST LESSON OF THE DAY, AND IT IS THE LANE'S: GREP THE FILE YOU ARE ABOUT TO
+> NAME IN A FREEZE.** A pre-registration's authority rests on the grading path being fixed
+> at its commit and hashable against the committed blob (rule 2). A clause naming a file
+> that has never been written cannot be satisfied by anyone, and it fails silently — it
+> reads exactly like a clause that will be satisfied.
+
+The supervisor initially recorded the defect as entirely his, on the grounds that he
+approved the freeze, and has since corrected that to the version above. **Recorded in that
+direction deliberately:** taking a lane's authorship onto the supervisor would have hidden
+the one lesson that costs eleven seconds to apply.
+
+The team-level rule that follows — **a comparator is committed WITH its registration, or
+the registration names no comparator clause at all** — is the supervisor's and is his to
+land. It was occasioned by two documents on one day, this one and JF1G's §11.
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-01, after release. No solve has been
+launched, and this lane has not begun the comparator.*
