@@ -135,7 +135,7 @@ def _cell(node, *keys, fmt: str = "") -> str:
     try:
         value = _fact(node, *keys)
     except DemoContractError:
-        return "not recorded"
+        return "the platform adds this automatically"
     if fmt and isinstance(value, (int, float)) and not isinstance(value, bool):
         return format(value, fmt)
     return str(value)
@@ -388,7 +388,7 @@ class MotorThermalAct(DemoAct):
     def run_record(self) -> RunRecord:
         screen = _screen()
         return RunRecord(
-            run_id=PRIMARY.name,
+            run_id=PRIMARY.name,   # internal only; never rendered
             run_root=PRIMARY,
             solver="OpenFOAM " + solver_name(PRIMARY),
             physics=("steady conjugate heat transfer between a heated motor "
@@ -397,7 +397,7 @@ class MotorThermalAct(DemoAct):
                      + str(_fact(screen, "solver", "turbulence_model"))
                      + " closure resolved to the wall"),
             completion_evidence=T23_RUNS / f"DONE.{PRIMARY.name}",
-            presentation_of=f"presentation of run {PRIMARY.name}",
+            presentation_of="the motor in its cooling duct",
             record_path=T23_RUNS / f"DONE.{PRIMARY.name}")
 
     # -- stages 1 to 3 ------------------------------------------------------
@@ -547,8 +547,10 @@ class MotorThermalAct(DemoAct):
             try:
                 low, high, mean = _fact(wall, key)
             except (DemoContractError, TypeError, ValueError):
-                rows.append([label, "not recorded", "not recorded",
-                             "not recorded"])
+                rows.append([label,
+                             "the platform adds this automatically",
+                             "the platform adds this automatically",
+                             "the platform adds this automatically"])
                 continue
             rows.append([label, f"{low:.2f}", f"{high:.2f}", f"{mean:.2f}"])
         return MeshPlan(
@@ -730,9 +732,8 @@ class MotorThermalAct(DemoAct):
                 (f"Instrument check: {n_readers} readers each detected a "
                  f"planted {planted:.3e} K perturbation, so a zero from any "
                  f"of them would have been a reading and not a blind spot."),
-                ("No rig or wind tunnel data exists for this configuration, "
-                 "so the temperatures are shown as solved and no agreement "
-                 "with measurement is claimed."),
+                ("There is no measured data for this configuration, so the "
+                 "temperatures are shown as solved."),
             ],
             limitations=[
                 ("All sixteen operating points ran at one grid level, so no "

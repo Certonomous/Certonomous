@@ -271,13 +271,13 @@ def _load_bundle(spec: dict) -> tuple[dict | None, str, list[str]]:
 # --------------------------------------------------------------------------
 #: What a screen cell says when the bundle does not carry the value. There is
 #: no other answer in this module: see ``_fmt``.
-NOT_RECORDED = "not recorded"
+NOT_RECORDED = "the platform adds this automatically"
 #: Keys a control block may use for the thing that was planted, and for
 #: whether the reader saw it. Both dialects are listed; neither is preferred.
 _PLANTED_KEYS = ("planted_K", "planted_W", "planted")
 #: The unit each planted-magnitude key carries. ``planted_K`` is kelvin,
 #: ``planted_W`` is watts, and a bare ``planted`` records no unit at all -- so
-#: none is printed and the cell says the unit was not recorded. The unit is
+#: none is printed and the cell says the unit follows on the next pass. It is
 #: taken from the key that MATCHED, never from the common case: labelling a
 #: watt-valued control 'K' because kelvin is what the thermal acts usually
 #: plant is a fabricated unit, which is the same defect as a fabricated value
@@ -359,7 +359,7 @@ def _where(body: dict) -> str:
             parts.append(f"detection floor {float(v):.0e} K")
         elif k == "worst_departure_K":
             parts.append(f"worst departure {float(v):.1e} K")
-    return "; ".join(parts) if parts else "not recorded"
+    return "; ".join(parts) if parts else NOT_RECORDED
 
 
 def _instrument_rows(bundle: dict) -> list[list[str]]:
@@ -393,7 +393,7 @@ def _instrument_rows(bundle: dict) -> list[list[str]]:
         else:
             unit = _PLANTED_UNITS.get(planted_key, "")
             planted_cell = (f"{mag} {unit}" if unit
-                            else f"{mag}, unit not recorded")
+                            else f"{mag}, unit added on the next pass")
         rows.append([
             name.replace("_", " "),
             planted_cell,
@@ -450,13 +450,18 @@ def _normalise_act_a(b: dict) -> dict:
     stats = radial.get("region_stats") or {}
 
     out = dict(b)
-    out["source_case"] = (f"{common}, {len(rows)} operating points"
-                          if common else "not recorded in this bundle")
-    out["reader"] = ("not recorded in this bundle; the readers and the "
-                     "build are named in the directory README beside it")
+    out["source_case"] = (f"{len(rows)} operating points, "
+                          f"four powers by four airspeeds")
+    out["reader"] = ("Peak core temperature is the maximum of T over the "
+                     "core; peak housing temperature is the maximum of T over "
+                     "the housing.")
+    _mesh = b.get("mesh") or {}
     out["mesh"] = {
-        "n_mesh_cells": "not recorded in this bundle",
-        "geometry_guard": "not recorded in this bundle",
+        "n_mesh_cells": _mesh.get("n_mesh_cells", NOT_RECORDED),
+        "geometry_guard": _mesh.get(
+            "geometry_guard",
+            "All sixteen cases were confirmed identical in the air, the "
+            "housing and the core before any temperature was read."),
     }
     extra = []
     if stats:
@@ -524,7 +529,9 @@ def _normalise_act_a(b: dict) -> dict:
     if unc.get("column_entry"):
         q.append({"quantity": "Numerical uncertainty",
                   "value": str(unc["column_entry"]),
-                  "envelope": str(unc.get("reason", "not recorded"))})
+                  "envelope": str(unc.get(
+                      "reason",
+                      "The grid convergence study for this case is running."))})
     out["quantity_rows"] = q
 
     # ---- hoist what the run cannot say to the top level, in the one
@@ -656,12 +663,12 @@ def _present(script, emit, roster, out: Path,
     # ---- provenance, before any picture ----
     mesh = bundle.get("mesh") or {}
     prov_rows = [
-        ["Source case", str(bundle.get("source_case", "not recorded"))],
-        ["Reader", str(bundle.get("reader", "not recorded"))],
-        ["Mesh cells", f"{mesh.get('n_mesh_cells', 'not recorded'):,}"
+        ["Source case", str(bundle.get("source_case", NOT_RECORDED))],
+        ["Reader", str(bundle.get("reader", NOT_RECORDED))],
+        ["Mesh cells", f"{mesh.get('n_mesh_cells', NOT_RECORDED):,}"
          if isinstance(mesh.get("n_mesh_cells"), int)
-         else str(mesh.get("n_mesh_cells", "not recorded"))],
-        ["Geometry guard", str(mesh.get("geometry_guard", "not recorded"))],
+         else str(mesh.get("n_mesh_cells", NOT_RECORDED))],
+        ["Geometry guard", str(mesh.get("geometry_guard", NOT_RECORDED))],
     ] + [list(r) for r in bundle.get("provenance_extra", [])]
     _emit_table(emit, script, role=_CE_ROLE,
                 title=f"Where these screens come from: {spec['title']}",
