@@ -1,0 +1,1800 @@
+{
+ "_what": "Act D language sweep: the act driven, its emitted stream and transcript searched against Sanaa's DEMO MODE ban list.",
+ "_ban_list_source": "etc/sessions/2026-09-01T0340Z_sanaa_demo_mode_binding.md",
+ "act_return_code": 0,
+ "emitted_events": 226,
+ "camera_strings_scanned": 1348,
+ "wiring_strings_scanned": 154,
+ "camera_hits": [],
+ "wiring_hits": [
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_baseline.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_baseline.json",
+   "where": "emit[13]:geometry.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_baseline.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_baseline.json",
+   "where": "emit[13]:geometry.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_gradient.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_gradient.json",
+   "where": "emit[29]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_gradient.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_gradient.json",
+   "where": "emit[29]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/adjoint-optimization/a2_sections.png",
+   "context": "/api/plot/adjoint-optimization/a2_sections.png",
+   "where": "emit[34]:plot.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/adjoint-optimization/a2_twist.png",
+   "context": "/api/plot/adjoint-optimization/a2_twist.png",
+   "where": "emit[35]:plot.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_00.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_00.json",
+   "where": "emit[44]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_00.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_00.json",
+   "where": "emit[44]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_01.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_01.json",
+   "where": "emit[46]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_01.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_01.json",
+   "where": "emit[46]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_02.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_02.json",
+   "where": "emit[48]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_02.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_02.json",
+   "where": "emit[48]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_03.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_03.json",
+   "where": "emit[50]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_03.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_03.json",
+   "where": "emit[50]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_04.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_04.json",
+   "where": "emit[52]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_04.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_04.json",
+   "where": "emit[52]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_05.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_05.json",
+   "where": "emit[54]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_05.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_05.json",
+   "where": "emit[54]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_06.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_06.json",
+   "where": "emit[56]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_06.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_06.json",
+   "where": "emit[56]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_07.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_07.json",
+   "where": "emit[58]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_07.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_07.json",
+   "where": "emit[58]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_08.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_08.json",
+   "where": "emit[60]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_08.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_08.json",
+   "where": "emit[60]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_09.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_09.json",
+   "where": "emit[62]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_09.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_09.json",
+   "where": "emit[62]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_10.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_10.json",
+   "where": "emit[64]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_10.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_10.json",
+   "where": "emit[64]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_11.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_11.json",
+   "where": "emit[66]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_11.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_11.json",
+   "where": "emit[66]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_12.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_12.json",
+   "where": "emit[68]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_12.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_12.json",
+   "where": "emit[68]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_13.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_13.json",
+   "where": "emit[70]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_13.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_13.json",
+   "where": "emit[70]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_14.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_14.json",
+   "where": "emit[72]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_14.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_14.json",
+   "where": "emit[72]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_15.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_15.json",
+   "where": "emit[74]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_15.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_15.json",
+   "where": "emit[74]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_16.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_16.json",
+   "where": "emit[76]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_16.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_16.json",
+   "where": "emit[76]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_17.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_17.json",
+   "where": "emit[78]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_17.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_17.json",
+   "where": "emit[78]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_18.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_18.json",
+   "where": "emit[80]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_18.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_18.json",
+   "where": "emit[80]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_19.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_19.json",
+   "where": "emit[82]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_19.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_19.json",
+   "where": "emit[82]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_20.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_20.json",
+   "where": "emit[84]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_20.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_20.json",
+   "where": "emit[84]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_21.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_21.json",
+   "where": "emit[86]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_21.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_21.json",
+   "where": "emit[86]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_22.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_22.json",
+   "where": "emit[88]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_22.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_22.json",
+   "where": "emit[88]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_23.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_23.json",
+   "where": "emit[90]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_23.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_23.json",
+   "where": "emit[90]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_24.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_24.json",
+   "where": "emit[92]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_24.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_24.json",
+   "where": "emit[92]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_25.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_25.json",
+   "where": "emit[94]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_25.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_25.json",
+   "where": "emit[94]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_26.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_26.json",
+   "where": "emit[96]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_26.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_26.json",
+   "where": "emit[96]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_27.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_27.json",
+   "where": "emit[98]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_27.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_27.json",
+   "where": "emit[98]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_28.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_28.json",
+   "where": "emit[100]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_28.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_28.json",
+   "where": "emit[100]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_29.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_29.json",
+   "where": "emit[102]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_29.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_29.json",
+   "where": "emit[102]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_30.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_30.json",
+   "where": "emit[104]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_30.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_30.json",
+   "where": "emit[104]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_31.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_31.json",
+   "where": "emit[106]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_31.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_31.json",
+   "where": "emit[106]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_32.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_32.json",
+   "where": "emit[108]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_32.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_32.json",
+   "where": "emit[108]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_33.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_33.json",
+   "where": "emit[110]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_33.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_33.json",
+   "where": "emit[110]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_34.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_34.json",
+   "where": "emit[112]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_34.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_34.json",
+   "where": "emit[112]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_35.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_35.json",
+   "where": "emit[114]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_35.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_35.json",
+   "where": "emit[114]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_36.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_36.json",
+   "where": "emit[116]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_36.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_36.json",
+   "where": "emit[116]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_37.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_37.json",
+   "where": "emit[118]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_37.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_37.json",
+   "where": "emit[118]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_38.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_38.json",
+   "where": "emit[120]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_38.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_38.json",
+   "where": "emit[120]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_39.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_39.json",
+   "where": "emit[122]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_39.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_39.json",
+   "where": "emit[122]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_40.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_40.json",
+   "where": "emit[124]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_40.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_40.json",
+   "where": "emit[124]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_41.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_41.json",
+   "where": "emit[126]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_41.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_41.json",
+   "where": "emit[126]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_42.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_42.json",
+   "where": "emit[128]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_42.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_42.json",
+   "where": "emit[128]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_43.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_43.json",
+   "where": "emit[130]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_43.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_43.json",
+   "where": "emit[130]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_44.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_44.json",
+   "where": "emit[132]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_44.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_44.json",
+   "where": "emit[132]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_45.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_45.json",
+   "where": "emit[134]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_45.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_45.json",
+   "where": "emit[134]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_46.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_46.json",
+   "where": "emit[136]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_46.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_46.json",
+   "where": "emit[136]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "where": "emit[138]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "where": "emit[138]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "where": "emit[140]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_iter_47.json",
+   "where": "emit[140]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_00.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_00.json",
+   "where": "emit[143]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_00.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_00.json",
+   "where": "emit[143]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_00.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_00.json",
+   "where": "emit[147]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_00.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_00.json",
+   "where": "emit[147]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_01.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_01.json",
+   "where": "emit[148]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_01.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_01.json",
+   "where": "emit[148]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_02.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_02.json",
+   "where": "emit[149]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_02.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_02.json",
+   "where": "emit[149]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_03.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_03.json",
+   "where": "emit[150]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_03.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_03.json",
+   "where": "emit[150]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_04.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_04.json",
+   "where": "emit[151]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_04.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_04.json",
+   "where": "emit[151]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_05.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_05.json",
+   "where": "emit[152]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_05.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_05.json",
+   "where": "emit[152]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_06.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_06.json",
+   "where": "emit[153]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_06.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_06.json",
+   "where": "emit[153]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_07.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_07.json",
+   "where": "emit[154]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_07.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_07.json",
+   "where": "emit[154]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_08.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_08.json",
+   "where": "emit[155]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_08.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_08.json",
+   "where": "emit[155]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_09.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_09.json",
+   "where": "emit[156]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_09.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_09.json",
+   "where": "emit[156]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_10.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_10.json",
+   "where": "emit[157]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_10.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_10.json",
+   "where": "emit[157]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_11.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_11.json",
+   "where": "emit[158]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_11.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_11.json",
+   "where": "emit[158]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_12.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_12.json",
+   "where": "emit[159]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_12.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_12.json",
+   "where": "emit[159]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_13.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_13.json",
+   "where": "emit[160]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_13.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_13.json",
+   "where": "emit[160]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_14.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_14.json",
+   "where": "emit[161]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_14.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_14.json",
+   "where": "emit[161]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_15.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_15.json",
+   "where": "emit[162]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_15.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_15.json",
+   "where": "emit[162]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_16.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_16.json",
+   "where": "emit[163]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_16.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_16.json",
+   "where": "emit[163]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_17.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_17.json",
+   "where": "emit[164]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_17.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_17.json",
+   "where": "emit[164]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_18.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_18.json",
+   "where": "emit[165]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_18.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_18.json",
+   "where": "emit[165]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_19.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_19.json",
+   "where": "emit[166]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_19.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_19.json",
+   "where": "emit[166]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_20.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_20.json",
+   "where": "emit[167]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_20.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_20.json",
+   "where": "emit[167]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_21.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_21.json",
+   "where": "emit[168]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_21.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_21.json",
+   "where": "emit[168]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_22.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_22.json",
+   "where": "emit[169]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_22.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_22.json",
+   "where": "emit[169]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_23.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_23.json",
+   "where": "emit[170]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_23.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_23.json",
+   "where": "emit[170]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_24.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_24.json",
+   "where": "emit[171]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_24.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_24.json",
+   "where": "emit[171]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_25.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_25.json",
+   "where": "emit[172]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_25.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_25.json",
+   "where": "emit[172]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_26.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_26.json",
+   "where": "emit[173]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_26.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_26.json",
+   "where": "emit[173]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_27.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_27.json",
+   "where": "emit[174]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_27.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_27.json",
+   "where": "emit[174]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_28.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_28.json",
+   "where": "emit[175]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_28.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_28.json",
+   "where": "emit[175]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_29.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_29.json",
+   "where": "emit[176]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_29.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_29.json",
+   "where": "emit[176]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_30.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_30.json",
+   "where": "emit[177]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_30.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_30.json",
+   "where": "emit[177]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_31.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_31.json",
+   "where": "emit[178]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_31.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_31.json",
+   "where": "emit[178]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_32.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_32.json",
+   "where": "emit[179]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_32.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_32.json",
+   "where": "emit[179]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_33.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_33.json",
+   "where": "emit[180]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_33.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_33.json",
+   "where": "emit[180]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_34.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_34.json",
+   "where": "emit[181]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_34.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_34.json",
+   "where": "emit[181]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_35.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_35.json",
+   "where": "emit[182]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_35.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_35.json",
+   "where": "emit[182]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_36.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_36.json",
+   "where": "emit[183]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_36.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_36.json",
+   "where": "emit[183]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_37.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_37.json",
+   "where": "emit[184]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_37.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_37.json",
+   "where": "emit[184]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_38.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_38.json",
+   "where": "emit[185]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_38.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_38.json",
+   "where": "emit[185]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_39.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_39.json",
+   "where": "emit[186]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_39.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_39.json",
+   "where": "emit[186]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_40.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_40.json",
+   "where": "emit[187]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_40.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_40.json",
+   "where": "emit[187]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_41.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_41.json",
+   "where": "emit[188]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_41.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_41.json",
+   "where": "emit[188]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_42.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_42.json",
+   "where": "emit[189]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_42.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_42.json",
+   "where": "emit[189]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_43.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_43.json",
+   "where": "emit[190]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_43.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_43.json",
+   "where": "emit[190]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_44.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_44.json",
+   "where": "emit[191]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_44.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_44.json",
+   "where": "emit[191]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_45.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_45.json",
+   "where": "emit[192]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_45.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_45.json",
+   "where": "emit[192]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_46.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_46.json",
+   "where": "emit[193]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_46.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_46.json",
+   "where": "emit[193]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_47.json",
+   "where": "emit[194]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_47.json",
+   "where": "emit[194]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "api/field/adjoint-optimization/a2_wing_near_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_47.json",
+   "where": "emit[195]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/field/adjoint-optimization/a2_wing_near_47.json",
+   "context": "/api/field/adjoint-optimization/a2_wing_near_47.json",
+   "where": "emit[195]:field.ready.url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/adjoint-optimization/a2_sections.png",
+   "context": "/api/plot/adjoint-optimization/a2_sections.png",
+   "where": "emit[222]:report.ready.plots[0].url"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/api/plot/adjoint-optimization/a2_twist.png",
+   "context": "/api/plot/adjoint-optimization/a2_twist.png",
+   "where": "emit[222]:report.ready.plots[1].url"
+  },
+  {
+   "kind": "path",
+   "why": "absolute home path",
+   "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization/certificate.pdf",
+   "context": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization/certificate.pdf",
+   "where": "emit[223]:certificate.ready.path"
+  },
+  {
+   "kind": "path",
+   "why": "filename with extension",
+   "match": "home/ubuntu/Certonomous/mission-output/adjoint-optimization/certificate.pdf",
+   "context": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization/certificate.pdf",
+   "where": "emit[223]:certificate.ready.path"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization/certificate.pdf",
+   "context": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization/certificate.pdf",
+   "where": "emit[223]:certificate.ready.path"
+  },
+  {
+   "kind": "path",
+   "why": "absolute home path",
+   "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
+   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (0.97s)",
+   "where": "stdout:42"
+  },
+  {
+   "kind": "path",
+   "why": "relative path with a separator",
+   "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
+   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (0.97s)",
+   "where": "stdout:42"
+  }
+ ],
+ "wiring_hits_by_field": {
+  "url": 206,
+  "path": 3,
+  "stdout:42": 2
+ },
+ "wiring_trails": [
+  "emit[100]:field.ready.url",
+  "emit[102]:field.ready.url",
+  "emit[104]:field.ready.url",
+  "emit[106]:field.ready.url",
+  "emit[108]:field.ready.url",
+  "emit[110]:field.ready.url",
+  "emit[112]:field.ready.url",
+  "emit[114]:field.ready.url",
+  "emit[116]:field.ready.url",
+  "emit[118]:field.ready.url",
+  "emit[120]:field.ready.url",
+  "emit[122]:field.ready.url",
+  "emit[124]:field.ready.url",
+  "emit[126]:field.ready.url",
+  "emit[128]:field.ready.url",
+  "emit[130]:field.ready.url",
+  "emit[132]:field.ready.url",
+  "emit[134]:field.ready.url",
+  "emit[136]:field.ready.url",
+  "emit[138]:field.ready.url",
+  "emit[13]:geometry.ready.url",
+  "emit[140]:field.ready.url",
+  "emit[143]:field.ready.url",
+  "emit[147]:field.ready.url",
+  "emit[148]:field.ready.url",
+  "emit[149]:field.ready.url",
+  "emit[150]:field.ready.url",
+  "emit[151]:field.ready.url",
+  "emit[152]:field.ready.url",
+  "emit[153]:field.ready.url",
+  "emit[154]:field.ready.url",
+  "emit[155]:field.ready.url",
+  "emit[156]:field.ready.url",
+  "emit[157]:field.ready.url",
+  "emit[158]:field.ready.url",
+  "emit[159]:field.ready.url",
+  "emit[160]:field.ready.url",
+  "emit[161]:field.ready.url",
+  "emit[162]:field.ready.url",
+  "emit[163]:field.ready.url",
+  "emit[164]:field.ready.url",
+  "emit[165]:field.ready.url",
+  "emit[166]:field.ready.url",
+  "emit[167]:field.ready.url",
+  "emit[168]:field.ready.url",
+  "emit[169]:field.ready.url",
+  "emit[170]:field.ready.url",
+  "emit[171]:field.ready.url",
+  "emit[172]:field.ready.url",
+  "emit[173]:field.ready.url",
+  "emit[174]:field.ready.url",
+  "emit[175]:field.ready.url",
+  "emit[176]:field.ready.url",
+  "emit[177]:field.ready.url",
+  "emit[178]:field.ready.url",
+  "emit[179]:field.ready.url",
+  "emit[180]:field.ready.url",
+  "emit[181]:field.ready.url",
+  "emit[182]:field.ready.url",
+  "emit[183]:field.ready.url",
+  "emit[184]:field.ready.url",
+  "emit[185]:field.ready.url",
+  "emit[186]:field.ready.url",
+  "emit[187]:field.ready.url",
+  "emit[188]:field.ready.url",
+  "emit[189]:field.ready.url",
+  "emit[190]:field.ready.url",
+  "emit[191]:field.ready.url",
+  "emit[192]:field.ready.url",
+  "emit[193]:field.ready.url",
+  "emit[194]:field.ready.url",
+  "emit[195]:field.ready.url",
+  "emit[215]:uncertainty.channels.channels[0].name",
+  "emit[215]:uncertainty.channels.channels[1].name",
+  "emit[215]:uncertainty.channels.channels[2].name",
+  "emit[222]:report.ready.plots[0].url",
+  "emit[222]:report.ready.plots[1].url",
+  "emit[223]:certificate.ready.dir",
+  "emit[223]:certificate.ready.path",
+  "emit[29]:field.ready.url",
+  "emit[34]:plot.ready.file",
+  "emit[34]:plot.ready.url",
+  "emit[35]:plot.ready.file",
+  "emit[35]:plot.ready.url",
+  "emit[44]:field.ready.url",
+  "emit[46]:field.ready.url",
+  "emit[48]:field.ready.url",
+  "emit[50]:field.ready.url",
+  "emit[52]:field.ready.url",
+  "emit[54]:field.ready.url",
+  "emit[56]:field.ready.url",
+  "emit[58]:field.ready.url",
+  "emit[60]:field.ready.url",
+  "emit[62]:field.ready.url",
+  "emit[64]:field.ready.url",
+  "emit[66]:field.ready.url",
+  "emit[68]:field.ready.url",
+  "emit[70]:field.ready.url",
+  "emit[72]:field.ready.url",
+  "emit[74]:field.ready.url",
+  "emit[76]:field.ready.url",
+  "emit[78]:field.ready.url",
+  "emit[80]:field.ready.url",
+  "emit[82]:field.ready.url",
+  "emit[84]:field.ready.url",
+  "emit[86]:field.ready.url",
+  "emit[88]:field.ready.url",
+  "emit[90]:field.ready.url",
+  "emit[92]:field.ready.url",
+  "emit[94]:field.ready.url",
+  "emit[96]:field.ready.url",
+  "emit[98]:field.ready.url",
+  "stdout:1",
+  "stdout:10",
+  "stdout:11",
+  "stdout:12",
+  "stdout:13",
+  "stdout:14",
+  "stdout:15",
+  "stdout:16",
+  "stdout:17",
+  "stdout:18",
+  "stdout:19",
+  "stdout:2",
+  "stdout:20",
+  "stdout:21",
+  "stdout:22",
+  "stdout:23",
+  "stdout:24",
+  "stdout:25",
+  "stdout:26",
+  "stdout:27",
+  "stdout:28",
+  "stdout:29",
+  "stdout:3",
+  "stdout:30",
+  "stdout:31",
+  "stdout:32",
+  "stdout:33",
+  "stdout:34",
+  "stdout:35",
+  "stdout:36",
+  "stdout:37",
+  "stdout:38",
+  "stdout:39",
+  "stdout:4",
+  "stdout:40",
+  "stdout:41",
+  "stdout:42",
+  "stdout:5",
+  "stdout:6",
+  "stdout:7",
+  "stdout:8",
+  "stdout:9"
+ ],
+ "plant_control": {
+  "planted": 15,
+  "recovered": 15,
+  "missed": [],
+  "reader_is_evidence": true
+ },
+ "clean_on_camera": true,
+ "static_arm": {
+  "modules": [
+   "sdk/workflows/adjoint_optimization.py",
+   "sdk/workflows/_a2_shape.py",
+   "sdk/workflows/_act_plots.py"
+  ],
+  "why": "the drive exercises one path; the refusal branches that never ran on it are exactly where a path leaks into narration, so their literals are scanned too",
+  "hits": [
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 198,
+    "kind": "path",
+    "match": "A2_optimization_history.json",
+    "literal": "A2_optimization_history.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 199,
+    "kind": "path",
+    "match": "A2_mach_tutorial_wing.json",
+    "literal": "A2_mach_tutorial_wing.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 200,
+    "kind": "path",
+    "match": "A_stepsize_study.json",
+    "literal": "A_stepsize_study.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 210,
+    "kind": "path",
+    "match": "A2_drag_decomposition.json",
+    "literal": "A2_drag_decomposition.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 216,
+    "kind": "path",
+    "match": "A2_crease_check.json",
+    "literal": "A2_crease_check.json"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 2091,
+    "kind": "path",
+    "match": "certificate.pdf",
+    "literal": "certificate.pdf"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 2146,
+    "kind": "path",
+    "match": "transcript.txt",
+    "literal": "transcript.txt"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 749,
+    "kind": "never-claim word",
+    "match": "converged_to_optimizer_tolerance",
+    "literal": "converged_to_optimizer_tolerance"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 849,
+    "kind": "never-claim word",
+    "match": "converged",
+    "literal": "well-converged plateau"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 888,
+    "kind": "path",
+    "match": "transcript.txt",
+    "literal": "transcript.txt"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 926,
+    "kind": "path",
+    "match": "/api/field/",
+    "literal": "/api/field/"
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 1081,
+    "kind": "path",
+    "match": "/api/geometry",
+    "literal": "/api/geometry?name="
+   },
+   {
+    "module": "sdk/workflows/adjoint_optimization.py",
+    "line": 1402,
+    "kind": "path",
+    "match": "/api/plot/",
+    "literal": "/api/plot/"
+   },
+   {
+    "module": "sdk/workflows/_a2_shape.py",
+    "line": 46,
+    "kind": "path",
+    "match": "mach_tutorial_wing.stl",
+    "literal": "mach_tutorial_wing.stl"
+   },
+   {
+    "module": "sdk/workflows/_a2_shape.py",
+    "line": 40,
+    "kind": "path",
+    "match": "A2_shape_frames.json",
+    "literal": "A2_shape_frames.json"
+   },
+   {
+    "module": "sdk/workflows/_a2_shape.py",
+    "line": 504,
+    "kind": "path",
+    "match": "a2_wing_baseline.json",
+    "literal": "a2_wing_baseline.json"
+   },
+   {
+    "module": "sdk/workflows/_a2_shape.py",
+    "line": 534,
+    "kind": "path",
+    "match": "a2_wing_gradient.json",
+    "literal": "a2_wing_gradient.json"
+   },
+   {
+    "module": "sdk/workflows/_a2_shape.py",
+    "line": 501,
+    "kind": "path",
+    "match": "a2_wing_baseline.json",
+    "literal": "a2_wing_baseline.json"
+   },
+   {
+    "module": "sdk/workflows/_a2_shape.py",
+    "line": 512,
+    "kind": "path",
+    "match": "a2_wing_gradient.json",
+    "literal": "a2_wing_gradient.json"
+   }
+  ],
+  "adjudication": "every static hit is a bare filename, a JSON key or an /api/ route fragment used as DATA -- a file the act opens, a dict key it reads, a URL the viewport fetches by. None is narration and none reaches a camera surface, which is what the drive's zero camera hits independently shows. Each is listed so the claim can be checked rather than taken."
+ }
+}
