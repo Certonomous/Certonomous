@@ -1,5 +1,53 @@
 # Prevalence sweep — the missing `<field>Final` relaxation key (L-426 / N-T9)
 
+> ## AMENDMENT 1 — 2026-09-01. THE HEADLINE OF THIS NOTE IS RETRACTED.
+>
+> ~~"1,507 `fvSolution` files scanned. 9 AT RISK. All nine are heat-transfer's
+> own. **No other team has a case carrying this defect.**"~~
+>
+> **STRUCK. That conclusion is false.** It is left legible above rather than
+> rewritten out, because the original text is what was relayed upward and the
+> record should show what was wrong, not only what is right.
+>
+> It fails on **two independent grounds**, and the second is mine alone:
+>
+> **(A) The denominator was wrong — I swept only the git repository.**
+> `CLAUDE.md` states in terms that run trees live OUTSIDE git, at
+> `/home/ubuntu/{closure-data, closure-challenge-benchmark, certonomous-runs}/`,
+> and that *"nothing is invisible merely because it is big"*. My `find` walked
+> `/home/ubuntu/Certonomous` and stopped. Re-swept on 2026-09-01:
+> **`certonomous-runs` holds 1,478 further `fvSolution` files and
+> `closure-data` a further 313** — the real denominator is ≈3,298, not 1,507.
+> Of the 1,478, **54 are AT RISK candidates in flag-setting families** (mostly
+> `pimpleFoam` under `W4-repro-fromscratch/tutorials/Airfoil_DynamicStall/unsteady/`),
+> and 769 more have no `application` key and would need the §4.2 inference.
+> `closure-data` has **0** in a flag-setting family. **Those 54 are MACHINE
+> CANDIDATES ONLY — not hand-checked**, because they are outside this team's
+> territory; their owners must hand-check them before any of them is called a
+> defect (`L-425`).
+>
+> **(B) DAFoam runs its own control fork, which this sweep could not see.**
+> Reported by the dafoam team and **carried here as THEIR measurement,
+> attributed, not reproduced by me**: `pimpleControlDF` carries the same
+> `loop()` with `setFinalIteration` unguarded and its `Info` behind `debug=0`,
+> so **"banner present, iteration lines absent" signals a LIVE control, not an
+> absent one** — and a sweep keyed to OpenFOAM's control-class names
+> systematically under-reports DAFoam cases. Their figure: **165 of 246
+> dictionaries across eight D12-family run trees are exposed**, all inherited
+> byte-identical from the upstream tutorial. **I could not verify this on this
+> box: DAFoam is not installed here** — no `pimpleControlDF`, no `dafoam`
+> module, no `DASolver` source anywhere on the filesystem — so it is recorded
+> on their authority and not on mine. Their landed verdicts remain
+> `NOT A RESULT` and the exposure direction cannot manufacture a `PASS`, so
+> nothing there is retracted; but **the prevalence total is not this note's to
+> state as final.**
+>
+> **What survives unchanged:** the nine files in §4.3 are still at risk, still
+> correctly classified, and still heat-transfer's own. What is retracted is the
+> word **"no other team"** and the completeness of the count.
+>
+> The corrected risk condition is in §1.1; the methodological finding is §6.
+
 **Status: MEASUREMENT, not a verdict.** This note answers the "prevalence unmeasured"
 gap left open by `L-426` and `N-T9`. It grades nothing, re-opens nothing, and
 files nothing upstream. Findings on other families' cases are recorded here for
@@ -34,14 +82,35 @@ Keys match in FULL — `keyType::match` (`keyType.C:66`) calls `regExp::match`,
 which is `std::regex_match` (`regex/regExpCxxI.H:297`) — so `"(U|h|k|omega)"`
 does not match `UFinal`, while `".*"` and `".*Final"` do.
 
-### 1.1 Where the flag is set — the complete list
+### 1.1 Where the flag is set
 
-`setFinalIteration` is called in exactly four places tree-wide (plus the
-definition in `meshState.C:161`):
+> **CORRECTED BY AMENDMENT 1.** This section originally read *"`setFinalIteration`
+> is called in exactly **four** places tree-wide"* and listed four. ~~four places~~
+> **It is SIX**, and the claim of completeness was wrong in two ways at once — one
+> inside the tree I read, one outside it.
+
+`setFinalIteration(true)` appears at **six** sites in the v2606 tree, excluding
+the commented-out call at `pisoControl.C:45` (re-measured 2026-09-01 by
+`grep -rn "setFinalIteration(true)"` over `src/` **and** `applications/`):
 
 - `pimpleControl.C:245` and `:253`, inside `pimpleControl::loop()`.
 - `chtMultiRegionFoam/fluid/solveFluid.H:5` and `solid/solveSolid.H:24`, under
   `finalIter = (oCorr == nOuterCorr-1)` (`chtMultiRegionFoam.C:111`).
+- **`chtMultiRegionFoam/chtMultiRegionTwoPhaseEulerFoam/fluid/solveFluid.H:3`**
+  and **`.../solid/solveSolid.H:3`** — the sibling solver, **missed by the
+  original enumeration**.
+
+**No practical consequence for this repository, verified rather than assumed:**
+`chtMultiRegionTwoPhaseEulerFoam` appears in no `controlDict`, script or queue
+entry anywhere here. The miss is recorded because the *stated condition* was
+incomplete and would fail on any case that ever adopts that solver — an honest
+near-miss is worth more on the record than a silent fix.
+
+**AND THE LIST IS STILL ONLY AS WIDE AS ONE TREE.** It enumerates the OpenFOAM
+v2606 installation. It cannot see a **fork** — DAFoam's `pimpleControlDF` carries
+its own `loop()` with the same call — and a fork is invisible to this method by
+construction. Any future use of this condition must ask *which solver binary
+actually runs*, not merely which class names appear in `/usr/lib/openfoam`.
 
 **It is NOT set by:**
 
@@ -169,8 +238,15 @@ be checked by whoever owns those cases rather than trusted from here.
 
 ### 4.3 The 9 AT RISK files — all nine are heat-transfer's own
 
-**No other team has a case carrying this defect.** Every hit is in
-`verification/runs/T-family/` or `verification/runs/F14-cooling-ladder/`.
+> **AMENDMENT 1.** ~~**No other team has a case carrying this defect.**~~
+> **STRUCK — false.** See Amendment 1 at the head of this note: 54 further
+> machine candidates exist in `certonomous-runs`, and the dafoam team measures
+> 165 of 246 dictionaries exposed in trees this sweep never opened. What
+> remains true is the narrower statement below: every hit **found by this
+> sweep, within the git repository** is heat-transfer's own.
+
+Every hit **this sweep found** is in `verification/runs/T-family/` or
+`verification/runs/F14-cooling-ladder/`.
 
 **Group 1 — severe. Under-relaxation genuinely lost on the final sweep.**
 `chtMultiRegionFoam`, `nOuterCorrectors 5`, `coupled` true, fluid region `coolant`,
@@ -248,3 +324,34 @@ file, since it is the same "covered it in one dictionary, not the other" shape t
   clamp changed any K2b number.
 - Nothing here is a verdict on another family's work, and nothing has been filed
   or sent.
+
+---
+
+## 6. The methodological finding — why this note's headline was wrong
+
+**A completeness claim built by ENUMERATING call sites is only ever as wide as
+the tree you enumerated, and it reads as exhaustive either way.**
+
+The original §1.1 said *"exactly four places tree-wide"*. It was wrong twice, by
+the same mechanism, in opposite directions:
+
+| what it missed | why enumeration could not see it |
+|---|---|
+| `chtMultiRegionTwoPhaseEulerFoam`, 2 further sites | a **sibling** in a subdirectory the first `grep` did not cover — I searched `src/` for the class and `applications/` only for the solver I already had in mind |
+| DAFoam's `pimpleControlDF` | a **fork**, in software not installed on this box at all — invisible to any search of `/usr/lib/openfoam`, at any depth |
+
+And the file sweep failed the same way at a larger scale: it enumerated the git
+repository and presented the result as *the* prevalence, when `CLAUDE.md` says
+plainly that run trees live outside git. **1,791 files were outside the walk.**
+
+**The transferable rule: an enumeration answers "what did I look at", never
+"what exists".** Before a completeness claim, name the boundary of the search and
+ask specifically what lies outside it — another install, a fork, a vendored copy,
+an untracked run tree. Nothing about *reading* the original section revealed the
+gap; only widening the boundary did.
+
+This is the same class as `L-425` (a check that looks exhaustive and detects
+nothing) and as the tail-guard control error of the same night (a control that
+reproduced a superficially similar failure and so certified the wrong thing).
+**Three instances in one night of: the artifact looked complete, and complete was
+never measured.**
