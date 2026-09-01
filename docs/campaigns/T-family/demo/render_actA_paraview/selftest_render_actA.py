@@ -181,6 +181,18 @@ def negative_arm() -> None:
 
     expect_refusal("a graded run tree that changed under the render", moved_tree)
 
+    # THE DROPPED-GLYPH GUARD. `|` is printable ASCII, so an ASCII or
+    # printable-character check would pass it -- and it renders as NOTHING,
+    # producing a caption whose fields run together on screen while the source
+    # string is perfectly correct.
+    expect_refusal(
+        "a caption using a glyph the font silently drops ('|')",
+        lambda: C.assert_caption_renderable("L = 0.750 m | duct r = 0.125 m"))
+
+    expect_refusal(
+        "a caption using a glyph never measured to render (degree sign)",
+        lambda: C.assert_caption_renderable("T = 25 \u00b0C"))
+
     # THE RETIRED BODY. This is the guard that matters most on Screen 1: the
     # retired surface renders perfectly well and nothing about the picture says
     # which body it is. It must refuse by IDENTITY, before anything is drawn.
@@ -219,6 +231,21 @@ def positive_arm() -> None:
 
     expect_success("the SOLVED surface is accepted by the same guard",
                    solved_surface_accepted)
+
+    def live_captions_render():
+        live = [C.AXISYMMETRY_PLANE_LINE, C.AXISYMMETRY_REVOLVE_LINE,
+                "L = 0.750 m ; heated housing 0.125 m (orange) ; "
+                "duct r = 0.125 m, opacity 0.22",
+                "20 mm window at r = 37.5 mm ; y+ = 0.73-0.75 on the heated "
+                "housing",
+                "U_inf = 10 m/s ; P = 305 W",
+                "4 frames ; one scale 14.8-107.7 degC"]
+        for text in live:
+            C.assert_caption_renderable(text)
+        return len(live)
+
+    expect_success("every live caption clears the glyph guard",
+                   live_captions_render)
 
     def parts_split():
         parts, root = C.split_parts(C.SOLVED_STL)

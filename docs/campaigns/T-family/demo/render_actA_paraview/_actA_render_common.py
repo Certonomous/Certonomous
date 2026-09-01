@@ -419,10 +419,60 @@ def white_background(view) -> None:
     view.Background2 = [1.0, 1.0, 1.0]
 
 
+#: Glyphs MEASURED to render in ParaView 5.11.2's caption font on this box, by
+#: rendering them and reading the raster back by eye. This is a whitelist and
+#: not a character-class rule, because the failure that produced it was NOT a
+#: character-class failure.
+#:
+#: THE BUG THIS EXISTS FOR. A caption written as
+#: "L = 0.750 m | heated housing 0.125 m | duct r = 0.125 m" rendered with the
+#: pipes SILENTLY DROPPED -- the fields ran together on screen while the source
+#: string was perfectly correct. `|` is printable ASCII (0x7C), so an
+#: "ASCII-only" or "printable-only" check would have passed it. Only a set of
+#: glyphs actually seen to render can catch this.
+#:
+#: A string that is right in the file and wrong on the screen defeats every
+#: source-side check in this repository, INCLUDING the never-list sweeps, which
+#: read source for the ParaView renders because their output is a PNG.
+SAFE_CAPTION_CHARS = set(
+    " (),+-./:;=_"
+    "0123456789"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+)
+
+#: Glyphs MEASURED to be dropped by that font. Named individually so the record
+#: says which character failed and how it was found, rather than implying a
+#: general rule that was never tested.
+KNOWN_DROPPED_GLYPHS = {
+    "|": "rendered as nothing in ParaView 5.11.2 captions on this box, 2026-09-01",
+}
+
+
+def assert_caption_renderable(text: str) -> str:
+    """REFUSE a caption containing a glyph not measured to render.
+
+    Checked before the caption reaches a view, so a dropped glyph cannot ship a
+    caption whose fields run together.
+    """
+    for ch in text:
+        if ch in KNOWN_DROPPED_GLYPHS:
+            refuse(f"caption uses {ch!r}, which is {KNOWN_DROPPED_GLYPHS[ch]}. "
+                   f"The source would look correct and the screen would not: "
+                   f"{text!r}")
+        if ch not in SAFE_CAPTION_CHARS:
+            refuse(f"caption uses {ch!r} (U+{ord(ch):04X}), which is not in the "
+                   f"set of glyphs measured to render in this font. Add it to "
+                   f"SAFE_CAPTION_CHARS only after rendering it and READING THE "
+                   f"RASTER BACK: {text!r}")
+    return text
+
+
 def caption(view, text: str, position=(0.02, 0.02), size=9):
     """One caption line burned into the render."""
     from paraview.simple import Show, Text
 
+    assert_caption_renderable(text)
     src = Text(Text=text)
     disp = Show(src, view)
     disp.WindowLocation = "Any Location"
