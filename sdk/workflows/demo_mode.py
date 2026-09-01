@@ -1054,6 +1054,14 @@ class MeshPlan:
     wall_zoom_hint: str              # what the wall-layer zoom should frame
     expected_seconds: float
     cell_tolerance: float = 0.0
+    #: The boundary patch the grid drawing outlines as the body, when the
+    #: slicer's default (``airfoil``) is not what this case calls it. The
+    #: shock benchmark's wall is ``rampWall``; left ``None`` the outline comes
+    #: back empty and the drawing frames the whole domain instead of the wall
+    #: the zoom sentence promises. Named rather than guessed: a slicer that
+    #: hunted for "a patch that looks like a wall" would silently outline the
+    #: wrong one on the next case.
+    wall_patch: str | None = None
 
     def __post_init__(self) -> None:
         check_demo_language(self.wall_zoom_hint)
@@ -1592,6 +1600,40 @@ class DemoAct(ABC):
         import; an act that has not written its report yet keeps the behaviour
         it has today and says so to its supervisor rather than shipping an
         empty Report tab. The jet-flap act overrides it.
+        """
+        return None
+
+    def sequencer(self):
+        """The sequencer class that walks THIS act, or ``None`` for the shared one.
+
+        AN ACT MAY REPLACE A STAGE, AND TWO DO. The shared solving stage
+        delegates to the replay reader, which wants a force history and a
+        per-case status record; an explicit compressible solve writes neither,
+        so the shock-reflection act (and the adjoint act) subclass
+        :class:`demo_sequencer.Sequencer` and read their own logs instead.
+        ``SolveReplay.cases`` is empty for them ON PURPOSE, and the shared
+        solving stage refuses an act with no cases -- correctly, because an act
+        that supplies neither a case list nor a sequencer of its own has no way
+        for its logs to be read at all.
+
+        WHAT WAS MISSING WAS THE DECLARATION, NOT THE SEQUENCER. Each such act
+        named its subclass only inside its own module's ``drive()``, which the
+        dispatch entry (:func:`demo_sequencer.make_act_entry`) calls and
+        NOTHING ELSE DOES. Every other driver -- :func:`demo_sequencer.run_act`
+        and therefore ``scripts/check_demo_acts.py``, which is the pre-shoot
+        gate -- built the base sequencer by name and hit the refusal at the
+        SOLVING stage, seven of nine stages in. Measured, not reasoned:
+        ``run_act("shock-reflection")`` published 29 events and stopped;
+        ``dmr_act.drive()`` published 208 and walked all nine.
+
+        So the sequencer becomes a property of the ACT, declared once here,
+        where every driver can see it. ``None`` -- every act but the two --
+        keeps the shared sequencer and is byte-identical to what it was.
+
+        THIS DOES NOT SOFTEN THE REFUSAL, and must not. An act with no
+        ``cases`` and no sequencer of its own still reaches the shared solving
+        stage and is still refused there: that refusal is the only reason this
+        defect was found before a shoot rather than during one.
         """
         return None
 

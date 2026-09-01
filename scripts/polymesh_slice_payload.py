@@ -84,6 +84,42 @@ def read_boundary(path: Path) -> dict[str, tuple[int, int]]:
     return {name: (int(n), int(s)) for name, n, s in found}
 
 
+def read_boundary_types(path: Path) -> dict[str, str]:
+    """Patch name to patch type, from the same file :func:`read_boundary` reads.
+
+    Needed because the empty patch of a 2-D case is NOT reliably called
+    ``back`` or ``front``. ``blockMesh`` writes whatever the block dictionary
+    names it, and a single combined patch is the common shape: the shock
+    benchmark's grid carries one ``frontAndBack`` patch of 115,200 faces over
+    57,600 cells, both z planes in one list. Matching on the NAME refused that
+    grid outright; matching on the TYPE and then selecting the back plane
+    reads it, and reads it without assuming anything the mesh does not say.
+    """
+    out: dict[str, str] = {}
+    for name, body in re.findall(r"(\w+)\s*\{(.*?)\}", path.read_text(), re.S):
+        hit = re.search(r"\btype\s+(\w+);", body)
+        if hit:
+            out[name] = hit.group(1)
+    return out
+
+
+def read_cell_count(poly: Path) -> int | None:
+    """The mesh's OWN cell count, from the ``owner`` file's banner.
+
+    Returns ``None`` when the banner does not carry one, so a mesh written by
+    something that does not write the note is sliced as before rather than
+    refused. Used only to CHECK the face list selected below, never to
+    produce a number this file emits: ``cells`` in the payload stays
+    ``len(quads)``, read off the patch.
+    """
+    try:
+        head = (poly / "owner").read_text()[:4000]
+    except OSError:
+        return None
+    hit = re.search(r"nCells:\s*(\d+)", head)
+    return int(hit.group(1)) if hit else None
+
+
 def slice_payload(poly: Path | str, *, wall_patch: str = "airfoil",
                   slot_patch: str = "jetSlot") -> dict:
     # Coerced rather than assumed: the caller inside the sequencer passes a
@@ -101,14 +137,50 @@ def slice_payload(poly: Path | str, *, wall_patch: str = "airfoil",
             f"case has a slice that IS its cell list")
     z_back = planes[0]
 
+    # THE EMPTY PATCH IS FOUND BY TYPE, AND ONE PLANE OF IT IS SELECTED.
+    # The name path stays first because it needs no filtering and is what the
+    # jet-flap grid has. Falling back to the type is what lets a grid whose
+    # blockMesh dictionary called the patch something else be drawn at all;
+    # before it, the shock benchmark's `frontAndBack` was refused and its
+    # meshing stage showed a cell COUNT where the protocol asks for cells.
     plane_patch = next((n for n in ("back", "front") if n in patches), None)
-    if plane_patch is None:
-        raise SliceRefused("no back/front empty patch, so there is no per-cell "
-                           "face list to read the cells off")
-    n_faces, start = patches[plane_patch]
-    plane_faces = faces[start:start + n_faces]
+    if plane_patch is not None:
+        n_faces, start = patches[plane_patch]
+        plane_faces = faces[start:start + n_faces]
+    else:
+        types = read_boundary_types(poly / "boundary")
+        empties = [n for n in patches if types.get(n) == "empty"]
+        if not empties:
+            raise SliceRefused(
+                "no empty patch of any name, so there is no per-cell face "
+                "list to read the cells off")
+        # ONE FACE PER CELL, SELECTED BY THE PLANE IT LIES IN. A combined
+        # patch carries both planes; a face is on the back plane only when
+        # ALL FOUR of its points are, so no face is taken from the far side
+        # and none spanning the two is taken at all.
+        plane_faces = [
+            face for name in empties
+            for face in faces[patches[name][1]:
+                              patches[name][1] + patches[name][0]]
+            if all(abs(points[i][2] - z_back) < 1e-9 for i in face)]
+        if not plane_faces:
+            raise SliceRefused(
+                f"the empty patch(es) {sorted(empties)} carry no face lying "
+                f"wholly in the back plane, so no face list here is the cell "
+                f"list")
     if any(len(f) != 4 for f in plane_faces):
         raise SliceRefused("a cell face on the empty patch is not a quad")
+    # THE CHECK THIS FILE'S OWN HEADER PROMISED AND DID NOT MAKE: "a patch
+    # whose face count does not equal the cell count would mean the assumption
+    # above is wrong". It is the check that makes the selection above safe --
+    # a filter that took the wrong subset of a combined patch would draw a
+    # partial grid and say nothing.
+    declared = read_cell_count(poly)
+    if declared is not None and declared != len(plane_faces):
+        raise SliceRefused(
+            f"this mesh declares {declared} cells and the face list selected "
+            f"for the slice has {len(plane_faces)} entries; the slice is not "
+            f"the cell list and would draw a grid that is not this one")
 
     node_of: dict[int, int] = {}
     nodes: list[list[float]] = []

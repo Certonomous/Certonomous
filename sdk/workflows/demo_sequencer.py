@@ -807,8 +807,15 @@ class Sequencer:
         slicer = _load_slicer()
         if slicer is None:
             return None
+        # THE BODY PATCH IS THE ACT'S TO NAME. Left unnamed the slicer looks
+        # for ``airfoil``, finds nothing on a case that calls its wall
+        # something else, and frames the whole domain in place of the wall the
+        # zoom sentence promises.
+        kwargs = {}
+        if getattr(mesh, "wall_patch", None):
+            kwargs["wall_patch"] = mesh.wall_patch
         try:
-            payload = slicer.slice_payload(poly)
+            payload = slicer.slice_payload(poly, **kwargs)
         except (slicer.SliceRefused, OSError, ValueError):
             return None
         from . import OUT_ROOT
@@ -1228,7 +1235,22 @@ def make_act_entry(key: str, *, act_module: str, label: str | None = None,
 
 
 def run_act(key_or_act, emit=None, script=None, **kwargs) -> dict:
-    """Resolve an act by key (or take one directly) and walk it."""
+    """Resolve an act by key (or take one directly) and walk it.
+
+    THE SEQUENCER IS THE ACT'S TO NAME, and this function used to name it
+    itself. ``Sequencer(act=act)`` was hard-coded here, so an act that replaces
+    a stage -- the shock-reflection and adjoint acts both replace SOLVING,
+    because the shared replay reader wants a force history a compressible solve
+    does not write -- was walked by the base sequencer whatever it declared,
+    and refused at the solving stage with "no cases to read". Measured:
+    ``run_act("shock-reflection")`` published 29 events and stopped seven
+    stages in; the act's own driver published 208 and finished. Since
+    ``scripts/check_demo_acts.py`` -- the pre-shoot gate -- drives through
+    here, the gate could not reach either act's results stage at all.
+
+    :meth:`demo_mode.DemoAct.sequencer` returns ``None`` for every act that
+    uses the shared walk, so this is byte-identical for all of them.
+    """
     act = key_or_act
     if isinstance(key_or_act, str):
         try:
@@ -1239,4 +1261,13 @@ def run_act(key_or_act, emit=None, script=None, **kwargs) -> dict:
     if not isinstance(act, DemoAct):
         raise DemoContractError(
             f"{type(act).__name__} does not implement DemoAct")
-    return Sequencer(act=act, **kwargs).run(emit=emit, script=script)
+    cls = act.sequencer() or Sequencer
+    # A DECLARATION THAT IS NOT A SEQUENCER IS A REFUSAL, NOT A FALLBACK.
+    # Silently walking the base sequencer here would put the act back in the
+    # exact state this repaired, and the author would have no way to tell.
+    if not (isinstance(cls, type) and issubclass(cls, Sequencer)):
+        raise SequencerRefused(
+            f"{type(act).__name__} declares a sequencer that is not a "
+            f"Sequencer subclass, so the stage it means to replace would be "
+            f"walked by the shared one instead")
+    return cls(act=act, **kwargs).run(emit=emit, script=script)
