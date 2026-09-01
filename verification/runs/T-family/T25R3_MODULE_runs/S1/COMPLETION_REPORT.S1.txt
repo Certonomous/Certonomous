@@ -1,0 +1,65 @@
+========================================================================
+T25R3 S1 -- COMPLETION REPORT
+Written 2026-09-01T~18:50Z. Registration T25R3_PREREGISTRATION.md
+(frozen 8cef4791, A1 e46aa244, D1 6b1f3968).
+========================================================================
+
+⛔ READ `LIMITATION.S1.txt` IN THIS DIRECTORY FIRST. S1 IS NOT A GRADED
+PHYSICS ROW AND NOTHING BELOW MAKES IT ONE.
+
+1. WHAT THE RUN DID
+   leg A  0 -> 70 s at deltaT 0.02 : 3,500 / 3,500 registered steps,
+          last Time = 70.00000000000321, rc = 0
+   leg B  70 -> 900 s at deltaT 0.1 : 8,300 / 8,300 registered steps,
+          last Time = 900.00000000013904, rc = 0
+   decomposePar rc = 0 ; reconstructPar rc = 0 ; launcher rc = 0
+   181 written time directories ; every registered field present in both
+   regions at t = 900 ; zero FOAM FATAL in either leg.
+
+   *** THE TWO-LEG CHAINED SCHEDULE WORKED, AND THIS IS THE FIRST TIME IT
+   HAS EVER RUN. *** Leg A ended exactly on the registered boundary, the
+   controlDict swap fired, leg B restarted from latestTime and reached
+   endTime. That machinery had never been exercised before today.
+
+2. THE MARKER'S VERDICT IS `NOT DONE`, AND THE DEFECT IS THE MARKER'S
+   `mark_done_t25R3.py` fails conjunct 4 (fields at t = 900) and the leg-
+   boundary phi assertion. BOTH FAILURES ARE READER DEFECTS, NOT RUN
+   DEFECTS, and the evidence is on disk:
+     - `900.00000000013904/module/{T,p}` present
+     - `900.00000000013904/coolant/{T,U,p,p_rgh,alphat,nut,k,omega}` present
+     - `70.00000000000321/coolant/phi` present
+   The marker looked for `"%g" % 900` = `900`, which does not exist.
+   OpenFOAM accumulates `value_ += deltaT_`; the drift reached 1.39e-10 s
+   at t = 900 and `Time::setControls()` (Time.C:245) AUTOMATICALLY RAISED
+   timePrecision from 12 to 17. **172 of 181 directory names are drifted.**
+   T25R3 section 6.2 argued this could not happen and was WRONG: it checked
+   the write INDEX guard at Time.C:1120 and never checked the NAME.
+
+   *** THE MARKER IS NOT REPAIRED HERE. *** It is frozen at section 16 of a
+   closed rung, and repairing a grading path after seeing its answer is
+   exactly what a freeze forbids. S1 STANDS AS `NOT DONE` ON ITS REGISTERED
+   INSTRUMENT, with the instrument defect recorded -- the same disposition
+   T25R2 section 10 took with its `read_patch_T` defect, and for the same
+   reason. The repair lives in T25R4 (`analyse_t25R4.py:tdir`,
+   `mark_done_t25R4.py:_tdir`), registered at T25R4 Amendment A2.2 and
+   driven both ways against this very tree.
+
+3. COST -- rule 12
+   leg A ExecutionTime   643.78 s -> 21.459 core-min at 2 ranks
+   leg B ExecutionTime 1,488.94 s -> 49.631 core-min at 2 ranks
+   TOTAL 71.091 core-min ; POINT 76.2 ; RATIO 0.933 ; CAP 305, 23.3 % used
+   capped = no ; rc = 0 on both legs.
+   DOLLARS 0.0608 USD at $0.0513/core-h, c7a.4xlarge -- *** DERIVED, NOT
+   MEASURED ***; cost_basis = REPORTED-BY-OWNER (COMPUTE_BUDGET section 5).
+
+4. WHAT THIS RUN IS GOOD FOR
+   (a) the completion path, end to end, for the first time;
+   (b) a measured rate -- 0.1988 s/step at 2 ranks on L1, nOuter 15 -- which
+       is the basis T25R4's probe was priced from;
+   (c) THE CONTENTION CONTROL: S1 matched its prediction to x1.02 while five
+       siblings on the same box in the same window ran 19-33x slow. Without
+       it the scheduling defect and the numerics defect could not have been
+       separated.
+   It is good for NOTHING ELSE. No temperature, flux, order, band or gate.
+
+SUBMISSIONS PARKED. PERMANENTLY PRIVATE.

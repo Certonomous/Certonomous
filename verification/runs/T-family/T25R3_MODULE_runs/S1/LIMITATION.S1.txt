@@ -1,0 +1,69 @@
+========================================================================
+S1 -- ⛔ THIS RUN IS **NOT A GRADED PHYSICS ROW** AND MUST NEVER BE QUOTED
+       AS ONE.
+       Registered 2026-09-01T17:33Z, BEFORE THE RUN COMPLETED, on the
+       heat-transfer supervisor's ruling 2 of the 17:31Z countermand.
+========================================================================
+
+WHY THIS FILE EXISTS AND WHY IT IS DATED BEFORE COMPLETION.  S1 will finish
+cleanly: rc = 0, an End line on each leg, 181 written times, the registered
+field tuple, and the age guard satisfied.  `mark_done_t25R3.py` will mark it
+DONE, and it will be DONE -- on the completion rule.  **A COMPLETED RUN IS NOT
+A VALIDATED ONE, AND THIS IS EXACTLY THE CONFUSION THIS FILE EXISTS TO PREVENT.**
+Written afterwards it would be an excuse; written now it is a registration.
+
+------------------------------------------------------------------------
+THE DEFECT S1 CARRIES
+------------------------------------------------------------------------
+The registered pressure convergence criterion is
+
+    p_rgh / p_rghFinal :  tolerance 1e-08 ;  relTol 0
+
+which is an **ABSOLUTE** criterion.  The absolute scale of an OpenFOAM residual
+moves with cell count, so the convergence standard silently tightens as the mesh
+refines.  On L1 -- S1's mesh -- the initial residual is ALREADY BELOW the
+threshold (`Initial residual = 9.72e-09` against 1e-08), so GAMG **EXITS WITHOUT
+ITERATING**.
+
+MEASURED across the full leg-A logs by the supervisor, mean GAMG iterations per
+`p_rgh` solve:
+
+    S1  (L1, 16,608 cells)     0.4    over 80,905 solves
+    S2  (L2, 37,368 cells)    41.6    over  4,956 solves
+    S3  (L3, 84,078 cells)   382.2    over    314 solves
+
+**A mean of 0.4 on L1 means the pressure equation is not being solved.  It is
+being declared converged on arrival.**  The spread across the ladder is ~955x.
+
+> **THEREFORE NO PRESSURE-DEPENDENT QUANTITY FROM S1 IS ADMISSIBLE AS PHYSICS.**
+> That includes the outlet temperature history (Q1), the per-cell peaks (Q2),
+> the outlet enthalpy flux (Q0), the energy ledger (C1) and the mass balance
+> (C2) -- every one of them depends on a velocity field produced by a pressure
+> equation that was not solved.
+
+------------------------------------------------------------------------
+WHAT S1 **IS** GOOD FOR, AND THIS IS WHY IT WAS ALLOWED TO FINISH
+------------------------------------------------------------------------
+1. **IT EXERCISES THE COMPLETION PATH END TO END** -- two chained legs, the
+   controlDict swap, `reconstructPar -allRegions`, all six conjuncts of rule 4
+   including the age guard across both legs, and `mark_done_t25R3.py`.  None of
+   that machinery had ever been run against a real solve before today.
+2. **IT YIELDS A MEASURED RATE FOR PRICING T25R4** -- 0.1988 s/step at 2 ranks
+   on L1 at nOuterCorrectors 15, which came in at **x1.02** against the
+   pre-registered POINT.  That is the honest basis for the successor's cost
+   model, and it is worth noting that the cost model was RIGHT exactly where the
+   pressure solve behaved.
+3. **IT IS THE CONTROL THAT PROVED THE SLOWDOWN WAS NOT CONTENTION.**  S1 ran in
+   the same window, on the same box, against the same competitors as five runs
+   that were 19-33x slow, and matched its own prediction.  Without S1 the
+   scheduling defect and the numerics defect could not have been separated.
+
+------------------------------------------------------------------------
+THE RULE FOR ANY READER
+------------------------------------------------------------------------
+**S1 may be cited for COST, for COMPLETION-MACHINERY EVIDENCE and for the
+CONTENTION CONTROL.  It may not be cited for a temperature, a flux, an order, a
+band or a gate.**  T25R3 has NO gradeable physics row and S1 is not an exception
+to that; it is the run that made the absence legible.
+
+SUBMISSIONS PARKED.  PERMANENTLY PRIVATE.

@@ -1,0 +1,30 @@
+{
+  "gate": "G-P",
+  "mean_iters": {
+    "L1": 382.9145006839945,
+    "L2": 443.58440514469453,
+    "L3": 435.0447987851177
+  },
+  "notes": [
+    "P1: rc=124",
+    "P1: 48/100 registered steps",
+    "P2: rc=124",
+    "P2: 41/100 registered steps",
+    "P3: rc=124",
+    "P3: 43/100 registered steps"
+  ],
+  "prereg_blob": "3ce4dcdff251bf42ec1e5c7f075a6b01fc5d1e4d",
+  "ratio": null,
+  "s_per_step": {
+    "L1": 4.78375,
+    "L2": 12.808048780487805,
+    "L3": 26.577674418604648
+  },
+  "steps_counted": {
+    "L1": 48,
+    "L2": 41,
+    "L3": 43
+  },
+  "threshold": 3.0,
+  "verdict": "NOT A RESULT"
+}
