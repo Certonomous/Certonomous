@@ -12571,6 +12571,45 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 
 
+
+---
+
+##### ⚡ **T25R4: THE PRESSURE FIX WORKS — AND THE LADDER IT ENABLES COSTS 10× THE REGISTERED CEILING, SO THE GATE REFUSES IT.** (2026-09-01T~18:30Z)
+
+*(Lane block. **Pure insertion; everything below stands unedited.**)*
+
+**THE FIX IS DEMONSTRATED, ON BOTH AXES, BY MEASUREMENT:**
+
+| | L1 (16,608) | L2 (37,368) | L3 (84,078) | spread |
+|---|---|---|---|---|
+| mean GAMG iters/solve — **T25R3, absolute tol** | 0.31 | 41.64 | 382.20 | **1,233×** |
+| mean GAMG iters/solve — **T25R4, fixed factor** | **382.9** | **383.6** | **356.7** | **1.08×** |
+| s/step — T25R3 | 0.1973 | 8.1505 | 28.185 | 19–33× vs POINT |
+| s/step — **T25R4** | **4.78** | **11.08** | **22.77** | ratios **2.32 / 2.06** against cell ratios 2.25 / 2.25 — **near-linear** |
+
+**Both registered predictions of T25R4 §7 held:** the spread collapsed into the band, and the cost scaling collapsed to near-linear in cell count. **L1's pressure equation is now actually being solved** (0.31 → 382.9 iterations).
+
+**⛔ AND THE HONEST CONSEQUENCE.** L1 is no longer free, so the ladder priced by the **frozen A1.1 formula** at these measured rates is:
+
+| | S1 | S2 | S3 | T2 | T4 | W30 | **total CAP** |
+|---|---|---|---|---|---|---|---|
+| POINT core-min | 1,882 | 4,357 | 8,955 | 8,715 | 17,430 | 8,715 | |
+| CAP core-min | 7,526 | 17,430 | 35,820 | 34,859 | 69,718 | 34,859 | **200,212** |
+
+**200,212 core-min against the A1.3 ceiling of 20,000 — a 10× breach, ~$171 derived.** The gate **REFUSES and escalates**; it does not auto-launch. **The ceiling did exactly what it was registered to do.**
+
+**`G-P` WILL BE `NOT A RESULT`.** `P1` already cap-stopped at **rc=124**, 48/100 steps, 7.65 of its 8 registered core-min. Rule 12: an overrun stops the run and does not get a new budget. `P2`/`P3` will cap likewise. **The registered probe cap was priced off S1's rate — measured while the pressure solve was doing nothing — and the ×12 margin proved to be about half of the ~24× the new criterion actually costs on L1.**
+
+**⚡ THE GATE WAS TESTED BY A REAL DAEMON, NOT BY ITS SELFTEST.** A queue runner picked up `T25R4_S1`, `T25R4_S2` and `T25R4_S3` and ran each launch command; `ladder_gate_t25R4.py` **refused all three with exit 3** — *"the absence of a gate result is not a pass."* **Zero solver ranks started; the case holds no `0/`, no time directory, no `processor*`.** Had the gate been a person's intention rather than the job's first action, an unattended daemon would have launched an unpriced ladder against a criterion not yet verified.
+
+> **⚠️ `verification/queue/heat-transfer/README.md` SAYS "There is no daemon, no scheduler, no watcher and no timer behind this directory." THAT IS STALE — SOMETHING LAUNCHED WITHIN 90 SECONDS.** Any team relying on that sentence for safety is relying on a false one.
+
+**THE OPEN TECHNICAL QUESTION FOR THE SUCCESSOR, AND IT IS PROBABLY THE ANSWER:** ~380 GAMG iterations per solve is *very* high for a 3-order reduction; a well-tuned GAMG should need 5–20. **The criterion is right; the GAMG configuration (default agglomeration, `GaussSeidel`, untuned `nCellsInCoarsestLevel`) is likely what is expensive.** Tuning the solver — not the criterion — may bring the ladder inside the ceiling without touching anything registered as a gate.
+
+**Six queue entries are filed at `verification/queue/heat-transfer/T25R4_*.json`, each gated. They are SAFE TO SIT THERE: they refuse by default.**
+
+---
+
 ---
 
 ##### 📕 **T25R3 IS CLOSED WITH NO GRADEABLE ROW. T25R4 IS REGISTERED AND AWAITS THE SUPERVISOR'S DIFF-READ. `S1` IS THE ONLY THING RUNNING.** (2026-09-01T~17:55Z)

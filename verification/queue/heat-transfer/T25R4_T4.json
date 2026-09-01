@@ -1,0 +1,18 @@
+{
+  "_gate": "THE G-P GATE IS THE FIRST ACTION OF launch_cmd AND IS DEFAULT-DENY. run_ladder_t25R4.sh calls ladder_gate_t25R4.py, which reads the VERDICT VALUE from GP_VERDICT.json and exits 3 -- launching nothing -- unless it is literally 'PASS'. A missing artifact, unparseable JSON, an absent field, any other verdict, a missing s_per_step, or a ceiling breach all REFUSE. Proven both ways end-to-end: exit 3 with zero solver ranks started on a missing artifact, a planted 'GATE FAIL' and a planted 'NOT A RESULT'; exit 0 on a planted PASS. This entry is SAFE TO SIT IN AN ACTIVE QUEUE BEFORE THE PROBE HAS GRADED, because it refuses by default rather than waiting for a person not to release it.",
+  "_note_queue_is_passive": "verification/queue/heat-transfer/README.md states there is NO daemon, scheduler, watcher or timer behind this directory and that ENQUEUEING IS NOT AUTHORISATION. Whatever runner picks these up, the gate above is inside the job, which is what makes an auto-follow safe.",
+  "case_id": "T25R4_T4",
+  "cost_basis": "PRICE IS NOT FIXED IN THIS ENTRY AND MUST NOT BE. The ladder's POINT and CAP are computed AT LAUNCH TIME by ladder_gate_t25R4.py from the FORMULA FROZEN AT T25R4_PREREGISTRATION.md Amendment A1.1 -- POINT = N_steps x r(level) x SWEEP x RANKS/60, CAP = 4.0 x POINT -- with r(level) supplied as a MEASURED input by the G-P probe (GP_VERDICT.json). Rule 12 forbids CHOOSING a cap after seeing the answer; deriving one from a formula frozen before the answer existed is what a pre-registration is for. cost_core_min_estimate below is the A1.2 CONSERVATIVE placeholder computed from the probe's own ramp-window rate and is an OVER-estimate by construction. Dollars at $0.0513/core-h are DERIVED, NOT MEASURED; cost_basis = REPORTED-BY-OWNER, this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5). A1.3 CEILING: if the priced total exceeds 20000 core-min the entry REFUSES AND ESCALATES rather than launching.",
+  "cost_core_min_estimate": 708.0,
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T25R4_MODULE_runs/T4",
+  "enqueued_by": "heat-transfer lane on the supervisor's 2026-09-01T~18:05Z launch-and-queue order; Sanaa directive d8f9e59d [lab-attributed]",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T25R4_MODULE_runs/run_ladder_t25R4.sh",
+    "T4"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "9a8f8e4294c3dc89292c1546d8936c3e952f7ace",
+  "prereg_path": "docs/campaigns/T-family/T25R4_PREREGISTRATION.md",
+  "ranks": 2,
+  "team": "heat-transfer"
+}
