@@ -341,6 +341,28 @@ def turning(segs):
     return out
 
 
+# FIGURE STANDARD (owner directive, 2026-09-01 03:10Z), applied here because
+# this image predates it and broke it in three places. Its upper title ran to
+# eleven words, its lower title was a two-sentence paragraph whose second
+# sentence was meta-commentary about how to read the picture, and one axis
+# label carried no symbol. Titles are now at most ten words, every variable is
+# latexified, and the one caption line sits at the foot of the image. The
+# sentence that left the picture is not lost: it is the crease paragraph in
+# the figure-notes band of docs/dafoam/demo/ACT_D_reference_wing_sheet.tex.
+#
+# The limits are ENFORCED, not observed, and by the same guard the act's other
+# two figures use -- a title that grows back fails here rather than on camera.
+_SDK = Path(__file__).resolve().parents[4] / "sdk"
+if str(_SDK) not in sys.path:
+    sys.path.insert(0, str(_SDK))
+from workflows._a2_shape import check_figure_text  # noqa: E402
+
+# The caption is figure-wide, so it says which panel the true-scale claim is
+# about. Equal aspect holds on the outlines and cannot hold on an angle plot.
+CREASE_CAPTION = ("True scale on the section outlines. Turning angle is the "
+                  "angle between consecutive surface segments.")
+
+
 def figure(station, doc, base, final, tris):
     try:
         import matplotlib
@@ -351,6 +373,10 @@ def figure(station, doc, base, final, tris):
         return None
     OUT.mkdir(parents=True, exist_ok=True)
     out = OUT / "actD_crease_section.png"
+    section_title, caption = check_figure_text(
+        f"Wing section at span station $z$ = {station:g} m", CREASE_CAPTION)
+    turn_title, _ = check_figure_text(
+        "Surface turning angle along the section", "")
     fig, (ax, ax2) = plt.subplots(2, 1, figsize=(11.0, 7.0), dpi=150,
                                   gridspec_kw={"height_ratios": [2, 1]})
     for verts, col, lab in ((base, "#8a8f98", "baseline section"),
@@ -362,8 +388,7 @@ def figure(station, doc, base, final, tris):
     ax.set_aspect("equal")
     ax.set_xlabel(r"$x$, chordwise (m)")
     ax.set_ylabel(r"$y$ (m)")
-    ax.set_title(f"Wing section at span station z = {station:g} m, true "
-                 f"scale, no exaggeration", fontsize=11)
+    ax.set_title(section_title, fontsize=11)
     ax.legend(frameon=False, fontsize=9)
     ax.grid(alpha=0.25)
 
@@ -375,12 +400,13 @@ def figure(station, doc, base, final, tris):
     ax2.plot([p[0][0] for p in tb], [p[1] for p in tb], ".-", color="#8a8f98",
              ms=3, lw=0.8, label="baseline")
     ax2.set_xlabel(r"$x$, chordwise (m)")
-    ax2.set_ylabel("surface turn\nper point (deg)")
-    ax2.set_title("How sharply the section turns at each point. A crease "
-                  "would be a spike here.", fontsize=10)
+    ax2.set_ylabel(r"Turning angle $\Delta\theta$ (deg)")
+    ax2.set_title(turn_title, fontsize=10)
     ax2.legend(frameon=False, fontsize=9)
     ax2.grid(alpha=0.25)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.035, 1, 1))
+    fig.text(0.012, 0.012, caption, color="#5a5f66", fontsize=9, ha="left",
+             va="bottom")
     fig.savefig(out)
     plt.close(fig)
     tt = sorted(p[1] for p in t)

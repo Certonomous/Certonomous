@@ -639,18 +639,28 @@ class AdjointWingAct(DemoAct):
                      f"{decomp['total_reduction_pct']:.2f}% net"],
                 ], table_id="actd_decomposition"))
 
+        # EVERY FIGURE THIS ACT PUBLISHES IS CHECKED AT THIS CALL SITE, not
+        # only inside the two builders that happen to check themselves. A
+        # limit applied at one of three call sites is not applied: the crease
+        # figure reached this list unchecked and its own titles had grown past
+        # the standard. `_figure` refuses a title over ten words or a caption
+        # over twenty before the payload is built, so the failure lands on a
+        # drive rather than on a screen.
+        def _figure(path, title, caption):
+            title, caption = _a2_shape.check_figure_text(title, caption)
+            return Figure(path, title, caption, "results")
+
         plots = [
-            Figure(FIGURES / "a2_sections_5station.png",
-                   _a2_shape.SECTION_TITLE, _a2_shape.SECTION_CAPTION,
-                   "results"),
-            Figure(FIGURES / "a2_twist.png", _a2_shape.TWIST_TITLE,
-                   _a2_shape.TWIST_CAPTION, "results"),
+            _figure(FIGURES / "a2_sections_5station.png",
+                    _a2_shape.SECTION_TITLE, _a2_shape.SECTION_CAPTION),
+            _figure(FIGURES / "a2_twist.png", _a2_shape.TWIST_TITLE,
+                    _a2_shape.TWIST_CAPTION),
         ]
         fields = [
-            Figure(FIGURES / "actD_crease_section.png",
-                   "Section at the colour boundary on the wing",
-                   "The nose closes against the baseline across the first "
-                   "twentieth of the chord.", "results"),
+            _figure(FIGURES / "actD_crease_section.png",
+                    "Section at the colour boundary on the wing",
+                    "The nose closes against the baseline across the first "
+                    "twentieth of the chord."),
         ]
 
         verification = [
