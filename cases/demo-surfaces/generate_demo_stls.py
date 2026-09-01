@@ -227,6 +227,70 @@ def act_a():
 # ------------------------------------------------------------------- act B
 
 
+#: The solved Act B section, and the two numbers that decide whether the
+#: uploaded surface IS it. Sanaa's demo-mode binding (2026-09-01 ~03:40Z)
+#: requires the geometry stage to render the uploaded STL as the exact solved
+#: geometry, "regenerate the STL from the solved case where it differs".
+#:
+#: Both values are registered in JF1_PREREGISTRATION (c = 1.0 m, h/c = 0.005)
+#: AND were read back off the solved mesh rather than trusted: the airfoil
+#: patch of JF1_L1_BLOWN_CMU005_A0/constant/polyMesh, 396 faces, spans x from
+#: 0.000000 to 1.000000 and the jetSlot patch spans y from -0.002500 to
+#: +0.002500 at x = 1.000000. Chord 1.000000, h/c 0.005000, exactly.
+SOLVED_CHORD_M = 1.0
+SOLVED_H_OVER_C = 0.005
+
+#: Tolerance on both. The surface is written as float32, which resolves these
+#: magnitudes to about 1e-10, so 1e-6 is loose enough never to fire on
+#: rounding and tight enough to catch the defect it was written for: the
+#: unrescaled body is 0.991114 m in chord and 0.005045 in h/c, which miss by
+#: 8.9e-3 and 4.5e-5 respectively, four and one orders of magnitude clear.
+SOLVED_GEOMETRY_TOL = 1e-6
+
+
+def measure_blown_slot(path):
+    """Chord and slot-height ratio of a written blown-slot surface.
+
+    Reads the file back off disk rather than returning what the generator
+    believed it wrote. A generator that checks its own in-memory triangles
+    cannot catch a write that went to a different file, which is the failure
+    this whole check exists for.
+    """
+    with open(path, "rb") as fh:
+        fh.read(80)
+        n = struct.unpack("<I", fh.read(4))[0]
+        rec = np.frombuffer(fh.read(n * 50),
+                            dtype=np.dtype([("v", "<f4", (12,)), ("a", "<u2")]))
+    pts = rec["v"][:, 3:12].reshape(-1, 3).astype(float)
+    x_lo, x_hi = pts[:, 0].min(), pts[:, 0].max()
+    chord = x_hi - x_lo
+    base = pts[np.abs(pts[:, 0] - x_hi) < 1e-9][:, 1]
+    h = base.max() - base.min()
+    return chord, h / chord
+
+
+def assert_solved_geometry(path):
+    """Refuse a blown-slot surface that is not the solved section.
+
+    Not a print, a refusal. The screen is required to say the uploaded body IS
+    the solved geometry, and a check that merely reports a mismatch would let
+    that sentence ship beside a number proving it false.
+    """
+    chord, h_over_c = measure_blown_slot(path)
+    bad = []
+    if abs(chord - SOLVED_CHORD_M) > SOLVED_GEOMETRY_TOL:
+        bad.append("chord %.6f m against the solved %.6f m"
+                   % (chord, SOLVED_CHORD_M))
+    if abs(h_over_c - SOLVED_H_OVER_C) > SOLVED_GEOMETRY_TOL:
+        bad.append("h/c %.6f against the solved %.6f"
+                   % (h_over_c, SOLVED_H_OVER_C))
+    if bad:
+        raise AssertionError(
+            "%s is not the solved Act B section: %s. The geometry stage may "
+            "not call it the solved geometry." % (path, "; ".join(bad)))
+    return chord, h_over_c
+
+
 def naca0012_yt(x, c=1.0, t=0.12):
     s = x / c
     return 5.0 * t * c * (0.2969 * np.sqrt(s) - 0.1260 * s - 0.3516 * s ** 2
@@ -234,33 +298,57 @@ def naca0012_yt(x, c=1.0, t=0.12):
 
 
 def act_b():
+    """The Act B section, truncated AND rescaled exactly as the solve was.
+
+    THE RESCALE IS THE WHOLE CORRECTION, and it is worth saying why the old
+    form looked right. Both versions truncate a NACA 0012 at a blunt base of
+    height h and both call the result "c = 1.0, h/c = 0.005". They disagree
+    about which length is the chord.
+
+      old: solve yt(x) = h/2, stop. The body runs 0 -> 0.991114, so its own
+           chord is 0.991114 and its h/c is 0.005045.
+      new: solve yt(x)/x = h/2 and scale by 1/x, which is what
+           cases/JF1_JET_FLAP/build_jf1.py does (solve_truncation, then
+           scale = CHORD / x_te). The truncated body is then chord 1.000000
+           with h/c 0.005000, and that is the section the five calculations
+           actually ran on.
+
+    A 0.9% scale error is invisible on camera and fatal to the sentence
+    Sanaa's demo-mode binding requires the geometry stage to say: that the
+    uploaded surface IS the solved geometry. It is measured against the solved
+    mesh by assert_solved_geometry above, which refuses rather than reports.
+    """
     c, h, span = 1.0, 0.005, 0.2           # c and h registered by JF1
-    lo, hi = 0.5, 1.0                      # bisect for the truncation station
+    # Bisect on the RESCALED half-thickness ratio yt(x)/x, not on yt(x): the
+    # station wanted is the one that lands at h/2 AFTER the body is scaled to
+    # unit chord. yt(x)/x falls monotonically across this bracket.
+    lo, hi = 0.5, 1.0
     for _ in range(200):
         mid = 0.5 * (lo + hi)
-        if naca0012_yt(mid, c) > h / 2.0:
+        if naca0012_yt(mid, c) / mid > h / 2.0:
             lo = mid
         else:
             hi = mid
     x_t = 0.5 * (lo + hi)
+    scale = c / x_t                        # unit chord after truncation
 
     N = 140
     beta = np.linspace(0.0, np.pi, N)
     xs = x_t * (1.0 - np.cos(beta)) / 2.0  # cosine spacing, 0 -> x_t
 
-    loop = [(x_t, h / 2.0)]
-    for x in xs[::-1][1:-1]:               # upper surface, TE -> LE
-        loop.append((x, naca0012_yt(x, c)))
-    loop.append((0.0, 0.0))                # leading edge
-    for x in xs[1:-1]:                     # lower surface, LE -> TE
-        loop.append((x, -naca0012_yt(x, c)))
-    loop.append((x_t, -h / 2.0))
+    loop = [(c, h / 2.0)]
+    for x in xs[::-1][1:-1]:                # upper surface, TE -> LE
+        loop.append((x * scale, naca0012_yt(x, c) * scale))
+    loop.append((0.0, 0.0))                 # leading edge
+    for x in xs[1:-1]:                      # lower surface, LE -> TE
+        loop.append((x * scale, -naca0012_yt(x, c) * scale))
+    loop.append((c, -h / 2.0))
     for f in np.linspace(0.0, 1.0, 9)[1:-1]:   # blunt base = the slot
-        loop.append((x_t, -h / 2.0 + f * h))
+        loop.append((c, -h / 2.0 + f * h))
 
     tris = extrude_loop(loop, 0.0, span, nspan=2)
     hdr = ("ACT B NACA0012 blunt-base blown slot (JF1 c=1.0 h=0.005 h/c=0.005) "
-           "x_trunc=%.6f" % x_t)
+           "x_trunc=%.6f rescaled to unit chord" % x_t)
     return tris, hdr, x_t
 
 
@@ -327,43 +415,89 @@ def verify(path, expect):
     return ok, size, n, lo, hi
 
 
-def main():
-    ok = True
+#: The three surfaces this script owns, by written filename. WRITING IS
+#: SELECTABLE and the default has changed from "all three" to "all three,
+#: unless you name one", because these files belong to three different acts
+#: run by three different teams. Regenerating Act B is not a reason to rewrite
+#: Act A's and Act C's surfaces as a side effect, and a script whose only mode
+#: is all-or-nothing forces exactly that.
+SURFACES = ("motor_in_duct.stl", "airfoil_blown_slot.stl",
+            "battery_module_8cell.stl")
 
+
+def build_act_a():
     tris, hdr = act_a()
     p = os.path.join(OUT_DIR, "motor_in_duct.stl")
     write_binary_stl(p, tris, hdr)
     r, *_ = verify(p, [("duct outer diameter (m)", 0.260, 0.260, 1e-9),
                        ("duct length L = 0.8 D (m)", 0.200, 0.200, 1e-9)])
-    ok &= r
+    return r
 
+
+def build_act_b():
     tris, hdr, x_t = act_b()
     p = os.path.join(OUT_DIR, "airfoil_blown_slot.stl")
     write_binary_stl(p, tris, hdr)
+    scale = 1.0 / x_t
     # The base-height row is the load-bearing one: it proves the section was
-    # truncated where the half-thickness is exactly h/2. Comparing x_t against
-    # a literal would be circular (the bisection against itself), so the second
-    # row instead reads the truncation station back OUT of the written file's
-    # bounding box and compares it to what the solve asked for.
+    # truncated where the RESCALED half-thickness is exactly h/2. Comparing
+    # x_t against a literal would be circular (the bisection against itself),
+    # so the row below instead reads the truncation station back OUT of the
+    # written file. Both rows now carry the rescale, because the body written
+    # carries it.
+    #
+    # The max-thickness row is compared against 0.121089, which is not a
+    # literal from this file's own arithmetic: it is the thickness read off
+    # the SOLVED mesh (airfoil patch of JF1_L1_BLOWN_CMU005_A0). That makes
+    # the row a cross-check against the solve rather than against itself.
     r, _, _, lo, hi = verify(
-        p, [("base height h = h/c * c (m)", 2.0 * naca0012_yt(x_t), 0.005, 1e-6),
-            ("max thickness / c", 2.0 * naca0012_yt(0.30), 0.1199, 5e-4)])
-    ok &= r
-    dev = abs(hi[0] - x_t)
-    good = dev <= 1e-6 and abs(lo[0]) <= 1e-9
-    ok &= good
+        p, [("base height h = h/c * c (m)",
+             2.0 * naca0012_yt(x_t) * scale, 0.005, 1e-6),
+            ("max thickness / c, vs solved mesh",
+             2.0 * naca0012_yt(0.30) * scale, 0.121089, 5e-4)])
+    # The refusal that earns the sentence "this IS the solved geometry".
+    chord, h_over_c = assert_solved_geometry(p)
+    print("     %-34s %10.6f  vs %10.6f  OK"
+          % ("chord vs solved (m)", chord, SOLVED_CHORD_M))
+    print("     %-34s %10.6f  vs %10.6f  OK"
+          % ("h/c vs solved", h_over_c, SOLVED_H_OVER_C))
+    good = abs(hi[0] - 1.0) <= 1e-6 and abs(lo[0]) <= 1e-9
     print("     %-34s %10.6f  vs %10.6f  %s"
-          % ("x_trunc/c read back from file", hi[0], x_t,
+          % ("chord read back from file", hi[0] - lo[0], 1.0,
              "OK" if good else "MISMATCH"))
-    print("     blunt base is the JF1 slot patch, at x/c = %.4f" % x_t)
+    print("     blunt base is the JF1 slot patch, at x/c = 1.0000 "
+          "(raw truncation station %.6f, rescaled)" % x_t)
+    return r and good
 
+
+def build_act_c():
     tris, hdr = act_c()
     p = os.path.join(OUT_DIR, "battery_module_8cell.stl")
     write_binary_stl(p, tris, hdr)
     r, *_ = verify(p, [("8 cells + 7 gaps span (m)", 8 * 0.030 + 7 * 0.003, 0.261, 1e-9),
                        ("cell flow length (m)", 0.100, 0.100, 1e-9),
                        ("cell height, display (m)", 0.120, 0.120, 1e-9)])
-    ok &= r
+    return r
+
+
+BUILDERS = {"motor_in_duct.stl": build_act_a,
+            "airfoil_blown_slot.stl": build_act_b,
+            "battery_module_8cell.stl": build_act_c}
+
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    wanted = SURFACES
+    if "--only" in argv:
+        name = argv[argv.index("--only") + 1]
+        if name not in BUILDERS:
+            print("unknown surface %r; known: %s" % (name, ", ".join(SURFACES)))
+            return 2
+        wanted = (name,)
+
+    ok = True
+    for name in wanted:
+        ok &= BUILDERS[name]()
 
     print("\nALL CHECKS PASSED" if ok else "\nCHECKS FAILED")
     return 0 if ok else 1

@@ -58,6 +58,11 @@ _impl = _load()
 
 # Re-exported by name so a reader of the screen can see exactly what it uses.
 ReaderRefused = _impl.ReaderRefused
+#: The planted value every reader in the implementation must see before it is
+#: allowed to report. Re-exported so the screen can NAME it on camera without
+#: a second copy of the constant: a screen that states an instrument check
+#: with its own literal would keep saying so after the reader changed it.
+PLANT = _impl.PLANT
 RUN_ROOT = _impl.RUN_ROOT
 SWEEP_CASES = _impl.SWEEP_CASES
 SWEEP_TIME = _impl.SWEEP_TIME
@@ -73,6 +78,7 @@ sweep_rows = _impl.sweep_rows
 wall_yplus = _impl.wall_yplus
 
 __all__ = [
+    "PLANT",
     "ReaderRefused", "RUN_ROOT", "SWEEP_CASES", "SWEEP_TIME", "SETTLE_WINDOW",
     "assert_one_grid", "display_citation", "flow_facts", "movement_1sf",
     "reference_citation", "settling", "sweep_facts", "sweep_rows",
