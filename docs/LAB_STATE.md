@@ -11396,6 +11396,93 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T05:00Z — **THE T25R CRASH IS SOLVED AND THE CAUSE IS A LAB-WIDE OpenFOAM TRAP: A RELAXATION KEY THAT DOES NOT MATCH `UFinal`. AND OUR DEMO-MODE ACT IS CORRECT, GUARDED, VALIDATING AND COMPLETELY INERT.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the section's `Section last written:` line is left alone. **I launched no solver.** The T25RF probe spent **12.217 of its 30 core-min cap**, cap-stopped nothing, and is **ungated under §2m — no verdict, closes no gate, and nothing from it may reach a screen.**)*
+
+---
+
+### A. ⛔ **THE MECHANISM. THIS IS A TRANSFERABLE OpenFOAM FACT AND IT BELONGS TO THE WHOLE LAB, NOT JUST THIS FAMILY.**
+
+**MY HYPOTHESIS WAS REFUTED ON ITS PREMISE, AND I WAS WRONG IN A USEFUL WAY.** I boarded at 04:25Z that `fvSolution` *"registers no `relaxationFactors`"*. **It does** — `fields { "p_rgh" 0.7 }`, `equations { "(U|h|k|omega)" 0.9 }`, both present, both active. The lane checked before assuming, as instructed, and the true mechanism is narrower and worse:
+
+1. `chtMultiRegionFoam.C:111` sets `finalIter` on the **last** outer sweep; `fluid/solveFluid.H:3` calls `setFinalIteration(true)` and clears it at `:37`.
+2. `fvMatrix::relax()` (`fvMatrix.C:1249`) resolves its key via `psi_.select(mesh.data().isFinalIteration())`, and `GeometricField::select(bool)` (`GeometricField.C:1179`) **APPENDS `"Final"`**.
+3. **OpenFOAM keyword regexes match IN FULL**, so **`"(U|h|k|omega)"` DOES NOT MATCH `UFinal` or `hFinal`.** `UEqn.relax()` and `EEqn.relax()` find nothing and apply **NO RELAXATION ON THE FINAL SWEEP**.
+4. `p_rgh.relax()` and `turbulence.correct()` sit in the coupled branch **after** the flag is cleared, so `p_rgh`/`k`/`omega` stay relaxed throughout — **which is why the failure looks selective and hides.**
+
+**At `Co ≈ 1600` the `1/dt` term contributes nothing to the momentum diagonal, so an unrelaxed final sweep is an unrelaxed steady solve, and it diverges.** The L1 log shows exactly this: `sum local` is **O(1e-2) on sweeps 1–4** of `t=0.5` and **1.135 on sweep 5**; **3.609 on sweep 4** of `t=1.0` and **125.93 on sweep 5**.
+
+> **⛔ AND THE DEEPEST PART: T25R's frozen `fvSolution` COMMENT CHOSE THE UNRELAXED FINAL SWEEP DELIBERATELY, TO KEEP ITS §3.5 LAST-SWEEP RESIDUAL GATE MEANINGFUL. THE GATE DESIGN CAUSED THE CRASH.** A gate built to measure convergence removed the thing that produced it. **Any team registering a PIMPLE outer-loop residual gate can hit this.**
+
+**TO FILE (not yet filed — next lane, and the numbers re-derived at commit per rule 11, never counted):** a `LESSONS.md` entry and a `NUMERICS_KNOWLEDGE.md` `N-*` row. Tail at 04:57Z read **L-425 already taken by dafoam at `6cea911e`** — so **re-derive, do not assume 426.**
+
+---
+
+### B. **THE PROBE'S ARMS — A1 HELD, `frozenFlow` WAS NEVER REACHED, SO THE §3.3 REFUSAL STANDS UNTOUCHED**
+
+| arm | rc | steps | min/max T (K) | last-sweep `Ux`/`h`/`p_rgh` | core-min |
+|---|---|---|---|---|---|
+| **A0** as registered, **new loads** | **134** | 3/60 | **−73.54** | — | 0.083 |
+| **A1** final-sweep relax, 5 sweeps | **0** | 60 | 292.985 / 294.120 | 6.5e-11 / **1.31e-4** / 7.4e-9 | 3.650 |
+| **A2** A1 + 10 sweeps | **0** | 60 | 292.985 / 294.126 | 3.4e-11 / **5.79e-5** / 7.3e-9 | 7.967 |
+| **A2T** A2 + `p_rgh` tol 1e-8 | **0** | 60 | **identical to A2** | **identical to A2** | **0.517** |
+
+**A0 IS THE CONTROL THAT MATTERS: the crash reproduces under SANAA'S NEW, LARGER LOADS to the same 3 steps, `T0 = −14.458` against the reference `−14.459`. The divergence is NUMERICAL, NOT LOAD-DRIVEN.** Criterion (b) was met on `p_rgh`/`Ux` by every surviving arm and **on `h` by none** (plateau ~5.8e-5, cause not isolated — an honest open item).
+
+**⛔ TWO FINDINGS THAT CHANGE T25R2's DESIGN:**
+
+1. **FIVE OUTER SWEEPS IS NOT ENOUGH TO GATE ON.** A1 and A2 differ only in sweep count and their trajectories **keep separating**: **1.05e-3 K at t=1 s → 3.47e-3 at t=10 s → 6.02e-3 K at t=30 s**, i.e. **0.53 % of the 1.13 K rise and STILL GROWING**, against a signal scale of 10×PLANT = **1.234e-2 K**. **After 30 s of a 900 s run the sweep-count discrepancy is already half the signal scale. We do NOT know 10 sweeps is converged.**
+2. **THE REGISTERED `p_rgh` TOLERANCE 1e-9 IS UNREACHABLE AND BUYS NOTHING.** GAMG stalls at ~4.4e-9; **266/600 solves (A1) and 608/1200 (A2) ended at `maxIter` 1000**, and the waste **grows as the field settles**. The lane **registered arm A2T in a committed addendum BEFORE running it**, criterion *"agree with A2 within 1e-4 K"* — result **agreement 0.000e+00 K**, `maxIter` hits **608 → 0**, GAMG iterations **627,533 → 25,770 (24.4x)**. **601,763 discarded iterations changed no digit.**
+
+**COST CALIBRATION (rule 12):** predicted 0.5 / 0.9 core-min, actual **3.650 (7.3x)** and **7.967 (8.9x)** — **the entire gap is the `p_rgh` stall, not contention**, proved by A2T landing at **0.517, 0.86x prediction**. The per-step model was sound; it was missing the stall.
+
+---
+
+### C. ⛔ **MY RULING — T25R's §3.5 IS DEAD AND IS REPLACED BY A GATE IN KELVIN. T25R2 IS BEING WRITTEN.**
+
+Relaxing the final sweep **fixes the crash and destroys §3.5's calibration**, because its 1e-6 threshold was calibrated for an unrelaxed final sweep. **A threshold whose basis has been removed is not a gate.**
+
+> **RULED: the last-sweep residual census is RETAINED AS A REPORT, with NO threshold attached. The outer loop is gated instead by DEMONSTRATED SWEEP-COUNT INDEPENDENCE, measured IN KELVIN** — a registered arm `T25R2_L1_OC20` identical to L1 but at `nOuterCorrectors 20`, gated on agreement with the 10-sweep run against a threshold tied to the PLANT scale. **Forced by measurement, not preference (§B.1). The arm is designed so it CAN fail; if it fails that is a real `GATE FAIL` and the rung says so.**
+
+**Numerics adopted: A2T verbatim** — explicit `UFinal/hFinal/p_rghFinal/kFinal/omegaFinal` keys (`p_rgh` 0.3, equations 0.7), `nOuterCorrectors 10`, `p_rgh` tol `1e-8`.
+
+**⚠️ PRICING: 1800-step extrapolations are A1 ~141, A2 ~329, A2T ~8.3 core-min. T25R2 IS NOT PRICED AT 8.3 AND MUST NOT BE.** The probe covers **30 s of a 900 s case**, stays **inside the takeoff branch** so it never prices the 60 s step-down, its settled rate comes from **40 steps**, and wall minutes came off a **shared box**. **Priced with explicit margin against the 600 cap.**
+
+**L3 STAYS REFUSED** — the 04:05Z reasoning is unchanged: a cap with no headroom converts one misprediction into a stopped campaign, and this extrapolation is from a 30 s probe on one branch. **But it is now materially more affordable than when first refused and is the strongest candidate for the successor rung, priced off T25R2's OWN measured rate.**
+
+---
+
+### D. 🚨 **OUR DEMO-MODE ACT IS CORRECT, GUARDED, VALIDATING — AND INERT. THE SURFACE ON SCREEN IS CHOSEN BY AN OPERATOR'S UPLOAD, BY NOTHING ELSE.**
+
+Traced end to end: `control_room.html:446` file input → `POST /api/geometry/upload` → `server.py:_accept_surface` writes into `sdk/geometry/` **under the uploader's own filename** → launch posts `surface:<filename>` → `router.py:918` sends the thermal request to `workflows.thermal_display` → `thermal_display.py:799` announces `params.get("surface")` → `server.py:_serve_geometry (:344)` resolves `sdk/geometry/<name>`.
+
+> **NO ACT, NO MANIFEST, NO CONFIGURED DEFAULT AND NO CODE CONSTANT IS CONSULTED AT ANY STEP.** The retired body is on screen **because a file with that name was uploaded once and has sat in the directory since.**
+> **AND `demo_sequencer` APPEARS NOWHERE IN `sdk/chief_engineer` — not the server, not the router. THE DEMO-MODE PATH IS UNREACHABLE FROM THE CONTROL ROOM ENTIRELY.**
+
+**So registering `motor-thermal` is correct, guarded and CHANGES NOTHING ON SCREEN BY ITSELF. That is the finding, not a failure of the work.** What must change, **all inside `sdk/`, all cfd's**:
+
+1. **Route the thermal intent at `router.py:918` to `demo_sequencer.run_act("motor-thermal")`.** **THIS IS THE REAL FIX**: once routed, `_stage_geometry` takes `g.served_stl.name` **from the act**, so the served file becomes the solved one automatically and **cannot be an upload**.
+2. **Delete `sdk/geometry/motor_in_duct.stl`** so the name 404s. **CANNOT be a patch hunk — the file is untracked.** **Necessary and NOT sufficient**: `_accept_surface` re-creates it on the next upload of that name. **Only (1) closes the hole.**
+3. **THREE OF SANAA'S NEVER-LIST PHRASES ARE LIVE ON THE ACT A PATH RIGHT NOW**, each refused by `demo_mode`'s own checker: *"the screens come from that run's own fields"* (`thermal_display.py:793`), *"Reference body received"* (`:806`), *"not recorded in this bundle"* (`:459`). **Routing through the sequencer puts every string through the guard, so these would fail at authorship rather than on camera** — the strongest argument for (1).
+
+---
+
+### E. **TWO CORRECTIONS, BOTH AGAINST MY OWN TEAM, BOTH RECORDED**
+
+**1. `0.200 m` IS RIGHT; THE LANE'S `0.260 m` WAS WRONG; THE MANIFEST WAS CORRECT ALL ALONG.** Measured over every vertex: the retired body is **X-AXIAL** (x 0.200000003, y 0.259999990, z 0.259999990); the solved surface is **Z-AXIAL** (0.750000000 along z). `check_surface` defaults to `axis="z"`, so against an x-axial body it reported the **z** extent under the label *"axial"*. **The guard's fourteen refusal counts are sound; one line was misread.** True figure: **0.200 m against 0.750 m, a factor of 3.75.**
+**⚠️ AND THE PART WORTH MORE THAN THE NUMBER: the two surfaces do not share an axis convention, so the retired body would render LYING ON ITS SIDE in the viewport even if every dimension agreed.**
+
+**2. THE 197.3 °C FEASIBILITY BEAT STANDS — I RULED IT IN, ON STRONGER GROUND THAN I ASKED FOR.** It depends on **no solved quantity**: `T_inf` 288.0 K from the inlet BC, P 305 W the requested point, Dittus-Boelter `h(U)`, and registered geometry and conductivities — every input a user holds **before** a solver starts. It is a **prediction registered before compute** at `T23_PREREGISTRATION.md:714`, blob `c341476f…` on disk **and** at HEAD, with §2.7 registering in advance that the lumped model might be wrong and §6.2 freezing the contingency one-way. **A registered prediction falsified by its own solve, with the contingency written down first, is a better demo beat than a correlation that happened to agree.**
+**⚠️ ONE NUMBER IS HELD BACK: the lane reported the correlation overshooting by "3.4x"; my arithmetic gives 1.97 on the rise (182.45 K predicted vs 92.83 K measured) and 1.83 on raw temperature. `:714` carries TWO predicted columns, 197.3 °C and 120.3 °C, which may explain it. UNRESOLVED — and no overshoot factor reaches any screen until its numerator and denominator are named.**
+
+---
+
+### F. **T23G_F** — **2,953 / 10,000** at 04:57Z, `rc` pending, ETA **≈07:1xZ**, inside `timeout 24000s` and inside cap. Coarse and medium already `rc = 0` at 6.0667 and 27.8167 core-min. **Grade with `analyse_t23g.py` only; verdict from stdout, never the exit code.**
+
+---
+
+
 ##### ADDENDUM 2026-09-01T04:52Z — **T23G's COARSE AND MEDIUM ARE BOTH COMPLETE AND BOTH UNDER POINT; AND ACT A HAS BEEN SHOWING A BODY FROM A DIFFERENT CASE, WHICH I VERIFIED BY DIGEST MYSELF.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**, and the section's `Section last written:` line is left alone so earlier pure-insertion asserts are not broken. **Zero solver compute launched by me this session**; T23G was already running and was not touched.)*
