@@ -4792,6 +4792,65 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23c — **THE ACT D PACKAGE IS CLOSED EXCEPT FOR ONE LINE OF SOMEBODY ELSE'S HTML — AND THAT LINE IS A DEMO BLOCKER: SANAA'S MANDATORY MESH CAPTION IS EMITTED ON 101 OF 101 FRAMES AND RENDERED ON NONE. `A2-B2R` FROZEN `395103fe`, MY CHECK 4 **PASS**. THE GUI ACT D HAS ITS OWN SHEET AT LAST, SHIPPED-ROW-ONLY AND SAYING SO. ⚠ AND I RAISED A FALSE ALARM AGAINST MY OWN LANE ON A STALE READING** (2026-09-01T02:0xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ THE ONE THING THAT WOULD HAVE SHIPPED BROKEN — THE CAPTION IS NEVER RENDERED
+
+Sanaa's directive was explicit: *"caption every 3D frame '38,304-cell mesh, chosen for speed — grid independence not assessed; result relative to this mesh.'"* **Our side is done and correct:** `_a2_shape.MESH_CAPTION` is now **byte-exact to her wording, em dash included, verified by string equality rather than by eye**, wired at `adjoint_optimization.py:617` inside `show()` — the **sole funnel** — and **101 of 101 frames carry it in the payload.**
+
+**`sdk/chief_engineer/control_room.html` NEVER READS THE FIELD.** `[MEASURED, with positive controls firing]` **zero occurrences of `caption` in 2,576 lines**, while the same reader sees `p.label` ×4, `p.url` ×4, `p.name` ×3, `p.file` ×2. Same in the `dist/` copy. **As of now, zero 3D frames display it.** This is exactly why "wired at the sole funnel" is a claim about the EMITTER and not about the SCREEN, and I had accepted the funnel argument as sufficient — **it was not, and only driving the consumer found it.**
+
+**It is cfd's tree, not ours. Escalated to the chief, not touched.** Minimal change located and handed over: one element in the `viewport-foot` div at `:472`, plus `if (p.caption) subText('viewportCaption', p.caption);` in **BOTH** handlers — `loadGeometry` `:1698` and `loadField` `:1722`. **Both, not one: a caption on geometry frames and not field frames is the rule-14 failure in its purest form.**
+
+##### 2. `A2-B2R` FROZEN `395103fe` — MY CHECK 4 **PASS**, DRIVEN NOT READ
+
+Freeze commit exists and is an **ancestor of HEAD**; prereg blob `241144a2` **identical at the freeze, at HEAD and on disk**; **all six files ADDED, zero modified, zero drift**; run root `/home/ubuntu/certonomous-runs/A2B2R-independent-trim` **ABSENT, verified against a positive control that reports EXISTS** for `ACTD-a2-decomposition`. **Nothing launched.**
+
+**`G5`'s threshold carried byte for byte and I checked it myself at both ends:** `grade_a2b2r.py:52` `BAND = 0.5` against the frozen parent's `:175` `<= **0.5%**`. The lane hexdumped the parent token rather than eyeballing it. **Point 17.8 core-min, band 14.2–27.1, cap 40.0**, derived from A2's own `ExecutionTime` ledger (13.65 s mean per primal at 4 ranks, B1's trim = 4.99 primal-equivalents) — **not** the 24.7 s/evaluation that over-priced A2 by 1.8×. **$0.0152 DERIVED NOT MEASURED.** Plant `K = 3.0`, crossing **3.000000×**; RED sufficiency leg `K = 0.5` at **0.500000×** demanding the refusal **by the literal token** `PLANT_NOT_SEEN`.
+
+**⚠ THE LANE CORRECTED MY BRIEF AND THE CORRECTION IS THE RUNG'S BEST FEATURE. The bracket is CONFOUNDED and A2's own triage never named it:** `B1` converged from **BELOW** (offset 0.0403), `B2` diverged from **ABOVE** (offset 0.2219) — **magnitude and direction move together across the only two points that exist.** So the rung runs **two arms, one each side**, and registers falsifier **`F2`: if R4 diverges while R2 converges, this document's own bracket derivation is wrong in its own terms.** A falsifier aimed at its author's reasoning rather than at the physics. **Accepted in full.** `A2-B2R` stays **PARKED and unlaunched** — it gates nothing.
+
+##### 3. THE GUI ACT D HAS ITS OWN SHEET, AND IT IS A **DEMONSTRATION**, NOT A VERDICT
+
+`docs/dafoam/demo/ACT_D_reference_wing_sheet.tex` — **`pdflatex` rc=0, 1 page, 0 overfull boxes**, self-contained. The 4,032-cell aerofoil sheet is renamed `ACT_D_aerofoil_section_sheet.tex`, **both filenames now carrying their subject**, with the rename proved harmless: **from `\documentclass` onward the two blobs are byte-identical over 437 lines.** Four falsified citations swept, including two in this section, **struck rather than rewritten.**
+
+**Every number re-derived from `decomp.log` rather than transcribed from my brief:** total **28.276788 %**, twist **−0.9192 %**, shape **+100.9192 %**, twist-alone-worse **+0.2599 %**, trap row **44.6036 %** at **48.5891 %** of lift thrown away, frozen-incidence **+25.6226 %** worse. `G1` **0.002965 %** / **0.015426 %**, `G3` **5.29e-07**. **Nothing failed to reproduce.**
+
+**⚠ TOOLCHAIN, BY HASH AND NOT BY VERSION STRING (`§11`): `dafoam/opt-packages:latest`, digest `sha256:9d45679d…f07fc`, STOCK IDWarp `libidwarp.so` md5 `f0fcb488e0e98156575cd19548e91663`.** Established from artifacts: `run_a2_decomposition.sh:49` hard-codes that image with **zero** matches for any patch marker, and the sub-LU banner occurs **zero times** in the log — this family's standing proof a run was stock. **SHIPPED, ONE ROW. There is no patched row, so this cannot be a two-row verdict — and the sheet opens by calling itself a demonstration and reserves the fixed vocabulary for the gates.** That is the charter honoured, not evaded.
+
+##### 4. ⚠⚠ I RAISED A FALSE ALARM AGAINST MY OWN LANE, ON A STALE READING
+
+I challenged the value-invariance arm's registered `thickness_m = 0.12002`, because I had measured `0.12001006305217743` earlier tonight and concluded the pin was wrong. **I then checked whether the lane's commit had moved the read path — it had not; `54d3b514` touches documentation, deletes the dead `_END_CLOSURE_FRACTION` and adds two advisory keys, and moves no measurement. My "the pin is wrong" reading is WITHDRAWN.**
+
+**But both readings are real and I reproduce both, on bytes that are identical** (all three copies of `naca0012_wing.stl` are md5 `3d41177e…`, 35,684 B): reached one way `_read` reports `0.12001006305217743`; reached with `sdk` on `sys.path` as `workflows.geometry_admission` it reports **`0.12002` at 2,136 vertices** — and a module loaded directly from the same file **in that same process** also reports `0.12002`. **So the reported thickness moves with the IMPORT ENVIRONMENT, not with the data.**
+
+**Not a demo blocker — both render as 12.0 % and both admit and refuse identically.** But the arm pins ground truth **to full precision, correctly, because I asked for that** — against a reader whose full-precision output is **not stable across import environments**. **An arm that is green or red depending on how it was invoked is not yet the guard verification asked for.** Handed back bounded: name the branch, rule which reading is right and why, make it deterministic, **and do NOT loosen the tolerance until both pass** — loose assertions are what let the 4.0 % through in the first place.
+
+##### 5. ⚠ A DISCRETION CONFLICT I AM RULING ON AND ROUTING ANYWAY
+
+The stopping condition is **withheld from on-screen narration** by Sanaa's **2026-07-31** discretion call (`adjoint_optimization.py:72-84`, `DEMO_DISCRETION_CHARTER §2` "operational detail"), whose own docstring says it is *"KEPT HERE AND IN THE RECORD"*. Her **2026-09-01** feedback says the opposite for the screen: *"say why … in one plain line"*.
+
+**MY RULING: her later instruction governs, on the same subject, in her own captured words — so the act states it, and the sheet states it as a record either way.** The lane that put it on screen documented the supersession explicitly and preserved the half that was NOT reversed: **the act still never says converged and never says optimum.** That is the right shape. **But a discretion charter is not mine to amend and this is going to her desk for confirmation** — and if the SHEET ever goes on a camera surface, that bullet sits under her withholding and is hers to lift, not mine.
+
+##### 6. THE STOPPING CONDITION, MEASURED — AND SANAA'S OWN GUESS WAS WRONG
+
+She wrote *"iteration cap at 47?"*. `[MEASURED]` `max_iter` is **100** and the run reached **47**, so **no cap was hit**. `opt_IPOPT.txt` carries **zero** occurrences of `EXIT` / "Optimal Solution Found" / "Converged" / "Maximum Number of Iterations" while `iter`, `objective`, `inf_pr` **are** present — **the reader is shown able to see a non-zero.** Last iteration `inf_pr 1.44e-05`, `inf_du 9.00e-05` against `tol 1e-05`; the driver log **breaks off mid-sentence inside iteration 48's adjoint at 3601 s**. **Termination was a 60-MINUTE WALL CLOCK.** Settling statistics reproduce: over iterations 33–47 the objective band is **2.244 %** and **12 of 14** steps took drag down.
+
+##### 7. THE REST OF THE PACKAGE, CLOSED
+
+**Computational surface CONFIRMED by measurement:** `constant/polyMesh/boundary` declares `wing nFaces 1008`, all four-sided, **1,031 unique points**; the streamed surface is **1,031 points and 2,016 triangles — exactly 2 per solver face** — bounding boxes agreeing to **≤4e-7 m per axis**. Mesh **38,304** cells, with a decoy `38305` returning **zero** hits. **The refusal enforcing it was driven RED twice before anyone believed it.**
+
+**The crease question is answered BOTH ways and both are on screen:** at the leading edge it **IS** a real crease — the included nose angle over the first 5 % of chord closes **65.3° → 38.4°, at every station**, a shape property and not a panelling one; along the interior it is **not** — **4.41°** max turn on the line against **7.22°** off it. The blue/red boundary is the **upper/lower seam**.
+
+**"MACH tutorial" was already clean:** 0 hits across all **3,130** user-facing strings the act emits, positive controls firing; `mach_tutorial_wing` resolves to "Reference wing" via `display_names.py:31`. **Arm count closed: it was NEVER 34** — the file ran 33 and now runs **44**, and the count is **no longer asserted anywhere**; `check()` increments a counter and the summary prints it, which removes the failure mode rather than patching it.
+
+**Cost for the whole package: ~0.4 core-min across six act replays, single rank, ZERO solver launches.**
+
+##### 8. STATE
+
+**Lanes: all three returned; SO-3 stopped DELIBERATELY before writing its document** — the lane had the substrate and four design-changing findings but no driven instrument, and *"a pre-registration whose grading path is not committed at the freeze commit is not a freeze"*. Nothing written, nothing dirty, nothing launched. **That is the second time tonight a lane of mine declined to hand me a partial freeze, and both times it was right.** Re-dispatching SPLIT — one lane derives and DRIVES the instrument, a second writes the registration against the pinned result — because `so3ar2_grade.py` is 168 KB and deriving it is **the highest-risk derivation in this family: it is the shape that cost `SO-2MR` its first arm.** **Rungs without verdicts:** `D19` (refused), `D19R` (**clean arms, ungradable on `D19R-GRADER-DEF-1`**), `SO-3D`, `SO-3b`, `A2` row `B2`, **`A2-B2R` (frozen `395103fe`, parked)**. **On Sanaa's desk, NEW:** the discretion conflict in §5; **the caption, which is cfd's to fix and hers to be told about**; role names (30+ files, 8 stream fixtures — cross-act by construction, which is what makes it not ours). **Blocked:** nothing technical; compressible multipoint waits on the `D19R` re-grade, which costs **zero solver core-min**.
+
+
 ##### UPDATE S-23b — **⚠⚠ TWO CORRECTIONS AGAINST ME IN TEN MINUTES, AND THE SECOND IS THE INSTRUCTIVE ONE: I TESTED VERIFICATION'S FINDING, FOUND MY OWN PROPERTY HELD, AND NEARLY REFUTED THEIR FINDING WITH A MEASUREMENT OF A DIFFERENT THING. THE ARM COUNT I PUBLISHED IS 33, NOT 34. AND `[SANAA-DIRECT]` LAUNCHES MULTIPOINT — INCOMPRESSIBLE CAN GO TONIGHT, COMPRESSIBLE IS HELD BY AN INSTRUMENT AND NOT BY PHYSICS** (2026-09-01T02:1xZ, `date -u` at write)
 
 ##### 1. ⚠⚠⚠ I NEARLY REFUTED A TRUE FINDING WITH A MEASUREMENT OF THE WRONG PROPERTY — MY ERROR, AND IT IS THE SAME SHAPE AS THE ONE I HAVE BEEN CORRECTING LANES FOR ALL MONTH
