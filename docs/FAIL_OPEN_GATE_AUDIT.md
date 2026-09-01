@@ -2106,3 +2106,83 @@ The sixth T-family file reached me as **`analyse_t9a_r1b.py:367`**. **No such pa
 | verdicts · gates · bands · caps · labels · re-grades | **0 · 0 · 0 · 0 · 0 · 0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §19 — **CROSS-TEAM GATE AUDIT OF cfd's SCOPE-DOWN (`a42756d4`), A DEMO-CARRYING INSTRUMENT. THE BACKEND GUARD IS REAL AND I DROVE IT TO REFUSAL. THE HALF THAT IS ACTUALLY ON CAMERA IS CERTIFIED BY A SUBSTRING, AND I DISARMED THE SCREEN WITH ALL 22 TESTS STILL GREEN.** (2026-09-01T01:35Z)
+
+**Lines whose number changed above this section: 0.**
+
+**Scope of this section.** Sanaa's 2026-09-01 priority freeze — *"anything not demo related waits until we are done with the demo"* — narrows this team to demo support. `a42756d4` is a **demo-carrying instrument**: it decides what the screen claims about a run that could not answer the whole request. Auditing it is inside the freeze. Four non-demo carry-forwards were parked in the same turn and are listed on the board.
+
+**`§2n.18` IS A REFERRAL ON SANAA'S DESK, NOT ENACTED LAW, AND IT IS ASSERTED AGAINST NO OTHER TEAM.** Its own words at `docs/charters/VERIFICATION_CHARTER.md:4275`: *"Until she rules, this binds this supervisor's own reviews as practice, and is asserted against no other team."* **I therefore rule no breach against cfd.** I applied the rule to **my own audit** — I exercised their guard rather than reading it — which is exactly the scope it claims. **Nothing below is a mandated repair.** Every finding is cfd's to dispose of.
+
+### 19.1 THE MECHANISM STANDS, AND I SAY THAT FIRST BECAUSE IT IS THE LARGER HALF OF THE RESULT
+
+`sdk/chief_engineer/scope.py` (175 lines, blob `95253fdd2866…` at HEAD) was **read in full, personally, as source**. It is a pure relabelling layer and says so on its face (`:9-10`): *"Nothing here changes what is solved. It changes what is claimed."* It contains **no `raise`, no `assert`, no `sys.exit`** — correctly, because it is not a gate on a number; it is a claim-labelling instrument, and the testable criterion is *does the completion label change*, not *does it abort*.
+
+**Driven by me, in a scratch copy, with a positive and a negative control:**
+
+| probe | route | detector sees | scope-down |
+|---|---|---|---|
+| the on-camera prompt, surface staged (`"Airfoil blown slot"` + `airfoil.stl`) | `geometry-study` | `blowing` | **FIRES** |
+| the jet-flap display mission, surface staged | `geometry-study` | `blowing` | **FIRES** |
+| **negative control** — matched prompt, nothing out of reach | `ahmed-body` | — | **silent, correctly** |
+
+**The positive control fires on the exact failure Sanaa named, and the negative control does not manufacture a mismatch.** `PYTHONPATH=… python3 -m pytest -q tests/test_scope_down.py` → **22 passed**, driven by me, `__pycache__` cleared first — cfd's own "22 passing" is **confirmed by measurement, not relayed**.
+
+### 19.2 THE EXERCISE STEP — FOUR DISARMING MUTATIONS, **3 KILLED, 1 SURVIVED**
+
+A passing suite is not evidence a guard is driven. **Every arm below was run in a scratch copy of the package; the shared worktree was never modified** — verified after: `git status --porcelain -- sdk/chief_engineer sdk/tests` **empty**, and all three blobs on disk **byte-identical to HEAD** (`control_room.html` `17326661253e…`, `scope.py` `95253fdd2866…`, `server.py` `538bfb30f5af…`).
+
+| arm | mutation | result |
+|---|---|---|
+| **M1** | `unmet_asks` returns `()` unconditionally — detector fully disarmed | **KILLED**, 9 failed |
+| **M2** | `SCOPED_HEADLINE` → `"MISSION COMPLETE"` — the banned words restored | **KILLED**, 1 failed |
+| **M3** | the `mission.scoped` publish deleted — backend stops announcing at commit time | **KILLED**, 1 failed |
+| **M4** | **the screen hard-wired to `'MISSION COMPLETE'` on every run, with the asserted substring preserved verbatim in a dead comment** | **⚠ SURVIVED — 22 passed** |
+
+**M4 is the finding, and it is demonstrated rather than argued.** `sdk/tests/test_scope_down.py`'s `TheInterfaceObeysTheBackend` (`:144`) certifies the interface half with **four `assertIn` calls against `control_room.html` read as text**; **no JavaScript is executed anywhere in the suite.** I moved the live ternary at `control_room.html:793` to an unconditional `'MISSION COMPLETE'` and left the asserted string in a comment on the next line. **The screen now shows the unqualified completion on a scoped run — the exact on-camera failure — and the suite is green 22/22.**
+
+**A substring can be present and unreachable, and these four assertions cannot tell the difference.** The pattern to close it **already exists beside the file**: `sdk/tests/` carries `control_room_pacing_harness.js`, `control_room_ramp_harness.js` and `control_room_typeset_harness.js` — JS harnesses for **this same HTML** — and none was used here.
+
+**Why this is a live risk rather than a theoretical one: `control_room.html` is under active edit tonight** (34 lines in this commit alone, with the thermal screens A1–A9/C1–C9 still to land). A regression on line 793 would ship with a green suite. **The live file at HEAD is CORRECT — I verified line 793 reads the deferring ternary.** The defect is in what the test can see, not in what the code currently does.
+
+### 19.3 REACH — **14 OF 20 ROUTES**, AND THE COMMIT NAMES 3 OF THE 6 IT DOES NOT COVER
+
+`unmet_asks` returns `()` for any route absent from `CAPABILITIES` (`scope.py:117-118`). That fail-open default is **deliberate, disclosed and defensible** — *"an undeclared set is an unknown, and an unknown must never manufacture a mismatch."* I do not dispute it.
+
+**Measured:** `router.py` defines **20** intent constants; `CAPABILITIES` declares **14**. The six undeclared are `GENERAL_MISSION`, `RACE_COMPARISON`, `SOBOL_SENSITIVITY`, `TIME_CONSTRAINED`, `UNCERTAINTY_REDUCTION`, `UNSEEN_GEOMETRY`. **The commit message names three** — *"the unseen-geometry, time-constrained and uncertainty routes"* — and omits `GENERAL_MISSION`, the **terminal fallback for any prompt with no dominant pattern** (`router.py:555-560`), plus `RACE_COMPARISON` and `SOBOL_SENSITIVITY`. **Two independent readers reached the same six.**
+
+**⚠ AND THE COVERAGE IS CONDITIONAL ON A SURFACE BEING STAGED — I NEARLY REPORTED THIS BACKWARDS.** Production routes via `server.py:740`, `apply_surface(classify(request), payload.get("surface") or "")`. **With** an uploaded surface the demo prompts land on `geometry-study` (declared) and the scope-down fires, as tabled in 19.1. **Without** one, measured by me:
+
+| prompt, **no surface staged** | route | detector sees | scope-down |
+|---|---|---|---|
+| `"Airfoil blown slot"` — **the literal on-camera prompt** | `unseen-geometry` | `blowing` | **SILENT** |
+| the jet-flap display mission | `general-mission` | `blowing` | **SILENT** |
+| a thermal act prompt | `general-mission` | `thermal` | **SILENT** |
+
+**In all three the detector SEES the ask and the result is discarded downstream.** The reader is not blind; its positive finding is thrown away. So the fix is not a wider regex — it is a decision about what the catch-all should do with a positive detection, and that decision is cfd's.
+
+**MY FIRST MEASUREMENT OF THIS WAS WRONG IN THE OTHER DIRECTION AND I CORRECTED IT BEFORE REPORTING.** My first probe forced `apply_surface(…, "airfoil.stl")` on every prompt, which collapsed all five demo prompts onto `geometry-study` and produced an alarming reading: **a thermal act appearing to draw a FALSE scope-down** — *"this run cannot do that: it solves the flow only, with no temperature field"* — on the very act built to show thermal, which `scope.py`'s own docstring names as the failure it must not commit. **Re-measured without the forced surface, that false positive does not occur: the thermal prompts route to the undeclared catch-all and are silent instead.** The hazard is **conditional, not live**: it requires a thermal prompt to land on a declared route, and **no route in `CAPABILITIES` declares `THERMAL`** `[MEASURED]`. **It becomes live the moment a thermal-capable route is added to `router.py` and given a `CAPABILITIES` row without the `THERMAL` tag.** Named now, while the thermal screens are still being built, because that is when it is cheap.
+
+### 19.4 ⚠ THE TOP DEMO RISK IS NOT A DEFECT IN THE CODE — **THE FIX IS NOT LIVE ON THE BOX**
+
+cfd disclosed this in the commit message and **I confirm it independently**: the running control-room server is **pid 848778, started 00:55Z**; `a42756d4` landed at **01:13:35Z**. **The process predates the commit and Python does not re-import a running module**, so the scope-down is **not in force right now**. `control_room.html` is re-read per request, so the interface half is live on refresh — **but the backend that would set `state.scope` is not.** If filming happens before the coordinated restart, **the on-camera failure recurs unchanged.** This is a restart, not a repair, and it is already batched with `CERTONOMOUS_SOLVE_RANKS=16`.
+
+### 19.5 WHAT IS CREDITED, PLAINLY
+
+cfd put the mechanism **in the dispatch layer** rather than in one act, so it covers every routed run; wrote a test that **drives the real `server._run_workflow`** end-to-end rather than the pure functions alone (`test_scope_down.py:205`); **pinned reachability through the real router** for the literal on-camera prompt (`:39`); wrote an **explicit negative control** for the fail-open branch (`:77`); and **disclosed against itself** that the change is pending a restart and that undeclared routes are unchecked. **Three of my four disarming mutations died against their tests.** That is a better-exercised instrument than most in this lab, and the one surviving arm should be read against that, not instead of it.
+
+| field | value |
+|---|---|
+| commit audited | `a42756d4`, cfd, 2026-09-01T01:13:35Z, 5 files, 475 insertions |
+| verdict on the change | **STANDS** — no gate, band, threshold, cap or label is disturbed by this audit |
+| mutation arms driven by me | **4** — **3 killed, 1 survived (M4, the interface half)** |
+| tests confirmed by me | **22 passed**, `__pycache__` cleared, scratch copy |
+| reach measured | **14 of 20 routes declared**; 6 undeclared, **3 of 6 disclosed** |
+| repairs mandated | **0** — routed to cfd; `§2n.18` binds this supervisor only |
+| worktree modified | **0 files** — every mutation ran in scratch, verified after |
+| verdict vocabulary · gates · bands · caps · re-grades | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **zero** — 0 core-min, $0.00 |
+| **lines whose number changed above this section** | **0** |
