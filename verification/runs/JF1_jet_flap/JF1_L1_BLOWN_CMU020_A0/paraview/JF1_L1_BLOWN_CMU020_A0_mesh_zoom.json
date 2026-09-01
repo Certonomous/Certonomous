@@ -1,0 +1,63 @@
+{
+  "background_rgb": [
+    0.024,
+    0.027,
+    0.031
+  ],
+  "body_patch": "airfoil",
+  "camera": {
+    "centre": [
+      0.95875,
+      0.0
+    ],
+    "parallel_scale": 0.075,
+    "projection": "parallel",
+    "view_up": [
+      0,
+      1,
+      0
+    ],
+    "x_range": [
+      0.88375,
+      1.03375
+    ],
+    "y_range": [
+      -0.075,
+      0.075
+    ]
+  },
+  "case": "/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/JF1_L1_BLOWN_CMU020_A0",
+  "case_name": "JF1_L1_BLOWN_CMU020_A0",
+  "cells": 39984,
+  "chord": 1.0,
+  "data_provenance": "rendered from the case's own constant/polyMesh and time directory; no synthesised, smoothed or decimated geometry",
+  "domain_bounds": [
+    -25.749855041503906,
+    26.249855041503906,
+    -25.999855041503906,
+    25.999855041503906,
+    -0.004999999888241291,
+    0.004999999888241291
+  ],
+  "field": null,
+  "generated_utc": "2026-09-01T19:33:16Z",
+  "image": "JF1_L1_BLOWN_CMU020_A0_mesh_zoom.png",
+  "ink_fraction": 0.8803747106481481,
+  "panel": "mesh_zoom",
+  "paraview": "5.11.2 (/usr/bin/pvbatch, xvfb-run)",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "script": "scripts/render_openfoam_paraview.py",
+  "script_sha256": "b11747d8e303eee28b059ec4d92d28586447d3fd0f8d8387626c0caced04a154",
+  "slice_polygons": 39984,
+  "theme": "dark",
+  "time": 8000.0,
+  "time_range": [
+    250.0,
+    8000.0
+  ],
+  "times_available": 32,
+  "zoom_patch": "jetSlot"
+}

@@ -273,6 +273,29 @@ class JetFlapAct(DemoAct):
 
     name = "blown wing high-lift"
 
+    #: THE VISUAL SOURCE THIS ACT USES, DECLARED HERE RATHER THAN DISCOVERED
+    #: ON DISK. Every picture on this act's stage is rendered from the solved
+    #: case by ParaView; none of them is drawn by the control room's canvas.
+    #:
+    #: Sanaa, 2026-09-01, verbatim: "Going forward all acts use paraview. Never
+    #: that trashy canvas you were using before."
+    #:
+    #: WHY THE DECLARATION IS HERE AND NOT BESIDE THE IMAGES. The sequencer
+    #: refuses when a panel named below is not on disk, instead of quietly
+    #: drawing the canvas. That refusal is only possible because this list
+    #: lives in tracked source: a manifest sitting in the render directory
+    #: would vanish along with the very files whose absence it exists to
+    #: detect, and the act would go back to falling back silently -- on a fresh
+    #: checkout, after a deleted directory, or on a path typo, which are
+    #: precisely the occasions nobody is watching. ABSENT MUST NEVER READ
+    #: CLEAN.
+    #:
+    #: The panels are FOUND through ``mesh_plan().cell_count.source``, so this
+    #: list says WHICH pictures, never WHERE they are; the grid the count cites
+    #: is the only thing that says where, and that is what keeps the pictures
+    #: and the number on one case.
+    rendered_panels = ("geometry", "mesh", "mesh_zoom", "field_p", "field_u")
+
     # -- stage 0 ------------------------------------------------------------
     def run_record(self) -> RunRecord:
         primary = _jf1_numbers.RUN_ROOT / _jf1_numbers.SWEEP_CASES[3][1]

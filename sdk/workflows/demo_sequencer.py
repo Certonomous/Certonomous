@@ -780,7 +780,15 @@ class Sequencer:
         wide = self._panel(mesh, "mesh")
         close = self._panel(mesh, "mesh_zoom")
         panels = [p for p in (wide, close) if p is not None]
-        grid = self._grid_payload(mesh) if not panels else None
+        # An act that DECLARES rendered panels never builds the canvas payload,
+        # even as a spare. With the declaration in place :meth:`_panel` has
+        # already raised if a panel were missing, so this branch is unreachable
+        # for such an act -- it is written out rather than left implied because
+        # "the canvas cannot run here" is the property Sanaa's directive asks
+        # for, and a property nobody can find in the code is one the next edit
+        # removes by accident.
+        grid = (self._grid_payload(mesh)
+                if not panels and not self._declares("mesh") else None)
         payload = {
             "stage": "meshing",
             "cells": mesh.cell_count.on_screen(),
@@ -894,6 +902,21 @@ class Sequencer:
                    "mesh_zoom": "grid_zoom",
                    "field_u": "field_velocity", "field_p": "field_pressure"}
 
+    def _declares(self, panel: str) -> bool:
+        """Does the act state, in its own source, that it renders this panel?
+
+        THE DECLARATION IS THE THING THAT MAKES AN ABSENCE LOUD. Discovering
+        panels by looking for them on disk cannot tell "this act has none" from
+        "this act's panels are missing", and those two need opposite answers:
+        the first is the old path working normally, the second is the screen
+        about to show a visual a directive banned. An act says which panels it
+        renders from and the absence of one of THOSE is a refusal.
+
+        Read with ``getattr`` rather than as a required attribute, so no act
+        that has never heard of panels has to declare an empty tuple.
+        """
+        return panel in tuple(getattr(self.act, "rendered_panels", ()) or ())
+
     def _panel(self, mesh, panel: str, namespace: str | None = None) -> dict | None:
         """One rendered panel of the SOLVED case, or a refusal, or nothing.
 
@@ -924,11 +947,21 @@ class Sequencer:
         so pointing the act at another case moves the count and the pictures
         together, exactly as before.
 
-        Returns ``None`` for anything it cannot do honestly -- no cited mesh, no
-        render beside it -- and RAISES for anything it can measure and finds
-        wrong. The difference matters: an act with no panels is an act with no
-        panels, and an act whose panel disagrees with its own number is a
-        finding.
+        AN ABSENT PANEL IS A REFUSAL, NOT A FALLBACK, ONCE THE ACT HAS
+        DECLARED ONE. Sanaa's directive is verbatim: "Never that trashy canvas
+        you were using before." An act that quietly drew the canvas whenever a
+        file was missing would show the banned visual on exactly the occasion
+        nobody is watching -- a fresh checkout, a deleted directory, a path
+        typo -- and it would look like it worked. So ABSENCE NEVER READS CLEAN:
+        :meth:`_declares` asks the ACT, in its own tracked source, which panels
+        it renders from, and a declared panel that is not on disk raises. The
+        declaration deliberately does not live beside the images, because a
+        declaration that disappears with the files it declares cannot detect
+        their disappearance.
+
+        An act that declares nothing is untouched: it gets ``None`` and the old
+        path, which is what keeps every act without renders working exactly as
+        it did.
         """
         import json
         import shutil
@@ -939,11 +972,17 @@ class Sequencer:
         poly = Path(source)
         if poly.name != "polyMesh" or not poly.is_dir():
             return None
+        declared = self._declares(panel)
         case = poly.parent.parent
         shot = case / "paraview" / f"{case.name}_{panel}.png"
         side = shot.with_suffix(".json")
         if not (shot.is_file() and side.is_file()):
-            return None
+            if not declared:
+                return None
+            raise SequencerRefused(
+                f"this act renders its {panel.replace('_', ' ')} panel from "
+                f"the solved case and that render is not on disk; the screen "
+                f"stops rather than falling back to a drawing")
 
         printed = _as_count(mesh.cell_count.value)
         if printed is None:
