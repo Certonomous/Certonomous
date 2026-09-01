@@ -4788,9 +4788,58 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T04:25:09Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T04:32:59Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24c — **RULE 14 FIRED IN OUR OWN FILES: ACT D'S THIRD FIGURE REACHED THE ACT UNCHECKED BECAUSE THE GUARD WAS ON TWO OF THREE CALL SITES. I READ THE INSTRUMENT DIFF MYSELF AND THE MEASUREMENT IS BIT-IDENTICAL — VERIFIED BY HASH, NOT BY RELAY. `L-424` LANDED. ONE NEW COUPLING HAZARD I FOUND IN THE DIFF THAT THE LANE DID NOT NAME** (2026-09-01T04:32:59Z, `date -u` at write)
+
+###### 1. TWO COMMITS FROM THE ACT D LANE
+
+* **`d96f8977` — `L-424`**, `docs/LESSONS.md` only, 67 insertions, post-commit verify shows that one path. Number re-derived as **max+1 from the tail (423 was the maximum)** in the same shell invocation as the commit, per rule 11. **The lane asserted the file on disk equalled `HEAD` before appending**, so no peer's uncommitted `LESSONS.md` work was swept in — which is `L-423`'s own failure and is cheap to avoid. The entry records plainly that a supervisor's brief asserted the deletion. **That is mine, it is the useful part, and I asked for it unsoftened.**
+* **`b38e3cde` — four paths**: `cases/dafoam/ladder-a/geometry_audit/crease_verdict.py`, `cases/dafoam/ladder-a/figures/actD_crease_section.png`, `sdk/workflows/adjoint_act.py`, `docs/dafoam/demo/ACT_D_reference_wing_sheet.tex`. 59 insertions, 15 deletions, post-commit verify shows exactly those four.
+
+###### 2. THE FINDING: **`CLAUDE.md` RULE 14, IN THIS FAMILY'S OWN FILES**
+
+Act D publishes **three** figures. Two are built by `_a2_shape` and check themselves through `check_figure_text`. **The third — the crease section — is built by a different module and reached the act's figure list UNCHECKED.**
+
+It was built at **01:47Z**; the figure standard landed at **03:10Z**. It predates the standard by **83 minutes** and broke it in three places: an **eleven-word** upper title against a ten-word limit; a lower title that was a **two-sentence paragraph** whose second sentence (*"A crease would be a spike here"*) was meta-commentary about how to read the picture, which the standard moves off the image; and **one axis label with no symbol at all** while every other label in the act was already latexified.
+
+**`_a2_shape.check_figure_text` EXISTED AND ENFORCED BOTH LIMITS. It was simply not on this path. A limit applied at two of three call sites is not applied** — rule 14 in its own words. All three figures now go through one local `_figure()` in `adjoint_act.py` that checks title and caption **before the payload exists**.
+
+**And the guard was proved ON THE PATH, not merely present** — driving the act with `check_figure_text` wrapped in a recording spy shows all three titles passing through it. **This is the step that is almost always skipped, and it is the same shape as the "four unguarded publication sites" item I struck in `S-24b`:** a guard that is importable but unreached is indistinguishable from no guard.
+
+**Controls:** an eleven-word title is REFUSED and a twenty-one-word caption is REFUSED, while every string the act actually ships passes the same call.
+
+###### 3. MY §3 CHECK 1, DISCHARGED PERSONALLY — AND I RE-DERIVED THE INVARIANCE RATHER THAN ACCEPTING IT
+
+**`crease_verdict.py` is a measurement script**, so its diff is read **by me, as a diff**, before its output is believed. **Read. It is presentation-only.** Every changed line sits inside `figure()` and touches titles, axis labels, the caption and `tight_layout`'s `rect`. **`turning()` is untouched. No arithmetic moved.**
+
+**The invariance claim I verified MYSELF and did not relay:** `git hash-object` of `cases/dafoam/ladder-a/A2_crease_check.json` on disk = **`0ad237b133e9b44553050e138f1f7b71ebb18a3e`**; `git rev-parse HEAD:` that path = **the same**; its last commit is **`a1cab154` at 01:44:00Z**, long before the repair. **The record has not moved. Only the PNG changed. A presentation repair that alters a recorded value is not one, and this is provably not that.**
+
+**Latexification, measured not assumed:** the two `_a2_shape` figures were already latexified. The crease figure was the only gap — the section title now carries `$z$`, the turning-angle axis now carries `$\Delta\theta$`, and `$x$`/`$y$` were already right. **That is all three of Act D's published figures.**
+
+**Driven, not compiled:** act `rc=0`, 23/23 checks, 347 events over nine stages, four of four mutation controls red; language sweep `rc=0`, **2,371 camera strings, ZERO camera hits, 15/15 planted control**; sheet `pdflatex` `rc=0`, two pages, zero errors. **Whole item under 0.1 core-min at `np=1`, log-measured.**
+
+###### 4. ⚠ A COUPLING HAZARD I FOUND IN THE DIFF THAT THE LANE DID NOT NAME — BOARDED, NOT REVERTED
+
+The repair adds a **module-level** `sys.path.insert` of `sdk/` plus `from workflows._a2_shape import check_figure_text` to `crease_verdict.py`. `sys` and `Path` are imported at lines **35** and **37**, so it does not crash — **I confirmed that specifically.**
+
+**But the coupling is real: a `cases/` GEOMETRY-AUDIT INSTRUMENT THAT COMPUTES NUMBERS NOW CANNOT BE IMPORTED UNLESS A PRESENTATION MODULE IN `sdk/` IMPORTS CLEANLY.** It fails **closed and loudly**, which is the acceptable direction, so **I did not ask for it to be undone.** I asked for it written down — beside the insert and here — because **the next person to break `_a2_shape` will see a geometry instrument die and will not guess why.** A lazy import inside `figure()` would keep the guard on the path (that is where it is called) at no cost; left to the lane's judgment.
+
+###### 5. THE LANE CORRECTED ITS OWN DRAFT AGAINST THE RECORD, AND THE CLASS MATTERS MORE THAN THE INSTANCE
+
+Its first wording said the large turning angles at both ends were the nose and trailing edge *"where the baseline turns sharply as well"*. **The record says the OPPOSITE about the nose:** `A2_crease_check.json` has the finished leading edge at a **38.4 deg** mean included angle against the baseline's **65.3** — **sharper at every one of seven stations.** It was caught by reading the record instead of the picture, and rewritten before committing.
+
+**`[INFERENCE, flagged]` this is the same class as the crease script's own 2026-09-01 docstring correction, which read the tip cap's innocence onto the nose. READING THE PICTURE INSTEAD OF THE RECORD IS HOW A DEMO ACQUIRES A FALSE SENTENCE THAT SURVIVES EVERY TECHNICAL CHECK, because no gate reads prose.** Named here as a standing hazard for all demo prose in this family, not just Act D.
+
+###### 6. NOT GREEN, AND NOT WRITTEN AS GREEN
+
+**`scripts/check_filing.py` FAILS repo-wide: 45 violations across nine rules** — twelve `R8-PAPER-NAME`, nine `R9-SIDECAR-MISSING`, seven `R1-ROOT-CLEAN`, the rest spread. **NONE names a path in either commit**, checked by grepping the violation list against the four paths. The violations are **other teams' papers and root clutter and dafoam left them alone** — relayed upward rather than quietly repaired. The lane declined to write that the check passes, which would have been false.
+
+###### 7. `[VERIFY]` FOR MY SUCCESSOR
+
+Verified by me personally this invocation: the `crease_verdict.py` diff read as a diff; the `A2_crease_check.json` blob identity on disk and at `HEAD`; the presence of `import sys` / `from pathlib import Path` ahead of the new module-level insert. **Taken on the lane's demonstrated runs and NOT independently re-derived by me:** the 23/23 checks, the 347 events, the four mutation controls, the 2,371-string language sweep with its 15/15 planted control, the `pdflatex` result, and the 38.4-vs-65.3 leading-edge figures.
 
 ##### UPDATE S-24b — **ACT D IS `HALF-WIRED` AND THE MISSING PIECES ARE ALL cfd's: `adjoint-wing` IS REGISTERED AND UNREACHABLE, AND EVERY ACT D FIGURE RESOLVES TO THE WRONG NAMESPACE — WHICH IS FATAL TO SANAA'S 04:20Z "ALL PLOTS LATEXFIED". ALSO: I STRIKE ONE OF MY OWN BOARD ITEMS A LANE MEASURED AS STALE, AND MY BRIEF TO THAT LANE CONTAINED A FALSE PREMISE I AM RECORDING RATHER THAN QUIETLY DROPPING** (2026-09-01T04:25:09Z, `date -u` at write)
 
