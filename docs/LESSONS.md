@@ -19841,3 +19841,165 @@ a thing that visibly fails when something is.
 it reaches nobody writing a negative arm elsewhere, which is the rule's actual
 scope. The code carries it at
 `docs/campaigns/T-family/demo/regen_actA_sheet.py::selftest_load_bearing`.
+
+### L-433 — CORRECTION (2026-09-01, on the verification team's ruling): THE REFERRAL WAS RIGHT FOR THE WRONG REASON, AND THE ARTEFACT THAT "CONFIRMED" IT WAS A MUTATION FIXTURE
+
+**STRUCK, and kept visible rather than rewritten.** The commit that boarded
+L-433 (`361a4890`) stated as its reason for not using `--allocate-id`:
+
+> *"Its minted timestamp form does not parse under this record's own id pattern
+> `^## (L-\d+)(?:\.|\s+—)`, so an entry appended that way would be invisible to
+> the record's own parser and to the reconcilers that import it."*
+
+**That mechanism is wrong and is withdrawn.** Measured in production code, not
+in a fixture:
+
+1. **The legacy pattern's rejection of the tool form is DELIBERATE, DOCUMENTED
+   DESIGN, not blindness.** `scripts/append_record.py:154` records it in terms —
+   *"The four legacy patterns REJECT the new form structurally, and this was
+   checked rather than assumed"* — with a planted limb driving all four.
+2. **A second, broader recognition pattern DOES see the tool form**:
+   `^##[ \t]*L-` at `append_record.py:491`. So a tool-allocated entry is not
+   invisible to the record's own machinery.
+
+### The real hazard is worse than the one that was described
+
+**`CLAUDE.md` rule 11's OWN PRESCRIBED GREP misreads a tool-id heading.** Run
+against a file containing `## L-432`, a tool-form heading (`L-` then `YYYYMMDDTHHMMSS.ffffffZ-<hash>`)
+and `## L-433`:
+
+    grep -oE '^## L-[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1
+    -> 20260901
+
+**Every subsequent lesson would then be numbered from twenty million, silently
+and permanently.** The `L-\d+` fragment matches the date prefix and stops at the
+`T`; nothing downstream notices. Verified by running rule 11's own command.
+
+**A literal tool-form id is deliberately NOT reproduced anywhere above.**
+`append_record.py`'s `check_allocation` REFUSES any row containing one, on the
+grounds that the module is the form's only producer and a hand-written instance
+is "a number somebody chose". It refused this very amendment on the first
+attempt, and it was right to: **a guard cannot distinguish an id quoted as an
+example from an id being claimed**, so the schematic form is used instead.
+
+**Interim control, endorsed by verification:** no tool-allocated id enters
+`docs/LESSONS.md` until Sanaa rules on the rule-11 question; append with
+`--expect-first-id` in the legacy `L-NNN` form, which makes the tool assert
+max+1 over both the committed blob and the preserved tail.
+
+### ⚠ AND THE THING THAT PRODUCED THE FALSE CONFIRMATION — the durable half
+
+The wrong mechanism was **checked and confirmed** before being reported. The
+check was run against `scripts/check_record_reconciliation.py:725`, which sits
+inside a `MUTANTS = [` list opening at line 722: **a mutation-test fixture,
+whose entire purpose is to hold deliberately broken copies of production
+patterns.**
+
+> **TESTING A HYPOTHESIS AGAINST A MUTATION FIXTURE IS WORSE THAN NOT TESTING
+> IT, BECAUSE IT RETURNS A CONFIDENT ANSWER DERIVED FROM AN ARTEFACT BUILT TO BE
+> WRONG.**
+
+The tell was in the checker's own output and was read past: the matched lines
+came back as **pairs differing by one character** — `(?:\.|\s+—)` against
+`(?:!|\s+—)` — which is the unmistakable shape of original-versus-mutant.
+
+**This extends the rule this lesson already carries.** §9.7a and L-433 say:
+*establish that a query CAN SEE what it seeks before reporting a negative.* This
+adds the other half:
+
+> **ESTABLISH THAT WHAT THE QUERY IS LOOKING AT IS THE THING YOU THINK IT IS.**
+> A grep that finds your pattern in a file has told you the pattern exists
+> somewhere in that file — not that it is production, not that it is live, and
+> not that it is not a deliberate counter-example.
+
+Every team here writes mutation tests, and **every one of those files is a
+loaded gun for exactly this mistake**: a repository that deliberately stores
+wrong code, in files named for the right code, is one careless `grep -n` away
+from confirming any hypothesis you like.
+
+**The practice was right throughout even though the reasoning was not.** The
+referral protected `LESSONS.md` from a real and permanent numbering corruption,
+and the `--expect-first-id` legacy form used for L-433 remains the endorsed
+control. A record that shows a correct action taken for an incorrect reason is
+more useful to a successor than one tidied to look uniformly right.
+
+### L-433 — CORRECTION (2026-09-01, on the verification team's ruling): THE REFERRAL WAS RIGHT FOR THE WRONG REASON, AND THE ARTEFACT THAT "CONFIRMED" IT WAS A MUTATION FIXTURE
+
+**STRUCK, and kept visible rather than rewritten.** The commit that boarded
+L-433 (`361a4890`) stated as its reason for not using `--allocate-id`:
+
+> *"Its minted timestamp form does not parse under this record's own id pattern
+> `^## (L-\d+)(?:\.|\s+—)`, so an entry appended that way would be invisible to
+> the record's own parser and to the reconcilers that import it."*
+
+**That mechanism is wrong and is withdrawn.** Measured in production code, not
+in a fixture:
+
+1. **The legacy pattern's rejection of the tool form is DELIBERATE, DOCUMENTED
+   DESIGN, not blindness.** `scripts/append_record.py:154` records it in terms —
+   *"The four legacy patterns REJECT the new form structurally, and this was
+   checked rather than assumed"* — with a planted limb driving all four.
+2. **A second, broader recognition pattern DOES see the tool form**:
+   `^##[ \t]*L-` at `append_record.py:491`. So a tool-allocated entry is not
+   invisible to the record's own machinery.
+
+### The real hazard is worse than the one that was described
+
+**`CLAUDE.md` rule 11's OWN PRESCRIBED GREP misreads a tool-id heading.** Run
+against a file containing `## L-432`, a tool-form heading (`L-` then `YYYYMMDDTHHMMSS.ffffffZ-<hash>`)
+and `## L-433`:
+
+    grep -oE '^## L-[0-9]+' | grep -oE '[0-9]+' | sort -n | tail -1
+    -> 20260901
+
+**Every subsequent lesson would then be numbered from twenty million, silently
+and permanently.** The `L-\d+` fragment matches the date prefix and stops at the
+`T`; nothing downstream notices. Verified by running rule 11's own command.
+
+**A literal tool-form id is deliberately NOT reproduced anywhere above.**
+`append_record.py`'s `check_allocation` REFUSES any row containing one, on the
+grounds that the module is the form's only producer and a hand-written instance
+is "a number somebody chose". It refused this very amendment on the first
+attempt, and it was right to: **a guard cannot distinguish an id quoted as an
+example from an id being claimed**, so the schematic form is used instead.
+
+**Interim control, endorsed by verification:** no tool-allocated id enters
+`docs/LESSONS.md` until Sanaa rules on the rule-11 question; append with
+`--expect-first-id` in the legacy `L-NNN` form, which makes the tool assert
+max+1 over both the committed blob and the preserved tail.
+
+### ⚠ AND THE THING THAT PRODUCED THE FALSE CONFIRMATION — the durable half
+
+The wrong mechanism was **checked and confirmed** before being reported. The
+check was run against `scripts/check_record_reconciliation.py:725`, which sits
+inside a `MUTANTS = [` list opening at line 722: **a mutation-test fixture,
+whose entire purpose is to hold deliberately broken copies of production
+patterns.**
+
+> **TESTING A HYPOTHESIS AGAINST A MUTATION FIXTURE IS WORSE THAN NOT TESTING
+> IT, BECAUSE IT RETURNS A CONFIDENT ANSWER DERIVED FROM AN ARTEFACT BUILT TO BE
+> WRONG.**
+
+The tell was in the checker's own output and was read past: the matched lines
+came back as **pairs differing by one character** — `(?:\.|\s+—)` against
+`(?:!|\s+—)` — which is the unmistakable shape of original-versus-mutant.
+
+**This extends the rule this lesson already carries.** §9.7a and L-433 say:
+*establish that a query CAN SEE what it seeks before reporting a negative.* This
+adds the other half:
+
+> **ESTABLISH THAT WHAT THE QUERY IS LOOKING AT IS THE THING YOU THINK IT IS.**
+> A grep that finds your pattern in a file has told you the pattern exists
+> somewhere in that file — not that it is production, not that it is live, and
+> not that it is not a deliberate counter-example.
+
+Every team here writes mutation tests, and **every one of those files is a
+loaded gun for exactly this mistake**: a repository that deliberately stores
+wrong code, in files named for the right code, is one careless `grep -n` away
+from confirming any hypothesis you like.
+
+**The practice was right throughout even though the reasoning was not.** The
+referral protected `LESSONS.md` from a real and permanent numbering corruption,
+and the `--expect-first-id` legacy form used for L-433 remains the endorsed
+control. A record that shows a correct action taken for an incorrect reason is
+more useful to a successor than one tidied to look uniformly right.
