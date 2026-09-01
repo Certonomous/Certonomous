@@ -178,14 +178,14 @@ existing queue reveal it. "Nothing appears instantly" becomes a property of
 the timestamps the sequencer emits: within a stage, no two items share an
 instant.
 
-**The seam with the replay lane.** That lane owns turning a stored log into
-samples; this sequencer owns order, wording and pacing. The seam is one
-iterator per series:
-
-```python
-Sample = namedtuple("Sample", "iteration values wall_seconds")
-def iter_samples(spec: SeriesSpec) -> Iterator[Sample]
-```
+**The seam with the replay lane, and it is theirs, not mine.**
+`chief_engineer/replay_history.py` already reads per-iteration solve history off
+a landed run tree, and it is a measurement script with a **planted control on
+every channel**: a reader that cannot see its plant refuses. Two lanes must not
+build two readers, and the one carrying the plants is the one that reads. So
+`SolveReplay.cases` takes the `(label, case_dir)` pairs that module's
+`read_run_history` expects, the sequencer calls it, and `series` says which
+instrument each returned channel drives.
 
 The sequencer composes the on-screen line with `SolveReplay.progress_line(...)`
 (already tense-checked) and the elapsed figure with `SolveReplay.clock()`. The

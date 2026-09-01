@@ -735,6 +735,16 @@ class SolveReplay:
     ``total_iterations`` and ``sweep_points`` feed the progressive-tense lines
     ("Solving, iteration 4,000 of 20,000", "Sweep point 3 of 5"). The act
     supplies the counts; the sequencer composes and checks the wording.
+
+    ``cases`` is the seam with the replay reader
+    (``chief_engineer.replay_history``), which is a MEASUREMENT script with
+    planted controls on every channel: a reader that cannot see its plant
+    refuses. Supply the ``(label, case_dir)`` pairs its ``read_run_history``
+    takes and the sequencer calls it; ``series`` then says which instrument
+    each channel drives. Two lanes must not build two readers, and the one
+    with the plants is the one that reads. ``cases`` is optional only so acts
+    already written against v1 keep working; an act with no ``cases`` must say
+    to its supervisor how its logs are read instead.
     """
 
     series: Sequence[SeriesSpec]
@@ -744,6 +754,7 @@ class SolveReplay:
     sweep_points: int = 1
     pace: float = 1.0                # shoot-clock compression, never on screen
     elapsed_clock: ElapsedClock | None = None   # None means the default
+    cases: Sequence[tuple[str, Path]] = ()      # -> replay_history.read_run_history
 
     def __post_init__(self) -> None:
         if not self.series:
