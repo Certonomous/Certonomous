@@ -705,14 +705,24 @@ class AdjointWingAct(DemoAct):
     def self_check(self) -> dict:
         """Run every string this act can produce past the screen checker.
 
-        NOT REDUNDANT WITH THE SEQUENCER, and the gap is measured: the shared
-        sequencer guards what passes through ``Sequencer._publish``, but its
-        meshing, gates and results stages hand tables and figures to
-        ``emit_table`` and ``announce_plot`` on the RAW emit, which never
-        reaches ``assert_screen_safe``. Table CELLS and figure titles therefore
-        have no checker between them and a screen. This closes that door on
-        this act's own strings; the door itself is the shared file's and is
-        reported upward rather than patched here.
+        THE GAP THIS WAS WRITTEN FOR IS NOW CLOSED UPSTREAM (2026-09-01). It
+        read: the shared sequencer guards what passes through
+        ``Sequencer._publish``, but its meshing, gates and results stages hand
+        tables and figures to ``emit_table`` and ``announce_plot`` on the RAW
+        emit, so table CELLS and figure titles had no checker between them and
+        a screen. That was true of five delegated publications and was reported
+        upward rather than patched here, which was the right call: the fix
+        landed in the shared file as a CHOKE POINT rather than five patches.
+        ``Sequencer.run`` now wraps the emit once and hands only the wrapper
+        down, so no stage holds the raw emit and ``Sequencer._publish`` refuses
+        one that did not come through the guard.
+
+        THIS METHOD STAYS, AND IS NOT NOW REDUNDANT. It checks this act's
+        strings at AUTHORSHIP, before a screen exists; the sequencer's guard
+        checks them at PUBLICATION, when the screen is already up and the only
+        remedy left is to refuse mid-act. Catching a bad cell here means the
+        act never reaches a camera with it; catching it there means the act
+        dies on camera. Two checks at two moments, not one check twice.
         """
         checked = 0
 

@@ -191,6 +191,24 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
     (r"\btier[-\s]?\d\b", "tier words are never user-visible"),
     (r"\bBLOCKED-GPU\b", "say what could not run, in plain words"),
     (r"\bpre-?registration\b", "say 'success criteria fixed before running'"),
+    # THREE MORE CLASSES OF INTERNAL IDENTIFIER, added 2026-09-01 after
+    # MEASURING what this checker refused: it caught case ids, gate words,
+    # tier words, lesson ids, docket ids and paths, and ALLOWED a process id,
+    # a commit hash and a port number. Sanaa's rule is "no internal
+    # information", and a machine that enforces six of nine classes while
+    # reading as complete is how the other three reach a screen.
+    #
+    # Each is deliberately narrow, for the reason the block above gives: a
+    # checker that fires on innocent prose gets switched off.
+    (r"\bpid\s*[:#]?\s*\d+\b", "a process id is never user-visible"),
+    (r"\bport\s+\d{2,5}\b", "a port number is never user-visible"),
+    # A commit hash: seven to forty hex characters carrying BOTH a digit and a
+    # letter a-f. Both lookaheads are load-bearing under this checker's
+    # IGNORECASE. Without the digit clause, ordinary words spelt from the hex
+    # alphabet match ("defaced", "cabbaged"); without the letter clause, any
+    # seven-digit number matches, and an iteration count is seven digits.
+    (r"(?<![\w])(?=[0-9a-f]*[a-f])(?=[0-9a-f]*\d)[0-9a-f]{7,40}(?![\w])",
+     "a commit hash is never user-visible"),
 )
 
 #: The gate vocabulary. R5 bans the verdict vocabulary appearing AS A VERDICT
