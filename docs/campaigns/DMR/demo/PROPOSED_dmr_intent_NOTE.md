@@ -1,394 +1,358 @@
-# The shock-reflection display intent: design note for a patch that is NOT applied
+# The shock-reflection routing patch: design note for patches that are NOT applied
 
-**Status: PROPOSAL. NOT APPLIED. NOT LIVE.**
-Prepared by a cfd lane, 2026-09-01. The patch it describes is
-`docs/campaigns/DMR/demo/PROPOSED_dmr_intent.patch`, in this same directory.
-**Nothing under `sdk/` was written.** The control-room server was running at
-pid 848778 for the whole of this work and was not restarted, stopped,
-signalled or otherwise touched. **No solver was launched and no compute was
-booked**: the benchmark this act presents was solved on 2026-08-07 and its
-runs are complete on disk.
+**Status: PROPOSAL. NOT APPLIED. NOT LIVE. NO SERVER WAS TOUCHED.**
 
-**Who has to read this before it lands.** The cfd supervisor reads the patch
-as a diff (`SUPERVISION_CHARTER.md` §3 check 1), because
-`sdk/chief_engineer/router.py` and `sdk/chief_engineer/scope.py` are shared
-control-room tooling whose routing table governs every team's prompts.
-Applying it is a human decision and restarting the server is a separate human
-decision; neither was taken here. The server restart is explicitly one
-coordinated cross-team batch and is not this lane's call.
+Rebuilt by a cfd lane, 2026-09-01. Two patch files sit beside this note in this
+directory, and neither has been applied to the working tree:
 
-**What it is for.** Sanaa ordered two further demo products on 2026-09-01
-(`etc/sessions/2026-09-01T0245Z_sanaa_transonic_and_dmr_demos.md`): a
-transonic 3D wing and the double Mach reflection. This is the second of those.
-It is a **display mission**: the GUI presents a benchmark **from runs that
-have already landed**. Pure presentation, no new solving. That constraint is
-what makes it achievable tonight and it is not relaxed anywhere in this patch.
+| file | what it does | `git apply --check -p1` |
+| --- | --- | --- |
+| `PROPOSED_dmr_intent.patch` | routes the shock-reflection intent to the landed act | **passes** at the HEAD named below |
+| `PROPOSED_subcent_cost_line.patch` | makes a sub-cent compute cost legible on screen | **passes** at the same HEAD |
+
+**The control-room server was running for the whole of this work and was not
+started, stopped, restarted, signalled or bound.** No solver was launched and
+no new compute was booked. Nothing under `sdk/` was written.
 
 ---
 
-## 1. The headline
+## 0. THE HEAD THESE WERE BUILT AGAINST, AND THE FACT THAT THEY WILL ROT AGAIN
 
-**The act cannot start a solver, and that is structural rather than
-promised.** `workflows/dmr_display.py` imports no solver module, writes no
-case directory, invokes no OpenFOAM binary and calls nothing that queues a
-job. Its whole input is two JSON records and one PNG, all read with `json` and
-`shutil`. A reviewer can establish this by reading its import block.
+**Built and checked against `75d9705d4be2f17f503c6e6a3d5412af3a1b2dd9`.**
 
-**The refusal list is not touched.** `_OUT_OF_SCOPE_DOMAINS` is not narrowed,
-widened or reordered. As the thermal display note established and this lane
-re-confirmed by driving `classify()`, the refusal list is consulted only when
-NOTHING routed (`server._explain_unparsed`, reached only when
-`WORKFLOWS.get(route.intent)` is `None`). A prompt that routes to an act never
-reaches it.
+The previous version of this patch **stopped applying**, and that is the normal
+outcome rather than an accident: these are context diffs against files that
+several teams edit, and this box commits roughly once every two minutes. HEAD
+moved twice during the rebuild itself — from `c2aae69b` to `e41055cc` while the
+first `apply --check` was running, and on again before the second.
 
-**Nothing else reroutes.** Eighteen prompts covering every existing act were
-driven through `classify()` before and after; every one of them keeps the
-intent it has today. The table is in §4.
+**So re-run the check before believing this note, every time:**
 
----
+```
+git apply --check -p1 docs/campaigns/DMR/demo/PROPOSED_dmr_intent.patch
+git apply --check -p1 docs/campaigns/DMR/demo/PROPOSED_subcent_cost_line.patch
+```
 
-## 2. What the act puts on screen
-
-The arc, in order:
-
-1. **The ask.** A shock reflecting off a wall too steeply to stay attached.
-   Stated as physics, with the one quantity in it that is known exactly.
-2. **Confidence and price, before anything is shown.** The expectation, one
-   percent of the distance travelled and the finer grid closer than the
-   coarser; the statement that both were fixed before the first mesh was
-   built; and the price set aside, 20 core-minutes.
-3. **The cheap grid, then the fine one.** One table row per grid: solved
-   position, exact position, difference, and the difference as a share of the
-   distance the shock travelled.
-4. **The picture.** Density contours at the final time, both grids.
-5. **The result.** The verification sentence, the grid comparison, the bill,
-   and the caveat box.
-
-**The cost beat is the strongest line in the act and it is honest.** Estimated
-20 core-minutes, used 2.4, a ratio of 0.12. The act says the estimate was the
-honest one available at the time and that it was high. That is the lab saving
-the operator compute, evidenced, which is one of the three ways DEMO STANDARD
-v2 R9 permits the lab's intelligence to show.
-
-**What the caveat box says, and where it stops.** The fine structure behind
-the main shock — the second shock and the wall jet beneath it — is shown in
-the picture and is **not among the quantities measured**. The box says exactly
-that and stops. It does not discuss instruments, detectors, registrations or
-repairs: R9 forbids all of it in user-visible text, and the intelligence shows
-through the cost beat instead.
-
-**Register compliance.** Every transcript line goes through
-`workflows.check_wording`, which refuses an em dash and the banned on-camera
-register. No case identifier, gate name, tier word, rule number or record
-filename appears in any user-visible string; `res120` and `res60` exist in the
-module only as lookup keys and reach nothing that renders.
+Exit 0 means it still applies. A non-zero exit means it has rotted again and
+needs another rebuild; it does **not** mean anything is wrong with the design
+below, which is stable. The routing patch touches only insertion points that
+have been stable for weeks, so a rebuild is mechanical.
 
 ---
 
-## 3. Where the numbers and the picture come from
+## 1. WHAT CHANGED SINCE THE PREVIOUS VERSION OF THIS PATCH
 
-**The numbers.** `verification/runs/DMR_runs/<grid>/locator_result.json`, the
-graded record written by the locator run, field `gateV`. The act reads
-`x_measured`, `x_exact_at_row` and `error` and derives one thing only: the
-error as a share of the distance travelled, where the distance is computed
-from the configuration itself as `20 t / sqrt(3) = 2.309401` at `t = 0.2`
-rather than carried as a magic number. It re-derives no shock position, no
-error and no verdict.
+The previous patch carried **three** files. This one carries **two**, and the
+withdrawal is the important half.
 
-**The picture is NEW, and this is a finding the supervisor should know about.**
-The contour record retained with the runs,
-`verification/runs/DMR_runs/dmr_density_contours_t0p2.png`, is a correct
-scientific figure and is **not usable on camera**: its captions carry the run
-directory names, the solver and flux-scheme names, the pre-registration
-filename and the phrase "see results file". DEMO STANDARD v2 R5 forbids every
-one of those. `figures/render_shock_field.py` in this directory re-renders the
-same fields off disk with captions an engineer reads without a glossary. It
-starts no solver: it reads three ASCII scalar fields per grid at the final
-written time and draws contours.
+**WITHDRAWN: the 326-line `sdk/workflows/dmr_display.py`.** When that patch was
+cut, no shock-reflection act existed and the patch had to bring one. It exists
+now: `sdk/workflows/dmr_act.py` landed at commit `6f02808a` as a one-line
+adoption of `demo_sequencer.make_act_entry`, and it carries its own `main`.
+Shipping the old shim as well would have created **a second call site for one
+mechanism**, which is precisely what `make_act_entry`'s own docstring says this
+campaign has already paid for twice in one night. The dispatch entry in this
+patch therefore points straight at `workflows.dmr_act`.
 
-**That renderer independently reproduces the record's own numbers**, which is
-the strongest available check that it is reading the right fields correctly.
-Over the structure range `x > 0.25` it measures a density maximum of **19.20**
-on the coarse grid and **20.05** on the fine grid; `DMR_RESULTS.md` records
-"the flow field proper tops at rho = 20.05" and the retained figure's own
-panel captions read `[1.40, 19.20]` and `[1.40, 20.05]`. Nothing was copied
-between the two readers.
+**CHANGED: the scope import is now its own statement.** The previous patch
+reflowed the shared `from .router import (...)` tuple in `scope.py`. That is the
+line the MERGE NOTE at `router.py` records as having cost a night: the thermal
+and jet-flap patches were cut independently against one blob, both appended to
+that one list, git could not merge them, and taking either side whole silently
+dropped the other act. A one-name `from .router import DOUBLE_MACH_REFLECTION`
+on its own line cannot collide with anybody else's addition.
 
-**One trap the renderer caught, and it would have drawn a plausible wrong
-picture.** These cases were solved on four ranks and reconstructed, and **the
-reconstructed fields are not in x-fastest order**: a bare `reshape` slices the
-field by rank and draws nonsense that still looks like contours. The renderer
-therefore carries every value with its own cell centre, sorts on `(y, x)`, and
-then asserts the result is a complete Cartesian lattice before drawing. The
-first version of the reader raised on exactly this and was rewritten.
+**The result is that both files are now PURE INSERTION.** Measured:
 
-**The path is taken from the filesystem, never from the frozen record.** The
-pre-registration cites `demo-output/website/campaign/DMR_runs/`, a directory
-that no longer exists; an act wired from the record would find nothing. See
-`verification/campaign/DMR_PREREGISTRATION_AMENDMENT_1_DRAFT.md`.
+| file | insertions | **deletions** |
+| --- | --- | --- |
+| `sdk/chief_engineer/router.py` | 81 | **0** |
+| `sdk/chief_engineer/scope.py` | 18 | **0** |
+
+Not one existing line is modified or removed in either file.
 
 ---
 
-## 4. Shape of the router, and what was driven through it
+## 2. THE DELEGATION IS LOCAL, AND `server.py` IS UNTOUCHED
 
-Read against `sdk/chief_engineer/router.py` at blob
-`40521daec147bf19d2f2ee8dfe059bd4da8cae5e`, 784 lines, and
-`sdk/chief_engineer/scope.py` at blob
-`95253fdd2866563444bbdee68b1f1c53f72a4053`, 175 lines. `git apply --check` on
-the patch is the operative test of whether they still apply; it was clean at
-the time of writing.
+The jet-flap act's shape is the precedent and it was followed as far as it goes.
+`sdk/chief_engineer/server.py` is **byte-untouched** by this patch, so the
+dispatcher through which every team's intent runs is unchanged by construction
+rather than by inspection.
 
-The patch makes six additions to `router.py` and two to `scope.py`. Every one
-is additive: **no existing line is deleted or altered in either file** except
-the `scope.py` import block, which gains one name.
+`router.py` and `scope.py` **are** touched, and they have to be: they are the
+only place an intent can be declared, and the previous patch was wrong to be
+described as avoiding them. What is kept is the minimum — a constant, two
+regexes, one scoring branch, one spoken sentence, one dispatch entry, one
+capability declaration, and the asserts below. The act itself, the sequencer,
+the stages and the screen guard are all reached through the existing mechanism
+with nothing added to it.
 
-| # | File | Where | What |
-|---|---|---|---|
-| 1 | `router.py` | module docstring | one paragraph naming the route |
-| 2 | `router.py` | beside the compressible intent constants | `DOUBLE_MACH_REFLECTION = "double-mach-reflection"` |
-| 3 | `router.py` | beside `_HYPERSONIC_CYLINDER` | two match patterns |
-| 4 | `router.py` | `classify()`, before the hypersonic branch | one scoring branch at weight 2.2 |
-| 5 | `router.py` | the rationale table | what the Chief Engineer says on routing |
-| 6 | `router.py` | `WORKFLOWS` | one entry pointing at `workflows.dmr_display` |
-| 7 | `scope.py` | import block | one name added |
-| 8 | `scope.py` | `CAPABILITIES` | one row declaring `unsteady` and nothing else |
+**The selector fork is not weakened, because it is not touched.**
+`make_act_entry`'s fork — a selector naming no act falls through to `fallback`
+unchanged, and with no fallback it raises `SequencerRefused` rather than showing
+the wrong act — lives in `demo_sequencer.py`, and this patch does not modify that
+file. `dmr_act.py` passes neither `use_act` nor `fallback`, which is the
+single-act case: the entry always walks the stages.
 
-**Why weight 2.2.** The four steady compressible acts score 2.0. A prompt that
-says "shock reflection off a wedge" names both, and the reflection is the more
-specific reading: the wedge act grades an attached oblique shock and has
-nothing to say about a Mach stem or a triple point. 2.2 also sits below the
-thermal display proposal's 2.4, so the two cannot contend even in principle.
+### 2a. L-221/L-222 — the entries are inserted with an assert, and the assert already earned its keep
 
-**Why the second pattern requires a named surface.** The first pattern is the
-benchmark's own vocabulary — double Mach reflection, Mach stem, triple point,
-irregular reflection, Woodward-Colella — none of which can be typed about a
-steady attached shock. The second catches the operator who does not know the
-name and writes "a Mach 10 shock reflects off a wall". It requires the surface
-to be named, because "the shock reflected at the corner" is a sentence written
-about the steady wedge and that act keeps it.
+Both `WORKFLOWS` and `CAPABILITIES` are **dict literals**, where a second entry
+under an existing key is not an error: the later value silently wins, that act's
+module is swapped, and nothing raises anywhere. Each insertion therefore carries
+a two-line assert that it displaced nothing — one naming this route, one naming
+the jet-flap route.
 
-**Why `CAPABILITIES` gains a row.** The benchmark is genuinely time resolved,
-so declaring `unsteady` is a promise the run keeps. It declares nothing else,
-so a prompt that asks this act to optimise a shape or report a temperature is
-told so before the screen starts rather than after it finishes. Driven:
-a prompt asking for both produces "You asked for a thermal solve and a design
-search. This run cannot do that..." This row can be dropped independently of
-the rest of the patch if the reviewer prefers the undeclared default.
+**That assert caught a real defect in this patch before it left the lane.** The
+first build inserted the `WORKFLOWS` assert but not the `WORKFLOWS` *entry*; the
+patch compiled and the import died immediately on `KeyError:
+'double-mach-reflection'`. Without the assert the route would have been
+half-wired and would have failed at dispatch, on camera, instead of at import.
 
-### The eighteen prompts, before and after
-
-Both columns are measured, not predicted: the before column was driven through
-`classify()` at HEAD `48a9ae65` and the after column through the patched
-overlay. Every prompt keeps its intent except the five that name the new act,
-and all five of those fall through to `general-mission` today.
-
-| Prompt | Before | After |
-|---|---|---|
-| Show me a double Mach reflection benchmark. | general-mission | **double-mach-reflection** |
-| What happens when a Mach 10 shock reflects off a wall? | general-mission | **double-mach-reflection** |
-| A strong shock reflecting off the ground... | general-mission | **double-mach-reflection** |
-| I want a shock interaction benchmark. | general-mission | **double-mach-reflection** |
-| Can you do the Woodward-Colella problem? | general-mission | **double-mach-reflection** |
-| Supersonic wedge at Mach 2.5, oblique shock angle. | supersonic-wedge | supersonic-wedge |
-| Hypersonic cylinder, shock standoff distance. | hypersonic-cylinder | hypersonic-cylinder |
-| Diamond airfoil wave drag by shock expansion theory. | diamond-airfoil-wave-drag | diamond-airfoil-wave-drag |
-| Supersonic cone, Taylor-Maccoll conical shock. | supersonic-cone | supersonic-cone |
-| Vortex shedding behind a cylinder, Strouhal number. | cylinder-vortex-shedding | cylinder-vortex-shedding |
-| Optimise this wing to cut drag by 20 percent. | adjoint-optimization | adjoint-optimization |
-| Mesh and solve this motorbike STL, give me the drag. | geometry-study | geometry-study |
-| Ahmed body at 25 degrees. | ahmed-body | ahmed-body |
-| NASA hump separation bubble. | nasa-hump | nasa-hump |
-| ONERA M6 wing at Mach 0.84. | geometry-study | geometry-study |
-| Adjoint gradient with a finite difference check. | adjoint-optimization | adjoint-optimization |
-| Sobol indices for the cylinder. | sobol-sensitivity | sobol-sensitivity |
-| How sure are you about that drag number? | uncertainty-reduction | uncertainty-reduction |
-
-**A pre-existing observation, not caused by this patch and not fixed by it:**
-"ONERA M6 wing at Mach 0.84" routes to `geometry-study` rather than to the
-`onera-m6` act, at HEAD, unchanged either way. That is the *other* new demo
-product Sanaa ordered and whoever builds it needs to know.
+The asserts are deliberately **narrow** — this route and the act being filmed,
+nothing else. An assert enumerating the whole table would fail the next time a
+peer adds a route, and an assert that stops the control room from importing is a
+worse failure than the one it guards against.
 
 ---
 
-## 5. What was tested, and the two controls
+## 3. PROOF THAT JET-FLAP IS UNAFFECTED
 
-Testing was done in a **symlink overlay of the repository** whose only real
-directories are patched copies of `chief_engineer/` and `workflows/`. Nothing
-under `sdk/` in the repository was written at any point.
+Sanaa is filming jet-flap. Two independent lines of evidence, one by
+construction and one by measurement.
 
-**The routing regression.** The eighteen prompts above, driven through
-`classify()` in the overlay and in an unpatched control.
+### 3a. By construction: the act path never imports the patched modules
 
-**The existing test suite.** `tests/test_scope_down.py` and
-`tests/test_ahmed_routing.py` pass in the patched overlay: 26 passed, 5
-subtests passed. A first attempt in a bare copy of the two packages showed 8
-failures; a control run of the same tests in the same bare copy **without the
-patch** showed the identical 8 failures, establishing them as missing repository
-files rather than a regression. In the full overlay, both patched and at HEAD,
-they pass.
+Measured from `sys.modules` after importing the whole jet-flap act path in a
+fresh interpreter, not inferred from a grep. Importing
+`workflows.jet_flap_display` pulls in eight `chief_engineer` modules —
+`chief_engineer`, `.adapters`, `.api`, `.events`, `.fleet`, `.models`,
+`.openfoam`, `.uncertainty` — and **neither `chief_engineer.router` nor
+`chief_engineer.scope` is among them.** The two files this patch edits are not
+in the act's import closure at all, so no edit confined to them can reach the
+act's behaviour by any path.
 
-**The whole SDK suite** was then run twice, in a patched overlay and in an
-otherwise identical unpatched one, each stopping at the first failure. **The
-two runs are identical: 204 passed, 20 subtests passed, 1 failed** (286 s
-patched, 298 s unpatched). The single failure is
-`tests/test_autostop_gate.py::test_the_tracked_gate_exists_and_is_the_reviewed_one`
-and it is **pre-existing and nothing to do with this patch**: it also fails on
-its own at HEAD in the repository itself, where it asserts the auto-stop
-gate's clause 1 matches processes with `pgrep -x` while the tracked script
-walks `/proc` instead. Reported here as a cross-team observation; not touched.
+### 3b. By measurement: the event stream is byte-identical
 
-No solver process was spawned by either run, checked while they were in
-flight.
+The jet-flap act was driven end to end twice on this box, once with the repo's
+own `router`/`scope` and once with the patched pair loaded in their place. The
+patched pair was compiled against the **real repo path**, so `Path(__file__)`
+inside `router.py` resolved exactly as in production.
 
-**Control 1, planted perturbation.** A copy of the run tree was made and the
-fine grid's measured shock position was moved by a known **+0.0500000**. The
-screen followed by **+0.0500000** and the share-of-travel column moved from
-**0.15%** to **2.31%**, which would have failed the one-percent criterion
-visibly rather than hiding inside it. The act is reading disk.
+| | before | after |
+| --- | --- | --- |
+| return code | 0 | 0 |
+| events published | 1,281 | 1,281 |
+| printed transcript | 167 bytes | **byte-identical** |
+| event stream, `at` removed | `sha256 91ed98c0e761bd0a59e0a97e06bfae79057bbc265ba0acfc37ce34ae2c388f2c` | **same sha256** |
 
-**Control 2, planted absence.** The fine grid's record was removed. The act
-showed **no row** for that grid, **named the empty path** on the record, and
-drew nothing in its place. A gap is reported, never a zero.
+**The only key that differed across all 1,281 events was `at`**, the wall-clock
+stamp — the two runs were two minutes apart. Every other field of every event
+matched. This is the standard the namespace fix set and it is met.
 
-**Both controls are filed and rerunnable**, at
-`docs/campaigns/DMR/demo/plant_control.py`. It breaks the inputs on a copy,
-never in the run tree, and it refuses with a return code of 2 and the message
-"Nothing was tested" when the act is not on disk, so it cannot report a pass it
-did not earn. Against the candidate module it returns 0 with both controls
-green; against nothing at all it returns 2, which is the state it is in today
-because the act has not landed.
+**A first attempt at this comparison was wrong and was thrown away.** It copied
+the package to a scratch directory, which moved `Path(__file__).resolve()`
+inside `router.py` — the path by which it finds the staged surface catalogue —
+and two unrelated prompts then differed. The harness was rebuilt rather than the
+difference explained away.
 
----
+### 3c. Nothing was written to the repository
 
-## 5a. The promotional-surface clause, and why this act clears it
+A write guard was run across `demo-output/`, `mission-output/`, `sdk/` and
+`verification/runs/`, with `CERTONOMOUS_OUTPUT` redirected to scratch. **The
+guard's first form returned a false zero** — `find` on this box is `bfs`, which
+rejects a relative `-newermt` argument and reported nothing modified anywhere. A
+planted control caught it: a file was touched and the guard failed to see it.
+Rebuilt with an ISO timestamp and re-planted, the guard demonstrably sees a
+known-new file.
 
-`router.py:470-477` states the rule that governs whether an act may reach the
-control room at all: **"The control room is a promotional surface and carries
-only cases that reach a clean result"**. It is written there as the reason
-ONERA M6 is deliberately not routed — that act's primal plateaus above the
-solver's own convergence tolerance and it honestly reports itself unconverged,
-so its measurements and its documented failure live in the evidence record
-instead, which is where a failure belongs.
-
-**THE CLAUSE HAS SINCE BEEN RULED ON, AND THE RULING IS THE PRIMARY ANSWER
-HERE.** The cfd supervisor ruled at `73c18156`, 2026-09-01, on the jet-flap
-proposal: that comment is a code comment written by a lab agent, not a charter
-clause and not a ruling of Sanaa's; it governs **gradeable solve missions**,
-where the control room offers to solve something and report a graded result;
-it does not reach a **display mission** presenting finished runs; and it is
-**not retired** and stays in force for everything it does reach. This act is a
-display mission, so on that ruling the clause does not reach it either.
-
-That ruling is adopted here rather than re-argued. **What follows is an
-independent second reason, and it is worth stating because it does not depend
-on the ruling holding:** even read literally, as a clause that does reach every
-act, this one clears it on the quantity it presents — and the position is
-materially stronger than the jet-flap act's. Stated plainly so nobody has to
-infer it:
-
-- **Both rungs reached a clean result on the graded kinematics.** Gate V is
-  `PASS` at both, 0.15% and 0.17% against a 1.0% tolerance, and the fine rung
-  beat the coarse as predicted. Both runs satisfy the strict completion rule
-  clause by clause, re-verified 2026-09-01: `rc = 0`, one `End` line, last
-  `Time = 0.2` equal to the registered `endTime`, all ten writes present, all
-  eight fields at 0.2, and the age guard holding on both.
-- **The gate was frozen before the run and the ordering is provable.** The
-  pre-registration was committed at `74797a57`, 2026-08-07T22:40:28Z; the
-  primary rung's own `0/T` was written at 22:43:42Z.
-- **The contrast with the jet-flap act.** Every JF1 run is gate NONE and its
-  registration is an unfrozen draft, so that mission can claim no verdict and
-  quotes movement over the final iterations in place of a convergence claim.
-  This act presents a `PASS` on a frozen gate against an exact analytic
-  solution. Whatever ruling Sanaa gives on the promotional surface, these two
-  acts are not in the same position and should not be decided together by
-  default.
-- **What the act does NOT present.** The record also carries clauses that
-  failed as registered, attributed in the record to the detector's geometry
-  rather than to the flow. This act presents none of them, asserts nothing
-  about the structure behind the main shock, and states the limit of its claim
-  in the caveat box: the structure is shown and is not among the quantities
-  measured. That handling was raised with the cfd supervisor and ruled on
-  rather than decided quietly by the lane. **The caveat must never drift
-  toward implying no measurement was attempted, and the act must never gain a
-  sentence claiming the structure agrees with anything.** A future edit
-  tempting either way goes back to the supervisor.
+Under the working guard: **zero files written** in `demo-output/`,
+`mission-output/`, `sdk/` and `verification/runs/DMR_runs/`. The 43 files that
+did move under `verification/runs/JF1_jet_flap/` are OpenFOAM time directories
+appearing on a ~35-second write interval from a live solver, still arriving
+after this lane's processes had exited; `jet_flap_act.py` contains no write call
+of any kind.
 
 ---
 
-## 6. What this note does NOT claim
+## 4. WHAT THE ROUTER DOES AFTER THE PATCH
 
-- **It does not claim the act has been seen in the control room.** It has been
-  driven with a recording emit sink, not through a running server. The server
-  was not restarted.
-- **It does not claim a verdict for the benchmark.** The verdicts are
-  `DMR_RESULTS.md`'s and are unchanged by anything here. The act presents the
-  incident-shock kinematics result and the grid comparison; it presents no
-  other graded quantity, and the caveat box says the structure behind the main
-  shock is shown but not measured.
-- **It does not claim the frozen record has been repaired.** The path defect is
-  drafted as a dated amendment and is not applied.
-- **It does not claim `F2_transonic_naca0012.md` has been examined.** It has
-  not. It is reported to carry the same stale-path problem and is somebody's
-  next job.
+94 routing decisions were compared before and after — every act's registered
+on-camera prompt, plain-language probes for every routed intent, and eight
+shock-reflection probes, each evaluated with and without an uploaded surface.
+
+**78 of 94 decisions are identical.** The 16 that changed are exactly the eight
+shock-reflection probes in their two surface states, and nothing else. Every
+jet-flap phrasing, every thermal prompt, every steady compressible body, the
+searches, the race, the valve, the empty request and the out-of-scope request
+all keep the intent, the confidence, the evidence list and the spoken sentence
+they have today, to the byte.
+
+Reaching the act: `double Mach reflection`, `the Mach 10 shock reflection
+benchmark`, `show me the Mach stem and the triple point`, `Woodward Colella
+shock interaction benchmark`, `irregular reflection of a strong shock`, `a shock
+reflecting off a wall too steeply to stay attached`, `the shock reflects from
+the ramp`, `shock reflection off a wedge` — all at confidence 0.99.
+
+**Deliberately NOT reaching it:** `the shock reflected at the corner of the
+wedge` keeps the route it has today. The surface pattern requires a named
+surface, and "corner" is a word written about the steady wedge.
+
+### 4a. A GAP, NAMED RATHER THAN PAPERED OVER: an uploaded surface reroutes this act
+
+`_SURFACE_KEEPS_ROUTE` is **not** touched by this patch, so a shock-reflection
+prompt that arrives **with an uploaded surface** becomes a geometry study — the
+incompressible chain, on an unrelated body. That is the same failure the MERGE
+NOTE describes for the thermal and jet-flap acts, and it is why both of them are
+on that list.
+
+It was left out on purpose and the decision belongs to the supervisor:
+
+- **For adding it:** the act starts no solver, and rerouting a shock-reflection
+  prompt into a geometry study is plainly the wrong answer.
+- **Against adding it:** `make_act_entry` **drops `params`** by design, so the
+  act would never see the upload and could not announce it. Jet-flap earns its
+  place on that list by stating on screen that the uploaded surface was not
+  meshed or solved; this act has no such sentence, so keeping the route would
+  silently ignore an upload.
+- **It does not affect the shoot.** With no surface uploaded, `apply_surface`
+  returns the route unchanged, so the filmed path is unaffected either way.
+
+If the supervisor rules that it should be added, it can be done as a **pure
+insertion after the tuple** rather than an edit to it —
+`_SURFACE_KEEPS_ROUTE = _SURFACE_KEEPS_ROUTE + (DOUBLE_MACH_REFLECTION,)` with
+an assert — which is exactly the shape that would have avoided the merge note's
+night.
 
 ---
 
-## 7. Conflict with the OTHER TWO display patches, and the order to apply them in
+## 5. A BOUNCE IS REQUIRED. MEASURED, WITH THE MECHANISM
 
-> **CORRECTION, 2026-09-01 02:1xZ, and it is against this section's own first
-> version.** As committed at `39fa4564` this section described a TWO-way
-> conflict with the thermal patch and closed with the sentence *"`scope.py` is
-> touched by this patch and not by the thermal one, so there is no conflict
-> there."* **That sentence was wrong within a minute of being written.** The
-> jet-flap display proposal landed at `73c18156`, 02:05:37Z, twenty-seven
-> seconds after my own commit; it touches `scope.py` **at the same two places
-> this patch does**. The corrected section follows. The original claim is
-> struck rather than deleted because the cfd supervisor was told it in a lane
-> report and should be able to see exactly what was withdrawn.
+**HTML needs no bounce.** `server._serve_control_room` calls
+`(HERE / "control_room.html").read_bytes()` **per GET**, so a saved HTML change
+is live on the next refresh.
 
-**THREE display-mission patches are now pending against the same base**, all
-cut against `router.py` blob `40521daec147bf19d2f2ee8dfe059bd4da8cae5e`:
+**This patch needs one.** `server.py` reaches the router at line 738 with
+`from .router import WORKFLOWS, apply_surface, classify`, and `scope` at line
+778 with `from . import scope`. Both are **function-local** imports, which looks
+like a re-read and is not: `import` consults `sys.modules` first and returns the
+cached module without touching the file. There is **no `importlib.reload` and no
+reload machinery anywhere** in `server.py`, `router.py` or `scope.py`.
 
-| Patch | Filed at |
-|---|---|
-| Thermal | `docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch` |
-| Jet flap | `docs/campaigns/JF1-jet-flap/demo/PROPOSED_jet_flap_intent.patch` |
-| This one | `docs/campaigns/DMR/demo/PROPOSED_dmr_intent.patch` |
+Demonstrated rather than asserted, with a planted control:
 
-Each applies cleanly on its own at HEAD. **No two of them apply cleanly one
-after the other.**
+| step | result |
+| --- | --- |
+| first call to a function-local `from pkg.m import VALUE` | `ORIGINAL` |
+| the file on disk is then rewritten, and read back | `VALUE = "PATCHED"` |
+| second call, **same process**, after that edit | **`ORIGINAL`** |
 
-### Measured, not predicted
+The middle row is the control: the file demonstrably changed, and the import
+still returned the stale value.
 
-The jet-flap patch was applied to a throwaway copy of the three shared modules
-and this patch was then offered on top. It **fails direct application at two
-points**:
+**So: the act cannot go live without a restart, and the restart is the chief's
+to schedule, not this lane's and not the supervisor's.** Sanaa is mid-shoot.
 
-- `sdk/chief_engineer/router.py:781` — the `WORKFLOWS` table, where all three
-  patches insert an entry.
-- `sdk/chief_engineer/scope.py:33` — the `from .router import (...)` block,
-  where both this patch and the jet-flap one add a name to the same two
-  physical lines. Their `CAPABILITIES` row also anchors on the same
-  `SUPERSONIC_WEDGE: frozenset(),` line this patch anchors on.
+**What should ride the same bounce, since a restart is a coordinated cross-team
+event and should not be spent twice:**
 
-Against the thermal patch the overlaps are the **module docstring** (both
-append a route paragraph after the `geometry-study` entry) and again the
-**`WORKFLOWS` table**. Thermal does not touch `scope.py`.
+1. This routing patch (`router.py`, `scope.py`).
+2. The sub-cent cost-line patch (`demo_mode.py`), if it is accepted — it is
+   import-time for the same reason.
+3. Any other pending Python change to `sdk/` from any team. Every `.py` under
+   `sdk/` is import-time; only `control_room.html` is not.
 
-**What was NOT measured, and is not claimed:** whether `git apply --3way`
-resolves any of this cleanly. The throwaway used for the test lacked the base
-blobs, so 3-way could not run there and fell back to direct application. The
-real repository does hold blob `40521dae`, so 3-way has what it needs there,
-but that was not run, because running it means applying a patch to the live
-working tree and none of these three is approved.
+**One thing does NOT need the bounce for its own sake:** `workflows.dmr_act` is
+imported lazily by `importlib.import_module(workflow["module"])` at
+`server.py:794`, on the first mission that routes to it. It has never been
+imported in the live process, because no route reaches it. It ships with the
+bounce only because the router change it depends on does.
 
-### Consequence for whoever sequences the restart
+---
 
-All three are additive and none reads anything another writes, so this is
-bookkeeping rather than a design collision. But it will not resolve itself:
-**the second and third patches applied must be re-cut against the tree that
-results from the first**, not applied blind. The order is free. The safest
-route is to apply them in one sitting, re-cutting as you go, and to re-run each
-act's own controls afterwards — for this act,
-`docs/campaigns/DMR/demo/plant_control.py`, which returns 2 rather than a false
-pass if the module is not where it expects.
+## 6. CAMERA ITEM ONE — "about $0.00" READS AS "FREE"
+
+`demo_mode.cost_line` renders `about ${usd:,.2f}`. At the shock-reflection
+magnitude the derived figure is $0.0016, which prints as **`about $0.00`**.
+
+Sanaa has ruled that **cost transparency is a rule and the compute line is
+KEPT**, so the repair makes the number legible and never removes it.
+`PROPOSED_subcent_cost_line.patch` renders the same derived figure in cents
+below one cent:
+
+> Compute used: 2.4 processor-minutes (gross), **about 0.2 cents**, derived at
+> the recorded rate.
+
+**This is shared code that jet-flap also renders, so the threshold was chosen so
+that jet-flap cannot move.** Measured: **every run at or above 5.85 core-minutes
+renders byte-identically to what it renders today.** Jet-flap's measured cost is
+**117.5 core-minutes** and its sentence is
+`Compute used: 117.5 processor-minutes (gross), about $0.10, derived at the
+recorded rate.` — **byte-identical under the patch**, 20x above the crossover.
+The only acts that can move are those costing under 5.85 core-minutes, and the
+shock-reflection act is the only one of those.
+
+**On present tense, and why this patch does not chase it.** The line reads
+"Compute used", which is not present tense. Making it so — "This run costs 2.4
+processor-minutes…" — would change **jet-flap's rendered sentence too**, mid
+shoot, and that is exactly the unilateral change to shared behaviour this lane
+was told not to make. **Recommendation: take the sub-cent fix now, defer the
+tense of the shared sentence until after the shoot.** The shock-reflection act's
+own lines are already present tense.
+
+---
+
+## 7. CAMERA ITEM TWO — 1.9 IS THE FLATTERING FIGURE. THE RIGHT ONE IS ~2.4
+
+The act computes its cost as
+`sum(_wall_seconds(key) for the two grids) * RANKS / 60`, which is **the two
+solves and nothing else**. The graded record, `verification/campaign/
+DMR_RESULTS.md`, files this at lines 135–138:
+
+| line | figure |
+| --- | --- |
+| res120 solve | 1.67 core-min (25.09 s × 4) |
+| res60 solve | 0.22 core-min (3.35 s × 4) |
+| mesh/init/reconstruct/locator | < 0.5 core-min |
+| **item total** | **~2.4** |
+
+1.67 + 0.22 = **1.89**, which is the 1.9 on screen. **The record's item total is
+~2.4, and the screen should say ~2.4.** Three reasons:
+
+1. **The comparison is against a whole-item estimate.** The act shows the price
+   set aside — 20 — beside what was used. That 20 covered meshing,
+   initialisation, reconstruction and the locator as well as the two solves.
+   Comparing a complete numerator against an incomplete denominator is a
+   category error, **and it always errs in the flattering direction.**
+2. **The record grades the estimate against ~2.4**, explicitly: *"filed 20,
+   measured ~2.4 — off by ~8× on the cheap side"*. A screen quoting 1.9 implies
+   a ratio of 0.095 where the record filed 0.12, putting the demo out of step
+   with its own evidence.
+3. **It is this act family's recurring defect**, now at seven instances and
+   counting, and every one of them has been in the same direction.
+
+**The honest counter-argument, stated because it is real:** 1.89 is the only
+figure the act can *measure at display time*. Both wall clocks are parsed from
+the two solver logs and cross-checked against the graded record before either is
+shown. The `< 0.5 core-min` for meshing and post-processing is a **bound**, not
+a measurement, and no log carries it — so quoting ~2.4 means reading the item
+total from the graded record rather than deriving it.
+
+**That is the right trade and the act already reads that record** for its
+cross-check. **Recommendation: quote the graded item total, ~2.4, cited to
+`DMR_RESULTS.md:138`.** If the supervisor prefers the parsed figure instead, then
+the line must *say* it covers the two solves only — leaving 1.9 unlabelled beside
+an estimate of 20 is the flattering error, whichever number is chosen.
+
+---
+
+## 8. WHO HAS TO READ THIS BEFORE ANYTHING LANDS
+
+The cfd supervisor reads both patches **as diffs** (`SUPERVISION_CHARTER.md` §3
+check 1): `router.py` and `scope.py` are shared control-room tooling whose
+routing table governs every team's prompts, and `demo_mode.py` is shared act
+code that jet-flap renders from.
+
+Applying either patch is a decision above this lane. **Restarting the server is
+a separate decision again, is a coordinated cross-team event, and is the
+chief's.** Neither was taken here.

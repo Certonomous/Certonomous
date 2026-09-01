@@ -1,0 +1,26 @@
+--- ca/sdk/workflows/demo_mode.py	2026-09-01 17:18:59.838791743 +0000
++++ cb/sdk/workflows/demo_mode.py	2026-09-01 17:18:59.855765970 +0000
+@@ -605,8 +605,22 @@
+     """
+     usd = cm / 60.0 * RATE_USD_PER_CORE_HOUR
+     basis = "gross" if gross else "cleaned"
++    # BELOW ONE CENT, DOLLARS TO TWO PLACES RENDER "about $0.00", AND THAT READS
++    # AS A CLAIM THAT THE WORK WAS FREE. Sanaa has ruled that cost transparency
++    # is a rule and that the compute line is KEPT, so the repair is to make the
++    # number LEGIBLE and never to drop it. The same derived figure in cents is
++    # legible at this magnitude and the quantity is not touched: 1.9
++    # processor-minutes is $0.0016, which is 0.2 cents.
++    #
++    # THE THRESHOLD SITS WHERE THE TWO RENDERINGS ALREADY AGREE, so this is not
++    # a change to what any existing act shows. Measured rather than asserted:
++    # every run at or above 5.85 core-minutes renders BYTE-IDENTICALLY to what
++    # it renders today. The jet-flap act costs 117.5 core-minutes and shows
++    # "about $0.10"; that sentence is unchanged to the byte, 20x above the line.
++    money = (f"about ${usd:,.2f}" if usd >= 0.005
++             else f"about {usd * 100:.1f} cents")
+     return (f"Compute used: {cm:,.1f} {SCREEN_COMPUTE_UNIT} ({basis}), "
+-            f"about ${usd:,.2f}, derived at the recorded rate.")
++            f"{money}, derived at the recorded rate.")
+ 
+ 
+ # ---------------------------------------------------------------------------
