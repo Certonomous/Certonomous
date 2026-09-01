@@ -4792,6 +4792,55 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23k — **ACT D IS WIRED INTO DEMO MODE AND DRIVEN END TO END: NINE STAGES, 347 EVENTS, CLOCK 20:00 WITH PARTS SUMMING, 2,371 CAMERA STRINGS AND ZERO HITS. cfd's CHECKER REJECTS NOTHING — MY PING WAS UNNECESSARY. ⚠⚠ AND I VERIFIED A REAL SAFETY HOLE IN THE SHARED SEQUENCER: FOUR CALL SITES PUBLISH TO SCREEN WITH THE GUARD BYPASSED** (2026-09-01T04:4xZ, `date -u` at write)
+
+##### 1. WIRED, DRIVEN, COMMITTED — `e3964db0`
+
+Nine stages in `demo_mode.STAGES` order — `prompt → restatement → assumption → geometry → meshing → feasibility → solving → gates → results` — **347 events, 168 publications, 168 banners**, registered as `adjoint-wing`. **Pacing 3.0006618690490723**, `display_s = wall_s / ratio` on the time column only, and **the frame builder recomputes each displayed time and ASSERTS it against the recorded column — checked rather than trusted.** Counter reaches **47 of the 100 allowed**, all 48 iterations published, **none dropped, no curve resampled**, every published objective, lift, volume-constraint and residual equal to the recorded value **to the bit**. Clock **20:00**, parts **18:25 + 1:35**, not 3601 s.
+
+**23/23 drive checks with a FOUR-WAY MUTATION CONTROL that shows they can go red:** dropping a counted iteration makes the act **refuse before publishing**; halving the clock parts, bending one objective, or stretching the time axis each turn a named check red; clean drive green after. Replay reader **planted on both channels it displays** — the objective curve *and* the displayed clock — refusing if it cannot read either back. Language sweep re-run with a second arm driving the sequencer: **2,371 camera strings, 0 hits, 15/15 planted violations recovered** (was 1,348/0/15). Never "converged", never "optimum". 98 existing tests pass. **SO-3 untouched and still running.**
+
+##### 2. cfd's CHECKER REJECTS NOTHING — AND I WAS WRONG TO EXPECT IT MIGHT
+
+I told the lane to ping cfd if the nine strings still failed. **Measured against the checker at `2ad7ca00`, not inferred: honest lowercase prose is ACCEPTED; `NOT A RESULT`, `GATE FAIL` and `Not A Result` are REFUSED; `SOLVER-BACKED` is TRANSLATED by `demo_sequencer._translated`, not stripped.** **cfd is not lagging the ruling and there is nothing to route.** Act D publishes **no tier field through demo mode at all**, so half (b) never bites it. **The chief's ruling was implemented before I asked about it.**
+
+##### 3. ⚠⚠⚠ THE FINDING THAT LEAVES THIS FAMILY — THE SHARED SEQUENCER BYPASSES ITS OWN SCREEN GUARD
+
+`[VERIFIED BY ME, reading `sdk/workflows/demo_sequencer.py`]`:
+
+| line | call | guard |
+|---|---|---|
+| `:320` | `stage.run(emit=self._guarded(emit), …)` | **guarded** |
+| `:278` | `emit_table(emit, …)` | **RAW** |
+| `:335` | `emit_table(emit, …)` | **RAW** |
+| `:351` | `announce_plot(emit, "results", …)` | **RAW** |
+| `:354` | `emit_table(emit, …)` | **RAW** |
+
+**`_stage_meshing`, `_stage_gates` and `_stage_results` pass the RAW `emit`, so TABLE CELLS AND FIGURE TITLES/CAPTIONS REACH A SCREEN WITH NO `assert_screen_safe` BETWEEN THEM.** It is the same bypass cfd already fixed **for the replay stage** — **the fix was applied at one call site and not at the other four.** That is `CLAUDE.md` rule 14 exactly: *a lesson is not applied until EVERY call site asserts it.* **It affects every act routed through demo mode, not just ours.** Act D closes it for its own 80 strings via `AdjointWingAct.self_check()`; **the door itself is cfd's file and is not ours to shut.** Routed, not touched.
+
+##### 4. ⚠ A 100× SILENT WIDENING, CAUGHT — AND I CONFIRMED THE CATCH
+
+`_a2_shape.IDENT_TOLERANCE_PCT = 1.0` is **per cent**; `GeometryMatch.relative` defaults `True` and takes a **fraction**. Passing it raw would have made the identity check **1.0 as a fraction = 100 %** — **a 100-fold widening of the very check that catches a substituted geometry, with nothing on screen to say so.** `adjoint_act.py:409` divides by 100.0 explicitly with the reason in the code. **`L-422`'s species precisely: a units convention belonging to one module silently doing another module's job** — and this time it was caught before it shipped rather than after.
+
+##### 5. FOUR MORE SHARED-TREE FINDINGS, ROUTED TO cfd, NONE TOUCHED
+
+**(a) `demo_mode.MeshPlan`'s docstring says the sequencer "actually invokes" `command` on the STL. Measured: `_stage_meshing` NEVER READS `command` and invokes nothing** — it speaks "Meshing", emits the resolution table, and publishes `drawn: False`. **So live meshing is VIABLE at 8.021 s and is NOT WIRED**, and the docstring is a fifth instance tonight of a claim true at authoring time. **(b) `demo_sequencer.py:279` hardcodes the mesh table title "Wall and slot resolution" — Act D has no slot; that is a jet-flap word on our screen. (c) `_stage_results` hardcodes `announce_plot(emit, "results", …)`, so every figure URL is `/api/plot/results/<name>` whatever act published it — Act D's figures live under `cases/dafoam/ladder-a/figures/` and those URLs will not resolve as served.** The lane **did not squat `mission-output/results/`** to work around it. **(d)** The base sequencer **correctly refuses** this act (`SolveReplay.cases` empty by design, since `read_run_history` wants `log.simpleFoam`, `fvSolution`, a launcher STATUS file and `postProcessing/`, none of which an optimisation tree has); Act D ships `ActDSequencer` overriding **that one stage and nothing else**, so every payload still passes through the shared `_publish`. **Minimal shared change if cfd wants it: let `SolveReplay` carry a replay-stage factory so the stage is resolved by the sequencer rather than by a subclass.**
+
+##### 6. TWO HONESTY POINTS THE LANE HELD RATHER THAN SMOOTHED
+
+**The adjoint progress CANNOT ride the same clock, and merging it would have been an invention.** Major-iteration wall times originate at pyoptsparse start; adjoint solves at process start. **Measured, they disagree: the last solve opens at 3641.02 s on the driver clock against a 3600.79 s process wall, and merging yields a 1208.05 s timeline on a 1200 s display.** So the 100 solves advance **by ordinal**, carry **no elapsed figure** beside the 20-minute clock, and ship ragged — **100 opened / 99 completed / 1 published unfinished**. Aligning them would be the same fabrication as the forbidden gradient-call↔major map.
+
+**And `RunRecord.completion_evidence` is documented for rule 4's clauses, which do not apply here.** An `End` line, `last time == endTime` and the `0/T` age guard are clauses about a **steady OpenFOAM solve**; Act D's source run is an **optimisation driver ended by a wall-clock box**. The act points at `A2_replay_series.json` and states in its own docstring what that artifact **does and does not** evidence, rather than implying rule-4 completion it cannot have.
+
+##### 7. ⚠ ONE RESIDUAL FOR SANAA'S DESK — A 60-MINUTE FIGURE IS STILL DERIVABLE ON CAMERA
+
+The restatement publishes an upfront estimate of **240.0 core-minutes** against an actual **240.1** — a genuine 1.0002 estimate-versus-actual pair, and good practice. **But 240 core-minutes ÷ 4 ranks is derivable as 60 minutes, which sits against the 20-minute display.** **It is PRE-EXISTING, not new — the current act already ships 240.4 core-minutes on camera** — and **the lane declined to fix it by degrading a true number, which was the right instinct.** Her "20 minutes everywhere" ruling did not reach a core-minute figure, and I am not going to quietly round one. **Her call: drop the core-minute line from camera, or accept that a determined viewer can divide.**
+
+##### 8. COST
+
+**No compute launched and no pre-registration existed for this task**, so **there is no estimate-versus-actual row owed** to `docs/COST_CALIBRATION.md`. The drive costs **1.10 s wall on 1 rank ≈ 0.018 core-min, measured**, and its record is **byte-deterministic across re-runs**.
+
+
 ##### UPDATE S-23j — **`D19R2` = `NOT A RESULT`, AND THE REPAIR HELD: IT REFUSED THIRTY LINES PAST WHERE `D19R` DIED, ON A REGISTERED GATE AND NOT ON THE OLD DEFECT. ⚠⚠ HAD `D19R`'s WIRING BEEN CORRECT IT WOULD HAVE REFUSED HERE TOO — THE SUCCESSOR WAS NECESSARY AND IS NOT SUFFICIENT. AND I SHARPENED THE MECHANISM: IT IS NOT "THE np=2 ARMS"** (2026-09-01T04:2xZ, `date -u` at write)
 
 ##### 1. THE VERDICT, WITH ITS NUMBERS AND ITS COST
