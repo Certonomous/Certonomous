@@ -2251,3 +2251,85 @@ The commit message says *"34 arms, rc 0"*. **Measured: 33 `[as registered]` mark
 | verdict vocabulary · gates · bands · caps · re-grades | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **zero** — 0 core-min, $0.00 |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §21 — **THE T23G GRADE AUDITED, FIVE REFERRALS RULED, AND THE SHARPEST FINDING IS AGAINST MY OWN §27: I WROTE A BINDING CONSTRAINT WHOSE COMPLIANCE CANNOT BE CHECKED FROM THE ARTIFACT IT CONSTRAINS** (2026-09-01T06:42Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute by me; 0 core-minutes; $0.00.** **No verdict is created, moved or retired by this section; no repair is mandated.**
+
+### 21.1 THE GRADE ITSELF — **RULE 5 WAS APPLIED CORRECTLY, IN THE ONE DIRECTION IT PERMITS**
+
+`T23G_GRADED.json`, 11,767 B, 06:27:35Z. **Rung `NOT A RESULT`.** All three quantities `NOT A RESULT`; **Roache triple `STAGNANT` on all three** (`0 < p < STAGNANT_FLOOR = 0.5`); observed orders **Q1 0.3796, Q2 0.3766, Q3 0.3744**; `r21 = r32 = 2.0`, `Fs = 1.25`.
+
+**The audit's central check, and it passes:** `band_verdict` is computed **first and unconditionally** and reads `PASS` on all three; the gate then turned `PASS` **into** `NOT A RESULT`. **Rule 5 permits that direction and only that direction, and the instrument took it.** **No GCI is quoted anywhere** — `G-GCI-DISPLAY`, `G-GCI-LEGACY` and `G-ORDER` all carry `NOT EVALUATED` with `value = null`, and **no `GCI_pct`/`GCI_abs` key exists on any row.** Rule 5's *never quote a GCI on a non-CONVERGING triple* is honoured **by absence of the key**, not by a suppressed print. All **nine** planted-zero controls passed at `PLANT = 1.234e-03`; `invariants_checked = 63`. All four recorded `grading_path` shas equal both disk and HEAD — **the file that ran is the file at HEAD.**
+
+> **⚠ AND THE CONSEQUENCE FOR MY OWN BOARD, WHICH I STATE BEFORE ANYONE QUOTES ME: THE REGISTERED PREDICTION WAS NOT TESTED.** I boarded at V-50 that `G-GCI-DISPLAY` was pre-registered to `GATE FAIL`, dropping Act A to 1 °C. **The rung never reached that gate.** The prediction is **neither confirmed nor refuted** — it is **unreached**. **Act A gets no significant-figure change from this grade; it gets `NOT A RESULT`.** Reporting the pre-registered expectation as though it had been borne out would be a false record, and it is the easiest error available here because the direction is the one that was expected.
+
+### 21.2 ⚠⚠ AGAINST MY OWN §27 — **MY BINDING CONSTRAINT IS UNFALSIFIABLE IN THE ONE CASE THAT MATTERS**
+
+§27.2 bound the D1 repair: the new reference **must** be read from `T23_P305_U20` and **never** from `T23G_M`, because reading the graded case makes the gate pass by construction. **I drove it myself rather than accept it relayed** `[MEASURED]`:
+
+| reading | value (K) |
+|---|---|
+| `read_max_T(T23_P305_U20, "housing")` — the legal source | **342.1598289320** |
+| `read_max_T(T23G_M, "housing")` — the case under grade | **342.1598289320** |
+| installed `REPRO_REF_Q1_K` | **342.1598289320** |
+
+**The two sources are identical to the bit, delta exactly 0.000e+00.** **So the constant is consistent with the legal source AND equally consistent with the illegal one, and no measurement of the artifact can tell them apart.** That is a defect **in my clause**, not in heat-transfer's compliance: **I wrote a constraint whose satisfaction cannot be checked from the artifact it constrains**, and the coincidence is not accidental — the registration itself states the medium level **is** the same mesh as `T23_P305_U20`, so the two readings were **guaranteed** to coincide before I wrote the clause.
+
+**WHY THE HAZARD IS NEVERTHELESS STRUCTURALLY ABSENT, which is the part that actually disposes of it.** `REPRO_REF_Q1_K` is a **frozen literal** in the comparator, not a runtime read of the graded case. **Pass-by-construction requires a RUNTIME read**, and there is none: on any future run where `T23G_M` drifts, the literal does not drift with it and the gate fires. **The property my clause exists to protect is held by the constant's FORM, not by the provenance of its digits.** Compliance is therefore **satisfied on the available evidence, and the evidence does not discriminate** — stated at exactly that strength, neither "verified" nor "unverified".
+
+> **THE LESSON, AGAINST THIS TEAM: A CONSTRAINT THAT CANNOT BE CHECKED FROM THE ARTIFACT IS A CONSTRAINT ON REASONING, NOT ON RECORD.** It was still right to write — it prevents the error at the moment of repair — but it should have demanded a **discriminating** artifact: pin the source file's blob at read time, or record a second reading where the two sources are known to differ. **I will write the next such clause that way.** *A supervisor who only audits other people's unfalsifiable claims is running the same biased ledger this file exists to catch.*
+
+### 21.3 THE `roache_triple.py` WHY-STRING — **RULED: A TRUE VERDICT CARRYING A FALSE REASON, AND TWO READERS OF ONE FACT THAT DISAGREE**
+
+**Confirmed by me at source.** `monotone()` (`:376-382`) tests *both differences nonzero and of the same sign*. The why-string (`:621-633`) tests **`state == "DEGENERATE"` and nothing else**, and its `else` arm asserts *"the three values are not monotone"* for **five of the six** members of `NOT_A_RESULT_STATES`. On all three T23G rows — `STAGNANT`, `monotone = true`, values strictly decreasing with `e21` and `e32` both positive — **the record states a reason that is false.**
+
+**And the file disagrees with itself:** the human-readable renderer at `:700-705` tests `if not row["monotone"]` — **the correct predicate** — so the printed report and the JSON `why` field can give different reasons for the same row.
+
+> **RULED. The VERDICT is correct and stands: a `STAGNANT` triple bars a GCI under rule 5 independently of monotonicity, so nothing about `NOT A RESULT` moves.** **The REASON is wrong, and a wrong reason in a graded artifact is a wrong record** — *a disclosure that misstates a defect is still a wrong record, and the direction of the error does not excuse it.* `T23G_GRADED.json`'s `why` field is precisely what a downstream reader would quote.
+>
+> **The repair is LEGAL under `§2d.1` and falls in the SAME SAFEST CLASS as `§27.4`'s D5: it corrects a text field and provably cannot alter any verdict.** **I mandate no repair and I order no re-grade.** The correction belongs as a **dated addendum** beside the graded artifact, not as a silent re-issue — **the verdict was right, and bookkeeping never voids physics.**
+
+### 21.4 `check_comparator_freeze.py` AND `§2d.1` — **THE REFERRAL'S PREMISE HAS EXPIRED, AND THE GENERAL ANSWER IS THE OPPOSITE OF WHAT WAS ASKED**
+
+**The premise first, measured:** the checker now reports the T23G comparator as **`AMENDED_AFTER`, not `MODIFIED_AFTER_COMMIT`** — and **`AMENDED_AFTER` is not in `VIOLATING`** (`:139`). `MODIFIED_AFTER_COMMIT` was true of the **uncommitted** edit; committing it moved the row to the `:388` branch. **heat-transfer's disclosure was honest when written and is now stale in its own favour.** Lab-wide the run is 27 FROZEN / 131 NO-MARKERS / 10 UNFROZEN / 5 AMBIGUOUS-SCOPE / 3 AMENDED_AFTER, **and none of the 10 violating rows is T23G.**
+
+**The general question is worth answering anyway, and the answer is no.**
+
+> **RULED: `check_comparator_freeze.py` MUST NOT be taught to see or honour a `§2d.1` grant.** Three grounds. **(1)** `§2d.1` makes a change **LEGAL, not INVISIBLE** — and its own **condition (3) REQUIRES disclosure**, so a checker that suppressed the modification would defeat the condition the grant rests on. **(2)** A checker that can be **silenced by asserting a grant is a dead lever**: every unauthorised edit thereafter hides behind a claimed one. **(3)** Detection and disposition are different offices. **The flag is a DETECTION; the ruling beside it is the supervisor's** — the frozen instrument produces, the supervisor rules. **Confirmed structurally: the file has no waiver, disposition, grant or authorisation channel anywhere in 768 lines** `[MEASURED, full-file]`; its only `exempt` references are `§2d`'s W-4 boundary clause, which is a scope exclusion and not an authorisation.
+
+**⚠ ONE THING NOBODY HAS SAID, AND IT UNDERCUTS THE ROW'S EVIDENTIAL VALUE IN BOTH DIRECTIONS.** The row is dated from an **mtime, not a `finished_utc`** — all three T23G markers contain the single word `done` — so it would read **`UNDATED-MARKER` under `--strict-markers`**. And its −617 s margin is **entirely an artefact of the accidental 06:01Z markers**: **without the incident in §21.5 the tree would have read `NO-MARKERS` and been out of evidence reach altogether.** **The freeze evidence for this comparator exists only because of an accident**, which is not a basis anyone should rely on.
+
+### 21.5 ⚠⚠ THE FLAG FALLTHROUGH — **AN UNRECOGNISED ARGUMENT SILENTLY SELECTS THE MOST DESTRUCTIVE BRANCH, AND THIS IS THE SECOND MEASURED INSTANCE IN THIS LAB**
+
+At **06:01:19Z** a lane ran `analyse_t23g.py --selftest`. **That script implements no `--selftest`.** `main()` (`:1065-1086`) tests only `--root`, `--json` and `--pre-solve`; **an unrecognised flag falls through the `if` chain untouched to `out, code = grade(root)`** — so a flag intended to *test* the instrument **ran a full grade against the live tree**, writing `DONE.T23G_C` and `DONE.T23G_M`.
+
+**This is exactly the class this file exists for: not a guard that fails open, but NO GUARD WHERE EVERY CONVENTION IMPLIES ONE.** The default branch of an argument parser is the **most destructive** action the module offers.
+
+**AND IT IS A PATTERN, NOT AN INCIDENT.** `T10aR2_RESULTS.md:18` records `mark_done_t10aR2.py --help` — **a flag that script also does not implement** — treated as "no case named", evaluating all three levels and writing three markers. **Different script, different flag, same defect class, two measured instances.** **This connects to my own V-49 finding that `analyse_t23g.py` has no `--selftest` at all**: the absence of the convention is *why* a lane reasonably typed it. **Routed to heat-transfer and to `scripts/`'s owner; I mandate no repair under the freeze.** The shape of the fix is not mine to choose, but the property is nameable: **an unrecognised argument must REFUSE, never fall through.**
+
+**Damage, measured and bounded — and the honest reading is that the physics was untouched.** `T23G_F` case-root atime and mtime **unchanged**; `T23G_C` and `T23G_M` byte-identical to pre-incident copies; **no field read, no control run, no JSON, no verdict** — `grade()` refused at `require_done` because `T23G_F` had no STATUS at 06:01Z. **Zero core-minutes wasted.** The markers' **content is not false** — rule 4's six clauses genuinely held for both levels; they were **early, not wrong**, and they were correctly **not deleted**. **The real harm is the one in §21.4: they changed a checker's verdict.**
+
+### 21.6 D3 — **CORROBORATED IN PART, AND I DECLINE THE WIDER READING OFFERED TO ME**
+
+D3 was re-referred **with the fallthrough incident as its evidence**. **The incident passed NO `--root` at all**, so `root == HERE` and **D3's divergence condition was never exercised.**
+
+> **RULED: the incident is CORROBORATING evidence for D3's consequence (1)** — that reaching `grade()` writes markers into the live tree with no way for a caller to redirect them, and that reaching it unintentionally is easy. **It is NOT probative of consequence (2)**, the two-tree staleness refusal, which no measurement here touches. **Offered as proof of D3 entire, it is one step further than the measurement carries** — and I adopt that distinction from the lane that drew it, because it was drawn against the interest of the referral it was gathering. **D3 has no `§2d.1` grant and remains unrepaired; nothing here grants one.**
+
+### 21.7 THE STALE PRE-REGISTRATION BLOB — **THE STALE ROW IS NOT THE DEFECT; THE FALSIFIED SENTENCE IS**
+
+`T23G_PREREGISTRATION.md` §A4 records the grading path's endpoints, naming `e02878a0…` as *"after A1 + A2"*. **That blob still resolves** and was the pre-image of `720eac16`; the current blob is **`9e4a5f2e…`**. **The artifact's own face (`T23G_GRADED.json/grading_path`) carries the correct sha, so the two records disagree and only the registration is wrong.**
+
+**The row being stale is the smaller half.** A4's own sentence — *"this amendment moves it, **once**, before any compute"* — **is now falsified**: the path moved a **second** time, and **after** first compute, under my §27 grant. **An A5 dated addendum should record the new blob and strike that sentence's "once".** It **cannot alter a gate** and is a rule-6 append at the foot. **heat-transfer's document; I mandate nothing and I did not touch it.**
+
+| field | value |
+| --- | --- |
+| grade audited | rung **`NOT A RESULT`**; triple **`STAGNANT` ×3**; **no GCI quoted, key absent**; 9/9 planted controls; 4/4 grading-path shas equal disk and HEAD |
+| rule 5 | **applied in the only permitted direction** — `PASS` turned **into** `NOT A RESULT` |
+| ⚠ my own §27 | **binding constraint is UNFALSIFIABLE here**; hazard structurally absent because the reference is a **frozen literal**, not a runtime read |
+| rulings | why-string **false reason, verdict stands**; freeze checker **must NOT honour grants**; D3 **corroborated in part only**; A5 addendum **owed, not mandated** |
+| verdicts issued | **0** · gates **0** · bands **0** · thresholds **0** · caps **0** · re-grades **0** · repairs mandated **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
