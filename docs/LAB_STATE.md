@@ -11972,6 +11972,79 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T06:45Z — **T23G IS GRADED: `NOT A RESULT`. EVERY LEVEL SOLVED, CONVERGED AND PLATEAUED, AND THE TRIPLE STILL FAILS — THE OBSERVED ORDER IS BELOW 0.5, WHICH IS `STAGNANT`.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone. **No solver is running. Every solver this team owns has finished.**)*
+
+---
+
+### A. ⛔ **THE RUNG VERDICT — `NOT A RESULT` ON ALL THREE GRADED QUANTITIES.** `3c45579d`; record `docs/campaigns/T-family/T23G_RESULTS.md`, machine record `T23G_GRADED.json`
+
+**Graded by `analyse_t23g.py` AND BY NOTHING ELSE.** No value hand-read, no GCI computed outside the comparator, **recognised flags only (`--json`)** — honouring the fall-through hazard that bit us earlier.
+
+**⚡ THE DISCIPLINE I ORDERED IS WHAT MAKES THIS A RESULT RATHER THAN A GUESS.** The comparator **exited 1, which is ambiguous by design** — either a graded non-PASS or an uncaught traceback. **The verdict was read from STDOUT: the verdict block printed, and `grep -c Traceback` on the captured run returned 0.** This is a **real graded outcome, not an instrument failure**, and we can say so because we did not trust the exit code.
+
+**THE LADDER — as registered, measured from each level's own `checkMesh` logs:**
+
+| region | `T23G_C` | `T23G_M` | `T23G_F` | ratios |
+|---|---|---|---|---|
+| fluid | 8,800 | 35,200 | 140,800 | ×4, ×4 |
+| housing | 280 | 1,120 | 4,480 | ×4, ×4 |
+| core | 840 | 3,360 | 13,440 | ×4, ×4 |
+| **total** | **9,920** | **39,680** | **158,720** | ×4, ×4 |
+
+**`r21 = r32 = 2.000000` at `dim = 2`** — a 5° wedge one cell thick circumferentially, so refinement is in **two** directions and a 4× cell count is **r = 2, not r = 8**. Level invariants **byte-identical** across all three (`0.orig/` 12 files, `constant/` 10, `system/` 8, and the `blockMeshDict` vertices block); `cellToRegion` exempted by name under amendment A1.
+
+**RULE 5 STEP (1) — EVERY LEVEL CONVERGED AND PLATEAUED, so clause (1) does NOT fire:**
+
+| level | G-CONV | worst asserted residual | G-PLATEAU housing / core |
+|---|---|---|---|
+| `T23G_C` | **CONVERGED** | `p_rgh` 9.049e-09 | PLATEAUED, spread **0.000000 K** / **0.000000 K** |
+| `T23G_M` | **CONVERGED** | `p_rgh` 9.923e-09 | PLATEAUED, spread **0.000000 K** / **0.000000 K** |
+| `T23G_F` | **CONVERGED** | `p_rgh` 8.723e-09 | PLATEAUED, spread **0.000000 K** / **0.000000 K** |
+
+All six asserted residuals (`Uy Uz h p_rgh k omega`) ≤ 1e-8 against a 1e-6 tolerance on **every** level. **`Ux` excluded by decision and justified by MEASUREMENT rather than asserted:** max|Ux|/max|Uz| = **1.668e-17 (C), 1.832e-16 (M), 4.236e-16 (F)**.
+
+> **⛔ AND THE TRIPLE STILL FAILS. The observed order of convergence is BELOW 0.5 ON ALL THREE QUANTITIES, which `scripts/roache_triple.py` classifies as `STAGNANT`, and rule 5 makes `NOT A RESULT` whatever the value says.** Clause **(2) fires before clause (3)**, so **no GCI is licensed and none was quoted** — rule 5's own instruction never to quote a GCI on a non-CONVERGING triple.
+
+**THE HONEST READING, and it is not a soft one: every level solved cleanly, every level converged, every level plateaued, every reader was controlled, and the ladder is exactly the ladder that was registered — AND THE ANSWER STILL DOES NOT SUPPORT A GRID-CONVERGENCE CLAIM.** A clean run and a gradeable claim are different things. **The registration predicted an order of 1.0 against a band of (0.80, 2.50); the measurement says 0.375.**
+
+**COST (rule 12), all three levels:** C **6.0667** (POINT 7.56, ratio 0.803), M **27.8167** (30.22, 0.920), F **145.750** (120.88, **1.206**) — **campaign 179.63 core-min**, every level **uncapped**. Attribution on F is a **misprediction in the over-running direction**, well inside its 400 cap; waste nil and separately named. Dollars **DERIVED at $0.0513/core-h, never measured.**
+
+---
+
+### B. ⛔ **CONSEQUENCE FOR ACT A: THE TRIPLE LANDED AND LICENSES NOTHING. THE SCREEN DOES NOT CHANGE.**
+
+Sanaa's 03:10Z item (4) held Act A at **0.1 °C significant figures *until the grid triple lands***. **It has landed — as `NOT A RESULT`.**
+
+- **There is NO basis to change the precision.** `DECIMALS_DEGC` stays at **1** (0.1 °C). Do not touch it.
+- **The empty uncertainty column REMAINS THE HONEST PRESENTATION** and must stay empty. A `NOT A RESULT` triple supplies **no** error bar; inventing one from a STAGNANT ladder would be the exact fabrication the rung exists to prevent.
+- **The pre-registered expectation was `G-GCI-DISPLAY` GATE-FAILING to 1 °C. That is NOT what happened — the rung never reached that gate, because `STAGNANT` fired first under rule 5's ordering.** A successor must not record "Act A went to 1 °C as predicted"; **it did not go anywhere.**
+
+---
+
+### C. **THE SHARED INDEX WOULD HAVE DESTROYED TONIGHT'S EVIDENCE. DEFUSED BY THE CHIEF; RECORDED BECAUSE IT IS THE MECHANISM.**
+
+A lane measured, and **I re-measured myself**, the shared index staged **in the reverting direction**: **13 paths / 981 deletions** at my read, **14 / 1,022 at the chief's final read** — including **`T23G_GRADED.json` −499**, **`T23G_RESULTS.md` −301**, `docs/LESSONS.md` −85 (L-428), **all three `DONE.T23G_*`**, **all three `STATUS.T23G_*`**, and **a dafoam `curriculum_D19M` PRE-REGISTRATION −43**. **A bare `git commit` by anyone would have deleted the entire evidentiary record of tonight's triple plus another team's frozen registration.**
+
+**NOT TOUCHED BY THIS TEAM — inspected, never reverted; the index is the chief's call, and the chief cleared it** (`git read-tree HEAD`, post-verify empty). **Third clear tonight.** **I VERIFIED THE RECOVERY MYSELF rather than accepting it:** `T23G_GRADED.json` (11,767 B), `T23G_RESULTS.md` (15,527 B) and `LESSONS.md` all **hash-identical between worktree and HEAD**, and **L-428 is present at HEAD**.
+
+> **⚠️ OPERATIONAL RULE FROM THE CHIEF, AND IT CHANGES HOW WE ALARM: THE SHARED INDEX REGENERATES STALE UNDER THE PRIVATE-INDEX PROTOCOL BY DESIGN.** Our commits write a private index and never update the shared one, so it drifts behind HEAD as we work. **`MM` in `git status` is therefore EXPECTED and is NOT evidence of loss. Re-check BY CONTENT against HEAD — `git hash-object <path>` versus `git rev-parse HEAD:<path>` — BEFORE alarming.** Already 23 deletions re-staged within minutes of the clear. *(This is the standing "git status reads stale under concurrency" lesson, in its structural form.)*
+
+---
+
+### D. **STATE AT THIS BOARD**
+
+- **No solver running** — verified by `readlink /proc/PID/exe` over every pid, which is **L-428's own remedy, first used on the check that produced it**, not by a name match.
+- **T25R2:** `GATE FAIL`, every row `NOT A RESULT`; `L2`/`L2_DT025` halted by ruling, staged and unlaunched; **19.780 of 390 spent, 370.2 unspent, recorded as a DECISION.**
+- **T23G:** graded, `NOT A RESULT`, 179.63 core-min.
+- **Act C:** honest-refusal screens **PREPARED, NOT DEPLOYED** — nothing wired to the GUI, `sdk/` untouched, server not restarted, the 0.420 K sheet not revived. **Moves only on Sanaa's word.**
+- **Act A:** unchanged and correct at 0.1 °C with an empty uncertainty column.
+- **BLOCKED, lab-wide, and OURS:** `scripts/append_record.py` refuses on `LESSONS.md` because of **our own** `## L-426 AMENDMENT 1 —` heading (`243a2bc9`). Third variant of a shape `KNOWN_EXCLUDED` has been extended for twice. **Verification's to rule; we do not edit the record to satisfy the instrument.**
+
+---
+
+
 ##### ADDENDUM 2026-09-01T06:20Z — **T25R2's GATE FAILED AND EVERY ROW IS `NOT A RESULT`. THE T23G REPAIR IS LANDED AND CHECK-1 CLEARED. AND A `--selftest` FLAG THAT DOES NOT EXIST RAN THE GRADER AGAINST THE LIVE TREE.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone.)*
