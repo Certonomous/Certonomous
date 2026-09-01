@@ -422,6 +422,45 @@ def main() -> int:
           "the one class the thinnest-extent assumption gets wrong never "
           "reaches a customer")
 
+    # THE IDENTITY CHECK IS A SECOND CONSUMER OF THIS READER, and it used to
+    # bypass it -- calling the viewport's transport loader directly under a
+    # comment claiming the surface was "read exactly as it arrived". It is
+    # routed through _read now, and these arms hold it there.
+    print("\nIDENTITY-CHECK ARMS -- the act's other consumer of this reader")
+    print("-" * 74)
+    from workflows import _a2_shape as SH
+
+    doc = SH.load()
+    ident = SH.identify(doc, REFERENCE_WING.name, directory=REFERENCE_WING.parent)
+    check("the reference wing identifies as itself",
+          (ident["match"], ident["at_resolution_floor"]), (True, True),
+          f"worst {ident['worst_pct']:.3g}% against a float32 floor of "
+          f"{ident['resolution_pct']:.3g}%, so the screen says 'below "
+          f"{ident['resolution_pct']:.1g}%' rather than a made-up five figures")
+    other = SH.identify(doc, REAL_UPLOAD.name, directory=REAL_UPLOAD.parent)
+    check("the uploaded NACA0012 is still a different wing",
+          (other["match"], other["at_resolution_floor"]), (False, False),
+          f"worst {other['worst_pct']:.4g}%")
+    # THE PLANTED CONTROL on the floor branch. "Below the resolution floor" is
+    # only evidence if a real disagreement is shown escaping it: a branch that
+    # says "agrees" can hide a defect, and this one is on screen.
+    bent = bytearray(REFERENCE_WING.read_bytes())
+    n_bent = struct.unpack_from("<I", bent, 80)[0]
+    for i in range(n_bent):
+        off = 84 + 50 * i
+        v = list(struct.unpack_from("<12f", bent, off))
+        for k in (5, 8, 11):                       # the span coordinate
+            if v[k] > 14.0:
+                v[k] += 0.001                      # 1 mm on a 14 m span
+        struct.pack_into("<12f", bent, off, *v)
+    (tmp / "bent_ref.stl").write_bytes(bytes(bent))
+    planted = SH.identify(doc, "bent_ref.stl", directory=tmp)
+    check("a 1 mm stretch does NOT hide under the resolution floor",
+          planted["at_resolution_floor"], False,
+          f"it reads {planted['worst_pct']:.3g}% and gets a number on screen; "
+          f"through the rounded copy a perfect match already read 3.3e-04%, so "
+          f"a defect this size was indistinguishable from the rounding")
+
     print("\nMUTATION ARMS -- each refusal must come FROM its own threshold")
     print("-" * 74)
     # A refusal that survives its own threshold being disabled was never

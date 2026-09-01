@@ -92,6 +92,18 @@ class Surface:
         self._vertices = vertices
 
     @property
+    def vertices(self) -> list:
+        """The coordinates this Surface was measured from.
+
+        Public because a caller that needs to measure the same surface a
+        second way must be able to reach the SAME coordinates rather than
+        re-reading the file by its own route and getting a different reading.
+        That is not hypothetical: _a2_shape.identify() did exactly that and
+        measured the transport-rounded copy while admit() measured the file.
+        """
+        return self._vertices
+
+    @property
     def smallest(self) -> float:
         return self.extents[self.by_size[0]]
 

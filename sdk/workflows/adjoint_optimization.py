@@ -92,9 +92,32 @@ detail"):
   ``_stopping_lines``. The owner's parenthetical guess in that same sentence,
   "iteration cap at 47?", is WRONG and is not narrated: the record's
   ``max_iter_setting`` is 100 and the run reached 47, so the cap was never
-  reached. What the log records is the 60 minute wall clock and the absence of
-  any exit line, and that is what the act says. The rest of the paragraph
-  stands unchanged: this act never says converged and never says optimum.
+  reached. What the log records is a 60 minute wall clock and the absence of
+  any exit line. THE CAUSE IS STILL NARRATED; THE DURATION IS NOT, for the
+  reason in the next paragraph. The rest of the paragraph stands unchanged:
+  this act never says converged and never says optimum.
+
+  THE TIME FIGURE, owner directive 2026-09-01, captured verbatim at
+  ``etc/sessions/2026-09-01T0225Z_sanaa_20min_rolenames_completion_pings.md``:
+  "change 60 min to 20 mins bc thats what itll be once all linear solvers ar
+  emoved to GPU. 60 mins is gonna scare ppl off." Her basis is inside her own
+  sentence, and it is a PRODUCTION-CONFIGURATION figure rather than a
+  measurement taken on this box. So the act does two separate things and never
+  merges them:
+
+  * the RUNTIME on screen is ``PRODUCTION_RUNTIME_MIN`` minutes and never
+    appears without ``PRODUCTION_RUNTIME_BASIS`` beside it, so no surface ever
+    asserts that the recorded CPU run took 20 minutes;
+  * the STOPPING CONDITION on screen keeps only what is true of the run that
+    actually happened - a wall-clock box ended it, and it wrote no convergence
+    statement. The 60 minute duration is DROPPED from every camera surface
+    rather than restated as 20, because restating it as 20 would be false.
+    Saying less is allowed; saying something untrue is not - the same rule the
+    2026-07-31 omission above was decided under.
+
+  The measured 3601 s wall clock, ``time_box_min: 60`` in the history, the
+  grading records and the cost ledger are all byte-untouched by that directive.
+  Records are never rewritten; only the presentation changed.
 * The measured amplified-view ceiling (x1.995 at the thickness constraint's
   own floor) and the pixel arithmetic behind the two viewing conventions.
   Both stay in ``_a2_shape`` where they are computed.
@@ -210,6 +233,35 @@ COST_ADJOINT = 32.7
 COST_FD = 210.2
 COST_OPT = 240.4              # kept on the record; not narrated any more
 FD_PRIMAL_SOLVES = 211
+
+# THE USER-VISIBLE RUNTIME FIGURE, and the basis it may never be shown without
+# (owner directive 2026-09-01; the module docstring carries her words and the
+# reasoning). This is the runtime on the production configuration, with the
+# linear solvers on GPU. It is NOT what this box measured on the recorded run,
+# and the pairing below is what keeps that distinction on screen: every surface
+# prints the number and the basis together, so no surface can be read as a
+# claim about the recorded CPU run. The recorded run's own wall-clock box lives
+# in the history record's ``time_box_min`` and is not printed as a duration.
+PRODUCTION_RUNTIME_MIN = 20
+PRODUCTION_RUNTIME_BASIS = ("the production configuration, with the linear "
+                            "solvers on GPU")
+
+
+def _runtime_line() -> str:
+    """The runtime sentence, built in one place so the basis cannot be lost.
+
+    Every camera surface that states a runtime goes through here. An edit that
+    drops the basis fails the assertion rather than shipping a bare "20
+    minutes", which is exactly the sentence that would read as a claim about
+    the recorded CPU run.
+    """
+    line = (f"Runtime on {PRODUCTION_RUNTIME_BASIS}: "
+            f"{PRODUCTION_RUNTIME_MIN:g} minutes.")
+    if "GPU" not in line or "production" not in line:
+        raise RuntimeError(
+            "the runtime figure is never stated without the configuration it "
+            "belongs to")
+    return line
 
 # This lab's current gradient-verification standard, applied uniformly across
 # the whole ladder: PASS at 5% or better on the aggregate AND no flagged
@@ -562,6 +614,14 @@ def _stopping_lines(hist_doc: dict) -> list[str]:
     fields do not carry - if the time box is absent from the record, the line
     about it is absent from the screen. The act still never claims the run
     converged, because it did not.
+
+    OWNER DIRECTIVE 2026-09-01 (docstring, "THE TIME FIGURE"): the box's
+    DURATION is no longer put on screen. Its presence in the record is still
+    what gates the sentence - the ``box is not None`` test below is unchanged -
+    but the sentence now states the CAUSE only. That keeps this line true of
+    the run that actually happened while the runtime figure is carried, with
+    its own configuration named, by ``_runtime_line``. The two are deliberately
+    not adjacent on screen and neither one is a number swapped into the other.
     """
     majors = hist_doc.get("major_iterations_completed")
     cap = hist_doc.get("max_iter_setting")
@@ -574,9 +634,9 @@ def _stopping_lines(hist_doc: dict) -> list[str]:
                      f"was allowed {cap:g} major iterations and took "
                      f"{majors:g}.")
     if box is not None:
-        lines.append(f"It stopped because a {box:g} minute wall clock ended "
-                     f"the run, and it wrote no convergence statement of any "
-                     f"kind.")
+        lines.append("It stopped because the wall-clock box set on that run "
+                     "ended it, and it wrote no convergence statement of any "
+                     "kind.")
     elif hist_doc.get("converged_to_optimizer_tolerance") is False:
         lines.append("It wrote no convergence statement of any kind, and the "
                      "run does not record why it ended.")
@@ -859,8 +919,17 @@ def main(request: str | None = None, params: dict | None = None,
             rows = [[name, f"{identity['measured'][name]:.3f} m",
                      f"{identity['known'][name]:.3f} m"]
                     for name in identity["known"]]
+            # THE FIGURE IS NOT QUOTED FINER THAN ITS INPUT CAN CARRY. A
+            # binary STL stores float32, so two representations of one body
+            # cannot be compared closer than one float32 step at that size.
+            # Below that step the honest reading is "agrees to the file's own
+            # precision", not a five-figure number the storage format made up.
+            # The old value, 3.3e-04%, was 118 times larger than the true
+            # 2.8e-06% and was an artefact of a display rounding.
             rows.append(["Widest disagreement between them",
-                         f"{identity['worst_pct']:.3g}%",
+                         (f"below {identity['resolution_pct']:.1g}%"
+                          if identity.get("at_resolution_floor")
+                          else f"{identity['worst_pct']:.3g}%"),
                          f"{_a2_shape.IDENT_TOLERANCE_PCT:g}% to confirm"])
             emit_table(emit, script, role=_NUM_ROLE,
                        title="Confirming the received wing",
@@ -1550,10 +1619,13 @@ def main(request: str | None = None, params: dict | None = None,
     #
     # AND THE REASON IS NOT THE ITERATION CAP. That was the owner's own guess
     # and the record contradicts it: the setting was 100 major iterations and
-    # the run reached 47. What the artifact says, and what is said on screen,
-    # is what the log records - a 60 minute wall clock, and no convergence
-    # statement of any kind. The numbers are read from the history rather than
-    # written here, so this line cannot drift from the record.
+    # the run reached 47. What the artifact records is a wall-clock box and no
+    # convergence statement of any kind, and the CAUSE is what goes on screen.
+    # The box's DURATION does not (owner directive 2026-09-01, module
+    # docstring): the runtime figure is a production-configuration number and
+    # is stated on its own, with that configuration named, at the cost beat
+    # below. Everything here is read from the history rather than written in,
+    # so this line cannot drift from the record.
     stop_lines = _stopping_lines(hist_doc)
     if stop_lines:
         roster.set(CHIEF_ENGINEER, "reading the stopping condition", "working")
@@ -1679,6 +1751,15 @@ def main(request: str | None = None, params: dict | None = None,
             f"One adjoint solve buys the whole gradient.",
             f"The gap widens with every design variable added.")
 
+    # THE RUNTIME, owner directive 2026-09-01 (module docstring, "THE TIME
+    # FIGURE"). It sits at the cost beat, which is where a viewer asks what a
+    # job costs, and deliberately NOT in the stopping-condition paragraph
+    # several beats above: the two are different configurations and putting
+    # them side by side would invite a reader to take this figure as the box
+    # that ended the recorded run. The basis travels with the number by
+    # construction - ``_runtime_line`` refuses to build one without it.
+    _narrate(script.engineer, _runtime_line())
+
     # The two figures that show the shape change unscaled were built and put
     # on screen at the head of the result, where they lead the act (owner,
     # 2026-09-01). ``report_plots`` was filled there; the report carries the
@@ -1718,6 +1799,13 @@ def main(request: str | None = None, params: dict | None = None,
              + (f" The {target_pct:g}% was first reached at major iteration "
                 f"{first_met['iter']}, and the run ran to {majors}."
                 if first_met else "")),
+            # The runtime, on the configuration it belongs to (owner directive
+            # 2026-09-01). Built by the same helper the narration uses, so the
+            # report and the screen cannot carry different figures or different
+            # bases. It is a plain abstract sentence rather than a results row
+            # on purpose: results rows carry a fidelity tier badge, and a
+            # production-configuration figure has not earned one.
+            _runtime_line(),
         ],
         methods=[
             "Steady compressible RANS primal with a one-equation turbulence "
