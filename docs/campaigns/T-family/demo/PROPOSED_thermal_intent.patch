@@ -7,7 +7,12 @@ server was running throughout and was not restarted, signalled or touched.
 
 Prepared by:   heat-transfer lab-lane, 2026-09-01 (first cut), corrected the
                same night by a second heat-transfer lab-lane after the first
-               cut was measured against the files that actually landed.
+               cut was measured against the files that actually landed, and
+               corrected again by a third after the heat-transfer supervisor
+               read the module as a diff (SUPERVISION §3 check 1). The third
+               pass closes three LATENT defects and records one ruling; see
+               THE THIRD PASS below. Nothing it changed was wrong on screen
+               at HEAD.
 Base:          cut against sdk/chief_engineer/router.py at blob
                40521daec147bf19d2f2ee8dfe059bd4da8cae5e and
                sdk/chief_engineer/scope.py as at the same commit. Confirm the
@@ -107,6 +112,86 @@ WHAT THE CORRECTION FIXED, AND WHY IT MATTERED
       reviewer of this file can see both. MEASURED both ways -- 7 plots with
       them present, 5 without.
 
+THE THIRD PASS: THREE LATENT DEFECTS AND ONE RULING
+  None of these was wrong on screen at HEAD. The supervisor verified before
+  the pass began that every key involved is present in every bundle, and that
+  every control block in both acts spells its magnitude ``planted_K``. These
+  are traps closed, not errors repaired, and they must not be described as
+  errors repaired.
+
+  (f) A FALSE ZERO MANUFACTURED BY A DEFAULT, and this is the one that
+      mattered. Three customer-facing values in ``_normalise_act_c`` were read
+      with a NUMERIC DEFAULT -- ``b.get('largest_abs_diff_K', 0.0)``,
+      ``b.get('largest_abs_diff_time_s', 0)``, ``b.get('max_spread_time_s',
+      0)`` -- and the first was GUARDED ON A DIFFERENT KEY THAN THE ONE IT
+      PRINTS: the row appears when ``unaccounted_percent_fine`` is present,
+      then prints ``largest_abs_diff_K``. A bundle carrying the guard without
+      the value would have put ``under 0.0e+00 K`` on screen: a confident
+      zero no reader produced, and the tightest result the step-size study
+      could possibly have had, so it flatters the run besides.
+
+      That is CLAUDE.md rule 3 -- a zero from a reader not shown able to see
+      a non-zero is not evidence -- and a zero conjured by ``dict.get``'s
+      second argument was never read at all. It is WORSE than the silent-skip
+      defect (b) that this module was written to fix: a skipped table is
+      visibly absent, a fabricated zero looks like a measurement.
+
+      The whole module was swept for the pattern, not only the three named.
+      EIGHTEEN numeric defaults were found. SEVENTEEN fed a formatted screen
+      value and all seventeen are fixed: the three zeros above and fourteen
+      ``float('nan')`` defaults (the anchor-check columns, Act A's sixteen-row
+      result table, its colour range, coolest point, limit and monitor
+      offset, and Act C's per-cell table). ``nan`` is the same mistake in a
+      less dangerous costume -- still a number standing where a reading
+      should be. The eighteenth, ``float('inf')`` at the ``min()`` that picks
+      the coolest operating point, is a SORT SENTINEL that never reaches a
+      screen cell; it is kept and now carries a comment saying so.
+
+      The repair is one helper, ``_fmt``, which takes NO numeric default and
+      is now the only way a value reaches a screen cell, so that the absence
+      of ``.get(<key>, <number>)`` below it is checkable by eye. Absent reads
+      ``not recorded``, matching the discipline the rest of the module already
+      used. One adjacent non-numeric default went the same way: an anchor
+      check with no ``matches`` key rendered as ``NO``, reporting a
+      disagreement nobody measured -- the same fabrication pointing the other
+      way.
+
+  (g) A HARDCODED UNIT ON A KEY SET THAT IS NOT. ``_instrument_rows``
+      rendered every planted magnitude as ``f"{planted:g} K"`` while
+      ``_PLANTED_KEYS`` admits ``planted_W`` and a bare ``planted``. A control
+      planting watts would have been labelled kelvin. The unit now comes from
+      the key that MATCHED: ``planted_K`` -> K, ``planted_W`` -> W, bare
+      ``planted`` -> ``unit not recorded`` rather than a guess. Latent only:
+      all six control blocks across the three bundles at HEAD use
+      ``planted_K``.
+
+  (h) A SILENT OVER-CLAIM ON ACT A, NOW STATED. RULED by the heat-transfer
+      supervisor 2026-09-01: the ``scope.py`` declaration STANDS as
+      ``frozenset({THERMAL, UNSTEADY})`` and is NOT narrowed to
+      ``{THERMAL}``. Narrowing would fire a false scope-down on Act C's own
+      registered demo prompt, on camera, telling Sanaa that a run which
+      solved 900 seconds of history "solves a single steady state". Keeping
+      UNSTEADY leaves an over-claim on Act A -- a time-history request for
+      the motor is not scoped down -- but that fires only OFF the two
+      registered prompts. A false statement on the filmed path is worse than
+      a latent one off it.
+
+      The over-claim does not stay silent, per Sanaa's Act B STOP order that
+      a mission must say what it cannot do rather than report completion over
+      a request it did not answer. Act A gains ONE ``not_available`` row,
+      using the mechanism already built, stating that it presents sixteen
+      SEPARATE STEADY operating points, carries no time history or transient
+      response, and that the battery act is where time-resolved behaviour
+      lives. ``satisfied_by`` is ``None``: no figure can retire this row,
+      because it is a property of the run and not a missing render. Act A's
+      not-available table goes from 7 rows to 8 with the pending renders
+      absent, and from 5 to 6 with them present.
+
+      Splitting the capability key per act remains the proper repair. It is
+      REFERRED to whoever owns ``scope.py`` and is deferred past the shoot,
+      not withdrawn. The predecessor's disclosure comment is left intact and
+      the ruling is appended below it.
+
 WHAT THIS PATCH DOES NOT DO
   * It does not add, remove or edit a single character of
     `_OUT_OF_SCOPE_DOMAINS`. The refusal list is untouched. See the note for
@@ -148,10 +233,46 @@ touched.
     Act A   rc 0   5 plots   6 tables   1 report   with the pending renders absent
     Act A   rc 0   7 plots   6 tables   1 report   with the pending renders present
               (provenance 7 rows, instrument checks 3, anchor checks 5,
-               the sixteen operating points 16, not-available 7 then 5,
+               the sixteen operating points 16, not-available 8 then 6,
                quantities 5)
     Refusal rc 2   0 plots   1 table    0 reports  on a bundle stripped of its
-              control block -- no temperature reaches the screen.
+              control block -- no temperature reaches the screen. The one
+              table is the provenance block, which goes up before the
+              controls are read; no figure and no quantity follow it.
+
+RE-MEASURED AFTER THE THIRD PASS, same method, same throwaway tree at HEAD
+with this patch applied. The counts are unchanged from the accepted baseline
+except Act A's not-available table, which gains the row from (h):
+    Act C   rc 0   5 plots   5 tables   1 report
+    Act A   rc 0   5 plots   6 tables   1 report   pending renders absent, and
+              they ARE absent at HEAD -- neither actA_temperature_field nor
+              actA_velocity_field is at HEAD, checked one at a time
+    Refusal rc 2   0 plots   0 reports
+              NOTE, and it matters for anyone repeating this: Act C's control
+              blocks are split across BOTH bundles. actc_screen_data.json
+              carries instrument_check_shared_parser and
+              instrument_check_snapshot_extractor;
+              actc_step_independence.json carries
+              instrument_check_step_difference_reader and is MERGED OVER the
+              first. Stripping only the main bundle does NOT reach the
+              refusal -- it returns rc 0 with the third control still
+              standing. Both files must be stripped.
+
+  THE FAILING ARM FOR (f), which the earlier passes could not have run. The
+  guard key is kept and the three printed keys are deleted from a COPY of the
+  bundles -- the exact shape the guard/print mismatch admits:
+    pre-fix module   'under 0.0e+00 K',  't = 0 s',  spread 'at t = 0 s'
+    this patch       'not recorded',     't = not recorded',
+                     spread 'at t = not recorded'
+  At HEAD the values are largest_abs_diff_K 3.844803333663549e-04,
+  largest_abs_diff_time_s 60.0 s, max_spread_time_s 900.0 s, and the fixed
+  module quotes all three unchanged when they are present ('under 3.8e-04 K',
+  't = 60 s', 'at t = 900 s'). So the reader is shown able to see the
+  non-zero before its zero is trusted, which is the whole of rule 3.
+
+  THE FAILING ARM FOR (g): a control block spelled planted_W renders '2.5 W'
+  and one spelled bare planted renders '7, unit not recorded'; planted_K
+  renders '0.001234 K' unchanged. Before the fix all three read 'K'.
 
 TO APPLY (a human decision, not this lane's)
     cd /home/ubuntu/Certonomous
@@ -339,7 +460,7 @@ index 95253fd..21f0caa 100644
  
  # Capability tags. One per thing a prompt can ask for that a run either can or
  # cannot do. Kept few on purpose: each one is a promise the lab has to keep.
-@@ -105,6 +105,26 @@ CAPABILITIES: dict[str, frozenset[str]] = {
+@@ -105,6 +105,39 @@ CAPABILITIES: dict[str, frozenset[str]] = {
      SUPERSONIC_CONE: frozenset(),
      DIAMOND_AIRFOIL: frozenset(),
      HYPERSONIC_CYLINDER: frozenset(),
@@ -362,6 +483,19 @@ index 95253fd..21f0caa 100644
 +    # missing beats on screen instead, from its per-act not-available
 +    # table. Splitting the key per act is the repair and belongs to
 +    # whoever owns this module.
++    #
++    # RULED 2026-09-01, heat-transfer supervisor: this declaration STANDS as
++    # {THERMAL, UNSTEADY} and is not to be narrowed to {THERMAL}. Narrowing
++    # would fire a false scope-down on Act C's OWN REGISTERED PROMPT, on
++    # camera, telling a viewer that a run which solved 900 seconds of history
++    # solves a single steady state. Keeping UNSTEADY leaves the Act A
++    # over-claim, which fires only OFF the two registered prompts. A false
++    # statement on the filmed path is worse than a latent one off it. The
++    # over-claim is no longer SILENT: Act A carries a not_available row in
++    # ``workflows.thermal_display`` stating that it holds sixteen separate
++    # steady points and no time history at all. Splitting the key per act
++    # remains the proper repair and is REFERRED to whoever owns scope.py; it
++    # is not withdrawn by this ruling, only deferred past the shoot.
 +    THERMAL_DISPLAY: frozenset({THERMAL, UNSTEADY}),
  }
  
@@ -371,7 +505,7 @@ new file mode 100644
 index 0000000..b9097f5
 --- /dev/null
 +++ b/sdk/workflows/thermal_display.py
-@@ -0,0 +1,837 @@
+@@ -0,0 +1,925 @@
 +"""The thermal display act: screens built from a run that has already landed.
 +
 +THIS MODULE STARTS NO SOLVER. It writes no case, queues no job, invokes no
@@ -517,6 +651,22 @@ index 0000000..b9097f5
 +             "no export was built; the figures exist beside the bundle as "
 +             "vector pages and nothing assembles them into one file",
 +             None),
++            # The stated form of an over-claim the capability table cannot
++            # express. ``scope.CAPABILITIES`` is keyed on the INTENT, and the
++            # intent declares UNSTEADY because Act C is a 900 second
++            # transient -- so a request for a time history of THIS body is
++            # not scoped down before the act starts. It is named here
++            # instead. ``satisfied_by`` is None: no figure can retire this
++            # row, because it is a property of the run and not a missing
++            # render.
++            ("A time history, or any transient response, for this body",
++             "this act presents sixteen SEPARATE STEADY operating points: "
++             "each one is a converged steady state, so there is no history "
++             "through time to show and none is constructed. Nothing here "
++             "says how this body warms up, how long it takes to reach these "
++             "temperatures, or how it responds to a change in load. The "
++             "battery module act is where time-resolved behaviour lives",
++             None),
 +        ),
 +    },
 +    "C": {
@@ -627,9 +777,20 @@ index 0000000..b9097f5
 +# --------------------------------------------------------------------------
 +# The normaliser: two bundle dialects in, one internal shape out.
 +# --------------------------------------------------------------------------
++#: What a screen cell says when the bundle does not carry the value. There is
++#: no other answer in this module: see ``_fmt``.
++NOT_RECORDED = "not recorded"
 +#: Keys a control block may use for the thing that was planted, and for
 +#: whether the reader saw it. Both dialects are listed; neither is preferred.
 +_PLANTED_KEYS = ("planted_K", "planted_W", "planted")
++#: The unit each planted-magnitude key carries. ``planted_K`` is kelvin,
++#: ``planted_W`` is watts, and a bare ``planted`` records no unit at all -- so
++#: none is printed and the cell says the unit was not recorded. The unit is
++#: taken from the key that MATCHED, never from the common case: labelling a
++#: watt-valued control 'K' because kelvin is what the thermal acts usually
++#: plant is a fabricated unit, which is the same defect as a fabricated value
++#: one column over.
++_PLANTED_UNITS = {"planted_K": "K", "planted_W": "W", "planted": ""}
 +_SEEN_KEYS = ("seen", "passed", "ok")
 +#: Keys that describe WHERE a control was planted, in the order they read
 +#: best on screen. Only those a given block actually carries are used.
@@ -643,6 +804,41 @@ index 0000000..b9097f5
 +        if k in body:
 +            return k, body[k]
 +    return None, None
++
++
++def _fmt(body: dict | None, key: str, spec: str = "", unit: str = "") -> str:
++    """One screen cell read from ``body[key]``, or ``NOT_RECORDED``.
++
++    THIS FUNCTION TAKES NO NUMERIC DEFAULT AND MUST NEVER GROW ONE, and it is
++    the only way a value reaches a screen cell in this module, so that the
++    absence of ``.get(<key>, <number>)`` anywhere below is checkable by eye.
++
++    ``body.get(key, 0.0)`` inside an f-string puts a confident ``0.0e+00`` on
++    screen for a value no reader ever produced. That is worse than the silent
++    skip this module was written to fix: a skipped table is VISIBLY absent,
++    while a fabricated zero LOOKS LIKE A MEASUREMENT -- and it is the tightest
++    possible answer, so it flatters the run besides. CLAUDE.md rule 3: a zero
++    from a reader not shown able to see a non-zero is not evidence, and a zero
++    conjured by ``dict.get``'s second argument was never read at all.
++    ``float('nan')`` is the same mistake in a less dangerous costume: still a
++    number standing where a reading should be.
++
++    The trap is sharpest where the row is GUARDED ON A DIFFERENT KEY from the
++    one it prints, because then a bundle can legitimately reach the row
++    carrying the guard and not the value.
++
++    A value that is present but not formattable the expected way is shown as
++    it was recorded rather than hidden: the bundle did record something, and
++    what it recorded is the honest thing to show.
++    """
++    value = (body or {}).get(key)
++    if value is None:
++        return NOT_RECORDED
++    try:
++        text = format(value, spec) if spec else str(value)
++    except (TypeError, ValueError):
++        text = str(value)
++    return f"{text} {unit}" if unit else text
 +
 +
 +def _where(body: dict) -> str:
@@ -693,13 +889,24 @@ index 0000000..b9097f5
 +                found.append((name, body))
 +    rows = []
 +    for name, body in sorted(found):
-+        _pk, planted = _first(body, _PLANTED_KEYS)
++        planted_key, planted = _first(body, _PLANTED_KEYS)
 +        _sk, seen = _first(body, _SEEN_KEYS)
++        # The unit comes from the key that matched. Every control block in
++        # both bundles today spells it ``planted_K``, but ``_PLANTED_KEYS``
++        # admits ``planted_W`` and a bare ``planted``, and a hardcoded 'K'
++        # would label a watt-valued control kelvin the day one arrives.
++        mag = _fmt(body, planted_key, "g") if planted_key else NOT_RECORDED
++        if planted is None or mag == NOT_RECORDED:
++            planted_cell = NOT_RECORDED
++        else:
++            unit = _PLANTED_UNITS.get(planted_key, "")
++            planted_cell = (f"{mag} {unit}" if unit
++                            else f"{mag}, unit not recorded")
 +        rows.append([
 +            name.replace("_", " "),
-+            "not recorded" if planted is None else f"{planted:g} K",
++            planted_cell,
 +            _where(body),
-+            "not recorded" if seen is None
++            NOT_RECORDED if seen is None
 +            else ("seen" if seen else "NOT SEEN"),
 +        ])
 +    return rows
@@ -722,11 +929,15 @@ index 0000000..b9097f5
 +        if not isinstance(a, dict):
 +            continue
 +        rows.append([
-+            f"{a.get('power_W', '?')} W, {a.get('airspeed_ms', '?')} m/s",
-+            f"{a.get('expected_degC', float('nan')):.6f}",
-+            f"{a.get('measured_degC', float('nan')):.6f}",
-+            f"{a.get('abs_diff_degC', float('nan')):.3e}",
-+            "yes" if a.get("matches") else "NO",
++            f"{_fmt(a, 'power_W')} W, {_fmt(a, 'airspeed_ms')} m/s",
++            _fmt(a, "expected_degC", ".6f"),
++            _fmt(a, "measured_degC", ".6f"),
++            _fmt(a, "abs_diff_degC", ".3e"),
++            # An unrecorded verdict is not a failed one. Reading absence as
++            # 'NO' would report a disagreement nobody measured, the same
++            # fabrication as a zero, pointing the other way.
++            NOT_RECORDED if a.get("matches") is None
++            else ("yes" if a["matches"] else "NO"),
 +        ])
 +    return (headers, rows) if rows else None
 +
@@ -774,12 +985,12 @@ index 0000000..b9097f5
 +            "headers": ("Power, W", "Airspeed, m/s", "Peak temperature, C",
 +                        "Rise above inlet, K", "Margin to the 200 C limit, K",
 +                        "Uncertainty"),
-+            "rows": [[f"{r.get('power_W', '?')}",
-+                      f"{r.get('airspeed_ms', '?')}",
-+                      f"{r.get('peak_T_degC', float('nan')):.6f}",
-+                      f"{r.get('rise_above_inlet_K', float('nan')):.6f}",
-+                      f"{r.get('margin_to_limit_K', float('nan')):.6f}",
-+                      str(r.get("numerical_uncertainty", "not recorded"))]
++            "rows": [[_fmt(r, "power_W"),
++                      _fmt(r, "airspeed_ms"),
++                      _fmt(r, "peak_T_degC", ".6f"),
++                      _fmt(r, "rise_above_inlet_K", ".6f"),
++                      _fmt(r, "margin_to_limit_K", ".6f"),
++                      _fmt(r, "numerical_uncertainty")]
 +                     for r in rows],
 +        }
 +
@@ -788,33 +999,36 @@ index 0000000..b9097f5
 +    if colour.get("maximum") is not None:
 +        q.append({
 +            "quantity": "Hottest point of the sixteen cases",
-+            "value": f"{colour['maximum']:.6f} C",
-+            "envelope": (f"colour scale {colour.get('minimum', float('nan')):.6f}"
-+                         f" to {colour['maximum']:.6f} C, nothing clipped at "
-+                         f"either end")})
++            "value": f"{_fmt(colour, 'maximum', '.6f')} C",
++            "envelope": (f"colour scale {_fmt(colour, 'minimum', '.6f')}"
++                         f" to {_fmt(colour, 'maximum', '.6f')} C, nothing "
++                         f"clipped at either end")})
 +    if rows:
++        # ``inf`` here is a SORT SENTINEL, not a screen value: a row with no
++        # peak recorded cannot be the coolest one. It never reaches a cell --
++        # the value below is read from the winning row without a default.
 +        coolest = min(rows, key=lambda r: r.get("peak_T_degC", float("inf")))
 +        q.append({
 +            "quantity": "Coolest of the sixteen operating points",
-+            "value": f"{coolest.get('peak_T_degC', float('nan')):.6f} C",
-+            "envelope": (f"at {coolest.get('power_W', '?')} W and "
-+                         f"{coolest.get('airspeed_ms', '?')} m/s")})
++            "value": f"{_fmt(coolest, 'peak_T_degC', '.6f')} C",
++            "envelope": (f"at {_fmt(coolest, 'power_W')} W and "
++                         f"{_fmt(coolest, 'airspeed_ms')} m/s")})
 +    if env.get("worst_margin_K") is not None:
 +        q.append({
 +            "quantity": (f"Smallest margin to the "
-+                         f"{env.get('limit_degC', float('nan')):.0f} C limit"),
-+            "value": f"{env['worst_margin_K']:.6f} K",
-+            "envelope": (f"at {worst.get('power_W', '?')} W and "
-+                         f"{worst.get('airspeed_ms', '?')} m/s, the hottest "
++                         f"{_fmt(env, 'limit_degC', '.0f')} C limit"),
++            "value": f"{_fmt(env, 'worst_margin_K', '.6f')} K",
++            "envelope": (f"at {_fmt(worst, 'power_W')} W and "
++                         f"{_fmt(worst, 'airspeed_ms')} m/s, the hottest "
 +                         f"point solved")})
 +    if settled.get("offset_K") is not None:
 +        q.append({
 +            "quantity": "The run's own monitor against its internal cells",
-+            "value": f"{settled['offset_K']:.6f} K",
++            "value": f"{_fmt(settled, 'offset_K', '.6f')} K",
 +            "envelope": (f"the monitor reads "
-+                         f"{settled.get('monitor_degC', float('nan')):.6f} C "
++                         f"{_fmt(settled, 'monitor_degC', '.6f')} C "
 +                         f"where the internal cells read "
-+                         f"{settled.get('internal_cells_degC', float('nan')):.6f} C")})
++                         f"{_fmt(settled, 'internal_cells_degC', '.6f')} C")})
 +    if unc.get("column_entry"):
 +        q.append({"quantity": "Numerical uncertainty",
 +                  "value": str(unc["column_entry"]),
@@ -840,11 +1054,11 @@ index 0000000..b9097f5
 +            "title": "Per cell peak and rise",
 +            "headers": ("Cell", "Peak, K", "Rise, K", "Time to peak, s",
 +                        "Uncertainty"),
-+            "rows": [[str(r.get("cell", "")),
-+                      f"{r.get('peak_T_K', float('nan')):.6f}",
-+                      f"{r.get('peak_rise_K', float('nan')):.6f}",
-+                      f"{r.get('time_to_peak_s', float('nan')):.0f}",
-+                      str(r.get("uncertainty", "not recorded"))]
++            "rows": [[_fmt(r, "cell"),
++                      _fmt(r, "peak_T_K", ".6f"),
++                      _fmt(r, "peak_rise_K", ".6f"),
++                      _fmt(r, "time_to_peak_s", ".0f"),
++                      _fmt(r, "uncertainty")]
 +                     for r in table],
 +        }
 +    extra = []
@@ -868,26 +1082,34 @@ index 0000000..b9097f5
 +    if b.get("max_spread_K") is not None:
 +        q.append({
 +            "quantity": "Largest spread across cells",
-+            "value": f"{b['max_spread_K']:.6f} K",
-+            "envelope": f"at t = {b.get('max_spread_time_s', 0):.0f} s"})
++            "value": f"{_fmt(b, 'max_spread_K', '.6f')} K",
++            "envelope": f"at t = {_fmt(b, 'max_spread_time_s', '.0f', 's')}"})
 +    if b.get("surface_heat_removal_final_W") is not None:
 +        q.append({
 +            "quantity": "Heat removed at the channel facing surfaces",
-+            "value": f"{b['surface_heat_removal_final_W']:.4f} W",
++            "value": f"{_fmt(b, 'surface_heat_removal_final_W', '.4f')} W",
 +            "envelope": "at the last written time"})
 +    if b.get("energy_closure_percent") is not None:
 +        q.append({
 +            "quantity": "Energy closure",
-+            "value": f"{b['energy_closure_percent']:.4f}%",
++            "value": f"{_fmt(b, 'energy_closure_percent', '.4f')}%",
 +            "envelope": "input against accumulation plus removal"})
 +    if b.get("unaccounted_percent_fine") is not None:
++        # THE GUARD ABOVE IS A DIFFERENT KEY FROM THE VALUES BELOW. A bundle
++        # can legitimately reach this row carrying ``unaccounted_percent_fine``
++        # and none of the three values it prints, so none of them is read with
++        # a default: 'under 0.0e+00 K' would announce perfect time-step
++        # independence -- the tightest result the study could possibly have --
++        # off a number no reader ever produced.
++        largest = _fmt(b, "largest_abs_diff_K", ".1e", "K")
 +        q.append({
 +            "quantity": "Change in the peak rise when the time step is halved",
-+            "value": f"under {b.get('largest_abs_diff_K', 0.0):.1e} K",
++            "value": (largest if largest == NOT_RECORDED
++                      else f"under {largest}"),
 +            "envelope": (f"largest disagreement at any of the "
-+                         f"{b.get('n_write_times', '?')} write times, at "
-+                         f"t = {b.get('largest_abs_diff_time_s', 0):.0f} s, "
-+                         f"cell {b.get('largest_abs_diff_cell', '?')}")})
++                         f"{_fmt(b, 'n_write_times')} write times, at t = "
++                         f"{_fmt(b, 'largest_abs_diff_time_s', '.0f', 's')}, "
++                         f"cell {_fmt(b, 'largest_abs_diff_cell')}")})
 +    out["quantity_rows"] = q
 +    return out
 +
