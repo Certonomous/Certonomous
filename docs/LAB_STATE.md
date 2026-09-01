@@ -17751,6 +17751,74 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T~05:0xZ by cfd-supervisor personally. **FORTY-FIRST WRITE.** Written against an imminent fleet kill (Sanaa switching subscriptions). **Assume the next supervisor knows nothing.** Where this conflicts with anything below, this block wins.
+
+### 🔴 RESUME HERE — THE JET ACT IS **NOT GO**, AND THE REASON IS ONE MISSING CONNECTOR
+
+**Everything for DEMO MODE is built, tested and committed. It is NOT WIRED to the dispatcher.** Measured on the LIVE server (pid 1103918, bounced ~04:5xZ, `openfoam-real-solvers`, single listener on 8765) with Sanaa's exact prompt:
+
+- The mission **routed correctly** — `jet-flap-display`, confidence **0.74**, geometry `airfoil_blown_slot.stl`.
+- It **completed in 0.58 s** and emitted **30 events: ZERO `stage.banner`, ZERO `solve.frame`.** Breakdown: 17 `transcript.entry`, 6 `plot.ready`, 2 `transcript.table`, plus `mission.routed`, `geometry.ready`, `solver.selected`, `mission.note`, `mission.completed`. Evidence on disk: `sdk/chief-engineer-runs/mission-state/m-a8d305b4b74b.events.jsonl`.
+- **That is the OLD `jet_flap_display` workflow.** The new `demo_sequencer` walking nine stages produces **1,274 events and 605 solve frames** — verified by me offline, and none of it reached the live path.
+
+**THE FIX, AND IT IS THE FIRST THING A SUCCESSOR DOES:** route intent `jet-flap-display` through `demo_sequencer.run_act("jet-flap")` instead of the legacy workflow, binding the act's `emit` to the mission EventBus so the nine stages reach the page. **The old workflow must stay reachable for anything else using it.** **NOT STARTED — no lane was spawned before the kill. Nothing of this is half-done and nothing is lost.** Estimate 20–40 min, then re-drive live and re-verify.
+
+**Verified offline and ready to connect:** `registered_acts()` → `['jet-flap']`, `validate_act` **0 problems**, sequencer walks all nine stages in order (prompt, restatement, assumption, geometry, meshing, feasibility, solving, gates, results).
+
+### ⚠ A DEFECT IN MY OWN SEQUENCER, FOUND BY DAFOAM — FIX BEFORE ANY ACT SHIPS
+
+`e2c2982e` (dafoam) reports: **the shared sequencer publishes table cells and figure titles to screen with its own guard bypassed at FOUR OF FIVE call sites.** That is `sdk/workflows/demo_sequencer.py`, my file. **`assert_screen_safe` must run over every payload at publication, including sequencer-generated ones** — banners, stage headers, table cells, figure titles. The case id caught earlier arrived from a payload nobody thought of as text. **Unverified by me. VERIFY and fix.**
+
+### 🔴 THE BIGGEST PHYSICS FINDING OF THE NIGHT — ALL FIVE SOLVED ROWS ARE HELD BY TURBULENCE CLIPPING
+
+**Re-derived by me from the five `log.simpleFoam` files**, iterations on which the solver clipped `k` back to zero:
+
+| row | clipped | share | last clip | continuous from |
+|---|---|---|---|---|
+| slot closed | 7664/8000 | **95.8 %** | 8000 | 7971 |
+| Cµ 0.05 | 6507/8000 | **81.3 %** | 8000 | 7990 |
+| Cµ 0.10 | 7786/8000 | **97.3 %** | 8000 | 7783 |
+| Cµ 0.20 | 7320/8000 | **91.5 %** | 8000 | 7989 |
+| Cµ 0.40 | 7625/8000 | **95.3 %** | 8000 | 7994 |
+
+**It is still clipping at the FINAL iteration of every row the customer reads.** So every number in Table 2 comes from a field held non-negative by repeated clipping rather than one that settled free of it. **The table does not move; it simply may no longer be read as cleaner than it is.** The sheet states it at render time (`158f2dbb`).
+
+**This was on MY OWN BOARD as a watch item and I did not chase it.** Board 34: *"bounding k still firing at Time 753 … benign so far, **a finding if it persists to convergence.**"* It persisted. **I wrote the trigger condition and never went back to test it.** Recorded as mine.
+
+**SIX numbers on this act have now been wrong in the flattering or mislabelled direction, all one shape — a value typed or named once and never re-derived:** the hard-coded `SETTLE_BAND` dict; y+ 0.19 (the smallest row, not the max); `jet_flap_7`'s single-case caption; the "±3×10⁻⁵" bound (true worst 3.383e-05); "continuously from iteration 91" (first occurrence, not continuity — that is 140); and the clipping silence itself.
+
+### Live-pass checklist — what a successor must verify after wiring the connector
+
+1. Drive her **exact** prompt on the live server: `POST /api/missions` `{"goal": "<prompt>", "surface": "airfoil_blown_slot.stl"}`. Her prompt verbatim: **"Blown-wing high-lift: sweep the trailing-edge jet momentum coefficient from 0 to 0.4 and report lift against blowing with the classical jet-flap theory."**
+2. Expect **~1,274 events, 605 solve frames, nine distinct stage groups, `stage.banner` present.** 30 events means the old path is still wired.
+3. Sweep every published string with `check_demo_language` — **but only the RENDERED fields.** My own first sweep flagged 17 false positives by walking internal keys (`stage`, `for_event`) and the `/api/geometry?name=…` URL. The banner renders `text`; `geometry.ready` renders `label`.
+4. Confirm geometry bind: the served STL is the solved section — **both copies md5 `8c76afb4079995b25991e26248f81ffa`, chord 1.000000, h/c 0.005000.**
+5. ⚠ **CSS CANNOT BE VERIFIED FROM THIS BOX.** The caption row's `:empty` collapse and text wrap need **a human eye on a real browser**. No harness here executes CSS layout. Do not report it verified.
+
+### DMR / M6 — the answer Sanaa is owed
+
+**DMR ("the mach 10") — SHE IS RIGHT, IT ALREADY RAN, AND IT IS SHOOTABLE TODAY WITH ZERO COMPUTE AND NO SERVER CHANGE.** Genuine Woodward–Colella at `verification/runs/DMR_runs/{res120,res60}`. **Gate V PASS both rungs — 0.15 % and 0.17 % against a 1.0 % tolerance**, fine beating coarse as pre-registered. **Freeze provable to the minute: `74797a57` 22:40:28Z vs first field 22:43:42Z.** 2.4 core-min used against 20 estimated. Sheet, figure and mission committed (`39fa4564`); its patch is deliberately **deferred out of the restart batch** because it needs no server change.
+
+**M6 — HALF RIGHT, AND THAT HALF IS DANGEROUS.** F13 ladder is **GATE FAIL, no solver ever ran** (non-orthogonality 84.6–86.8° vs a ≤70° gate, **rising** with refinement). One run landed: `/home/ubuntu/certonomous-runs/A3-onera-m6-transonic`, M 0.84, 399,360 cells, forces flat to ~7 ppm — **but no pre-registration governs it and the lab retired its experimental-Cp comparison on 2026-08-25.** ⛔ **Its 70 MB VTK is the ONLY surviving copy; `/home/ubuntu/certonomous-runs/` is outside git — NEVER prune it.** **It is DAFoam's run: the territory call is still OPEN and I touched nothing under `cases/dafoam/`.**
+
+### On Sanaa's desk
+
+**(1)** The **clipping limitation** — she should hear it before she films, not meet it on the sheet. **(2)** The **M6 territory call**. **(3)** The jet-flap **result sheet is 2 pages**, 428 words on page two (measured: zero slack, the heading alone breaks one page). **(4)** Williams, Butler & Wood, never "Spence 1956". **(5)** Two recorded departures from her literal wording: **"k-omega SST"** (she could not say ω aloud) and the **expanded citation**. **(6)** The **3D live-mesh cut** — motor is 2D (`nCells: 39680`, blocks one cell thick), **battery dimensionality UNKNOWN and is heat-transfer's fact**; if it is one cell thick there is nothing to escalate.
+
+### Restart facts — the server survives the kill
+
+**pid 1103918**, `setsid`, survives agent termination. Env read from `/proc`, not recall: `CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX=openfoam2606 CERTONOMOUS_SOLVE_RANKS=16`. **Kill and relaunch in SEPARATE invocations and confirm the old process is gone — port 8765 permits a second binder, so a survivor keeps answering and the new screens never appear, with no error shown.** I was **denied permission** to stop the server and **did not route around it**; a human ran the bounce.
+
+### Live jobs — ZERO cfd solvers. Queue daemon 374025 alive. Nothing of mine uncommitted
+
+### Rungs without verdicts
+
+**JF1** — five rows complete-but-unconverged **and clipping-held**, gate NONE / UNFROZEN DRAFT, **no verdict claimable**. **F28** `PENDING`, parked. **R5** `PENDING`. **DMR** — Gate V **PASS** both rungs (the one graded thing in this territory tonight). **M6** — no gate, ungoverned.
+
+### Parked under Sanaa's demo freeze — *"anything not demo related waits until we are done with the demo"*
+
+F28 Stage 1; R5; the consolidation-week conversion batch (F3, F11, F4); the consolidation-week 3D campaign (**must NOT be annexed into the M6 demo product**); `docs/standards/High_order_grid_convergence.pdf` intake; `MATRIX_CONTRIBUTION.md` owed to verification.
+
 **Section last written:** 2026-09-01T01:4xZ by cfd-supervisor personally. **FORTIETH WRITE.** Where this conflicts with anything below, this block wins.
 
 ### 🔴 A NUMBER I PUT ON THIS BOARD AND INTO THREE LANE BRIEFS WAS THE WRONG ROW'S, AND I MEASURED IT MYSELF RATHER THAN TAKING THE CORRECTION ON TRUST
