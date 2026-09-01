@@ -95,6 +95,97 @@ def _load_acts() -> dict:
     return dict(registered_acts())
 
 
+def _acts_the_package_registers() -> dict:
+    """Every act module that registers on import, found by READING the source.
+
+    THE CLASS THIS CLOSES, AND IT IS THE ONE THAT LET MOTOR-THERMAL THROUGH.
+    :data:`ACT_MODULES` is hand-maintained, and a hand-maintained list has no
+    way to know what it is missing: the gate can only ever check what somebody
+    remembered to add. The comment above that tuple anticipated exactly this
+    and it happened anyway, because a warning is not a mechanism. So the list
+    is now CHECKED AGAINST THE PACKAGE rather than trusted.
+
+    FOUND BY PARSING, NOT BY IMPORTING, and not by a text search either.
+    Importing every module in the package to see which ones register would run
+    arbitrary module-level code for the side effect of finding out. A text
+    search for "register_act" is worse than useless here: it matches the
+    definition in ``demo_mode``, matches docstrings, and -- the case that
+    matters -- matches ``sdk/workflows/battery_module_act.py``, which calls
+    ``register_act`` INSIDE A FUNCTION and deliberately registers nothing on
+    import. Counting that would make this check demand the gating of an act
+    whose whole purpose is to refuse.
+
+    So: parse each module and count a call only when it sits at MODULE LEVEL,
+    which is what "registers on import" actually means.
+
+    Returns ``{key: module name}`` for every act key registered on import.
+
+    THE FIRST CUT OF THIS FUNCTION WAS WRONG IN THE WAY ITS OWN DOCSTRING
+    DENIED, and it was caught by the control rather than by reading it. It said
+    "module level only" and used ``ast.walk`` over each top-level node --
+    which descends into the bodies of top-level function and class
+    definitions. So it found ``battery_module_act``'s call, which is inside a
+    function precisely so that importing the module registers NOTHING, and
+    demanded that the gate load an act whose entire purpose is to refuse. A
+    comment asserting a property the code does not have is worth less than no
+    comment: it stops the next reader checking.
+
+    ``_descend`` therefore refuses to enter a ``def``, a ``class`` or an
+    ``if __name__ == "__main__"`` guard, which are the three ways code sits in
+    a module and does not run when it is imported.
+    """  # noqa: D208
+    import ast
+
+    def _is_main_guard(node) -> bool:
+        test = getattr(node, "test", None)
+        if not isinstance(node, ast.If) or not isinstance(test, ast.Compare):
+            return False
+        left = test.left
+        return isinstance(left, ast.Name) and left.id == "__name__"
+
+    def _descend(node):
+        """Yield every node that RUNS when the module is imported."""
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                             ast.ClassDef)) or _is_main_guard(node):
+            return
+        yield node
+        for child in ast.iter_child_nodes(node):
+            yield from _descend(child)
+
+    found: dict = {}
+    package = REPO / "sdk" / "workflows"
+    for path in sorted(package.glob("*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError):
+            continue
+        for top in tree.body:
+            for call in _descend(top):
+                if not isinstance(call, ast.Call):
+                    continue
+                name = call.func
+                target = (name.id if isinstance(name, ast.Name)
+                          else getattr(name, "attr", ""))
+                if target != "register_act" or not call.args:
+                    continue
+                key = call.args[0]
+                if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                    found[key.value] = f"workflows.{path.stem}"
+    return found
+
+
+def _ungated_acts() -> list:
+    """Acts the package registers on import that this gate does not load.
+
+    An act that registers and is not gated is itself a finding: it will be
+    reachable in a shoot and will never have been asked whether it can start.
+    """
+    gated = set(ACT_MODULES)
+    return sorted(f"{key} ({module})"
+                  for key, module in _acts_the_package_registers().items()
+                  if module not in gated)
+
+
 def _problems() -> dict:
     """Every registered act's problem list, by key. The gate's raw reading.
 
@@ -169,6 +260,25 @@ def check(verbose: bool = True) -> int:
                 print(f"      - {p}")
         elif verbose:
             print(f"  {key}: can start")
+
+    # AN ACT THIS GATE DOES NOT LOAD IS ITSELF A FINDING, and it is the one
+    # this gate was blind to for its whole life. Motor-thermal registers
+    # exactly like the others, is one of the four acts being shot, and was
+    # missing from ACT_MODULES -- so the gate reported "2 of 3 registered acts
+    # can start" with perfect confidence while a fourth sat unexamined.
+    #
+    # THE COUNT IS THE TELL AND IT LOOKED FINE. "of 3" was true of the list and
+    # false of the package, and nothing in the output could distinguish those
+    # two readings. A gate that enumerates its own subjects can only check what
+    # somebody remembered; this makes forgetting a failure instead of a
+    # silence.
+    ungated = _ungated_acts()
+    if ungated:
+        bad += 1
+        print(f"  HARNESS: {len(ungated)} act(s) register on import and are "
+              f"NOT gated here; add them to ACT_MODULES")
+        for name in ungated:
+            print(f"      - {name}")
 
     print(f"{len(acts) - bad} of {len(acts)} registered acts can start.")
     return 1 if bad else 0
@@ -1392,9 +1502,32 @@ STRUCTURAL_PLANTS: tuple[tuple[str, str, object], ...] = (
 #: The act the plants are made against. It must be one that walks all nine
 #: stages, because a plant into a stream that never reached the results screen
 #: could not be seen there. Chosen by measurement at run time, not by name.
+#:
+#: MOTOR-THERMAL ADDED 2026-09-01. Two maps name the act modules in this gate
+#: and only ``ACT_MODULES`` (line 86) was updated when the act registered, so
+#: the checklist half refused with "registered acts ['motor-thermal'] have no
+#: module named in this gate" and every team's checklist verification was
+#: blind. THE REFUSAL WAS CORRECT and is not what was fixed: an act graded on
+#: nothing counts as clean, so the harness is right to stop rather than grade
+#: three of four and print a total. What was wrong is that the two maps could
+#: drift at all -- this map is keyed by act and that one is a flat tuple, so
+#: adding an act to one is not adding it to the other and nothing said so.
 _PLANT_ACT_MODULES = {"jet-flap": "workflows.jet_flap_act",
                       "adjoint-wing": "workflows.adjoint_act",
-                      "shock-reflection": "workflows.dmr_act"}
+                      "shock-reflection": "workflows.dmr_act",
+                      "motor-thermal": "workflows.motor_thermal_act"}
+
+#: THE ASSERT THAT STOPS THE THIRD OCCURRENCE, rather than a third manual fix.
+#: Every module named in ``ACT_MODULES`` must be reachable from this map, so a
+#: fifth act added to one and not the other fails HERE, at import, naming the
+#: act -- instead of at the point where the checklist silently has nothing to
+#: plant into. L-221/L-222: a lesson is not applied until every call site
+#: asserts it, and this is the second call site of one list of acts.
+assert set(_PLANT_ACT_MODULES.values()) == set(ACT_MODULES), (
+    "the two act-module maps in this gate disagree: "
+    f"{sorted(set(ACT_MODULES) ^ set(_PLANT_ACT_MODULES.values()))} "
+    "is named in one and not the other, so that act would be graded on "
+    "nothing or could not host a plant")
 
 
 def checklist_selftest() -> int:
