@@ -60,10 +60,12 @@ and carries the body's peak. Sixteen solved points, at full write precision.
 \textbf{Heat load $P$, W} & \textbf{10} & \textbf{20} & \textbf{30} & \textbf{40}
  & \textbf{Numerical uncertainty on every value in the row} \\
 \midrule
-\textbf{80} &  39.2049 &  30.1565 &  26.6287 &  24.6762 & not quantified (single mesh level) \\
-\textbf{155} &  62.0291 &  44.4762 &  37.6077 &  33.7797 & not quantified (single mesh level) \\
-\textbf{230} &  84.8533 &  58.7959 &  48.5866 &  42.8832 & not quantified (single mesh level) \\
-\textbf{305} & 107.6775 &  73.1156 &  59.5656 &  51.9867 & not quantified (single mesh level) \\
+%<<ACTA t1>>
+\textbf{80} & 39.2 & 30.2 & 26.6 & 24.7 & not quantified (single mesh level) \\
+\textbf{155} & 62.0 & 44.5 & 37.6 & 33.8 & not quantified (single mesh level) \\
+\textbf{230} & 84.9 & 58.8 & 48.6 & 42.9 & not quantified (single mesh level) \\
+\textbf{305} & 107.7 & 73.1 & 59.6 & 52.0 & not quantified (single mesh level) \\
+%<<END t1>>
 \bottomrule
 \end{tabular}
 
@@ -83,16 +85,25 @@ Heat load & Peak core & Peak housing & Core above & Margin on & Reading \\
 $P$, W & $^{\circ}\mathrm{C}$ & $^{\circ}\mathrm{C}$ & housing, K &
 core, K & \\
 \midrule
-80 & 39.2049 & 38.1374 & 1.0675 & 160.7951 & clears the limit \\
-155 & 62.0291 & 59.9609 & 2.0682 & 137.9709 & clears the limit \\
-230 & 84.8533 & 81.7844 & 3.0689 & 115.1467 & clears the limit \\
-\textbf{305} & \textbf{107.6775} & \textbf{103.6078} & \textbf{4.0697} & \textbf{92.3225} & worst solved point \\
+%<<ACTA t2>>
+80 & 39.2 & 38.1 & 1.1 & 160.8 & clears the limit \\
+155 & 62.0 & 60.0 & 2.1 & 138.0 & clears the limit \\
+230 & 84.9 & 81.8 & 3.1 & 115.1 & clears the limit \\
+\textbf{305} & \textbf{107.7} & \textbf{103.6} & \textbf{4.1} & \textbf{92.3} & worst solved point \\
+%<<END t2>>
 \bottomrule
 \end{tabular}}
 
+\vspace{1pt}
+{\footnotesize Cells are rounded independently; differences may not match to
+the last digit.}
+
 \vspace{1.5pt}
-{\footnotesize Coolest core peak $24.6762\,^{\circ}\mathrm{C}$, at
+%<<ACTA coolest>>
+{\footnotesize Coolest core peak 24.7$\,^{\circ}\mathrm{C}$, at
 $80\,\mathrm{W}$ and $40\,\mathrm{m\,s^{-1}}$. Margins carry no error bar.}
+%<<END coolest>>
+
 
 % ------------------------------------------------- plot + assumption beat ---
 \vspace{1.5pt}
@@ -132,6 +143,7 @@ against airspeed, one curve per heat load. Shaded band is below the limit.
   \put(2,49.3){\makebox(0,0)[l]{\scriptsize safe region}}
   % ---- curves: 4 measured samples joined by straight segments -------------
   \linethickness{0.5pt}
+%<<ACTA curves>>
   % 80 W core -> 10.45 8.04 7.10 6.58
   \qbezier(0.00,10.45)(14,9.25)(28.00,8.04)
   \qbezier(28.00,8.04)(42,7.57)(56.00,7.10)
@@ -157,6 +169,7 @@ against airspeed, one curve per heat load. Shaded band is below the limit.
   \qbezier(56.00,15.88)(70,14.87)(84.00,13.86)
   \put(0.00,28.71){\circle*{1.3}}\put(28.00,19.50){\circle*{1.3}}
   \put(56.00,15.88){\circle*{1.3}}\put(84.00,13.86){\circle*{1.3}}
+%<<END curves>>
   % ---- legend, inside the axes where there is white space ----------------
   \put(55,45.5){\makebox(0,0)[l]{\scriptsize Heat load $P$:}}
   \linethickness{0.9pt}\qbezier(55,41.5)(58,41.5)(61,41.5)
@@ -192,10 +205,12 @@ Solved & \multicolumn{2}{c}{Overprediction, $\times$} \\
 \cmidrule(lr){2-3}\cmidrule(lr){5-6}
 m\,s$^{-1}$ & duct corr. & flat plate & housing, $^{\circ}\mathrm{C}$ & duct & flat plate \\
 \midrule
-10 & 329.1 & 195.1 & 103.6078 & \textbf{3.541} & \textbf{2.031} \\
-20 & 197.3 & 120.3 &  69.0098 & 3.369 & 1.947 \\
-30 & 148.0 &  92.4 &  55.4389 & 3.280 & 1.911 \\
-40 & 121.6 &  77.4 &  47.8448 & \textbf{3.235} & \textbf{1.896} \\
+%<<ACTA t3>>
+10 & 329.1 & 195.1 & 103.6 & \textbf{3.541} & \textbf{2.031} \\
+20 & 197.3 & 120.3 & 69.0 & 3.369 & 1.947 \\
+30 & 148.0 & 92.4 & 55.4 & 3.280 & 1.911 \\
+40 & 121.6 & 77.4 & 47.8 & \textbf{3.235} & \textbf{1.896} \\
+%<<END t3>>
 \bottomrule
 \end{tabular}}
 
@@ -281,9 +296,10 @@ $\bullet$ Nothing is claimed between the four airspeeds solved.}
 
 % -------------------------------------------------------------- cost --------
 \vspace{2pt}
-{\footnotesize\textbf{Compute.} Sixteen operating points on this geometry.
-Cost $\$0.49$, derived at $\$0.0513$ per core-hour. The rate is stated by the
-machine's owner rather than metered here.}
+{\footnotesize\textbf{Compute.} Sixteen operating points, solved in two
+concurrent batches. Time spent solving: 1\,h\,26\,min. Cost $\$0.49$, derived
+at $\$0.0513$ per core-hour. The rate is stated by the machine's owner rather
+than metered here.}
 
 % ------------------------------------------------------------- voices -------
 \vspace{2pt}
