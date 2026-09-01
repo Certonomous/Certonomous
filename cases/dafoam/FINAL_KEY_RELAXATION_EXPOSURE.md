@@ -240,3 +240,64 @@ began writing one before completing the comparison.
 
 **Disposition.** Filed as a dafoam findings record. `docs/capability/dafoam_GRID.md` untouched. No
 frozen file edited, no `fvSolution` deleted, moved or rewritten, no solve run, nothing sent.
+
+---
+
+## ADDENDUM A — 2026-09-01, POST-MEASUREMENT. §6's CENTRAL CLAIM IS STRUCK: `δ_window` IS **NOT** A PURELY PHYSICAL QUANTITY, AND MORE THAN HALF OF IT WAS THE DEFECT.
+
+**Lines whose number changed above this section: 0.** §§1–10 stand as written; the struck claim
+is identified here and left in place above so the error is visible rather than tidied away.
+
+**Appended after the paired run D12RLX measured it.** Full record:
+`cases/dafoam/D12RLX_RESULTS.md`. Item verdict **`GATE REACHED`**.
+
+### WHAT IS STRUCK
+
+§6 bounded the blast radius on this reasoning, quoted from itself:
+
+> ~~*"`δ_window` dominates by three orders, and it is `block_max − block_min` of the CD series — a
+> shedding-amplitude-and-window-mismatch quantity, not an outer-loop-path quantity."*~~ **STRUCK.**
+
+**MEASURED, one variable, both arms complete and bit-reproducible:**
+
+| | arm C (upstream dict) | arm R (`Final` keys) | change |
+|---|---|---|---|
+| `δ_window` | `1.795847823e-03` | `7.852291347e-04` | **−56.28 %** |
+| `δ_pert` | `2.279666842e-06` | `1.069533636e-08` | **−99.53 %, a factor of 213** |
+| `\|g\|` | `1.03041586` | `0.8531404386` | −17.20 % |
+| `h_min` | `0.1742837909` | `0.0920398447` | **−47.19 %** |
+
+**`δ_window` is substantially an outer-loop-path quantity.** More than half the dominant noise
+term in this family's FD step sizing was an artefact of `U`, `nuTilda`, `T`/`e`/`h` and `p`
+running unrelaxed on the final sweep of every timestep. **§6 said the exposure did not reach the
+binding number. It reaches it by 47 %.**
+
+### WHAT SURVIVES, AND IT IS THE PART THE VERDICTS RESTED ON
+
+**§6's DIRECTION argument held exactly.** Removing the defect **lowered** `h_min`; the defect had
+been inflating it. So the defect could never have converted a `GATE FAIL` or a `NOT A RESULT` into
+a `PASS`, and **no landed verdict in this family was ever a concealed pass.** That conclusion is
+unchanged and is now measured rather than argued.
+
+**§7's concern also survives, and it is now quantified rather than speculative.** `h_min` needs a
+**1.84×** fall to become admissible, where before the repair it needed **3.49×**. So
+*"no admissible FD step exists"* **is still true at W = 300** and `docs/capability/dafoam_GRID.md`
+is **not falsified** — but the margin behind that claim more than halved, and the claim is
+narrower than it reads: it is a statement about this window **with these numerics**.
+
+### THE LESSON I OWE, STATED AGAINST MYSELF
+
+**I predicted the right outcome from the wrong model.** P5 held — the repair did not manufacture an
+admissible step — and if the item had graded only its headline I would have banked a correct
+prediction and kept a false mechanism. **P3 and P4 landing outside their bands is what exposed the
+model, and they only exist because the magnitudes were registered as predictions instead of being
+left as "we'll see".** A gate that can only tell you whether you were right is worth less than one
+that can tell you *why you were right*, and the difference cost two extra registered bands.
+
+**And §9's honest limit is now discharged in the direction it warned about.** §9 said the chain was
+*"airtight-by-construction, not airtight-by-measurement"* and that converting it was the paired
+run's second job. **It converted — and in converting it falsified a different claim in the same
+document.** Reading the source told me correctly that the key was dropped; it told me nothing
+reliable about what dropping it was worth, and I wrote as if it had.
+
+**Nothing above is rewritten. `docs/capability/dafoam_GRID.md` remains untouched by this record.**
