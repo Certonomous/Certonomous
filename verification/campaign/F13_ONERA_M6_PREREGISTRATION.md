@@ -653,3 +653,118 @@ reaches this file still meets them.
 **`GATE FAIL` on §5 admission at all three levels; tier `NOT HELD`; V, G and P `PENDING` with no
 value computed.** See `verification/campaign/F13_RESULTS.md` and
 `verification/runs/F13_ONERA_M6_runs/R0_TERMINAL.md`. **Vocabulary unchanged.**
+
+---
+
+## ADDENDUM D — 2026-09-01: §5's TIP DESCRIPTION IS STRUCK, AND §2's REGISTERED UNBLOCK IS SATISFIED
+
+**Dated addendum under CLAUDE.md rule 2. First compute has occurred, so this addendum CANNOT and
+DOES NOT alter a gate, threshold, cap or label.** Appended at the foot under rule 6. **Nothing
+above is edited, reordered, inserted or deleted.** v1.1.
+
+**Authorised by the cfd supervisor, 2026-09-01, who verified the finding personally from the
+page before ruling.** The companion correction to the graded record is
+`F13_RESULTS.md` ADDENDUM 2.
+
+**STANDING UNCHANGED: `GATE FAIL` on §5 admission at all three levels; tier `NOT HELD`;
+V, G and P `PENDING` with no value computed.** §5's cell counts, `β` values, `r = 2.000000`,
+admission thresholds, bands and caps are **untouched**.
+
+### D.1 The struck sentence
+
+§5 states, of the spanwise blocking:
+
+> *"the M6 tip is a flat cut, so the cap is geometry, not a simplification"*
+
+> **STRUCK.** **AGARD AR-138 clause 2.1.13, printed page `B1-2` = PDF page `328`, verbatim:
+> "truncation parallel to wing root and addition of a half body of revolution."**
+
+**The M6 tip is a flat cut PLUS a rounded closure.** The cap is therefore **a simplification
+after all** — the very thing §5 asserted it was not. Confirmed quantitatively: a half body of
+revolution adds half the tip-section maximum thickness in span, **22.155 mm** predicted from
+2.1.13 before the confirming figure was consulted, against NASA TMR's published
+`1218.535 − 1196.300 = 22.235 mm` for its CAD of this geometry. **Ratio 0.9964.**
+
+**This does not move §5's cell counts or `r`**, because no level was rebuilt and no solver ran.
+It changes what the built mesh is understood to have represented.
+
+### D.2 §2's REGISTERED UNBLOCK IS SATISFIED — RECORDED, NOT ACTED ON
+
+§2 registered, before any compute:
+
+> *"UNBLOCK, registered now: if AGARD AR-138 reaches this box and title-page verifies (never by
+> filename, file type or hash), the seven stations are read from it and P becomes claimable
+> WITHOUT changing any gate, band, threshold, cap or label."*
+
+**Both conditions are met.**
+
+1. **The document has reached this box.**
+   `docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.pdf`, sha256
+   `a96a73304c8328bd97c828cead2df9326675fd2340230d7e81fcf9f8191e7ffb`, 17,588,425 B, 612 pages,
+   with the `.txt` sidecar required by `FILING_CHARTER` R9.
+2. **It title-page verifies, by opening it and reading the printed sheet** — never by filename,
+   file type or hash, and **the first attempt was exactly the failure §2's parenthesis warns
+   about**: the direct NATO STO URL returned 302 then 403 and delivered **4,547 bytes of HTML
+   into a file named `AGARD-AR-138.pdf`**, sha256 `179527b5f5d25474f75d1022d5c97d2d4dec27bd899b6079ae9dc458001e6246`.
+   It was discarded on its sniffed type. **A filename check or a hash manifest would have
+   recorded it as the report.**
+
+**Printed title page (PDF page 1):** `AGARD-AR-138` / NORTH ATLANTIC TREATY ORGANIZATION /
+ADVISORY GROUP FOR AEROSPACE RESEARCH AND DEVELOPMENT / **AGARD Advisory Report No.138** /
+**EXPERIMENTAL DATA BASE FOR COMPUTER PROGRAM ASSESSMENT** / REPORT OF THE FLUID DYNAMICS PANEL
+WORKING GROUP 04. **Imprint (PDF page 2, printed ii):** *Published May 1979 · Copyright © AGARD
+1979 · All Rights Reserved · ISBN 92-835-1323-1.* **Chapter (printed `B1-1` = PDF page `327`):**
+*"PRESSURE DISTRIBUTIONS ON THE ONERA-M6-WING AT TRANSONIC MACH NUMBERS by V. SCHMITT and
+F. CHARPIN, OFFICE NATIONAL D'ETUDES ET DE RECHERCHES AEROSPATIALES."*
+
+**THE SEVEN STATIONS, printed page `B1-4` = PDF page `330`, §5.1.1, verbatim:**
+
+> **"271 pressure orifices divided in 7 sections (y/b = 0.20/0.44/0.65/0.80/0.90/0.96 and 0.99)"**
+
+This is the quantity §2 recorded as **"NOT COMPUTABLE"** from the held artifact, searched for
+under a planted control across eleven header spellings, all returning zero. **It was never in
+the data file. It is in the report, and the report is now here.**
+
+**AND THE REFERENCE-ACCURACY DISCLOSURE §2 CALLED UNAVAILABLE IS NOW AVAILABLE.** §2 recorded:
+*"That justification is UNAVAILABLE — the document that would state an accuracy is not held."*
+Printed `B1-4` §6.1: **`ΔCp = ±0.02` at `Mo = 0.84`**; `ΔCX = ±0.002`, `ΔCZ = ±0.009`,
+`ΔCl = ±0.002`, `ΔCm = ±0.0006`, `ΔCn = ±0.0003`. **With one caveat that must travel with it:**
+printed `B1-5` = PDF page `331`, §6.2 records **"Wall interference corrections: no
+corrections"**, and §6.3.6–6.3.8 record that no wall-interference, aeroelastic or other
+corrections are included, at a **semispan-to-tunnel-width ratio of 0.7** (§4.2). **Any future
+Gate P inherits an uncorrected-wall systematic the report itself declines to quantify.**
+
+### D.3 THE HELD `case_2308.dat` IS NOW PROVENANCED — a chain, not a transcription audit
+
+§2 disclosed that the artifact's attribution to AGARD AR-138 Case 2308 *"rests on this lab's own
+prose and on a filename."* `cases/dafoam/ladder-a/logs_A3/case_2308.dat` is now shown
+**BYTE-IDENTICAL** — same sha256 `020c5fcc58060737024eb87d9404f56bc563f3f6f15e337675c47477fa91f0d0`,
+same 22,695 B, `cmp` clean — to the `case_2308.dat` NASA TMR publishes for this test case on a
+page that cites Schmitt & Charpin, AGARD AR-138.
+
+> **That is a stronger chain and it is still NOT a row-by-row check against the printed tables,
+> which has NOT been performed. §2's ceiling is lowered, not removed.**
+
+### D.4 WHAT THIS ADDENDUM DOES NOT DO
+
+**GATE P IS NOT CLAIMED AND IS NOT ATTEMPTED.** It remains `PENDING` in its charter sense — a
+queue state for *not yet run*. **No station is interpolated onto, no `Cp` is compared, no band
+is applied, and no value is computed for P, V or G.** §2's registered consequence is that P
+*becomes claimable*; **claiming it is a separate act under a separate registration and is not
+performed here.**
+
+**No new geometry, ladder or build is registered.** The AGARD-faithful blunt-trailing-edge route
+is visible — Table B1-1 supplies the section, NASA TMR distributes `AileM6_with_thick_TE.igs`,
+and the published generator ships blunt-section inputs — and it is **deliberately left shut** by
+the cfd supervisor's ruling of 2026-09-01 until the `M6I` ladder is graded, so that an unfrozen
+item cannot ride in under a live one.
+
+### D.5 Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| lines of this file edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 655 lines BEFORE the append | `cf974c0214fc936d4619165ea3b912fa` |
+| md5 of this file's first 655 lines AFTER the append | `cf974c0214fc936d4619165ea3b912fa` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |

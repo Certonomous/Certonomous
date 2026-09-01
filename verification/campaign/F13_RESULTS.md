@@ -128,3 +128,121 @@ a reason to change the meshing method, never the geometry.
 AMENDMENT 1 (`579eaa1f`): its prediction 1 and its candidate ordering are struck as refuted
 by a measurement predating the filing, no candidate was built, and **0.000 core-min was
 spent** against a 4.0 estimate.
+
+---
+
+## ADDENDUM 2 — 2026-09-01: THE CAUSE RECORDED IN ADDENDUM 1 IS WRONG. THE VERDICTS STILL DO NOT MOVE.
+
+**Dated addendum under CLAUDE.md rule 2, which permits post-compute changes ONLY as dated
+addenda that cannot alter a gate, threshold, cap or label.** Appended at the foot under rule 6.
+**Nothing above is edited, reordered, inserted or deleted.**
+
+**Authorised by the cfd supervisor, 2026-09-01, who verified the finding personally from the
+page before ruling.** F13 is cfd's ladder, so the ruling is cfd's to make.
+
+**THE VERDICTS ARE UNCHANGED AND ARE NOT BEING REVISITED.** **R0 stands `GATE FAIL`. The case
+stands `BLOCKED` on §5 admission. R1–R4 and Gate D stand `PENDING`.** No gate, threshold, band,
+cap or label in this file or in `F13_ONERA_M6_PREREGISTRATION.md` is altered by this addendum.
+**Only the recorded CAUSE changes, and a cause is none of the four things rule 2 protects.**
+
+### What ADDENDUM 1 asserted, and what is now STRUCK
+
+ADDENDUM 1 recorded the cause as geometric, resting on `N-C6`, whose mechanism is stated there
+as *"the ratio is set by the section half-thickness `t2`, which goes to ZERO at a sharp trailing
+edge — at the M6's registered break it is ~16:1"*.
+
+> **STRUCK: the clause that the M6's own trailing edge is sharp, and that its section
+> half-thickness goes to zero there.**
+
+**It does not.** The defining document has now been retrieved, opened and title-page verified,
+and it says otherwise.
+
+### The measurement that strikes it, cited by both page numbers
+
+**AGARD AR-138, `TABLE B1-1`, "M6 WING STREAMWISE SECTION COORDINATES (DESIGN VALUES)",
+printed page `B1-7` = PDF page `333`** of
+`docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.pdf`
+(sha256 `a96a73304c8328bd97c828cead2df9326675fd2340230d7e81fcf9f8191e7ffb`, 17,588,425 B).
+**Both page numbers are given because the retrieved scan has 612 pages where the report's own
+abstract card states 642, and that discrepancy is unexplained.**
+
+**The table's final row reads `x/l = 1.0000000`, `z/l = 0.0007052`.** AR-138 clause 2.1.10
+(printed `B1-1` = PDF page `327`) states the section is **symmetrical**, so the design trailing
+edge carries
+
+> **2 × 0.0007052 = 0.0014104 chord = 0.14104 % chord. THE ONERA M6 TRAILING EDGE IS BLUNT.**
+
+**Read off the page image, not off the sidecar.** The OCR mangles this table — the `.txt`
+sidecar renders these ordinates as strings such as `0.ZY37` and `n.11401` — so a grep of the
+sidecar returns nothing and **a lane that had only grepped would have concluded the value was
+absent.** The row was located by printed-page arithmetic (printed `B1-35` sits on PDF page
+`361`, so printed `B1-1` is PDF page `327`) and read from the rendered page.
+
+### The second struck clause: the tip
+
+`F13_ONERA_M6_PREREGISTRATION.md` §5 records *"the M6 tip is a flat cut, so the cap is geometry,
+not a simplification."*
+
+> **STRUCK.** AR-138 clause **2.1.13** (printed `B1-2` = PDF page `328`) reads, verbatim:
+> **"truncation parallel to wing root and addition of a half body of revolution."**
+> **The M6 tip is ROUND.**
+
+**Confirmed quantitatively, and the prediction was made before the confirming figure was read.**
+A half body of revolution about the tip chord adds half the tip-section maximum thickness in
+span: from the measured root `t/c = 0.097804` and `c_t = 0.453253 m`, **22.155 mm**. NASA TMR
+publishes, for its CAD of this geometry, *"Semispan (last section): 1196.300000084 mm"* and
+*"Rounded Tip Semispan: 1218.535 mm"* — a difference of **22.235 mm**. **Ratio 0.9964.**
+
+### THE CORRECTED CAUSE
+
+> **The ~16:1 strip-to-core arc-length ratio at the break is a property of THE GEOMETRY THIS
+> LAB SHARPENED, not of the ONERA M6.** The M6's own trailing edge is 0.14104 % chord thick and
+> its tip is a half body of revolution. `N-C6`'s mechanism requires a half-thickness going to
+> zero; **the M6 does not supply one.**
+
+**`N-C6` IS NOT REFUTED AND IS NOT WEAKENED.** It is correct about sharp trailing edges. What
+was wrong was its **application** to this geometry, and the narrowing is recorded as a dated
+addendum on `N-C6` itself in `docs/NUMERICS_KNOWLEDGE.md`.
+
+### Why the verdict is right anyway, and why that matters
+
+**R0 measured the mesh this ladder actually built**, and that mesh has a sharp trailing edge and
+a collapsed tip-fill line. **84.64 / 86.02 / 86.78° against a ≤ 70° gate is a true measurement
+of a true object, and `GATE FAIL` is the correct verdict for it.** What changes is that the
+obstruction is **not** a property of the ONERA M6 and therefore **not** a reason to believe the
+M6 is unmeshable. **A right verdict resting on a wrong cause is the most expensive kind of
+record, because it closes a door that is open.**
+
+### What this addendum does NOT do
+
+1. **It does not reopen R0, R1–R4 or Gate D.** No solver has run under F13 and none runs now.
+2. **It does not register a new geometry, ladder or build.** The AGARD-faithful blunt-TE route
+   is visible and is **deliberately left shut** by the supervisor's ruling of 2026-09-01 until
+   the `M6I` ladder is graded.
+3. **It does not amend §5's cell counts, `r`, bands, caps or labels**, which rule 2 protects.
+
+### F13's REGISTERED UNBLOCK IS SATISFIED — STATED, NOT ACTED ON
+
+§2 of the pre-registration registered, before any compute, that if AGARD AR-138 reached this box
+and title-page verified, the seven stations would be read from it and Gate P would become
+claimable **without changing any gate, band, threshold, cap or label**.
+
+**The document has reached this box. It title-page verifies.** Printed `B1-4` = PDF page `330`,
+§5.1.1, verbatim: **"271 pressure orifices divided in 7 sections (y/b = 0.20/0.44/0.65/0.80/0.90/0.96
+and 0.99)"**. The reference accuracy §2 recorded as UNAVAILABLE is also now held: printed
+`B1-4` §6.1, **`ΔCp = ±0.02` at `Mo = 0.84`**; and printed `B1-5` = PDF page `331` §6.2,
+**"Wall interference corrections: no corrections"**, at a semispan-to-tunnel-width ratio of
+**0.7** (§4.2).
+
+> **Gate P remains `PENDING`. It has not failed; it has not been attempted.** The condition is
+> recorded as satisfied and **is not acted on here.**
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| lines of this file edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 130 lines BEFORE the append | `e51194a3e2e27d62043842b2d5ce7dc2` |
+| md5 of this file's first 130 lines AFTER the append | `e51194a3e2e27d62043842b2d5ce7dc2` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
