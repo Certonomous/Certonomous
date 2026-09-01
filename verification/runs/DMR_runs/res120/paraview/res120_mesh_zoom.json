@@ -1,0 +1,97 @@
+{
+  "background_rgb": [
+    0.024,
+    0.027,
+    0.031
+  ],
+  "body_patch": null,
+  "camera": {
+    "centre": [
+      2.775812,
+      0.10500000000000001
+    ],
+    "parallel_scale": 0.12502697812500002,
+    "projection": "parallel",
+    "view_up": [
+      0,
+      1,
+      0
+    ],
+    "x_range": [
+      2.327536,
+      3.224088
+    ],
+    "y_range": [
+      -0.02,
+      0.23
+    ]
+  },
+  "case": "/home/ubuntu/Certonomous/verification/runs/DMR_runs/res120",
+  "case_name": "res120",
+  "cells": 57600,
+  "chord": 4.0,
+  "data_provenance": "rendered from the case's own constant/polyMesh and time directory; no synthesised, smoothed or decimated geometry",
+  "domain_bounds": [
+    0.0,
+    4.0,
+    0.0,
+    1.0,
+    0.0,
+    0.009999999776482582
+  ],
+  "domain_margin": 0.02,
+  "field": null,
+  "frame_box": [
+    -0.08,
+    4.08,
+    -0.08,
+    1.08
+  ],
+  "frame_mode": "domain",
+  "generated_utc": "2026-09-01T20:32:12Z",
+  "geometry_mode": "domain",
+  "image": "res120_mesh_zoom.png",
+  "initial_condition": {
+    "endpoints": [
+      [
+        0.16666666666666666,
+        0.0
+      ],
+      [
+        0.7440169358562925,
+        1.0
+      ]
+    ],
+    "expression": "x < 1.0/6.0 + pos().y()/sqrt(3.0)",
+    "length": 1.1547005383792515,
+    "read_not_typed": true,
+    "source": "/home/ubuntu/Certonomous/verification/runs/DMR_runs/res120/system/setExprFieldsDict"
+  },
+  "ink_fraction": 0.9299719887955182,
+  "marked_patches": [
+    "rampWall"
+  ],
+  "panel": "mesh_zoom",
+  "paraview": "5.11.2 (/usr/bin/pvbatch, xvfb-run)",
+  "resolution": [
+    2560,
+    714
+  ],
+  "script": "scripts/render_openfoam_paraview.py",
+  "script_sha256": "308c8075dcc71483d81aa5c664ba2b6f8f517fa3b385a59bcf6f19bcd11c0592",
+  "slice_polygons": 57600,
+  "theme": "dark",
+  "time": 0.2,
+  "time_range": [
+    0.02,
+    0.2
+  ],
+  "times_available": 10,
+  "zoom_box": [
+    2.327536,
+    3.224088,
+    -0.02,
+    0.23
+  ],
+  "zoom_patch": null
+}

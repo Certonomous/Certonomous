@@ -45,7 +45,9 @@ import argparse
 import datetime
 import hashlib
 import json
+import math
 import os
+import re
 import sys
 
 from paraview.simple import (
@@ -54,10 +56,12 @@ from paraview.simple import (
     GetColorTransferFunction,
     GetScalarBar,
     Hide,
+    Line,
     OpenFOAMReader,
     SaveScreenshot,
     Show,
     Slice,
+    Text,
     Tube,
 )
 
@@ -180,6 +184,117 @@ def frame(view, xlo, xhi, ylo, yhi, resolution):
             "parallel_scale": view.CameraParallelScale}
 
 
+def domain_box(bounds, margin):
+    """The world rectangle a DOMAIN-framed panel covers: the mesh's own bounds.
+
+    WHY THIS EXISTS, AND IT IS A MEASURED DEFECT AND NOT A PREFERENCE.  The
+    body-patch framing below this line is an AIRFOIL framing: it opens the
+    camera by fractions of the CHORD (0.55 chord to the left, 0.85 to the
+    right, 0.62 up and down), which is right when the body is small and the
+    far field is large, and catastrophic when the "body" IS the domain's own
+    floor.  Measured on the double-Mach-reflection channel, whose domain is
+    4.000 x 1.000 m and whose wall patch runs x = 0.1667 .. 4.000 (chord
+    3.833): the body framing produces a 8.050 x 4.217 m window, so the channel
+    covers 49.7% of the frame width, 23.7% of its height and 11.8% of its
+    area.  That is a coin in an empty panel, and no ink-fraction check can see
+    it -- 11.8% of a frame is a great deal of ink.
+
+    So a case whose subject is the DOMAIN frames on the domain: the mesh's own
+    x-y bounds, plus one small uniform margin so the boundary line weight is
+    not clipped by the edge of the image.  The margin is a fraction of the
+    LONGER side, so a 4:1 channel is not padded four times harder vertically
+    than horizontally.
+    """
+    xlo, xhi, ylo, yhi = bounds[0], bounds[1], bounds[2], bounds[3]
+    pad = margin * max(xhi - xlo, yhi - ylo)
+    return (xlo - pad, xhi + pad, ylo - pad, yhi + pad)
+
+
+def fit_resolution(box, width):
+    """An image whose ASPECT is the framed rectangle's, so no pixel is wasted.
+
+    ``frame`` never crops -- it widens the parallel scale when the requested
+    x-range would not fit the viewport's aspect -- so a 4:1 channel asked for
+    in a 16:9 image is drawn correctly and surrounded by dark bands that are
+    part of the file.  Those bands are not wrong, but they are dead pixels: they
+    dilute the ink fraction and they are what a viewer reads as "empty panel".
+    Sizing the image to the rectangle removes them at the source; the display
+    letterboxes with ``object-fit: contain`` and the on-screen size is
+    unchanged, so this costs the viewer nothing and costs the file nothing.
+    """
+    xlo, xhi, ylo, yhi = box
+    span_x, span_y = xhi - xlo, yhi - ylo
+    if span_x <= 0 or span_y <= 0:
+        raise SystemExit("REFUSED: the framing rectangle has no extent.")
+    height = int(round(width * span_y / span_x))
+    height += height % 2                       # even, for any downstream encoder
+    return [int(width), max(2, height)]
+
+
+# ==========================================================================
+# The initial-condition discontinuity, READ FROM THE CASE
+# ==========================================================================
+
+#: Everything the initial-condition expression is allowed to contain once
+#: ``pos().y()`` has become ``y``.  A reader that will evaluate a string out of
+#: a case file is a reader that must be able to REFUSE one, so the character
+#: set is a whitelist and anything outside it stops the render rather than
+#: being evaluated.
+_IC_SAFE = re.compile(r"^[0-9yeE+\-*/(). ]*(?:(?:sqrt|tan|cos|sin|pi)"
+                      r"[0-9yeE+\-*/(). ]*)*$")
+
+#: ``pos().x() <op> <expression in y>`` -- the form an OpenFOAM setExprFields
+#: initial condition takes when it splits a domain along a line.  The capture
+#: stops at the ``?`` of the ternary, which is where the condition ends.
+_IC_CONDITION = re.compile(
+    r"pos\(\)\.x\(\)\s*(<=|>=|<|>)\s*(.+?)\s*\)\s*\?")
+
+
+def read_initial_line(dict_path, ylo, yhi):
+    """The initial discontinuity as two endpoints, off the case's own dict.
+
+    THE POSITION IS READ, NEVER TYPED.  The double-Mach-reflection shock sits
+    at ``x = 1/6 + y/sqrt(3)`` and a renderer that hard-codes those numbers is
+    a renderer that will keep drawing them after somebody moves the shock.  So
+    the line comes out of ``system/setExprFieldsDict`` -- the same file the
+    solver initialised from -- and the expression it was read from travels into
+    the sidecar, so the drawing can be checked against its source without
+    trusting this function.
+
+    Returns ``(p_lo, p_hi, raw_expression)`` in the x-y plane, or raises.
+    """
+    with open(dict_path, "r") as handle:
+        text = handle.read()
+    hit = _IC_CONDITION.search(text)
+    if hit is None:
+        raise ValueError(
+            "no 'pos().x() <op> <expression>' condition in %s -- this case does "
+            "not declare an initial discontinuity this reader can draw"
+            % dict_path)
+    raw = hit.group(2).strip()
+    expr = raw.replace("pos().y()", "y")
+    if "pos()" in expr:
+        raise ValueError(
+            "the initial condition %r depends on a coordinate other than y; "
+            "this reader draws a line in x = f(y) and nothing else" % raw)
+    if not _IC_SAFE.match(expr):
+        raise ValueError(
+            "the initial condition %r contains something outside the arithmetic "
+            "whitelist; it is refused rather than evaluated" % raw)
+    namespace = {"__builtins__": {}, "sqrt": math.sqrt, "tan": math.tan,
+                 "cos": math.cos, "sin": math.sin, "pi": math.pi}
+    try:
+        x_lo = float(eval(expr, namespace, {"y": float(ylo)}))    # noqa: S307
+        x_hi = float(eval(expr, namespace, {"y": float(yhi)}))    # noqa: S307
+    except Exception as exc:                                     # noqa: BLE001
+        raise ValueError("the initial condition %r would not evaluate: %s"
+                         % (raw, exc)) from None
+    # The operator travels with the expression: "x 1/6 + y/sqrt(3)" is not a
+    # condition, and a sidecar that records one cannot be checked against the
+    # dict it came from.
+    return (x_lo, float(ylo)), (x_hi, float(yhi)), "%s %s" % (hit.group(1), raw)
+
+
 # ==========================================================================
 # Pipeline pieces
 # ==========================================================================
@@ -197,6 +312,27 @@ def midspan_slice(source, z):
     sl.SliceType.Normal = [0.0, 0.0, 1.0]
     sl.Triangulatetheslice = 0
     return sl
+
+
+def patch_names(reader):
+    """The reader's boundary patches, whatever this build calls the property.
+
+    The list of selectable mesh regions is ``MeshRegions.Available`` in some
+    ParaView builds and ``PatchArrays.Available`` in others.  Guessing one and
+    letting the other raise would make the domain drawing a version-specific
+    feature; asking both and refusing only when NEITHER answers keeps the
+    failure honest and loud.
+    """
+    for attribute in ("MeshRegions", "PatchArrays"):
+        holder = getattr(reader, attribute, None)
+        available = getattr(holder, "Available", None) if holder is not None else None
+        if available:
+            found = [p for p in available if str(p).startswith("patch/")]
+            if found:
+                return found
+    raise SystemExit(
+        "REFUSED: this ParaView build exposes no boundary-patch list on the "
+        "OpenFOAM reader, so the domain outline cannot be drawn from the case.")
 
 
 def outline_of(patch, z, radius):
@@ -253,12 +389,24 @@ def clear_view(ctx, displays):
         # Only a display actually bound to an array owns a scalar bar; asking a
         # solid-coloured one to hide its bar makes ParaView hunt for a lookup
         # table that was never created and warn about not finding it.
-        if list(disp.ColorArrayName)[0]:
+        # A text representation has no ColorArrayName at all, and asking one for
+        # it raises rather than returning empty -- so the guard tests for the
+        # property, not just for its value.
+        array_name = getattr(disp, "ColorArrayName", None)
+        if array_name is not None and list(array_name)[0]:
             disp.SetScalarBarVisibility(view, False)
-    for key in ("slice_internal", "outline_body", "outline_zoom"):
+    for key in ("slice_internal", "outline_body", "outline_zoom",
+                "initial_line"):
         source = ctx.get(key)
         if source is not None:
             Hide(source, view)
+    # The domain drawing's boundary lines and its text are per-panel sources of
+    # their own; a boundary line left shown would put the geometry stage's
+    # bright wall over a field panel that never asked for one.
+    for source, _colour, _weight in ctx.get("domain_edges", ()):
+        Hide(source, view)
+    for source in ctx.get("annotations", ()):
+        Hide(source, view)
 
 
 def set_if(proxy, name, value):
@@ -354,6 +502,92 @@ def draw_geometry(ctx):
     return shown, cam, {"field": None}
 
 
+def draw_domain(ctx):
+    """The STL-LESS geometry stage: the domain itself, drawn from the case.
+
+    WHAT THIS REPLACES.  ``draw_geometry`` above is a BODY drawing: it exists
+    for a case whose subject is an object immersed in a large far field, and it
+    frames on that object.  A channel case has no such object -- the double-Mach
+    reflection is a box with a wall along part of its floor and a shock line
+    across it -- and asking the act for a body produced a served surface that is
+    not the case's geometry at all.  Sanaa, 2026-09-01: "The geometry stage for
+    STL-less cases must draw the domain: channel outline, wall segment, initial
+    shock position."
+
+    So this draws exactly those three things and each of them comes off disk:
+
+      * the DOMAIN, as the mid-span section of the case's own ``polyMesh`` --
+        which is the channel outline, filled, with whatever real shape it has;
+      * every BOUNDARY patch as a line, with the patches named on the command
+        line drawn bright and thick: the wall segment, marked;
+      * the INITIAL DISCONTINUITY, read out of the case's own
+        ``setExprFieldsDict`` by :func:`read_initial_line` and drawn in the
+        accent colour.
+
+    Nothing here is synthesised and nothing is typed.  A case with no initial
+    discontinuity gets the first two and its sidecar says so.
+    """
+    view, theme = ctx["view"], ctx["theme"]
+    fluid = Show(ctx["slice_internal"], view)
+    fluid.Representation = "Surface"
+    solid(fluid, theme["domain"])
+    shown = [fluid]
+
+    for source, colour, weight in ctx["domain_edges"]:
+        disp = Show(source, view)
+        disp.Representation = "Surface"
+        solid(disp, colour)
+        shown.append(disp)
+
+    meta = {"field": None,
+            "domain_extent": [ctx["domain_span"][0], ctx["domain_span"][1]],
+            "marked_patches": ctx["marked_patches"],
+            "boundary_patches": ctx["boundary_patches"]}
+    if ctx.get("initial_line") is not None:
+        line = Show(ctx["initial_line"], view)
+        line.Representation = "Surface"
+        solid(line, theme["slot"])
+        shown.append(line)
+        meta["initial_condition"] = ctx["initial_meta"]
+
+    # The key lines, stacked down from inside the top-left of the frame. Placed
+    # by explicit position rather than by a named window corner, because two
+    # labels sent to the same corner draw on top of each other and the second
+    # one is invisible in a way no return code reports.
+    #
+    # THE TYPE IS SIZED FOR THE STAGE, NOT FOR THE FILE. A domain-fitted panel
+    # is short -- this channel renders 2560 x 714 -- and it is displayed
+    # `object-fit: contain` inside a viewport about half its pixel width, so a
+    # 15 pt label measured 7 px on screen and could not be read. It is set as a
+    # fraction of the image HEIGHT so a taller domain does not get giant type.
+    colours = ctx.get("annotation_colours", ())
+    height = ctx["resolution"][1]
+    size = max(14, int(round(0.045 * height)))
+    step = 1.75 * size / float(height)
+    # THE KEY IS PLACED WHERE IT CANNOT OVERDRAW THE THING IT DESCRIBES, and
+    # the place is computed, not chosen: the initial-condition line is the only
+    # feature crossing the domain's interior, so the key starts to the right of
+    # its rightmost point. Left at the frame edge it ran straight through the
+    # shock line at the top of this channel.
+    anchor = 0.016
+    if ctx.get("initial_meta"):
+        xlo, xhi = ctx["wide_box"][0], ctx["wide_box"][1]
+        far = max(p[0] for p in ctx["initial_meta"]["endpoints"])
+        anchor = min(0.55, max(anchor, (far - xlo) / (xhi - xlo) + 0.018))
+    for index, label in enumerate(ctx.get("annotations", ())):
+        disp = Show(label, view)
+        disp.Color = list(colours[index] if index < len(colours) else theme["text"])
+        set_if(disp, "FontSize", size)
+        set_if(disp, "WindowLocation", "Any Location")
+        # The first line starts nearly two full line-heights BELOW the top edge,
+        # so no label is cropped by, or laid over, the boundary it describes.
+        set_if(disp, "Position", [anchor, 1.0 - step * (index + 1.9)])
+        shown.append(disp)
+
+    cam = frame(view, *ctx["wide_box"], ctx["resolution"])
+    return shown, cam, meta
+
+
 def draw_mesh(ctx, zoom=False):
     """The real polyMesh, cell by cell, as surface-with-edges.
 
@@ -367,6 +601,30 @@ def draw_mesh(ctx, zoom=False):
     cells.EdgeColor = list(theme["edges"])
     cells.LineWidth = 1.6 if zoom else 1.0
     shown = [cells]
+    if ctx["frame_mode"] == "domain":
+        # THE WALL IS MARKED ON THE GRID TOO. Sanaa asked for the grid picture
+        # to show "cell edges visible, the wall marked", and a wall that is a
+        # boundary of the mesh is otherwise indistinguishable from the three
+        # boundaries that are not it.
+        # LINE WEIGHT IS SET BY THE FRAME, NOT BY THE DOMAIN. The wall drawn at
+        # the domain's weight is 3.4% of this channel's height in the wide panel
+        # and 13% of the zoom's height in the close one -- at which point it
+        # swallows the two rows of cells the zoom exists to show. Each frame
+        # therefore gets its own outline of the same patches; nothing about the
+        # patch moves, only how thickly it is stroked.
+        edges = ctx["zoom_marked_edges"] if zoom else ctx["marked_edges"]
+        for source, colour, _ in edges:
+            disp = Show(source, view)
+            disp.Representation = "Surface"
+            solid(disp, colour)
+            shown.append(disp)
+        box = ctx["zoom_box"] if zoom else ctx["wide_box"]
+        if box is None:
+            raise SystemExit(
+                "REFUSED: the zoom panel was asked for in domain framing with "
+                "no --zoom-box; a zoom frame guessed from a chord is the defect "
+                "this mode exists to remove.")
+        return shown, frame(view, *box, ctx["resolution"]), {"field": None}
     if ctx.get("outline_zoom") is not None:
         slot = Show(ctx["outline_zoom"], view)
         slot.Representation = "Surface"
@@ -432,11 +690,14 @@ def draw_field(ctx, array, component, title, units, preset, symmetric):
         solid(over, colour)
         shown.append(over)
 
-    chord = geom["chord"]
-    cam = frame(view,
-                geom["xlo"] - 0.55 * chord, geom["xhi"] + 0.85 * chord,
-                geom["ymid"] - 0.62 * chord, geom["ymid"] + 0.62 * chord,
-                ctx["resolution"])
+    if ctx["frame_mode"] == "domain":
+        cam = frame(view, *ctx["wide_box"], ctx["resolution"])
+    else:
+        chord = geom["chord"]
+        cam = frame(view,
+                    geom["xlo"] - 0.55 * chord, geom["xhi"] + 0.85 * chord,
+                    geom["ymid"] - 0.62 * chord, geom["ymid"] + 0.62 * chord,
+                    ctx["resolution"])
     meta = {"field": array, "component": component,
             "range": [float(lo), float(hi)], "colormap": preset,
             "range_basis": ("operator override" if override is not None
@@ -447,7 +708,12 @@ def draw_field(ctx, array, component, title, units, preset, symmetric):
 
 
 PANEL_DRAW = {
-    "geometry": lambda ctx: draw_geometry(ctx),
+    # THE GEOMETRY STAGE BRANCHES ON WHAT THE CASE ACTUALLY IS, and the branch
+    # is taken from an explicit command-line mode rather than sniffed, so a
+    # case can never fall into the wrong drawing because a patch was named
+    # something unexpected.
+    "geometry": lambda ctx: (draw_domain(ctx) if ctx["geometry_mode"] == "domain"
+                             else draw_geometry(ctx)),
     "mesh": lambda ctx: draw_mesh(ctx, zoom=False),
     "mesh_zoom": lambda ctx: draw_mesh(ctx, zoom=True),
     "field_u": lambda ctx: draw_field(
@@ -495,7 +761,35 @@ def main(argv):
     parser.add_argument("--panels", default="all",
                         help="Comma-separated subset of: %s" % ", ".join(ALL_PANELS))
     parser.add_argument("--body-patch", default="airfoil",
-                        help="Wall patch whose bounds set the framing and whose profile is outlined.")
+                        help="Wall patch whose bounds set the framing and whose profile is outlined. "
+                             "Used by --frame body and --geometry-mode body only.")
+    parser.add_argument("--frame", dest="frame_mode", default="body",
+                        choices=("body", "domain"),
+                        help="Where the camera comes from. 'body' opens by fractions of the body "
+                             "patch's chord (an airfoil in a far field). 'domain' frames the mesh's "
+                             "own bounds, which is the only correct framing when the domain IS the "
+                             "subject -- a channel, a duct, a cavity.")
+    parser.add_argument("--geometry-mode", default="body",
+                        choices=("body", "domain"),
+                        help="What the geometry panel draws. 'body' is the immersed-body section. "
+                             "'domain' is the STL-less drawing: domain outline, marked wall patches "
+                             "and the initial discontinuity read from the case.")
+    parser.add_argument("--domain-margin", type=float, default=0.02,
+                        help="Margin around the domain in --frame domain, as a fraction of the "
+                             "domain's LONGER side (default 0.02).")
+    parser.add_argument("--mark-patches", default=None,
+                        help="Comma-separated boundary patches drawn bright and thick in the domain "
+                             "drawing and over the domain-framed grid: the wall, marked.")
+    parser.add_argument("--zoom-box", default=None,
+                        help="Explicit world rectangle 'xlo,xhi,ylo,yhi' for the mesh_zoom panel "
+                             "under --frame domain. Required for that panel in domain framing: a "
+                             "zoom frame guessed from a chord is the defect this mode removes.")
+    parser.add_argument("--initial-condition", default=None,
+                        help="Path to the setExprFields-style dict the initial discontinuity is READ "
+                             "from (e.g. <case>/system/setExprFieldsDict). Never a typed position.")
+    parser.add_argument("--annotate", action="append", default=None,
+                        help="A short numeric/symbolic key line drawn on the domain panel. Repeatable. "
+                             "Numbers, symbols and units only -- caption prose belongs to the act.")
     parser.add_argument("--zoom-patch", default=None,
                         help="Patch the zoom panel centres on (e.g. jetSlot). Optional.")
     parser.add_argument("--zoom-half-width", type=float, default=0.075,
@@ -507,7 +801,9 @@ def main(argv):
                              "a wrong-grid render impossible rather than merely mis-captioned.")
     parser.add_argument("--field-range", default=None,
                         help="Override the field panel range as 'lo,hi'. Recorded in the sidecar.")
-    parser.add_argument("--resolution", default="1920x1080")
+    parser.add_argument("--resolution", default="1920x1080",
+                        help="WIDTHxHEIGHT, or 'fit:<width>' under --frame domain to size the image "
+                             "to the framed domain's own aspect so no dead pixels are baked in.")
     parser.add_argument("--theme", default="dark", choices=sorted(THEMES))
     parser.add_argument("--min-ink", type=float, default=0.002,
                         help="Minimum fraction of non-background pixels for a panel to be accepted.")
@@ -523,9 +819,20 @@ def main(argv):
     out = os.path.abspath(args.out)
     os.makedirs(out, exist_ok=True)
     prefix = args.prefix or os.path.basename(case)
-    width, height = (int(v) for v in args.resolution.lower().split("x"))
-    resolution = [width, height]
     theme = THEMES[args.theme]
+    # 'fit:<width>' needs the domain, which needs the reader; the explicit form
+    # is resolved here and the fitted form after the bounds are known.
+    fitted_width = None
+    if args.resolution.lower().startswith("fit:"):
+        if args.frame_mode != "domain":
+            raise SystemExit(
+                "REFUSED: --resolution fit:<width> sizes the image to the FRAMED "
+                "DOMAIN and is only meaningful with --frame domain.")
+        fitted_width = int(args.resolution.split(":", 1)[1])
+        resolution = [fitted_width, fitted_width]     # replaced below
+    else:
+        width, height = (int(v) for v in args.resolution.lower().split("x"))
+        resolution = [width, height]
 
     # The OpenFOAM reader is addressed through a marker file in the case root.
     # It is empty, it is the documented way to open a case, and it touches no
@@ -552,15 +859,26 @@ def main(argv):
 
     z_mid = 0.5 * (bounds[4] + bounds[5])
 
-    body = OpenFOAMReader(FileName=foam)
-    body.MeshRegions = ["patch/" + args.body_patch]
-    body.UpdatePipeline(time_value)
-    b = body.GetDataInformation().GetBounds()
-    if b[0] > b[1]:
-        raise SystemExit("REFUSED: body patch %r is empty." % args.body_patch)
-    chord = b[1] - b[0]
-    geometry = {"xlo": b[0], "xhi": b[1], "ylo": b[2], "yhi": b[3],
-                "ymid": 0.5 * (b[2] + b[3]), "chord": chord}
+    # THE BODY PATCH IS ONLY LOADED BY THE MODES THAT USE IT. A channel case
+    # need not have a body at all, and demanding one would make this script
+    # refuse exactly the cases the domain mode was added for.
+    needs_body = args.frame_mode == "body" or args.geometry_mode == "body"
+    body = None
+    if needs_body:
+        body = OpenFOAMReader(FileName=foam)
+        body.MeshRegions = ["patch/" + args.body_patch]
+        body.UpdatePipeline(time_value)
+        b = body.GetDataInformation().GetBounds()
+        if b[0] > b[1]:
+            raise SystemExit("REFUSED: body patch %r is empty." % args.body_patch)
+        chord = b[1] - b[0]
+        geometry = {"xlo": b[0], "xhi": b[1], "ylo": b[2], "yhi": b[3],
+                    "ymid": 0.5 * (b[2] + b[3]), "chord": chord}
+    else:
+        chord = max(bounds[1] - bounds[0], bounds[3] - bounds[2])
+        geometry = {"xlo": bounds[0], "xhi": bounds[1],
+                    "ylo": bounds[2], "yhi": bounds[3],
+                    "ymid": 0.5 * (bounds[2] + bounds[3]), "chord": chord}
 
     slice_internal = midspan_slice(reader, z_mid)
     slice_internal.UpdatePipeline(time_value)
@@ -569,6 +887,26 @@ def main(argv):
         raise SystemExit(
             "REFUSED: the mid-span slice produced %d polygons for a %d-cell mesh. The "
             "picture would not be the solved grid." % (n_polys, n_cells))
+
+    # ------------------------------------------------------------------
+    # DOMAIN FRAMING. The camera rectangle is the mesh's own bounds, and the
+    # image is sized to it, so the subject fills the file rather than sitting
+    # in it. Both numbers land in the sidecar.
+    # ------------------------------------------------------------------
+    wide_box = zoom_box = None
+    if args.frame_mode == "domain":
+        wide_box = domain_box(bounds, args.domain_margin)
+        if fitted_width is not None:
+            resolution = fit_resolution(wide_box, fitted_width)
+        if args.zoom_box:
+            parts = [float(v) for v in args.zoom_box.split(",")]
+            if len(parts) != 4 or parts[1] <= parts[0] or parts[3] <= parts[2]:
+                raise SystemExit(
+                    "REFUSED: --zoom-box must be 'xlo,xhi,ylo,yhi' with xhi > xlo "
+                    "and yhi > ylo.")
+            zoom_box = tuple(parts)
+    elif fitted_width is not None:                     # pragma: no cover
+        raise SystemExit("REFUSED: fitted resolution needs --frame domain.")
 
     view = CreateRenderView()
     view.ViewSize = resolution
@@ -588,8 +926,98 @@ def main(argv):
            "resolution": resolution, "slice_internal": slice_internal,
            "outline_radius": args.outline_radius * chord,
            "zoom_half_width": args.zoom_half_width,
-           "outline_body": outline_of(body, z_mid, args.outline_radius * chord),
-           "outline_zoom": None, "zoom_centre": None, "field_range": None}
+           "outline_body": (outline_of(body, z_mid, args.outline_radius * chord)
+                            if body is not None else None),
+           "outline_zoom": None, "zoom_centre": None, "field_range": None,
+           "frame_mode": args.frame_mode, "geometry_mode": args.geometry_mode,
+           "wide_box": wide_box, "zoom_box": zoom_box,
+           "domain_edges": [], "marked_edges": [], "zoom_marked_edges": [],
+           "annotations": [],
+           "marked_patches": [], "boundary_patches": [],
+           "initial_line": None, "initial_meta": None,
+           "domain_span": [bounds[1] - bounds[0], bounds[3] - bounds[2]]}
+
+    # ------------------------------------------------------------------
+    # THE DOMAIN DRAWING'S OWN SOURCES. Every one of them is a patch of the
+    # case's own mesh or a line read out of the case's own dict.
+    # ------------------------------------------------------------------
+    if args.geometry_mode == "domain" or (args.frame_mode == "domain"
+                                          and args.mark_patches):
+        marked = [p.strip() for p in (args.mark_patches or "").split(",") if p.strip()]
+        names = [p.split("/", 1)[1] for p in patch_names(reader)]
+        missing = [p for p in marked if p not in names]
+        if missing:
+            raise SystemExit(
+                "REFUSED: --mark-patches names %s, which this mesh does not "
+                "have. Its patches are: %s" % (", ".join(missing), ", ".join(names)))
+        # Line weights in metres, off the DOMAIN's longer side, so the drawing
+        # reads the same on a 4 m channel and a 0.1 m duct.
+        scale = max(bounds[1] - bounds[0], bounds[3] - bounds[2])
+        thin, thick = 0.0016 * scale, 0.0042 * scale
+        for name in names:
+            patch = OpenFOAMReader(FileName=foam)
+            patch.MeshRegions = ["patch/" + name]
+            patch.UpdatePipeline(time_value)
+            pb = patch.GetDataInformation().GetBounds()
+            if pb[0] > pb[1]:
+                continue                 # an empty patch draws nothing, quietly
+            is_marked = name in marked
+            radius = thick if is_marked else thin
+            colour = theme["body"] if is_marked else theme["edges"]
+            ctx["domain_edges"].append((outline_of(patch, z_mid, radius),
+                                        colour, radius))
+            ctx["boundary_patches"].append(name)
+            if is_marked:
+                ctx["marked_edges"].append(ctx["domain_edges"][-1])
+                ctx["marked_patches"].append(
+                    {"patch": name, "x_range": [pb[0], pb[1]],
+                     "y_range": [pb[2], pb[3]]})
+                if zoom_box is not None:
+                    zoom_radius = 0.010 * (zoom_box[3] - zoom_box[2])
+                    ctx["zoom_marked_edges"].append(
+                        (outline_of(patch, z_mid, zoom_radius), colour,
+                         zoom_radius))
+        if args.initial_condition:
+            p_lo, p_hi, raw = read_initial_line(
+                args.initial_condition, bounds[2], bounds[3])
+            span = math.hypot(p_hi[0] - p_lo[0], p_hi[1] - p_lo[1])
+            if span <= 0.0:
+                raise SystemExit(
+                    "REFUSED: the initial condition read from %s is a point, not "
+                    "a line; nothing would be drawn and the panel would claim a "
+                    "shock position it never showed." % args.initial_condition)
+            seg = Line()
+            seg.Point1 = [p_lo[0], p_lo[1], z_mid]
+            seg.Point2 = [p_hi[0], p_hi[1], z_mid]
+            seg.Resolution = 2
+            shock = Tube(Input=seg)
+            shock.Radius = thick
+            shock.NumberofSides = 12
+            shock.UpdatePipeline(time_value)
+            ctx["initial_line"] = shock
+            ctx["initial_meta"] = {
+                "source": os.path.abspath(args.initial_condition),
+                "expression": "x %s" % raw,
+                "endpoints": [[p_lo[0], p_lo[1]], [p_hi[0], p_hi[1]]],
+                "length": span,
+                "read_not_typed": True}
+        # THE KEY IS COLOURED TO MATCH THE THING IT NAMES, which is the whole
+        # point of a key: "rampWall" written in the same white as the wall line
+        # marks the wall, and the same words in the body text colour merely
+        # mention it.
+        for line in (args.annotate or ()):
+            key, _, body_text = line.partition("|")
+            if not body_text:
+                key, body_text = "text", line
+            if key not in theme:
+                raise SystemExit(
+                    "REFUSED: --annotate colour key %r is not one of %s"
+                    % (key, ", ".join(sorted(theme))))
+            label = Text(Text=body_text)
+            label.UpdatePipeline()
+            ctx["annotations"].append(label)
+            ctx.setdefault("annotation_colours", []).append(theme[key])
+
     if args.field_range:
         lo, hi = (float(v) for v in args.field_range.split(","))
         ctx["field_range"] = (lo, hi)
@@ -611,10 +1039,21 @@ def main(argv):
         "time": time_value,
         "times_available": len(times),
         "time_range": [min(times), max(times)],
-        "body_patch": args.body_patch,
+        "body_patch": args.body_patch if needs_body else None,
         "zoom_patch": args.zoom_patch,
         "chord": chord,
         "domain_bounds": list(bounds),
+        # THE FRAMING IS PART OF THE PROVENANCE. A picture whose camera came
+        # from a body patch and a picture whose camera came from the mesh are
+        # different pictures of one grid, and a reader checking "does this fill
+        # the frame" needs to know which rule drew it.
+        "frame_mode": args.frame_mode,
+        "geometry_mode": args.geometry_mode,
+        "frame_box": list(wide_box) if wide_box else None,
+        "zoom_box": list(zoom_box) if zoom_box else None,
+        "domain_margin": args.domain_margin if args.frame_mode == "domain" else None,
+        "marked_patches": [m["patch"] for m in ctx["marked_patches"]],
+        "initial_condition": ctx["initial_meta"],
         "theme": args.theme,
         "background_rgb": list(theme["background"]),
         "resolution": resolution,
@@ -669,6 +1108,56 @@ def main(argv):
     return 0
 
 
+#: The initial-condition control.  A KNOWN line goes in and its endpoints must
+#: come back; a dict with no x-condition must be REFUSED.  Rule 3 in the form
+#: this reader needs it: the shock position it reports is only evidence if it
+#: has been shown able to read a shock position and to fail to read one.
+_IC_PLANT = """expressions ( pInit { field p; expression #{
+    (pos().x() < 0.25 + pos().y()/sqrt(3.0)) ? 116.5 : 1.0 #}; } );"""
+_IC_PLANT_BLANK = """expressions ( pInit { field p; expression #{
+    (pos().y() < 0.5) ? 116.5 : 1.0 #}; } );"""
+#: 0.25 + 1/sqrt(3) at y = 1, to 10 decimal places.
+_IC_PLANT_X_AT_1 = 0.25 + 1.0 / math.sqrt(3.0)
+
+
+def initial_line_control(directory):
+    """Prove the initial-condition reader can produce BOTH of its verdicts."""
+    failures = []
+    live = os.path.join(directory, "_ic_plant_live.dict")
+    dead = os.path.join(directory, "_ic_plant_blank.dict")
+    with open(live, "w") as handle:
+        handle.write(_IC_PLANT)
+    with open(dead, "w") as handle:
+        handle.write(_IC_PLANT_BLANK)
+    try:
+        p_lo, p_hi, raw = read_initial_line(live, 0.0, 1.0)
+    except ValueError as exc:
+        failures.append("the initial-condition reader could not read a PLANTED "
+                        "line it was handed (%s); no shock position it reports "
+                        "is evidence" % exc)
+    else:
+        errors = (abs(p_lo[0] - 0.25), abs(p_hi[0] - _IC_PLANT_X_AT_1))
+        say("selftest ic    planted x(0)=%.10f x(1)=%.10f  err %.2e / %.2e"
+            % (p_lo[0], p_hi[0], errors[0], errors[1]))
+        if max(errors) > 1e-12:
+            failures.append(
+                "the initial-condition reader returned x(0)=%.12f x(1)=%.12f "
+                "for a line planted at 0.25 and %.12f" %
+                (p_lo[0], p_hi[0], _IC_PLANT_X_AT_1))
+        if "sqrt" not in raw:
+            failures.append("the reader did not carry the planted expression "
+                            "through to the sidecar: %r" % raw)
+    try:
+        read_initial_line(dead, 0.0, 1.0)
+    except ValueError:
+        say("selftest ic    a dict with no x-condition was REFUSED, as required.")
+    else:
+        failures.append("the initial-condition reader accepted a dict that "
+                        "declares no discontinuity in x, so it would draw a "
+                        "shock line for a case that has none")
+    return failures
+
+
 def selftest(ctx, out, prefix, theme, min_ink, resolution):
     """Plant a visible panel and a deliberately empty one; require both verdicts.
 
@@ -680,6 +1169,7 @@ def selftest(ctx, out, prefix, theme, min_ink, resolution):
     directory = os.path.join(out, "_selftest")
     os.makedirs(directory, exist_ok=True)
     view = ctx["view"]
+    ic_failures = initial_line_control(directory)
 
     shown, _, _ = draw_mesh(ctx, zoom=False)
     live = os.path.join(directory, "%s_selftest_live.png" % prefix)
@@ -696,7 +1186,7 @@ def selftest(ctx, out, prefix, theme, min_ink, resolution):
 
     say("selftest live  ink %.6f  (must be >= %.6f)" % (live_ink, min_ink))
     say("selftest blank ink %.6f  (must be <  %.6f)" % (blank_ink, min_ink))
-    failures = []
+    failures = list(ic_failures)
     if live_ink < min_ink:
         failures.append("the framed panel read BLANK -- the checker cannot see a "
                         "non-empty case, so no zero it reports is evidence")
