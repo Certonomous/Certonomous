@@ -11972,6 +11972,38 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### APPENDIX 2026-09-01T06:55Z — **ONE OBSERVATION, ROUTED AND NOT OURS TO ACT ON. BOARDED SO A FOURTH AGENT DOES NOT REDISCOVER IT.**
+
+*(Appendix to the 06:50Z correction. **Pure insertion.** This is **NOT** a lesson, **NOT** a proposal, and **NOT** this team's to implement.)*
+
+---
+
+**⛔ DO NOT ACT ON THIS. It is with the chief, for verification and Sanaa.** It is boarded only because **three agents made the same error tonight** and rediscovery is the expensive thing.
+
+**THE OBSERVATION, in its final and sharpest form** — this is *not* a claim about `git status` semantics, which **L-92, L-294, L-350, L-368 and L-424 cover completely**; a sixth lesson would be a cost. It is a claim about **why those five under-perform**:
+
+> **THE OPENING `gitStatus` BLOCK IS FROZEN AT FORMATION, CARRIES NO TIMESTAMP AND NO CAVEAT, AND DIVERGES FROM REALITY WHILE THE SESSION RUNS — SO AN AGENT HOLDS TWO SOURCES OF REPOSITORY TRUTH, ONE LIVE AND ONE STALE, WITH NOTHING MARKING WHICH IS WHICH.**
+
+**MEASURED, and the two facts have DIFFERENT sources — stated separately because conflating them is the very error:**
+- **LIVE, measured twice minutes apart and stable: 129 ` D`, 47 ` M`, 2 `MM`** — every one of them, per `L-424`, the private-index protocol's **normal resting state**, with nothing in the block saying so.
+- **FROM THE FROZEN BLOCK, and since drifted:** `L-424`'s two worked example files. They were in the opening context at **04:12Z** and **are not in `git status` now** — the chief's `read-tree HEAD` refreshed them out. **The aggregate did not drift; those two paths did.**
+- **AND THE SLICE IS TRUNCATED:** the block is **4,439 entries, 4,261 of them `??`**, and the copy this supervisor received was **cut at 2k characters**. So what a forming agent actually gets is **stale, unlabelled AND arbitrarily truncated.**
+
+**COVERAGE CHECKED, NOT ASSUMED. `L-368` READ IN FULL — not grepped — and it does NOT cover this.** L-368 is itself a meta-lesson: it asks why L-92/L-294/L-350 failed and answers *"none of them names the question a supervisor actually asks — did my work land?"*, with an instrumental remedy (**name the revision, always**). **This is a different diagnosis of the same under-performance: the trap is delivered at formation, unlabelled, before any lesson can be read, while the corrections sit behind a reading `MEMORY_ARCHITECTURE` says not to do cold.** L-368's nearest line concerns a brief carrying a **warning that was ignored**, not one carrying **the false signal itself**.
+
+**HONEST WEIGHT: probably worth one line. CHECK `L-424` AND `L-368` FIRST. It may still be judged covered by L-368's spirit.**
+
+**⛔ NOBODY ON THIS TEAM WRITES THE REMEDY.** `CLAUDE.md` is **Sanaa's** and is never edited on any agent's say-so — **a supervisor's endorsement is not authorisation.** And the block is injected **by the client, not by `harness/teams.yaml`** (verified, zero hits), so the harness is not the vector either. **Sanaa's and verification's, entirely.**
+
+**⚠️ THE PROVENANCE OF THIS OBSERVATION IS ITSELF THE WARNING:** the lane that raised it **committed the family's own error inside the measurement demonstrating the family's own error** — its probe printed an **empty** status field while its caption asserted `D`, read from the frozen block. **Two sources, one sentence, neither labelled.** It caught this itself and sourced each fact separately afterwards. **That is why the observation is sharper than when it started and why it is going up rather than being withdrawn.**
+
+---
+
+**TONIGHT'S REGISTER LEDGER, for a successor:** **filed — `L-428` only.** **Withdrawn before filing — the index "sharpening", once `L-424` was found to hold it.** **Struck on this board — this supervisor's claim that it was the night's most transferable finding.** **The only durable change to practice: search the register for the MECHANISM before writing, not after** (`L-427`, landed tonight by cfd).
+
+---
+
+
 ##### ⛔ CORRECTION 2026-09-01T06:50Z — **§5 OF THE BLOCK BELOW IS WRONG AND IS STRUCK. THE "RULE-10 SHARPENING" WAS NOT A FINDING; `L-424` ALREADY HELD IT, AND ITS OWN WORKED EXAMPLES WERE IN MY OPENING CONTEXT ALL NIGHT.**
 
 *(Supervisor's own correction, appended rather than edited — the block below stands as written so the record shows what was claimed. **Pure insertion; nothing below is altered.**)*
