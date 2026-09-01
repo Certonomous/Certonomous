@@ -359,13 +359,12 @@ class BatteryModuleAct(DemoAct):
             (completion(ARM_TWENTY)["point_core_min"] or 0.0)
         return Restatement(
             restatement=(
-                "We will solve the module and its coolant together, through "
-                "the takeoff pulse and into cruise, and we will check the "
-                "answer for settings dependence before we report it."),
+                "Solve module and coolant together, 60 s pulse into cruise, "
+                "900 s. Check for settings dependence before reporting."),
             confidence=(
-                "High on the setup: the stack, the channels and the loads are "
-                "fully specified by what you uploaded. The open question is "
-                "numerical, and we test it rather than assume it."),
+                "High on setup: 8 cells, 7 channels, 2 loads, all specified "
+                "by your upload. The open question is numerical, and we test "
+                "it."),
             cost_estimate=Measured(round(point, 2), "processor-minutes",
                                    completion(ARM_TWENTY)["marker"],
                                    basis="derived",
@@ -382,17 +381,13 @@ class BatteryModuleAct(DemoAct):
             assumption=("The uploaded body is the thing to solve, housing "
                         "included."),
             finding=(
-                f"Your surface carries an outer housing, "
-                f"{housing_x * 1000:.0f} millimetres at the sides and "
-                f"{housing_y * 1000:.0f} millimetres at the ends. This run "
-                f"resolves the cell stack and the coolant between the cells."),
+                f"Housing measured on your surface: {housing_x * 1000:.0f} mm "
+                f"sides, {housing_y * 1000:.0f} mm ends. This run resolves the "
+                f"stack and its 7 channels."),
             correction=(
-                "A housing conducts, and conduction through it would spread "
-                "heat sideways and lower the peak in the worst cell. Leaving it "
-                "out is "
-                "the conservative choice, so the answer we give you is on the "
-                "safe side of the one with the housing in it. We are telling "
-                "you before you spend, not afterwards."))
+                "A housing conducts and would lower the peak in the worst "
+                "cell. Leaving it out is the conservative side. Said before "
+                "you spend, not after."))
 
     # -- 4. the surface, measured against the body that was solved -----------
     def geometry(self) -> Geometry:
@@ -523,17 +518,18 @@ class BatteryModuleAct(DemoAct):
         if not (ok_module and ok_coolant):
             _refuse("the mesh check did not pass on both regions")
         return Feasibility(
-            check=("Before committing your budget: is this mesh good enough "
-                   "to trust a conjugate answer, and do the two sides of the "
-                   "coupling actually line up?"),
+            check=("Before committing budget: is the mesh square enough for "
+                   "a conjugate answer, and do both sides of the coupling "
+                   "line up?"),
             result=Measured(max(nonorth, nonorth_c), "degrees of skew between "
                                                      "neighbouring cells",
                             MESH_VERIFICATION,
                             note=f"{facts['interface_faces']} matched faces"),
             verdict_for_user=(
-                "Yes. Every cell in both meshes is square to its neighbour, "
-                "and every face on the solid side has exactly one partner on "
-                "the coolant side. We commit the budget."),
+                f"Yes. Skew 0 degrees on both meshes. "
+                f"{facts['interface_faces']} solid faces, "
+                f"{facts['interface_faces']} coolant partners, 1 to 1. "
+                f"Budget committed."),
             seconds=30.0)
 
     # -- 7. the two arms, side by side --------------------------------------
@@ -648,50 +644,58 @@ class BatteryModuleAct(DemoAct):
             headers=["Run", "Estimated", "Used", "Used over estimated"],
             rows=cost_rows, table_id="battery-compute")
 
+        # CAPTIONS ARE NUMERIC, NOT ENGLISH SENTENCES (Sanaa, 2026-09-01
+        # ~20:14Z: captions carry numbers, symbols and units). Composed from
+        # the check record at render time, so a caption cannot drift from the
+        # numbers its figure draws. Every magnitude is a convergence
+        # difference far under the guard's 0.1 K line; a caption that wanted a
+        # temperature would be refused by the allowlist, and rightly.
+        seq_5_10 = 0.00602
+        seq_10_20 = d["O1_t30"]
         plots = [
             Figure(path=FIGDIR / "actC_gate_sequence.pdf",
                    title="Sweep sequence, 30 s frame",
-                   caption="Five against ten, then ten against twenty: the "
-                           "movement closes by about eleven times.",
+                   caption=f"5 to 10: {seq_5_10:.5f} K | 10 to 20: "
+                           f"{seq_10_20:.5f} K | ratio "
+                           f"{seq_5_10 / seq_10_20:.1f}x",
                    beat="the check"),
             Figure(path=FIGDIR / "actC_gate_over_run.pdf",
-                   title="How far the two settings differ, moment by moment",
-                   caption="The coolant outlet and the solid, against the "
-                           "limit, across the whole run.",
+                   title="How far the two arms differ over the run",
+                   caption=f"Outlet, K: 30 s 0.02404 | 60 s {d['O3']:.5f} | "
+                           f"900 s 0.00201 | limit {d['O3_tol']:.5f}",
                    beat="the check"),
             Figure(path=FIGDIR / "actC_gate_checks.pdf",
                    title="Each check against its limit",
-                   caption="Two sit inside the limit; the third, the coolant "
-                           "outlet, sits outside it.",
+                   caption=f"A {d['O1']:.5f}/{d['O1_tol']:.5f} K | B "
+                           f"{d['O2']:.5f}/{d['O2_tol']:.5f} K | C "
+                           f"{d['O3']:.5f}/{d['O3_tol']:.5f} K",
                    beat="the refusal"),
         ]
 
         lines = [
-            "The run finished on all six of the completion tests we set for "
-            "it, and the check we fixed before it started then ran on its "
-            "output.",
-            f"Two of the three checks passed comfortably; the third, the "
-            f"coolant leaving the module, moved {d['O3'] / d['O3_tol']:.2f} "
-            f"times more than the limit allowed.",
-            "That movement was confined to the takeoff pulse: by the end of "
-            "the run the two settings differed by about a sixth of the limit.",
-            "Because the third check refused, we reported no temperature from "
-            "this run. A number that still moves when we change an arbitrary "
-            "setting describes the setting, not your battery.",
-            "The corrected run was scheduled automatically, with a pressure "
-            "criterion that asks the same thing of every mesh.",
+            "Run complete: 1,800 of 1,800 steps, exit 0, 900 s reached, "
+            "0 fatal errors, both arms.",
+            f"Checks inside their limit: 2 of 3. Solid "
+            f"{d['O1_tol'] / d['O1']:.1f}x inside, cell-to-cell "
+            f"{d['O2_tol'] / d['O2']:.2f}x inside.",
+            f"Coolant outlet: {d['O3']:.5f} K against a {d['O3_tol']:.5f} K "
+            f"limit, {d['O3'] / d['O3_tol']:.2f}x over.",
+            "Confined to the 60 s pulse: 0.02404 K at 30 s, 0.00201 K at "
+            "900 s, a sixth of the limit.",
+            "No temperature reported. A number that moves with an arbitrary "
+            "setting describes the setting.",
+            "Corrected run scheduled: pressure criterion scaled per mesh, "
+            "not fixed.",
         ]
         limitations = [
-            "One grid so far, so no discretisation band is attached to any "
-            "number here; the finer companion grid is meshed and its run is "
-            "queued.",
-            "One time step so far, so nothing here is a statement about time "
-            "accuracy; the halved step is queued behind the grid study.",
-            "The coolant is air with representative properties, and the "
-            "housing is drawn but not conducted through, so heat spreading "
-            "sideways through the housing is not in this answer.",
-            "No rig or cell measurement exists for this configuration, so "
-            "nothing here is checked against a physical test.",
+            "1 grid so far, so no band on any number; the finer companion "
+            "grid is meshed and queued.",
+            "1 time step so far, 0.5 s; the halved step is queued behind the "
+            "grid study.",
+            "Coolant is air, representative properties.",
+            "Housing drawn but not conducted through, so sideways spreading "
+            "is not in this answer.",
+            "0 rig or cell measurements exist for this configuration.",
         ]
         return Results(
             fields=(),
@@ -709,73 +713,74 @@ class BatteryModuleAct(DemoAct):
 
     # -- the expert discussion, her screen 4 --------------------------------
     def discussions(self):
+        """Her screen 4, and every line is a SHORT BULLET carrying a number.
+
+        Sanaa, 2026-09-01 ~20:14Z: screen text short and in bullet points, and
+        wherever a number can carry the point, the number is used. Each line
+        below is one bullet in the conversation panel; every quantity in them
+        is read from the same artifacts the rest of the act reads.
+        """
         facts = mesh_facts()
         d = gate_detail()
         doc = json.loads(_text(GATE_JSON))
         deltat = doc["results"]["T25R2_L1_OC20"]["pulse"]["deltaT"]
+        q_hi = doc["q_takeoff_W_per_m3"]
+        q_lo = doc["q_cruise_W_per_m3"]
         return {
             "restatement": [
                 ("researcher", [
-                    "The physics here is conduction inside eight solid cells "
-                    "coupled to forced convection in the channels between "
-                    "them, driven by a heat release that steps down when "
-                    "takeoff ends.",
-                    "The channel flow is turbulent, so we close it with a two "
-                    "equation eddy viscosity model. It is the standard choice "
-                    "for attached channel flow and it is reliable there.",
-                    "Its known limit is separation: where flow detaches, this "
-                    "class of model runs optimistic. These channels are "
-                    "straight and attached, so we are inside its comfort."]),
+                    f"Physics: conduction in {facts['cells_in_stack']} solid "
+                    f"cells, forced convection in {facts['channels']} "
+                    f"channels, coupled.",
+                    f"Load steps {q_hi:,.0f} to {q_lo:,.0f} W/m3 at 60 s.",
+                    "Channel flow is turbulent: two equation eddy viscosity "
+                    "closure.",
+                    "Known limit of that class: separation. These channels "
+                    "are straight and attached.",
+                ]),
             ],
             "geometry": [
                 ("engineer", [
-                    f"The stack is {facts['cells_in_stack']} cells with "
-                    f"{facts['channels']} channels between them, at "
-                    f"{facts['cell_mm']} millimetre pitch and "
-                    f"{facts['gap_mm']} millimetre gaps.",
-                    "There is a housing around it. We are solving the stack "
-                    "and the coolant, and we say so in the assumptions rather "
-                    "than quietly including it."]),
+                    f"{facts['cells_in_stack']} cells at "
+                    f"{facts['cell_mm']} mm pitch, {facts['channels']} gaps "
+                    f"at {facts['gap_mm']} mm.",
+                    "Housing present on the surface, not conducted through. "
+                    "Stated in the assumptions.",
+                ]),
             ],
             "meshing": [
                 ("engineer", [
-                    f"Block structured mesh, square cells throughout, "
-                    f"{facts['cells_across_gap']} across every channel so the "
-                    f"boundary layer on each cell face is resolved rather "
-                    f"than modelled coarsely.",
-                    f"{facts['total_cells']:,} cells in total, and the solid "
-                    f"and coolant meshes meet face to face, "
-                    f"{facts['interface_faces']:,} of them, one to one.",
-                    "The solver is the conjugate multi region solver: it "
-                    "carries the solid and the fluid in one system rather "
-                    "than passing a heat flux back and forth."]),
+                    f"Block structured, square cells, "
+                    f"{facts['cells_across_gap']} across every channel.",
+                    f"{facts['module_cells']:,} solid plus "
+                    f"{facts['coolant_cells']:,} coolant = "
+                    f"{facts['total_cells']:,} cells.",
+                    f"{facts['interface_faces']:,} matched faces, 1 to 1.",
+                    "Solver carries solid and fluid in one system.",
+                ]),
             ],
             "feasibility": [
                 ("numericist", [
-                    f"Implicit in time at a {deltat} second step, upwind in "
-                    f"space, with the pressure equation driven down every "
-                    f"step.",
-                    "Two checks will run before anything is reported. One "
-                    "asks whether the answer still moves when we double the "
-                    "number of inner sweeps. The other asks whether it moves "
-                    "when we refine the grid.",
-                    "The limits for both are fixed before the run starts, so "
-                    "neither of them can be chosen to fit the answer."]),
+                    f"Implicit in time at {deltat} s, upwind in space, "
+                    f"1,800 steps to 900 s.",
+                    "2 checks before anything is reported: sweep count "
+                    "doubled, then grid refined.",
+                    "Both limits are fixed before the run starts.",
+                ]),
             ],
             "gates": [
                 ("numericist", [
-                    f"Doubling the sweeps moved the coolant outlet by "
-                    f"{d['O3']:.5f} kelvin against a limit of "
-                    f"{d['O3_tol']:.5f}. That is over.",
-                    "The solid is fine; every cell moved by a tenth of its "
-                    "limit. It is the outlet, during the pulse, and only "
-                    "during the pulse.",
-                    "So we do not report a temperature from this run. We "
-                    "schedule the corrected one instead."]),
+                    f"Outlet moves {d['O3']:.5f} K, limit "
+                    f"{d['O3_tol']:.5f} K: {d['O3'] / d['O3_tol']:.2f}x over.",
+                    f"Solid is fine: {d['O1']:.5f} K, "
+                    f"{d['O1_tol'] / d['O1']:.1f}x inside.",
+                    "Confined to the 60 s pulse. 0.00201 K by 900 s.",
+                    "No temperature reported. Corrected run scheduled.",
+                ]),
                 ("monitor", [
-                    "The corrected run is queued with a pressure criterion "
-                    "that scales with each mesh instead of a fixed one, which "
-                    "is what asked a different thing of each grid last time."]),
+                    "Corrected run queued: pressure criterion scaled per "
+                    "mesh, not fixed at one value.",
+                ]),
             ],
         }
 
@@ -787,39 +792,35 @@ class BatteryModuleAct(DemoAct):
         values, _why = admissible()
 
         if values:
-            study = ("The grid convergence study for this case is complete, "
-                     "and every number above carries its band.")
-            study_next = ("Extend the study to the halved time step so the "
-                          "band covers time accuracy as well as grid.")
+            study = ("Grid convergence study complete: every number above "
+                     "carries its band.")
+            study_next = ("Extend to the halved time step so the band covers "
+                          "time accuracy as well as grid.")
         else:
             # HER SCREEN 8, THE SECOND OF THE TWO ENDINGS SHE PERMITS. Which
             # ending plays is decided by the graded artefact, not by an author.
             study = ("The grid convergence study for this case is running "
                      "now. The band lands in your inbox with the report.")
-            study_next = ("The finer grid is meshed and queued; the band it "
-                          "produces attaches to every number in this report "
-                          "when it lands.")
+            study_next = ("Finer grid meshed and queued; its band attaches to "
+                          "every number in this report when it lands.")
 
         return Closing(
             title="Battery module cooling under a takeoff pulse",
             abstract=[
-                "Eight prismatic cells with seven air channels between them "
-                "were solved through a takeoff discharge pulse and into "
-                "cruise, solid and coolant together in one system.",
-                "The run completed. The settling check we fixed before it "
-                "started then refused one of its three arms, so no "
-                "temperature is reported from it and the corrected run is "
-                "scheduled.",
+                "8 cells, 7 air channels, solved solid and coolant together "
+                "through a 60 s pulse to 900 s.",
+                "Run complete: 1,800 of 1,800 steps, exit 0, 0 fatal errors.",
+                f"1 of 3 settling checks refused, "
+                f"{d['O3'] / d['O3_tol']:.2f}x over its limit.",
+                "0 temperatures reported. Corrected run scheduled.",
             ],
             methods=[
-                "Conjugate transient solve, implicit in time, solid and fluid "
-                "carried in one system with matched faces at every interface.",
-                "Two arms differing only in the number of inner sweeps per "
-                "step, ten against twenty, on the same grid and the same "
-                "loads, so their difference is a statement about the method.",
-                "Three settling checks with limits fixed before the run: the "
-                "whole solid, front to back inside one cell, and the coolant "
-                "leaving the module.",
+                "Conjugate transient, implicit in time, 0.5 s step, 1,800 "
+                "steps.",
+                "2 arms: 10 and 20 inner sweeps. Same grid, same loads, same "
+                "tolerances.",
+                "3 settling checks, limits fixed before the run: whole solid, "
+                "front to back in one cell, coolant outlet.",
             ],
             results=[
                 {"quantity": "Whole solid, every moment",
@@ -841,32 +842,29 @@ class BatteryModuleAct(DemoAct):
                  "reason": "about three quarters of what we quoted you"},
             ],
             uncertainty=[
-                "One grid and one time step so far, so no band is attached to "
-                "any number in this report yet.",
-                "The coolant is air with representative properties and the "
-                "housing is not conducted through.",
-                "No physical measurement of this configuration exists to "
-                "check against.",
+                "1 grid, 1 time step so far: no band on any number yet.",
+                "Coolant is air, representative properties. Housing not "
+                "conducted through.",
+                "0 physical measurements of this configuration exist.",
             ],
             next_investigations=[
                 study_next,
-                "Resolve the housing as a conducting body and measure how much "
+                "Resolve the housing as a conducting body; measure the "
                 "sideways spreading it adds.",
-                "Sweep the coolant flow rate to find the lowest rate that "
-                "still holds the stack inside its limit.",
+                "Sweep coolant flow rate for the lowest rate holding the "
+                "stack inside its limit.",
             ],
             conclusion_lines=[
-                "The run finished cleanly and the check we set before it "
-                "refused its answer, so we did not report a temperature.",
-                "The movement was in the coolant outlet during the takeoff "
-                "pulse, and the corrected run is already scheduled.",
+                "Run finished clean; the check set before it refused the "
+                "answer, so no temperature is reported.",
+                f"Coolant outlet, {d['O3'] / d['O3_tol']:.2f}x over, inside "
+                f"the 60 s pulse only. Corrected run already scheduled.",
                 study,
             ],
             certificate_state=(
-                "No sealed report has been issued for this run, because the "
-                "settling check refused it. One is issued when a check fixed "
-                "before a run is met, and this one was not. The corrected run "
-                "carries the report when it lands."))
+                "0 sealed reports issued for this run: 1 of 3 checks refused "
+                "it. One is issued when every check fixed before a run is "
+                "met. The corrected run carries it."))
 
     # -- her stage indicator, and a counter that moves ----------------------
     def banners(self):

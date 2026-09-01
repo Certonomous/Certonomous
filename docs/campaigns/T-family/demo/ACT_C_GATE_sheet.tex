@@ -49,14 +49,19 @@
 \pagestyle{empty}
 
 \newcommand{\hdr}[1]{\vspace{1.2mm}{\footnotesize\bfseries #1}\\[0.5mm]}
+% Tight bullet, hanging indent, no package. Sanaa 2026-09-01T20:14Z: all
+% screen text short and in bullet points, numbers wherever a number carries
+% the point, captions numeric rather than English sentences.
+\newcommand{\bl}[1]{\par\noindent\hangindent=2.4mm\hangafter=1
+  $\bullet$\hspace{1.1mm}#1\par\vspace{0.15mm}}
 \newcommand{\PASS}{{\footnotesize\bfseries\color{passgreen}PASS}}
 \newcommand{\FAIL}{{\footnotesize\bfseries\color{failred}GATE FAIL}}
 
 \begin{document}
 
 {\large\bfseries Aviation battery module, resolved cooling channels}\\[0.6mm]
-{\footnotesize\color{rulegrey}Eight cells, seven parallel air channels, true
-transient conjugate solve. Takeoff pulse then cruise.}\\[1.2mm]
+{\footnotesize\color{rulegrey}8 cells $\cdot$ 7 channels $\cdot$ 16{,}608
+cells $\cdot$ transient conjugate $\cdot$ 60\,s pulse, 900\,s run}\\[1.2mm]
 
 \hrule height 0.5pt
 \vspace{1.6mm}
@@ -64,8 +69,10 @@ transient conjugate solve. Takeoff pulse then cruise.}\\[1.2mm]
 % ===================== THE QUESTION AND THE SETUP ==========================
 \begin{minipage}[t]{0.485\textwidth}
 \hdr{The question}
-{\footnotesize A module is cooled by air in resolved channels. Does the solve
-converge tightly enough to report a temperature?}\\[1.4mm]
+{\footnotesize
+\bl{Air in 7 resolved channels, 3\,mm gap}
+\bl{Converged tightly enough to report a temperature?}
+}\vspace{1.0mm}
 
 \hdr{The case}
 {\footnotesize
@@ -82,14 +89,19 @@ Time step & 0.5\,s, 1{,}800 steps\\
 \end{tabular}}\\[1.6mm]
 
 \hdr{The gate, set in advance}
-{\footnotesize The limits below are frozen ahead of the solve. One arm exists
-so that it can fail: the same case at 20 outer sweeps instead of 10. If
-doubling the sweep count moves the answer, the answer is not converged.}
+{\footnotesize
+\bl{Limits frozen before the solve}
+\bl{Arm 1: 10 outer sweeps. Arm 2: 20}
+\bl{Identical mesh, load, relaxation, tolerances}
+\bl{Answer moves when sweeps double $\Rightarrow$ not converged}
+}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.485\textwidth}
 \vspace{-1mm}
-\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_checks.pdf}
+\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_checks.pdf}\\[0.6mm]
+{\scriptsize\color{rulegrey}A 0.00120\,/\,0.01234\,K $\cdot$
+B 0.00067\,/\,0.00123\,K $\cdot$ C 0.02315\,/\,0.01234\,K}
 \end{minipage}
 
 \vspace{1.8mm}
@@ -110,7 +122,10 @@ Fields written, both regions & complete\\
 Every field newer than the run's own start mark & yes, by 16\,s or more\\
 \bottomrule
 \end{tabular}}\\[1.0mm]
-{\footnotesize Neither arm stops early. Neither hits its budget ceiling.}\\[1.6mm]
+{\footnotesize
+\bl{Ceiling used: 21.0\,\% of 34\,min, 17.3\,\% of 73\,min}
+\bl{Stops early: 0. Cap stops: 0}
+}\vspace{1.2mm}
 
 \hdr{The gate answers}
 {\footnotesize
@@ -129,9 +144,9 @@ Coolant outlet & 0.0232 & 0.0123 & \FAIL\\
 \begin{minipage}[t]{0.495\textwidth}
 \vspace{-1mm}
 \includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_over_run.pdf}\\[0.6mm]
-{\scriptsize\color{rulegrey}The coolant outlet parts from its 20-sweep twin
-only inside the takeoff pulse. By the end of the run it agrees to a sixth of
-the limit. The solid agrees everywhere.}
+{\scriptsize\color{rulegrey}Outlet, K: 30\,s 0.02404 $\cdot$ 60\,s 0.02315
+$\cdot$ 120\,s 0.00440 $\cdot$ 300\,s 0.00372 $\cdot$ 900\,s 0.00201.
+Limit 0.01234\,K}
 \end{minipage}
 
 \vspace{1.8mm}
@@ -142,9 +157,11 @@ the limit. The solid agrees everywhere.}
 \colorbox{keyfill}{\begin{minipage}{0.985\textwidth}
 \vspace{0.8mm}
 {\footnotesize\bfseries The gate refuses. Nothing thermal is published.}\\[0.8mm]
-{\footnotesize Doubling the outer sweeps moves the coolant outlet by 1.9 times
-the limit. The limit is the smallest difference this case is willing to call a
-signal, so a result at that scale would sit inside its own numerical spread.}\\[0.6mm]
+{\footnotesize
+\bl{Outlet moves 0.02315\,K against a 0.01234\,K limit: $1.88\times$ over}
+\bl{0.01234\,K is the smallest difference this case calls a signal}
+\bl{A result at that scale sits inside its own numerical spread}
+}\vspace{0.4mm}
 {\footnotesize\bfseries Withheld:} {\footnotesize cell temperatures; the
 temperature rise; the coolant outlet temperature; the three acceptance
 criteria; the energy ledger. The reader controls are never reached: the gate is
@@ -157,15 +174,19 @@ evaluated first.}
 % ===================== WHAT IS SOLID, AND WHAT IS NEXT =====================
 \begin{minipage}[t]{0.30\textwidth}
 \vspace{-1mm}
-\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_sequence.pdf}
+\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_sequence.pdf}\\[0.6mm]
+{\scriptsize\color{rulegrey}5$\to$10: 0.00602\,K $\cdot$ 10$\to$20:
+0.00052\,K $\cdot$ ratio $11.6\times$}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.325\textwidth}
 \hdr{What is solid}
-{\footnotesize The solid field converges as sweeps rise. Across 5, 10 and 20
-sweeps at the 30\,s frame the difference falls by 11.6 times. The solid is
-converging; the coolant is not. A single pass-or-fail cannot separate those
-two, so both are measured.}
+{\footnotesize
+\bl{30\,s frame: 5$\to$10 gives 0.00602\,K}
+\bl{10$\to$20 gives 0.00052\,K: $11.6\times$ closer}
+\bl{Solid converging, coolant not}
+\bl{Both measured; one verdict cannot separate them}
+}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.325\textwidth}
@@ -181,8 +202,11 @@ Total & 26.4 min & 19.8 min\\
 Spend & \$0.022 & \$0.017\\
 \bottomrule
 \end{tabular}}\\[0.7mm]
-{\footnotesize Doubling the sweeps costs 1.77 times, against 2.18 planned.
-Ceiling untouched.}
+{\footnotesize
+\bl{Sweep doubling costs $1.77\times$, planned $2.18\times$}
+\bl{19.8\,/\,26.4\,min $=0.75$ of plan}
+\bl{Ceiling 390\,min, 5.1\,\% used}
+}
 \end{minipage}
 
 \vspace{2.0mm}
@@ -195,11 +219,10 @@ Ceiling untouched.}
 \toprule
 Lever & Why & Cost\\
 \midrule
-Finer time step through the pulse & Addresses the cause. The air crosses a
-channel in 31\,ms while the load is large and about to step; the flow Courant
-number is near 1600. & to be priced\\
-More outer sweeps & Weaker. Forty sweeps lands near the limit, so it is a coin
-toss, and it leaves the cause alone. & about 22 min\\
+Finer time step through the pulse & Addresses the cause: air crosses a channel
+in 31\,ms, Courant near 1600, load stepping & to be priced\\
+More outer sweeps & Weaker: 40 sweeps lands near the 0.01234\,K limit and
+leaves the cause alone & about 22 min\\
 \bottomrule
 \end{tabular}}\\[1.0mm]
 

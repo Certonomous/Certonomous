@@ -1,0 +1,25 @@
+{
+ "geometry": {
+  "height": 900,
+  "ink_fraction": 0.291578125,
+  "spread": 66.18805616757366,
+  "width": 1280
+ },
+ "mesh": {
+  "coolant": {
+   "cells": 12768,
+   "height": 900,
+   "ink_fraction": 0.08085069444444444,
+   "spread": 49.45003937497645,
+   "width": 1280
+  },
+  "module": {
+   "cells": 3840,
+   "height": 900,
+   "ink_fraction": 0.21333333333333335,
+   "spread": 52.54806621515645,
+   "width": 1280
+  },
+  "total_cells": 16608
+ }
+}

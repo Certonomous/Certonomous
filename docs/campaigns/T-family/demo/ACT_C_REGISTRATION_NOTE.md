@@ -44,9 +44,9 @@ for. `validate_act`: **no problems**.
 
 | Beat | State |
 |---|---|
-| Real geometry, rendering on load | **Yes.** The served surface is measured against the solved body on **7 comparisons** and all 7 agree; `solved_geometry_sentence()` renders — *"This geometry, 16608 cells."* |
-| Real mesh, cell by cell | **Act side yes, page side no.** Cell counts, per-feature resolution and the matched-interface count are read from the mesh record. The live cell-by-cell draw has no control-room event — see D-C3. |
-| Fields panel | **No, and deliberately.** See §5. |
+| Real geometry, rendering on load | **Yes, and now ParaView-rendered.** Measured against the solved body on **7 comparisons**, all 7 agreeing; `solved_geometry_sentence()` renders. `actC_geometry.png`: 8 blocks, 7 gaps, housing visible, subject covers 29.2 % of the frame. |
+| Real mesh, cell by cell | **Rendered.** `actC_mesh_module.png` (3,840 cells, 21.3 % of frame) and `actC_mesh_coolant.png` (12,768 cells, 8.1 %), both cell-by-cell from the run's own `polyMesh`, both cell counts asserted against the mesh record. The control room still has no event to animate the draw live — **D-C3** stands for that. |
+| Fields panel | **Refuses, and the refusal is mechanical.** `render_actC_paraview.py field` calls the derivation and exits 2 while nothing is graded. See §2a. |
 | Team progress, stage tracking | Banner map and a moving agent census supplied. See D-C1 and D-C2. |
 | Expert discussion | **Yes.** Five beats across restatement, geometry, meshing, feasibility and checks, in the researcher, engineer, numericist and monitor roles. |
 | Geometry table, assumptions table | **Yes.** 8 rows and 10 rows, every quantity with a value and a unit, user-defined separated from lab-defined. |
@@ -59,6 +59,49 @@ Measured cost note: the two solver arms are **8.30 + 18.09 = 26.39** estimated
 against **7.148 + 12.615 = 19.763** used. The rung's own record adds staging and
 mesh verification (0.50 estimated, 0.017 used) for a rung total of 26.89 / 19.780.
 The screen shows the two arms, which are the two runs on screen.
+
+---
+
+## 2a. PARAVIEW — WHAT IS RENDERED, AND THE THREE CONSTRAINTS
+
+`render_actC_paraview.py`, output in `figures_actC_paraview/`. Sanaa, 2026-09-01
+~20:14Z: *"EVERYTHING should be paraview."* The three gate figures are line and
+bar plots and stay in matplotlib — ParaView replaces the canvas, not the
+plotting.
+
+| Constraint | How it is enforced, and what it measured |
+|---|---|
+| No render pipeline writes into a graded run tree | A scratch case is materialised per region; the `.foam` handle lives there and never in the run tree. `run_tree_fingerprint()` hashes **name, size and mtime of all 3,007 files** before and after every stage; identical each time. **Driven:** touching one file of 3,007 in a copy changes the fingerprint. |
+| Refuse rather than emit a stale or empty image | Output removed before each render; every image read back and required to clear a spread floor **and** an ink-fraction floor. **Driven both ways:** a uniform white frame refuses (spread 0.00), a correct render of a speck refuses on ink fraction alone (spread 9.50, above the floor, 0.1 % of frame), and all three real renders are accepted. |
+| A field render is gated on the graded artefact | `field` calls `actC_graded_admission.derive()` and **exits 2** today. A colour bar carries absolute kelvin and **no PDF or string sweep can read a PNG**, so this refusal is the only thing between the withholding rule and a picture that breaks it. |
+
+Two findings taken from the Act A lane rather than rediscovered: a regioned case
+opened the obvious way reads the **wrong mesh** and draws a plausible picture of
+it — so each region is staged as its own single-region case and its cell count
+asserted; and `os._exit` around `paraview.simple` discards buffered output — so
+all output goes to file descriptors 1 and 2 directly, which is what makes the
+one deliberate `os._exit` safe.
+
+Three things measured here and stated rather than glossed:
+
+- **This build has no working offscreen path.** `pvpython` segfaults in
+  `vtkXRenderWindowInteractor::Initialize`; `pvbatch --force-offscreen-rendering`
+  aborts in `CreateAWindow`. A virtual framebuffer is what makes any render
+  possible, and the script re-executes itself under one.
+- **"Can we import" is not "can we render".** `paraview.simple` imports fine
+  under plain `python3`; it is the first `Render()` that crashes. A guard that
+  asked about the import answered yes and walked into the crash, so the
+  condition is an explicit sentinel instead.
+- **The camera is set, not reset.** `ResetCamera` fits the 1 m extrusion of this
+  two-dimensional case whatever direction the camera faces: fitting all extents
+  gave 2.8 % of frame, facing the section and resetting made it **worse** at
+  1.6 %. The parallel scale is computed from the section's own extents.
+
+**What this render does not do:** the housing is visible but is **not**
+colour-coded apart from the stack, because the surface is one solid and a box
+clip would cut the stack with it. The distinction the assumption beat turns on is
+carried by the geometry table and the beat. Colour-coding needs the surface
+regenerated as two named solids, which is a change to the served geometry.
 
 ---
 
@@ -92,6 +135,7 @@ The recorded policy change is `ACT_C_WITHHOLDING_POLICY_CHANGE.md`.
 | **D-C6** | `demo_mode.check_demo_language`'s **commit-hash** rule fires on scientific notation: `1.199542e-03` contains `199542e`, seven hex characters with a digit and a letter. | It refuses a legitimate rendered result. The act now renders fixed decimals, which is better for a viewer regardless, but the defect stands and will bite the next act that prints an exponent. | cfd |
 | **D-C7** | `demo_mode.Table` language-checks its **title and headers only, never its rows**. Every number a viewer reads is in a row. | `check_actC_act_screen.py` checks rows for this act; nothing checks them for any other. | cfd |
 | **D-C8** | ~~The three gate figures carry "Agreement" in their rendered in-figure titles.~~ **DONE 2026-09-01.** Titles and axis labels regenerated to say *difference* / *differ*; the sheet's table row too. Measured before: 6 occurrences in the sheet, 5 across the three figures. Measured after: **0 in all four artifacts.** | `PROCESS-WORD`, Amendment 2 to the Act C sweep, now refuses `agreement(s)`, `prior run(s)` and `tier(s)` on Act C surfaces so this cannot recur. Proved able to fire: replayed against the **previous** committed figures it fires 2 / 2 / 1 times. Kept local to Act C deliberately — adding it to the shared checker would apply it to Act A's screens, which is above this lane, and is recommended rather than taken. | closed |
+| **D-C11** | ⛔ **`scripts/check_sheet_tail_rendered.compile_tex` REPORTS A STALE PDF AS A SUCCESSFUL COMPILE.** It returns the PDF path *"if it exists"*, not if this compile produced it. When `pdflatex` fails under `-halt-on-error` the previous PDF is still on disk, the tail guard reads **that** file, finds the tail, and the build prints success. **Measured here:** a caption edit broke the source, pdflatex wrote nothing, and the builder reported *"the sheet's last line is verified present"* over a PDF 83 minutes old. | This is the planted-zero failure in build form — a pass from a check that never saw a new artifact — and on a filmed sheet it means shooting the previous version of a screen while believing the edit landed. It guards Act A's sheets too. Act C's own builder is hardened locally (remove before compile, assert mtime after; driven both ways — broken source now exits 2 leaving no PDF), but the shared body still has the defect. | verification / cfd |
 | **D-C10** | ⚠ **A CONTRACT LIMITATION, RAISED BY D-C8.** `demo_mode.Figure.__post_init__` checks the title an act **declares**. The offending string was matplotlib text rendered **inside** the PDF, invisible to that check — the same blindness the content specification's §6.3 recorded for over-length in-figure titles. | A declaration check is not a rendering check. Every act built against this contract can carry a banned word or an over-length title in its rendered figures and pass validation. Only reading the rendered artifact finds it. | cfd |
 | **D-C9** | `sdk/workflows/battery_module_act.py` defines a second, refusing `BatteryModuleAct`. | Superseded; retiring or repointing it is cfd's. | cfd |
 
@@ -133,12 +177,12 @@ The recorded policy change is `ACT_C_WITHHOLDING_POLICY_CHANGE.md`.
 
 | # | Box | State |
 |---|---|---|
-| 1 | STL is the solved geometry and renders on load | **TICK (act side).** 7 of 7 measured comparisons agree and the sentence renders. The **housing shell** and the **drawn depth** are named on screen as features found, not hidden. Rendering on load is a page behaviour — cfd. |
+| 1 | STL is the solved geometry and renders on load | **TICK.** 7 of 7 measured comparisons agree, the sentence renders, and the surface is ParaView-rendered at 29.2 % of frame. Housing and drawn depth named as features found. Rendering *on load* is a page behaviour — cfd. |
 | 2 | Header stages advance and match what is on screen | **PARTIAL.** Her seven words supplied and mapped; one order inversion is forced by the shared stage tuple (**D-C2**), and two of her words are absent from the shared default (**D-C1**). |
 | 3 | Expert discussion present, assumptions table present | **TICK.** Five discussion beats; assumptions table of 10 rows separating user-defined from lab-defined; the one user-assumption correction beat is the housing. |
-| 4 | Mesh shown as real cells; resolution table present | **PARTIAL.** Resolution table present, 6 rows, read from the mesh record. The live cell draw is **D-C3**. |
+| 4 | Mesh shown as real cells; resolution table present | **TICK for the render, PARTIAL for the animation.** Both regions rendered cell by cell with cell counts asserted; 6-row resolution table. Animating the draw live is **D-C3**. |
 | 5 | Sweep monitors as small multiples on one screen | **TICK (act side).** Two arms, four series, `sweep_points = 2`. Simultaneity is the sequencer's. |
 | 6 | Results table, compute line, conclusion | **TICK.** 3 tables; 19.763 measured against 26.39 estimated; 3 conclusion lines. |
 | 7 | Report tab populated: plots, summary, next steps | **TICK.** `closing()` fully populated, 3 plots to the figure standard, 3 next investigations, none of them a remediation of the shown result. |
 | 8 | Convergence study shown done, or the inbox line | **TICK, and enforced by the instrument** — see §3. |
-| 9 | Zero forbidden language on any screen | **TICK, on both sweeps.** `check_actC_act_screen.py`: 359 screen strings, 103 numeric tokens, planted control tripping four rules, **rc = 0**. `check_actC_gate_screen.py`: 4 artifacts, 108 numeric tokens, every rule at 0 hits, **rc = 0**. The one breach that stood at first writing was the shared cost sentence (**D-C4**, resolved by ruling, not by rewording), and the word "Agreement" rendered inside three figures (**D-C8**, regenerated). |
+| 9 | Zero forbidden language on any screen | **TICK, on both sweeps, re-run AFTER the caption and bullet rewrite.** `check_actC_act_screen.py`: **366 strings, 200 numeric tokens**, planted control tripping four rules, **rc = 0**. `check_actC_gate_screen.py`: 4 artifacts, **159 numeric tokens**, every rule at 0 hits, **rc = 0**. The one breach that stood at first writing was the shared cost sentence (**D-C4**, resolved by ruling, not by rewording), and the word "Agreement" rendered inside three figures (**D-C8**, regenerated). |

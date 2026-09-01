@@ -219,6 +219,52 @@ policy call above this lane; measured first, all five words occur **zero** times
 across the four Act C artifacts today, so it turns nothing red and only stops
 recurrence.
 
+## 8b. THE CAPTION / BULLET / NUMBER PASS, AND WHAT IT DID TO THE COVERAGE
+
+Sanaa, 2026-09-01 ~20:14Z: *"implement the fix i asked for for the captions, and
+shorten the sentences and have them in bullet points, and wherever the point can
+be made accross with numbers its better. EVERYTHING should be paraview."*
+
+Rewriting captions to be numeric means **putting more numbers on screen**, and
+every one of them goes through the allowlist. The derived set is still empty, so
+every temperature is still refused and the act still ends on the refusal beat.
+No caption asked for a kelvin magnitude it could not have.
+
+What the rewrite did to the sweeps is worth recording, because it is the
+coverage argument the guard's own docstring asks for:
+
+| | before the pass | after |
+|---|---|---|
+| sheet + figures, numeric tokens read | 108 | **159** |
+| `ABS-TEMP` candidates examined | 27 | **54** |
+| `KELVIN-UNIT` candidates examined | **0** — "nothing to look at" | **12**, and 0 hits |
+| act strings swept | 359 | **366** |
+| act numeric tokens | 103 | **200** |
+
+`KELVIN-UNIT` is the line that matters. Before the pass it had examined **zero**
+candidates on these artifacts and its clean report rested entirely on its own
+plant. After it, it has live coverage — twelve real kelvin quantities on the
+page — and still reports zero hits. A rule with 0 hits over 12 candidates is
+different evidence from 0 over 0, and the numeric captions are what turned one
+into the other.
+
+Both sweeps were re-run **after** the rewrite, not before: shortened and
+bulleted text is exactly where a banned phrase re-enters. Both are `rc = 0`.
+
+## 8c. PARAVIEW, AND THE ONE SURFACE NO SWEEP CAN READ
+
+`render_actC_paraview.py` renders the geometry and both mesh regions from the
+real case files, and **refuses** the field render. The refusal is the important
+part: a colour bar carries absolute kelvin at its end ticks, and **neither the
+PDF guard nor the string sweep can read a PNG**. A picture is the one route
+around everything above. So the field mode calls the same derivation and exits 2
+while the set is empty, which is today. The geometry and mesh renders carry no
+text at all — no scalar bar, orientation axes off — so there is nothing on them
+for a text sweep to have missed.
+
+The run tree is fingerprinted across all 3,007 files before and after every
+render and is identical each time; a touched mtime in a copy changes it.
+
 ## 9. LINE-CITATION NOTE
 
 The content specification's §C.3 cites the guard's target list "at lines

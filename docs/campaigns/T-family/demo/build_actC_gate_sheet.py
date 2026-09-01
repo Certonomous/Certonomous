@@ -22,6 +22,7 @@ Usage: python3 build_actC_gate_sheet.py
 Exit:  0 compiled and the tail is on the page.  2 REFUSAL.
 """
 import os
+import time
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -59,9 +60,44 @@ def main():
                          "compile_and_require_tail; this script will not "
                          "reimplement it.\n")
         return 2
+    # ⛔ THE STALE-PDF GUARD, AND IT WAS EARNED THE HARD WAY (2026-09-01).
+    #
+    # `check_sheet_tail_rendered.compile_tex` returns the PDF path "if it
+    # exists", not if this compile produced it.  So when `pdflatex` FAILS
+    # under `-halt-on-error`, the PREVIOUS pdf is still sitting on disk, the
+    # tail guard reads THAT file, finds the tail on it, and the build reports
+    # success.  Measured here: a caption edit broke the source, pdflatex wrote
+    # no output at all, and this script printed "compiled, and the sheet's
+    # last line is verified present" over a PDF ninety minutes old.
+    #
+    # That is the planted-zero failure in build form -- a pass from a check
+    # that never saw a new artifact -- and on a filmed sheet it means shooting
+    # the previous version of a screen while believing the edit landed.
+    #
+    # Two clauses, because either alone can be fooled: the old PDF is REMOVED
+    # before the compile, so a failed run leaves nothing to read; and the
+    # mtime is asserted to have advanced past the moment we started, so a
+    # rebuild that somehow restored an old file is caught too.
+    pdf = SHEET[:-4] + ".pdf"
+    started = time.time()
+    if os.path.exists(pdf):
+        os.remove(pdf)
     TAIL.compile_and_require_tail(SHEET)
+    if not os.path.exists(pdf):
+        sys.stderr.write("REFUSE: no sheet was produced by this compile.\n")
+        return 2
+    age = os.path.getmtime(pdf)
+    if age < started - 1.0:
+        sys.stderr.write(
+            "REFUSE: the sheet on disk is OLDER than this compile (%.0f s "
+            "before it started). A previous build is being read as this "
+            "one's output, which is how the version on camera stops being "
+            "the version that was edited.\n" % (started - age))
+        return 2
     print("compiled, and the sheet's last line is verified present on the "
-          "page: %s" % os.path.basename(SHEET).replace(".tex", ".pdf"))
+          "page: %s" % os.path.basename(pdf))
+    print("stale-PDF guard: the sheet was removed before the compile and its "
+          "timestamp is after the compile began")
     return 0
 
 
