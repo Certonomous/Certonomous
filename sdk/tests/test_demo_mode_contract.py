@@ -67,6 +67,34 @@ BANNED_ON_SCREEN = [
     # THE LONG FORM AND THE SHORT FORM ARE BOTH HERE ON PURPOSE. Her paraphrase
     # and the sentence that actually shipped differ, and a row carrying only
     # one of them would leave the guard passing the other.
+    #
+    # CORRECTION TO THE COMMIT THAT ADDED THESE ROWS (abd2dfca), recorded here
+    # because that message cannot be rewritten and a wrong record is worse than
+    # none. That message said the literals had NEVER existed in ``sdk/`` and
+    # concluded she was "describing what she saw rather than quoting a file".
+    # BOTH HALVES ARE WRONG. The sentence was LIVE, as the jet-flap routing
+    # rationale in ``chief_engineer.router``, from 8b6ed54b (02:42) until
+    # 460f486e purged it at 20:28:05 -- and she was quoting it verbatim: her
+    # 20:06Z capture reads "remove The calculations for that wing are finished,
+    # so I will present them rather than start anything".
+    #
+    # HOW A CLEAN ZERO WAS PRODUCED FROM A STRING THAT WAS LIVE, which is the
+    # part worth keeping. The history search used ``-S "calculations are
+    # finished"`` -- a literal taken from her later PARAPHRASE. The shipped
+    # sentence reads "calculations FOR THAT WING are finished", so the search
+    # literal genuinely never appeared while the sentence it stood for was in
+    # the file the whole time. That is CLAUDE.md rule 3 in a grep: a zero from
+    # a reader never shown able to see a non-zero is not evidence, and the
+    # reader here was a search string chosen from a paraphrase. The fix is to
+    # search the FAMILY, or to plant the known instance first and confirm the
+    # search finds it, before reporting an absence.
+    #
+    # The stale-server diagnosis in that message is UNAFFECTED and is in fact
+    # better supported: the string was live until 20:28:05 and the control-room
+    # process started 19:51:01, so the running server holds a module that
+    # genuinely still carries it. She has now asked for its removal three
+    # times -- 20:06Z, 20:10Z and 20:45Z -- which is what a fix that landed
+    # after the server booted looks like from the viewer's chair.
     "The calculations for that wing are finished, so I will present them "
     "rather than start anything.",
     "The calculations are finished, so I will present them.",
