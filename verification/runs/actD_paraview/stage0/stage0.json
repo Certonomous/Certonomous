@@ -1,0 +1,54 @@
+{
+ "_what": "Stage 0 EGL smoke test, one frame",
+ "_preregistration": "cases/dafoam/ACTD_PARAVIEW_RENDER_PASS_PREREGISTRATION.md v1.1",
+ "_utc": "2026-09-01T19:31:25Z",
+ "G-PV1a": {
+  "path": "/opt/paraview/bin/pvbatch",
+  "md5_measured": "82ec8db976f28f51f2003a56c04fc272",
+  "md5_registered": "82ec8db976f28f51f2003a56c04fc272",
+  "verdict": "PASS"
+ },
+ "G-PV1b": {
+  "path": "/opt/ParaView-5.13.3-egl-MPI-Linux-Python3.10-x86_64/bin/pvbatch-real",
+  "md5_measured": "dc272bb98d4ca91fd2f72dd3e89256b4",
+  "md5_registered": "dc272bb98d4ca91fd2f72dd3e89256b4",
+  "verdict": "PASS"
+ },
+ "render": {
+  "rc": 0,
+  "wall_s": 1.797,
+  "ranks": 1,
+  "core_min": 0.03,
+  "stdout_tail": [
+   "SENTINEL_IMPORT_OK",
+   "SENTINEL_RENDER_OK",
+   "SENTINEL_SAVE_OK"
+  ],
+  "stderr_tail": [],
+  "sentinels": [
+   "SENTINEL_IMPORT_OK",
+   "SENTINEL_PY_OK",
+   "SENTINEL_RENDER_OK",
+   "SENTINEL_SAVE_OK"
+  ]
+ },
+ "G-PV7a": {
+  "pixels": 172800,
+  "distinct_colours": 8618,
+  "modal_colour": [
+   82,
+   87,
+   110
+  ],
+  "modal_share": 0.8105439814814814,
+  "size": [
+   480,
+   360
+  ],
+  "modal_share_max": 0.99,
+  "distinct_colours_min": 64,
+  "verdict": "PASS"
+ },
+ "VERDICT": "PASS",
+ "_scope": "Stage 0 proves the ENGINE renders a non-blank frame on this box. It proves NOTHING about case coupling, which is G-PV7b/G-PV7c, nor about any physics."
+}
