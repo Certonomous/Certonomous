@@ -199,7 +199,65 @@ def compile_and_check_tail():
                          "missing; the regeneration will not certify a sheet "
                          "it cannot check.\n")
         raise SystemExit(2)
+    _assert_sheet_is_from_current_source_before(SHEET)
     TAIL.compile_and_require_tail(SHEET)
+    _assert_sheet_is_from_current_source_after(SHEET)
+
+
+#: Set by the "before" check and read by the "after" check, in one process.
+_SHEET_MTIME_BEFORE = {}
+
+
+def _assert_sheet_is_from_current_source_before(tex_path):
+    """Record the pdf's mtime before the build, so staleness is detectable."""
+    pdf = tex_path[:-4] + ".pdf"
+    _SHEET_MTIME_BEFORE[pdf] = (os.path.getmtime(pdf)
+                                if os.path.exists(pdf) else None)
+
+
+def _assert_sheet_is_from_current_source_after(tex_path):
+    """REFUSE a sheet whose pdf did not actually move in this build.
+
+    ⛔ THE DEFECT THIS DEFENDS AGAINST. ``compile_tex`` in the shared tail guard
+    tested EXISTENCE ONLY -- it captured ``returncode`` and never read it. When
+    ``pdflatex`` failed under ``-halt-on-error`` it wrote nothing, THE PREVIOUS
+    PDF WAS STILL ON DISK, and it was handed back as though this compile had
+    produced it: the tail guard read the stale file, found the tail present, and
+    the build PRINTED SUCCESS. Measured by the Act C lane on their own sheet
+    against a PDF EIGHTY-THREE MINUTES OLD, caught only because a token count
+    did not move.
+
+    THIS IS A POST-CONDITION, DELIBERATELY, NOT A REPLACEMENT FOR THE COMPILE
+    STEP. The shared body is being hardened by the lane that found the defect,
+    and shadowing their ``compile_tex`` with a local copy would hide whatever
+    they improve. Asserting the OUTCOME instead -- that a newer pdf exists --
+    stays correct whether the shared fix has landed or not, and costs two
+    ``stat`` calls.
+
+    It is the same rule as the planted zero, the glyph whitelist and the
+    ``.rc.*`` glob: a green result is only evidence if the instrument could
+    have seen the failure.
+    """
+    pdf = tex_path[:-4] + ".pdf"
+    if not os.path.exists(pdf):
+        sys.stderr.write("REFUSE: no sheet pdf exists after the build.\n")
+        raise SystemExit(2)
+    before = _SHEET_MTIME_BEFORE.get(pdf)
+    now = os.path.getmtime(pdf)
+    if before is not None and now <= before:
+        sys.stderr.write(
+            "REFUSE: %s did not change in this build -- its timestamp has not "
+            "moved, so the tail guard just certified an artefact from an "
+            "EARLIER run. The compile failed and left the previous pdf in "
+            "place.\n" % os.path.basename(pdf))
+        raise SystemExit(2)
+    if now < os.path.getmtime(tex_path):
+        sys.stderr.write(
+            "REFUSE: %s is older than its source; this build did not produce "
+            "it.\n" % os.path.basename(pdf))
+        raise SystemExit(2)
+    print("sheet pdf confirmed newer than its source (%s)"
+          % os.path.basename(pdf))
 
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
