@@ -4792,6 +4792,39 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23zz — **`[SANAA-DIRECT]` COMPRESSIBLE BRANCH RESOLVED BY MEASUREMENT: THE SINGLE-POINT OPTIMISATION HAS NEVER RUN, AND IT CANNOT BE QUEUED TONIGHT BECAUSE IT WAS NEVER BUILT — `phase2=NOT_WIRED`. NOTHING FORCED, HONEST BLOCKER BOARDED AS THE RESUME POINT** (2026-09-01T04:0xZ, `date -u` at write)
+
+##### 1. HER DIRECTIVE AND THE BRANCH IT SELECTS
+
+Sanaa, verbatim (`055376a0`): *"before i switch, the compressible multipoint should also be queued if the compresible single pt was ran. if not the compressible single pt should be ran."*
+
+**MEASURED, this invocation, and it settles the branch: NO COMPRESSIBLE OPTIMISATION HAS EVER RUN.** `find /home/ubuntu/certonomous-runs/CURRICULUM-D19* -name opt_IPOPT.txt` returns **NOTHING**. There is **no optimiser output of any kind** in any D19 tree. What ran was the **gradient/plateau phase only** — `D19` and `D19R` phase 1. **So her second branch is the live one: the compressible single point should be run.**
+
+##### 2. ⚠⚠ AND IT CANNOT BE QUEUED TONIGHT — NOT BECAUSE IT IS UNAUTHORISED, BUT BECAUSE IT WAS NEVER BUILT
+
+`[MEASURED]` `cases/dafoam/ladder-a/A1/curriculum_D19R/d19r_chain_driver.sh`:
+
+- `:143` — **"PHASE 2 IS NOT AUTHORISED BY THIS DRIVER AND IS NOT COSTED HERE."**
+- `:171` — the chain's own opening line writes **`phase2=NOT_WIRED`**
+- `:254` — it closes `PHASE1_COMPLETE_PHASE2_NOT_LAUNCHED_NOT_AUTHORISED`
+
+**`NOT_WIRED` is the operative word and it is stronger than `NOT_AUTHORISED`.** There is **no optimiser driver, no grader and no costed pre-registration** for a compressible single-point optimisation to point a queue entry at. **A queue entry filed tonight would point at a driver that does not implement the thing it names** — it would launch nothing, or launch something unregistered, and rule 2 fixes the grading path AT the pre-registration commit, which does not exist for this item.
+
+**I did not force it, per the chief's own instruction.** Building it is a **fresh costed pre-registration with its own instruments**, not a queue drop — the work SO-3 took a full lane and 11,014 insertions to do, and it is not minutes.
+
+##### 3. THE ONE-LINE HONEST BLOCKER — HAND THIS TO SANAA VERBATIM
+
+> **Compressible single-point optimisation has never run and cannot be queued tonight because it was never built: `D19R`'s driver states in terms that phase 2 is not authorised, not costed, and `phase2=NOT_WIRED`, and there is no `opt_IPOPT.txt` anywhere in any D19 tree. The compressible work that exists is the gradient/plateau study, not an optimisation. Building the optimisation is a fresh costed pre-registration with its own driver and grader — a lane's work, not a queue drop — and it is the first thing a successor should pick up.**
+
+**And the second branch of her sentence follows from the first: compressible MULTIPOINT is not queueable either, since its own precondition — a compressible single point that ran — is the thing that does not exist.**
+
+##### 4. WHAT A SUCCESSOR DOES FIRST, CONCRETELY
+
+**Build the compressible single-point optimisation as a new item.** The substrate exists and is good: `D19R`'s phase-1 arms are clean on disk (`MESH X2 S8 N2 S1 R1`, all `rc=0`, 12.416 core-min already bought), the case is `A1` NACA0012 at `DARhoSimpleFoam`, M 0.288, and `SO-3`'s instrument set (`so3_runScript.py`, `so3_run_arm.sh`, `so3_chain_driver.sh`, `so3_grade.py`) is the closest working template — **but derive it by re-computing every pin, because a mechanical rename moves tokens and cannot make prose true, and that class has fired four times in this family.**
+
+**⚠ Register honestly that the plateau did NOT close.** `D19`'s `all_two_sided=False`, `score_pct 21.63`, and `shape[7]` is a **near-null component 35–70× smaller than its siblings that changes sign at 1e-5**; four of five components have a clean plateau. **An optimisation built on top of that inherits an unverified gradient on one component, and the registration must say so on its face rather than letting a verdict imply otherwise.** That is the charter's bright line, and it is the reason this was never simply launched.
+
+
 ##### UPDATE S-23z — **⚠⚠⚠ HANDOFF FOR A SUCCESSOR WHO KNOWS NOTHING. FLEET KILL IMMINENT. `SO-3` SURVIVES IT — pid `1077784`, DETACHED, SIX OF SEVEN ARMS `rc=0`, `FE-P` IN FLIGHT. READ THIS BLOCK BEFORE TOUCHING ANYTHING** (2026-09-01T04:05:16Z, `date -u` at write)
 
 ##### 0. THE FIRST THING TO DO, AND THE TRAP THAT WILL FOOL YOU
