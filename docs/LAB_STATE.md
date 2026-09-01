@@ -4788,9 +4788,51 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T04:55:13Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:00:07Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24g — **THE LAB-WIDE `\b(...)\b` SWEEP RETURNS THE QUIET ANSWER: **ZERO** VERIFIED DEAD ALTERNATIVES OUTSIDE THE FILE THAT FOUND THE TRAP. FOUR REAL ONES WORTH DISPATCHING, AND THE JF1 SWEEP CANNOT SEE THE PLURAL OF THE WORDS IT EXISTS TO CATCH — VERIFIED BY ME. `L-425` LANDED** (2026-09-01T05:00:07Z, `date -u` at write)
+
+###### 1. THE SWEEP: 46 FILES, TWO MACHINE CANDIDATES, **BOTH FALSE POSITIVES**
+
+`3a280e52`. **46 tracked Python files carry the `\b(...)\b` shape**, judged against a **63,871-word corpus of this repository's own prose**. Two machine candidates, **both hand-checked by the lane and both cleared**:
+
+* `suppose`, `scripts/check_belief_neutrality.py:182` — a complete English word in a HYPOTHETICAL detector beside `"if a round"`, `"for example"`. It simply never appears in this repo's prose. **Not a defect.**
+* `shave`, `sdk/chief_engineer/router.py:116` — a complete word in `_DRAG_CUT`'s list of bare imperatives (`cut|reduce|lower|minimi[sz]e|shave|trim|drop`). **The bare form is exactly what a prompt writes. Not a defect.**
+
+**So the trap is REAL, it cost three rules in one file, and it is NOT SYSTEMIC in this lab's comparators.** The lane's own framing is the right one and I am adopting it: **reporting those two as findings would have been as wrong as missing the real ones.**
+
+###### 2. FOUR WORTH DISPATCHING — HAND-CURATED FROM 342 RAW ROWS. **NONE EDITED; THEY ARE THEIR TEAMS'**
+
+| # | site | dead alternatives | owner |
+|---|---|---|---|
+| **1** | `verification/runs/JF1_jet_flap/vocab_sweep_jf1.py:43` | **`toolchain` cannot see `toolchains`; `workaround` cannot see `workarounds`; `defect` cannot see `defective`** | **cfd — ROUTE TONIGHT** |
+| 2 | `scripts/check_derived_figures.py:929` | `quote`/`quoted`, `announce`/`announced`, `reading`/`readings`, in a normative-verb list | — |
+| 3 | `scripts/withdrawal_sweep.py:242` | `family\s+supervisor` misses `family supervisors` | — |
+| 4 | `verification/runs/T-family/T23_runs/analyse_t23.py:799` and `:803` | `GCI` misses `GCIs` — low, **but it is a grading comparator** | heat-transfer |
+
+**⚠ ITEM 1 IS THE ONE, AND I VERIFIED IT MYSELF RATHER THAN ROUTING ON REPORT.** Against `\b(defect|upstream patch|toolchain|workaround)\b`: `"two toolchains were compared"` → **no match**; `"three workarounds exist"` → **no match**; `"the part is defective"` → **no match**; while every bare form fires. **A sweep whose entire job is keeping those words off a FILMED surface cannot see the plural of two of them, and JF1 is Sanaa's number-one overnight demo priority.**
+
+###### 3. ⚠ TWO SECOND-ORDER FAILURES IN THE SWEEP'S OWN CONSTRUCTION — **WORTH MORE THAN THE FINDING**
+
+**(a) A CORPUS CONTAINING ITS SUBJECT IS NOT A CORPUS.** With `*.py` in it, the selftest scored **1/4** — every planted dead alternative came back alive, **because the token `repositor` occurs in this repository exactly once: INSIDE THE BROKEN PATTERN ITSELF.** **This is the `PAST_ALTERNATIVES` principle of `S-24e` arriving from the opposite direction**, and between the two the rule is now stated twice from two angles: **a control that draws on the thing it controls will confirm it.** Fixed prose-only, **and by giving the selftest its own FIXED four-word corpus so its verdicts do not depend on what happens to be written in the tree today** — which is the correct fix and not the obvious one.
+
+**(b) THE FIRST INSTRUMENT WAS WRONG IN THE SAME DIRECTION AS THE BUG IT WAS BUILT TO FIND.** `\b` **succeeds before a hyphen**, so the first run's 458 "missed longer forms" were mostly pairs like `cannot` / `cannot-adjudicate` — **no miss at all**. Only a **letter or digit** after the prefix defeats the boundary. 458 → 342, and the residue became worth reading. **BOARDED — AND THE LANE CORRECTED MY FIRST WORDING OF THIS, RIGHTLY.** I had written it as *"expect it and you will catch it"*. **The lane's caveat, which I am adopting verbatim: it did NOT predict this failure and did NOT catch it by design.** The selftest caught the corpus contamination on its own, but **the hyphen defect surfaced only because it HAND-READ the 458 rows before reporting them and the pairs looked wrong.** **So the transferable rule is NOT an expectation — it is a procedure: AN INSTRUMENT'S FIRST OUTPUT IS READ ROW BY ROW BEFORE ITS NUMBER IS QUOTED ANYWHERE.** Had 458 been reported and moved past, **the number would have been believed.** An expectation you must remember protects nothing; a step in the procedure does.
+
+**Controls on the sweep itself:** four selftest arms on the fixed corpus — two planted dead alternatives must read DEAD, a clean alternative must stay SILENT, and a group with **no** trailing boundary must be **ignored** because it carries no trap. **The main run refuses `rc=2` if the selftest cannot see its own planted defect. 4/4 behave.**
+
+###### 4. `L-425` LANDED — `6cea911e`
+
+*"An alternation wrapped in `\b(...)\b` applies the trailing boundary to EVERY alternative, so a prefix alternative matches nothing at all — and it looks perfectly reasonable in the source."* `docs/LESSONS.md` only, 81 insertions, post-commit verify shows that one path. **Number re-derived from the tail as max+1 (424 was the maximum) in the commit's own shell invocation, with the file asserted equal to `HEAD` before appending.** Carries the three measured instances, the two-line reproduction, and the remedy **including its subtle half**.
+
+###### 5. THE FILING COUNT MOVED AND IT IS STILL NOT OURS
+
+**`check_filing.py` went 45 → 46 while the lane worked.** The new row is **`[R3-SCRIPTS-LOWER] scripts/check_actA_actC_latexified.py`** — **heat-transfer's**, capitals in a script name, landed since the baseline. **The lane nearly wrote "still 45" from memory and checked instead.** That is the same class as writing down an uncleared red, and it is **the third time tonight** one of us has stopped at that line.
+
+**COST: ~1.0 core-min for the whole round at `np=1`, log-measured** (five sweep runs, four mutant re-runs, six `pdflatex` compiles). **No pre-registration exists to ratio it against — a diagnostic with no solver — and inventing an estimate after the fact would be worse than saying there is none.** Endorsed.
+
+**LANE STOOD DOWN.** Integration verdict, sheet, instrument, both mutants, `L-424`, `L-425` and the lab-wide sweep all landed, each with its own controls and its own named limits.
 
 ##### UPDATE S-24f — **THE MULTIPOINT ADJOINT DEMO IS BUILT FROM THE GRADED `SO-3` RUN AND SAYS THE HONEST THING ON ITS FACE. FOUR RULINGS FROM ME, PLUS A CATCH THE LANE FLAGGED AND DID NOT CARRY FAR ENOUGH: A **PREDICTED** COST WAS ABOUT TO GO ON CAMERA AS WHAT THE RUN COST. ONE QUESTION GOES TO SANAA'S DESK** (2026-09-01T04:55:13Z, `date -u` at write)
 
