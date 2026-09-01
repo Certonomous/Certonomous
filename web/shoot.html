@@ -661,8 +661,9 @@ against the playback, not the run. Plan three quarters of a minute, not one seco
     <div class="f">Against a 5% standard, so it clears by a factor of 2.9. Best check 0.00145%.</div></div>
   <div class="kpi"><div class="n">105</div><div class="l">design variables</div>
     <div class="f">96 shape control points, 7 twist stations, 2 flow-state.</div></div>
-  <div class="kpi"><div class="n gd">Partial</div><div class="l">how it stopped</div>
-    <div class="f">A 60-minute wall clock ran out. No convergence statement printed.</div></div>
+  <div class="kpi"><div class="n gd">Not converged</div><div class="l">how it stopped</div>
+    <div class="f">Ended by the wall-clock box set on the run, not by convergence. No convergence
+    statement printed. Not the iteration limit: 100 allowed, 47 taken.</div></div>
 </div>
 
 <h3>What appears on screen, in order</h3>
@@ -677,9 +678,13 @@ against the playback, not the run. Plan three quarters of a minute, not one seco
   <li><b>A root close-up of the same morph, about 27 to 32 seconds</b>, where the section change is
   legible: the baseline is a slim near-symmetric section, the final is visibly fatter and cambered.</li>
   <li><b>28.3% drag reduction at matched lift, after 47 major iterations.</b></li>
-  <li><b>A separate table, how the optimization stopped.</b> A 60-minute wall clock, no convergence
-  statement printed, both first-order measures about an order of magnitude above tolerance, status
-  <b>Partial</b>.</li>
+  <li><b>Two spoken lines on why it stopped. There is no stopping table, so do not look for one.</b>
+  The CHIEF ENGINEER reads them out of the run's own record: it was ended by the wall-clock box set on
+  the run, not by convergence, and it wrote no convergence statement of any kind; and it was not the
+  iteration limit, which allowed 100 major iterations against the 47 taken.</li>
+  <li><b>The runtime, at the cost beat near the end.</b> 20 minutes on the production configuration,
+  with the linear solvers on GPU. The figure never appears without that basis beside it, and it is a
+  runtime, not the wall-clock box that ended the recorded run.</li>
 </ul>
 
 <div class="note good"><b>Everything on screen is at true scale.</b> The act cannot exaggerate, because

@@ -264,9 +264,15 @@ Plan your talking track around three quarters of a minute, not one second.
   baseline is a slim near-symmetric section, the final is visibly fatter and
   cambered.
 - **28.3% drag reduction at matched lift**, after **47 major iterations**.
-- A separate table, *How the optimization stopped*: a 60-minute wall clock, no
-  convergence statement printed, both first-order measures about an order of
-  magnitude above tolerance, status **Partial**.
+- **Two spoken lines on why it stopped. There is no stopping table, so do not
+  look for one.** The CHIEF ENGINEER reads them out of the run's own record: it
+  was ended by the wall-clock box set on the run, not by convergence, and it
+  wrote no convergence statement of any kind; and it was not the iteration
+  limit, which allowed 100 major iterations against the 47 taken.
+- **The runtime, at the cost beat near the end:** 20 minutes on the production
+  configuration, with the linear solvers on GPU. The figure never appears
+  without that basis beside it, and it is a runtime, not the wall-clock box that
+  ended the recorded run.
 
 **Every shape on screen is at TRUE SCALE.** Nothing is exaggerated, and the act
 cannot exaggerate — the scaling code was removed outright. The wing was
