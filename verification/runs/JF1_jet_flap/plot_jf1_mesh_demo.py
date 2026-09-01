@@ -9,8 +9,10 @@ face list, which on a one-cell-deep mesh is exactly one quadrilateral per cell.
 If the reader below cannot open `constant/polyMesh/points`, `faces` and
 `boundary` it RAISES; it never falls back to a surface tessellation.
 
-House style follows `plot_jf1_actB_demo.py` (same fonts, palette, banner,
-caveat box and cost line).  Output: `artefacts/jet_flap_5..7_*.{pdf,png}`.
+House style follows `plot_jf1_actB_demo.py` (same fonts, palette, caveat box
+and cost line), including its `assert_no_banner` check: there is no longer a
+banner to draw, and each page is asserted free of the removed word before it
+is written.  Output: `artefacts/jet_flap_5..7_*.{pdf,png}`.
 
 Run:  python3 plot_jf1_mesh_demo.py
 """
@@ -31,7 +33,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # title, a twenty-word caption) enforced where they are already implemented
 # rather than reimplemented here.
 from jf1_figure_style import latin_modern_rc, sheet_note   # noqa: E402
-from plot_jf1_actB_demo import caption, check_title        # noqa: E402
+from plot_jf1_actB_demo import (assert_no_banner, caption,   # noqa: E402
+                                check_title)
 import jf1_display_numbers as jf1num                       # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -91,7 +94,6 @@ BODY = "#26262c"
 BOXC = "#c1121f"
 ACCENT = "#0b4f8f"
 
-BANNER = "Preliminary: exploratory calculation, not a validated result"
 
 
 def tidy(ax):
@@ -114,10 +116,6 @@ def frame(ax):
     ax.tick_params(colors=INK2, labelsize=8.5)
 
 
-def banner(fig):
-    fig.text(0.5, 0.988, BANNER, ha="center", va="top", fontsize=12.5,
-             color="white", weight="bold",
-             bbox=dict(boxstyle="round,pad=0.42", fc=BODY, ec="none"))
 
 
 def caveat_box(ax, bullets, title="WHAT YOU SHOULD KNOW ABOUT THIS MESH",
@@ -544,9 +542,9 @@ def main():
                           width_ratios=[1.0, 1.0, 1.0],
                           left=0.055, right=0.982, top=0.885, bottom=0.130,
                           hspace=0.40, wspace=0.20)
-    banner(fig)
+    assert_no_banner(fig)
     fig.text(0.5, 0.955,
-             check_title("The grid the flow was actually computed on"),
+             check_title("The grid the flow is computed on"),
              ha="center", va="top", fontsize=15.5, color=INK, weight="bold")
 
     # -- (a) near field, spanning the wing and the refined wake -------------
@@ -690,7 +688,7 @@ def main():
     gs = fig.add_gridspec(2, 3, height_ratios=[1.10, 1.15],
                           left=0.058, right=0.982, top=0.890, bottom=0.090,
                           hspace=0.20, wspace=0.26)
-    banner(fig)
+    assert_no_banner(fig)
     fig.text(0.5, 0.958,
              check_title("How well the grid resolves the two places that matter"),
              ha="center", va="top", fontsize=15.5, color=INK, weight="bold")
@@ -855,9 +853,9 @@ def main():
     gs = fig.add_gridspec(2, 3, height_ratios=[1.55, 1.30],
                           left=0.055, right=0.982, top=0.885, bottom=0.130,
                           hspace=0.40, wspace=0.20)
-    banner(fig)
+    assert_no_banner(fig)
     fig.text(0.5, 0.955,
-             check_title("The grid the lift and pressure figures were computed on"),
+             check_title("The grid the lift and pressure figures are computed on"),
              ha="center", va="top", fontsize=15.5, color=INK, weight="bold")
 
     ax = fig.add_subplot(gs[0, :])

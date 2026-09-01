@@ -140,7 +140,22 @@ LINEAR_C = "#c1121f"
 RAMP = ["#bfd3e6", "#7fa8d0", "#3f7cb4", "#0b4f8f"]   # one hue, light -> dark
 UNBLOWN_C = "#6d6d78"
 
-BANNER = "Preliminary: exploratory calculation, not a validated result"
+#: THE "Preliminary" BANNER IS GONE, and its ABSENCE is now the checked state.
+#:
+#: Sanaa, 2026-09-01: "remove the 'Preliminary' banner from every figure".
+#: What that banner said is not deleted with it -- every word of it is carried
+#: by the limitations box on the results screen and by each figure's own sheet
+#: note, which is where the standard puts an explanation. A banner stamped
+#: across the top of a chart is not a caveat a reader can act on; it is a mood.
+#:
+#: THE CONSTANT IS KEPT SO THE REMOVAL CAN BE MEASURED RATHER THAN TRUSTED.
+#: ``assert_no_banner`` below is called by every generator immediately before
+#: it writes a page, and it reads the FIGURE, not this file: a banner
+#: reintroduced by any route -- this text, a different string, a hand-placed
+#: ``fig.text`` -- is caught at draw time on the artifact itself. Deleting the
+#: constant would have left nothing to test against, and this act has already
+#: shipped a claim its artifact did not carry.
+BANNER_WORD = "Preliminary"
 
 
 def tidy(ax):
@@ -153,10 +168,31 @@ def tidy(ax):
     ax.tick_params(colors=INK2, labelsize=9.5)
 
 
-def banner(fig):
-    fig.text(0.5, 0.988, BANNER, ha="center", va="top", fontsize=12.5,
-             color="white", weight="bold",
-             bbox=dict(boxstyle="round,pad=0.42", fc="#26262c", ec="none"))
+def assert_no_banner(fig):
+    """Refuse to write a page that still carries the removed banner.
+
+    Walks every text object the figure actually holds, including the ones
+    inside axes, and refuses if any of them carries the banner word. This is
+    the replacement for the deleted ``banner()`` and it points the other way:
+    the old function put the stamp on, this one proves it is off, and it reads
+    the figure rather than the source. A generator that forgets the call is
+    caught by the RENDERED-PDF check in the live pass, which greps the text
+    layer of every page for the same word.
+    """
+    # matplotlib.text.Text is the only class whose get_text() is the
+    # zero-argument accessor this wants. ContourLabeler also defines a
+    # get_text, with the signature get_text(lev, fmt), and a duck-typed
+    # `hasattr(o, "get_text")` walk calls it and raises TypeError on any page
+    # carrying a contour set -- which is how this check first ran: it took
+    # down the flow-field figure. Matching on the CLASS is the fix; matching
+    # on the attribute name matched something else entirely.
+    from matplotlib.text import Text as _Text
+
+    for artist in fig.findobj(match=_Text):
+        text = artist.get_text() or ""
+        if BANNER_WORD.lower() in text.lower():
+            raise Refusal("this page still carries the removed banner word "
+                          "%r in %r" % (BANNER_WORD, text))
 
 
 def caveat_box(ax, lines, title="WHAT YOU SHOULD KNOW ABOUT THESE NUMBERS"):
@@ -565,7 +601,7 @@ def main():
                   weight="bold", color=INK, loc="left", fontsize=11.0, pad=9)
     tidy(axb)
 
-    banner(fig)
+    assert_no_banner(fig)
     caption(fig, "Four blown settings and one slot-closed reference, on one "
                  "grid, against published jet-flap theory.")
     save(fig, "jet_flap_1_lift_vs_blowing")
@@ -613,7 +649,7 @@ def main():
 
     # The two in-axes explanations move to the sheet with the rest.
 
-    banner(fig)
+    assert_no_banner(fig)
     caption(fig, "Chordwise pressure for four blown settings and the "
                  "slot-closed reference, upper and lower surfaces separated.")
     save(fig, "jet_flap_2_surface_pressure")
@@ -735,7 +771,7 @@ def main():
     # sheet now. A picture explaining itself in a paragraph is the thing the
     # standard removes.
 
-    banner(fig)
+    assert_no_banner(fig)
     caption(fig, "Speed relative to the oncoming stream, with the jet sheet "
                  "traced and streamlines entering at equal spacing.")
     save(fig, "jet_flap_3_flow_field")
@@ -783,7 +819,7 @@ def main():
     # the speed decay -- are quantities, and quantities belong in the sheet's
     # tables where they can be read beside their uncertainty.
 
-    banner(fig)
+    assert_no_banner(fig)
     caption(fig, "The ejected sheet leaves at thirty degrees and is turned by "
                  "the oncoming flow; colour is peak speed.")
     save(fig, "jet_flap_4_jet_path")

@@ -88,7 +88,7 @@ from plot_jf1_p1_demo import (            # noqa: E402
     Refusal, refuse, read_internal, read_raw_surface, plant_control_raw,
 )
 from plot_jf1_actB_demo import (          # noqa: E402
-    tidy, banner, caption, check_title, cost_line,
+    tidy, assert_no_banner, caption, check_title, cost_line,
     INK, INK2, MUTED, GRIDC, WARN, RAMP, UNBLOWN_C,
     SWEEP, SWEEP_TIME, LIVE, U_INF, Q_INF, CHORD, SWEEP_ESTIMATE_EACH,
 )
@@ -414,6 +414,43 @@ def grp(n):
     return "{:,}".format(n).replace(",", " ")
 
 
+#: The eight columns that used to be printed across the foot of the pressure
+#: figure. Sanaa moved them to the sheet; the HEADERS move with them, spelled
+#: for prose rather than for a two-line table cell, and the FORMATS are the
+#: figure's own so no value changes precision on the way across.
+_STAG_COLUMNS = (
+    ("jet strength", lambda r: ("slot closed" if r["cmu"] == 0
+                                else "%.2f" % r["cmu"])),
+    ("stagnation pressure Cp", lambda r: "%+.4f" % r["stag_cp"]),
+    ("its location x/c", lambda r: "%.5f" % r["stag_x"]),
+    ("location uncertainty", lambda r: "±%.5f" % r["stag_ux"]),
+    ("on which surface", lambda r: "lower" if r["stag_y"] < 0 else "upper"),
+    ("strongest suction, x/c < 0.98: Cp",
+     lambda r: "%+.3f" % r["peak_cp"]),
+    ("at x/c", lambda r: "%.3f" % r["peak_x"]),
+    ("lowest Cp on the surface", lambda r: "%+.3f" % r["cp_lo"]),
+)
+
+
+def _stagnation_table_markdown(cps):
+    """The moved table, as sheet text, composed from the measurement itself.
+
+    Called at the one place the figure is drawn and consumed by that figure's
+    sheet note. It takes the SAME ``cps`` records the chart is plotted from,
+    so the table on the sheet and the curves on the page cannot describe two
+    different readings; there is no second copy of any value to go stale.
+    """
+    head = [name for name, _ in _STAG_COLUMNS]
+    body = [[fmt(r) for _, fmt in _STAG_COLUMNS] for r in cps]
+    lines = ["Measured values behind this chart. All quantities are "
+             "dimensionless and every curve is 396 surface samples.",
+             "",
+             "| " + " | ".join(head) + " |",
+             "|" + "|".join(["---"] * len(head)) + "|"]
+    lines += ["| " + " | ".join(row) + " |" for row in body]
+    return "\n".join(lines)
+
+
 def draw_table(ax, headers, rows, widths, title, fs=8.5, hfs=8.4):
     """Header block sized from the tallest header so rows never collide."""
     ax.axis("off")
@@ -510,15 +547,25 @@ def main():
     # explanation moves to the sheet text. Nothing said in either is dropped
     # -- every sentence of both is in this figure's sheet note, written below
     # from the same measured values that were printed in the box.
-    fig = plt.figure(figsize=(14.0, 11.0))
-    gs = fig.add_gridspec(3, 2, height_ratios=[2.30, 1.62, 1.20],
-                          left=0.062, right=0.985, top=0.930, bottom=0.055,
+    # THE MEASURED-VALUES TABLE IS NO LONGER ON THIS PAGE. Sanaa, 2026-09-01:
+    # "move the measured-values table out of the pressure figure into the
+    # sheet". The third grid row that carried it is gone and the two chart rows
+    # take the page, so the curves are read at the size they deserve.
+    #
+    # NOT ONE NUMBER IS LOST, and that is the part worth checking rather than
+    # asserting. Every cell of the eight-column table is written into this
+    # figure's sheet note below, from the SAME ``cps`` measurement the table
+    # was drawn from -- the rows are composed once, in ``_stagnation_rows``,
+    # and the note is built from that list. Retyping the values into prose is
+    # exactly how a moved table becomes a stale one.
+    fig = plt.figure(figsize=(14.0, 9.0))
+    gs = fig.add_gridspec(2, 2, height_ratios=[2.30, 1.62],
+                          left=0.062, right=0.985, top=0.918, bottom=0.078,
                           hspace=0.42, wspace=0.17)
     axu = fig.add_subplot(gs[0, 0])
     axl = fig.add_subplot(gs[0, 1])
     axzu = fig.add_subplot(gs[1, 0])
     axzl = fig.add_subplot(gs[1, 1])
-    axt = fig.add_subplot(gs[2, :])
 
     handles = []
     for r in cps:
@@ -580,34 +627,11 @@ def main():
     for t_ in leg.get_texts():
         t_.set_color(INK2)
 
-    rows = []
-    for r in cps:
-        rows.append([
-            "slot closed" if r["cmu"] == 0 else "%.2f" % r["cmu"],
-            "%+.4f" % r["stag_cp"],
-            "%.5f" % r["stag_x"],
-            "±%.5f" % r["stag_ux"],
-            "lower" if r["stag_y"] < 0 else "upper",
-            "%+.3f" % r["peak_cp"],
-            "%.3f" % r["peak_x"],
-            "%+.3f" % r["cp_lo"],
-        ])
-    draw_table(
-        axt,
-        ["jet strength\n$C_\\mu$  [–]",
-         "stagnation\npressure $C_p$  [–]",
-         "its location\n$x/c$  [–]",
-         "location\nuncertainty  [–]",
-         "on which\nsurface",
-         "strongest suction,\n$x/c<0.98$:  $C_p$  [–]",
-         "at\n$x/c$  [–]",
-         "lowest $C_p$ on\nthe surface  [–]"],
-        rows,
-        [0.108, 0.146, 0.104, 0.104, 0.098, 0.170, 0.086, 0.130],
-        "MEASURED VALUES BEHIND THIS CHART  (all quantities dimensionless; "
-        "396 surface samples per curve)")
+    # The rows the figure used to print. They are composed here and consumed
+    # by the sheet note alone; nothing draws them on the page any more.
+    table_md = _stagnation_table_markdown(cps)
 
-    banner(fig)
+    assert_no_banner(fig)
     caption(fig, "Blowing loads the rear of the section; suction is plotted "
                  "upward and the lower row magnifies the leading edge.", y=0.032)
     # EVERY SENTENCE OF THE HEADER PARAGRAPH AND OF THE FIVE-BULLET BOX IS
@@ -646,9 +670,10 @@ def main():
         "pressure value, and the one uncertainty in the table is on where the "
         "stagnation point sits, which is half the local surface-cell spacing. "
         "No experimental pressure data exists for this configuration, so no "
-        "measured reference curve is drawn. Treat these as indicative."
+        "measured reference curve is drawn. Treat these as indicative.\n\n"
+        "%s"
         % (min(stag), max(stag),
-           100.0 * (min(stag) - 1.0), 100.0 * (max(stag) - 1.0))))
+           100.0 * (min(stag) - 1.0), 100.0 * (max(stag) - 1.0), table_md)))
     cost_line(fig, cost_sweep)
     save(fig, "jet_flap_2_chordwise_pressure")
 
@@ -799,7 +824,7 @@ def main():
         % (grp(OMESH_CELLS), grp(CMESH_CELLS), grp(OMESH_CELLS),
            grp(CMESH_CELLS)), fs=8.4)
 
-    banner(fig)
+    assert_no_banner(fig)
     caption(fig, "Span differences are exactly zero on the true pairing and "
                  "large on a deliberately shifted one.", y=0.032)
     notes.append(sheet_note(
