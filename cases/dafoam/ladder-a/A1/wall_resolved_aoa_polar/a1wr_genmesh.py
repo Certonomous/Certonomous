@@ -76,18 +76,42 @@ BASE = {
     "dXMaxSS": 0.02,
     "NpTE": 5,             # blunt-TE points
     "NExtrudeCells": 64,   # wall-normal CELLS (pyHyp N = cells + 1)
-    "s0": 3.0e-6,          # FIRST CELL HEIGHT at L1.  See the y+ note below.
+    "s0": 2.5e-6,          # FIRST CELL HEIGHT at L1.  See the y+ note below.
+                           # AMENDMENT 1 (pre-compute, 2026-09-01): was 3.0e-6,
+                           # derived from an INFERRED Sutherland mu = 1.846e-5.
+                           # The dictionary says `transport const; mu 0.000018`.
+                           # Re-derived from the READ value; see the block below.
     "marchDist": 20.0,     # far-field extent, chords.  FIXED ACROSS LEVELS.
 }
 
 # --------------------------------------------------------------------------
-# WHY s0 = 3.0e-6 AT L1, AND WHY THE COMPRESSIBLE ARM SET IT
+# WHY s0 = 2.5e-6 AT L1, AND WHY THE COMPRESSIBLE ARM SET IT
 # --------------------------------------------------------------------------
+# EVERY CONSTANT BELOW IS READ FROM THE CASE'S OWN DICTIONARY.  The first
+# version of this block INFERRED mu = 1.846e-5 (Sutherland air at 300 K) and
+# was WRONG: the dictionary specifies `transport const; mu 0.000018`.  Three
+# different compressible Re values were in circulation in the lab on the day
+# this was written and not one of them had been read from the case.  A number
+# nobody measured has no place in a freeze, least of all the one that sizes
+# the mesh.  Sources, by path:
+#   nu (incompressible)  CURRICULUM-AOAI-.../case_cold/constant/transportProperties
+#   mu, W (compressible) CURRICULUM-AOAC-.../case/constant/thermophysicalProperties
+#   chord                surfaceMesh.xyz of ladder-a1-naca0012, measured extent
+#
+# `transport const`, NOT Sutherland: mu does NOT vary with temperature here.
+# That is defensible at M = 0.288, where the stagnation temperature rise is
+# 4.98 K, but it is stated because a reader meeting a compressible solver will
+# otherwise assume Sutherland and mis-derive nu at the wall.
+#
 # The two arms of this sweep are NOT at the same Reynolds number:
-#     incompressible  U = 10  m/s, nu   = 1.5e-5      -> Re_c = 6.67e5
-#     compressible    U = 100 m/s, nu_w = 1.5686e-5   -> Re_c = 6.375e6
-#                                                          (rho0 = 1.176829)
-# a ratio of 9.563.  y+ for a GIVEN wall spacing is therefore roughly an order
+#     incompressible  U = 10  m/s, nu   = 1.5e-5       -> Re_c = 6.6667e5
+#     compressible    U = 100 m/s, nu_w = 1.529548e-5  -> Re_c = 6.537877e6
+#         where nu_w = mu/rho, rho = p0/(R T0) = 1.1768179 from perfectGas
+#         with molWeight 28.97 (R = 287.0028).  NOTE the runScript's
+#         force-scaling rho0 = p0/T0/287 = 1.1768293 is a DIFFERENT quantity
+#         and differs by 9.6e-6 relative; it scales CD/CL, it is not the
+#         thermodynamic density.
+# a ratio of 9.8068.  y+ for a GIVEN wall spacing is therefore roughly an order
 # of magnitude larger on the compressible arm.  A mesh sized to give y+ < 1 at
 # U = 10 gives y+ of order 1.5-2 at U = 100 ON THE SAME CELLS.
 #
@@ -99,11 +123,27 @@ BASE = {
 # is identical.  The incompressible arm is consequently OVER-resolved near the
 # wall.  That costs iterations; it does not cost correctness.
 #
-# EVERY NUMBER IN THIS BLOCK IS A PREDICTION, NOT A MEASUREMENT.  It uses the
-# flat-plate correlation Cf = 0.0576 Re^-0.2 with a leading-edge factor and an
-# incidence factor, both estimated.  It is registered so that the MEASURED y+
-# can be compared against something written down first -- it is NOT evidence
-# that the mesh is wall-resolved.  Only the measured y+ is that.
+# THE CHORD IS NOT 1.0 AND WAS MEASURED, NOT ASSUMED.  Every Re above depends
+# on it LINEARLY.  The built surface extends to x = 0.99882687 because the
+# tutorial truncates PS and SS at ~99.8 % chord for the blunt TE (the profile
+# files themselves end at 0.99941610).  Re is nonetheless quoted at a
+# REFERENCE chord of 1.0, because A0 = 0.1 in the run scripts is a reference
+# AREA consistent with chord 1.0 x span 0.1, and the force coefficients are
+# already normalised by it -- so 1.0 is the consistent reference.  Using the
+# built extent instead moves every Re by 0.117 % (Re_comp 6.530208e6), which
+# is disclosed here and is far inside the sizing margin.
+#
+# EVERY y+ NUMBER BELOW IS A PREDICTION, NOT A MEASUREMENT.  It uses the
+# flat-plate correlation Cf = 0.0576 Re^-0.2 with:
+#   - a leading-edge/peak factor of 1.5611, ANCHORED on the measured y+max of
+#     92.4 at y_c = 2e-3 on the existing coarse mesh (u_tau 0.693 vs a
+#     flat-plate 0.44392) -- this one rests on a measurement;
+#   - an incidence factor of 1.8 at alpha = 18, which is an ESTIMATE with no
+#     measurement behind it and is the weakest link in the chain.
+# Predicted y+ at alpha = 18 (compressible / incompressible):
+#     L1 0.811 / 0.104    L2 0.406 / 0.052    L3 0.203 / 0.026
+# The compressible arm binds by 7.81x.
+# THIS IS NOT EVIDENCE THAT THE MESH IS WALL-RESOLVED.  Only measured y+ is.
 # --------------------------------------------------------------------------
 
 LEVELS = {"L1": 1, "L2": 2, "L3": 4}

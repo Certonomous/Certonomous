@@ -583,3 +583,157 @@ before the compute it governs. Stage 0 and Stage 1 are governed by this document
 as it stands.
 
 **NOTHING IN THIS ITEM IS FILED, SENT, UPLOADED OR POSTED ANYWHERE.**
+
+---
+---
+
+# AMENDMENT 1 — 2026-09-01 — PRE-COMPUTE — v1.0 → v1.1
+
+**`lines whose number changed above this section: 0`**
+
+Nothing above this line has been edited. Every superseding value is stated
+here, and §12.2 lists exactly which earlier statements it replaces.
+
+## 12.1 THE CONDITION, AND HOW IT WAS CHECKED
+
+Rule 2 permits an amendment **before first compute** and requires it to state
+the condition and how the condition was checked.
+
+**Condition: no compute has been spent on this item.**
+
+**How it was checked, not asserted:** the run root `A1WR` **does not exist**.
+`ls -d /home/ubuntu/certonomous-runs/*A1WR*` returns no match; there is no
+`verification/runs/` tree for this item; no mesh has been built; the generator
+has been executed **only** in `--selfcheck` mode, which imports no pyHyp, writes
+no file and touches no case. The gates, thresholds, caps and label of v1.0 are
+therefore still open, and this amendment may lawfully move them.
+
+**It was independently checked by the supervisor**, who reports the run root
+absent by their own search and both v1.0 blobs matching on disk. **That check is
+theirs and is recorded as corroboration, not as a substitute for the lane's own**
+— a delegate's test is evidence, not the supervisor's read, and the reverse
+holds equally.
+
+## 12.2 WHAT WAS WRONG: A CONSTANT NOBODY READ
+
+v1.0 registered the compressible viscosity as **ν = 1.568622e-5**, derived from
+**μ = 1.846e-5** — the Sutherland value for air at 300 K. **That number was
+INFERRED from physical recall and was never read from the case.** The case's own
+dictionary specifies:
+
+```
+transport             const;
+mu                    0.000018;
+```
+
+μ is **1.8e-5**, constant, not 1.846e-5 and not temperature-dependent.
+
+**This is the defect in its purest form. Three different compressible Re values
+were in circulation in the lab on the day this was written — this lane's
+6.375e6, another lane's 6.54e6, and a 6.667e6 derived from the `nuTilda0 = 3ν`
+convention — AND NOT ONE OF THE THREE HAD BEEN READ FROM THE CASE'S OWN
+DICTIONARY. A number nobody measured has no place in a freeze, least of all the
+one that sizes the mesh.** The dictionary settles it and is now cited by path.
+
+**Sources, read for this amendment:**
+
+| quantity | value | read from |
+|---|---|---|
+| ν incompressible | 1.5e-5 | `CURRICULUM-AOAI-…/case_cold/constant/transportProperties` |
+| μ compressible | 1.8e-5, `transport const` | `CURRICULUM-AOAC-…/case/constant/thermophysicalProperties` |
+| molWeight | 28.97, `equationOfState perfectGas` | same dictionary |
+| chord | built extent 0.99882687 | `ladder-a1-naca0012/surfaceMesh.xyz`, measured |
+
+**The error direction was the safe one and it is stated because it does not
+excuse the error.** Re was UNDERSTATED, so `s0` was LOOSE, so measured y+ would
+have come out HIGHER than predicted — pushing toward the Stage-1 stop rather
+than past it. **It failed closed.** A registered constant that is wrong is wrong
+regardless of which way it leans.
+
+## 12.3 SUPERSEDING VALUES
+
+**Replaces the Reynolds figures in §1.1, §1.2, §2.3 and the y+ table in §3.1.**
+
+Constants, all read (§12.2). ρ from `perfectGas`: R = 8314.47/28.97 = 287.0028,
+ρ = p0/(R·T0) = **1.1768179**; ν_w = μ/ρ = **1.529548e-5**.
+
+**A distinction v1.0 did not draw:** the run scripts' `rho0 = p0/T0/287 =
+1.1768293` is the **force-scaling** density for CD/CL and is **not** the
+thermodynamic density. They differ by 9.6e-6 relative — negligible here, but
+they are different quantities and v1.0 used the scaling one for a
+thermodynamic purpose.
+
+| | v1.0 (struck) | **v1.1 (read)** |
+|---|---|---|
+| ν compressible | ~~1.568622e-5~~ | **1.529548e-5** |
+| Re incompressible | ~~6.667e5~~ | **6.666667e5** (unchanged in substance) |
+| Re compressible | ~~6.375e6~~ | **6.537877e6** — v1.0 was **2.5 % low** |
+| ratio | ~~9.563~~ | **9.8068** |
+
+**Chord, which v1.0 assumed and did not read.** Every Re above depends on it
+**linearly**. The built surface extends to **x = 0.99882687**, not 1.0, because
+the tutorial truncates PS and SS at ~99.8 % chord for the blunt TE (the profile
+files end at 0.99941610). Re is nonetheless quoted at a **reference chord of
+1.0**, because `A0 = 0.1` is a reference **area** consistent with chord 1.0 ×
+span 0.1 and the force coefficients are already normalised by it. Using the
+built extent instead gives Re_comp = **6.530208e6**, a **0.117 %** shift, far
+inside the sizing margin. **Both are now on the record; neither is assumed.**
+
+**`transport const`, not Sutherland — stated on the face.** μ does not vary with
+temperature in this case. At M = **0.288** the stagnation temperature rise is
+**4.98 K**, so the modelling choice is defensible; it is stated because a reader
+meeting a compressible solver will otherwise assume Sutherland and mis-derive ν
+at the wall — which is precisely the mistake v1.0 made.
+
+## 12.4 s0 RE-DERIVED FROM THE CORRECTED Re — NOT LEFT BESIDE IT
+
+**Replaces the `s0` row of §2.1's table and the whole y+ table of §3.1.**
+
+Re-running the sizing chain on the read constants: Cf = 0.0576·Re^-0.2 gives
+u_τ(flat plate) = 3.53307 m/s compressible, 0.44392 m/s incompressible; the
+leading-edge/peak factor **1.5611 is ANCHORED** on the measured y+max = 92.4 at
+y_c = 2e-3 on the existing coarse mesh; the incidence factor **1.8 at α = 18
+remains an ESTIMATE and is the weakest link in the chain.** The compressible arm
+binds by **7.81×**, so §2.3's argument stands unchanged — indeed it **binds
+harder** than v1.0 claimed.
+
+**At the v1.0 spacing the corrected numbers put L1 at predicted y+ = 0.974 —
+under 1 by 3 %. That is not a margin, it is a coin toss on an estimated
+incidence factor.** `s0` is therefore re-derived, not merely re-labelled:
+
+| | v1.0 s0 (struck) | **v1.1 s0** | predicted y+ comp | y+ inc | growth |
+|---|---|---|---|---|---|
+| L1 | ~~3.0e-6~~ | **2.5e-6** | **0.811** | 0.104 | 1.2548 |
+| L2 | ~~1.5e-6~~ | **1.25e-6** | **0.406** | 0.052 | 1.1196 |
+| L3 | ~~7.5e-7~~ | **6.25e-7** | **0.203** | 0.026 | 1.0580 |
+
+All three levels remain wall-resolved on **both** arms; margin at the binding
+level rises from 3 % to **19 %**. Growth ratios move by <0.4 % and stay far
+under the registered 1.35 ceiling. **Cell counts, refinement ratio r = 2, the
+1.35 ceiling, marchDist = 20, the staging, the caps and the item ceiling are
+UNCHANGED** — only `s0` moves, so §7's cost stands (a marginally higher
+near-wall aspect ratio is well inside the EXTRAPOLATED band, and the caps bind
+regardless).
+
+## 12.5 WHAT THIS AMENDMENT DOES NOT CHANGE
+
+The wall-treatment finding (§4) is untouched and was evidence, not inference:
+`useWallFunction: False` → `nutLowReWallFunction` at `DAField.C:1207-1230`, the
+branch firing only on `type wall` patches with A1's `wing` patch **checked** to
+be one. Standard SA needs no low-Re variant — fv1 **is** the near-wall damping.
+§3.4 stands: **the mesh is not re-cut until y+ passes; an overshoot is a
+registered outcome, and that line holds even though the corrected Re makes an
+overshoot more likely.** §6's two-directional stall trap, §8's registered
+outcomes and the lane's prior all stand.
+
+## 12.6 RE-PINNED INSTRUMENT
+
+`a1wr_genmesh.py` is amended in the same commit: `BASE["s0"]` 3.0e-6 → 2.5e-6,
+and its header block now carries the read constants, the measured chord, the
+`transport const` note and the anchored-vs-estimated split. **Its `--selfcheck`
+was re-driven after the edit and returns rc 0**, including the mutation control
+(which now reports `s0 L2 1.25e-06 -> 2.5e-06`, confirming the control re-armed
+against the new value rather than passing on a stale literal).
+
+Its sha is re-pinned by the commit landing this amendment, superseding the
+v1.0 pin in §11. **The grading path is re-fixed at that commit.**
