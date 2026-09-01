@@ -582,6 +582,42 @@ yet. No disclosure is required on any level, and none is made.
 **Cost calibration, L1 (rule 12):** 17.45 core-minutes actual against a 17.0
 point estimate — **ratio 1.03** — inside a 45.0 cap, `capped=0`.
 
+#### FOURTH READING — 20:36:29Z. TWO OF THREE COMPLETE; L3 STILL SOLVING.
+
+**T23G2_L2 completed at 20:33:48Z.** Re-derived here rather than accepted from
+the relay that reported it. **All six clauses met by measurement:**
+
+| # | clause | L2 |
+|---|---|---|
+| 1 | `rc = 0` | `rc=0` (`STATUS.T23G2_L2`) |
+| 2 | `End` line | 1 |
+| 3 | last time == `endTime` | `Time = 12000` vs `endTime 12000` |
+| 4 | fields at `endTime` | fluid `T U alphat k nut omega p p_rgh phi rho`; housing `T p wallHeatFlux`; core `T p` |
+| 5 | `ExecutionTime` count == `endTime` | 12000 |
+| 6 | **age guard** | **PASS on all three regions, 85 min** — `0/<region>/T` 19:08:31Z against `12000/<region>/T` 20:33:48Z |
+
+`FOAM FATAL` 0. **L3 at Time 2424 and advancing.**
+
+**A false negative of my own, caught by listing the parent.** My first sweep of
+clause 6 `stat`-ed `T23G2_L2/0/T` and got nothing, which would have read as "no
+reference field, age guard cannot be evaluated". **`0/T` does not exist because
+this is a multi-region case** — the initial fields are `0/fluid/T`,
+`0/housing/T`, `0/core/T`. Listing `0/` showed the three region directories and
+the guard then evaluated cleanly on all three. Same rule as §9.7a, and the same
+remedy every time: **read the parent, do not test a constructed path.**
+
+**Cost calibration, L2 (rule 12):** **85.30 core-minutes actual against an 89.6
+point estimate — ratio 0.952** — inside a 220.0 cap, `capped=0`.
+
+**Ladder cost so far:** L1 17.45 against 17.0 (1.03) and L2 85.30 against 89.6
+(0.952). Both within 5 % of prediction in opposite directions, on estimates
+derived from this rung's own measured rates.
+
+**Screen 8 now reads on its strongest footing yet: two of three levels complete
+and the third running.** It still licenses **nothing** about the result — no
+observed order, no GCI, no band, until `analyse_t23g2.py` runs on the finished
+ladder and its y+ gate decides whether a band exists at all.
+
 **Two reds were raised by my own first sweep and both were cleared by reading
 the line rather than inferring from the count** — an inference either way would
 have been wrong:
