@@ -10296,6 +10296,125 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T00:1xZ — **DEMO-READINESS GAPS FROM A READ-ONLY STAGING AUDIT. ⛔ NONE OF THESE IS heat-transfer's TO FIX — THEY ARE BOARDED HERE ONLY BECAUSE THIS SECTION IS THE CHANNEL THAT SURVIVES.**
+
+*(Pure insertion by a heat-transfer `lab-lane`; nothing below edited or deleted. **Read-only audit — no surface, no router file and no STL was modified by this lane, and none may be.** Every claim below was **re-derived at source by this lane**, and **two of the commissioning message's mechanism claims DID NOT REPRODUCE and are corrected here.** **VERIFY** marks anything not personally confirmed.)*
+
+---
+
+### H. ⛔ THE CONTROL-ROOM ROUTER REFUSES THERMAL PROMPTS — **ON THE CHIEF'S DESK, NOT OURS**
+
+`sdk/chief_engineer/router.py:294` sets `LAB_DOMAIN` to *"incompressible external aerodynamics, forces and coefficients via steady or unsteady RANS"*. `_OUT_OF_SCOPE_DOMAINS` at **:296–306** carries a **`"heat transfer or thermal analysis"`** entry firing on `heat transfer`, `heat flux`, `conjugate heat`, `thermal (analysis|management|load|field|stress)`, `conduction`, `convective heat`, `radiativ*`, `boiling`, `nusselt` [read at source].
+
+**⚠️ MECHANISM CORRECTION — THE COMMISSIONING MESSAGE SAID THESE WERE "DRIVEN THROUGH THE ROUTER'S OWN `classify()`". THEY WERE NOT, AND `classify()` DOES NOT GATE SCOPE AT ALL.** Established by this lane two ways: an **AST walk over `classify()`'s body reports `out_of_scope_domain` is NOT among its calls**, and a repository grep finds the function consumed in exactly one production site — **`sdk/chief_engineer/server.py:827`** (the only other hits are its own definition at `:321` and `sdk/tests/test_orchestration_stack.py`). **The refusal is a SEPARATE server-side gate, not a routing decision.** Driving `classify()` on the thermal prompts returns `unseen-geometry` / `general-mission` and **never a refusal** — so anyone re-checking this through `classify()` will conclude, wrongly, that there is no problem.
+
+**THE PROMPT OUTCOMES THEMSELVES REPRODUCE EXACTLY**, driven by this lane through `out_of_scope_domain()`, the function the server actually calls [MEASURED]:
+
+| prompt | result |
+|---|---|
+| *"thermal map of this motor in a duct"* | **`None` — IN DOMAIN ✅** |
+| *"Run conjugate heat transfer on this motor-in-duct"* | ⛔ **REFUSED** |
+| *"How hot does this battery module get during takeoff"* | **`None` — IN DOMAIN ✅** |
+| *"Thermal management of this battery module"* | ⛔ **REFUSED** |
+| *"thermal analysis of this duct"* | ⛔ REFUSED |
+| *"conduction in this bracket"* | ⛔ REFUSED |
+| *"nusselt number for this duct"* | ⛔ REFUSED |
+| *"Optimise the lift-to-drag of this wing"* (aero control) | `None` — in domain |
+
+**THE ACTS ARE PROMPT-FRAGILE AND TWO OF THE MOST NATURAL PHRASINGS REFUSE ON CAMERA — INCLUDING `conjugate heat transfer`, WHICH IS THE PHYSICS NAME PRINTED ON ACT A'S OWN SHEET.**
+
+**✅ SAFE-PROMPT LIST — THE IMMEDIATE REMEDY, NEEDS NO CODE CHANGE:**
+
+> **USE:** *"thermal map of this motor in a duct"* · *"How hot does this battery module get during takeoff"*
+> **AVOID THE WORDS:** conjugate · thermal management · thermal analysis · conduction · nusselt · heat transfer · heat flux · convective heat · radiative · boiling
+
+---
+
+### I. **THERE IS NO THERMAL MISSION IN THE ROUTER AT ALL — the deeper finding. ON THE CHIEF'S AND SANAA'S DESK.**
+
+**Confirmed, and by a stronger method than the one relayed:** the router's intent constants are enumerated at `router.py:43–56` (plus the named-body and study constants below) — `shape-optimization`, `aircraft-optimization`, `valve-study`, `time-constrained`, `unseen-geometry`, `uncertainty-reduction`, `geometry-study`, `race-comparison`, `cylinder-vortex-shedding`, `supersonic-wedge`, `supersonic-cone`, `diamond-airfoil-wave-drag`, `hypersonic-cylinder`, `general-mission`, `adjoint-optimization`, `sobol-sensitivity`. **A search for any thermal or heat intent constant returns ZERO** [MEASURED]. **THE GUI CANNOT RUN THE THERMAL SOLVE THE SHEETS REPORT.** Those numbers come from the T-family runs.
+
+**⚠️ EVIDENCE CORRECTION: the claim that "every act prompt tested, and an in-domain aerodynamic control alike, routes to `geometry-study`" DOES NOT REPRODUCE.** This lane's drive of `classify()` returns **`unseen-geometry`** for the two motor-in-duct prompts, **`general-mission`** for the two battery prompts, and **`aircraft-optimization`** for the aero control — **four distinct intents, none of them `geometry-study`.** **The conclusion stands on the intent census above and does not need that claim; the claim itself should not be repeated.**
+
+**THE QUESTION FOR THE CHIEF AND SANAA, STATED NEUTRALLY AND DELIBERATELY NOT ANSWERED HERE:**
+
+> **If the acts are meant to show the GUI PRODUCING these results live — that is NOT READY, and no amount of staging fixes it.**
+> **If the GUI provides the upload → geometry → mesh arc while the one-page sheet carries the physics — then the safe-prompt list above is the whole remedy.**
+
+**This lane does not assert which was intended, and neither should a successor.**
+
+---
+
+### J. ⚠️ ACT A's DISPLAY SURFACE DOES NOT MATCH THE SOLVED GEOMETRY — **NEEDS AN OWNER; NOT heat-transfer's**
+
+`cases/demo-surfaces/motor_in_duct.stl` measured by this lane from the binary triangles: **axial extent x = 0.000 → 0.200 m, exactly 0.200 m**; y and z span ±0.130 m.
+
+The case behind sheet A solved **0.750 m** of duct: `T23_P305_U10/build_t23.py:32` sets `Z0, Z1, Z2, Z3 = -0.250, 0.0, 0.125, 0.500`, i.e. −0.250 → +0.500 [MEASURED]. **0.750 / 0.200 = 3.75×.**
+
+**What matches** [MEASURED from the same builder]: duct inner radius `R_DUCT = D_DUCT/2 = 0.125 m`; hub outer radius `R_O = 0.0375 m`, i.e. **hub diameter 0.075 m**; housing length `L_HOUS = 0.125 m`.
+
+**What does not:** the STL carries **three radial struts that were never solved** — `build_t23.py:4-8` states the centrebody is *"a constant-radius r_o = 0.0375 m tube over the whole axial extent"* with *"no blunt faces, no separation"* — and the STL is a **full 360° revolve where the solve is a 5° wedge**.
+
+**ROOT CAUSE:** the STL is dimensioned from `F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md`, **a cfd-team case**, not from the T23/T24 rungs behind the sheet — its own header says `D=0.25 L=0.2`.
+
+**⚠️ MITIGATION, BOARDED SO NOBODY OVER-REACTS: the Act A sheet PRINTS NO DIMENSION AT ALL, so nothing on the page numerically contradicts the surface.** The exposure is **a customer who measures the uploaded file, not one who reads the sheet.** **VERIFY** — this lane measured the STL and the builder, and did not re-read Act A's `.tex` to confirm the no-dimension claim.
+
+---
+
+### K. ⚠️ AN R5 LEAK IN A USER-DOWNLOADABLE FILE — **NEEDS AN OWNER; DELIBERATELY NOT FIXED**
+
+The motor STL's 80-byte binary header reads, verbatim [MEASURED by this lane]:
+
+> `ACT A motor-in-duct display surface (F28 D=0.25 L=0.2 Dhub=0.075)`
+
+**`F28` is an internal case id, and R5 says internal case ids are NEVER user-visible.** The file is downloadable over the GUI's `/api/surfaces`. **The GUI does not render the header, so it bites only if someone opens the file.** The Act C header is clean — *"ACT C battery module 8 cells 100x30mm 3mm channels (display 120mm tall)"* [MEASURED].
+
+**The fix is an 80-byte header rewrite that touches no geometry. ⛔ IT HAS DELIBERATELY NOT BEEN TAKEN, because Sanaa is in the GUI and may upload that file at any moment.** A successor must not take it unilaterally either.
+
+---
+
+### L. ✅ ACT C's SURFACE IS CORRECT — **AND THIS IS A SUPERVISOR CORRECTION, THE THIRD OF THE SESSION**
+
+A lane was briefed to check the module STL against a solved box of **(0.1, 0.261, 1.0) m**. **The lane REFUSED THE PREMISE AND WAS RIGHT:** the registered case is **2-D**, and the 1.000 m is **OpenFOAM's UNIT-DEPTH EMPTY DIRECTION, not a physical extent.** `cases/demo-surfaces/generate_demo_stls.py:32-34` says so on its face: *"the registered case is 2D at UNIT DEPTH; the 120 mm cell height here is a display extrusion only"* [read at source].
+
+**⛔ BUILDING THE STL TO A 1 m BOX — THE LITERAL READING OF THE INSTRUCTION — WOULD HAVE HANDED A CUSTOMER A ONE-METRE-TALL BATTERY CELL.** The STL's 120 mm is a display extrusion and is the honest choice.
+
+**The cell stack matches the solve to the micron in x and y** [MEASURED]: cells span x 0 → 0.100 and y 0 → 0.261, and **8 × 0.030 + 7 × 0.003 = 0.261 exactly**. (The STL bounding box is slightly larger — x −0.006 → 0.106, y −0.010 → 0.271, z −0.004 → 0.120 — because of the thin base plate and two end plates, themselves declared display choices in the same docstring.) **Nothing was changed, and nothing should be.**
+
+---
+
+### M. ✅ GOOD NEWS, BOARDED SO THE PICTURE IS NOT ALL RED
+
+- **Both STLs are tracked at HEAD and byte-identical to it** — verified per file by this lane with `git hash-object` against `git rev-parse HEAD:<path>`: `motor_in_duct.stl` and `battery_module_8cell.stl` both **TRACKED + IDENTICAL** [MEASURED].
+- **⚠️ AND THE TRAP THAT COMES WITH IT: `git ls-files` reports them UNTRACKED. That is the stale shared index, not the truth.** `git cat-file -e HEAD:<path>` / `git rev-parse HEAD:<path>` is the authority. **This is the same shared-index staleness §10 warns about and the same shape as the §8 demo-sheet false alarm two commits ago — third instance tonight.**
+- **The GUI reads no sheet artifacts from anywhere, so there is NO staging gap and nothing to move.** **VERIFY** — relayed, not re-derived by this lane.
+- **The FINAL R5 scan on both sheets returned ZERO case-sensitive hits** across both `.tex` sources **and** both rendered PDFs, validated by a planted control returning **27/27** through the full `tex → pdflatex → pdftotext` pipeline; both compile **rc 0 to exactly one page**. **This supersedes §F's `PENDING FINAL SCAN`.** **VERIFY** — relayed; this lane did not run the scan or the compile.
+
+---
+
+### N. ⚠️ ONE DISCLOSED INSTRUMENT LIMIT FROM THAT SCAN — BOARDED RATHER THAN LEFT TO BE FOUND LATER
+
+**A first planted control at the END of Act C's document changed the PDF but produced ZERO hits — a control that SILENTLY FAILED TO PLANT.** The lane **chased it rather than accepting it**, re-planted after `\begin{document}`, and got 27/27.
+
+**RESIDUAL, STATED HONESTLY: content at the very tail of Act C's full page can fail to render or extract, so the PDF-text sweep for Act C is validated EVERYWHERE EXCEPT THAT TAIL ZONE.** The `.tex` source sweep covers it completely and **is the authoritative artifact**. **The tail behaviour is UNEXPLAINED and is not claimed to be understood.** **VERIFY** — relayed in full; this lane did not reproduce it.
+
+*(This is rule 3 working as intended: a zero was refused until the reader was shown able to see a non-zero, and the one place it still cannot be shown is named rather than papered over.)*
+
+---
+
+### O. OWNERSHIP — **NONE OF §H–§N IS heat-transfer's TO FIX**
+
+| item | owner |
+|---|---|
+| §H router refuses thermal prompts | **THE CHIEF'S DESK** |
+| §I no thermal mission in the router | **THE CHIEF AND SANAA** — the live-GUI-vs-sheet question is theirs to answer |
+| §J Act A surface ≠ solved geometry | **NEEDS AN OWNER** — shared demo asset, not our territory |
+| §K `F28` R5 leak in the STL header | **NEEDS AN OWNER** — not to be touched under a live GUI session |
+| §L Act C surface | **CLOSED — correct as built, nothing to do** |
+| §M/§N scan and tracking | **CLOSED / disclosed** |
+
+**The surfaces under `cases/demo-surfaces/` are shared demo assets and sit outside heat-transfer's folder scope.** This lane audited them read-only and changed nothing.
+
 ##### ADDENDUM 2026-08-31T23:5xZ — **BOARD TOP-UP: ⛔ THE BATTERY RAN AND IS COMPLETE. T18 IS DECLARED `PASS`. THE LEAD ITEM OF THE BLOCK BELOW IS SUPERSEDED — READ THIS FIRST.**
 
 *(Appended by the same `lab-lane`. **Pure insertion; nothing below is edited or deleted** — the superseded lines stay legible so a successor can see what changed and why. Every sha, count and number below **re-derived at source by this lane**, not taken from the commissioning message; where this lane's figure differed, the difference is stated. **VERIFY** marks anything not personally confirmed.)*
