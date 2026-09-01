@@ -121,15 +121,37 @@ Three live reachability paths, measured:
    lines 130–136 record that `server.py` resolves a named geometry and lands an
    upload at `HERE.parent / "geometry"`. Any route that names
    `motor_in_duct.stl` therefore renders the retired body.
-2. **Stale mission-state replays do exactly that.**
-   `/home/ubuntu/Certonomous/sdk/chief-engineer-runs/mission-state/m-5c2ad641e8d8.events.jsonl`
-   (sequence 11) and `.../m-b7d49b915bc2.events.jsonl` (sequence 11) both emit:
-   `geometry.ready` → `{"url": "/api/geometry?name=motor_in_duct.stl", "label": "Motor in duct"}`.
-   Replaying either puts the retired body on screen under the label "Motor in duct".
-3. **Those same logs are a non-thermal run.** They are a `geometry-study` intent
-   at an *assumed* 100 m/s freestream, 445,436 cells, 300 iterations, C_d 3.389 —
-   incompressible external aero, not the conjugate thermal solve. See also §5.3,
-   which is where this becomes a certificate problem.
+2. **Stale mission-state replays do exactly that — in THREE logs, not two.**
+   All 783 `*.events.jsonl` files under
+   `/home/ubuntu/Certonomous/sdk/chief-engineer-runs/mission-state/` were parsed
+   deterministically this session (JSON per line, not by text search — a `grep`
+   sweep over the same directory returned an inconsistent subset, which is the
+   ugrep ignore/race behaviour of L-`grep-honours-ignore-files` and is why this
+   was enumerated in Python instead). Exactly three logs emit `geometry.ready`
+   pointing at the retired body:
+
+   | Log | `mission.routed` intent | `geometry.ready` label |
+   |---|---|---|
+   | `m-5c2ad641e8d8.events.jsonl` | `geometry-study` | `Motor in duct` |
+   | `m-b7d49b915bc2.events.jsonl` | `geometry-study` | `Motor in duct` |
+   | **`m-942be0f630b7.events.jsonl`** | **`thermal-display`** | **`reference body: Motor in duct`** |
+
+   All three carry `"url": "/api/geometry?name=motor_in_duct.stl"`.
+
+3. **The third one is the dangerous one, and it is a THERMAL route.**
+   `m-942be0f630b7` is not a geometry study. Its intent is `thermal-display`,
+   its own rationale reading *"Reading this as a thermal question about a body
+   this lab has already run. No solver starts and no new number is produced: I
+   will put the screens up from that run's…"*. **It is a thermal mission serving
+   the retired geometry under the label "reference body".** That is the defect as
+   originally briefed, found at last on this route rather than in the demo-mode
+   act. A fix that quarantines only the two `geometry-study` logs leaves this one
+   standing — the same "one path fixed, the other still there" pattern as the two
+   STL copies, one level up.
+
+   The two `geometry-study` logs are additionally a non-thermal run: an *assumed*
+   100 m/s freestream, 445,436 cells, 300 iterations, C_d 3.389 — incompressible
+   external aero. See §5.3, where this becomes a certificate problem.
 
 ### 2.3 The swap, specified precisely
 
@@ -145,8 +167,11 @@ route.
 - **D-A2** Remove or quarantine `/home/ubuntu/Certonomous/cases/demo-surfaces/motor_in_duct.stl`.
 - **D-A3** Fix `/home/ubuntu/Certonomous/cases/demo-surfaces/generate_demo_stls.py` so it
   no longer regenerates the retired body. **D-A1 and D-A2 without D-A3 are not a fix.**
-- **D-A4** Quarantine or gate the two stale mission-state event logs named in
-  §2.2 item 2 so they cannot be replayed into a capture.
+- **D-A4** Quarantine or gate **all THREE** stale mission-state event logs named
+  in the §2.2 item 2 table — `m-5c2ad641e8d8`, `m-b7d49b915bc2` **and
+  `m-942be0f630b7`** — so none can be replayed into a capture. **The third is the
+  `thermal-display` one and is the one most likely to be reached from a thermal
+  prompt; a fix naming only the two `geometry-study` logs is not a fix.**
 - **D-A5** Correct `/home/ubuntu/Certonomous/cases/demo-surfaces/README.md` line 12,
   which still labels `motor_in_duct.stl` as *"DEMO STANDARD v2 Act A — motor in
   duct"*. That label sends the next reader straight back to the retired body and
@@ -369,15 +394,42 @@ Two measured hazards make this more than a wording question:
    73–74 alias `TREND ONLY` → `SOLVER-BACKED` and
    `REFERENCE REGIME MISMATCH` → `SOLVER-BACKED`. A weak input becomes a
    confident badge on output. **`build_certificate_v2` must not be wired to Act A.**
-2. **A certificate for "motor in duct" already exists on disk and is for the
-   wrong run.** `sdk/chief-engineer-runs/mission-state/m-5c2ad641e8d8.events.jsonl`
-   sequence 196 emits `certificate.ready` with
-   `certificate_no C-2026-7101`, `tier SOLVER-BACKED`,
-   `mission_id geometry-study-motor_in_duct`, path
+2. **TWO certificates for "motor in duct" already exist on disk, and both are
+   for the wrong run.** The same deterministic scan of all 783 mission-state
+   logs (§2.2) found two `certificate.ready` events, not one:
+
+   | Log | `certificate_no` | tier | `mission_id` |
+   |---|---|---|---|
+   | `m-5c2ad641e8d8.events.jsonl` | **C-2026-7101** | `SOLVER-BACKED` | `geometry-study-motor_in_duct` |
+   | `m-b7d49b915bc2.events.jsonl` | **C-2026-3012** | `SOLVER-BACKED` | `geometry-study-motor_in_duct` |
+
+   Both certify the 445,436-cell incompressible aero run of §2.2, **not** the
+   conjugate thermal solve. Both write to
    `/home/ubuntu/Certonomous/mission-output/geometry-study/certificate.pdf`.
-   That is the 445,436-cell incompressible aero run of §2.2, **not** the thermal
-   solve. If any Act A report surface reads a certificate by mission name, it
-   will surface that one.
+
+   **And that path is keyed by INTENT, not by body — it is last-writer-wins
+   across different geometries.** The file sitting there now (10,806 bytes,
+   mtime 2026-09-01 04:45Z) is **neither** of the two above. Read this session,
+   it carries:
+
+   > Certificate No. **C-2026-7890** · Fidelity: **SOLVER-BACKED** ·
+   > Mission **geometry-study-airfoil_blown_slot**
+
+   That is the **jet-flap** body. Three different geometries — `motor_in_duct`
+   twice and `airfoil_blown_slot` once — have written a certificate to that one
+   path, each overwriting the last.
+
+   **Consequence for Act A:** a report surface that resolves "the geometry-study
+   certificate" would today display a SOLVER-BACKED credential for the jet flap
+   underneath the motor act. The certificate at that path cannot be identified by
+   body without opening it, and its number is no guide to what it certifies.
+   This is a second, independent reason the §5.3 refusal block must be rendered
+   from an explicit "not issued" state and must never resolve a certificate by
+   mission or intent name.
+
+   **Worth flagging beyond this act:** the same last-writer-wins path affects any
+   act whose output lands under `mission-output/<intent>/`, which is cfd's
+   territory rather than ours — raised, not actioned.
 
 **Proposed refusal form — the block says what was and was not established:**
 
