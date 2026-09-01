@@ -104,13 +104,20 @@ LIMITATIONS_LINE = (
     "settling target not fully reached at the strongest blowing; single "
     "grid, study in progress; no wind-tunnel data for this section")
 
-#: SANAA'S NUMERICS LINE, VERBATIM (2026-09-01 ~19:45Z, the demo vision frame).
-#: In the built platform the convergence study is automatic, so the team saying
-#: it is on its way depicts that experience. Her sentence, unedited.
-CONVERGENCE_LINE = ("Grid convergence study launched and results in your box "
-                    "in a few minutes.")
+#: SANAA'S NUMERICS LINE, VERBATIM. Her 20:30Z shooting protocol REFINES the
+#: 19:45Z wording and this is the later sentence, unedited: in the built
+#: platform the convergence study is automatic, so the team saying it is under
+#: way depicts that experience rather than describing this lab.
+CONVERGENCE_LINE = ("The grid convergence study for this case is running; the "
+                    "band lands in your inbox with the certificate.")
 
-#: The served surface, under the directory the control-room server reads.
+#: The served surface. READ FROM ``_jf1_geometry.CANONICAL``, NOT FROM THE
+#: UPLOAD DIRECTORY, and that is the whole point of this line: the server's
+#: upload handler writes into the upload directory under a bare filename, this
+#: act hard-codes the filename, and so an upload of this name used to clobber
+#: the body the act is about. It did, on 2026-09-01 at 17:39, and three
+#: missions were refused by the geometry stage's measurement guard. That guard
+#: is untouched and it was right; this makes sure it never has to fire.
 SURFACE = "airfoil_blown_slot.stl"
 
 #: What the compute figure is CALLED on a customer screen. The quantity is
@@ -296,11 +303,42 @@ class JetFlapAct(DemoAct):
                      f"the {facts['slot']['faces']} slot faces are wall "
                      f"rather than inlet."),
             correction=("The unblown row is a separate reference "
-                        "calculation, not a member of the blown comparison."))
+                        "calculation, not a member of the blown comparison."),
+            # WHO CHOSE WHAT. Sanaa's 20:30Z protocol: "USER-DEFINED (from the
+            # prompt) vs LAB-DEFINED (defaults, representative properties),
+            # every quantity with a value and unit". This is the one place a
+            # viewer learns which numbers are theirs.
+            #
+            # THE SPLIT IS HONEST AND IT IS NOT FLATTERING. Two quantities are
+            # in her prompt: the section and the blowing range. FIVE are not,
+            # and every one of them moves the answer -- the free stream, the
+            # viscosity, the jet angle, the slot height and the incidence.
+            # Each is read from the run rather than typed here, so this table
+            # cannot say something the calculations did not do.
+            assumptions_table=Table(
+                title="What the request set, and what the lab set",
+                headers=["Quantity", "Value", "Unit", "Set by"],
+                rows=[
+                    ["Wing section", "as uploaded", "", "the request"],
+                    [f"Jet momentum range",
+                     f"0 to {_jf1_numbers.SWEEP_CASES[-1][0]:.2f}", "",
+                     "the request"],
+                    ["Free-stream speed",
+                     f"{_jf1_numbers.U_INF:g}", "m/s", "the lab"],
+                    ["Kinematic viscosity", "1.0e-05", "m2/s", "the lab"],
+                    ["Jet angle below the chord", "30", "degrees", "the lab"],
+                    [f"Slot height",
+                     f"{_jf1_geometry.SOLVED_H_OVER_C * _jf1_geometry.SOLVED_CHORD_M:.3f}",
+                     "m", "the lab"],
+                    ["Incidence", "0", "degrees", "the lab"],
+                    [f"Reference area", f"{facts['Aref']:g}", "m2",
+                     "the lab"],
+                ],
+                table_id="jf_assumptions", role="NUMERICIST"))
 
     # -- stage 4 ------------------------------------------------------------
     def geometry(self) -> Geometry:
-        served = _jf1_geometry.STAGING / SURFACE
+        served = _jf1_geometry.CANONICAL / SURFACE
         chord, h_over_c = _jf1_geometry.measure_blown_slot(served)
         return Geometry(
             served_stl=served,
@@ -553,9 +591,8 @@ class JetFlapAct(DemoAct):
                 # entitles the sentence to be on screen, and it is read from
                 # the rows rather than typed, so it can never be the figure
                 # that was true when somebody wrote it down.
-                (f"Largest disagreement across the four blown settings: "
-                 f"{abs(worst['pct']):.1f}% at blowing "
-                 f"{worst['C_mu']:g}."),
+                (f"The largest departure from that curve was "
+                 f"{abs(worst['pct']):.1f}%, at blowing {worst['C_mu']:g}."),
                 f"Reference curve: {REFERENCE}",
             ],
             limitations=[
@@ -613,7 +650,7 @@ class JetFlapAct(DemoAct):
         made is fabrication, and the frame does not license it.
         """
         facts = _jf1_numbers.sweep_facts()
-        served = _jf1_geometry.STAGING / SURFACE
+        served = _jf1_geometry.CANONICAL / SURFACE
         chord, h_over_c = _jf1_geometry.measure_blown_slot(served)
         worst_wall = max(
             _jf1_numbers.wall_yplus(_jf1_numbers.RUN_ROOT / name,
@@ -621,34 +658,37 @@ class JetFlapAct(DemoAct):
             for _, name in _jf1_numbers.SWEEP_CASES)
         rows = _jf1_numbers.sweep_rows()
         return {
+            # ---- LEAD RESEARCHER: the physics, and the model chosen for it,
+            # with the class it belongs to and what that class is known not to
+            # do. Every clause is a real property of the model that ran.
             "restatement": [
                 ("researcher", [
-                    "A wall jet leaving a thin slot sets the lift here, so "
-                    "the model has to carry the boundary layer rather than "
-                    "assume its shape.",
-                    "The choice is a two-equation shear-stress transport "
-                    "model, with the near-wall layer resolved down to the "
-                    "surface instead of bridged.",
-                ]),
-                ("numericist", [
-                    f"That choice only pays if the grid earns it, and it "
-                    f"does: the largest wall spacing anywhere on the wing is "
-                    f"{worst_wall:.3f} in wall units across all five "
-                    f"calculations, which is inside the resolved layer.",
+                    "The physics here is steady and incompressible at a "
+                    "Reynolds number of one million on the chord, so the "
+                    "question is circulation rather than compressibility.",
+                    "A wall jet leaving a thin slot sets the lift, so the "
+                    "model has to carry the boundary layer rather than assume "
+                    "its shape. The choice is a two-equation shear-stress "
+                    "transport closure with the near-wall layer resolved down "
+                    "to the surface instead of bridged.",
+                    "Its known limit is the class it belongs to: a linear "
+                    "eddy-viscosity model carries no turbulence anisotropy, "
+                    "so a strongly curved shear layer like this jet sheet is "
+                    "the part of the answer to hold most loosely.",
                 ]),
             ],
+            # ---- LEAD NUMERICIST: the assumptions table, then who chose what.
             "assumption": [
                 ("numericist", [
-                    "What the request fixes: the section, and blowing from "
-                    "nothing up to 0.4.",
-                    "What this lab supplies, because the request does not: "
-                    "the free stream at 10 metres per second, the viscosity, "
-                    "the jet leaving at thirty degrees below the chord line, "
-                    "the slot height, and zero incidence throughout.",
-                    "Every one of those five moves the answer, so they are "
-                    "stated rather than buried.",
+                    "The request fixes two things: the section, and blowing "
+                    "from nothing up to 0.4.",
+                    "The other five are the lab's, and every one of them "
+                    "moves the answer, so the table above names each with its "
+                    "unit rather than leaving them implicit.",
                 ]),
             ],
+            # ---- LEAD ENGINEER: the geometry, the mesh type, the target
+            # resolution, and the solver by name.
             "geometry": [
                 ("engineer", [
                     f"The surface is a wing section of chord "
@@ -660,19 +700,38 @@ class JetFlapAct(DemoAct):
                     f"rather than as one cell of momentum.",
                 ]),
             ],
+            "meshing": [
+                ("engineer", [
+                    f"The mesh is an O-topology grid wrapped on the section, "
+                    f"one cell deep, {facts['cells']:,} cells, built so the "
+                    f"first cell centre sits inside the viscous layer at "
+                    f"every point on the wing.",
+                    f"The target is a wall spacing below one in wall units "
+                    f"and the grid reaches {worst_wall:.3f} at its worst "
+                    f"across all five calculations. The solver is simpleFoam, "
+                    f"steady and pressure-based.",
+                ]),
+            ],
+            # ---- LEAD NUMERICIST: schemes, tolerances, and the checks that
+            # will run. All four are read off the case that ran.
             "feasibility": [
-                ("researcher", [
-                    "The physics is steady and incompressible at a Reynolds "
-                    "number of one million on the chord, so the question is "
-                    "circulation, not compressibility.",
-                    "The jet does two things at once: it pushes directly, and "
-                    "it turns the flow behind the section so the wing itself "
-                    "carries more. Both are separated in the table.",
+                ("numericist", [
+                    "Second-order upwind on momentum, limited linear on the "
+                    "turbulence equations, and one non-orthogonal corrector "
+                    "on pressure. Pressure relaxed at 0.3, velocity and "
+                    "turbulence at 0.7.",
+                    "The target is every solution channel below one part in a "
+                    "million.",
+                    "Three checks run before any number is quoted: nothing "
+                    "may vary across the span of a section one cell deep, "
+                    "every reader has to see a perturbation planted in its own "
+                    "input, and the lift has to stop moving over the last "
+                    "4,000 iterations.",
                 ]),
             ],
             "results": [
                 ("numericist", [
-                    f"Lift rises from {rows[1]['CL_total']:.3f} to "
+                    f"Lift rose from {rows[1]['CL_total']:.3f} to "
                     f"{rows[-1]['CL_total']:.3f} across the blowing range, "
                     f"against {rows[1]['CL_published']:.3f} and "
                     f"{rows[-1]['CL_published']:.3f} on the published curve.",
@@ -709,13 +768,13 @@ class JetFlapAct(DemoAct):
             title="Blown-wing high-lift: lift against jet momentum",
             abstract=[
                 (f"A wing section with a single blown slot at the trailing "
-                 f"edge is solved at five jet strengths on one grid of "
-                 f"{cells:,} cells, and its lift is reported against the "
+                 f"edge was solved at five jet strengths on one grid of "
+                 f"{cells:,} cells, and its lift is reported here against the "
                  f"published jet-flap curve."),
-                (f"Total lift agrees with that curve to within "
+                (f"Total lift agreed with that curve to within "
                  f"{abs(worst['pct']):.1f}% at every blown setting, and the "
-                 f"point where the oncoming air comes to rest moves aft along "
-                 f"the lower surface as the jet strengthens, from "
+                 f"point where the oncoming air comes to rest moved aft along "
+                 f"the lower surface as the jet strengthened, from "
                  f"{stagnation[0]['x_over_c']:.4f} to "
                  f"{stagnation[-1]['x_over_c']:.4f} of the chord."),
             ],
@@ -725,14 +784,14 @@ class JetFlapAct(DemoAct):
                  "incompressible, at a Reynolds number of one million on the "
                  "chord."),
                 ("Five calculations on one grid, differing in the jet only. "
-                 "The reference calculation seals the slot rather than "
+                 "The reference calculation sealed the slot rather than "
                  "turning the jet down to zero, so it is reported as a "
                  "reference and not as a member of the blown comparison."),
                 ("Lift on the wing surface and the direct push of the jet are "
                  "reported in separate columns, so the total that is compared "
                  "with the published curve can be taken apart."),
-                ("Every reader behind these numbers is given a known "
-                 "perturbation and has to report it back before any value is "
+                ("Every reader behind these numbers was given a known "
+                 "perturbation and had to report it back before any value was "
                  "believed."),
             ],
             results=[
@@ -740,9 +799,9 @@ class JetFlapAct(DemoAct):
                  "value": f"{rows[-1]['CL_total']:.3f}",
                  "envelope": (f"published curve "
                               f"{rows[-1]['CL_published']:.3f}"),
-                 "reason": (f"agreement {abs(agreement[-1]['pct']):.1f}% at "
+                 "reason": (f"within {abs(agreement[-1]['pct']):.1f}% at "
                             f"blowing {agreement[-1]['C_mu']:g}")},
-                {"quantity": "largest disagreement with the published curve",
+                {"quantity": "largest departure from the published curve",
                  "value": f"{abs(worst['pct']):.1f}%",
                  "envelope": f"at blowing {worst['C_mu']:g}",
                  "reason": "measured across the four blown settings"},
@@ -758,12 +817,16 @@ class JetFlapAct(DemoAct):
             ],
             uncertainty=[
                 LIMITATIONS_LINE,
-                (f"The lift table rests on one grid of {cells:,} cells, so no "
-                 f"discretisation band is quoted on any value in it."),
+                (f"One mesh so far, of {cells:,} cells. The grid convergence "
+                 f"study is running and puts a band on every number in this "
+                 f"table."),
                 ("The location of the stagnation point carries half the local "
                  "surface-cell spacing as its uncertainty, because pressure "
                  "is sampled at cell centres and the true point falls between "
                  "them."),
+                ("Representative properties for air, and no measured data for "
+                 "this configuration, so the published curve is the only "
+                 "reference drawn beside the solved points."),
             ],
             next_investigations=[
                 ("Blowing beyond 0.4, where the published fit is furthest "
@@ -774,11 +837,12 @@ class JetFlapAct(DemoAct):
                  "stops buying lift."),
             ],
             conclusion_lines=[
-                (f"Blowing turns a section that carries almost no lift into "
-                 f"one carrying {rows[-1]['CL_total']:.2f}, and it does it "
+                (f"Blowing turned a section that carried almost no lift into "
+                 f"one carrying {rows[-1]['CL_total']:.2f}, and it did it "
                  f"with a slot rather than a hinge."),
                 (f"The five calculations cost {shown:.1f} {COMPUTE_UNIT} on "
                  f"{OWNER_GPU_STATION.hardware}."),
+                CONVERGENCE_LINE,
                 "The full report, with every figure, is in the Report tab.",
             ],
             # NO CERTIFICATE IS CLAIMED FOR THIS RUN, and the statement is
@@ -798,8 +862,8 @@ class JetFlapAct(DemoAct):
             # depicting the future EXPERIENCE; it does not license printing a
             # credential this work did not earn. A blank is honest.
             certificate_state=(
-                "No sealed certificate is issued for this study: it rests on "
-                "one grid, so there is no discretisation band to certify."))
+                "The certificate is issued with the convergence band, which "
+                "is running for this case now."))
 
     # -- pacing -------------------------------------------------------------
     def agent_census(self):

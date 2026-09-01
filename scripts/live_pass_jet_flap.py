@@ -142,11 +142,18 @@ ACT_KEY = "jet-flap"
 #: AND THEN MEASURED, in that order, which is the only way this number is
 #: worth gating on: adjusted afterwards to make a red go green it would gate
 #: on nothing.
+#: AMENDED AGAIN 2026-09-01 FOR THE ASSUMPTIONS TABLE. Sanaa's 20:30Z shooting
+#: protocol adds it to the expert-discussion beat: "USER-DEFINED (from the
+#: prompt) vs LAB-DEFINED (defaults, representative properties), every quantity
+#: with a value and unit". One further ``transcript.table`` on the assumption
+#: stage, so 3 -> 4 tables and 1292 -> 1293 events, and no new banner because a
+#: transcript table is not a sequencer publication. Predicted from the one added
+#: emit_table call, then measured.
 EXPECT = {
-    "total": 1292,
+    "total": 1293,
     "stage.banner": 636,
     "solve.frame": 605,
-    "transcript.table": 3,
+    "transcript.table": 4,
     "stage.begin": 9,
 }
 

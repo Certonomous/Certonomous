@@ -301,26 +301,57 @@ def test_a_conforming_act_validates(tmp_path, monkeypatch):
             stl.unlink()
 
 
-def test_a_generator_side_surface_is_refused():
-    """The served copy is not the generated copy: server.py resolves a named
-    body under sdk/geometry, while the demo-surface generator writes to
-    cases/demo-surfaces. Naming the generator's copy must fail."""
-    from workflows import demo_mode
-
+def _act_declaring(path):
     from workflows.demo_mode import Geometry
 
     act, _ = _example_act()
-    strayed = Geometry(
-        served_stl=Path("/home/ubuntu/Certonomous/cases/demo-surfaces/"
-                        "airfoil_blown_slot.stl"),
+    body = Geometry(
+        served_stl=Path(path),
         display_label="blown wing section",
         matches=[GeometryMatch("chord", Measured(1.0, "m", HERE),
                                Measured(1.0, "m", HERE), 1e-4)])
-    strayed_act = type("StrayedAct", (type(act),),
-                       {"geometry": lambda self: strayed})()
-    problems = [p for p in demo_mode.validate_act(strayed_act)
-                if "outside the directory the server reads" in p]
-    assert problems, "a generator-side surface must be refused"
+    return type("DeclaringAct", (type(act),),
+                {"geometry": lambda self: body})()
+
+
+def _root_problems(act):
+    from workflows import demo_mode
+
+    return [p for p in demo_mode.validate_act(act)
+            if "neither directory an act may declare its body from" in p]
+
+
+def test_a_surface_in_neither_served_directory_is_refused():
+    """WHAT THIS TEST ASSERTS CHANGED WITH THE RULE IT GUARDS, AND IT IS NOT
+    WEAKER.
+
+    It used to refuse the demo-surface generator's own output directory,
+    because the page fetched bodies only from ``sdk/geometry`` and naming the
+    generator's copy would let a regenerated surface serve a stale body. The
+    sequencer now COPIES the declared file into the served root and announces
+    that address, so the generator's directory is admissible and is in fact
+    the safer of the two: the server's upload handler writes into
+    ``sdk/geometry`` under a bare filename, and on 2026-09-01 an upload
+    replaced an act's body there and three missions were refused.
+
+    The refusal itself is unchanged in force. A body in NEITHER directory is
+    staged by nothing and fetched by nothing, and it is still refused.
+    """
+    stray = _act_declaring(Path(__file__).resolve().parent / "fixtures")
+    assert _root_problems(stray), "a body nothing stages must be refused"
+
+
+def test_both_admissible_surface_directories_are_accepted():
+    """The refusal above is shown to be about the DIRECTORY and not about
+    every path: both admissible roots pass the same check that refuses the
+    third. Without this the test above would still pass if the rule had been
+    changed to refuse everything."""
+    from workflows.demo_mode import (CANONICAL_SURFACE_DIR,
+                                     SERVED_GEOMETRY_DIR)
+
+    for root in (SERVED_GEOMETRY_DIR, CANONICAL_SURFACE_DIR):
+        act = _act_declaring(root / "airfoil_blown_slot.stl")
+        assert not _root_problems(act), f"{root} must be admissible"
 
 
 # -- R5: internal ids are never user-visible --------------------------------

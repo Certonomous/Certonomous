@@ -76,7 +76,8 @@ __all__ = [
     "assert_screen_safe", "screen_refusal_class", "validate_act",
     "core_minutes", "cost_line",
     "STAGES", "BANNERS", "NEVER_PHRASES", "RATE_USD_PER_CORE_HOUR",
-    "SERVED_GEOMETRY_DIR", "register_act", "registered_acts",
+    "SERVED_GEOMETRY_DIR", "CANONICAL_SURFACE_DIR",
+    "register_act", "registered_acts",
 ]
 
 
@@ -136,6 +137,27 @@ BANNERS: Mapping[str, str] = {
 #: moving what is served.
 SERVED_GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
 
+#: THE OTHER ROOT AN ACT MAY DECLARE ITS BODY FROM, and the safer one.
+#:
+#: The paragraph above states the hazard this rule was written for: declare the
+#: generator's copy while the page fetches the served copy, and a regenerated
+#: surface serves a stale body with nothing failing. That hazard is real and it
+#: has a twin that is worse, because it fires on somebody ELSE's action rather
+#: than on the act author's: the server's upload handler writes into
+#: :data:`SERVED_GEOMETRY_DIR` under a BARE FILENAME, so an upload named like
+#: an act's body REPLACES it. On 2026-09-01 at 17:39 one did, and three
+#: missions were refused by the geometry stage's own measurement guard.
+#:
+#: An act may therefore declare its body from the generator's tracked output
+#: directory instead. What makes that safe is not the directory: it is that
+#: :meth:`Sequencer._stage_surface` COPIES the declared file into the served
+#: root and announces THAT address, so the file the act measures and the file
+#: the page fetches are one file by construction rather than by hand. Declaring
+#: the generator's copy without that staging is the original hazard and is
+#: still refused, because nothing else would serve it.
+CANONICAL_SURFACE_DIR = (Path(__file__).resolve().parents[2]
+                         / "cases" / "demo-surfaces")
+
 #: The lab's recorded rate. Owner-stated 2026-08-21/22 and corroborated at
 #: ``Xiao2016_EnKF/PREREGISTRATION.md:197``. Any dollar figure derived from it
 #: is DERIVED, never measured: the box cannot read its own billing
@@ -156,16 +178,24 @@ RATE_USD_PER_CORE_HOUR = 0.0513
 #: narrow: a checker that fires on innocent prose gets switched off, and a
 #: checker that is switched off is how these strings survived a manual grep.
 NEVER_PHRASES: tuple[tuple[str, str], ...] = (
-    # THE REMEDY USED TO READ "say what was solved, in the past tense", and
-    # that is very probably why three past-tense strings reached the filmed
-    # screen in one day: the instrument built to catch them was advising
-    # authors to write them. Sanaa's 04:20Z order is "no past tense", later
-    # and stricter than the 03:40Z zone rule quoted at _RUNNING_SHAPES below,
-    # so present tense is the intersection and is what a remedy may recommend.
-    # A guard that recommends the defect it exists to catch is worse than no
-    # guard: it is a defect with an authority attached.
-    (r"already\s+finish(ed|es)?", "name the solve and its result, in the "
-                                  "present tense"),
+    # THIS REMEDY HAS BEEN WRITTEN THREE TIMES AND THE THIRD IS THE RIGHT ONE.
+    # It first read "say what was solved, in the past tense", which is very
+    # probably why three past-tense strings reached the filmed screen in one
+    # day: the instrument built to catch them was advising authors to write
+    # them. It was then corrected to "in the present tense", under her 04:20Z
+    # "no past tense". Her 20:30Z shooting protocol rules the conflict her two
+    # earlier directives left open, in her own words: "Present and progressive
+    # tense while running; past tense for results."
+    #
+    # SO THE REMEDY NAMES THE SLOT INSTEAD OF NAMING A TENSE. Which tense is
+    # right here depends on whether the line is a running line or a results
+    # line, and this list is applied to both. Reverting it wholesale to "past"
+    # would recreate the original defect on every running line; leaving it at
+    # "present" contradicts her later ruling on every results line. Naming the
+    # slot is correct under both, and the tense itself is enforced where the
+    # slot is known, in :func:`check_running_line`.
+    (r"already\s+finish(ed|es)?", "name the solve and its result: progressive "
+                                  "while it runs, past once it is a result"),
     (r"\bpresent(ing|s|ed)\b(?!\s+tense)", "say what the run did"),
     (r"nothing\s+new\s+is\s+solved", "state the solve as fact"),
     (r"no\s+compute\s+(is\s+)?booked", "state this run's real cost"),
@@ -396,12 +426,14 @@ def check_demo_language(text: str, *, zone: str = "screen") -> None:
 #: past tense for results.' Two shapes are accepted: a leading -ing verb, or a
 #: counted-progress line ("Sweep point 3 of 5", "Point 3 of 5").
 #:
-#: THE QUOTED CLAUSE "past tense for results" IS SUPERSEDED and is kept only
-#: because it is her wording and it is what these shapes were built from. Her
-#: 04:20Z order says flatly "no past tense", which is later and is not
-#: zone-aware. Nothing in this module may RECOMMEND past tense on the strength
-#: of the quote above; the running-line shapes are unaffected, because
-#: progressive satisfies both directives.
+#: THE QUOTED CLAUSE "past tense for results" IS IN FORCE AGAIN. It was marked
+#: superseded here under her 04:20Z "no past tense"; her 20:30Z shooting
+#: protocol restates the zone rule as binding, in her own words, "Present and
+#: progressive tense while running; past tense for results", which is the
+#: later ruling and settles the conflict rather than adding to it. The
+#: RUNNING-LINE SHAPES BELOW ARE UNAFFECTED AND HAVE BEEN THROUGH ALL THREE
+#: REVISIONS UNCHANGED, because progressive tense satisfies every reading of
+#: her rule; only the results half ever moved.
 _RUNNING_SHAPES: tuple[str, ...] = (
     r"^[A-Z][a-z]+ing\b",
     r"^(Sweep\s+point|Point|Operating\s+point|Case)\s+\d[\d,]*\s+of\s+\d[\d,]*\b",
@@ -410,22 +442,25 @@ _RUNNING_SHAPES: tuple[str, ...] = (
 #: A results line states a finished fact and must not promise. These are the
 #: tells that a running line was pasted into a results slot.
 #:
-#: THE FOUR PATTERNS ARE UNCHANGED; ONLY THE ADVICE IS. Each remedy read
-#: "results are past tense", which is the superseded 03:40Z rule, and these
-#: strings are what an author is handed at the moment they are rewriting a
-#: line. Every one of them pushed the author toward the exact wording the
-#: 04:20Z order forbids. The mechanism is untouched: "will", "is being", "are
-#: being" and "we are ...ing" are still refused in a results slot, and a
-#: present-tense finished fact ("All 5 sweep points complete, ...") passes
-#: exactly as a past-tense one did.
+#: THE FOUR PATTERNS HAVE NEVER CHANGED; THE ADVICE HAS, TWICE, AND THIS IS
+#: THE THIRD AND LAST WORDING. They read "results are past tense" (the 03:40Z
+#: zone rule), then "in the present tense" (the 04:20Z blanket prohibition),
+#: and neither was safe to leave: an author is handed one of these strings at
+#: the moment they are rewriting a line, so the remedy is the instruction that
+#: actually gets followed. Her 20:30Z shooting protocol rules the conflict --
+#: "Present and progressive tense while running; past tense for results" --
+#: and these four fire ONLY in the results slot, so past is what they may now
+#: recommend. The mechanism is untouched in all three revisions: "will", "is
+#: being", "are being" and "we are ...ing" are refused, and a finished fact in
+#: any tense passes.
 _RESULT_FORBIDDEN = (
     (r"\bwill\s+\w+", "a results line states a fact, not a promise"),
     (r"\bis\s+being\b",
-     "a results line states the finished fact, in the present tense"),
+     "a results line states the finished fact, in the past tense"),
     (r"\bare\s+being\b",
-     "a results line states the finished fact, in the present tense"),
+     "a results line states the finished fact, in the past tense"),
     (r"\bwe\s+are\s+\w+ing\b",
-     "a results line states the finished fact, in the present tense"),
+     "a results line states the finished fact, in the past tense"),
 )
 
 
@@ -436,16 +471,26 @@ def check_running_line(text: str, *, tense: str) -> None:
     ``"past"`` for a line shown with a result. Applies
     :func:`check_demo_language` first, so one call covers both rules.
 
-    ``"past"`` IS A SLOT NAME, NOT AN INSTRUCTION, and the name is now
-    misleading. It selects the RESULTS slot, whose rule is "state a finished
-    fact, do not promise" -- see :data:`_RESULT_FORBIDDEN`, which forbids
-    "will", "is being", "are being" and "we are ...ing" and says nothing about
-    the verb form of the fact itself. A present-tense results line passes.
-    Passing ``tense="past"`` does NOT license writing past tense, and under
-    Sanaa's 04:20Z "no past tense" it must not. The literal is left alone
-    rather than renamed because it is a public argument value used by acts
-    outside this team (``dmr_act``, ``adjoint_act``); renaming it is a
-    cross-team call, and it is flagged rather than taken here.
+    ``"past"`` SELECTS THE RESULTS SLOT, AND AS OF HER 20:30Z SHOOTING
+    PROTOCOL THE NAME IS ACCURATE AGAIN. Her refined rule, verbatim: "Present
+    and progressive tense while running; past tense for results." That settles
+    the conflict between her 03:40Z zone rule and her 04:20Z "no past tense",
+    which two earlier revisions of this module had to work around by taking
+    present tense as the intersection.
+
+    WHAT IS ENFORCED MECHANICALLY IS STILL ONLY THE PROMISE RULE. The results
+    slot refuses "will", "is being", "are being" and "we are ...ing" -- a
+    results line states a finished fact rather than promising one -- and it
+    does not inspect the verb form of that fact. A results line in the present
+    tense therefore still passes, which is deliberate: neutral finished forms
+    already on the filmed surface ("Solve complete", "This geometry, 39,984
+    cells") are correct under both readings of her rule, and a regex that
+    demanded a past participle would refuse them and force a churn of correct
+    strings. The tense of a results line is an authoring rule, stated here,
+    not a pattern.
+
+    The running slot IS enforced by shape, because progressive tense has one
+    (:data:`_RUNNING_SHAPES`).
     """
     check_demo_language(text)
     if tense == "progressive":
@@ -804,11 +849,19 @@ class Assumption:
     a user assumption, saving the user compute, or stating understanding and
     confidence before spending. This is the first of those. ``correction`` is
     empty when the user's assumption held, and the act says so plainly.
+
+    ``assumptions_table`` is Sanaa's 20:30Z addition and it is the one place a
+    viewer learns WHAT THEY CHOSE versus WHAT THIS LAB CHOSE: "USER-DEFINED
+    (from the prompt) vs LAB-DEFINED (defaults, representative properties),
+    every quantity with a value and unit". It is optional only because acts
+    written before it exist; an act without one says so to its supervisor
+    rather than leaving the viewer unable to tell the two apart.
     """
 
     assumption: str
     finding: str
     correction: str = ""
+    assumptions_table: "Table | None" = None
 
     def __post_init__(self) -> None:
         for text in (self.assumption, self.finding, self.correction):
@@ -909,12 +962,16 @@ class Geometry:
     (regenerate the STL from the solved case where it differs). 'No surface
     loaded' never appears."
 
-    ``served_stl`` is the copy the CONTROL-ROOM SERVER reads, under
-    :data:`SERVED_GEOMETRY_DIR` — not the copy a generator wrote. Those are two
-    different files today and they agree only because someone copied by hand;
-    naming the generator's copy here would let a regenerated surface serve a
-    stale body with nothing failing. The validator refuses a ``served_stl``
-    outside the served directory.
+    ``served_stl`` is the body this act is about, and it may live in one of
+    two places: :data:`SERVED_GEOMETRY_DIR`, which the server resolves by name,
+    or :data:`CANONICAL_SURFACE_DIR`, the generator's own tracked output. The
+    second is the safer one and is what the jet-flap act declares: the upload
+    handler writes into the FIRST under a bare filename, so an upload named
+    like an act's body replaces it, which is exactly what happened on
+    2026-09-01. Either way :meth:`Sequencer._stage_surface` copies the declared
+    file into the served root and announces that address, so the file measured
+    and the file fetched are one file. A body in neither directory is refused,
+    because nothing would serve it.
 
     ``matches`` carries the measured comparisons against the solved case.
     :meth:`solved_geometry_sentence` raises unless every one agrees, so an act
@@ -1631,6 +1688,15 @@ def _require_file(path: Path, what: str, problems: list[str]) -> None:
         problems.append(f"{what}: empty file ({p})")
 
 
+def _within(path: Path, root: Path) -> bool:
+    """True when ``path`` resolves inside ``root``."""
+    try:
+        path.resolve().relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
 def validate_act(act: DemoAct, *, check_files: bool = True) -> list[str]:
     """Walk every stage of ``act`` and return the list of problems found.
 
@@ -1680,14 +1746,15 @@ def validate_act(act: DemoAct, *, check_files: bool = True) -> list[str]:
     if geometry is not None:
         served = Path(geometry.served_stl)
         _require_file(served, "geometry.served_stl", problems)
-        try:
-            served.resolve().relative_to(SERVED_GEOMETRY_DIR.resolve())
-        except ValueError:
+        roots = (SERVED_GEOMETRY_DIR.resolve(),
+                 CANONICAL_SURFACE_DIR.resolve())
+        if not any(_within(served, root) for root in roots):
             problems.append(
-                f"geometry.served_stl is outside the directory the server "
-                f"reads ({SERVED_GEOMETRY_DIR}); name the served copy, not "
-                f"the copy a generator wrote, or a regenerated surface will "
-                f"serve a stale body with nothing failing")
+                f"geometry.served_stl is in neither directory an act may "
+                f"declare its body from ({SERVED_GEOMETRY_DIR} or "
+                f"{CANONICAL_SURFACE_DIR}); a body the sequencer does not "
+                f"stage is a body the page cannot fetch, and a regenerated "
+                f"surface would serve a stale one with nothing failing")
         for match in geometry.matches:
             if not match.agrees():
                 problems.append(

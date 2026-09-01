@@ -93,14 +93,30 @@ def announce_plot(emit, beat: str, path, title: str,
 
 
 def announce_geometry(emit, *, name: str | None = None,
-                      diameter: float | None = None, label: str = "") -> None:
-    """Tell the control room which surface this mission is working on."""
+                      diameter: float | None = None, label: str = "",
+                      url: str | None = None) -> None:
+    """Tell the control room which surface this mission is working on.
+
+    ``url`` overrides the address the page fetches from. WITHOUT IT the body
+    is fetched from ``/api/geometry?name=<name>``, which the server resolves
+    under ``sdk/geometry`` -- the SAME directory its upload handler writes
+    into, under a bare filename. An act that hard-codes a filename therefore
+    has its body replaceable by any upload of that name, and on 2026-09-01 one
+    was: three missions were refused because the staged surface had been
+    overwritten by a copy scaled 1.008966.
+
+    An act that has moved its declaration off that directory passes the
+    address of the copy it actually measures, so the PICTURE and the NUMBERS
+    describe one body. Moving the file without moving the address would be
+    worse than not moving it at all: the act would measure the right body and
+    show the wrong one.
+    """
     if emit is None:
         return
     if name:
         from chief_engineer.display_names import display_name
 
-        emit("geometry.ready", {"url": f"/api/geometry?name={name}",
+        emit("geometry.ready", {"url": url or f"/api/geometry?name={name}",
                                 "label": label or display_name(name)})
     else:
         value = float(diameter if diameter is not None else 1.0)

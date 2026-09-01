@@ -67,6 +67,12 @@ RUN_ROOT = _impl.RUN_ROOT
 FLOW_CASE = _impl.FLOW_CASE
 SWEEP_CASES = _impl.SWEEP_CASES
 SWEEP_TIME = _impl.SWEEP_TIME
+#: The registered flow conditions, re-exported so the assumptions table on
+#: screen states the speed the runs actually used rather than a literal typed
+#: beside it. A quantity a viewer is told the lab chose for them is exactly
+#: the kind that must not be a second copy.
+U_INF = _impl.U_INF
+CHORD = _impl.CHORD
 SETTLE_WINDOW = _impl.SETTLE_WINDOW
 assert_one_grid = _impl.assert_one_grid
 #: The whole one-grid rule, over every grid the screen DISPLAYS rather than
@@ -98,7 +104,7 @@ bounded_k_census = _impl.bounded_k_census
 wall_yplus = _impl.wall_yplus
 
 __all__ = [
-    "PLANT",
+    "PLANT", "U_INF", "CHORD",
     "ReaderRefused", "RUN_ROOT", "FLOW_CASE", "SWEEP_CASES", "SWEEP_TIME",
     "SETTLE_WINDOW", "assert_one_grid", "assert_display_grids",
     "read_figure_provenance", "PREREGISTRATION", "registered_sweep_estimate",

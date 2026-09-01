@@ -36,6 +36,26 @@ _SOURCE = Path("/home/ubuntu/Certonomous/cases/demo-surfaces"
 #: file, and the act has to read the one the interface actually serves.
 STAGING = Path("/home/ubuntu/Certonomous/sdk/geometry")
 
+#: THE COPY THE ACT MEASURES, AND IT IS DELIBERATELY NOT ``STAGING``.
+#:
+#: The server's upload handler writes an upload into ``STAGING`` under a BARE
+#: FILENAME, and this act hard-codes that filename. So any upload called
+#: ``airfoil_blown_slot.stl`` overwrites the body the act is about. That is not
+#: hypothetical: on 2026-09-01 at 17:39 three missions failed because the file
+#: in ``STAGING`` had been replaced by a copy scaled 1.008966 -- chord 0.991114
+#: against 1.000000, which is what a CAD round trip produces -- and the
+#: geometry stage's measurement guard refused them. THE GUARD WAS RIGHT AND IS
+#: UNTOUCHED: a wrong body was refused rather than shown. This constant is
+#: about making sure it never has to fire, because a refusal during a capture
+#: is a refusal on camera.
+#:
+#: ``cases/demo-surfaces`` is the generator's own output directory. It is
+#: tracked, nothing serves an upload into it, and it changes only by commit.
+#: ``STAGING`` stays exactly where it is and keeps its job below: answering
+#: whether a body somebody UPLOADED is the solved section is a question about
+#: the upload directory, and it must keep reading the upload directory.
+CANONICAL = Path("/home/ubuntu/Certonomous/cases/demo-surfaces")
+
 
 def _load():
     if not _SOURCE.is_file():
@@ -86,5 +106,5 @@ def is_solved_section(surface: str) -> bool:
             and abs(h_over_c - SOLVED_H_OVER_C) <= SOLVED_GEOMETRY_TOL)
 
 
-__all__ = ["STAGING", "SOLVED_CHORD_M", "SOLVED_H_OVER_C",
+__all__ = ["STAGING", "CANONICAL", "SOLVED_CHORD_M", "SOLVED_H_OVER_C",
            "SOLVED_GEOMETRY_TOL", "measure_blown_slot", "is_solved_section"]

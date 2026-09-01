@@ -409,7 +409,8 @@ class Sequencer:
             from . import announce_geometry
 
             announce_geometry(emit, name=body.served_stl.name,
-                              label=body.display_label)
+                              label=body.display_label,
+                              url=self._stage_surface(body))
             self._announced = True
 
         for stage in STAGES:
@@ -529,7 +530,23 @@ class Sequencer:
         })
 
     def _stage_assumption(self, emit, script, record) -> dict:
+        """The assumption beat, and the table that says who chose what.
+
+        THE TABLE IS EMITTED BEFORE THE PAYLOAD, so it lands above the
+        correction that refers to it rather than under it. Sanaa's 20:30Z
+        protocol puts it in the expert-discussion beat, which is where this
+        stage sits, and it is a real table rather than prose because "every
+        quantity with a value and unit" is a table's job.
+        """
         a = self.act.assumption()
+        if script is not None and a.assumptions_table is not None:
+            from . import emit_table
+
+            t = a.assumptions_table
+            emit_table(emit, script, role=t.role, title=t.title,
+                       headers=list(t.headers),
+                       rows=[list(row) for row in t.rows],
+                       table_id=t.table_id)
         payload = {"stage": "assumption", "assumption": a.assumption,
                    "finding": a.finding}
         if a.correction:
@@ -553,7 +570,8 @@ class Sequencer:
             from . import announce_geometry
 
             announce_geometry(emit, name=g.served_stl.name,
-                              label=g.display_label)
+                              label=g.display_label,
+                              url=self._stage_surface(g))
         return self._publish(emit, "demo.geometry", {
             "stage": "geometry",
             "label": g.display_label,
@@ -868,6 +886,39 @@ class Sequencer:
             "stage": "gates",
             "grid": g.grid_statement,
         })
+
+    #: The served root's directory for act bodies. Not ``sdk/geometry``: that
+    #: is where the server's upload handler writes, and an act whose body lives
+    #: there can have it replaced by any upload of the same filename.
+    SURFACE_NAMESPACE = "act-geometry"
+
+    def _stage_surface(self, body) -> str | None:
+        """Serve the act's body from a directory uploads cannot write into.
+
+        Copies the act's declared surface into ``<output root>/act-geometry/``
+        and returns ``/api/surface/act-geometry/<file>``, which
+        ``server._serve_surface_artifact`` resolves under the output root and
+        returns as the same viewport payload ``/api/geometry`` does. No server
+        change: that route already existed for mission-produced surfaces.
+
+        Returns ``None`` when the file is not on disk, which leaves the caller
+        on the old address rather than announcing one that resolves nowhere.
+        An act whose surface is missing is already refused by
+        :func:`demo_mode.validate_act` before any stage opens.
+        """
+        import shutil
+
+        from . import OUT_ROOT
+
+        source = Path(body.served_stl)
+        if not source.is_file():
+            return None
+        out = Path(OUT_ROOT) / self.SURFACE_NAMESPACE
+        out.mkdir(parents=True, exist_ok=True)
+        target = out / source.name
+        if not (target.exists() and target.samefile(source)):
+            shutil.copy2(source, target)
+        return f"/api/surface/{self.SURFACE_NAMESPACE}/{source.name}"
 
     def _stage_figure(self, namespace: str, figure) -> None:
         """Put the figure where the address the screen is about to publish
