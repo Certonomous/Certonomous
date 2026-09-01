@@ -202,3 +202,48 @@ completion and the ratio reported with its attribution.
 
 *Written and committed before any T25RF compute. Ungated: no gate, no threshold,
 no band, no label, no verdict.*
+
+---
+
+## Addendum A1 — 2026-09-01, added AFTER arms A0/A1/A2 and BEFORE arm A2T
+
+**Lines whose number changed above this section: 0.**
+
+This addendum adds one arm. **It alters no gate, no threshold, no band, no label
+and no cost cap** — there are none to alter, and the 30 core-min probe cap is
+unchanged and still binding. It is recorded before the arm it authorises runs.
+
+**The condition, and how it was checked.** Arms A1 and A2 both ran to
+`Time = 30` with `rc = 0`, and the reader
+`verification/runs/T-family/T25RF_runs/read_arm_t25RF.py` measured, over each of
+them, that **44 % (A1: 266 of 600) and 51 % (A2: 608 of 1200) of all `p_rgh`
+solves terminated at GAMG's default `maxIter` of 1000**, having stalled at a
+final residual of roughly 4.4e-9 against the registered absolute `tolerance` of
+1e-9. The solver is therefore paying a thousand iterations per solve to close a
+gap it cannot close, on roughly half of all pressure solves, and that is the
+dominant term in both arms' cost. `CLAUDE.md` rule 12 requires waste to be
+reported rather than absorbed; this arm measures whether it is **removable**,
+so that a future T25R2 can be priced against its 600 core-min cap on a number
+that is not half stall.
+
+**Arm A2T:** arm A2's numerics exactly, with the coolant `p_rgh` and
+`p_rghFinal` absolute `tolerance` relaxed **1e-9 -> 1e-8**. Nothing else changes:
+same mesh, same loads, same relaxation, same `nOuterCorrectors 10`, same
+`endTime`.
+
+**How A2T is read.** The same three criteria of section 4, plus one comparison
+that is the point of the arm: **the last-sweep `Min/max T` at `Time = 30` must
+agree with A2's to within 1e-4 K.** If it does, the stalled iterations were
+buying nothing and the tolerance is the cost bug; if it does not, the tolerance
+is load-bearing and must stay at 1e-9 and be paid for. Either way this remains an
+**ungated observation and produces no verdict.**
+
+**Cost.** A2T is drawn from the SAME 30 core-min probe cap, which is not raised.
+Spend before this arm: **11.700 core-min** (A0 0.083 + A1 3.650 + A2 7.967).
+Headroom: **18.300 core-min**. A2T is predicted at ~4 core-min and is launched
+under an 600 s timeout that the runner clamps to the remaining headroom.
+
+**Arm A3 (`frozenFlow`) is NOT reached and is NOT run.** Its registered trigger
+was "A1 and A2 both fail". Both held criteria (a) and (c) and ran to `endTime`
+without a fatal error. The `T25R` section 3.3 refusal of `frozenFlow` therefore
+stands untouched, and this probe records **no departure**.
