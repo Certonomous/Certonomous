@@ -2,16 +2,23 @@
 
 > # ⛔ STATUS: **LANDED 2026-09-01 — DO NOT APPLY THIS BLOCK AGAIN.**
 >
-> This proposal **is now §10 of `docs/standards/MESH_STANDARD.md`**, landed at commit
+> This proposal **is now §14 of `docs/standards/MESH_STANDARD.md`**, landed at commit
 > **`afedaadcbdd521d3a314d3e3bf7f2585a8e3d26e`** (124 insertions, **0 deletions**, digest
 > assertion `434b6ebe…` before against the first 1,436 lines after — **EQUAL**), with one
-> addition made at landing that is **not** in the text below: §10.3 gained a second table
+> addition made at landing that is **not** in the text below: §14.3 gained a second table
 > showing the closing `Failed N mesh checks.` line runs **anti-correlated** with §3.1 on this
 > pair (admissible mesh `Failed 2`, inadmissible mesh `Failed 1`).
 >
-> **Applying it a second time would give that standard two §10s.** This file is retained
-> only as the historical record of what was proposed and reviewed. **The live text is in the
-> standard; read it there.**
+> **ORDINAL CORRECTED.** It landed as **§10** and was corrected to **§14**, because the file
+> already carried a §10 (paper provenance, v1.5) and its section sequence runs to 13. **The
+> cause was conflating the section VERSION with the section ORDINAL** — `v1.9` was derived
+> correctly from the highest section *version* `v1.8` and is unchanged, but the two counters
+> diverged at §11/v1.6. **The version is not the ordinal.** Corrected and disclosed in the
+> section itself; nothing else in the block moved.
+>
+> **Applying it a second time would give that standard a duplicate section.** This file is
+> retained only as the historical record of what was proposed and reviewed. **The live text
+> is in the standard; read it there.**
 
 **Status when written: DRAFT, NOT APPLIED.** Prepared by a cfd lane 2026-09-01 for the cfd
 supervisor, who owns `docs/standards/MESH_STANDARD.md` and landed it personally after reading

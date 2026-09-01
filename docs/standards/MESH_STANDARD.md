@@ -1437,7 +1437,18 @@ cross-check (`verification/campaign/F23b_HP_WEDGE_PREREGISTRATION.md` §4.3, fro
 
 ---
 
-## 10. READING THE NON-ORTHOGONALITY GATE — the reported maximum, never `checkMesh`'s verdict line (v1.9, 2026-09-01)
+## 14. READING THE NON-ORTHOGONALITY GATE — the reported maximum, never `checkMesh`'s verdict line (v1.9, 2026-09-01)
+
+**ORDINAL CORRECTED 2026-09-01, disclosed rather than silently renumbered.** This section
+**landed as `## 10.` at commit `afedaadc` and is corrected to `## 14.` here**, because the
+file already carried a §10 (`High_order_grid_convergence.pdf` provenance, v1.5) and the
+section sequence runs to **13**. **The cause was conflating the section VERSION with the
+section ORDINAL**: `v1.9` was derived correctly from the highest section version `v1.8` and
+is unchanged, but the two counters diverged at §11/v1.6 and the version is not the ordinal.
+**A section ordinal is derived from the MAXIMUM EXISTING ORDINAL in the file, in the same
+invocation as the commit — never from a version, never from a count.** The heading and its
+six subsection numbers are the only things this correction touches; no gate, threshold,
+clause or measured value moves.
 
 **Lines whose number changed above this section: 0.** Nothing above is edited, reordered,
 inserted or deleted. Verified by digest, not by assertion — see the closing table.
@@ -1447,7 +1458,7 @@ its action clause are untouched, in either direction. Retiring, widening or narr
 threshold is reserved to Sanaa. **What this section fixes is WHERE the existing gate is read
 from.**
 
-### 10.1 The finding, in the form that settles it: the verdict line CANNOT DISCRIMINATE
+### 14.1 The finding, in the form that settles it: the verdict line CANNOT DISCRIMINATE
 
 Two meshes from the 2026-08-25 ONERA M6 topology study, one **admissible** under §3.1 and one
 **inadmissible by 11.6°**, produce the **identical** `checkMesh` verdict line:
@@ -1470,7 +1481,7 @@ itself.**
 `verification/runs/F13_ONERA_M6_runs/mesh/CONTROL_nofill_L1_checkMesh.log:97-98`;
 `verification/runs/F1_MESH_TRIALS_2026-08-25/topology_study/t1_SHELL/log.checkMesh:96-98`.
 
-### 10.2 Three consecutive lines, the third contradicting the first two
+### 14.2 Three consecutive lines, the third contradicting the first two
 
 `t1_SHELL/log.checkMesh`, lines 96–98, **verbatim**:
 
@@ -1486,7 +1497,7 @@ warning marker — and then **`OK`**, three lines apart. The `70` in `nonOrthThr
 separate and far higher internal error limit. **The tool is answering its own question
 correctly. It is not answering ours.**
 
-### 10.3 The file-level verdict does not merely stay silent — ON THIS PAIR IT RUNS THE WRONG WAY
+### 14.3 The file-level verdict does not merely stay silent — ON THIS PAIR IT RUNS THE WRONG WAY
 
 | mesh | reported max non-orthogonality | §3.1 verdict | closing line | which checks actually failed |
 |---|---|---|---|---|
@@ -1509,7 +1520,7 @@ inadmissible one).
 **A scalar verdict cannot stand in for a named measurement.** That is the general statement;
 the table is the measured instance.
 
-### 10.4 THE CLAUSE
+### 14.4 THE CLAUSE
 
 > **The §3.1 gate is read off the reported maximum — `Mesh non-orthogonality Max:` — together
 > with the count of severely non-orthogonal faces where `checkMesh` reports one.**
@@ -1518,8 +1529,8 @@ the table is the measured instance.
 > file's closing `Mesh OK.` / `Failed N mesh checks.` line.** Those strings are decided
 > against OpenFOAM's internal error limits, which sit far above this gate. They have been
 > **measured unable to discriminate** an admissible mesh from one 11.6° outside the gate
-> (§10.1), and the closing line has been **measured anti-correlated** with §3.1 on that same
-> pair (§10.3). **A tool's pass is not this lab's pass, and a tool's failure count is not this
+> (§14.1), and the closing line has been **measured anti-correlated** with §3.1 on that same
+> pair (§14.3). **A tool's pass is not this lab's pass, and a tool's failure count is not this
 > lab's ranking.**
 >
 > **Any comparator, admission check, gate script or lane report that greps a verdict string
@@ -1532,7 +1543,7 @@ the table is the measured instance.
 > 0.158 % → 1.694 %, while cell count rose only 1.31×). **The maximum alone hides that
 > propagation.**
 
-### 10.5 A version discrepancy NAMED, and deliberately NOT resolved here
+### 14.5 A version discrepancy NAMED, and deliberately NOT resolved here
 
 This file's header (line 3) reads `Version 1.2, dated 2026-08-11`, while the highest section
 version is **`v1.8`** before this block and **`v1.9`** with it. **The header has been stale
@@ -1542,7 +1553,7 @@ quietly resolves a pre-existing inconsistency is a second, undisclosed change ri
 disclosed one.** The authoritative version of this document remains the **highest section
 version**. Repairing the header stays a separate, disclosed edit for whoever takes it.
 
-### 10.6 What this section does NOT do
+### 14.6 What this section does NOT do
 
 - It does **not** change the 70° threshold, the 65–70 warning band, or §3.1's action clause.
 - It does **not** touch §3.3's aspect-ratio advisory, which remains advisory and never a lone
