@@ -295,7 +295,7 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("audit.completed", capacity.panel())
         emit("solver.selected", {
-            "solver": "OpenFOAM", "method": "steady RANS, k-omega SST",
+            "solver": "OpenFOAM", "method": "steady RANS, standard turbulence treatment",
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
@@ -406,7 +406,7 @@ def main(request: str | None = None, params: dict | None = None,
                     table_id=f"assumed-act7-{label}")
         script.numericist(compressibility_line(solved_velocity))
         script.engineer(
-            "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
+            "• Solver of choice: OpenFOAM, steady RANS with a standard turbulence treatment. "
             "• Standard closure for a separated external wake.")
 
         # Nothing on camera describes how the mesh is arrived at, how it is
@@ -1032,7 +1032,7 @@ def main(request: str | None = None, params: dict | None = None,
         ],
         methods=[
             "Surface intake and check, then a quality-gated mesh.",
-            f"{iterations} steady iterations, k-omega SST.",
+            f"{iterations} steady iterations, standard turbulence treatment.",
             "Drag rebased from planform to frontal area for the comparison; "
             "forces averaged over the settled window.",
         ],
@@ -1145,7 +1145,7 @@ def main(request: str | None = None, params: dict | None = None,
             channels=channels,
             display_name=display_name(label),
             source_filename=surface,
-            solver="OpenFOAM, k-omega SST steady RANS",
+            solver="OpenFOAM, steady RANS, standard turbulence treatment",
             # Every number the answer rests on that neither the request stated
             # nor a solver produced: the freestream, what rides on it, and the
             # incidence the lift coefficient silently depends on.

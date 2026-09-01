@@ -115,7 +115,7 @@ def compressibility_line(velocity: float, *, transonic_cruise: bool = False
 # kqRWallFunction on the closure fields. Those invert the log law, which is
 # valid while the first cell centre sits inside the log layer. That band is
 # the standard one, and it is the range the measured y+ is judged against.
-WALL_TREATMENT = "Wall functions, k-omega SST"
+WALL_TREATMENT = "Wall functions, standard turbulence treatment"
 YPLUS_LOG_LAW_LO = 30.0
 YPLUS_LOG_LAW_HI = 300.0
 YPLUS_PATCH = "body"
@@ -1546,17 +1546,17 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
     else:
         numerical_note = ("• One mesh on this record. "
                           "• A grid-refinement study is the marked next step.")
-    model_note = ("turbulence closure k-omega SST, stated model-form; closure "
+    model_note = ("standard turbulence treatment, stated model-form; the treatment "
                   "error not quantified for this body")
     if lookup.get("model"):
         model_val = lookup["model"]["band_abs"]
-        model_note = ("turbulence closure k-omega SST, stated model-form; "
+        model_note = ("standard turbulence treatment, stated model-form; "
                       + lookup["model"]["method"])
     elif transfer and transfer.get("band_abs") is not None:
         # Doctrine fallback: no closure study of its own, so the band is
         # transferred from the lab's measured validation history.
         model_val = transfer["band_abs"]
-        model_note = ("turbulence closure k-omega SST, stated model-form; "
+        model_note = ("standard turbulence treatment, stated model-form; "
                       "closure spread estimated from the lab's validation "
                       "history, a screening estimate")
     if model_extra:
@@ -1741,7 +1741,7 @@ def main(request: str | None = None, params: dict | None = None,
         # The plan commits to the RANS chain here — the solver badge is earned
         # at this moment, not asserted at page load.
         emit("solver.selected", {
-            "solver": "OpenFOAM", "method": "steady RANS, k-omega SST",
+            "solver": "OpenFOAM", "method": "steady RANS, standard turbulence treatment",
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
@@ -1774,7 +1774,7 @@ def main(request: str | None = None, params: dict | None = None,
                       # the search for that state, never the commitment.
                       ["Settled band on C_d", settling_commitment(), "Solve"],
                       ["Iteration cap", f"{iterations}", "Solve"],
-                      ["Closure", "k-omega SST", "Solve"]],
+                      ["Turbulence treatment", "standard", "Solve"]],
                 table_id=f"plan-{label}")
 
     stage_table = {"created": False}
@@ -1908,14 +1908,14 @@ def main(request: str | None = None, params: dict | None = None,
         # already here; the echo is what makes it an answer to the ask.
         if _PICK_MODEL_ASK.search(request or ""):
             script.engineer(
-                "• You asked me to pick the model: k-omega SST, the standard "
+                "• You asked me to pick the model: the standard turbulence treatment, "
                 "closure for attached external flow. "
                 "• Physics: incompressible, steady, turbulent external flow. "
                 "• Solver of choice: OpenFOAM, steady RANS, on a "
                 "quality-gated mesh.")
         else:
             script.engineer(
-                "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
+                "• Solver of choice: OpenFOAM, steady RANS with a standard turbulence treatment. "
                 "• Physics: incompressible, steady, turbulent external flow. "
                 "• Standard closure for attached external flow, on a "
                 "quality-gated mesh.")
@@ -2828,7 +2828,7 @@ def main(request: str | None = None, params: dict | None = None,
         ],
         methods=[
             "Surface intake and check, then a quality-gated mesh.",
-            f"{iterations} steady iterations, k-omega SST.",
+            f"{iterations} steady iterations, standard turbulence treatment.",
             "Forces averaged over the settled window; the band is the spread "
             "of that window.",
         ],
@@ -2948,7 +2948,7 @@ def main(request: str | None = None, params: dict | None = None,
             channels=channels,
             display_name=display_name(label),
             source_filename=surface,
-            solver="OpenFOAM, k-omega SST steady RANS",
+            solver="OpenFOAM, steady RANS, standard turbulence treatment",
             # Every number the answer rests on that neither the request stated
             # nor a solver produced: the freestream, what rides on it, and the
             # incidence the lift coefficient silently depends on.

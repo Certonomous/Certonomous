@@ -460,7 +460,7 @@ def main(request: str | None = None, params: dict | None = None,
     if not uploaded:
         announce_body(emit, out, shown)
     script.engineer(
-        f"• Hypothesis: a quality-gated steady k-omega SST solve lands the "
+        f"• Hypothesis: a quality-gated steady solve with the standard turbulence treatment lands the "
         f"separation point within ±{SEPARATION_GATE * 100:.0f}% of NASA's "
         f"published experiment, and shows the known model-form bias on how "
         f"far downstream the flow reattaches. "
@@ -493,7 +493,7 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("audit.completed", capacity.panel())
         emit("solver.selected", {
-            "solver": "OpenFOAM", "method": "steady RANS, k-omega SST",
+            "solver": "OpenFOAM", "method": "steady RANS, standard turbulence treatment",
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
@@ -941,7 +941,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"• The refined rung is not in the asymptotic range, so no band "
             f"is extrapolated from that spread."),
         model_note=(
-            f"turbulence closure k-omega SST, stated model-form; band "
+            f"standard turbulence treatment, stated model-form; band "
             f"±{REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC:.3f} in x/c on the "
             f"reattachment station, the documented over-prediction of this "
             f"bubble by a linear eddy-viscosity closure; "
@@ -1081,7 +1081,7 @@ def main(request: str | None = None, params: dict | None = None,
         methods=[
             "Case mesh received and checked against the standard quality "
             "gates.",
-            "Steady k-omega SST in OpenFOAM, to the case's own convergence "
+            "Steady solve in OpenFOAM with the standard turbulence treatment, to the case's own convergence "
             "criteria.",
             "Wall skin friction and pressure sampled at the converged state; "
             "both events read from the sign change of skin friction.",
@@ -1176,7 +1176,7 @@ def main(request: str | None = None, params: dict | None = None,
             channels=channels,
             display_name=shown,
             source_filename=SURFACE,
-            solver="OpenFOAM, k-omega SST steady RANS",
+            solver="OpenFOAM, steady RANS, standard turbulence treatment",
             mesh=mesh_validity(cells, non_ortho, skew))
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
