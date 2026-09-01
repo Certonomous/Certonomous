@@ -1,0 +1,20 @@
+{
+  "_HELD_NOT_FILED": "THIS ENTRY IS IN held/ AND IS INERT BY DESIGN. The drop path verification/queue/heat-transfer/ IS A LAUNCH BUTTON -- that directory's own README correction of 2026-08-27 says so in terms, queue_runner.py:223 globs it and cron ticks every minute, so a bare .json there fires within 60 s. The same correction says draft entries live in held/ and that SUPERVISION_CHARTER \u00a73 check 4 is performed BEFORE the file enters the drop path, never after. Two things must happen before this moves: (1) the supervisor's personal check 4, and (2) the USER's authorisation, because this lane's direct solver launch was refused by the session permission system and moving this file achieves the same effect. No agent instruction substitutes for either.",
+  "_decomposition": "NONE. ranks = 1 as registered (section 2.5). decomposePar is NOT run; there is no decomposition and therefore no seed or method. Recorded positively AS AN ABSENCE so no reader has to infer it from silence. Moving to ranks > 1 requires a dated addendum: it changes the summation order and would place a per-level perturbation inside an order study.",
+  "_gate": "THE A2.5 PRE-FLIGHT GATE IS THE FIRST ACTION OF launch_cmd AND IS DEFAULT-DENY. run_t23g2.sh calls preflight_gate_t23g2.py and exits with its code -- launching NO solver -- unless it returns 0. It refuses on: an unknown level, a missing case, the rule 4 age guard (0/ or any numeric time dir already present), a missing 0.orig field of the twelve, a controlDict endTime that is not the level's REGISTERED endTime, any of the seven registered function objects missing, housing_whf ordered after housing_wall_heat, or housing_wall_heat integrating T instead of wallHeatFlux. DRIVEN BOTH WAYS before enqueue: exit 0 on all three real levels; exit 3 on an unknown level, on no argument, on a planted 0/, on a removed function object, and on a planted areaIntegrate-of-T. This entry is SAFE TO SIT IN A QUEUE because it refuses by default rather than relying on a person not to release it.",
+  "case_id": "T23G2_L1",
+  "cost_basis": "POINT and CAP are FROZEN in T23G2_PREREGISTRATION.md AMENDMENT A1.6, computed BEFORE any T23G2 compute from T23G_F's MEASURED 145.75 core-min at 10,000 iterations / 158,720 cells (0.0145750 core-min/iteration) and T23G's MEASURED superlinear exponent 1.1957 (from actual F/M = 5.240 at a 4x cell ratio). One ASSUMPTION remains and is labelled: iterations to stationarity scale as h^-1.77, DERIVED from T23G's measured 600/1900/6900 then extrapolated. The timeout IS the cap; an overrun STOPS the run and does not get a new budget. USD at $0.0513/core-h is DERIVED and REPORTED-BY-OWNER, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5). Campaign point 579.2 core-min = $0.495 derived.",
+  "cost_core_min_estimate": 17.0,
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/T23G2_L1",
+  "enqueued_by": "heat-transfer lane. STAGED IN held/, NOT FILED. Scientific authority: Sanaa's convergence doctrine f4c8e466 section 1, which orders the motor ladder independently of any demo. Launch-permission authority CITED BUT NOT RELIED ON: docs/LAB_STATE.md:1193 addendum. NOT YET AUTHORISED: the supervisor's SUPERVISION_CHARTER \u00a73 check 4 has not been given, and the session permission system refused this lane's direct solver launch.",
+  "host": "local",
+  "launch_cmd": [
+    "/home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/run_t23g2.sh",
+    "T23G2_L1"
+  ],
+  "memory_floor_gb": 2.0,
+  "prereg_commit": "658b3ba45d21573801923779076dd689950de15d",
+  "prereg_path": "docs/campaigns/T-family/T23G2_PREREGISTRATION.md",
+  "ranks": 1,
+  "team": "heat-transfer"
+}
