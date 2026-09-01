@@ -333,3 +333,136 @@ point came near its registered cap.
   act does not claim it was computed at any particular moment. If cfd or the
   supervisor reads that framing as implying a literal pre-solve sequence, say
   so and we will restate the beat.
+
+---
+
+## AMENDMENT 1 — 2026-09-01, in answer to three supervisor questions
+
+Appended, not rewritten. Nothing above this line is edited or deleted; lines
+whose number changed above this section: 0. One figure in §3 is **corrected
+here and struck below**.
+
+### A1.1 CORRECTION AGAINST ME — the retired body is 0.200 m axial, not 0.260 m
+
+§3 says the served body is *"0.260 m axial against the solved 0.750 m"*.
+**~~0.260 m axial~~ is wrong.** The manifest's own `/retires/reason`, which
+says 0.200 m, is right. Measured over every vertex of both surfaces:
+
+| surface | x extent | y extent | z extent |
+|---|---:|---:|---:|
+| `motor_in_duct.stl` (retired) | **0.200000003 m** | 0.259999990 m | 0.259999990 m |
+| `t23_solved_geometry.stl` (solved) | 0.250000000 m | 0.250000000 m | **0.750000000 m** |
+
+**The two surfaces do not share an axis convention.** The retired body is built
+**x-axial**; the solved surface is **z-axial**. `check_surface` defaults to
+`axis="z"`, so when it read the retired body it reported the **z** extent,
+0.260 m, under the label "axial". The guard's refusal is sound on all fourteen
+counts, and its axial lines are correct for the convention it was told to use;
+what was wrong was my reading of that line as the body's own axial extent. The
+retired body's true axial extent is **0.200 m against the solved 0.750 m**, a
+factor of 3.75, and the manifest said so all along.
+
+Worth keeping: a surface whose axis convention differs from the solved one
+would render lying on its side in the viewport even if every dimension agreed.
+
+### A1.2 The 197.3 C feasibility beat depends on NO solved quantity. It stands.
+
+The narrower question was the right one to ask, and the answer is cleaner than
+"honest regardless of when we recorded it": **197.3 C is not a post-hoc number
+at all. It is a prediction registered before compute, in the frozen file.**
+
+Derivation chain, input by input, from §2.1 of the frozen T23 registration:
+
+    T_max = T_inf + P · R_tot(U)
+    R_tot(U) = 1/(h(U)·A_housing) + R_wall + R_core        [K/W, DERIVED]
+
+| input | what it is | solved? |
+|---|---|---|
+| `T_inf` = 288.0 K | the inlet air temperature, a fixed-value boundary condition; registered in §2.1 and separately readable from each case's own `0.orig/fluid/T` | **no**, it is an imposed input |
+| `P` = 305 W | the dissipated power, the operating point being requested | **no**, an input |
+| `h(U)` | Dittus-Boelter, from airspeed, air properties and duct hydraulic diameter | **no**, a correlation over inputs |
+| `A_housing`, `R_wall`, `R_core` | geometry and the three registered conductivities | **no**, inputs |
+
+Not one solved value appears. Every quantity is one a user has in hand before
+any solver starts.
+
+**Verified in the frozen file rather than trusted from the script's comment.**
+`analyse_t23.py:100` calls its `PREDICTED` dict "transcribed from the frozen
+file"; I checked the transcription. `docs/campaigns/T-family/T23_PREREGISTRATION.md:714`
+carries the row `T23_P305_U20 | 197.3 °C | 120.3 °C | UNDECIDED, +2.70 K`, and
+lines 713 to 716 carry all four points. The file's blob is
+`c341476f3680c14ec593c52d12e49214cf83ebb3` on disk **and** at HEAD, and that is
+the same blob the family's cost record verified against the freeze commit
+`fe666fd5`.
+
+Stronger still: §2.7 registered **in advance** that the lumped model might be
+wrong, and §6.2 registered the contingency one-way before compute. So the beat
+is not merely a fast estimate presented as one; it is a prediction the lab
+committed to and then measured itself against. The act's assumption stage,
+which reports the correlation overshooting by 3.4x, is that measurement.
+
+**No change to the act.** The beat stands as written.
+
+### A1.3 THE PATCH ALONE DOES NOT TAKE THE RETIRED BODY OFF SCREEN
+
+This is the important one, and the honest answer is no.
+
+**What actually decides which file reaches the screen today, traced end to end:**
+
+1. The operator picks a file in the control room (`control_room.html:446`, the
+   file input) and it POSTs to `/api/geometry/upload`.
+2. `server.py:_accept_surface` writes it into `sdk/geometry/` **under the
+   uploader's own filename**, stripped to a bare name.
+3. Launch posts `surface: <that filename>` into the mission payload
+   (`control_room.html`, `state.uploaded`).
+4. `router.py:918` routes a thermal request to `THERMAL_DISPLAY`, whose module
+   is `workflows.thermal_display`.
+5. `thermal_display.py:799` reads `params.get("surface")` and announces **that
+   name**, and nothing else.
+6. `server.py:_serve_geometry` (`:344`) resolves `sdk/geometry/<name>` and
+   returns it.
+
+**So the filename comes from the operator's upload, end to end. No act, no
+manifest, no configured default and no code constant is consulted at any step.**
+The retired body reaches the screen because a file with that name was uploaded
+once and has sat in the directory ever since.
+
+**And `demo_sequencer` is referenced nowhere in `sdk/chief_engineer/`.** Not by
+the server, not by the router. The demo-mode path is unreachable from the
+control room. Registering `motor-thermal` therefore changes nothing on screen
+on its own: the act is correct, guarded and inert.
+
+**What else must change. All of it is inside `sdk/`, so all of it is cfd's.**
+
+| # | change | why | shape |
+|---|---|---|---|
+| 1 | route the thermal intent to `demo_sequencer.run_act("motor-thermal")` instead of `workflows.thermal_display` at `router.py:918` | this is the real fix. Once routed, `demo_sequencer._stage_geometry` takes `g.served_stl.name` from the act, so the served file becomes the solved one automatically and **cannot** be an upload | a patch hunk, cfd's to write |
+| 2 | delete `sdk/geometry/motor_in_duct.stl` | while the live path still takes the name from an upload, this is what makes `?name=motor_in_duct.stl` return 404 instead of the retired body | a file removal, not a hunk: the file is **untracked**, so no patch can express it |
+| 3 | nothing stops it coming back | `_accept_surface` will re-create it on the next upload of a file with that name. Change 2 is necessary and **not sufficient**; only change 1 closes it | — |
+
+**A fourth thing found on the way, and it is not small.** The live Act A screen
+path carries phrases `demo_mode`'s own checker refuses. Run through
+`check_demo_language`:
+
+| line | string | verdict |
+|---|---|---|
+| `thermal_display.py:793` | "the screens come from that run's own fields" | **BANNED** |
+| `thermal_display.py:806` | "Reference body received" | **BANNED** |
+| `thermal_display.py:459` | "not recorded in this bundle" | **BANNED** |
+
+Three of Sanaa's never-list phrases are on the current Act A path right now.
+That is an independent argument for change 1: routing through the sequencer
+puts every string through the guard, and these three would fail at authorship
+instead of on camera.
+
+**Bottom line for the applier: applying this patch is step one of two.** It
+lands a correct, guarded, validating act and the right surface beside the wrong
+one. It does not take the wrong one off screen. Changes 1 and 2 above do, and
+both are yours.
+
+### A1.4 Standing flag, restated as asked
+
+`expected_seconds = 30.0` in `mesh_plan()` is **CHOSEN, NOT READ.** The case's
+`log.blockMesh` carries no timing line, so there is nothing to read. It is the
+only number in the act not taken from an artifact. It reaches no screen and
+nothing validates it.
