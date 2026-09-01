@@ -4792,6 +4792,53 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23h — **SO-3 IS RUNNING — pid 1077782, ARMED BY ME, 47 SECONDS FROM FILE TO SOLVER. ACT D TAKES SANAA'S FIGURE/HEADER STANDARD AND ITS SOLVER LINE IS `DARhoSimpleFoam` + SPALART-ALLMARAS, READ OUT OF THE RUN AND **NOT** WHAT ANYONE ASSUMED. ⚠⚠ AND THE PRESENT-TENSE FENCE WAS NEEDED: **TEN** ADMISSIBLE UPLOADS ARE NOT THIS WING** (2026-09-01T03:4xZ, `date -u` at write)
+
+##### 1. INCOMPRESSIBLE MULTIPOINT IS LIVE — THE FAMILY'S FIRST SOLVER COMPUTE THIS SESSION
+
+`SO3_chain`, **pid 1077782**, launched **03:30:48Z**, np=1, run root `CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation` created, entry in `launched/`, `LAUNCH_LOG` carrying `prereg_commit ab27dff7`. **Point 228.59 core-min, band [60.0, 300.0], hard cap 595.0 asserted in code**; ~$0.20 **derived, not measured**.
+
+**I ARMED IT PERSONALLY** — check 4 discharged **in the arming invocation itself**, not on an earlier reading: run root **ABSENT against a positive control** returning EXISTS for the sibling; **no numeric time directory** in cwd; grader md5 `0ac111ef…` agreeing across **disk, the `ab27dff7` tree, and the driver's live `MD5_GRADER`**. Validator ACCEPTED `rc=0`, team-binding bound.
+
+**The lane refused to arm and was right twice.** (a) The family template's `--diff-filter=A` derivation yields `7f7d0fb1`, whose tree hashes `so3_grade.py` to **`d786e10d` — THE STRUCK VALUE** (measured by me across all three candidate trees). Rule 2's *"verify the frozen file IS the file that ran"* **fails against the add-commit**. **RULED, so it cannot become a laundering precedent: `prereg_commit` is the commit at which the GRADING PATH IS FIXED AND VERIFIABLE — the add-commit UNLESS legal pre-compute amendments re-pinned it, and NEVER a post-compute commit.** What legitimises `ab27dff7` is precisely that every amendment was pre-compute and the field names the original freeze. **The family template is ordered corrected; as written it breaks rule 2 for any item with a pre-compute re-pin, and it will be copied again.**
+
+**(b) THE STALE CLAIM WAS IN THE ARMING PATH ITSELF.** `verification/queue/dafoam/README.md` said *"Nothing here launches anything… There is no daemon, no scheduler, no watcher and no timer behind this directory."* **Amended by me at `cdd681b2`**, dated footer, nothing above rewritten, **with my own arming as the evidence: daemon pid 374025 alive 7 h polling every 60 s; armed 03:30:01Z, launched 03:30:48Z — 47 seconds from file to running solver.** Preserved what is still true and made the distinction explicit: **THE VALIDATOR IS INERT; THE DIRECTORY IS NOT.** That file is dafoam's own — **its md5 differs from all five sibling queue READMEs** — so the same staleness may sit in theirs and is **flagged to cfd, not edited by me.** **Fourth instance tonight of a claim true at authoring time and false after its subject moved — and this one governed the launch button.**
+
+##### 2. ⚠⚠ THE REQUIREMENT-4 FENCE WAS NEEDED, AND THE MEASUREMENT IS THE PROOF
+
+I fenced Sanaa's present-tense "solved on this geometry" wording because **Act D's own history IS the substitution defect.** The lane measured the exposure rather than debating it: **TEN surfaces in the control room's own upload directory are ADMITTED by Act D and are NOT this wing** — `naca0012_wing`, `naca4412_wing`, `onera_m6_wing`, `crm_wingbody`, `airliner_wing_span52`, `naca0015_sail`, `nasa_hump`, `airplane`, `cylinder_shedding`, `flat_plate`. **Driving the act with `naca4412_wing.stl` runs `rc=0` displaying the reference wing's 28.3 %.** Unconditional present-tense wording would have been **false in every one of those sessions.**
+
+**Bound, not asserted:** `_geometry_lines(solved_here, majors)` keyed on `_a2_shape.identify` **reading the file**, driven all three paths — no upload and matching upload give *"Solved on this geometry: 47 major iterations, 38,304 cells."*; a **different** wing gives *"Solved on the reference wing…"* **plus** *"The surface you sent is a different wing, so these numbers are not its."* **Sanaa's own DEMO MODE condition — regenerate the STL from the solved case — makes the true branch the one that plays; the false branch is the honesty path for a session she is not in, and it was not softened.**
+
+##### 3. THE SOLVER LINE — MEASURED, AND BOTH COMMON ASSUMPTIONS WERE WRONG
+
+**`Solver: DAFoam DARhoSimpleFoam on OpenFOAM v2506, steady compressible RANS (Spalart-Allmaras), with a reverse-mode discrete adjoint.`** **It is NOT `DASimpleFoam` and the model is NOT k-ω SST** — the two things a reader would have guessed, and exactly why the brief forbade guessing. Four independent sources: `runScript_AeroOnly.py:35`, the solver's own echo at `run_model_stdout.log:188/:353`, `constant/turbulenceProperties` (`RASModel SpalartAllmaras`), and `:214`'s *"Selecting RAS turbulence model SpalartAllmaras"*; steady from `fvSchemes`, compressible from `thermophysicalProperties`. **Built once by `_solver_line()`, which refuses a line missing either name and cannot emit "Solver: none", reaching all four surfaces so they cannot drift** — including the header badge, which previously carried *"Discrete adjoint, reverse mode"*: **the METHOD, never the solver.**
+
+##### 4. MY CHECK 1 — DRIVEN BOTH DIRECTIONS ON THE ONE THAT LICENSES A DELETION
+
+`min`/`max` are **dropped from every field payload**, because the viewport prints *"physical range (solver extremes)"* as text below the bar whenever both keys are present — **a minimum and maximum somewhere other than the end ticks, the one thing Sanaa's rule names.** Removing data from a display needs a licence, so I drove the licence:
+
+`[MEASURED, this invocation]` **1,008 gradient values, window ±22.096, ZERO outside.** **RED LEG: on a halved window the guard fires — 151 of 1,008 outside, worst 22.096.** So `_assert_inside_window` is **shown able to fail**, which is what makes the green reading evidence rather than decoration — and it **RAISES rather than degrading**. 48,384 painted face values across frames, matching the lane's count. **The removed clipping warning had nothing to warn about, and the condition is now checked instead of assumed.**
+
+Three smaller measurement-bearing changes accepted: `"ABOVE"`→`"above"` (number and decimal untouched); and the sheet's Table 4 calling a **0.43 used/upfront ratio an "overspend"** — **it is an UNDERSPEND**, corrected to "gap", with the explanation beneath already correct.
+
+##### 5. ⚠ THE SHEET IS NOW **TWO PAGES**, AND THAT IS A FILMING DECISION, NOT A TECHNICAL ONE
+
+Seven figure explanations do not fit one page. **Measured before deciding: page 1 had 23.4 mm free against a 43.2 mm need.** Cramming was tried (7 mm margins, 5.6 pt body), bought ~19 mm of the 22 mm needed, **still did not fit, and was reverted BYTE FOR BYTE rather than shipping illegible text.** Compile `rc=0`, **2 pages, zero overfull boxes**. **Reversible if the shoot needs one page — the lever is dropping something from page 1, which is Sanaa's call and not ours.** Also: **33 em dashes on the rendered face are now 0**, and the sheet's copy of `MESH_CAPTION` still carried the em dash — **the `7717e6d7` ruling had been applied to the code and never to the sheet.**
+
+##### 6. THE CAPTION RECONCILIATION, ANSWERED — AND A CORRECTION AGAINST MY OWN BRIEF
+
+**`MESH_CAPTION` IS the one caption line of a 3D frame.** A frame carries its title in `label` and the caption in `caption` — **one caption line, not two**, so the two rules never collide. It is a physics limitation, so requirement 5 keeps it, and everything that used to ride in the label as explanation moved to the sheet. **I said 16 words; it is 14** (98 characters was right). Wording byte-untouched; the em-dash trade stands.
+
+##### 7. THREE ITEMS FOR cfd, NONE TOUCHED BY US
+
+**(a)** `sdk/workflows/__init__.py:69` — `announce_geometry` has **no caption slot**, so an uploaded-surface frame renders **captionless in every act**. Act D emits `geometry.ready` inline instead. Minimal fleet-wide fix: add `caption: str = ""` and include it when non-empty. **(b)** `check_wording` at `:135` **refuses a bullet not starting with a capital**, so Sanaa's own literal template *"16 operating points solved on this geometry, 39,680 cells."* **cannot be used with its leading figure. This will bite Act A identically** — invert the clause or grow the guard a numeral exemption. **(c)** `legendPhys` still renders extremes for any other act supplying `min`/`max`.
+
+##### 8. STATE
+
+**SO-3 running.** Compressible multipoint **dispatched on the SUCCESSOR route** — re-grade D19R's existing clean arms, **zero solver core-min**, sidestepping the §2d.1 exception this family has refused four times. Act D: figure/header standard landed `b18a438a`; demo-mode prep in flight. **Act D never says "converged" and never says "optimum" — 0 hits across all three driven streams.**
+
+
 ##### UPDATE S-23g — **⚠⚠ MY OWN BOARD CARRIED THE STRUCK GRADING-PATH md5 AT TWO SITES — CORRECTED IN PLACE, BECAUSE A STALE PIN ON THE ONLY HANDOFF CHANNEL IS WHAT THE NEXT SESSION INHERITS. `P_COST` REPAIRED AND RE-PINNED, VERIFIED BY ME. AND A LANE CAUGHT ITS OWN AUDIT USING A READER THAT COULD NOT HAVE SEEN THE THING IT CERTIFIED ABSENT** (2026-09-01T03:5xZ, `date -u` at write)
 
 ##### 1. ⚠⚠ THE STALE PIN WAS ON MY BOARD, AND THE LANE WAS RIGHT NOT TO FIX IT ITSELF
