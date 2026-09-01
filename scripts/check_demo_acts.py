@@ -46,7 +46,8 @@ sys.path.insert(0, str(REPO / "scripts"))
 #: Importing an act module is what registers it; the registry is populated by
 #: import side effect and nothing walks the package for us. Listed explicitly
 #: so a missing act is a visible edit here rather than a silent empty run.
-ACT_MODULES = ("workflows.jet_flap_act", "workflows.adjoint_act")
+ACT_MODULES = ("workflows.jet_flap_act", "workflows.adjoint_act",
+               "workflows.dmr_act")
 
 
 def _load_acts() -> dict:
