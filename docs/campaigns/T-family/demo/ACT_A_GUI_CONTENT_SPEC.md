@@ -418,6 +418,58 @@ BLOCKING pre-capture item, not a drafting preference. The two lawful states are:
 | T23G2 launched and running | *"The grid convergence study for this case is running; the band lands in your inbox with the certificate."* — her form, honest |
 | T23G2 not launched | **Act A is not ready to shoot.** Do not substitute a softer sentence; launch the study. |
 
+### ⛔ CURRENT STATE: DRAFTED, HELD, **PENDING LAUNCH CONFIRMATION**
+
+**The Screen 8 sentence is written and is NOT cleared for publication.** It
+appears in §5.2 line 3, in the §5.3 certificate block's closing line, and in the
+§9.5 re-drafted conclusion. **All three occurrences are held.**
+
+A T23G2 launch has been authorised by the coordinating lane, with the check-1
+read of `build_t23g2.py` discharged against blob `d8207e1e`. **Authorisation is
+not launch, and launch is not confirmation.** This lane runs no compute and did
+not launch it.
+
+**The release condition, and it is a measurement, not a message.** The line
+becomes publishable only when the motor lane's launch is confirmed by pids and
+advancing logs. The check a capture operator can run:
+
+    ls -d /home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs/     # must exist
+    find /home/ubuntu/Certonomous/verification/runs/T-family/T23G2_runs -name 'log.*' -mmin -10   # must be non-empty
+
+**An authorisation relayed in a message is not evidence that a solver is
+running.** Until a run tree exists with logs advancing, Screen 8 stays held and
+Act A stays unshootable. Whoever clears it should record the confirming reading
+here, beside this paragraph, rather than deleting the hold.
+
+#### CONFIRMING READING — taken 2026-09-01 ~18:40Z, by this lane, read-only
+
+The launch has landed. Measured directly, not relayed:
+
+- `verification/runs/T-family/T23G2_runs/` **exists** (mtime 18:39Z).
+- **Three levels present**: `T23G2_L1`, `T23G2_L2`, `T23G2_L3`, all mtime 18:40Z
+  — the three geometrically similar meshes the convergence doctrine requires.
+- **Six logs, all written within the preceding ten minutes**: `log.blockMesh`
+  and `log.splitMeshRegions` on each of the three levels.
+- The check-1 blob is confirmed: `git rev-parse HEAD:docs/campaigns/T-family/build_t23g2.py`
+  = `d8207e1e6d220b3f075826b305948f40d80e2b0b`, matching the read that was
+  discharged.
+
+**State, stated precisely rather than favourably: MESHING IS COMPLETE ON ALL
+THREE LEVELS; THE SOLVE HAS NOT STARTED.** There is no `log.solve` on any level
+yet, and no queue entry under `verification/queue/heat-transfer/`.
+
+**What this licenses.** The study is genuinely underway — three levels built
+inside ten minutes is unambiguous activity, and the release condition above
+(a run tree with logs advancing) is met. Her Screen 8 sentence *"The grid
+convergence study for this case is running"* is **true as of this reading**.
+
+**What it does not license.** Nothing about the *result*. No band exists, no
+observed order exists, and none may be quoted or previewed. The uncertainty
+column stays empty exactly as §5.1 requires until the three levels solve and
+grade `CONVERGING`. **If the solve does not start, this reading goes stale the
+same way §9.7's did** — re-derive it immediately before capture rather than
+trusting this paragraph.
+
 **Why the earlier draft was withdrawn.** The version first committed here said a
 refinement study *"was run… and did not settle."* That is true, and it is a good
 sentence for a lab record — but it narrates the current state of the lab, which
@@ -959,20 +1011,47 @@ the tables above and every value's source named.
 **D-A10:** Act A is shot through the registered `motor-thermal` act only; the
 `thermal-display` route is not used for capture (§9.4.2).
 
-## 9.7 A CLAIM IN MY BRIEF THAT IS FALSE, CORRECTED HERE
+## 9.7 A CLAIM THAT WAS TRUE WHEN MADE AND STALE WHEN RELAYED — BOTH RECORDED
+
+**This entry was itself corrected, and the correction is the more useful record.**
 
 I was told that `sdk/workflows/motor_thermal_act.py` and
 `sdk/geometry/t23_solved_geometry.stl` *"DO exist on disk now (mtime 15:37) but
 are NOT tracked at HEAD"*, that the Act A patch was *"left uncommitted"* and is
 *"NOT recoverable"*, and that committing them should be named a cfd dependency.
 
-**Measured: all three of `motor_thermal_act.py`, `t23_solved_geometry.stl` and
-`thermal_display.py` are TRACKED at HEAD and CLEAN against it** —
-`git cat-file -e HEAD:<path>` succeeds and `git diff --quiet HEAD -- <path>`
-reports no difference for each. Nothing is uncommitted and nothing is at risk.
+**Measured when I received it: all three of `motor_thermal_act.py`,
+`t23_solved_geometry.stl` and `thermal_display.py` are TRACKED at HEAD and CLEAN
+against it** — `git cat-file -e HEAD:<path>` succeeds and
+`git diff --quiet HEAD -- <path>` reports no difference for each.
 
-**No such cfd dependency is recorded, because there is nothing to commit.**
-Checklist item 1 is satisfied at HEAD, not merely in a working tree.
+**But the claim was TRUE when it was made, and the provenance matters more than
+the contradiction.** The timeline, verified:
+
+| Time | Event |
+|---|---|
+| ~15:37Z | The Act A patch is applied to the working tree and left untracked |
+| ~18:12Z | The claim is measured: `git rev-parse HEAD:sdk/workflows/motor_thermal_act.py` returns *"exists on disk, but not in 'HEAD'"*. **Untracked. The claim is correct.** |
+| **18:24:30Z** | **cfd commits `873e41505e122f4ef62c2b0f856f668fab8256f5`** — *"LANDS HEAT-TRANSFER'S APPLIED ACT A PATCH BEFORE IT IS LOST — 969 LINES SAT UNTRACKED FOR THREE HOURS, ONE `git clean` FROM GONE"*. `git show --name-status` confirms status **`A`** for both files: 764 lines of `motor_thermal_act.py` and 90,084 bytes of the STL, 969 insertions across 3 files. |
+| ~20:40Z | I measure. Both tracked and clean. **My reading is also correct.** |
+
+So the warning was real, the risk was real (one `git clean` from losing 969
+lines), it was acted on, and **the INSTRUCTION derived from it went stale inside
+twelve minutes.** Neither reading was wrong; they were taken on either side of a
+commit.
+
+**The operative conclusion is unchanged and is the one to act on: no cfd
+dependency is recorded, because there is nothing to commit.** Checklist item 1 is
+satisfied **at HEAD**, not merely in a working tree. A lane acting on the
+withdrawn instruction would stage files already at HEAD.
+
+**The lesson this belongs to, and it is not a wording quibble.** On a tree this
+fast, any claim about another team's files decays in minutes. **Re-derive at the
+point of USE, not the point of discovery.** This is the same class as the lab's
+standing `git status` staleness note and as the two grep sweeps in §2.2 that
+returned different subsets minutes apart. A successor reading this file should
+see both readings and the commit between them, not a verdict that one party was
+careless.
 
 ## 9.8 THE NINE-BOX SHOOTING CHECKLIST, FOR ACT A
 
