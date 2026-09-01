@@ -63,7 +63,7 @@ ALPHA_DEG = 0.0
 END_TIME = 20000      # system/controlDict endTime (registered section 5.5)
 Q_INF = 0.5 * U_INF ** 2   # kinematic dynamic pressure (p is p/rho in simpleFoam)
 
-BANNER = "FEASIBILITY/PHYSICS RUNG — UNGRADED.  No gate, no verdict."
+BANNER = "Feasibility and physics rung, ungraded: no gate, no verdict"
 
 INK = "#1b1b1f"
 INK2 = "#4a4a52"

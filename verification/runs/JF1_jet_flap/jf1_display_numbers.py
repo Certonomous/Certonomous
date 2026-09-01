@@ -343,6 +343,58 @@ def cell_count(case_dir: Path) -> dict[str, object]:
     return {"cells": int(found.group(1)), "path": str(log)}
 
 
+def bounded_k_census(case_dir: Path) -> dict[str, object]:
+    """How often the solver had to clip turbulent kinetic energy back to zero.
+
+    A "bounding k" line means the transported turbulence energy went negative
+    somewhere and the solver pushed it back. That is a real limitation of a
+    result, not housekeeping: a field held non-negative by repeated clipping is
+    not the same object as one that converged without it, and it must be said
+    rather than left in the log for nobody to read.
+
+    Counted per iteration, not per line: one iteration can clip several times
+    and counting lines would overstate it. Returns the fraction of iterations
+    that clipped and the first iteration from which clipping ran continuously
+    to the end, which is the shape that matters -- occasional early clipping
+    while a solution settles is ordinary, clipping every step to the last is
+    not.
+    """
+    log = Path(case_dir) / "log.simpleFoam"
+    if not log.is_file():
+        raise ReaderRefused(f"no solver log at {log}")
+    steps = 0
+    clipped = 0
+    current = None
+    current_clipped = False
+    last_clean = None
+    for line in log.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith("Time = "):
+            if current is not None:
+                steps += 1
+                if current_clipped:
+                    clipped += 1
+                else:
+                    last_clean = current
+            current = int(line.split()[2])
+            current_clipped = False
+        elif line.startswith("bounding k"):
+            current_clipped = True
+    if current is not None:
+        steps += 1
+        if current_clipped:
+            clipped += 1
+        else:
+            last_clean = current
+    if steps == 0:
+        raise ReaderRefused(f"{log} carries no iterations to count")
+    return {"iterations": steps, "clipped": clipped,
+            "fraction": clipped / steps,
+            # The first iteration after the last clean one: from here on, every
+            # iteration clipped. None means it never ran continuously.
+            "continuous_from": (last_clean + 1) if clipped else None,
+            "path": str(log)}
+
+
 def measured_core_minutes(case_dir: Path) -> dict[str, object]:
     """What a case actually cost, read off its own log rather than typed.
 

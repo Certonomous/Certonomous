@@ -71,6 +71,13 @@ from plot_jf1_p1_demo import (          # noqa: E402
     plant_control_internal, plant_control_raw, run_state, cl_cd_from_cp,
     jet_trajectory,
 )
+# The movement quantity comes from the ONE implementation, not from a second
+# copy of the same arithmetic living here. This file used to compute its own
+# half range over the final 4,000 iterations from read_coefficient_dat. The two
+# agreed to 1e-15 on all five rows when it was measured, which is exactly the
+# state the previous two failures of this kind were in right up until they were
+# not. The asset manifest already claimed one implementation; now that is true.
+import jf1_display_numbers as jf1num    # noqa: E402
 
 # ------------------------------------------------------------------- physics --
 U_INF = 10.0
@@ -132,7 +139,7 @@ LINEAR_C = "#c1121f"
 RAMP = ["#bfd3e6", "#7fa8d0", "#3f7cb4", "#0b4f8f"]   # one hue, light -> dark
 UNBLOWN_C = "#6d6d78"
 
-BANNER = "PRELIMINARY — EXPLORATORY CALCULATION, NOT A VALIDATED RESULT"
+BANNER = "Preliminary: exploratory calculation, not a validated result"
 
 
 def tidy(ax):
@@ -179,6 +186,46 @@ def caveat_box(ax, lines, title="WHAT YOU SHOULD KNOW ABOUT THESE NUMBERS"):
 def cost_line(fig, text):
     fig.text(0.5, 0.010, text, ha="center", va="bottom", fontsize=8.0,
              color=MUTED)
+
+
+def caption(fig, text):
+    """The figure's ONE caption line, at most twenty words.
+
+    Sanaa's figure standard gives each figure a title of at most ten words,
+    axis labels with units, a legend inside the axes, and one caption line of
+    at most twenty words. Everything that used to be explained inside these
+    images -- the header paragraphs, the two-column caveat boxes, the in-axes
+    annotations -- moves to the result sheet as one compact paragraph per
+    figure.
+
+    THE LIMIT IS ENFORCED HERE RATHER THAN TRUSTED, and it refuses at draw
+    time. Every prose rule this act carried in a comment rather than in a check
+    was eventually broken by an edit that meant well, including the one that
+    left a false sentence on a signed asset for a day.
+    """
+    words = text.split()
+    if len(words) > 20:
+        raise Refusal("figure caption is %d words and at most 20 are allowed: "
+                      "%r" % (len(words), text))
+    for word in words:
+        stripped = "".join(ch for ch in word if ch.isalpha())
+        if len(stripped) > 2 and stripped.isupper():
+            raise Refusal("figure caption shouts %r: %r" % (stripped, text))
+    fig.text(0.5, 0.012, text, ha="center", va="bottom", fontsize=9.0,
+             color=INK2)
+
+
+def check_title(text, limit=10):
+    """A figure title, at most ten words and not shouting."""
+    words = [w for w in text.replace("\n", " ").split() if w]
+    if len(words) > limit:
+        raise Refusal("figure title is %d words and at most %d are allowed: %r"
+                      % (len(words), limit, text))
+    for word in words:
+        stripped = "".join(ch for ch in word if ch.isalpha())
+        if len(stripped) > 2 and stripped.isupper():
+            raise Refusal("figure title shouts %r: %r" % (stripped, text))
+    return text
 
 
 #: Unicode superscript digits, for scientific notation inside a plain-text
@@ -264,8 +311,13 @@ def digest_sweep(base):
         # which was a hard-coded constant contradicting its own caption. This
         # figure moved by convention; that column was defective. Do not blur
         # the two.
-        m = t > t.max() - 4000
-        scatter = 0.5 * float(cl[m].max() - cl[m].min())
+        #
+        # THE ARITHMETIC IS NO LONGER REPEATED HERE. It is the reader every
+        # other surface in this campaign uses, which also plants a known value
+        # into a copy of the force history and refuses if it cannot read it
+        # back, and refuses rather than shortening the window if fewer than
+        # 4,000 iterations exist. This file's own version had neither control.
+        scatter = jf1num.settling(case)["half_range"]
         i = int(np.argmin(np.abs(t - SWEEP_TIME)))
 
         si = os.path.join(case, "postProcessing", "contErr", "0",
@@ -413,14 +465,15 @@ def main():
         plt.close(fig)
 
     # =========================================== FIGURE 1: lift vs blowing ===
-    fig = plt.figure(figsize=(14.0, 9.6))
-    gs = fig.add_gridspec(2, 2, height_ratios=[2.7, 1.15],
-                          width_ratios=[2.15, 1.0],
-                          left=0.062, right=0.985, top=0.805, bottom=0.075,
-                          hspace=0.42, wspace=0.20)
+    # The caveat-box row is gone: figures carry no paragraphs, and everything
+    # that box said now lives on the result sheet, where it can be read rather
+    # than squinted at. The header paragraph above the axes goes with it.
+    fig = plt.figure(figsize=(14.0, 6.4))
+    gs = fig.add_gridspec(1, 2, width_ratios=[2.15, 1.0],
+                          left=0.062, right=0.985, top=0.880, bottom=0.115,
+                          wspace=0.20)
     ax = fig.add_subplot(gs[0, 0])
     axb = fig.add_subplot(gs[0, 1])
-    axc = fig.add_subplot(gs[1, :])
 
     cg = np.linspace(1e-5, 0.45, 400)
     th = np.array([cl_theory(c) for c in cg])
@@ -464,22 +517,17 @@ def main():
     ax.set_ylim(0.0, 1.42)
     ax.set_xlabel("jet momentum coefficient  $C_\\mu$  [–]")
     ax.set_ylabel("lift coefficient  $C_L$  [–]")
-    ax.set_title("Lift grows as the SQUARE ROOT of jet momentum, not in "
-                 "proportion to it", weight="bold", color=INK, loc="left",
-                 pad=9)
+    ax.set_title(check_title("Lift grows with the square root of jet momentum"),
+                 weight="bold", color=INK, loc="left", pad=9)
     leg = ax.legend(frameon=False, fontsize=8.9, loc="lower right",
                     labelspacing=0.8, borderaxespad=1.1)
     for t_ in leg.get_texts():
         t_.set_color(INK2)
     tidy(ax)
 
-    f_mom = 100.0 * blown[0]["cmu"] / blown[-1]["cmu"]
-    f_lift = 100.0 * blown[0]["cl_tot"] / blown[-1]["cl_tot"]
-    ax.annotate("the first %.0f %% of the jet momentum\nbuys %.0f %% of the lift"
-                % (f_mom, f_lift),
-                xy=(0.05, blown[0]["cl_tot"]), xytext=(0.088, 0.215),
-                fontsize=9.2, color=LINEAR_C,
-                arrowprops=dict(arrowstyle="->", color=LINEAR_C, lw=1.3))
+    # The "first N% of the momentum buys M% of the lift" annotation is gone
+    # from inside the axes. It is an explanation, and explanations go to the
+    # sheet; the marginal panel to the right shows the same thing as numbers.
 
     # --- marginal return panel
     steps = [(blown[i]["cmu"], blown[i + 1]["cmu"],
@@ -497,35 +545,21 @@ def main():
     axb.set_ylim(0, max(vals) * 1.30)
     axb.set_xlabel("change in $C_\\mu$ over the step  [–]")
     axb.set_ylabel("extra lift per unit of\nextra jet momentum  [–]")
-    axb.set_title("Each extra unit of blowing\nbuys less than the one before",
+    axb.set_title(check_title("Each extra unit of blowing buys less"),
                   weight="bold", color=INK, loc="left", fontsize=11.0, pad=9)
     tidy(axb)
 
-    caveat_box(axc, conv_note)
     banner(fig)
-    fig.text(0.5, 0.930,
-             "Two-dimensional wing section, 1.0 m chord, symmetric, at zero "
-             "incidence in a 10 m s⁻¹ stream. A 5.0 mm slot at the trailing "
-             "edge blows a sheet of air\naimed 30° below the chord line. "
-             "$C_\\mu$ is the jet's momentum divided by the oncoming stream's "
-             "dynamic pressure times the chord. All five calculations share "
-             "one mesh of 39 984 cells.\nThe four blown cases differ from one "
-             "another only in how hard the slot blows, so the differences "
-             "among those four are caused by the blowing and by nothing "
-             "else.\nThe fifth is the reference case, with the slot closed — "
-             "not the same wing with the jet turned down to zero.",
-             ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)
-    cost_line(fig, cost_sweep)
+    caption(fig, "Four blown settings and one slot-closed reference, on one "
+                 "grid, against published jet-flap theory.")
     save(fig, "jet_flap_1_lift_vs_blowing")
 
     # ======================================= FIGURE 2: surface pressure ======
-    fig = plt.figure(figsize=(14.0, 9.6))
-    gs = fig.add_gridspec(2, 2, height_ratios=[2.7, 1.15],
-                          left=0.062, right=0.985, top=0.805, bottom=0.075,
-                          hspace=0.42, wspace=0.16)
+    fig = plt.figure(figsize=(14.0, 6.4))
+    gs = fig.add_gridspec(1, 2, left=0.062, right=0.985, top=0.880,
+                          bottom=0.115, wspace=0.16)
     axu = fig.add_subplot(gs[0, 0])
     axl = fig.add_subplot(gs[0, 1])
-    axc = fig.add_subplot(gs[1, :])
 
     handles = []
     for r in rows:
@@ -561,29 +595,11 @@ def main():
     for t_ in leg.get_texts():
         t_.set_color(INK2)
 
-    axu.annotate("more blowing = more suction\nalong the whole upper surface",
-                 xy=(0.45, -0.72), xytext=(0.30, -1.85), fontsize=9.2,
-                 color=RAMP[3], ha="left",
-                 arrowprops=dict(arrowstyle="->", color=RAMP[3], lw=1.3))
-    axl.annotate("and less pressure recovery\nalong the lower surface",
-                 xy=(0.45, -0.10), xytext=(0.30, -1.30), fontsize=9.2,
-                 color=RAMP[3], ha="left",
-                 arrowprops=dict(arrowstyle="->", color=RAMP[3], lw=1.3))
+    # The two in-axes explanations move to the sheet with the rest.
 
     banner(fig)
-    fig.text(0.5, 0.930,
-             "The same wing and the same mesh in all five curves. The four "
-             "blown curves differ from one another only in the strength of the "
-             "trailing-edge jet, so that\ncomparison is controlled. The fifth "
-             "curve, dashed grey, is the reference case with the slot closed — "
-             "not the same wing with the jet turned down to zero.\nPressure "
-             "is shown in the usual aerodynamic convention with suction upward. "
-             "The area between the upper and lower curves is the lift, so the\n"
-             "widening gap as the jet strengthens IS the lift the blowing "
-             "produces.",
-             ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)
-    caveat_box(axc, conv_note)
-    cost_line(fig, cost_sweep)
+    caption(fig, "Chordwise pressure for four blown settings and the "
+                 "slot-closed reference, upper and lower surfaces separated.")
     save(fig, "jet_flap_2_surface_pressure")
 
     # ==================== live-run figures: field and jet trajectory =========
@@ -626,11 +642,10 @@ def main():
         "  •  Indicative only. No mesh-refinement study, no experiment.")
 
     # -------------------------------------------------- FIGURE 3: the field --
-    fig = plt.figure(figsize=(14.0, 9.9))
-    gs = fig.add_gridspec(2, 1, height_ratios=[3.0, 1.15], left=0.055,
-                          right=0.935, top=0.858, bottom=0.072, hspace=0.30)
+    fig = plt.figure(figsize=(14.0, 7.6))
+    gs = fig.add_gridspec(1, 1, left=0.055, right=0.935, top=0.895,
+                          bottom=0.095)
     ax = fig.add_subplot(gs[0, 0])
-    axc = fig.add_subplot(gs[1, 0])
 
     xlim, ylim = (-0.75, 3.25), (-0.98, 0.90)
     m = ((cx > xlim[0] - 0.3) & (cx < xlim[1] + 0.3) &
@@ -676,42 +691,24 @@ def main():
     ax.set_aspect("equal", adjustable="box")
     ax.set_xlabel("$x/c$  [–]")
     ax.set_ylabel("$y/c$  [–]")
-    ax.set_title("A jet of air doing the job of a flap", weight="bold",
-                 color=INK, loc="left", pad=9)
+    ax.set_title(check_title("A jet of air doing the job of a flap"),
+                 weight="bold", color=INK, loc="left", pad=9)
     ax.tick_params(colors=INK2, labelsize=9.5)
-    ax.text(0.010, 0.028,
-            "Red = air moving FASTER than the 10 m s⁻¹ oncoming stream, "
-            "blue = slower, white = the same speed.  The wing is symmetric\n"
-            "and sits at zero incidence, so without blowing it would make no "
-            "lift at all. There is no hinged flap\n"
-            "anywhere in this model. The dark blue line traces the fast sheet "
-            "of air leaving the slot; it bends the oncoming flow downward,\n"
-            "and bending the flow down is what lifts the wing up. Dashed line: "
-            "air moving at exactly the oncoming speed. Streamlines all\n"
-            "enter from the left at equal spacing, so where they bunch up the "
-            "air has sped up. Contours and streamlines are drawn on a\n"
-            "%d×%d display grid; every number quoted on these charts is read "
-            "from the solver's own output, never from that display grid."
-            % (len(gx), len(gy)),
-            transform=ax.transAxes, fontsize=8.5, color=INK2, va="bottom",
-            ha="left", linespacing=1.4,
-            bbox=dict(boxstyle="round,pad=0.55", fc="#ffffff", ec=GRIDC,
-                      alpha=0.93))
+    # The six-line block that used to sit inside these axes -- what red and
+    # blue mean, what the dark line is, what the display grid is -- is on the
+    # sheet now. A picture explaining itself in a paragraph is the thing the
+    # standard removes.
 
     banner(fig)
-    lc = live_caveat % (st_live["last_time"], 20000, st_live["res"]["p"],
-                        st_live["res"]["p"] / 1e-6, frac,
-                        st_live["first_bounded"])
-    caveat_box(axc, lc)
-    cost_line(fig, cost_live)
+    caption(fig, "Speed relative to the oncoming stream, with the jet sheet "
+                 "traced and streamlines entering at equal spacing.")
     save(fig, "jet_flap_3_flow_field")
 
     # ----------------------------------------------- FIGURE 4: trajectory ---
-    fig = plt.figure(figsize=(14.0, 9.2))
-    gs = fig.add_gridspec(2, 1, height_ratios=[2.3, 1.15], left=0.062,
-                          right=0.985, top=0.858, bottom=0.072, hspace=0.40)
+    fig = plt.figure(figsize=(14.0, 6.8))
+    gs = fig.add_gridspec(1, 1, left=0.062, right=0.985, top=0.895,
+                          bottom=0.105)
     ax = fig.add_subplot(gs[0, 0])
-    axc = fig.add_subplot(gs[1, 0])
 
     ax.fill(np.append(poly[:, 0], poly[0, 0]),
             np.append(poly[:, 1], poly[0, 1]), color="#16161a", zorder=4,
@@ -738,39 +735,21 @@ def main():
     ax.set_aspect("equal", adjustable="box")
     ax.set_xlabel("$x/c$  [–]   (slot at $x/c = 1.00$)")
     ax.set_ylabel("$y/c$  [–]")
-    ax.set_title("The jet is turned by the flow it is turning", weight="bold",
-                 color=INK, loc="left", pad=9)
+    ax.set_title(check_title("The jet is turned by the flow it is turning"),
+                 weight="bold", color=INK, loc="left", pad=9)
     leg = ax.legend(frameon=False, fontsize=9.2, loc="upper right")
     for t_ in leg.get_texts():
         t_.set_color(INK2)
     tidy(ax)
 
-    i2 = int(np.argmin(np.abs(tx - 1.05)))
-    ang0 = math.degrees(math.atan2(-(ty[i2]), tx[i2] - 1.0))
-    dev = ty[-1] + (tx[-1] - 1.0) * math.tan(TAU)
-    ax.text(0.020, 0.605,
-            "The slot aims the sheet 30° below the chord line at "
-            "31.6 m s$^{-1}$.\n"
-            "By $x/c$ = %.2f the sheet has already been bent to %.0f° below "
-            "the chord,\n"
-            "and by $x/c$ = %.2f it lies %.2f chords above where a free jet "
-            "would be.\n"
-            "That bending is the force. The jet pushes the air down; the air "
-            "pushes\n"
-            "the jet back up and the wing up with it. Peak speed in the sheet "
-            "falls\n"
-            "from %.1f to %.1f m s$^{-1}$ over that distance. The trace stops "
-            "where the\n"
-            "sheet can no longer be told apart from the surrounding air; it is "
-            "not\n"
-            "extrapolated." % (tx[i2], ang0, tx[-1], dev, tm[0], tm[-1]),
-            transform=ax.transAxes, fontsize=9.0, color=INK2, ha="left",
-            va="top", linespacing=1.45,
-            bbox=dict(boxstyle="round,pad=0.6", fc="#f5f5f8", ec=GRIDC))
+    # The eight-line block inside these axes moves to the sheet as well. The
+    # numbers it carried -- the turning angle, the deviation from a free jet,
+    # the speed decay -- are quantities, and quantities belong in the sheet's
+    # tables where they can be read beside their uncertainty.
 
     banner(fig)
-    caveat_box(axc, lc)
-    cost_line(fig, cost_live)
+    caption(fig, "The ejected sheet leaves at thirty degrees and is turned by "
+                 "the oncoming flow; colour is peak speed.")
     save(fig, "jet_flap_4_jet_path")
 
     # ------------------------------------------------------------ readout ---

@@ -86,7 +86,7 @@ BODY = "#26262c"
 BOXC = "#c1121f"
 ACCENT = "#0b4f8f"
 
-BANNER = "PRELIMINARY — EXPLORATORY CALCULATION, NOT A VALIDATED RESULT"
+BANNER = "Preliminary: exploratory calculation, not a validated result"
 
 
 def tidy(ax):
