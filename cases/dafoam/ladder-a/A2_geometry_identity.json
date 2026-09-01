@@ -1,0 +1,302 @@
+{
+ "_what": "Act D geometry identity: candidate STLs measured against the wall patch of the polyMesh Act D's numbers belong to.",
+ "solved_case": "/home/ubuntu/certonomous-runs/A2-mach-wing",
+ "solved_wall": {
+  "patch": "wing",
+  "faces": 1008,
+  "face_sides": [
+   4
+  ],
+  "unique_points": 1031,
+  "bbox_min": [
+   1.128302297e-06,
+   -0.2918759376,
+   0.0
+  ],
+  "bbox_max": [
+   9.0,
+   0.3125524005,
+   14.04188081
+  ],
+  "extent": [
+   8.999998871697702,
+   0.6044283381,
+   14.04188081
+  ],
+  "total_points_in_mesh": 40209
+ },
+ "candidates": {
+  "sdk_geometry": {
+   "present": true,
+   "path": "/home/ubuntu/Certonomous/sdk/geometry/mach_tutorial_wing.stl",
+   "bytes": 100884,
+   "md5": "7249d160d63090ed103995b8a0239a8e",
+   "measured": {
+    "triangles": 2016,
+    "unique_points": 1031,
+    "bbox_min": [
+     9.999999974752427e-07,
+     -0.2918759882450104,
+     0.0
+    ],
+    "bbox_max": [
+     9.0,
+     0.31255200505256653,
+     14.04188060760498
+    ],
+    "extent": [
+     8.999999000000003,
+     0.6044279932975769,
+     14.04188060760498
+    ]
+   },
+   "comparison": {
+    "rows": [
+     {
+      "axis": "X",
+      "quantity": "min",
+      "stl": 9.999999974752427e-07,
+      "solved_mesh": 1.128302297e-06,
+      "abs_diff_m": 1.2830229952475732e-07,
+      "pct_of_axis_extent": 1.4255812845513747e-06
+     },
+     {
+      "axis": "X",
+      "quantity": "max",
+      "stl": 9.0,
+      "solved_mesh": 9.0,
+      "abs_diff_m": 0.0,
+      "pct_of_axis_extent": 0.0
+     },
+     {
+      "axis": "X",
+      "quantity": "extent",
+      "stl": 8.999999000000003,
+      "solved_mesh": 8.999998871697702,
+      "abs_diff_m": 1.2830230033955559e-07,
+      "pct_of_axis_extent": 1.4255812936046898e-06
+     },
+     {
+      "axis": "Y",
+      "quantity": "min",
+      "stl": -0.2918759882450104,
+      "solved_mesh": -0.2918759376,
+      "abs_diff_m": 5.0645010352123876e-08,
+      "pct_of_axis_extent": 8.37899336608286e-06
+     },
+     {
+      "axis": "Y",
+      "quantity": "max",
+      "stl": 0.31255200505256653,
+      "solved_mesh": 0.3125524005,
+      "abs_diff_m": 3.9544743346553446e-07,
+      "pct_of_axis_extent": 6.542503197461094e-05
+     },
+     {
+      "axis": "Y",
+      "quantity": "extent",
+      "stl": 0.6044279932975769,
+      "solved_mesh": 0.6044283381,
+      "abs_diff_m": 3.4480242305789943e-07,
+      "pct_of_axis_extent": 5.7046038599344e-05
+     },
+     {
+      "axis": "Z",
+      "quantity": "min",
+      "stl": 0.0,
+      "solved_mesh": 0.0,
+      "abs_diff_m": 0.0,
+      "pct_of_axis_extent": 0.0
+     },
+     {
+      "axis": "Z",
+      "quantity": "max",
+      "stl": 14.04188060760498,
+      "solved_mesh": 14.04188081,
+      "abs_diff_m": 2.0239501985486186e-07,
+      "pct_of_axis_extent": 1.4413668837776003e-06
+     },
+     {
+      "axis": "Z",
+      "quantity": "extent",
+      "stl": 14.04188060760498,
+      "solved_mesh": 14.04188081,
+      "abs_diff_m": 2.0239501985486186e-07,
+      "pct_of_axis_extent": 1.4413668837776003e-06
+     }
+    ],
+    "worst_pct_of_axis_extent": 6.542503197461094e-05,
+    "point_set_deviation": {
+     "stl_to_mesh_max_m": 1.2666810786974415e-06,
+     "mesh_to_stl_max_m": 1.2666810786974415e-06,
+     "two_way_max_m": 1.2666810786974415e-06,
+     "worst_stl_point": [
+      8.377050399780273,
+      0.0051380000077188015,
+      11.854961395263672
+     ],
+     "worst_mesh_point": [
+      8.377049521,
+      0.005138220313,
+      11.85496051
+     ]
+    },
+    "resolution_floor_m_one_float32_ulp": 9.5367431640625e-07,
+    "count_match": {
+     "stl_triangles": 2016,
+     "solved_wall_faces": 1008,
+     "stl_triangles_over_wall_faces": 2.0,
+     "stl_unique_points": 1031,
+     "solved_wall_unique_points": 1031,
+     "points_equal": true
+    }
+   }
+  },
+  "website_surfaces": {
+   "present": true,
+   "path": "/home/ubuntu/Certonomous/demo-output/website/surfaces/mach_tutorial_wing.stl",
+   "bytes": 100884,
+   "md5": "2863e1d99e8b513aa99a528b44a161f2",
+   "measured": {
+    "triangles": 2016,
+    "unique_points": 1031,
+    "bbox_min": [
+     9.999999974752427e-07,
+     -0.2918759882450104,
+     0.0
+    ],
+    "bbox_max": [
+     9.0,
+     0.31255200505256653,
+     14.04188060760498
+    ],
+    "extent": [
+     8.999999000000003,
+     0.6044279932975769,
+     14.04188060760498
+    ]
+   },
+   "comparison": {
+    "rows": [
+     {
+      "axis": "X",
+      "quantity": "min",
+      "stl": 9.999999974752427e-07,
+      "solved_mesh": 1.128302297e-06,
+      "abs_diff_m": 1.2830229952475732e-07,
+      "pct_of_axis_extent": 1.4255812845513747e-06
+     },
+     {
+      "axis": "X",
+      "quantity": "max",
+      "stl": 9.0,
+      "solved_mesh": 9.0,
+      "abs_diff_m": 0.0,
+      "pct_of_axis_extent": 0.0
+     },
+     {
+      "axis": "X",
+      "quantity": "extent",
+      "stl": 8.999999000000003,
+      "solved_mesh": 8.999998871697702,
+      "abs_diff_m": 1.2830230033955559e-07,
+      "pct_of_axis_extent": 1.4255812936046898e-06
+     },
+     {
+      "axis": "Y",
+      "quantity": "min",
+      "stl": -0.2918759882450104,
+      "solved_mesh": -0.2918759376,
+      "abs_diff_m": 5.0645010352123876e-08,
+      "pct_of_axis_extent": 8.37899336608286e-06
+     },
+     {
+      "axis": "Y",
+      "quantity": "max",
+      "stl": 0.31255200505256653,
+      "solved_mesh": 0.3125524005,
+      "abs_diff_m": 3.9544743346553446e-07,
+      "pct_of_axis_extent": 6.542503197461094e-05
+     },
+     {
+      "axis": "Y",
+      "quantity": "extent",
+      "stl": 0.6044279932975769,
+      "solved_mesh": 0.6044283381,
+      "abs_diff_m": 3.4480242305789943e-07,
+      "pct_of_axis_extent": 5.7046038599344e-05
+     },
+     {
+      "axis": "Z",
+      "quantity": "min",
+      "stl": 0.0,
+      "solved_mesh": 0.0,
+      "abs_diff_m": 0.0,
+      "pct_of_axis_extent": 0.0
+     },
+     {
+      "axis": "Z",
+      "quantity": "max",
+      "stl": 14.04188060760498,
+      "solved_mesh": 14.04188081,
+      "abs_diff_m": 2.0239501985486186e-07,
+      "pct_of_axis_extent": 1.4413668837776003e-06
+     },
+     {
+      "axis": "Z",
+      "quantity": "extent",
+      "stl": 14.04188060760498,
+      "solved_mesh": 14.04188081,
+      "abs_diff_m": 2.0239501985486186e-07,
+      "pct_of_axis_extent": 1.4413668837776003e-06
+     }
+    ],
+    "worst_pct_of_axis_extent": 6.542503197461094e-05,
+    "point_set_deviation": {
+     "stl_to_mesh_max_m": 1.2666810786974415e-06,
+     "mesh_to_stl_max_m": 1.2666810786974415e-06,
+     "two_way_max_m": 1.2666810786974415e-06,
+     "worst_stl_point": [
+      8.377050399780273,
+      0.0051380000077188015,
+      11.854961395263672
+     ],
+     "worst_mesh_point": [
+      8.377049521,
+      0.005138220313,
+      11.85496051
+     ]
+    },
+    "resolution_floor_m_one_float32_ulp": 9.5367431640625e-07,
+    "count_match": {
+     "stl_triangles": 2016,
+     "solved_wall_faces": 1008,
+     "stl_triangles_over_wall_faces": 2.0,
+     "stl_unique_points": 1031,
+     "solved_wall_unique_points": 1031,
+     "points_equal": true
+    }
+   }
+  }
+ },
+ "plant_control": {
+  "sdk_geometry": {
+   "plant_m": 0.001,
+   "plant_is_a_bbox_extreme": false,
+   "two_way_max_m_clean": 1.2666810786974415e-06,
+   "two_way_max_m_planted": 0.001000464142568476,
+   "delta_m": 0.0009991974614897785,
+   "recovered_fraction_of_plant": 0.9991974614897785,
+   "reader_saw_the_plant": true
+  },
+  "website_surfaces": {
+   "plant_m": 0.001,
+   "plant_is_a_bbox_extreme": false,
+   "two_way_max_m_clean": 1.2666810786974415e-06,
+   "two_way_max_m_planted": 0.001000464142568476,
+   "delta_m": 0.0009991974614897785,
+   "recovered_fraction_of_plant": 0.9991974614897785,
+   "reader_saw_the_plant": true
+  }
+ }
+}
