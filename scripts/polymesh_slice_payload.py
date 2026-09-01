@@ -84,8 +84,12 @@ def read_boundary(path: Path) -> dict[str, tuple[int, int]]:
     return {name: (int(n), int(s)) for name, n, s in found}
 
 
-def slice_payload(poly: Path, *, wall_patch: str = "airfoil",
+def slice_payload(poly: Path | str, *, wall_patch: str = "airfoil",
                   slot_patch: str = "jetSlot") -> dict:
+    # Coerced rather than assumed: the caller inside the sequencer passes a
+    # Path and a caller at a prompt passes a string, and a `str / str` is a
+    # TypeError three frames deep instead of a refusal here.
+    poly = Path(poly)
     points = read_points(poly / "points")
     faces = read_faces(poly / "faces")
     patches = read_boundary(poly / "boundary")

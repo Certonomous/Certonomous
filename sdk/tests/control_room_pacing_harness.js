@@ -200,6 +200,7 @@ function newPage(src = source) {
   // url -> responseText function so one page can serve the static-replay
   // snapshot and its geometry from different URLs.
   let xhrRoutes = null;
+  let fetchRoutes = null;
   const sandbox = {
     document, window: win, console,
     setTimeout: setTimeout_, clearTimeout: clearTimeout_,
@@ -211,6 +212,16 @@ function newPage(src = source) {
     // POST answers with an id, so a launch can be driven without a solver.
     fetch: (url, opts) => {
       const u = String(url);
+      // Overridable per page via page.setFetch(), the same door setXhr opens
+      // for the synchronous path. The computational grid arrives by fetch from
+      // a URL nothing else here serves, and a handler that can only be shown to
+      // do nothing has not been shown to do anything.
+      if (fetchRoutes) {
+        const answer = fetchRoutes(u, opts);
+        if (answer !== undefined)
+          return Promise.resolve({ ok: true, json: () => Promise.resolve(answer),
+                                   text: () => Promise.resolve(JSON.stringify(answer)) });
+      }
       if (u.startsWith('/api/geometry/upload'))
         return Promise.resolve({ ok: true, json: () => Promise.resolve({
           name: 'b52.stl', triangles: 13784, url: '/api/geometry?name=b52.stl',
@@ -262,7 +273,8 @@ function newPage(src = source) {
     process.exit(1);
   }
   return { api, byId, clock, advance, drain, setTimeout: setTimeout_,
-           setXhr: fn => { xhrRoutes = fn; } };
+           setXhr: fn => { xhrRoutes = fn; },
+           setFetch: fn => { fetchRoutes = fn; } };
 }
 
 // ---- assertions ----------------------------------------------------------
@@ -1263,6 +1275,70 @@ const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, ''
     check(/Decided item/.test(html) && cardsIn(html) > 8,
           'PLANTED CONTROL DEAD: restoring the uncurated wall did not bring the ' +
           'decided cards back, so the curation checks are not testing the wall');
+  }
+
+  // -------------------------------------- the grid reaches the stage
+  // WITH ITS OWN PLANTED CONTROL. `mesh.grid` is a NEW event type, and this
+  // page's `switch (t)` has no `default:` branch, so a type with no case
+  // renders nothing at all and says nothing about it -- that is how 1,270 of
+  // this act's events once fell through it silently. A check that can only
+  // report "the label is there" proves nothing unless it has been seen to
+  // report "the label is not there", so the same drive is run against a page
+  // with the `mesh.grid` case removed, and THAT must fail.
+  {
+    // A four-cell grid, the smallest thing that is still a grid: two rows of
+    // two, one wall edge and one slot edge. Real shape, trivial size.
+    const grid = {
+      cells: 4,
+      nodes: [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2]],
+      quads: [[0,1,4,3],[1,2,5,4],[3,4,7,6],[4,5,8,7]],
+      wall: [[3,4]], slot: [[4,5]],
+      bounds: [0,0,2,2], body_box: [0,0,2,2], slot_box: [0.9,0.4,1.6,1.1],
+    };
+    // ASYNC BECAUSE THE HANDLER IS. `loadGrid` fetches, so its work happens in
+    // a microtask; a synchronous drive returns before the promise ever settles
+    // and would report the handler dead when it is only unawaited.
+    const drive = async src => {
+      const p = newPage(src);
+      p.setFetch(u => (u === '/api/grid.json' ? grid : undefined));
+      p.api.dispatch({ event: 'mesh.grid', payload: {
+        stage: 'meshing', url: '/api/grid.json', cells: 4,
+        label: 'the grid the lift and the pressures are computed on',
+        caption: 'Four cells, drawn one at a time.' } });
+      for (let i = 0; i < 8; i++) { await new Promise(r => setImmediate(r)); p.drain(20000); }
+      return { label: String(p.byId('viewportLabel').textContent),
+               stats: String(p.byId('viewportStats').textContent),
+               head: String(p.byId('viewportHead').textContent),
+               gridShown: p.byId('gridCanvas').hidden === false,
+               bodyShown: p.byId('viewportCanvas').hidden === false };
+    };
+    const got = await drive();
+    check(/the grid the lift/.test(got.label),
+          `the grid announcement did not reach #viewportLabel, which read ` +
+          `${JSON.stringify(got.label)}`);
+    check(got.stats === '4 cells',
+          `the cell count did not reach #viewportStats, which read ` +
+          `${JSON.stringify(got.stats)}`);
+    check(got.head === 'Computational grid',
+          `the panel head did not follow the stage, it read ` +
+          `${JSON.stringify(got.head)}`);
+    check(got.gridShown && !got.bodyShown,
+          'the grid canvas is not the visible layer after mesh.grid ' +
+          `(grid shown ${got.gridShown}, body shown ${got.bodyShown})`);
+
+    // -- PLANTED CONTROL: take the case away and the four checks must go red.
+    const blind = mutate("    case 'mesh.grid': enqueue('grid', p, ts); break;",
+                         "    case 'mesh.grid.disabled': enqueue('grid', p, ts); break;");
+    if (blind) {
+      const dead = await drive(blind);
+      check(!/the grid the lift/.test(dead.label) && dead.stats !== '4 cells'
+            && dead.head !== 'Computational grid',
+            'PLANTED CONTROL DEAD: removing the mesh.grid case still left the ' +
+            'grid on the stage, so these checks are not testing the handler');
+    } else {
+      check(false, 'PLANTED CONTROL DEAD: the mesh.grid dispatch line could ' +
+                   'not be found to mutate, so the grid checks prove nothing');
+    }
   }
 
   // ------------------------------------------------------- per-event cost

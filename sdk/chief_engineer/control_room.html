@@ -748,7 +748,7 @@ async function resumeMission(id, staticReplay) {
   releaseSurface();
   resetMission(); state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('beacon').classList.add('live');
-  $('globalStatus').textContent = 'REPLAYING MISSION'; $('launch').disabled = true;
+  $('globalStatus').textContent = 'MISSION ON SCREEN'; $('launch').disabled = true;
   try {
     state.mission = id; setMissionLabel('ACTIVE MISSION', id);
     setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true);
@@ -995,7 +995,7 @@ function dispatch(env) {
     case 'solve.frame': solveFrame(p); break;
     case 'solve.begin': solveBegin(p); break;
     case 'solve.point.begin': solvePoint(p); break;
-    case 'solve.point.end': solvePoint(p); break;
+    case 'solve.point.end': solvePoint(p); solvingProgress(p); break;
     case 'solve.end': solveEnd(p); break;
     // The stage boundary carries the act's own agent census for that stage,
     // which is the fleet numeral. It rides the paced queue so the number lands
@@ -1626,12 +1626,35 @@ function addStageCard(p) {
 // publishes no phase headings, so the masthead sat on FORMING THE TEAM for the
 // whole run — through the mesher, through 1,225 solve frames and into the
 // report. `stage.begin` already carried the live stage; nothing read it.
+// HER OWN SEVEN NAMES, 2026-09-01 20:30Z shooting protocol: "Forming the team
+// -> Reading the geometry -> Planning -> Meshing -> Solving (n of N) ->
+// Checking -> Report". Not routing keys, which is what the banner slugs are.
+//
+// ONE DEVIATION, STATED RATHER THAN PAPERED OVER. Her list reads the geometry
+// BEFORE it plans; the act's nine stages restate and check the assumption
+// before the geometry stage runs. Her checklist also says the indicator must
+// "match what is on screen", and those two cannot both hold while the stage
+// order is what it is. The indicator follows the SCREEN, because an indicator
+// that names a stage the viewer is not watching is the defect the live
+// masthead was added to remove. Reordering demo_mode.STAGES would satisfy both
+// and is a change to every act, so it is not taken here.
 const STAGE_STATUS = {
   prompt: 'FORMING THE TEAM', restatement: 'PLANNING', assumption: 'PLANNING',
   geometry: 'READING THE GEOMETRY', meshing: 'MESHING',
-  feasibility: 'FEASIBILITY CHECK', solving: 'SOLVING',
+  feasibility: 'CHECKING', solving: 'SOLVING',
   gates: 'CHECKING', results: 'REPORT',
 };
+// "Solving (n of N)" is hers verbatim, and on a screen where all N advance at
+// once the only honest n is how many have FINISHED. It is counted off
+// `solve.point.end`, one per point, and it is unpaced for the same reason the
+// stage name is: the masthead is a state, and a state behind the solve backlog
+// is a masthead that is wrong for as long as the backlog lasts.
+function solvingProgress(p) {
+  if (state.stage !== 'solving') return;
+  state.pointsDone = (state.pointsDone || 0) + 1;
+  const n = Number(p && p.points) || 0;
+  setGlobalStatus(n ? `SOLVING (${state.pointsDone} OF ${n})` : 'SOLVING');
+}
 function setGlobalStatus(text) {
   const el = $('globalStatus');
   if (!el || state.finished || !text || el.textContent === text) return;
@@ -3354,7 +3377,7 @@ function renderDormant(wallHtml) {
   if ($('shell').classList.contains('launched')) return;
   $('dormant').innerHTML = wallHtml
     ? `<div style="padding:16px 18px">${wallHtml}</div>`
-    : `<div class="hero"><div><div class="orbit"></div><strong>The laboratory is standing by.</strong><p>State an objective on the left. The team forms, the selected solver runs, and every result lands here with its trust tier.</p></div></div>`;
+    : `<div class="hero"><div><div class="orbit"></div><strong>The laboratory is standing by.</strong><p>State an objective on the left. The team forms, the selected solver runs, and every result lands here with the uncertainty that stands behind it.</p></div></div>`;
 }
 
 async function askLab(q) {
