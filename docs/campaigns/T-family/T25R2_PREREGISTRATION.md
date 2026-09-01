@@ -1581,3 +1581,88 @@ absolute path so nothing is invisible for being large:
 outer-loop arm stays refused (§8.5).**
 
 <!-- END OF T25R2 PRE-REGISTRATION v1.2 -->
+
+---
+
+## Addendum B2 — 2026-09-01, **AFTER FIRST COMPUTE. DISCLOSURE ONLY.**
+
+**Lines whose number changed above this section: 0.**
+Alters no gate, no threshold, no cap and no label. **The document is v1.3.**
+
+### B2.1 ⚠ THE DICTIONARY THAT CAUSED THE T25R DIVERGENCE WAS NEVER UNDER ITS FREEZE
+
+Raised by `heat-transfer-supervisor` and **re-measured at source by this lane
+rather than relayed** (`VERIFICATION_CHARTER.md` §2n.19):
+
+```
+git show HEAD:docs/campaigns/T-family/T25R_PREREGISTRATION.md | grep -ci relax
+    ->  0
+```
+
+**The word does not occur anywhere in the frozen T25R pre-registration.** Its
+§3.4 "Registered numerics" table registers the solver, `adjustTimeStep`,
+`deltaT`, `endTime`, `writeControl`/`writeInterval`, `writePrecision`, both
+regions' `ddtSchemes`, the `divSchemes`, `nOuterCorrectors`,
+`nNonOrthogonalCorrectors`, `momentumPredictor`, `nCorrectors`, the turbulence
+model, `g`, radiation, the solid `kappa` and every material property — **and
+omits `relaxationFactors` entirely.**
+
+**THAT IS THE FINDING, AND IT IS LARGER THAN THE COMMENT IT AROSE FROM.** The
+missing `UFinal`/`hFinal` keys are the *sole* measured cause of the 04:09Z
+divergence (§3.4, confirmed by T25RF arm A0 under the new loads). **A
+"registered numerics" table that omits a dictionary able to silently change the
+answer — or to destroy the run — is not a complete registration**, however
+correct every line it does contain.
+
+### B2.2 WHAT IS EX-ANTE HERE, AND WHAT IS NOT — THE TWO ARE DIFFERENT CLAIMS
+
+- **The T25R §3.5 gate DESIGN is provably ex-ante and this addendum does not
+  question it.** `T25R_PREREGISTRATION.md` was committed at **`1a7bae7c`,
+  2026-09-01T04:02:04Z**; `T25R_L1` launched at **04:09:33Z**
+  (`STATUS.T25R_L1`). **Seven minutes and twenty-nine seconds.** The gate was
+  designed before the answer existed, which is what rule 2 exists to prove.
+- **The claim that the unrelaxed final sweep was a DELIBERATE CHOICE SERVING
+  that gate is NOT ex-ante-established.** It appears only in a comment inside
+  `T25R_L1/system/coolant/fvSolution` — an **untracked** file in an untracked
+  run directory, carrying **no commit and therefore no date**. It may well be
+  true; **it is not evidenced**, and this rung does not rest on it in either
+  direction. §3.5.1 quotes that comment as the *stated* rationale for the
+  retired gate and this addendum records that its provenance cannot be dated.
+
+**Nothing in T25R2 changes on either point.** §3.5's retirement rests on
+measurement — the calibration argument, plus B1.3's never-evaluable coupled `h`
+threshold and B1.4's healthy run that the retired threshold would have voided —
+and on none of it does the comment's provenance bear.
+
+### B2.3 WHAT T25R2 ALREADY DOES ABOUT IT, STATED AS THE SUCCESSOR'S ONE LINE
+
+**§3.4 registers `relaxationFactors` explicitly — every one of the five `Final`
+keys LITERALLY, with its value — and `numerics_check` REFUSES (exit 2) if the
+case that actually ran does not carry them**, refuses a quoted regex that would
+match, refuses a wrong value, refuses the wrong `nOuterCorrectors` and refuses
+the unreachable `p_rgh` tolerance. `stage_t25R2.py` is graded by that same check
+in the same invocation that writes the dictionary, so a case the comparator
+would refuse **cannot be staged**. Measured on the real run: the check passed on
+`T25R2_L1` before a single number was read (§B1.1).
+
+> **T25R registered the numerics it thought mattered. T25R2 registers the ones
+> that do, and verifies them against the case that actually ran.**
+
+### B2.4 THE RECURRING CLASS, NOW AT FIVE
+
+Every instance is the same shape — **a fixture, control or reference that did
+not resemble the thing it stood for** — and **every one was caught by RUNNING it,
+none by reading it**:
+
+| # | instance |
+|---|---|
+| 1 | `analyse_t25R.py`'s forged `checkMesh` log written to match its own regex, hiding two parser defects (§12.3) |
+| 2 | A1.6's structural check matching its own search literals |
+| 3 | a presentation lane's tail check passing on a dropped tail whose words recurred elsewhere |
+| 4 | B1.5's selftest forging "has not run" as *"no directory"* when the real state is *"staged, no `STATUS`"* |
+| 5 | a temperature compared against a bound belonging to a **different body** (§B1.6) — the same failure with *body* in place of *fixture* |
+
+**Referred to the chief as a candidate standing rule; not enacted here.** A rule
+is Sanaa's under the freeze, and this rung enacts none.
+
+<!-- END OF T25R2 PRE-REGISTRATION v1.3 -->
