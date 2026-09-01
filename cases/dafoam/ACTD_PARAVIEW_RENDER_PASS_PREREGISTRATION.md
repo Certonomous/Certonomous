@@ -1,0 +1,149 @@
+# ACT D — ParaView render pass: PRE-REGISTRATION
+
+**Status:** frozen before any render runs. No `pvbatch` process has been started
+for this item. Everything below is fixed before compute.
+
+**Item:** replace the geometry, mesh and field pictures on the four Act D sheets
+with `pvbatch` renders taken from the real case files, with provenance on every
+frame.
+
+**Family:** dafoam. **Author:** dafoam lab-lane. **Date:** 2026-09-01.
+
+---
+
+## 1. SCOPE, AND THE PART OF IT THAT IS NOT SANAA'S
+
+**`pvbatch` renders: GEOMETRY, MESHES AND SOLUTION FIELDS** — anything depicting
+the 3D body, the grid, or a field painted on it.
+
+**DATA PLOTS STAY latexfied matplotlib / native `picture`** per the figure
+standard — drag against iteration, the polars, the step-size check, temperature
+histories.
+
+**⚠ THAT SPLIT IS `[lab-attributed]`, NOT SANAA'S INSTRUCTION, AND THIS FILE MAY
+NOT BE CITED AS IF IT WERE.** Her words are *"showing the mesh. Itll look
+better"* (~20:50Z) and *"Never that trashy canvas you were using before"*
+(~21:10Z); the canvas being retired is the in-browser geometry/mesh renderer,
+not matplotlib. The lab's reading is that a ParaView line chart would be a worse
+figure, not a more compliant one. **It is disclosed to her to overturn.**
+
+**Consequently the render scripts and the plot scripts are kept SEPARABLE, so a
+reversal is a routing change and not a rewrite.** This is a registered structural
+requirement, not a style preference: see gate **G-PV6**.
+
+## 2. TOOLCHAIN IDENTITY — MEASURED, AND THE REASON IT IS BY HASH
+
+**There are TWO ParaView installations on this box and a bare `pvbatch`
+resolves to the OLDER of them.** This was measured while writing this file, and
+it is exactly the situation `DAFOAM_CHARTER` §6 has in mind when it says the
+hash is the identity and the version string is not.
+
+| Path | Resolves to | md5 | Version | Build |
+|---|---|---|---|---|
+| `/usr/bin/pvbatch` **(what bare `pvbatch` gets)** | `/usr/bin/pvbatch3.12` | `0add3f8eb743f35aec634c8aca3d8674` | 5.11.2 | system pkg, Python 3.12 |
+| `/opt/paraview/bin/pvbatch` (wrapper) | `/opt/ParaView-5.13.3-egl-MPI-Linux-Python3.10-x86_64/bin/pvbatch` | `82ec8db976f28f51f2003a56c04fc272` | 5.13.3 | EGL + MPI, Python 3.10 |
+| ” (the real binary behind that wrapper) | `…/bin/pvbatch-real` | `dc272bb98d4ca91fd2f72dd3e89256b4` | 5.13.3 | EGL + MPI |
+
+**REGISTERED CHOICE: the 5.13.3 EGL build, addressed BY ABSOLUTE PATH, never by
+`pvbatch` on `PATH`.** Two reasons, both material rather than cosmetic:
+
+1. **The EGL build renders headless without an X server.** The 5.11.2 build
+   needs `xvfb-run`, which adds a second process whose failure mode is a blank
+   image rather than an error — a silent-corruption path this item will not
+   carry.
+2. **A bare `pvbatch` silently selects 5.11.2.** A script written today and run
+   after any `PATH` change would render with a different engine and say nothing.
+
+**`xvfb` is therefore NOT in the registered path.** If the EGL build fails to
+initialise, that is a `BLOCKED`, not a licence to fall back to the other binary:
+a fallback would change the toolchain mid-item without changing the record.
+
+## 3. GATES, THRESHOLDS AND LABELS — FIXED BEFORE COMPUTE
+
+| Gate | What it asserts | Threshold | Label if it fails |
+|---|---|---|---|
+| **G-PV1** | The binary that rendered every frame is the registered one, checked by **md5 read at render time**, not by version string or path | md5 == `dc272bb98d4ca91fd2f72dd3e89256b4` | `NOT A RESULT` — frames from an unidentified engine |
+| **G-PV2** | Every frame carries provenance: run root, time directory, field name, and the mesh cell count it was drawn from | present on 100 % of frames | `GATE FAIL` |
+| **G-PV3** | **PLANTED CONTROL.** A known perturbation is written into a copy of the field, re-rendered, and the two images must DIFFER; and the unperturbed pair must MATCH | differ / match, both directions | `NOT A RESULT` — a renderer not shown able to see a change cannot certify one |
+| **G-PV4** | The cell count ParaView reports for the loaded mesh equals `checkMesh` on the same case | exact equality | `GATE FAIL` |
+| **G-PV5** | Morph frames are **real stored surfaces only**; frame count equals matched major iterations, and no frame is interpolated | 48 of 48, `major_iterations_unmatched == 0` | `GATE FAIL` |
+| **G-PV6** | Render code and plot code are in **separate modules with no import from plot code into render code**, so the §1 split can be reversed by routing | import graph acyclic and one-way | `GATE FAIL` |
+
+**G-PV3 IS THE ONE THAT MATTERS AND IT IS TWO-SIDED ON PURPOSE.** CLAUDE.md
+rule 3: a zero from a reader not shown able to see a non-zero is not evidence.
+A render pipeline that quietly produces the same picture whatever the field
+holds would otherwise pass every other gate on this list. The unperturbed-pair
+arm is there because a one-sided control cannot tell a working renderer from one
+that emits a different image every time.
+
+**Verdict vocabulary is the lab's fixed set and nothing else:** `PASS` /
+`GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`.
+
+## 4. WHAT IS RENDERED
+
+| Act | Case | Renders |
+|---|---|---|
+| Wing (A2) | 38,304-cell wing | geometry, surface mesh, gradient-on-skin field, 48 morph frames |
+| SO-3 | 4,032-cell section | geometry, grid, grid leading-edge, field |
+| D19M compressible | 4,032-cell section | geometry, grid, field |
+| Polar (AOAI/AOAC) | 4,032-cell section | geometry, grid, field at a converged angle **and** at a non-converged angle |
+
+**The polar's second field render is registered deliberately.** The act's whole
+argument is that the 9–18° points are not physics; showing the field at a
+non-converged angle beside a converged one lets a viewer see that for themselves
+rather than take the refusal on trust.
+
+**NOTHING RENDERED HERE IS A NEW PHYSICAL RESULT.** Every field drawn already
+exists on disk from a landed run. This item produces pictures of existing
+numbers and may not be cited as evidence for any physical claim.
+
+## 5. COST — core-minutes, costed before the run (CLAUDE.md rule 12)
+
+`pvbatch` is real compute and rule 12 does not exempt it because nothing is
+being solved.
+
+| | core-min |
+|---|---|
+| Predicted, at np = 1 | **45** |
+| **HARD CAP** | **90** |
+
+**Basis:** ~70 frames total (22 stills + 48 morph frames). 2D 4,032-cell stills
+measured elsewhere at seconds each; the 38,304-cell wing frames are the cost
+driver and are estimated at 5–10 s each, giving ~8 min for the morph alone. The
+remainder is script iteration, which is the honest majority of the number and is
+named as such rather than hidden in a per-frame rate.
+
+**The cap stops the run.** An overrun does not get a new budget; it gets a
+successor item sized honestly (rule 12). Derived dollar cost at the recorded
+$0.0513/core-h is **~$0.077 at the cap** — *derived, not measured; this box
+cannot read its own billing.*
+
+**Estimate-versus-actual is reported at completion**, per rule 12's calibration
+clause, as a row in `docs/COST_CALIBRATION.md`.
+
+## 6. WHAT WOULD FALSIFY THE PASS
+
+A `PASS` here means: every frame came from the registered binary, drawn from a
+named run directory and time, at a cell count that matches `checkMesh`, with the
+planted control firing in both directions, and the morph carrying only real
+stored surfaces.
+
+It does **not** mean the pictures are correct physics, and no gate above tests
+that. **If any frame cannot be traced to a run root and a time directory, the
+frame is `NOT A RESULT` and is not published**, however good it looks.
+
+## 7. RETIREMENT — NOTHING IS DELETED
+
+The citation sweep is done and it forbids deletion:
+
+- `so3_grid_pair.pdf` is `\includegraphics`'d by **two sheets that compile
+  today** (`ACT_D_multipoint_optimisation_sheet.tex:307`,
+  `ACT_D_compressible_multipoint_sheet.tex:398`).
+- `actD_crease_section.png` is the **evidence artefact of a geometry check**
+  (`A2_crease_check.json:5`, `geometry_audit/crease_verdict.py:214,389`) and is
+  served by `sdk/workflows/adjoint_act.py:660`.
+- `_a2_shape` is **not a figure**: it is `sdk/workflows/_a2_shape.py`, imported
+  by three SDK modules and covered by `sdk/tests/test_a2_shape.py`.
+
+**These are retired as a SOURCE for new demo figures. The files stay.** A
+verdict whose artefact is gone is not a result.
