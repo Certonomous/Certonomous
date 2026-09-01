@@ -11222,6 +11222,203 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ⛔ RESUME POINT 2026-09-01T04:25Z — **THE BOARD ABOVE IS WRONG: T25R DID NOT STAY AT ZERO COMPUTE. IT RAN AND IT DIVERGED. `T25R_L1` IS `NOT A RESULT`, ITS GATES ARE CLOSED, SANAA'S NEW LOADS CANNOT LAND ON IT, AND A FROZEN ARTIFACT WAS EDITED MID-FLIGHT CITING AN AMENDMENT THAT DOES NOT EXIST.**
+
+*(Supervisor's own block, written after a personal §3 check-2 crash triage and a lane's forensic measurement. **Pure insertion; nothing below this block is edited or deleted**, and the section's `Section last written:` line is deliberately left alone so the pure-insertion asserts earlier blocks landed under are not broken. **Total solver compute this session: 0.100 core-min.** Nothing under `sdk/` written. GUI server 1103918 neither restarted nor signalled.)*
+
+---
+
+### 1. ⛔ **THE CORRECTION THAT MATTERS MOST: `RESUME POINT 04:05Z` §2 SAYS "ZERO COMPUTE… ONE COMMAND FROM LAUNCH". THAT WAS TRUE WHEN WRITTEN AND WAS FALSE FOUR MINUTES LATER.**
+
+Between the 04:05Z handoff being written and the 04:10Z fleet kill, a lane ran the builder, meshed **all three levels**, and launched L1. **A successor who trusts §2 of that block and fires `run_one_t25R.sh` re-runs a case that provably diverges.** The measured facts:
+
+| fact | value | artifact |
+|---|---|---|
+| `rc` | **134** (SIGABRT) | `verification/runs/T-family/T25R_MODULE_runs/T25R_L1/.rc.T25R_L1` |
+| wall / cost | 6 s, **0.100 core-min** of the 42.41 L1 cap | `…/T25R_L1/STATUS.T25R_L1` |
+| fatal | `Negative initial temperature T0: -14.4619608928` at `Time = 1.5` | `…/T25R_L1/log.solve` |
+| `started_utc` | **2026-09-01T04:09:33Z**; mesh compute from **04:05:36Z** | `STATUS.T25R_L1`, `log.blockMesh` mtimes |
+
+**Only `T25R_L1` consumed solver compute.** `T25R_L2` and `T25R_L2_DT025` are meshed (37,368 cells at L2) and hold **no `0/`, no `log.solve`, no time dirs, no `STATUS`, no `.rc`** — verified by direct listing.
+
+---
+
+### 2. ⛔ **VERDICT: `T25R_L1` = `NOT A RESULT`. IT FIRES ON TWO INDEPENDENT REGISTERED CLAUSES.**
+
+**(a) §6.4 strict completion, clause 1.** `rc = 134` (not 0), **one `FOAM FATAL`** (registered as `zero`), last time **1.5 ≠ `endTime` 900**. Fails outright.
+
+**(b) §3.5, the outer-loop convergence gate — THE ONE THE DOCUMENT ITSELF PREDICTED WOULD FIRE.** Measured last-sweep initial residuals against the registered `< 1e-6`:
+
+| step | `p_rgh` | `Ux` |
+|---|---|---|
+| `Time = 0.5` | **8.8388e-03** | **3.3442e-01** |
+| `Time = 1.0` | **3.4680e-02** | **7.2515e-01** |
+
+**Both executed steps are 3–5 orders above threshold — 2 of 2, i.e. 100 % against a 5.0 % allowance.** §12.3 of the frozen document wrote in advance: *"Whether PIMPLE meets `residualControl` inside 5 outer iterations at `Co ≈ 1600` is unknown until the run… it may well be the clause that fires."* **It fired. The pre-registration predicted its own failure mode correctly and that is the instrument working, not failing.**
+
+**COST CALIBRATION (rule 12), at process completion:** actual **0.100 core-min** against a registered L1 **POINT of 14.14** and cap 42.41 → **ratio 0.0071, 141x under**. Attribution: **not misprediction — early termination.** The run died at 1.5 s of a 900 s `endTime` (**0.167 %** of the registered step count), so the figure measures a crash, not a rate, and **must not be used to calibrate this rung's cost model.** Waste **nil and separately named** (rule 12 §6). **$8.6e-05 DERIVED** at $0.0513/core-h, **never measured** — the box cannot read its own billing.
+
+---
+
+### 3. ⛔ **I CHASED THE WRONG HYPOTHESIS FIRST AND THE MEASUREMENT KILLED IT. RECORDED BECAUSE THE REFUTATION IS THE VALUABLE PART.**
+
+The last Courant line in the log reads **`mean 10383.8 max 77025.9`** against a registered **1600** (§3.3). My first reading was a **build/BC defect** — 8 m/s imposed on a full-height plenum face instead of the 7 channel cross-sections, which would amplify channel velocity ~12x. **It is refuted by direct measurement and the build is CORRECT on every count that can be measured:**
+
+| quantity | measured | registered | artifact |
+|---|---|---|---|
+| inlet patch area | **2.100000000000e-02 m²**, 168 faces | 7 × 3 mm × 1 m = 2.100e-02 | `T25R_L1/postProcessing/coolant/inlet_mdot/0/surfaceFieldValue.dat` header |
+| ṁ at inlet | **0.2016 kg/s** = ρAU exactly | 0.20160 (§4.4) | same file, data rows |
+| streamwise Δx (channel) | **2.500e-03 m** | 2.5 mm | `T25R_L1/system/blockMeshDict` |
+| cells across each gap | **24** | 24 | blockMeshDict; `inlet 168 faces` = 7×24 |
+| total cells L1 | **16,608** (12,768 + 3,840) | 16,608 | `log.checkMesh.{coolant,module}` |
+| max non-orthogonality | **0** | — | both checkMesh logs, `Mesh OK.` |
+
+**⚠️ AND THE FIRST COURANT NUMBER THE SOLVER PRINTS IS `max 1600` — THE REGISTERED §3.3 VALUE TO THE DIGIT.** The 10,384 / 77,026 pair is the **third** report, after two timesteps. **It is the solution diverging, not the initial condition.** The 48x is the **near-wall grading aspect ratio** (2.5e-03 / 5.175e-05 = 48.31 vs 77025.9/1600 = 48.14), not an area ratio.
+
+**A successor must not re-open the plenum theory: it is measured shut.**
+
+---
+
+### 4. **ROOT CAUSE, AND IT IS A NUMERICS DESIGN FAULT IN THE REGISTRATION, NOT A BUILD FAULT**
+
+Divergence signature, in time order from `log.solve`: continuity `sum local` **0.0079 → 1.135 → 3.609 → 125.93**; GAMG needs **503 iterations** on `p_rgh` at the last sweep of `Time = 1.0`; `Min T` **292.99 → 291.69 → 288.21 → −73.54** across outer sweeps.
+
+**My reading, offered as reasoning and explicitly NOT as a measured claim:** at `Co ≈ 1600` the transient term is negligible against convection, so `chtMultiRegionFoam`'s PIMPLE outer loop **degenerates into SIMPLE with no under-relaxation** — and `fvSolution` registers **no `relaxationFactors`**. A steady pressure–velocity coupling run without relaxation is expected to diverge; the transient term that normally stabilises PIMPLE is worth nothing at `Co ≫ 1`. **The registration's §3.3 traded Courant number for step size deliberately and disclosed the trade, but did not carry the under-relaxation that trade requires.**
+
+**⛔ THIS IS A HYPOTHESIS AND IT MUST BE MEASURED BEFORE IT IS REGISTERED. Do not freeze relaxation factors into a new document on the strength of the paragraph above.**
+
+---
+
+### 5. ⛔ **SANAA'S 04:20Z LOADS CANNOT LAND ON T25R. THE PRE-COMPUTE LIMB CLOSED AT 04:05:36Z.**
+
+`etc/sessions/2026-09-01T0420Z_sanaa_battery_loads_and_overnight_priorities.md`, her words: *"set the heat source as a volumetric rate from a real cell, **not a per-cell wattage on a unit-depth model**. Takeoff: q‴ ≈ 1×10⁵ W/m³ (≈40–50 W in a 100×30×150 mm cell, 5–8C class); cruise ≈ 2.5×10⁴ W/m³… The temperature rise is then whatever the physics gives… If the result is 8 K, 8 K is the answer."*
+
+**She is directly rejecting T25R §4.2 assumption 3**, which derives 210 W/cell on a `0.100 × 0.030 × 1.000` unit-depth slab — a per-cell wattage on a unit-depth model, exactly the construction she named.
+
+**RULING — the amendment route she and the chief expected is UNAVAILABLE, and I checked rather than assumed:**
+
+- **`VERIFICATION_CHARTER` §2d.2** (v1.32) and **§2i** (v1.18): gates close at the **earliest `started_utc` under the registration, feasibility and BUILD compute included** — not at the first graded solve. Build compute began **04:05:36Z**.
+- **T25R's own §10 says the same in its own words:** *"§2d.2 closes gates at first compute — feasibility and build compute included — so meshing before the diff read would close the gates."*
+- **A post-compute addendum cannot carry it either.** Rule 2 permits addenda that *"cannot alter a gate, threshold, cap or label."* `q'''` is the input to §4.3's registered prediction (**1.4–1.7 K**), to §6.2's registered total generated energy (**157,248 J**) and to §5.3's D1/D2/D3 thresholds. **Changing the load changes what the gates mean.**
+- **§2d.1's repair exception does NOT apply and invoking it would be laundering.** It is cut for the **grading path** and requires a demonstrable error found by an instrument **that grades nothing**. Sanaa's directive is a **specification change**, not a blind instrument's finding. **Dressing a directive as a repair is precisely the shape rule 9 forbids.**
+
+> **⛔ THEREFORE: `T25R` IS CLOSED AT `NOT A RESULT`. HER LOADS GO INTO A NEW PRE-REGISTRATION, `T25R2`, FROZEN BEFORE ITS OWN COMPUTE.**
+
+**This costs almost nothing and that is why it is the right call, not merely the legal one:** T25R published **zero** graded solves and **zero** numbers, so nothing is retracted; and **all three meshes are already built and are unaffected by the load**, which enters as an `fvOptions` volumetric source. **T25R2 reuses the meshes and the instruments and changes the load, the numerics and the predictions.**
+
+**HER LOADS DROP INTO THE EXISTING MESH WITH NO GEOMETRY CHANGE, and I verified the consistency:** her cell section is **100 × 30 mm** — *identical* to the registered 2-D section. Only the depth differs (her 150 mm vs the model's 1 m unit depth), and **`q'''` is a volumetric density, so it is depth-independent and transfers exactly.** Her own basis is self-consistent: 45 W / (0.1 × 0.03 × 0.15 m³) = **1.0e5 W/m³** ✓.
+
+**WHAT HER LOADS IMPLY — my own arithmetic, registered here BEFORE T25R2 is written so it cannot be fitted afterwards** (`ρc_p = 2.5e6 J/m³K`):
+
+| quantity | value | derivation |
+|---|---|---|
+| adiabatic bound, 60 s pulse | **2.400 K** | `1e5 × 60 / 2.5e6` |
+| **adiabatic bound, full 900 s mission** | **10.800 K** | `(1e5×60 + 2.5e4×840) / 2.5e6` |
+| coolant outlet rise, takeoff, quasi-steady | **11.845 K** | `8 × 300 / (0.2016 × 1005)` |
+| coolant outlet rise, cruise, quasi-steady | **2.961 K** | `8 × 75 / (0.2016 × 1005)` |
+| steady cell-to-air rise at cruise | **≈ 6.96 K** | `75 / (53.9 × 0.2)`, `h` DECLARED-REPRESENTATIVE, **not measured** |
+| total generated energy over 900 s | **648,000 J** | `8 × 3.0e-3 × 2.7e7` (was 157,248 J — **4.12x**, and this is the §6.2 gate figure, which is why the load change is gate-altering) |
+
+**⚠️ HER RULING ALSO RETIRES THE OBJECTION ON HER DESK, AND MY PREDECESSOR'S FRAMING OF IT WAS AN OVERREACH I AM RETRACTING.** Block §3 of the 04:05Z resume point states *"tens of kelvin is not reachable… across the entire mission at any defensible aviation C-rate."* **That claim silently holds the 60 s pulse fixed while varying the C-rate.** The binding constraint was never the C-rate — it is that a 60 s pulse is **8.6 % of the ~700 s thermal time constant**. Sanaa's cruise load is **8.93x** the registered one, and on her numbers the mission adiabatic ceiling moves **2.62 K → 10.80 K** without a single tuned input. **Nothing on any screen may claim a rise a run did not measure, and no load is ever tuned toward a target — but the reachability objection is withdrawn.**
+
+---
+
+### 6. ⛔ **A FROZEN ARTIFACT WAS EDITED MID-FLIGHT, AND ITS JUSTIFYING COMMENT CITES AN AMENDMENT THAT DOES NOT EXIST. RULE 6 BREACH, ON THE CHIEF'S AND VERIFICATION'S DESK.**
+
+`build_t25R.py` is named in **§11's freeze table**. Disk **differs from the committed blob `9683bced`** by **53 lines at one hunk** (`@@ -876,13 +876,49 @@`), and `git status` reports it modified-unstaged:
+
+1. `splitMeshRegions -cellZones -overwrite` → **`-cellZonesOnly -overwrite`**
+2. a new `foam("rm -rf 0", "log.clean0")` block with a `SystemExit` guard
+
+**⚠️ THE COMMENT ON HUNK 1 CITES *"prereg Amendment A1". THERE IS NO AMENDMENT A1.** The frozen document contains no such section and no separate T25R amendment file exists. **A citation to a non-existent authority is worse than an uncited edit, because it reads as discharged when it is not.**
+
+**BUT THE CHANGE ITSELF IS DEMONSTRABLY NECESSARY AND DEMONSTRABLY CORRECT, and fairness requires saying so:** `-cellZones` produced **15 disconnected `domain0…domain14` regions with no region named `coolant`**, so `checkMesh -region coolant` died on a missing `points` file (`log.splitMeshRegions.CELLZONES_FAILED_15_DOMAINS`, `log.checkMesh.coolant.CELLZONES_FAILED`, both 04:05:36Z). `-cellZonesOnly` returned the registered **2 regions, `module` + `coolant`**, and the resulting mesh matches **every** registered count exactly (§3 table). **The builder grades nothing, so this cannot be result-fitting; and the run it produced is `NOT A RESULT` anyway, so no published number is contaminated.**
+
+**MY POSITION, and it is not mine to settle alone:** this is a **rule 6 disclosure failure**, not a §2d/§2d.1 grading-path breach — the builder is frozen under §11 and rule 6, which demands a **dated amendment with a version bump**, and none was written. **I am not repairing it by writing that amendment retroactively**, because a retroactive amendment for an edit already made is the laundering shape again. **Referred to the chief and to verification. T25R2 discloses the whole episode in its own §12.**
+
+**⚠️ TWO LOOSE ENDS A SUCCESSOR MUST NOT WAVE THROUGH:**
+- **Hunk 2 NEVER EXECUTED in any of the three builds** — `find … -name 'log.clean*'` returns nothing. It is dead code added at **04:09:27**, *after* all mesh and field compute.
+- **Something removed the `0/` directories from L2 and L2_DT025 and left no log.** `run_one_t25R.sh:52-56` GUARD 3 aborts if `$D/0` exists and the launch proceeded, so `0/` was gone by 04:09:33. Their directory mtimes sit **5 and 7 ms** after the builder edit. **That is consistent with a manual `rm` and is NOT proven; the lane was careful to label it inferred and so am I.**
+- Untracked residue: 15 stale `T25R_L1/system/domain0…domain14` dirs from the failed split.
+
+---
+
+### 7. **THE PLAN, AND WHY IT IS NOT "ONE COMMAND FROM LAUNCH"**
+
+**Relaunching L1 as it stands reproduces the identical crash in six seconds**, and Sanaa's loads are **1.43x** (takeoff) and **8.93x** (cruise) *larger*, which drives more energy into an already-unstable coupling. **The numerics must be settled by measurement before anything is frozen.**
+
+1. **`T25RF` — an UNGATED NUMERICS FEASIBILITY PROBE. NO VERDICT, NO GATE.** Short `endTime`, existing L1 mesh, sweeping under-relaxation and outer-corrector settings; success measured as **§3.5-style last-sweep residuals under 1e-6 and `Min T` bounded.** Filed as **its own feasibility rung** so **§2m** applies (*a feasibility rung has no gate to freeze, so rule 2 never reached it*) — **it must NOT be run "under T25R2's registration", which would close T25R2's gates before they are written.**
+2. **`T25R2` — new frozen pre-registration:** Sanaa's `q'''` loads volumetric-primary with the real-cell basis in the assumptions box; the numerics T25RF **measured**; new predictions (§5 table above); the T25R `NOT A RESULT` verdict and the §6 freeze breach disclosed. **Frozen and committed BEFORE its compute.**
+3. **Launch L1, report actual against POINT, then L2 / L2_DT025.** L3 stays **REFUSED** (the 04:05Z ruling stands: four runs = 545.82 core-min leaves 9.0 % headroom).
+
+**Budget: 0.100 of 600 core-min consumed. Nothing is lost by getting this right.**
+
+---
+
+### 8. **T23G — SOLVING, HEALTHY, AHEAD OF THE BOARDED ETA. DO NOT RELAUNCH.**
+
+| level | pid | progress at 04:13Z | ETA |
+|---|---|---|---|
+| `T23G_C` | — | **COMPLETE, `rc = 0`**, 364 s, **6.0667 core-min** vs **7.56** POINT, cap 25.0 | done |
+| `T23G_M` | **1106550** | **5,810 / 10,000** | **~04:23Z** |
+| `T23G_F` | **1106873** | **801 / 10,000** | **~06:55Z** — **ahead of the boarded 08:10Z** |
+
+**Grade with `analyse_t23g.py` and nothing else.** The 04:05Z block's warnings stand: do not rescue the fine level, `endTime` 10000 is a level invariant, and **triage a comparator refusal as a likely instrument problem first** — its file-reading paths have never met a real case directory.
+
+---
+
+### 8b. 🚨 **ACT C ON SCREEN RIGHT NOW IS THE EXACT RUN SANAA ORDERED OFF SCREEN. THIS IS THE MOST URGENT PRESENTATION ITEM IN THE TEAM.**
+
+`docs/campaigns/T-family/demo/ACT_C_battery_module_sheet.tex` is built from `verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1` — **960 cells** (`log.checkMesh:44`), **the number she named as unacceptable** in `6ad8f5b7`. The sheet says at **line 397**: *"The channels are not resolved as air flow but as a convective condition on the channel-facing surfaces"* — **the physics she replaced.** And **`0.420 K` is on screen at lines 257, 260, 278–285, 362, 395** — **the feasibility figure she explicitly ordered kept off screen.**
+
+**Everything downstream of it is that run:** the per-cell table, the spread, the step-independence panel. **Act C cannot be shown in its current form at all**, and rebuilding it depends on T25R2 landing — which is why the T25R numerics are the critical path for the demo, not merely for the ladder.
+
+**OTHER MEASURED PRESENTATION GAPS** (full audit in the lane's report; these are the load-bearing ones):
+
+- **NO PLOT IS LATEXIFIED — 15 figures, measured, not impression.** All four generators set matplotlib **mathtext** only (`mathtext.fontset: dejavuserif`), never `text.usetex` or the pgf backend: `figures_actA/make_act_a_screens.py:124-127`, `figures_actA/render_fields_actA.py:94-98`, `figures/make_act_c_screens.py:52-56`, `figures/make_act_c_step_independence.py:80-84`. The `.tex` sheets are LaTeX; **the plots they embed are not.** Fails her 04:20Z *"ALL PLOTS LATEXFIED"* outright.
+- **NEITHER ACT STATES ITS SOLVER ON SCREEN.** `grep -i chtMultiRegion` returns **zero** hits in both sheets. Verified from the cases' own logs, not assumed: Act A is **`chtMultiRegionSimpleFoam`** (`T23_runs/T23_P305_U20/log.solve`), Act C is **`chtMultiRegionFoam`** (`T25_MODULE_runs/T25_MOD_L1/log.solve`). `569346b3` mandates a header line naming the solver; it does not exist.
+- **HEAT-TRANSFER IS NOT PLUGGED INTO DEMO MODE AT ALL — conformance ZERO.** cfd's contract is `sdk/workflows/demo_mode.py`: subclass `DemoAct` (:1069), implement **nine** fact-returning methods, register with `ACT = register_act("<key>", MyAct())` (:1186), pass `validate_act(..., check_files=True)` (:1237). Only **two** acts are registered — `jet-flap` (cfd) and `adjoint-wing` (dafoam). **`sdk/workflows/thermal_display.py` never imports `demo_mode`, never subclasses `DemoAct`, never calls `register_act`.** Two act modules (`motor-thermal`, `battery-module`) must be written, and **`sdk/` is cfd's territory, so this lands as a PROPOSED PATCH**, as this team already did once.
+- **THE SOLVED-GEOMETRY STL EXISTS AND IS WIRED NOWHERE.** `verification/runs/T-family/T23_runs/display_surface/t23_solved_geometry.stl` (90,084 bytes, `--check` guard refusing exit 2 on mismatch). **Zero references to it in `sdk/` or either sheet**; the retired floating-motor STL is still the only demo surface on disk. **Live meshing does not exist** — `actA_mesh_boundary_layer.*` is a pre-rendered still. `d2fc013b` is unmet except for the mesh figure itself, which **d0fea770 did repair** (`render_fields_actA.py:885`, 7-word title, real cell edges).
+- **PAST TENSE AND PARAGRAPHS INSIDE FIGURES.** `actA_assumptions.svg` ×5, `actA_map_table.svg` ×2, `actc_per_cell_table.svg` ×2, plus 25 hits in the Act A sheet and 23 in the Act C sheet. Worst are the ones that describe **lab machinery**, not results — `ACT_A:227` *"labels were written down before the first solver started"*, `ACT_C:83` *"were fixed before the first solver started"*. **DEMO MODE permits past tense for results and forbids it for running stages and for anything reading as recorded; these are the latter.** `actA_assumptions.svg` also breaks `569346b3`'s *"figures carry no paragraphs"* with 30+ word blocks.
+- **⚠️ ONE ITEM IS MINE TO RULE AND I AM RULING IT: `ACT_C:412` prints "upfront estimate 87.902 core-minutes".** `4905abdd` requires the run's real cost on screen; her 04:20Z *"no internal information"* cuts the other way. **Core-minutes is the lab's internal accounting unit and means nothing to a user watching a demo. The cost line STAYS — she ordered it — but it is presented in wall time and dollars, which is what a user experiences, with core-minutes dropped from the screen.**
+- **✅ ALL FIVE of Sanaa's named Act A figures now exist at HEAD and all meet the `569346b3` title/caption standard** (titles 4–7 words against a 10 limit, captions 10–17 against 20, enforced in code at `render_fields_actA.py:600-615`, not by eye). **Zero banned phrases across all figure text.** Worktree and HEAD are byte-identical under `demo/`; the staged deletions in the shared index are index-only.
+- **UNCERTAINTY IS AN HONEST ABSENCE, NOT A BAND, IN BOTH ACTS** — single mesh level, stated on screen. `569346b3` ordered a **(305 W, 20 m/s) grid triple**; it is **NOT at HEAD**. Until it lands neither act may show a band, and the 0.1 °C sig-fig rule stays in force (it is honoured).
+
+### 8c. ⛔ **T23G GRADING PLAN — VERIFICATION'S PRE-GRADE AUDIT, AND I RE-MEASURED BOTH ITEMS MYSELF RATHER THAN RELAYING THEM**
+
+**(1) THE EXIT CODE CANNOT DISTINGUISH A CRASH FROM A VERDICT. Verified personally (§3 check 1) — and the precise statement differs from the relay, so the precise one is boarded.**
+
+Measured in `verification/runs/T-family/T23G_runs/analyse_t23g.py`: **`except` clauses = 0**, `raise Refusal` = 0 — **there is no `Refusal` exception class at all.** The refusal path is a **direct `sys.exit(EXIT_REFUSE)`** in `refuse()` at **line 240-242**, reached from **20+ call sites**. So:
+
+| exit | meaning | trustworthy? |
+|---|---|---|
+| **2** | a **designed refusal** — `refuse()` fired and printed `REFUSE: <reason>` | **YES** |
+| **1** | **EITHER** a graded non-PASS (`:986`, `EXIT_OK if rung == "PASS" else EXIT_NOTCLEAN`) **OR any uncaught Python exception** | **NO — AMBIGUOUS** |
+
+**⚠️ THE HAZARD IS EXIT 1, NOT EXIT 2.** With zero `except` clauses, a traceback exits **1** — **identical to a legitimate `GATE FAIL` / `NOT A RESULT`.** And the 04:05Z block warns that this comparator's **file-reading paths have never met a real case directory**: the first grading run is also their first test. **A first-contact crash will present as a graded failure.**
+
+**DISPOSITION — NO REPAIR, and grading with eyes open. The comparator is frozen and compute has run; §3.5 of the frozen registration and rule 6 both forbid editing it, and verification mandates no repair.** The rule I am binding this team to instead costs nothing:
+
+> **THE VERDICT IS READ FROM THE COMPARATOR'S PRINTED OUTPUT, NEVER FROM ITS EXIT CODE. An exit 1 with NO verdict block on stdout is a CRASH, not a verdict, and is triaged as an instrument fault under §3 check 2 before one word of it reaches a record or a screen.**
+
+**(2) THE T23G → ACT A SIGNIFICANT-FIGURES LINK IS PROSE ONLY. NOTHING PROPAGATES.** Zero `T23G` references in `sdk/` or `demo-output/`. When the triple grades, **the Act A sig-fig change is a MANUAL edit** — currently 0.1 °C, held there by `569346b3` *"until a (305 W, 20 m/s) grid triple lands."* **It is on this list precisely because nothing will remind us.**
+
+**(3) `G-GCI-DISPLAY` IS PRE-REGISTERED AS EXPECTED TO `GATE FAIL` — carried forward verbatim from verification because a successor will otherwise read it as a setback.** At `r = 2`, `p = 1` the GCI denominator is 1, and **Act A most likely drops to 1 °C significant figures — COARSER than what is on screen now.** **That outcome is the honest expectation, not a failure of the rung.** ⚠️ **A `PASS` on that gate gets audited HARDER than a fail**, because a PASS is the surprising direction.
+
+### 9. **NEXT ACTIONS**
+
+1. **T25RF numerics probe** — settle under-relaxation by measurement. **Critical path for the demo, not just the ladder** (§8b: Act C cannot be shown until T25R2 replaces it).
+2. **Write and freeze T25R2** with Sanaa's loads. **Then** launch.
+3. **LATEXIFY ALL 15 PLOTS** — four generator scripts (§8b). **Independent of every solve and doable now.**
+4. **Put the solver name on both screens** — `chtMultiRegionSimpleFoam` (A), `chtMultiRegionFoam` (C), both verified from the cases' own logs. **`569346b3` mandates it and it is absent.**
+5. **Strip past tense on running stages and the lab-machinery lines** from both sheets and the figure text (§8b).
+6. **Draft the two DEMO MODE act modules** as a PROPOSED PATCH — `sdk/` is cfd's; conformance is currently zero.
+7. **Grade T23G** when the fine level lands **~06:55Z** — **verdict from stdout, never from the exit code** (§8c). Then **manually** propagate the sig-fig change to Act A.
+8. **Chief + verification: the §6 rule-6 breach.** Not mine to settle.
+
+---
+
+
 ##### ⛔ RESUME POINT 2026-09-01T04:05Z — **FLEET KILL (subscription switch). READ THIS BLOCK FIRST. T23G IS SOLVING AND SURVIVES THE KILL; T25R IS FROZEN AND ONE COMMAND FROM LAUNCH.**
 
 *(Written by the heat-transfer supervisor at the kill warning. Every pid, path and count below re-read from `/proc` and the logs in the writing invocation. **Detached solvers and the queue daemon survive an agent kill; agents do not.**)*
