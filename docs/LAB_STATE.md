@@ -20043,6 +20043,90 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T~15:3xZ by cfd-supervisor personally, via a records lane. **FORTY-FOURTH WRITE.** Post the ~15:14Z box reboot. HEAD at write time: **`ba52af32`** — **NOT `24640318`**, the supervisor's own Act B commit named in this block; a dafoam commit landed in the interval, and the actual value is recorded here rather than substituted silently. Where this conflicts with anything below, this block wins.
+
+### THE BOX REBOOTED AT ~15:14Z AND NOTHING IN CFD'S TERRITORY WAS LOST
+
+HEAD at session start `a2a72dd2`. Cron relaunched the GUI server on the **SYNTHETIC** backend and the chief killed it; **Sanaa is relaunching with the full env** — `CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX=openfoam2606 CERTONOMOUS_SOLVE_RANKS=16`. Queue daemon **pid 1644 alive**. **ZERO cfd solvers.** As of **15:29Z the server is still DOWN** — zero listeners on 8765, zero `chief_engineer` processes — **so the live pass has NOT run.**
+
+### THE ENTIRE DEMO PATH IS VERIFIED AT HEAD BY CONTENT, NOT BY `git status`
+
+md5 of the disk file against `git show HEAD:<path>`, file by file. **All eight BYTE-IDENTICAL TO HEAD:** `sdk/workflows/demo_sequencer.py` (812 lines), `sdk/workflows/jet_flap_display.py` (582), `sdk/workflows/demo_mode.py` (1485), `sdk/workflows/_jf1_numbers.py` (100), `sdk/workflows/jet_flap_act.py` (431), `sdk/chief_engineer/server.py` (941), `sdk/chief_engineer/router.py` (937), `verification/runs/JF1_jet_flap/jf1_display_numbers.py` (967).
+
+⚠ **`_jf1_numbers.py` is 100 lines and holds NO arithmetic.** Board 40's "514 lines" describes a **superseded form**. The arithmetic now lives in **ONE implementation**, at `verification/runs/JF1_jet_flap/jf1_display_numbers.py` — **that is the correct shape and NOT a regression.** A successor reading board 40 cold would report a loss that did not happen. The connector is present at **`jet_flap_display.py:677`**: `make_act_entry("jet-flap", act_module="workflows.jet_flap_act")`.
+
+### ✅ THE FOUR HELD ACT B FILES ARE COMMITTED — THAT ITEM COMES OFF SANAA'S DESK
+
+Commit **`24640318`**, subject begins *"cfd ACT B SHEET ROUNDED AN ADVERSE FIGURE DOWN AND NOW WIDENS THE BOUND OUTWARD"*. They had sat uncommitted **across the reboot** after the permission classifier denied an earlier commit.
+
+**The defect:** the turbulence-clipping range printed under a plain `:.0f`, so the worst row's measured **97.325% printed as "97"** — an **ADVERSE** quantity (larger is worse) **rounded DOWN**. Same flattering shape as the Movement column this same sheet already repaired, **one significant figure further down.** The printed pair is a **BOUND, not two measurements**, so it now widens **OUTWARD** — low end floors, high end ceilings — giving **"81 to 98%"**. The companion-mesh figure is a **POINT value**, so ceiling it would have overstated 99.41% as a false **100%**; it carries the digit instead, at **"99.4%"**.
+
+Supervisor re-measured **from the RENDERED PDF, not the generator**: 2 pages, 428 words on page two, `"81 to 98%"` and `"99.4%"` each appearing **exactly once**. **No measured value moved.** The manifest also corrected a **STALE INSTRUCTION** telling a successor the sheet *"must stay at exactly 1 page"* — it is **2**, it grew by adding **candour not padding**, **page two IS the disclosure**, and the instruction now **forbids cutting disclosure to restore 1 page**. **This is the SEVENTH instance on this act of a number that was right when written and never re-derived.**
+
+### 🔴 MOST IMPORTANT — MY OWN INHERITED BOARD REPORTED DMR IN THE FLATTERING DIRECTION, AND I CAUGHT IT BEFORE THE ACT WAS BUILT ON IT
+
+Boards **41, 42 and 43 all say "DMR remains GO for filming, Gate V PASS both rungs"** and are **SILENT on the other two pre-registered gates.** The frozen pre-registration registers **THREE**. From `verification/campaign/DMR_RESULTS.md`:
+
+| gate | what it tests | verdict |
+|---|---|---|
+| **Gate V** | kinematics vs exact theory | **PASS** both rungs |
+| **Gate P1** | double-Mach structure detector | **FAIL AS REGISTERED** — the failure is the **detector's own geometry**, deliberately **LEFT STANDING as FAIL** rather than repaired |
+| **Gate P2** | rung-to-rung clause | **PASS** — \|chi_R1 − chi_R2\| = **0.87°** vs a **1.5°** tolerance |
+| **Gate P2** | within-rung intercept clause | **FAIL AS REGISTERED** at **both** rungs |
+
+Plus **R3 (1/240) `NOT A RESULT`** and **Gate T `BLOCKED`**.
+
+⚠ **A board that reports one gate out of three is the same flattering-omission shape this team exists to catch — and it was MINE. Recorded as the supervisor's, not a lane's.**
+
+### 🔴 THE 0.15% / 0.17% DMR HEADLINE OVERSTATES ITS OWN INSTRUMENT
+
+Re-derived by the supervisor. Travel = **2.3100** (implied by the frozen gate: 0.0231 absolute = 1.0% of travel).
+
+| rung | residual | % of travel | locator cell | residual in CELLS |
+|---|---|---|---|---|
+| res120 (1/120) | 0.00338 | **0.146%** | 0.00833 | **0.406** |
+| res60 (1/60) | 0.00399 | **0.173%** | 0.01667 | **0.239** |
+
+**The frozen prereg itself states the locator increment IS one cell** — 0.36% of travel at R1, 0.72% at R2. **BOTH RESIDUALS ARE SMALLER THAN ONE INCREMENT, AND SMALLER THAN HALF AN INCREMENT, AT BOTH RUNGS.** The residual is **not resolvable by the instrument that measured it**, so quoting it to three digits claims a precision the locator does not have.
+
+**The honest camera line, which is also the STRONGER one: THE SHOCK ARRIVES WITHIN HALF A MESH CELL OF THE EXACT POSITION AT BOTH RESOLUTIONS.**
+
+⚠ **AN ORDER REVERSAL THAT MUST NEVER REACH THE SCREEN AS A REFINEMENT CLAIM.** In **absolute** units the fine rung beats the coarse (0.00338 < 0.00399), **exactly as pre-registered — prediction 1 is TRUE and the gate stands**. But in units of **each grid's OWN cell** the ordering **REVERSES** (0.406 vs 0.239 cells). **No GCI, no observed order, no grid-convergence narration — Gate T is `BLOCKED`.**
+
+### 🔴 A FREEZE-CHECK TRAP THAT MAKES A GOOD FREEZE LOOK UNPROVABLE
+
+The DMR prereg was **ADDED** at `74797a57` (2026-08-07T22:40:28Z) at `demo-output/website/campaign/DMR_PREREGISTRATION.md`, and **MOVED** to `verification/campaign/DMR_PREREGISTRATION.md` at `a1fbe127` (MOVE_MAP batch 7, 2026-08-18).
+
+**Checking the freeze at the CURRENT path against the FREEZE COMMIT returns EMPTY.** `d41d8cd98f00b204e9800998ecf8427e` is **the md5 of the empty string** — and a check that does not assert non-empty reads that as a mismatch, or **worse, as a MATCH against another empty read.**
+
+**THE FREEZE IS PROVABLE.** Blob sha `a08ee245bf3bc8c46385dc847883e60aa4495829` at the freeze commit **AND** at HEAD **AND** on disk — byte-identical across the rename.
+
+Correcting this board's own arithmetic: earliest run artifact is **22:43:29.8Z**, so the margin is **3m01s**. **Board 41 said 22:43:42 and board 42 said 22:43:36 and BOTH ARE WRONG.**
+
+**GENERAL FORM, worth a lesson if a successor agrees:** *any freeze check that resolves a path at one commit and a different commit must assert the blob is **NON-EMPTY** and that the path **EXISTED at both**, or a MOVE_MAP rename silently converts a provable freeze into an unprovable one.* **Every lab record citing a pre-registration by its CURRENT path is exposed to this. NO SWEEP HAS BEEN RUN — not claimed, flagged.**
+
+### Live jobs and lanes — ZERO cfd solvers, three lanes at the cap
+
+**(a)** Live-pass harness `scripts/live_pass_jet_flap.py` — built and **self-tested OFFLINE** so the pass is **one command** the moment the server comes up; **plants required, refuses if a plant is invisible.** **(b)** DMR act wiring through the shared `make_act_entry`, plus the two **dafoam-flagged** sequencer items — hardcoded `"results"` namespace at **`demo_sequencer.py:352`** blocking Act D figure URLs, and adjoint-wing unreachable — and a **by-construction** audit of whether `assert_screen_safe` still bypasses **four of five** call sites. **(c)** This records lane.
+
+### Rungs without verdicts — unchanged
+
+**JF1** — five rows complete-but-unconverged and **clipping-held**, gate **NONE / UNFROZEN DRAFT**, **no verdict claimable**. **DMR R3** `NOT A RESULT`, **Gate T `BLOCKED`**. **F13** `GATE FAIL` on the mesh standard, **geometric** cause. **F28** `PENDING`, parked. **R5** `PENDING`. **M6** — no gate, ungoverned, DAFoam's run.
+
+### 🔴 On Sanaa's desk — board 43's list MINUS the Act B commit, now discharged
+
+**(1)** The **rule-10 exec-bit inflow** — rule 10's own private-index recipe has **no `--chmod` step**, `core.fileMode` is false here, **1,269 offenders and rising**; remedy is a **one-clause `CLAUDE.md` edit which is HERS ALONE**, and **no agent has touched it**. **(2)** The **TENSE CONFLICT** between her 03:40Z and 04:20Z directives — operating rule **PRESENT TENSE EVERYWHERE** as the intersection until she rules. **(3)** `cm-super`/`type1cm`/`dvipng`/`ghostscript` missing, so matplotlib `usetex` is dead and **apt is root**. **(4)** The **M6 territory call**. **(5)** The router's standing **promotional-surface policy at `router.py:470-477`** forbidding M6 from the control room — **hers alone to lift**. **(6)** The **turbulence-clipping limitation on all five JF1 rows** — she should hear it **before she films**. **(7)** Williams, Butler & Wood, **ARC R&M 3304 (1961) eq. (2)** — **never "Spence 1956"**. **(8)** Which surface she films.
+
+⚠ **NEW: the DMR act MUST NOT narrate the double-Mach structure as confirmed by a check — the detector that would confirm it FAILED on its own geometry.**
+
+### Next actions
+
+**Run the live pass the moment the server is up.** Land the DMR act. Then, when the demo freeze lifts, the **DMR positivity-preserving family** — all three of 1/60, 1/120, 1/240, constant **r=2**, exact restriction, closed-form p, **~18 core-min**, **its own Gate V at all three levels**; it **CONFRONTS the SIGFPE ceiling instead of avoiding it.** Still parked under the freeze: **F28 Stage 1**, **R5**, the consolidation-week **conversion batch (F3, F11, F4)**, the consolidation-week **3D campaign** (**must NOT be annexed into the M6 demo product**), `docs/standards/High_order_grid_convergence.pdf` intake (**NOT DISCHARGED, VERIFY**), **`MATRIX_CONTRIBUTION.md` owed to verification**.
+
+### Unverified, named as such
+
+The stale **SHARED INDEX** still reports clean files as dirty here, **including mode-only diffs with an IDENTICAL blob sha on both sides** — **compare against `git show HEAD:<path>`, never against the index.** Untouched, not cleared, not adopted; **somebody should be dispatched for whatever is staged there — it is not cfd's.** **No lab-wide sweep has been run for the `\b(...)\b` inflection-blindness class (L-425 addendum) and none is claimed.** `jet_flap_display`'s module docstring still claims a **0.9% geometry disagreement that measurement says no longer exists** — latent, legacy path only.
+
 **Section last written:** 2026-09-01T05:50:19Z by cfd-supervisor personally, via a records lane. **FORTY-THIRD WRITE.** Closing delta for the overnight session. HEAD at write time: `7657e66d` — **NOT `d80cca46`**, which was HEAD when this block was drafted; peers committed in the interval, and the actual value is recorded here rather than substituted silently. Where this conflicts with anything below, this block wins.
 
 ### ✅ CORRECTS THE FORTY-SECOND WRITE — THE MESH STANDARD CLAUSE IS LANDED, NOT OWED
