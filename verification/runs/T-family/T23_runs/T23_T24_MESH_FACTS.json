@@ -1,0 +1,138 @@
+{
+ "_what": "Mesh facts for the T23/T24 conjugate case behind demo Act A. Every number here was read from an artifact on disk or computed from build_t23.py's own constants; none is quoted from another act.",
+ "act": "A",
+ "case_families": [
+  "T23 (4 operating points)",
+  "T24 (12 operating points)"
+ ],
+ "n_operating_points": 16,
+ "reference_case": "verification/runs/T-family/T23_runs/T23_P305_U10",
+ "mesher": {
+  "tools": "blockMesh then splitMeshRegions -cellZones -overwrite",
+  "dict_source": "system/blockMeshDict, written by build_t23.py",
+  "derived_from_an_STL": false,
+  "note": "The solved mesh is a parametric structured wedge. It is NOT built from any surface file, so meshing an uploaded STL with snappyHexMesh would NOT reproduce it.",
+  "reproduced_this_turn_byte_identical": true,
+  "reproduction_evidence": "a fresh blockMesh + splitMeshRegions in a scratch copy reproduced all five polyMesh files (points, owner, neighbour, faces, boundary) in all three regions byte-identically by sha256: 15 of 15"
+ },
+ "regions": {
+  "n": 3,
+  "names": [
+   "fluid",
+   "housing",
+   "core"
+  ]
+ },
+ "cells": {
+  "fluid": 35200,
+  "housing": 1120,
+  "core": 3360,
+  "total": 39680,
+  "source": "the nCells field of constant/<region>/polyMesh/owner",
+  "cross_checks": [
+   "the cells: line of log.checkMesh.fluid/.housing/.core",
+   "the blockMeshDict block sizes: fluid (40+40+30) radial x (80+140+100) axial = 35200; housing 8 x 140 = 1120; core 24 x 140 = 3360"
+  ],
+  "identical_across_all_16_cases": true,
+  "identity_evidence": "sha256 of constant/<region>/polyMesh/points equal to T23_P305_U10's for all 48 region-case pairs",
+  "all_hexahedra": true
+ },
+ "geometry_m": {
+  "duct_inner_radius": 0.125,
+  "centrebody_outer_radius": 0.0375,
+  "housing_inner_radius": 0.0335,
+  "housing_wall_thickness": 0.004,
+  "shaft_bore_radius": 0.006,
+  "heated_section_length": 0.125,
+  "axial_stations_Z0_Z3": [
+   -0.25,
+   0.0,
+   0.125,
+   0.5
+  ],
+  "axial_extent": 0.75,
+  "wedge_angle_deg": 5.0,
+  "axisymmetric": true
+ },
+ "across_the_housing_wall": {
+  "wall_thickness_mm": 4.0,
+  "wall_thickness_source": "build_t23.py WALL_T = 0.004, with R_O = 0.0375 and R_I = R_O - WALL_T = 0.0335",
+  "n_cells_across": 8,
+  "cell_size_mm": 0.5,
+  "DO_NOT_PRINT_3.5_mm_AS_THE_WALL": {
+   "first_to_last_cell_centre_span_mm": 3.5,
+   "same_span_in_the_wedge_y_coordinate_mm": 3.497,
+   "why_they_differ": "the wedge's y coordinate is r cos(2.5 deg), a factor 0.999048, so a radius of 0.03725 m reads as y = 0.037215 m",
+   "warning": "3.5 mm is the centre-to-centre span of the first and last housing cell. It is NOT the wall thickness, which is 4.0 mm."
+  }
+ },
+ "first_cell_spacing_mm": {
+  "fluid_at_the_centrebody_and_housing_wall": 0.023088,
+  "fluid_at_the_duct_wall": 0.030533,
+  "housing_radial_uniform": 0.5,
+  "core_radial_uniform": 1.145833,
+  "axial_upstream_uniform": 3.125,
+  "axial_across_the_housing_uniform": 0.892857,
+  "axial_downstream_uniform": 3.75,
+  "method": "computed from build_t23.py's own band widths, cell counts and simpleGrading ratios: for ratio = last/first over N cells, k = ratio**(1/(N-1)) and first = W (k-1)/(k**N - 1)"
+ },
+ "y_plus_measured_not_a_gate": {
+  "source": "log.yPlus.fluid in T23_P305_U10",
+  "fluid_to_housing": {
+   "min": 0.395069182582,
+   "max": 0.403730330178,
+   "avg": 0.398990632574
+  },
+  "centrebody_up": {
+   "min": 0.403902007867,
+   "max": 1.09489199273,
+   "avg": 0.439578486131
+  },
+  "centrebody_down": {
+   "min": 0.38334516844,
+   "max": 0.394936103648,
+   "avg": 0.388169534213
+  },
+  "note": "y+ is measured and reported and is never a gate in this family"
+ },
+ "quality_from_checkMesh": {
+  "all_regions_verdict": "Mesh OK, no failures, in fluid, housing and core",
+  "fluid": {
+   "max_aspect_ratio": 162.627654918,
+   "max_skewness": 0.109152072608,
+   "max_non_orthogonality": 0.0,
+   "min_face_area_m2": 2.06141781458e-08,
+   "min_cell_volume_m3": 6.73948906288e-11,
+   "total_volume_m3": 0.000464717143949
+  },
+  "housing": {
+   "max_aspect_ratio": 1.80065562436,
+   "max_skewness": 0.108291019105,
+   "max_non_orthogonality": 0.0,
+   "min_face_area_m2": 4.46428570919e-07,
+   "min_cell_volume_m3": 1.31317246204e-09,
+   "total_volume_m3": 1.54701443376e-06
+  },
+  "core": {
+   "max_aspect_ratio": 1.26018522089,
+   "max_skewness": 0.103363600467,
+   "max_non_orthogonality": 0.0,
+   "min_face_area_m2": 4.67350578466e-07,
+   "min_cell_volume_m3": 5.86080893703e-10,
+   "total_volume_m3": 5.91705784748e-06
+  }
+ },
+ "live_mesh_timing_measured_this_turn": {
+  "where": "a scratch copy of build_t23.py; the live case was not touched",
+  "ranks": 1,
+  "write_dictionaries_s": 0.02,
+  "blockMesh_plus_splitMeshRegions_s": 1.15,
+  "checkMesh_fluid_s": 0.39,
+  "checkMesh_housing_s": 0.03,
+  "checkMesh_core_s": 0.05,
+  "total_wall_s": 1.64,
+  "total_core_minutes": 0.0273,
+  "verdict": "the owner's claim that this case meshes in under a minute is TRUE and measured, with a factor of about 37 in hand"
+ },
+ "caution_peak_temperature": "the graders' Q1 is max(T) over the HOUSING region. It is not the global peak: the core runs hotter. Nothing in this table may be captioned as the peak temperature."
+}

@@ -1,0 +1,98 @@
+{
+ "_what": "Mesh facts for the T25 battery-module case behind demo Act C. Shares NO number with Act A: different case, different mesher invocation, different dimensionality, different region name.",
+ "act": "C",
+ "case": "verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1",
+ "mesher": {
+  "tools": "blockMesh -region module",
+  "derived_from_an_STL": false,
+  "note": "as in Act A, the solved mesh is parametric and is not built from any surface file",
+  "reproduced_this_turn_byte_identical": true,
+  "reproduction_evidence": "a fresh blockMesh -region module in a scratch copy reproduced points, owner, neighbour, faces and boundary byte-identically by sha256: 5 of 5"
+ },
+ "regions": {
+  "n": 1,
+  "names": [
+   "module"
+  ],
+  "note": "ONE region. This table is not padded to Act A's three-region shape; rows that do not apply say so."
+ },
+ "cells": {
+  "module": 960,
+  "total": 960,
+  "source": "the nCells field of constant/module/polyMesh/owner",
+  "cross_checks": [
+   "the cells: line of log.checkMesh",
+   "the blockMeshDict: 8 disconnected blocks of (20 6 1) = 8 x 120 = 960"
+  ],
+  "all_hexahedra": true
+ },
+ "dimensionality": {
+  "resolved_directions": 2,
+  "empty_direction_depth_m": 1.0,
+  "empty_direction_cells": 1,
+  "note": "the registered case is 2-D at OpenFOAM's unit depth; the 1.000 m is the EMPTY direction and is not a physical extent"
+ },
+ "discretisation": {
+  "cells_along_the_100_mm_flow_length": 20,
+  "cell_size_along_flow_mm": 5.0,
+  "cells_across_the_30_mm_cell_thickness": 6,
+  "cell_size_across_thickness_mm": 5.0,
+  "cells_across_the_3_mm_cooling_channel": "NOT APPLICABLE",
+  "cells_across_the_3_mm_cooling_channel_why": "the channels carry NO cells. blockMeshDict builds 8 DISCONNECTED blocks, one per prismatic cell; the 3 mm channels are the gaps between them and are not resolved as a fluid region in this configuration. This is the same limitation the act's own bundle already states for the outlet temperature.",
+  "first_cell_spacing_mm": 5.0,
+  "grading": "simpleGrading (1 1 1) on every block: uniform, no boundary-layer refinement",
+  "y_plus": "NOT APPLICABLE",
+  "y_plus_why": "there is no fluid region in this configuration, so no wall shear and no y+ exists to report"
+ },
+ "quality_from_checkMesh": {
+  "verdict": "Mesh OK, no failures",
+  "max_aspect_ratio": 1.0,
+  "max_skewness": 3.33075942406e-14,
+  "max_non_orthogonality": 0.0,
+  "min_cell_volume_m3": 2.5e-05,
+  "max_cell_volume_m3": 2.5e-05,
+  "total_volume_m3": 0.024,
+  "total_volume_check": "8 cells x 0.100 m x 0.030 m x 1.000 m unit depth = 0.024 m3"
+ },
+ "live_mesh_timing_measured_this_turn": {
+  "where": "a scratch copy of the case dictionaries; the live case was not touched",
+  "ranks": 1,
+  "blockMesh_s": 0.02,
+  "checkMesh_s": 0.02,
+  "total_wall_s": 0.04,
+  "total_core_minutes": 0.00067,
+  "verdict": "the owner's condition -- live-mesh on screen only IF it meshes fast enough for a demo beat -- is MET with an enormous margin"
+ },
+ "upload_surface": {
+  "file": "cases/demo-surfaces/battery_module_8cell.stl",
+  "sha256_prefix": "bbe496a44e202b33",
+  "n_facets": 1944,
+  "verdict": "already the solved body in both resolved directions; regenerate NOTHING",
+  "measured_from_the_binary_triangles": {
+   "cell_footprint_x_m": [
+    0.0,
+    0.1
+   ],
+   "cell_footprint_y_m": [
+    0.0,
+    0.261
+   ],
+   "y_arithmetic": "8 x 0.030 + 7 x 0.003 = 0.261 exactly",
+   "bounding_box_x_m": [
+    -0.006,
+    0.106
+   ],
+   "bounding_box_y_m": [
+    -0.01,
+    0.271
+   ],
+   "bounding_box_z_m": [
+    -0.004,
+    0.12
+   ],
+   "bounding_box_why_larger": "a 4 mm base plate and two 4 mm end plates with a 6 mm margin, all declared display choices in cases/demo-surfaces/generate_demo_stls.py",
+   "stray_geometry_found": "none: every vertex plane is accounted for by the 8 registered boxes, the 3 declared plates, or the face-grid subdivision (n=4 on the cells and base, n=3 on the end plates)"
+  },
+  "the_one_display_extrusion": "the 120 mm z extent is a display extrusion in the case's EMPTY direction and must be disclosed in the same breath as the claim that the uploaded file is the solved body"
+ }
+}
