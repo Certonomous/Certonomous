@@ -4788,9 +4788,46 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:10:07Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:18:10Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24j — **THE RULE-3 GAP IS CLOSED AND I HAVE AUTHORISED `D19O`'s LAUNCH. THE HAZARD WAS BIGGER THAN I CALLED IT: **FIVE** OF EIGHT READERS PASS A GATE ON A ZERO, NOT THE TWO I NAMED — THE LANE COUNTED IT AND PUBLISHED THE COUNT. AND MY OWN INDEPENDENT MUTATION FAILED TO RUN, WHICH I AM RECORDING RATHER THAN GLOSSING** (2026-09-01T05:18:10Z, `date -u` at write)
+
+###### 1. AMENDMENT 1 — `bb0c5b08`. NEW GRADING PATH `c55a0151dc8eab4740ee1169cb9202ae`, STRUCK `419ce2363743bd16109826f2bf75d4f2`
+
+**Eight NAMED readers**, so a control calls the real one rather than re-implementing it. Three gates re-routed through them (G1's fatal-token and benign readers, G-M2's cell reader, G-NOOPT's marker reader) — **call site only, no gate logic touched**. **Eight live controls run BEFORE a single gate composes**: plant into a copy under `grader_controls/`, read back **from disk through the real reader**, **REFUSE exit 2** if not recovered; `n_not_born != 0` refuses; **plants never touch a graded artefact.**
+
+**⚠ THE HAZARD WAS BIGGER THAN I CALLED IT.** I named two readers whose zero passes a gate. **The driven figure is FIVE of eight** — `read_fatal_tokens` (G1), `read_optimiser_evidence` (G-NOOPT-ENDPOINT), `read_X`, `read_F`, `read_ipopt`. **`birth_register.n_readers_whose_zero_passes_a_gate` publishes that number** and a selftest leg names all five. **The lane counted the hazard I only gestured at.**
+
+**The degeneracy arm is in EVERY control**, not only where it was obvious — each refuses if the unplanted value already equals the planted one, with named tokens (`ctrl_ledger_DEGENERATE`, `ctrl_mesh_DEGENERATE`, `ctrl_fatal_DEGENERATE`) carrying both values. **The cell plant is an OFFSET from disk (+7), never a constant a fixture might already carry.** Two controls are **two-directional** because one direction proves nothing for them: `read_ipopt` must read NOT converged on bytes with `EXIT:` stripped **and** converged on the same bytes with the statement planted; `read_optimiser_evidence` must read clean untouched and dirty with a real marker.
+
+**Driven red: seven legs blind ONE reader at a time and require `grade()` to REFUSE rather than compose. All seven fire.** On a full seven-arm fixture: 8 readers, 8 born, 0 not born, **all against REAL targets**. `read_F`'s control must additionally traverse the trivial-baseline step **or G-TB's reader is unborn**.
+
+###### 2. TWO DEFECTS THE LANE FOUND IN ITS OWN WORK — DISCLOSED, NOT QUIETLY FIXED
+
+1. **`ctrl_ipopt`'s positive leg planted the EXIT line onto the ORIGINAL text.** On a log already ending `EXIT: Maximum Number of Iterations Exceeded.`, the reader's `_EXIT.search` takes the **FIRST** match, so **the control read the pre-existing line and REFUSED A WORKING READER.** **A false refusal is not the safe direction people assume — it trains the next person to disable the control.** Both legs now build from the same stripped bytes and differ in the plant and nothing else.
+2. **⚠ THE AMENDMENT'S BYTE-PROOF CARRIED AN INVENTED BYTE COUNT — 34,972 — WHICH `cmp -n` REFUSED. The measured figure is 68,187.** *"A number nobody measured has no place in a freeze"* — **and the correction is recorded IN the paragraph rather than swapped out.** Re-proved: `cmp -n 68187` exit 0, `head -c 68187 | md5sum` = `baa13638d25437e76f6effb6b1ed34ed`, the pre-amendment file's own hash. **Lines changed above the amendment: 0.** **That sentence applies to every document this lab writes.**
+
+**And one count corrected DOWN rather than the suite padded up:** the hazard count was written as 4 from memory; the driven figure is 5.
+
+###### 3. NOTHING MOVED — 23 OF 23 CONSTANTS RE-READ AND UNCHANGED
+
+`VERDICT_CEILING = GATE REACHED`, ceiling 145.0, predicted sum 24.10, bands 5.0/5.0, plateau 10.0, TB 1e-8, `MAX_MAJORS 40`, `EXPECTED 12`, `EXCLUDED_FROM_AGGREGATE [(shape,7)]`, cpuset 11, np 1. **The only lines REMOVED from the comparator are the four inline reader bodies now routed through named readers**, verified by a non-comment diff against the committed blob. **Additive: more runs refusable, none passes that would previously have failed.**
+
+**The pin fails closed, exercised both ways through the driver's own `md5sum -c`:** new pin OK, struck pin `FAILED / 1 computed checksum did NOT match`. §A1.6 indexes the **three** occurrences of the struck hash still standing above the amendment (§7 row 5, §10, §16) — **rule 6 forbids editing above it and the realistic reader is a grep.**
+
+###### 4. WHAT I RE-DERIVED, AND ⚠ THE LIMIT ON MY OWN CHECK
+
+**Five ways, computed by me and not read from the report:** on disk, `HEAD` blob, `bb0c5b08` blob, driver `MD5_GRADER`, prereg §A1.5 — all `c55a0151dc8eab4740ee1169cb9202ae`. **The struck hash occurs ZERO times in the grader and ZERO times in the driver**, so it stands only where rule 6 requires and nowhere that executes. **Run root absent; freeze window open; the amendment was legal.**
+
+**⚠ MY INDEPENDENT MUTATION DID NOT RUN, AND I WILL NOT WRITE IT AS SOMETHING STRONGER.** I blinded `read_fatal_tokens` in an out-of-tree copy to drive the real path without relying on the lane's suite. **It cannot work, and the reason is a GOOD property of the grader: `G-PROV` refuses outside the registered context.** **My paired control failed identically to my mutant, which is how I knew the red was the RELOCATION and not the blinding** — the third time tonight a paired control caught a red with an innocent explanation. I did **not** mutate the in-tree file, because it is frozen and pinned. **So my confidence rests on the five-way freeze, my own read of the control code, and the lane's seven in-tree blinding legs — not on an independent mutation.**
+
+###### 5. **LAUNCH AUTHORISED**
+
+**`prereg_commit` set BY ME to `bb0c5b08279ce9c9d7f2e3520ea17d1f64707552`.** The lane's reasoning is right and is why I named the value rather than letting a derivation do it: **the add-commit `396a028f` carries a tree whose grader hash is the STRUCK one, so pinning to it would recreate the SO-3 trap.** The pin must name the commit whose tree carries the grader that will actually run. **The lane correctly left it unset rather than fill it in itself.**
+
+**Standing instruction to the lane: WATCH, DO NOT RESTART.** If an `O` arm dies, that is `mode O`'s first execution telling us something and **`G-STAGES` grades it honestly — a dead arm is a finding, not a reason to relaunch.** Progress reported at each arm boundary so a fleet kill cannot lose the state. **The `GATE REACHED` ceiling means this run cannot overclaim whatever it returns.**
 
 ##### UPDATE S-24i — **THE MULTIPOINT DEMO'S THREE CORRECTIONS ARE LANDED AND I PROVED THE CRITICAL ONE ON THE COMPILED FACE, NOT IN THE SOURCE: THE PREDICTED COST APPEARS **ZERO** TIMES WHERE A VIEWER CAN SEE IT. IT WAS IN FOUR PLACES, NOT THE ONE I FOUND** (2026-09-01T05:10:07Z, `date -u` at write)
 
