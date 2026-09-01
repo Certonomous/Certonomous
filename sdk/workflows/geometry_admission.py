@@ -74,6 +74,10 @@ _PROFILE_BINS = 24
 class Surface:
     """The measurements an admission decision is allowed to use."""
 
+    # How the coordinates got here. Set by _read; defaulted so a Surface built
+    # directly in a test still answers the question rather than raising.
+    read_by = "unrecorded"
+
     def __init__(self, path, vertices, faces):
         self.path = str(path)
         self.n_vertices = len(vertices)
@@ -117,19 +121,57 @@ class Surface:
 
 
 def _read(path) -> Surface | None:
-    """Read a surface file, or None when it cannot be read as one."""
+    """Read a surface file, or None when it cannot be read as one.
+
+    THE RAW FILE READER GOES FIRST, AND THE ORDER IS THE WHOLE POINT.
+
+    This used to prefer ``chief_engineer.geometry.load_surface`` and fall back
+    to the raw reader on ANY exception, ImportError included. That made the
+    reported measurement depend on ``sys.path``: with the SDK importable a
+    caller got one number, without it another, on identical bytes. Measured on
+    the tracked upload (sdk/geometry/naca0012_wing.stl, md5
+    3d41177e144748806382ec98f0fd923d), both reproduced:
+
+        raw file reader   thickness 0.12001006305217743 m
+        load_surface      thickness 0.12002 m
+
+    and the difference is fully explained, not a mystery tolerance:
+    ``load_surface`` rounds every coordinate to 5 decimal places
+    (chief_engineer/geometry.py:199, :257, :370) to keep the JSON it streams
+    to the viewport small. That is correct for DRAWING a body and wrong for
+    MEASURING one. Here it inflates the thickness by 9.94e-06 m -- and note
+    which extent it moved: the chord and span are 1.0 and 3.0, exact at 5
+    decimals and untouched, so the rounding lands entirely on the SMALLEST
+    extent, which is the one every threshold in this module is most sensitive
+    to.
+
+    So a measurement is taken from the file's own bytes whenever the file's
+    own bytes can be read. ``load_surface`` is kept for the formats the raw
+    reader cannot parse at all, and when it is used the Surface says so, so a
+    transport-rounded reading is never silently mixed with an exact one.
+    """
+    vertices = faces = None
+    how = "raw file bytes"
     try:
-        from chief_engineer.geometry import load_surface
-        payload = load_surface(str(path), max_faces=10 ** 9)
-        vertices, faces = payload["vertices"], payload["faces"]
+        vertices, faces = _read_stl_fallback(Path(path))
     except Exception:
+        vertices = faces = None
+    if not vertices or not faces:
+        # Not an STL this reader can parse. Fall through to the SDK loader,
+        # which handles more formats -- and label the reading it returns.
         try:
-            vertices, faces = _read_stl_fallback(Path(path))
+            from chief_engineer.geometry import load_surface
+            payload = load_surface(str(path), max_faces=10 ** 9)
+            vertices, faces = payload["vertices"], payload["faces"]
+            how = "chief_engineer.geometry.load_surface, coordinates rounded "
+            how += "to 5 decimals in transport"
         except Exception:
             return None
     if not vertices or not faces:
         return None
-    return Surface(path, vertices, faces)
+    surf = Surface(path, vertices, faces)
+    surf.read_by = how
+    return surf
 
 
 def _read_stl_fallback(path: Path):
@@ -235,7 +277,12 @@ def admit(path) -> dict:
                 "measurements": None, "axes": None}
 
     m = {"largest_m": surf.largest, "middle_m": surf.middle,
-         "smallest_m": surf.smallest, "faces": surf.n_faces}
+         "smallest_m": surf.smallest, "faces": surf.n_faces,
+         # WHERE THESE NUMBERS CAME FROM, on the record beside them. A reading
+         # taken through the viewport's transport loader is rounded at the
+         # fifth decimal and must never be mistaken for one taken off the
+         # file. See _read.
+         "read_by": surf.read_by}
 
     def refuse(code, reason, remedy):
         return {"admitted": False, "path": str(path), "code": code,

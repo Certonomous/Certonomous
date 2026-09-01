@@ -14,6 +14,7 @@ from __future__ import annotations
 import itertools
 import math
 import struct
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -256,11 +257,22 @@ def main() -> int:
     # assignment is inverted moves the values with the input untouched, and a
     # future permutation regression moves them with the reader untouched.
     #
-    # The registered values are the reader's own output on the tracked file,
-    # captured once and pinned here. thickness_m is 0.12002 rather than the
-    # analytic 0.120010: a binary STL stores float32, and this is the file as
-    # it is actually stored, which is the thing the customer is told about.
-    REGISTERED = {"chord_m": 1.0, "span_m": 3.0, "thickness_m": 0.12002}
+    # THE REGISTERED VALUES ARE THE FILE'S OWN BYTES, and getting that right
+    # took a correction. They were first pinned at thickness_m = 0.12002,
+    # which is what the reader returned in the environment this selftest runs
+    # in -- and the reader returned 0.12001006305217743 in an environment with
+    # the SDK off sys.path, on identical bytes (md5 3d41177e...). Pinning
+    # "whatever this environment reports" to full precision is not ground
+    # truth; it is a pin that passes or fails on how it was invoked.
+    #
+    # The divergence is now explained and closed at the source: _read prefers
+    # the raw file reader, because 0.12002 was the viewport's 5-decimal
+    # transport rounding leaking into a measurement. 0.12001006305217743 is
+    # the float32 the binary STL actually stores, so it is what the file
+    # measures and what the customer is told about. The arm below asserts the
+    # two readings' relationship rather than trusting either.
+    REGISTERED = {"chord_m": 1.0, "span_m": 3.0,
+                  "thickness_m": 0.12001006305217743}
     REGISTERED_RATIO = "12.0%"
 
     def reported(path) -> dict:
@@ -329,6 +341,79 @@ def main() -> int:
     # extents, which no axis order can move. The assumption's blast radius is
     # therefore a body this reader already will not run -- and that is now
     # armed rather than argued.
+    # TWO READERS, AND THE ARM SAYS SO OUT LOUD. _read can reach the surface
+    # two ways, and they do NOT agree: the SDK's transport loader rounds every
+    # coordinate to 5 decimals for the viewport. That is a fact about the two
+    # readers, so it is asserted as one rather than left to be rediscovered by
+    # whoever next sees a number move without the data moving.
+    #
+    # The assertion is the RELATIONSHIP, not a loosened tolerance. Loosening
+    # is what let the 4.0% through, and it is refused here: the registered
+    # claim is that the transport reading equals the raw reading with each
+    # coordinate rounded to 5 decimals, exactly, and that _read returns the
+    # raw one. A transport loader that started doing anything else -- welding
+    # vertices, dropping faces, rescaling -- breaks this arm immediately,
+    # while the known 9.94e-06 m rounding does not.
+    print("\nTWO-READER ARM -- a reader with two answers must say so")
+    print("-" * 74)
+    raw_v, raw_f = GA._read_stl_fallback(Path(REAL_UPLOAD))
+    raw_surf = GA.Surface(REAL_UPLOAD, raw_v, raw_f)
+    try:
+        from chief_engineer.geometry import load_surface
+        payload = load_surface(str(REAL_UPLOAD), max_faces=10 ** 9)
+        tr_surf = GA.Surface(REAL_UPLOAD, payload["vertices"], payload["faces"])
+    except Exception as exc:                              # pragma: no cover
+        tr_surf = None
+        print(f"  (transport loader not importable here: {exc})")
+    check("_read takes the RAW file reader on an STL",
+          GA._read(REAL_UPLOAD).read_by, "raw file bytes",
+          "so the reported measurement cannot depend on sys.path")
+    check("the raw reader reports the float32 the file stores",
+          raw_surf.extents[raw_surf.by_size[0]], REGISTERED["thickness_m"])
+    if tr_surf is not None:
+        rounded = GA.Surface(
+            REAL_UPLOAD, [[round(c, 5) for c in v] for v in raw_v], raw_f)
+        check("the two readers DISAGREE, and by exactly the transport rounding",
+              tr_surf.extents == rounded.extents, True,
+              f"transport {tr_surf.extents[tr_surf.by_size[0]]!r} against raw "
+              f"{raw_surf.extents[raw_surf.by_size[0]]!r}: "
+              f"{abs(tr_surf.extents[tr_surf.by_size[0]] - raw_surf.extents[raw_surf.by_size[0]]):.2e} m, "
+              f"and it lands on the SMALLEST extent")
+        check("the disagreement does not reach the customer's percentage",
+              (f"{100.0 * tr_surf.extents[tr_surf.by_size[0]] / tr_surf.extents[tr_surf.by_size[1]]:.1f}%",
+               f"{100.0 * raw_surf.extents[raw_surf.by_size[0]] / raw_surf.extents[raw_surf.by_size[1]]:.1f}%"),
+              (REGISTERED_RATIO, REGISTERED_RATIO),
+              "both render 12.0%; nothing on screen was ever wrong")
+
+    # AND THE PROOF, IN A SEPARATE PROCESS. Everything above runs in one
+    # interpreter with the SDK already imported, so it cannot demonstrate what
+    # happens when the SDK is NOT importable -- which is the environment the
+    # bug was found in. This arm re-reads the same file in a fresh process
+    # with only the workflows directory on sys.path, exactly the shell that
+    # reported 0.12001006305217743, and requires the same answer. It is the
+    # one arm here that would have gone red before this fix.
+    # sys.path is FILTERED, never replaced: replacing it removes the standard
+    # library too, and the probe then fails on `import __future__` and proves
+    # nothing about the reader. (It did exactly that once, here.) What is
+    # removed is every Certonomous entry, so `chief_engineer` is unimportable
+    # while Python still works.
+    probe = (
+        "import sys;"
+        "sys.path[:]=[p for p in sys.path if 'Certonomous' not in p];"
+        f"sys.path.insert(0, r'{Path(__file__).resolve().parent}');"
+        "import geometry_admission as G;"
+        "assert G._read.__module__=='geometry_admission';"
+        "\ntry:\n import chief_engineer\n raise SystemExit('SDK still importable')\nexcept ImportError:\n pass\n"
+        f"s=G._read(r'{REAL_UPLOAD}');"
+        "print(repr(s.extents[s.by_size[0]]), s.read_by, sep='|')")
+    out = subprocess.run([sys.executable, "-c", probe],
+                         capture_output=True, text=True)
+    got = out.stdout.strip().split("|") if out.returncode == 0 else [out.stderr]
+    check("same answer in a process where the SDK is NOT importable",
+          (got[0] if got else None, got[1] if len(got) > 1 else None),
+          (repr(REGISTERED["thickness_m"]), "raw file bytes"),
+          "the environment that first reported the disagreement")
+
     stub = write_stl(naca_wing(1.0, 0.08, 0.12), tmp / "stub.stl")
     stub_d = admit(stub)
     check("a stub thicker than its own span is refused, not mislabelled",
