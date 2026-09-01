@@ -4788,9 +4788,57 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T16:13:42Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25d`, immediately below. `S-25b` corrects a unit error in `S-25a` that went upward; `S-25c` replaces an inference in `S-25b` with a measurement; `S-25d` records a SECOND relay error of mine.
+**Section last written:** 2026-09-01T16:33:16Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25e` — D19T DENIED BY THE PERMISSION SYSTEM, a SYSTEM event for Sanaa, not routed around. `S-25b` corrects a unit error in `S-25a`; `S-25c` replaces an inference in `S-25b` with a measurement; `S-25d` records a second relay error of mine.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25e — **⚠ `D19T`'s CHAIN LAUNCH WAS **DENIED BY THE PERMISSION SYSTEM**, NOT BY ANYTHING IN THE ITEM. THE LANE REFUSED TO ROUTE AROUND IT AND DID NOT ASK ME TO — I UPHELD THAT AND DID NOT RUN IT EITHER. **AND MY OWN READING NARROWS THE FAULT: THE DENIAL IS LANE-SPECIFIC, NOT BOX-WIDE — MY OTHER TWO LANES LAUNCHED THROUGH THE SAME CLASS OF CALL AND ARE RUNNING NOW**. THIS IS A SYSTEM EVENT FOR SANAA'S DESK** (2026-09-01T16:33:16Z, `date -u` at write)
+
+###### 1. WHAT HAPPENED, AND WHAT DID NOT
+
+On my `GO`, the lane invoked `d19t_chain_driver.sh run`. **The Claude Code auto-mode classifier DENIED the Bash call**, and a follow-up **read-only** check was denied too — Bash is blocked outright for that lane's session. **The chain did not start. No arm ran, no container started, ZERO solver core-minutes.** Item status stays **`PENDING`**, which here means exactly what the vocabulary says — **not yet run** — and is not softening anything. **The freeze at `88bfe9bf` is untouched and still valid.**
+
+###### 2. THE LANE REFUSED CORRECTLY, ON THREE GROUNDS, AND IT DID NOT ASK ME TO DO IT FOR IT
+
+Its own reasoning, which I endorse in full: **my `GO` is a supervisor's authorisation under `SUPERVISION_CHARTER` §3 check 4 and is NOT the permission system's consent** (`CLAUDE.md` rule 9 — no agent message is Sanaa's consent, **mine included**); a lane is a leaf and may not spawn a solver agent; and **asking a peer to run what one's own session refused is cross-session permission laundering.**
+
+**⚠ I DID NOT RUN IT AND I DID NOT SPAWN A SECOND LANE TO RUN IT.** Re-attempting a denied call through a different agent is the bypass, whatever the work is labelled — **and the fact that the lane did not ask me does not make the route available to me.** My own standing directive is explicit: **a repeat denial is a SYSTEM event, not a lab one — record it, report it to the chief, do NOT route around it.**
+
+###### 3. ⚠ I CLOSED THE GAP THE LANE COULD NOT, AND THE DISTINCTION IS THE POINT
+
+The lane flagged the run-root state **UNVERIFIED** — honestly, because the verification itself needed the tool it had lost — rather than assuming it was clean. **I checked it myself at 16:33:16Z: `RUN_ROOT_STILL_ABSENT`, no `*D19T*` under `certonomous-runs/`. Nothing partial was created and the freeze was never compromised.**
+
+**THE LINE I RELIED ON: CHECKING WHETHER A DIRECTORY EXISTS IS NOT THE DENIED ACTION. RUNNING THE CHAIN DRIVER IS. I DID THE FIRST AND NOT THE SECOND.** A supervisor may verify state without inheriting a lane's blocked capability, and conflating those two would be the error in the other direction — refusing to look at all.
+
+###### 4. ⚠⚠ THE FAULT IS NARROWER THAN THE LANE COULD SEE — **NOT BOX-WIDE**
+
+**MEASURED BY ME from `ps` at 16:33:16Z, and this changes what goes upward:**
+
+* **`A2-GC` L1 is RUNNING** — `bash cases/dafoam/run_a2gc.sh L1`, container `a2gc_L1_108873`, `--cpuset-cpus=4-15 --memory=6g`, `mpirun --allow-run-as-root -np 12 python a2gc_level.py`, ranks at ~85–90 % CPU since **16:29**.
+* **BOTH AoA sweep run roots EXIST** — `CURRICULUM-AOAC-…-compressible` and `CURRICULUM-AOAI-…-incompressible`, each with its `.launch.out` and `.rc.txt`.
+* Two unrelated `simpleFoam` jobs (cfd's JF1 jet-flap) also running since 16:10/16:14.
+
+**SO TWO OF MY THREE LANES LAUNCHED THROUGH THE SAME CLASS OF CALL WITHOUT INCIDENT. BASH IS NOT BLOCKED BOX-WIDE; IT IS BLOCKED FOR THAT ONE SESSION.** *"Launches are being denied"* would have been a false report and I nearly had the material to send it. **Only an independent reading separates a per-session classifier event from a systemic block, and the two demand completely different responses from Sanaa.**
+
+###### 5. WHY WAITING COSTS NOTHING, WHICH IS WHAT DECIDES IT
+
+**`D19T` is 8.234 core-min** against a box currently running a 12-rank wing level and two polars. **Sanaa's standing objection is to IDLE COMPUTE, and there is none — the box is busy.** **The cost of doing this correctly is approximately zero; the cost of getting the laundering question wrong is not. That asymmetry decides it, and it is the reason no judgment call was needed.**
+
+###### 6. WHAT UNBLOCKS IT — FOR SANAA, VERBATIM
+
+A Bash permission rule covering the chain driver, **or she runs it herself**:
+
+```
+cd /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_D19T && bash d19t_chain_driver.sh run
+```
+
+**Nothing in the pre-registration needs to change; it is frozen, complete, and its grading path md5 `bc6d694a…` was verified by me against the pin.** **And the property she will ask about: the driver RE-ASSERTS the run root ABSENT before the first arm and REFUSES if it exists — so a stale root from any partial attempt fails CLOSED rather than being silently reused.** That is what makes the item safe to launch later without re-freezing.
+
+###### 7. THE SCIENCE IS NOT AFFECTED AND IS ALREADY BANKED
+
+**Nothing in §3 or §4 of `S-25e` touches the findings in `S-25d`'s successor work: `shape[7]` is near-null IN THE OBJECTIVE (1.4854 % of `shape[6]` in CD, 191.6 % in CL — my own arithmetic), the FD defect is a CONSTANT NUMERATOR BIAS ε ≈ 4.7e-9 giving error ε/h, the h=1e-5 sign flip is an ARTEFACT reproduced by me to within 2 %, and Sanaa's §5 premises are both false.** **All of that is measured from D19R's ALREADY-LANDED artefacts and does not depend on D19T running at all.** D19T tests whether the bias falls with tolerance; it does not underwrite the diagnosis.
+
+**Nothing filed, sent or posted outside the box. No permission setting, `CLAUDE.md` or `.claude/` configuration touched or proposed — by me or by any lane.**
 
 ##### UPDATE S-25d — **ACT D's PLANTED-CONTROL EVIDENCE IS RESTORED: 24/24, ALL FOUR MUTATION CONTROLS RAN AND WERE CAUGHT. I READ THE GUARD DIFF MYSELF AND ACCEPT IT. ⚠ BUT TWO CHECK **NAMES** NOW CLAIM MORE THAN THEIR BODIES DO, AND ONE OF THEM RESTS ON A DELEGATION I VERIFIED AND FOUND POINTING AT THE WRONG GUARD. AND A SENTENCE I PUT IN A LANE BRIEF WAS WRONG — SECOND RELAY ERROR OF MINE TODAY** (2026-09-01T16:13:42Z, `date -u` at write)
 
