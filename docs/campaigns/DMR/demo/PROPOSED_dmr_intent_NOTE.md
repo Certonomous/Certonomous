@@ -270,8 +270,20 @@ solver's own convergence tolerance and it honestly reports itself unconverged,
 so its measurements and its documented failure live in the evidence record
 instead, which is where a failure belongs.
 
-**This act clears that clause on the quantity it presents, and the position is
-materially stronger than the jet-flap act's.** Stated plainly so nobody has to
+**THE CLAUSE HAS SINCE BEEN RULED ON, AND THE RULING IS THE PRIMARY ANSWER
+HERE.** The cfd supervisor ruled at `73c18156`, 2026-09-01, on the jet-flap
+proposal: that comment is a code comment written by a lab agent, not a charter
+clause and not a ruling of Sanaa's; it governs **gradeable solve missions**,
+where the control room offers to solve something and report a graded result;
+it does not reach a **display mission** presenting finished runs; and it is
+**not retired** and stays in force for everything it does reach. This act is a
+display mission, so on that ruling the clause does not reach it either.
+
+That ruling is adopted here rather than re-argued. **What follows is an
+independent second reason, and it is worth stating because it does not depend
+on the ruling holding:** even read literally, as a clause that does reach every
+act, this one clears it on the quantity it presents — and the position is
+materially stronger than the jet-flap act's. Stated plainly so nobody has to
 infer it:
 
 - **Both rungs reached a clean result on the graded kinematics.** Gate V is
@@ -321,21 +333,62 @@ infer it:
 
 ---
 
-## 7. Conflict with the thermal display patch, and the order to apply them in
+## 7. Conflict with the OTHER TWO display patches, and the order to apply them in
 
-**Both patches are cut against the same `router.py` blob
-`40521daec147bf19d2f2ee8dfe059bd4da8cae5e`, and both add to it.** They will
-not both apply cleanly one after the other. The overlaps are additive and
-trivial to resolve, and there are exactly two:
+> **CORRECTION, 2026-09-01 02:1xZ, and it is against this section's own first
+> version.** As committed at `39fa4564` this section described a TWO-way
+> conflict with the thermal patch and closed with the sentence *"`scope.py` is
+> touched by this patch and not by the thermal one, so there is no conflict
+> there."* **That sentence was wrong within a minute of being written.** The
+> jet-flap display proposal landed at `73c18156`, 02:05:37Z, twenty-seven
+> seconds after my own commit; it touches `scope.py` **at the same two places
+> this patch does**. The corrected section follows. The original claim is
+> struck rather than deleted because the cfd supervisor was told it in a lane
+> report and should be able to see exactly what was withdrawn.
 
-1. **The module docstring**, where both append a route paragraph after the
-   `geometry-study` entry.
-2. **The `WORKFLOWS` table**, where both insert an entry.
+**THREE display-mission patches are now pending against the same base**, all
+cut against `router.py` blob `40521daec147bf19d2f2ee8dfe059bd4da8cae5e`:
 
-The other hunks land far enough apart to apply with offset. Recommended order:
-apply whichever is approved first, then re-cut or three-way merge the second
-(`git apply --3way`). Neither patch depends on the other, and neither changes
-anything the other reads.
+| Patch | Filed at |
+|---|---|
+| Thermal | `docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch` |
+| Jet flap | `docs/campaigns/JF1-jet-flap/demo/PROPOSED_jet_flap_intent.patch` |
+| This one | `docs/campaigns/DMR/demo/PROPOSED_dmr_intent.patch` |
 
-`sdk/chief_engineer/scope.py` is touched by this patch and **not** by the
-thermal one, so there is no conflict there.
+Each applies cleanly on its own at HEAD. **No two of them apply cleanly one
+after the other.**
+
+### Measured, not predicted
+
+The jet-flap patch was applied to a throwaway copy of the three shared modules
+and this patch was then offered on top. It **fails direct application at two
+points**:
+
+- `sdk/chief_engineer/router.py:781` — the `WORKFLOWS` table, where all three
+  patches insert an entry.
+- `sdk/chief_engineer/scope.py:33` — the `from .router import (...)` block,
+  where both this patch and the jet-flap one add a name to the same two
+  physical lines. Their `CAPABILITIES` row also anchors on the same
+  `SUPERSONIC_WEDGE: frozenset(),` line this patch anchors on.
+
+Against the thermal patch the overlaps are the **module docstring** (both
+append a route paragraph after the `geometry-study` entry) and again the
+**`WORKFLOWS` table**. Thermal does not touch `scope.py`.
+
+**What was NOT measured, and is not claimed:** whether `git apply --3way`
+resolves any of this cleanly. The throwaway used for the test lacked the base
+blobs, so 3-way could not run there and fell back to direct application. The
+real repository does hold blob `40521dae`, so 3-way has what it needs there,
+but that was not run, because running it means applying a patch to the live
+working tree and none of these three is approved.
+
+### Consequence for whoever sequences the restart
+
+All three are additive and none reads anything another writes, so this is
+bookkeeping rather than a design collision. But it will not resolve itself:
+**the second and third patches applied must be re-cut against the tree that
+results from the first**, not applied blind. The order is free. The safest
+route is to apply them in one sitting, re-cutting as you go, and to re-run each
+act's own controls afterwards — for this act,
+`docs/campaigns/DMR/demo/plant_control.py`, which returns 2 rather than a false
+pass if the module is not where it expects.
