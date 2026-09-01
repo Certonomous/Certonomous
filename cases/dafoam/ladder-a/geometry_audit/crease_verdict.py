@@ -352,10 +352,24 @@ def turning(segs):
 #
 # The limits are ENFORCED, not observed, and by the same guard the act's other
 # two figures use -- a title that grows back fails here rather than on camera.
-_SDK = Path(__file__).resolve().parents[4] / "sdk"
-if str(_SDK) not in sys.path:
-    sys.path.insert(0, str(_SDK))
-from workflows._a2_shape import check_figure_text  # noqa: E402
+#
+# THE IMPORT IS LAZY AND THAT IS DELIBERATE. This module is a MEASUREMENT
+# instrument: it computes turning angles and included angles and writes them
+# down, and main() does all of that without drawing anything. Reaching into
+# sdk/ at module scope would make a geometry instrument unimportable whenever
+# a PRESENTATION module in sdk/ fails to import, and the next person to break
+# _a2_shape would watch a geometry audit die without guessing why. So the
+# coupling is confined to figure(), which is the only function that needs it
+# and the only place check_figure_text is called. The guard is on the path
+# either way.
+def _figure_text_guard():
+    """The act's own figure-text guard, imported only when a figure is drawn."""
+    sdk = Path(__file__).resolve().parents[4] / "sdk"
+    if str(sdk) not in sys.path:
+        sys.path.insert(0, str(sdk))
+    from workflows._a2_shape import check_figure_text
+    return check_figure_text
+
 
 # The caption is figure-wide, so it says which panel the true-scale claim is
 # about. Equal aspect holds on the outlines and cannot hold on an angle plot.
@@ -373,6 +387,7 @@ def figure(station, doc, base, final, tris):
         return None
     OUT.mkdir(parents=True, exist_ok=True)
     out = OUT / "actD_crease_section.png"
+    check_figure_text = _figure_text_guard()
     section_title, caption = check_figure_text(
         f"Wing section at span station $z$ = {station:g} m", CREASE_CAPTION)
     turn_title, _ = check_figure_text(
