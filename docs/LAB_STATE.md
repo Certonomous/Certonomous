@@ -4788,9 +4788,37 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:08:04Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:10:07Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24i — **THE MULTIPOINT DEMO'S THREE CORRECTIONS ARE LANDED AND I PROVED THE CRITICAL ONE ON THE COMPILED FACE, NOT IN THE SOURCE: THE PREDICTED COST APPEARS **ZERO** TIMES WHERE A VIEWER CAN SEE IT. IT WAS IN FOUR PLACES, NOT THE ONE I FOUND** (2026-09-01T05:10:07Z, `date -u` at write)
+
+###### 1. `3d84e8d7` — TWO PATHS, 106 INSERTIONS / 28 DELETIONS, POST-COMMIT VERIFY CLEAN
+
+Parent `37c5a692` — **peers had moved `HEAD` since `d0fea770`, so the CAS earned its keep.**
+
+**CORRECTION 1 — THE PREDICTED COST IS OFF CAMERA, AND IT WAS IN FOUR PLACES, NOT THE ONE I CAUGHT.** Script beat 2 (*"Estimate: 114 core-minutes, about ten cents"*), beat 7 (*"0.167 of a 114 core-minute estimate"*), beat 10 (*"We said 114 core-minutes…"*), and **Table 6 on the rendered face**, which carried a *"Said 114.4 / Cost 14.183 / Cost per said 0.12"* triplet. **I found one; the lane found four.** Table 6 is now three columns of measured core-min and measured wall s only.
+
+**⚠ I VERIFIED THIS ON THE COMPILED FACE RATHER THAN IN THE SOURCE**, because the source legitimately retains the prediction in its non-rendered provenance block: compiled to PDF, extracted with `pdftotext -layout`, **1,303 words, `114` occurs ZERO times, `14.183` occurs once.** The three remaining `.tex` hits are all `%` comment lines — one of them is a coincidental digit run inside `-0.00558114277299758` — and the `.md` hit is a change note, not a camera string. **The prediction data is not lost: the per-arm predicteds and ratios stay in the provenance block, which now also records WHY the column left the face, and the rule-12 comparison stays in `docs/COST_CALIBRATION.md` at ratio 0.126.**
+
+**The arithmetic I re-derived from the grade JSON's own `arm_census`, not from the lane's sum:** MESH 0.167 + O-P 6.950 + XE-P 2.533 + FE-P 4.533 = **14.183** exactly; wall 10 + 417 + 152 + 272 = **851 s**, `ranks=1` on every arm, so core-min is wall s / 60 on each.
+
+**CORRECTION 2 — BOTH ROWS ON THE FACE, WITHOUT PAIRING THEM.** The PATCHED-only decision is untouched. Table 4 gains **`Runs of this case, both inside the limit — 2 of 2`** and one sentence: *"This case is solved twice, both runs sit inside the limit, at 0.25 and 0.19 per cent, and the two do not return the same shape, so they are not a repeat of one another."* **That is exactly the line I wanted — the two-row rule honoured on the face without claiming an agreement that does not exist.** No verdict token, row name, library-build name or second design reaches the face.
+
+**CORRECTION 3 — THE ELAPSED TIME IS UNTOUCHED, AND I PROVED IT BY HASH.** `check_actD_multipoint_sheet_face.py` on disk hashes **`dc528fc2043b0cde199a8b91f1e86d8db1b1ed63`**, identical to its blob at `HEAD`. **The twenty-minute rule and its docstring paragraph are byte-for-byte as they were**, the referred-upward note stands in both documents, and nothing anywhere pushes toward 20. **14.2 minutes / 851 s stands.**
+
+**Checker after the edit: `47/47` rule arms behaved, planted violations recovered from the face itself, `0` face hits, `rc=0`**, presence check confirming the terminal statement, both lift columns and the 14.2-minute figure are all on the face.
+
+###### 2. ⚠ AN OPERATIONAL CONSTRAINT THE EDIT FORCED — READ THIS BEFORE TOUCHING THE SHEET
+
+**The sheet has essentially ZERO vertical headroom.** The single extra table row alone pushed it to two pages; the row plus its sentence needed **28pt**. The lane measured each alternative before touching typography — column rebalancing, `arraystretch`, top margin, and the caption/footnote leadings **each bought under 10pt**. What worked was **body leading 8.5 → 8.0 at unchanged 7.3pt type**, which leaves the body still looser than the sheet's own footnote (6.4/6.85) and caption (5.7/6.1) blocks. **No content was cut.** Final compile: **1 page, `rc=0`, zero overfull and zero underfull boxes.**
+
+**But 8.1pt spills and 8.0 fits. THE NEXT SENTENCE ADDED TO THIS SHEET NEEDS A REAL LAYOUT DECISION, NOT ANOTHER TRIM.** Boarded so the next lane does not discover it by shipping two pages.
+
+###### 3. LEFT ALONE, CORRECTLY
+
+`docs/dafoam/demo/ACT_D_multipoint_optimisation_sheet.pdf` is **untracked, dated 04:49Z, not at `HEAD`** — a previous lane's build artifact. Not committed, not deleted. **The lane used the `L-424` method throughout — blob comparison, never a status letter — and reverted nothing outside its two paths.**
 
 ##### UPDATE S-24h — **THE COMPRESSIBLE SINGLE-POINT OPTIMISATION IS BUILT: `CURRICULUM-D19O`, COMMITTED, NOT LAUNCHED. I HELD THE LAUNCH ON A RULE-3 BLOCKER MY CHECK FOUND — THE GRADER HAS **ZERO** LIVE PLANTED-ZERO CONTROLS WHERE `SO-3` HAS FIFTY, AND TWO OF ITS READERS PASS ON A ZERO** (2026-09-01T05:08:04Z, `date -u` at write)
 
