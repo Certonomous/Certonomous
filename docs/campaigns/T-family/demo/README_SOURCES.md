@@ -926,3 +926,105 @@ and it is back to one page.
 - **Neither sheet contains a number that was not read from an artifact on
   disk**, except the four derived figures named in Part 3, each of which shows
   its arithmetic.
+
+---
+
+## PART 6 — THE TWO ACTS ARE NOT EQUALLY ASSURED AT THE INSTRUMENT LEVEL
+
+**Added 2026-09-01.** The two sheets sit in one directory, in one format, at one
+level of polish. **The assurance behind their numbers is not the same, and this
+section exists so that no successor infers parity from the presentation.**
+
+`SUPERVISION_CHARTER.md` §3 check 1 is *measurement-script diffs read as diffs,
+by the supervisor personally*. It is discharged for one act and not claimed for
+the other.
+
+| act | instruments that produce its user-visible numbers | §3 check 1 |
+|---|---|---|
+| **C** — battery module | `verification/runs/T-family/T25_MODULE_runs/analyse_t25.py` (measurement path) and `build_t25.py` (physics-determining path) | **DISCHARGED on both**, by the supervisor personally, recorded in Part 2 above and committed at **`5e79958e`** |
+| **A** — motor-in-duct thermal map | `verification/runs/T-family/T24_runs/analyse_t24.py` (the twelve T24 rows) **and** `verification/runs/T-family/T23_runs/analyse_t23.py` (the four T23 rows and the hand-estimate comparison behind sheet A's Table 2), reaching the sheet through the landed records `docs/campaigns/T-family/CASE3_MAP_RESULTS.md` and `docs/campaigns/T-family/T23_RESULTS.md` | **NOT CLAIMED**, on either comparator |
+
+**Sheet A's numbers come from TWO comparators, not one.** The map is an assembly
+of two separately graded rungs (`CASE3_MAP_RESULTS.md:10-13`), and
+`analyse_t23.py` is as much an instrument behind sheet A as `analyse_t24.py` is.
+Neither has been read by the supervisor.
+
+### What Act A's assurance actually IS — stated positively, because it is real
+
+Sheet A's numbers were **graded and landed through the lab's normal process, and
+that process is the lab's normal standard, not a shortcut:**
+
+- Both rungs ran under **pre-registrations frozen before compute** —
+  `T23_PREREGISTRATION.md` at `fe666fd5`, `T24_PREREGISTRATION.md` at
+  `b9057489` (`CASE3_MAP_RESULTS.md:10-13`).
+- The T24 comparator's **identity against its frozen blob was verified, and
+  verified personally by the supervisor**: `analyse_t24.py` in the worktree is
+  byte-identical to the committed blob at **`d9082bfb`**, both sha256
+  `ef72d5754231ce6ca650b9bf957fe1a0c5fec84ea8dcf9feacce711ede3eee6a`
+  (`CASE3_MAP_RESULTS.md:20-26`, and §10 item 4 attributing it to the supervisor
+  rather than to the lane). That is `CLAUDE.md` rule 2's last bullet discharged:
+  **the file that ran is the file that was frozen.**
+- The grading outputs are on disk and cited row by row — `gate_t24.json`,
+  `T23_GRADE.json` / `T23_GRADE.txt`, sixteen `DONE.` markers, sixteen
+  `log.solve` (`CASE3_MAP_RESULTS.md` §11).
+
+**None of that is weak.** A frozen gate the answer could not have been fitted to,
+plus a hash proving the grading path was not swapped, is exactly what this lab
+asks of a landed rung.
+
+### What it is NOT — and the distinction must not be blurred
+
+**A hash is not a read.** The identity check proves *which file ran*. It says
+nothing whatever about *whether that file measures what it claims to measure*.
+Those are different assurances answering different questions, and only Act C has
+both.
+
+Three further precisions, because the record should be sharper than the summary:
+
+1. **The identity check covers `analyse_t24.py` only.** The equivalent check
+   recorded on the T23 side (`CASE3_MAP_RESULTS.md:26-28`, `T23_RESULTS.md:7-13`)
+   hashes the **frozen registration** — worktree to blob
+   `c341476f3680c14ec593c52d12e49214cf83ebb3` — **not the comparator**.
+   `analyse_t23.py` therefore carries **neither** a supervisor read **nor** a
+   recorded comparator-identity check in the landed records. (Its worktree copy
+   does match `HEAD`, sha256 `06480814…20c0e8`, measured by this lane on
+   2026-09-01; that is a fact about the tree today, not a landed rule-2 check.)
+2. **The map's own §12 says so.** `CASE3_MAP_RESULTS.md:759-762`, verbatim:
+   *"A supervisor's check is not claimed as performed here. `SUPERVISION_CHARTER.md`
+   §3's four checks are the supervisor's own, and the measurement-script diff and
+   the pre-registration-committed-before-compute check are **not** claimed by this
+   lane."*
+3. **No §3 table is drawn for Act A here, deliberately.** Checks 2, 3 and 4 are
+   **NOT CLAIMED** as well; the record establishes none of them as discharged for
+   the Case-3 campaign, and writing a table would invite a reader to see three
+   more ticks that do not exist. One measured fact is worth recording next to
+   check 2 without claiming the check: **zero of the sixteen `log.solve` files
+   contain a `FOAM FATAL`** (measured by this lane, 2026-09-01) — nothing crashed.
+   The real defect on that campaign, the `STATUS` clobber on 12 of 12 T24 cases
+   (`CASE3_MAP_RESULTS.md` §3, §10 item 2), was triaged **by the lane, in the
+   record**, and is not attributed to the supervisor.
+
+**A successor must not infer parity between the two acts from their sitting on
+the same page in the same format.** Act C rests on instruments the supervisor
+read. Act A rests on records the supervisor accepted, one of whose two
+instruments he verified the identity of and neither of which he read.
+
+### FOUR FACTS CHECKED AT SOURCE BEFORE THIS SECTION WAS WRITTEN
+
+Recorded because the brief that asked for this section stated some of them from
+memory, and two needed correcting.
+
+| claim in the brief | at source |
+|---|---|
+| `e911c937` is the Case-3 map landing and an ancestor of HEAD | **CONFIRMED.** Subject *"heat-transfer LANDS THE T24 CASE-3 MAP — A PHYSICALITY TIER, NOT A GRID-CONVERGED VERDICT, AND ITS OWN SECTION 4 SAYS SO"*, 2026-08-31 22:12:50Z, single file `docs/campaigns/T-family/CASE3_MAP_RESULTS.md`, +769 lines; `git merge-base --is-ancestor` returns true |
+| the comparator hash resolves at `d9082bfb` | **CONFIRMED.** `d9082bfb` is the T24 comparator freeze (adds `analyse_t24.py` and `mutation_controls_t24.py`), an ancestor of HEAD; its blob, HEAD's blob and the worktree file all hash to `ef72d575…3eee6a`, recomputed here |
+| the comparator is `analyse_t24.py` under `verification/runs/T-family/T24_runs/` | **CONFIRMED as to path — INCOMPLETE as to scope.** The map's numbers come from **two** comparators: `analyse_t24.py` (12 rows) and `verification/runs/T-family/T23_runs/analyse_t23.py` (4 rows), with markers `mark_done_t24.py` / `mark_done_t23.py` (`CASE3_MAP_RESULTS.md:731-732`) |
+| `CASE3_MAP_RESULTS.md` states its own tier, and the Roache triple is *unavailable* | **CONFIRMED in substance — the source word is stronger.** §4 is headed *"THIS IS A PHYSICALITY TIER, NOT A VERIFIED ONE — the map is not grid-converged"*, and the deliverable *"Roache triple on `T_max`, p ∈ [1.3, 2.5], GCI_fine < 2 %"* is marked **`BLOCKED`**, not merely unavailable, for **three** stated reasons and not one: a single mesh level admits no triple; the y+ breach blocks it independently; and `CASE3-DEP-1` is not registered anywhere (`CASE3_MAP_RESULTS.md:317`). §4 further states, verbatim: *"ALL SIXTEEN POINTS OF THIS MAP RAN AT MESH LEVEL L1 AND ONLY L1. THE MAP IS NOT GRID-CONVERGED. THERE IS NO DISCRETISATION ERROR BAR ON ANY POINT OF IT, AND NONE CAN BE CONSTRUCTED FROM WHAT WAS RUN."* |
+
+### THIS CHANGES NEITHER SHEET, AND THAT IS THE POINT
+
+**Sheet A was already written to the weaker assurance.** Its uncertainty column
+is honestly empty on all four rows, it makes no grid-independence claim and no
+energy-closure claim (Part 1 above), so **nothing on it overstates what the
+instrument assurance supports.** No customer-facing text is edited for this
+section, and none needs to be.
