@@ -79,10 +79,25 @@ IDENT_TOLERANCE_PCT = 1.0
 # Where the control room puts a surface it has taken in.
 GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
 
-# Chordwise stations for the true-scale section figure, in metres of span.
-# Root, mid-semispan and outboard: enough to show that the change is not one
-# local dent, few enough that each section stays legible.
-SECTION_Z = (0.0, 4.5, 9.0)
+# Span stations for the true-scale section figure, in metres of span.
+# Five span stations, not three: the section overlays are the act's main
+# visual now, so they have to cover the wing rather than sample its inboard
+# two thirds. Four of the five sit at reference-axis stations that carry a
+# twist design variable, so the section figure and the twist figure can be
+# read against each other station by station.
+SECTION_Z = (0.0, 3.0, 7.2, 10.9, 13.5)
+
+# Every three-dimensional frame carries this, verbatim, so that no still taken
+# from the act can travel without the mesh it belongs to. The wording is fixed:
+# it names the mesh, says why it was chosen, and says what was NOT done.
+MESH_CAPTION = ("38,304-cell mesh, chosen for speed - grid independence not "
+                "assessed; result relative to this mesh.")
+
+# The axis roles of THIS act's wing, fixed by the mesh it was extracted from:
+# chord along x, span along z, thickness along y. Stated as data rather than
+# assumed inside a measurement, so that a surface which does not share it is
+# noticed instead of mis-read.
+ACT_AXES = (0, 2, 1)
 
 # ------------------------------------------------------------- the close-up
 # The whole wing is 14 m of span against the 186 mm reference shape change
@@ -122,17 +137,38 @@ def load() -> dict[str, Any] | None:
         return None
 
 
-def dimensions(vertices: list) -> dict[str, float]:
+def dimensions(vertices: list, *, axes_hint: tuple | None = None
+               ) -> dict[str, float]:
     """The three overall extents of a wing surface, in metres.
 
     Ordered as a reader reads a wing: how far it reaches across, how far it
-    reaches back, how thick it gets. Axis convention is the one every surface
-    in this act shares, x chordwise, y thickness, z span.
+    reaches back, how thick it gets.
+
+    THE AXIS CONVENTION IS NOT ASSUMED. It used to be: this function read span
+    off z, chord off x and thickness off y, and its docstring called that "the
+    one every surface in this act shares". An uploaded wing did not share it --
+    it used the ordinary aerospace convention, chord x, span y, thickness z --
+    and so a perfectly good 1 m x 3 m x 0.12 m wing was reported as "span
+    0.12 m, chord 1.0 m, thickness 3.0 m" and read as impossible. The file was
+    right; the reading was wrong. A measurement that assumes an orientation
+    cannot detect a file that does not have it, so this one works the
+    orientation out from the shape instead.
+
+    `axes_hint` is `(chord_axis, span_axis, thickness_axis)` and is used only
+    when the caller already knows the orientation -- for this act's own wing,
+    whose axes are fixed by the mesh it came from.
     """
+    if axes_hint is None:
+        from .geometry_admission import Surface, discover_axes
+        found = discover_axes(Surface("<vertices>", vertices, [[0, 1, 2]]))
+        c, s, t = (found["chord_axis"], found["span_axis"],
+                   found["thickness_axis"])
+    else:
+        c, s, t = axes_hint
     axes = [[v[axis] for v in vertices] for axis in range(3)]
-    return {"Span": max(axes[2]) - min(axes[2]),
-            "Streamwise extent": max(axes[0]) - min(axes[0]),
-            "Maximum thickness": max(axes[1]) - min(axes[1])}
+    return {"Span": max(axes[s]) - min(axes[s]),
+            "Streamwise extent": max(axes[c]) - min(axes[c]),
+            "Maximum thickness": max(axes[t]) - min(axes[t])}
 
 
 def identify(doc: dict, surface: str,
@@ -153,12 +189,30 @@ def identify(doc: dict, surface: str,
         payload = load_surface(path, max_faces=10 ** 9)
     except (OSError, ValueError):
         return None
-    measured = dimensions(payload["vertices"])
-    known = dimensions(doc["base_vertices"])
+    from .geometry_admission import admit
+
+    # Admission first. A surface that cannot be run is not measured against
+    # this act's wing and then quietly run as this act's wing: the caller is
+    # handed the refusal and stops. Nothing is ever substituted in silence.
+    decision = admit(path)
+    if not decision["admitted"]:
+        return {"measured": None, "known": None, "worst_pct": None,
+                "match": False, "admitted": False, "decision": decision}
+
+    a = decision["axes"]
+    measured = dimensions(payload["vertices"],
+                          axes_hint=(a["chord_axis"], a["span_axis"],
+                                     a["thickness_axis"]))
+    # This act's own wing has a known orientation, fixed by the mesh it was
+    # extracted from: chord along x, span along z, thickness along y.
+    known = dimensions(doc["base_vertices"], axes_hint=ACT_AXES)
     worst = max(abs(measured[key] - known[key]) / known[key] * 100.0
                 for key in known)
     return {"measured": measured, "known": known, "worst_pct": worst,
-            "match": worst <= IDENT_TOLERANCE_PCT}
+            "match": worst <= IDENT_TOLERANCE_PCT, "admitted": True,
+            "decision": decision, "orientation": a["convention"],
+            "same_orientation_as_act": (a["chord_axis"], a["span_axis"],
+                                        a["thickness_axis"]) == ACT_AXES}
 
 
 def _surface(doc: dict, verts: list, field: dict | None, *,
@@ -234,7 +288,7 @@ def write_baseline_stl(doc: dict, out_stl: Path = BASELINE_STL_PATH) -> Path:
     faces = doc["faces"]
     out_stl = Path(out_stl)
     out_stl.parent.mkdir(parents=True, exist_ok=True)
-    header = b"MACH tutorial wing, baseline surface".ljust(80, b" ")
+    header = b"Reference wing, baseline surface".ljust(80, b" ")
     body = bytearray(header + struct.pack("<I", len(faces)))
     for a, b, c in faces:
         pa, pb, pc = verts[a], verts[b], verts[c]
@@ -368,7 +422,7 @@ def section_figure(doc: dict, out_png: Path) -> str | None:
 
     base = [list(v) for v in doc["base_vertices"]]
     final = frame_vertices(doc, doc["frames"][-1])
-    fig, axes = plt.subplots(len(SECTION_Z), 1, figsize=(11.4, 6.2), dpi=150)
+    fig, axes = plt.subplots(len(SECTION_Z), 1, figsize=(11.4, 10.4), dpi=150)
     for ax, z in zip(axes, SECTION_Z):
         for verts, colour, width, label in (
                 (base, t.MUTED, 1.4, "baseline"),

@@ -111,7 +111,26 @@ from chief_engineer.transcript import MONITOR as _MON_ROLE
 from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
 
 from . import _a2_shape
+from . import geometry_admission as _admission
 from .geometry_study import mesh_validity
+
+
+class GeometryNotAdmitted(Exception):
+    """The uploaded surface cannot be run, so the act stops.
+
+    Raised instead of falling through to a different wing. The whole point is
+    that there is no code path from "I cannot run your file" to "here are some
+    numbers": the act either runs what it was given or says why it did not.
+    """
+
+    def __init__(self, decision: dict):
+        self.decision = decision
+        super().__init__(decision.get("reason", "surface not admitted"))
+
+
+def _a2_shape_admission_lines(decision: dict) -> list[str]:
+    """What the numericist says when a surface is refused. Plain English."""
+    return _admission.sentences(decision)
 
 # The one module that names this repository's tree (MOVE_MAP batch 3).
 # Every name it exports is bound to a legacy/successor PAIR resolved
@@ -572,11 +591,18 @@ def main(request: str | None = None, params: dict | None = None,
     surfaces = _a2_shape.write_surfaces(shapes, out) if shapes else {}
 
     def show(key: str, label: str, painted: bool = True) -> None:
-        """Put one recorded surface in the viewport."""
+        """Put one recorded surface in the viewport.
+
+        Every frame carries the mesh caption. This is the one place all seven
+        three-dimensional frames pass through, so captioning here is what
+        makes "every 3D frame" true rather than a thing somebody has to
+        remember at each call site.
+        """
         if not (emit and key in surfaces):
             return
         emit("field.ready" if painted else "geometry.ready",
-             {"url": f"/api/field/{out.name}/{surfaces[key]}", "label": label})
+             {"url": f"/api/field/{out.name}/{surfaces[key]}", "label": label,
+              "caption": _a2_shape.MESH_CAPTION})
 
     if not shapes:
         _narrate(script.engineer,
@@ -667,16 +693,28 @@ def main(request: str | None = None, params: dict | None = None,
                     f"Wing received: Appears to be a {uploaded_name}. "
                     f"Delegating to sub-agent to confirm.")
             roster.set(NUMERICIST, "confirming the received wing", "working")
+        # ADMISSION. A surface this act cannot run stops the act. It is not
+        # measured, reported as impossible, and then quietly replaced by a
+        # different wing whose numbers are then presented: a customer who
+        # uploads a file and is shown results is entitled to assume the
+        # results are theirs. If the surface cannot be run, the act says so
+        # in plain words, says what to do about it, and runs nothing.
+        if identity is not None and not identity.get("admitted", True):
+            decision = identity["decision"]
+            _narrate(script.numericist, *_a2_shape_admission_lines(decision))
+            roster.idle(NUMERICIST)
+            raise GeometryNotAdmitted(decision)
+
         if is_this_wing:
             label = (f"{uploaded_name}, received. This is the wing the "
                      f"numbers come from")
         else:
             # "On screen next" only where the wing is about to be on screen.
             label = (f"{uploaded_name}, received. The numbers come from the "
-                     f"MACH tutorial wing"
+                     f"reference wing"
                      + (", on screen next" if shapes else ""))
         announce_geometry(emit, name=uploaded, label=label)
-        if identity:
+        if identity and identity.get("measured"):
             rows = [[name, f"{identity['measured'][name]:.3f} m",
                      f"{identity['known'][name]:.3f} m"]
                     for name in identity["known"]]
@@ -686,18 +724,27 @@ def main(request: str | None = None, params: dict | None = None,
             emit_table(emit, script, role=_NUM_ROLE,
                        title="Confirming the received wing",
                        headers=("Dimension", "Received surface",
-                                "MACH tutorial wing"),
+                                "Reference wing"),
                        rows=rows, table_id="ident-adjoint-optimization")
             _beat(_NARRATION_PACE_S)
-            _narrate(script.numericist,
-                    (f"Confirmed: the received surface measures as the MACH "
-                     f"tutorial wing." if is_this_wing else
-                     f"The received surface does not measure as the MACH "
-                     f"tutorial wing."),
-                    f"Every number below belongs to the MACH tutorial wing.")
+            # The orientation is stated because it was WORKED OUT, not
+            # assumed. An earlier reading assumed it, got it wrong on a
+            # correct file, and called the file impossible.
+            lines = [f"Orientation read from the shape: "
+                     f"{identity['orientation']}."]
+            if is_this_wing:
+                lines.append("The received surface measures as the reference "
+                             "wing, so every number below is this surface's.")
+            else:
+                lines.append("The received surface is a different wing from "
+                             "the reference wing, so the numbers below are "
+                             "the reference wing's, not yours.")
+                lines.append("Say the word and I will mesh and run the "
+                             "surface you sent.")
+            _narrate(script.numericist, *lines)
             roster.idle(NUMERICIST)
 
-    show("baseline", f"MACH tutorial wing, {BASELINE_NAME}. C_d "
+    show("baseline", f"Reference wing, {BASELINE_NAME}. C_d "
                      f"{baseline['CD']:.6f} at C_L {CL_TARGET:g}",
          painted=False)
     if shapes:
