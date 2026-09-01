@@ -4788,9 +4788,73 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T15:41Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25b`, immediately below; it CORRECTS a unit error in `S-25a` §5 that also went upward.
+**Section last written:** 2026-09-01T15:52Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25c`, immediately below. `S-25b` CORRECTS a unit error in `S-25a` §5 that also went upward; `S-25c` WITHDRAWS an inference in `S-25b` §3 and replaces it with a measurement.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25c — **THE D19 FAMILY IS FULLY INDEXED AND THE HONEST COUNT IS **FIVE ITEMS, THREE GRADED, TWO CARRYING NO VERDICT AT ALL**. ⚠ MY `S-25b` §3 DEAD-LEVER INFERENCE IS NOW **MEASURED ON A SECOND ITEM** AND THE FLAG COMES OFF. AND `D19R2` IS BLOCKED ON A GATE-DESIGN RULING THAT ITS OWN RECORD RESERVES **TO SANAA** — IT GOES ON HER DESK** (2026-09-01T15:52Z, `date -u` at write)
+
+###### 1. ⚠ `S-25b` §3's `[INFERENCE, flagged]` IS WITHDRAWN AND REPLACED BY MEASUREMENT — ON BOTH ITEMS, IN CODE **AND** IN THE EMITTED ARTEFACT
+
+I boarded the item-level ceiling dead lever with an explicit flag that `d19o_grade.py` was *"very likely dead there too — NOT VERIFIED BY ME."* **I have now verified it, and it is not likely, it is so.**
+
+**IN CODE**, `d19o_grade.py` has the identical shape: `compose_row` (`:1279–1301`) applies `_apply_ceiling` and returns the **capped** token as `verdict`; `compose_item` (`:1304–1323`) builds `rvs = [rows[r]["verdict"] for r in rows]` from those **already-capped** values. **The item-level `_apply_ceiling` at `:1268` therefore cannot fire, for the same structural reason and for any ceiling value.**
+
+**IN THE ARTEFACT**, `D19O_grade_20260901T054304Z.json` carries the identical signature to D19M's:
+
+| field | D19O | D19M |
+|---|---|---|
+| **top-level** `capped_by_ceiling` | **`false`** | **`false`** |
+| **top-level** `verdict_before_ceiling` | `"GATE REACHED"` | `"GATE REACHED"` |
+| per-row `verdict_before_ceiling` (both) | **`PASS`** | **`PASS`** |
+| per-row `capped_by_ceiling` (both) | **`true`** | **`true`** |
+| `capped_by_ceiling_anywhere` | `true` | `true` |
+
+**TWO ITEMS, TWO GRADED RECORDS, ONE STRUCTURE. `capped_by_ceiling` at item level is a published flag that has never been true and cannot become true.** **NEITHER VERDICT MOVES AND NO NUMBER MOVES** — the ceiling is enforced correctly and completely at row level on both items, which is where it belongs. **What is defective is the meaning of a published field, and it is now a family-wide property rather than one item's quirk.** Both items have had first compute, so **neither grader is repairable in place** (rule 2); the repair is free in the next registration — compose the item from `verdict_before_ceiling` rather than from the capped row token, **or stop publishing an item-level `capped_by_ceiling` at all.** `docs/DEAD_LEVER_AUDIT.md` is **verification's file: reported to the chief for routing, NOT edited by me.**
+
+**⚠ AND THE GENERALISATION IS THE PART WORTH KEEPING: `D19O`'s `RESULTS.md` §9 ALREADY DISCLOSES A *DIFFERENT* DEFECT IN THIS SAME FUNCTION** — the `compose_item` fail-open on `NOT A RESULT`, which `D19M` repaired in Amendment 2. **So `compose_item` has now yielded TWO independent defects, found by two different people at two different times, and BOTH were invisible on a green run.** Anything deriving from either grader inherits the function, and the function has a record.
+
+###### 2. THE FAMILY'S HONEST COUNT — **AND MY OWN BRIEF UNDERSTATED IT**
+
+I briefed the backfill lane naming `D19R`'s refusal and left `D19`'s state open as unknown. **`D19` refused too, and the lane said so loudly, which is what I asked for. FIVE ITEMS, THREE GRADED, TWO WITH NO VERDICT OF RECORD.** All five now carry a row in `docs/dafoam/README.md` §3 **and** `cases/dafoam/INDEX.md`; before today the table carried **none** of them.
+
+| item | verdict of record | why, and I read every refusal artefact myself |
+|---|---|---|
+| **`D19`** | **NO VERDICT OF RECORD** | grader **REFUSED `rc=2` at `G1`**, `age_datum_moved` on `S1/0` — recorded `1788213189` against re-derived `1788213232`. **No grade JSON was ever written.** 8.683 core-min, ratio 0.998. Class **INSTRUMENT** |
+| **`D19R`** | **NO VERDICT OF RECORD** | grader **REFUSED `rc=2` at `G-PROV`**, `verdict_outside_the_fixed_vocabulary: null` — `D19R-GRADER-DEF-1`. **No grade JSON.** 12.416 core-min, ratio 0.913. Class **INSTRUMENT** |
+| **`D19R2`** | **`NOT A RESULT`** (attempt 1) | **REFUSED `rc=2` at `G19R-1h`**, `MANIFEST_ENTRY_MUTATED` on `system/decomposeParDict`, arm `X2`. Class **GATE-DESIGN** |
+| **`D19O`** | **`GATE REACHED`**, both rows | both rows raw `PASS`, both capped. 16.184 core-min, ratio 0.6715. Class **REFERENT-CEILING** |
+| **`D19M`** | **`GATE REACHED`**, both rows | this session. 35.166 core-min, ratio 1.0313 |
+
+**A REFUSAL IS NOT A VERDICT, AND THE ROWS SAY SO RATHER THAN REACHING FOR A SOFTER WORD. `PENDING` APPEARS NOWHERE** — it means "not yet run" and may never dress a refusal. **Every non-`PASS` row carries its refusal in one clause, so no reader opens a run tree to learn why there is no number.** That was the requirement and it was met.
+
+**ALL FOUR CLASSES RATIFIED BY ME.** `docs/dafoam/GRADING_CHAIN.md` carries **no D19 row at all**, so nothing could be carried from it and the lane marked them `[NEW]` for me rather than inventing continuity. **`INSTRUMENT` for `D19`/`D19R` is right** — an age datum that moved and a null verdict reaching a provenance gate are harness failures, not findings about the flow. **`REFERENT-CEILING` for `D19O` is right.** **And `GATE-DESIGN` for `D19R2` is right on the evidence, better founded than my own first instinct, which was that a mutated manifest entry smells like staging** — see §3.
+
+###### 3. ⚠⚠ `D19R2` IS ON SANAA'S DESK, AND IT IS THE THING STANDING BETWEEN THE COMPRESSIBLE PLATEAU GATE AND A VERDICT
+
+I nearly re-classified this as an instrument defect. **I read the item's own record first, and the record is right and I was wrong.**
+
+`G19R-1h` is registered as *"the input manifest byte-identical"*. **`system/decomposeParDict` IS A WRITE TARGET at `np = 2` — `decomposePar` rewrites it**, measured in three arms (`X2`, `S8`, `N2`), each with exactly one mutated entry and each the same file, written **six seconds after** the manifest inside the arm's own run. **The guard is doing precisely its job.** The exclusion mechanism exists and is already used — `X2`'s manifest excludes `0` by name with a measured reason — **`system/decomposeParDict` simply is not on the list.**
+
+**⚠ AND THAT IS EXACTLY WHY IT IS NOT MINE TO FIX. Narrowing the manifest — by excluding that path or by any other route — NARROWS WHAT A REGISTERED GATE CHECKS. That is moving a goalpost, which the item's own §3 forbids, and `D19R`'s §5 reserves the question in terms: *"Whether that is the right gate is a GATE-DESIGN question and gate design is reserved to Sanaa."*** **The evidence is measured and complete in `curriculum_D19R2/RESULTS.md` §2; what is missing is a ruling, not a measurement.** Blockers 1 and 2 were wiring and a successor may repair them; **blocker 3 is not wiring.**
+
+###### 4. ⚠ A FINDING NEITHER LANE REPORTED — I FOUND IT READING THE REFUSAL ARTEFACTS MYSELF, AND IT IS A BROKEN CITATION IN A MACHINE-READ FIELD
+
+**Both `D19`'s and `D19R`'s `STATUS.*_chain` files name a grade JSON THAT WAS NEVER WRITTEN:**
+
+`grader_rc=2 ... out=D19_phase1_grade_20260831T215400Z.json note=comparator-exit-status-NOT-the-verdict` — **and only the `.out` exists on disk. The refusal PRECEDES the emit, so the `out=` field points at a path that never came into being.**
+
+**It is mitigated, and I will not overstate it: `grader_rc=2` sits on the SAME LINE, and the `note=` says in terms that the exit status is not the verdict — a careful reader cannot be fooled.** **But `out=` is a machine-readable field naming a nonexistent artefact, and an aggregator that follows it finds nothing and must decide for itself what nothing means.** **The same shape as `SO-3a`/`SO-3aR` by a different route.** Boarded as a standing family hazard for anyone who writes a cross-item aggregator; **no file is edited on the strength of it, because both items' gates are closed.**
+
+###### 5. WHAT LANDED, AND TWO GAPS NAMED RATHER THAN CHASED
+
+**`0e17662a`** `docs/dafoam/README.md` **+5 / −0** · **`b1bc64ae`** `cases/dafoam/INDEX.md` **+77 / −0**. **Insert-only, single path each, verified BY ME with `git diff <c>~1 <c> --stat`; and I confirmed the `D19M` rows landed earlier are BYTE-UNTOUCHED by diffing both files against `a1aa9835` and `fb40392c`** — the new rows sit **before** D19M so the family reads in order. **`check_filing.py` 45 before, 45 after — zero added.**
+
+**Named, not chased, because they are not ours to chase:**
+1. **README line-citation drift.** Four documents cite `docs/dafoam/README.md:153`/`:154` (the IDWarp md5 row). It had already drifted to `:200`, then `:202` when D19M landed, and these five rows put it at **`:207`**. **The lane edited no citing document — those belong to their owners.** `[VERIFY for a successor: a line citation into a file that grows by append is a citation with a shelf life, and four of them are now stale.]`
+2. **The whole D19 family has ZERO filed queue entries** while `D15`/`D16`/`D17`/`D18` all have them; `D19O` and `D19M` carry **unfiled** `QUEUE_ENTRY_DRAFT.json`. **Nothing filed by me or by any lane.**
+
+**Zero compute, zero GPU-hours this session across all three lanes. Nothing filed, sent, posted or drafted upstream. `docs/capability/dafoam_GRID.md` untouched. No frozen file, grader or `PREREGISTRATION.md` edited by me or by any lane.**
 
 ##### UPDATE S-25b — **⚠ A CORRECTION TO `S-25a`, AND IT WENT UPWARD: I PUBLISHED A COST RATIO IN THE WRONG UNIT — "10 MAJORS AGAINST AN EXPECTED 12" MIXES **ITERATIONS** WITH **TABLE ROWS**, AND IT MAKES THE REGISTERED RATE LOOK **12 % WRONG WHEN IT IS RIGHT TO 1.9 %**. A LANE CAUGHT IT. PLUS TWO STRUCTURAL FINDINGS IN THE GRADE ARTEFACT'S OWN PUBLISHED FIELDS, ONE OF WHICH IS A DEAD LEVER** (2026-09-01T15:41Z, `date -u` at write)
 
