@@ -4792,6 +4792,50 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23i — **DEMO-MODE PREP DONE: LIVE MESHING IS VIABLE AT 8.021 s, THE STL **IS** THE SOLVED WING TO 1.33 float32 ulp, AND THE LANGUAGE SWEEP IS 0 CAMERA HITS ON A 15/15 PLANTED CONTROL. ⚠⚠ BUT cfd's DEMO CONTRACT REJECTS NINE ACT D STRINGS — TWO OF THEM BECAUSE THEY CONTAIN `CLAUDE.md` RULE 1's OWN VERDICT WORD, USED HONESTLY IN PLAIN ENGLISH. CROSS-FAMILY, ESCALATED, NOT DECIDED** (2026-09-01T04:0xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ THE BLOCKER — A STANDARDS COLLISION, NOT A BAN-LIST VIOLATION
+
+cfd's interface landed **earlier than expected** (`sdk/workflows/demo_mode.py`, `491ce77f`, 03:32Z). Running **their** `check_demo_language` over Act D's **1,348 camera strings** — with its own plant control firing 5/5 — **rejects NINE**, and **not one is on Sanaa's verbatim ban list**:
+
+- **8 × `tier` fields carrying `"SOLVER-BACKED"`** (`result.verdict.tier`, three `report.ready.results[*].tier`, `certificate.ready.tier`/`.fidelity`), banned via an older `check_wording` register reached by a tail call. **The string is minted in the SHARED `sdk/chief_engineer/lab.py:190`.**
+- **2 × narration containing "not a result"** — `adjoint_optimization.py:1792`: *"that row's flow solve diverged, so it is not a result and its gate has no verdict."* cfd's `NEVER_PHRASES` bans `NOT\s+A\s+RESULT` **case-insensitively**.
+
+**THAT SECOND ONE IS THE INTERESTING ONE AND IT IS WHY I AM NOT DECIDING IT.** `CLAUDE.md` rule 1 makes `NOT A RESULT` a **required** verdict token; cfd's rule keeps gate jargon off a customer screen. **Both are right, and they collide on a sentence that is honest plain English rather than a verdict label.** If Act D's payloads pass through `assert_screen_safe` it raises `DemoContractError` on all nine.
+
+**MY RECOMMENDATION, offered as one:** narrow the regex to the **uppercase gate token** rather than the lowercase phrase — a screen must not display `NOT A RESULT` as a verdict label, but "it is not a result" in a sentence is English, and forbidding it forces a less precise statement. **Both candidate fixes touch shared surfaces (`chief_engineer/lab.py` or cfd's regex), so this is cross-family arbitration and it is the chief's or Sanaa's, not mine.** The lane stopped at the fence and reported, correctly.
+
+##### 2. LIVE MESHING IS VIABLE — AND THREE CORRECTIONS, ALL AGAINST MY OWN BRIEF
+
+**8.021 s mesh total** (pyHyp extrusion 5.547 s = 69.2 %), 8.258 s with checkMesh, **0.146 core-min at the 1 rank actually executing** against a 40 core-min cap; $0.0005 derived. Identity assert holds — `renumberMesh` reports `Mesh region0 size: 38304`, **so this is Act D's grid.** **PASS against Sanaa's own "seconds to a minute", with margin. No staging, no substitute.**
+
+**⚠ (a) THE MESHER NEVER READS AN STL.** Act D's grid is a **pyHyp hyperbolic extrusion from a CGNS surface mesh** (coarsened 3×), then `plot3dToFoam`/`autoPatch`/`createPatch`/`renumberMesh`. **No snappyHexMesh, no STL input anywhere.** So Sanaa's *"the real mesher on the uploaded STL"* **cannot be said literally for this act.** What CAN be said honestly is §3's finding: the STL and the mesher's surface are **the same body**, differing in file format, not geometry.
+
+**⚠ (b) I MEASURED THE MESHER, NOT THE DRAWING.** Her stage is *"the computational grid drawn cell by cell"*. At one cell per frame at 60 fps, **38,304 cells is roughly TEN MINUTES** — a browser rendering cost and **cfd's to measure**. Filed as a dated addendum so **nobody reads this PASS as "the meshing stage fits in 8 seconds". It says the MESH does.**
+
+**(c)** The lane's own registered 20–300 s band was **falsified from below** at 8.021 s and its record says so in the predictions block rather than presenting the number as expected.
+
+##### 3. THE STL **IS** THE SOLVED WING — NO REGENERATION NEEDED, AND I CONFIRMED IT FROM THE CASE
+
+`[VERIFIED BY ME]` the solved polyMesh's `wing` patch declares **`nFaces 1008`**, and both STL copies carry **2,016 triangles — exactly 2×**. The lane's fuller measurement against the same patch: **1,031 ↔ 1,031 unique points exact**; bounding box agreeing on every axis, worst gap **3.95e-7 m = 6.5e-5 %**; **two-way point-set deviation 1.267e-6 m on a 14.0419 m span = 1.33 float32 ulp — the storage format's own floor.** **So Sanaa's DEMO MODE binding holds without regeneration, and the present-tense wording is TRUE for this act.**
+
+**⚠ AND ITS FIRST VERSION OF THIS CHECK WAS TOO WEAK — THE PLANTED CONTROL CAUGHT IT.** Counts plus bounding boxes only: **a 1 mm plant on an INTERIOR vertex was invisible.** *"An envelope check is not a body check."* With the point-set deviation added the same plant is recovered at **99.92 %**. **That is the control doing exactly the job rule 3 exists for, against its own author.**
+
+**FILING HAZARD, reported not fixed, and I confirmed it myself:** two files named `mach_tutorial_wing.stl` exist with **identical triangle bytes** (`d8f594fc…` both) and **different file md5** — they differ in **35 bytes inside the 80-byte header text** ("MACH tutorial wing" vs "Reference wing", i.e. the R5 wording fix). `_a2_shape.BASELINE_STL_PATH` resolves to one, `geometry_admission_selftest.REFERENCE_WING` to the other. **Same body, two provenances.**
+
+##### 4. THE REPLAY SERIES — RAGGED WHERE THE LOGS ARE RAGGED, AND NOTHING INVENTED
+
+Counter 0→47, objective CD, `inf_pr`, `inf_du`, `lg(mu)`, step norm from `opt_IPOPT.txt`; CL, volcon, thickcon and per-major wall seconds from `OptView.hst`, **joined to IPOPT by exact CD match at 5e-10 — all 48 matched 1:1, zero unmatched.** **Adjoint progress EXISTS and is ragged:** 100 linear solves, **99 completed, 1 opened and never closed** because the wall clock ended the run inside it; **DAFoam prints only first and last KSP iterations, so 1–4 trace points per solve, not a residual history.** **The driver's gradient-call counter runs 1..50 and is NOT the IPOPT major index; the logs carry no mapping and the lane did not invent one.**
+
+**PACING: 3601 s measured : 1200 s displayed = 3.0007 : 1, a pure TIME-AXIS transform on the time column only.** No iteration dropped, no curve resampled, no timing synthesised; counter still 47 of a 100 cap; **parts sum to 20:00.** The clock lands major 47 at **18:25 with a 1:35 tail — which is what actually happened**, since the run kept evaluating for 63.8 s after major 47.
+
+**⚠ AND `L-422`'s SPECIES AGAIN, FOUND IN OUR OWN COMMITTED HISTORY:** `A2_optimization_history.json` stores `wall_s` and the thickcon extremes as a **rounded display copy** (0.1 s and 1e-4), and its `elapsed_s: 3600` is a **truncation of 3600.79**. The new record keeps full precision.
+
+##### 5. THE LANGUAGE SWEEP — A ZERO THAT IS EVIDENCE
+
+**1,348 camera strings, 0 hits** on any banned phrase, on "converged"/"optimum", or on any path — **with a 15/15 planted control recovering every banned phrase, both never-claim words and four path shapes.** 211 wiring hits, **none on camera**: 206 are `/api/` HTTP routes, and the three real paths never render (`control_room.html:1735` builds its link from the directory NAME, never `c.path`). Static AST arm: 19 hits, **every one a bare filename, JSON key or `/api/` fragment used as data, all listed so the adjudication is checkable.** **No change was needed inside Act D's modules and none was made.**
+
+
 ##### UPDATE S-23h — **SO-3 IS RUNNING — pid 1077782, ARMED BY ME, 47 SECONDS FROM FILE TO SOLVER. ACT D TAKES SANAA'S FIGURE/HEADER STANDARD AND ITS SOLVER LINE IS `DARhoSimpleFoam` + SPALART-ALLMARAS, READ OUT OF THE RUN AND **NOT** WHAT ANYONE ASSUMED. ⚠⚠ AND THE PRESENT-TENSE FENCE WAS NEEDED: **TEN** ADMISSIBLE UPLOADS ARE NOT THIS WING** (2026-09-01T03:4xZ, `date -u` at write)
 
 ##### 1. INCOMPRESSIBLE MULTIPOINT IS LIVE — THE FAMILY'S FIRST SOLVER COMPUTE THIS SESSION
