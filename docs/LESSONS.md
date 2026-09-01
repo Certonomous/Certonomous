@@ -18725,3 +18725,142 @@ mutation-tested. **Nothing in another team's comparator was touched** — a sile
 somebody else's gate is exactly what this lab forbids, and the narrow list is handed to a
 supervisor for dispatch rather than acted on. Cost of the sweep: **0.1 core-minutes**, np=1,
 log-measured.
+
+## L-426 — OpenFOAM appends `Final` to the field name on the LAST PIMPLE outer sweep, so a `relaxationFactors` equation key written as a plain alternation applies NO relaxation on exactly the sweep that sets the answer — and the same file got the same convention right one dictionary higher up
+
+**A conjugate case with momentum and energy relaxation registered at 0.9 ran its fifth and
+final outer sweep completely unrelaxed, and died three timesteps later on `FOAM FATAL ERROR:
+Negative initial temperature T0: -14.4619608928`.** The relaxation factors were in the
+dictionary, spelled correctly, and the solver never asked for them.
+
+**THE MECHANIC, read out of the OpenFOAM v2606 source, four steps and none of them visible
+in a case file.**
+
+1. `chtMultiRegionFoam.C:111` — `const bool finalIter = (oCorr == nOuterCorr-1);`
+2. `fluid/solveFluid.H:5` — `mesh.data().setFinalIteration(true)` under that flag; cleared
+   again at `:39`.
+3. `fvMatrix.C:1249` — `fvMatrix<Type>::relax()` resolves its key at `:1251` via
+   `psi_.select(psi_.mesh().data().isFinalIteration())`.
+4. `GeometricField.C:1179` — `select(bool final)` returns, at `:1186`,
+   **`this->name() + "Final"`**.
+
+So on the last outer sweep `UEqn.relax()` (`fluid/UEqn.H:14`) looks up **`UFinal`** and
+`EEqn.relax()` (`fluid/EEqn.H:26`) looks up **`hFinal`**. **OpenFOAM keyword regexes match in
+FULL** — `keyType::match` calls `regExp::match`, which is `std::regex_match`
+(`regExpCxxI.H:297`) — so the alternation `"(U|h|k|omega)"` does **not** match `UFinal`.
+`solution::relaxEquation()` (`solution.C:379`) then falls through its `found(name)` and
+`found("default")` branches to `return false`, and `fvMatrix::relax()` **simply does not call
+`relax(relaxCoeff)`**. No warning. No log line. The equation is assembled with no relaxation
+contribution on the diagonal.
+
+**Reproduction, two lines, no solver needed:**
+
+```
+relaxationFactors { equations { "(U|h|k|omega)" 0.9; } }   # applied on sweeps 1..n-1
+                                                           # NOT applied on sweep n
+```
+
+**THE PART THAT MAKES THIS A LESSON RATHER THAN A FOOTNOTE: THE SAME FILE GOT IT RIGHT
+TWENTY LINES EARLIER.** `T25R_L1/system/coolant/fvSolution` carries the `Final` form of the
+same alternation at line 50 and `p_rghFinal` at line 36 — **the author knew the `Final`
+convention and applied it in `solvers`** — and then wrote the bare alternation in
+`equations` at line 74. The two dictionaries are driven by *the same* `select()` call, and
+they punish an omission in opposite ways:
+
+| dict | lookup | on a missing key |
+|---|---|---|
+| `solvers` | `solution::solverDict()` = `solvers_.subDict(name)` | **`FatalIOError` — the run stops at once** |
+| `relaxationFactors` | `solution::relaxEquation()` → `return false` | **silent; relaxation is skipped** |
+
+**The convention got obeyed exactly where disobeying it would have crashed on line one, and
+got dropped exactly where dropping it produces a plausible-looking run.** That is not
+carelessness; it is what a loud check and a silent one do to an author writing both in one
+sitting.
+
+**WHY IT LOOKS SELECTIVE, WHICH IS THE SECOND HIDING MECHANISM.** Under `coupled` (this case),
+`solveFluid.H` skips the PISO loop entirely; `p_rgh.relax()` (`fluid/pEqn.H:69`) and
+`turbulence.correct()` run back in `chtMultiRegionFoam.C:148-152`, **after `solveFluid.H:39`
+has already cleared the flag.** So `p_rgh`, `k` and `omega` are never asked for a `Final` key
+at all and stay relaxed on every sweep. **Only `U` and `h` are exposed.** (The trap is one
+layer deeper than it looks: the `fields` entry `"p_rgh"` would not have matched `p_rghFinal`
+either — it is simply never queried.)
+
+**MEASURED, `verification/runs/T-family/T25R_MODULE_runs/T25R_L1/log.solve`, 5 outer sweeps,
+coolant region at Courant max 1600.** Min T after each outer sweep:
+
+| sweep | 1 | 2 | 3 | 4 | **5 (final)** |
+|---|---|---|---|---|---|
+| `Time = 0.5` | 292.99998 | 292.98787 | 292.98967 | 292.97771 | **291.68627** |
+| `Time = 1` | 290.60508 | 289.86150 | 287.50144 | 288.20906 | **−73.54471** |
+
+First-corrector continuity `sum local`, same sweeps: `Time = 0.5` — 0.0079, 0.109, 0.135,
+0.184, **1.135**; `Time = 1` — 2.270, 2.038, 3.383, 3.609, **125.930**. Courant max goes
+1600 → 2643.9 → 77025.9 and the run aborts in the `h` solve of `Time = 1.5`. **The damage
+lands on the final sweep and only on the final sweep, at both timesteps.**
+
+**AND THE PER-TIMESTEP CONTINUITY TRACE LOOKS FINE THROUGHOUT — A THIRD HIDING MECHANISM.**
+Because `p_rghFinal` carries `relTol 0`, the *second* corrector of the final sweep runs 583
+and 503 GAMG iterations and drives `sum local` to **5.76e-06** and **4.87e-05**. So the last
+continuity line of each timestep — the one a monitor scraping per-step is most likely to
+read — is excellent, while the sweep that did the damage read 1.135 and 125.93. **The
+instrument that catches this is the per-SWEEP value, not the per-STEP one.**
+
+**Why an unrelaxed final sweep is fatal here, stated as the reasoning it is and not as a
+measurement.** The transient term contributes `rho*V/dt` to the momentum diagonal and
+convection contributes `~rho*V*|U|/dx`; their ratio *is* the Courant number, so at
+Co ≈ 1216–1600 the transient term is under a thousandth of the diagonal. An unrelaxed sweep
+is then effectively an unrelaxed steady solve, which has no reason to be stable. **That
+paragraph is an explanation; the evidence is the two rows of numbers above, and all they
+establish is that the divergence begins on the final sweep.**
+
+**THE FIX, MEASURED.** Write every `Final` key explicitly —
+`UFinal`/`hFinal`/`p_rghFinal`/`kFinal`/`omegaFinal`. Committed dictionaries at
+`verification/runs/T-family/T25RF_runs/A2T/system/coolant/fvSolution:89-104`. Without them,
+arm A0: **rc 134, 3 of 60 steps, min T −73.54 K**. With them, arm A2T: **rc 0, 60 of 60
+steps, `End` line, T bounded 292.985–294.126 K**. A `default` entry inside `equations` would
+also catch it (`solution.C:400`), and is the cheaper remedy where enumeration is tedious —
+but it catches by accident what an explicit key states on purpose.
+
+**THE SECOND-ORDER POINT, AND IT IS THE PART THAT TRANSFERS FURTHEST: THE GATE DESIGN CAUSED
+THE DIVERGENCE.** The frozen dictionary's own comment, verbatim
+(`T25R_L1/system/coolant/fvSolution:75-77`):
+
+> `// The FINAL outer sweep is unrelaxed by omission, which is what makes the`
+> `// last-sweep initial residual of section 3.5 a meaningful convergence`
+> `// measure rather than a relaxation artefact.`
+
+**This was not an oversight. It was a design choice, and it was the registered convergence
+gate that motivated it** — a last-sweep initial residual is only a clean convergence measure
+if that sweep is unrelaxed. **A gate built to measure convergence removed the mechanism that
+produced it.** Any team registering a PIMPLE outer-loop residual gate can walk into this, and
+the honest form of the repair says so out loud: the A2T dictionary's own comment records that
+with the final sweep relaxed, *"the last-sweep initial residual is no longer the unrelaxed
+convergence measure T25R section 3.5 relied on. Any registration adopting these numerics owes
+a replacement measure."* **The fix does not come free; it comes with a debt, and the debt is
+written down rather than discovered later.**
+
+**KINSHIP WITH L-425, WHICH IS EXACT.** Both are patterns that **compile, run green and
+silently do nothing**: there, an alternation wrapped in `\b(...)\b` could never see
+`60 minutes`; here, a bare alternation can never see `UFinal`. Both are regex
+full-match/boundary semantics defeating a key that reads correctly to a human. And in both
+cases **the thing that found it was driving the mechanism, not reading it** — L-425 fell out
+of mutating the pattern and watching the control stay green; this one fell out of running the
+case and then reading the source for why. Neither survived a plant; neither was ever going to
+be caught by review. **A dictionary key that is never looked up and a regex alternative that
+never matches are the same defect wearing different clothes, and they take the same remedy:
+exercise each key, do not read it.**
+
+**HONEST LIMITS.** The T25RF probe that produced the A0/A2T numbers is an **ungated
+feasibility rung**; its own record (`docs/campaigns/T-family/T25RF_FEASIBILITY_NOTE.md`,
+Addendum A2) states that it carries no verdict and that its numbers may not be cited as
+results. **They are cited here as observations of solver behaviour, which is what they are.**
+The source mechanism, by contrast, is read directly out of v2606 and does not depend on the
+probe at all. Nothing here establishes how widespread the defect is elsewhere in this lab —
+**no sweep of other cases' `relaxationFactors` blocks has been run**, and that is a gap, not
+a clean bill.
+
+**Disposition.** Filed to `docs/NUMERICS_KNOWLEDGE.md` as **N-T9** in the same commit. No
+frozen file was edited: `T25R_L1` and `T25R_PREREGISTRATION.md` are untouched evidence, and
+the repair lives in a separate probe directory. Cost of this filing: **writing only, no
+compute**; the evidence it rests on cost **12.217 core-minutes**, already ledgered at
+`verification/runs/T-family/T25RF_runs/COST_LEDGER.txt`.

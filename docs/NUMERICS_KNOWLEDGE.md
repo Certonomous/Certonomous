@@ -5136,3 +5136,158 @@ above. `scripts/check_numerics_index.py` **asserts this block against the tail o
 distinct ids: `N-AV9` legitimately appears twice — the entry itself and an
 `N-AV9 COMPANION` block — which is the deliberate second-block form, **not a duplicate id**.
 A counter that sums raw matches reports 125 and is wrong by one.
+
+---
+
+## N-T9. On the LAST PIMPLE outer sweep OpenFOAM looks up `<field>Final` in BOTH `solvers` and `relaxationFactors`; a missing `solvers` key is a `FatalIOError` and a missing `relaxationFactors` key is SILENT, so the final sweep runs unrelaxed — and at Co ≈ 1600 that diverges in three timesteps
+
+**Landed 2026-09-01, heat-transfer, from the T25R conjugate module case and the T25RF probe.
+Two independent measured facts, one source mechanism.** Solver `chtMultiRegionFoam`,
+OpenFOAM v2606, single rank.
+
+### The mechanism, from the v2606 source
+
+| step | file:line | what it does |
+|---|---|---|
+| 1 | `chtMultiRegionFoam.C:111` | `const bool finalIter = (oCorr == nOuterCorr-1);` |
+| 2 | `fluid/solveFluid.H:5`, cleared `:39` | `mesh.data().setFinalIteration(true)` |
+| 3 | `fvMatrix.C:1249`, key at `:1251` | `relax()` resolves `psi_.select(mesh.data().isFinalIteration())` |
+| 4 | `GeometricField.C:1179`, append at `:1186` | `select(true)` returns `this->name() + "Final"` |
+
+Call sites: `fluid/UEqn.H:14`, `fluid/EEqn.H:26`, `fluid/pEqn.H:69`.
+**OpenFOAM keyword regexes match in FULL** — `keyType::match` → `regExp::match` →
+`std::regex_match` (`regExpCxxI.H:297`) — so an `equations` key written as the bare
+alternation `"(U|h|k|omega)"` does not match `UFinal` or `hFinal`.
+
+**The two lookups fail differently, and that asymmetry is the whole fact.**
+`solution::solverDict()` is `solvers_.subDict(name)` → **`FatalIOError`** on a missing key.
+`solution::relaxEquation()` (`solution.C:379`) falls through `found(name)` and
+`found("default")` to `return false`, whereupon `fvMatrix::relax()` **does not call
+`relax(relaxCoeff)`** — no warning, no log line, no relaxation on the diagonal.
+A `default` entry inside `equations` (`solution.C:400`) does catch the `Final` names.
+
+**Exposure is partial under `coupled`.** `solveFluid.H` skips the PISO loop; `p_rgh.relax()`
+and `turbulence.correct()` run at `chtMultiRegionFoam.C:148-152`, **after** the flag is
+cleared at `solveFluid.H:39`. So `p_rgh`, `k` and `omega` are never asked for a `Final` key
+and stay relaxed on every sweep; **only `U` and `h` are exposed.**
+
+### Fact 1 — the unrelaxed final sweep diverges, and the divergence is confined to that sweep
+
+`verification/runs/T-family/T25R_MODULE_runs/T25R_L1/log.solve`, `nOuterCorrectors 5`,
+coolant Courant max 1600. Min T per outer sweep:
+
+| | 1 | 2 | 3 | 4 | **5 (final)** |
+|---|---|---|---|---|---|
+| `Time = 0.5` | 292.99998 | 292.98787 | 292.98967 | 292.97771 | **291.68627** |
+| `Time = 1` | 290.60508 | 289.86150 | 287.50144 | 288.20906 | **−73.54471** |
+
+First-corrector continuity `sum local`, same sweeps: 0.0079 / 0.109 / 0.135 / 0.184 /
+**1.135** at `Time = 0.5`; 2.270 / 2.038 / 3.383 / 3.609 / **125.930** at `Time = 1`.
+Courant max 1600 → 2643.9 → 77025.9; fatal in the `h` solve of `Time = 1.5` with
+`FOAM FATAL ERROR: Negative initial temperature T0: -14.4619608928` (`thermoI.H:57`).
+
+**The per-TIMESTEP continuity trace does not show this.** `p_rghFinal` carries `relTol 0`,
+so the second corrector of the final sweep runs 583 and 503 GAMG iterations and drives
+`sum local` to **5.76e-06** and **4.87e-05**. A monitor reading the last continuity line of
+each step sees a clean number. **Read `sum local` per SWEEP, not per STEP.**
+
+*Explanation, not measurement:* the transient term contributes `rho*V/dt` to the momentum
+diagonal against convection's `~rho*V*|U|/dx`, whose ratio is the Courant number, so at
+Co ≈ 1216–1600 the transient share is under 1e-3 and an unrelaxed final sweep is effectively
+an unrelaxed steady solve. The measured rows above establish only the timing of the onset.
+
+**Fix, measured** (`verification/runs/T-family/T25RF_runs/`): explicit
+`UFinal`/`hFinal`/`p_rghFinal`/`kFinal`/`omegaFinal` keys
+(`A2T/system/coolant/fvSolution:89-104`). Arm A0, as-registered: **rc 134, 3 of 60 steps,
+min T −73.54 K**. Arm A2T, with the keys: **rc 0, 60 of 60 steps, `End`, T bounded
+292.985–294.126 K**.
+
+**Design note that generalises.** T25R chose the unrelaxed final sweep deliberately — the
+frozen dictionary comment (`T25R_L1/system/coolant/fvSolution:75-77`) states the final sweep
+is *"unrelaxed by omission, which is what makes the last-sweep initial residual of section
+3.5 a meaningful convergence measure rather than a relaxation artefact."* **A PIMPLE
+outer-loop residual gate and a relaxed final sweep are in tension**: relaxing the final sweep
+costs the gate its meaning, so any registration adopting the fix owes a replacement
+convergence measure. Stated, not hidden, in the A2T dictionary itself.
+
+### Fact 2 — the registered `p_rgh` tolerance of 1e-9 was unreachable, and 601,763 GAMG iterations bought no digit
+
+Same case, arms A1/A2 (`tolerance 1e-9`) against A2T (`1e-8`), everything else identical.
+
+| arm | sweeps | `p_rgh` solves | solves ending at `maxIter` 1000 | total GAMG iterations |
+|---|---|---|---|---|
+| A1 | 5 | 600 | **266 (44 %)** | 288,167 |
+| A2 | 10 | 1,200 | **608 (51 %)** | **627,533** |
+| A2T | 10 | 1,200 | **0** | **25,770** |
+
+The 608 stalled A2 solves terminate at a final residual of **3.79e-09 min / 4.44e-09 median /
+5.30e-09 max** — GAMG **stalls at ~4.4e-9** and cannot reach the registered 1e-9.
+Relaxing to 1e-8 changed **no digit**: last-sweep `Min/max T` at `Time = 30` is
+**292.985283351 / 294.125534239 in both arms**, agreement **0.000e+00 K** against a
+criterion of 1e-4 K frozen in advance; the extrema over all 600 sweeps also agree exactly.
+Iteration ratio **627,533 / 25,770 = 24.35×**; wall 478 s → 31 s. **601,763 discarded
+iterations bought nothing.**
+
+**Freeze provenance:** the arm and its 1e-4 K agreement criterion were committed at
+`46b08de5` (2026-09-01T04:49:53Z), and A2T started at 04:50:23Z — registered **before** it
+ran (`docs/campaigns/T-family/T25RF_FEASIBILITY_NOTE.md`, Addendum A1).
+
+**Operational reading.** A linear-solver `tolerance` is a *request*, not a property of the
+system; where it sits below the smoother's achievable floor, `maxIter` becomes the real
+stopping rule and the cost is invisible in wall-clock planning. Before registering an
+absolute tolerance, measure the achievable floor and count `No Iterations` at `maxIter`.
+
+### Scope, and what this does NOT establish
+
+One solver, one case, one mesh. **No sweep of other cases' `relaxationFactors` blocks has
+been run**, so the prevalence of the trap in this repository is unknown. The T25RF arms are
+an **ungated feasibility probe** whose own record (Addendum A2 of the note above) forbids
+citing its numbers as results — they appear here as observations of solver behaviour. The
+source mechanism in the table above is read directly from v2606 and is independent of the
+probe. Cross-reference: **L-426** carries the process form of this finding and its kinship
+with L-425. Probe cost **12.217 core-min** (`T25RF_runs/COST_LEDGER.txt`); this filing cost
+no compute.
+
+---
+
+## FAMILY INDEX — regenerated 2026-09-01 (supersedes any earlier FAMILY INDEX block above)
+
+**DERIVED, NOT MAINTAINED.** Generated by `scripts/check_numerics_index.py --gen` from the
+tail using **this file's own locator** — `^(## |\*\*)N-<FAM>[0-9]` — and appended as a
+superseding block, **never editing above**, because records across the repository cite this
+file **by line number**, one of them inside a **frozen** pre-registration
+(`cases/dafoam/ladder-a/A4/curriculum_D3/PREREGISTRATION.md:69`). **Lines whose number
+changed above this block: 0.**
+
+**Why this regeneration exists:** `N-T9` was appended 2026-09-01 (heat-transfer, the
+`chtMultiRegionFoam` final-sweep relaxation-lookup finding), so the previous block became
+stale in exactly one family by exactly one entry. `--gen` PRINTS and does not write, so the
+block is appended by hand and then re-asserted — `check_numerics_index.py` was run after this
+append and reports agreement.
+
+| family | scope | entries |
+|---|---|---|
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8, N-T9 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
+
+**Families: 7. Total entries: 125.** Counts are re-derivable by the locator
+above. `scripts/check_numerics_index.py` **asserts this block against the tail on every**
+`check_harness` **run**, so a future drift cannot accumulate silently.
+
+**Note on the count.** The locator matches **126** lines but there are **125**
+distinct ids: `N-AV9` legitimately appears twice — the entry itself and an
+`N-AV9 COMPANION` block — which is the deliberate second-block form, **not a duplicate id**.
+A counter that sums raw matches reports 126 and is wrong by one.
+
+**Scope-line note, carried for whoever next revises the generator.** The `N-T` scope string
+above reads *"GCI / Richardson, thermal grid-convergence numerics"*, which is narrower than
+the family's actual contents: `N-T4` (`viewFactorsGen` row-sum), `N-T5` (solver throughput),
+`N-T6` (energy imbalance) and now `N-T9` (PIMPLE relaxation lookup) are none of them
+grid-convergence facts. The family is in practice **T-family heat-transfer ladder numerics**.
+The scope strings live in the generator, not in this file, so this is recorded as an
+observation rather than acted on.
