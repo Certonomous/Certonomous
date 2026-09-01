@@ -2138,3 +2138,162 @@ untracked-launcher finding of §3 and the empty-graded-set measurement of §4 we
 re-derived on disk by that lane rather than taken from a report. Recorded on
 `cfd-supervisor`'s instruction. **Zero core-minutes: no solver ran, no mesh was built
 and no comparator was executed for this addendum.***
+
+---
+
+## ADDENDUM 7 — 2026-09-01 — `T_total` IS RULED TO BE `T_duct + T_hub + T_disk`: THE FROZEN TEXT GRADES A QUANTITY IT NEVER DEFINES OPERATIONALLY
+
+**Version 1.7. Lines whose number changed above this section: 0.** Pure append; nothing
+above is edited, struck or renumbered. This addendum **alters no gate, no threshold, no
+cap and no label.** It **defines a quantity the frozen text already grades** — it does
+not change what is graded, what band it is graded against, or what verdict any band
+returns. §9.3's `p` in `[1.3, 2.5]` and `GCI_fine < 3 %`; §9.4's `[1.05, 1.2599]`;
+§9.5's ungated `2 sigma`; §9.6's `<= 5 %` and its `1 %` mass-closure refusal; §6.3's
+`< 2 %` and its sign requirement; §10's 400 core-min cap — **every one stands exactly as
+frozen, untouched by this addendum.**
+
+### 1. THE GAP, STATED AS A GAP
+
+**§9.3 grades `T_total`.** **§9.6 (line 728) calls it "the force integration of §2.6".**
+**§2.6 registers `WEDGE_SCALE = 72.0` and how a wedge force is scaled to a full annulus
+— it does not enumerate which forces are summed.** Following the pointer therefore
+arrives at a *scaling rule*, not at a *composition*. **Nowhere in the frozen text does
+any section say what `T_total` sums.**
+
+The case carries three separable axial force contributions, and the frozen
+`system/controlDict.template` keeps them in three separate function objects:
+`forcesDuct` over patches `(ductInner ductOuter)`, `forcesHub` over patch `(hub)`, and
+the disk, whose force comes from the momentum source the solver was handed
+(`t_disk_from_source`, §6.2 control C3's quantity). **Three objects, one graded symbol,
+and no sentence connecting them** — that is the whole defect.
+
+### 2. THE RULING
+
+> **`T_total = T_duct + T_hub + T_disk`**, every term in full-annulus newtons under
+> §2.5's sign convention (positive when propulsive), each term also reported separately.
+
+**This is `cfd-supervisor`'s ruling and is recorded as theirs.** It is issued as a
+*definition of an already-registered quantity*, which is the only thing rule 2 leaves
+open after first compute; it is emphatically **not** a change of graded quantity, and
+§4 below states what makes that claim checkable rather than merely asserted.
+
+### 3. THE DERIVATION — FROM §9.6's OWN CONTROL VOLUME, NOT FROM PREFERENCE
+
+A definition asserted without its derivation is the thing that created this gap in the
+first place, so the derivation is written out rather than referenced.
+
+§9.6 gates a momentum balance over a control volume bounded by a downstream plane `S` at
+`x = 3 D` and a farfield radius `R = 15 D`, and tests
+`|T_momentum - T_total| / T_total <= 5 %`. §9.6 says in its own words what that test is
+for — *"forces vs momentum balance"*. **A momentum balance equates the net momentum and
+pressure flux through the control surface to the total axial force exerted on the fluid
+by everything inside the control volume.** That volume encloses the **duct**, the
+**centrebody** and the **disk source** — all three lie far inside `x = 3 D` and
+`r = 15 D`. **So the force `T_momentum` is registered to be compared against is the sum
+of all three, and any narrower reading makes §9.6's own gate compare a partial force
+against a total flux and fail for a bookkeeping reason while blaming the physics.**
+
+The composition is therefore **derived from the frozen text**, not chosen beside it.
+
+### 4. THE CORROBORATION — §9.5's OWN IDENTITY, INDEPENDENT OF §9.6
+
+§9.5 registers, ungated: **`T_total / T_disk`, ideal `2 sigma` = 2.0000 at `sigma = 1`.**
+
+Under the ruling, that identity reads `T_duct + T_hub + T_disk = 2 T_disk`, i.e.
+**`T_duct + T_hub = T_disk`** at `sigma = 1` — the shroud and centrebody together carry
+as much thrust as the rotor. **That is a statement about a sum, and it is only a
+statement about a sum**; a reading in which `T_total` were the duct force alone would
+turn §9.5's registered ideal into the claim that the duct *by itself* produces twice the
+disk's thrust, which is not the ducted-fan result and is not what §9.5 says it is.
+
+**A third corroboration, textual and therefore checkable without a solve:** §3.3 already
+quotes Geldenhuys (2015) p.7 for the *"rotor and shroud approximately equal"* split.
+`T_duct + T_hub = T_disk` **is that sentence in symbols.** The derivation of §3 and the
+corroboration here are independent — one comes from a control volume, the other from a
+registered ratio — and they agree.
+
+### 5. WHY THE GAP SURVIVED UNDETECTED, WHICH IS THE INSTRUCTIVE PART
+
+**The parent's own comparator never evaluates the disputed term.**
+`cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` (md5 `a2b21ba79e0060c283182fc2bb3f6352`,
+the file pinned at line 1928) builds its thrust dictionary from a **one-element loop**,
+`for key, fo in (("T_duct", "forcesDuct"),):` at `:1577`, and then on the §6.3 empty arm
+assigns `t_total = t["T_duct"]` at `:2047`. §6.3 is registered at **`delta_p = 0`**, so
+the **disk term — the largest term, and the one that separates the candidate readings on
+a loaded arm — is identically zero there.**
+
+**A quantity that is only ever evaluated where two candidate definitions do not separate
+can carry an undefined definition indefinitely.** That is the general lesson and it is
+the reason this addendum exists.
+
+**The honest residue, recorded rather than smoothed, because the flattering version of
+this paragraph is available and is wrong.** On the empty arm the two readings do **not**
+literally *coincide*: they differ by the **hub** term, which is non-zero there, because
+§7.1 keeps the centrebody in **every** arm and `forcesHub` integrates patch `(hub)`
+separately from `forcesDuct`'s `(ductInner ductOuter)`. What is true is the load-bearing
+part — that the empty arm cannot separate the readings on the term that dominates a
+loaded arm, and that §6.3's registered clauses are a **sign** requirement and a
+**smallness** requirement, which a hub *drag* term enters in the **same direction** as
+the duct's. **Whether §6.3's numeric `2 %` clause would be decided identically under the
+two readings is a question about magnitudes that this addendum does not measure and does
+not assert.**
+
+**No published F28 number is wrong, and the reason is stronger than the argument above.**
+Addendum 5 §4 measured the absence directly: **zero graded solves**, 36 run directories
+under `verification/runs/F28_runs/` and **none** carrying a grading marker, no
+`F28_RESULTS.md`, no row in any ledger citing an F28 number. **There is no published F28
+number for this definition to have got wrong.** The coincidence argument above is offered
+only for the narrower thing it supports: the parent comparator's §6.3 usage was not a
+*detectable* error at the point it was written.
+
+### 6. THE IMPLEMENTATION ALREADY INSTALLED, WHICH THIS ADDENDUM ENDORSES
+
+The F28G comparator at `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28g.py` — md5
+**`7424c79ed0581ea1858db193ecd58d95`**, the file the child registration
+`verification/campaign/F28G_GRID_CONVERGENCE_PREREGISTRATION.md` grades through —
+already carries the ruling, and carries it as **refusals rather than defaults**. Line
+numbers below are at that md5:
+
+- **`T_TOTAL_COMPOSITION = "duct+hub+disk"` (`:261`), and there is NO DEFAULT.** The
+  composition is a **required argument** at every call site and the function **refuses**
+  a caller that does not state it verbatim (`:1573`–`:1579`). That is `CLAUDE.md` rule 14
+  (L-221/L-222) applied in the only form that counts: *a lesson is not applied until
+  every call site asserts it.* A future caller cannot quietly regrade the case on a
+  different quantity, and a supervisor's diff read sees the composition **at the call
+  site**, not buried in a default. The two call sites are the grading path (`:1647`) and
+  the selftest that drives the refusal (`:2617`); the selftest asserts the refusal fires
+  (`:2615`).
+- **A missing `forcesHub` REFUSES (`:1585`–`:1588`)** — it does not fall back to
+  `T_duct + T_disk` and it does not warn. Its refusal text states the reason on the face
+  of it: *a missing term is dropped silently only if a comparator lets it be.*
+- **`T_disk` is taken from the SOURCE the solver was actually handed** and cross-checked
+  against the analytic `delta_p * A_disk` to the parent's own registered `TOL_C3` of
+  **0.5 %** (§6.2 control C3), **refusing** on disagreement — so a `volumeMode` slip, a
+  missing `WEDGE_SCALE` or a wrong cellZone **refuses rather than entering an observed
+  order**.
+- **All three terms are published per level beside the graded sum** (`:1770`–`:1775`), so
+  a reader can re-derive `T_total` from the record instead of trusting it.
+
+**Why refusal and not a default, stated as the reason and not as style:** silently
+dropping a term flatters the answer, and this campaign has hit that failure repeatedly
+and recently. Addendum 5 §3 records two instances found on the same day — a
+`moment.dat` sibling shadowing the graded `force.dat` so that §6.3's **sign** gate would
+have been decided by the sign of a rounding-level moment component, and a `volumeMode`
+guard blinded by the banner comment that explained why the guard mattered. **A comparator
+that quietly sums two of three terms is the same failure wearing a third face.**
+
+### 7. WHAT THIS ADDENDUM DOES NOT DO
+
+It **does not authorise compute**. It grades nothing, re-grades nothing and withdraws
+nothing. It moves **no gate, no threshold, no cap and no label** — it supplies the
+operational definition of a symbol those gates already name, which is why it is lawful
+after first compute and why it would have been unlawful in any other form. **F28 remains
+`PENDING`.**
+
+*The ruling of §2, and the endorsement of §6, are `cfd-supervisor`'s. The gap of §1, the
+derivation of §3, the corroborations of §4, the comparator citations of §5 and §6 and the
+`forcesDuct` / `forcesHub` patch lists behind §5's honest residue were re-derived on disk
+from the named artifacts by a `cfd` lane; the residue paragraph in §5 departs from the
+supervisor's drafting instruction, which said the two readings coincide on the empty arm,
+because they differ by the hub term and the record should say so. **Zero core-minutes: no
+solver ran, no mesh was built, and no comparator was executed for this addendum.***
