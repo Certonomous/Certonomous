@@ -1,0 +1,574 @@
+PROPOSED CHANGE, NOT APPLIED -- Act A module unblock
+====================================================
+
+STATUS: PROPOSAL, FOR THE CFD TEAM TO APPLY. Nothing here is applied to the
+working tree. The lane that produced it wrote nothing under sdk/, and the
+control-room server (pid 848778) was neither restarted nor signalled. The
+verification below was done in a throwaway `git archive HEAD` copy.
+
+Prepared by:   heat-transfer lab-lane, 2026-09-01.
+Territory:     sdk/ is the cfd team's. This file is a proposal in heat-transfer
+               territory; the patch is theirs to apply.
+
+BASE
+  Cut against sdk/workflows/thermal_display.py at blob
+  ee1abe7fb0a3c01a59539a789772b8e2ea9e4413, which was HEAD's version of that
+  file at 617a5800 and at every commit checked while this was prepared. The
+  module is a tracked, live file: added by 8b6ed54b, last edited by 77fecb55.
+  The working tree copy is byte-identical to HEAD's.
+
+  Verify before applying:
+    git rev-parse HEAD:sdk/workflows/thermal_display.py   # expect ee1abe7f...
+    git apply --check docs/campaigns/T-family/demo/PROPOSED_actA_module_unblock.patch
+
+  MEASURED: `git apply --check` passes against the real tree.
+
+RELATIONSHIP TO THE OTHER PENDING PROPOSAL -- READ BEFORE SCHEDULING
+  docs/campaigns/T-family/demo/PROPOSED_actA_figure_standard.patch is a
+  SEPARATE pending proposal against the SAME file and the same base blob. The
+  two touch DISJOINT line ranges: that one edits the Act A figure titles
+  (:97-118), the Act C spec (:166-171), the provenance row block (:655-670) and
+  four places in `main()`; this one edits the A8 not-available row (:135-144),
+  the tail of the Act A spec (:160-165), the helper region after `_fmt`
+  (:333-338), both normalisers (:449-607) and one line of the figure loop
+  (:714). Nothing is edited twice.
+
+  MEASURED: both apply cleanly IN EITHER ORDER, and the combined file parses.
+  The combined module was driven through all three arms; results below.
+
+  docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch remains STALE and
+  must not be applied.
+
+WHAT THIS PATCH CHANGES, AND THE ORDERED ITEM EACH HUNK UNBLOCKS
+  One module defect was blocking four of Sanaa's Act A items at once:
+  `_normalise_act_a` did `out = dict(b)` and then assigned over the result
+  UNCONDITIONALLY, so a bundle that had measured a value lost it to a string
+  that was written as a fallback for a bundle that had not.
+
+  @@ -52   `import re`, for the display-precision reader.
+
+  @@ -135  ITEM 7. The "A8, the assumptions box" not-available row gets
+           `satisfied_by="actA_assumptions"`. THE ROW IS NOT DELETED: the
+           existing satisfied_by mechanism retires it on the runs where that
+           sheet is actually placed, which is what that mechanism is for, and
+           its reason text is rewritten so it is true in the only case a reader
+           ever sees it -- the sheet not being on disk.
+
+  @@ -160  ITEM 7. `figures_extra` on the Act A spec, carrying
+           `actA_assumptions`. The frozen `figures` tuple above it is left
+           alone deliberately; this is an additive extension point, and a
+           bundle can add to it itself through `extra_figures`.
+
+  @@ -333  New helpers. `_display_spec` reads the bundle's own
+           `display_precision`; `_columns_table` builds a result table from a
+           column description, every cell through `_fmt`; `_ACT_A_COLUMNS` is
+           the default column list for Act A.
+
+  @@ -449  ITEM 6. `source_case`, `reader` and `mesh` become
+           `b.get(...) or <fallback>`. `mesh` is merged PER KEY, not per dict,
+           so a bundle that records the cell count and not the guard keeps its
+           count. This is the hunk that puts the real reader sentence,
+           `Mesh cells: 39,680` and the real geometry-guard sentence on screen.
+
+  @@ -468  ITEM 1, second column. `provenance_extra` gets the same discipline,
+           and `result_table` is taken from the bundle: a complete table in
+           `result_table` is used as given, a column description in
+           `result_table_columns` is rendered through `_fmt`, and only a bundle
+           supplying neither falls back to `_ACT_A_COLUMNS`. That default now
+           carries BOTH solid peaks -- "Peak core temperature, C" from
+           `peak_core_T_degC` and "Peak housing temperature, C" from
+           `peak_housing_T_degC`. A further column is now a bundle change and
+           not a module change.
+
+  @@ -502  ITEM 4. The displayed temperatures in the quantity rows read the
+           bundle's precision instead of a second hardcoded `.6f`. The monitor
+           row is EXEMPTED and left at full precision, with the reason beside
+           it: the bundle's own `display_precision.not_applied_to` exempts
+           instrument evidence, and that offset is 1.5e-02 K, so 0.1 K
+           precision would print 0.0 K and erase the disagreement the row
+           exists to report.
+
+  @@ -525  `quantity_rows` gets the same bundle-first discipline.
+
+  @@ -540, @@ -561, @@ -602  The same three guards in `_normalise_act_c`.
+           Act C's bundle carries none of these keys today, so NOTHING about
+           that act changes -- verified byte-for-byte below -- but a third act
+           arriving down that branch can describe its own table, provenance
+           rows and quantities with no further module change.
+
+  @@ -602  `_figure_list`: the act's fixed `figures` tuple, plus `figures_extra`
+           from the spec, plus `extra_figures` from the BUNDLE. A bundle-added
+           sheet therefore needs no module change and no server restart. An
+           addition defaults to LANDED status, so a named sheet whose file is
+           missing is REPORTED as a gap rather than skipped.
+
+  @@ -714  `_present` iterates `_figure_list(spec, bundle)` instead of
+           `spec["figures"]`. One line.
+
+WHAT THIS PATCH DOES NOT DO
+  * IT DOES NOT WEAKEN THE REFUSAL. `_instrument_rows` and the refusal block
+    in `_present` are not touched by any hunk, and the figure list is
+    consulted AFTER the refusal returns, so a bundle with no recognisable
+    control block still draws nothing -- the assumptions sheet included.
+    Measured on both acts, below.
+  * IT REINTRODUCES NO FABRICATED VALUE. Every new cell goes through `_fmt`,
+    which takes no numeric default. Grepping the patched file for a numeric
+    second argument to `dict.get` returns nothing. Where a value is genuinely
+    absent the honest fallback string stands: `_display_spec` returns full
+    precision rather than guessing, and `_columns_table` writes NOT_RECORDED
+    into a column whose key a row does not carry rather than dropping the
+    column or standing a number in for it.
+  * It renames no bundle key and regenerates no figure. The bundle at
+    docs/campaigns/T-family/demo/figures_actA/actA_screen_data.json is read
+    exactly as it stands at HEAD.
+
+RESTART SCOPE -- THIS ONE NEEDS A BOUNCE
+  This is Python inside a module the control-room server imports, so IT DOES
+  NOT TAKE EFFECT UNTIL THE SERVER RESTARTS. It should be batched into the
+  single coordinated restart rather than bouncing a server Sanaa is sitting
+  in. Bundle JSON and figure files are read inside `main()` at mission-run
+  time (`_load_bundle` is called from the mission body, not at import), so
+  producer-side work is data-only and lands on the next mission run with no
+  bounce -- and after this patch, a bundle-supplied `extra_figures` or
+  `result_table_columns` is data-only too.
+
+MEASURED, driving `thermal_display.main()` in a throwaway `git archive HEAD`
+copy with the live demo assets, this patch applied to the copy only. The real
+tree was never patched and the live server was never touched.
+
+    ARM                     BEFORE                       AFTER
+    Act A                   rc 0  7 plots  6 tables      rc 0  8 plots  6 tables
+                                  1 report                     1 report
+    Act C                   rc 0  5 plots  5 tables      rc 0  5 plots  5 tables
+                                  1 report                     1 report
+    Refusal, Act C, BOTH    rc 2  0 plots  0 reports     rc 2  0 plots  0 reports
+      bundles stripped            (1 table: provenance)        (1 table: provenance)
+    Refusal, Act A,         rc 2  0 plots  0 reports     rc 2  0 plots  0 reports
+      controls stripped
+
+  Act C's screen output is BYTE-IDENTICAL before and after, apart from the
+  output directory path. Nothing in that act regresses.
+
+  The refusal arm carries its own planted control: with only
+  actc_screen_data.json stripped and actc_step_independence.json left intact,
+  the patched module returns rc 0 with 5 plots -- so the rc 2 above is a
+  refusal this test can distinguish from a stuck value, not a zero from a
+  reader never shown able to see a non-zero. Act C's three control blocks are
+  split two-and-one across the two bundles and BOTH must be stripped.
+
+  Act A, item by item, patched:
+    ITEM 6  The phrase "not recorded in this bundle" appears 5 times in the
+            baseline Act A screen output and 0 times after. The provenance
+            table's Reader row is the bundle's real sentence ("The peak core
+            temperature is the maximum of T over the core internalField, read
+            by `read_core_peak` beside this bundle. ..."), Mesh cells reads
+            39,680, and Geometry guard is the real sha256 byte-identity
+            sentence. No fallback fires.
+    ITEM 1  Result-table headers are now Power W | Airspeed m/s | Peak core
+            temperature C | Peak housing temperature C | Rise above inlet K |
+            Margin to the 200 C limit K | Uncertainty, over all 16 rows. First
+            row: 80, 10, 39.2, 38.1, 24.4, 160.8.
+            Checked in the bundle before the column was written: all 16 rows
+            carry both keys, peak_T_degC equals peak_core_T_degC exactly in
+            every row, peak_T_region is "core" in every row, and the core peak
+            is >= the housing peak in every row -- so naming the existing
+            column "core" is a true rename and not a relabel.
+    ITEM 7  An eighth plot goes up, "What this run assumes, and what it does
+            not resolve", rendered from actA_assumptions.pdf. The
+            not-available table falls from 6 rows to 5 and the "A8, the
+            assumptions box" row is gone -- retired by satisfied_by, not
+            deleted from the spec.
+    ITEM 4  Displayed temperatures are at 0.1, from the bundle's
+            display_precision.temperatures_in_figures ("0.1 degC, until the
+            grid triple lands"). Hottest point reads 107.7 C, coolest 24.7 C,
+            smallest margin 92.3 K. The monitor-versus-cells offset is
+            deliberately still 0.015011 K, and the anchor-check residuals are
+            still at 3.736e-05 K: both are instrument evidence the bundle's
+            own not_applied_to exempts.
+
+  Combined with PROPOSED_actA_figure_standard.patch, both applied:
+    Act A  rc 0  8 plots  6 tables  1 report; the banned phrase 0 times; both
+           peak columns present; the assumptions sheet up.
+    Act C  rc 0  5 plots  5 tables  1 report.
+    Refusal (Act C, both bundles stripped)  rc 2  0 plots  0 reports.
+
+AN INDEX HAZARD FOUND WHILE PREPARING THIS, NOT TOUCHED
+  The shared index stages the DELETION of
+  docs/campaigns/T-family/demo/figures_actA/actA_assumptions.pdf and .svg --
+  the very artifact item 7 needs. Both files are present in HEAD and present
+  on disk, but they are absent from the index, so they show as untracked in
+  the worktree and as staged deletions against HEAD. A bare `git commit` by
+  anybody would remove the assumptions box from HEAD and this patch would then
+  report it as a missing LANDED figure. Inspected and reported, not reverted;
+  the index is chief's call. The index also holds a stale copy of
+  actA_screen_data.json (HEAD and the worktree agree with each other and
+  disagree with the index).
+
+diff --git a/sdk/workflows/thermal_display.py b/sdk/workflows/thermal_display.py
+index ee1abe7f..3ef6b633 100644
+--- a/sdk/workflows/thermal_display.py
++++ b/sdk/workflows/thermal_display.py
+@@ -52,6 +52,7 @@ from __future__ import annotations
+ 
+ import json
+ import os
++import re
+ import shutil
+ import subprocess
+ import sys
+@@ -135,10 +136,16 @@ SCREEN_SETS: dict[str, dict] = {
+              "and recommends nothing; choosing an operating point is not "
+              "something this run decides",
+              None),
++            # RETIRED BY A FIGURE, not by deletion. The assumptions
++            # sheet landed after this screen set was fixed; it is added in
++            # ``figures_extra`` below, and this row is dropped by the
++            # ``satisfied_by`` mechanism on the runs where that sheet is
++            # actually placed. The reason is written for the case where it is
++            # NOT placed, which is the only case a reader ever sees it in.
+             ("A8, the assumptions box",
+-             "no assumptions-box screen was built for this act; the hand "
+-             "model comparison that is shown is a different beat",
+-             None),
++             "the assumptions sheet was not on disk beside this act's bundle "
++             "when the act ran, so there is nothing to put up in its place",
++             "actA_assumptions"),
+             ("A9, the export of the act as one document",
+              "no export was built; the figures exist beside the bundle as "
+              "vector pages and nothing assembles them into one file",
+@@ -160,6 +167,16 @@ SCREEN_SETS: dict[str, dict] = {
+              "battery module act is where time-resolved behaviour lives",
+              None),
+         ),
++        # THE EXTENSION POINT for a sheet that landed AFTER the tuple above
++        # was fixed. That tuple is left alone deliberately: it is the set the
++        # act was written around and other records cite it. A bundle can add
++        # to this list itself, through ``extra_figures`` -- see
++        # ``_figure_list`` -- so a producer that builds a new sheet can put it
++        # on screen without a module change at all.
++        "figures_extra": (
++            ("actA_assumptions",
++             "What this run assumes, and what it does not resolve", LANDED),
++        ),
+     },
+     "C": {
+         "title": "the battery module",
+@@ -333,6 +350,103 @@ def _fmt(body: dict | None, key: str, spec: str = "", unit: str = "") -> str:
+     return f"{text} {unit}" if unit else text
+ 
+ 
++#: The format a displayed temperature falls back to when the bundle does not
++#: state how it wants its temperatures shown. FULL PRECISION on purpose:
++#: dropping digits is a decision the record must take deliberately, never a
++#: module default that quietly rounds somebody else's evidence away.
++_FULL_PRECISION = ".6f"
++#: Stands in a column description where the column holds a DISPLAYED
++#: temperature, so that ``_columns_table`` can put the bundle's own precision
++#: there instead of a second hardcoded number.
++_TEMP = "T"
++
++
++def _display_spec(b: dict, default: str = _FULL_PRECISION) -> str:
++    """The format spec for a displayed temperature, read from the bundle.
++
++    ``display_precision`` is the bundle's own statement about how it wants its
++    temperatures shown, so it is read here rather than hardcoded a second time
++    in this module: the number of digits then lives in ONE place, the record,
++    and the screen and the sheet cannot disagree about it.
++
++    Two spellings are accepted. ``temperature_format`` is a format spec and is
++    used as given. ``temperatures_in_figures`` is the prose form the Act A
++    bundle carries today -- "0.1 degC, until the grid triple lands" -- and the
++    step it quotes is read off the front of the string and turned into a
++    number of decimals.
++
++    THIS ROUNDS A DISPLAY AND NEVER A RECORD, and it is deliberately timid: if
++    nothing recognisable is there the full-precision default stands, because a
++    cell that silently lost its digits looks exactly like a cell that never
++    had them. The bundle's own ``not_applied_to`` names what must NOT be
++    rounded -- planted-control magnitudes and anchor residuals -- and those
++    tables do not call this function.
++    """
++    prec = b.get("display_precision")
++    if not isinstance(prec, dict):
++        return default
++    explicit = prec.get("temperature_format")
++    if isinstance(explicit, str) and explicit:
++        return explicit
++    stated = prec.get("temperatures_in_figures")
++    if not isinstance(stated, str):
++        return default
++    match = re.match(r"\s*(\d+(?:\.\d+)?)", stated)
++    if not match:
++        return default
++    step = match.group(1)
++    decimals = len(step.split(".")[1]) if "." in step else 0
++    return f".{decimals}f"
++
++
++def _columns_table(title: str, columns, rows: list, temp_spec: str) -> dict:
++    """A result table built from a COLUMN DESCRIPTION and the bundle's rows.
++
++    The description may come from the bundle (``result_table_columns``) or, if
++    the bundle does not describe its own table, from this module's default for
++    that act. Either way EVERY CELL GOES THROUGH ``_fmt``: a row that does not
++    carry a column's key says NOT_RECORDED in that cell. A column can neither
++    invent a value nor quietly disappear, which is what makes it safe for the
++    column list to be data rather than code.
++
++    An entry is ``(header, key, spec)`` or ``{"header":, "key":, "format":}``.
++    ``spec`` of ``_TEMP`` means "a displayed temperature": the bundle's own
++    display precision is used, so adding a temperature column never hardcodes
++    a precision beside it.
++    """
++    cols = []
++    for c in columns:
++        if isinstance(c, dict):
++            cols.append((str(c.get("header", "")), str(c.get("key", "")),
++                         str(c.get("format") or "")))
++            continue
++        parts = list(c) + ["", "", ""]
++        cols.append((str(parts[0]), str(parts[1]), str(parts[2] or "")))
++    return {
++        "title": title,
++        "headers": tuple(header for header, _k, _s in cols),
++        "rows": [[_fmt(r, key, temp_spec if spec == _TEMP else spec)
++                  for _h, key, spec in cols] for r in rows],
++    }
++
++
++#: Act A's result table when its bundle does not describe one. Both solid
++#: peaks are here: the core is the hotter of the two at every one of the
++#: sixteen points and carries the margin, and the housing is what the hand
++#: correlations and the monitors read, so a screen with only one of them
++#: cannot be checked against the other sheets. A bundle that carries only one
++#: of the two keys gets NOT_RECORDED in the other column, never a number.
++_ACT_A_COLUMNS = (
++    ("Power, W", "power_W", ""),
++    ("Airspeed, m/s", "airspeed_ms", ""),
++    ("Peak core temperature, C", "peak_core_T_degC", _TEMP),
++    ("Peak housing temperature, C", "peak_housing_T_degC", _TEMP),
++    ("Rise above inlet, K", "rise_above_inlet_K", _TEMP),
++    ("Margin to the 200 C limit, K", "margin_to_limit_K", _TEMP),
++    ("Uncertainty", "numerical_uncertainty", ""),
++)
++
++
+ def _where(body: dict) -> str:
+     """A plain phrase for where a control was planted, from whatever the
+     block records. Nothing is invented: only keys present are used."""
+@@ -449,15 +563,29 @@ def _normalise_act_a(b: dict) -> dict:
+     radial = b.get("radial") or {}
+     stats = radial.get("region_stats") or {}
+ 
++    temp = _display_spec(b)
++
+     out = dict(b)
+-    out["source_case"] = (f"{common}, {len(rows)} operating points"
+-                          if common else "not recorded in this bundle")
+-    out["reader"] = ("not recorded in this bundle; the readers and the "
+-                     "build are named in the directory README beside it")
+-    out["mesh"] = {
+-        "n_mesh_cells": "not recorded in this bundle",
+-        "geometry_guard": "not recorded in this bundle",
+-    }
++    # BUNDLE VALUES WIN, AND THE STRING IS THE FALLBACK RATHER THAN THE
++    # OVERRIDE. These four lines were written when the Act A bundle carried
++    # none of them, and were then assigned unconditionally over a bundle that
++    # had since measured all of them: a reader sentence, a mesh count and a
++    # geometry-guard result were read off disk by the producer and thrown away
++    # here, and "not recorded in this bundle" went up on screen beside numbers
++    # the same bundle had recorded. A fallback that outranks a measurement is
++    # not a fallback.
++    out["source_case"] = b.get("source_case") or (
++        f"{common}, {len(rows)} operating points"
++        if common else "not recorded in this bundle")
++    out["reader"] = b.get("reader") or (
++        "not recorded in this bundle; the readers and the "
++        "build are named in the directory README beside it")
++    # PER KEY, not per dict: a bundle that records the cell count and not the
++    # guard must keep its count and be told about the guard, not lose both.
++    out["mesh"] = dict(b["mesh"]) if isinstance(b.get("mesh"), dict) else {}
++    for _field in ("n_mesh_cells", "geometry_guard"):
++        if out["mesh"].get(_field) is None:
++            out["mesh"][_field] = "not recorded in this bundle"
+     extra = []
+     if stats:
+         extra.append(["Radial cut resolution",
+@@ -468,32 +596,35 @@ def _normalise_act_a(b: dict) -> dict:
+         extra.append(["Monitor files", str(mon["source_file_pattern"])])
+     if unc.get("column_entry"):
+         extra.append(["Numerical uncertainty", str(unc["column_entry"])])
+-    out["provenance_extra"] = extra
++    out["provenance_extra"] = b.get("provenance_extra") or extra
+ 
+-    # ---- the act's own result table, with the act's own column names ----
+-    if rows:
+-        out["result_table"] = {
+-            "title": "The sixteen solved operating points",
+-            "headers": ("Power, W", "Airspeed, m/s", "Peak temperature, C",
+-                        "Rise above inlet, K", "Margin to the 200 C limit, K",
+-                        "Uncertainty"),
+-            "rows": [[_fmt(r, "power_W"),
+-                      _fmt(r, "airspeed_ms"),
+-                      _fmt(r, "peak_T_degC", ".6f"),
+-                      _fmt(r, "rise_above_inlet_K", ".6f"),
+-                      _fmt(r, "margin_to_limit_K", ".6f"),
+-                      _fmt(r, "numerical_uncertainty")]
+-                     for r in rows],
+-        }
++    # ---- the act's own result table ----
++    #
++    # HEADERS AND COLUMNS COME FROM THE BUNDLE where the bundle describes
++    # them. They were hardcoded here, which is why a second peak column could
++    # not reach the screen even once the bundle carried the value in every
++    # row: the module was deciding what the table was allowed to say. A
++    # complete table in ``result_table`` is used as given; a column
++    # description in ``result_table_columns`` is rendered through ``_fmt``;
++    # only a bundle that supplies neither falls back to this act's default.
++    supplied = b.get("result_table")
++    if isinstance(supplied, dict) and supplied.get("rows"):
++        out["result_table"] = supplied
++    elif rows:
++        out["result_table"] = _columns_table(
++            str(b.get("result_table_title")
++                or "The sixteen solved operating points"),
++            b.get("result_table_columns") or _ACT_A_COLUMNS,
++            rows, temp)
+ 
+     # ---- the quantities, every one of them quoted from the bundle ----
+     q: list[dict] = []
+     if colour.get("maximum") is not None:
+         q.append({
+             "quantity": "Hottest point of the sixteen cases",
+-            "value": f"{_fmt(colour, 'maximum', '.6f')} C",
+-            "envelope": (f"colour scale {_fmt(colour, 'minimum', '.6f')}"
+-                         f" to {_fmt(colour, 'maximum', '.6f')} C, nothing "
++            "value": f"{_fmt(colour, 'maximum', temp)} C",
++            "envelope": (f"colour scale {_fmt(colour, 'minimum', temp)}"
++                         f" to {_fmt(colour, 'maximum', temp)} C, nothing "
+                          f"clipped at either end")})
+     if rows:
+         # ``inf`` here is a SORT SENTINEL, not a screen value: a row with no
+@@ -502,18 +633,23 @@ def _normalise_act_a(b: dict) -> dict:
+         coolest = min(rows, key=lambda r: r.get("peak_T_degC", float("inf")))
+         q.append({
+             "quantity": "Coolest of the sixteen operating points",
+-            "value": f"{_fmt(coolest, 'peak_T_degC', '.6f')} C",
++            "value": f"{_fmt(coolest, 'peak_T_degC', temp)} C",
+             "envelope": (f"at {_fmt(coolest, 'power_W')} W and "
+                          f"{_fmt(coolest, 'airspeed_ms')} m/s")})
+     if env.get("worst_margin_K") is not None:
+         q.append({
+             "quantity": (f"Smallest margin to the "
+                          f"{_fmt(env, 'limit_degC', '.0f')} C limit"),
+-            "value": f"{_fmt(env, 'worst_margin_K', '.6f')} K",
++            "value": f"{_fmt(env, 'worst_margin_K', temp)} K",
+             "envelope": (f"at {_fmt(worst, 'power_W')} W and "
+                          f"{_fmt(worst, 'airspeed_ms')} m/s, the hottest "
+                          f"point solved")})
+     if settled.get("offset_K") is not None:
++        # LEFT AT FULL PRECISION ON PURPOSE. The bundle's own
++        # ``display_precision.not_applied_to`` exempts instrument evidence,
++        # and this row IS instrument evidence: the offset is 1.5e-02 K, so
++        # showing it at the display precision of 0.1 K would print 0.0 K and
++        # erase the very disagreement the row exists to report.
+         q.append({
+             "quantity": "The run's own monitor against its internal cells",
+             "value": f"{_fmt(settled, 'offset_K', '.6f')} K",
+@@ -525,7 +661,7 @@ def _normalise_act_a(b: dict) -> dict:
+         q.append({"quantity": "Numerical uncertainty",
+                   "value": str(unc["column_entry"]),
+                   "envelope": str(unc.get("reason", "not recorded"))})
+-    out["quantity_rows"] = q
++    out["quantity_rows"] = b.get("quantity_rows") or q
+ 
+     # ---- hoist what the run cannot say to the top level, in the one
+     # spelling ``main`` scans for ----
+@@ -540,8 +676,16 @@ def _normalise_act_c(b: dict) -> dict:
+     """Act C's bundle. It is already close to the internal shape; this fills
+     in the two keys the shared presentation path expects by name."""
+     out = dict(b)
++    # The same discipline as Act A: a value the bundle carries is not
++    # overwritten by one this function derives. Act C's bundle carries none of
++    # these three today, so nothing about this act changes -- but a third act
++    # arriving down this branch can describe its own table, its own provenance
++    # rows and its own quantities without a further module change.
++    supplied = b.get("result_table")
+     table = b.get("per_cell_table")
+-    if isinstance(table, list) and table:
++    if isinstance(supplied, dict) and supplied.get("rows"):
++        out["result_table"] = supplied
++    elif isinstance(table, list) and table:
+         out["result_table"] = {
+             "title": "Per cell peak and rise",
+             "headers": ("Cell", "Peak, K", "Rise, K", "Time to peak, s",
+@@ -561,7 +705,7 @@ def _normalise_act_c(b: dict) -> dict:
+     if b.get("coolant_reference_temperature_K") is not None:
+         extra.append(["Coolant reference temperature",
+                       f"{b['coolant_reference_temperature_K']:.6f} K"])
+-    out["provenance_extra"] = extra
++    out["provenance_extra"] = b.get("provenance_extra") or extra
+ 
+     q: list[dict] = []
+     scale = b.get("shared_colour_scale_K")
+@@ -602,10 +746,49 @@ def _normalise_act_c(b: dict) -> dict:
+                          f"{_fmt(b, 'n_write_times')} write times, at t = "
+                          f"{_fmt(b, 'largest_abs_diff_time_s', '.0f', 's')}, "
+                          f"cell {_fmt(b, 'largest_abs_diff_cell')}")})
+-    out["quantity_rows"] = q
++    out["quantity_rows"] = b.get("quantity_rows") or q
+     return out
+ 
+ 
++def _figure_list(spec: dict, bundle: dict) -> list[tuple[str, str, str]]:
++    """The figures this act puts up: its fixed set, plus any addition.
++
++    The tuple in ``SCREEN_SETS`` is the set that was fixed when the act was
++    written, and it is not edited to add a sheet that landed later. Additions
++    come from ``figures_extra`` beside it in the spec, or from the BUNDLE
++    itself in ``extra_figures`` -- which is what lets a producer put a new
++    sheet on screen with no module change and therefore no server restart.
++
++    An addition is ``(stem, title)``, ``(stem, title, status)`` or the mapping
++    form. Status defaults to ``LANDED``, so an addition whose file is NOT on
++    disk is REPORTED as a gap rather than skipped: a producer that named a
++    sheet expects to see it, and a silently missing figure is the failure this
++    module was written to prevent. A stem already in the fixed set is not
++    added a second time.
++    """
++    figures = list(spec["figures"])
++    seen = {stem for stem, _t, _s in figures}
++    additions = list(spec.get("figures_extra", ()))
++    from_bundle = bundle.get("extra_figures")
++    if isinstance(from_bundle, (list, tuple)):
++        additions += list(from_bundle)
++    for item in additions:
++        if isinstance(item, dict):
++            stem = str(item.get("stem") or "")
++            title = str(item.get("title") or stem)
++            status = str(item.get("status") or LANDED)
++        elif isinstance(item, (list, tuple)) and len(item) >= 2:
++            stem, title = str(item[0]), str(item[1])
++            status = str(item[2]) if len(item) > 2 else LANDED
++        else:
++            continue
++        if not stem or stem in seen:
++            continue
++        seen.add(stem)
++        figures.append((stem, title, status))
++    return figures
++
++
+ def _normalise(bundle: dict, key: str) -> dict:
+     """One internal shape, whichever dialect arrived.
+ 
+@@ -714,7 +897,7 @@ def _present(script, emit, roster, out: Path,
+                "working")
+     placed: set[str] = set()
+     missing: list[str] = []
+-    for stem, title, status in spec["figures"]:
++    for stem, title, status in _figure_list(spec, bundle):
+         path, reason = _png_for(stem, spec["folder"], out)
+         if path is None:
+             # A PENDING figure that is not there is not a fault: it was
