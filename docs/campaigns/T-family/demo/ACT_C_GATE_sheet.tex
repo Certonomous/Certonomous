@@ -1,0 +1,209 @@
+% ---------------------------------------------------------------------------
+% ACT C -- AVIATION BATTERY MODULE, RESOLVED COOLING CHANNELS -- the CONVERGENCE
+% GATE screen.  One page, customer-facing.
+%
+% WHAT THIS SHEET IS.  A demonstration of the lab's actual product: a gate set
+% in advance, a clean run, and a refusal to publish when the gate says no.
+%
+% *** NOT ONE NUMBER ON THIS SHEET IS A THERMAL RESULT. ***  Every kelvin
+% quantity here is a DIFFERENCE BETWEEN TWO ARMS that differ only in outer-sweep
+% count -- a statement about the method, not about the battery.  Every quantity
+% that would tell a viewer how hot the module got is withheld and named as
+% withheld: cell temperatures, the rise, the outlet temperature, the three
+% acceptance criteria, the energy ledger, and the adiabatic bounds.
+%
+% The mechanical form of that boundary, enforced by check_actC_gate_screen.py
+% rather than trusted: EVERY KELVIN MAGNITUDE ON THIS SHEET IS BELOW 0.1 K.
+% The convergence differences span 5.2e-04 to 2.4e-02 K; every withheld
+% quantity is of order 1 K or 293 K.  Two orders of separation, so the rule is
+% decidable by reading a number rather than by judging a sentence.
+%
+% Self-contained apart from the three figure PDFs beside it.
+% Compile: python3 build_actC_gate_sheet.py   (never bare pdflatex -- the tail
+% guard must run, because a one-page sheet drops its LAST line silently and
+% the last line here is the withheld-quantities statement.)
+% ---------------------------------------------------------------------------
+\documentclass[9pt,a4paper]{article}
+\usepackage[margin=10mm,top=5mm,bottom=4mm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\definecolor{rulegrey}{rgb}{0.45,0.45,0.45}
+\definecolor{boxgrey}{rgb}{0.96,0.96,0.94}
+\definecolor{passgreen}{rgb}{0.106,0.420,0.227}
+\definecolor{failred}{rgb}{0.643,0.212,0.122}
+\definecolor{keyfill}{rgb}{0.93,0.945,0.965}
+\definecolor{holdfill}{rgb}{0.975,0.975,0.975}
+\definecolor{holdgrey}{rgb}{0.62,0.62,0.62}
+
+\renewcommand{\footnotesize}{\fontsize{6.9}{7.6}\selectfont}
+\renewcommand{\scriptsize}{\fontsize{6.4}{7.0}\selectfont}
+\renewcommand{\tiny}{\fontsize{5.7}{6.2}\selectfont}
+\renewcommand{\arraystretch}{0.98}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{3.6pt}
+\pagestyle{empty}
+
+\newcommand{\hdr}[1]{\vspace{1.2mm}{\footnotesize\bfseries #1}\\[0.5mm]}
+\newcommand{\PASS}{{\footnotesize\bfseries\color{passgreen}PASS}}
+\newcommand{\FAIL}{{\footnotesize\bfseries\color{failred}GATE FAIL}}
+
+\begin{document}
+
+{\large\bfseries Aviation battery module, resolved cooling channels}\\[0.6mm]
+{\footnotesize\color{rulegrey}Eight cells, seven parallel air channels, true
+transient conjugate solve. Takeoff pulse then cruise.}\\[1.2mm]
+
+\hrule height 0.5pt
+\vspace{1.6mm}
+
+% ===================== THE QUESTION AND THE SETUP ==========================
+\begin{minipage}[t]{0.485\textwidth}
+\hdr{The question}
+{\footnotesize A module is cooled by air in resolved channels. Does the solve
+converge tightly enough to report a temperature?}\\[1.4mm]
+
+\hdr{The case}
+{\footnotesize
+\begin{tabular}{@{}p{0.44\linewidth}p{0.52\linewidth}@{}}
+\toprule
+Cells & 8, each $100 \times 30$\,mm in section\\
+Channels & 7 parallel, 3\,mm gap\\
+Mesh & 16{,}608 cells; 24 across each gap\\
+Heat load & $1.0\times10^{5}$\,W/m$^{3}$ takeoff\\
+ & $2.5\times10^{4}$\,W/m$^{3}$ cruise\\
+Pulse & 60\,s, then cruise to 900\,s\\
+Time step & 0.5\,s, 1{,}800 steps\\
+\bottomrule
+\end{tabular}}\\[1.6mm]
+
+\hdr{The gate, set in advance}
+{\footnotesize The limits below are frozen ahead of the solve. One arm exists
+so that it can fail: the same case at 20 outer sweeps instead of 10. If
+doubling the sweep count moves the answer, the answer is not converged.}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.485\textwidth}
+\vspace{-1mm}
+\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_checks.pdf}
+\end{minipage}
+
+\vspace{1.8mm}
+\hrule height 0.3pt
+\vspace{1.6mm}
+
+% ===================== THE RUN AND THE GATE ================================
+\begin{minipage}[t]{0.475\textwidth}
+\hdr{Both arms run clean}
+{\footnotesize
+\begin{tabular}{@{}p{0.60\linewidth}p{0.34\linewidth}@{}}
+\toprule
+Steps completed & 1{,}800 of 1{,}800\\
+Exit status & 0, both arms\\
+Fatal errors & none\\
+Final time reached & 900\,s\\
+Fields written, both regions & complete\\
+Every field newer than the run's own start mark & yes, by 16\,s or more\\
+\bottomrule
+\end{tabular}}\\[1.0mm]
+{\footnotesize Neither arm stops early. Neither hits its budget ceiling.}\\[1.6mm]
+
+\hdr{The gate answers}
+{\footnotesize
+\begin{tabular}{@{}p{0.40\linewidth}rrl@{}}
+\toprule
+Agreement, 10 v.\ 20 sweeps & measured & limit & \\
+\midrule
+Solid field, every cell & 0.0012 & 0.0123 & \PASS\\
+Streamwise step in a cell & 0.00067 & 0.00123 & \PASS\\
+Coolant outlet & 0.0232 & 0.0123 & \FAIL\\
+\bottomrule
+\end{tabular}}\\[0.8mm]
+{\footnotesize All values in K. All three checks are required.}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.495\textwidth}
+\vspace{-1mm}
+\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_over_run.pdf}\\[0.6mm]
+{\scriptsize\color{rulegrey}The coolant outlet parts from its 20-sweep twin
+only inside the takeoff pulse. By the end of the run it agrees to a sixth of
+the limit. The solid agrees everywhere.}
+\end{minipage}
+
+\vspace{1.8mm}
+\hrule height 0.3pt
+\vspace{1.6mm}
+
+% ===================== THE REFUSAL =========================================
+\colorbox{keyfill}{\begin{minipage}{0.985\textwidth}
+\vspace{0.8mm}
+{\footnotesize\bfseries The gate refuses. Nothing thermal is published.}\\[0.8mm]
+{\footnotesize Doubling the outer sweeps moves the coolant outlet by 1.9 times
+the limit. The limit is the smallest difference this case is willing to call a
+signal, so a result at that scale would sit inside its own numerical spread.}\\[0.6mm]
+{\footnotesize\bfseries Withheld:} {\footnotesize cell temperatures; the
+temperature rise; the coolant outlet temperature; the three acceptance
+criteria; the energy ledger. The reader controls are never reached: the gate is
+evaluated first.}
+\vspace{0.9mm}
+\end{minipage}}
+
+\vspace{1.8mm}
+
+% ===================== WHAT IS SOLID, AND WHAT IS NEXT =====================
+\begin{minipage}[t]{0.30\textwidth}
+\vspace{-1mm}
+\includegraphics[width=\linewidth]{figures_actC_gate/actC_gate_sequence.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.325\textwidth}
+\hdr{What is solid}
+{\footnotesize The solid field converges as sweeps rise. Across 5, 10 and 20
+sweeps at the 30\,s frame the difference falls by 11.6 times. The solid is
+converging; the coolant is not. A single pass-or-fail cannot separate those
+two, so both are measured.}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.325\textwidth}
+\hdr{Cost}
+{\footnotesize
+\begin{tabular}{@{}p{0.40\linewidth}rr@{}}
+\toprule
+ & planned & actual\\
+\midrule
+Arm 1, 10 sweeps & 8.3 min & 7.2 min\\
+Arm 2, 20 sweeps & 18.1 min & 12.6 min\\
+Total & 26.4 min & 19.8 min\\
+Spend & \$0.022 & \$0.017\\
+\bottomrule
+\end{tabular}}\\[0.7mm]
+{\footnotesize Doubling the sweeps costs 1.77 times, against 2.18 planned.
+Ceiling untouched.}
+\end{minipage}
+
+\vspace{2.0mm}
+\hrule height 0.3pt
+\vspace{1.4mm}
+
+\hdr{The priced next step}
+{\footnotesize
+\begin{tabular}{@{}p{0.30\linewidth}p{0.44\linewidth}p{0.20\linewidth}@{}}
+\toprule
+Lever & Why & Cost\\
+\midrule
+Finer time step through the pulse & Addresses the cause. The air crosses a
+channel in 31\,ms while the load is large and about to step; the flow Courant
+number is near 1600. & to be priced\\
+More outer sweeps & Weaker. Forty sweeps lands near the limit, so it is a coin
+toss, and it leaves the cause alone. & about 22 min\\
+\bottomrule
+\end{tabular}}\\[1.0mm]
+
+{\footnotesize\bfseries The honest sentence: the run completes, the gate
+refuses it, and no thermal result exists.}
+
+\end{document}

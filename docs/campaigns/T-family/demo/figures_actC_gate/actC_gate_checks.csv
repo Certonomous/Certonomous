@@ -1,0 +1,4 @@
+check,quantity,agreement_K,limit_K,state
+A,"Solid temperature field, every cell, every frame",0.001199542,0.01234,pass
+B,Streamwise difference within a cell,0.0006675809,0.001234,pass
+C,"Coolant outlet, area-mean",0.0231519,0.01234,fail
