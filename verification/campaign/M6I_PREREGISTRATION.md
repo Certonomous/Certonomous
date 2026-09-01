@@ -427,3 +427,92 @@ to this comparator's own thresholds rather than only to its readers.
 | md5 of this file's first 343 lines BEFORE the append | `d7d3530e4b03c95ae6bed892fa5f09d2` |
 | md5 of this file's first 343 lines AFTER the append | `d7d3530e4b03c95ae6bed892fa5f09d2` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+---
+
+## AMENDMENT 2 — 2026-09-01, BEFORE FIRST COMPUTE: G2 reads the FIRST solve of each iteration, not the last
+
+**Pre-compute amendment under CLAUDE.md rule 2.** Appended at the foot under rule 6; nothing
+above is edited, reordered, inserted or deleted. v1.2.
+
+### The condition, and how it was checked
+
+**NO COMPUTE HAS OCCURRED.** `test -e` at the moment of writing: `verification/runs/M6I_runs/L0`,
+`L1`, `L2`, `L3` — **all four ABSENT.** `verification/runs/M6I_runs/` contains `analyse_m6i.py`
+and nothing else. No mesh, no solution, no solver log exists for M6I.
+
+### What is amended
+
+§4's Gate G2 registers **"all scaled residuals ≤ 1e-8"**. **That threshold is unchanged.**
+What is registered here is **which residual the threshold is applied to**, which §4 left
+implicit and which materially decides the verdict:
+
+> **G2 is applied to the initial residual of the FIRST solve of each field in the final
+> iteration — the value OpenFOAM's own `residualControl` tests. Not the last solve.**
+
+### Why — verified in the installed source, not from memory
+
+With `nNonOrthogonalCorrectors ≥ 1` a field, in practice `p`, is solved **more than once per
+outer iteration**. OpenFOAM's convergence control tests the **first** of those solves.
+From `/usr/lib/openfoam/openfoam2606/src/finiteVolume/cfdTools/general/solutionControl/`:
+
+```
+solutionControl/solutionControl.C:231-232
+    residuals.first() = cmptMax(sp.first().initialResidual());
+    residuals.last()  = cmptMax(sp.last().initialResidual());
+
+simpleControl/simpleControl.C:71
+    const bool absCheck = (residuals.first() < residualControl_[fieldi].absTol);
+```
+
+`sp` is the solver-performance pair for that field in that time step, so `.first()` is the
+first solve. **A reader keeping the last match returns the final corrector pass — the smallest
+residual of the set.**
+
+### The direction of the error, and the size of it
+
+**It errs in the FLATTERING direction: it understates the residual and admits levels that
+should fail.** Measured on the comparator's planted two-corrector control, where the two solves
+differ by a factor of 1,000:
+
+| reader | value | against G2's registered 1e-8 |
+|---|---|---|
+| **first solve** (what `residualControl` tests) | **4.0e-07** | **FAILS G2** |
+| last solve (what a `tail -1` reader returns) | 4.0e-10 | **PASSES G2** |
+
+> **The verdict flips at the registered threshold. This is not a cosmetic difference.**
+
+**This amendment therefore STRICTLY NARROWS G2** — the first-solve residual is never smaller
+than the last-solve residual — and can only turn a `PASS` into a `GATE FAIL`.
+
+### Why it matters most on THIS campaign
+
+**Non-orthogonal correctors are exactly what one reaches for on a highly non-orthogonal mesh,
+and this campaign's meshes measure 86–89°.** The reader would have been most wrong precisely on
+the geometry M6I is about. `nNonOrthogonalCorrectors 1` is live in this repository now —
+`cases/JF1_JET_FLAP/case/system/fvSolution` and 15+ `cases/mega-batch/` cases — so the setting
+is not hypothetical.
+
+**This is `L-419`'s shape** — a partial sample reported as the whole — and this team has already
+published a wrong `p`-residual column through `grep … | tail -1` on a case with that setting.
+
+### Disclosure
+
+**This was found by the cfd supervisor reading the comparator as a diff, not by its selftest.**
+Every other reader in that file carried a planted control; **the residual reader did not, and
+that is why it survived.** It was the one reader whose correctness looked too obvious to doubt.
+It now carries a control that synthesises a two-corrector log, asserts the reader returns the
+**first** solve, asserts the defective form reproduces the **last**, asserts the two **differ**,
+and asserts that on a single-solve log they **agree** — so the fix is shown not to have broken
+the ordinary case.
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| threshold, band, cap or label changed | **none — 1e-8 is unchanged; only its operand is fixed, and strictly narrowing** |
+| lines edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 429 lines BEFORE the append | `add11e978be5cda184adf4fc40955e55` |
+| md5 of this file's first 429 lines AFTER the append | `add11e978be5cda184adf4fc40955e55` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |

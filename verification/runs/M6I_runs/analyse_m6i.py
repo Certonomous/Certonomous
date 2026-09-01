@@ -144,8 +144,61 @@ def read_coefficient(path, column):
     return out
 
 
-def read_last_residual(path, field):
-    """Last 'Solving for <field>, Initial residual = X' in a solver log."""
+def read_first_residual(path, field):
+    """Initial residual of the FIRST solve of <field> in the LAST time step.
+
+    THE FIRST SOLVE, NOT THE LAST, AND THE DIFFERENCE IS NOT COSMETIC.
+
+    With `nNonOrthogonalCorrectors >= 1` a field -- in practice `p` -- is solved MORE
+    THAN ONCE PER OUTER ITERATION.  OpenFOAM's own convergence control tests the FIRST
+    of those solves.  Verified in the installed source, not from memory:
+
+      solutionControl.C:231-232   residuals.first() = cmptMax(sp.first().initialResidual());
+                                  residuals.last()  = cmptMax(sp.last().initialResidual());
+      simpleControl.C:71          const bool absCheck =
+                                      (residuals.first() < residualControl_[fieldi].absTol);
+
+    `sp` is the solver-performance pair for that field in that time step, so `.first()`
+    is the first solve.  A reader that keeps the LAST match returns the final corrector
+    pass -- the SMALLEST residual of the set -- which understates the residual and
+    admits levels that should fail G2.  IT ERRS IN THE FLATTERING DIRECTION.
+
+    This is L-419's shape (a partial sample reported as the whole), and this team has
+    already published a wrong p-residual column through `grep ... | tail -1` on a case
+    with `nNonOrthogonalCorrectors 1`.  That setting is live in this repository right
+    now, in `cases/JF1_JET_FLAP/case/system/fvSolution` and in 15+ mega-batch cases.
+    It matters most here of all: non-orthogonal correctors are exactly what one reaches
+    for on a highly non-orthogonal mesh, and this campaign's meshes measure 86-89 deg.
+
+    Returns (residual, solves_per_iteration) so the caller can SAY whether correctors
+    were active rather than silently assuming they were not.
+    """
+    pat = re.compile(r"Solving for %s,\s*Initial residual = ([0-9.eE+-]+)" % re.escape(field))
+    val, seen_this_step, n_this_step, n_last = None, False, 0, 0
+    for line in open(path, errors="replace"):
+        if line.startswith("Time = "):
+            if n_this_step:
+                n_last = n_this_step
+            seen_this_step, n_this_step = False, 0
+            continue
+        m = pat.search(line)
+        if m:
+            n_this_step += 1
+            if not seen_this_step:
+                val = float(m.group(1))       # FIRST solve of this time step
+                seen_this_step = True
+    if n_this_step:
+        n_last = n_this_step
+    return val, n_last
+
+
+def read_last_residual_DEFECTIVE(path, field):
+    """The defective reader -- keeps the LAST match, i.e. the final corrector pass.
+
+    RETAINED ONLY so the planted control can assert that the two readers differ on a
+    multi-corrector log.  A control that cannot separate the right implementation from
+    the wrong one is not a control.  NOTHING GRADES THROUGH THIS FUNCTION.
+    """
     val = None
     pat = re.compile(r"Solving for %s,\s*Initial residual = ([0-9.eE+-]+)" % re.escape(field))
     for line in open(path, errors="replace"):
@@ -446,7 +499,62 @@ def selftest():
         else:
             print("  AGE GUARD control: a field older than 0/U refuses  CONFIRMED")
 
-        # -- 11. y+ READER, PLANTED ---------------------------------------------
+        # -- 11. RESIDUAL READER: FIRST SOLVE, NOT LAST.  PLANTED. --------------
+        # A two-corrector log: p is solved TWICE per iteration and the two initial
+        # residuals differ by a known factor of 1000.  The reader must return the
+        # FIRST.  OpenFOAM's own residualControl tests the first solve
+        # (simpleControl.C:71 via solutionControl.C:231).
+        rl = os.path.join(d, "log.twocorrector")
+        FIRST_R, LAST_R = 4.0e-7, 4.0e-10
+        with open(rl, "w") as f:
+            for t in range(1, 6):
+                f.write("Time = %d\n" % t)
+                f.write("smoothSolver:  Solving for Ux, Initial residual = 1.1e-09, "
+                        "Final residual = 1e-12, No Iterations 3\n")
+                f.write("GAMG:  Solving for p, Initial residual = %.6e, "
+                        "Final residual = 1e-9, No Iterations 5\n" % FIRST_R)
+                f.write("GAMG:  Solving for p, Initial residual = %.6e, "
+                        "Final residual = 1e-11, No Iterations 2\n" % LAST_R)
+                f.write("ExecutionTime = %.2f s\n" % (t * 2.0))
+        got, nsolves = read_first_residual(rl, "p")
+        bad_got = read_last_residual_DEFECTIVE(rl, "p")
+        print("  residual reader planted control: two-corrector log, p solved %d x per "
+              "iteration" % nsolves)
+        print("     first-solve residual  = %.6e   <- what residualControl tests" % got)
+        print("     last-solve  residual  = %.6e   <- what a tail-1 reader returns "
+              "(%.0fx smaller)" % (bad_got, FIRST_R / LAST_R))
+        if abs(got - FIRST_R) > 1e-18 or nsolves != 2:
+            print("  FAIL: the residual reader did not return the FIRST solve")
+            ok = False
+        elif abs(bad_got - LAST_R) > 1e-18:
+            print("  FAIL: the defective reader is not reproducing the defect -- the "
+                  "control is blind")
+            ok = False
+        elif got <= bad_got:
+            print("  FAIL: the two readers do not differ -- the control discriminates nothing")
+            ok = False
+        else:
+            print("     the two readers DIFFER by 1000x on this log, and the gate uses the "
+                  "FIRST.\n     A tail-1 reader would have admitted a level at 4.0e-10 whose "
+                  "tested\n     residual is 4.0e-07 -- it errs in the FLATTERING direction.")
+        # And on a single-solve log the two must AGREE, or the fix has broken the
+        # ordinary case.
+        rl1 = os.path.join(d, "log.onecorrector")
+        with open(rl1, "w") as f:
+            for t in range(1, 4):
+                f.write("Time = %d\n" % t)
+                f.write("GAMG:  Solving for p, Initial residual = %.6e, "
+                        "Final residual = 1e-12, No Iterations 4\n" % (1.0e-9 * t))
+        g1, n1 = read_first_residual(rl1, "p")
+        if n1 != 1 or abs(g1 - read_last_residual_DEFECTIVE(rl1, "p")) > 1e-20:
+            print("  FAIL: on a single-solve log the corrected reader disagrees with the "
+                  "obvious answer")
+            ok = False
+        else:
+            print("     single-solve log: both readers agree (%.3e) -- the fix does not "
+                  "change the ordinary case" % g1)
+
+        # -- 12. y+ READER, PLANTED ---------------------------------------------
         yp = os.path.join(d, "log.yPlus")
         open(yp, "w").write("patch WING y+ : min = 0.11 max = 0.98 average = 0.44\n")
         y0 = read_yplus_max(yp)
@@ -655,12 +763,27 @@ def gate_g(runs, quantity="Cd", end_times=None):
         vals[L] = series[its[-1]]
         win = [series[i] for i in its if i > its[-1] - STATION_ITERS]
         drifts[L] = (max(win) - min(win)) if win else float("inf")
-        rmax = max((read_last_residual(os.path.join(root, "log.solver"), f) or 0.0)
-                   for f in ("Ux", "p", "k", "omega"))
-        print("  %-3s %s = %.8f   drift over last %d its = %.3e   max final residual = %.2e"
-              % (L, quantity, vals[L], STATION_ITERS, drifts[L], rmax))
+        # G2 reads the FIRST solve of each field in the last time step -- the value
+        # OpenFOAM's own residualControl tests (simpleControl.C:71).  With
+        # nNonOrthogonalCorrectors >= 1 the last solve is the final corrector pass and
+        # is smaller; grading on it would err in the flattering direction.
+        res = {}
+        for f in ("Ux", "p", "k", "omega"):
+            v, n = read_first_residual(os.path.join(root, "log.solver"), f)
+            res[f] = (v or 0.0, n)
+        rmax = max(v for v, _ in res.values())
+        corr = {f: n for f, (_, n) in res.items() if n > 1}
+        print("  %-3s %s = %.8f   drift over last %d its = %.3e   max first-solve "
+              "residual = %.2e" % (L, quantity, vals[L], STATION_ITERS, drifts[L], rmax))
+        print("      per-field first-solve residuals: %s"
+              % ", ".join("%s %.2e" % (f, res[f][0]) for f in ("Ux", "p", "k", "omega")))
+        if corr:
+            print("      NON-ORTHOGONAL CORRECTORS ACTIVE: %s -- the gate uses the FIRST "
+                  "solve of each iteration"
+                  % ", ".join("%s solved %dx/iter" % (f, n) for f, n in corr.items()))
         if rmax > RESID_MAX:
-            die("G2: %s final residual %.2e exceeds the registered %.0e" % (L, rmax, RESID_MAX))
+            die("G2: %s first-solve residual %.2e exceeds the registered %.0e"
+                % (L, rmax, RESID_MAX))
 
     gap = abs(vals["L1"] - vals["L2"])
     print("\n  G1, the 10x rule (section 0 step 2): |L1 - L2| = %.6e" % gap)
@@ -690,8 +813,14 @@ def gate_g(runs, quantity="Cd", end_times=None):
         print("    NO GCI IS QUOTED: the three values are not monotone." )
         return "NOT A RESULT"
 
-    print("  observed order p = %.6f   (registered band %.1f-%.1f, REPORTED not gated"
-          " as a value)" % (t["p"], P_BAND[0], P_BAND[1]))
+    # SAY WHICH IS WHICH.  p is GATED, as a BAND CONDITION (G3): outside 1.5-2.5 is a
+    # GATE FAIL.  C_D is the GRADED VALUE, and it is the FINE value that is graded,
+    # never the Richardson extrapolate.  Both are true and they are different roles;
+    # a reader told only that p is "reported" will not expect the GATE FAIL below.
+    print("  observed order p = %.6f   (GATED as a band condition, G3: band %.1f-%.1f)"
+          % (t["p"], P_BAND[0], P_BAND[1]))
+    print("      role: p gates; %s is the graded VALUE; f_ext is reported and never graded"
+          % quantity)
     print("  GCI_fine (Fs = %.2f) = %.6e  = %.4f %%" % (FS, t["gci_fine"], 100 * t["gci_fine"]))
     print("  Richardson extrapolate f_ext = %.10f   (CORRECT sign, N-T8)" % t["f_ext"])
 
