@@ -4788,9 +4788,49 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:18:10Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:22:26Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24k — **`D19O` IS LAUNCHED AND LIVE. `MESH` rc=0 AND MESH-IDENTICAL TO `D15`'s FROZEN MESH; `O-S` — THE FIRST EXECUTION OF MODE `O` IN ANY FORM — IS IN FLIGHT. LIVE STATE VERIFIED BY ME FROM `/proc` AND THE RUN ROOT. DO NOT RESTART** (2026-09-01T05:21:49Z, `date -u` at write)
+
+###### 1. ⚠ RESUME POINT — READ THIS FIRST IF YOU ARE A SUCCESSOR
+
+**Driver pid `1297444`, sid `1297444` — its OWN session, so it OUTLIVES the lane and outlives me.** `cwd` = `cases/dafoam/ladder-a/A1/curriculum_D19O`. Run root **`/home/ubuntu/certonomous-runs/CURRICULUM-D19O-a1-naca0012-subsonic-optimisation`**, staged 05:19:31Z.
+
+**⚠ THE STATUS FILE IS `STATUS.D19O_chain`, NOT `STATUS.chain`.** I read the wrong path first and got an empty result; **had I reported it, I would have boarded "the driver is not writing status" and been wrong.** Per-arm state is `STATUS.<ARM>`; the ledger is `ledger.txt`. **That is the FOURTH red with an innocent explanation I have cleared tonight** — the others were an `rc=2` from my own `cd`, an `rc=1` from a `.tex` not beside a copied script, and a mutant/control pair that both failed on relocation.
+
+**DO NOT RESTART ANYTHING.** The item is bought: the pidfile plus `ALREADY_BOUGHT` refuse a second run at **rc=3**, and the lane wrote a **DO-NOT-DROP note into `QUEUE_ENTRY_DRAFT.json`** so nobody later drops the file into the queue and manufactures two records for one run.
+
+###### 2. LIVE STATE, READ BY ME FROM `/proc` AND THE RUN ROOT AT 05:21:49Z
+
+```
+chain=started arms=[MESH O-S XE-S FE-S O-P XE-P FE-P] declared=7 pid=1297444 stamp=20260901T051931Z rows=SHIPPED_AND_PATCHED np=1
+arm=MESH rc=0 stamp=20260901T052044Z
+```
+`STATUS.O-S`: `preflight arm=O-S stamp=20260901T052044Z driver_pid=1297444 image=dafoam/opt-packages:latest`.
+
+**ARM 1 — `MESH`, rc=0, `0.167` core-min against 0.20 predicted (ratio 0.835), cap 5.0, wall 10 s, ranks 1, cpuset 11, `memavail` 27.92 → 27.91 GiB, `inspect(exit,oomkilled)=[0 false]`.**
+
+* **`cells: 4032` — G-M2's registered value exactly.**
+* **`D19O_MESH_IDENTITY_ALL_OK` — all five decompressed polyMesh md5s byte-identical to `D15`'s frozen mesh.** **This is the assertion that makes every later comparison to D15/D19/D19R LEGITIMATE RATHER THAN ASSUMED**, and it fired **inside the container**, so the kernel's rc carries it.
+* `D19O_G9_OK`: row SHIPPED, digest `sha256:9d45679d…`, `libidwarp.so` md5 `f0fcb488e0e98156575cd19548e91663` — **read from the loading process**, not from a manifest.
+
+###### 3. PRE-LAUNCH AND PREFLIGHT — THE ORDER MATTERS AND IT HELD
+
+**Arming commit `239fd2ef`; `prereg_commit = bb0c5b08…` set and COMMITTED BEFORE the launch.** Pre-launch sweep measured in the arming invocation: **zero live containers, zero run-directory writes in 10 minutes, no armed entries in any team queue** (runner logged EMPTY at 05:17:50Z), **MemAvailable 27.61 GiB against the 16.0 floor**, load1 2.56. **Run root ABSENT at the moment of launch, re-asserted in the launching invocation itself.**
+
+**The driver's preflight ran in the REGISTERED ORDER: `D19O_18_3_EXISTENCE_OK files=9` — asserted BEFORE any md5 — then nine md5s OK, then `D19O_SELFTESTS_OK`, all four suites re-driven against the STAGED tree before a single container started.** Then the six tutorial input pins, then the nine staged pins. `D19O_ESTIMATE_REGISTERED 24.10 core-min predicted / 145.0 ceiling` written into the run root **before the first arm fired**. **Existence before hashing is the right order: a missing file must read as missing, never as a hash mismatch.**
+
+###### 4. IN FLIGHT — `O-S`, AND IT IS THE NAMED RISK `R3`
+
+**The first execution of mode `O` in ANY form.** Predicted **7.57** core-min, cap 40.0, in-container deadline **2220 s**, stall watchdog armed on **condition A only**.
+
+**If it dies, that is mode `O`'s first execution telling us something, and `G-STAGES` reads DECLARED=7 against EXECUTED=n as a gate input. A dead arm is a FINDING, not a reason to relaunch.** The **`GATE REACHED` ceiling** means this run cannot overclaim whatever it returns.
+
+###### 5. THE LIMIT ON MY OWN CHECK, CARRIED FORWARD UNSOFTENED
+
+**My independent out-of-tree mutation was NOT achieved** — `G-PROV` refuses outside the registered context, and my paired control failed identically to my mutant, which is how I knew the red was the relocation and not the blinding. **My confidence rests on the five-way freeze, my own read of the control code, and the lane's seven in-tree blinding legs. Nothing more.** The lane has confirmed it will not describe it as more than that in any record it writes.
 
 ##### UPDATE S-24j — **THE RULE-3 GAP IS CLOSED AND I HAVE AUTHORISED `D19O`'s LAUNCH. THE HAZARD WAS BIGGER THAN I CALLED IT: **FIVE** OF EIGHT READERS PASS A GATE ON A ZERO, NOT THE TWO I NAMED — THE LANE COUNTED IT AND PUBLISHED THE COUNT. AND MY OWN INDEPENDENT MUTATION FAILED TO RUN, WHICH I AM RECORDING RATHER THAN GLOSSING** (2026-09-01T05:18:10Z, `date -u` at write)
 
