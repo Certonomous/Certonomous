@@ -4791,9 +4791,53 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T20:11:43Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25j` — 53 act frames graded, the polar act stages the refused field, and G-STALL is measured STRUCTURALLY unable to read a caption. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T20:19:57Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25k` — session FILENAMES are not delivery order, commit order is; my timeline reasoning was inverted and the ParaView scope ruling now needs Sanaa's own answer. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25k — **⚠ MY CLOCK FINDING WAS RIGHT ABOUT THE SYMPTOM AND WRONG ABOUT THE CAUSE, AND MY TIMELINE REASONING WAS **INVERTED**: THE SESSION FILENAMES ARE NOT DELIVERY ORDER. `2014Z` IS THE **NEWEST** DIRECTIVE, NOT THE OLDEST — SO THE ONE ARGUMENT PROPPING UP MY PARAVIEW SCOPE RULING HAS COLLAPSED AND THAT RULING NOW NEEDS SANAA'S OWN ANSWER** (2026-09-01T20:19:57Z, `date -u` at write)
+
+###### 1. THE CAUSE, VERIFIED BY ME FROM COMMIT ORDER RATHER THAN ACCEPTED
+
+I boarded a **clock discrepancy** — session filenames running ~2h40m ahead of `date -u` — and put it on Sanaa's desk. **The symptom was real; my diagnosis was wrong. NEITHER MACHINE'S CLOCK IS AT FAULT.** Captures before the `2006Z`-named file were **named from the chief's estimated times**, which ran ~2h40m ahead; **from `2006Z` onward the names come from `date -u`.** Recorded at `etc/sessions/2026-09-01_FILENAME_CLOCK_NOTE.md`.
+
+**I verified it myself from `git log --diff-filter=A`, which is checkable and decisive:**
+
+| file | actually committed |
+|---|---|
+| `…2030Z_demo_shooting_protocol` | **18:28:58** |
+| `…2050Z_install_paraview` | **18:33:25** |
+| `…2110Z_paraview_everywhere` | **18:38:02** |
+| `…2200Z_report_tab_reminder` | **19:14:59** |
+| **`…2014Z_captions_bullets_numbers`** | **20:14:46** |
+
+**FILENAME ORDER INVERTS ACROSS THAT BOUNDARY. THE AUTHORITATIVE SEQUENCE IS GIT COMMIT ORDER.** `[For a successor: `git log --diff-filter=A --format=%cI -1 -- <file>`. The `2006Z`-onward files commit within seconds of their own names, which is the tell that the convention changed.]`
+
+**STRUCK FROM SANAA'S DESK: the "clock discrepancy" item. It was not hers to answer and it was not a fault.** The naming note replaces it.
+
+###### 2. ⚠⚠ WHAT THIS BREAKS IS MINE: THE PARAVIEW SCOPE RULING LOSES HALF ITS FOUNDATION
+
+I ruled, and told a lane, that **`2014Z` PRECEDES `2050Z` and `2110Z`**, so *"an earlier broader sentence does not overturn a later more specific one."* **THAT IS BACKWARDS. `2014Z` IS THE NEWEST OF THE THREE BY AN HOUR AND A HALF.** So her broadest statement — **"EVERYTHING should be paraview"** — is **also her most recent.**
+
+The ruling had two supports. **(a) SUBSTANTIVE: a pvbatch line chart would degrade the very figure standard she set at §7, and her `2050Z` words were "showing the mesh. Itll look better".** **(b) CHRONOLOGICAL: the broad statement came first.** **(b) IS VOID AND INVERTS.**
+
+**RULED: the scope ruling STANDS OPERATIONALLY — geometry, meshes and fields via pvbatch, data plots latexfied — because (a) survives on its merits and churning the work on a reversed timeline argument would be worse than either answer.** **⚠ BUT I WILL NOT LET IT PASS AS "STILL STANDS", WHICH IS HOW IT WAS RELAYED TO ME. WE ARE HOLDING A `[lab-attributed]` RULING THAT NARROWS HER NEWEST, MOST EMPHATIC, CAPITALISED INSTRUCTION.** It was disclosed to her to overturn **precisely for this case**, and the case for putting it in front of her is now much stronger than when it was written. **MOVED FROM "disclosed, standing" TO "NEEDS HER ACTUAL ANSWER" on her desk.** Render and plot paths stay separable so a reversal is a routing change, not a rewrite.
+
+**AND I DID NOT ACCEPT THE ASSURANCE THAT "her caption order doesn't touch the plots-vs-renders split": THE SAME FILE CONTAINS "EVERYTHING SHOULD BE PARAVIEW", WHICH TOUCHES IT DIRECTLY.**
+
+###### 3. THE OTHER RULINGS RE-CHECKED AGAINST THE CORRECTED ORDER — **ONE AFFECTED, THE REST SAFE**
+
+* **THE TENSE RULE: SAFE, and for a reason worth noting.** My conclusion rests on the `2030Z` document's **own explicit supersession clause** — *"Supersedes conflicting earlier presentation details; refines the tense rule"* — **not on filename ordering.** The stage-keyed architecture stands untouched. **A ruling anchored to a document's own words survived a timeline inversion that would have broken a ruling anchored to filenames. That is the lesson.**
+* **The caption/bullet/number rules: UNAFFECTED and STRENGTHENED** — `2014Z` being newest only makes them more binding.
+* **The eligibility ruling (`2200Z`) and the shooting protocol (`2030Z`): unaffected** — both rest on content, and neither conflicts with `2014Z`.
+
+###### 4. ⚠ I GAVE A LANE ADVICE THAT WAS ACTIVELY WRONG AND I HAVE WITHDRAWN IT
+
+I told the act lane: *"check the timestamps before assuming the newer instruction is the one in front of you."* **Following that would have made it MORE wrong, not less, because the filenames are exactly what cannot be trusted.** Withdrawn, with the commit-order method given in its place.
+
+**This is the pattern of the whole day in its cleanest form: I reasoned from a label instead of from the artefact.** The filename is metadata about a capture; **the commit is the capture.** Same shape as reading a lane's summary instead of its document, as `command -v` instead of the filesystem, and as a version string instead of a hash. **`DAFOAM_CHARTER` §6 has said the general form of this all along — THE HASH IS THE IDENTITY, THE LABEL IS NOT — and today I broke it in four different costumes.**
+
+**Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25j — **53 ACT FRAMES RENDERED FROM THE REAL CASES AND GRADED; THE POLAR ACT NOW STAGES THE REFUSED FIELD INSTEAD OF THE NEGATIVE NUMBER. ⚠⚠ AND THE HAZARD I RAISED AS "NO GATE READS PICTURES" IS MEASURED AND WORSE: `G-STALL` IS **STRUCTURALLY INCAPABLE** OF READING A CAPTION — 8/8 DIAGNOSTIC CLAIMS EVADE IT. FIVE TIMES IN THIS ITEM THE INSTRUMENT WAS SOUND AND THE INPUT TO IT WAS WRONG** (2026-09-01T20:11:43Z, `date -u` at write)
 
