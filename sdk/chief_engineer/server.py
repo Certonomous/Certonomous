@@ -759,22 +759,48 @@ def _start_mission(request: str, payload: dict):
     return record, route
 
 
+def _scope_entry(record: MissionRecord, message: str) -> None:
+    """Put one Chief Engineer line on the record in the same shape the
+    workflows emit, so a scope-down reads as part of the conversation rather
+    than as a banner bolted onto it."""
+    from .transcript import CHIEF_ENGINEER
+
+    record.bus.publish("transcript.entry", {
+        "role": CHIEF_ENGINEER, "message": message,
+        "citations": [], "citations_display": [], "data": {"scope": True},
+        "at": time.time()})
+
+
 def _run_workflow(record: MissionRecord, route, workflow: dict) -> None:
     """Import and run a routed workflow, streaming its transcript out live."""
     import importlib
 
+    from . import scope
+
     record.state = "running"
     record.started_at = time.time()
     record.bus.publish("mission.routed", route.as_dict())
+    # SCOPE-DOWN, said at the moment the run is committed to and again at the
+    # end. A prompt can ask for more than the dispatched run can do; when it
+    # does, the gap is stated BEFORE the solving starts, on the same screen as
+    # the interpretation, and the completion below is never allowed to read as
+    # covering the whole request.
+    unmet = scope.unmet_asks(record.request, route.intent)
+    if unmet:
+        record.bus.publish("mission.scoped", scope.completion(unmet))
+        _scope_entry(record, scope.commit_line(unmet))
     _persist(record)
     try:
         module = importlib.import_module(workflow["module"])
         module.main(request=record.request, params=route.params,
                     emit=record.bus.publish)
         record.state = "complete"
+        if unmet:
+            _scope_entry(record, scope.conclusion_line(unmet))
         record.bus.publish("mission.completed", {
             "status": "complete", "intent": route.intent,
-            "output": workflow["output"], "reason": "Workflow finished."})
+            "output": workflow["output"], "reason": "Workflow finished.",
+            **scope.completion(unmet)})
     except Exception as exc:
         record.state = "failed"
         record.error = f"{type(exc).__name__}: {exc}"

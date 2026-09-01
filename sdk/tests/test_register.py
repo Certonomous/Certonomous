@@ -33,7 +33,11 @@ EN_DASH = "–"
 _WORKFLOWS_DIR = SDK / "workflows"
 _CHIEF_ENGINEER_FILES = ("researcher.py", "lab.py", "server.py",
                          "head_engineer.py", "chief_researcher.py",
-                         "display_names.py", "uq.py")
+                         "display_names.py", "uq.py",
+                         # scope.py speaks: it writes the scope-down bullets and
+                         # the completion headline straight onto the screen, so
+                         # it belongs inside the rails rather than beside them.
+                         "scope.py")
 
 
 def _target_files() -> list[Path]:

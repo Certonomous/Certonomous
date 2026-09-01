@@ -575,7 +575,7 @@ const displayName = s => {
 };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, surfaceMeta:null, actSurface:null, certificate:null, digestPhase:null, currentView:'digest',
-                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set() };
+                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set(), scope:null };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
 const revealQ = [];
@@ -749,6 +749,9 @@ function resetMission() {
   state.peakAgents=0; state.highWorkers=0; state.workersShown=0; state.fleetAhead=0;
   state.fleetAheadToken=0; state.fleetSeq=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
+  // A scope-down belongs to ONE mission. Left standing it would qualify the
+  // next run's completion for a gap that run never had.
+  state.scope = null;
   hideKillBanner();
   setMissionLabel('NO ACTIVE MISSION', null);
   // Race view: clear lanes, stop the ticker, and give the geometry stage back.
@@ -773,14 +776,21 @@ function resetMission() {
   renderTouch(); showView('digest');
 }
 
-function finish(status) {
+// A run that could not do part of what was asked never closes out as though it
+// did. The backend decides that and says so in `scoped`; the page only obeys.
+// state.scope is set from mission.scoped (which arrives at commit time, long
+// before this) and from the completion payload, so a viewer who joins late
+// still sees a qualified close.
+function finish(status, payload) {
+  if (payload && payload.scoped) state.scope = payload;
   // Let the paced transcript catch up before declaring the mission over. The
   // KPI counters ride that same queue, so a mission whose backend finished
   // early must not close out on a stale count: wait for the queue to be both
   // empty AND done revealing before reading the resting values below.
   if (revealQ.length || revealing) { setTimeout(() => finish(status), 500); return; }
   state.finished = true; $('beacon').classList.remove('live'); $('launch').disabled = false;
-  $('globalStatus').textContent = status === 'failed' ? 'MISSION ENDED' : 'MISSION COMPLETE';
+  $('globalStatus').textContent = status === 'failed' ? 'MISSION ENDED'
+    : ((state.scope && state.scope.headline) || 'MISSION COMPLETE');
   // THE FLEET NUMERAL ENDS AT ZERO (Katie, 2026-07-31: "start at 0, then #
   // workers as soon as the meshing starts, then 0 when the run is complete").
   // A completed mission has no workers on the machine, so the numeral reads
@@ -866,15 +876,31 @@ function dispatch(env) {
     // Both ride the paced queue so the LOST state dwells long enough to read.
     case 'worker.killed': enqueue('workerKill', p, ts); break;
     case 'worker.reprovisioned': enqueue('workerBack', p, ts); break;
-    case 'mission.completed': finish('complete'); break;
+    case 'mission.scoped': state.scope = p; showScope(p); break;
+    case 'mission.completed': finish('complete', p); break;
     case 'mission.failed': finish('failed'); break;
   }
+}
+
+// The interpretation screen, qualified. A confidence figure standing alone
+// beside a request the run cannot fully answer is the thing that read as a
+// promise on camera: the number is about how the words were READ, never about
+// how much of the request gets solved. When part of it will not be run, that
+// is said here, next to the number, and again in the conversation below.
+function showScope(s) {
+  if (!s || !s.scoped) return;
+  const conf = $('routeConf');
+  const not = (s.not_run || []).join(', ');
+  const said = conf.textContent ? conf.textContent + '; ' : '';
+  conf.textContent = said + (not ? `not run: ${not}` : 'part of the request is not run');
 }
 
 function showRoute(r) {
   setHidden('route', false);
   $('routeIntent').textContent = (r.intent || '').replace(/-/g,' ').toUpperCase();
   $('routeConf').textContent = r.confidence != null ? `interpretation confidence ${Math.round(r.confidence*100)}%` : '';
+  // mission.scoped can land before or after this render; re-apply either way.
+  if (state.scope) showScope(state.scope);
   $('routeRationale').innerHTML = bulletHTML(r.rationale || '');
   // The user naming a solver in the prompt earns the badge immediately;
   // otherwise it waits for the plan's solver.selected.
