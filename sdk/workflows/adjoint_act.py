@@ -1416,8 +1416,20 @@ class ActDSequencer(Sequencer):
                 # NOTHING HERE IS SYNTHESISED. Every value is the one already
                 # in the frame above, read from the same recorded row, so a
                 # trace cannot disagree with the frame it was split out of.
+                # ALL FOUR NON-RAGGED DECLARED SERIES, not the three I first
+                # chose. The declaration->wire sweep caught "Lift coefficient"
+                # declared in `solve_replay()` and published only as a KEY
+                # INSIDE the major frame's coefficients dict -- the seventh
+                # instance of this class, in my own work from an hour earlier,
+                # found by the instrument built to find it.
+                #
+                # Lift is the series a viewer most needs here: it is the
+                # quantity being HELD at 0.5 while drag falls, so a flat lift
+                # trace beside a falling drag trace is the whole claim of the
+                # act, on screen, without a sentence.
                 for label, value, drives in (
                         ("Drag coefficient", payload["objective_cd"], "force"),
+                        ("Lift coefficient", payload["lift_cl"], "force"),
                         ("Constraint violation",
                          payload["constraint_violation"], "residual"),
                         ("First order measure",

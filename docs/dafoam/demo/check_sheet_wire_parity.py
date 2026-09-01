@@ -182,7 +182,8 @@ PROTOCOL_SHAPES = [
 ]
 
 
-def wire_strings(act_key: str, module: str) -> tuple[list[str], str | None]:
+def wire_strings(act_key: str, module: str
+                 ) -> tuple[list[str], str | None, list[dict], object]:
     """Every string this act actually publishes, through the shared dispatcher.
 
     THROUGH `run_act`, NOT the act's own `drive()`, deliberately: `run_act` is
@@ -212,7 +213,8 @@ def wire_strings(act_key: str, module: str) -> tuple[list[str], str | None]:
     for event in events:
         for _key, text, _zone in LP._rendered_strings(event):
             out.append(str(text))
-    return out, err
+    from workflows.demo_sequencer import registered_acts
+    return out, err, events, registered_acts().get(act_key)
 
 
 def compare(sheet_name: str, body: str, blob: str) -> tuple[list[str], list[str]]:
@@ -304,6 +306,69 @@ def selftest() -> int:
             any("is NOT on" in p
                 for p in compare(sheet_name, gutted, blob)[0]))
 
+    # ---- the DECLARATION half, planted the same way ------------------------
+    # A STUB ACT, not the real one. Mutating the live act to test the sweep
+    # would leave the tree in a state where the next reader cannot tell a plant
+    # from a defect, and this file has already watched a torn read produce a
+    # convincing phantom.
+    _strings, _err, events, act = wire_strings(act_key, module)
+
+    class _Stub:
+        """Whatever the real act says, with one declaration bent."""
+
+        def __init__(self, series=None, discussions=None,
+                     table=True, closing=True):
+            self._series = series
+            self._disc = discussions
+            self._table = table
+            self._closing = closing
+
+        def solve_replay(self):
+            real = act.solve_replay()
+            if self._series is None:
+                return real
+            class _R:
+                series = self._series
+            return _R()
+
+        def sequencer(self):
+            return act.sequencer()
+
+        def discussions(self):
+            return act.discussions() if self._disc is None else self._disc
+
+        def assumption(self):
+            return act.assumption() if self._table else type(
+                "A", (), {"assumptions_table": None})()
+
+        def closing(self):
+            return act.closing() if self._closing else None
+
+    class _Spec:
+        def __init__(self, label):
+            self.label = label
+
+    arm("the real declarations are clean",
+        not declaration_parity(act, events)[0])
+    arm("a declared series the wire does not publish fires",
+        any("never reaches the wire" in p for p in declaration_parity(
+            _Stub(series=list(act.solve_replay().series)
+                  + [_Spec("Phantom series nobody publishes")]),
+            events)[0]))
+    arm("a declared discussion stage the wire does not carry fires",
+        any("no payload on the wire carries that stage" in p
+            for p in declaration_parity(
+                _Stub(discussions={"a stage that does not exist": []}),
+                events)[0]))
+    arm("a declared closing with no report.ready fires",
+        any("no report.ready is published" in p for p in declaration_parity(
+            act, [e for e in events if e.get("event") != "report.ready"])[0]))
+    # THE EXEMPTION CANNOT BE A LOOPHOLE: a series exempted onto another event
+    # must still find that event on the wire.
+    arm("an exemption whose carrier event is absent fires",
+        any("NOT on the wire either" in p for p in declaration_parity(
+            act, [e for e in events if e.get("event") != "solve.adjoint"])[0]))
+
     print(f"FORCING CONTROL: {n - len(blind)}/{n} arms behaved")
     if blind:
         for b in blind:
@@ -315,6 +380,119 @@ def selftest() -> int:
     return 0
 
 
+
+# ===========================================================================
+# DECLARATION -> WIRE
+#
+# THE SHEET->WIRE HALF ABOVE COULD NOT HAVE CAUGHT THE LAST THREE INSTANCES,
+# and that is why this section exists. Those were DECLARATION failures, not
+# document failures: an act declared something IN CODE and the wire never
+# carried it.
+#
+#   * `sequencer()` -- the subclass existed and was named only inside the
+#     module's own `drive()`, so every other driver built the base class.
+#   * three expert voices -- on the sheet for weeks, one voice on the wire.
+#   * six `SeriesSpec` entries with distinct labels -- one unlabelled frame.
+#
+# cfd found three more of the same class independently, in their own acts, on
+# the same day. SIX INSTANCES, TWO TEAMS, NEITHER TOLD THE OTHER: this is
+# structural to the act/sequencer architecture, where an act DECLARES its
+# shape and a separate sequencer decides what to PUBLISH, and nothing joins
+# the two.
+#
+# THE FORCING PROPERTY IS THE SAME AND IT IS STRONGER HERE, because the
+# declarations are ENUMERABLE FROM THE ACT OBJECT AT RUNTIME rather than
+# guessed from prose: declaring a seventh series makes this fail until the
+# solving stage publishes it.
+# ===========================================================================
+
+#: A declared series may legitimately render on an event of its own rather than
+#: as a labelled `solve.frame`. THAT IS AN EXPLICIT, REASONED EXCEPTION AND NOT
+#: A LOOSENED THRESHOLD: the named event must ACTUALLY BE PUBLISHED, so the
+#: exception cannot be used to wave a declaration through. Loosening the match
+#: to "the label appears anywhere in the payloads" would have passed all six
+#: labels, including one that is only a dict key -- a declaration echoed back in
+#: a manifest is not a series rendering.
+CARRIED_BY = {
+    "Adjoint linear solve": (
+        "solve.adjoint",
+        "the adjoint linear solves are RAGGED -- one to four points each -- so "
+        "they ship on their own event rather than padded onto the major-frame "
+        "cadence; the event carries 100 of them"),
+}
+
+
+def declaration_parity(act, events: list[dict]) -> tuple[list[str], list[str]]:
+    """Everything this act DECLARES in code, against what the wire publishes."""
+    problems: list[str] = []
+    rows: list[str] = []
+    payload_blob = json.dumps(events, default=str)
+    labels = {(e.get("payload") or {}).get("label")
+              for e in events if isinstance(e.get("payload"), dict)}
+    labels.discard(None)
+    event_names = {e.get("event") for e in events}
+
+    # -- every declared monitor series -------------------------------------
+    for spec in act.solve_replay().series:
+        if spec.label in labels:
+            rows.append(f"  [ok  ] series published: {spec.label}")
+            continue
+        carrier = CARRIED_BY.get(spec.label)
+        if carrier and carrier[0] in event_names:
+            rows.append(f"  [ok  ] series on {carrier[0]}: {spec.label}")
+            continue
+        if carrier:
+            problems.append(
+                f"declared series {spec.label!r} is exempted onto "
+                f"{carrier[0]!r}, and that event is NOT on the wire either")
+            rows.append(f"  [GONE] series exempt but absent: {spec.label}")
+            continue
+        problems.append(
+            f"declared series {spec.label!r} never reaches the wire as a "
+            f"labelled series. The act DECLARES it in `solve_replay()`; a "
+            f"declaration the wire does not carry is the class that has now "
+            f"bitten six times across two teams.")
+        rows.append(f"  [WIRE] series declared, not published: {spec.label}")
+
+    # -- the sequencer declaration ------------------------------------------
+    declared_seq = act.sequencer()
+    rows.append(f"  [ok  ] sequencer declared: "
+                f"{declared_seq.__name__ if declared_seq else 'shared'}")
+
+    # -- every discussion stage the act declares ----------------------------
+    stages_seen = {(e.get("payload") or {}).get("stage")
+                   for e in events if isinstance(e.get("payload"), dict)}
+    for stage in act.discussions():
+        if stage not in stages_seen:
+            problems.append(
+                f"the act declares a discussion at stage {stage!r} and no "
+                f"payload on the wire carries that stage")
+            rows.append(f"  [WIRE] discussion stage missing: {stage}")
+        else:
+            rows.append(f"  [ok  ] discussion stage on wire: {stage}")
+
+    # -- the assumptions table ----------------------------------------------
+    table = getattr(act.assumption(), "assumptions_table", None)
+    if table is not None:
+        ok = table.table_id in payload_blob
+        rows.append(f"  [{'ok  ' if ok else 'WIRE'}] assumptions table: "
+                    f"{table.table_id}")
+        if not ok:
+            problems.append(
+                f"the act declares an assumptions table {table.table_id!r} "
+                f"that never reaches the wire")
+
+    # -- the closing ---------------------------------------------------------
+    if act.closing() is not None:
+        ok = "report.ready" in event_names
+        rows.append(f"  [{'ok  ' if ok else 'WIRE'}] closing -> report.ready")
+        if not ok:
+            problems.append(
+                "the act declares a `closing()` and no report.ready is "
+                "published, so the Report tab stays empty")
+    return problems, rows
+
+
 def main() -> int:
     problems: list[str] = []
     print(f"CLAIM CLASSES DECLARED: {len(CLAIMS)}")
@@ -322,7 +500,7 @@ def main() -> int:
     for sheet_name, act_key, module in PAIRS:
         sheet = (HERE / sheet_name).read_text(encoding="utf-8")
         body = sheet[sheet.find(r"\begin{document}"):]
-        strings, err = wire_strings(act_key, module)
+        strings, err, events, act = wire_strings(act_key, module)
         blob = "\n".join(strings)
         print(f"\n{sheet_name}  <->  {act_key}")
         print(f"  wire: {len(strings)} rendered strings"
@@ -336,6 +514,12 @@ def main() -> int:
         for row in rows:
             print(row)
         problems.extend(pair_problems)
+
+        decl_problems, decl_rows = declaration_parity(act, events)
+        print("  -- declaration -> wire --")
+        for row in decl_rows:
+            print(row)
+        problems.extend(decl_problems)
 
     print(f"\nSHEETS WITH NO ACT TO COMPARE AGAINST: {len(SHEETS_WITHOUT_ACTS)}")
     for name in SHEETS_WITHOUT_ACTS:
