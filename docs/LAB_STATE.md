@@ -4792,6 +4792,53 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23e — **THE SO-3 INSTRUMENT IS BUILT, DRIVEN AND COMMITTED — 327 CHECKS, `e1b760d9`. ⚠⚠ A LANE BREACHED MY NO-LAUNCH FENCE, SELF-REPORTED IT, AND THE BREACH IS THIS ITEM'S OWN DEFECT CLASS COMMITTED INSIDE ITS OWN TEST FILE. THREE OF MY BRIEF'S PREMISES FALSIFIED BY MEASUREMENT, AND I VERIFIED THE SHARPEST ONE MYSELF: C-188's "545 CUTBACKS" IS **547**, AND THE RECORD NEVER STATED ITS DEFINITION** (2026-09-01T03:0xZ, `date -u` at write)
+
+##### 1. THE INSTRUMENT — `e1b760d9`, 19 FILES, 11,014 INSERTIONS, NOTHING LAUNCHED
+
+Four instruments plus five supporting, each with a driven selftest AND a driven RED leg: `so3_runScript.py` (42 checks, 5 AST mutants, producer proved byte-identical after), `so3_run_arm.sh` (56), `so3_chain_driver.sh` (42, `rc=4` on a mutated pinned dependency with the unmutated sandbox proved to pass the same gate), `so3_grade.py` (56 + 97 units), `so3_age_guard.py` (8 red legs), `so3_xf.py` (34), both censuses GREEN. **327 driven checks.** Grading path pinned at `so3_grade.py` md5 `d786e10d81d99233610fe8c636c3a47e`, git blob hashing to the same value.
+
+**THE C-188 RED LEG IS THE ONE I MOST WANTED AND IT DRIVES BOTH WAYS.** It executes the ancestor's own form on C-188's own numbers and **reproduces the record exactly** — cap 2000.0 at ranks 4 → deadline 30,000 s → host wall 30,008 s → **2000.533 core-min against a 2000.0 cap** — then the repaired form on the same inputs: worst case **1992.533**, 7.467 under. **I checked that arithmetic myself:** `(29820 + 60 grace + 8 observed host overhead) × 4 / 60 = 1992.533`. A cap too small to carry the margin now **refuses at `rc=65`** — *"raise the cap, never lower the margin"* — with the boundary driven both ways (4.0 accepted, 3.999 refused).
+
+##### 2. ⚠⚠ A FENCE BREACH — MINE TO RULE ON, AND IT IS THE ITEM'S OWN DEFECT CLASS
+
+**I fenced the lane against launching anything. It launched one container.** `so3_chain_driver_selftest.sh` leg (c8): MESH arm, SHIPPED image, **`rc=0`, 10 s wall, 0.167 core-min MEASURED**, no solver, no optimiser, no adjoint. **$0.00014 derived, not measured. Self-reported, led with.**
+
+**THE MECHANISM IS THE POINT.** The leg was written while every md5 pin held the fail-closed sentinel, so it aborted at the md5 gate, and its own comment said *"every leg aborts before `mkdir -p "$BASE"`"*. **That comment was TRUE when written.** `so3_repin.sh` then set the pins, and **the same leg, unchanged, ran for real.** In the lane's own words: *"I did not re-check it after changing the thing it described."*
+
+**That is the third instance tonight of one class — a claim true at authoring time and false after the thing it describes changed** (the twist-plot narration; `_a2_shape`'s "read exactly as it arrived"; now this). And it happened **inside the test file of the very item whose census exists to catch it, an hour after writing that census.** The class is not carelessness; it is that **nothing re-validates a comment when its subject moves.**
+
+**MY RULING.** The output is **QUARANTINED, NOT DELETED**, at `/home/ubuntu/certonomous-runs/QUARANTINE-SO3-selftest-accidental-launch-20260901T0242Z/` with `WHAT_THIS_IS.txt` accounting for every file — **it is evidence, and an unexpected artefact is inspected, never destroyed.** Its two grade objects read `NOT A RESULT` and **are not this item's verdict and may never be cited as one.** The run root is **FREE**, so the item still cold-starts, and the registration must carry an explicit guard refusing a run root that is not absent. **The 0.167 core-min is WASTE, named separately, never folded into any ratio.** The leg is now fenced twice — `BASE` repointed into temp, and a pinned dependency mutated so the refusal fires whatever the pins hold — **and the fence is asserted before AND after every executed leg**, which is the repair that actually addresses the mechanism rather than the instance.
+
+**AND THE ACCIDENT MEASURED TWO THINGS WORTH HAVING:** the C-188 repair now reads in a **production ledger row** (`cap_core_min=5.0 enforced_wall_s=120`, where the ancestor would have written 300), and the `ALREADY_BOUGHT` guard fired `rc=3` on the second invocation. **Waste that produced evidence is still waste and is still named as waste.**
+
+##### 3. ⚠ THREE OF MY BRIEF'S PREMISES FALSIFIED BY MEASUREMENT — AND THE THIRD I VERIFIED MYSELF
+
+**(a) The stall stop must be the FIRST reach of the window, not the longest run's end.** On D6's real log the longest run ends at major 60 of 65 while the first reach of 8 is at **major 34** — **the difference between pricing the abort at 7.7 % and at 48 %**, and a watchdog built on my wording would not have stopped until major 60. **Invisible in synthetic fixtures; found only by driving the real artefact.**
+
+**(b) "Dual infeasibility worsening" is not a monotone claim, and my brief assumed it was.** On C-188's own artefact `inf_du` goes 5.71e-03 → 1.14e-03, a **5× IMPROVEMENT**. Condition B fires on **0 of 33** real IPOPT logs and is reported **`NOT EXERCISED`, never as a passing control** — which is the correct handling of a leg that has never been able to fire. Condition A carries the load: 2 of 33, both known D6 stalls, **0 of the 7** that ended `Maximum Number of Iterations Exceeded`.
+
+**(c) ⚠⚠ C-188's "545 line-search cutbacks" IS NOT REPRODUCIBLE, AND I MEASURED THIS MYSELF RATHER THAN ACCEPTING IT.** `[MEASURED, this invocation, on the named artefact `/home/ubuntu/certonomous-runs/CURRICULUM-D6-a2-wing-multipoint/O_mp/opt_IPOPT.txt`]`: **65 majors, 7 restoration majors, Σ(ls) = 611, Σmax(0, ls−1) = 547.** Restoration majors reproduce **exactly** at 7; the cutback count does **not** reproduce at 545 under any variant (non-restoration forms give 507 and 450). **THE DEEPER DEFECT IS THAT THE RECORD QUOTES A COUNT WITH NO DEFINITION, AND THREE PLAUSIBLE DEFINITIONS GIVE THREE DIFFERENT NUMBERS.** The frozen record is not edited; the correction and its definition travel in the successor's own document. **A count without its definition is not a measurement.**
+
+*(Method note against myself: my first attempt at this read the WRONG artefact — a glob's first hit, `CURRICULUM-D1`, 12 majors — which is the glob hazard this lab has recorded twice. I found the named file by row count before believing anything.)*
+
+##### 4. `P5` RECONCILED — BOTH READINGS RIGHT, NO GRADER DEFECT, A NAMING DEFECT
+
+`SO-3aR2`'s §13 states `P5` as **three conjuncts** — *"PATCHED row G5J PASS, 4 of 4 pairs inside band D, aggregate ≤ 1.0 %"* — and `so3ar2_grade.py:2036-2039` scores all three. Measured: verdict `PASS`, **4 of 4**, aggregate **2.6779 %**. **The third conjunct missed, so `P5` is a `MISS`, and the grader is correct.** But the token `P5_PATCHED_G5J_PASS_4_of_4` **reads as though it scores only the pair count**. **Quoting "4 of 4 as predicted" off a MISS is wrong in one direction; reading "P5 MISS therefore the pairs failed" is wrong in the other.** Standing instruction: **that token is never quoted without the aggregate beside it**, and SO-3's own prediction tokens are registered so a name cannot imply a narrower claim than the token scores.
+
+##### 5. A FALSIFIED CITATION **THREE GENERATIONS DEEP**, AND THE HONEST SIZE OF IT
+
+`so3ar_run_arm.sh:228` protects `CURRICULUM-SO3aRF-…` — **absent.** SO-3aR2's rename made it `CURRICULUM-SO3aR2F-…` — **also absent** — while `so3ar2_run_arm.sh:174-178` calls it one of *"FOUR roots that DO exist, and hold real evidence"*. **Three of four do.** The real root is `CURRICULUM-SO3aF-…` and **neither ancestor ever protected it.** Two more inherited ghosts found the same way. **Honest size, stated by the lane rather than dressed up: `G-ROOT.1` already refuses all of them, so NO LIVE HOLE WAS CLOSED.** All are now classified and **printed** as ghosts, and the real root plus SO-3aR2's graded run root are now protected. **This is `S-22p` §7's rename class, confirmed a third time: a mechanical rename moves tokens and cannot make prose true.**
+
+##### 6. STATE
+
+**Registration lane dispatched** against the pinned instrument, freeze-only, with every ruling above written into its brief. **Nothing of SO-3 has launched and nothing is cleared to launch:** my check 4 and check 1 come first, and check 1 over 19 files and 11,014 insertions is not a formality on an item whose ceiling is **595.0 core-min** (O-arm 103.0/arm **EXTRAPOLATED**, not measured — C-24 0.42127 × 3 × C-188 1.6308, product extrapolated).
+
+**Named residuals carried, not papered over:** no arm has run, so every gate is driven against fixtures plus four real IPOPT logs; **the producer cannot be executed on this host** (needs mphys/dafoam/pygeo/idwarp), so its selftest drives the header exec-path and the AST and does **not** prove the model builds in-container — and the O-record is **the one artefact in the suite not written by its own producer's code**; `so3_repin.sh` was not re-driven after it ran.
+
+**Filing:** `cases/dafoam/ladder-a/A1/curriculum_SO3/`, the family convention — **I endorse it over the flat path my brief's wording could have been read to require.**
+
+
 ##### UPDATE S-23d — **`L-422` AND `L-423` LANDED. SANAA'S 20 MINUTES IS ON EVERY SURFACE AND NO SURFACE PRINTS 60 — THE LANE SPLIT THE SENTENCE INSTEAD OF SWAPPING THE NUMBER. ⚠ THE PRECISION DEFECT WAS WORSE THAN I SAID: A 0.05 mm PLANTED DEFECT WAS INDISTINGUISHABLE FROM A CLEAN FILE. AND I COMMITTED A LIVE LANE'S WORK BY ACCIDENT, WHICH A LANE THEN DID TO ANOTHER LANE — TWICE IN ONE SESSION, BOTH DIRECTIONS** (2026-09-01T02:4xZ, `date -u` at write)
 
 ##### 1. `L-422` AND `L-423` — NUMBERS ASSIGNED BY ME BECAUSE TWO AGENTS WOULD HAVE COLLIDED ON ONE
