@@ -4980,3 +4980,159 @@ cite this file by line number). **Lines whose number changed above this block: 0
 | N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
 | N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8 |
 | N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
+
+## N-C8. `rhoCentralFoam` (Kurganov + `vanLeer`, no positivity limiter) has a RESOLUTION CEILING on a strong-shock benchmark — past it the run produces a NEGATIVE TEMPERATURE and a TRAPPED FPE, not a degraded answer
+
+**Landed 2026-09-01, cfd, from the double-Mach-reflection (Woodward–Colella) third-rung
+attempt.** Filed as a NUMERICS fact rather than a process lesson: it is a property of a
+scheme applied to a class of flow, it is reusable on any strong-shock case this lab runs on
+this solver, and **it predicts an outcome before a finer rung is built.**
+
+**SCOPE FIRST, because this fact's value is in what it does NOT claim.** One benchmark, one
+solver, one flux/reconstruction pair, one refinement step. No claim is made about other
+Mach numbers, other flux schemes, other reconstruction limiters, or about where the ceiling
+sits on any other case. It is a **named ceiling with a signature**, not a law about
+`rhoCentralFoam`.
+
+### The fact
+
+The **identical frozen numerics** — Kurganov flux, `vanLeer` / `vanLeerV` reconstruction,
+`maxCo 0.2`, coded exact-kinematics top boundary, 4 ranks — complete at **h = 1/60** and
+**h = 1/120** and **fail at h = 1/240**, at 54 % of the same `endTime`.
+
+| rung | cells | steps to completion | outcome |
+|---|---|---|---|
+| h = 1/60 | 14,400 | 1,008 | completes to t = 0.2 |
+| h = 1/120 | 57,600 | 2,111 | completes to t = 0.2 |
+| **h = 1/240** | **230,400** | — | **`rc = 136` (SIGFPE) at t = 0.10863175 of 0.2** |
+
+`checkMesh` on the failing grid reports **max non-orthogonality 0** and `Mesh OK`: the mesh
+is not implicated, and on a uniform Cartesian grid it cannot be.
+
+### The signature, and each half of it matters
+
+**1. The fault is a negative temperature, read from the stack and not inferred.** The
+deepest named frame is `Foam::sqrt(Foam::Field<double>&, Foam::UList<double> const&)`,
+reached from `rhoCentralFoam` and caught by `Foam::sigFpe::sigHandler`. `sqrt` on a field at
+that point is the **speed of sound**, so a negative argument is a locally negative
+temperature. Kurganov + `vanLeer` carries **no positivity-preserving limiter**, so a strong
+expansion can reconstruct a state of negative internal energy.
+
+**2. It is TRAPPED, not a silent NaN** — the log header carries
+`trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE)`. The run failed loudly
+instead of producing a plausible wrong field.
+
+> **CROSS-REFERENCE, and it is load-bearing:** validated fact 7 at the head of this file
+> records that **every** OpenFOAM log prints the FPE-trapping banner, so a monitor must
+> match the **`sigFpe` handler**, never the banner, or every run reads as fatal. This
+> diagnosis rests on the **handler frame appearing in the stack**, which is the distinction
+> that fact 7 exists to protect. Read off the banner, this finding would be an artefact.
+
+**3. It is NOT a time-step runaway**, which is the first thing anyone will assume:
+
+| last three steps | `deltaT` | max Courant |
+|---|---|---|
+| t = 0.10854529 | 4.3225304e-05 | 0.19974985 |
+| t = 0.10858852 | 4.3225304e-05 | 0.19976799 |
+| t = 0.10863175 | 4.3225304e-05 | 0.19975400 |
+
+`deltaT` is **constant** and max Courant sits at **0.1998 against the registered
+`maxCo` 0.2**. The adjustable-time-step controller was behaving exactly as specified into
+the fault.
+
+**4. The last written field is completely healthy.** At t = 0.10, over all 230,400 cells:
+**T min = 1.000000 — exactly the pre-shock value — rho min = 1.4, p min = 1, and ZERO
+negative values in any of the three.** So the failure is **sudden and local**: from a field
+with no negative value anywhere to a negative temperature in roughly 200 time steps. It is
+not a slow degradation that a longer look would have caught earlier.
+
+### THE GAP, STATED AS A GAP
+
+**Where the negative temperature first appears is NOT KNOWN.** The fields at the failing
+step were never written, and localising it requires an **instrumented re-run**, which was
+not authorised (diagnostic work under a demo freeze, and the positivity-limited family
+below answers the same question better). The documented inlet-bottom corner artifact and
+the strong expansion behind the Mach stem are **candidate regions — hypotheses, not
+findings.** This entry does not name a location and a later reader must not infer one from
+it. **OPEN.**
+
+### Relation to the neighbouring entries
+
+- **N-C4** records that raising scheme **order** to cure a diffusion problem buys an
+  instability unless a filter or limiter comes with it. **This is the refinement analogue of
+  the same mechanism**: refining the **grid** sharpens the reconstructed gradients the same
+  way, and without a positivity floor the strong-expansion states go negative. The two
+  entries are one fact seen from two directions.
+- **N-C6** states the general principle that *a quantity RISING under refinement is
+  converging to the defect, not to the truth,* and that a triple built on such a series
+  looks monotone while measuring nothing. **A second, independent instance was measured on
+  this same benchmark**: the incident-shock position error, expressed in cells of its own
+  grid, **RISES** 0.239 → 0.406 from h = 1/60 to h = 1/120 while shrinking only slowly in
+  physical units (0.173 % → 0.146 % of travel). That is why shock position was **rejected**
+  as the quantity for a grid-convergence triple here. The companion measurement — fitted
+  shock speed — **changes sign** between the two rungs (−0.00685 → +0.00347, ratio −1.9745),
+  which classifies **OSCILLATORY** and is `NOT A RESULT` under the triple rule whatever the
+  value.
+
+### Operational reading for cfd lanes
+
+1. **Two completed levels do not license a third on this scheme.** Before proposing a finer
+   rung on a strong-shock case run with a non-positivity-preserving flux/reconstruction
+   pair, treat completion as **at risk** and price the rung accordingly. Here the estimate
+   was sound (a completing run projects to ~15.5 core-min against 16.0 filed) and the run
+   was not — **the estimate and the outcome are separate questions.**
+2. **A trapped FPE is the GOOD outcome and must not be "fixed" by disabling it.** Disabling
+   `FOAM_SIGFPE` converts this failure into a silently propagating NaN or a plausible wrong
+   field. The trap is what makes the ceiling discoverable.
+3. **Reconstruct the last written time and count negatives.** It is seconds of serial
+   post-processing and it decides *sudden and local* against *slow degradation*, which are
+   different faults with different repairs.
+4. **If the rung exists to form a Roache triple, DO NOT retune to make it run.** Changing
+   flux, limiter, `maxCo`, constants, boundary conditions or rank count produces a rung that
+   completes and a triple that means nothing, because the triple requires one numerics
+   family. Retuning is not a repair here; it destroys the deliverable.
+5. **The principled route past the ceiling is a NEW family, not a smaller step.** Re-running
+   *all* levels under a positivity-preserving variant keeps a constant refinement ratio and
+   confronts the ceiling; adding an intermediate rung merely steps around a limit that was
+   discovered by running into it, and must be disclosed as such if ever done.
+
+*Artifacts:* `verification/campaign/DMR_R3_RESULTS.md` (commit `1e575d9f`);
+`verification/runs/DMR_runs/R3_PROGRESS.txt`; `verification/runs/DMR_runs/res240/`
+`log.rhoCentralFoam` and `log.checkMesh`; pre-registration
+`verification/campaign/DMR_R3_TRIPLE_PREREGISTRATION.md` frozen `68742cec` **before** the
+rung was built; the two completing rungs and their graded record at
+`verification/campaign/DMR_RESULTS.md`.
+
+## FAMILY INDEX — regenerated 2026-09-01 (supersedes any earlier FAMILY INDEX block above)
+
+**DERIVED, NOT MAINTAINED.** Generated by `scripts/check_numerics_index.py --gen` from the
+tail using **this file's own locator** — `^(## |\*\*)N-<FAM>[0-9]` — and appended as a
+superseding block, **never editing above**, because records across the repository cite this
+file **by line number**, one of them inside a **frozen** pre-registration
+(`cases/dafoam/ladder-a/A4/curriculum_D3/PREREGISTRATION.md:69`). **Lines whose number
+changed above this block: 0.**
+
+**Why this regeneration exists:** `N-C8` was appended 2026-09-01 (cfd, the
+`rhoCentralFoam` resolution-ceiling finding), so the previous block became stale in exactly
+one family by exactly one entry. `--gen` PRINTS and does not write, so the block is appended
+by hand and then re-asserted — `check_numerics_index.py` was run after this append and
+reports agreement.
+
+| family | scope | entries |
+|---|---|---|
+| N-AV | Ansys Fluid Dynamics Verification Manual — VMFL cases reproduced in the lab's own solvers as pre-registered verdicts | N-AV1, N-AV2, N-AV3, N-AV4, N-AV5, N-AV6, N-AV7, N-AV8, N-AV9, N-AV10, N-AV11, N-AV12, N-AV13, N-AV14 |
+| N-B | Closure line (RANS/LES): β-field correction, feature-library, clip-repair and injection numerics | N-B1, N-B2, N-B3, N-B4, N-B5, N-B6, N-B7, N-B8, N-B9, N-B10, N-B11, N-B12, N-B13, N-B14, N-B15, N-B16, N-B17, N-B18, N-B19, N-B20, N-B22, N-B23, N-B24, N-B25, N-B26, N-B27, N-B28, N-B29, N-B30, N-B31, N-B32, N-B33, N-B34, N-B35, N-B36, N-B37, N-B38, N-B39, N-B40, N-B41, N-B42 |
+| N-C | General CFD meshing: snappyHexMesh / grid-family facts (a LEVEL step is not a grid refinement) | N-C1, N-C2, N-C3, N-C4, N-C5, N-C6, N-C7, N-C8 |
+| N-D | DAFoam adjoint & optimisation: primal/adjoint solver behaviour, gradient verification, optimiser and cost numerics | N-D1, N-D2, N-D3, N-D4, N-D5, N-D6, N-D7, N-D8, N-D9, N-D10, N-D11, N-D12, N-D13, N-D14, N-D15, N-D16, N-D17, N-D18, N-D19, N-D20, N-D21, N-D22, N-D23, N-D24, N-D25, N-D26, N-D27, N-D28, N-D29, N-D30, N-D31, N-D32, N-D33, N-D34, N-D35, N-D36, N-D37, N-D38, N-D39, N-D40, N-D41 |
+| N-K | Data-driven closure benchmark numerics: Pope tensor-basis rank, TBNN / SpaRTA conditioning | N-K1, N-K2, N-K3, N-K4, N-K5, N-K6, N-K7, N-K8, N-K9, N-K10 |
+| N-T | T-family heat-transfer ladder: GCI / Richardson, thermal grid-convergence numerics | N-T1, N-T2, N-T3, N-T4, N-T5, N-T6, N-T7, N-T8 |
+| N-X | Cross-cutting V&V numerics: estimators and tolerances general to verification | N-X1, N-X2, N-X3 |
+
+**Families: 7. Total entries: 124.** Counts are re-derivable by the locator
+above. `scripts/check_numerics_index.py` **asserts this block against the tail on every**
+`check_harness` **run**, so a future drift cannot accumulate silently.
+
+**Note on the count.** The locator matches **125** lines but there are **124**
+distinct ids: `N-AV9` legitimately appears twice — the entry itself and an
+`N-AV9 COMPANION` block — which is the deliberate second-block form, **not a duplicate id**.
+A counter that sums raw matches reports 125 and is wrong by one.
