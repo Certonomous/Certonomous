@@ -4791,9 +4791,57 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T20:19:57Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25k` — session FILENAMES are not delivery order, commit order is; my timeline reasoning was inverted and the ParaView scope ruling now needs Sanaa's own answer. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T20:34:15Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25l` — the same defect class has now appeared THREE times and is named: a claim and what makes it true must travel in the same UNIT OF CONSUMPTION. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25l — **⚠⚠ THE SAME DISEASE HAS NOW APPEARED THREE TIMES TODAY AND IT DESERVES A NAME: A CLAIM AND THE THING THAT MAKES IT TRUE MUST TRAVEL IN THE SAME **UNIT OF CONSUMPTION** — AND THE UNIT OF CONSUMPTION IS NOT THE UNIT OF AUTHORSHIP. PLUS: "INK PRESENT IS NOT CONTENT COMPLETE", AND A LANE THAT MEASURED ITS OWN EYE AND FOUND IT WRONG** (2026-09-01T20:34:15Z, `date -u` at write)
+
+###### 1. ⚠⚠ THE PATTERN, IN ITS THREE COSTUMES
+
+| # | authored as | consumed as | consequence |
+|---|---|---|---|
+| **1** `G-STALL` | a frame: **angle in the LABEL**, claim in the **CAPTION** | the guard reads **ONE STRING** | **8/8 diagnostic captions evade it — STRUCTURALLY, not by tuning** |
+| **2** screen 8 | a **SHEET** (four of them, fixed) | the viewer sees the **WIRE** | **I recorded a compliance violation as CLOSED on the wrong surface** |
+| **3** the `y+` bullet | a **caption block**: qualifier in bullet `[0]`, number in bullet `[1]` | **a bullet is read ON ITS OWN** | bullet `[1]` published **a y+ range naming no mesh** |
+
+**THE PRINCIPLE: WHATEVER THE READER — OR THE GUARD — CONSUMES ATOMICALLY MUST BE SELF-SUFFICIENT. SPLIT A TRUTH ACROSS TWO UNITS AND THE CONSUMER OF ONE OF THEM RECEIVES A FALSE STATEMENT.**
+
+**⚠ AND THE SHARP EDGE IS THAT THE UNIT OF CONSUMPTION IS NEVER THE UNIT OF AUTHORSHIP.** We author a **sheet**; the viewer consumes a **bullet**. We author a **caption beside a label**; the guard consumes **one string**. We author a **document**; the audience consumes a **screen**. **Every one of today's three failures is the gap between those two units, and in every case the authored artefact was TRUE AS A WHOLE.** That is what makes the class so hard to see: **nothing is wrong until you ask what a reader actually receives in one bite.**
+
+**`[For a successor: the test is not "is this document true?" but "is every piece of it that can be read alone true alone?" Apply it to bullets, captions, table cells, tooltips, log lines and gate strings.]`**
+
+###### 2. TRAP 1 ADOPTED — AND IT CAUGHT A LIVE DEFECT IN OUR OWN CAPTION IN MINUTES
+
+`cases/dafoam/actd_caption_glyph_check.py`, `bc329270`. **Renders each caption, RE-RENDERS IT WITH ONE CHARACTER CHANGED, and asserts the frames DIFFER** — because **a glyph the font drops and a glyph replaced by nothing are the same picture. 44/44 arms; I ran it myself.** All six separators `| · × ≤ ° ⁻¹` are **drawn** by this font, so heat-transfer's swallowed-`|` failure does not bite us — **but it is MEASURED now rather than assumed, and a successor reaching for any of the other five finds out here instead of on camera.**
+
+**⚠⚠ AND THE ARM THAT DID NOT EXIST COST A REAL DEFECT: THE CAPTION WAS RUNNING OFF THE EDGE OF THE FRAME, LAST WORD SLICED IN HALF — 69 non-background pixels in the final twelve columns.** **EVERY TEXT-SIDE INSTRUMENT WAS GREEN: glyphs drawn, ink 5.79 %, language sweep clean, mechanism guard clean.**
+
+**"INK PRESENT IS NOT CONTENT COMPLETE."** **This is the CROPPED-WING failure in a second channel — and again nothing but opening the image found it.** `touches_edge` is an arm now, and every published bullet reports **edge 0**.
+
+**THE FIX IS HER OWN RULE, AND THE CONVERGENCE IS WORTH NOTING: captions are BULLETS now, not one line — which is exactly what `2014Z` asked for, and the render agrees with her because SHORT LINES FIT.** Honesty and the directive landed on the same answer.
+
+###### 3. ⚠ THE REFINEMENT TO MY OWN PRINCIPLE, AND IT IS THE LANE'S
+
+I have said all day: **open the artefact, do not reason about the statistic.** **The lane went one step further and it is the step I had not taken: IT OPENED THE ARTEFACT, FORMED A JUDGEMENT, AND THEN MEASURED THE JUDGEMENT.** It read the separator bars as **missing** — and on measurement, **removing them moves 8.6 % of pixels, so they render; they are thin strokes it had misread as spacing.** Checked in both directions before concluding.
+
+**THE EYE IS ALSO AN INSTRUMENT AND IT CAN BE WRONG. "LOOK AT IT" IS NECESSARY AND IT IS NOT SUFFICIENT — WHAT YOU THINK YOU SAW GETS THE SAME TWO-SIDED TREATMENT AS WHAT A GATE REPORTS.** That is a genuine addition to the rule I have been enforcing and it belongs to the lane.
+
+###### 4. TRAP 2 ADOPTED — **59 ARMS, AND IT CAUGHT TWO OF OUR OWN PUBLISHED STRINGS**
+
+Heat-transfer's formulation, adopted verbatim: **rule 3 says the number wins — BUT ONLY IF THE NUMBER IS TRUE OF THE THING IT SITS NEXT TO. Numeric compression is exactly what invites dropping the qualifier that keeps a number true.**
+
+**Seven unqualified plants rejected, seven qualified accepted, and every plant is one we KNOW is false when stripped** — `y+ < 1` (A1WR only **targets** it and has produced **no frame**; the coarse mesh measures **16.7–92.4**), `Re 6.5e6` (false of the incompressible arm at **6.6628e5**), `A0 = 0.1` (nominal against a true planform of **0.0999416**), and **the twin percentages — 25.985 is D19M's and false of D19O, 21.652 is D19O's and false of D19M.** **Plants we know are false are evidence; plants we merely suspect are illustration.**
+
+**`9/19` needs no arm qualifier and that is COUNTED, NOT ASSUMED — and I re-counted it MYSELF from each arm's own `AOA_POINTS.json`: AOAI 9/19, AOAC 9/19.** The bullet says *"(both arms)"* because that is what was counted.
+
+###### 5. THE SCOPE ADDENDUM, DONE AS RULED
+
+`1af060a9`: **Addendum 1, v1.1 → v1.2, "lines above unchanged" ASSERTED by diffing the committed blob rather than claimed.** **§1 NOT STRUCK — it was true when written, and striking it would make the file read as though we had always had her answer.** The tag retires **in the addendum, with the original standing**; the addendum carries the commit-order table, since §1's reasoning had cited a chronology that later inverted. **The lane verified her file and commit itself — `a78d5055`, 20:21:06, seven minutes after the caption directive. Two places in this family carried the tag; both swept, not assumed.**
+
+**THE MECHANISM PAID AND THE RECORD SAYS SO: we tagged a ruling as OURS rather than passing it off as hers, kept the paths separable so a reversal would be routing, escalated when its support collapsed — AND SHE ANSWERED IN SEVEN MINUTES. `[lab-attributed]` IS NOT A HEDGE; IT IS WHAT MADE THE QUESTION ASKABLE.**
+
+**Render item 4.4 of 90 core-min. Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25k — **⚠ MY CLOCK FINDING WAS RIGHT ABOUT THE SYMPTOM AND WRONG ABOUT THE CAUSE, AND MY TIMELINE REASONING WAS **INVERTED**: THE SESSION FILENAMES ARE NOT DELIVERY ORDER. `2014Z` IS THE **NEWEST** DIRECTIVE, NOT THE OLDEST — SO THE ONE ARGUMENT PROPPING UP MY PARAVIEW SCOPE RULING HAS COLLAPSED AND THAT RULING NOW NEEDS SANAA'S OWN ANSWER** (2026-09-01T20:19:57Z, `date -u` at write)
 
