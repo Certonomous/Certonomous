@@ -121,8 +121,29 @@ ACT_KEY = "jet-flap"
 #: is UNCHANGED at 1: the body is now announced before the first stage instead
 #: of inside the fourth, and the geometry stage's own call is skipped when it
 #: is, so the act still announces one body once.
+#: AMENDED 2026-09-01 FOR THE EXPERT-AGENT DISCUSSION AND THE CLOSING REPORT.
+#: Sanaa's vision frame: the user sees "discussions of the different expert
+#: agent ... choosing/deciding on turbulence models, acknowledging the physics,
+#: summarizing the geometry, summarizing user defined / lab assumption
+#: quantities", and then "the report tab and see all the plots, summary and
+#: next step". The census moves by exactly NINE, all of them transcript or
+#: report events and none of them a banner:
+#:
+#:   +6  transcript.entry -- one per discussion beat: two speakers after the
+#:       restatement, one after the assumption, the geometry, the feasibility
+#:       and the results;
+#:   +1  transcript.entry -- the Conclusion PHASE marker, which is what opens
+#:       the digest's Conclusion heading and advances the cycle counter;
+#:   +1  transcript.entry -- the closing bullets themselves;
+#:   +1  report.ready     -- which is what UNHIDES the Report tab at all.
+#:
+#: 1283 -> 1292, and stage.banner is UNCHANGED at 636 because none of the nine
+#: is a sequencer publication. PREDICTED FROM THE ADDED CALLS BEFORE THE RUN
+#: AND THEN MEASURED, in that order, which is the only way this number is
+#: worth gating on: adjusted afterwards to make a red go green it would gate
+#: on nothing.
 EXPECT = {
-    "total": 1283,
+    "total": 1292,
     "stage.banner": 636,
     "solve.frame": 605,
     "transcript.table": 3,
@@ -245,7 +266,43 @@ TIER1_RENDERED: dict[str, tuple[tuple[str, str], ...]] = {
     "solve.frame": (("label", "control_room.html solveFrame -> pushTrace title"),),
     # $('routeRationale').innerHTML = bulletHTML(r.rationale) -- :946
     "mission.routed": (("rationale", "control_room.html:946 bulletHTML(r.rationale)"),),
+    # THE REPORT TAB. `renderMemo` writes the whole memo into #memo at :2130,
+    # and until this entry existed NOT ONE WORD OF IT WAS SWEPT: `report.ready`
+    # is not a `demo.`/`stage.`/`solve.` payload, so tier 2 never saw it, and
+    # it was not in this table, so tier 1 never saw it either. It is the
+    # densest variable text on the page. Swept, not exempted -- the reason this
+    # harness exists is that an unswept rendered surface is exactly how the
+    # first case id reached a screen.
+    #
+    # `uncertainty` is swept in the LIMITATIONS zone, because that is what it
+    # is: the report's caveat box, and the one place the finer companion grid
+    # may be named. `tier` is deliberately absent from this list AND from every
+    # row the acts send: `verdictBadge(r.tier)` at :2117 would draw a
+    # verdict-shaped word on a customer surface, and `demo_mode.Closing`
+    # refuses a row carrying one.
+    "report.ready": (
+        ("title", "control_room.html:2131 subHTML(rep.title)"),
+        ("abstract", "control_room.html:2134 <p> per line"),
+        ("methods", "control_room.html:2135 list(rep.methods)"),
+        ("results", "control_room.html:2117 value/quantity/envelope/reason"),
+        ("uncertainty", "control_room.html:2136 list(rep.uncertainty)"),
+        ("uncertainty_title", "control_room.html:2136 <h4> heading"),
+        ("next_investigations",
+         "control_room.html:2137 list(rep.next_investigations)"),
+        ("plots", "control_room.html:2128 img title per figure"),
+    ),
 }
+
+
+#: The zone a key's text is checked in. The limitations box is the one place
+#: the finer companion grid may be named, and the report calls that box
+#: "uncertainty", so both names map to the same zone. Shared by the tier-1
+#: and tier-2 walks so they cannot disagree about where a string lands.
+_LIMITATION_KEYS = {"limitations", "uncertainty"}
+
+
+def _zone_for(key: str, inherited: str = "screen") -> str:
+    return "limitations" if str(key) in _LIMITATION_KEYS else inherited
 
 #: TIER 2 -- the DEMO MODE screen contract. These payloads are published by the
 #: sequencer and the replay stage and are swept by the act's own publication
@@ -331,15 +388,14 @@ def _rendered_strings(event: dict, tier2: bool = True):
         for key, _why in TIER1_RENDERED[name]:
             if key not in payload:
                 continue
-            yield from _leaves(payload[key], f"{name}.{key}", "screen")
+            yield from _leaves(payload[key], f"{name}.{key}", _zone_for(key))
         return
 
     if tier2 and name.startswith(TIER2_PREFIXES):
         for key, value in payload.items():
             if str(key) in AUDIT_KEYS_EXPECTED or str(key) in EXTRA_EXCLUDED:
                 continue
-            zone = "limitations" if str(key) == "limitations" else "screen"
-            yield from _leaves(value, f"{name}.{key}", zone)
+            yield from _leaves(value, f"{name}.{key}", _zone_for(key))
 
 
 def _leaves(node, trail: str, zone: str):
@@ -347,8 +403,7 @@ def _leaves(node, trail: str, zone: str):
         for key, value in node.items():
             if str(key) in AUDIT_KEYS_EXPECTED or str(key) in EXTRA_EXCLUDED:
                 continue
-            sub = "limitations" if str(key) == "limitations" else zone
-            yield from _leaves(value, f"{trail}.{key}", sub)
+            yield from _leaves(value, f"{trail}.{key}", _zone_for(key, zone))
     elif isinstance(node, (list, tuple)):
         for i, value in enumerate(node):
             yield from _leaves(value, f"{trail}[{i}]", zone)

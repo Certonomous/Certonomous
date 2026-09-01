@@ -87,6 +87,14 @@ reference_citation = _impl.reference_citation
 settling = _impl.settling
 sweep_facts = _impl.sweep_facts
 sweep_rows = _impl.sweep_rows
+#: Where the oncoming air comes to rest on the nose, per blowing setting, with
+#: its resolution uncertainty. Carries its own planted control: the finder is
+#: shown able to see a stagnation point moved onto a known different face
+#: before any real location is reported.
+stagnation_points = _impl.stagnation_points
+#: How often the solver clipped turbulence energy back to zero. The settling
+#: caveat on screen rests on this, so it is read rather than remembered.
+bounded_k_census = _impl.bounded_k_census
 wall_yplus = _impl.wall_yplus
 
 __all__ = [
@@ -96,5 +104,5 @@ __all__ = [
     "read_figure_provenance", "PREREGISTRATION", "registered_sweep_estimate",
     "display_citation", "flow_facts", "movement_1sf",
     "reference_citation", "settling", "sweep_facts", "sweep_rows",
-    "wall_yplus",
+    "stagnation_points", "bounded_k_census", "wall_yplus",
 ]

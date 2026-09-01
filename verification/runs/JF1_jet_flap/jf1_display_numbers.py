@@ -62,6 +62,15 @@ SLOT_PATCH = "jetSlot"
 #: edge, as registered.
 TAU_RAD = 0.5235987755982988
 
+#: The registered flow conditions. Named here, once, because the screen states
+#: them and a second copy typed into a narration line would be free to stop
+#: describing the runs. Chord 1 m, free stream 10 m/s, so the dynamic pressure
+#: per unit density that nondimensionalises a sampled pressure into Cp is
+#: 0.5 * U_inf^2 = 50 m2/s2.
+CHORD = 1.0
+U_INF = 10.0
+Q_INF = 0.5 * U_INF ** 2
+
 #: The settling window the screen quotes. Deliberately the full final fifth of
 #: the force calculations rather than the last thousand iterations: a shorter
 #: window always reports less movement and is the flattering choice.
@@ -905,6 +914,116 @@ def sweep_rows() -> list[dict]:
             "case_dir": str(case),
         })
     return rows
+
+
+#: Where the sampled surface pressure lives, relative to a case directory.
+#: The five force calculations were post-processed into the live tree's
+#: ``artefacts/_omesh`` staging, which is where the pressure figure reads them
+#: from; naming the shape here rather than in two callers is the same
+#: one-implementation rule the rest of this module is built on.
+_SURFACE_RAW = "postProcessing/jfSurf/{time}/p_airfoilSurf.raw"
+
+
+def _surface_raw(case_name: str) -> Path:
+    return (FLOW_CASE / "artefacts" / "_omesh" / case_name
+            / _SURFACE_RAW.format(time=SWEEP_TIME))
+
+
+def _read_surface_cp(path: Path) -> "list[tuple[float, float, float]]":
+    """(x/c, y/c, Cp) at every sampled face centre on the wing.
+
+    Cp is p / (0.5 U_inf^2) and carries no length, so no reference area enters
+    it and none is applied -- which is exactly why this quantity is safe to
+    read across the two grids that differ in span and reference area.
+    """
+    if not path.is_file():
+        raise ReaderRefused(f"no sampled surface pressure at {path}")
+    out = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        parts = line.split()
+        if len(parts) != 4:
+            raise ReaderRefused(
+                f"expected a scalar raw surface of four columns in {path}")
+        x, y, z, p = (float(v) for v in parts)
+        if abs(z) > 1e-12:
+            raise ReaderRefused(
+                f"surface samples are not on the mid-span plane in {path}")
+        out.append((x / CHORD, y / CHORD, p / Q_INF))
+    if not out:
+        raise ReaderRefused(f"{path} carries no surface samples")
+    return out
+
+
+def _forward_stagnation(samples, forward: float = 0.5) -> dict:
+    """The forward face where pressure is highest, and where it sits.
+
+    The location carries a resolution uncertainty of half the local chordwise
+    face spacing, because the sample is a FACE-CENTRE value and the true
+    stagnation point falls between face centres. That uncertainty is returned
+    beside the location rather than left for a caller to invent.
+    """
+    forward_faces = [s for s in samples if s[0] < forward]
+    if not forward_faces:
+        raise ReaderRefused("no sampled face lies forward of mid-chord")
+    x_s, y_s, cp_s = max(forward_faces, key=lambda s: s[2])
+    same_side = sorted(s[0] for s in samples
+                       if (s[1] > 0) == (y_s > 0))
+    j = min(range(len(same_side)),
+            key=lambda i: abs(same_side[i] - x_s))
+    lo = same_side[max(0, j - 1)]
+    hi = same_side[min(len(same_side) - 1, j + 1)]
+    return {"x_over_c": x_s, "y_over_c": y_s, "Cp": cp_s,
+            "x_uncertainty": 0.5 * max(x_s - lo, hi - x_s),
+            "surface": "lower" if y_s < 0 else "upper"}
+
+
+def stagnation_points() -> list[dict]:
+    """Where the oncoming air comes to rest, at every blowing setting.
+
+    THE PLANT IS THE POINT OF THIS FUNCTION AND IT IS NOT OPTIONAL. The screen
+    asserts that the stagnation point MOVES with blowing, and the natural
+    failure of a reader like this is to return the same location every time --
+    which is a monotone-looking answer only because it never varies. So before
+    any location is reported, the peak pressure is displaced onto a KNOWN
+    different face in memory and the same finder is asked again: if it does not
+    report the planted face, its readings are not evidence of anything and it
+    refuses (CLAUDE.md rule 3).
+
+    Planted IN MEMORY on a copy, never on disk. These are landed graded runs
+    and the age guard dates every field against the case's own ``0/T``;
+    rewriting a sampled surface to test a reader would break the completion
+    rule on a result that cannot be re-solved.
+    """
+    out = []
+    for c_mu, name in SWEEP_CASES:
+        path = _surface_raw(name)
+        samples = _read_surface_cp(path)
+        true = _forward_stagnation(samples)
+
+        # ---- planted control, on this row, before this row is reported ----
+        peak = max(abs(s[2]) for s in samples) + 1.0
+        side = [i for i, s in enumerate(samples)
+                if (s[1] > 0) == (true["y_over_c"] > 0)
+                and true["x_over_c"] + 0.05 < s[0] < 0.45]
+        if not side:
+            raise ReaderRefused(
+                f"no face is available to plant a moved stagnation point on "
+                f"in {path}, so this reader cannot be shown able to see one")
+        target = min(side, key=lambda i: abs(samples[i][0]
+                                             - (true["x_over_c"] + 0.10)))
+        planted = list(samples)
+        planted[target] = (samples[target][0], samples[target][1], peak)
+        seen = _forward_stagnation(planted)
+        if abs(seen["x_over_c"] - samples[target][0]) > 1e-12:
+            raise ReaderRefused(
+                f"the stagnation reader cannot see a stagnation point planted "
+                f"at x/c {samples[target][0]:.5f} in {path}; it reported "
+                f"{seen['x_over_c']:.5f}, so its readings are not evidence")
+
+        out.append({"C_mu": c_mu, "path": str(path), **true})
+    return out
 
 
 def flow_facts() -> dict:
