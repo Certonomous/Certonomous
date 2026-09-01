@@ -12,6 +12,8 @@ WHAT IT ENFORCES, from the owner's directives of 2026-09-01:
 
 * ~04:20Z, verbatim: "no internal information, no past tense, no long
   sentences, all results in table, NOTHIGN that makes it look recorded".
+  THE TENSE HALF OF THIS ORDER IS SUPERSEDED -- see the 2026-09-01 20:30Z
+  amendment at the foot of this docstring.  Everything else in it stands.
 * ~03:10Z: the screens describe a solved case in the present tense; the
   listed replay and substitution words never appear.
 * ~03:45Z: every on-screen time figure for this act reads twenty minutes,
@@ -48,6 +50,30 @@ patch.
   not one assert per call site. Every rule now declares one plant per
   alternative and every one of them must fire on its own.
 
+AMENDED 2026-09-01 (20:30Z DIRECTIVE, `cfcf766f`): THE TENSE RULE IS NO LONGER
+GLOBAL AND NO LONGER LIVES HERE.  Sanaa's shooting protocol restores the
+two-part rule -- *"Present and progressive tense while running; past tense for
+results"* -- and says in its opening lines that it supersedes conflicting
+earlier presentation details.  The flat 04:20Z form this file implemented is
+therefore INVERTED for results text: a global `PAST` sweep flags compliant
+strings and pushes an author to write results in the present, which is itself
+now a violation.
+
+The repair is not a flipped flag.  This rule has moved twice in seventeen hours
+and a boolean would have to move with it.  What does not move is that tense is a
+property of THE BEAT A STRING IS PUBLISHED IN, so the regime now lives in one
+table keyed by the protocol's own eight stages, in `demo_stages.py`, and this
+file declares only WHICH BEAT EACH BLOCK OF THIS SHEET IS.  The next revision
+edits that table; nothing here moves.
+
+`PAST` and `_is_past` are still exported from this module because the two
+sibling checkers import them from here, but they are now re-exports of the
+shared definitions and the sweep below no longer applies them: tense is swept by
+`tense_sweep`, over the source in reading order, because `pdftotext -layout`
+interleaves two columns and a face offset cannot be resolved to a beat.  The
+limit of that departure is stated in `demo_stages.py` and every tense hit
+carries an on-face flag.
+
     python3 docs/dafoam/demo/check_actD_sheet_face.py
 """
 from __future__ import annotations
@@ -59,7 +85,47 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from demo_stages import (  # noqa: E402  the tense rule, keyed to the beat
+    PAST, PAST_ALTERNATIVES, AMBIGUOUS, PRESENT_AUX, RESULTS, STATIC_REGION,
+    Region, STAGE_NAMES, is_past as _is_past, tense_sweep, coverage,
+    check_coverage, check_plants as check_tense_plants,
+)
+
 SHEET = Path(__file__).resolve().parent / "ACT_D_reference_wing_sheet.tex"
+
+# ------------------------------------------------------------- the stage map --
+# WHICH BEAT EACH BLOCK OF THIS SHEET IS, and nothing about what tense that
+# implies -- that is `demo_stages.STAGE_REGIME`'s job, so a revision of the rule
+# never touches this list.
+#
+# THE ONE JUDGEMENT WORTH ARGUING WITH IS THE LAST ROW.  On the demo face the
+# three role lines are stage 4, EXPERT DISCUSSION, which is a running beat.  On
+# this REPORT-tab sheet the same three roles speak after the fact and deliver
+# findings, so the beat their strings are PUBLISHED IN is stage 6.  That is the
+# reading taken here and it is written down rather than assumed, because if it
+# is wrong the fix is one word on this line.
+STAGE_MAP = [
+    Region(r"\\textbf\{Solver: DAFoam DARhoSimpleFoam", RESULTS,
+           "the solved-case banner"),
+    Region(r"Every threshold and limit on this sheet is fixed", STATIC_REGION,
+           "method: what is fixed before the solver starts"),
+    Region(r"\\textbf\{The question, and the trap inside it\}", STATIC_REGION,
+           "framing: the failure mode in general, timeless"),
+    Region(r"\\textbf\{Table 1\. The decomposition", RESULTS, "table 1"),
+    Region(r"\\textbf\{Table 2\. The trap", RESULTS, "table 2"),
+    Region(r"\\textbf\{Figure 1\. Drag against lift, all six", STATIC_REGION,
+           "figure note"),
+    Region(r"\\textbf\{Table 3\. Every check", RESULTS, "table 3"),
+    Region(r"Read this before you use the numbers", RESULTS, "limitations"),
+    Region(r"\\textbf\{Table 4\. Compute", RESULTS, "compute"),
+    Region(r"\\textbf\{Where these numbers come from\.\}", STATIC_REGION,
+           "method: where the numbers come from"),
+    Region(r"Figure notes", STATIC_REGION, "figure notes"),
+    Region(r"\\rolesig\{Lead Researcher\.\}", RESULTS,
+           "the three roles, delivering findings"),
+    Region(r"\\textbf\{Table 5\. Why the optimisation stops", RESULTS, "table 5"),
+]
 
 # --------------------------------------------------------------- the floor --
 # MUTANT A's fix. These are properties of the PIPELINE, not of the prose: if
@@ -161,42 +227,19 @@ RULES: list[tuple[str, re.Pattern, list[str]]] = [
       "the shape is the optimum"]),
 ]
 
-# Past tense is hunted by verb, not by a general -ed rule: "fixed", "solved",
-# "measured", "matched", "painted" are participles used adjectivally all over
-# an honest present-tense sheet, and a rule that flags them flags nothing
-# usefully. These are the auxiliaries and irregulars that can only be past.
-PAST = re.compile(
-    r"\b(was|were|had been|has been|have been|did not|didn't|"
-    r"produced|diverged|stopped|completed|landed|reached|ended|ran|took|"
-    r"asked|wrote|chose|gave|came)\b", re.I)
-
-# THE ALTERNATIVES ARE DECLARED SEPARATELY FROM THE PATTERN ON PURPOSE. If the
-# plants were generated from PAST.pattern, a typo inside PAST would generate a
-# plant containing the same typo, the plant would fire, and MUTANT B would
-# survive its own fix. The list below is an INDEPENDENT statement of what this
-# rule must catch, so an edit to the pattern is checked against something that
-# did not come from the pattern.
-PAST_ALTERNATIVES = [
-    "was", "were", "had been", "has been", "have been", "did not", "didn't",
-    "produced", "diverged", "stopped", "completed", "landed", "reached",
-    "ended", "ran", "took", "asked", "wrote", "chose", "gave", "came",
-]
-
-# FIVE OF THOSE ARE AMBIGUOUS AND THE SWEEP MUST NOT CRY WOLF ON THEM. "The
-# iteration limit IS NOT REACHED" is present passive and correct; "the run
-# COMPLETED early" is past. The word is identical and only what precedes it
-# separates them. A sweep that flags the first teaches its reader to skim
-# past the second, which is the failure mode that matters. So these five are
-# skipped when a present auxiliary sits immediately before them, and flagged
-# otherwise. The two-sided control below proves both halves.
-AMBIGUOUS = {"produced", "completed", "landed", "reached", "ended"}
-PRESENT_AUX = re.compile(r"\b(is|are|am|be|being|does|do|not)\s+(?:\w+\s+){0,2}$", re.I)
-
-#: MUST fire: an ambiguous participle with no present auxiliary before it.
-PAST_PLANT_AMBIGUOUS_FIRES = "the optimiser completed forty-seven majors"
-#: MUST NOT fire: the same participle in a present passive.
-PAST_PLANT_AMBIGUOUS_QUIET = "the iteration limit is not reached"
-
+# PAST, PAST_ALTERNATIVES, AMBIGUOUS and PRESENT_AUX MOVED TO `demo_stages.py`
+# with the 20:30Z amendment and are imported above. They are re-exported from
+# here unchanged in substance, because the two sibling checkers import them from
+# this module by name and a rename would be churn with no reader on the other
+# end. One substantive change went with the move and is recorded there: `stopped`
+# joined AMBIGUOUS, because "the run is not stopped" is present passive and the
+# flat rule flagged it. That was a pre-existing false positive and the
+# two-directional arm added with the move is what found it.
+#
+# The two ambiguous-participle plants that used to sit here moved with them, and
+# so did their arms: they now run in BOTH regimes rather than once, which is the
+# arm that would have caught the superseded rule being left in place.
+#
 # Words the owner's 03:10Z block strikes by name. Already one phrase per
 # alternative, so the per-alternative plant is the phrase in a sentence.
 STRUCK = ["not recorded in this bundle", "Solver: none", "source case",
@@ -215,13 +258,6 @@ def _past_plant(word: str) -> str:
 
 def _struck_plant(phrase: str) -> str:
     return f"the sheet says {phrase} on its face"
-
-
-def _is_past(text: str, m: re.Match) -> bool:
-    """True when this match is genuinely past rather than present passive."""
-    if m.group(0).lower() not in AMBIGUOUS:
-        return True
-    return not PRESENT_AUX.search(text[max(0, m.start() - 30):m.start()])
 
 
 PAST_RULE = "past tense"
@@ -255,9 +291,10 @@ def sweep(text: str) -> list[tuple[str, str]]:
     for name, pat, _plants in RULES:
         for m in pat.finditer(text):
             record(name, m)
-    for m in PAST.finditer(text):
-        if _is_past(text, m):
-            record(PAST_RULE, m)
+    # NO TENSE RULE HERE ANY MORE, and its absence is the 20:30Z amendment. A
+    # global sweep over the extracted face cannot tell which beat a string sits
+    # in, and under the restored rule the beat is the whole question. Tense is
+    # swept by `tense_sweep` over the source in reading order; see `main`.
     low = text.lower()
     for phrase in STRUCK:
         if phrase.lower() in low:
@@ -289,25 +326,21 @@ def check_plants() -> tuple[int, int, list[str]]:
             if not _fires(name, plant):
                 blind.append(f"{name} :: {plant!r}")
 
-    for word in PAST_ALTERNATIVES:
-        attempted += 1
-        if not _fires(PAST_RULE, _past_plant(word)):
-            blind.append(f"{PAST_RULE} :: alternative {word!r} never fires")
-
     for phrase in STRUCK:
         attempted += 1
         if not _fires(STRUCK_RULE, _struck_plant(phrase)):
             blind.append(f"{STRUCK_RULE} :: alternative {phrase!r} never fires")
 
-    # Two-sided control on the ambiguous participles: the past form must fire
-    # and the present passive must stay silent. One-sided would let a filter
-    # that suppresses everything pass as if it were precise.
-    attempted += 1
-    if not _fires(PAST_RULE, PAST_PLANT_AMBIGUOUS_FIRES):
-        blind.append(f"{PAST_RULE} :: ambiguous participle, past use, never fires")
-    attempted += 1
-    if _fires(PAST_RULE, PAST_PLANT_AMBIGUOUS_QUIET):
-        blind.append(f"{PAST_RULE} :: present passive is wrongly flagged")
+    # THE TENSE ARMS RUN IN `demo_stages` AND ARE COUNTED HERE. They cannot run
+    # through `_fires`, because `_fires` sweeps a bare string with no beat and a
+    # beat is now the whole question. What they gained by moving is the SECOND
+    # DIRECTION: each alternative is planted in a running beat, where it must
+    # fire, AND in a results beat, where it must stay silent -- plus the mirror
+    # pair for present run narration. One-sided arms are what let the superseded
+    # rule sit here scoring full marks while it flagged compliant text.
+    t_ok, t_attempted, t_blind = check_tense_plants()
+    attempted += t_attempted
+    blind.extend(t_blind)
 
     return attempted - len(blind), attempted, blind
 
@@ -328,13 +361,16 @@ def check_reader(face: str) -> list[str]:
         after = sum(1 for n, _c in sweep(planted) if n == name)
         if after <= before:
             missing.append(name)
-    for rule, plant in ((PAST_RULE, _past_plant("diverged")),
-                        (STRUCK_RULE, _struck_plant(STRUCK[0]))):
-        planted = face + "\n" + plant
-        before = sum(1 for n, _c in sweep(face) if n == rule)
-        after = sum(1 for n, _c in sweep(planted) if n == rule)
-        if after <= before:
-            missing.append(rule)
+    # PAST is no longer recovered from the face and cannot be: it is not swept
+    # over the face at all. The equivalent arm for tense is the on-face flag
+    # carried by every tense hit in `main`, which asks the same question the
+    # other way round -- does the text I judged reach a viewer.
+    rule, plant = STRUCK_RULE, _struck_plant(STRUCK[0])
+    planted = face + "\n" + plant
+    before = sum(1 for n, _c in sweep(face) if n == rule)
+    after = sum(1 for n, _c in sweep(planted) if n == rule)
+    if after <= before:
+        missing.append(rule)
     return missing
 
 
@@ -379,18 +415,42 @@ def main() -> int:
         return 2
 
     missing = check_reader(face)
-    print(f"PLANT CONTROL: {len(RULES) + 2 - len(missing)}/{len(RULES) + 2} "
+    print(f"PLANT CONTROL: {len(RULES) + 1 - len(missing)}/{len(RULES) + 1} "
           f"rules recover their own plant from the face itself")
     if missing:
         print("REFUSE: these rules cannot recover a plant placed in the face: "
               + "; ".join(missing))
         return 2
 
+    # ------------------------------------------------ the tense rule, by beat
+    # The coverage line is printed BEFORE the hits and is not decoration. The
+    # only way to sweep clean under a stage-keyed rule is to declare every block
+    # STATIC, and this is where that would be visible; `check_coverage` then
+    # refuses below a floor on the tense-carrying share.
+    src = SHEET.read_text(encoding="utf-8")
+    cov = coverage(src, STAGE_MAP)
+    print(f"\nBEAT COVERAGE: {cov['RUNNING']} words in running beats, "
+          f"{cov['RESULTS']} in results beats, {cov['STATIC']} static")
+    emptied = check_coverage(src, STAGE_MAP)
+    if emptied:
+        for p in emptied:
+            print(f"REFUSE: {p}")
+        return 2
+
+    tense = tense_sweep(src, STAGE_MAP, face)
     hits = sweep(face)
     print(f"\nFACE: {len(face.split())} words read from the compiled sheet")
     print(f"FACE HITS: {len(hits)}")
     for name, ctx in hits:
         print(f"  [{name}] {ctx}")
+    print(f"TENSE HITS: {len(tense)} "
+          f"({sum(1 for h in tense if h.on_face)} reach the face, "
+          f"{sum(1 for h in tense if not h.on_face)} source-only)")
+    for h in tense:
+        mark = "" if h.on_face else "  [SOURCE-ONLY: doubt, not proof of absence]"
+        print(f"  [{STAGE_NAMES[h.stage]}] {h.rule}: {h.matched!r}{mark}"
+              f"\n      ...{h.context}...")
+    hits = hits + [(h.rule, h.matched) for h in tense]
     # Twenty minutes must be present, with its basis, or the owner's 03:45Z
     # order is not carried out. Absence is a failure, not a pass.
     if "20 minutes" not in face:

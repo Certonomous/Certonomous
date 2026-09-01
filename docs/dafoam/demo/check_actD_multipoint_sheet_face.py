@@ -54,8 +54,60 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_actD_sheet_face import (  # noqa: E402  shared, never copied
-    PAST, RULES as REFERENCE_RULES, STRUCK, _is_past,
+    RULES as REFERENCE_RULES, STRUCK,
 )
+from demo_stages import (  # noqa: E402  the tense rule, keyed to the beat
+    RESULTS, STATIC_REGION, Region, STAGE_NAMES, tense_sweep, coverage,
+    check_coverage, check_plants as check_tense_plants,
+)
+
+# AMENDED 2026-09-01 (20:30Z DIRECTIVE, `cfcf766f`).  `PAST` and `_is_past` are
+# no longer imported and no longer applied here.  Sanaa's shooting protocol
+# restores *"Present and progressive tense while running; past tense for
+# results"* and supersedes the flat 04:20Z "no past tense" this file
+# implemented, so a global past-tense sweep over this sheet's face now flags
+# COMPLIANT results prose.  Tense is swept by beat instead; the map is below and
+# the regime table is in `demo_stages.py`, which is the only place a further
+# revision of the rule has to touch.
+#
+# THE SHEET'S OWN MEASURED POSITION UNDER THE RESTORED RULE, so the change is
+# not taken on trust: it carried 0 past-tense hits under the flat rule and
+# carries 1 present-run-narration hit under this one.  The direction of failure
+# inverted; the count did not collapse to zero either way.
+
+#: WHICH BEAT EACH BLOCK IS.  Nothing here says what tense that implies.
+STAGE_MAP = [
+    Region(r"\\textbf\{Solver: DAFoam \\texttt\{DASimpleFoam\}", RESULTS,
+           "the solved-case banner"),
+    Region(r"\\textbf\{What the optimiser does, and what it costs you\}",
+           STATIC_REGION, "framing: what the method is, timeless"),
+    Region(r"\\textbf\{What this run establishes\.\}", RESULTS,
+           "what this run established"),
+    Region(r"\\textbf\{Table 1\. Operating condition and grid\.\}",
+           STATIC_REGION, "assumptions: quantities with units"),
+    Region(r"\\textbf\{Figure 1\. The grid the section is solved on\.\}",
+           STATIC_REGION, "figure note"),
+    Region(r"\\textbf\{Table 2\. The result\.", RESULTS, "the result table"),
+    Region(r"\\textbf\{Figure 2\. Drag and lift at three angles", STATIC_REGION,
+           "figure note"),
+    Region(r"\\textbf\{Table 3\. The optimiser\.\}", RESULTS, "optimiser table"),
+    Region(r"\\textbf\{Figure 3\. Objective against major iteration\.\}",
+           STATIC_REGION, "figure note"),
+    Region(r"\\textbf\{Table 4\. The gradient, checked at the final shape\.\}",
+           RESULTS, "gradient table"),
+    Region(r"\\textbf\{Figure 4\. Gradient check at the final shape\.\}",
+           STATIC_REGION, "figure note"),
+    Region(r"\\textbf\{Table 5\. Instrument checks\.\}", RESULTS,
+           "instrument checks"),
+    Region(r"\\textbf\{Table 6\. Compute", RESULTS, "compute"),
+    Region(r"\\textbf\{Uncertainty\}", RESULTS, "uncertainty channels"),
+    Region(r"\\textbf\{Read this before you use the numbers\}", RESULTS,
+           "limitations"),
+    Region(r"\\textbf\{Assumed, not measured\}", STATIC_REGION,
+           "assumptions: quantities with units"),
+    Region(r"\\rolesig\{Lead Researcher\.\}", RESULTS,
+           "the three roles, delivering findings"),
+]
 
 # WHAT THIS IMPORTS, AND WHAT IT DELIBERATELY DOES NOT.  The sibling module is
 # under active repair, and its PLANT constants have already changed shape once
@@ -71,9 +123,6 @@ from check_actD_sheet_face import (  # noqa: E402  shared, never copied
 # THE SHAPE OF `RULES` IS ASSERTED RATHER THAN ASSUMED.  If the sibling changes
 # it again, this REFUSES loudly instead of sweeping with rules it cannot plant.
 
-PAST_PLANT = "the flow solve diverged and the optimiser was stopped"
-PAST_PLANT_AMBIGUOUS_FIRES = "the optimiser completed forty-seven majors"
-PAST_PLANT_AMBIGUOUS_QUIET = "the iteration limit is not reached"
 STRUCK_PLANT = "Solver: none on this request"
 
 
@@ -156,9 +205,8 @@ def sweep(text: str) -> list[tuple[str, str]]:
     for name, pat, _plant in OWN_RULES:
         for m in pat.finditer(text):
             record(name, m)
-    for m in PAST.finditer(text):
-        if _is_past(text, m):
-            record("past tense", m)
+    # No tense rule here any more: a face offset cannot be resolved to a beat.
+    # See the amendment note at the top and `tense_sweep` in `main`.
     low = text.lower()
     for phrase in STRUCK:
         if phrase.lower() in low:
@@ -203,11 +251,17 @@ def main() -> int:
         name, pat = rule[0], rule[1]
         for plant in _plants(rule):
             arm("%s [%s]" % (name, plant[:40]), bool(pat.search(plant)))
-    arm("past tense", bool(sweep(PAST_PLANT)))
-    arm("past tense (ambiguous participle, past use)",
-        bool(sweep(PAST_PLANT_AMBIGUOUS_FIRES)))
-    arm("past tense (ambiguous participle, present passive wrongly flagged)",
-        not sweep(PAST_PLANT_AMBIGUOUS_QUIET))
+    # THE TENSE ARMS RUN IN `demo_stages` AND ARE COUNTED HERE. They cannot run
+    # through `sweep`, which reads a bare string with no beat, and a beat is now
+    # the whole question. What they gained by moving is the second direction:
+    # every alternative planted in a running beat where it must fire AND in a
+    # results beat where it must stay quiet, plus the mirror pair for present
+    # run narration. That arm is what a superseded rule left in place fails.
+    t_ok, t_attempted, t_blind = check_tense_plants()
+    for i in range(t_attempted - len(t_blind)):
+        arm(f"tense arm {i} (demo_stages)", True)
+    for name in t_blind:
+        arm(name, False)
     arm("struck by name at 03:10Z",
         any(p.lower() in STRUCK_PLANT.lower() for p in STRUCK))
     # The conditional rule, driven in BOTH directions.  One-sided would let a
@@ -231,18 +285,38 @@ def main() -> int:
         return 2
 
     every_plant = [p for rule in SHARED_RULES + OWN_RULES for p in _plants(rule)]
-    planted = face + "\n" + "\n".join(every_plant + [PAST_PLANT, STRUCK_PLANT])
+    planted = face + "\n" + "\n".join(every_plant + [STRUCK_PLANT])
     if len(sweep(planted)) <= len(sweep(face)):
         print("REFUSE: planting violations into the face changed nothing; "
               "the reader is not reading the face")
         return 2
     print("PLANT CONTROL: planted violations are recovered from the face itself")
 
+    # ------------------------------------------------ the tense rule, by beat
+    src = SHEET.read_text(encoding="utf-8")
+    cov = coverage(src, STAGE_MAP)
+    print(f"\nBEAT COVERAGE: {cov['RUNNING']} words in running beats, "
+          f"{cov['RESULTS']} in results beats, {cov['STATIC']} static")
+    emptied = check_coverage(src, STAGE_MAP)
+    if emptied:
+        for p in emptied:
+            print(f"REFUSE: {p}")
+        return 2
+    tense = tense_sweep(src, STAGE_MAP, face)
+
     hits = sweep(face)
     print(f"\nFACE: {len(face.split())} words read from the compiled sheet")
     print(f"FACE HITS: {len(hits)}")
     for name, ctx in hits:
         print(f"  [{name}] {ctx}")
+    print(f"TENSE HITS: {len(tense)} "
+          f"({sum(1 for h in tense if h.on_face)} reach the face, "
+          f"{sum(1 for h in tense if not h.on_face)} source-only)")
+    for h in tense:
+        mark = "" if h.on_face else "  [SOURCE-ONLY: doubt, not proof of absence]"
+        print(f"  [{STAGE_NAMES[h.stage]}] {h.rule}: {h.matched!r}{mark}"
+              f"\n      ...{h.context}...")
+    hits = hits + [(h.rule, h.matched) for h in tense]
 
     # Presence checks.  Absence of the honesty material is a failure, not a
     # pass: a sheet that simply omits the lift columns would sweep clean.
