@@ -1383,3 +1383,201 @@ the run and does not get a new budget** (rule 12). L3 stays refused (§8.6); an
 L2 outer-loop arm stays refused (§8.5).
 
 <!-- END OF T25R2 PRE-REGISTRATION v1.1 -->
+
+---
+
+## Addendum B1 — 2026-09-01, **AFTER FIRST COMPUTE. DISCLOSURE ONLY.**
+
+**Lines whose number changed above this section: 0.**
+
+### B1.0 ⚠ THIS IS AN ADDENDUM, NOT AN AMENDMENT, AND THE DIFFERENCE IS THE POINT
+
+**First compute for T25R2 has happened** — staging at 2026-09-01T05:36Z, then
+`T25R2_L1`'s launch at **05:37:55Z**. **Rule 2's pre-compute limb is closed.**
+Amendment A1 was legal precisely because no run directory existed; that window
+is gone and does not reopen.
+
+**Under rule 2, changes now land only as dated addenda that CANNOT alter a gate,
+threshold, cap or label.** Everything below is **disclosure and measurement**.
+It alters **no** gate, **no** threshold, **no** cap and **no** label: O1/O2/O3
+keep `10×PLANT` / `1×PLANT` / `10×PLANT`, §3.5's propagation is unchanged, §8's
+POINT and HARD CAP figures are unchanged, D1/D2/D3 and §6.2 are untouched, and
+**no output changes its GRADED / `FEASIBILITY` label.** **§12 itself is not
+edited**; this addendum points at it. **The document is version 1.2.**
+
+### B1.1 `T25R2_L1` IS COMPLETE. **`mark_done_t25R2.py` SAYS DONE.**
+
+`mark_done_t25R2.py` is the authority on rule 4 and is not reimplemented.
+Its verdict: **DONE — all six conjuncts hold.** Corroboration, re-measured off
+the raw artefacts by `report_completion_t25R2.py` (which **decides nothing**):
+
+| conjunct | measured |
+|---|---|
+| 1. `rc = 0` | **recorded, not inferred**: `.rc.T25R2_L1` = `0`, captured **inside** the detached wrapper; `STATUS.T25R2_L1` `rc=0`. `launcher_rc` was never accepted as `rc` |
+| 2. `End` | **exactly 1**; **0** `FOAM FATAL` |
+| 3. last time | **900**, from 181 written time directories |
+| 4. fields | `module` `T,p`; `coolant` `T,U,p,p_rgh,alphat,nut,k,omega` — **missing: NONE** |
+| 5. `ExecutionTime` | **1800**, == the registered 1800. A **step-count identity**, not a time-value identity |
+| 6. age guard | reference `0/module/T`; **1810 field files** checked across **all 181 written times and both regions**; **tightest margin +15.957 s** (at `t=5 coolant/nut`); fields older than the reference: **NONE** |
+
+**NOTHING IS GRADED.** D1/D2/D3, §6.2 and §3.5 belong to `analyse_t25R2.py`, the
+outer-loop gate has **not** been evaluated, and **no physics number from this run
+is a result.**
+
+### B1.2 COST CALIBRATION — rule 12. **THE PREDICTION HELD, AND THE REASON IS NAMED**
+
+| | value |
+|---|---|
+| **actual, solver** | `ExecutionTime 428.87 s × 1 rank ÷ 60` = **7.148 core-min** |
+| actual, wall | `429 s` = 7.150 core-min |
+| launch overhead, **named separately** | **0.002 core-min** — `0` staged from `0.orig`, the age touch, the launcher's 5 s poll. **Not waste**, and not in the ratio |
+| **pre-registered POINT** (§8.2) | **8.30 core-min** |
+| **RATIO actual/predicted** | **0.861** |
+| HARD CAP | **34** core-min — **21.0 % used, 26.85 unspent**; `capped=no`, `rc=0` |
+| dollars | **$0.0061**, **DERIVED, NOT MEASURED**, at $0.0513/core-h, `cost_basis = REPORTED-BY-OWNER` |
+
+**ATTRIBUTION — MISPREDICTION, IN THE CONSERVATIVE DIRECTION, AND THE CAUSE IS
+MEASURED.** §8.2's POINT extended the probe's **takeoff-branch** settled rate of
+**0.268 core-s/step** across all 1800 steps. The probe **never priced cruise**
+(§8.1 caveat 2). Measured here, split at the `t = 60 s` load step-down:
+
+| branch | steps | measured rate |
+|---|---|---|
+| takeoff | 1–120 | **0.3751 core-s/step** |
+| **cruise** | **121–1800** | **0.2285 core-s/step** |
+
+**The run spends 93.3 % of its steps in cruise, which is 14.7 % cheaper per step
+than the takeoff settled rate the POINT assumed.** That, and not luck, is the
+whole of the 0.861. **A favourable ratio with an unexplained cause is not a
+calibration row.**
+
+**⚠ THE PROBE REPRODUCED, AND THIS IS THE STRONGEST THING IN THE ROW.** Over the
+**same first 60 steps** the probe covered, at the same numerics, same mesh and
+same loads, on a different day and a shared box:
+
+| | probe A2T | `T25R2_L1` | ratio |
+|---|---|---|---|
+| steps 1–60 | 31.02 core-s (0.5170/step) | **31.79 core-s (0.5298/step)** | **1.025** |
+| settled 21–60 | 0.268 core-s/step | **0.2715 core-s/step** | **1.013** |
+
+**WASTE: ZERO, AND THE §3.4 TOLERANCE CLAIM IS NOW CONFIRMED AT FULL DURATION.**
+The probe could only test the `p_rgh` stall over 30 s. Measured over the whole
+900 s: **36,000 `p_rgh` GAMG solves, 65,949 total iterations, mean 1.83, max
+548, and ZERO terminating at `maxIter` 1000.** The probe's 10-sweep arm at the
+unreachable `1e-9` had **608 of 1200** stalling. **The registered `1e-8`
+eliminates the stall over the full run, not merely over the probe's window.**
+
+**CONTENTION: BOUNDED, NOT MEASURED, AND NOT IN THE RATIO.** Load 2.22 on 16
+cores at launch, with `T23G_F` and dafoam `D19O` arm O-P live
+(`LAUNCH_CONTEXT.T25R2_L1.txt`). The ratio uses `ExecutionTime`, the solver's own
+CPU accounting. The 1.025 probe reproduction **bounds** any contention effect on
+the comparable segment at about 2.5 %; that is an upper bound, **not** a
+measurement of contention, and it is not subtracted from anything.
+
+### B1.3 ⚠ A THIRD DEFECT IN T25R's RETIRED §3.5 GATE — IT WAS NEVER EVALUABLE
+
+Established at v2606 by reading `T25R2_L1/log.solve`: the log carries **zero**
+`Solving for solid region` lines. Under `Solving energy coupled regions` both
+regions' enthalpy is **assembled and solved together**, emitting **one**
+`Solving for h` line per outer sweep.
+
+**T25R's `RESID_GATE` registered `coolant h < 1e-6` AND `module h < 1e-8` as
+separate thresholds. There is no separate solid `h` residual on this solver, so
+its comparator would have taken the single COUPLED residual and applied the
+SOLID threshold of 1e-8 to it.** That gate was **never separately evaluable**.
+
+**§3.5 was retired here because relaxing the final sweep destroyed its
+calibration. It turns out it was also measuring something it could not
+distinguish — so the replacement was NECESSARY, not merely convenient.**
+This addendum is the disclosure §12 owes for that, and it is the supervisor's
+finding to record, not this lane's alone.
+
+### B1.4 ⚠ A FOURTH: THE RETIRED THRESHOLD WOULD HAVE FAILED THIS HEALTHY RUN
+
+The §3.5.2 census, **a REPORT with no threshold**, measured on `T25R2_L1`:
+
+| field | worst last-sweep initial residual | at the final step |
+|---|---|---|
+| `p_rgh` | **1.0219e-01** | 1.0589e-08 |
+| `Ux` | 1.5225e-02 | 3.8756e-11 |
+| `Uy` | 2.8532e-02 | 1.5171e-09 |
+| `h` | 5.0344e-04 | 7.2984e-07 |
+
+**Against T25R's retired 1e-6 / 1e-8 thresholds this complete, `rc = 0`, fully
+converged run would have been `NOT A RESULT` on a large fraction of its steps.**
+With the final sweep **relaxed**, the last-sweep initial residual is large early
+in a strong transient **by construction** — which is precisely why the threshold
+lost its meaning. **The census is reported and gated on nothing. This is
+measured evidence that the retirement was correct.**
+
+### B1.5 ⚠ A DEFECT IN `analyse_t25R2.py`, DISCLOSED AND **DELIBERATELY NOT REPAIRED**
+
+**Found by invoking the comparator on `T25R2_L1` after `T25R2_L1_OC20` was
+STAGED but not yet LAUNCHED.** §3.5.4 registers that an OC arm which *has not
+run* makes the gate **`PENDING`**. The code delivers that only when the arm's
+**directory is absent**; once staged, `mark_done`'s correct K0d-L1 rule — *an
+absent `STATUS` is a REFUSAL* — fires first and the comparator exits **2
+(REFUSE)** instead of reporting `PENDING`.
+
+**ROOT CAUSE, AND IT IS THE NIGHT'S RECURRING CLASS AGAIN:** `--selftest` forged
+"has not run" as *"no directory"*, but the real post-§10-step-3 state is
+*"directory staged, no `STATUS`"*. **The fixture did not resemble the situation.**
+That is the same failure as §12.3's forged `checkMesh` log and A1.6's
+self-matching token check — the fourth instance this lane has produced or found.
+
+**IT IS NOT REPAIRED, AND THAT IS A RULING THIS LANE DOES NOT MAKE ALONE.**
+`VERIFICATION_CHARTER.md` §2d.1 permits a post-compute change on the grading path
+only if all four conditions hold; conditions (3) and (4) presuppose published
+numbers, and **there are none — the comparator printed no physics on either
+path.** More decisively:
+
+- **the state is transient and self-clearing.** It exists only between staging
+  and launching an OC arm. The registered launch order removes it permanently.
+- **the failure direction is silence.** It REFUSES; it cannot print a number,
+  and a repair could only ever withhold *more*, never publish more.
+- **nothing in the registered campaign reaches it** except an out-of-sequence
+  read, which is exactly what produced it.
+
+**REFERRED to the supervisor and to verification. A frozen grading path is not
+edited after first compute for a transient condition on this lane's own
+authority.** The limitation is disclosed here so no future reader mistakes the
+refusal for a broken instrument.
+
+### B1.6 ⚠ A LABEL HAZARD IN THIS RUN'S OWN LOG, REGISTERED FOR EVERY LATER READER
+
+**Every `Min/max T` line in `log.solve` is the COOLANT region** — ten per step,
+each following `Solving for fluid region coolant`. The solid prints none
+(B1.3). The tell is that its minimum sits at **292.985 K, BELOW the 293 K
+initial**, which a heated solid cannot do.
+
+**The module temperature is read from
+`postProcessing/module/module_minmax/0/fieldMinMax.dat` and from the written
+fields, and from nowhere else.** Both this lane and the supervisor initially
+quoted the coolant maximum as a module temperature; the error was caught before
+it reached any record, and it is registered here so it cannot be made a third
+time.
+
+**And the deeper rule, which is the part worth keeping:** a **maximum** is by
+construction the **least-cooled point in the body**, so a maximum approaching the
+adiabatic bound is *expected* and **measures nothing whatever about how much heat
+left**. The fraction that left is **§6.2's ledger**, from a reader carrying its
+planted +10 % control, after the gate, on a completed run. **Nothing before then
+is entitled to an opinion about it.**
+
+### B1.7 ARTIFACTS
+
+Run outputs stay **out of git**, as `T25R_MODULE_runs`' are, and are named by
+absolute path so nothing is invisible for being large:
+
+- `/home/ubuntu/Certonomous/verification/runs/T-family/T25R2_MODULE_runs/T25R2_L1/log.solve` (26 MB)
+- `.../T25R2_L1/STATUS.T25R2_L1`, `.../T25R2_L1/.rc.T25R2_L1`
+- `.../T25R2_L1/COMPLETION.T25R2_L1.txt`
+- `.../T25R2_L1/postProcessing/{module/module_minmax,coolant/*}`
+- `.../LAUNCH_CONTEXT.T25R2_L1.txt`, `.../DONE.T25R2_L1`
+- committed: `report_completion_t25R2.py` — **grades nothing, decides nothing,
+  and is NOT in §11's freeze table.**
+
+**§10 is unchanged. Caps are unchanged and hard. L3 stays refused (§8.6); an L2
+outer-loop arm stays refused (§8.5).**
+
+<!-- END OF T25R2 PRE-REGISTRATION v1.2 -->
