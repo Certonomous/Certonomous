@@ -121,10 +121,10 @@ turn. Two-dimensional, inviscid, integrated to $t = {T_END}$ on two grids.}}
 One quantity in this problem is known exactly: the incident shock travels at a
 speed the shock relations fix, so its position at any instant is a closed
 form. Solved, it sits within {{\bfseries {fine['pct']:.2f}\,\%}} of the
-distance it travelled on the fine grid and {coarse['pct']:.2f}\,\% on the
-coarse one, against a criterion of {CRITERION_PCT:.0f}\,\% that was written
-down before the first mesh was built.
-{"The finer grid landed closer than the coarser one, which is what was predicted in advance." if finer_closer else "The finer grid did NOT land closer than the coarser one, which is not what was predicted in advance."}
+distance it travels on the fine grid and {coarse['pct']:.2f}\,\% on the
+coarse one, against a criterion of {CRITERION_PCT:.0f}\,\% which stands in
+writing before the first mesh exists.
+{"The finer grid lands closer than the coarser one, which is what the written prediction calls for." if finer_closer else "The finer grid does NOT land closer than the coarser one, which is not what the written prediction calls for."}
 {"Both differences are smaller than one cell of their own grid." if both_subcell else ""}
 
 \shead{{Table 1 -- Incident shock position at $t = {T_END}$, against the exact solution}}
@@ -134,7 +134,7 @@ down before the first mesh was built.
 \toprule
 Grid & Cells & Spacing & Solved & Exact & Difference & Share of & Resolution \\
  & & & position & position & & distance & of the \\
- & [--] & [--] & [--] & [--] & [--] & travelled [\%] & measurement [--] \\
+ & [--] & [--] & [--] & [--] & [--] & it travels [\%] & measurement [--] \\
 \midrule
 {position_rows}
 \bottomrule
@@ -144,7 +144,7 @@ Grid & Cells & Spacing & Solved & Exact & Difference & Share of & Resolution \\
 \vspace{{-7pt}}
 {{\footnotesize Lengths are in the problem's own non-dimensional units, in
 which the wall runs from $0$ to $4$ and the domain is one unit tall. The
-distance the shock travelled between the start and $t = {T_END}$ at a fixed
+distance the shock travels between the start and $t = {T_END}$ at a fixed
 height is $20t/\sqrt{{3}} = {TRAVEL:.5f}$, and the sixth column is the
 difference as a share of it. The final column is the spacing at which the
 shock position can be resolved on that grid, which is the grid spacing
@@ -159,14 +159,14 @@ Item & Core-minutes & Basis \\
 \midrule
 Set aside before running & {ESTIMATE_CORE_MIN:.0f} & fixed with the success criteria \\
 Used & {USED_CORE_MIN:.1f} & both grids, meshing and post-processing included \\
-Used as a share of what was set aside & {USED_CORE_MIN / ESTIMATE_CORE_MIN:.2f} & --- \\
+Used as a share of what is set aside & {USED_CORE_MIN / ESTIMATE_CORE_MIN:.2f} & --- \\
 \bottomrule
 \end{{tabular}}
 \end{{center}}
 
 \vspace{{-7pt}}
 {{\footnotesize A core-minute is one processor working for one minute; all
-work here ran on four at once. Cost in currency is not quoted because this
+work here runs on four at once. Cost in currency is not quoted because this
 machine cannot read its own billing.}}
 
 \shead{{Density at $t = {T_END}$}}
@@ -180,13 +180,13 @@ machine cannot read its own billing.}}
 wall, a second shock and a jet along the wall form beneath it. The fine grid
 holds those features tighter than the coarse grid does.}}
 
-\shead{{What was verified, in plain words}}
+\shead{{What this verifies, in plain words}}
 
-\role{{Lead Numericist}} The incident shock position was compared against the
-exact closed-form solution for the shock speed at the same height on both
-grids. On the fine grid it agrees to {fine['pct']:.2f}\,\% of the distance
-the shock travelled; on the coarse grid, {coarse['pct']:.2f}\,\%. The
-criterion was {CRITERION_PCT:.0f}\,\% and it was fixed before the run, not
+\role{{Lead Numericist}} The incident shock position goes against the exact
+closed-form solution for the shock speed at the same height on both grids. On
+the fine grid it agrees to {fine['pct']:.2f}\,\% of the distance the shock
+travels; on the coarse grid, {coarse['pct']:.2f}\,\%. The criterion is
+{CRITERION_PCT:.0f}\,\%, and it is fixed in writing before the run rather than
 chosen afterwards.
 
 \role{{Lead Researcher}} The value of this problem is that it has an exact
@@ -194,9 +194,9 @@ answer for one quantity and a hard, sharp, genuinely time-dependent structure
 for everything else. Agreeing with the exact part is the necessary condition; it
 does not by itself certify the rest of the picture.
 
-\role{{Lead Engineer}} The benchmark was priced at
-{ESTIMATE_CORE_MIN:.0f} core-minutes and cost {USED_CORE_MIN:.1f}. The
-estimate was the honest one available when it was written and it was high.
+\role{{Lead Engineer}} The benchmark is priced at
+{ESTIMATE_CORE_MIN:.0f} core-minutes and costs {USED_CORE_MIN:.1f}. The
+estimate is the honest one available at the time of writing, and it is high.
 
 \shead{{Caveats}}
 

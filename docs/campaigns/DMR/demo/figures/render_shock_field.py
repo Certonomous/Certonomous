@@ -134,10 +134,44 @@ def load_rung(name: str, nx: int, ny: int) -> tuple[np.ndarray, np.ndarray, np.n
     return cx, cy, rho
 
 
+#: The ONE typographic style shared with the jet-flap figures. Imported by
+#: absolute path rather than copied, because three copies of an rcParams block
+#: drift and the drift is invisible: a figure in the wrong font still looks
+#: like a figure. Real ``text.usetex`` is NOT reachable on this box -- both
+#: ``type1cm.sty`` and ``cm-super`` are absent and installing them is behind
+#: root, which is Sanaa's alone -- so this registers the same Latin Modern
+#: faces that pdflatex already sets the result sheet in, making the figure
+#: typographically identical to the sheet it is cut next to.
+_STYLE_MODULE = Path("/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap"
+                     "/jf1_figure_style.py")
+
+
+def _latin_modern_rc() -> dict:
+    """Load the shared style, or REFUSE. Never fall back to a silent DejaVu."""
+    import importlib.util
+
+    if not _STYLE_MODULE.is_file():
+        raise RuntimeError(
+            f"{_STYLE_MODULE} is absent, so the shared Latin Modern style "
+            f"cannot be applied. Refusing rather than drawing in whatever "
+            f"serif matplotlib finds next: that figure would look finished "
+            f"and ship in the wrong font, and only pdffonts would ever say so.")
+    spec = importlib.util.spec_from_file_location("jf1_figure_style", _STYLE_MODULE)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.latin_modern_rc()
+
+
 def render(out_path: Path) -> Path:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+
+    # Applied BEFORE the figure is created, so every artist inherits it.
+    # ACCEPTANCE IS `pdffonts` OVER THE RENDERED PDF REQUIRING ZERO DejaVu
+    # FACES -- never a read of this source. The source says what was intended;
+    # only the embedded fonts say what shipped.
+    plt.rcParams.update(_latin_modern_rc())
 
     fig, axes = plt.subplots(len(RUNGS), 1, figsize=(11.0, 6.6), sharex=True)
     for ax, (name, nx, ny, caption) in zip(axes, RUNGS):

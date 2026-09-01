@@ -60,8 +60,42 @@ quoted here.
 ## The verification line, in the words the act uses
 
 > Verified against the exact shock-speed solution to within 0.15% of the
-> distance the shock travelled on the fine grid, and 0.17% on the coarse grid.
-> The criterion, one percent, was fixed before the run.
+> distance the shock travels on the fine grid, and 0.17% on the coarse grid.
+> The criterion, one percent, is fixed in writing before the run.
+
+## THE FREEZE, AND THE ONE PART OF IT THAT IS NOT PROVABLE
+
+**Read these two paragraphs together. The second is not a footnote to the first.**
+
+**What IS provable, to the minute.** The gate, its threshold and its tolerance
+are frozen at commit `74797a57`, **2026-08-07T22:40:28Z**. The earliest artifact
+of either case is **22:43:36Z**, and the first solved write is **22:44:55Z**. The
+pre-registration blob is `a08ee245…`, byte-identical today to what was committed
+then — the repo move of 2026-08-18 carried it without changing it. **The
+criterion could not have been chosen to fit the answer, and that is checkable by
+anyone with the repository.**
+
+**What is NOT provable, and must not be claimed.** The pre-registration calls the
+measuring script *"the pre-committed detector"*. **That specific claim is not
+supported by the repository.** `dmr_locator.py` was first committed at
+`84933043`, **2026-08-08T01:56:04Z — about three hours AFTER the runs it
+graded.** Its content may well have existed on disk beforehand; git cannot
+corroborate it either way. Rule 2 asks that the grading path be fixed at the
+pre-registration commit and verified by hashing against the committed blob, and
+**for this campaign that verification is not available.**
+
+**This does not overturn the result and nothing is being withdrawn.** The
+measured values stand, the freeze of the gate stands, and the numbers are what
+they are. What changes is only what may be said: **a claim that cannot be checked
+is not repeated as though it had been.** If asked on camera whether the
+measurement script was frozen with the gate, the honest answer is that the gate
+was and the script's ordering cannot be shown.
+
+**And it does not recur.** The successor reader
+`verification/runs/DMR_runs/dmr_locator_v2.py` is committed at `4590ba56`,
+**before** the rung it is registered to grade, and it carries a two-sided planted
+control that is itself demonstrated able to fail. From here the ordering is
+provable.
 
 ## The caveat box, in the words the act uses
 
