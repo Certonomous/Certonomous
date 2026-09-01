@@ -1,0 +1,80 @@
+{
+  "_what": "A2-GC frozen level specification: the geometrically similar mesh family for the MACH Tutorial Wing grid-convergence study, built from ONE parametric script at uniform refinement ratio r = 2.000 in every direction.",
+  "_script": "cases/dafoam/run_a2gc.sh builds every level by running the SAME pipeline as the tutorial preProcessing.sh with exactly two integers changed: surface_op (how many times cgns_utils coarsen/refine is applied) and pyhyp_N (the wall-normal march count), plus s0 scaled by 1/r. marchDist is IDENTICAL on every level.",
+  "_baseline_provenance": "L1 IS the published Act D / A2 grid: 38,304 cells, verified at cases/dafoam/ladder-a/A2_mesh_time.json (measured_cells 38304) and verification/campaign/MESH_BIRTH_CERTIFICATE_AUDIT_2026-08-08.md:214. Its build log records surface faces 1008 and pyHyp Grid Ratio 1.3562.",
+  "_quantization_finding": "cgns_utils coarsen HALVES and cgns_utils refine DOUBLES along i/j/k; neither accepts an arbitrary ratio (probed read-only against dafoam/opt-packages:latest, 2026-09-01). The refinement ratio achievable from this script is therefore quantized to powers of 2. r = 2.000 is the ONLY value inside Sanaa's band [1.5, 2.0]. No ~100k level exists on this ladder.",
+
+  "refinement_ratio_r": 2.0,
+  "march_dist_all_levels": 300.0,
+
+  "levels": {
+    "L0": {
+      "role": "reserve, NOT in the graded triple",
+      "surface_op": "coarsen x2",
+      "surface_faces_predicted": 252,
+      "pyhyp_N": 20,
+      "cell_layers": 19,
+      "cells_predicted": 4788,
+      "s0": 2.0e-3
+    },
+    "L1": {
+      "role": "coarse member of the graded triple; IS the published 38,304-cell baseline",
+      "surface_op": "coarsen x1",
+      "surface_faces_predicted": 1008,
+      "pyhyp_N": 39,
+      "cell_layers": 38,
+      "cells_predicted": 38304,
+      "s0": 1.0e-3
+    },
+    "L2": {
+      "role": "middle member of the graded triple; the level Sanaa's gradient verification is registered on",
+      "surface_op": "coarsen x0 (the surface mesh as downloaded)",
+      "surface_faces_predicted": 4032,
+      "pyhyp_N": 77,
+      "cell_layers": 76,
+      "cells_predicted": 306432,
+      "s0": 5.0e-4
+    },
+    "L3": {
+      "role": "fine member of the graded triple",
+      "surface_op": "refine x1",
+      "surface_faces_predicted": 16128,
+      "pyhyp_N": 153,
+      "cell_layers": 152,
+      "cells_predicted": 2451456,
+      "s0": 2.5e-4
+    }
+  },
+
+  "graded_triple": ["L1", "L2", "L3"],
+
+  "similarity_conditions": {
+    "cell_count_ratio_consecutive": 8.0,
+    "surface_face_ratio_consecutive": 4.0,
+    "cell_layer_ratio_consecutive": 2.0,
+    "s0_ratio_consecutive": 2.0,
+    "march_dist_identical": true,
+    "_growth_ratio_note": "pyHyp's reported Grid Ratio is NOT expected to be identical across levels and a similarity check that demanded that would be wrong. Holding marchDist fixed while halving s0 and doubling the layer count means each cell splits in two, which drives the geometric growth ratio g -> approximately sqrt(g): 1.3562 at L1, ~1.165 at L2, ~1.079 at L3 (PREDICTED). What must hold is that every level reaches the SAME marchDist with the SAME topology and a layer count scaled by exactly r. The F28 lesson being guarded against is an UNSCALED layer count and a cell-to-cell volume JUMP, not a graded growth ratio changing under refinement.",
+    "max_cell_to_cell_volume_growth_reported_per_level": true
+  },
+
+  "wall_treatment": {
+    "_finding": "This case is WALL-MODELLED, not wall-resolved. Measured y+ on L1 is min 68.79 / max 1266.55 / mean 321.95 (cases/dafoam/PROOF.md:2523). Sanaa's clause 'y+ stays under 1 on every level where the case is wall-resolved' therefore does not bind: the qualifier excludes this case.",
+    "_what_binds_instead": "Wall-treatment REGIME consistency across the family. y+ falls by r per level under this refinement. PREDICTED mean y+: L1 321.9 (measured), L2 ~161, L3 ~80.5; PREDICTED minimum y+: L1 68.8 (measured), L2 ~34.4, L3 ~17.2. Every level is measured and reported.",
+    "_risk_registered_before_the_run": "L3's MINIMUM y+ is predicted at ~17, which is inside the buffer layer. The case uses Spalding's law (nutUSpaldingWallFunction), a single smooth formula deliberately valid across all y+ regimes with no hard regime switch (cases/dafoam/PROOF.md:981-982), which is the reason this is registered as a disclosed risk rather than a disqualification. If the observed order misses its band, this is the SECOND-ranked candidate cause after the scheme order below, and it is named here before any compute.",
+    "y_plus_reported_every_level": true
+  },
+
+  "formal_order": {
+    "_measured_from": "/home/ubuntu/dafoam-tutorials/MACH_Tutorial_Wing/system/fvSchemes",
+    "grad": "Gauss linear (2nd order)",
+    "laplacian": "Gauss linear corrected (2nd order)",
+    "div_phi_U": "bounded Gauss linearUpwindV grad(U) (2nd order)",
+    "div_phi_e_h": "bounded Gauss upwind (FIRST order)",
+    "div_phi_nuTilda": "bounded Gauss upwind (FIRST order)",
+    "_honest_statement": "The scheme set is MIXED, not uniformly second order. Momentum convection is second order; energy and the SA turbulence variable are first-order upwind. The formal order of CD on this case is therefore bounded below by 1 and above by 2, and is not cleanly 2.",
+    "registered_acceptance_band": [1.5, 2.5],
+    "_why_that_band": "Sanaa's SS0 sets the acceptance band at the scheme's formal order plus or minus 0.5 and words it as 'second order: p in 1.5 to 2.5'. That band is registered AS SHE SET IT and is the gate. It is not silently widened to accommodate this case.",
+    "_competing_prediction_registered_before_compute": "I predict p will land BELOW 1.5, most likely in 1.0-1.4, because div(phi,nuTilda) and div(phi,h) are first-order upwind and the turbulent viscosity field feeds CD directly. If that happens it is a GATE FAIL against the registered band and the SS0 step-4 escalation runs in full; the scheme order is the FIRST-ranked candidate cause and is named here before any compute so it cannot be offered afterwards as an explanation invented to fit the answer. If p lands inside 1.5-2.5, this prediction is a miss and is recorded as one."
+  }
+}
