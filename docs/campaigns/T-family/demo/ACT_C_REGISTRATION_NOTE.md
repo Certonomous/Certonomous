@@ -51,7 +51,8 @@ for. `validate_act`: **no problems**.
 | Expert discussion | **Yes.** Five beats across restatement, geometry, meshing, feasibility and checks, in the researcher, engineer, numericist and monitor roles. |
 | Geometry table, assumptions table | **Yes.** 8 rows and 10 rows, every quantity with a value and a unit, user-defined separated from lab-defined. |
 | Small multiples | **Act side yes.** Two arms, four series (two step counters, two pressure-settling traces), `sweep_points = 2`. |
-| Results tables, conclusion, compute | **Yes.** 3 tables, 5 verification lines, 4 limitations. Compute **19.763 processor-minutes measured** against a **26.39** estimate, ratio **0.749**; dollars derived at the recorded rate, never measured. |
+| Results tables, conclusion, compute | **Yes.** 3 tables, 7 verification lines, 5 limitations. Compute **19.763 processor-minutes measured** against the **26.39** frozen estimate — **25.1 % UNDER prediction**; dollars derived at the recorded rate, never measured. |
+| Early cost-prediction beat, closing predicted-vs-actual beat | **Yes, both.** See §2b. |
 | Report tab | **Yes.** Title, abstract, methods, 4 result rows, uncertainty, next steps, 3 conclusion lines, certificate sentence. |
 | Convergence study ending | **Yes, and enforced.** See §4. |
 
@@ -102,6 +103,53 @@ colour-coded apart from the stack, because the surface is one solid and a box
 clip would cut the stack with it. The distinction the assumption beat turns on is
 carried by the geometry table and the beat. Colour-coding needs the surface
 regenerated as two named solids, which is a change to the served geometry.
+
+---
+
+## 2b. THE TWO COST BEATS, AND THE NUMBER THAT DOES NOT FLATTER US
+
+Sanaa, 2026-09-01 ~20:56Z: every act carries an early beat predicting the cost
+and a closing beat comparing it to the actual.
+
+**Both numbers were re-derived from the records for this beat rather than
+inherited from an earlier reading**, because the pair's entire evidentiary value
+is that one of them was frozen first. The predicted figure traces to
+`T25R2_PREREGISTRATION.md` **§8.2**, the registered cost table: **8.30** and
+**18.09** core-minutes, quoted by each arm's completion marker. The actual is
+each marker's own solver core-minutes: **7.148** and **12.615**.
+
+| | predicted | actual | ratio |
+|---|---|---|---|
+| Arm 1, ten sweeps | 8.30 | 7.148 | 0.8612 |
+| Arm 2, twenty sweeps | 18.09 | 12.615 | 0.6973 |
+| **Together** | **26.39** | **19.763** | **0.7489** |
+
+**Final cost 25.1 % UNDER prediction.**
+
+⛔ **N IS 25, NOT 5, AND UNDER IS NOT ACCURATE.** Sanaa's *"within 5%"* is the
+pattern of the beat, not a figure to claim. And coming in under is comfortable in
+a way an overrun is not — nobody objects to spending less — which is exactly the
+comfort that would let a quarter-sized misprediction be written as though the
+forecast had been good. **It was not. The forecast missed by a quarter, in the
+direction that happens to flatter us.** The beat states the magnitude and the
+direction and stops; per her 20:14Z rule the number carries it without an
+explanatory sentence, and this is a number that does not need help.
+
+The struck wording on the report row was *"about three quarters of what we quoted
+you"*, which reads as though the forecast were fine. It now reads
+`25.1% under prediction`.
+
+Both beats are computed in code from the completion markers, so neither can drift
+from the records, and no `/5` is applied: that ruling stands and this act runs a
+conjugate solve on this box's processors.
+
+**Swept after the edit, not before** — the beats put more numbers on screen:
+sheet/figure sweep **rc 0** (159 numeric tokens, every rule 0 hits), act string
+sweep **rc 0** (371 strings, 212 numeric tokens, up from 366 / 200), tail check
+**rc 0** with the honesty statement confirmed present on the rebuilt page.
+Nothing here asked the allowlist for anything: core-minutes, ratios and dollars
+are not kelvin magnitudes, the derived set is still empty, and the refusal beat
+is untouched.
 
 ---
 

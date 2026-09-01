@@ -314,6 +314,36 @@ def solver_name() -> str:
     return os.path.basename(m.group(1))
 
 
+def cost_pair():
+    """Predicted, actual, and the MISS between them -- all read, none typed.
+
+    Sanaa, 2026-09-01 ~20:56Z: every act carries an early beat predicting the
+    cost and a closing beat comparing it to the actual. The evidentiary value
+    of the pair is that ONE OF THEM WAS FROZEN FIRST, so the predicted figure
+    is read from each arm's completion marker, which quotes section 8.2 of the
+    frozen registration (8.30 and 18.09 core-minutes) -- never reconstructed
+    afterwards from the actual.
+
+    ⚠ THE DIRECTION IS REPORTED AND IS NOT DRESSED UP. This run came in UNDER,
+    and coming in under is comfortable in a way an overrun is not: nobody
+    objects to spending less, and that comfort is exactly what would let a 25%
+    misprediction be phrased as though the forecast had been good. It was not.
+    The forecast missed by a quarter, in the direction that happens to flatter
+    us. The beat states the magnitude and the direction and stops.
+    """
+    ten, twenty = completion(ARM_TEN), completion(ARM_TWENTY)
+    predicted = (ten["point_core_min"] or 0.0) + (twenty["point_core_min"] or 0.0)
+    actual = ten["solver_core_min"] + twenty["solver_core_min"]
+    if predicted <= 0:
+        _refuse("no registered cost estimate to compare the actual against")
+    ratio = actual / predicted
+    return {"predicted": predicted, "actual": actual, "ratio": ratio,
+            "pct": abs(1.0 - ratio) * 100.0,
+            "direction": "under" if ratio < 1.0 else "over",
+            "arms": [(ten["point_core_min"], ten["solver_core_min"]),
+                     (twenty["point_core_min"], twenty["solver_core_min"])]}
+
+
 def admissible():
     """What the corrected run has graded, and why the set is what it is."""
     return ADMISSION.derive()
@@ -626,6 +656,7 @@ class BatteryModuleAct(DemoAct):
     # -- 9. results ----------------------------------------------------------
     def results(self) -> Results:
         d = gate_detail()
+        c = cost_pair()
         ten, twenty = completion(ARM_TEN), completion(ARM_TWENTY)
         actual = ten["solver_core_min"] + twenty["solver_core_min"]
         point = (ten["point_core_min"] or 0.0) + (twenty["point_core_min"] or 0.0)
@@ -686,6 +717,9 @@ class BatteryModuleAct(DemoAct):
             "setting describes the setting.",
             "Corrected run scheduled: pressure criterion scaled per mesh, "
             "not fixed.",
+            f"Predicted {c['predicted']:.2f}, used {c['actual']:.3f} "
+            f"processor-minutes.",
+            f"Final cost {c['pct']:.1f}% {c['direction'].upper()} prediction.",
         ]
         limitations = [
             "1 grid so far, so no band on any number; the finer companion "
@@ -722,12 +756,23 @@ class BatteryModuleAct(DemoAct):
         """
         facts = mesh_facts()
         d = gate_detail()
+        c = cost_pair()
         doc = json.loads(_text(GATE_JSON))
         deltat = doc["results"]["T25R2_L1_OC20"]["pulse"]["deltaT"]
         q_hi = doc["q_takeoff_W_per_m3"]
         q_lo = doc["q_cruise_W_per_m3"]
         return {
             "restatement": [
+                # HER EARLY COST-PREDICTION BEAT (2026-09-01 ~20:56Z). The
+                # figure is the one FROZEN BEFORE THE RUN, read from the
+                # completion markers that quote the registration, so the
+                # closing beat has something real to compare against.
+                ("monitor", [
+                    f"Predicted compute: {c['predicted']:.2f} "
+                    f"processor-minutes.",
+                    f"Arm 1 {c['arms'][0][0]:.2f}, arm 2 "
+                    f"{c['arms'][1][0]:.2f}. Fixed before either run started.",
+                ]),
                 ("researcher", [
                     f"Physics: conduction in {facts['cells_in_stack']} solid "
                     f"cells, forced convection in {facts['channels']} "
@@ -787,8 +832,7 @@ class BatteryModuleAct(DemoAct):
     # -- the report the act ends in -----------------------------------------
     def closing(self) -> Closing:
         d = gate_detail()
-        ten, twenty = completion(ARM_TEN), completion(ARM_TWENTY)
-        actual = ten["solver_core_min"] + twenty["solver_core_min"]
+        c = cost_pair()
         values, _why = admissible()
 
         if values:
@@ -836,10 +880,12 @@ class BatteryModuleAct(DemoAct):
                  "envelope": f"limit {d['O3_tol']:.5f} K",
                  "reason": "outside the limit, during the takeoff pulse only"},
                 {"quantity": "Compute used",
-                 "value": f"{actual:.3f} processor-minutes",
-                 "envelope": "against an estimate of "
-                             f"{(ten['point_core_min'] or 0) + (twenty['point_core_min'] or 0):.2f}",
-                 "reason": "about three quarters of what we quoted you"},
+                 "value": f"{c['actual']:.3f} processor-minutes",
+                 "envelope": f"predicted {c['predicted']:.2f}",
+                 # NOT "about three quarters of what we quoted you", which was
+                 # the struck wording: it reads as though the forecast were
+                 # fine. A quarter is a quarter whichever way it misses.
+                 "reason": f"{c['pct']:.1f}% {c['direction']} prediction"},
             ],
             uncertainty=[
                 "1 grid, 1 time step so far: no band on any number yet.",
@@ -859,6 +905,9 @@ class BatteryModuleAct(DemoAct):
                 "answer, so no temperature is reported.",
                 f"Coolant outlet, {d['O3'] / d['O3_tol']:.2f}x over, inside "
                 f"the 60 s pulse only. Corrected run already scheduled.",
+                f"Predicted {c['predicted']:.2f}, used {c['actual']:.3f} "
+                f"processor-minutes: {c['pct']:.1f}% "
+                f"{c['direction'].upper()} prediction.",
                 study,
             ],
             certificate_state=(
