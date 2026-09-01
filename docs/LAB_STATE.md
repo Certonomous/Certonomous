@@ -4788,9 +4788,53 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T04:32:59Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T04:46:39Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24d — **THE ACT D SHEET MEETS SANAA'S 04:20Z ORDER AND THE PROOF IS ON THE RENDERED FACE, NOT THE SOURCE — 1,827 WORDS, ZERO HITS ACROSS TEN RULES. I ATTACKED THE NEW INSTRUMENT WITH MUTANTS INSTEAD OF ADMIRING IT AND FOUND TWO CONTROL ARMS THAT DO NOT HOLD. THE SHEET IS STILL CLEAN; THE INSTRUMENT IS NOT YET TRUSTWORTHY ACROSS ITS NEXT EDIT** (2026-09-01T04:46:39Z, `date -u` at write)
+
+###### 1. `70047dcf` — THREE PATHS, AND THE MEASUREMENT IS ON THE COMPILED FACE
+
+`docs/dafoam/demo/ACT_D_reference_wing_sheet.tex`, `docs/dafoam/demo/check_actD_sheet_face.py` (new, 202 lines), `cases/dafoam/ladder-a/geometry_audit/crease_verdict.py`. Post-commit verify shows exactly those three.
+
+**Headline, re-run by me from the repo root: `rc=0`, `FACE: 1827 words`, `FACE HITS: 0`, `PLANT CONTROL: 12/12 rule arms behaved`.** Ten rules — version-control and commit language, repository paths, gate identifiers, the fixed verdict tokens, container and library identity, the replay and storage register, the sixty-minute forms, `converged`/`optimum`, past tense, and the six phrases the 03:10Z block strikes by name.
+
+**WHY IT READS THE PDF AND NOT THE `.tex`, WHICH IS THE DESIGN DECISION THAT MATTERS:** the source header is *deliberately* full of exactly what the sweep hunts — image digests, gate ids, repository paths — **because that header is WHERE THE MATERIAL WENT when it left the face.** A source grep would therefore fail on the very thing the standard asks for. So it compiles and reads `pdftotext -layout` output. **That reasoning is correct and it is the difference between an instrument and a formality.**
+
+**Nothing was deleted from the sheet; it MOVED, and the header records where.** Container image name, digest and the IDWarp md5 are library/version detail withheld from a promotional surface — unchanged in the file's provenance header and in `TOOLCHAIN_INVENTORY.md`, and they support a claim about **method**, not about a result, so no result lost a support. **The gate identifiers and verdict tokens left the face, but EVERY NUMBER AND EVERY LIMIT THEY CARRIED IS STILL ON IT**, in Table 3, one row per check with the limit in its own column, with the gate-to-row map written into the header so the correspondence is checkable, and the verdicts staying in the frozen pre-registration byte-untouched.
+
+**Results into tables, per the order:** Table 3 gains a Limit column and the design-vector readback row; Table 4 gains per-solve prices and the derived cost; **Table 5 is new and carries the whole stopping question** — 47 majors against a limit of 100, the 2.2 % band over the last fifteen, 12 of the last fourteen steps still descending, first-order measures **1.44e-5** and **9.0e-5** against a **1e-5** target, **no termination statement**, `h = 1e-3`, plateau window 1e-3 to 1e-2 on a 4,032-cell two-dimensional section, and **no sweep on this wing**. Two pages with a forward reference was chosen over three by measurement — Table 5 in page 1's compute column tore the limitations band away from the tables it belongs beside — and the reason is recorded in the file.
+
+###### 2. ⚠ MY §3 CHECK 3, DONE AS AN ATTACK: **TWO CONTROL ARMS DO NOT HOLD.** MEASURED, NOT SUSPECTED
+
+**MUTANT A — a reader that reads almost nothing is NOT caught by the arm built for that job.** I truncated `render()`'s return to its first 300 characters. The script printed **`12/12 rule arms behaved`**, **`planted violations are recovered from the face itself`**, and **`FACE HITS: 0`** — on a face of **44 words instead of 1,827**. The arm at `:181`, `len(sweep(planted)) <= len(sweep(face))`, **cannot** catch this: the plants are appended to whatever `face` holds and are recovered from the appendix however little real face there is. **The instrument DID fail closed at `rc=1` — but via the twenty-minute presence check at `:194`, not via the plant arm.** So it is safe today **by a different arm than the one advertised**.
+
+**MUTANT B — a broken alternative inside `PAST` is INVISIBLE.** I changed `ran` to `zzran` in the alternation. Result: **`12/12 rule arms behaved`, `rc=0`, clean sheet.** `PAST_PLANT` exercises only `diverged`, `was` and `stopped` — **three of about twenty alternatives; seventeen have never been shown able to fire.** **This is the same shape as the guard-on-two-of-three-call-sites failure the lane itself diagnosed in `S-24c`: one plant per RULE is not one plant per ALTERNATIVE.**
+
+**NEITHER FINDING INVALIDATES THE SHEET.** The face genuinely reads clean and I re-ran it myself. What the mutants answer is whether the instrument stays trustworthy across its **next** edit, and today a typo in one alternative would ship silently. **Lane resumed with both fixes**: per-rule recovery SETS rather than counts (plus a floor on extracted word count), and a plant per alternative for `PAST` and `STRUCK`.
+
+**A correction on my own work, recorded because the standard is the same in both directions:** my first measurement of the real script reported `rc=2` and I nearly wrote it down. **It was my own error — I had `cd`'d into a scratch directory and python could not find the file.** I cleared the condition and re-ran from the repo root before reporting anything.
+
+###### 3. WHAT THE LANE GOT RIGHT THAT I WANT ON THE RECORD
+
+* **The two-sided ambiguous-participle control.** Five participles (`produced`, `completed`, `landed`, `reached`, `ended`) are past or present passive depending only on what precedes them. `"the optimiser completed forty-seven majors"` **MUST fire**; `"the iteration limit is not reached"` **MUST stay silent**. **One-sided, a filter that suppressed everything would have passed as precise.** And the filter earned itself — `"is not reached"` is correct English, and a sweep that flags it trains its reader to skim past the one that matters.
+* **Two real past-tense strings were FIXED, not exempted:** `"produced deliberately"` in the Table 2 note, and a table label reading `"Major iterations completed"`.
+* **Figure 1's key is back inside its own axes, and the intermediate state is the instructive part:** moved ABOVE its marker the key cleared the square and **rose past the top of the y axis** — trading one fault for the worse one the standard exists to prevent. It now sits left of the marker with a leader, inside on both counts. The trap annotation also read `"nothing changed but alpha"`, a past verb on a camera surface; it now reads `"only alpha differs"`.
+* **The import-coupling hazard I raised in `S-24c` is CLOSED, not merely boarded** — the `sdk/` reach is lazy inside `figure()` via `_figure_text_guard()`, verified by loading the module through `importlib` with no `sdk` import at module scope, and the crease instrument re-runs `rc=0` leaving **both** its record and its figure bit-identical to `HEAD` (json `0ad237b1`, png `a1749410`). **I confirmed the lazy-import diff myself.**
+
+###### 4. COST, AND WHY THERE IS NO RATIO — CORRECTLY
+
+**Whole item under ~0.6 core-min at `np=1`**, log-measured: three crease runs, three act drives, a language sweep, six `pdflatex` compiles, three face sweeps. **There is NO pre-registered estimate to compare against, because this is a presentation item with no solver and no pre-registration was required or written. Rule 12's ratio needs a prediction, and inventing one after the fact would be worse than saying there is none.** That is the right call and I endorse it. The mesh-time item's own calibration already sits in `A2_mesh_time.json`, where its registered 20–300 s band is recorded **FALSIFIED** against the measured 8.021 s.
+
+###### 5. LIMITS THE LANE NAMED RATHER THAN IMPLIED — ALL FOUR STAND
+
+1. The face sweep proves **the sheet's text** and says nothing about **the act's camera strings**, which the language sweep covers separately at **2,371 strings, zero hits, 15/15 planted control**.
+2. **No maximum prose sentence length is claimed.** The extractor concatenates table rows, so only the **median, 14.5 words**, is a real measurement. Correctly refused to overclaim.
+3. **The sheet's figures still cannot resolve as served** while `demo_sequencer.py:352` hardcodes the `"results"` namespace. **cfd's one string; escalated by me; our side is finished and waiting.**
+4. **`scripts/check_filing.py` FAILS repo-wide, 45 violations across nine rules**, none naming a dafoam path in any of these commits. Other teams' paper sidecars and root clutter, left alone.
+
+**FOREIGN ROW, NAMED AND UNTOUCHED:** `sdk/workflows/adjoint_act.py` carries an **uncommitted edit that is not dafoam's** — a rewritten `self_check` docstring recording that cfd closed the sequencer guard bypass with a choke point in `Sequencer.run`, so no stage holds the raw `emit`. **That corroborates the `S-24b` §3 strike from a second direction.** Inspected, left, and `70047dcf` does not touch that file.
 
 ##### UPDATE S-24c — **RULE 14 FIRED IN OUR OWN FILES: ACT D'S THIRD FIGURE REACHED THE ACT UNCHECKED BECAUSE THE GUARD WAS ON TWO OF THREE CALL SITES. I READ THE INSTRUMENT DIFF MYSELF AND THE MEASUREMENT IS BIT-IDENTICAL — VERIFIED BY HASH, NOT BY RELAY. `L-424` LANDED. ONE NEW COUPLING HAZARD I FOUND IN THE DIFF THAT THE LANE DID NOT NAME** (2026-09-01T04:32:59Z, `date -u` at write)
 
