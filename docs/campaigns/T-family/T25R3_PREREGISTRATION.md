@@ -1143,3 +1143,81 @@ unless someone writes it down. It is written down here.
   changes no input to any of them.
 
 <!-- END OF T25R3 PRE-REGISTRATION v1.1 -->
+
+---
+
+## Addendum D1 — 2026-09-01, **AFTER FIRST COMPUTE. DISCLOSURE ONLY.** §11's `simple` decomposition cannot run, and the solver said so
+
+**Pre-registration version v1.2. Lines whose number changed above this section:
+0.** No gate, threshold, cap or label is altered by this addendum, and none
+could be: it changes a decomposition method, which §11 registers as an input and
+which §7 does not read.
+
+### D1.1 WHAT HAPPENED, MEASURED
+
+§11 registered `method simple; n (2 1 1)` on both regions. It was staged,
+verified by `verify_mesh_t25R3.py` (which checked the dictionary and found
+exactly what §11 asked for), launched, and **`chtMultiRegionFoam` REFUSED at the
+first coupled solve of t = 0**:
+
+> `The number of faces on either side of the coupled patch 3 are not the same.
+> This might be due to the decomposition used. Please use decomposition
+> preserving implicit patches on a single processor.`
+> — `lduPrimitiveMeshAssemblyTemplates.C:72`
+
+**No gradable output existed. The refusal is a crash, and a crash is a finding
+until triage says otherwise.**
+
+### D1.2 THE MECHANISM, AND IT DEFEATS EVERY BOUNDING-BOX METHOD
+
+The staged conjugate interface carries **`useImplicit true`**, so the coupling is
+assembled into **one `lduMatrix` spanning both regions**. That assembly requires
+both sides of every interface face to live on the **same rank**.
+
+**`decomposePar` decomposes each region INDEPENDENTLY, and `simple` cuts each at
+ITS OWN bounding-box midpoint.** The module spans `x ∈ [0, 0.100]`; the coolant
+spans `x ∈ [−0.050, 0.200]` because of the plenums. **So the two cuts fall at
+x = 0.0500 and x = 0.0750, and every interface face in that 25 mm band has its
+two sides on different ranks.** `hierarchical` cuts on the same bounding boxes
+and fails identically. `scotch` — already refused by §11 on other grounds —
+offers no alignment guarantee either.
+
+**This was foreseeable from the dictionary and was not foreseen.** §11 reasoned
+carefully about why the partition must not vary *across the ladder* and did not
+ask whether the partition was legal *within a single run*. The registration was
+wrong on a point it could have checked without compute, and that is stated here
+rather than folded into a sentence about the fix.
+
+### D1.3 WHAT IS REGISTERED INSTEAD
+
+**`method manual`, from a cell map computed on ONE SHARED PLANE `x = 0.050 m`
+applied to BOTH regions**, so the interface partition is identical on both sides
+by construction.
+
+| | measured |
+|---|---|
+| x = 0.050 is a mesh **face**, never a cell centre | `nx_mid` 40 / 60 / 90 over 0.100 m; the stager **REFUSES** if any cell centre lands on the plane |
+| module split | **50 / 50 exactly** on every level (1,920/1,920 · 4,320/4,320 · 9,720/9,720) |
+| coolant split | 47 / 53 (6,048/6,720 · 13,608/15,120 · 30,618/34,020) |
+| identical rule on all six runs, both regions | yes — one plane, one rule |
+
+**§11'S PURPOSE IS FULLY PRESERVED, WHICH IS WHY THIS IS AN ADDENDUM AND NOT A
+NEW GATE.** Its registered reason is that *the partition must not vary across
+the ladder or it contaminates the observed order*. One plane, one rule, six runs,
+both regions — the invariance §11 exists to protect is **stronger** here than
+under `simple`, which would have cut each mesh level at a level-dependent place.
+
+**There is still NO SEED, and the claim §11 makes is unchanged**: `manual` reads
+a file this lab wrote deterministically from cell centres. That is more
+reproducible than `simple`, not less.
+
+### D1.4 WHAT THIS ADDENDUM DOES NOT DO
+
+- It does **not** change `nOuterCorrectors`, any tolerance, any scheme, the
+  ramp, the time-step schedule, the field tuple, τ, the second tier, `G-I`'s
+  ratio, the Roache bands or any cap.
+- It does **not** change the rank count: still **2**, still identical on all six.
+- It does **not** license a second departure. A further decomposition change
+  after this one would be a new rung, not a third addendum.
+
+<!-- END OF T25R3 PRE-REGISTRATION v1.2 -->

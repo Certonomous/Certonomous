@@ -12501,6 +12501,34 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+
+---
+
+##### 🔴 **T25R3 IS LIVE — SIX SOLVERS, LAUNCHED 2026-09-01T17:15:24Z.** Registration `8cef4791`, Amendment A1 `e46aa244`, comparator `629f5b32`, Addendum D1 (this commit).
+
+*(Lane block, written on the supervisor's launch order. **Pure insertion; nothing below is edited or deleted.** Six `chtMultiRegionFoam` runs, 2 ranks each, 12 cores.)*
+
+**IF YOU ARE A SUCCESSOR AND THESE ARE STILL RUNNING, DO NOT RESTART THEM AND DO NOT DELETE THEIR CASE DIRECTORIES.** Read `docs/campaigns/T-family/T25R3_PREREGISTRATION.md` first; the run set is CLOSED at six and a seventh run is not admitted.
+
+| run | mesh | cells | ladder | dt (legA/legB) | steps | nOuter | cwd | CAP core-min | timeout_s |
+|---|---|---|---|---|---|---|---|---|---|
+| S1 | L1 | 16,608 | space coarse | 0.02 / 0.1 | 11,800 | 15 | `verification/runs/T-family/T25R3_MODULE_runs/S1` | 305 | 9,150 |
+| S2 | L2 | 37,368 | space **middle** | 0.02 / 0.1 | 11,800 | 15 | `.../S2` | 686 | 20,580 |
+| S3 | L3 | 84,078 | space **finest** | 0.02 / 0.1 | 11,800 | 15 | `.../S3` | 1,543 | 46,290 |
+| T2 | L2 | 37,368 | time dt/2 | 0.01 / 0.05 | 23,600 | 15 | `.../T2` | 1,372 | 41,160 |
+| T4 | L2 | 37,368 | time **dt/4** | 0.005 / 0.025 | 47,200 | 15 | `.../T4` | 2,744 | 82,320 |
+| W30 | L2 | 37,368 | iterative (G-I) | 0.02 / 0.1 | 11,800 | **30** | `.../W30` | 1,255 | 37,650 |
+
+**Live rank pids at boarding:** W30(147276 147277) S1(145843 145844) S2(146127 146128) T2(146702 146703) S3(146690 146691) T4(146986 146987) 
+
+**Each run is TWO CHAINED LEGS.** Leg A runs 0 → 70 s at the fine step and carries the whole load transient; leg B restarts at `latestTime` and soaks to 900 s. `.rc.<RUN>.legA` / `.legB` are written **inside** the wrapper — `setsid timeout` returns 0 for every outcome, so an rc captured around it is a constant zero wearing the costume of a measurement.
+
+**Monitoring, and the reader matters:** count live solvers by **`readlink /proc/<pid>/exe`**, never by `ps -o comm` (**truncates at 15 characters** — it reported `chtMultiRegionFoam` as absent while twelve ranks were running) and never by `pgrep -f` (**matches the matcher's own command line**). This lane got a false zero from `ps -o comm` and, believing it, deleted case directories out from under a live fleet. **The only reader that cannot lie here is the exe link.**
+
+**Grading is BLOCKED until all six are DONE.** `analyse_t25R3.py --grade <root>` REFUSES on a partial set by construction.
+
+---
+
 ---
 
 ##### ⛔ STATE AFTER THE BOX REBOOT — 2026-09-01T15:33:19Z. **EVERYTHING PREPARED SURVIVED, VERIFIED BY CONTENT. TWO CELLS OF OUR OWN 06:45Z HANDOFF WERE STALE AND ARE CORRECTED HERE.**
