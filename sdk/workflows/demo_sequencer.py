@@ -71,7 +71,8 @@ from typing import Callable
 
 from .demo_mode import (BANNERS, STAGES, DemoAct, DemoContractError,
                         assert_screen_safe, check_running_line, cost_line,
-                        registered_acts, translate_chips, validate_act)
+                        registered_acts, screen_refusal_class,
+                        translate_chips, validate_act)
 
 
 def _translated(node):
@@ -319,6 +320,21 @@ class Sequencer:
         """
         prompt = self.act.prompt()
         typed = (self.typed_prompt or "").strip()
+        if typed:
+            # THE REFUSAL MUST NOT LEAK WHAT IT REFUSED. Everything else this
+            # module publishes was written by the lab, so quoting it back is
+            # how an author finds their own mistake. This one string was typed
+            # by a user, and the refusal is published as the mission's failure
+            # reason -- so letting check_demo_language's message through would
+            # put the very path it refused onto the screen, through the guard
+            # that exists to keep it off. Named by CLASS, never by value, and
+            # chained with `from None` so the original message cannot follow
+            # it out.
+            bad = screen_refusal_class(typed)
+            if bad is not None:
+                raise SequencerRefused(
+                    f"that request cannot be shown on screen because it "
+                    f"contains {bad}; retype it without that part") from None
         return self._publish(emit, "demo.prompt",
                              {"stage": "prompt", "text": typed or prompt.text})
 

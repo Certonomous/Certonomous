@@ -340,13 +340,19 @@ def test_a_typed_prompt_is_guarded_like_every_other_payload():
     The flagged trade-off, driven rather than asserted: a typed prompt
     carrying an internal identifier refuses, and the mission fails with the
     reason, rather than being silently swapped for the act's own wording.
+
+    The refusal is a :class:`SequencerRefused` and not the
+    :class:`DemoContractError` the guard itself raises, and the difference is
+    the whole point rather than a detail: the contract error quotes what it
+    refused, which is correct for the lab's own wording and is a LEAK for a
+    user's. See the class-not-value tests below.
     """
     seq = demo_sequencer.Sequencer(
         act=ACT, sleep=lambda s: None,
         typed_prompt="run the case in verification/runs/JF1_jet_flap please")
     events = []
     guarded = seq._guarded(lambda n, p: events.append(n))
-    with pytest.raises(DemoContractError):
+    with pytest.raises(demo_sequencer.SequencerRefused):
         seq._stage_prompt(guarded, None, ACT.run_record())
     assert not events, "the banned string was published before the refusal"
 
@@ -434,3 +440,73 @@ def test_the_real_screen_carries_no_false_positive():
         # included. Re-checking with a flat screen zone would manufacture a
         # false positive on the act's own limitations box.
         assert_screen_safe(payload)
+
+
+# -- the refusal must not leak what it refused -------------------------------
+
+#: Each entry is (typed prompt, the substring that MUST NOT reach the screen).
+#: A guard that refuses a path and then publishes that path in its own failure
+#: reason has put the path on the screen with the guard's authority behind it.
+LEAK_PROBES = {
+    "absolute path": (
+        "sweep the jet momentum coefficient, files in "
+        "/home/ubuntu/Certonomous/verification/runs/JF1x",
+        "/home/ubuntu/Certonomous"),
+    "repo-relative path": (
+        "sweep the jet momentum coefficient using "
+        "cases/demo-surfaces/airfoil_blown_slot.stl",
+        "cases/demo-surfaces"),
+    "case id": (
+        "sweep the jet momentum coefficient for JF1_L1_BLOWN_CMU020_A0",
+        "JF1_L1_BLOWN_CMU020_A0"),
+    "lesson id": (
+        "sweep the jet momentum coefficient, see L-314",
+        "L-314"),
+}
+
+
+@pytest.mark.parametrize("name", sorted(LEAK_PROBES), ids=sorted(LEAK_PROBES))
+def test_a_typed_prompt_refusal_names_the_class_not_the_value(name):
+    typed, secret = LEAK_PROBES[name]
+    seq = demo_sequencer.Sequencer(act=ACT, sleep=lambda s: None,
+                                   typed_prompt=typed)
+    events = []
+    guarded = seq._guarded(lambda n, p: events.append((n, p)))
+
+    with pytest.raises(demo_sequencer.SequencerRefused) as caught:
+        seq._stage_prompt(guarded, None, ACT.run_record())
+
+    reason = str(caught.value)
+    assert secret not in reason, (
+        f"the refusal published the very {name} it refused; the guard put it "
+        f"on screen through its own error message")
+    assert "cannot be shown on screen" in reason
+    # The message is read by a VIEWER, so it names a thing, not an
+    # instruction. Measured before the class-noun map existed: the reason read
+    # "it contains give the point a plain-English label, not a case id".
+    assert "give the point" not in reason, (
+        "the refusal spliced an author-facing remedy into a viewer-facing "
+        "sentence")
+    assert not events, "something was published before the refusal"
+
+    # THE CONTROL. check_demo_language, which is right to quote for an
+    # AUTHORSHIP fault, does carry the value -- so this test is measuring a
+    # real difference and not the absence of any message at all.
+    from workflows.demo_mode import check_demo_language
+
+    with pytest.raises(DemoContractError) as authorship:
+        check_demo_language(typed)
+    assert secret in str(authorship.value), (
+        "the control did not carry the value, so this test cannot tell a "
+        "sanitised message from an empty one")
+
+
+def test_screen_refusal_class_is_silent_on_clean_text():
+    """The classifier must not manufacture a class for good wording."""
+    from workflows.demo_mode import screen_refusal_class
+
+    for good in ("Blown-wing high-lift: sweep the trailing-edge jet momentum "
+                 "coefficient from 0 to 0.4.",
+                 "Solving, iteration 4,000 of 20,000",
+                 "39,984 cells on the force grid"):
+        assert screen_refusal_class(good) is None, good

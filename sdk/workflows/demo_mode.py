@@ -73,7 +73,8 @@ __all__ = [
     "GeometryMatch", "MeshPlan", "Feasibility", "SolveReplay", "SeriesSpec",
     "ElapsedClock", "GatesAndChecks", "Results", "Figure", "Table", "DemoAct",
     "DemoContractError", "check_demo_language", "check_running_line",
-    "assert_screen_safe", "validate_act", "core_minutes", "cost_line",
+    "assert_screen_safe", "screen_refusal_class", "validate_act",
+    "core_minutes", "cost_line",
     "STAGES", "BANNERS", "NEVER_PHRASES", "RATE_USD_PER_CORE_HOUR",
     "SERVED_GEOMETRY_DIR", "register_act", "registered_acts",
 ]
@@ -402,6 +403,80 @@ def check_running_line(text: str, *, tense: str) -> None:
         raise DemoContractError(f"unknown tense {tense!r}")
 
 
+#: A viewer-readable NOUN for each identifier class, keyed by the remedy the
+#: pattern carries. Only the identifier classes are mapped: everything else in
+#: NEVER_PHRASES is a matter of WORDING rather than a thing embedded in the
+#: text, and telling a viewer their request "contains state the solve as fact"
+#: would be nonsense. Unmapped remedies fall back to a wording sentence.
+_REFUSAL_CLASS_NOUNS: Mapping[str, str] = {
+    "give the point a plain-English label, not a case id": "a case identifier",
+    "a lesson id is never user-visible": "an internal note identifier",
+    "a docket id is never user-visible": "an internal note identifier",
+    "tier words are never user-visible": "an internal grading word",
+    "say what could not run, in plain words": "an internal status word",
+    "say 'success criteria fixed before running'": "an internal process word",
+    "a process id is never user-visible": "a process identifier",
+    "a port number is never user-visible": "a port number",
+    "a commit hash is never user-visible": "a commit identifier",
+}
+
+
+def screen_refusal_class(text: str) -> str | None:
+    """WHICH CLASS of forbidden content ``text`` carries, never the value.
+
+    THE DEFECT THIS EXISTS FOR. :func:`check_demo_language` quotes the string
+    it refused, which is right for an authorship fault -- the author needs to
+    see what they wrote. It is exactly wrong for text a USER typed: the
+    sequencer publishes a refusal as ``mission.failed`` with the reason on it,
+    so a guard built to keep a filesystem path off the screen would put that
+    very path on the screen through its own error message. A leak by way of
+    the error is the classic failure of a guard of this kind, and it is worse
+    than no guard because it arrives wearing the guard's authority.
+
+    Returns a short class noun -- "a file path", "a case id" -- or ``None``
+    when the text is clean. It is ORDERED EXACTLY AS :func:`check_demo_language`
+    checks, so the two can never disagree about which rule fired.
+    """
+    if not isinstance(text, str):
+        return "text this screen cannot read"
+
+    for pattern, remedy in NEVER_PHRASES:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            # The remedies quote nothing, so they are safe -- but they are
+            # written as INSTRUCTIONS TO AN AUTHOR ("give the point a
+            # plain-English label"), and splicing one into a sentence aimed at
+            # a viewer produces "it contains give the point a plain-English
+            # label". Measured on the real path before this map existed. The
+            # identifier classes therefore get a noun phrase a viewer can
+            # read; everything else is wording rather than an identifier, and
+            # says so.
+            return _REFUSAL_CLASS_NOUNS.get(
+                remedy, "wording the screen rules do not allow")
+    for pattern in _PATH_PATTERNS:
+        if re.search(pattern, text):
+            return "a file path"
+    for phrase in _GATE_PHRASES:
+        words = phrase.split()
+        if re.search(r"\b" + r"\s+".join(words) + r"\b", text):
+            return "one of the lab's internal result labels"
+        if text.strip().strip(".:;,").strip().lower() == phrase.lower():
+            return "one of the lab's internal result labels"
+        if len(words) > 1 and re.search(
+                r"\b" + r"\s+".join(w.capitalize() for w in words) + r"\b",
+                text):
+            return "one of the lab's internal result labels"
+    if re.search(_FINER_GRID, text, flags=re.IGNORECASE):
+        return "a sentence that belongs only in the caveat box"
+
+    from . import check_wording
+
+    try:
+        check_wording(text)
+    except ValueError:
+        return "wording the screen rules do not allow"
+    return None
+
+
 def assert_screen_safe(payload: Mapping) -> None:
     """Refuse a control-room payload carrying an internal-only field.
 
@@ -485,6 +560,17 @@ def core_minutes(wall_seconds: float, ranks: int) -> float:
     return wall_seconds * ranks / 60.0
 
 
+#: What the compute figure is CALLED on a customer screen. The quantity is
+#: unchanged and is still CLAUDE.md rule 12's core-minutes -- wall seconds x
+#: ranks / 60 -- and the record, the ledgers and every cost calibration keep
+#: saying core-minutes. Only the screen's word changes: "core-minutes" is this
+#: lab's internal unit, and Sanaa's live-demo standard keeps internal
+#: information off the customer surface. A viewer reads "processor-minutes"
+#: without having to know what a core is, and it is the same minute on the
+#: same processor.
+SCREEN_COMPUTE_UNIT = "processor-minutes"
+
+
 def cost_line(cm: float, *, gross: bool = True) -> str:
     """The screen's cost sentence for a run of ``cm`` core-minutes.
 
@@ -492,10 +578,13 @@ def cost_line(cm: float, *, gross: bool = True) -> str:
     shown as this run's cost, because it is". The dollar figure is derived at
     the recorded rate, and the sentence says so rather than implying the box
     read a bill.
+
+    The ARGUMENT is core-minutes and the RENDERING is
+    :data:`SCREEN_COMPUTE_UNIT`; the number is not touched.
     """
     usd = cm / 60.0 * RATE_USD_PER_CORE_HOUR
     basis = "gross" if gross else "cleaned"
-    return (f"Compute used: {cm:,.1f} core-minutes ({basis}), "
+    return (f"Compute used: {cm:,.1f} {SCREEN_COMPUTE_UNIT} ({basis}), "
             f"about ${usd:,.2f}, derived at the recorded rate.")
 
 
