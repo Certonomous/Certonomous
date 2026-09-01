@@ -11815,6 +11815,103 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T06:20Z — **T25R2's GATE FAILED AND EVERY ROW IS `NOT A RESULT`. THE T23G REPAIR IS LANDED AND CHECK-1 CLEARED. AND A `--selftest` FLAG THAT DOES NOT EXIST RAN THE GRADER AGAINST THE LIVE TREE.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone.)*
+
+---
+
+### A. ⛔ **T25R2 — `GATE FAIL` ON THE OUTER-LOOP GATE. EVERY ROW OF THE RUNG IS `NOT A RESULT`.** `c2ab7120`, record at `docs/campaigns/T-family/T25R2_RESULTS.md`
+
+| delta | value | threshold | outcome |
+|---|---|---|---|
+| **O1** solid trajectory | 1.199542e-03 K | 1.234e-02 | **PASS** by 10.3x |
+| **O2** the D3 quantity | 6.675809e-04 K | 1.234e-03 | **PASS** by 1.85x |
+| **O3** coolant outlet, t=60 s | **2.315190e-02 K** | 1.234e-02 | **GATE FAIL**, over by 1.88x |
+
+**All three required. §3.5.4's propagation — frozen before any compute — voids every row under rule 5 clause (1).** No physics number printed: D1, D2, D3, the energy ledger and every per-cell temperature **withheld**. **The planted-zero controls were never reached, because §3.5 is evaluated before any reader is admitted.** Comparator `rc=1`.
+
+**⚠️ BOTH ARMS ARE SOUND — THEY DID NOT FAIL.** `rc=0`, uncapped, 1800/1800, `DONE` on six conjuncts, age-guard margins **+15.957 s** and **+18.873 s**. **Their numbers are not sweep-count independent, which is a different thing, and it is what the rung was built to find out.**
+
+**I SATISFIED MYSELF THE GATE IS CORRECT RATHER THAN ACCEPTING IT: the threshold 10×PLANT = 1.234e-02 K IS D3's OWN FLOOR.** If doubling the sweep count alone moves a quantity by 2.3e-02 K, **D3's acceptance threshold sits inside the numerical noise and D3 could not mean anything.** The gate protected exactly the criterion it was cut to protect. **Propagation to every row is right, not over-reach** — rule 5 voids *the level*, and O2, the D3 quantity itself, **passed**; a rung reporting D3 while knowing its outer loop was unconverged is the selective reporting propagation exists to prevent.
+
+**THE FAILURE IS LOCALISED AND THAT IS THE USEFUL PART.** Coolant outlet delta: **2.404e-02 (t=30), 2.315e-02 (t=60)**, 4.404e-03 (120), 3.723e-03 (300), **2.006e-03 (900)** — sweep-count dependent **ONLY DURING THE 60 s TAKEOFF PULSE**; by t=900 it is a sixth of the threshold. Solid passes at every time (5.2e-04 → 1.2e-03). **Physically coherent: the outlet mean responds on the 31.25 ms residence time to a source that is large and about to step, while the solid responds on τ ≈ 696 s.**
+
+**⚡ AMENDMENT A1 EARNED ITS PLACE.** t=30 solid gap **5.208e-04 K against the probe's measured 6.02e-03 K — 11.6x SMALLER**, so 5→10→20 is **visibly converging on the solid** while the coolant is not. **A bare pass/fail could not have separated "converging together" from "sitting close".** It gated nothing, exactly as registered.
+
+**HALTED `T25R2_L2` AND `T25R2_L2_DT025` BY MY RULING** (`caddfd56`). Their rows were **already** `NOT A RESULT` by the registered asymmetric transfer; they run at 10 sweeps at **Co≈2400** where the outer loop converges no faster; both sensitivity panels need **two graded arms** and would print PENDING regardless. **56.03 core-min producing nothing gradeable.** **370.2 of 390 UNSPENT — recorded as a DECISION, NOT a cap stop**, because two of four registered runs not existing is either a decision or a gap and a successor must be able to tell.
+
+**COST — A REAL DELIVERABLE, not to be buried under a favourable ratio:** OC20 **12.615 core-min against POINT 18.09 (0.697)**. The POINT priced sweep-doubling at **×2.18** from a probe pair still carrying the `p_rgh` stall; **measured ×1.765 whole-run, ×1.77 like-for-like on cruise. DOUBLING THE SWEEPS COSTS 1.77x, NOT 2.18x, ONCE THE STALL IS GONE** — and that is the number a successor prices its arms from. Campaign **19.780 of 390**, **$0.0169 DERIVED**.
+
+**⛔ B3.2 — THE RUNG HAD TWO INDEPENDENT BLOCKERS AND ONLY ONE FIRED.** `read_patch_T` accepts **only** a `nonuniform List<scalar>` and refuses anything else; the real staged inlet is **`value uniform 293;`**. **So D2 would have made the rung `NOT A RESULT` on an INSTRUMENT REFUSAL even had the gate passed.** The selftest forged the inlet **with** a nonuniform list, so the reader was never exercised against the form OpenFOAM actually writes. **Sixth instance of the night's class.** Not repaired (frozen path; refusal direction; §2d.1 (3)/(4) unreachable with no published numbers). **MUST-FIX BEFORE D2 IS GRADEABLE AT ALL — not a curiosity.**
+
+**SUCCESSOR LEVERS, priced and NOT registered:** a **finer `deltaT` through the pulse** is the mechanism-facing lever and leads; more sweeps is weaker — **40 is not obviously enough** (linear extrapolation lands ~1.2e-02 against a 1.234e-02 threshold). Also: **O3 sampled only t=60 and t=900 while O1 sampled every written time, and t=30 is measurably WORSE (2.404e-02) than the sample that fired the gate** — the registered O3 caught the failure but **not at its worst point**, a limitation of a threshold the lane chose and named itself.
+
+---
+
+### B. ✅ **T23G D1+D2+D5 REPAIRED UNDER THE §2d.1 GRANT — `720eac16`. MY CHECK-1 DIFF READ IS DISCHARGED PERSONALLY.**
+
+Executes `DEAD_LEVER_AUDIT` §27 (`af6af856`). **One commit, as ruled.** I read the diff myself and every named refusal is honoured: **`REPRO_TOL_K` untouched at 1.0e-6; `read_max_T` untouched; the rung aggregation untouched; the two-branch ternary untouched.**
+
+- **D1:** `REPRO_REF_Q1_K` **342.1749743329 → 342.159828932**, the old value **STRUCK IN PLACE, not overwritten**, visible with the full argument. **Re-read from `T23_P305_U20`, NEVER from `T23G_M`** — reading the case under grade would make the gate pass by construction. **Moved 1.514540e-02 K against a 1.0e-6 K tolerance. Pre-repair published values: NONE, absence measured and named per §2d.3.3.** Authority `T23G_PREREGISTRATION.md:228`, corroborated three ways.
+- **D2 + D5 in the same commit** because the grant is conditional. `CASES` widened; **the six clauses untouched**, with the directional-neutrality argument recorded — *an allow-list cannot make a failing case pass, and both rc=2 and rc=1 block grading, so the instrument is fail-closed before and after.* `grading_path_shas()` now records **four** files, **and the printed explanation gained a sentence so the artifact does not print four shas and explain three.**
+- **DRIVEN BOTH WAYS:** corrected gate reads **0.000e+00 K on `T23G_M` — bit-identical, not merely inside tolerance**, so the determinism it exists to test **succeeds exactly**. Driven to failure: **+1.0e-5 K → GATE FAIL, +5 K → GATE FAIL, +1e-6 K sits exactly on the ≤ boundary and passes**; the struck constant on the same data gives GATE FAIL at 1.514540e-02 K. `mark_done_t23.py --selftest` 15 checks 0 failed under `python3` and `-O`, caches cleared, **AST assert count 0 with a planted control of 1**.
+
+**⚠️ NEW LINE ANCHORS — records cite this file by line:** `REPRO_REF_Q1_K` 150→**198**, `read_max_T` 254→**302**, `require_done`'s hardcoded `HERE` 607→**655**, **G-REPRO 916/917→964/965**, aggregation 949→**997**, `grading_path_shas` 989→**1042**.
+
+---
+
+### C. ⛔ **A `--selftest` THAT DOES NOT EXIST RAN THE GRADER AGAINST THE LIVE TREE. NEW DEFECT, AND IT IS THE ROOT CAUSE OF THE INCIDENT.**
+
+> **`analyse_t23g.py` HAS NO `--selftest`, AND `main()` SILENTLY IGNORES AN UNRECOGNISED FLAG AND FALLS THROUGH TO A FULL `grade()` AGAINST THE LIVE TREE.** So invoking `--selftest` **ran the grader**, and `mark_done` wrote `DONE.T23G_C` and `DONE.T23G_M` into the live `T23G_runs/` at 06:01:19.98Z and 06:01:20.12Z. **That is D3's hazard — which verification did NOT grant — reached through a flag-handling defect that is itself a finding.** Any typo'd flag runs a full grading against live evidence.
+
+**MY §3 CHECK-2 TRIAGE — I INSPECTED RATHER THAN REVERTED, AND THE CONCLUSION IS NO HARM:**
+- **`T23G_F` WAS NOT TOUCHED** — case-root atime still 04:02:15.606536741Z, mtime 04:02:13.856521152Z, **solver alive and healthy**. Confirmed by me directly: **no `DONE.T23G_F` exists.**
+- `T23G_C` and `T23G_M` **byte-identical** to copies taken before. **No field read, no control ran, no json, no verdict** — `grade()` refused at `require_done` because `T23G_F` has no STATUS. **The instrument's own refusal contained the accident.**
+- **The markers' CONTENT IS NOT FALSE**: both levels genuinely are DONE on all six clauses.
+- **AND THE DECIDING FACT, WHICH I READ MYSELF: `require_done` CALLS `mark_done_t23.py` AS A SUBPROCESS ON EVERY GRADING RUN AND NEVER SHORT-CIRCUITS ON MARKER PRESENCE.** The six clauses are re-derived from raw artefacts regardless. Its stale-marker re-check then requires the marker to be **newer** than every region's field file — markers at 06:01 against fields at 04:05 and 04:27, so they pass **for the right reason**.
+
+> **RULING: THE MARKERS STAY.** The lane was right not to delete them — *deleting them would defeat a check it was told to report rather than silence, and reverting is not its call.* They assert a true fact, they postdate the fields they certify, and the completion check runs anyway.
+
+---
+
+### D. ⛔ **THREE REFERRALS TO VERIFICATION — NONE OF THEM MINE TO SETTLE**
+
+1. **`check_comparator_freeze.py` now reports `MODIFIED_AFTER_COMMIT`** on `analyse_t23g.py` (was `NO-MARKERS`), against first marker 06:01:19.979883Z. **The checker judges by commit time against completion markers and CANNOT SEE A §2d.1 GRANT. Its silence was never evidence of legality, and its complaint is not now evidence of breach. The legality rests on `af6af856` and on nothing this script prints. Reported, NOT defeated.**
+2. **`T23G_PREREGISTRATION.md:1021` records the pre-edit blob `e02878a0`** for *"analyse_t23g.py after A1 + A2"*. **That recorded sha is now STALE.** Whether an A5 addendum should record the new blob is **verification's**; none was written.
+3. **D3 IS RE-REFERRED WITH THE INCIDENT AS EVIDENCE.** It was declined tonight as inert; **it has now fired once and mutated a live evidence tree.** A declined repair whose hazard then materialises deserves a second look, and the `--selftest` fall-through in §C makes it reachable by a typo.
+
+---
+
+### E. 🚨 **THE PREVALENCE SWEEP'S DENOMINATOR WAS WRONG TOO. "9 OF 1,507, NO OTHER TEAM AFFECTED" — WHICH I RELAYED UPWARD — WAS WRONG IN BOTH NUMBERS AND IN ITS CONCLUSION.** `28013d82`, `243a2bc9`
+
+**A FOURTH scope failure, larger than the three already corrected, and it is a direct miss against `CLAUDE.md`'s own words.** The constitution states in terms that run trees live **outside git** at `/home/ubuntu/{closure-data, closure-challenge-benchmark, certonomous-runs}/` and that **"nothing is invisible merely because it is big"**. The sweep's `find` walked `/home/ubuntu/Certonomous` and stopped.
+
+| | claimed | measured |
+|---|---|---|
+| denominator | 1,507 | **≈ 3,298** — **1,791 files were outside the walk** |
+| `certonomous-runs` | not walked | **1,478** more, **54 AT-RISK candidates** in flag-setting families (mostly `pimpleFoam` under `W4-repro-fromscratch/tutorials/Airfoil_DynamicStall/unsteady/`), 769 more with no `application` key |
+| `closure-data` | not walked | 313, **zero** in a flag-setting family |
+
+**⛔ THE 54 ARE MACHINE CANDIDATES ONLY — NOT HAND-CHECKED, OUTSIDE THIS TEAM'S TERRITORY, AND NONE WAS TOUCHED. Their owners must hand-check before any is called a defect** — L-425's own sweep produced two candidates that were both false on hand-check.
+
+**⚠️ AND A TRAP FOR ANYONE READING THE TWO REPORTS TOGETHER: dafoam's 246 dictionaries and this sweep's population are LARGELY DISJOINT. Zero paths containing `D12` carry an `fvSolution` inside the repository at all. THE TWO NUMBERS MUST NOT BE ADDED.**
+
+**What was struck, and how:** the headline *"1,507 files, 9 AT RISK, all nine ours, NO OTHER TEAM HAS A CASE CARRYING THIS DEFECT"* is **struck through and left legible** in a boxed Amendment 1 at the head of the note **and struck again in place at §4.3** — *not rewritten, because that text is what was relayed upward and the record should show what was wrong.*
+
+**The lane verified MY corrections rather than relaying them, which was right since its own enumeration is what failed** — it re-grepped the six sites itself and confirmed `chtMultiRegionTwoPhaseEulerFoam` appears in no controlDict, script or queue entry here. **And it could NOT verify the DAFoam fork and says so plainly: DAFoam is not installed on this box** — no `pimpleControlDF`, no module, no `DASolver` source anywhere on the filesystem. **It is recorded on dafoam's authority and explicitly not on ours.** One clarification against my own relay: `GeometricField::relax()` appending `Final` was already in its §1 table — nothing was missing there — **but the point is independently corroborated from a direction neither of us used: every one of the 54 new candidates is flagged on `fields: p`, which is exactly that path firing.**
+
+**AMENDMENT DISCIPLINE MEASURED, NOT ASSERTED:** both appended at each file's **foot** per L-304, neither original block edited by one character. `LESSONS.md` md5 of its first 19,166 lines **identical before and after**; `NUMERICS_KNOWLEDGE.md` md5 of its first 5,293 lines **identical before and after** — **both re-verified after the digest rows were themselves written, and again against the committed blobs at HEAD**; diffstat **insertions only, zero deletions**. `check_numerics_index.py` INDEX AGREES WITH TAIL; **no new L- id claimed, tail still 427**.
+
+> **THE ROOT CAUSE, now in both amendments and §6 of the note: AN ENUMERATION ANSWERS "WHAT DID I LOOK AT", NEVER "WHAT EXISTS".** It missed a **sibling** inside the tree, a **fork** outside it, and then **failed identically at larger scale on the file walk itself.** Third instance tonight of the same class, beside L-425's blind alternation and the tail guard that reproduced the wrong failure.
+
+**⚠️ ONE LIMITATION STANDS AND IS RECORDED: the lane's judgement that nothing in the note now asserts unverifiable coverage is ITS OWN READ OF ITS OWN NOTE.** After a night whose recurring lesson is that a control derived from the thing it controls is not a control, **that is named as a self-audit rather than dressed as independent.** A template-in-hand pass is ordered; genuine independence would need a different reader and is not tonight's priority.
+
+### F. **T23G_F at 9,165 / 10,000 at 06:15Z — minutes away. Grade with `analyse_t23g.py` ONLY; verdict from stdout, NEVER the exit code.**
+
+---
+
+
 ##### ADDENDUM 2026-09-01T05:53Z — **T25R2_L1 IS `DONE` ON ALL SIX CONJUNCTS AND THE NUMERICS FIX HOLDS FOR THE FULL 900 s. THE PREVALENCE SWEEP SAYS NO OTHER TEAM IS EXPOSED. AND THE FROZEN T25R DOCUMENT NEVER REGISTERED `relaxationFactors` AT ALL.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone.)*
