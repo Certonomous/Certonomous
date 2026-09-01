@@ -450,6 +450,57 @@ number presented as conservative with its reason is trustworthy; the same
 number presented flat invites a reader to discover the assumption later and
 distrust everything near it.
 
+### The reader has been independently checked — `SUPERVISION_CHARTER.md` §3 check 1
+
+**Discharged 2026-08-31.** The supervisor read `analyse_t25.py`'s measurement
+path themselves, as a diff, and did not take this lane's word for it. Their
+finding: **the instrument is sound.** Recorded here with the line citations, and
+**every citation below was re-checked by this lane against the file** so a later
+reader is not chasing line numbers that have drifted.
+
+- **The geometry guard at `analyse_t25.py:234-252` is why the two-group result
+  is trustworthy.** Before any number is produced it refuses unless four
+  independent conditions hold: 960 cells; total volume equal to
+  `8 × LX × LY × LZ` to 1e-9; channel area equal to `(2N−2) × LX × LZ` to 1e-9,
+  which is `14 × 0.1 = 1.4000 m²`; and **every one of the eight module cells
+  binning to exactly 120 mesh cells.** That last clause carries the weight — if
+  the y-binning were wrong the groups would not be 120 each, and the reader
+  would refuse rather than emit a plausible wrong answer. The two-curve result
+  rests on that guard, not on luck.
+- Parsing is comment-stripped before any keyword scan, brace- and
+  paren-matched rather than line-numbered, and every `polyMesh` list refuses on
+  a declared-count versus parsed-count mismatch. **Fail-closed throughout.**
+- Per-cell temperature is volume-weighted over each cell's 120 mesh cells, not
+  sampled at a point — an independent vindication of discarding the probes.
+- Stored and removed are genuinely independent: stored from the internal field,
+  removal from the **actual boundary `value` list read out of the case file**.
+  Neither is derived from the other, so the closure is a check and not an
+  identity.
+
+### ⚠ TWO COUPLING HAZARDS IN THE READER — NOT DEFECTS, BUT RECORD THEM
+
+Neither blocks the sheet. Both are written down because a successor editing
+`build_t25.py` needs to know.
+
+**1. The material and duty-cycle constants are hardcoded, not read from the
+case.** `RHO`, `CP` and `H_CONV` at `analyse_t25.py:30-32` and the duty cycle at
+`:36-38` are literals; the analyser does not parse them out of
+`thermophysicalProperties` or `fvOptions`. **This is currently safe and, more
+importantly, self-detecting.** The `T` field the analyser reads is the solver's
+output, produced with the *case's* `h`, `rho` and `cp` — so if the analyser's
+constants ever diverged from the builder's, **the closure would fall away from
+100 % rather than sit still.** Read the implication in the useful direction:
+**the 99.854 % closure is itself evidence that builder, solver and analyser
+agree on `h`, `rho`, `cp` and the duty cycle.** The failure mode is loud, not
+silent. **If you edit `build_t25.py`, re-run the closure** — it is the check
+that would catch you.
+
+**2. Cell volumes are bounding-box products of each cell's points.** Exact for
+the axis-aligned hexahedra `blockMesh` produces here, and **wrong on a skewed or
+non-orthogonal mesh.** The total-volume guard would catch it, but **do not copy
+this method to a non-orthogonal case** — the next reader should not have to
+discover that by getting a wrong answer first.
+
 ### ⚠ PROBE HAZARD — INTERNAL, AND DELIBERATELY NOT ON THE SHEET
 
 `system/controlDict` places three probes at the geometric centres of cells 1, 4
@@ -644,11 +695,14 @@ names it separately.
    an ungated feasibility case, not a registered threshold, and is stated as
    such in Part 2. **The frame remains empty: naming the two step sizes is not
    solving at them.**
-8. **Neither sheet has been reviewed by the supervisor.**
-   `SUPERVISION_CHARTER.md` §3's four checks are the supervisor's own and none
-   is claimed here. In particular the diffs of `build_t25.py` **and of the new
-   `analyse_t25.py`** are measurement-script diffs and are the supervisor's to
-   read as diffs. `analyse_t25.py` produced every module number on sheet C.
+8. **PARTLY CLOSED.** `SUPERVISION_CHARTER.md` §3 **check 1 —
+   measurement-script diff — is DISCHARGED** for `analyse_t25.py`: the
+   supervisor read its measurement path themselves and found the instrument
+   sound, with the geometry guard at `:234-252` named as what makes the
+   two-group result trustworthy. See the subsection above. **Still not claimed:
+   the same check on `build_t25.py`, and the remaining three §3 checks on either
+   sheet.** `analyse_t25.py` produced every module number on sheet C, so that
+   was the diff that most needed reading, and it has been read.
 10. **The 0.146 % energy residual is ATTRIBUTED, not decomposed.** The
    sampling argument is supported by the sign of the residual matching what
    curvature predicts, which is evidence and not proof. Separating write-interval
@@ -663,9 +717,18 @@ names it separately.
    thermally independent and the boundary condition is linear — but the module
    was never run to steady state, so no solved value corroborates it. It is
    labelled on the sheet as a conservative upper estimate with its reason.
-13. **A `docs/COST_CALIBRATION.md` row is owed for the module run and this lane
-   did not write it.** The comparison itself is above (1.0 estimated against
-   0.017 measured, ratio 0.017); the ledger append is the supervisor's.
+13. ~~**A `docs/COST_CALIBRATION.md` row is owed for the module run.**~~
+   **CLOSED 2026-08-31 — the row is on the board**, written by a different lane,
+   which is why this file briefly said it was outstanding. Row id
+   `C-20260831T234136.682040Z-89696a12`, commit `8f1addea`. **Verified at source
+   by this lane rather than accepted on relay:** the row is present both in the
+   working tree and in that commit's own blob. Rule 12 is discharged for this
+   run. The row goes further than the comparison recorded above — it takes
+   `ClockTime` as the rule-12 wall basis while keeping `ExecutionTime` separate
+   as CPU, and it states the ±1 s quantisation of a one-second run as a **band
+   of 30×–78×** rather than the single 59× its own subject line quotes, which is
+   the more honest reading of a run that cannot be timed to better than plus or
+   minus itself.
 9. ~~**Neither module case has been solved, and no cost has been incurred by
    either.**~~ **FALSE WITHIN MINUTES OF BEING WRITTEN — see the correction
    immediately below.** It held for the 0.25 s case and does not hold for the
