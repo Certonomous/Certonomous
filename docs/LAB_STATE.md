@@ -12502,6 +12502,45 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
 
+
+---
+
+##### ⛔ **CORRECTION TO THE BLOCK BELOW, 2026-09-01T17:27Z: FIVE OF THE SIX ARE HALTED. ONLY `S1` IS LIVE.** The cost model was wrong by 19–33× on every mesh above L1, and the cause is a measured numerics defect, not contention.
+
+*(Lane block. **Pure insertion; the 17:15Z block below is left standing unedited** so a reader can see what was claimed and what replaced it.)*
+
+**WHAT WAS MEASURED**, over a 152 s window with all twelve ranks unbound across sixteen cores:
+
+| run | mesh | cells | s/step measured | vs pre-registered | hours needed | registered cap (h) | verdict |
+|---|---|---|---|---|---|---|---|
+| **S1** | L1 | 16,608 | **0.1973** | **×1.02** | **0.65** | 2.54 | **CAN FINISH — LEFT RUNNING** |
+| S2 | L2 | 37,368 | 8.1505 | ×18.7 | 26.7 | 5.72 | cannot finish — **HALTED** |
+| S3 | L3 | 84,078 | 28.185 | ×28.7 | 92.4 | 12.86 | cannot finish — **HALTED** |
+| T2 | L2 | 37,368 | 11.037 | ×25.3 | 72.4 | 11.43 | cannot finish — **HALTED** |
+| T4 | L2 | 37,368 | 14.564 | ×33.4 | 190.9 | 22.87 | cannot finish — **HALTED** |
+| W30 | L2 | 37,368 | 15.772 | ×19.8 | 51.7 | 10.46 | cannot finish — **HALTED** |
+
+**THIS IS NOT CONTENTION.** S1 ran on the same box, in the same window, against the same competitors, and matched its prediction to **1.02**. Whatever is wrong is a property of the finer meshes.
+
+**THE CAUSE, MEASURED IN THE LOGS — the `p_rgh` tolerance is ABSOLUTE and does not scale with the mesh.** Per time step, on the last completed step of each:
+
+| | `p_rgh` solves/step | total GAMG iterations/step | mean per solve |
+|---|---|---|---|
+| **S1 (L1)** | 30 | **2** | **0.1** |
+| **S2 (L2)** | 30 | **273** | **9.1** |
+
+`p_rgh` is registered `tolerance 1e-08; relTol 0` — **absolute**. On L1 the initial residual is already below it (`Initial residual = 9.66e-09` appears in the log), so **GAMG exits with ZERO iterations and the pressure equation is barely solved at all**. On L2 and L3 the initial residual sits above the threshold and the solver has to work. A **136× jump in linear-solver work** between two levels of the same ladder.
+
+> **⚠ THE SCIENTIFIC CONSEQUENCE IS WORSE THAN THE COST ONE.** The three levels of the space ladder are **not being solved to the same standard**: L1's pressure field converges for free, L2's and L3's do not. Sanaa's §0.2 is exactly on point — *"the iterative change in the graded quantity must be at least 10× smaller than the difference between consecutive mesh levels. If it is not, the observed order is noise, not discretisation."* **An observed order read off this ladder as registered would have been noise, and the gate `G-I` was the only thing standing between that and a published number.**
+
+**HALT GROUNDS, and they are arithmetic:** five runs cannot reach `endTime` inside their registered `timeout`. Rule 12 — an overrun **stops** the run and does not get a new budget — so their verdict was already fixed as a cap stop before they got there. **Letting them run to cap would have burned 7,600 core-minutes to produce nothing.** *Idle compute is a failure; so is compute that cannot produce a result.*
+
+**NOTHING IS DELETED. All five remain staged and `verify_mesh_t25R3.py`-verified (192 checks, 0 FAIL) and can be relaunched the moment the numerics are fixed and re-registered.** S1 is left running because it is on track, costs 0.65 h, and exercises the completion path end-to-end — two legs, `reconstructPar`, rule 4, `mark_done_t25R3.py` — before any expensive relaunch.
+
+**THE RUNG IS `PENDING`. NO GATE HAS BEEN EVALUATED AND NO PHYSICS NUMBER EXISTS.** The fix is a numerics change (a mesh-independent pressure convergence criterion) and therefore a **new registration**, not an addendum: §4.1 registers the `p_rgh` tolerance and §16 closed the gates at first compute.
+
+---
+
 ---
 
 ##### 🔴 **T25R3 IS LIVE — SIX SOLVERS, LAUNCHED 2026-09-01T17:15:24Z.** Registration `8cef4791`, Amendment A1 `e46aa244`, comparator `629f5b32`, Addendum D1 (this commit).

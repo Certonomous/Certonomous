@@ -86,8 +86,20 @@ DRC=$?
 echo "$DRC" > ".rc.$RUN.decomposePar"
 [ "$DRC" -eq 0 ] || { echo "decomposePar rc=$DRC"; exit 96; }
 
+# *** `--bind-to none` IS LOAD-BEARING AND WAS ADDED AFTER MEASUREMENT. ***
+# OpenMPI binds ranks to cores by default, and each INDEPENDENT `mpirun` numbers
+# from core 0. Six concurrent runs therefore pinned ALL TWELVE RANKS to CPUs 0
+# and 1 -- six processes per core -- while cores 2-7 and 9-15 sat 100 percent
+# IDLE. MEASURED, not inferred: `taskset -pc` reported allowed_cpus=0 for six
+# ranks and =1 for the other six, and `mpstat -P ALL` showed 100 percent on
+# cores 0 and 1 and 0.00 percent on ten others. The fleet was running at about a
+# sixth of its speed and the logs looked like a slow solver rather than a
+# scheduling defect. `--bind-to none` hands placement to the OS scheduler.
+# IT CHANGES NO NUMBER: rank count, decomposition and arithmetic are identical,
+# so only wall time moves.
 # ---- LEG A ----
-timeout "$TA" mpirun -np 2 chtMultiRegionFoam -parallel > log.solve.legA 2>&1
+timeout "$TA" mpirun --bind-to none -np 2 chtMultiRegionFoam -parallel \
+  > log.solve.legA 2>&1
 RC_A=$?                                    # <-- INSIDE. This is the solver's.
 echo "$RC_A" > ".rc.$RUN.legA"
 if [ "$RC_A" -ne 0 ]; then
@@ -101,7 +113,8 @@ cp "$CASE/system/controlDict" "$CASE/system/controlDict.legA.used" || exit 97
 cp "$CASE/system/controlDict.legB" "$CASE/system/controlDict" || exit 98
 
 # ---- LEG B ----
-timeout "$TB" mpirun -np 2 chtMultiRegionFoam -parallel > log.solve.legB 2>&1
+timeout "$TB" mpirun --bind-to none -np 2 chtMultiRegionFoam -parallel \
+  > log.solve.legB 2>&1
 RC_B=$?                                    # <-- INSIDE.
 echo "$RC_B" > ".rc.$RUN.legB"
 if [ "$RC_B" -ne 0 ]; then
