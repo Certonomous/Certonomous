@@ -1,17 +1,67 @@
 {
-  "b52 pressure": {
-    "triangles": 15592,
-    "sha256": "f9ffe7e208adb746e73cf9aa2b1cc8382055c236fa888351bdee5a76093d630b",
-    "legend": ""
+  "_what_this_is": "The pressure surfaces of control_room.html, pinned by the PROPERTIES the painting must have rather than by the order the triangles were drawn in. Regenerated 2026-09-01; the previous golden was a sha256 of the colour SEQUENCE.",
+
+  "_why_it_was_regenerated": [
+    "A golden moved to silence a red test is worthless, so here is what was measured before it moved.",
+    "The sequence pin broke twice, on two changes that were both CORRECT.",
+    "1. 0c835726, the depth-sort repair, changed the paint ORDER on b52 and motorBike without altering a single colour. Proof: their sorted colour multisets are byte-identical across that commit (65b8d816... and 47f397d2...), the painted counts are unchanged at 15592 and 19102, and cullSense returns 0 for both so nothing was dropped. Only the sequence moved.",
+    "2. The same commit added back-face culling, which halves the cube: cullSense measures it closed and consistently wound, returns -1, and drops 13824 of 27648 facets. That the count halved is NOT the evidence it is correct; a cull that kept exactly the wrong half would also halve it.",
+    "The cube was proven still fully drawn, and drawn on the correct side, before this file was touched: silhouette coverage identical pre-cull versus post-cull at 1600x800 (425122 of 425122 cells, 0 lost, 0 gained); z-buffered over all 27648 facets the nearest facet at each covered cell is a KEPT facet at 239082 of 239152 = 99.971%; all 70 disagreements touch the silhouette edge and none is interior; no kept triangle is absent from the pre-cull page (0) and no colour is painted that the pre-cull page never painted (0).",
+    "Attribution was established by bisecting the page commit by commit against this harness, not inferred from which commit touched painting symbols. An earlier inference blamed 93c6e457; the bisect refuted it and 93c6e457 is green on this harness."
+  ],
+
+  "_what_is_pinned_and_why": {
+    "cull_sense": "Culling is only ever applied to a body MEASURED closed and consistently wound. b52 and motorBike are not, so their 0 is load-bearing: a change that starts culling an open shell is dropping geometry the viewer should see.",
+    "facets / painted": "The projected geometry and how much of it reaches the canvas. Cross-checked in the harness against the canvas fill count, so the probe cannot drift from the paint that actually lands.",
+    "colour_multiset_sha256": "Every colour and how many facets carry it, ORDER-INDEPENDENT by construction. This is the replacement for the sequence digest: a legitimate re-sort cannot red it, a changed ramp or colour window will.",
+    "surface": "Null unless the body is culled, because the clauses are vacuous when nothing is dropped.",
+    "silhouette_cells_lost": "Must be 0: the culled body must cover every cell the whole body covered. This alone is NOT sufficient — on a closed body the near half and the far half project to the SAME silhouette, so a cull keeping exactly the wrong half still scores 0 here.",
+    "disagreements_interior": "The sharp clause, and the only one that can tell the near half from the far half. Must be 0: an interior cell whose nearest facet was culled is a hole in the body."
   },
-  "motorBike pressure": {
-    "triangles": 19102,
-    "sha256": "4321be14224b83610d0998c10883191d21fad59ce1edfc6e4ff3f07bd817fc97",
-    "legend": ""
-  },
-  "cube pressure": {
-    "triangles": 27648,
-    "sha256": "6521cb38d71421ab774f3ae79c4f3ad4340ace29a83419f547137cb0573729c4",
-    "legend": ""
+
+  "_thresholds_and_why_they_are_not_perfect": [
+    "nearest_facet_is_painted has a floor of 99.5%, not 100%. DO NOT TIGHTEN IT TO 100%.",
+    "Measured on the cube 2026-09-01: 70 of 239152 covered cells disagree and every one of them touches the silhouette edge. At the silhouette the near sheet and the far sheet are COINCIDENT, so which of the two wins a cell centre is decided by float noise and must be. A 100% requirement would red the suite on sheets that are required to be coincident.",
+    "worst_depth_margin_pct has a ceiling of 1.0% of the body's depth range against an observed 0.0965%. It is what separates a coincident silhouette sheet from a facet genuinely in front of the painted surface.",
+    "The loose thresholds are backstops on the EDGE population only. disagreements_interior == 0 and silhouette_cells_lost == 0 are the exact clauses and carry the weight."
+  ],
+
+  "_what_this_file_cannot_tell_you": "Nothing here says the surface LOOKS right. No harness on this box executes CSS layout or WebGL. These clauses say which facets were painted, in what colours, and that the painted set is the camera-facing side of a body still fully covered. Whether the picture reads correctly on camera is Sanaa's eye and is not delegated to this file.",
+
+  "bodies": {
+    "b52 pressure": {
+      "facets": 15592,
+      "painted": 15592,
+      "cull_sense": 0,
+      "distinct_colours": 828,
+      "colour_multiset_sha256": "65b8d8166ca12a5de0055cabb30b1ad5043439e2d48c87bf6ff870266c54a48f",
+      "legend": "",
+      "surface": null
+    },
+    "motorBike pressure": {
+      "facets": 19102,
+      "painted": 19102,
+      "cull_sense": 0,
+      "distinct_colours": 826,
+      "colour_multiset_sha256": "47f397d2bc67809594afa398de6c4fe7b79b60c56d2ac8e0eb0f9a832da7c203",
+      "legend": "",
+      "surface": null
+    },
+    "cube pressure": {
+      "facets": 27648,
+      "painted": 13824,
+      "cull_sense": -1,
+      "distinct_colours": 175,
+      "colour_multiset_sha256": "9420efc4a68563e4e7f474c6f15faa1f7cedc4a7f77833bf427b5c05faf67860",
+      "legend": "",
+      "surface": {
+        "silhouette_cells": 239152,
+        "silhouette_cells_lost": 0,
+        "nearest_facet_is_painted": 239082,
+        "disagreements_on_silhouette_edge": 70,
+        "disagreements_interior": 0,
+        "worst_depth_margin_pct": 0.0965
+      }
+    }
   }
 }

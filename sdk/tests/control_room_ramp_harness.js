@@ -286,31 +286,127 @@ const read = rel => JSON.parse(fs.readFileSync(path.join(REPO, rel), 'utf8'));
             `${name}: the legend bar gradient changed on a pressure field`);
     }
   } else {
-    // The golden digest of the colour sequence, taken from the page before the
-    // Cp change. Pressure must still paint exactly this.
-    console.log('Pressure bodies — against the checked in golden digest');
-    const golden = writeGolden ? {} : JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
+    // The golden pins the PROPERTIES of the painted surface, not the order the
+    // triangles happened to be drawn in. See the header of `surfaceEvidence`
+    // and the `_why` block inside the fixture for what each clause is for.
+    console.log('Pressure bodies — against the checked in golden invariants');
+    const file = writeGolden ? { bodies: {} }
+                             : JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
+    const golden = file.bodies || {};
+    const instrumented = instrument(source);
     for (const [name, rel] of PRESSURE_BODIES) {
-      const now = await paint(source, read(rel));
-      const got = { triangles: now.fills.length, sha256: digest(now.fills),
-                    legend: now.legend };
-      if (writeGolden) { golden[name] = got; console.log(`  ${name.padEnd(19)} ${got.triangles} triangles, ${got.sha256.slice(0, 16)}…`); continue; }
+      const now = await paintFacets(instrumented, read(rel));
+      // PLANTED CONTROL: a reader that sees nothing must refuse, not pass. If
+      // the injection stopped firing, every geometry clause below would be
+      // vacuously true and this harness would go green on anything.
+      check(now.facets.length > 0,
+            `${name}: the paint-loop probe recorded no facet — the geometry ` +
+            `clauses would be vacuous, so this is a refusal, not a pass`);
+      if (!now.facets.length) continue;
+      const paintedCount = now.facets.filter(t => t.kept).length;
+      check(paintedCount === now.fills.length,
+            `${name}: the probe counted ${paintedCount} painted facets but the ` +
+            `canvas recorded ${now.fills.length} fills — the probe is not ` +
+            `watching the paint that reaches the screen`);
+      const ev = now.cullSense ? surfaceEvidence(now.facets) : null;
+      const got = {
+        facets: now.facets.length,
+        painted: paintedCount,
+        cull_sense: now.cullSense,
+        distinct_colours: new Set(now.fills).size,
+        // Order-independent by construction: this survives a re-sort of the
+        // paint and still pins every colour and how many facets carry it.
+        colour_multiset_sha256: digest([...now.fills].sort()),
+        legend: now.legend,
+        surface: ev && { silhouette_cells: ev.covered,
+                         silhouette_cells_lost: ev.lost,
+                         nearest_facet_is_painted: ev.nearestPainted,
+                         disagreements_on_silhouette_edge: ev.edge,
+                         disagreements_interior: ev.interior,
+                         worst_depth_margin_pct: ev.worstMarginPct },
+      };
+      if (writeGolden) {
+        golden[name] = got;
+        console.log(`  ${name.padEnd(19)} ${got.painted}/${got.facets} painted, ` +
+          `cullSense ${got.cull_sense}, ${got.colour_multiset_sha256.slice(0,16)}…`);
+        continue;
+      }
       const want = golden[name];
       check(!!want, `${name}: no golden entry to compare against`);
       if (!want) continue;
-      check(got.triangles === want.triangles,
-            `${name}: ${got.triangles} triangles painted, golden has ${want.triangles}`);
-      check(got.sha256 === want.sha256,
-            `${name}: the painted colour sequence is ${got.sha256.slice(0, 16)}…, ` +
-            `golden is ${want.sha256.slice(0, 16)}…: pressure rendering changed`);
+      // 1. CULLING IS ONLY EVER APPLIED TO A BODY MEASURED CLOSED AND
+      //    CONSISTENTLY WOUND. b52 and motorBike are not; a change that starts
+      //    culling them is dropping geometry from an open shell.
+      check(got.cull_sense === want.cull_sense,
+            `${name}: cullSense is ${got.cull_sense}, golden has ${want.cull_sense}` +
+            (want.cull_sense === 0
+              ? ' — this body is NOT measured closed and must never be culled'
+              : ' — the measured cull sense of a closed body changed'));
+      check(got.facets === want.facets,
+            `${name}: ${got.facets} facets projected, golden has ${want.facets}: ` +
+            `the geometry itself changed, not the painting of it`);
+      check(got.painted === want.painted,
+            `${name}: ${got.painted} facets painted, golden has ${want.painted}`);
+      // 2. THE COLOUR MAPPING. Order-independent, so a legitimate re-sort
+      //    cannot red this, but a changed ramp or window will.
+      check(got.colour_multiset_sha256 === want.colour_multiset_sha256,
+            `${name}: the painted colour multiset is ` +
+            `${got.colour_multiset_sha256.slice(0,16)}…, golden is ` +
+            `${want.colour_multiset_sha256.slice(0,16)}…: the pressure colour ` +
+            `mapping changed (this is NOT sensitive to paint order)`);
+      check(got.distinct_colours === want.distinct_colours,
+            `${name}: ${got.distinct_colours} distinct colours, golden has ` +
+            `${want.distinct_colours}`);
       check(got.legend === want.legend,
             `${name}: the legend bar gradient changed on a pressure field`);
-      console.log(`  ${name.padEnd(19)} ${got.triangles} triangles, ` +
-        `${got.sha256 === want.sha256 ? 'byte for byte identical to the golden' : 'DIFFERS'}` +
-        `, legend bar ${got.legend === want.legend ? 'unchanged' : 'CHANGED'}`);
+      if (want.surface) {
+        const s = got.surface, w = want.surface;
+        check(!!s, `${name}: the golden expects a culled body and nothing was culled`);
+        if (s) {
+          // 3. THE BODY IS STILL FULLY DRAWN.
+          check(s.silhouette_cells_lost === 0,
+                `${name}: culling lost ${s.silhouette_cells_lost} silhouette cells ` +
+                `— the body is not fully drawn any more`);
+          check(s.silhouette_cells === w.silhouette_cells,
+                `${name}: the body covers ${s.silhouette_cells} cells, golden has ` +
+                `${w.silhouette_cells}: the projected size of the body changed`);
+          // 4. AND IT IS THE HALF FACING THE CAMERA. The only clause that can
+          //    tell the near half of a closed body from the far half.
+          check(s.disagreements_interior === 0,
+                `${name}: ${s.disagreements_interior} INTERIOR cells where the ` +
+                `nearest facet was culled — that is a hole in the body, not a ` +
+                `silhouette artefact`);
+          // THE THRESHOLD, AND WHY IT IS NOT 100%. Measured on the cube
+          // 2026-09-01: 70 of 239,152 covered cells disagree, ALL of them on the
+          // silhouette edge, worst depth margin 0.0965% of the body's depth
+          // range. At the silhouette the near and far sheets are COINCIDENT, so
+          // which one wins a cell centre is float noise and must be. DO NOT
+          // TIGHTEN THIS TO 100% — it would red the suite on sheets that are
+          // required to be coincident. The interior clause above is the sharp
+          // one; this is a loose backstop on the edge population.
+          const frac = s.nearest_facet_is_painted / s.silhouette_cells;
+          check(frac >= 0.995,
+                `${name}: the nearest facet is a painted one at only ` +
+                `${(100*frac).toFixed(3)}% of covered cells (floor 99.5%): the ` +
+                `cull is keeping the wrong side of the body`);
+          check(s.worst_depth_margin_pct <= 1.0,
+                `${name}: a culled facet beat the painted sheet by ` +
+                `${s.worst_depth_margin_pct}% of the depth range (ceiling 1.0%) ` +
+                `— too deep to be a coincident silhouette sheet`);
+        }
+      }
+      const line = ev
+        ? `${ev.covered} cells covered, ${ev.lost} lost, nearest painted ` +
+          `${(100*ev.nearestPainted/ev.covered).toFixed(3)}%, ${ev.interior} interior`
+        : 'not culled — the painted set is the whole body';
+      console.log(`  ${name.padEnd(19)} ${got.painted}/${got.facets} painted, ` +
+        `cullSense ${got.cull_sense}, colour multiset matches the golden, ` +
+        `legend bar ${got.legend === want.legend ? 'unchanged' : 'CHANGED'}`);
+      console.log(`  ${' '.repeat(19)} ${line}`);
     }
     if (writeGolden) {
-      fs.writeFileSync(GOLDEN, JSON.stringify(golden, null, 2) + '\n');
+      file.bodies = golden;
+      fs.writeFileSync(GOLDEN, JSON.stringify(file, null, 2) + '\n');
       console.log('wrote ' + GOLDEN);
       return;
     }
@@ -329,4 +425,153 @@ const read = rel => JSON.parse(fs.readFileSync(path.join(REPO, rel), 'utf8'));
 async function paintColour(source, t) {
   const p = newPage(source);
   return p.api.coolwarm(t);
+}
+
+// ===================== THE PAINTED SURFACE, MEASURED =====================
+//
+// WHY THIS EXISTS AT ALL. The pressure check used to be a digest of the colour
+// SEQUENCE. That pin broke twice on two changes that were both correct: the
+// depth-sort repair reordered the paint on b52 and motorBike without altering a
+// single colour, and back-face culling halved the cube's painted facets on a
+// body measured closed. A sequence pin cannot tell those apart from a defect,
+// so it is replaced by pins on the PROPERTIES that must hold.
+//
+// The instrumentation reads the page's own paint loop rather than recomputing
+// the projection here. A second implementation of the screen map would drift
+// from the page and go green on a body the page draws wrongly. The anchor below
+// is asserted: if the paint loop is rewritten this harness REFUSES rather than
+// silently skipping the geometry clauses.
+const PAINT_ANCHOR = `  const keep = cullSense(m);
+  const tris = [];
+  m.faces.forEach((f,idx) => {
+    const a=scr(f[0]), b=scr(f[1]), cc=scr(f[2]);`;
+
+// The second anchor is the page's own decision to draw a facet. `kept` is
+// OBSERVED at this line, never re-derived from the cull expression.
+//
+// This was a live defect in the first cut of this harness and it is the reason
+// the clause is written the way it is. A probe that recomputes
+// `area2 * keep <= 0` for itself agrees with a mutated page BY CONSTRUCTION.
+// Measured 2026-09-01 by planting an inverted cull comparison — `>= 0` for
+// `<= 0`, so the page keeps the far half of the cube while cullSense still
+// reports -1:
+//
+//   probe mirrors the expression   nearest painted 99.971%, 0 interior — GREEN
+//   probe observes the draw        nearest painted  0.029%, 237,068 interior
+//
+// The mirrored form passed every geometry clause on a page painting the wrong
+// half of the body. It went red only on the colour multiset, and only because
+// the far half happens to carry different field values; on a symmetric field it
+// would have passed outright.
+const KEEP_ANCHOR =
+  `    tris.push({ a, b, c: cc, depth:(a[2]+b[2]+cc[2])/3, fi: idx });`;
+
+function instrument(source) {
+  for (const [anchor, what] of [[PAINT_ANCHOR, 'the projection loop'],
+                                [KEEP_ANCHOR, 'the draw decision']]) {
+    if (source.includes(anchor)) continue;
+    console.error(`FAIL: ${what} this harness instruments has moved. It reads ` +
+      'the page\'s own screen map and the page\'s own control flow on purpose — ' +
+      'recomputing either here could go green on a body the page draws wrongly. ' +
+      'Re-point the anchor at the new loop; do not delete the geometry clauses.');
+    process.exit(1);
+  }
+  return source
+    .replace(PAINT_ANCHOR, PAINT_ANCHOR + `
+    if (globalThis.__CR_PROBE) {
+      globalThis.__CR_PROBE.keep = keep;
+      globalThis.__CR_PROBE.facets.push({ a, b, c: cc,
+                                          d:(a[2]+b[2]+cc[2])/3, kept: false });
+    }`)
+    .replace(KEEP_ANCHOR, KEEP_ANCHOR + `
+    if (globalThis.__CR_PROBE) {
+      const __f = globalThis.__CR_PROBE.facets;
+      __f[__f.length - 1].kept = true;
+    }`);
+}
+
+// Every facet the page projected, with the page's own screen coordinates, the
+// page's own depth, and whether the cull kept it.
+async function paintFacets(instrumented, payload) {
+  const probe = { facets: [], keep: null };
+  globalThis.__CR_PROBE = probe;
+  const r = await paint(instrumented, payload);
+  // Read the recorder we handed out, not whatever is on globalThis now. If the
+  // page clears or replaces it mid-paint the facets we DID capture still come
+  // back and the emptiness check downstream reports it as a refusal — this used
+  // to dereference globalThis and died with a bare TypeError instead, which
+  // fails in the safe direction but tells the next reader nothing.
+  globalThis.__CR_PROBE = null;
+  return { ...r, facets: probe.facets, cullSense: probe.keep };
+}
+
+// Rasterise a facet onto the sampling grid, calling back with each cell centre
+// that lands inside it. Half-plane signs; a cell straddling an edge counts.
+const GW = 1200, GH = 600, SW = 800, SH = 400;
+function raster(t, fn) {
+  const [a, b, c] = [t.a, t.b, t.c];
+  const x0 = Math.max(0, Math.floor(Math.min(a[0],b[0],c[0])/SW*GW));
+  const x1 = Math.min(GW-1, Math.ceil(Math.max(a[0],b[0],c[0])/SW*GW));
+  const y0 = Math.max(0, Math.floor(Math.min(a[1],b[1],c[1])/SH*GH));
+  const y1 = Math.min(GH-1, Math.ceil(Math.max(a[1],b[1],c[1])/SH*GH));
+  for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
+    const px = (ix+0.5)/GW*SW, py = (iy+0.5)/GH*SH;
+    const d1 = (px-b[0])*(a[1]-b[1]) - (a[0]-b[0])*(py-b[1]);
+    const d2 = (px-c[0])*(b[1]-c[1]) - (b[0]-c[0])*(py-c[1]);
+    const d3 = (px-a[0])*(c[1]-a[1]) - (c[0]-a[0])*(py-a[1]);
+    if (((d1<0)||(d2<0)||(d3<0)) && ((d1>0)||(d2>0)||(d3>0))) continue;
+    fn(iy*GW + ix);
+  }
+}
+
+// IS THE BODY STILL FULLY DRAWN, AND IS IT THE RIGHT HALF?
+//
+// Two separate questions, and only the second is hard. Silhouette coverage
+// answers the first: every cell the whole body covers must still be covered by
+// the facets that survived the cull. It CANNOT answer the second — on a closed
+// body the near half and the far half project to the SAME silhouette, so a cull
+// that kept exactly the wrong half scores 100% here. That is why the z-buffer
+// clause exists: depth-sort the whole body, and require that the facet nearest
+// the camera at each covered cell is one the cull kept.
+function surfaceEvidence(facets) {
+  const painted = facets.filter(t => t.kept);
+  const cover = new Uint8Array(GW*GH), keptCover = new Uint8Array(GW*GH);
+  const best = new Float64Array(GW*GH).fill(-Infinity);
+  const win = new Int32Array(GW*GH).fill(-1);
+  facets.forEach((t, i) => raster(t, cell => {
+    cover[cell] = 1;
+    if (t.d > best[cell]) { best[cell] = t.d; win[cell] = i; }
+  }));
+  const bestKept = new Float64Array(GW*GH).fill(-Infinity);
+  for (const t of painted) raster(t, cell => {
+    keptCover[cell] = 1; if (t.d > bestKept[cell]) bestKept[cell] = t.d;
+  });
+  let covered = 0, lost = 0, nearestPainted = 0;
+  const bad = [];
+  for (let i = 0; i < cover.length; i++) {
+    if (!cover[i]) continue;
+    covered++;
+    if (!keptCover[i]) lost++;
+    if (win[i] >= 0 && facets[win[i]].kept) nearestPainted++;
+    else if (win[i] >= 0) bad.push(i);
+  }
+  // A disagreeing cell ON THE SILHOUETTE EDGE is where the near and far sheets
+  // MEET, so their depths are equal there and the winner is float noise. An
+  // INTERIOR one is a real hole in the body and is never allowed.
+  let edge = 0, interior = 0, worstMargin = 0;
+  const ds = facets.map(t => t.d);
+  const span = (Math.max(...ds) - Math.min(...ds)) || 1;
+  for (const i of bad) {
+    const ix = i % GW, iy = (i / GW) | 0;
+    let onEdge = false;
+    for (let dy = -1; dy <= 1 && !onEdge; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const jx = ix+dx, jy = iy+dy;
+      if (jx < 0 || jy < 0 || jx >= GW || jy >= GH || !cover[jy*GW+jx]) { onEdge = true; break; }
+    }
+    if (onEdge) edge++; else interior++;
+    const m = (best[i] - bestKept[i]) / span;
+    if (m > worstMargin) worstMargin = m;
+  }
+  return { covered, lost, nearestPainted, edge, interior,
+           worstMarginPct: Number((100*worstMargin).toFixed(4)) };
 }
