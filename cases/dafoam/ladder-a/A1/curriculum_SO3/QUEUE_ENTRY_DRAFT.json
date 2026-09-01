@@ -1,0 +1,44 @@
+{
+ "_NOT_ENQUEUED": "THIS FILE IS A DRAFT AND IS NOT IN THE DAEMON'S DROP PATH. It lives beside the case (CLAUDE.md rule 13). PLACING A COPY OF THIS FILE IN verification/queue/dafoam/ LAUNCHES THE CHAIN -- the queue_runner.py daemon (pid 374025, alive 7h06m at the time of writing) polls every 60 s, validates, launches, moves the entry to launched/ and appends to LAUNCH_LOG.tsv. THE DROP IS THE LAUNCH. Arming is the supervisor's (SUPERVISION_CHARTER.md section 3 check 4), performed with their own eyes, and it is not this lane's act.",
+
+ "_WARNING_THE_DAFOAM_QUEUE_README_IS_STALE_ON_THIS_EXACT_POINT": "verification/queue/dafoam/README.md states, in a section headed 'Nothing here launches anything': 'There is no daemon, no scheduler, no watcher and no timer behind this directory.' THAT IS FALSE AS OF 2026-09-01. scripts/queue_runner.py --daemon is running and its own header says the entry file is moved to <team>/launched/ and a line appended to verification/queue/LAUNCH_LOG.tsv; verification/queue/runner.log carries a poll line every 60 s. A lane reading only that README would believe a drop is inert. Reported to the supervisor; NOT repaired by this lane, because the README governs six teams and is not this item's territory.",
+
+ "team": "dafoam",
+ "case_id": "SO3_chain",
+
+ "prereg_commit": "ab27dff7542a56d47be55435c48e1e00a3eb9f09",
+ "_prereg_commit_WHY_NOT_THE_ADD_COMMIT": "THE FAMILY TEMPLATE'S PRESCRIBED DERIVATION IS A TRAP FOR THIS ITEM AND WAS NOT FOLLOWED BLIND. SO-3aR2's draft says to derive this field from `git log --format=%H --diff-filter=A -- <prereg_path>`. For SO-3 that yields 7f7d0fb186023e7b878cb7bc6d048c040a4a8a32, the original freeze -- and MEASURED: so3_grade.py in that tree hashes to d786e10d81d99233610fe8c636c3a47e, THE STRUCK VALUE, because Amendment 2 (573aae08) re-derived P_COST's band and re-pinned the grading path to 0ac111ef144a62111e36f676e8114af1. That tree is internally self-consistent (its driver pin agrees with its grader) but it is NOT the instrument that will run. CLAUDE.md rule 2 requires verifying the frozen file IS the file that ran by hashing it against the committed blob at the pre-registration commit; against 7f7d0fb1's blob the live grader FAILS that check. ab27dff7 is the commit at which the pre-registration, as amended before first compute, stands COMPLETE and at which the grader in the tree equals the grader on disk equals the driver's pin. Original freeze 7f7d0fb1; Amendment 1 b229f0e2; Amendment 2 573aae08; Amendment 2 section A2.6 ab27dff7. All three amendments are pre-compute and legal under rule 2; none moves a gate, threshold, cap or label.",
+
+ "prereg_path": "cases/dafoam/ladder-a/A1/curriculum_SO3/PREREGISTRATION.md",
+
+ "launch_cmd": [
+  "bash",
+  "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3/so3_chain_driver.sh",
+  "MESH",
+  "O-S",
+  "XE-S",
+  "FE-S",
+  "O-P",
+  "XE-P",
+  "FE-P"
+ ],
+ "_launch_cmd_note": "SEVEN ARMS IN CHAIN ORDER, matching DECLARED_ARMS=7 at so3_chain_driver.sh:62 and ARMS_DECLARED in so3_grade.py. The driver takes its arms from argv (ARMS=\"$*\", :107), runs them IN ORDER and STOPS AT THE FIRST NON-ZERO rc (:210). A short program is not a failure of the grader: G-STAGES reads DECLARED=7 against EXECUTED=n as a GATE INPUT (PREREGISTRATION.md section 5 Requirement 4).",
+
+ "cwd": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A1/curriculum_SO3",
+ "_cwd_note": "THE CASE DIRECTORY, NEVER THE RUN ROOT (G-ROOT.5 b). The run root /home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation is asserted ABSENT and MUST be absent at launch; the driver stages it. AGE-GUARD: this cwd holds no `0/` and no numeric time directory -- checked on disk, not assumed.",
+
+ "ranks": 1,
+ "_ranks_note": "np = 1 ON EVERY ARM, and it is the CONDITION ON THE INHERITANCE, not a setting. SO-3aR2's FD table was measured at np = 1 and DAFOAM_CHARTER.md section 5 forbids carrying an FD reference across np; A4 measured a 16,600x spread between two decompositions of one mesh. Enforced in three places: so3_run_arm.sh:ranks_of, an MPI.Abort in so3_runScript.py, and so3_grade.py:ARM_RANKS.",
+
+ "cost_core_min_estimate": 228.59,
+ "cost_basis": "c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER 2026-08-21/22, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5). POINT 228.59 core-min = sum(PREDICTED_CORE_MIN); BAND [60.0, 300.0] core-min (PREREGISTRATION.md section A2.2, re-derived from seven named cost scenarios before first compute); HARD CEILING 595.0 core-min = the SUM of the seven per-arm caps (MESH 5.0, O-S 240.0, O-P 240.0, XE-S 15.0, XE-P 15.0, FE-S 40.0, FE-P 40.0), asserted as that sum in the comparator's main(). Dollars DERIVED, never measured: point $0.19544, ceiling $0.50872. GPU 0 GPU-h. THE O-ARM COMPONENT IS [EXTRAPOLATED], NOT MEASURED: 0.42127 (C-24, MEASURED) x 3 x 1.6308 (C-188, MEASURED) = 2.0610 core-min/major, x MAX_MAJORS 50 = 103.0 per O arm; both anchors are measured and the PRODUCT is an extrapolation across case, dimensionality and rank count. AN OVERRUN STOPS THE RUN; IT DOES NOT GET A NEW BUDGET. The 0.167 core-min of the quarantined accidental MESH launch is WASTE, named separately, and is never folded into this item's actual/predicted ratio.",
+
+ "memory_floor_gb": 16.0,
+ "_memory_floor_note": "H5_FLOOR_GIB=16.0 at so3_chain_driver.sh:60 -- the driver's own registered constant, quoted rather than chosen here. Per-arm cgroup is 12g; the aggregate ceiling is 30.6 GiB in the WAIT form (poll 30 s, bound 14400 s, then the chain STOPS and names its series file). The 12g figure is [EXTRAPOLATED] from D13's MEASURED 1.70 GiB peak RSS at np=1 on this 4,032-cell case bounded crudely by 3 x 1.70 plus one shared mesh/FFD/IDWarp footprint; no multipoint arm has ever run on this case, and the item's own first solver arm MEASURES it.",
+
+ "enqueued_by": "PREPARED BY the dafoam lab-lane that wrote the pre-registration. NOT ENQUEUED, NOT ARMED, NOT FILED. This lane started no container of any kind and spent zero solver core-minutes. THE SUPERVISOR SETS THIS FIELD TO THEMSELVES AT ARMING, because whoever drops this file owns the SUPERVISION_CHARTER.md section 3 check-4 record and the drop launches within 60 s.",
+
+ "_validation_state": "Validated OUT OF PLACE with scripts/queue_entry_check.py, WITHOUT --require-binding. TEAM-BINDING IS THEREFORE NOT CHECKED, which is an UNCHECKED condition and never a passing one: --require-binding refuses an entry that is not in its team's drop directory, and this draft deliberately is not. The supervisor re-validates IN PLACE, with --require-binding, at arming -- and in-place validation is arming, because the daemon takes the entry within 60 s.",
+
+ "_supervisor_clearance_on_record": "The dafoam supervisor cleared launch 2026-09-01 after driving check 1 on the verdict-critical path themselves: VOCAB is exactly the six tokens; require_travelling_provenance() returns {verdict: SATISFIED, clauses: 6} rather than refusing; the chain carries both links (CURRICULUM-SO3aR2 and CURRICULUM-SO1a); and compose_row drives correctly in all four directions and never improves a verdict. THE SUPERVISOR STATED EXPLICITLY THAT CLEARING COMPUTE IS NOT CLEARING BELIEF: their check 1 over the gate INTERNALS -- FD pair grading, plant magnitudes, the age guard -- is OUTSTANDING and runs while the arms run. NO OUTPUT OF THIS CHAIN IS GRADED UNTIL THEY SAY SO."
+}
