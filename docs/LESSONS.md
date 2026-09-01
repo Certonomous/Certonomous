@@ -20003,3 +20003,77 @@ referral protected `LESSONS.md` from a real and permanent numbering corruption,
 and the `--expect-first-id` legacy form used for L-433 remains the endorsed
 control. A record that shows a correct action taken for an incorrect reason is
 more useful to a successor than one tidied to look uniformly right.
+
+## L-434 — a patch is a PROPOSAL and the applier is a REVIEWER, not a conduit; the author of a fix is the last person able to see that it breaks the thing it touches
+
+**A lane authored a patch that would have taken a demo act from driving to
+refusing at stage 0. It did not ship, and the only reason is that the team asked
+to apply it READ THE CONTRACT FIRST and declined one hunk.**
+*(heat-transfer / cfd, Act A never-list patch D-A9, 2026-09-01.)*
+
+### What happened
+
+The patch rewrote `presentation_of=f"presentation of run {PRIMARY.name}"` in
+`sdk/workflows/motor_thermal_act.py`, on the correct observation that the string
+carries two items from Sanaa's never-list — the replay phrasing and a case id.
+
+**The observation was right and the fix was wrong.** Two production mechanisms,
+both verified afterwards by the patch's own author rather than taken from the
+applier's comment:
+
+1. `RunRecord.__post_init__` (`sdk/workflows/demo_mode.py:878`) **REQUIRES** the
+   `"presentation of run "` prefix and raises `DemoContractError` without it.
+2. `assert_screen_safe` refuses the **KEY** `presentation_of` in any payload,
+   whatever its value — so the string **cannot reach a screen anyway**.
+
+The applier measured both directions before declining: **reworded, the act
+refused at stage 0 with 0 events; prefix restored, it walks all nine stages.**
+The banned words were never on a screen; the patch would have removed them from
+a place they could not appear and broken the act to do it.
+
+### The rule
+
+> **A PATCH IS A PROPOSAL. THE APPLIER IS A REVIEWER, NOT A CONDUIT.**
+> An applier who applies a hunk because it was handed to them has added no
+> check. The right response to "apply this" is to read what it touches, and to
+> DECLINE a hunk on measurement — even from a lane that has been right all
+> evening, and even when the patch was requested.
+
+**This is the lab's own rule pointed at itself.** We insist constantly that a
+RELAYED CHECK IS NOT A CHECK. A patch is a relayed check: it encodes somebody's
+conclusion about code they do not own, and applying it unread converts their
+conclusion into your commit.
+
+**The asymmetry that makes it necessary:** the author of a fix is the person
+least able to see that it breaks something. They looked at the string; the
+contract that requires the string is somewhere else, and they had no reason to
+open it. **Only the owner of the file is positioned to catch it, and only if
+they treat the patch as a proposal.**
+
+### The corollary, which is the harder half
+
+**The author must then verify the decline in production rather than accepting
+the explanation.** Here the author did: both mechanisms were read at their line
+numbers, and the refused-key set was checked for a gap the applier's comment did
+not mention (`run_id` is NOT in it — unrendered today by ABSENCE rather than by
+guard, which is weaker than it looks and was reported as such).
+
+A decline accepted on trust is the same failure as a patch applied on trust,
+with the direction reversed.
+
+### Companion: the pipe that eats an exit status
+
+Found in the same verification pass, and the same family — a green result that
+told the reader nothing:
+
+    git apply --check PATCH 2>&1 | head -1      # $? is HEAD's status
+    false | head -3   -> $? = 0                 # measured
+    false             -> $? = 1                 # the real one
+    set -o pipefail; false | head -3 -> $? = 1  # the fix
+
+**Piping a checker through `head`, `tail`, `grep` or `tee` reports the PIPE'S
+last command's status, not the checker's.** The check above is the exact
+instrument used all evening to prove a patch had not landed; read through a
+pipe it returns 0 whether the patch applies or not. Capture the status
+**unpiped**, or set `pipefail`. A shell idiom everybody uses, silently
+converting a failing check into a passing one.
