@@ -51,10 +51,15 @@ const replayFiles = [];
 // than on a synthetic stand-in, and this file holds no copy of either.
 let captionArg = null;
 let docketArg = null;
+// --bench N drives N solve.frame events through the real dispatch and reports
+// the mean cost of one. See the per-event cost block near the foot of the file
+// for what that number is and what it is not.
+let benchFrames = 0;
 for (let i = 1; i < argv.length; i++) {
   if (argv[i] === '--replay') replayFiles.push(argv[++i]);
   else if (argv[i] === '--caption') captionArg = argv[++i];
   else if (argv[i] === '--docket') docketArg = argv[++i];
+  else if (argv[i] === '--bench') benchFrames = +argv[++i] || 0;
 }
 
 // ---- extract the page script -------------------------------------------
@@ -1258,6 +1263,58 @@ const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, ''
     check(/Decided item/.test(html) && cardsIn(html) > 8,
           'PLANTED CONTROL DEAD: restoring the uncurated wall did not bring the ' +
           'decided cards back, so the curation checks are not testing the wall');
+  }
+
+  // ------------------------------------------------------- per-event cost
+  // WHY THIS IS MEASURED AND NOT ARGUED. The solving stage's frames render
+  // UNPACED, because the paced queue drains at 45 ms per item at its fastest
+  // tier while the stage puts 1,225 events on the wire in 44.9 s -- 36.7 ms
+  // each -- so the queue is structurally behind at any setting. That 36.7 ms is
+  // the budget every change to a solve-frame handler is spent against, and the
+  // small-multiple monitors are exactly such a change: five traces where there
+  // was one. This drives real `solve.frame` payloads through the real
+  // `dispatch` on the stub DOM and reports the mean cost of one, so the claim
+  // "it still fits" is a number rather than an opinion.
+  //
+  // WHAT IT DOES NOT MEASURE, said plainly: this box executes no layout and no
+  // rasterisation, so the figure is the page's JavaScript cost per event and
+  // nothing else. It is a floor, not a frame budget.
+  if (benchFrames > 0) {
+    const p = newPage();
+    const points = 5, per = Math.max(1, Math.round(benchFrames / points));
+    const labels = [];
+    for (let i = 0; i < points; i++) labels.push('blowing ' + (i * 0.1).toFixed(1));
+    p.api.dispatch({ event: 'solve.begin',
+                     payload: { stage: 'solving', points, labels,
+                                iterations_per_point: labels.map(() => per * 4) } });
+    // Built before the clock starts: the cost under test is the page's, not
+    // this harness's object construction.
+    const frames = [];
+    for (let k = 1; k <= per; k++) {
+      for (let i = 0; i < points; i++) {
+        frames.push({ event: 'solve.frame', payload: {
+          stage: 'solving', point_index: i + 1, points, label: labels[i],
+          iteration: k * 4, iterations: per * 4, elapsed_s: k * 0.5,
+          residuals: { p: Math.pow(10, -1 - 4 * k / per), Ux: 1e-4, Uy: 1e-5 },
+          coefficients: { Cl: 0.4 + 0.1 * i + 0.01 * Math.sin(k / 7) },
+          envelope: {}, source_row: k } });
+      }
+    }
+    // THE CLOCK IS ADVANCED BETWEEN EVENTS, 36.7 ms, THE REAL ARRIVAL GAP.
+    // Dispatching the whole burst synchronously would be the wrong measurement
+    // and flatteringly so: a page that defers its draw to an animation frame
+    // would coalesce 1,225 events into ONE draw, which is not what happens on a
+    // screen where the frames arrive 36.7 ms apart. Stepping the virtual clock
+    // makes every scheduled animation frame and every queue beat run in its
+    // place, so the figure includes the drawing the events actually cause.
+    const t0 = process.hrtime.bigint();
+    for (const f of frames) { p.api.dispatch(f); p.advance(36.7); }
+    p.drain(1000);
+    const ms = Number(process.hrtime.bigint() - t0) / 1e6;
+    console.log(`per-event cost: ${frames.length} solve.frame events over ` +
+                `${points} points, ${ms.toFixed(1)} ms total, ` +
+                `${(ms / frames.length).toFixed(3)} ms per event ` +
+                `(budget 36.7 ms; JavaScript only, no layout on this box)`);
   }
 
   // ---------------------------------------------------------------- report

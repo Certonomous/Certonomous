@@ -111,9 +111,19 @@ ACT_KEY = "jet-flap"
 #: `mission.scoped` line -- published only when the prompt asks for more than
 #: the run delivers -- lands as a reported envelope event rather than as a
 #: spurious GATE FAIL.
+#: AMENDED 2026-09-01 FOR THE MESHING STAGE'S GRID. Sanaa: "after 'Meshing',
+#: the panel shows the computational grid cell by cell". That is one further
+#: publication, ``mesh.grid``, and every sequencer publication carries its own
+#: banner, so the census moves by exactly two: 1281 -> 1283 and 635 -> 636. Both
+#: were re-derived by driving the act offline, not adjusted to make a red go
+#: green -- the delta was predicted from the one added ``_publish`` call before
+#: the run, and the run returned exactly that. The geometry announcement count
+#: is UNCHANGED at 1: the body is now announced before the first stage instead
+#: of inside the fourth, and the geometry stage's own call is skipped when it
+#: is, so the act still announces one body once.
 EXPECT = {
-    "total": 1281,
-    "stage.banner": 635,
+    "total": 1283,
+    "stage.banner": 636,
     "solve.frame": 605,
     "transcript.table": 3,
     "stage.begin": 9,
@@ -223,6 +233,13 @@ TIER1_RENDERED: dict[str, tuple[tuple[str, str], ...]] = {
                    ("caption", "control_room.html addPlot figcaption text")),
     # setStageBanner writes #stageBanner.textContent, latest-wins and unpaced.
     "stage.banner": (("text", "control_room.html setStageBanner -> #stageBanner"),),
+    # THE COMPUTATIONAL GRID. `loadGrid` writes the label into #viewportLabel
+    # and the caption into #viewportCaption, exactly as a geometry announcement
+    # does, then draws the cells. Swept here rather than exempted: it is a new
+    # rendered surface, and a rendered surface that no sweep covers is how the
+    # first case id reached a screen.
+    "mesh.grid": (("label", "control_room.html loadGrid -> viewportLabel"),
+                  ("caption", "control_room.html loadGrid -> viewportCaption")),
     # solveFrame feeds pushTrace: the label is the trace title AND the series
     # key. The iteration and the lift coefficient are numbers, not text.
     "solve.frame": (("label", "control_room.html solveFrame -> pushTrace title"),),

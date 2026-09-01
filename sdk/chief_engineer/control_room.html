@@ -226,7 +226,15 @@
      full width; the column scrolls (the owner OK'd multi-page) so nothing ever
      overlaps the stage. */
   .stage-wrap { position: relative; flex: 0 0 auto; height: 54vh; min-height: 380px; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
-  #viewportCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #viewportCanvas, #gridCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #viewportCanvas[hidden], #gridCanvas[hidden] { display: none; }
+  /* The solved field picture occupies the same stage the body and the grid do,
+     so the panel is ONE panel showing three things in turn rather than three
+     panels competing for the eye. Contained, never cropped: a flow picture that
+     loses its slot to a crop is not the picture the act rendered. */
+  #viewportField { position: absolute; inset: 0; width: 100%; height: 100%;
+                   object-fit: contain; background: #05070a; }
+  #viewportField[hidden] { display: none; }
   .viewport-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--dim); font-size: 11.5px; padding: 40px; }
   .viewport-empty[hidden] { display: none; }
   /* Two rows, not one. The label and the stats keep the row they always had;
@@ -243,14 +251,27 @@
   /* THE STAGE BANNER. A banner is a STATE, not a beat: 635 of them arrive on
      this act and 614 carry a different string, because during the solve the
      banner IS the iteration counter. It therefore writes one element,
-     latest-wins, and never queues. Bottom-anchored so it cannot collide with
-     the worker-kill banner, which owns the top of the same stage. */
-  .stage-banner { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
-                  max-width: calc(100% - 36px); padding: 7px 15px; border-radius: 999px;
-                  background: rgba(6,9,12,.86); border: 1px solid var(--line);
+     latest-wins, and never queues.
+     IT NO LONGER SITS ON THE BODY. It used to be absolutely positioned inside
+     the stage, so the progress readout lay across the geometry for the whole
+     act. It now lives in the panel head, top right, where it covers nothing:
+     the stage is the picture and the head is the instrumentation. */
+  .stage-banner { flex: 0 1 auto; margin-left: auto; padding: 4px 12px; border-radius: 999px;
+                  background: rgba(120,190,255,.09); border: 1px solid rgba(120,190,255,.28);
                   color: var(--fg); font: 11px var(--mono); letter-spacing: .05em;
-                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                  max-width: 62%; }
   .stage-banner[hidden] { display: none; }
+  .panel-head .eyebrow { flex: 0 0 auto; }
+  /* The small-multiple monitor strip. Full width of the stage column, because
+     five points side by side is the whole point and a narrow box would stack
+     them. Height is fixed so the panel below it does not jump when the sweep
+     opens. */
+  .sweep-box { padding: 12px 18px 10px; border-top: 1px solid var(--line); }
+  .sweep-box[hidden] { display: none; }
+  .sweep-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .sweep-note { color: var(--dim); font: 10px var(--mono); letter-spacing: .04em; }
+  #sweep { display: block; width: 100%; height: 262px; }
   /* A stage card is an entry, styled as one, so the act's nine stages read as
      part of the same conversation rather than a second feed bolted beside it. */
   .stage-card .who { color: var(--live); }
@@ -497,13 +518,13 @@
     </aside>
 
     <section class="panel viewport">
-      <div class="panel-head"><h2 id="viewportHead">Geometry</h2><span class="eyebrow" id="viewportIndex">02 / surface</span></div>
+      <div class="panel-head"><h2 id="viewportHead">Geometry</h2><span class="stage-banner" id="stageBanner" hidden></span><span class="eyebrow" id="viewportIndex">02 / surface</span></div>
       <!-- The stage closes HERE: the footer, race view, evidence plots and
            result card are SIBLINGS of the stage, never children. An unclosed
            stage-wrap once swallowed them all — the absolute canvas painted the
            body over the charts, and hiding the stage for a race hid the race. -->
-      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here, painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div><div class="stage-banner" id="stageBanner" hidden></div></div>
-      <div class="viewport-foot" id="viewportFoot"><div class="viewport-foot-row"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div><div class="viewport-caption" id="viewportCaption"></div></div>
+      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><canvas id="gridCanvas" hidden></canvas><img id="viewportField" hidden alt=""><div class="viewport-empty" id="viewportEmpty">Load a surface to see it here.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
+      <div class="viewport-foot" id="viewportFoot"><div class="viewport-foot-row"><span id="viewportLabel">—</span><span id="viewportStats"></span></div><div class="viewport-caption" id="viewportCaption"></div></div>
       <div class="legend" id="legend"><span class="lg-tag">colour range</span><span id="legendLo">-</span><span class="bar"></span><span id="legendHi">-</span><b id="legendName">pressure</b><span class="lg-phys" id="legendPhys"></span></div>
 
       <!-- Split-screen race view: two lanes race the same objective, one path
@@ -515,6 +536,15 @@
           <div class="rc-bars" id="raceBars"></div>
           <div class="rc-verdict" id="raceVerdict"></div>
         </div>
+      </div>
+
+      <!-- SOLVER MONITORS AS SMALL MULTIPLES (Sanaa, 2026-09-01): every sweep
+           point side by side, lift on the top row, residual beneath it, all of
+           them advancing at once. One canvas carries all ten cells, so a frame
+           is one draw however many points the sweep has. -->
+      <div class="sweep-box" id="sweepBox" hidden>
+        <div class="sweep-head"><span class="eyebrow" id="sweepTitle">Solver monitors</span><span class="sweep-note" id="sweepNote"></span></div>
+        <canvas id="sweep"></canvas>
       </div>
 
       <div class="evidence-row" id="evidenceRow">
@@ -537,9 +567,9 @@
       <div class="ws-top">
         <div class="mid"><span id="missionId">NO ACTIVE MISSION</span><strong id="missionGoal">Awaiting chief directive</strong></div>
         <div class="kpis" id="kpis" hidden>
-          <div class="kpi"><b id="kCycle">0/4</b><span>Cycle</span></div>
+          <div class="kpi"><b id="kCycle">0/4</b><span id="kCycleLabel">Cycle</span></div>
           <div class="kpi"><b id="kAgents">0</b><span>Agents</span></div>
-          <div class="kpi"><b id="kWorkers">0</b><span>Workers</span></div>
+          <div class="kpi" id="kWorkersTile"><b id="kWorkers">0</b><span>Workers</span></div>
         </div>
       </div>
       <div class="ws-body">
@@ -686,6 +716,13 @@ async function launchMission() {
   // for the whole act (see `showActSurface`). An act launched with no surface
   // leaves the control at rest, so the panel never carries the last act's body.
   if (surface) showActSurface(meta || { name: surface });
+  // AND IT STAYS ON THE STAGE. The upload already rendered the body the moment
+  // it landed; `resetMission` then cleared the mesh and put the empty-stage line
+  // back, so between pressing launch and the geometry stage the viewer watched
+  // a placeholder sit where their own surface had just been. The body goes
+  // straight back, before the first stage opens.
+  if (surface) loadGeometry({ url: `/api/geometry?name=${encodeURIComponent(surface)}`,
+                              label: (meta && meta.body) || displayName(surface) });
   state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('shell').classList.remove('browsing');
   $('launch').disabled = true; $('beacon').classList.add('live'); $('globalStatus').textContent = 'FORMING THE TEAM';
@@ -809,9 +846,19 @@ function resetMission() {
   ['auditSection','rosterSection','dispatchSection','computeSection','channelsSection','knowSection','agendaSection','route','landscapeBox','traceBox'].forEach(id => setHidden(id, true));
   $('legend').classList.remove('on');
   $('kAgents').textContent='0'; $('kWorkers').textContent='0';
+  // The row goes back to the phase counter with its fleet tile: a mission that
+  // is not an act keeps the meaning it always had, and the act's stage counter
+  // must not outlive the act it counted.
+  $('kCycleLabel').textContent='Cycle'; setHidden('kWorkersTile', false);
   $('kCycle').textContent=`0/${PHASE_ORDER.length}`;
   const cv = $('viewportCanvas'), c = cv.getContext('2d'); c && c.clearRect(0,0,cv.width,cv.height);
-  setHidden('viewportEmpty', false); $('viewportLabel').textContent='No surface loaded'; $('viewportStats').textContent='';
+  state.grid = null; state.stage = null;
+  if (state._gridTick) { cancelAnimationFrame(state._gridTick); state._gridTick = null; }
+  if (state.sweep && state.sweep.tick) cancelAnimationFrame(state.sweep.tick);
+  state.sweep = null; setHidden('sweepBox', true);
+  setHidden('viewportField', true); $('viewportField').removeAttribute('src');
+  showViewportStage('geometry');
+  setHidden('viewportEmpty', false); $('viewportLabel').textContent='—'; $('viewportStats').textContent='';
   // A caption belongs to ONE mission's frames. Left standing it would caption
   // the next mission's geometry with the last one's mesh.
   $('viewportCaption').textContent='';
@@ -907,6 +954,11 @@ function dispatch(env) {
     case 'certificate.ready': state.certificate = p; injectCertificate(); break;
     case 'geometry.ready': enqueue('geometry', p, ts); break;
     case 'field.ready': enqueue('field', p, ts); break;
+    // The computational grid, one quadrilateral per cell. It replaces the
+    // tessellation on the same stage the body was on, so the panel reads
+    // geometry, then mesh, then fields (Sanaa, 2026-09-01). Paced: it is a
+    // stage beat, and it arrives once.
+    case 'mesh.grid': enqueue('grid', p, ts); break;
     case 'plot.ready': enqueue('plot', p, ts); break;
     case 'landscape.point': enqueue('landscape', p, ts); break;
     case 'landscape.legend': enqueue('landLegend', p, ts); break;
@@ -948,7 +1000,14 @@ function dispatch(env) {
     // The stage boundary carries the act's own agent census for that stage,
     // which is the fleet numeral. It rides the paced queue so the number lands
     // on the beat of the stage it belongs to, exactly like `roster.update`.
-    case 'stage.begin': enqueue('stageBegin', p, ts); break;
+    // THE STATUS HALF IS UNPACED AND THE CENSUS HALF IS NOT, for the reason
+    // written above this switch: the masthead is a STATE (latest wins, one
+    // element) while the agent numeral must land on the beat of the narration
+    // that explains it. Pacing the status too would put the masthead behind the
+    // solving backlog — the whole defect this is fixing.
+    case 'stage.begin':
+      if (p && p.stage && STAGE_STATUS[p.stage]) { state.stage = p.stage; setGlobalStatus(STAGE_STATUS[p.stage]); }
+      enqueue('stageBegin', p, ts); break;
     // The nine stage payloads ARE the act's narrative and nothing rendered
     // them. Nine items on the queue is nine reading beats, which is what the
     // queue is for.
@@ -1374,6 +1433,7 @@ const APPLY = {
   table:      p => addTable(p),
   geometry:   p => loadGeometry(p),
   field:      p => loadField(p),
+  grid:       p => loadGrid(p),
   plot:       p => addPlot(p),
   landscape:  p => pushLandscape(p),
   landLegend: p => setLandscapeLegend(p),
@@ -1557,8 +1617,61 @@ function addStageCard(p) {
     + `</p>`;
   $('script').appendChild(el); $('script').scrollTop = $('script').scrollHeight;
 }
-// The act's own agent census for the stage that just opened.
+// The act's own agent census for the stage that just opened — and the stage
+// itself, which is what the masthead reads.
+//
+// THE MASTHEAD USED TO BE BLIND TO AN ACT. Measured: `globalStatus` was written
+// at launch ("FORMING THE TEAM") and then only by `addDigest`, off the four
+// phase headings HYPOTHESIS / PLAN / EVIDENCE / CONCLUSION. A demo-mode act
+// publishes no phase headings, so the masthead sat on FORMING THE TEAM for the
+// whole run — through the mesher, through 1,225 solve frames and into the
+// report. `stage.begin` already carried the live stage; nothing read it.
+const STAGE_STATUS = {
+  prompt: 'FORMING THE TEAM', restatement: 'PLANNING', assumption: 'PLANNING',
+  geometry: 'READING THE GEOMETRY', meshing: 'MESHING',
+  feasibility: 'FEASIBILITY CHECK', solving: 'SOLVING',
+  gates: 'CHECKING', results: 'REPORT',
+};
+function setGlobalStatus(text) {
+  const el = $('globalStatus');
+  if (!el || state.finished || !text || el.textContent === text) return;
+  el.textContent = text;
+}
+// EVERY NUMERAL IN THIS ROW IS WIRED TO A SOURCE OR IT IS NOT SHOWN. Sanaa,
+// 2026-09-01: "Human touchpoints, cycle, agents and workers reflect the actual
+// state, not fixed values." Measured on this act, one field at a time:
+//
+// * CYCLE had NO SOURCE during an act. It counts the four research phases
+//   HYPOTHESIS / PLAN / EVIDENCE / CONCLUSION, read out of digest headings that
+//   a demo-mode act never publishes, so it read "0/4" from launch to report. It
+//   is now the STAGE counter for an act — nine stages, moved by `stage.begin`,
+//   and the label changes with it so the numeral is not a stage wearing the
+//   word Cycle. A non-act mission keeps the phase counter untouched.
+// * WORKERS is DROPPED for an act, not invented. Its only real sources are the
+//   fleet's own `worker.provisioned` / `worker.released` and the roster's
+//   count; an act publishes none of them, so the tile would sit on 0 for the
+//   whole run beside a solve. There is a number that could be put there — the
+//   rank count off the run records — and putting it there would assert a live
+//   fleet this act does not have. An absent tile is honest.
+// * AGENTS is wired: `stage.begin` carries the act's own `agent_census()`,
+//   which is per stage and declared by the act, and the transcript and roster
+//   feed the same set for a non-act mission.
+// * HUMAN TOUCHPOINTS is wired: one for the launch, one more for every
+//   question put to the lab (`askLab` -> `bumpTouch`). It reads 1 through an
+//   act because one is the true count, not because it is pinned.
+const STAGE_ORDER = ['prompt','restatement','assumption','geometry','meshing',
+                     'feasibility','solving','gates','results'];
 function stageBegan(p) {
+  const stage = p && p.stage;
+  if (stage && STAGE_STATUS[stage]) { state.stage = stage; setGlobalStatus(STAGE_STATUS[stage]); }
+  const at = STAGE_ORDER.indexOf(String(stage));
+  if (at >= 0) {
+    $('kCycleLabel').textContent = 'Stage';
+    $('kCycle').textContent = `${at + 1}/${STAGE_ORDER.length}`;
+    setHidden('kWorkersTile', true);
+  }
+  // The census is separate: the results stage carries none, and a stage with
+  // no agents of its own must still move the masthead.
   const n = Number(p && p.agents);
   if (!Number.isFinite(n) || n <= 0) return;
   state.agents = n;
@@ -1578,28 +1691,169 @@ function setStageBanner(p) {
 // A solve frame is one sample of a moving curve, not a row of narration. It
 // feeds the trace that already exists (`pushTrace`/`drawTrace`, streaming line
 // with a latest-value annotation) rather than a second chart written here.
+// ================== SOLVER MONITORS AS SMALL MULTIPLES =====================
+//
+// SANAA, 2026-09-01: "all five sweep points side by side (five lift traces,
+// five residual traces), advancing simultaneously, so the sweep completes in
+// one pass instead of five sequential clips."
+//
+// What it replaced: ONE trace box that cleared itself the moment the point
+// label changed, so a viewer watched five separate clips of one chart being
+// filled and wiped. The reset was deliberate and correct — five settings are
+// five runs and drawing them end to end would imply one continuing solve — but
+// the answer to that is five charts, not one chart shown five times.
+//
+// PER-EVENT COST, WHICH IS THE BINDING CONSTRAINT. The solving stage puts 1,225
+// events on the wire in 44.9 s (36.7 ms each) against a paced-queue floor of
+// 45 ms, so these frames render UNPACED and every millisecond of per-event work
+// is spent against that 36.7. The old path drew the whole chart inside the
+// event handler. This one appends two numbers and sets a dirty flag; the draw
+// happens on an animation frame, so it is bounded by the display rather than by
+// the arrival rate, and ten cells cost one draw rather than ten.
+function sweepReset(labels) {
+  const names = (labels || []).map(String);
+  state.sweep = {
+    labels: names,
+    s: names.map(() => ({ it: [], cl: [], res: [] })),
+    dirty: false, tick: null,
+  };
+  setHidden('sweepBox', !names.length);
+  if (names.length) {
+    $('sweepNote').textContent = `${names.length} points, advancing together`;
+    drawSweep();
+  }
+}
+function sweepMark() {
+  const s = state.sweep; if (!s || s.tick) return;
+  s.tick = requestAnimationFrame(() => { s.tick = null; drawSweep(); });
+}
 function solveBegin(p) {
   state.solveSeries = null;
-  setHidden('traceBox', false);
+  // An act that names its points gets the small-multiple strip. One that does
+  // not keeps the single objective trace it always had — the adjoint and race
+  // paths publish no labels and must not lose their chart to this.
+  if (p && Array.isArray(p.labels) && p.labels.length > 1) {
+    sweepReset(p.labels);
+    setHidden('traceBox', true);
+  } else {
+    state.sweep = null;
+    setHidden('traceBox', false);
+  }
 }
 function solvePoint(p) { /* the banner already carries the point; state only */ }
+// The residual a monitor plots is the pressure residual when the frame carries
+// one, and otherwise the largest residual on the frame — never a silent zero.
+function frameResidual(r) {
+  if (!r) return null;
+  if (r.p != null && isFinite(+r.p)) return Math.abs(+r.p);
+  let best = null;
+  for (const k in r) { const v = Math.abs(+r[k]); if (isFinite(v) && (best == null || v > best)) best = v; }
+  return best;
+}
 function solveFrame(p) {
   const cl = p && p.coefficients ? p.coefficients.Cl : null;
   if (cl == null || p.iteration == null) return;
-  // Each sweep point is its own curve: five points solved at five blowing
-  // settings are five runs, and drawing them end to end as one line would
-  // imply a single continuing solve.
-  if (state.solveSeries !== p.label) {
-    state.solveSeries = p.label;
-    state.trace = null;
+  const sw = state.sweep;
+  if (sw) {
+    const i = sw.labels.indexOf(String(p.label));
+    if (i < 0) return;
+    const cell = sw.s[i];
+    cell.it.push(+p.iteration); cell.cl.push(+cl);
+    cell.res.push(frameResidual(p.residuals));
+    sweepMark();
+    return;
   }
+  if (state.solveSeries !== p.label) { state.solveSeries = p.label; state.trace = null; }
   pushTrace({ series: p.label, x: +p.iteration, y: +cl,
               // Fixed labels, and the only text this block puts on screen that
               // the act did not write. Both swept by hand against R5.
               x_label: 'Iteration', y_label: 'Lift coefficient',
               title: p.label });
 }
-function solveEnd(p) { state.solveSeries = null; }
+function solveEnd(p) { state.solveSeries = null; if (state.sweep) drawSweep(); }
+
+// Ten cells, one canvas, one pass. Lift on the top row, residual beneath, every
+// column one sweep point, all sharing an axis within their row so the columns
+// are comparable — five charts on five different scales would say nothing about
+// how the points differ, which is the whole reason they are side by side.
+function drawSweep() {
+  const sw = state.sweep, cv = $('sweep'); if (!sw || !cv) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  cv.width = W*dpr; cv.height = H*dpr;
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const n = sw.labels.length || 1;
+  const ML = 44, MR = 8, MT = 16, MB = 22, GAP = 12, RGAP = 26;
+  const cellW = (W - ML - MR - GAP*(n-1)) / n;
+  const cellH = (H - MT - MB - RGAP) / 2;
+  if (cellW <= 4 || cellH <= 4) return;
+
+  const finite = a => a.filter(v => v != null && isFinite(v));
+  const allIt = [].concat(...sw.s.map(c => c.it));
+  const allCl = finite([].concat(...sw.s.map(c => c.cl)));
+  const allRes = finite([].concat(...sw.s.map(c => c.res))).filter(v => v > 0);
+  const xMax = allIt.length ? Math.max(...allIt) : 1;
+  const clLo = allCl.length ? Math.min(...allCl) : 0, clHi = allCl.length ? Math.max(...allCl) : 1;
+  const pad = ((clHi - clLo) || Math.abs(clHi) || 1) * 0.12;
+  const yLo = clLo - pad, yHi = clHi + pad;
+  const rLo = allRes.length ? Math.log10(Math.min(...allRes)) : -6;
+  const rHi = allRes.length ? Math.log10(Math.max(...allRes)) : 0;
+  const rSpan = (rHi - rLo) || 1;
+
+  ctx.font = '9px ui-monospace,monospace';
+  const rowLabel = (text, y) => {
+    ctx.save(); ctx.translate(11, y); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle = 'rgba(190,210,230,.75)'; ctx.textAlign = 'center';
+    fillTextSub(ctx, text, 0, 0); ctx.restore();
+  };
+  rowLabel('Lift coefficient', MT + cellH/2);
+  rowLabel('Pressure residual', MT + cellH + RGAP + cellH/2);
+
+  for (let i = 0; i < n; i++) {
+    const x0 = ML + i*(cellW + GAP), c = sw.s[i];
+    // -- the column's title, which is the act's own point label
+    ctx.fillStyle = 'rgba(210,228,245,.9)'; ctx.textAlign = 'left';
+    fillTextSub(ctx, sw.labels[i], x0, MT - 5);
+    const frames = [[MT, cellH, 'cl'], [MT + cellH + RGAP, cellH, 'res']];
+    for (const [y0, h, kind] of frames) {
+      ctx.strokeStyle = 'rgba(140,170,200,.28)'; ctx.lineWidth = 1;
+      ctx.strokeRect(x0, y0, cellW, h);
+      const px = v => x0 + (xMax ? v/xMax : 0)*cellW;
+      const py = kind === 'cl'
+        ? v => y0 + h - ((v - yLo)/((yHi - yLo) || 1))*h
+        : v => y0 + h - ((Math.log10(v) - rLo)/rSpan)*h;
+      const ys = kind === 'cl' ? c.cl : c.res;
+      let started = false, lastX = null, lastY = null;
+      ctx.beginPath();
+      for (let k = 0; k < ys.length; k++) {
+        const v = ys[k];
+        if (v == null || !isFinite(v) || (kind === 'res' && !(v > 0))) continue;
+        const X = px(c.it[k]), Y = py(v);
+        if (!started) { ctx.moveTo(X, Y); started = true; } else ctx.lineTo(X, Y);
+        lastX = X; lastY = Y;
+      }
+      ctx.strokeStyle = kind === 'cl' ? 'rgba(120,200,255,.95)' : 'rgba(255,180,110,.9)';
+      ctx.lineWidth = 1.3; ctx.stroke();
+      // The advancing head, so a viewer can see which traces are still moving.
+      if (lastX != null) {
+        ctx.fillStyle = kind === 'cl' ? 'rgba(120,200,255,1)' : 'rgba(255,180,110,1)';
+        ctx.beginPath(); ctx.arc(lastX, lastY, 2.2, 0, 6.2832); ctx.fill();
+      }
+    }
+    // -- the iteration reached, under the column
+    ctx.fillStyle = 'rgba(160,185,210,.7)'; ctx.textAlign = 'center';
+    const reached = c.it.length ? c.it[c.it.length-1] : 0;
+    ctx.fillText(`${reached.toLocaleString()} iterations`, x0 + cellW/2, H - 7);
+  }
+  // The shared scales, stated once each — a chart that does not say its scale
+  // is a sketch.
+  ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(190,210,230,.7)';
+  const fmt = v => Math.abs(v) >= 100 ? v.toFixed(0) : +v.toPrecision(3);
+  ctx.fillText(String(fmt(yHi)), ML - 5, MT + 7);
+  ctx.fillText(String(fmt(yLo)), ML - 5, MT + cellH);
+  ctx.fillText('1e' + Math.round(rHi), ML - 5, MT + cellH + RGAP + 7);
+  ctx.fillText('1e' + Math.round(rLo), ML - 5, MT + cellH + RGAP + cellH);
+}
 // A transcript table renders in both feeds with the entry styling it sits
 // among. The first event for a table_id creates the table (headers + any
 // rows); append:true events land new rows into that same table, so rows
@@ -1908,7 +2162,15 @@ async function loadGeometry(p) {
     if (seq !== _geomSeq) return;   // superseded before we even fetched
     const mesh = normalizeMesh(await (await fetch(url)).json()); mesh.field = null;
     if (seq !== _geomSeq) return;   // a newer geometry superseded this one
-    state.mesh = mesh; setHidden('viewportEmpty', true);
+    // The camera may be pinned by whoever announced the body. The surface
+    // endpoint serves triangles and bounds and nothing about how to look at
+    // them, so an extruded 2-D section arrives as a slab seen corner-on. An act
+    // that knows its body is a wing section says so and the viewer gets the
+    // profile. Merged here rather than in `normalizeMesh` because it rides the
+    // ANNOUNCEMENT, not the geometry payload.
+    if (p.view) mesh.view = p.view;
+    state.mesh = mesh; showViewportStage('geometry');
+    setHidden('viewportEmpty', true);
     // Viewport labels are display names, never raw filenames/slugs (R1). The
     // workflows already emit human labels; this is the graceful fallback until
     // the shared display-name registry lands on main.
@@ -1931,7 +2193,9 @@ async function loadField(p) {
     const mesh = normalizeMesh(await (await fetch(url)).json());
     if (seq !== _geomSeq) return;
     anchorSignedRamp(mesh.field);
-    state.mesh = mesh; setHidden('viewportEmpty', true);
+    if (p.view) mesh.view = p.view;
+    state.mesh = mesh; showViewportStage('geometry');
+    setHidden('viewportEmpty', true);
     if (p.label) subText('viewportLabel', p.label);
     // Rule 14: a caption on geometry frames but not field frames is the same
     // lesson left half applied. Field frames paint the viewport too.
@@ -2101,12 +2365,245 @@ function viewAxes(view) {
   const a = view && view.axes;
   return (Array.isArray(a) && a.length === 3 && EVEN_AXES[a.join(',')]) ? a : null;
 }
+// AN EXTRUDED 2-D SECTION IS LOOKED AT DOWN ITS EXTRUSION, and this finds that
+// axis by measurement rather than by being told.
+//
+// A wing section solved as a 2-D case is a prism: hundreds of distinct
+// coordinates around the profile, and a HANDFUL along the span (the blown-wing
+// body has 141 and 277 against 3). Without this the default camera puts the
+// span across the screen and the profile edge-on, and the viewer gets a slab
+// instead of the aerofoil the act is about. Returns an even permutation
+// [extrusion, long in-plane, short in-plane] — even because an odd one mirrors
+// the body, and a mirrored cambered section is a different section. When the
+// only correct permutation would be odd it returns null and the existing camera
+// stands, which is the same picture as before rather than a wrong one.
+function extrusionAxes(mesh) {
+  if (mesh._ext !== undefined) return mesh._ext;
+  mesh._ext = null;
+  const verts = mesh.verts || [];
+  if (verts.length < 12) return null;
+  const counts = [0,1,2].map(a => {
+    const seen = new Set();
+    for (const v of verts) { seen.add(Math.round(v[a]*1e6)); if (seen.size > 8) break; }
+    return seen.size;
+  });
+  const thin = counts.findIndex(c => c <= 4);
+  if (thin < 0 || counts.filter(c => c <= 4).length !== 1) return null;
+  if (counts.some((c, i) => i !== thin && c < 20)) return null;   // not a profile
+  const plane = [0,1,2].filter(a => a !== thin);
+  let lo = [1e18,1e18,1e18], hi = [-1e18,-1e18,-1e18];
+  for (const v of verts) for (let i=0;i<3;i++){ if (v[i]<lo[i]) lo[i]=v[i]; if (v[i]>hi[i]) hi[i]=v[i]; }
+  const long = (hi[plane[0]]-lo[plane[0]]) >= (hi[plane[1]]-lo[plane[1]]) ? plane[0] : plane[1];
+  const short = plane[0] === long ? plane[1] : plane[0];
+  const p = [thin, long, short];
+  mesh._ext = EVEN_AXES[p.join(',')] ? p : null;
+  return mesh._ext;
+}
 const coolwarm = t => {
   t = Math.max(0, Math.min(1, t));
   const stops = [[59,76,192],[122,160,224],[242,242,242],[232,146,106],[180,4,38]];
   const x = t*(stops.length-1), i = Math.floor(x), f = x-i, a = stops[i], b = stops[Math.min(i+1,stops.length-1)];
   return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;
 };
+// ================= THE STAGE SHOWS THREE THINGS, IN ORDER ==================
+// The body, then the grid built on it, then the solved field. One panel, three
+// states, never two of them at once and never a placeholder standing in for one
+// that has already arrived.
+const VIEWPORT_STAGE = {
+  geometry: ['Geometry', '02 / surface'],
+  grid:     ['Computational grid', '03 / mesh'],
+  field:    ['Solved field', '04 / field'],
+};
+function showViewportStage(stage) {
+  state.viewportStage = stage;
+  setHidden('viewportCanvas', stage !== 'geometry');
+  setHidden('gridCanvas', stage !== 'grid');
+  setHidden('viewportField', stage !== 'field');
+  const head = VIEWPORT_STAGE[stage];
+  if (head) { $('viewportHead').textContent = head[0]; $('viewportIndex').textContent = head[1]; }
+}
+
+// THE GRID, DRAWN CELL BY CELL, not a picture of one.
+//
+// The payload is one quadrilateral per cell, read off the 2-D case's own empty
+// patch (see scripts/polymesh_slice_payload.py) — so what is stroked here IS
+// the cell list the solver integrated over, and the wall layers are visible
+// because they are in it, not because anything drew a band.
+//
+// COST, MEASURED RATHER THAN HOPED. The jet-flap force grid is 39,984 cells and
+// roughly 29,300 of them fall inside the opening frame. Every cell is one
+// moveTo and four lineTo on a SINGLE Path2D that is stroked once, because
+// 29,300 separate stroke() calls is a different order of cost from one stroke
+// over 29,300 subpaths. While the camera is moving the draw is decimated to a
+// fixed budget of cells and the full grid is restored the moment it settles, so
+// no frame of the zoom carries more work than a still one.
+const GRID_MOVING_BUDGET = 9000;
+function loadGrid(p) {
+  const url = p && p.url; if (!url) return;
+  const seq = ++_geomSeq;
+  fetch(url).then(r => r.json()).then(g => {
+    if (seq !== _geomSeq) return;
+    if (!g || !g.nodes || !g.quads) return;
+    // Per-cell bounding boxes and a draw ORDER, computed once. The order runs
+    // outward from the body, so the reveal grows off the surface rather than
+    // filling in from wherever the mesher happened to number its cells.
+    const N = g.nodes, Q = g.quads, n = Q.length;
+    const bb = new Float64Array(n * 4);
+    const key = new Float64Array(n);
+    const bx = g.body_box ? (g.body_box[0] + g.body_box[2]) / 2 : 0;
+    const by = g.body_box ? (g.body_box[1] + g.body_box[3]) / 2 : 0;
+    for (let i = 0; i < n; i++) {
+      const q = Q[i];
+      let x0 = 1e18, y0 = 1e18, x1 = -1e18, y1 = -1e18;
+      for (let k = 0; k < q.length; k++) {
+        const v = N[q[k]];
+        if (v[0] < x0) x0 = v[0]; if (v[0] > x1) x1 = v[0];
+        if (v[1] < y0) y0 = v[1]; if (v[1] > y1) y1 = v[1];
+      }
+      bb[i*4] = x0; bb[i*4+1] = y0; bb[i*4+2] = x1; bb[i*4+3] = y1;
+      const cx = (x0+x1)/2 - bx, cy = (y0+y1)/2 - by;
+      key[i] = cx*cx + cy*cy;
+    }
+    const order = Array.from({length: n}, (_, i) => i).sort((a, b) => key[a] - key[b]);
+    state.grid = { g, bb, order };
+    if (p.label) subText('viewportLabel', p.label);
+    if (p.caption !== undefined) subText('viewportCaption', p.caption || '');
+    $('viewportStats').textContent = (+g.cells).toLocaleString() + ' cells';
+    showViewportStage('grid');
+    startGridReveal();
+  }).catch(() => {});
+}
+// The reveal: cells build outward off the wall, hold, then the camera eases in
+// to the slot. Four numbers, one place.
+const GRID_BUILD_MS = 1300, GRID_HOLD_MS = 1400, GRID_ZOOM_MS = 2000;
+function startGridReveal() {
+  if (state._gridTick) cancelAnimationFrame(state._gridTick);
+  const gr = state.grid; if (!gr) return;
+  const wide = gr.g.body_box, tight = gr.g.slot_box || gr.g.body_box;
+  const t0 = performance.now();
+  const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+  const step = () => {
+    if (state.viewportStage !== 'grid' || state.grid !== gr) { state._gridTick = null; return; }
+    const t = performance.now() - t0;
+    let box = wide, limit = gr.order.length, moving = false;
+    if (t < GRID_BUILD_MS) {
+      limit = Math.max(1, Math.round(gr.order.length * ease(t / GRID_BUILD_MS)));
+      moving = true;
+    } else if (t > GRID_BUILD_MS + GRID_HOLD_MS) {
+      const u = Math.min(1, (t - GRID_BUILD_MS - GRID_HOLD_MS) / GRID_ZOOM_MS);
+      const e = ease(u);
+      box = wide.map((v, i) => v + (tight[i] - v) * e);
+      moving = u < 1;
+    }
+    drawGrid(box, limit, moving);
+    if (t < GRID_BUILD_MS + GRID_HOLD_MS + GRID_ZOOM_MS) state._gridTick = requestAnimationFrame(step);
+    else state._gridTick = null;
+  };
+  state._gridTick = requestAnimationFrame(step);
+}
+function drawGrid(box, limit, moving) {
+  const gr = state.grid, cv = $('gridCanvas'); if (!gr || !cv) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  cv.width = W*dpr; cv.height = H*dpr;
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const [x0,y0,x1,y1] = box;
+  const s = Math.min(W/((x1-x0)||1), H/((y1-y0)||1));
+  const cx = (x0+x1)/2, cy = (y0+y1)/2;
+  const px = x => W/2 + (x-cx)*s, py = y => H/2 - (y-cy)*s;
+  const { g, bb, order } = gr, N = g.nodes, Q = g.quads;
+  const stop = Math.min(limit == null ? order.length : limit, order.length);
+  // Only the cells inside the frame are stroked; the far field of an O-mesh is
+  // 26 chords across and none of it is on screen at the wall.
+  const visible = [];
+  for (let k = 0; k < stop; k++) {
+    const i = order[k];
+    if (bb[i*4+2] < x0 || bb[i*4] > x1 || bb[i*4+3] < y0 || bb[i*4+1] > y1) continue;
+    visible.push(i);
+  }
+  const stride = moving && visible.length > GRID_MOVING_BUDGET
+               ? Math.ceil(visible.length / GRID_MOVING_BUDGET) : 1;
+  const path = new Path2D();
+  for (let k = 0; k < visible.length; k += stride) {
+    const q = Q[visible[k]];
+    const a = N[q[0]];
+    path.moveTo(px(a[0]), py(a[1]));
+    for (let j = 1; j < q.length; j++) { const v = N[q[j]]; path.lineTo(px(v[0]), py(v[1])); }
+    path.closePath();
+  }
+  ctx.strokeStyle = 'rgba(120,180,225,.42)'; ctx.lineWidth = 0.6; ctx.stroke(path);
+  // The wall last and the slot after it, so neither is overdrawn by the cells
+  // packed against them — the two features a viewer is here to see.
+  const line = (edges, style, w) => {
+    if (!edges || !edges.length) return;
+    const pp = new Path2D();
+    for (const e of edges) {
+      const a = N[e[0]], b = N[e[1]];
+      pp.moveTo(px(a[0]), py(a[1])); pp.lineTo(px(b[0]), py(b[1]));
+    }
+    ctx.strokeStyle = style; ctx.lineWidth = w; ctx.stroke(pp);
+  };
+  line(g.wall, 'rgba(232,244,255,.95)', 1.6);
+  line(g.slot, 'rgba(110,240,175,1)', 3);
+}
+
+// CAN THIS BODY BE BACK-FACE CULLED? Answered by measurement on the mesh, once,
+// never by a flag somebody set.
+//
+// A painter's sort over a CLOSED body still cannot hide the inside of it: a long
+// end-cap triangle whose centroid sits deeper than the small panels in front of
+// it draws last and wins, and the viewer sees through the surface. Culling the
+// triangles facing away removes the whole class, and it is safe exactly when the
+// surface is closed and consistently wound — then "facing away" is a fact about
+// the body rather than a guess about the file.
+//
+// The test: weld vertices onto a tolerance grid, walk every directed edge. A
+// closed, consistently wound surface uses each directed edge exactly once and
+// each undirected edge exactly twice. Anything else — an open shell, a decimated
+// body whose winding was scrambled, a soup of unconnected facets — returns 0 and
+// nothing is culled, so no body can be made to vanish by this. The global sense
+// comes from the signed volume, so a wholly inside-out file culls correctly too.
+// Returns +1 / -1 (the screen-area sign to KEEP) or 0 for "do not cull".
+function cullSense(mesh) {
+  if (mesh._cull !== undefined) return mesh._cull;
+  mesh._cull = 0;
+  const verts = mesh.verts || [], faces = mesh.faces || [];
+  if (verts.length < 3 || faces.length < 4 || faces.length > 40000) return 0;
+  let lo = [1e18,1e18,1e18], hi = [-1e18,-1e18,-1e18];
+  for (const v of verts) for (let i=0;i<3;i++){ if (v[i]<lo[i]) lo[i]=v[i]; if (v[i]>hi[i]) hi[i]=v[i]; }
+  const q = (Math.max(hi[0]-lo[0], hi[1]-lo[1], hi[2]-lo[2]) || 1) * 1e-6;
+  const key = new Map(), vid = new Array(verts.length);
+  for (let i=0;i<verts.length;i++) {
+    const k = Math.round(verts[i][0]/q)+','+Math.round(verts[i][1]/q)+','+Math.round(verts[i][2]/q);
+    let id = key.get(k); if (id === undefined) { id = key.size; key.set(k, id); }
+    vid[i] = id;
+  }
+  const seen = new Set();
+  for (const f of faces) {
+    const a = vid[f[0]], b = vid[f[1]], c = vid[f[2]];
+    if (a === b || b === c || a === c) return 0;          // degenerate facet
+    for (const e of [a+':'+b, b+':'+c, c+':'+a]) {
+      if (seen.has(e)) return 0;                          // directed edge reused
+      seen.add(e);
+    }
+  }
+  for (const e of seen) {                                  // every edge paired
+    const [a,b] = e.split(':');
+    if (!seen.has(b+':'+a)) return 0;
+  }
+  // Signed volume of the closed surface fixes which way "out" points.
+  let vol = 0;
+  for (const f of faces) {
+    const a = verts[f[0]], b = verts[f[1]], c = verts[f[2]];
+    vol += a[0]*(b[1]*c[2]-b[2]*c[1]) - a[1]*(b[0]*c[2]-b[2]*c[0]) + a[2]*(b[0]*c[1]-b[1]*c[0]);
+  }
+  if (!(Math.abs(vol) > 0)) return 0;
+  // The screen map below is a left-handed projection (screen y is flipped when
+  // the point is written), so an outward-wound facet facing the camera has a
+  // POSITIVE signed screen area. An inside-out file flips the sign.
+  mesh._cull = vol > 0 ? 1 : -1;
+  return mesh._cull;
+}
 function drawGeometry() {
   const cv = $('viewportCanvas'), m = state.mesh; if (!cv) return;
   // Single source of truth (B1): the "renders here…" placeholder exists ONLY
@@ -2120,7 +2617,9 @@ function drawGeometry() {
   if (!haveMesh) return;
   // Camera hint, if the payload carries one (see viewAxes above). Without it
   // `verts` is m.verts and `flat` is the same heuristic as before.
-  const perm = viewAxes(m.view);
+  const pinned = viewAxes(m.view);
+  const extruded = pinned ? null : extrusionAxes(m);
+  const perm = pinned || extruded;
   const verts = perm ? m.verts.map(v => [v[perm[0]], v[perm[1]], v[perm[2]]]) : m.verts;
   let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9];
   for (const v of verts) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
@@ -2131,18 +2630,46 @@ function drawGeometry() {
   // instead — the tilt trades a little chord for a readable shape. A payload
   // may pin this rather than have it inferred, so an animating body cannot
   // cross the threshold mid-shot and take the camera with it.
+  // The planform shear is for a body seen edge-on. A section already turned to
+  // face the camera must not be sheared on top of that — and the blown-wing
+  // section lands at 0.1211 against a 0.12 threshold, close enough that a
+  // hundredth of a millimetre of chord would flip the camera mid-act.
   const flat = (m.view && typeof m.view.flat === 'boolean')
              ? m.view.flat
+             : extruded ? false
              : (hi[2]-lo[2]) < 0.12 * span;
   // Project every vertex onto the model plane FIRST (rotation only, no screen
   // scale/offset), then auto-frame: fit the body's projected bounding box so it
   // FILLS the stage (~86%), centred. The shape is the hero — no fixed fudge
   // factor that leaves it a speck. Works for wings, valve, cylinder, motorBike.
+  // THE THIRD COMPONENT IS THE VIEW DEPTH AND IT USED TO BE `zr`, WHICH IS NOT
+  // A DEPTH. Measured on the blown-wing section (1,716 facets, watertight, one
+  // trailing-edge slot): the screen map is
+  //     screen_x = z*sinA + x*cosA
+  //     screen_y = y*0.92 - (z*cosA - x*sinA)*0.28
+  // so `y` — the model's third axis, the SPAN of an extruded section — is a
+  // pure vertical shear that never enters `zr`. Sorting on `zr` therefore gave
+  // the near face and the far face of an extruded body IDENTICAL depth, the
+  // painter's sort interleaved them, and the far end cap's triangle fan drew
+  // straight through the near surface. On camera that reads as two openings in
+  // the middle of a body that has none.
+  //
+  // AND ITS SIGN WAS INVERTED, which is the larger half. The draw order is
+  // ascending, so the LAST triangle drawn must be the NEAREST. Measured on the
+  // same body: the 902 facets that face the camera average a `zr` of -0.040
+  // against +0.069 for the 814 that face away, so `zr` grows AWAY from the
+  // viewer and the old sort painted the far side over the near side, over the
+  // whole body. That is why the far end cap won.
+  //
+  // The depth is the view direction — the cross product of the two screen rows
+  // above, negated so it increases toward the camera: (0.92*sinA, -0.28,
+  // -0.92*cosA). No screen coordinate moves; only the sort key.
+  const dx = 0.92*sinA, dy = -0.28, dz = -0.92*cosA;
   const planar = verts.map(v => {
     let x=v[1]-c[1], y=v[2]-c[2], z=v[0]-c[0];
     if (flat) { const t=y; y = -z*0.85 + t*0.4; z = t*0.85 + z*0.4; }
     const zr = z*cosA - x*sinA, xr = z*sinA + x*cosA, yr = y*0.92 - zr*0.28;
-    return [xr, yr, zr];
+    return [xr, yr, x*dx + y*dy + z*dz];
   });
   let pminx=1e9, pminy=1e9, pmaxx=-1e9, pmaxy=-1e9;
   for (const p of planar) { pminx=Math.min(pminx,p[0]); pmaxx=Math.max(pmaxx,p[0]);
@@ -2151,10 +2678,21 @@ function drawGeometry() {
   const s = Math.min(W*FILL/pw, H*FILL/ph);
   const pcx=(pminx+pmaxx)/2, pcy=(pminy+pmaxy)/2;
   const scr = i => [W/2 + (planar[i][0]-pcx)*s, H/2 - (planar[i][1]-pcy)*s, planar[i][2]];
-  const tris = m.faces.map((f,idx) => {
+  // A centroid sort cannot separate a long end-cap sliver from the small panels
+  // in front of it, so on a closed body the facets facing away are dropped
+  // outright — see `cullSense`, which refuses to cull anything it has not
+  // measured to be closed and consistently wound.
+  const keep = cullSense(m);
+  const tris = [];
+  m.faces.forEach((f,idx) => {
     const a=scr(f[0]), b=scr(f[1]), cc=scr(f[2]);
-    return { a, b, c: cc, depth:(a[2]+b[2]+cc[2])/3, fi: idx };
-  }).sort((p,q) => p.depth - q.depth);
+    if (keep) {
+      const area2 = (b[0]-a[0])*(cc[1]-a[1]) - (cc[0]-a[0])*(b[1]-a[1]);
+      if (area2 * keep <= 0) return;
+    }
+    tris.push({ a, b, c: cc, depth:(a[2]+b[2]+cc[2])/3, fi: idx });
+  });
+  tris.sort((p,q) => p.depth - q.depth);
   const fld = m.field && m.field.values;
   for (const t of tris) {
     ctx.beginPath(); ctx.moveTo(t.a[0],t.a[1]); ctx.lineTo(t.b[0],t.b[1]); ctx.lineTo(t.c[0],t.c[1]); ctx.closePath();
@@ -2165,9 +2703,24 @@ function drawGeometry() {
   }
 }
 
+// A FIELD PICTURE BELONGS ON THE STAGE, not only in the evidence strip. The
+// panel's third state is the solved field, and until this existed the act ran
+// geometry → grid → and then left the grid standing while the one picture of
+// the flow sat in a thumbnail row below the fold. The figure still lands in the
+// strip exactly as before; this puts it on the stage as well.
+function showFieldImage(url, p) {
+  const img = $('viewportField'); if (!img || !url) return;
+  img.src = url;
+  showViewportStage('field');
+  setHidden('viewportEmpty', true);
+  if (p && p.title) subText('viewportLabel', p.title);
+  subText('viewportCaption', (p && p.caption) || '');
+  $('viewportStats').textContent = '';
+}
 function addPlot(p) {
   const url = p.url || (p.file ? `/api/plot/${p.mission||state.mission}/${p.file}` : null);
   if (!url) return; state.plots.push({ url, title: p.title, caption: p.caption });
+  if (p.field) showFieldImage(url, p);
   const img = document.createElement('img'); img.src = url; img.title = p.title || ''; img.onclick = () => window.open(url,'_blank');
   // A TITLE IN `img.title` IS A HOVER TOOLTIP AND A FILMED SCREEN HAS NO
   // MOUSE. Measured: four figures on the jet-flap act, four titles, none of
