@@ -972,9 +972,51 @@ class Sequencer:
         is a collision fix, and failing an act over one would trade a rare
         wrong picture for a certain blank screen.
         """
-        key = "".join(ch for ch in str(getattr(self.act, "registry_key", ""))
-                      if ch.isalnum() or ch == "-")
+        key = self._act_key()
         return f"{self.PANEL_DIR}-{key}" if key else self.PANEL_DIR
+
+    def _act_key(self) -> str:
+        """This act's registered key, reduced to URL-safe characters.
+
+        It becomes one path segment of ``/api/plot/<store>/<name>.png``, and
+        ``chief_engineer.server._serve_artifact`` splits that path on ``/`` and
+        requires exactly four parts, so a key carrying a separator would make
+        the address unresolvable rather than merely ugly. Empty when the act
+        was never registered, which both callers treat as "no namespacing".
+        """
+        return "".join(ch for ch in str(getattr(self.act, "registry_key", ""))
+                       if ch.isalnum() or ch == "-")
+
+    def _served_panel_name(self, panel: str, namespace: str | None) -> str:
+        """What a rendered panel is CALLED once it is served.
+
+        THE SECOND HALF OF THE COLLISION, ONE DIRECTORY ALONG FROM THE FIRST.
+        :data:`PANEL_NAMES` is fixed for every act -- every act's velocity
+        panel is ``field_velocity.png`` -- and the panel STORE is now per act,
+        so panels published to the store cannot collide. The FIELD panels do
+        not go to the store: they are announced beside the act's own figures
+        and are therefore served from the act's FIGURE namespace, which is the
+        act's declared ``beat`` and is deliberately NOT unique. Two acts whose
+        figures declare ``results`` share that directory, and the second to run
+        overwrites the first's ``field_velocity.png``.
+
+        IT COSTS NOTHING TO CLOSE AND IT OPENS DURING A SHOOT. Today only one
+        act declares field panels, so no collision exists; it appears the
+        moment a second act in the same figure namespace declares one, which is
+        an ordinary edit somebody makes without knowing this exists.
+
+        THE NAMESPACE ITSELF IS NOT TOUCHED, and that is the whole reason the
+        fix is a file name. The namespace must remain the act's own
+        declaration: :func:`figure_namespace` exists because a namespace chosen
+        anywhere else advertised four of four figures at addresses that
+        answered 404. Renaming the file keeps the address the act chose and
+        makes the leaf unique inside it.
+        """
+        served = self.PANEL_NAMES.get(panel, panel)
+        if not namespace:
+            return served              # the per-act store already separates it
+        key = self._act_key()
+        return f"{key}-{served}" if key else served
 
     def _declares(self, panel: str) -> bool:
         """Does the act state, in its own source, that it renders this panel?
@@ -1109,7 +1151,7 @@ class Sequencer:
         # keep the panel store.
         out = Path(OUT_ROOT) / (namespace or self._panel_store())
         out.mkdir(parents=True, exist_ok=True)
-        served = self.PANEL_NAMES.get(panel, panel)
+        served = self._served_panel_name(panel, namespace)
         shutil.copy2(shot, out / f"{served}.png")
         # THE PROVENANCE TRAVELS WITH THE PICTURE. The sidecar is copied beside
         # the served panel, so the case, the time and the cell count behind

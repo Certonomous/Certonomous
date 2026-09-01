@@ -201,13 +201,35 @@ def test_the_jet_flap_act_publishes_exactly_the_addresses_it_declares():
     ``results``, which is what the 404 defect was about. The panels are not
     exempted from the resolve check below -- they answer 200 from the same
     directory the act's figures do, or this test fails.
+
+    AMENDED AGAIN 2026-09-01, AND THIS TIME THE FILE NAMES MOVED WHILE THE
+    NAMESPACE DID NOT. The two rendered panels are now served as
+    ``jet-flap-field_pressure.png`` and ``jet-flap-field_velocity.png``.
+
+    WHY, AND WHY THE PIN IS EDITED RATHER THAN LOOSENED. ``PANEL_NAMES`` is
+    fixed for every act -- every act's velocity panel was ``field_velocity.png``
+    -- and a figure namespace is the act's declared ``beat``, which two acts
+    may legitimately share. So two acts declaring ``results`` and both
+    rendering field panels would write one file, and the second to run would
+    serve its pictures under the first's numbers. Today only this act declares
+    field panels, so no collision exists; it opens on the ordinary edit that
+    gives a second act one. The panel STORE was already made per act; this is
+    the same fix one directory along, and it renames the leaf rather than the
+    namespace precisely because THIS FILE'S subject -- the act's declared
+    address -- must not move. It has not: all six are still served from
+    ``results`` and all six still have to answer 200 below.
+
+    A LOOSER ASSERTION WOULD HAVE PASSED AND WOULD HAVE BEEN WORSE. Matching a
+    prefix, or dropping the panels from the list, would make this test unable
+    to see the next unintended address change, which is the only thing it is
+    for.
     """
     _plant_the_resolver()
     plots = _plots(_capture_results(ACT, ACT.run_record()))
     urls = sorted(p["url"] for p in plots)
     assert urls == sorted([
-        "/api/plot/results/field_pressure.png",
-        "/api/plot/results/field_velocity.png",
+        "/api/plot/results/jet-flap-field_pressure.png",
+        "/api/plot/results/jet-flap-field_velocity.png",
         "/api/plot/results/jet_flap_1_lift_vs_blowing.png",
         "/api/plot/results/jet_flap_2_chordwise_pressure.png",
         "/api/plot/results/jet_flap_3_flow_field.png",
