@@ -43,6 +43,24 @@ having read no numbers at all.  So the sweep asserts it parsed at least
 MIN_TOKENS numeric tokens from the sheet, and reports the per-rule hit count so
 that a rule with zero live matches is VISIBLE rather than assumed harmless.
 
+WHY THIS IS NOT BELT-AND-BRACES.  Driven end to end by mutation: a scratch copy
+of the sheet carrying *"Peak cell temperature is 298.873 K, a rise of 5.873 K"*
+was compiled, and **`pdflatex` RETURNED 0 AND REPORTED SUCCESS**.  The toolchain
+is perfectly happy to render a banned thermal result onto a filmed surface.
+**Only this guard stands between the lab and that.**  Two independent rules
+caught the plant; the committed sheet scores zero on all four.
+
+CANDIDATES, NOT ONLY HITS.  A rule reporting zero hits can mean two different
+things -- *it examined candidates and none was bad*, or *it had nothing to
+examine*.  Those are not the same evidence and the report must not blur them,
+so every numeric rule also reports HOW MANY CANDIDATES IT EXAMINED.  On this
+sheet ABS-TEMP carries the live coverage (it inspects every decimal on the
+page); KELVIN-UNIT examines zero, because the sheet puts its unit in the column
+header rather than beside each number.  KELVIN-UNIT's zero is therefore
+"nothing to look at here", and it is printed as such.  Its plant proves it can
+fire when there IS something to look at, which is what keeps it honest coverage
+against a later edit rather than decoration.
+
 Exit 0 = clean.  Exit 2 = a thermal result reached a screen, a banned phrase
 reached a screen, a figure is not latexified, or a control failed.
 """
@@ -77,6 +95,23 @@ def _num(s):
         return float(s.replace(",", ""))
     except ValueError:
         return None
+
+
+def cand_abs_temp(text):
+    return len(re.findall(r"(?<![\d.])\d{1,3}(?:,\d{3})*\.\d+(?![\d])", text))
+
+
+def cand_kelvin_unit(text):
+    return len(re.findall(
+        r"(?<![\d.])\d+(?:,\d{3})*(?:\.\d+)?\s?K\b", text))
+
+
+def cand_celsius(text):
+    return len(re.findall(r"(?i)(°\s?C\b|\bdeg\s?C\b|\bcelsius\b)", text))
+
+
+def cand_claim(text):
+    return len(CLAIM_RE.findall(text))
 
 
 def rule_abs_temp(text):
@@ -129,7 +164,7 @@ def rule_claim(text):
 
 
 NUMERIC_RULES = [
-    dict(id="ABS-TEMP", fn=rule_abs_temp,
+    dict(id="ABS-TEMP", cand=cand_abs_temp, fn=rule_abs_temp,
          why="a decimal in the absolute-temperature band is a thermal result",
          plants=["the hottest point sits at 298.873 on the last frame",
                  "the module starts from 293.0 everywhere"],
@@ -137,7 +172,7 @@ NUMERIC_RULES = [
                     "the flow Courant number is near 1600",
                     "the difference is 0.0232 at the pulse edge",
                     "the run costs 26.4 min of wall time"]),
-    dict(id="KELVIN-UNIT", fn=rule_kelvin_unit,
+    dict(id="KELVIN-UNIT", cand=cand_kelvin_unit, fn=rule_kelvin_unit,
          why="a kelvin quantity at or above %.1f K is a thermal result, not a "
              "convergence difference" % KELVIN_MAX,
          plants=["the rise at the end of the pulse is 2.384 K",
@@ -145,13 +180,13 @@ NUMERIC_RULES = [
          negatives=["the two arms agree to 0.0232 K at the pulse edge",
                     "the limit is 0.0123 K",
                     "all values in K"]),
-    dict(id="CELSIUS", fn=rule_celsius,
+    dict(id="CELSIUS", cand=cand_celsius, fn=rule_celsius,
          why="nothing admissible on these screens is quoted in Celsius",
          plants=["the module rises 5.9 °C over the pulse",
                  "peak 25.9 degC at the downstream end"],
          negatives=["the coolant outlet parts from its twin inside the pulse",
                     "0.0232 K against a 0.0123 K limit"]),
-    dict(id="THERMAL-CLAIM", fn=rule_claim,
+    dict(id="THERMAL-CLAIM", cand=cand_claim, fn=rule_claim,
          why="asserts a thermal outcome",
          plants=[p for _, p in CLAIM_ALTS],
          negatives=["withheld: cell temperatures; the temperature rise; the "
@@ -237,6 +272,7 @@ def main():
 
     bad = 0
     per_rule = {r["id"]: 0 for r in NUMERIC_RULES}
+    per_cand = {r["id"]: 0 for r in NUMERIC_RULES}
     per_rule["LANGUAGE"] = 0
     tokens_seen = 0
 
@@ -252,6 +288,7 @@ def main():
 
         hits = []
         for rule in NUMERIC_RULES:
+            per_cand[rule["id"]] += rule["cand"](text)
             for phrase, _pos in rule["fn"](text):
                 per_rule[rule["id"]] += 1
                 hits.append((rule["id"], phrase, rule["why"]))
@@ -286,10 +323,16 @@ def main():
 
     print("\n%d artifacts checked, %d numeric tokens read" % (len(targets),
                                                               tokens_seen))
-    print("hits per rule: %s" % ", ".join("%s %d" % (k, v)
-                                          for k, v in sorted(per_rule.items())))
-    print("(a rule at 0 has been PROVED able to fire by its own plant above; "
-          "the zero is a measurement, not an absence of coverage)")
+    print("per rule -- hits / candidates examined:")
+    for rid in sorted(per_cand):
+        note = ("  <-- NOTHING TO LOOK AT on these artifacts; its plant above "
+                "proves it fires when there is" if per_cand[rid] == 0 else "")
+        print("   %-14s %d hit(s) / %d candidate(s)%s"
+              % (rid, per_rule[rid], per_cand[rid], note))
+    print("   %-14s %d hit(s)" % ("LANGUAGE", per_rule["LANGUAGE"]))
+    print("(a rule reporting 0 hits over 0 candidates has SEEN NOTHING, which "
+          "is different evidence from 0 hits over many, and is printed as "
+          "such rather than blurred into one clean line)")
     if bad:
         raise SystemExit(2)
     print("PASS -- no thermal result and no banned phrase reaches an Act C "
