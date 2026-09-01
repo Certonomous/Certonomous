@@ -19334,3 +19334,183 @@ running solvers exists to prevent.
 lab it always can.** Match on `readlink /proc/PID/exe` by pid. If a name-based tool must
 be used, `ps -C` is the one measured to work, and `pgrep -x` is not. Never let a
 process check's stderr be closed, and never treat its exit status as the answer.
+
+## L-429 — A NON-CONVERGING GRID TRIPLE DOES NOT SAY WHETHER THE GRID FAILED OR THE ITERATION DID. THE 10× RATIO TEST IS THE DISCRIMINATOR, AND A SINGLE-CELL MAXIMUM IS THE WRONG QUANTITY TO READ AN ORDER FROM
+
+**2026-09-01, heat-transfer.** Folded in from two of this team's own graded
+outcomes of the same night — **T23G** (`p ≈ 0.375` on all three quantities,
+`STAGNANT`, every row `NOT A RESULT`) and **T25R2** (coolant outlet temperature
+dependent on the outer-sweep count, `GATE FAIL`) — under Sanaa's directive of
+2026-09-01 ~15:45Z, captured verbatim at
+`etc/sessions/2026-09-01T1545Z_sanaa_convergence_prerequisite_doctrine.md`
+(commit `f4c8e466`). Her closing order is what makes this a lesson rather than a
+campaign note:
+
+> *"This should also be included in all of the relevant lessons of how to
+> proceed whenever any of this class of problems appears in the future. This is
+> the pro activity that the supervisors need to have."*
+
+Her header, and it is lab law under her authority: *"Cost is not a constraint.
+Every gated case runs its grid convergence study automatically; a case without
+one is not a result."*
+
+---
+
+### 0. ⛔ THE VERDICT DOES NOT SOFTEN. READ THIS BEFORE THE PROCEDURE.
+
+**A non-`CONVERGING` triple is `NOT A RESULT` throughout — whatever the value
+says, and whatever this lesson tells you to do next** (`CLAUDE.md` rule 5). The
+procedure below says what to **run next**. It is not a re-grading instrument, it
+never converts a `STAGNANT`, `OSCILLATORY`, `DIVERGENT` or `EXACT` triple into a
+result, and no step of it may be cited as grounds for publishing a number that
+rule 5 withheld. The gate may only turn a `PASS` or `GATE FAIL` **into**
+`NOT A RESULT`, never the reverse, and nothing here touches that direction.
+
+**This clause is first because it is the sentence a future agent under
+throughput pressure is most likely to misread.** Sanaa's *"do not stop"* (§0
+point 4) means **keep measuring**; it does not mean keep going until the number
+becomes usable. A rung that runs four more levels and still lands outside the
+band has produced a better-instrumented `NOT A RESULT`, and that is a success of
+the procedure, not a failure to be written around.
+
+---
+
+### 1. THE PROCEDURE — RUN IT UNASKED ON EVERY GATED CASE
+
+Sanaa's §0, which is a pipeline stage and not a request:
+
+1. **Three geometrically similar meshes from ONE parametric script** — same
+   topology, same layer structure, uniform refinement ratio `r` between 1.5 and
+   2.0 **in every direction** (`r = 1.3` is the floor; a larger `r` gives a
+   cleaner observed order). Near-wall spacing scales with `r`; `y+` stays under
+   1 on every level where the case is wall-resolved.
+2. **All three run to TIGHT iterative convergence**, by the ratio test in §2
+   below. Tighten residuals (1e-8) and the stationarity window **before**
+   concluding anything about the grid.
+3. **Observed order `p` and GCI on the graded quantity.** Acceptance: `p` within
+   0.5 of the scheme's formal order (second order → `p ∈ [1.5, 2.5]`). Report
+   `p` **and** the band.
+4. **If `p` is outside the range, do not stop.** Automatically: (a) re-check
+   step 2 on the finest level; (b) verify the three meshes are similar — cell
+   count ratios, layer counts, growth ratios (§3 below); (c) add a **fourth,
+   finer** level at the same `r` and recompute `p` on the finest three;
+   (d) repeat for up to two more levels.
+5. **Only then is the case gradable, and the band goes on every number.**
+
+Compute for a 2D or axisymmetric family is tens of core-minutes to a few
+core-hours. **That is never a reason to skip it** — and it is still costed in
+the pre-registration under rule 12, because "cost is not a constraint" removes
+the budget objection, not the accounting.
+
+---
+
+### 2. THE 10× RATIO TEST — THE DISCRIMINATOR BETWEEN TWO DIFFERENT DIAGNOSES
+
+> **The iterative change in the graded quantity must be at least 10× smaller
+> than the difference between consecutive mesh levels. If it is not, the
+> observed order is noise, not discretisation.**
+
+**This is the operative content of the whole doctrine, because a `STAGNANT`
+verdict does not by itself distinguish two failures with completely different
+fixes:**
+
+| what the triple looks like | diagnosis | fix |
+|---|---|---|
+| `p` far below the formal order | **the grid is not converging** | more levels, larger `r`, check similarity, check the scheme |
+| `p` far below the formal order | **we did not iterate hard enough to tell** | tighter residuals and stationarity window; the grid question is not yet asked |
+
+**They are indistinguishable from the value of `p` alone.** The ratio test is
+what separates them, and it must be *computed and printed*, not assumed —
+against the **measured** iterative change, or, conservatively, against the
+registered stationarity criterion as an upper bound on it.
+
+**Worked, on this team's own record (T23G, `docs/campaigns/T-family/T23G_RESULTS.md`
+§2 and §4).** The tightest consecutive-level difference across the three graded
+quantities is Q2's `M − F = 1.3371 K`; the registered `T_max` stationarity
+criterion is `0.05 K`, and the recorded plateau spreads are `0.000000 K` on
+every level. Taking the criterion as the conservative bound, the ratio is
+**≈ 26.7×, comfortably past 10×**. So on T23G the ratio test **passes**, and
+Sanaa's first cause candidate for that case — loose iterative convergence — is
+the one the existing artifacts already argue against. *This is a reading from
+the record's own numbers, non-binding, and it changes no verdict; the successor
+computes it on its own instrument under its own freeze.* **The point of the
+lesson is that the ratio is now computed instead of guessed at.**
+
+---
+
+### 3. MESH SIMILARITY IS A PRECONDITION FOR THE ORDER TO MEAN ANYTHING
+
+An observed order computed across three meshes that are not geometrically
+similar is not an observed order. **Check cell-count ratios, layer counts and
+growth ratios before believing any `p`** — if L1 has fewer wall layers, or the
+generator lets cell-to-cell volume jump, the ladder is not one family and the
+rate is an artefact of the difference.
+
+**This is the F28 lesson in another family.** F28's ducted disk carried a
+**33.5× cell-volume jump** at the duct trailing edge; the prescribed fix is to
+cap cell-to-cell volume growth at 1.25 everywhere, regenerate all three levels
+from the fixed script so similarity is guaranteed by construction, and
+**confirm with a cell-volume-ratio histogram before solving**. Same failure,
+different family, and the generalisation is: *similarity is a property of the
+script, not of the three meshes you happen to have.*
+
+Record `y+` on **every** level. T23G could not: its `yPlus` function object ran
+without the turbulence model in the database, printed `min = max = avg = 0` on
+all four patches, and the comparator **refused those zeros rather than reading
+them** (rule 3 — correct behaviour). A ladder whose `y+` crosses 5 does not
+share one wall treatment, and a sub-first-order rate in a wall-bounded conjugate
+problem is exactly the shape a changing wall treatment produces. **The single
+most likely instrumented explanation for T23G's `p ≈ 0.375` was the one that
+rung had no instrument to test** — so restoring the missing instrument comes
+before theorising about the discretisation.
+
+---
+
+### 4. A SINGLE-CELL MAXIMUM IS A POOR ORDER-STUDY QUANTITY — USE A SMOOTHER COMPANION
+
+**A quantity sampled at one cell (a `max`) may need a smoother companion
+quantity for the order study** — an integrated heat flux, a volume-averaged
+temperature, an integrated force. **Use the companion for `p`, apply its band to
+the reported `max`, and SAY SO on the row.** The disclosure is not optional; a
+band transferred from one quantity to another without the transfer being visible
+is a band whose provenance the reader cannot check.
+
+**Why it is a poor quantity, and this family has now met it in the field:** a
+`max` is located at whichever cell happens to hold the extremum, and under
+refinement that cell moves and shrinks. The reader therefore samples a different
+object on every level, so part of the level-to-level difference is relocation of
+the sample rather than resolution of the field — which depresses and scatters
+the apparent order. T23G graded on `max(T)` in the housing and `max(T)` in the
+core; Sanaa's prescription for it is to take the order from **the core's
+volume-averaged temperature and the housing surface heat flux**, and apply
+their band to `T_max`.
+
+**The generalisable move: choose the order-study quantity for smoothness, and
+choose the reported quantity for what the case is about. They need not be the
+same quantity, and when they differ, the row says so.**
+
+---
+
+### 5. WHAT A SUPERVISOR IS SUPPOSED TO DO WITH THIS
+
+Sanaa named the failure as one of **proactivity**, not of technique. The
+convergence study is *"a pipeline stage, all cases"* and runs *"without being
+asked"*. Operationally, for any supervisor meeting this class of problem:
+
+- **A gated case arrives without a grid triple → it is not gradable.** Say so
+  before compute, not after.
+- **`p` outside the band is the START of the §0 point-4 ladder, not the end of
+  the rung.** Budget the extra levels in the pre-registration up front, because
+  a level added afterwards cannot be added to a frozen gate (rule 2) — it needs
+  its own registration.
+- **The successor freezes its own pre-registration.** Nothing in a results
+  record registers anything, however clearly it names the levers.
+- **Report `p`, the band, the ratio test, the similarity check and `y+` on every
+  level** — the four that make a rate believable, plus the one that makes a wall
+  treatment comparable.
+
+**Cross-references:** `CLAUDE.md` rules 2, 3, 5, 11, 12;
+`docs/campaigns/T-family/T23G_RESULTS.md` §11 (addendum);
+`docs/campaigns/T-family/T25R2_RESULTS.md` §14 (addendum);
+`verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md` for the
+similarity failure in the cfd family.
