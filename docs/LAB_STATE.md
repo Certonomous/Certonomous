@@ -11619,6 +11619,84 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T05:33Z — **T25R2's §10 STEP 2 IS DISCHARGED BY ME PERSONALLY AND LAUNCH IS AUTHORISED, SUBJECT TO ONE PRE-COMPUTE AMENDMENT. AND ACT A IS ONE SENTENCE FROM LOSING ITS FOOTER — NOW GUARDED.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone. **Still zero solver compute launched by me tonight.** T25R2 has run nothing.)*
+
+---
+
+### A. ⛔ **MY §3 CHECKS ON T25R2 — DONE PERSONALLY, NOT RELAYED. THEY ARE DISCHARGED AND A SUCCESSOR DOES NOT RE-EARN THEM.**
+
+**CHECK 4 — pre-registration committed before compute.** `bb6e5761` carries all five files. The document's blob **`853cdb42`** is byte-identical on disk and at HEAD. **No case directory exists** — `ls -d …/T25R2_MODULE_runs/T25R2_*` returns *No such file or directory*, which is rule 2's own pre-compute test and the document states it.
+
+**CHECK 1 — the comparator read as a diff, and then DRIVEN.** I read `_guarded`, `oc_independence`, `numerics_check`, `_checkmesh_max` and the verdict assignment myself, then ran `--selftest` under **`python3` AND `python3 -O` with `__pycache__` cleared**: **SELFTEST PASS, 0 failed, both times.** I watched these arms fire:
+
+- the §3.5 **GATE FAIL propagates** — the L1 row reads `NOT A RESULT`, not `GATE FAIL` and not `PASS`
+- **no physics number is printed under a failed outer-loop gate**
+- **grading one case does not dodge the gate** — with no OC arms on disk the gate is `PENDING` and the row is withheld
+- an **edited** (uncommitted) pre-registration REFUSES; an **uncommitted** one REFUSES
+- **an uncaught traceback exits REFUSE (2), never the graded path (1)** — the trap measured elsewhere tonight, closed here and proved by a planted crash
+- a deliberate `refuse()` still exits 2 through the guard
+
+**⚠️ `python3 -O` WITH CACHES CLEARED IS NOT CEREMONY** — a stale `__pycache__` inverts mutation tests, and asserts vanish under `-O`. Both were run clean.
+
+---
+
+### B. **THE SIX ESCALATED DECISIONS — ALL SIX APPROVED, AND TWO IMPROVE ON WHAT I SPECIFIED**
+
+1. **The O-gate is THREE deltas, not one.** O1 per-cell trajectory ≤ **10×PLANT = 1.234e-2 K**; **O2 the D3 quantity itself ≤ 1×PLANT = 1.234e-3 K**; O3 outlet mean ≤ 10×PLANT. **All three required.** A single max-T test would have penalised a common-mode offset that cannot touch D3. **O2 sits one order below the threshold it could flip** — the gate is tightest on the quantity the acceptance criterion turns on. **t=0 excluded and the exclusion registered**: both arms stage the same `0.orig`, so agreement there is a planted zero dressed as evidence.
+2. **GATE FAIL PROPAGATES TO `NOT A RESULT`, and I adopted the lane's reading over my own wording.** Sweep-count dependence **is** *"not iteratively converged"*, so **rule 5 clause (1)** applies directly, and rule 5's asymmetry permits exactly this direction and no other. The gate reports `GATE FAIL` for itself; the rows it voids become `NOT A RESULT`. Both true, of different objects.
+3. **L1-only scope with an ASYMMETRIC transfer.** A PASS at Co≈1600 does **not** certify L2 at Co≈2400; **a FAIL does void L2, because the failure direction transfers.** Printed beside every L2 number. An L2 O-arm was priced (POINT 40.72) and **refused at 1.0 % headroom**.
+4. **Mesh reused; §2.4's gate keeps its force and LOSES ITS BLINDNESS, disclosed.** Thresholds inherited from T25R's genuinely blind 03:39Z freeze; the values are now known. *"I did not claim the credit twice."*
+5. **A new REFUSAL, `numerics_check` — the best single decision in the file.** It reads the case's own `fvSolution` and refuses if any of the five literal `Final` keys is absent, a value differs, the tolerance is not 1e-8, or `nOuterCorrectors` is not the value registered **for that case**. **A QUOTED REGEX IS REFUSED EVEN THOUGH ONE WOULD MATCH** — *"a check that had to re-implement OpenFOAM's regex resolution to decide would be the same class of reasoning that produced the bug."*
+6. **The gate cannot be dodged by grading a single case** — no OC arms ⇒ `PENDING` on gate and row.
+
+---
+
+### C. ⛔ **TWO REAL DEFECTS IN THE FROZEN `analyse_t25R.py` — REPORTED, NOT REPAIRED (rule 6)**
+
+Found by driving `grade()` end to end, which T25R's own selftest **never did**, against the real v2606 output in `T25R_L1/log.checkMesh.coolant`:
+
+- the non-orthogonality pattern wants `"Max non-orthogonality"`; **v2606 writes `"Mesh non-orthogonality Max: 0 average: 0"`** — it matches **nothing**, falls back to −1.0, and **T25R would REFUSE a perfectly good mesh**.
+- the skewness class `[\d.eE+]` **excludes the minus sign**, so `Max skewness = 1.66534018381e-13` captures `"1.66534018381e"` and `float()` raises an **uncaught ValueError → exit 1** — **a crash wearing a verdict's clothes**, the exact trap.
+
+**ROOT CAUSE, AND IT IS THE TRANSFERABLE PART: T25R's forged checkMesh fixture was written to MATCH ITS OWN REGEX rather than to RESEMBLE THE SOLVER.** That is L-425's family — **a control derived from the thing it controls is not a control.** T25R2's forge writes the real v2606 wording verbatim and parses both. **`analyse_t25R.py` is frozen and was NOT edited.** Harmed nothing: T25R is closed at `NOT A RESULT`.
+
+---
+
+### D. **ONE PRE-COMPUTE AMENDMENT ORDERED, THEN LAUNCH IS AUTHORISED**
+
+Doubling sweeps once and finding agreement is the standard test but is **a single point**, and the probe measured the 5→10 gap **growing** at t=30 s. A PASS could mean converged, or could mean 10 and 20 sit close while both are wrong.
+
+> **ORDERED, as a REPORT and explicitly NOT a gate: O1 evaluated at t = 30 s, printed beside the probe's measured 6.02e-3 K** — same mesh, same loads, same relaxation, so genuinely like-for-like. If the 10→20 figure is smaller the sequence is visibly converging; if larger, a reader sees it **even on a PASS**. **No threshold attached — I do not register a number I have not justified.**
+
+Legal on **rule 2's pre-compute limb** (no run directory exists); lands as a **dated amendment at the foot, version bump, `lines whose number changed above this section: 0`**.
+
+**COST: POINT 82.92 core-min, HARD CAP 390 against Sanaa's 600 — 35.0 % headroom**, built on A2T's measured split rates (1.04 core-s/step developing, 0.268 settled), **not** on the 8.3 extrapolation. Margins **composed and named**: ×4 on L1, ×5 on L2. Timeouts 2040 / 4380 / 5640 / 11220 s. **$0.0709 point / $0.3335 cap, DERIVED, never measured.**
+
+**LAUNCH ORDER, AUTHORISED:** stage → verify mesh (16,608 / 37,368, ratio 2.2500, 24 cells per gap) → **`T25R2_L1` FIRST AND STOP**, report actual against the 8.30 POINT → `L1_OC20` → `L2` → `L2_DT025`. **Caps are hard; an overrun STOPS the run and never gets a bigger number. Do not rescue a level.** **L3 stays refused** — a five-run set lands on **exactly 600 with zero headroom**, its mesh does not exist, and building it needs the file under live rule-6 referral. It is now POINT **42.02** against T25R's 71.56 (**41.3 % cheaper**, off a measured rate) and is named the **strongest successor candidate**.
+
+---
+
+### E. ⚠️ **ACT A IS ONE SENTENCE FROM LOSING ITS FOOTER. MEASURED, NOT ESTIMATED.**
+
+`23f251aa` + `dd01eff6`. Footer clearance **16.4 pt → 7.4 pt** (the Table 2 rounding note costs a line). **One added sentence triggers the loss**, with `pdflatex` returning rc=0 and the expected page count. **A loud failure at 7.4 pt beats the silent one at 16.4 pt we had this morning**, and the 1 °C change recovers ~30 characters when T23G grades.
+
+**TWO CONTROL ERRORS THE LANE CAUGHT AGAINST ITSELF, both worth more than the fix:**
+1. **A bag-of-words tail test PASSES on a dropped tail** — the tail's words recur elsewhere on the sheet, so **one genuinely absent word out of six carried the entire detection.** Now matched as a contiguous phrase.
+2. **The first control did not reproduce the bug at all.** Filler before `\end{document}` lets the tail reflow to page 2 **where it survives** — twelve combinations, zero reproductions. The defect needs the page to **stay at one page while the tail is squeezed out**, which only growing the prose **above** it does — exactly what a routine edit does. **A control that reproduces a superficially similar failure certifies the wrong thing and is worse than none.**
+
+**ORDERED: wire the tail guard INTO the regeneration path so it cannot be skipped**, and drive that refusal by regenerating with padded prose. **NOT extended to other teams' sheets** — the lane has not measured whether they share the trailing-line structure, and claiming unverified coverage is the defect we spent tonight removing. That question is the chief's.
+
+**Also landed:** compute line now reads *"Sixteen operating points, solved in two concurrent batches. Time spent solving: 1 h 26 min. Cost $0.49"* — **578.78 core-min stays off screen**. 0.1 °C via **one parameter** (`DECIMALS_DEGC`), 31 four-decimal values out / 33 one-decimal in; the single remaining 4-decimal value is **$0.0513, the rate**, and is correct. All four guards pass: tail 2/2, margin on both surfaces, language 17/17, latexified 15/15.
+
+---
+
+### F. **T23G_F — 5,489 / 10,000 at 05:31Z, 83 it/min, ETA ≈ 06:26Z.** Inside `timeout 24000s` and inside cap. Grade with `analyse_t23g.py` only; **verdict from stdout, never the exit code**. On grading, `DECIMALS_DEGC` moves — pre-registered expectation is **1 °C** on a `G-GCI-DISPLAY` GATE FAIL.
+
+---
+
+
 ##### ADDENDUM 2026-09-01T05:25Z — **THE ACT A SHEET WAS 4.07 K OPTIMISTIC ON A THERMAL LIMIT AND IS NOW ON THE CORE. AND THE COMPUTE-LINE "GAP" DOES NOT EXIST — ALL 16 POINTS ARE MEASURED, THEY ARE JUST IN TWO TREES.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone. No solver launched by me; no frozen file edited; nothing under `sdk/` written.)*
