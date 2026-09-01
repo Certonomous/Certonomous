@@ -40,7 +40,12 @@ THREE PROPERTIES THIS MODULE IS BUILT TO GUARANTEE.
 LANGUAGE. Every human-readable string this stage emits is passed through the
 act wording doctrine (``workflows.check_wording``) before it leaves, so the
 vocabulary rules are enforced at emission rather than trusted to review.
-Progressive tense while running, past tense for what has finished.
+Progressive tense while running, PRESENT tense for what has finished. This
+line read "past tense for what has finished" and it is the standing
+instruction at the head of the very module whose closing sentence was past
+tense, so it is named here as the likeliest reason that sentence was written.
+Sanaa's 04:20Z order is "no past tense", later and stricter than the 03:40Z
+zone rule; present is the intersection.
 """
 
 from __future__ import annotations

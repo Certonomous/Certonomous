@@ -156,7 +156,16 @@ RATE_USD_PER_CORE_HOUR = 0.0513
 #: narrow: a checker that fires on innocent prose gets switched off, and a
 #: checker that is switched off is how these strings survived a manual grep.
 NEVER_PHRASES: tuple[tuple[str, str], ...] = (
-    (r"already\s+finish(ed|es)?", "say what was solved, in the past tense"),
+    # THE REMEDY USED TO READ "say what was solved, in the past tense", and
+    # that is very probably why three past-tense strings reached the filmed
+    # screen in one day: the instrument built to catch them was advising
+    # authors to write them. Sanaa's 04:20Z order is "no past tense", later
+    # and stricter than the 03:40Z zone rule quoted at _RUNNING_SHAPES below,
+    # so present tense is the intersection and is what a remedy may recommend.
+    # A guard that recommends the defect it exists to catch is worse than no
+    # guard: it is a defect with an authority attached.
+    (r"already\s+finish(ed|es)?", "name the solve and its result, in the "
+                                  "present tense"),
     (r"\bpresent(ing|s|ed)\b(?!\s+tense)", "say what the run did"),
     (r"nothing\s+new\s+is\s+solved", "state the solve as fact"),
     (r"no\s+compute\s+(is\s+)?booked", "state this run's real cost"),
@@ -386,18 +395,37 @@ def check_demo_language(text: str, *, zone: str = "screen") -> None:
 #: ("Meshing", "Solving, iteration 4,000 of 20,000", "Sweep point 3 of 5"),
 #: past tense for results.' Two shapes are accepted: a leading -ing verb, or a
 #: counted-progress line ("Sweep point 3 of 5", "Point 3 of 5").
+#:
+#: THE QUOTED CLAUSE "past tense for results" IS SUPERSEDED and is kept only
+#: because it is her wording and it is what these shapes were built from. Her
+#: 04:20Z order says flatly "no past tense", which is later and is not
+#: zone-aware. Nothing in this module may RECOMMEND past tense on the strength
+#: of the quote above; the running-line shapes are unaffected, because
+#: progressive satisfies both directives.
 _RUNNING_SHAPES: tuple[str, ...] = (
     r"^[A-Z][a-z]+ing\b",
     r"^(Sweep\s+point|Point|Operating\s+point|Case)\s+\d[\d,]*\s+of\s+\d[\d,]*\b",
 )
 
-#: A results line is past tense, and must not promise. These are the tells that
-#: a running line was pasted into a results slot.
+#: A results line states a finished fact and must not promise. These are the
+#: tells that a running line was pasted into a results slot.
+#:
+#: THE FOUR PATTERNS ARE UNCHANGED; ONLY THE ADVICE IS. Each remedy read
+#: "results are past tense", which is the superseded 03:40Z rule, and these
+#: strings are what an author is handed at the moment they are rewriting a
+#: line. Every one of them pushed the author toward the exact wording the
+#: 04:20Z order forbids. The mechanism is untouched: "will", "is being", "are
+#: being" and "we are ...ing" are still refused in a results slot, and a
+#: present-tense finished fact ("All 5 sweep points complete, ...") passes
+#: exactly as a past-tense one did.
 _RESULT_FORBIDDEN = (
-    (r"\bwill\s+\w+", "results are past tense"),
-    (r"\bis\s+being\b", "results are past tense"),
-    (r"\bare\s+being\b", "results are past tense"),
-    (r"\bwe\s+are\s+\w+ing\b", "results are past tense"),
+    (r"\bwill\s+\w+", "a results line states a fact, not a promise"),
+    (r"\bis\s+being\b",
+     "a results line states the finished fact, in the present tense"),
+    (r"\bare\s+being\b",
+     "a results line states the finished fact, in the present tense"),
+    (r"\bwe\s+are\s+\w+ing\b",
+     "a results line states the finished fact, in the present tense"),
 )
 
 
@@ -407,6 +435,17 @@ def check_running_line(text: str, *, tense: str) -> None:
     ``tense`` is ``"progressive"`` for a line shown while a stage runs, or
     ``"past"`` for a line shown with a result. Applies
     :func:`check_demo_language` first, so one call covers both rules.
+
+    ``"past"`` IS A SLOT NAME, NOT AN INSTRUCTION, and the name is now
+    misleading. It selects the RESULTS slot, whose rule is "state a finished
+    fact, do not promise" -- see :data:`_RESULT_FORBIDDEN`, which forbids
+    "will", "is being", "are being" and "we are ...ing" and says nothing about
+    the verb form of the fact itself. A present-tense results line passes.
+    Passing ``tense="past"`` does NOT license writing past tense, and under
+    Sanaa's 04:20Z "no past tense" it must not. The literal is left alone
+    rather than renamed because it is a public argument value used by acts
+    outside this team (``dmr_act``, ``adjoint_act``); renaming it is a
+    cross-team call, and it is flagged rather than taken here.
     """
     check_demo_language(text)
     if tense == "progressive":

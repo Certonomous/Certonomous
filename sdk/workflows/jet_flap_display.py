@@ -254,8 +254,11 @@ def legacy_main(request: str | None = None, params: dict | None = None,
         return 2
 
     # The restatement beat: what was asked, restated, with the cost forecast
-    # that was fixed before anything ran. Results come later and in the past
-    # tense; nothing here anticipates a number.
+    # that was fixed before anything ran. Results come later, and in the
+    # PRESENT tense; nothing here anticipates a number. This comment read "in
+    # the past tense" and was one of eight standing instructions in this
+    # package recommending the wording Sanaa's 04:20Z "no past tense" order
+    # forbids.
     _lines(script.engineer,
            "You asked about a wing with air blown out of a slot at the "
            "trailing edge.",
