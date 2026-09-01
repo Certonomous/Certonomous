@@ -183,33 +183,47 @@ def main() -> int:
 
     # ------------------------------------------------------------- controls
     blind: list[str] = []
+    #: EVERY ARM THAT ACTUALLY RUNS, REGISTERED AS IT RUNS. The ``+ 8`` this
+    #: replaces was ARITHMETICALLY CORRECT here -- eight standalone arms, eight
+    #: counted -- and it is replaced anyway, because the sibling compressible
+    #: checker was written from this one, gained two arms, and went on
+    #: publishing a constant: 61 arms where 59 existed. A hand-written count
+    #: beside the thing it counts is right until somebody edits the thing, and
+    #: nothing detects the moment it stops being right. Derived here too, so
+    #: the count cannot disagree with reality: it IS reality.
+    arms: list[str] = []
+
+    def arm(name: str, behaved: bool) -> None:
+        """Run one control arm: count it, and record it if it misbehaved."""
+        arms.append(name)
+        if not behaved:
+            blind.append(name)
+
     for rule in SHARED_RULES + OWN_RULES:
         name, pat = rule[0], rule[1]
         for plant in _plants(rule):
-            if not pat.search(plant):
-                blind.append("%s [%s]" % (name, plant[:40]))
-    if not sweep(PAST_PLANT):
-        blind.append("past tense")
-    if not sweep(PAST_PLANT_AMBIGUOUS_FIRES):
-        blind.append("past tense (ambiguous participle, past use)")
-    if sweep(PAST_PLANT_AMBIGUOUS_QUIET):
-        blind.append("past tense (ambiguous participle, present passive "
-                     "wrongly flagged)")
-    if not any(p.lower() in STRUCK_PLANT.lower() for p in STRUCK):
-        blind.append("struck by name at 03:10Z")
+            arm("%s [%s]" % (name, plant[:40]), bool(pat.search(plant)))
+    arm("past tense", bool(sweep(PAST_PLANT)))
+    arm("past tense (ambiguous participle, past use)",
+        bool(sweep(PAST_PLANT_AMBIGUOUS_FIRES)))
+    arm("past tense (ambiguous participle, present passive wrongly flagged)",
+        not sweep(PAST_PLANT_AMBIGUOUS_QUIET))
+    arm("struck by name at 03:10Z",
+        any(p.lower() in STRUCK_PLANT.lower() for p in STRUCK))
     # The conditional rule, driven in BOTH directions.  One-sided would let a
     # rule that never fires, or one that always fires, pass as if it worked.
-    if not sweep("the optimiser converged on its own tolerance"):
-        blind.append("converged with no terminal statement (must fire)")
-    if sweep("the optimiser converged. " + TERMINAL_STATEMENT):
-        blind.append("converged beside the terminal statement (must stay quiet)")
+    arm("converged with no terminal statement (must fire)",
+        bool(sweep("the optimiser converged on its own tolerance")))
+    arm("converged beside the terminal statement (must stay quiet)",
+        not sweep("the optimiser converged. " + TERMINAL_STATEMENT))
     # The forbidden-reading rule, driven in both directions too.
-    if not sweep("drag falls 16.2 per cent"):
-        blind.append("drag reduction without the lift columns (must fire)")
-    if sweep("drag falls 16.2 per cent. CL start CL final " + TERMINAL_STATEMENT):
-        blind.append("drag reduction beside the lift columns (must stay quiet)")
+    arm("drag reduction without the lift columns (must fire)",
+        bool(sweep("drag falls 16.2 per cent")))
+    arm("drag reduction beside the lift columns (must stay quiet)",
+        not sweep("drag falls 16.2 per cent. CL start CL final "
+                  + TERMINAL_STATEMENT))
 
-    total = sum(len(_plants(r)) for r in SHARED_RULES + OWN_RULES) + 8
+    total = len(arms)
     print(f"PLANT CONTROL: {total - len(blind)}/{total} rule arms behaved")
     if blind:
         print("REFUSE: these rules cannot see a planted violation, or fire on "

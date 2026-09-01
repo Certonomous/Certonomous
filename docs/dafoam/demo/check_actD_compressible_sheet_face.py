@@ -316,82 +316,98 @@ def main() -> int:
 
     # ------------------------------------------------------------- controls
     blind: list[str] = []
+    #: EVERY ARM THAT ACTUALLY RUNS, REGISTERED AS IT RUNS. The published count
+    #: used to be a hand-written constant sitting beside the thing it counted
+    #: -- ``+ 8 + 8 + len(...) + len(...) + 1`` -- and it had already drifted:
+    #: it published 61 arms where 59 exist, because the first ``8`` was 6.
+    #: Standalone arms are 6 (past tense, two ambiguous-participle directions,
+    #: struck-by-name, and the conditional rule in both directions), not 8.
+    #: A number nobody measured has no place in a published control, and a
+    #: constant beside its subject is free to drift again the moment anyone
+    #: adds an arm, with nothing able to detect it. So the total is DERIVED:
+    #: it is the length of this register, and it cannot disagree with reality
+    #: because it IS reality.
+    arms: list[str] = []
+
+    def arm(name: str, behaved: bool) -> None:
+        """Run one control arm: count it, and record it if it misbehaved."""
+        arms.append(name)
+        if not behaved:
+            blind.append(name)
+
     for rule in SHARED_RULES + OWN_RULES:
         name, pat = rule[0], rule[1]
         for plant in _plants(rule):
-            if not pat.search(plant):
-                blind.append("%s [%s]" % (name, plant[:40]))
-    if not sweep(PAST_PLANT):
-        blind.append("past tense")
-    if not sweep(PAST_PLANT_AMBIGUOUS_FIRES):
-        blind.append("past tense (ambiguous participle, past use)")
-    if sweep(PAST_PLANT_AMBIGUOUS_QUIET):
-        blind.append("past tense (ambiguous participle, present passive "
-                     "wrongly flagged)")
-    if not any(p.lower() in STRUCK_PLANT.lower() for p in STRUCK):
-        blind.append("struck by name at 03:10Z")
+            arm("%s [%s]" % (name, plant[:40]), bool(pat.search(plant)))
+    arm("past tense", bool(sweep(PAST_PLANT)))
+    arm("past tense (ambiguous participle, past use)",
+        bool(sweep(PAST_PLANT_AMBIGUOUS_FIRES)))
+    arm("past tense (ambiguous participle, present passive wrongly flagged)",
+        not sweep(PAST_PLANT_AMBIGUOUS_QUIET))
+    arm("struck by name at 03:10Z",
+        any(p.lower() in STRUCK_PLANT.lower() for p in STRUCK))
     # The conditional rule, driven in BOTH directions.
-    if not sweep("the optimiser converged on its own tolerance"):
-        blind.append("converged with no terminal statement (must fire)")
-    if sweep("the optimiser converged. " + TERMINAL_STATEMENT):
-        blind.append("converged beside the terminal statement (must stay quiet)")
+    arm("converged with no terminal statement (must fire)",
+        bool(sweep("the optimiser converged on its own tolerance")))
+    arm("converged beside the terminal statement (must stay quiet)",
+        not sweep("the optimiser converged. " + TERMINAL_STATEMENT))
 
     # --- rule A, all three arms, each in both directions --------------------
     # A1: the collapse value missing while the reduction is quoted.
     a1_red = "drag falls 25.985 per cent. CL start CL final, lift 0.072"
-    if not any(n.endswith("without the lift collapse")
-               for n, _ in cl_collapse_hits(a1_red)):
-        blind.append("A1 lift collapse absent (must fire)")
+    arm("A1 lift collapse absent (must fire)",
+        any(n.endswith("without the lift collapse")
+            for n, _ in cl_collapse_hits(a1_red)))
     a1_green = a1_red + " and CL goes to -0.157 at the lowest angle"
-    if any(n.endswith("without the lift collapse")
-           for n, _ in cl_collapse_hits(a1_green)):
-        blind.append("A1 lift collapse present (must stay quiet)")
+    arm("A1 lift collapse present (must stay quiet)",
+        not any(n.endswith("without the lift collapse")
+                for n, _ in cl_collapse_hits(a1_green)))
     # A1 again against the OTHER minus glyph pdftotext may emit.
-    if not CL_NEGATIVE.search("CL goes to −0.157 at the lowest angle"):
-        blind.append("A1 does not see a U+2212 minus (must fire on both glyphs)")
+    arm("A1 does not see a U+2212 minus (must fire on both glyphs)",
+        bool(CL_NEGATIVE.search("CL goes to −0.157 at the lowest angle")))
     # A2: the reduction alone in its own frame.
     a2_red = _pad("the objective falls 25.985 per cent in ten majors")
-    if not any(n.endswith("stands alone in its own frame")
-               for n, _ in cl_collapse_hits(a2_red)):
-        blind.append("A2 proximity (must fire)")
+    arm("A2 proximity (must fire)",
+        any(n.endswith("stands alone in its own frame")
+            for n, _ in cl_collapse_hits(a2_red)))
     a2_green = _pad("the objective falls 25.985 per cent and lift goes to "
                     "-0.157 with it")
-    if any(n.endswith("stands alone in its own frame")
-           for n, _ in cl_collapse_hits(a2_green)):
-        blind.append("A2 proximity with lift in frame (must stay quiet)")
+    arm("A2 proximity with lift in frame (must stay quiet)",
+        not any(n.endswith("stands alone in its own frame")
+                for n, _ in cl_collapse_hits(a2_green)))
     # A3: the column headers.
     a3_red = "drag falls 25.985 per cent and CL goes to -0.157"
-    if not any(n.endswith("without the lift columns")
-               for n, _ in cl_collapse_hits(a3_red)):
-        blind.append("A3 lift columns (must fire)")
-    if any(n.endswith("without the lift columns") for n, _ in cl_collapse_hits(
-            a3_red + " CL start CL final")):
-        blind.append("A3 lift columns present (must stay quiet)")
+    arm("A3 lift columns (must fire)",
+        any(n.endswith("without the lift columns")
+            for n, _ in cl_collapse_hits(a3_red)))
+    arm("A3 lift columns present (must stay quiet)",
+        not any(n.endswith("without the lift columns")
+                for n, _ in cl_collapse_hits(a3_red + " CL start CL final")))
     # A, quiet control: no reduction figure at all means no arm may fire.
-    if cl_collapse_hits("a sheet that quotes no reduction figure at all"):
-        blind.append("rule A fires with no reduction figure on the face")
+    arm("rule A fires with no reduction figure on the face",
+        not cl_collapse_hits("a sheet that quotes no reduction figure at all"))
 
     # --- rule B, by DELETION from the face, the only mutant a presence rule
     #     can have.  Each clause is cut in turn and must go missing.
+    # A DEAD LEVER REMOVED. This loop carried a second ``if`` whose body was a
+    # bare ``continue`` as the last statement in the block: it read as a guard
+    # and did nothing at all. Whether a clause is genuinely missing from the
+    # unmutated face is the real sweep's business below, not a blind-rule
+    # question, so the branch is gone rather than left looking load-bearing.
     for name, pat in CEILING_CLAUSES:
-        cut = pat.sub("", face)
-        if ("the ceiling clause: " + name) not in missing_from(cut):
-            blind.append("ceiling clause not recovered by deletion: " + name)
-        if ("the ceiling clause: " + name) in missing_from(face):
-            continue  # reported by the real sweep below, not a blind rule
+        arm("ceiling clause not recovered by deletion: " + name,
+            ("the ceiling clause: " + name) in missing_from(pat.sub("", face)))
     # --- rule C, by deletion too, one clause at a time.
     for name, pat in HARNESS_FLOOR_CLAUSES:
-        if ("the harness floor clause: " + name) not in missing_from(
-                pat.sub("", face)):
-            blind.append("harness floor clause not recovered by deletion: "
-                         + name)
+        arm("harness floor clause not recovered by deletion: " + name,
+            ("the harness floor clause: " + name) in missing_from(
+                pat.sub("", face)))
     # --- the collapse presence check, by deletion.
-    if "the negative final lift value, the collapse itself" not in missing_from(
-            CL_NEGATIVE.sub("", face)):
-        blind.append("lift collapse not recovered by deletion from the face")
+    arm("lift collapse not recovered by deletion from the face",
+        "the negative final lift value, the collapse itself" in missing_from(
+            CL_NEGATIVE.sub("", face)))
 
-    total = (sum(len(_plants(r)) for r in SHARED_RULES + OWN_RULES)
-             + 8 + 8 + len(CEILING_CLAUSES) + len(HARNESS_FLOOR_CLAUSES) + 1)
+    total = len(arms)
     print(f"PLANT CONTROL: {total - len(blind)}/{total} rule arms behaved")
     if blind:
         print("REFUSE: these rules cannot see a planted violation, or fire on "
@@ -416,10 +432,20 @@ def main() -> int:
     if missing:
         print("\nFACE HITS: missing from the face: " + "; ".join(missing))
         return 1
-    print("\nok  the ceiling, the lift collapse beside every drag figure, the "
-          "harness floor, the terminal statement and this run's own elapsed "
-          "figure are all on the face")
-    return 1 if hits else 0
+    presence = ("the ceiling, the lift collapse beside every drag figure, the "
+                "harness floor, the terminal statement and this run's own "
+                "elapsed figure are all on the face")
+    if hits:
+        # THE LAST LINE OF A FAILING RUN MAY NOT BE A GREEN WORD. This printed
+        # a bare "ok" and then exited 1: the sentence was true and scoped to
+        # the presence checks, but a reader skimming the tail saw "ok" on a run
+        # that had already listed its hits. The scope is now named in the line
+        # itself and the exit is stated beside it.
+        print(f"\nPRESENCE CHECKS ONLY, and this run still exits 1: {presence}. "
+              f"The sweep found {len(hits)} hit(s), listed above.")
+        return 1
+    print("\nok  " + presence)
+    return 0
 
 
 if __name__ == "__main__":
