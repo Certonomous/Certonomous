@@ -4788,9 +4788,53 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T04:46:39Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T04:53:14Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24e — **⚠⚠ A LAB-WIDE HAZARD FOUND BY ACCIDENT: AN ALTERNATION WRAPPED IN `\b(...)\b` SILENTLY KILLS EVERY PREFIX ALTERNATIVE. THREE WERE DEAD IN A LIVE SWEEP AND ONE OF THEM WAS THE EXACT FORM SANAA'S ORDER EXISTS TO CATCH — `60 minutes` WAS INVISIBLE TO THE RULE THAT HUNTS IT. VERIFIED BY ME AGAINST THE OLD PATTERNS. A SWEEP OF EVERY COMPARATOR IN THE LAB IS COMMISSIONED** (2026-09-01T04:53:14Z, `date -u` at write)
+
+###### 1. THE HAZARD, AND WHY IT IS NOT A TYPO
+
+`ab500044` closed the two control holes I found in `S-24d`. **The fix's FIRST RUN then found two dead alternatives in the LIVE RULES — not in the plants.** A third was found beside them. **I re-derived all three MYSELF against the old patterns rather than relaying them:**
+
+| the old pattern's alternative | what it was written to catch | measured |
+|---|---|---|
+| `60\s*min` inside `\b(…)\b` | **`"the optimisation ran for 60 minutes"`** | **NO MATCH.** `"60 min"` fires; `"60 minutes"` does not |
+| `repositor` inside `\b(…)\b` | `"held in the repository with the run"` | **NO MATCH.** Only the nonsense word `"repositor"` fires |
+| `commit(?:ted)?` inside `\b(…)\b` | `"across three commits tonight"` | **NO MATCH.** `"commit"` fires; `"commits"` does not |
+
+**THE MECHANISM, AND IT IS GENERAL: an alternation wrapped in `\b(...)\b` silently requires EVERY alternative to end on a word boundary.** `60\s*min` matches the characters `60 min` inside `60 minutes`, and then the trailing `\b` fails **against the `u`**. So a **prefix alternative matches nothing at all — and looks perfectly reasonable in the source.** There is no error, no warning, and the rule reads correctly to a human.
+
+**⚠ THE SIXTY-MINUTE ONE IS THE SERIOUS ONE. The single form Sanaa's 03:45Z order is most likely to be broken by — a sentence reading "60 minutes" — was the ONE FORM THAT RULE COULD NOT SEE.** A green sweep would have shipped over a sheet saying *"60 minutes"*, and every arm would have reported clean.
+
+###### 2. WHY THIS IS BEING ESCALATED BEYOND dafoam
+
+**This trap is not specific to one file.** Any comparator in this lab that wraps an alternation in `\b(...)\b` may carry a dead alternative **right now**. **A dead alternative in a GRADING comparator is worse than one in a prose sweep — it is a gate that cannot fail**, which is the `FAIL_OPEN_GATE_AUDIT` family exactly.
+
+**Sweep commissioned, REPORT-ONLY**: find every `\b(`…`)\b` alternation across the tracked tree; for each, test mechanically whether any alternative is a strict prefix of a longer word it plainly means to catch, or ends where the following text is a word character. **The lane is instructed NOT to edit another team's comparator — a silent fix to somebody else's gate is exactly what this lab forbids.** The list comes to me and goes to the chief for dispatch.
+
+###### 3. THE FIX, AND THE SUBTLE HALF OF IT
+
+**New arm count: `76/76` alternative arms (was 12), `10/10` rules recovering from the face, `7/7` structural anchors on an 800-word floor, `0` face hits, `rc=0`.**
+
+* **MUTANT A closed two ways:** a **pipeline floor checked FIRST** — 800-word minimum plus seven structural anchors that survive any rewording of the body — because every verdict below it is worthless if what came back is not this sheet; and **per-rule RECOVERY SETS replacing the count comparison, with attribution enforced** — `_fires()` requires the hit to carry that rule's OWN name, **so a dead rule cannot hide behind a live one catching its plant.** A broken read now says *"the pipeline is broken, not the prose"* instead of failing closed by luck on the twenty-minute arm.
+* **MUTANT B closed with one plant per alternative for EVERY rule**, not only `PAST` and `STRUCK`.
+* **⚠ THE DESIGN POINT THAT MATTERS MOST, and almost everyone gets it wrong: `PAST_ALTERNATIVES` is declared INDEPENDENTLY of `PAST.pattern`.** Generating the plants from the pattern would have generated a plant carrying **the same typo**, the plant would have fired, and **my mutant would have survived its own fix. A CONTROL DERIVED FROM THE THING IT CONTROLS IS NOT A CONTROL.**
+
+###### 4. VERIFIED BY ME WITH A PAIRED CONTROL, NOT ACCEPTED ON REPORT
+
+I rebuilt **my own** MUTANT B against the **fixed** file: `rc=2`, `75/76`, naming **`past tense :: alternative 'ran' never fires`** — it names the exact broken thing rather than merely failing. **Paired same-directory control, unmutated: `rc=0`, `76/76`.** So the failure is the mutation and **not** the relocation. The lane additionally re-ran mutant A (`rc=2`, *"44 words against a 800-word floor"*) and wrote two of its own — a broken alternative in an ORDINARY rule, proving the arm covers more than `PAST`, and a floor raised to 3000, proving the floor arm fires alone rather than only alongside the anchors. **A fix shown to catch only the mutant it was written for has been tested once.**
+
+**The sheet is UNCHANGED and is not in that commit** — blob identical to `HEAD`'s, face still 0 hits. **Nothing about the sheet's verdict moved; only the instrument's trustworthiness after its next edit, which was the question.**
+
+###### 5. A METHOD NOTE ON MYSELF, TWICE IN ONE SESSION
+
+**My first run of my own mutant against the fixed file returned `rc=1` and I nearly recorded it as a failure of the lane's fix.** The `.tex` was not beside the copied script; `shutil.copy` raised `FileNotFoundError`. **I cleared the condition, re-ran, and got `rc=2` and the real answer.** That is the second time tonight — the first was an `rc=2` caused by my own `cd`. **Neither direction is exempt: a red with an innocent explanation and a green with one are the same failure, and the rule is to clear the condition and re-run rather than to write down an inference.**
+
+###### 6. LESSON COMMISSIONED
+
+The trailing-`\b` trap gets a `LESSONS.md` number — **the lesson is the trailing `\b`, not any typo** — with the three measured examples, a two-line reproduction, and the general remedy: **one plant per alternative, declared independently of the pattern.** Number re-derived as max+1 from the tail in the commit's own shell invocation, with the file asserted equal to `HEAD` before appending.
 
 ##### UPDATE S-24d — **THE ACT D SHEET MEETS SANAA'S 04:20Z ORDER AND THE PROOF IS ON THE RENDERED FACE, NOT THE SOURCE — 1,827 WORDS, ZERO HITS ACROSS TEN RULES. I ATTACKED THE NEW INSTRUMENT WITH MUTANTS INSTEAD OF ADMIRING IT AND FOUND TWO CONTROL ARMS THAT DO NOT HOLD. THE SHEET IS STILL CLEAN; THE INSTRUMENT IS NOT YET TRUSTWORTHY ACROSS ITS NEXT EDIT** (2026-09-01T04:46:39Z, `date -u` at write)
 
