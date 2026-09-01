@@ -1,0 +1,8 @@
+{
+  "level": 3,
+  "blockMeshDict": "/home/ubuntu/Certonomous/verification/runs/F28_runs/mesh_A4/L3/system/blockMeshDict",
+  "cells_predicted": 180256,
+  "blocks": 36,
+  "y_first_m": 4.444444444444445e-06,
+  "mesh_script_sha256": "8d7cabeeda2891ff1cd0dae13443cf0a2f28c05713642c0251f79338d8a08a0c"
+}

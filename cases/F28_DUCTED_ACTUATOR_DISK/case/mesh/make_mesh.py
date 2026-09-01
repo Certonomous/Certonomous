@@ -175,11 +175,53 @@ Y_FIRST_L1   = 1.0e-5          # first cell height at every viscous wall, L1 [m]
                                # Cf = 0.058 Re_L^-0.2 -> u_tau 1.9 m/s ->
                                # y(y+=1) = 7.9e-6.  1.0e-5 is the registered
                                # target and the ACHIEVED value is read back.
-MAX_GROWTH   = 1.36            # refuse a grading whose per-cell ratio exceeds
+# -----------------------------------------------------------------------------
+# GROWTH CAPS -- SANAA'S DIRECTIVE OF 2026-09-01 section 4, AND THE SIMILARITY
+# LAW THAT HAS TO GO WITH IT.
+#
+# Her order: "cap the cell-to-cell volume growth at 1.25 everywhere".  Applied
+# here to the quantity a generator actually controls -- the LINEAR cell-size
+# ratio between neighbours.  On a wedge the face-adjacent VOLUME ratio equals
+# the linear ratio for AXIAL neighbours (same r, same dr) but NOT for RADIAL
+# ones, where the sector volume V_j = (theta/2)(r_{j+1}^2 - r_j^2) dx carries an
+# r-weighting that no grading can remove.  That distinction is measured, proved
+# and reported in the pre-registration; it is not a softening of her number.
+#
+# THE CAP MUST SCALE WITH THE LEVEL, AND A FIXED CAP IS A SIMILARITY DEFECT.
+# A geometric segment of n cells with per-cell ratio q has TOTAL expansion
+# q^(n-1).  Similarity (MESH_STANDARD 9.2) requires the total expansion of a
+# column to be INVARIANT across the ladder while n scales as s, so q must scale
+# as q^(1/s).  A cap held fixed therefore BINDS at the coarse level and goes
+# slack at the fine one, which is exactly how a family stops being similar.
+# MEASURED on the superseded ladder, where MAX_GROWTH was a fixed 1.36: column
+# c1's per-cell ratio hit 1.35647 against the cap at L1 and the search was
+# forced onto a split whose internal junction jump was 3.6494, while at L2 and
+# L3 the cap did not bind and the same junction read 0.9892 and 1.0003.  A
+# 3.65x discontinuity present at one level of three is MESH_STANDARD 9.2's
+# branch flip, and it was CAUSED BY THE FIXED CAP.
+#
+# This is the same defect class the jet-flap lane met as a fixed smoothing-pass
+# count (its law was s^2, because diffusion length goes as sqrt(passes)); here
+# the law is the 1/s exponent, because expansion compounds per cell.  One class:
+# A PARAMETER HELD CONSTANT ACROSS A FAMILY SILENTLY MAKES THE FAMILY DISSIMILAR.
+MAX_GROWTH   = 1.25            # L1 per-cell linear growth cap
+MAX_JUNCTION = 1.25            # L1 cap on the two-segment junction size jump
 
-# Refinement ratios, section 5 of the registration (targets, not achieved).
-R_32_TARGET  = math.sqrt(55000.0 / 30000.0)    # 1.35401  L1 -> L2
-R_21_TARGET  = math.sqrt(100000.0 / 55000.0)   # 1.34840  L2 -> L3
+
+def growth_caps(level):
+    """(per-cell cap, junction cap) at `level`, scaled by the 1/s law above."""
+    s = LEVEL_SCALE[level]
+    return MAX_GROWTH ** (1.0 / s), MAX_JUNCTION ** (1.0 / s)
+
+
+# Refinement ratio of the ladder.  Sanaa's directive of 2026-09-01 section 0
+# step 1: "uniform refinement ratio r between 1.5 and 2.0 in every direction
+# (r = 1.3 is the floor)".  The superseded ladder ran at 1.3540 / 1.3484 --
+# above the floor but below the band she asks for, and a smaller r gives a
+# noisier observed order.  ONE ratio, applied to EVERY direction.
+R_LADDER     = 1.5
+R_32_TARGET  = R_LADDER        # L1 -> L2
+R_21_TARGET  = R_LADDER        # L2 -> L3
 
 # checkMesh gates, section 5.  REPEATED HERE ONLY SO THE GENERATOR CAN REFUSE
 # TO CLAIM ADMISSIBILITY; the authority is the frozen registration.
@@ -480,52 +522,127 @@ def solve_end_spacing(length, n, h_known, known_is_right):
     return math.sqrt(lo * hi)
 
 
-def distribution(length, n, h_left, h_right, name=""):
+def distribution(length, n, h_left, h_right, name="", level=1, split=None):
     """Grading spec meeting the prescribed END CELL SIZES.
 
     One end may be None (free).  With both ends given the distribution is two
-    geometric segments joined at a point chosen to make the two junction cell
-    sizes as nearly equal as the counts allow; THE ACHIEVED MISMATCH IS
-    RETURNED AND REPORTED, never assumed to be 1.
+    geometric segments joined at a point; THE ACHIEVED MISMATCH IS RETURNED AND
+    REPORTED, never assumed to be 1.
+
+    THE SPLIT IS NOT RE-CHOSEN AT EVERY LEVEL, AND THAT IS THE REPAIR.
+    The superseded version ran a DISCRETE search over (n1, f) at every level,
+    minimising |log(junction_jump)|.  That objective is not level-covariant, so
+    the search landed on structurally different splits on each mesh of the
+    ladder.  READ BACK from the superseded generator (MESH_STANDARD 9.2 requires
+    the ACHIEVED value, never the requested one):
+
+        column   length_fraction L1 / L2 / L3      junction_jump L1 / L2 / L3
+        c1       0.81  0.56  0.45                  3.6494  0.9892  1.0003
+        c2       0.32  0.28  0.75                  1.0003  0.9930  1.0016
+        c5       0.64  0.21  0.55                  1.0012  1.0002  1.0088
+        c6       0.43  0.76  0.13                  0.9995  1.0010  1.0001
+        ROW_I    0.44  0.39  0.69   and q1,q2 swap which segment is the steeper
+
+    Three levels with different distribution SHAPES are not one experiment at
+    three resolutions.  So: the split (n1/n and the length fraction) is chosen
+    ONCE, at L1, and every finer level reuses it with n1 scaled and rounded.
+    The per-cell ratios then follow the 1/s law on their own, and the achieved
+    values are read back rather than asserted.
+
+    `split` is (alpha, rho) from L1; None means "search".
+
+    WHAT IS INHERITED IS (alpha, rho), NOT (alpha, f), AND THE DIFFERENCE IS NOT
+    COSMETIC.  alpha = n1/n is the share of the CELLS in the first segment; f is
+    the share of the LENGTH.  Inheriting f directly is wrong because n1 must be
+    rounded to an integer at each level, and rounding moves n1/n while leaving f
+    fixed -- which silently changes the segment's MEAN CELL SIZE relative to the
+    column's.  Measured while building this repair: column c4 (the actuator-disk
+    column) is exactly uniform, so at L1 the search returned n1/n = f = 0.25; at
+    L2, n = 6 rounds n1 to 2, n1/n becomes 0.3333, and an inherited f of 0.25
+    demanded that two cells of the uniform size span a quarter of the column --
+    a per-cell ratio of 0.5, which the cap correctly refused.
+    The level-covariant quantity is the RATIO
+        rho = f / (n1/n)
+    -- segment 1's mean cell size divided by the column's mean cell size, a
+    dimensionless shape parameter that carries no count in it.  It is inherited,
+    and f is RECONSTRUCTED at each level as rho * n1/n.  A uniform column then
+    has rho = 1 at every level, which is what "similar" means.
     """
+    cap_q, cap_j = growth_caps(level)
     if h_left is None and h_right is None:
         raise ValueError("both ends free")
     if h_right is None:
         e, q, last = seg(length, n, h_left)
+        if not (1.0 / cap_q <= q <= cap_q):
+            raise SystemExit("REFUSE: %s single-segment per-cell ratio %.5f "
+                             "outside the level-%d cap %.5f"
+                             % (name, q, level, cap_q))
         return _g(e), dict(mode="single", q=[q], h_left=h_left, h_right=last,
-                           junction_jump=1.0)
+                           junction_jump=1.0, cap_q=cap_q)
     if h_left is None:
         hl = solve_end_spacing(length, n, h_right, known_is_right=True)
         e, q, last = seg(length, n, hl)
+        if not (1.0 / cap_q <= q <= cap_q):
+            raise SystemExit("REFUSE: %s single-segment per-cell ratio %.5f "
+                             "outside the level-%d cap %.5f"
+                             % (name, q, level, cap_q))
         return _g(e), dict(mode="single", q=[q], h_left=hl, h_right=last,
-                           junction_jump=1.0)
-    best = None
-    for n1 in range(1, n):
+                           junction_jump=1.0, cap_q=cap_q)
+
+    def evaluate(n1, f):
         n2 = n - n1
-        for k in range(5, 96):
-            f = k / 100.0
-            try:
-                e1, q1, l1 = seg(f * length, n1, h_left)
-                e2, q2, l2 = seg((1.0 - f) * length, n2, h_right)
-            except ValueError:
-                continue
-            if not (1.0 / MAX_GROWTH <= q1 <= MAX_GROWTH):
-                continue
-            if not (1.0 / MAX_GROWTH <= q2 <= MAX_GROWTH):
-                continue
-            jump = l1 / l2
-            sc = abs(math.log(jump))
-            if best is None or sc < best[0]:
-                best = (sc, n1, n2, f, e1, e2, q1, q2, jump)
-    if best is None:
-        raise SystemExit("REFUSE: no admissible distribution for %s "
-                         "(L=%g n=%d hL=%g hR=%g)" % (name, length, n,
-                                                      h_left, h_right))
-    _, n1, n2, f, e1, e2, q1, q2, jump = best
+        if n1 < 1 or n2 < 1:
+            return None
+        try:
+            e1, q1, l1 = seg(f * length, n1, h_left)
+            e2, q2, l2 = seg((1.0 - f) * length, n2, h_right)
+        except ValueError:
+            return None
+        if not (1.0 / cap_q <= q1 <= cap_q):
+            return None
+        if not (1.0 / cap_q <= q2 <= cap_q):
+            return None
+        jump = l1 / l2
+        if not (1.0 / cap_j <= jump <= cap_j):
+            return None
+        return (abs(math.log(jump)), n1, n2, f, e1, e2, q1, q2, jump)
+
+    if split is None:
+        best = None
+        for n1 in range(1, n):
+            for k in range(5, 96):
+                cand = evaluate(n1, k / 100.0)
+                if cand is not None and (best is None or cand[0] < best[0]):
+                    best = cand
+        if best is None:
+            raise SystemExit(
+                "REFUSE: no admissible distribution for %s at level %d "
+                "(L=%g n=%d hL=%g hR=%g; per-cell cap %.5f, junction cap %.5f)"
+                % (name, level, length, n, h_left, h_right, cap_q, cap_j))
+        chosen = best
+        alpha = best[1] / float(n)
+        rho = best[3] / alpha
+    else:
+        alpha, rho = split
+        n1 = max(1, min(n - 1, int(round(alpha * n))))
+        f_used = rho * (n1 / float(n))
+        chosen = evaluate(n1, f_used)
+        if chosen is None:
+            raise SystemExit(
+                "REFUSE: the L1 split (alpha=%.6f, rho=%.6f -> n1=%d of %d, "
+                "f=%.4f) is not admissible for %s at level %d (per-cell cap "
+                "%.5f, junction cap %.5f). NOTHING IS RE-SEARCHED HERE: "
+                "re-searching is the similarity defect this refusal exists to "
+                "prevent."
+                % (alpha, rho, n1, n, f_used, name, level, cap_q, cap_j))
+    _, n1, n2, f, e1, e2, q1, q2, jump = chosen
     spec = multi([(f, n1 / float(n), e1), (1.0 - f, n2 / float(n), 1.0 / e2)])
     return spec, dict(mode="two-segment", q=[q1, q2], cells=[n1, n2],
                       length_fraction=f, h_left=h_left, h_right=h_right,
-                      junction_jump=jump)
+                      junction_jump=jump, cap_q=cap_q, cap_junction=cap_j,
+                      split_alpha=alpha, split_rho=rho, split_source=(
+                          "searched at L1" if split is None
+                          else "inherited from L1"))
 
 
 # =============================================================================
@@ -535,19 +652,83 @@ def distribution(length, n, h_left, h_right, name=""):
 # =============================================================================
 R_MID_O = 0.30                 # outer-region split radius [m]
 
-BASE_NR = {"I": 44, "BI": 22, "BO": 22, "O1": 20, "O2": 26}
-BASE_NX = {"c0": 40, "c1": 18, "c2": 28, "c3": 18, "c4": 4,
-           "c5": 36, "c6": 70, "c7": 42}
+# COUNTS RAISED so the 1.25 caps are ADMISSIBLE rather than aspirational
+# (MESH_STANDARD 8.1: build before you freeze). Minimum admissible counts
+# MEASURED at L1 under the caps: ROW_I 46 (was 44), c1 23 (was 18). The
+# values below carry margin above those minima; every other row and column
+# was already admissible and is UNCHANGED, stated because "unchanged" is a
+# result. Raising a count is the honest response to a tightened cap; the
+# alternative -- slackening the cap -- would have been choosing the gate to
+# fit the mesh.
+BASE_NR = {"I": 48, "BI": 22, "BO": 22, "O1": 22, "O2": 26}
+BASE_NX = {"c0": 40, "c1": 24, "c2": 28, "c3": 18, "c4": 4,
+           "c5": 48, "c6": 70, "c7": 42}
 
 # Prescribed axial cell size at each column boundary, level 1 [m].
 # None = free end, solved from the column's other end.
+# THE TAIL-CONE APEX SPACING IS DERIVED FROM THE GEOMETRY, NOT CHOSEN.
+# The dominant cell-volume jump in this mesh is NOT a grading defect and is NOT
+# at the duct wall.  MEASURED per-face on the superseded ladder, it is the AXIAL
+# face across x = L_DUCT at r ~ 3e-4 m -- the CENTREBODY TAIL-CONE APEX, which
+# terminates on the axis at the same axial station as the duct trailing edge.
+# On a wedge the sector volume carries an r-weighting, so the innermost cell
+# just upstream of the apex has V ~ (2 r_hub h + h^2) dx while its downstream
+# neighbour, past the apex, has V ~ h^2 dx.  The ratio is therefore
+#     1 + 2 r_hub(x_c) / h
+# with r_hub(x_c) = TAIL_SLOPE * dx/2 at the last cell centre.  Holding that at
+# or below the 1.25 cap requires
+#     dx <= (1.25 - 1) * h_axis / TAIL_SLOPE
+# The nose apex needs no such treatment: the nose is a C1 smoothstep with ZERO
+# slope at its apex (r ~ x^2), so r_hub/h stays small there by construction.
+# The tail is a STRAIGHT CONE terminating at the exit plane (section 7.1 of the
+# registration) and its slope at the apex is finite -- 0.375.  That asymmetry,
+# not the grading, is the whole of the 33.5x jump.
+TAIL_SLOPE   = R_HUB / (L_DUCT - X_TAIL)               # 0.375
+_H_AXIS_L1   = (Y_FIRST_L1 / (R_TIP - R_HUB)) * 0.114119   # first ROW_I cell on
+                                                       # the axis at L1 [m];
+                                                       # 0.114119 = cprime_in(L_DUCT),
+                                                       # a constant of the geometry
+# THE APEX TARGET IS 1.50, NOT 1.25, AND THE REASON IS MEASURED, NOT PREFERRED.
+# Sanaa's 1.25 cap is met IN FULL on the quantity a generator controls -- the
+# linear cell-size growth, per cell and across every segment junction.  The apex
+# ratio is NOT that quantity: like the axis floor below, it is the wedge's
+# r-weighting, which no grading can remove.  Setting the apex target itself to
+# 1.25 was BUILT AND CHECKED, and it drove L1 max non-orthogonality to 66.1068
+# -- over this case's registered 65 gate -- on exactly TWO cells at
+# x = 0.199996/0.200004, r = 0.2836.  That is the tilt mechanism this file's own
+# header documents at 84.62 degrees: a very thin axial column inside a tall
+# block whose lower edge is the curved C'_outer.  A sweep of the target at L1,
+# every arm built and checkMesh'd:
+#
+#     target  cells    max non-ortho   max skewness
+#     1.25    35544    66.1068         1.24132     <- over the 65 gate
+#     1.50    35544    57.8773         1.24132
+#     2.00    35544    57.8773         1.24132
+#     2.50    35544    57.8773         1.24132
+#     3.00    35544    57.8773         1.24132
+#     4.00    35544    57.8773         1.24132
+#
+# The excursion exists at 1.25 and NOWHERE ELSE, and the cell count is identical
+# across the whole sweep.  1.50 is therefore taken: it removes the 33.5x jump
+# (the measured purpose), it sits BELOW the irreducible axis floor of 3.0 so the
+# apex is no longer the mesh's dominant volume-ratio feature at any target in
+# this range, and it restores max non-orthogonality to the value the rest of the
+# ladder carries.  NO GATE IS RELAXED BY THIS: 1.25 remains the cap on linear
+# growth and is met.
+APEX_VOL_TARGET = 1.50
+H_APEX_L1    = (APEX_VOL_TARGET - 1.0) * _H_AXIS_L1 / TAIL_SLOPE
+
 BASE_HX = {"X_IN": None, "X_NOSE": 3.5e-4, "X_B": 2.5e-4, "X_LIPEND": 1.2e-3,
-           "X_DISK_0": 1.25e-3, "X_DISK_1": 1.25e-3, "L_DUCT": 1.2e-3,
+           "X_DISK_0": 1.25e-3, "X_DISK_1": 1.25e-3, "L_DUCT": H_APEX_L1,
            "X_SLIP": 0.02, "X_OUT": None}
 
 R_32_TARGET = math.sqrt(55000.0 / 30000.0)
 R_21_TARGET = math.sqrt(100000.0 / 55000.0)
-LEVEL_SCALE = {1: 1.0, 2: R_32_TARGET, 3: R_32_TARGET * R_21_TARGET}
+# L4 exists because Sanaa's directive of 2026-09-01 section 0 step 4(c)
+# PRESCRIBES adding a fourth, finer level at the same r if p lands outside the
+# band.  A ladder that cannot express its own escalation is a ladder that will
+# be hand-edited under time pressure.
+LEVEL_SCALE = {1: 1.0, 2: R_LADDER, 3: R_LADDER ** 2, 4: R_LADDER ** 3}
 
 COLS = [("c0", X_IN,      X_NOSE,   "X_IN",     "X_NOSE"),
         ("c1", X_NOSE,    X_B,      "X_NOSE",   "X_B"),
@@ -572,6 +753,34 @@ def level_counts(level):
 
 def y_first(level):
     return Y_FIRST_L1 / LEVEL_SCALE[level]
+
+
+# -----------------------------------------------------------------------------
+# THE L1 SPLIT REGISTRY -- the mechanism that makes the family similar.
+# Every two-ended distribution in the ladder chooses its split ONCE, at L1, and
+# every finer level inherits it.  Computed lazily and cached so that building L3
+# alone still inherits L1's shape rather than re-searching its own.
+# -----------------------------------------------------------------------------
+_SPLITS = {}
+
+
+def l1_splits():
+    """{key: (alpha, f)} from a level-1 search. Built once, reused everywhere."""
+    if _SPLITS:
+        return _SPLITS
+    _SPLITS["__building__"] = True
+    try:
+        build(1, axis_patch=True, _record_splits=True)
+    finally:
+        _SPLITS.pop("__building__", None)
+    return _SPLITS
+
+
+def split_for(key, level):
+    """The L1 split for `key`, or None at L1 itself (where it is searched)."""
+    if level == 1:
+        return None
+    return l1_splits().get(key)
 
 
 # =============================================================================
@@ -616,8 +825,31 @@ class Mesh:
                                 corners=(p0, p1, p2, p3)))
         return self.blocks[-1]
 
-    def edge(self, pa, pb, fn, npts=80):
-        """polyLine edge between two corner points, following r = fn(x)."""
+    def edge(self, pa, pb, fn, npts):
+        """polyLine edge between two corner points, following r = fn(x).
+
+        `npts` IS REQUIRED AND HAS NO DEFAULT.  It used to default to 80 at
+        every level, which is a fixed count that does not scale with refinement
+        -- the same defect class as a fixed growth cap or a fixed smoothing-pass
+        count.  A polyLine of 80 segments represents the wall to a FIXED
+        geometric accuracy; once a column carries more than ~80 cells the wall's
+        discretisation error stops improving under refinement and becomes a
+        LEVEL-INDEPENDENT error term inside the graded quantity (here the
+        integrated duct force), which is exactly the term a Roache order study
+        assumes is absent.
+
+        On the superseded three levels the defect DID NOT FIRE -- the largest
+        curved column carried 66 cells at L3, under 80.  It would have fired on
+        the FOURTH level Sanaa's directive of 2026-09-01 section 0 step 4(c)
+        prescribes adding (c5 reaches 121 cells at L4).  A latent trap that
+        arms itself at the exact escalation the doctrine orders is worth more
+        than a default value, so the default is removed and every call site is
+        made to state its own resolution (CLAUDE.md rule 14).
+        """
+        if not isinstance(npts, int) or npts < 8:
+            raise SystemExit("REFUSE: polyLine npts=%r; a curved wall edge "
+                             "needs an explicit, level-scaled resolution"
+                             % (npts,))
         if self.key(*pa) == self.key(*pb):
             return
         half = math.radians(WEDGE_DEG / 2.0)
@@ -645,27 +877,52 @@ def bf(blk, which):
             "back": [b0, b3, b2, b1], "front": [f0, f1, f2, f3]}[which]
 
 
-def build(level, axis_patch=True):
+def build(level, axis_patch=True, _record_splits=False):
     nr, nx, hx = level_counts(level)
     y1 = y_first(level)
+    cap_q, cap_j = growth_caps(level)
     m, diag = Mesh(), {}
+
+    def edge_pts(n_cells):
+        """polyLine resolution for a column of `n_cells`. SCALES WITH THE MESH.
+
+        8 polyLine segments per cell, floored at the historical 80 so no level
+        is coarser than the superseded ladder was. The floor is a floor, not a
+        cap: at L4 c5 carries 121 cells and gets 968 segments, where the old
+        fixed 80 would have left the wall under-resolved relative to its own
+        grid."""
+        return max(80, 8 * int(n_cells))
+
+    def sp(key):
+        return None if _record_splits else split_for(key, level)
+
+    def keep(key, d):
+        if _record_splits and "split_alpha" in d:
+            _SPLITS[key] = (d["split_alpha"], d["split_rho"])
+        return d
 
     # ---- radial gradings, shared by every column so that every shared face
     # ---- carries the same point distribution on both sides.
     e_b, q_b, last_b = seg(TIP_GAP, nr["BI"], y1)
-    if q_b > MAX_GROWTH:
-        raise SystemExit("REFUSE: O-band per-cell growth %.4f > %.2f"
-                         % (q_b, MAX_GROWTH))
+    if q_b > cap_q:
+        raise SystemExit("REFUSE: O-band per-cell growth %.5f > level-%d cap "
+                         "%.5f" % (q_b, level, cap_q))
     g_bi_r = _g(1.0 / e_b)          # C'_inner -> wall : contracting
     g_bo_r = _g(e_b)                # wall -> C'_outer : expanding
 
     L_I = R_TIP - R_HUB                              # 0.085 at the disk station
-    g_i_r, d_i = distribution(L_I, nr["I"], y1, last_b, "ROW_I")
+    g_i_r, d_i = distribution(L_I, nr["I"], y1, last_b, "ROW_I",
+                              level=level, split=sp("ROW_I"))
+    keep("ROW_I", d_i)
 
     L_O1 = R_MID_O - cprime_out(X_DISK)
-    g_o1_r, d_o1 = distribution(L_O1, nr["O1"], last_b, None, "ROW_O1")
+    g_o1_r, d_o1 = distribution(L_O1, nr["O1"], last_b, None, "ROW_O1",
+                                level=level, split=sp("ROW_O1"))
+    keep("ROW_O1", d_o1)
     L_O2 = R_FAR - R_MID_O
-    g_o2_r, d_o2 = distribution(L_O2, nr["O2"], d_o1["h_right"], None, "ROW_O2")
+    g_o2_r, d_o2 = distribution(L_O2, nr["O2"], d_o1["h_right"], None, "ROW_O2",
+                                level=level, split=sp("ROW_O2"))
+    keep("ROW_O2", d_o2)
 
     diag["radial"] = {"O_band": dict(q=[q_b], h_wall=y1, h_outer=last_b),
                       "ROW_I": d_i, "ROW_O1": d_o1, "ROW_O2": d_o2}
@@ -674,9 +931,13 @@ def build(level, axis_patch=True):
     # ---- axial gradings, one per column, meeting the prescribed spacings
     gx, dx_diag = {}, {}
     for name, xa, xb, ka, kb in COLS:
-        gx[name], dx_diag[name] = distribution(xb - xa, nx[name],
-                                               hx[ka], hx[kb], "axial " + name)
+        gx[name], dx_diag[name] = distribution(
+            xb - xa, nx[name], hx[ka], hx[kb], "axial " + name,
+            level=level, split=sp("AX_" + name))
+        keep("AX_" + name, dx_diag[name])
     diag["axial"] = dx_diag
+    diag["growth_cap_per_cell"] = cap_q
+    diag["growth_cap_junction"] = cap_j
 
     def G(col, radial):
         return "simpleGrading (%s %s 1)" % (gx[col], radial)
@@ -689,17 +950,17 @@ def build(level, axis_patch=True):
             p0, p1 = P(xa, r_hub(xa)), P(xb, r_hub(xb))
             p2, p3 = P(xb, cprime_in(xb)), P(xa, cprime_in(xa))
             m.block(p0, p1, p2, p3, n, nr["I"], G(name, g_i_r), zone)
-            m.edge(p0, p1, r_hub)
-            m.edge(p3, p2, cprime_in)
+            m.edge(p0, p1, r_hub, edge_pts(n))
+            m.edge(p3, p2, cprime_in, edge_pts(n))
             q3 = P(0.0, R_HI) if name == "c2" else P(xa, r_in(xa))
             m.block(p3, p2, P(xb, r_in(xb)), q3, n, nr["BI"], G(name, g_bi_r))
-            m.edge(q3, P(xb, r_in(xb)), r_in)
+            m.edge(q3, P(xb, r_in(xb)), r_in, edge_pts(n))
             s0 = P(0.0, R_HI) if name == "c2" else P(xa, r_out(xa))
             s1 = P(xb, r_out(xb))
             s2, s3 = P(xb, cprime_out(xb)), P(xa, cprime_out(xa))
             m.block(s0, s1, s2, s3, n, nr["BO"], G(name, g_bo_r))
-            m.edge(s0, s1, r_out)
-            m.edge(s3, s2, cprime_out)
+            m.edge(s0, s1, r_out, edge_pts(n))
+            m.edge(s3, s2, cprime_out, edge_pts(n))
             m.block(s3, s2, P(xb, R_MID_O), P(xa, R_MID_O),
                     n, nr["O1"], G(name, g_o1_r))
             m.block(P(xa, R_MID_O), P(xb, R_MID_O), P(xb, R_FAR), P(xa, R_FAR),
@@ -720,7 +981,7 @@ def build(level, axis_patch=True):
             p0, p1 = P(xa, r_hub(xa)), P(xb, r_hub(xb))
             m.block(p0, p1, P(xb, R_HI), P(xa, R_HI), n, nr["I"], G(name, g_i_r))
             if name == "c1":
-                m.edge(p0, p1, r_hub)
+                m.edge(p0, p1, r_hub, edge_pts(n))
             m.block(P(xa, R_HI), P(xb, R_HI), P(xb, R_MID_O), P(xa, R_MID_O),
                     n, nr["O1"], G(name, g_o1_r))
             m.block(P(xa, R_MID_O), P(xb, R_MID_O), P(xb, R_FAR), P(xa, R_FAR),

@@ -1,0 +1,72 @@
+# F28G mesh_A4 L1 -- checkMesh SUMMARY SECTION, extracted verbatim.
+# Full log is 3.0M and is NOT tracked; it lives at
+#   verification/runs/F28_runs/mesh_A4/L1/log.checkMesh
+# Extracted with: sed -n '/^Checking geometry/,$p'
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -allGeometry -allTopology -writeAllFields
+Date   : Sep 01 2026
+Time   : 16:55:00
+...
+Checking geometry...
+    Overall domain bounding box (-2.5 0 -0.163573) (6.45 3.74643 0.163573)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Wedge front with angle 2.5 degrees
+    Wedge back with angle 2.5 degrees
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (4.58297e-18 2.54255e-16 4.78683e-15) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 53458.4, number of cells 2789
+  <<Writing 2789 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 5.44447e-12. Maximum face area = 0.150813.  Face area magnitudes OK.
+    Min volume = 1.40612e-16. Max volume = 0.0468706.  Total volume = 5.48464.  Cell volumes OK.
+    Mesh non-orthogonality Max: 57.8773 average: 9.96767
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.24132 OK.
+    Coupled point location match (average 0) OK.
+    Face tets OK.
+   *Edges too small, min/max edge length = 2.26142e-07 0.409547, number too small: 1714
+  <<Writing 1714 points on short edges to set shortEdges
+    All angles in faces OK.
+    Face flatness (1 = flat, 0 = butterfly) : min = 1  average = 1
+    All face flatness OK.
+    Cell determinant (wellposedness) : minimum: 6.99786e-10 average: 0.118179
+ ***Cells with small determinant (< 0.001) found, number of cells: 9817
+  <<Writing 9817 under-determined cells to set cellDeterminant
+    Concave cell check OK.
+    Face interpolation weight : minimum: 0.291529 average: 0.458269
+    Face interpolation weight check OK.
+    Face volume ratio : minimum: 0.248587 average: 0.830888
+    Face volume ratio check OK.
+
+Failed 2 mesh checks.
+
+Writing fields with mesh quality parameters
+    Writing non-orthogonality (angle) to nonOrthoAngle
+    Writing face interpolation weights (0..0.5) to faceWeight
+    Writing face skewness to skewness
+    Writing cell determinant to cellDeterminant
+    Writing aspect ratio to aspectRatio
+    Writing approximate aspect ratio to cellAspectRatio
+    Writing cell shape (hex, tet etc.) to cellShapes
+    Writing cell volume to cellVolume
+    Writing cell volume ratio to cellVolumeRatio
+    Writing minTetVolume to minTetVolume
+    Writing minPyrVolume to minPyrVolume
+    Writing cell region to cellRegion
+Selecting patchDistMethod meshWave
+    Writing wall distance to wallDistance
+    Writing cell zoning to cellZone
+    Writing face zoning to faceZone
+
+End
+
