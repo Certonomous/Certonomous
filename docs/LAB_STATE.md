@@ -4792,6 +4792,48 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
+##### UPDATE S-23d — **`L-422` AND `L-423` LANDED. SANAA'S 20 MINUTES IS ON EVERY SURFACE AND NO SURFACE PRINTS 60 — THE LANE SPLIT THE SENTENCE INSTEAD OF SWAPPING THE NUMBER. ⚠ THE PRECISION DEFECT WAS WORSE THAN I SAID: A 0.05 mm PLANTED DEFECT WAS INDISTINGUISHABLE FROM A CLEAN FILE. AND I COMMITTED A LIVE LANE'S WORK BY ACCIDENT, WHICH A LANE THEN DID TO ANOTHER LANE — TWICE IN ONE SESSION, BOTH DIRECTIONS** (2026-09-01T02:4xZ, `date -u` at write)
+
+##### 1. `L-422` AND `L-423` — NUMBERS ASSIGNED BY ME BECAUSE TWO AGENTS WOULD HAVE COLLIDED ON ONE
+
+`785f4c73`, 102 insertions, one file. Max existing was `L-421`; a lane and I would **both** have reached for `L-422` within minutes, which is two records for one phenomenon, so I took both and assigned them sequentially at commit per rule 11.
+
+**`L-422` — a display rounding ate a measurement's discriminating power.** And **it is worse than the 25× floor I reported earlier.** `[MEASURED, planted stretches into the reference wing's own span]`: **through the rounded reader a PERFECT match already read `3.3e-04 %`**, while a **0.05 mm real defect reads `3.50e-04 %` — indistinguishable.** 1 mm reads `7.12e-03 %`, 10 mm `7.12e-02 %`. **The transport rounding was consuming the bottom TWO ORDERS OF MAGNITUDE of the discriminating power of the check whose entire job is noticing that a file arriving under the right name carries a different body** — the check that exists *because* of the original Act D substitution defect. Now resolves **~1.5 µm on a 14 m span**. **No verdict moved on repair** (`match True` / `match False` both held), **which is exactly why it survived: a precision loss that changes no outcome today leaves no symptom.**
+
+**`L-423` — rule 10's assert proves WHICH FILES moved, not WHOSE HUNKS are in them.** Measured **twice tonight, in both directions**, neither breaking any rule: **`7717e6d7`, mine** — a one-character `MESH_CAPTION` edit that committed **61 insertions**, sweeping in a live lane's re-route before it had reported it driven; and **`ece8f234`, a lane's** — one hunk of its own plus **seven** of another lane's live runtime work, under a message closing *"Foreign uncommitted rows left alone"*, **which is false of those rows.** `update-index --add` takes the path **as it stands on disk**. Every leg of rule 10 is about the SET OF PATHS; **no leg is about the CONTENT within a path.** **The tell was on screen both times and both of us read past it: the LINE COUNT.** The lessons commit applies its own lesson — 102 authored, 102 reported.
+
+**Recorded as an OBSERVATION, not a rule.** A mandatory added step is procedural and sits behind the **plumbing freeze**; the rule proposal is on Sanaa's desk, not in force. Both commits **inspected, never reverted**; `ece8f234`'s misdescribing message is corrected in the record rather than by rewriting shared history.
+
+##### 2. SANAA'S 20 MINUTES — CARRIED ON EVERY SURFACE, AND THE LANE SOLVED THE COLLISION PROPERLY
+
+I flagged that her 20-minute order and the measured **60-minute** wall clock could not both have their number swapped, because *"stopped by a 20-minute wall clock"* is false. **The lane did not swap the number — it split the sentence.** The stopping line keeps the **CAUSE** and drops the **DURATION**; the runtime stands separately with its configuration named:
+
+> *"It stopped because the wall-clock box set on that run ended it, and it wrote no convergence statement of any kind."*
+> *"Runtime on the production configuration, with the linear solvers on GPU: 20 minutes."*
+
+Licensed by the act's own standing rule — **saying less is allowed; saying something untrue is not.** The two sit several beats apart by design. `_runtime_line()` **raises if the basis is ever dropped**, so the figure cannot travel naked.
+
+**DRIVEN, not compiled: rc=0, 225 events.** Across the whole stream `60 min` / `sixty` / `3601` / `3600` / `one hour` = **ZERO**; `"20 minutes"` = **twice**, never without its basis; `converged` = **ZERO**; `optimum` = **ZERO**. Sheet `pdflatex` **rc=0, one page**, rendered face greps zero for every 60-minute form and for converged/optimum, `"not run to convergence"` intact. **`time_box_min: 60` still stands at `A2_optimization_history.json:33` and still gates the sentence — the record is untouched and only the presentation moved.** The certificate carries **no time field at all**: a production projection has not earned a fidelity-tier badge, and the lane declined to give it one. **Cost under 0.2 core-min, np=1, log-measured.**
+
+##### 3. ⚠ THE ONE THING WORDING CANNOT CLOSE — FOR SANAA, STATED RATHER THAN PAPERED OVER
+
+**No surface is false and no surface asserts the CPU run took 20 minutes.** What remains is an **inference**: a viewer who hears *"its wall-clock box ended it"* and later reads *"runtime 20 minutes"* may join them and conclude the box was 20 minutes. It is blocked as far as wording can go — separated on screen, the runtime never appearing without naming a **different** configuration, and the sheet saying outright that the box is a limit set beforehand rather than a runtime. **It cannot be made impossible without either printing 60, which she ordered off, or printing a hedge that reads as arguing.** The lane chose neither and said so. **This is the residual cost of the order, and it is hers to accept or to price differently — not ours to hide.**
+
+##### 4. THREE USER-VISIBLE 60-MINUTE STRINGS SURVIVE OUTSIDE THIS FAMILY — ROUTED, NOT TOUCHED
+
+`web/shoot.html:665` (KPI tile, *"A 60-minute wall clock ran out."*); `web/shoot.html:680` and `media/LAPTOP_SHOOT.md:267`. **A number changed in one place and not another is worse than not changing it**, so these are escalated rather than left.
+
+**⚠ AND :680 / :267 ARE STALE TWICE OVER, INDEPENDENT OF THE FIGURE:** both describe *"a separate table, how the optimization stopped"*. **The lane enumerated the act's emitted tables — there are 14 and NONE of them is a stopping table.** Those bullets claim a screen surface **that does not exist**, which would have sent a camera crew looking for it.
+
+**Correctly NOT changed, and I uphold the lane's judgement:** `web/shoot.html:718` and `media/LAPTOP_SHOOT.md:302` are **crew guidance, not screen description** (*"do not say the adjoint converged"*; *"the 60-minute box was exactly 3600 seconds"*). **Stripping the measured fact there would remove the very thing that stops the crew saying "converged" on camera.**
+
+##### 5. STATE
+
+**Act D content is complete and driven.** Sections lead; the decomposition table reads from the frozen grader and recomputes nothing; the trap is shown as a measured counter-example; the crease is answered both ways; the stopping condition is honest; Sanaa's 20 minutes is on every surface with its basis; the caption's em dash is a semicolon with every word preserved; the identity check now resolves to ~1.5 µm. **52 arms, rc 0.** **The one blocker left is not ours: the caption is rendered by cfd's viewport wiring, and the three shoot-material strings above are somebody else's file.**
+
+**Lanes:** two live on SO-3 (instrument derivation; registration), both **freeze-only, nothing launched**, my check 4 and check 1 before any compute. **Rungs without verdicts:** `D19`, `D19R` (clean arms, ungradable on `D19R-GRADER-DEF-1`), `SO-3D`, `SO-3b`, `A2` row `B2`, `A2-B2R` (frozen `395103fe`, parked). **On Sanaa's desk, new this block:** the 20-minute inference in §3; the `L-423` rule proposal, held behind the plumbing freeze; the three shoot-material surfaces; the em-dash trade, hers to overturn in one character.
+
+
 ##### UPDATE S-23c — **THE ACT D PACKAGE IS CLOSED EXCEPT FOR ONE LINE OF SOMEBODY ELSE'S HTML — AND THAT LINE IS A DEMO BLOCKER: SANAA'S MANDATORY MESH CAPTION IS EMITTED ON 101 OF 101 FRAMES AND RENDERED ON NONE. `A2-B2R` FROZEN `395103fe`, MY CHECK 4 **PASS**. THE GUI ACT D HAS ITS OWN SHEET AT LAST, SHIPPED-ROW-ONLY AND SAYING SO. ⚠ AND I RAISED A FALSE ALARM AGAINST MY OWN LANE ON A STALE READING** (2026-09-01T02:0xZ, `date -u` at write)
 
 ##### 1. ⚠⚠⚠ THE ONE THING THAT WOULD HAVE SHIPPED BROKEN — THE CAPTION IS NEVER RENDERED
