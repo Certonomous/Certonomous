@@ -59,8 +59,16 @@ MIN_THICKNESS_FRACTION = 1e-6
 _PROFILE_BINS = 24
 
 # A chordwise sweep closes to near-nothing at the leading and trailing edges.
-# A spanwise sweep is at full thickness at the root. This separates them.
-_END_CLOSURE_FRACTION = 0.45
+# A spanwise sweep is at full thickness at the root. That IS how chord and span
+# are told apart, in discover_axes' end_closure, but it is done by COMPARING
+# the two axes against each other rather than against a fixed level.
+#
+# There used to be an _END_CLOSURE_FRACTION = 0.45 here, carrying that comment
+# and referenced nowhere in the repository (verification, 2026-09-01,
+# repo-wide grep). A constant that looks like a threshold and gates nothing is
+# worse than no constant: a reader takes it for the rule and stops looking for
+# the real one. It is removed rather than wired, because the comparison the
+# code actually performs needs no level.
 
 
 class Surface:
@@ -157,11 +165,27 @@ def _read_stl_fallback(path: Path):
 def discover_axes(surf: Surface) -> dict:
     """Which axis carries the chord, which the span, which the thickness.
 
-    Measured from the body, never assumed. The thinnest direction is the
-    thickness -- that much is true of any lifting surface however it is
-    oriented. The other two are told apart by sweeping the body along each and
-    watching how the thickness behaves: an aerofoil closes at BOTH ends of the
-    chord, whereas along the span the root is at full thickness.
+    Chord and span are MEASURED against each other, by sweeping the body along
+    each and watching how the thickness behaves: an aerofoil closes at BOTH
+    ends of the chord, whereas along the span the root is at full thickness.
+    No fixed level is involved, so no axis order can change the answer.
+
+    THE THICKNESS AXIS IS AN ASSUMPTION AND IS LABELLED ONE (verification,
+    2026-09-01). ``surf.by_size[0]`` takes the thinnest extent to BE the
+    thickness. For a lifting surface that is very nearly a definition, but it
+    is a prior rather than a discovery, and it is the same species as the
+    defect this module was written to repair one level down. It is wrong for
+    exactly one class of body: a stub whose span is shorter than its own
+    thickness, which this reader would then describe with its span and
+    thickness exchanged. Such a body is not a wing and the caller is refusing
+    it on other grounds long before the labels matter, so the assumption is
+    kept -- but it is stated here rather than left to be discovered by whoever
+    next reads a wrong answer.
+
+    ``confident`` below is ADVISORY and nothing consumes it. It records how
+    far apart the two end-closure readings were, so a near-tie is visible in
+    the record; it does not gate admission and no caller may treat it as
+    though it did.
     """
     t_axis = surf.by_size[0]
     a, b = surf.by_size[1], surf.by_size[2]
@@ -186,7 +210,10 @@ def discover_axes(surf: Surface) -> dict:
                        f"span along {names[span_axis]}, "
                        f"thickness along {names[t_axis]}"),
         "end_closure": {names[a]: close_a, names[b]: close_b},
+        # ADVISORY, and gating nothing. See the docstring.
         "confident": abs(close_a - close_b) > 0.10,
+        "confident_is_advisory": True,
+        "thickness_axis_is_assumed_thinnest": True,
     }
 
 

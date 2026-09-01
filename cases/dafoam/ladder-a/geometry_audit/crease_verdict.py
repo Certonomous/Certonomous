@@ -23,6 +23,12 @@ outline itself. That is a property of the shape at any resolution.
 The interior question stands and its answer is unchanged: away from the nose
 and the tip, does the surface turn more sharply where the painted field
 changes sign than it does anywhere else? It does not.
+
+THIS IS A RECORDING INSTRUMENT, NOT A GATE, and it exits 0 whatever it finds.
+There is no threshold here to fail: it answers a question about a shape and
+writes the answer down. Said plainly because a script that never exits 2 looks
+like one whose refusal path was forgotten. Act D reads the record it writes
+and states the finding; nothing here decides whether anything may run.
 """
 import json
 import math

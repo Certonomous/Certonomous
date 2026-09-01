@@ -523,15 +523,25 @@ def _crease_lines() -> list[str]:
         now = doc["leading_edge_included_angle_optimised_mean"]
     except Exception:
         return []
-    if seam["lower_moved_out"] or was is None or now is None:
-        # The plain sentence below is only true while the lower surface moves
-        # one way as a whole. If that ever stops holding, say nothing.
+    # BOTH HALVES OF THE SENTENCE ARE GUARDED, not just the one that could be
+    # stated absolutely. An earlier wording said "all 447 faces on the lower
+    # surface moved in, and the upper surface moved out" and guarded only the
+    # lower side. The record does not license the second half unqualified:
+    # 437 of 561 upper faces moved out, so 124 - the nose - did not. A guard
+    # that protects half a sentence protects none of it, so the upper side is
+    # now stated as the fraction it is and carries its own threshold.
+    if was is None or now is None:
         return []
+    if seam["lower_moved_out"]:
+        return []                          # the lower side no longer moves as one
+    out, up = seam["upper_moved_out"], seam["upper_faces"]
+    if not up or out / up < 0.6:
+        return []                          # "predominantly" would stop being true
     return [
         f"The blue and the red are the two sides of the wing, not two "
         f"regions of one: all {seam['lower_faces']} faces on the lower "
-        f"surface moved in, and the upper surface moved out. The line "
-        f"between them is the leading and trailing edges.",
+        f"surface moved in, and {out} of the {up} on the upper surface moved "
+        f"out. The line between them is the leading and trailing edges.",
         f"At the leading edge it is a real crease. The nose is sharper than "
         f"the baseline's, closing from about {was:.0f} degrees to about "
         f"{now:.0f} across the first twentieth of the chord.",
