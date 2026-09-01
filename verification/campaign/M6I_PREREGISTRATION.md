@@ -341,3 +341,89 @@ lane's own first geometry reader was caught and discarded before it reported a n
 - **NOTHING is written under `/home/ubuntu/certonomous-runs/`.** It sits outside git and one of
   its entries holds the only surviving copy of a transonic M6 solution. **It is read from and
   never written to, meshed into, pruned or repointed at.**
+
+---
+
+## AMENDMENT 1 — 2026-09-01, BEFORE FIRST COMPUTE: Gate A's cell-count clause is NARROWED, because its registered tolerance cannot see a one-cell perturbation
+
+**Pre-compute amendment under CLAUDE.md rule 2**, which permits amendment before first
+compute **and requires the condition to be stated and how it was checked.** Appended at the
+foot under rule 6; nothing above is edited, reordered, inserted or deleted. v1.1.
+
+### The condition, and how it was checked — NAMED DIRECTORIES THAT DO NOT EXIST
+
+**NO COMPUTE HAS OCCURRED UNDER THIS REGISTRATION.** Checked by `test -e` on each of the four
+run directories this ladder would write, at the moment of writing:
+
+| path | state |
+|---|---|
+| `verification/runs/M6I_runs/L1` | **ABSENT** |
+| `verification/runs/M6I_runs/L2` | **ABSENT** |
+| `verification/runs/M6I_runs/L3` | **ABSENT** |
+| `verification/runs/M6I_runs/L0` | **ABSENT** |
+
+`verification/runs/M6I_runs/` contains exactly one entry, `analyse_m6i.py`, the comparator.
+**No mesh, no solution, no `checkMesh` log and no force coefficient exists for M6I.**
+
+### What is amended, and in which direction
+
+§4's Gate A registers the cell-count check as **"cell-count ratio `8.0000 ± 0.0001` both
+pairs (`L-430`)"**. That clause is **retained and still applied**. **A second clause is added
+in front of it:**
+
+> **(i) EXACT INTEGER: `cells_fine == 8 × cells_mid`, as integers, on both pairs.**
+> **(ii) the registered float band `8.0000 ± 0.0001`, unchanged.**
+
+**This STRICTLY NARROWS Gate A. It can only turn a `PASS` into a `GATE FAIL`, never the
+reverse.** No threshold is loosened, no band widened, no cap raised, and no label changed.
+
+### Why — and the reason is a defect the comparator's own selftest found in this gate
+
+The comparator's planted control added **one cell** to the fine level and required the gate to
+see it. **The gate admitted it.** The arithmetic:
+
+> `983041 / 122880 = 8.0000081380`. Deviation from 8 is **8.138e-06**, against a registered
+> tolerance of **1.0e-04**. **A one-cell perturbation is 12.3× INSIDE the gate's own
+> tolerance.**
+
+**The registered float band was the wrong instrument for this ladder, not merely a loose one.**
+The family is produced by one generator call plus a coarsening program that removes every other
+node, so the ratio is **exactly 8 by construction, on integers**. Any departure — of even one
+cell — means a level was **regenerated rather than coarsened**, which is precisely the
+similarity failure `L-430` exists to catch and precisely what a float tolerance sized for
+approximate-`r` families cannot see.
+
+**The float band is kept rather than replaced** because it is the registered clause and because
+it remains the correct check for any future level not produced by the coarsener.
+
+### Measured, after the change
+
+From the comparator's selftest, which gates every grading path:
+
+| case | cells (coarse first) | clause (i) exact | clause (ii) band | verdict |
+|---|---|---|---|---|
+| exact family | 15,360 / 122,880 / 983,040 | **True** | **True** | **PASS** |
+| **one cell added** | 15,360 / 122,880 / **983,041** | **False** | **True** | **GATE FAIL** |
+| gross non-similarity | 15,360 / 122,880 / 188,006 | False | False | **GATE FAIL** |
+
+> **The one-cell case is caught by clause (i) ALONE. Clause (ii) reads it as passing.** That
+> row is the whole justification for this amendment and it is a measurement, not an argument.
+
+### Disclosure
+
+**This amendment was forced by a control that failed, not by foresight.** The gate as frozen at
+`73148a9c` would have admitted a family whose fine level was not an exact coarsening of the
+medium one. **It was caught before any compute only because the comparator's selftest plants
+into every gate it grades and refuses when the plant is invisible** — CLAUDE.md rule 3 applied
+to this comparator's own thresholds rather than only to its readers.
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| gate loosened, band widened, cap raised or label changed | **none — the change is strictly narrowing** |
+| lines edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 343 lines BEFORE the append | `d7d3530e4b03c95ae6bed892fa5f09d2` |
+| md5 of this file's first 343 lines AFTER the append | `d7d3530e4b03c95ae6bed892fa5f09d2` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
