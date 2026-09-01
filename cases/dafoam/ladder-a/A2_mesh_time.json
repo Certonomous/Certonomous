@@ -1,0 +1,61 @@
+{
+ "_what": "Act D live-meshing viability: wall-clock of the real mesh pipeline that builds the 38,304-cell grid Act D's numbers belong to.",
+ "_preregistration": "cases/dafoam/ACTD_MESH_TIME_PREREGISTRATION.md, committed 6e911354 before this run",
+ "_runner": "cases/dafoam/run_actd_meshtime.sh",
+ "mesher": "pyHyp hyperbolic extrusion from a CGNS surface mesh, then plot3dToFoam / autoPatch / createPatch / renumberMesh. THIS PIPELINE DOES NOT MESH AN STL.",
+ "container": "dafoam/opt-packages:latest, --cpus=4 --memory=12g",
+ "ranks": 1,
+ "ranks_note": "the pipeline is serial; the container was given a 4-core quota, matching how the recorded A2 run was containerised",
+ "identity_assert": {
+  "expected_cells": 38304,
+  "measured_cells": 38304,
+  "holds": true,
+  "why": "the timing only means anything if the mesh built is the mesh Act D's numbers belong to"
+ },
+ "stage_wall_s": {
+  "untar": 0.01,
+  "coarsen": 0.225,
+  "pyhyp": 5.547,
+  "plot3dToFoam": 0.506,
+  "autoPatch": 0.551,
+  "createPatch": 0.571,
+  "renumberMesh": 0.622,
+  "checkMesh": 0.227
+ },
+ "mesh_only_wall_s": 8.021,
+ "mesh_only_definition": "untar_done -> renumberMesh_done: coarsen, pyHyp extrusion, plot3dToFoam, autoPatch, createPatch, renumberMesh. Excludes the archive untar and the checkMesh audit.",
+ "total_incl_checkmesh_wall_s": 8.258,
+ "container_wall_s": 8.774,
+ "container_wall_definition": "immediately before `docker run` to immediately after it; includes container start and the DAFoam environment source.",
+ "dominant_stage": {
+  "name": "pyhyp",
+  "wall_s": 5.547,
+  "fraction_of_mesh_only": 0.6915
+ },
+ "cost": {
+  "unit": "core-minutes",
+  "basis": "container wall seconds x ranks / 60",
+  "core_min_at_1_rank_executing": 0.1462,
+  "core_min_at_4_core_reserved_quota": 0.5849,
+  "cap_core_min_4_core_basis": 40.0,
+  "derived_usd_4_core_basis": 0.0005,
+  "cost_basis": "dollars DERIVED at the recorded c7a.4xlarge rate $0.0513/core-h, NOT measured; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5)."
+ },
+ "registered_predictions": {
+  "total_in_20_to_300_s": {
+   "predicted": true,
+   "measured_s": 8.021,
+   "held": false,
+   "note": "FALSIFIED, and recorded as such. The registered band was wrong: the pipeline is an order of magnitude faster than predicted."
+  },
+  "pyhyp_over_half_the_total": {
+   "predicted": true,
+   "measured_fraction": 0.6915,
+   "held": true
+  }
+ },
+ "verdict_rule": "registered before the run: live cell-by-cell meshing on camera is viable only if total mesh wall time <= 60 s (Sanaa's own 'seconds to a minute').",
+ "verdict": "PASS",
+ "verdict_reading": "The real mesher builds Act D's exact 38,304-cell grid in 8.02 s. Live meshing is viable for this act at Sanaa's stated pace, with margin.",
+ "what_this_does_NOT_say": "This is not a measurement of meshing an STL. The mesher's input is a CGNS surface mesh. Whether snappyHexMesh could build a comparable grid from mach_tutorial_wing.stl, and how long that would take, was not measured and no number for it is reported."
+}
