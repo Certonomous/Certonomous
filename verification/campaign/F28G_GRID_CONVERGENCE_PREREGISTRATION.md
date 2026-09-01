@@ -588,3 +588,160 @@ target 1.25) are retained as the **negative arms** of §4.5 and are not the grad
 *`etc/sessions/2026-09-01T1545Z_sanaa_convergence_prerequisite_doctrine.md` (`f4c8e466`)*
 *§0 and §4. All three levels were BUILT AND CHECKED BEFORE THIS FREEZE*
 *(`MESH_STANDARD` §8.1). No solve has been launched at the time of this freeze.*
+
+---
+
+## ADDENDUM 1 — 2026-09-01 — A "PREDICTED" FIGURE THAT WAS RIGHT BY CANCELLATION, AND A PRE-COMPUTE CAP AMENDMENT
+
+**Version 1.1. Lines whose number changed above this section: 0.** A pure append.
+Raised by `cfd-supervisor` on the check-4 read, not found by this lane.
+
+### A1.1 THE CONDITION RULE 2 REQUIRES, AND HOW IT WAS CHECKED
+
+Rule 2 permits amendment **before first compute** only. **Condition: no F28G solve has
+run.** Checked, not asserted: `ls -d verification/runs/F28G*` and
+`verification/runs/F28_runs/F28G*` return **0 directories** — *the run directory that
+does not exist is `verification/runs/F28_runs/F28G_L1_dp1000_U20/`*. Independently
+verified by the supervisor on the same check. `mesh_A4/` holds meshes and `checkMesh`
+logs only; no solver has been launched.
+
+**A1.3 below amends A CAP AND NOTHING ELSE.** No gate, threshold or label moves. A1.2
+and A1.4 correct prose and add a disclosure; neither touches a gate.
+
+### A1.2 §2's "33.9 PREDICTED" IS STRUCK — IT WAS RIGHT BY THE CANCELLATION OF TWO ERRORS
+
+§2 asserts *"33.9 predicted against 33.4911 measured"*. **The measurement stands. The word
+"predicted" does not, in the form it was written, and it is struck.** The substitution
+behind it does not reproduce from the two radii §2 quotes: those are **volume centroids**,
+not the `r_hub` and `h` the relation takes.
+
+Re-derived from `constant/polyMesh/points` by
+`cases/F28_DUCTED_ACTUATOR_DISK/f28_apex_mechanism_check.py` (planted control and negative
+limb passing), on the superseded L1 mesh, worst internal face 23775:
+
+- the upstream cell's **left** face spans `r in [4.437551e-04, 4.571292e-04]` at
+  `x = 0.198817`; its **right** face spans `r in [0, 1.342577e-05]` at `x = 0.200000`.
+  **THE APEX IS INSIDE THE CELL** — its inner edge runs `4.437551e-04 -> 0` within its own
+  axial extent. §2's picture of an annulus `[r_hub, r_hub + h]` at constant `r` is wrong
+  for this cell, and a min/max over its vertices turns a thin slanted quad into a fat
+  rectangle **34x too large in volume**;
+- the downstream cell spans `[0, 1.342577e-05]` at both faces.
+
+**WHAT DOES REPRODUCE, to four significant figures.** The exact linearly-varying wedge
+sector, `V = (theta/2) dx INT_0^1 [r_out(t)^2 - r_in(t)^2] dt` with `r_in`, `r_out` linear
+and `INT_0^1 (A+Bt)^2 dt = A^2 + AB + B^2/3`, from vertex radii only:
+
+| | computed | solver-reported | apart |
+|---|---|---|---|
+| `V_up` | 3.161008e-13 | 3.156857e-13 | 0.131 % |
+| `V_down` | 9.437935e-15 | 9.425960e-15 | 0.127 % |
+| **ratio** | **33.492578** | **33.491088 (measured)** | **0.004 %** |
+
+**The mechanism is confirmed. The arithmetic that was published for it was not.**
+
+**The simplified form, substituted correctly**, is `1 + 2 r_in_mean / h` where `r_in_mean`
+is the **axial mean** of the cone edge over the apex cell — `TAIL_SLOPE * dx_up / 2 =
+2.218775e-04`, **not** `r_hub` evaluated at the cell centre — and `h = 1.342577e-05` is
+the **vertex** radial extent of the axis cell, **not** twice its reported centre. That
+gives **34.052487 against 33.491088 measured, 1.676 % apart.** Its two approximations are
+priced rather than assumed: `h_up/h_down = 0.998077`, `dx_up/dx_down = 0.986123`.
+
+**THE TWO ERRORS IN THE PUBLISHED FIGURE, EACH PRICED:**
+
+| substituted | value used | correct value | error |
+|---|---|---|---|
+| `r_hub` at the reported cell centre `x = 0.199217` | 2.935650e-04 | 2.218775e-04 (axial mean) | **+32.3 %** |
+| `h` as twice the reported centre | 1.788399e-05 | 1.342577e-05 (vertex) | **+33.2 %** |
+
+`1 + 2 x 2.935650e-04 / 1.788399e-05 = 33.8299`, published as "33.9". **Right to 2 % by
+the cancellation of two ~+33 % errors, not by substitution.** The supervisor's diagnosis
+of the second error is exact: the volume centroid of a wedge sector spanning `[0, h]` sits
+at `2h/3`, and `2/3 x 1.342577e-05 = 8.950513e-06` against the reported centre
+`8.941994e-06`.
+
+**A SECOND, INDEPENDENT CONFIRMATION — of §3's algebra, on the REBUILT mesh.** On
+`mesh_A4/L1` the worst internal face is no longer the apex but the **axis floor**, cells
+`[0, 1.342577e-05]` and `[1.342577e-05, 3.008910e-05]`. §3's relation `(1+q)^2 - 1` with
+`q = 1.6663e-05 / 1.3426e-05 = 1.2411` gives **4.0225** against **4.022753 measured** —
+and `q = 1.2411` is `ROW_I`'s own `q1` at L1, **1.24115**, read back independently in
+§5.3. **The exact wedge relation reproduces that face to 0.000 %.** *(The
+`1 + 2 r_in_mean / h` form printed by the checker does not apply at an axis floor; the
+governing relation there is `(1+q)^2 - 1`, and the checker's `(S)` line is to be read only
+for an apex face.)*
+
+**What this changes in the record:** §2's mechanism claim is **retained and strengthened**
+— it now reproduces to 0.004 % instead of to a hand-waved 1 % — and its published
+arithmetic is **struck**. §2's *location* finding (the jump is on the axis, 400 radii from
+the graded quantity) rests on the per-face measurement and is **untouched by this
+correction**.
+
+### A1.3 THE COST CAP IS AMENDED FROM 900 TO 3,000 CORE-MINUTES — CAP ONLY
+
+**Why the 900 cap was wrong to register.** §8's own projection was **2,446 core-min**
+against it. A cap a registration already projects to exceed guarantees the ladder stops
+before L3, and **Sanaa's §0 requires three levels for an observed order**; her ruling is
+that cost is not a constraint and that "tens of core-minutes to a few core-hours ... is
+never a reason to skip it". Registering an unmeetable cap is not conservatism — it is a
+pre-registered failure.
+
+**A SECOND DEFECT IN §8, SELF-REPORTED: the stated derivation does not produce the number
+that was used.** §8 writes the exponent as `log(1.82)/log(2.25) = 0.548`. That quotient is
+**0.7385**, not 0.548, and the projections in §8's table were computed with an implied
+**0.5547**. **Neither the stated derivation nor the stated value is what the table used.**
+Struck.
+
+**The basis is also corrected, and it is BORROWED AND PROVISIONAL.** The jet-flap lane's
+1.82x-per-cell figure was **contention-blind and has been withdrawn**; the surviving
+measurement is **1.473x per cell at 2.25x cells**. Re-derived:
+`log(1.473)/log(2.25) = 0.47760`, i.e. per-cell `t ~ N^0.4776` and total `t ~ N^1.4776`.
+Anchored on the jet-flap L2 point `4.27e-6 s` per cell per iteration at 39,984 cells —
+**only the RATIO was corrected upstream, and this lane has not re-verified the anchor**:
+
+| level | cells | `t_cell` [s] | wall [s] | ranks | core-min |
+|---|---|---|---|---|---|
+| L1 | 35,544 | 4.037e-06 | 2,152 | 4 | **143.5** |
+| L2 | 79,974 | 5.946e-06 | 7,133 | 4 | **475.5** |
+| L3 | 180,256 | 8.766e-06 | 23,701 | 4 | **1,580.0** |
+| | | | | | **2,199 total** |
+
+> **AMENDED CAP: 3,000 core-minutes for the three-level triple**, giving 36 % headroom over
+> a projection whose rate model is borrowed from another case and another lane. **Dollars
+> DERIVED, NOT MEASURED: 50.0 core-h at the owner-stated $0.0513/core-h = $2.56.**
+
+**THE PER-LEVEL STOP ORDER OF §8 IS RETAINED IN FULL AND IS NOT WHAT IS RELAXED:** L1
+first; L2 only if L1 satisfies every parent-§8 convergence criterion; L3 only if L2 does;
+a level hitting the 15,000-iteration cap is `NOT A RESULT` and the ladder stops there. **An
+overrun stops the run; it does not get a new budget.** If the actual L1 spend implies a
+three-level total above 3,000, the run stops and the case is `PENDING` on a cap raise,
+which is Sanaa's to grant.
+
+**The calibration row owed at completion (rule 12) now has a second thing to say:** the
+predicted/actual ratio must be reported **against this borrowed rate model**, and the
+model's exponent re-fitted from F28's own three levels — which is the first
+in-case measurement of it this lab will have.
+
+### A1.4 L-142 — STATED AS A NON-MEASUREMENT, AS REQUIRED
+
+§5.4 records that the wake row's finest radial cell sits on the centreline. Stated
+explicitly, because an unstated gap reads as a cleared one:
+
+> **This lane did NOT measure whether the L-142 property materially affects the integrated
+> duct force.** No solve has run. What is established is only that the property is present,
+> that it is the root of the reported max aspect ratio and of the axis volume-ratio floor,
+> and that it is **common to all three levels and therefore common-mode in the Roache
+> triple**. Whether a common-mode geometric error cancels in an observed order is
+> **not** established by its being common-mode, and nothing here should be read as
+> claiming it does.
+
+### A1.5 NEW REGISTERED ARTIFACT
+
+`cases/F28_DUCTED_ACTUATOR_DISK/f28_apex_mechanism_check.py` — reads `points`, `faces`,
+`owner`, `neighbour` and `cellVolume`; plants a x1000 volume perturbation and refuses
+unless it reads it back, with a negative limb on the unperturbed field; resolves each cell
+into its two faces **at the largest gap in x** rather than assuming two x-stations,
+because `blockMesh` blends a block's interior from its edges and the grid lines tilt (the
+residual in-face tilt is reported: **2.400e-09 m against `dx_up` 1.183e-03 m** on the face
+above). Its sha256 is recorded at the commit that lands this addendum.
+
+*Appended by `lab-lane` for `cfd-supervisor`, 2026-09-01, after the check-4 read. No solve
+has been launched at the time of this addendum.*
