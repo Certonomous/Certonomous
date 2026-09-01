@@ -241,3 +241,27 @@ attribution.
 
 **FROZEN, NOT LAUNCHED.** Awaiting the supervisor's check 4 and launch go. No solver has
 been started; the run root does not exist.
+
+## 10. Pre-compute amendment 1 — 2026-09-01, variable paths verified
+
+**Condition, and how it was checked:** legal under rule 2 because no compute has been
+spent. The run root `/home/ubuntu/certonomous-runs/ACTD-a2-decomposition` **still does
+not exist** — `ls` returns "No such file or directory" at the time of this amendment.
+No gate, threshold, cap, label or prediction above is altered by it.
+
+The driver reads four model variables that had never been executed. All four are now
+confirmed present, at zero compute, in the **published verification log's own output**
+(`/home/ubuntu/certonomous-runs/A2-mach-wing/check_totals_run1.log`, the log
+`PROOF.md:2544` reproduced 18 of 18 rows against):
+
+`scenario1.aero_post.functionals.CD`, `scenario1.aero_post.functionals.CL`,
+`geometry.thickcon`, `geometry.volcon` — all four appear verbatim as `Full Model: '...'`
+row headers. The design variables are `dvs.twist`, `dvs.shape`, `dvs.patchV` there; the
+driver sets them by their promoted names `twist`, `shape`, `patchV`, which is the same
+form the script itself uses at `runScript_AeroOnly.py:168-170`, valid because `dvs` is
+added with `promotes=["*"]` (`:104`).
+
+**Residual untested path, disclosed:** `optFuncs.findFeasibleDesign` has never been
+called mid-sequence, only once at the start of a run. It is used only by rows **B1** and
+**B2**, which execute **after** both gate rows. A failure there costs the Path B rows and
+leaves Path A and both gates intact and gradeable.
