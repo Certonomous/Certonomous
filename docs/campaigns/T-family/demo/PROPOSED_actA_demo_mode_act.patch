@@ -577,10 +577,10 @@ index 0000000..70f70f6
 +ACT = None
 diff --git a/sdk/workflows/motor_thermal_act.py b/sdk/workflows/motor_thermal_act.py
 new file mode 100644
-index 0000000..0b828e9
+index 0000000..f228bab
 --- /dev/null
 +++ b/sdk/workflows/motor_thermal_act.py
-@@ -0,0 +1,703 @@
+@@ -0,0 +1,764 @@
 +"""Act A, the motor-in-duct thermal map, as a DEMO MODE act.
 +
 +Every value below is read off the landed run tree at the moment it is asked
@@ -1009,20 +1009,81 @@ index 0000000..0b828e9
 +                      "point")))
 +
 +    def assumption(self) -> Assumption:
++        """The one user-assumption check: the hand correlation runs hot.
++
++        THE OVERSHOOT FACTOR NAMES BOTH OF ITS SIDES ON SCREEN. A bare "3.4
++        times" invites a viewer to pair it with whatever number is largest on
++        the screen, and the largest number on this screen belongs to a
++        DIFFERENT operating point and a DIFFERENT solid. So the line states the
++        operating point, states that the quantity is the housing, and gives the
++        numerator and the denominator as temperature rises above the incoming
++        air, which is what the ratio is actually taken on.
++        """
 +        grade = _grade()
-+        screen = _screen()
++        power, speed = self._operating_point()
 +        ratio = float(_fact(grade, PRIMARY.name, "DB_over_solved"))
-+        solved = float(_fact(screen, "assumption_beat", "solved_rise_at_20ms_K"))
++        predicted_rise, solved_rise = self._correlation_rises()
 +        return Assumption(
 +            assumption=("The request treats a hand correlation for a heated "
 +                        "duct as good enough to size the hot spot."),
-+            finding=(f"On the same operating point the correlation puts the "
-+                     f"temperature rise {ratio:.1f} times higher than the "
-+                     f"coupled solve found, which is {solved:.1f} K."),
++            finding=(f"At {power} watts and {speed} metres per second the "
++                     f"correlation puts the housing {predicted_rise:.0f} "
++                     f"kelvin above the incoming air, where the coupled solve "
++                     f"found {solved_rise:.0f} kelvin, so the quick estimate "
++                     f"is {ratio:.1f} times too high."),
 +            correction=("A correlation sizes the problem in seconds and is "
 +                        "worth running first. The map itself comes from the "
 +                        "coupled solve, which carries the solid and the air "
 +                        "together."))
++
++    @staticmethod
++    def _operating_point() -> tuple[int, int]:
++        """The power and airspeed of the point the ratio is taken at."""
++        match = _CASE_NAME.match(PRIMARY.name)
++        if not match:
++            raise DemoContractError(
++                "the point this act reports its correlation check at cannot be "
++                "identified, so no operating point will be named beside it")
++        return int(match.group(1)), int(match.group(2))
++
++    @staticmethod
++    def _correlation_rises() -> tuple[float, float]:
++        """``(predicted rise, solved rise)`` in kelvin above the incoming air.
++
++        Both sides of the overshoot ratio, reconstructed from read values and
++        then CROSS-CHECKED against the ratio the grading record computed. The
++        inlet temperature is not typed here: it falls out of the two recorded
++        quantities as peak minus rise, so a change to the inlet condition
++        cannot leave a stale constant behind in this file.
++
++        The cross-check is the point. It is what makes the number on screen
++        defensible when it is challenged: if the reconstruction and the
++        recorded ratio disagree, this refuses rather than showing a factor
++        whose two sides nobody can name.
++        """
++        grade = _grade()
++        screen = _screen()
++        speed = str(MotorThermalAct._operating_point()[1])
++        predicted = float(_fact(grade, PRIMARY.name, "predicted_DB_degC"))
++        solved_peak = float(_fact(screen, "assumption_beat", "solved_degC",
++                                  speed))
++        solved_rise = float(_fact(screen, "assumption_beat",
++                                  "solved_rise_at_20ms_K"))
++        recorded = float(_fact(grade, PRIMARY.name, "DB_over_solved"))
++        inlet = solved_peak - solved_rise
++        predicted_rise = predicted - inlet
++        if solved_rise <= 0:
++            raise DemoContractError(
++                "the solved temperature rise is not positive, so no overshoot "
++                "factor is meaningful and none will be shown")
++        rebuilt = predicted_rise / solved_rise
++        if abs(rebuilt - recorded) > 1e-6 * max(1.0, abs(recorded)):
++            raise DemoContractError(
++                f"the overshoot factor cannot be reconciled: the grading "
++                f"record says {recorded:.6f} and the recorded temperatures "
++                f"rebuild it as {rebuilt:.6f}. Neither will be shown until "
++                f"they agree")
++        return predicted_rise, solved_rise
 +
 +    # -- stage 4 ------------------------------------------------------------
 +    def geometry(self) -> Geometry:

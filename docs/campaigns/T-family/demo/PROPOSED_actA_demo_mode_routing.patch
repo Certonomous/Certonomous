@@ -1,0 +1,81 @@
+diff --git a/sdk/chief_engineer/router.py b/sdk/chief_engineer/router.py
+index 94faf8c..45c66ad 100644
+--- a/sdk/chief_engineer/router.py
++++ b/sdk/chief_engineer/router.py
+@@ -915,7 +915,12 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
+                             "output": "uncertainty-reduction"},
+     SOBOL_SENSITIVITY: {"module": "workflows.sobol_sensitivity",
+                         "output": "sobol-sensitivity"},
+-    THERMAL_DISPLAY: {"module": "workflows.thermal_display",
++    # Act A walks the nine DEMO MODE stages; Act C keeps the path it has
++    # today. The dispatcher is a module rather than a branch here so this
++    # table stays one intent to one module. See workflows.thermal_demo_entry:
++    # the DEMO MODE entry DROPS params, so the surface on screen is the act's
++    # own solved geometry and cannot be an operator's upload.
++    THERMAL_DISPLAY: {"module": "workflows.thermal_demo_entry",
+                       "output": "thermal-display"},
+     AHMED_BODY: {"module": "workflows.ahmed_body", "output": "ahmed-body"},
+     NASA_HUMP: {"module": "workflows.nasa_hump", "output": "nasa-hump"},
+diff --git a/sdk/workflows/thermal_demo_entry.py b/sdk/workflows/thermal_demo_entry.py
+new file mode 100644
+index 0000000..6a56487
+--- /dev/null
++++ b/sdk/workflows/thermal_demo_entry.py
+@@ -0,0 +1,57 @@
++"""The thermal intent's dispatcher: Act A through DEMO MODE, Act C unchanged.
++
++WHY THIS MODULE EXISTS AT ALL. ``router.WORKFLOWS`` maps one intent to one
++module, and the thermal intent covers two acts: the motor in its duct, and the
++battery module. Act A is ready to run through DEMO MODE; Act C is not, and must
++keep exactly the path it has today. A one-line change of the intent's module
++would move both. This module moves one.
++
++WHAT ROUTING ACT A THROUGH HERE ACTUALLY BUYS, and it is the whole point:
++:func:`demo_sequencer.make_act_entry` DROPS ``params``. Its own docstring says
++so and says why, at ``demo_sequencer.py`` lines 697 to 703: "The served
++geometry comes from the ACT's own ``served_stl`` by way of ``_stage_geometry``,
++never from what an operator happened to upload, so the picture on screen and
++the grid behind the numbers are bound structurally instead of by convention."
++
++That is the fix. Today ``thermal_display`` announces
++``params.get("surface")``, which is whatever filename an operator uploaded, and
++the file it names has been the retired body. Under this dispatch the surface
++is the act's, the act measures it against the solved case before it renders,
++and an upload cannot reach the viewport for this act at all.
++
++WHAT THIS MODULE READS FROM ``params``, AND WHAT IT WILL NOT. It reads exactly
++one key, ``thermal_screens``, which the router sets to ``"A"`` or ``"C"`` from
++the body named in the request. It never reads ``surface`` and never forwards
++``params`` to the DEMO MODE entry, because forwarding it is precisely what
++would put an uploaded filename back in the path.
++"""
++
++from __future__ import annotations
++
++from .demo_sequencer import make_act_entry
++
++#: The transcript label for the motor act.
++LABEL = "motor in duct thermal map"
++
++#: Built once at import. Importing the act module is what registers the act,
++#: and ``make_act_entry`` does that import itself.
++_ACT_A = make_act_entry("motor-thermal",
++                        act_module="workflows.motor_thermal_act",
++                        label=LABEL)
++
++
++def main(request: str | None = None, params: dict | None = None,
++         emit=None) -> int:
++    """Dispatch on the act the router identified.
++
++    Act A walks the nine DEMO MODE stages. Everything else keeps the path it
++    has today, byte for byte, including Act C.
++    """
++    screens = str((params or {}).get("thermal_screens") or "").strip().upper()
++    if screens == "A":
++        # ``params`` is deliberately NOT forwarded. See the module docstring.
++        return _ACT_A(request=request, emit=emit)
++
++    from . import thermal_display
++
++    return thermal_display.main(request=request, params=params, emit=emit)

@@ -466,3 +466,98 @@ both are yours.
 `log.blockMesh` carries no timing line, so there is nothing to read. It is the
 only number in the act not taken from an artifact. It reaches no screen and
 nothing validates it.
+
+---
+
+## AMENDMENT 2 — 2026-09-01, the overshoot factor reconciled, and the act changed
+
+Appended, not rewritten. Lines whose number changed above this section: 0.
+**The patch file this note describes has been REGENERATED** and now carries the
+change in A2.2. It still applies cleanly; §A2.4 restates the check.
+
+### A2.1 The 3.4x is right, and the challenge to it used the wrong two numbers
+
+The reconciliation offered against it was 197.3 against 107.677. Those two
+numbers do not belong to the same comparison, in two independent ways:
+
+| | the challenge used | the comparison actually uses |
+|---|---|---|
+| operating point | **10 m/s** (107.677 C is the 305 W, 10 m/s row) | **20 m/s** — 197.3 C is the prediction for `T23_P305_U20`. The 10 m/s prediction is **329.1 C**, not 197.3 |
+| solid | **the core** | **the housing**. Both correlations are surface-convection closures for the wall, so the record compares them against the housing peak |
+
+The ratio is computed at `analyse_t23.py:559-560`:
+
+    rise = q1_K - T_INF_K
+    r_db = (db - (T_INF_K - KELVIN_C)) / rise
+
+which is a ratio of TEMPERATURE RISES above the inlet air, taken on the same
+case. Arithmetic, at 305 W and 20 m/s:
+
+| quantity | value |
+|---|---:|
+| inlet air, `T_INF_K` = 288.0 K | 14.85 C |
+| predicted housing peak (Dittus-Boelter) | 197.3 C |
+| **predicted rise** | **182.45 K** |
+| solved housing peak (`Q1_degC`) | 69.0098 C |
+| **solved rise** (`rise_K`) | **54.1598 K** |
+| **ratio** | **3.368733** |
+
+and `T23_GRADE.json` records `DB_over_solved = 3.368733` for that case. It
+reconciles to six decimals. The identity of `Q1` was checked rather than
+assumed: `assumption_beat.solved_degC["20"]` and the map row's
+`peak_housing_T_degC` are both 69.009828932, while that row's core peak is
+73.1156 — so `Q1` is the housing, not the core.
+
+The other hypothesis offered, that 3.4 comes from the two predicted columns, is
+also not it: 197.3 / 120.3 = 1.64, and the registered closure spread
+`h_FP/h_DB` is 1.763.
+
+### A2.2 The challenge was right about the SCREEN, and the act now names both sides
+
+The number was right; the way it reached the screen was not good enough. The
+old line read:
+
+> On the same operating point the correlation puts the temperature rise 3.4
+> times higher than the coupled solve found, which is 54.2 K.
+
+It named the denominator and neither the numerator, the operating point, nor
+which solid. **The largest number on that same screen, 107.7 C, belongs to a
+different operating point and a different solid**, which is exactly the pairing
+a viewer would make unprompted. That is the failure the challenge identified,
+and it is a real one. The line now reads:
+
+> At 305 watts and 20 metres per second the correlation puts the housing 182
+> kelvin above the incoming air, where the coupled solve found 54 kelvin, so
+> the quick estimate is 3.4 times too high.
+
+Operating point, solid, numerator, denominator, factor. Every one of the five is
+read, not typed: the power and airspeed are parsed from the case name, the
+prediction and the ratio from the grading record, the peak and the rise from
+the screen record.
+
+**And the inlet temperature is not typed either.** It falls out as peak minus
+rise, so a change to the inlet boundary condition cannot leave a stale constant
+in this file.
+
+### A2.3 A new control: the two sides are cross-checked against the recorded ratio
+
+`_correlation_rises()` rebuilds the ratio from the recorded temperatures and
+compares it against `DB_over_solved`. On disagreement beyond 1e-6 relative it
+**refuses** rather than showing a factor whose sides nobody can name.
+
+| control | result |
+|---|---|
+| `DB_over_solved` forced to 2.5 in a copy of the grading record | **REFUSED**, naming both the recorded and the rebuilt value |
+| control removed | the line renders again, 182 / 54 / 3.4 |
+
+That control exists because of the challenge. It is the durable part of the
+answer: the next person to question the factor gets the reconciliation from the
+act itself instead of from a lane's arithmetic.
+
+### A2.4 Patch status after the regeneration
+
+`git apply --check` passes against the real tree. Three files, all additions,
+unchanged in shape: the two act modules and the STL, whose sha256 is still
+`d2864232dbf6d87a89c7a2dab4fdf232bc61eae405cb35a174f364d24a935cc9`.
+`validate_act` still returns an empty list. The routing that makes this act
+reachable is a **separate** patch and note, `PROPOSED_actA_demo_mode_routing`.
