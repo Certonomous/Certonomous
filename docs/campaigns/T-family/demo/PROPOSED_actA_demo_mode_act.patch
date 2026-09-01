@@ -1,0 +1,1286 @@
+diff --git a/sdk/geometry/t23_solved_geometry.stl b/sdk/geometry/t23_solved_geometry.stl
+new file mode 100644
+index 0000000000000000000000000000000000000000..a1faa541fb166ac3a526209ca1ea3e5275b37188
+GIT binary patch
+literal 90084
+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
+A<p2Nx
+
+literal 0
+HcmV?d00001
+
+diff --git a/sdk/workflows/battery_module_act.py b/sdk/workflows/battery_module_act.py
+new file mode 100644
+index 0000000..70f70f6
+--- /dev/null
++++ b/sdk/workflows/battery_module_act.py
+@@ -0,0 +1,205 @@
++"""Act C, the battery module, as a DEMO MODE act. NOT REGISTERED, AND WHY.
++
++THIS MODULE REGISTERS NOTHING. Importing it adds no act to the registry, so
++the sequencer cannot resolve ``battery-module`` and cannot put this act on a
++screen. That is the point of the file, not a gap in it.
++
++WHAT IS WRONG WITH THE RUN THIS ACT WOULD HAVE BEEN FED FROM
++------------------------------------------------------------
++The screen record this act would have read is a feasibility calculation that
++the owner ordered off screen, at a mesh she named unacceptable. The measured
++facts, every one read from the record itself and none of them repeated onto a
++screen by this file:
++
++* 960 cells for the whole module, 120 per battery cell.
++* The cooling channels are NOT resolved as a fluid region, so the record's own
++  outlet temperature field reads "NOT DEFINED". A cooling demonstration whose
++  coolant is not a fluid cannot show cooling.
++* The largest temperature rise anywhere in the module is 0.42 K, and the
++  largest spread across the module is 0.11 K. On a chart of a battery pack
++  those are flat lines.
++* One mesh and one time step, so no discretisation error estimate exists.
++
++The replacement run is not merely unfinished. Its first level RAN and
++DIVERGED: return code 134, one fatal, a negative initial temperature at 1.5 s
++of a 900 s end time, and outer-loop residuals three to five orders above the
++threshold that was fixed before it started. Its two remaining levels are meshed
++and have no solve at all.
++
++WHY A SCAFFOLD AND NOT A STUB WITH NUMBERS IN IT
++------------------------------------------------
++The structure below is complete: the ten stages the contract requires exist,
++in order, with the shapes each one must return. What none of them contains is a
++value. Every stage refuses, by name, saying which fact it does not have. A
++placeholder number here would be indistinguishable from a measured one three
++weeks from now, and the whole reason DEMO MODE types its stages is that a
++number whose artifact is gone has already reached a screen carrying this lab's
++name.
++
++So: :func:`conformance_problems` returns the list the validator produces, which
++is deliberately non-empty; :func:`register_when_a_solved_run_backs_it` refuses
++to register until that list is empty. When the replacement run lands and is
++graded, the person wiring it fills the stages in, runs that function, and the
++act registers itself or tells them exactly what is still missing.
++
++THE LIMITATIONS ARE WRITTEN NOW, ON PURPOSE
++--------------------------------------------
++:data:`LIMITATIONS` is the caveat box this act will carry when it can be shown.
++It is written and language-checked at import, before there is any pressure from
++a result to soften it. A caveat drafted beside a number it has to survive is a
++caveat that gets negotiated.
++"""
++
++from __future__ import annotations
++
++from pathlib import Path
++from typing import Sequence
++
++from .demo_mode import (SERVED_GEOMETRY_DIR, Assumption, DemoAct,
++                        DemoContractError, Feasibility, GatesAndChecks,
++                        Geometry, MeshPlan, Prompt, Restatement, Results,
++                        RunRecord, SolveReplay, check_demo_language,
++                        validate_act)
++
++REPO = Path(__file__).resolve().parents[2]
++
++#: Where a solved run would have to appear before this act can be shown.
++MODULE_RUNS = REPO / "verification" / "runs" / "T-family" / "T25R_MODULE_runs"
++
++#: The surface the control room serves for this act today. It has NOT been
++#: measured against any solved case, so this act does not name it as the solved
++#: body and does not render it.
++CANDIDATE_SURFACE = SERVED_GEOMETRY_DIR / "battery_module_8cell.stl"
++
++#: The plain-English reasons this act is not shown. Screen-safe wording, so a
++#: caller may put them in front of a viewer as they stand.
++BLOCKED_ON: tuple[str, ...] = (
++    "The calculation this act would read resolves no coolant as a fluid, so "
++    "it cannot show a cooling system working.",
++    "That calculation uses one mesh of 960 cells for the whole module, which "
++    "is not enough to resolve a channel.",
++    "The largest temperature difference anywhere in it is a tenth of a "
++    "kelvin, so every curve it could draw is a flat line.",
++    "The replacement calculation stopped with a fatal error a second and a "
++    "half in, so there is no completed run behind this act.",
++)
++
++#: The caveat box this act will carry once a solved run backs it. Written
++#: before the result exists, so no number ever had a chance to soften it.
++LIMITATIONS: tuple[str, ...] = (
++    "The cooling channels must be resolved as a fluid before any claim is "
++    "made about how much heat the coolant carries away.",
++    "A single mesh supports no discretisation error bar, so temperatures from "
++    "one mesh are shown as computed and not as values with an error bar.",
++    "A single time step size supports no statement about time accuracy, so "
++    "the settling history is shown as computed.",
++    "No rig or cell test data exists for this module, so nothing here is "
++    "checked against a measurement.",
++)
++
++for _line in BLOCKED_ON + LIMITATIONS:
++    check_demo_language(_line, zone="limitations")
++
++
++def _refuse(missing: str):
++    """Refuse one stage, naming the fact it does not have.
++
++    The stage name is NOT repeated here: :func:`validate_act` prefixes every
++    problem with the stage it came from, and a doubled name reads as a bug in
++    the refusal rather than as the refusal working.
++    """
++    raise DemoContractError(
++        f"this act has no solved run behind it, so it has no {missing}. "
++        f"Nothing is substituted. " + BLOCKED_ON[3])
++
++
++class BatteryModuleAct(DemoAct):
++    """The battery module cooling act, structured and deliberately empty.
++
++    Every stage below refuses. The shape of each refusal names the fact it is
++    missing, so the person who wires the replacement run is told what to
++    supply rather than left to guess from a traceback.
++    """
++
++    name = "battery module cooling"
++
++    # -- stage 0 ------------------------------------------------------------
++    def run_record(self) -> RunRecord:
++        # A RunRecord asserts a COMPLETED run tree and the artifact that shows
++        # the completion clauses held. Neither exists.
++        _refuse("completed run tree and no completion evidence")
++
++    # -- stages 1 to 3 ------------------------------------------------------
++    def prompt(self) -> Prompt:
++        """The user's request. This one is safe to state: it is not a result."""
++        return Prompt(
++            "Battery module cooling: hold every cell in an eight cell module "
++            "inside its temperature limit under a discharge pulse, and report "
++            "the hottest cell and the spread across the module.")
++
++    def restatement(self) -> Restatement:
++        _refuse("cost estimate for a run that has not been sized")
++
++    def assumption(self) -> Assumption:
++        _refuse("measured finding to correct the user with")
++
++    # -- stage 4 ------------------------------------------------------------
++    def geometry(self) -> Geometry:
++        # A Geometry may not be constructed without at least one measured
++        # comparison against the solved body, and there is no solved body to
++        # compare against. The candidate surface stays unrendered rather than
++        # being announced as something it has not been shown to be.
++        _refuse("solved body to measure the served surface against")
++
++    # -- stage 5 ------------------------------------------------------------
++    def mesh_plan(self) -> MeshPlan:
++        _refuse("accepted mesh; the one on record was rejected")
++
++    # -- stage 6 ------------------------------------------------------------
++    def feasibility(self) -> Feasibility:
++        _refuse("check result to show")
++
++    # -- stage 7 ------------------------------------------------------------
++    def solve_replay(self) -> SolveReplay:
++        _refuse("solver log from a run that reached its end")
++
++    # -- stage 8 ------------------------------------------------------------
++    def gates(self) -> GatesAndChecks:
++        _refuse("reader checks over a completed run")
++
++    # -- stage 9 ------------------------------------------------------------
++    def results(self) -> Results:
++        _refuse("fields, plots or tables that came from a solve")
++
++    # -- the caveat box, ready in advance -----------------------------------
++    def limitations_when_it_runs(self) -> Sequence[str]:
++        """What the caveat box will say. Written before the result exists."""
++        return LIMITATIONS
++
++
++def conformance_problems() -> list[str]:
++    """The validator's list for this act. Non-empty, deliberately."""
++    return validate_act(BatteryModuleAct(), check_files=True)
++
++
++def register_when_a_solved_run_backs_it():
++    """Register this act, or refuse and say what is still missing.
++
++    Called by the person wiring the replacement run, never at import. An act
++    that registered itself on import would be resolvable by key, and a
++    resolvable key is one typo away from a shoot.
++    """
++    from .demo_mode import register_act
++
++    problems = conformance_problems()
++    if problems:
++        raise DemoContractError(
++            "the battery module act is not registered and will not be shown: "
++            + "; ".join(problems))
++    return register_act("battery-module", BatteryModuleAct())
++
++
++#: NOT REGISTERED. The name is bound so a caller that expects the module-level
++#: ``ACT`` every other act module exposes gets ``None`` and a readable failure,
++#: rather than an AttributeError that looks like a missing file.
++ACT = None
+diff --git a/sdk/workflows/motor_thermal_act.py b/sdk/workflows/motor_thermal_act.py
+new file mode 100644
+index 0000000..0b828e9
+--- /dev/null
++++ b/sdk/workflows/motor_thermal_act.py
+@@ -0,0 +1,703 @@
++"""Act A, the motor-in-duct thermal map, as a DEMO MODE act.
++
++Every value below is read off the landed run tree at the moment it is asked
++for. There are no physical numbers in this file: the cell counts, the wall
++resolution, the peak temperatures, the margins, the planted-control magnitudes,
++the wall clocks and the costs all come from artifacts that the heat-transfer
++family wrote and still carries on disk. A constant retyped here would be a
++second copy free to drift from the run.
++
++WHAT THE SOURCE RUN IS
++----------------------
++Sixteen steady conjugate operating points, four dissipated powers by four duct
++airspeeds, solved with ``chtMultiRegionSimpleFoam`` at one mesh level of 39,680
++cells over three regions (35,200 air, 1,120 housing, 3,360 core). The solver
++and the turbulence closure are read from the run's own log header and its
++``controlDict``, never asserted here.
++
++THREE THINGS THIS ACT DOES DIFFERENTLY, AND WHY
++-----------------------------------------------
++* **The served surface is the solved body, and that is MEASURED here rather
++  than promised.** :meth:`MotorThermalAct.geometry` imports the generator that
++  wrote the surface, takes the solved constants out of the case's own build
++  script through it, and runs the generator's own geometry guard over the
++  served copy. The guard refuses a strut, a nose, a tail or a wrong axial
++  extent; the retired surface that used to be served carried all of those. The
++  served copy is additionally asserted byte-identical to the generated one, so
++  a regenerated surface cannot serve a stale body.
++
++* **Wall time is ``ClockTime``, never ``ExecutionTime``.** OpenFOAM prints both
++  on one line and they differ. ``ExecutionTime`` is CPU time; the wall figure
++  is ``ClockTime``, and ``ClockTime`` is what is costed. The family's own cost
++  record settles this at its section 3.2, and reading the wrong one of the two
++  would misstate every cost on the screen.
++
++* **No numeric default reaches a screen.** :func:`_fact` takes no default at
++  all and refuses a missing key; :func:`_cell` renders a missing key as words.
++  CLAUDE.md rule 3: a zero conjured by ``dict.get(key, 0.0)`` was never read by
++  anything, and a reader that cannot fail cannot be evidence.
++
++ONE KNOWN GAP, STATED HERE RATHER THAN DISCOVERED ON CAMERA
++-----------------------------------------------------------
++:attr:`SolveReplay.cases` is EMPTY, deliberately, and the contract's own words
++are followed: "an act with no ``cases`` must say to its supervisor how its logs
++are read instead." The shared reader ``chief_engineer.replay_history`` cannot
++open this run. It opens ``log.simpleFoam`` by a hard-coded name, it requires a
++``RUN_STATUS.*.txt`` carrying ``rc``, ``wall_s``, ``ranks`` and
++``core_min_MEASURED``, and it reads lift and drag coefficient columns. This run
++writes ``log.solve``, its launcher status file was destroyed by a queue-runner
++name collision and re-derived instead, and a conjugate thermal case has no
++force coefficients at all. Until that reader takes a configurable log name and
++a thermal channel, the sequencer's solving stage will refuse this act, and it
++is right to. The monitor series named below are the real files the run wrote
++and are ready for it.
++"""
++
++from __future__ import annotations
++
++import importlib.util
++import json
++import re
++import sys
++from pathlib import Path
++
++from .demo_mode import (SERVED_GEOMETRY_DIR, Assumption, DemoAct,
++                        DemoContractError, ElapsedClock, Feasibility, Figure,
++                        GatesAndChecks, Geometry, GeometryMatch, Measured,
++                        MeshPlan, Prompt, Restatement, Results, RunRecord,
++                        SeriesSpec, SolveReplay, Table, core_minutes,
++                        register_act)
++
++REPO = Path(__file__).resolve().parents[2]
++
++T23_RUNS = REPO / "verification" / "runs" / "T-family" / "T23_runs"
++T24_RUNS = REPO / "verification" / "runs" / "T-family" / "T24_runs"
++
++#: The point this act's record is written against. Named by the supervisor.
++PRIMARY = T23_RUNS / "T23_P305_U20"
++
++MESH_FACTS = T23_RUNS / "T23_T24_MESH_FACTS.json"
++GRADE = T23_RUNS / "T23_GRADE.json"
++DISPLAY_SURFACE = T23_RUNS / "display_surface"
++GENERATOR = DISPLAY_SURFACE / "generate_t23_display_surface.py"
++GENERATED_STL = DISPLAY_SURFACE / "t23_solved_geometry.stl"
++PARTS_MANIFEST = DISPLAY_SURFACE / "t23_solved_geometry_parts.json"
++
++#: The copy the control-room server actually reads. NOT the generator's copy:
++#: naming that one would let a regenerated surface serve a stale body with
++#: nothing failing.
++SERVED_STL = SERVED_GEOMETRY_DIR / "t23_solved_geometry.stl"
++
++FIGURES = REPO / "docs" / "campaigns" / "T-family" / "demo" / "figures_actA"
++SCREEN_DATA = FIGURES / "actA_screen_data.json"
++
++LAUNCHED = REPO / "verification" / "queue" / "heat-transfer" / "launched"
++
++#: The one place the solver binary and the closure may be named, per the
++#: 2026-09-01 figure and wording standard. Both are READ from the run.
++SOLVER_LOG = "log.solve"
++
++_CASE_NAME = re.compile(r"^T2[34]_P(\d+)_U(\d+)$")
++_TIMING = re.compile(
++    r"^ExecutionTime\s*=\s*([\d.eE+-]+)\s*s\s+ClockTime\s*=\s*([\d.eE+-]+)\s*s",
++    re.M)
++_NPROCS = re.compile(r"^nProcs\s*:\s*(\d+)\s*$", re.M)
++_APPLICATION = re.compile(r"^\s*application\s+(\w+)\s*;", re.M)
++_EXEC = re.compile(r"^Exec\s*:\s*(\S+)\s*$", re.M)
++
++
++# ---------------------------------------------------------------------------
++# Facts, with no default of any kind
++# ---------------------------------------------------------------------------
++
++def _fact(node, *keys):
++    """One recorded value. NO DEFAULT, numeric or otherwise.
++
++    CLAUDE.md rule 3. A missing key raises where it is asked for, so the act
++    fails at validation with the screen still dark, rather than putting a zero
++    on camera that no instrument ever read.
++    """
++    current = node
++    trail: list[str] = []
++    for key in keys:
++        trail.append(str(key))
++        if not isinstance(current, dict) or key not in current:
++            raise DemoContractError(
++                "the run record carries no value for "
++                + " then ".join(trail)
++                + "; nothing is substituted for a value that was not read")
++        current = current[key]
++    return current
++
++
++def _cell(node, *keys, fmt: str = "") -> str:
++    """One table cell. A missing value renders as words, never as a number."""
++    try:
++        value = _fact(node, *keys)
++    except DemoContractError:
++        return "not recorded"
++    if fmt and isinstance(value, (int, float)) and not isinstance(value, bool):
++        return format(value, fmt)
++    return str(value)
++
++
++def _screen() -> dict:
++    """The Act A screen record, read at the moment it is asked for."""
++    if not SCREEN_DATA.is_file():
++        raise DemoContractError(
++            "the Act A screen record is not on disk, so this act has no "
++            "numbers to show and will not invent any")
++    return json.loads(SCREEN_DATA.read_text(encoding="utf-8"))
++
++
++def _mesh_facts() -> dict:
++    if not MESH_FACTS.is_file():
++        raise DemoContractError("the mesh record is not on disk")
++    return json.loads(MESH_FACTS.read_text(encoding="utf-8"))
++
++
++def _grade() -> dict:
++    if not GRADE.is_file():
++        raise DemoContractError("the grading record is not on disk")
++    return json.loads(GRADE.read_text(encoding="utf-8"))
++
++
++# ---------------------------------------------------------------------------
++# The sixteen points, discovered rather than typed
++# ---------------------------------------------------------------------------
++
++def solved_points() -> list[tuple[int, int, Path]]:
++    """``(power in watts, airspeed in metres per second, case dir)``, sorted.
++
++    Discovered from the run tree, so a point that is not on disk cannot be
++    counted and a point that is cannot be forgotten.
++    """
++    found: list[tuple[int, int, Path]] = []
++    for root in (T23_RUNS, T24_RUNS):
++        if not root.is_dir():
++            continue
++        for case in sorted(root.iterdir()):
++            match = _CASE_NAME.match(case.name)
++            if match and (case / SOLVER_LOG).is_file():
++                found.append((int(match.group(1)), int(match.group(2)), case))
++    if not found:
++        raise DemoContractError(
++            "no solved operating point is on disk; this act has nothing to "
++            "show and will not describe a run that is not there")
++    return sorted(found)
++
++
++def _log_text(case: Path) -> str:
++    log = case / SOLVER_LOG
++    if not log.is_file():
++        raise DemoContractError(f"{case.name} has no solver log")
++    return log.read_text(encoding="utf-8", errors="replace")
++
++
++def wall_clock_seconds(case: Path) -> float:
++    """The run's WALL seconds: ``ClockTime``, not ``ExecutionTime``.
++
++    OpenFOAM prints both on one line. ``ExecutionTime`` is CPU time and
++    ``ClockTime`` is the wall figure; the family's cost record settles this at
++    its section 3.2, and the two differ by more than rounding on a loaded box.
++    """
++    text = _log_text(case)
++    timings = _TIMING.findall(text)
++    if not timings:
++        raise DemoContractError(
++            f"{case.name} carries no timing line, so its wall time is unknown "
++            f"and no cost will be stated for it")
++    if "\nEnd\n" not in text:
++        raise DemoContractError(
++            f"{case.name} carries no closing line, so it is not a completed "
++            f"solve and will not be shown as one")
++    return float(timings[-1][1])
++
++
++def ranks(case: Path) -> int:
++    """The rank count the solver itself recorded in its header."""
++    match = _NPROCS.search(_log_text(case))
++    if not match:
++        raise DemoContractError(
++            f"{case.name} does not record how many ranks it ran on, so its "
++            f"cost cannot be stated")
++    return int(match.group(1))
++
++
++def solver_name(case: Path) -> str:
++    """The solver, from the log header AND the case dictionary, cross-checked.
++
++    Two independent artifacts, because the header alone would not catch a log
++    copied beside the wrong case.
++    """
++    from_log = _EXEC.search(_log_text(case))
++    control = case / "system" / "controlDict"
++    from_dict = (_APPLICATION.search(control.read_text(encoding="utf-8",
++                                                       errors="replace"))
++                 if control.is_file() else None)
++    if not from_log or not from_dict:
++        raise DemoContractError(
++            f"{case.name} does not name its solver in both its log header and "
++            f"its case dictionary, so the solver line will not be shown")
++    if from_log.group(1) != from_dict.group(1):
++        raise DemoContractError(
++            f"{case.name} names one solver in its log and another in its case "
++            f"dictionary: {from_log.group(1)} against {from_dict.group(1)}")
++    return from_log.group(1)
++
++
++def campaign_cost() -> tuple[float, float, int, dict]:
++    """``(wall seconds summed, core-minutes, ranks, per-point wall seconds)``.
++
++    Summed over every point on disk, each read from its own log. The rank count
++    must agree across the points or the sum is not a single cost.
++    """
++    points = solved_points()
++    per_point = {}
++    rank_set = set()
++    for power, speed, case in points:
++        per_point[(power, speed)] = wall_clock_seconds(case)
++        rank_set.add(ranks(case))
++    if len(rank_set) != 1:
++        raise DemoContractError(
++            f"the points did not all run on the same rank count {sorted(rank_set)}; "
++            f"one cost figure would hide two different machines")
++    rank = rank_set.pop()
++    total_wall = sum(per_point.values())
++    return total_wall, core_minutes(total_wall, rank), rank, per_point
++
++
++def registered_estimate() -> float:
++    """The upfront estimate, summed over the launched points that ran."""
++    total = 0.0
++    seen = 0
++    for power, speed, case in solved_points():
++        entry = LAUNCHED / f"{case.name}.json"
++        if not entry.is_file():
++            continue
++        record = json.loads(entry.read_text(encoding="utf-8"))
++        total += float(_fact(record, "cost_core_min_estimate"))
++        seen += 1
++    if seen != len(solved_points()):
++        raise DemoContractError(
++            "the upfront estimate is not on record for every point that ran, "
++            "so no single estimate will be shown beside the actual")
++    return total
++
++
++# ---------------------------------------------------------------------------
++# The geometry guard, borrowed from the module that WROTE the surface
++# ---------------------------------------------------------------------------
++
++def _generator():
++    """Import the surface generator without writing anything beside it."""
++    if not GENERATOR.is_file():
++        raise DemoContractError(
++            "the module that writes the displayed surface is not on disk, so "
++            "the surface cannot be shown to be the solved body")
++    saved = sys.dont_write_bytecode
++    sys.dont_write_bytecode = True
++    try:
++        spec = importlib.util.spec_from_file_location(
++            "_t23_display_surface_readonly", GENERATOR)
++        module = importlib.util.module_from_spec(spec)
++        spec.loader.exec_module(module)
++    finally:
++        sys.dont_write_bytecode = saved
++    return module
++
++
++def measured_surface() -> tuple[dict, dict, float]:
++    """``(solved constants, measured surface table, tolerance)``.
++
++    The generator's own guard measures the SERVED copy. It refuses by exiting
++    rather than raising, which inside a validator would take the process down,
++    so the exit is caught here and translated into the contract's refusal.
++    """
++    generator = _generator()
++    try:
++        constants = generator.load_case_constants()
++        table = generator.check_surface(str(SERVED_STL), constants,
++                                        manifest_path=str(PARTS_MANIFEST))
++    except SystemExit as exc:
++        raise DemoContractError(
++            "the served surface did not pass the guard that measures it "
++            "against the solved case, so it will not be shown as the solved "
++            "body; regenerate it from the solved case") from exc
++    return constants, table, float(generator.TOL_M)
++
++
++def _assert_served_copy_is_current() -> None:
++    """The served copy IS the generated one, byte for byte.
++
++    The geometry guard measures shape. This measures identity, which is a
++    different question: a surface regenerated at the case and never copied
++    across would still pass every shape test while the screen showed the old
++    file.
++    """
++    import hashlib
++
++    for path, what in ((SERVED_STL, "the served surface"),
++                       (GENERATED_STL, "the surface the case generates")):
++        if not path.is_file():
++            raise DemoContractError(f"{what} is not on disk")
++    served = hashlib.sha256(SERVED_STL.read_bytes()).hexdigest()
++    generated = hashlib.sha256(GENERATED_STL.read_bytes()).hexdigest()
++    if served != generated:
++        raise DemoContractError(
++            "the served surface is not byte-identical to the one the solved "
++            "case generates, so it may be a stale body; copy the generated "
++            "surface across before this act is shown")
++
++
++# ---------------------------------------------------------------------------
++# Conservation and instrument readings, from the run's own output
++# ---------------------------------------------------------------------------
++
++def _last_value(path: Path) -> float:
++    if not path.is_file():
++        raise DemoContractError(
++            f"the monitor {path.name} is not on disk, so the check it backs "
++            f"will not be shown")
++    rows = [line for line in path.read_text(encoding="utf-8",
++                                            errors="replace").splitlines()
++            if line.strip() and not line.lstrip().startswith("#")]
++    if not rows:
++        raise DemoContractError(f"the monitor {path.name} carries no rows")
++    return float(rows[-1].split()[-1])
++
++
++def mass_balance(case: Path) -> tuple[float, float, float]:
++    """``(in, out, difference)`` in kilograms per second, from the run."""
++    root = case / "postProcessing" / "fluid"
++    into = abs(_last_value(root / "inlet_mdot" / "0" / "surfaceFieldValue.dat"))
++    out = abs(_last_value(root / "outlet_mdot" / "0" / "surfaceFieldValue.dat"))
++    return into, out, abs(out - into)
++
++
++# ---------------------------------------------------------------------------
++# The act
++# ---------------------------------------------------------------------------
++
++class MotorThermalAct(DemoAct):
++    """The motor-in-duct thermal map, fed from the sixteen landed points."""
++
++    name = "motor in duct thermal map"
++
++    # -- stage 0 ------------------------------------------------------------
++    def run_record(self) -> RunRecord:
++        screen = _screen()
++        return RunRecord(
++            run_id=PRIMARY.name,
++            run_root=PRIMARY,
++            solver="OpenFOAM " + solver_name(PRIMARY),
++            physics=("steady conjugate heat transfer between a heated motor "
++                     "core, its housing wall and the cooling air in the duct "
++                     "around it, with the "
++                     + str(_fact(screen, "solver", "turbulence_model"))
++                     + " closure resolved to the wall"),
++            completion_evidence=T23_RUNS / f"DONE.{PRIMARY.name}",
++            presentation_of=f"presentation of run {PRIMARY.name}",
++            record_path=T23_RUNS / f"DONE.{PRIMARY.name}")
++
++    # -- stages 1 to 3 ------------------------------------------------------
++    def prompt(self) -> Prompt:
++        return Prompt(
++            "Electric motor in a cooling duct: map the peak temperature in "
++            "the motor solids across the dissipated power and the duct "
++            "airspeed, and report the margin to the 200 C temperature limit.")
++
++    def restatement(self) -> Restatement:
++        points = solved_points()
++        powers = sorted({p for p, _, _ in points})
++        speeds = sorted({s for _, s, _ in points})
++        return Restatement(
++            restatement=(f"Solve {len(points)} operating points, "
++                         f"{len(powers)} dissipated powers by {len(speeds)} "
++                         f"duct airspeeds, and report the hottest solid "
++                         f"temperature and its margin to the limit at each."),
++            confidence=("The body, the mesh and the operating range are "
++                        "settled before the first point runs, so what varies "
++                        "across the map is the physics and nothing else."),
++            cost_estimate=Measured(
++                round(registered_estimate(), 1), "core-minutes",
++                LAUNCHED / f"{PRIMARY.name}.json", "derived",
++                note=("summed over the sixteen launched records, one per "
++                      "point")))
++
++    def assumption(self) -> Assumption:
++        grade = _grade()
++        screen = _screen()
++        ratio = float(_fact(grade, PRIMARY.name, "DB_over_solved"))
++        solved = float(_fact(screen, "assumption_beat", "solved_rise_at_20ms_K"))
++        return Assumption(
++            assumption=("The request treats a hand correlation for a heated "
++                        "duct as good enough to size the hot spot."),
++            finding=(f"On the same operating point the correlation puts the "
++                     f"temperature rise {ratio:.1f} times higher than the "
++                     f"coupled solve found, which is {solved:.1f} K."),
++            correction=("A correlation sizes the problem in seconds and is "
++                        "worth running first. The map itself comes from the "
++                        "coupled solve, which carries the solid and the air "
++                        "together."))
++
++    # -- stage 4 ------------------------------------------------------------
++    def geometry(self) -> Geometry:
++        _assert_served_copy_is_current()
++        constants, surface, tolerance = measured_surface()
++
++        def match(quantity: str, solved: float, supplied) -> GeometryMatch:
++            if supplied is None:
++                raise DemoContractError(
++                    f"the guard could not measure {quantity} on the served "
++                    f"surface, so it will not be shown as the solved body")
++            return GeometryMatch(
++                quantity=quantity,
++                solved=Measured(float(solved), "m",
++                                PRIMARY.parent / "T23_P305_U10" / "build_t23.py"),
++                supplied=Measured(float(supplied), "m", SERVED_STL),
++                tolerance=tolerance, relative=False)
++
++        return Geometry(
++            served_stl=SERVED_STL,
++            display_label="motor housing inside its cooling duct",
++            matches=[
++                match("duct inner radius", constants["R_DUCT"],
++                      surface.get("duct_inner_radius_m")),
++                match("motor body outer radius", constants["R_O"],
++                      surface.get("centrebody_outer_radius_m")),
++                match("axial extent", constants["Z3"] - constants["Z0"],
++                      surface.get("axial_length_m")),
++            ],
++            regenerated_from=PRIMARY.parent / "T23_P305_U10" / "build_t23.py")
++
++    # -- stage 5 ------------------------------------------------------------
++    def mesh_plan(self) -> MeshPlan:
++        facts = _mesh_facts()
++        grade = _grade()
++        cells = int(_fact(facts, "cells", "total"))
++        wall = _fact(grade, PRIMARY.name, "yplus")
++        labels = (("Duct wall", "duct_wall"),
++                  ("Motor body, upstream", "centrebody_up"),
++                  ("Motor body, downstream", "centrebody_down"),
++                  ("Air against the heated housing", "fluid_to_housing"))
++        rows = []
++        for label, key in labels:
++            try:
++                low, high, mean = _fact(wall, key)
++            except (DemoContractError, TypeError, ValueError):
++                rows.append([label, "not recorded", "not recorded",
++                             "not recorded"])
++                continue
++            rows.append([label, f"{low:.2f}", f"{high:.2f}", f"{mean:.2f}"])
++        return MeshPlan(
++            command=["blockMesh"],
++            work_dir=PRIMARY,
++            # A pre-formatted string so the screen reads the way the standard
++            # writes it. The number itself is read, never typed.
++            cell_count=Measured(f"{cells:,}", "cells", MESH_FACTS),
++            resolution_headers=["Surface", "Closest wall unit",
++                                "Furthest wall unit", "Mean wall unit"],
++            resolution_rows=rows,
++            wall_zoom_hint="the layers of air lying against the heated housing",
++            expected_seconds=30.0)
++
++    # -- stage 6 ------------------------------------------------------------
++    def feasibility(self) -> Feasibility:
++        grade = _grade()
++        screen = _screen()
++        estimate = float(_fact(grade, PRIMARY.name, "predicted_DB_degC"))
++        limit = float(_fact(screen, "envelope", "limit_degC"))
++        return Feasibility(
++            check=("A hand correlation for a heated duct, which sizes the hot "
++                   "spot in seconds and says whether the full solve is worth "
++                   "its cost."),
++            result=Measured(round(estimate, 1), "C", GRADE, "derived"),
++            verdict_for_user=(
++                f"The quick estimate lands within {limit - estimate:.0f} C of "
++                f"the {limit:.0f} C limit, close enough that the answer turns "
++                f"on the physics, so the full map is worth solving."))
++
++    # -- stage 7 ------------------------------------------------------------
++    def solve_replay(self) -> SolveReplay:
++        total_wall, core_min, rank, _per_point = campaign_cost()
++        points = solved_points()
++        monitors = PRIMARY / "postProcessing"
++        iterations = len(_TIMING.findall(_log_text(PRIMARY)))
++        return SolveReplay(
++            series=[
++                SeriesSpec(monitors / "core" / "core_T" / "0"
++                           / "fieldMinMax.dat", "max", "temperature",
++                           "Hottest point in the motor core", "C"),
++                SeriesSpec(monitors / "housing" / "housing_T" / "0"
++                           / "fieldMinMax.dat", "max", "temperature",
++                           "Hottest point in the housing wall", "C"),
++                SeriesSpec(PRIMARY / SOLVER_LOG, "p_rgh", "residual",
++                           "Pressure residual"),
++            ],
++            wall_seconds=Measured(
++                round(total_wall, 1), "s", PRIMARY / SOLVER_LOG, "measured",
++                note=("the closing ClockTime of each of the sixteen solver "
++                      "logs, summed; ExecutionTime on the same line is CPU "
++                      "time and is not used")),
++            ranks=rank,
++            total_iterations=iterations,
++            sweep_points=len(points),
++            # EMPTY DELIBERATELY. The shared reader cannot open this run; the
++            # module docstring says exactly why and what would fix it.
++            cases=(),
++            elapsed_clock=ElapsedClock(
++                seconds=total_wall, measured=True,
++                basis=("The solver time of the sixteen operating points added "
++                       "together, which shared one machine while they ran"),
++                source=PRIMARY / SOLVER_LOG))
++
++    # -- stage 8 ------------------------------------------------------------
++    def gates(self) -> GatesAndChecks:
++        screen = _screen()
++        facts = _mesh_facts()
++        controls = _fact(screen, "planted_zero_controls")
++        readers = (("Hottest point in the motor core",
++                    "peak_core_temperature_reader"),
++                   ("Hottest point in the housing wall",
++                    "peak_housing_temperature_field_reader"),
++                   ("Temperature across the radius", "radial_profile_reader"),
++                   ("Settling trace", "monitor_trace_reader"))
++        rows = []
++        for label, key in readers:
++            rows.append([
++                label,
++                _cell(controls, key, "planted_K", fmt=".3e"),
++                _cell(controls, key, "read_K", fmt=".3e"),
++                "yes" if _cell(controls, key, "passed") == "True" else "no",
++            ])
++        into, out, difference = mass_balance(PRIMARY)
++        cells = int(_fact(facts, "cells", "total"))
++        regions = int(_fact(facts, "regions", "n"))
++        return GatesAndChecks(
++            planted_checks=Table(
++                title="Instrument checks",
++                headers=["Instrument", "Planted, K", "Read back, K",
++                         "Detected"],
++                rows=rows, table_id="motor_thermal_planted"),
++            conservation=Table(
++                title="Air mass through the duct",
++                headers=["Quantity", "In", "Out", "Difference"],
++                rows=[["Air mass flow, kg/s", f"{into:.6e}", f"{out:.6e}",
++                       f"{difference:.1e}"]],
++                table_id="motor_thermal_conservation"),
++            grid_statement=(
++                f"One grid of {cells:,} cells over {regions} regions carries "
++                f"every operating point in the map, and every point was "
++                f"checked against it cell by cell before a temperature was "
++                f"read."))
++
++    # -- stage 9 ------------------------------------------------------------
++    def results(self) -> Results:
++        screen = _screen()
++        total_wall, core_min, rank, _per_point = campaign_cost()
++
++        limit = float(_fact(screen, "envelope", "limit_degC"))
++        rows = []
++        for row in _fact(screen, "map_rows"):
++            rows.append([
++                _cell(row, "power_W"),
++                _cell(row, "airspeed_ms"),
++                _cell(row, "peak_core_T_degC", fmt=".1f"),
++                _cell(row, "peak_housing_T_degC", fmt=".1f"),
++                _cell(row, "rise_above_inlet_K", fmt=".1f"),
++                _cell(row, "margin_to_limit_K", fmt=".1f"),
++                "not available",
++            ])
++        table = Table(
++            title="Peak temperature across the map",
++            headers=["Power, W", "Airspeed, m/s", "Hottest core, C",
++                     "Hottest housing, C", "Rise above inlet, K",
++                     f"Margin to the {limit:.0f} C limit, K", "Uncertainty"],
++            rows=rows, table_id="motor_thermal_map", role="CHIEF ENGINEER")
++
++        fields = [
++            Figure(FIGURES / "actA_temperature_field.png",
++                   "Temperature through the air and the solids",
++                   "The core runs hottest and the heat leaves through the "
++                   "housing wall into the air.", "results"),
++            Figure(FIGURES / "actA_velocity_field.png",
++                   "Air speed through the cooling duct",
++                   "The air accelerates over the housing and carries the heat "
++                   "downstream.", "results"),
++        ]
++        plots = [
++            Figure(FIGURES / "actA_envelope.pdf",
++                   "Hottest core temperature against duct airspeed",
++                   "One curve per dissipated power, each joining the four "
++                   "solved airspeeds.", "results"),
++            Figure(FIGURES / "actA_radial_profile.pdf",
++                   "Temperature from the shaft out to the duct wall",
++                   "The step at each material interface is the contact "
++                   "between two conductivities.", "results"),
++            Figure(FIGURES / "actA_monitor_replay.pdf",
++                   "How the temperature settled at each point",
++                   "Every trace is the run's own monitor output, sampled "
++                   "every hundred iterations.", "results"),
++            Figure(FIGURES / "actA_airspeed_thumbnails.png",
++                   "The same body at four duct airspeeds",
++                   "Faster air cools the housing and shrinks the hot region "
++                   "behind it.", "results"),
++            Figure(FIGURES / "actA_mesh_boundary_layer.png",
++                   "The grid where the air meets the housing",
++                   "The layers thin towards the wall so the heat transfer at "
++                   "the surface is resolved.", "results"),
++            Figure(FIGURES / "actA_assumptions.pdf",
++                   "What this run assumes and what it leaves out",
++                   "Every limitation on this sheet is about the physics, not "
++                   "about the software.", "results"),
++        ]
++
++        residual = float(_fact(screen, "statements_of_fact",
++                               "anchor_check_largest_residual_K"))
++        planted = float(_fact(screen, "planted_zero_controls",
++                              "peak_core_temperature_reader", "planted_K"))
++        n_readers = len(_fact(screen, "planted_zero_controls"))
++        n_anchor = len(_fact(screen, "anchor_checks"))
++
++        return Results(
++            fields=fields, plots=plots, tables=[table],
++            verification_lines=[
++                (f"Reproduced from the fields on disk: {n_anchor} values "
++                 f"re-read against the record fixed before the runs started, "
++                 f"agreeing to better than {residual:.1e} K."),
++                (f"Instrument check: {n_readers} readers each detected a "
++                 f"planted {planted:.3e} K perturbation, so a zero from any "
++                 f"of them would have been a reading and not a blind spot."),
++                ("No rig or wind tunnel data exists for this configuration, "
++                 "so the temperatures are shown as solved and no agreement "
++                 "with measurement is claimed."),
++            ],
++            limitations=[
++                ("All sixteen operating points ran at one grid level, so no "
++                 "discretisation error bar exists and none is drawn."),
++                ("The solve is axisymmetric over a five degree wedge, so "
++                 "nothing that varies around the axis is resolved."),
++                ("Radiation is switched off in all three regions, so heat "
++                 "leaves the body by conduction and forced convection alone."),
++                ("Each point is a separate steady state, so nothing here says "
++                 "how long the body takes to reach these temperatures."),
++                ("Turbulent transport is modelled rather than resolved, so "
++                 "the heat carried away by the air carries that model's "
++                 "error."),
++            ],
++            cost_actual=Measured(
++                round(core_min, 1), "core-minutes", PRIMARY / SOLVER_LOG,
++                "measured",
++                note=("wall ClockTime summed over the sixteen solver logs at "
++                      f"{rank} rank each")),
++            cost_estimate_from_stage_2=self.restatement().cost_estimate)
++
++    # -- pacing -------------------------------------------------------------
++    def agent_census(self):
++        return (("prompt", 1), ("restatement", 2), ("assumption", 3),
++                ("geometry", 3), ("meshing", 4), ("feasibility", 4),
++                ("solving", 6), ("gates", 3), ("results", 0))
++
++
++ACT = register_act("motor-thermal", MotorThermalAct())
