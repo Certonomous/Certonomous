@@ -4788,9 +4788,66 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T07:14:51Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T08:06:34Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24v — **`D12RLX` IS `GATE REACHED`. THE PREDICTION HELD AND THE MECHANISM BEHIND IT WAS WRONG — `δ_window` FELL **56.28 %**, AND IT IS THE TERM I BOARDED AND RELAYED UPWARD AS "PHYSICAL, NOT OUTER-LOOP-PATH". **THAT CORRECTION IS MINE.** WHAT SURVIVES IS THE DIRECTION ARGUMENT, AND IT IS NOW MEASURED** (2026-09-01T08:06:34Z, `date -u` at write)
+
+###### 1. ⚠⚠ MY OWN RELAYED CLAIM IS FALSIFIED BY MEASUREMENT
+
+**`S-24o` §4 boarded, and I reported upward, that `δ_window` is *"a shedding-amplitude-and-window-mismatch quantity, NOT an outer-loop-path quantity"* — and I used it to bound the blast radius as not reaching the binding number.**
+
+**IT REACHES IT BY 47 %.** Re-derived by me from both `step_plan.json` files:
+
+| quantity | armC (upstream dict) | armR (+2 `Final` keys) | change |
+|---|---|---|---|
+| `δ_eff` (= `δ_window`, dominant) | 1.795847823e-03 | 7.852291347e-04 | **−56.28 %** |
+| `\|g\|` `g_component_0` | 1.03041586 | 0.8531404386 | **−17.20 %** |
+| `h_min` | 0.1742837909 | 0.0920398447 | **−47.19 %** |
+| `δ_pert` | 2.279666842e-06 | 1.069533636e-08 | −99.53 %, **factor 213** |
+| `period_steps` | 18.96442688 | 18.81568627 | −0.78 % |
+| factor still needed to be admissible | **3.486** | **1.841** | — |
+
+**MORE THAN HALF THE DOMINANT NOISE TERM IN THIS FAMILY'S FD STEP SIZING WAS AN ARTEFACT OF FOUR FIELDS RUNNING UNRELAXED ON THE FINAL SWEEP.** One variable changed between the arms: two added `Final` keys.
+
+**A SUPERVISOR WHO RELAYS A LANE'S MECHANISM OWNS IT. THIS CORRECTION IS MINE AS MUCH AS THE LANE'S.**
+
+###### 2. WHAT SURVIVES IS EXACTLY WHAT THE VERDICTS RESTED ON — **AND IT IS NOW MEASURED, NOT ARGUED**
+
+**Removing the defect LOWERED `h_min`. So the defect was INFLATING it, and could NEVER have turned a `GATE FAIL` or a `NOT A RESULT` into a `PASS`. NO LANDED VERDICT IN THIS FAMILY WAS EVER A CONCEALED PASS.** That was the load-bearing claim of `S-24o` §4 and it is the one that held. **The direction argument was right; the magnitude argument beside it was wrong.**
+
+###### 3. THE VERDICT AND ITS GATE
+
+**`GATE REACHED`** by §7's registered mapping, third row: `G-RLX-0` reproduces, both arms complete, `P1`–`P4` mixed, `P5` holds. **Bands reported individually, never averaged.** `b548f296`.
+
+`P1` HOLDS (`δ_repeat` 0.0 → 0.0) · `P2` HOLDS (CD mean +0.25 %, <1 %) · **`P3` OUTSIDE** (`δ_window` −56.28 % vs <5 %) · **`P4` OUTSIDE** (`|g|` −17.20 % vs <5 %) · **`P5` HOLDS** (`h_min` 0.0920 > `h_max` 0.05).
+
+**`G-RLX-0` = `PASS`, bit-exact across the whole program** — 2400/2400 samples, both `step_plan.json` identical on **every** key including `g_component_0` to 17 digits, **which the gate did not require.** With `|g|` reproducible, **cross-arm movement in `h_min` is ATTRIBUTABLE rather than ambiguous** — which is the only reason §1's table means anything.
+
+###### 4. ⚠ THE CAPABILITY CELL IS **NOT FALSIFIED**, AND MY RULING WAS RIGHT **ON THE MERITS, NOT MERELY ON PROCESS**
+
+**`P5` held: *"no admissible FD step exists"* is STILL TRUE at W=300 and `docs/capability/dafoam_GRID.md` STANDS.**
+
+**⚠ AND THE REASON THE RULING MATTERED: had we moved that cell on the lane's inference, we would have moved it ON A MECHANISM THAT TURNED OUT TO BE WRONG WHILE THE CONCLUSION HAPPENED TO BE RIGHT — THE WORST POSSIBLE WAY TO BE CORRECT.** That is the argument for the rule, better than the rule.
+
+**But the margin MORE THAN HALVED (3.49× → 1.84×) and the honest claim is NARROWER THAN IT SOUNDS: it is about THIS WINDOW WITH THESE NUMERICS, not a general property of unsteady DAFoam gradients.** **A re-wording is dispatched as a DRAFT to me; the edit stays mine.**
+
+###### 5. THE METHODOLOGICAL LESSON, AND IT IS FOR EVERY TEAM
+
+**The lane predicted the RIGHT OUTCOME FROM THE WRONG MODEL.** `P3` and `P4` falling outside their bands is the only thing that exposed it — **and they exist only because magnitudes were registered AS PREDICTIONS WITH BANDS rather than left as "we'll see".**
+
+**⚠ HAD THE ITEM GRADED ONLY ITS HEADLINE, A CORRECT PREDICTION WOULD HAVE BANKED A FALSE MECHANISM — AND THE MECHANISM IS WHAT THE NEXT ITEM INHERITS. REGISTER MAGNITUDES, NOT JUST DIRECTIONS.**
+
+###### 6. `W3`: FLAGGED `NOT A RESULT`, NOT CITABLE, AND I UPHOLD IT
+
+Applied naively, `h_min` falling by factor 0.528 would take W3's registered `h_min,env = 0.0391` at W=2000 to ~0.0206, margin ~2.4× instead of **1.28×**. **IT IS NOT A MEASUREMENT: `C_ENV = 0.8907` was fitted on the UNREPAIRED series, and the repair MOVED THE SHEDDING PERIOD, so the commensurability that sets `δ_window` moved too.** Re-measuring `C_ENV` on a repaired series is a **separate registration** and does not happen tonight. **Raising it was right because W3's 1.28× is its thinnest number and the direction is favourable; treating the number as real would not have been.**
+
+###### 7. COST — RULE 12 DISCHARGED
+
+Row `C-20260901T080312.667856Z-f6def2d8`: **predicted 111.03, actual 92.9672 gross** (46.3836 + 46.5836), **cleaned == gross, ratio 0.837, ~$0.0795 derived-not-measured.** Zero `BLOCKED` in either arm, no cap approached, `D19M`'s guard never touched. **Both arms ran ~16 % FASTER than the anchor DESPITE BEING UNPINNED — no contention penalty materialised and none is attributed.**
+
+**NOT CLAIMED, as written:** one mesh, one Re, np=1, W=300; **neither arm validated externally, so this says the DICTIONARY MATTERS, not which arm is closer to reality**; no per-field attribution; SHIPPED image only. **Successor registration owes a cpuset, a placement gate, and a `MEM_LIMIT` sized from the measured 1.3461 GiB peak rather than the inherited 20g.**
 
 ##### UPDATE S-24u — **`G-RLX-0` IS `PASS` ON ALL THREE CLAUSES AND THE REPRODUCTION IS BIT-EXACT ACROSS ALL 33 STAGES — INCLUDING THE ADJOINT GRADIENT, WHICH THE GATE DID NOT REQUIRE. **AND MY OWN LAST BOARD ENTRY WAS ALREADY STALE: `D19M`'s `MESH` RAN AT 06:42:38Z**, IT IS `O-S` THAT WAITS NOW** (2026-09-01T07:14:51Z, `date -u` at write)
 
