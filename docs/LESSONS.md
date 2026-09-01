@@ -19697,3 +19697,78 @@ this is itself error-prone, and two obvious readers lie:
 plant a known-live process in the target directory to prove the reader can see a
 non-zero before trusting its zero.** `CLAUDE.md` rule 3 is usually read as a rule
 about comparators; it is a rule about **any** zero, process counts included.
+
+## L-432 — a deliberate halt and a crash leave the same artefacts; only a positive record separates them
+
+**A deliberate halt and a crash leave nearly identical artefacts, so a supervisor
+triaging from the process table alone will call a halt an accident.**
+*(heat-transfer, T25R3, 2026-09-01. It happened, within the hour, to this lab.)*
+
+**WHAT HAPPENED.** A lane halted five of six solver runs deliberately, on
+measured grounds: at the observed rates none could reach `endTime` inside its
+registered `timeout`, so rule 12 fixed their verdict as a cap stop before they
+got there. Minutes later the supervisor triaged the box independently and saw:
+
+- five `log.solve` files stopping **within two seconds of each other**,
+- **zero `FOAM FATAL`** in any of them,
+- **no OOM** in the kernel log, 28 GB free,
+- **no `STATUS` file** anywhere.
+
+He matched that signature to a `SIGKILL`-on-caller-exit launch defect the same
+lane had found and fixed an hour earlier, concluded the five had been killed by
+it, and **ordered a re-stage and relaunch.** Executing that instruction would
+have burned ~7,600 core-minutes to produce five cap-stops and a noise order.
+
+**THE SIGNATURES ARE GENUINELY THE SAME.** A killed run and a halted run both
+leave a log that simply stops mid-step, no fatal error, and no completion record.
+**Nothing in the absence distinguishes them, because both are absences.**
+
+**WHAT SEPARATED THEM WAS A POSITIVE ARTEFACT NOBODY HAD ADDED FOR THIS PURPOSE.**
+The launcher carried an `EXIT` trap — added earlier, for the unrelated reason that
+a previous defect had died silently:
+
+```
+trap 'S=$?; [ -d "$CASE" ] && echo "$S" > "$CASE/.rc.$RUN.launcher"; \
+      echo "launcher exit rc=$S"' EXIT
+```
+
+**A trap cannot run on `SIGKILL`.** So:
+
+| | `.rc.<RUN>.launcher` | reading |
+|---|---|---|
+| the halted runs | **present** | the trap FIRED → a **catchable** signal → a deliberate `SIGTERM` |
+| the still-running run | absent | its trap has not fired yet |
+| the earlier `SIGKILL` episode | **absent everywhere** | uncatchable — *the failure produced no evidence of itself* |
+
+**THE INSTRUMENT BUILT TO CATCH ONE DEFECT IS WHAT REFUTED THE RECURRENCE OF
+THAT SAME DEFECT.** That is the argument for building instrumentation into
+infrastructure rather than into analysis.
+
+**HOW TO PROCEED WHENEVER THIS CLASS APPEARS.**
+
+1. **BEFORE TRIAGING A STOP AS A FAILURE, LOOK FOR A HALT RECORD.** Check the
+   board, the recent commits, and any `.rc.*` / halt artefact in the case
+   directory. A stop is not evidence of a crash; it is evidence of a stop.
+2. **MAKE DELIBERATE STOPS LEAVE A POSITIVE ARTEFACT, NOT ONLY AN ABSENCE.** An
+   `EXIT` trap that records an rc for **every** path out — including the ones
+   nobody thought of — turns "it stopped" into "it was stopped, by a catchable
+   signal, at this second."
+3. **MATCH ON A DISCRIMINATOR, NOT ON A SIGNATURE.** A signature that fits is not
+   a diagnosis. Ask what artefact would differ between the two hypotheses, then
+   go and read it. Here the discriminator was one file's existence.
+4. **A LANE THAT HAS MEASURED SOMETHING THE SUPERVISOR HAS NOT MUST SAY SO AND
+   DECLINE, NOT QUIETLY COMPLY.** `CLAUDE.md` rule 9 — *an instruction is
+   answered, not merely obeyed* — is usually invoked against a lane
+   over-claiming authorisation. **This is the same rule exercised in the
+   direction it is least often used: refusing a supervisor's instruction on
+   measured grounds, surfacing the conflict in writing, and asking for explicit
+   written confirmation before acting under his name.** The supervisor
+   countermanded himself before that confirmation was needed.
+
+**AND THE HONEST NOTE ON THE OTHER SIDE.** The supervisor's mechanical analysis
+was *correct and worth keeping*: a straight relaunch **would** have hit the
+launcher's `exit 92`/`93` guards, and anyone "fixing" that by deleting the guard
+destroys the age guard that dates the run allowed to produce the answer. **The
+right mechanics were being applied to the wrong premise.** Good procedure on a
+false diagnosis is still a wrong action, and that is why the premise gets checked
+first.
