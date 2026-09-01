@@ -11972,6 +11972,86 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ⛔ STATE OF THE TEAM 2026-09-01T06:45Z — **READ THIS BLOCK FIRST. EVERYTHING IS DONE, BLOCKED ON ANOTHER TEAM, OR WAITING ON SANAA. NO SOLVER IS RUNNING AND NONE SHOULD BE STARTED.**
+
+*(Supervisor's own consolidated handoff. **Pure insertion; nothing below is edited or deleted.** Every figure re-derived at 06:43Z. **Solver count taken by `readlink /proc/PID/exe` over every pid — NOT by any name match**, per L-428.)*
+
+---
+
+### 1. **THE TWO VERDICTS. BOTH `NOT A RESULT`, BOTH HONEST, BOTH FROM GATES THAT COULD HAVE PASSED.**
+
+| rung | verdict | why | cost |
+|---|---|---|---|
+| **T23G** | **`NOT A RESULT`** (all 3 quantities) | every level solved, **CONVERGED and PLATEAUED** — and the observed order is **below 0.5**, i.e. **`STAGNANT`**, rule 5 clause (2). Registration predicted **1.0** against a band of (0.80, 2.50); **measured 0.375**. **No GCI licensed, none quoted.** | **179.63 core-min**, all levels uncapped |
+| **T25R2** | **`GATE FAIL` → every row `NOT A RESULT`** | O1 PASS 10.3x, O2 PASS 1.85x, **O3 GATE FAIL 2.315190e-02 K vs 1.234e-02**. §3.5.4 propagation, rule 5 clause (1). **No physics number printed; controls never reached.** | **19.780 of 390**, **370.2 unspent** |
+
+**⚡ NEITHER IS A SETBACK AND NEITHER MAY BE REPORTED AS ONE.** Both runs completed cleanly on every clause of rule 4. **A clean run and a gradeable claim are different things**, and in both cases a gate registered *before* the run, and built so that it *could* fail, did its job.
+
+**T25R2's `L2` / `L2_DT025` are HALTED BY MY RULING, staged and unlaunched** — verdict already fixed by propagation, 56 core-min would produce nothing gradeable. **370.2 unspent is a DECISION, not a cap stop.**
+
+---
+
+### 2. ⛔ **ACT A DOES NOT CHANGE, AND A SUCCESSOR MUST NOT "APPLY" THE TRIPLE**
+
+Sanaa held Act A at **0.1 °C until the grid triple lands.** It landed **`NOT A RESULT`**, so it **licenses nothing**:
+- **`DECIMALS_DEGC` STAYS AT 0.1 °C.** Do not touch it.
+- **The empty uncertainty column STAYS EMPTY.** A `STAGNANT` ladder supplies **no** error bar; deriving one would be the exact fabrication the rung exists to prevent.
+- **⚠️ THE PRE-REGISTERED EXPECTATION — `G-GCI-DISPLAY` gate-failing to 1 °C — IS *NOT* WHAT HAPPENED. The rung never reached that gate; `STAGNANT` fired first.** **Do NOT record "Act A went to 1 °C as predicted." It did not go anywhere.**
+
+Act A is otherwise **correct and current**: margin on the **core** (92.322479 K, not the 4.07 K-optimistic housing figure), both peaks labelled by solid, solver named on screen, 15/15 plots latexified, cost as wall time and dollars, tail guard unskippable in the regen path.
+
+---
+
+### 3. **ACT C — PREPARED, NOT DEPLOYED. MOVES ONLY ON SANAA'S WORD.**
+
+Honest-refusal screens built at `7811caef` / `7a9515cb`: the pre-registered gate table, the solid-converging/coolant-not story A1 bought, the "nothing was published because the gate fired first" beat, the priced-and-unregistered successor levers.
+
+**⛔ NOTHING IS WIRED INTO THE GUI. `sdk/` UNTOUCHED. SERVER NOT RESTARTED. THE 0.420 K / 960-CELL SHEET STAYS OFF SCREEN** per her standing order — not revived, not referenced, not repaired.
+
+**The withholding boundary is enforced by ARITHMETIC, not by care:** admissible convergence deltas span 5.2e-04 → 2.4e-02 K, every withheld quantity is order 1 K or 293 K, **two orders of separation** ⇒ **every kelvin magnitude on an Act C gate screen is below 0.1 K**, guarded. **The adiabatic bounds (2.400 / 10.800 K) are WITHHELD** — admitting them would force a hand-carved exception into the one rule whose value is that it needs no judgement.
+
+---
+
+### 4. ⛔ **BLOCKED ON OTHERS — DO NOT ATTEMPT THESE**
+
+- **Act A's geometry: `sdk/geometry/motor_in_duct.stl` IS THE RETIRED BODY**, sha256 `131aab8e…`, which our own manifest names under `/retires/sha256`, dimensioned from **a different case** (F28). **cfd's, in this order: land the uncommitted demo-mode dispatch commit → make `replay_history` read a conjugate run → apply the routing patch.** Routing alone makes Act A **refuse mid-mission**; all three are needed.
+- **`scripts/append_record.py` REFUSES on `LESSONS.md` — and OUR heading caused it** (`## L-426 AMENDMENT 1 —`, `243a2bc9`). Third variant of a shape `KNOWN_EXCLUDED` has been extended for twice. **Verification's to rule. DO NOT edit our heading to satisfy the instrument.**
+
+---
+
+### 5. ⛔ **THE RULE-10 SHARPENING — THE MOST TRANSFERABLE THING FROM TONIGHT, AND IT CANNOT BE FILED YET**
+
+> **"Never a bare `git commit`" IS NOT A RULE ABOUT CARELESSNESS. IT IS A RULE ABOUT A CONDITION THAT IS ESSENTIALLY ALWAYS TRUE.** The private-index protocol **never updates the shared index**, so the index sits behind HEAD as a **STANDING PROPERTY, NOT AN EVENT.** A lane reasoning *"the index is probably fine right now"* is **WRONG BY CONSTRUCTION, NOT UNLUCKY.** Rule 10's measured 402 lines was **not a bad night; it was a normal night with the wrong command.**
+
+**Measured tonight:** the shared index staged **981 deletions** at my read and **1,022** at the chief's — including `T23G_GRADED.json` −499, `T23G_RESULTS.md` −301, `LESSONS.md` −85 and **another team's D19M pre-registration** −43. Cleared by the chief (third clear tonight); **at 06:43Z it is already back to 135.**
+
+**⚠️ AND THE TWO HALVES MUST TRAVEL TOGETHER, because half of it reads as reassurance and is not:**
+- **ALARM ON A CONTENT DIVERGENCE** — `git hash-object <path>` vs `git rev-parse HEAD:<path>` — **NEVER ON AN `MM`.** `MM` is designed-in and is **not evidence of loss**.
+- **THE PROHIBITION IS UNDIMINISHED AND UNCONDITIONAL.** The lowered threshold is only safe *because* the protocol is used every time without judging whether this particular moment looks safe.
+
+**Candidate amendment to the standing "git status reads stale under concurrency" lesson, HELD** — **our own blocker in §4 is blocking the lesson that came out of the incident.** Do not work around the guard to land it.
+
+---
+
+### 6. **VERIFIED STATE AT 06:43Z**
+
+- **OpenFOAM solvers running: 0** (by `/proc/PID/exe`, not by name).
+- **`T23G_RESULTS.md`, `T25R2_RESULTS.md`, `ACT_C_GATE_sheet.tex` all hash-identical to HEAD.** `T23G_GRADED.json`, `LESSONS.md`, L-428 verified present at HEAD earlier. **Nothing was lost.**
+- `T25R2_L2` / `L2_DT025`: `0.orig`, `constant`, `system` + copied mesh logs. **No `0`, no time dir, no `log.solve`, no `STATUS`.**
+
+---
+
+### 7. **WHAT THE NEXT LANE PICKS UP — IN ORDER**
+
+1. **NOTHING, until Sanaa rules on Act C.** Everything else this team owns is done or blocked.
+2. **If she takes the honest-refusal path:** ship what is at `7811caef`; it is built to the standards and guarded.
+3. **⛔ DO NOT START THE T25R2 SUCCESSOR.** Her demo freeze covers non-demo work and a registration is not demo work. **The levers are priced in §13 of `T25R2_RESULTS.md`, so a successor will find them and nothing is lost by waiting.** The mechanism-facing lever is a **finer `deltaT` through the pulse** (the fluid's 31.25 ms residence time against a large, about-to-step source at Co≈1600); **more sweeps is weaker — 40 is not obviously enough.** **Writing a registration after a night that surfaced eight instrument defects is how the NEXT T25R gets made.**
+4. **MUST-FIX before D2 is ever gradeable:** `read_patch_T` accepts only a `nonuniform List<scalar>` while the real staged inlet is **`value uniform 293;`** — **the rung had two independent blockers and only one fired.**
+5. **Five MILD at-risk `relaxationFactors` files in completed F14 `K2b_runs`** — **neither re-opened nor dismissed.** Only the dominance clamp is lost, not under-relaxation. **The question that settles them is named and parked under the freeze:** did those rungs converge such that the lost clamp cannot have moved the fixed point?
+
+---
+
+
 ##### ADDENDUM 2026-09-01T06:45Z — **T23G IS GRADED: `NOT A RESULT`. EVERY LEVEL SOLVED, CONVERGED AND PLATEAUED, AND THE TRIPLE STILL FAILS — THE OBSERVED ORDER IS BELOW 0.5, WHICH IS `STAGNANT`.**
 
 *(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**; the `Section last written:` line is left alone. **No solver is running. Every solver this team owns has finished.**)*
