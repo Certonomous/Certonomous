@@ -25,6 +25,15 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 from matplotlib.patches import Rectangle
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# ONE style block for the campaign, and it refuses rather than falling back
+# to a substitute serif; and the two figure-standard limits (a ten-word
+# title, a twenty-word caption) enforced where they are already implemented
+# rather than reimplemented here.
+from jf1_figure_style import latin_modern_rc, sheet_note   # noqa: E402
+from plot_jf1_actB_demo import caption, check_title        # noqa: E402
+import jf1_display_numbers as jf1num                       # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # the two meshes, named by what they are for -- never by an internal id
@@ -66,13 +75,9 @@ SWEEP_N = 5
 
 # ------------------------------------------------------------------- styling --
 plt.rcParams.update({
-    "font.family": "serif",
-    "font.serif": ["DejaVu Serif"],
-    "mathtext.fontset": "cm",
+    **latin_modern_rc(),
     "axes.titlesize": 12.5,
     "axes.labelsize": 11.5,
-    "pdf.fonttype": 42,
-    "svg.fonttype": "none",
 })
 
 INK = "#16161a"
@@ -512,18 +517,19 @@ def main():
     sweep_est = SWEEP_ESTIMATE_EACH * SWEEP_N
 
     cost_flow = ("Computer time for the calculation these near-wall numbers "
-                 "come from: we estimated %.1f core-minutes before running it "
+                 "come from: we estimated %.1f processor-minutes before running it "
                  "and used %.1f — %.1f %% over our estimate.  Building the "
-                 "mesh itself took under one core-minute."
+                 "mesh itself took under one processor-minute."
                  % (FLOW_ESTIMATE_CORE_MIN, flow_core,
                     100.0 * (flow_core / FLOW_ESTIMATE_CORE_MIN - 1.0)))
     cost_sweep = ("Computer time for the five calculations this mesh carries: "
-                  "we estimated %.1f core-minutes before running them and used "
+                  "we estimated %.1f processor-minutes before running them and used "
                   "%.1f — %.2f times our estimate.  Building the mesh itself "
-                  "took under one core-minute."
+                  "took under one processor-minute."
                   % (sweep_est, sweep_core, sweep_core / sweep_est))
 
     written = []
+    notes = []
 
     def save(fig, stem):
         for ext in ("pdf", "png"):
@@ -533,23 +539,15 @@ def main():
         plt.close(fig)
 
     # ================================ FIGURE 5: the flow-field mesh, sliced ==
-    fig = plt.figure(figsize=(14.0, 9.9))
-    gs = fig.add_gridspec(3, 3, height_ratios=[1.65, 1.35, 0.70],
+    fig = plt.figure(figsize=(14.0, 8.8))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.65, 1.35],
                           width_ratios=[1.0, 1.0, 1.0],
-                          left=0.055, right=0.982, top=0.795, bottom=0.082,
+                          left=0.055, right=0.982, top=0.885, bottom=0.130,
                           hspace=0.40, wspace=0.20)
     banner(fig)
-    fig.text(0.5, 0.930,
-             "The grid the flow was actually computed on",
+    fig.text(0.5, 0.955,
+             check_title("The grid the flow was actually computed on"),
              ha="center", va="top", fontsize=15.5, color=INK, weight="bold")
-    fig.text(0.5, 0.900,
-             "Every line below is an edge of a real computation cell, read "
-             "back out of the solved case. This is the grid the equations were\n"
-             "solved on — not a drawing of the shape, and not the triangles of "
-             "the CAD surface. C-shaped grid wrapped round the wing and "
-             "trailed\ndownstream: %s cells, one cell deep, %.1f m span."
-             % ("{:,}".format(mF.n_cells).replace(",", " "), mF.t_z),
-             ha="center", va="top", fontsize=10.4, color=INK2, linespacing=1.5)
 
     # -- (a) near field, spanning the wing and the refined wake -------------
     ax = fig.add_subplot(gs[0, :])
@@ -656,46 +654,46 @@ def main():
                  "(height measured up from the surface)",
                  color=INK, fontsize=11.0, pad=6)
     ax.text(0.5, 0.955,
-            "%d layers in the first 400 μm at half-chord;\n"
-            "the one touching the wall is 5.0 μm thick" % n_layers,
+            "%d layers in the first 400 $\\mu$m at half-chord;\n"
+            "the one touching the wall is 5.0 $\\mu$m thick" % n_layers,
             transform=ax.transAxes, ha="center", va="top", fontsize=8.4,
             color=ACCENT, weight="bold",
             bbox=dict(boxstyle="round,pad=0.28", fc="white", ec=ACCENT,
                       lw=0.7, alpha=0.93))
 
-    ax = fig.add_subplot(gs[2, :])
-    caveat_box(ax, [
-        "Every panel is drawn cell by cell from the stored grid of the solved "
-        "case. No surface tessellation is used anywhere on this page.",
-        "The wing outline is drawn from the wall faces of the grid itself, so "
-        "the outline and the cells cannot disagree.",
+    caption(fig, "Cell edges read back from the solved case: the whole grid, "
+                 "the leading edge, the slot and the wall layers.", y=0.032)
+    notes.append(sheet_note(
+        "jet_flap_5_mesh_flowfield", "The grid the flow was computed on",
+        "Every line on this page is an edge of a real computation cell, read "
+        "back out of the solved case. This is the grid the equations were "
+        "solved on, not a drawing of the shape and not the triangles of a CAD "
+        "surface: a C-shaped grid wrapped round the wing and trailed "
+        "downstream, %s cells, one cell deep, %.1f m span. No surface "
+        "tessellation is used anywhere, and the wing outline is drawn from "
+        "the wall faces of the grid itself, so the outline and the cells "
+        "cannot disagree.\n\n"
         "Panel D measures height up from the surface rather than from the "
         "centreline. At true proportions the layers next to the wall are far "
-        "too thin to see: the first is 5 μm against a 1 m chord.",
-        "The refined wake region is refinement along the flow direction: cell "
-        "length grows by no more than 8 % from one cell to the next out to "
-        "3 chords, then relaxes toward the far boundary.",
+        "too thin to see: the first is 5 micrometres against a 1 m chord. The "
+        "refined wake region is refinement along the flow direction, where "
+        "cell length grows by no more than 8 %% from one cell to the next out "
+        "to 3 chords and then relaxes toward the far boundary.\n\n"
         "This is a two-dimensional calculation. The grid is one cell deep and "
-        "the two side faces take no part in the solution.",
-    ], title="WHAT YOU ARE LOOKING AT")
+        "the two side faces take no part in the solution."
+        % ("{:,}".format(mF.n_cells), mF.t_z)))
     cost_line(fig, cost_flow)
     save(fig, "jet_flap_5_mesh_flowfield")
 
     # ==================== FIGURE 6: slot resolution, quality, near-wall =====
-    fig = plt.figure(figsize=(14.0, 9.9))
-    gs = fig.add_gridspec(3, 3, height_ratios=[1.45, 1.15, 0.72],
-                          left=0.058, right=0.982, top=0.800, bottom=0.082,
-                          hspace=0.44, wspace=0.26)
+    fig = plt.figure(figsize=(14.0, 8.6))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.10, 1.15],
+                          left=0.058, right=0.982, top=0.890, bottom=0.090,
+                          hspace=0.20, wspace=0.26)
     banner(fig)
-    fig.text(0.5, 0.933,
-             "How well the grid resolves the two places that matter",
+    fig.text(0.5, 0.958,
+             check_title("How well the grid resolves the two places that matter"),
              ha="center", va="top", fontsize=15.5, color=INK, weight="bold")
-    fig.text(0.5, 0.903,
-             "The slot is 5.0 mm tall — one two-hundredth of the chord — and "
-             "the sheet of air it releases is the whole point of the design.\n"
-             "The other place that matters is the skin of the wing, where the "
-             "drag is made. Both are counted here, not asserted.",
-             ha="center", va="top", fontsize=10.4, color=INK2, linespacing=1.5)
 
     # -- (A) slot mouth, cells counted --------------------------------------
     ax = fig.add_subplot(gs[0, 0])
@@ -818,56 +816,49 @@ def main():
             ax.text(cx, yy, cell, transform=ax.transAxes, fontsize=8.5,
                     color=INK2 if cx == 0.0 else INK, va="top")
         yy -= 0.082
-    ax.text(0.0, yy - 0.015,
-            "Both grids are made only of six-sided boxes; no cell was cut or "
-            "collapsed. The stretch figure is large in the outer wake because "
-            "cells are\ndeliberately long there, in the flow direction, where "
-            "nothing is changing across the flow — the stretching lies along "
-            "the direction being resolved.",
-            transform=ax.transAxes, fontsize=8.2, color=MUTED, va="top",
-            linespacing=1.4)
+    # The paragraph that used to sit under this table is on the sheet
+    # note: figures carry no paragraphs, and the sentence about why the
+    # far-wake stretch figure is large is an explanation, not a number.
 
     tailw = hist[hist[:, 0] >= 18000]
     spread = 100.0 * (tailw[:, 2].max() - tailw[:, 2].min()) / tailw[:, 2].mean()
-    ax = fig.add_subplot(gs[2, :])
-    caveat_box(ax, [
+    caption(fig, "Cells across the slot, wall spacing over the wing, and the "
+                 "quality measures of both grids.", y=0.032)
+    notes.append(sheet_note(
+        "jet_flap_6_mesh_resolution",
+        "How well the grid resolves the two places that matter",
+        "The slot is 5.0 mm tall, one two-hundredth of the chord, and the "
+        "sheet of air it releases is the whole point of the design. The other "
+        "place that matters is the skin of the wing, where the drag is made. "
+        "Both are counted here rather than asserted.\n\n"
         "Panels B and C are properties of the grid and the solved flow "
-        "together, so they are read from the calculation, not from the grid "
-        "alone.",
-        "All %d wall cells sit below the wall-resolved limit (largest %.3f), "
-        "so the flow next to the wall is computed rather than assumed from a "
-        "formula." % (len(yp), yp.max()),
-        "The near-wall spacing stopped moving well before the calculation "
-        "ended: over the last 2 000 steps its largest value varies by "
-        "%.3f %%." % spread,
-        "That calculation reached its step limit before it met its "
-        "convergence target, so its flow field should be read as indicative.",
+        "together, so they are read from the calculation and not from the "
+        "grid alone. All %d wall cells sit below the wall-resolved limit, the "
+        "largest being %.3f, so the flow next to the wall is computed rather "
+        "than assumed from a formula. The near-wall spacing stopped moving "
+        "well before the calculation ended: over the last 2,000 steps its "
+        "largest value varies by %.3f %%. That calculation reached its step "
+        "limit before it met its convergence target, so its flow field should "
+        "be read as indicative.\n\n"
         "Panel D sets two different grids beside each other in one table. "
-        "They are never drawn on shared axes.",
-    ], title="WHAT YOU SHOULD KNOW ABOUT THESE NUMBERS")
+        "They are never drawn on shared axes. Both are made only of six-sided "
+        "boxes and no cell was cut or collapsed. The stretch figure is large "
+        "in the outer wake because cells are deliberately long there, in the "
+        "flow direction, where nothing is changing across the flow: the "
+        "stretching lies along the direction being resolved."
+        % (len(yp), yp.max(), spread)))
     cost_line(fig, cost_flow)
     save(fig, "jet_flap_6_mesh_resolution")
 
     # ==================== FIGURE 7: the force-sweep mesh, sliced ============
-    fig = plt.figure(figsize=(14.0, 9.4))
-    gs = fig.add_gridspec(3, 3, height_ratios=[1.55, 1.30, 0.70],
-                          left=0.055, right=0.982, top=0.795, bottom=0.082,
+    fig = plt.figure(figsize=(14.0, 8.5))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.55, 1.30],
+                          left=0.055, right=0.982, top=0.885, bottom=0.130,
                           hspace=0.40, wspace=0.20)
     banner(fig)
-    fig.text(0.5, 0.930,
-             "The grid the lift and pressure figures were computed on",
+    fig.text(0.5, 0.955,
+             check_title("The grid the lift and pressure figures were computed on"),
              ha="center", va="top", fontsize=15.5, color=INK, weight="bold")
-    fig.text(0.5, 0.900,
-             "A different grid from the flow-field page, and a different "
-             "shape of grid: an O-shape that closes around the wing rather "
-             "than\ntrailing behind it. All five calculations ran on this one "
-             "grid: four with the slot open, blowing at different strengths, "
-             "so the differences\namong those four come from the blowing "
-             "alone; the fifth is a reference case with the slot closed. "
-             "%s cells, one cell deep, %.0f mm span."
-             % ("{:,}".format(mS.n_cells).replace(",", " "),
-                1e3 * mS.t_z),
-             ha="center", va="top", fontsize=10.4, color=INK2, linespacing=1.5)
 
     ax = fig.add_subplot(gs[0, :])
     xlim, ylim = (-1.35, 2.65), (-0.72, 0.72)
@@ -926,32 +917,35 @@ def main():
     ax.set_title("D.  Cells across the slot: %d" % sS["n_across"],
                  color=INK, fontsize=11.0, pad=6)
 
-    ax = fig.add_subplot(gs[2, :])
-    caveat_box(ax, [
-        "Drawn cell by cell from the stored grid of the solved cases. No "
-        "surface tessellation is used anywhere on this page.",
+    caption(fig, "Sliced cell by cell: the wing, the leading edge, the "
+                 "trailing edge and the cells across the slot.", y=0.032)
+    notes.append(sheet_note(
+        "jet_flap_7_mesh_forcesweep",
+        "The grid the lift and pressures are computed on",
+        "A different grid from the flow-field page and a different shape of "
+        "grid: an O-shape that closes around the wing rather than trailing "
+        "behind it. All five calculations ran on this one grid, %s cells, one "
+        "cell deep, %.0f mm span. Four had the slot open and blowing at "
+        "different strengths, so the differences among those four come from "
+        "the blowing alone; the fifth is a reference case with the slot "
+        "closed. It is drawn cell by cell from the stored grid of the solved "
+        "cases, with no surface tessellation anywhere.\n\n"
         "This grid is not the grid on the flow-field page. The two are shown "
-        "on separate pages and never on shared axes.",
-        "%d cells span the %.1f mm slot here as well, each %.3f mm tall."
-        % (sS["n_across"], 1e3 * sS["h"], 1e3 * sS["dy_max"]),
-        "Largest cell distortion %.1f°, largest skew %.2f, and no cell of "
-        "zero or negative volume." % (cmS["nonorth_max"], cmS["skew_max"]),
-        # The page is captioned as the grid ALL FIVE calculations ran on, so
-        # the number it offers has to be the worst of the five, not the one
-        # case this figure happens to render. It used to quote this case
-        # alone (largest 0.256, the C_mu = 0.10 row) while claiming to
-        # describe the grid, which understated the sweep maximum of 0.398 by
-        # 1.6x. The claim it supports, that every wall cell is below the
-        # wall-resolved limit, was true then and is still true now; what was
-        # wrong was the number offered as evidence for it, and it was wrong in
-        # the flattering direction.
+        "on separate pages and never on shared axes. %d cells span the %.1f "
+        "mm slot here as well, each %.3f mm tall. The largest cell distortion "
+        "is %.1f degrees, the largest skew %.2f, and no cell has zero or "
+        "negative volume.\n\n"
         "Near-wall spacing rises with blowing, from largest %.3f with the "
-        "slot closed to largest %.3f at the strongest jet. Every wall cell "
-        "of every calculation is below the wall-resolved limit."
-        % (_sweep_yplus_max()[0], _sweep_yplus_max()[-1]),
-        "None of the five calculations on this grid reached its convergence "
-        "target; the lift they report had stopped moving.",
-    ], title="WHAT YOU ARE LOOKING AT")
+        "slot closed to largest %.3f at the strongest jet. Every wall cell of "
+        "every calculation is below the wall-resolved limit. The page is "
+        "captioned as the grid all five calculations ran on, so this is the "
+        "worst of the five and not the one case the figure renders. None of "
+        "the five reached its convergence target; the lift they report had "
+        "stopped moving."
+        % ("{:,}".format(mS.n_cells), 1e3 * mS.t_z,
+           sS["n_across"], 1e3 * sS["h"], 1e3 * sS["dy_max"],
+           cmS["nonorth_max"], cmS["skew_max"],
+           _sweep_yplus_max()[0], _sweep_yplus_max()[-1])))
     cost_line(fig, cost_sweep)
     save(fig, "jet_flap_7_mesh_forcesweep")
 
@@ -993,6 +987,16 @@ def main():
           "max %.6g" % (SWEEP, SWEEP_TIME, len(ypS), ypS.min(), ypS.mean(),
                         ypS.max()))
     print("WRITTEN:")
+    # This page's grids, recorded at render time beside the figures. The
+    # screen shows the force-grid slice; its provenance is what lets the
+    # act's grid statement be checked instead of trusted.
+    print("PROVENANCE %s" % jf1num.write_figure_provenance({
+        "jet_flap_5_mesh_flowfield": os.path.join(HERE, FLOW),
+        "jet_flap_6_mesh_resolution": os.path.join(HERE, FLOW),
+        "jet_flap_7_mesh_forcesweep": os.path.join(HERE, SWEEP),
+    }))
+    for p in notes:
+        print("SHEET NOTE %s" % p)
     for p in written:
         print("  %s" % p)
 

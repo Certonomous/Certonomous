@@ -64,10 +64,22 @@ ReaderRefused = _impl.ReaderRefused
 #: with its own literal would keep saying so after the reader changed it.
 PLANT = _impl.PLANT
 RUN_ROOT = _impl.RUN_ROOT
+FLOW_CASE = _impl.FLOW_CASE
 SWEEP_CASES = _impl.SWEEP_CASES
 SWEEP_TIME = _impl.SWEEP_TIME
 SETTLE_WINDOW = _impl.SETTLE_WINDOW
 assert_one_grid = _impl.assert_one_grid
+#: The whole one-grid rule, over every grid the screen DISPLAYS rather than
+#: only the tabulated ones. ``assert_one_grid`` could not see the flow
+#: picture's grid, which is how the gates line came to assert that the
+#: tabulated grid carried the fields as well.
+assert_display_grids = _impl.assert_display_grids
+read_figure_provenance = _impl.read_figure_provenance
+#: The frozen registration the UPFRONT forecast is read out of, and the
+#: artifact that forecast cites. Named here so the act can cite it without a
+#: second copy of the path.
+PREREGISTRATION = _impl.PREREGISTRATION
+registered_sweep_estimate = _impl.registered_sweep_estimate
 display_citation = _impl.display_citation
 flow_facts = _impl.flow_facts
 movement_1sf = _impl.movement_1sf
@@ -79,8 +91,10 @@ wall_yplus = _impl.wall_yplus
 
 __all__ = [
     "PLANT",
-    "ReaderRefused", "RUN_ROOT", "SWEEP_CASES", "SWEEP_TIME", "SETTLE_WINDOW",
-    "assert_one_grid", "display_citation", "flow_facts", "movement_1sf",
+    "ReaderRefused", "RUN_ROOT", "FLOW_CASE", "SWEEP_CASES", "SWEEP_TIME",
+    "SETTLE_WINDOW", "assert_one_grid", "assert_display_grids",
+    "read_figure_provenance", "PREREGISTRATION", "registered_sweep_estimate",
+    "display_citation", "flow_facts", "movement_1sf",
     "reference_citation", "settling", "sweep_facts", "sweep_rows",
     "wall_yplus",
 ]

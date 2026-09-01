@@ -78,6 +78,11 @@ from plot_jf1_p1_demo import (          # noqa: E402
 # state the previous two failures of this kind were in right up until they were
 # not. The asset manifest already claimed one implementation; now that is true.
 import jf1_display_numbers as jf1num    # noqa: E402
+# ONE style block for every figure in this campaign, and it REFUSES rather
+# than falling back to a substitute serif. A figure drawn in the wrong font
+# looks finished, which is why the check is in code and the acceptance test is
+# pdffonts on the artifact rather than a read of this line.
+from jf1_figure_style import latin_modern_rc, sheet_note   # noqa: E402
 
 # ------------------------------------------------------------------- physics --
 U_INF = 10.0
@@ -120,13 +125,9 @@ THEORY_CHECK = {0.05: 0.4234034434, 0.10: 0.6047756775,
 
 # ------------------------------------------------------------------- styling --
 plt.rcParams.update({
-    "font.family": "serif",
-    "font.serif": ["DejaVu Serif"],
-    "mathtext.fontset": "cm",
+    **latin_modern_rc(),
     "axes.titlesize": 12.5,
     "axes.labelsize": 11.5,
-    "pdf.fonttype": 42,
-    "svg.fonttype": "none",
 })
 
 INK = "#16161a"
@@ -188,8 +189,14 @@ def cost_line(fig, text):
              color=MUTED)
 
 
-def caption(fig, text):
+def caption(fig, text, y=0.012):
     """The figure's ONE caption line, at most twenty words.
+
+    ``y`` is the figure-fraction the line sits at. The default is the foot of
+    the page; pass a higher value on a figure that ALSO carries a compute line
+    there, or the two overprint into an unreadable stripe. That collision is
+    not visible in the source and was found by reading the rendered image,
+    which is the only place it exists.
 
     Sanaa's figure standard gives each figure a title of at most ten words,
     axis labels with units, a legend inside the axes, and one caption line of
@@ -211,7 +218,7 @@ def caption(fig, text):
         stripped = "".join(ch for ch in word if ch.isalpha())
         if len(stripped) > 2 and stripped.isupper():
             raise Refusal("figure caption shouts %r: %r" % (stripped, text))
-    fig.text(0.5, 0.012, text, ha="center", va="bottom", fontsize=9.0,
+    fig.text(0.5, y, text, ha="center", va="bottom", fontsize=9.0,
              color=INK2)
 
 
@@ -409,11 +416,11 @@ def main():
     live_estimate = LIVE_ESTIMATE_CORE_MIN
 
     cost_sweep = ("Computer time for the five calculations on this chart: we "
-                  "estimated %.1f core-minutes before running them and used "
+                  "estimated %.1f processor-minutes before running them and used "
                   "%.1f — %.2f times our estimate."
                   % (sweep_estimate, spend, spend / sweep_estimate))
     cost_live = ("Computer time for this calculation: we estimated %.1f "
-                 "core-minutes before running it and used %.1f — %.1f %% over "
+                 "processor-minutes before running it and used %.1f — %.1f %% over "
                  "our estimate."
                  % (live_estimate, live_core_min,
                     100.0 * (live_core_min / live_estimate - 1.0)))
@@ -437,25 +444,34 @@ def main():
     # over the final 4,000 iterations and agrees with the single implementation
     # in jf1_display_numbers.settling() to 1e-15 on all five rows, measured.
     worst_scatter = max(r["scatter"] for r in rows)
-    conv_note = (
-        "  •  None of these calculations reached the convergence target that\n"
-        "     was fixed before they were run (all five solution channels below\n"
-        "     1×10⁻⁶). The turbulence-energy channel is the slowest everywhere,\n"
-        "     and it gets worse as blowing increases — from 3.5×10⁻⁶ with no jet\n"
-        "     to 1.5×10⁻⁴ at the strongest jet, a factor of 43. Strong blowing\n"
-        "     makes this flow genuinely hard to converge; that is a property of\n"
-        "     the physics, not of any one calculation.\n"
-        "  •  Over the final 4,000 iterations the lift still moves by up to\n"
-        "     %s at the worst row. That is a settling indicator, not\n"
-        "     convergence. Those bars are drawn but are smaller than the\n"
-        "     symbols.\n"
-        "  •  Mesh sensitivity has NOT been quantified for these points. No\n"
-        "     refinement study was run, so no grid uncertainty is claimed.\n"
-        "  •  Treat every number here as indicative. It is not a validated\n"
-        "     result and it has not been compared against experiment."
-        % sci_unicode(worst_scatter))
-
+    # THIS TEXT WAS BUILT AND NEVER DRAWN. The caveat row came off figure 1
+    # under Sanaa's figure standard and the string stayed behind, so the
+    # disclosure existed in the source and on no artifact: the rendered figure
+    # said nothing about convergence, and anyone reading this file would have
+    # believed it did. A disclosure that lives only in source is worth
+    # nothing. It now goes to the figure's sheet note, which is a file that
+    # exists, is named after the figure, and is rewritten every time the
+    # figure is.
     written = []
+    notes = []
+    notes.append(sheet_note(
+        "jet_flap_1_lift_vs_blowing",
+        "Lift against blowing",
+        "None of these calculations reached the convergence target fixed "
+        "before they ran, which was all five solution channels below 1e-06. "
+        "The turbulence-energy channel is the slowest everywhere and worsens "
+        "with blowing, from 3.5e-06 with no jet to 1.5e-04 at the strongest "
+        "jet, a factor of 43; strong blowing makes this flow genuinely hard "
+        "to converge, which is a property of the physics rather than of any "
+        "one calculation.\n\n"
+        "Over the final 4,000 iterations the lift still moves by up to %s at "
+        "the worst row. That is a settling indicator and not convergence, and "
+        "the bars drawn for it are smaller than the symbols.\n\n"
+        "Mesh sensitivity has not been quantified for these points: no "
+        "refinement study was run, so no grid uncertainty is claimed. Treat "
+        "every number here as indicative. It is not a validated result and it "
+        "has not been compared against experiment."
+        % sci_unicode(worst_scatter)))
 
     def save(fig, stem):
         for ext in ("pdf", "png"):
@@ -625,21 +641,41 @@ def main():
     tx, ty, tm = jet_trajectory(cx, cy, Uv)
 
     frac = 100.0 * st_live["bounded"] / max(1, st_live["steps"])
-    live_caveat = (
-        "  •  This calculation ran its full %d of %d iterations and did NOT\n"
-        "     reach the convergence target fixed before it started. The\n"
-        "     pressure channel finished at %.1e — about %.0f times the\n"
-        "     1×10⁻⁶ target. It fell early, then flattened and stayed flat.\n"
-        "  •  In this calculation the turbulence model's energy variable goes\n"
-        "     slightly negative in a handful of cells and is clipped back to\n"
-        "     zero on %.0f %% of iterations, continuously from iteration %s\n"
-        "     to the last one. The picture below is HELD by that clipping, not\n"
-        "     converged free of it. It is a real limitation of this result.\n"
-        "  •  This is a different, finer mesh (46 180 cells) from the five\n"
-        "     calculations on the lift and pressure charts. It is shown here\n"
-        "     for the flow picture only and contributes no point to those\n"
-        "     charts. The two are never plotted on one axis.\n"
-        "  •  Indicative only. No mesh-refinement study, no experiment.")
+    # THE SECOND DEAD DISCLOSURE, and the more serious of the two: this string
+    # named the 46,180-cell difference between the flow picture's grid and the
+    # lift chart's grid, and it was built into a variable that no figure ever
+    # drew. The rendered PDF carries no such admission. That is the exact
+    # shape the act's gates line was wrong in -- an honest sentence in a file,
+    # a screen saying something else -- so it goes where a reader can reach
+    # it, and the same fact is now stated on camera in the act's caveat box
+    # and measured by the display guard rather than typed.
+    live_note = (
+        "This calculation ran its full %d of %d iterations and did not reach "
+        "the convergence target fixed before it started. The pressure channel "
+        "finished at %.1e, about %.0f times the 1e-06 target; it fell early, "
+        "then flattened and stayed flat.\n\n"
+        "The turbulence model's energy variable goes slightly negative in a "
+        "handful of cells and is clipped back to zero on %.0f %% of "
+        "iterations, continuously from iteration %s to the last one. The "
+        "picture is held by that clipping rather than converged free of it, "
+        "and that is a real limitation of this result.\n\n"
+        "This is a different, finer mesh of %s cells from the five "
+        "calculations on the lift and pressure charts. Its reference area is "
+        "%.2f m2 against their %.2f m2. It is shown for the flow picture only "
+        "and contributes no point to those charts; the two are never plotted "
+        "on one axis. Indicative only: no mesh-refinement study, no "
+        "experiment.")
+    # The two cell counts and the two reference areas are READ, not typed:
+    # they are the quantities the whole one-grid rule turns on, and the note
+    # that names them has to move when they do.
+    live_cells = jf1num.cell_count(os.path.join(base, LIVE))["cells"]
+    sweep_aref = jf1num.reference_area(os.path.join(base, SWEEP[3][0]))
+    notes.append(sheet_note(
+        "jet_flap_3_flow_field", "Flow field at the slot",
+        live_note % (st_live["last_time"], int(jf1num.FLOW_TIME),
+                     st_live["res"]["p"], st_live["res"]["p"] / 1e-6,
+                     frac, st_live["first_bounded"],
+                     "{:,}".format(int(live_cells)), aref, sweep_aref)))
 
     # -------------------------------------------------- FIGURE 3: the field --
     fig = plt.figure(figsize=(14.0, 7.6))
@@ -788,6 +824,20 @@ def main():
     print("live lift (46180-cell mesh, ref area %.3f m2) CL_wing = %.6f"
           % (aref, cl_live))
     print()
+    # THE FIGURES' PROVENANCE, RECORDED AT RENDER TIME. Nothing inside a PNG
+    # says which grid it came from, and the screen's grid statement was false
+    # about exactly that for as long as nobody could check it. The generator
+    # is the only thing that knows, so it writes it down, measuring the cell
+    # count and the reference area out of the case's own files as it does.
+    prov = jf1num.write_figure_provenance({
+        "jet_flap_1_lift_vs_blowing": os.path.join(base, SWEEP[3][0]),
+        "jet_flap_2_surface_pressure": os.path.join(base, SWEEP[3][0]),
+        "jet_flap_3_flow_field": os.path.join(base, LIVE),
+        "jet_flap_4_jet_path": os.path.join(base, LIVE),
+    })
+    print("PROVENANCE %s" % prov)
+    for p in notes:
+        print("SHEET NOTE %s" % p)
     for p in written:
         print("WROTE %s" % p)
     return 0

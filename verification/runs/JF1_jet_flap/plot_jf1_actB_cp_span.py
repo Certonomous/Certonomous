@@ -88,10 +88,15 @@ from plot_jf1_p1_demo import (            # noqa: E402
     Refusal, refuse, read_internal, read_raw_surface, plant_control_raw,
 )
 from plot_jf1_actB_demo import (          # noqa: E402
-    tidy, banner, caveat_box, cost_line,
+    tidy, banner, caption, check_title, cost_line,
     INK, INK2, MUTED, GRIDC, WARN, RAMP, UNBLOWN_C,
     SWEEP, SWEEP_TIME, LIVE, U_INF, Q_INF, CHORD, SWEEP_ESTIMATE_EACH,
 )
+# The Latin Modern registration and the figure-standard limits arrive with
+# that import: this module takes its styling from there rather than setting a
+# second copy, so the two cannot drift.
+import jf1_display_numbers as jf1num      # noqa: E402
+from jf1_figure_style import sheet_note   # noqa: E402
 
 OMESH_CELLS = 39984
 CMESH_CELLS = 46180
@@ -446,6 +451,7 @@ def main():
     os.makedirs(scratch, exist_ok=True)
 
     written = []
+    notes = []
 
     def save(fig, stem):
         for ext in ("pdf", "png"):
@@ -468,7 +474,7 @@ def main():
         spend += float(st["core_min_MEASURED"])
     sweep_estimate = SWEEP_ESTIMATE_EACH * len(SWEEP)
     cost_sweep = ("Computer time for the five calculations on this chart: we "
-                  "estimated %.1f core-minutes before running them and used "
+                  "estimated %.1f processor-minutes before running them and used "
                   "%.1f — %.2f times our estimate."
                   % (sweep_estimate, spend, spend / sweep_estimate))
 
@@ -499,16 +505,20 @@ def main():
     pad = 0.06 * (hi - lo)
     YLIM = (hi + pad, lo - pad)          # inverted: suction upward
 
-    fig = plt.figure(figsize=(14.0, 12.9))
-    gs = fig.add_gridspec(4, 2, height_ratios=[2.30, 1.62, 1.20, 1.85],
-                          left=0.062, right=0.985, top=0.855, bottom=0.045,
+    # THE CAVEAT ROW AND THE HEADER PARAGRAPH ARE GONE, under Sanaa's figure
+    # standard: figures carry no paragraphs, results live in tables, and the
+    # explanation moves to the sheet text. Nothing said in either is dropped
+    # -- every sentence of both is in this figure's sheet note, written below
+    # from the same measured values that were printed in the box.
+    fig = plt.figure(figsize=(14.0, 11.0))
+    gs = fig.add_gridspec(3, 2, height_ratios=[2.30, 1.62, 1.20],
+                          left=0.062, right=0.985, top=0.930, bottom=0.055,
                           hspace=0.42, wspace=0.17)
     axu = fig.add_subplot(gs[0, 0])
     axl = fig.add_subplot(gs[0, 1])
     axzu = fig.add_subplot(gs[1, 0])
     axzl = fig.add_subplot(gs[1, 1])
     axt = fig.add_subplot(gs[2, :])
-    axc = fig.add_subplot(gs[3, :])
 
     handles = []
     for r in cps:
@@ -526,8 +536,8 @@ def main():
         axzl.plot([r["stag_x"]], [r["stag_cp"]], marker="o", ms=7.5,
                   mfc="none", mec=col, mew=1.7, zorder=5)
 
-    for axx, ttl in ((axu, "Upper (suction) surface — full scale, nothing cut off"),
-                     (axl, "Lower (pressure) surface — full scale, nothing cut off")):
+    for axx, ttl in ((axu, check_title("Upper (suction) surface, full scale")),
+                     (axl, check_title("Lower (pressure) surface, full scale"))):
         axx.axhline(0, color=MUTED, lw=0.8)
         axx.set_ylim(*YLIM)
         axx.set_xlim(-0.02, 1.02)
@@ -553,9 +563,10 @@ def main():
     for axz in (axzu, axzl):
         axz.text(ZX * 0.985, 1.0, "  ideal stagnation, $C_p = +1$  ", color=WARN,
                  fontsize=8.8, ha="right", va="bottom")
-    axzl.annotate("the oncoming air is brought to rest here.\n"
-                  "The stronger the jet, the further back\n"
-                  "along the lower surface that point sits.",
+    # The three-line explanation that used to sit inside these axes is on the
+    # sheet note. The marker stays: the reader still sees WHERE the point is,
+    # and the stagnation column of the table below gives its value.
+    axzl.annotate("stagnation point",
                   xy=(cps[4]["stag_x"], cps[4]["stag_cp"]),
                   xytext=(0.0180, -1.42), fontsize=9.0, color=INK2, ha="left",
                   va="top",
@@ -597,42 +608,47 @@ def main():
         "396 surface samples per curve)")
 
     banner(fig)
-    fig.text(0.5, 0.952,
-             "Pressure around the wing, drawn to full scale with nothing cut "
-             "off the axis. Same wing, same mesh, same flow speed in all five "
-             "curves. The four blown\ncurves differ from one another only in "
-             "the strength of the trailing-edge jet, so that comparison is "
-             "controlled; the fifth is the reference case, with the\nslot "
-             "closed. Suction is plotted upward, the usual aerodynamic "
-             "convention. The area enclosed between the upper and lower curves "
-             "is the lift. The lower row\nmagnifies the "
-             "first 7.5 % of the chord, where every curve reaches $C_p = +1$ "
-             "— the point at which the oncoming air is brought to rest. With "
-             "the slot closed\nthat point sits on the nose; the stronger the "
-             "jet, the further back along the lower surface it moves.",
-             ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)
-
-    cp_caveat = (
-        "  •  The stagnation pressure comes out between +1.0015 and +1.0057\n"
-        "     rather than exactly +1. The overshoot is 0.15 % to 0.57 % and is\n"
-        "     a resolution effect: pressure is sampled at the centre of each\n"
-        "     surface cell, not at the exact stagnation point.\n"
-        "  •  The strong peaks at the trailing edge are the slot lip. They are\n"
-        "     real features of the calculation and they set the scale of the\n"
-        "     top row. Nothing is cut off, which is why the mid-chord detail\n"
-        "     looks flatter here than on a chart with a cropped axis.\n"
-        "  •  None of these calculations reached the convergence target that\n"
-        "     was fixed before they were run (all five solution channels below\n"
-        "     1×10⁻⁶). The turbulence-energy channel is the slowest everywhere\n"
-        "     and worsens with blowing — 3.5×10⁻⁶ with no jet, 1.5×10⁻⁴ at the\n"
-        "     strongest jet, a factor of 43.\n"
-        "  •  Mesh sensitivity has NOT been quantified: no refinement study was\n"
-        "     run, so no uncertainty is claimed on any pressure value. The one\n"
-        "     uncertainty in the table is on WHERE the stagnation point sits,\n"
-        "     and it is half the local surface-cell spacing.\n"
-        "  •  No experimental pressure data exists for this configuration, so no\n"
-        "     measured reference curve is drawn. Treat these as indicative.")
-    caveat_box(axc, cp_caveat)
+    caption(fig, "Blowing loads the rear of the section; suction is plotted "
+                 "upward and the lower row magnifies the leading edge.", y=0.032)
+    # EVERY SENTENCE OF THE HEADER PARAGRAPH AND OF THE FIVE-BULLET BOX IS
+    # HERE, and the two stagnation figures are read out of the measurement
+    # rather than retyped: the box quoted "+1.0015 and +1.0057" as literals,
+    # which is a bound that goes stale silently the first time the surface
+    # sampling changes.
+    stag = [r["stag_cp"] for r in cps]
+    notes.append(sheet_note(
+        "jet_flap_2_chordwise_pressure", "Chordwise pressure",
+        "Pressure around the wing, drawn to full scale with nothing cut off "
+        "the axis. Same wing, same grid and same flow speed in all five "
+        "curves. The four blown curves differ from one another only in the "
+        "strength of the trailing-edge jet, so that comparison is controlled; "
+        "the fifth is the reference case, with the slot closed. Suction is "
+        "plotted upward, the usual aerodynamic convention, and the area "
+        "enclosed between the upper and lower curves is the lift. The lower "
+        "row magnifies the first 7.5 %% of the chord, where every curve "
+        "reaches Cp = +1, the point at which the oncoming air is brought to "
+        "rest. With the slot closed that point sits on the nose; the stronger "
+        "the jet, the further back along the lower surface it moves.\n\n"
+        "The stagnation pressure comes out between %+.4f and %+.4f rather "
+        "than exactly +1. The overshoot is %.2f %% to %.2f %% and is a "
+        "resolution effect: pressure is sampled at the centre of each surface "
+        "cell, not at the exact stagnation point. The strong peaks at the "
+        "trailing edge are the slot lip; they are real features of the "
+        "calculation and they set the scale of the top row, which is why the "
+        "mid-chord detail looks flatter here than it would on a chart with a "
+        "cropped axis.\n\n"
+        "None of these calculations reached the convergence target fixed "
+        "before they ran, which was all five solution channels below 1e-06. "
+        "The turbulence-energy channel is the slowest everywhere and worsens "
+        "with blowing, from 3.5e-06 with no jet to 1.5e-04 at the strongest "
+        "jet, a factor of 43. Mesh sensitivity has not been quantified: no "
+        "refinement study was run, so no uncertainty is claimed on any "
+        "pressure value, and the one uncertainty in the table is on where the "
+        "stagnation point sits, which is half the local surface-cell spacing. "
+        "No experimental pressure data exists for this configuration, so no "
+        "measured reference curve is drawn. Treat these as indicative."
+        % (min(stag), max(stag),
+           100.0 * (min(stag) - 1.0), 100.0 * (max(stag) - 1.0))))
     cost_line(fig, cost_sweep)
     save(fig, "jet_flap_2_chordwise_pressure")
 
@@ -645,6 +661,17 @@ def main():
         runs.append(m)
     live = measure_run(os.path.join(base, LIVE), LIVE_TIME)
     live["dir"] = LIVE
+
+    # The two cell counts are LABELS on this chart and on its sheet note, and
+    # a label that is a constant is free to stop describing the thing it
+    # names. Checked against what the grids actually hold, here, before either
+    # is drawn.
+    for m, want in [(r, OMESH_CELLS) for r in runs] + [(live, CMESH_CELLS)]:
+        got = int(m["topo"]["ncells"])
+        if got != want:
+            refuse("this chart labels %s as a %d-cell grid and it holds %d "
+                   "cells; the label is not describing the grid"
+                   % (m["dir"], want, got))
 
     # planted control on the comparator, on EVERY run and EVERY quantity
     for m in runs + [live]:
@@ -674,15 +701,16 @@ def main():
     uz_sweep_p = max(m["uz_patch"] for m in runs)
     uz_live_p = live["uz_patch"]
 
-    fig = plt.figure(figsize=(14.0, 11.8))
-    gs = fig.add_gridspec(4, 2, height_ratios=[2.05, 0.28, 1.10, 1.75],
-                          left=0.132, right=0.985, top=0.845, bottom=0.045,
-                          hspace=0.34, wspace=0.26)
+    # Caveat row and header paragraph removed under the figure standard; the
+    # whole of both is in this figure's sheet note.
+    fig = plt.figure(figsize=(14.0, 8.8))
+    gs = fig.add_gridspec(3, 2, height_ratios=[2.05, 0.30, 1.10],
+                          left=0.132, right=0.985, top=0.920, bottom=0.075,
+                          hspace=0.38, wspace=0.26)
     axd = fig.add_subplot(gs[0, 0])
     axz = fig.add_subplot(gs[0, 1])
     axleg = fig.add_subplot(gs[1, :])
     axt = fig.add_subplot(gs[2, :])
-    axc = fig.add_subplot(gs[3, :])
     axleg.axis("off")
 
     names = [n for _, _, n, _ in QUANTITIES]
@@ -772,45 +800,43 @@ def main():
            grp(CMESH_CELLS)), fs=8.4)
 
     banner(fig)
-    fig.text(0.5, 0.952,
-             "These calculations are two-dimensional, and this is the "
-             "measurement rather than the claim. The mesh is one cell deep, "
-             "and the two faces that close\nthe span carry no solution values "
-             "of their own, so the flow has no room to vary along the span. "
-             "Every cell was matched face to face\nacross the span by position "
-             "and every solved quantity compared: the differences are zero. The "
-             "right-hand chart asks the same question physically — how fast\n"
-             "does air move along the span? Below %s m s⁻¹, the level at "
-             "which the arithmetic itself stops being able to tell a number "
-             "from zero."
-             % sciu(max(uz_sweep, uz_live), 1),
-             ha="center", va="top", fontsize=9.2, color=INK2, linespacing=1.5)
-
-    span_caveat = (
-        "  •  A zero is only worth something if the check could have found\n"
-        "     something else. Every comparison was repeated on a copy in which\n"
-        "     the pairing between the two ends of the span was shifted by one\n"
-        "     cell on purpose. On those copies the check reports large\n"
-        "     differences — the red circles, and the last table column. The\n"
-        "     zeros are therefore a finding, not a blind spot.\n"
-        "  •  Two meshes are reported side by side and never mixed: 39 984\n"
-        "     cells with a 0.01 m span, and 46 180 cells with a 1 m span. No\n"
-        "     lift or drag figure is formed from either on this chart.\n"
-        "  •  The differences are exactly zero, not merely small — which is what\n"
-        "     a one-cell-deep calculation should give, and the point of the\n"
-        "     check: the calculation that ran is the two-dimensional one that\n"
-        "     was intended.\n"
-        "  •  Air speed ALONG the span is not identically zero and we do not\n"
-        "     claim it is. It reaches %s m s⁻¹ in the coarser mesh and %s m s⁻¹\n"
-        "     in the finer one — %s and %s of the flow speed, at or below one\n"
-        "     unit in the last digit the arithmetic holds. Rounding, not motion.\n"
-        % (sciu(uz_sweep), sciu(uz_live), sciu(uz_sweep / U_INF, 1),
-           sciu(uz_live / U_INF, 1))) + (
-        "  •  This check spent no computer time of its own; it re-reads results\n"
-        "     already produced. The convergence caveats on the other charts\n"
-        "     apply unchanged: none of these calculations met the target that\n"
-        "     was fixed before they ran.")
-    caveat_box(axc, span_caveat)
+    caption(fig, "Span differences are exactly zero on the true pairing and "
+                 "large on a deliberately shifted one.", y=0.032)
+    notes.append(sheet_note(
+        "jet_flap_8_spanwise_uniformity", "Spanwise uniformity",
+        "These calculations are two-dimensional, and this is the measurement "
+        "rather than the claim. The grid is one cell deep and the two faces "
+        "that close the span carry no solution values of their own, so the "
+        "flow has no room to vary along the span. Every cell was matched face "
+        "to face across the span by position and every solved quantity "
+        "compared: the differences are zero. The right-hand chart asks the "
+        "same question physically, how fast air moves along the span, and the "
+        "answer is below %s m/s, the level at which the arithmetic itself "
+        "stops being able to tell a number from zero.\n\n"
+        "A zero is only worth something if the check could have found "
+        "something else. Every comparison was repeated on a copy in which the "
+        "pairing between the two ends of the span was shifted by one cell on "
+        "purpose. On those copies the check reports large differences, which "
+        "are the open circles and the last table column, so the zeros are a "
+        "finding rather than a blind spot. The differences are exactly zero "
+        "and not merely small, which is what a one-cell-deep calculation "
+        "should give and is the point of the check: the calculation that ran "
+        "is the two-dimensional one that was intended.\n\n"
+        "Two grids are reported side by side and never mixed: %s cells with a "
+        "0.01 m span, and %s cells with a 1 m span. No lift or drag figure is "
+        "formed from either on this chart. Air speed along the span is not "
+        "identically zero and is not claimed to be: it reaches %s m/s in the "
+        "coarser grid and %s m/s in the finer one, %s and %s of the flow "
+        "speed, at or below one unit in the last digit the arithmetic holds. "
+        "That is rounding, not motion.\n\n"
+        "This check spent no computer time of its own; it re-reads results "
+        "already produced. The convergence caveats on the other charts apply "
+        "unchanged: none of these calculations met the target fixed before "
+        "they ran."
+        % (sciu(max(uz_sweep, uz_live), 1),
+           grp(OMESH_CELLS), grp(CMESH_CELLS),
+           sciu(uz_sweep), sciu(uz_live), sciu(uz_sweep / U_INF, 1),
+           sciu(uz_live / U_INF, 1))))
     cost_line(fig, "This check consumed no additional computer time; it "
                    "re-reads calculations already completed. " + cost_sweep)
     save(fig, "jet_flap_8_spanwise_uniformity")
@@ -848,6 +874,13 @@ def main():
               % (m["uz_internal"], m["uz_rel"], m["uz_patch"],
                  m["uz_patch_where"]))
     print()
+    # This figure's grid, recorded at render time beside the figure, so the
+    # screen's grid statement can be checked rather than trusted.
+    print("PROVENANCE %s" % jf1num.write_figure_provenance({
+        "jet_flap_2_chordwise_pressure": os.path.join(base, SWEEP[3][0]),
+    }))
+    for p in notes:
+        print("SHEET NOTE %s" % p)
     for p in written:
         print("WROTE %s" % p)
     return 0

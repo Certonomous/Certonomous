@@ -1,0 +1,9 @@
+# Spanwise uniformity
+
+These calculations are two-dimensional, and this is the measurement rather than the claim. The grid is one cell deep and the two faces that close the span carry no solution values of their own, so the flow has no room to vary along the span. Every cell was matched face to face across the span by position and every solved quantity compared: the differences are zero. The right-hand chart asks the same question physically, how fast air moves along the span, and the answer is below 1×10⁻¹⁵ m/s, the level at which the arithmetic itself stops being able to tell a number from zero.
+
+A zero is only worth something if the check could have found something else. Every comparison was repeated on a copy in which the pairing between the two ends of the span was shifted by one cell on purpose. On those copies the check reports large differences, which are the open circles and the last table column, so the zeros are a finding rather than a blind spot. The differences are exactly zero and not merely small, which is what a one-cell-deep calculation should give and is the point of the check: the calculation that ran is the two-dimensional one that was intended.
+
+Two grids are reported side by side and never mixed: 39 984 cells with a 0.01 m span, and 46 180 cells with a 1 m span. No lift or drag figure is formed from either on this chart. Air speed along the span is not identically zero and is not claimed to be: it reaches 1.0×10⁻¹⁵ m/s in the coarser grid and 1.0×10⁻¹⁷ m/s in the finer one, 1×10⁻¹⁶ and 1×10⁻¹⁸ of the flow speed, at or below one unit in the last digit the arithmetic holds. That is rounding, not motion.
+
+This check spent no computer time of its own; it re-reads results already produced. The convergence caveats on the other charts apply unchanged: none of these calculations met the target fixed before they ran.

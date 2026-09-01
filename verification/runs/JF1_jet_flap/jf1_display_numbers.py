@@ -567,6 +567,89 @@ def display_citation() -> str:
 
 
 # ---------------------------------------------------------------------------
+# 4b. What the sweep was FORECAST to cost, before it ran
+# ---------------------------------------------------------------------------
+
+#: The frozen pre-registration. The forecast is read out of it rather than
+#: retyped, because a retyped forecast is free to become the actual: the screen
+#: quoted the measured spend in BOTH the estimate slot and the actual slot, so
+#: the comparison rule 12 requires read 1.00x by construction and concealed a
+#: 2.07x overrun.
+PREREGISTRATION = Path(
+    "/home/ubuntu/Certonomous/verification/campaign/JF1_PREREGISTRATION.md")
+
+#: The registered row: the five-point blowing map on L1, section 12.
+_SWEEP_ROW = re.compile(
+    r"^\|\s*G1.{0,6}G5[^|\n]*?\(5\s+points\)\s*\|\s*(\d+)\s*\|\s*"
+    r"([\d.]+)\s*\|\s*\*\*([\d.]+)\*\*\s*\|", re.M)
+
+
+def _read_sweep_estimate(path: Path) -> dict[str, float]:
+    """Parse the registered five-point row out of the pre-registration."""
+    if not path.is_file():
+        raise ReaderRefused(
+            f"no pre-registration at {path}; the screen has no forecast to "
+            f"compare its spend against and must not invent one")
+    found = _SWEEP_ROW.search(path.read_text(encoding="utf-8",
+                                             errors="replace"))
+    if found is None:
+        raise ReaderRefused(
+            f"{path} carries no registered five-point row; the forecast this "
+            f"screen quotes is not in the document it claims to quote")
+    return {"runs": int(found.group(1)),
+            "each_core_min": float(found.group(2)),
+            "total_core_min": float(found.group(3))}
+
+
+def _plant_estimate() -> None:
+    """Prove the forecast reader can see a figure it did not expect.
+
+    A copy of the pre-registration has the registered subtotal replaced by
+    PLANT and is read back through the same parser. A reader that returns the
+    same 56.79 whatever the document says is not reading the document, and the
+    failure that made this reader necessary was exactly a number that agreed
+    with nothing because it was never read.
+    """
+    with tempfile.TemporaryDirectory(prefix="jf1_plant_") as work:
+        copy = Path(work) / PREREGISTRATION.name
+        text = PREREGISTRATION.read_text(encoding="utf-8", errors="replace")
+        found = _SWEEP_ROW.search(text)
+        if found is None:
+            raise ReaderRefused(
+                f"{PREREGISTRATION} carries no registered five-point row")
+        planted = (text[:found.start(3)] + repr(PLANT) + text[found.end(3):])
+        copy.write_text(planted, encoding="utf-8")
+        try:
+            seen = _read_sweep_estimate(copy)["total_core_min"]
+        except ReaderRefused:
+            # The parser refused the planted document instead of reading it,
+            # which is a reader that cannot see a changed figure at all.
+            raise ReaderRefused(
+                f"planted {PLANT} as the registered subtotal and the forecast "
+                f"reader could not read the document back; its 56.79 on the "
+                f"real document is not evidence it read anything")
+        if abs(seen - PLANT) > 1e-12:
+            raise ReaderRefused(
+                f"planted {PLANT} as the registered subtotal and the forecast "
+                f"reader still reported {seen}; it is not reading the "
+                f"pre-registration")
+
+
+def registered_sweep_estimate() -> dict[str, float]:
+    """The five-point sweep's FORECAST cost, read from the frozen document.
+
+    Not the cap, and this distinction is the whole value of the number. The
+    ``cap_core_min`` figure the run-status files carry is a stopping rule; it
+    forecasts nothing, and quoting a cap where a forecast belongs turns an
+    overrun into an underrun. Section 12 of the registration forecasts the
+    five-point blowing map at 11.36 core-min each; that row is what is read
+    here.
+    """
+    _plant_estimate()
+    return _read_sweep_estimate(PREREGISTRATION)
+
+
+# ---------------------------------------------------------------------------
 # 5. The two grids, kept apart
 # ---------------------------------------------------------------------------
 
@@ -595,6 +678,11 @@ def assert_one_grid(case_dirs) -> float:
     This is the guard, not a comment: every table the screen emits passes its
     own cases through here first, and a mixed table raises instead of
     rendering.
+
+    IT GUARDS TABLES ONLY, AND THAT WAS HALF THE RULE. A screen also shows
+    PICTURES, and a picture's grid reaches no table and so reached no guard.
+    :func:`assert_display_grids` is the whole rule and is what the screen
+    calls; this function stays as the table half of it.
     """
     areas = {round(reference_area(case), 12) for case in case_dirs}
     if len(areas) != 1:
@@ -603,6 +691,185 @@ def assert_one_grid(case_dirs) -> float:
             f"putting them on one axis reports lift wrong by the ratio between "
             f"them")
     return areas.pop()
+
+
+#: Where a figure generator records, beside the figures it writes, which case
+#: each one was rendered from. A figure is a flat image: nothing inside a PNG
+#: says which grid it came from, so the generator that knows has to write it
+#: down at the moment it renders, or the fact is gone.
+FIGURE_PROVENANCE = RUN_ROOT / "artefacts" / "figure_provenance.json"
+
+#: Figures that EXIST, are still written by their generator, and must never go
+#: on camera. Kept as a refusal rather than as a note in a manifest, because a
+#: note in a manifest is what this list is replacing.
+#:
+#: ``jet_flap_2_surface_pressure`` is the superseded pressure figure. Its axis
+#: is cut at Cp = +1.15 / -2.6, which crops off the -6.87 slot-lip suction and
+#: the +1.589 lower-lip peak. On a blown flap the slot-lip suction is the most
+#: interesting feature on the curve, so the crop removes exactly the thing the
+#: figure is for. ``jet_flap_2_chordwise_pressure`` is the full-scale
+#: replacement and is the one the screen shows.
+SUPERSEDED_FIGURES: frozenset = frozenset({"jet_flap_2_surface_pressure"})
+
+
+def write_figure_provenance(entries: "dict[str, Path]") -> Path:
+    """Record which case each named figure was rendered from, and MEASURE it.
+
+    ``entries`` maps a figure stem (no extension) to the case directory the
+    generator drew it from. The cell count and reference area are not taken on
+    the generator's word: they are read here, out of that case's own files,
+    through the same readers the screen uses. So the record is a measurement
+    made at render time, not a label typed beside one.
+
+    Written by the figure generators, read by :func:`assert_display_grids`.
+
+    MERGES rather than replaces. Three generators write the figures this
+    screen shows, and each knows only its own; a generator that replaced the
+    file would erase the other two's records every time it ran, and the guard
+    would then refuse a figure that is perfectly well provenanced. Each
+    generator rewrites its OWN entries on every run, so a figure re-rendered
+    from a different case updates rather than lingers.
+    """
+    import json
+
+    record = {}
+    if FIGURE_PROVENANCE.is_file():
+        try:
+            existing = json.loads(FIGURE_PROVENANCE.read_text(encoding="utf-8"))
+        except ValueError:
+            existing = {}
+        if isinstance(existing, dict):
+            record.update(existing)
+    for stem, case in sorted(entries.items()):
+        case = Path(case)
+        record[str(stem)] = {
+            "case": case.name,
+            "cells": int(cell_count(case)["cells"]),
+            "reference_area": round(reference_area(case), 12),
+            # Carried in the record so the mark travels with the figure and is
+            # readable by anyone who opens it, not only by anyone who reads
+            # the guard.
+            "superseded": str(stem) in SUPERSEDED_FIGURES,
+        }
+    FIGURE_PROVENANCE.parent.mkdir(parents=True, exist_ok=True)
+    FIGURE_PROVENANCE.write_text(json.dumps(record, indent=2, sort_keys=True)
+                                 + "\n", encoding="utf-8")
+    return FIGURE_PROVENANCE
+
+
+def read_figure_provenance(path: Path | None = None) -> dict:
+    """The provenance record the generators wrote, or a refusal."""
+    import json
+
+    path = Path(path) if path is not None else FIGURE_PROVENANCE
+    if not path.is_file():
+        raise ReaderRefused(
+            f"no figure provenance at {path}; the screen would be showing "
+            f"pictures whose grid nobody can name")
+    try:
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise ReaderRefused(f"{path} is not readable as a record: {exc}")
+    if not isinstance(record, dict) or not record:
+        raise ReaderRefused(f"{path} names no figures")
+    return record
+
+
+def assert_display_grids(table_cases, field_figures,
+                         provenance: Path | None = None) -> dict:
+    """The one-grid rule, executable over EVERY grid the screen displays.
+
+    ``table_cases``    the cases whose numbers share one axis or one table.
+    ``field_figures``  ``{figure stem: case dir the screen declares it came
+                       from}``, for every PICTURE the screen shows.
+
+    THE HOLE THIS CLOSES, AND IT WAS ON A SIGNED SCREEN. ``assert_one_grid``
+    sees only the cases whose numbers are tabulated, so the only grid it can
+    know about is the table's. The screen also showed a flow picture, and its
+    grid statement asserted that the tabulated grid carried "the fields" as
+    well as the pressures and the lift table. It does not. The picture is
+    rendered from a different, finer grid, whose reference area is 1.0 m2
+    against the table grid's 0.01 m2 -- the ratio that reports lift a
+    hundredfold wrong, which is the whole reason the rule exists. The sentence
+    was false and NO GUARD COULD FIRE, because the grid it was false about had
+    never been handed to one.
+
+    So the two halves are guarded together, and this refuses when:
+
+      * the tabulated cases do not share one reference area (the original
+        rule, unchanged, delegated to :func:`assert_one_grid`);
+      * the tabulated cases do not share one cell count, which would make
+        "one grid of N cells" untrue of the table itself;
+      * a displayed figure has no provenance record, so the screen would be
+        showing a picture whose grid nobody can name;
+      * the record names a case other than the one the screen declares -- the
+        planted-mismatch case: swap the record and this aborts;
+      * the recorded cell count or reference area disagrees with what that
+        case's own files say now, which is a figure rendered before the case
+        it cites changed under it.
+
+    It RETURNS the measured facts, so the grid sentence is COMPOSED from
+    provenance rather than typed beside it::
+
+        {"table": {"area": 0.01, "cells": 39984, "cases": 5},
+         "figures": {"jet_flap_3_flow_field": {"case": ..., "cells": 46180,
+                                               "area": 1.0,
+                                               "same_grid_as_table": False}}}
+
+    A screen cannot claim one grid carries the pictures while this function
+    has measured two, because the claim is built out of what this returns.
+    """
+    table_cases = [Path(case) for case in table_cases]
+    area = assert_one_grid(table_cases)
+    counts = {int(cell_count(case)["cells"]) for case in table_cases}
+    if len(counts) != 1:
+        raise ReaderRefused(
+            f"the tabulated cases do not share one cell count ({sorted(counts)}); "
+            f"a sentence naming one grid of N cells would be false of its own "
+            f"table")
+    cells = counts.pop()
+
+    record = read_figure_provenance(provenance)
+    figures: dict[str, dict] = {}
+    for stem, declared in sorted(field_figures.items()):
+        declared = Path(declared)
+        if str(stem) in SUPERSEDED_FIGURES:
+            raise ReaderRefused(
+                f"{stem!r} is a superseded figure and must not go on camera; "
+                f"it is still written by its generator and still on disk, "
+                f"which is exactly why this is a refusal and not a note")
+        entry = record.get(str(stem))
+        if entry is None:
+            raise ReaderRefused(
+                f"the screen shows {stem!r} and the figure provenance record "
+                f"does not name it; a picture whose grid cannot be named must "
+                f"not go on camera")
+        if str(entry.get("case")) != declared.name:
+            raise ReaderRefused(
+                f"{stem!r} was rendered from {entry.get('case')!r} and the "
+                f"screen declares {declared.name!r}; the picture on screen and "
+                f"the grid the screen names are two different grids")
+        live_cells = int(cell_count(declared)["cells"])
+        live_area = round(reference_area(declared), 12)
+        if int(entry.get("cells", -1)) != live_cells:
+            raise ReaderRefused(
+                f"{stem!r} records {entry.get('cells')} cells and "
+                f"{declared.name} now has {live_cells}; the figure was drawn "
+                f"before the case it cites changed under it")
+        if round(float(entry.get("reference_area", float("nan"))), 12) != live_area:
+            raise ReaderRefused(
+                f"{stem!r} records a reference area of "
+                f"{entry.get('reference_area')} m2 and {declared.name} now "
+                f"states {live_area} m2; lift read off one and labelled with "
+                f"the other is wrong by the ratio between them")
+        figures[str(stem)] = {
+            "case": declared.name,
+            "cells": live_cells,
+            "area": live_area,
+            "same_grid_as_table": (live_cells == cells and live_area == area),
+        }
+    return {"table": {"area": area, "cells": cells, "cases": len(table_cases)},
+            "figures": figures}
 
 
 # ---------------------------------------------------------------------------
