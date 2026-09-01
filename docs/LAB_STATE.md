@@ -4788,9 +4788,68 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T01:33Z by dafoam-supervisor (TWENTY-FOURTH session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T02:2xZ by dafoam-supervisor (TWENTY-FOURTH session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-23b — **⚠⚠ TWO CORRECTIONS AGAINST ME IN TEN MINUTES, AND THE SECOND IS THE INSTRUCTIVE ONE: I TESTED VERIFICATION'S FINDING, FOUND MY OWN PROPERTY HELD, AND NEARLY REFUTED THEIR FINDING WITH A MEASUREMENT OF A DIFFERENT THING. THE ARM COUNT I PUBLISHED IS 33, NOT 34. AND `[SANAA-DIRECT]` LAUNCHES MULTIPOINT — INCOMPRESSIBLE CAN GO TONIGHT, COMPRESSIBLE IS HELD BY AN INSTRUMENT AND NOT BY PHYSICS** (2026-09-01T02:1xZ, `date -u` at write)
+
+##### 1. ⚠⚠⚠ I NEARLY REFUTED A TRUE FINDING WITH A MEASUREMENT OF THE WRONG PROPERTY — MY ERROR, AND IT IS THE SAME SHAPE AS THE ONE I HAVE BEEN CORRECTING LANES FOR ALL MONTH
+
+Verification's `FAIL_OPEN_GATE_AUDIT §20` (`414b33f3`) reported: **inverting chord/span made our admission reader tell the customer 4.0% thickness against the true 12.0% — the original defect's exact signature — while ALL EIGHT axis-order arms stayed green.**
+
+**I did not take it on the relay.** I drove `sdk/workflows/geometry_admission.py` on the tracked `naca0012_wing.stl`, built a `Surface` from the true vertices under **all six coordinate permutations**, and ran `discover_axes` on each. `[MEASURED, this invocation]` every permutation returns **`chord_m 1.0`, `span_m 3.0`, `thickness_m 0.12001006305217743`, `confident True` — bit-identical**, with only the axis LABELS rotating and the `end_closure` discriminator moving with the axis while keeping the same two values (0.5211296889556515 chord-side, 1.0 span-side).
+
+**On that basis I told my lane the finding "does not reproduce as an axis permutation" and inferred verification had mutated the body's EXTENTS into a genuinely different 3 m-chord wing. THAT INFERENCE IS FALSE AND I HAVE STRUCK IT.** Reading their record: **they inverted the chord/span ROLE ASSIGNMENT INSIDE OUR READER — one line of our code — not the axis order of the input.** A **mutation test on the instrument**, which my test does not touch. **Their finding stands in full.**
+
+**What I actually established is a different, narrower property — input-permutation value-invariance — and it is worth having and worth locking in. What I nearly did with it is the error:** I measured a property adjacent to the claim, found it clean, and reached for a refutation. **A sweep keyed on the wrong SCOPE reports a zero that describes the sweep, not the world** — the same sentence I have written against lanes four times this month, and this time the wrong scope was mine. **The only thing that saved it was that I labelled the inference AS an inference, which is why it could be shot down instead of propagating.** Corrected to the lane within minutes, leading with my own error.
+
+**AND THE ARM IS NOW BETTER FOR IT.** Neither of us proposed the right one alone. **Ordered: assert the REPORTED VALUES against known ground truth** — `chord 1.0`, `span 3.0`, `thickness 0.12001006305217743`, customer-facing ratio `12.0%`, to full precision, on the VALUES and never on the verdict code — **and assert them under all six input permutations.** That one arm catches **both** verification's inverted role assignment (values move with the input untouched) and any future permutation regression. Its RED leg must be **their** mutation, not an easier one I invent.
+
+**Verification's own fairness, recorded because it is the standard:** the suite DID exit `rc 2` under their mutation — but it was killed by **one arm of a different family**, the defect arm on the reference wing, not by any axis-order arm. They called that *"an overlap, not the coverage it looks like"* and weighted it equally against their own finding.
+
+##### 2. ⚠ A PLAIN FACT CORRECTION: THE ARM COUNT IS **33**, NOT THE **34** I PUBLISHED
+
+`e02355ba`'s commit message says 34 arms and **my own lane brief repeated it**. **It is 33**, established by verification deterministically over ten runs. *(Checked before writing this: the figure does NOT appear in `S-23` on this board — the section that carried it was cut in redrafting, so the exposure is the commit message, which is immutable and stands corrected here, and the brief, which I corrected to the lane directly.)* **Their route to it is worth more than the number:** a lane counted 33 at source, their own first runtime count gave 33, and a re-count with a grep counting LINES CONTAINING the phrase gave 34 — **the 34th line is the SUMMARY line.** They were one step from publishing a retraction of a true finding, on *"a sloppy measurement that felt like diligence because it disagreed with me."* **Corrected in the working tree by the lane; corrected here by me.** Note the count becomes 34 for real once the value-invariance arm lands — **which must be said explicitly, or a reader concludes the original 34 was right all along.**
+
+##### 3. THREE FURTHER AUDIT FINDINGS, ACCEPTED AND FOLDED IN
+
+`geometry_admission.py:166`, `t_axis = surf.by_size[0]` **assumes the thinnest extent IS the thickness — a PRIOR, not a discovery**, and verification is right that it is **the same species as the defect `e02355ba` repaired one level down**, uncovered by any arm. `:189`, **`confident` is reported without gating** — a confidence nothing consumes is decoration. `:63`, **`_END_CLOSURE_FRACTION = 0.45` is referenced NOWHERE in the repository** — a dead lever that looks like a threshold and is not one. All three ordered repaired or explicitly labelled.
+
+**Register verdict from verification: ADOPT THE PATTERN**, with the value-invariance gap stated in the entry rather than fixed first. Named as worth copying: red/green in one invocation; four mutation arms each with a restoration control; **permutation arms at all, which almost nothing else in this lab has**; non-zero exit on any wrong arm; and **plain-English customer sentences printed by the same run, so the words on camera are exercised rather than described.** Named as NOT to be copied, and it is the same lesson as §1: **asserting the verdict code where the claim is about a value.**
+
+##### 4. `[SANAA-DIRECT]` MULTIPOINT LAUNCHES — ONE REGIME CAN GO TONIGHT, THE OTHER IS HELD BY AN INSTRUMENT
+
+Sanaa, verbatim (`8f73963a`): *"since its pass on the patched one multi point can be launched on the box in the backrgoudn (for both compressible and incompressible). That way we can shoot these demos tmr as well or whenever they complete."*
+
+**INCOMPRESSIBLE — PRECONDITION MET.** `SO-3aR2`'s **PATCHED `PASS`** is the pass she is referring to: the alpha-multipoint GRADIENT is verified on the patched toolchain, so the optimisation may run on it. Frozen-and-launch ordered, patched row, queue as the launch path.
+
+**COMPRESSIBLE — PRECONDITION UNMET, AND IT IS AN INSTRUMENT, NOT PHYSICS.** The compressible single-point gradient gate **has no verdict**: `D19` refused on `age_datum_moved`, and `D19R` **ran clean on every arm and its grader refuses unconditionally at `:482`** (`D19R-GRADER-DEF-1`, §2 of `S-23`). **The arms are bought and on disk; settling the gate costs ZERO solver core-min — only a re-grade.** That re-grade is therefore the compressible unblock, and it is ordered ahead of any compressible launch.
+
+**⚠ AND THE RE-GRADE IS FENCED HARD, BECAUSE `D19R` HAS HAD FIRST COMPUTE AND ITS GATES ARE CLOSED.** The lane must read `VERIFICATION_CHARTER §2d.1` **condition by condition** and report which route the conditions actually support — **this family has refused §2d.1 four times and it is not to be assumed applicable because the repair is obviously right.** If the four conditions do not hold, the answer is a **successor that re-grades the EXISTING arms with no new compute**, not an edit to a frozen instrument. **No gate, threshold, cap or label moves either way.**
+
+**⚠ TWO ROWS, STATED BEFORE THE RUN RATHER THAN DISCOVERED AFTER IT.** Sanaa authorised launching **on the patched toolchain**. The charter's bright line is that a DAFoam verdict is **two rows or it is not a verdict about DAFoam** — so the registration must say **on its face** that a patched-only run cannot produce a two-row verdict, rather than letting a one-row result be read as one later. Toolchain named **BY HASH**, never by version string (`§11`).
+
+##### 5. ⚠⚠⚠ I PUSHED AN EMPTY COMMIT WITH A MESSAGE DESCRIBING WORK IT DOES NOT CONTAIN — `47b5e6c3` — AND THIS BOARD ALREADY RECORDS ME DOING IT ONCE
+
+**Disclosed because nothing else in this block matters if I hide this one.** `47b5e6c3` carries the entire `S-23b` commit message above and **changes zero files** (`git diff-tree --name-only -r` → 0). It is a lie in the history, written by me, tonight.
+
+**Mechanism, and it is embarrassingly mundane.** My splice script's assertions live in a `python3 - <<'PY'` heredoc. **The heredoc and the git commands that follow it were separated by NEWLINES, not by `&&`.** So when an assertion correctly fired — it did; the string it was going to rewrite had been cut in redrafting and no longer existed — **python exited non-zero, the shell carried straight on, `read-tree` reproduced HEAD exactly, `write-tree` produced HEAD's own tree, and `commit-tree` committed it.** The commit was empty because nothing had been spliced.
+
+**AND EVERY GUARD IN `CLAUDE.md` RULE 10 PASSED ON IT.** The `diff-tree` assert printed nothing and "nothing" is not "only my paths" — it is the ABSENCE of a reading, and I read it as a pass. The CAS succeeded, because the parent genuinely was current. The post-commit verify printed nothing, for the same reason. **A commit of zero files satisfies "only your paths" vacuously, and rule 10 has no leg that requires a commit to be non-empty.**
+
+**`S-21b` §6 of this very section records me doing exactly this before.** I read that block this session and still reproduced it, which tells me the record was not enough and the check has to be mechanical. **Ordered on myself, effective immediately: the splice chain is joined by `&&` end to end so an assertion failure stops it, and the `diff-tree` assert must show a NON-ZERO file count or the commit does not happen.** An empty reading is refused, never accepted as clean — **the same rule this family applies to every comparator, applied to my own commit protocol at last.**
+
+`47b5e6c3` is left in the history and **not** rewritten: the working tree is shared and history is not mine to rewrite. It stands as a marker, and the content it claimed is in the commit that carries this block.
+
+##### 6. STATE
+
+**Lanes 3/3.** (a) the Act D package — decomposition table into the act, the end-to-end witnessed pass, the value-invariance arm, the twist-plot narration fix, the crease check, the wording sweep; (b) the new GUI Act D one-pager sheet plus the retitle of the 4,032-cell sheet that shares its name; (c) **redirected off `A2-B2R`** onto the multipoint freeze-and-launch and the `D19R` re-grade. **`A2-B2R` is stood down mid-draft and gates nothing** — ~5-8 core-min, strengthening an already-supported claim.
+
+**Landed since `S-23`:** `4e363de2` — Act D leads with the sections, and the lane **drove the act end to end with a recording emit** rather than reading the source and inferring the order: 101 three-dimensional frames, `rc=0`, 3.82 s, sections at positions **3 and 4**, before every optimisation and close-up frame. **My check 1 on that diff: APPROVED** — positional only, same builders, same artifact names, `report_plots` correctly initialised **outside** the `if shapes:` guard so a host with no shape history does not `NameError`, `SECTION_Z = (0.0, 3.0, 7.2, 10.9, 13.5)` is Sanaa's five stations, and `section_figure` sets `ax.set_aspect("equal")` per station so "true scale" is **guaranteed by the code, not merely asserted**.
+
+**⚠ One check-1 defect found by me in the same read and ordered fixed:** the added narration says *"BOTH figures are at true scale with equal aspect"* — **true of the sections figure, and not a property a degrees-against-metres twist plot can have.** Nothing is exaggerated; it is a customer-facing sentence asserting of two artifacts something that holds of one and is category-inapplicable to the other. **Same class as everything else in this block: a record asserting what the code does not guarantee.**
+
 
 ##### UPDATE S-23 — **TWENTY-FOURTH SESSION. ⚠⚠⚠ THREE RUNGS I WAS TOLD WERE UNLAUNCHED HAD ALREADY RUN TO COMPLETION WITH NOBODY ALIVE: `SO-3aR2` AND `SO-2MR` ARE BOTH `GATE FAIL` SHIPPED / `PASS` PATCHED, AND `D19R` IS CLEAN ON EVERY ARM AND UNGRADABLE — ITS GRADER REFUSES UNCONDITIONALLY AT LINE 482, WHICH I VERIFIED FROM THE CODE MYSELF. ⚠⚠ MY OWN BOARD SPLICE WAS WIPED BY A CONCURRENT WHOLE-FILE WRITE, ONE ASSERT SHORT OF COMMITTING A 27,891-LINE DELETION. AND THE "21 STAGED DELETIONS" I PUT ON THIS BOARD LAST NIGHT IS **4**** (2026-09-01T01:3xZ, `date -u` at write)
 
