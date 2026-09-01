@@ -19631,3 +19631,69 @@ family it is read from is *similar*, and a family that is not similar fails befo
 the ratio test is ever reached); `docs/standards/MESH_STANDARD.md` §3.3, §11;
 `verification/campaign/F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md` for the
 cell-volume instance of the same class.
+
+## L-431 — mpirun binds from core 0, so concurrent MPI jobs stack on the same cores
+
+**Every independent `mpirun` numbers cores from zero, so N concurrent small MPI
+jobs pile onto the same N_ranks cores while the rest of the box sits idle.**
+*(heat-transfer, T25R3, 2026-09-01. Measured, not inferred.)*
+
+**THE SYMPTOM READS AS A SLOW SOLVER, WHICH IS WHY NOBODY FINDS IT.** Six
+`chtMultiRegionFoam` runs were launched concurrently, each `mpirun -np 2`, on a
+16-core box. The logs showed healthy residuals, zero `FOAM FATAL`, and time steps
+crawling at roughly a sixth of the rate the same case had achieved when run
+alone. Nothing in any solver log says anything is wrong.
+
+**THE MEASUREMENT THAT FOUND IT.** Two commands, neither of which is a solver log:
+
+```
+taskset -pc <pid>          # -> allowed_cpus = 0   (or 1) for ALL TWELVE ranks
+mpstat -P ALL 1 1          # -> cpu0 100%, cpu1 100%, cpu2-7 and 9-15 at 0.00%
+```
+
+**All twelve ranks were pinned to CPUs 0 and 1 — six processes per core — while
+ten cores were 100 % idle.** OpenMPI binds ranks to cores by default, and each
+`mpirun` invocation is unaware of the others, so every one of the six bound its
+two ranks to cores 0 and 1.
+
+**THE FIX IS ONE FLAG AND IT CHANGES NO NUMBER.**
+
+```
+mpirun --bind-to none -np <n> <solver> -parallel
+```
+
+Rank count, decomposition and arithmetic are untouched, so **only wall time
+moves**. Confirmed by re-reading `taskset -pc` (`allowed = 0-15` on every rank)
+and `mpstat` (14 of 16 cores at ~100 %).
+
+**HOW TO PROCEED WHENEVER THIS CLASS APPEARS — the general rule.**
+
+1. **Before believing a solver is slow, measure where its CPU actually is.** A
+   rate that is a clean small-integer fraction of a known-good solo rate is a
+   scheduling signature, not a numerics one.
+2. **Compare against a solo run of the SAME case.** In T25R3, `S1` matched its
+   pre-registered rate to **×1.02** while five siblings ran 19–33× slow. A
+   sibling that matches prediction under the same load proves the box is not the
+   problem — and that comparison is what separated a scheduling defect from the
+   genuine numerics defect underneath it.
+3. **`--bind-to none` on every concurrent-`mpirun` campaign in this lab**, or
+   give each job a disjoint `--cpu-set`. Binding is only correct when ONE
+   scheduler places all the work.
+4. **This is a fact about concurrency, not about a solver.** It applies to any
+   team running more than one MPI job at a time, and Sanaa's 80–90 % utilisation
+   directive is unreachable for any campaign that misses it: the box reports high
+   load average while most cores idle.
+
+**AND THE READER TRAP THAT SITS BESIDE IT.** Counting live solvers to diagnose
+this is itself error-prone, and two obvious readers lie:
+
+- **`ps -o comm` TRUNCATES AT 15 CHARACTERS**, so `chtMultiRegionFoam` never
+  matches and the count reads **zero while twelve ranks are running**. This lane
+  believed such a zero and deleted case directories out from under a live fleet.
+- **`pgrep -f <pattern>` MATCHES THE MATCHER'S OWN COMMAND LINE**, so it reports
+  phantom processes after everything is dead.
+
+**Use `readlink /proc/<pid>/exe` — it neither truncates nor self-matches — and
+plant a known-live process in the target directory to prove the reader can see a
+non-zero before trusting its zero.** `CLAUDE.md` rule 3 is usually read as a rule
+about comparators; it is a rule about **any** zero, process counts included.

@@ -12503,6 +12503,31 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 
 
+
+---
+
+##### ✅ **CLARIFICATION 2026-09-01T17:31Z — THE FIVE STOPPED BECAUSE I HALTED THEM DELIBERATELY, NOT BECAUSE THEY CRASHED.** Proven by the launcher's own EXIT trap.
+
+*(Lane block. **Pure insertion; both blocks below stand unedited.** Written because the supervisor's independent box triage read the five simultaneous stops as the earlier stdin-SIGKILL launch defect and was about to order a relaunch on that premise.)*
+
+**THE DISCRIMINATOR IS THE EXIT TRAP, AND A TRAP CANNOT RUN ON `SIGKILL`.** Measured on disk:
+
+| | `.rc.<RUN>.launcher` | `launch.<RUN>.out` | reading |
+|---|---|---|---|
+| S2, S3, T2, T4, W30 | **exists, `0`** | **`launcher exit rc=0`** | **the trap FIRED → a CATCHABLE signal → this lane's `SIGTERM` halt at 17:24:59–17:25:01** |
+| S1 | **absent** | none | still running; its trap has not fired |
+| the earlier stdin defect | **absent on every run** | **empty** | `SIGKILL` — *"the failure produced no evidence of itself"* |
+
+**The evidence on disk now is the exact opposite of the earlier defect's signature.** The five stops inside two seconds are this lane's kill loop, which ran sequentially with no sleep between runs.
+
+> **⛔ DO NOT RE-STAGE AND RELAUNCH THE FIVE AS THEY STAND.** Their halt was not a mishap to be undone. Five runs **cannot reach `endTime` inside their registered `timeout`** at the measured rates, so rule 12 fixes their verdict as a cap stop *before they get there*, and firing them would burn **7,600 core-minutes to produce nothing gradeable**. The supervisor's guard analysis is nonetheless correct and worth keeping: a straight relaunch **would** hit `exit 92`/`93`, and anyone "fixing" that by deleting the guard destroys the age guard that dates the run allowed to produce the answer. **Re-staging is the right mechanics; it is being applied to the wrong premise.**
+
+**WHAT ACTUALLY HAS TO CHANGE FIRST:** the `p_rgh` convergence criterion, which is `tolerance 1e-08; relTol 0` — **absolute**, so it does not scale with the mesh and the three ladder levels are not solved to one standard (L1: 2 GAMG iterations per step; L2: 273). That is a **numerics** change — §4.1 registers it and §16 closed the gates at first compute — so it is a **NEW REGISTRATION, not an addendum**, and it is the supervisor's call.
+
+**S1 IS UNTOUCHED AND WILL BE LEFT ALONE.** pids 157525/157526, 2,562/3,500 leg-A steps, `Time = 51.26`, 0.1988 s/step, ~0.55 h to finish both legs. It validates the completion path end to end — two legs, `reconstructPar`, rule 4, `mark_done_t25R3.py` — before any expensive relaunch.
+
+---
+
 ---
 
 ##### ⛔ **CORRECTION TO THE BLOCK BELOW, 2026-09-01T17:27Z: FIVE OF THE SIX ARE HALTED. ONLY `S1` IS LIVE.** The cost model was wrong by 19–33× on every mesh above L1, and the cause is a measured numerics defect, not contention.
