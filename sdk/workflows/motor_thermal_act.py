@@ -397,7 +397,18 @@ class MotorThermalAct(DemoAct):
                      + str(_fact(screen, "solver", "turbulence_model"))
                      + " closure resolved to the wall"),
             completion_evidence=T23_RUNS / f"DONE.{PRIMARY.name}",
-            presentation_of="the motor in its cooling duct",
+            # THE NEVER-LIST DOES NOT REACH THIS FIELD, and the D-A9 patch's
+            # hunk that reworded it took the act from driving to refusing at
+            # stage 0. Two independent mechanisms make it unrenderable:
+            # ``RunRecord.__post_init__`` (demo_mode.py:878) REQUIRES the
+            # "presentation of run " prefix, and ``assert_screen_safe``
+            # (demo_mode.py:679) raises on the KEY ``presentation_of``
+            # appearing in any payload at all, whatever its value. So this
+            # string cannot reach a screen, and rewording it only broke the
+            # contract. Measured 2026-09-01: with the reworded text
+            # ``run_act("motor-thermal")`` refused at stage 0 with 0 events;
+            # with the prefix restored it walks all 9 stages.
+            presentation_of=f"presentation of run {PRIMARY.name}",
             record_path=T23_RUNS / f"DONE.{PRIMARY.name}")
 
     # -- stages 1 to 3 ------------------------------------------------------
