@@ -18644,3 +18644,84 @@ culprit who did not exist. **Nothing was reverted and nothing was restored.** Th
 struck the claim on receipt. The lesson is not "distrust `git status`" — it is that under
 this protocol the status letter answers a different question from the one the reader is
 asking, and the blob comparison answers the right one.
+
+## L-425 — An alternation wrapped in `\b(...)\b` applies the trailing boundary to EVERY alternative, so a prefix alternative matches nothing at all — and it looks perfectly reasonable in the source
+
+**The rule that hunts a banned phrase could see `60 min` and was blind to `60 minutes`.** That
+is the whole lesson, and the phrase it could not see is the single most likely form of the
+violation it existed to catch.
+
+**THE MECHANIC.** In `\b(a|b|c)\b` the trailing `\b` binds to the whole group, so it applies
+to **every** alternative. An alternative that is a strict PREFIX of the word it means to
+catch therefore matches only the bare prefix — and where the bare prefix is not a word anybody
+writes, that alternative **matches nothing, ever**. Nothing in the source looks wrong. The
+pattern compiles, the other alternatives work, the sweep runs green.
+
+**Reproduction, two lines:**
+
+```python
+>>> import re; p = re.compile(r"\b(60\s*min|one hour)\b")
+>>> p.search("the optimisation takes 60 minutes")     # None. \b fails against the "u".
+```
+
+**THREE MEASURED INSTANCES, all in one file, all written the same day by its author
+(`docs/dafoam/demo/check_actD_sheet_face.py`, repaired at `ab500044`):**
+
+| Written | Never matches | Consequence |
+|---|---|---|
+| `\b(...\|60\s*min\|...)\b` | `60 minutes` | a demo sheet reading "60 minutes" sweeps green against an explicit owner directive |
+| `\b(...\|repositor\|...)\b` | `repository` | dead from the moment it was written; only ever matched the non-word `repositor` |
+| `\b(...\|commit(?:ted)?\|...)\b` | `commits` | narrower than intended |
+
+**HOW IT WAS FOUND, AND THAT PART IS THE TRANSFERABLE BIT.** Not by reading the regex. By a
+supervisor mutating the file — changing `ran` to `zzran` inside a twenty-alternative
+pattern — and finding the control still reported every arm green. **One plant per RULE is not
+one plant per ALTERNATIVE**, in exactly the way one assert per module is not one assert per
+call site (rule 14). The repair was a plant for each alternative; running it for the first
+time immediately produced the three rows above, none of which any human review had noticed.
+
+**THE REMEDY, and one half of it is subtle.**
+
+1. **One plant per alternative**, each asserted to fire on its own, with the hit attributed to
+   its own rule so a dead rule cannot hide behind a live one catching its plant.
+2. **Declare the alternatives INDEPENDENTLY of the pattern.** Generating the plants from
+   `PATTERN.pattern` would generate a plant carrying the same typo, the plant would fire, and
+   the mutation survives its own fix. **A control derived from the thing it controls is not a
+   control.**
+3. Where longer forms are meant to be caught, take the whole word: `(?:60|sixty)\s*min(?:ute)?s?`,
+   `repositor(?:y|ies)`, `commit(?:s|ted|ting)?`.
+
+**LAB-WIDE SWEEP, AND THE HONEST ANSWER IS THAT IT IS NOT AN EPIDEMIC.**
+`scripts/sweep_word_boundary_alternations.py` scanned the **46 tracked Python files carrying
+the `\b(...)\b` shape** against a 63,871-word corpus of this repository's own prose.
+**Verified dead alternatives outside the file where the trap was found: ZERO.** The sweep's
+two machine candidates — `suppose` in `scripts/check_belief_neutrality.py:182` and `shave` in
+`sdk/chief_engineer/router.py:116` — were **hand-checked and are false positives**: both are
+complete English words that simply do not appear in this repository's prose, and both sit in
+lists of bare imperatives where the bare form is what a prompt writes. **A machine finding is
+a candidate, not a fact**, and reporting these two as defects would have been as wrong as
+missing the real ones. What the sweep does leave is a short list of narrower-than-intended
+alternatives for their owning teams, headed by `verification/runs/JF1_jet_flap/vocab_sweep_jf1.py:43`,
+where `toolchain`, `workaround` and `defect` do not see their own plurals on a sweep whose job
+is keeping those words off a filmed surface.
+
+**TWO SECOND-ORDER FAILURES WHILE BUILDING THE SWEEP, BOTH CAUGHT, BOTH THE SAME FAMILY.**
+
+- **The corpus contained the thing under test.** With `*.py` in it the selftest scored **1/4**:
+  every planted dead alternative came back alive, because the token `repositor` occurs in this
+  repository exactly once — **inside the broken pattern itself**. A corpus that contains the
+  code under test is not a corpus, for the same reason a control derived from its subject is
+  not a control. Fixed by restricting the corpus to prose, and by giving the selftest its own
+  fixed four-word corpus so its verdicts do not depend on what happens to be written today.
+- **`\b` SUCCEEDS BEFORE A HYPHEN.** The first run reported 458 "missed longer forms", of
+  which the great majority were pairs like `cannot` / `cannot-adjudicate` — no miss at all,
+  since `\bcannot\b` matches there perfectly well. Only a letter or digit immediately after
+  the prefix defeats the boundary. Correcting the test dropped it to 342 and made the residue
+  worth reading. **The first instrument was wrong in the same direction as the bug it was
+  built to find**, which is worth expecting.
+
+**Disposition.** The three instances in the author's own file are repaired and the repair is
+mutation-tested. **Nothing in another team's comparator was touched** — a silent fix to
+somebody else's gate is exactly what this lab forbids, and the narrow list is handed to a
+supervisor for dispatch rather than acted on. Cost of the sweep: **0.1 core-minutes**, np=1,
+log-measured.
