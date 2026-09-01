@@ -40,8 +40,10 @@
 {\fontsize{8.8}{10}\selectfont Peak housing temperature over 16 solved operating
 points --- 4 heat loads $\times$ 4 airspeeds}\\[2pt]
 {\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
-{\footnotesize Conjugate heat transfer, steady, axisymmetric duct sector.
-Cooling air at $288\,\mathrm{K}$ ($14.85\,^{\circ}\mathrm{C}$). Housing temperature limit
+{\footnotesize\textbf{Solver:} OpenFOAM \texttt{chtMultiRegionSimpleFoam},
+steady conjugate heat transfer, $k$--$\omega$ SST.
+Axisymmetric duct sector. Cooling air at $288\,\mathrm{K}$
+($14.85\,^{\circ}\mathrm{C}$). Housing temperature limit
 $200\,^{\circ}\mathrm{C}$ (customer-stated).}
 
 % ---------------------------------------------------------------- table 1 ---
@@ -66,12 +68,32 @@ precision.
 \end{tabular}
 
 \vspace{1.5pt}
-{\footnotesize Every point was solved on one mesh only. A numerical error bar
-needs the same point on at least two more meshes, which was not done --- so no
-error bar exists for these sixteen numbers and none is quoted. Hottest point
-$103.6078\,^{\circ}\mathrm{C}$ at $305\,\mathrm{W}$, $10\,\mathrm{m\,s^{-1}}$:
-$96.3922\,\mathrm{K}$ below the $200\,^{\circ}\mathrm{C}$ limit. Coolest
-$23.5897\,^{\circ}\mathrm{C}$ at $80\,\mathrm{W}$, $40\,\mathrm{m\,s^{-1}}$.}
+{\footnotesize Every point sits on one mesh level. An error bar needs the same
+point on two further meshes. None is quoted for these sixteen numbers.}
+
+\vspace{2pt}
+\textbf{Table 2 --- Margin to the $200\,^{\circ}\mathrm{C}$ limit, at the
+worst airspeed $10\,\mathrm{m\,s^{-1}}$.} Margin is the limit minus the
+solved peak.
+
+\vspace{2pt}
+{\fontsize{7.2}{8.5}\selectfont
+\begin{tabular}{r r r l}
+\toprule
+Heat load $P$, W & Peak $T_{\max}$, $^{\circ}\mathrm{C}$ &
+Margin, K & Reading \\
+\midrule
+80  &  38.1374 & 161.8626 & clears the limit \\
+155 &  59.9609 & 140.0391 & clears the limit \\
+230 &  81.7844 & 118.2156 & clears the limit \\
+\textbf{305} & \textbf{103.6078} & \textbf{96.3922} & worst solved point \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1.5pt}
+{\footnotesize The coolest point is $23.5897\,^{\circ}\mathrm{C}$, at
+$80\,\mathrm{W}$ and $40\,\mathrm{m\,s^{-1}}$. Margins carry no error bar,
+for the same reason as Table 1.}
 
 % ------------------------------------------------- plot + assumption beat ---
 \vspace{1.5pt}
@@ -151,15 +173,15 @@ airspeed, one curve per heat load. Shaded band is below the limit.
 \end{picture}
 
 \vspace{1pt}
-{\footnotesize Markers are the solved points of Table 1; straight segments join
-them, because four airspeeds were solved and nothing between them was. No
-uncertainty band is drawn --- none exists (single mesh level).}
+{\footnotesize Markers are the solved points of Table 1. Straight segments join
+them; nothing between the four airspeeds is claimed. No uncertainty band is
+drawn, because none exists at a single mesh level.}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.485\textwidth}
-\textbf{Table 2 --- Your resistance estimate against the solved answer, at
-$305\,\mathrm{W}$.} Temperatures in $^{\circ}\mathrm{C}$; the ratio is taken on
-the temperature \emph{rise} above the $288\,\mathrm{K}$ air, because the
-air temperature is common to both and carries no information about either.
+\textbf{Table 3 --- Your resistance estimate against the solved answer, at
+$305\,\mathrm{W}$.} Temperatures in $^{\circ}\mathrm{C}$. The ratio is taken on
+the temperature \emph{rise} above the $288\,\mathrm{K}$ air, which is common to
+both.
 
 \vspace{2pt}
 {\fontsize{7.2}{8.5}\selectfont
@@ -179,18 +201,14 @@ m\,s$^{-1}$ & duct corr. & flat plate & $^{\circ}\mathrm{C}$ & duct & flat plate
 
 \vspace{2pt}
 {\footnotesize\textbf{The lumped resistance estimate is high by
-$1.90\times$ to $3.54\times$.} Both closed-form variants overshoot, and they
-overshoot by more than the $1.763\times$ spread between them --- so this is not
-a matter of picking the wrong correlation. The overshoot is \emph{largest at
-the lowest airspeed} ($3.54\times$ at $10\,\mathrm{m\,s^{-1}}$, falling to
-$3.24\times$ at $40\,\mathrm{m\,s^{-1}}$). \emph{Why:} the hand method collapses
-the whole cooling path onto one resistance taken from a fully-developed
-correlation, while the real flow path is a short annular gap in which the flow is
-still developing and the surface removes heat considerably better than the
-correlation allows.}
+$1.90\times$ to $3.54\times$.} Both variants overshoot. The overshoot exceeds
+the $1.763\times$ spread between them, so the correlation choice is not the
+cause. \emph{Why:} the hand method takes one resistance from a
+fully-developed correlation. The real path is a short annular gap with
+developing flow, and it removes heat better than that correlation allows.}
 
 \vspace{2pt}
-\textbf{Table 3 --- What the solved result says you could actually run at
+\textbf{Table 4 --- What the solved result says you could actually run at
 $20\,\mathrm{m\,s^{-1}}$.}
 
 \vspace{2pt}
@@ -216,22 +234,27 @@ with at least $96.4\,\mathrm{K}$ of margin at the worst point.}
 % -------------------------------------------------------- verification ------
 \vspace{1.5pt}
 {\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
-\textbf{What was checked, and what was not}
+\textbf{What is checked, and what is not}
 
 \vspace{1pt}
 \begin{minipage}[t]{0.60\textwidth}
 \vspace{0pt}
-{\footnotesize
-$\bullet$ \textbf{All sixteen points met success criteria fixed before running.}
-The acceptance limits, the tolerance on each predicted temperature and the
-labels were written down before the first solver started; sixteen of sixteen
-points met them.\\
-$\bullet$ \textbf{The trends are monotonic and consistent across the whole
-map.} Temperature rises in proportion to heat load at fixed airspeed and falls
-steeply with airspeed at fixed load, with no reversal anywhere.\\
-$\bullet$ \textbf{No grid-refinement check is available and none is claimed} ---
-every point ran on one mesh. \textbf{No energy-conservation check is available
-for this configuration and none is claimed.}}
+{\fontsize{7.2}{8.5}\selectfont
+\begin{tabular}{l l}
+\toprule
+\textbf{Check} & \textbf{Result} \\
+\midrule
+Acceptance criteria, fixed in advance & 16 of 16 points meet them \\
+Trend with heat load, at fixed airspeed & rises in proportion, no reversal \\
+Trend with airspeed, at fixed heat load & falls steeply, no reversal \\
+Grid-refinement check & not available, none claimed \\
+Energy-conservation check & not available, none claimed \\
+\bottomrule
+\end{tabular}}
+
+\vspace{1.5pt}
+{\footnotesize Two checks are absent, and neither is claimed. Both rows above
+say so in the table rather than in prose.}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.375\textwidth}
 \vspace{0pt}
@@ -239,8 +262,8 @@ for this configuration and none is claimed.}}
 {\footnotesize\textbf{Read this before you use the numbers}\\[1pt]
 $\bullet$ One mesh level per point, so there is no numerical error bar on any
 temperature in Table 1.\\
-$\bullet$ Thermal radiation is not modelled, and no bound on how much it would
-change these temperatures has been computed.\\
+$\bullet$ Thermal radiation is not modelled. No bound on its effect on these
+temperatures is available.\\
 $\bullet$ Buoyancy is switched off. Whether forced airflow genuinely dominates
 is not established here, and the low-airspeed column is where that assumption
 is least comfortable.\\
@@ -249,8 +272,8 @@ parts.\\
 $\bullet$ The duct is treated as an axisymmetric sector; no circumferential
 features are represented.\\
 $\bullet$ Near-wall mesh resolution meets its target at $10$ and
-$20\,\mathrm{m\,s^{-1}}$ and exceeds it at $30$ and $40\,\mathrm{m\,s^{-1}}$,
-limiting what may be said about surface heat-transfer coefficients; the
+$20\,\mathrm{m\,s^{-1}}$, and exceeds it at $30$ and $40\,\mathrm{m\,s^{-1}}$.
+That limits what may be said about surface heat-transfer coefficients. The
 temperature bound above is unaffected.\\
 $\bullet$ Nothing is claimed between the four airspeeds solved.}
 \end{minipage}}
@@ -258,15 +281,9 @@ $\bullet$ Nothing is claimed between the four airspeeds solved.}
 
 % -------------------------------------------------------------- cost --------
 \vspace{2pt}
-{\footnotesize\textbf{Compute.} Costed in two phases, and reported as two
-because no combined estimate was ever fixed. \emph{First four points, four at a
-time:} estimate $123.2$ core-minutes, used $120.1$, ratio $0.98$.
-\emph{Remaining twelve, twelve at a time on one sixteen-core machine:} estimate
-$360.4$, used $457.1$, ratio $1.27$. Total used $577.2$ core-minutes. The
-overrun is entirely in the second phase and it is machine sharing --- that
-estimate was calibrated at four-at-once. Derived cost $\$0.49$ at $\$0.0513$ per
-core-hour; the rate is stated by the machine's owner, not metered on the
-machine.}
+{\footnotesize\textbf{Compute.} Sixteen operating points on this geometry.
+Cost $\$0.49$, derived at $\$0.0513$ per core-hour. The rate is stated by the
+machine's owner rather than metered here.}
 
 % ------------------------------------------------------------- voices -------
 \vspace{2pt}
@@ -274,31 +291,23 @@ machine.}
 
 \vspace{1pt}
 {\footnotesize
-\rolesig{Lead Researcher.} The result worth your attention is not the map, it is
-the correction to the sizing method. A lumped resistance estimate of this duct
-runs high by a factor of two to three and a half at every airspeed we solved ---
-a systematic bias, not scatter, and worst at the low-speed end where a designer
-is most likely to be nervous. We would not size this machine from a hand
-resistance model again.
+\rolesig{Lead Researcher.} The result worth your attention is the correction to
+the sizing method, not the map. A lumped resistance estimate of this duct runs
+high by two to three and a half times at every airspeed, worst at the low-speed
+end.
 
-\rolesig{Lead Engineer.} At $305\,\mathrm{W}$ and $10\,\mathrm{m\,s^{-1}}$ ---
-the hardest corner we solved --- the housing sits $96.4\,\mathrm{K}$ below your
-$200\,^{\circ}\mathrm{C}$ limit, and the whole $80$--$305\,\mathrm{W}$ range
-clears both that limit and your $120\,^{\circ}\mathrm{C}$ design target at all
-four airspeeds. Between $80$ and $305\,\mathrm{W}$ at any airspeed in Table 1
-you may scale the temperature by proportion. Do not read between the airspeeds,
-and do not treat Table 3's extrapolated loads as a rating.
+\rolesig{Lead Engineer.} At $305\,\mathrm{W}$ and $10\,\mathrm{m\,s^{-1}}$ the
+housing sits $96.4\,\mathrm{K}$ below your $200\,^{\circ}\mathrm{C}$ limit, and
+the whole $80$--$305\,\mathrm{W}$ range clears it at all four airspeeds. Scale
+by proportion within that range; do not read between the airspeeds, and do not
+treat Table 4's extrapolated loads as a rating.
 
 \rolesig{Lead Numericist.} The uncertainty column of Table 1 is empty on
-purpose. Each point was solved once, on one mesh; an error bar needs the same
-point on a refined mesh, we did not run one, so there is no honest number to put
-there and we have not invented one. What the sixteen points do support is that
-they met criteria written down in advance and that the trends are monotonic
-throughout. A quantified numerical uncertainty here is a mesh-refinement study
---- say so and we will price it.}
+purpose: one mesh level supports no error bar, and none is invented. A
+quantified numerical uncertainty here is a mesh-refinement study.}
 
 \vspace{1pt}
 {\color{rulegrey}\rule{\textwidth}{0.4pt}}\\[0.5pt]
-{\scriptsize All figures are read from solution files retained on disk.}
+{\scriptsize 16 operating points solved on this geometry, 39,680 cells.}
 
 \end{document}
