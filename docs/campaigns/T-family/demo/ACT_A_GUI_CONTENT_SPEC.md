@@ -960,9 +960,9 @@ exactly where a plausible-sounding feature list would reintroduce them.
 
 **Confidence statement**, and it is genuinely strong here:
 
-> Confidence: high. The body is axisymmetric and fully dimensioned, and the mesh
-> was confirmed identical across all sixteen cases before any temperature was
-> read.
+> - Confidence: high
+> - Body axisymmetric, fully dimensioned: L = 0.750 m, duct r = 0.125 m
+> - Mesh identical across all 16 cases: 48 of 48 region-case pairs, sha256
 
 *(Backing: `geometry_guard.result` — "all 16 cases byte-identical in fluid,
 housing and core — 48 of 48 region-case pairs".)*
@@ -973,25 +973,24 @@ Her three named roles, in her order. **Aligning our naming to hers**: our
 existing content lives in `mesh_plan`, `gates` and `Results.limitations` and is
 re-labelled, not rewritten.
 
-**Lead Researcher — physics identified; closure chosen and why (class, known limits):**
+**Lead Researcher — physics identified; closure chosen and why:**
 
-> The physics is conjugate heat transfer: a heated core, its housing wall and
-> the cooling air are solved together rather than separately, so the metal and
-> the air set each other's temperature. The closure is k-omega SST, resolved to
-> the wall rather than bridged with a wall function. It is a two-equation
-> eddy-viscosity model — it carries that class's known limit, which is that
-> turbulent transport is modelled rather than resolved, and the heat the air
-> carries away carries that model's error.
+> - Conjugate heat transfer: 3 regions solved together, not separately
+> - Metal and air set each other's temperature at the interface
+> - Closure: k-omega SST, resolved to the wall, no wall function
+> - y+ = 0.73-0.75 on the heated housing
+> - Known limit: turbulent transport modelled, not resolved
 
 *(Closure name is READ, `actA_screen_data.json` → `solver.turbulence_model`,
 never typed — the act already does this.)*
 
 **Lead Engineer — mesh type and target resolution; solver named:**
 
-> A structured wedge mesh of 39,680 cells over three regions — 35,200 in the
-> air, 1,120 in the housing, 3,360 in the core. Wall layers are resolved, not
-> modelled: the near-wall spacing holds the wall unit below one against the
-> heated housing. The solver is OpenFOAM chtMultiRegionSimpleFoam.
+> - Structured wedge mesh, 39,680 cells, 3 regions
+> - Air 35,200 ; housing 1,120 ; core 3,360
+> - Wall layers resolved: y+ 0.73-0.75 (housing), 0.91-2.40 (duct wall)
+> - Solver: OpenFOAM chtMultiRegionSimpleFoam
+> - 1 rank per point, 16 points
 
 *(Cells from `T23_T24_MESH_FACTS.json`; wall units from `T23_GRADE.json.yplus`,
 four surfaces, already tabulated by `mesh_plan()`; solver name cross-checked
@@ -999,11 +998,11 @@ between the log header and the case dictionary by `solver_name()`.)*
 
 **Lead Numericist — schemes, tolerances, and the checks that will run:**
 
-> Steady, so no time step. The checks that will run are set before the solve:
-> every reader is driven with a known planted signal and must detect it, the air
-> mass through the duct must balance in against out, and every value on the
-> results table is re-read from the stored fields against the record written
-> before the runs started.
+> - Steady state: no time step
+> - 4 readers each driven with a planted 1.234e-03 K signal; all 4 detected it
+> - Air mass in vs out: balance checked at every point
+> - 5 values re-read from the stored fields against the pre-run record
+> - Largest disagreement 3.7e-05 K
 
 *(All three already exist: `gates()` planted table — 4 readers, planted
 1.234e-03 K; `gates()` conservation table; and the 5 anchor checks agreeing to

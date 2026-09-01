@@ -452,8 +452,9 @@ MAP_TITLE = "Peak core temperature, 16 operating points"
 # The caption must describe the picture that is actually drawn. It used to
 # say "the table carries both solid peaks", which was true while a table sat
 # inside this figure and became false the moment the table moved to the sheet.
-MAP_CAPTION = ("Peak temperature in the motor core at each of the sixteen "
-               "solved operating points.")
+MAP_CAPTION = (r"16 points $\cdot$ $P$ = 80--305 W $\cdot$ "
+               r"$U_\infty$ = 10--40 m s$^{-1}$ $\cdot$ "
+               r"$T_\mathrm{core}$ 24.7--107.7 $^\circ$C")
 
 
 def fig_map_table(rows):
@@ -523,8 +524,8 @@ def fig_map_table(rows):
 # ==========================================================================
 
 ENVELOPE_TITLE = "Peak core temperature against airspeed"
-ENVELOPE_CAPTION = ("One curve per dissipated power; the arrow is the measured "
-                    "margin at the hottest solved point.")
+ENVELOPE_CAPTION = (r"4 curves, $P$ = 80--305 W $\cdot$ limit 200 $^\circ$C "
+                    r"$\cdot$ min margin +92.3 K at 305 W, 10 m s$^{-1}$")
 
 
 def fig_envelope(rows):
@@ -654,8 +655,9 @@ REGION_COLOUR = {"core": "#b5651d", "housing": "#1f5fb3", "fluid": "#2e7d32"}
 
 
 RADIAL_TITLE = "Radial temperature through the hottest cell"
-RADIAL_CAPTION = ("305 W, 10 m/s; each marker is one cell, radius axis broken "
-                  "at the two material interfaces.")
+RADIAL_CAPTION = (r"$P$ = 305 W $\cdot$ $U_\infty$ = 10 m s$^{-1}$ $\cdot$ "
+                  r"$k$ = 40 / 167 / 0.026 W m$^{-1}$K$^{-1}$ $\cdot$ "
+                  r"$r$ = 6--125 mm")
 
 
 def fig_radial(prof, z_used, extra, stats):
@@ -739,8 +741,8 @@ def fig_radial(prof, z_used, extra, stats):
 # ==========================================================================
 
 MONITOR_TITLE = "Housing temperature monitors, sixteen runs"
-MONITOR_CAPTION = ("Upper trace hottest housing point, lower trace coldest; "
-                   "each run's own monitor, unchanged.")
+MONITOR_CAPTION = (r"16 runs $\cdot$ 100 samples each $\cdot$ "
+                   r"housing peak 103.6 $^\circ$C")
 
 
 def fig_monitor(traces, final_internal):
@@ -780,8 +782,8 @@ def fig_monitor(traces, final_internal):
 # ==========================================================================
 
 BEAT_TITLE = "Hand estimate versus coupled solve, 305 W"
-BEAT_CAPTION = ("Both hand correlations overpredict; the gap shrinks as "
-                "airspeed rises.")
+BEAT_CAPTION = (r"hand/solve 3.54$\rightarrow$3.24 (duct), "
+                r"2.03$\rightarrow$1.90 (flat), $U_\infty$ = 10--40 m s$^{-1}$")
 
 
 def fig_assumption(rows):

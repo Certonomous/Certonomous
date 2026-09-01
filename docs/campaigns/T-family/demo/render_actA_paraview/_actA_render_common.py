@@ -99,13 +99,11 @@ REGIONS = ("fluid", "housing", "core")
 #: fact rather than apology.
 
 #: For a view of the solved plane through the axis. No extrusion, nothing added.
-AXISYMMETRY_PLANE_LINE = ("The motor is axisymmetric. This is the plane through "
-                          "its axis, as solved.")
+AXISYMMETRY_PLANE_LINE = "Axisymmetric ; 5 deg wedge ; r-z plane as solved"
 
 #: For a view of the body revolved for legibility. Permitted, never silent.
-AXISYMMETRY_REVOLVE_LINE = ("The motor is axisymmetric. It was solved on a "
-                            "five-degree wedge and the body shown here is a "
-                            "revolve of it.")
+AXISYMMETRY_REVOLVE_LINE = ("Axisymmetric ; 5 deg wedge solved ; 360 deg "
+                            "revolve, display only")
 
 #: Axial extent of the solved domain, z0..z3, from the parts manifest.
 #: Read rather than typed by :func:`axis_extent`.

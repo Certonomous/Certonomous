@@ -131,8 +131,8 @@ def render(path_stl: str, out_dir: str) -> str:
 
     frame_isometric(view)
     caption(view, AXISYMMETRY_REVOLVE_LINE)
-    caption(view, "Orange is the heated housing. The duct is drawn "
-                  "see-through so the motor inside it is visible.",
+    caption(view, "L = 0.750 m ; heated housing 0.125 m (orange) ; "
+                  "duct r = 0.125 m, opacity 0.22",
             position=(0.02, 0.055))
 
     out = os.path.join(out_dir, "actA_geometry_paraview.png")

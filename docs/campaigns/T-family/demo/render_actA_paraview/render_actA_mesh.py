@@ -108,9 +108,8 @@ def render_wall_zoom(case_dir: str, out_dir: str) -> str:
         view.CameraViewUp = [0.0, 1.0, 0.0]
         view.CameraParallelScale = half
 
-        caption(view, "The wall layers thin towards the heated surface, so the "
-                      "heat transfer at the metal is resolved rather than "
-                      "modelled.")
+        caption(view, "20 mm window at r = 37.5 mm ; y+ = 0.73-0.75 on the "
+                      "heated housing")
         caption(view, AXISYMMETRY_PLANE_LINE, position=(0.02, 0.055))
 
         out = os.path.join(out_dir, "actA_mesh_wall_zoom_paraview.png")

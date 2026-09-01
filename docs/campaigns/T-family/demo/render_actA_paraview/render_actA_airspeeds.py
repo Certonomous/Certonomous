@@ -108,11 +108,9 @@ def main() -> int:
             bar.LabelFormat = "%.0f"
 
             frame_axial_plane(view)
-            caption(view, f"Duct airspeed {speed} metres per second, "
-                          f"{POWER_W} watts dissipated.")
+            caption(view, f"U_inf = {speed} m/s ; P = {POWER_W} W")
             caption(view, AXISYMMETRY_PLANE_LINE, position=(0.02, 0.055))
-            caption(view, f"All four frames share one scale, "
-                          f"{lo:.0f} to {hi:.0f} degC.",
+            caption(view, f"4 frames ; one scale {lo:.1f}-{hi:.1f} degC",
                     position=(0.02, 0.09))
 
             out = os.path.join(args.out,
