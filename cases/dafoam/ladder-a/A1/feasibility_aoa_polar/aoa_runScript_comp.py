@@ -101,8 +101,13 @@ daOptions = {
 _PHYS_MD5 = "c66504acc57bd9ef009599e883d2ef3b"
 with open(__file__) as _fh:
     _src = _fh.read()
-_B = "# ---- D19M_PHYSICS_BEGIN ----\n"
-_E = "# ---- D19M_PHYSICS_END ----"
+# THE MARKER LITERALS ARE SPLIT ACROSS AN IMPLICIT CONCATENATION ON PURPOSE.
+# Written whole, they would be a SECOND occurrence of each marker inside this
+# very file, and the count-must-be-1 limb below -- the limb that makes the
+# split unambiguous -- would refuse its own producer. G-PHYS caught exactly
+# that on the first launch attempt, before any compute.
+_B = "# ---- D19M_PHYSICS" "_BEGIN ----\n"
+_E = "# ---- D19M_PHYSICS" "_END ----"
 if _src.count(_B) != 1 or _src.count(_E) != 1:
     raise SystemExit("AOAC_ABORT physics markers appear %d/%d times, expected 1/1"
                      % (_src.count(_B), _src.count(_E)))

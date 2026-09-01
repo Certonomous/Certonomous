@@ -528,3 +528,65 @@ dated addenda that cannot alter a gate, threshold, cap or label.
 `/home/ubuntu/certonomous-runs/CURRICULUM-AOAC-a1-naca0012-alpha-polar-compressible`
 **did not exist** — asserted by execution immediately before launch, and G-ROOT
 refuses at exit 6 if it does.
+
+---
+
+## 12. AMENDMENT — 2026-09-01, BEFORE ANY AOAC COMPUTE
+
+**Rule 2 permits amendment before first compute, and requires the condition and
+how it was checked to be stated.**
+
+### The condition, and how it was checked
+
+**THE CONDITION: `/home/ubuntu/certonomous-runs/CURRICULUM-AOAC-a1-naca0012-alpha-polar-compressible`
+DOES NOT EXIST.**
+
+**How it was checked:** by execution, not by assertion. The first AOAC launch
+attempt **refused at G-PHYS (exit 9) before the container was started**, so no
+run root was ever created and no AOAC compute has occurred. The refusal is on
+record in
+`/home/ubuntu/certonomous-runs/CURRICULUM-AOAC-…-compressible.launch.out`:
+
+> `AOA_ABORT G-PHYS physics block md5 'MARKERS' != D19M's c66504acc57bd9ef009599e883d2ef3b`
+
+and the run root's absence was re-checked with `ls -d` immediately before this
+amendment. **No gate, threshold, cap or label changes below.**
+
+### What changed, and why
+
+**`aoa_runScript_comp.py` is regenerated. Its md5 moves from
+`f86eaa10fc945c79ec94f48737ed4caf` to `8dbba88c465e80b526a0f10c744e9458`.**
+`AOAC_MD5.txt` is rewritten to match. **The physics block is untouched and still
+hashes to `c66504acc57bd9ef009599e883d2ef3b`.**
+
+**THE DEFECT WAS MINE AND G-PHYS CAUGHT IT.** The generated producer embedded the
+marker strings as **whole literals** inside its own import-time self-assert, so
+`# ---- D19M_PHYSICS_END ----` occurred **twice** in the file (line 98, the real
+marker; line 105, inside the self-assert). G-PHYS's first limb requires each
+marker to appear **exactly once**, because a second occurrence makes the split
+ambiguous — and it refused. **The refusal was correct.** The fix splits the
+marker literals across an implicit concatenation so the contiguous string appears
+only at the real marker.
+
+### The second, larger finding: a guard is not tested until every limb is driven
+
+**`aoa_run_arm_selftest.sh` drove G-PHYS's md5 limb and not its marker-count
+limb.** The clean producer passed the md5 limb, so the selftest reported the
+guard healthy — **while the producer would have been, and was, refused by the
+limb that was never driven.** A partial selftest that reports PASS is worse than
+no selftest, because it buys confidence it has not earned.
+
+**`aoa_phys_marker_selftest.py` is added** and drives **both limbs in both
+directions**, five cases: the clean producer must PASS; a moved `nuTilda0` byte,
+a **duplicated END marker** (the real defect's shape), a removed BEGIN marker,
+and a vanished block must each REFUSE. **All five pass.**
+
+`aoa_run_arm_selftest.sh` is **left byte-untouched** — it is on AOAI's pinned
+grading path and **AOAI is running** — so this limb gets its own instrument
+rather than an edit to a file another arm is being graded against.
+
+### What is NOT changed
+
+`aoa_read.py`, `aoa_cmd.sh` and `aoa_run_arm.sh` are byte-identical to their
+frozen state. **AOAI's pinned grading path is entirely unaffected**: it does not
+list `aoa_runScript_comp.py`, and AOAI's own producer is untouched.
