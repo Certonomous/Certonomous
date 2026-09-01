@@ -18577,3 +18577,70 @@ desk rather than in force.** Until she rules, the mitigation is judgement, not m
 **check the diffstat magnitude against what you wrote, and prefer routing a small edit to
 whichever lane is already live in that file over racing it.**
 
+
+## L-424 — Under the private-index protocol a `D` in `git status` is the DEFAULT state of any file that landed since the index was last refreshed, so a deletion is proved by comparing BLOBS and never read off the status letter
+
+**A supervisor's brief asserted a deletion that had not happened, and asked a lane to find
+out who did it.** The brief named `cases/dafoam/drive_actd_demo_mode.py` and
+`cases/dafoam/ladder-a/A2_demo_mode_drive.json` as *staged deletions sitting in the shared
+index, stager unknown*, and instructed the lane to inspect and never revert. **Nobody had
+deleted anything.** Both files were on disk, at `HEAD`, and byte-identical in all three
+places. The brief was written off a `git status` snapshot, and the snapshot was telling the
+truth in the only vocabulary it has.
+
+**THE MECHANISM, AND IT IS RULE 10's OWN PROTOCOL WORKING AS DESIGNED.** The private-index
+protocol lands a commit with `git update-ref refs/heads/main`. That moves the branch and
+therefore `HEAD`. **It does not touch `.git/index`.** So from the moment any peer commits
+that way, the shared index is behind `HEAD`, and `git status` renders the gap the only way it
+can: **every path ADDED by a commit landed since the index was last refreshed reads `D `**
+— staged deletion, first column — **and every path MODIFIED since reads with a staged-change
+letter.** Rule 11 already records this divergence for `docs/DOCKET.md`. It is not special to
+that file. **It is the protocol's normal resting state for every path in the repository**, and
+on a box where six teams commit continuously it is the state most of the time.
+
+**MEASURED, 2026-09-01.** For all five paths of commit `e3964db0` the index blob
+(`git ls-files -s`), the `HEAD:` blob (`git rev-parse HEAD:<path>`) and the working file's
+own hash (`git hash-object <path>`) were **the same object**, and `git diff --cached HEAD`
+was **empty repository-wide**. No `reset` had run: `ORIG_HEAD` dated 2026-08-16 23:16.
+**Every `git reflog` entry carried an EMPTY reason — the `update-ref` signature**, where a
+real `git commit` writes `commit: <subject>`. Checked across three teams rather than only the
+lane's own files: `docs/campaigns/T-family/T25R_PREREGISTRATION.md` (added `1a7bae7c`),
+`etc/sessions/2026-09-01T0410Z_sanaa_compressible_queue_order.md` (added `055376a0`) and
+`docs/campaigns/T-family/demo/figures_actA/actA_temperature_field.png` (added `d0fea770`) —
+**all three present on disk and at `HEAD`, all three reading as staged deletions.**
+
+**THE CONTRAST THAT MAKES THIS USABLE WAS IN THE SAME SNAPSHOT.**
+`verification/queue/cfd/F26D.json` is **absent from disk and present at `HEAD`**. That one is
+a **real** deletion — the queue daemon consuming its own entry — and it sits in the SECOND
+column, unstaged. So the same repository shows both letters at once. **They are told apart by
+which column the `D` is in and, decisively, by whether the file is on disk. Never by the
+letter alone, and never by a snapshot pasted into a brief.**
+
+**The method is three commands and costs nothing:**
+
+```bash
+git ls-files -s -- <path> | awk '{print $2}'   # what the index holds
+git rev-parse HEAD:<path>                      # what HEAD holds
+git hash-object <path>                         # what is actually on disk
+```
+
+**Three equal hashes means nothing happened.** Run this BEFORE writing a brief, a board entry
+or a commit message that asserts somebody deleted, staged or reverted something.
+
+**WHY IT IS WORTH A LESSON AND NOT JUST A FOOTNOTE.** Rule 10 forbids reverting an unexpected
+change, and the natural reaction to *"two of my files are staged for deletion by an unknown
+hand"* is to restore them. **Restoring a file that was never deleted, out of an index that is
+merely behind, is precisely how a stale index writes a revert into a commit** — the failure
+that cost nine files at `c46309f5` and that rule 10's post-commit `git diff HEAD~1 HEAD
+--stat` exists to catch. **The `D` invites exactly the action the rules forbid**, and it
+invites it with the authority of a tool everybody trusts.
+
+**One practical aside, measured here:** a full `git status` did not complete within 120 s on
+this tree. That is a further reason to interrogate one path with the three commands above
+rather than to read, and then relay, a whole snapshot.
+
+**Disposition.** The brief's premise was wrong and the lane said so instead of hunting a
+culprit who did not exist. **Nothing was reverted and nothing was restored.** The supervisor
+struck the claim on receipt. The lesson is not "distrust `git status`" — it is that under
+this protocol the status letter answers a different question from the one the reader is
+asking, and the blob comparison answers the right one.
