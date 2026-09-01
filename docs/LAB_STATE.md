@@ -20999,7 +20999,20 @@ by explicit path only, PATH NOT YET RECEIVED**.
 
 ## verification
 
-**Section updated:** 2026-09-01T01:55Z by verification-supervisor. **Zero solver compute.** **DEMO-ONLY FREEZE IN FORCE.** `FAIL_OPEN_GATE_AUDIT` **§20** — dafoam's admission reader. **I inverted chord and span; all eight axis-order arms stayed green.**
+**Section updated:** 2026-09-01T02:05Z by verification-supervisor. **⚠ FLEET-KILL RESUME POINT — subscription switch, every agent terminates.** Zero solver compute. **Nothing of mine is uncommitted; both audits are at HEAD.**
+
+##### RESUME POINT R-1 — **READ THIS FIRST ON RESTART. Everything below is MEASURED at HEAD in the invocation that wrote it.**
+
+- **STATE AT KILL: CLEAN.** `acc0e375` (§19, cfd scope-down audit) and `414b33f3` (§20, dafoam admission reader audit) are **both at HEAD**. `docs/FAIL_OPEN_GATE_AUDIT.md` and `docs/LAB_STATE.md` are **byte-identical to HEAD on disk** `[MEASURED]`. **Lanes 0. Solvers 0. Verification queue 0. No work is in flight and nothing is half-written.**
+- **⚠ THE SHARED INDEX CARRIES A STALE STAGED `docs/LAB_STATE.md`** (`git status` reads `MM` while the worktree blob equals HEAD). **NOT MINE, NOT TOUCHED — the index is the chief's call (rule 10).** A successor must keep using the private-index protocol with `read-tree HEAD`, which bypasses it. **Do not "fix" it by staging or resetting.**
+- **THE ONE THING I OWE PERSONALLY AND DID NOT DISCHARGE — the F28 check-1 re-drive.** My `§17.8` pin said check 1 transfers to `analyse_f28.py` **iff** its blob is exactly `1c6b9d53…`. **cfd installed a THIRD blob, `5aff1614…`, at `eecb17e4` (2026-08-31T22:40Z)** — neither the candidate `1c6b9d53…` nor the earlier comparator `f496cc7e…`. **THE TRANSFER CONDITION HAS FAILED, so my earlier check-1 read does NOT cover the installed bytes and F28 Stage 1 stays gated on a read I have not done.** It is **non-delegable** and **parked by the demo-only freeze**, not abandoned. **No agent may supply that token on my behalf.**
+- **TWO DEMO-CRITICAL RELAYS THAT NEVER WENT OUT.** I boarded them as next actions and the kill arrived first; **treat them as UNSENT.** (1) **cfd's scope-down fix is NOT LIVE** — control-room server pid 848778 started 00:55Z, `a42756d4` landed 01:13:35Z; a running Python process does not re-import, so **filming before the coordinated restart reproduces the on-camera failure unchanged.** (2) **cfd's M4 gap** — the interface half is certified by four `assertIn` on HTML text with no JS executed; I disarmed the screen and all 22 tests passed. The closing pattern already sits beside the file (`control_room_*_harness.js`). (3) **dafoam** — the missing value-invariance arm, the 33-vs-34 arm count, and the dead `_END_CLOSURE_FRACTION`.
+- **NON-DEMO, PARKED BY THE FREEZE, all measured 2026-09-01 and safe to trust:** T18's side-effect artifact is now **TRACKED** (`bc17c5f2`) but `analyse_t18.py`'s live-tree ROOT is **unrepaired**; `recipe_audit.py`'s selftest pins **FIFTEEN** exact values, **correcting my own V-46 figure of twelve**; T20's `§2d.3` grant reached three T20 records but **not the pre-registration**, and its condition (iii) is **not independently verifiable** — the trees were built in scratch and are gone.
+- **NOTHING IS ON SANAA'S DESK THAT WAS NOT ALREADY THERE.** `§2n.18` (now five specimens, the fifth cutting the other way), `§2n.19`, the `append_record.py` id-format option, cfd's four frozen-registration defects, the ansys taxonomy ruling, `RESULT_PRIORITY_CHARTER` v0.5.
+- **BLOCKED, unchanged:** `C-217` behind stood-down closure — **rc 4 is CORRECT and must not be cleared.** **Cutover still BLOCKED.**
+- **Zero solver compute this session: 0 core-min, $0.00.** Rule 12's calibration duty does not attach — no pre-registration, no cap, no compute; **I do not invent a ratio where there is no estimate.**
+
+**Superseded section stamp (kept):** 2026-09-01T01:55Z by verification-supervisor. **Zero solver compute.** **DEMO-ONLY FREEZE IN FORCE.** `FAIL_OPEN_GATE_AUDIT` **§20** — dafoam's admission reader. **I inverted chord and span; all eight axis-order arms stayed green.**
 
 ##### UPDATE V-48 — **dafoam's READER HOLDS AND ITS PATTERN IS WORTH KEEPING. BUT THE EIGHT ARMS CARRYING ITS HEADLINE CLAIM ASSERT THE VERDICT CODE AND NEVER THE VALUE — AND I NEARLY RETRACTED A TRUE FINDING AGAINST IT WITH A BAD GREP.**
 
