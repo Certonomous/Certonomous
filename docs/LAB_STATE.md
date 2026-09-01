@@ -4788,9 +4788,46 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T04:53:14Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T04:55:13Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24f — **THE MULTIPOINT ADJOINT DEMO IS BUILT FROM THE GRADED `SO-3` RUN AND SAYS THE HONEST THING ON ITS FACE. FOUR RULINGS FROM ME, PLUS A CATCH THE LANE FLAGGED AND DID NOT CARRY FAR ENOUGH: A **PREDICTED** COST WAS ABOUT TO GO ON CAMERA AS WHAT THE RUN COST. ONE QUESTION GOES TO SANAA'S DESK** (2026-09-01T04:55:13Z, `date -u` at write)
+
+###### 1. WHAT LANDED — `abacacb1` (12 files, 2,381 insertions) AND `3ccf6862` (7 files)
+
+Sheet `docs/dafoam/demo/ACT_D_multipoint_optimisation_sheet.tex` (one page, four figures, six tables, compiles clean, no overfull boxes); script `…_script.md` (stage-by-stage camera strings in DEMO MODE order); face checker `…/check_actD_multipoint_sheet_face.py`; series builder `cases/dafoam/build_so3_demo_series.py` → `cases/dafoam/ladder-a/A1_so3_demo_series.json`; mesh renderer `cases/dafoam/render_so3_mesh_figures.py` → `cases/dafoam/ladder-a/figures/so3_grid{,_leading_edge,_pair}.{png,pdf}`.
+
+**The lane read all four binding captures AT SOURCE rather than taking them relayed** — `569346b3`, `4905abdd`, `68b10335` and the 04:20Z order. **Face sweep: `47/47` rule arms behaved, planted violations recovered from the face itself, 1,326 words swept, `0` hits.**
+
+**The grid is the RUN'S OWN.** `render_so3_mesh_figures.py` reads `MESH/constant/polyMesh`, draws **all 4,032 cells with nothing decimated**, plants a coordinate into the point reader and refuses if it cannot read it back, and refuses if its own cell count disagrees with the frozen grade. **I inspected its refusal set myself**: `REFUSE_PLANT_UNSEEN`, `REFUSE_PLANT_CHANGED_COUNT`, `REFUSE_CELL_COUNT_DISAGREES`, and — the one most people omit — **`REFUSE_PLANT_DEGENERATE`, which refuses when the unplanted point ALREADY equals the plant**, so a control cannot pass by coincidence. Measured off that mesh: first layer height **2.0629e-03 to 4.0659e-03 m** over **126 wall nodes**; far field radius **18.583 m**.
+
+`3ccf6862` is the lane's own correction: **the far-field figure was a MAX COORDINATE WEARING THE WORD "RADIUS" — 18.6 m, not 18.7.**
+
+###### 2. ⚠ MY CATCH: A **PREDICTION** WAS ABOUT TO APPEAR ON CAMERA AS THE RUN'S COST
+
+The prompt-beat camera string carried **"114 core-minutes"**. The lane flagged it as unsourced and proposed keeping it. **It is the sum of the four PATCHED-path arms' `predicted` fields — an ESTIMATE, not a measurement.** Showing a user the estimate labelled as the cost is the exact substitution this lab exists to prevent, **and this item's registered `P_COST` MISSED by nearly 8x**, so the figure is not even approximately right.
+
+**The MEASURED PATCHED-path spend, from the grade JSON's `arm_census`: MESH 0.167 + O-P 6.950 + XE-P 2.533 + FE-P 4.533 = `14.183` core-min.** Correction dispatched. **The lane's instinct to flag it was right; the defect was not the arithmetic but WHICH FIELD IT SUMMED.**
+
+###### 3. THE FOUR RULINGS
+
+1. **The four MISSes stay as filed** — non-camera findings, none averaged. **I am adopting the lane's reading of `P2`, which is sharper than mine: the endpoint arm reads lift at the FINAL shape, so THE `P2` MISS *IS* THE LIFT LOSS, measured by the instrument rather than argued.**
+2. **⚠ DO NOT extend the twenty-minute figure to this act. The measured 14.2 minutes stands.** `68b10335` attaches to the REFERENCE-WING act, whose run was 3,601 s displayed as 60 minutes; its target is the 60→20 substitution. **This act's measured path is 851 wall s = 14.2 minutes — already under twenty, and REAL.** Pasting "20 minutes" over it would invent a number **and** break her 04:20Z order that it *"look exactly like what a user would experience"*. **Showing 14.2 satisfies both orders; showing 20 satisfies one and breaks the other.** Declining to extend an instruction beyond the act it was given about is not widening it. **→ ON SANAA'S DESK as an open question; until she rules, measured wins.**
+3. **PATCHED-only on camera is UPHELD** — the rows' components diverge up to **24.17 %** and a repeatability framing would overstate agreement by two orders of magnitude. **But the two-row rule is about the VERDICT, not the camera**, so the sheet gains one sentence and a table row saying **both rows ran and both passed**, without implying they agree and without a second design on screen.
+4. **The stale index is not touched.** The lane verified per path with `git cat-file -e HEAD:<path>` instead of believing `git status`. **This is the SECOND independent sighting tonight and corroborates `L-424` from a third direction.** The index is the chief's call.
+
+###### 4. THE COUPLING THE LANE FOUND, AND WHY ITS DESCRIPTION BEATS ITS FIX
+
+Its face checker imported plant constants from the OTHER lane's `check_actD_sheet_face.py`, which was being repaired underneath it — one string per rule became a list of per-alternative plants and `PAST_PLANT` disappeared. **Its import broke, which it correctly calls THE GOOD FAILURE; the bad one is "a rename that leaves an arm silently unplanted."**
+
+**That is the same family as the trailing-`\b` trap in `S-24e`** — a control that stops controlling without saying so. It decoupled correctly: **imports only the rule material that must not drift between the two sheets, carries its OWN independently-written plants, and refuses rather than sweeping with a rule it cannot plant.** Coverage went 15 arms → 47. **It did not edit the peer's file**, which was the right boundary.
+
+###### 5. NUMBERS NAMED AS NOT MEASURED, AND CORRECTLY QUARANTINED
+
+`y+ ≈ 30–60` is a **flat-plate correlation** on the measured first-layer height — the run writes no `y+` field. Speed of sound 340 m/s is textbook, for the Mach row only. **Both sit in the "Assumed, not measured" box, tagged, and never share a header with a measured value.** That is the right handling and I am not asking for more.
+
+**No solver compute was spent; this lane's cost is instrument time only.** None of `check_filing.py`'s 45 pre-existing violations is dafoam's.
 
 ##### UPDATE S-24e — **⚠⚠ A LAB-WIDE HAZARD FOUND BY ACCIDENT: AN ALTERNATION WRAPPED IN `\b(...)\b` SILENTLY KILLS EVERY PREFIX ALTERNATIVE. THREE WERE DEAD IN A LIVE SWEEP AND ONE OF THEM WAS THE EXACT FORM SANAA'S ORDER EXISTS TO CATCH — `60 minutes` WAS INVISIBLE TO THE RULE THAT HUNTS IT. VERIFIED BY ME AGAINST THE OLD PATTERNS. A SWEEP OF EVERY COMPARATOR IN THE LAB IS COMMISSIONED** (2026-09-01T04:53:14Z, `date -u` at write)
 
