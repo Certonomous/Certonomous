@@ -347,3 +347,150 @@ its own pre-registration before any compute and runs again.
 **L3 stays refused** (§8.6). **An L2 outer-loop arm stays refused** (§8.5).
 
 <!-- END OF T25R2 RESULTS v1.1 -->
+
+---
+
+## 14. ADDENDUM — SANAA'S DIAGNOSIS OF THE O3 FAILURE, AND THE PRESCRIBED FIX
+
+*Appended 2026-09-01 by a heat-transfer `lab-lane`. **Results document v1.2.***
+
+**Lines whose number changed above this section: 0.** Verified, not assumed:
+this addendum was appended at the foot and §§1–13 were compared line-for-line
+against the committed blob before the commit — every line above this heading
+holds the number it held at v1.1.
+
+**⛔ THIS ADDENDUM CHANGES NO VERDICT.** §3.5's outer-loop gate remains
+`GATE FAIL` on O3, and **every row of this rung remains `NOT A RESULT`** by the
+propagation registered at §3.5.4 before any compute. Nothing below re-grades
+anything or makes any withheld number quotable. This section records the
+**diagnosis and the procedure for the successor**.
+
+### 14.1 THE DIRECTIVE
+
+Sanaa's directive of **2026-09-01 ~15:45Z**, captured verbatim at
+`etc/sessions/2026-09-01T1545Z_sanaa_convergence_prerequisite_doctrine.md`
+(commit `f4c8e466`). Her header, which is lab law under her authority: *"Cost is
+not a constraint. Every gated case runs its grid convergence study
+automatically; a case without one is not a result."* Her **§2** responds to this
+rung by name — *"BATTERY MODULE (Act C): the outlet temperature depends on sweep
+count"*.
+
+Her **§0** doctrine — the automatic convergence study as a pipeline stage on
+every gated case — is set out in full at
+`docs/campaigns/T-family/T23G_RESULTS.md` §11.1 and filed as **`L-429`** in
+`docs/LESSONS.md`. Its operative clause for this rung is point 2: **the
+iterative change in the graded quantity must be at least 10× smaller than the
+difference between consecutive levels, or the observed order is noise rather
+than discretisation.**
+
+### 14.2 HER DIAGNOSIS, IN ONE LINE
+
+> **"This is under-iteration inside each time step during the fast load
+> change."**
+
+**That is a diagnosis of the mechanism, and it is consistent with what §2.1
+measured rather than a substitute for it.** This record found the failure
+localised precisely to the 60 s takeoff pulse — 2.404e-02 K at t = 30 s and
+2.315e-02 K at t = 60 s, both over the 1.234e-02 K threshold, falling to
+2.006e-03 K by t = 900 s — and attributed it to the fluid responding on a
+31.25 ms residence time to a source that is large and about to step, at
+`Co ≈ 1600`. **Her diagnosis names the same window and the same cause, and adds
+the term this record did not: the source is DISCONTINUOUS, and a discontinuous
+source destroys time accuracy at the jump.**
+
+### 14.3 THE PRESCRIBED FIX, IN FULL
+
+| # | lever | prescription |
+|---|---|---|
+| 1 | **ramp the load** | replace the **step** at `t = 0` and `t = 60 s` with a **1 s linear ramp** — *"a discontinuous source destroys time accuracy at the jump"* |
+| 2 | **PIMPLE** | `nOuterCorrectors` **3 → up to 15**, with **`residualControl` on `p`, `U`, `h` at 1e-7**, so each step converges **to a fixed tolerance rather than a fixed count**; `momentumPredictor` **on**; `nCorrectors` **2** |
+| 3 | **time step** | `dt = 0.02 s` during the pulse window (`t < 70 s`), `0.1 s` after; **or** adaptive with `maxCo 0.5`. **"No fixed-count sweeps anywhere."** |
+| 4 | **convergence study** | **three meshes** (channel cells **8 / 12 / 18**, wall layers scaled) **AND three time steps** (`dt`, `dt/2`, `dt/4`) on the middle mesh; observed order **in space and in time** |
+| 5 | **the gate** | the **outlet temperature history and per-cell peaks** change by **less than the registered tolerance** between the **two finest levels of each ladder** |
+| 6 | **loads** | volumetric, as ruled — **1e5 W/m³** pulse, **2.5e4 W/m³** cruise |
+
+**Her Act C decision, recorded as taken:** *"run this fix now; if graded before
+the demo, show it; if not, show the honest-refusal act (option a). Never show
+the 0.4 K run."*
+
+### 14.4 WHY LEVER 2 IS THE ONE THAT ANSWERS THIS RUNG'S GATE
+
+**§3.5 detected that the answer moves when an arbitrary iteration count is
+doubled. Her lever 2 removes the arbitrary count.** With `residualControl` on
+`p`, `U` and `h` at 1e-7 and `nOuterCorrectors` as a *ceiling* of 15 rather than
+a fixed 3 or 10, each time step converges to a **tolerance**, and the question
+this rung failed — *"does the answer depend on the sweep count?"* — stops being
+asked with an arbitrary number in it. **That is a change of kind, not a change
+of degree, and it is why more-sweeps-at-a-fixed-count was never going to settle
+it.**
+
+**This confirms, from her side, the reading §13 reached from this rung's own
+measurements.** §13 priced a 40-sweep arm at ≈22 core-min and called it **"⚠ NOT
+OBVIOUSLY ENOUGH… a coin toss, and it does not touch the cause"** (the 20→40 gap
+landing at 1.158e-02 K against a 1.234e-02 K threshold, ratio 0.938), and named
+**"a finer `deltaT` through the pulse alone"** the more promising lever because
+it attacks the measured mechanism. **Her §2 prescribes exactly that (lever 3),
+plus the ramp (lever 1) and the tolerance-bounded outer loop (lever 2).** The
+record's own reading and the directive converge; neither was derived from the
+other.
+
+**The §4.4 constraint still binds and the successor must not lose it:** a
+`deltaT` finer than **1 ms** would sample the registered ramp and must revisit
+the breakpoint placement. Her lever 1 changes the ramp to **1 s**, which relaxes
+that constraint substantially — but the successor must **re-derive** the
+breakpoints under the new ramp rather than inherit §4.4's numbers.
+
+### 14.5 ⚠ WHAT HER §2 DOES **NOT** ADDRESS, AND WHICH REMAINS A MUST-FIX
+
+**§10's blocker is untouched by any lever above, and it is the one that will
+bite a successor that reads only this addendum.**
+
+`read_patch_T` accepts **only** a `nonuniform List<scalar>` patch entry and
+**REFUSES** anything else. The real staged coolant inlet is written by OpenFOAM
+as `inlet { type fixedValue; value uniform 293; }`, so **`read_inlet_T` refuses
+at every written time, and D2 would have made this rung `NOT A RESULT` on an
+INSTRUMENT REFUSAL even if the outer-loop gate had passed.**
+
+> **A SUCCESSOR THAT FIXES THE NUMERICS AND NOT THE READER GETS A REFUSAL
+> INSTEAD OF AN ANSWER.** It must be fixed **in the successor's own comparator,
+> under its own freeze**, before D2 is gradeable at all.
+
+**§11 also stands:** the successor should give **O3 the coverage O1 has** — every
+written `t > 0`, not the two instants §3.5.4 registered. The registered O3 caught
+the failure but not at its worst point.
+
+### 14.6 THE SUCCESSOR — ORDERED, AND **NOT YET REGISTERED**
+
+**Sanaa's directive ORDERS this fix** (*"Act C: run the fix in §2 now"*;
+*"convergence studies launch in parallel on every case named above, starting
+now"*).
+
+> **⛔ AS OF THIS ADDENDUM, NO SUCCESSOR PRE-REGISTRATION EXISTS ON DISK FOR
+> T25R2.** Checked, and the check is named so it can be repeated:
+> `docs/campaigns/T-family/` and `verification/campaign/` were listed, and no
+> file registers a T25R2 successor. **A directive orders; it does not register.**
+
+Under `CLAUDE.md` rule 2 the successor freezes **its own** pre-registration, by
+sha, **before any compute**. §13's *"NO SUCCESSOR IS STARTED AND NOTHING BELOW IS
+REGISTERED"* is unchanged by this addendum, and **no compute is authorised by
+it.** **L3 stays refused** (§8.6); **an L2 outer-loop arm stays refused** (§8.5);
+the §9 halt of `T25R2_L2` and `T25R2_L2_DT025` stands, and their staging remains
+on disk for reuse.
+
+**One thing the successor inherits that is worth money:** §12's measured
+`×1.765` cost of doubling the outer sweeps, and the 20-sweep arm's measured
+**12.615 core-min**, are this solver's own rates on this mesh and these loads —
+the successor prices its ladders from them rather than from a probe
+extrapolation.
+
+### 14.7 FILED AS A LESSON
+
+The transferable content is filed as **`L-429`** in `docs/LESSONS.md`, commit
+**`f83a403e`**, together with T23G's. The clause that binds hardest here:
+**a non-`CONVERGING` triple, and a failed gate, stay `NOT A RESULT` throughout —
+"do not stop" means keep measuring, not keep going until the number becomes
+usable.**
+
+**SUBMISSIONS PARKED** (rule 7). **Permanently private** (rule 8).
+
+<!-- END OF T25R2 RESULTS v1.2 -->
