@@ -1,0 +1,80 @@
+{
+  "surface": "t23_solved_geometry.stl",
+  "generated_by": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/display_surface/generate_t23_display_surface.py",
+  "constants_from": "/home/ubuntu/Certonomous/verification/runs/T-family/T23_runs/T23_P305_U10/build_t23.py",
+  "solved_cases": 16,
+  "case_families": [
+    "T23 (4 points)",
+    "T24 (12 points)"
+  ],
+  "axis_convention": "axial = +z; origin at the housing leading edge",
+  "n_facets": 1800,
+  "revolve_segments_DISPLAY_CHOICE": 180,
+  "solved_azimuthal_discretisation": "one cell over a 5.0-degree wedge; the solve is axisymmetric",
+  "facet_attribute_meaning": "the 2-byte STL attribute is the part index into `part_order`",
+  "part_order": [
+    "duct",
+    "centrebody_upstream",
+    "housing_heated",
+    "centrebody_downstream",
+    "inlet_truncation_cap",
+    "outlet_truncation_cap"
+  ],
+  "parts": {
+    "duct": [
+      0,
+      360
+    ],
+    "centrebody_upstream": [
+      360,
+      720
+    ],
+    "housing_heated": [
+      720,
+      1080
+    ],
+    "centrebody_downstream": [
+      1080,
+      1440
+    ],
+    "inlet_truncation_cap": [
+      1440,
+      1620
+    ],
+    "outlet_truncation_cap": [
+      1620,
+      1800
+    ]
+  },
+  "geometry_m": {
+    "duct_inner_radius": 0.125,
+    "centrebody_outer_radius": 0.0375,
+    "housing_inner_radius": 0.0335,
+    "housing_wall_thickness": 0.004,
+    "shaft_bore_radius_INTERNAL_not_drawn": 0.006,
+    "axial_stations_Z0_Z3": [
+      -0.25,
+      0.0,
+      0.125,
+      0.5
+    ],
+    "axial_extent": 0.75,
+    "heated_section_length": 0.125
+  },
+  "declared_display_choices": [
+    "360-degree revolve of an axisymmetric 5-degree wedge solve; the axisymmetry must be stated wherever this surface is shown",
+    "azimuthal revolve resolution (180 segments) is a display choice and is not the solved azimuthal discretisation",
+    "the flat discs at z = -0.250 and z = 0.500 are the DOMAIN TRUNCATION PLANES at inlet and outlet, drawn only so the centrebody is a closed solid; they are not physical faces"
+  ],
+  "declared_omissions": [
+    "no nose and no tail: build_t23.py lines 12-18 REMOVE the nose and tail cones of the owner's directive 3.2 and declare the centrebody a constant-radius tube over the whole axial extent. Drawing them would show geometry that was never solved.",
+    "no struts: the retired surface carried three radial struts (96 facets, 0/120/240 degrees) that were never solved and that are inconsistent with an axisymmetric solve",
+    "the 0.006 m shaft bore is an internal boundary of the core region over z = 0.000..0.125 only; it is not visible on a closed external surface and appears in the cross-section mesh view instead",
+    "the duct wall has ZERO THICKNESS because the solved duct wall is a boundary condition with no thickness; the retired surface's 5 mm duct wall was a declared display invention"
+  ],
+  "retires": {
+    "path": "cases/demo-surfaces/motor_in_duct.stl",
+    "sha256": "131aab8e17242415364d2f1147a76cfbdc7fe5f48287a0996c2318249857db5f",
+    "reason": "dimensioned from F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md, a different case; 0.200 m axial against the solved 0.750 m; three unsolved struts; nose and tail the solve does not have"
+  }
+}
