@@ -47,10 +47,31 @@ for a in "$@"; do
   esac
 done
 
+# RUNGS IMPLEMENTED SO FAR, each changing EXACTLY ONE control from the rung
+# below it (registration section 3, frozen).  A rung is added only when the rung
+# below it has been graded and failed; the frozen ORDER is not negotiable here.
+#
+#   E1  continuation seeding.  The change from E0.
+#   E2a turbulence-equation relaxation k and omega 0.7 -> 0.5 (section 3.1 reads
+#       the pair as ONE control).  The change from E1.  E1's configuration --
+#       the continuation chain -- is INHERITED UNCHANGED, per section 3's rule
+#       that a failed rung hands its configuration to the next rung as the new
+#       baseline.  E2a is therefore NOT seeded from E1's output fields: that
+#       would be two changes (a different seed AND a different relaxation) and
+#       would destroy the attribution the ladder exists to produce.
+#
+# E2b (nNonOrthogonalCorrectors) and E2c (limitedLinear) are NOT implemented and
+# are refused, so that a rung cannot be run out of the frozen order by a typo
+# (registration section 7 clause 6).
 case "${RUNG}" in
-  E1) : ;;   # continuation only.  Later rungs are added as they are reached,
-             # each changing exactly one control from the rung below it.
-  *) echo "REFUSED: --rung must be E1 (the frozen section 3 order); got '${RUNG}'"; exit 3 ;;
+  E1)  RUNG_DESC="CONTINUATION, and it is the only change from the
+                   2026-08-31 baseline: numerics dictionaries are the same
+                   case templates, byte for byte." ;;
+  E2a) RUNG_DESC="TURBULENCE-EQUATION RELAXATION k and omega 0.7 -> 0.5, and it
+                   is the ONLY change from E1.  Continuation seeding, fvSchemes,
+                   nNonOrthogonalCorrectors, U relaxation 0.7 and p field
+                   relaxation 0.3 are all INHERITED FROM E1 UNCHANGED." ;;
+  *) echo "REFUSED: --rung must be E1 or E2a (the frozen section 3 order, run in order); got '${RUNG}'"; exit 3 ;;
 esac
 
 # --- the frozen section 5.2 table, VERBATIM -----------------------------------
@@ -74,6 +95,7 @@ STAGE="init"
 YPLUS_ROWS="not-reached"
 SEED_CHECK="NOT REACHED"
 FREEZE_CHECK="NOT REACHED -- refused at or before the freeze guard"
+ONE_CHANGE="NOT REACHED -- the staged dictionaries were never asserted"
 T_START=$(date +%s)
 
 finish() {
@@ -90,9 +112,8 @@ finish() {
   {
     echo "case_id            ${CASE_ID}"
     echo "ladder             JF1E turbulence-stall escalation"
-    echo "rung               ${RUNG} -- CONTINUATION, and it is the only change from the"
-    echo "                   2026-08-31 baseline: numerics dictionaries are the same"
-    echo "                   case templates, byte for byte."
+    echo "rung               ${RUNG} -- ${RUNG_DESC}"
+    echo "one_change         ${ONE_CHANGE}"
     echo "row                BLOWN  C_mu_jet ${CMU}  alpha 0 deg  tau 30 deg  V_j ${VJ} m/s"
     echo "label              numerics-diagnostic -- NO physics verdict, NO lift claim,"
     echo "                   NO observed order, NO GCI, NO band (registration sec 0)"
@@ -213,6 +234,65 @@ cp "${CASE_DIR}/case/constant/turbulenceProperties"   "${RUN_ROOT}/constant/turb
 cp "${CASE_DIR}/case_blown/0/nut"                     "${RUN_ROOT}/0/nut"
 cp "${CASE_DIR}/case_blown/0/p"                       "${RUN_ROOT}/0/p"
 
+# --- THE ONE CHANGE OF THIS RUNG, APPLIED HERE AND ONLY HERE ------------------
+#
+# The case TEMPLATES ARE NEVER EDITED.  Editing `case/system/fvSolution` in place
+# would silently change what E1 means: E1's four rows were staged from that file
+# and any later reader reproducing E1 would get E2a's numerics.  The rung's one
+# change is therefore applied to the STAGED COPY, after the byte-identical copy,
+# and is asserted line by line against the template it came from.
+#
+# THE ANTI-BUNDLING ASSERTS ARE THE POINT.  E2b (`nNonOrthogonalCorrectors`) and
+# E2c (`limitedLinear`) are separate rungs in the frozen order; if either drifted
+# into this run the ladder would measure a bundle and attribute it to relaxation.
+# So both are asserted UNCHANGED on every rung, including E1.
+STAGE="onechange"
+if ! cmp -s "${CASE_DIR}/case/system/fvSchemes" "${RUN_ROOT}/system/fvSchemes"; then
+  echo "REFUSED: staged fvSchemes is not byte-identical to the case template"; exit 13
+fi
+grep -qE '^[[:space:]]*div\(phi,k\)[[:space:]]+bounded Gauss limitedLinear 1;' "${RUN_ROOT}/system/fvSchemes" \
+  || { echo "REFUSED: div(phi,k) is not the frozen 'limitedLinear 1' -- that is E2c, a DIFFERENT RUNG"; exit 13; }
+grep -qE '^[[:space:]]*div\(phi,omega\)[[:space:]]+bounded Gauss limitedLinear 1;' "${RUN_ROOT}/system/fvSchemes" \
+  || { echo "REFUSED: div(phi,omega) is not the frozen 'limitedLinear 1' -- that is E2c, a DIFFERENT RUNG"; exit 13; }
+grep -qE '^[[:space:]]*nNonOrthogonalCorrectors[[:space:]]+1;' "${RUN_ROOT}/system/fvSolution" \
+  || { echo "REFUSED: nNonOrthogonalCorrectors is not 1 -- that is E2b, a DIFFERENT RUNG"; exit 13; }
+
+case "${RUNG}" in
+  E1)
+    cmp -s "${CASE_DIR}/case/system/fvSolution" "${RUN_ROOT}/system/fvSolution" \
+      || { echo "REFUSED: E1 staged fvSolution is not byte-identical to the case template"; exit 13; }
+    ONE_CHANGE="continuation seeding of 0/ only; fvSolution and fvSchemes byte-identical to the case templates"
+    ;;
+  E2a)
+    # Rewrite ONLY the `k` and `omega` entries inside relaxationFactors/equations.
+    # A bare `sed s/0.7/0.5/g` would also hit U -- a second change, unregistered.
+    awk '
+      /^relaxationFactors/           { inRF = 1 }
+      inRF && /equations/            { inEQ = 1 }
+      inEQ && /^[[:space:]]*k[[:space:]]+0\.7;[[:space:]]*$/     { sub(/0\.7;/, "0.5;"); n++ }
+      inEQ && /^[[:space:]]*omega[[:space:]]+0\.7;[[:space:]]*$/ { sub(/0\.7;/, "0.5;"); n++ }
+      inEQ && /^[[:space:]]*}/       { inEQ = 0 }
+                                     { print }
+      END                            { if (n != 2) exit 1 }
+    ' "${RUN_ROOT}/system/fvSolution" > "${RUN_ROOT}/system/fvSolution.E2a" \
+      || { echo "REFUSED: the E2a rewrite did not change exactly two lines (k and omega)"; exit 13; }
+    mv "${RUN_ROOT}/system/fvSolution.E2a" "${RUN_ROOT}/system/fvSolution"
+
+    # The diff against the template must be EXACTLY two changed lines.
+    NDIFF=$(diff "${CASE_DIR}/case/system/fvSolution" "${RUN_ROOT}/system/fvSolution" \
+              | grep -cE '^[<>]' || true)
+    [ "${NDIFF}" = "4" ] \
+      || { echo "REFUSED: E2a changed ${NDIFF} diff lines against the template, expected 4 (two < and two >)"
+           diff "${CASE_DIR}/case/system/fvSolution" "${RUN_ROOT}/system/fvSolution" || true
+           exit 13; }
+    grep -qE '^[[:space:]]*k[[:space:]]+0\.5;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: k relaxation is not 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*omega[[:space:]]+0\.5;' "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: omega relaxation is not 0.5"; exit 13; }
+    grep -qE '^[[:space:]]*U[[:space:]]+0\.7;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: U relaxation left 0.7 -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    grep -qE '^[[:space:]]*p[[:space:]]+0\.3;'     "${RUN_ROOT}/system/fvSolution" || { echo "REFUSED: p field relaxation left 0.3 -- that is a SECOND, UNREGISTERED change"; exit 13; }
+    ONE_CHANGE="relaxationFactors/equations k 0.7 -> 0.5 and omega 0.7 -> 0.5, asserted as EXACTLY four diff lines against case/system/fvSolution; U 0.7, p 0.3, nNonOrthogonalCorrectors 1 and both limitedLinear 1 entries all asserted UNCHANGED"
+    ;;
+esac
+
 VJX=$(awk -v v="${VJ}" 'BEGIN{printf "%.8f", v*cos(3.14159265358979323846/6.0)}')
 VJY=$(awk -v v="${VJ}" 'BEGIN{printf "%.8f", -v*sin(3.14159265358979323846/6.0)}')
 sed -e "s|@VJX@|${VJX}|" -e "s|@VJY@|${VJY}|" \
@@ -303,9 +383,15 @@ STAGE="post"
   echo "== LABEL numerics-diagnostic: NO physics verdict, NO lift claim, NO      =="
   echo "== observed order, NO GCI, NO band comes off this run.                   =="
   echo
-  echo "-- the ONE change from baseline --"
-  echo "   0/ seeded from ${SEED_ROOT}/${SEED_TIME}; numerics dictionaries unchanged"
+  echo "-- the ONE change of rung ${RUNG}, and the asserts that bound it --"
+  echo "   ${ONE_CHANGE}"
+  echo "   0/ seeded from ${SEED_ROOT}/${SEED_TIME} (E1's configuration, inherited)"
   echo "   seed check: ${SEED_CHECK}"
+  echo "-- relaxationFactors ACTUALLY IN THE STAGED DICTIONARY --"
+  sed -n '/^relaxationFactors/,/^}/p' "${RUN_ROOT}/system/fvSolution"
+  echo "-- anti-bundling asserts (E2b and E2c must NOT be present) --"
+  grep -E 'nNonOrthogonalCorrectors' "${RUN_ROOT}/system/fvSolution"
+  grep -E 'div\(phi,(k|omega)\)'     "${RUN_ROOT}/system/fvSchemes"
   echo "   CAVEAT D-1: the seed is NOT a converged field."
   echo "-- jet BCs actually written into 0/ --"
   echo "   V_j ${VJ}   U_jetSlot (${VJX} ${VJY} 0)   k_jet ${KJET}   omega_jet ${OMJET}"
