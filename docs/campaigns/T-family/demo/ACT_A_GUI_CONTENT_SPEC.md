@@ -742,11 +742,16 @@ and rule 12 both forbid calling that measured.
 
 > Your 117.5 → 23.5 change is done for the jet flap. Before we extend it: the 5×
 > you measured was DAFoam linear solves moved to GPU on your station. The motor
-> and battery acts run chtMultiRegionFoam and buoyantBoussinesqSimpleFoam on CPU
-> on this box, with no GPU port and no speedup measured on either. Dividing their
-> cost lines by 5 would claim a speedup on a solver it was never measured on. Do
-> you intend the /5 basis to extend to the thermal acts, or should they show
-> their measured CPU cost — 578.8 and 19.8 core-minutes?
+> act runs chtMultiRegionSimpleFoam and the battery act chtMultiRegionFoam, both
+> on CPU on this box, with no GPU port and no speedup measured on either.
+> Dividing their cost lines by 5 would claim a speedup on a solver it was never
+> measured on. Do you intend the /5 basis to extend to the thermal acts, or
+> should they show their measured CPU cost — 578.8 and 19.8 core-minutes?
+
+*(Solver names in this item are measured from each case's own `controlDict` and
+solver-log header, per the table at §11.3. An earlier draft of this desk item
+named `buoyantBoussinesqSimpleFoam`, which neither thermal act runs — it was
+carried over unverified and is corrected here before the item reaches her.)*
 
 ---
 
@@ -1318,16 +1323,32 @@ line; it no longer blocks capture.
 ### ⚠ Correction to the reasoning as it was relayed to me
 
 The ruling reached me stating *"Act A runs `buoyantBoussinesqSimpleFoam` and Act
-C `chtMultiRegionFoam`"*. **Those are the wrong way round.** Measured: Act A is
-the conjugate motor case and runs **`chtMultiRegionSimpleFoam`** — cross-checked
-by `motor_thermal_act.solver_name()` against both the log header (`Exec:`) and
-`system/controlDict` (`application`), and independently visible in the three
-live T23G2 processes, all `chtMultiRegionSimpleFoam`. Act C is the buoyant one.
+C `chtMultiRegionFoam`"*. **That was wrong, and my first correction of it was
+also wrong.** Both are now measured from the cases themselves:
+
+| Act | Solver, measured | Evidence |
+|---|---|---|
+| **A**, motor | **`chtMultiRegionSimpleFoam`** | `T23_P305_U20/system/controlDict` `application`; `log.solve` header `Exec:`; cross-checked by `motor_thermal_act.solver_name()`, which refuses if the two disagree; and the three live T23G2 processes |
+| **C**, battery | **`chtMultiRegionFoam`** | `T25R2_L1`, `T25R2_L1_OC20` and `T25R4_MODULE_runs/P1` `system/controlDict`; `Exec : chtMultiRegionFoam` in both T25R2 solver logs |
+
+**`buoyantBoussinesqSimpleFoam` is run by NEITHER thermal act.** A tree-wide
+sweep of `controlDict` files finds it in `T13_runs` and `T15_runs` — different
+rungs entirely. It entered this discussion through my own brief and I repeated
+it here in the first version of this section, asserting "Act C is the buoyant
+one" without measuring it. **That sentence was mine and it was false**; it is
+struck and replaced by the table above.
 
 **The conclusion is unaffected** — neither solver has a GPU port and neither
 carries the measurement her 5× was taken on, so the `/5` stays unapplied either
 way. But a ruling that names the wrong solver invites someone downstream to
-check the wrong binary for a GPU path, so the record is corrected here.
+check the wrong binary for a GPU path, which is a real cost, and it is why the
+desk item in §7 now names both solvers as measured.
+
+**The lesson is the session's own, turned on myself.** I corrected somebody
+else's solver name and, in the same breath, passed on an unmeasured one of my
+own — a claim inherited from a brief rather than read off a `controlDict`. The
+rule that catches this is the one already in §9.7a: **establish the claim, not
+just the correction.**
 
 ## 11.4 Box 7 — CLOSED
 
