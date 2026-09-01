@@ -37,6 +37,10 @@ from .router import (ADJOINT_OPTIMIZATION, AHMED_BODY, AIRCRAFT_OPTIMIZATION,
                      NASA_HUMP, ONERA_M6,
                      SHAPE_OPTIMIZATION, SUPERSONIC_CONE, SUPERSONIC_WEDGE,
                      THERMAL_DISPLAY, VALVE_STUDY)
+# Imported on its own line rather than folded into the tuple above, so this
+# addition cannot conflict with another act's addition to the same list. See
+# the MERGE NOTE in router.py for the night that cost.
+from .router import DOUBLE_MACH_REFLECTION
 
 # Capability tags. One per thing a prompt can ask for that a run either can or
 # cannot do. Kept few on purpose: each one is a promise the lab has to keep.
@@ -111,6 +115,12 @@ CAPABILITIES: dict[str, frozenset[str]] = {
     SUPERSONIC_CONE: frozenset(),
     DIAMOND_AIRFOIL: frozenset(),
     HYPERSONIC_CYLINDER: frozenset(),
+    # The shock-interaction benchmark is genuinely time resolved, so the
+    # UNSTEADY promise is one the runs behind it keep: they are integrated to a
+    # stated instant and have no steady state. It carries no other tag, so a
+    # prompt that asks this act to optimise a shape or to report a temperature
+    # is told so before the screen starts rather than after it finishes.
+    DOUBLE_MACH_REFLECTION: frozenset({UNSTEADY}),
     # The thermal display act. It presents two landed conjugate thermal
     # runs and starts no solver, so the honest declaration is the union of
     # what those two runs did: one of them resolves temperature and the
@@ -145,6 +155,14 @@ CAPABILITIES: dict[str, frozenset[str]] = {
     # is not withdrawn by this ruling, only deferred past the shoot.
     THERMAL_DISPLAY: frozenset({THERMAL, UNSTEADY}),
 }
+
+# L-221/L-222, the same insert-not-replace assert as the routing table carries
+# and for the same reason: this is a dict literal, a repeated key is silently
+# the last one written, and nothing would raise. Narrow on purpose.
+assert CAPABILITIES[DOUBLE_MACH_REFLECTION] == frozenset({UNSTEADY}), (
+    "the shock-reflection declaration is not what was written above")
+assert CAPABILITIES[JET_FLAP_DISPLAY] == frozenset({BLOWING}), (
+    "adding the shock-reflection declaration displaced the jet-flap one")
 
 
 def unmet_asks(request: str, intent: str) -> tuple[Ask, ...]:

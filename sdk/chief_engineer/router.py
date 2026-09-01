@@ -30,6 +30,11 @@ routes exist today:
     route here that starts no solver and produces no new number: it presents
     the landed fields, tables and checks. A thermal question about any other
     body does not reach it, and keeps the route it has today.
+``double-mach-reflection``
+    A shock reflecting off a wall too steeply to stay attached, on grids that
+    have already been solved. Like the thermal display route it starts no
+    solver: it presents the landed record, the picture drawn from the same
+    fields, and what the benchmark cost against what was set aside for it.
 
 Routing is keyword-and-pattern based and fully inspectable: every decision
 carries the evidence that produced it, so the interpretation can be argued
@@ -58,6 +63,17 @@ SUPERSONIC_WEDGE = "supersonic-wedge"
 SUPERSONIC_CONE = "supersonic-cone"
 DIAMOND_AIRFOIL = "diamond-airfoil-wave-drag"
 HYPERSONIC_CYLINDER = "hypersonic-cylinder"
+# The unsteady shock-interaction benchmark. THIS ROUTE PRESENTS AND NEVER
+# SOLVES, for the same reason the thermal and jet-flap display routes do not:
+# the two grids were solved on 2026-08-07 against criteria committed before the
+# first mesh existed, both completed, and solving them again would buy the same
+# answer at a second price.
+#
+# It is kept distinct from the four steady compressible acts above it because
+# nothing about it is steady: the structure is self-similar in time and the
+# quantity shown is a position at a stated instant, not a converged angle or a
+# settled pressure. A request that names a steady body keeps the act it has.
+DOUBLE_MACH_REFLECTION = "double-mach-reflection"
 GENERAL_MISSION = "general-mission"
 
 # Five validated cases, each with its own analytic gate rather than a
@@ -82,6 +98,29 @@ _DIAMOND_AIRFOIL = re.compile(
 _HYPERSONIC_CYLINDER = re.compile(
     r"\b(hypersonic\s+cylinder|shock\s+standoff|billig|blunt[\s-]?body|"
     r"bow\s+shock)\b", re.I)
+# The shock-interaction vocabulary. Every alternative here names either the
+# benchmark itself or a feature that exists ONLY in an irregular reflection,
+# so none of them can be typed about the four steady compressible bodies: a
+# triple point, a Mach stem and a double Mach reflection have no meaning on an
+# attached oblique shock, and the two proper nouns name this benchmark and
+# nothing else in the catalogue. "shock reflection" is included because it is
+# what an engineer actually types, and it cannot collide with the shock
+# expansion, shock standoff or oblique shock phrasings above.
+#
+# The second pattern catches the way the question is asked by somebody who
+# does not know the benchmark's name: a shock reflecting OFF A SURFACE. It
+# deliberately requires the surface to be named, because "the shock reflected
+# at the corner" is a sentence written about the steady wedge, and the wedge
+# act keeps it.
+_DOUBLE_MACH_REFLECTION = re.compile(
+    r"\b(double[\s-]?mach\s+reflection|mach\s+reflection|mach\s+stem|"
+    r"triple[\s-]?point|irregular\s+reflection|shock\s+reflection|"
+    r"reflecting\s+shock|woodward[\s-]?colella|shock[\s-]?interaction\s+"
+    r"benchmark)\b", re.I)
+_SHOCK_OFF_SURFACE = re.compile(
+    r"\bshock\b[^.?!]{0,40}\breflect(?:s|ing|ed)?\b[^.?!]{0,25}"
+    r"\b(?:off|from|against|onto)\b[^.?!]{0,25}"
+    r"\b(?:wall|surface|floor|ground|plate|ramp|boundary)\b", re.I)
 # The four hardest validated cases, each wired as its own act rather than a
 # generic geometry study: the gate, the framing, and the output beat are all
 # specific to the body and the publication it is graded against.
@@ -593,6 +632,17 @@ def classify(request: str) -> Route:
     if _HYPERSONIC_CYLINDER.search(text):
         add(HYPERSONIC_CYLINDER, 2.0,
             "names a hypersonic cylinder or a shock standoff distance")
+    if _DOUBLE_MACH_REFLECTION.search(text) or _SHOCK_OFF_SURFACE.search(text):
+        # Outranks the steady compressible acts on purpose. A prompt that says
+        # "shock reflection off a wedge" names both, and the reflection is the
+        # more specific reading: the wedge act grades an attached oblique shock
+        # and has nothing to say about a stem or a triple point. The margin is
+        # carried by the WEIGHT and not by the position of this branch, because
+        # the winner is ``max`` over the score table.
+        add(DOUBLE_MACH_REFLECTION, 2.2,
+            "names the irregular shock reflection benchmark, which this lab "
+            "has already solved on two grids against criteria fixed before "
+            "the first mesh existed")
     # --- aircraft L/D optimization against mission requirements ---
     hold_workers = bool(_HOLD_WORKERS.search(text))
     if _LIFT_DRAG.search(text) and (_AIRCRAFT.search(text) or _MISSION_REQ.search(text)):
@@ -779,6 +829,14 @@ def classify(request: str) -> Route:
             "Reading this as hypersonic flow over a blunt cylinder. I will "
             "solve the case end to end and grade the measured shock standoff "
             "distance against the Billig correlation, within 0.70%."),
+        DOUBLE_MACH_REFLECTION: (
+            "Reading this as a shock reflecting off a wall too steeply to "
+            "stay attached. Two grids for it are already solved, so I present "
+            "them rather than start anything: where the shock has reached on "
+            "each grid against where it should be, the picture of the flow at "
+            "that instant, and what the work costs. The expectation is "
+            "written down before the first grid is built, and the screen "
+            "says how close each grid comes in units of its own cell."),
         AIRCRAFT_OPTIMIZATION: (
             "Reading this as an aircraft lift-to-drag optimisation against mission "
             "requirements. I will fix the requirements, search a wing design space "
@@ -934,4 +992,27 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                           "output": "hypersonic-cylinder"},
     JET_FLAP_DISPLAY: {"module": "workflows.jet_flap_display",
                        "output": "jet-flap-display"},
+    # Points straight at the act module, and NOT at a display shim beside it.
+    # ``workflows.dmr_act`` already carries the one-line ``make_act_entry``
+    # adoption as its ``main``, exactly as ``workflows.jet_flap_display`` does,
+    # so a shim would be a second call site for one mechanism and copies
+    # diverge. The dispatcher calls ``module.main(request=, params=, emit=)``
+    # and that is the signature the factory returns.
+    DOUBLE_MACH_REFLECTION: {"module": "workflows.dmr_act",
+                             "output": "double-mach-reflection"},
 }
+
+# L-221/L-222: A ROUTE IS INSERTED, NEVER REPLACED, AND THE INSERTION SAYS SO.
+# The table above is a dict literal, so a second entry under an existing intent
+# is not an error: the later value silently wins and that act's module is
+# swapped with nothing raised anywhere and no test failing. These two lines are
+# the assert that adding the shock-reflection route displaced nothing.
+#
+# They are deliberately NARROW, naming this route and the act being filmed and
+# nothing else. An assertion that enumerated the whole table would itself fail
+# the next time a peer adds a route, and an assertion that stops the control
+# room from importing is a worse failure than the one it guards against.
+assert WORKFLOWS[DOUBLE_MACH_REFLECTION]["module"] == "workflows.dmr_act", (
+    "the shock-reflection route does not point at its act module")
+assert WORKFLOWS[JET_FLAP_DISPLAY]["module"] == "workflows.jet_flap_display", (
+    "adding the shock-reflection route displaced the jet-flap route")
