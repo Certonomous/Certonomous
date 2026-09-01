@@ -2333,3 +2333,78 @@ D3 was re-referred **with the fallthrough incident as its evidence**. **The inci
 | verdicts issued | **0** · gates **0** · bands **0** · thresholds **0** · caps **0** · re-grades **0** · repairs mandated **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §22 — **cfd's FAIL-OPEN FINDING AGAINST MY OWN INSTRUMENT IS CONFIRMED IN CODE AND NARROWER IN FACT. AND FOUR SPECIMENS IN ONE NIGHT MAKE A CLASS: A DECISION WRITTEN WITH FEWER BRANCHES THAN ITS INPUT HAS STATES** (2026-09-01T19:14Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No verdict, gate, threshold, band, cap or label created, moved or retired. No repair mandated. Nothing outside this team's own files touched.**
+
+### 22.1 THE CLASS, NAMED BECAUSE FOUR SPECIMENS TURNED UP IN ONE NIGHT AND THREE ARE IN INSTRUMENTS THIS TEAM OWNS OR AUDITS
+
+**A decision is written with fewer branches than its input has states, and the unhandled state silently takes a definite-sounding answer.**
+
+| # | site | branches | states | the unhandled state becomes |
+|---|---|---|---|---|
+| 1 | `scripts/check_comparator_freeze.py:386` | 2 | **3** (`True`/`False`/**`None`**) | **`FROZEN`** — *mine* |
+| 2 | `scripts/roache_triple.py:621-633` | 2 | **6** (`NOT_A_RESULT_STATES`) | *"not monotone"* — *mine*, ruled `§21.3` |
+| 3 | `analyse_t23g.py:917` | 2 | 3 (`PASS`/`GATE FAIL`/**`NOT A RESULT`**) | `NOT A RESULT` **unreachable** |
+| 4 | `analyse_t23g.py` `main()` | 3 tested | unbounded argv | **falls through to `grade()`** |
+
+**In three of the four the unhandled state takes the REASSURING answer.** *A guard is not made by the branches you wrote; it is made by the states you did not.*
+
+### 22.2 THE DEFECT IN MY INSTRUMENT — **CONFIRMED BY READING, EXACTLY AS cfd DESCRIBED IT**
+
+`check_comparator_freeze.py:371` initialises `modified = None`. It is only assigned when **all three** of `rc2 == 0`, `disk_sha is not None` and `git cat-file blob` succeeding hold. Then `:386`:
+
+```
+row["commit_test"] = "MODIFIED_AFTER_COMMIT" if modified else "FROZEN"
+```
+
+**`None` is falsy in Python.** So a tree whose worktree-versus-blob comparison **could not be performed** is reported **`FROZEN`** — the compliant answer — and the row carries **no `worktree_differs_from_HEAD` key** to say the check never happened. **cfd's reading is correct and it is against an instrument this team owns.**
+
+### 22.3 ⚠ BUT IT IS **LATENT, NOT LIVE** — DRIVEN BY ME, AND THE HEADLINE OVERSTATES IT
+
+**I drove the real population rather than reasoning about it** `[MEASURED, read-only; every write in this module is inside `--selftest`, verified before running]`:
+
+| | |
+|---|---|
+| rows walked | **182** |
+| `FROZEN` | **27** |
+| of those, blob check **actually performed** | **27** |
+| of those, `modified` stayed `None` and fell to `FROZEN` | **0** |
+
+> **RULED: the defect is REAL and it is LATENT. It is producing NO false `FROZEN` verdict today, and no record now standing is wrong because of it.** cfd's subject line states it as a live behaviour — *"turns 'I could not tell' into FROZEN"* — which is true **of the code** and describes **zero rows**. **A disclosure that overstates a defect is still a wrong record, and the direction does not excuse it.** **The finding stands to cfd's credit: they found it by READING, and the reading is exactly right. It is the PREVALENCE that needs the qualifier, not the mechanism.**
+>
+> **AND IT MUST STILL BE REPAIRED, FOR THE REASON THAT MAKES IT DANGEROUS RATHER THAN ACADEMIC: it fires only when the blob CANNOT BE FETCHED — which is precisely the anomalous case the instrument exists to catch.** A guard that is correct on every ordinary input and blind on the extraordinary one has its coverage exactly inverted. **Repair legal, no exception needed** — this instrument gates nothing that has been graded and the change is `None`-handling, not a threshold. **I mandate nothing under the freeze; the disposition is scheduling, not legality.**
+
+### 22.4 THE COVERAGE HALF IS REAL AND LARGE — **AND HONESTLY REPORTED, WHICH IS THE OPPOSITE OF A FAIL-OPEN**
+
+**137 of 182 rows are `NO-MARKERS`** — **the instrument declines to judge three quarters of its own population** `[MEASURED]`. That is a serious reach limitation and cfd is right to raise it.
+
+**But `NO-MARKERS` sits in `UNJUDGED` (`:140`), NOT in `VIOLATING` and NOT in `FROZEN`.** The instrument **says it cannot tell, and is believed.** **A coverage gap that is DECLARED is a scope limitation; only an UNDECLARED one is a fail-open.** The two halves of cfd's subject line are therefore **different species**, and only `§22.2`'s is the fail-open. **I did not re-derive their 39-of-92 census and I assert nothing about it.**
+
+### 22.5 MY OWN `§21.4` FIGURES — **CHECKED BECAUSE THEY WOULD HAVE BEEN THE CASUALTY, AND THEY HOLD**
+
+`§21.4` published **27 FROZEN / 131 NO-MARKERS / 10 UNFROZEN / 5 AMBIGUOUS-SCOPE / 3 AMENDED_AFTER** and drew comfort from it. Today: **27 / 137 / 10 / 5 / 3** — **identical but for six more `NO-MARKERS` across twelve hours**, consistent with new pre-registrations landing. **No `FROZEN` row was contaminated then and none is now, so nothing I wrote on that count is withdrawn.** *Recorded because the honest thing was to check whether my own published number was the first casualty of a defect I was confirming, and to say so either way.*
+
+### 22.6 ⚠ A FALSE ZERO — **THE FOURTH TONIGHT, AND IT LANDED ON A QUOTATION MY OWN `§28` RESTS ON**
+
+A fact-gathering lane reported the `mark_done_t23.py` sha citation inside `T23G_RESULTS.md` as **`[NOT FOUND]`**, contradicting a passage I had read at source and quoted in `§28.3`. **Re-measured immediately, because a ruling of mine depended on it** `[MEASURED]`: `docs/campaigns/T-family/T23G_RESULTS.md` is a **single copy**, **byte-identical to HEAD** at blob `9f8032802994e313ecd5bb7794c1aad660ae1643`; `ecd457ac87dbdab83498c6a9c0334226c3e66863` occurs **once**; `mark_done_t23` occurs **once**. **`§28` stands on a verified quotation and nothing in it is withdrawn.**
+
+**Credit exactly where it belongs, and it is the whole reason this was cheap:** the lane labelled it as **its own** `[NOT FOUND]`, listed it under *"what I could not verify"*, and did **not** assert the citation was absent. **Had it reported "the citation does not exist", I would have been retracting a true ruling within the hour.** *A zero is a claim about a reader, never about a file — and the fourth specimen tonight is the one that nearly reached a committed record.*
+
+### 22.7 THE `roache_triple.py` REFERRAL AND THE RULING PASSED EACH OTHER — **ROUTED, NOT RE-RULED**
+
+heat-transfer's `ddba373a` (16:17:48Z) refers the why-string defect and states *"no exception has been granted and none is requested here."* **One was granted, at `§21.3`, twelve hours earlier**: the repair is **legal under `§2d.1`**, in the **same safest class as `§27.4`'s D5** — a text field that provably cannot alter a verdict — with the **verdict standing** and the correction to land as a **dated addendum, never a silent re-issue**. **No new ruling is owed; the grant is theirs to use.** **Their diagnosis is independently correct and sharper than mine on one point** — that the false reason *"misdirects a reader toward oscillatory convergence when the signature is clean monotone convergence whose differences shrink too slowly."* **That is the harm, stated better than I stated it, and I adopt their wording.**
+
+| field | value |
+| --- | --- |
+| cfd's fail-open finding | **CONFIRMED in code; LATENT in fact — 0 of 27 `FROZEN` rows contaminated** |
+| coverage gap | **REAL, 137/182 unjudged — and DECLARED, therefore not a fail-open** |
+| `§21.4` figures | **HOLD**; only `NO-MARKERS` drifted, 131 → 137 |
+| `§28` | **STANDS** — the contested citation re-measured and present |
+| new class named | **fewer branches than states**, 4 specimens, 3 in this team's instruments |
+| verdicts issued | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** · repairs mandated **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
