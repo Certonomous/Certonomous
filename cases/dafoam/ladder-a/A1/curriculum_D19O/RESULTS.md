@@ -172,3 +172,29 @@ The non-optimiser arms came in at 0.607–0.835 of prediction — the same 0.59�
 ---
 
 **SUBMISSIONS PARKED.** Nothing in this item is filed, sent, uploaded, registered, posted or commented outside this box (`CLAUDE.md` rule 7; `DAFOAM_CHARTER.md` §10).
+
+---
+
+## 9. DATED NOTE, 2026-09-01 — **A DEFECT IN THIS ITEM'S OWN COMPARATOR, FOUND BY ITS SUCCESSOR. THE VERDICT ABOVE IS UNCHANGED, AND THE PROOF IS HERE.**
+
+**`d19o_grade.py:compose_item` tests its `hard` gate list for `"GATE FAIL"` and never for `"NOT A RESULT"`.** A hard gate reporting `NOT A RESULT` would therefore have fallen through to `PASS` and been capped to `GATE REACHED` — **a verdict about an item whose gate could not read its own subject**, which inverts `CLAUDE.md` rule 5's direction: a gate may turn a `PASS` **into** a `NOT A RESULT` and never the reverse.
+
+Found by the `dafoam-supervisor`'s check-2 read of **`d19m_grade.py`**, which inherited the shape. Registered there as `D19M-COMPOSE-DEF-1` and repaired in D19M's Amendment 2, with three legs (one per hard gate that can reach `NOT A RESULT`) plus a control proving they detect the patch rather than a constant.
+
+### 9.1 IT DID NOT AND COULD NOT CHANGE THIS ITEM'S VERDICT, AND THAT IS MEASURED
+
+Read from this item's own frozen grade artefact `D19O_grade_20260901T054304Z.json`:
+
+| hard reading | verdict |
+|---|---|
+| `G-M2_mesh_identity`, `G-NP`, `G9_toolchain`, `G10_caps`, `G12_placement`, `G-DESIGNPOINT`, `G-NOOPT-ENDPOINT`, `G-EVALFAIL` | **all `PASS`** |
+
+**Zero hard readings are `NOT A RESULT`, so the missing clause had nothing to act on.** `GATE REACHED` stands, `verdict_before_ceiling` stands, and every number in §1–§5 stands.
+
+### 9.2 WHY THIS SECTION EXISTS RATHER THAN A REPAIR
+
+**This item has had first compute, so its gates are closed and `d19o_grade.py` is not repairable in place** (`CLAUDE.md` rule 2; the §2d.1 repair exception is a question this family has refused four times). `RESULTS.md` is not a frozen document, so the finding lands here.
+
+> **THE TRANSFERABLE POINT, AND IT IS THE REASON THIS IS WRITTEN DOWN AT ALL: the defect survived a run in which EVERY GATE PASSED. That is exactly how a fail-open survives — it is invisible precisely when nothing is wrong. A green run is not evidence that a composition is sound**, and this item's own clean sweep is the illustration.
+
+**A defect found in a closed item is reported, not quietly left in the ancestor for the next lane to re-find.** Any successor deriving from `d19o_grade.py` must take D19M's repaired `compose_item`, not this one's.

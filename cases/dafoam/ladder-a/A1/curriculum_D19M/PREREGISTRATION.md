@@ -397,3 +397,66 @@ Rule 6 forbids editing above an amendment, so the struck values still stand in �
 ### A1.5 STATUS
 
 **Still not cleared to launch.** This amendment corrects three recorded hashes and adds one check; it authorises nothing. The run root is absent and the freeze window closes at the first arm.
+
+---
+
+## AMENDMENT 2 — 2026-09-01, BEFORE FIRST COMPUTE. **`D19M-COMPOSE-DEF-1`: A HARD GATE'S `NOT A RESULT` DID NOT CARRY THE ITEM**
+
+**lines whose number changed above this section: 0.** Appended at the foot; nothing above is edited. Before the append: **38,568 bytes / 399 lines, md5 `b5c635ba6c038b8d4dd679baac139a8c`**, verified byte-identical to the committed blob at `HEAD` by `cmp`, exit 0.
+
+**THE RULE-2 CONDITION.** No compute has happened. `/home/ubuntu/certonomous-runs/CURRICULUM-D19M-a1-naca0012-subsonic-multipoint` **DOES NOT EXIST** — re-asserted in this amendment's own invocation against the positive control D19O's root, which the same reader returns as **EXISTS**. Zero `d19m_` containers have ever existed.
+
+**Authority.** The `dafoam-supervisor`'s check-2 read of `d19m_grade.py`, 2026-09-01, which found the defect in the composition and withheld launch.
+
+### A2.1 THE DEFECT
+
+`compose_item` built a list `hard` of eleven gate readings and **tested it for `"GATE FAIL"` and never for `"NOT A RESULT"`**. A hard gate reporting `NOT A RESULT` therefore fell through to `PASS`, and the ceiling then presented it as **`GATE REACHED`**.
+
+> **THAT INVERTS `CLAUDE.md` RULE 5's DIRECTION.** A gate may turn a `PASS` **into** a `NOT A RESULT` and never the reverse. Here a gate that could not read its own subject was silently outranked by every gate that could.
+
+**AND THE CONSEQUENCE IS WORST EXACTLY WHERE THIS ITEM IS WEAKEST.** `G-ALPHA` exists because a multipoint item can carry a wrong operating point **invisibly** — §4.1 proves with leg `E-MP4` that every band passes on a wrongly-wired scenario. **A `G-ALPHA` reading of `NOT A RESULT` meant "I could not read the operating points at all", and the item would have published `GATE REACHED` over it.**
+
+### A2.2 THE SWEEP — **THREE** HARD GATES CAN REACH IT, IN FIVE PLACES, NOT ONE
+
+The supervisor named `G-ALPHA` and asked for a sweep. **The sweep found more**, and it was done by reading every hard gate's returns rather than by assuming:
+
+| hard reading | can emit `NOT A RESULT`? | where |
+|---|---|---|
+| `G-M2_mesh_identity` | **YES** | no `checkMesh.log` — the `MESH` arm did not run |
+| `G-ALPHA` | **YES** | `not seen_any` — no arm carried the operating points |
+| `G-MP-STRUCT` (per row, ×2) | **YES**, three sites | the `XE` arm did not run; no `d19m_X.json`; the artefact carries the wrong number of `CD` arrays |
+| `G-NP`, `G9_toolchain`, `G10_caps`, `G12_placement`, `G-DESIGNPOINT`, `G-NOOPT-ENDPOINT`, `G-EVALFAIL` | **no** — `PASS` or `GATE FAIL` only | checked, not assumed |
+
+### A2.3 THE FIX, AND THE ARM THAT PROVES IT
+
+One clause: the first branch now reads `stages == "NOT A RESULT" or "NOT A RESULT" in rvs or "NOT A RESULT" in hard`.
+
+**Three legs, one per gate that can reach it**, each driving that gate to `NOT A RESULT` with **every row otherwise clean**, so only `hard` can carry the verdict — `E-H1-alpha`, `E-H2-mesh`, `E-H3-mpstruct`, all requiring the item to read **`NOT A RESULT`**. **Plus `E-H4-control`: the same fixture unpatched must read `GATE REACHED`**, so the three legs are shown to detect the patch rather than a constant. **A red leg that fires on everything fires on nothing.**
+
+**And the readings are now PUBLISHED.** `hard_gates` carries all eleven, the ones reading `NOT A RESULT`, the ones reading `GATE FAIL`, and the four that *can* reach `NOT A RESULT` — so a reader sees **which** gate carried the item verdict instead of inferring it from a token.
+
+### A2.4 IT IS INHERITED FROM `d19o_grade.py`, AND D19O CANNOT BE REPAIRED
+
+**`d19o_grade.py:compose_item` has the identical shape.** It did not bite D19O because **every** gate passed — **which is exactly how a fail-open survives a green run, and is why one green run is not evidence that a composition is sound.**
+
+**D19O HAS HAD FIRST COMPUTE, SO ITS GATES ARE CLOSED AND ITS COMPARATOR IS NOT REPAIRABLE IN PLACE.** This document does not repair it and does not pretend to. **What is owed is a note on D19O's own results record**, which is not a frozen document — recording that its `GATE REACHED` was composed by a comparator carrying this defect, that the defect could not have changed that verdict **because all eleven of its hard readings were `PASS`** (verifiable in its own `D19O_grade_20260901T054304Z.json`), and that a successor must not inherit the shape. **A defect found in a closed item is reported, not quietly left in the ancestor for the next lane to re-find.**
+
+### A2.5 THE RE-PIN
+
+| file | md5 |
+|---|---|
+| `d19m_grade.py` | `f7a4ffd5d85ea0b10644488fca1c828d` |
+| `d19m_chain_driver.sh` | `3aaa43f38af31f0042f3a5faa8c0f366` |
+| `d19m_grade_selftest.py` | `084e2cfc5868b9030120c5cd46eaddca` |
+
+**`d19m_grade.py` `f7a4ffd5d85ea0b10644488fca1c828d` IS THE GRADING PATH.** It supersedes §A1.3's `94b72950d795c28bfa3a2a7ca17febb5`, which supersedes §7's `f1f78bf4e78072057dc13e25cf1ffda9`. **Both earlier values are STRUCK and name nothing.** `d19m_repin.sh` is unchanged at `ba8bd537d2ec78370d34fbecc3bf15ab`; every other §7 row was re-derived from disk and is unchanged. `--verify` reads this table as the superseding record and reports all documented pins matching.
+
+**NO GATE, THRESHOLD, CAP, BAND, LABEL OR PREDICTION MOVES.** The ceiling, the caps, `PREDICTED_CORE_MIN` Σ = 34.10, the bands, the plateau tolerance, `MAX_MAJORS`, `EXPECTED_MAJOR_ROWS`, `ALPHAS`, `WEIGHTS`, the tolerances, `EXCLUDED_FROM_AGGREGATE`, cpuset 13 and np 1 are all unchanged. **The amendment makes MORE runs refusable and NONE pass that would previously have failed** — which is the direction a composition repair must go.
+
+### A2.6 A CORRECTION TO MY OWN REPORT, NOT TO THIS DOCUMENT
+
+I told the supervisor *"the freeze commit's own tree carries the STRUCK value."* **That was wrong, and the supervisor caught it by checking `git show 5a505de9:` directly.** The grader blob at the freeze commit is `94b72950…` — the same as at the amendment commit. **§A1.3 said the accurate thing** (*"the driver's own executable pin was never wrong… the defect was confined to this document"*), and **my summary was more alarming than my own document.** Naming the amendment commit as `prereg_commit` remains correct — a reader must reach the corrected §7 — **but for the document's sake, not the grader's**, and the difference matters because an inflated report is a false record even when it errs toward caution.
+
+### A2.7 STATUS
+
+**Still not cleared to launch.** The run root is absent; the freeze window closes at the first arm.

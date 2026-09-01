@@ -1530,7 +1530,30 @@ def compose_item(gates, rows):
              "G12_placement", "G-DESIGNPOINT", "G-NOOPT-ENDPOINT", "G-EVALFAIL",
              "G-ALPHA")]
     hard += [gates["G-MP-STRUCT"][r]["verdict"] for r in ("SHIPPED", "PATCHED")]
-    if stages == "NOT A RESULT" or "NOT A RESULT" in rvs:
+    # ---- `hard` IS TESTED FOR BOTH TOKENS, AND THE SECOND ONE WAS MISSING ----
+    # `D19M-COMPOSE-DEF-1`: this list was examined for "GATE FAIL" ONLY, so a hard
+    # gate reporting "NOT A RESULT" fell through to `PASS` and was then capped to
+    # `GATE REACHED` -- a verdict about an item whose subject the gate could not
+    # read.  That INVERTS `CLAUDE.md` rule 5's direction: a gate may turn a PASS
+    # INTO a NOT A RESULT and never the reverse.
+    #
+    # IT IS REACHABLE FROM THREE OF THE ELEVEN HARD READINGS, in five places,
+    # swept by reading every gate's returns rather than by assuming G-ALPHA was
+    # the only one:
+    #   G-M2_mesh_identity : no checkMesh.log -- the MESH arm did not run
+    #   G-ALPHA            : `not seen_any` -- no arm carried the operating points
+    #   G-MP-STRUCT        : the XE arm did not run / no artefact / the artefact
+    #                        carries the wrong number of CD arrays
+    # The other eight (G-NP, G9, G10, G12, G-DESIGNPOINT, G-NOOPT-ENDPOINT,
+    # G-EVALFAIL, and G-STAGES which is handled separately) emit only PASS or
+    # GATE FAIL, and that was CHECKED, not assumed.
+    #
+    # INHERITED FROM `d19o_grade.py`, WHICH HAS THE IDENTICAL SHAPE.  It did not
+    # bite D19O because every gate passed -- which is exactly how a fail-open
+    # survives a green run, and is why one green run is not evidence that a
+    # composition is sound.
+    if (stages == "NOT A RESULT" or "NOT A RESULT" in rvs
+            or "NOT A RESULT" in hard):
         raw = "NOT A RESULT"
     elif stages == "BLOCKED":
         raw = "BLOCKED"
@@ -1544,6 +1567,26 @@ def compose_item(gates, rows):
     if final not in VOCAB:
         refuse("VOCAB", {"composed_verdict_outside_the_fixed_vocabulary": final})
     return final, raw, capped
+
+
+HARD_GATES = ("G-M2_mesh_identity", "G-NP", "G9_toolchain", "G10_caps",
+              "G12_placement", "G-DESIGNPOINT", "G-NOOPT-ENDPOINT", "G-EVALFAIL",
+              "G-ALPHA")
+
+
+def hard_gate_readings(gates):
+    """Published on every record so a reader can see WHICH hard gate carried the
+    item verdict, rather than inferring it from a token."""
+    out = {g: gates[g]["verdict"] for g in HARD_GATES}
+    for r in ("SHIPPED", "PATCHED"):
+        out["G-MP-STRUCT[%s]" % r] = gates["G-MP-STRUCT"][r]["verdict"]
+    return {"readings": out,
+            "not_a_result": sorted(k for k, v in out.items() if v == "NOT A RESULT"),
+            "gate_fail": sorted(k for k, v in out.items() if v == "GATE FAIL"),
+            "_can_emit_not_a_result": ["G-M2_mesh_identity", "G-ALPHA",
+                                       "G-MP-STRUCT[SHIPPED]", "G-MP-STRUCT[PATCHED]"],
+            "_note": "Swept by reading every hard gate's returns: three of them can "
+                     "emit NOT A RESULT; the other eight emit only PASS or GATE FAIL."}
 
 
 def grade(root):
@@ -1625,6 +1668,7 @@ def grade(root):
             % (verdict, "two rows: SHIPPED=%s PATCHED=%s"
                % (rows["SHIPPED"]["verdict"], rows["PATCHED"]["verdict"])),
         "rows": rows, "gates": gates,
+        "hard_gates": hard_gate_readings(gates),
         "controls": controls, "birth_register": birth,
         "vocabulary": list(VOCAB),
         "asserts_in_grader": count_asserts(os.path.abspath(__file__)),

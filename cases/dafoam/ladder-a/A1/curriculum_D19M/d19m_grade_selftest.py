@@ -413,6 +413,54 @@ def main():
         unit("E-MP7-mpstruct-row", "GATE FAIL", gm2["rows"]["PATCHED"]["verdict"])
         unit("E-MP8-mpstruct-item", "GATE FAIL", gm2["verdict"])
 
+        # ---- D19M-COMPOSE-DEF-1: A HARD GATE'S `NOT A RESULT` MUST CARRY -----
+        # The composition tested `hard` for GATE FAIL ONLY, so a hard gate that
+        # could not read its own subject fell through to PASS and was capped to
+        # GATE REACHED. Each leg below drives ONE hard gate to NOT A RESULT with
+        # every row otherwise clean, and requires the ITEM to read NOT A RESULT.
+        print()
+        print("E-HARD. A HARD GATE'S `NOT A RESULT` MUST CARRY THE ITEM (COMPOSE-DEF-1)")
+        for name, gate, patch in [
+            ("E-H1-alpha", "G-ALPHA",
+             lambda g: {**g, "G-ALPHA": {**g["G-ALPHA"], "verdict": "NOT A RESULT"}}),
+            ("E-H2-mesh", "G-M2_mesh_identity",
+             lambda g: {**g, "G-M2_mesh_identity":
+                        {**g["G-M2_mesh_identity"], "verdict": "NOT A RESULT"}}),
+            ("E-H3-mpstruct", "G-MP-STRUCT[PATCHED]",
+             lambda g: {**g, "G-MP-STRUCT":
+                        {**g["G-MP-STRUCT"],
+                         "PATCHED": {**g["G-MP-STRUCT"]["PATCHED"],
+                                     "verdict": "NOT A RESULT"}}}),
+        ]:
+            gg = json.loads(json.dumps(g["gates"]))
+            gg = patch(gg)
+            rr = {r: dict(g["rows"][r]) for r in g["rows"]}
+            for r in rr:                       # every ROW clean, so only `hard` can carry it
+                rr[r]["verdict"] = "GATE REACHED"
+            final, raw, _c = G.compose_item(gg, rr)
+            unit(name, ("NOT A RESULT", "NOT A RESULT"), (raw, final),
+                 "(%s -> NOT A RESULT, rows all clean)" % gate)
+
+        # THE CONTROL: with every hard gate PASS and rows clean, the item is NOT
+        # NOT-A-RESULT -- so the legs above are detecting the patch, not a
+        # constant. A red leg that fires on everything fires on nothing.
+        gg = json.loads(json.dumps(g["gates"]))
+        rr = {r: dict(g["rows"][r]) for r in g["rows"]}
+        for r in rr:
+            rr[r]["verdict"] = "GATE REACHED"
+        final, raw, _c = G.compose_item(gg, rr)
+        unit("E-H4-control", ("GATE REACHED", "GATE REACHED"), (raw, final),
+             "(unpatched: the legs above detect the PATCH, not a constant)")
+
+        # AND THE SWEEP IS PUBLISHED, so a reader sees WHICH gate carried it.
+        hg = g["hard_gates"]
+        unit("E-H5-sweep-published", 11, len(hg["readings"]),
+             "(nine named hard gates plus G-MP-STRUCT per row)")
+        unit("E-H6-none-nar-on-green", [], hg["not_a_result"])
+        unit("E-H7-reachable-named", 4, len(hg["_can_emit_not_a_result"]),
+             "(G-M2, G-ALPHA, G-MP-STRUCT x2 -- swept by READING every gate's "
+             "returns, not by assuming G-ALPHA was the only one)")
+
         # E8: the design point.  A baseline design point is a GATE FAIL on
         # `shape_match` only if the O arm disagrees -- here both are baseline, so
         # the gate PASSES and `not_baseline` is REPORTED.  This leg proves the
