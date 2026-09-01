@@ -65,8 +65,10 @@ microseconds without changing one published value.
 
 from __future__ import annotations
 
+import re
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Callable
 
 from .demo_mode import (BANNERS, STAGES, DemoAct, DemoContractError,
@@ -94,7 +96,52 @@ def _translated(node):
     return translate_chips(node)
 
 __all__ = ["Sequencer", "run_act", "banner_for_stage", "SequencerRefused",
-           "GUARD_MARK"]
+           "GUARD_MARK", "figure_namespace"]
+
+#: A figure NAMESPACE is one segment of the served URL, and it is a DIRECTORY
+#: NAME rather than prose. ``announce_plot`` composes
+#: ``/api/plot/<namespace>/<file>``; ``chief_engineer.server._serve_artifact``
+#: splits that into exactly four segments and resolves it as
+#: ``<output root>/<namespace>/<file>``, refusing anything that escapes the
+#: root. So a namespace with a slash, a leading dot or a space does not reach a
+#: 404 -- it reaches a URL the server cannot even parse -- and the act that
+#: minted it would never learn.
+_NAMESPACE_SHAPE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+
+def figure_namespace(figure) -> str:
+    """The namespace one figure publishes under: the ACT'S OWN declaration.
+
+    THE DEFECT THIS REPLACES, measured rather than reported. The results stage
+    passed the literal string ``"results"`` to ``announce_plot`` for every
+    figure of every act, and :class:`demo_mode.Figure` carries a ``beat`` field
+    that was read by nothing. Two consequences, and the second is the one that
+    was missed:
+
+    * an act declaring any other namespace had that declaration DISCARDED, so
+      its figures were advertised under a namespace it never chose;
+    * and because the results stage also staged nothing, ``<output root>``
+      held no ``results/`` directory at all -- so the URL did not resolve for
+      ANY act, the jet-flap act included. Measured on the assembled jet-flap
+      results stage before this change: four of four figure URLs answered 404,
+      against a planted control URL that answered 200 from the same resolver.
+
+    Deriving the namespace is therefore only half a fix. The other half is
+    :meth:`Sequencer._stage_figure`, which puts the file where the derived URL
+    says it is; a namespace nothing serves from is a tidier 404.
+    """
+    beat = str(getattr(figure, "beat", "") or "").strip()
+    if not beat:
+        raise SequencerRefused(
+            "a figure published from the results stage declares the namespace "
+            "it is served under; this one declares none, so the screen would "
+            "advertise a picture at an address nobody chose")
+    if beat in {".", ".."} or not _NAMESPACE_SHAPE.match(beat):
+        raise SequencerRefused(
+            "a figure namespace is one directory name under the served root; "
+            "this act declared one that is not, so the address would not "
+            "resolve and the failure would be invisible to the act")
+    return beat
 
 #: The attribute :meth:`Sequencer._guarded` stamps on the wrapper it returns.
 #: It makes "this emit has been through the guard" a fact that can be READ,
@@ -630,13 +677,51 @@ class Sequencer:
             "grid": g.grid_statement,
         })
 
+    def _stage_figure(self, namespace: str, figure) -> None:
+        """Put the figure where the address the screen is about to publish
+        says it is.
+
+        The served root is not the run tree. ``announce_plot`` advertises
+        ``/api/plot/<namespace>/<file>`` and the server resolves that under
+        ``<output root>``, while an act's ``Figure.path`` points into the run's
+        own artefacts directory -- two different places, with nothing between
+        them. The legacy jet-flap surface already bridged the gap by copying
+        (``jet_flap_display._serve``); the sequencer path did not, which is why
+        every figure URL it published answered 404.
+
+        It copies INTO the served root and never out of it, so no run tree is
+        written to. A source that is not on disk is left alone rather than
+        raising: :func:`demo_mode.validate_act` already refuses an act whose
+        figures are missing, and :meth:`run` runs that before a stage opens, so
+        raising a second time here would only turn a clear authorship refusal
+        into a stage-time one.
+        """
+        import shutil
+
+        from . import OUT_ROOT
+
+        source = Path(figure.path)
+        if not source.is_file():
+            return
+        out = Path(OUT_ROOT) / namespace
+        out.mkdir(parents=True, exist_ok=True)
+        target = out / source.name
+        if target.exists() and target.samefile(source):
+            return
+        shutil.copy2(source, target)
+
     def _stage_results(self, emit, script, record) -> dict:
         r = self.act.results()
         replay = self.act.solve_replay()
         from . import announce_plot, emit_table
 
         for figure in list(r.fields) + list(r.plots):
-            announce_plot(emit, "results", figure.path,
+            # THE NAMESPACE IS THE ACT'S, NOT A CONSTANT. See
+            # :func:`figure_namespace` for what the constant cost and why
+            # deriving it without staging would still leave a 404.
+            namespace = figure_namespace(figure)
+            self._stage_figure(namespace, figure)
+            announce_plot(emit, namespace, figure.path,
                           figure.title)
         if script is not None:
             for table in r.tables:
