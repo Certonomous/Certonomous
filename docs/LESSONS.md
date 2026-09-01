@@ -11185,7 +11185,7 @@ matched (43 `G-` + 15 `O-`, closing exactly), 53 bucket cleanly, 5 FIELD-SHIFTED
 **FIVE THINGS THE FOUR MEMBERS TOGETHER TEACH, THAT NO ONE OF THEM DOES ALONE.**
 
 1. **A CONTROL THAT FIRES CORRECTLY CAN STILL CERTIFY A RESULT IT DID NOT MEASURE, IF IT
-   MEASURES A DIFFERENT QUANTITY FROM THE ONE THAT REACHES THE **EQUAL — assertion MEASURED**.** Member 3's
+   MEASURES A DIFFERENT QUANTITY FROM THE ONE THAT REACHES THE VERDICT.** Member 3's
    trivial baseline is **not broken** — it parses a real block, it computes a real worst
    error, it correctly reports `FAILS as required`, and it correctly certifies the gate as
    discriminating. **It is simply not looking at the component set the verdict is computed
@@ -11248,7 +11248,7 @@ what it could not read**, and the refusal is **loud** (`exit 2`, not a logged no
   rows, a loop that selects a parameter without iterating — is a REFUSAL, not a `0.0`.**
 - **Assert the shape of every row you parse** (field count, expected token set) and **refuse
   on the first row you cannot classify**, rather than emitting a junk bucket.
-- **Plant into the quantity the **EQUAL — assertion MEASURED** reads**, not into a neighbouring one, and refuse if
+- **Plant into the quantity the VERDICT reads**, not into a neighbouring one, and refuse if
   the reader cannot see it (`CLAUDE.md` rule 3). **A selftest that exercises the fallback
   path certifies the defect** — `d3_grade.py`'s controls call `g_theta` with the Jacobian
   omitted at `:404`, `:408` and `:412`, so the constant-only path is the path signed off as
@@ -11608,9 +11608,9 @@ index.** An unexpected staged row is **inspected, never reverted**; the index is
 chief's call.
 
 **And the sharper, more transferable half, which is about instruments and not about git.**
-`scripts/check_docket_reconciliation.py` returned `**EQUAL — assertion MEASURED**: FAIL` on the live worktree with
+`scripts/check_docket_reconciliation.py` returned `VERDICT: FAIL` on the live worktree with
 its planted control **healthy — 5 of 5 planted row decorations recognised, 1 negative
-correctly rejected, `ZERO **EQUAL — assertion MEASURED**: NOT_A_ZERO`**. The control worked. The reading was still
+correctly rejected, `ZERO VERDICT: NOT_A_ZERO`**. The control worked. The reading was still
 silently incomplete, because the script compares **ids** and not **bodies**, and it says so
 itself in its own output: *"CANNOT SEE: whether a row's CONTENT diverged (same ID, different
 body reads as reconciled here)"* (`scripts/check_docket_reconciliation.py:366`, blind-spot
@@ -15794,7 +15794,7 @@ execution was real and the check was worthless.
 
 ---
 
-## L-364 — THE PLANTED-ZERO DOCTRINE GENERALISES FROM A ZERO TO A **EQUAL — assertion MEASURED**: show the verdict MOVES, or a `NOT A RESULT` is indistinguishable from a constant
+## L-364 — THE PLANTED-ZERO DOCTRINE GENERALISES FROM A ZERO TO A VERDICT: show the verdict MOVES, or a `NOT A RESULT` is indistinguishable from a constant
 
 Rule 3 makes a comparator prove it can see a non-zero before its zero is believed. The
 same argument applies to a **verdict**: a grader emitting `NOT A RESULT` has proved
@@ -15875,7 +15875,7 @@ Related: `L-347`, `L-320`, `L-357`.
 
 ---
 
-## L-366 — A MUTANT THAT CHANGES NO **EQUAL — assertion MEASURED** IS NOT EVIDENCE, AND THE DEFECT IS ALWAYS ONE OF THREE INERTNESS MECHANISMS — REPORT AN INERT MUTATION AS PROVING NOTHING RATHER THAN COUNTING IT
+## L-366 — A MUTANT THAT CHANGES NO VERDICT IS NOT EVIDENCE, AND THE DEFECT IS ALWAYS ONE OF THREE INERTNESS MECHANISMS — REPORT AN INERT MUTATION AS PROVING NOTHING RATHER THAN COUNTING IT
 
 `L-106` already requires a mutation to BITE and `L-364` requires a verdict to be shown
 able to MOVE. What was missing was the **diagnosis**: why a mutation that looks
@@ -16272,7 +16272,7 @@ In the gap, two peers' **correct** HEAD-blob write-backs replaced the worktree f
   `commit-tree`, not merely the absence of foreign paths.** An empty-commit guard
   already exists elsewhere in this lab as precedent.
 
-## L-380 — A RULING WAS REQUESTED ON THREE **EQUAL — assertion MEASURED**S THAT NEVER BREACHED ANYTHING, BECAUSE A MONITOR READ THE POINT ESTIMATE AS THE CAP
+## L-380 — A RULING WAS REQUESTED ON THREE VERDICTS THAT NEVER BREACHED ANYTHING, BECAUSE A MONITOR READ THE POINT ESTIMATE AS THE CAP
 
 Three completed runs carried `CAP_OVERRUN.txt` files. A standards ruling was sought on
 whether their verdicts survived. **Verified at source: none breached its registered cap
@@ -17639,7 +17639,7 @@ exempt from the standard it is applying to somebody else's text.**
 **WHAT SURVIVED, AND WHY IT WAS STILL A DEFECT.** The load-bearing number — a 21.6 % spread — was
 correct and was confirmed **arithmetically rather than by trusting the record's prose**
 (`0.012052 − 0.009454 = 2.598e-03`, matching `W3:37` to four figures), so the verdict did not move.
-**A WRONG NUMBER IN AN EVIDENTIARY TABLE IS A DEFECT WHETHER OR NOT IT CHANGES THE **EQUAL — assertion MEASURED**.** The
+**A WRONG NUMBER IN AN EVIDENTIARY TABLE IS A DEFECT WHETHER OR NOT IT CHANGES THE VERDICT.** The
 repair was therefore a disclosed correction, not a footnote and not a silent overwrite, following
 `e779bdc7`'s precedent: the struck text is quoted **inside** the document so a reader can see what
 was there, what replaced it, and why.
