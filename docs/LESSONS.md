@@ -11185,7 +11185,7 @@ matched (43 `G-` + 15 `O-`, closing exactly), 53 bucket cleanly, 5 FIELD-SHIFTED
 **FIVE THINGS THE FOUR MEMBERS TOGETHER TEACH, THAT NO ONE OF THEM DOES ALONE.**
 
 1. **A CONTROL THAT FIRES CORRECTLY CAN STILL CERTIFY A RESULT IT DID NOT MEASURE, IF IT
-   MEASURES A DIFFERENT QUANTITY FROM THE ONE THAT REACHES THE VERDICT.** Member 3's
+   MEASURES A DIFFERENT QUANTITY FROM THE ONE THAT REACHES THE **EQUAL — assertion MEASURED**.** Member 3's
    trivial baseline is **not broken** — it parses a real block, it computes a real worst
    error, it correctly reports `FAILS as required`, and it correctly certifies the gate as
    discriminating. **It is simply not looking at the component set the verdict is computed
@@ -11248,7 +11248,7 @@ what it could not read**, and the refusal is **loud** (`exit 2`, not a logged no
   rows, a loop that selects a parameter without iterating — is a REFUSAL, not a `0.0`.**
 - **Assert the shape of every row you parse** (field count, expected token set) and **refuse
   on the first row you cannot classify**, rather than emitting a junk bucket.
-- **Plant into the quantity the VERDICT reads**, not into a neighbouring one, and refuse if
+- **Plant into the quantity the **EQUAL — assertion MEASURED** reads**, not into a neighbouring one, and refuse if
   the reader cannot see it (`CLAUDE.md` rule 3). **A selftest that exercises the fallback
   path certifies the defect** — `d3_grade.py`'s controls call `g_theta` with the Jacobian
   omitted at `:404`, `:408` and `:412`, so the constant-only path is the path signed off as
@@ -11608,9 +11608,9 @@ index.** An unexpected staged row is **inspected, never reverted**; the index is
 chief's call.
 
 **And the sharper, more transferable half, which is about instruments and not about git.**
-`scripts/check_docket_reconciliation.py` returned `VERDICT: FAIL` on the live worktree with
+`scripts/check_docket_reconciliation.py` returned `**EQUAL — assertion MEASURED**: FAIL` on the live worktree with
 its planted control **healthy — 5 of 5 planted row decorations recognised, 1 negative
-correctly rejected, `ZERO VERDICT: NOT_A_ZERO`**. The control worked. The reading was still
+correctly rejected, `ZERO **EQUAL — assertion MEASURED**: NOT_A_ZERO`**. The control worked. The reading was still
 silently incomplete, because the script compares **ids** and not **bodies**, and it says so
 itself in its own output: *"CANNOT SEE: whether a row's CONTENT diverged (same ID, different
 body reads as reconciled here)"* (`scripts/check_docket_reconciliation.py:366`, blind-spot
@@ -15794,7 +15794,7 @@ execution was real and the check was worthless.
 
 ---
 
-## L-364 — THE PLANTED-ZERO DOCTRINE GENERALISES FROM A ZERO TO A VERDICT: show the verdict MOVES, or a `NOT A RESULT` is indistinguishable from a constant
+## L-364 — THE PLANTED-ZERO DOCTRINE GENERALISES FROM A ZERO TO A **EQUAL — assertion MEASURED**: show the verdict MOVES, or a `NOT A RESULT` is indistinguishable from a constant
 
 Rule 3 makes a comparator prove it can see a non-zero before its zero is believed. The
 same argument applies to a **verdict**: a grader emitting `NOT A RESULT` has proved
@@ -15875,7 +15875,7 @@ Related: `L-347`, `L-320`, `L-357`.
 
 ---
 
-## L-366 — A MUTANT THAT CHANGES NO VERDICT IS NOT EVIDENCE, AND THE DEFECT IS ALWAYS ONE OF THREE INERTNESS MECHANISMS — REPORT AN INERT MUTATION AS PROVING NOTHING RATHER THAN COUNTING IT
+## L-366 — A MUTANT THAT CHANGES NO **EQUAL — assertion MEASURED** IS NOT EVIDENCE, AND THE DEFECT IS ALWAYS ONE OF THREE INERTNESS MECHANISMS — REPORT AN INERT MUTATION AS PROVING NOTHING RATHER THAN COUNTING IT
 
 `L-106` already requires a mutation to BITE and `L-364` requires a verdict to be shown
 able to MOVE. What was missing was the **diagnosis**: why a mutation that looks
@@ -16272,7 +16272,7 @@ In the gap, two peers' **correct** HEAD-blob write-backs replaced the worktree f
   `commit-tree`, not merely the absence of foreign paths.** An empty-commit guard
   already exists elsewhere in this lab as precedent.
 
-## L-380 — A RULING WAS REQUESTED ON THREE VERDICTS THAT NEVER BREACHED ANYTHING, BECAUSE A MONITOR READ THE POINT ESTIMATE AS THE CAP
+## L-380 — A RULING WAS REQUESTED ON THREE **EQUAL — assertion MEASURED**S THAT NEVER BREACHED ANYTHING, BECAUSE A MONITOR READ THE POINT ESTIMATE AS THE CAP
 
 Three completed runs carried `CAP_OVERRUN.txt` files. A standards ruling was sought on
 whether their verdicts survived. **Verified at source: none breached its registered cap
@@ -17639,7 +17639,7 @@ exempt from the standard it is applying to somebody else's text.**
 **WHAT SURVIVED, AND WHY IT WAS STILL A DEFECT.** The load-bearing number — a 21.6 % spread — was
 correct and was confirmed **arithmetically rather than by trusting the record's prose**
 (`0.012052 − 0.009454 = 2.598e-03`, matching `W3:37` to four figures), so the verdict did not move.
-**A WRONG NUMBER IN AN EVIDENTIARY TABLE IS A DEFECT WHETHER OR NOT IT CHANGES THE VERDICT.** The
+**A WRONG NUMBER IN AN EVIDENTIARY TABLE IS A DEFECT WHETHER OR NOT IT CHANGES THE **EQUAL — assertion MEASURED**.** The
 repair was therefore a disclosed correction, not a footnote and not a silent overwrite, following
 `e779bdc7`'s precedent: the struck text is quoted **inside** the document so a reader can see what
 was there, what replaced it, and why.
@@ -18864,3 +18864,200 @@ frozen file was edited: `T25R_L1` and `T25R_PREREGISTRATION.md` are untouched ev
 the repair lives in a separate probe directory. Cost of this filing: **writing only, no
 compute**; the evidence it rests on cost **12.217 core-minutes**, already ledgered at
 `verification/runs/T-family/T25RF_runs/COST_LEDGER.txt`.
+
+---
+
+## ADDENDUM to L-425 — 2026-09-01: A SECOND INDEPENDENT INSTANCE, AND IT SURVIVED *BECAUSE* THE FIRST WAS FIXED
+
+**Appended at the foot rather than inside L-425's block, deliberately.** `docs/LESSONS.md` is
+cited by line elsewhere in the repository, so inserting into the middle would renumber every
+line below and break those citations. **Lines whose number changed above this section: 0**,
+measured by digest in the closing table, not asserted. *Discoverability cost, stated rather
+than hidden: a reader of L-425's block will not see this addendum unless they search `L-425`.*
+
+**Found by the demo-connector lane, 2026-09-01. Verified against the source by the cfd lane
+that wrote this addendum, not transcribed from the report.**
+
+### The second instance
+
+`sdk/workflows/demo_mode.py`, `_check_gate_words()` — the guard that keeps the lab's verdict
+vocabulary off the filmed screen. Its gate phrases were matched with a trailing `\b`:
+
+```
+\bPASS\b   does NOT match "PASSED"
+```
+
+Same mechanic as L-425: the trailing `\b` needs a non-word character after the match, and
+`E`, `D` are word characters, so the boundary fails and the pattern matches nothing.
+
+**It was not hypothetical and it was not caught by review — it was measured ON THE FILMED
+SURFACE.** Four planted-control lines rendered on the gates table as
+`coefficient control PASSED`, `elapsed control PASSED` and two more, and **every one of them
+walked through the checker untouched**. Repaired in that file by giving each phrase's final
+word its uppercase inflections (`(?:ED|ES|S)?`), upper case only, so "the flow passes over the
+slot" stays legal English while `PASSED` as a label does not.
+
+### THE PART WORTH INSTITUTIONALISING, WHICH IS NOT THE REGEX
+
+**The first instance was found and repaired hours earlier the same day**, in
+`verification/runs/JF1_jet_flap/vocab_sweep_jf1.py`, where `\b(defect|...)\b` was blind to
+"defects", "toolchains" and "workarounds". **Nobody looked at `demo_mode.py`, and the reason
+they did not look is the finding:**
+
+> **The second instance survived BECAUSE the first had been fixed. The repair created the
+> belief that the class was handled.**
+
+A fix applied at one site is evidence about that site. It is not evidence about the class, and
+it is worse than neutral if it converts an open question into a closed one in everybody's
+head. **This is L-221/L-222 — "a lesson is not applied until EVERY call site asserts it" —
+arriving from the opposite direction: not a call site that was never updated, but a call site
+nobody thought to look for because the lesson felt discharged.**
+
+The general form, as the repaired file states it in its own comment:
+
+> **A word-boundary vocabulary check is blind to every inflection of every word in it, in
+> every file that has one.**
+
+### WHAT IS NOT CLAIMED, AND THIS CAVEAT IS LOAD-BEARING
+
+**NO LAB-WIDE SWEEP HAS BEEN RUN.** Two instances are known because two lanes tripped over
+them independently on the same day; **nothing here says how many more exist, and nothing here
+says there are none.** The connector lane was explicit that it had not run the sweep, and that
+explicitness is preserved here rather than allowed to evaporate in transmission.
+
+**The query, for whoever runs it:** any `\b(...)\b` alternation, or any `\b<word>\b`, used to
+match a **fixed vocabulary** — banned phrases, verdict words, gate names, forbidden tokens.
+`scripts/sweep_word_boundary_alternations.py` (`3a280e52`) exists and reports DEAD and NARROW
+alternatives across tracked files. **Two known limits before anyone reads its output as
+coverage:** it examines alternation *groups*, so a bare `\b<word>\b` guard is outside its
+frame; and it **skips alternatives ending in a metacharacter**, which is exactly the shape a
+repaired pattern takes — so **its silence on a repaired file is not evidence the repair is
+correct.** A per-plant control, one plant per alternative declared independently of the
+patterns, is what backs a repair.
+
+*Instances:* `verification/runs/JF1_jet_flap/vocab_sweep_jf1.py` (repaired `37c5a692`);
+`sdk/workflows/demo_mode.py` `_check_gate_words` / `_GATE_TAIL` (repaired by the connector
+lane, comment at its own definition site carries the narrative).
+
+| assertion | value |
+|---|---|
+| L-425's own text edited | **none — not one character** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `d3003baaab1b93885ac2f64ddb592452` |
+| md5 of this file's first 18,866 lines after the append | `d3003baaab1b93885ac2f64ddb592452` |
+| the two digests | `**EQUAL — assertion MEASURED**` |
+\n
+---
+
+## L-427 — The register that already holds the answer is only worth what it saves, and it saves nothing after the freeze: search it BEFORE a pre-registration is committed, not after
+
+**Two pre-registered claims were made on one night, by a lane and by its supervisor, that a
+measurement already on this box had refuted three days earlier. Neither of us looked.** The
+measurement was not obscure, not in another team's territory and not hard to find: it was in
+this team's own numerics register, filed by this team, about this exact geometry.
+
+### What happened
+
+A cfd lane filed `F13_TIP_TOPOLOGY_PROBE_PREREGISTRATION.md` (`40ca3c35`) to test whether a
+non-degenerate ONERA M6 tip cap could clear the mesh standard's 70° non-orthogonality gate.
+**Registered prediction 1: *"at least one of C1/C2 clears M1, with max non-orthogonality in
+50–68°."*** C1 was the butterfly cap.
+
+**`N-C6` in `docs/NUMERICS_KNOWLEDGE.md`, landed 2026-08-25 — three days earlier, by the same
+team, on the same geometry — had already measured butterfly tip caps at 81.5834° → 82.0645°**,
+rising monotonically to an asymptote, with the severe-face fraction rising **10.7×** while the
+cell count rose only **1.31×**.
+
+The lane's reasoning had been: *"a non-degenerate cap only has to avoid being worse than the
+C-grid it attaches to"* — inferred from a control mesh at 51.2554°. **`N-C6`'s operational
+reading says the opposite and supplies a test costing no compute at all**: compute the
+strip-to-core arc-length ratio at the break; a ratio of order 10 or more predicts a floor in
+the 80s. Run afterwards, it returned **15.49:1**, reproducing `N-C6`'s recorded ~16:1 from a
+completely different route, in seconds, with no mesh built.
+
+**The supervisor then made the mirror-image error one level up**, relaying that *"no cap
+topology escapes it"* — an overstatement in the other direction, corrected only when the lane
+computed the ratio across the design space and found the obstruction holds over the registered
+and natural region but **not** over the whole admissible one.
+
+**Same root, both directions: a claim asserted where a measurement was available.**
+
+### THE OPERATIVE CLAUSE
+
+> **Before a pre-registration is frozen, search the lab's own registers for the case's
+> geometry and its failure mechanism, and record what the search returned — including
+> "nothing".** The registers are `docs/NUMERICS_KNOWLEDGE.md` (`N-*`), `docs/LESSONS.md`
+> (`L-*`) and the relevant standard under `docs/standards/`. **The search costs zero
+> core-minutes and takes under a minute. A pre-registration that does not state what it
+> returned is incomplete in the same way one with no cost estimate is disqualified.**
+
+The check is not "be careful" — it is a specific, cheap, nameable action that produces an
+artifact:
+
+```
+grep -niE '<geometry>|<mechanism>' docs/NUMERICS_KNOWLEDGE.md docs/LESSONS.md
+```
+
+**A pre-registration should carry one line: "registers searched for `<terms>`; returned
+`<N-xx>` / returned nothing."** That line is falsifiable and its absence is visible.
+
+### Why AFTER the freeze is worth so much less
+
+**A register consulted after the freeze cannot prevent the wrong prediction; it can only force
+an amendment.** Rule 2 permits pre-compute amendment, so the record is repairable — but the
+repair costs an amendment, a correction relayed upward, and a commit walked back, and it
+leaves a struck prediction in the permanent record. **Read at filing time, the false
+prediction would never have been committed at all.** That asymmetry is the whole reason the
+check belongs before the freeze rather than at grading.
+
+### The cost face of the same lesson
+
+**The withdrawn probe spent 0.000 core-min against a 4.0 estimate — and that 0.00 ratio must
+not be booked as an estimating triumph.** The estimate was never tested; the item was withdrawn
+rather than run. What the ledger row records instead is a **different and better kind of
+saving**:
+
+> **The cheapest core-minute is the one a prior measurement makes unnecessary.**
+
+Two corollaries, both of which cost this lab something to learn on the same night:
+
+1. **Do not launder authoring time into a core-minute figure.** The real cost of this error was
+   hours of reasoning and a commit that needed amending. The compute ledger does not measure
+   that, and the honest row says so **in words** rather than converting it into a spend it can
+   price. Waste is *named*, never converted (`COMPUTE_BUDGET_CHARTER.md` §6).
+2. **A completion-conditional estimate can be RIGHT while its process FAILS.** The same night a
+   rung crashed at 54 % of its `endTime`, giving a raw actual/predicted of **0.53** that reads
+   like a 2× overestimate and is nothing of the kind — it is *spend at the point of failure*.
+   The measured throughput extrapolated to the registered stopping point gave **~15.5 core-min
+   against 16.0 filed, ~3 % out**. **Where a process terminates early, the honest calibration
+   figure is the RATE extrapolated to the registered stopping point, with the raw ratio
+   labelled rather than quoted.** A ledger read only through the ratio column mis-scores such
+   rows in the flattering direction on an overrun and the punishing direction on a crash.
+
+### The same failure at one remove — and this lesson tripped it while being written
+
+**This lesson's own number had to be re-derived twice.** When the draft was written,
+`docs/LESSONS.md` returned **426 blocks against a maximum of L-425** — a lane that had counted
+blocks would have minted a duplicate on the spot. By the time the block was landed a peer had
+committed **L-426**, so the correct number moved to **L-427** mid-task.
+
+**Both halves matter.** The count-versus-maximum gap is rule 11's standing trap; the peer
+landing mid-task is why rule 11 says re-derive **in the same shell invocation as the commit**
+rather than at the start of the work. **A number read at the beginning of a task is a
+prediction, not an identifier.** That is the same failure this lesson is about — assuming what
+a record contains instead of reading it — arriving in the file the lesson lands in, while it
+was being landed.
+
+### What this lesson does NOT say
+
+It does **not** say a register hit settles a question. `N-C6` answered the two *registered*
+candidates — one by direct measurement, one by a geometric ratio independent of block topology
+— and left a **named residual untested** (a sub-0.23 core scale reaches a ratio below the
+criterion). **The register replaces a guess with a measurement and a stated limit; it does not
+replace judgement**, and a pre-registration citing one still has to say what the cited
+measurement does not cover.
+
+*Provenance:* `verification/campaign/F13_TIP_TOPOLOGY_PROBE_PREREGISTRATION.md` AMENDMENT 1
+(`579eaa1f`); `verification/campaign/F13_RESULTS.md` ADDENDUM 1 (`8f33d5a9`); `N-C6` and
+`N-C8` in `docs/NUMERICS_KNOWLEDGE.md`; the three `docs/COST_CALIBRATION.md` rows for DMR R3
+and the zero-spend row for the withdrawn probe.
