@@ -530,8 +530,31 @@ KNOWN_EXCLUDED = {
     # anywhere-in-line rather than the character immediately after the id would
     # misclassify one of the two. This rule is anchored to the comma directly
     # after the number, which is why it covers both.
+    # A SECOND BLOCK written as `AMENDMENT`, with WHITESPACE and no comma after
+    # the number. Measured 2026-09-01: exactly 1 line,
+    # `## L-426 AMENDMENT 1 - 2026-09-01, heat-transfer. ...` at :19170, and its
+    # parent `## L-426 -` exists at :18729 (checked), which is what makes this a
+    # second block rather than a lost id. Excluding it drops NO number from the
+    # arithmetic: L-426 is counted at its primary heading.
+    # SAME TRAP AS L-61, and it is why this is anchored the way it is: this line
+    # CONTAINS an em-dash later on, so an exclusion written as "has no em-dash"
+    # would fail on it. This one is anchored to the literal word AMENDMENT
+    # immediately after the number's whitespace, so it cannot reach a genuine
+    # new lesson heading -- those carry a period or whitespace+em-dash, which is
+    # exactly what the id pattern above requires, and a planted negative control
+    # asserts the two sets stay disjoint.
+    # THIRD SPELLING, AND THE HONEST NOTE: the record now writes one convention
+    # -- "a second block under an existing id" -- four ways: `L-43,` and `L-61,`
+    # (comma), this `AMENDMENT` form, and `### L-63 - CORRECTION`, which needs no
+    # entry only because h3 fails the candidate shape. Four spellings for one
+    # convention is a RECORD-level inconsistency, and standardising LESSONS.md on
+    # the comma form would retire this whole class instead of growing this
+    # register once per spelling. REFERRED, NOT IMPOSED: docs/LESSONS.md is not
+    # this tool's to reshape, and widening the pattern to guess at future
+    # spellings is exactly the over-reach the comma rule was anchored to avoid.
     "docs/LESSONS.md": (
         r"^##[ \t]*L-\d+[ \t]*,",
+        r"^##[ \t]*L-\d+[ \t]+AMENDMENT\b",
     ),
     # Two forms, measured, one line each.
     #  * a SERIES DECLARATION, which names a lane rather than a fact:
