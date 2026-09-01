@@ -21853,6 +21853,96 @@ Prereg blob **byte-identical** to the frozen sha and frozen **194 s** before the
 
 ## ansys-verification
 
+### 2026-09-01T01:3xZ — **TEAM STOOD DOWN AGAIN ON SANAA'S ORDER, ~25 MINUTES AFTER BEING RESTARTED. THE STAND-DOWN IS SELF-ENFORCING — I VERIFIED WHY. AND THE FIRST NEXT-ACTION ON THIS BOARD WAS A DEFECT THAT DOES NOT EXIST.**
+
+**Written by `ansys-verification-supervisor` personally. Every check below is mine at source unless marked otherwise.**
+
+#### THE ORDER
+
+Sanaa, verbatim, relayed by the chief and captured at `c5edce6b`: *"no closure and ansys stay down until we are done with the demos."* The team was re-formed at ~01:20Z under the standing repair order and stood down at ~01:30Z. **Parked is not cancelled** — the repair order resumes exactly where this entry leaves it.
+
+#### THE STAND-DOWN IS SELF-ENFORCING, AND THAT IS A MEASURED FACT, NOT AN ASSURANCE
+
+The shared queue daemon (pid **374025**, alive 5 h 06 m, `scripts/queue_runner.py --daemon`) is **NOT mine to stop** and I did not touch it. It cannot launch an ansys case anyway:
+
+- **The ansys queue root holds ZERO launchable entries** — `verification/queue/ansys-verification/*.json` = **0**. The 13 `launched/`, 2 `held/` and 1 `refused/` entries sit in subdirectories.
+- **`scripts/queue_runner.py:291`/`:439`/`:611` scan `d.glob("*.json")` — NON-RECURSIVE.** Subdirectories are never scanned. Read at source by me.
+
+So the daemon may stay up through the demo work without any risk of launching ansys compute. **No ansys solver is running on this box** — process listing by me, twice, at 01:24Z and 01:28Z. The box's load average of 32 is other teams' repository searches, not compute; zero processes above 50 % CPU.
+
+> **I checked this personally BECAUSE THE LAST STAND-DOWN GOT IT WRONG.** The 2026-08-31T22:46Z entry reported the session as zero-compute and it was not — a probe had already completed unattended and the withdrawal reached nothing. A stand-down claim rests on a process listing, never on an instruction having been sent.
+
+#### ⚠ CORRECTION AGAINST MY OWN BOARD: THE RULE-13 DEFECT I CHARGED MYSELF WITH DOES NOT EXIST
+
+This board's next-action item 3 (line ~21848) and its supporting text (~21891) say `docs/ansys_verification/VMFL029_DECLINED.md` **"cites the tensor at a `/tmp` scratch path"**, a CLAUDE.md rule-13 violation. **That is FALSE, and I verified it at source rather than banking the lane that told me:**
+
+- **Zero** hits for `/tmp`, `scratch` or `claude-1000` in the file **at HEAD**.
+- **Worktree byte-identical to HEAD** (`git hash-object` == `git rev-parse HEAD:<path>`), so this is not an uncommitted fix.
+- **One commit in the file's entire history** (`f3e554ef`) — it has never held a different body.
+- The lane widened it: `cases/ansys_verification/VMFL029/PREREGISTRATION.md` **0**, `vmfl029_exact.py` **0**.
+
+**What the record actually carries is a different and milder defect:** line 15 cites the tensor as a **bare, unrooted basename**, `` `VMFL029_aniso.cas:2628` `` — same form at `PREREGISTRATION.md:22` and `vmfl029_exact.py:38`. A scratchpad wipe destroys nothing here because no scratch path was ever written down; the cost is only that a reader cannot tell which of the 77 Fluent archives it came from without redoing the recovery.
+
+**The durable citation RE-VERIFIED, all three facts reproducing exactly:** archive `/home/ubuntu/ansys-vm2026r1/VM2026R1_Fluids/VM2026R1_FLUENT_ARCHIVES/VMFL029_WB.wbpz` present at **311,039 bytes**; member `VMFL029_WB_1_files/import_files/VMFL029_aniso.cas` (127,467 bytes, 2026-03-17); MD5 **`d4ceceaf8518e65a65a9dcd253bbfe45`**. It is ready to use on resume. `VMFL029_DECLINED.md` is **neither frozen nor line-cited anywhere** (the only citations are four prose lines on this board, none by line number, none inside an executable check), so the repair form is **quote-and-strike in place**, not a foot-of-file amendment. **NOT DONE — stood down first.**
+
+> **THE LESSON, and it is mine: A SELF-ACCUSATION IS A CLAIM AND GETS CHECKED LIKE ONE.** I wrote this defect onto the board against myself, in good faith, and carried it into two committed board entries and a lane brief as the team's third-ranked next action. The scratch path was real in a lane's *working copy* during recovery; the *committed* file only ever carried the basename. **Confessions do not get a lower evidentiary bar than boasts** — and an invented defect wastes exactly the effort a real one would.
+
+#### VMFL007-R3 — STILL BLOCKED, AND I ADDED A THIRD QUESTION THAT COULD KILL THE `PASS` RATHER THAN FIX IT
+
+Unchanged from the correction entry below: the draft (`cases/ansys_verification/VMFL007-R3/PREREGISTRATION.md`, **DRAFT, NOT FROZEN**, banner at line 3) is blocked on **(1)** the pinning question being **UNMEASURED** — `d21` needs two converged levels and L2 (50×50) diverged, so the pre-fixed `d21/ptp ≥ 100` rule is UNSATISFIED, fail-closed — and **(2)** arm A5 not being mesh-robust, so no graded Roache triple can run on it at all.
+
+**THE THIRD QUESTION, raised by me this session — AND MY OWN CAUSAL CHAIN FOR IT WAS REFUTED AT SOURCE WITHIN THE HOUR.** Crash triage is my §3 check 2: the SIGFPE is a finding until triage says otherwise. I pointed the triage at a specific mechanism — the power-law apparent viscosity is `nu = k|gammaDot|^(n-1)`, and at **n = 0.4** the exponent is **negative**, so `nu` diverges as the shear rate goes to zero, which it does **exactly on the pipe centreline**; refining puts a cell centre nearer that singularity, predicting the observed converges-coarse/diverges-fine signature.
+
+**THE DIRECTION SURVIVES; THE CAUSAL CHAIN DOES NOT — and I read the source myself rather than take the lane's word for a refutation of my own hypothesis.** `/usr/lib/openfoam/openfoam2606/src/transportModels/incompressible/viscosityModels/powerLaw/powerLaw.C`, `calcNu()`:
+
+```
+max(nuMin_, min(nuMax_, k_*pow(max(strainRate()*1s, SMALL), n-1)))
+```
+
+Two things settle it: the limiters are a **hard min/max CLIP, not a blend**, and the strain rate is **floored at `SMALL` BEFORE the `pow`**. So on the centreline `pow` returns a large-but-finite number that `min(nuMax,·)` caps — **the viscosity evaluation is bounded and cannot itself raise a floating-point exception.** Configured coefficients, from `cases/ansys_verification/VMFL007/case/constant/transportProperties` (blob **`db848a12`**, verified equal to the frozen sha): **k = 0.01, n = 0.4, nuMin = 1e-8, nuMax = 1.0**.
+
+**So rc 136 is the SYMPTOM of the momentum/pressure solve diverging to nan/inf** — matching the probe's *rising* U residual — a **linear-solver/relaxation conditioning failure**, plausibly curable by an arm, not an irreducible model singularity that no arm could cure. The near-axis viscosity contrast stiffening the momentum system under refinement remains the likely aggravator. Mesh quality, inlet-profile evaluation on the finer mesh and Courant were **not** tested — they need compute and stay open. **Triage is therefore ADVANCED, NOT CLOSED.**
+
+**§12.2 IS STILL NOT SETTLED, AND THE HONEST STATUS IS UNMEASURED.** If a `nuMax` clip **binds anywhere in the domain**, the solver is integrating a *limited* power-law fluid, not the fluid the Rabinowitsch–Mooney closed form solves — **§12.2 would have to be re-ruled `DIFFERENT`**, capping the case at `GATE REACHED` and **removing the only `PASS` candidate this team has left.** The lane launched nothing, so the discrete `nu` field was never read. Its analytic estimate on the developed profile: nuMax = 1.0 binds only where the strain rate falls below **4.64e-4 s⁻¹**, i.e. within **r < ~1.53e-6 m** of the axis, while near-axis first-cell-centre radii are 2.5e-5 / 1.25e-5 / **6.25e-6** m at 25/50/100 — all **outside** it, with near-axis `nu` estimated to grow 0.0152 → 0.043 → 0.122, still **~8× below the cap** at the finest level. **That is an estimate on the analytic profile, not a field read, and it does not settle the ruling.** The §12.2 = `SAME` ruling is mine personally and stays undelegated; a lane supplies the measurement, never the ruling. **A single min/max read of the converged 25×25 `nu` field at endTime settles it for almost nothing on resume — that is the cheapest decisive item this team owns.**
+
+> **TWO SUPERVISOR CLAIMS WENT DOWN IN ONE 25-MINUTE SESSION, AND BOTH WERE MINE.** A defect I charged against myself did not exist; a crash mechanism I asserted in a lane brief was refuted by the installed source. **Both were caught because the briefs ordered the lanes to argue against them and to report what in the brief was wrong** — and both lanes did, in their first paragraph. That instruction is now standing practice for this team's dispatches, not a courtesy: **a brief that cannot be contradicted returns only its own assumptions.** The correct response to a lane refuting the supervisor is to go read the source personally, which is what happened here in both cases.
+
+#### THE REPAIR QUEUE STILL CARRIES THE OVERSTATED BACKLOG
+
+`docs/ansys_verification/REPAIR_QUEUE.md` line 14 still reads **"ACTIONABLE NOW: 24 CPU rows. Blocked on GPU: 7. Already converted: 4."** — the **OLD** framing. Verified: **zero** occurrences of `SUPERSEDED-COMPLETE`, `SUPERSEDED-PARTIAL`, `CEILING-TERMINAL`, `SOURCE-BLOCKED`, `GENUINELY OPEN` or `301.5` anywhere in the file. The supersession sweep's corrected counts (12 / 0 / 8 / 1 / 12 CPU / 2 GPU; real backlog **14**, collapsing to **8** root defects) are **NOT folded in**, and **the bucket counts were NOT reconciled against the register this session — that check was never reached.** Anyone reading the queue today reads an overstatement.
+
+**One thing there IS already right, verified at source:** line 37's §2n correction is landed and matches `VERIFICATION_CHARTER` §2n.1 (line 3861) exactly — **1 `BUDGET/KILL`, 2 `NAMING/PLUMBING`, 3 `BOOKKEEPING`, 4 `INSTRUMENT`, 5 `GATE-DESIGN`, 6 `REFERENT-CEILING`, 7 `MODEL-LIMIT`, 8 `PHYSICS-FAIL`**, lowest-wins.
+
+**A PRECISION CORRECTION on §2n.15** (line 4178, v1.31, `[SANAA-RULED]`, her authority at `6fcc7fb6`), which my own brief had loosely: the capability-exclusion list is **four** — classes **2, 3, 4, 5**. Classes still permitting a capability `YES` are **1, 6, 7, 8**. Sanaa was referred **both** class 1 and class 5 and **took `GATE-DESIGN` while deliberately leaving `BUDGET/KILL` permitting.** That detail matters to anyone re-reading the rows-11/12 reclass.
+
+#### THE UNCOMMITTED QUEUE DELETIONS ARE BENIGN — CHECKED, NOT ASSUMED
+
+Four `verification/queue/ansys-verification/*.json` show as deleted in the working tree (VMFL033-R2, VMFL038, VMFL063, VMFL069-R2). **All four are present in `launched/`** — runner-move fossils, the class the chief named at 2026-08-27T22:24Z. **Nothing is lost and nothing needs recovering.** Left uncommitted deliberately under the stand-down.
+
+#### STATE AT STAND-DOWN
+
+**Commits this session: NONE.** **Verdicts: NONE** — no row graded, re-graded, promoted or demoted; **no register byte changed**; no gate, band, cap, threshold or label moved anywhere.
+
+**Compute: ZERO core-minutes, $0.00 — and this time the claim is backed by a process listing, not by an instruction having been sent.** Three lanes were dispatched (2 opus + 1 haiku, within the cap of 4) and all three wound down. The VMFL007-R3 lane **launched no solver and started no detached process** — 0.0 of its 20 core-min cap, nothing to kill, and I confirmed no `*Foam`/`blockMesh` process on the box after the wind-down. **Neither opus lane committed or staged anything**; the record-repair lane had finished its reads without beginning to write, so **no half-finished edit exists in the worktree** — both its target files hash-equal to HEAD, checked by me. The 2.8 core-min in the VMFL007-R3 record belong to the **prior** session's probe and are not this session's.
+
+**Estimate-versus-actual (CLAUDE.md rule 12):** nothing completed, so no calibration row is owed. The one authorisation issued and not spent was the 20 core-min arm-search cap — **actual 0.0, ratio 0.00**, cause: stood down before launch, not misprediction. Recorded here rather than in `docs/COST_CALIBRATION.md` because no process completed.
+
+**Rungs without verdicts, unchanged:** VMFL007-R3 **draft, freeze BLOCKED on three conditions now, not two**; VMFL029 `DECLINED`; rows 34, 42 GPU-blocked; VMFLGPU004 `BLOCKED` (#41); VMFLGPU006 blocked on evidence; VMFLGPU008/009/010 untouched.
+
+**FREEZE-AHEAD is 0 against the chief's §2 requirement of ≥ 3 frozen queue-ready registrations per team.** That is a standing planning defect this team carries into the stand-down, and it is named rather than left implicit — it is also, honestly, the reason a stand-down costs us little right now.
+
+**Next actions on resume, in corrected order:**
+1. **VMFL007-R3: read the converged 25×25 `nu` field min/max at `endTime` and settle §12.2.** Near-zero cost, and it decides whether the case is a `PASS` candidate at all or is capped at `GATE REACHED` — do it before spending anything on arms. Only if the clip does not bind: find an arm converging on 25/50/100, **selected on convergence robustness ALONE and never on agreement with 60 521.969 Pa** (the deviation is not to be computed for a candidate arm until after that arm has been selected and the selection recorded), then re-run the pinning probe to clear `d21/ptp ≥ 100`, then and only then freeze. The remaining triage limbs — mesh quality, inlet-profile evaluation on the finer mesh, Courant — are open and need compute.
+2. Fold the corrected counts into `REPAIR_QUEUE.md` **and reconcile the six buckets against the register** — the reconciliation is the part that was never done.
+3. **Root the bare `VMFL029_aniso.cas:2628` citation** by quote-and-strike, using the re-verified archive + member + MD5 above. *(This replaces the retired "/tmp scratch path" item, which was never a real defect.)*
+4. The six cheapest open `GATE-DESIGN` rows — **never costed or ranked; that task was not started.**
+
+**On Sanaa's desk, unchanged and none of it acted on:** the **4 `UNCLASSED`** rows awaiting her taxonomy ruling (solver-internal divergence has no bucket in the closed eight) — **explicitly not acted on this session**; **rows 6/9/10/11/12 are ONE repair** needing a frozen-threshold change (`ESCALATION` §4.1 / D539); the **four-empty-tiers** finding; and the **stale `harness/teams.yaml`**, which still sends every future ansys supervisor to two archive paths that do not exist and still issues the long-closed D-6 as an open first action.
+
+**VERIFY — stated, not filled in:**
+- **The credential count is UNRESOLVED and I will not assert either number.** This board has said **"ten credentials"**; a lane sweep this session counted **1 `PASS`** in the register. The register is 834 lines / 96 table rows / 51 entries in a mixed format, and lines 193–196 are a **coverage-matrix addendum with a different column set**, not the main table — the exact `**#N**`-cell hazard this team has already documented firing once. **Neither figure is verified. Do not quote either until the register is counted by a method that has been shown able to distinguish row ids from citations.**
+- The `e042d09d` sweep artifact was **never opened** this session, and the per-row cost extrapolations behind the 301.5 core-min figure remain **spot-checked by nobody**.
+
 ### 2026-08-31T22:48:59Z — **CORRECTION to the stand-down entry immediately below: THE SESSION WAS NOT ZERO-COMPUTE, AND THE VMFL007-R3 PINNING PROBE DID RUN — IT COMPLETED BEFORE THE WITHDRAWAL REACHED IT AND ITS RESULT FORBIDS THE FREEZE, FAIL-CLOSED.**
 
 **Written by `ansys-verification-supervisor` personally. A fact changed under me after I dictated the stand-down entry: the VMFL007-R3 lane reports the pinning probe had ALREADY RUN AND COMPLETED before my withdrawal arrived. The board is the only channel to the next session, so it must be true. The landed entry below is NOT rewritten (it was already committed, `14837ab3`); these four corrections supersede the specific lines they name.**
