@@ -91,13 +91,26 @@ SECTION_Z = (0.0, 3.0, 7.2, 10.9, 13.5)
 # from the act can travel without the mesh it belongs to. The wording is fixed:
 # it names the mesh, says why it was chosen, and says what was NOT done.
 #
-# THE CHARACTERS ARE THE OWNER'S OWN, em dash included (2026-09-01, captured
-# at etc/sessions/2026-09-01T0043Z_sanaa_actD_visuals.md): "caption every 3D
+# THE WORDS ARE THE OWNER'S OWN (2026-09-01, captured at
+# etc/sessions/2026-09-01T0043Z_sanaa_actD_visuals.md): "caption every 3D
 # frame '38,304-cell mesh, chosen for speed - grid independence not assessed;
-# result relative to this mesh.'" This string carried a hyphen where she
-# dictated an em dash. It is cosmetic and it was still wrong: a directive
-# quoted verbatim is quoted exactly or it is not quoted.
-MESH_CAPTION = ("38,304-cell mesh, chosen for speed — grid independence "
+# result relative to this mesh.'"
+#
+# TWO OF HER OWN ORDERS COLLIDE ON ONE CHARACTER, AND THE COLLISION IS REAL.
+# She dictated this caption with an EM DASH. Her standing demo convention bans
+# em dashes from anything user-visible ("I don't ever want to see them"), and
+# cfd's viewport wiring now renders this string on every filmed Act D frame --
+# so the one place the em dash was quoted exactly is also the one place her ban
+# most clearly bites. This carried the em dash until 2026-09-01 on the reading
+# that a directive quoted verbatim is quoted exactly or it is not quoted.
+#
+# RULED BY THE CHIEF, [lab-attributed], disclosed to her to overturn: the
+# SEMANTIC CONTENT is what she mandated and is preserved word for word; the
+# TYPOGRAPHY falls under her ban. The em dash becomes a semicolon. EVERY WORD
+# IS UNCHANGED and no claim moves -- it still names the mesh, says why it was
+# chosen, and says what was NOT done. If she prefers the em dash back, this is
+# one character and the record above says exactly what was traded for what.
+MESH_CAPTION = ("38,304-cell mesh, chosen for speed; grid independence "
                 "not assessed; result relative to this mesh.")
 
 # VISUALS ITEM 1 (owner, 2026-09-01): "Confirm the surface render is the
@@ -226,6 +239,19 @@ def dimensions(vertices: list, *, axes_hint: tuple | None = None
             "Maximum thickness": max(axes[t]) - min(axes[t])}
 
 
+def _float32_step(value: float) -> float:
+    """One float32 step at ``value``: the finest difference an STL can hold.
+
+    Computed from the format rather than assumed: the value is rounded to
+    float32, its bit pattern incremented by one, and the difference taken. No
+    table of magic epsilons and no dependency on numpy.
+    """
+    v = struct.unpack("<f", struct.pack("<f", abs(value)))[0]
+    bits = struct.unpack("<I", struct.pack("<f", v))[0]
+    nxt = struct.unpack("<f", struct.pack("<I", bits + 1))[0]
+    return nxt - v
+
+
 def identify(doc: dict, surface: str,
              directory: Path | None = None) -> dict[str, Any] | None:
     """Measure a received surface against this act's own wing.
@@ -235,16 +261,26 @@ def identify(doc: dict, surface: str,
     None when the file cannot be read at all, so the caller can say what
     happened rather than announce a check it could not run.
     """
-    from chief_engineer.geometry import load_surface
+    from .geometry_admission import _read, admit
 
     path = Path(directory or GEOMETRY_DIR) / Path(str(surface)).name
-    try:
-        # No decimation: a merged vertex moves an extent, and an extent is the
-        # measurement. The whole surface is read exactly as it arrived.
-        payload = load_surface(path, max_faces=10 ** 9)
-    except (OSError, ValueError):
+    # THE SAME READER THE ADMISSION DECISION USED, and the same coordinates.
+    #
+    # This used to call chief_engineer.geometry.load_surface directly, under a
+    # comment reading "No decimation: a merged vertex moves an extent, and an
+    # extent is the measurement. The whole surface is read exactly as it
+    # arrived." The guard against decimation was right and is kept. The claim
+    # of exactness was FALSE in the last decimal, and for a reason worth
+    # naming: load_surface rounds every coordinate to 5 decimals to keep the
+    # JSON it streams to a viewport small, so this identity check was
+    # measuring a display copy while admit(), one line below, measured the
+    # file. A rounding that belongs to the viewport had no business deciding
+    # what a customer's file measures. Reading through _read fixes both: the
+    # bytes are the file's, and the two measurements are now taken from ONE
+    # reading rather than two independent ones that could disagree.
+    surf = _read(path)
+    if surf is None:
         return None
-    from .geometry_admission import admit
 
     # Admission first. A surface that cannot be run is not measured against
     # this act's wing and then quietly run as this act's wing: the caller is
@@ -255,7 +291,7 @@ def identify(doc: dict, surface: str,
                 "match": False, "admitted": False, "decision": decision}
 
     a = decision["axes"]
-    measured = dimensions(payload["vertices"],
+    measured = dimensions(surf.vertices,
                           axes_hint=(a["chord_axis"], a["span_axis"],
                                      a["thickness_axis"]))
     # This act's own wing has a known orientation, fixed by the mesh it was
@@ -263,7 +299,18 @@ def identify(doc: dict, surface: str,
     known = dimensions(doc["base_vertices"], axes_hint=ACT_AXES)
     worst = max(abs(measured[key] - known[key]) / known[key] * 100.0
                 for key in known)
+    # HOW FINE A DISAGREEMENT THIS COMPARISON CAN EVEN SEE. A binary STL
+    # stores float32, so two representations of one body cannot be compared
+    # closer than one float32 step at that size. Quoting more significant
+    # figures than that is quoting the storage format, not the geometry --
+    # which is exactly what the old reading did: through the rounded copy the
+    # reference wing "disagreed with itself" by 3.3e-04%, 118 times larger
+    # than the 2.8e-06% it actually does, and that figure was an artefact of
+    # the fifth decimal place rather than a measurement of anything.
+    floor = max(_float32_step(known[key]) / known[key] * 100.0
+                for key in known)
     return {"measured": measured, "known": known, "worst_pct": worst,
+            "resolution_pct": floor, "at_resolution_floor": worst <= floor,
             "match": worst <= IDENT_TOLERANCE_PCT, "admitted": True,
             "decision": decision, "orientation": a["convention"],
             "same_orientation_as_act": (a["chord_axis"], a["span_axis"],
