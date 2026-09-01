@@ -244,12 +244,66 @@ coverage argument the guard's own docstring asks for:
 `KELVIN-UNIT` is the line that matters. Before the pass it had examined **zero**
 candidates on these artifacts and its clean report rested entirely on its own
 plant. After it, it has live coverage — twelve real kelvin quantities on the
-page — and still reports zero hits. A rule with 0 hits over 12 candidates is
-different evidence from 0 over 0, and the numeric captions are what turned one
+page — and still reports zero hits. **A rule with 0 hits over 12 candidates is
+different evidence from 0 over 0**, and the numeric captions are what turned one
 into the other.
+
+⚡ **AND THE PROVENANCE OF THAT IS WORTH STATING, BECAUSE IT WAS NOT THE POINT OF
+THE INSTRUCTION.** Sanaa's directive was about presentation — captions carry
+numbers rather than English sentences. Nobody asked for guard coverage. But a
+rule that inspects numbers cannot demonstrate anything on a page with no numbers
+on it, so putting real quantities on screen is exactly what converts its clean
+report from an assertion resting on its own plant into a measurement over live
+candidates. **A presentation instruction incidentally bought this act its first
+real evidence that the kelvin rule works on the artifacts it guards.** The
+credit is hers, and it is recorded here rather than absorbed as though the guard
+had always had that coverage.
+
+And the guard was not argued with once in the process: the derived set stayed
+empty, every temperature stayed refused, the act still ends on the refusal beat,
+and no caption asked for a magnitude it could not have.
 
 Both sweeps were re-run **after** the rewrite, not before: shortened and
 bulleted text is exactly where a banned phrase re-enters. Both are `rc = 0`.
+
+### 8b.1 THE SHAPE ALL OF TONIGHT'S DEFECTS SHARE
+
+Named here because this record is where the Act C instances live, and because a
+shape with a name is checkable while four separate anecdotes are not:
+
+> **A GREEN RESULT FROM AN INSTRUMENT THAT COULD NOT SEE WHAT IT WAS ASKED
+> ABOUT.**
+
+Four media, one shape: a false zero from a field reader that was never shown a
+non-zero; a rendered `|` the font silently dropped; a `.rc.*` glob that could not
+see a `STATUS.` file; and — the one measured here — a sheet builder that read a
+PDF from a previous compile and called it this compile's output. The empty-image
+guard in `render_actC_paraview.py` is the fifth medium, caught in advance rather
+than after: an image that opens in a viewer and says nothing.
+
+The remedy is the same in every medium and it is the one CLAUDE.md rule 3
+already states for readers: **make the instrument demonstrate it can see the
+thing before believing it when it says the thing is absent.** Remove the
+artifact before regenerating it; assert the new one is new; drive the failing
+case and require the refusal.
+
+**The build-form instance is now fixed at its source, not only locally.**
+`scripts/check_sheet_tail_rendered.py` Amendment 1 removes the target PDF
+before compiling, asserts `returncode == 0` — the signal the old body captured
+and never read — and asserts the PDF's mtime postdates the compile. Driven both
+ways in that file's own selftest. Three sheets now check clean, and the sheet
+that actually goes on camera was **added to the checked list**: it was verified
+at build time by its own builder and by nothing afterwards, and a sheet is
+filmed long after it is built.
+
+⚠ Two things worth knowing about that fix, both measured rather than
+anticipated: removal-before-compile opens a brief window in which a concurrent
+reader sees "not compiled", which is what happened once here while a second
+lane rebuilt its sheet — a correct state, not a fault, and preferable to the
+stale file it replaces. And the control's own refusal originally named the real
+sheet's basename, so a passing control printed a line indistinguishable from a
+live failure; the control copy is now renamed, because a control whose success
+output reads like a real failure will be acted on as one.
 
 ## 8c. PARAVIEW, AND THE ONE SURFACE NO SWEEP CAN READ
 

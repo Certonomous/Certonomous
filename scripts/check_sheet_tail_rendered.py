@@ -65,13 +65,25 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEMO = os.path.join(REPO, "docs", "campaigns", "T-family", "demo")
 SHEETS = [
     os.path.join(DEMO, "ACT_A_thermal_map_sheet.tex"),
+    # ⚠ SUPERSEDED, AND KEPT ANYWAY. The Act C content specification's section
+    # 0 records that this is NOT the Act C sheet that goes on camera. It stays
+    # in the list because dropping a sheet from a guard is a reduction in
+    # coverage, and it still has a tail worth protecting.
     os.path.join(DEMO, "ACT_C_battery_module_sheet.tex"),
+    # ADDED 2026-09-01. THE SHEET THAT ACTUALLY GOES ON CAMERA WAS NOT IN THIS
+    # LIST. It was compiled through `compile_and_require_tail` by its own
+    # builder, so its tail was checked at BUILD time -- but nothing checked it
+    # afterwards, and a sheet is filmed long after it is built. On this one
+    # the tail is the honesty statement: "the run completes, the gate refuses
+    # it, and no thermal result exists."
+    os.path.join(DEMO, "ACT_C_GATE_sheet.tex"),
 ]
 
 # Markup-only fragments that are not the sheet's last SUBSTANTIVE line.
@@ -183,13 +195,81 @@ def compile_and_require_tail(tex_path):
 
 
 def compile_tex(tex_path, workdir):
+    """Compile, and return the PDF **THIS** compile produced -- or ``None``.
+
+    ==================================================================
+    AMENDMENT 1 -- 2026-09-01.  THIS FUNCTION CERTIFIED A STALE PDF AS A
+    SUCCESSFUL COMPILE, AND IT WAS MEASURED DOING IT.
+    ==================================================================
+
+    THE BEHAVIOUR THIS REPLACES, QUOTED AND STRUCK RATHER THAN REWRITTEN::
+
+        ~~out = subprocess.run([...], cwd=workdir, capture_output=True)~~
+        ~~pdf = os.path.join(workdir, basename[:-4] + ".pdf")~~
+        ~~return (pdf if os.path.exists(pdf) else None), out.stdout~~
+
+    An EXISTENCE test, and ``out.returncode`` captured and never read.  So
+    when ``pdflatex`` failed under ``-halt-on-error`` and wrote nothing, the
+    PREVIOUS pdf was still sitting in the workdir, this returned it, the tail
+    guard read THAT file, found the tail on it, and the build printed success.
+
+    MEASURED, and this is the authority for the amendment: on 2026-09-01 an
+    Act C caption edit broke the sheet source, ``pdflatex`` produced no output
+    file at all, and the builder reported *"the sheet's last line is verified
+    present on the page"* over a PDF **83 minutes old**.  It was caught only
+    because a downstream token count failed to move.
+
+    THE SHAPE, because it is the same one this file already exists to fight:
+    A GREEN RESULT FROM AN INSTRUMENT THAT COULD NOT SEE WHAT IT WAS ASKED
+    ABOUT.  This guard was written because ``pdflatex`` reports success over a
+    silently deleted last line; it then reported success over a silently
+    absent whole document.  On a filmed sheet that means shooting the previous
+    version of a screen while believing the edit landed.
+
+    IT WAS ALSO AN INCONSISTENCY INSIDE THIS FILE, not a house style:
+    :func:`page_words` twelve lines up already refuses on a non-zero
+    ``returncode``.  Only this function threw the signal away.
+
+    THREE CLAUSES, because each alone can be fooled:
+
+    1. the target PDF is REMOVED before the compile, so a failed run leaves
+       nothing to mistake for output;
+    2. ``returncode`` is ASSERTED zero -- the signal that was being discarded;
+    3. the PDF's mtime is asserted to POSTDATE the compile invocation, so a
+       file restored by any other means is caught too.
+
+    Driven both ways by :func:`selftest`: a deliberately broken source must
+    return ``None`` and leave no PDF behind, and a good source must still
+    compile and pass.  The positive arm is not decoration -- a guard that
+    refused every compile would sail through a refusal-only test while making
+    every sheet in the lab impossible to build.
+    """
+    pdf = os.path.join(workdir, os.path.basename(tex_path)[:-4] + ".pdf")
+    if os.path.exists(pdf):
+        os.remove(pdf)
+    started = time.time()
     out = subprocess.run(
         ["pdflatex", "-interaction=nonstopmode", "-halt-on-error",
          os.path.basename(tex_path)],
         cwd=workdir, capture_output=True, text=True)
-    pdf = os.path.join(workdir,
-                       os.path.basename(tex_path)[:-4] + ".pdf")
-    return (pdf if os.path.exists(pdf) else None), out.stdout
+    if out.returncode != 0:
+        sys.stderr.write(
+            "REFUSE: pdflatex exited %d on %s. No sheet is produced by a "
+            "failed compile, and the previous one is not this one's output.\n"
+            % (out.returncode, os.path.basename(tex_path)))
+        return None, out.stdout
+    if not os.path.exists(pdf):
+        sys.stderr.write("REFUSE: pdflatex reported success on %s and wrote "
+                         "no output file.\n" % os.path.basename(tex_path))
+        return None, out.stdout
+    if os.path.getmtime(pdf) < started - 1.0:
+        sys.stderr.write(
+            "REFUSE: %s is OLDER than the compile that claims to have "
+            "produced it (%.0f s before it began). A previous build is being "
+            "read as this one's output.\n"
+            % (os.path.basename(pdf), started - os.path.getmtime(pdf)))
+        return None, out.stdout
+    return pdf, out.stdout
 
 
 def selftest():
@@ -236,6 +316,65 @@ def selftest():
             raise SystemExit(2)
         print("control: an overlong sheet IS reported as losing its tail "
               "-- %s" % missing)
+
+    # ------------------------------------------------------------------
+    # AMENDMENT 1's OWN CONTROL, BOTH ARMS.  A compile guard shown only to
+    # refuse could be refusing everything, which would make every sheet in
+    # the lab impossible to build and would still pass a refusal-only test.
+    # ------------------------------------------------------------------
+    with tempfile.TemporaryDirectory() as d:
+        # THE COPY IS RENAMED, and that is not cosmetic. The negative arm
+        # below deliberately fails a compile, and `compile_tex` names the
+        # sheet in its refusal. Under the real basename that refusal reads
+        # exactly like the Act A sheet failing to build -- measured on the
+        # first run of this control, where it sat above the PASS line and
+        # looked like a live defect. A control whose success output is
+        # indistinguishable from a real failure will be acted on as one.
+        dst = os.path.join(d, "CONTROL_deliberately_broken_sheet.tex")
+        shutil.copy(src, dst)
+        pdf_path = dst[:-4] + ".pdf"
+
+        # POSITIVE ARM FIRST: an unmodified sheet must still compile, and the
+        # PDF must be one this compile produced.
+        started = time.time()
+        pdf, _ = compile_tex(dst, d)
+        if pdf is None or not os.path.exists(pdf):
+            sys.stderr.write(
+                "REFUSE: a GOOD source did not compile through the hardened "
+                "path. A guard that refuses every compile makes every sheet "
+                "in the lab unbuildable and would pass a refusal-only "
+                "test.\n")
+            raise SystemExit(2)
+        if os.path.getmtime(pdf) < started - 1.0:
+            sys.stderr.write("REFUSE: the good arm returned a PDF older than "
+                             "its own compile.\n")
+            raise SystemExit(2)
+        print("control: a GOOD source compiles and returns a PDF newer than "
+              "the compile that made it")
+
+        # NEGATIVE ARM: break the source, leaving the good PDF in place. The
+        # struck behaviour returned that PDF and the tail guard certified it.
+        text = open(dst, encoding="utf-8").read()
+        text = text.replace(r"\end{document}",
+                            "\\undefinedcontrolmacro\n" + r"\end{document}")
+        open(dst, "w", encoding="utf-8").write(text)
+        stale_before = os.path.getmtime(pdf_path)
+        bad, _ = compile_tex(dst, d)
+        if bad is not None:
+            sys.stderr.write(
+                "REFUSE: a BROKEN source was accepted as a successful "
+                "compile. This is the exact defect Amendment 1 exists for: a "
+                "green result from an instrument that could not see what it "
+                "was asked about.\n")
+            raise SystemExit(2)
+        if os.path.exists(pdf_path):
+            sys.stderr.write(
+                "REFUSE: a failed compile LEFT A PDF BEHIND (mtime %r). The "
+                "next reader would find it and call it current.\n"
+                % stale_before)
+            raise SystemExit(2)
+        print("control: a BROKEN source is refused AND leaves no PDF behind, "
+              "so nothing stale survives for the tail guard to certify")
 
 
 def main():
