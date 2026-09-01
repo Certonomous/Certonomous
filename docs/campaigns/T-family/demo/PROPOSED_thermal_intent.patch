@@ -1,0 +1,623 @@
+PROPOSED CHANGE, NOT APPLIED -- the thermal display intent
+==========================================================
+
+STATUS: PROPOSAL. Nothing in this patch is applied to the working tree, and
+nothing under sdk/ was written by the lane that produced it. The control-room
+server was running at pid 654212 throughout and was not restarted, signalled or
+touched.
+
+Prepared by:   heat-transfer lab-lane, 2026-09-01
+Base commit:   the router hunk is cut against sdk/chief_engineer/router.py at
+               the HEAD named in the design note beside this file; verify with
+               `git apply --check` before reading further.
+Reviewers:     heat-transfer supervisor (reads it as a diff, SUPERVISION §3
+               check 1), then the cfd team, because sdk/chief_engineer/ is
+               shared control-room tooling owned by neither team and the
+               routing table it changes governs every team's prompts.
+Design note:   docs/campaigns/T-family/demo/PROPOSED_thermal_intent_NOTE.md
+               Read the note first. It carries the measured before/after
+               routing table and the restart procedure.
+
+WHAT THIS PATCH DOES
+  1. Adds a `thermal-display` intent to the router: a thermal question about a
+     body whose run has ALREADY LANDED is answered by presenting that run.
+  2. Adds `sdk/workflows/thermal_display.py`, which presents landed figures,
+     tables and instrument checks. It starts no solver, writes no case, queues
+     no job and books no compute.
+  3. Adds `THERMAL_DISPLAY` to `_SURFACE_KEEPS_ROUTE`. This is load-bearing,
+     not cosmetic: the thermal acts open with an upload, and without it
+     `apply_surface` converts the route into a geometry study and points the
+     incompressible aerodynamic chain at a body someone asked a thermal
+     question about. Measured: at HEAD, both act prompts with an uploaded
+     surface become `geometry-study`.
+
+WHAT THIS PATCH DOES NOT DO
+  * It does not add, remove or edit a single character of
+    `_OUT_OF_SCOPE_DOMAINS`. The refusal list is untouched. See the note for
+    why no edit to it is needed, and for the measured evidence that the list is
+    consulted only on the no-workflow fallback path.
+  * It does not solve anything, queue anything, or invoke a solver.
+  * It does not touch `server.py`, `control_room.html`, or any other module.
+
+WHAT THE ROUTER STILL REFUSES AFTER THIS PATCH
+  Every prompt refused at HEAD is refused after this patch, unchanged, because
+  the refusal path is unchanged. Specifically, a thermal request that names no
+  body this lab has actually run scores nothing on the new intent and keeps the
+  route it has today. Measured, still reaching the refusal path after the
+  patch:
+    "Do a thermal analysis of the motor and tell me the peak temperature."
+    "Nusselt number on the cooling channel."
+    "Simulate boiling in the coolant loop."
+    "Simulate how the cube melts in a fire."
+    "Model the combustion in the chamber."
+  A KNOWN PRE-EXISTING DEFECT THIS PATCH DOES NOT FIX, and the reviewers must
+  see it: three thermal prompts that SHOULD refuse do not refuse at HEAD
+  either, because they route to `unseen-geometry`, which has a workflow, so the
+  refusal list is never consulted for them. They behave identically before and
+  after:
+    "Run a conjugate heat transfer study on a rocket nozzle I am designing."
+    "Do a thermal stress analysis of the turbine blade."
+    "Model the heat transfer on the wing."
+  That is a defect in the refusal ARCHITECTURE, not in the refusal LIST, and it
+  is not this patch's to repair. It is written up in the design note for the
+  cfd and verification teams.
+
+TO APPLY (a human decision, not this lane's)
+    cd /home/ubuntu/Certonomous
+    git apply --check docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch
+    git apply         docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch
+  The change is NOT live until the control-room server is restarted. See the
+  restart section of the design note: which process, what command, how long it
+  is down, and what in-flight state is lost.
+
+--- a/sdk/chief_engineer/router.py
++++ b/sdk/chief_engineer/router.py
+@@ -25,6 +25,11 @@
+     A surface is named, or a body is to be taken through the whole chain:
+     intake, surface check, meshing, solving, and a reported force with its
+     envelope. The expensive path, measured in minutes rather than seconds.
++``thermal-display``
++    A thermal question about a body whose run has already landed. The ONLY
++    route here that starts no solver and produces no new number: it presents
++    the landed fields, tables and checks. A thermal question about any other
++    body does not reach it, and keeps the route it has today.
+ 
+ Routing is keyword-and-pattern based and fully inspectable: every decision
+ carries the evidence that produced it, so the interpretation can be argued
+@@ -182,6 +187,74 @@
+     r"effect\s+ind(?:ex|ices)\b|\bsensitivity\s+ind(?:ex|ices)\b|"
+     r"\bsaltelli\b|\bjansen\b", re.I)
+ 
++# The thermal display act. THIS ROUTE PRESENTS AND NEVER SOLVES.
++#
++# The lab holds landed conjugate thermal runs for exactly two bodies, and it
++# holds no general thermal solver chain the control room may point at an
++# arbitrary body. Those are two different capabilities and the router has to
++# tell them apart, because the honest answer to "run conjugate heat transfer
++# on my rocket nozzle" is still a refusal while the honest answer to "show me
++# the battery module thermal result" is a screen built from numbers already
++# on disk.
++#
++# The distinguisher is THE BODY, not the physics word. A thermal request that
++# names one of the bodies below is answered from that body's landed run; a
++# thermal request that names anything else keeps the route it has today and,
++# where that route is the general planner, keeps today's out-of-scope refusal
++# untouched. That is why this change adds NOTHING to and removes NOTHING from
++# ``_OUT_OF_SCOPE_DOMAINS``: the refusal list is consulted only on the
++# no-workflow fallback path (``server._explain_unparsed``), so a request that
++# routes to an act never reaches it, exactly as the supersonic wedge act
++# already routes past the "compressible or supersonic flow" entry.
++#
++# Adding a third body when its run lands is ONE ROW in the table below plus
++# its screen set in ``workflows.thermal_display``. Nothing else moves.
++THERMAL_DISPLAY = "thermal-display"
++# The physics vocabulary. Deliberately WIDER than the out-of-scope entry it
++# sits beside, because these are the words the operator actually types, and
++# narrowing happens on the body instead.
++_THERMAL_FRAME = re.compile(
++    r"\b(heat\s+transfer|conjugate\s+heat|thermal\s+(?:analysis|management|"
++    r"map|load|field|study|result|results|screen|screens|behaviour|behavior|"
++    r"performance|stress)|conduction|convective\s+heat|nusselt|"
++    r"temperature\s+(?:map|field|rise|history|histories)|peak\s+temperature|"
++    r"cell\s+temperature|hot\s*spot|overheat\w*|how\s+hot|stay\s+under\s+"
++    r"\d+\s*(?:c|k|deg))\b", re.I)
++# The bodies whose runs have landed, most specific first. Each entry is
++# (pattern, screen set) and the screen set names the act the display mission
++# presents. ``motor`` cannot match inside ``motorbike`` or ``motorcycle``
++# because there is no word boundary there, and the lookahead covers the
++# hyphenated spellings the named-body table already owns.
++_THERMAL_LANDED_BODIES: tuple[tuple["re.Pattern[str]", str], ...] = (
++    (re.compile(
++        r"\bmotor(?![\s-]?(?:bike|cycle))\b[^.?!]{0,60}\b(?:duct|enclosure|"
++        r"housing|cowling)\b|"
++        r"\b(?:duct|enclosure|housing|cowling)\b[^.?!]{0,60}"
++        r"\bmotor(?![\s-]?(?:bike|cycle))\b|"
++        r"\bmotor[\s-]*in[\s-]*(?:a\s+)?duct\b", re.I), "A"),
++    (re.compile(
++        r"\bbatter(?:y|ies)\b|\bcell\s+pack\b|\bpack\s+uniformity\b|"
++        r"\bmodule\s+of\s+cells\b|\bbattery\s+module\b", re.I), "C"),
++)
++
++
++def thermal_landed_body(text: str) -> tuple[str | None, str | None]:
++    """Name the landed thermal act a request asks for, or nothing.
++
++    Returns ``(screen_set, matched_phrase)``. Both are ``None`` when the
++    request is thermal but names no body this lab has actually run, which is
++    the case the router must NOT capture: that request keeps whatever route it
++    has today, refusal included.
++    """
++    if not _THERMAL_FRAME.search(text or ""):
++        return None, None
++    for pattern, screen_set in _THERMAL_LANDED_BODIES:
++        match = pattern.search(text or "")
++        if match:
++            return screen_set, match.group(0)
++    return None, None
++
++
+ _OPTIMIZE = re.compile(
+     r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
+     r"best|optimal)\b", re.I)
+@@ -551,6 +624,17 @@
+             add(SOBOL_SENSITIVITY, 0.6,
+                 "names the pick-and-freeze design and the main and "
+                 "total-effect indices it produces")
++    # --- the thermal display act: a thermal question about a body whose run
++    # has already landed. It outranks every other score because it is the most
++    # specific reading available, naming both the physics and a body this lab
++    # has actually solved. A thermal question about ANY OTHER body scores
++    # nothing here and keeps the route it has today. ---
++    thermal_screens, thermal_body = thermal_landed_body(text)
++    if thermal_screens:
++        add(THERMAL_DISPLAY, 2.4,
++            f"asks a thermal question about {thermal_body!r}, a body whose "
++            f"run has already landed, so the answer is presented from that "
++            f"run rather than solved again")
+ 
+     if not scores:
+         return Route(
+@@ -597,6 +681,9 @@
+             elif not staged:
+                 params["surface_unavailable"] = (
+                     f"an Ahmed body with a {asked:g} degree slant")
++    if thermal_screens and intent == THERMAL_DISPLAY:
++        params["thermal_screens"] = thermal_screens
++        params["thermal_body"] = thermal_body
+     if solver_setup:
+         params["solver_setup"] = solver_setup.group(0)
+     if geometry:
+@@ -701,6 +788,14 @@
+             "This is a question about confidence itself. I will quantify the "
+             "current envelope, decide whether it is reducible, and spend "
+             "samples until only irreducible uncertainty remains."),
++        THERMAL_DISPLAY: (
++            "Reading this as a thermal question about a body this lab has "
++            "already run. No solver starts and no new number is produced: I "
++            "will put the screens up from that run's own fields and read the "
++            "quantities off them, with the source case, the mesh, and the "
++            "instrument checks named beside every figure. "
++            "Where a quantity the run cannot define was asked for, the screen "
++            "will say so instead of showing something adjacent."),
+         SOBOL_SENSITIVITY: (
+             "Reading this as a variance apportionment. An envelope says how "
+             "wide the answer is and never says which input made it wide, so "
+@@ -719,9 +814,17 @@
+ # Intents that keep their route when a surface is uploaded with the prompt:
+ # each of these acts accepts the surface honestly on its own terms (starting
+ # geometry, raced wing, reference body) rather than being rerouted.
++#
++# THERMAL_DISPLAY is in this tuple and has to be. The thermal acts open with an
++# upload, and without this entry the uploaded surface would convert the route
++# into a geometry study, which would put the incompressible aerodynamic chain
++# on a body the operator asked a thermal question about. The display mission
++# takes the surface as the reference body, announces it to the viewport, and
++# states on the record that the screens come from the landed run rather than
++# from the uploaded file.
+ _SURFACE_KEEPS_ROUTE = (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON, VALVE_STUDY,
+                         SHAPE_OPTIMIZATION, ADJOINT_OPTIMIZATION, NASA_HUMP,
+-                        AHMED_BODY)
++                        AHMED_BODY, THERMAL_DISPLAY)
+ 
+ 
+ def apply_surface(route: Route, surface: str | None) -> Route:
+@@ -766,6 +869,8 @@
+                             "output": "uncertainty-reduction"},
+     SOBOL_SENSITIVITY: {"module": "workflows.sobol_sensitivity",
+                         "output": "sobol-sensitivity"},
++    THERMAL_DISPLAY: {"module": "workflows.thermal_display",
++                      "output": "thermal-display"},
+     AHMED_BODY: {"module": "workflows.ahmed_body", "output": "ahmed-body"},
+     NASA_HUMP: {"module": "workflows.nasa_hump", "output": "nasa-hump"},
+     ONERA_M6: {"module": "workflows.onera_m6", "output": "onera-m6"},
+--- /dev/null
++++ b/sdk/workflows/thermal_display.py
+@@ -0,0 +1,388 @@
++"""The thermal display act: screens built from a run that has already landed.
++
++THIS MODULE STARTS NO SOLVER. It writes no case, queues no job, invokes no
++OpenFOAM binary and books no compute. Every number it puts on screen was read
++off disk by the screen generator that ran earlier, and every figure it renders
++is a file that generator wrote. If a figure is not on disk, the act says which
++path was empty and shows nothing in its place.
++
++That constraint is the whole reason this act can exist. The lab holds landed
++conjugate thermal runs for two bodies and holds no general thermal chain the
++control room may point at an arbitrary body, so the router sends a thermal
++question here ONLY when it names one of those two bodies. Everything else
++thermal keeps the route it has today, refusal included.
++
++Screen sets, and the landed bundle each one reads:
++
++``A``  the motor in a duct, ``docs/campaigns/T-family/demo/figures_actA/``
++``C``  the battery module,   ``docs/campaigns/T-family/demo/figures/``
++
++Each bundle is a ``*_screen_data.json`` holding the numbers plus vector
++figures beside it. The bundle is the contract: this act reads it and does not
++re-derive a single value from the case directories, so a number on screen and
++the number in the record cannot drift apart.
++
++    python -m workflows.thermal_display
++    python -m workflows.thermal_display --act A
++"""
++from __future__ import annotations
++
++import json
++import shutil
++import subprocess
++import sys
++import time
++from pathlib import Path
++
++from . import OUT_ROOT, announce_geometry, announce_plot, make_transcript
++from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
++                                EVIDENCE, HYPOTHESIS, KnowledgeBase, Roster,
++                                lab_report)
++from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
++
++from .geometry_study import _emit_table
++
++BEAT = "thermal-display"
++_REPO = Path(__file__).resolve().parents[2]
++_DEMO = _REPO / "docs" / "campaigns" / "T-family" / "demo"
++
++# One row per landed thermal act. Adding a body when its run lands is one row
++# here and one router table entry, nothing else. ``bundle`` is the JSON the
++# act reads; ``figures`` are (stem, title) pairs resolved inside that folder.
++SCREEN_SETS: dict[str, dict] = {
++    "A": {
++        "title": "the motor in a duct",
++        "folder": _DEMO / "figures_actA",
++        "bundle": "acta_screen_data.json",
++        "figures": (
++            ("acta_temperature_field", "Temperature on the computational mesh"),
++            ("acta_velocity_panel", "Velocity panel and airspeed cases"),
++            ("acta_radial_profile", "Radial temperature profile"),
++            ("acta_envelope", "Operating envelope against the 200 C limit"),
++        ),
++    },
++    "C": {
++        "title": "the battery module",
++        "folder": _DEMO / "figures",
++        "bundle": "actc_screen_data.json",
++        "figures": (
++            ("actc_field_snapshots",
++             "Temperature on the computational mesh at six times"),
++            ("actc_cell_histories",
++             "Cell temperature histories with the takeoff pulse marked"),
++            ("actc_pack_uniformity",
++             "Pack spread and channel surface heat removal against time"),
++            ("actc_per_cell_table", "Peak, rise and time to peak, per cell"),
++        ),
++    },
++}
++
++
++def _png_for(stem: str, folder: Path, out: Path) -> tuple[Path | None, str]:
++    """Resolve one figure to a PNG the control room can serve.
++
++    Three outcomes and the caller must be able to tell them apart, because a
++    blank panel under a caption is the failure this function exists to avoid:
++
++      * a PNG is on disk beside the vector figure  -> it is placed and served
++      * only the PDF is there and a converter is present -> a PNG is made
++      * neither                                    -> ``(None, reason)``
++
++    The reason names the path that was empty so the gap is reportable rather
++    than merely visible.
++    """
++    src_png = folder / f"{stem}.png"
++    dest = out / f"{stem}.png"
++    if src_png.exists():
++        shutil.copy(src_png, dest)
++        return dest, ""
++    src_pdf = folder / f"{stem}.pdf"
++    if not src_pdf.exists():
++        return None, f"no figure at {src_pdf}"
++    converter = shutil.which("pdftoppm")
++    if not converter:
++        return None, (f"{src_pdf.name} is on disk as a vector page and no "
++                      f"page converter is present on this host, so it cannot "
++                      f"be placed on screen")
++    try:
++        subprocess.run([converter, "-png", "-r", "150", "-singlefile",
++                        str(src_pdf), str(dest.with_suffix(""))],
++                       check=True, capture_output=True, timeout=120)
++    except (OSError, subprocess.SubprocessError):
++        return None, f"{src_pdf.name} could not be rendered to a page image"
++    if not dest.exists():
++        return None, f"{src_pdf.name} produced no page image"
++    return dest, ""
++
++
++def _load_bundle(spec: dict) -> tuple[dict | None, str]:
++    path = spec["folder"] / spec["bundle"]
++    if not path.exists():
++        return None, (f"The screen bundle for {spec['title']} is not on disk "
++                      f"at {path}. Nothing is shown for it.")
++    try:
++        return json.loads(path.read_text(encoding="utf-8")), ""
++    except (OSError, ValueError) as exc:
++        return None, (f"The screen bundle at {path} could not be read "
++                      f"({type(exc).__name__}). Nothing is shown for it.")
++
++
++def _present(script, emit, roster, out: Path, key: str) -> dict | None:
++    """Put one act's screens up. Returns the bundle, or None if it is absent."""
++    spec = SCREEN_SETS[key]
++    bundle, gap = _load_bundle(spec)
++    if bundle is None:
++        script.engineer(
++            f"• {gap} "
++            f"• Nothing is drawn in its place and no number for that body "
++            f"appears anywhere below.")
++        return None
++
++    # ---- provenance, before any picture ----
++    mesh = bundle.get("mesh") or {}
++    prov_rows = [
++        ["Source case", str(bundle.get("source_case", "not recorded"))],
++        ["Reader", str(bundle.get("reader", "not recorded"))],
++        ["Mesh cells", f"{mesh.get('n_mesh_cells', 'not recorded'):,}"
++         if isinstance(mesh.get("n_mesh_cells"), int)
++         else str(mesh.get("n_mesh_cells", "not recorded"))],
++        ["Geometry guard", str(mesh.get("geometry_guard", "not recorded"))],
++    ]
++    _emit_table(emit, script, role=_CE_ROLE,
++                title=f"Where these screens come from: {spec['title']}",
++                headers=("Item", "Value"), rows=prov_rows,
++                table_id=f"provenance-thermal-{key}")
++
++    # ---- the planted-zero instrument checks, on screen before the result ----
++    checks = [(name, body) for name, body in bundle.items()
++              if name.startswith("instrument_check_")
++              and isinstance(body, dict)]
++    if checks:
++        rows = []
++        for name, body in checks:
++            planted = body.get("planted_K")
++            rows.append([
++                name.replace("instrument_check_", "").replace("_", " "),
++                f"{planted} K" if planted is not None else "not recorded",
++                str(body.get("scope", body.get("planted_cell_index", ""))),
++                "seen" if body.get("seen") else "NOT SEEN",
++            ])
++        _emit_table(emit, script, role=_CE_ROLE,
++                    title="Instrument checks: a known perturbation, read back",
++                    headers=("Reader", "Planted", "Where", "Result"),
++                    rows=rows, table_id=f"instrument-thermal-{key}")
++        if not all(body.get("seen") for _n, body in checks):
++            script.engineer(
++                "• One of the readers behind these screens could not see its "
++                "own planted perturbation. "
++                "• Treat every number below as unverified until that is "
++                "resolved.")
++
++    # ---- figures ----
++    roster.set(CHIEF_ENGINEER, f"putting up the screens for {spec['title']}",
++               "working")
++    missing: list[str] = []
++    for stem, title in spec["figures"]:
++        path, reason = _png_for(stem, spec["folder"], out)
++        if path is None:
++            missing.append(f"{title}: {reason}")
++            continue
++        announce_plot(emit, BEAT, path, title)
++    if missing:
++        script.engineer(
++            "• Not every screen for this body could be put up. "
++            + " ".join(f"• {item}" for item in missing))
++
++    # ---- the per cell table, from the bundle rather than from the picture ----
++    table = bundle.get("per_cell_table")
++    if isinstance(table, list) and table:
++        rows = [[str(row.get("cell", "")),
++                 f"{row.get('peak_T_K', float('nan')):.6f}",
++                 f"{row.get('peak_rise_K', float('nan')):.6f}",
++                 f"{row.get('time_to_peak_s', float('nan')):.0f}",
++                 str(row.get("uncertainty", "not recorded"))]
++                for row in table]
++        _emit_table(emit, script, role=_CE_ROLE,
++                    title=f"Per cell peak and rise: {spec['title']}",
++                    headers=("Cell", "Peak, K", "Rise, K", "Time to peak, s",
++                             "Uncertainty"),
++                    rows=rows, table_id=f"percell-thermal-{key}")
++    return bundle
++
++
++def _quantities(bundle: dict) -> list[dict]:
++    """Result rows for the report, and only quantities the bundle defines."""
++    rows: list[dict] = []
++    scale = bundle.get("shared_colour_scale_K")
++    if isinstance(scale, (list, tuple)) and len(scale) == 2:
++        rows.append({
++            "quantity": "Hottest temperature anywhere",
++            "value": f"{scale[1]:.6f} K",
++            "envelope": (f"colour scale {scale[0]:.6f} to {scale[1]:.6f} K, "
++                         f"nothing clipped at either end")})
++    if bundle.get("max_spread_K") is not None:
++        rows.append({
++            "quantity": "Largest spread across cells",
++            "value": f"{bundle['max_spread_K']:.6f} K",
++            "envelope": f"at t = {bundle.get('max_spread_time_s', 0):.0f} s"})
++    if bundle.get("surface_heat_removal_final_W") is not None:
++        rows.append({
++            "quantity": "Heat removed at the channel facing surfaces",
++            "value": f"{bundle['surface_heat_removal_final_W']:.4f} W",
++            "envelope": "at the last written time"})
++    if bundle.get("energy_closure_percent") is not None:
++        rows.append({
++            "quantity": "Energy closure",
++            "value": f"{bundle['energy_closure_percent']:.4f}%",
++            "envelope": "input against accumulation plus removal"})
++    return rows
++
++
++def main(request: str | None = None, params: dict | None = None,
++         emit=None) -> int:
++    params = dict(params or {})
++    out = OUT_ROOT / BEAT
++    out.mkdir(parents=True, exist_ok=True)
++
++    key = str(params.get("thermal_screens") or "C").upper()
++    if key not in SCREEN_SETS:
++        key = "C"
++    spec = SCREEN_SETS[key]
++
++    script = make_transcript(f"Thermal screens: {spec['title']}", emit)
++    roster = Roster(emit)
++    knowledge = KnowledgeBase(emit)
++    began = time.monotonic()
++
++    script.system(request or f"Request: show the thermal result for "
++                             f"{spec['title']}.")
++
++    # ---------------- What this act will and will not do ----------------
++    script.phase(HYPOTHESIS)
++    roster.set(CHIEF_ENGINEER, "restating the request", "working")
++    script.engineer(
++        f"• Reading this as a thermal question about {spec['title']}, a body "
++        f"this lab has already run. "
++        f"• No solver starts on this request and no new number is produced: "
++        f"the screens come from that run's own fields. "
++        f"• Anything the run does not define will be named as undefined "
++        f"rather than shown as something adjacent.")
++
++    surface = str(params.get("surface") or "").strip()
++    if surface:
++        from chief_engineer.display_names import display_name
++
++        announce_geometry(emit, name=surface,
++                          label=f"reference body: {display_name(surface)}")
++        script.engineer(
++            f"• Reference body received: {display_name(surface)}. "
++            f"• The surface is on file as the reference shape. "
++            f"• The screens below come from the run that landed for this "
++            f"body, not from the uploaded file, and the uploaded file is "
++            f"neither meshed nor solved by this act.")
++
++    if emit:
++        emit("solver.selected", {
++            "solver": "none on this request",
++            "method": "presentation of a landed conjugate thermal run",
++            "basis": "the numbers exist already; running the case again "
++                     "would produce the same field at a cost this request "
++                     "does not need to pay"})
++
++    # ---------------- The screens ----------------
++    script.phase(EVIDENCE)
++    roster.set(CHIEF_RESEARCHER, "checking the provenance of the screens",
++               "working")
++    bundle = _present(script, emit, roster, out, key)
++    roster.idle(CHIEF_RESEARCHER)
++    if bundle is None:
++        script.engineer(
++            "• There is nothing on disk for this body, so there is nothing "
++            "to show. "
++            "• No figure is drawn and no number is quoted.")
++        script.save(out / "transcript.txt")
++        roster.all_idle()
++        if emit:
++            emit("mission.note", {
++                "note": f"No landed screen bundle for {spec['title']}."})
++        return 1
++
++    # ---------------- What the run cannot say ----------------
++    undefined = [f"{name.replace('_', ' ')}: {value}"
++                 for name, value in bundle.items()
++                 if isinstance(value, str) and value.upper().startswith("NOT ")]
++    for item in undefined:
++        script.engineer(f"• {item[:1].upper()}{item[1:]}")
++
++    quantities = _quantities(bundle)
++    if quantities:
++        _emit_table(emit, script, role=_CE_ROLE,
++                    title=f"Quantities this run defines: {spec['title']}",
++                    headers=("Quantity", "Value", "Basis"),
++                    rows=[[q["quantity"], q["value"], q["envelope"]]
++                          for q in quantities],
++                    table_id=f"quantities-thermal-{key}")
++
++    # ---------------- Conclusion ----------------
++    script.phase(CONCLUSION)
++    elapsed = time.monotonic() - began
++    script.engineer(
++        f"• Screens up in {elapsed:.1f} seconds, with no solver started and "
++        f"no compute booked against this request. "
++        f"• The cost of the run these screens come from sits in that run's "
++        f"own record, not against this one.")
++    knowledge.add(f"Thermal screens presented for {spec['title']} from "
++                  f"{bundle.get('source_case', 'the landed case')}")
++
++    agenda = [
++        {"title": "A second mesh for this body",
++         "scope": "one refinement level would turn the uncertainty column "
++                  "from a statement into a measured band",
++         "cost": "one further solve at the finer level"},
++        {"title": "Resolve the coolant as a fluid region",
++         "scope": "the channels carry a convective coefficient rather than a "
++                  "coupled stream, which is why no outlet temperature exists",
++         "cost": "a conjugate case with a meshed fluid region"},
++    ]
++    if emit:
++        emit("agenda.updated", {"entries": agenda})
++        emit("report.ready", lab_report(
++            title=f"Thermal screens: {spec['title']}",
++            abstract=[
++                f"The screens above were built from the run that landed for "
++                f"{spec['title']}, at {bundle.get('source_case', 'its case directory')}.",
++                "Nothing was solved to produce them and no quantity was "
++                "re-derived: every value is the one the screen generator "
++                "read off the written fields.",
++            ],
++            methods=[
++                f"Read the screen bundle at "
++                f"{spec['folder'] / spec['bundle']} and put its figures and "
++                f"tables on screen unchanged.",
++                "Placed the instrument checks in front of the result, so a "
++                "reader that could not see its own planted perturbation "
++                "would be visible before any number was quoted.",
++            ],
++            results=quantities,
++            uncertainty=[
++                "One mesh and one time step in this configuration, so no "
++                "discretisation error estimate is available and the "
++                "uncertainty column says so rather than carrying a number "
++                "nobody measured.",
++            ] + undefined,
++            next_investigations=[f"{e['title']}: {e['scope']}" for e in agenda],
++            compute={"spent_core_minutes": 0.0,
++                     "note": "no solver ran on this request"},
++        ))
++
++    script.save(out / "transcript.txt")
++    roster.all_idle()
++    print("Artifacts in", out)
++    return 0
++
++
++if __name__ == "__main__":
++    act = "C"
++    if "--act" in sys.argv:
++        act = sys.argv[sys.argv.index("--act") + 1]
++    raise SystemExit(main(params={"thermal_screens": act}))
