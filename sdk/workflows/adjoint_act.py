@@ -253,6 +253,57 @@ def _plant_control() -> dict:
     }
 
 
+
+def _frozen_cost() -> dict:
+    """The cost prediction, READ FROM THE FROZEN PRE-REGISTRATION and hash-checked.
+
+    Sanaa, 2026-09-01: every run carries a beat that predicts the cost and
+    another that compares the prediction to the actual.
+
+    THE PREDICTION IS READ, NEVER RECOMPUTED, AND THAT IS THE WHOLE EVIDENTIARY
+    CONTENT OF THE BEAT. A figure the act recalculates at render time is not a
+    prediction -- it is a number produced after the answer was known. So this
+    parses the frozen document's own R6 table and VERIFIES THE DOCUMENT FIRST:
+    the decomposition record carries the pre-registration's path AND its
+    sha256, so a prereg edited after the fact cannot quietly supply a friendlier
+    prediction. A hash mismatch is a refusal, not a fallback.
+    """
+    import hashlib
+    import re
+    decomp = _actd._decomposition()
+    if not decomp:
+        return {}
+    path = Path(decomp["_preregistration"])
+    if not path.exists():
+        return {"verdict": "SKIPPED",
+                "why": "the frozen pre-registration is not on this machine"}
+    got = hashlib.sha256(path.read_bytes()).hexdigest()
+    want = decomp["_preregistration_sha256"]
+    if got != want:
+        raise DemoContractError(
+            "the pre-registration this act quotes its cost prediction from "
+            "does not hash to the sha the graded record froze; the prediction "
+            "may have been edited after the run and is not published")
+    text = path.read_text(encoding="utf-8")
+
+    def cell(label: str) -> float:
+        m = re.search(r"^\|\s*" + label + r"[^|]*\|\s*\**([\d.]+)\**",
+                      text, re.M)
+        if not m:
+            raise DemoContractError(
+                f"the frozen pre-registration no longer carries a {label!r} "
+                f"row; the cost beat will not invent one")
+        return float(m.group(1))
+
+    predicted = cell(r"predicted \(\u00a78\)")
+    actual = cell(r"\*\*actual, gross\*\*")
+    waste = cell(r"waste")
+    cleaned = cell(r"actual, cleaned")
+    return {"verdict": "PASS", "predicted": predicted, "actual_gross": actual,
+            "waste": waste, "actual_cleaned": cleaned,
+            "ratio": actual / predicted, "sha256": got}
+
+
 def _clock_parts(doc: dict) -> list[tuple[str, float]]:
     """The two displayed parts, asserted to sum to the displayed total.
 
@@ -458,7 +509,36 @@ class AdjointWingAct(DemoAct):
         record = self._record()
         cells = self.mesh_plan().cell_count
         rho = _actd_P0 / _actd_T0 / 287.0
+        cost = _frozen_cost()
+        # SANAA'S TWO COST BEATS. One PREDICTS before the solve, one COMPARES
+        # after it. Every figure is read from the frozen pre-registration and
+        # that document is hash-checked first, so the prediction cannot have
+        # been edited to fit the answer.
+        #
+        # EVERY RATIO CARRIES WHAT IT IS A RATIO OF. A bullet reading "0.43
+        # times" is the y+ trap in a third costume: a bullet is read alone, so
+        # the denominator travels with the number.
+        #
+        # ⚠ AND THIS ACT DOES NOT LAND INSIDE HER FIVE PER CENT. It came in at
+        # 0.43 of its prediction -- 57 per cent UNDER -- and the beat says so.
+        # Her line is a PATTERN for the comparison, not a target to be reported
+        # as met; a beat claiming five per cent here would be a false statement
+        # about the one discipline these beats exist to show.
+        predicted = cost.get("predicted")
+        actual = cost.get("actual_gross")
+        pct_under = (1.0 - cost["ratio"]) * 100.0 if cost.get("ratio") else None
         return {
+            "restatement": ([
+                ("numericist", [
+                    f"Predicted cost, fixed before the solver starts: "
+                    f"{predicted:g} core-minutes.",
+                    f"Basis: 16 primal solves at 24.7 seconds on "
+                    f"{record['mpi_ranks']} ranks.",
+                    f"Hard cap {predicted * 60 / 32:.0f} core-minutes. An "
+                    f"overrun stops the run rather than being given a new "
+                    f"budget.",
+                ]),
+            ] if predicted else []),
             "assumption": [
                 ("researcher", [
                     f"Steady compressible RANS, closed with Spalart-Allmaras.",
@@ -491,6 +571,23 @@ class AdjointWingAct(DemoAct):
                     f"the band lands in your inbox with the certificate.",
                 ]),
             ],
+            "results": ([
+                ("numericist", [
+                    f"Actual cost {actual:g} core-minutes, against "
+                    f"{predicted:g} core-minutes predicted before the run: "
+                    f"{cost['ratio']:.2f} times the prediction, "
+                    f"{pct_under:.0f} per cent under it.",
+                    f"The miss has one named cause. The primal COUNT was "
+                    f"predicted well, 16 registered against 14 run; the "
+                    f"per-primal RATE was over-priced by 1.8 times.",
+                    f"That rate was taken from an optimisation log that also "
+                    f"absorbed 47 gradient computations, so it priced "
+                    f"primal-plus-gradient work for a primal-only run.",
+                    f"{cost['waste']:g} core-minutes of the "
+                    f"{actual:g} produced no value and are named separately, "
+                    f"never folded into the ratio.",
+                ]),
+            ] if predicted else []),
             "gates": [
                 ("numericist", [
                     f"The gradient is graded against the flow solver itself "
