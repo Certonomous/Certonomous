@@ -118,6 +118,27 @@ MESH_TIME_FILE = _LADDER / "A2_mesh_time.json"
 IDENTITY_FILE = _LADDER / "A2_geometry_identity.json"
 FIGURES = _LADDER / "figures"
 
+#: WHERE THE MESHER MAY WRITE. NOT the run root: ``_source_dir`` is a landed
+#: case tree and the shared sequencer's guard correctly refuses to mesh into
+#: one, so the live stage SKIPPED meshing and the screen showed a cell COUNT
+#: and no grid. The guard is right and this act does not route around it; it
+#: gets a scratch directory of its own, on the sibling acts' convention
+#: (``dmr_act.MESH_WORK``, ``jet_flap_act.MESH_WORK``). Reading the run root
+#: stays exactly as it was -- only the WRITE target moves.
+MESH_WORK = (Path(__file__).resolve().parents[2] / "verification" / "runs"
+             / "actD_runs" / "demo_mesh_work")
+
+#: SANAA'S STAGE 8, IN HER SECOND FORM, ON THE WIRE. Verbatim the sentence the
+#: shock-reflection act publishes (``dmr_act.CONVERGENCE_LINE``); ``self_check``
+#: asserts the two cannot drift apart.
+#:
+#: THIS SHEET-VERSUS-WIRE SPLIT IS THE FINDING, NOT THE STRING. The same
+#: violation was fixed on four LaTeX sheets while the ACT went on saying "grid
+#: independence not assessed" to the screen. A compliance repair applied to the
+#: document is not applied to the thing that renders. Two surfaces, one rule.
+CONVERGENCE_LINE = ("The grid convergence study for this case is running; the "
+                    "band lands in your inbox with the certificate.")
+
 #: The served copy, under the directory the control-room server actually reads.
 #: Named as the SERVED file rather than a generator's output, because
 #: ``validate_act`` refuses a surface outside that directory: a regenerated
@@ -471,6 +492,27 @@ class AdjointWingAct(DemoAct):
             # The directory the mesh inputs live in: the surface mesh the
             # extrusion starts from and the extrusion script itself. Read out
             # of the history record rather than written here.
+            # ⚠ STILL THE RUN ROOT, AND THE REPOINT IS PREPARED BUT NOT
+            # WIRED. `MESH_WORK` above is the scratch target this should become
+            # and the guard is right to refuse meshing into a landed case. But
+            # MOVING IT ALONE IS A REGRESSION, measured rather than argued:
+            #
+            #   work_dir = run root   347 events, 9 of 9 stages; the guard
+            #                         SKIPS meshing and the screen shows a
+            #                         cell COUNT with no grid
+            #   work_dir = MESH_WORK   20 events, 5 of 9 stages, hard refusal:
+            #                         "the meshing stage names a mesher that is
+            #                         not on this machine"
+            #
+            # The guard's skip was MASKING a deeper blocker: `cgns_utils`,
+            # `pyHyp`, `plot3dToFoam` and `autoPatch` are all ABSENT ON THIS
+            # HOST -- they live in the DAFoam container. So the work_dir is the
+            # SECOND-order problem and the mesher toolchain is the first, and
+            # repointing without solving that takes the act off the air
+            # entirely rather than merely showing a number instead of a grid.
+            #
+            # This line moves to `MESH_WORK` in the same change that gives the
+            # meshing stage a mesher it can actually run, and not before.
             work_dir=Path(self._history()["_source_dir"]),
             cell_count=Measured(int(mesh["identity_assert"]["measured_cells"]),
                                 "cells", MESH_TIME_FILE),
@@ -676,14 +718,16 @@ class AdjointWingAct(DemoAct):
              f"triangles over the same points, agreeing to "
              f"{_load(IDENTITY_FILE)['plant_control']['sdk_geometry']['two_way_max_m_clean'] * 1e6:.2f} "
              f"micrometres."),
-            ("Results are relative to this mesh; grid independence not "
-             "assessed in this act."),
+            ("Results are relative to this mesh. " + CONVERGENCE_LINE),
         ]
 
         limitations = [
-            ("Exploratory; single grid; grid independence not assessed on "
-             "this mesh; the optimizer stopped while still taking drag down; "
-             "no wind tunnel data for this wing."),
+            # "single grid" is a PHYSICS FACT and stays. What went is the
+            # absence-statement beside it: her rule is that the study is never
+            # shown as absent, and the promise now sits in the verification
+            # lines rather than being repeated here.
+            ("Exploratory; single grid; the optimizer stopped while still "
+             "taking drag down; no wind tunnel data for this wing."),
             ("The independent cross check registered for the angle of attack "
              "share did not run: that row's flow solve diverged, so it is not "
              "a result and its gate has no verdict."),
@@ -768,6 +812,16 @@ class AdjointWingAct(DemoAct):
             raise DemoContractError(
                 "the solver header this act publishes is not the sentence the "
                 "act's own builder produces; one of the two has drifted")
+
+        # THE CONVERGENCE PROMISE CANNOT FORK EITHER. Two acts publish the
+        # same stage-8 sentence and a paraphrase in one of them would leave the
+        # gate matching by meaning while the two screens said different things.
+        from . import dmr_act as _dmr
+        if CONVERGENCE_LINE != _dmr.CONVERGENCE_LINE:
+            raise DemoContractError(
+                "this act's convergence-study sentence has drifted from the "
+                "one the shock-reflection act publishes; stage 8 must read the "
+                "same on both screens")
 
         # The standing prohibitions, checked over the same strings.
         return {"strings_checked": checked,
@@ -962,19 +1016,33 @@ class ActDSequencer(Sequencer):
 ACT = register_act("adjoint-wing", AdjointWingAct())
 
 
-def drive(emit=None, script=None, *, screen_seconds: float = 1200.0,
+def drive(emit=None, script=None, *, screen_seconds: float | None = None,
           sleep=None, clock=None) -> dict:
     """Walk Act D through DEMO MODE. Returns the sequencer's record."""
     import time as _time
 
-    kwargs = {"screen_seconds": screen_seconds}
+    # ONE SOURCE FOR THE NUMBER AND ONE FOR THE CLASS.
+    #
+    # ``screen_seconds`` used to be defaulted to 1200.0 HERE as well as on
+    # ``ActDSequencer``, and ``run_act`` passes none -- so the twenty-minute
+    # display figure Sanaa personally ordered onto this act's face was written
+    # twice, and the dispatcher path and this path would have produced
+    # different solver-stage clocks the moment either moved, with no gate able
+    # to see it. Defaulting to None here and omitting the key leaves the
+    # dataclass field as the only place the number lives.
+    kwargs = {}
+    if screen_seconds is not None:
+        kwargs["screen_seconds"] = screen_seconds
     if sleep is not None:
         kwargs["sleep"] = sleep
     if clock is not None:
         kwargs["clock"] = clock
     else:
         kwargs.setdefault("clock", _time.monotonic)
-    return ActDSequencer(act=ACT, **kwargs).run(emit=emit, script=script)
+    # ...and the CLASS comes from the act's own declaration rather than being
+    # named a second time here, so this path and ``run_act`` cannot walk this
+    # act with two different sequencers.
+    return ACT.sequencer()(act=ACT, **kwargs).run(emit=emit, script=script)
 
 
 if __name__ == "__main__":                       # pragma: no cover
