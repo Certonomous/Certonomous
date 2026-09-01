@@ -343,6 +343,86 @@ def cell_count(case_dir: Path) -> dict[str, object]:
     return {"cells": int(found.group(1)), "path": str(log)}
 
 
+def measured_core_minutes(case_dir: Path) -> dict[str, object]:
+    """What a case actually cost, read off its own log rather than typed.
+
+    Core-minutes are wall seconds times ranks over sixty, and BOTH factors are
+    read: the wall time from the last ExecutionTime line, the rank count from
+    the decomposition dictionary, cross-checked against the processor
+    directories that actually exist. A rank count taken from one of those two
+    alone is a number nobody measured; taken from neither, it is a literal, and
+    a literal cost is how a sheet came to quote a run as "still running" for
+    hours after it finished.
+
+    REFUSES A RUN THAT DID NOT FINISH. A cost quoted as final for an
+    incomplete run is worse than no cost, because it reads as the whole bill.
+    The End line is the cheapest honest test of that and it is checked here so
+    no caller can forget to.
+    """
+    log = Path(case_dir) / "log.simpleFoam"
+    if not log.is_file():
+        raise ReaderRefused(f"no solver log at {log}")
+    text = log.read_text(encoding="utf-8", errors="replace")
+    if not re.search(r"^End\s*$", text, re.M):
+        raise ReaderRefused(
+            f"{log} carries no End line, so this run did not finish and its "
+            f"cost is not a final cost")
+    times = re.findall(r"^ExecutionTime = ([\d.]+) s", text, re.M)
+    if not times:
+        raise ReaderRefused(f"{log} states no ExecutionTime")
+    wall = float(times[-1])
+
+    ranks = 1
+    control = Path(case_dir) / "system" / "decomposeParDict"
+    if control.is_file():
+        stripped = re.sub(r"//[^\n]*", "",
+                          control.read_text(encoding="utf-8", errors="replace"))
+        found = re.search(r"^\s*numberOfSubdomains\s+(\d+)\s*;", stripped, re.M)
+        if found:
+            ranks = int(found.group(1))
+    # The cross-check. A dictionary states an intention; the processor
+    # directories are what the run actually decomposed into.
+    procs = len([p for p in Path(case_dir).glob("processor[0-9]*") if p.is_dir()])
+    if procs and procs != ranks:
+        raise ReaderRefused(
+            f"{control} asks for {ranks} ranks and {case_dir} holds {procs} "
+            f"processor directories; the core-minute figure would be wrong by "
+            f"the ratio between them")
+
+    # TWO BASES, NAMED, BECAUSE THEY ARE NOT THE SAME NUMBER and mixing them
+    # across a table is how a cost line stops being comparable with itself.
+    #
+    #   solver_core_min : the solver's own ExecutionTime x ranks. Excludes
+    #                     start-up, decomposition and teardown.
+    #   core_min        : the run record's core_min_MEASURED, wall clock x
+    #                     ranks. GROSS, and larger.
+    #
+    # The result sheet quotes the gross basis for all five completed rows, so
+    # `core_min` is what a sixth row must be quoted in. Reporting the solver
+    # figure beside five gross ones would understate the sixth by roughly the
+    # start-up cost and look like an efficiency that is not there. Rule 12 of
+    # the constitution asks a spend figure to say which basis it is on; this
+    # returns both so a caller cannot quietly pick the flattering one.
+    result = {"wall_s": wall, "ranks": ranks,
+              "solver_core_min": wall * ranks / 60.0, "path": str(log)}
+    for status in sorted(Path(case_dir).rglob("RUN_STATUS*")):
+        found = re.search(r"^\s*core_min_MEASURED\s+([\d.]+)",
+                          status.read_text(encoding="utf-8", errors="replace"),
+                          re.M)
+        if found:
+            result["core_min"] = float(found.group(1))
+            result["core_min_basis"] = "gross wall clock x ranks"
+            result["core_min_path"] = str(status)
+            break
+    else:
+        raise ReaderRefused(
+            f"no run record under {case_dir} states core_min_MEASURED; the "
+            f"gross cost the sheet quotes for every other row is not "
+            f"available for this one and must not be substituted with the "
+            f"smaller solver-only figure")
+    return result
+
+
 def last_k_residual(case_dir: Path) -> dict[str, object]:
     """Turbulent kinetic energy equation imbalance at the final iteration.
 

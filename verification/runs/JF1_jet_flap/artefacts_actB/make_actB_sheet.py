@@ -28,8 +28,17 @@ CORE_MIN_ACTUAL_TOTAL = 117.4833
 # Upfront figure for the same five conditions, fixed before any of them started:
 # 5 runs x 11.36 core-min (JF1_PREREGISTRATION.md section 12, line "G1-G5").
 CORE_MIN_ESTIMATE_FIVE = 5 * 11.36
-# Upfront figure for the sixth, finer-mesh condition, which is still running.
+# Upfront figure for the sixth, finer-mesh companion condition.
+#
+# ITS ACTUAL COST IS NO LONGER TYPED AND ITS STATE IS NO LONGER ASSERTED. This
+# sheet said, for hours after the run ended, that the sixth condition was "now
+# running" and "not yet complete", and quoted only a forecast for it. The run
+# finished at 2026-08-31T23:09:08Z: End line present, last time directory 20000
+# against an endTime of 20000. A sentence about whether something is running
+# cannot be a literal in a generator, because the literal keeps saying it.
 CORE_MIN_ESTIMATE_SIXTH = 90.5
+SIXTH_CASE = os.path.join(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))), "JF1_P1_L1_CMESH_PHYSICS")
 RATE_USD_PER_CORE_HOUR = 0.0513   # owner-stated machine rate
 
 # Movement of the lift coefficient over the last 4,000 iterations, rounded up to
@@ -141,6 +150,17 @@ def main() -> int:
     usd_est5 = usd(CORE_MIN_ESTIMATE_FIVE)
     usd_est6 = usd(CORE_MIN_ESTIMATE_SIXTH)
     ratio = CORE_MIN_ACTUAL_TOTAL / CORE_MIN_ESTIMATE_FIVE
+
+    # The sixth condition's ACTUAL cost, read from its own record on the same
+    # gross basis as the five above rather than typed. The reader refuses a run
+    # with no End line, so a cost cannot be quoted as final for something still
+    # going, and it refuses a rank count its processor directories contradict.
+    # It was validated against the five constants above, which it reproduces
+    # exactly, before being trusted with a sixth the sheet has never carried.
+    sixth = jf1num.measured_core_minutes(SIXTH_CASE)
+    core_min_sixth = sixth["core_min"]
+    usd_sixth = usd(core_min_sixth)
+    ratio_sixth = core_min_sixth / CORE_MIN_ESTIMATE_SIXTH
 
     tex = rf"""% ---------------------------------------------------------------
 % Blown trailing edge -- one-page result sheet.
@@ -274,13 +294,14 @@ applied, and a real wing of finite aspect ratio will achieve less.
 ({', '.join(f'{v:.1f}' for v in CORE_MIN_ACTUAL)} core-minutes respectively).
 The figure quoted before any of them started was {CORE_MIN_ESTIMATE_FIVE:.1f}
 core-minutes, so the work came in {ratio:.2f} times the upfront estimate. The
-sixth, finer-mesh condition now running was quoted at
-{CORE_MIN_ESTIMATE_SIXTH:.1f} core-minutes upfront and is not yet complete. The
-theory curve costs no solver time. At the machine's hourly rate of
+sixth, finer-mesh companion condition was quoted at
+{CORE_MIN_ESTIMATE_SIXTH:.1f} core-minutes upfront and used
+{core_min_sixth:.1f}, {ratio_sixth:.2f} times its estimate. The theory curve
+costs no solver time. At the machine's hourly rate of
 \${RATE_USD_PER_CORE_HOUR:.4f} per core-hour that is \${usd_actual:.3f} spent
-against a \${usd_est5:.3f} estimate, with a further \${usd_est6:.3f} estimated
-for the finer mesh. Money figures are derived from the hourly rate; they are not
-read from a metered bill.\par}}
+against a \${usd_est5:.3f} estimate for the five, and \${usd_sixth:.3f} against
+\${usd_est6:.3f} for the finer mesh. Money figures are derived from the hourly
+rate; they are not read from a metered bill.\par}}
 \end{{minipage}}
 \end{{center}}
 
@@ -326,10 +347,14 @@ blown case is not a mildly blown case with a different inlet number.
 Table~1 is arithmetic against a published expression, exact to the digits shown.
 Table~2 has not reached the target set before running: the turbulence equation
 imbalance grows monotonically with blowing, from {sci(kr0, 3)} at the reference
-to {sci(kr4, 3)} at the strongest jet, a factor of {k_factor:.0f}. The lift has
-stopped moving to within the uncertainty column, which is why it is quoted at
-all --- but a settled number is not a converged one. A finer mesh is running;
-until it lands the mesh contribution to the uncertainty is unquantified.
+to {sci(kr4, 3)} at the strongest jet, a factor of {k_factor:.0f}. The lift is
+still moving at the end of every run, by the amount in the movement column,
+which is why that column is quoted at all --- a settling indicator is not a
+converged one. The finer companion mesh has completed, and it does not close
+this gap: it is a different grid topology on a different reference area, run as
+a diagnostic, so it is not a refinement of the five and no grid-refinement
+study has been carried out. The mesh contribution to the uncertainty on
+Table~2 therefore remains unquantified.
 \end{{multicols}}
 
 \end{{document}}

@@ -138,13 +138,14 @@ applied, and a real wing of finite aspect ratio will achieve less.
 (23.8, 24.4, 21.8, 22.3, 25.2 core-minutes respectively).
 The figure quoted before any of them started was 56.8
 core-minutes, so the work came in 2.07 times the upfront estimate. The
-sixth, finer-mesh condition now running was quoted at
-90.5 core-minutes upfront and is not yet complete. The
-theory curve costs no solver time. At the machine's hourly rate of
+sixth, finer-mesh companion condition was quoted at
+90.5 core-minutes upfront and used
+98.7, 1.09 times its estimate. The theory curve
+costs no solver time. At the machine's hourly rate of
 \$0.0513 per core-hour that is \$0.100 spent
-against a \$0.049 estimate, with a further \$0.077 estimated
-for the finer mesh. Money figures are derived from the hourly rate; they are not
-read from a metered bill.\par}
+against a \$0.049 estimate for the five, and \$0.084 against
+\$0.077 for the finer mesh. Money figures are derived from the hourly
+rate; they are not read from a metered bill.\par}
 \end{minipage}
 \end{center}
 
@@ -190,10 +191,14 @@ blown case is not a mildly blown case with a different inlet number.
 Table~1 is arithmetic against a published expression, exact to the digits shown.
 Table~2 has not reached the target set before running: the turbulence equation
 imbalance grows monotonically with blowing, from $3.46 \times 10^{-6}$ at the reference
-to $1.47 \times 10^{-4}$ at the strongest jet, a factor of 43. The lift has
-stopped moving to within the uncertainty column, which is why it is quoted at
-all --- but a settled number is not a converged one. A finer mesh is running;
-until it lands the mesh contribution to the uncertainty is unquantified.
+to $1.47 \times 10^{-4}$ at the strongest jet, a factor of 43. The lift is
+still moving at the end of every run, by the amount in the movement column,
+which is why that column is quoted at all --- a settling indicator is not a
+converged one. The finer companion mesh has completed, and it does not close
+this gap: it is a different grid topology on a different reference area, run as
+a diagnostic, so it is not a refinement of the five and no grid-refinement
+study has been carried out. The mesh contribution to the uncertainty on
+Table~2 therefore remains unquantified.
 \end{multicols}
 
 \end{document}
