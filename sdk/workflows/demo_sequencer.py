@@ -103,6 +103,28 @@ __all__ = ["Sequencer", "run_act", "banner_for_stage", "SequencerRefused",
 GUARD_MARK = "_demo_sequencer_guarded"
 
 
+def _as_count(value) -> int | None:
+    """A cell count as an integer, however the act chose to record it.
+
+    An act records a :class:`demo_mode.Measured` value in whatever form it
+    read or shows, and the jet-flap act records its cell count as the string
+    it displays, commas and all. ``int("39,984")`` raises, which would have
+    turned the live-mesh check into an exception rather than a comparison.
+    Returns ``None`` when the value is not a count at all, so the caller
+    refuses rather than silently skipping the check.
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(round(value))
+    try:
+        return int(round(float(str(value).replace(",", "").strip())))
+    except (TypeError, ValueError):
+        return None
+
+
 class SequencerRefused(RuntimeError):
     """The sequencer will not start, or will not continue, this act.
 
@@ -371,31 +393,187 @@ class Sequencer:
             "statement": sentence,
         })
 
+    # -- the live mesher ----------------------------------------------------
+    #: Directory contents that mean "this is a real case tree, not scratch".
+    #: A time directory, a solver log or a controlDict all say a solve has
+    #: lived here.
+    _CASE_TELLS = ("system/controlDict", "constant/turbulenceProperties")
+
+    def _unsafe_work_dir(self, work_dir) -> str | None:
+        """Refuse to point a mesher at anything that looks like a real case.
+
+        THE CONSTRAINT IS STRUCTURAL, NOT A COMMENT. The act's ``work_dir``
+        used to be a landed, complete, graded run; a mesher writing a fresh
+        ``constant/polyMesh`` into one destroys the provenance of a result
+        that cannot be re-solved, because the strict completion rule's age
+        guard turns on every field at ``endTime`` being newer than the case's
+        own ``0/``. It has since been moved to a scratch directory, and the
+        whole value of that move is lost if nothing checks it stayed moved.
+
+        An absent mesh stage is recoverable. A corrupted graded case is not.
+
+        Returns the reason it is unsafe, or ``None`` when meshing there is
+        fine. It REPORTS rather than raises, because the answer differs by
+        act: one act's stage having no safe scratch directory is that act's
+        defect to fix, and killing it outright would take a working screen off
+        the air to punish a misconfiguration. The caller skips the mesher and
+        says on the payload that nothing was meshed.
+        """
+        from pathlib import Path
+
+        work = Path(work_dir)
+        for tell in self._CASE_TELLS:
+            if (work / tell).exists():
+                return (f"it looks like a real case directory (it holds "
+                        f"{tell})")
+        for child in work.glob("*"):
+            if child.is_dir() and child.name not in {"constant", "system", "0"}:
+                try:
+                    float(child.name)
+                except ValueError:
+                    continue
+                return f"it holds a solved time directory ({child.name})"
+        return None
+
+    def _live_cell_count(self, work_dir) -> int:
+        """Cells in the mesh just written, READ OFF DISK.
+
+        Not taken from the mesher's stdout: a generator that printed a count
+        it did not write would be believed, and the whole point of running the
+        mesher is that the screen shows a grid somebody built rather than a
+        number somebody typed. ``owner`` lists the owning cell of every face,
+        so the highest label plus one is the cell count.
+        """
+        from pathlib import Path
+
+        owner = Path(work_dir) / "constant" / "polyMesh" / "owner"
+        if not owner.is_file():
+            raise SequencerRefused(
+                "the mesher reported success but wrote no mesh, so the screen "
+                "has no grid to show and says so rather than implying one")
+        top = -1
+        started = False
+        for line in owner.read_text(encoding="utf-8").splitlines():
+            s = line.strip()
+            if not started:
+                if s == "(":
+                    started = True
+                continue
+            if s == ")":
+                break
+            if s:
+                try:
+                    top = max(top, int(s))
+                except ValueError:
+                    continue
+        if top < 0:
+            raise SequencerRefused(
+                "the mesh written by the mesher could not be read back")
+        return top + 1
+
+    def _run_mesher(self, mesh) -> int:
+        """Run the act's real mesher and return the cell count it produced.
+
+        Sanaa's directive: "Meshing runs live ... the real mesher on the
+        uploaded STL". Before this, the stage spoke the word "Meshing" and ran
+        nothing at all -- ``MeshPlan.command`` was declared by every act and
+        invoked by nothing in the repository. A stage that says it is meshing
+        while no mesher runs is the one thing on this screen that would be
+        narrated as live and would not be.
+        """
+        import subprocess
+
+        unsafe = self._unsafe_work_dir(mesh.work_dir)
+        if unsafe is not None:
+            # NOT AN EXCEPTION, AND THE ASYMMETRY IS DELIBERATE. Running the
+            # mesher here could destroy a landed run that cannot be re-solved;
+            # not running it costs a picture. So the mesher does not run, and
+            # the stage says plainly that nothing was meshed rather than
+            # implying a grid it did not build.
+            return None
+        try:
+            done = subprocess.run(
+                [str(part) for part in mesh.command],
+                capture_output=True, text=True,
+                timeout=max(float(mesh.expected_seconds) * 4.0, 30.0))
+        except FileNotFoundError as exc:
+            raise SequencerRefused(
+                f"the meshing stage names a mesher that is not on this "
+                f"machine, so nothing was meshed: {type(exc).__name__}"
+            ) from None
+        except subprocess.TimeoutExpired:
+            raise SequencerRefused(
+                "the mesher did not finish in four times its own forecast, so "
+                "the stage stops rather than showing a part-built grid"
+            ) from None
+        if done.returncode != 0:
+            raise SequencerRefused(
+                f"the mesher exited {done.returncode}; the screen shows no "
+                f"grid rather than a grid nobody built")
+
+        live = self._live_cell_count(mesh.work_dir)
+        # ``Measured.value`` is the value as the act recorded it, and an act is
+        # free to record a cell count as the string it shows ("39,984").
+        # Measured, not assumed: int() on that raises. Parsed defensively so a
+        # comparison this stage exists to make cannot be skipped by a
+        # formatting choice upstream.
+        want = _as_count(mesh.cell_count.value)
+        if want is None:
+            raise SequencerRefused(
+                "the act's declared cell count cannot be read as a number, so "
+                "the live mesh cannot be checked against the solved grid")
+        # A LIVE MESH THAT DOES NOT REPRODUCE THE SOLVED GRID IS A FINDING.
+        # The pressures, the lift table and the fields all come from the
+        # solved grid; a stage that meshed something ELSE and showed it would
+        # put a picture of one grid beside numbers from another.
+        if abs(live - want) > float(mesh.cell_tolerance) * max(want, 1):
+            raise SequencerRefused(
+                f"the mesher built {live:,} cells where the solved grid has "
+                f"{want:,}; the screen will not show a grid that is not the "
+                f"one the numbers came from")
+        return live
+
     def _stage_meshing(self, emit, script, record) -> dict:
         """The real mesher, its wall-layer zoom and its resolution table.
 
-        The cell-by-cell draw is a separate renderer and is NOT a gate on this
-        stage: with it absent the stage still runs the mesher and still shows
-        the measured resolution table and wall-layer zoom, which are the
-        numbers a reader needs. ``drawn`` says which of the two happened, so
-        nothing on screen implies a draw that did not occur.
+        THE MESHER NOW ACTUALLY RUNS. Measured before this: nothing in the
+        repository ever invoked ``MeshPlan.command`` -- the only references to
+        it were its own emptiness check and a comment -- so this stage spoke
+        the progressive line "Meshing", published ``drawn: False``, and meshed
+        nothing. Against a directive reading "Meshing runs live ... the real
+        mesher on the uploaded STL", that is the one stage that was out of
+        compliance, and it is the stage a narrator would call live.
+
+        It meshes into ``MeshPlan.work_dir`` and refuses outright if that
+        looks like a real case tree. The cell count is READ BACK off the mesh
+        just written and checked against the solved grid, so the picture and
+        the numbers are the same grid.
+
+        ``drawn`` reports the cell-by-cell draw, which is a separate renderer
+        and is still NOT delivered here: it stays False, and nothing on screen
+        implies a draw that did not occur.
         """
         mesh = self.act.mesh_plan()
         self._say(script, "Meshing", tense="progressive")
         from . import emit_table
 
+        live_cells = self._run_mesher(mesh)
         if script is not None:
             emit_table(emit, script, role="NUMERICIST",
                        title="Wall and slot resolution",
                        headers=list(mesh.resolution_headers),
                        rows=[list(r) for r in mesh.resolution_rows],
                        table_id="mesh_resolution")
-        return self._publish(emit, "demo.mesh", {
+        payload = {
             "stage": "meshing",
             "cells": mesh.cell_count.on_screen(),
             "zoom": mesh.wall_zoom_hint,
+            "meshed": live_cells is not None,
             "drawn": False,
-        })
+        }
+        if live_cells is not None:
+            payload["meshed_cells"] = f"{live_cells:,}"
+        return self._publish(emit, "demo.mesh", payload)
 
     def _stage_feasibility(self, emit, script, record) -> dict:
         f = self.act.feasibility()
@@ -488,6 +666,117 @@ class Sequencer:
             raise SequencerRefused(
                 f"all {len(self._emitted)} publications carried one instant; "
                 f"the screen would pop rather than run")
+
+
+def make_act_entry(key: str, *, act_module: str, label: str | None = None,
+                   driver: str | None = None):
+    """THE ONE WAY AN ACT IS REACHED FROM THE DISPATCHER. Returns its ``main``.
+
+    A workflow module adopts DEMO MODE in one line::
+
+        main = make_act_entry("jet-flap", act_module="workflows.jet_flap_act")
+
+    and the router reaches it exactly as it reaches every other workflow. Four
+    acts adopting this is ONE implementation with four call sites; four acts
+    each carrying their own copy of the delegation is four implementations of
+    one thing, and copies diverge. This campaign has already paid for that
+    lesson twice in one night.
+
+    WHY NOT A BRANCH IN THE SHARED DISPATCHER, which is the obvious place. The
+    guarantee wanted is "an act cannot be wired up wrong"; the cost of getting
+    it there is an edit to ``chief_engineer.server._run_workflow``, through
+    which EVERY team's intent runs. This shape gives the same guarantee for
+    ZERO bytes changed in ``server.py`` or ``router.py``, so every other
+    intent's path stays byte-identical by construction rather than by
+    inspection. A fifth act is a one-line adoption that cannot get the
+    plumbing wrong, because there is no plumbing left to get wrong.
+
+    WHAT THE ONE IMPLEMENTATION CARRIES, each of which was a separate finding:
+
+    * **The act module is imported here**, because importing it is what
+      REGISTERS the act. Nothing walks the package; an act that is never
+      imported is not in the registry, and ``run_act`` would refuse with "no
+      act is registered".
+    * **``emit`` is passed straight through** and is the mission EventBus's
+      ``publish``, so ``stage.banner`` and ``solve.frame`` reach the page.
+    * **``script`` is built here, and it is load-bearing rather than
+      decorative.** The meshing, gates and results stages publish their tables
+      only when a script exists; with ``script=None`` all three measured
+      tables would silently not render.
+    * **``request`` sets the prompt line and NOTHING else**, as
+      ``typed_prompt``. Measured before it was wired: the prompt stage
+      published the act's registered string whatever was typed, so a viewer
+      who paraphrased saw canned text echoed back as their own words.
+    * **``params`` IS DROPPED, and that is a property of the design rather
+      than an oversight** -- and it is the safer half. The served geometry
+      comes from the ACT's own ``served_stl`` by way of ``_stage_geometry``,
+      never from what an operator happened to upload, so the picture on screen
+      and the grid behind the numbers are bound structurally instead of by
+      convention. Threading an uploaded filename in is exactly what would
+      break that bind.
+    * **A refusal is not caught.** ``SequencerRefused``, ``DemoContractError``
+      and any reader's refusal propagate to ``_run_workflow``, which publishes
+      ``mission.failed`` with the reason. Swallowing one would put a silent
+      completion on screen in place of a screen that refused.
+
+    ``label`` names the transcript; it defaults to the act key.
+    """
+    import importlib
+
+    def main(request: str | None = None, params: dict | None = None,
+             emit=None) -> int:
+        from . import make_transcript
+
+        module = importlib.import_module(act_module)
+        script = make_transcript(label or key, emit)
+        # AN ACT MAY OWN ITS SEQUENCER, AND ONE DOES. Measured while proving
+        # this mechanism act-agnostic: the adjoint act subclasses Sequencer to
+        # override the solving stage, and driving it through the plain
+        # run_act refused with "the solving stage has no cases to read" -- the
+        # base stage looking for a replay the subclass supplies another way.
+        # A factory that assumed one sequencer would have made the second
+        # adoption silently wrong, which is exactly the divergence this exists
+        # to prevent. So an act names its own driver and the factory calls it.
+        if driver is not None:
+            import inspect
+
+            fn = getattr(module, driver)
+            kwargs = {"emit": emit, "script": script}
+            # PASS THE TYPED PROMPT ONLY WHERE IT IS ACCEPTED, AND SAY SO WHEN
+            # IT IS NOT. Measured: the adjoint act's driver does not take one,
+            # so passing it unconditionally raises and passing it silently
+            # would lose the prompt echo without anyone noticing. Neither is
+            # acceptable, so the attribute below records the truth and the
+            # act's owner can add the one-line passthrough.
+            takes = inspect.signature(fn).parameters
+            if "typed_prompt" in takes or any(
+                    p.kind is inspect.Parameter.VAR_KEYWORD
+                    for p in takes.values()):
+                kwargs["typed_prompt"] = request
+                main.typed_prompt_reaches_screen = True
+            else:
+                main.typed_prompt_reaches_screen = False
+            fn(**kwargs)
+        else:
+            run_act(key, emit=emit, script=script, typed_prompt=request)
+        return 0
+
+    main.__name__ = "main"
+    main.__qualname__ = "main"
+    main.__doc__ = (
+        f"Run the {key!r} act through the nine DEMO MODE stages.\n\n"
+        f"Adopted from :func:`demo_sequencer.make_act_entry`, which holds the "
+        f"whole implementation; see it for what is threaded and what is "
+        f"deliberately dropped.")
+    #: Read by the pre-shoot gate and by anything auditing which workflow
+    #: modules are DEMO MODE acts, so the adoption is discoverable rather than
+    #: inferred from the source.
+    main.demo_act_key = key
+    main.demo_act_module = act_module
+    main.demo_act_driver = driver
+    #: Set on first call when a driver is used; None until then.
+    main.typed_prompt_reaches_screen = None if driver else True
+    return main
 
 
 def run_act(key_or_act, emit=None, script=None, **kwargs) -> dict:
