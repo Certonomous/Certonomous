@@ -176,9 +176,48 @@ a floor beneath which a sweep that read almost nothing cannot pass.
   carrying a digit and a letter. The act now renders fixed decimals, which is
   better for a viewer anyway; the checker defect stands and is reported.
 - The cost sentence the shared contract composes — *"derived at the recorded
-  rate"* — trips **this campaign's** `RECORDED` rule. The act does not author
-  that string and cannot reword it. **This is an open blocker for capture** and
-  is named in the registration note.
+  rate"* — tripped **this campaign's** `RECORDED` rule, which the act does not
+  author and cannot reword. **RESOLVED 2026-09-01 by supervisor ruling, and
+  resolved in the right direction:** our rule over-banned. Sanaa's 20:30Z
+  never-list item is the phrase *"not recorded"*, not the bare word, and
+  "derived at the recorded rate" states the cost basis rule 12 demands rather
+  than confessing an absence. `check_demo_language.py` Amendment 1 narrows that
+  one alternative to `not\s+recorded`, with the old alternative quoted and
+  struck, no other banned phrase touched, and both arms driven — it still fires
+  on all four wordings of "not recorded in this bundle" and stays silent on the
+  cost sentence and three further legitimate uses of the word. ⚠ The gap that
+  narrowing opens is stated in that amendment rather than left to be found: a
+  sentence like *"these values were recorded earlier this week"* is now caught
+  by no rule, and closing it means extending `PAST-RUNNING`, which is a
+  different banned phrase and excluded by the ruling's own condition.
+
+## 8a. AMENDMENT 2 — `PROCESS-WORD`, AND THE DEFECT THAT EARNED IT
+
+Sanaa's 20:30Z protocol extends the never-list with process vocabulary — *"prior
+runs, replay, agreements, paths, ids, tiers"*. **Measured the same day: all three
+gate figures carried the word "Agreement" in their RENDERED in-figure titles,
+and the sheet carried it in a table row — 6 occurrences in the sheet, 5 across
+the figures.**
+
+Nothing caught it, and the reason generalises: the contract's `Figure` checks
+the title an act **declares**, while the offending string was matplotlib text
+rendered **inside** the PDF. A declaration check is not a rendering check. Only
+the rendered-artifact audit found it.
+
+Ruled by the heat-transfer supervisor: regenerate rather than argue the word.
+The figures and the sheet now say *difference* and *differ*, which carry the
+same meaning; measured after, **0 occurrences in all four artifacts**. The act's
+declared figure titles were aligned to the rendered ones, so each figure has one
+name.
+
+`PROCESS-WORD` refuses `agreement(s)`, `prior run(s)` and `tier(s)` on Act C
+surfaces, with one plant per alternative and four negative arms. **Proved able
+to fire rather than assumed:** replayed against the *previous committed*
+figures it fires 2 / 2 / 1 times. It is kept **local to the Act C sweep** —
+adding it to the shared checker would apply it to Act A's screens, which is a
+policy call above this lane; measured first, all five words occur **zero** times
+across the four Act C artifacts today, so it turns nothing red and only stops
+recurrence.
 
 ## 9. LINE-CITATION NOTE
 

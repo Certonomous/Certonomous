@@ -242,6 +242,50 @@ def rule_claim(text):
     return [(m.group(0), m.start()) for m in CLAIM_RE.finditer(text)]
 
 
+# --------------------------------------------------------------------------
+# AMENDMENT 2 -- 2026-09-01.  PROCESS-WORD, and the defect that earned it.
+#
+# Sanaa's demo shooting protocol (2026-09-01 ~20:30Z, `cfcf766f`) extends the
+# never-list with process vocabulary: "prior runs, replay, agreements, paths,
+# ids, tiers".  MEASURED THE SAME DAY: all three Act C gate figures carried the
+# word "Agreement" in their RENDERED in-figure titles, and the sheet carried it
+# in a table row -- six occurrences in the sheet and five across the figures.
+#
+# WHY NOTHING CAUGHT IT, AND THIS IS THE GENERAL LESSON.  The contract's
+# `Figure.__post_init__` checks the title an act DECLARES.  The offending
+# string was matplotlib text rendered INSIDE the PDF, which that check cannot
+# see -- the same blindness the content specification's section 6.3 recorded
+# for over-length in-figure titles.  A declaration check is not a rendering
+# check, and only reading the rendered artifact found this.
+#
+# WHY THE RULE LIVES HERE AND NOT IN THE SHARED LANGUAGE CHECKER.  Adding a
+# banned phrase to `check_demo_language` would apply it to Act A's surfaces
+# too, and turning another act's screens red is a policy call above this lane.
+# MEASURED before adding: all five words below occur ZERO times across the four
+# Act C artifacts, so this rule turns nothing red today -- it stops the defect
+# recurring.  Extending it to the shared checker is recommended, not taken.
+#
+# The word is banned; the MEANING is not. "difference", "differ" and "settling"
+# all say what these screens say, and the figures were regenerated to use them.
+# --------------------------------------------------------------------------
+PROCESS_ALTS = [
+    ("agreement", "the two arms are drawn against their agreement limit"),
+    ("agreements", "both agreements sit inside the band"),
+    ("prior run", "the prior run is drawn beside this one"),
+    ("prior runs", "prior runs are shown for context"),
+    ("tier", "this result is reported at the second tier"),
+]
+PROCESS_RE = re.compile(r"(?i)\b(agreements?|prior\s+runs?|tiers?)\b")
+
+
+def cand_process(text):
+    return len(PROCESS_RE.findall(text))
+
+
+def rule_process(text):
+    return [(m.group(0), m.start()) for m in PROCESS_RE.finditer(text)]
+
+
 NUMERIC_RULES = [
     dict(id="ABS-TEMP", cand=cand_abs_temp, fn=rule_abs_temp,
          why="a decimal in the absolute-temperature band is a thermal result",
@@ -271,6 +315,14 @@ NUMERIC_RULES = [
          negatives=["withheld: cell temperatures; the temperature rise; the "
                     "coolant outlet temperature; the energy ledger",
                     "the gate refuses it and no thermal result exists"]),
+    dict(id="PROCESS-WORD", cand=cand_process, fn=rule_process,
+         why="process vocabulary from the 2026-09-01 never-list; say the "
+             "quantity instead",
+         plants=[p for _, p in PROCESS_ALTS],
+         negatives=["the difference between 10 and 20 sweeps, K",
+                    "how far the two arms differ over the run",
+                    "each check against its limit",
+                    "the answer is still settling at the pulse edge"]),
 ]
 
 
@@ -294,6 +346,12 @@ def control():
         n_pos += 1
         if not CLAIM_RE.search(plant):
             dead.append(("THERMAL-CLAIM/" + alt, plant))
+    # Same discipline for PROCESS-WORD (Amendment 2): a live alternative would
+    # otherwise mask a dead one behind the rule's own plant.
+    for alt, plant in PROCESS_ALTS:
+        n_pos += 1
+        if not PROCESS_RE.search(plant):
+            dead.append(("PROCESS-WORD/" + alt, plant))
     if dead:
         sys.stderr.write(
             "REFUSE: %d control arm(s) never fire on their own plant. A rule "

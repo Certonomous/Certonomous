@@ -111,8 +111,8 @@ def fig_checks():
                         for c in CHECKS], fontsize=6.6)
     ax.set_xscale("log")
     ax.set_xlim(3e-4, 6e-2)
-    ax.set_xlabel(T(r"agreement between 10 and 20 sweeps, K"))
-    ax.set_title(LS.bold(T("Agreement against its limit")), pad=4)
+    ax.set_xlabel(T(r"difference between 10 and 20 sweeps, K"))
+    ax.set_title(LS.bold(T("Each check against its limit")), pad=4)
     ax.grid(axis="x", color=LIGHT, lw=0.5, alpha=0.7)
     ax.set_axisbelow(True)
     for s in ("top", "right", "left"):
@@ -124,7 +124,7 @@ def fig_checks():
                 color=BAD, ha="center")
     _save(fig, "actC_gate_checks",
           [[c[0], c[1].replace("\n", " "), c[2], c[3], c[4]] for c in CHECKS],
-          ["check", "quantity", "agreement_K", "limit_K", "state"])
+          ["check", "quantity", "difference_K", "limit_K", "state"])
 
 
 def fig_over_run():
@@ -141,8 +141,8 @@ def fig_over_run():
     ax.set_xlim(22, 1200)
     ax.set_ylim(3e-4, 6e-2)
     ax.set_xlabel(T("time into the run, s"))
-    ax.set_ylabel(T("agreement, K"))
-    ax.set_title(LS.bold(T("Agreement over the run")), pad=4)
+    ax.set_ylabel(T("difference, K"))
+    ax.set_title(LS.bold(T("How far the two arms differ over the run")), pad=4)
     ax.grid(color=LIGHT, lw=0.5, alpha=0.7)
     ax.set_axisbelow(True)
     for s in ("top", "right"):
@@ -154,7 +154,7 @@ def fig_over_run():
     ax.legend(fontsize=6.2, frameon=False, loc="lower left")
     _save(fig, "actC_gate_over_run",
           [[t, o, s] for t, o, s in zip(TIMES, D_OUTLET, D_SOLID)],
-          ["time_s", "outlet_agreement_K", "solid_agreement_K"])
+          ["time_s", "outlet_difference_K", "solid_difference_K"])
 
 
 def fig_sequence():
@@ -170,7 +170,7 @@ def fig_sequence():
     ax.set_xticklabels([T(s) for s, _ in SEQ], fontsize=6.6)
     ax.set_yscale("log")
     ax.set_ylim(2e-4, 3e-2)
-    ax.set_ylabel(T("agreement, K"))
+    ax.set_ylabel(T("difference, K"))
     ax.set_title(LS.bold(T("Sweep sequence, 30 s frame")), pad=4)
     ax.grid(axis="y", color=LIGHT, lw=0.5, alpha=0.7)
     ax.set_axisbelow(True)
@@ -179,7 +179,7 @@ def fig_sequence():
     ax.annotate(T(r"$11.6\times$ closer"), xy=(0.5, 1.15e-2), fontsize=6.4,
                 ha="center", color=OK)
     _save(fig, "actC_gate_sequence", [[a, b] for a, b in SEQ],
-          ["sweep_pair", "agreement_K"])
+          ["sweep_pair", "difference_K"])
 
 
 def main():

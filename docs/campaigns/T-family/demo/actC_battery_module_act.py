@@ -650,7 +650,7 @@ class BatteryModuleAct(DemoAct):
 
         plots = [
             Figure(path=FIGDIR / "actC_gate_sequence.pdf",
-                   title="The answer settling as we double the sweeps",
+                   title="Sweep sequence, 30 s frame",
                    caption="Five against ten, then ten against twenty: the "
                            "movement closes by about eleven times.",
                    beat="the check"),
@@ -660,7 +660,7 @@ class BatteryModuleAct(DemoAct):
                            "limit, across the whole run.",
                    beat="the check"),
             Figure(path=FIGDIR / "actC_gate_checks.pdf",
-                   title="Three checks against one limit",
+                   title="Each check against its limit",
                    caption="Two sit inside the limit; the third, the coolant "
                            "outlet, sits outside it.",
                    beat="the refusal"),

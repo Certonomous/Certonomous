@@ -37,6 +37,54 @@ a control.
 
 Exit 0 = clean.  Exit 2 = a banned phrase reached a screen, or the control
 itself failed.
+
+==========================================================================
+AMENDMENT 1 -- 2026-09-01.  THE `RECORDED` RULE IS NARROWED TO SANAA'S OWN
+WORDING.  ONE ALTERNATIVE CHANGES AND NO OTHER BANNED PHRASE IS TOUCHED.
+==========================================================================
+
+Authority: Sanaa's demo shooting protocol, 2026-09-01 ~20:30Z
+(`etc/sessions/2026-09-01T2030Z_sanaa_demo_shooting_protocol.md`, commit
+`cfcf766f`), whose never-list item is the phrase **"not recorded"**.  Ruled by
+the heat-transfer supervisor, 2026-09-01, on the reading below.
+
+THE ALTERNATIVE THIS REPLACES, QUOTED AND STRUCK RATHER THAN REWRITTEN:
+
+    ~~`recorded`~~   -- the bare word, anywhere, case-insensitive.
+
+IT BECOMES:
+
+    `not\\s+recorded`  -- her phrase, tolerating intervening whitespace.
+
+WHY THE OLD ONE OVER-BANNED.  "Derived at the recorded rate" does not confess
+an absence.  It says the rate is one this lab holds ON RECORD, which is exactly
+the cost-basis honesty CLAUDE.md rule 12 demands -- the box cannot read its own
+billing, so every dollar figure must name the rate it was derived at and say it
+was not measured.  Banning that sentence pushes an author toward VAGUER
+language about the lab's own costs, which is the opposite of what the rule is
+for.  The phrase she actually wrote, "not recorded", is the one that reads as a
+confession of a missing value, and it is the one still refused.
+
+MEASURED BLAST RADIUS, BEFORE THE CHANGE: `pdftotext` over every PDF in this
+directory found the word "recorded" **zero times**.  Nothing currently on a
+rendered screen is released by this narrowing.  What it releases is the cost
+sentence the shared contract composes for the act modules, which no act
+authors and no act can reword.
+
+⚠ THE CONSEQUENCE, STATED RATHER THAN DISCOVERED.  A sentence like "these
+values were recorded earlier this week" -- the old alternative's own plant --
+is no longer caught by THIS rule, and it is not caught by `PAST-RUNNING`
+either, whose alternatives do not include it.  That is a real gap opened by
+this narrowing.  Closing it means adding a past-tense-about-machinery
+alternative to `PAST-RUNNING`, which is a DIFFERENT banned phrase and is
+therefore excluded from this change by the ruling's own condition.  It is
+reported for a separate change and must not be forgotten because this
+amendment reads complete.
+
+DRIVEN BOTH WAYS, and the drive is `--selftest` on this file: the narrowed
+alternative still fires on all four wordings of "not recorded in this bundle"
+that the Act A display module emits, and stays silent on "derived at the
+recorded rate" and on three further legitimate uses of the word.
 """
 
 import os
@@ -64,16 +112,39 @@ RULES = [
     dict(
         id="RECORDED",
         why="reads as a recording rather than a live run (04:20Z, 03:10Z)",
+        # AMENDMENT 1, 2026-09-01.  `recorded` -> `not\s+recorded`; see the
+        # module docstring for the authority, the struck alternative, the
+        # measured blast radius and the gap this opens.  The other five
+        # alternatives are UNTOUCHED.
         pattern=re.compile(
-            r"(?i)\b(recorded|replayed|re-displayed|screens come from|"
-            r"retained on disk|no new number)\b"),
+            r"(?i)(\bnot\s+recorded\b|\b(replayed|re-displayed|"
+            r"screens come from|retained on disk|no new number)\b)"),
         plants=[
-            ("recorded", "these values were recorded earlier this week"),
+            ("not recorded", "the peak for that point is not recorded here"),
             ("replayed", "the stored monitors are replayed at speed"),
             ("re-displayed", "this request re-displayed that run"),
             ("screens come from", "the screens come from that run"),
             ("retained on disk", "all figures are read from files retained on disk"),
             ("no new number", "no new number is produced by this request"),
+        ],
+        # THE NEGATIVE ARM, ADDED WITH AMENDMENT 1.  A narrowing that has not
+        # been shown to still fire is not a narrowing, it is a deletion; and a
+        # narrowing that has not been shown to release what it was narrowed FOR
+        # has not been driven either.  Both arms live here, beside the rule.
+        #
+        # `negatives` is an OPTIONAL key: every other rule is unchanged and
+        # supplies none, so this adds an arm without touching any other phrase.
+        negatives=[
+            # The sentence this narrowing exists to release. Composed by the
+            # shared demo contract and rendered by the sequencer; no act
+            # authors it and no act can reword it.
+            "Compute used: 19.8 processor-minutes (gross), about $0.02, "
+            "derived at the recorded rate.",
+            # Three further legitimate uses of the word, which the bare-word
+            # alternative also refused.
+            "the rate is the one recorded for this machine",
+            "every field is newer than the moment recorded at launch",
+            "the estimate and the actual are both recorded in the report",
         ],
     ),
     dict(
@@ -138,9 +209,27 @@ def pdftotext(path):
     return re.sub(r"\s+", " ", out.stdout)
 
 
+#: The four wordings the Act A display module emits for a missing value.
+#: Taken from that module's own strings, not paraphrased: a narrowing driven
+#: against a paraphrase proves nothing about the text that actually renders.
+NOT_RECORDED_SITES = (
+    "not recorded in this bundle",
+    "not recorded in this bundle; the readers and the guard are named below",
+    "Mesh cells: not recorded in this bundle",
+    "Geometry guard: not recorded in this bundle",
+)
+
+
 def control():
-    """One plant per ALTERNATIVE, each attributed to its own rule."""
+    """One plant per ALTERNATIVE, each attributed to its own rule.
+
+    AMENDMENT 1 adds a second arm: a rule carrying `negatives` must stay SILENT
+    on every one of them. A rule that fires on everything is as useless as one
+    that fires on nothing, and only the negative arm separates them. The key is
+    optional, so every rule that does not carry one behaves exactly as before.
+    """
     dead = []
+    loud = []
     total = 0
     for rule in RULES:
         for alt, plant in rule["plants"]:
@@ -148,6 +237,26 @@ def control():
             hits = [r["id"] for r in RULES if r["pattern"].search(plant)]
             if rule["id"] not in hits:
                 dead.append((rule["id"], alt, plant, hits))
+        for neg in rule.get("negatives", ()):
+            total += 1
+            m = rule["pattern"].search(neg)
+            if m:
+                loud.append((rule["id"], neg, m.group(0)))
+    # AMENDMENT 1's OWN ARM, driven against the strings that really render.
+    for site in NOT_RECORDED_SITES:
+        total += 1
+        if not any(r["pattern"].search(site) for r in RULES):
+            dead.append(("RECORDED", "not recorded", site, []))
+    if loud:
+        sys.stderr.write(
+            "REFUSE: %d rule(s) fire on a sentence that must stay clean. A "
+            "narrowing that still refuses what it was narrowed for has not "
+            "been made, and a rule that fires on everything is as useless as "
+            "one that fires on nothing.\n" % len(loud))
+        for rid, neg, phrase in loud:
+            sys.stderr.write("  rule %-14s negative %r -> matched %r\n"
+                             % (rid, neg, phrase))
+        raise SystemExit(2)
     if dead:
         sys.stderr.write(
             "REFUSE: %d alternative(s) never fire on their own plant. An "

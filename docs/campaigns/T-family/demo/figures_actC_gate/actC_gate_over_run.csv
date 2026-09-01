@@ -1,4 +1,4 @@
-time_s,outlet_agreement_K,solid_agreement_K
+time_s,outlet_difference_K,solid_difference_K
 30.0,0.02404233,0.0005208319
 60.0,0.0231519,0.0009964913
 120.0,0.00440426,0.001055683
