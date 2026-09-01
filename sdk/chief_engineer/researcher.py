@@ -49,10 +49,11 @@ class MissionProperties:
 def _core_entry(p: MissionProperties) -> str:
     """Classification → strategy → rejected, as one 3-bullet entry."""
     if p.kind == "single-body-study":
+        # Sanaa's cut (2026-09-01): the "one gated solve" and the "Rejected:"
+        # bullets never reach the screen again on a single-body study. The
+        # classification line is the whole entry.
         return bullets(
-            f"Single fixed body, {p.regime}: solve it once and grade the evidence",
-            "One gated solve; the only freedom is mesh and convergence",
-            "Rejected: pricing by analogy (wrong wake); an ungated coarser mesh")
+            f"Single fixed body, {p.regime}: solve it once and grade the evidence")
     if p.kind == "one-parameter-sweep":
         return bullets(
             f"One {p.smoothness} parameter, {p.regime} regime: a few anchors pin the curve",
@@ -71,8 +72,12 @@ def _core_entry(p: MissionProperties) -> str:
 
 def _admissibility_entry(p: MissionProperties) -> str:
     if p.admissibility_cite:
+        # Sanaa's wording (2026-09-01): the admissibility entry says what it
+        # means in plain words. The cite still selects this branch -- a mission
+        # that names no admissibility basis falls through to the ones below --
+        # but the sentence no longer recites the basis back at the viewer.
         return bullets(
-            f"Admissible {p.admissibility_cite}, a published threshold")
+            "Mesh quality per registered standards")
     if p.smoothness == "smooth" and p.regime.startswith("steady"):
         # Owner wording for the conceptual-screen acts; the generic phrasing
         # stays for missions whose fidelity is already a solved field.

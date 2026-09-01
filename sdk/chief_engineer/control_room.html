@@ -2264,7 +2264,10 @@ async function loadCredentials() {
         // and this figure is gross on both halves. Gross here is
         // launch-to-completion wall x ranks, so for a chain wrapper it counts
         // waiting as well as solving and is an upper bound on solver compute.
-        ['solver core-hours', coreHours.toFixed(1), `measured wall x ranks across solver runs, gross basis, ${asOf}`],
+        // Sanaa's label (2026-09-01): "total hours ran this week". Most of the
+        // figure was run this week and she accepted the approximation; the
+        // basis line under the tile still states exactly what was measured.
+        ['total hours ran this week', coreHours.toFixed(1), `measured wall x ranks across solver runs, gross basis, ${asOf}`],
       ];
       counters = `<div class="cred-counters">${tiles.map(([k,v,sub]) =>
         `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span><em>${esc(sub)}</em></div>`).join('')}</div>`;

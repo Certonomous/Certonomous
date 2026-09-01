@@ -1718,7 +1718,6 @@ def main(request: str | None = None, params: dict | None = None,
     announce_geometry(emit, name=surface, label=shown)
     script.engineer(
         f"• Full geometry study on {shown}: one fixed body, solved end to end. "
-        f"• Question: does the chain produce a converged force on a believable mesh? "
         + ("• Prior exists for this body; I will check against it."
            if familiar else
            "• No prior: mesh quality and convergence are the only evidence."))
@@ -1732,8 +1731,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"• You asked for {requested}: the standing setup already runs it. "
             f"• A different closure would need saying before solving, not after.")
     script.numericist(
-        f"• The gates are the standard acceptance band, {per('mesh-quality')}. "
-        "• The mesh is judged against a published threshold, not itself.")
+        f"• The gates are the standard acceptance band, {per('mesh-quality')}.")
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
@@ -1804,8 +1802,11 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(MONITOR, "residual spike flagged", "watching")
             script.monitor(f"• Residual spike during {anomaly.step}: {anomaly.detail}")
         elif anomaly.kind == "novel-warning":
-            roster.set(MONITOR, "unfamiliar solver warning", "watching")
-            script.monitor(f"• New on an unfamiliar body: {anomaly.line[:150]}")
+            # Sanaa (2026-09-01): the screen never says "unfamiliar body". The
+            # warning itself is the content the viewer needs, so the line
+            # carries the solver's own text and nothing about the body.
+            roster.set(MONITOR, "new solver warning", "watching")
+            script.monitor(f"• New solver warning: {anomaly.line[:150]}")
 
     engineer.monitor.on_anomaly = on_anomaly
 
@@ -1909,11 +1910,13 @@ def main(request: str | None = None, params: dict | None = None,
             script.engineer(
                 "• You asked me to pick the model: k-omega SST, the standard "
                 "closure for attached external flow. "
+                "• Physics: incompressible, steady, turbulent external flow. "
                 "• Solver of choice: OpenFOAM, steady RANS, on a "
                 "quality-gated mesh.")
         else:
             script.engineer(
                 "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
+                "• Physics: incompressible, steady, turbulent external flow. "
                 "• Standard closure for attached external flow, on a "
                 "quality-gated mesh.")
 
@@ -2444,13 +2447,15 @@ def main(request: str | None = None, params: dict | None = None,
                     rows=wall_resolution_rows(wall),
                     table_id=f"wall-{label}")
         if not wall["inside"]:
+            # Sanaa (2026-09-01): said in plain words. The content is the same
+            # -- part of the surface is out of the wall model's valid range,
+            # and that error is inside the total, not separated from it.
             script.numericist(
-                f"• Part of the body sits outside the y+ "
-                f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f} band the "
-                f"wall functions are valid in. "
-                f"• That near-wall modelling error is not separated here; it "
-                f"rides the model channel, which the certificate marks as a "
-                f"floor.")
+                f"• Part of the surface is outside the range where the wall "
+                f"model is accurate (y+ {YPLUS_LOG_LAW_LO:.0f} to "
+                f"{YPLUS_LOG_LAW_HI:.0f}). "
+                f"• That adds model error we have not separated from the "
+                f"total, so the reported model uncertainty is a floor.")
     else:
         script.numericist(
             "• Near-wall resolution could not be evaluated on this run; no y+ "
@@ -2639,21 +2644,21 @@ def main(request: str | None = None, params: dict | None = None,
                "• No published comparison exists for this body yet."))
 
     monitor_summary = engineer.monitor.summary()
-    suppressed = sum(monitor_summary.get("suppressed", {}).values())
+    # Sanaa's cut (2026-09-01): the suppressed-repeat count is off the screen.
+    # The watch-pattern total below already says how much was seen.
     script.monitor(
         f"• Watched every solver line: {monitor_summary['anomalies']} watch-pattern "
         f"event{'' if monitor_summary['anomalies'] == 1 else 's'} {monitor_summary['by_kind'] or ''}. "
-        + (f"• {suppressed} repeats counted, not repeated at you. " if suppressed else "")
         + ("• Nothing fatal." if not monitor_summary["fatal"] else
            "• One fatal: do not use this result."))
     roster.idle(MONITOR)
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
+    # Sanaa's condensation (2026-09-01): the two facts, and nothing around them.
     script.engineer(
-        f"• From surface to converged force in "
-        f"{format_duration(time.monotonic() - began)}. "
-        "• The coefficient is flat across the averaging window.")
+        f"• Elapsed time: {format_duration(time.monotonic() - began)}. "
+        "• C_d flat across averaging window.")
     # The skewness caveat, stated as a measurement when and only when
     # checkMesh actually showed it.
     skew_line = (f" • Max skewness {skew_s} exceeds the guidance value "
@@ -2731,23 +2736,12 @@ def main(request: str | None = None, params: dict | None = None,
             "• No published comparison for this body; the number stands on "
             "mesh quality, convergence, and the grid study." + skew_line)
     if refine and refine.get("band_abs") is not None:
-        # The spend line is only meaningful when there is a spend to report.
-        # Announcing "0 core-minutes" invites exactly the question the rest of
-        # the transcript is careful not to raise, so below one core-minute the
-        # sentence is dropped rather than rounded down to zero on screen.
-        # The mesh sensitivity is the numericist's finding, so the numericist
-        # states it; the spend stays with the Chief Engineer, whose ledger it is.
-        # Said once. The meshes it was measured on are the researcher's line
-        # above; this one places the figure, and repeating the basis here was
-        # the same sentence twice (Katie, 2026-07-31).
-        script.numericist(
-            "• The mesh sensitivity rides the numerical channel."
-            if uq_studies.reportable_band(refine) is not None else
-            "• The mesh spread rides the numerical channel.")
-        spend = ledger.as_dict()['spent_core_minutes']
-        if spend >= 1:
-            script.engineer(f"• Total spend {spend:.0f} core-minutes, "
-                            f"refinement rungs included.")
+        # Sanaa's cut (2026-09-01): both lines that used to stand here are said
+        # already and were the same sentence twice on screen. The channel line
+        # is carried by the certificate and by the closing table's band row;
+        # the spend is carried by the closing table's "Compute spend" row. The
+        # band itself is untouched -- only the two restatements are gone.
+        pass
     else:
         script.engineer(
             f"• Mesh sensitivity is not separated on this run; the numerical "
@@ -2812,7 +2806,13 @@ def main(request: str | None = None, params: dict | None = None,
     if not familiar:
         knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                       f"C_d {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
-        script.numericist("• Lessons entered to memory.")
+        # Sanaa (2026-09-01): the line claimed lessons when none were entered.
+        # The add above files a KNOWLEDGE entry, not a lesson, so the sentence
+        # is now read off what the knowledge base actually took.
+        script.numericist(
+            "• Lessons entered to memory."
+            if any(entry.get("kind") == "lesson" for entry in knowledge.added)
+            else "• No new lessons entered to memory.")
 
     report_doc = lab_report(
         title=f"Geometry study: {shown}",

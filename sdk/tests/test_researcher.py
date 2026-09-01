@@ -53,7 +53,11 @@ class MemoStructureTests(unittest.TestCase):
         self.assertNotIn("measurement, not an optimisation", " ".join(one))
         self.assertIn("grade the evidence", one[0])
         self.assertIn("Rejected:", opt[0])
-        self.assertIn("Rejected:", one[0])
+        # Sanaa's cut (2026-09-01): the single-body entry no longer carries the
+        # "one gated solve" or the "Rejected:" bullet. The optimisation branch
+        # keeps its rejected-alternatives line, pinned above.
+        self.assertNotIn("Rejected:", one[0])
+        self.assertNotIn("only freedom is mesh", one[0])
 
     def test_smooth_steady_optimization_speaks_the_gradient_in_method_terms(self):
         core = method_memo(_optimization())[0].lower()
@@ -61,7 +65,11 @@ class MemoStructureTests(unittest.TestCase):
         self.assertIn("ensemble", core)
 
     def test_admissibility_uses_the_cited_basis_when_supplied(self):
-        self.assertIn("standard mesh-quality band", method_memo(_single_body())[1])
+        # Sanaa's wording (2026-09-01): the cite still SELECTS this branch, but
+        # the sentence on screen is the plain one and no longer recites it.
+        entry = method_memo(_single_body())[1]
+        self.assertIn("Mesh quality per registered standards", entry)
+        self.assertNotIn("standard mesh-quality band", entry)
 
     def test_no_tool_or_vendor_names_anywhere(self):
         for props in (_optimization(), _single_body()):
