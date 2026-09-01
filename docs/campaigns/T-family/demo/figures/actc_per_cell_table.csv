@@ -1,0 +1,9 @@
+cell,peak_temperature_K,peak_rise_above_coolant_K,time_to_peak_s,uncertainty
+1,293.419751,0.419751,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+2,293.309239,0.309239,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+3,293.309239,0.309239,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+4,293.309239,0.309239,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+5,293.309239,0.309239,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+6,293.309239,0.309239,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+7,293.309239,0.309239,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+8,293.419751,0.419751,900,"not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"

@@ -1,0 +1,131 @@
+{
+  "source_case": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/T25_MOD_L1",
+  "reader": "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs/analyse_t25.py",
+  "mesh": {
+    "n_mesh_cells": 960,
+    "total_volume_m3": 0.024,
+    "channel_area_m2": 1.4000000000000001,
+    "module_cells": 8,
+    "mesh_cells_per_module_cell": 120,
+    "geometry_guard": "satisfied, four ways"
+  },
+  "coolant_reference_temperature_K": 293.0,
+  "pulse_window_s": [
+    0.0,
+    60.0
+  ],
+  "instrument_check_shared_parser": {
+    "planted_K": 1.0,
+    "scope": "all 960 cells at t = 900 s",
+    "seen": true
+  },
+  "instrument_check_snapshot_extractor": {
+    "planted_K": 2.5,
+    "planted_cell_index": 137,
+    "planted_time_s": 300.0,
+    "seen_in_planted_cell_K": 2.5,
+    "largest_change_elsewhere_K": 0.0,
+    "seen": true
+  },
+  "snapshot_times_s": [
+    0.0,
+    30.0,
+    60.0,
+    120.0,
+    300.0,
+    900.0
+  ],
+  "snapshot_min_max_K": {
+    "0": [
+      293.0,
+      293.0
+    ],
+    "30": [
+      293.057390679,
+      293.059997791
+    ],
+    "60": [
+      293.110799555,
+      293.119197765
+    ],
+    "120": [
+      293.130710102,
+      293.150094979
+    ],
+    "300": [
+      293.1846838,
+      293.233103259
+    ],
+    "900": [
+      293.295253117,
+      293.449030649
+    ]
+  },
+  "shared_colour_scale_K": [
+    293.0,
+    293.449030649
+  ],
+  "outlet_temperature": "NOT DEFINED -- the cooling channels are not resolved as a fluid region in this configuration, so no coolant stream and no outlet temperature exist; the defined surface heat removal is given instead",
+  "surface_heat_removal_final_W": 22.123033837520705,
+  "energy_closure_percent": 99.854140809497,
+  "per_cell_table": [
+    {
+      "cell": 1,
+      "peak_T_K": 293.419750851,
+      "peak_rise_K": 0.4197508510000034,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 2,
+      "peak_T_K": 293.30923932666667,
+      "peak_rise_K": 0.3092393266666704,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 3,
+      "peak_T_K": 293.30923932666667,
+      "peak_rise_K": 0.3092393266666704,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 4,
+      "peak_T_K": 293.30923932666667,
+      "peak_rise_K": 0.3092393266666704,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 5,
+      "peak_T_K": 293.30923932666667,
+      "peak_rise_K": 0.3092393266666704,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 6,
+      "peak_T_K": 293.30923932666667,
+      "peak_rise_K": 0.3092393266666704,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 7,
+      "peak_T_K": 293.30923932666667,
+      "peak_rise_K": 0.3092393266666704,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    },
+    {
+      "cell": 8,
+      "peak_T_K": 293.419750851,
+      "peak_rise_K": 0.4197508510000034,
+      "time_to_peak_s": 900.0,
+      "uncertainty": "not established from this configuration -- one mesh and one time step, so no discretisation error estimate is available; the value is the field as computed, not a value with a measured error bar"
+    }
+  ],
+  "max_spread_K": 0.110511524333333,
+  "max_spread_time_s": 900.0
+}
