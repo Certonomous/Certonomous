@@ -639,3 +639,32 @@ Residual **R8** (Amendment 1) is **partly closed**, and the part that is not clo
 ### A2.5 STATUS AFTER THIS AMENDMENT
 
 **Still not cleared to launch.** This amendment repairs a prediction and re-pins a hash; it authorises nothing. The run root is absent, the freeze window is open, and it closes at the first arm.
+
+### A2.6 SUPERSEDED-HASH INDEX — EVERY LINE IN THIS DOCUMENT THAT STILL CARRIES THE STRUCK md5
+
+**Why this exists.** Rule 6 forbids editing above an amendment, so §7 row 5, §10 and §17 still **spell** the superseded grading-path hash in the body, with the correction here at the foot. **A heading is not enough, because the realistic reader is a `grep`.** This index makes any grep of the struck value land on the correction.
+
+**THE STRUCK VALUE, SPELLED ONCE:** `d786e10d81d99233610fe8c636c3a47e`
+**THE GRADING PATH IS:** **`0ac111ef144a62111e36f676e8114af1`** (§A2.3)
+
+**Swept, not assumed.** The supervisor's instruction was to sweep rather than assume two sites. **There are EIGHT occurrences, not two** — a flat reading of "§7 row 5 and §10" would have missed four of the six stale ones.
+
+| line | section | occurrence | status |
+|---|---|---|---|
+| **234** | §7, instrument table **row 5** | the pinned value in the table a reader takes the pin from | **SUPERSEDED — read `0ac111ef…`** |
+| **343** | §10 opening | *"`so3_grade.py`, md5 …"* — the single most load-bearing statement in the document | **SUPERSEDED — read `0ac111ef…`** |
+| **347** | §10 verification list, item 1 | *recomputed on disk* | **SUPERSEDED** — a true record of the check performed at the **original** freeze, and no longer the current value |
+| **348** | §10 verification list, item 2 | *from the committed blob at `HEAD`* | **SUPERSEDED** — same |
+| **349** | §10 verification list, item 3 | *from the committed blob at `e1b760d9`* | **SUPERSEDED** — same |
+| **526** | §17 FREEZE | *"the grading path is fixed at this commit"* | **SUPERSEDED — read `0ac111ef…`** |
+| **611** | §A2.3 | the literal quoted as the object of the pin-site audit | **CORRECT IN CONTEXT** — this is the amendment describing the struck value |
+| **615** | §A2.3 | the `STRUCK` table row | **CORRECT IN CONTEXT** |
+| **this section** | §A2.6 | the struck value spelled once, above | **CORRECT IN CONTEXT** — the landing point |
+
+**SIX SITES ARE SUPERSEDED (234, 343, 347, 348, 349, 526). TWO ARE CORRECT IN CONTEXT (611, 615), plus this section's own.**
+
+**Why the line numbers stay true, and it is checked rather than asserted.** Every amendment to this document is **appended at the foot**, which shifts no line above it; and rule 6 forbids editing above an amendment at all. So these numbers are stable by the same rule that created the problem they index. **They were re-swept AFTER this section was appended and all eight are unchanged** — because the failure this whole item is built to catch is a claim that was true when written and was never re-checked after the thing it described changed (§16), and an index of line numbers is exactly the kind of claim that rots silently.
+
+**Two occurrences outside this document, for a reader grepping the repository rather than the file:**
+* `so3_chain_driver.sh:88` — the `STRUCK:` comment beside the live pin. **CORRECT IN CONTEXT**; the live assignment is at `:91` and carries `0ac111ef144a62111e36f676e8114af1`. **No executable path can reach the struck value.**
+* `docs/LAB_STATE.md:4807` — **SUPERSEDED and outside this item's territory.** It is the supervisor's board and the cross-session handoff channel; a lane does not edit it. Flagged to the supervisor, because a stale grading-path pin on the only channel other sessions inherit from is precisely what gets re-inherited.
