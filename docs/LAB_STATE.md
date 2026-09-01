@@ -4788,9 +4788,83 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T02:2xZ by dafoam-supervisor (TWENTY-FOURTH session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T04:16:58Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24a — **`SO-3` IS SETTLED AND IT IS A REAL `PASS`: BOTH ROWS, FD TABLE AT THE FINAL DESIGN POINT, PLATEAU PROVED PER PAIR — AND MY OWN S-23z BLOCK'S "FE-P IN FLIGHT, DO NOT RESTART" WAS TRUE FOR NINETY SECONDS AND IS NOW SUPERSEDED. THE DRAG REDUCTION WAS BOUGHT WITH LIFT AND THE ITEM'S OWN GRADER FORBIDS QUOTING IT ALONE** (2026-09-01T04:16:58Z, `date -u` at write)
+
+**Twenty-fifth session, re-formed after the subscription-switch fleet kill at ~04:10Z.** Live reading at re-formation, `HEAD` `d0fea770`: **NO dafoam solver is running.** The only two solvers on the box are heat-transfer's `chtMultiRegionSimpleFoam` (pids 1106549/1106550 and 1106872/1106873, both started 03:59). Nothing of mine is in flight; nothing of mine needs restarting.
+
+###### 1. THE CONTRADICTION ON MY OWN BOARD, RESOLVED — BOTH SIDES WERE TRUE
+
+`S-23z` boarded `SO-3` as **`FE-P` in flight, six of seven arms `rc=0`, DO NOT RESTART**, stamped **04:05:16Z**. The later commit `c600f527` reported it **COMPLETE AND GRADED**. **Both are correct and the gap between them is ninety-three seconds.** `STATUS.chain` reads `arm=FE-P rc=0 stamp=20260901T040709Z` then `chain=COMPLETE declared=7 executed=7 stamp=20260901T040709Z`. The chain finished **04:07:09Z**, before the kill. **The `pid` in `LAUNCH_LOG` is the wrapper and its death proves nothing either way — that warning stands and is the reason I read `STATUS.chain` rather than `ps`.**
+
+**`S-23z`'s DO-NOT-RESTART instruction is hereby SUPERSEDED, not struck: it was right when written.** The operative instruction now is that `SO-3` is **finished and must not be re-run**, for the different reason that re-running it would overwrite a graded result.
+
+###### 2. THE VERDICT, VERIFIED BY ME PERSONALLY THIS INVOCATION (`SUPERVISION_CHARTER` §3 check 3)
+
+**ITEM: `PASS`. ROWS: `{"SHIPPED": "PASS", "PATCHED": "PASS"}`.** Grade at `/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation/SO3_grade_20260901T040709Z.json`.
+
+**The bright line is satisfied and I checked the table itself, not the label.** DAFoam gates, every one, with its threshold:
+
+| gate | verdict | the number behind it |
+|---|---|---|
+| `G5J_objective` (the bright line, on the multipoint objective `J`, per row) | **`PASS`** both rows | worst `rel_err_pct` **0.189 %** SHIPPED, **0.253 %** PATCHED, against band D/E **5 %** |
+| `G5C_lift_per_scenario` (`CL`, per operating point) | **`PASS`** all three points, both rows | worst pair 1.043 % (point0 `shape[7]`), aggregate 0.056 / 0.037 / 0.045 % |
+| `G-DESIGNPOINT` — FD at the FINAL design point, `DAFOAM_CHARTER` §9 | **`PASS`** | `xopt` sha256 pinned per row, `SHIPPED f8d48081…`, `PATCHED ccc1bb80…`, `design_point: FINAL` on all four artefacts |
+| `G-ALPHA` operating points | **`PASS`** | α read back **3.13918623195176 / 5.13918623195176 / 7.13918623195176**, weights ⅓ each, `abs_deviation 0.0` on all twelve against a **1e-12** tolerance |
+| `G-NOOPT-ENDPOINT` | **`PASS`** | `n_optimiser_markers: 0` across 11 keys and 7 logs, scope honestly narrowed to the endpoint arms because the `O` arms run IPOPT by registration |
+| `G1_completion`, `G-STAGES`, `G-M2`, `G9_toolchain`, `G10_caps`, `G12_placement` | **`PASS`** | 7 declared, 7 executed, 7 `rc=0`; cells 4,032; age guard `ok: True` on all seven arms |
+| `G6_dot_product_duality` | **NOT MEASURED, NAMED** | AV-2 measured that seeding forward mode makes the primal FAIL on this exact case on BOTH images. Named, never composed into the verdict |
+
+**The plateau is proved PER PAIR, against the named neighbour, on 3-step ladders {1e-2, 1e-3, 1e-4} with a 10 % plateau tolerance** — and the grader records for each pair *which* neighbour it proved against (`"the LARGER neighbour"` / `"the SMALLER neighbour"`), which is what makes the reading auditable rather than asserted. `min_graded_required: 3`, `n_graded_pairs: 4`, `sign_flips: 0`, `excluded_by_reason: {}` — **nothing was excluded to make the band.**
+
+**Planted-zero control (`CLAUDE.md` rule 3): 8 readers, `n_not_born: 0`, and every `grader_plant_*_seen` field reads `true`** — `F_PATCHED`, `F_SHIPPED`, `X_PATCHED`, `X_SHIPPED`, `c5`, `cells`. Each reads its perturbation back from a file on disk under `grader_controls/`.
+
+###### 3. THE FREEZE, CHECKED BY HASH AND NOT BY ASSERTION (§3 check 4, and `CLAUDE.md` rule 2)
+
+* **Pre-registration committed BEFORE first compute.** `cases/dafoam/ladder-a/A1/curriculum_SO3/PREREGISTRATION.md` at **`ab27dff7`, 2026-09-01T03:21:46Z** (Amendment 2, §A2.6). First arm `MESH` started **03:30:48Z**. **Margin: 9 minutes 2 seconds, in the right direction.**
+* **The grading path IS the file that ran.** `so3_grade.py` md5 in the worktree = **`0ac111ef144a62111e36f676e8114af1`**; md5 of `git show HEAD:…so3_grade.py` = **`0ac111ef144a62111e36f676e8114af1`**; the Amendment 2 pin at `PREREGISTRATION.md:616` and `:648` = **`0ac111ef144a62111e36f676e8114af1`**. **Three-way identical.** The superseded §17 pin (`d786e10d…`, line 526) is struck in place with a superseded-hash index at §A2.6, exactly as rule 6 requires.
+* File mtimes corroborate rather than carry the check: `so3_grade.py` 03:15:32Z, `so3_chain_driver.sh` 03:16:06Z, both before the 03:21:46Z amendment that pinned them.
+
+###### 4. WHAT THE ITEM ACTUALLY SHOWS — AND THE READING ITS OWN GRADER FORBIDS
+
+**PATCHED row.** Weighted objective `J` **0.02180598 → 0.01828320** in **10 IPOPT majors** against a registered `max_iter` of 50, optimiser converged on its own tolerance with a convergence statement in the log. Per-point `CD` **0.017239 / 0.020911 / 0.027268 → 0.016255 / 0.017470 / 0.021125**.
+
+**⚠ AND THE LIFT WENT WITH IT. `CL` is UNCONSTRAINED in this item and it MOVED HARD: 0.31190 / 0.49877 / 0.66398 → −0.05676 / 0.15320 / 0.36119** — point 0 has gone **NEGATIVE**. The grade JSON's own `forbidden_readings` block names this: *"quoting the weighted-drag reduction without `CL_baseline` and `CL_final` beside it, because `CL` is UNCONSTRAINED in this item"*, and also forbids *"grading this row from the SIZE of its improvement"* and *"upgrading GATE REACHED to PASS because the endpoint FD passed — the endpoint FD validates the DESIGN, not the optimiser's convergence."* **`SO-3` is a PASS about the GRADIENT and the OPTIMISER MACHINERY. IT IS NOT AN AERODYNAMIC RESULT AND NOBODY MAY PRESENT IT AS ONE.** That instruction is in the demo lane's brief in those words.
+
+###### 5. THE REGISTERED PREDICTIONS — FOUR MISSES, AND THE INTERESTING ONE IS `P6`
+
+`P1` HIT (4,032 cells) · `P2` **MISS** (`CL` at α₀ out of band) · `P3` HIT · `P4` HIT · `P5` HIT (PATCHED `G5J` 4-of-4) · **`P6` MISS** · `P7` HIT · `P8` **MISS** on both `F` arms · `P9` HIT on all four wing angles · `P_COST` **MISS**.
+
+**`P6` registered that the SHIPPED row would `GATE FAIL` — the rotation defect reproducing — and it did not: the SHIPPED row PASSED.** `divergence_shipped_vs_patched` shows the two images DO differ (worst pair `shape[3]` on `CD0` at **24.17 %**, then `shape[7]` on `CL0` at **15.02 %**, then a tail below 8 %), **but both rows still land inside the 5 % band on `J` because the divergent components are the near-null ones.** `[INFERENCE, flagged]` this is the same `shape[7]`-is-tiny structure that broke `D19`'s plateau, seen from the other side: a component 35–70× smaller than its siblings can diverge 24 % between images and move the objective by nothing. **This is a finding and it is a candidate for the defect record's reach section — the defect's blast radius is objective-dependent.** Not acted on this session; boarded.
+
+`P8` MISS is clean good news: **34 of 34 declared evaluations succeeded on BOTH `F` arms**, `failure_fraction 0.0`.
+
+###### 6. COST, AND THE CALIBRATION ROW (`CLAUDE.md` rule 12, Sanaa 2026-08-23)
+
+**28.900 core-min MEASURED, gross == cleaned** (longest arm O-S is 475 wall s at `ranks 1`, nowhere near the 3600-s stall rule). **$0.02471 DERIVED, NOT MEASURED** at c7a.4xlarge $0.0513/core-h — the box cannot read its own billing. **Registered point 228.59 core-min, ceiling 595.0 — ratio 0.126×, the ceiling used to 4.9 %, no arm crossed its cap.**
+
+**The whole gap is one registered quantity: the two IPOPT arms were priced at their `max_iter` of 50 majors and converged in 10.** Predicted 103.0 each, actual **7.917** (O-S) and **6.950** (O-P). Every other arm ran 0.59–0.88× — ordinary conservatism. **Standing correction for the next optimisation registration in this family: price the optimiser at an EXPECTED major count and use `max_iter` as the CAP, never as the point estimate.**
+
+**WASTE, NAMED AND NOT ABSORBED: 0.167 core-min** — the single `MESH` arm of the accidental self-test launch at 02:41:37Z, quarantined at `/home/ubuntu/certonomous-runs/QUARANTINE-SO3-selftest-accidental-launch-20260901T0242Z`. Its immediate relaunch spent **zero**: the driver refused it `chain=REFUSED_ALREADY_BOUGHT`. **0.58 % of the item's spend, and the already-bought guard worked.**
+
+Landed as **`docs/COST_CALIBRATION.md` row `C-20260901T041651.792302Z-5291dbca`** (tool-allocated id, `scripts/append_record.py --allocate-id`).
+
+###### 7. WHAT I DISPATCHED ON THE STRENGTH OF THIS, AND WHAT IS STILL OWED
+
+Three lanes, at the §8 cap of three, none of them launching compute:
+
+1. **BUILD the compressible single-point optimisation** — Sanaa's branch order `055376a0` selected this branch and `S-23zz` measured that it was never built. Deliverables are a costed pre-registration, the instruments and a queue entry **NOT armed**. **The lane is instructed to STOP before any compute** so that I can do the two checks that are mine: the pre-registration-committed check, and reading the grader **as a diff**. **The `shape[7]` hazard is in the brief in full** — `D19` `all_two_sided=False`, `score_pct 21.63`, |dCD| 2.07e-4 against siblings 7.2e-3 / 9.3e-3 / 1.42e-2, **sign change at 1e-5** — with the requirement that the registration carry it on its face and register how the item handles it, because **an optimisation built on an unclosed plateau inherits an unverified gradient and the verdict must not imply otherwise.**
+2. **`SO-3` multipoint demo prep** — Sanaa's ruling is demo-when-it-lands and it landed. Bound to the DEMO MODE captures (`4905abdd`, `68b10335` — Act D shows 20 minutes everywhere) and the figure standard (`569346b3`), and to Katie's conventions. The `CL` instruction of §4 above is in its brief verbatim.
+3. **Act D demo-mode integration state, measured not inferred, then the GUI Act D sheet** — to return WIRED / HALF-WIRED / NOT_WIRED with evidence, and to explain the staged deletions of `cases/dafoam/drive_actd_demo_mode.py` and `cases/dafoam/ladder-a/A2_demo_mode_drive.json` sitting in the shared index. **Instructed to inspect and never revert.**
+
+**ON SANAA'S DESK, NOT ACTED ON:** the **60-minute-derivable question**. Untouched this session by design.
+
+**STILL OWED AND NAMED:** the `S-22n` §5 blocker — `D15`'s **patched** `shape[7]` plateau is one-sided at `[1.156 %, 21.630 %]`. Unaffected by anything above and still owed.
+
+**`[VERIFY]` markers for my successor:** everything in §2, §3 and §6 above I read out of the named artifacts **this invocation** and it is not marked VERIFY. **The three lanes' outputs in §7 are NOT yet verified by me** — they had not reported when this block was written.
 
 ##### UPDATE S-23zz — **`[SANAA-DIRECT]` COMPRESSIBLE BRANCH RESOLVED BY MEASUREMENT: THE SINGLE-POINT OPTIMISATION HAS NEVER RUN, AND IT CANNOT BE QUEUED TONIGHT BECAUSE IT WAS NEVER BUILT — `phase2=NOT_WIRED`. NOTHING FORCED, HONEST BLOCKER BOARDED AS THE RESUME POINT** (2026-09-01T04:0xZ, `date -u` at write)
 
