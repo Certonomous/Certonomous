@@ -1,0 +1,1647 @@
+{
+ "_what": "Act D ParaView render pass: geometry, meshes and fields",
+ "_preregistration": "cases/dafoam/ACTD_PARAVIEW_RENDER_PASS_PREREGISTRATION.md v1.1",
+ "_scope": "pictures of numbers already on disk; no new physical result",
+ "_utc": "2026-09-01T20:00:58Z",
+ "frames": [
+  {
+   "tag": "section_grid",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "field": null,
+    "alpha_deg": null,
+    "verdict": null
+   },
+   "rc": 0,
+   "wall_s": 1.866,
+   "core_min": 0.0311,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "points": 8316.0,
+    "camscale": 0.6
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 32138,
+    "modal_share": 0.03926702508960574,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_leading_edge",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "field": null,
+    "alpha_deg": null,
+    "verdict": null
+   },
+   "rc": 0,
+   "wall_s": 1.826,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "points": 8316.0,
+    "camscale": 0.055
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_leading_edge.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 14235,
+    "modal_share": 0.374578853046595,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "polar_field_alpha18_not_converged",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "1000",
+    "field": "U",
+    "alpha_deg": 18.0,
+    "verdict": "NOT CONVERGED"
+   },
+   "rc": 0,
+   "wall_s": 1.832,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "points": 8316.0,
+    "time": 1000.0,
+    "camscale": 0.6
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/polar_field_alpha18_not_converged.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 1860,
+    "modal_share": 0.0392258064516129,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_skin_mesh",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "surface": "baseline stored vertices"
+   },
+   "rc": 0,
+   "wall_s": 1.807,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_skin_mesh.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 7578,
+    "modal_share": 0.6883566308243727,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_gradient_on_skin",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "field": "gradient (stored)"
+   },
+   "rc": 0,
+   "wall_s": 1.83,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_gradient_on_skin.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 4637,
+    "modal_share": 0.6811039426523298,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_000",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 0,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.805,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_000.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 7578,
+    "modal_share": 0.6883566308243727,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_001",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 1,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.824,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_001.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 7589,
+    "modal_share": 0.6883566308243727,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_002",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 2,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.835,
+   "core_min": 0.0306,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_002.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 7611,
+    "modal_share": 0.6883566308243727,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_003",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 3,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.83,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_003.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9231,
+    "modal_share": 0.6888727598566309,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_004",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 4,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.819,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_004.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9220,
+    "modal_share": 0.689426523297491,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_005",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 5,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.815,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_005.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9665,
+    "modal_share": 0.6886648745519713,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_006",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 6,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.804,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_006.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 10916,
+    "modal_share": 0.690084229390681,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_007",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 7,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.8,
+   "core_min": 0.03,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_007.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 10164,
+    "modal_share": 0.6886702508960574,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_008",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 8,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.826,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_008.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9548,
+    "modal_share": 0.6883960573476703,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_009",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 9,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.815,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_009.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9033,
+    "modal_share": 0.6884211469534051,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_010",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 10,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.798,
+   "core_min": 0.03,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_010.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 10147,
+    "modal_share": 0.6892724014336917,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_011",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 11,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.812,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_011.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9289,
+    "modal_share": 0.6884749103942652,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_012",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 12,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.812,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_012.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9156,
+    "modal_share": 0.6883799283154122,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_013",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 13,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.839,
+   "core_min": 0.0306,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_013.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9114,
+    "modal_share": 0.6884283154121864,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_014",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 14,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.799,
+   "core_min": 0.03,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_014.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8843,
+    "modal_share": 0.6884408602150538,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_015",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 15,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.793,
+   "core_min": 0.0299,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_015.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8738,
+    "modal_share": 0.6884336917562724,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_016",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 16,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.808,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_016.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8880,
+    "modal_share": 0.6884623655913978,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_017",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 17,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.816,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_017.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8976,
+    "modal_share": 0.6884301075268817,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_018",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 18,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.837,
+   "core_min": 0.0306,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_018.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8848,
+    "modal_share": 0.6883745519713261,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_019",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 19,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.806,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_019.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8729,
+    "modal_share": 0.6883942652329749,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_020",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 20,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.824,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_020.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9797,
+    "modal_share": 0.6892706093189964,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_021",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 21,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.833,
+   "core_min": 0.0306,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_021.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9374,
+    "modal_share": 0.6890878136200717,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_022",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 22,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.827,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_022.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9298,
+    "modal_share": 0.6885501792114695,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_023",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 23,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.826,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_023.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8880,
+    "modal_share": 0.6884301075268817,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_024",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 24,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.852,
+   "core_min": 0.0309,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_024.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8841,
+    "modal_share": 0.6885698924731183,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_025",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 25,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.796,
+   "core_min": 0.0299,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_025.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8809,
+    "modal_share": 0.6883835125448029,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_026",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 26,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.817,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_026.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8768,
+    "modal_share": 0.6883870967741935,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_027",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 27,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.814,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_027.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9169,
+    "modal_share": 0.6885197132616487,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_028",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 28,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.846,
+   "core_min": 0.0308,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_028.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8653,
+    "modal_share": 0.6883817204301075,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_029",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 29,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.803,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_029.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8754,
+    "modal_share": 0.6883906810035842,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_030",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 30,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.817,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_030.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8721,
+    "modal_share": 0.6883906810035842,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_031",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 31,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.812,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_031.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8730,
+    "modal_share": 0.6883870967741935,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_032",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 32,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.828,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_032.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8785,
+    "modal_share": 0.6883906810035842,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_033",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 33,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.826,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_033.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8692,
+    "modal_share": 0.6883924731182796,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_034",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 34,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.83,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_034.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8670,
+    "modal_share": 0.6883853046594982,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_035",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 35,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.825,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_035.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8668,
+    "modal_share": 0.6883960573476703,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_036",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 36,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.84,
+   "core_min": 0.0307,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_036.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8670,
+    "modal_share": 0.6883996415770609,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_037",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 37,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.849,
+   "core_min": 0.0308,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_037.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9128,
+    "modal_share": 0.6884838709677419,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_038",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 38,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.857,
+   "core_min": 0.031,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_038.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8911,
+    "modal_share": 0.6884659498207886,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_039",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 39,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.826,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_039.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8929,
+    "modal_share": 0.6884587813620072,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_040",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 40,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.82,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_040.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8831,
+    "modal_share": 0.6884193548387096,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_041",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 41,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.841,
+   "core_min": 0.0307,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_041.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8826,
+    "modal_share": 0.6884283154121864,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_042",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 42,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.812,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_042.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8743,
+    "modal_share": 0.6883924731182796,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_043",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 43,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.813,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_043.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8779,
+    "modal_share": 0.6884301075268817,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_044",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 44,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.798,
+   "core_min": 0.03,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_044.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8832,
+    "modal_share": 0.6883906810035842,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_045",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 45,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.808,
+   "core_min": 0.0301,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_045.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8835,
+    "modal_share": 0.6883906810035842,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_046",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 46,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.831,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_046.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8838,
+    "modal_share": 0.6883906810035842,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "wing_morph_047",
+   "provenance": {
+    "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
+    "major_iteration": 47,
+    "surface": "stored, not interpolated"
+   },
+   "rc": 0,
+   "wall_s": 1.816,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "points": 1031.0,
+    "faces": 2016.0,
+    "camscale": 5.0301
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/wing_morph_047.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8884,
+    "modal_share": 0.6884050179211469,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  }
+ ],
+ "G-PV1a": {
+  "path": "/opt/paraview/bin/pvbatch",
+  "md5_measured": "82ec8db976f28f51f2003a56c04fc272",
+  "verdict": "PASS"
+ },
+ "G-PV1b": {
+  "path": "/opt/ParaView-5.13.3-egl-MPI-Linux-Python3.10-x86_64/bin/pvbatch-real",
+  "md5_measured": "dc272bb98d4ca91fd2f72dd3e89256b4",
+  "verdict": "PASS"
+ },
+ "checkmesh_reference": {
+  "section": 4032,
+  "wing": 38304
+ },
+ "morph": {
+  "frames_in_record": 48,
+  "major_iterations_matched": 48,
+  "major_iterations_unmatched": 0,
+  "iter0_reproduces_baseline_m": 1e-09,
+  "no_exaggeration": "Every coordinate in this file is at true scale. No displacement is amplified anywhere."
+ },
+ "core_min_total": 1.609,
+ "VERDICT": "PASS",
+ "_not_rendered": [
+  "A converged-angle field for the polar act. The sweep re-solves IN PLACE, so only the final angle's field survives on disk; the converged branch's fields were overwritten. Rendering a neighbouring angle and labelling it converged would be a fabricated provenance, so the gap is reported instead."
+ ]
+}
