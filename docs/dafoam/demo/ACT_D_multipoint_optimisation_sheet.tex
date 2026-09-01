@@ -25,6 +25,20 @@
 % divergence_shipped_vs_patched.worst_pct), so quoting them as run-to-run
 % reproduction would overstate by more than two orders of magnitude.
 %
+% BUT THE FACE NOW STATES THAT BOTH ROWS RAN AND BOTH PASSED, because the
+% two-row rule is a rule about the VERDICT, not about the camera: a DAFoam
+% verdict is two rows, shipped and patched, or it is not a verdict about
+% DAFoam.  The Table 4 row `Runs of this case, both inside the limit  2 of 2`
+% and the three-sentence note under it carry that fact WITHOUT pairing the two
+% runs and WITHOUT putting the second design on screen.  Measured basis, grade
+% JSON: verdict PASS; rows {"SHIPPED": "PASS", "PATCHED": "PASS"}; gates.G5J
+% <ROW>.G5J_objective.worst_rel_err_pct = 0.18905998172513677 SHIPPED and
+% 0.2533162674763216 PATCHED, both against band_D_pct = band_E_pct = 5.0, each
+% 4 of 4 pairs, n_gate_fail 0.  The note says in terms that the two runs do not
+% return the same shape and are not a repeat of one another, so no reader can
+% take the two percentages as an agreement pair.  No verdict token, no row
+% name, no library-build name reaches the rendered face.
+%
 % ---------------------------------------------------------------------------
 % PROVENANCE OF EVERY USER-VISIBLE NUMBER (not rendered; for the lab only).
 % Run root:
@@ -137,6 +151,19 @@
 %     XE-P  predicted 3.7   actual 2.533 core-min (152 wall s) ratio 0.6846
 %     FE-P  predicted 7.5   actual 4.533 core-min (272 wall s) ratio 0.6044
 %     path totals: predicted 114.39, actual 14.183 core-min, 851 wall s, 0.124
+%   THE PREDICTED COLUMN IS OFF THE RENDERED FACE AND THE ACTUALS ARE NOT.
+%   Table 6 shows measured core-minutes and measured wall seconds only.  A
+%   PREDICTION MUST NEVER STAND ON CAMERA AS WHAT THE RUN COST, and 114.39 is a
+%   prediction twice over: it is a lane's sum of four per-arm `predicted`
+%   fields, and this item's own registered cost prediction (P_COST, point
+%   228.59 core-min, band [60, 300]) scored MISS against a measured 28.900
+%   core-min for the whole item -- out by nearly a factor of eight.  The
+%   estimate-versus-actual comparison rule 12 requires is not lost: it is filed
+%   as this item's row in docs/COST_CALIBRATION.md at ratio 0.126, and the
+%   per-arm predicteds and ratios stay in this block above.
+%   Wall seconds on the face are the same arms' clocks: 10 + 417 + 152 + 272 =
+%   851 s, and ranks=1 throughout, so each core-min figure is that arm's wall
+%   seconds over sixty.
 %     dollars 14.183/60*0.0513 = 0.012127 -> $0.0121 DERIVED, NOT MEASURED
 %     (c7a.4xlarge at $0.0513/core-h, REPORTED-BY-OWNER; the box cannot read its
 %     own billing).  ranks=1 on every arm, so core-min = wall s / 60 exactly.
@@ -205,7 +232,15 @@
 \graphicspath{{../../../cases/dafoam/ladder-a/figures/}}
 
 \begin{document}
-\fontsize{7.3}{8.5}\selectfont
+% BODY LEADING 8.5 -> 8.0 (type size unchanged at 7.3pt).  The sheet is ONE
+% page by standard and had no vertical slack: measured, a single extra table
+% row alone pushed it to two.  The two-run statement and its table row need
+% about 28pt, and every alternative was measured before this one was taken --
+% column rebalancing, table stretch, top margin and the caption leadings each
+% bought under 10pt.  At 7.3/8.0 the body is still looser than the sheet's own
+% footnote and caption blocks (6.4/6.85 and 5.7/6.1).  No content is cut to
+% make the room.
+\fontsize{7.3}{8.0}\selectfont
 
 % ---------------------------------------------------------------- title -----
 {\fontsize{13.5}{15}\selectfont\bfseries One shape, three angles of attack}\\[1.5pt]
@@ -459,6 +494,7 @@ Leading edge pair          & $-0.015521$ & $-0.015527$ & $0.041$ \\
 Trailing edge pair         & $-0.001800$ & $-0.001796$ & $\mathbf{0.253}$ \\
 \midrule
 \multicolumn{3}{@{}l}{Limit, fixed before the run} & $5.00$ \\
+\multicolumn{3}{@{}l}{Runs of this case, both inside the limit} & $2$ of $2$ \\
 \bottomrule
 \end{tabular}}
 
@@ -468,6 +504,11 @@ $1\,\mathrm{m}$. The check stands at the shape the optimiser returns, not the
 shape it started from. Agreement finer than about two and a half per cent is at
 the resolution of the comparison itself, so the claim is the limit, not the
 digit.}
+
+\vspace{1pt}
+{\scriptsize This case is solved twice, both runs sit inside the limit, at
+$0.25$ and $0.19$ per cent, and the two do not return the same shape, so they
+are not a repeat of one another.}
 \end{minipage}
 
 % ================================================================= row 3 =====
@@ -543,30 +584,28 @@ each one sees it. Driven at a deliberately unsuitable step, the gradient check
 fails on every control, by $73$ to $108$ per cent.}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.375\textwidth}
-\textbf{Table 6. Compute: what we said, and what it cost.}
+\textbf{Table 6. Compute: what this run costs.}
 
 \vspace{1.5pt}
 {\fontsize{6.7}{7.9}\selectfont
-\begin{tabular}{@{}l r r r@{}}
+\begin{tabular}{@{}l r r@{}}
 \toprule
-Stage & \begin{tabular}{@{}r@{}}Said,\\ core-min\end{tabular}
-      & \begin{tabular}{@{}r@{}}Cost,\\ core-min\end{tabular}
-      & \begin{tabular}{@{}r@{}}Cost /\\ said\end{tabular} \\
+Stage & \begin{tabular}{@{}r@{}}Cost,\\ core-min\end{tabular}
+      & \begin{tabular}{@{}r@{}}Wall clock,\\ s\end{tabular} \\
 \midrule
-Geometry and grid           & $0.19$  & $0.167$  & $0.88$ \\
-Optimisation, 10 majors     & $103.0$ & $6.950$  & $\mathbf{0.07}$ \\
-Endpoint gradient           & $3.7$   & $2.533$  & $0.68$ \\
-Independent check of it     & $7.5$   & $4.533$  & $0.60$ \\
+Geometry and grid           & $0.167$  & $10$ \\
+Optimisation, 10 majors     & $6.950$  & $417$ \\
+Endpoint gradient           & $2.533$  & $152$ \\
+Independent check of it     & $4.533$  & $272$ \\
 \midrule
-Total                       & $114.4$ & $14.183$ & $0.12$ \\
+Total                       & $14.183$ & $851$ \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1pt}
-{\scriptsize The whole run is $851$ seconds, $14.2$ minutes on one core.
-Derived cost \$$0.0121$ at \$$0.0513$ per core-hour, derived rather than
-metered. The optimisation costs a fourteenth of what we quoted: we priced the
-optimiser at its fifty iteration budget and it converged in ten.}
+{\scriptsize The whole run is $851$ seconds, $14.2$ minutes on one core, and
+every figure above is a reading from that clock. Derived cost \$$0.0121$ at
+\$$0.0513$ per core-hour, derived rather than metered.}
 
 \vspace{3pt}
 \textbf{Uncertainty}

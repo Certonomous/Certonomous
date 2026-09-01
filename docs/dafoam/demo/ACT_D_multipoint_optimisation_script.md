@@ -29,6 +29,17 @@ never misstate a result, and it does not. The two rows are **not** a
 repeatability pair and must never be shown as one: their gradient components
 diverge by up to 24.17 per cent.
 
+**The face nonetheless states that both runs happen and both meet the limit.**
+The two row rule is a rule about the verdict, not about the camera: a DAFoam
+verdict is two rows, shipped and patched, or it is not a verdict about DAFoam.
+So the sheet carries one extra table row, `Runs of this case, both inside the
+limit — 2 of 2`, and a note saying the two runs do not return the same shape
+and are therefore not a repeat of one another. The measured basis is the grade
+file: worst relative error on the multipoint objective J is 0.189 per cent on
+one row and 0.253 per cent on the other, both against a five per cent band,
+four of four pairs each. **The second design never goes on screen and the two
+percentages are never offered as an agreement pair.**
+
 ---
 
 ## Stage order, and what is on screen at each beat
@@ -47,7 +58,7 @@ attack, 3.139, 5.139 and 7.139 degrees, weighted equally, at 10 m/s. One shape
 serves all three. Verify the gradient at the final shape.
 ```
 
-### 2. Restatement, confidence, cost estimate
+### 2. Restatement, confidence, and how cost is reported
 
 ```
 Restating: one shared set of eight shape controls, one objective, the equally
@@ -56,8 +67,12 @@ Thickness, enclosed area and leading edge radius are held as constraints.
 Confidence: the gradient path on this section is verified. The optimiser has
 not run this problem before, so the iteration count is a budget, not a
 promise.
-Estimate: 114 core-minutes, about ten cents.
+Cost: measured on this machine in core-minutes, stage by stage, and reported
+as the run goes.
 ```
+
+No estimate figure goes on screen at this beat. The cost the act shows is the
+one the run's own clock produces, and it is shown as each stage finishes.
 
 ### 3. One user assumption check
 
@@ -115,7 +130,7 @@ Table on screen, wall resolution:
 
 ```
 Geometry and grid: 10 seconds, before any optimiser time is committed.
-Cost so far, 0.167 core-minutes of a 114 core-minute estimate.
+Cost so far, 0.167 core-minutes, measured on this machine.
 ```
 
 ### 8. Solving
@@ -189,8 +204,18 @@ Cost line:
 
 ```
 This run costs 14.2 minutes on one core, 14.183 core-minutes, about one cent.
-We said 114 core-minutes. We priced the optimiser at its fifty iteration
-budget and it converged in ten.
+Geometry and grid 0.167, optimisation 6.950, endpoint gradient 2.533,
+independent check 4.533.
+Every one of those is a reading from this run's own clock.
+```
+
+Two-run statement, said with Table 4 on screen and never apart from it:
+
+```
+This case is solved twice, and each run is checked at its own final shape.
+Both sit inside the five per cent limit.
+The two runs do not return the same shape, so they are not a repeat of one
+another, and one of them is on this sheet.
 ```
 
 ---
@@ -244,18 +269,23 @@ item.
 | Leading edge pair | -0.015521 | -0.015527 | 0.041 |
 | Trailing edge pair | -0.001800 | -0.001796 | **0.253** |
 | Limit, registered | | | 5.00 |
+| Runs of this case, both inside the limit | | | 2 of 2 |
 
-| Stage | Said, core-min | Cost, core-min | Cost / said |
-|---|---|---|---|
-| Geometry and grid | 0.19 | 0.167 | 0.88 |
-| Optimisation, 10 majors | 103.0 | 6.950 | **0.07** |
-| Endpoint gradient | 3.7 | 2.533 | 0.68 |
-| Independent check of it | 7.5 | 4.533 | 0.60 |
-| Total | 114.4 | 14.183 | 0.12 |
+| Stage | Cost, core-min | Wall clock, s |
+|---|---|---|
+| Geometry and grid | 0.167 | 10 |
+| Optimisation, 10 majors | 6.950 | 417 |
+| Endpoint gradient | 2.533 | 152 |
+| Independent check of it | 4.533 | 272 |
+| Total | 14.183 | 851 |
+
+Every compute figure the act quotes is measured. The per stage predictions and
+their ratios stay off camera; the estimate against actual comparison for this
+item is filed in `docs/COST_CALIBRATION.md` at ratio 0.126.
 
 ---
 
-## NOT FOR CAMERA — three things a builder of this act must not do
+## NOT FOR CAMERA — four things a builder of this act must not do
 
 1. **Do not borrow a feasibility probe from another run.** This run's own first
    stage is the 10 second geometry and grid arm, and that is what the
@@ -273,6 +303,15 @@ item.
    is therefore already under twenty; nothing here is invented and nothing
    contradicts that instruction. **Whether the 20 minute display figure is meant
    to extend to this act is referred upward and is not decided here.**
+
+4. **Do not put a cost prediction on screen as what the run costs.** An earlier
+   draft of this act quoted 114 core-minutes at the restatement beat and again
+   at the cost beat. That figure is a sum of four per stage predictions, and
+   this item's own registered cost prediction scored `MISS` by nearly a factor
+   of eight. Every compute figure this act shows is now a reading: 0.167,
+   6.950, 2.533 and 4.533 core-minutes, 14.183 in total, 851 wall seconds. The
+   predictions and the ratios against them belong in the calibration ledger,
+   not on camera.
 
 ## NOT FOR CAMERA — the registered predictions that missed
 
