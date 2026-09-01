@@ -65,6 +65,8 @@ import matplotlib.colors as mcolors                             # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))
+import latex_style as LS                                        # noqa: E402
 import mesh_reader_actA as MR                                   # noqa: E402
 
 A24 = MR.A24
@@ -121,15 +123,12 @@ HAND_ABS_C = {           # airspeed -> (duct predicted degC, flat-plate degC)
 UNCERTAINTY_TEXT = ("not available - single grid, no grid-refinement "
                     "error estimate")
 
-plt.rcParams.update({
-    "font.size": 9,
-    "font.family": "serif",
-    "mathtext.fontset": "dejavuserif",
+# Text is set by LaTeX itself (Latin Modern), not by matplotlib's mathtext
+# imitation of it.  latex_style.apply() refuses if LaTeX did not in fact run.
+LS.apply(plt, base_font_size=9, extra={
     "axes.grid": True,
     "grid.alpha": 0.25,
     "grid.linewidth": 0.5,
-    "pdf.fonttype": 42,
-    "svg.fonttype": "none",
     "figure.dpi": 120,
 })
 
@@ -525,14 +524,15 @@ def fig_map_table(rows):
     for (r_i, c_i), cell in tb.get_celld().items():
         cell.set_linewidth(0.4)
         if r_i == 0:
-            cell.set_text_props(weight="bold", fontsize=7.2)
+            cell.set_text_props(fontsize=7.2)
             cell.set_facecolor("#e9e9ee")
         else:
             cell.set_facecolor("#ffffff" if r_i % 2 else "#f6f6f8")
-        if c_i == 2 and r_i > 0:
-            cell.set_text_props(weight="bold")
         if c_i == 7 and r_i > 0:
             cell.set_text_props(color="#7a1f1f", fontsize=7.2)
+    # LaTeX never sees matplotlib's font weight, so the header row and the
+    # peak-temperature column are bolded in the source instead.
+    LS.bold_cells(tb, lambda k: k[0] == 0 or (k[1] == 2 and k[0] > 0))
     ax2.set_title("The sixteen solved points, with units", fontsize=9.5, pad=6)
     fig.text(0.5, 0.028, MAP_CAPTION, ha="center", va="top", fontsize=8.2,
              color="#333333")
@@ -998,44 +998,35 @@ def measure_radiation():
 def build_assumptions(mesh, guard, rad, radial_locator):
     return [
         dict(heading="Single grid",
-             text="All sixteen points ran at one mesh level, %d cells across "
-                  "%d regions. A discretisation error bar needs at least "
-                  "three grids; none was run, so no numerical uncertainty is "
-                  "quoted for any row and none is estimated, interpolated or "
-                  "borrowed."
+             text="One mesh level: %d cells across %d regions. "
+                  "A discretisation error bar needs three grids. "
+                  "No numerical uncertainty is quoted for any row."
                   % (mesh["n_mesh_cells"], mesh["n_regions"]),
              measured=True),
         dict(heading="Steady points only",
              text="Each of the sixteen points is a separate converged steady "
-                  "state. Nothing here says how this body warms up, how long "
-                  "it takes to reach these temperatures, or how it responds "
-                  "to a change in load.",
+                  "state. Warm-up time and response to a load change are "
+                  "outside this result.",
              measured=True),
         dict(heading="Radiation neglected",
-             text="Radiation is switched off in all three regions "
-                  "(radiation off, radiationModel none), so heat leaves the "
-                  "body by conduction and forced convection alone. At the "
-                  "hottest surface temperature solved here a radiative path "
-                  "exists in the real part and is not represented.",
+             text="Radiation is off in all three regions. Heat leaves the "
+                  "body by conduction and forced convection alone. "
+                  "The real part has a radiative path; it is not represented.",
              measured=bool(rad["radiation_off_everywhere"])),
         dict(heading="Representative geometry and materials",
-             text="The body is a representative motor-in-duct wedge with "
-                  "constant conductivities of 40, 167 and 0.026 W/mK for "
-                  "core, housing and air. It is not a drawing of any "
-                  "particular product and the properties are not a supplier "
-                  "data sheet.",
+             text="The body is a representative motor-in-duct wedge. "
+                  "Conductivities are constant: 40, 167 and 0.026 W/mK for "
+                  "core, housing and air. It is not a particular product.",
              measured=False),
         dict(heading="Turbulence is modelled, not resolved",
-             text="The air side uses the k-omega SST closure. Turbulent "
-                  "transport is represented by a model, so the convective "
-                  "heat transfer carries that model's error, and no "
-                  "model-form uncertainty is quoted here.",
+             text="The air side uses the k-omega SST closure. Convective "
+                  "heat transfer carries that model's error. No model-form "
+                  "uncertainty is quoted.",
              measured=True),
         dict(heading="The peak is in the core",
-             text="The hottest solid cell is in the %s at %s degC, %s K above "
-                  "the housing peak. The margin to the 200 degC limit is "
-                  "computed on the core; the housing value is reported beside "
-                  "it and is not the hottest point."
+             text="The hottest solid cell is in the %s at %s degC. "
+                  "That is %s K above the housing peak. "
+                  "Margin to the 200 degC limit is computed on the core."
                   % (radial_locator["hottest_solid_region"],
                      T_FMT % radial_locator["hottest_solid_T_degC"],
                      T_FMT % (radial_locator["hottest_solid_T_degC"]
@@ -1077,7 +1068,7 @@ def fig_assumptions(items):
     ax.set_title("What this result assumes", fontsize=12.5, pad=-4, y=0.945)
     y = top
     for it, w in zip(items, wrapped):
-        ax.text(0.048, y, it["heading"], fontsize=9.6, weight="bold",
+        ax.text(0.048, y, LS.bold(LS.tex_text(it["heading"])), fontsize=9.6,
                 va="top", ha="left", color="#1a1a1a")
         ax.text(0.048, y - head_h, "\n".join(w), fontsize=8.2, va="top",
                 ha="left", color="#333333", linespacing=1.42)

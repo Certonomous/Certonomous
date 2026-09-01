@@ -53,6 +53,8 @@ CASE_COARSE = os.path.join(RUNS, "T25_MOD_L1")          # deltaT 0.5 s
 CASE_FINE = os.path.join(RUNS, "T25_MOD_L1_DT025")      # deltaT 0.25 s
 RECORD = os.path.join(RUNS, "T25_STEP_INDEPENDENCE.md")
 sys.path.insert(0, RUNS)
+sys.path.insert(0, os.path.dirname(HERE))
+import latex_style as LS                                   # noqa: E402
 import analyse_t25 as A                                    # noqa: E402
 
 PLANT = 1.234e-03          # scripts/roache_triple.py:169, not redefined
@@ -61,31 +63,16 @@ END_CELLS = (1, 8)         # one-based module cell numbers
 STEP_COARSE_S = 0.5
 STEP_FINE_S = 0.25
 
-# The screen's framing, approved by the heat-transfer supervisor and used
-# verbatim.  It is the only prose on the figure and it is the string the
-# display act puts on screen beside the table.
-CAPTION = (
-    "Halving the solver time step from 0.5 s to 0.25 s changed the module's "
-    "15-minute peak temperature rise by under 0.0003 K on every one of the "
-    "eight cells — 0.058 % on the two end cells and 0.047 % on the six "
-    "interior cells — and the largest disagreement at any point in the "
-    "900-second history was 0.00038 K, at the takeoff-to-cruise power step. "
-    "Both step sizes close the energy budget to better than 99.85 % of the "
-    "heat put in, the finer step leaving 0.073 % unaccounted against the "
-    "coarser step's 0.146 %. This is a two-point step-size check on an "
-    "ungated feasibility run: it shows the answer barely moves when the step "
-    "is halved, and it is not a convergence study, carries no error bar and "
-    "grades nothing.")
+# One caption line, at most 20 words, per the 03:10Z figure standard.  The
+# numbers live in the table beside it; the fuller reading of what a two-point
+# step check does and does not establish belongs to the sheet text, not to
+# the figure, which carries no paragraphs.
+CAPTION = ("Peak rise moves under 0.0003 K when the step halves. "
+           "Two step sizes only. Not a convergence study.")
 
-plt.rcParams.update({
-    "font.size": 9,
-    "axes.titlesize": 9,
-    "axes.labelsize": 9,
-    "mathtext.fontset": "dejavuserif",
-    "pdf.fonttype": 42,
-    "svg.fonttype": "none",
-    "figure.dpi": 150,
-})
+# Text is set by LaTeX itself (Latin Modern), shared with Act A via
+# latex_style, which refuses if LaTeX did not in fact run.
+LS.apply(plt, base_font_size=9, extra={"figure.dpi": 150})
 
 
 # --------------------------------------------------------------- reading
@@ -205,29 +192,24 @@ def fig_step_independence(d, out):
     ax1.set_xticks(cells)
     ax1.grid(alpha=0.3, lw=0.5)
     ax1.legend(fontsize=8, frameon=False)
-    ax1.set_title("The two step sizes, drawn on one axis.\n"
-                  "The markers sit on top of each other at this scale: that "
-                  "overlay is the result.", fontsize=9)
+    ax1.set_title("Peak rise per cell, both step sizes", fontsize=9)
 
     # --- panel 2: the difference, at the scale it actually has
     ax2.bar(cells, d["peak_rise_diff_K"] * 1e3, width=0.6, color="#1f4e79")
     ax2.axhline(d["largest_abs_diff_K"] * 1e3, ls="--", lw=1.1,
                 color="#c1440e")
     ax2.annotate(
-        f"largest disagreement anywhere in the history:\n"
-        f"{d['largest_abs_diff_K'] * 1e3:.5f} mK, at "
-        f"t = {d['largest_abs_diff_time_s']:.0f} s, cell "
-        f"{d['largest_abs_diff_cell']} (the takeoff-to-cruise power step)",
+        f"largest {d['largest_abs_diff_K'] * 1e3:.5f} mK, cell "
+        f"{d['largest_abs_diff_cell']}, "
+        f"t = {d['largest_abs_diff_time_s']:.0f} s",
         xy=(cells[-1], d["largest_abs_diff_K"] * 1e3),
-        xytext=(0.02, 0.90), textcoords="axes fraction",
+        xytext=(0.02, 0.92), textcoords="axes fraction",
         fontsize=7.5, color="#c1440e", va="top")
     ax2.set_xlabel("Module cell")
     ax2.set_ylabel("Peak rise, finer step minus coarser, mK")
     ax2.set_xticks(cells)
     ax2.grid(alpha=0.3, lw=0.5, axis="y")
-    ax2.set_title("The same eight numbers, subtracted.\n"
-                  "Note the axis: the whole range of this panel is under "
-                  "three ten-thousandths of a kelvin.", fontsize=9)
+    ax2.set_title("Difference, finer step minus coarser", fontsize=9)
 
     # --- panel 3: the numbers themselves
     ax3.axis("off")
@@ -241,21 +223,26 @@ def fig_step_independence(d, out):
          f"{rc[end]:.6f}", f"{rf[end]:.6f}",
          f"{rf[end] - rc[end]:+.4e}",
          f"{100.0 * (rf[end] - rc[end]) / rc[end]:+.4f}"],
-        [f"Peak rise, interior cells 2–7, K",
+        ["Peak rise, interior cells 2 to 7, K",
          f"{rc[inner]:.6f}", f"{rf[inner]:.6f}",
          f"{rf[inner] - rc[inner]:+.4e}",
          f"{100.0 * (rf[inner] - rc[inner]) / rc[inner]:+.4f}"],
         [f"Largest disagreement at any of the {d['n_write_times']} write "
          f"times, K",
-         "—", "—",
+         "--", "--",
          f"{d['largest_abs_diff_K']:.4e}",
          f"at t = {d['largest_abs_diff_time_s']:.0f} s, cell "
          f"{d['largest_abs_diff_cell']}"],
         ["Heat input left unaccounted by the energy budget, %",
          f"{100.0 - d['closure_percent_coarse']:.6f}",
          f"{100.0 - d['closure_percent_fine']:.6f}",
-         "—", "—"],
+         "--", "--"],
     ]
+    # Under usetex every cell is LaTeX source: the per-cent signs in the
+    # header and the row labels would otherwise comment out the rest of the
+    # line.  Numbers are untouched by tex_text.
+    hdr = [LS.tex_text(c) for c in hdr]
+    body = [[LS.tex_text(c) for c in row] for row in body]
     tb = ax3.table(cellText=body, colLabels=hdr, loc="upper center",
                    cellLoc="center",
                    colWidths=[0.34, 0.14, 0.14, 0.17, 0.21])
@@ -266,18 +253,19 @@ def fig_step_independence(d, out):
         cell.set_linewidth(0.5)
         if r == 0:
             cell.set_facecolor("#e8eef5")
-            cell.set_text_props(weight="bold", fontsize=7.5)
+            cell.set_text_props(fontsize=7.5)
         elif c == 0:
             cell.set_text_props(ha="left")
+    # LaTeX never sees matplotlib's font weight, so the header is bolded in
+    # the source instead.
+    LS.bold_cells(tb, lambda k: k[0] == 0)
     # The table is drawn from the top of ax3 downward and does not fill it,
     # so the caption is placed just under the last row rather than at the
     # bottom of the axes, which would leave a band of empty page.
     ax3.text(0.0, 0.34, _wrapped(CAPTION, 132), transform=ax3.transAxes,
              fontsize=7.8, va="top", ha="left")
 
-    fig.suptitle("Act C, C6.4 — does the answer depend on the time "
-                 "step? The same mesh, the same duty cycle, two step sizes.",
-                 fontsize=10)
+    fig.suptitle("Time step check, 0.5 s against 0.25 s", fontsize=10)
     for ext in ("pdf", "svg"):
         fig.savefig(f"{out}.{ext}", bbox_inches="tight")
     plt.close(fig)

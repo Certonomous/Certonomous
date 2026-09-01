@@ -16,7 +16,7 @@
     "worst_departure_K": 1.0837468075730605e-14,
     "seen": true
   },
-  "caption": "Halving the solver time step from 0.5 s to 0.25 s changed the module's 15-minute peak temperature rise by under 0.0003 K on every one of the eight cells \u2014 0.058 % on the two end cells and 0.047 % on the six interior cells \u2014 and the largest disagreement at any point in the 900-second history was 0.00038 K, at the takeoff-to-cruise power step. Both step sizes close the energy budget to better than 99.85 % of the heat put in, the finer step leaving 0.073 % unaccounted against the coarser step's 0.146 %. This is a two-point step-size check on an ungated feasibility run: it shows the answer barely moves when the step is halved, and it is not a convergence study, carries no error bar and grades nothing.",
+  "caption": "Peak rise moves under 0.0003 K when the step halves. Two step sizes only. Not a convergence study.",
   "step_independence_table": {
     "headers": [
       "Quantity",

@@ -43,21 +43,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS = "/home/ubuntu/Certonomous/verification/runs/T-family/T25_MODULE_runs"
 CASE = os.path.join(RUNS, "T25_MOD_L1")
 sys.path.insert(0, RUNS)
+sys.path.insert(0, os.path.dirname(HERE))
+import latex_style as LS                                   # noqa: E402
 import analyse_t25 as A                                    # noqa: E402
 
 SNAP_TIMES = [0.0, 30.0, 60.0, 120.0, 300.0, 900.0]
 PULSE_END = A.T_PULSE
 T_REF = A.T_REF
 
-plt.rcParams.update({
-    "font.size": 9,
-    "axes.titlesize": 9,
-    "axes.labelsize": 9,
-    "mathtext.fontset": "dejavuserif",
-    "pdf.fonttype": 42,
-    "svg.fonttype": "none",
-    "figure.dpi": 150,
-})
+# Text is set by LaTeX itself (Latin Modern).  Act A and Act C share this one
+# style module, so both acts carry the same serif text and the same maths.
+LS.apply(plt, base_font_size=9, extra={"figure.dpi": 150})
 
 
 # ------------------------------------------------------- mesh, my code path
@@ -244,12 +240,10 @@ def fig_snapshots(rects, snaps, out):
                ha="center", va="bottom", fontsize=7)
     cb.ax.text(0.5, -0.02, f"min {vmin:.6f} K", transform=cb.ax.transAxes,
                ha="center", va="top", fontsize=7)
-    fig.suptitle("Module temperature on the computational mesh: "
-                 "960 finite-volume cells, each drawn at its own extent and "
-                 "coloured by its own stored value.\n"
-                 "One colour scale is shared by all six frames and spans the "
-                 "full range of the data shown -- nothing is clipped.",
-                 fontsize=9)
+    # Title at most 10 words.  How the cells are drawn, and the fact that one
+    # unclipped colour scale is shared by all six frames, are stated in the
+    # sheet text -- the 03:10Z standard keeps that explanation off the figure.
+    fig.suptitle("Module temperature on the mesh, 960 cells", fontsize=9)
     for ext in ("pdf", "svg"):
         fig.savefig(f"{out}.{ext}", bbox_inches="tight")
     plt.close(fig)
@@ -310,15 +304,9 @@ def fig_uniformity(times, spread, qout, out):
     a2.set_ylabel(r"Heat rate $\dot{Q}$, W")
     a2.set_xlim(0.0, A.T_END)
     a2.legend(fontsize=7.5, loc="center right")
-    a2.text(0.015, 0.87,
-            "No outlet coolant temperature is shown because none exists in "
-            "this configuration:\nthe cooling channels are not resolved as "
-            "fluid, so there is no coolant stream to take an outlet\n"
-            "temperature from. This panel shows the surface heat removal "
-            "that is defined instead.",
-            transform=a2.transAxes, fontsize=7, va="top",
-            bbox=dict(boxstyle="round,pad=0.35", fc="#fdf6e3", ec="0.6",
-                      lw=0.6))
+    # The panel shows surface heat removal.  Why there is no outlet coolant
+    # temperature -- the channels are not resolved as fluid -- is stated in
+    # the sheet text; the figure carries no paragraph.
     for ext in ("pdf", "svg"):
         fig.savefig(f"{out}.{ext}", bbox_inches="tight")
     plt.close(fig)
@@ -341,18 +329,18 @@ def fig_table(table, out):
         cell.set_linewidth(0.5)
         if r == 0:
             cell.set_facecolor("#e8eef5")
-            cell.set_text_props(weight="bold", fontsize=7.5)
-    ax.set_title("Peak temperature and time to peak, per cell\n"
-                 "Volume-averaged over the 120 mesh cells of each cell; "
-                 "coolant reference temperature 293.000000 K",
+            cell.set_text_props(fontsize=7.5)
+    # LaTeX never sees matplotlib's font weight, so the header is bolded in
+    # the source instead.
+    LS.bold_cells(tb, lambda k: k[0] == 0)
+    ax.set_title("Peak temperature and time to peak, per cell",
                  fontsize=9, pad=12)
+    # One caption line, at most 20 words.  The table's own "not established"
+    # column already states the absence of an error bar; why it is absent, the
+    # cell averaging and the 5 s sampling belong to the sheet text.
     ax.text(0.0, -0.10,
-            "Uncertainty column: not established from this configuration. "
-            "One mesh and one time step were run in this arm, so no\n"
-            "discretisation error estimate is available. Each value above is "
-            "the field as computed, not a value carrying a measured\n"
-            "error bar. The peak is the largest of 181 samples taken every "
-            "5 s, so the time to peak is resolved to 5 s.",
+            "Uncertainty is not established on a single mesh and a single "
+            "time step. No error bar is quoted.",
             transform=ax.transAxes, fontsize=7, va="top", ha="left")
     for ext in ("pdf", "svg"):
         fig.savefig(f"{out}.{ext}", bbox_inches="tight")

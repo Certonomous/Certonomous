@@ -61,6 +61,8 @@ import numpy as np                                             # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", "..", ".."))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))
+import latex_style as LS                                       # noqa: E402
 import mesh_reader_actA as MR                                  # noqa: E402
 
 A24 = MR.A24
@@ -91,15 +93,9 @@ YPLUS_MAX = {10: 0.4037, 20: 0.7515, 30: 1.0790, 40: 1.3970}
 YPLUS_SOURCE = os.path.join(REPO, "docs", "campaigns", "T-family",
                             "CASE3_MAP_RESULTS.md")
 
-plt.rcParams.update({
-    "font.size": 9,
-    "axes.titlesize": 9,
-    "axes.labelsize": 9,
-    "mathtext.fontset": "dejavuserif",
-    "pdf.fonttype": 42,
-    "svg.fonttype": "none",
-    "figure.dpi": 150,
-})
+# Text is set by LaTeX itself (Latin Modern), shared with every other act via
+# latex_style, which refuses if LaTeX did not in fact run.
+LS.apply(plt, base_font_size=9, extra={"figure.dpi": 150})
 
 
 def refuse(msg):

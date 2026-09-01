@@ -90,32 +90,32 @@
     {
       "heading": "Single grid",
       "measured": true,
-      "text": "All sixteen points ran at one mesh level, 39680 cells across 3 regions. A discretisation error bar needs at least three grids; none was run, so no numerical uncertainty is quoted for any row and none is estimated, interpolated or borrowed."
+      "text": "One mesh level: 39680 cells across 3 regions. A discretisation error bar needs three grids. No numerical uncertainty is quoted for any row."
     },
     {
       "heading": "Steady points only",
       "measured": true,
-      "text": "Each of the sixteen points is a separate converged steady state. Nothing here says how this body warms up, how long it takes to reach these temperatures, or how it responds to a change in load."
+      "text": "Each of the sixteen points is a separate converged steady state. Warm-up time and response to a load change are outside this result."
     },
     {
       "heading": "Radiation neglected",
       "measured": true,
-      "text": "Radiation is switched off in all three regions (radiation off, radiationModel none), so heat leaves the body by conduction and forced convection alone. At the hottest surface temperature solved here a radiative path exists in the real part and is not represented."
+      "text": "Radiation is off in all three regions. Heat leaves the body by conduction and forced convection alone. The real part has a radiative path; it is not represented."
     },
     {
       "heading": "Representative geometry and materials",
       "measured": false,
-      "text": "The body is a representative motor-in-duct wedge with constant conductivities of 40, 167 and 0.026 W/mK for core, housing and air. It is not a drawing of any particular product and the properties are not a supplier data sheet."
+      "text": "The body is a representative motor-in-duct wedge. Conductivities are constant: 40, 167 and 0.026 W/mK for core, housing and air. It is not a particular product."
     },
     {
       "heading": "Turbulence is modelled, not resolved",
       "measured": true,
-      "text": "The air side uses the k-omega SST closure. Turbulent transport is represented by a model, so the convective heat transfer carries that model's error, and no model-form uncertainty is quoted here."
+      "text": "The air side uses the k-omega SST closure. Convective heat transfer carries that model's error. No model-form uncertainty is quoted."
     },
     {
       "heading": "The peak is in the core",
       "measured": true,
-      "text": "The hottest solid cell is in the core at 107.7 degC, 4.1 K above the housing peak. The margin to the 200 degC limit is computed on the core; the housing value is reported beside it and is not the hottest point."
+      "text": "The hottest solid cell is in the core at 107.7 degC. That is 4.1 K above the housing peak. Margin to the 200 degC limit is computed on the core."
     },
     {
       "heading": "Mesh identity is checked, not assumed",
