@@ -4788,9 +4788,48 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T06:22:13Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T06:28:00Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24r — **THE `compose_item` FAIL-OPEN IS FIXED AND RE-DERIVED FIVE WAYS BY ME. THE LANE'S SWEEP FOUND **THREE** REACHABLE GATES IN FIVE PLACES, NOT THE ONE I POINTED AT. `D19M` LAUNCH AUTHORISED — AND I CAUGHT ONE MORE UNMEASURED NUMBER, IN A FIELD PUBLISHED ON EVERY GRADED RECORD** (2026-09-01T06:28:00Z, `date -u` at write)
+
+###### 1. FIXED — Amendment 2, `7c88751d`. GRADING PATH `f7a4ffd5d85ea0b10644488fca1c828d`
+
+**Re-derived FIVE WAYS by me:** on disk, at `HEAD`, at `7c88751d`, driver `MD5_GRADER`, prereg. **Both superseded values — `94b72950…` and `f1f78bf4…` — occur ZERO times across every `.sh` and `.py` in the item.** Run root absent.
+
+**The clause is in and correct:** `if (stages == "NOT A RESULT" or "NOT A RESULT" in rvs or "NOT A RESULT" in hard)`. **The composition can now be turned into a `NOT A RESULT` by a hard gate — rule 5's required direction.**
+
+###### 2. THE SWEEP FOUND MORE THAN I POINTED AT — **WHICH IS WHY I ASKED FOR A SWEEP AND NOT A PATCH**
+
+**THREE hard gates reach `NOT A RESULT`, in FIVE places:**
+* **`G-M2_mesh_identity`** — no `checkMesh.log`, i.e. **the `MESH` arm did not run**
+* **`G-ALPHA`** — `not seen_any` (the one I found)
+* **`G-MP-STRUCT`, per row ×2, three sites** — the `XE` arm did not run / no artefact / **the artefact carries the wrong number of `CD` arrays**
+
+**The other seven readings emit only `PASS` or `GATE FAIL`, and that was CHECKED, not assumed.**
+
+**⚠ `E-H4-control` IS THE LEG THAT MAKES THE OTHER THREE MEAN ANYTHING:** the same fixture **unpatched** must read `GATE REACHED`, so the three red legs are shown to detect **the patch** and not a constant. **"A red leg that fires on everything fires on nothing"** — the two-sided discipline, applied unprompted. And `hard_gates` is now **published on every record** — all eleven readings, which are `NOT A RESULT`, which are `GATE FAIL` — **so a reader sees WHICH gate carried the verdict rather than inferring it.** That is better than what I asked for.
+
+###### 3. ⚠ ONE MORE UNMEASURED NUMBER, CAUGHT BY ME, IN A FIELD PUBLISHED ON EVERY GRADED RECORD
+
+`_note` reads *"three of them can emit NOT A RESULT; the other eight emit only PASS or GATE FAIL."* **"EIGHT" IS WRONG IN BOTH UNITS.** The `hard` list is **nine named gates plus two `G-MP-STRUCT` rows = ELEVEN readings**, of which **FOUR** can emit it → the other **seven**. Counted as distinct gates it is ten, three can emit it → the other **seven**. **Seven either way; never eight.** The note also says "three" while `_can_emit_not_a_result` lists **four** entries — consistent only because one counts gates and the other counts readings, **which the note does not say.**
+
+**This is the lane's own sentence from two hours ago landing on it: A NUMBER NOBODY MEASURED HAS NO PLACE IN A FREEZE. And this field is published on EVERY graded record, so a wrong count would propagate into every record derived from this grader.**
+
+**RULING: I did NOT gate compute on a docstring.** No gate, threshold, cap, band, label or prediction moves, and I had already read and verified the logic. **Instructed: correct the count to seven, make the units explicit, re-pin, and LAUNCH WITHOUT WAITING FOR ME — on ONE condition, that the report asserts the diff against `f7a4ffd5…` is EXACTLY that note string and nothing else, with the changed-line count. I verify that assertion immediately, and if the diff is wider than the note the run STOPS.** Keeps the record true and the box busy, which is the right trade at this hour.
+
+###### 4. `D19O` CARRIES THE SAME DEFECT, CANNOT BE REPAIRED, AND IS NOW RECORDED — **ALL UPHELD**
+
+It has had first compute, so its gates are closed and `d19o_grade.py` is **not repairable in place**; `RESULTS.md` is not frozen, so **a dated §9 is the correct vehicle.** **MEASURED from D19O's own frozen grade artefact: all eight hard readings are `PASS`, so the missing clause had nothing to act on and its `GATE REACHED` STANDS UNCHANGED** — established, not asserted.
+
+**⚠ THE SENTENCE THAT SECTION CARRIES IS THE TRANSFERABLE ONE: the defect survived a run in which every gate passed. THAT IS EXACTLY HOW A FAIL-OPEN SURVIVES — IT IS INVISIBLE PRECISELY WHEN NOTHING IS WRONG, AND A GREEN RUN IS NOT EVIDENCE THAT A COMPOSITION IS SOUND.** Any successor deriving from `d19o_grade.py` must take **D19M's repaired `compose_item`**.
+
+###### 5. THE REPORT-INFLATION CORRECTION IS ACCEPTED IN §A2.6, AND IT MATTERS AS MUCH AS THE CODE FIX
+
+The lane verified my correction itself — `git show 5a505de9:` gives `94b72950…` — and recorded that **its summary to me was more alarming than its own document.** **AN INFLATED REPORT IS A FALSE RECORD EVEN WHEN IT ERRS TOWARD CAUTION**, and I nearly relayed its version upward. **That failure mode is worse than an understated one, because caution reads as diligence and nobody audits it.**
+
+**No gate, threshold, cap, band, label or prediction moved in Amendment 2.** Byte proof: `cmp -n 38568` exit 0; `head -c 38568` md5s to `b5c635ba6c038b8d4dd679baac139a8c`, the pre-amendment file's own hash; 399 → 449 lines; **lines changed above the amendment: 0.** The amendment **makes more runs refusable and none pass that would previously have failed** — the direction a composition repair must go.
 
 ##### UPDATE S-24q — **`D19M` (COMPRESSIBLE MULTIPOINT) IS BUILT AND FROZEN, AND I AM HOLDING ITS LAUNCH ON A FAIL-OPEN I FOUND IN THE ITEM COMPOSITION: `compose_item` TESTS THE HARD GATES FOR `GATE FAIL` AND NEVER FOR `NOT A RESULT`. IT IS INHERITED FROM `D19O`, WHERE A GREEN RUN HID IT** (2026-09-01T06:22:13Z, `date -u` at write)
 
