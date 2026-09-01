@@ -44,7 +44,30 @@ set -u
 
 R="/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap"
 OUT="${R}/JF1_WATCH_FINDINGS.log"
+
+# WHAT IS WATCHED IS AN ARGUMENT, NOT A CONSTANT.  The first arming of this
+# daemon hardcoded the E1 chain; when that chain finished, re-arming it on the
+# next rung meant editing the file, and an edited watcher is a watcher whose
+# validated selftest has to be re-earned.  The tracked set and the chain log are
+# now passed in, so the same validated binary watches every rung.
+#
+#   --track="A B C"     run roots under ${R} to watch
+#   --chainlog=NAME     the driver log under ${R} whose terminal lines are read
+#
+# The defaults are the E1 set, so an argument-free invocation behaves exactly as
+# the validated 2026-09-01 arming did.
 TRACK="JF1G_P0_C2_CMU010_A0 JF1E_E1_CMU010_A0 JF1E_E1_CMU020_A0 JF1E_E1_CMU040_A0"
+CHAINLOG="JF1E_E1_CHAIN.log"
+for a in "$@"; do
+  case "$a" in
+    --track=*)    TRACK="${a#*=}" ;;
+    --chainlog=*) CHAINLOG="${a#*=}" ;;
+    --selftest)   : ;;
+    *) echo "REFUSED: unrecognised argument '$a'"; exit 3 ;;
+  esac
+done
+NTRACK=$(echo ${TRACK} | wc -w | tr -d ' ')
+[ "${NTRACK}" -ge 1 ] || { echo "REFUSED: --track is empty -- a watcher with nothing to watch"; exit 3; }
 
 # Stack frames and fatal headers.  NOT bare words.
 STRICT='^#[0-9]+ +(Foam::|\?\?)|FOAM FATAL ERROR|FOAM FATAL IO ERROR|sigFpe::sigHandler|sigSegv::sigHandler|Out of memory|std::bad_alloc'
@@ -102,7 +125,8 @@ selftest() {
   return $fail
 }
 
-if [ "${1:-}" = "--selftest" ]; then
+case " $* " in *" --selftest "*) SELFTEST_ONLY=1 ;; *) SELFTEST_ONLY=0 ;; esac
+if [ "${SELFTEST_ONLY}" = "1" ]; then
   echo "== JF1 WATCHER FILTER SELFTEST =="
   if selftest; then echo "== SELFTEST PASS =="; exit 0; else echo "== SELFTEST FAIL =="; exit 2; fi
 fi
@@ -122,7 +146,7 @@ if ! selftest >> "${OUT}" 2>&1; then
   exit 2
 fi
 
-log "WATCHER ARMED pid=$$ (OS daemon; survives every agent) tracking: ${TRACK}"
+log "WATCHER ARMED pid=$$ (OS daemon; survives every agent) tracking ${NTRACK}: ${TRACK}  chainlog ${CHAINLOG}"
 
 declare -A SEEN
 CHAINSEEN=""
@@ -173,7 +197,7 @@ for i in $(seq 1 480); do        # 480 x 30 s = 4 h ceiling
   done
 
   # (4) THE CHAIN DRIVER'S OWN TERMINAL STATES
-  cl="${R}/JF1E_E1_CHAIN.log"
+  cl="${R}/${CHAINLOG}"
   if [ -f "$cl" ]; then
     ev=$(grep -aE "LINK FAILED|CHAIN STOPPED|CHAIN COMPLETE" "$cl" 2>/dev/null | tr '\n' ';')
     if [ -n "${ev}" ] && [ "${ev}" != "${CHAINSEEN}" ]; then
@@ -182,12 +206,12 @@ for i in $(seq 1 480); do        # 480 x 30 s = 4 h ceiling
     fi
   fi
 
-  if [ "${nterm}" -ge 4 ]; then
-    log "ALL FOUR TRACKED RUNS TERMINAL -- watcher standing down"
+  if [ "${nterm}" -ge "${NTRACK}" ]; then
+    log "ALL ${NTRACK} TRACKED RUNS TERMINAL -- watcher standing down"
     exit 0
   fi
   sleep 30
 done
 
-log "WATCHER CEILING REACHED (4 h) with ${nterm}/4 terminal -- standing down, runs NOT abandoned"
+log "WATCHER CEILING REACHED (4 h) with ${nterm}/${NTRACK} terminal -- standing down, runs NOT abandoned"
 exit 0
