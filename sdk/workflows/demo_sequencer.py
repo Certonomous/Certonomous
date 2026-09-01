@@ -77,6 +77,35 @@ from .demo_mode import (BANNERS, STAGES, DemoAct, DemoContractError,
                         translate_chips, validate_act)
 
 
+#: The mesh slicer, loaded from the repository script that owns it. Loaded BY
+#: EXPLICIT PATH rather than by import, the same way ``_jf1_geometry`` reaches
+#: the surface generator: the implementation belongs beside the other repository
+#: scripts, and a second copy vendored into this package would be a copy free to
+#: drift from the one a person runs by hand. A moved tree returns None and the
+#: meshing stage simply shows no grid.
+_SLICER_SOURCE = Path("/home/ubuntu/Certonomous/scripts/polymesh_slice_payload.py")
+_slicer_cache: list = []
+
+
+def _load_slicer():
+    if _slicer_cache:
+        return _slicer_cache[0]
+    module = None
+    if _SLICER_SOURCE.is_file():
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "polymesh_slice_payload", _SLICER_SOURCE)
+        if spec is not None and spec.loader is not None:
+            module = importlib.util.module_from_spec(spec)
+            try:
+                spec.loader.exec_module(module)
+            except Exception:                                  # noqa: BLE001
+                module = None
+    _slicer_cache.append(module)
+    return module
+
+
 def _translated(node):
     """Render every fidelity chip in a payload as its plain-English meaning.
 
@@ -351,7 +380,37 @@ class Sequencer:
 
         record = self.act.run_record()
         census = dict(self.act.agent_census())
+        discussions = self._checked_discussions()
         stages: dict[str, dict] = {}
+
+        # THE BODY IS ON SCREEN BEFORE THE FIRST WORD IS SPOKEN.
+        #
+        # Sanaa, 2026-09-01: "The uploaded STL renders the moment it is loaded
+        # (no 'surface renders here once it lands', no 'no surface loaded'
+        # during planning)." Measured before this: the only announcement was
+        # inside the geometry stage, which is the FOURTH of nine, so a viewer
+        # watched the prompt, the restatement and the assumption go by with an
+        # empty stage carrying a line of placeholder prose where the body
+        # belongs. The stage still does its own work -- it is the stage that
+        # MEASURES the body against the solved section and refuses if they
+        # disagree -- and nothing about that moves. This only puts the picture
+        # up first, which is what a person who has just handed over a file
+        # expects to see.
+        # ONE ANNOUNCEMENT, NOT TWO. The geometry stage's own call is skipped
+        # when this one lands (`self._announced`), because two announcements of
+        # one body is two fetches of the same surface and a second cycle of the
+        # viewport, and the live check counts them.
+        self._announced = False
+        try:
+            body = self.act.geometry()
+        except Exception:                                      # noqa: BLE001
+            body = None       # the geometry stage will raise it properly, there
+        if body is not None:
+            from . import announce_geometry
+
+            announce_geometry(emit, name=body.served_stl.name,
+                              label=body.display_label)
+            self._announced = True
 
         for stage in STAGES:
             self._publish(emit, "stage.begin", {
@@ -360,6 +419,16 @@ class Sequencer:
             })
             handler = getattr(self, f"_stage_{stage}")
             published = handler(emit, script, record)
+            self._speak_discussion(stage, script, discussions)
+            # THE REPORT CLOSES THE ACT, AND IT CLOSES IT LAST. Fired from
+            # inside the results stage it landed BEFORE that stage's own
+            # discussion beat, so the Conclusion heading opened above a
+            # specialist still talking about the numbers. Measured on the
+            # assembled act, not reasoned: the numericist's closing entry
+            # arrived at sequence 1292, three publications after the
+            # Conclusion phase at 1289.
+            if stage == STAGES[-1]:
+                self._stage_closing(emit, script)
             if published is not None:
                 # INVARIANT 2, asserted centrally.
                 if published not in self._published:
@@ -372,6 +441,49 @@ class Sequencer:
 
         self._assert_not_all_at_once()
         return {"stages": stages, "emitted": len(self._emitted)}
+
+    # -- the expert-agent discussion ----------------------------------------
+    def _checked_discussions(self) -> dict:
+        """The act's discussion beats, validated BEFORE the screen lights.
+
+        A beat keyed to a stage that does not exist is a beat that silently
+        never plays, and the act's author would have no way to tell that from
+        one that played and said nothing. So an unknown stage name and an
+        unknown role are both refusals here, at validation time, with the
+        screen still dark, in the same spirit as the rest of this sequencer.
+        """
+        beats = dict(self.act.discussions() or {})
+        for stage, entries in beats.items():
+            if stage not in STAGES:
+                raise SequencerRefused(
+                    f"the act keys a discussion beat to {stage!r}, which is "
+                    f"not one of the act's stages, so it would never be "
+                    f"spoken and nothing would say so")
+            for role, lines in entries:
+                if role not in DemoAct.DISCUSSION_ROLES:
+                    raise SequencerRefused(
+                        f"{role!r} is not a transcript role this act can "
+                        f"speak as; the page gives each role its own accent "
+                        f"and an unknown one would render as nobody")
+                for line in lines:
+                    check_running_line(line, tense="past")
+        return beats
+
+    def _speak_discussion(self, stage: str, script, beats: dict) -> None:
+        """Speak the beats that belong to the stage just finished.
+
+        AFTER the stage, not before: the geometry summary follows the geometry,
+        the model choice follows the plan it belongs to, and the closing
+        numerics follow the numbers. One bulleted entry per speaker, which is
+        what makes consecutive beats read as a conversation between several
+        agents rather than as one narrator changing subject.
+        """
+        if script is None:
+            return
+        from . import bullets
+
+        for role, lines in beats.get(stage, ()):  # already validated
+            bullets(getattr(script, role), *lines)
 
     # -- the nine stages ----------------------------------------------------
     def _stage_prompt(self, emit, script, record) -> dict:
@@ -430,10 +542,18 @@ class Sequencer:
         # Refuses here, on its own stage, rather than letting a later stage
         # render a sentence the measurement does not support.
         sentence = g.solved_geometry_sentence(mesh.cell_count)
-        from . import announce_geometry
+        # ALREADY ON SCREEN. :meth:`run` announces the body before the first
+        # stage opens, so a viewer sees their surface through the planning
+        # beats instead of a placeholder. Announcing it again here would be a
+        # second fetch of the same file and a second cycle of the viewport for
+        # no new fact. The stage's real work -- measuring the supplied body
+        # against the solved section and refusing when they disagree -- is the
+        # line above, and it is untouched.
+        if not getattr(self, "_announced", False):
+            from . import announce_geometry
 
-        announce_geometry(emit, name=g.served_stl.name,
-                          label=g.display_label)
+            announce_geometry(emit, name=g.served_stl.name,
+                              label=g.display_label)
         return self._publish(emit, "demo.geometry", {
             "stage": "geometry",
             "label": g.display_label,
@@ -596,9 +716,12 @@ class Sequencer:
         just written and checked against the solved grid, so the picture and
         the numbers are the same grid.
 
-        ``drawn`` reports the cell-by-cell draw, which is a separate renderer
-        and is still NOT delivered here: it stays False, and nothing on screen
-        implies a draw that did not occur.
+        ``drawn`` REPORTS THE CELL-BY-CELL DRAW AND IT IS NOW TRUE WHEN THE
+        DRAW HAPPENED, and False when it did not, which is the only reason to
+        publish the key at all. :meth:`_grid_payload` serves the grid the
+        SOLVED case actually holds; when it cannot -- no solved grid cited, not
+        a 2-D case, a mesh it will not slice honestly -- the key stays False
+        and the stage says no more than it did before.
         """
         mesh = self.act.mesh_plan()
         self._say(script, "Meshing", tense="progressive")
@@ -611,16 +734,78 @@ class Sequencer:
                        headers=list(mesh.resolution_headers),
                        rows=[list(r) for r in mesh.resolution_rows],
                        table_id="mesh_resolution")
+        grid = self._grid_payload(mesh)
         payload = {
             "stage": "meshing",
             "cells": mesh.cell_count.on_screen(),
             "zoom": mesh.wall_zoom_hint,
             "meshed": live_cells is not None,
-            "drawn": False,
+            "drawn": grid is not None,
         }
         if live_cells is not None:
             payload["meshed_cells"] = f"{live_cells:,}"
-        return self._publish(emit, "demo.mesh", payload)
+        published = self._publish(emit, "demo.mesh", payload)
+        if grid is not None:
+            self._publish(emit, "mesh.grid", dict(grid, stage="meshing"))
+        return published
+
+    #: Where a served grid is written. Under the output root because that is
+    #: the only tree the control-room server will serve a JSON body from, and
+    #: it is a served copy of a run's mesh rather than the run's own tree --
+    #: nothing here ever writes into a landed case.
+    GRID_DIR = "demo-grid"
+
+    def _grid_payload(self, mesh) -> dict | None:
+        """The solved grid, one quadrilateral per cell, ready to be drawn.
+
+        THE GRID IS THE ONE THE NUMBERS COME FROM, and that is the whole
+        safety property. It is read from ``MeshPlan.cell_count.source`` -- the
+        artifact the act already cites for the cell count it puts on screen --
+        so a picture of some other grid cannot reach the stage without the
+        count beside it moving too. This campaign has two grids whose
+        reference areas differ by a hundred; a mesh picture sourced
+        independently of the count is exactly how they would get mixed.
+
+        IT IS NOT THE GRID THE MESHER JUST BUILT, and the difference matters.
+        The mesher writes into a scratch tree and its output is checked
+        against the solved grid's cell count (see :meth:`_run_mesher`); the
+        SOLVED grid is the one the lift table was integrated on. Drawing the
+        scratch copy would put a picture on screen whose provenance is a
+        temporary directory.
+
+        Returns ``None`` for anything it cannot do honestly -- no cited mesh, a
+        source that is not a ``polyMesh``, a case that is not one cell thick.
+        A stage that shows no grid is a stage that shows no grid; a stage that
+        shows the wrong one is unrecoverable.
+        """
+        source = getattr(mesh.cell_count, "source", None)
+        if source is None:
+            return None
+        poly = Path(source)
+        if poly.name != "polyMesh" or not poly.is_dir():
+            return None
+        import json
+
+        slicer = _load_slicer()
+        if slicer is None:
+            return None
+        try:
+            payload = slicer.slice_payload(poly)
+        except (slicer.SliceRefused, OSError, ValueError):
+            return None
+        from . import OUT_ROOT
+
+        out = Path(OUT_ROOT) / self.GRID_DIR
+        out.mkdir(parents=True, exist_ok=True)
+        name = f"grid_{payload['cells']}.json"
+        (out / name).write_text(json.dumps(payload, separators=(",", ":")))
+        return {
+            "url": f"/api/field/{self.GRID_DIR}/{name}",
+            "cells": payload["cells"],
+            "label": "the grid the lift and the pressures are computed on",
+            "caption": f"{payload['cells']:,} cells, drawn one at a time, "
+                       f"closing on {mesh.wall_zoom_hint}.",
+        }
 
     def _stage_feasibility(self, emit, script, record) -> dict:
         f = self.act.feasibility()
@@ -649,7 +834,14 @@ class Sequencer:
         stage = ReplayStage(
             spec=ReplaySpec(cases=list(replay.cases),
                             seconds_per_point=max(
-                                replay.pace * 9.0, 0.001)),
+                                replay.pace * 9.0, 0.001),
+                            # ONE DECLARATION REACHES BOTH SURFACES THAT STATE
+                            # A COST. The solving stage speaks a closing
+                            # sentence and the results stage publishes a cost
+                            # line; wiring the act's projection into only one
+                            # of them would put two different compute figures
+                            # on one screen two beats apart.
+                            cost_projection=replay.cost_projection),
             sleep=self.sleep, clock=self.clock)
         stage.prepare()
         published = stage.run(emit=emit, script=script)
@@ -715,6 +907,7 @@ class Sequencer:
         replay = self.act.solve_replay()
         from . import announce_plot, emit_table
 
+        field_paths = {Path(f.path) for f in r.fields}
         for figure in list(r.fields) + list(r.plots):
             # THE NAMESPACE IS THE ACT'S, NOT A CONSTANT. See
             # :func:`figure_namespace` for what the constant cost and why
@@ -729,8 +922,15 @@ class Sequencer:
             # reached nothing on every run of this act. Measured on the
             # assembled results stage: four of four figures on the wire with
             # no caption key at all.
+            # A FIELD PICTURE TAKES THE STAGE, A GRAPH TAKES THE STRIP.
+            # Sanaa's panel sequence ends in fields, and both lists were being
+            # announced identically, so the page could not tell a picture of
+            # the flow from a picture of a curve and the grid stayed on the
+            # stage through the report. The flag is derived from the act's own
+            # `fields` list, so no act has to declare it twice.
             announce_plot(emit, namespace, figure.path,
-                          figure.title, figure.caption)
+                          figure.title, figure.caption,
+                          field=Path(figure.path) in field_paths)
         if script is not None:
             for table in r.tables:
                 emit_table(emit, script, role=table.role,
@@ -738,14 +938,100 @@ class Sequencer:
                            headers=list(table.headers),
                            rows=[list(row) for row in table.rows],
                            table_id=table.table_id)
-        return self._publish(emit, "demo.results", {
+        published = self._publish(emit, "demo.results", {
             "stage": "results",
             "solver": record.solver_header(),
             "verification": list(r.verification_lines),
             "limitations": list(r.limitations),
-            "cost": cost_line(replay.core_minutes()),
-            "estimate": r.cost_estimate_from_stage_2.on_screen(),
+            "cost": cost_line(replay.core_minutes(),
+                              projection=replay.cost_projection),
+            # THE FORECAST NOW SAYS IT IS ONE, and says what it is a forecast
+            # for. It published as a bare "56.8 processor-minutes" beside the
+            # spend, and ``stageLines`` renders every string leaf in payload
+            # order, so the screen carried an unlabelled second number under
+            # the cost sentence with nothing to say which was which. That was
+            # merely confusing while both figures described one machine. It
+            # stops being merely confusing the moment the spend is shown for
+            # OTHER hardware: an unlabelled 56.8 sitting under a projected
+            # 23.5 invites a division that is not a ratio of anything.
+            "estimate": self._estimate_line(r, replay),
+            **self._certificate_field(),
         })
+        return published
+
+    def _certificate_field(self) -> dict:
+        """The certificate statement on the results card, or nothing at all.
+
+        RENDERED, NEVER RESOLVED. ``stageLines`` publishes every string leaf of
+        this payload in order, so the sentence the act wrote is the sentence
+        the screen carries. Nothing here looks a certificate up by mission
+        name, intent or path, which is the lookup that has already rendered
+        one body's document under another body's name.
+        """
+        closing = self.act.closing()
+        if closing is None:
+            return {}
+        return {"certificate": closing.certificate_state}
+
+    def _estimate_line(self, results, replay) -> str:
+        """The up-front forecast, labelled, and honest about what it is for.
+
+        The forecast was made for the machine the sweep RAN on. When the act
+        shows its spend projected onto other hardware, the two numbers are no
+        longer commensurable and the sentence says so rather than leaving a
+        viewer to divide them. R8 still gets its estimate beside its spend.
+        """
+        shown = results.cost_estimate_from_stage_2.on_screen()
+        if replay.cost_projection is None:
+            return f"Forecast before the run: {shown}."
+        return (f"Forecast before the run: {shown} on the machine it runs on, "
+                f"which is not the machine the figure above describes.")
+
+    def _stage_closing(self, emit, script) -> None:
+        """THE ACT ENDS IN A REPORT. Sanaa: "nothing ends on a table."
+
+        Three publications, all of which the control room has always known how
+        to render and none of which any act was sending:
+
+        * the Conclusion phase, which is what puts the heading in the digest,
+          advances the cycle counter and moves the masthead off MISSION
+          RUNNING;
+        * ``report.ready``, which is what UNHIDES the Report tab -- the button
+          carries ``hidden`` in the markup until a report arrives, so an act
+          with no report has no Report tab at all;
+        * and the certificate block, which is a STATEMENT and not a link. See
+          :class:`demo_mode.Closing` for the two measured defects behind that:
+          the certificate builder aliases weaker tiers onto "SOLVER-BACKED",
+          and the certificate store is keyed by intent and is
+          last-writer-wins, so a link resolved by path can render a document
+          belonging to a different run. Nothing here mints or resolves one.
+          The act says whether this run has a certificate and that sentence is
+          rendered as written.
+
+        AN ACT WITH NO ``closing()`` IS UNCHANGED, byte for byte.
+        """
+        closing = self.act.closing()
+        if closing is None:
+            return
+        from chief_engineer.lab import lab_report
+        from . import bullets
+
+        if script is not None:
+            script.phase("Conclusion")
+            bullets(script.engineer, *closing.conclusion_lines)
+        if emit is None:
+            return
+        emit("report.ready", lab_report(
+            title=closing.title,
+            # THE CERTIFICATE BLOCK, at the foot of the abstract, because the
+            # abstract is the one section of the memo the page renders as
+            # paragraphs and because the statement belongs beside the claim it
+            # qualifies rather than under a heading of its own.
+            abstract=list(closing.abstract) + [closing.certificate_state],
+            methods=list(closing.methods),
+            results=[dict(row) for row in closing.results],
+            uncertainty=list(closing.uncertainty),
+            next_investigations=list(closing.next_investigations)))
 
     # -- pacing -------------------------------------------------------------
     def _assert_not_all_at_once(self) -> None:

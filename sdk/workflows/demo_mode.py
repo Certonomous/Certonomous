@@ -631,7 +631,64 @@ def core_minutes(wall_seconds: float, ranks: int) -> float:
 SCREEN_COMPUTE_UNIT = "processor-minutes"
 
 
-def cost_line(cm: float, *, gross: bool = True) -> str:
+@dataclass(frozen=True)
+class HardwareProjection:
+    """A compute figure carried onto hardware this box is not.
+
+    Sanaa, 2026-09-01: "i ran this on my station after moving dafoam linear
+    solves to gpu and this is the speedup i have so we can already show that
+    instead". The screen therefore shows the projected figure. What it may
+    NEVER do is show it bare.
+
+    WHY THE BASIS IS A REQUIRED FIELD AND NOT A DOCSTRING. A bare "23.5
+    processor-minutes" is a measurement claim, and this box did not make it:
+    117.5 is what this hardware measured and 23.5 is a projection from
+    another machine, stated by its owner. CLAUDE.md rule 12 is explicit that a
+    cost is never called measured unless a record backs it -- the same footing
+    as the $0.0513 per core-hour rate, which is owner-stated and labelled so
+    everywhere it is used. ``basis`` is the sentence that renders beside the
+    number, and :func:`cost_line` refuses a projection without one, so the
+    label cannot be dropped by an edit that only touches the number.
+
+    NO DOLLAR FIGURE IS DERIVED FOR A PROJECTION, deliberately. The recorded
+    rate prices THIS instance; applying it to minutes on somebody else's
+    workstation with a graphics processor in it would manufacture a second
+    unfounded number out of the first, and the currency figure is the one
+    place this lab has already had to write "derived, not measured" on
+    everything it prints.
+    """
+
+    factor: float
+    hardware: str            # what the projected figure describes, in plain words
+    basis: str               # why that number, and whose measurement it rests on
+
+    def __post_init__(self) -> None:
+        if self.factor <= 0:
+            raise DemoContractError("a projection factor is positive")
+        if not self.hardware.strip() or not self.basis.strip():
+            raise DemoContractError(
+                "a projected compute figure states the hardware it describes "
+                "and the basis of the projection; a bare number is a "
+                "measurement claim this box cannot support")
+
+    def apply(self, cm: float) -> float:
+        return cm / self.factor
+
+
+#: The projection Sanaa timed on her own station, 2026-09-01, after moving the
+#: adjoint linear solves onto its graphics processor. OWNER-STATED, NOT
+#: MEASURED HERE -- this box has no graphics processor attached and cannot
+#: reproduce the timing (CLAUDE.md rule 12; docs/GPU_CAPABILITY_STATE.md).
+OWNER_GPU_STATION = HardwareProjection(
+    factor=5.0,
+    hardware=("a workstation running the linear solves on its graphics "
+              "processor"),
+    basis=("Five times faster than the machine these screens are served "
+           "from, timed on that workstation by the engineer who runs it."))
+
+
+def cost_line(cm: float, *, gross: bool = True,
+              projection: "HardwareProjection | None" = None) -> str:
     """The screen's cost sentence for a run of ``cm`` core-minutes.
 
     Stated as THIS run's cost, because it is: Sanaa, "the run's real cost,
@@ -641,9 +698,18 @@ def cost_line(cm: float, *, gross: bool = True) -> str:
 
     The ARGUMENT is core-minutes and the RENDERING is
     :data:`SCREEN_COMPUTE_UNIT`; the number is not touched.
+
+    WITH A ``projection`` the number IS touched, and the sentence says so and
+    says on what. See :class:`HardwareProjection`: the projected figure names
+    the hardware it describes and carries its basis, and no currency figure is
+    derived for it. Without one, byte-for-byte the sentence it always was.
     """
-    usd = cm / 60.0 * RATE_USD_PER_CORE_HOUR
     basis = "gross" if gross else "cleaned"
+    if projection is not None:
+        shown = projection.apply(cm)
+        return (f"Compute used: {shown:,.1f} {SCREEN_COMPUTE_UNIT} ({basis}) "
+                f"on {projection.hardware}. {projection.basis}")
+    usd = cm / 60.0 * RATE_USD_PER_CORE_HOUR
     return (f"Compute used: {cm:,.1f} {SCREEN_COMPUTE_UNIT} ({basis}), "
             f"about ${usd:,.2f}, derived at the recorded rate.")
 
@@ -1095,6 +1161,15 @@ class SolveReplay:
     pace: float = 1.0                # shoot-clock compression, never on screen
     elapsed_clock: ElapsedClock | None = None   # None means the default
     cases: Sequence[tuple[str, Path]] = ()      # -> replay_history.read_run_history
+    #: What the compute figure on screen DESCRIBES, when that is not this box.
+    #: Declared by the act, applied by the sequencer and by the replay stage's
+    #: closing sentence, so the two surfaces that state a cost state the same
+    #: one. ``None`` -- every act but the jet-flap today -- leaves both
+    #: byte-identical to what they were. The MEASURED core-minutes are
+    #: untouched everywhere they are recorded: ``core_minutes()`` below,
+    #: ``solve.end``'s ``core_min_measured``, and the cost-calibration ledger
+    #: all keep reporting what this hardware actually did.
+    cost_projection: "HardwareProjection | None" = None
 
     def __post_init__(self) -> None:
         if not self.series:
@@ -1119,7 +1194,7 @@ class SolveReplay:
         return core_minutes(float(self.wall_seconds.value), self.ranks)
 
     def cost_sentence(self) -> str:
-        return cost_line(self.core_minutes())
+        return cost_line(self.core_minutes(), projection=self.cost_projection)
 
     def progress_line(self, iteration: int, sweep_point: int = 1) -> str:
         """The progressive-tense running line, composed and checked here.
@@ -1243,6 +1318,104 @@ class Results:
             check_demo_language(line, zone="limitations")
 
 
+@dataclass(frozen=True)
+class Closing:
+    """The tail of stage 9. THE ACT ENDS IN A REPORT, NOT A TABLE.
+
+    Sanaa, 2026-09-01: "Conclusion and Report tabs populated; nothing ends on
+    a table." Before this the jet-flap act's last publication was
+    ``demo.results`` and its last visible artifact was the lift table; the
+    Report tab stayed hidden for the whole act because nothing ever published
+    a ``report.ready``, and the digest never reached its Conclusion heading
+    because no phase was ever opened. Both are events, not layout: the page
+    has always been able to render them and no act was sending them.
+
+    WHAT EACH FIELD REACHES.
+
+    * ``conclusion_lines`` open the Conclusion phase in the digest, which also
+      advances the cycle counter and the masthead. Spoken as bullets, so every
+      line is checked by ``workflows.check_wording`` AT EMISSION -- a body
+      that does not begin with a capital throws there and nowhere earlier.
+    * ``title``, ``abstract``, ``methods``, ``results``, ``uncertainty`` and
+      ``next_investigations`` become the Report tab through
+      ``chief_engineer.lab.lab_report``. Its own rule holds and is not this
+      act's to relax: ``next_investigations`` carries new questions, never
+      remediations of the shown result. "Refine the grid" is a limitation and
+      belongs in the limitations box, which already has it.
+    * ``certificate_state`` is a REQUIRED sentence saying whether a sealed
+      certificate was issued FOR THIS RUN, and it is rendered rather than
+      inferred. See below: this field is the whole of the certificate block,
+      and it is a string on purpose.
+
+    NO RESULT ROW CARRIES A TIER. ``lab_report`` accepts one and the page will
+    draw a badge from it; the demo standard forbids verdict-shaped words on a
+    customer surface, so these rows carry quantity, value, envelope and reason
+    and no verdict. The row is refused here if one is passed, rather than
+    being quietly dropped downstream where the next author would re-add it.
+
+    WHY THE CERTIFICATE BLOCK IS A SENTENCE AND NOT A LINK, and this is the
+    part of this class that was designed against two measured defects rather
+    than in the abstract:
+
+    1. ``chief_engineer.certificate`` carries ``_LEGACY_TIER_ALIAS`` (lines
+       49-50), which maps "TREND ONLY" and "REFERENCE REGIME MISMATCH" onto
+       "SOLVER-BACKED", and text rails at 73-74 that rewrite the same words on
+       the sealed page. A run that earned a weaker tier therefore PRINTS as
+       solver-backed. An inflated tier is not an optimistic rendering of a
+       future platform; it is a false claim about work already done, and a
+       certificate is the artifact this lab is for.
+    2. Certificates are written to ``mission-output/<intent>/certificate.pdf``
+       and are last-writer-wins. Three different bodies have overwritten one
+       such file. A surface that resolves a certificate BY PATH, mission name
+       or intent can therefore render a document belonging to a different run.
+
+    So no act here mints or links one. ``certificate_state`` is an explicit
+    statement of whether this run has a sealed certificate, carried in the
+    act's own record and rendered as written. A blank is honest; a neighbour's
+    certificate is not.
+    """
+
+    title: str
+    abstract: Sequence[str]
+    methods: Sequence[str]
+    results: Sequence[Mapping[str, str]]
+    uncertainty: Sequence[str]
+    next_investigations: Sequence[str]
+    conclusion_lines: Sequence[str]
+    certificate_state: str
+
+    def __post_init__(self) -> None:
+        if not self.certificate_state.strip():
+            raise DemoContractError(
+                "an act states whether this run carries a sealed certificate; "
+                "silence would be read as one having been issued, and the "
+                "certificate store is keyed by intent and is "
+                "last-writer-wins, so silence is the dangerous default")
+        check_demo_language(self.certificate_state)
+        if not self.conclusion_lines:
+            raise DemoContractError(
+                "an act that ends in a report says something at the end of "
+                "it; an empty conclusion is a table with a heading over it")
+        for line in self.conclusion_lines:
+            check_demo_language(line)
+        check_demo_language(self.title)
+        for group, zone in ((self.abstract, "screen"),
+                            (self.methods, "screen"),
+                            (self.uncertainty, "limitations"),
+                            (self.next_investigations, "screen")):
+            for line in group:
+                check_demo_language(line, zone=zone)
+        for row in self.results:
+            if "tier" in row:
+                raise DemoContractError(
+                    "a report row on a customer screen carries no tier; the "
+                    "honesty lives in the envelope, the reason and the "
+                    "limitations box")
+            for key, value in row.items():
+                if isinstance(value, str):
+                    check_demo_language(value)
+
+
 # ---------------------------------------------------------------------------
 # The interface itself
 # ---------------------------------------------------------------------------
@@ -1321,6 +1494,49 @@ class DemoAct(ABC):
     @abstractmethod
     def results(self) -> Results:
         """Fields, plots, tables, verification lines, limitations, cost."""
+
+    # -- the discussion and the tail: concrete and optional ------------------
+
+    #: The transcript roles an act may speak a discussion beat as. The
+    #: control room gives each one its own colour accent, which is what makes
+    #: a sequence of them read as several people rather than one narrator.
+    DISCUSSION_ROLES = ("engineer", "researcher", "numericist", "monitor")
+
+    def discussions(self) -> Mapping[str, Sequence[tuple]]:
+        """Expert-agent discussion beats, keyed by the stage they follow.
+
+        Sanaa, 2026-09-01: the user "will see discussions of the different
+        expert agent letting choosing/deciding on turbulence models,
+        acknowledging the physics, summarizing the geometry, summarizing user
+        defined / lab assumption numbers/quantities".
+
+        THE BOUNDARY, AND IT IS NOT NEGOTIABLE. The demo depicts the future
+        platform's experience; it does not invent measurements or
+        deliberations. A beat may narrate a decision that WAS ACTUALLY TAKEN
+        and physics that IS ACTUALLY TRUE, in the conversational form the
+        built platform will have. It may not invent a decision nobody made or
+        a justification that is not real. Every number a beat states comes
+        from the same readers the rest of the act uses, never from a literal
+        typed beside it.
+
+        Returns ``{stage: [(role, [line, ...]), ...]}``. Each entry is spoken
+        as one bulleted transcript entry in that role, after the stage's own
+        content and before the next stage opens, so the discussion sits where
+        the decision belongs. An unknown stage name is a refusal rather than a
+        beat that silently never plays.
+        """
+        return {}
+
+    def closing(self) -> "Closing | None":
+        """The report the act ends in, or ``None`` to end on the results stage.
+
+        NOT ABSTRACT, deliberately. Four acts are already wired against this
+        interface and a tenth abstract method would break every one of them at
+        import; an act that has not written its report yet keeps the behaviour
+        it has today and says so to its supervisor rather than shipping an
+        empty Report tab. The jet-flap act overrides it.
+        """
+        return None
 
     # -- pacing and banners: concrete, override only where the act differs ---
 

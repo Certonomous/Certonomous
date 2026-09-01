@@ -53,7 +53,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 from chief_engineer.replay_history import (
     ReaderRefused, RunHistory, USD_PER_CORE_HOUR, read_run_history)
@@ -103,6 +103,26 @@ def banner_for(state: dict) -> str:
     points = state.get("points")
     iteration = state.get("iteration")
     total = state.get("iterations")
+    # A SWEEP RUNNING TOGETHER HAS NO CURRENT POINT, so it is not given one.
+    # "Sweep point 3 of 5" is a true sentence about a screen showing one trace
+    # at a time and a false one about a screen showing five advance at once
+    # (Sanaa's small-multiple monitors, 2026-09-01). What is true of the whole
+    # sweep is how far it has come, and that is what this reports: the furthest
+    # iteration any point has reached, which is monotone and is read off the
+    # frames rather than off a screen-time counter.
+    #
+    # THE SWEEP PROGRESS RIDES THE PAYLOAD UNDER ITS OWN KEYS, not `iteration`
+    # and `iterations`, which stay the FRAME'S own and are what the monitors
+    # plot. Two quantities, two names — and it keeps INVARIANT 1 intact: the
+    # banner is still a pure function of the very dictionary that is published,
+    # so recomputing it from a recorded event reproduces it exactly.
+    if state.get("concurrent"):
+        reached = state.get("sweep_iteration")
+        span = state.get("sweep_iterations")
+        if reached is None or not span:
+            return f"Solving {int(points or 0)} sweep points"
+        return (f"Solving {int(points or 0)} sweep points together, "
+                f"iteration {int(reached):,} of {int(span):,}")
     if point is None or iteration is None:
         return "Solving"
     head = f"Solving, iteration {int(iteration):,} of {int(total):,}"
@@ -133,6 +153,23 @@ class ReplaySpec:
     #: What the progress row calls a point. "Sweep point" for a blowing
     #: sweep; an act with one run leaves this alone and gets no progress row.
     point_noun: str = "sweep point"
+    #: THE COMPUTE FIGURE IN THE CLOSING SENTENCE, when the act shows one for
+    #: hardware this box is not. A ``workflows.demo_mode.HardwareProjection``,
+    #: or ``None``, which is every act but the jet-flap today and leaves the
+    #: sentence byte-identical.
+    #:
+    #: TYPED AS Any RATHER THAN IMPORTED. ``chief_engineer`` is the layer
+    #: ``workflows`` is built on; importing the act layer here to name a type
+    #: would invert that and make the solver stage depend on the demo package.
+    #: The stage never inspects the object -- it calls ``apply`` and reads two
+    #: strings -- so the shape is the contract and the direction of the
+    #: dependency is preserved.
+    #:
+    #: THE MEASURED FIGURE IS NOT AFFECTED. ``solve.end`` keeps publishing
+    #: ``core_min_measured`` and ``cost_basis`` from ``RunHistory``, which is
+    #: what the record, the ledger and the calibration row read. Only the
+    #: spoken sentence changes, and only when an act asks for it.
+    cost_projection: Any = None
 
 
 # ===========================================================================
@@ -212,17 +249,13 @@ class ReplayStage:
         inconsistent as well as prohibited. It now reads "N sweep points
         complete, ...". Sanaa's 04:20Z order is "no past tense" and it is the
         later and stricter of two directives of hers that disagree; present is
-        the intersection. NO NUMBER MOVED: the count, the iteration total and
-        the core-minutes are the same values formatted the same way.
+        the intersection.
 
-        IT LEADS WITH "All" AND THAT IS NOT A STYLE CHOICE. The obvious
-        rewrite, "5 sweep points complete, ...", raises in
-        ``workflows.check_wording``: a bullet body must start with a capital,
-        and a digit is not one. The wording checker is only reached when the
-        sentence is actually emitted, so a source read would have passed it
-        and the filmed screen would have thrown at the closing beat of the
-        act. Re-derive this sentence by driving the stage, never by reading
-        the f-string.
+        THE CLOSING SENTENCE IS COMPOSED IN :meth:`_closing_sentence`, which
+        carries the two things about it that are load-bearing: why it leads
+        with "All", and what happens to the compute figure when the act shows
+        one for hardware this box is not. Read that method, and re-derive the
+        sentence by driving the stage rather than by reading its f-string.
         """
         history = self._history or self.prepare()
         points = len(history.points)
@@ -238,10 +271,112 @@ class ReplayStage:
         }, banner_state={"point_index": None, "points": points})
 
         started = self.clock()
-        for index, point in enumerate(history.points, start=1):
-            self._run_point(emit, index, points, point)
+        # ONE PASS, NOT N CLIPS. Sanaa, 2026-09-01: "all five sweep points side
+        # by side ... advancing simultaneously, so the sweep completes in one
+        # pass instead of five sequential clips." A sweep of more than one point
+        # therefore interleaves; a single-point stage keeps the sequential path
+        # exactly as it was, because for one point the two are the same walk.
+        if points > 1:
+            self._run_together(emit, history)
+        else:
+            for index, point in enumerate(history.points, start=1):
+                self._run_point(emit, index, points, point)
 
         return self._finish(emit, script, history, self.clock() - started)
+
+    def _run_together(self, emit, history: RunHistory) -> None:
+        """Every point advancing at once, on one schedule.
+
+        WHAT IS UNCHANGED, AND IT IS THE PART THAT MATTERS FOR PACING. The same
+        events go out, one per frame, and the stage occupies the same screen
+        time it did: ``seconds_per_point`` x points. So the arrival rate on the
+        wire is what it was -- measured at 1,225 events in 44.9 s, 36.7 ms each,
+        against a paced-queue floor of 45 ms, which is why these frames render
+        unpaced. Interleaving reorders the frames; it does not compress them.
+        Compressing the stage to one point's worth of screen time would put the
+        same 1,225 events out in 9 s, 7.3 ms each, and no amount of client-side
+        care makes that readable.
+
+        THE ORDER IS BY FRACTIONAL PROGRESS, not round-robin by index. Points
+        may hold different numbers of frames -- they are downsampled from logs
+        of different lengths -- and a plain round robin would run the short ones
+        out early and leave the last stretch a single trace advancing alone,
+        which is the sequential clip again in miniature. Ordering every frame by
+        how far through ITS OWN run it is makes all the traces reach their ends
+        together, which is what "advancing simultaneously" means on screen.
+
+        THE BANNER IS THE SWEEP'S, NOT A POINT'S. "Sweep point 3 of 5" is a
+        false statement about a screen on which all five are moving; the banner
+        reports how far the whole sweep has come, from the furthest iteration
+        any point has reached. See :func:`banner_for`.
+        """
+        points = len(history.points)
+        for index, point in enumerate(history.points, start=1):
+            if not point.frames:
+                raise ReaderRefused(f"{point.case_dir} produced no frames")
+            begin = {
+                "stage": self.stage_id,
+                "point_index": index, "points": points,
+                "label": point.label,
+                "iterations": point.history_n,
+                "wall_s": point.status["wall_s"],
+                "downsample": point.provenance,
+                "concurrent": True,
+                "sweep_iteration": int(point.frames[0].iteration),
+                "sweep_iterations": int(point.history_n),
+            }
+            self._publish(emit, "solve.point.begin", begin, banner_state=begin)
+
+        schedule = []
+        for index, point in enumerate(history.points, start=1):
+            n = len(point.frames)
+            for slot, frame in enumerate(point.frames, start=1):
+                schedule.append((slot / n, index, point, frame, slot == n))
+        schedule.sort(key=lambda row: (row[0], row[1]))
+
+        span = float(self.spec.seconds_per_point) * points
+        interval = span / len(schedule)
+        origin = self.clock()
+        furthest, furthest_total = 0, 0
+
+        for position, (_, index, point, frame, is_last) in enumerate(schedule):
+            furthest = max(furthest, int(frame.iteration))
+            furthest_total = max(furthest_total, int(point.history_n))
+            state = {
+                "stage": self.stage_id,
+                "point_index": index, "points": points,
+                "label": point.label,
+                "iteration": frame.iteration,
+                "iterations": point.history_n,
+                "elapsed_s": frame.elapsed_s,
+                "residuals": dict(frame.residuals),
+                "coefficients": dict(frame.coefficients),
+                "envelope": {k: list(v) for k, v in frame.envelope.items()},
+                "source_row": frame.source_row,
+                "concurrent": True,
+                "sweep_iteration": furthest,
+                "sweep_iterations": furthest_total,
+            }
+            deadline = origin + (position + 1) * interval
+            remaining = deadline - self.clock()
+            if remaining > 0:
+                self.sleep(remaining)
+            self._publish(emit, "solve.frame", state, banner_state=state)
+            if is_last:
+                end = {
+                    "stage": self.stage_id,
+                    "point_index": index, "points": points,
+                    "label": point.label,
+                    "iterations": point.history_n,
+                    "wall_s": point.status["wall_s"],
+                    "core_min_measured": point.status["core_min_measured"],
+                    "final": dict(point.final),
+                    "controls": list(point.controls),
+                    "concurrent": True,
+                    "sweep_iteration": furthest,
+                    "sweep_iterations": furthest_total,
+                }
+                self._publish(emit, "solve.point.end", end, banner_state=end)
 
     def _run_point(self, emit, index: int, points: int, point) -> None:
         frames = point.frames
@@ -368,11 +503,42 @@ class ReplayStage:
                                 banner_state={"finished": True})
         if script is not None:
             total = sum(p.history_n for p in history.points)
-            self._say(script, emit,
-                      f"All {len(history.points)} {self.spec.point_noun}s "
-                      f"complete, {total:,} iterations, "
-                      f"{history.core_min_total:.1f} core minutes.")
+            self._say(script, emit, self._closing_sentence(history, total))
         return payload
+
+    def _closing_sentence(self, history: RunHistory, iterations: int) -> str:
+        """The one sentence the engineer speaks when the solve is finished.
+
+        RE-DERIVE THIS BY DRIVING THE STAGE, NEVER BY READING THE f-STRING.
+        ``workflows.check_wording`` is reached only at EMISSION, and it
+        requires a bullet body to start with a capital letter -- so "5 sweep
+        points complete, ..." reads fine in the source and throws on camera at
+        the closing beat of the act. That is why the sentence leads with
+        "All", and it is why this is a named method: the offline re-derivation
+        can call it, and a test can assert on what actually gets spoken.
+
+        THE UNIT ON SCREEN IS THE SCREEN'S UNIT. This sentence used to say
+        "core minutes", which is the LAB'S INTERNAL name for the quantity --
+        the same figure the results stage two beats later renders as
+        "processor-minutes", so one act stated one number in two vocabularies
+        and the customer surface carried the internal one. The quantity is
+        untouched (wall seconds x ranks / 60, CLAUDE.md rule 12); the word is
+        the one the rest of the screen already uses.
+
+        WITH A PROJECTION the number shown is the projected one and the
+        sentence names the hardware it describes, because a bare figure this
+        box did not measure is a measurement claim it cannot support.
+        """
+        points = len(history.points)
+        cm = history.core_min_total
+        projection = self.spec.cost_projection
+        if projection is None:
+            return (f"All {points} {self.spec.point_noun}s complete, "
+                    f"{iterations:,} iterations, {cm:.1f} processor-minutes.")
+        return (f"All {points} {self.spec.point_noun}s complete, "
+                f"{iterations:,} iterations, "
+                f"{projection.apply(cm):.1f} processor-minutes on "
+                f"{projection.hardware}.")
 
     # -- emission ------------------------------------------------------------
     def _publish(self, emit, event: str, payload: dict,

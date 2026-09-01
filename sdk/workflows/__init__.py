@@ -56,7 +56,7 @@ def make_transcript(mission: str, emit=None):
 
 
 def announce_plot(emit, beat: str, path, title: str,
-                  caption: str = "") -> None:
+                  caption: str = "", *, field: bool = False) -> None:
     """Tell the control room a plot is ready so it can render it inline.
 
     ``caption`` is the ONE LINE that renders under the figure, and it is
@@ -80,6 +80,15 @@ def announce_plot(emit, beat: str, path, title: str,
                "url": f"/api/plot/{beat}/{_Path(path).name}"}
     if caption:
         payload["caption"] = caption
+    # A FIELD PICTURE IS NOT JUST ANOTHER FIGURE. Sanaa's panel sequence is
+    # geometry, then mesh, then FIELDS, and the stage cannot show a field it
+    # cannot tell apart from a graph. The acts already separate the two --
+    # ``Results.fields`` against ``Results.plots`` -- and that separation was
+    # being flattened here, so every figure reached the page as a thumbnail and
+    # the stage kept the grid standing through the report. The flag is only ever
+    # set from the ``fields`` list, so nothing else can claim the stage.
+    if field:
+        payload["field"] = True
     emit("plot.ready", payload)
 
 
