@@ -147,3 +147,113 @@ The citation sweep is done and it forbids deletion:
 
 **These are retired as a SOURCE for new demo figures. The files stay.** A
 verdict whose artefact is gone is not a result.
+
+
+---
+
+# AMENDMENT 1 — 2026-09-01, PRE-COMPUTE
+
+**Version 1.0 → 1.1.**
+**Lines whose number changed above this section: 0.**
+
+## The condition, and how it was checked
+
+`CLAUDE.md` rule 2 permits amendment **before first compute** and requires the
+condition be stated and the check named. It is checked, not asserted:
+
+- **`verification/runs/actD_paraview` DOES NOT EXIST.** Nor does
+  `/home/ubuntu/certonomous-runs/ACTD-PARAVIEW`. Both tested by `[ -e ]` at the
+  time of writing; both absent.
+- **No `pvbatch` process is running.** `pgrep -af pvbatch` returns only its own
+  invoking shell — the standing lesson that `pgrep`/`pkill` match their own
+  command line, so that single row is not a solver.
+- **Zero renders have been produced by this item.** No frame, no PNG, no run
+  root.
+
+Gates are therefore still open and this amendment may alter them. **After the
+first render they close**, and anything further lands as a dated addendum that
+cannot move a gate, threshold, cap or label.
+
+## A1.1 — `G-PV1` GATED THE WRONG HALF OF A PAIR. It now gates both.
+
+`/opt/paraview/bin/pvbatch` is a **29 KB ELF launcher** that execs
+`bin/pvbatch-real`. The original `G-PV1` checked only `pvbatch-real`
+(`dc272bb9…`) — but the process this item **invokes** is the wrapper
+(`82ec8db9…`). **If the wrapper were replaced to exec something else, the gate
+would keep checking a file that was no longer being used, and would pass.**
+
+**`G-PV1` is superseded by `G-PV1a` and `G-PV1b`. Both must hold.**
+
+| Gate | What it asserts | Threshold | Label if it fails |
+|---|---|---|---|
+| **G-PV1a** | The **wrapper actually invoked** is the registered one | md5 == `82ec8db976f28f51f2003a56c04fc272` | `NOT A RESULT` |
+| **G-PV1b** | The **real binary it execs** is the registered one | md5 == `dc272bb98d4ca91fd2f72dd3e89256b4` | `NOT A RESULT` |
+
+**THE GENERAL LESSON, WHICH IS WORTH MORE THAN THE PATCH: the hash is the
+identity, AND A HASH IS ONLY AN IDENTITY WHEN IT IS BOUND TO A NAMED PATH.**
+"The pvbatch md5" names two different files on this box, and two readers each
+holding one of them will believe they disagree when they do not. Every md5 in
+§2 is quoted beside its absolute path for exactly this reason.
+
+## ⚠ A1.2 — NEW GATE `G-PV7`: THE BLANK-FRAME GUARD. This is the gate the item was missing.
+
+**An md5 check proves WHICH ENGINE RAN. It proves NOTHING about whether the
+output is an image or a blank rectangle.** §2 argued for EGL because `xvfb`'s
+failure mode is a blank image rather than an error — the argument stands, **but
+EGL fails the same way**: a context initialises, nothing is drawn, the process
+exits 0, and every provenance gate passes on a uniform grey PNG. `G-PV1` green,
+frame empty, nothing in the item notices.
+
+**This is `CLAUDE.md` rule 3 applied to a renderer. A reader never shown able to
+see a non-zero is not evidence; a renderer never shown able to produce a
+non-blank, case-coupled image is not evidence either.**
+
+| Gate | What it asserts | Threshold | Label if it fails |
+|---|---|---|---|
+| **G-PV7a** | **Every frame carries content.** No frame is uniform | modal pixel colour occupies **< 99.0 %** of pixels **and** the frame holds **≥ 64 distinct colours** | `NOT A RESULT` — a blank frame is not a picture of anything |
+| **G-PV7b** | **The pipeline is coupled to the CASE, not merely to the engine.** A perturbed geometry renders differently | **≥ 0.1 %** of pixels differ after perturbation | `NOT A RESULT` |
+| **G-PV7c** | **The quiet half.** An unperturbed re-render reproduces | **< 0.1 %** of pixels differ | `NOT A RESULT` — a renderer whose output moves on its own cannot certify that a change is real |
+
+**The thresholds are SCALE-FREE ON PURPOSE.** A pixel-variance floor needs a
+scale nobody can register honestly before seeing the first frame, and a floor
+guessed in advance is a number chosen to be passed. Modal-colour share and
+distinct-colour count need no scale: a blank frame is ~100 % one colour whatever
+the palette, and a real render of a mesh is not.
+
+**`G-PV7b`/`G-PV7c` are the two-sided pair.** `G-PV3` already plants into the
+**field**; `G-PV7b` plants into the **geometry**, which is the arm that catches a
+pipeline rendering a stale or hard-coded surface while faithfully reading a live
+field. `G-PV7c` is the half usually left out, and without it a renderer that
+emits a different image every time would score full marks on `G-PV7b`.
+
+**`G-PV7` applies to EVERY published frame, not to a sample.**
+
+## ⚠ A1.3 — EGL MAY NOT INITIALISE ON THIS BOX. A one-frame smoke test runs FIRST.
+
+**`CLAUDE.md` rule 12: no GPU is attached to this box.** EGL normally wants a GPU
+or a software EGL (Mesa `swrast`). **The registered engine may be unable to run
+here at all.**
+
+§2 already registers EGL failure as **`BLOCKED`, never a fallback**, and that
+stands. What this amendment adds is **when we find out**:
+
+**STAGE 0 — EGL SMOKE TEST, ONE FRAME, BEFORE ANY SCRIPT ITERATION.** A single
+trivial render through the registered wrapper, graded on `G-PV1a`, `G-PV1b` and
+`G-PV7a`. Registered cost: **≤ 2 core-min**, inside the existing cap, not added
+to it.
+
+**Why first: the honest majority of the 45 core-min is script iteration.**
+Discovering an unusable engine after that is spent buys a `BLOCKED` at full
+price; discovering it in one frame buys the same `BLOCKED` for approximately
+nothing.
+
+**IF STAGE 0 IS `BLOCKED`, NOTHING FALLS BACK.** The 5.11.2 + `xvfb` path is not
+entered by default; it is registered properly, as its own amendment, with the
+blank-image hazard gated by `G-PV7` rather than argued about. **`G-PV7` is what
+makes that path safe if we ever take it, which is why it matters more than which
+engine wins.**
+
+## A1.4 — Cost, restated
+
+Unchanged: **45 core-min predicted, 90 HARD CAP**, np = 1. Stage 0's ≤ 2 core-min
+is **inside** that envelope. The cap still stops the run.
