@@ -4788,9 +4788,36 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T08:06:34Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T08:09:35Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24w — **THE CAPABILITY CELL IS NARROWED, NOT CORRECTED. I MADE THE EDIT MYSELF, AS RULED — AND THE STRUCTURAL JUDGMENT IS THE PART WORTH KEEPING: NOTHING IN THE CELL WAS FALSE, SO A STRIKE WOULD HAVE MISREPRESENTED THE RECORD** (2026-09-01T08:09:35Z, `date -u` at write)
+
+###### 1. WHY AN ADDITION AND NOT A STRIKE
+
+Every existing correction in that cell uses `~~strikethrough~~` + *"(corrected `<date>`, Correction N below)"*. **That form would have been WRONG here.** `P5` held, *"no admissible FD step exists at `W = 300`"* is **still true**, and `h_min = 1.742838e-01` **was and remains the correctly measured D12R2 value.** **Striking a true sentence to attach a qualification would have told a future reader that D12R2 got something wrong, which it did not. THE CELL GETS NARROWER, NOT CORRECTED.** The lane argued this and drafted the words without committing; the judgment is right and I adopted it.
+
+###### 2. FIVE EDITS, `90723d38`, `docs/capability/dafoam_GRID.md` AND NOTHING ELSE
+
+1. **Gradients column** — the measured paragraph: two arms of the identical 33-stage program at `W = 300` differing by **exactly two lines**; `h_min` `1.742838e-01 → 9.203984e-02`; `δ_window` **−56.28 %**; **claim NOT falsified** because `9.203984e-02` still exceeds `h_max`; failure factor **1.841× where it was 3.486×**; control arm reproducing the landed record **bit-for-bit including the adjoint gradient**, so the movement is attributable to the dictionary alone. Closes: **this cell states a result for THIS WINDOW WITH THESE NUMERICS and is not a property of unsteady DAFoam gradients in general.**
+2. **Caveats list** — the upstream-dictionary provenance and the four fields that run unrelaxed (`U`, `nuTilda`, `T`/`e`/`h`, `p`), citing `L-426` and the exposure record.
+3. **Optimisation column, "What would fix it"** — repaired relaxation numerics at a longer window, **explicitly `direction favourable, magnitude NOT MEASURED`**, reason named, **no number to lift.**
+4. **Audit row 20** — the document carries its own claim-audit table and my addition owed a row.
+5. **Footer sha list** — `a75353b2` and `b548f296` appended; **both verified to resolve under `git cat-file -e`**, as the doc's own footer rule requires. All four cited shas checked before the edit.
+
+###### 3. FOUR JUDGMENTS I ENDORSED AND WOULD DEFEND
+
+1. **The verdict tokens do NOT move** — still `CAN DO, CAVEATS` / `CAN NOT DO`. `P5` held; nothing earned a flip.
+2. **The "NOT falsified" clause is bold and placed BEFORE the margin.** A skimming reader must not be able to take away *"the FD claim was wrong"* — **the likeliest misreading and the damaging one, since the finding is the opposite: the claim survived a direct test.**
+3. **The ~2.4× W3 figure appears NOWHERE in the cell, in any hedged form.** **A number in a capability grid gets quoted; the caveat beside it does not travel with it.**
+4. **The upstream provenance is named**, because a reader deciding whether this generalises needs to know the dictionary is **inherited, not lab-authored**. A statement of fact about a file on this box — **not a defect report, not a filing, nothing sent.**
+
+**Left deliberately alone:** the D12R2 numbers and their `65882eb3` citation, the W2R correction block, the `St ≈ 0.53` caveat, the 2,450-cell caveat, and both existing Correction-1 strikethroughs. **None is touched by anything D12RLX measured.**
+
+###### 4. THE WRONG MECHANISM: RECORDED AS SHARED
+
+The lane asked that it be recorded as shared rather than moved to either of us alone, **and I accept that.** It wrote *"not an outer-loop-path quantity"* as a flat assertion **in a document whose own §9 said the chain was READ and not DRIVEN**; I relayed it with that confidence intact. **The mechanism was the lane's, carrying it was mine, and the fix — registering magnitudes with bands rather than leaving them as "we'll see" — is what caught it.**
 
 ##### UPDATE S-24v — **`D12RLX` IS `GATE REACHED`. THE PREDICTION HELD AND THE MECHANISM BEHIND IT WAS WRONG — `δ_window` FELL **56.28 %**, AND IT IS THE TERM I BOARDED AND RELAYED UPWARD AS "PHYSICAL, NOT OUTER-LOOP-PATH". **THAT CORRECTION IS MINE.** WHAT SURVIVES IS THE DIRECTION ARGUMENT, AND IT IS NOW MEASURED** (2026-09-01T08:06:34Z, `date -u` at write)
 
