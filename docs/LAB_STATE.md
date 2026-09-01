@@ -19112,6 +19112,72 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T05:50:19Z by cfd-supervisor personally, via a records lane. **FORTY-THIRD WRITE.** Closing delta for the overnight session. HEAD at write time: `7657e66d` — **NOT `d80cca46`**, which was HEAD when this block was drafted; peers committed in the interval, and the actual value is recorded here rather than substituted silently. Where this conflicts with anything below, this block wins.
+
+### ✅ CORRECTS THE FORTY-SECOND WRITE — THE MESH STANDARD CLAUSE IS LANDED, NOT OWED
+
+Board 42 said the `checkMesh` clause was "NOT YET LANDED — supervisor owes the edit". **It landed**, at `afedaadc`, and was then **corrected** at `e78cfccb`.
+
+**`docs/standards/MESH_STANDARD.md` §14 (v1.9)** — the 70° gate is read off the **reported maximum** plus the severe-face count, **never** off `checkMesh`'s `Non-orthogonality check OK.` line and never off the closing `Mesh OK.` / `Failed N mesh checks.` line. **No gate value moved in either direction**; §3.1's 70° hard gate and 65–70 band are untouched, §3.3 stays advisory. Rule-6 append at the foot, first-1,436-lines md5 `434b6ebec1b8f09e4ea276d71456796e` equal before and after — **verified by the supervisor from the committed blob**, not asserted.
+
+**The evidence is a DISCRIMINATION TEST, not an explanation, which is why it will still convince a reader in two years:**
+
+| mesh | reported max | §3.1 verdict | `checkMesh` prints | closing line |
+|---|---|---|---|---|
+| `CONTROL_nofill_L1` | 51.2554° | **admissible** | `Non-orthogonality check OK.` | `Failed 2 mesh checks.` |
+| `t1_SHELL` | 81.5834° | **inadmissible by 11.6°** | `Non-orthogonality check OK.` | `Failed 1 mesh checks.` |
+
+**The verdict line reads identically on the mesh that passes and the mesh that fails — it has been SHOWN unable to discriminate, so it cannot gate.** And the closing count runs *backwards*: the admissible mesh fails MORE checks. Mechanism: both counts sum over metrics this standard declines to reject on (unused points; aspect ratio, advisory under §3.3), while the one hard-gate breach appears in **no verdict string in either file**. Aspect ratio ranks them backwards too — 5934.1 admissible vs 5622.42 inadmissible.
+
+### 🔴 A DUPLICATE SECTION NUMBER NEARLY POISONED EIGHT FROZEN PRE-REGISTRATIONS
+
+The clause **landed as `## 10.` when a `## 10.` already existed** (line 550). Cause: **the section VERSION was reused as the section ORDINAL.** They tracked each other through §7/v1.2, §8/v1.3, §9/v1.4 and **diverged silently at §11/v1.6**. Highest ordinal was 13, so it should have been §14.
+
+**Blast radius, measured:** ten-plus records cite this standard's §10, several **by line** — `docs/CAPABILITY_GRID.md` and `docs/capability/METRICS_SUMMARY.md` cite `§10.1 :557-585` and `§10.2 :586-608`; and **EIGHT T-family pre-registrations import their Roache floors from "§10.5"** (T13, T14, T15, T16, T18, T4b, T9aR1b, T10aR2), plus `F15_OSR29_PREREGISTRATION.md`. Had the duplicate stood, **`MESH_STANDARD §10.5` would have been ambiguous inside frozen pre-registrations in another team's territory**, where the entire evidentiary value is that a citation cannot shift underneath it. Every one of those citations points at the PRE-EXISTING §10, so the renumber **protected** them. Repaired at `e78cfccb`: ordinals now `1..14`, **zero duplicates**, pre-existing §10 untouched, digest re-verified.
+
+⚠ **The supervisor approved the block and checked the VERSION derivation without ever checking the ORDINAL. Recorded as his.** The lane's own integrity sweep could not have caught it: it grepped for **the heading text it had just written**, which can only ever return 1.
+
+### The night's one general finding — L-427 and its addendum
+
+**`L-427`** (`6d09cabb`): *search the lab's own registers BEFORE freezing a pre-registration, and record what the search returned — including nothing.* Operative form: a filing carries one falsifiable line, `registers searched for <terms>; returned <N-xx> / returned nothing`. **Two claims were pre-registered on one night — a lane's and this supervisor's — that a measurement already on this box had refuted three days earlier.** After the freeze a register can only force an amendment and leaves a struck prediction in the permanent record; read at filing time the false prediction is never committed at all.
+
+**Addendum** (`d80cca46`): **an identifier read or chosen at drafting time is a PREDICTION, not an identifier — and the check that tests it must be written against the FILE'S existing content, never against the content you just authored.** Three instances in six hours, one shape:
+
+| a control derived from its **pattern** | cannot see the pattern's blind spot |
+|---|---|
+| a sweep derived from its **author's text** | cannot see anything the author did not write |
+| an ordinal derived from its **version** | cannot see the file's actual sequence |
+
+**A check must be able to fail for a reason its author did not already know.** A check derived from the thing it checks has been pre-agreed with it. Collision query, which names no heading text at all: `grep -oE '^## [0-9]+\.' <file> | grep -oE '[0-9]+' | sort -n | uniq -d`.
+
+**Also landed:** `L-425` addendum — the trailing-boundary blindness was found a SECOND time, independently, in `demo_mode`'s screen guard (`\bPASS\b` misses `PASSED`; four planted-control lines rendered as "coefficient control PASSED" on the filmed gates table). **The second instance survived BECAUSE the first was fixed — the repair created the belief that the class was handled.** ⚠ **NO lab-wide sweep has been run and none is claimed.**
+
+### 🔴 ON SANAA'S DESK — NEW AND STRUCTURAL: RULE 10's OWN RECIPE DROPS THE EXECUTABLE BIT
+
+`core.fileMode=false` in this repository, so git **ignores filesystem permission bits**; `git update-index --add` records **644 whatever `chmod` said**; and **CLAUDE.md rule 10's private-index recipe — mandatory for every lane — has no `--chmod` step.** The chmod is invisible to the commit, nothing warns, the script still runs when invoked with an explicit interpreter, and the one test that catches it lists **1,269** names, which is why its failure gets written off as somebody else's.
+
+**MEASURED, not inferred — every shebang-bearing script committed to HEAD in a 90-minute window landed at 100644, EXCEPT the single file committed with `--chmod=+x`:** `T25RF_runs/run_arm_t25RF.sh`, `build_arm_t25RF.sh`, `T25R2_MODULE_runs/run_one_t25R2.sh` and six more, spanning **three teams**. Shell drivers — the files most likely to be invoked directly — land non-executable **every time**. This is a **live inflow, not a historical backlog**; the offender count rose 1,268 → 1,269 during the half hour one lane spent fixing its own entry.
+
+**Remedy is one clause — `git update-index --add --chmod=+x -- <path>` for anything carrying a shebang — and `CLAUDE.md` is SANAA'S ALONE.** No agent has touched it and no agent has set exec bits across other teams' trees (the directory-wide action rule 10 forbids). 1,942 tracked `.py`/`.sh` sit at 644; **how many SHOULD be executable is unknown and is not claimed.**
+
+### The stale SHARED INDEX produced TWO false alarms tonight — do not trust `git status` here
+
+It reports clean files as dirty, including **mode-only diffs with an IDENTICAL blob sha on both sides**. It caused (a) a "the whole dispatcher exists only in the worktree, one kill away from gone" panic — measured false, `make_act_entry` was at HEAD; and (b) a board write appearing as "211 insertions, 1 deletion" when it was a pure 61-line insertion. **Compare against `git show HEAD:<path>`, never against the index.** Untouched, not cleared, not adopted. **Somebody should be dispatched for whatever is staged there — it is not cfd's.**
+
+### Live jobs — ZERO cfd solvers. Night's total cfd spend: 8.48 core-min, $0.0073 DERIVED
+
+### Verdicts unchanged from board 42
+
+**DMR R3 `NOT A RESULT`** (SIGFPE at 54%, Gate V3 no reading exists, **Gate T `BLOCKED`**). **F13 `GATE FAIL`** on the mesh standard, cause **geometric**, probe withdrawn. **DMR remains GO for filming** on the two-rung exact-solution check — Gate V `PASS` at 1/60 and 1/120, 0.15% and 0.17% vs a 1.0% tolerance, **zero compute**.
+
+### Test-suite tally CORRECTED from board 42's 18/0
+
+**22 of 23 not ours; 1 was ours and is fixed** (`90d88419`, the exec-bit). Two full-suite runs were **unusable and both were discarded rather than quoted**: one differential's baseline arm **aborted at collection and ran a single test**, so its headline "all 23 introduced by my changes" was an artifact; the other ran 27m23s during which five teams committed, so **it describes no tree that ever existed**. **On this box a full-suite number is not an attribution instrument; targeted per-file verification is.** `test_scope_down` is **a canary firing correctly** — routing improved, "Airfoil blown slot" now reaches jet-flap; **its owner updates the premise, nobody silences it.** Crontab drift (`test_installed_matches_tracked` ×3) is the detached queue-runner install — its owner should land the tracked copy.
+
+### Next actions
+
+Adopt the shared `make_act_entry` for the DMR "Mach 10" act. **Heat-transfer's thermal route must NOT be flipped until `replay_history` reads a conjugate multi-region run** — driven end-to-end it publishes 29 events then dies `SequencerRefused`; the CHT reader is theirs, the mechanism is ours and is done. When the demo freeze lifts: the DMR positivity-preserving family (all three of 1/60, 1/120, 1/240, constant r=2, exact restriction, closed-form p, ~18 core-min, its own Gate V at all three levels).
+
 **Section last written:** 2026-09-01T05:24:34Z by cfd-supervisor personally, via a records lane. **FORTY-SECOND WRITE.** Post the ~04:10Z subscription-switch fleet kill. Where this conflicts with anything below, this block wins. *(Records-lane note: HEAD at the time this block was written is `cdafff0e`, NOT `9d033070` — peers committed after the demo_mode.py fix. The `9d033070` citation below is the commit that landed that fix, not current HEAD.)*
 
 ### ✅ THE JET-FLAP ACT IS READY FOR THE BOUNCE — the connector landed, and the act now walks nine stages
