@@ -12182,6 +12182,86 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+---
+
+##### ⛔ STATE AFTER THE BOX REBOOT — 2026-09-01T15:33:19Z. **EVERYTHING PREPARED SURVIVED, VERIFIED BY CONTENT. TWO CELLS OF OUR OWN 06:45Z HANDOFF WERE STALE AND ARE CORRECTED HERE.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted.** Box booted 2026-09-01T15:13:59Z. HEAD `a2a72dd2`. **OpenFOAM solvers running: 0**, and none should be started.)*
+
+---
+
+### 1. ✅ **ACT C's MATERIALS SURVIVED THE REBOOT INTACT — AND THE GUARD WAS RE-RUN ON THE POST-REBOOT BYTES, rc = 0**
+
+`7811caef` (14 files, 5,574 insertions, all under `docs/campaigns/T-family/demo/`) is an ancestor of HEAD. **13 of 14 files are hash-identical across all three of {7811caef blob, HEAD blob, disk}.** The 14th, `check_actC_gate_screen.py`, differs **forward, not by damage**: `7a9515cb` amended it three minutes later (+51/−8) and **disk == HEAD**. The worktree lags HEAD nowhere in this set.
+
+**MY CHECK-1 DIFF READ IS DISCHARGED PERSONALLY on `7a9515cb`, because that file decides what number reaches a filmed screen.** The four added `cand_*` counters are **the detection regexes with the value test removed** — `cand_abs_temp` is the `rule_abs_temp` pattern minus its capture group; likewise `cand_kelvin_unit`. **No detection logic changed, `bad` accounting is untouched, and the `SystemExit(2)` refusal path is unchanged.** Reporting-only, and it strictly improves the evidence.
+
+**Live re-verification on the current bytes: rc = 0**, 4 PDFs, 108 numeric tokens, ABS-TEMP **0 hits / 27 candidates**, CELSIUS / KELVIN-UNIT / THERMAL-CLAIM 0/0 each annotated *"nothing to look at here"*, LANGUAGE 0. Controls fired: 22 positive plant arms, 11 negative arms silent, a usetex-OFF planted control read back as NOT LATEXIFIED. **Rule 3's planted-zero discipline is satisfied AFTER the reboot, not merely before it.**
+
+**⚠️ ONE HONEST LIMIT ON THE COVERAGE COLUMN, so it is not over-read:** for **CELSIUS and THERMAL-CLAIM the candidate count equals the hit count by construction** — neither rule has a value filter — so their `0 / 0` carries **no information beyond their `0 hits`**. Their real coverage proof is their **plant**, not the new column. The column is live evidence only for ABS-TEMP and KELVIN-UNIT.
+
+---
+
+### 2. ⛔ **CORRECTION AGAINST OUR OWN 06:45Z BOARD, ITEM 4: PREREQUISITE (i) HAD ALREADY LANDED — TEN HOURS BEFORE WE WROTE THAT IT HADN'T**
+
+| # | our 06:45Z cell | verified state |
+|---|---|---|
+| (i) | *"land the uncommitted demo-mode dispatch commit"* | **LANDED** — cfd's `140a36d4`, 05:07:01Z |
+| (ii) | make `replay_history` read a conjugate run | **NOT LANDED** |
+| (iii) | apply the routing patch | **NOT APPLIED** |
+
+**Verified by me personally, not relayed:** `def make_act_entry` counts **1** at `HEAD:sdk/workflows/demo_sequencer.py` and **0** at `140a36d4^`; worktree blob `d48acf1b…` == HEAD.
+
+**THE MECHANISM, WHICH IS THE TRANSFERABLE PART.** Our routing note was committed at `842c143b`, **05:06:53Z**. cfd landed the dispatch commit **eight seconds later**. The 06:45Z handoff then **inherited the note's wording instead of re-deriving the condition**, and a blocker that had cleared stayed on the board for ten hours. **A blocked-on-another-team cell is a claim about someone else's tree and decays the moment they commit; it must be re-derived at every handoff, never copied forward.**
+
+---
+
+### 3. **(ii) IS THE REAL BLOCKER, AND IT IS SUBSTANTIVE**
+
+`sdk/chief_engineer/replay_history.py` — worktree == HEAD:
+- **`:224`** — `log_path = case / "log.simpleFoam"`, hard-coded, no fallback, no glob. **T23G writes `log.solve`.**
+- **`:116`** — `RESIDUAL_FIELDS = ("Ux","Uy","p","k","omega")`. **No `h`, no `p_rgh`, no `T`.** A `chtMultiRegion` log carries `p_rgh` and `h`, so the per-step check at `:237` refuses on the first time step.
+- **Zero conjugate/multi-region awareness anywhere in the reader path.**
+
+**It REFUSES rather than degrades, which is correct behaviour and not a defect.** But Act A cannot replay a conjugate run today and **no amount of routing changes that.**
+
+Both drafts still `git apply --check` clean: `docs/campaigns/T-family/demo/PROPOSED_actA_demo_mode_routing.patch` and `…_act.patch`. `router.py:918-919` still carries the unrouted `THERMAL_DISPLAY` row. The three never-list phrases remain live in `sdk/workflows/thermal_display.py` — **our recorded line numbers have drifted (`:793` → `:795`; the `:459` literal occurs four times, not once). Cited line numbers age; re-derive them.**
+
+---
+
+### 4. ⚠️ **TWO EXPOSURES A SUCCESSOR MUST NOT INHERIT BLIND**
+
+1. **THE ACTUAL FILMED SURFACES ARE UNTRACKED.** `ACT_C_GATE_sheet.pdf` (163,559 B), `ACT_C_battery_module_sheet.pdf` (335,520 B), `ACT_A_thermal_map_sheet.pdf` (401,736 B), and `sdk/geometry/battery_module_8cell.stl` (97,284 B, 1,944 facets) are all `??`. **They survived this reboot; they are NOT recoverable from HEAD if they stop surviving one.** And the PDFs are verified clean **as they exist on disk** — nobody has shown them byte-reproducible from the current `.tex`.
+2. **THE RETIRED GEOMETRY EXISTS TWICE WITH THE SAME DIGEST.** `sdk/geometry/motor_in_duct.stl` and `cases/demo-surfaces/motor_in_duct.stl` both hash `131aab8e17242415364d2f1147a76cfbdc7fe5f48287a0996c2318249857db5f`. Our manifest (`verification/runs/T-family/T23_runs/display_surface/t23_solved_geometry_parts.json`, key `retires`) retires the **`cases/` path by name**, but the file the GUI would serve is the **`sdk/` one**, and it is untracked so there is no blob to remove by patch. **A deletion naming one path leaves the other standing**, and `cases/demo-surfaces/generate_demo_stls.py` regenerates it.
+
+---
+
+### 5. **THE CONTROL ROOM IS DOWN — CFD'S, REPORTED NOT TOUCHED**
+
+`scripts/demo_servers.sh` defines a pair: **:8765** (`chief_engineer.server` — missions, validation wall, `/api/geometry`) and **:8080** static. **Only :8080 came back** after the reboot (pid 1669, `python3 -m http.server --directory web`, since 15:17:35Z). **Nothing is listening on :8765**, verified by socket table. A static file server cannot serve `/api/geometry` at all. **Nothing was started, stopped or signalled by this team.**
+
+---
+
+### 6. **VERIFIED UNCHANGED**
+
+- **`sdk/` is untouched relative to HEAD** — thirteen demo-mode files hashed individually against their HEAD blobs. Alarmed on **content divergence, never on an `MM`**, per our own §5 rule.
+- Nothing under `sdk/`, `demo-output/` or `web/` has an mtime after 06:45Z.
+- **No reboot debris in heat-transfer territory:** 206 JSON files parsed with `json.load`, zero unparseable, zero zero-byte; no `.tmp`/`.partial`/`.swp`; no file with an mtime after 14:50Z.
+- Standing verdicts unchanged: **T23G `NOT A RESULT`** (order 0.375, `STAGNANT`, 179.63 core-min) and **T25R2 `GATE FAIL` → all rows `NOT A RESULT`** (O3 2.315190e-02 K vs 1.234e-02; 19.780 of 390, 370.2 unspent as a DECISION).
+
+---
+
+### 7. **WHAT THE NEXT LANE PICKS UP — UNCHANGED IN ORDER, CORRECTED IN CONTENT**
+
+1. **NOTHING, until Sanaa rules on Act C.** Act C is **PREPARED, VERIFIED POST-REBOOT, NOT DEPLOYED.** Nothing is wired to the GUI, `sdk/` is untouched, the 0.420 K / 960-cell sheet stays off screen.
+2. **If she takes the honest-refusal path:** the materials at `7811caef`/`7a9515cb` are built to standard and guarded. The connector contract is `docs/standards/DEMO_MODE_INTERFACE.md` with the binding shape in `sdk/workflows/demo_mode.py`; our plug-in exists as the unapplied `PROPOSED_actA_demo_mode_act.patch` (`BatteryModuleAct`, `register_act("battery-module", …)`). **Deployment needs the :8765 control room up, which is cfd's.**
+3. **⛔ DO NOT START THE T25R2 SUCCESSOR.**
+4. **Act A stays at 0.1 °C with the uncertainty column EMPTY.** The triple landed `NOT A RESULT` and licenses nothing.
+
+---
+
+END OF BLOCK.
+
 ##### APPENDIX 2026-09-01T06:55Z — **ONE OBSERVATION, ROUTED AND NOT OURS TO ACT ON. BOARDED SO A FOURTH AGENT DOES NOT REDISCOVER IT.**
 
 *(Appendix to the 06:50Z correction. **Pure insertion.** This is **NOT** a lesson, **NOT** a proposal, and **NOT** this team's to implement.)*
