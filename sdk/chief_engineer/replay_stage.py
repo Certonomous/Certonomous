@@ -143,12 +143,38 @@ class ReplayStage:
         while the screen is still on the previous stage, not halfway through a
         moving plot.
         """
+        self._assert_labels_are_readable()
         self._history = read_run_history(
             self.spec.cases,
             coefficient_columns=self.spec.coefficient_columns,
             max_frames=self.spec.max_frames,
             cross_check_jf1=self.spec.cross_check_jf1)
         return self._history
+
+    def _assert_labels_are_readable(self) -> None:
+        """Refuse a point label that is really a case id.
+
+        THIS STAGE MINTS THE LABEL THAT REACHES THE SCREEN, so it is this
+        stage's job to refuse a bad one rather than let a downstream display
+        layer rewrite it. The asymmetry is worth stating: a fidelity chip gets
+        TRANSLATED downstream because it carries meaning a viewer can use; a
+        case id gets REFUSED because it carries none, and quietly rewriting it
+        at the display layer would only hide a defect belonging here.
+
+        An act naming its points after its run directories is the easy
+        mistake, and it produces a screen reading "Solving, sweep point 3 of
+        5" beside a token nobody outside this lab can parse.
+        """
+        for label, case_dir in self.spec.cases:
+            try:
+                _check(str(label))
+            except Exception as exc:
+                raise ReaderRefused(
+                    f"the point label {label!r} is not something a viewer can "
+                    f"read, so this stage will not publish it: {exc}. Give "
+                    f"each point a plain label naming what was varied, for "
+                    f"example the blowing setting, and keep the run "
+                    f"directory in the record where it is useful.") from exc
 
     # -- the run ------------------------------------------------------------
     def run(self, emit: Callable | None = None, script=None) -> dict:
@@ -186,7 +212,10 @@ class ReplayStage:
             "stage": self.stage_id,
             "point_index": index, "points": points,
             "label": point.label,
-            "case_id": point.status["case_id"],
+            # The case id is NOT published. It is a token a viewer cannot use,
+            # and the standard keeps it off every user-visible surface. It
+            # stays in the RunHistory that prepare() returns, which is the run
+            # record and the right place to look it up.
             "iterations": point.history_n,
             # The run's REAL wall time, which the clock on screen counts
             # through while far less screen time passes. The wait is
@@ -308,6 +337,7 @@ class ReplayStage:
         """
         banner = banner_for(banner_state)
         _check(banner)
+        _check_payload(payload, event)
         stamped = dict(payload)
         stamped["banner"] = banner
         stamped["at"] = time.time()
@@ -370,9 +400,46 @@ class ReplayStage:
 
 
 def _check(text: str) -> None:
-    """Pass a string through the act wording doctrine before it is emitted."""
+    """Pass a string through the on-screen language rules before it is emitted.
+
+    Prefers the demo contract's checker, which is strictly stronger than the
+    older wording doctrine: it also refuses paths and case ids, which is the
+    pair that got this stage sent back. Falls back to the older doctrine only
+    where the contract module is not importable.
+    """
     try:
-        from workflows import check_wording
-    except Exception:          # pragma: no cover - doctrine unavailable
+        from workflows.demo_mode import check_demo_language
+    except Exception:          # pragma: no cover - contract unavailable
+        try:
+            from workflows import check_wording
+        except Exception:      # pragma: no cover - doctrine unavailable
+            return
+        check_wording(text)
         return
-    check_wording(text)
+    check_demo_language(text)
+
+
+def _check_payload(payload: dict, event: str, trail: str = "") -> None:
+    """Check EVERY string this stage is about to publish, not just its prose.
+
+    The two defects that sent this stage back were both in structured fields
+    rather than in narration: a case id inside a ``labels`` list, and a
+    filesystem path inside a control sentence. Every string-level check on the
+    prose passed, because neither string was prose. Checking the assembled
+    payload is the method that found them, so it runs here on every emission
+    rather than in a test over a fixture, and it walks nested lists and
+    dictionaries because that is where both defects were hiding.
+    """
+    if isinstance(payload, str):
+        try:
+            _check(payload)
+        except Exception as exc:
+            raise ReaderRefused(
+                f"the solver stage would have published a string a screen "
+                f"must never show, in {event}{trail}: {exc}") from exc
+    elif isinstance(payload, dict):
+        for key, value in payload.items():
+            _check_payload(value, event, f"{trail}/{key}")
+    elif isinstance(payload, (list, tuple)):
+        for position, value in enumerate(payload):
+            _check_payload(value, event, f"{trail}[{position}]")

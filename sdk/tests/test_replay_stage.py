@@ -76,7 +76,10 @@ class ThePressureDoubleSolve(unittest.TestCase):
 
     def test_solver_info_corroborates_every_iteration(self):
         history = read_solve_history(CASE)
-        self.assertIn("8000/8000", history["solver_info_cross_check"])
+        self.assertIn("8000 of 8000", history["solver_info_cross_check"])
+        # The sentence a viewer reads names no path; the path is beside it.
+        self.assertNotIn("/", history["solver_info_cross_check"])
+        self.assertTrue(history["solver_info_path"].endswith("solverInfo.dat"))
 
     def test_the_control_catches_a_last_match_reader(self):
         """Mutate the reader into the L-419 bug; the plant must refuse.
@@ -131,7 +134,7 @@ class RealTimeAndRealCost(unittest.TestCase):
         self.assertAlmostEqual(history["elapsed_s"][-1], 1338.06, places=2)
         self.assertEqual(status["wall_s"], 1340.0)
         self.assertEqual(status["core_min_measured"], 22.3333)
-        self.assertIn("NOT measured", status["cost_basis"])
+        self.assertIn("not itself a measurement", status["cost_basis"])
 
     def test_no_sweep_total_is_published_as_a_duration(self):
         """The points ran concurrently; their sum is not an elapsed time."""
@@ -227,6 +230,76 @@ class TheStage(unittest.TestCase):
         stage.clock = lambda: 0.0          # a clock that never advances
         with self.assertRaises(ReaderRefused):
             stage.run(emit=emit)
+
+    def test_no_published_string_breaks_the_on_screen_language_rules(self):
+        """The check over the REAL payload, which is how both defects were found.
+
+        A string-level check over prose passed both of them: a case id inside
+        a ``labels`` list and a path inside a control sentence are not prose.
+        So this walks every string the stage actually publishes, nested lists
+        and dictionaries included.
+        """
+        from workflows.demo_mode import DemoContractError, check_demo_language
+
+        stage, events, emit = _virtual_stage(cross_check_jf1=True)
+        stage.run(emit=emit)
+
+        def strings(value, trail=""):
+            if isinstance(value, str):
+                yield trail, value
+            elif isinstance(value, dict):
+                for key, item in value.items():
+                    if isinstance(key, str):
+                        yield trail + "/<key>", key
+                    yield from strings(item, f"{trail}/{key}")
+            elif isinstance(value, (list, tuple)):
+                for position, item in enumerate(value):
+                    yield from strings(item, f"{trail}[{position}]")
+
+        checked = 0
+        for name, payload in events:
+            for trail, text in strings(payload, name):
+                checked += 1
+                try:
+                    check_demo_language(text)
+                except DemoContractError as exc:
+                    self.fail(f"{name}{trail}: {exc}")
+        self.assertGreater(checked, 1000)
+
+    def test_a_case_id_label_is_refused_at_the_source(self):
+        """An act naming its points after its run directories must not run.
+
+        Refused here rather than rewritten downstream: a case id carries no
+        meaning a viewer can use, so translating it at the display layer would
+        only hide a defect belonging to the stage that minted it.
+        """
+        spec = ReplaySpec(cases=[(case.name, case) for _, case in SWEEP],
+                          max_frames=8)
+        with self.assertRaises(ReaderRefused) as caught:
+            ReplayStage(spec).prepare()
+        self.assertIn("plain label", str(caught.exception))
+
+    def test_no_control_sentence_carries_a_path(self):
+        stage, events, emit = _virtual_stage(cross_check_jf1=True)
+        history = stage.prepare()
+        for point in history.points:
+            for sentence in point.controls:
+                self.assertNotIn("/", sentence)
+            # The paths are not discarded; they stay in the record.
+            self.assertTrue(point.control_paths)
+            self.assertTrue(any("solverInfo.dat" in p
+                                for p in point.control_paths))
+        for sentence in history.controls:
+            self.assertNotIn("/", sentence)
+
+    def test_the_case_id_stays_in_the_record(self):
+        stage, events, emit = _virtual_stage()
+        history = stage.prepare()
+        stage.run(emit=emit)
+        self.assertEqual(history.points[3].status["case_id"],
+                         "JF1_L1_BLOWN_CMU020_A0")
+        for name, payload in events:
+            self.assertNotIn("case_id", payload)
 
     def test_prepare_runs_the_controls_before_any_frame(self):
         stage, events, emit = _virtual_stage()

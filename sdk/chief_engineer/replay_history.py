@@ -271,10 +271,13 @@ def read_solve_history(case_dir: Path | str,
             "first pass of the iteration; passes 2..n are the "
             "non-orthogonal corrector and are not the iteration's residual"),
         "solver_info_cross_check": "not run",
+        "solver_info_path": None,
     }
     if cross_check and "p" in fields:
-        history["solver_info_cross_check"] = _cross_check_solver_info(
+        sentence, path = _cross_check_solver_info(
             case, iterations, residuals["p"])
+        history["solver_info_cross_check"] = sentence
+        history["solver_info_path"] = path
     return history
 
 
@@ -295,7 +298,7 @@ def _solver_info_path(case_dir: Path) -> Path | None:
 
 
 def _cross_check_solver_info(case_dir: Path, iterations: list[float],
-                            p_first_pass: list[float]) -> str:
+                            p_first_pass: list[float]) -> tuple:
     """Assert OpenFOAM's own per-iteration record agrees with the log.
 
     This is a CONTROL, not a second reader. There is one canonical pressure
@@ -304,11 +307,18 @@ def _cross_check_solver_info(case_dir: Path, iterations: list[float],
     that agree on every row of the run are much stronger evidence that the
     right column was read than either channel alone; two that disagree mean
     one of them is wrong and neither should reach a screen.
+
+    Returns ``(sentence, path)``. THE SENTENCE CARRIES NO PATH and the path is
+    returned beside it, because the two facts have two different audiences: a
+    viewer needs to know the control ran and what it proved, and a filesystem
+    path tells them nothing they can use. The path belongs in the run record,
+    where whoever audits the control will look for it. Refusal messages below
+    keep their paths deliberately: an exception is a diagnostic, never a screen.
     """
     path = _solver_info_path(case_dir)
     if path is None:
-        return ("no solverInfo.dat on this case; pressure residual rests on "
-                "the log alone")
+        return ("the solver wrote no second residual record for this run, so "
+                "the pressure residual rests on the solver log alone", None)
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     header = None
     rows: dict[str, float] = {}
@@ -353,8 +363,9 @@ def _cross_check_solver_info(case_dir: Path, iterations: list[float],
             f"{path}. First at time {key}: log first pass {mine!r}, "
             f"solverInfo p_initial {theirs!r}. If the log's SECOND p pass "
             f"matches instead, this reader has regressed to the L-419 bug.")
-    return (f"solverInfo p_initial agrees with the log's first p pass on "
-            f"{checked}/{checked} iterations ({path})")
+    return (f"The solver's own residual record agrees with the first pressure "
+            f"pass read from the solver log on all {checked} of {checked} "
+            f"iterations", str(path))
 
 
 def _time_key(value: float) -> str:
@@ -425,7 +436,8 @@ def _assert_matches_jf1_reader(case_dir: Path, mine: list[float]) -> str:
     reader = Path("/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap"
                   "/jf1_display_numbers.py")
     if not reader.is_file():
-        return "jf1_display_numbers.py not present; no cross-reader check"
+        return ("The lift figures on the result table were not available to "
+                "compare against, so this check did not run")
     spec = importlib.util.spec_from_file_location("_jf1_display_numbers", reader)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -440,8 +452,8 @@ def _assert_matches_jf1_reader(case_dir: Path, mine: list[float]) -> str:
                 f"lift history disagreement on {case_dir} at row {position}: "
                 f"this module read {a!r}, jf1_display_numbers read {b!r}. Two "
                 f"implementations of one number have diverged.")
-    return (f"Cl history identical to jf1_display_numbers.read_lift_history "
-            f"on all {len(mine)} rows")
+    return (f"The moving lift curve and the lift table are the same "
+            f"measurement, matching on all {len(mine)} of {len(mine)} rows")
 
 
 # ===========================================================================
@@ -495,10 +507,10 @@ def read_run_status(case_dir: Path | str) -> dict:
         "utc_start": values.get("utc_start"),
         "utc_end": values.get("utc_end"),
         "cost_basis": (
-            "core-minutes MEASURED by the run wrapper and recorded in "
-            "RUN_STATUS; any currency figure is DERIVED at the owner-stated "
-            f"${USD_PER_CORE_HOUR}/core-h and is NOT measured, because the "
-            "box cannot read its own billing"),
+            "Core minutes measured while the run executed. Any figure in "
+            f"currency is derived from them at ${USD_PER_CORE_HOUR} per core "
+            "hour and is not itself a measurement, because this machine "
+            "cannot read its own billing."),
     }
 
 
@@ -601,7 +613,10 @@ class SweepPoint:
     status: dict
     history_n: int
     final: dict
+    #: What the controls PROVED, in sentences a viewer can read. No paths.
     controls: list
+    #: Where each control looked. The audit trail, for the record only.
+    control_paths: list
 
     def as_dict(self) -> dict:
         return {"label": self.label, "case_dir": self.case_dir,
@@ -611,7 +626,8 @@ class SweepPoint:
                 "ranks": self.status["ranks"],
                 "final": dict(self.final),
                 "downsample": dict(self.provenance),
-                "controls": list(self.controls)}
+                "controls": list(self.controls),
+                "control_paths": list(self.control_paths)}
 
 
 @dataclass
@@ -653,11 +669,18 @@ def read_run_history(cases: Sequence[tuple[str, Path | str]],
         coefficients = {name: read_coefficient_history(case, name)
                         for name in coefficient_columns}
 
+        # Two lists, deliberately. The first is what a viewer reads and
+        # carries no path; the second is where each control looked and stays
+        # in the record. Keeping them apart here, at the point the sentences
+        # are minted, is what stops a path reaching a screen downstream.
         per_case_controls = []
+        per_case_paths = [str(status["path"])]
         if cross_check_jf1 and "Cl" in coefficients:
             per_case_controls.append(
                 _assert_matches_jf1_reader(case, coefficients["Cl"]))
         per_case_controls.append(history["solver_info_cross_check"])
+        if history["solver_info_path"]:
+            per_case_paths.append(history["solver_info_path"])
 
         # The log's own ClockTime against the wrapper's measured wall seconds.
         # They are not the same quantity -- the wrapper's includes setup -- so
@@ -670,9 +693,9 @@ def read_run_history(cases: Sequence[tuple[str, Path | str]],
                 f"consistent; the elapsed clock on screen has two sources "
                 f"that disagree and neither will be shown")
         per_case_controls.append(
-            f"log ExecutionTime {log_clock:.0f} s sits inside the wrapper's "
-            f"measured wall {status['wall_s']:.0f} s "
-            f"(difference {status['wall_s'] - log_clock:.0f} s is setup)")
+            f"The elapsed time the solver reported, {log_clock:.0f} s, sits "
+            f"inside the {status['wall_s']:.0f} s measured for the whole run, "
+            f"the {status['wall_s'] - log_clock:.0f} s difference being setup")
 
         frames, provenance = downsample(history, coefficients, max_frames)
         final = {name: series[-1] for name, series in coefficients.items()}
@@ -682,7 +705,8 @@ def read_run_history(cases: Sequence[tuple[str, Path | str]],
         points.append(SweepPoint(
             label=label, case_dir=str(case), frames=frames,
             provenance=provenance, status=status, history_n=history["n"],
-            final=final, controls=per_case_controls))
+            final=final, controls=per_case_controls,
+            control_paths=per_case_paths))
 
         if status["utc_start"] and status["utc_end"]:
             fmt = "%Y-%m-%dT%H:%M:%SZ"
