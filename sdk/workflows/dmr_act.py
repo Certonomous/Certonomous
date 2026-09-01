@@ -557,6 +557,30 @@ class ShockReflectionAct(DemoAct):
     #: quantity outside it.
     computes = ("shock",)
 
+    #: THE PANELS THIS ACT RENDERS FROM THE SOLVED CASE, DECLARED SO THAT A
+    #: MISSING ONE REFUSES INSTEAD OF QUIETLY DRAWING THE CANVAS.
+    #:
+    #: THIS ABSENCE WAS THE ROOT CAUSE OF WHAT SANAA SAW. She reported a dome
+    #: of points where this case's geometry should be and a coin-sized grid in
+    #: an empty panel. No ParaView render existed for this case, so
+    #: ``_panel()`` found nothing on disk -- and because this act declared no
+    #: panels, that absence read as "this act has no panels" rather than as a
+    #: fault. Geometry fell through to ``announce_geometry`` and meshing to
+    #: ``_grid_payload``: the canvas, twice, which is the visual source Sanaa
+    #: banned by name.
+    #:
+    #: THE GUARD WAS NOT WRONG, IT WAS UNREACHABLE. Refusal-on-absence is
+    #: keyed on this declaration, so an act that declares nothing gets the
+    #: silent fallback -- the guard protected the one act that had opted in.
+    #: Opting in is what makes it protect this one.
+    #:
+    #: THE FIELD PANELS ARE NOT DECLARED, and that is a fact about this case
+    #: rather than an oversight: only geometry, mesh and mesh_zoom are rendered
+    #: for it. Declaring a panel that does not exist would refuse the act,
+    #: which is exactly the behaviour this declaration is for -- so the list
+    #: names what is on disk and nothing else, and the field stage skips.
+    rendered_panels = ("geometry", "mesh", "mesh_zoom")
+
     #: THE SYMBOL AND UNIT UNDER EACH RENDERED FIELD PANEL. rhoCentralFoam is
     #: compressible and carries a real thermodynamic pressure, so the unit is
     #: Pa; the jet-flap act's incompressible p/rho would be the wrong unit on
@@ -659,9 +683,27 @@ class ShockReflectionAct(DemoAct):
         start, length = _wall_from_mesh()
         low, high = _stl_extent()
         mesh_source = (_case("res120") / "constant" / "polyMesh" / "boundary")
+        # THE LABEL NOW NAMES WHAT THE PICTURE IS OF, which it did not.
+        #
+        # It read "the wall the shock reflects from" while the rendered panel
+        # shows the WHOLE DOMAIN: the channel outline, the wall marked along
+        # its floor, and the initial shock line. A label naming one feature of
+        # a picture of three is the caption trap in its quietest form -- true
+        # about something in the frame, false about the frame.
+        #
+        # EVERY NUMBER IN IT IS READ. The channel comes from the case's own
+        # blockMeshDict through ``_setup``, the wall start from the solved
+        # mesh's boundary file through ``_wall_from_mesh``, and the angle from
+        # the divisor in the initial-condition expression -- the same readers
+        # the assumptions table and the specialists already use. Nothing here
+        # is typed, so the label cannot outlive the case it describes.
+        setup = _setup()
         return Geometry(
             served_stl=SERVED_STL,
-            display_label="the wall the shock reflects from",
+            display_label=(f"Channel {setup['channel'][0]:.2f} by "
+                           f"{setup['channel'][1]:.2f} m, wall from "
+                           f"x = {start:.3f}, shock line at "
+                           f"{setup['angle_deg']:.0f} degrees"),
             matches=[
                 GeometryMatch(
                     quantity="wall start",

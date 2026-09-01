@@ -945,6 +945,37 @@ class Sequencer:
                    "mesh_zoom": "grid_zoom",
                    "field_u": "field_velocity", "field_p": "field_pressure"}
 
+    def _panel_store(self) -> str:
+        """The served directory THIS act's rendered panels are copied into.
+
+        ONE DIRECTORY WAS SHARED BY EVERY ACT AND THE FILE NAMES ARE FIXED.
+        :data:`PANEL_NAMES` maps every act's geometry panel to ``surface.png``
+        and every act's grid to ``grid.png``, and all of them landed in
+        ``demo-panels``, so the panels served under those names belonged to
+        whichever act ran most recently. It self-heals on a fresh drive, which
+        is why it has never been seen: run one act and the files are right.
+
+        IT STOPS SELF-HEALING THE MOMENT TWO ACTS ARE FILMED IN ONE SESSION.
+        Sanaa is shooting the jet flap and the shock benchmark back to back,
+        and a viewer who runs one and then looks back at the other's Report tab
+        is served the wrong act's pictures under the right act's numbers. The
+        cell-count assertion in :meth:`_panel` does not catch it: that guard
+        runs at publication, on the panel being copied, and says nothing about
+        a file already sitting in the directory under the same name.
+
+        The key comes from :attr:`DemoAct.registry_key`, stamped at
+        registration, so it is the same identity ``run_act`` resolves. It is
+        restricted to the URL-safe characters because it becomes one path
+        segment of ``/api/plot/<store>/<name>.png`` and the server splits that
+        path on ``/`` and requires exactly four parts. An act with no usable
+        key keeps the shared directory rather than being refused: a namespace
+        is a collision fix, and failing an act over one would trade a rare
+        wrong picture for a certain blank screen.
+        """
+        key = "".join(ch for ch in str(getattr(self.act, "registry_key", ""))
+                      if ch.isalnum() or ch == "-")
+        return f"{self.PANEL_DIR}-{key}" if key else self.PANEL_DIR
+
     def _declares(self, panel: str) -> bool:
         """Does the act state, in its own source, that it renders this panel?
 
@@ -1076,7 +1107,7 @@ class Sequencer:
         # place, and the guard that says so reads every announced figure's URL.
         # The mesh and surface panels are the SEQUENCER's, not the act's, and
         # keep the panel store.
-        out = Path(OUT_ROOT) / (namespace or self.PANEL_DIR)
+        out = Path(OUT_ROOT) / (namespace or self._panel_store())
         out.mkdir(parents=True, exist_ok=True)
         served = self.PANEL_NAMES.get(panel, panel)
         shutil.copy2(shot, out / f"{served}.png")
@@ -1088,7 +1119,7 @@ class Sequencer:
         # payload that renders.
         shutil.copy2(side, out / f"{served}.json")
         return {
-            "url": f"/api/plot/{namespace or self.PANEL_DIR}/{served}.png",
+            "url": f"/api/plot/{namespace or self._panel_store()}/{served}.png",
             "panel": panel,
             # Both numbers travel so the DISPLAY can make the same assertion
             # this method just made. A guard that only ever runs on the
@@ -1335,7 +1366,8 @@ class Sequencer:
             # same directory they are. Derived rather than constant: see
             # :func:`figure_namespace` for what a constant here cost.
             declared = list(r.fields) + list(r.plots)
-            space = figure_namespace(declared[0]) if declared else self.PANEL_DIR
+            space = (figure_namespace(declared[0]) if declared
+                     else self._panel_store())
             for panel, title, caption in fields:
                 shot = self._panel(mesh, panel, namespace=space)
                 if shot is None:

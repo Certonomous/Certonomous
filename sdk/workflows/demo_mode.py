@@ -1721,6 +1721,11 @@ class DemoAct(ABC):
     #: prompt and the solver header, not this.
     name: str = ""
 
+    #: The key this act is registered under, stamped by :func:`register_act`.
+    #: Internal and never on a screen; the sequencer uses it to give each act
+    #: its own served-panel directory.
+    registry_key: str = ""
+
     #: WHAT THIS ACT ACTUALLY COMPUTES, from
     #: :data:`CAPTION_QUANTITY_VOCABULARY`. The stage template used to caption
     #: the shock benchmark's grid with "the lift and the pressures" and to
@@ -1924,6 +1929,14 @@ def register_act(key: str, act: DemoAct) -> DemoAct:
             f"{type(act).__name__} does not implement DemoAct")
     if key in _REGISTRY and _REGISTRY[key] is not act:
         raise DemoContractError(f"an act is already registered as {key!r}")
+    # THE ACT LEARNS ITS OWN KEY HERE, and it learns it from the registration
+    # rather than by declaring it a second time. The sequencer needs a stable
+    # per-act identity to keep two acts' served panels in separate directories
+    # (they shared one, and `surface.png` was rewritten by whichever act ran
+    # last); a key retyped as a class attribute is a second copy free to
+    # disagree with the one the registry resolves. `register_act` is the only
+    # place the key exists, so it is the only place that may stamp it.
+    act.registry_key = key
     _REGISTRY[key] = act
     return act
 
