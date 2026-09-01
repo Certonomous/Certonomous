@@ -452,7 +452,7 @@ def _normalise_act_a(b: dict) -> dict:
     out = dict(b)
     out["source_case"] = (f"{common}, {len(rows)} operating points"
                           if common else "not recorded in this bundle")
-    out["reader"] = ("not recorded in this bundle -- the readers and the "
+    out["reader"] = ("not recorded in this bundle; the readers and the "
                      "build are named in the directory README beside it")
     out["mesh"] = {
         "n_mesh_cells": "not recorded in this bundle",
@@ -531,7 +531,7 @@ def _normalise_act_a(b: dict) -> dict:
     # spelling ``main`` scans for ----
     if unc.get("available") is False and unc.get("reason"):
         out["numerical_uncertainty_statement"] = (
-            "NOT AVAILABLE -- a discretisation error bar for this act: "
+            "NOT AVAILABLE; a discretisation error bar for this act: "
             + str(unc["reason"]))
     return out
 
