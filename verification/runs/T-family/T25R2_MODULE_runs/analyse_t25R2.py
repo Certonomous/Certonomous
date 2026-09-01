@@ -98,6 +98,26 @@ DO NOT KNOW THAT 10 SWEEPS IS CONVERGED.  T25R2 DEMONSTRATES IT RATHER THAN
 ASSUMING IT, and the arm is built so that IT CAN FAIL.
 
 =====================================================================
+AMENDMENT A1 (2026-09-01, PRE-COMPUTE) -- ONE REPORT ADDED, NO GATE TOUCHED
+=====================================================================
+Registered at the foot of the frozen document as Amendment A1, under rule 2's
+PRE-COMPUTE limb, with the condition stated and checked: NO T25R2 RUN DIRECTORY
+EXISTS.  It ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.
+
+`oc_independence()` additionally returns `O1_t30` -- O1 restricted to t = 30 s
+-- printed beside the T25RF probe's MEASURED 5-vs-10 gap of 6.02e-3 K at the
+same instant, on the same mesh, the same loads and the same relaxation.  It
+exists because doubling the sweeps ONCE is a SINGLE POINT: 10 and 20 could sit
+close while both are wrong, and the probe measured the 5-vs-10 gap STILL
+GROWING at t=30 s.  Smaller than 6.02e-3 K and the sequence 5 -> 10 -> 20 is
+visibly converging; larger, and a reader sees that IMMEDIATELY, EVEN ON A PASS.
+
+*** NO THRESHOLD IS ATTACHED AND NONE MAY BE INFERRED. ***  `ok` is built from
+O1, O2 and O3 and nothing else, and --selftest PROVES it by driving a 9.0e-3 K
+disagreement that PASSES the gate while the report flags it as larger than the
+probe's gap.
+
+=====================================================================
 WHAT THIS COMPARATOR DOES NOT DO, AND WILL NOT BE MADE TO DO
 =====================================================================
 
@@ -312,6 +332,34 @@ RESID_REPORT_FIELDS = ("p_rgh", "Ux", "Uy", "h")
 OC_O1_TOL = 10.0 * PLANT                  # 1.234e-02 K
 OC_O2_TOL = 1.0 * PLANT                   # 1.234e-03 K
 OC_O3_TOL = 10.0 * PLANT                  # 1.234e-02 K
+
+# ==========================================================================
+# AMENDMENT A1 (2026-09-01, PRE-COMPUTE).  *** A REPORT.  NOT A GATE. ***
+# ==========================================================================
+# Doubling the sweeps ONCE and finding agreement is the standard test, but it
+# is a SINGLE POINT: 10 and 20 could sit close while both are wrong.  The probe
+# already measured the term that settles it, on the SAME mesh, the SAME loads
+# and the SAME relaxation -- genuinely like-for-like with a 10-vs-20 comparison
+# AT THE SAME INSTANT:
+#
+#   T25RF addendum A2 section 3: arms A1 (5 sweeps) and A2 (10 sweeps) differed
+#   in max T by 1.05e-3 K at t=1 s, 3.47e-3 K at t=10 s and 6.02e-3 K at
+#   t=30 s -- and the gap WAS STILL GROWING when the probe ended.
+#
+# O1_t30 is O1 restricted to t = 30 s, printed BESIDE 6.02e-3 K so the SEQUENCE
+# 5 -> 10 -> 20 is visible at one instant:
+#   SMALLER than 6.02e-3 -> the sequence is visibly converging and the PASS
+#                           means what it claims;
+#   LARGER  than 6.02e-3 -> the reader sees that IMMEDIATELY, EVEN ON A PASS.
+#
+# *** NO THRESHOLD IS ATTACHED AND NONE MAY BE INFERRED. ***  A 10-vs-20 gap of,
+# say, 9.0e-3 K PASSES O1 (it is below 10*PLANT) while being LARGER than the
+# 5-vs-10 gap -- that is exactly the case this report exists to surface and the
+# gate cannot.  `--selftest` drives that case: the gate PASSES and the report
+# flags the growth, in the same invocation.  The supervisor declined to register
+# a threshold he had not justified, and none is registered here.
+PROBE_5V10_AT_T30 = 6.02e-3               # K, T25RF addendum A2 section 3
+OC_REPORT_TIME = 30.0                     # s, a registered write time
 
 # Section 3.4, the numerics MEASURED by T25RF arm A2T and registered here.  The
 # crash mechanism was a MISSING DICTIONARY KEY, so the keys are verified in the
@@ -1177,16 +1225,21 @@ def oc_independence(root, ma=None, ca=None, mb=None, cb=None):
     #      t = 0 is EXCLUDED and the exclusion is registered: both arms stage
     #      the SAME 0.orig, so a t = 0 comparison is identically zero by
     #      construction and would be a planted zero dressed as agreement.
-    o1, o1_where = 0.0, None
+    o1, o1_where, o1_t30 = 0.0, None, None
     for t in WRITE_TIMES:
         if t <= 0.0:
             continue
         va = read_cell_T(a, t, ma)
         vb = read_cell_T(b, t, mb)
+        at_t = 0.0
         for i in range(N_CELLS):
             dv = abs(vb[i] - va[i])
+            at_t = max(at_t, dv)
             if dv > o1:
                 o1, o1_where = dv, "cell %d at t=%g s" % (i + 1, t)
+        # AMENDMENT A1: the like-for-like slice, REPORTED, never compared.
+        if t == OC_REPORT_TIME:
+            o1_t30 = at_t
 
     # ---- O2: the D3 quantity itself, at the end of the pulse.
     da = min(x[1] - x[0] for x in zip(*read_updown(a, T_PULSE, ma)))
@@ -1207,7 +1260,19 @@ def oc_independence(root, ma=None, ca=None, mb=None, cb=None):
         O2_10=da, O2_20=db,
         O3=o3, O3_tol=OC_O3_TOL, O3_ok=(o3 <= OC_O3_TOL), O3_where=o3_where,
         arms=list(OC_PAIR), sweeps=[NOUTER[OC_PAIR[0]], NOUTER[OC_PAIR[1]]],
-        scope=OC_SCOPE)
+        scope=OC_SCOPE,
+        # ---- AMENDMENT A1.  REPORT ONLY.  These three keys take NO part in
+        #      `ok` below, and --selftest proves it by driving a case that is
+        #      LARGER than the probe's gap and still PASSES.
+        O1_t30=o1_t30, probe_5v10_t30=PROBE_5V10_AT_T30,
+        t30_direction=(None if o1_t30 is None else
+                       ("SMALLER than the probe's 5-vs-10 gap -- the sequence "
+                        "5 -> 10 -> 20 is visibly converging at t=30 s"
+                        if o1_t30 < PROBE_5V10_AT_T30 else
+                        "*** LARGER than the probe's 5-vs-10 gap -- the "
+                        "sequence is NOT visibly converging at t=30 s, and "
+                        "this is stated EVEN IF THE GATE PASSES ***")))
+    # *** `ok` IS BUILT FROM THE THREE GATED DELTAS AND NOTHING ELSE. ***
     r["ok"] = r["O1_ok"] and r["O2_ok"] and r["O3_ok"]
     return r
 
@@ -1627,6 +1692,17 @@ def grade(root, cases, repo=None):
               "%.6e K  <= %.6e K (10*PLANT)  [%s]   worst at %s"
               % (oc["O3"], oc["O3_tol"], "PASS" if oc["O3_ok"] else "GATE FAIL",
                  oc["O3_where"]))
+        if oc["O1_t30"] is None:
+            print("  AMENDMENT A1 REPORT: t=%g s was not written, so the "
+                  "like-for-like slice is NOT MEASURED. [REPORT]"
+                  % OC_REPORT_TIME)
+        else:
+            print("  AMENDMENT A1 REPORT -- *** NO THRESHOLD. NOT A GATE. *** "
+                  "the 10-vs-20 gap AT t=%g s is %.6e K, beside the T25RF "
+                  "probe's MEASURED 5-vs-10 gap of %.6e K at the same instant, "
+                  "on the same mesh, the same loads and the same relaxation."
+                  % (OC_REPORT_TIME, oc["O1_t30"], PROBE_5V10_AT_T30))
+            print("    %s  [REPORT]" % oc["t30_direction"])
         oc_state = "PASS" if oc["ok"] else "GATE FAIL"
         print("  OUTER-LOOP GATE: %s" % oc_state)
         if not oc["ok"]:
@@ -2445,6 +2521,45 @@ def selftest():
             chk("the gate reports its own SCOPE LIMIT (L1 only, Co ~ 1600) on "
                 "every invocation", "does not certify L2" in g["scope"].lower()
                 or "DOES NOT CERTIFY L2" in g["scope"])
+
+            # ---- AMENDMENT A1.  A REPORT, AND PROVED TO BE ONLY A REPORT.
+            chk("the probe's like-for-like anchor is the MEASURED 6.02e-3 K "
+                "5-vs-10 gap at t=30 s (T25RF addendum A2 section 3)",
+                abs(PROBE_5V10_AT_T30 - 6.02e-3) < 1e-15
+                and OC_REPORT_TIME in WRITE_TIMES)
+            g = arms(bonus=1.0e-4)
+            chk("AMENDMENT A1: the t=30 s slice is read back at exactly the "
+                "planted 1.000000e-04 K and is reported SMALLER than the "
+                "probe's gap -- the sequence 5 -> 10 -> 20 is visibly "
+                "converging",
+                abs(g["O1_t30"] - 1.0e-4) < 1e-12
+                and g["O1_t30"] < PROBE_5V10_AT_T30
+                and "SMALLER" in g["t30_direction"] and g["ok"])
+            g = arms(bonus=9.0e-3)
+            chk("*** AMENDMENT A1 IS A REPORT AND NOT A GATE, PROVED: *** a "
+                "9.0e-3 K disagreement PASSES O1 (it is below 10*PLANT = "
+                "1.234e-2) AND IS LARGER than the probe's 5-vs-10 gap -- the "
+                "gate says PASS and the report says the sequence is not "
+                "visibly converging, in the same invocation",
+                g["ok"] and g["O1_ok"]
+                and g["O1_t30"] > PROBE_5V10_AT_T30
+                and "LARGER" in g["t30_direction"])
+            # The tokens are assembled from fragments so this check cannot
+            # match itself -- the same trap that made the first draft of it
+            # report a threshold that was only ever its own search string.
+            ok_line = ("r[" + chr(34) + "ok" + chr(34) + "] = "
+                       "r[" + chr(34) + "O1_ok" + chr(34) + "] and "
+                       "r[" + chr(34) + "O2_ok" + chr(34) + "] and "
+                       "r[" + chr(34) + "O3_ok" + chr(34) + "]")
+            no_tol = ["O1_t30" + "_ok", "O1_t30" + "_tol",
+                      "PROBE_5V10_AT_T30" + "_TOL", "OC_T30" + "_TOL"]
+            found = [t for t in no_tol if t in code]
+            chk("*** NO THRESHOLD IS BOUND FOR THE AMENDMENT REPORT *** -- "
+                "PROBE_5V10_AT_T30 is an ANCHOR the report is printed beside, "
+                "not a bound it is tested against, and `ok` is assembled from "
+                "O1/O2/O3 alone on one line (threshold-shaped names found: %r)"
+                % found, ok_line in code and not found)
+
         finally:
             shutil.rmtree(oroot, ignore_errors=True)
 

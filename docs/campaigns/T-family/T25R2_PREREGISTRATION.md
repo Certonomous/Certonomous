@@ -1258,3 +1258,128 @@ Read at source (§6.1), but the `DEAD_LEVER_AUDIT.md` §26.6 deadlock is a **liv
 referral in another team's territory** and this lane did not adjudicate it.
 
 <!-- END OF T25R2 PRE-REGISTRATION v1.0 -->
+
+---
+
+## Amendment A1 — 2026-09-01T05:32Z, **BEFORE ANY T25R2 COMPUTE**
+
+**Lines whose number changed above this section: 0.**
+
+**This document is now version 1.1.** The version is bumped **here, inside the
+amendment**, and **not** by editing line 3 — editing the header would change a
+line number above this section and falsify the assertion this amendment is
+required to make. The `<!-- END OF ... v1.0 -->` marker above closes the **v1.0
+body**, which is unaltered; v1.1 is that body **plus** this amendment.
+
+Ordered by `heat-transfer-supervisor` at his §10 step 2 diff read, after he
+personally confirmed the commit (`bb6e5761`, five files, document blob
+`853cdb42` identical on disk and at HEAD, **no case directory**) and personally
+drove `--selftest` under `python3` and `python3 -O` with caches cleared.
+
+### A1.1 THE CONDITION, AND HOW IT WAS CHECKED
+
+`CLAUDE.md` rule 2 permits amendments **before first compute** and requires the
+condition and the check to be stated — *"name the run directory that does not
+exist"*.
+
+**Condition: NO T25R2 COMPUTE HAS RUN AND NO T25R2 RUN DIRECTORY EXISTS.**
+**Checked at write:** `verification/runs/T-family/T25R2_MODULE_runs/` holds
+**exactly four files and no directory** — `analyse_t25R2.py`,
+`mark_done_t25R2.py`, `stage_t25R2.py`, `run_one_t25R2.sh` (the interpreter's
+`__pycache__` is removed before every check);
+**`T25R2_L1`, `T25R2_L1_OC20`, `T25R2_L2` and `T25R2_L2_DT025` DO NOT EXIST**
+(`ls -d .../T25R2_*` → *"No such file or directory"*). No solver, no
+`blockMesh`, no `splitMeshRegions`, no `checkMesh` and no staging has run.
+
+### A1.2 ⚠ WHAT THIS AMENDMENT DOES **NOT** DO
+
+**It alters NO gate, NO threshold, NO cap and NO label.** §3.5's three gated
+deltas O1/O2/O3 keep their thresholds (`10×PLANT`, `1×PLANT`, `10×PLANT`)
+unchanged, the propagation rule of §3.5.4 is unchanged, §8's costs and caps are
+unchanged, and no output changes its GRADED / `FEASIBILITY` label. It **adds one
+REPORT**.
+
+### A1.3 THE REPORT, AND WHY IT IS OWED
+
+**Doubling the sweeps once and finding agreement is the standard test, but it is
+a SINGLE POINT.** A `PASS` on §3.5 could mean the outer loop has converged, or
+could mean 10 and 20 sweeps sit close **while both are wrong**. The registration
+as frozen cannot tell those apart, and the probe's own measurement is the reason
+to worry: the 5-vs-10 gap was **still growing** when the probe ended.
+
+**The number that settles it is already measured, and it is genuinely
+like-for-like.** T25RF addendum A2 §3, on the **same mesh (L1)**, the **same
+loads**, the **same relaxation** and at the **same instant**:
+
+| sweeps compared | t = 1 s | t = 10 s | **t = 30 s** |
+|---|---|---|---|
+| **5 vs 10** (MEASURED, T25RF) | 1.05e-3 K | 3.47e-3 K | **6.02e-3 K** |
+| **10 vs 20** (this rung) | — | — | **REPORTED HERE** |
+
+**REGISTERED: `O1_t30` — O1 restricted to `t = 30 s` — is computed and printed
+beside the probe's MEASURED 6.02e-3 K.**
+
+- **smaller than 6.02e-3 K** ⇒ the sequence **5 → 10 → 20 is visibly
+  converging** at that instant and the `PASS` means what it claims;
+- **larger than 6.02e-3 K** ⇒ a reader sees that **immediately, EVEN ON A
+  `PASS`**.
+
+### A1.4 ⚠ **NO THRESHOLD IS ATTACHED, AND NONE MAY BE INFERRED**
+
+The supervisor declined to register a number he had not justified, and **none is
+registered here.** `O1_t30` is a **REPORT**, exactly as the last-sweep residual
+census is (§3.5.2). It takes **no part** in the outer-loop gate's verdict:
+`oc_independence()`'s `ok` is assembled from `O1_ok`, `O2_ok` and `O3_ok` on one
+line and from nothing else.
+
+**PROVED BY MUTATION, not asserted.** `--selftest` drives the case this report
+exists for: **a 9.0e-3 K sweep-count disagreement PASSES O1** — it is below
+`10×PLANT = 1.234e-2 K` — **and is LARGER than the probe's 5-vs-10 gap.** The
+gate prints `PASS` and the report prints *"the sequence is NOT visibly
+converging at t=30 s"*, **in the same invocation.** A second arm plants
+1.000000e-04 K and the report reads it back at exactly that value and flags it
+as smaller. A third arm proves by fragment-assembled token search that **no
+threshold-shaped name is bound** for the report anywhere in the file.
+
+`t = 30 s` is a registered write time (§9), so this costs nothing and adds no
+field.
+
+### A1.5 THE ARTIFACTS THIS AMENDMENT CHANGES, NAMED FOR AUDIT
+
+| artifact | before | after |
+|---|---|---|
+| `analyse_t25R2.py` | committed blob **`9d419a7ce57501ed535fdfa8706d517780cb2914`** at `bb6e5761` | the blob committed with this amendment |
+| `mark_done_t25R2.py`, `stage_t25R2.py`, `run_one_t25R2.sh` | **unchanged** | **unchanged** |
+| §1–§12 of this document | **unchanged** | **unchanged** |
+
+`analyse_t25R2.py --selftest` now runs **88 checks** (84 before this amendment)
+and passes under both `python3` and `python3 -O` with caches cleared;
+`mark_done_t25R2.py` and `stage_t25R2.py` are untouched and still pass.
+
+### A1.6 ⚠ THE FIRST DRAFT OF A1.4's OWN CHECK WAS WRONG, AND IT IS DISCLOSED
+
+The structural check that proves no threshold is bound **failed on its first
+run — because its own search literals were inside the file it was searching.**
+It reported `O1_t30_ok` and `PROBE_5V10_AT_T30_TOL` as "present" when the only
+occurrence of either was **the check's own string**. It is now assembled from
+fragments so it cannot match itself.
+
+**This is recorded because it is the same failure as §12.3's**: *a control
+derived from the thing it controls is not a control.* It was caught by running
+the check rather than by reading it, which is §7.5's whole point.
+
+### A1.7 §10 IS UNCHANGED AND STILL BINDING
+
+```
+  1. COMMIT this amendment and the comparator.          <-- this lane
+  2. THE SUPERVISOR'S PERSONAL DIFF READ.               <-- DISCHARGED, and it
+                                                            stays discharged
+  3. stage + verify the mesh                            <-- only after 2
+  4. launch T25R2_L1 FIRST, then STOP and calibrate     <-- only after 3
+```
+
+**Caps are unchanged and hard: 390 core-min total against 600. An overrun STOPS
+the run and does not get a new budget** (rule 12). L3 stays refused (§8.6); an
+L2 outer-loop arm stays refused (§8.5).
+
+<!-- END OF T25R2 PRE-REGISTRATION v1.1 -->
