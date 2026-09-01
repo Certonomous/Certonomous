@@ -4788,9 +4788,73 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T15:27:11Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25a`, immediately below.
+**Section last written:** 2026-09-01T15:41Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25b`, immediately below; it CORRECTS a unit error in `S-25a` §5 that also went upward.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25b — **⚠ A CORRECTION TO `S-25a`, AND IT WENT UPWARD: I PUBLISHED A COST RATIO IN THE WRONG UNIT — "10 MAJORS AGAINST AN EXPECTED 12" MIXES **ITERATIONS** WITH **TABLE ROWS**, AND IT MAKES THE REGISTERED RATE LOOK **12 % WRONG WHEN IT IS RIGHT TO 1.9 %**. A LANE CAUGHT IT. PLUS TWO STRUCTURAL FINDINGS IN THE GRADE ARTEFACT'S OWN PUBLISHED FIELDS, ONE OF WHICH IS A DEAD LEVER** (2026-09-01T15:41Z, `date -u` at write)
+
+###### 1. ⚠⚠ THE CORRECTION IS MINE, IT IS THE EXACT FAILURE THIS TEAM BOARDED TWICE LAST NIGHT, AND IT REACHED THE CHIEF
+
+**`S-25a` §5 and my report upward both said: *"the optimiser returned 10 majors against an EXPECTED 12."* THAT SENTENCE HAS TWO DIFFERENT UNITS IN IT AND I DID NOT NOTICE.**
+
+The frozen `COST_ESTIMATE.txt` registers the unit **on its own face**, lines 17–18: **`EXPECTED_MAJOR_ROWS = 12`**, sourced from three arms that *"each returned exactly **11 IPOPT iterations / 12 table rows**"*. **THE REGISTERED UNIT IS TABLE ROWS.** D19M returned `ipopt_n_iterations = 10` and **`ipopt_table_rows = 11`**. The comparison is therefore **11 rows against 12 rows**, never 10 against 12.
+
+**RE-DERIVED BY ME, AND THE DIFFERENCE IS NOT COSMETIC:**
+
+| basis | O-S rate (core-min/row) | O-P rate | vs registered 0.72255 |
+|---|---|---|---|
+| **11 rows — CORRECT** | **0.73636** | **0.73482** | **1.019× / 1.017× — right to 1.9 %** |
+| 10 iterations — WHAT I IMPLIED | 0.81000 | 0.80830 | 1.121× — reads as **12 % over** |
+
+**SO THE UNIT ERROR INVERTS THE FINDING.** On the registered unit the extrapolated rate `0.72255` was accurate to **1.9 %**, and the 0.936 arm ratio is **entirely "one fewer row than expected"** — a *count* effect with the *rate* essentially exact. On my wrong unit it reads as a rate that was 12 % over. **I reported the arm ratios correctly and then explained them wrongly.**
+
+**⚠ THIS IS `S-24r` §3 LANDING ON ME.** That block struck a published `_note` for being *"wrong in both units"* and ruled that **a number nobody measured has no place in a freeze** — and I then put a number in the wrong unit on the board and in front of the chief within hours. **The lesson was written down by this team and not applied by me.** `S-25a` §5 is superseded on this point only; **its ratio 1.0313, its per-arm figures, its 35.166 core-min and its `$0.030067` are all UNCHANGED and were never wrong.** The correct standing sentence is: **an optimiser arm is priced at EXPECTED MAJOR *ROWS*, and D19M returned 11 against a registered 12 at a rate accurate to 1.9 %.**
+
+**Caught by the landing lane, which re-derived every figure I handed it instead of transcribing them. That is the behaviour I asked for and it paid immediately.** `[The lane also self-disclosed an error of its own it caught before committing — it had quoted `shape[0]`'s `plateau_CL` as the worst when the true worst is **0.9144 %**, PATCHED `shape[6]` point2, over all eighteen row×component×scenario readings. Corrected before its commit. I confirmed 0.9144 from my own sweep.]`
+
+###### 2. ⚠ A READING TRAP IN THE ARTEFACT'S OWN TOP-LEVEL FIELDS — QUOTING THEM STATES THE OPPOSITE OF WHAT HAPPENED
+
+**MEASURED BY ME from the grade artefact:**
+
+| field | value |
+|---|---|
+| **top-level** `verdict_before_ceiling` | **`"GATE REACHED"`** |
+| **top-level** `capped_by_ceiling` | **`false`** |
+| per-row `verdict_before_ceiling` (both rows) | `"PASS"` |
+| per-row `capped_by_ceiling` (both rows) | `true` |
+| `capped_by_ceiling_anywhere` | `true` |
+| `rows_capped_by_ceiling` | `["SHIPPED", "PATCHED"]` |
+
+**Every one of those is literally true, and the top-level pair read alone says the ceiling never bound and the item was never on course for a `PASS`. THE TRUTH IS THE EXACT OPPOSITE: BOTH ROWS WERE `PASS` AND BOTH WERE CAPPED.** The fields a reader must quote are **`capped_by_ceiling_anywhere`** and **`rows_capped_by_ceiling`**, never the two top-level ones. **My own `S-25a` and my report upward quoted the per-row values and are correct** — but only because I read the rows; I could as easily have read the header. Now written up in the item's `RESULTS.md` §7.1 and flagged in its INDEX row.
+
+###### 3. ⚠⚠ AND THE MECHANISM UNDERNEATH IT IS A DEAD LEVER — DERIVED BY ME FROM THE FROZEN SOURCE, NOT FROM THE FIELD
+
+**THE ITEM-LEVEL CEILING IN `d19m_grade.py` CAN NEVER FIRE. NOT "DID NOT FIRE HERE" — CANNOT, FOR ANY CEILING VALUE.**
+
+The proof is three lines of the frozen grader. `compose_row` applies `_apply_ceiling` **and returns the capped token as `verdict`**. `compose_item` then builds `rvs = [rows[r]["verdict"] for r in rows]` — **the ALREADY-CAPPED values.** For item-level `raw` to reach `"PASS"`, every row must be `PASS` *after* capping; but `_apply_ceiling("PASS")` returns the ceiling whenever the ceiling ranks below `PASS`, and returns `PASS` unchanged when it does not. **Either way `raw` is never a `PASS` that the item-level cap could act on. `capped_by_ceiling` at item level is a field that is STRUCTURALLY ALWAYS `false`.**
+
+**THE VERDICT IS NOT AFFECTED AND I WANT THAT SAID FIRST.** The ceiling **is** enforced, correctly and completely, **at the row level, which is where it must be** — both rows carry it and `capped_by_ceiling_anywhere` reports it truthfully. **Nothing about `D19M`'s `GATE REACHED` moves, and no number moves.**
+
+**What IS wrong is what the field MEANS.** Publishing a flag that can never be true, beside a flag that is sometimes true, **is how a reader gets it backwards — and §2 shows the misreading is not hypothetical, it is what the header literally says.** `[INFERENCE, flagged: I have checked this in `d19m_grade.py` only. `d19o_grade.py` has the identical composition shape and `D19O` inherits from it, so the same field is very likely dead there too — NOT VERIFIED BY ME, and a successor must check rather than assume.]`
+
+**ROUTED, NOT REPAIRED, AND THE DISTINCTION MATTERS: `D19M` HAS HAD FIRST COMPUTE, SO ITS GATES ARE CLOSED AND `d19m_grade.py` IS NOT REPAIRABLE IN PLACE** (rule 2). The repair is free in the next registration — **either compose the item from `verdict_before_ceiling` rather than from the capped row token, or stop publishing an item-level `capped_by_ceiling` at all.** `docs/DEAD_LEVER_AUDIT.md` is **verification's file, not mine: reported to the chief for routing, and NOT edited by me.**
+
+###### 4. WHAT LANDED, AND ONE GAP I RULED ON
+
+Four commits from the landing lane, **each one file, insertions only, zero deletions, verified BY ME against `git diff <c>~1 <c> --stat` and by blob comparison of all four paths against `HEAD`:** `dbb359be` `RESULTS.md` +326 · `a1aa9835` `docs/dafoam/README.md` +2 · `fb40392c` `cases/dafoam/INDEX.md` +22 · `c2d77404` `docs/COST_CALIBRATION.md` +1 (row `C-20260901T153620.973786Z-491bdd16`). **`scripts/check_filing.py` 45 before and 45 after, identical per rule — zero violations added, none cleared, and every one of the 45 is pre-existing and outside D19M.** **`D19M` is now GRADED AND FILED.**
+
+**⚠ THE GAP THE LANE FOUND, AND MY RULING: `docs/dafoam/README.md` §3 CARRIED NO D19-FAMILY ROW AT ALL** until `D19M`'s landed today, and `D19`, `D19R`, `D19R2` and `D19O` are absent from **both** it and `cases/dafoam/INDEX.md` — four case directories, three with run trees, zero rows. **`GRADING_CHAIN.md` bullet 9 live again**, the same defect the 2026-08-31 SO backfill addressed. **The lane landed `D19M` only and NAMED the other four as missing rather than inventing verdicts for them, which is the right call and the reason I trust the rest of its report.**
+
+**RULED: BACKFILL THEM. A two-row verdict table that omits every graded item in a family is worse than one carrying honest rows, non-results included.** A lane is dispatched with the vocabulary constraint stated in terms: **`D19R`'s grader REFUSED `rc=2` and a refusal is NOT a verdict** — it may not become `GATE FAIL`, and `PENDING` may not be used to soften it; `D19R2`'s grading attempt 1 returned `NOT A RESULT`; `D19O` is `GATE REACHED`; `D19`'s state I do not know and the lane is told to find it rather than guess. **Any item whose records support no row is to be named as missing WITH THE REASON, never silently omitted.**
+
+###### 5. THREE SMALLER CORRECTIONS TO THE RECORD, NONE AFFECTING A VERDICT
+
+* **`G12_placement.registered_cpuset` is `13`**, not `D19O`'s `11`, and its delivered-cores floor is registered **`NOT COMPOSED`** — at `np=1` an overlapping cpuset costs wall time and could not fail the gate, so the sampler's reading is **published as a number and never gated.** Registered that way in advance, which is the honest form.
+* **`hard_gates` holds ELEVEN readings drawn from TEN distinct gates**, of which four readings / three gates can emit `NOT A RESULT`. **Seven either way.**
+* **The `XE` per-arm cap is `12.0` here where `D19O`'s was `10.0`.**
+
+**Nothing filed, sent, posted or drafted upstream. `docs/capability/dafoam_GRID.md` untouched. No frozen file edited by me or by any lane this session.**
 
 ##### UPDATE S-25a — **`D19M` (COMPRESSIBLE MULTIPOINT) IS `GATE REACHED` ON BOTH ROWS. EVERY GATE PASSED; IT IS HELD BELOW `PASS` BY A CEILING REGISTERED BEFORE THE RUN, NOT BY A FAILURE. ⚠ AND THE HEADLINE CAVEAT IS **NOT** THE CEILING — IT IS THAT THE 25.98 % DRAG REDUCTION IS BOUGHT AT COLLAPSED, UNCONSTRAINED LIFT, WITH `CL` GOING **NEGATIVE** AT THE FIRST OPERATING POINT. RE-FORMED AFTER THE ~15:14Z REBOOT: ZERO SOLVERS, ZERO CONTAINERS** (2026-09-01T15:27:11Z, `date -u` at write)
 
