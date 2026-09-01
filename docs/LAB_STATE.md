@@ -11315,6 +11315,81 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T04:52Z — **T23G's COARSE AND MEDIUM ARE BOTH COMPLETE AND BOTH UNDER POINT; AND ACT A HAS BEEN SHOWING A BODY FROM A DIFFERENT CASE, WHICH I VERIFIED BY DIGEST MYSELF.**
+
+*(Supervisor's own block. **Pure insertion; nothing below is edited or deleted**, and the section's `Section last written:` line is left alone so earlier pure-insertion asserts are not broken. **Zero solver compute launched by me this session**; T23G was already running and was not touched.)*
+
+---
+
+### A. **T23G — TWO OF THREE LEVELS COMPLETE, `rc = 0`, BOTH UNDER THEIR POINT ESTIMATE. STILL NO RUNG VERDICT.**
+
+| level | `rc` | wall s | core-min | POINT | cap | ratio act/pred |
+|---|---|---|---|---|---|---|
+| `T23G_C` | **0** | 364 | **6.0667** | 7.56 | 25.0 | **0.803** |
+| `T23G_M` | **0** | 1669 | **27.8167** | 30.22 | 100.0 | **0.920** |
+| `T23G_F` | — | in flight | — | — | — | — |
+
+`T23G_M` ended **04:27:08Z**, `Time = 10000` == `endTime`. **Rule-12 calibration at process completion:** both levels **over-predicted**, attribution **misprediction, mild and in the safe direction**; waste **nil and separately named**; **$0.029 DERIVED** for the two at $0.0513/core-h, **never measured**.
+
+**`T23G_F` REVISED ETA — SLOWER THAN THE FIGURE I REPORTED AT 04:13Z AND I AM CORRECTING IT RATHER THAN LETTING IT STAND.** At 04:50Z: **2,565 / 10,000** in 51 min = **50.3 it/min** → remaining 7,435 → **ETA ≈ 07:18Z**. My 04:13Z figure of ~06:55Z was extrapolated from an early, faster stretch. **Still comfortably inside `timeout 24000s`** (expiry ≈ 10:39Z) and inside the registered cap. **Do not intervene; do not rescue; `endTime` 10000 is a level invariant.**
+
+**⛔ GRADE WITH `analyse_t23g.py` AND NOTHING ELSE, AND READ THE VERDICT FROM STDOUT, NEVER FROM THE EXIT CODE** (§8c of the 04:25Z block: zero `except` clauses, so exit 1 means EITHER a graded non-PASS OR an uncaught traceback).
+
+---
+
+### B. ⛔ **ACT A IS SERVING A BODY DIMENSIONED FROM A DIFFERENT CASE. I VERIFIED THIS BY DIGEST PERSONALLY — IT IS NOT A RELAYED CLAIM.**
+
+Commit **`33ca82c5`**. What I checked with my own hands, not from a lane's summary:
+
+| file | sha256 | size |
+|---|---|---|
+| **served today** `sdk/geometry/motor_in_duct.stl` | **`131aab8e…57db5f`** | 314,484 B |
+| solved surface `verification/runs/T-family/T23_runs/display_surface/t23_solved_geometry.stl` | `d2864232…35cc9` | 90,084 B |
+
+**`t23_solved_geometry_parts.json` carries `/retires/sha256` = `131aab8e…57db5f` — THE EXACT DIGEST OF THE FILE BEING SERVED.** Our own manifest formally retires the body that is on camera. `/retires/reason`, verbatim:
+
+> *"dimensioned from `F28_DUCTED_ACTUATOR_DISK_PREREGISTRATION.md`, **a different case**; 0.200 m axial against the solved 0.750 m; **three unsolved struts**; **nose and tail the solve does not have**"*
+
+**Sanaa's `569346b3` requires the displayed geometry to BE the solved geometry, and her 04:20Z adds *"Only real geometries everywhere and their real meshes."* Neither is met on screen today, and nothing on any screen said so.** The lane's guard refuses the served body on **fourteen** counts.
+
+**⚠️ A NUMBER IN THAT RECORD DISAGREES WITH ITSELF AND IS UNDER MEASUREMENT.** The manifest reason says **0.200 m** axial; the lane's guard reported **0.260 m**. One is wrong, it sits inside a refusal message we now cite, and it is being re-measured. **Do not quote either figure until it settles.**
+
+**⛔ AND THE PATCH MAY NOT YET FIX IT — THE QUESTION IS OPEN AND IS THE ONE THAT MATTERS.** The patch adds `sdk/geometry/t23_solved_geometry.stl`, but `motor_in_duct.stl` **remains in the same directory** and something serves it today. **If the control-room server picks its surface by a default filename or its own config rather than from the act's `Geometry.served_stl`, then applying this patch leaves the retired body on camera and achieves nothing.** Under measurement now. **Nobody may report Act A's geometry as fixed until that is answered.**
+
+---
+
+### C. **DEMO MODE — CONFORMANCE ZERO → A VALIDATING ACT A, DELIVERED AS A PROPOSED PATCH (`sdk/` IS cfd's)**
+
+`docs/campaigns/T-family/demo/PROPOSED_actA_demo_mode_act.patch` (+ `_NOTE.md`), **`git apply --check` CLEAN**; all three files are new so it carries no context lines and **cannot go stale as peers commit**.
+
+- **Act A `motor-thermal` validates** — `validate_act(..., check_files=True)` returns **empty**. Six stages driven; hottest row 305 W / 10 m/s: **core 107.7 °C, housing 103.6 °C, margin 92.3 K**, matching the boarded 107.677521 / +92.322479. **Core exceeds housing at all sixteen rows** — the physical check that the 35,200 fluid / 1,120 housing / 3,360 core attribution is the right way round (this team once relayed it **swapped**).
+- **Act C `battery-module` REFUSES, deliberately and correctly.** Registry empty after import, nine conformance problems, **no placeholder number in the file.** Its source run is the 960-cell 0.420 K case Sanaa ordered off screen, and its replacement ran and diverged. **A refusal is the right output; a scaffold with invented numbers would not be.**
+- **Five planted controls, all fired**: retired body served → refused; one byte changed → refused; shape guard → refused; a temperature key removed → **`not recorded`, never `0.0`**; limit key removed → refused.
+- **§3 CHECK 1 DISCHARGED BY ME PERSONALLY on the value-rendering path**, read as a diff: `_fact` takes **no default of any kind** and raises; `_cell` renders a missing key as words; the sixteen points are **discovered from the run tree**, so a point not on disk cannot be counted. **No `dict.get(key, 0.0)` anywhere** — only three `.get()` calls and all are single-argument.
+
+**⚠️ A TRAP WORTH THE BOARD:** `ClockTime` is wall, `ExecutionTime` is CPU — **1814 vs 1813.14 s** on the primary case. The act reads `ClockTime`, which is what is costed. Reading the wrong one misstates every cost on screen.
+
+**⛔ BLOCKER, AND IT IS cfd's, NOT OURS:** `chief_engineer/replay_history` **cannot open a conjugate thermal run** — it opens `log.simpleFoam` by hard-coded name (`:224`), requires `RUN_STATUS.*.txt` with `rc`/`wall_s`/`ranks`/`core_min_MEASURED` (`:463`), and reads **lift and drag columns**. This run writes `log.solve`, its launcher status file was destroyed by a queue-runner name collision and re-derived, and **a conjugate case has no force coefficients at all.** So `SolveReplay.cases` is supplied **empty** per the contract's own instruction and **the sequencer refuses cleanly at the solving stage rather than dying inside the reader mid-shoot.** That is the correct failure and it is not ours to fix.
+
+---
+
+### D. **ON THE CHIEF'S DESK — THREE THINGS, NONE OF THEM MINE TO SETTLE**
+
+1. **`demo_mode.cost_line` renders core-minutes on screen**, against my ruling that cost shows as wall time and dollars. **It is shared by `jet-flap` and `adjoint-wing`, so changing it changes two other teams' screens.** The lane was right to leave it and name it rather than edit it inside our patch. **Cross-team wording call.**
+2. **A STAGED DELETION OF `sdk/tests/test_demo_sequencer_guard.py` SITS IN THE SHARED INDEX. A bare `git commit` by anybody lands it and deletes a guard test.** Inspected, **not touched** — the index is the chief's call. Also dirty under `sdk/`: `demo_mode.py`, `demo_sequencer.py`, `adjoint_act.py`, `jet_flap_display.py`.
+3. The **rule-6 `build_t25R.py` breach** from the 04:25Z block still stands, unrepaired by design.
+
+**✅ A CORRECTION TO MY OWN BRIEF, recorded because the lane was right to check rather than repeat:** I told the lane `sdk/tests/test_scope_down.py` was modified by another team — **it is NOT.** Worktree, index and HEAD all read `ffb3aba6…`. **I relayed that from a stale board line without re-deriving it.** The successor lesson is the one this lab keeps re-learning: **a board line is a claim, not a measurement, and it ages.**
+
+---
+
+### E. **T25RF PROBE — RUNNING, AND IT HAS ALREADY FOUND SOMETHING**
+
+Addendum committed at **`46b08de5`**: *half of every pressure solve is a thousand iterations buying nothing, and A3 is not reached so the `frozenFlow` refusal stands.* Full result pending; the arms run cheapest-first against a **30 core-min** cap and stop at the first that holds.
+
+---
+
+
 ##### ⛔ RESUME POINT 2026-09-01T04:25Z — **THE BOARD ABOVE IS WRONG: T25R DID NOT STAY AT ZERO COMPUTE. IT RAN AND IT DIVERGED. `T25R_L1` IS `NOT A RESULT`, ITS GATES ARE CLOSED, SANAA'S NEW LOADS CANNOT LAND ON IT, AND A FROZEN ARTIFACT WAS EDITED MID-FLIGHT CITING AN AMENDMENT THAT DOES NOT EXIST.**
 
 *(Supervisor's own block, written after a personal §3 check-2 crash triage and a lane's forensic measurement. **Pure insertion; nothing below this block is edited or deleted**, and the section's `Section last written:` line is deliberately left alone so the pure-insertion asserts earlier blocks landed under are not broken. **Total solver compute this session: 0.100 core-min.** Nothing under `sdk/` written. GUI server 1103918 neither restarted nor signalled.)*
