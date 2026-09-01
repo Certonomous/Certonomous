@@ -840,6 +840,20 @@ class Geometry:
 
         Her Act A pattern: "16 operating points solved on this geometry, 39,680
         cells." Rendering it is conditional on the measurement, not on intent.
+
+        THE PATTERN IS HERS AND THE TENSE IS HERS TOO, AND THEY DISAGREE. The
+        sentence rendered "Solved on this geometry, 39,984 cells." -- read off
+        the live event log of a real mission, not off this source -- and her
+        04:20Z order is "no past tense", later and stricter than the Act A
+        pattern it collides with. Present is the intersection, which is the
+        same resolution the replay stage's elapsed line already took for the
+        same conflict. So the leading verb goes and nothing else does: the
+        measurement, the refusal above it, and the cell count are untouched,
+        and the sentence still says only what was measured.
+
+        Recorded rather than silently rewritten, because the struck wording is
+        quoted in her own pattern one paragraph up and a reader who finds the
+        two different needs to know which is current and why.
         """
         bad = [m.disagreement() for m in self.matches if not m.agrees()]
         if bad:
@@ -847,7 +861,7 @@ class Geometry:
                 "the served surface is not the solved geometry, so the "
                 "sentence may not be rendered; regenerate the surface from the "
                 "solved case. " + "; ".join(bad))
-        return f"Solved on this geometry, {cells.on_screen()}."
+        return f"This geometry, {cells.on_screen()}."
 
 
 @dataclass(frozen=True)

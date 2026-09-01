@@ -70,11 +70,30 @@ def banner_for(state: dict) -> str:
 
     Called with the same dictionary that is published as the frame, so the
     banner and the content are two renderings of one fact rather than two
-    signals that have to be synchronised. Progressive tense, because while
-    this returns a value the stage is still running.
+    signals that have to be synchronised.
+
+    TENSE, STATED FOR BOTH BRANCHES BECAUSE STATING IT FOR ONE IS HOW THE
+    OTHER SLIPPED THROUGH. This docstring used to read "Progressive tense,
+    because while this returns a value the stage is still running" -- true of
+    the RUNNING branch, and it never covered the FINISHED branch, which
+    returned "Solved". Past tense, on the banner, on the filmed surface. It
+    rendered nowhere until the control room grew a handler for
+    ``stage.banner``, so the day it became visible was the day it became a
+    defect.
+
+    * While the stage runs, the banner is PROGRESSIVE: "Solving",
+      "Solving, iteration N of M".
+    * When it finishes, the banner is PRESENT: "Solve complete". Not
+      "Solved". Sanaa's 04:20Z order is "no past tense" and it is the later
+      and stricter of two directives of hers that disagree; present is the
+      intersection, satisfying the later outright and at worst shifting
+      register under the earlier. "Complete" is an adjective and carries no
+      tense at all, so it is safe under both readings.
+
+    No number moves: this is one string.
     """
     if state.get("finished"):
-        return "Solved"
+        return "Solve complete"
     point = state.get("point_index")
     points = state.get("points")
     iteration = state.get("iteration")

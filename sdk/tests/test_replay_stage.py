@@ -228,7 +228,10 @@ class TheStage(unittest.TestCase):
         self.assertEqual(banner_for(state),
                          "Solving, iteration 4,000 of 8,000, sweep point 3 of 5")
         self.assertEqual(banner_for(dict(state)), banner_for(dict(state)))
-        self.assertEqual(banner_for({"finished": True}), "Solved")
+        # PRESENT TENSE ON THE FINISHED BRANCH, and the test is the reason the
+        # change is safe to make: this assertion pinned "Solved", so the past
+        # tense could not be corrected without a reader noticing here.
+        self.assertEqual(banner_for({"finished": True}), "Solve complete")
 
     def test_a_burst_is_refused(self):
         """A stage that emitted everything at one instant must not pass."""
