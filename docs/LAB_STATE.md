@@ -4788,9 +4788,92 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T08:09:35Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T15:27:11Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25a`, immediately below.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25a — **`D19M` (COMPRESSIBLE MULTIPOINT) IS `GATE REACHED` ON BOTH ROWS. EVERY GATE PASSED; IT IS HELD BELOW `PASS` BY A CEILING REGISTERED BEFORE THE RUN, NOT BY A FAILURE. ⚠ AND THE HEADLINE CAVEAT IS **NOT** THE CEILING — IT IS THAT THE 25.98 % DRAG REDUCTION IS BOUGHT AT COLLAPSED, UNCONSTRAINED LIFT, WITH `CL` GOING **NEGATIVE** AT THE FIRST OPERATING POINT. RE-FORMED AFTER THE ~15:14Z REBOOT: ZERO SOLVERS, ZERO CONTAINERS** (2026-09-01T15:27:11Z, `date -u` at write)
+
+###### 1. THE VERDICT, AND WHAT THE CEILING IS
+
+**`GATE REACHED` — TWO ROWS: `SHIPPED = GATE REACHED`, `PATCHED = GATE REACHED`.** Grade artefact `/home/ubuntu/certonomous-runs/CURRICULUM-D19M-a1-naca0012-subsonic-multipoint/D19M_grade_20260901T083034Z.json`, written 08:30:34Z. Chain `COMPLETE` at 08:30:35Z, `chain_rc=0`, **declared 7 / executed 7**, every arm `rc=0` (`MESH O-S XE-S FE-S O-P XE-P FE-P`).
+
+**Both rows read `verdict_before_ceiling = PASS` and both are `capped_by_ceiling = true`.** The ceiling is registered, in the pre-registration, before the run: **the compressible single-point gradient this optimisation SPENDS has no graded verdict** (D19R's grader refused `rc=2`; D19R2 grading attempt 1 returned `NOT A RESULT`) **and its plateau did not close** (`all_two_sided=false`, `score_pct = 21.060684242435336`, binding `shape[7]/CD/fine`). `DAFOAM_CHARTER` §1. **`shape[7]` is a REGISTERED NON-RESULT, excluded BY NAME from every aggregate on both rows, whatever value it returns.**
+
+**Say it precisely: this item cannot publish `PASS` because of what it INHERITS, not because anything in it failed.** Nothing in D19M went red.
+
+###### 2. ⚠⚠ THE CAVEAT THAT MUST TRAVEL WITH THE HEADLINE, AND IT IS NOT THE CEILING
+
+**`CL` IS UNCONSTRAINED IN THIS ITEM.** `alpha` is the operating point, so there is no design variable to trim lift with. The optimiser was free to buy drag with lift, **and it did**:
+
+| | point0 (α 2.787°) | point1 (α 4.787°) | point2 (α 6.787°) |
+|---|---|---|---|
+| `CD` baseline | 0.012653 | 0.016327 | 0.022952 |
+| `CD` final (PATCHED) | 0.011620 | 0.012052 | 0.014766 |
+| `CL` baseline | 0.29875 | 0.50000 | 0.67366 |
+| **`CL` final (PATCHED)** | **−0.15737** | **0.07216** | **0.30540** |
+
+`J` 0.0173107 → 0.0128126. **Weighted drag reduction 25.9849 % (PATCHED) / 25.9848 % (SHIPPED).**
+
+**⚠ A 25.98 % DRAG REDUCTION AT LIFT THAT COLLAPSES AND CHANGES SIGN IS NOT A RESULT ABOUT AERODYNAMIC PERFORMANCE. The grade artefact says this itself in `_cl_travels`: "a reduction at unstated lift is not a reportable number." THE THREE-CL TRIPLE TRAVELS WITH EVERY DRAG FIGURE THIS ITEM PUBLISHES, ON EVERY SURFACE INCLUDING A FILMED ONE.** `DAFOAM_CHARTER` §9 separately forbids grading an optimisation by the size of its improvement; the 25.98 % is an input to the registered 2.0 % intermediate threshold and nothing else. **This is the number most likely to be quoted stripped of its caveat, so it is boarded in the caveat's own words.**
+
+**Contrast, and it is the useful one: `D19O` constrained lift and landed 21.652 % at `CL = 0.5` against a target of 0.5. D19M did not, and bought a larger number with the constraint it dropped.** The two figures are not comparable and must never be set beside each other as progress.
+
+###### 3. MY FOUR CHECKS, DONE PERSONALLY THIS INVOCATION
+
+1. **GRADING PATH RE-DERIVED FIVE WAYS BY ME: `1893fc078fb5d0997d4f1c9c4a917bfe`** — on disk, from the `HEAD` blob, in `d19m_chain_driver.sh:58 MD5_GRADER=` on disk, the same line from the `HEAD` blob, and — **the strongest leg, and the one that actually answers rule 2** — as `grader_md5` **recorded inside the grade artefact by the run itself**. **The file that RAN is the frozen file.** No relay; I computed each.
+2. **PRE-REGISTRATION COMMITTED BEFORE COMPUTE.** `cases/dafoam/ladder-a/A1/curriculum_D19M/PREREGISTRATION.md`, frozen through Amendment 3 at **`c7d7bf10`, 06:30:47Z**, against a chain first-compute stamp of **06:31:53Z** — **66 seconds**. Present at `HEAD`. **The whole item directory is clean against `HEAD`: zero modified, zero untracked.**
+3. **INSTRUMENT READ, AND ONE FIELD THAT LOOKS LIKE A BROKEN READER IS NOT.** `asserts_in_grader: 0` is the **correct and intended** value — `L-332`, `python3 -O` strips `assert`, so the grader deliberately contains none and refuses through a `Refusal` exception instead: **38 refusal call sites, counted by me.** `count_asserts` is itself proved against a planted assert in the selftest. **A zero from that field is a positive finding, not a blind reader — and I checked rather than assuming either way.**
+4. **RULE 3 IS LIVE ON THIS RUN, NOT MERELY IN THE SELFTEST.** `birth_register`: **9 readers, 9 born, 0 not born**, of which **6 are readers whose zero would pass a gate** (`read_fatal_tokens`, `read_optimiser_evidence` and four others), each planted into a separate copy under `grader_controls/` and read back **through the real reader function**. The verdict is composed from the unplanted bytes. **This is the repair I held `D19O`'s launch for, now working in production on a second item.**
+
+###### 4. THE NUMBERS — THE FD TABLE STANDS BESIDE THE ADJOINT, WHICH IS THE WHOLE POINT
+
+Aggregate FD-vs-adjoint over the three graded components `shape[0] shape[3] shape[6]`, bands D and E both 5.0 %:
+
+| row | aggregate `J` | aggregate `CL` |
+|---|---|---|
+| SHIPPED | **0.046572 %** | **0.019347 %** |
+| PATCHED | **0.030248 %** | **0.018670 %** |
+
+**⚠ BOTH SIT BELOW THE 2.5–5 % HARNESS-SOUND FLOOR, WHICH IS `REPORTED, NEVER GATED` — a number below that floor is a claim about the harness, and the artefact says so on its own face.** Never quote these as accuracy without that sentence.
+
+**`shape[7]` is published BESIDE the aggregate and never instead of it** (`DAFOAM_CHARTER` §3): PATCHED `J` rel 0.07695 %, plateau `score_pct` 2.9438 % two-sided — **and it is still `NOT A RESULT`, by registration, whatever it measured.** D19O's finding that the component is 28× larger at an optimum and its plateau closes there is **evidence for a SUCCESSOR to register in advance, not licence to grade it after the fact.** Upheld unchanged.
+
+**`G-MP-STRUCT` — the multipoint identity, and it is the gate this item exists to exercise:** `dJ == Σ w·dCD` over all 8 components to **worst `4.2547e-12` (SHIPPED) / `7.8671e-12` (PATCHED)** against `rtol = 1e-10`. **PASS both rows.**
+
+**`G-OPT9`:** IPOPT printed its **own** convergence statement, `Optimal Solution Found.` — **10 iterations / 11 table rows against `max_iter = 40`, cap NOT reached**, `stall_condition_B NOT EXERCISED`. PASS both rows.
+
+**`G-TB`, the trivial-baseline control, is the leg that makes the FD table mean anything:** at a step of `1e-8`, five orders below `s*`, all three components **FAIL** band D (PATCHED 109.74 / 90.61 / 52.26 %; SHIPPED 108.62 / 90.77 / 50.73 %). **The FD instrument is DEMONSTRATED able to go red on this run. A red leg that fires on everything fires on nothing — and this one is shown to fire on the right thing.**
+
+**Two-row agreement, computed BY ME from the `G-MP-STRUCT` `dJ` values** (|S−P|/|S| ×100, per component): 0.338 · 1.725 · 0.211 · 1.116 · **2.190 (worst, k=4)** · 0.317 · 0.034 · 0.178 %. **Reported as measured. It is NOT a "the rows agree" claim** — D19O measured 0.0232 % on `shape[6]` at ITS optimum, and this item's worst component is two orders looser than that. **The rows agreeing is configuration-dependent, which is exactly why both rows still run and why collapsing to one would destroy the only instrument that can detect the IDWarp degenerate-rotation branch.**
+
+**Named, never composed:** `G6_dot_product_duality` = `NOT MEASURED` (AV-2 measured that seeding forward mode makes the primal FAIL on this exact case on BOTH images). `GCI_roache` = `NOT APPLICABLE` — single-grid optimisation on A1's 4,032-cell mesh; **rule 5 has no triple to act on here and the gate says so rather than staying silent.** `G9_toolchain` PASS on image digests and `.so` md5s, **never a version string** — all three images report DAFoam 5.0.0 and that string is worthless.
+
+###### 5. COST — RULE 12 DISCHARGED, AND THE EXPECTED-MAJOR CORRECTION IS CONFIRMED A THIRD TIME
+
+**Predicted 34.10 core-min POINT; actual 35.166 core-min MEASURED from the item's own ledger rows. RATIO 1.0313.** Ceiling 149.0 never approached; band `[25.0, 85.0]` — inside. **Zero arms over cap. `$0.030067 DERIVED, NOT MEASURED`** at $0.0513/core-h (c7a.4xlarge, owner-reported 2026-08-21/22; the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER` §5). **0 GPU-h. Cleaned == gross; no arm stalled, no row near the 3600 s rule; waste: none.**
+
+Per arm, actual/predicted: `MESH` 0.835 · `O-S` 0.937 · `O-P` 0.936 · `XE-S` 1.167 · `XE-P` 1.160 · `FE-S` 1.118 · `FE-P` 1.118. **The miss is small, symmetric and concentrated in the FE/XE arms — misprediction, not contention.**
+
+**⚠ THE CALIBRATION FINDING: the optimiser returned 10 majors against an EXPECTED 12 and the item still landed at 1.03×.** Pricing the O arms at an expected major count rather than at `max_iter` is now confirmed on a **third** item — after `SO-3` priced `max_iter = 50`, converged in 10, and came in at **0.126×**. **`max_iter = 40` is priced into the per-arm cap and nowhere else, and that is the rule that keeps working.**
+
+###### 6. WHAT A SUCCESSOR MUST KNOW — IN THE ARTEFACT'S OWN WORDS, NOT STRENGTHENED
+
+**The strongest single follow-on this ground admits, and three items in a row have now named it and not reached for it (D19R §11, D19O, D19M): a FORWARD-AD or COMPLEX-STEP reference.** Both images ship `libDASolverADF.so` (`docs/dafoam/TOOLCHAIN_INVENTORY.md` §6a), **so a non-FD reference IS reachable on this box.** It would settle `shape[7]` **outright**, because it has no step at all and therefore no plateau to close. **D19O sharpened the target: the component differs by 28× between baseline and optimum, so a non-FD reference AT BOTH POINTS would separate the defect from the configuration definitively.**
+
+**The other honest gap, stated as the artefact states it: the multipoint objective `J` had never had an FD table on compressible ground at all — THIS ITEM'S OWN `FE` ARMS ARE THE FIRST.** The basis under D19M is **thinner** than D19O's, not thicker, and the ceiling is the correct response to that.
+
+###### 7. STATE OF THE FAMILY AT 15:27Z
+
+**ZERO solvers, ZERO containers, ZERO dafoam processes** — re-derived from `ps` and `docker ps`, not from the board. Nothing was mid-flight across the ~15:14Z reboot and nothing was lost to it. **`D12RLX` and `D19M` were both COMPLETE and GRADED before the reboot; the reboot cost this family nothing.**
+
+**Sanaa's branch order is delivered end to end: `SO-3` `PASS` (incompressible multipoint) and `D19M` `GATE REACHED` (compressible multipoint), both with FD tables beside their adjoints, both two-row.**
+
+**Two lanes live.** One landing D19M's records (`RESULTS.md`, `docs/dafoam/README.md` §3, `docs/COST_CALIBRATION.md`, `cases/dafoam/INDEX.md`) — **none of those rows existed at the time of this write, so D19M is GRADED BUT NOT YET FILED.** One on Act D: the post-reboot regression check first, then the multipoint act materials now that both results have landed.
+
+**`[VERIFY for a successor: the three Act D integration defects were cfd's at the last reading — no router edge to demo mode, `demo_sequencer` never reading `MeshPlan.command`, and the hardcoded `"results"` plot namespace at `demo_sequencer.py:352` that stops Act D's figures resolving. Their state after the reboot is being re-measured by that lane and is NOT confirmed by me at this write.]`
+
+**Nothing filed, sent, posted or drafted upstream. `docs/capability/dafoam_GRID.md` untouched this session.**
 
 ##### UPDATE S-24w — **THE CAPABILITY CELL IS NARROWED, NOT CORRECTED. I MADE THE EDIT MYSELF, AS RULED — AND THE STRUCTURAL JUDGMENT IS THE PART WORTH KEEPING: NOTHING IN THE CELL WAS FALSE, SO A STRIKE WOULD HAVE MISREPRESENTED THE RECORD** (2026-09-01T08:09:35Z, `date -u` at write)
 
