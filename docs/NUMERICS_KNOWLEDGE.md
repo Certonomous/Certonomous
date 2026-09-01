@@ -5337,3 +5337,118 @@ git repository only, while run trees live outside git, leaving 1,791
 | md5 of this file's first 5,293 lines before the append | `864df88a483b9aae412affca3d476c91` |
 | md5 of this file's first 5,293 lines after the append | `864df88a483b9aae412affca3d476c91` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+---
+
+## N-C6 — DATED ADDENDUM, 2026-09-01: THE SCOPE IS NARROWED. THE ENTRY IS NOT WEAKENED, AND ITS MEASUREMENTS ALL STAND.
+
+**Appended at the END OF FILE, following this file's own precedent for amending an entry
+(`N-T9`'s addendum), so that NO line number anywhere above changes and every citation into
+`N-C6` by line remains valid.** Authorised by the cfd supervisor, 2026-09-01, who verified the
+finding personally from the page before ruling.
+
+**NOTHING IN `N-C6` IS STRUCK.** Its four measured variants, its rising maximum
+(81.5834 → 82.0645°), its severe fraction rising **10.7×** against a **1.31×** cell rise, its
+`TSCALE` inadmissibility ruling, its `checkMesh`-verdict warning and its five-item operational
+reading are **all correct and all stand**. **What is narrowed is the set of geometries it
+applies to.**
+
+### The narrowing, in one sentence
+
+> **`N-C6` is a true statement about a structured tip cap on a SHARP trailing edge. THE ONERA M6
+> — the geometry from which the entry was measured — DOES NOT HAVE ONE.**
+
+### The evidence, cited by both page numbers
+
+**AGARD AR-138, `TABLE B1-1`, "M6 WING STREAMWISE SECTION COORDINATES (DESIGN VALUES)",
+printed page `B1-7` = PDF page `333`** of
+`docs/papers/benchmark_test_cases/agard_1979_ar138_experimental_data_base.pdf`
+(sha256 `a96a73304c8328bd97c828cead2df9326675fd2340230d7e81fcf9f8191e7ffb`).
+**Both numbers are given because the retrieved scan carries 612 pages where the report's own
+abstract card states 642, and that discrepancy is unexplained.**
+
+**Final row: `x/l = 1.0000000`, `z/l = 0.0007052`.** Clause 2.1.10 (printed `B1-1` = PDF `327`)
+states the section is **symmetrical**, so the design trailing edge is
+
+> **2 × 0.0007052 = 0.0014104 chord = 0.14104 % chord — BLUNT.**
+
+And clause **2.1.13** (printed `B1-2` = PDF `328`): the tip is
+**"truncation parallel to wing root and addition of a half body of revolution"** — **round, not
+a flat cut.** Predicted extra span from that clause, **22.155 mm**, against NASA TMR's published
+CAD figure of **22.235 mm**; ratio **0.9964**.
+
+### What this does to `N-C6`'s mechanism
+
+The entry's mechanism is *"the ratio is set by the section half-thickness `t2`, which goes to
+ZERO at a sharp trailing edge — at the M6's registered break it is ~16:1."* **`t2` does not go
+to zero on the M6.** The ~16:1 ratio, and the 81.58 → 82.06° floor measured from it, are
+properties of **the sharpened geometry this lab meshed**, not of the ONERA M6.
+
+**`N-C6`'s generalisation clause is therefore the part that survives intact**, and it was
+already stated correctly: *"The mechanism generalises to any structured cap on a geometry whose
+thickness goes to zero: sharp trailing edges, sharp leading edges, knife-edged fins, closed-out
+wing tips."* **That sentence is right. The error was never in the mechanism — it was in
+assuming, without opening the defining document, that the M6 belonged to that class.**
+
+### AMENDED OPERATIONAL READING — one item added, none removed
+
+`N-C6`'s five items stand unchanged. **Item 6 is added:**
+
+> **6. BEFORE applying this entry to a named geometry, VERIFY FROM THAT GEOMETRY'S DEFINING
+> DOCUMENT THAT ITS TRAILING EDGE IS ACTUALLY SHARP — by opening the document and reading the
+> section table, never from a CAD file, an STL, a tutorial mesh or this lab's own prose.**
+> Every widely circulated ONERA M6 CAD and mesh in public distribution is **sharpened**; NASA
+> TMR states so on its own page (*"The original ONERA M6 wing has a moderately thick trailing
+> edge"*). **A geometry can be sharp in every artifact a lab holds and blunt in its definition**,
+> and item 1's arc-ratio test will then return a correct number about the wrong object.
+
+### A SECOND SIGNATURE, MEASURED 2026-09-01, THAT DISCRIMINATES THE TWO CASES FOR FREE
+
+`N-C6` item 2 says the refinement direction is a diagnostic and *"rising settles the question."*
+**The converse case has now been measured, on a published M6 grid family (`M6I`), and it is the
+contrast that makes the diagnostic usable in both directions:**
+
+| family | max non-orthogonality across levels | severe fraction | direction |
+|---|---|---|---|
+| `N-C6` butterfly caps, sharp TE | 81.5834 → 81.9764 → 82.0355 → **82.0645°** | 0.158 → **1.694 %** | **RISING — geometric floor** |
+| `M6I` published demo family | 88.9306 → 88.3866 → **86.5861°** | 8.884 → 8.641 → **7.305 %** | **FALLING — resolution artefact** |
+
+> **A quantity that RISES under refinement is converging to the defect. One that FALLS is
+> converging to the answer, however bad its current value.** The `M6I` family's 86.59° is a
+> worse number than `N-C6`'s 82.06° **and is the less serious problem of the two**, because it
+> is still moving in the right direction.
+
+**Both families FAIL `MESH_STANDARD.md` §3.1's 70° gate. The direction does not excuse the
+value and no admission is claimed for either.**
+
+### AND A THIRD INSTANCE OF THE `checkMesh`-VERDICT DEFECT — the cleanest one yet
+
+`N-C6` item 5 and `MESH_STANDARD.md` **§14** (v1.9, 2026-09-01) record that `checkMesh`'s
+verdict lines cannot discriminate this lab's gate. **§14.1's pair both print
+`Non-orthogonality check OK.`; §14.3's pair both end `Failed N mesh checks.`, anti-correlated
+with §3.1. The `M6I` measurement is stronger than either:**
+
+> **`M6I` demo L3, 1,920 cells: maximum non-orthogonality `88.9306°` — `18.93°` OVER the gate,
+> with 484 severely non-orthogonal faces — and the file-level closing line reads `Mesh OK.`,
+> with NO failed check of any kind.**
+
+**§14.3's examples each had a confounding failed check. This one has none: a total pass on the
+tool's own terms, at 88.93°.** **The gate is read off the reported MAXIMUM. It is never read off
+`Non-orthogonality check OK.`, off `Mesh OK.`, or off `Failed N mesh checks.`** — three strings
+now shown, on three separate occasions, unable to see the difference.
+
+*Artifacts:* `verification/campaign/M6I_IMPORT_GEOMETRY_VERIFICATION_2026-09-01.md` §3, §4, §5.5;
+`verification/campaign/F13_RESULTS.md` ADDENDUM 2;
+`verification/campaign/F13_ONERA_M6_PREREGISTRATION.md` ADDENDUM D;
+`docs/standards/MESH_STANDARD.md` §14.
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| `N-C6`'s own text edited, reordered, inserted into or deleted | **none** |
+| any other entry's text touched | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 5,339 lines BEFORE the append | `b3be260d0bb9eb599b887b0ddcbbfa42` |
+| md5 of this file's first 5,339 lines AFTER the append | `b3be260d0bb9eb599b887b0ddcbbfa42` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
