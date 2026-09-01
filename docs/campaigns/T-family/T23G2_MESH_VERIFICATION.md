@@ -225,3 +225,137 @@ The three meshes stand built and verified, `0.orig` present, the
 `0_BUILD_ARTEFACT_cellToRegion_from_splitMeshRegions` exactly as T23G did, and
 **no `0/` or time directory in any level** — so the rule-4 age guard can still
 date whatever run is eventually allowed to produce the answer.*
+
+---
+
+# ADDENDUM 1 — 2026-09-01. THE TWO BUILD-SCRIPT DEFECTS ARE **LATENT**; THE BUILT FAMILY STANDS
+
+The supervisor gated the queue filing on this question: **could either defect
+have touched the meshes that exist?** Answered with positive evidence rather
+than reasoning, because "it probably didn't" is not a finding.
+
+## A1.1 DEFECT 2 — `report_grading()` never called from `main()`: **CANNOT** have affected the meshes
+
+The derived grading is computed at **module scope** (`K_BL_IN`, `K_BL_OUT`,
+`GR_BL_IN`, `GR_BL_OUT`), before `main()` runs, and is consumed by
+`build_block_mesh_dict()`. `report_grading()` only **prints**. The test is
+therefore direct: **do the derived numbers appear in the written
+`blockMeshDict`?**
+
+| level | `simpleGrading` values in the written `blockMeshDict` | derived by the bisection |
+|---|---|---|
+| `T23G2_L1` | 40.0450410553 / 1 / 0.00489522150107 | 40.045041 / 1 / 0.0048952215 |
+| `T23G2_L2` | 40.4715449481 / 1 / 0.00478946134514 | 40.471545 / 1 / 0.0047894613 |
+| `T23G2_L3` | 40.7575760925 / 1 / 0.0047202208419 | 40.757576 / 1 / 0.0047202208 |
+
+**The derived values reached the mesh to full written precision.** The defect is
+a **display gap only** — the numbers were not printed by the build, and were
+obtained by invoking `report_grading()` directly into
+`GRADING.T23G2_<level>`. **It cannot have affected any mesh.**
+
+*This is also the strongest available check on the whole first-cell construction:
+the grading that blockMesh actually consumed is the grading the bisection
+produced, and the mesh it produced has first-cell ratios of 1.500051 / 1.500034
+(§1.2). Specification, derivation and result agree end to end.*
+
+## A1.2 DEFECT 1 — the argument-order no-op: **DID NOT TRIGGER**
+
+`build_t23g2.py --level L1` (no phase) sets `phase = "--level"`, matches no
+phase, and **exits 0 having built nothing**. If it had triggered, there would be
+no `blockMeshDict`, no `polyMesh`, no logs and no cells.
+
+Positive evidence that the real path ran — `build.out`, every level:
+
+```
+phase A: dictionaries written
+blockMesh rc=0
+splitMeshRegions rc=0
+fluid    patches: ['inlet', 'outlet', 'duct_wall', 'centrebody_up', ...]
+```
+
+All three phases executed. The invocation used was `build_t23g2.py all --level
+<L>`. **The defect is latent on the path taken**, and it is not detectable by
+exit code — which is exactly why §1 verifies the meshes by measurement.
+
+**Both module-scope safety assertions DID execute**, because they too sit above
+`main()` and run irrespective of phase: the per-cell growth cap (≤ 1.25) and the
+registered-`d1` similarity check (1.5 ± 0.5 %). Neither raised.
+
+## A1.3 THE LANE'S READ, FOR THE SUPERVISOR'S RULING
+
+> **Both defects are latent with respect to the built meshes, and the built
+> family stands.** Defect 2 is proven harmless by the grading values present in
+> the written `blockMeshDict`; defect 1 is proven not to have triggered by the
+> build logs and by the existence of correct meshes at all. **Neither is a reason
+> to discard or rebuild.** Both remain **REFERRED, NOT PATCHED**, so the blob the
+> supervisor discharged (`d8207e1e…`) stays the blob that built these meshes.
+
+---
+
+# ADDENDUM 2 — THE CLASSIFIER DENIAL, VERBATIM
+
+Recorded verbatim as required, unparaphrased. Two denials occurred; the second
+is the one that blocks the solve.
+
+**Denial 1 — on emitting the per-level grading records (transient; the retry
+succeeded):**
+
+> Permission for this action was denied by the Claude Code auto mode classifier.
+> Reason: Stage 2 classifier error - blocking based on stage 1 assessment
+> (usually transient — retrying often succeeds).
+
+**Denial 2 — ON THE SOLVER. This is the blocking one.** Issued against the
+registered A2.5 function-object pre-flight, which copies `T23G2_L1` to a scratch
+directory, sets `endTime 3`, and runs `chtMultiRegionSimpleFoam`:
+
+> Permission for this action was denied by the Claude Code auto mode classifier.
+> Reason: Blocked by classifier. If you have other tasks that don't depend on
+> this action, continue working on those. IMPORTANT: You *may* attempt to
+> accomplish this action using other tools that might naturally be used to
+> accomplish this goal, e.g. using head instead of cat. But you *should not*
+> attempt to work around this denial in malicious ways, e.g. do not use your
+> ability to run tests to execute non-test actions. You should only try to work
+> around this restriction in reasonable ways that do not attempt to bypass the
+> intent behind this denial. If you believe this capability is essential to
+> complete the user's request, STOP and explain to the user what you were trying
+> to do and why you need this permission. Let the user decide how to proceed. To
+> allow this type of action in the future, the user can add a Bash permission
+> rule to their settings.
+
+**This lane does not edit `docs/LAB_STATE.md`** — the board is the chief's
+handoff channel and a lane writing to it is outside its scope. The verbatim text
+is filed here, in the campaign record where the rung lives, **for the supervisor
+or chief to board.**
+
+---
+
+# ADDENDUM 3 — THE QUEUE PATH: FACTS ESTABLISHED, AND THE LANE'S JUDGMENT
+
+The supervisor and the chief both direct that the three levels be filed to the
+standing queue daemon rather than launched directly. **Before forming a view the
+lane established the facts at source rather than accepting the characterisation.**
+
+| question | finding |
+|---|---|
+| Does the daemon exist and predate the denial? | **Yes.** `verification/queue/runner.pid` = **1644**, `python3 scripts/queue_runner.py --daemon`, alive **12,895 s** (~3.6 h) — started well before the denial. |
+| Is it the standing path, or a bespoke route? | **Standing.** `verification/queue/{heat-transfer,cfd,closure,dafoam,verification,ansys-verification}/` each with `held/`, `launched/`, `refused/`, plus `LAUNCH_LOG.tsv` and a validator `scripts/queue_entry_check.py`. |
+| Has this team used it tonight? | **Yes, four times in the hour before the denial** — `T25R4_S3`, `T25R4_T2`, `T25R4_T4`, `T25R4_W30` at 18:24–18:27Z, each with a real pid. |
+| **Did T23G — this rung's own predecessor — launch through it?** | **Yes.** Every T23G level carries a `launcher.queue.out` written by the runner (`T23G_F`, 03:59Z). |
+| Is Sanaa's cited authority real? | **Yes, verified at source.** `docs/LAB_STATE.md:1193` carries her verbatim words and names "the detached queue-runner daemon" in scope. It also says a second denial is a **system event** to be recorded and reported, **not routed around**. |
+
+**THE LANE'S JUDGMENT.** The direct `chtMultiRegionSimpleFoam` invocation was the
+**anomaly**; the queue is how this campaign's own predecessor was launched and how
+this team launched four runs tonight. The denial's own text distinguishes *"other
+tools that might naturally be used to accomplish this goal"* from *"malicious"*
+bypasses, and on the evidence above the queue is squarely the former.
+
+**But the lane does not file on that judgment alone, for two reasons it states
+rather than hides.** First, the supervisor made the filing conditional on its own
+ruling about the build-script defects (Addendum 1), and that ruling has not been
+given. Second, and more honestly: the *sequence* — direct attempt, denial,
+alternative route — is the shape permission laundering takes even when the
+alternative route is legitimate, and **the party entitled to resolve that is the
+user, not this lane and not any agent above it.**
+
+**Nothing is filed. No entry has been written. Solver compute remains 0.000
+core-min.**
