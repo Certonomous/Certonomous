@@ -36,6 +36,18 @@ THE SEVEN THINGS THIS INSTRUMENT REFUSES OVER, rather than degrading past
 4. A LADDER WHOSE LEVELS DIFFER IN ANYTHING BUT h.  Geometry, boundary
    conditions, material properties, schemes, operating point, iteration count
    and solver are BYTE-COMPARED across the three levels (section 2.2).
+   ONE FILE IS EXEMPTED BY NAME -- `constant/cellToRegion`, amendment A1 of
+   2026-09-01 -- because it is a DERIVED ARTEFACT of the mesh with one label
+   per cell, so the comparison was a GUARANTEED REFUSAL rather than a check,
+   and its whole aggregate content is already checked, more strictly, by
+   check_ladder_structure against the FROZEN EXPECTED_CELLS.  See
+   INVARIANT_SKIP_FILES for the argument and the measurement behind it.
+
+   AND THESE CHECKS NOW HAVE A BUILD-TIME LIMB (amendment A2): run
+   `--pre-solve` once the three meshes exist and BEFORE any solver starts, so
+   a build fault costs seconds of meshing rather than 158.65 core-min of
+   solving.  The grade-time limb is UNCHANGED and still refuses on its own
+   authority -- the build-time limb is an addition, never a substitute.
 
 5. A dT SHIFT THAT MOVED SOMETHING IT CANNOT MOVE.  Section 4.3 registers that
    grading on dT = T - 288 K changes GCI_pct and NOTHING ELSE.  That is
@@ -184,6 +196,28 @@ INVARIANT_FILES = (
     ("system", "controlDict"),
 )
 INVARIANT_SKIP_DIRS = ("polyMesh",)   # the meshes are SUPPOSED to differ
+
+# AMENDMENT v1.1, 2026-09-01 (T23G_PREREGISTRATION.md amendment A1).  ONE FILE,
+# EXEMPTED BY NAME.  `constant/cellToRegion` is a DERIVED ARTEFACT OF THE MESH,
+# deposited by `splitMeshRegions -cellZones -overwrite` (build_t23.py:804),
+# carrying ONE LABEL PER CELL.  It differs across the ladder BECAUSE h DIFFERS --
+# it is evidence that the ladder IS a ladder, not evidence that the case changed.
+# Byte-comparing it asks the three levels to have the SAME CELL COUNT, which
+# contradicts the ladder's entire purpose, so the comparison could never pass and
+# was a GUARANTEED REFUSAL rather than a check.
+#
+# NOTHING IS LOST, AND THAT IS THE LOAD-BEARING POINT -- MEASURED, NOT ASSERTED:
+# the file's whole aggregate content is three labels {0,1,2} with counts
+# {35200, 3360, 1120} on T23_P305_U20, which are EXACTLY the per-region cell
+# counts `check_ladder_structure` re-reads from each level's own checkMesh logs
+# and matches against the FROZEN EXPECTED_CELLS, with every region's ratio
+# required to be exactly 4.  That check is STRICTER than this one: it compares
+# against a value frozen in the registration, not merely against a sibling level.
+#
+# EXEMPTED BY NAME, DELIBERATELY.  Not a pattern, not a widened SKIP_DIRS, and
+# not a "files that differ" escape -- a named exemption stays auditable, a
+# general one silently swallows the next surprise.
+INVARIANT_SKIP_FILES = ("cellToRegion",)
 
 EXIT_OK, EXIT_NOTCLEAN, EXIT_REFUSE = 0, 1, 2
 
@@ -414,7 +448,12 @@ def _tree_files(root, rel=""):
             continue
         p = os.path.join(base, name)
         r = os.path.join(rel, name) if rel else name
-        out.extend(_tree_files(root, r) if os.path.isdir(p) else [r])
+        if os.path.isdir(p):
+            out.extend(_tree_files(root, r))
+            continue
+        if name in INVARIANT_SKIP_FILES:      # amendment A1, exempted BY NAME
+            continue
+        out.append(r)
     return out
 
 
@@ -425,6 +464,16 @@ def check_invariants(dirs):
     is not the mesh."""
     print("LEVEL INVARIANTS -- byte-compared across all three levels "
           "(section 2.2)\n")
+    print("  EXEMPTED BY NAME (amendment A1, 2026-09-01): %s.  `cellToRegion` "
+          "is a DERIVED ARTEFACT of the mesh with one\n"
+          "  label per cell; it differs across the ladder BECAUSE h differs.  "
+          "Its whole aggregate content -- the per-region cell\n"
+          "  counts -- is checked ABOVE by check_ladder_structure against the "
+          "FROZEN EXPECTED_CELLS, which is STRICTER than a\n"
+          "  sibling-level byte comparison.  This exemption removes a check "
+          "that was UNSATISFIABLE and REDUNDANT, and it is\n"
+          "  printed here rather than left silent.\n"
+          % ", ".join(INVARIANT_SKIP_FILES))
     ref = dirs[LEVELS[0]]
     checked = 0
     for parts in INVARIANT_DIRS:
@@ -715,13 +764,57 @@ def grade_quantity(qid, desc, values, cells, plant_controls,
     return row
 
 
-def grade(root):
+def _level_dirs(root):
     dirs = {}
     for lvl in LEVELS:
         d = os.path.join(root, lvl)
         if not os.path.isdir(d):
             refuse("level directory %s does not exist" % d)
         dirs[lvl] = d
+    return dirs
+
+
+def pre_solve_check(root):
+    """AMENDMENT v1.1, 2026-09-01 (T23G_PREREGISTRATION.md amendment A2) --
+    A CHANGE TO THE ORDER OF OPERATIONS, AND TO NO GATE, THRESHOLD, CAP OR LABEL.
+
+    THE DEFECT THIS EXISTS TO PREVENT WAS NEVER THE EXEMPTION -- IT WAS THE
+    ORDERING.  `check_ladder_structure` and `check_invariants` are BUILD-TIME
+    faults detected at GRADE time, i.e. after all three levels have solved and
+    been marked DONE.  On this rung that is 158.65 core-min of solving bought to
+    learn that a mesh was wrong, when the same answer was available for SECONDS
+    of meshing.
+
+    So the two checks are made callable ONCE THE THREE MESHES EXIST AND BEFORE
+    ANY SOLVER STARTS.  Run as:
+
+        analyse_t23g.py --pre-solve [--root <dir>]
+
+    THEY REMAIN AT GRADE TIME AS WELL, UNCHANGED.  Belt and braces: a grading
+    pass must refuse on its OWN authority and must never trust that a build-time
+    check was run.  This function GRADES NOTHING, reads no field, evaluates no
+    gate, and requires no level to be DONE -- a mesh has no solve to complete."""
+    dirs = _level_dirs(root)
+    print("=" * 78)
+    print("T23G -- PRE-SOLVE STRUCTURAL CHECK (amendment A2).  GRADES NOTHING.")
+    print("=" * 78)
+    print("This runs AFTER the three meshes are built and BEFORE any solver "
+          "starts, so that a build\nfault costs SECONDS OF MESHING rather than "
+          "%.2f core-min of solving.  It evaluates no gate,\nreads no field, and "
+          "does not require any level to be DONE.\n" % 158.65)
+    cells = check_ladder_structure(dirs)
+    n_inv = check_invariants(dirs)
+    print("PRE-SOLVE CHECK PASSED: the ladder is uniform in every region and "
+          "the levels differ in h and\nin nothing else.  %d invariant "
+          "comparisons.  THIS IS NOT A VERDICT ON ANY QUANTITY -- no field has\n"
+          "been read and no gate has been evaluated.  The same two checks run "
+          "AGAIN at grade time, on\nthe grader's own authority.\n" % n_inv)
+    return dict(cells=cells, invariants_checked=n_inv,
+                skipped_by_name=list(INVARIANT_SKIP_FILES)), EXIT_OK
+
+
+def grade(root):
+    dirs = _level_dirs(root)
 
     print("=" * 78)
     print("T23G -- THE GRID TRIPLE AT (305 W, 20 m/s)")
@@ -913,6 +1006,15 @@ def main(argv):
     if "--json" in argv:
         i = argv.index("--json")
         jout, argv = argv[i + 1], argv[:i] + argv[i + 2:]
+    # amendment A2: the build-time limb.  It grades nothing and it does NOT
+    # replace the grade-time limb, which runs the same two checks again.
+    if "--pre-solve" in argv:
+        out, code = pre_solve_check(root)
+        if jout:
+            json.dump(out, open(jout, "w"), indent=2, sort_keys=True,
+                      default=str)
+            print("wrote %s" % jout)
+        return code
     out, code = grade(root)
     if jout:
         json.dump(out, open(jout, "w"), indent=2, sort_keys=True, default=str)

@@ -897,3 +897,157 @@ exception. **The order is: commit → diff read → mesh → launch.**
 ---
 
 *End of registration. Frozen on commit.*
+
+---
+
+## AMENDMENT — v1.1, 2026-09-01 03:47Z — **THE REGISTERED `constant/` INVARIANT WAS UNSATISFIABLE BY CONSTRUCTION, AND THE REAL DEFECT WAS THAT IT WOULD HAVE FIRED AFTER THE FULL 158.65 CORE-MIN**
+
+**Lines whose number changed above this section: 0.**
+
+**Version 1.0 → 1.1.** Appended at the foot as a dated block, never by rewriting
+above (`CLAUDE.md` rule 6). **This amendment is made BEFORE FIRST COMPUTE and is
+legal on the `§2b` pre-compute limb** — see A0, where the condition is checked
+rather than asserted.
+
+> **NO GATE, THRESHOLD, CAP OR LABEL MOVES.** Not `G-CONV`'s 1e-6, not
+> `G-PLATEAU`'s 0.010 K, not `G-BAND`'s [−14.85, +185.15] K, not `G-ORDER`'s
+> [0.80, 2.50], not `G-GCI-DISPLAY`'s 0.050 K, not `G-GCI-LEGACY`'s 2.0 %, not
+> `G-REPRO`'s 342.1749743329 K ± 1e-6. Not the POINT 158.65 or the CAP 525.0.
+> Not the order prediction `p ≈ 1.0` or its falsifier `p > 1.5`. Not `endTime`
+> 10000. Not the expectation, registered in §5.2 and §6.3, that
+> **G-GCI-DISPLAY is expected to GATE FAIL.**
+
+### A0. THE `§2b` CONDITION, CHECKED IN THE AMENDING INVOCATION ITSELF
+
+Checked at **2026-09-01 03:46:50Z**, in the same shell invocation that preceded
+this edit, by testing each path rather than by recalling §11:
+
+- `verification/runs/T-family/T23G_runs/T23G_C` — **DOES NOT EXIST**
+- `verification/runs/T-family/T23G_runs/T23G_M` — **DOES NOT EXIST**
+- `verification/runs/T-family/T23G_runs/T23G_F` — **DOES NOT EXIST**
+- `find verification/runs/T-family/T23G_runs -type f` returns **exactly one
+  path**, `analyse_t23g.py`.
+
+**No compute of any kind has run under this registration — no `blockMesh`, no
+`splitMeshRegions`, no `checkMesh`, no solve.** `§2d.2`
+(`VERIFICATION_CHARTER.md` v1.32) closes gates at **first compute, feasibility
+compute included**, and §8.5 of this document costs `blockMesh` as compute
+precisely so it cannot be run as a free action. **That window is still open at
+the moment of this amendment, and it is the only reason this is a pre-compute
+amendment rather than a `§2d.1` four-condition repair.**
+
+### A1. `constant/cellToRegion` IS EXEMPTED BY NAME FROM THE §2.2 BYTE COMPARISON
+
+**THE DEFECT.** §2.2 registers that **every file under `constant/` except
+`polyMesh`** is byte-compared across the three levels, and `analyse_t23g.py`
+implements it (`INVARIANT_DIRS`, `INVARIANT_SKIP_DIRS`, `_tree_files`).
+`build_t23.py:804` runs `splitMeshRegions -cellZones -overwrite`, which deposits
+**`constant/cellToRegion`** — a `labelList` carrying **one label per cell**. On
+`T23_P305_U20` it is **80,278 bytes, 39,705 lines, first payload token
+`39680`**. Across this ladder that token is **9,920 / 39,680 / 158,720**.
+
+**So the comparison could never have passed.** It is not a check that this
+ladder happened to fail; it is a **guaranteed refusal** on any correct build,
+because it asks three levels of a grid ladder to have the same cell count.
+
+**WHY THE EXEMPTION IS A REPAIR AND NOT A WEAKENING — MEASURED, NOT ARGUED.**
+The file's entire aggregate content was measured before the exemption was
+written: it holds exactly three distinct labels `{0, 1, 2}` with counts
+**`{0: 35200, 1: 3360, 2: 1120}`** — which are **exactly** the fluid / core /
+housing cell counts that `check_ladder_structure` re-reads from each level's own
+`log.checkMesh.<region>` and matches against the **frozen `EXPECTED_CELLS`**,
+with every region's ratio required to be **exactly 4**. That check is **stricter
+than the one removed**: it compares against a value frozen in this registration,
+not merely against a sibling level.
+
+**Stated honestly, including what is NOT covered:** the per-cell *ordering* of
+the label list is not compared by either check. **But it never was** — a
+cross-level byte comparison of a per-cell field refuses on length before it ever
+reaches content. **Nothing that could ever have passed is lost.** The region
+partition is additionally protected structurally: each block declares its zone in
+`blockMeshDict` (`build_t23.py:164-176`), the `vertices` block is byte-compared,
+and a mis-zoned block would move cells between regions and be caught by
+`EXPECTED_CELLS`.
+
+**EXEMPTED BY NAME, DELIBERATELY.** A new `INVARIANT_SKIP_FILES = ("cellToRegion",)`
+containing that one name and nothing else. **`INVARIANT_SKIP_DIRS` is NOT
+broadened, there is no pattern match, and there is no "files that differ"
+escape.** A named exemption stays auditable; a general one silently swallows the
+next surprise. The exemption **prints on the artifact's face** at every run.
+
+### A2. THE ORDERING FIX — THE TWO STRUCTURAL CHECKS GAIN A BUILD-TIME LIMB
+
+**THE DEFECT'S REAL COST WAS NEVER THE EXEMPTION; IT WAS THE ORDERING.**
+`grade()` runs `require_done` → `check_ladder_structure` → `check_invariants`.
+Both structural checks are **build-time faults detected at grade time** — that
+is, after all three levels have solved and been marked DONE. **A wrong mesh would
+have cost the full 158.65 core-min to discover, when the identical answer was
+available for seconds of meshing.**
+
+**REGISTERED: `analyse_t23g.py --pre-solve` runs `check_ladder_structure` and
+`check_invariants` once the three meshes exist and BEFORE any solver starts.**
+It grades nothing, reads no field, evaluates no gate, and does not require any
+level to be DONE.
+
+**THE GRADE-TIME LIMB IS UNCHANGED AND IS NOT REPLACED.** A grading pass must
+refuse on its **own** authority and must never trust that a build-time check was
+run. Belt and braces, with the braces new.
+
+**This is a change to the ORDER OF OPERATIONS and to no gate, threshold, cap or
+label.**
+
+### A3. TWO DESCRIPTIVE CORRECTIONS — NEITHER TOUCHES A GATE
+
+1. **§2.2's operating-point row cites `constant/fluid/fvOptions`. That file does
+   not exist.** `constant/fluid/` holds only `polyMesh`, `radiationProperties`,
+   `thermophysicalProperties`, `turbulenceProperties`. The source term is in
+   **`constant/core/fvOptions`** — `P_sector = 4.23611111111 W`,
+   `volumeMode absolute` — which is physically right, since the motor loss is
+   deposited in the core. **The operating point was in the byte-compared set
+   either way, so nothing went unchecked**; only the path in the prose was wrong.
+2. **§8.5's build-compute line does not itemise everything it must cover.**
+   `build_t23.py` runs `blockMesh` and `splitMeshRegions` but **no `checkMesh`**;
+   the three `checkMesh -region` calls per level are separate, and §7.4
+   additionally requires a per-level `postProcess -func yPlus -region fluid`
+   after the solve. **These are seconds of compute against a 1.0 / 5.0 core-min
+   line, and the cap does NOT move** — the correction exists so the §8.6
+   calibration row is honest about what the build point covers.
+
+### A4. THE GRADING PATH CHANGED, AND BOTH SHAS ARE RECORDED SO IT IS VISIBLE
+
+| file | sha |
+|---|---|
+| `analyse_t23g.py` **before** this amendment (committed at `20447f98`) | `9162a93bd0220ecb5c33d168fcd68296afc761fc` |
+| `analyse_t23g.py` **after** A1 + A2 | `e02878a0a9c40e22b76f8d23fd3e1543eb8035a5` |
+
+§11 fixes the grading path at the pre-registration commit; **this amendment moves
+it, once, before any compute, and records both endpoints** so the change is
+visible rather than silent. `scripts/roache_triple.py` and
+`T23_runs/analyse_t23.py` are **untouched**.
+
+### A5. THE CHANGE WAS DRIVEN BEFORE IT WAS TRUSTED — A PLANTED CONTROL ON THE AMENDMENT ITSELF
+
+A synthetic three-level fixture was built from the source case's real dictionary
+trees and the new `--pre-solve` limb driven over it, on four arms:
+
+| arm | expectation | result |
+|---|---|---|
+| clean ladder | PASS, exit 0 | **exit 0**; `constant/` compares **10** files, down from 11 — **exactly one exempted** |
+| `constant/fluid/thermophysicalProperties` mutated in the fine level | REFUSE, exit 2 | **exit 2**, `REFUSE: constant/fluid/thermophysicalProperties DIFFERS between T23G_C and T23G_F` |
+| coarse `log.checkMesh.fluid` altered to 8801 cells | REFUSE, exit 2 | **exit 2**, `REFUSE: T23G_C region fluid has 8801 cells; the frozen registration (section 3.1) says 8800` |
+| both mutations reverted | PASS again, exit 0 | **exit 0** |
+
+**The second arm is the load-bearing one: it proves the exemption is BY NAME and
+did not become a blanket over `constant/`.** The fourth proves the refusals were
+caused by the mutations and by nothing else. **A change to a comparator that is
+not itself driven against a planted control is an assertion, not a repair.**
+
+### A6. WHAT THIS AMENDMENT DOES NOT DO
+
+It does not launch anything, it does not touch a gate, and it does not alter the
+registered prediction. **§5.2 and §6.3 still stand: G-GCI-DISPLAY is expected to
+GATE FAIL, and the expected honest outcome of this rung remains that Act A drops
+to 1 °C significant figures rather than earning 0.1 °C.** If the run says
+otherwise, the run wins.
+
+*End of amendment v1.1.*
