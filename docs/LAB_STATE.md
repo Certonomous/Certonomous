@@ -4791,9 +4791,59 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T20:34:15Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25l` — the same defect class has now appeared THREE times and is named: a claim and what makes it true must travel in the same UNIT OF CONSUMPTION. `S-25e` is the D19T permission denial, still open on her desk.
+**Section last written:** 2026-09-01T20:54:53Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25m` — a guard keyed to a TOPIC cannot distinguish a claim from its negation, and the stage-8 branch we were not watching would have claimed a convergence band that does not exist. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25m — **⚠⚠ A NEW HAZARD CLASS, AND IT IS GENERAL: A GUARD KEYED TO A **TOPIC** CANNOT DISTINGUISH A CLAIM FROM ITS NEGATION. PLUS THE BRANCH WE WERE NOT WATCHING WAS THE DANGEROUS ONE — A PREMATURE "DONE" ABOUT A CONVERGENCE BAND THAT DOES NOT EXIST. `adjoint-wing` IS `FAIL=2 ok=8` AND THE SHEET↔WIRE SWEEP NOW HAS THE FORCING PROPERTY** (2026-09-01T20:54:53Z, `date -u` at write)
+
+###### 1. ⚠⚠ THE NEW HAZARD CLASS — NAME IT AND CARRY IT
+
+The act lane's sheet↔wire sweep used `covers = r"convergence stud"` to decide whether a claim class was present. **A planted claim that the study was FINISHED AND ATTACHED was ABSORBED by it.**
+
+**Its own words, and they are the finding: a `covers` broad enough to match the SUBJECT swallows every future claim about that subject.**
+
+**THE SHARPER FORM, WHICH IS THE ONE TO CARRY: A GUARD WHOSE PATTERN NAMES THE TOPIC RATHER THAN THE ASSERTION CANNOT DISTINGUISH A CLAIM FROM ITS NEGATION.** `"convergence stud"` matches *"the convergence study is running"* **and** *"the convergence study is finished and the band is attached"* — **opposite statements, identical match.** **⚠ AND SUCH A GUARD READS AS HEALTHY PRECISELY BECAUSE IT MATCHES SO MUCH.** Any pattern that names its subject has this property. **This is NOT "the regex was too broad"; a narrower topic pattern has the same defect.**
+
+###### 2. ⚠⚠ THE BRANCH NOBODY WAS WATCHING WAS THE DANGEROUS ONE — AND IT IS CONCRETE, NOT ABSTRACT
+
+Sanaa's stage-8 rule has **TWO** branches — the study shown **DONE**, or shown **UNDERWAY**. **The instrument's vocabulary knew only UNDERWAY, so a planted *"finished and the band is attached"* was INVISIBLE.**
+
+**WHAT THAT WOULD HAVE MEANT ON OUR GROUND, STATED PLAINLY: `A2-GC` CAP-STOPPED AT L1 AND `A1WR` HAS NOT PRODUCED A FRAME. THERE IS NO BAND.** An act claiming one would have been **a false statement, on camera, about the exact thing her §0 doctrine exists to enforce** — **and it would have been MORE plausible to a viewer than the honest "underway", because "done" is what a finished platform says.**
+
+**A PREMATURE "DONE" IS A CLAIM ABOUT WORK THAT HAS NOT HAPPENED, AND IT IS WORSE THAN AN ABSENT LINE, BECAUSE ABSENCE IS VISIBLE AND A FALSE COMPLETION IS NOT.** Both branches are watched now.
+
+###### 3. THE SHEET↔WIRE SWEEP EXISTS AND HAS THE FORCING PROPERTY — `62f2c343`
+
+**Built as I ruled: required-claim presence, NOT a diff** (the sheet is long-form, the wire is bulleted; a diff would be noise). **4 claim classes, 12 forcing arms, both modes green — I ran it myself.** Three arms give the forcing property and **all three are planted**: a sheet claim missing from the wire fires; **a NEW undeclared protocol-shaped claim on a sheet fires**; a declared class deleted from the sheet fires. **Plus the clean-pair arm, without which a check that failed on everything would have scored full marks on the other three.**
+
+**Two further self-caught defects behind it.** Arm 2 first compared snippets against the **canonical** pattern and so **reported the sheet's own compliant paraphrases as undeclared** — `covers` is now separate from `sheet`: one asks *"is the canonical claim present at all"*, the other *"is THIS snippet an instance of this class"*. **Then §1's absorption defect.** **Three defects, all found by the plants, none by reading.**
+
+**HONEST LIMIT, IN THE DOCSTRING RATHER THAN DISCOVERED LATER: arm 2 sees only claim SHAPES it knows. A genuinely new KIND of claim, in a shape nobody has described, is invisible. SMALLER HOLE THAN THE ONE IT CLOSES — and that trade is stated every time rather than assumed.**
+
+###### 4. ⚠ THE THREE UNCOVERED SHEETS ARE MY ACT BACKLOG SEEN FROM THE OTHER SIDE
+
+**`SO-3`, the compressible sheet and the aerofoil sheet have NO ACT to compare against, so they can drift from a wire that does not exist yet and the sweep cannot see it. REPORTED, NOT SKIPPED** — a sweep scoring full marks while silently not covering three of its subjects is the reader-that-cannot-see-a-non-zero failure in a new place.
+
+**⚠ AND THE CONNECTION IS MINE TO MAKE: THOSE THREE SHEETS HAVE NO ACT *BECAUSE I RULED THOSE RUNS SHOOTABLE AND THE ACTS ARE NOT BUILT YET.*** `SO-3` `PASS`, `D19M` `GATE REACHED`, `D19O` `GATE REACHED`. **The sheets are AHEAD of the acts. So the sweep's coverage gap and my act backlog are ONE GAP SEEN FROM TWO DIRECTIONS, and building those acts closes both.** That reframes it from *"sweep limitation"* to **"known work queued"**, which is a far better thing to have on a board — **and it is the obvious place the next sheet-vs-wire instance is sitting.**
+
+###### 5. `report.ready` — ONE METHOD CLOSED TWO CHECKLIST LINES
+
+`3851852c`: **`FAIL=10 ok=0 → FAIL=2 ok=8`**, both drive paths **355 events / 9-of-9, identical**, A/B by monkeypatch with the patch restored and re-measured.
+
+**Built to the read-alone test throughout:** every share carries **"at matched lift"** — *because a share quoted without it IS the trap this act exists to show* — and both drag rows carry **"single grid"**. **The trap row says *"shown to make the trap visible, not as a result"* IN ITS OWN REASON CELL rather than in a caption elsewhere** — the unit-of-consumption rule applied without being told, because a cell is read alone.
+
+**No certificate is claimed, and `certificate_state` carries the SAME convergence sentence — so that claim now stands identically on the SHEETS, the WIRE and the REPORT TAB. One claim, three surfaces, no paraphrase.** That is the answer to the disease that has bitten this family four times today.
+
+###### 6. "GUESSING A KEY IS GUESSING A DENOMINATOR" — AND THE GOOD OUTCOME DESERVES ITS OWN SENTENCE
+
+The lane keyed a row as `final`; the record calls it `twist_and_shape_at_CL05`. **IT RAISED RATHER THAN RETURNING SOMETHING PLAUSIBLE.**
+
+**A GUESS THAT RAISES IS A BUG YOU FIX IN A MINUTE. A GUESS THAT RETURNS SOMETHING PLAUSIBLE IS A DEFECT THAT SHIPS.** Same family as the Re denominator refusal: **both are inventing a basis nobody measured**, and the only thing separating them was whether the record happened to be forgiving.
+
+**REMAINING ACT D GAPS: TWO — small multiples, and the mesh, which is `pyHyp`-BLOCKED and stays honestly named rather than worked around.** Render item **4.4 of 90 core-min**; the last four passes cost no compute.
+
+**Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25l — **⚠⚠ THE SAME DISEASE HAS NOW APPEARED THREE TIMES TODAY AND IT DESERVES A NAME: A CLAIM AND THE THING THAT MAKES IT TRUE MUST TRAVEL IN THE SAME **UNIT OF CONSUMPTION** — AND THE UNIT OF CONSUMPTION IS NOT THE UNIT OF AUTHORSHIP. PLUS: "INK PRESENT IS NOT CONTENT COMPLETE", AND A LANE THAT MEASURED ITS OWN EYE AND FOUND IT WRONG** (2026-09-01T20:34:15Z, `date -u` at write)
 
