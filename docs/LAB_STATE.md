@@ -20442,6 +20442,151 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T~17:0xZ by cfd-supervisor personally, via a records lane. **FORTY-FIFTH WRITE.** **THE DEMO WENT GO.** HEAD at write time: **`4c9c0744`** — re-derived in the same shell invocation as the commit, NOT taken from any sha handed to the lane, because this box is committing about once every two minutes (see the commit-rate hazard below). It is **NOT `bd84e7f8`**, this team's own most recent commit at brief time; the interval moved HEAD and the actual value is recorded here rather than substituted silently. Where this conflicts with anything below, this block wins.
+
+### ✅ THE JET-FLAP ACT IS GO AND WAS DELIVERED — FINAL LIVE VERIFY PASSED ON THE REAL SERVER
+
+Mission **`m-6ead1e38066f`**, **pid 52040**, **single listener on 8765**. `/health` reports **`openfoam-real-solvers`** — and that string is **computed from a runtime `available()` check, NOT read from the env var**, so a correctly-set env alone would not have proved it. Routed **`jet-flap-display` at 0.74 confidence**. **1283 events, 635 banners, 605 solve frames, nine stage-begins in order, 0 language violations** across the rendered fields. Geometry bind confirmed **by bytes**: md5 **`8c76afb4079995b25991e26248f81ffa`**, chord **1.000000**, h/c **0.005000**. Curated wall **4 cards, all solver-backed**.
+
+Both ruled tense strings were verified **by the supervisor personally FROM THE LIVE EVENT LOG, not from source**: geometry statement **`This geometry, 39,984 cells.`** and final solve banner **`Solve complete`**. **Past-tense strings remaining: NONE.**
+
+### 🔴 THE ACT WAS ON THE WIRE AND NOT ON THE PAGE, AND NOBODY HAD CHECKED
+
+`control_room.html` dispatches events through an explicit **`switch (t)` with named cases and NO `default:` branch**, so every unlisted type **silently rendered nothing**. At HEAD that was **13 of 1283 events rendered; 1,270 fell through** — **the entire nine-stage act**. **Board 42 called this act "ready for the bounce" on EVENT COUNTS; the renderer was never checked.** Now **1283 of 1283 have handlers.**
+
+The fix was **measured, not asserted**: the solving stage puts **1,225 events on the wire in 44.9 s = 36.7 ms/event** against a **45 ms best-tier queue drain**, so the paced queue is **STRUCTURALLY behind at any setting** (FAST is worse — **60 ms floor**), and routing everything through it lands the last table **11.6 s after the solver finishes**. So **states (banner, solve frame) render on arrival and only things that ACCUMULATE queue.**
+
+⚠ **OPERATIONAL FACT THAT CHANGES WHAT A BOUNCE IS FOR: `_serve_control_room` does `read_bytes()` PER REQUEST, so HTML changes need NO bounce and are live the moment they are saved. Only Python module changes need one.**
+
+Also found: **`img.title` is a hover tooltip and A FILMED SCREEN HAS NO MOUSE** — four figure titles were invisible.
+
+### 🔴 THE HARDCODED-NAMESPACE DEFECT WAS WORSE THAN DAFOAM REPORTED, AND IT INCLUDED US
+
+Deriving the namespace alone would have produced a **tidier 404**: an act's figures were **never staged under the served root at all**, so **4 of 4 figure URLs returned 404 for EVERY act, jet-flap included.** It only looked fine because the **legacy surface copies figures elsewhere.** Both halves fixed at **`f139ff79`**; jet-flap's event stream **BYTE-IDENTICAL before and after**; **21 new tests**; a mutation restoring the constant **fails 10**.
+
+`assert_screen_safe`'s standing **"four of five call sites bypassed"** defect is **CLOSED** — **eight publication paths, ZERO bypassing**, including a **sixth delegated site the original count never named**.
+
+### ✅ DMR ACT LANDED — `6f02808a`, ZERO SOLVER COMPUTE
+
+`validate_act` **0 problems**, pre-shoot gate **"can start"**, **ZERO solver compute** (mesher only, **0.45 s single-core**), reproducing the graded grid **checkably**: **57,600 cells, 116,402 points, node set identical to the last digit.** On screen the headline is **the honest one**: shock position **0.41 and 0.24 of a cell** from exact, **NOT the sub-instrument 0.15%.** Gates **P1 and P2 honoured by silence.**
+
+**Routing still unwired and is NOT ours.** Two camera items unfixed because they live in **shared `demo_mode`**: the cost line renders **"about $0.00" at 1.9 processor-minutes** (reads as a claim of **FREE**), and that **1.9 covers the two solves only** where the graded record's **item total is ~2.4**.
+
+### 🔴 VERDICT — `JF1E` rung E1, row C_mu 0.05: **`GATE FAIL`**
+
+Continuation did **NOT** clear the stall; it is **marginally worse**.
+
+| quantity | baseline | E1 | reading |
+|---|---|---|---|
+| bounding **k**, final 500 | 404 | **415** | worse |
+| bounding **omega**, final 500 | 167 | **167** | unchanged |
+| **k** initial residual at 8000 | 5.941e-06 | **6.231e-06** | **6.2x its 1e-6 criterion** |
+| CL | 0.40573320 | 0.40571058 | — |
+
+**Cost 23.8000 core-min actual, ratio 0.974 against that row's OWN 24.4333 basis, $0.0203 DERIVED at $0.0513/core-h — derived, not measured.** **One row failing determines the rung**, so the frozen order escalates to **E2a** (turbulence relaxation **0.7 → 0.5**).
+
+**THE PRE-REGISTERED EXPECTATION HELD.** The lane wrote into the freeze that **E1 alone would be insufficient**, because the clipping is **continuous through iteration 8000** and is therefore a property of the **converged-in-forces state, not of the transient from freestream**. It committed to reporting the expectation as **WRONG** had E1 passed.
+
+### 🔴 `JF1G` IS **`NOT A RESULT`** ON GATE G1, AND IT HAS A SECOND STRUCTURAL DEFECT — **ON THE CHIEF'S DESK**
+
+**(a)** Gate G1 rejected level **C3** on **max aspect ratio 1012.24 — TWO CELLS OUT OF 202,180**; non-orthogonality and skewness fine. Supervisor verified **`docs/standards/MESH_STANDARD.md` §3.3 personally**: it is titled **"Aspect ratio: advisory at 1000, never a lone rejection"**, calibrated with the NASA TMR references at **74041 / 69043 / 66643**, and states that a hard gate at 1000 *"would reject every reference-grade wall-resolved RANS grid the lab owns"*. **C3 is ~65x BELOW the lab's own references.** Every similarity clause passes; **the gate rejects on the one quantity the standard says is never a rejection.**
+
+**(b) Supervisor-verified second defect.** JF1G **§11 (lines 405–406)** states *"The grading path is fixed at this commit and the comparator is hashed against its committed blob at grading time"* — but **the comparator DID NOT EXIST at `038f4bca` (16:08:29); it landed at `74c4f5fb` (16:24:44), sixteen minutes later.** **That clause cannot be satisfied literally, and it is rule 2's own requirement.** Mitigation is real but **partial**: the comparator landed **before any grading and before any Pass-1 run**, and **Pass 0 scores nothing**.
+
+⚠ **THE LANE DECLINED TO INVOKE THE AVAILABLE ESCAPE** — that Pass 0 is `LABEL: diagnostic` and scores nothing — **because it is the SAME unruled argument sitting with Sanaa on gate 6, and a lane does not help itself to an unruled reading. Correct call, and it is upheld.**
+
+**Recommendation, NOT acted on:** reissue under a **new sha** as F23b's successor did — aligning the mesh gate to the lab's own standard, registering the smoothing law, and **freezing the comparator WITH the registration**; note that **half of that runs in the STRICT direction**. **Integrity condition provably met: no Pass-1 solve has run, so NO GRADED NUMBER EXISTS THAT A REISSUED GATE COULD HAVE BEEN FITTED TO.** Finding at **`verification/campaign/JF1G_MESH_GATE_FINDING.md`**.
+
+**Consequence:** with **C3 gate-refused and C2 capping out, Pass 0 cannot deliver three levels, so p and GCI are BLOCKED on the ruling.**
+
+### 🔴 TWO GENERATOR DEFECTS OF ONE CLASS: A PARAMETER HELD CONSTANT ACROSS A FAMILY SILENTLY MAKES THE FAMILY DISSIMILAR
+
+**(a)** `build_jf1.py`'s default **`--n-rad 0`** solves the wall-normal count from a **growth cap**, so it goes **98 → 100 → 103 (ratio 1.02)** while the tangential goes **408 → 612 → 919 (ratio 1.5)**. **An observed order on that family is meaningless.** Caught **PRE-FREEZE at ZERO COST**, only because *"uniform ratio in every direction"* was **CHECKED AGAINST THE GENERATOR instead of assumed.** Fixed family measured similar: direction ratios **1.4966–1.5017**, total cell ratios **2.2500 and 2.2473** against **r² = 2.25**, growth-ratio identity **g_fine^r = g_coarse to 3e-4** — that identity matters, because **g is SUPPOSED to change as g^(1/r)**, so a reader checking *"same growth ratio"* would **wrongly call the family dissimilar**.
+
+**(b)** **`--normal-smooth` is a fixed pass count that never scales**: max non-orthogonality drifted **57.53 → 67.64 → 75.14** when similarity requires it **INVARIANT**. **Diffusion length goes as sqrt(passes), so passes must scale as s².** The sweep **minimises exactly at the predicted value**, and under the law the quantity reads **57.53 / 58.62 / 58.89 across a 5x cell-count range.**
+
+Sanaa's **§0 step 4(b)** calls mesh similarity **"the F28 lesson"**; **both defects passed to the F28 lane.**
+
+### 🔴 A REFINEMENT TO SANAA'S OWN §0, WHICH SHE SHOULD HEAR
+
+Her **§0 tightness rule** requires the iterative change in the graded quantity to be **≥10x smaller** than the level-to-level difference. **Measured:** baseline and E1 at C_mu 0.05 are the **SAME equations at the SAME settings from DIFFERENT initial conditions** and settle **2.23e-05 apart**, while each run's apparent iterative drift is **~3e-07**. **INITIAL-CONDITION SENSITIVITY IS ~70x THE DRIFT THE TIGHTNESS RULE READS** — read naively, **the rule would certify convergence that is not there.**
+
+**Gate G4 is frozen and cannot change**; the honest iterative floor is reported **beside** it. Provisional standing: level-to-level **|dCL| ~ 3.3e-03** against a **G4 requirement of ~3.3e-04**, **C1 drift 4.2e-08**, **IC floor 2.2e-05** — **15x below requirement**, so **registered risk #1 is receding.** **C2 unconverged, D32 unmeasured.**
+
+### ✅ BIT-EXACT REPRODUCTION, VERIFIED BY THE SUPERVISOR INDEPENDENTLY OF THE COMPARATOR
+
+C1 Pass-0 vs the **2026-08-31 sweep row**, data-only stream with headers stripped: **8,000 rows each, ZERO differing rows**, md5 **`df0f5504fad00974f31a896af3c1a678` on both**, byte size **1800971 on both**, **mtimes a day apart**. This validates the launcher's staging **BY REPRODUCTION rather than by reading it**, and establishes the **solver determinism E1's comparison depends on**. C1: **rc=0, complete, 21.7500 core-min against 21.8 predicted, ratio 0.998.**
+
+### 🔴 THE COST MODEL IS REFUTED BY MEASUREMENT, AND THE CAP HELD
+
+**Per-cell-per-iteration cost is NOT constant: 4.27e-6 s at 39,984 cells vs 7.79e-6 at 89,964 — 1.82x worse per cell at 2.25x the cells.** So **a cap built by linearly scaling a coarse-level rate UNDER-CAPS the fine level.** C2 will stop at **~6,850 of 8,000** against its **80 core-min cap** and is **`NOT A RESULT`, not a partial result**.
+
+**Cap NOT raised.** Sanaa's *"cost is not a constraint"* lifts the ceiling as a blocker on **NEW** work; **it is not licence to raise a cap already frozen inside a pre-registration**, and the lawful route is a **new pre-registration on the measured basis** — drafted at **`f9372626`**, deliberately **NOT named `*_PREREGISTRATION.md`** so no tool mistakes it for a freeze, with **C3/C4 figures marked extrapolated-not-measured**. Calibration row **`C-20260901T163701.774550Z-1b8633ba`** landed at **`5d53328c`** via `append_record.py --allocate-id`, **1 insertion, all 163 pre-existing rows byte-identical.**
+
+⚠ **Supervisor's own error, corrected:** the **23.497 core-min "measured basis" is the MEAN** of 23.7667 / 24.4333 / 21.7500 / 22.3333 / 25.2000 across five rows **at different blowing** — **never the right basis for a single-row estimate.** **Per-row figures are used now.**
+
+### 🔴 THE COMMIT-RATE HAZARD, QUANTIFIED — THIS IS LAB-WIDE, NOT OURS
+
+Board 43 said a full-suite number is not an attribution instrument here, **from a 27-minute case.** The real threshold is far tighter: **50 commits since 15:00Z, about one every two minutes.** A **20-SECOND** targeted test run **saw HEAD move** (`4fdb08ff` 16:36:20 → `5d53328c` 16:37:01, **41 s**). **ANY MEASUREMENT SPANNING MORE THAN ABOUT TWO MINUTES THAT DEPENDS ON TREE STATE MAY DESCRIBE A TREE THAT NEVER EXISTED.** Every team's suite runs, audits and sweeps sit under this. **Flagged to the chief; NOT unilaterally written as a lesson.**
+
+### 🔴 FREEZE-PATH AUDIT — `90e98f1d`
+
+**39 of 92** pre-registrations in `verification/campaign/` **cannot be freeze-checked at their current path** (37 from **one MOVE_MAP batch**); **24 have byte-identical blobs**, so their freezes **are provable, just not where anyone would look**.
+
+In **`check_comparator_freeze.py` — the enforcer CLAUDE.md rule 2 NAMES** — a failed `rev-parse` leaves `modified` as **None**, and **line 386 reads "I could not tell" as `FROZEN`**, proven **by construction with an adverse control where only readability flips a violation into a pass**. **ZERO instances in the wild: LATENT, NOT FIRING — so no current verdict is wrong.** **No fix committed to any shared checker; the supervisor reads those diffs first.** Cross-team exposure **64 of 367**, mostly **dafoam (21)**. ⚠ **The lane flagged its OWN closure zero as UNCONTROLLED** — it never showed the detector able to see a non-zero there.
+
+⚠ **ALSO ON THE CHIEF'S DESK:** three pre-registrations have **frozen body lines REWRITTEN IN PLACE rather than struck** (rule 6) — **`F27_WOMERSLEY_PIPE`** (a cost figure), **`F5C_UNSTEADY_PROBE`** (a mesh-certification assertion), and **`R7_STROUHAL_SPACING`**, where **the rewritten line IS the freeze claim itself.**
+
+### ACT B SHEET — `24640318`
+
+The clipping range printed under a plain **`:.0f`**, so the worst row's measured **97.325% printed as "97"** — an **ADVERSE** quantity **rounded DOWN**. It is a **BOUND**, so it now widens **OUTWARD** to **"81 to 98%"**; the companion figure is a **POINT** value, so it carries a digit at **"99.4%"** rather than a false **100%**. Supervisor re-measured **from the RENDERED PDF**: 2 pages, 428 words on page two, both strings once each. The manifest also corrected a **STALE INSTRUCTION** telling a successor the sheet *"must stay at exactly 1 page"* — **it is 2, it grew by adding candour, page two IS the disclosure, and cutting disclosure to restore 1 page is now FORBIDDEN.** **Seventh instance on this act of a number right when written and never re-derived.**
+
+### THERMAL PATCH APPLIED INTO `sdk/` — AND DELIBERATELY NOT BOUNCED
+
+Heat-transfer's `PROPOSED_actA_demo_mode_act.patch` applied as a **pure addition, no existing file touched**: **`motor_thermal_act.py` (764 lines)**, **`battery_module_act.py` (205)**, one STL. Verified **by construction**: `jet-flap` and `motor-thermal` **register**; **`battery-module` imports fine and DELIBERATELY DOES NOT register.**
+
+**NOT batched into the bounce, for two reasons.** **(i)** The blocker is the **`replay_history` conjugate-CHT reader**, which is **HEAT-TRANSFER'S half, not ours.** **(ii)** **The battery act is not a wiring problem at all** — its own docstring documents **960 cells for the whole module**, cooling channels **NOT resolved as a fluid region** so outlet temperature reads **"NOT DEFINED"**, largest rise **0.42 K** and spread **0.11 K** (*"on a chart of a battery pack those are flat lines"*), **one mesh and one time step**; and the **REPLACEMENT run DIVERGED at rc 134 with a NEGATIVE TEMPERATURE at 1.5 s of a 900 s end time.** **No sequencer work makes that filmable; the scaffold refusing to register is CORRECT.**
+
+⚠ **Supervisor has NOT yet read the 969 lines as a diff — that check is OWED before any thermal number goes on camera. VERIFY.**
+
+### WASTE, NAMED NOT ABSORBED — COMPUTE_BUDGET_CHARTER §6
+
+**~40 core-min single-core** spent by the DMR lane chasing a **full-suite attribution this board had already established cannot work here**. It bought **one bit already available from targeted runs**. **The lane costed it against itself rather than folding it into a ratio.**
+
+### 🔴 A DEFECT CLASS THAT HAS NOW HIT FOUR TIMES: A CHECK THAT CANNOT FAIL FOR A REASON ITS AUTHOR DID NOT ALREADY KNOW
+
+Newest instance: a **kill-confirmation printed "(empty above = both gone)" DIRECTLY BENEATH A ROW SHOWING THE PID STILL ALIVE**, because the echo was **unconditional**. Prior instances: the **`\b(...)\b` word-boundary blindness twice**, and the **ordinal-derived-from-version**. **The lane self-reported this one.**
+
+### LIVE JOBS AND LANES
+
+**ZERO cfd solvers at write time other than the JF1 runs.** **JF1E links 2–4 continuing** (~72 core-min inside E1's **150** cap) and **C2 Pass-0 running to its cap.** Lanes: **F28 (§4)** and **M6 (§6)** in pre-registration; **this records lane.**
+
+⚠ **A comparator readability limit was accepted DELIBERATELY and NOT fixed mid-flight:** it reports a **LIVE** row as **`NOT A RESULT`** with completion failures listed, because it **cannot distinguish "still running" from "died"**. That **errs SAFE**, and **editing a grading path while it is grading would compound defect 6(b) rather than mend it.**
+
+### RUNGS WITHOUT VERDICTS
+
+**JF1E E1 `GATE FAIL` (NEW).** JF1E **E2a / E3 / E4 not started, frozen order.** **JF1G `NOT A RESULT`** on Gate G1, **blocked on the chief's ruling.** **DMR R3 `NOT A RESULT`, Gate T `BLOCKED`.** **F13 `GATE FAIL`**, geometric cause. **F28 `PENDING`**, lane live. **R5 `PENDING`.** **M6** no gate, lane live on §6 option 1.
+
+### 🔴 ON SANAA'S DESK
+
+**Act B commit item DISCHARGED.** Still open:
+
+1. The **rule-10 exec-bit inflow** — rule 10's own recipe has **no `--chmod` step**, `core.fileMode` false here; remedy is a **one-clause `CLAUDE.md` edit which is HERS ALONE**.
+2. **Gate 6**, whose **unruled status is now blocking JF1G's cleanest reading**.
+3. **`cm-super` / `type1cm` / `dvipng` / `ghostscript` missing**, so matplotlib `usetex` is dead and **apt is root**.
+4. The **M6 territory call**.
+5. The **promotional-surface policy at `router.py:470-477`**.
+6. The **JF1 turbulence-clipping limitation — before she films.**
+7. **Williams, Butler & Wood, ARC R&M 3304 (1961) eq. (2) — NEVER "Spence 1956".**
+8. The **DMR "about $0.00" cost line.**
+9. The **four stage banners reading as bare lab words** (`meshing`, `feasibility`, `solving`, `results`) while their neighbours read as written phrases — **NOT an R5 violation, a cosmetic inconsistency.** **Mechanism now known: `DemoAct.banners()` is a DEAD LEVER — `validate_act` checks it, but `banner_for_stage` reads a MODULE-LEVEL TABLE, so an act's own banner override is SILENTLY IGNORED.** Not fixed before a take because **it moves jet-flap**.
+
+### NEXT ACTIONS
+
+**Rule Gate G1 (chief).** Then **reissue JF1G with the comparator frozen WITH it.** **Run E2a per the frozen order.** Land **§0's automatic-convergence doctrine** into our lessons and standards as **DATED ADDENDA per rule 6** (version bump, `lines whose number changed above this section: 0`) — **Sanaa named this a supervisor duty verbatim: *"this is the pro activity that the supervisors need to have."*** **Supervisor still owes the 969-line thermal diff read.**
+
+⚠ **The CSS/browser-look items are SANAA'S OWN EYE and are NOT claimed:** whether the empty caption row collapses, whether captions wrap or truncate, whether the bottom banner collides, whether the stage cards read well.
+
 **Section last written:** 2026-09-01T~15:3xZ by cfd-supervisor personally, via a records lane. **FORTY-FOURTH WRITE.** Post the ~15:14Z box reboot. HEAD at write time: **`ba52af32`** — **NOT `24640318`**, the supervisor's own Act B commit named in this block; a dafoam commit landed in the interval, and the actual value is recorded here rather than substituted silently. Where this conflicts with anything below, this block wins.
 
 ### THE BOX REBOOTED AT ~15:14Z AND NOTHING IN CFD'S TERRITORY WAS LOST
