@@ -53,6 +53,10 @@
 %       disagreement with the grade)
 %     first layer height 2.0629e-03 to 4.0659e-03 m over 126 wall nodes:
 %       measured by the same script off MESH/constant/polyMesh
+%     far field radius 18.583 m about the grid centre (0.679, 0.000), with the
+%       outermost nodes spanning 18.559 to 18.583 m, so the outer boundary IS a
+%       circle and the figure is a radius.  max|x| reads 18.73 and is NOT the
+%       radius; the earlier draft of this sheet quoted that and was corrected.
 %     wall treatment nutUSpaldingWallFunction: O-P/0/nut, patch "(wing.*)"
 %     8 shape design variables, bounds +/-1.0; thickness in [0.5, 3.0], volume
 %       >= 1.0, leading-edge radius >= 0.8:
@@ -251,7 +255,7 @@ Weights                       & $1/3$ each          &                 & register
 Deviation on both, read back  & $0$                 &                 & measured, $10^{-12}$ \\
 \midrule
 Grid                          & $4\,032$            & cells           & counted \\
-Far field radius              & $18.7$              & m               & measured \\
+Far field radius              & $18.6$              & m               & measured \\
 First layer height            & $2.06$ to $4.07$    & $10^{-3}$ m     & measured \\
 Shape controls                & $8$                 &                 & design variables \\
 \bottomrule
@@ -269,7 +273,7 @@ whole near-wall range. Coefficients are formed on the reference area above.}
 
 \vspace{0.5pt}
 {\scriptsize All $4\,032$ cells are drawn. The left view stops at about
-$5\,\mathrm{m}$; the far field reaches $18.7\,\mathrm{m}$.}
+$5\,\mathrm{m}$; the far field radius is $18.6\,\mathrm{m}$.}
 
 \vspace{3pt}
 \textbf{Table 2. The result. Drag and lift move together.}

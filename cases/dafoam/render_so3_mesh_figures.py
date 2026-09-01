@@ -268,8 +268,16 @@ def main():
     h_lo, h_hi, n_wall_nodes = first_layer_height(pts, wall)
     print("first layer height %.4e to %.4e m over %d wall nodes"
           % (h_lo, h_hi, n_wall_nodes))
-    print("far field radius about %.1f m" % max(abs(min(xs)), abs(max(xs)),
-                                                abs(min(ys)), abs(max(ys))))
+    # FAR FIELD AS A RADIUS, NOT AS A MAX COORDINATE.  The outer boundary is a
+    # circle centred near mid chord, not on the origin, so max|x| overstates it
+    # (18.73 against a true 18.58).  Measured about the grid's own centre, and
+    # the spread of the outermost nodes is printed so the claim that it IS a
+    # circle is a reading rather than an assumption.
+    cx, cy = (max(xs) + min(xs)) / 2.0, (max(ys) + min(ys)) / 2.0
+    rad = sorted(((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 for x, y in zip(xs, ys))
+    outer = rad[int(len(rad) * 0.995):]
+    print("far field radius %.3f m about centre (%.3f, %.3f); outermost nodes "
+          "span %.3f to %.3f m" % (rad[-1], cx, cy, outer[0], outer[-1]))
 
     draw(segs, wall, (-4.5, 5.5), (-5.0, 5.0),
          r"Grid near the section",

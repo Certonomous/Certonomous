@@ -97,7 +97,7 @@ the wall layer zoom.
 
 ```
 Meshing.
-4,032 cells. Far field radius 18.7 m. First layer height 2.06 to 4.07 mm.
+4,032 cells. Far field radius 18.6 m. First layer height 2.06 to 4.07 mm.
 Wall treatment: a continuous wall function, valid across the whole near wall
 range.
 ```
@@ -109,7 +109,7 @@ Table on screen, wall resolution:
 | Cells | 4,032 |
 | Wall faces | 126 |
 | First layer height | 2.06 to 4.07 mm |
-| Far field radius | 18.7 m |
+| Far field radius | 18.6 m |
 
 ### 7. Check before the budget
 
@@ -202,7 +202,7 @@ sits inside a figure; every explanation is in the sheet text beside it.
 
 | Figure | Title | Caption |
 |---|---|---|
-| 1 | The grid the section is solved on | All 4,032 cells are drawn. The left view stops at about 5 m; the far field reaches 18.7 m. |
+| 1 | The grid the section is solved on | All 4,032 cells are drawn. The left view stops at about 5 m; the far field radius is 18.6 m. |
 | 2 | Drag and lift at three angles of attack | Drag falls at every angle. Lift falls at every angle and turns negative at the lowest. |
 | 3 | Objective against major iteration | Ten majors carry the objective from 0.0218060 to 0.0182832. The iteration budget is fifty. |
 | 4 | Gradient check at the final shape | Every control sits inside the limit at all three steps. Table 4 is the middle step. |

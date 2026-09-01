@@ -54,9 +54,44 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_actD_sheet_face import (  # noqa: E402  shared, never copied
-    PAST, PAST_PLANT, PAST_PLANT_AMBIGUOUS_FIRES, PAST_PLANT_AMBIGUOUS_QUIET,
-    RULES as REFERENCE_RULES, STRUCK, STRUCK_PLANT, _is_past,
+    PAST, RULES as REFERENCE_RULES, STRUCK, _is_past,
 )
+
+# WHAT THIS IMPORTS, AND WHAT IT DELIBERATELY DOES NOT.  The sibling module is
+# under active repair, and its PLANT constants have already changed shape once
+# (a single string per rule became a list of per-alternative plants).  Binding
+# to those constants makes this script break, or worse silently skip an arm,
+# every time that repair lands.  So only the RULE MATERIAL is shared -- the
+# patterns, the past-tense verb set and the struck phrases, which are what must
+# never drift between the two sheets -- and the plants below are this script's
+# own.  A plant is a statement of what a rule must catch; writing it here rather
+# than importing it means an edit to a shared pattern is checked against
+# something that did not come from that pattern.
+#
+# THE SHAPE OF `RULES` IS ASSERTED RATHER THAN ASSUMED.  If the sibling changes
+# it again, this REFUSES loudly instead of sweeping with rules it cannot plant.
+
+PAST_PLANT = "the flow solve diverged and the optimiser was stopped"
+PAST_PLANT_AMBIGUOUS_FIRES = "the optimiser completed forty-seven majors"
+PAST_PLANT_AMBIGUOUS_QUIET = "the iteration limit is not reached"
+STRUCK_PLANT = "Solver: none on this request"
+
+
+def _plants(rule) -> list[str]:
+    """Every plant a shared rule carries, whichever shape it is written in."""
+    if len(rule) != 3:
+        raise SystemExit("REFUSE: a shared rule is not a 3-tuple; this script "
+                         "cannot plant it and will not sweep with it")
+    name, pat, plant = rule
+    if not isinstance(name, str) or not hasattr(pat, "finditer"):
+        raise SystemExit("REFUSE: a shared rule is not (name, pattern, plant)")
+    if isinstance(plant, str):
+        return [plant]
+    if isinstance(plant, (list, tuple)) and plant and all(
+            isinstance(x, str) for x in plant):
+        return list(plant)
+    raise SystemExit("REFUSE: a shared rule's plant is neither a string nor a "
+                     "non-empty list of strings")
 
 
 def render(tex: Path, workdir: Path) -> str:
@@ -91,7 +126,7 @@ if len(SHARED_RULES) != len(REFERENCE_RULES) - 2:
     raise SystemExit("REFUSE: the two replaced rules are not both present "
                      "upstream; this script's reasoning no longer matches it")
 
-OWN_RULES: list[tuple[re.Pattern, str]] = [
+OWN_RULES: list[tuple[str, re.Pattern, str]] = [
     ("a twenty-minute figure this run did not produce",
      re.compile(r"\b(20|twenty)\s*min", re.I),
      "the whole run is 20 minutes on one core"),
@@ -148,9 +183,11 @@ def main() -> int:
 
     # ------------------------------------------------------------- controls
     blind: list[str] = []
-    for name, pat, plant in SHARED_RULES + OWN_RULES:
-        if not pat.search(plant):
-            blind.append(name)
+    for rule in SHARED_RULES + OWN_RULES:
+        name, pat = rule[0], rule[1]
+        for plant in _plants(rule):
+            if not pat.search(plant):
+                blind.append("%s [%s]" % (name, plant[:40]))
     if not sweep(PAST_PLANT):
         blind.append("past tense")
     if not sweep(PAST_PLANT_AMBIGUOUS_FIRES):
@@ -172,15 +209,15 @@ def main() -> int:
     if sweep("drag falls 16.2 per cent. CL start CL final " + TERMINAL_STATEMENT):
         blind.append("drag reduction beside the lift columns (must stay quiet)")
 
-    total = len(SHARED_RULES) + len(OWN_RULES) + 8
+    total = sum(len(_plants(r)) for r in SHARED_RULES + OWN_RULES) + 8
     print(f"PLANT CONTROL: {total - len(blind)}/{total} rule arms behaved")
     if blind:
         print("REFUSE: these rules cannot see a planted violation, or fire on "
               "a clean string: " + "; ".join(blind))
         return 2
 
-    planted = face + "\n" + "\n".join(
-        [p for _n, _pat, p in SHARED_RULES + OWN_RULES] + [PAST_PLANT, STRUCK_PLANT])
+    every_plant = [p for rule in SHARED_RULES + OWN_RULES for p in _plants(rule)]
+    planted = face + "\n" + "\n".join(every_plant + [PAST_PLANT, STRUCK_PLANT])
     if len(sweep(planted)) <= len(sweep(face)):
         print("REFUSE: planting violations into the face changed nothing; "
               "the reader is not reading the face")
