@@ -11067,6 +11067,114 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ⛔ RESUME POINT 2026-09-01T04:05Z — **FLEET KILL (subscription switch). READ THIS BLOCK FIRST. T23G IS SOLVING AND SURVIVES THE KILL; T25R IS FROZEN AND ONE COMMAND FROM LAUNCH.**
+
+*(Written by the heat-transfer supervisor at the kill warning. Every pid, path and count below re-read from `/proc` and the logs in the writing invocation. **Detached solvers and the queue daemon survive an agent kill; agents do not.**)*
+
+---
+
+### 1. ⚡ **T23G — LAUNCHED AND SOLVING. DO NOT RELAUNCH. DO NOT RESTART. LET IT RUN.**
+
+Committed at **`83dbd41c`**; pre-registration **`20447f98`**; comparator `verification/runs/T-family/T23G_runs/analyse_t23g.py`.
+
+| level | pid | cwd | progress at 04:05Z |
+|---|---|---|---|
+| coarse `T23G_C` | 1106257 | — | **process already gone — almost certainly COMPLETE** (`timeout 1500s`, ~6 min elapsed). **VERIFY on resume: `rc`, `End`, last time == `endTime`, fields, `ExecutionTime` count, age guard.** |
+| medium `T23G_M` | **1106550** | `verification/runs/T-family/T23G_runs/T23G_M` | **1685 / 10000 iterations**, ~4.5 it/s → **ETA ~04:35Z** |
+| fine `T23G_F` | **1106873** | `verification/runs/T-family/T23G_runs/T23G_F` | **248 / 10000 iterations**, ~0.68 it/s → **ETA ~08:10Z** |
+
+**⚠️ THE FINE LEVEL IS TRACKING SLOWER THAN ITS POINT ESTIMATE.** ~4.1 h projected against a **2.0 h POINT**, still inside the **6.7 h at cap** and inside its `timeout 24000s`. **This is the registered misprediction risk landing, not a fault.** Do not intervene; **let the cap do its job.** Rule 12: an overrun **stops** the run and does not get a new budget.
+
+**⛔ ON RESUME, GRADE IT WITH `analyse_t23g.py` AND NOTHING ELSE.** Do not hand-read the values. **Do not edit the comparator or the frozen document — compute has run and the gates are CLOSED.**
+
+**⛔ AND DO NOT RESCUE THE FINE LEVEL.** No extra iterations, no relaxed residual, no scheme change. `endTime` 10000 is a **level invariant**. If the fine level misses `G-CONV` or `G-PLATEAU` at 10,000 iterations, all three quantities are **`NOT A RESULT`** and that is reported as one, with the residual history. The registration deliberately left no recovery and that was the right call.
+
+**Instrument caveat carried forward:** the comparator's arithmetic was driven on synthetic triples but **its file-reading paths have never met a real case directory.** The first grading run is also their first test — **triage a refusal as a likely instrument problem before reading it as physics**, and bring it to the supervisor rather than editing a frozen comparator.
+
+**Amendment A2** (the `constant/cellToRegion` exemption) is in and **paid for itself on first use** per the lane's commit message.
+
+---
+
+### 2. ⛔ **T25R (ACT C RESOLVED CHANNEL) — FROZEN, AUTHORISED, NOT LAUNCHED. THIS IS THE FIRST THING TO DO ON RESUME.**
+
+Pre-registration **`1a7bae7c`**, blob `29c675e9`. `verification/runs/T-family/T25R_MODULE_runs/` holds **only the five instruments** — `analyse_t25R.py`, `mark_done_t25R.py`, `build_t25R.py`, `run_one_t25R.sh`. **No case directory, no mesh, no log. ZERO COMPUTE.**
+
+**MY §3 CHECKS ARE DISCHARGED AND STAY DISCHARGED — check 4 (prereg committed before compute, verified on disk) and check 1 (comparator gate logic, controls and refusal paths read by me personally). THE NEXT LANE DOES NOT NEED TO RE-EARN THEM. IT IS AUTHORISED TO MESH AND LAUNCH.**
+
+**EXACTLY WHAT REMAINS**, in order:
+1. Run `build_t25R.py` — **it has never been executed**; it meets `blockMesh` for the first time. **This is the largest named risk and it is a BUILD risk, not a physics one.**
+2. Verify the mesh before solving: **16,608 (L1) / 37,368 (L2) cells, ratio exactly 2.2500**, 24 cells across each 3 mm channel.
+3. Launch **L1 first** (§4.7 calibrate-on-L1-first) via `run_one_t25R.sh`, then **report L1's actual core-minutes against its 14.14 POINT before launching L2 and L2_DT025.**
+
+**Caps are HARD: 42.41 / 95.41 / 190.82, total 330.64 against the 600 cap.** POINT total 111.55. **Do not rescue a level**; if 5 outer correctors at Co ≈ 1600 do not hold, §3.5 fires and it is `NOT A RESULT`.
+
+**RULING ALREADY MADE: L3 IS REFUSED.** Four runs = 545.82 core-min leaves 9.0 % headroom, and a cap with no room converts one misprediction into a stopped campaign. A genuine triple belongs in a later rung priced off T25R's **own measured** rate. **Two points, no order, as registered.**
+
+---
+
+### 3. ⛔ **ON SANAA'S DESK AND UNANSWERED: "TENS OF KELVIN" IS NOT PHYSICALLY REACHABLE. I VERIFIED THIS MYSELF.**
+
+She ordered *"a realistic aviation-cell takeoff level so the rise is tens of kelvin, not tenths"*. **The lane derived the load C-rate-first — 350 Wh/L pouch, 5C takeoff, 4 % heat fraction → 210 W/cell = 70,000 W/m³ — and did NOT tune it to hit her sentence, which was the right call.**
+
+**My own independent arithmetic, reproducing and then extending the lane's:**
+
+| bound | value |
+|---|---|
+| adiabatic rise, 60 s pulse alone | **1.6800 K** (lane's figure, reproduced exactly) |
+| **adiabatic rise over the FULL 900 s, pulse + cruise, ZERO cooling** | **2.6208 K** |
+| load needed for 10 K in 60 s | 416,667 W/m³ = 1250 W/cell ≈ **30C** |
+| load needed for 20 K in 60 s | 833,333 W/m³ = 2500 W/cell ≈ **60C** |
+
+**The adiabatic bound depends on nothing but the loss and the cell's thermal mass — no cooling assumption, no mesh, no closure can raise it.** So "tens of kelvin" is out of reach not merely in the pulse but **across the entire mission** at any defensible aviation C-rate. **Registered prediction: 1.4–1.7 K, and the measured value is the deliverable.**
+
+**THE DECISION IS HERS AND IT IS THE LEVER, NOT THE NUMBER: a longer pulse or a higher C-rate. Nobody may tune the reported rise to meet the sentence.** I launched anyway because her own amendment said *"this case running is more important"*, because the run delivers everything she actually ordered — resolved channel, coupling at every face, a genuine outlet temperature, downstream-hotter — and because **the mesh and instruments are fully reusable at a new operating point, so nothing is wasted either way.**
+
+**Also for her ruling:** the 7 channels are **parallel — no cell is downstream of another** (`8×0.030 + 7×0.003 = 0.261 m` is the module *height*). Her acceptance criterion is registered as **D1** (within-cell `T_dn > T_up`), **D2** (outlet > inlet), **D3** (min diff > 10×PLANT = 1.234e-02 K). **Disclosed, not substituted.**
+
+---
+
+### 4. **ACT A — ALL COMMITTED. The safety-direction error is off camera.**
+
+| commit | what |
+|---|---|
+| `ec6341d7` | **the peak was in the CORE and the screen showed the HOUSING** — margin overstated by up to **4.07 K**; core column, 4th planted control, anchor check repaired |
+| `845ce654` | no-op re-render, **proved** a no-op (figures pixel-identical) |
+| `19cf0cd2` | **new solved-geometry STL** + generator + guard with 4 planted defects |
+| `b8f4b6fc` | reader / mesh-cells / geometry-guard facts into the bundle |
+| `9ebe8554` | both acts' mesh-facts tables |
+| `896f2f2e` | **the module-unblock patch for cfd** + handover note |
+
+**Live numbers now on screen:** core peak **107.677521 °C**, margin **+92.322479 K** (was 103.6078 / +96.3922). Anchor column **3.736e-05** (was a rounding-artefact **0.000e+00**). **39,680 cells = 35,200 fluid / 1,120 housing / 3,360 core** — ⚠️ **I once relayed this attribution with fluid and core SWAPPED; the correct order is here.**
+
+---
+
+### 5. ⛔ **THE HANDOVER THAT UNBLOCKS FOUR OF SANAA'S ITEMS — WITH cfd, NEEDS A BOUNCE**
+
+`docs/campaigns/T-family/demo/PROPOSED_actA_module_unblock.patch` (+ `_NOTE.md`), commit `896f2f2e`. **`sdk/` is not ours; cfd applies it.** Verified: banned phrase **5 → 0 occurrences**, `Mesh cells: 39,680` renders as fact, both peak columns reach the screen, assumptions box goes up (**A8 row retired by `satisfied_by`, not deleted**), temperatures at 0.1 °C, **Act A 7 → 8 plots**, **Act C byte-identical**, **refusal arm still rc 2 / 0 plots**. Co-applies cleanly with `PROPOSED_actA_figure_standard.patch` **in either order**.
+
+**⚠️ `PROPOSED_thermal_intent.patch` IS DEAD — do not apply it.** cfd landed the module at `8b6ed54b` / `77fecb55`; that patch fails `git apply --check` on all three files.
+
+---
+
+### 6. ⚠️ **HAZARDS A SUCCESSOR WILL HIT**
+
+- **THE SHARED INDEX STAGES DELETIONS OF FILES THAT EXIST AT HEAD**, including work committed minutes earlier. **A bare `git commit` by anyone reverts them.** Inspected, never reverted — the index is the chief's call. **Fourth index incident of the session.**
+- **The control-room server was restarted by another team** — pid **1103918**, cwd `sdk/`, and I verified it carries all three env vars (`CHIEF_ADAPTER=openfoam`, `OPENFOAM_RUN_PREFIX=openfoam2606`, `CERTONOMOUS_SOLVE_RANKS=16`). **It is still running the UNPATCHED module.** I twice saw a **second short-lived server process** while 1103918 held `:8765`; both vanished. **On this box two servers can share `:8765` and the stale one answers — if the GUI serves stale content mid-take, check this first.**
+- **Two of Sanaa's five named Act A figures** (`Temperature field, 305 W`, `Air speed, 305 W`) were **in flight and are NOT committed** — a lane was verifying the untracked renders from the earlier dead lane. **Untracked output from a dead lane is a DRAFT, not a work product; verify before landing, and land nothing that cannot be verified.**
+- **Two of Sanaa's dictated sentences are FALSE and are not written**: the plant is **1.234e-03 K**, not 0.001 K, and the largest anchor residual is **3.7361e-05 K**, so **"better than 1e-4 K"** is written and is **checked before emission**. There are **four** readers under control, not three.
+
+---
+
+### 7. **NEXT ACTIONS, in priority order**
+
+1. **Mesh and launch T25R** — authorised, checks discharged, three steps in §2 above.
+2. **Let T23G finish; grade with `analyse_t23g.py` only.** Medium ~04:35Z, fine ~08:10Z.
+3. **Route the module patch to cfd** and batch the bounce.
+4. **Put the "tens of kelvin" physics to Sanaa** — §3. It is a lever decision, not a number decision.
+5. Land the two field renders **if and only if** they verify.
+
+---
+
 ##### ADDENDUM 2026-09-01T02:0xZ — **THE THERMAL DISPLAY MISSION IS BUILT AND ONE APPLY FROM LIVE. ACT A WOULD HAVE GONE UP BLANK AND NOW DOES NOT. DT025 IS COMPLETE ON ALL SIX CLAUSES.**
 
 *(Supervisor's own block. **Pure insertion; nothing below edited or deleted**, and the section's `Section last written:` line is left alone so the pure-insertion assert earlier blocks landed under is not broken. **Zero solver compute this session. Nothing under `sdk/` was written by this team. The live GUI server pid 848778 was NEVER restarted and NEVER signalled — Sanaa is inside it.**)*
