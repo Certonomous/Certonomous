@@ -48,3 +48,83 @@ lane's and not this rung's**: either a tip-fill topology without a collapsed lin
 the amended cell counts, and therefore `r`), or a ruling on the two §5 admission clauses — both
 above a lane. **No solver runs until then.** Firing an inadmissible ladder is the F12 failure and
 it is not repeated here.
+
+---
+
+## ADDENDUM 1 — 2026-09-01: THE CAUSE IS GEOMETRIC. THE VERDICT DOES NOT MOVE.
+
+**Dated addendum under CLAUDE.md rule 2, which permits post-compute changes ONLY as dated
+addenda that cannot alter a gate, threshold, cap or label.** Nothing above is edited,
+reordered, inserted or deleted.
+
+**THE VERDICTS ARE UNCHANGED AND ARE NOT BEING REVISITED.** R0 stands **`GATE FAIL`**;
+the case stands **`BLOCKED`** on §5 admission; R1–R4 and Gate D stand **`PENDING`**. **Only
+the recorded CAUSE changes**, and a cause is none of the four things rule 2 protects.
+
+### Why an addendum was needed
+
+The "Standing" section above names the route out as *"a tip-fill topology without a collapsed
+line"*. **That reads as though the obstruction is a generator choice and a better cap would
+clear it. On the measured evidence it is not, and a graded record whose verdict is right for
+a reason now known to be wrong will mislead the next reader.**
+
+### What the register already held
+
+**`N-C6`** in `docs/NUMERICS_KNOWLEDGE.md`, landed **2026-08-25** by this team from the ONERA
+M6 topology study: *"A structured butterfly tip cap on a SHARP trailing edge has a
+non-orthogonality floor that REFINEMENT MAKES WORSE."* Its measured sweep, far-field blocks
+already repaired so the cap is the only mechanism above 70°:
+
+| variant | cells | max non-orthogonality | severe (> 70°) | severe fraction |
+|---|---|---|---|---|
+| `t1_SHELL` | 111,872 | 81.5834° | 516 | 0.158 % |
+| `t8_SHELL_NR64` | 146,432 | 82.0645° | 7,200 | 1.694 % |
+
+**A non-collapsing cap was already measured at 81.58–82.06°, rising to an asymptote, with the
+severe-face fraction rising 10.7× while cells rose only 1.31×.**
+
+### The independent check, computed 2026-09-01 at zero compute
+
+By the arc-length route `N-C6` prescribes — the trailing-edge strip joins a surface arc of
+`(1 − U2)·c` to a core edge of `(1 − CORE_S)·t2(U2)·c`:
+
+| `U2` | 0.70 | 0.80 | **0.90** (registered) | 0.95 |
+|---|---|---|---|---|
+| ratio `R` | 18.28:1 | 16.90:1 | **15.49:1** | 14.37:1 |
+
+**R = 15.49:1 at the registered break reproduces `N-C6`'s ~16:1 by a separate route** — that
+figure is computed from the registered section geometry, `N-C6`'s from built meshes.
+
+**And moving the break does not escape it.** `R` is nearly flat because the section
+half-thickness `t2 → 0` at a sharp trailing edge, so numerator and denominator shrink
+together. **That is a property of the SECTION, not of the block structure**, so it does not
+depend on which cap topology is chosen.
+
+### The corrected cause
+
+**The collapsed lines at `cases/F13_onera_m6/make_blockmesh_m6.py:170-171` are real and are
+the generator's contribution — but they are not the whole cause.** The section's half-thickness
+going to zero at a sharp trailing edge sets an arc-length ratio that a core-based structured
+cap cannot escape in the design region. **The earlier reading — that the geometry was never
+the problem — is too kind to the geometry.**
+
+### The honest limit, carried so this addendum is not read as stronger than it is
+
+**The ratio is escapable in principle.** `R < 10` requires `CORE_S < 0.2256` at `U2 = 0.90`.
+So the obstruction is established across the **registered and natural design region**
+(minimum **10.26:1** over `U2` 0.70–0.95, `CORE_S` 0.30–0.70) and **not** across the entire
+admissible space. **A cap with a sub-0.23 core scale is UNTESTED and is named here as an open
+escape, not a closed question.** The evidence against it is indirect: `N-C6`'s own core
+variants measured **87.0192°** and **84.8750°** against the **81.5834°** baseline — worse, not
+better — but they varied core *shape* rather than core *scale*.
+
+**Also standing, from `N-C6`:** thickening the section to relieve the ratio is
+**INADMISSIBLE** (the `TSCALE` ruling) — a thickened aerofoil is a different aerofoil. This is
+a reason to change the meshing method, never the geometry.
+
+### Consequence for the successor filing
+
+`F13_TIP_TOPOLOGY_PROBE_PREREGISTRATION.md` is **withdrawn before first compute** by its
+AMENDMENT 1 (`579eaa1f`): its prediction 1 and its candidate ordering are struck as refuted
+by a measurement predating the filing, no candidate was built, and **0.000 core-min was
+spent** against a 4.0 estimate.
