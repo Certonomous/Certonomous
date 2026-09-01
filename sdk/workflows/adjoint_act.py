@@ -774,6 +774,43 @@ class AdjointWingAct(DemoAct):
                 "solver_header_matches_builder": True,
                 "plant_control": _plant_control()}
 
+    # -- which sequencer walks this act -------------------------------------
+    def sequencer(self):
+        """This act replaces the solving stage, and now SAYS so to every driver.
+
+        THE SUBCLASS IS NOT NEW; THE DECLARATION IS. ``ActDSequencer`` has
+        existed since this act was written, but it was named only inside this
+        module's own ``drive()``, which the dispatch entry
+        (:func:`demo_sequencer.make_act_entry`) calls and NOTHING ELSE DOES.
+        Every other driver -- :func:`demo_sequencer.run_act`, and therefore
+        ``scripts/check_demo_acts.py``, which is the PRE-SHOOT GATE -- built
+        the base :class:`demo_sequencer.Sequencer` by name, reached the shared
+        solving stage, found ``SolveReplay.cases`` empty and refused. So the
+        gate could not reach this act's gates or results stages at all, and the
+        act that works end to end through its own driver was half-wired through
+        the shared one.
+
+        MEASURED, NOT REASONED, before this method existed and after:
+
+            through ``run_act``   29 events,  7 of 9 stages, then refused
+                                  347 events, 9 of 9 stages
+            through ``drive()``   347 events, 9 of 9 stages, both times
+
+        The refusal it was hitting is CORRECT BEHAVIOUR and is not touched
+        here: an act that supplies neither a case list nor a sequencer of its
+        own has no way for its logs to be read, and saying so is the right
+        answer. What was wrong was that this act supplied one and never
+        declared it. ``SolveReplay.cases`` is empty for this act ON PURPOSE --
+        the shared replay reader wants a force history and a per-case status
+        record, and the adjoint optimisation writes neither.
+
+        RETURNS THE CLASS, NOT AN INSTANCE. The base contract at
+        ``demo_mode.py:1606`` says "the sequencer CLASS that walks THIS act",
+        and ``run_act`` constructs it. Same shape as the sibling repair at
+        ``dmr_act.py:1114``.
+        """
+        return ActDSequencer
+
 
 # =========================================================================
 # The sequencer: the shared walk, with this act's own solver stage
