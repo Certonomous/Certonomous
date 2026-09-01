@@ -4788,9 +4788,83 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T16:33:16Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25e` — D19T DENIED BY THE PERMISSION SYSTEM, a SYSTEM event for Sanaa, not routed around. `S-25b` corrects a unit error in `S-25a`; `S-25c` replaces an inference in `S-25b` with a measurement; `S-25d` records a second relay error of mine.
+**Section last written:** 2026-09-01T16:39:50Z by dafoam-supervisor (TWENTY-SIXTH session, re-formed after the ~15:14Z box reboot; stamp from `date -u` in the committing invocation). Newest block is `S-25f` — the 0-18 deg sweeps are COMPLETE and the 9 deg boundary is the same in both solvers; it also corrects THREE of my own registration decisions and my mischaracterisation of Sanaa's section 5. `S-25e` is the D19T permission denial, still open on her desk.
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-25f — **THE `0–18°` SWEEPS ARE COMPLETE AND GRADED: BOTH SOLVERS CONVERGE `0–8°` AND FAIL `9–18°` — **THE SAME BOUNDARY TO THE DEGREE ACROSS A TENFOLD REYNOLDS DIFFERENCE.** MY REGISTERED `12–14°` EXPECTATION IS **REFUTED**, MY COST ANCHORS WERE IN THE WRONG UNIT, AND MY STALL TRAP WAS NAMED IN ONE DIRECTION WHEN IT HAS TWO. ⚠ AND I MISCHARACTERISED SANAA'S OWN DIRECTIVE UPWARD — THIRD RELAY ERROR OF THE SESSION** (2026-09-01T16:39:50Z, `date -u` at write)
+
+###### 1. THE RESULT, RE-DERIVED BY ME FROM BOTH `AOA_POINTS.json`
+
+| | AOAI incompressible, Re 6.67e5 | AOAC compressible, Re 6.54e6, M 0.288 |
+|---|---|---|
+| **CONVERGED** | **α = 0–8°** | **α = 0–8°** |
+| **NOT CONVERGED** | **α = 9–18°** | **α = 9–18°** |
+| points declared / present | 19 / 19 | 19 / 19 |
+
+**THE SAME BOUNDARY, TO THE DEGREE, ACROSS TWO SOLVERS AND A TENFOLD REYNOLDS DIFFERENCE.** Every converged point satisfied DAFoam's own `1e-8` prescribed tolerance (α=0: 9.735e-09 / 9.986e-09). **Every failure ran to the full 1000-iteration cap.** **All 19 points present in each arm — none dropped, retried, relaxed or replaced by a transient**, which is what the registration demanded.
+
+**⚠⚠ AND THE SINGLE MOST USEFUL NUMBER IN THE WHOLE ITEM IS THIS ONE: AT α=18° THE INCOMPRESSIBLE ARM REPORTS `CD = −0.0244555793`. A NEGATIVE DRAG COEFFICIENT.** It is physically impossible, and it is **decisive, on the face of the artefact, that the non-converged values are not physics.** **Nobody can look at that column and mistake it for a polar.** A `NOT CONVERGED` point carries a number because the solver printed one, not because it means anything — and this arm proves it without an argument.
+
+**THE CONTINUATION INSTRUMENT IS LIVE, NOT A LABEL** — the cold controls I required earned their place: at α=4 continuation took **389 iterations against cold 441** (AOAI) and **449 against 502** (AOAC). **And both cold controls at 14° and 17° failed IDENTICALLY to the continued points, so the high-α failure is a property of the OPERATING POINT and not of the continuation path.** Had the continued branch failed where cold converged, the entire polar would have been an artefact of the chain and unusable.
+
+###### 2. ⚠ MY REGISTERED PREDICTION IS REFUTED, AND IT IS RECORDED AS A REFUTATION
+
+**I registered, in advance and in writing, that points above roughly 12–14° may not converge steady. THE FIRST FAILURE IS AT 9°, IN BOTH ARMS — THREE TO FIVE DEGREES BELOW MY BAND.** Recorded as a **refutation**, not absorbed into a range that would have covered it. **Registering the expectation is what made it falsifiable; the value of writing it down was never that it would be right.**
+
+###### 3. ⚠ THREE OF MY OWN REGISTRATION DECISIONS WERE WRONG, AND THE LANE SAID SO
+
+**(a) MY COST ANCHORS WERE IN THE WRONG UNIT.** I handed down **per-primal** rates. **Per-primal is meaningless here** — D19M's `FE-S` contains six primals that converge in under ten iterations, because the FD perturbations are so small the solver barely moves. **The transferable unit is s/SIMPLE-iteration: compressible 0.011500 (measured over 30,622 iterations), incompressible 0.011024. AND MY `1.6086×` COMPRESSIBLE/INCOMPRESSIBLE RATIO DOES NOT SURVIVE THE CHANGE OF UNIT — PER ITERATION THE TWO RATES AGREE TO 4.3 %.** I also passed on a figure derived by dividing `ExecutionTime` by a primal count, and **`ExecutionTime` is a cumulative process clock, so that division was meaningless.** The cold anchor is no longer `EXTRAPOLATED` either — SO3aF timed it at 424–443 iterations / 4.76–4.80 s.
+
+**(b) MY STALL TRAP WAS NAMED IN ONE DIRECTION AND IT HAS TWO. THIS IS THE BEST CORRECTION OF THE THREE.** I wrote that the stall angle must not be inferred from where the solver stopped converging — correct, and **half the rule.** **A high-α point that DOES converge is not trustworthy either: this is a 4,032-cell wall-function mesh at y+ 16.7–92.4 that cannot resolve separation at ANY angle.** **Reporting non-converged points honestly while letting converged high-α points pass as physics is the same error with the opposite sign**, and it is the more seductive one because it looks like data. On both pre-registrations' face as §4.5.
+
+**(c) The 12–14° band, above.**
+
+###### 4. ⚠⚠ AND I MISCHARACTERISED SANAA'S OWN DIRECTIVE — MY THIRD RELAY ERROR TODAY, AND THE WORST OF THEM
+
+**I reported upward that "both of §5's premises are false." THAT IS RIGHT ABOUT THE FIRST AND WRONG ABOUT THE SECOND, and the lane corrected me.**
+
+* **Premise 1 WAS false, flatly asserted:** *"converge each perturbed primal to 1e-8 so FD noise is below the plateau."* `d19r_runScript.py:45` already carried `primalMinResTol 1.0e-8`. **A genuine false premise, and finding it required going to look.**
+* **Premise 2 SHE CONDITIONED HERSELF:** *"**IF** the adjoint is off on that component alone, check whether its path depends on a non-differentiated quantity (wall distance)."* **She wrote a conditional and its antecedent evaluated false. THAT IS A DIRECTIVE DOING ITS JOB, NOT A DIRECTIVE BEING WRONG** — she named the right diagnostic for the branch that did not obtain.
+* **AND SHE CALLED THE COMPONENT CORRECTLY IN ADVANCE** — *"likely a trailing-edge or twist variable"*, and it is the **trailing-edge thickness mode**.
+
+**THE HONEST FORM, WHICH REPLACES MY SENTENCE: ONE FALSE PREMISE, ONE CONDITIONAL THAT RESOLVED FALSE, AND ONE CORRECT ADVANCE IDENTIFICATION.** It still makes the point about reading before implementing — **the antecedent was checkable for ZERO compute on artefacts already on disk and nobody had checked it** — without crediting the lab with catching an error she did not make. **`S-25e` §7 and my report to the chief are corrected by this paragraph. The lane declined the credit and it was right to.**
+
+###### 5. TWO INSTRUMENT DEFECTS, BOTH THE SAME FAILURE, AND THE FINDING IS THE PAIR
+
+**`G-PHYS` refused the lane's own compressible producer BEFORE any AOAC compute** — the generated self-assert embedded the marker strings as whole literals, so `D19M_PHYSICS_END` occurred **twice** and the split was ambiguous. Fixed pre-compute under rule 2 with the condition stated and checked.
+
+**Then the reader refused AOAI at exit 2: three of eleven controls (`C3`, `C4`, `C6`) were written against the fixture's literal values and SILENTLY NO-OPPED ON REAL BYTES. `C3` IS THE ZERO-PASSING CONTROL — without it an all-`CONVERGED` polar would have proved nothing.** Repaired under `VERIFICATION_CHARTER` §2d.1 with all four conditions discharged, **critically condition (2), since the error was found BY THE CONTROLS THEMSELVES, which grade nothing.** `classify()` byte-identical across the repair; **nothing was published pre-repair because the reader refused**; the refusing output retained beside the repaired one; the md5 files left frozen so the pin evidence survives.
+
+**⚠ BOTH ARE ONE FAILURE AND IT IS THE TRANSFERABLE FINDING: A GUARD VALIDATED ONLY AGAINST A WRITER-BUILT FIXTURE, OR ONLY ON SOME OF ITS LIMBS, IS NOT VALIDATED. A PARTIAL SELFTEST REPORTING `PASS` IS WORSE THAN NO SELFTEST, because it buys confidence it has not earned.** Controls now refuse if their own mutation did not land. **This is `L-221`/`L-222` again — every call site, not most of them — and it is the third time today this family has met it.**
+
+###### 6. COST — RULE 12, AND THE AGGREGATE IS A LIE THE LANE REFUSED TO TELL
+
+**AOAI 3.1000 against 3.2 registered (0.969); AOAC 3.5333 against 3.4 (1.039); item 6.6333 core-min, 16.6 % of the 40.0 ceiling, no overrun. $0.00567 DERIVED, never measured. 0 GPU-h.**
+
+**⚠ THE 1.005 ITEM RATIO IS TWO OFFSETTING ERRORS, NOT A GOOD ESTIMATE, AND BOTH ROWS SAY SO RATHER THAN REPORTING THE FLATTERING AGGREGATE.** Iterations were under-predicted **21–24 %** in both arms, while the per-iteration rate split by sample size — the compressible anchor (30,622 iterations) held to **1.1 %**, the incompressible one (three primals) was **12.5 % conservative**. **A ratio of 1.005 built from a −22 % and a +22 % is not a calibrated estimate and must never be quoted as one.**
+
+Both arms report **`ARM_INCOMPLETE`** (`cold_executed = 1/3`) — **correct behaviour, not a defect: two cold controls did not execute BECAUSE THEIR PRIMALS FAILED, which is the finding itself. The physics is complete and the token is withheld. Bookkeeping never voids physics** (Sanaa's universal rule, 2026-08-26).
+
+###### 7. WHAT IS **NOT** CLAIMED
+
+**Why the primal fails at 9° is NOT MEASURED** — mesh, wall functions, the SA model or the steady formulation, undetermined. **No band exists on any number here until the wing ladder lands**, per her §0. **The 9° boundary belongs to THIS mesh and must not be carried to another without re-measurement.** Tag is **`FEASIBILITY`**, as I registered and for the reason I registered it: a 19-point polar on a single grid cannot be gated under her own §0.
+
+###### 8. THREE RULINGS ON THE WING LADDER — **AND ON THE RE-COST I DIFFER FROM THE READING I WAS HANDED, ON RULE 2**
+
+The chief relayed its reading of Sanaa's authority for three A2-GC decisions and said plainly that **the decisions are mine.** They are, and no agent's reading is her consent (rule 9). Taken on the merits:
+
+**(a) THE RE-COST IS RIGHT AND THE VEHICLE IS A SUCCESSOR REGISTRATION, NOT AN AMENDMENT.** Her header *"cost is not a constraint"* and §5's *"hours of compute, not minutes; run it"* plainly authorise the SPEND. **But "cost is not a constraint" removes the APPROVAL barrier, not the COSTING obligation** — I said that to both lanes and it binds me too. **A2-GC HAS HAD FIRST COMPUTE: L1 has been running since 16:29. Rule 2 closes its gates, and A COST CEILING IS A CAP.** I ruled at `S-24t` that an aggregate memory ceiling is a cap and that **"a pre-registered limit that gets relaxed the moment it becomes inconvenient is not a limit; it is a suggestion with extra steps."** That applies to my own item now that it is inconvenient, or it was never a rule.
+
+The measured-basis re-cost is **~70 L1 / ~1,200 L2 / ~19,000 L3 core-min**, against a **registered item ceiling of 7,000**. **L3 alone exceeds the whole registered ceiling by roughly 3×.** **RULED: A2-GC runs to its registered ceiling and STOPS — an overrun does not get a new budget (rule 12). L2 and L3 move to a SUCCESSOR ITEM carrying the honest budget, registered before it runs.** No amendment can carry this and none will be attempted. `[The ~$16 derived is comfortably inside the $25 pre-auth — the constraint here is NOT money, it is the freeze, and those are different objections.]`
+
+**(b) L1 COMPLETES, AND IT NEEDS NO NEW INSTRUMENT AT ALL.** ~70 core-min against the registered 7,000 ceiling — **trivially inside the budget already frozen**, so authorising it is not a cap decision. **AUTHORISED.** Its purpose is exactly right: **anchor the L2 memory number by measurement before anything expensive is committed**, which is what Stage M was registered to do.
+
+**(c) THE PRIMAL-ONLY-TRIM SUCCESSOR IS AUTHORISED AS ITS OWN REGISTERED ITEM IF THE OOM MATERIALISES.** If adjoint-in-trim puts L2/L3 out of reach, that successor is the route to her ordered study. **It must be a successor and not an edit precisely because THE GRADED PATH CHANGES**, which is the one thing an amendment may never do. The lane said so first and it is right.
+
+**(d) THE TWO KEYING QUESTIONS GO TO HER DESK AS ONE ITEM: "WHICH QUANTITY DOES §0'S RULE KEY TO?"** The p-band question (which formal order keys the band for a **mixed-order** scheme set) and the residual-proxy question (`initRes 1e-8` against §0's graded-quantity clause) are **the same question in two costumes** and should not arrive separately. **Until she rules: gates grade AS REGISTERED and the finding reports as an INSTRUMENT PROXY.** No band moves on our reading of her sentence — which is the whole point of asking.
+
+**Nothing filed, sent or posted outside the box.**
 
 ##### UPDATE S-25e — **⚠ `D19T`'s CHAIN LAUNCH WAS **DENIED BY THE PERMISSION SYSTEM**, NOT BY ANYTHING IN THE ITEM. THE LANE REFUSED TO ROUTE AROUND IT AND DID NOT ASK ME TO — I UPHELD THAT AND DID NOT RUN IT EITHER. **AND MY OWN READING NARROWS THE FAULT: THE DENIAL IS LANE-SPECIFIC, NOT BOX-WIDE — MY OTHER TWO LANES LAUNCHED THROUGH THE SAME CLASS OF CALL AND ARE RUNNING NOW**. THIS IS A SYSTEM EVENT FOR SANAA'S DESK** (2026-09-01T16:33:16Z, `date -u` at write)
 
