@@ -543,3 +543,53 @@ Stated plainly, because a supervisor's check on a relayed confidence is not a ch
   sidecar (`FILING_CHARTER` R9), 1,385,107 B, produced by `pdftotext -layout`.
 - Every URL, timestamp, HTTP code, byte size and sha256 in §1 above. **Those are the provenance;
   they re-derive without any file this lane wrote.**
+
+---
+
+## ADDENDUM 1 — 2026-09-01: THE `checkMesh` VERDICT-LINE DEFECT IS ALREADY A STANDARD, AND THIS IS ITS THIRD INSTANCE
+
+**Dated addendum, appended at the foot. Nothing above is edited, reordered, inserted or
+deleted.** Filed on the cfd supervisor's instruction of 2026-09-01, **and the cited section was
+read by this lane directly before citing it** — a supervisor's description of a standard is
+evidence, not this lane's reading of it (rule 9).
+
+§5.5 above records that `checkMesh` printed **`Mesh OK`** on the demo L3 at a maximum
+non-orthogonality of **88.9306°**, and treats it as an observation. **It is not a new
+observation. It is a known, registered defect of the instrument**, and the next reader should be
+sent to the standard rather than rediscovering it a fourth time.
+
+**`docs/standards/MESH_STANDARD.md` §14** — *"READING THE NON-ORTHOGONALITY GATE — the reported
+maximum, never `checkMesh`'s verdict line"* (v1.9, 2026-09-01) — settles it as a
+**discrimination test**, which is the planted-control standard of CLAUDE.md rule 3 applied to
+the instrument itself:
+
+- **§14.1:** `CONTROL_nofill_L1` at **51.2554°** (admissible) and `t1_SHELL` at **81.5834°**
+  (inadmissible by 11.6°) both print **`Non-orthogonality check OK.`** *"The line reads the same
+  on the mesh that passes and the mesh that fails."*
+- **§14.3:** the two closing lines run the **wrong way** — the **admissible** mesh reports
+  `Failed 2 mesh checks.` and the **inadmissible** one `Failed 1 mesh checks.`, because the
+  counts sum over metrics that exclude non-orthogonality entirely.
+
+**THIS LANE'S MEASUREMENT IS A THIRD INSTANCE AND IS CLEANER THAN EITHER.** Both of §14.3's
+examples carry a confounding failed check. **The `M6I` demo L3 carries none:**
+
+> **1,920 cells · maximum non-orthogonality `88.9306°`, `18.93°` over the §3.1 gate · 484
+> severely non-orthogonal faces · closing line `Mesh OK.` · no failed check of any kind.**
+
+**A total pass on the tool's own terms, at 88.93°.** Recorded here so §14 gains a third
+independently produced instance, on a mesh from an **external** generator rather than one of
+this lab's, which is the case §14 did not previously cover.
+
+**No gate value moves.** §3.1's 70° hard gate is untouched in either direction; retiring,
+widening or narrowing a gate threshold is reserved to Sanaa. What is affected is only **where
+the gate is read from**, and §5.5 above already read it from the reported maximum.
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| lines edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 545 lines BEFORE the append | `b201299794bb76b6528327ed72d7bbdb` |
+| md5 of this file's first 545 lines AFTER the append | `b201299794bb76b6528327ed72d7bbdb` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
