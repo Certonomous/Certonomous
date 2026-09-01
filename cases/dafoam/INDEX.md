@@ -373,3 +373,80 @@ directory, deliberately **not filed**.
 **`docs/dafoam/README.md` §3 carried no D19-family row of any kind before today.** This lane added D19M's two rows there; **D19, D19R, D19R2 and D19O remain absent from §3**, and that is `docs/dafoam/GRADING_CHAIN.md` bullet 9 in the live again — *nothing links a graded verdict to `README.md` §3 or to this file*, and the hop is still a person reading a page.
 
 **This note moves no gate, band, threshold, cap or label; it re-grades nothing; it adds no number that is not already written in a cited artefact; and it spent zero solver core-minutes.**
+
+---
+
+## Addendum 2026-09-01 (dafoam lane, later the same day) — THE GAP THE ADDENDUM ABOVE OPENED IS CLOSED: `D19`, `D19R`, `D19R2` AND `D19O` ARE INDEXED, AND **TWO OF THE FOUR CARRY NO VERDICT AT ALL**
+
+**Nothing above this line was edited.** No existing row, table, column, heading or section was
+altered, moved or renamed — the addendum above stands exactly as written, including its ⚠ gap
+notice, which this addendum answers rather than rewrites (this file's own convention, established by
+the SO-2MR note of 2026-08-31). **No frozen `PREREGISTRATION.md`, no `RESULTS.md`, no grader and no
+`docs/capability/dafoam_GRID.md` was touched, and ZERO compute was spent** — every figure below is
+read from an artefact already on disk.
+
+**The verdict column is a citation, never a summary, and it is not a promotion.** Two of these four
+items have **no verdict of record**: their graders refused with `rc = 2` before composing anything,
+and **a refusal is not a verdict**. No row here supplies one, softens one, or writes `PENDING` over
+one — `PENDING` means *not yet run*, and these items ran. The columns are the 2026-08-31 backfill's
+five, in its order.
+
+**CAUSE CLASS** is Sanaa's GRADING TRANSPARENCY ORDER of 2026-08-31
+(`etc/sessions/2026-08-31T2055Z_sanaa_grading_transparency_order.md`, committed `4116024a`): one of
+exactly eight, assigned by the grading record and cited like any claim. `docs/dafoam/GRADING_CHAIN.md`
+carries **no D19-family row at all** — `grep D19` on it returns nothing — so nothing could be carried
+from it and every class below is marked `[NEW]` for the supervisor to ratify, except D19's, which its
+successor's frozen pre-registration assigns in terms.
+
+| new directory | pair files | run tree (outside the repo) | verdict of record, with the artefact it is read from | CAUSE CLASS |
+|---|---|---|---|---|
+| `ladder-a/A1/curriculum_D19/` | `PREREGISTRATION.md` (frozen `f032d94e`), `D15_D16_FD_STEP_TABLE.md`, phase-1 instruments (`32bd000f`); **no `RESULTS.md` — none exists on disk or at HEAD** | `/home/ubuntu/certonomous-runs/CURRICULUM-D19-a1-naca0012-subsonic-opt/` (four arms `MESH X2 S2 S1`, all `PATCHED`, all `rc=0`, `chain_rc=0`) | **NO VERDICT OF RECORD, and none is claimed.** The grader **REFUSED, `rc = 2`**, before reading a single gate: `D19_phase1_grade_20260831T215400Z.out` → `{"REFUSE": "G1", "detail": {"age_datum_moved": ".../S1/0", "recorded": 1788213189, "rederived_by_existence": 1788213232}}`. **No grade JSON was written**, though `STATUS.D19_chain` names one (`grader_rc=2 … note=comparator-exit-status-NOT-the-verdict`). The item's own landed record is `docs/COST_CALIBRATION.md` row `C-20260831T223116.831784Z-f2a2dd3d`, whose words are *"this 8.683 core-min bought NO graded verdict … the item carries no verdict and that is the honest label"* — **8.683 core-min against 8.7 registered, ratio 0.998**. Phase 2 correctly never launched. The selector *did* run and its reading is a measurement, not a verdict: `s*` level 2 (shape 1e-3 / patchV 1e-2), `s_star_score_pct` **21.629866013797557**, binding `shape[7]/CD/fine`, `all_two_sided_at_s_star` **false** | **INSTRUMENT** — assigned by `curriculum_D19R/PREREGISTRATION.md` §2.1–§2.2: *"the guard refused rather than degrading, which is correct behaviour; it was enforcing a premise that does not hold for this solver family"* (rule 4's *"`0/T` is touched last at launch"* is false for DAFoam, whose `patchV` DV rewrites `0/U` mid-run). Physics unjudged; nothing here is a `PHYSICS-FAIL` |
+| `ladder-a/A1/curriculum_D19R/` | `PREREGISTRATION.md` (frozen `5a809989`, instruments driven and frozen at `7f9c5b6e`, Amendment 1 appended); **no `RESULTS.md` — none exists on disk or at HEAD**; **no `docs/COST_CALIBRATION.md` row** | `/home/ubuntu/certonomous-runs/CURRICULUM-D19R-a1-naca0012-subsonic-plateau/` (six arms `MESH X2 S8 N2 S1 R1`, all `PATCHED`, all `rc=0`, `chain_rc=0`, `G9` OK on every arm) | **NO VERDICT OF RECORD, and none is claimed. This is neither a `GATE FAIL` nor a `PASS`.** The grader **REFUSED, `rc = 2`**: `D19R_phase1_grade_20260831T230742Z.out` → `{"REFUSE": "G-PROV", "detail": {"verdict_outside_the_fixed_vocabulary": null}}`. **`D19R-GRADER-DEF-1`**: `d19r_grade.py:482` calls the provenance enforcer as the **first statement of `grade()`** on a literal `{}`, thirty lines before composition at `:511-524`, so `verdict` is `None`, `None` is not in the vocabulary, and it refuses — **as coded the instrument cannot emit a verdict on any input.** The verdict of record is `docs/LAB_STATE.md` update **S-23 §2**, whose own table cell reads *"no verdict — grader REFUSED, `rc=2`"* beside *"12.416 core-min vs 13.6 predicted, ratio 0.913×, every arm inside cap"* (the six ledger `core_min` rows sum to 12.416: 0.183 + 1.333 + 6.067 + 1.9 + 2.25 + 0.683). **The plateau never closed** — `d19r_selected_step.json`: `all_two_sided` **false**, `s*` level 3, `score_pct` **21.060684242435336**, binding `shape[7]/CD/fine` — and that unclosed plateau is one half of the registered ceiling holding **both** D19O and D19M below `PASS` | **INSTRUMENT** `[NEW]` — a comparator/reader/guard defect with the physics unjudged. The boarded record words it *"INFRASTRUCTURE, not physics — bookkeeping never voids physics"* (`LAB_STATE.md` S-23 §2); `INFRASTRUCTURE` is **not one of Sanaa's eight**, and `INSTRUMENT` is the eight-class token for exactly this, so the mapping is stated rather than assumed and is the supervisor's to ratify. **The arms are clean and re-gradable the moment the call site is repaired** |
+| `ladder-a/A1/curriculum_D19R2/` | `PREREGISTRATION.md` (frozen `7441f392`), `RESULTS.md`, `d19r2_grade.py` | **none of its own — it re-grades D19R's preserved arms**, and its artefact sits in D19R's root: `D19R2_phase1_grade_20260901T034416Z.out` | **`NOT A RESULT`** — grading **attempt 1**, and **no later attempt exists**, on disk or at HEAD (one D19R2 grade artefact anywhere under `/home/ubuntu/certonomous-runs/`, one commit pair `7441f392`/`944e40a8`, no `D19R3` directory). `curriculum_D19R2/RESULTS.md` §1, verbatim: *"Verdict of the attempt: `NOT A RESULT`. The grader **refused**, `rc = 2`, and wrote **no grade JSON**."* → `{"REFUSE": "G19R-1h", "detail": {"age_guard": {"REFUSE": "MANIFEST_ENTRY_MUTATED", "path": "system/decomposeParDict", "on_disk_md5": "c3f5f05d…", "recorded_md5": "68ecc827…"}}, "arm": "X2"}`. **The two provenance blockers ARE repaired and the repair held** — execution reached the completion gate, thirty lines past where D19R died. **0.00096 core-min** (0.058 s × 1 rank) against a 2.0 ceiling; **ZERO solver core-min** — D19R's 12.416 stays charged to D19R. Its §7 states a `COST_CALIBRATION` row is **owed at item completion and this item is not complete**, so none was filed and none is invented here | **GATE-DESIGN** `[NEW]` — the record's own §5.1 words, *"This is a gate-design question"*. Measured, not inferred: OpenFOAM appends its own `kahipCoeffs` default block to that dictionary **six seconds after** the manifest is built, in **exactly the three np=2 arms**; **151 of 152 manifest entries across six arms are byte-identical** after five days. The comparator was correct; the gate as registered pins a path the run writes, and narrowing it would move a registered goalpost. **Route 1 is reserved to Sanaa** — `D19R` §5 reserves gate design to her in terms |
+| `ladder-a/A1/curriculum_D19O/` | `PREREGISTRATION.md` (frozen `bb0c5b08`, Amendment 1; arming `239fd2ef`), `RESULTS.md` (incl. a dated §9), `QUEUE_ENTRY_DRAFT.json` — **plus four untracked `*.selftest.out` files left deliberately in the case directory, see the flag below** | `/home/ubuntu/certonomous-runs/CURRICULUM-D19O-a1-naca0012-subsonic-optimisation/` (seven arms of seven, `chain_rc=0`) | **`GATE REACHED`**, rows `{"SHIPPED": "GATE REACHED", "PATCHED": "GATE REACHED"}`, both `verdict_before_ceiling: "PASS"`, `capped_by_ceiling_anywhere: true`, `rows_capped_by_ceiling: ["SHIPPED", "PATCHED"]` — `D19O_grade_20260901T054304Z.json` → `verdict`, `rows`; `curriculum_D19O/RESULTS.md` §1. **16.184 core-min against 24.10 predicted (ratio 0.6715), \$0.013837 DERIVED, NOT MEASURED.** The item's own §6 states what it does **not** establish, first line first: *"It does not establish that the compressible adjoint is verified"* | **REFERENT-CEILING** `[NEW]` — the item was **capped, not failed**: every gate returned `PASS` and the registered ceiling binds because the compressible gradient it spends has **no graded verdict** (the two rows above) and D19R's plateau never closed. **Nothing in this item is a `GATE FAIL`, and no `PHYSICS-FAIL` or `MODEL-LIMIT` class applies.** The same situation is worded `CEILING` in the D19M row of the addendum above; that row is left exactly as it stands and this one names the eight-class token instead |
+
+### ⚠ FOUR THINGS THIS BACKFILL FOUND AND DID NOT PAPER OVER
+
+**1. TWO items have no verdict, not one.** The brief that dispatched this lane named `D19R`'s `rc=2`
+refusal and left `D19`'s state open. **`D19` refused too** — at `G1`, on `age_datum_moved`, `rc=2`,
+with no grade JSON — so **two of the five D19-family items have never had a verdict composed at all**,
+and the family's graded count is three (D19R2 `NOT A RESULT`, D19O `GATE REACHED`, D19M
+`GATE REACHED`), not four.
+
+**2. `D19` and `D19R` have grade artefacts as `.out` ONLY, and their own `STATUS` files name a
+`.json` that does not exist.** Both chain drivers wrote
+`grader_rc=2 … out=<ITEM>_phase1_grade_<stamp>.json note=comparator-exit-status-NOT-the-verdict`
+while the refusal precedes the emit, so **the named JSON was never created.** A reader who trusts the
+`STATUS` line and goes looking for the payload will not find one. This is the same shape as SO-3a and
+SO-3aR in the addendum above, arriving by a different route.
+
+**3. The whole D19 family has ZERO filed queue entries.** `find verification/queue/dafoam -name
+"*D19*"` returns nothing, in `launched/`, `refused/` or the root — while `D15_chain.json`,
+`D16_chain.json`, `D17_chain.json` and `D18_chain.json` are all filed. D19O and D19M each carry a
+`QUEUE_ENTRY_DRAFT.json` in their case directory, **deliberately not filed** (`CLAUDE.md` rule 7);
+D19, D19R and D19R2 have neither entry nor draft. **Stated so the count is known; nothing is filed
+here.**
+
+**4. `D19O` left four untracked `*.selftest.out` files in the shared working tree, and they are
+deliberately NOT swept.** `D19O-DRIVER-DEF-1` (`curriculum_D19O/RESULTS.md` §8):
+`d19o_chain_driver.sh` writes its pre-launch selftest output to `$HERE` — the git case directory —
+instead of the run root. The item's own record refuses to repair it (the driver is pinned and the
+item has had first compute) and refuses to delete the files, because **they are the only on-disk
+evidence that the four suites were driven before staging.** **This lane deleted nothing, and an
+unexpected file is inspected, never reverted.** The repair landed in D19M's driver and is confirmed
+in production there.
+
+### WHAT THIS ADDENDUM DOES NOT DO
+
+It moves no gate, band, threshold, cap or label; it re-grades nothing; it runs nothing; it adds no
+number that is not already written in a cited artefact; it edits no frozen document, no grader and no
+`RESULTS.md`; it files nothing outside this box. **Zero solver core-minutes; zero GPU-hours.** The
+companion edit is five rows appended to `docs/dafoam/README.md` §3 — inserted **before** the D19M row,
+which is untouched to the byte — closing the second half of the gap the addendum above named.
+
+**One pre-existing drift, disclosed because this commit adds to it:** four documents cite
+`docs/dafoam/README.md` by line, at `:92`, `:100`, `:153` and `:154`. The `:153`/`:154` anchor is the
+IDWarp image/md5 row, which had already drifted to `:200` before today and to `:202` when D19M
+landed; after these five rows it sits at **`:207`**. The drift is not created here, the anchor's
+content is named so it can be re-found, and **no citing document was edited to chase it** — those are
+their owners' files.
