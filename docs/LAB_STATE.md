@@ -20442,6 +20442,50 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+**Section last written:** 2026-09-01T~17:1xZ by cfd-supervisor personally, via the same records lane. **FORTY-FIFTH WRITE — CORRECTION 1.** HEAD at write time: **`7d1deb10`** — re-derived in the same shell invocation as the commit, not taken from any sha handed to the lane. **THE DEMO WENT GO.** This block corrects **items 10 and 16 of board 45 below**, which was already committed at **`7d1deb10`** when the correction arrived. **History is NOT rewritten and board 45 is NOT amended** — the block below stands exactly as committed, and this one supersedes it where they conflict. Where this conflicts with anything below, **this block wins**.
+
+### 🔴 THE COST-MODEL FIGURES IN BOARD 45 ITEM 10 ARE WRONG. THE CORRECTED FIGURES ARE HERE
+
+**WHAT WAS WRONG.** The boarded figures came from comparing **C1's WHOLE-RUN AVERAGE against a C2 SNAPSHOT taken at iteration 896** — which sits **inside C2's first 250-iteration window**, running at **0.848 s/iter** against a steady-state median of **0.5052**, **because FOUR SOLVERS WERE LIVE**. The lane then asserted *"contention is NOT the attribution"* about a number **it had measured DURING PEAK CONTENTION**, **without testing that assertion**.
+
+**CORRECTED — measured on steady-state marginal rates** (250-iteration windows, median, **first window dropped**, **n=29 and n=11**):
+
+| quantity | boarded (WRONG) | corrected |
+|---|---|---|
+| per-cell-per-iteration, C1 | 4.27e-06 | **3.8115e-06** |
+| per-cell-per-iteration, C2 | 7.79e-06 | **5.6151e-06** |
+| super-linearity at 2.25x the cells | 1.82x (and elsewhere 1.909x) | **1.473x** |
+| cost growth | ~r^4.3 | **~r^3.0 (N^1.478)** |
+
+- **"Contention is not the attribution" was FALSE.** The rate **improved when C1 finished and freed a core** — **the very effect the lane had declared absent.**
+- **C2 projects to 4,215 wall s against its 4,800 s cap, so it is now EXPECTED TO COMPLETE, not to strike the cap.** Board 45's statement that C2 *"will stop at ~6,850 of 8,000"* and is **`NOT A RESULT`** is **likely WRONG and MUST NOT be read as fact.** Standing: **expected to complete**, with the earlier projection **recorded as the lane's error and corrected.**
+
+⚠ **WHAT SURVIVES, AND IT IS THE PART THAT MATTERS: the super-linearity is REAL (1.473 ≠ 1.0), so a cap built by LINEARLY SCALING A COARSE-LEVEL RATE DOES still UNDER-CAP a finer level.** **The magnitude, the attribution and the exponent do NOT survive; the qualitative lesson does.** The cap-held reasoning in item 10 — that *"cost is not a constraint"* lifts a ceiling on **NEW** work and is **not licence to raise a cap already frozen inside a pre-registration** — is **unaffected**.
+
+### 🔴 `bd84e7f8` IS AN EMPTY COMMIT WHOSE MESSAGE ADVERTISES A CORRECTION THAT WAS NEVER IN THE FILE — AND THE POST-COMMIT VERIFY IS WHAT CAUGHT IT
+
+The corrected calibration row is **`C-20260901T164255.339795Z-4e1e63e3`** at **`4c9c0744`**, naming the row it corrects. But **commit `bd84e7f8` is EMPTY**, and **its message advertises a correction that never entered the file.**
+
+**Mechanism, end to end.** `append_record.py` **REFUSED** the rows — **correctly**, because the row **CITED the corrected row's id** and **the smuggle guard cannot distinguish citing an id from minting one**. The lane piped the tool through **`grep -E "ALLOCATED|VERDICT"`**; the **`REFUSED` line matched NEITHER PATTERN**, and **SILENCE READ AS SUCCESS.** The private index then wrote an **unchanged tree**, `diff-tree` printed **nothing**, the **sha-regex assert passed because the sha was well-formed**, and **the CAS printed OK.**
+
+⚠ **THE POST-COMMIT VERIFY IS WHAT CAUGHT IT** — rows **164 → 164**, **empty numstat**. **That is precisely why CLAUDE.md rule 10 makes that step NON-OPTIONAL, and it is now PROVEN IN THE WILD rather than merely asserted.** Note the exact failure mode: **every guard upstream of the verify printed a pass.**
+
+**`bd84e7f8` is NOT rewritten.** History is not rewritten here and **an empty commit is not a reason to start**; the correcting commit **discloses it so a reader of that message finds this one.**
+
+**Fixes now in the path:** the tool's **EXIT CODE** is checked rather than its stdout; a **TREE-UNCHANGED assert aborts BEFORE `commit-tree`**; and the citation forms were **verified against the guard's own `ANY_TOOL_ID` regex instead of guessed.**
+
+### 🔴 THIS IS THE FIFTH INSTANCE OF BOARD 45 ITEM 16'S DEFECT CLASS, AND THE SHARPEST
+
+*A check that cannot fail for a reason its author did not already know.* **A grep filter matching ONLY THE HAPPY PATH cannot tell REFUSAL from SUCCESS.** This is the **Monitor doctrine's "silence is not success" arriving in a bash pipeline.** Prior four: the kill-confirmation printing *"(empty above = both gone)"* beneath a live pid; the **`\b(...)\b`** word-boundary blindness **twice**; and the ordinal-derived-from-version.
+
+### 🔴 THE RELAY FAILURE IS THE SUPERVISOR'S, NOT THE LANE'S — RECORDED IN THE SUPERVISOR'S OWN WORDS
+
+**The lane found and corrected its own error unprompted.** *"I repeated its 1.82x figure and its 'C2 will cap out' projection to the chief THREE TIMES without re-deriving either, on a day when I had personally insisted that a number right when written and never re-derived is this act's recurring defect. That is item 13's shape committed by me, in my own reporting, hours after boarding it."*
+
+### EVERYTHING ELSE IN BOARD 45 STANDS
+
+Only **items 10 and 16** are touched by this correction. The jet-flap **GO**, the **`JF1E` E1 `GATE FAIL`**, the **`JF1G` `NOT A RESULT`** and its second structural defect, the generator-similarity defects, the freeze-path audit, the commit-rate hazard, the thermal-patch reasoning and the desk lists below are **unchanged**.
+
 **Section last written:** 2026-09-01T~17:0xZ by cfd-supervisor personally, via a records lane. **FORTY-FIFTH WRITE.** **THE DEMO WENT GO.** HEAD at write time: **`4c9c0744`** — re-derived in the same shell invocation as the commit, NOT taken from any sha handed to the lane, because this box is committing about once every two minutes (see the commit-rate hazard below). It is **NOT `bd84e7f8`**, this team's own most recent commit at brief time; the interval moved HEAD and the actual value is recorded here rather than substituted silently. Where this conflicts with anything below, this block wins.
 
 ### ✅ THE JET-FLAP ACT IS GO AND WAS DELIVERED — FINAL LIVE VERIFY PASSED ON THE REAL SERVER
