@@ -252,6 +252,35 @@ def selftest(real_seg: str | None, source_note: str) -> list[str]:
         if not cond:
             fails.append(tag[0])
 
+    def mutate(tag, text):
+        """REFUSE a mutation that did not land.
+
+        This exists because three controls here were written against a
+        WRITER_BUILT fixture's literal values -- `Time = 412`, a literal CL --
+        and SILENTLY NO-OPPED on real run bytes. They reported PASS on the
+        fixture and were dead on the artefact they actually had to police.
+        A CONTROL THAT CANNOT PROVE IT CHANGED ANYTHING IS NOT A CONTROL.
+        """
+        if text == base:
+            fails.append(tag)
+            out.append("  %-4s     MUTATION DID NOT LAND -- control is inert" % tag)
+        return text
+
+    # Artefact-general mutation helpers: they locate what to change IN THE TEXT
+    # rather than assuming a value the fixture happened to have.
+    def force_last_time_to(text, n):
+        ms = list(TIME.finditer(text))
+        if not ms:
+            return text
+        m = ms[-1]
+        return text[:m.start()] + ("Time = %d" % n) + text[m.end():]
+
+    def truncate_before_last_time(text):
+        ms = list(TIME.finditer(text))
+        if not ms:
+            return text
+        return text[:ms[-1].start()]
+
     # C1 [+] the unmodified artefact must read CONVERGED
     r1 = _one(base)
     chk(("C1", "[+]"), r1["verdict"] == CONVERGED,
@@ -269,14 +298,14 @@ def selftest(real_seg: str | None, source_note: str) -> list[str]:
 
     # C3 [-] THE ZERO-PASSING CONTROL. The non-convergence channel must be shown
     #        able to FIRE, or a polar of all-CONVERGED proves nothing.
-    b3 = CONV.sub("", base).replace("Time = 412", "Time = 1000")
+    b3 = mutate("C3", force_last_time_to(CONV.sub("", base), 1000))
     r3 = _one(b3)
     chk(("C3", "[-]"), r3["verdict"] == NOT_CONVERGED,
         "tolerance line removed, ran to cap -> NOT CONVERGED",
         "last_time %s >= cap 1000; got %s" % (r3["last_time"], r3["verdict"]))
 
     # C4 [-] a genuine null must be NAMED, not turned into a failure
-    b4 = base.split("Time = 412")[0] + "\nAOA_POINT_END idx=4 alpha=4.0000000000\n"
+    b4 = mutate("C4", truncate_before_last_time(CONV.sub("", base)))
     r4 = _one(b4)
     chk(("C4", "[-]"), r4["verdict"] == NOT_MEASURED,
         "truncated mid-solve -> NOT MEASURED",
@@ -295,7 +324,15 @@ def selftest(real_seg: str | None, source_note: str) -> list[str]:
         "flipped to %s" % r5["verdict"])
 
     # C6 [+] the two CL/CD channels must be able to DISAGREE audibly
-    b6 = base.replace("CL=0.4123456789012345", "CL=0.9999999999999999")
+    # Shift the get_val channel's CL by +0.5 relative to the solver's own line,
+    # located BY PATTERN rather than by a literal the fixture happened to carry.
+    def _shift_cl(m):
+        try:
+            v = float(m.group(3))
+        except ValueError:
+            return m.group(0)
+        return m.group(0).replace("CL=%s" % m.group(3), "CL=%.12g" % (v + 0.5), 1)
+    b6 = mutate("C6", PT_VALUES.sub(_shift_cl, base, count=1))
     r6 = _one(b6)
     chk(("C6", "[+]"), len(r6["channel_mismatch"]) == 1,
         "CL channels forced apart -> mismatch REPORTED",
