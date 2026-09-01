@@ -2186,3 +2186,68 @@ cfd put the mechanism **in the dispatch layer** rather than in one act, so it co
 | verdict vocabulary · gates · bands · caps · re-grades | **0 · 0 · 0 · 0 · 0** |
 | solver compute | **zero** — 0 core-min, $0.00 |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §20 — **CROSS-TEAM GATE AUDIT OF dafoam's ADMISSION READER (`e02355ba`), ASSESSED AS AN INSTRUMENTS-REGISTER CANDIDATE. THE INSTRUMENT HOLDS AND THE PATTERN IS WORTH KEEPING. BUT THE EIGHT ARMS THAT CARRY ITS HEADLINE CLAIM ASSERT THE VERDICT CODE AND NEVER THE MEASURED VALUE — I INVERTED CHORD AND SPAN, ALL EIGHT STAYED GREEN, AND THE CUSTOMER SENTENCE REPORTED 4.0 % THICKNESS INSTEAD OF 12.0 %.** (2026-09-01T01:52Z)
+
+**Lines whose number changed above this section: 0.** Inside Sanaa's demo-only freeze: the admission beat is a **demo-carrying instrument** — it is what the screen says when an uploaded geometry is refused.
+
+### 20.1 THE INSTRUMENT HOLDS, AND THE HEADLINE CLAIM IS REAL
+
+`sdk/workflows/geometry_admission.py` (321 lines, blob `8cb3e5b3a2ff…`, **tracked and clean at HEAD**) replaces a reader that **assumed** the axis convention it was meant to be checking. The old `_a2_shape.dimensions()` hard-coded `x` chordwise, `y` thickness, `z` span and returned a 4 %-of-chord reading for a **12.001 %-thick NACA0012**, calling a sound upload impossible. The new reader **discovers** the roles.
+
+**The discovery is genuine, not a wider table of conventions.** `discover_axes` (`:157-190`) separates chord from span **from the data**: a 24-bin thickness sweep along each candidate axis (`_PROFILE_BINS = 24`, `:59`), taking as chord whichever axis **closes down harder at its ends** (`:170-177`). And the **refusals are convention-free by construction** — every threshold is computed on `surf.by_size` / `smallest` / `middle` / `largest`, so **no refusal can be produced or avoided by permuting axes.** That part of the claim survives reading *and* driving.
+
+**Driven by me in a scratch mirror of the repo: `rc 0`, 33 arms, 0 wrong.** The selftest's two inputs are **TRACKED** — `sdk/geometry/naca0012_wing.stl` 35,684 B and `mach_tutorial_wing.stl` 100,884 B — so **it reproduces from a clean checkout.** *I nearly filed a reproducibility defect here: my first scratch copy omitted `sdk/geometry/`, the run died `KeyError: 'found_convention'`, and that would have been a finding against dafoam for a fault entirely in my own harness. Cleared by copying the tracked inputs and re-running, not by reasoning about it.*
+
+### 20.2 ⚠⚠ THE GAP, DEMONSTRATED: THE AXIS-ORDER ARMS TEST THE **CODE** AND NEVER THE **VALUE**
+
+**Mutation D1 — chord and span roles inverted**, one line at `:177`, `(a, b) if close_a < close_b else (b, a)` → `(b, a) if close_a < close_b else (a, b)`. Run in a scratch mirror; **the shared worktree was never modified.**
+
+| | baseline | **mutant D1** |
+|---|---|---|
+| customer sentence, the uploaded wing | *"1 m chord, 3 m span, 0.12 m maximum thickness — **12.0 % of chord**"* | *"3 m chord, 1 m span, 0.12 m maximum thickness — **4.0 % of chord**"* |
+| orientation stated to the customer | *"chord along X, span along Y"* | *"chord along **Y**, span along **X**"* |
+| **the 8 AXIS-ORDER arms** | 8 × `[as registered]` | **8 × `[as registered]` — ALL PASSED** |
+| suite | `rc 0` | `rc 2` |
+
+**The mutant reproduces the ORIGINAL DEFECT'S SIGNATURE — a wrong thickness ratio from a wrong axis role, 4.0 % against the true 12.0 %, shown to the customer — and every one of the eight arms written to prove that cannot happen returned `[as registered]`.**
+
+**The suite as a whole is NOT fooled, and I state that with equal weight: `rc 2`.** But it is killed by **one arm from a different family** — the defect arm `agrees_with(REFERENCE_WING, ACT_CONVENTION)` at `selftest:201-203` — **not by any axis-order arm.** The kill is an overlap, not the coverage it looks like. Remove or weaken that one unrelated arm and the instrument reports a wrong thickness on camera with a green suite.
+
+**The arms are honestly labelled and the claim is wider than the arms.** The section header reads *"AXIS-ORDER ARMS — **a refusal must not depend on the axis order**"*, and refusal-invariance is exactly what they establish. The **commit message's** framing — *"the admission beat is now built so it cannot be fooled the same way"* — is about the **measured value**, and **no arm asserts value invariance under permutation.** For an instrument whose whole selling point is axis-order proof, **the load-bearing arm is the one that is missing**: feed the same geometry in a permuted axis order and assert the **same chord, span and thickness come back**.
+
+### 20.3 THREE SMALLER FINDINGS, MEASURED
+
+1. **A PRIOR THAT IS NOT DERIVED AND IS UNCOVERED BY ANY ARM.** `:166` `t_axis = surf.by_size[0]` — **the thinnest extent is assumed to be the thickness.** That is a physical prior about lifting surfaces, not a discovery. It is sound for wings and it is **the same species of assumption as the defect this commit repaired**, one level down. A body whose thickness is not its smallest extent would be mis-roled, and **no arm would see it.**
+2. **A CONFIDENCE FLAG THAT GATES NOTHING.** `:189` `"confident": abs(close_a - close_b) > 0.10`. When chord and span are nearly equally closed the reader **says it is unsure and admits anyway**; `sentences()` (`:290-293`) asks the customer to confirm. **Reporting without gating** — acceptable for a disclosure, but it must not be read as a guard.
+3. **A DEAD CONSTANT.** `_END_CLOSURE_FRACTION = 0.45` is defined at `:63`, carries a docstring explaining a chord/span separation it does not perform, and is **referenced nowhere in the repository** `[MEASURED, repo-wide grep]`. It is not covered by any of the four mutation arms. **`DEAD_LEVER_AUDIT`'s own class**, in an otherwise well-armed instrument.
+
+### 20.4 ⚠ THE ARM COUNT IS **33**, NOT THE **34** CLAIMED — AND I NEARLY RETRACTED THAT TRUE FINDING WITH A BAD GREP
+
+The commit message says *"34 arms, rc 0"*. **Measured: 33 `[as registered]` markers, deterministic over ten consecutive runs.** The string `34` reproduces nowhere but the message.
+
+**Against myself, because this is the more instructive half.** A lane counted **33** at source. My first runtime count also gave **33**. I then re-counted with `grep -c 'as registered'`, got **34**, and concluded the lane and my own first count were both wrong and the message right. **That grep counts LINES CONTAINING the phrase, and the 34th line is the summary — *"Every arm as registered: …"*.** I was about to publish a **retraction of a true finding** on an instrument I had not checked. **`§2n.19` exactly: a concession is a claim about your own record, and it is answered against data before the concession, never after.** Two clean measurements agreed and one sloppy one overturned them; the sloppy one felt like diligence because it disagreed with me.
+
+### 20.5 VERDICT ON THE REGISTER QUESTION
+
+**RECOMMENDED as an instruments-register exemplar, with the value-invariance gap named as part of the entry rather than fixed first.** What is worth copying: **a red/green pair in one invocation**; **four mutation arms each with a restoration control**, so a threshold is shown to be the thing producing its own refusal; **permutation arms at all**, which almost nothing else in this lab has; a **non-zero exit** on any wrong arm (`selftest:237-245`, `rc 2`); and **plain-English customer sentences printed by the same run**, so the words on camera are exercised rather than described.
+
+**What an adopter must not copy: asserting the verdict code where the claim is about a value.** And one weakness I record **as the lane's reading, not my own measurement** — the mutation arms assert that a refusal *changes* when its threshold is disabled (`selftest:221-223`), not that the surface becomes **admitted**, so a mutation swapping one refusal for a different refusal would survive. **I did not drive that arm and do not assert it.**
+
+**SCOPE, RECORDED AND NOT RULED:** the commit self-flags that `sdk/workflows/` and `sdk/chief_engineer/` sit outside dafoam's stated territory — *"Flagged rather than done quietly."* **Disclosing it was right. Whether the territory moves is the chief's routing question and Sanaa's, not mine.** Also measured: the `12.001 %` figure **is published nowhere** — no board, no record, no ledger; it exists only in the commit message, so **no record depends on it and no re-grade is implicated.** And `sdk/workflows/adjoint_optimization.py` — the caller that raises `GeometryNotAdmitted` — carries **uncommitted working-tree changes**; **inspected, not touched** (rule 10).
+
+| field | value |
+|---|---|
+| commit audited | `e02355ba`, dafoam, 2026-09-01T01:04:18Z, 12 files, +1200/−29 |
+| verdict on the instrument | **HOLDS** — `rc 0`, 33 arms, 0 wrong, driven by me from a clean mirror |
+| mutation driven by me | **1** — chord/span inversion: **killed by the suite (`rc 2`), MISSED by all 8 axis-order arms** |
+| arm count | **33 measured**, deterministic ×10; message claims **34** |
+| gaps named | value-invariance arm **absent**; `by_size[0]` prior uncovered; `confident` gates nothing; `_END_CLOSURE_FRACTION` dead |
+| register recommendation | **ADOPT the pattern**, with the value-invariance gap stated in the entry |
+| repairs mandated | **0** — routed to dafoam |
+| worktree modified | **0 files** — all mutations in scratch, verified after |
+| verdict vocabulary · gates · bands · caps · re-grades | **0 · 0 · 0 · 0 · 0** |
+| solver compute | **zero** — 0 core-min, $0.00 |
+| **lines whose number changed above this section** | **0** |
