@@ -1434,3 +1434,127 @@ cross-check (`verification/campaign/F23b_HP_WEDGE_PREREGISTRATION.md` §4.3, fro
 | md5 of this file's HEAD blob before the append | `6eaf23d2304fbd52e79c7356dcf94dd9` |
 | md5 of this file's first 1,223 lines after the append | `6eaf23d2304fbd52e79c7356dcf94dd9` |
 | the two digests | `**EQUAL — assertion MEASURED**` |
+
+---
+
+## 10. READING THE NON-ORTHOGONALITY GATE — the reported maximum, never `checkMesh`'s verdict line (v1.9, 2026-09-01)
+
+**Lines whose number changed above this section: 0.** Nothing above is edited, reordered,
+inserted or deleted. Verified by digest, not by assertion — see the closing table.
+
+**This section changes NO gate value.** The 70° hard gate of §3.1, its 65–70 warning band and
+its action clause are untouched, in either direction. Retiring, widening or narrowing a gate
+threshold is reserved to Sanaa. **What this section fixes is WHERE the existing gate is read
+from.**
+
+### 10.1 The finding, in the form that settles it: the verdict line CANNOT DISCRIMINATE
+
+Two meshes from the 2026-08-25 ONERA M6 topology study, one **admissible** under §3.1 and one
+**inadmissible by 11.6°**, produce the **identical** `checkMesh` verdict line:
+
+| mesh | reported max non-orthogonality | §3.1 verdict | `checkMesh` prints |
+|---|---|---|---|
+| `CONTROL_nofill_L1` | **51.2554°** | admissible | `Non-orthogonality check OK.` |
+| `t1_SHELL` | **81.5834°** | **inadmissible** | `Non-orthogonality check OK.` |
+
+> **The line reads the same on the mesh that passes and the mesh that fails. It carries no
+> information about this lab's gate, and a check built on it cannot fail.**
+
+That is the whole argument, and it is a **discrimination test** rather than a claim about
+OpenFOAM's internals: a reader that returns the same answer for a known pass and a known fail
+has been shown unable to see the difference, which is the planted-control standard this lab
+already applies to every comparator (CLAUDE.md rule 3). **Here the reader is the instrument
+itself.**
+
+*Artifacts:*
+`verification/runs/F13_ONERA_M6_runs/mesh/CONTROL_nofill_L1_checkMesh.log:97-98`;
+`verification/runs/F1_MESH_TRIALS_2026-08-25/topology_study/t1_SHELL/log.checkMesh:96-98`.
+
+### 10.2 Three consecutive lines, the third contradicting the first two
+
+`t1_SHELL/log.checkMesh`, lines 96–98, **verbatim**:
+
+```
+    Mesh non-orthogonality Max: 81.5834 average: 15.5977
+   *Number of severely non-orthogonal (> 70 degrees) faces: 516.
+    Non-orthogonality check OK.
+```
+
+A maximum of **81.5834°** against a 70° gate, **516 faces** flagged severe with OpenFOAM's `*`
+warning marker — and then **`OK`**, three lines apart. The `70` in `nonOrthThreshold_` that
+§3.1 cites drives the *severe-face warning list*; the **verdict** line is decided against a
+separate and far higher internal error limit. **The tool is answering its own question
+correctly. It is not answering ours.**
+
+### 10.3 The file-level verdict does not merely stay silent — ON THIS PAIR IT RUNS THE WRONG WAY
+
+| mesh | reported max non-orthogonality | §3.1 verdict | closing line | which checks actually failed |
+|---|---|---|---|---|
+| `CONTROL_nofill_L1` | 51.2554° | **admissible** | **`Failed 2 mesh checks.`** | unused points (3,542) + aspect ratio (5934.1) |
+| `t1_SHELL` | 81.5834° | **inadmissible by 11.6°** | **`Failed 1 mesh checks.`** | aspect ratio (5622.42) |
+
+> **The ADMISSIBLE mesh fails MORE checks than the inadmissible one.** A gate reading the
+> closing line is therefore not merely uninformed — on this pair it is **anti-correlated with
+> §3.1**, and a lane ranking two meshes by that line would pick the worse one.
+
+**This is not a paradox, and the reason is the point.** The two counts are sums over
+**different metrics**, and **non-orthogonality is in neither**: the control fails on unused
+points (an artifact of omitting the tip fill) and on aspect ratio; `t1_SHELL` fails on aspect
+ratio alone. Aspect ratio is **advisory** under §3.3 and never a lone rejection, so **every
+failure in both counts is a metric this standard declines to reject on**, while the one
+breach that *is* a hard gate — 11.6° over — appears in no verdict string at all. The aspect
+ratio even runs the same way (5934.1 on the admissible mesh against 5622.42 on the
+inadmissible one).
+
+**A scalar verdict cannot stand in for a named measurement.** That is the general statement;
+the table is the measured instance.
+
+### 10.4 THE CLAUSE
+
+> **The §3.1 gate is read off the reported maximum — `Mesh non-orthogonality Max:` — together
+> with the count of severely non-orthogonal faces where `checkMesh` reports one.**
+>
+> **It is NEVER read off `checkMesh`'s `Non-orthogonality check OK.` line, and never off the
+> file's closing `Mesh OK.` / `Failed N mesh checks.` line.** Those strings are decided
+> against OpenFOAM's internal error limits, which sit far above this gate. They have been
+> **measured unable to discriminate** an admissible mesh from one 11.6° outside the gate
+> (§10.1), and the closing line has been **measured anti-correlated** with §3.1 on that same
+> pair (§10.3). **A tool's pass is not this lab's pass, and a tool's failure count is not this
+> lab's ranking.**
+>
+> **Any comparator, admission check, gate script or lane report that greps a verdict string
+> instead of parsing the reported maximum is reading the wrong instrument, and its clean
+> result is not evidence.**
+>
+> **Report the severe-face count beside the maximum.** The maximum can asymptote and look
+> stable under refinement while the severe-face *fraction* rises an order of magnitude — the
+> measured signature at `N-C6` in `docs/NUMERICS_KNOWLEDGE.md` (516 → 7,200 severe faces,
+> 0.158 % → 1.694 %, while cell count rose only 1.31×). **The maximum alone hides that
+> propagation.**
+
+### 10.5 A version discrepancy NAMED, and deliberately NOT resolved here
+
+This file's header (line 3) reads `Version 1.2, dated 2026-08-11`, while the highest section
+version is **`v1.8`** before this block and **`v1.9`** with it. **The header has been stale
+since §8 landed and is recorded as such at line 441.** It is **not** repaired here, and not
+merely because editing line 3 would move every line number above — **a version bump that
+quietly resolves a pre-existing inconsistency is a second, undisclosed change riding inside a
+disclosed one.** The authoritative version of this document remains the **highest section
+version**. Repairing the header stays a separate, disclosed edit for whoever takes it.
+
+### 10.6 What this section does NOT do
+
+- It does **not** change the 70° threshold, the 65–70 warning band, or §3.1's action clause.
+- It does **not** touch §3.3's aspect-ratio advisory, which remains advisory and never a lone
+  rejection.
+- It proposes **no new gate** and moves no existing one.
+- It does **not** claim `checkMesh` is defective. `checkMesh` is correct about its own
+  thresholds; the defect is in reading its answer as though it were ours.
+
+| assertion | value |
+|---|---|
+| gate values changed by this section | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `434b6ebec1b8f09e4ea276d71456796e` |
+| md5 of this file's first 1,436 lines after the append | `434b6ebec1b8f09e4ea276d71456796e` |
+| the two digests | `**EQUAL — assertion MEASURED**` |
