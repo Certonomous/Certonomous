@@ -336,7 +336,28 @@ tree.
 Nothing below was executed. The server was inspected read-only through `/proc`
 and `ss`; it was never signalled.
 
-**The process.** pid **654212**, `python3 -u -m chief_engineer.server`, cwd
+**The pid in this section is stale, and how it went stale is itself evidence.**
+At 00:55:40 on 2026-09-01, while this note was being written, **another agent
+restarted the control room**. pid 654212 is gone; the server is now pid
+**848778**, started from `/home/ubuntu/Certonomous/sdk` as
+`CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX=openfoam2606 nohup python3 -u -m
+chief_engineer.server >> /home/ubuntu/logs/control_room.log 2>&1`. This lane did
+not do it and did not ask for it. `/health` on the new process reports
+`backend: openfoam-real-solvers` and 765 missions rehydrated, so that restart
+was clean. Everything below still describes the procedure correctly; only the
+pid has moved. Read the current one from `ss -ltnp | grep 8765` rather than from
+this page.
+
+That restart also demonstrated the hazard flagged below, and narrowly avoided
+it. The launch command names `CHIEF_ADAPTER` and `OPENFOAM_RUN_PREFIX`
+explicitly but **does not name `CERTONOMOUS_SOLVE_RANKS`**. The new process has
+`CERTONOMOUS_SOLVE_RANKS=16` only because it was already exported in the shell
+that launched it. A restart from a shell without it would have dropped every
+solve to a single rank with nothing on screen to say so. Name both variables on
+the command line; do not rely on inheritance.
+
+**The process.** pid **654212** at the time of inspection, superseded as above,
+`python3 -u -m chief_engineer.server`, cwd
 `/home/ubuntu/Certonomous/sdk`, parent pid 654211 (a detached bash, itself
 parented to init), listening on **0.0.0.0:8765**, up since 2026-08-31 23:48:17,
 RSS about 441 MB. It was started with these environment variables set, read
