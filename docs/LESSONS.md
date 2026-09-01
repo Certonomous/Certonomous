@@ -19772,3 +19772,72 @@ destroys the age guard that dates the run allowed to produce the answer. **The
 right mechanics were being applied to the wrong premise.** Good procedure on a
 false diagnosis is still a wrong action, and that is why the premise gets checked
 first.
+
+## L-433 — a negative arm that cannot build its own failure case must REFUSE, never continue; and a rule shipped without its worked example can be compressed wrongly by someone who cannot tell
+
+**A negative arm exists to prove the guard can fail. If it cannot construct the
+broken input it is meant to detect, it has tested NOTHING — and if it reports a
+pass anyway, the guard ships green having proved nothing while looking exactly
+like a guard that works.**
+*(heat-transfer, Act A sheet guard, 2026-09-01. Caught in the arm's own first
+draft, before it shipped.)*
+
+**SCOPE: EVERY NEGATIVE ARM IN THIS REPOSITORY, not the one that produced it** —
+the planted zero read back from disk (`CLAUDE.md` rule 3), the mutation that must
+break the check, the control driven to refusal. Indistinguishable-from-success is
+what makes this the most expensive outcome available here: nothing downstream
+looks wrong.
+
+### The worked example, which is how the rule got written
+
+A phrase assertion on a rendered sheet needs **two different strings**, each
+chosen against the side it is matched on. The first draft conflated them.
+
+1. **The asserted phrase is a RENDERED-side string**, written as the sentence
+   reads, matched on whitespace-**normalised** text. **The normalisation is
+   load-bearing in the OPPOSITE direction:** LaTeX wraps lines wherever it likes,
+   and without it a sentence broken across two rendered lines reads as *absent*
+   and the guard **refuses a perfectly good page**. A guard that cries wolf gets
+   disabled, and a disabled guard protects nothing.
+2. **The needle is a SOURCE-side string.** Its job is to delete the sentence from
+   the `.tex` before recompiling, so it must be a fragment sitting on **one
+   source line**. The draft used `"empty on purpose"`, which **straddles a line
+   wrap** in the source and matched nothing.
+
+The source string and the rendered string are not the same string, and a fragment
+chosen by *reading the sentence* — the obvious thing to do — is chosen from
+neither.
+
+**What caught it was the rule above:** the arm could not build its failure case,
+and **said so**, instead of reporting a pass.
+
+**And the arm builds a REAL PAGE** — sentence deleted from a scratch copy of the
+source, then recompiled — rather than doctoring a string. A doctored string
+proves the *matcher* works; a recompiled page proves the *guard* works.
+
+### The authoring-time defence, which is the second half of this lesson
+
+This lesson was first compressed to one side and **inverted in the process**
+("choose the needle from the rendered text"), which would have sent the next
+reader to write a needle that cannot match the source at all — **the lesson
+recreating the exact bug it was written to prevent, one layer along.**
+
+A wrong reading costs one decision. **A wrong lesson is an instrument, and a
+wrong instrument is authoritative:** it is cited by people who were not there.
+The obvious tell — *a two-sided finding compressed to one side* — **is only
+visible to someone who saw both sides**, and the later reader by definition
+cannot. So the defence cannot be "spot the compression later"; it has to be at
+authoring time:
+
+> **Write the rule and its worked example together, so the example carries the
+> halves the rule cannot. Dropping a half then makes the example stop matching
+> the rule — a check a later reader can run without having been present.**
+
+That converts an unverifiable social property into a locally checkable one, which
+is the same move as the planted zero: replace *trust that nothing was lost* with
+a thing that visibly fails when something is.
+
+**Board it in BOTH places.** A docstring reaches whoever next edits *that* file;
+it reaches nobody writing a negative arm elsewhere, which is the rule's actual
+scope. The code carries it at
+`docs/campaigns/T-family/demo/regen_actA_sheet.py::selftest_load_bearing`.
