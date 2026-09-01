@@ -1053,6 +1053,35 @@ returned different subsets minutes apart. A successor reading this file should
 see both readings and the commit between them, not a verdict that one party was
 careless.
 
+### 9.7a A SECOND AND DIFFERENT FAILURE MODE, RECORDED THE SAME DAY
+
+A reviewer went to verify the §5.2a Screen 8 clearance and their check reported
+**"L1: NO DIR, L2: NO DIR, L3: NO DIR"** — a clean, confident negative. The
+directories are `T23G2_L1`, `T23G2_L2`, `T23G2_L3` and they were all present.
+**The check had guessed the naming convention and then confirmed its own guess
+rather than the disk.** Reported, it would have called a true clearance false.
+
+**This is NOT the stale-reading failure of §9.7.** Nothing decayed; the query was
+never capable of returning the thing it was looking for. It is instead
+**`CLAUDE.md` rule 3 — the planted-zero rule — applied to a shell check rather
+than to a field reader.** A zero from a reader not shown able to see a non-zero
+is not evidence, and *a "not found" from a query not shown able to find
+something is not evidence either.*
+
+**The generalisation this file adopts:**
+
+> A negative result is two claims, not one: a claim about the world, and a claim
+> that the query could have seen the world. Establish the second before
+> reporting the first — list the parent directory, or run the check against a
+> path known to exist.
+
+Applied here: every "does not exist" in this specification — T23G2's absence in
+§5.2a before the launch, the missing renders in §8, the absent `.foam` file in
+§10.4 — was taken by listing the **parent** directory and reading what was
+actually there, not by testing a constructed path. That is why §5.2a could say
+"no run tree" and then, twenty minutes later, name three levels by their real
+directory names.
+
 ## 9.8 THE NINE-BOX SHOOTING CHECKLIST, FOR ACT A
 
 | # | Item | State |
@@ -1069,3 +1098,129 @@ careless.
 
 **Two boxes are blocking and neither is a drafting problem:** box 8 needs T23G2
 launched, and box 9 needs D-A9 applied.
+
+---
+
+# 10. PARAVIEW RENDERING (SANAA-DIRECT `2026-09-01T2110Z`, canvas retired)
+
+> *"Going forward all acts use paraview. Never that trashy canvas you were using
+> before"* — Sanaa, verbatim.
+
+Every act's **geometry, mesh and field** visuals are ParaView-rendered from the
+real case files. The in-browser canvas is retired as a visual source. **cfd owns
+the viewport display pipe; heat-transfer owns Act A's render scripts.**
+
+**Scripts are NOT built here.** This section states what must be rendered, from
+which real artifact, and what the scripts will need, so the work can be placed.
+
+## 10.1 Toolchain — verified on this box, not assumed
+
+| Tool | Path | Version |
+|---|---|---|
+| `pvbatch` | `/usr/bin/pvbatch` | **ParaView 5.11.2** |
+| `pvpython` | `/usr/bin/pvpython` | 5.11.2 |
+| `xvfb-run` | `/usr/bin/xvfb-run` | present |
+
+Headless recipe: `xvfb-run -a pvbatch <script>.py`. Pin 5.11.2 in every script
+header — a render that changes with the reader version is not reproducible.
+
+## 10.2 The source case is ParaView-ready — measured
+
+`verification/runs/T-family/T23_runs/T23_P305_U20` carries:
+
+- **Three region meshes**, each complete:
+  `constant/{fluid,housing,core}/polyMesh/` with `points`, `faces`, `owner`,
+  `neighbour`, `boundary`, `cellZones`, `faceZones`.
+- **A converged time directory `10000/`** with the fields:
+
+| Region | Fields at `10000/` |
+|---|---|
+| `fluid` | `T U alphat k nut omega p p_rgh phi rho` |
+| `housing` | `T p` |
+| `core` | `T p` |
+
+- The age guard holds: `10000/fluid/T` (2026-08-31 18:04:21Z) is newer than
+  `0/fluid/T` (17:34:07Z).
+
+**Everything Screens 1, 5 and 6 need is on disk in solved form.** No field has
+to be reconstructed and nothing is rendered from an extract.
+
+## 10.3 What must be rendered, per screen
+
+| Screen | Render | Source, absolute |
+|---|---|---|
+| **1 — Geometry** | The solved body, rotating or static, on load | `/home/ubuntu/Certonomous/sdk/geometry/t23_solved_geometry.stl` (sha256 `d2864232…`), part colouring from `…/display_surface/t23_solved_geometry_parts.json` `part_order` |
+| **4/5 — Mesh, REAL CELLS** | The wedge mesh drawn cell by cell, all three regions, with the wall-layer zoom against the heated housing | `…/T23_P305_U20/constant/{fluid,housing,core}/polyMesh/` — **rendered as actual cells (Surface With Edges), not as a tessellated stand-in** |
+| **6 — Fields, temperature** | `T` across all three regions together — the conjugate story: core hottest, gradient through the housing wall, plume in the air | `…/T23_P305_U20/10000/{core,housing,fluid}/T` |
+| **6 — Fields, velocity** | `U` in the fluid, showing acceleration over the housing | `…/T23_P305_U20/10000/fluid/U` |
+| **6 — Airspeed comparison** | The same body at 10, 20, 30, 40 m/s | `T23_runs/T23_P305_U{10,20,30,40}/10000/*/T` — one render per case, identical camera and identical colour range |
+
+## 10.4 What the render scripts need — the list to hand to whoever builds them
+
+1. **A `.foam` entry point, which DOES NOT EXIST.** ParaView's OpenFOAM reader
+   opens a case through a `<name>.foam` file in the case directory. Measured:
+   there is **no `.foam` file in `T23_P305_U20`** (checked by listing the case
+   directory, not by testing a guessed path — §9.7a).
+   ⚠ **Do not `touch` one into the completed run tree.** These are graded cases
+   under the completion rule; writing into them invites exactly the "is this
+   artifact still the one that ran" question the age guard exists to answer.
+   **Required approach: the render script materialises a scratch case — symlink
+   `constant/`, `system/` and the needed time directory into a scratch dir and
+   create the `.foam` there.** The run tree stays read-only.
+2. **Multi-region reading.** The reader must load all three regions and render
+   them together for the conjugate temperature view; a single-region render
+   tells the wrong story (the whole point is that metal and air set each other's
+   temperature).
+3. **⛔ THE AXISYMMETRY DECLARATION, which is the honesty trap in this section.**
+   The solve is **one cell over a 5-degree wedge**. A ParaView render that
+   rotationally extrudes it into a full 360-degree body is showing geometry that
+   was never solved. The parts manifest already treats this correctly for the
+   STL, declaring `revolve_segments_DISPLAY_CHOICE: 180` and requiring that
+   *"the axisymmetry must be stated wherever this surface is shown"*.
+   **The same rule binds every ParaView render**: either show the wedge as
+   solved, or extrude it and **state on the screen that the body is
+   axisymmetric and the revolve is a display choice.** Silently extruding is the
+   same class of defect as the retired body in §2.
+4. **Colour ranges are READ, never chosen per render.** From
+   `figures_actA/actA_screen_data.json` → `map_colour_range_degC` and
+   `map_colour_range_housing_degC`. The four airspeed renders must share one
+   range or the comparison is meaningless.
+5. **Determinism**: fixed camera position, fixed image size, fixed colour map,
+   pinned version. Two runs of the script must produce identical images.
+6. **Figure standard applies to rendered stills too** (§6): title ≤10 words, one
+   caption line, **no table inside the image**, and the colour bar carries
+   numeric ticks and the unit only — min and max appear there and nowhere else.
+7. **Progressive reveal by frame sequencing**, per the chief's reading of the
+   directive: stills or frame sequences, since the viewport no longer draws.
+
+## 10.5 Scope — what ParaView replaces and what it does NOT
+
+Her directive names **geometry, mesh and field** visuals. It does not name line
+plots. **Proposed split, flagged for the supervisor's confirmation:**
+
+| Figure | Disposition |
+|---|---|
+| `actA_temperature_field.png` | **→ ParaView** (field) |
+| `actA_velocity_field.png` | **→ ParaView** (field) |
+| `actA_mesh_boundary_layer.png` | **→ ParaView** (mesh, real cells — and Screen 5 requires real cells, which strengthens this) |
+| `actA_airspeed_thumbnails.png` | **→ ParaView** (four field renders) |
+| `actA_envelope.pdf` | stays matplotlib — an x-y plot with the 200 °C line |
+| `actA_radial_profile.pdf` | stays matplotlib — an x-y profile |
+| `actA_monitor_replay.pdf` | stays matplotlib — settling traces |
+| `actA_map_table.pdf` | stays matplotlib — heatmap (and §6's table still must come out) |
+| `actA_assumptions.pdf`, `actA_assumption_beat.pdf` | stay matplotlib — text and bar panels |
+
+Rendering an x-y convergence trace in ParaView would be a worse figure, not a
+more compliant one. **If the supervisor reads her "all acts use paraview" as
+covering plots too, this table changes and the four ParaView items become
+eleven** — raised rather than assumed.
+
+## 10.6 New dependency
+
+**D-A11 (ours, heat-transfer):** write Act A's ParaView render scripts to the
+above, filed under
+`/home/ubuntu/Certonomous/docs/campaigns/T-family/demo/render_actA_paraview/`.
+**Not built in this pass** — the requirements above are the handoff.
+
+**D-A12 (cfd):** the viewport display pipe consumes ParaView stills/sequences
+rather than drawing on the retired canvas.
