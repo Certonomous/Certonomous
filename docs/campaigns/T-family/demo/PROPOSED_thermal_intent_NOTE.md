@@ -451,3 +451,185 @@ run was proposed, and none is proposed by the patch either. The runs whose
 results these screens present carry their own costs in their own records; this
 mission books nothing against them and its `report.ready` states
 `spent_core_minutes: 0.0` with the note `no solver ran on this request`.
+
+---
+
+## 9. Addendum, 2026-09-01: the Act A contract corrected, and the prompt to type
+
+**Added by a second heat-transfer `lab-lane` at the heat-transfer supervisor's
+dispatch.** Sections 1-8 above are left exactly as they were written; nothing
+in them is edited. This section records what changed in the patch and what was
+measured, and it supersedes three bullets of §7 by name.
+
+**Nothing under `sdk/` was written in the working tree by this lane either.**
+The corrected module was written and driven inside a throwaway copy of the
+repository tree built with `git archive HEAD`, and the patch was cut from that
+copy. The live control-room server was not restarted, signalled or touched.
+
+### 9.1 The exact prompts Sanaa should type
+
+Both were driven through the real `classify()` and `apply_surface()` in a
+throwaway interpreter with the corrected patch applied. Copy them verbatim.
+
+**Act A — the motor in a duct:**
+
+```
+Show me the thermal map for the motor in the duct: how hot does it get, and at what airspeed does it stay under 200 C?
+```
+
+measured: `intent='thermal-display'`, `confidence=0.77`,
+`params['thermal_screens']='A'`; with a surface uploaded alongside it,
+`apply_surface` keeps `thermal-display` and keeps `screens='A'`; `unmet_asks`
+returns nothing, so no scope-down line fires.
+
+**Act C — the battery module:**
+
+```
+Show me the thermal management result for the battery module: cell temperatures, pack uniformity and the time histories.
+```
+
+measured: `intent='thermal-display'`, `confidence=0.99`,
+`params['thermal_screens']='C'`; with a surface uploaded, `apply_surface`
+keeps `thermal-display` and keeps `screens='C'`; `unmet_asks` returns nothing.
+
+**The enclosure word in the Act A prompt is load-bearing and the pattern was
+NOT widened to remove the need for it.** `_THERMAL_LANDED_BODIES` requires
+`duct`, `enclosure`, `housing` or `cowling` within sixty characters of
+`motor`. A bare *"the motor"* does not route: measured, *"Do a thermal analysis
+of the motor and tell me the peak temperature."* still lands on
+`geometry-study` and *"How hot does the motor get?"* likewise. Widening the
+pattern to catch a bare "motor" would put it in reach of aerodynamic prompts
+that mention a motor in passing, and a mis-route on camera is worse than a
+no-route. The decision taken is therefore: **leave the pattern alone and write
+the prompt down**, which is what this section is.
+
+### 9.2 What the correction changed in the patch, and what was measured
+
+The first cut of `SCREEN_SETS["A"]` named `acta_*` in lower case against files
+that landed as `actA_*`, and read Act C's bundle keys against a bundle that
+carries none of them. Measured before the correction: **Act A matched 0 of 5
+contract items and would have shown a blank**, and — the serious one — because
+the module looked only for `instrument_check_*` while Act A stores its controls
+under `planted_zero_controls`, **Act A's instrument-check table would have been
+silently skipped entirely**, putting temperatures on screen with no evidence
+that the readers behind them can see anything. That is a CLAUDE.md rule 3
+failure in its worst form, which is silence.
+
+The repair is a normaliser (`_normalise`) that translates whichever dialect
+arrived into one internal shape, so there is one presentation path and two
+bundle dialects rather than two copies of the screens. `_instrument_rows`
+reads **both** spellings. Act A's `anchor_checks` get their own table with
+their own column names, because an anchor check is a value worked out twice,
+not a planted zero, and must not be dressed as one.
+
+**If no recognisable control block is found, the act now REFUSES**: it says so
+on screen, names what it looked for and what the bundle actually carried, draws
+no figure, quotes no number and returns 2. Measured on a bundle stripped of its
+`planted_zero_controls`: rc 2, 0 plots, 1 table, 0 reports, no temperature
+anywhere on the record.
+
+Measured with the corrected patch applied in the scratch tree, driving
+`thermal_display.main()`:
+
+| act | rc | plots | tables | reports |
+|---|---|---|---|---|
+| C | 0 | 5 | 5 | 1 |
+| A, pending renders absent | 0 | 5 | 6 | 1 |
+| A, pending renders present | 0 | 7 | 6 | 1 |
+| A, control block stripped | 2 | 0 | 1 | 0 |
+
+Act A's six tables are provenance (7 rows), instrument checks (3), anchor
+checks (5), the sixteen solved operating points (16), not-available (7 rows
+falling to 5 when the pending renders are there), and quantities (5). Act C's
+five are provenance (6), instrument checks (3), per-cell (8), not-available
+(2) and quantities (5).
+
+**This supersedes the §7 bullet "The Act A screens themselves."** `figures_actA/`
+is no longer empty; the present-bundle path for Act A has now been driven
+against the real Act A files, and the bundle key names are no longer a proposed
+contract but a measured one.
+
+### 9.3 Named absences, and the `CAPABILITIES` row that backs them
+
+Each screen set carries a `not_available` table naming the beats that were
+asked for and cannot be shown, with the reason, so that nothing is
+approximated and nothing is quietly omitted. Act A: A3 geometry and meshing,
+A4 the feasibility-first framing, A6.1 the temperature field, A6.1 the velocity
+panel, A6.6 the operating recommendation, A8 the assumptions box, A9 the
+export. Act C: C6.3 the coolant outlet temperature — the channels are not
+resolved as a fluid region, so there is no coolant stream to have an outlet,
+and none was synthesised — and C7 the transitional-flow sensitivity band, for
+which no run on disk supplies a band, so none is drawn and none is constructed.
+
+The patch also adds the one missing row to `CAPABILITIES` in
+`sdk/chief_engineer/scope.py`, because `scope.py:85` says an intent absent from
+that table "is NOT assumed incapable: it is simply not checked" — without the
+row **no scope-down line could ever fire for this act**. Measured with the row
+in place:
+
+- *"Show me the thermal result for the battery module and optimise the pack
+  layout to even it out."* → scope-down on `optimisation`: *"You asked for a
+  design search. This run cannot do that: it solves one fixed shape."*
+- *"Show me the thermal map for the motor in the duct with a blown slot in the
+  cowling."* → scope-down on `blowing`.
+
+**The row is `frozenset({THERMAL, UNSTEADY})` and the coarseness is disclosed,
+not papered over.** The table is keyed on the intent while the two acts behind
+that intent are not equally capable: Act C is a 900-second transient, Act A is
+sixteen steady points. `THERMAL` must be declared or every prompt to this act
+would be told it "solves the flow only, with no temperature field". `UNSTEADY`
+must be declared too, and here is the measurement that settles it: with the row
+narrowed to `{THERMAL}`, the Act C prompt in §9.1 scopes down on `unsteady` and
+the control room says, on camera, over a run that solved 900 seconds of
+history, *"You asked for a time-varying solution. This run cannot do that: it
+solves a single steady state."* A false scope-down on a matched prompt is the
+failure `scope.py`'s own docstring warns against, so `UNSTEADY` stays. The cost
+is that a request for a time history **of the motor** is not scoped down by
+this table; the act names its own missing beats on screen instead. Splitting
+the key per act is the repair and belongs to whoever owns `scope.py`.
+
+`sdk/tests/test_scope_down.py` is modified in the working tree by another team
+and was not read or run by this lane. Whoever applies this patch should run
+that suite before restarting. **VERIFY.**
+
+### 9.4 Two figures declared PENDING, and why
+
+While this correction was being written, another lane was generating Act A
+field renders. `actA_temperature_field.{pdf,png}`, `actA_velocity_field.{pdf,png}`,
+`actA_mesh_boundary_layer.{pdf,png,svg}`, `actA_airspeed_thumbnails.{pdf,png}`,
+`actA_field_cells.csv`, `actA_field_render_data.json` and `render_fields_actA.py`
+are on disk in `figures_actA/` and are **untracked — none of them is at HEAD**.
+They were inspected and not touched, per the git rule on unexpected
+uncommitted work.
+
+Two of them are declared in `SCREEN_SETS["A"]` with status `PENDING`:
+`actA_temperature_field` and `actA_velocity_field`. If they are on disk when
+the act runs, they go up and their two A6.1 not-available rows are dropped; if
+they are not, the rows stand and say so on screen. Neither outcome is silent
+and a reviewer of the patch can see both. Measured both ways: 7 plots with them
+present, 5 without.
+
+The other four in-flight products are **not** in the screen set, because their
+titles could only be guessed. Adding `actA_mesh_boundary_layer` (it would serve
+A3) and `actA_airspeed_thumbnails` is one line each in `SCREEN_SETS["A"]`
+once the lane that built them commits them and its README states what they
+show. **VERIFY against that README before adding them.**
+
+### 9.5 Act C gained a fifth figure
+
+`docs/campaigns/T-family/demo/figures/actc_step_independence.{pdf,svg,csv,json}`
+is the C6.4 step-independence product, built by this lane from the two arms
+already on disk and committed beside the other Act C products. The module
+reads its JSON as an `extra_bundles` entry merged over the main bundle; a named
+extra that is missing is said on screen and never dropped quietly (measured:
+the line fires, rc stays 0, the rest of the act is unaffected).
+
+### 9.6 Compute for this correction
+
+No solver ran, no case was written, no queue entry was made. The work was file
+reading, one generator run over two landed cases, and driving the module and
+the router in throwaway interpreters — well under one core-minute of
+single-core work in total on this box. There is no pre-registered estimate to
+calibrate against under rule 12 because no solver run was proposed and none is
+proposed by the patch. **No verdict from the fixed vocabulary is claimed for
+this addendum**: it is a proposed change to tooling, not a graded run.

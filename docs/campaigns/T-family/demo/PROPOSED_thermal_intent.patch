@@ -2,27 +2,30 @@ PROPOSED CHANGE, NOT APPLIED -- the thermal display intent
 ==========================================================
 
 STATUS: PROPOSAL. Nothing in this patch is applied to the working tree, and
-nothing under sdk/ was written by the lane that produced it. The control-room
-server was running at pid 654212 throughout and was not restarted, signalled or
-touched.
+nothing under sdk/ was written by any lane that produced it. The control-room
+server was running throughout and was not restarted, signalled or touched.
 
-Prepared by:   heat-transfer lab-lane, 2026-09-01
-Base:          the router hunk is cut against sdk/chief_engineer/router.py at
-               blob 40521daec147bf19d2f2ee8dfe059bd4da8cae5e, which is the blob
-               at the commit that introduced this file. Confirm the base has
-               not moved under you before reading further:
+Prepared by:   heat-transfer lab-lane, 2026-09-01 (first cut), corrected the
+               same night by a second heat-transfer lab-lane after the first
+               cut was measured against the files that actually landed.
+Base:          cut against sdk/chief_engineer/router.py at blob
+               40521daec147bf19d2f2ee8dfe059bd4da8cae5e and
+               sdk/chief_engineer/scope.py as at the same commit. Confirm the
+               base has not moved under you before reading further:
                  git rev-parse HEAD:sdk/chief_engineer/router.py
+                 git rev-parse HEAD:sdk/chief_engineer/scope.py
                  git apply --check docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch
-               If the blob differs, the patch may still apply; the second
-               command is the operative test, the first tells you whether
-               somebody has edited the router since this was written.
+               If a blob differs, the patch may still apply; the third
+               command is the operative test, the first two tell you whether
+               somebody has edited those files since this was written.
 Reviewers:     heat-transfer supervisor (reads it as a diff, SUPERVISION §3
                check 1), then the cfd team, because sdk/chief_engineer/ is
                shared control-room tooling owned by neither team and the
                routing table it changes governs every team's prompts.
 Design note:   docs/campaigns/T-family/demo/PROPOSED_thermal_intent_NOTE.md
                Read the note first. It carries the measured before/after
-               routing table and the restart procedure.
+               routing table, the two prompts to type, and the restart
+               procedure.
 
 WHAT THIS PATCH DOES
   1. Adds a `thermal-display` intent to the router: a thermal question about a
@@ -36,6 +39,73 @@ WHAT THIS PATCH DOES
      incompressible aerodynamic chain at a body someone asked a thermal
      question about. Measured: at HEAD, both act prompts with an uploaded
      surface become `geometry-study`.
+  4. Adds ONE ROW to `CAPABILITIES` in `sdk/chief_engineer/scope.py`. Without
+     it no scope-down line can ever fire for this act, because scope.py:85
+     says an intent absent from that table "is NOT assumed incapable: it is
+     simply not checked". The row is `frozenset({THERMAL, UNSTEADY})` and the
+     comment beside it records the one coarseness it carries: the table is
+     keyed on the intent while the two acts behind that intent are not equally
+     capable. See the note.
+
+WHAT THE CORRECTION FIXED, AND WHY IT MATTERED
+  The first cut of this patch was measured against the files on disk and Act A
+  would have shown Sanaa a BLANK. Two independent causes, both now repaired
+  in `sdk/workflows/thermal_display.py`:
+
+  (a) FILENAME CASE. The first cut named `acta_screen_data.json`,
+      `acta_radial_profile`, `acta_envelope` and two figures that were never
+      built. The files that landed are `actA_*` with a capital A, and ext4 is
+      case-sensitive, so every path missed. The screen set now names the five
+      Act A figures that are at HEAD -- `actA_map_table`, `actA_envelope`,
+      `actA_radial_profile`, `actA_monitor_replay`, `actA_assumption_beat` --
+      each one checked with `git cat-file -e HEAD:<path>` one at a time.
+
+  (b) AN INCOMPATIBLE BUNDLE SCHEMA, and this was the serious one. Act C's
+      bundle carries `source_case`, `reader`, `mesh`, `instrument_check_*`,
+      `per_cell_table`, `shared_colour_scale_K`; Act A's carries NONE of them.
+      It carries `map_rows`, `envelope`, `radial`, `monitors`,
+      `anchor_checks`, `numerical_uncertainty` -- and its planted-zero results
+      under `planted_zero_controls`.
+
+      The consequence was not cosmetic. The module looked for
+      `instrument_check_*` only, so for Act A the ENTIRE INSTRUMENT-CHECK
+      TABLE WOULD HAVE BEEN SILENTLY SKIPPED: a screen full of temperatures
+      with no evidence that the readers behind them can see anything at all.
+      That is a CLAUDE.md rule 3 failure, and silence is its worst form.
+
+      The repair is a NORMALISER, not a second copy of the presentation code.
+      `_normalise` translates whichever dialect arrived into one internal
+      shape; everything below it is dialect-blind. `_instrument_rows` reads
+      BOTH spellings, and Act A's `anchor_checks` get their own table with
+      their own column names, because an anchor check is not a planted zero
+      and must not be dressed as one.
+
+  (c) THE REFUSAL. If no recognisable control block is found in a bundle, the
+      act now REFUSES: it says so on screen, names what it looked for and what
+      the bundle actually carried, draws no figure, quotes no number and
+      returns 2 -- the same refuse-rather-than-degrade discipline the T-family
+      comparators use. A verification block that renders as nothing is worse
+      than one that renders as "not recorded", and both are worse than a
+      refusal.
+
+  (d) NAMED ABSENCES. Each screen set carries a `not_available` table listing
+      the beats that were asked for and cannot be shown, with the reason. For
+      Act A: A3 geometry and meshing, A4 the feasibility-first framing, A6.1
+      the temperature field and the velocity panel, A6.6 the operating
+      recommendation, A8 the assumptions box, A9 the export. For Act C: C6.3
+      the coolant outlet temperature (the channels are not resolved as a fluid
+      region, so there is no coolant stream to have an outlet) and C7 the
+      transitional-flow sensitivity band (no run on disk supplies it). Nothing
+      is approximated and nothing is quietly omitted.
+
+  (e) TWO PENDING FIGURES, DECLARED AS PENDING. `actA_temperature_field` and
+      `actA_velocity_field` were being generated by another lane while this
+      correction was written; they are on disk untracked and are NOT at HEAD.
+      They are declared with status PENDING: if they are on disk when the act
+      runs they go up and their not-available rows are dropped; if they are
+      not, the two A6.1 rows stand and say so. Neither outcome is silent and a
+      reviewer of this file can see both. MEASURED both ways -- 7 plots with
+      them present, 5 without.
 
 WHAT THIS PATCH DOES NOT DO
   * It does not add, remove or edit a single character of
@@ -68,17 +138,37 @@ WHAT THE ROUTER STILL REFUSES AFTER THIS PATCH
   is not this patch's to repair. It is written up in the design note for the
   cfd and verification teams.
 
+MEASURED AFTER THE CORRECTION, in a scratch copy of the repo tree at HEAD with
+this patch applied, driving `thermal_display.main()` in a throwaway
+interpreter. The real tree was never patched and the live server was never
+touched.
+    Act C   rc 0   5 plots   5 tables   1 report
+              (provenance 6 rows, instrument checks 3, per-cell 8,
+               not-available 2, quantities 5)
+    Act A   rc 0   5 plots   6 tables   1 report   with the pending renders absent
+    Act A   rc 0   7 plots   6 tables   1 report   with the pending renders present
+              (provenance 7 rows, instrument checks 3, anchor checks 5,
+               the sixteen operating points 16, not-available 7 then 5,
+               quantities 5)
+    Refusal rc 2   0 plots   1 table    0 reports  on a bundle stripped of its
+              control block -- no temperature reaches the screen.
+
 TO APPLY (a human decision, not this lane's)
     cd /home/ubuntu/Certonomous
     git apply --check docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch
     git apply         docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch
-  The change is NOT live until the control-room server is restarted. See the
-  restart section of the design note: which process, what command, how long it
-  is down, and what in-flight state is lost.
+  Act C's fifth figure and its step-independence block need
+  `docs/campaigns/T-family/demo/figures/actc_step_independence.{pdf,svg,csv,json}`
+  to be at HEAD; they are committed by the same lane that wrote this
+  correction. The change is NOT live until the control-room server is
+  restarted. See the restart section of the design note: which process, what
+  command, how long it is down, and what in-flight state is lost.
 
+diff --git a/sdk/chief_engineer/router.py b/sdk/chief_engineer/router.py
+index 40521da..1943ac3 100644
 --- a/sdk/chief_engineer/router.py
 +++ b/sdk/chief_engineer/router.py
-@@ -25,6 +25,11 @@
+@@ -25,6 +25,11 @@ routes exist today:
      A surface is named, or a body is to be taken through the whole chain:
      intake, surface check, meshing, solving, and a reported force with its
      envelope. The expensive path, measured in minutes rather than seconds.
@@ -90,7 +180,7 @@ TO APPLY (a human decision, not this lane's)
  
  Routing is keyword-and-pattern based and fully inspectable: every decision
  carries the evidence that produced it, so the interpretation can be argued
-@@ -182,6 +187,74 @@
+@@ -182,6 +187,74 @@ _SOBOL_METHOD = re.compile(
      r"effect\s+ind(?:ex|ices)\b|\bsensitivity\s+ind(?:ex|ices)\b|"
      r"\bsaltelli\b|\bjansen\b", re.I)
  
@@ -165,7 +255,7 @@ TO APPLY (a human decision, not this lane's)
  _OPTIMIZE = re.compile(
      r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
      r"best|optimal)\b", re.I)
-@@ -551,6 +624,17 @@
+@@ -551,6 +624,17 @@ def classify(request: str) -> Route:
              add(SOBOL_SENSITIVITY, 0.6,
                  "names the pick-and-freeze design and the main and "
                  "total-effect indices it produces")
@@ -183,7 +273,7 @@ TO APPLY (a human decision, not this lane's)
  
      if not scores:
          return Route(
-@@ -597,6 +681,9 @@
+@@ -597,6 +681,9 @@ def classify(request: str) -> Route:
              elif not staged:
                  params["surface_unavailable"] = (
                      f"an Ahmed body with a {asked:g} degree slant")
@@ -193,7 +283,7 @@ TO APPLY (a human decision, not this lane's)
      if solver_setup:
          params["solver_setup"] = solver_setup.group(0)
      if geometry:
-@@ -701,6 +788,14 @@
+@@ -701,6 +788,14 @@ def classify(request: str) -> Route:
              "This is a question about confidence itself. I will quantify the "
              "current envelope, decide whether it is reducible, and spend "
              "samples until only irreducible uncertainty remains."),
@@ -208,7 +298,7 @@ TO APPLY (a human decision, not this lane's)
          SOBOL_SENSITIVITY: (
              "Reading this as a variance apportionment. An envelope says how "
              "wide the answer is and never says which input made it wide, so "
-@@ -719,9 +814,17 @@
+@@ -719,9 +814,17 @@ def classify(request: str) -> Route:
  # Intents that keep their route when a surface is uploaded with the prompt:
  # each of these acts accepts the surface honestly on its own terms (starting
  # geometry, raced wing, reference body) rather than being rerouted.
@@ -227,7 +317,7 @@ TO APPLY (a human decision, not this lane's)
  
  
  def apply_surface(route: Route, surface: str | None) -> Route:
-@@ -766,6 +869,8 @@
+@@ -766,6 +869,8 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                              "output": "uncertainty-reduction"},
      SOBOL_SENSITIVITY: {"module": "workflows.sobol_sensitivity",
                          "output": "sobol-sensitivity"},
@@ -236,9 +326,52 @@ TO APPLY (a human decision, not this lane's)
      AHMED_BODY: {"module": "workflows.ahmed_body", "output": "ahmed-body"},
      NASA_HUMP: {"module": "workflows.nasa_hump", "output": "nasa-hump"},
      ONERA_M6: {"module": "workflows.onera_m6", "output": "onera-m6"},
+diff --git a/sdk/chief_engineer/scope.py b/sdk/chief_engineer/scope.py
+index 95253fd..21f0caa 100644
+--- a/sdk/chief_engineer/scope.py
++++ b/sdk/chief_engineer/scope.py
+@@ -35,7 +35,7 @@ from .router import (ADJOINT_OPTIMIZATION, AHMED_BODY, AIRCRAFT_OPTIMIZATION,
+                      CRM_WINGBODY, CYLINDER_VORTEX_SHEDDING, DIAMOND_AIRFOIL,
+                      GEOMETRY_STUDY, HYPERSONIC_CYLINDER, NASA_HUMP, ONERA_M6,
+                      SHAPE_OPTIMIZATION, SUPERSONIC_CONE, SUPERSONIC_WEDGE,
+-                     VALVE_STUDY)
++                     THERMAL_DISPLAY, VALVE_STUDY)
+ 
+ # Capability tags. One per thing a prompt can ask for that a run either can or
+ # cannot do. Kept few on purpose: each one is a promise the lab has to keep.
+@@ -105,6 +105,26 @@ CAPABILITIES: dict[str, frozenset[str]] = {
+     SUPERSONIC_CONE: frozenset(),
+     DIAMOND_AIRFOIL: frozenset(),
+     HYPERSONIC_CYLINDER: frozenset(),
++    # The thermal display act. It presents two landed conjugate thermal
++    # runs and starts no solver, so the honest declaration is the union of
++    # what those two runs did: one of them resolves temperature and the
++    # other resolves temperature through time. Neither searches a design,
++    # and neither has a jet boundary condition, so a prompt asking this act
++    # to optimise a duct or to blow a slot is scoped down before it starts.
++    #
++    # KNOWN COARSENESS, recorded rather than papered over: this table is
++    # keyed on the intent and the two acts behind that intent do not have
++    # the same capabilities. Act C is a transient; Act A is a set of steady
++    # points. UNSTEADY is declared because withholding it would put a FALSE
++    # scope-down on Act C -- telling a viewer that a run which solved 900
++    # seconds of history 'solves a single steady state' -- and a false
++    # scope-down on a matched prompt is the failure this module's own
++    # docstring warns against. The cost is that a request for a time
++    # history of the motor is not scoped down here; the act names its own
++    # missing beats on screen instead, from its per-act not-available
++    # table. Splitting the key per act is the repair and belongs to
++    # whoever owns this module.
++    THERMAL_DISPLAY: frozenset({THERMAL, UNSTEADY}),
+ }
+ 
+ 
+diff --git a/sdk/workflows/thermal_display.py b/sdk/workflows/thermal_display.py
+new file mode 100644
+index 0000000..b9097f5
 --- /dev/null
 +++ b/sdk/workflows/thermal_display.py
-@@ -0,0 +1,388 @@
+@@ -0,0 +1,837 @@
 +"""The thermal display act: screens built from a run that has already landed.
 +
 +THIS MODULE STARTS NO SOLVER. It writes no case, queues no job, invokes no
@@ -263,12 +396,36 @@ TO APPLY (a human decision, not this lane's)
 +re-derive a single value from the case directories, so a number on screen and
 +the number in the record cannot drift apart.
 +
++TWO BUNDLE DIALECTS, ONE PRESENTATION PATH
++------------------------------------------
++The two acts were built by two generators that did not agree on key names.
++Act C writes ``source_case`` / ``reader`` / ``mesh`` / ``instrument_check_*``
++/ ``per_cell_table``; Act A writes ``map_rows`` / ``envelope`` / ``radial`` /
++``monitors`` / ``planted_zero_controls`` / ``anchor_checks`` and none of the
++first set. Rather than carry two presentation code paths, ``_normalise``
++translates whichever dialect arrived into ONE internal shape and everything
++below it is dialect-blind. Adding a third act is a normaliser branch, not a
++second copy of the screens.
++
++WHAT MUST NEVER HAPPEN HERE, AND THE GUARD THAT STOPS IT
++--------------------------------------------------------
++The planted-zero instrument checks go up BEFORE any temperature. An earlier
++version of this module looked only for ``instrument_check_*`` keys and would
++therefore have SILENTLY SKIPPED the whole instrument table for a bundle that
++spells them ``planted_zero_controls`` -- a screen full of temperatures with no
++evidence that the readers behind them can see anything at all. A verification
++block that renders as nothing is worse than one that renders as "not
++recorded", and both are worse than a refusal. So: if no recognisable control
++block is found, this act REFUSES. It names what it looked for, names what the
++bundle actually offered, draws no figure and quotes no number.
++
 +    python -m workflows.thermal_display
 +    python -m workflows.thermal_display --act A
 +"""
 +from __future__ import annotations
 +
 +import json
++import os
 +import shutil
 +import subprocess
 +import sys
@@ -287,33 +444,112 @@ TO APPLY (a human decision, not this lane's)
 +_REPO = Path(__file__).resolve().parents[2]
 +_DEMO = _REPO / "docs" / "campaigns" / "T-family" / "demo"
 +
++#: A figure whose file was on disk when this screen set was fixed. Its absence
++#: at run time is reported as a gap, because something that was there has gone.
++LANDED = "landed"
++#: A figure another lane was still generating when this screen set was fixed.
++#: If it is on disk when the act runs it goes up; if it is not, the beat it
++#: serves is NAMED in the not-available table instead. Neither outcome is
++#: silent, and the reviewer of this file can see both.
++PENDING = "pending"
++
 +# One row per landed thermal act. Adding a body when its run lands is one row
-+# here and one router table entry, nothing else. ``bundle`` is the JSON the
-+# act reads; ``figures`` are (stem, title) pairs resolved inside that folder.
++# here and one router table entry, nothing else.
++#
++#   ``bundle``          the JSON this act reads.
++#   ``extra_bundles``   further JSON files merged over it, each one a product
++#                       built after the main bundle was written. A named extra
++#                       that is missing is said on screen, never skipped.
++#   ``figures``         (stem, title, status) resolved inside ``folder``.
++#   ``not_available``   beats this act was asked for and cannot show, with the
++#                       reason. ``satisfied_by`` names a figure stem: when
++#                       that figure did go up, the row is dropped, because a
++#                       beat that was shown must not also be declared missing.
 +SCREEN_SETS: dict[str, dict] = {
 +    "A": {
 +        "title": "the motor in a duct",
 +        "folder": _DEMO / "figures_actA",
-+        "bundle": "acta_screen_data.json",
++        "bundle": "actA_screen_data.json",
++        "extra_bundles": (),
 +        "figures": (
-+            ("acta_temperature_field", "Temperature on the computational mesh"),
-+            ("acta_velocity_panel", "Velocity panel and airspeed cases"),
-+            ("acta_radial_profile", "Radial temperature profile"),
-+            ("acta_envelope", "Operating envelope against the 200 C limit"),
++            ("actA_temperature_field",
++             "Temperature on the computational mesh", PENDING),
++            ("actA_velocity_field",
++             "Velocity through the duct", PENDING),
++            ("actA_map_table",
++             "Peak temperature across the sixteen operating points", LANDED),
++            ("actA_envelope",
++             "Operating envelope against the 200 C limit", LANDED),
++            ("actA_radial_profile",
++             "Radial temperature profile through the hottest solid cell",
++             LANDED),
++            ("actA_monitor_replay",
++             "Each run's own temperature monitor, replayed", LANDED),
++            ("actA_assumption_beat",
++             "The hand model against the coupled solve", LANDED),
++        ),
++        "not_available": (
++            ("A3, the geometry and meshing walkthrough",
++             "no meshing screen was built for this act; the mesh is read for "
++             "the radial cut and for nothing else",
++             None),
++            ("A4, the feasibility-first framing",
++             "no artifact was built for this beat, so it is not presented",
++             None),
++            ("A6.1, the temperature field on the mesh",
++             "no field render had landed when this act's screen set was "
++             "fixed, so there is no picture of the field to put up",
++             "actA_temperature_field"),
++            ("A6.1, the velocity panel",
++             "no velocity render had landed when this act's screen set was "
++             "fixed, so there is no picture of the flow to put up",
++             "actA_velocity_field"),
++            ("A6.6, the operating recommendation",
++             "this act reports the solved map and the margin at every point "
++             "and recommends nothing; choosing an operating point is not "
++             "something this run decides",
++             None),
++            ("A8, the assumptions box",
++             "no assumptions-box screen was built for this act; the hand "
++             "model comparison that is shown is a different beat",
++             None),
++            ("A9, the export of the act as one document",
++             "no export was built; the figures exist beside the bundle as "
++             "vector pages and nothing assembles them into one file",
++             None),
 +        ),
 +    },
 +    "C": {
 +        "title": "the battery module",
 +        "folder": _DEMO / "figures",
 +        "bundle": "actc_screen_data.json",
++        "extra_bundles": ("actc_step_independence.json",),
 +        "figures": (
 +            ("actc_field_snapshots",
-+             "Temperature on the computational mesh at six times"),
++             "Temperature on the computational mesh at six times", LANDED),
 +            ("actc_cell_histories",
-+             "Cell temperature histories with the takeoff pulse marked"),
++             "Cell temperature histories with the takeoff pulse marked",
++             LANDED),
 +            ("actc_pack_uniformity",
-+             "Pack spread and channel surface heat removal against time"),
-+            ("actc_per_cell_table", "Peak, rise and time to peak, per cell"),
++             "Pack spread and channel surface heat removal against time",
++             LANDED),
++            ("actc_per_cell_table", "Peak, rise and time to peak, per cell",
++             LANDED),
++            ("actc_step_independence",
++             "The same answer at two time steps", LANDED),
++        ),
++        "not_available": (
++            ("C6.3, the coolant outlet temperature",
++             "the cooling channels are not resolved as a fluid region in "
++             "this configuration, so there is no coolant stream to have an "
++             "outlet; the heat removed at the channel-facing surfaces is "
++             "given instead",
++             None),
++            ("C7, the transitional-flow sensitivity band",
++             "no run on disk supplies it: nothing in this campaign varied "
++             "the flow regime, so there is no band to draw and none is "
++             "constructed",
++             None),
 +        ),
 +    },
 +}
@@ -356,28 +592,352 @@ TO APPLY (a human decision, not this lane's)
 +    return dest, ""
 +
 +
-+def _load_bundle(spec: dict) -> tuple[dict | None, str]:
-+    path = spec["folder"] / spec["bundle"]
++def _read_json(path: Path) -> tuple[dict | None, str]:
 +    if not path.exists():
-+        return None, (f"The screen bundle for {spec['title']} is not on disk "
-+                      f"at {path}. Nothing is shown for it.")
++        return None, f"nothing on disk at {path}"
 +    try:
 +        return json.loads(path.read_text(encoding="utf-8")), ""
 +    except (OSError, ValueError) as exc:
-+        return None, (f"The screen bundle at {path} could not be read "
-+                      f"({type(exc).__name__}). Nothing is shown for it.")
++        return None, f"{path} could not be read ({type(exc).__name__})"
 +
 +
-+def _present(script, emit, roster, out: Path, key: str) -> dict | None:
-+    """Put one act's screens up. Returns the bundle, or None if it is absent."""
++def _load_bundle(spec: dict) -> tuple[dict | None, str, list[str]]:
++    """The act's bundle, plus every extra product merged over it.
++
++    Returns ``(bundle, gap, missing_extras)``. A named extra that is not on
++    disk lands in ``missing_extras`` and is said on screen; it is never
++    dropped quietly, because the whole point of naming it here is that
++    somebody expects to see it.
++    """
++    path = spec["folder"] / spec["bundle"]
++    bundle, gap = _read_json(path)
++    if bundle is None:
++        return None, (f"The screen bundle for {spec['title']} is not "
++                      f"readable: {gap}. Nothing is shown for it."), []
++    missing: list[str] = []
++    for name in spec.get("extra_bundles", ()):
++        extra, extra_gap = _read_json(spec["folder"] / name)
++        if extra is None:
++            missing.append(f"{name}: {extra_gap}")
++            continue
++        bundle.update(extra)
++    return bundle, "", missing
++
++
++# --------------------------------------------------------------------------
++# The normaliser: two bundle dialects in, one internal shape out.
++# --------------------------------------------------------------------------
++#: Keys a control block may use for the thing that was planted, and for
++#: whether the reader saw it. Both dialects are listed; neither is preferred.
++_PLANTED_KEYS = ("planted_K", "planted_W", "planted")
++_SEEN_KEYS = ("seen", "passed", "ok")
++#: Keys that describe WHERE a control was planted, in the order they read
++#: best on screen. Only those a given block actually carries are used.
++_WHERE_KEYS = ("scope", "region", "planted_cell_index", "cell_index",
++               "row_index", "n_cells_planted", "n_perturbed", "planted_time_s",
++               "radius_m", "detection_floor_K", "worst_departure_K")
++
++
++def _first(body: dict, keys) -> tuple[str, object] | tuple[None, None]:
++    for k in keys:
++        if k in body:
++            return k, body[k]
++    return None, None
++
++
++def _where(body: dict) -> str:
++    """A plain phrase for where a control was planted, from whatever the
++    block records. Nothing is invented: only keys present are used."""
++    parts: list[str] = []
++    for k in _WHERE_KEYS:
++        if k not in body:
++            continue
++        v = body[k]
++        if k == "scope":
++            parts.append(str(v))
++        elif k == "region":
++            parts.append(f"region {v}")
++        elif k in ("planted_cell_index", "cell_index"):
++            parts.append(f"cell index {v}")
++        elif k == "row_index":
++            parts.append(f"row {v}")
++        elif k in ("n_cells_planted", "n_perturbed"):
++            parts.append(f"{v} value{'' if v == 1 else 's'} perturbed")
++        elif k == "planted_time_s":
++            parts.append(f"t = {float(v):.0f} s")
++        elif k == "radius_m":
++            parts.append(f"radius {float(v) * 1e3:.3f} mm")
++        elif k == "detection_floor_K":
++            parts.append(f"detection floor {float(v):.0e} K")
++        elif k == "worst_departure_K":
++            parts.append(f"worst departure {float(v):.1e} K")
++    return "; ".join(parts) if parts else "not recorded"
++
++
++def _instrument_rows(bundle: dict) -> list[list[str]]:
++    """Every planted-zero control in the bundle, in either spelling.
++
++    Act C names them ``instrument_check_<reader>`` at the top level; Act A
++    collects them in ``planted_zero_controls``. Both are read here, and this
++    function returning an EMPTY list is what triggers the act's refusal --
++    it must never be treated as "there were none to show".
++    """
++    found: list[tuple[str, dict]] = []
++    for name, body in bundle.items():
++        if name.startswith("instrument_check_") and isinstance(body, dict):
++            found.append((name[len("instrument_check_"):], body))
++    controls = bundle.get("planted_zero_controls")
++    if isinstance(controls, dict):
++        for name, body in controls.items():
++            if isinstance(body, dict):
++                found.append((name, body))
++    rows = []
++    for name, body in sorted(found):
++        _pk, planted = _first(body, _PLANTED_KEYS)
++        _sk, seen = _first(body, _SEEN_KEYS)
++        rows.append([
++            name.replace("_", " "),
++            "not recorded" if planted is None else f"{planted:g} K",
++            _where(body),
++            "not recorded" if seen is None
++            else ("seen" if seen else "NOT SEEN"),
++        ])
++    return rows
++
++
++def _anchor_rows(bundle: dict) -> tuple[list[str], list[list[str]]] | None:
++    """Act A's independent anchor checks, if the bundle carries them.
++
++    These are NOT planted zeros and are not presented as though they were: an
++    anchor check compares a value re-derived by hand against the value the
++    screen quotes. It gets its own table with its own column names.
++    """
++    anchors = bundle.get("anchor_checks")
++    if not isinstance(anchors, list) or not anchors:
++        return None
++    headers = ["Operating point", "Expected, C", "Measured, C",
++               "Difference, K", "Agrees"]
++    rows = []
++    for a in anchors:
++        if not isinstance(a, dict):
++            continue
++        rows.append([
++            f"{a.get('power_W', '?')} W, {a.get('airspeed_ms', '?')} m/s",
++            f"{a.get('expected_degC', float('nan')):.6f}",
++            f"{a.get('measured_degC', float('nan')):.6f}",
++            f"{a.get('abs_diff_degC', float('nan')):.3e}",
++            "yes" if a.get("matches") else "NO",
++        ])
++    return (headers, rows) if rows else None
++
++
++def _normalise_act_a(b: dict) -> dict:
++    """Act A's bundle, translated into the internal shape."""
++    rows = b.get("map_rows") or []
++    fields = [str(r.get("source_field", "")) for r in rows
++              if r.get("source_field")]
++    common = os.path.commonpath(fields) if fields else ""
++    unc = b.get("numerical_uncertainty") or {}
++    env = b.get("envelope") or {}
++    worst = env.get("worst_point") or {}
++    colour = b.get("map_colour_range_degC") or {}
++    mon = b.get("monitors") or {}
++    settled = mon.get("settled_vs_cell_only") or {}
++    radial = b.get("radial") or {}
++    stats = radial.get("region_stats") or {}
++
++    out = dict(b)
++    out["source_case"] = (f"{common}, {len(rows)} operating points"
++                          if common else "not recorded in this bundle")
++    out["reader"] = ("not recorded in this bundle -- the readers and the "
++                     "build are named in the directory README beside it")
++    out["mesh"] = {
++        "n_mesh_cells": "not recorded in this bundle",
++        "geometry_guard": "not recorded in this bundle",
++    }
++    extra = []
++    if stats:
++        extra.append(["Radial cut resolution",
++                      ", ".join(f"{v.get('n_cells', '?')} {k}"
++                                for k, v in sorted(stats.items()))
++                      + " cells on the cut"])
++    if mon.get("source_file_pattern"):
++        extra.append(["Monitor files", str(mon["source_file_pattern"])])
++    if unc.get("column_entry"):
++        extra.append(["Numerical uncertainty", str(unc["column_entry"])])
++    out["provenance_extra"] = extra
++
++    # ---- the act's own result table, with the act's own column names ----
++    if rows:
++        out["result_table"] = {
++            "title": "The sixteen solved operating points",
++            "headers": ("Power, W", "Airspeed, m/s", "Peak temperature, C",
++                        "Rise above inlet, K", "Margin to the 200 C limit, K",
++                        "Uncertainty"),
++            "rows": [[f"{r.get('power_W', '?')}",
++                      f"{r.get('airspeed_ms', '?')}",
++                      f"{r.get('peak_T_degC', float('nan')):.6f}",
++                      f"{r.get('rise_above_inlet_K', float('nan')):.6f}",
++                      f"{r.get('margin_to_limit_K', float('nan')):.6f}",
++                      str(r.get("numerical_uncertainty", "not recorded"))]
++                     for r in rows],
++        }
++
++    # ---- the quantities, every one of them quoted from the bundle ----
++    q: list[dict] = []
++    if colour.get("maximum") is not None:
++        q.append({
++            "quantity": "Hottest point of the sixteen cases",
++            "value": f"{colour['maximum']:.6f} C",
++            "envelope": (f"colour scale {colour.get('minimum', float('nan')):.6f}"
++                         f" to {colour['maximum']:.6f} C, nothing clipped at "
++                         f"either end")})
++    if rows:
++        coolest = min(rows, key=lambda r: r.get("peak_T_degC", float("inf")))
++        q.append({
++            "quantity": "Coolest of the sixteen operating points",
++            "value": f"{coolest.get('peak_T_degC', float('nan')):.6f} C",
++            "envelope": (f"at {coolest.get('power_W', '?')} W and "
++                         f"{coolest.get('airspeed_ms', '?')} m/s")})
++    if env.get("worst_margin_K") is not None:
++        q.append({
++            "quantity": (f"Smallest margin to the "
++                         f"{env.get('limit_degC', float('nan')):.0f} C limit"),
++            "value": f"{env['worst_margin_K']:.6f} K",
++            "envelope": (f"at {worst.get('power_W', '?')} W and "
++                         f"{worst.get('airspeed_ms', '?')} m/s, the hottest "
++                         f"point solved")})
++    if settled.get("offset_K") is not None:
++        q.append({
++            "quantity": "The run's own monitor against its internal cells",
++            "value": f"{settled['offset_K']:.6f} K",
++            "envelope": (f"the monitor reads "
++                         f"{settled.get('monitor_degC', float('nan')):.6f} C "
++                         f"where the internal cells read "
++                         f"{settled.get('internal_cells_degC', float('nan')):.6f} C")})
++    if unc.get("column_entry"):
++        q.append({"quantity": "Numerical uncertainty",
++                  "value": str(unc["column_entry"]),
++                  "envelope": str(unc.get("reason", "not recorded"))})
++    out["quantity_rows"] = q
++
++    # ---- hoist what the run cannot say to the top level, in the one
++    # spelling ``main`` scans for ----
++    if unc.get("available") is False and unc.get("reason"):
++        out["numerical_uncertainty_statement"] = (
++            "NOT AVAILABLE -- a discretisation error bar for this act: "
++            + str(unc["reason"]))
++    return out
++
++
++def _normalise_act_c(b: dict) -> dict:
++    """Act C's bundle. It is already close to the internal shape; this fills
++    in the two keys the shared presentation path expects by name."""
++    out = dict(b)
++    table = b.get("per_cell_table")
++    if isinstance(table, list) and table:
++        out["result_table"] = {
++            "title": "Per cell peak and rise",
++            "headers": ("Cell", "Peak, K", "Rise, K", "Time to peak, s",
++                        "Uncertainty"),
++            "rows": [[str(r.get("cell", "")),
++                      f"{r.get('peak_T_K', float('nan')):.6f}",
++                      f"{r.get('peak_rise_K', float('nan')):.6f}",
++                      f"{r.get('time_to_peak_s', float('nan')):.0f}",
++                      str(r.get("uncertainty", "not recorded"))]
++                     for r in table],
++        }
++    extra = []
++    mesh = b.get("mesh") or {}
++    if mesh.get("mesh_cells_per_module_cell") is not None:
++        extra.append(["Mesh cells per module cell",
++                      str(mesh["mesh_cells_per_module_cell"])])
++    if b.get("coolant_reference_temperature_K") is not None:
++        extra.append(["Coolant reference temperature",
++                      f"{b['coolant_reference_temperature_K']:.6f} K"])
++    out["provenance_extra"] = extra
++
++    q: list[dict] = []
++    scale = b.get("shared_colour_scale_K")
++    if isinstance(scale, (list, tuple)) and len(scale) == 2:
++        q.append({
++            "quantity": "Hottest temperature anywhere",
++            "value": f"{scale[1]:.6f} K",
++            "envelope": (f"colour scale {scale[0]:.6f} to {scale[1]:.6f} K, "
++                         f"nothing clipped at either end")})
++    if b.get("max_spread_K") is not None:
++        q.append({
++            "quantity": "Largest spread across cells",
++            "value": f"{b['max_spread_K']:.6f} K",
++            "envelope": f"at t = {b.get('max_spread_time_s', 0):.0f} s"})
++    if b.get("surface_heat_removal_final_W") is not None:
++        q.append({
++            "quantity": "Heat removed at the channel facing surfaces",
++            "value": f"{b['surface_heat_removal_final_W']:.4f} W",
++            "envelope": "at the last written time"})
++    if b.get("energy_closure_percent") is not None:
++        q.append({
++            "quantity": "Energy closure",
++            "value": f"{b['energy_closure_percent']:.4f}%",
++            "envelope": "input against accumulation plus removal"})
++    if b.get("unaccounted_percent_fine") is not None:
++        q.append({
++            "quantity": "Change in the peak rise when the time step is halved",
++            "value": f"under {b.get('largest_abs_diff_K', 0.0):.1e} K",
++            "envelope": (f"largest disagreement at any of the "
++                         f"{b.get('n_write_times', '?')} write times, at "
++                         f"t = {b.get('largest_abs_diff_time_s', 0):.0f} s, "
++                         f"cell {b.get('largest_abs_diff_cell', '?')}")})
++    out["quantity_rows"] = q
++    return out
++
++
++def _normalise(bundle: dict, key: str) -> dict:
++    """One internal shape, whichever dialect arrived.
++
++    The dialect is detected from the bundle's own content, not from the act
++    letter, so a bundle that changes hands does not change meaning.
++    """
++    if "map_rows" in bundle:
++        return _normalise_act_a(bundle)
++    return _normalise_act_c(bundle)
++
++
++# --------------------------------------------------------------------------
++# The screens.
++# --------------------------------------------------------------------------
++#: Returned by ``_present`` when the act refuses. 1 = nothing on disk to show;
++#: 2 = there is something to show and no evidence that it can be read, which
++#: is the refusal the comparators in this family use.
++_RC_NO_BUNDLE = 1
++_RC_NO_CONTROL = 2
++
++
++def _present(script, emit, roster, out: Path,
++             key: str) -> tuple[dict | None, int]:
++    """Put one act's screens up.
++
++    Returns ``(bundle, rc)``. A ``None`` bundle means nothing was drawn and
++    nothing was quoted, and ``rc`` says which of the two refusals it was.
++    """
 +    spec = SCREEN_SETS[key]
-+    bundle, gap = _load_bundle(spec)
++    bundle, gap, missing_extras = _load_bundle(spec)
 +    if bundle is None:
 +        script.engineer(
 +            f"• {gap} "
 +            f"• Nothing is drawn in its place and no number for that body "
 +            f"appears anywhere below.")
-+        return None
++        return None, _RC_NO_BUNDLE
++    for item in missing_extras:
++        script.engineer(
++            f"• A screen product this act expects is not on disk: {item}. "
++            f"• Nothing is shown in its place and nothing is inferred from "
++            f"its absence.")
++    # The keys the bundle ARRIVED with, kept before the normaliser adds any
++    # of its own. The refusal below names what was actually on disk, and a
++    # normaliser artefact in that list would misdescribe the file.
++    offered_keys = sorted(bundle)
++    bundle = _normalise(bundle, key)
 +
 +    # ---- provenance, before any picture ----
 +    mesh = bundle.get("mesh") or {}
@@ -388,95 +948,108 @@ TO APPLY (a human decision, not this lane's)
 +         if isinstance(mesh.get("n_mesh_cells"), int)
 +         else str(mesh.get("n_mesh_cells", "not recorded"))],
 +        ["Geometry guard", str(mesh.get("geometry_guard", "not recorded"))],
-+    ]
++    ] + [list(r) for r in bundle.get("provenance_extra", [])]
 +    _emit_table(emit, script, role=_CE_ROLE,
 +                title=f"Where these screens come from: {spec['title']}",
 +                headers=("Item", "Value"), rows=prov_rows,
 +                table_id=f"provenance-thermal-{key}")
 +
 +    # ---- the planted-zero instrument checks, on screen before the result ----
-+    checks = [(name, body) for name, body in bundle.items()
-+              if name.startswith("instrument_check_")
-+              and isinstance(body, dict)]
-+    if checks:
-+        rows = []
-+        for name, body in checks:
-+            planted = body.get("planted_K")
-+            rows.append([
-+                name.replace("instrument_check_", "").replace("_", " "),
-+                f"{planted} K" if planted is not None else "not recorded",
-+                str(body.get("scope", body.get("planted_cell_index", ""))),
-+                "seen" if body.get("seen") else "NOT SEEN",
-+            ])
++    #
++    # THE REFUSAL. A bundle whose controls this act cannot find is a bundle
++    # whose numbers this act cannot vouch for, and the failure mode being
++    # guarded is silence: an earlier version simply drew nothing here and went
++    # on to the temperatures. Nothing below this block runs unless a control
++    # was found and named.
++    rows = _instrument_rows(bundle)
++    if not rows:
++        offered = ", ".join(offered_keys[:12]) or "nothing at all"
++        script.engineer(
++            "• REFUSED, and no temperature is shown. "
++            "• This act puts the instrument checks up before any number, "
++            "because a reader never shown able to see a planted change "
++            "cannot be trusted with the numbers it reports. "
++            "• This body's screen bundle carries no control block that this "
++            "act can recognise: it was looked for under 'instrument_check_' "
++            "and under 'planted_zero_controls', and neither is present. "
++            f"• What the bundle does carry: {offered}. "
++            "• No figure is drawn and no quantity is quoted for this body "
++            "until a control block is recorded beside its numbers.")
++        return None, _RC_NO_CONTROL
++    _emit_table(emit, script, role=_CE_ROLE,
++                title="Instrument checks: a known perturbation, read back",
++                headers=("Reader", "Planted", "Where", "Result"),
++                rows=rows, table_id=f"instrument-thermal-{key}")
++    if any(r[3] != "seen" for r in rows):
++        script.engineer(
++            "• One of the readers behind these screens could not see its "
++            "own planted perturbation. "
++            "• Treat every number below as unverified until that is "
++            "resolved.")
++
++    anchors = _anchor_rows(bundle)
++    if anchors:
++        headers, arows = anchors
 +        _emit_table(emit, script, role=_CE_ROLE,
-+                    title="Instrument checks: a known perturbation, read back",
-+                    headers=("Reader", "Planted", "Where", "Result"),
-+                    rows=rows, table_id=f"instrument-thermal-{key}")
-+        if not all(body.get("seen") for _n, body in checks):
-+            script.engineer(
-+                "• One of the readers behind these screens could not see its "
-+                "own planted perturbation. "
-+                "• Treat every number below as unverified until that is "
-+                "resolved.")
++                    title="Anchor checks: the same value, worked out twice",
++                    headers=headers, rows=arows,
++                    table_id=f"anchor-thermal-{key}")
 +
 +    # ---- figures ----
 +    roster.set(CHIEF_ENGINEER, f"putting up the screens for {spec['title']}",
 +               "working")
++    placed: set[str] = set()
 +    missing: list[str] = []
-+    for stem, title in spec["figures"]:
++    for stem, title, status in spec["figures"]:
 +        path, reason = _png_for(stem, spec["folder"], out)
 +        if path is None:
-+            missing.append(f"{title}: {reason}")
++            # A PENDING figure that is not there is not a fault: it was
++            # declared as one that might not have landed, and the beat it
++            # serves is named in the not-available table below instead.
++            if status == LANDED:
++                missing.append(f"{title}: {reason}")
 +            continue
++        placed.add(stem)
 +        announce_plot(emit, BEAT, path, title)
 +    if missing:
 +        script.engineer(
-+            "• Not every screen for this body could be put up. "
++            "• A screen this act expects to be able to put up was not there. "
 +            + " ".join(f"• {item}" for item in missing))
 +
-+    # ---- the per cell table, from the bundle rather than from the picture ----
-+    table = bundle.get("per_cell_table")
-+    if isinstance(table, list) and table:
-+        rows = [[str(row.get("cell", "")),
-+                 f"{row.get('peak_T_K', float('nan')):.6f}",
-+                 f"{row.get('peak_rise_K', float('nan')):.6f}",
-+                 f"{row.get('time_to_peak_s', float('nan')):.0f}",
-+                 str(row.get("uncertainty", "not recorded"))]
-+                for row in table]
++    # ---- the result table, from the bundle rather than from the picture ----
++    table = bundle.get("result_table")
++    if isinstance(table, dict) and table.get("rows"):
 +        _emit_table(emit, script, role=_CE_ROLE,
-+                    title=f"Per cell peak and rise: {spec['title']}",
-+                    headers=("Cell", "Peak, K", "Rise, K", "Time to peak, s",
-+                             "Uncertainty"),
-+                    rows=rows, table_id=f"percell-thermal-{key}")
-+    return bundle
++                    title=f"{table['title']}: {spec['title']}",
++                    headers=table["headers"], rows=table["rows"],
++                    table_id=f"result-thermal-{key}")
++
++    # ---- what was asked for in this act and is not here ----
++    #
++    # Named, every time, rather than approximated or quietly left out. A row
++    # whose figure did go up is dropped: a beat that was shown must not also
++    # be declared missing.
++    na_rows = [[item, why] for item, why, satisfied_by
++               in spec.get("not_available", ())
++               if satisfied_by is None or satisfied_by not in placed]
++    if na_rows:
++        _emit_table(emit, script, role=_CE_ROLE,
++                    title=(f"Asked for in this act and NOT AVAILABLE from "
++                           f"this run: {spec['title']}"),
++                    headers=("What was asked for", "Why it is not shown"),
++                    rows=na_rows, table_id=f"notavailable-thermal-{key}")
++        bundle["_not_available_lines"] = [f"{item}: {why}"
++                                          for item, why in na_rows]
++    return bundle, 0
 +
 +
 +def _quantities(bundle: dict) -> list[dict]:
-+    """Result rows for the report, and only quantities the bundle defines."""
-+    rows: list[dict] = []
-+    scale = bundle.get("shared_colour_scale_K")
-+    if isinstance(scale, (list, tuple)) and len(scale) == 2:
-+        rows.append({
-+            "quantity": "Hottest temperature anywhere",
-+            "value": f"{scale[1]:.6f} K",
-+            "envelope": (f"colour scale {scale[0]:.6f} to {scale[1]:.6f} K, "
-+                         f"nothing clipped at either end")})
-+    if bundle.get("max_spread_K") is not None:
-+        rows.append({
-+            "quantity": "Largest spread across cells",
-+            "value": f"{bundle['max_spread_K']:.6f} K",
-+            "envelope": f"at t = {bundle.get('max_spread_time_s', 0):.0f} s"})
-+    if bundle.get("surface_heat_removal_final_W") is not None:
-+        rows.append({
-+            "quantity": "Heat removed at the channel facing surfaces",
-+            "value": f"{bundle['surface_heat_removal_final_W']:.4f} W",
-+            "envelope": "at the last written time"})
-+    if bundle.get("energy_closure_percent") is not None:
-+        rows.append({
-+            "quantity": "Energy closure",
-+            "value": f"{bundle['energy_closure_percent']:.4f}%",
-+            "envelope": "input against accumulation plus removal"})
-+    return rows
++    """Result rows for the report, and only quantities the bundle defines.
++
++    The normaliser has already reduced both dialects to one list, so this is
++    a read rather than a computation.
++    """
++    return list(bundle.get("quantity_rows") or [])
 +
 +
 +def main(request: str | None = None, params: dict | None = None,
@@ -534,19 +1107,27 @@ TO APPLY (a human decision, not this lane's)
 +    script.phase(EVIDENCE)
 +    roster.set(CHIEF_RESEARCHER, "checking the provenance of the screens",
 +               "working")
-+    bundle = _present(script, emit, roster, out, key)
++    bundle, rc = _present(script, emit, roster, out, key)
 +    roster.idle(CHIEF_RESEARCHER)
 +    if bundle is None:
-+        script.engineer(
-+            "• There is nothing on disk for this body, so there is nothing "
-+            "to show. "
-+            "• No figure is drawn and no number is quoted.")
++        if rc == _RC_NO_BUNDLE:
++            script.engineer(
++                "• There is nothing on disk for this body, so there is "
++                "nothing to show. "
++                "• No figure is drawn and no number is quoted.")
++            note = f"No landed screen bundle for {spec['title']}."
++        else:
++            script.engineer(
++                "• This act refuses rather than showing numbers it cannot "
++                "vouch for. "
++                "• No figure is drawn and no number is quoted.")
++            note = (f"Refused: the screen bundle for {spec['title']} records "
++                    f"no instrument check, so its numbers are not evidence.")
 +        script.save(out / "transcript.txt")
 +        roster.all_idle()
 +        if emit:
-+            emit("mission.note", {
-+                "note": f"No landed screen bundle for {spec['title']}."})
-+        return 1
++            emit("mission.note", {"note": note})
++        return rc
 +
 +    # ---------------- What the run cannot say ----------------
 +    undefined = [f"{name.replace('_', ' ')}: {value}"
@@ -602,15 +1183,16 @@ TO APPLY (a human decision, not this lane's)
 +                f"tables on screen unchanged.",
 +                "Placed the instrument checks in front of the result, so a "
 +                "reader that could not see its own planted perturbation "
-+                "would be visible before any number was quoted.",
++                "would be visible before any number was quoted, and refused "
++                "outright rather than showing numbers with no control "
++                "behind them.",
 +            ],
 +            results=quantities,
 +            uncertainty=[
-+                "One mesh and one time step in this configuration, so no "
-+                "discretisation error estimate is available and the "
-+                "uncertainty column says so rather than carrying a number "
-+                "nobody measured.",
-+            ] + undefined,
++                "One mesh in this configuration, so no discretisation error "
++                "estimate is available and the uncertainty column says so "
++                "rather than carrying a number nobody measured.",
++            ] + undefined + list(bundle.get("_not_available_lines", [])),
 +            next_investigations=[f"{e['title']}: {e['scope']}" for e in agenda],
 +            compute={"spent_core_minutes": 0.0,
 +                     "note": "no solver ran on this request"},
