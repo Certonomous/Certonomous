@@ -61,9 +61,12 @@ to Sanaa. Sends are reserved to Sanaa.
 | **GPU quota GRANTED, no GPU attached** | AWS raised "All G and VT instances" in us-east-2 to 8 (vCPUs; one g6.2xlarge/g5.2xlarge or two xlarge). No GPU on this box. `BLOCKED-GPU` retired as a standing verdict. **GPU spend sits OUTSIDE the 2026-08-21 CPU blanket**: each GPU run needs a console-priced GPU-hour cost basis and Sanaa's per-item sign-off. Case-number link (178725840000468) is an inference, unconfirmed | AWS message pasted by Sanaa 2026-08-22, recorded verbatim in `docs/GPU_CAPABILITY_STATE.md`; rule 12 amended at e0cf8f0c | **IN FORCE.** ~~gpu1 running~~ **2026-08-24: gpu1 STOPPED by Sanaa** (her words: *"also i stopped that instance"*); **driver self-shutdown APPROVED as a standing GPU mechanism** (her words: *"GPU shutdown suggestion: yes approved"*) — every GPU driver stops its own instance when its run ends |
 | **ansys-verification team created** | A sixth standing team on Sanaa's directive: Fable supervisor, 2 Opus lanes (5 and 4.8), 2 Haiku lanes (pull code / watch logs only); reads the Ansys Fluid Dynamics Verification Manual first; runs its cases as pre-registered lab verdicts in the lab's own solvers; keeps `verification/credentials/ansys/ANSYS_VALIDATION_REGISTER.md` (only PASS rows are credentials); updates LESSONS / NUMERICS / charters with what it finds; the verification team audits it. Lane cap 4 is her explicit exception to §8's 3 | Sanaa 2026-08-24, verbatim in `docs/charters/ANSYS_VERIFICATION_CHARTER.md` §1; agent definitions in `.claude/agents/ansys-*.md` take effect at the next session start | **IN FORCE**; first-fill section `## ansys-verification` below |
 
-**Lab-wide live compute:** 12 single-core solvers, all `buoyantBoussinesqSimpleFoam`,
-all owned by heat-transfer. At $0.0513/core-h that is **~$0.62/h** (c7a.4xlarge at $0.0513/core-h, owner-stated) while all 12
-run. No other team has anything on the box.
+**Lab-wide live compute:** STALE LINE STRUCK 2026-09-01 (chief): the 12-solver
+`buoyantBoussinesqSimpleFoam` reading dated from 2026-08-22 and was quoted long
+after its subject changed, propagating a wrong solver name into demo-act briefs.
+Live compute is re-derived from `/proc` at every reading, never from this line
+(at the strike: 3x `chtMultiRegionSimpleFoam` — the T23G2 motor ladder — plus
+dafoam/cfd items; see team sections).
 
 **On Sanaa's desk, aggregated:** the T10a view-factor defect as upstream candidate
 #4 (filing is hers); **K2a rack row module, awaiting her approval**; four DAFoam upstream defect classes, all `NOT FILED`; the
