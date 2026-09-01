@@ -2028,3 +2028,113 @@ comparator's floored-criterion diff and the launcher's guard-virgin diff — wer
 as diffs **and exercised against their own artifacts** by the supervisor, not
 delegated and not relayed, after this team certified a permanently blind guard twice
 on a read alone (`9c223449`). Zero solver core-minutes.*
+
+---
+
+## ADDENDUM 6 — 2026-09-01 — THE `run_f28.sh` md5 PINNED AT LINE 1929 IS SUPERSEDED: `--bind-to none`, ON THE SUPERVISOR'S INSTRUCTION, CHANGES WALL TIME AND NO NUMBER
+
+**Version 1.6. Lines whose number changed above this section: 0.** Pure append; nothing
+above is edited, struck or renumbered. **Line 1929 keeps its original text and its
+original hash** — this addendum *supersedes* that pin, it does not rewrite it, because
+other records cite this file by line. This addendum **alters no gate, no threshold, no
+cap and no label.** It records a change to the *launcher* whose md5 Addendum 5 §1
+pinned, and it is filed because a pin that has gone stale with no written reason is
+indistinguishable, to a later reader, from a pin that was never honoured.
+
+### 1. THE TWO HASHES, EACH RE-DERIVED FROM GIT RATHER THAN QUOTED
+
+| `cases/F28_DUCTED_ACTUATOR_DISK/run_f28.sh` | md5 |
+|---|---|
+| Pinned at line 1929 (Addendum 5 §1, "Installed" column) | `e02bfa8340147261d743973effe2e34d` |
+| In force from commit `c0669806` onward | `2c583293f594e22087a210c4becb66f5` |
+
+Verified rather than assumed, by hashing blobs out of git:
+
+- The blob at **`c0669806^`** hashes **`e02bfa8340147261d743973effe2e34d`** — byte-exact
+  with the pin. So the pin **was honoured up to that commit**, and the file that changed
+  is the file that was pinned. A stale pin and a broken pin are different findings; this
+  is the first.
+- The blob at **`c0669806`**, the blob at **HEAD**, and the working-tree file all hash
+  **`2c583293f594e22087a210c4becb66f5`** — three readings, one value, so no fourth
+  unrecorded state of this launcher exists between the pin and now.
+- **The companion pin on the same table row is unchanged and still in force:**
+  `cases/F28_DUCTED_ACTUATOR_DISK/analyse_f28.py` hashes
+  `a2b21ba79e0060c283182fc2bb3f6352` at HEAD and on disk, exactly as line 1928 pins it.
+  **This addendum supersedes one row of that table, not the table.**
+
+### 2. WHY IT CHANGED, AND ON WHOSE INSTRUCTION
+
+**On `cfd-supervisor`'s instruction**, following a **lab-wide finding of 2026-09-01
+measured by `heat-transfer` with `taskset` and `mpstat`**: concurrent *independent*
+`mpirun` invocations **each number their ranks from core 0**. Six such mpiruns therefore
+pinned all twelve ranks onto **CPUs 0–1 at six processes per core while fourteen cores
+sat idle**. `--bind-to none` removes that binding and lets the scheduler place the ranks.
+
+*Attribution of the measurement, stated so the record is not read wider than it is:* the
+`taskset`/`mpstat` figures above are `heat-transfer`'s measurement, relayed through the
+supervisor. **This lane did not re-measure them**; what this lane verified independently,
+on disk, is the hash arithmetic of §1 and the call-site wiring of §3.
+
+**IT CHANGES NO NUMBER.** It changes **wall time**, and therefore the core-minutes a run
+is costed at — in the **favourable** direction against the registered cap. The cap is
+**not** moved by that and is not moved by this addendum: §2.7 and §10's **400 core-min**
+stand exactly as frozen. Left unfixed, a run whose ranks piled onto two cores would have
+inflated its measured core-minutes for a reason that is **infrastructure, not physics**,
+and `COMPUTE_BUDGET_CHARTER` §6 requires such waste to be named separately rather than
+absorbed into rule 12's estimate-versus-actual ratio. The flag makes the ratio measure
+the prediction instead of the placement.
+
+### 3. HOW IT IS WIRED, BECAUSE A FLAG THAT CAN BE SILENTLY DROPPED IS NOT A FIX
+
+`CLAUDE.md` rule 14 (L-221/L-222): a lesson is not applied until **every call site
+asserts it**. The option is therefore carried in a variable and the variable is
+**checked at the call site, immediately before the launch**, so an edit that drops it
+**aborts the run** instead of quietly halving the box. In the pinned launcher that is
+`MPI_OPTS="--bind-to none"` with its `case` assertion at `run_f28.sh:454`–`:460`,
+guarding the single `mpirun` at `:465`.
+
+`c0669806` carried the same insertion into **three** tracked F28 launchers — `run_f28.sh`,
+`run_f28_bcprobe.sh`, `run_f28_candidate.sh`, one `mpirun` call site each. A fourth F28
+launcher, `run_f28_feasibility.sh`, carries the flag and the same assertion at `:410`–
+`:415` but is **untracked in git** and so is not covered by any pin in this document.
+That is disclosed here as a measured fact, not repaired here: filing it is the
+supervisor's call, and this lane does not commit another lane's untracked file.
+
+### 4. NO EXISTING RESULT IS RE-GRADED, RE-RUN OR WITHDRAWN
+
+Every F28 number produced under this registration up to `c0669806` was produced by the
+**pinned** instrument `e02bfa8340147261d743973effe2e34d`. The change is **subsequent** to
+those runs and cannot reach backwards into them; a launcher that alters only rank
+placement cannot alter a force integration in any case. **Nothing above is re-graded,
+nothing is re-run, nothing is withdrawn.**
+
+*The honest scope of that clause, so it is not read as protecting more than it does:*
+Addendum 5 §4 measured **zero graded solves** under this registration — 36 run
+directories under `verification/runs/F28_runs/`, none carrying a grading marker. The set
+of *graded* results this clause protects was, as last measured, **empty**. It is stated
+in full regardless, because this document does cite measured numbers from *diagnostic*
+runs made with the pinned launcher — Addendum 4 §3's duct force of **−0.333724642 N
+sector** and its patch area of **8.282942e-04 m²** from `DIAG_mesh_L1_A1` among them —
+and those citations stand unchanged.
+
+### 5. WHAT FUTURE RUNS USE
+
+Every F28 run launched from `c0669806` onward uses
+**`2c583293f594e22087a210c4becb66f5`**. A later reader reconciling a run directory
+against a pin should read line 1929 for runs before `c0669806` and this section for runs
+after it.
+
+### 6. ATTRIBUTION, INCLUDING OF THE REFERRAL
+
+**The cause of the change is the supervisor's instruction**, on the lab-wide finding of
+§2 — not a lane's initiative. The lane that carried it out **verified the defect
+independently before acting**, and, on finding that the insertion broke a pin inside a
+frozen document, **referred the pin breakage upward rather than appending to the frozen
+document itself.** That referral is why this addendum exists and why it is signed below
+rather than absorbed into the commit that changed the launcher.
+
+*Drafted by a `cfd` lane from artifacts named above; the hash arithmetic of §1, the
+untracked-launcher finding of §3 and the empty-graded-set measurement of §4 were
+re-derived on disk by that lane rather than taken from a report. Recorded on
+`cfd-supervisor`'s instruction. **Zero core-minutes: no solver ran, no mesh was built
+and no comparator was executed for this addendum.***
