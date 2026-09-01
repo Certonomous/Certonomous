@@ -68,8 +68,23 @@ sys.path.insert(0, str(REPO / "scripts"))
 #: Importing an act module is what registers it; the registry is populated by
 #: import side effect and nothing walks the package for us. Listed explicitly
 #: so a missing act is a visible edit here rather than a silent empty run.
+#: MOTOR-THERMAL WAS MISSING FROM THIS TUPLE AND SO HAS NEVER BEEN GATED.
+#: It is one of the four acts Sanaa is shooting, it registers exactly like the
+#: others, and this gate -- whose entire purpose is to ask whether every act
+#: can start BEFORE the curtain goes up -- had never once asked it. The comment
+#: above describes precisely the failure that then occurred: a missing act was
+#: not a visible edit here, it was a silent omission, and the gate reported
+#: "2 of 3 registered acts can start" while a fourth act nobody had listed
+#: could not complete a drive at all.
+#:
+#: ADDING IT MAKES THE GATE REPORT A REAL FAILURE, which is the point. Measured
+#: on the day it was added: driving ``motor-thermal`` refuses at the SOLVING
+#: stage after 29 events -- ``solve_replay().cases`` is empty and the act
+#: declares no sequencer of its own, the same defect this gate's own docstring
+#: records against shock-reflection. That failure is not created by listing the
+#: act; it is only made visible by it.
 ACT_MODULES = ("workflows.jet_flap_act", "workflows.adjoint_act",
-               "workflows.dmr_act")
+               "workflows.dmr_act", "workflows.motor_thermal_act")
 
 
 def _load_acts() -> dict:
