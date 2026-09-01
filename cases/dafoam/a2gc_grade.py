@@ -326,14 +326,35 @@ def grade(run_root: Path):
             "cd_history_n": len(hist),
             "rc": int((d / "RC").read_text().strip()) if (d / "RC").exists() else None,
         })
+        # Resource failure vs numerical failure -- classified from the stage's
+        # own cost.txt and container log, not inferred from rc alone.
+        cost_txt = (d / "cost.txt").read_text(errors="replace") if (d / "cost.txt").exists() else ""
+        cont = (d / "container.log").read_text(errors="replace") if (d / "container.log").exists() else ""
+        if "overrun=YES-RUN-STOPPED" in cost_txt:
+            fclass, freason = "BLOCKED", ("registered core-minute cap exceeded; "
+                                          "an overrun STOPS the run, it does not "
+                                          "get a new budget (rule 12)")
+        elif rec.get("rc") in (137, 143) or "Killed" in cont or "out of memory" in cont.lower():
+            fclass, freason = "BLOCKED", ("killed on memory or signal: the box could "
+                                          "not hold this level")
+        else:
+            fclass, freason = "NOT A RESULT", "ran and did not produce a standing value"
+        rec.update({
+            "failure_class": fclass,
+            "failure_reason": freason,
+        })
         levels[lv] = rec
 
         # GATE C -- completion and trim
         cells_ok = rec["cells"] == SPEC["levels"][lv]["cells_predicted"]
         trim_ok = abs(rec["CL"] - CL_TARGET) <= TRIM_TOL
         if rec["rc"] != 0 or rec["CD"] == 0.0:
-            rows.append(compose_row(f"{lv}/completion", "NOT A RESULT",
-                                    reason=f"rc={rec['rc']}, CD={rec['CD']}"))
+            # A RESOURCE failure is BLOCKED, not NOT A RESULT. The two are
+            # different findings: BLOCKED says the box could not run it,
+            # NOT A RESULT says it ran and the answer does not stand.
+            kind, why = rec["failure_class"], rec["failure_reason"]
+            rows.append(compose_row(f"{lv}/completion", kind,
+                                    reason=f"rc={rec['rc']}, CD={rec['CD']}; {why}"))
         elif not cells_ok:
             rows.append(compose_row(f"{lv}/completion", "NOT A RESULT",
                                     reason=f"cell count {rec['cells']} != predicted "
@@ -422,6 +443,30 @@ def grade(run_root: Path):
                        f"{g*100:.4f}% on CD = {f3:.10f}"
                        + ("; CAPPED: a level failed GATE I, so this order is "
                           "iterative noise and the row is NOT A RESULT" if noise else "")))
+
+    else:
+        # THREE LEVELS ARE THE MINIMUM FOR AN OBSERVED ORDER. If any member of
+        # the triple did not stand, the item reports the triple's status and
+        # reports NO p AND NO GCI. There is deliberately no two-level fallback
+        # anywhere in this file: a p from two levels is not an observed order,
+        # it is an assumption about the order written as a measurement.
+        missing = [lv for lv in TRIPLE if lv not in have]
+        blocked = [lv for lv in TRIPLE
+                   if levels.get(lv, {}).get("failure_class") == "BLOCKED"]
+        verdict = "BLOCKED" if blocked else (
+            "PENDING" if all(not levels.get(lv, {}).get("present") for lv in missing)
+            else "NOT A RESULT")
+        roache = {"classified": False, "levels_standing": have,
+                  "levels_missing": missing, "levels_blocked": blocked,
+                  "p": None, "GCI_fine_pct": None, "band_on_CD": None}
+        rows.append(compose_row(
+            "order/triple", verdict,
+            reason=f"only {len(have)} of 3 levels stand ({', '.join(have) or 'none'}); "
+                   f"missing {', '.join(missing)}"
+                   + (f"; BLOCKED: {', '.join(blocked)}" if blocked else "")
+                   + ". Three levels are the minimum for an observed order, so NO p "
+                     "is reported and NO GCI is quoted. The item does NOT fall back "
+                     "to two levels."))
 
     item_ceiling = "NOT A RESULT" if (roache.get("classified") and
                                       not roache.get("monotone")) else None

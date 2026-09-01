@@ -399,3 +399,83 @@ read less severe than a row whose ceiling did fire.
 `PASS` / `GATE REACHED` / `GATE FAIL` / `NOT A RESULT` / `BLOCKED` / `PENDING`
 only. **The band goes on every number** (§0 clause 5). A gate can only turn a
 `PASS` or `GATE FAIL` **into** a `NOT A RESULT`, never the reverse.
+
+---
+
+# AMENDMENT 1 — 2026-09-01T16:24:47Z — PRE-COMPUTE, before the solver starts
+
+**Version 1.0 -> 1.1. Lines whose number changed above this section: 0.**
+
+**The condition, and how it was checked.** This amendment is legal because **no
+compute has been spent on this item**. Checked at 16:24:47Z: the run root
+`/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence` **does not exist**,
+and a search for `*A2*GC*` and `*a2gc*` under `certonomous-runs/` returns **zero
+directories**. The absence was read against a positive control — the reader was
+shown able to see `/home/ubuntu/certonomous-runs/A2-mach-wing`, which does exist.
+Gates, thresholds, caps and the p-band of §1-§12 are **unchanged** by this
+amendment; it adds two labellings and supersedes one md5.
+
+## A1.1 The supervisor's condition 1, answered honestly rather than assumed
+
+The supervisor required written confirmation that a `BLOCKED` L3 cannot yield a p,
+and required me to say so if it was **not** already registered rather than treat
+his sentence as the registration. **Three of the four clauses were already
+registered and enforced; the fourth was not.**
+
+| clause | status at v1.0 |
+|---|---|
+| no p is reported when a level does not stand | **REGISTERED** — the order block is guarded on all three levels standing |
+| no GCI is quoted | **REGISTERED** — GCI is computed only inside the monotone branch |
+| no fall-back to two levels | **REGISTERED** — structurally; no two-level path exists anywhere in the grader |
+| a failed L3 labels the triple **`BLOCKED`** | **NOT REGISTERED** — v1.0 would have labelled it `NOT A RESULT` |
+
+**Registered now, at v1.1:**
+
+- A level that fails for a **RESOURCE** reason is **`BLOCKED`**, not
+  `NOT A RESULT`. The two are different findings: `BLOCKED` says the box could not
+  run it; `NOT A RESULT` says it ran and the answer does not stand. The
+  classification is read from the stage's own artifacts — `overrun=YES-RUN-STOPPED`
+  in its `cost.txt` (rule 12: an overrun stops the run, it does not get a new
+  budget), or rc 137/143 or a kill line in its container log — **not inferred from
+  rc alone**.
+- When fewer than three levels stand, the grader emits an explicit
+  **`order/triple`** row carrying `BLOCKED` if any member was blocked, `PENDING` if
+  members simply never ran, else `NOT A RESULT`, with **no p and no GCI**.
+
+**Demonstrated before this amendment was committed**, on synthetic run roots: L3
+OOM-killed -> item `BLOCKED`, p `None`, GCI `None`; L3 cap overrun -> item
+`BLOCKED`, p `None`, GCI `None`; L3 never ran -> item `PENDING`, p `None`, GCI
+`None`; all three levels standing -> item `PASS`, p recovered as 2.000.
+
+## A1.2 The supervisor's condition 2 — the p-band framing, registered in advance
+
+**The band stays at p in [1.5, 2.5].** It is not widened. Choosing `[0.5, 1.5]`
+after reading the schemes would be selecting the band that makes this case pass,
+which is the exact thing a pre-registration exists to prevent.
+
+**Registered in advance, so it is not argued afterwards:** if p lands in 1.0-1.4
+as §5.1 predicts, **that result is a finding about the BAND'S KEYING, not about
+the wing.** Sanaa's §0 keys the band to *"the scheme's formal order"*; `[1.5, 2.5]`
+is her parenthetical example **for a second-order scheme**. This scheme set is
+**mixed** — `bounded Gauss upwind` on `nuTilda` and `h` is first order — so a p
+near 1.2 would be the wing converging at the order its own numerics actually
+carry, not the wing failing to converge.
+
+**This framing must travel with the number.** A `GATE FAIL` on this band reported
+without it will be read as "the wing failed its grid convergence study", which
+would be false. The open doctrine question — *for a mixed-order scheme set, which
+formal order keys the band* — is on Sanaa's desk via the supervisor. **The run does
+not wait on her answer**, and no agent may resolve it by moving the band.
+
+## A1.3 Superseded md5
+
+The grader changed to carry A1.1. §9's row for it is **struck and replaced**;
+every other row in §9 stands unchanged.
+
+| file | md5 |
+|---|---|
+| ~~`cases/dafoam/a2gc_grade.py` — `3b1a6e7dcbdecf8676ac95e0cef70ea4`~~ **STRUCK** | superseded by A1.1 |
+| `cases/dafoam/a2gc_grade.py` (v1.1) | **`f360f6b0cfbaee7029775ad8453c13f5`** |
+
+The birth register is unchanged and was re-run after the edit: **9 declared, 9
+born, 7 zero-passing, refusal path 9 of 9.**
