@@ -4788,9 +4788,48 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:22:26Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:29:42Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24l — **`MODE O` WORKED ON ITS FIRST EXECUTION: `R3` IS RETIRED BY MEASUREMENT. THE SHIPPED OPTIMISER CONVERGED — WHICH IS A REGISTERED PREDICTION **MISS** — AND THE CEILING IS DOING EXACTLY THE WORK IT WAS REGISTERED FOR. THE COMPRESSIBLE PENALTY ON A MAJOR IS **1.059×**, NOT THE 1.6086× CARRIED FROM THE PRIMAL** (2026-09-01T05:29:42Z, `date -u` at write)
+
+###### 1. ARM 2 — `O-S`, rc=0. **THE NAMED RISK `R3` IS RETIRED BY MEASUREMENT, NOT BY ARGUMENT**
+
+`d19o_xf.py` mode `O` **had never been executed in any form**. It worked first time. **Verified by me from the log and the artefacts, not relayed:** `EXIT: Optimal Solution Found.`, `Number of Iterations....: 12`, `ipopt_printed_convergence: true`. Stall condition A did not fire.
+
+**From `d19o_O.json` and `d19o_xopt.json`, read by me:** `CD_final = 0.01279162168845058`, `CL_final = 0.49999946447251814`, **`inherits_unverified_gradient: True` stamped in the artefact as registered.** Baseline CD `0.01632675460978398` → **21.652 % drag reduction at CL 0.5 against a target of 0.5.** **The CL pair travels with the number, as registered** — this item constrains lift, unlike SO-3.
+
+**⚠ AND THE MECHANISM IS DECOMPOSED, WHICH THE `D7R` ATTRIBUTION RULE REQUIRES BEFORE ANY IMPROVEMENT PERCENTAGE IS QUOTED:** **alpha 4.0° → 0.795436° at the optimum, with camber added on all eight shape components.** A cambered section reaches CL = 0.5 at much lower incidence and lower drag. **That is a coherent physical account, not a number without a story — but it is NOT a verified result yet: the FD check at the final design point is `XE`/`FE`, which have not run.** Nothing may quote 21.652 % as a finished result before those arms grade.
+
+###### 2. A REGISTERED PREDICTION MISSED, AND THE LANE FLAGGED IT IMMEDIATELY RATHER THAN AFTER THE FACT
+
+**`P5` MISS: the SHIPPED optimiser CONVERGED.** Reported at the arm boundary, before any grading, which is the right moment for it.
+
+**`G-OPT9` will read `PASS` on this row and the CEILING will cap it to `GATE REACHED`.** **THAT IS THE CEILING DOING EXACTLY THE WORK IT WAS REGISTERED FOR: a converged optimiser standing on a gradient whose plateau never closed does not get to publish `PASS`.** The `shape[7]` plateau failure is the reason the ceiling exists, and this is the first time it has bitten.
+
+###### 3. ⚠ A REAL CALIBRATION RESULT — AND IT SAYS THE LANE'S OWN `R5` CAVEAT WAS RIGHT
+
+**`O-S` spent `5.400` core-min against `7.57` predicted, ratio `0.713`.** Per major: **`5.400 / 13 = 0.4154` core-min/major MEASURED**, against **`0.63122` EXTRAPOLATED**.
+
+**So the compressible penalty ON A MAJOR is `0.4154 / 0.3924 = 1.059×` the incompressible rate — NOT the `1.6086×` measured on the PRIMAL and carried across.** **`R5` named exactly this hazard in advance — "the ratio is measured on the primal and carried onto a major" — and the answer is that IT DOES NOT TRANSFER.** The extra compressible states cost far less on a major than on a bare primal, **because a major is dominated by the two adjoint solves and the mesh warp, not by the primal.**
+
+**Attribution is MISPREDICTION, not contention: `delivered_cores_mean = 0.9926`, so the box was not starving it.** This goes in the `COST_CALIBRATION` row and **it is a reusable number for every future compressible optimisation in this family.**
+
+###### 4. MY §3 CHECK 2 — CRASH TRIAGE, DONE PERSONALLY AT SOURCE
+
+The `O-S` log carries **`Error message: failed to bind memory`** at `orte/mca/rtc/hwloc/rtc_hwloc.c:447`. **The lane reported it rather than waving it through. I triaged it myself and it is NOT a crash:**
+
+* It sits at **line 15 of 3,587**, inside an OpenMPI block **whose own text reads `"WARNING: Open MPI tried to bind a process but failed. This is a warning only; your job will continue, though performance may be degraded."`**
+* Line 19: **`MCW rank 0 is not bound (or bound to all available processors)`** — consistent with `--bind-to core` against a **single-core cpuset**.
+* **The solve continued for 3,572 further lines, with the last IPOPT iteration at line 3495**, to a converged optimum, `inspect(exit,oomkilled)=[0 false]`, MemAvailable moving only 27.93 → 27.80 GiB.
+* **And the warned-of degradation did not occur: `delivered_cores_mean = 0.9926`.**
+
+**VERDICT: an hwloc BINDING warning, not a solver error and not an allocation failure. `FATAL_TOKENS` correctly does not carry it, so `G1` is unaffected.** **It will appear on EVERY arm**, and it is named here because **`"Error message"` in a log is exactly the kind of string that gets read as a crash by a later reader.**
+
+###### 5. RUNNING STATE
+
+**`5.567` core-min of a `145.0` ceiling.** `XE-S` in flight. Nothing restarted. Ledger for `O-S`: rc=0, **324 s wall**, ranks 1, cpuset 11, delivered 0.9926, shipped digest `sha256:9d45679d…`, `libidwarp` `f0fcb488…` read from the loading process.
 
 ##### UPDATE S-24k — **`D19O` IS LAUNCHED AND LIVE. `MESH` rc=0 AND MESH-IDENTICAL TO `D15`'s FROZEN MESH; `O-S` — THE FIRST EXECUTION OF MODE `O` IN ANY FORM — IS IN FLIGHT. LIVE STATE VERIFIED BY ME FROM `/proc` AND THE RUN ROOT. DO NOT RESTART** (2026-09-01T05:21:49Z, `date -u` at write)
 
