@@ -53,7 +53,13 @@ const source = scripts.join('\n');
 // Nothing is rendered; the only thing under test is which values land when.
 // Each call evaluates the real page script against its own stub DOM and its
 // own virtual clock, so replays cannot leak state into one another.
-function newPage() {
+//
+// `src` defaults to the real page. The closing-state checks at the foot of
+// this file pass a DELIBERATELY MUTATED source instead, to prove those checks
+// can actually fail: an assertion never seen to fail is not evidence. The
+// mutants are built in memory from the real page at run time and never exist
+// on disk, so they cannot drift out of step with the file they mutate.
+function newPage(src = source) {
   function makeEl(id) {
     const el = {
       id, textContent: '', innerHTML: '', hidden: false, value: '',
@@ -113,7 +119,14 @@ function newPage() {
   const document = {
     getElementById: byId,
     createElement: tag => makeEl('new-' + tag),
-    querySelector: () => makeEl('sel'),
+    // Memoised by selector, exactly as getElementById is memoised by id.
+    // Returning a FRESH element per call silently discarded every write the
+    // page makes through this door: resetMission() hides the Report tab with
+    // `document.querySelector('.tab[data-view="memo"]').hidden = true`, and a
+    // throwaway element meant the later read saw hidden=false and the page
+    // looked like it was opening a report pane it never opens. Any page logic
+    // that round-trips state through a selector was invisible here.
+    querySelector: sel => byId('sel:' + sel),
     querySelectorAll: () => [],
     addEventListener() {},
     body: makeEl('body'),
@@ -204,8 +217,8 @@ function newPage() {
   try {
     const names = Object.keys(sandbox);
     const fn = new Function(...names,
-      source + '\n;return { dispatch, resetMission, state, revealQ, '
-            + 'uploadSurface, launchMission };');
+      src + '\n;return { dispatch, resetMission, state, revealQ, '
+          + 'uploadSurface, launchMission };');
     api = fn(...names.map(n => sandbox[n]));
   } catch (err) {
     console.error('FAIL: the page script did not evaluate: ' + err.message);
@@ -729,6 +742,156 @@ const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, ''
   await new Promise(r => setImmediate(r));
   check(!label().includes('b52.stl'),
         `an act launched with no surface still names the last one: ${JSON.stringify(label())}`);
+
+  // ------------------------------------------------- closing states (D-1)
+  // WHY THIS IS HERE AND NOT IN A NEW FILE. The label a mission closes under
+  // is written by finish(), which this harness already drives and already
+  // owns checks for. A second harness would mean a second stub DOM and a
+  // second notion of what "the page" is, and the two would drift.
+  //
+  // THE DEFECT. The page decided the closing label from the literal string
+  // 'complete' passed at the call site, never from the status the backend
+  // sent. A request the lab openly DECLINES to run publishes
+  //   mission.completed {"status": "incomplete", "reason": ...}
+  // (measured: chief_engineer/server.py _explain_unparsed, reached by any
+  // prompt that matches no workflow, e.g. "Blown slot jet momentum sweep"
+  // with no surface attached, which routes to general-mission). The screen
+  // put MISSION COMPLETE over it, contradicting the refusal the transcript
+  // had just given in plain words.
+  //
+  // FOUR STATES, AND THEY MUST STAY DISTINCT. Collapsing any pair of these
+  // back together is the regression:
+  //   complete   -> MISSION COMPLETE
+  //   scoped     -> the backend's own headline
+  //   incomplete -> a refusal that does not read as a completion
+  //   failed     -> MISSION ENDED
+  const SCOPED_HEADLINE = 'COMPLETE: PART OF THE REQUEST NOT RUN';
+  const scopedPayload = {
+    scoped: true, headline: SCOPED_HEADLINE, not_run: ['a blowing sweep'],
+  };
+
+  // Close one mission on a given terminal event and report the resting label.
+  // Each scenario gets a FRESH page: a scope-down that leaked across missions
+  // would otherwise be read as a pass here.
+  function closeWith(events, src) {
+    const p = newPage(src);
+    p.api.resetMission();
+    let t = 1000;
+    for (const [event, payload] of events) p.api.dispatch({ event, payload, timestamp: t++ });
+    p.drain();
+    return {
+      status: String(p.byId('globalStatus').textContent),
+      conf: String(p.byId('routeConf').textContent),
+      view: p.api.state.currentView,
+    };
+  }
+  const routed = ['mission.routed', { intent: 'geometry-study', confidence: 0.99, rationale: 'x' }];
+  // The payloads below are the ones the backend really emits, not invented
+  // shapes: the incomplete one is copied from an executed _run_mission.
+  const CLEAN = [routed, ['mission.completed', { status: 'complete' }]];
+  const SCOPED = [routed, ['mission.scoped', scopedPayload],
+                  ['mission.completed', Object.assign({ status: 'complete' }, scopedPayload)]];
+  const REFUSED = [['mission.completed', { status: 'incomplete',
+    reason: 'The request needs a measurable objective or a named geometry.' }]];
+  const FAILED = [routed, ['mission.failed', { reason: 'boom' }]];
+
+  const clean = closeWith(CLEAN), scoped = closeWith(SCOPED);
+  const refused = closeWith(REFUSED), failed = closeWith(FAILED);
+
+  // -- the positive arm: a declined request never closes under a completion.
+  check(refused.status !== 'MISSION COMPLETE',
+        `a request the lab DECLINED to run closes under ${JSON.stringify(refused.status)}: ` +
+        `the label contradicts the refusal the transcript just gave`);
+  check(!/complete/i.test(refused.status),
+        `the refusal label still reads as a completion: ${JSON.stringify(refused.status)}`);
+
+  // -- the negative arm: a clean run must be left alone. A guard that
+  //    qualifies everything is as broken as one that qualifies nothing.
+  check(clean.status === 'MISSION COMPLETE',
+        `a run that answered the whole request no longer reads MISSION COMPLETE: ` +
+        `${JSON.stringify(clean.status)}`);
+  check(!/not run/i.test(clean.conf),
+        `a clean run picked up a scope-down it did not earn: ${JSON.stringify(clean.conf)}`);
+
+  // -- the four states stay distinct.
+  const labels = [clean.status, scoped.status, refused.status, failed.status];
+  check(new Set(labels).size === 4,
+        `the closing states collapsed into one another: ${JSON.stringify(labels)}`);
+  check(scoped.status === SCOPED_HEADLINE,
+        `a scoped run closes under ${JSON.stringify(scoped.status)}`);
+  check(failed.status === 'MISSION ENDED',
+        `a failed run closes under ${JSON.stringify(failed.status)}`);
+  // A declined request has no report to show, so it must not swing the
+  // viewer to the report pane on the way out.
+  check(refused.view !== 'memo',
+        `a declined request opened the report pane: there is no report to show`);
+
+  // -- THE UNKNOWN-STATUS DEFAULT IS FAIL-OPEN, AND IS PINNED HERE SO IT IS
+  //    NEVER SILENT. `(p && p.status) || 'complete'` sends any status this
+  //    page does not name to MISSION COMPLETE. For the statuses the backend
+  //    emits today that is right: the only unnamed one is 'complete' itself.
+  //    But a fifth status added later would inherit MISSION COMPLETE without
+  //    a word, and be found on camera. The companion assertion lives in
+  //    tests/test_scope_down.py, which reads the statuses the backend really
+  //    publishes and fails if one appears that this page does not name. This
+  //    check pins the fallback itself, so the behaviour is deliberate and
+  //    recorded rather than accidental.
+  const unknown = closeWith([routed, ['mission.completed', { status: 'quiesced' }]]);
+  check(unknown.status === 'MISSION COMPLETE',
+        `the unknown-status fallback changed: a status this page does not name ` +
+        `now closes under ${JSON.stringify(unknown.status)}. That may well be an ` +
+        `improvement, but it is a deliberate behaviour change and the comment at ` +
+        `the finish() call site must be rewritten to match it`);
+
+  // -- house style, on the strings this page puts on camera itself. These
+  //    literals live in the HTML, which the python register rails do NOT
+  //    scan (they read workflows/*.py and a named list of chief_engineer
+  //    modules). Unscanned is exactly how a dash gets back onto a camera
+  //    surface, so the rails are applied here, at the rendered label.
+  for (const [name, text] of [['clean', clean.status], ['scoped', scoped.status],
+                              ['refused', refused.status], ['failed', failed.status]]) {
+    check(!/[–—]/.test(text), `the ${name} label carries a dash: ${JSON.stringify(text)}`);
+    check(!/\s--\s|\w--\w/.test(text), `the ${name} label carries a prose double hyphen: ${JSON.stringify(text)}`);
+    check(text === text.toUpperCase(), `the ${name} label breaks the label register: ${JSON.stringify(text)}`);
+  }
+
+  // -- PLANTED CONTROLS. Each mutant reverts one half of the behaviour above
+  //    and the check that covers it MUST go red. A check never seen to fail
+  //    proves nothing, and the defect this section exists for survived a
+  //    suite that only grepped the page's text.
+  function mutate(from, to) {
+    if (!source.includes(from)) {
+      failures.push(`planted control could not be built: the page no longer contains ` +
+                    `${JSON.stringify(from)}. Re-aim the mutant at the current source ` +
+                    `rather than deleting this control.`);
+      return null;
+    }
+    return source.split(from).join(to);
+  }
+  const noRefusal = mutate(
+    "    : status === 'incomplete' ? 'NOTHING WAS RUN FOR THIS REQUEST'\n", '');
+  const noScoped = mutate("(state.scope && state.scope.headline) || 'MISSION COMPLETE'",
+                          "'MISSION COMPLETE'");
+  const alwaysRefusal = mutate("status === 'incomplete' ?", "true ?");
+
+  if (noRefusal) {
+    check(closeWith(REFUSED, noRefusal).status === 'MISSION COMPLETE',
+          'PLANTED CONTROL DEAD: reverting the refusal label did not bring back ' +
+          'MISSION COMPLETE, so the refusal check is not testing that code');
+  }
+  if (noScoped) {
+    check(closeWith(SCOPED, noScoped).status === 'MISSION COMPLETE',
+          'PLANTED CONTROL DEAD: reverting the scoped headline did not change the ' +
+          'label, so the scoped check is not testing that code');
+  }
+  if (alwaysRefusal) {
+    // The negative arm, proven live: force the refusal branch on and the
+    // clean run must break. Without this, "a clean run reads MISSION
+    // COMPLETE" could be passing for free.
+    check(closeWith(CLEAN, alwaysRefusal).status !== 'MISSION COMPLETE',
+          'PLANTED CONTROL DEAD: forcing the refusal branch on left the clean run ' +
+          'reading MISSION COMPLETE, so the negative arm is vacuous');
+  }
 
   // ---------------------------------------------------------------- report
   if (failures.length) {

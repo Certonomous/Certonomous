@@ -781,15 +781,31 @@ function resetMission() {
 // state.scope is set from mission.scoped (which arrives at commit time, long
 // before this) and from the completion payload, so a viewer who joins late
 // still sees a qualified close.
+//
+// FOUR CLOSING STATES, and they must never collapse into one another. The
+// backend already distinguishes them; this page used to assert success over
+// three of them because it read the literal word 'complete' rather than the
+// status the backend sent:
+//   complete    a run that answered the whole request
+//   scoped      a run that answered part of it and said which part it did not
+//   incomplete  a request the lab declined to run at all, because it needs
+//               physics this lab does not solve or names no quantity to
+//               measure. The transcript explains which; the label must not
+//               contradict it by reading as a completion.
+//   failed      a run that started and broke
 function finish(status, payload) {
   if (payload && payload.scoped) state.scope = payload;
   // Let the paced transcript catch up before declaring the mission over. The
   // KPI counters ride that same queue, so a mission whose backend finished
   // early must not close out on a stale count: wait for the queue to be both
   // empty AND done revealing before reading the resting values below.
-  if (revealQ.length || revealing) { setTimeout(() => finish(status), 500); return; }
+  // The payload rides the retry too: dropping it here would lose the backend's
+  // own verdict on exactly the missions slow enough to need the wait.
+  if (revealQ.length || revealing) { setTimeout(() => finish(status, payload), 500); return; }
   state.finished = true; $('beacon').classList.remove('live'); $('launch').disabled = false;
-  $('globalStatus').textContent = status === 'failed' ? 'MISSION ENDED'
+  $('globalStatus').textContent =
+      status === 'failed' ? 'MISSION ENDED'
+    : status === 'incomplete' ? 'NOTHING WAS RUN FOR THIS REQUEST'
     : ((state.scope && state.scope.headline) || 'MISSION COMPLETE');
   // THE FLEET NUMERAL ENDS AT ZERO (Katie, 2026-07-31: "start at 0, then #
   // workers as soon as the meshing starts, then 0 when the run is complete").
@@ -877,7 +893,14 @@ function dispatch(env) {
     case 'worker.killed': enqueue('workerKill', p, ts); break;
     case 'worker.reprovisioned': enqueue('workerBack', p, ts); break;
     case 'mission.scoped': state.scope = p; showScope(p); break;
-    case 'mission.completed': finish('complete', p); break;
+    // The backend's own status decides the label, never a literal written
+    // here. `mission.completed` is published for a run that finished AND for
+    // a request the lab declined to run at all ({"status": "incomplete"});
+    // asserting 'complete' over both is what put MISSION COMPLETE on top of
+    // an honest refusal. An unrecognised status closes as a completion, which
+    // is the pre-existing behaviour and the only safe default for a run that
+    // did finish.
+    case 'mission.completed': finish((p && p.status) || 'complete', p); break;
     case 'mission.failed': finish('failed'); break;
   }
 }

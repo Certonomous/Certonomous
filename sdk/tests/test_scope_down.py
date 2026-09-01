@@ -10,6 +10,8 @@ prompt must NOT acquire a scope-down it does not deserve.
 """
 
 import re
+import shutil
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -142,23 +144,105 @@ class TheCompletionIsQualified(unittest.TestCase):
 
 
 class TheInterfaceObeysTheBackend(unittest.TestCase):
-    """The page must not invent the verdict, and must not keep it either."""
+    """The page must not invent the verdict, and must not keep it either.
 
-    def setUp(self):
-        self.html = CONTROL_ROOM.read_text()
+    THIS CLASS USED TO GREP THE HTML, AND THAT CERTIFIED NOTHING. It held four
+    `assertIn` checks against the page source: the scoped headline expression,
+    the `case 'mission.scoped':` label, the argument list at the finish() call
+    site, and `state.scope = null;`. No JavaScript ever ran, so nothing was
+    proven about what the screen shows.
 
-    def test_the_completion_label_defers_to_the_scoped_headline(self):
-        self.assertIn("(state.scope && state.scope.headline) || 'MISSION COMPLETE'",
-                      self.html)
+    Two findings retired them, reached independently and from opposite
+    directions. An audit of the dispatch layer found a request the lab openly
+    DECLINES to run still closing under MISSION COMPLETE, because the page
+    read a literal at the call site instead of the status the backend sent,
+    and every check here passed throughout. A cross-team mutation audit then
+    hard-wired MISSION COMPLETE into the page while leaving the asserted
+    substrings alive in a dead comment, and the whole suite stayed green.
 
-    def test_the_page_listens_for_the_scope_event(self):
-        self.assertIn("case 'mission.scoped':", self.html)
+    A grep for a substring survives any mutation that keeps the substring. So
+    the interface half is certified by EXECUTING the page against a stub DOM,
+    in the harness below, which drives all four closing states and carries
+    planted controls that must go red when the behaviour is reverted. Run
+    against the pre-fix page it reports the defect in three lines.
 
-    def test_the_completion_payload_is_passed_to_finish(self):
-        self.assertIn("finish('complete', p)", self.html)
+    THIS CERTIFICATION IS FAIL-OPEN WITHOUT NODE, AND THAT IS SAID OUT LOUD.
+    The test below SKIPS when no node binary is present, and a skip is not a
+    pass: on such a box the suite reports green with the page uncertified,
+    which is the exact state this class was rewritten to end. Node is present
+    on the lab box (/usr/bin/node), so the page is certified here today. If
+    you are reading a green suite somewhere else, check for the skip before
+    believing the page was executed at all.
+    """
 
-    def test_a_scope_down_does_not_survive_into_the_next_mission(self):
-        self.assertIn("state.scope = null;", self.html)
+    def test_the_page_is_certified_by_running_it_not_by_reading_it(self):
+        node = shutil.which("node") or shutil.which("nodejs")
+        if not node:
+            # FAIL-OPEN, deliberately and visibly. See the class docstring.
+            self.skipTest("node is needed to execute the control room page: "
+                          "the page is NOT certified in this run")
+        harness = Path(__file__).resolve().parent / "control_room_pacing_harness.js"
+        done = subprocess.run([node, str(harness), str(CONTROL_ROOM)],
+                              capture_output=True, text=True, timeout=300)
+        self.assertEqual(
+            done.returncode, 0,
+            "the control room's closing states are wrong on the running page. "
+            "A clean run, a scoped run, a declined request and a failed run "
+            "must each close under their own label, and none of them may read "
+            "as a completion the mission did not earn:\n"
+            + done.stdout + done.stderr)
+
+    def test_no_backend_status_reaches_the_page_unnamed(self):
+        """A status the page does not name inherits MISSION COMPLETE silently.
+
+        The page closes a mission on `(p && p.status) || 'complete'`, so any
+        status it has no branch for falls through to MISSION COMPLETE. For
+        today's statuses that is correct. A fifth one added to the backend
+        would be asserted as a success without a word being said, and found on
+        camera, which is the shape of L-221/L-222: an entry is inserted with
+        an assert, never left to a default.
+
+        So the default is not left to trust. This reads the statuses the
+        backend REALLY publishes on a terminal mission event, out of the AST
+        rather than out of a comment, and fails when one appears that the page
+        does not distinguish. The fix when it fails is to teach finish() the
+        new status and add it to the harness's closing-state set, not to widen
+        the set here.
+        """
+        import ast
+
+        server_py = CONTROL_ROOM.parent / "server.py"
+        tree = ast.parse(server_py.read_text())
+        published = set()
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or len(node.args) < 2:
+                continue
+            name = (node.func.attr if isinstance(node.func, ast.Attribute)
+                    else getattr(node.func, "id", None))
+            event = node.args[0]
+            if name != "publish" or not isinstance(event, ast.Constant):
+                continue
+            if not str(event.value).startswith("mission."):
+                continue
+            body = node.args[1]
+            if not isinstance(body, ast.Dict):
+                continue
+            for key, value in zip(body.keys, body.values):
+                if (isinstance(key, ast.Constant) and key.value == "status"
+                        and isinstance(value, ast.Constant)):
+                    published.add(value.value)
+
+        # Plant a control: a walk that found nothing would pass vacuously.
+        self.assertIn("complete", published,
+                      "the AST walk found no published status at all, so this "
+                      "check proves nothing. Fix the walk, not the assertion.")
+        # 'complete' is the page's fallback; 'incomplete' has its own branch.
+        self.assertEqual(
+            published - {"complete", "incomplete"}, set(),
+            "the backend publishes a mission status the control room does not "
+            "name, so it will close under MISSION COMPLETE without a word "
+            "being said. Give it a branch in finish() and a case in the "
+            "closing-state set in control_room_pacing_harness.js.")
 
 
 class TheDispatchLayerActuallySaysIt(unittest.TestCase):
