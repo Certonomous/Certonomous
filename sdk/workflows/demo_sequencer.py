@@ -69,7 +69,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Mapping
 
 from .demo_mode import (BANNERS, STAGES, DemoAct, DemoContractError,
                         assert_screen_safe, check_quantities_named,
@@ -216,7 +216,8 @@ class SequencerRefused(RuntimeError):
 # The banner, as a pure function of what is on screen
 # ---------------------------------------------------------------------------
 
-def banner_for_stage(state: dict) -> str:
+def banner_for_stage(state: dict, banners: "Mapping[str, str] | None" = None
+                     ) -> str:
     """The banner text for a stage's published state. No side effects.
 
     Called with the same dictionary that is published, so the banner and the
@@ -224,13 +225,30 @@ def banner_for_stage(state: dict) -> str:
     computed here: it belongs to the replay stage, which already derives it
     from the frame, and one banner with two implementations is exactly the
     drift this shape exists to prevent.
+
+    ``banners`` IS THE ACT'S OWN MAP, AND UNTIL NOW IT REACHED NOTHING.
+    :meth:`demo_mode.DemoAct.banners` exists, ``validate_act`` CHECKS it --
+    it refuses an act that omits a stage -- and this function then rendered
+    the module-level default and threw the act's map away. An act could
+    therefore declare Sanaa's stage words, be validated against them, and put
+    different words on the screen. That is the same defect as ``Figure.beat``
+    read by nothing and the four authored captions dropped on the floor, and
+    it is the third time this package has validated a declaration it did not
+    render.
+
+    MEASURED: the battery act overrides ``banners()`` with her seven words and
+    not one of them could reach a screen.
+
+    Left ``None`` the module default is used, so every act that does not
+    override is byte-unchanged.
     """
     stage = state.get("stage")
     if stage == "solving":
         from chief_engineer.replay_stage import banner_for
 
         return banner_for(state)
-    return BANNERS.get(str(stage), "")
+    source = BANNERS if banners is None else banners
+    return source.get(str(stage), "") or BANNERS.get(str(stage), "")
 
 
 # ---------------------------------------------------------------------------
@@ -277,7 +295,10 @@ class Sequencer:
         them.
         """
         stamped = _translated(dict(payload))
-        stamped["banner"] = banner_for_stage(stamped)
+        # THE ACT'S OWN BANNER MAP, ASKED FOR ONCE AND CACHED. Read here
+        # rather than in `banner_for_stage` so the function stays pure and
+        # every payload of one act is banner-mapped identically.
+        stamped["banner"] = banner_for_stage(stamped, self._act_banners())
         assert_screen_safe(stamped)
         banner_payload = {"stage": stamped.get("stage"),
                           "text": stamped["banner"],
@@ -944,6 +965,30 @@ class Sequencer:
     PANEL_NAMES = {"geometry": "surface", "mesh": "grid",
                    "mesh_zoom": "grid_zoom",
                    "field_u": "field_velocity", "field_p": "field_pressure"}
+
+    def _act_banners(self) -> "Mapping[str, str]":
+        """The act's own stage-to-banner map, asked for once per act.
+
+        THE DECLARATION THIS RESTORES WAS BEING VALIDATED AND THROWN AWAY.
+        ``demo_mode.validate_act`` refuses an act whose ``banners()`` omits a
+        stage, and ``_publish`` then rendered the module-level default, so an
+        act could declare Sanaa's stage words, be checked against them, and put
+        different words on camera. Third instance of that class in this
+        package, after ``Figure.beat`` and the dropped figure captions.
+
+        Cached because it is asked for on EVERY publication -- 1,299 of them on
+        the jet-flap act -- and an act's map cannot change mid-drive. A failure
+        to produce one is not allowed to take the act off the air: the module
+        default is what every act used until now, so it is the safe fallback.
+        """
+        cached = getattr(self, "_banner_map", None)
+        if cached is None:
+            try:
+                cached = dict(self.act.banners() or {})
+            except Exception:                                  # noqa: BLE001
+                cached = {}
+            self._banner_map = cached
+        return cached
 
     def _panel_store(self) -> str:
         """The served directory THIS act's rendered panels are copied into.

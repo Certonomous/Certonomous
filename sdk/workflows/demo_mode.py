@@ -111,16 +111,46 @@ STAGES: tuple[str, ...] = (
 #: results. The banner must match what the screen is ACTUALLY showing at every
 #: moment — no banner ahead of or behind its content — so the mapping from
 #: stage to banner is fixed here rather than chosen per act.
+#: REPLACED 2026-09-01 WITH SANAA'S OWN STAGE WORDS, from her 20:30Z shooting
+#: protocol, verbatim: "Stage indicator advances live: Forming the team ->
+#: Reading the geometry -> Planning -> Meshing -> Solving (n of N) -> Checking
+#: -> Report."
+#:
+#: WHY THE OLD MAP HAD TO GO, MEASURED RATHER THAN ARGUED. Driving both acts
+#: and applying the page's own suppression rule -- ``setStageBanner`` hides a
+#: banner whose text merely echoes its stage name -- THREE stages rendered
+#: NOTHING AT ALL: meshing, feasibility and results. Two more rendered the
+#: wrong words: the geometry stage announced "fleet at work" where her word is
+#: "Reading the geometry", and the CHECKS stage announced "solving".
+#:
+#: SOLVING IS NOT IN THAT COUNT and is not touched here: its banner comes from
+#: ``replay_stage.banner_for``, which already renders her "Solving (n of N)"
+#: shape and then "Solve complete". This map's "Solving" is reached only by a
+#: solving-stage payload that reader does not claim.
+#:
+#: TWO STAGES OF THE NINE HAVE NO WORD OF HERS, and both are left to suppress
+#: themselves rather than given an invented one. ``assumption`` doubles
+#: "Planning", which is what it is. ``feasibility`` -- the go/no-go before the
+#: budget is committed -- has no word in her seven, and every candidate
+#: contradicts her ORDER: "Checking" is her word for the beat AFTER solving,
+#: and "Planning" reads oddly after meshing. A stage that shows no banner is a
+#: stage that shows no banner; a stage that shows the wrong one is worse, and
+#: that is this package's own doctrine about grids applied to words.
+#:
+#: KNOWN CONFLICT, NOT RESOLVED HERE: her word for ``meshing`` IS "Meshing",
+#: which the page's suppression rule reads as an echo of the stage name and
+#: hides. Her spec and that rule disagree on one stage, no string can satisfy
+#: both, and choosing between them is not this map's call.
 BANNERS: Mapping[str, str] = {
-    "prompt": "forming team",
-    "restatement": "planning",
-    "assumption": "planning",
-    "geometry": "fleet at work",
-    "meshing": "meshing",
+    "prompt": "Forming the team",
+    "restatement": "Planning",
+    "assumption": "Planning",
+    "geometry": "Reading the geometry",
+    "meshing": "Meshing",
     "feasibility": "feasibility",
-    "solving": "solving",
-    "gates": "solving",
-    "results": "results",
+    "solving": "Solving",
+    "gates": "Checking",
+    "results": "Report",
 }
 
 #: The directory the control-room server actually serves a body from:
