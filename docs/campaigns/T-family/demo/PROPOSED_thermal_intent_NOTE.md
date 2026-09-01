@@ -64,8 +64,12 @@ existing tuple.
 
 ## 2. Shape of the router, with line numbers
 
-Read against `sdk/chief_engineer/router.py` as committed at the base of the
-patch, 784 lines.
+Read against `sdk/chief_engineer/router.py` at blob
+`40521daec147bf19d2f2ee8dfe059bd4da8cae5e`, 784 lines, which is the base the
+patch is cut against and the blob at the commit that introduced these two
+files. `git rev-parse HEAD:sdk/chief_engineer/router.py` says whether the
+router has moved since; `git apply --check` on the patch is the operative test
+of whether it still applies.
 
 **How an intent is declared.** A module-level string constant, `:43-56` and
 `:83-86, :94, :173`. The value is the wire name (`"geometry-study"`,

@@ -7,9 +7,15 @@ server was running at pid 654212 throughout and was not restarted, signalled or
 touched.
 
 Prepared by:   heat-transfer lab-lane, 2026-09-01
-Base commit:   the router hunk is cut against sdk/chief_engineer/router.py at
-               the HEAD named in the design note beside this file; verify with
-               `git apply --check` before reading further.
+Base:          the router hunk is cut against sdk/chief_engineer/router.py at
+               blob 40521daec147bf19d2f2ee8dfe059bd4da8cae5e, which is the blob
+               at the commit that introduced this file. Confirm the base has
+               not moved under you before reading further:
+                 git rev-parse HEAD:sdk/chief_engineer/router.py
+                 git apply --check docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch
+               If the blob differs, the patch may still apply; the second
+               command is the operative test, the first tells you whether
+               somebody has edited the router since this was written.
 Reviewers:     heat-transfer supervisor (reads it as a diff, SUPERVISION §3
                check 1), then the cfd team, because sdk/chief_engineer/ is
                shared control-room tooling owned by neither team and the
