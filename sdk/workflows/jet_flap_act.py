@@ -296,6 +296,17 @@ class JetFlapAct(DemoAct):
     #: and the number on one case.
     rendered_panels = ("geometry", "mesh", "mesh_zoom", "field_p", "field_u")
 
+    #: WHAT THIS ACT COMPUTES, so a caption naming anything else is refused.
+    #: The shock benchmark rendered "the grid the lift and the pressures are
+    #: computed on" off the stage template; this declaration is what makes the
+    #: next such leak fail rather than film.
+    computes = ("lift", "slot", "jet", "drag", "moment")
+
+    #: THE SYMBOL AND UNIT UNDER EACH RENDERED FIELD PANEL. simpleFoam is
+    #: incompressible and solves a KINEMATIC pressure, so the unit is m^2/s^2
+    #: and not Pa. The stage template cannot know that and no longer guesses.
+    panel_quantities = {"field_p": "p/rho (m^2/s^2)", "field_u": "|U| (m/s)"}
+
     # -- stage 0 ------------------------------------------------------------
     def run_record(self) -> RunRecord:
         primary = _jf1_numbers.RUN_ROOT / _jf1_numbers.SWEEP_CASES[3][1]
@@ -444,7 +455,18 @@ class JetFlapAct(DemoAct):
                 "Wall layer", str(yplus["n"]), f"{yplus['min']:.3f}",
                 f"{yplus['max']:.3f}", f"{yplus['mean']:.3f}"]],
             wall_zoom_hint="the wall layers at the trailing-edge slot",
-            expected_seconds=30.0)
+            expected_seconds=30.0,
+            # THE GRID'S TYPE, DECLARED HERE AND COMPOSED INTO THE CAPTIONS.
+            # Sanaa, 2026-09-01 ~20:06Z: the field caption states the mesh type
+            # and the cell count explicitly instead of a sentence about where
+            # the numbers come from. The type is stated once, here; the count
+            # beside it is ``cell_count`` above and is read off the solved
+            # grid's own polyMesh, so no caption retypes a number.
+            mesh_type="O-mesh",
+            # THIS ACT'S OWN TITLE FOR ITS RESOLUTION TABLE. It used to be a
+            # constant in the meshing stage, which is why the shock benchmark
+            # rendered it too and announced a slot it does not have.
+            resolution_title="Wall and slot resolution")
 
     # -- stage 6 ------------------------------------------------------------
     def feasibility(self) -> Feasibility:
@@ -642,13 +664,29 @@ class JetFlapAct(DemoAct):
             table_id="jf_lift", role="CHIEF ENGINEER")
 
         table_cells = grids["table"]["cells"]
+        # EVERY CAPTION BELOW IS SYMBOLS, UNITS AND NUMBERS, per Sanaa's
+        # 2026-09-01 ~20:06Z instruction and :data:`demo_mode.
+        # FIGURE_CAPTION_STANDARD`. What they used to be, and why the loss is
+        # nothing: "Lift rises with blowing across the five settings solved",
+        # "Blowing loads the rear of the section" and "Sliced cell by cell:
+        # the wing, the slot and the 39,984 cells around them" all said in
+        # English what the axes of the figure say in symbols. The counts are
+        # read, never typed.
         figures = [
             Figure(FIGURES / "jet_flap_1_lift_vs_blowing.png",
-                   "Lift against blowing", "Lift rises with blowing across "
-                   "the five settings solved.", "results"),
+                   "Lift against blowing",
+                   f"CL against C_mu, {len(rows)} settings.", "results"),
+            # THE SETTINGS THIS CAPTION NAMES ARE THE SETTINGS THE GENERATOR
+            # DRAWS, and the check was not skippable. A compressed numeric
+            # caption still has to survive "of what?": this figure's generator
+            # loops the WHOLE sweep, so a caption naming two of the five would
+            # have been shorter and false. The range is read from the sweep
+            # rather than typed.
             Figure(FIGURES / "jet_flap_2_chordwise_pressure.png",
                    "Chordwise pressure, blown and unblown",
-                   "Blowing loads the rear of the section.", "results"),
+                   f"Cp against x/c, {len(rows)} settings, "
+                   f"C_mu 0 to {_jf1_numbers.SWEEP_CASES[-1][0]:.2f}.",
+                   "results"),
             # THE MESH SLICE. Sanaa's shoot list requires every jet-flap
             # capability on screen and the grid itself was the one missing.
             # This slice is drawn cell by cell from the FORCE grid's own
@@ -659,8 +697,7 @@ class JetFlapAct(DemoAct):
             # one-grid rule removes.
             Figure(FIGURES / "jet_flap_7_mesh_forcesweep.png",
                    "The grid the lift and pressures are computed on",
-                   f"Sliced cell by cell: the wing, the slot and the "
-                   f"{table_cells:,} cells around them.", "results"),
+                   f"O-mesh, {table_cells:,} cells.", "results"),
         ]
         # THE COMPANION-GRID FLOW PICTURE KEEPS ITS PLACE, AND LOSES THE LAST
         # WORD. It is rendered from the finer grid, not from the grid the lift
@@ -679,9 +716,15 @@ class JetFlapAct(DemoAct):
         # limitations line also asserts this picture is on screen, so dropping
         # it would make that sentence false.
         fields = [
+            # THE CAPTION IS THE SYMBOL AND ITS UNIT, AND IT STATES NO CELL
+            # COUNT, deliberately. Every other caption in this act carries the
+            # grid it was drawn on; this picture is rendered from the finer
+            # companion grid, whose count belongs in the limitations box and
+            # nowhere else under the zone rule, and the force grid's count
+            # would be false here. Symbol and unit are the whole of what this
+            # picture can honestly be labelled with.
             Figure(FIGURES / "jet_flap_3_flow_field.png",
-                   "Flow field at the slot", "The jet leaves the slot and "
-                   "turns the flow past the trailing edge.", "results"),
+                   "Flow field at the slot", "|U| (m/s).", "results"),
         ]
 
         flow = grids["figures"]["jet_flap_3_flow_field"]
@@ -1023,9 +1066,21 @@ class JetFlapAct(DemoAct):
             # Neither is covered by the vision frame. That frame licenses
             # depicting the future EXPERIENCE; it does not license printing a
             # credential this work did not earn. A blank is honest.
-            certificate_state=(
-                "The certificate is issued with the convergence band, which "
-                "is running for this case now."))
+            # NO PROMISE, BECAUSE THERE IS NOTHING TO PROMISE. This read "The
+            # certificate is issued with the convergence band, which is
+            # running for this case now", on this act and on every other, and
+            # it asserted a future issuance no record on disk supports: no
+            # credential record in this repository carries a certificate
+            # field at all. Sanaa named the sentence for removal.
+            #
+            # THE FIELD IS STILL REQUIRED AND IS STILL A SENTENCE, and that is
+            # not a hedge on her instruction. Silence in this slot is read as
+            # a certificate having been issued (see :class:`Closing`), and the
+            # certificate store is keyed by intent and last-writer-wins, so a
+            # blank is the dangerous default rather than the honest one. What
+            # she objected to was the PROMISE; the fact stays, and the fact is
+            # that this study has no sealed certificate.
+            certificate_state="No sealed certificate is attached to this study.")
 
     # -- pacing -------------------------------------------------------------
     def agent_census(self):

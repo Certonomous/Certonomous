@@ -66,6 +66,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
 from typing import Iterable, Mapping, Sequence
 
 __all__ = [
@@ -249,6 +250,48 @@ NEVER_PHRASES: tuple[tuple[str, str], ...] = (
     # seven-digit number matches, and an iteration count is seven digits.
     (r"(?<![\w])(?=[0-9a-f]*[a-f])(?=[0-9a-f]*\d)[0-9a-f]{7,40}(?![\w])",
      "a commit hash is never user-visible"),
+    # ----------------------------------------------------------------------
+    # THE PERSON CLASS. Sanaa, 2026-09-01 ~20:10Z, verbatim: "no where as i
+    # said should it mention any human/ me/ smth we talked about."
+    #
+    # ENTERED AS A CLASS AND NOT AS HER ONE SENTENCE, deliberately. The line
+    # she caught was "timed on that workstation by the engineer who runs it",
+    # and a pattern matching only that phrase would pass "timed by our
+    # engineer", "measured by hand", "as we discussed" and every other member
+    # of the same family. This lab has twice watched a single-instance fix
+    # create the belief that a class was handled -- the PASS/PASSED boundary
+    # blindness recorded above is the same shape -- so each alternative and
+    # each inflection below was planted against this checker by hand and
+    # confirmed to refuse before the block was committed.
+    #
+    # THE SPEAKER LABELS ARE NOT TOUCHED, and that is the boundary this block
+    # is drawn against. An act's discussion beats are keyed "engineer",
+    # "numericist", "researcher"; the screen renders those as the role
+    # SPEAKING, which names no person. What is refused is a sentence that
+    # attributes work to a person: an article or possessive in front of the
+    # role, "by hand", a possessed machine, our conversation, or a name.
+    (r"\b(?:the|our|its|his|her|their|an?)\s+(?:engineer|researcher|"
+     r"numericist|operator|technician|analyst|owner|author)s?\s+who\b",
+     "say what the machine or the run did, never who did it"),
+    (r"\bby\s+(?:the|our|his|her|their|an?|one\s+of\s+our)\s+"
+     r"(?:engineer|researcher|numericist|operator|technician|analyst|owner|"
+     r"author|team)s?\b",
+     "say what the machine or the run did, never who did it"),
+    (r"\bby\s+hand\b", "say what produced the number, not who typed it"),
+    (r"\bas\s+(?:we\s+)?(?:discussed|agreed|noted|said|asked|mentioned|"
+     r"requested)\b", "state the fact; the screen has no conversation on it"),
+    (r"\bas\s+you\s+(?:asked|said|requested|noted|wanted|know)\b",
+     "state the fact; the screen has no conversation on it"),
+    (r"\bwe\s+(?:agreed|discussed|talked|spoke)\b",
+     "state the fact; the screen has no conversation on it"),
+    (r"\byou\s+(?:asked|said|requested|mentioned|wanted)\b",
+     "state the fact; the screen has no conversation on it"),
+    (r"\bper\s+our\s+(?:chat|call|conversation|discussion|talk)\b",
+     "state the fact; the screen has no conversation on it"),
+    (r"\b(?:my|your|his|her|their)\s+(?:workstation|machine|box|laptop|"
+     r"desktop|station|computer|processor)\b",
+     "name the hardware by what it is, never by whose it is"),
+    (r"\b(?:Sanaa|Katie)\b", "a person is never named on a customer screen"),
 )
 
 #: The gate vocabulary. R5 bans the verdict vocabulary appearing AS A VERDICT
@@ -728,8 +771,19 @@ OWNER_GPU_STATION = HardwareProjection(
     factor=5.0,
     hardware=("a workstation running the linear solves on its graphics "
               "processor"),
+    # THE PERSON CLAUSE IS GONE AND THE ATTRIBUTION IS NOT. Sanaa caught the
+    # closing clause "timed on that workstation by the engineer who runs it"
+    # and ruled that no human, no reference to her, and nothing from a
+    # conversation goes on a customer screen. What that clause carried, and
+    # what this lab may not lose, is that the factor is OWNER-STATED rather
+    # than measured here: this box has no graphics processor attached and
+    # cannot reproduce the timing (CLAUDE.md rule 12). So the attribution now
+    # names the MACHINE the timing was taken on instead of the person who took
+    # it, which says the same thing about provenance and names nobody. The
+    # docstring above still records the human origin, and a docstring is not a
+    # screen.
     basis=("Five times faster than the machine these screens are served "
-           "from, timed on that workstation by the engineer who runs it."))
+           "from, timed on that workstation and not on this one."))
 
 
 def cost_line(cm: float, *, gross: bool = True,
@@ -1062,13 +1116,43 @@ class MeshPlan:
     #: hunted for "a patch that looks like a wall" would silently outline the
     #: wrong one on the next case.
     wall_patch: str | None = None
+    #: THE GRID'S TOPOLOGY, IN THE ACT'S OWN WORDS. Sanaa, 2026-09-01 ~20:06Z:
+    #: the field caption is to "explicitely say the mesh type and the cell #"
+    #: instead of the sentence it carried. The type is a fact about the grid
+    #: and only the act knows it, so it is declared here beside the count and
+    #: composed into the caption by :meth:`grid_caption` rather than typed at
+    #: the two places it renders. "O-mesh" for the jet flap; "Uniform
+    #: Cartesian" for the shock benchmark.
+    mesh_type: str = ""
+    #: THE RESOLUTION TABLE'S OWN TITLE. It was the string "Wall and slot
+    #: resolution", hard-coded in the meshing stage, and the shock-reflection
+    #: act therefore titled its grid table after a slot it does not have --
+    #: Sanaa caught it on camera. A caption that names a feature of another
+    #: act's geometry is the shared-template defect; the cure is that the
+    #: title comes from the act.
+    resolution_title: str = "Grid resolution"
 
     def __post_init__(self) -> None:
         check_demo_language(self.wall_zoom_hint)
+        check_demo_language(self.resolution_title)
+        if self.mesh_type:
+            check_demo_language(self.mesh_type)
         for header in self.resolution_headers:
             check_demo_language(str(header))
         if not self.command:
             raise DemoContractError("the meshing stage names a real mesher")
+
+    def grid_caption(self) -> str:
+        """The grid, as mesh type and cell count, and nothing else.
+
+        THE FIGURE STANDARD'S FORM, NOT A SENTENCE. Everything under a picture
+        that refers to a quantity or to the grid is symbols and numbers
+        (:data:`FIGURE_CAPTION_STANDARD`), so this returns "O-mesh, 39,984
+        cells" and never a clause about where numbers come from. The count is
+        the one the act already cites for its cell count; nothing is retyped.
+        """
+        cells = self.cell_count.on_screen()
+        return f"{self.mesh_type}, {cells}" if self.mesh_type else cells
 
 
 @dataclass(frozen=True)
@@ -1291,6 +1375,115 @@ class Table:
             check_demo_language(str(header))
 
 
+#: THE FIGURE STANDARD'S CAPTION CLAUSE, ADDED 2026-09-01 ~20:06Z ON SANAA'S
+#: DIRECT INSTRUCTION, verbatim: "any reference to velocity/mesh/pressure/temp
+#: etc underneath plots shouldbe in math symbol/number not english sentences."
+#:
+#: So a caption is symbols, units and numbers: ``|U| (m/s)``, ``Cp``,
+#: ``p (Pa)`` or ``p/rho (m^2/s^2)`` as the case actually is, ``T (K)``,
+#: ``rho (kg/m^3)``, and a cell count as a bare number beside its mesh type.
+#: The explanation moves to the sheet text, exactly as the 03:10Z standard
+#: already moves everything else off the figure.
+#:
+#: SHE ASKED FOR THE STANDARD AND NOT FOR TWO EDITS, and that is the whole
+#: reason this is a constant with a checker under it rather than four rewritten
+#: strings: an act written next week inherits the rule instead of inheriting
+#: the two acts' example.
+FIGURE_CAPTION_STANDARD = (
+    "A figure caption is math symbols, units and numbers, never an English "
+    "sentence about a quantity: |U| (m/s), Cp, p (Pa) or p/rho (m^2/s^2), "
+    "T (K), rho (kg/m^3), and a cell count as a bare number beside its mesh "
+    "type.")
+
+#: The English quantity words a caption may not spell out. Each is the name of
+#: something a solver computes, and each has a symbol that is shorter, exact
+#: and unit-bearing. Narrow on purpose: a checker that fires on ordinary prose
+#: gets switched off, so this is the closed list of words the standard names
+#: plus the four this lab's acts actually plot.
+_CAPTION_QUANTITY_WORDS: tuple[str, ...] = (
+    "velocity", "speed", "pressure", "temperature", "density", "vorticity",
+    "mach number", "cell count", "cells of the grid",
+)
+
+#: FIGURES WHOSE CAPTIONS PREDATE THE STANDARD, BY EXACT FILE NAME, frozen
+#: 2026-09-01. Sanaa's instruction names the jet-flap and shock-reflection
+#: acts ("same applies for mach10"); the three other registered acts were not
+#: in front of her and rewriting their screens on an inference from her words
+#: would be this lab putting sentences on camera that nobody chose.
+#:
+#: THE EXEMPTION IS CLOSED AND IT IS A LIST OF FILES, which is what makes the
+#: standard inherited rather than optional. A new act writes a new figure
+#: name, is not on this list, and is held to the rule on its first run. No
+#: name is added here without her ruling; the honest move for an existing act
+#: is to convert its captions and delete its rows.
+_LEGACY_PROSE_CAPTIONS: frozenset[str] = frozenset({
+    "actA_temperature_field.png", "actA_velocity_field.png",
+    "actA_envelope.pdf", "actA_radial_profile.pdf",
+    "actA_monitor_replay.pdf", "actA_airspeed_thumbnails.png",
+    "actA_mesh_boundary_layer.png", "actA_assumptions.pdf",
+    "a2_sections_5station.png", "a2_twist.png",
+    "a2_crease.png", "a2_pressure_sections.png",
+})
+
+
+def check_caption_symbols(caption: str) -> None:
+    """Refuse a figure caption that spells a quantity out in English.
+
+    Raises :class:`DemoContractError` naming the word and the standard. It
+    does not rewrite: a caption is authored text and silently replacing one
+    would put a sentence on camera that nobody chose.
+    """
+    lowered = caption.lower()
+    for word in _CAPTION_QUANTITY_WORDS:
+        if re.search(r"\b" + word.replace(" ", r"\s+") + r"\b", lowered):
+            raise DemoContractError(
+                f"the caption {caption!r} spells out {word!r}. "
+                f"{FIGURE_CAPTION_STANDARD}")
+
+
+#: WHAT AN ACT MAY NAME UNDER ITS OWN PICTURES. Sanaa, 2026-09-01 ~20:10Z, on
+#: the shock-reflection act: the mesh screen read "the grid the lift and the
+#: pressures are computed on" and the resolution table was titled "Wall and
+#: slot resolution" -- "there is no lift and no slot here."
+#:
+#: Both strings came from the STAGE TEMPLATE rather than from the act, which
+#: is the defect. The cure is two-part: the captions now come from the act
+#: (``MeshPlan.resolution_title``, ``MeshPlan.mesh_type``,
+#: ``DemoAct.panel_quantities``), and this vocabulary makes the leak
+#: detectable rather than merely fixed. An act declares what it computes in
+#: ``DemoAct.computes``; a caption naming a quantity outside that declaration
+#: is refused.
+#:
+#: KEYED ON THE ACT'S OWN DECLARATION so it cannot go stale: an act that stops
+#: computing lift and forgets a caption is caught by the same check that
+#: caught the template.
+CAPTION_QUANTITY_VOCABULARY: tuple[str, ...] = (
+    "lift", "drag", "slot", "shock", "wake", "heat", "thrust", "vorticity",
+    "jet", "twist", "camber", "moment",
+)
+
+
+def check_quantities_named(text: str, computes: Sequence[str]) -> None:
+    """Refuse a caption naming a quantity the act does not compute.
+
+    ``computes`` is the act's own declaration. An empty declaration disables
+    the check for that act, so no existing act changes behaviour until it
+    declares -- and declaring is what the two acts Sanaa reviewed now do.
+    """
+    if not computes:
+        return
+    allowed = {word.lower() for word in computes}
+    lowered = text.lower()
+    for word in CAPTION_QUANTITY_VOCABULARY:
+        if word in allowed:
+            continue
+        if re.search(r"\b" + word + r"s?\b", lowered):
+            raise DemoContractError(
+                f"the caption {text!r} names {word!r}, which this act does "
+                f"not compute; a caption comes from the act, never from the "
+                f"stage template")
+
+
 @dataclass(frozen=True)
 class Figure:
     """A rendered figure, under Sanaa's 2026-09-01 ~03:10Z figure standard.
@@ -1300,6 +1493,12 @@ class Figure:
     most 20 words. Every explanation moves to the sheet text. Min and max
     appear as the colour bar's end ticks and nowhere else. The limits are
     enforced here rather than reviewed.
+
+    THE CAPTION CLAUSE, ADDED 2026-09-01 ~20:06Z: a caption is math symbols,
+    units and numbers, never an English sentence about a quantity. See
+    :data:`FIGURE_CAPTION_STANDARD` and :func:`check_caption_symbols`. The
+    figures whose captions predate it are named, by file, in
+    :data:`_LEGACY_PROSE_CAPTIONS`; every new figure inherits the rule.
     """
 
     path: Path
@@ -1310,6 +1509,8 @@ class Figure:
     def __post_init__(self) -> None:
         check_demo_language(self.title)
         check_demo_language(self.caption)
+        if Path(self.path).name not in _LEGACY_PROSE_CAPTIONS:
+            check_caption_symbols(self.caption)
         if len(self.title.split()) > 10:
             raise DemoContractError(
                 f"figure title is at most 10 words: {self.title!r}")
@@ -1519,6 +1720,24 @@ class DemoAct(ABC):
     #: Short act name for the mission log. Internal; the screen shows the
     #: prompt and the solver header, not this.
     name: str = ""
+
+    #: WHAT THIS ACT ACTUALLY COMPUTES, from
+    #: :data:`CAPTION_QUANTITY_VOCABULARY`. The stage template used to caption
+    #: the shock benchmark's grid with "the lift and the pressures" and to
+    #: title its resolution table "Wall and slot resolution"; there is no lift
+    #: and no slot in that case. Declaring here lets
+    #: :func:`check_quantities_named` refuse a caption naming a quantity this
+    #: act does not compute, wherever the caption came from. Left empty the
+    #: check does not run, so no undeclared act changes behaviour.
+    computes: tuple[str, ...] = ()
+
+    #: THE SYMBOL EACH RENDERED FIELD PANEL IS LABELLED WITH, keyed by panel
+    #: name (``field_p``, ``field_u``). The units are the act's: the jet flap
+    #: solves an incompressible case whose pressure is kinematic
+    #: (``p/rho (m^2/s^2)``) and the shock benchmark solves a compressible one
+    #: whose pressure is ``p (Pa)``. The stage template cannot know which, and
+    #: guessing is how a screen states a unit the solver did not use.
+    panel_quantities: Mapping[str, str] = MappingProxyType({})
 
     @abstractmethod
     def run_record(self) -> RunRecord:

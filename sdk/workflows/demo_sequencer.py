@@ -72,7 +72,8 @@ from pathlib import Path
 from typing import Callable
 
 from .demo_mode import (BANNERS, STAGES, DemoAct, DemoContractError,
-                        assert_screen_safe, check_running_line, cost_line,
+                        assert_screen_safe, check_quantities_named,
+                        check_running_line, cost_line,
                         registered_acts, screen_refusal_class,
                         translate_chips, validate_act)
 
@@ -765,7 +766,12 @@ class Sequencer:
         live_cells = self._run_mesher(mesh)
         if script is not None:
             emit_table(emit, script, role="NUMERICIST",
-                       title="Wall and slot resolution",
+                       # THE TITLE IS THE ACT'S. It was the constant "Wall and
+                       # slot resolution" here, so the shock-reflection act
+                       # titled its grid table after a slot it does not have.
+                       # Sanaa caught it on camera, 2026-09-01 ~20:10Z: "there
+                       # is no lift and no slot here."
+                       title=mesh.resolution_title,
                        headers=list(mesh.resolution_headers),
                        rows=[list(r) for r in mesh.resolution_rows],
                        table_id="mesh_resolution")
@@ -811,16 +817,46 @@ class Sequencer:
         # off the wall, held, then eased into the slot; two panels published in
         # order are the same three beats -- the whole grid, then the wall layers
         # at the slot -- and the page holds each one on its own beat.
-        label = "the grid the numbers on this screen are computed on"
+        # THE THREE SENTENCES THAT USED TO RIDE HERE ARE GONE, on Sanaa's
+        # direct instruction of 2026-09-01 ~20:06Z. They were the label "the
+        # grid the numbers on this screen are computed on", the caption
+        # "39,984 cells" and the caption "Closing on the wall layers at the
+        # trailing-edge slot", and she named all three for removal.
+        #
+        # THE LABEL IS NOT SIMPLY DROPPED, and that is a display fact rather
+        # than a preference: ``loadMeshPanel`` sets the viewport label only
+        # when the payload carries one, so a panel published without a label
+        # leaves the GEOMETRY stage's label standing over a picture of the
+        # grid. What goes there instead is the grid's own type, from the act
+        # (:attr:`MeshPlan.mesh_type`) -- symbols and nouns rather than a
+        # sentence, per the figure standard -- and the count is left to the
+        # page, which already prints it under the grid from ``panelCells``.
+        # An act that declares no type falls back to the bare count, which is
+        # still a number rather than a sentence.
+        label = mesh.mesh_type or (f"{printed:,} cells" if printed is not None
+                                   else "")
+        self._check_caption(label)
         if wide is not None:
-            self._publish(emit, "mesh.panel", dict(
-                wide, stage="meshing", label=label,
-                caption=f"{printed:,} cells." if printed is not None else ""))
+            self._publish(emit, "mesh.panel",
+                          dict(wide, stage="meshing", label=label))
         if close is not None:
-            self._publish(emit, "mesh.panel", dict(
-                close, stage="meshing", label=label,
-                caption=f"Closing on {mesh.wall_zoom_hint}."))
+            self._publish(emit, "mesh.panel",
+                          dict(close, stage="meshing", label=label))
         return published
+
+    def _check_caption(self, text: str) -> None:
+        """Refuse a caption naming a quantity THIS act does not compute.
+
+        THE SHARED-TEMPLATE GUARD. Sanaa found the shock-reflection act
+        captioning its grid "the grid the lift and the pressures are computed
+        on" and titling its resolution table "Wall and slot resolution":
+        strings written for the jet flap, rendered by an act with no lift and
+        no slot in it. Moving the captions into the acts fixes those two; this
+        makes the next one detectable, and it is keyed on the act's own
+        ``computes`` declaration so it cannot go stale.
+        """
+        if text:
+            check_quantities_named(text, getattr(self.act, "computes", ()))
 
     #: Where a served grid is written. Under the output root because that is
     #: the only tree the control-room server will serve a JSON body from, and
@@ -882,9 +918,16 @@ class Sequencer:
         return {
             "url": f"/api/field/{self.GRID_DIR}/{name}",
             "cells": payload["cells"],
-            "label": "the grid the lift and the pressures are computed on",
-            "caption": f"{payload['cells']:,} cells, drawn one at a time, "
-                       f"closing on {mesh.wall_zoom_hint}.",
+            # THIS LABEL WAS THE LEAK SANAA CAUGHT ON THE SHOCK BENCHMARK. It
+            # read "the grid the lift and the pressures are computed on" --
+            # written for the jet flap, rendered by an act that computes
+            # neither -- and it reached that screen because this canvas payload
+            # is the path taken by an act declaring no rendered panels. The
+            # label and caption now come from the ACT (its mesh type and its
+            # own cell count) and carry no quantity at all, so no act can
+            # inherit another's vocabulary here.
+            "label": mesh.mesh_type or "the computational grid",
+            "caption": f"{payload['cells']:,} cells.",
         }
 
     # -- the rendered panels ------------------------------------------------
@@ -1225,6 +1268,12 @@ class Sequencer:
             # the flow from a picture of a curve and the grid stayed on the
             # stage through the report. The flag is derived from the act's own
             # `fields` list, so no act has to declare it twice.
+            # THE ACT'S OWN FIGURES GO THROUGH THE SAME GUARD as the panels
+            # the stage composes. A caption written by an act that names a
+            # quantity the act does not compute is the same defect whether the
+            # words came from a template or from the module itself.
+            self._check_caption(figure.title)
+            self._check_caption(figure.caption)
             announce_plot(emit, namespace, figure.path,
                           figure.title, figure.caption,
                           field=Path(figure.path) in field_paths)
@@ -1255,14 +1304,32 @@ class Sequencer:
             # velocity panel shows the jet leaving the slot and turning the
             # wake. Both are honest and both carry their scale; only one of
             # them is worth the beat a viewer spends looking at it.
-            fields = (
-                ("field_p", "Solved pressure field",
-                 "Pressure over the solved section, on the grid the numbers "
-                 "come from."),
-                ("field_u", "Solved velocity field",
-                 "Velocity magnitude over the solved section, on the grid "
-                 "the numbers come from."),
-            )
+            # THE TITLES AND CAPTIONS ARE NOW SYMBOLS, NUMBERS AND THE ACT'S
+            # OWN GRID FACTS. Three of Sanaa's 2026-09-01 ~20:06Z instructions
+            # meet here:
+            #
+            #   * the labels "the Solved field" and "results" go, so the title
+            #     carries the QUANTITY's symbol and unit instead;
+            #   * the caption "Velocity magnitude over the solved section, on
+            #     the grid the numbers come from" is replaced by the mesh type
+            #     and the cell count, stated explicitly;
+            #   * everything under a picture is math symbols and numbers, never
+            #     an English sentence (:data:`FIGURE_CAPTION_STANDARD`).
+            #
+            # THE SYMBOLS ARE THE ACT'S AND THE UNITS ARE NOT GUESSED. The jet
+            # flap is incompressible, so its pressure is kinematic and reads
+            # p/rho (m^2/s^2); the shock benchmark is compressible and reads
+            # p (Pa). This method has no way to know which, and a stage that
+            # guessed would print a unit the solver did not use -- which is the
+            # same defect class as the jet captions that reached the shock
+            # act's mesh screen. The act declares them in
+            # ``DemoAct.panel_quantities``; an act that declares none gets the
+            # neutral symbol and no unit.
+            symbols = dict(getattr(self.act, "panel_quantities", {}) or {})
+            grid = mesh.grid_caption()
+            fields = tuple(
+                (panel, symbols.get(panel, default), grid)
+                for panel, default in (("field_p", "p"), ("field_u", "|U|")))
             # The namespace is the ACT'S, taken from a figure it declares, so a
             # panel announced beside the act's own figures is served from the
             # same directory they are. Derived rather than constant: see
@@ -1273,6 +1340,8 @@ class Sequencer:
                 shot = self._panel(mesh, panel, namespace=space)
                 if shot is None:
                     continue
+                self._check_caption(title)
+                self._check_caption(caption)
                 announce_plot(emit, space, Path(shot["url"]).name,
                               title, caption, field=True)
         if script is not None:

@@ -547,6 +547,23 @@ class ShockReflectionAct(DemoAct):
 
     name = "shock reflection at Mach 10"
 
+    #: WHAT THIS ACT COMPUTES. Sanaa, 2026-09-01 ~20:10Z, on this act's own
+    #: screens: the mesh caption read "the grid the lift and the pressures are
+    #: computed on" and the resolution table was titled "Wall and slot
+    #: resolution" -- "there is no lift and no slot here." Both strings came
+    #: from the stage template. They now come from the act, and this
+    #: declaration is what makes the next leak REFUSE instead of film:
+    #: ``check_quantities_named`` reads it and rejects any caption naming a
+    #: quantity outside it.
+    computes = ("shock",)
+
+    #: THE SYMBOL AND UNIT UNDER EACH RENDERED FIELD PANEL. rhoCentralFoam is
+    #: compressible and carries a real thermodynamic pressure, so the unit is
+    #: Pa; the jet-flap act's incompressible p/rho would be the wrong unit on
+    #: this screen, and a shared template guessing between them is exactly how
+    #: it would get there.
+    panel_quantities = {"field_p": "p (Pa)", "field_u": "|U| (m/s)"}
+
     # -- stage 0, internal --------------------------------------------------
     def run_record(self):
         from .demo_mode import RunRecord
@@ -686,6 +703,12 @@ class ShockReflectionAct(DemoAct):
                 for label, key, resolution in GRIDS],
             wall_zoom_hint="the cells along the wall where the shock strikes",
             expected_seconds=40.0,
+            # THE GRID'S TYPE AND THIS ACT'S OWN TABLE TITLE. The title used to
+            # be the constant "Wall and slot resolution", written for the jet
+            # flap and rendered here over a table of two uniform Cartesian
+            # grids with no slot anywhere in the case.
+            mesh_type="Uniform Cartesian",
+            resolution_title="Grid resolution",
             # THE PATCH THE DRAWING OUTLINES AS THE BODY. Unnamed, the slicer
             # looks for a patch called ``airfoil``, finds none, and frames the
             # whole channel -- which would leave the wall-layer zoom above
@@ -814,11 +837,23 @@ class ShockReflectionAct(DemoAct):
                      "Difference", "Difference in cells of that grid"],
             rows=rows, table_id="dmr_position", role="CHIEF ENGINEER")
 
+        # THE CAPTION IS SYMBOLS, UNITS AND NUMBERS, per Sanaa's 2026-09-01
+        # ~20:06Z instruction carried onto this act by her "(same applies for
+        # mach10)". It read "The shock, the structure it throws off the wall
+        # and the jet beneath it" -- an English sentence naming a jet, which
+        # this act does not compute. The grid facts beside the symbol are this
+        # act's own: the mesh type declared in ``mesh_plan`` and the two cell
+        # counts read off the solved grids, never retyped.
         figure = Figure(
             FIGURES / "dmr_density_contours.png",
             "Density at the final time, both grids",
-            ("The shock, the structure it throws off the wall and the jet "
-             "beneath it."),
+            # EACH COUNT CARRIES THE GRID IT BELONGS TO. Two grids are on this
+            # one screen and a bare pair of numbers would leave a viewer to
+            # guess which is which; the labels come from ``GRIDS`` so they
+            # cannot disagree with the counts beside them.
+            (f"rho (kg/m^3); uniform Cartesian, "
+             + ", ".join(f"{label.lower()} {_cells(key):,} cells"
+                         for label, key, _ in reversed(GRIDS)) + "."),
             "shock-reflection")
 
         in_cells = {label: float(_gate_v(key)["error"])
@@ -1106,9 +1141,16 @@ class ShockReflectionAct(DemoAct):
             # weaker tiers onto a stronger word; a certificate resolved by
             # path can be another run's document under this run's name. A
             # blank is honest.
-            certificate_state=(
-                "The certificate is issued with the convergence band, which "
-                "is running for this case now."))
+            # THE PROMISE IS GONE, THE FACT STAYS. This read "The certificate
+            # is issued with the convergence band, which is running for this
+            # case now", identically on every act, and no credential record in
+            # this repository carries a certificate field at all -- so the
+            # screen asserted an issuance nothing on disk supports. Sanaa named
+            # the sentence for removal. It is NOT replaced by a different
+            # promise and it is not replaced by silence either: a blank in this
+            # slot is read as a certificate having been issued, which is the
+            # dangerous default this field exists to close.
+            certificate_state="No sealed certificate is attached to this study.")
 
     # -- which sequencer walks this act -------------------------------------
     def sequencer(self):

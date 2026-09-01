@@ -511,6 +511,71 @@ CANDIDATE_GEOMETRIES = (
 )
 
 
+#: THE PRE-EXISTING-WORK CLASS, REFUSED IN EVERY ROUTING RATIONALE.
+#:
+#: The rationale is the ONE router string that reaches a screen: the control
+#: room renders ``route.rationale`` on the interpretation panel and renders
+#: nothing else from this module. Sanaa's never-list bans narration that tells
+#: a viewer the work is already done -- "replay", "already finished", and the
+#: family around them -- and two rationales carried it verbatim: the jet flap's
+#: "The calculations for that wing are finished, so I will present them rather
+#: than start anything", and the shock benchmark's "Two grids for it are
+#: already solved, so I present them rather than start anything."
+#:
+#: PURGED AS A CLASS AND NOT AS TWO SENTENCES. Removing the two instances is
+#: what the last three of these repairs did, and each time the belief that the
+#: class was handled is what let the next one through. The patterns below fire
+#: on the FAMILY: a finished/already-run claim, a "present them" claim, a
+#: "rather than start" claim, a "no solver starts" claim, prior runs and
+#: replay. Each was planted by hand against this checker before it was
+#: committed.
+#:
+#: THE EVIDENCE CLAUSES ARE NOT CHECKED, and that is a measured decision rather
+#: than an omission: ``Route.evidence`` is machine-readable and the control
+#: room renders no part of it (its only textual sink is the route panel's
+#: rationale, ``control_room.html`` line 1106). Three evidence strings in this
+#: module do carry the class -- they are listed in the inventory that went with
+#: this change -- and none of them reaches a viewer.
+_PRE_EXISTING_WORK: tuple[tuple[str, str], ...] = (
+    (r"\b(?:are|is|were|was|has|have|had)\s+(?:already\s+)?"
+     r"(?:finished|solved|run|computed|completed)\b",
+     "say what the screens show, not when the work happened"),
+    (r"\balready\s+(?:finished|solved|run|ran|landed|computed|completed|"
+     r"exists?|existed)\b",
+     "say what the screens show, not when the work happened"),
+    (r"\brather\s+than\s+start(?:ing)?\b", "say what the screens show"),
+    (r"\bpresent(?:ing|s|ed)?\s+them\b", "say what the screens show"),
+    (r"\breplay(?:ed|ing|s)?\b", "say what the screens show"),
+    (r"\bno\s+(?:new\s+)?solver?\s+(?:starts|runs|is\s+started)\b",
+     "say what the screens show"),
+    (r"\bno\s+new\s+(?:number|numbers|solve|solves)\b",
+     "say what the screens show"),
+    (r"\bprior\s+runs?\b", "say what the screens show"),
+    (r"\bsource\s+case\b", "say what the screens show"),
+)
+
+#: INTENTS EXEMPT FROM THE CLASS, AND THERE ARE NONE. The hook is here because
+#: one intent looked like it needed one: ``unseen-geometry`` exists to retrieve
+#: the nearest cases this lab has actually solved, and a rationale for it that
+#: could not mention them would be a rationale for a different act. Its wording
+#: was measured against every pattern above and matches none of them, so it is
+#: NOT listed -- an exemption granted on a guess is an exemption that hides the
+#: next real hit. Anything added here is visible, named, and dated.
+_PRE_EXISTING_WORK_EXEMPT: frozenset[str] = frozenset()
+
+
+def _check_rationale(intent: str, rationale: str) -> None:
+    """Refuse a routing rationale that narrates the work as already done."""
+    if intent in _PRE_EXISTING_WORK_EXEMPT:
+        return
+    for pattern, remedy in _PRE_EXISTING_WORK:
+        hit = re.search(pattern, rationale, flags=re.IGNORECASE)
+        if hit:
+            raise ValueError(
+                f"the routing rationale for {intent!r} tells the viewer the "
+                f"work is already done ({hit.group(0)!r}); instead: {remedy}")
+
+
 @dataclass
 class Route:
     intent: str
@@ -850,12 +915,11 @@ def classify(request: str) -> Route:
             "grade the converged drag against its published reference value."),
         JET_FLAP_DISPLAY: (
             "Reading this as a wing with air blown out of a slot at the "
-            "trailing edge. The calculations for that wing are finished, so "
-            "I will present them rather than start anything: the grid at the "
-            "wall and across the slot, the surface pressure along the chord, "
-            "and lift against blowing beside the published curve. They are "
-            "exploratory and I will say so, with how far each one was still "
-            "moving when it stopped."),
+            "trailing edge. The screens are the grid at the wall and across "
+            "the slot, the surface pressure along the chord, and lift against "
+            "blowing beside the published curve. They are exploratory and I "
+            "will say so, with how far each one was still moving when it "
+            "stopped."),
         CYLINDER_VORTEX_SHEDDING: (
             "Reading this as the unsteady cylinder wake. I will solve the "
             "periodic shedding end to end and grade the measured Strouhal "
@@ -878,10 +942,9 @@ def classify(request: str) -> Route:
             "distance against the Billig correlation, within 0.70%."),
         DOUBLE_MACH_REFLECTION: (
             "Reading this as a shock reflecting off a wall too steeply to "
-            "stay attached. Two grids for it are already solved, so I present "
-            "them rather than start anything: where the shock has reached on "
-            "each grid against where it should be, the picture of the flow at "
-            "that instant, and what the work costs. The expectation is "
+            "stay attached. The screens are where the shock reaches on each "
+            "of two grids against where it should be, the picture of the flow "
+            "at that instant, and what the work costs. The expectation is "
             "written down before the first grid is built, and the screen "
             "says how close each grid comes in units of its own cell."),
         AIRCRAFT_OPTIMIZATION: (
@@ -926,13 +989,11 @@ def classify(request: str) -> Route:
             "current envelope, decide whether it is reducible, and spend "
             "samples until only irreducible uncertainty remains."),
         THERMAL_DISPLAY: (
-            "Reading this as a thermal question about a body this lab has "
-            "already run. No solver starts and no new number is produced: I "
-            "will put the screens up from that run's own fields and read the "
-            "quantities off them, with the source case, the mesh, and the "
-            "instrument checks named beside every figure. "
-            "Where a quantity the run cannot define was asked for, the screen "
-            "will say so instead of showing something adjacent."),
+            "Reading this as a thermal question about this body. The screens "
+            "are that body's own fields, with the quantities read off them "
+            "and the grid and the instrument checks named beside every "
+            "figure. Where a quantity the physics cannot define was asked "
+            "for, the screen says so instead of showing something adjacent."),
         SOBOL_SENSITIVITY: (
             "Reading this as a variance apportionment. An envelope says how "
             "wide the answer is and never says which input made it wide, so "
@@ -945,6 +1006,7 @@ def classify(request: str) -> Route:
     # The rationale stands alone on the interpretation panel; the raw evidence
     # clauses stay machine-readable in ``evidence`` rather than being appended
     # as a "Basis:" sentence that restates the rationale in router shorthand.
+    _check_rationale(intent, rationale)
     return Route(intent, confidence, rationale, tuple(reasons), params)
 
 
