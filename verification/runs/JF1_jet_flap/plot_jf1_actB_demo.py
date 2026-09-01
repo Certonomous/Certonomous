@@ -220,7 +220,19 @@ def digest_sweep(base):
                    "%.4g x" % (d, aref, aref_req, aref_req / aref))
         cl = cols["Cl"]
         cd = cols["Cd"]
-        m = t > t.max() - 1000
+        # Settling window: the final 4,000 iterations, not the final 1,000.
+        # This figure was NOT wrong before. It computed its error bars at
+        # render time and its bars were honest for the window it used. The
+        # window changed because the lab tightened its own convention: where
+        # two defensible definitions exist and one flatters the result, take
+        # the one that reports MORE movement. The range over the longer window
+        # is also the only choice that cannot hide an excursion inside it.
+        #
+        # That is a different thing from the result sheet's Movement column,
+        # which was a hard-coded constant contradicting its own caption. This
+        # figure moved by convention; that column was defective. Do not blur
+        # the two.
+        m = t > t.max() - 4000
         scatter = 0.5 * float(cl[m].max() - cl[m].min())
         i = int(np.argmin(np.abs(t - SWEEP_TIME)))
 

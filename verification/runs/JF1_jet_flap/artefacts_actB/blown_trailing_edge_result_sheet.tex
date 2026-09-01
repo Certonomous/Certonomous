@@ -74,11 +74,11 @@ Jet momentum & Lift from the & Jet reaction & Lift, surface & Movement in the & 
 coefficient & aerofoil surface & (added, not & $+$ jet reaction & last 4{,}000 & equation & from \\
 $C_\mu$ [--] & $C_{L,\mathrm{surface}}$ [--] & measured) [--] & [--] & iterations [--] & imbalance [--] & Table 1 [\%] \\
 \midrule
-0.00$^{\dagger}$ & $5.50595 \times 10^{-5}$ & $0$ & $5.50595 \times 10^{-5}$ & $5 \times 10^{-7}$ & $3.46 \times 10^{-6}$ & --- \\
+0.00$^{\dagger}$ & $5.50595 \times 10^{-5}$ & $0$ & $5.50595 \times 10^{-5}$ & $7 \times 10^{-7}$ & $3.46 \times 10^{-6}$ & --- \\
 0.05 & $4.05733 \times 10^{-1}$ & $2.50000 \times 10^{-2}$ & $4.30733 \times 10^{-1}$ & $5 \times 10^{-7}$ & $5.94 \times 10^{-6}$ & +1.73 \\
-0.10 & $5.48846 \times 10^{-1}$ & $5.00000 \times 10^{-2}$ & $5.98846 \times 10^{-1}$ & $5 \times 10^{-7}$ & $2.55 \times 10^{-5}$ & -0.98 \\
-0.20 & $7.43999 \times 10^{-1}$ & $1.00000 \times 10^{-1}$ & $8.43999 \times 10^{-1}$ & $9 \times 10^{-6}$ & $4.57 \times 10^{-5}$ & -2.85 \\
-0.40 & $1.00999 \times 10^{0}$ & $2.00000 \times 10^{-1}$ & $1.20999 \times 10^{0}$ & $5 \times 10^{-6}$ & $1.47 \times 10^{-4}$ & -3.93 \\
+0.10 & $5.48846 \times 10^{-1}$ & $5.00000 \times 10^{-2}$ & $5.98846 \times 10^{-1}$ & $7 \times 10^{-7}$ & $2.55 \times 10^{-5}$ & -0.98 \\
+0.20 & $7.43999 \times 10^{-1}$ & $1.00000 \times 10^{-1}$ & $8.43999 \times 10^{-1}$ & $4 \times 10^{-5}$ & $4.57 \times 10^{-5}$ & -2.85 \\
+0.40 & $1.00999 \times 10^{0}$ & $2.00000 \times 10^{-1}$ & $1.20999 \times 10^{0}$ & $8 \times 10^{-6}$ & $1.47 \times 10^{-4}$ & -3.93 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -88,7 +88,8 @@ $C_\mu$ [--] & $C_{L,\mathrm{surface}}$ [--] & measured) [--] & [--] & iteration
 aerofoil only; it does \emph{not} contain the jet reaction, which is added
 explicitly in the fourth column to give a quantity comparable with Table~1.
 ``Movement'' is how much the lift still shifted over the final 4{,}000
-iterations. ``Turbulence equation imbalance'' is how far the turbulent kinetic
+iterations: half the range it covered there, rounded up to one significant
+figure. ``Turbulence equation imbalance'' is how far the turbulent kinetic
 energy equation is from being satisfied at the last iteration; the target set
 before running was $1 \times 10^{-6}$. $^{\dagger}$The $C_\mu = 0$ row is a
 reference case with the slot \emph{closed}; the other four have it open and

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import math
 import os
+import sys
 
 import matplotlib
 matplotlib.use("Agg")
@@ -25,7 +26,13 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 # Movement of the lift coefficient over the last 4,000 iterations, rounded up to
 # one significant figure.  This is a settle indicator, NOT a grid uncertainty.
-SETTLE_BAND = {0.00: 5e-07, 0.05: 5e-07, 0.10: 5e-07, 0.20: 9e-06, 0.40: 5e-06}
+#
+# These error bars are the SAME QUANTITY as the result sheet's Movement column,
+# and the sheet's caption says so in as many words.  They were a second copy of
+# the same hard-coded dict, which is exactly how one number becomes two numbers
+# that disagree.  Both now call one reader.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import jf1_display_numbers as jf1num  # noqa: E402
 
 
 def main() -> int:
@@ -57,7 +64,9 @@ def main() -> int:
     x = [r["C_mu"] for r in rows]
     y_aero = [r["CL_aero"] for r in rows]
     y_tot = [r["CL_aero"] + th.jet_reaction(r["C_mu"]) for r in rows]
-    err = [SETTLE_BAND[r["C_mu"]] for r in rows]
+    err = [jf1num.movement_1sf(
+        jf1num.settling(r["case_dir"], jf1num.SETTLE_WINDOW)["half_range"])
+        for r in rows]
 
     fig, ax = plt.subplots(figsize=(6.1, 4.1))
 

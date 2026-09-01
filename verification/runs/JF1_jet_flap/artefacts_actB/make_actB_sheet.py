@@ -13,6 +13,7 @@ and its comments are not part of the sheet.
 from __future__ import annotations
 
 import os
+import sys
 
 import jf1_theory_actB as th
 
@@ -33,7 +34,43 @@ RATE_USD_PER_CORE_HOUR = 0.0513   # owner-stated machine rate
 
 # Movement of the lift coefficient over the last 4,000 iterations, rounded up to
 # one significant figure.  A settling indicator, not a total uncertainty.
-SETTLE_BAND = {0.00: 5e-07, 0.05: 5e-07, 0.10: 5e-07, 0.20: 9e-06, 0.40: 5e-06}
+#
+# THIS USED TO BE A HARD-CODED DICT AND THE DICT DID NOT MATCH ITS OWN CAPTION.
+# It read
+#
+#   SETTLE_BAND = {0.00: 5e-07, 0.05: 5e-07, 0.10: 5e-07, 0.20: 9e-06,
+#                  0.40: 5e-06}
+#
+# and four of those five values were smaller than the quantity the caption
+# above describes: at C_mu = 0.20 the sheet printed 9e-06 against a measured
+# half-range of 3.383e-05, understating by 3.8x.  They also failed the caption's
+# own rounding rule, which says round UP: 6.901e-07 rounded up to one
+# significant figure is 7e-07, and the sheet printed 5e-07.  They matched
+# neither the 4,000-iteration window nor the 1,000-iteration one, so "it was
+# computed on the shorter window" is ruled out by measurement rather than by
+# argument.
+#
+# The column is now COMPUTED at render time from each case's force history, by
+# the same reader the rest of this campaign uses.  Editing the dict to better
+# numbers was rejected deliberately: a constant wearing a measured caption is
+# the defect, and better constants leave the defect in place for whoever next
+# changes a run.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import jf1_display_numbers as jf1num  # noqa: E402
+
+
+def settle_band(case_dir: str) -> float:
+    """Movement over the final 4,000 iterations, rounded up to one figure.
+
+    One implementation, shared with the embedded lift panel and with the
+    control-room screen, because two implementations of one number is how the
+    two diverge without anybody noticing.  The reader plants a known value into
+    a copy of the force history and refuses if it cannot read it back, and it
+    refuses outright rather than shortening the window if fewer than 4,000
+    iterations exist.
+    """
+    return jf1num.movement_1sf(
+        jf1num.settling(case_dir, jf1num.SETTLE_WINDOW)["half_range"])
 
 
 def sci(x: float, sig: int = 6) -> str:
@@ -76,7 +113,7 @@ def main() -> int:
         surf = m["CL_aero"]
         react = th.jet_reaction(c)
         total = surf + react
-        band = SETTLE_BAND[c]
+        band = settle_band(m["case_dir"])
         kres = m["residuals"]["k"]
         if theory[c]["CL"] > 0:
             diff = f"{100.0 * (total / theory[c]['CL'] - 1.0):+.2f}"
@@ -187,7 +224,8 @@ $C_\mu$ [--] & $C_{{L,\mathrm{{surface}}}}$ [--] & measured) [--] & [--] & itera
 aerofoil only; it does \emph{{not}} contain the jet reaction, which is added
 explicitly in the fourth column to give a quantity comparable with Table~1.
 ``Movement'' is how much the lift still shifted over the final 4{{,}}000
-iterations. ``Turbulence equation imbalance'' is how far the turbulent kinetic
+iterations: half the range it covered there, rounded up to one significant
+figure. ``Turbulence equation imbalance'' is how far the turbulent kinetic
 energy equation is from being satisfied at the last iteration; the target set
 before running was $1 \times 10^{{-6}}$. $^{{\dagger}}$The $C_\mu = 0$ row is a
 reference case with the slot \emph{{closed}}; the other four have it open and

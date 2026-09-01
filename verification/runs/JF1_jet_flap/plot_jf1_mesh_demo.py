@@ -34,6 +34,26 @@ SWEEP = "JF1_L1_BLOWN_CMU010_A0"      # O-topology, 10 mm span, force sweep
 SWEEP_UNBLOWN = "JF1_L1_UNBLOWN_A0"
 SWEEP_TIME = "8000"
 
+def _sweep_yplus_max():
+    """Largest wall spacing on each of the five calculations, in sweep order.
+
+    This figure renders ONE of the five cases, because a histogram has to be
+    of something. But the page it sits on is captioned as the grid all five
+    ran on, so any number it states about the grid has to come from all five.
+    Reading the rendered case and calling it the grid's is how "largest 0.256"
+    reached a signed page while the true sweep maximum was 0.398.
+
+    Shared reader, one implementation, plants and refuses.
+    """
+    import sys as _sys
+
+    _sys.path.insert(0, HERE)
+    import jf1_display_numbers as _jf1num
+
+    return [_jf1num.wall_yplus(_jf1num.RUN_ROOT / name, SWEEP_TIME)["max"]
+            for _, name in _jf1num.SWEEP_CASES]
+
+
 CHORD = 1.0
 H_SLOT = 0.005                         # m, registered slot height
 SLOT_FLOOR = 12                        # registered floor, cells across h
@@ -916,9 +936,19 @@ def main():
         % (sS["n_across"], 1e3 * sS["h"], 1e3 * sS["dy_max"]),
         "Largest cell distortion %.1f°, largest skew %.2f, and no cell of "
         "zero or negative volume." % (cmS["nonorth_max"], cmS["skew_max"]),
-        "Near-wall spacing here: smallest %.3f, average %.3f, largest %.3f — "
-        "every wall cell below the wall-resolved limit."
-        % (ypS.min(), ypS.mean(), ypS.max()),
+        # The page is captioned as the grid ALL FIVE calculations ran on, so
+        # the number it offers has to be the worst of the five, not the one
+        # case this figure happens to render. It used to quote this case
+        # alone (largest 0.256, the C_mu = 0.10 row) while claiming to
+        # describe the grid, which understated the sweep maximum of 0.398 by
+        # 1.6x. The claim it supports, that every wall cell is below the
+        # wall-resolved limit, was true then and is still true now; what was
+        # wrong was the number offered as evidence for it, and it was wrong in
+        # the flattering direction.
+        "Near-wall spacing rises with blowing, from largest %.3f with the "
+        "slot closed to largest %.3f at the strongest jet. Every wall cell "
+        "of every calculation is below the wall-resolved limit."
+        % (_sweep_yplus_max()[0], _sweep_yplus_max()[-1]),
         "None of the five calculations on this grid reached its convergence "
         "target; the lift they report had stopped moving.",
     ], title="WHAT YOU ARE LOOKING AT")
