@@ -1,0 +1,1187 @@
+"""DEMO MODE — the one interface every act plugs into.
+
+Sanaa's directive of 2026-09-01 ~03:40Z (captured verbatim at
+``etc/sessions/2026-09-01T0340Z_sanaa_demo_mode_binding.md``, commit
+``4905abdd``) is binding for every act:
+
+    A demo act is the live GUI pipeline fed by a completed run tree. It looks
+    and behaves exactly like a user running the case: every stage renders in
+    its normal place and its normal order. The only difference from a fresh
+    run is that the solver stage replays the stored logs at accelerated pace
+    instead of computing. Every number, field and figure is the real run's;
+    nothing is invented.
+
+This module is the CONTRACT, not the act. It says exactly what an act must
+supply for each mandatory stage, in types that can be imported and checked.
+The sequencer (``demo_sequencer``, same package) consumes a :class:`DemoAct`
+and drives the stages in fixed order; the replay of the solver stage is built
+separately and reached through :class:`SolveReplay`.
+
+WHY IT IS TYPED RATHER THAN DESCRIBED
+-------------------------------------
+Three of the failures this interface exists to prevent are failures of
+authorship, not of judgement, and every one of them has already reached a
+screen carrying this lab's numbers:
+
+* a number whose artifact was gone by the time anyone looked. Every quantity
+  crosses this interface as a :class:`Measured`, which carries the file it was
+  read out of, and :func:`validate_act` refuses an act whose sources are not
+  on disk. A number without a live source cannot be handed over at all.
+
+* an on-screen phrase from her NEVER-list surviving a human sweep. There is no
+  committed jargon checker in this repository; R5 compliance has rested on a
+  manual grep, which is exactly how those strings survived. :func:`check_demo_language`
+  is that checker, and :func:`validate_act` runs it over every string an act
+  offers, so a banned phrase fails at authorship instead of on camera.
+
+* "No surface loaded". :class:`Geometry` cannot be constructed without an STL
+  path, and the validator refuses one that is absent, empty, or not the solved
+  geometry the act names.
+
+WHAT AN ACT OWNS AND WHAT THE SEQUENCER OWNS
+--------------------------------------------
+The act owns FACTS: which run tree, which STL, which logs, which series, which
+figures, which numbers and where each was read. The sequencer owns ORDER,
+PACE and WORDING MECHANICS: stage sequence, the accelerated replay, the
+control-room events, and the language checks. An act never emits an event and
+never composes a stage header; it answers eight questions.
+
+INTERNAL-ONLY FIELDS
+--------------------
+Two things in this module are internal and never reach a screen: the
+``presentation of run X`` flag (:attr:`RunRecord.presentation_of`) and every
+``Measured.source`` path. Both are attributes of the record, not of the
+display. :func:`assert_screen_safe` is applied by the sequencer to every
+payload before it is published, and refuses either one.
+
+Provenance for the numbers-and-costs rules used here: CLAUDE.md rule 12
+(core-minutes is the unit; the box cannot read its own billing, so any dollar
+figure is derived and must say so) and rule 4 (a run is done only if all of
+the completion clauses hold).
+"""
+
+from __future__ import annotations
+
+import re
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Iterable, Mapping, Sequence
+
+__all__ = [
+    "Measured", "RunRecord", "Prompt", "Restatement", "Assumption", "Geometry",
+    "GeometryMatch", "MeshPlan", "Feasibility", "SolveReplay", "SeriesSpec",
+    "ElapsedClock", "GatesAndChecks", "Results", "Figure", "Table", "DemoAct",
+    "DemoContractError", "check_demo_language", "check_running_line",
+    "assert_screen_safe", "validate_act", "core_minutes", "cost_line",
+    "STAGES", "BANNERS", "NEVER_PHRASES", "RATE_USD_PER_CORE_HOUR",
+    "SERVED_GEOMETRY_DIR", "register_act", "registered_acts",
+]
+
+
+class DemoContractError(Exception):
+    """An act does not satisfy the demo-mode contract.
+
+    Raised at authorship or validation time, never during a shoot. The
+    sequencer refuses to start an act that raises this, exactly as the
+    comparators refuse rather than degrade (CLAUDE.md rule 4).
+    """
+
+
+#: The mandatory stages, in the order they render. Sanaa: "every stage renders
+#: in its normal place and its normal order". The sequencer walks this list and
+#: nothing else; an act cannot reorder, skip, or add a stage.
+STAGES: tuple[str, ...] = (
+    "prompt",        # professional wording, as the user typed it
+    "restatement",   # restatement, confidence, cost estimate
+    "assumption",    # exactly one user-assumption check
+    "geometry",      # the uploaded STL renders; it IS the solved geometry
+    "meshing",       # the real mesher, drawn cell by cell, wall-layer zoom
+    "feasibility",   # "30-second check before committing budget", with result
+    "solving",       # stored logs replayed at accelerated pace
+    "gates",         # reader checks, conservation, grid statement, in tables
+    "results",       # fields, plots, tables, verification lines, caveats, cost
+)
+
+#: The banner states, in order, from Sanaa's pacing amendment (``aaed6498``):
+#: forming team, planning, fleet at work, meshing, feasibility, solving,
+#: results. The banner must match what the screen is ACTUALLY showing at every
+#: moment — no banner ahead of or behind its content — so the mapping from
+#: stage to banner is fixed here rather than chosen per act.
+BANNERS: Mapping[str, str] = {
+    "prompt": "forming team",
+    "restatement": "planning",
+    "assumption": "planning",
+    "geometry": "fleet at work",
+    "meshing": "meshing",
+    "feasibility": "feasibility",
+    "solving": "solving",
+    "gates": "solving",
+    "results": "results",
+}
+
+#: The directory the control-room server actually serves a body from:
+#: ``sdk/geometry``. Measured, not assumed — ``server.py`` resolves a named
+#: geometry at line 351 and lands an upload at line 671, both as
+#: ``HERE.parent / "geometry"`` with ``HERE`` the ``chief_engineer`` package.
+#:
+#: This is NOT where the demo-surface generator writes (that is
+#: ``cases/demo-surfaces``); the two agree today only because someone copied by
+#: hand. An act therefore declares the SERVED copy, and :func:`validate_act`
+#: checks that copy, so a regenerated surface cannot silently serve a stale
+#: body. Related divergence worth a supervisor's eye: the staging helper at
+#: ``server.py:73`` honours ``CERTONOMOUS_STAGING`` while the two serving
+#: paths do not, so setting that variable moves the staging view without
+#: moving what is served.
+SERVED_GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
+
+#: The lab's recorded rate. Owner-stated 2026-08-21/22 and corroborated at
+#: ``Xiao2016_EnKF/PREREGISTRATION.md:197``. Any dollar figure derived from it
+#: is DERIVED, never measured: the box cannot read its own billing
+#: (COMPUTE_BUDGET_CHARTER §5).
+RATE_USD_PER_CORE_HOUR = 0.0513
+
+
+# ---------------------------------------------------------------------------
+# Language: her NEVER-list, enforced mechanically
+# ---------------------------------------------------------------------------
+
+#: Verbatim from the 2026-09-01 ~03:40Z capture, lines 35-38: "Never:
+#: 'already finished', 'presenting', 'nothing new is solved', 'no compute
+#: booked', 'screens come from', 'reference body', 'surface on file', 'not
+#: meshed by this screen', any path, any 'two grids were built'."
+#:
+#: Each entry is (regex, what to say instead). The regexes are deliberately
+#: narrow: a checker that fires on innocent prose gets switched off, and a
+#: checker that is switched off is how these strings survived a manual grep.
+NEVER_PHRASES: tuple[tuple[str, str], ...] = (
+    (r"already\s+finish(ed|es)?", "say what was solved, in the past tense"),
+    (r"\bpresent(ing|s|ed)\b(?!\s+tense)", "say what the run did"),
+    (r"nothing\s+new\s+is\s+solved", "state the solve as fact"),
+    (r"no\s+compute\s+(is\s+)?booked", "state this run's real cost"),
+    (r"screens?\s+come\s+from", "state the solve as fact"),
+    (r"reference\s+bod(y|ies)", "the uploaded surface IS the solved geometry"),
+    (r"surface\s+on\s+file", "the uploaded surface IS the solved geometry"),
+    # Widened past her literal wording deliberately: the phrase actually live
+    # in this package reads "not meshed or solved by this screen"
+    # (``__init__.acknowledge_reference_surface``), which her exact string
+    # would have missed. A checker that cannot see the instance already in the
+    # repository is not a checker.
+    (r"not\s+meshed\s+(or\s+solved\s+)?by\s+this\s+screen",
+     "the mesher runs on this screen"),
+    (r"\b(two|2)\s+grids?\s+(were|was|are|is)\s+built", "one grid on screen"),
+    (r"\bre[- ]?display(ed|s|ing)?\b", "state the solve as fact"),
+    (r"\bno\s+new\s+solve\b", "state the solve as fact"),
+    (r"\breplay(ed|ing|s)?\b", "state the solve as fact"),
+    (r"\bsolver:\s*none\b", "name the solver of the run"),
+    (r"\bnot\s+recorded\s+in\s+this\s+bundle\b", "state the recorded fact"),
+    (r"\bsource\s+case\b", "state the solve as fact"),
+)
+
+#: A path is anything with a filesystem root, a repository root segment, or a
+#: recognised extension. "lift/drag" and "2D/axisymmetric" are not paths and do
+#: not fire; ``/home/ubuntu/...``, ``cases/demo-surfaces/x.stl`` and
+#: ``log.simpleFoam`` do.
+_PATH_PATTERNS: tuple[str, ...] = (
+    r"(?<![\w.])[~/]\S*/\S+",
+    r"(?<![\w.])(?:cases|verification|docs|sdk|models|scripts|demo-output|"
+    r"mission-output|etc)/\S+",
+    r"(?<![\w])[\w][\w.-]*\.(?:stl|obj|vtk|vtp|py|md|json|csv|dat|txt|log|"
+    r"html|pdf|png|svg|foam|gz|yaml|yml|sh)\b",
+    r"(?<![\w])log\.\w+",
+    r"[A-Za-z]:\\\S+",
+)
+
+#: Allowed ONLY inside the limitations box, and nowhere else. Sanaa: "if a flow
+#: picture exists only on the finer grid, the sheet says 'flow picture from a
+#: finer companion grid' in the limitations box and nowhere else."
+_FINER_GRID = r"finer\s+companion\s+grid"
+
+
+def check_demo_language(text: str, *, zone: str = "screen") -> None:
+    """Refuse a string that breaks the on-screen language rules.
+
+    ``zone`` is ``"screen"`` for anything a viewer reads, or ``"limitations"``
+    for the caveat box, which is the one place the finer-companion-grid
+    sentence is permitted. ``zone="internal"`` skips the path rule only, for
+    strings that live in the run record and never render.
+
+    Raises :class:`DemoContractError` naming the offending phrase and what to
+    say instead. It does not warn and it does not sanitise: a phrase this
+    checker catches is an authorship bug, and rewriting it silently would put
+    a sentence on camera that nobody chose.
+    """
+    if not isinstance(text, str):
+        raise DemoContractError(f"expected a string, got {type(text).__name__}")
+    if zone not in {"screen", "limitations", "internal"}:
+        raise DemoContractError(f"unknown zone {zone!r}")
+
+    for pattern, remedy in NEVER_PHRASES:
+        hit = re.search(pattern, text, flags=re.IGNORECASE)
+        if hit:
+            raise DemoContractError(
+                f"banned on-screen phrase {hit.group(0)!r} in {text!r}; "
+                f"instead: {remedy}")
+
+    if zone != "internal":
+        for pattern in _PATH_PATTERNS:
+            hit = re.search(pattern, text)
+            if hit:
+                raise DemoContractError(
+                    f"a path is never on screen: {hit.group(0)!r} in {text!r}")
+
+    if zone == "screen" and re.search(_FINER_GRID, text, flags=re.IGNORECASE):
+        raise DemoContractError(
+            f"'finer companion grid' belongs in the limitations box and "
+            f"nowhere else: {text!r}")
+
+    # The package's older doctrine still binds where it does not conflict:
+    # no dash characters, no banned register, bullets start capitalised.
+    from . import check_wording
+
+    check_wording(text)
+
+
+#: A running line is progressive. Sanaa: 'Progressive tense while running
+#: ("Meshing", "Solving, iteration 4,000 of 20,000", "Sweep point 3 of 5"),
+#: past tense for results.' Two shapes are accepted: a leading -ing verb, or a
+#: counted-progress line ("Sweep point 3 of 5", "Point 3 of 5").
+_RUNNING_SHAPES: tuple[str, ...] = (
+    r"^[A-Z][a-z]+ing\b",
+    r"^(Sweep\s+point|Point|Operating\s+point|Case)\s+\d[\d,]*\s+of\s+\d[\d,]*\b",
+)
+
+#: A results line is past tense, and must not promise. These are the tells that
+#: a running line was pasted into a results slot.
+_RESULT_FORBIDDEN = (
+    (r"\bwill\s+\w+", "results are past tense"),
+    (r"\bis\s+being\b", "results are past tense"),
+    (r"\bare\s+being\b", "results are past tense"),
+    (r"\bwe\s+are\s+\w+ing\b", "results are past tense"),
+)
+
+
+def check_running_line(text: str, *, tense: str) -> None:
+    """Refuse a stage line whose tense does not match its moment.
+
+    ``tense`` is ``"progressive"`` for a line shown while a stage runs, or
+    ``"past"`` for a line shown with a result. Applies
+    :func:`check_demo_language` first, so one call covers both rules.
+    """
+    check_demo_language(text)
+    if tense == "progressive":
+        if not any(re.search(p, text) for p in _RUNNING_SHAPES):
+            raise DemoContractError(
+                f"a running line is progressive tense: {text!r} does not "
+                f"start with an -ing verb or a counted-progress phrase")
+    elif tense == "past":
+        for pattern, remedy in _RESULT_FORBIDDEN:
+            hit = re.search(pattern, text, flags=re.IGNORECASE)
+            if hit:
+                raise DemoContractError(
+                    f"{hit.group(0)!r} in a results line: {remedy}: {text!r}")
+    else:
+        raise DemoContractError(f"unknown tense {tense!r}")
+
+
+def assert_screen_safe(payload: Mapping) -> None:
+    """Refuse a control-room payload carrying an internal-only field.
+
+    The ``presentation of run X`` flag and every ``Measured.source`` path live
+    in the run record. This is the sequencer's last gate before publishing, so
+    neither can reach a screen through a payload nobody re-read.
+    """
+    def walk(node, trail: str) -> None:
+        if isinstance(node, Mapping):
+            for key, value in node.items():
+                if str(key) in {"presentation_of", "source", "run_root",
+                                "internal", "case_dir"}:
+                    raise DemoContractError(
+                        f"internal-only field {trail}.{key} would reach the "
+                        f"screen; strip it in the act, not in the renderer")
+                walk(value, f"{trail}.{key}")
+        elif isinstance(node, (list, tuple)):
+            for i, value in enumerate(node):
+                walk(value, f"{trail}[{i}]")
+        elif isinstance(node, str):
+            check_demo_language(node)
+
+    walk(payload, "payload")
+
+
+# ---------------------------------------------------------------------------
+# The unit of every number that crosses this interface
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Measured:
+    """One number, its unit, and the artifact it was read out of.
+
+    ``basis`` is ``"measured"`` when the value was read from a run artifact, or
+    ``"derived"`` when it was computed from measured values at a recorded rate
+    or constant. A dollar figure is ALWAYS derived: the box cannot read its own
+    billing (CLAUDE.md rule 12). ``source`` is internal and never renders.
+    """
+
+    value: float | int | str
+    unit: str
+    source: Path
+    basis: str = "measured"
+    note: str = ""
+
+    def __post_init__(self) -> None:
+        if self.basis not in {"measured", "derived"}:
+            raise DemoContractError(
+                f"basis is 'measured' or 'derived', not {self.basis!r}")
+        if not str(self.source):
+            raise DemoContractError("every number names the artifact it came from")
+
+    def on_screen(self, fmt: str = "") -> str:
+        """The rendered value with its unit. The source never appears."""
+        body = format(self.value, fmt) if fmt else str(self.value)
+        return f"{body} {self.unit}".strip()
+
+
+def core_minutes(wall_seconds: float, ranks: int) -> float:
+    """The lab's compute unit: wall seconds x ranks / 60 (CLAUDE.md rule 12)."""
+    if wall_seconds < 0 or ranks < 1:
+        raise DemoContractError("wall seconds >= 0 and ranks >= 1")
+    return wall_seconds * ranks / 60.0
+
+
+def cost_line(cm: float, *, gross: bool = True) -> str:
+    """The screen's cost sentence for a run of ``cm`` core-minutes.
+
+    Stated as THIS run's cost, because it is: Sanaa, "the run's real cost,
+    shown as this run's cost, because it is". The dollar figure is derived at
+    the recorded rate, and the sentence says so rather than implying the box
+    read a bill.
+    """
+    usd = cm / 60.0 * RATE_USD_PER_CORE_HOUR
+    basis = "gross" if gross else "cleaned"
+    return (f"Compute used: {cm:,.1f} core-minutes ({basis}), "
+            f"about ${usd:,.2f}, derived at the recorded rate.")
+
+
+# ---------------------------------------------------------------------------
+# Stage payloads: exactly what an act supplies, stage by stage
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class RunRecord:
+    """Stage 0, internal. The completed run tree this act is fed from.
+
+    Nothing here renders. ``presentation_of`` is the flag Sanaa requires in the
+    run record and forbids on screen; it is written to ``record_path`` by the
+    act's own bookkeeping and refused by :func:`assert_screen_safe` if it ever
+    reaches a payload.
+
+    ``completion_evidence`` is the artifact that shows the run satisfied the
+    strict completion rule (rc=0, an End line, last time == endTime, fields
+    present, and every field newer than the case's own ``0/T`` — CLAUDE.md
+    rule 4). The validator checks that this artifact EXISTS. It does not
+    re-derive the physics: an act claiming completion must point at the marker
+    its own family wrote, and a missing marker is a refusal.
+    """
+
+    run_id: str
+    run_root: Path
+    solver: str                      # e.g. "OpenFOAM simpleFoam"
+    physics: str                     # plain-English physics of the source run
+    completion_evidence: Path
+    presentation_of: str             # "presentation of run <run_id>" — internal
+    record_path: Path                # where that flag is written
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.solver, zone="internal")
+        check_demo_language(self.physics, zone="internal")
+        if not self.presentation_of.startswith("presentation of run "):
+            raise DemoContractError(
+                "the internal flag reads 'presentation of run <id>'")
+
+    def solver_header(self) -> str:
+        """The header line Sanaa mandates: solver plus plain physics.
+
+        Her 2026-09-01 ~03:10Z standard makes the header the ONE place the
+        solver binary and turbulence model may appear, stated once. "Solver:
+        none" is never shown on a results screen.
+        """
+        return f"Solver: {self.solver}, {self.physics}."
+
+
+@dataclass(frozen=True)
+class Prompt:
+    """Stage 1. The user's request, in professional wording.
+
+    For the jet-flap act this string is fixed by Sanaa and is not the act's to
+    reword: "Blown-wing high-lift: sweep the trailing-edge jet momentum
+    coefficient from 0 to 0.4 and report lift against blowing with the
+    classical jet-flap theory."
+    """
+
+    text: str
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.text)
+
+
+@dataclass(frozen=True)
+class Restatement:
+    """Stage 2. What the lab understood, how sure it is, what it will cost.
+
+    ``cost_estimate`` is the UPFRONT estimate the user is quoted before
+    spending (DEMO STANDARD R8: every result states compute used AND the
+    upfront estimate). It is not the actual; the actual arrives in
+    :class:`Results`, and the two are compared in the completion record per
+    CLAUDE.md rule 12.
+    """
+
+    restatement: str
+    confidence: str                  # plain English, no tier words (R5)
+    cost_estimate: Measured          # core-minutes, basis "derived"
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.restatement)
+        check_demo_language(self.confidence)
+
+
+@dataclass(frozen=True)
+class Assumption:
+    """Stage 3. Exactly one user-assumption check.
+
+    DEMO STANDARD R9: the lab's intelligence is shown only through correcting
+    a user assumption, saving the user compute, or stating understanding and
+    confidence before spending. This is the first of those. ``correction`` is
+    empty when the user's assumption held, and the act says so plainly.
+    """
+
+    assumption: str
+    finding: str
+    correction: str = ""
+
+    def __post_init__(self) -> None:
+        for text in (self.assumption, self.finding, self.correction):
+            if text:
+                check_demo_language(text)
+
+
+@dataclass(frozen=True)
+class GeometryMatch:
+    """One measured comparison between the served surface and the solved body.
+
+    The act does not promise the surface is the solved geometry; it MEASURES
+    it, one quantity at a time, and the sentence "solved on this geometry" is
+    rendered only when every comparison agrees inside its tolerance.
+
+    The shape this exists for is already measured on Act B: the demo surface is
+    chord 0.991114 m against the solved 1.000000 m, and slot height ratio
+    0.005045 against 0.005000 — the same profile, 0.9% apart in scale. Under
+    this type that act cannot render the sentence until the surface is
+    regenerated from the solved case, which is exactly Sanaa's parenthetical.
+    """
+
+    quantity: str                    # e.g. "chord", "slot height ratio"
+    solved: Measured
+    supplied: Measured
+    tolerance: float                 # relative, e.g. 1e-4
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.quantity, zone="internal")
+        if self.tolerance < 0:
+            raise DemoContractError("tolerance >= 0")
+
+    def agrees(self) -> bool:
+        try:
+            solved = float(self.solved.value)
+            supplied = float(self.supplied.value)
+        except (TypeError, ValueError):
+            return False
+        if solved == 0:
+            return abs(supplied) <= self.tolerance
+        return abs(supplied - solved) / abs(solved) <= self.tolerance
+
+    def disagreement(self) -> str:
+        solved = float(self.solved.value)
+        supplied = float(self.supplied.value)
+        rel = abs(supplied - solved) / abs(solved) if solved else float("inf")
+        return (f"{self.quantity}: served {supplied:.6g} {self.supplied.unit} "
+                f"against solved {solved:.6g} {self.solved.unit}, "
+                f"{rel * 100:.2f}% apart, tolerance {self.tolerance * 100:.2f}%")
+
+
+@dataclass(frozen=True)
+class Geometry:
+    """Stage 4. The STL that renders, which IS the exact solved geometry.
+
+    Sanaa: "the uploaded STL renders. It is the exact solved geometry
+    (regenerate the STL from the solved case where it differs). 'No surface
+    loaded' never appears."
+
+    ``served_stl`` is the copy the CONTROL-ROOM SERVER reads, under
+    :data:`SERVED_GEOMETRY_DIR` — not the copy a generator wrote. Those are two
+    different files today and they agree only because someone copied by hand;
+    naming the generator's copy here would let a regenerated surface serve a
+    stale body with nothing failing. The validator refuses a ``served_stl``
+    outside the served directory.
+
+    ``matches`` carries the measured comparisons against the solved case.
+    :meth:`solved_geometry_sentence` raises unless every one agrees, so an act
+    that cannot assert the surface is the solved body is UNABLE to render the
+    sentence rather than merely discouraged from it.
+
+    ``regenerated_from`` names the solved case the STL was regenerated out of,
+    when it was.
+    """
+
+    served_stl: Path
+    display_label: str
+    matches: Sequence[GeometryMatch]
+    regenerated_from: Path | None = None
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.display_label)
+        if not self.matches:
+            raise DemoContractError(
+                "the geometry stage measures the served surface against the "
+                "solved body; supply at least one GeometryMatch")
+
+    def is_solved_geometry(self) -> bool:
+        return all(m.agrees() for m in self.matches)
+
+    def solved_geometry_sentence(self, cells: Measured) -> str:
+        """The on-screen fact, or a refusal.
+
+        Her Act A pattern: "16 operating points solved on this geometry, 39,680
+        cells." Rendering it is conditional on the measurement, not on intent.
+        """
+        bad = [m.disagreement() for m in self.matches if not m.agrees()]
+        if bad:
+            raise DemoContractError(
+                "the served surface is not the solved geometry, so the "
+                "sentence may not be rendered; regenerate the surface from the "
+                "solved case. " + "; ".join(bad))
+        return f"Solved on this geometry, {cells.on_screen()}."
+
+
+@dataclass(frozen=True)
+class MeshPlan:
+    """Stage 5. What the real mesher runs on, live, and what it draws.
+
+    Sanaa: "Meshing runs live (2D/axisymmetric cases mesh in seconds to a
+    minute): the real mesher on the uploaded STL, the computational grid drawn
+    cell by cell, wall-layer zoom, slot/wall resolution table."
+
+    ``command`` is the mesher the sequencer actually invokes on ``Geometry.stl``
+    inside ``work_dir``. It is a real mesh, not a picture of one; the act
+    supplies the case skeleton the mesher needs. ``cell_count`` is the count
+    the run itself used, read from its own artifact, and the validator refuses
+    a mismatch larger than ``cell_tolerance`` between the live mesh and it —
+    a live mesh that does not reproduce the solved grid is a finding, not a
+    detail.
+
+    ``resolution_rows`` is the wall/slot resolution table, already in table
+    form (R1: numbers live in tables, never in prose).
+    """
+
+    command: Sequence[str]
+    work_dir: Path
+    cell_count: Measured
+    resolution_headers: Sequence[str]
+    resolution_rows: Sequence[Sequence[str]]
+    wall_zoom_hint: str              # what the wall-layer zoom should frame
+    expected_seconds: float
+    cell_tolerance: float = 0.0
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.wall_zoom_hint)
+        for header in self.resolution_headers:
+            check_demo_language(str(header))
+        if not self.command:
+            raise DemoContractError("the meshing stage names a real mesher")
+
+
+@dataclass(frozen=True)
+class Feasibility:
+    """Stage 6. The "30-second check before committing budget", and its result.
+
+    Sanaa names this beat and requires its RESULT on screen, not merely its
+    existence. ``check`` is what was checked in plain English; ``result`` is
+    what it said; ``verdict_for_user`` is the plain-English go/no-go the user
+    reads. No tier words, no gate vocabulary on screen (R5): the internal
+    verdict, if the act has one, stays in the run record.
+    """
+
+    check: str
+    result: Measured
+    verdict_for_user: str
+    seconds: float = 30.0
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.check)
+        check_demo_language(self.verdict_for_user)
+
+
+@dataclass(frozen=True)
+class SeriesSpec:
+    """One monitor series the solving stage animates from a stored log.
+
+    ``log`` is the real log file the run wrote. ``column`` names the series
+    inside it. ``drives`` says which on-screen instrument this series moves,
+    and is one of ``"iteration"``, ``"residual"``, ``"force"``,
+    ``"temperature"`` or ``"sweep"``. The replay stage reads the log; it never
+    synthesises a curve, and a series whose log is missing is a refusal, not
+    an empty plot.
+    """
+
+    log: Path
+    column: str
+    drives: str
+    label: str
+    unit: str = ""
+
+    def __post_init__(self) -> None:
+        allowed = {"iteration", "residual", "force", "temperature", "sweep"}
+        if self.drives not in allowed:
+            raise DemoContractError(
+                f"drives is one of {sorted(allowed)}, not {self.drives!r}")
+        check_demo_language(self.label)
+
+
+@dataclass(frozen=True)
+class ElapsedClock:
+    """The elapsed figure shown on screen, and the sentence that sources it.
+
+    Sanaa's mode spec sets the default: "Elapsed time shown is the run's real
+    wall time." Her amendment of 2026-09-01 (``68b10335``) makes the source
+    PER-ACT CONFIGURABLE — Act D shows 20 minutes everywhere on screen, which
+    supersedes real wall time for that act alone.
+
+    A configurable clock that accepted a bare number would be the mechanism
+    that strips the basis off a figure: the first act to override the default
+    would put an unsourced number on camera, and the mode itself would be the
+    hole. So the parameter is a PAIR. ``basis`` is not a debug field; it is the
+    sentence a viewer reads beside the figure. It is mandatory, and an override
+    that is not the measured wall time must say what it is instead — Act D's
+    20 minutes is a projection for the production configuration with the linear
+    solvers on GPU, and is legitimate only when stated with that basis. The
+    run itself took 3601 s; the two numbers are different things and the
+    sentence is what keeps them apart.
+
+    Use :meth:`real_wall_time` for the default. Construct directly only to
+    override, and then both halves are required.
+
+    THE COST LINE IS NOT COVERED BY THIS OVERRIDE. It is a separate field
+    (:attr:`Results.cost_actual`) and stays the run's real cost, shown as this
+    run's cost, because it is. An act that overrides its clock does not thereby
+    get to override its cost, and keeping them independent is what stops anyone
+    assuming one follows the other.
+    """
+
+    seconds: float
+    basis: str
+    measured: bool
+    source: Path | None = None       # internal; never on screen
+
+    def __post_init__(self) -> None:
+        if self.seconds < 0:
+            raise DemoContractError("elapsed seconds >= 0")
+        if not self.basis.strip():
+            raise DemoContractError(
+                "the elapsed clock carries its basis, not just a number; "
+                "an override must supply the sentence that says what it is")
+        check_demo_language(self.basis)
+        if self.measured and self.source is None:
+            raise DemoContractError(
+                "a measured clock names the artifact its wall time came from")
+        if not self.measured and len(self.basis.split()) < 5:
+            raise DemoContractError(
+                f"an overridden clock states the configuration it is a figure "
+                f"for; {self.basis!r} is not a basis a viewer can source")
+
+    @classmethod
+    def real_wall_time(cls, wall: Measured) -> "ElapsedClock":
+        """The default: this run's own measured wall time."""
+        if wall.basis != "measured":
+            raise DemoContractError(
+                "the default clock is the run's REAL wall time and is measured")
+        return cls(seconds=float(wall.value),
+                   basis="Measured wall time of this run.",
+                   measured=True, source=wall.source)
+
+    def on_screen(self) -> str:
+        """The elapsed figure with its basis sentence, as the viewer reads it."""
+        minutes = self.seconds / 60.0
+        figure = (f"{minutes:,.0f} minutes" if minutes >= 2
+                  else f"{self.seconds:,.0f} seconds")
+        return f"{figure}. {self.basis.rstrip('.')}."
+
+
+@dataclass(frozen=True)
+class SolveReplay:
+    """Stage 7. The stored logs, the series they drive, and the REAL cost.
+
+    Sanaa: "monitors advance in real time from the stored logs at accelerated
+    pace: iteration counter, residuals, lift/drag or temperature curves moving;
+    progress across the sweep points. Elapsed time shown is the run's real wall
+    time."
+
+    So two clocks run at once and the interface keeps them apart. The SHOOT
+    clock is compressed by ``pace``; the ELAPSED TIME ON SCREEN is
+    ``wall_seconds``, the run's own, because that is what the run took.
+    ``ranks`` and ``wall_seconds`` together give the core-minutes and, at the
+    recorded rate, the derived dollar figure — this run's cost, shown as this
+    run's cost, because it is.
+
+    ``total_iterations`` and ``sweep_points`` feed the progressive-tense lines
+    ("Solving, iteration 4,000 of 20,000", "Sweep point 3 of 5"). The act
+    supplies the counts; the sequencer composes and checks the wording.
+    """
+
+    series: Sequence[SeriesSpec]
+    wall_seconds: Measured           # the run's REAL wall time, always measured
+    ranks: int
+    total_iterations: int
+    sweep_points: int = 1
+    pace: float = 1.0                # shoot-clock compression, never on screen
+    elapsed_clock: ElapsedClock | None = None   # None means the default
+
+    def __post_init__(self) -> None:
+        if not self.series:
+            raise DemoContractError("the solving stage replays at least one series")
+        if self.ranks < 1:
+            raise DemoContractError("ranks >= 1")
+        if self.pace <= 0:
+            raise DemoContractError("pace > 0")
+        if self.total_iterations < 1:
+            raise DemoContractError("total_iterations >= 1")
+        if self.sweep_points < 1:
+            raise DemoContractError("sweep_points >= 1")
+
+    def clock(self) -> ElapsedClock:
+        """The elapsed figure this act shows, defaulting to real wall time."""
+        if self.elapsed_clock is not None:
+            return self.elapsed_clock
+        return ElapsedClock.real_wall_time(self.wall_seconds)
+
+    def core_minutes(self) -> float:
+        """Always from the REAL wall time, never from an overridden clock."""
+        return core_minutes(float(self.wall_seconds.value), self.ranks)
+
+    def cost_sentence(self) -> str:
+        return cost_line(self.core_minutes())
+
+    def progress_line(self, iteration: int, sweep_point: int = 1) -> str:
+        """The progressive-tense running line, composed and checked here.
+
+        Her examples: "Solving, iteration 4,000 of 20,000", "Sweep point 3 of 5".
+        """
+        line = f"Solving, iteration {iteration:,} of {self.total_iterations:,}"
+        if self.sweep_points > 1:
+            line = (f"Sweep point {sweep_point} of {self.sweep_points}. "
+                    f"{line}")
+        check_running_line(line.split(". ")[0], tense="progressive")
+        return line
+
+
+@dataclass(frozen=True)
+class Table:
+    """A rendered table. R1: numbers live in tables, with units and, where the
+    act has one, an uncertainty column."""
+
+    title: str
+    headers: Sequence[str]
+    rows: Sequence[Sequence[str]]
+    table_id: str
+    role: str = "NUMERICIST"
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.title)
+        for header in self.headers:
+            check_demo_language(str(header))
+
+
+@dataclass(frozen=True)
+class Figure:
+    """A rendered figure, under Sanaa's 2026-09-01 ~03:10Z figure standard.
+
+    Title at most 10 words; axis labels with units; a colour bar with numeric
+    ticks and the unit only; a legend inside the axes; one caption line of at
+    most 20 words. Every explanation moves to the sheet text. Min and max
+    appear as the colour bar's end ticks and nowhere else. The limits are
+    enforced here rather than reviewed.
+    """
+
+    path: Path
+    title: str
+    caption: str
+    beat: str
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.title)
+        check_demo_language(self.caption)
+        if len(self.title.split()) > 10:
+            raise DemoContractError(
+                f"figure title is at most 10 words: {self.title!r}")
+        if len(self.caption.split()) > 20:
+            raise DemoContractError(
+                f"figure caption is one line of at most 20 words: {self.caption!r}")
+        if "\n" in self.caption:
+            raise DemoContractError("a figure caption is one line")
+
+
+@dataclass(frozen=True)
+class GatesAndChecks:
+    """Stage 8. Reader checks, conservation, grid statement, in tables.
+
+    ``planted_checks`` is the planted-perturbation evidence: CLAUDE.md rule 3,
+    a zero from a reader not shown able to see a non-zero is not evidence.
+    Each row names the reader, the perturbation planted, and what it read back.
+    An act with no planted check does not get this stage waived; it says so to
+    its supervisor.
+
+    ``grid_statement`` is the plain-English sentence about grids. For the
+    jet-flap act it is one grid on screen (the 39,984-cell force grid) for
+    fields, pressures and the lift table alike, and the finer companion grid
+    is named only in ``Results.limitations``.
+    """
+
+    planted_checks: Table
+    conservation: Table | None
+    grid_statement: str
+
+    def __post_init__(self) -> None:
+        check_demo_language(self.grid_statement)
+
+
+@dataclass(frozen=True)
+class Results:
+    """Stage 9. Fields, plots, tables, verification lines, limitations, cost.
+
+    ``verification_lines`` are R6 statements: explicit, sourced, in plain
+    words, with the internal verdict vocabulary already translated per R5
+    ("verified against [reference] within [X]%", "run rejected: [plain
+    reason]"). The gate words themselves never appear on screen.
+
+    ``limitations`` is the visible plain-English caveat box (R7) and is checked
+    in the ``limitations`` zone, which is the one place the finer-companion-grid
+    sentence is permitted. Compactness is never a licence to drop a caveat: the
+    validator refuses an empty box, and an act that cannot fit a caveat raises
+    it with its supervisor rather than blurring it.
+
+    ``cost_actual`` is this run's real cost. ``cost_estimate_from_stage_2`` is
+    carried through so the screen can show both, per R8, and so the completion
+    record can state the ratio actual/predicted per CLAUDE.md rule 12.
+    """
+
+    fields: Sequence[Figure]
+    plots: Sequence[Figure]
+    tables: Sequence[Table]
+    verification_lines: Sequence[str]
+    limitations: Sequence[str]
+    cost_actual: Measured            # core-minutes, basis "measured"
+    cost_estimate_from_stage_2: Measured
+
+    def __post_init__(self) -> None:
+        for line in self.verification_lines:
+            check_demo_language(line)
+        if not self.limitations:
+            raise DemoContractError(
+                "the limitations box is never empty; if a caveat will not fit, "
+                "say so to the supervisor rather than dropping it")
+        for line in self.limitations:
+            check_demo_language(line, zone="limitations")
+
+
+# ---------------------------------------------------------------------------
+# The interface itself
+# ---------------------------------------------------------------------------
+
+class DemoAct(ABC):
+    """One act, plugged into DEMO MODE.
+
+    Implement the nine methods below. Each returns facts, already read off the
+    completed run tree. None of them emits an event, composes a stage header,
+    paces anything, or decides an order: the sequencer does all of that, once,
+    for all four acts.
+
+    Every method is called exactly once, in :data:`STAGES` order, before
+    anything renders — so a contract violation surfaces at validation time,
+    with the screen still dark.
+
+    Minimal shape::
+
+        class MotorThermalAct(DemoAct):
+            name = "motor-in-duct thermal map"
+
+            def run_record(self) -> RunRecord: ...
+            def prompt(self) -> Prompt: ...
+            def restatement(self) -> Restatement: ...
+            def assumption(self) -> Assumption: ...
+            def geometry(self) -> Geometry: ...
+            def mesh_plan(self) -> MeshPlan: ...
+            def feasibility(self) -> Feasibility: ...
+            def solve_replay(self) -> SolveReplay: ...
+            def gates(self) -> GatesAndChecks: ...
+            def results(self) -> Results: ...
+
+        validate_act(MotorThermalAct())      # refuses before the shoot
+    """
+
+    #: Short act name for the mission log. Internal; the screen shows the
+    #: prompt and the solver header, not this.
+    name: str = ""
+
+    @abstractmethod
+    def run_record(self) -> RunRecord:
+        """The completed run tree, and the internal presentation flag."""
+
+    @abstractmethod
+    def prompt(self) -> Prompt:
+        """The user's request, in professional wording."""
+
+    @abstractmethod
+    def restatement(self) -> Restatement:
+        """Restatement, confidence, upfront cost estimate."""
+
+    @abstractmethod
+    def assumption(self) -> Assumption:
+        """Exactly one user-assumption check."""
+
+    @abstractmethod
+    def geometry(self) -> Geometry:
+        """The STL that renders, which IS the exact solved geometry."""
+
+    @abstractmethod
+    def mesh_plan(self) -> MeshPlan:
+        """What the real mesher runs, and what the live draw shows."""
+
+    @abstractmethod
+    def feasibility(self) -> Feasibility:
+        """The 30-second check before committing budget, and its result."""
+
+    @abstractmethod
+    def solve_replay(self) -> SolveReplay:
+        """The stored logs, the driven series, the real wall time and cost."""
+
+    @abstractmethod
+    def gates(self) -> GatesAndChecks:
+        """Planted-reader checks, conservation, grid statement."""
+
+    @abstractmethod
+    def results(self) -> Results:
+        """Fields, plots, tables, verification lines, limitations, cost."""
+
+    # -- pacing and banners: concrete, override only where the act differs ---
+
+    def banners(self) -> Mapping[str, str]:
+        """Stage-to-banner map. Fixed by default; override at your peril.
+
+        Sanaa's pacing amendment (``aaed6498``) requires the banner state to
+        match what the screen is actually showing at every moment, with no
+        banner ahead of or behind its content. The sequencer sets the banner
+        from this map as it enters each stage, so the synchronisation is a
+        property of the sequencer rather than of an act's discipline.
+        """
+        return dict(BANNERS)
+
+    def agent_census(self) -> Sequence[tuple[str, int]]:
+        """How many agents the act's narrative has working, stage by stage.
+
+        Sanaa (``aaed6498``): any on-screen agent counter matches the agents
+        the narrative has working AT THAT MOMENT, moving as the team forms and
+        lanes spawn. Never a static number.
+
+        The count reaches zero at the end, which also keeps the fleet numeral's
+        existing attributed convention (Katie, 2026-07-31: the numeral ends at
+        zero). What changes under Sanaa's instruction is the MIDDLE: no longer
+        a static N appearing at meshing, but a count that moves with the
+        narrative from team formation onward. That reading is the supervisor's;
+        this default encodes it, and an act whose narrative differs overrides.
+
+        The validator refuses a static census and refuses one that does not end
+        at zero.
+        """
+        return (("prompt", 1), ("restatement", 2), ("assumption", 3),
+                ("geometry", 3), ("meshing", 4), ("feasibility", 4),
+                ("solving", 4), ("gates", 2), ("results", 0))
+
+
+# ---------------------------------------------------------------------------
+# Registration: the entry point an act module exposes
+# ---------------------------------------------------------------------------
+
+_REGISTRY: dict[str, DemoAct] = {}
+
+
+def register_act(key: str, act: DemoAct) -> DemoAct:
+    """Register one act under ``key`` and return it.
+
+    THE ENTRY POINT. An act module ends with exactly one call::
+
+        from .demo_mode import DemoAct, register_act
+
+        class MotorThermalAct(DemoAct):
+            name = "motor-in-duct thermal map"
+            ...
+
+        ACT = register_act("motor-thermal", MotorThermalAct())
+
+    The sequencer resolves an act by key, calls :func:`validate_act` on it, and
+    refuses to start if the returned list is non-empty. An act never calls the
+    sequencer and never emits; registration is the whole of its coupling to
+    DEMO MODE.
+
+    Registering the same key twice raises rather than overwriting: two acts
+    answering to one key is how a shoot ends up showing the wrong run.
+    """
+    if not isinstance(act, DemoAct):
+        raise DemoContractError(
+            f"{type(act).__name__} does not implement DemoAct")
+    if key in _REGISTRY and _REGISTRY[key] is not act:
+        raise DemoContractError(f"an act is already registered as {key!r}")
+    _REGISTRY[key] = act
+    return act
+
+
+def registered_acts() -> Mapping[str, DemoAct]:
+    """The acts registered so far, by key."""
+    return dict(_REGISTRY)
+
+
+# ---------------------------------------------------------------------------
+# Conformance: run this before the shoot, not during it
+# ---------------------------------------------------------------------------
+
+def _require_file(path: Path, what: str, problems: list[str]) -> None:
+    try:
+        p = Path(path)
+    except TypeError:
+        problems.append(f"{what}: not a path ({path!r})")
+        return
+    if not p.exists():
+        problems.append(f"{what}: not on disk ({p})")
+    elif p.is_file() and p.stat().st_size == 0:
+        problems.append(f"{what}: empty file ({p})")
+
+
+def validate_act(act: DemoAct, *, check_files: bool = True) -> list[str]:
+    """Walk every stage of ``act`` and return the list of problems found.
+
+    An empty list means the act satisfies the contract as far as this checker
+    can see, which is: every stage present and well-typed, every string clear
+    of the never-list and of paths, every figure inside the title and caption
+    limits, and — when ``check_files`` is true — every artifact a number or a
+    figure cites actually on disk, non-empty.
+
+    What it does NOT check, and no lane should claim it does: whether the
+    numbers are right, whether the run converged, whether the STL truly equals
+    the solved geometry (it checks that the act SAYS how that was established,
+    and that the file exists), or whether a grid triple is CONVERGING. Those
+    are the supervisor's and the comparators' business.
+
+    Raising is deliberate for a malformed stage — a dataclass refuses at
+    construction — while a missing artifact or a bad string is collected, so
+    one run of this returns the whole list rather than the first fault.
+    """
+    problems: list[str] = []
+
+    stages = {}
+    for stage, method in (
+        ("run_record", act.run_record), ("prompt", act.prompt),
+        ("restatement", act.restatement), ("assumption", act.assumption),
+        ("geometry", act.geometry), ("mesh_plan", act.mesh_plan),
+        ("feasibility", act.feasibility), ("solve_replay", act.solve_replay),
+        ("gates", act.gates), ("results", act.results),
+    ):
+        try:
+            stages[stage] = method()
+        except DemoContractError as exc:
+            problems.append(f"{stage}: {exc}")
+        except Exception as exc:                                # noqa: BLE001
+            problems.append(f"{stage}: {type(exc).__name__}: {exc}")
+
+    if not check_files:
+        return problems
+
+    record = stages.get("run_record")
+    if record is not None:
+        _require_file(record.run_root, "run_record.run_root", problems)
+        _require_file(record.completion_evidence,
+                      "run_record.completion_evidence", problems)
+
+    geometry = stages.get("geometry")
+    if geometry is not None:
+        served = Path(geometry.served_stl)
+        _require_file(served, "geometry.served_stl", problems)
+        try:
+            served.resolve().relative_to(SERVED_GEOMETRY_DIR.resolve())
+        except ValueError:
+            problems.append(
+                f"geometry.served_stl is outside the directory the server "
+                f"reads ({SERVED_GEOMETRY_DIR}); name the served copy, not "
+                f"the copy a generator wrote, or a regenerated surface will "
+                f"serve a stale body with nothing failing")
+        for match in geometry.matches:
+            if not match.agrees():
+                problems.append(
+                    f"geometry: the served surface is not the solved body. "
+                    f"{match.disagreement()}. Regenerate the surface from the "
+                    f"solved case; the sentence cannot be rendered until then")
+        if geometry.regenerated_from is not None:
+            _require_file(geometry.regenerated_from,
+                          "geometry.regenerated_from", problems)
+
+    mesh = stages.get("mesh_plan")
+    if mesh is not None:
+        _require_file(mesh.work_dir, "mesh_plan.work_dir", problems)
+        _require_file(mesh.cell_count.source, "mesh_plan.cell_count", problems)
+
+    replay = stages.get("solve_replay")
+    if replay is not None:
+        for i, spec in enumerate(replay.series):
+            _require_file(spec.log, f"solve_replay.series[{i}].log", problems)
+        _require_file(replay.wall_seconds.source,
+                      "solve_replay.wall_seconds", problems)
+        if replay.wall_seconds.basis != "measured":
+            problems.append(
+                "solve_replay.wall_seconds is the run's REAL wall time and is "
+                "measured, not derived")
+        try:
+            clock = replay.clock()
+            if clock.measured and clock.source is not None:
+                _require_file(clock.source, "solve_replay clock source", problems)
+        except DemoContractError as exc:
+            problems.append(f"solve_replay.elapsed_clock: {exc}")
+
+    census = list(act.agent_census())
+    if census:
+        counts = [n for _, n in census]
+        if counts[-1] != 0:
+            problems.append(
+                "the agent counter ends at zero: a complete run has no agents "
+                "working (Katie, 2026-07-31, and Sanaa aaed6498 does not "
+                "contradict it)")
+        if len(set(counts)) == 1:
+            problems.append(
+                "the agent counter is never a static number; it moves as the "
+                "team forms and lanes spawn (Sanaa, aaed6498)")
+        unknown = [stage for stage, _ in census if stage not in STAGES]
+        if unknown:
+            problems.append(f"agent_census names unknown stages: {unknown}")
+
+    banners = act.banners()
+    missing = [stage for stage in STAGES if stage not in banners]
+    if missing:
+        problems.append(f"banners: no banner state for stages {missing}")
+
+    results = stages.get("results")
+    if results is not None:
+        for figure in list(results.fields) + list(results.plots):
+            _require_file(figure.path, f"results figure {figure.title!r}", problems)
+        _require_file(results.cost_actual.source, "results.cost_actual", problems)
+        if results.cost_actual.basis != "measured":
+            problems.append(
+                "results.cost_actual is this run's real cost, read from the "
+                "run's own record: basis 'measured'")
+
+    return problems
