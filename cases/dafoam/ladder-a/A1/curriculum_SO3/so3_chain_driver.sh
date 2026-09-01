@@ -82,7 +82,13 @@ DECLARED_ARMS=7                          # (e) section 5 Requirement 4
 # from the FINAL bytes of the file it pins, after the last code edit, and each is
 # DRIVEN against that file by so3_groot5_selftest.sh's (x12)/(x13)/(x14).
 MD5_LAUNCHER=e8839a2fb445239609718feed9b0aeed   # so3_run_arm.sh
-MD5_GRADER=d786e10d81d99233610fe8c636c3a47e     # so3_grade.py -- THE GRADING PATH (section 10)
+# AMENDMENT 2, 2026-09-01, BEFORE FIRST COMPUTE.  RE-PINNED because the amendment
+# rewrote the very bytes this line pins: so3_grade.py:PRED["P_COST_band"] moved from
+# the inherited (14.0, 60.0) -- which had NO REACHABLE HIT on this item -- to the
+# re-derived (60.0, 300.0).  STRUCK: d786e10d81d99233610fe8c636c3a47e.
+# A pin inherited through a change that rewrites the bytes it pins is what cost
+# SO-2MR its first arm; this line is re-derived, not carried.
+MD5_GRADER=0ac111ef144a62111e36f676e8114af1     # so3_grade.py -- THE GRADING PATH (section 10)
 MD5_RUNSCRIPT=0c026d72047b605099125258e3152f93  # so3_runScript.py
 MD5_XF=58fd0e2600ce6836ddd039beb8677477         # so3_xf.py
 MD5_AGG=709ab0b98ef0302a3a3a318588f9493f

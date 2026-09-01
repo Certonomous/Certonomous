@@ -556,3 +556,86 @@ Each is named rather than papered over. None is a reason not to freeze; each is 
 1. **The two reference logs and `so3_xf_drive_evidence.txt` are NOT swept into this document's commit.** They are the instrument lane's artefacts, and committing another lane's uncommitted work under cover of one's own path is the L-423 failure. **Landing them is a dispatch, not a side effect**, and it needs a decision about `.gitignore:270` that is above this lane.
 2. **Until they are in a tree, §3's banner counts are labelled here as `MEASURED, ARTEFACT NOT IN THE FREEZE TREE`** — they are true readings of real bytes and they are not reproducible from the freeze commit alone.
 3. **Nothing about the launch decision changes.** The item was not cleared to launch before this amendment and is not cleared by it.
+
+---
+
+## AMENDMENT 2 — 2026-09-01, BEFORE FIRST COMPUTE. `P_COST`'s BAND IS RE-DERIVED, AND THE GRADING PATH IS RE-PINNED TO md5 `0ac111ef144a62111e36f676e8114af1`
+
+**lines whose number changed above this section: 0.** Appended at the foot; nothing above is edited.
+
+**THE RULE-2 CONDITION, AND HOW IT WAS CHECKED.** No compute has happened. **The registered run root `/home/ubuntu/certonomous-runs/CURRICULUM-SO3-a1-naca0012-alpha-multipoint-optimisation` DOES NOT EXIST** — re-asserted in the same shell invocation as this amendment's commit, against the same positive control as §11 (`CURRICULUM-SO3aR2-a1-naca0012-alpha-multipoint-gradient`, which the same reader returns as **EXISTS**). The freeze window is open and **closes at the first arm**.
+
+**Authority.** Supervisor ruling, 2026-09-01, on §13.3's finding.
+
+### A2.1 WHAT MOVED, AND THE PROOF THAT NOTHING ELSE DID
+
+**One value: `so3_grade.py:PRED["P_COST_band"]`, from `(14.0, 60.0)` to `(60.0, 300.0)`.**
+
+**PROVED, not asserted.** The full diff of `so3_grade.py` against its previous committed blob, filtered to **non-comment, non-blank lines**, is exactly two lines — one removed, one added:
+
+```
+<         "P_COST_band": (14.0, 60.0)}
+>         "P_COST_band": (60.0, 300.0)}
+```
+
+Re-read from the amended module after the edit: `CAPS` unchanged and `ITEM_CEILING_CORE_MIN = 595.0 = Σ(CAPS)`; `FD_BAND_PCT = 5.0`, `AGG_BAND_PCT = 5.0`, `PLATEAU_TOL_PCT = 10.0`, `MIN_GRADED_PAIRS = 3`, `PLANT_K = 3.0`, `TB_MAX_PASSING = 1`, `CPUSET_REGISTERED = "14"`, `Σ PREDICTED_CORE_MIN = 228.59` — **all unchanged. NO GATE, THRESHOLD, CAP OR LABEL MOVES.** `P_COST` gates nothing: predictions are scored, never composed into the verdict (§3).
+
+### A2.2 THE NEW BAND, DERIVED FROM THE COST MODEL RATHER THAN DRAWN AROUND THE POINT
+
+**A band that cannot MISS is exactly as useless as one that cannot HIT, and it is the easier mistake to make once the point estimate is known.** The band is therefore derived from the cost model's own uncertainty and its edges are placed **between** named scenarios, not on top of any.
+
+The five non-O arms are **MEASURED** and total **22.59** core-min (`MESH` 0.19 + `XE` 3.7×2 + `FE` 7.5×2). The entire uncertainty is `2 × (majors × per-major rate)`:
+
+| scenario | majors/arm | rate, core-min/major | **item total** | in band? |
+|---|---|---|---|---|
+| **S1** — C-24 × 3 only, **without** C-188's 1.6308 transfer factor | 12 | 1.2638 | **52.92** | **OUT (low)** |
+| **S2** — registered rate; SO1bR **and** D1 `armO` both converged in **12** majors on this very case | 12 | 2.0610 | **72.05** | in |
+| **S3** — twice the single-point precedent | 24 | 2.0610 | **121.52** | in |
+| **S4** — the stall abort's **first reach** (§9.3) | 34 | 2.0610 | **162.74** | in |
+| **S5** — `MAX_MAJORS`; **THE REGISTERED POINT** | 50 | 2.0610 | **228.69** | in |
+| **S6** — the 1.6308 transfer factor is **itself** short by its own margin (D6 is A2/3-D/np=4; this is A1/2-D/np=1, and C-188's own lesson is that **the anchor is the predictor, not the factor**) | 50 | 3.3611 | **358.70** | **OUT (high)** |
+| **S7** — both O arms stopped at their 240.0 cap | — | — | **502.59** | **OUT (high)** |
+
+**REGISTERED BAND: `P_COST_total_core_min_in_band` = [60.0, 300.0] core-min.** It contains S2–S5 and excludes S1 below and S6/S7 above. The registered point 228.69 sits at 70 % of the band's width — **not centred, deliberately**, because the downside (an optimiser converging at the single-point precedent of 12 majors) is the better-evidenced tail. The item ceiling of 595.0 lies outside the band, **as it must: a cap is not a prediction.**
+
+**WHAT FALSIFIES IT, REGISTERED BEFORE THE RUN.** A graded item total **below 60.0** core-min — both optimisers converging in far fewer majors than the single-point precedent, or a per-major rate well under the C-24 anchor — **or above 300.0** — the multipoint penalty failing to transfer from D6 and being short again. **Both are plausible outcomes of this run**, which is precisely the property `(14.0, 60.0)` lacked.
+
+**What the token scores, spelled out (the P5 lesson applied).** `P_COST_total_core_min_in_band` scores **ONE conjunct** — `60.0 ≤ g10["total_core_min"] ≤ 300.0` — behind **one measurability guard**: it reads `NOT MEASURED` if any run arm reported no `core_min` or if `G-STAGES` reports a shortfall. **The name claims exactly that and nothing narrower or wider**, so no reader has to infer a hidden conjunct from it. The frozen comparator's `P5_PATCHED_G5J_PASS_4_of_4` **cannot** be given the same treatment — renaming it breaks its own md5 pin — so that one remains the **documentation mitigation** of §13.2, still labelled as one.
+
+**§13.3 IS SUPERSEDED BY THIS SECTION.** Its finding stands as the record of why the repair happened; its registration of `P_COST` as a KNOWN-MISS token is **STRUCK** and replaced by the band above.
+
+### A2.3 THE RE-PIN — AND THE OLD PIN IS SHOWN TO FAIL CLOSED
+
+Editing `so3_grade.py` **rewrote the very bytes every declaration of its md5 pins**, so every such declaration was stale the instant the file was saved. That is what cost SO-2MR its first arm.
+
+**Sites audited, by `git grep` over tracked files:** the literal `d786e10d81d99233610fe8c636c3a47e` appears in **one** executable pin site — `so3_chain_driver.sh:85`, `MD5_GRADER` — and nowhere else in code. `so3_pin_census.py:196` declares the pin **by role** (`"so3_chain_driver.sh:MD5_GRADER": ("LOCAL", "so3_grade.py")`) and holds no literal, so it re-derives at arming time and needed no edit. **That is the census working as designed.**
+
+| | value |
+|---|---|
+| **STRUCK** | `d786e10d81d99233610fe8c636c3a47e` |
+| **NEW GRADING PATH md5** | **`0ac111ef144a62111e36f676e8114af1`** |
+
+**Verified three ways, as §10's original pin was:** recomputed **on disk**; recomputed from the **committed blob at `HEAD`**; recomputed from the **committed blob at this amendment's own freeze commit**. All three agree — the readings are in this amendment's commit message and were taken in the commit's own shell invocation.
+
+**And the assertion was exercised in both directions, on the real bytes, through the driver's own mechanism** (`echo "$MD5_GRADER  $GRADER" | md5sum -c -`):
+* the **new** pin → `so3_grade.py: OK`
+* the **struck** pin → `WARNING: 1 computed checksum did NOT match` — **it fails closed, as it must.** A pin shown able to pass but never shown able to fail is not a control.
+* the **other eight** pins → all `OK`, unaffected.
+
+**§7 row 5 and §10 are SUPERSEDED as to the md5 value only.** Everything else those sections state — the role, the driver's assertion, the deliberate absence of a freeze sha inside the comparator, the schema contract — stands unchanged. **A reader of §7 or §10 must carry the value from this section, not from there.**
+
+### A2.4 THE REFERENCE EVIDENCE IS NOW BACKED BY A COMMITTED ARTEFACT
+
+Residual **R8** (Amendment 1) is **partly closed**, and the part that is not closed is named.
+
+**`.gitignore:270` (`cases/dafoam/**/*.log`) IS NOT CHANGED.** It is a lab-wide rule and this family does not widen it for its own convenience — that call is above this item.
+
+**`cases/dafoam/ladder-a/A1/curriculum_SO3/reference/REFERENCE_EVIDENCE_MANIFEST.md` is committed** and carries each reference log's path, byte count, line count, md5 and sha256, plus **every extracted value §3 relies on**, measured by `so3_grade.py`'s own compiled regexes and reader functions — imported and called, never re-implemented, because a manifest that re-implements the reader it documents can agree with itself while disagreeing with the instrument.
+
+**What that does and does not achieve.** It does **not** preserve the logs; if they were lost, `--selftest` would still be un-drivable. What it achieves is that the loss becomes **detectable** and the affected published numbers become **nameable**. That is smaller than preservation and is described as such rather than as a fix.
+
+**A third finding came out of measuring for it, and it is registered here.** `so3_grade.py`'s docstring (III) presents **three** benign per-line exclusions as measured against these reference bytes. **`trapFpe:` appears ZERO times in `REAL_SO1a_X-S_arm.log`.** Two of the three are demonstrated on those bytes; **the third is not.** Nothing depends on it having fired — `trapFpe:` genuinely is an enablement notice, not a report that the handler fired — and what is corrected is the impression that all three counts came from the same file. **§3's `trapFpe:` exclusion is therefore registered as IMPLEMENTED AND REGISTERED, NOT DEMONSTRATED ON THE REFERENCE BYTES.**
+
+### A2.5 STATUS AFTER THIS AMENDMENT
+
+**Still not cleared to launch.** This amendment repairs a prediction and re-pins a hash; it authorises nothing. The run root is absent, the freeze window is open, and it closes at the first arm.

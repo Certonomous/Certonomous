@@ -410,9 +410,56 @@ SO_MD5 = {"SHIPPED": "f0fcb488e0e98156575cd19548e91663", "PATCHED": "85f59e87253
 CPUSET_REGISTERED = "14"
 DELIVERED_CORES_FLOOR = 1.5   # NOT COMPOSED at np = 1 (section 3, G12)
 
+# ---- P_COST'S BAND, RE-DERIVED FOR THIS ITEM.  AMENDMENT 2, 2026-09-01, BEFORE
+# ---- FIRST COMPUTE (`PREREGISTRATION.md` Amendment 2; that document governs).
+# ---- THIS IS THE ONLY VALUE THIS AMENDMENT MOVES.  No gate, no threshold, no cap
+# ---- and no label changes: bands D and E stay 5.0 %, the plateau tolerance stays
+# ---- 10.0 %, CAPS and ITEM_CEILING_CORE_MIN are untouched, and P_COST gates
+# ---- nothing -- predictions are scored, never composed into the verdict.
+#
+# WHAT WAS WRONG.  `(14.0, 60.0)` was inherited BYTE-IDENTICAL from SO-3aR2, whose
+# predicted total was 21.99 core-min and whose measured total, 14.318, HIT it.  It
+# was carried across a derivation that added TWO 103.0-core-min optimiser arms and
+# was never re-derived.  SO-3's registered point is 228.59 core-min -- 3.81x that
+# band's upper edge -- so `P_COST` had NO REACHABLE HIT: it read `MISS` with
+# certainty on the full-chain path and `NOT MEASURED` on every other path, and
+# could not discriminate between any two outcomes.  A prediction that cannot HIT is
+# a decoration standing where a test belongs, and it is the P5 shape one layer
+# down: a token whose NAME reads as a live cost check while it is decided in
+# advance.
+#
+# THE NEW BAND IS DERIVED FROM THE COST MODEL, NOT DRAWN AROUND THE POINT ESTIMATE,
+# AND IT MUST BE ABLE TO GO BOTH WAYS -- a band that cannot MISS is exactly as
+# useless as one that cannot HIT, and it is the easier mistake to make once the
+# point estimate is known.  The five non-O arms are MEASURED and total 22.59
+# core-min (MESH 0.19 + XE 3.7 x2 + FE 7.5 x2).  THE WHOLE UNCERTAINTY IS
+# 2 x (majors x per-major rate), and it is enumerated rather than asserted:
+#
+#   S1  12 majors @ 1.2638 core-min/major (C-24 x3, WITHOUT C-188's
+#       1.6308 transfer factor)                                    ->   52.92   OUT
+#   S2  12 majors @ 2.0610 (the registered rate; SO1bR and D1 armO
+#       BOTH converged in 12 majors on this very case)             ->   72.05   in
+#   S3  24 majors @ 2.0610                                         ->  121.52   in
+#   S4  34 majors @ 2.0610 (the stall abort's FIRST REACH)         ->  162.74   in
+#   S5  50 majors @ 2.0610 (MAX_MAJORS; THE REGISTERED POINT)      ->  228.69   in
+#   S6  50 majors @ 3.3611 (the 1.6308 transfer factor is ITSELF
+#       short by its own margin -- D6 is A2/3-D/np=4 and this is
+#       A1/2-D/np=1, and C-188's lesson is that the ANCHOR is the
+#       predictor, not the factor)                                 ->  358.70   OUT
+#   S7  both O arms stopped at their 240.0 cap                     ->  502.59   OUT
+#
+# `(60.0, 300.0)` CONTAINS S2..S5 AND EXCLUDES S1 BELOW AND S6/S7 ABOVE.  Both
+# edges fall BETWEEN named scenarios; neither sits on one.  The item ceiling of
+# 595.0 is outside the band, as it must be -- a cap is not a prediction.
+#
+# WHAT FALSIFIES IT, REGISTERED BEFORE THE RUN.  A graded item total BELOW 60.0
+# core-min -- both optimisers converging in far fewer majors than the single-point
+# precedent, or a per-major rate well under the C-24 anchor -- or ABOVE 300.0 --
+# the multipoint penalty failing to transfer from D6 and being short again.  BOTH
+# ARE PLAUSIBLE OUTCOMES OF THIS RUN, which is the property `(14.0, 60.0)` lacked.
 PRED = {"P2_CL_baseline_band": (0.45, 0.55),
         "P5_patched_agg_max_pct": 1.0,
-        "P_COST_band": (14.0, 60.0)}
+        "P_COST_band": (60.0, 300.0)}
 
 FIELDS_PHYSICS = ("rc_value", "oomkilled", "terminal_statement", "age_guard",
                   "no_fatal_token", "core_min", "cap_core_min", "DIGEST", "cpuset")
