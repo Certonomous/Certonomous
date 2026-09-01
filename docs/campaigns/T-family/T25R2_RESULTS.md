@@ -208,3 +208,142 @@ rather than a borrowed or probe-extrapolated one.
 **SUBMISSIONS PARKED** (rule 7). **Permanently private** (rule 8).
 
 <!-- END OF T25R2 RESULTS v1.0 -->
+
+---
+
+## 9. THE HALT — **A DELIBERATE, RULED DECISION, NOT A SILENT OMISSION**
+
+*Appended 2026-09-01T06:20Z. Results document v1.1. §6 above was this lane's
+RECOMMENDATION; this section is the SUPERVISOR'S RULING and the record of the
+decision as taken.*
+
+**`T25R2_L2` AND `T25R2_L2_DT025` WERE NOT RUN. THE REGISTRATION NAMED FOUR RUNS
+AND TWO OF THEM WERE DELIBERATELY NOT LAUNCHED.** A successor reading this record
+must find the reason here rather than a gap, so it is stated in full.
+
+### 9.1 ⛔ THIS IS NOT A CAP STOP, AND THE NUMBERS SAY SO
+
+| | core-min |
+|---|---|
+| registered HARD CAP, all four runs + staging | **390** |
+| **spent** | **19.780** |
+| **UNSPENT** | **370.2 — 94.9 % of the cap** |
+
+**No run was capped. No run reached its `timeout_s`. `capped=no` and `rc=0` on
+both arms.** Rule 12's cap-stop machinery was never engaged and this halt must
+not be read as one.
+
+### 9.2 THE THREE GROUNDS, IN THE ORDER THAT DECIDES THEM
+
+1. **L2's rows are ALREADY `NOT A RESULT`, by registered propagation, before any
+   decision was taken.** §3.5.5's transfer is **asymmetric and was frozen that
+   way before compute**: a `PASS` at `Co ≈ 1600` would **not** have certified L2
+   at `Co ≈ 2400`, but a **`GATE FAIL` does** void it — the failure direction
+   transfers. Both L2 arms run at **`nOuterCorrectors 10` at a higher Courant
+   number**, where the outer loop converges no faster.
+2. **Both sensitivity panels require two GRADED arms** (§6.3) and would print
+   `PENDING` whatever L2 produced.
+3. **56.03 core-min POINT, producing nothing gradeable.** *Idle compute is a
+   failure; so is compute that cannot produce a result.* **The second half of
+   that is the half that gets forgotten.**
+
+### 9.3 ⚠ HALTING CHANGES NO VERDICT
+
+**Every row of this rung was `NOT A RESULT` the moment O3 failed**, by a
+propagation registered at §3.5.4 **before any compute and before this decision
+existed**. Running L2 would have produced two more `NOT A RESULT` rows and two
+`PENDING` panels. **The halt saves compute; it does not change a single
+verdict, and no verdict in this document rests on it.**
+
+**The two cases remain STAGED AND VERIFIED on disk** — mesh proved byte-identical
+sha256-for-sha256, cell counts, gap resolution, interface faces and numerics all
+measured before solving (`MESH_VERIFICATION.txt`). They are **not** deleted: a
+successor may reuse the staging, and destroying it would destroy the verification
+record with it.
+
+---
+
+## 10. ⚠ MUST-FIX BEFORE ANY SUCCESSOR CAN GRADE D2 AT ALL
+
+**THIS RUNG HAD TWO INDEPENDENT BLOCKERS AND ONLY ONE OF THEM FIRED**, because
+§3.5 is evaluated before any reader is admitted.
+
+The second is Addendum B3.2: `read_patch_T` accepts **only** a
+`nonuniform List<scalar>` patch entry and **REFUSES** anything else, expressly
+declining to fall back to `refValue` (§7.2). The real staged coolant inlet is
+written by OpenFOAM as
+
+```
+    inlet { type fixedValue; value uniform 293; }
+```
+
+**So `read_inlet_T` REFUSES at every written time, and D2 — "outlet > inlet at
+every written `t > 0`" — would have made this rung `NOT A RESULT` on an
+INSTRUMENT REFUSAL even if the outer-loop gate had passed.**
+
+> **A SUCCESSOR THAT FIXES THE NUMERICS AND NOT THE READER GETS A REFUSAL
+> INSTEAD OF AN ANSWER.** This is not a curiosity to be filed; it is a
+> **MUST-FIX**, and it must be fixed **in the successor's own comparator, under
+> its own freeze**, before D2 is gradeable at all.
+
+**It is NOT repaired here**, and the grounds are §2d.1's and B1.5's: the grading
+path is frozen post-compute; conditions (3) and (4) presuppose published numbers
+and **there are none**; the failure direction is a **REFUSAL**, which withholds
+and cannot publish; and the defect is now **unreachable in this rung** because
+§3.5 fails first.
+
+**Root cause, sixth instance of the night's recurring class and this lane's
+own:** `--selftest` forged the inlet patch **with** a `nonuniform` value list, so
+the reader was never exercised against the form OpenFOAM actually writes for a
+uniform `fixedValue`. **The fixture did not resemble the situation.**
+
+---
+
+## 11. THE LIMITATION OF A THRESHOLD THIS LANE CHOSE ITSELF
+
+**§3.5.4 registered O3 as the maximum over `t ∈ {60, 900 s}` only, while O1
+covers every written `t > 0`.** Measured across all five written times, the
+coolant outlet delta at **t = 30 s is 2.404e-02 K — WORSE than the 2.315e-02 K at
+t = 60 s that actually fired the gate.**
+
+**The registered O3 caught the failure, but not at its worst point.** That is a
+limitation of a threshold's *coverage* chosen by this lane, stated in the
+document that reports its failure, because a limitation disclosed anywhere else
+is disclosed too late. **A successor should give O3 O1's coverage.**
+
+---
+
+## 12. THE COST FINDING, WHICH IS A DELIVERABLE IN ITS OWN RIGHT
+
+**Do not read this under the ratio.** §8.2's POINT priced the sweep doubling at
+**×2.18**, taken from the T25RF probe's A1→A2 pair — which **still carried the
+`p_rgh` stall** that the registered `1e-8` tolerance removes.
+
+> **MEASURED: doubling the outer sweeps costs ×1.765 whole-run, and ×1.77 on the
+> like-for-like cruise branch (0.4044 / 0.2285 core-s per step). NOT ×2.18.**
+
+The sub-linear part is per-step work that is not per-sweep. **This is the number
+a successor prices its sweep arms from**, and it is measured on this solver,
+this mesh, these loads and these numerics rather than borrowed or extrapolated.
+
+Confirmed alongside it, over the full 900 s where the probe could only see 30 s:
+**36,000 `p_rgh` GAMG solves, 65,949 iterations, mean 1.83, ZERO at `maxIter`
+1000** — the registered `1e-8` eliminates the stall across the whole run.
+
+---
+
+## 13. THE SUCCESSOR — PRICED, AND **NOTHING IS REGISTERED**
+
+**NO SUCCESSOR IS STARTED AND NOTHING BELOW IS REGISTERED.** A successor freezes
+its own pre-registration before any compute and runs again.
+
+| lever | priced off T25R2's OWN measured rates | reading |
+|---|---|---|
+| **more sweeps** | L1 at 20 measured **12.615 core-min**, so 40 sweeps ≈ **22 core-min** at the measured ×1.77 | **⚠ NOT OBVIOUSLY ENOUGH.** The supervisor's reading, and this lane re-derived it: if the outer-loop error falls roughly as `1/n`, the 20→40 gap lands at **1.158e-02 K against the 1.234e-02 threshold — a ratio of 0.938. That is a coin toss, and it does not touch the cause.** |
+| **a finer `deltaT` through the pulse alone** | to be priced by the successor | **THE MORE PROMISING LEVER.** It attacks the measured mechanism — the fluid's **31.25 ms** residence time against a large, about-to-step source at `Co ≈ 1600` — rather than throwing iterations at it. Constrained by §4.4: a `deltaT` finer than **1 ms** would sample the registered ramp and must revisit the breakpoint placement. |
+| **O3 widened to O1's coverage** | free | §11 |
+| **the D2 reader** | free | §10, **MUST-FIX** |
+
+**L3 stays refused** (§8.6). **An L2 outer-loop arm stays refused** (§8.5).
+
+<!-- END OF T25R2 RESULTS v1.1 -->
