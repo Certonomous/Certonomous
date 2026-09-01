@@ -121,6 +121,38 @@ _SHOCK_OFF_SURFACE = re.compile(
     r"\bshock\b[^.?!]{0,40}\breflect(?:s|ing|ed)?\b[^.?!]{0,25}"
     r"\b(?:off|from|against|onto)\b[^.?!]{0,25}"
     r"\b(?:wall|surface|floor|ground|plate|ramp|boundary)\b", re.I)
+# L-221/L-222: INSERTED BESIDE THE TWO ABOVE, NEITHER OF WHICH IS TOUCHED.
+#
+# The third pattern catches the way the question is asked by somebody who
+# describes the PHYSICS and never names the benchmark OR the verb: "drive a
+# Mach 10 shock into a wall at a steep angle". Measured on the live control
+# room 2026-09-01: that sentence -- which is the shock-reflection act's OWN
+# registered prompt, verbatim -- reached neither pattern above, because it
+# contains none of the nine names and never says "reflect". It fell through
+# to the generic planner and published four events and no stage.
+#
+# It is narrower than "shock" plus "wall", and the extra width is what keeps
+# the steady-wedge act intact. THREE clauses must all hold:
+#   (1) a Mach NUMBER is stated -- "Mach 10", not the bare word;
+#   (2) the shock is DRIVEN INTO a named surface -- into/onto/against only.
+#       Bare "at" is excluded on purpose: "the shock at the wedge" and "the
+#       shock angle at the corner" are wedge sentences, and the wedge act
+#       keeps them;
+#   (3) an ANGLE or an inclination is named -- the steep-angle framing that
+#       makes the reflection irregular rather than regular.
+# The wedge, cone, diamond and blunt-cylinder prompts each satisfy (1) and
+# some satisfy (3), and not one of them satisfies (2): none names a wall,
+# surface, floor, ground, plate, ramp or boundary the shock is driven into.
+# Three named clauses rather than one regex with lookarounds, because the Mach
+# number is typed BEFORE the shock in her sentence and after it in others, and
+# a lookahead anchored at the driving clause would have silently missed the
+# very prompt this pattern exists for. All three are required together.
+_SHOCK_DRIVEN_INTO_SURFACE = re.compile(
+    r"\bshock\b[^.?!]{0,40}\b(?:into|onto|against)\b[^.?!]{0,25}"
+    r"\b(?:wall|surface|floor|ground|plate|ramp|boundary)\b", re.I)
+_STATED_MACH_NUMBER = re.compile(r"\bmach\b\s*[\d.]+", re.I)
+_ANGLED_INCIDENCE = re.compile(
+    r"\b(?:angles?|angled|degrees?|inclined|obliquely|steeply)\b", re.I)
 # The four hardest validated cases, each wired as its own act rather than a
 # generic geometry study: the gate, the framing, and the output beat are all
 # specific to the body and the publication it is graded against.
@@ -643,6 +675,21 @@ def classify(request: str) -> Route:
             "names the irregular shock reflection benchmark, which this lab "
             "has already solved on two grids against criteria fixed before "
             "the first mesh existed")
+    elif (_SHOCK_DRIVEN_INTO_SURFACE.search(text)
+          and _STATED_MACH_NUMBER.search(text)
+          and _ANGLED_INCIDENCE.search(text)):
+        # ``elif``, NOT a second ``if``, and that is the whole point of the
+        # keyword. ``add`` ACCUMULATES (scores[intent] += weight), so a second
+        # independent branch would score 4.4 on any prompt matching both the
+        # patterns above and this one -- moving the confidence of prompts that
+        # already route here correctly. This branch fires only where the two
+        # existing patterns did not, so no prompt that routes today can have
+        # its score changed by this insertion. Same weight, same intent: the
+        # physics description reaches the act the name would have reached.
+        add(DOUBLE_MACH_REFLECTION, 2.2,
+            "describes a shock driven into a wall at an angle at a stated "
+            "Mach number, which is the irregular shock reflection benchmark "
+            "asked for without its name")
     # --- aircraft L/D optimization against mission requirements ---
     hold_workers = bool(_HOLD_WORKERS.search(text))
     if _LIFT_DRAG.search(text) and (_AIRCRAFT.search(text) or _MISSION_REQ.search(text)):
