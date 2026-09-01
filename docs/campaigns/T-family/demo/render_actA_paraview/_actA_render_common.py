@@ -40,7 +40,9 @@ AND THE DECLARATION THAT IS NOT OPTIONAL
 The solve is ONE CELL over a five-degree wedge. A render that rotationally
 extrudes it into a full 360-degree body is showing geometry that was never
 solved — the same class of defect as the retired surface this act used to serve.
-:data:`AXISYMMETRY_LINE` is stamped on every render of an extruded body.
+:data:`AXISYMMETRY_REVOLVE_LINE` is stamped on every render of an
+extruded body, and :data:`AXISYMMETRY_PLANE_LINE` on every render of the solved
+plane. The declaration must describe the picture actually drawn.
 Extrusion is permitted; SILENT extrusion is not.
 
 Nothing here chooses a number. Colour ranges, cell counts and temperatures are
@@ -68,8 +70,17 @@ MESH_FACTS = os.path.join(T23_RUNS, "T23_T24_MESH_FACTS.json")
 SCREEN_DATA = os.path.join(REPO, "docs", "campaigns", "T-family", "demo",
                            "figures_actA", "actA_screen_data.json")
 DISPLAY_SURFACE = os.path.join(T23_RUNS, "display_surface")
-SOLVED_STL = os.path.join(DISPLAY_SURFACE, "t23_solved_geometry.stl")
 PARTS_MANIFEST = os.path.join(DISPLAY_SURFACE, "t23_solved_geometry_parts.json")
+
+#: The copy the control-room server actually reads, and therefore the one a
+#: render must draw. NOT the generator's copy: naming that one would let a
+#: regenerated surface be rendered while the screen served a stale body.
+SOLVED_STL = os.path.join(REPO, "sdk", "geometry", "t23_solved_geometry.stl")
+
+#: The generator's own copy, beside the solved case. Used ONLY as the identity
+#: reference the served copy is hashed against.
+GENERATED_STL_FOR_CHECK = os.path.join(DISPLAY_SURFACE,
+                                       "t23_solved_geometry.stl")
 
 #: The point Act A's record is written against.
 PRIMARY = os.path.join(T23_RUNS, "T23_P305_U20")
@@ -473,5 +484,152 @@ def assert_paraview_version() -> str:
 
 
 def announce(message: str) -> None:
-    sys.stdout.write(message + "\n")
-    sys.stdout.flush()
+    """Write a progress line straight to file descriptor 1.
+
+    NOT ``print`` and NOT ``sys.stdout``, and the reason is a bug this module
+    shipped and then caught:
+
+    ``paraview.simple`` replaces ``sys.stdout`` with a wrapper that only reaches
+    the real file descriptor at interpreter finalisation. The self-test and the
+    renderers end in ``os._exit`` -- deliberately, so ParaView's GLX teardown
+    crash cannot overwrite a computed verdict -- and ``os._exit`` skips
+    finalisation. The two together SILENTLY DISCARDED EVERY PROGRESS LINE: the
+    geometry renderer ran correctly end to end, wrote its image, and printed
+    absolutely nothing, on both streams, while exiting 0.
+
+    A run that does its work and reports nothing is indistinguishable from a run
+    that did nothing, which is the same family as an empty image and a false
+    zero. ``os.write`` bypasses both the wrapper and the buffering, so a line
+    that was written is a line that appears.
+    """
+    os.write(1, (message + "\n").encode("utf-8", "replace"))
+
+
+def announce_error(message: str) -> None:
+    """The same, on file descriptor 2, for refusals."""
+    os.write(2, (message + "\n").encode("utf-8", "replace"))
+
+
+def part_ranges() -> dict:
+    """``{part name: (first facet, last facet exclusive)}`` from the manifest.
+
+    The STL's facets are ordered by part and the manifest records the ranges,
+    so a part can be isolated without trusting the two-byte STL attribute that
+    most readers discard.
+    """
+    manifest = _load(PARTS_MANIFEST, "geometry parts manifest")
+    parts = manifest.get("parts")
+    if not isinstance(parts, dict) or not parts:
+        refuse("the parts manifest carries no part ranges, so the duct cannot "
+               "be separated from the motor inside it")
+    return {name: (int(lo), int(hi)) for name, (lo, hi) in parts.items()}
+
+
+def split_parts(stl_path: str):
+    """Write the duct, the motor body and the heated housing as three scratch
+    STL files, and return ``({name: path}, scratch_dir)``.
+
+    WHY BY BYTES AND NOT BY A FILTER. The obvious ParaView route --
+    ``GenerateIds`` then ``Threshold`` on the cell id -- aborted the process
+    with SIGABRT on 5.11.2 here. A binary STL is a fixed 84-byte header and
+    then 50 bytes per facet, and the manifest records each part's facet range,
+    so slicing the file is both simpler and immune to filter API drift between
+    ParaView versions.
+
+    NOTHING IS WRITTEN BESIDE THE SOURCE SURFACE. The slices land in a fresh
+    temporary directory the caller removes.
+    """
+    ranges = part_ranges()
+    for needed in ("duct", "housing_heated"):
+        if needed not in ranges:
+            refuse(f"the parts manifest names no {needed!r} range")
+
+    raw = open(stl_path, "rb").read()
+    if len(raw) < 84:
+        refuse(f"{stl_path} is too short to be a binary STL")
+    n_facets = int.from_bytes(raw[80:84], "little")
+    expected = 84 + 50 * n_facets
+    if len(raw) != expected:
+        refuse(f"{stl_path} declares {n_facets} facets, which needs {expected} "
+               f"bytes, but the file is {len(raw)}; it is not the binary STL "
+               f"this slicer expects and will not be cut up blindly")
+
+    def slice_out(lo, hi):
+        lo, hi = int(lo), int(hi)
+        if not (0 <= lo < hi <= n_facets):
+            refuse(f"facet band {lo}..{hi} is outside the surface's "
+                   f"{n_facets} facets")
+        body = raw[84 + 50 * lo: 84 + 50 * hi]
+        return (b"actA render slice".ljust(80, b"\0")
+                + (hi - lo).to_bytes(4, "little") + body)
+
+    heat_lo, heat_hi = ranges["housing_heated"]
+    up = ranges.get("centrebody_upstream", (heat_lo, heat_lo))
+    down = ranges.get("centrebody_downstream", (heat_hi, heat_hi))
+
+    wanted = {
+        "duct": ranges["duct"],
+        "housing_heated": (heat_lo, heat_hi),
+        "motor": (min(up[0], heat_lo), max(down[1], heat_hi)),
+    }
+
+    root = tempfile.mkdtemp(prefix="actA_parts_")
+    out = {}
+    for name, (lo, hi) in wanted.items():
+        path = os.path.join(root, f"{name}.stl")
+        with open(path, "wb") as fh:
+            fh.write(slice_out(lo, hi))
+        out[name] = path
+    return out, root
+
+
+def frame_isometric(view, pad: float = 1.25) -> None:
+    """A three-quarter view of the whole body, fitted to it.
+
+    The r-z parallel framing used by the field renders is right for a plane and
+    wrong for a solid: it looks straight at the side of a cylinder and shows a
+    rectangle.
+
+    Two things here were got wrong first and are fixed deliberately:
+
+    * **Radius is UP, so the axis lies ACROSS the frame.** With the axis up, a
+      0.750 m body in a 16:9 frame runs off the top and bottom.
+    * **The distance is FITTED, not computed by hand.** The first version put
+      the camera at a hand-derived offset and the body overflowed the frame.
+      Setting the direction and letting ``ResetCamera`` fit the visible bounds
+      is what makes this robust to a changed geometry.
+    """
+    from paraview.simple import ResetCamera
+
+    z_lo, z_hi, r_max = axis_extent()
+    z_mid = 0.5 * (z_lo + z_hi)
+    reach = max(z_hi - z_lo, 4.0 * r_max)
+
+    view.CameraParallelProjection = 0
+    view.CameraViewAngle = 30.0
+    view.CameraFocalPoint = [0.0, 0.0, z_mid]
+    # Mostly side-on (down -x), lifted and swung so the body reads as a solid
+    # rather than a silhouette. Radius up puts the axis across the frame.
+    view.CameraPosition = [-1.00 * reach, 0.42 * reach, z_mid - 0.55 * reach]
+    view.CameraViewUp = [0.0, 1.0, 0.0]
+
+    ResetCamera(view)                 # fit the data, keeping that direction
+    # Ease off so the body does not touch the edges.
+    focal = list(view.CameraFocalPoint)
+    pos = list(view.CameraPosition)
+    view.CameraPosition = [f + (p - f) * pad for f, p in zip(focal, pos)]
+
+
+def announce_line(*parts) -> None:
+    """``print``-alike that reaches fd 1 even after ``os._exit``.
+
+    The self-test used the builtin ``print`` and, because ``paraview.simple``
+    wraps ``sys.stdout`` and ``os._exit`` skips finalisation, it produced the
+    correct exit code and NO REPORT AT ALL. A suite whose verdict text vanishes
+    is the same failure as a render that writes a blank image.
+    """
+    announce(" ".join(str(p) for p in parts))
+
+
+def announce_err_line(*parts) -> None:
+    announce_error("".join(str(p) for p in parts).rstrip("\n"))

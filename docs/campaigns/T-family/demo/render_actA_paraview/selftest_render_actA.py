@@ -48,15 +48,15 @@ def expect_refusal(label: str, fn) -> None:
     try:
         fn()
     except C.RenderRefusal as exc:
-        print(f"  refused  {label}\n             -> {str(exc)[:110]}")
+        C.announce_line(f"  refused  {label}\n             -> {str(exc)[:110]}")
         return
     except Exception as exc:                                     # noqa: BLE001
         FAILURES.append(f"{label}: raised {type(exc).__name__} instead of a "
                         f"refusal ({str(exc)[:80]})")
-        print(f"  WRONG    {label}: {type(exc).__name__}, not a refusal")
+        C.announce_line(f"  WRONG    {label}: {type(exc).__name__}, not a refusal")
         return
     FAILURES.append(f"{label}: DID NOT REFUSE")
-    print(f"  ASLEEP   {label}: did not refuse")
+    C.announce_line(f"  ASLEEP   {label}: did not refuse")
 
 
 def expect_success(label: str, fn):
@@ -66,9 +66,9 @@ def expect_success(label: str, fn):
         value = fn()
     except Exception as exc:                                     # noqa: BLE001
         FAILURES.append(f"{label}: {type(exc).__name__}: {str(exc)[:110]}")
-        print(f"  FAILED   {label}: {type(exc).__name__}: {str(exc)[:80]}")
+        C.announce_line(f"  FAILED   {label}: {type(exc).__name__}: {str(exc)[:80]}")
         return None
-    print(f"  ok       {label}")
+    C.announce_line(f"  ok       {label}")
     return value
 
 
@@ -77,7 +77,7 @@ def expect_success(label: str, fn):
 # ---------------------------------------------------------------------------
 
 def negative_arm() -> None:
-    print("\nNEGATIVE ARM -- each guard must refuse its own bad input")
+    C.announce_line("\nNEGATIVE ARM -- each guard must refuse its own bad input")
 
     expect_refusal(
         "a case directory that does not exist",
@@ -181,16 +181,57 @@ def negative_arm() -> None:
 
     expect_refusal("a graded run tree that changed under the render", moved_tree)
 
+    # THE RETIRED BODY. This is the guard that matters most on Screen 1: the
+    # retired surface renders perfectly well and nothing about the picture says
+    # which body it is. It must refuse by IDENTITY, before anything is drawn.
+    import render_actA_geometry as G
+
+    retired = os.path.join(C.REPO, "sdk", "geometry", "motor_in_duct.stl")
+    if os.path.isfile(retired):
+        expect_refusal(
+            "the RETIRED body offered as the geometry to draw",
+            lambda: G.assert_is_the_solved_surface(retired))
+    else:
+        C.announce_line("  skipped  the retired body is no longer on disk (it was "
+              "quarantined); nothing to drive this guard with")
+
+    expect_refusal(
+        "a file that is not a binary STL, offered to the part slicer",
+        lambda: C.split_parts(os.path.join(C.REPO, "docs", "campaigns",
+                                           "T-family", "demo",
+                                           "render_actA_paraview",
+                                           "README.md")))
+
 
 # ---------------------------------------------------------------------------
 # POSITIVE ARM -- the module must still be able to say yes
 # ---------------------------------------------------------------------------
 
 def positive_arm() -> None:
-    print("\nPOSITIVE ARM -- the same module must still produce a real picture")
+    C.announce_line("\nPOSITIVE ARM -- the same module must still produce a real picture")
 
     expect_success("ParaView version is the pinned one",
                    C.assert_paraview_version)
+
+    def solved_surface_accepted():
+        import render_actA_geometry as G
+        return G.assert_is_the_solved_surface(C.SOLVED_STL)[:16]
+
+    expect_success("the SOLVED surface is accepted by the same guard",
+                   solved_surface_accepted)
+
+    def parts_split():
+        parts, root = C.split_parts(C.SOLVED_STL)
+        try:
+            sizes = {k: os.path.getsize(v) for k, v in parts.items()}
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+        if len(sizes) != 3 or any(v < 200 for v in sizes.values()):
+            raise AssertionError(f"part slices look wrong: {sizes}")
+        return sizes
+
+    expect_success("the surface splits into duct, motor and heated housing",
+                   parts_split)
 
     for region, want in (("fluid", 35200), ("housing", 1120), ("core", 3360)):
         def load(region=region, want=want):
@@ -250,22 +291,22 @@ def positive_arm() -> None:
         "a real three-region render, non-blank and non-flat", render_and_measure)
     if result:
         n_bytes, distinct, lo, hi = result
-        print(f"             -> {n_bytes:,} bytes, {distinct:,} distinct "
+        C.announce_line(f"             -> {n_bytes:,} bytes, {distinct:,} distinct "
               f"colours, {lo:.1f} to {hi:.1f} degC")
 
 
 def main() -> int:
-    print("Act A ParaView render machinery -- refusal and capability self-test")
+    C.announce_line("Act A ParaView render machinery -- refusal and capability self-test")
     negative_arm()
     positive_arm()
 
-    print(f"\n{CHECKS} checks run")
+    C.announce_line(f"\n{CHECKS} checks run")
     if FAILURES:
-        sys.stderr.write(f"\nREFUSE: {len(FAILURES)} check(s) failed:\n")
+        C.announce_err_line(f"\nREFUSE: {len(FAILURES)} check(s) failed:\n")
         for line in FAILURES:
-            sys.stderr.write(f"  {line}\n")
+            C.announce_err_line(f"  {line}\n")
         return 2
-    print("PASS -- every guard fired on its own bad input, and the same "
+    C.announce_line("PASS -- every guard fired on its own bad input, and the same "
           "machinery still rendered a real picture")
     return 0
 

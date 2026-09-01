@@ -10,7 +10,10 @@ Requirements and per-screen content: `../ACT_A_GUI_CONTENT_SPEC.md` §10.
 
 ## Run
 
+    xvfb-run -a pvbatch render_actA_geometry.py        # Screen 1
+    xvfb-run -a pvbatch render_actA_mesh.py            # Screens 4/5
     xvfb-run -a pvbatch render_actA_fields.py          # Screen 6
+    xvfb-run -a pvbatch render_actA_airspeeds.py       # the four-airspeed set
     xvfb-run -a pvbatch selftest_render_actA.py        # the guards, both arms
 
 ParaView **5.11.2**, pinned and asserted at start-up.
@@ -20,7 +23,10 @@ ParaView **5.11.2**, pinned and asserted at start-up.
 | File | What |
 |---|---|
 | `_actA_render_common.py` | scratch-case materialisation, the guards, camera framing, colour ranges |
+| `render_actA_geometry.py` | Screen 1 — the solved body, duct drawn see-through, heated housing named |
+| `render_actA_mesh.py` | Screens 4/5 — real cells, all three regions, plus the wall-layer zoom |
 | `render_actA_fields.py` | Screen 6 — temperature across all three regions, and air speed |
+| `render_actA_airspeeds.py` | the four airspeeds on ONE measured scale |
 | `selftest_render_actA.py` | drives every guard to refuse **and** proves the renderer still draws |
 
 ## The three things this machinery refuses to do
@@ -51,6 +57,8 @@ independent artifacts:
 | housing max **342.160 K** | `T23_GRADE.json` Q1 = 342.1598289320 K | to 6 s.f. |
 | core max **346.266 K** = 73.1 °C | map table peak core, 305 W / 20 m/s = 73.1 °C | yes |
 | measured field range **14.8 to 73.1 °C** | inlet air 14.9 °C, peak core 73.1 °C | yes |
+| four-case shared range **14.8 to 107.7 °C** | `envelope.series_degC["305"]` max = 107.677521039 °C | yes |
+| geometry digest **d2864232…**, axial **0.750 m** | served STL vs the generated copy; manifest `axial_stations_Z0_Z3` | yes |
 
 ## Two facts about this geometry that the scripts encode
 
@@ -100,8 +108,15 @@ It has already earned its place twice:
   not a control. It is now labelled a demonstration, and the real guard is
   driven separately by making the recorded expectation disagree with the disk.
 
-Mutation-verified: clean `rc=0`; guard disabled → `rc=2` with an `ASLEEP` line;
-restored → `rc=0`.
+Mutation-verified twice:
+
+- cell-count guard disabled → `rc=2` with an `ASLEEP` line; restored → `rc=0`.
+- retired-body guard: disabling the byte-identity check alone did **not** fail
+  the suite, because the explicit retired-digest check still caught it —
+  defence in depth working as designed. Disabling **both** gives `ASLEEP` and
+  `rc=2`, which is what proves the check is not vacuous.
+
+20 checks: 13 refusals, 7 positive.
 
 ## Known wrinkle
 
@@ -112,12 +127,27 @@ check has run and the verdict is printed. The self-test therefore ends in
 overwrite a real result. Triaged, not waved through: outputs are verified
 complete (PNG `IEND` present, 1600×900, ~180 distinct colours) before exit.
 
+## A third bug this shipped and then caught: the silent renderer
+
+`paraview.simple` replaces `sys.stdout` with a wrapper that only reaches the
+real file descriptor at interpreter finalisation. These scripts end in
+`os._exit` — deliberately, so ParaView's GLX teardown crash cannot overwrite a
+computed verdict — and `os._exit` skips finalisation.
+
+Together they **silently discarded every progress line**. `render_actA_geometry.py`
+ran end to end, verified the digest, wrote its image, and printed **nothing at
+all on either stream while exiting 0**. The self-test did the same: correct exit
+code, no report. A run that does its work and reports nothing is
+indistinguishable from a run that did nothing.
+
+`announce()` and `announce_line()` therefore write to file descriptors 1 and 2
+directly, past both the wrapper and the buffering.
+
 ## Not built yet
 
-- `render_actA_geometry.py` — Screen 1, the solved STL on load.
-- `render_actA_mesh.py` — Screens 4/5, the real cells with the wall-layer zoom.
-- The four-airspeed comparison set, which must call `field_range_degC()` with
-  all four cases at once so they share one measured scale.
+Nothing from the original list. Remaining ideas, none required by the checklist:
+a frame-sequence export for progressive reveal, and per-part colouring of the
+geometry from the STL's own two-byte attribute rather than the manifest ranges.
 
 Rendered output lands in `out/` and is not committed; regenerate with the
 commands above.
