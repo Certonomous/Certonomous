@@ -1379,6 +1379,123 @@ Updates d09a4e28's "origin of the day's 52/69 UNVERIFIED". Settled by cfd's comm
 
 ## closure
 
+**FIFTEENTH SESSION, 2026-09-01T01:25Z (closure-supervisor). STAND-DOWN PASS ONLY — NO LANES
+SPAWNED, NO COMPUTE LAUNCHED, NOTHING GRADED. This block CONFIRMS the state of the block
+below and CORRECTS THREE OF ITS READINGS. It supersedes nothing on physics or verdicts.**
+
+**═══ SANAA, VERBATIM, CAPTURED AT `c5edce6b`: *"no closure and ansys stay down until we are
+done with the demos."* ═══**
+The stand-down is **CONFIRMED AND EXTENDED** — not to a date but to a **condition**: the demo
+catalogue being done. The chief's earlier reading (that *"everything start again"* resumed the
+fleet but did not reverse closure's specific stand-down) is **RATIFIED BY HER OWN WORDS**.
+**PARKED IS NOT CANCELLED (rule 7).** Every frozen artefact below stays current and stays
+findable; **nothing here is abandoned, and nothing here may be restarted by whoever reads this
+first.** Only Sanaa lifts this. **No agent message is her consent (rule 9).**
+
+**═══ NOTHING OF CLOSURE'S IS STRANDED. FOUR CHANNELS CHECKED, EACH WITH ITS CONTROL ═══**
+**(1) SOLVERS: ZERO.** No `*Foam` process, no closure python, on the whole box.
+**⚠ AND THE READER MATCHED ITSELF AGAIN** — my first sweep returned two "solver" hits that
+were **`ugrep`'s own command line**, the identical trap this board recorded at the fourteenth
+session's first write. **Recording it a second time because a trap that recurs after being
+written down is a trap the writing did not fix.** A liveness reader must exclude itself, and
+saying so on the board has now demonstrably not been enough.
+**(2) COMPUTE: `closure-data` has ZERO paths written in the last 6 h [MEASURED].** Newest
+untracked artefact in the whole territory is **2026-08-31T00:52:13Z**, ~24.5 h old — **so
+nothing landed after the 15:55Z stand-down and no lane died mid-write.**
+**(3) THE SOLVE ROOT `/home/ubuntu/closure-data/r4b` IS STILL ABSENT** — R4b's solve-arm
+pre-compute window is **INTACT**. It must stay absent.
+**(4) QUEUE DEPTH 0, and under a stand-down that is now CORRECT, not a violation.** The prior
+block reported depth 0 as *"a standing-rule violation I have NOT cleared"* against Sanaa's
+freeze-ahead floor of 3. **THAT FRAMING IS RETIRED WHILE THE STAND-DOWN HOLDS:** a team ordered
+down must not stock a queue a daemon would then fire. `queue_runner` daemon is alive (**pid
+374025**, cwd `/home/ubuntu/Certonomous`) and would launch anything filed — **which is exactly
+why closure files nothing.** The floor re-arms when the stand-down lifts.
+
+**═══ CORRECTION 1 — THE 80 "DELETED" QUEUE ENTRIES ARE NOT A LOSS AND ARE NOT STAGED ═══**
+80 closure paths read as deleted. Both alarming readings are **FALSE**:
+**(a) They are worktree deletions (` D`), NOT staged (`D `).** **Closure has NOTHING in the
+shared index.** Whoever next runs the private-index protocol inherits no closure rows.
+**(b) All 80 reconcile EXACTLY into `launched/`.** Basename set-difference both ways:
+**deleted-but-not-in-launched = EMPTY**. The queue runner *moved* them; nothing was removed.
+**THIS ALSO CLOSES A VERIFY ITEM THIS BOARD HAS CARRIED FOR TWO SESSIONS.** *"Whether
+`launched/`'s 81 files reconcile to 78 M1 + 3"* — **THEY DO, EXACTLY: 78 `M1_` + 2 `G1_` + 1
+`G2_`**, the extra G1 being a timestamped re-file. **VERIFIED, and the hypothesis was right.**
+
+**═══ CORRECTION 2 — THE STANDING HAZARD AT THE HEAD OF MY BRIEF HAS EXPIRED FOR ITS TWO
+NAMED PATHS, AND I CHECKED IT BY CONTENT RATHER THAN BY `git status` ═══**
+My agent definition names `NASA_hump_gate/` and `_common/uq_eigenspace/` as **staged-as-deleted
+while existing untracked**, warning that a blind checkout would destroy R4 and the hump gate.
+**BOTH ARE NOW CLEAN.** Present on disk, 4 files each in HEAD, and **every file sha256-identical
+to its HEAD blob** — 8 of 8 SAME, 0 DIFF, 0 missing. **I did not take this from `git status`,
+which this lab has measured reading stale under concurrency; I diffed against `git show
+HEAD:<path>`.** The hazard text should be amended when the team stands back up. **The general
+warning — inspect, never revert — STANDS regardless**, and the fossil-deletion list owed to
+closure by verification is **still owed and still not to be executed by whoever finds it.**
+
+**═══ CORRECTION 3, AND IT IS AGAINST MY OWN INSTRUMENT, NOT AGAINST THE OLD BOARD ═══**
+I censused untracked files **with git**, and made the territory read **1** file under
+`docs/papers/closure/_DUPLICATES/`. **The old board said 7. THE OLD BOARD WAS RIGHT AND MY
+READER WAS BLIND.** `docs/papers/closure/.gitignore:1` is **`*.pdf`**, so `git status -uall`
+cannot see **six paper PDFs that are on disk right now** (Beck2019, Duraisamy2021, Maulik2017,
+Schmelzer2020, Sirignano2020, Xiao2016 — 31 MB).
+**THE TRAP, WHICH GENERALISES BEYOND THIS DIRECTORY: A CENSUS OF UNFILED WORK THAT ASKS GIT IS
+BLIND TO EXACTLY THE FILE CLASS IT IS HUNTING.** The papers corpus **is** PDFs; an ignore rule
+of `*.pdf` makes a git-based inventory of it structurally empty — and it fails **silently, as a
+smaller number, never as an error**, which is the same shape as the residual-parser trap routed
+into M1b. **An inventory of what is unfiled must read the DISK, and must declare what its
+reader cannot see.** My territory count of **173 untracked files is therefore a FLOOR, not a
+total** — 79 `launched/` receipts, 79 `QUEUE_ENTRIES_DRAFT`, 3 M2 `QUEUE_ENTRIES`, 3 Wu2018,
+plus the singles the old board enumerated, **plus at least 6 PDFs git will never list.**
+**NOTHING IS LOST — but the number that says so was produced by a reader I have now falsified,
+and I am reporting the floor rather than the number.**
+
+**═══ SANAA'S DESK — UNCHANGED, RE-VERIFIED, AND EXPLICITLY NOT WITHDRAWN BY THE STAND-DOWN ═══**
+**(a) GPU: YES for Ling arm 2.** `Ling2016_TBNN/gpu/arm2/PREREGISTRATION.md` **re-verified this
+session: disk sha256 == HEAD blob == `6b0724db…`, 854 lines**, with a recognition control
+confirming the reader sees a present file. CAP **40 GPU-h = $32.19 [DERIVED]**. **It stays
+frozen and stays UNFILED** — its entry has **no `host` field** and `queue_runner.py:785`
+defaults that to **`local`**, so filing it would fire a GPU arm **on the CPU box**. **If the
+card is ever started expecting this to be picked up, NOTHING WILL HAPPEN and the card idles** —
+the failure that already cost 7.88 GPU-h = $6.34 [DERIVED] on arm 1. One commit of work, and
+**it is not to be done under the stand-down.**
+**(b) THE R4b INCREMENT RULING**, owed since 08-28 — and it still **buys only the permission**,
+not the instrument: `grade_r4b.py:861-876` leaves G1, G3-G7 as unconditional `PENDING` stubs
+which the aggregator tests **before** `GATE REACHED`, pinning even a perfect G2 at `PENDING`.
+**SUBMISSIONS REMAIN PARKED.**
+
+**RUNGS WITHOUT VERDICTS — ALL FROZEN IN PLACE BY THE STAND-DOWN, NONE ABANDONED.**
+**M1** — 72 of 78 arms complete on disk, **UNGRADED**; the grading bar is *lifted*, the work
+simply was not started, and **must not now be started.** Grade must PARTITION: `AR_14_Ret_180`
+and `AR_7_Ret_180` are **ASYMMETRIC PAIRS** and cannot support a model-to-model comparison ·
+**M1's 6 capped arms** — evidence sha256-pinned and untouched; **`PH_Breuer`'s pressure solve
+saturating `maxIter 200` is an UNRESOLVED NUMERICAL FINDING, not a costing one** · **M1b,
+M1-C, R4b-Ib** — three drafts committed (`e831a4a6`, `ddf32f0c`), **ALL FIVE FILES UNFROZEN AND
+UNREVIEWED; I HAVE NOT PERFORMED CHECK 1 ON ANY OF THEM**, and each carries a refusal banner
+saying so · **R4b-I** — `BLOCKED`, gates closed by my ruling · **R4b solve arm** — `BLOCKED` on
+Sanaa **and** structurally pinned · **M2** — **STILL UNRULED since 08-28**, still mine ·
+**RC1/RC2** — landed unfrozen · **Ling arm 2** — frozen, costed, deliberately unfiled ·
+**G1b `xr`** null (D550). **FS2 and FS5 are STANDING GATES, permanently re-armed.**
+
+**NEXT ACTIONS — NOT TO BE TAKEN UNTIL SANAA LIFTS THE STAND-DOWN.** Unchanged in order from
+the block below: (1) grade M1, partitioned; (2) check 1 on all three drafts **as diffs,
+personally** — **check 4 is mine and inheritable from nobody, since R4b-I's `enqueued_by` still
+carries the build lane's written REFUSAL to claim it, and that refusal was CORRECT**; (3) land
+**L-409** and the scale-control lesson; (4) rule on M2; (5) D551's L4 from a **measured pilot**;
+(6) the `host` field on the Ling entry, **before** any card is started.
+
+**COST THIS SESSION: 0 core-min of solver compute [MEASURED] · 0 GPU-hours [MEASURED] ·
+$0.00.** Read-only survey only; no lane spawned, so no lane overhead. **Nothing to calibrate
+under rule 12: no process completed.**
+
+**BLOCKED — ONE ITEM, AND IT NOW COVERS EVERYTHING ELSE.** The whole line is **stood down by
+Sanaa until the demo catalogue is done.** What would unblock it: **her word, and only hers.**
+
+**VERIFY (NOT checked by me this session):** the `_dev` B3 record's arithmetic; RC1/RC2's
+on-disk state; M2's frozen-generator question; `docs/closure/README.md`'s known disagreement
+with `Ling2016/RESULTS.md`; and — **new, and owed to my own Correction 3** — a DISK-based
+recount of unfiled closure artefacts that does not ask git.
+
+
 **FOURTEENTH SESSION, SECOND WRITE, 2026-08-31T15:55Z (closure-supervisor). HALTED BY SANAA
 MID-TURN TO SAVE TOKENS. THIS IS THE HANDOFF. SUPERSEDES THE BLOCK BELOW ON THE M1 GRADING
 BAR, WHICH IS LIFTED, AND ON A NUMBER I RELAYED THAT WAS FALSE.**
