@@ -1,0 +1,302 @@
+PROPOSED CHANGE, NOT APPLIED -- Act A figure and wording standard
+=================================================================
+
+STATUS: PROPOSAL. Nothing here is applied to the working tree. No lane that
+produced it wrote under sdk/, no STL was touched, and the control-room server
+(pid 848778) was neither restarted nor signalled.
+
+Prepared by:   heat-transfer lab-lane, 2026-09-01, against Sanaa's directive
+               etc/sessions/2026-09-01T0310Z_sanaa_actA_figure_header_standard.md
+               (commit 569346b3).
+
+BASE, AND WHY THIS IS A NEW PATCH RATHER THAN AN EDIT TO THE OLD ONE
+  docs/campaigns/T-family/demo/PROPOSED_thermal_intent.patch IS NOW STALE AND
+  MUST NOT BE APPLIED. Its premise has expired: the cfd team LANDED it. At
+  HEAD, sdk/workflows/thermal_display.py exists and is tracked (added by
+  8b6ed54b, then edited by 77fecb55), and router.py has moved from blob
+  40521da to 94faf8c. `git apply --check` on the old patch fails on all three
+  files. This patch is cut against the module AS IT IS AT HEAD and touches
+  that one file only.
+
+  Verify before applying:
+    git rev-parse HEAD:sdk/workflows/thermal_display.py
+    git apply --check docs/campaigns/T-family/demo/PROPOSED_actA_figure_standard.patch
+
+WHAT IT CHANGES
+  1. Act A's five figure titles become Sanaa's exact strings, with ONE
+     deliberate exception recorded in a comment beside it (see BLOCKED below).
+     The PENDING mechanism for the two unlanded renders is untouched, and the
+     velocity figure keeps its stem `actA_velocity_field` while its title
+     becomes her "Air speed, 305 W".
+  2. `actA_monitor_replay`'s title loses the word "replayed", which is on her
+     banned list.
+  3. A PER-ACT solver line and scale line. These were not per-act before, and
+     that mattered: Act A's line is FALSE for Act C. Measured in
+     T25_MODULE_runs/T25_MOD_L1, constant/regionProperties reads `fluid ()`
+     -- empty -- and `solid (module)`, and system/fvSchemes reads
+     `divSchemes { default none; }`. Act C has ONE region, it is a solid, and
+     no convective transport is solved: there is no k-omega SST, no turbulent
+     forced convection and no conjugate coupling in that act. Act C's line is
+     written from its own run.
+  4. The replay-language purge across the narration, the provenance table,
+     the solver.selected event and the report abstract: "recorded",
+     "replayed", "screens come from that run", "no new number is produced",
+     "the uploaded file is neither meshed nor solved", "Solver: none on this
+     request" and the "Source case" path row are all gone. The provenance
+     table's first two rows are now Solver and Scale, which say what the path
+     was standing in for.
+  5. CROSS-CASE TEXT REMOVED FROM ACT A (her item 5). The `agenda` list that
+     feeds "Next investigations" was HARDCODED FOR BOTH ACTS, so Act A's
+     screen carried the battery module's entry: "Resolve the coolant as a
+     fluid region ... which is why no outlet temperature exists". That is
+     battery text on a motor screen. The shared entry stays; the coolant
+     entry moves to Act C's own `agenda_extra`.
+
+WHAT IT DOES NOT CHANGE, AND WHY -- READ THIS BEFORE ASSUMING THE PASS IS DONE
+  * Sanaa's third and fourth plain-fact sentences are NOT written, because
+    NEITHER IS TRUE AS DRAFTED. Measured from the bundle:
+      - "a planted 0.001 K perturbation": the planted magnitude is
+        1.234e-03 K in all three Act A controls (PLANT = A24.PLANT, the frozen
+        family constant, imported and never redefined). 0.001 K is a
+        one-significant-figure rounding of it, not the value.
+      - "agreement to 1e-5 K": the largest anchor residual is 3.7361e-05 K,
+        3.7x that tolerance. The bundle's `abs_diff_degC: 0.0` is an artifact
+        of check_anchors comparing `round(measured, 4)` against a hardcoded
+        4-dp anchor table; the pre-registered gate in that function is
+        `d <= 5e-5`, not 1e-5. "Agreement to better than 1e-4 K" is true.
+    The instrument-check and anchor-check tables already print the real
+    magnitudes and the real residuals, so omitting the two summary sentences
+    removes nothing from the evidence and puts nothing false on screen.
+  * `actA_map_table` KEEPS its existing title. Her string is "Peak core
+    temperature, 16 operating points", but that figure plots the HOUSING peak
+    -- every map_row's `source_field` ends .../housing/T -- and the bundle
+    carries no core value. Her title becomes true when the core column lands.
+  * The core peak column itself (her item 1) is NOT added here: it needs the
+    bundle regenerated, which is the producer's job, not this module's.
+  * Items 2 (rotor core -> core), 3 (drop the extrapolated headroom bars) and
+    4 (0.1 C significant figures) are BUNDLE- AND PRODUCER-SIDE, not module-
+    side, and are not in this patch. Item 6 belongs to the geometry lane.
+    Item 7, the assumptions box, needs an artifact that does not exist.
+
+RESTART SCOPE
+  This patch is Python and NEEDS A SERVER RESTART to take effect. Bundle JSON
+  and figure files are read inside `main()` at mission-run time (`_load_bundle`
+  is called from the mission body, not at import), so every producer-side item
+  above is DATA-ONLY and lands on the next mission run with no bounce. No HTML
+  change is required by this patch.
+
+MEASURED, driving thermal_display.main() in a throwaway `git archive HEAD`
+copy with this patch applied. The real tree was never patched and the live
+server was never touched. Against the accepted baseline:
+    Act A    rc 0   7 plots   6 tables   1 report   pending renders PRESENT
+               (provenance 8 rows -- was 7, Source case replaced by Solver
+                and Scale -- instrument checks 3, anchor checks 5, the
+                sixteen operating points 16, not-available 6, quantities 5)
+    Act C    rc 0   5 plots   5 tables   1 report
+    Refusal  rc 2   0 plots   0 reports  on BOTH Act C bundles stripped of
+               their control blocks -- actc_screen_data.json carries two and
+               actc_step_independence.json carries the third and is merged
+               over it, so stripping only the first returns rc 0 with a
+               working guard reading as broken. The one table is the
+               provenance block, which goes up before the controls are read.
+
+diff --git a/sdk/workflows/thermal_display.py b/sdk/workflows/thermal_display.py
+index ee1abe7..f5449a0 100644
+--- a/sdk/workflows/thermal_display.py
++++ b/sdk/workflows/thermal_display.py
+@@ -97,22 +97,44 @@ SCREEN_SETS: dict[str, dict] = {
+         "folder": _DEMO / "figures_actA",
+         "bundle": "actA_screen_data.json",
+         "extra_bundles": (),
++        # Sanaa's mandated solver line, verbatim (2026-09-01). This is the ONE
++        # place jargon may appear on screen; narration elsewhere stays plain
++        # English. It is per-act because it is a statement about THIS run:
++        # see Act C's, which is a different solver on a different physics and
++        # would be a fabrication if this line were shared between them.
++        # Verified against the run: system/controlDict `application
++        # chtMultiRegionSimpleFoam`, system/fluid/fvSchemes `ddtSchemes
++        # default steadyState`, constant/regionProperties `fluid (fluid)
++        # solid (housing core)`, constant/fluid/turbulenceProperties
++        # `simulationType RAS` / `RASModel kOmegaSST` / `turbulence on`.
++        "solver_line": ("OpenFOAM chtMultiRegionSimpleFoam, steady conjugate "
++                        "heat transfer, k-ω SST."),
++        # Verified: sixteen case directories under T23_runs/ and T24_runs/,
++        # each with a landed 10000/ field set, and every one of the sixteen
++        # reads nCells 3360 core + 1120 housing + 35200 fluid = 39680.
++        "scale_line": ("16 operating points solved on this geometry, "
++                       "39,680 cells."),
+         "figures": (
+             ("actA_temperature_field",
+-             "Temperature on the computational mesh", PENDING),
++             "Temperature field, 305 W", PENDING),
+             ("actA_velocity_field",
+-             "Velocity through the duct", PENDING),
++             "Air speed, 305 W", PENDING),
++            # NOT retitled to Sanaa's "Peak core temperature, 16 operating
++            # points": this figure plots the HOUSING peak (every map_row's
++            # `source_field` ends .../housing/T) and no core value is in the
++            # bundle. Her title becomes true when the core column lands; it
++            # is not written before then, because a title is a claim.
+             ("actA_map_table",
+              "Peak temperature across the sixteen operating points", LANDED),
+             ("actA_envelope",
+              "Operating envelope against the 200 C limit", LANDED),
+             ("actA_radial_profile",
+-             "Radial temperature profile through the hottest solid cell",
++             "Radial temperature through the hottest cell",
+              LANDED),
+             ("actA_monitor_replay",
+-             "Each run's own temperature monitor, replayed", LANDED),
++             "Temperature monitor for each run", LANDED),
+             ("actA_assumption_beat",
+-             "The hand model against the coupled solve", LANDED),
++             "Hand estimate versus coupled solve, 305 W", LANDED),
+         ),
+         "not_available": (
+             ("A3, the geometry and meshing walkthrough",
+@@ -166,6 +188,29 @@ SCREEN_SETS: dict[str, dict] = {
+         "folder": _DEMO / "figures",
+         "bundle": "actc_screen_data.json",
+         "extra_bundles": ("actc_step_independence.json",),
++        # NOT Act A's line, and this is load-bearing. Measured in
++        # T25_MODULE_runs/T25_MOD_L1: constant/regionProperties reads
++        # `fluid ()` -- EMPTY -- and `solid (module)`, so there is ONE region
++        # and it is a solid; system/fvSchemes reads `divSchemes { default
++        # none; }`, so no convective transport is solved at all; log.solve
++        # reads `Exec : chtMultiRegionFoam` and fvSchemes `ddtSchemes {
++        # default Euler; }`, so it is transient. There is therefore no
++        # k-ω SST, no turbulent forced convection and no conjugate coupling
++        # in this act: the cooling is an imposed boundary condition. Sharing
++        # Act A's line here would put a fabrication on screen.
++        "solver_line": ("OpenFOAM chtMultiRegionFoam, transient conduction in "
++                        "a single solid region with a volumetric heat source; "
++                        "the cooling is an imposed surface condition, not a "
++                        "solved flow."),
++        "scale_line": "One 900 second run on this geometry, 960 cells.",
++        # Belongs to THIS act only: the coolant channels are Act C's geometry.
++        "agenda_extra": (
++            {"title": "Resolve the coolant as a fluid region",
++             "scope": "the channels carry a convective coefficient rather "
++                      "than a coupled stream, which is why no outlet "
++                      "temperature exists",
++             "cost": "a conjugate case with a meshed fluid region"},
++        ),
+         "figures": (
+             ("actc_field_snapshots",
+              "Temperature on the computational mesh at six times", LANDED),
+@@ -655,16 +700,20 @@ def _present(script, emit, roster, out: Path,
+ 
+     # ---- provenance, before any picture ----
+     mesh = bundle.get("mesh") or {}
++    # "Source case" paths are off screen by Sanaa's 2026-09-01 wording rule.
++    # The solver and the scale of the solve replace them: they say what was
++    # run, which is what the path was standing in for.
+     prov_rows = [
+-        ["Source case", str(bundle.get("source_case", "not recorded"))],
+-        ["Reader", str(bundle.get("reader", "not recorded"))],
+-        ["Mesh cells", f"{mesh.get('n_mesh_cells', 'not recorded'):,}"
++        ["Solver", spec["solver_line"]],
++        ["Scale", spec["scale_line"]],
++        ["Reader", str(bundle.get("reader", NOT_RECORDED))],
++        ["Mesh cells", f"{mesh.get('n_mesh_cells', NOT_RECORDED):,}"
+          if isinstance(mesh.get("n_mesh_cells"), int)
+-         else str(mesh.get("n_mesh_cells", "not recorded"))],
+-        ["Geometry guard", str(mesh.get("geometry_guard", "not recorded"))],
++         else str(mesh.get("n_mesh_cells", NOT_RECORDED))],
++        ["Geometry guard", str(mesh.get("geometry_guard", NOT_RECORDED))],
+     ] + [list(r) for r in bundle.get("provenance_extra", [])]
+     _emit_table(emit, script, role=_CE_ROLE,
+-                title=f"Where these screens come from: {spec['title']}",
++                title=f"How {spec['title']} was solved",
+                 headers=("Item", "Value"), rows=prov_rows,
+                 table_id=f"provenance-thermal-{key}")
+ 
+@@ -789,12 +838,11 @@ def main(request: str | None = None, params: dict | None = None,
+     script.phase(HYPOTHESIS)
+     roster.set(CHIEF_ENGINEER, "restating the request", "working")
+     script.engineer(
+-        f"• Reading this as a thermal question about {spec['title']}, a body "
+-        f"this lab has already run. "
+-        f"• No solver starts on this request and no new number is produced: "
+-        f"the screens come from that run's own fields. "
+-        f"• Anything the run does not define will be named as undefined "
+-        f"rather than shown as something adjacent.")
++        f"• Solver: {spec['solver_line']} "
++        f"• {spec['scale_line']}")
++    script.engineer(
++        f"• Anything the run does not define is named as undefined rather "
++        f"than shown as something adjacent.")
+ 
+     surface = str(params.get("surface") or "").strip()
+     if surface:
+@@ -803,19 +851,15 @@ def main(request: str | None = None, params: dict | None = None,
+         announce_geometry(emit, name=surface,
+                           label=f"reference body: {display_name(surface)}")
+         script.engineer(
+-            f"• Reference body received: {display_name(surface)}. "
+-            f"• The surface is on file as the reference shape. "
+-            f"• The screens below come from the run that landed for this "
+-            f"body, not from the uploaded file, and the uploaded file is "
+-            f"neither meshed nor solved by this act.")
++            f"• Geometry: {display_name(surface)}, the solved body.")
+ 
+     if emit:
++        # "Solver: none" must never reach a results screen (Sanaa,
++        # 2026-09-01). The solver named here is the one that produced these
++        # fields, per act.
+         emit("solver.selected", {
+-            "solver": "none on this request",
+-            "method": "presentation of a landed conjugate thermal run",
+-            "basis": "the numbers exist already; running the case again "
+-                     "would produce the same field at a cost this request "
+-                     "does not need to pay"})
++            "solver": spec["solver_line"],
++            "method": spec["scale_line"]})
+ 
+     # ---------------- The screens ----------------
+     script.phase(EVIDENCE)
+@@ -862,34 +906,27 @@ def main(request: str | None = None, params: dict | None = None,
+     # ---------------- Conclusion ----------------
+     script.phase(CONCLUSION)
+     elapsed = time.monotonic() - began
+-    script.engineer(
+-        f"• Screens up in {elapsed:.1f} seconds, with no solver started and "
+-        f"no compute booked against this request. "
+-        f"• The cost of the run these screens come from sits in that run's "
+-        f"own record, not against this one.")
+-    knowledge.add(f"Thermal screens presented for {spec['title']} from "
+-                  f"{bundle.get('source_case', 'the landed case')}")
++    script.engineer(f"• Screens up in {elapsed:.1f} seconds.")
++    knowledge.add(f"Thermal screens presented for {spec['title']}")
+ 
++    # PER ACT. This list was shared between the two acts, so Act A's "Next
++    # investigations" carried the battery module's coolant-channel entry --
++    # cross-case text on a motor screen (Sanaa, 2026-09-01, item 5).
+     agenda = [
+         {"title": "A second mesh for this body",
+          "scope": "one refinement level would turn the uncertainty column "
+                   "from a statement into a measured band",
+          "cost": "one further solve at the finer level"},
+-        {"title": "Resolve the coolant as a fluid region",
+-         "scope": "the channels carry a convective coefficient rather than a "
+-                  "coupled stream, which is why no outlet temperature exists",
+-         "cost": "a conjugate case with a meshed fluid region"},
+-    ]
++    ] + list(spec.get("agenda_extra", ()))
+     if emit:
+         emit("agenda.updated", {"entries": agenda})
+         emit("report.ready", lab_report(
+             title=f"Thermal screens: {spec['title']}",
+             abstract=[
+-                f"The screens above were built from the run that landed for "
+-                f"{spec['title']}, at {bundle.get('source_case', 'its case directory')}.",
+-                "Nothing was solved to produce them and no quantity was "
+-                "re-derived: every value is the one the screen generator "
+-                "read off the written fields.",
++                f"Solver: {spec['solver_line']}",
++                spec["scale_line"],
++                "Every value on screen is the one read off the written "
++                "fields.",
+             ],
+             methods=[
+                 f"Read the screen bundle at "
