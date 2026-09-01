@@ -25,10 +25,21 @@ silently.  That is why this belongs in code and not in one lane's habit.
 METHOD.  Take the last substantive line of the .tex source -- the final line
 carrying real prose, ignoring comments, \\end{document} and bare markup -- and
 require it to appear in the pdftotext output of the compiled PDF as a
-CONTIGUOUS PHRASE.  A bag-of-words test is not enough and was measured failing:
-the tail's individual words ("solved", "points", "cells", "operating") all recur
-elsewhere on these sheets, so a dropped tail can satisfy a word-set check on
-the strength of other lines alone.  Only the ordered phrase is unique to it.
+CONTIGUOUS PHRASE.  A bag-of-words test is not enough and was measured failing
+on BOTH sheets -- do not "simplify" this back to a set test:
+
+  * Act A, tail "16 operating points solved on this geometry, 39,680 cells":
+    when it was dropped, exactly ONE of its words ("geometry") was absent from
+    the page.  A single word carried the entire detection.
+  * Act C, tail "one mesh, one time step, and no numerical error bar on any
+    module number": when it was dropped, ZERO of its words were absent --
+    error, bar, any, module and number all appear elsewhere on that sheet.  A
+    word-set check would have passed COMPLETELY on a silently deleted
+    limitation statement.
+
+So the set test is not merely weaker; on Act C it is BLIND, and blind on
+exactly the honesty statement this guard exists to protect.  Only the ordered
+phrase is unique to the tail.
 
 CONTROL.  The control compiles an overlong copy of a real sheet and REFUSES
 unless this checker reports that tail as missing.  It grows the prose group
