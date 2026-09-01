@@ -39,8 +39,17 @@ const htmlPath = argv[0];
 if (!htmlPath) { console.error('FAIL: usage: harness <control_room.html> [--replay f.jsonl]'); process.exit(1); }
 const html = fs.readFileSync(htmlPath, 'utf8');
 const replayFiles = [];
+// --caption carries the REAL mesh caption in from the backend module at run
+// time. This harness deliberately holds NO copy of that text: a copy here
+// would go green while the screen displayed something else, which is the same
+// class of defect as a grep that survives a mutation. Without --caption the
+// caption checks below prove PRESENCE AND PLACEMENT ONLY, on a synthetic
+// string; the identity of the rendered text against the backend constant is
+// asserted by tests/test_control_room_pacing.py, which owns the import.
+let captionArg = null;
 for (let i = 1; i < argv.length; i++) {
   if (argv[i] === '--replay') replayFiles.push(argv[++i]);
+  else if (argv[i] === '--caption') captionArg = argv[++i];
 }
 
 // ---- extract the page script -------------------------------------------
@@ -177,6 +186,10 @@ function newPage(src = source) {
     devicePixelRatio: 1, innerWidth: 1920, innerHeight: 1080,
     location: { search: '', href: 'http://localhost:8765/' },
   };
+  // Declared before the sandbox that closes over it: page.setXhr() installs a
+  // url -> responseText function so one page can serve the static-replay
+  // snapshot and its geometry from different URLs.
+  let xhrRoutes = null;
   const sandbox = {
     document, window: win, console,
     setTimeout: setTimeout_, clearTimeout: clearTimeout_,
@@ -207,8 +220,21 @@ function newPage(src = source) {
     location: win.location, navigator: { userAgent: 'harness' },
     alert: noop, confirm: () => true, FormData: function () {},
     performance: { now: () => clock.now },
+    // URL-aware, and overridable per page via page.setXhr(). The static
+    // still-capture path (?static=1) fetches its event snapshot AND its
+    // geometry through synchronous XHR, so a stub that ignored the URL and
+    // always answered '{"events":[]}' could not drive that path at all. It is
+    // the path the filmed stills come from, so it has to be drivable.
     XMLHttpRequest: function () {
-      return { open: noop, send: noop, responseText: '{"events":[]}', status: 200 };
+      let url = '';
+      return {
+        open: (_method, u) => { url = String(u || ''); }, send: noop,
+        get responseText() {
+          const answer = xhrRoutes && xhrRoutes(url);
+          return answer != null ? answer : '{"events":[]}';
+        },
+        status: 200,
+      };
     },
   };
 
@@ -218,14 +244,15 @@ function newPage(src = source) {
     const names = Object.keys(sandbox);
     const fn = new Function(...names,
       src + '\n;return { dispatch, resetMission, state, revealQ, '
-          + 'uploadSurface, launchMission };');
+          + 'uploadSurface, launchMission, resumeMission };');
     api = fn(...names.map(n => sandbox[n]));
   } catch (err) {
     console.error('FAIL: the page script did not evaluate: ' + err.message);
     console.error(err.stack);
     process.exit(1);
   }
-  return { api, byId, clock, advance, drain, setTimeout: setTimeout_ };
+  return { api, byId, clock, advance, drain, setTimeout: setTimeout_,
+           setXhr: fn => { xhrRoutes = fn; } };
 }
 
 // ---- assertions ----------------------------------------------------------
@@ -891,6 +918,159 @@ const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, ''
     check(closeWith(CLEAN, alwaysRefusal).status !== 'MISSION COMPLETE',
           'PLANTED CONTROL DEAD: forcing the refusal branch on left the clean run ' +
           'reading MISSION COMPLETE, so the negative arm is vacuous');
+  }
+
+  // ----------------------------------------------- the mesh caption (Act D)
+  // WHY. The backend emitted a mandatory mesh caption on every frame and the
+  // viewport rendered it on none: the field simply had no reader. The word
+  // "caption" occurred zero times in the page while p.label and p.url each
+  // occurred four times, so the field was absent, not merely unread.
+  //
+  // THREE PAINTING SITES, NOT TWO. Enumerated rather than inherited:
+  // state.mesh is assigned in exactly three places, loadGeometry, loadField
+  // and the synchronous block inside resumeMission(id, staticReplay), and
+  // each is paired with a viewportLabel write. The third is the ?static=1
+  // still capture, which is what actually goes on camera; a caption wired
+  // only into the first two would pass a live check and fail the shoot.
+  // Rule 14: a lesson is not applied until EVERY call site asserts it.
+  const CAP = 'A caption the backend put on this frame.';
+  const capOf = p => String(p.byId('viewportCaption').textContent || '');
+  // loadGeometry/loadField await a VIRTUAL timer and then a REAL promise
+  // (fetch). drain() is synchronous, so it fires the timer but cannot run the
+  // microtask that follows it. Interleave the two until the frame settles.
+  const settlePage = async p => {
+    for (let i = 0; i < 8; i++) { p.drain(); await new Promise(r => setImmediate(r)); }
+  };
+
+  // -- live geometry frame.
+  {
+    const p = newPage();
+    p.api.resetMission();
+    p.api.dispatch({ event: 'geometry.ready',
+                     payload: { url: '/api/geometry?name=w.stl', label: 'Wing', caption: CAP },
+                     timestamp: 1000 });
+    await settlePage(p);
+    check(capOf(p) === CAP,
+          `a geometry frame carrying a caption rendered ${JSON.stringify(capOf(p))}`);
+  }
+  // -- live field frame. Rule 14: the same lesson, the other call site.
+  {
+    const p = newPage();
+    p.api.resetMission();
+    p.api.dispatch({ event: 'field.ready',
+                     payload: { url: '/api/geometry?name=w.stl', label: 'Cp', caption: CAP },
+                     timestamp: 1000 });
+    await settlePage(p);
+    check(capOf(p) === CAP,
+          `a field frame carrying a caption rendered ${JSON.stringify(capOf(p))}`);
+  }
+  // -- THE NEGATIVE ARM: a frame with no caption must not inherit the last
+  //    one's. This is the same stale-qualifier leak the scope-down guards.
+  {
+    const p = newPage();
+    p.api.resetMission();
+    p.api.dispatch({ event: 'geometry.ready',
+                     payload: { url: '/api/geometry?name=a.stl', label: 'A', caption: CAP },
+                     timestamp: 1000 });
+    await settlePage(p);
+    const captioned = capOf(p);
+    p.api.dispatch({ event: 'geometry.ready',
+                     payload: { url: '/api/geometry?name=b.stl', label: 'B' },
+                     timestamp: 1001 });
+    await settlePage(p);
+    check(captioned === CAP && capOf(p) === '',
+          `an uncaptioned frame kept the previous frame's caption: ` +
+          `${JSON.stringify(capOf(p))} is still standing under a new body`);
+    // And a reset must not carry it into the NEXT mission either.
+    p.api.dispatch({ event: 'geometry.ready',
+                     payload: { url: '/api/geometry?name=a.stl', label: 'A', caption: CAP },
+                     timestamp: 1002 });
+    await settlePage(p);
+    p.api.resetMission();
+    check(capOf(p) === '',
+          `a caption survived resetMission and would caption the next mission: ` +
+          `${JSON.stringify(capOf(p))}`);
+  }
+  // -- THE FILMED PATH: ?static=1 still capture, driven for real through
+  //    resumeMission's synchronous branch rather than asserted about.
+  {
+    const p = newPage();
+    const snapshot = JSON.stringify({ mission_id: 'm-cap', closed: true, events: [
+      { event: 'mission.routed', payload: { intent: 'shape-optimization', confidence: 0.9, rationale: 'x' }, timestamp: 1 },
+      { event: 'geometry.ready', payload: { url: '/api/geometry?name=w.stl', label: 'Wing', caption: CAP }, timestamp: 2 },
+      { event: 'mission.completed', payload: { status: 'complete' }, timestamp: 3 },
+    ] });
+    p.setXhr(url => url.includes('/events.json') ? snapshot
+                  : url.includes('/api/geometry') ? '{"vertices":[],"faces":[]}' : null);
+    await p.api.resumeMission('m-cap', true);
+    await new Promise(r => setImmediate(r));
+    // READ BEFORE DRAINING, ON PURPOSE. This is the synchronous window the
+    // static block exists to fill: a headless still can be grabbed before the
+    // paced queue and the async geometry load have run. The live handlers
+    // cannot have written anything yet, because loadGeometry awaits a timer
+    // on the virtual clock that only drain() fires. So a caption present here
+    // was put there by the static block and by nothing else.
+    check(capOf(p) === CAP,
+          `THE FILMED STILL HAS NO CAPTION. In the synchronous window the ` +
+          `?static=1 capture grabs, the caption read ${JSON.stringify(capOf(p))}. ` +
+          `A caption wired only into the live handlers is absent from every ` +
+          `captured frame, and the captured frames are what goes on camera`);
+    await settlePage(p);
+    check(capOf(p) === CAP,
+          `the caption did not survive the replay settling: ${JSON.stringify(capOf(p))}`);
+  }
+  // -- IDENTITY AGAINST THE BACKEND CONSTANT, when it is handed in. The text
+  //    is never written here. It arrives on --caption from the module that
+  //    defines it, is driven through a real frame, and must come back off the
+  //    element byte for byte. subText escapes before writing, so a caption
+  //    carrying markup or an entity would be caught here as a mismatch rather
+  //    than reaching the screen mangled.
+  if (captionArg != null) {
+    const p = newPage();
+    p.api.resetMission();
+    p.api.dispatch({ event: 'geometry.ready',
+                     payload: { url: '/api/geometry?name=w.stl', label: 'Wing',
+                                caption: captionArg },
+                     timestamp: 1000 });
+    await settlePage(p);
+    check(capOf(p) === captionArg,
+          `the caption on screen is not the caption the backend defines.\n` +
+          `      backend: ${JSON.stringify(captionArg)}\n` +
+          `      screen : ${JSON.stringify(capOf(p))}`);
+  }
+
+  // -- PLANTED CONTROLS for the caption, same discipline as the closing
+  //    states: strip each reader and the matching check must go red.
+  const noGeomCap = mutate("    subText('viewportCaption', p.caption || '');\n", '');
+  const noStaticCap = mutate("          subText('viewportCaption', gp.caption || '');\n", '');
+  if (noGeomCap) {
+    const p = newPage(noGeomCap);
+    p.api.resetMission();
+    p.api.dispatch({ event: 'geometry.ready',
+                     payload: { url: '/api/geometry?name=w.stl', label: 'W', caption: CAP },
+                     timestamp: 1000 });
+    await settlePage(p);
+    check(capOf(p) === '',
+          'PLANTED CONTROL DEAD: removing the live caption readers left the ' +
+          'caption on screen, so the live caption checks test nothing');
+  }
+  if (noStaticCap) {
+    const p = newPage(noStaticCap);
+    const snap = JSON.stringify({ mission_id: 'm-cap', closed: true, events: [
+      { event: 'geometry.ready', payload: { url: '/api/geometry?name=w.stl', label: 'W', caption: CAP }, timestamp: 2 }] });
+    p.setXhr(url => url.includes('/events.json') ? snap
+                  : url.includes('/api/geometry') ? '{"vertices":[],"faces":[]}' : null);
+    await p.api.resumeMission('m-cap', true);
+    await new Promise(r => setImmediate(r));
+    // Read in the same synchronous window the real check uses. The replayed
+    // event still reaches the LIVE handler once the queue drains, so draining
+    // here would hide the regression behind the live writer: the mutant is
+    // only distinguishable before the queue runs, which is exactly the window
+    // a still capture grabs.
+    check(capOf(p) === '',
+          'PLANTED CONTROL DEAD: removing the static-replay caption writer left ' +
+          'a caption in the capture window, so the filmed-path check is not ' +
+          'testing the static block');
   }
 
   // ---------------------------------------------------------------- report

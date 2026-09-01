@@ -229,7 +229,17 @@
   #viewportCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .viewport-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--dim); font-size: 11.5px; padding: 40px; }
   .viewport-empty[hidden] { display: none; }
-  .viewport-foot { display: flex; justify-content: space-between; padding: 10px 18px; border-top: 1px solid var(--line); color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; flex: 0 0 auto; }
+  /* Two rows, not one. The label and the stats keep the row they always had;
+     the mesh caption gets its own full-width row beneath them. A caption is a
+     sentence, not a token, and sharing a space-between row with the stats
+     would have forced it to truncate. It is never abbreviated on camera, so
+     it is given the width to be read whole and allowed to wrap. */
+  .viewport-foot { display: flex; flex-direction: column; gap: 5px; padding: 10px 18px; border-top: 1px solid var(--line); color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; flex: 0 0 auto; }
+  .viewport-foot-row { display: flex; justify-content: space-between; gap: 14px; }
+  /* :empty collapses the row entirely, so an act with no caption keeps the
+     foot exactly the height it had before this existed. */
+  .viewport-caption { color: var(--dim); line-height: 1.5; }
+  .viewport-caption:empty { display: none; }
   .legend { display: none; align-items: center; gap: 9px; padding: 9px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
   .legend.on { display: flex; }
   .legend .bar { flex: 1; height: 7px; background: linear-gradient(90deg, #3b4cc0, #7aa0e0, #f2f2f2, #e8926a, #b40426); }
@@ -469,7 +479,7 @@
            stage-wrap once swallowed them all — the absolute canvas painted the
            body over the charts, and hiding the stage for a race hid the race. -->
       <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here, painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
-      <div class="viewport-foot" id="viewportFoot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
+      <div class="viewport-foot" id="viewportFoot"><div class="viewport-foot-row"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div><div class="viewport-caption" id="viewportCaption"></div></div>
       <div class="legend" id="legend"><span class="lg-tag">colour range</span><span id="legendLo">-</span><span class="bar"></span><span id="legendHi">-</span><b id="legendName">pressure</b><span class="lg-phys" id="legendPhys"></span></div>
 
       <!-- Split-screen race view: two lanes race the same objective, one path
@@ -716,6 +726,12 @@ async function resumeMission(id, staticReplay) {
           const m = normalizeMesh(JSON.parse(gx.responseText.replace(/\bNaN\b/g, 'null')));
           _geomSeq++; state.mesh = m; setHidden('viewportEmpty', true);
           if (gp.label) subText('viewportLabel', gp.label);
+          // THE FILMED PATH. This is the ?static=1 still capture, which paints
+          // the final surface synchronously so a headless grab never races the
+          // async load. A caption wired only into loadGeometry and loadField
+          // would be absent from every captured still, pass a live-UI check
+          // and fail the shoot.
+          subText('viewportCaption', gp.caption || '');
           $('viewportStats').textContent = (m.faces.length).toLocaleString() + ' faces';
         } catch {}
       }
@@ -772,6 +788,9 @@ function resetMission() {
   $('kCycle').textContent=`0/${PHASE_ORDER.length}`;
   const cv = $('viewportCanvas'), c = cv.getContext('2d'); c && c.clearRect(0,0,cv.width,cv.height);
   setHidden('viewportEmpty', false); $('viewportLabel').textContent='No surface loaded'; $('viewportStats').textContent='';
+  // A caption belongs to ONE mission's frames. Left standing it would caption
+  // the next mission's geometry with the last one's mesh.
+  $('viewportCaption').textContent='';
   document.querySelector('.tab[data-view="memo"]').hidden = true;
   renderTouch(); showView('digest');
 }
@@ -1738,6 +1757,12 @@ async function loadGeometry(p) {
     // workflows already emit human labels; this is the graceful fallback until
     // the shared display-name registry lands on main.
     subText('viewportLabel', p.label || displayName(p.name) || 'surface');
+    // THE CAPTION IS SET ON EVERY PAINTED FRAME, INCLUDING THE FRAMES THAT
+    // CARRY NONE. Writing it only `if (p.caption)` would leave the previous
+    // frame's caption standing under a new body, which is the same stale
+    // qualifier problem the mission scope-down guards against on reset. The
+    // empty string collapses the row (see .viewport-caption:empty).
+    subText('viewportCaption', p.caption || '');
     $('viewportStats').textContent = mesh.faces.length.toLocaleString() + ' faces';
     drawGeometry();
   } catch (e) {}
@@ -1752,6 +1777,9 @@ async function loadField(p) {
     anchorSignedRamp(mesh.field);
     state.mesh = mesh; setHidden('viewportEmpty', true);
     if (p.label) subText('viewportLabel', p.label);
+    // Rule 14: a caption on geometry frames but not field frames is the same
+    // lesson left half applied. Field frames paint the viewport too.
+    subText('viewportCaption', p.caption || '');
     if (mesh.field) {
       $('legend').classList.add('on');
       setLegendRamp(mesh.field);

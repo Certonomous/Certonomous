@@ -161,5 +161,128 @@ class ControlRoomPacing(unittest.TestCase):
             "it reports:\n" + done.stdout + done.stderr)
 
 
+@unittest.skipUnless(NODE, "node is needed to run the control room page script")
+class TheMeshCaptionOnScreenIsTheBackendConstant(unittest.TestCase):
+    """The caption the viewer reads must BE the backend's string, not a copy.
+
+    The mesh caption is owner-mandated wording that qualifies what the frame
+    on screen is worth, and it is emitted on every painted frame of the shape
+    optimisation act. The page rendered it on none of them: the field had no
+    reader at all.
+
+    A harness holding its own copy of the caption text would go green while
+    the screen displayed something else, which is the same class of defect as
+    a grep that survives the mutation it was meant to catch. So the text lives
+    in exactly one place, and these tests carry it from there to the screen
+    rather than restating it: the JS harness proves presence and placement on
+    a synthetic string, and the identity of the rendered text against the
+    module constant is proven here, where the import lives.
+    """
+
+    def _caption(self) -> str:
+        from workflows._a2_shape import MESH_CAPTION
+
+        return MESH_CAPTION
+
+    def test_the_rendered_caption_is_byte_identical_to_the_module_constant(self):
+        caption = self._caption()
+        # Plant a control: an empty constant would make the comparison vacuous.
+        self.assertTrue(caption.strip(), "the caption constant is empty")
+        harness = Path(__file__).resolve().parent / "control_room_pacing_harness.js"
+        done = subprocess.run(
+            [NODE, str(harness), str(CONTROL_ROOM), "--caption", caption],
+            capture_output=True, text=True, timeout=300)
+        self.assertEqual(
+            done.returncode, 0,
+            "the mesh caption does not reach the screen intact:\n"
+            + done.stdout + done.stderr)
+
+    def test_the_workflow_emits_the_constant_by_reference_not_a_literal(self):
+        """A literal at the emit site is a copy that drifts the day one is
+        edited and the other is not."""
+        import ast
+
+        source = (SDK / "workflows" / "adjoint_optimization.py").read_text()
+        captions = [
+            value for node in ast.walk(ast.parse(source))
+            if isinstance(node, ast.Dict)
+            for key, value in zip(node.keys, node.values)
+            if isinstance(key, ast.Constant) and key.value == "caption"
+        ]
+        self.assertTrue(
+            captions,
+            "no caption is emitted at all: the act would paint uncaptioned "
+            "frames and this whole class would pass vacuously.")
+        for value in captions:
+            self.assertNotIsInstance(
+                value, ast.Constant,
+                "the caption is emitted as a literal string rather than as the "
+                "shared constant, so the screen and the module can drift apart.")
+
+    def test_no_second_copy_of_the_caption_text_exists(self):
+        """One definition, and the tests carry it. Any second copy is a place
+        the wording can be edited without the screen following."""
+        # The constant is written as two adjacent string literals, so the text
+        # never appears contiguously in the raw source, not even in its own
+        # definition. A plain substring sweep therefore finds NOTHING anywhere
+        # and passes for the exact wrong reason. Python's parser joins adjacent
+        # literals into one constant, so .py files are read through the AST,
+        # which sees the assembled string however it was wrapped. Other file
+        # types are normalised by dropping the quote and concatenation
+        # characters before collapsing whitespace, so `"half" + "half"` is
+        # caught as well as a single pasted string.
+        #
+        # HONEST LIMIT: for non-python files this is a normalised text sweep,
+        # not a parse. A copy assembled at run time from pieces, or built by
+        # interpolation, would not be found. It catches the realistic failure,
+        # which is somebody pasting the sentence into a test or a template to
+        # avoid an import. The .py path has no such limit: the AST sees the
+        # assembled constant however the source was wrapped.
+        import ast
+        import re
+
+        caption = self._caption()
+
+        def normalise(text):
+            return " ".join(re.sub(r"""["'`+\\]""", " ", text).split())
+
+        needle = normalise(caption)
+
+        def holds(path):
+            text = path.read_text(errors="ignore")
+            if path.suffix == ".py":
+                try:
+                    tree = ast.parse(text)
+                except SyntaxError:
+                    return False
+                return any(isinstance(node, ast.Constant)
+                           and isinstance(node.value, str)
+                           and caption in node.value
+                           for node in ast.walk(tree))
+            return needle in normalise(text)
+
+        # SOURCE ONLY, and the exclusion is the point rather than a speed-up.
+        # sdk/chief-engineer-runs/ holds persisted mission events, and a run of
+        # the shape optimisation act writes the caption into them because the
+        # backend really did emit it. That is the system working, not a copy of
+        # the wording. Sweeping run output would turn this test red the first
+        # time the act it protects is actually run.
+        roots = [SDK / name for name in ("chief_engineer", "workflows",
+                                         "tests", "scripts")]
+        holders = sorted(
+            str(path.relative_to(SDK))
+            for root in roots for path in root.rglob("*")
+            if path.is_file() and path.suffix in {".py", ".js", ".html", ".json"}
+            and "__pycache__" not in path.parts and holds(path))
+        # The definition itself must be found: a search that matches nothing
+        # would certify nothing, which is how the raw-substring version of
+        # this test passed while proving the opposite of what it claimed.
+        self.assertEqual(
+            holders, ["workflows/_a2_shape.py"],
+            "the caption text is written out in more than one place. Import "
+            "the constant instead: a second copy goes stale silently, and a "
+            "test holding one certifies its own copy rather than the screen.")
+
+
 if __name__ == "__main__":
     unittest.main()
