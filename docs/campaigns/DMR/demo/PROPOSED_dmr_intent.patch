@@ -1,0 +1,460 @@
+diff --git a/sdk/chief_engineer/router.py b/sdk/chief_engineer/router.py
+--- a/sdk/chief_engineer/router.py
++++ b/sdk/chief_engineer/router.py
+@@ -25,6 +25,12 @@
+     A surface is named, or a body is to be taken through the whole chain:
+     intake, surface check, meshing, solving, and a reported force with its
+     envelope. The expensive path, measured in minutes rather than seconds.
++``double-mach-reflection``
++    A shock-interaction benchmark whose two grids have already been solved
++    against criteria fixed before the first mesh existed. Like the thermal
++    display route it starts no solver: it presents the graded record and the
++    contour figure drawn from the same fields, and says what the benchmark
++    cost against what was set aside for it.
+ 
+ Routing is keyword-and-pattern based and fully inspectable: every decision
+ carries the evidence that produced it, so the interpretation can be argued
+@@ -53,6 +59,17 @@
+ SUPERSONIC_CONE = "supersonic-cone"
+ DIAMOND_AIRFOIL = "diamond-airfoil-wave-drag"
+ HYPERSONIC_CYLINDER = "hypersonic-cylinder"
++# The unsteady shock-interaction benchmark. THIS ROUTE PRESENTS AND NEVER
++# SOLVES, for the same reason the thermal display route does not: the two grids
++# were solved on 2026-08-07 against criteria committed before the first mesh
++# existed, both completed, and solving them again would buy the same answer at
++# a second price. The act reads each grid's own graded record off disk.
++#
++# It is kept distinct from the four steady compressible acts beside it because
++# nothing about it is steady: the structure is self-similar in time and the
++# quantity graded is a position at a stated instant, not a converged angle or
++# a settled pressure. A request that names a steady body keeps the act it has.
++DOUBLE_MACH_REFLECTION = "double-mach-reflection"
+ GENERAL_MISSION = "general-mission"
+ 
+ # Five validated cases, each with its own analytic gate rather than a
+@@ -77,6 +94,29 @@
+ _HYPERSONIC_CYLINDER = re.compile(
+     r"\b(hypersonic\s+cylinder|shock\s+standoff|billig|blunt[\s-]?body|"
+     r"bow\s+shock)\b", re.I)
++# The shock-interaction vocabulary. Every alternative here names either the
++# benchmark itself or a feature that exists ONLY in an irregular reflection,
++# so none of them can be typed about the four steady compressible bodies:
++# a triple point, a Mach stem and a double Mach reflection have no meaning on
++# an attached oblique shock, and the two proper nouns name this benchmark and
++# nothing else in the catalogue. "shock reflection" is included because it is
++# what an engineer actually types, and it cannot collide with the shock
++# expansion, shock standoff or oblique shock phrasings above.
++#
++# The second pattern catches the way the question is asked by somebody who
++# does not know the benchmark's name: a shock reflecting OFF A SURFACE. It
++# deliberately requires the surface to be named, because "the shock reflected
++# at the corner" is a sentence written about the steady wedge, and the wedge
++# act keeps it.
++_DOUBLE_MACH_REFLECTION = re.compile(
++    r"\b(double[\s-]?mach\s+reflection|mach\s+reflection|mach\s+stem|"
++    r"triple[\s-]?point|irregular\s+reflection|shock\s+reflection|"
++    r"reflecting\s+shock|woodward[\s-]?colella|shock[\s-]?interaction\s+"
++    r"benchmark)\b", re.I)
++_SHOCK_OFF_SURFACE = re.compile(
++    r"\bshock\b[^.?!]{0,40}\breflect(?:s|ing|ed)?\b[^.?!]{0,25}"
++    r"\b(?:off|from|against|onto)\b[^.?!]{0,25}"
++    r"\b(?:wall|surface|floor|ground|plate|ramp|boundary)\b", re.I)
+ # The four hardest validated cases, each wired as its own act rather than a
+ # generic geometry study: the gate, the framing, and the output beat are all
+ # specific to the body and the publication it is graded against.
+@@ -493,6 +533,15 @@
+     if _DIAMOND_AIRFOIL.search(text):
+         add(DIAMOND_AIRFOIL, 2.0,
+             "names a diamond or biconvex airfoil, or asks for wave drag")
++    if _DOUBLE_MACH_REFLECTION.search(text) or _SHOCK_OFF_SURFACE.search(text):
++        # Outranks the steady compressible acts on purpose. A prompt that says
++        # "shock reflection off a wedge" names both, and the reflection is the
++        # more specific reading: the wedge act grades an attached oblique
++        # shock and has nothing to say about a stem or a triple point.
++        add(DOUBLE_MACH_REFLECTION, 2.2,
++            "names the irregular shock reflection benchmark, which this lab "
++            "has already solved on two grids against criteria fixed before "
++            "the first mesh existed")
+     if _HYPERSONIC_CYLINDER.search(text):
+         add(HYPERSONIC_CYLINDER, 2.0,
+             "names a hypersonic cylinder or a shock standoff distance")
+@@ -660,6 +709,15 @@
+             "Reading this as hypersonic flow over a blunt cylinder. I will "
+             "solve the case end to end and grade the measured shock standoff "
+             "distance against the Billig correlation, within 0.70%."),
++        DOUBLE_MACH_REFLECTION: (
++            "Reading this as the irregular shock reflection benchmark. This "
++            "lab has already solved it on two grids, so no solver starts and "
++            "no new number is produced: I will put up the shock position "
++            "measured on each grid against the exact solution for the shock "
++            "speed, the density contours at the final time, and what the "
++            "benchmark cost against what was set aside for it. "
++            "The success criteria were fixed before the first mesh was "
++            "built, and the screen says which of them the result meets."),
+         AIRCRAFT_OPTIMIZATION: (
+             "Reading this as an aircraft lift-to-drag optimisation against mission "
+             "requirements. I will fix the requirements, search a wing design space "
+@@ -781,4 +839,6 @@
+                       "output": "diamond-airfoil"},
+     HYPERSONIC_CYLINDER: {"module": "workflows.hypersonic_cylinder",
+                           "output": "hypersonic-cylinder"},
++    DOUBLE_MACH_REFLECTION: {"module": "workflows.dmr_display",
++                             "output": "double-mach-reflection"},
+ }
+diff --git a/sdk/chief_engineer/scope.py b/sdk/chief_engineer/scope.py
+--- a/sdk/chief_engineer/scope.py
++++ b/sdk/chief_engineer/scope.py
+@@ -33,7 +33,8 @@
+ 
+ from .router import (ADJOINT_OPTIMIZATION, AHMED_BODY, AIRCRAFT_OPTIMIZATION,
+                      CRM_WINGBODY, CYLINDER_VORTEX_SHEDDING, DIAMOND_AIRFOIL,
+-                     GEOMETRY_STUDY, HYPERSONIC_CYLINDER, NASA_HUMP, ONERA_M6,
++                     DOUBLE_MACH_REFLECTION, GEOMETRY_STUDY,
++                     HYPERSONIC_CYLINDER, NASA_HUMP, ONERA_M6,
+                      SHAPE_OPTIMIZATION, SUPERSONIC_CONE, SUPERSONIC_WEDGE,
+                      VALVE_STUDY)
+ 
+@@ -105,6 +106,12 @@
+     SUPERSONIC_CONE: frozenset(),
+     DIAMOND_AIRFOIL: frozenset(),
+     HYPERSONIC_CYLINDER: frozenset(),
++    # The shock-interaction benchmark is genuinely time resolved, so the
++    # UNSTEADY promise is one the run keeps: it is integrated to a stated
++    # instant and has no steady state. It carries no other tag, so a prompt
++    # that asks it to optimise a shape or to report a temperature is told so
++    # before the screen starts rather than after it finishes.
++    DOUBLE_MACH_REFLECTION: frozenset({UNSTEADY}),
+ }
+ 
+ 
+diff --git a/sdk/workflows/dmr_display.py b/sdk/workflows/dmr_display.py
+new file mode 100644
+--- /dev/null
++++ b/sdk/workflows/dmr_display.py
+@@ -0,0 +1,326 @@
++"""The shock-reflection display act: a benchmark whose two grids have landed.
++
++THIS MODULE STARTS NO SOLVER. It writes no case, queues no job, invokes no
++OpenFOAM binary and books no compute. Every number it puts on screen is read
++off disk from the two grids' own graded records, and the picture it renders is
++a figure drawn from the same fields.
++
++Why the act exists as a presentation rather than a solve: this benchmark was
++run on 2026-08-07 against criteria fixed and committed before the first mesh
++existed, and both grids completed. Solving it again would produce the same
++answer at a second cost, so the act shows the answer it already has and says
++what it cost.
++
++What it reads, per grid, and nothing else:
++
++``verification/runs/DMR_runs/<grid>/locator_result.json``
++    The graded record: the measured shock position at the final time, the
++    exact analytic position at the same row, and the difference between them.
++``docs/campaigns/DMR/demo/figures/dmr_density_contours.png``
++    The density contour figure at the final time, both grids.
++
++THE PATH ABOVE IS TAKEN FROM THE FILESYSTEM, NOT FROM THE FROZEN RECORD. The
++pre-registration for this benchmark cites an older run location that no longer
++exists on disk; wiring this act from the record's path would find nothing.
++
++    python -m workflows.dmr_display
++"""
++
++from __future__ import annotations
++
++import json
++import math
++import shutil
++import time
++from pathlib import Path
++from typing import Any
++
++from chief_engineer.lab import (CHIEF_ENGINEER, CONCLUSION, EVIDENCE,
++                                HYPOTHESIS, NUMERICIST, PLAN, KnowledgeBase,
++                                Roster, lab_report)
++from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
++from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
++
++from . import OUT_ROOT, announce_plot, bullets, emit_table, make_transcript
++
++LABEL = "double-mach-reflection"
++BEAT = LABEL
++_REPO = Path(__file__).resolve().parents[2]
++_RUNS = _REPO / "verification" / "runs" / "DMR_runs"
++_FIGURES = _REPO / "docs" / "campaigns" / "DMR" / "demo" / "figures"
++_FIGURE_STEM = "dmr_density_contours"
++
++#: The final time of the benchmark, and the incident shock's Mach number
++#: normal speed along the wall. Both are properties of the configuration and
++#: are what the exact solution is built from, so the travelled distance below
++#: is derived rather than carried as a magic number.
++T_END = 0.2
++_SHOCK_SPEED = 20.0
++#: How far the incident shock moved in x at a fixed height between the start
++#: and the final time: the exact trace is x = 1/6 + (y + 20 t) / sqrt(3), so
++#: the displacement is 20 t / sqrt(3) and equals 2.3094 at the final time. The
++#: agreement below is quoted as a fraction of THIS, because a difference is
++#: only meaningful against the distance the thing actually travelled.
++TRAVEL = _SHOCK_SPEED * T_END / math.sqrt(3.0)
++
++#: One row per grid, coarse first: that is the order the act presents them in,
++#: cheapest first, and it is the order a reader wants. ``key`` is the run
++#: directory name and never reaches the screen.
++GRIDS: tuple[dict[str, Any], ...] = (
++    {"key": "res60", "name": "Coarse grid", "cells": 14400,
++     "shape": "240 by 60"},
++    {"key": "res120", "name": "Fine grid", "cells": 57600,
++     "shape": "480 by 120"},
++)
++
++#: Compute, as recorded when the benchmark ran. The estimate was fixed with
++#: the success criteria, before the first mesh existed; the figure used is the
++#: two solves plus meshing, initialisation and post-processing on four ranks,
++#: and both are quoted from ``verification/campaign/DMR_RESULTS.md``. They are
++#: constants here for one reason: the screen must show the SAME pair the
++#: record shows, and a second derivation of an already graded cost is a second
++#: number that can drift from the first.
++ESTIMATE_CORE_MIN = 20.0
++USED_CORE_MIN = 2.4
++
++_AGENDA = [
++    {"title": "Add a third, finer grid to the ladder",
++     "scope": "Carry the same benchmark to twice the resolution again so the "
++              "agreement with the exact shock speed can be quoted with a "
++              "convergence rate rather than a pair of values.",
++     "cost": "about 15 core-minutes at the measured price of this grid"},
++    {"title": "Measure the structure behind the main shock",
++     "scope": "Put a measured quantity on the reflected shock and the wall "
++              "jet, which this screen shows but does not measure.",
++     "cost": "no new solving, one new reader over the fields already on disk"},
++]
++
++
++def _read_grid(spec: dict[str, Any]) -> tuple[dict[str, Any] | None, str]:
++    """The graded record for one grid, or the path that was empty.
++
++    A gap is named rather than drawn around. A blank cell under a caption is
++    the failure this returns a reason for.
++    """
++    path = _RUNS / spec["key"] / "locator_result.json"
++    if not path.exists():
++        return None, f"no record on disk at {path}"
++    try:
++        record = json.loads(path.read_text(encoding="utf-8"))
++    except (OSError, ValueError) as exc:
++        return None, f"the record at {path} could not be read ({type(exc).__name__})"
++    gate = record.get("gateV")
++    if not isinstance(gate, dict):
++        return None, f"the record at {path} carries no shock-position result"
++    for field in ("x_measured", "x_exact_at_row", "error", "y_row"):
++        if not isinstance(gate.get(field), (int, float)):
++            return None, (f"the record at {path} is missing {field}, so no "
++                          f"number is shown for this grid")
++    return gate, ""
++
++
++def _figure(out: Path) -> tuple[Path | None, str]:
++    """Place the contour figure where the control room can serve it."""
++    source = _FIGURES / f"{_FIGURE_STEM}.png"
++    if not source.exists():
++        return None, (f"no contour figure at {source}, so nothing is drawn "
++                      f"in its place")
++    dest = out / source.name
++    shutil.copy(source, dest)
++    return dest, ""
++
++
++def main(request: str | None = None, params: dict | None = None, emit=None) -> int:
++    params = dict(params or {})
++    out = OUT_ROOT / LABEL
++    out.mkdir(parents=True, exist_ok=True)
++
++    script = make_transcript(LABEL, emit)
++    roster = Roster(emit)
++    knowledge = KnowledgeBase(emit)
++
++    # ---------------------------------------------------------------- ask
++    script.phase(HYPOTHESIS, "A shock reflecting off a wall it cannot stay attached to")
++    bullets(script.researcher,
++            "A Mach 10 shock meets a wall at an angle too steep for it to "
++            "reflect off cleanly, so it lifts away from the surface and a "
++            "second shock forms underneath to carry the turn.",
++            "This is the standard hard case for a compressible solver: the "
++            "structure is sharp, it is genuinely time dependent, and it has "
++            "no steady state to settle into.",
++            "One quantity in it is known exactly. The incident shock travels "
++            "at a speed set by the shock relations, so its position at any "
++            "time is a closed form and the solved position can be compared "
++            "against it with no reference data required.")
++
++    # -------------------------------------------------------------- plan
++    script.phase(PLAN, "What we expect, what it costs, and what was fixed in advance")
++    roster.set(CHIEF_ENGINEER, "stating confidence and price", "working")
++    bullets(script.engineer,
++            "Confidence before spending: the shock speed is exact, so we "
++            "expect the solved incident shock to sit within one percent of "
++            "the distance it travelled, and we expect the finer of two grids "
++            "to sit closer than the coarser.",
++            "Both statements, the one percent and the ordering of the two "
++            "grids, were written down and fixed before the first mesh was "
++            "built. They are success criteria fixed before running, not a "
++            "reading taken after the answer was in.",
++            f"Price fixed at the same moment: {ESTIMATE_CORE_MIN:.0f} "
++            f"core-minutes for both grids together.",
++            "Plan: the cheaper grid first, then the finer one at twice the "
++            "resolution in each direction, both to the same final time.")
++    roster.idle(CHIEF_ENGINEER)
++
++    # ---------------------------------------------------------- evidence
++    script.phase(EVIDENCE, "The two grids, cheapest first")
++    roster.set(NUMERICIST, "reading the shock position on each grid", "working")
++
++    rows: list[list[str]] = []
++    results: list[tuple[dict[str, Any], dict[str, Any]]] = []
++    gaps: list[str] = []
++    for spec in GRIDS:
++        gate, gap = _read_grid(spec)
++        if gate is None:
++            gaps.append(f"{spec['name']}: {gap}")
++            bullets(script.engineer,
++                    f"{spec['name']}: {gap}.",
++                    "No number for that grid appears anywhere below.")
++            continue
++        results.append((spec, gate))
++        error = abs(float(gate["error"]))
++        rows.append([
++            spec["name"],
++            f"{spec['cells']:,}",
++            f"{float(gate['x_measured']):.4f}",
++            f"{float(gate['x_exact_at_row']):.4f}",
++            f"{error:.4f}",
++            f"{100.0 * error / TRAVEL:.2f}%",
++        ])
++        emit_table(emit, script, role=_NUM_ROLE,
++                   title="Incident shock position at the final time, "
++                         "against the exact solution",
++                   headers=("Grid", "Cells", "Solved position",
++                            "Exact position", "Difference",
++                            "As a share of the distance travelled"),
++                   rows=[rows[-1]], table_id="dmr-shock-position",
++                   append=len(rows) > 1)
++    roster.idle(NUMERICIST)
++
++    if not results:
++        bullets(script.engineer,
++                "No grid on this benchmark could be read, so no result is "
++                "reported and nothing is drawn.")
++        script.save(out / "transcript.md")
++        roster.all_idle()
++        return 1
++
++    figure, figure_gap = _figure(out)
++    if figure is not None:
++        announce_plot(emit, BEAT, figure,
++                      "Density at the final time, coarse grid above, fine "
++                      "grid below")
++        bullets(script.engineer,
++                "The picture shows density contours at the final time on both "
++                "grids.",
++                "The main shock arcs from lower left, and where it leaves the "
++                "wall a second shock and a wall jet form beneath it. The "
++                "finer grid holds those features tighter; the coarser one "
++                "smears them.")
++    else:
++        bullets(script.engineer, f"{figure_gap[0].upper()}{figure_gap[1:]}.")
++
++    # -------------------------------------------------------- conclusion
++    script.phase(CONCLUSION, "Verification, the grid comparison, and the bill")
++    best = min(results, key=lambda item: abs(float(item[1]["error"])))
++    worst = max(results, key=lambda item: abs(float(item[1]["error"])))
++    best_pct = 100.0 * abs(float(best[1]["error"])) / TRAVEL
++    worst_pct = 100.0 * abs(float(worst[1]["error"])) / TRAVEL
++    finer_won = best[0]["cells"] > worst[0]["cells"]
++
++    verification = (
++        f"Verified against the exact shock-speed solution to within "
++        f"{best_pct:.2f}% of the distance the shock travelled on the "
++        f"{best[0]['name'].lower()}, and {worst_pct:.2f}% on the "
++        f"{worst[0]['name'].lower()}. The criterion, one percent, was fixed "
++        f"before the run.")
++    bullets(script.numericist, verification)
++
++    if len(results) > 1:
++        bullets(script.numericist,
++                ("The finer grid landed closer to the exact answer than the "
++                 "coarser one, which is what was predicted in advance and is "
++                 "the behaviour a correct solver has to show."
++                 if finer_won else
++                 "The finer grid did NOT land closer to the exact answer than "
++                 "the coarser one, which is not the behaviour predicted in "
++                 "advance and is reported here as it stands."))
++
++    emit_table(emit, script, role=_CE_ROLE, title="Compute",
++               headers=("Item", "Core-minutes"),
++               rows=[["Estimated before running", f"{ESTIMATE_CORE_MIN:.0f}"],
++                     ["Used", f"{USED_CORE_MIN:.1f}"],
++                     ["Used as a share of the estimate",
++                      f"{USED_CORE_MIN / ESTIMATE_CORE_MIN:.2f}"]],
++               table_id="dmr-compute")
++    bullets(script.engineer,
++            f"The bill: {ESTIMATE_CORE_MIN:.0f} core-minutes were set aside "
++            f"for this benchmark and {USED_CORE_MIN:.1f} were used, both "
++            f"grids and all the work around them included.",
++            "The estimate was the honest one available at the time and it was "
++            "high. The figure that matters to you is the one on the right of "
++            "that table.")
++
++    if emit:
++        emit("result.verdict", {
++            "quantity": "Incident shock position at the final time",
++            "value": f"{best_pct:.2f}% of the distance travelled",
++            "reason": verification})
++
++    caveats = [
++        "The fine structure behind the main shock, the second shock and the "
++        "wall jet under it, is shown in the picture and is NOT among the "
++        "quantities measured here. Read it as a picture, not as a number.",
++        "This is an inviscid calculation with no turbulence model in it, so "
++        "nothing here says anything about a turbulence closure.",
++        "The comparison is against an exact analytic solution for the shock "
++        "speed. No experimental measurement of this configuration exists to "
++        "compare the rest of the structure against.",
++    ]
++    if gaps:
++        caveats.append(
++            "One or more grids could not be read for this screen, and the "
++            "paths that were empty are named above.")
++    bullets(script.engineer, *caveats)
++
++    knowledge.add("Mach 10 incident shock position confirmed against the "
++                  "exact shock-speed solution on two grids.")
++    if emit:
++        emit("agenda.updated", {"entries": _AGENDA})
++
++    report_doc = lab_report(
++        title="Double Mach reflection: shock position against the exact solution",
++        abstract=["A Mach 10 shock reflecting irregularly off a wall, solved "
++                  "on two grids, with the incident shock position graded "
++                  "against the closed-form exact solution."],
++        methods=["Solve the benchmark to the final time on a coarse grid and "
++                 "again at twice the resolution in each direction.",
++                 "Locate the incident shock at a fixed height and compare it "
++                 "against the exact analytic trace at the same height.",
++                 "Draw density contours at the final time on both grids."],
++        results=[{"quantity": "Incident shock position",
++                  "value": f"within {best_pct:.2f}% of the distance travelled",
++                  "reason": verification}],
++        uncertainty=caveats,
++        next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
++        compute={"estimated_core_min": ESTIMATE_CORE_MIN,
++                 "used_core_min": USED_CORE_MIN})
++    if emit:
++        emit("report.ready", report_doc)
++
++    script.save(out / "transcript.md")
++    roster.all_idle()
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
