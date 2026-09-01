@@ -516,3 +516,85 @@ the ordinary case.
 | md5 of this file's first 429 lines BEFORE the append | `add11e978be5cda184adf4fc40955e55` |
 | md5 of this file's first 429 lines AFTER the append | `add11e978be5cda184adf4fc40955e55` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+---
+
+## ADDENDUM A — 2026-09-01, POST-COMPUTE: the cost basis is checked against the concurrent-`mpirun` finding and is UNAFFECTED; `--bind-to none` is required of any launcher
+
+**Dated addendum under CLAUDE.md rule 2. R0 HAS BEEN GRADED (`GATE FAIL`, see
+`verification/runs/M6I_runs/R0_RESULTS.md`), so first compute has occurred and pre-compute
+amendment is NO LONGER AVAILABLE to this registration.** This addendum therefore **alters no
+gate, no threshold, no cap and no label**, and nothing in it makes any gate easier to pass.
+Appended at the foot under rule 6. v1.3.
+
+### A.1 The check, and it returns a NEGATIVE RESULT — recorded rather than left unstated
+
+The heat-transfer team measured, with `taskset`/`mpstat`, that **concurrent independent `mpirun`
+invocations each number from core 0**, so six mpiruns piled twelve ranks onto CPUs 0–1 while 14
+cores sat idle. The cfd supervisor asked whether **this registration's cost basis** — §5's
+`1.3427 core-min per iteration at 399,360 cells`, from which the whole 14,622 core-min estimate
+and the 132,180 core-min L0 contingency descend — was measured under that collision, since it
+was taken at 4 ranks under `mpirun`.
+
+**IT WAS NOT. The basis is unaffected, and the discriminator is direct rather than inferential.**
+
+OpenFOAM's `ExecutionTime` is the **CPU time of the master rank**; `ClockTime` is **elapsed
+wall**. **If four ranks had been piled onto one core the master would have received about a
+quarter of a core and the ratio would read ≈ 0.25.** Measured over all 61 samples of
+`/home/ubuntu/certonomous-runs/A3-onera-m6-transonic/run_model_run3.log`:
+
+| statistic | `ExecutionTime / ClockTime` |
+|---|---|
+| minimum | **0.9851** |
+| median | **0.9896** |
+| maximum | **1.0194** |
+
+> **The master rank held essentially a full dedicated core for the entire run. There was no
+> core-0 pile-up.**
+
+**Corroborated independently by concurrency evidence**, which is weaker and is offered as
+corroboration only: the log's final write is `2026-07-28 01:10:16Z` and it spans ≈ 1,233 s, so
+the run occupied ≈ 00:50–01:10Z. The only other entries under `/home/ubuntu/certonomous-runs/`
+modified within ±2 h are `credential-repair-naca4412-finer_relayered` (last modified 23:51Z) and
+`…_ngrow0` (00:15Z) — **both finished before this run's window opened.**
+
+**Also verified rather than assumed:** the JF1 solvers live on this box while §5 was written are
+**single-rank `simpleFoam`, not `mpirun`**, so they could not have triggered the core-0
+collision — though they did compete for cores in the ordinary way, which §5 already discloses
+by recording the 1-minute load average of **14.30 on 16 cores**. **That disclosure stands and is
+not revised.**
+
+**Direction, stated for completeness:** had the basis been inflated by pile-up, the registered
+estimate would have been **conservative**, not optimistic, and the cap would not have been
+endangered. **It is neither: the basis is sound on this axis.**
+
+### A.2 A REQUIREMENT ON ANY LAUNCHER THIS LADDER EVER USES
+
+**No launcher exists yet — NO SOLVER HAS RUN — so this is registered before the fact rather
+than as a repair.**
+
+> **Every `mpirun` invocation under `M6I` MUST carry `--bind-to none`.**
+
+**M6I is the most exposed campaign in this team on this axis, because §3 registers 4, 8 AND 16
+ranks.** At 16 ranks on a 16-core box, a single concurrent `mpirun` from any other lane is
+exactly the collision the finding describes. `--bind-to none` **changes no computed value, only
+wall time** — so it moves no number this registration grades, and §5's core-minute figures
+remain the basis they were.
+
+### A.3 What this addendum does not do
+
+1. **It does not alter a gate, threshold, cap or label.** §4's gates, §5's estimates and caps
+   and §3's ladder are untouched.
+2. **It does not revisit R0.** `GATE FAIL` stands.
+3. **It does not authorise a solve.** Gate G remains `PENDING` and unreleased.
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| gate, threshold, cap or label altered | **none** |
+| lines edited, reordered, inserted or deleted above this section | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 518 lines BEFORE the append | `30ca7cd62031e5d3e7884ba7c0d66d9b` |
+| md5 of this file's first 518 lines AFTER the append | `30ca7cd62031e5d3e7884ba7c0d66d9b` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |

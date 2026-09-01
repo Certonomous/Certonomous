@@ -1,0 +1,2194 @@
+
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+  Hemisphere-Cylinder-Family (HCF) grid coarsening program
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+ ----------------------------------------------------------------
+
+ Reading the input file: input_coarsen.nml..... 
+
+ **************************************************************
+  List of namelist variables and their values
+
+&INPUT_PARAMETERS
+ DEBUG_MODE=T,
+ PROJECT="wing_strct                                                                      ",
+ TET2PRISM=F,
+ UGRID_FILE_UNFORMATTED=T,
+ K_FILE_UNFORMATTED=F,
+ RMP_FILE_UNFORMATTED=T,
+ PROLONG_FILE_UNFORMATTED=T,
+ GENERATE_SU2GRID_FILE=T,
+ GENERATE_TEC_FILE_B=T,
+ GENERATE_TEC_FILE_VOL=F,
+ GENERATE_NTRL_PARTITION_FILES=T,
+ GENERATE_HEFF_VOL_REPORT=T,
+ GENERATE_NC_PROLONG_FILE=T,
+ GENERATE_RMP_FILE=T,
+ GENERATE_CC_PROLONG_FILE=T,
+ SEPARATE_BOUNDARY_GROUP=F,
+ CHECK_NEGATIVE_ELM_VOL=T,
+ CHECK_NON_PLANARITY=T,
+ /
+
+  - No separate boundary group option for OM6...
+    Let me set separate_boundary_group =  F
+
+ >>>>>>> Begin looping over coarse grid levels.....
+
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  Begin coarse-grid level =            2  (Finest grid at level=1)
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ **************************************************************
+  1. Set up input parameters and read input files...
+ **************************************************************
+
+ ---------------------------------------
+  Reading : wing_strct.1.lb8.ugrid                                                          
+           nnodes =       990849
+           prisms =        12288
+            tetra =            0
+             hexa =       970752
+          pyramid =            0
+        triangles =          192
+   quadrilaterals =        27456
+
+  Allocated successfully - tria in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - xf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - yf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - zf in  MAIN: Read the .ugrid file ...
+
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+  Computing volume and heff for the given finer grid..... 
+  --- A summary will be written in the file: wing_strct_heff_vol.txt
+
+  ( To skip this, set 'generate_heff_vol_report' to be false:
+          generate_heff_vol_report = F
+    in the input file. )
+
+
+  Computing volumes/dual for hexahedra.....
+
+
+ Finer-grid: Negative hex volume not detected. 
+
+
+ Finer-grid:  Minimum hexahedral volume =     5.5298188440249912E-16
+ Finer-grid:  Maximum hexahedral volume =     1.3236689718380154E+02
+ Finer-grid:  Average hexahedral volume =     2.1553338828723829E+00
+
+
+  Computing volumes/dual for prisms.....
+
+
+  Finer-grid: Negative prism volume not detected. 
+
+
+ Finer-grid:  Minimum prismatic volume =     2.0404684150999316E-12
+ Finer-grid:  Maximum prismatic volume =     1.2800260773495449E+00
+ Finer-grid:  Average prismatic volume =     3.2851662780921470E-02
+
+
+ ---------------------------------------------------------------
+  All elements
+ ---------------------------------------------------------------
+ Finer-grid:  Minimum element volume =     5.5298188440249912E-16
+ Finer-grid:  Maximum element volume =     1.3236689718380154E+02
+ Finer-grid:  Average element volume =     2.1288028551211755E+00
+
+ Finer-grid:  Minimum heff (=cubic root(vol)) =     8.2079928232964530E-06
+ Finer-grid:  Maximum heff (=cubic root(vol)) =     5.0963564541605662E+00
+ Finer-grid:  Average heff (=cubic root(vol)) =     2.9040512939997526E-01
+ ---------------------------------------------------------------
+
+
+  Computing dual volumes.....
+
+
+ Finer-grid: Negative dual-volume not detected. 
+
+
+ Finer-grid:  Minimum dual volume =     1.0254784116996305E-15
+ Finer-grid:  Maximum dual volume =     1.1103050752773817E+02
+ Finer-grid:  Average dual volume =     2.1120255040863385E+00
+
+ Finer-grid:  Minimum heff (=cubic root(dvol)) =     1.0084216801024302E-05
+ Finer-grid:  Maximum heff (=cubic root(dvol)) =     4.8063357816370003E+00
+ Finer-grid:  Average heff (=cubic root(dvol)) =     2.9913566194763391E-01
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+
+
+ ---------------------------------------
+  Reading : wing_strct.1.k                                                                  
+
+  Allocated successfully - node in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k1 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k2 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k4 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k5 in  MAIN: Read the .k file ...
+
+
+  --- This is a structured-type grid. OK.
+      strct_grid =  T
+
+  --- tet2prism doesn't matter. So, we set 
+      tet2prism =  F
+
+  --- This is a full geometry case. OK. 
+      half_geom =  F
+
+ k1 min max =            0          96
+ k2 min max =            0           0
+ k3 min max =            0           0
+ k4 min max =            0          80
+ k5 min max =            0         128
+
+  Allocating k2n_1d(:).......
+
+ k1min, k1max  =            0          96
+ k2min, k2max  =            0           0
+ k3min, k3max  =            0           0
+ k4min, k4max  =            0          80
+ k5min, k5max  =            0         128
+
+ k1max-k1min+1 =           97
+ k2max-k2min+1 =            1
+ k4max-k4min+1 =           81
+ k5max-k5min+1 =          129
+
+
+  Allocated successfully - k2n in  MAIN: checking k info ...
+
+
+  Filling k2n(:).......
+
+  Filled k2n(:).
+
+
+  --- Elements on the wing
+             triangles =           96
+        quadrilaterals =         7584
+
+
+  --- Nodes on the wing
+             nnodes=       990849
+
+
+  Finished reading data file...
+
+
+  Minimum k5 index of the node associated with a tetrahedron:
+  --- k5_tetra =           -1
+  --- Finer grid has no tetrahedra. OK.
+
+
+ ---------------------------------------
+  Reading : wing_strct.1.lines_fmt                                                          
+           n_lines =         7681
+        min_points =           23
+        max_points =           23
+    n_total_points =       176663
+
+  Allocated successfully - fline in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.1.lines_fmt_all                                                      
+           n_lines =         7681
+        min_points =          129
+        max_points =          129
+    n_total_points =       990849
+
+  Allocated successfully - fline_all in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.1.lines_fmt_cc_all                                                   
+        n_lines_cc =         7680
+         min_cells =          128
+         max_cells =          128
+     n_total_cells =       983040
+
+  Allocated successfully - fline_cc_all in  MAIN: Read the .lines_fmt file ...
+
+
+  All elements are of the same type in each line: 
+    last_prs_location should be zero ->            0
+
+
+  Just checking... (below must be zero)
+     n_lines_cc_all - (ntria_body+nquad_body) =            0
+
+
+  Allocated successfully - ncelms in  MAIN: Start of HC surface coarsening ...
+
+
+  Allocated successfully - fn2ccell in  MAIN: Start of HC surface coarsening ...
+
+
+ **************************************************************
+  1. Generating coarse-grid surface elements: Structured grid
+ **************************************************************
+
+  Coarsening the hemisphere surface grid.......
+
+  Allocated successfully - ctria in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - ctria2 in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad2 in  MAIN: Surface coarsening for uns grids. ...
+
+  - Coarsening the triangular part.......
+  - Coarsening the quadrilateral part (hemisphere+cylinder).......
+
+  Allocated successfully - f2c in  MAIN:  Count nnodes on the coarsened body..... ...
+
+ --- nnodes_body =         1921
+ ---      nctria =           48
+ ---      ncquad =         1872
+
+  Allocated successfully - ibc in  MAIN: End of HC surface coarsening..... ...
+
+ Tecplot file has been written: debug_hc_surface.2.tec.dat                                                      
+
+  Allocated successfully - cell_above in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - cell_body in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - nfelms in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - felm in  MAIN: Create c2f pointers on the HC body..... ...
+
+  Find c-grid cell containing each f-grid triangular cell.
+  minval(nfelms(:)) =            0
+  maxval(nfelms(:)) =            2
+  Find c-grid cell containing each f-grid quadrilateral cell.
+  minval(nfelms(:)) =            4
+  maxval(nfelms(:)) =            4
+
+ **************************************************************
+  3. Structured volume element coarsening 
+ **************************************************************
+
+   # cells in the coarse-grid full line =           64
+
+  ---      nctet =            0
+  ---      ncprs =         3072
+  ---      nchex =       119808
+  ---     nctria =           96
+  ---     ncquad =         3744
+
+ **************************************************************
+  4. Outflow-boundary grid coarsening 
+ **************************************************************
+
+  Coarsening the outflow quad/tria boundary.......
+  ---     fine quad =        27456
+  ---     fine tria =          192
+  ---   coarse quad =         6816
+  ---   coarse tria =           96
+  Successfully coarsened the symmetry quad/tria boundary, I think. 
+
+ **************************************************************
+  5.1 Construct coarse-grid node numbering. 
+ **************************************************************
+
+  Generating a coarse-grid node array.......
+
+ **************************************************************
+  5.2 Coarsen the line information.
+ **************************************************************
+
+  Coarsening the partial line info.......: wing_strct.1.lines_fmt                                                          
+
+   # cells in the coarse-grid line =           11
+
+
+  Coarsening the full line info.......: wing_strct.1.lines_fmt_all                                                      
+
+ **************************************************************
+  6. Coarsening the k info.......
+ **************************************************************
+ kc1 min max =            0          48
+ kc2 min max =            0           0
+ kc3 min max =            0           0
+ kc4 min max =            0          40
+ kc5 min max =            0          64
+
+ **************************************************************
+  7.1 Constructing prolongation operator for CC.......
+ **************************************************************
+   ntet =            0
+   nprs =        12288
+   nhex =       970752
+
+  nctet =            0
+  ncprs =         3072
+  nchex =       119808
+
+  Check # of cells in flines and clines:
+     # of cells in an f-line =          128
+     # of cells in a  c-line =           64
+
+  --- This grid has no tetrahedra.
+  --- Good. Exactly twice as many f-cells as c-cells in a line. Proceed.
+
+
+
+  >>> Collecting information for cc-prolongation for non-tetra cells...
+
+  maxval(nccells_prolong) =            8
+  minval(nccells_prolong) =            8
+
+  Writing a cc prolongation file: wing_strct.2.prolong_cc
+  Total c-grid cells =       122880  in prolongation file for cc
+
+ **************************************************************
+  7.2 Constructing prolongation operator for NC.......
+ **************************************************************
+  Must have (nested nodes) = (ncnodes):
+ >>>>>  Nested nodes =       124865
+ >>>>>       ncnodes =       124865
+  Max(cnode nghbors) =            8
+  Min(cnode nghbors) =            1
+
+  Writing a prolongation file: wing_strct.1.prolong_nc                                                         
+  nnodes=      990849  in prolongation file
+  fine grid nodes=      990849  underlying coarse grid nodes=      124865
+
+  Writing a removed node list file: wing_strct.2.rmp                                                                
+
+
+    ncnodes =       124865
+  max(ctet) =            0
+  max(cprs) =        32385
+  max(chex) =       990849
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check element volumes for the coarse grid...
+
+   # of Tetrahedra =            0
+   # of Hexahedra  =       119808
+   # of Prisms     =         3072
+
+
+  Negative hex volume not detected. 
+
+
+ Minimum hexahedral volume =     2.2572294902748229E-14
+ Maximum hexahedral volume =     8.9566385316696301E+02
+ Average hexahedral volume =     2.1488538712015526E+00
+
+
+  Negative prism volume not detected.
+
+
+ Minimum prismatic volume =     3.1339671078282314E-11
+ Maximum prismatic volume =     1.7321302887265297E+01
+ Average prismatic volume =     1.3100354556860835E-01
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check non-planerity of quadrilateral faces...
+
+
+  Non-planarity:
+    Each quad face is split into two triangles: T1 and T2.
+    Dot product of unit tria-face normals computed: n(T1)*n(T2).
+    Two possible splits considered, and the larger is taken.
+
+ Minimum  =     5.6029385725484260E-01
+ Maximum  =     1.0000000000000004E+00
+ Average  =     9.9963923637826002E-01
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ **************************************************************
+  8. Write output files.
+ **************************************************************
+
+  Writing a tecplot boundary file: wing_strct.2.tec_bndary.dat                                                     
+
+  Skipped writing a tecplot volume file... 
+
+  Writing coarse-grid .ugrid file: wing_strct.2.lb8.ugrid                                                          
+
+
+ Writing a coarse-grid SU2 grid file....
+   --- elm check      122880      122880
+   --- node check      124865      124865
+ SU2GRID file written : wing_strct.2.su2                                                                
+
+ --- Boundary Markers: See .mapbc file.
+
+
+  Writing coarse-grid .lines_fmt file: wing_strct.2.lines_fmt                                                          
+  Total number of lines =         1921
+             max points =           12
+             min points =           12
+
+  Total number of pts written =        23052
+
+ lines_fmt file has been written: wing_strct.2.lines_fmt                                                          
+
+  Writing coarse-grid .lines_fmt_all file: wing_strct.2.lines_fmt_all                                                      
+  Total number of lines =         1921
+             max points =           65
+             min points =           65
+
+  Total number of pts written =       124865
+
+ lines_fmt_all file has been written: wing_strct.2.lines_fmt_all                                                      
+
+  Writing coarse-grid .lines_cc_fmt file: wing_strct.2.lines_fmt_cc                                                       
+
+  Cell-line information: 
+  Total number of lines =         1920
+             max cells =           11
+             min cells =           11
+
+ lines_fmt file has been written: wing_strct.2.lines_fmt_cc                                                       
+
+  Writing coarse-grid .lines_cc_fmt_all file: wing_strct.2.lines_fmt_cc_all                                                   
+
+  Cell-line information: 
+  Total number of lines =         1920
+             max cells =           64
+             min cells =           64
+
+ lines_fmt file has been written: wing_strct.2.lines_fmt_cc                                                       
+
+  Writing coarse-grid .k file: wing_strct.2.k                                                                  
+
+  Writing a boundary map file.......
+  Full geometry -> 3 boundary groups (Wing).
+    --- (1) Wing.
+    --- (2) Y-symmetry.
+    --- (3) Farfield.
+  Boundary info file written:wing_strct.2.mapbc                                                              
+  Writing a PLOT3D file..... 
+  Writing a .nmf file..... 
+
+  Allocated successfully - k2n_p3d_temp in write_plot3d_file() ...
+
+
+  Allocated successfully - k2n_p3d in write_plot3d_file() ...
+
+ PLOT3D file written : wing_strct.2.ufmt                                                               
+   .nmf file written : wing_strct.2.nmf                                                                
+
+ Grid generation successfully completed at level            2
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  Begin coarse-grid level =            3  (Finest grid at level=1)
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ **************************************************************
+  1. Set up input parameters and read input files...
+ **************************************************************
+
+ ---------------------------------------
+  Reading : wing_strct.2.lb8.ugrid                                                          
+           nnodes =       124865
+           prisms =         3072
+            tetra =            0
+             hexa =       119808
+          pyramid =            0
+        triangles =           96
+   quadrilaterals =         6816
+
+  Allocated successfully - tria in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - xf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - yf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - zf in  MAIN: Read the .ugrid file ...
+
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+  Computing volume and heff for the given finer grid..... 
+  --- A summary will be written in the file: wing_strct_heff_vol.txt
+
+  ( To skip this, set 'generate_heff_vol_report' to be false:
+          generate_heff_vol_report = F
+    in the input file. )
+
+
+  Computing volumes/dual for hexahedra.....
+
+
+ Finer-grid: Negative hex volume not detected. 
+
+
+ Finer-grid:  Minimum hexahedral volume =     2.2572294902748229E-14
+ Finer-grid:  Maximum hexahedral volume =     8.9566385316696301E+02
+ Finer-grid:  Average hexahedral volume =     1.7411226238453608E+01
+
+
+  Computing volumes/dual for prisms.....
+
+
+  Finer-grid: Negative prism volume not detected. 
+
+
+ Finer-grid:  Minimum prismatic volume =     3.1339671078282314E-11
+ Finer-grid:  Maximum prismatic volume =     1.7321302887265297E+01
+ Finer-grid:  Average prismatic volume =     5.2401418227443342E-01
+
+
+ ---------------------------------------------------------------
+  All elements
+ ---------------------------------------------------------------
+ Finer-grid:  Minimum element volume =     2.2572294902748229E-14
+ Finer-grid:  Maximum element volume =     8.9566385316696301E+02
+ Finer-grid:  Average element volume =     1.6989045937049074E+01
+
+ Finer-grid:  Minimum heff (=cubic root(vol)) =     2.8261285032284660E-05
+ Finer-grid:  Maximum heff (=cubic root(vol)) =     9.6393633081520207E+00
+ Finer-grid:  Average heff (=cubic root(vol)) =     5.8261355023481165E-01
+ ---------------------------------------------------------------
+
+
+  Computing dual volumes.....
+
+
+ Finer-grid: Negative dual-volume not detected. 
+
+
+ Finer-grid:  Minimum dual volume =     4.8595260049982553E-14
+ Finer-grid:  Maximum dual volume =     6.3706687041992916E+02
+ Finer-grid:  Average dual volume =     1.6718968203616765E+01
+
+ Finer-grid:  Minimum heff (=cubic root(dvol)) =     3.6492025542545532E-05
+ Finer-grid:  Maximum heff (=cubic root(dvol)) =     8.6045535216057836E+00
+ Finer-grid:  Average heff (=cubic root(dvol)) =     6.1654155797374932E-01
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+
+
+ ---------------------------------------
+  Reading : wing_strct.2.k                                                                  
+
+  Allocated successfully - node in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k1 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k2 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k4 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k5 in  MAIN: Read the .k file ...
+
+
+  --- This is a structured-type grid. OK.
+      strct_grid =  T
+
+  --- tet2prism doesn't matter. So, we set 
+      tet2prism =  F
+
+  --- This is a full geometry case. OK. 
+      half_geom =  F
+
+ k1 min max =            0          48
+ k2 min max =            0           0
+ k3 min max =            0           0
+ k4 min max =            0          40
+ k5 min max =            0          64
+
+  Allocating k2n_1d(:).......
+
+ k1min, k1max  =            0          48
+ k2min, k2max  =            0           0
+ k3min, k3max  =            0           0
+ k4min, k4max  =            0          40
+ k5min, k5max  =            0          64
+
+ k1max-k1min+1 =           49
+ k2max-k2min+1 =            1
+ k4max-k4min+1 =           41
+ k5max-k5min+1 =           65
+
+
+  Allocated successfully - k2n in  MAIN: checking k info ...
+
+
+  Filling k2n(:).......
+
+  Filled k2n(:).
+
+
+  --- Elements on the wing
+             triangles =           48
+        quadrilaterals =         1872
+
+
+  --- Nodes on the wing
+             nnodes=       124865
+
+
+  Finished reading data file...
+
+
+  Minimum k5 index of the node associated with a tetrahedron:
+  --- k5_tetra =           -1
+  --- Finer grid has no tetrahedra. OK.
+
+
+ ---------------------------------------
+  Reading : wing_strct.2.lines_fmt                                                          
+           n_lines =         1921
+        min_points =           12
+        max_points =           12
+    n_total_points =        23052
+
+  Allocated successfully - fline in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.2.lines_fmt_all                                                      
+           n_lines =         1921
+        min_points =           65
+        max_points =           65
+    n_total_points =       124865
+
+  Allocated successfully - fline_all in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.2.lines_fmt_cc_all                                                   
+        n_lines_cc =         1920
+         min_cells =           64
+         max_cells =           64
+     n_total_cells =       122880
+
+  Allocated successfully - fline_cc_all in  MAIN: Read the .lines_fmt file ...
+
+
+  All elements are of the same type in each line: 
+    last_prs_location should be zero ->            0
+
+
+  Just checking... (below must be zero)
+     n_lines_cc_all - (ntria_body+nquad_body) =            0
+
+
+  Allocated successfully - ncelms in  MAIN: Start of HC surface coarsening ...
+
+
+  Allocated successfully - fn2ccell in  MAIN: Start of HC surface coarsening ...
+
+
+ **************************************************************
+  1. Generating coarse-grid surface elements: Structured grid
+ **************************************************************
+
+  Coarsening the hemisphere surface grid.......
+
+  Allocated successfully - ctria in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - ctria2 in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad2 in  MAIN: Surface coarsening for uns grids. ...
+
+  - Coarsening the triangular part.......
+  - Coarsening the quadrilateral part (hemisphere+cylinder).......
+
+  Allocated successfully - f2c in  MAIN:  Count nnodes on the coarsened body..... ...
+
+ --- nnodes_body =          481
+ ---      nctria =           24
+ ---      ncquad =          456
+
+  Allocated successfully - ibc in  MAIN: End of HC surface coarsening..... ...
+
+ Tecplot file has been written: debug_hc_surface.3.tec.dat                                                      
+
+  Allocated successfully - cell_above in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - cell_body in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - nfelms in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - felm in  MAIN: Create c2f pointers on the HC body..... ...
+
+  Find c-grid cell containing each f-grid triangular cell.
+  minval(nfelms(:)) =            0
+  maxval(nfelms(:)) =            2
+  Find c-grid cell containing each f-grid quadrilateral cell.
+  minval(nfelms(:)) =            4
+  maxval(nfelms(:)) =            4
+
+ **************************************************************
+  3. Structured volume element coarsening 
+ **************************************************************
+
+   # cells in the coarse-grid full line =           32
+
+  ---      nctet =            0
+  ---      ncprs =          768
+  ---      nchex =        14592
+  ---     nctria =           48
+  ---     ncquad =          912
+
+ **************************************************************
+  4. Outflow-boundary grid coarsening 
+ **************************************************************
+
+  Coarsening the outflow quad/tria boundary.......
+  ---     fine quad =         6816
+  ---     fine tria =           96
+  ---   coarse quad =         1680
+  ---   coarse tria =           48
+  Successfully coarsened the symmetry quad/tria boundary, I think. 
+
+ **************************************************************
+  5.1 Construct coarse-grid node numbering. 
+ **************************************************************
+
+  Generating a coarse-grid node array.......
+
+ **************************************************************
+  5.2 Coarsen the line information.
+ **************************************************************
+
+  Coarsening the partial line info.......: wing_strct.2.lines_fmt                                                          
+
+   # cells in the coarse-grid line =            5
+
+
+  Coarsening the full line info.......: wing_strct.2.lines_fmt_all                                                      
+
+ **************************************************************
+  6. Coarsening the k info.......
+ **************************************************************
+ kc1 min max =            0          24
+ kc2 min max =            0           0
+ kc3 min max =            0           0
+ kc4 min max =            0          20
+ kc5 min max =            0          32
+
+ **************************************************************
+  7.1 Constructing prolongation operator for CC.......
+ **************************************************************
+   ntet =            0
+   nprs =         3072
+   nhex =       119808
+
+  nctet =            0
+  ncprs =          768
+  nchex =        14592
+
+  Check # of cells in flines and clines:
+     # of cells in an f-line =           64
+     # of cells in a  c-line =           32
+
+  --- This grid has no tetrahedra.
+  --- Good. Exactly twice as many f-cells as c-cells in a line. Proceed.
+
+
+
+  >>> Collecting information for cc-prolongation for non-tetra cells...
+
+  maxval(nccells_prolong) =            8
+  minval(nccells_prolong) =            8
+
+  Writing a cc prolongation file: wing_strct.3.prolong_cc
+  Total c-grid cells =        15360  in prolongation file for cc
+
+ **************************************************************
+  7.2 Constructing prolongation operator for NC.......
+ **************************************************************
+  Must have (nested nodes) = (ncnodes):
+ >>>>>  Nested nodes =        15873
+ >>>>>       ncnodes =        15873
+  Max(cnode nghbors) =            8
+  Min(cnode nghbors) =            1
+
+  Writing a prolongation file: wing_strct.2.prolong_nc                                                         
+  nnodes=      124865  in prolongation file
+  fine grid nodes=      124865  underlying coarse grid nodes=       15873
+
+  Writing a removed node list file: wing_strct.3.rmp                                                                
+
+
+    ncnodes =        15873
+  max(ctet) =            0
+  max(cprs) =         8129
+  max(chex) =       124865
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check element volumes for the coarse grid...
+
+   # of Tetrahedra =            0
+   # of Hexahedra  =        14592
+   # of Prisms     =          768
+
+
+  Negative hex volume not detected. 
+
+
+ Minimum hexahedral volume =     1.4730657800217370E-12
+ Maximum hexahedral volume =     5.2628065026983450E+03
+ Average hexahedral volume =     1.7202507361794204E+01
+
+
+  Negative prism volume not detected.
+
+
+ Minimum prismatic volume =     4.0794765284448677E-10
+ Maximum prismatic volume =     2.0368778413658484E+02
+ Average prismatic volume =     2.0712520319203138E+00
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check non-planerity of quadrilateral faces...
+
+
+  Non-planarity:
+    Each quad face is split into two triangles: T1 and T2.
+    Dot product of unit tria-face normals computed: n(T1)*n(T2).
+    Two possible splits considered, and the larger is taken.
+
+ Minimum  =     5.4152986786169532E-01
+ Maximum  =     1.0000000000000004E+00
+ Average  =     9.9883900651133894E-01
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ **************************************************************
+  8. Write output files.
+ **************************************************************
+
+  Writing a tecplot boundary file: wing_strct.3.tec_bndary.dat                                                     
+
+  Skipped writing a tecplot volume file... 
+
+  Writing coarse-grid .ugrid file: wing_strct.3.lb8.ugrid                                                          
+
+
+ Writing a coarse-grid SU2 grid file....
+   --- elm check       15360       15360
+   --- node check       15873       15873
+ SU2GRID file written : wing_strct.3.su2                                                                
+
+ --- Boundary Markers: See .mapbc file.
+
+
+  Writing coarse-grid .lines_fmt file: wing_strct.3.lines_fmt                                                          
+  Total number of lines =          481
+             max points =            6
+             min points =            6
+
+  Total number of pts written =         2886
+
+ lines_fmt file has been written: wing_strct.3.lines_fmt                                                          
+
+  Writing coarse-grid .lines_fmt_all file: wing_strct.3.lines_fmt_all                                                      
+  Total number of lines =          481
+             max points =           33
+             min points =           33
+
+  Total number of pts written =        15873
+
+ lines_fmt_all file has been written: wing_strct.3.lines_fmt_all                                                      
+
+  Writing coarse-grid .lines_cc_fmt file: wing_strct.3.lines_fmt_cc                                                       
+
+  Cell-line information: 
+  Total number of lines =          480
+             max cells =            5
+             min cells =            5
+
+ lines_fmt file has been written: wing_strct.3.lines_fmt_cc                                                       
+
+  Writing coarse-grid .lines_cc_fmt_all file: wing_strct.3.lines_fmt_cc_all                                                   
+
+  Cell-line information: 
+  Total number of lines =          480
+             max cells =           32
+             min cells =           32
+
+ lines_fmt file has been written: wing_strct.3.lines_fmt_cc                                                       
+
+  Writing coarse-grid .k file: wing_strct.3.k                                                                  
+
+  Writing a boundary map file.......
+  Full geometry -> 3 boundary groups (Wing).
+    --- (1) Wing.
+    --- (2) Y-symmetry.
+    --- (3) Farfield.
+  Boundary info file written:wing_strct.3.mapbc                                                              
+  Writing a PLOT3D file..... 
+  Writing a .nmf file..... 
+
+  Allocated successfully - k2n_p3d_temp in write_plot3d_file() ...
+
+
+  Allocated successfully - k2n_p3d in write_plot3d_file() ...
+
+ PLOT3D file written : wing_strct.3.ufmt                                                               
+   .nmf file written : wing_strct.3.nmf                                                                
+
+ Grid generation successfully completed at level            3
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  Begin coarse-grid level =            4  (Finest grid at level=1)
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ **************************************************************
+  1. Set up input parameters and read input files...
+ **************************************************************
+
+ ---------------------------------------
+  Reading : wing_strct.3.lb8.ugrid                                                          
+           nnodes =        15873
+           prisms =          768
+            tetra =            0
+             hexa =        14592
+          pyramid =            0
+        triangles =           48
+   quadrilaterals =         1680
+
+  Allocated successfully - tria in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - xf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - yf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - zf in  MAIN: Read the .ugrid file ...
+
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+  Computing volume and heff for the given finer grid..... 
+  --- A summary will be written in the file: wing_strct_heff_vol.txt
+
+  ( To skip this, set 'generate_heff_vol_report' to be false:
+          generate_heff_vol_report = F
+    in the input file. )
+
+
+  Computing volumes/dual for hexahedra.....
+
+
+ Finer-grid: Negative hex volume not detected. 
+
+
+ Finer-grid:  Minimum hexahedral volume =     1.4730657800217370E-12
+ Finer-grid:  Maximum hexahedral volume =     5.2628065026983450E+03
+ Finer-grid:  Average hexahedral volume =     1.4124163939157347E+02
+
+
+  Computing volumes/dual for prisms.....
+
+
+  Finer-grid: Negative prism volume not detected. 
+
+
+ Finer-grid:  Minimum prismatic volume =     4.0794765284448677E-10
+ Finer-grid:  Maximum prismatic volume =     2.0368778413658484E+02
+ Finer-grid:  Average prismatic volume =     8.2850081276812553E+00
+
+
+ ---------------------------------------------------------------
+  All elements
+ ---------------------------------------------------------------
+ Finer-grid:  Minimum element volume =     1.4730657800217370E-12
+ Finer-grid:  Maximum element volume =     5.2628065026983450E+03
+ Finer-grid:  Average element volume =     1.3459380782837894E+02
+
+ Finer-grid:  Minimum heff (=cubic root(vol)) =     1.1378212670677971E-04
+ Finer-grid:  Maximum heff (=cubic root(vol)) =     1.7394253731519893E+01
+ Finer-grid:  Average heff (=cubic root(vol)) =     1.1787343599294642E+00
+ ---------------------------------------------------------------
+
+
+  Computing dual volumes.....
+
+
+ Finer-grid: Negative dual-volume not detected. 
+
+
+ Finer-grid:  Minimum dual volume =     5.0794798207559903E-12
+ Finer-grid:  Maximum dual volume =     3.2271955832260692E+03
+ Finer-grid:  Average dual volume =     1.3024386620323224E+02
+
+ Finer-grid:  Minimum heff (=cubic root(dvol)) =     1.7189889294787054E-04
+ Finer-grid:  Maximum heff (=cubic root(dvol)) =     1.4777753867026224E+01
+ Finer-grid:  Average heff (=cubic root(dvol)) =     1.3068136402275694E+00
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+
+
+ ---------------------------------------
+  Reading : wing_strct.3.k                                                                  
+
+  Allocated successfully - node in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k1 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k2 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k4 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k5 in  MAIN: Read the .k file ...
+
+
+  --- This is a structured-type grid. OK.
+      strct_grid =  T
+
+  --- tet2prism doesn't matter. So, we set 
+      tet2prism =  F
+
+  --- This is a full geometry case. OK. 
+      half_geom =  F
+
+ k1 min max =            0          24
+ k2 min max =            0           0
+ k3 min max =            0           0
+ k4 min max =            0          20
+ k5 min max =            0          32
+
+  Allocating k2n_1d(:).......
+
+ k1min, k1max  =            0          24
+ k2min, k2max  =            0           0
+ k3min, k3max  =            0           0
+ k4min, k4max  =            0          20
+ k5min, k5max  =            0          32
+
+ k1max-k1min+1 =           25
+ k2max-k2min+1 =            1
+ k4max-k4min+1 =           21
+ k5max-k5min+1 =           33
+
+
+  Allocated successfully - k2n in  MAIN: checking k info ...
+
+
+  Filling k2n(:).......
+
+  Filled k2n(:).
+
+
+  --- Elements on the wing
+             triangles =           24
+        quadrilaterals =          456
+
+
+  --- Nodes on the wing
+             nnodes=        15873
+
+
+  Finished reading data file...
+
+
+  Minimum k5 index of the node associated with a tetrahedron:
+  --- k5_tetra =           -1
+  --- Finer grid has no tetrahedra. OK.
+
+
+ ---------------------------------------
+  Reading : wing_strct.3.lines_fmt                                                          
+           n_lines =          481
+        min_points =            6
+        max_points =            6
+    n_total_points =         2886
+
+  Allocated successfully - fline in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.3.lines_fmt_all                                                      
+           n_lines =          481
+        min_points =           33
+        max_points =           33
+    n_total_points =        15873
+
+  Allocated successfully - fline_all in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.3.lines_fmt_cc_all                                                   
+        n_lines_cc =          480
+         min_cells =           32
+         max_cells =           32
+     n_total_cells =        15360
+
+  Allocated successfully - fline_cc_all in  MAIN: Read the .lines_fmt file ...
+
+
+  All elements are of the same type in each line: 
+    last_prs_location should be zero ->            0
+
+
+  Just checking... (below must be zero)
+     n_lines_cc_all - (ntria_body+nquad_body) =            0
+
+
+  Allocated successfully - ncelms in  MAIN: Start of HC surface coarsening ...
+
+
+  Allocated successfully - fn2ccell in  MAIN: Start of HC surface coarsening ...
+
+
+ **************************************************************
+  1. Generating coarse-grid surface elements: Structured grid
+ **************************************************************
+
+  Coarsening the hemisphere surface grid.......
+
+  Allocated successfully - ctria in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - ctria2 in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad2 in  MAIN: Surface coarsening for uns grids. ...
+
+  - Coarsening the triangular part.......
+  - Coarsening the quadrilateral part (hemisphere+cylinder).......
+
+  Allocated successfully - f2c in  MAIN:  Count nnodes on the coarsened body..... ...
+
+ --- nnodes_body =          121
+ ---      nctria =           12
+ ---      ncquad =          108
+
+  Allocated successfully - ibc in  MAIN: End of HC surface coarsening..... ...
+
+ Tecplot file has been written: debug_hc_surface.4.tec.dat                                                      
+
+  Allocated successfully - cell_above in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - cell_body in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - nfelms in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - felm in  MAIN: Create c2f pointers on the HC body..... ...
+
+  Find c-grid cell containing each f-grid triangular cell.
+  minval(nfelms(:)) =            0
+  maxval(nfelms(:)) =            2
+  Find c-grid cell containing each f-grid quadrilateral cell.
+  minval(nfelms(:)) =            4
+  maxval(nfelms(:)) =            4
+
+ **************************************************************
+  3. Structured volume element coarsening 
+ **************************************************************
+
+   # cells in the coarse-grid full line =           16
+
+  ---      nctet =            0
+  ---      ncprs =          192
+  ---      nchex =         1728
+  ---     nctria =           24
+  ---     ncquad =          216
+
+ **************************************************************
+  4. Outflow-boundary grid coarsening 
+ **************************************************************
+
+  Coarsening the outflow quad/tria boundary.......
+  ---     fine quad =         1680
+  ---     fine tria =           48
+  ---   coarse quad =          408
+  ---   coarse tria =           24
+  Successfully coarsened the symmetry quad/tria boundary, I think. 
+
+ **************************************************************
+  5.1 Construct coarse-grid node numbering. 
+ **************************************************************
+
+  Generating a coarse-grid node array.......
+
+ **************************************************************
+  5.2 Coarsen the line information.
+ **************************************************************
+
+  Coarsening the partial line info.......: wing_strct.3.lines_fmt                                                          
+
+   # cells in the coarse-grid line =            2
+
+
+  Coarsening the full line info.......: wing_strct.3.lines_fmt_all                                                      
+
+ **************************************************************
+  6. Coarsening the k info.......
+ **************************************************************
+ kc1 min max =            0          12
+ kc2 min max =            0           0
+ kc3 min max =            0           0
+ kc4 min max =            0          10
+ kc5 min max =            0          16
+
+ **************************************************************
+  7.1 Constructing prolongation operator for CC.......
+ **************************************************************
+   ntet =            0
+   nprs =          768
+   nhex =        14592
+
+  nctet =            0
+  ncprs =          192
+  nchex =         1728
+
+  Check # of cells in flines and clines:
+     # of cells in an f-line =           32
+     # of cells in a  c-line =           16
+
+  --- This grid has no tetrahedra.
+  --- Good. Exactly twice as many f-cells as c-cells in a line. Proceed.
+
+
+
+  >>> Collecting information for cc-prolongation for non-tetra cells...
+
+  maxval(nccells_prolong) =            8
+  minval(nccells_prolong) =            8
+
+  Writing a cc prolongation file: wing_strct.4.prolong_cc
+  Total c-grid cells =         1920  in prolongation file for cc
+
+ **************************************************************
+  7.2 Constructing prolongation operator for NC.......
+ **************************************************************
+  Must have (nested nodes) = (ncnodes):
+ >>>>>  Nested nodes =         2057
+ >>>>>       ncnodes =         2057
+  Max(cnode nghbors) =            8
+  Min(cnode nghbors) =            1
+
+  Writing a prolongation file: wing_strct.3.prolong_nc                                                         
+  nnodes=       15873  in prolongation file
+  fine grid nodes=       15873  underlying coarse grid nodes=        2057
+
+  Writing a removed node list file: wing_strct.4.rmp                                                                
+
+
+    ncnodes =         2057
+  max(ctet) =            0
+  max(cprs) =         2049
+  max(chex) =        15873
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check element volumes for the coarse grid...
+
+   # of Tetrahedra =            0
+   # of Hexahedra  =         1728
+   # of Prisms     =          192
+
+
+  Negative hex volume not detected. 
+
+
+ Minimum hexahedral volume =     2.7539812492203349E-10
+ Maximum hexahedral volume =     2.4901137423103628E+04
+ Average hexahedral volume =     1.3454935817394417E+02
+
+
+  Negative prism volume not detected.
+
+
+ Minimum prismatic volume =     3.5418017697350802E-09
+ Maximum prismatic volume =     1.9302592090987944E+03
+ Average prismatic volume =     3.1697980173371977E+01
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check non-planerity of quadrilateral faces...
+
+
+  Non-planarity:
+    Each quad face is split into two triangles: T1 and T2.
+    Dot product of unit tria-face normals computed: n(T1)*n(T2).
+    Two possible splits considered, and the larger is taken.
+
+ Minimum  =     5.1089304020307924E-01
+ Maximum  =     1.0000000000000002E+00
+ Average  =     9.9606485423532753E-01
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ **************************************************************
+  8. Write output files.
+ **************************************************************
+
+  Writing a tecplot boundary file: wing_strct.4.tec_bndary.dat                                                     
+
+  Skipped writing a tecplot volume file... 
+
+  Writing coarse-grid .ugrid file: wing_strct.4.lb8.ugrid                                                          
+
+
+ Writing a coarse-grid SU2 grid file....
+   --- elm check        1920        1920
+   --- node check        2057        2057
+ SU2GRID file written : wing_strct.4.su2                                                                
+
+ --- Boundary Markers: See .mapbc file.
+
+
+  Writing coarse-grid .lines_fmt file: wing_strct.4.lines_fmt                                                          
+  Total number of lines =          121
+             max points =            3
+             min points =            3
+
+  Total number of pts written =          363
+
+ lines_fmt file has been written: wing_strct.4.lines_fmt                                                          
+
+  Writing coarse-grid .lines_fmt_all file: wing_strct.4.lines_fmt_all                                                      
+  Total number of lines =          121
+             max points =           17
+             min points =           17
+
+  Total number of pts written =         2057
+
+ lines_fmt_all file has been written: wing_strct.4.lines_fmt_all                                                      
+
+  Writing coarse-grid .lines_cc_fmt file: wing_strct.4.lines_fmt_cc                                                       
+
+  Cell-line information: 
+  Total number of lines =          120
+             max cells =            2
+             min cells =            2
+
+ lines_fmt file has been written: wing_strct.4.lines_fmt_cc                                                       
+
+  Writing coarse-grid .lines_cc_fmt_all file: wing_strct.4.lines_fmt_cc_all                                                   
+
+  Cell-line information: 
+  Total number of lines =          120
+             max cells =           16
+             min cells =           16
+
+ lines_fmt file has been written: wing_strct.4.lines_fmt_cc                                                       
+
+  Writing coarse-grid .k file: wing_strct.4.k                                                                  
+
+  Writing a boundary map file.......
+  Full geometry -> 3 boundary groups (Wing).
+    --- (1) Wing.
+    --- (2) Y-symmetry.
+    --- (3) Farfield.
+  Boundary info file written:wing_strct.4.mapbc                                                              
+  Writing a PLOT3D file..... 
+  Writing a .nmf file..... 
+
+  Allocated successfully - k2n_p3d_temp in write_plot3d_file() ...
+
+
+  Allocated successfully - k2n_p3d in write_plot3d_file() ...
+
+ PLOT3D file written : wing_strct.4.ufmt                                                               
+   .nmf file written : wing_strct.4.nmf                                                                
+
+ Grid generation successfully completed at level            4
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  Begin coarse-grid level =            5  (Finest grid at level=1)
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ **************************************************************
+  1. Set up input parameters and read input files...
+ **************************************************************
+
+ ---------------------------------------
+  Reading : wing_strct.4.lb8.ugrid                                                          
+           nnodes =         2057
+           prisms =          192
+            tetra =            0
+             hexa =         1728
+          pyramid =            0
+        triangles =           24
+   quadrilaterals =          408
+
+  Allocated successfully - tria in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - xf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - yf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - zf in  MAIN: Read the .ugrid file ...
+
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+  Computing volume and heff for the given finer grid..... 
+  --- A summary will be written in the file: wing_strct_heff_vol.txt
+
+  ( To skip this, set 'generate_heff_vol_report' to be false:
+          generate_heff_vol_report = F
+    in the input file. )
+
+
+  Computing volumes/dual for hexahedra.....
+
+
+ Finer-grid: Negative hex volume not detected. 
+
+
+ Finer-grid:  Minimum hexahedral volume =     2.7539812492203349E-10
+ Finer-grid:  Maximum hexahedral volume =     2.4901137423103628E+04
+ Finer-grid:  Average hexahedral volume =     1.1361945801355284E+03
+
+
+  Computing volumes/dual for prisms.....
+
+
+  Finer-grid: Negative prism volume not detected. 
+
+
+ Finer-grid:  Minimum prismatic volume =     3.5418017697350802E-09
+ Finer-grid:  Maximum prismatic volume =     1.9302592090987944E+03
+ Finer-grid:  Average prismatic volume =     1.2679192069348791E+02
+
+
+ ---------------------------------------------------------------
+  All elements
+ ---------------------------------------------------------------
+ Finer-grid:  Minimum element volume =     2.7539812492203349E-10
+ Finer-grid:  Maximum element volume =     2.4901137423103628E+04
+ Finer-grid:  Average element volume =     1.0352543141913243E+03
+
+ Finer-grid:  Minimum heff (=cubic root(vol)) =     6.5060938899690935E-04
+ Finer-grid:  Maximum heff (=cubic root(vol)) =     2.9201583006341878E+01
+ Finer-grid:  Average heff (=cubic root(vol)) =     2.4538265024008346E+00
+ ---------------------------------------------------------------
+
+
+  Computing dual volumes.....
+
+
+ Finer-grid: Negative dual-volume not detected. 
+
+
+ Finer-grid:  Minimum dual volume =     2.6005813727584848E-10
+ Finer-grid:  Maximum dual volume =     1.7426457781492831E+04
+ Finer-grid:  Average dual volume =     9.6630446438859644E+02
+
+ Finer-grid:  Minimum heff (=cubic root(dvol)) =     6.3829799831668476E-04
+ Finer-grid:  Maximum heff (=cubic root(dvol)) =     2.5926051108317786E+01
+ Finer-grid:  Average heff (=cubic root(dvol)) =     2.9006810417916626E+00
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+
+
+ ---------------------------------------
+  Reading : wing_strct.4.k                                                                  
+
+  Allocated successfully - node in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k1 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k2 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k4 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k5 in  MAIN: Read the .k file ...
+
+
+  --- This is a structured-type grid. OK.
+      strct_grid =  T
+
+  --- tet2prism doesn't matter. So, we set 
+      tet2prism =  F
+
+  --- This is a full geometry case. OK. 
+      half_geom =  F
+
+ k1 min max =            0          12
+ k2 min max =            0           0
+ k3 min max =            0           0
+ k4 min max =            0          10
+ k5 min max =            0          16
+
+  Allocating k2n_1d(:).......
+
+ k1min, k1max  =            0          12
+ k2min, k2max  =            0           0
+ k3min, k3max  =            0           0
+ k4min, k4max  =            0          10
+ k5min, k5max  =            0          16
+
+ k1max-k1min+1 =           13
+ k2max-k2min+1 =            1
+ k4max-k4min+1 =           11
+ k5max-k5min+1 =           17
+
+
+  Allocated successfully - k2n in  MAIN: checking k info ...
+
+
+  Filling k2n(:).......
+
+  Filled k2n(:).
+
+
+  --- Elements on the wing
+             triangles =           12
+        quadrilaterals =          108
+
+
+  --- Nodes on the wing
+             nnodes=         2057
+
+
+  Finished reading data file...
+
+
+  Minimum k5 index of the node associated with a tetrahedron:
+  --- k5_tetra =           -1
+  --- Finer grid has no tetrahedra. OK.
+
+
+ ---------------------------------------
+  Reading : wing_strct.4.lines_fmt                                                          
+           n_lines =          121
+        min_points =            3
+        max_points =            3
+    n_total_points =          363
+
+  Allocated successfully - fline in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.4.lines_fmt_all                                                      
+           n_lines =          121
+        min_points =           17
+        max_points =           17
+    n_total_points =         2057
+
+  Allocated successfully - fline_all in  MAIN: Read the .lines_fmt file ...
+
+
+ ---------------------------------------
+  Reading : wing_strct.4.lines_fmt_cc_all                                                   
+        n_lines_cc =          120
+         min_cells =           16
+         max_cells =           16
+     n_total_cells =         1920
+
+  Allocated successfully - fline_cc_all in  MAIN: Read the .lines_fmt file ...
+
+
+  All elements are of the same type in each line: 
+    last_prs_location should be zero ->            0
+
+
+  Just checking... (below must be zero)
+     n_lines_cc_all - (ntria_body+nquad_body) =            0
+
+
+  Allocated successfully - ncelms in  MAIN: Start of HC surface coarsening ...
+
+
+  Allocated successfully - fn2ccell in  MAIN: Start of HC surface coarsening ...
+
+
+ **************************************************************
+  1. Generating coarse-grid surface elements: Structured grid
+ **************************************************************
+
+  Coarsening the hemisphere surface grid.......
+
+  Allocated successfully - ctria in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - ctria2 in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad in  MAIN: Surface coarsening for uns grids. ...
+
+
+  Allocated successfully - cquad2 in  MAIN: Surface coarsening for uns grids. ...
+
+  - Coarsening the triangular part.......
+  - Coarsening the quadrilateral part (hemisphere+cylinder).......
+
+  Allocated successfully - f2c in  MAIN:  Count nnodes on the coarsened body..... ...
+
+ --- nnodes_body =           31
+ ---      nctria =            6
+ ---      ncquad =           24
+
+  Allocated successfully - ibc in  MAIN: End of HC surface coarsening..... ...
+
+ Tecplot file has been written: debug_hc_surface.5.tec.dat                                                      
+
+  Allocated successfully - cell_above in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - cell_body in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - nfelms in  MAIN: Create c2f pointers on the HC body..... ...
+
+
+  Allocated successfully - felm in  MAIN: Create c2f pointers on the HC body..... ...
+
+  Find c-grid cell containing each f-grid triangular cell.
+  minval(nfelms(:)) =            0
+  maxval(nfelms(:)) =            2
+  Find c-grid cell containing each f-grid quadrilateral cell.
+  minval(nfelms(:)) =            4
+  maxval(nfelms(:)) =            4
+
+ **************************************************************
+  3. Structured volume element coarsening 
+ **************************************************************
+
+   # cells in the coarse-grid full line =            8
+
+  ---      nctet =            0
+  ---      ncprs =           48
+  ---      nchex =          192
+  ---     nctria =           12
+  ---     ncquad =           48
+
+ **************************************************************
+  4. Outflow-boundary grid coarsening 
+ **************************************************************
+
+  Coarsening the outflow quad/tria boundary.......
+  ---     fine quad =          408
+  ---     fine tria =           24
+  ---   coarse quad =           96
+  ---   coarse tria =           12
+  Successfully coarsened the symmetry quad/tria boundary, I think. 
+
+ **************************************************************
+  5.1 Construct coarse-grid node numbering. 
+ **************************************************************
+
+  Generating a coarse-grid node array.......
+
+ **************************************************************
+  5.2 Coarsen the line information.
+ **************************************************************
+
+  Coarsening the partial line info.......: wing_strct.4.lines_fmt                                                          
+
+   # cells in the coarse-grid line =            1
+
+
+  Coarsening the full line info.......: wing_strct.4.lines_fmt_all                                                      
+
+ **************************************************************
+  6. Coarsening the k info.......
+ **************************************************************
+ kc1 min max =            0           6
+ kc2 min max =            0           0
+ kc3 min max =            0           0
+ kc4 min max =            0           5
+ kc5 min max =            0           8
+
+ **************************************************************
+  7.1 Constructing prolongation operator for CC.......
+ **************************************************************
+   ntet =            0
+   nprs =          192
+   nhex =         1728
+
+  nctet =            0
+  ncprs =           48
+  nchex =          192
+
+  Check # of cells in flines and clines:
+     # of cells in an f-line =           16
+     # of cells in a  c-line =            8
+
+  --- This grid has no tetrahedra.
+  --- Good. Exactly twice as many f-cells as c-cells in a line. Proceed.
+
+
+
+  >>> Collecting information for cc-prolongation for non-tetra cells...
+
+  maxval(nccells_prolong) =            8
+  minval(nccells_prolong) =            8
+
+  Writing a cc prolongation file: wing_strct.5.prolong_cc
+  Total c-grid cells =          240  in prolongation file for cc
+
+ **************************************************************
+  7.2 Constructing prolongation operator for NC.......
+ **************************************************************
+  Must have (nested nodes) = (ncnodes):
+ >>>>>  Nested nodes =          279
+ >>>>>       ncnodes =          279
+  Max(cnode nghbors) =            8
+  Min(cnode nghbors) =            1
+
+  Writing a prolongation file: wing_strct.4.prolong_nc                                                         
+  nnodes=        2057  in prolongation file
+  fine grid nodes=        2057  underlying coarse grid nodes=         279
+
+  Writing a removed node list file: wing_strct.5.rmp                                                                
+
+
+    ncnodes =          279
+  max(ctet) =            0
+  max(cprs) =          521
+  max(chex) =         2057
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check element volumes for the coarse grid...
+
+   # of Tetrahedra =            0
+   # of Hexahedra  =          192
+   # of Prisms     =           48
+
+
+  Negative hex volume not detected. 
+
+
+ Minimum hexahedral volume =     1.0709875340958090E-07
+ Maximum hexahedral volume =     8.8179667666320078E+04
+ Average hexahedral volume =     9.3035120724071840E+02
+
+
+  Negative prism volume not detected.
+
+
+ Minimum prismatic volume =     5.2926625827099447E-08
+ Maximum prismatic volume =     1.3720416980034253E+04
+ Average prismatic volume =     4.2717491096869213E+02
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ >>> Check non-planerity of quadrilateral faces...
+
+
+  Non-planarity:
+    Each quad face is split into two triangles: T1 and T2.
+    Dot product of unit tria-face normals computed: n(T1)*n(T2).
+    Two possible splits considered, and the larger is taken.
+
+ Minimum  =     5.2004195099350481E-01
+ Maximum  =     1.0000000000000002E+00
+ Average  =     9.8419752813656480E-01
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+ **************************************************************
+  8. Write output files.
+ **************************************************************
+
+  Writing a tecplot boundary file: wing_strct.5.tec_bndary.dat                                                     
+
+  Skipped writing a tecplot volume file... 
+
+  Writing coarse-grid .ugrid file: wing_strct.5.lb8.ugrid                                                          
+
+
+ Writing a coarse-grid SU2 grid file....
+   --- elm check         240         240
+   --- node check         279         279
+ SU2GRID file written : wing_strct.5.su2                                                                
+
+ --- Boundary Markers: See .mapbc file.
+
+
+  Writing coarse-grid .lines_fmt file: wing_strct.5.lines_fmt                                                          
+  Total number of lines =           31
+             max points =            2
+             min points =            2
+
+  Total number of pts written =           62
+
+ lines_fmt file has been written: wing_strct.5.lines_fmt                                                          
+
+  Writing coarse-grid .lines_fmt_all file: wing_strct.5.lines_fmt_all                                                      
+  Total number of lines =           31
+             max points =            9
+             min points =            9
+
+  Total number of pts written =          279
+
+ lines_fmt_all file has been written: wing_strct.5.lines_fmt_all                                                      
+
+  Writing coarse-grid .lines_cc_fmt file: wing_strct.5.lines_fmt_cc                                                       
+
+  Cell-line information: 
+  Total number of lines =           30
+             max cells =            1
+             min cells =            1
+
+ lines_fmt file has been written: wing_strct.5.lines_fmt_cc                                                       
+
+  Writing coarse-grid .lines_cc_fmt_all file: wing_strct.5.lines_fmt_cc_all                                                   
+
+  Cell-line information: 
+  Total number of lines =           30
+             max cells =            8
+             min cells =            8
+
+ lines_fmt file has been written: wing_strct.5.lines_fmt_cc                                                       
+
+  Writing coarse-grid .k file: wing_strct.5.k                                                                  
+
+  Writing a boundary map file.......
+  Full geometry -> 3 boundary groups (Wing).
+    --- (1) Wing.
+    --- (2) Y-symmetry.
+    --- (3) Farfield.
+  Boundary info file written:wing_strct.5.mapbc                                                              
+  Writing a PLOT3D file..... 
+  Writing a .nmf file..... 
+
+  Allocated successfully - k2n_p3d_temp in write_plot3d_file() ...
+
+
+  Allocated successfully - k2n_p3d in write_plot3d_file() ...
+
+ PLOT3D file written : wing_strct.5.ufmt                                                               
+   .nmf file written : wing_strct.5.nmf                                                                
+
+ Grid generation successfully completed at level            5
+
+
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+  Begin coarse-grid level =            6  (Finest grid at level=1)
+
+ >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ **************************************************************
+  1. Set up input parameters and read input files...
+ **************************************************************
+
+ ---------------------------------------
+  Reading : wing_strct.5.lb8.ugrid                                                          
+           nnodes =          279
+           prisms =           48
+            tetra =            0
+             hexa =          192
+          pyramid =            0
+        triangles =           12
+   quadrilaterals =           96
+
+  Allocated successfully - tria in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - xf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - yf in  MAIN: Read the .ugrid file ...
+
+
+  Allocated successfully - zf in  MAIN: Read the .ugrid file ...
+
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+  Computing volume and heff for the given finer grid..... 
+  --- A summary will be written in the file: wing_strct_heff_vol.txt
+
+  ( To skip this, set 'generate_heff_vol_report' to be false:
+          generate_heff_vol_report = F
+    in the input file. )
+
+
+  Computing volumes/dual for hexahedra.....
+
+
+ Finer-grid: Negative hex volume not detected. 
+
+
+ Finer-grid:  Minimum hexahedral volume =     1.0709875340958090E-07
+ Finer-grid:  Maximum hexahedral volume =     8.8179667666320078E+04
+ Finer-grid:  Average hexahedral volume =     8.3731608651664665E+03
+
+
+  Computing volumes/dual for prisms.....
+
+
+  Finer-grid: Negative prism volume not detected. 
+
+
+ Finer-grid:  Minimum prismatic volume =     5.2926625827099447E-08
+ Finer-grid:  Maximum prismatic volume =     1.3720416980034253E+04
+ Finer-grid:  Average prismatic volume =     1.7086996438747685E+03
+
+
+ ---------------------------------------------------------------
+  All elements
+ ---------------------------------------------------------------
+ Finer-grid:  Minimum element volume =     5.2926625827099447E-08
+ Finer-grid:  Maximum element volume =     8.8179667666320078E+04
+ Finer-grid:  Average element volume =     7.0402686209081248E+03
+
+ Finer-grid:  Minimum heff (=cubic root(vol)) =     3.7545515300271455E-03
+ Finer-grid:  Maximum heff (=cubic root(vol)) =     4.4509852242050719E+01
+ Finer-grid:  Average heff (=cubic root(vol)) =     5.4560050404131371E+00
+ ---------------------------------------------------------------
+
+
+  Computing dual volumes.....
+
+
+ Finer-grid: Negative dual-volume not detected. 
+
+
+ Finer-grid:  Minimum dual volume =     2.9690559415738384E-08
+ Finer-grid:  Maximum dual volume =     6.8504948933930238E+04
+ Finer-grid:  Average dual volume =     6.0561450502435482E+03
+
+ Finer-grid:  Minimum heff (=cubic root(dvol)) =     3.0965121860943743E-03
+ Finer-grid:  Maximum heff (=cubic root(dvol)) =     4.0917332724931413E+01
+ Finer-grid:  Average heff (=cubic root(dvol)) =     6.6962988969581358E+00
+
+ ------------------------------------------------------------------
+ ------------------------------------------------------------------
+
+
+ ---------------------------------------
+  Reading : wing_strct.5.k                                                                  
+
+  Allocated successfully - node in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k1 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k2 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k4 in  MAIN: Read the .k file ...
+
+
+  Allocated successfully - k5 in  MAIN: Read the .k file ...
+
+
+  --- This is a structured-type grid. OK.
+      strct_grid =  T
+
+  --- tet2prism doesn't matter. So, we set 
+      tet2prism =  F
+
+  --- This is a full geometry case. OK. 
+      half_geom =  F
+
+ k1 min max =            0           6
+ k2 min max =            0           0
+ k3 min max =            0           0
+ k4 min max =            0           5
+ k5 min max =            0           8
+
+  mod(k4max,2) =            1  : k4max not even
+
+  ---- This is a full-geometry case.
+
+ Cannot regularly coarsen any further.
+ Exit coarsening. Bye.
+  --- Level            6  not generated.
+
+
+  End of regular coarsening...
+ -----------------------------------------------------------------
+ -----------------------------------------------------------------
+
+
+ -----------------------------------------------------------------
+ -----------------------------------------------------------------
+  Post processing...
+ -----------------------------------------------------------------
+ -----------------------------------------------------------------
+
+  Writing vol/heff information for all grids: wing_strct_heff_vol.txt
+
+  Writing natural partition files (.ntrl_part) for all grids..... 
+
+  No partition file will be generated for the coarsest grid becasue
+  the natural partitioning is based on a coarser grid:
+           partition = coarse grid surface grid cells,
+  and the coarsest grid does not have a coarser grid.
+
+    ------------------------------------------------------------------
+    Partitions =           30 = surface cells at level   5
+
+          Level = 4: wing_strct.4.cc.ntrl_part_30          64  cells/part
+
+          Level = 3: wing_strct.3.cc.ntrl_part_30         512  cells/part
+
+          Level = 2: wing_strct.2.cc.ntrl_part_30        4096  cells/part
+
+          Level = 1: wing_strct.1.cc.ntrl_part_30       32768  cells/part
+    ------------------------------------------------------------------
+    Partitions =          120 = surface cells at level   4
+
+          Level = 3: wing_strct.3.cc.ntrl_part_120         128  cells/part
+
+          Level = 2: wing_strct.2.cc.ntrl_part_120        1024  cells/part
+
+          Level = 1: wing_strct.1.cc.ntrl_part_120        8192  cells/part
+    ------------------------------------------------------------------
+    Partitions =          480 = surface cells at level   3
+
+          Level = 2: wing_strct.2.cc.ntrl_part_480         256  cells/part
+
+          Level = 1: wing_strct.1.cc.ntrl_part_480        2048  cells/part
+    ------------------------------------------------------------------
+    Partitions =         1920 = surface cells at level   2
+
+          Level = 1: wing_strct.1.cc.ntrl_part_1920         512  cells/part
+    ------------------------------------------------------------------
+
+  End of post processing. 
+ -----------------------------------------------------------------
+ -----------------------------------------------------------------
+
+
+  End of the coarsening program. Bye.
+
