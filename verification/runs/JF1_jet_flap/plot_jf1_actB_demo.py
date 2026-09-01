@@ -181,6 +181,38 @@ def cost_line(fig, text):
              color=MUTED)
 
 
+#: Unicode superscript digits, for scientific notation inside a plain-text
+#: caveat box. The box is drawn as literal text rather than mathtext, so an
+#: exponent has to be spelled with these rather than with "$10^{-5}$".
+_SUPERSCRIPT = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+
+def sci_unicode(value, digits=1):
+    """One measured value as "m×10ⁿ", in the notation this page already uses.
+
+    Exists so a measured number can be WRITTEN INTO the caveat box instead of
+    typed into it. The sentence this serves was previously a literal, and it
+    went stale and false when the settling window changed underneath it: a
+    string cannot notice that the quantity it describes has moved. Anything
+    quoting a measurement in these boxes should come through here.
+
+    ROUNDS UP, never to nearest, matching movement_1sf() in
+    jf1_display_numbers.py. Rounding a movement figure DOWN would understate
+    how much a calculation was still moving, which is the flattering direction
+    and the one this act has already been wrong in twice.
+    """
+    if value == 0:
+        return "0"
+    exponent = int(math.floor(math.log10(abs(value))))
+    scale = 10.0 ** exponent
+    mantissa = math.ceil(abs(value) / scale * 10 ** digits) / 10 ** digits
+    if mantissa >= 10.0:                       # 9.99e-5 -> 1.0e-4, not 10.0e-5
+        mantissa, exponent = mantissa / 10.0, exponent + 1
+    sign = "-" if value < 0 else ""
+    return "%s%.*f×10%s" % (sign, digits, mantissa,
+                            str(exponent).translate(_SUPERSCRIPT))
+
+
 # -------------------------------------------------------------------- theory --
 def cl_theory(cmu, tau=TAU):
     """Jet-flap thin-aerofoil lift (C_L)_inf, from the interpolation fit given
@@ -334,6 +366,25 @@ def main():
                  % (live_estimate, live_core_min,
                     100.0 * (live_core_min / live_estimate - 1.0)))
 
+    # THE MOVEMENT SENTENCE IS COMPUTED, NOT TYPED, and this is the third
+    # defect this act has carried in this one quantity. The line here used to
+    # read "The lift itself has stopped moving: over the last 1000 iterations
+    # it varies by less than ±3×10⁻⁵", and it was wrong three separate ways:
+    #
+    #   1. THE BOUND WAS FALSE for the window the rest of this page uses. The
+    #      worst row moves 3.383e-05 over the final 4,000 iterations, which is
+    #      not "less than 3×10⁻⁵". Wrong in the flattering direction, again.
+    #   2. THE WINDOW WAS THE RETIRED ONE. Everything else on this page moved
+    #      to 4,000 iterations when the lab tightened its own convention; this
+    #      sentence stayed at 1,000 because it was a string and strings do not
+    #      raise.
+    #   3. "HAS STOPPED MOVING" IS A CONVERGENCE CLAIM, and this act exists to
+    #      refuse exactly that claim. Not one of the five reached its target.
+    #
+    # So the number is now read out of `rows`, whose scatter is the half range
+    # over the final 4,000 iterations and agrees with the single implementation
+    # in jf1_display_numbers.settling() to 1e-15 on all five rows, measured.
+    worst_scatter = max(r["scatter"] for r in rows)
     conv_note = (
         "  •  None of these calculations reached the convergence target that\n"
         "     was fixed before they were run (all five solution channels below\n"
@@ -342,13 +393,15 @@ def main():
         "     to 1.5×10⁻⁴ at the strongest jet, a factor of 43. Strong blowing\n"
         "     makes this flow genuinely hard to converge; that is a property of\n"
         "     the physics, not of any one calculation.\n"
-        "  •  The lift itself has stopped moving: over the last 1000 iterations\n"
-        "     it varies by less than ±3×10⁻⁵. Those bars are drawn but are\n"
-        "     smaller than the symbols.\n"
+        "  •  Over the final 4,000 iterations the lift still moves by up to\n"
+        "     %s at the worst row. That is a settling indicator, not\n"
+        "     convergence. Those bars are drawn but are smaller than the\n"
+        "     symbols.\n"
         "  •  Mesh sensitivity has NOT been quantified for these points. No\n"
         "     refinement study was run, so no grid uncertainty is claimed.\n"
         "  •  Treat every number here as indicative. It is not a validated\n"
-        "     result and it has not been compared against experiment.")
+        "     result and it has not been compared against experiment."
+        % sci_unicode(worst_scatter))
 
     written = []
 
