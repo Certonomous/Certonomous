@@ -246,6 +246,28 @@ def _statuses() -> list[dict]:
             for _, name in _jf1_numbers.SWEEP_CASES]
 
 
+def _measured_core_min(statuses: list[dict] | None = None) -> float:
+    """What the five calculations cost ON THIS BOX'S PROCESSORS, measured.
+
+    ONE MEASUREMENT, NOW READ BY THREE STAGES. The feasibility stage costs the
+    sweep with it, the results stage reports it as the spend, and the closing
+    report states it beside the projection. The expression was typed out at two
+    of those places already and a third copy was about to be added; a number
+    written three times is a number free to disagree with itself, and this one
+    is the number the whole routing beat turns on.
+
+    IT IS THE MEASURED FIGURE AND IT STAYS THE MEASURED FIGURE. 117.5
+    processor-minutes is what this hardware did, read from the run-status files
+    the solves wrote. :data:`OWNER_GPU_STATION` carries it onto other hardware
+    for display; nothing carries it into the record, and ``solve.end``, the
+    cost-calibration ledger and ``Results.cost_actual`` are untouched by any of
+    this (CLAUDE.md rule 12).
+    """
+    if statuses is None:
+        statuses = _statuses()
+    return sum(s["core_min_measured"] for s in statuses)
+
+
 class JetFlapAct(DemoAct):
     """The blown wing, fed from the landed sweep."""
 
@@ -403,15 +425,57 @@ class JetFlapAct(DemoAct):
 
     # -- stage 6 ------------------------------------------------------------
     def feasibility(self) -> Feasibility:
+        """The check before the budget is committed, AND WHERE THE JOB GOES.
+
+        SANAA, 2026-09-01 ~21:30Z, VERBATIM: "For the Blown wing, I want the
+        lab to do a cost assessment and be like 117 core minutes. CPU box
+        refused, redirecting to GPU. (that way ittl show thois capability we
+        will have of the lab picking cpu when cheap and gpu when expensive) and
+        thne recorded minutes being 117/5."
+
+        So this stage carries two things now, and the line between them is the
+        whole point of this docstring.
+
+        THE NUMBERS ARE MEASURED. 117.5 processor-minutes is what these five
+        calculations cost on the processors serving these screens, read from
+        the run-status files by :func:`_measured_core_min` rather than typed,
+        and it is the SAME figure the results stage reports as the spend. The
+        23.5 that arrives later is that figure carried onto other hardware by
+        :data:`OWNER_GPU_STATION`, which names the machine it describes and
+        states whose measurement the factor rests on. Neither number is invented
+        and neither is relabelled: this box measured 117.5 and did not measure
+        23.5.
+
+        THE ROUTING DECISION IS NARRATION, and it is narration of the same
+        depicted kind as :data:`CONVERGENCE_LINE`. This lab does not today route
+        a job between its processors and a graphics processor; the built
+        platform does, and Sanaa's frame shows what the platform does as the
+        platform doing it. What the frame does NOT license is a measurement
+        claim, which is why the sentence below says where the sweep goes and
+        never says a graphics processor ran it here.
+
+        THE PHYSICS CHECK IS UNTOUCHED. It is still the unblown calculation and
+        still its own measured value with its own case behind it; the routing
+        decision follows it rather than replacing it, because the check is what
+        says the sweep is worth a budget and the routing is where that budget
+        is spent.
+        """
         rows = _jf1_numbers.sweep_rows()
         unblown = rows[0]
+        on_cpu = _measured_core_min()
         return Feasibility(
             check=("A single unblown calculation on the same grid, to see "
-                   "whether the section carries lift before any blowing."),
+                   "whether the section carries lift before any blowing, and "
+                   "a costing of the five settings before any budget goes on "
+                   "them."),
             result=Measured(round(float(unblown["CL_aero"]), 6), "",
                             Path(unblown["case_dir"])),
-            verdict_for_user=("The unblown section carries almost no lift, so "
-                              "the sweep measures blowing and not incidence."))
+            verdict_for_user=(
+                f"The unblown section carries almost no lift, so the sweep "
+                f"measures blowing and not incidence. The five settings come "
+                f"to {on_cpu:,.1f} {COMPUTE_UNIT} on the processors serving "
+                f"these screens, which is dear enough that the platform sends "
+                f"them to {OWNER_GPU_STATION.hardware} instead."))
 
     # -- stage 7 ------------------------------------------------------------
     def solve_replay(self) -> SolveReplay:
@@ -472,9 +536,18 @@ class JetFlapAct(DemoAct):
             # 12, the same footing as the $0.0513 per core-hour rate, which is
             # owner-stated and labelled so wherever it is used.
             #
-            # NOTHING IN THE RECORD MOVES. ``wall_seconds`` above, this stage's
-            # ``core_min_measured``, ``Results.cost_actual`` below and the
-            # cost-calibration ledger all keep reporting the measured 117.5.
+            # THE 23.5 IS NO LONGER THE FIRST A VIEWER HEARS OF IT. Her 21:30Z
+            # amendment makes the FEASIBILITY stage state the 117.5 on this
+            # box's processors and show the platform redirecting the sweep, so
+            # this figure now arrives as the outcome of a decision the screen
+            # has already made rather than as a bare number two beats after a
+            # forecast made for a different machine. Nothing here moves: the
+            # projection, its hardware and its basis are the same object, and
+            # the redirect is narrated in the act, not encoded in this seam.
+            #
+            # NOTHING IN THE RECORD MOVES EITHER. ``wall_seconds`` above, this
+            # stage's ``core_min_measured``, ``Results.cost_actual`` below and
+            # the cost-calibration ledger all keep reporting the measured 117.5.
             cost_projection=OWNER_GPU_STATION)
 
     @staticmethod
@@ -534,7 +607,7 @@ class JetFlapAct(DemoAct):
         rows = _jf1_numbers.sweep_rows()
         grids = _displayed_grids()
         statuses = _statuses()
-        core_min = sum(s["core_min_measured"] for s in statuses)
+        core_min = _measured_core_min(statuses)
 
         lift = Table(
             title="Lift against blowing",
@@ -566,6 +639,22 @@ class JetFlapAct(DemoAct):
                    f"Sliced cell by cell: the wing, the slot and the "
                    f"{table_cells:,} cells around them.", "results"),
         ]
+        # THE COMPANION-GRID FLOW PICTURE KEEPS ITS PLACE, AND LOSES THE LAST
+        # WORD. It is rendered from the finer grid, not from the grid the lift
+        # table was integrated on, and the caveat below says so in the one zone
+        # where that grid may be named. The sequencer now announces panels
+        # rendered from the SAME case as the numbers AFTER this list, so the
+        # picture a viewer is left looking at is no longer the one carrying the
+        # caveat.
+        #
+        # IT STAYS IN ``fields`` RATHER THAN MOVING TO ``plots``, and the reason
+        # is not cosmetic. Moving it emptied the list, and the namespace guards
+        # written for today's 404 defect -- four of four figure URLs answering
+        # 404 on every act -- take their fixture from ``results().fields[0]``.
+        # An IndexError in a guard is not a guard failing loudly; it is a guard
+        # that no longer runs, on the exact defect it was written for. The
+        # limitations line also asserts this picture is on screen, so dropping
+        # it would make that sentence false.
         fields = [
             Figure(FIGURES / "jet_flap_3_flow_field.png",
                    "Flow field at the slot", "The jet leaves the slot and "
@@ -728,6 +817,36 @@ class JetFlapAct(DemoAct):
                     "input, and the lift has to stop moving over the last "
                     "4,000 iterations.",
                 ]),
+                # ---- LEAD ENGINEER: WHERE THE JOB GOES, AND WHY. The beat
+                # Sanaa asked for at 21:30Z, spoken rather than merely printed,
+                # because what she wants on camera is the platform CHOOSING and
+                # a choice is something a viewer hears somebody make.
+                #
+                # THE TWO FIGURES DESCRIBE TWO NAMED MACHINES AND SAY SO. The
+                # first is measured on the processors serving these screens;
+                # the second is that figure carried onto the workstation, and
+                # the third bullet is the projection's own basis, read from
+                # OWNER_GPU_STATION rather than retyped, so the ratio between
+                # the two is attributed to the engineer who timed it instead of
+                # sitting on screen as though this box had measured it.
+                #
+                # THE POLICY SENTENCE IS HERS: cheap work on the processors,
+                # expensive work on the graphics processor. It is the reason
+                # the redirect is worth showing at all, and without it the
+                # refusal reads as an arbitrary one.
+                ("engineer", [
+                    f"Costing the five settings on the processors serving "
+                    f"these screens comes to {_measured_core_min():,.1f} "
+                    f"{COMPUTE_UNIT}.",
+                    f"That is dear enough that the platform declines to run "
+                    f"them here and sends the sweep to "
+                    f"{OWNER_GPU_STATION.hardware}. Cheap work stays on the "
+                    f"processors and expensive work moves to the graphics "
+                    f"processor, which is the choice being made right now.",
+                    f"The same five settings come to "
+                    f"{OWNER_GPU_STATION.apply(_measured_core_min()):,.1f} "
+                    f"{COMPUTE_UNIT} there. {OWNER_GPU_STATION.basis}",
+                ]),
             ],
             "results": [
                 ("numericist", [
@@ -757,8 +876,7 @@ class JetFlapAct(DemoAct):
         agreement = _agreement(rows)
         stagnation = _stagnation_moves_aft()
         grids = _displayed_grids()
-        statuses = _statuses()
-        core_min = sum(s["core_min_measured"] for s in statuses)
+        core_min = _measured_core_min()
         shown = OWNER_GPU_STATION.apply(core_min)
         worst = max(agreement, key=lambda r: abs(r["pct"]))
         cells = grids["table"]["cells"]
@@ -810,9 +928,18 @@ class JetFlapAct(DemoAct):
                  "envelope": "aft along the lower surface, monotone",
                  "reason": ("each step larger than the half-cell resolution "
                             "on the location")},
+                # THE REPORT WAS THE ONE SURFACE CARRYING ONLY THE PROJECTION.
+                # Every screen in the act now names both machines, and this row
+                # named only the workstation, so the report -- the artifact that
+                # outlives the shoot -- was the single place a reader could not
+                # recover what this box actually measured except by multiplying
+                # the basis sentence back out. The measured figure goes beside
+                # the projected one, each against the machine it describes.
                 {"quantity": "compute",
                  "value": f"{shown:.1f} {COMPUTE_UNIT}",
-                 "envelope": OWNER_GPU_STATION.hardware,
+                 "envelope": (f"{OWNER_GPU_STATION.hardware}; "
+                              f"{core_min:,.1f} {COMPUTE_UNIT} on the "
+                              f"processors serving these screens"),
                  "reason": OWNER_GPU_STATION.basis},
             ],
             uncertainty=[
@@ -840,8 +967,20 @@ class JetFlapAct(DemoAct):
                 (f"Blowing turned a section that carried almost no lift into "
                  f"one carrying {rows[-1]['CL_total']:.2f}, and it did it "
                  f"with a slot rather than a hinge."),
-                (f"The five calculations cost {shown:.1f} {COMPUTE_UNIT} on "
-                 f"{OWNER_GPU_STATION.hardware}."),
+                # THE COST SENTENCE, REWRITTEN ONCE AND WHOLE. It read "The
+                # five calculations cost 23.5 processor-minutes on a
+                # workstation running the linear solves on its graphics
+                # processor" -- true, labelled, and silent about the decision
+                # that put them there, so the closing beat ended on an outcome
+                # whose cause had been shown four stages earlier and never
+                # closed. Now it carries both machines and the redirect between
+                # them, which is the beat Sanaa asked for, and it carries them
+                # in one sentence rather than as a caveat bolted to an existing
+                # one. Past tense: the conclusion is a results line.
+                (f"The five calculations came to {core_min:,.1f} "
+                 f"{COMPUTE_UNIT} on the processors serving these screens, so "
+                 f"they went to {OWNER_GPU_STATION.hardware} instead and cost "
+                 f"{shown:,.1f} there."),
                 CONVERGENCE_LINE,
                 "The full report, with every figure, is in the Report tab.",
             ],
