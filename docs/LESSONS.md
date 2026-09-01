@@ -19061,3 +19061,106 @@ measurement does not cover.
 (`579eaa1f`); `verification/campaign/F13_RESULTS.md` ADDENDUM 1 (`8f33d5a9`); `N-C6` and
 `N-C8` in `docs/NUMERICS_KNOWLEDGE.md`; the three `docs/COST_CALIBRATION.md` rows for DMR R3
 and the zero-spend row for the withdrawn probe.
+
+---
+
+## ADDENDUM to L-427 — 2026-09-01: an identifier chosen at drafting time is a PREDICTION, and a check written against your own text cannot fail
+
+**Three identifier failures in one night, by one lane, on one task — and they are one shape.**
+Recorded as an addendum because L-427 is about assuming what a record contains instead of
+reading it, and all three are that failure applied to the record's own *numbering* rather than
+its content. **Appended at the foot** rather than inside L-427's block: this file is cited by
+line elsewhere, so a mid-file insertion would renumber everything below.
+
+### THE OPERATIVE CLAUSE
+
+> **An identifier read or chosen at drafting time is a PREDICTION, not an identifier — and the
+> check that tests it must be written against the FILE'S existing content, never against the
+> content you just authored.**
+
+### The three instances
+
+**1. A lesson number re-derived twice, which still moved.** At drafting, `docs/LESSONS.md`
+returned **426 blocks against a maximum of `L-425`** — rule 11's count-versus-maximum trap. By
+landing, a peer had committed `L-426`, so the correct number was **`L-427`**. *Re-deriving at
+the start of the work was not enough; only the derivation inside the commit invocation was.*
+
+**2. A section ordinal taken from a section VERSION.** A block appended to
+`docs/standards/MESH_STANDARD.md` was numbered **`## 10.`** because the highest section
+*version* was `v1.8` and the new block was `v1.9`. **The version derivation was correct. The
+ordinal was not:** the section *sequence* already ran to **13**. The two counters had tracked
+each other through §7/v1.2, §8/v1.3, §9/v1.4 and **diverged silently at §11/v1.6**. The file
+landed carrying **two sections numbered 10**.
+
+> **Why it mattered, measured rather than asserted:** that standard is cited **by section and
+> by line** in more than ten records, and **eight T-family pre-registrations import their
+> Roache floors from "§10.5"**. Had the duplicate stood, `MESH_STANDARD §10.5` would have
+> become ambiguous between a floors clause and a gate-reading rule **inside frozen
+> pre-registrations in another team's territory** — documents whose entire evidentiary value
+> is that their citations cannot shift underneath them. **A heading number is not cosmetic in
+> a document whose function is to be cited.**
+
+**3. A verification query written against the author's own text — the one that hid the other
+two.** The post-commit sweep asked:
+
+```
+grep -c '^## 10\. READING THE NON-ORTHOGONALITY GATE' docs/standards/MESH_STANDARD.md
+```
+
+and reported **1**, which was read as "no duplicate". **It searched for the heading text that
+had just been written, so it could only ever return 1.** It could not see the pre-existing §10
+because that section says something else entirely.
+
+### THE THIRD LIMB GENERALISES PAST IDENTIFIERS, AND IT IS THE PART TO CARRY
+
+> **A sweep that looks for what you wrote cannot find a collision with what was already
+> there.**
+
+This is the same defect as a **planted control generated from the pattern it is meant to
+test** — and that one was met the *same night*, in
+`verification/runs/JF1_jet_flap/vocab_sweep_jf1.py`, where the poison line had been hand-typed
+but hand-typed to **mirror the regexes' own singular forms**, so a guard blind to plurals
+certified itself as sighted.
+
+**One defect, three surfaces:**
+
+| surface | the check was derived from | so it could not see |
+|---|---|---|
+| a planted control | the pattern it tests | the pattern's own blind spot |
+| a sweep | its author's text | anything the author did not write |
+| an ordinal | its version | the file's actual sequence |
+
+> **A CHECK MUST BE ABLE TO FAIL FOR A REASON ITS AUTHOR DID NOT ALREADY KNOW.** A check
+> derived from the thing it is checking has been pre-agreed with it.
+
+### The runnable form
+
+Derive the next ordinal, and detect a collision, **from the file's own content**:
+
+```
+# next section ordinal — the MAXIMUM, never a count, never a version
+grep -oE '^## [0-9]+\.' FILE | grep -oE '[0-9]+' | sort -n | tail -1
+
+# collision check — run this as the POST-COMMIT check, not as a description
+grep -oE '^## [0-9]+\.' FILE | sort | uniq -d      # must be empty
+```
+
+The same shape for lesson numbers (`^## L-([0-9]+)`, maximum, in the commit invocation) and
+for any register with an id series. **Note the collision query names no heading text at all** —
+that is precisely why it works where the first sweep did not.
+
+### Cost, and what it says about when this is worth doing
+
+**Both ordinal defects were caught by a post-commit check and repaired forward within minutes**,
+with the defects left legible rather than rewritten out of history. **Zero compute; the cost
+was authoring time only.** The blast radius that did *not* happen — eight frozen
+pre-registrations in another team's territory — is the measure of what a two-second `uniq -d`
+is worth.
+
+| assertion | value |
+|---|---|
+| L-427's own text edited | **none — not one character** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `a8358af33baafe26077a6245c90ea755` |
+| md5 of this file's first 19,063 lines after the append | `a8358af33baafe26077a6245c90ea755` |
+| the two digests | **EQUAL — assertion MEASURED, re-verified after the write** |
