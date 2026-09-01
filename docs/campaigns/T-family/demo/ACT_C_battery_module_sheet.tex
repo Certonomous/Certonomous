@@ -64,23 +64,24 @@
 {\fontsize{8.6}{9.8}\selectfont Eight air-cooled cells, a 60-second high-power
 takeoff phase, then cruise to 900 seconds}\\[2pt]
 {\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
-{\footnotesize Transient conduction in the cells with convective cooling on the
-channel faces, solved over the full 900 seconds. Every number below is read from
-the solution; the one comparison not yet available is marked as such.}
+{\footnotesize\textbf{Solver:} OpenFOAM \texttt{chtMultiRegionFoam}, transient
+conduction in the solid module, convective cooling on the channel faces.
+The channels are not resolved as a fluid region. Solved over the full 900
+seconds. The one comparison not yet available is marked as such.}
 
 % -------------------------------------------------- 1. confidence beat ------
 \vspace{1pt}
-\textbf{1. Before we spent anything on your module: what our transient
+\textbf{1. Before spending anything on your module: what the transient
 conduction machinery is worth}
 
 \vspace{0.5pt}
-{\footnotesize We solved a three-dimensional transient conduction problem with a
-closed-form answer --- a uniform block, initially hot, cooled on its faces by a
-fixed convective coefficient, the same physics as a cell losing heat to a
-cooling channel --- and compared three independent readings against it.
+{\footnotesize A three-dimensional transient conduction problem with a
+closed-form answer. A uniform block, initially hot, cooled on its faces by a
+fixed convective coefficient. That is the same physics as a cell losing heat to
+a cooling channel. Three independent readings are compared against it.
 Temperatures are the dimensionless excess
 $\theta = (T-T_{\infty})/(T_{0}-T_{\infty})$ at $Bi = 1.0$, $Fo = 0.2$. Success
-criteria and tolerances were fixed before the first solver started.}
+criteria and tolerances are fixed in advance.}
 
 \vspace{1.5pt}
 {\fontsize{6.7}{7.7}\selectfont
@@ -106,7 +107,7 @@ measured order of accuracy of $2.00$ against a theoretical $2.00$:
 % ---------------------------------------- 2. what the module is -------------
 \vspace{1.5pt}
 {\color{rulegrey}\rule{\textwidth}{0.5pt}}\\[1pt]
-\textbf{2. The module, the duty cycle, and what the eight cells did}
+\textbf{2. The module, the duty cycle, and the eight cells}
 
 \vspace{1.5pt}
 \begin{minipage}[t]{0.35\textwidth}
@@ -252,17 +253,25 @@ $0.117\,\mathrm{K}$ of the rise has arrived when the takeoff phase ends.
 Takeoff puts in $7\,200\,\mathrm{J}$; cruise puts in $26\,880\,\mathrm{J}$,
 because it lasts fourteen times longer --- the cruise soak is the design driver.
 \textbf{(2) The module is not uniform.} The two end cells are cooled on one
-face against the interior cells' two, which gives them twice the time constant
-and twice the settled temperature. \textbf{(3) The window closes before the
+face, the interior cells on two. That gives the end cells twice the time
+constant and twice the settled temperature. \textbf{(3) The window closes before the
 cells that matter stop rising.} The end cells reach $0.420\,\mathrm{K}$ at
-$900\,\mathrm{s}$ and are heading for roughly $0.74\,\mathrm{K}$; at that point
-the channel is still removing only $22.1\,\mathrm{W}$ of the $32\,\mathrm{W}$
+$900\,\mathrm{s}$, and are heading for roughly $0.74\,\mathrm{K}$. At that
+point the channel removes only $22.1\,\mathrm{W}$ of the $32\,\mathrm{W}$
 going in. \textbf{$0.420\,\mathrm{K}$ is where the hottest cells are when the
 clock stops, not where they are going.}\\[1.5pt]
-\textbf{Energy conservation checked: closed to $99.85\,\%$.} Of the
-$34\,080\,\mathrm{J}$ put in, $20\,212\,\mathrm{J}$ is stored in the cells and
-$13\,818\,\mathrm{J}$ left through the channel faces --- measured separately,
-agreeing to $0.15\,\%$.}
+\textbf{Energy audit.} Storage and surface removal are measured separately.}
+
+\vspace{0.5pt}
+{\fontsize{6.7}{7.4}\selectfont
+\begin{tabular}{l r r r r}
+\toprule
+Energy over $0$--$900\,\mathrm{s}$ & Heat in, J & Stored, J &
+Removed, J & Closure \\
+\midrule
+Module, eight cells & 34\,080 & 20\,212 & 13\,818 & $\mathbf{99.85\,\%}$ \\
+\bottomrule
+\end{tabular}}
 \vspace{1pt}
 \end{minipage}}
 
@@ -387,21 +396,21 @@ the rise.}\\
 $\bullet$ \textbf{The run ends before the module settles.} The end cells are at
 $57\,\%$ of where they are heading, still climbing at $1\,\mathrm{K}$ per hour,
 and approach roughly $0.74\,\mathrm{K}$ --- near double this sheet's peak. That
-$0.74\,\mathrm{K}$ is a \emph{conservative upper} figure: the model gives each
-cell its own cooling and nothing else, so a real pack with busbars, casing
-conduction or coolant cross-talk would come in under it.\\
+$0.74\,\mathrm{K}$ is a \emph{conservative upper} figure. The model gives each
+cell its own cooling and nothing else. A real pack with busbars, casing
+conduction or coolant cross-talk comes in under it.\\
 $\bullet$ \textbf{Those two multiply, they do not sit side by side.} An
 optimistic coefficient scales the whole curve up and the hottest cells have not
 finished climbing it. \textbf{Do not design against $0.42\,\mathrm{K}$ as if it
 were robust.}\\
 $\bullet$ \textbf{The channels are not resolved as air flow} but as a convective
 condition on the channel-facing surfaces. So Figure 2's spread is end-cell
-geometry and nothing else --- the six interior cells agree to six decimals and
-so do the two end cells, which is how we know. It excludes coolant heating along
-the channel, which this model cannot see and which would separate all eight.\\
-$\bullet$ Properties are representative, not measured for your cells, and
-conductivity is equal in all directions; the stack ends are insulated with no
-plenum; there is no cell-to-cell contact path. \textbf{One mesh and one time
+geometry and nothing else. The six interior cells agree to six decimals, and so
+do the two end cells. It excludes coolant heating along the channel, which this
+model cannot see and which would separate all eight.\\
+$\bullet$ Properties are representative, not measured for your cells.
+Conductivity is equal in all directions. The stack ends are insulated with no
+plenum, and there is no cell-to-cell contact path. \textbf{One mesh and one time
 step, so no numerical error bar is quoted on any module number.} Section 1 says
 nothing about the channel airflow.}
 \end{minipage}}
@@ -409,19 +418,18 @@ nothing about the channel airflow.}
 \begin{minipage}[t]{0.37\textwidth}
 \vspace{0pt}
 {\footnotesize\textbf{Compute}\\[1pt]
-\emph{Confidence check, section 1:} upfront estimate $87.902$ core-minutes;
-used $125.516$, a ratio of $1.428$. The estimate was scaled from a smaller
-two-dimensional problem across a jump to three dimensions and from $2\,500$ to
-$512\,000$ cells; we said in advance it could be low by up to about $3\times$
-and it was low by $1.43\times$.\\[2pt]
-\emph{The module run:} upfront estimate $1.0$ core-minute with a ceiling of
-$10.0$; \textbf{it used $0.017$ core-minutes} --- $1.7\,\%$ of the estimate.
-We over-estimated by roughly $60\times$ and we say so: the estimate was
-dominated by a guess at file-writing cost for a configuration we had never
-measured, and the guess was far too pessimistic. The whole $900\,\mathrm{s}$
-of module physics cost under a tenth of a penny.\\[2pt]
-Costs are derived at $\$0.0513$ per core-hour, a rate stated by the machine's
-owner rather than metered on the machine.}
+{\fontsize{6.8}{7.9}\selectfont
+\begin{tabular}{l r r}
+\toprule
+Stage & Time & Cost \\
+\midrule
+Confidence check, section 1 & 2\,h\,05\,min & $\$0.11$ \\
+The module run              & $1\,\mathrm{s}$ & under $\$0.01$ \\
+\bottomrule
+\end{tabular}}\\[2pt]
+The whole $900\,\mathrm{s}$ of module physics costs under a penny. Costs are
+derived at $\$0.0513$ per core-hour, a rate stated by the machine's owner
+rather than metered here.}
 
 \vspace{2pt}
 % ---- THE ONE FRAME STILL RESERVED ----------------------------------------
@@ -442,22 +450,16 @@ $0.25\,\mathrm{s}$. The second is not yet available; nothing is drawn here.}
 
 \vspace{0.5pt}
 {\footnotesize
-\rolesig{Lead Researcher.} The exact-solution check came first on purpose and it
-licenses everything after it: heat generated in a solid, conducted out and
-removed by a convective surface is exactly what a closed-form answer can test,
-and we matched it to within $0.013\,\%$. The module result then said something
-clear-cut --- the event you named the case after is not the event that sizes it.
+\rolesig{Lead Researcher.} The exact-solution check comes first on purpose, and
+it licenses everything after it. The module result is clear-cut: the event you
+named the case after is not the event that sizes it.
 
 \rolesig{Lead Engineer.} Size this pack against the cruise soak, not the takeoff
-pulse: the pulse is a fifth of the energy. And the two end cells are your
-problem --- one cooled face against two gives them twice the time constant and
-twice the settled temperature of everything between them. A channel outboard of
-cells 1 and 8 removes that asymmetry outright and is worth pricing first.
+pulse; the pulse is a fifth of the energy. The two end cells are your problem,
+and a channel outboard of cells 1 and 8 removes that asymmetry outright.
 
-\rolesig{Lead Numericist.} Section 1 is a genuine verification; the module run is
-not, and I will not dress it as one --- one mesh, one time step, no numerical
-error bar on any module number. What it carries instead is an energy audit that
-closes to $0.15\,\%$, and that is the check I would want before believing any of
-it.\vspace{-2pt}}
+\rolesig{Lead Numericist.} Section 1 is a genuine verification. The module run is
+not, and I will not dress it as one: one mesh, one time step, and no numerical
+error bar on any module number.\vspace{-2pt}}
 
 \end{document}
