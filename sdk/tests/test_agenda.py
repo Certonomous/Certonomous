@@ -825,7 +825,15 @@ class AgendaGui(unittest.TestCase):
         docket = {"proposals": [
             {"id": "p1", "objective": "Fixture objective one",
              "rationale": "Because the record says so.",
-             "citations": ["Some report title"], "est_core_min": 3.0,
+             # A REAL citation, not a friendly stand-in. Measured on
+             # research/agenda/docket.json 2026-09-01: 321 proposals carry 932
+             # citations and they are internal repository paths, e.g.
+             # 'demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 4'.
+             # The old fixture said "Some report title", which looked like
+             # something you could put on camera and hid what the field holds.
+             "citations": ["demo-output/website/agenda/"
+                           "CHALLENGE_LANDSCAPE.md section 4"],
+             "est_core_min": 3.0,
              "cost_basis": "measured: the prior solve ran 3.0 minutes",
              "expected_knowledge_gain": "A validated credential",
              "source_kind": "gate", "status": "proposed",
@@ -851,10 +859,30 @@ class AgendaGui(unittest.TestCase):
         self.assertIn('data-agenda-act="approve"', out)
         self.assertIn('data-agenda-act="dismiss"', out)
         self.assertIn("data-id=\"p1\"", out)
-        self.assertIn("Some report title", out)
-        self.assertIn("not now", out)          # dismissal reason shown
-        # Decided proposals carry no buttons.
+        # THE CREDIBILITY CLAIM TRAVELS; THE PATH DOES NOT. This assertion used
+        # to demand the citation VALUE on the card, and b3fa7060 deliberately
+        # stopped rendering it: the values are internal repository paths and ids
+        # and control_room.html is a FILMED surface. That commit kept the phrase
+        # "from the record" — the honest signal that a record backs the proposal
+        # — and dropped the paths. The test was pinning the defect, so it is
+        # pinned the other way round now, which is the stronger of the two: a
+        # phrase can be re-added by hand, a leaked path cannot be un-filmed.
+        self.assertIn("from the record", out)
+        self.assertNotIn("CHALLENGE_LANDSCAPE", out)
+        self.assertNotIn("demo-output", out)
+        self.assertNotIn(".md", out)
+        # A DECIDED PROPOSAL IS A COUNT, NOT A CARD — and the count is stated
+        # rather than the wall quietly showing fewer rows. Same commit
+        # (b3fa7060): the wall carried 321 cards, so decided items collapsed to
+        # one honest line and the dismissal REASON stopped being rendered. This
+        # assertion used to read `assertIn("not now")` and broke on that rework,
+        # not on a defect. What matters is that nothing is dropped silently, so
+        # that is what is pinned: the tally is on screen and it is truthful.
+        self.assertIn("1 already decided and kept on the record.", out)
+        self.assertNotIn("not now", out)       # the reason stays off camera
+        # Decided proposals carry no card and no buttons.
         self.assertNotIn('data-id="p2"', out)
+        self.assertNotIn("Fixture objective two", out)
         self._assert_no_new_css(out)
 
     def _assert_no_new_css(self, rendered: str):
