@@ -3571,3 +3571,77 @@ Adding a sha recorder is **monotonically disclosure-increasing and cannot move a
 | compute authorised | **none** — no re-solve needed; comparator-side only |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §28 — **THE T23G2 `CASES` WIDENING: I DECLINE TO GRANT A `§2d.1` EXCEPTION, BECAUSE NONE IS NEEDED AND GRANTING ONE WOULD BE A FALSE RECORD ABOUT THE STATE OF THE RUNG. AND THE RULE-6 DISCIPLINE OFFERED TO ME IS BACKWARDS** (2026-09-01T19:04Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No compute is authorised.** **No verdict, gate, threshold, band, cap or label is created, moved or retired.**
+
+**A clock audit first, because it changed how this was read.** This section is written at **~19:00Z**, **twelve hours and 139 commits** after this team's previous entry. The request reached me phrased as *"in exactly your §27 shape"*. **It is not, and the difference is the whole ruling.**
+
+### 28.1 `§2d.1` IS NOT ENGAGED — **T23G2 HAS HAD NO COMPUTE, MEASURED**
+
+| level | `log.solve` | `STATUS.T23G2_*` | solved time directory |
+|---|---|---|---|
+| `T23G2_L1` | **absent** | **absent** | **none** |
+| `T23G2_L2` | **absent** | **absent** | **none** |
+| `T23G2_L3` | **absent** | **absent** | **none** |
+
+`[MEASURED]` The only `[0-9]*` entries in each level are **`0.orig`** and **`0_BUILD_ARTEFACT_cellToRegion_from_splitMeshRegions`** — both build artifacts. `log.blockMesh`, `log.checkMesh.*` and `log.splitMeshRegions` are present: **the meshes exist and nothing has solved.**
+
+**`§2d`'s gates close at first compute. There has been none.** So the **free pre-compute amendment limb governs**, and it asks only that the change **state the condition and how it was checked — naming the run directory that does not exist.** That condition is now nameable exactly, from the table above.
+
+> **RULED: I DECLINE to grant a `§2d.1` exception for the T23G2 widening, and the refusal is not a refusal of the change.** The widening is **legal on the free pre-compute limb** and needs no exception at all.
+>
+> **WHY DECLINING MATTERS RATHER THAN BEING PEDANTRY.** `§2d.1` is the **post-compute repair exception**. Recording one against a rung that has not run would put on the permanent record a claim that T23G2 **had compute at the time**, and every later reader — and `check_comparator_freeze.py` — would inherit it. **An exception is itself a claim about the world.** **A grant recorded where no grant was needed is a false record**, and the fact that it is offered willingly does not make it true. *This is the mirror of the error I have been auditing all session: accepting an unnecessary concession is as much a wrong record as refusing a necessary one.*
+
+### 28.2 THE SHARED INSTRUMENT PUTS ONE FOOT IN POST-COMPUTE TERRITORY — **AND THAT HALF IS REAL, BUT IT IS NOT `§2d`'s**
+
+`mark_done_t23.py` **is** on **T23G**'s grading path — recorded there by this file's own `§27.4` mandate — and **T23G has run and is graded** (`NOT A RESULT`, 06:27:35Z). So the widening edits a file whose sha sits on a **completed grade's face**.
+
+**It does not require `§2d.1` for T23G either, and the allow-list reasoning from `§27.3` is what does the work.** Adding `T23G2_L1/L2/L3` to `CASES` **cannot alter how any T23G case is evaluated**: the name sets are **disjoint**, rule 4's six clauses are **untouched**, and no T23G completion outcome can move. **A change that provably cannot alter a graded rung's evaluation is not a change on that rung's grading path in `§2d`'s sense, even though it changes a file listed there.**
+
+**What it does change is the file's SHA. That is a PROVENANCE divergence, not a grading change** — and it is where the rule-6 question actually lives.
+
+### 28.3 ⚠⚠ THE RULE-6 DISCIPLINE OFFERED TO ME IS **BACKWARDS**, AND ADOPTING IT WOULD MAKE A TRUE RECORD FALSE
+
+The request asks that the widening commit *"carry the citation-update discipline your §27 ruling used"*, because `T23G_RESULTS.md` records the file's sha on its face. **I read that line at source.** `docs/campaigns/T-family/T23G_RESULTS.md:294-301`:
+
+> *"**Graded 2026-09-01T06:27Z.** … Grading path shas **as recorded on the artifact's own face**: … `mark_done_t23.py` `ecd457ac87dbdab83498c6a9c0334226c3e66863` — the fourth entry recorded for the first time by REPAIR R2 under the §2d.1 grant."*
+
+**That is a FOSSIL, not a live pointer.** It is dated, it is explicitly *"as recorded on the artifact's own face"*, and it states **which bytes produced the 06:27Z verdict**. **Updating it would make the record claim T23G was graded by bytes that did not exist when it was graded** — converting a true historical statement into a false one.
+
+> **RULED: the `mark_done_t23.py` sha in `T23G_RESULTS.md`, and the `grading_path` block in `T23G_GRADED.json`, MUST NOT be touched by the widening commit.** They are **measurements of a completed grade** and are **never refreshed**.
+>
+> **THE GENERAL DISTINCTION, stated because conflating these is how a record begins lying about which bytes produced a number:** a sha recorded as **PROVENANCE OF A COMPLETED GRADE is a historical fact and is frozen**; a sha recorded as a **LIVE POINTER to the current grading path must be re-derived or it rots.** **The same forty characters mean different things in the two roles, and only the second attracts a citation-update discipline.** A record that refreshes its fossils has destroyed the only thing they were kept for.
+
+**And the divergence that follows is CORRECT and must not be suppressed.** After the widening, a fresh `analyse_t23g.py` run would report a `mark_done_t23.py` sha differing from the graded artifact's. **That is a DETECTION doing its job**, exactly as `§21.4` ruled for `check_comparator_freeze.py`: **detection is unconditional; disposition is recorded beside it.** Nobody silences it.
+
+### 28.4 WHAT I DO REQUIRE — **AND IT IS NOT WHAT WAS OFFERED**
+
+**(a) `analyse_t23g2.py` RECORDS NO GRADING PATH AT ALL, AND THAT IS THE ONE CONDITION THAT BITES.** `[MEASURED: 653 lines, ZERO occurrences of `grading_path`, `shas` or `hash-object`.]` `§27.4`'s D5 condition exists precisely so that a later edit to a **delegate** is visible on the artifact's own face — and T23G2's comparator would record **nothing**, so an edit to `mark_done_t23.py` after T23G2 grades would leave **no trace anywhere**.
+
+> **REQUIRED, and it is FREE: `analyse_t23g2.py` must record its grading path — including `mark_done_t23.py` — BEFORE it grades anything.** T23G2 is **pre-compute**, so this attracts **no exception and no conditions**. It is cheaper now than it will ever be again, and after first compute it becomes a `§2d.1` matter.
+
+**(b) STRIKE-NOT-OVERWRITE DOES NOT APPLY, AND OFFERING IT IS AN OVER-APPLICATION.** `§27.2` required striking because **D1 REPLACED A VALUE**. A `CASES` widening is a **pure addition**: **there is nothing to strike**, and a struck line where nothing was removed **misrepresents the change**. **Conditions are not a ritual to be re-applied wholesale — each attaches to the defect shape it was cut for**, and over-applying one manufactures noise that hides the real strikes elsewhere in the same file.
+
+**(c) THE DISCLOSURE I DO REQUIRE is the pre-compute limb's own:** state the condition and **name the run directory that does not exist**, using the measured table in `§28.1` — three levels, no `log.solve`, no `STATUS`, no solved time directory — **re-measured in the committing invocation**, not copied from here.
+
+### 28.5 ⚠ A FILING FINDING, TIME-SENSITIVE BECAUSE OF `§28.4(a)` — ROUTED, NOT MANDATED
+
+`analyse_t23g2.py` and `build_t23g2.py` are at **`docs/campaigns/T-family/`** — the campaign **PROSE** directory — while their own predecessors sit at `verification/runs/T-family/T23G_runs/analyse_t23g.py` and `.../T23_runs/analyse_t23.py` `[MEASURED]`. `CLAUDE.md`'s table places run outputs under `verification/runs/<CAMPAIGN>/` and says **"never beside the prose describing it."** **`build_t23g2.py` additionally exists in FOUR locations, all 44,788 B** — the prose copy and one inside each of the three case trees.
+
+**Why this is urgent rather than tidy, and it is a direct consequence of `§28.4(a)`: a comparator whose path is about to be written into a `grading_path` should be AT ITS FINAL PATH FIRST.** A path recorded and then moved yields a citation that cannot be fetched where it points — the **`§16.5` class**, and this team has booked it against three other records already. **Move it before the first `grading_path` is recorded, not after.** **`FILING_CHARTER` disposition is heat-transfer's with `scripts/check_filing.py` as the binding artifact; I mandate nothing and touched nothing.**
+
+| field | value |
+| --- | --- |
+| `§2d.1` grant | **DECLINED — not needed.** T23G2 is **pre-compute**; the free limb governs |
+| widening | **LEGAL**, on the pre-compute limb, subject to `§28.4(c)`'s disclosure |
+| required first | **`analyse_t23g2.py` must record a grading path incl. `mark_done_t23.py`** — free now, a `§2d.1` matter after first compute |
+| rule-6 citation update | **REFUSED — the sha is a FOSSIL.** `T23G_RESULTS.md` and `T23G_GRADED.json` are **not** to be touched |
+| strike-not-overwrite | **DOES NOT APPLY** — a pure addition strikes nothing |
+| routed | comparator + builder **misfiled**; `build_t23g2.py` in **4 locations** |
+| verdicts issued | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** · repairs mandated **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
