@@ -211,3 +211,168 @@ owed now and none is written** — nothing has run.
 | launched | **NO** |
 
 **Held for the supervisor's two personal checks. Not queued.**
+
+---
+
+## 11. AMENDMENT 1 — 2026-09-01, PRE-COMPUTE. v1.0 → v1.1. The item was NOT EXECUTABLE as frozen: it named no launcher and it named the WRONG GRADER. Both corrected here, plus a design change that makes the control stronger.
+
+**Lines whose number changed above this section: 0.** §§1–10 are untouched; every correction below
+is stated here and the original is struck in place by reference, never rewritten.
+
+**§2b's condition, stated AND CHECKED, re-driven for this amendment and not carried over from the
+freeze.** `ls -d /home/ubuntu/certonomous-runs/CURRICULUM-D12RLX-armC-repro` and
+`.../CURRICULUM-D12RLX-armR-repaired` → **both "No such file or directory", 2026-09-01T06:19Z.**
+No `d12rlx` container has ever existed. No ledger, no manifest, no log. **0 core-minutes spent.
+There is still no answer to tune to.**
+
+### 11.1 THE ITEM AS FROZEN COULD NOT HAVE RUN. Two defects, both mine, found at launch.
+
+**DEFECT 1 — §10's freeze table names no launcher.** It registers a producer, a grader and an
+image, and nothing that orchestrates a stage. The item could not have been started from its own
+frozen description.
+
+**DEFECT 2, AND IT IS THE SERIOUS ONE — §5 REGISTERED THE WRONG GRADER, AND IT WOULD HAVE
+REFUSED.** §5 names `d12y_grade_w3.py` (md5 `3950d30f…`). **Measured:** that comparator carries
+`W_PRIMARY = 2000` (`d12y_grade_w3.py:37`) and its `W3-A2` limb **refuses** any record whose window
+is not the registered 2000. The program this item runs is the D12R2 33-stage graph at
+**`W_STEPS = 300`** (`d12y_stage_and_run.sh:118`). **The registered grader would have refused the
+item's own artefacts at grade time**, after the compute was spent.
+
+**The correct grading path is `cases/dafoam/curriculum_D12R2/d12y_grade.py`**, `W_PRIMARY = 300`
+(`:37`), md5 **`02a9ab62fc26d963886ecd0ee97457ef`**, verified **identical on disk and from the HEAD
+blob** 2026-09-01. That is the comparator that graded the control arm, which is the whole point:
+**the two arms must be graded by the same instrument as each other AND as the landed baseline.**
+§5's `3950d30f…` is **STRUCK**. §10's freeze-table row is **STRUCK** and replaced by §11.4.
+
+*Why the wrong one was registered: the supervisor's board and this lane's own findings record both
+discuss `d12y_grade_w3.py`, because W3 is the item that has been under repair. It is the freshest
+grader in the family and it is the wrong one for a W = 300 program. **A grader chosen by salience
+rather than by matching the program is exactly the error rule 2's freeze is supposed to expose, and
+here the freeze did expose it — before compute, which is when it is free.***
+
+### 11.2 THE LAUNCHER, REGISTERED AND REUSED WITHOUT A SINGLE EDIT
+
+`cases/dafoam/curriculum_D12R2/d12y_stage_and_run.sh`, md5
+**`5f5c5e9fe3224c6c2474d8d355f01073`**, disk == HEAD blob, **UNMODIFIED**. It is env-parameterised
+(`BASE`, `TUT`, `SRC` at `:94-96`), so both arms run the **identical, already-proven** 33-stage
+program that produced the control baselines, driven only by `BASE` (run root) and `TUT` (tutorial
+source). **No launcher is written for this item and no frozen launcher is edited.**
+
+Phase 1 is the 33 stages §8's cost anchor is measured over: S0 · S1a · S1b · S2a · S2b · S3 ×3 ·
+S3b ×16 · S4 ×6 · S5 · S7 ×2. Its own asserts still fire: A1 cap-vs-registered, A2 image identity
+**by id never by tag**, A3 the on-disk instruments **are** the committed blobs.
+
+**CORRECTION OF FACT, carried from the findings record.** The dictionary the launcher actually
+stages is **`$TUT/system/fvSolution_pimple`**, copied over `mesh/system/fvSolution` at
+`d12y_stage_and_run.sh:596` — **not** `system/fvSolution`. The two files are byte-identical
+upstream (both md5 `95ab16a9141b0928bd352a9b9d8d93b9`), **so no number anywhere changes**, but §3
+named the wrong file and a reproduction attempt following §3 literally would have edited a file the
+launcher overwrites. §3's file reference is **STRUCK** in favour of `system/fvSolution_pimple`.
+
+### 11.3 DESIGN CHANGE: ARM C IS RE-RUN IN FULL. THE CONTROL GETS STRONGER AND THE HAZARD DISAPPEARS.
+
+§3 registered arm C as the **already-bought** D12R2 tree, with `G-RLX-0` re-running only `S2b` to
+test reproduction. **Changed.** Both arms now run the **full 33-stage phase 1**, from their own
+tutorial copy, into their own fresh run root, back to back on the same box.
+
+**Why this is better and not merely bigger.** Under §3, only `δ_window` and CD came from a
+contemporaneous pair; `δ_pert`, `δ_repeat` and `|g|` would have been compared against artefacts
+produced weeks earlier under different machine conditions. **Now every registered quantity is
+measured on both arms under the same conditions by the same instrument**, and `G-RLX-0` becomes a
+**whole-program** reproduction test rather than a single-stage one. It removes the weeks-apart
+hazard instead of bounding it.
+
+**`G-RLX-0`, restated and STRENGTHENED (this replaces §4's single-stage form):** arm C-REPRO must
+reproduce the landed D12R2 record — the 2,400-sample CD series **bit-for-bit**, `δ_window(300)`
+identical to `0.0017958478225974517`, and `h_min` identical to `0.1742837908900481`. **If it does
+not reproduce, the item is `NOT A RESULT`, no cross-arm delta is reported, and the run is NOT
+retried** — a failure to reproduce is the item telling us the harness moved, and that is a finding,
+not a transient.
+
+**EXECUTION IS SEQUENTIAL, ARM C FIRST, AND THE ORDER IS LOAD-BEARING.** Two reasons, both
+measured. **(1)** `docs/LAB_STATE.md` records this family losing 20 of 33 stages to `BLOCKED` when
+two dafoam containers ran at once and drove `MemAvailable` under a registered floor. `MemAvailable`
+is **28.1813 GiB** now and the measured per-container peak RSS is 1.3461 GiB, so parallel would
+almost certainly be safe — **and "almost certainly safe" is not the standard after that failure.**
+**(2)** Running C first makes `G-RLX-0` an economic gate: if reproduction fails, arm R's ~55
+core-min is never spent. **Idle compute is a failure, but so is a self-inflicted BLOCKED cascade;
+sequential costs wall time and buys both safety and the gate.**
+
+### 11.4 THE ARMS, BUILT AND ASSERTED BEFORE ANY LAUNCH
+
+| arm | tutorial source | `fvSolution_pimple` md5 | run root |
+|---|---|---|---|
+| **C-REPRO** | `/home/ubuntu/certonomous-runs/D12RLX_arm_tutorials/Cylinder_C` | `95ab16a9141b0928bd352a9b9d8d93b9` | `.../CURRICULUM-D12RLX-armC-repro` |
+| **R** | `.../D12RLX_arm_tutorials/Cylinder_R` | `50680514696bed84e8327bc03b2ef160` | `.../CURRICULUM-D12RLX-armR-repaired` |
+
+**The one-variable asserts were DRIVEN, 2026-09-01, before any container started, and one of them
+fired:**
+
+- `diff -rq Cylinder_C Cylinder_R` → **exactly ONE file differs**, and it is `system/fvSolution_pimple`. ✓
+- `diff` on that file → **exactly 2 added lines, 0 removed.** ✓
+- `diff -rq` upstream vs `Cylinder_C` → **no differences; arm C is byte-identical to the upstream tutorial.** ✓
+
+**The registered delta**, committed as `cases/dafoam/D12RLX_fvSolution_pimple_Final.diff`:
+
+```
+     fields
+     {
+          "(p|p_rgh|G)"                   0.3;
++         "(p|p_rgh|G)Final"              0.3;
+     }
+     equations
+     {
+         "(U|T|e|h|nuTilda|k|omega|epsilon)"                   0.7;
++        "(U|T|e|h|nuTilda|k|omega|epsilon)Final"              0.7;
+     }
+```
+
+**AN HONEST NOTE ON THE ASSERT THAT FIRED, because it was the assert that was wrong and not the
+tree.** The first form of the "every other file identical" check filtered `diff -r` output by
+filename, which does not remove the *hunk body* of the differing file, so it counted 4 lines and
+**ABORTED**. The tree was correct; the instrument was not. Rewritten to `diff -rq`, which reports
+one line per differing file, and re-driven. **Recorded rather than quietly fixed: a control that
+fails closed on its own defect is behaving correctly, and the version that would have passed
+silently is the one worth being afraid of.**
+
+### 11.5 CAPS — AND A WEAKNESS DISCLOSED RATHER THAN PAPERED OVER
+
+§8's `CAP_CORE_MIN = 100.0` was sized for one arm plus a single-stage repro. Two full arms at the
+measured 55.5167 core-min anchor is **111.03 core-min point estimate**, so the item cap is
+**RAISED to `CAP_ITEM = 150.0`** (margin 1.35×) with **`CAP_ARM = 70.0` each** (margin 1.26× on the
+anchor). Legal pre-compute under rule 2; the condition is checked in this section's opening.
+
+**Derived, not measured:** 150.0 core-min = 2.5 core-h × $0.0513/core-h ≈ **$0.128 derived**, at the
+owner-stated rate. Roughly 195× inside the pre-authorised ceiling. Costed anyway — a blanket is not
+a per-item read.
+
+> **⚠ THE CAP IS LANE-ENFORCED, NOT MACHINE-ENFORCED, AND THAT IS A REAL WEAKNESS.** The reused
+> launcher asserts its **own** registered cap — `CAP_CORE_MIN_REGISTERED="600.0"` hardcoded at
+> `d12y_stage_and_run.sh:97-99` — and **aborts if it is passed any other value**, which is the
+> D12-E' §6.1 defect closed in the correct direction. So the launcher will enforce **600.0 per run
+> root**, not this item's 70.0. **`CAP_ARM = 70.0` is enforced by this lane watching the ledger and
+> stopping the arm, and by nothing else.** The alternative was editing a frozen launcher, which is
+> forbidden. The risk is bounded by the anchor — the *identical* program on the *identical* image
+> measured 55.5167 core-min — but bounded is not enforced, and an overrun **stops the run** rather
+> than getting a new budget.
+
+### 11.6 WHAT DID NOT MOVE
+
+**No prediction moved. P1–P5 stand exactly as frozen**, including the headline P5 (`h_min,R > 0.05`)
+and its falsifier. §7's verdict mapping is unchanged. The image is unchanged
+(`dafoam/opt-packages:latest`, by id). The producer is unchanged (`d12y_run_script.py`,
+`2790c39a…`, disk == HEAD). `docs/capability/dafoam_GRID.md` remains untouched.
+
+| amendment ledger | |
+|---|---|
+| predictions altered | **0** |
+| verdict labels altered | **0** |
+| frozen files edited | **0** |
+| `fvSolution` files deleted, moved or rewritten | **0** |
+| grading path CORRECTED (would have refused) | **1** |
+| launcher registered (was absent) | **1** |
+| caps raised, pre-compute, condition checked | **1** (100.0 → 150.0 item) |
+| core-minutes spent at this amendment | **0** |
+| run roots asserted ABSENT by execution | **2** |
+
+**v1.1. Cleared to launch.**

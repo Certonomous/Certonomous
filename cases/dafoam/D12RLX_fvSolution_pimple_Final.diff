@@ -1,0 +1,14 @@
++++ /home/ubuntu/certonomous-runs/D12RLX_arm_tutorials/Cylinder_R/system/fvSolution_pimple	2026-09-01 06:18:53.401574749 +0000
+@@ -56,10 +56,12 @@
+     fields
+     {
+          "(p|p_rgh|G)"                   0.3;
++         "(p|p_rgh|G)Final"              0.3;
+     }
+     equations
+     {
+         "(U|T|e|h|nuTilda|k|omega|epsilon)"                   0.7;
++        "(U|T|e|h|nuTilda|k|omega|epsilon)Final"              0.7;
+     }
+ }
+ 
