@@ -5452,3 +5452,120 @@ now shown, on three separate occasions, unable to see the difference.
 | md5 of this file's first 5,339 lines BEFORE the append | `b3be260d0bb9eb599b887b0ddcbbfa42` |
 | md5 of this file's first 5,339 lines AFTER the append | `b3be260d0bb9eb599b887b0ddcbbfa42` |
 | the two digests | **EQUAL — assertion MEASURED, verified after the write** |
+
+---
+
+## N-C6 — DATED ADDENDUM 2, 2026-09-01: THE "FALLING" READING IN ADDENDUM 1 IS STRUCK. THE PRODUCTION LADDER SAYS **FLAT, NOT FALLING**.
+
+**Appended at the END OF FILE, following this file's own precedent, so that NO line number
+anywhere above changes and every citation into `N-C6` or into ADDENDUM 1 by line remains valid.**
+Dated addendum under rule 2; rule 6 strike, not rewrite. **Changes no gate, no threshold, no cap
+and no label.**
+
+**Ordered by the cfd supervisor, 2026-09-01, who carried the struck inference into ADDENDUM 1 and
+records that the claim in it was his.** The measurement withdrawing it is this lane's, and the
+inference that produced it was this lane's too. **Both halves are named.**
+
+### 1. THE WITHDRAWAL
+
+ADDENDUM 1 §"A SECOND SIGNATURE" carries this row:
+
+> | `M6I` published demo family | 88.9306 → 88.3866 → **86.5861°** | 8.884 → 8.641 → **7.305 %** | **FALLING — resolution artefact** |
+
+> **STRUCK: the word "FALLING" and the classification "resolution artefact".**
+
+**The registered `M6I` production ladder, graded 2026-09-01 as R0 `GATE FAIL`
+(`verification/runs/M6I_runs/R0_RESULTS.md`), does not fall.** The two series, side by side:
+
+| family | cells, coarse → fine | max non-orthogonality | severe fraction | direction |
+|---|---|---|---|---|
+| `M6I` **demo** namelist (ADDENDUM 1) | 1,920 → 15,360 → 122,880 | 88.9306 → 88.3866 → **86.5861°** | 8.884 → 8.641 → **7.305 %** | monotone decreasing |
+| **`M6I` REGISTERED PRODUCTION LADDER** | **15,360 → 122,880 → 983,040** | **87.6620 → 86.4646 → 87.7462°** | **8.2218 → 6.8126 → 6.5478 %** | **NON-MONOTONE** |
+
+> **The corrected reading, and it is the phrase that belongs in the register: FLAT, NOT
+> FALLING.** The maximum moves by **1.28°** across a **64× increase in cell count** and ends
+> **higher** than the middle level. **A maximum that does not move under 64× refinement is a
+> floor.**
+
+The severe fraction does still fall — **8.2218 → 6.5478 %, a factor of 1.26 over 64× cells.**
+**That is plateauing near 6.5 %, not vanishing**, and it is a different statement from
+ADDENDUM 1's.
+
+### 2. WHAT IS AND IS NOT CLAIMED
+
+**This is STILL NOT `N-C6`'s signature, and it is NOT claimed to be.** `N-C6` measured a maximum
+**RISING** monotonically to an asymptote with the severe fraction **RISING 10.7×** while cells
+rose only 1.31×. **Neither holds here**: this maximum is flat, and this fraction falls.
+
+**But it is much closer to "converging to the defect" than ADDENDUM 1 recorded.** ADDENDUM 1's
+own formulation — *"A quantity that RISES under refinement is converging to the defect. One that
+FALLS is converging to the answer"* — **admits only two cases and the data has produced a
+third.** A quantity that is **flat** under 64× refinement is converging to **neither**: it is
+not improving, and a family whose maximum sits at ~87° at 15,360 cells and ~87° at 983,040 cells
+has shown that resolution is not the lever. **ADDENDUM 1's sentence "the `M6I` family's 86.59°
+… is the less serious problem of the two, because it is still moving in the right direction" is
+STRUCK on that basis.** It is not moving.
+
+### 3. WHY THE EARLIER INFERENCE WAS WRONG — AND THIS IS THE TRANSFERABLE PART
+
+**The struck reading came from a THREE-POINT SERIES ON A DIFFERENT AND CRUDER NAMELIST, and was
+written into a register as a property of the phenomenon.**
+
+The demo namelist is not the production one. It differs in **every parameter that governs the
+quantity being read**: `nnodes_cylinder_input` 32 vs 64, `nr_gs` 8 vs 16, `nre` 64 vs 128,
+`target_y_plus` 1.0 vs 0.25. **Its three levels top out at 122,880 cells — the MIDDLE level of
+the production ladder.** The struck sentence generalised from that to "the `M6I` family", a
+family it did not describe.
+
+> **A refinement DIRECTION read off one grid family is a property of that family until it is
+> reproduced on the family the claim is about.** Three points can only show monotonicity over
+> the interval they span, and "rising" versus "falling" is exactly the kind of claim a
+> non-monotone fourth point destroys. **`N-C6` itself rests on FOUR points spanning a 1.31× cell
+> range; ADDENDUM 1's counter-claim rested on three spanning 64×, on the wrong namelist.**
+
+**The cheap check that would have caught it, and it costs no solver time:** the production ladder
+was buildable at the moment the claim was written — **0.3833 core-min for all three levels** — so
+the claim could have been tested before it was registered rather than after. **It was not, and
+that is the whole of the error.**
+
+**This is the same class the cfd team hit three times on 2026-09-01**: a pattern read off one
+dataset and carried into a register as a property of the phenomenon. `L-419` is its ancestor —
+*a partial sample reported as the whole* — and this instance extends it from a **sample of a
+series** to a **series from the wrong population**.
+
+### 4. `MESH_STANDARD.md` §14 — INSTANCE FOUR, and the first across a whole registered ladder
+
+ADDENDUM 1 recorded a **third** instance (the `M6I` demo L3: `Mesh OK.` at 88.9306°). **The
+registered production ladder is the fourth, and it is the first in which the defect appears on
+EVERY level of a real graded ladder:**
+
+| level | max non-orthogonality | `checkMesh` closing line | what it actually counted |
+|---|---|---|---|
+| L3 | **87.6620°** | `Failed 1 mesh checks.` | aspect ratio (1,243.59) |
+| L2 | **86.4646°** | `Failed 1 mesh checks.` | skewness (8.30139) |
+| L1 | **87.7462°** | `Failed 2 mesh checks.` | aspect ratio (1,578.62) + skewness |
+
+> **Not one of those counts includes the 70° breach. A ladder graded on the closing line would
+> have reported aspect-ratio and skewness problems and MISSED a 17.75° gate breach on every
+> level.**
+
+### 5. What is NOT disturbed
+
+**`N-C6`'s own text, its four measured variants, its rising series, its severe-fraction figures,
+its `TSCALE` ruling and its six operational items are untouched and all stand.** ADDENDUM 1's
+scope narrowing — that `N-C6` is a true statement about sharp trailing edges and that the ONERA
+M6 does not have one — **is untouched and stands**, and rests on AGARD AR-138 Table B1-1
+(printed `B1-7` = PDF page `333`), not on any refinement direction. **Only the "SECOND
+SIGNATURE" section's classification of the `M6I` family is struck.**
+
+### Assertions, MEASURED after the write
+
+| assertion | value |
+|---|---|
+| `N-C6`'s own text edited | **none** |
+| ADDENDUM 1's text edited, reordered or deleted | **none — its claim is STRUCK by this section, not rewritten** |
+| gate, threshold, cap or label changed | **none** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's first 5,454 lines BEFORE the append | `d89cd004164919b7b8798951ef132183` |
+| md5 of this file's first 5,454 lines AFTER the append | `d89cd004164919b7b8798951ef132183` |
+| the two digests | **EQUAL — assertion MEASURED, verified after the write** |
