@@ -1062,3 +1062,84 @@ Stated plainly, because an honest gap is worth more than a confident guess.
 IS THE SUPERVISOR'S DIFF-READ OF §0, NOT A LAUNCH.**
 
 <!-- END OF T25R3 PRE-REGISTRATION v1.0 -->
+
+---
+
+## Amendment A1 — 2026-09-01, **BEFORE ANY COMPUTE.** §7.2's self-criticism was wrong, and it was wrong AGAINST us
+
+**Pre-registration version bumped to v1.1. Lines whose number changed above this
+section: 0.** Nothing above is edited, rewritten or reflowed; §7.2's original
+paragraph and its original suspicion stand exactly as frozen at `8cef4791` and a
+reader must be able to see both what was claimed and what replaced it.
+
+**THE CONDITION UNDER WHICH THIS AMENDMENT IS LEGAL, AND HOW IT WAS CHECKED.**
+`CLAUDE.md` rule 2 permits an amendment **only before first compute**, and
+requires it to name the run directory that does not exist. **Checked at
+2026-09-01, immediately before this text was appended:** none of the six
+registered run directories exists —
+`verification/runs/T-family/T25R3_MODULE_runs/{S1,S2,S3,T2,T4,W30}` all absent;
+the only entry under `T25R3_MODULE_runs/` is `_meshsrc_L3`, which is a **mesh
+source tree built by `build_t25R.py`, whose `foam()` refuses a solver by name
+(`build_t25R.py:729`) and whose selftest asserts that refusal**. **No solver has
+run. No `0/` exists. No field has been written.**
+
+**ORIGIN.** The supervisor's ruling on this registration applied the scepticism
+§7.2 asked for and found that **§7.2's own self-criticism is the claim that did
+not survive it.** This lane re-derived the arithmetic independently and agrees.
+
+### A1.1 The two gates are not the same gate
+
+§7.2 called τ = 0.1 K *"8.1× looser than the 1.234e-02 K T25R2 failed"*. **That
+comparison is not like-for-like.** T25R2's O3 was an **ITERATIVE** gate — 10
+sweeps against 20, in absolute kelvin. T25R3's `G-S` and `G-T` are
+**DISCRETISATION** gates — mesh against mesh, step against step. The iterative
+question has not been loosened in T25R3; it has been **moved into `G-I` and
+expressed the way Sanaa's §0.2 actually asks it**, as a ratio against the thing
+being measured rather than as an absolute number in the abstract.
+
+### A1.2 ⚠ THE BINDING CONSTRAINT IS THE COMPOSITION, AND IT IS **2.32× TIGHTER** THAN THE NUMBER THAT FAILED T25R2
+
+`G-I` and `G-S` are **both required** and **neither is survivable**: `G-I`
+failing gives `NOT A RESULT` (§7.6 clause 1), `G-S` failing gives `GATE FAIL`.
+Composing the two as registered:
+
+| | registered condition | §  |
+|---|---|---|
+| `G-I` | `\|Q(W30) − Q(S2)\| ≤ 0.1 × \|Q(S3) − Q(S2)\|` | 7.3 |
+| `G-S` | `\|Q(S3) − Q(S2)\| ≤ τ = 1.000e-01 K` | 7.4 |
+| **composed** | **`\|Q(W30) − Q(S2)\| ≤ 0.1 × 1.000e-01 = 1.000e-02 K`** | **A1.2** |
+
+> **THIS RUNG REQUIRES ITERATIVE CONVERGENCE OF 1.000e-02 K TO REACH A `PASS`.
+> T25R2 FAILED AT 2.315190e-02 K, AND ITS WORST WRITTEN TIME WAS 2.404233e-02 K.
+> THE BINDING ITERATIVE REQUIREMENT IS THEREFORE 2.32× TIGHTER THAN THE NUMBER
+> THAT FAILED THE PREDECESSOR — 2.40× against its worst point — AND 1.23× TIGHTER
+> THAN THE PREDECESSOR'S OWN THRESHOLD OF 1.234e-02 K.**
+
+The same composition applies to the time ladder through `G-I(time)` and `G-T`,
+with the identical bound.
+
+### A1.3 Why the correction is filed rather than left as a harmless overstatement
+
+§7.2's framing understated the rung in the **rarer and more expensive
+direction**. A future reader deciding whether to trust this rung would read
+*"8.1× looser"* and conclude the lab loosened a gate to buy a pass, when the
+binding constraint was in fact tightened. **A record that makes the lab look
+worse than the arithmetic supports is still a wrong record**, and it is the kind
+a later reader has no way to correct, because the composition is not visible
+unless someone writes it down. It is written down here.
+
+**WHAT DOES NOT CHANGE, AND MUST NOT.**
+
+- **τ remains 1.000e-01 K.** No threshold moves in this amendment.
+- **The second tier remains 1.234e-02 K, printed always, gating nothing.** It is
+  **not** removed and must not be: it is what makes the composition of A1.2
+  auditable from the printed output rather than from this paragraph.
+- **§7.2's original text stands unedited**, including its statement that τ is the
+  item most deserving scepticism. That statement was correct about *where to
+  look*; only its conclusion was wrong, and a struck-and-appended record shows
+  both.
+- **No gate, threshold, cap or label is altered.** This amendment adds an
+  arithmetic consequence of conditions already registered at `8cef4791`, and
+  changes no input to any of them.
+
+<!-- END OF T25R3 PRE-REGISTRATION v1.1 -->
