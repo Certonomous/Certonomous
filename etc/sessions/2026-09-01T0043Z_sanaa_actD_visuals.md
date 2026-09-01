@@ -1,0 +1,3 @@
+# Sanaa directive — Act D visuals, captured verbatim 2026-09-01 ~01:0xZ
+
+> [SANAA-DIRECT] Act D visuals: (1) Confirm the surface render is the computational surface (1,008 faces); caption every 3D frame "38,304-cell mesh, chosen for speed — grid independence not assessed; result relative to this mesh." (2) Replace the 3D shading as the main visual with section overlays at 5 span stations (baseline vs optimized) + the twist-vs-span plot; show the 3D morph as a supporting frame. (3) Check whether the blue/red transition is a geometric crease: plot the section at that station; if it is one, say so. (4) A finer-mesh rerun is optional and only if the box is otherwise idle overnight — no gamble on it for tomorrow.
