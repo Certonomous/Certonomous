@@ -4788,7 +4788,7 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T01:25:25Z by dafoam-supervisor (TWENTY-FOURTH session; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-08-31T22:41:10Z by dafoam-supervisor (TWENTY-THIRD session; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
 
@@ -10412,6 +10412,79 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
+
+##### ADDENDUM 2026-09-01T01:3xZ — **SANAA'S DEMO FREEZE IS IN FORCE; AND §3 CHECK 1 IS NOW DISCHARGED PERSONALLY ON `analyse_t23.py` AND `analyse_t24.py`, WHICH CLOSES THE LARGEST NAMED GAP IN THE DEMO MATERIAL AND OPENS ONE HONEST ASYMMETRY IN ITS PLACE.**
+
+*(Written by the heat-transfer supervisor personally, not by a lane — §3 reserves this check to the supervisor and a relayed check is a summary, not a check. **Pure insertion; nothing below is edited or deleted, and the section's `Section last written:` line is deliberately left alone** so the pure-insertion assert the block below landed under is not broken. Zero solver compute; no case directory touched; nothing under `sdk/` read or written by this block; the live GUI server at pid 848778 was neither restarted nor signalled.)*
+
+---
+
+### 0. **SANAA'S LAB-WIDE PRIORITY FREEZE, 2026-09-01, relayed to this team at commit `4a201e49`.**
+
+Her words as relayed: *"anything not demo related waits until we are done with the demo."*
+
+**What this team reads it to mean, stated so a successor does not have to guess:** the thermal display mission (Act A screens A1–A9, Act C screens C1–C9), the T25 step-independence pair behind Act C's step statement, and the Act A/Act C comparator reads are **all demo work and continue at full speed.** Everything else in T-family and the DC-cooling spine — **T8, K0d, the T5 interpretations, D389, the T10a upstream draft, the rule-4 clause-5 referral** — is **PARKED, cleanly.** Nothing of this team's is half-committed at this freeze, no non-demo queue entry has been filed, and no solver of this team's is running.
+
+---
+
+### 1. **WHAT WAS OPEN, AND WHY IT MATTERED MORE THAN ITS SIZE SUGGESTED**
+
+Block H2 above boarded Act A's numbers as *"built and internally checked, but NOT supervisor-verified"*, because the only assurance on the two scripts that produce them was a **comparator-identity hash**. That block called it *"the single largest open gap in the demo material"* and it was right to. **A hash proves a file did not change; it says nothing whatever about whether what the file computes is correct.** Sanaa is about to be shown Act A's sixteen rows.
+
+**Both files are now read IN FULL, at HEAD `b0bc866c`, by the supervisor personally** — `analyse_t23.py` (905 lines) and `analyse_t24.py` (1 524 lines). Not delegated, not relayed, not skimmed.
+
+### 2. **THE VERDICT ON THE INSTRUMENTS: SOUND. Enumerated, so the discharge is checkable rather than asserted.**
+
+| guard | `analyse_t23.py` | `analyse_t24.py` |
+|---|---|---|
+| planted-zero on **both** readers (Q1 internalField, Q2 boundaryField areaAvg) | yes, `:329` | yes, `:460` |
+| copy-first, with a refusal if the scratch realpath resolves inside the case | yes | yes |
+| negative arm at **bitwise 0.0, no absolute tolerance** | yes | yes |
+| magnitude ladder, exact, epsilon-free floor; **REFUSE if the reader is blind** | yes | yes |
+| sizing predicate **RELATIVE**, `got >= PLANT*(1-1e-9)` | yes | yes, and it says in terms why `analyse_t3.py`'s absolute form is **not inherited** |
+| `PLANT` **imported** from `scripts/roache_triple.py`, never redefined | yes `:85` | yes `:110` |
+| Q2 planted on **every** face so the shift is `mag`, not `mag/N` | yes `:314` | yes `:443` |
+| strict completion **first and one-way** | DONE marker required `:487` | DONE marker **plus a live re-check**, delegated to `mark_done_t24.py`, so a **stale marker REFUSES** `:668` |
+| mesh identity asserted by sha256 across three regions | — | yes `:366`, and **absence of `points` REFUSES rather than waives** |
+| no Roache / GCI / observed order emitted, single level admitting no triple | yes, and **the selftest's token check carries its own planted control** `:801` | yes `:744` |
+| y+ **BLIND-log sentinel** — a rc-0 tool that says it cannot compute y+ and then prints zeros | yes `:447` | yes `:180` |
+| area weights from **real polygon areas**, wedge faces never assumed equal | yes `:237` | yes `:328` |
+| verdict vocabulary exact; bands one-way, able only to demote | yes | yes `:694`, with the author's placement of the mesh check **disclosed as a reading** rather than buried |
+
+**Two things I want on the record because they are the marks of an instrument built honestly rather than built to pass.** First, `analyse_t23.py:436–447` documents **a live false zero this rung actually caught**: the generic `postProcess -func yPlus` exits rc 0, prints that it cannot find the turbulence model, and then prints `min = 0, max = 0, average = 0` on every patch. That is CLAUDE.md rule 3 in the wild, and the zeros are **refused, not read**. Second, `analyse_t24.py:79–84` **declares the directive's `Ri < 0.1` criterion VACUOUS and refuses to report it as a passing check**, because with `g = (0 0 0)` registered, `Ri` is identically zero by construction and the check can neither fail nor inform. Printing "Ri = 0 < 0.1, PASS" would have been evidence annotated as non-binding in its worst form. **It declined a free green.**
+
+### 3. **THE ARITHMETIC REPRODUCES — CHECKED BY ME, NOT ACCEPTED**
+
+A comparator can be structurally impeccable and still carry a transcribed constant that is wrong. I re-derived the transcribed tables against the predictors implemented beside them:
+
+- **`T23_TMAX_C` against `T23_RISE_K`** — the four T23 rows' absolute temperatures against the four rises T24's predictor is built on: **max disagreement 2.0e-04 K** over all four.
+- **T24's frozen section-2.4 prediction table (12 entries) against the predictor implemented at `analyse_t24.py:653–661`** — `T_max = (T_inf − 273.15) + (P/305)·rise_T23(U)`: **max disagreement 4.75e-04 °C** over all twelve. That is **table rounding at three decimals and nothing else.**
+- **The Act A overprediction trend re-derived from T23's own registered constants:** DB rise / solved rise = **3.5405 / 3.3687 / 3.2804 / 3.2353** at 10 / 20 / 30 / 40 m/s, and flat-plate **2.0308 / 1.9470 / 1.9106 / 1.8957**. These reproduce the **3.541 / 3.369 / 3.280 / 3.235** already boarded at block D to four figures, **from the frozen constants rather than from the record that quotes them.** The trend is **monotonically decreasing with airspeed**, which is the direction block E(a) corrected the supervisor on and which is confirmed again here.
+
+**Both closures miss by more than the 1.763x spread between them at every one of the four speeds**, so T23 section 6.2's contingency fires as registered, and **the lumped model is what was falsified — not the solve.** The graded bands read the solved temperature and are untouched.
+
+### 4. ⚠️ **THE ASYMMETRY, WHICH IS THE FINDING WORTH HAVING: FOUR OF ACT A's SIXTEEN ROWS ARE GRADED BY AN INSTRUMENT THAT LACKS A GUARD THE OTHER TWELVE CARRY.**
+
+Both graders exclude `Ux` from the convergence assertion, on the sound ground that in a 5° wedge one cell thick `x` is circumferential and `Ux` is identically zero **by geometry**, so its linear-solver residual is a 0/0 normalisation carrying no information. A reader who greps the last `Ux` residual reports every run of this family as unconverged.
+
+**But the two files justify that exclusion differently, and `analyse_t24.py` says so on its own face at `:51–54`:**
+
+- **T24 `:576–595`** measures `max|Ux|/max|Uz|` **on each case** and applies a **registered threshold of 1e-12: a ratio above it REFUSES THE EXCLUSION for that case and the row reports `Ux` asserted.**
+- **T23 `:582–610`** computes and **prints** the same ratio and **carries no threshold test and no refusal branch at all.** The exclusion is unconditional.
+
+**So the twelve T24 rows of the map earn their `Ux` exclusion per case; the four T23 rows at P = 305 W assert it.** This is **not a claim that the T23 numbers are wrong** — the exclusion moves no gate in either rung, because neither registers any residual gate, and the printed ratios are the evidence that would satisfy the guard. **It is the honest statement of what backs each half of the sixteen.**
+
+**⛔ AND IT IS NOT BEING "FIXED".** T23's comparator is frozen and its compute has run; adding a guard to it now would be a rule-2 violation, and re-grading its four rows against a threshold registered after the fact is exactly the shape this lab forbids. **The correct action is disclosure, and this is it.**
+
+**OPEN, and deliberately not closed under the demo freeze:** whether T23's four cases' **measured** `max|Ux|/max|Uz|` sit at or below T24's 1e-12 — which would make the asymmetry cosmetic rather than substantive. That is a **read of four artifacts on disk, no compute**, and it is the one item I would pick up next if the demo leaves room. **Until it is measured, nobody may state that T23's rows would have passed T24's guard.**
+
+### 5. **WHAT THIS DISCHARGE DOES AND DOES NOT LICENCE**
+
+**DISCHARGED:** `analyse_t23.py` and `analyse_t24.py`, read as source at HEAD by the supervisor. **Act A's sixteen numbers may now be shown as supervisor-verified at the level of their measurement path.** Block H2's `⛔ NOT DISCHARGED` is superseded by this block.
+
+**NOT LICENCED, and the distinction is the whole point:** this is a read of the **graders**, not of the **solves**. It says the readers see what they claim to see, that the plants prove it, that the bands cannot promote, and that the constants transcribe correctly. It says **nothing** about mesh adequacy, closure choice or `y+`, all of which both documents register as **reported and never gated** — and `y+` above 1 on the housing surface is a registered, disclosed outcome that **blocks the correlation tier, which this rung does not claim.** **A PASS on the physicality tier is a temperature bound, not a heat-transfer coefficient, and Act A must not be narrated as if it were the latter.**
+
+---
 
 ##### ADDENDUM 2026-09-01T01:0xZ — **BOTH STEP ARMS READ, BOTH ACTS' FIGURES BUILT, AND MY OWN ROUTER ESCALATION WITHDRAWN AS WRONG.**
 
