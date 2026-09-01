@@ -198,31 +198,40 @@ the ramp`, `shock reflection off a wedge` — all at confidence 0.99.
 wedge` keeps the route it has today. The surface pattern requires a named
 surface, and "corner" is a word written about the steady wedge.
 
-### 4a. A GAP, NAMED RATHER THAN PAPERED OVER: an uploaded surface reroutes this act
+### 4a. `_SURFACE_KEEPS_ROUTE` IS LEFT UNTOUCHED — A DELIBERATE LIMITATION, RULED, WITH THE REASON
 
-`_SURFACE_KEEPS_ROUTE` is **not** touched by this patch, so a shock-reflection
-prompt that arrives **with an uploaded surface** becomes a geometry study — the
-incompressible chain, on an unrelated body. That is the same failure the MERGE
-NOTE describes for the thermal and jet-flap acts, and it is why both of them are
-on that list.
+**RULED by the cfd supervisor, 2026-09-01: leave it untouched.** This is a
+known and deliberate limitation, recorded here so a successor finds the
+reasoning and not just the absence. It is **not** an oversight.
 
-It was left out on purpose and the decision belongs to the supervisor:
+The behaviour: a shock-reflection prompt arriving **with an uploaded surface**
+becomes a geometry study, because this intent is not on the
+`_SURFACE_KEEPS_ROUTE` list. Three grounds for leaving it that way, and the
+third is the one that decides it:
 
-- **For adding it:** the act starts no solver, and rerouting a shock-reflection
-  prompt into a geometry study is plainly the wrong answer.
-- **Against adding it:** `make_act_entry` **drops `params`** by design, so the
-  act would never see the upload and could not announce it. Jet-flap earns its
-  place on that list by stating on screen that the uploaded surface was not
-  meshed or solved; this act has no such sentence, so keeping the route would
-  silently ignore an upload.
-- **It does not affect the shoot.** With no surface uploaded, `apply_surface`
-  returns the route unchanged, so the filmed path is unaffected either way.
+1. **An uploaded surface is meaningless input to this act.** It is a
+   shock-reflection benchmark on a fixed rectangular domain; it has no body to
+   substitute. Rerouting a request the act cannot serve is arguably the more
+   honest response, not the wrong one.
+2. **Minimum diff before a shoot.**
+3. **Decisively: `_SURFACE_KEEPS_ROUTE` is SHARED routing behaviour.** Changing
+   it alters how **other teams' intents** respond to an uploaded surface. That
+   is exactly the class of change that must never ride in on a demo patch — it
+   is how a demo deadline silently rewrites a shared contract.
 
-If the supervisor rules that it should be added, it can be done as a **pure
-insertion after the tuple** rather than an edit to it —
+**The filmed path is unaffected either way**: with no surface uploaded,
+`apply_surface` returns the route unchanged.
+
+A second, independent reason the naive fix would not have worked:
+`make_act_entry` **drops `params`** by design, so this act would never see the
+upload and could not announce it. Jet-flap earns its place on that list by
+stating on screen that the uploaded surface was not meshed or solved; this act
+has no such sentence.
+
+If a future ruling reverses this, do it as a **pure insertion after the tuple**
+rather than an edit to it —
 `_SURFACE_KEEPS_ROUTE = _SURFACE_KEEPS_ROUTE + (DOUBLE_MACH_REFLECTION,)` with
-an assert — which is exactly the shape that would have avoided the merge note's
-night.
+an assert — which is the shape that would have avoided the merge note's night.
 
 ---
 
@@ -302,7 +311,15 @@ own lines are already present tense.
 
 ---
 
-## 7. CAMERA ITEM TWO — 1.9 IS THE FLATTERING FIGURE. THE RIGHT ONE IS ~2.4
+## 7. CAMERA ITEM TWO — 1.9 WAS THE FLATTERING FIGURE. ~2.4 IS **LANDED**
+
+**RULED by the cfd supervisor, 2026-09-01, and APPLIED — this is the one thing
+in this note that is not a proposal.** `sdk/workflows/dmr_act.py` now reads the
+graded record's **item total** and shows that. The screen's cost went from
+`1.9 processor-minutes` to `2.4`, and the ratio against the pre-registered 20
+went from 0.095 to **0.12**, which is what the record itself files.
+
+
 
 The act computes its cost as
 `sum(_wall_seconds(key) for the two grids) * RANKS / 60`, which is **the two
@@ -339,10 +356,45 @@ a measurement, and no log carries it — so quoting ~2.4 means reading the item
 total from the graded record rather than deriving it.
 
 **That is the right trade and the act already reads that record** for its
-cross-check. **Recommendation: quote the graded item total, ~2.4, cited to
-`DMR_RESULTS.md:138`.** If the supervisor prefers the parsed figure instead, then
-the line must *say* it covers the two solves only — leaving 1.9 unlabelled beside
-an estimate of 20 is the flattering error, whichever number is chosen.
+cross-check, so quoting the item total adds no coupling that was not already
+there. Ruled and landed on exactly that ground.
+
+**Standing instruction if anything ever forces the parsed figure back:** the
+line must then **say it covers the two solves only**. An unqualified number in
+the wrong category is the defect; a qualified one is merely narrow.
+
+### 7a. How the landed change is held to the artifacts
+
+The item total is the only cost figure on screen and it comes from a record
+rather than a clock, so something has to hold it down.
+`_cross_check_item_total` ties it to the logs the act has just read, in two
+clauses that can each fail:
+
+- the item total must be **at least** the two solves the logs measure, since it
+  contains them — a total below its own parts is a record that has drifted from
+  the runs;
+- the remainder above the solves must fit the record's own stated bound for
+  meshing, initialisation, reconstruction and the locator, under 0.5
+  core-minutes — a larger remainder means the total counts work the record does
+  not account for.
+
+**Every limb was shown able to fail before being trusted** (CLAUDE.md rule 3
+applied to a guard rather than a reader):
+
+| planted condition | result |
+| --- | --- |
+| item total below its own parts | **REFUSED** |
+| remainder above the record's bound | **REFUSED** |
+| record with the item-total row removed | **REFUSED** |
+| record's item total planted at `~7.7` | reader returns **7.7**, so it reads rather than recites |
+
+The record was restored byte-exact afterwards and re-read at 2.4. On the real
+pair the check passes: item total 2.4, solves 1.896 from the logs, remainder
+0.504 against a bound of 0.5 — inside the one-tenth slack that absorbs the
+record's rounding of the total to one decimal place.
+
+The pre-shoot gate (`scripts/check_demo_acts.py`) reports **`shock-reflection:
+can start`** and **`jet-flap: can start`** after the change.
 
 ---
 

@@ -95,6 +95,14 @@ GRIDS: tuple[tuple[str, str, int], ...] = (
 #: MPI ranks both solves ran on, from the graded cost record.
 RANKS = 4
 
+#: The graded record's own bound on everything in the item that is NOT one of
+#: the two solves: meshing, initialisation, reconstruction and the locator,
+#: filed as "< 0.5 core-min". It is a BOUND and not a measurement -- no log
+#: carries it -- which is exactly why the screen quotes the record's item total
+#: rather than trying to re-derive one. Used only to bound-check that total
+#: against the solve clocks in :func:`_cross_check_item_total`.
+_NON_SOLVE_BOUND = 0.5
+
 #: The known perturbation the log readers are shown before any number from
 #: them is displayed. CLAUDE.md rule 3: a zero from a reader not shown able to
 #: see a non-zero is not evidence.
@@ -144,6 +152,70 @@ def _skewness(key: str) -> float:
         raise DemoContractError(
             "a grid's mesh check does not report its worst cell distortion")
     return float(hit.group(1))
+
+
+def _item_total_core_min() -> float:
+    """The graded record's ITEM TOTAL cost, in core-minutes, read off disk.
+
+    WHY THE SCREEN SHOWS THIS AND NOT THE TWO SOLVES ADDED UP. Ruled by the
+    cfd supervisor 2026-09-01. The price this act puts beside the actual is
+    the one that was SET ASIDE for the whole item -- meshing, initialisation,
+    reconstruction and the locator as well as the two solves. Quoting only the
+    solves against it compares a complete estimate with an incomplete actual,
+    which is a category error, and it is one that ALWAYS errs in the flattering
+    direction because the omitted work is real work. An estimate and an actual
+    have to be the same category or the comparison between them means nothing.
+
+    Concretely, from the record's own cost table: the two solves are 1.67 and
+    0.22 core-minutes, meshing and post-processing are bounded at under 0.5,
+    and the item total is ~2.4. The screen said 1.9 and the record grades the
+    estimate against 2.4; that gap is this act family's recurring defect, and
+    it has never once run the other way.
+
+    This is a READ, not a second derivation: the act already opens this record
+    to cross-check the wall clocks, so it adds no coupling that is not there.
+    """
+    text = GRADED_RECORD.read_text(encoding="utf-8")
+    hit = re.search(r"\|\s*\*\*item total\*\*\s*\|[^|]*\|\s*\*\*~?([\d.]+)\*\*",
+                    text)
+    if hit is None:
+        raise DemoContractError(
+            "the graded cost record does not state an item total, so the "
+            "screen has no whole-item cost to show and will not show part of "
+            "one in its place")
+    return float(hit.group(1))
+
+
+def _cross_check_item_total(item_total: float, solves_core_min: float) -> None:
+    """Tie the record's headline cost to the logs this act just read.
+
+    NOT A RUBBER STAMP. The item total is the only cost figure on screen and
+    it comes from the record rather than from a clock, so something has to
+    hold it to the artifacts. Two clauses, and each one can fail:
+
+    * the item total must be AT LEAST the two solves the logs measured, since
+      it contains them -- a total below its own parts is a record that has
+      drifted from the runs;
+    * the remainder above the solves must fit the bound the record itself
+      states for meshing, initialisation, reconstruction and the locator,
+      which is under 0.5 core-minutes. A larger remainder means the total is
+      counting work the record does not account for.
+
+    A tenth of a core-minute of slack absorbs the record's own rounding of the
+    total to one decimal place.
+    """
+    if item_total + 0.1 < solves_core_min:
+        raise DemoContractError(
+            f"the graded record's item total is {item_total:.2f} core-min but "
+            f"the two solver logs alone measure {solves_core_min:.2f}; the "
+            f"total is smaller than its own parts and neither will be shown")
+    remainder = item_total - solves_core_min
+    if remainder > _NON_SOLVE_BOUND + 0.1:
+        raise DemoContractError(
+            f"the graded record's item total leaves {remainder:.2f} core-min "
+            f"above the two solves, and the record bounds that work at under "
+            f"{_NON_SOLVE_BOUND}; the total counts work the record does not "
+            f"account for")
 
 
 def _wall_seconds(key: str) -> float:
@@ -523,7 +595,16 @@ class ShockReflectionAct(DemoAct):
         in_cells = {label: float(_gate_v(key)["error"])
                     / float(_gate_v(key)["increment"])
                     for label, key, _ in GRIDS}
-        core_min = sum(_wall_seconds(key) for _, key, _ in GRIDS) * RANKS / 60.0
+        # THE SOLVES, MEASURED FROM THE LOGS -- and NOT what goes on screen.
+        # It is the quantity the item total is bound-checked against below.
+        solves_core_min = sum(
+            _wall_seconds(key) for _, key, _ in GRIDS) * RANKS / 60.0
+        # THE WHOLE ITEM, READ FROM THE GRADED RECORD, which is the category
+        # the pre-registered estimate of 20 was written in. See
+        # `_item_total_core_min` for why quoting the solves alone against that
+        # estimate is a category error and a flattering one.
+        core_min = _item_total_core_min()
+        _cross_check_item_total(core_min, solves_core_min)
 
         return Results(
             fields=[figure],
