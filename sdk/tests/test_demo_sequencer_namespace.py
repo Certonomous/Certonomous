@@ -191,11 +191,23 @@ def test_the_jet_flap_act_publishes_exactly_the_addresses_it_declares():
 
     Pinned as a literal list rather than compared to the act, so a change to
     either side is a failure here rather than a tautology.
+
+    AMENDED 2026-09-01 FOR THE TWO RENDERED FIELD PANELS. Sanaa retired the
+    canvas as a visual source ("Going forward all acts use paraview"), and the
+    results stage now announces the solved velocity and pressure panels
+    rendered off the case beside the act's own four figures. Two more addresses
+    reach the screen, so two more are pinned. The NAMESPACE is the thing this
+    file guards and it has not moved: all six are served from the act's own
+    ``results``, which is what the 404 defect was about. The panels are not
+    exempted from the resolve check below -- they answer 200 from the same
+    directory the act's figures do, or this test fails.
     """
     _plant_the_resolver()
     plots = _plots(_capture_results(ACT, ACT.run_record()))
     urls = sorted(p["url"] for p in plots)
     assert urls == sorted([
+        "/api/plot/results/field_pressure.png",
+        "/api/plot/results/field_velocity.png",
         "/api/plot/results/jet_flap_1_lift_vs_blowing.png",
         "/api/plot/results/jet_flap_2_chordwise_pressure.png",
         "/api/plot/results/jet_flap_3_flow_field.png",

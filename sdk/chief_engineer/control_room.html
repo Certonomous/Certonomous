@@ -639,10 +639,29 @@ const displayName = s => {
 };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, surfaceMeta:null, actSurface:null, certificate:null, digestPhase:null, currentView:'digest',
-                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set(), scope:null };
+                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set(), scope:null,
+                // THE THREE READINGS OF ONE CELL COUNT. `panelCells` is what the
+                // served picture's own provenance record says it drew;
+                // `panelPrinted` is the count the backend says the screen will
+                // print; `printedCells` is the count this page ACTUALLY printed
+                // on the meshing card. A picture is only shown while all three
+                // that exist agree — see `panelCountsAgree`.
+                panelCells:null, panelPrinted:null, printedCells:null, panelRefused:false,
+                // Event types that arrived with no case in the dispatch switch.
+                // Counted rather than ignored: a type with no handler renders
+                // NOTHING AND SAYS NOTHING, which is how 1,270 of one act's
+                // 1,283 events once fell through this switch unnoticed.
+                unhandled:{} };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
 const revealQ = [];
+//: The viewport's resting sentence, as it stands in the markup above. Named
+//: here because the panel guard REPLACES it with a refusal when a picture and
+//: the printed cell count disagree, and a refusal left standing would accuse
+//: the next mission. Declared this high on purpose: resetMission runs during
+//: initial evaluation on the ?mission= resume path, so a constant declared
+//: further down would be in its temporal dead zone when the reset reads it.
+const VIEWPORT_RESTING = 'Load a surface to see it here.';
 let revealing = false;
 // Monotonic geometry token — declared up here because the ?mission= resume path
 // runs during initial evaluation, before later `let` declarations initialise.
@@ -857,6 +876,14 @@ function resetMission() {
   if (state.sweep && state.sweep.tick) cancelAnimationFrame(state.sweep.tick);
   state.sweep = null; setHidden('sweepBox', true);
   setHidden('viewportField', true); $('viewportField').removeAttribute('src');
+  // THE CELL-COUNT READINGS BELONG TO ONE MISSION. Left standing, one act's
+  // count would be checked against the next act's picture, and a refusal
+  // raised on this mission would still be on the panel when the next one
+  // opens — the panel carries a refusal SENTENCE, so clearing the flag
+  // without restoring the resting text would leave the accusation up.
+  state.panelCells = null; state.panelPrinted = null; state.printedCells = null;
+  state.panelRefused = false;
+  $('viewportEmpty').textContent = VIEWPORT_RESTING;
   showViewportStage('geometry');
   setHidden('viewportEmpty', false); $('viewportLabel').textContent='—'; $('viewportStats').textContent='';
   // A caption belongs to ONE mission's frames. Left standing it would caption
@@ -959,6 +986,9 @@ function dispatch(env) {
     // geometry, then mesh, then fields (Sanaa, 2026-09-01). Paced: it is a
     // stage beat, and it arrives once.
     case 'mesh.grid': enqueue('grid', p, ts); break;
+    // A RENDERED PANEL OF THE SOLVED CASE, not a drawing of one. See
+    // `loadMeshPanel` for the cell-count refusal that gates it.
+    case 'mesh.panel': enqueue('meshPanel', p, ts); break;
     case 'plot.ready': enqueue('plot', p, ts); break;
     case 'landscape.point': enqueue('landscape', p, ts); break;
     case 'landscape.legend': enqueue('landLegend', p, ts); break;
@@ -1043,6 +1073,14 @@ function dispatch(env) {
     // did finish.
     case 'mission.completed': finish((p && p.status) || 'complete', p); break;
     case 'mission.failed': finish('failed'); break;
+    // A TYPE WITH NO CASE RENDERS NOTHING AND SAYS NOTHING, and that silence is
+    // the failure mode this branch exists to end. Measured on one act: 1,270 of
+    // 1,283 events fell through this switch and no surface reported it, because
+    // an absence looks exactly like a quiet moment. Nothing is drawn here on
+    // purpose -- the page must not invent a rendering for a payload it does not
+    // understand -- but the type is COUNTED, so a census can read
+    // `state.unhandled` and name what the screen never showed.
+    default: state.unhandled[t] = (state.unhandled[t] || 0) + 1;
   }
 }
 
@@ -1434,6 +1472,7 @@ const APPLY = {
   geometry:   p => loadGeometry(p),
   field:      p => loadField(p),
   grid:       p => loadGrid(p),
+  meshPanel:  p => loadMeshPanel(p),
   plot:       p => addPlot(p),
   landscape:  p => pushLandscape(p),
   landLegend: p => setLandscapeLegend(p),
@@ -1520,6 +1559,15 @@ function showFleetRise(item) {
 // The worker-kill beat holds on screen: the LOST banner and lane must dwell long
 // enough to read (and to catch in a still) before the fresh worker takes over.
 const KILL_DWELL_MS = 2600;
+// THE REVEAL IS NOW A SEQUENCE OF FRAMES RATHER THAN A DRAWING, so the pacing
+// that used to live inside the animation has to live here instead. The grid
+// used to build cell by cell over 1.3 s, hold for 1.4 s and ease into the slot
+// over 2.0 s; a rendered panel arrives whole, and three panels released at the
+// queue's 240 ms visual beat would flick past before a viewer could see what
+// changed. Each panel therefore holds for its own beat, which is what keeps
+// "surface, then grid, then the wall layers at the slot" readable as three
+// deliberate steps instead of one flicker.
+const PANEL_DWELL_MS = 1800;
 function enqueue(kind, p, ts) {
   const item = { kind, p, ts, qAt: nowMs() };
   item.fleetShown = showFleetRise(item);
@@ -1537,6 +1585,8 @@ function drainReveal() {
   // never steps on it before the viewer (or a still) can read the loss.
   if (item.kind === 'workerKill') {
     delay = KILL_DWELL_MS;
+  } else if (item.kind === 'meshPanel') {
+    delay = PANEL_DWELL_MS;
   } else if (state.fastPace && item.ts != null && next && next.ts != null) {
     // FAST: replay at the real inter-event timing, clamped to a watchable band.
     delay = Math.max(60, Math.min(4000, (next.ts - item.ts) * 1000));
@@ -1603,7 +1653,34 @@ function stageLines(p) {
   // rather than by naming the key, so no per-stage list can go stale.
   return out.filter((s, i) => !out.some((t, j) => j < i && t.includes(s)));
 }
+// The count the SCREEN printed, taken at the moment it printed it.
+//
+// WHY IT IS READ HERE AND NOT OFF THE PAYLOAD IN THE SWITCH. The picture and
+// the number are one fact, and the only reading of the number that can be
+// checked against the picture is the one a viewer can actually see. Reading it
+// off the event would check the picture against a value that may never have
+// reached a card. `cells` arrives formatted for a viewer ("39,984"), so the
+// separators come out before it is compared with an integer.
+function noteCellsPrinted(p) {
+  if (!p || p.stage !== 'meshing' || p.cells == null) return;
+  // The card prints a SENTENCE, not a number: "39,984 cells". The digits and
+  // their group separators are taken out of it, so the comparison is against
+  // the quantity a viewer reads rather than against a string that happens to
+  // contain it. A card carrying no digits leaves the reading unset, which is
+  // an absent reading and never a silently passing one.
+  const digits = String(p.cells).match(/\d[\d,]*/);
+  if (!digits) return;
+  const n = Number(digits[0].replace(/,/g, ''));
+  if (!Number.isFinite(n)) return;
+  state.printedCells = n;
+  // A panel that is ALREADY on the stage is re-checked against the count that
+  // has only now been printed. Ordering must not be able to buy a picture past
+  // this guard: the geometry panel lands beats before the meshing card, so a
+  // check that only ran when a panel arrived would never see this number.
+  if (!panelCountsAgree()) refusePanel();
+}
 function addStageCard(p) {
+  noteCellsPrinted(p);
   const lines = stageLines(p);
   if (!lines.length) return;
   const el = document.createElement('div'); el.className = 'entry stage-card';
@@ -2019,17 +2096,75 @@ function addDigest(p) {
   $('digest').appendChild(el); $('digest').scrollTop = $('digest').scrollHeight;
 }
 // The fidelity chip: one or two words for what stands behind a number.
-// Legacy tier names from older records map onto the current chips.
-const LEGACY_CHIP = { 'TREND ONLY':'SOLVER-BACKED', 'REFERENCE REGIME MISMATCH':'SOLVER-BACKED', 'NEEDS WORK':'UNCONVERGED' };
+//
+// THE SIXTH COPY OF ONE MAPPING, AND THE LAST TO BE CORRECTED. This table used
+// to read
+//     'TREND ONLY': 'SOLVER-BACKED', 'REFERENCE REGIME MISMATCH': 'SOLVER-BACKED'
+// which is not a rename but an UPGRADE: a record graded out of tolerance
+// against a published reference, and a record with no comparison at all, both
+// came out of it wearing the stronger chip. Five Python surfaces carried the
+// same mapping and have been collapsed onto one authority, `lab.resolve_tier`,
+// which refuses at import if any legacy entry would raise a rank. This is that
+// authority's rule, in the one place it could not be imported into.
+//
+// WHY IT WENT UNSEEN FOR SO LONG, WHICH IS THE PART WORTH REMEMBERING:
+// SOLVER-BACKED is the UNLABELED default, so a weak grade did not appear as a
+// stronger word, it appeared as NOTHING AT ALL, indistinguishable from an
+// ordinary solve. The symptom of the defect was an absence.
+//
+// A RENAME MAY NOT RAISE A RANK. Lower is a stronger claim, and the ordering
+// is the Python one, kept here so an entry added later can be checked rather
+// than trusted.
+const TIER_RANK = { 'VALIDATED':0, 'SOLVER-BACKED':1,
+                    'RESEARCH MODEL':2, 'CONCEPTUAL MODEL':2,
+                    'REFERENCE REGIME MISMATCH':3, 'TREND ONLY':4,
+                    'UNCONVERGED':5, 'NEEDS WORK':5, 'TIER UNESTABLISHED':6 };
+// RENAMES ONLY: a retired spelling of a grade onto the current spelling of the
+// SAME grade. TREND ONLY and REFERENCE REGIME MISMATCH are deliberately absent
+// — no current chip means what either of them means, so they display as
+// themselves.
+const LEGACY_CHIP = { 'NEEDS WORK':'UNCONVERGED',
+                      'CONCEPTUAL MODEL':'RESEARCH MODEL' };
+for (const [from, to] of Object.entries(LEGACY_CHIP)) {
+  if (!(from in TIER_RANK) || !(to in TIER_RANK) || TIER_RANK[to] < TIER_RANK[from])
+    throw new Error('LEGACY_CHIP would raise a tier rank: ' + from + ' -> ' + to);
+}
+// A string this page cannot rank does not pass through wearing the authority
+// of a grade just because it was in the record.
+function resolveTier(tier) {
+  const text = String(tier || '').trim().toUpperCase();
+  if (!text) return 'TIER UNESTABLISHED';
+  const resolved = LEGACY_CHIP[text] || text;
+  return (resolved in TIER_RANK) ? resolved : 'TIER UNESTABLISHED';
+}
 function verdictBadge(tier) {
   if (!tier) return '';
-  const chip = LEGACY_CHIP[tier] || tier;
+  const chip = resolveTier(tier);
   // SOLVER-BACKED is the unlabeled default for this simulation platform: a
-  // real solve with no chip earns no badge. Only the tiers that say more
-  // than the baseline (VALIDATED, RESEARCH MODEL, UNCONVERGED) render.
-  if (chip === 'SOLVER-BACKED') return '';
+  // real solve with no chip earns no badge. Every tier that says something
+  // OTHER than the baseline renders its own words — including TREND ONLY and
+  // REFERENCE REGIME MISMATCH, which is the whole correction.
+  //
+  // TIER UNESTABLISHED renders NO BADGE, and that is a deliberate reading of
+  // two rules pulling opposite ways: it is the explicit absence of a grade
+  // rather than a grade, and Sanaa's never-list keeps tiers off an act screen
+  // altogether. Showing no badge makes no claim; what it must never do again
+  // is show a claim the record did not earn.
+  if (chip === 'SOLVER-BACKED' || chip === 'TIER UNESTABLISHED') return '';
   const cls = chip==='VALIDATED'?'v-validated':chip==='UNCONVERGED'?'v-needs':chip==='RESEARCH MODEL'?'v-trend':'v-regime';
   return `<span class="verdict ${cls}" title="${esc(chip)}">${esc(chip)}</span>`;
+}
+// THE CREDENTIALS WALL IS A DIFFERENT SURFACE AND MUST SAY THE ABSENCE OUT
+// LOUD. On an act screen no badge means no claim, and the never-list keeps
+// tiers off it entirely. On a wall of credentials, a card with no chip beside
+// it reads as the unlabeled default — which is precisely the confusion that
+// let five surfaces inflate weak grades unnoticed. So here the absence of a
+// grade is written, not implied.
+function credentialBadge(tier) {
+  const chip = resolveTier(tier);
+  if (chip === 'TIER UNESTABLISHED')
+    return `<span class="verdict v-regime" title="${esc(chip)}">${esc(chip)}</span>`;
+  return verdictBadge(tier);
 }
 
 // The Agents KPI counts every distinct team member the viewer has SEEN on the
@@ -2436,14 +2571,88 @@ const VIEWPORT_STAGE = {
   geometry: ['Geometry', '02 / surface'],
   grid:     ['Computational grid', '03 / mesh'],
   field:    ['Solved field', '04 / field'],
+  // The same three states, reached by a RENDERED PANEL rather than by a canvas
+  // drawing. The heads are deliberately identical: what changed is where the
+  // pixels come from, and a viewer is not being told about our plumbing.
+  bodyShot: ['Geometry', '02 / surface'],
+  gridShot: ['Computational grid', '03 / mesh'],
 };
+//: Which of the three panel states each rendered panel belongs in.
+const PANEL_STAGE = { geometry: 'bodyShot', mesh: 'gridShot',
+                      mesh_zoom: 'gridShot' };
+//: Every stage whose pixels are an image rather than a canvas.
+const IMAGE_STAGES = new Set(['field', 'bodyShot', 'gridShot']);
 function showViewportStage(stage) {
   state.viewportStage = stage;
   setHidden('viewportCanvas', stage !== 'geometry');
   setHidden('gridCanvas', stage !== 'grid');
-  setHidden('viewportField', stage !== 'field');
+  setHidden('viewportField', !IMAGE_STAGES.has(stage));
   const head = VIEWPORT_STAGE[stage];
   if (head) { $('viewportHead').textContent = head[0]; $('viewportIndex').textContent = head[1]; }
+}
+
+// =============== THE PICTURE AND THE PRINTED COUNT ARE ONE FACT =============
+//
+// WHAT THIS REPLACES AND WHAT IT HAD TO PUT BACK. The grid used to be DRAWN
+// here, one quadrilateral per cell, out of a payload sliced from the very
+// polyMesh directory the on-screen cell count cites. That coupling was the
+// safety property: a picture of some other grid could not reach the stage
+// without the number beside it moving too. This campaign has two grids whose
+// reference areas differ by a hundred, so a mesh picture sourced independently
+// of the count is exactly how lift gets misreported by 100x.
+//
+// A rendered panel breaks that coupling by construction: pixels carry no cell
+// list, and nothing about a PNG makes it the grid the numbers came from. So
+// the coupling is re-established as an assertion instead. Three readings of
+// one count have to agree before any panel is shown:
+//
+//   panelCells    what the panel's own provenance record says was rendered
+//   panelPrinted  the count the backend states the screen will print
+//   printedCells  the count this page ACTUALLY printed on the meshing card
+//
+// It REFUSES rather than warns, and the refusal is VISIBLE. A guard whose
+// failure mode is "render nothing quietly" is indistinguishable from a quiet
+// moment, and a defect whose symptom is an absence is one nobody finds.
+function panelCountsAgree() {
+  const seen = [state.panelCells, state.panelPrinted, state.printedCells]
+    .filter(v => v != null && Number.isFinite(Number(v)))
+    .map(Number);
+  return seen.every(v => v === seen[0]);
+}
+const PANEL_REFUSAL =
+  'This picture and the measured cell count disagree, so it is not shown.';
+function refusePanel() {
+  state.panelRefused = true;
+  const img = $('viewportField');
+  if (img) img.removeAttribute('src');
+  setHidden('viewportField', true);
+  setHidden('viewportCanvas', true);
+  setHidden('gridCanvas', true);
+  $('viewportStats').textContent = '';
+  $('viewportEmpty').textContent = PANEL_REFUSAL;
+  setHidden('viewportEmpty', false);
+}
+function loadMeshPanel(p) {
+  if (!p || !p.url) return;
+  // A refusal stands for the rest of the mission. Once one panel of a case has
+  // been caught disagreeing with the count, the next panel of the same case is
+  // not a fresh question.
+  if (state.panelRefused) return;
+  if (p.cells != null) state.panelCells = Number(p.cells);
+  if (p.printed_cells != null) state.panelPrinted = Number(p.printed_cells);
+  if (!panelCountsAgree()) { refusePanel(); return; }
+  const img = $('viewportField'); if (!img) return;
+  img.src = p.url;
+  showViewportStage(PANEL_STAGE[p.panel] || 'gridShot');
+  setHidden('viewportEmpty', true);
+  if (p.label) subText('viewportLabel', p.label);
+  subText('viewportCaption', p.caption || '');
+  // The count belongs under the GRID, not under the bare surface: a cell count
+  // standing under a picture of a body no one has meshed yet is a number
+  // arriving a beat before the thing it measures.
+  $('viewportStats').textContent =
+    (PANEL_STAGE[p.panel] === 'gridShot' && state.panelCells != null)
+      ? state.panelCells.toLocaleString() + ' cells' : '';
 }
 
 // THE GRID, DRAWN CELL BY CELL, not a picture of one.
@@ -3121,7 +3330,7 @@ async function loadCredentials() {
 function credCard(r) {
   const meas = r.measured!=null ? (+r.measured).toPrecision(4) : 'n/a';
   const ref = r.reference_cd!=null ? (+r.reference_cd).toPrecision(3) : 'n/a';
-  return `<div class="cred-card"><div class="cred-top"><b>${esc(title(r.name))}</b>${verdictBadge(r.tier)}</div>`
+  return `<div class="cred-card"><div class="cred-top"><b>${esc(title(r.name))}</b>${credentialBadge(r.tier)}</div>`
     + `<div class="cred-nums">measured Cd <b>${esc(meas)}</b><span class="vs">vs</span>reference Cd <b>${esc(ref)}</b>${r.wall_minutes!=null?` · ${r.wall_minutes} min`:''}</div>`
     + (r.source?`<div class="cred-src">${subHTML(r.source)}</div>`:'') + (r.reason?`<div class="cred-reason">${subHTML(r.reason)}</div>`:'') + `</div>`;
 }

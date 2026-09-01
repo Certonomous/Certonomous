@@ -268,6 +268,14 @@ TIER1_RENDERED: dict[str, tuple[tuple[str, str], ...]] = {
     # first case id reached a screen.
     "mesh.grid": (("label", "control_room.html loadGrid -> viewportLabel"),
                   ("caption", "control_room.html loadGrid -> viewportCaption")),
+    # THE RENDERED PANELS, which replaced the cell-by-cell draw as the visual
+    # source on 2026-09-01. `loadMeshPanel` writes the label into
+    # #viewportLabel and the caption into #viewportCaption, exactly as
+    # `loadGrid` did. Listed for the same reason `mesh.grid` was: a rendered
+    # surface no sweep reads is how the first case id reached a screen, and
+    # these panels are named after the case they were rendered from.
+    "mesh.panel": (("label", "control_room.html loadMeshPanel -> viewportLabel"),
+                   ("caption", "control_room.html loadMeshPanel -> viewportCaption")),
     # solveFrame feeds pushTrace: the label is the trace title AND the series
     # key. The iteration and the lift coefficient are numbers, not text.
     "solve.frame": (("label", "control_room.html solveFrame -> pushTrace title"),),

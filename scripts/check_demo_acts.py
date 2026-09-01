@@ -473,14 +473,44 @@ _EXPERT_ROLES = {"CHIEF RESEARCHER", "LEAD RESEARCHER", "CHIEF ENGINEER",
                  "LEAD ENGINEER", "NUMERICIST", "LEAD NUMERICIST"}
 
 
+#: The two ways a surface reaches the viewport, and the line is satisfied by
+#: EITHER. `geometry.ready` hands the page an STL to draw on its canvas;
+#: `mesh.panel` with panel="geometry" hands it a rendered picture of the same
+#: body, photographed off the solved case. Sanaa, 2026-09-01: "Going forward
+#: all acts use paraview." A checklist that still demanded the canvas event
+#: would fail an act for obeying that directive -- and would quietly encode the
+#: retired path as a requirement, which is how a check outlives the thing it
+#: was checking.
+def _digits(text):
+    """The count inside a screen string, or None.
+
+    The meshing card prints a SENTENCE ("39,984 cells"), not a number, so the
+    comparison below is against the quantity a viewer reads rather than against
+    a string that happens to contain it. A card with no digits gives no
+    reading, which is an absent comparison and never a silently passing one.
+    """
+    import re as _re
+
+    match = _re.search(r"\d[\d,]*", str(text or ""))
+    return int(match.group(0).replace(",", "")) if match else None
+
+
+def _is_surface(event) -> bool:
+    name = event.get("event")
+    if name == "geometry.ready":
+        return True
+    return (name == "mesh.panel"
+            and (event.get("payload") or {}).get("panel") == "geometry")
+
+
 def _limb_geometry(events, refusal, act) -> list[str]:
     problems = []
-    ready = _events_of(events, "geometry.ready")
+    ready = [e for e in events if _is_surface(e)]
     if not ready:
-        return ["no geometry.ready was published, so the viewport is given no "
-                "surface to draw at all"]
+        return ["neither geometry.ready nor a rendered surface panel was "
+                "published, so the viewport is given nothing to show at all"]
     first_stage = _first_index(events, _STAGE_ORDER_EVENT)
-    ready_at = _first_index(events, "geometry.ready")
+    ready_at = next(i for i, e in enumerate(events) if _is_surface(e))
     # "RENDERS ON LOAD" -- the enforceable half is ORDERING. Sanaa: the body is
     # on screen before the first word is spoken. The sequencer announces it
     # before the stage loop (demo_sequencer.run:386-413) precisely because the
@@ -493,11 +523,11 @@ def _limb_geometry(events, refusal, act) -> list[str]:
             "watches the opening stages over an empty geometry panel")
     payload = ready[0].get("payload") or {}
     if not _nonempty(payload.get("label")):
-        problems.append("geometry.ready carries no label, so the viewport "
-                        "caption is blank")
+        problems.append("the surface announcement carries no label, so the "
+                        "viewport caption is blank")
     if not _nonempty(payload.get("url")):
-        problems.append("geometry.ready carries no url, so the browser has no "
-                        "address to fetch the surface from")
+        problems.append("the surface announcement carries no url, so the "
+                        "browser has no address to fetch it from")
     if len(ready) > 1:
         # Two announcements of one body is two fetches and a second viewport
         # cycle. The sequencer guards against it with `self._announced`.
@@ -639,17 +669,44 @@ def _limb_mesh(events, refusal, act) -> list[str]:
         problems.append(
             "the real mesher did not run, so the cell count on screen is a "
             "number the act declared rather than a grid anybody built")
-    # `drawn` is True only when a cell-by-cell grid payload could be produced.
-    if not m.get("drawn"):
-        problems.append(
-            "no cell-by-cell grid was drawn, so 'mesh shown as real cells' is "
-            "not what the screen does; it shows a cell COUNT")
+    # TWO WAYS THE GRID CAN BE SHOWN AS REAL CELLS, and the line is satisfied
+    # by either. `drawn` reports the cell-by-cell canvas draw; `pictured`
+    # reports that the grid reached the screen at all, which is now normally a
+    # ParaView panel rendered off the case's own polyMesh. Sanaa retired the
+    # canvas as a visual source on 2026-09-01, so a checklist that only knew
+    # about the draw would fail an act for obeying her.
+    #
+    # WHAT IS STILL ENFORCED, AND IT IS THE PART THAT MATTERS. The old draw was
+    # sliced out of the same polyMesh the on-screen count cites, so the picture
+    # could not be of another grid without the number moving too. A rendered
+    # panel carries no cell list, so the coupling is checked instead: the
+    # panel's own count must equal the count the meshing card prints. This
+    # campaign holds two grids on reference areas differing by a hundred, and
+    # that equality is what keeps them off one screen.
+    panels = [p for p in _payloads_of(events, "mesh.panel")
+              if str(p.get("panel") or "").startswith("mesh")]
     grid = _payloads_of(events, "mesh.grid")
-    if not grid:
-        problems.append("no mesh.grid was published, so the viewport never "
-                        "receives cells to draw")
-    elif not grid[0].get("cells"):
+    if not m.get("drawn") and not m.get("pictured"):
+        problems.append(
+            "no grid reached the viewport, so 'mesh shown as real cells' is "
+            "not what the screen does; it shows a cell COUNT")
+    if not grid and not panels:
+        problems.append("neither mesh.grid nor a rendered grid panel was "
+                        "published, so the viewport never receives a grid")
+    elif grid and not grid[0].get("cells"):
         problems.append("mesh.grid carries no cell count")
+    elif panels:
+        printed = _digits(m.get("cells"))
+        for panel in panels:
+            shown = panel.get("cells")
+            if not shown:
+                problems.append("a rendered grid panel carries no cell count, "
+                                "so nothing ties the picture to the number")
+            elif printed is not None and int(shown) != printed:
+                problems.append(
+                    f"a rendered grid panel records {int(shown):,} cells while "
+                    f"the meshing card prints {printed:,}; the picture and the "
+                    f"number beside it are two different grids")
     res = [t for t in _payloads_of(events, "transcript.table")
            if "resolution" in str(t.get("table_id") or "").lower()
            or "resolution" in str(t.get("title") or "").lower()]
@@ -1088,7 +1145,14 @@ SURFACE_PLANTS: tuple[tuple[str, str, bool], ...] = (
     ("report.ready", "abstract", True),
     ("transcript.entry", "message", False),
     ("plot.ready", "caption", False),
-    ("geometry.ready", "label", False),
+    # THE VIEWPORT LABEL, BY WHICHEVER ROUTE THIS ACT USES. A surface reaches
+    # the panel either as an STL announcement the canvas draws, or as a
+    # rendered picture of the solved case; both write the same element. The
+    # plant is made on whichever the act publishes, because an entry naming
+    # only the retired route would report "cannot be shown able to read" and
+    # look like blindness when it is only absence — and an entry naming only
+    # the new route would go quiet on every act still using the old one.
+    (("geometry.ready", "mesh.panel"), "label", False),
     ("transcript.table", "title", False),
     ("demo.results", "solver", False),
 )
@@ -1102,10 +1166,65 @@ def _plant_drop_event(name):
     return mutate
 
 
+def _plant_drop_surface(events):
+    """Announce no surface at all, by EITHER route.
+
+    A plant aimed at one of the two announcements would stop firing the moment
+    an act moved to the other, and a plant that no longer fires is a check that
+    is no longer being tested. Both go.
+    """
+    return [e for e in events if not _is_surface(e)]
+
+
+def _plant_drop_grid(events):
+    """Let no grid reach the viewport, by EITHER route, and say so on the card.
+
+    Dropping the events alone is not enough: the meshing card publishes
+    ``drawn``/``pictured``, and the limb reads those first, so a stream with
+    the grid events removed and the flags still True would fail for the right
+    reason by luck rather than by construction.
+    """
+    out = []
+    for event in copy.deepcopy(events):
+        name = event.get("event")
+        if name == "mesh.grid" or (
+                name == "mesh.panel"
+                and str((event.get("payload") or {}).get("panel") or ""
+                        ).startswith("mesh")):
+            continue
+        if name == "demo.mesh":
+            payload = event.get("payload") or {}
+            payload["drawn"] = False
+            payload["pictured"] = False
+        out.append(event)
+    return out
+
+
+def _plant_grid_count_mismatch(events):
+    """Put the OTHER grid's count on the picture and leave the card alone.
+
+    This is the 39,984-versus-46,180 case in miniature: two grids on reference
+    areas differing by a hundred, so a picture of one captioned with the
+    other's number misreports lift by that ratio. The canvas draw made this
+    impossible by construction, because it was sliced from the polyMesh the
+    count cites; a rendered panel makes it possible again, and the check that
+    replaces the construction is only worth something if it has been seen to
+    fire.
+    """
+    out = copy.deepcopy(events)
+    for event in out:
+        if event.get("event") != "mesh.panel":
+            continue
+        payload = event.get("payload") or {}
+        if str(payload.get("panel") or "").startswith("mesh"):
+            payload["cells"] = 46180
+    return out
+
+
 def _plant_move_geometry_late(events):
     """Announce the surface after the walk has started."""
-    out = [e for e in events if e.get("event") != "geometry.ready"]
-    ready = [e for e in events if e.get("event") == "geometry.ready"]
+    out = [e for e in events if not _is_surface(e)]
+    ready = [e for e in events if _is_surface(e)]
     if not ready:
         return out
     at = next((i for i, e in enumerate(out)
@@ -1227,8 +1346,7 @@ def _plant_no_convergence(events):
 STRUCTURAL_PLANTS: tuple[tuple[str, str, object], ...] = (
     ("stl", "the surface is announced after the walk has started",
      _plant_move_geometry_late),
-    ("stl", "no surface is announced at all",
-     _plant_drop_event("geometry.ready")),
+    ("stl", "no surface is announced at all", _plant_drop_surface),
     ("stages", "two stages swap places in the header",
      _plant_scramble_stages),
     ("discussion", "one voice speaks instead of a discussion",
@@ -1238,8 +1356,9 @@ STRUCTURAL_PLANTS: tuple[tuple[str, str, object], ...] = (
     ("discussion", "the assumptions stop saying which side each number came "
                    "from", _plant_no_user_lab_split),
     ("mesh", "the mesher did not run and nothing was drawn", _plant_unmeshed),
-    ("mesh", "the grid never reaches the viewport",
-     _plant_drop_event("mesh.grid")),
+    ("mesh", "the grid never reaches the viewport", _plant_drop_grid),
+    ("mesh", "the grid picture is of a different grid than the count",
+     _plant_grid_count_mismatch),
     ("monitors", "the sweep points run one after another, not together",
      _plant_sequential_sweep),
     ("monitors", "no monitors are published at all",
@@ -1342,12 +1461,19 @@ def checklist_selftest() -> int:
     # is planted on each surface a viewer actually reads, and each must be
     # seen by BOTH sweeps.
     for name, key, is_list in SURFACE_PLANTS:
-        at = _first_index(host_events, name)
+        # A name may be a GROUP of alternative routes onto one element. The
+        # plant lands on whichever the act publishes; it is invisible only when
+        # the act publishes none of them.
+        names = (name,) if isinstance(name, str) else tuple(name)
+        at = next((i for i in (_first_index(host_events, n) for n in names)
+                   if i is not None), None)
         if at is None:
             invisible.append(
-                f"[surface] no {name} event exists in the {host_key} stream, "
-                f"so the sweep cannot be shown able to read {name}.{key}")
+                f"[surface] no {' or '.join(names)} event exists in the "
+                f"{host_key} stream, so the sweep cannot be shown able to "
+                f"read its {key}")
             continue
+        name = host_events[at].get("event")
         salted = copy.deepcopy(host_events)
         text = "The prior runs are already done in tier 2"
         if is_list:

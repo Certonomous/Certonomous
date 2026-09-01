@@ -265,7 +265,14 @@ function newPage(src = source) {
     const names = Object.keys(sandbox);
     const fn = new Function(...names,
       src + '\n;return { dispatch, resetMission, state, revealQ, renderAgendaDocket, '
-          + 'uploadSurface, launchMission, resumeMission };');
+          + 'uploadSurface, launchMission, resumeMission, '
+          // The fidelity chip is rendered into an element that is APPENDED to
+          // the feed, and this stub's appendChild is a no-op, so the chip
+          // cannot be read back off the DOM the way #viewportLabel can. The
+          // renderer itself is exported instead: it is the one function all
+          // four call sites in the page go through, so a check on it is a
+          // check on every surface that shows a chip.
+          + 'verdictBadge, credentialBadge };');
     api = fn(...names.map(n => sandbox[n]));
   } catch (err) {
     console.error('FAIL: the page script did not evaluate: ' + err.message);
@@ -1339,6 +1346,196 @@ const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, ''
       check(false, 'PLANTED CONTROL DEAD: the mesh.grid dispatch line could ' +
                    'not be found to mutate, so the grid checks prove nothing');
     }
+  }
+
+  // ------------------------- the rendered panel, and the count it must match
+  // WHAT CHANGED AND WHY IT NEEDS A NEW CHECK. The grid used to be DRAWN here
+  // from a payload sliced out of the very polyMesh directory the on-screen cell
+  // count cites, so a picture of some other grid could not reach the stage
+  // without the number beside it moving too. This campaign has two grids on
+  // reference areas differing by a hundred, and that coupling is the guard that
+  // keeps them apart. A rendered panel carries no cell list, so the coupling
+  // survives as an ASSERTION instead: the panel's own provenance count, the
+  // count the backend says will be printed, and the count this page ACTUALLY
+  // printed must all agree, or the panel is refused.
+  //
+  // BOTH LIMBS ARE PLANTED. A guard exercised only against the bad case is half
+  // a guard: it cannot tell "refuses a mismatch" from "renders nothing ever".
+  {
+    const panel = (over) => Object.assign({
+      stage: 'meshing', panel: 'mesh', url: '/api/plot/demo-panels/grid.png',
+      cells: 39984, printed_cells: 39984,
+      label: 'the grid the numbers on this screen are computed on',
+      caption: '39,984 cells.' }, over || {});
+    const card = (cells) => ({ stage: 'meshing', banner: 'meshing', cells,
+                               zoom: 'the wall layers at the trailing-edge slot' });
+    // `events` are driven in the order given, then the queue is drained.
+    const drivePanels = async (events, src) => {
+      const p = newPage(src);
+      p.api.resetMission();
+      let t = 1000;
+      for (const [event, payload] of events)
+        p.api.dispatch({ event, payload, timestamp: t++ });
+      for (let i = 0; i < 8; i++) { p.drain(60000); await new Promise(r => setImmediate(r)); }
+      return { src: String(p.byId('viewportField').getAttribute('src') || p.byId('viewportField').src || ''),
+               shown: p.byId('viewportField').hidden === false,
+               empty: p.byId('viewportEmpty').hidden === false,
+               emptyText: String(p.byId('viewportEmpty').textContent || ''),
+               stats: String(p.byId('viewportStats').textContent),
+               head: String(p.byId('viewportHead').textContent),
+               label: String(p.byId('viewportLabel').textContent),
+               canvas: p.byId('viewportCanvas').hidden === false,
+               refused: p.api.state.panelRefused === true };
+    };
+
+    // -- LIMB ONE: the honest pair renders. Run FIRST, because a reader that
+    //    has not been seen to say yes cannot be believed when it says no.
+    const good = await drivePanels([
+      ['demo.mesh', card('39,984 cells')],
+      ['mesh.panel', panel()],
+    ]);
+    check(good.shown && /grid\.png$/.test(good.src),
+          `the honest panel did not reach the stage (shown ${good.shown}, ` +
+          `src ${JSON.stringify(good.src)})`);
+    check(good.stats === '39,984 cells',
+          `the panel's cell count did not reach #viewportStats, which read ` +
+          `${JSON.stringify(good.stats)}`);
+    check(good.head === 'Computational grid',
+          `the panel head did not follow the stage: ${JSON.stringify(good.head)}`);
+    check(!good.canvas,
+          'the geometry canvas is still the visible layer under a rendered panel');
+    check(!good.refused && !good.empty,
+          'the honest pair was refused: a guard that refuses everything is ' +
+          'not a guard');
+
+    // -- LIMB TWO: a panel claiming the OTHER grid's count is REFUSED, and the
+    //    refusal is VISIBLE. A guard whose failure mode is "render nothing
+    //    quietly" is indistinguishable from a quiet moment.
+    const bad = await drivePanels([
+      ['demo.mesh', card('39,984 cells')],
+      ['mesh.panel', panel({ cells: 46180, printed_cells: 46180 })],
+    ]);
+    check(bad.refused, 'a panel whose count is not the printed count was not refused');
+    check(!bad.shown && !/grid\.png/.test(bad.src),
+          `the mismatched panel is on the stage anyway (shown ${bad.shown}, ` +
+          `src ${JSON.stringify(bad.src)})`);
+    check(bad.empty && /disagree/.test(bad.emptyText),
+          `the refusal is not on screen: the panel reads ` +
+          `${JSON.stringify(bad.emptyText)}. A refusal nobody can see is an ` +
+          `absence, and an absence is what hid this class of defect for months`);
+    check(bad.stats === '',
+          `a refused panel still prints a cell count: ${JSON.stringify(bad.stats)}`);
+
+    // -- ORDERING MUST NOT BUY A PICTURE PAST THE GUARD. The surface panel
+    //    lands beats BEFORE the meshing card prints anything, so a check that
+    //    only ran when a panel arrived would never see the number.
+    const late = await drivePanels([
+      ['mesh.panel', panel({ panel: 'geometry', url: '/api/plot/demo-panels/surface.png',
+                             cells: 46180, printed_cells: 46180 })],
+      ['demo.mesh', card('39,984 cells')],
+    ]);
+    check(late.refused && !late.shown,
+          `a panel that arrived BEFORE the count was printed stayed on screen ` +
+          `once the count contradicted it (shown ${late.shown})`);
+
+    // -- A REFUSAL BELONGS TO ONE MISSION. Left standing it would accuse the
+    //    next act with the last one's sentence.
+    {
+      const p = newPage();
+      p.api.resetMission();
+      p.api.dispatch({ event: 'demo.mesh', payload: card('39,984 cells'), timestamp: 1 });
+      p.api.dispatch({ event: 'mesh.panel', payload: panel({ cells: 46180, printed_cells: 46180 }), timestamp: 2 });
+      for (let i = 0; i < 8; i++) { p.drain(60000); await new Promise(r => setImmediate(r)); }
+      check(p.api.state.panelRefused === true, 'the refusal did not fire before the reset check');
+      p.api.resetMission();
+      check(p.api.state.panelRefused === false &&
+            !/disagree/.test(String(p.byId('viewportEmpty').textContent)),
+            `a refusal survived resetMission and would stand over the next act: ` +
+            JSON.stringify(String(p.byId('viewportEmpty').textContent)));
+    }
+
+    // -- PLANTED CONTROL ON THE HANDLER ITSELF. `mesh.panel` is a new type and
+    //    this page's switch sends an unknown type to a counter that draws
+    //    nothing, so a case that was never added would render nothing and say
+    //    nothing. Take the case away and the LIMB ONE checks must go red.
+    const blind = mutate("    case 'mesh.panel': enqueue('meshPanel', p, ts); break;",
+                         "    case 'mesh.panel.disabled': enqueue('meshPanel', p, ts); break;");
+    if (blind) {
+      const dead = await drivePanels([
+        ['demo.mesh', card('39,984 cells')],
+        ['mesh.panel', panel()],
+      ], blind);
+      check(!dead.shown && dead.stats !== '39,984 cells',
+            'PLANTED CONTROL DEAD: removing the mesh.panel case still put the ' +
+            'panel on the stage, so these checks are not testing the handler');
+      check(dead.src === '' || !/grid\.png/.test(dead.src),
+            'PLANTED CONTROL DEAD: the panel image was still loaded with no ' +
+            'handler for its event');
+    } else {
+      check(false, 'PLANTED CONTROL DEAD: the mesh.panel dispatch line could ' +
+                   'not be found to mutate, so the panel checks prove nothing');
+    }
+
+    // -- PLANTED CONTROL ON THE REFUSAL. Force the comparison to pass and the
+    //    mismatched panel must render, which is what proves LIMB TWO is
+    //    testing the assertion rather than some unrelated absence.
+    const noGuard = mutate('function panelCountsAgree() {',
+                           'function panelCountsAgree() { return true;');
+    if (noGuard) {
+      const leaked = await drivePanels([
+        ['demo.mesh', card('39,984 cells')],
+        ['mesh.panel', panel({ cells: 46180, printed_cells: 46180 })],
+      ], noGuard);
+      check(leaked.shown && /grid\.png/.test(leaked.src) && !leaked.refused,
+            'PLANTED CONTROL DEAD: with the count assertion forced true, the ' +
+            'mismatched panel STILL did not render, so the refusal check is ' +
+            'not testing the assertion');
+    }
+  }
+
+  // ---------------------------------- the fidelity chip may not raise a rank
+  // The sixth copy of a mapping five Python surfaces have already had removed:
+  // 'TREND ONLY' and 'REFERENCE REGIME MISMATCH' were rendered as
+  // 'SOLVER-BACKED', which is not a rename but an upgrade. SOLVER-BACKED is the
+  // UNLABELED default, so the symptom was not a wrong word on screen -- it was
+  // NO WORD AT ALL, indistinguishable from an ordinary solve.
+  {
+    const p = newPage();
+    const badge = tier => String(p.api.verdictBadge(tier) || '');
+    check(/TREND ONLY/.test(badge('TREND ONLY')),
+          `a TREND ONLY record renders ${JSON.stringify(badge('TREND ONLY'))}: ` +
+          `the screen is still grading it as something other than what it is`);
+    check(!/SOLVER-BACKED/.test(badge('TREND ONLY')) &&
+          !/SOLVER-BACKED/.test(badge('REFERENCE REGIME MISMATCH')),
+          'a retired grade is still being renamed onto SOLVER-BACKED, which ' +
+          'is an upgrade rather than a rename');
+    check(/REFERENCE REGIME MISMATCH/.test(badge('REFERENCE REGIME MISMATCH')),
+          `a REFERENCE REGIME MISMATCH record renders ` +
+          `${JSON.stringify(badge('REFERENCE REGIME MISMATCH'))}`);
+    check(/UNCONVERGED/.test(badge('NEEDS WORK')),
+          `the one legitimate rename, NEEDS WORK to UNCONVERGED, was lost: ` +
+          `${JSON.stringify(badge('NEEDS WORK'))}`);
+    // THE CONTROL ON THE CONTROL: a genuine SOLVER-BACKED record must still
+    // render exactly as it did before, with no chip at all. A fix that put a
+    // badge on everything would be as wrong as the upgrade it replaced.
+    check(badge('SOLVER-BACKED') === '',
+          `a genuine SOLVER-BACKED record picked up a chip it never had ` +
+          `(${JSON.stringify(badge('SOLVER-BACKED'))}): the unlabeled default ` +
+          `is this platform's baseline and must be left alone`);
+    check(badge('VALIDATED').includes('VALIDATED'),
+          'a VALIDATED record lost its chip');
+    // A string this page cannot rank does not pass through wearing a grade.
+    check(badge('MOSTLY FINE') === '',
+          `an unranked string reached the screen as a tier: ` +
+          `${JSON.stringify(badge('MOSTLY FINE'))}`);
+    // THE CREDENTIALS WALL IS A DIFFERENT SURFACE. There an absent grade must
+    // be WRITTEN, because a card with no chip reads as the unlabeled default,
+    // which is the exact confusion that hid the upgrade on five surfaces.
+    check(/TIER UNESTABLISHED/.test(String(p.api.credentialBadge(null) || '')),
+          'a credential card with no establishable tier renders no words, so ' +
+          'it reads as an ordinary solve');
+    check(String(p.api.credentialBadge('SOLVER-BACKED') || '') === '',
+          'the credentials wall started badging the baseline');
   }
 
   // ------------------------------------------------------- per-event cost

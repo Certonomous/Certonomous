@@ -406,11 +406,28 @@ class Sequencer:
         except Exception:                                      # noqa: BLE001
             body = None       # the geometry stage will raise it properly, there
         if body is not None:
-            from . import announce_geometry
+            # THE PANEL FIRST, AND THE CANVAS ONLY WHERE THERE IS NO PANEL.
+            # Sanaa, 2026-09-01: "Going forward all acts use paraview." A
+            # `geometry.ready` announcement is fetched and DRAWN by the page's
+            # canvas; a rendered panel is the same body photographed off the
+            # solved case. Where the act's cited grid has renders beside it the
+            # canvas never runs, and where it has none the old path is left
+            # exactly as it was rather than taking a working screen off the air.
+            shown = None
+            try:
+                shown = self._publish_panel(
+                    emit, self.act.mesh_plan(), "geometry", stage="geometry",
+                    label=body.display_label)
+            except SequencerRefused:
+                raise
+            except Exception:                                  # noqa: BLE001
+                shown = None      # the geometry stage will raise it properly
+            if shown is None:
+                from . import announce_geometry
 
-            announce_geometry(emit, name=body.served_stl.name,
-                              label=body.display_label,
-                              url=self._stage_surface(body))
+                announce_geometry(emit, name=body.served_stl.name,
+                                  label=body.display_label,
+                                  url=self._stage_surface(body))
             self._announced = True
 
         for stage in STAGES:
@@ -752,19 +769,49 @@ class Sequencer:
                        headers=list(mesh.resolution_headers),
                        rows=[list(r) for r in mesh.resolution_rows],
                        table_id="mesh_resolution")
-        grid = self._grid_payload(mesh)
+        # THE RENDERED PANELS COME FIRST AND THE CANVAS ONLY WHERE THERE ARE
+        # NONE. The cell-by-cell draw is retired as a visual source by
+        # directive; :meth:`_panel` re-establishes, as an assertion, the
+        # count-to-picture coupling that the draw held by construction. The
+        # canvas payload is still built for an act whose cited grid carries no
+        # renders, because showing no grid at all would be a worse screen than
+        # the one being replaced.
+        printed = _as_count(mesh.cell_count.value)
+        wide = self._panel(mesh, "mesh")
+        close = self._panel(mesh, "mesh_zoom")
+        panels = [p for p in (wide, close) if p is not None]
+        grid = self._grid_payload(mesh) if not panels else None
         payload = {
             "stage": "meshing",
             "cells": mesh.cell_count.on_screen(),
             "zoom": mesh.wall_zoom_hint,
             "meshed": live_cells is not None,
+            # ``drawn`` still reports the cell-by-cell DRAW and nothing else, so
+            # it stays False when the grid is shown as a rendered panel. That is
+            # not a downgrade of the screen: ``pictured`` is the key that says
+            # the viewer saw the grid, and keeping the two apart is what stops a
+            # later reader concluding the canvas ran when it did not.
             "drawn": grid is not None,
+            "pictured": grid is not None or bool(panels),
         }
         if live_cells is not None:
             payload["meshed_cells"] = f"{live_cells:,}"
         published = self._publish(emit, "demo.mesh", payload)
         if grid is not None:
             self._publish(emit, "mesh.grid", dict(grid, stage="meshing"))
+        # THE REVEAL IS PRESERVED BY SEQUENCING FRAMES. The draw built outward
+        # off the wall, held, then eased into the slot; two panels published in
+        # order are the same three beats -- the whole grid, then the wall layers
+        # at the slot -- and the page holds each one on its own beat.
+        label = "the grid the numbers on this screen are computed on"
+        if wide is not None:
+            self._publish(emit, "mesh.panel", dict(
+                wide, stage="meshing", label=label,
+                caption=f"{printed:,} cells." if printed is not None else ""))
+        if close is not None:
+            self._publish(emit, "mesh.panel", dict(
+                close, stage="meshing", label=label,
+                caption=f"Closing on {mesh.wall_zoom_hint}."))
         return published
 
     #: Where a served grid is written. Under the output root because that is
@@ -831,6 +878,159 @@ class Sequencer:
             "caption": f"{payload['cells']:,} cells, drawn one at a time, "
                        f"closing on {mesh.wall_zoom_hint}.",
         }
+
+    # -- the rendered panels ------------------------------------------------
+    #: Where a served ParaView panel is written. Under the output root because
+    #: that is the only tree the control-room server serves from, and it is a
+    #: served COPY of a run's render rather than the run's own tree -- nothing
+    #: here ever writes into a landed case.
+    PANEL_DIR = "demo-panels"
+
+    #: The panels a case's ParaView render writes, and the screen-safe name
+    #: each is served under. The rendered files are named after their case, and
+    #: a case id is on the never-list; the served copy therefore carries a name
+    #: a viewer could read without learning anything internal.
+    PANEL_NAMES = {"geometry": "surface", "mesh": "grid",
+                   "mesh_zoom": "grid_zoom",
+                   "field_u": "field_velocity", "field_p": "field_pressure"}
+
+    def _panel(self, mesh, panel: str, namespace: str | None = None) -> dict | None:
+        """One rendered panel of the SOLVED case, or a refusal, or nothing.
+
+        WHAT THIS REPLACES, AND THE PROPERTY IT HAD TO PUT BACK.
+        :meth:`_grid_payload` derived the grid from ``MeshPlan.cell_count.source``
+        -- the same artifact the on-screen cell count cites -- and that coupling
+        is what made a wrong-grid picture impossible without the printed count
+        moving too. It IS the 39,984-versus-46,180 guard: two grids on
+        reference areas of 0.01 and 1.0, so mixing them misreports lift by a
+        hundred.
+
+        A rendered image cannot carry a cell list, so the coupling cannot
+        survive as construction. It survives as an ASSERTION over three
+        independent readings of one number, and this refuses unless all three
+        agree:
+
+          * the count the act PRINTS (``cell_count.value``);
+          * the count the polyMesh the act cites actually holds, read off
+            ``owner`` here and now (:meth:`_live_cell_count`);
+          * the count the panel's own provenance sidecar records.
+
+        The sidecar's declared case must also be the case the count cites, so a
+        panel rendered from a neighbouring run cannot be served under this
+        one's number.
+
+        THE PANEL IS FOUND THROUGH THE CITED ARTIFACT, never through a path of
+        its own. The paraview directory is located from ``cell_count.source``,
+        so pointing the act at another case moves the count and the pictures
+        together, exactly as before.
+
+        Returns ``None`` for anything it cannot do honestly -- no cited mesh, no
+        render beside it -- and RAISES for anything it can measure and finds
+        wrong. The difference matters: an act with no panels is an act with no
+        panels, and an act whose panel disagrees with its own number is a
+        finding.
+        """
+        import json
+        import shutil
+
+        source = getattr(mesh.cell_count, "source", None)
+        if source is None:
+            return None
+        poly = Path(source)
+        if poly.name != "polyMesh" or not poly.is_dir():
+            return None
+        case = poly.parent.parent
+        shot = case / "paraview" / f"{case.name}_{panel}.png"
+        side = shot.with_suffix(".json")
+        if not (shot.is_file() and side.is_file()):
+            return None
+
+        printed = _as_count(mesh.cell_count.value)
+        if printed is None:
+            raise SequencerRefused(
+                "the act's declared cell count cannot be read as a number, so "
+                "the picture cannot be checked against it")
+        try:
+            record = json.loads(side.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            raise SequencerRefused(
+                "a rendered panel has no readable provenance beside it; a "
+                "picture whose grid cannot be named does not go on camera"
+            ) from None
+        claimed = record.get("cells")
+        if not isinstance(claimed, int) or claimed != printed:
+            raise SequencerRefused(
+                f"the rendered panel records {claimed} cells and the screen "
+                f"prints {printed:,}; the picture and the number beside it "
+                f"are two different grids")
+        declared = record.get("case")
+        if declared is None or Path(declared).resolve() != case.resolve():
+            raise SequencerRefused(
+                "the rendered panel names a case other than the one the "
+                "on-screen cell count is read from; the picture and the "
+                "number would describe two different runs")
+        # Cached per case: `owner` lists one label per face, so on this grid it
+        # is 79,000 lines, and five panels would read it five times for one
+        # answer that cannot change between them.
+        cache = getattr(self, "_disk_cells", None)
+        if cache is None:
+            cache = self._disk_cells = {}
+        key = str(case.resolve())
+        if key not in cache:
+            cache[key] = self._live_cell_count(case)
+        on_disk = cache[key]
+        if on_disk != printed:
+            raise SequencerRefused(
+                f"the grid the screen cites now holds {on_disk:,} cells and "
+                f"the screen prints {printed:,}; the panel was rendered "
+                f"before the case it cites changed under it")
+
+        from . import OUT_ROOT
+
+        # THE ACT'S OWN NAMESPACE WHEN THE PANEL IS ANNOUNCED AS ONE OF ITS
+        # FIGURES. A figure served from somewhere other than the namespace the
+        # act declares is the 404 this package fixed today: the address the
+        # screen publishes and the directory the file is in have to be the same
+        # place, and the guard that says so reads every announced figure's URL.
+        # The mesh and surface panels are the SEQUENCER's, not the act's, and
+        # keep the panel store.
+        out = Path(OUT_ROOT) / (namespace or self.PANEL_DIR)
+        out.mkdir(parents=True, exist_ok=True)
+        served = self.PANEL_NAMES.get(panel, panel)
+        shutil.copy2(shot, out / f"{served}.png")
+        # THE PROVENANCE TRAVELS WITH THE PICTURE. The sidecar is copied beside
+        # the served panel, so the case, the time and the cell count behind
+        # what is on screen are readable from the served root at
+        # /api/field/demo-panels/<name>.json. It is deliberately NOT published
+        # on the wire: it carries a case path, and a case path may not reach a
+        # payload that renders.
+        shutil.copy2(side, out / f"{served}.json")
+        return {
+            "url": f"/api/plot/{namespace or self.PANEL_DIR}/{served}.png",
+            "panel": panel,
+            # Both numbers travel so the DISPLAY can make the same assertion
+            # this method just made. A guard that only ever runs on the
+            # publishing side cannot see a payload edited on the way out.
+            "cells": claimed,
+            "printed_cells": printed,
+        }
+
+    def _publish_panel(self, emit, mesh, panel: str, *, stage: str,
+                       label: str = "", caption: str = "") -> dict | None:
+        """Put one rendered panel on the stage, if the act has one.
+
+        ``stage`` is the beat the panel belongs to, not a constant: the banner
+        every payload carries is composed from it, so a surface published under
+        the meshing stage would be announced with the mesher's words.
+        """
+        payload = self._panel(mesh, panel)
+        if payload is None:
+            return None
+        if label:
+            payload["label"] = label
+        if caption:
+            payload["caption"] = caption
+        return self._publish(emit, "mesh.panel", dict(payload, stage=stage))
 
     def _stage_feasibility(self, emit, script, record) -> dict:
         f = self.act.feasibility()
@@ -989,6 +1189,53 @@ class Sequencer:
             announce_plot(emit, namespace, figure.path,
                           figure.title, figure.caption,
                           field=Path(figure.path) in field_paths)
+        # THE SOLVED FIELDS, RENDERED FROM THE CASE, ON THE EXISTING RASTER
+        # PATH. No new plumbing: `field.ready`'s stage state is already an
+        # <img> fed by a URL, so a rendered panel needs only to be served and
+        # announced. They go LAST so the stage closes on the flow rather than
+        # on a graph, which is the order Sanaa's panel sequence ends in.
+        #
+        # Guarded exactly as the mesh panels are -- :meth:`_panel` refuses a
+        # picture whose provenance disagrees with the count the screen prints --
+        # so a field picture cannot arrive from a grid the numbers did not come
+        # from. The wording is deliberately the sequencer's own and plain: these
+        # panels are found generically, beside whatever grid the act cites, so
+        # an act-specific sentence written here would be a sentence about a
+        # picture this method has not read.
+        try:
+            mesh = self.act.mesh_plan()
+        except Exception:                                      # noqa: BLE001
+            mesh = None
+        if mesh is not None:
+            # PRESSURE FIRST AND VELOCITY LAST, and the order is a looked-at
+            # decision rather than an alphabetical one. The last field
+            # announced is the one left standing on the stage, and the two do
+            # not read equally well: the pressure panel's diverging scale is
+            # symmetric about zero over the full data range, so a near-slot
+            # extremum flattens the whole section into pale tints, while the
+            # velocity panel shows the jet leaving the slot and turning the
+            # wake. Both are honest and both carry their scale; only one of
+            # them is worth the beat a viewer spends looking at it.
+            fields = (
+                ("field_p", "Solved pressure field",
+                 "Pressure over the solved section, on the grid the numbers "
+                 "come from."),
+                ("field_u", "Solved velocity field",
+                 "Velocity magnitude over the solved section, on the grid "
+                 "the numbers come from."),
+            )
+            # The namespace is the ACT'S, taken from a figure it declares, so a
+            # panel announced beside the act's own figures is served from the
+            # same directory they are. Derived rather than constant: see
+            # :func:`figure_namespace` for what a constant here cost.
+            declared = list(r.fields) + list(r.plots)
+            space = figure_namespace(declared[0]) if declared else self.PANEL_DIR
+            for panel, title, caption in fields:
+                shot = self._panel(mesh, panel, namespace=space)
+                if shot is None:
+                    continue
+                announce_plot(emit, space, Path(shot["url"]).name,
+                              title, caption, field=True)
         if script is not None:
             for table in r.tables:
                 emit_table(emit, script, role=table.role,
