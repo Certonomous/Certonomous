@@ -531,3 +531,124 @@ to match.** Any difference is reported, never absorbed.
 |---|---|
 | ~~`cases/dafoam/run_a2gc.sh` — `bd2e764ba92d7707539c900c7e1a91f6`~~ **STRUCK** | superseded by this amendment |
 | `cases/dafoam/run_a2gc.sh` (v1.2) | **`f3baba360a50c8b7592d0a50142d5e28`** |
+
+---
+
+# RESULTS ADDENDUM — 2026-09-01T16:52:14Z — after first compute
+
+**Version 1.2 -> 1.3. Lines whose number changed above this section: 0.**
+Gates, thresholds, caps, the p-band and every label of §1-§12 are **UNCHANGED**.
+This addendum records measurements and **alters nothing that could be graded**.
+
+## R1. L1 — measured, and reproduced bit-identically on two independent runs
+
+| quantity | L1 measured (np=12) | reference | agreement |
+|---|---|---|---|
+| cells | **38,304** | 38,304 predicted | **exact** — similar at L1 |
+| CD at fixed CL | **0.02961982052** | 0.02962051221 published (np=4) | **0.00234 %** |
+| CL | **0.4999996084** | 0.500 target | \|CL-0.5\| = **3.92e-07** vs 5e-4 -> trim **PASS** |
+| AoA (solved-for) | **4.326120747 deg** | 4.32612781 deg published | **7.06e-06 deg** |
+| y+ min/max/mean | **67.17 / 1281.52 / 321.63** | 68.79 / 1266.55 / 321.95 recorded | confirms wall-modelled |
+| worst `initRes` | **7.1566e-06** | registered gate 1e-8 | **GATE FAIL** (see R4) |
+| worst `finalRes` | 4.2364e-07 | — | the linear-solve residual, not the gate |
+
+**Reproduction control, unplanned and free:** runs `L1_attempt3_CAPSTOP` and `L1`
+returned CD, CL and AoA **identical to every printed digit** — 0.02961982052 /
+0.4999996084 / 4.326120747. Two independent container launches, same answer.
+
+## R2. The cost anchor was in the WRONG UNIT, and the correction is 20x
+
+An earlier reading of this run divided cumulative `ExecutionTime` by a primal
+count and reported "38.1 core-min per cold primal". **That is wrong and is
+recorded as wrong.** `Time = 1` occurs **six** times in L1's log — six primal
+solves — and `ExecutionTime` is a **cumulative process clock that never resets
+across them**. Dividing it by a primal count produces a number that means nothing.
+
+**The transferable quantity is s/SIMPLE-iteration**, measured per solve:
+
+| solve | iterations | ExecutionTime span | s/iter (np=12) | core-s/iter |
+|---|---|---|---|---|
+| 1 (cold) | 1000 | 72.26 s | 0.07233 | 0.868 |
+| 2 | 1000 | 9.34 s | 0.00935 | 0.112 |
+| 3 | 1000 | 9.55 s | 0.00956 | 0.115 |
+| 4 | 1000 | 9.44 s | 0.00945 | 0.113 |
+| 5 | 1000 | 53.77 s | 0.05382 | 0.646 |
+| 6 | 1000 | 29.01 s | 0.02904 | 0.349 |
+
+**Warm steady-state rate: 0.00945 s/iteration at np=12 on 38,304 cells
+(0.1134 core-s/iteration)** — solves 2-4 agree to within 2 %. A 1000-iteration
+primal is therefore **1.89 core-min**, not 38.
+
+## R3. THE ADJOINT INSIDE THE TRIM IS THE COST DRIVER, AND THE GRADED QUANTITY DOES NOT NEED IT
+
+The primal work in the completing run totalled **54.71 s** of `ExecutionTime`.
+The run nonetheless hit a 450 s wall cap, **inside an adjoint GMRES solve**
+(`Solving Linear Equation... 272.79 s`, `Main iteration 100 KSP Residual norm
+3.399e-07 318.01 s`), with 12 Jacobian-coloring mentions in the log.
+
+`optFuncs.findFeasibleDesign` is a **gradient-based** trim: it converged in 2
+iterations and the adjoint it needs then dominates the level's wall time.
+
+**The graded quantity — CD at fixed CL — does not require an adjoint.** A
+primal-only secant trim on incidence obtains it in ~4 primals. On the R2 rate
+that is **~7.6 core-min at L1, ~60 at L2, ~484 at L3**: the whole ladder for
+**~550 core-min**, comfortably inside the frozen 7,000 ceiling.
+
+**This changes the standing of the primal-only-trim successor: it is not a
+fallback, it is the correct instrument.** It also removes the adjoint from the
+critical path, which is the same wall §7 predicted would block L2.
+
+**An earlier projection of ~19,000 core-min for L3 is WITHDRAWN.** It chained the
+wrong-unit per-primal rate through a per-level factor and was wrong by roughly
+25x. No decision should rest on it.
+
+## R4. What is NOT measured, stated plainly
+
+- **The iterative-to-discretisation ratio (GATE I) is UNCOMPUTABLE from one
+  level.** It needs Delta_mesh, which needs a second level. L1's own
+  `delta_iter` is measured — **CD swing 3.84e-07 over the last 13 of 66
+  evaluations, and bit-identical across the last 5** — but the ratio is not
+  reported, and is not guessed.
+- **No p and no GCI.** One level stands. Three are the minimum, per §A1.1.
+- **L1 did not emit its `GC_RESULT` line**: both completing runs were killed by
+  their cap during the post-trim adjoint, after the trim had converged and after
+  CD/CL/AoA were printed. The values in R1 are read from the solver's own printed
+  output, which is the same source the grader parses.
+- **Peak RSS is bounded, not pinned.** The in-container sampler reports
+  **11,885 MiB aggregate `VmRSS` summed over 12 ranks, which double-counts
+  shared pages**. The trustworthy bound is the container cap: it ran under
+  **6g without an OOM kill, so true peak <= 6 GB.** The M6-family law predicts
+  **9.2 GB** at this cell count, so **the law OVER-predicts this family by at
+  least 1.5x** — L2's 53.5 GB projection is correspondingly softer, though still
+  above the ~28 GB available.
+
+## R5. Cost — rule 12 calibration
+
+| attempt | core-min | outcome |
+|---|---|---|
+| attempt 1 | 0.08 | `set -u` broke the OpenFOAM bashrc — **waste, infrastructure** |
+| attempt 2 | 1.76 | mpirun root guard — **waste, infrastructure** |
+| attempt 3 | 61.83 | cap-stopped; physics landed |
+| attempt 4 | 91.99 | cap-stopped; physics reproduced identically |
+| **total** | **155.66** | |
+
+Predicted for Stage M + L1: **25**. **Ratio actual/predicted 6.23x.**
+**Waste named separately and never absorbed: 1.84 core-min** (infrastructure).
+
+**Gap attribution, three causes, separated:** (i) the per-primal cost basis was in
+the wrong unit (R2) — the dominant cause; (ii) **the adjoint inside the trim was
+never costed at all** (R3) — it is most of the wall time and §10 does not mention
+it; (iii) 1.84 core-min of infrastructure waste. No contention (box otherwise
+idle); the caps fired exactly as registered and stopped the run both times.
+
+Dollars **DERIVED, NOT MEASURED**: 155.66 core-min = 2.594 core-h -> **$0.1331**
+at $0.0513/core-h, **reported-by-owner**. **0 GPU-h.**
+
+## R6. Standing
+
+**L1: the graded quantity is measured and reproduced; its registered residual gate
+`initRes <= 1e-8` reads GATE FAIL at 7.16e-06.** Per §A1.2's framing and the
+supervisor's ruling (d), that is reported **as an instrument-proxy finding**, and
+**no gate moves on our reading of her sentence.** L2 and L3 are **not run under
+this item.** A2-GC stands at **PENDING for the triple** — one level of three — and
+runs no further here.
