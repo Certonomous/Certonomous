@@ -34,10 +34,15 @@ CONTROL.  The control compiles an overlong copy of a real sheet and REFUSES
 unless this checker reports that tail as missing.  It grows the prose group
 ABOVE the tail, because that is what a routine edit does and it is what
 reproduces the defect -- filler appended at the end does NOT reproduce it, the
-tail simply reflows onto page 2 and survives.  Measured on the Act A sheet: ONE
-added sentence is enough to trigger the silent loss, at every
-\\enlargethispage setting tried between 30 and 60 pt.  A guard never shown
-catching the defect is ceremony.
+tail simply reflows onto page 2 and survives.  Twelve pad x \\enlargethispage
+combinations of that first, wrong control gave ZERO reproductions while looking
+like a working control.  A CONTROL THAT REPRODUCES A SUPERFICIALLY SIMILAR
+FAILURE INSTEAD OF THE REAL ONE IS WORSE THAN NO CONTROL, BECAUSE IT CERTIFIES
+THE WRONG THING -- it would have reported this guard as proven against a
+page-overflow it never actually suffers.  Measured on the Act A sheet: ONE
+added sentence is enough to trigger the silent loss, at every \\enlargethispage
+setting tried between 30 and 60 pt.  A guard never shown catching the defect is
+ceremony.
 
 Exit 0 = every sheet's tail is on the page.  Exit 2 = a tail was dropped, or
 the control failed.
