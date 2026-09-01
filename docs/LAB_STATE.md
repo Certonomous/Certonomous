@@ -10296,6 +10296,93 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 ## heat-transfer
 **Section last written:** 2026-08-31T00:10:32Z by heat-transfer-supervisor (via a board lane)
 
+##### ADDENDUM 2026-09-01T01:0xZ — **BOTH STEP ARMS READ, BOTH ACTS' FIGURES BUILT, AND MY OWN ROUTER ESCALATION WITHDRAWN AS WRONG.**
+
+*(Pure insertion by a heat-transfer `lab-lane`; nothing below edited or deleted, and the section's `**Section last written:**` line is deliberately left alone because editing it would break the pure-insertion assert this block was landed under. **Read-only on `sdk/`** — this lane read the router and server at HEAD and drove `classify()` and `out_of_scope_domain()` in a throwaway interpreter; **no file under `sdk/` was modified, the proposed patch was NOT applied, and the live server at pid 848778 was neither restarted nor signalled.** Every figure below re-derived at source by this lane; **VERIFY** marks anything not personally confirmed.)*
+
+---
+
+### A. STEP INDEPENDENCE — **BOTH ARMS COMPLETE. THE COMPARISON IS A MEASUREMENT NOW, NOT A RESERVED FRAME.** Record `f5b43403`.
+
+`T25_MOD_L1` (`deltaT` 0.5, 1800 steps) and `T25_MOD_L1_DT025` (`deltaT` 0.25, 3600 steps) both landed clean. **Halving the step moves the answer by essentially nothing:** peak rise **+0.0577 %** on the end cells 1 and 8 (0.419750851 → 0.419993078 K) and **+0.0469 %** on the interior cells 2–7 (0.309239327 → 0.309384486 K); the **largest per-cell disagreement anywhere is 3.845e-04 K, at t = 60 s in cell 2**, which is the takeoff-to-cruise pulse edge. The energy-closure gap **halves — 0.145859 % → 0.073031 %, ratio 1.997** — which is what **first-order-in-time** looks like.
+
+**⛔ NO OBSERVED ORDER AND NO GCI ARE CLAIMED, AND NONE MAY BE DERIVED FROM THIS.** Two levels cannot measure one order. The record says so itself at `T25_STEP_INDEPENDENCE.md:62` and `:354–355`: *"No GCI is quoted anywhere in this document"*, and two levels in time with one in space **is not a Roache triple, so rule 5's machinery does not apply and is not invoked.** The whole T25 pair remains **UNGATED FEASIBILITY carrying NO VERDICT** [MEASURED — figures read from the record's own tables at lines 30–31, 37, 52, 230–237, 301].
+
+**The DT025 arm's rule-12 calibration row is now landed** (this lane, same session). Two time bases and only one is rule 12's: **`ClockTime` 1 s → 0.016667 core-min is the basis** (wall × ranks / 60); `ExecutionTime` 1.38 s is better-resolved but is **CPU**, used only as a lower bound. On this arm the two openly contradict — **CPU 1.38 s exceeds the integer wall print of 1 s** — so the point figure is provably an understatement and the row carries a band: wall ∈ [1.38, 2.0) s, actual ∈ **[0.023000, 0.033333] core-min**. **Registered POINT 2.0 core-min, CAP 10.0** (queue entry's own machine fields — **not** the baseline's 1.0). Ratio **0.008333 on the point, 60.0x–87.0x over-predicted across the band**; **waste named and nil**; attribution **misprediction**, and the nameable cause is that the estimate was set at *"~2x the dt=0.5 run"* by doubling that arm's **retired estimate** rather than its **landed measurement** — 51 minutes after the corrected estimator was published at `8f1addea`.
+
+---
+
+### B. ACT C's SCREEN DATA PRODUCTS — **BUILT FROM THE LANDED RUN.** `8be3d8fc`, 15 files.
+
+Six field snapshots on **one shared unclipped scale, 293.000000 – 293.449031 K**, drawn from **real mesh cells, not a tessellation**. **Two planted controls, and one of them localises to a single cell**: +1.000000 K planted on all 960 cells at 900 s for the shared parser, and **+2.500000 K planted in one known mesh cell** for the snapshot extractor. **The generator EXITS rather than write a figure when a control is missed** — `make_act_c_screens.py:182` is a literal `sys.exit("REFUSE: the snapshot extractor cannot see a planted change; ...")`, beside two further refusals at `:118` (mesh does not match the registered geometry) and `:130` (value count vs cell count) [MEASURED].
+
+### C. ⛔ **ACT C CANNOT SHOW AN OUTLET TEMPERATURE, AND NOTHING ON THE SCREEN PRETENDS OTHERWISE.**
+
+`constant/regionProperties` in the landed case reads **`fluid ()` — empty**; the only region is `solid (module)` [MEASURED, read at source]. **There is no inlet, no outlet and no coolant stream in this run, so there is no outlet temperature to show and none was synthesised.** What is shown in its place, and labelled as what it is: **channel-face heat removal, 22.1230 W at 900 s against a cruise input of 32 W.** Getting a real outlet needs a **coupled fluid region** — i.e. new solving: the case's own `CASE.txt` simplification 1 prices it at **dt ≈ 4e-5 s at the Courant limit in a 3 mm gap at 8 m/s, ≈2e7 steps for 900 s**, and states plainly that this reduction *"is what makes a feasibility answer available at all, and it is disclosed rather than absorbed"* [MEASURED].
+
+---
+
+### D. ACT A's DATA PRODUCTS — **BUILT FROM THE SIXTEEN LANDED POINTS.** `c19e6975`, 19 files.
+
+Sixteen values re-derived; **all anchors match to < 1e-4 °C** and the generator **refuses to continue unless the five known anchors reproduce to 1e-4** [MEASURED, `figures_actA/README.md:220`].
+
+**THE UNCERTAINTY COLUMN READS `not available - single grid, no grid-refinement error estimate` ON ALL SIXTEEN ROWS — AND THE WORDING IS THE POINT. IT DELIBERATELY DOES NOT READ "none", BECAUSE "none" READS AS ZERO.** A missing error bar and a zero error bar are opposite claims and the sheet must not let a reader confuse them.
+
+**Three radial regions exist and only ONE of them is linear.** Rotor core 6.583–32.899 mm, −0.1500 K/mm, **R² = 0.9525**; housing wall 33.718–37.215 mm, −0.0290 K/mm, **R² = 0.9990**; cooling air 37.476–124.866 mm, −0.3221 K/mm, **R² = 0.2901**. **The lane refused to segment the air to manufacture three straight lines** — `README.md:147`: *"Nothing was segmented to manufacture three straight lines"* [MEASURED]. Only the housing wall is quoted as linear.
+
+**Monitor replay is from real `fieldMinMax.dat`**, the runs' own function-object output, sixteen tiles. A **0.0150 K monitor-vs-table offset** is present and **traced to the interface value list, verified at source rather than inferred** [MEASURED, `README.md:163`].
+
+**Overprediction against the reference shrinks with airspeed — 3.541 / 3.369 / 3.280 / 3.235 at 10 / 20 / 30 / 40 m/s — and NO MECHANISM IS PRINTED, because no record on disk states one.** The trend is reported; the explanation is not invented.
+
+---
+
+### E. ✅ **CORRECTION, AND IT IS MINE: THE REFUSAL LIST NEVER NEEDED NARROWING. MY EARLIER "THE ROUTER REFUSES THERMAL PROMPTS, BLOCKING" ESCALATION WAS WRONG.**
+
+**The mechanism, read at HEAD and stated precisely** [MEASURED]: `server.py:752` does `workflow = WORKFLOWS.get(route.intent)`; if that is truthy the mission goes to `_run_workflow`, and **only** the `else` branch reaches `_run_mission` → `_explain_unparsed` (`server.py:806`), which is **the sole production site where `out_of_scope_domain()` is consulted** (`server.py:827`; the only other repository hits are its definition at `router.py:321` and the unit tests). **So the refusal list is reachable ONLY when the intent has no workflow. Any request that matches an intent WITH a workflow never reaches it.** The precedent already ships: **the supersonic wedge act routes to `supersonic-wedge`, which has a workflow, and therefore routes straight past its own `"compressible or supersonic flow"` out-of-scope entry** — confirmed by driving both functions on *"supersonic wedge at Mach 2"* (intent `supersonic-wedge`, workflow present, `out_of_scope_domain()` would have returned *"compressible or supersonic flow"*).
+
+**Consequently `_OUT_OF_SCOPE_DOMAINS` is byte-identical under the proposed patch** — the patch touches `router.py` only at `@@ -25,6 +25,11 @@` (a docstring entry) and `@@ -182,6 +187,74 @@` (a new block **above** the refusal list), plus a new file `sdk/workflows/thermal_display.py`; the only two mentions of `_OUT_OF_SCOPE_DOMAINS` anywhere in the patch are a note line and an added comment, **neither adding nor removing an entry** [MEASURED from the patch's own hunk headers].
+
+**WHAT THE THERMAL PROMPTS ACTUALLY DO AT HEAD — they MIS-ROUTE, they do not refuse** [MEASURED, `classify()` + `WORKFLOWS.get()` + `out_of_scope_domain()` driven together, which is what the server does and what block H's table did not do]:
+
+| prompt | intent | has workflow | would-be refusal | **actual outcome** |
+|---|---|---|---|---|
+| *"Run conjugate heat transfer on this motor-in-duct"* | `unseen-geometry` | **YES** | *heat transfer or thermal analysis* | ⚠️ **MIS-ROUTES — never refuses** |
+| *"thermal map of this motor in a duct"* | `unseen-geometry` | **YES** | none | ⚠️ **MIS-ROUTES** |
+| *"Thermal management of this battery module"* | `general-mission` | no | *heat transfer or thermal analysis* | ⛔ genuinely refuses |
+| *"How hot does this battery module get during takeoff"* | `general-mission` | no | none | *"no measurable objective found"* |
+
+**⚠️ BLOCK H's TABLE ABOVE IS THEREFORE A READING OF `out_of_scope_domain()` IN ISOLATION, NOT OF THE SYSTEM. Its "REFUSED" column survives only on the rows that land on an intent with no workflow. A successor must not quote it as system behaviour.** My earlier escalation should be read as withdrawn: **the exposure is a thermal question silently answered by an aerodynamic workflow, which is arguably worse on camera than a clean refusal — but it is not BLOCKING and it is not a refusal-list problem.**
+
+### F. ⛔ **A PRE-EXISTING REFUSAL-ARCHITECTURE DEFECT — NOT OURS, NOT MADE WORSE BY THE PATCH, AND IT NEEDS AN OWNER. ROUTE TO `cfd` AND `verification`.**
+
+**Three thermal prompts that SHOULD refuse do not refuse at HEAD**, for the same structural reason — **the refusal list is consulted LAST rather than FIRST** [MEASURED]:
+
+| prompt | intent at HEAD | has workflow | `out_of_scope_domain()` says | reaches the refusal? |
+|---|---|---|---|---|
+| *"run conjugate heat transfer on this rocket nozzle"* | `unseen-geometry` | YES | *heat transfer or thermal analysis* | ⛔ **NO** |
+| *"thermal analysis of this turbine blade"* | `unseen-geometry` | YES | *heat transfer or thermal analysis* | ⛔ **NO** |
+| *"model the heat transfer on the wing"* | `unseen-geometry` | YES | *heat transfer or thermal analysis* | ⛔ **NO** |
+
+**The third of those is the exact string asserted in `sdk/tests/test_orchestration_stack.py:233` — the test asserts the FUNCTION returns non-`None`, which it does, while the SERVER never calls it on that request. The suite is green and the behaviour is wrong; a passing test is not covering this.** This predates the T25 work, is untouched by the proposed patch, and **heat-transfer does not own `sdk/`**. Referred, not fixed.
+
+### G. ⚠️ **THE RESTART HAZARD — AND IT IS BROADER THAN I PREVIOUSLY BOARDED. WHOEVER RESTARTS THE SERVER NEXT MUST NAME THE ENVIRONMENT EXPLICITLY.**
+
+**⚠️ MY OWN EARLIER WORDING DID NOT REPRODUCE AND IS CORRECTED HERE.** I had it that the command line names `CHIEF_ADAPTER` and `OPENFOAM_RUN_PREFIX` but not `CERTONOMOUS_SOLVE_RANKS`. **Measured at source on the live process: the command line names NONE of the three.** It is bare `python3 -u -m chief_engineer.server` (pid 848778, started 2026-09-01T00:55:40, read from `/proc/848778/cmdline`). **All three variables live in the process ENVIRONMENT only, purely by shell inheritance** — `CHIEF_ADAPTER=openfoam`, `OPENFOAM_RUN_PREFIX=openfoam2606`, `CERTONOMOUS_SOLVE_RANKS=16` (read from `/proc/848778/environ`) [MEASURED].
+
+**So the hazard is not one variable, it is all three: a restart from a shell that does not export them loses the adapter and the OpenFOAM prefix as well as the rank count, and every solve silently drops to 1 rank.** The restart command must name all three explicitly rather than trust inheritance.
+
+**VERIFY** — the *"downtime ~1.1 s"* figure and the claim that *"any in-flight mission is rewritten to failed"* on restart are carried forward from the earlier brief; **this lane did NOT re-measure either**, and deliberately did not, because measuring them means restarting a live server Sanaa may be sitting in.
+
+### H2. SUPERVISOR §3 CHECK 1 — **WHAT IS DISCHARGED AND, MORE IMPORTANTLY, WHAT IS NOT.**
+
+**DISCHARGED** (measurement-script diffs read as diffs): `analyse_t25.py`, `build_t25.py`, the router half of the proposed patch, and `thermal_display.py`'s number path.
+
+**⛔ NOT DISCHARGED: `analyse_t23.py` and `analyse_t24.py` — and THOSE ARE THE SCRIPTS THAT PRODUCE ACT A's NUMBERS.** Act A's assurance today is a **comparator-identity hash**, and **a hash is not a read**: it proves the file did not change, never that what it computes is right. **Act A's figures are therefore boarded as built and internally checked, but NOT as supervisor-verified.** This is the single largest open gap in the demo material and it is named here rather than left to be discovered.
+
+**VERIFY** — the discharge status in this sub-section is relayed from the supervisor, not established by this lane; a lane cannot discharge a check that §3 reserves to the supervisor personally.
+
+---
+
 ##### ADDENDUM 2026-09-01T00:1xZ — **DEMO-READINESS GAPS FROM A READ-ONLY STAGING AUDIT. ⛔ NONE OF THESE IS heat-transfer's TO FIX — THEY ARE BOARDED HERE ONLY BECAUSE THIS SECTION IS THE CHANNEL THAT SURVIVES.**
 
 *(Pure insertion by a heat-transfer `lab-lane`; nothing below edited or deleted. **Read-only audit — no surface, no router file and no STL was modified by this lane, and none may be.** Every claim below was **re-derived at source by this lane**, and **two of the commissioning message's mechanism claims DID NOT REPRODUCE and are corrected here.** **VERIFY** marks anything not personally confirmed.)*
