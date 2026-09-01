@@ -454,9 +454,10 @@ The launch has landed. Measured directly, not relayed:
   = `d8207e1e6d220b3f075826b305948f40d80e2b0b`, matching the read that was
   discharged.
 
-**State, stated precisely rather than favourably: MESHING IS COMPLETE ON ALL
-THREE LEVELS; THE SOLVE HAS NOT STARTED.** There is no `log.solve` on any level
-yet, and no queue entry under `verification/queue/heat-transfer/`.
+**State at that reading, stated precisely rather than favourably: MESHING WAS
+COMPLETE ON ALL THREE LEVELS; THE SOLVE HAD NOT STARTED.** There was no
+`log.solve` on any level, and no queue entry under
+`verification/queue/heat-transfer/`. **Superseded by the second reading below.**
 
 **What this licenses.** The study is genuinely underway — three levels built
 inside ten minutes is unambiguous activity, and the release condition above
@@ -469,6 +470,52 @@ column stays empty exactly as §5.1 requires until the three levels solve and
 grade `CONVERGING`. **If the solve does not start, this reading goes stale the
 same way §9.7's did** — re-derive it immediately before capture rather than
 trusting this paragraph.
+
+#### SECOND CONFIRMING READING — 2026-09-01 19:12–19:13Z, by this lane, read-only
+
+**The solve has started. Screen 8's sentence is now DURABLY true, not
+perishably true.** Re-derived from disk and `/proc` rather than from the message
+that reported it — the same instinct that was right when a mesh was being
+relayed is right when a solve is.
+
+**Processes resolved by `readlink /proc/<pid>/exe`, never by name** (a name can
+lie, and fleet processes are invisible to `pgrep` — L-41):
+
+| pid | exe (resolved) | cwd | elapsed |
+|---|---|---|---|
+| 364441 | `chtMultiRegionSimpleFoam` | `…/T23G2_runs/T23G2_L1` | 05:17 |
+| 366391 | `chtMultiRegionSimpleFoam` | `…/T23G2_runs/T23G2_L2` | 04:12 |
+| 368069 | `chtMultiRegionSimpleFoam` | `…/T23G2_runs/T23G2_L3` | 03:07 |
+
+An independent sweep of every `/proc/<pid>/exe` for `chtMultiRegion*` with a cwd
+under `T23G2` found **exactly 3** — so the count was derived, not accepted.
+
+**Advancing, measured over a 7-second window** (19:12:57Z → 19:13:04Z), which is
+what separates "a solver exists" from "a solver is working":
+
+| level | `Time =` | time dirs | `log.solve` bytes |
+|---|---|---|---|
+| L1 | 1584 → **1625** | 10 → **11** | 1,820,489 → **1,868,243** |
+| L2 | 392 → **403** | 4 → **5** | 453,532 → **466,177** |
+| L3 | 62 → **65** | 3 | 74,882 → **78,438** |
+
+**And the mesh family is similar by construction, which is the defect T23G2
+exists to repair.** Fluid cell counts 35,840 / 80,640 / 181,440 give ratios of
+**2.2500 and 2.2500 exactly**, i.e. a linear refinement ratio of **1.5000** on
+both steps — inside the 1.5–2.0 band the convergence doctrine requires, and well
+above its 1.3 floor.
+
+**y+ is now GATED rather than reported.** Verified in the comparator itself,
+`docs/campaigns/T-family/analyse_t23g2.py`, blob
+`cc723d6f65245674f7d80c51de55fe986549477a`: `YPLUS_MAX = 1.0` (line 86) and
+`YPLUS_INSTRUMENT_AGREE_REL = 0.02` (line 87), annotated in the file as
+*"disagreement REFUSES, never averages"*. A y+ failure can no longer be averaged
+into a pass.
+
+**Still licenses nothing about the result.** Three solvers running is not three
+solvers converged. The uncertainty column stays empty until all three grade
+`CONVERGING`; **if they return `STAGNANT` again, that is the finding and it is
+published as one**, exactly as T23G's was.
 
 **Why the earlier draft was withdrawn.** The version first committed here said a
 refinement study *"was run… and did not settle."* That is true, and it is a good
