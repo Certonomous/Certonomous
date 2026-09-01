@@ -767,3 +767,271 @@ was written into `T23G_runs/` in the course of the diagnosis behind §0 and §1.
 The measurements in §0 and §1 were taken read-only from artifacts already on
 disk, by an instrument whose ability to see them is demonstrated by its bit-exact
 reproduction of T23G's three graded quantities. **PENDING the supervisor's read.***
+
+---
+---
+
+# AMENDMENT A1 — 2026-09-01. **THE SCHEME DOES NOT CHANGE ON THIS RUNG.**
+
+**Version 1.0 → 1.1.**
+
+**`lines whose number changed above this section: 0`.** This amendment is appended
+at the foot. Nothing in lines 1–769 of v1.0 was edited, reordered or deleted;
+every citation into v1.0 by line number remains valid. Struck items are struck
+**here**, in this section, and the struck text is left standing where it was, so
+that what was registered before compute can still be read as it was registered.
+
+**THE CONDITION, AND HOW IT WAS CHECKED — `CLAUDE.md` rule 2.** Amendments before
+first compute are legal and must state the condition and how it was checked.
+**No compute has run.** The condition is that
+`verification/runs/T-family/T23G2_runs/` does not exist; checked by `ls`, which
+returned *"No such file or directory"*, at **2026-09-01T16:12:36Z** (v1.0's
+check) and again before this amendment was written. No solver has been launched
+for this rung by anyone.
+
+**AUTHORITY.** The heat-transfer supervisor's ruling on the question v1.0 §1
+escalated. The lane registered the scheme change and put the decision up rather
+than take it; the ruling is **against** the change on this rung, on two grounds,
+and the lane records that the second is decisive and that **v1.0 was wrong to
+have taken the change**.
+
+## A1.1 STRUCK: §2.3, the scheme change
+
+> **STRUCK.** §2.3 registered `div(phi,h)`, `div(phi,K)`, `div(phi,k)` and
+> `div(phi,omega)` changing from `bounded Gauss upwind` to
+> `bounded Gauss limitedLinear 1`. **That change is withdrawn from this rung in
+> its entirety.**
+
+**T23G2 now changes the MESH FAMILY ONLY.** `system/fluid/fvSchemes` is a **level
+invariant, byte-identical to T23G**, and joins the invariant set asserted by the
+comparator under §2.4. A difference in `fvSchemes` between any T23G2 level and
+`T23G_F/system/fluid/fvSchemes` is a **REFUSAL**, not a note.
+
+**Reason 1 — one change per run, which is Sanaa's own discipline for this
+family** (H-4, "diagnosis arm, one change per run"). v1.0 changed the refinement
+ratio, the similarity construction, the layer counts, `NR_HOUS`, the first-cell
+specification **and** the convection scheme at once. Had p then landed at 1.7,
+nothing in the result would say which change bought it — and identifying what
+holds p at 0.375 is the entire purpose of this rung.
+
+**Reason 2, and it is the decisive one — a second-order band cannot be applied to
+sixteen upwind points.** Sanaa's §1: *"Then the sixteen points get their band
+(measured at 305 W / 20 m/s, applied to all, disclosed)."* The sixteen points of
+the T23 map are solved with `bounded Gauss upwind`. **A band measured on a
+second-order ladder is a band for a different discretisation**, and transferring
+it to sixteen upwind solutions is precisely the kind of transfer this team
+refuses. Changing the scheme therefore does not cost one ladder; it costs the
+ladder **and** a re-run of all sixteen points, or it costs the transfer's
+honesty. **Keeping upwind gives Act A a band that legitimately applies to the
+numbers already on screen.** v1.0 §1 asserted that keeping upwind "would leave
+the sixteen-point map banded off a first-order solution" — which is true, and is
+exactly what is wanted, because the map **is** a first-order solution.
+
+## A1.2 STRUCK AND REPLACED: the order band, and the fine-value band
+
+> **STRUCK.** §5.2 `G-ORDER`: p(`Q4`) ∈ **[1.5, 2.5]**.
+
+**REGISTERED:** `G-ORDER` — p(`Q4`) from the finest three levels ∈ **[0.5, 1.5]**
+→ PASS; CONVERGING but outside → `GATE FAIL`.
+
+**This is Sanaa's own rule, faithfully applied, and it is NOT a relaxation of
+it.** Her §0 point 3 reads *"Acceptance: p within 0.5 of the scheme's formal
+order (second order: p in 1.5 to 2.5)"*. The parenthesis is the **second-order
+instance** of a scheme-relative rule, not a universal target. **The formal order
+of `div(phi,h) = bounded Gauss upwind` is 1**, evidenced at
+`T23G_F/system/fluid/fvSchemes`, so her rule yields [0.5, 1.5] on this
+discretisation. Her §1's *"run until p lands in 1.5 to 2.5"* is that same rule
+instantiated under an assumption nobody had checked — that the scheme was second
+order. It is not. **Two sentences of the directive presuppose something false;
+that is a discovery about the case, not a departure from her directive**, and it
+goes to her desk (§A1.8).
+
+`CLAUDE.md` rule 5 remains supreme: a non-`CONVERGING` triple is `NOT A RESULT`
+whatever p says, and the gate can only turn a PASS or GATE FAIL **into**
+`NOT A RESULT`, never the reverse.
+
+> **STRUCK.** §5.2 `G-BAND`: fine-level ΔT(`Q1`) ∈ [45.0, 60.0] K.
+
+**REGISTERED:** fine-level ΔT(`Q1`) ∈ **[46.0, 56.0] K**. Tightened because the
+scheme no longer changes, which removes the largest source of uncertainty the
+wider band was absorbing. **A tighter band can lose more easily, and that is the
+reason for tightening it.**
+
+## A1.3 STRUCK AND REPLACED: `G-REPRO`'s reason
+
+> **STRUCK.** §2.3's ruling that `G-REPRO` is `NOT APPLICABLE` **because the
+> scheme changed**.
+
+`G-REPRO` remains **`NOT APPLICABLE`**, and the reason is now different and must
+not be carried over unexamined: **the mesh differs from every prior case.**
+`T23G2_L1` is 40,320 cells against `T23G_M`'s 39,680, with a different
+`NR_BL_OUT` (32 vs 30) and a different grading construction, so no prior case
+reproduces bit-exactly. **Recorded as `NOT APPLICABLE` with its reason, never as
+a pass** — an unevaluated gate is not a passed one.
+
+## A1.4 CORRECTION AGAINST THIS LANE'S OWN v1.0 CLAIM — y+ WAS **NOT** MEASURED FOR THE FIRST TIME
+
+> **STRUCK.** v1.0 §1.1's heading, and the report behind it: *"y+ — measured for
+> the first time on this family"*. **THAT CLAIM IS FALSE AND THE LANE WITHDRAWS
+> IT.**
+
+`T23_RESULTS.md` §4 measured y+ on the T23 map on 2026-08-31, by
+`chtMultiRegionSimpleFoam -postProcess -func yPlus -region fluid -time 10000`,
+**run in a scratch copy of each case so that no graded artifact was written**.
+What was new in v1.0 is y+ **on the T23G grid ladder**, which is a narrower and
+less impressive claim. The measurements in §1.1 stand; the priority claim does
+not.
+
+**AND THE CORRECTION PAYS FOR ITSELF, because that record independently validates
+this rung's y+ cross-check instrument.** `T23G_M` reproduces `T23_P305_U20`
+bit-exactly (T23G's `G-REPRO` passed at 0.000e+00 K). Comparing this lane's
+independently computed y+ on `T23G_M` against `T23_RESULTS.md` §4's recorded
+values for `T23_P305_U20`, produced by a **different instrument** — OpenFOAM's own
+`yPlus` function object through the solver:
+
+| reading | `T23_RESULTS.md` §4 (OpenFOAM) | this lane (independent) |
+|---|---|---|
+| `fluid_to_housing` max | 0.7515 | 0.7515 |
+| `fluid_to_housing` min | 0.7334 | 0.7334 |
+| `fluid_to_housing` average | 0.7416 | 0.7416 |
+| `duct_wall` max | 2.396 | 2.3957 |
+
+**Agreement to every digit the earlier record carries, across four readings from
+two independent instruments.** That is a stronger validation of the cross-check
+reader than its own planted control, and it is recorded here because it was found
+while correcting a false claim.
+
+**`G-YPLUS`'s instrument (§5.4) is unchanged, and now carries a working precedent
+in this family**: the `-postProcess` route is not a hopeful proposal, it is what
+T23 already did successfully. **The registered procedure adopts T23's safeguard
+verbatim: it runs in a SCRATCH COPY of each case, so no graded artifact is
+written.**
+
+## A1.5 A NEW REGISTERED DISCLOSURE — TWO OF THE FOUR SOLVED MAP POINTS ARE NOT WALL-RESOLVED
+
+Found in `T23_RESULTS.md` §4 while checking the above, and material to the
+transfer Sanaa's §1 authorises. Max y+ on the housing surface across the solved
+map:
+
+| point | max y+ on `fluid_to_housing` |
+|---|---|
+| `T23_P305_U10` | 0.4037 |
+| `T23_P305_U20` | **0.7515** — the point the band is measured at |
+| `T23_P305_U30` | **1.079** |
+| `T23_P305_U40` | **1.397** |
+
+**A band measured at U = 20 m/s, where the housing surface is wall-resolved,
+transfers to U = 30 and U = 40 m/s, where it is not.** T23's §4.4 registered this
+outcome before compute; it blocks the correlation tier and the map triple,
+neither of which that rung claimed.
+
+**Registered here as a DISCLOSURE THAT MUST TRAVEL WITH THE BAND**: any display
+of the sixteen points carrying a T23G2-derived band must state that the band was
+measured at a wall-resolved operating point and applied to points that are not.
+**This rung does not resolve it and does not claim to.**
+
+## A1.6 STRUCK AND REPLACED: §8, the whole cost table
+
+> **STRUCK.** §8's per-level and campaign figures, and **ASSUMPTION 1** (the
+> `limitedLinear` ×1.35 per-iteration penalty), which no longer applies because
+> the scheme no longer changes.
+
+**Basis unchanged and still MEASURED:** `T23G_F` ran **145.75 core-min** for
+10,000 iterations at 158,720 cells at `ranks = 1` → **0.0145750
+core-min/iteration**; superlinear exponent **1.1957** on cell count, from T23G's
+measured `F/M = 5.240` at a 4× cell ratio.
+
+**One ASSUMPTION remains, labelled as such:** iterations to stationarity scale as
+`h^-1.77`, derived from T23G's measured 600 / 1,900 / 6,900 iterations to reach
+\|ΔT_max\| ≤ 1e-6 K, then extrapolated to r = 1.5 as ×2.02 per step. **DERIVED
+from measurement, then extrapolated.**
+
+| level | cells | per-iter [core-min] | `endTime` | iterations predicted needed | **POINT** | **CAP** | timeout [s] | margin |
+|---|---|---|---|---|---|---|---|---|
+| `T23G2_L1` | 40,320 | 0.0028300 | **6,000** | ~1,900 | **17.0** | **45** | 2,700 | 2.65× |
+| `T23G2_L2` | 90,720 | 0.0074663 | **12,000** | ~3,840 | **89.6** | **220** | 13,200 | 2.46× |
+| `T23G2_L3` | 204,120 | 0.0196915 | **24,000** | ~7,760 | **472.6** | **1,100** | 66,000 | 2.33× |
+| **CAMPAIGN** | | | | | **579.2** | **1,365** | | **2.36×** |
+
+**The timeout IS the cap.** An overrun **STOPS the run**; a capped level is not
+restarted with a bigger number.
+
+**USD — DERIVED, NEVER MEASURED** (the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5), at the owner-stated $0.0513/core-h: point 9.65
+core-h = **$0.495**; cap 22.75 core-h = **$1.167**.
+
+**HONEST WALL CLOCK: ~7.9 hours at the point estimate, 18.3 at the cap**, three
+levels at one rank each, concurrent on the three cores budgeted; the campaign
+finishes when `T23G2_L3` does.
+
+**The ruling made this rung CHEAPER AND FASTER, not more expensive**: 579.2
+against v1.0's 993.2 core-min is a **42 % reduction**, and 7.9 against 13.3
+wall-hours is **5.4 hours saved**. Recorded because a ruling that improves the
+budget should be visible as one.
+
+## A1.7 STRUCK AND REPLACED: §4, the predictions
+
+> **STRUCK.** **P1** (p = 1.7 in [1.3, 2.1]) and **P2** (the second-order fine
+> value below the upwind value) — both presupposed the scheme change.
+
+**P1′ — the observed order.** I predict **p(`Q4`) = 1.0**, inside **[0.7, 1.3]**.
+Basis: the formal order of `div(phi,h)` is 1, and removing the level that was not
+wall-resolved plus repairing the similarity defect should let the observed order
+approach the formal one.
+> **Registered loss mode, in the opposite direction from v1.0's:** if p lands in
+> [0.5, 0.7) or (1.3, 1.5], **P1′ LOSES while `G-ORDER` PASSES.** That is a PASS
+> with a falsified prediction, and it will be reported as exactly that — a gate
+> passing does not retroactively vindicate a prediction that missed.
+
+**P2′ — the fine value, and its direction.** I predict **ΔT_max(`Q1`,
+`T23G2_L3`) = 51.0 K**, inside **[48, 53] K**, and the sharper directional claim
+that it lands **BELOW `T23G_F`'s 52.81450113 K**, continuing the monotone descent
+on a finer mesh at unchanged scheme. **If it comes out above 52.81 K, the
+directional claim has lost outright.**
+
+**P3, P4 and P5 stand unchanged.** **P6 is restated to the new budget:** I predict
+the measured actual lands inside **[400, 950] core-min**, a ratio actual/predicted
+in [0.69, 1.64]. T23G's campaign ratio was 1.132 with per-level drift from 0.803
+to 1.206, so this can lose.
+
+## A1.8 T23G3 — REGISTERED NOW AS A NAMED SUCCESSOR, NOT RUN, AND PRICED
+
+Registered so that a successor finds the number rather than re-deriving it.
+**T23G3 is not authorised by this document and no part of it may be launched
+under this registration.**
+
+**Scope:** second-order convection **plus** the re-run of all sixteen map points
+at that scheme — which is what actually reaches Sanaa's 1.5–2.5, and which cannot
+be had without the second half.
+
+| arm | content | basis | **POINT [core-min]** |
+|---|---|---|---|
+| **A** | the T23G2 ladder re-run at `bounded Gauss limitedLinear 1`, `endTime` ×1.5 (9,000 / 18,000 / 36,000) | T23G_F's measured rate × 1.35 per-iteration (**ASSUMED**) | **1,172.8** |
+| **B** | the sixteen map points re-run at the same scheme | **MEASURED** 30.0321 core-min/point (`T23_RESULTS.md` §6.1) × 2.025 | **973.0** |
+| **TOTAL** | | | **2,145.8** ≈ 35.8 core-h |
+
+Cap at 2.3× = **4,935 core-min** ≈ 82.3 core-h. **USD DERIVED, NEVER MEASURED:**
+point **$1.835**, cap **$4.222**. Wall clock ≈ **16 hours**, with arm B's points
+run three-concurrent alongside arm A's `T23G2_L3`.
+
+**T23G3's band would be [1.5, 2.5]** — Sanaa's §0 point 3 on a second-order
+scheme — and its product is a band that legitimately applies to sixteen
+second-order points. **That is the only route to her §1 target, and it costs
+2,146 core-minutes and a re-solve of the map, not a mesh parameter.**
+
+## A1.9 WHAT ELSE IN THIS DOCUMENT CHANGES: NOTHING
+
+§0 (the three excluded candidates), §1.1 (y+ on the ladder, minus the withdrawn
+priority claim), §1.2 (the interface, excluded at source), §2.1, §2.2, §2.4,
+§2.5, §3, §5.1, §5.3, §5.4, §5.5, §5.6, §6, §7 and §9 stand **unaltered**. The
+similarity repair of §2.2 is unaffected by this ruling and remains the right
+construction. §6's falsifier is unchanged and is now **sharper**: with the scheme
+held fixed, a p that stays near 0.375 points more directly at the conjugate
+interface's one-sided, formally first-order flux reconstruction.
+
+**This amendment authorises NO COMPUTE.** The comparator still does not exist and
+must be read as a diff by the supervisor, together with the build script, before
+any solver is launched. The lane stops here.
+
+*Amended 2026-09-01 by the same heat-transfer lane that drafted v1.0, on the
+supervisor's ruling. **No solver has been launched for this rung.***
