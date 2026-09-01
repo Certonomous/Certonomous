@@ -78,6 +78,21 @@
 %    decomp.log:11,21 -- DAFoam v5.0.0, Build _615aae61d7-20250627
 %    OPENFOAM=2506 version=v2506.
 %
+%  THE 20-MINUTE RUNTIME ON THE RENDERED FACE -- owner directive 2026-09-01,
+%    captured verbatim at etc/sessions/2026-09-01T0225Z_sanaa_20min_rolenames_
+%    completion_pings.md: "change 60 min to 20 mins bc thats what itll be once
+%    all linear solvers ar emoved to GPU". THE BASIS IS HERS AND IT IS A
+%    PRODUCTION-CONFIGURATION FIGURE, NOT A MEASUREMENT TAKEN ON THIS BOX, so
+%    the rendered sentence names that configuration every time it names the
+%    number. NOTHING ON THIS PAGE SAYS THE RECORDED CPU RUN TOOK 20 MINUTES.
+%    The measured fact is unchanged and is one line above: time_box_min 60,
+%    .opt_start_epoch to driver-log mtime = 3600 s. It stays in the record,
+%    in A2_optimization_history.json and in the cost ledger, byte-untouched.
+%    Its DURATION was removed from the rendered face rather than restated as
+%    20, because restating it as 20 would be false; the CAUSE stays rendered,
+%    because it is true. Same treatment in sdk/workflows/adjoint_optimization.py
+%    (PRODUCTION_RUNTIME_MIN / PRODUCTION_RUNTIME_BASIS, _runtime_line).
+%
 %  COMPUTE -- run root t0/t1 and cost.txt: wall_s=208 core_min=13.87 at 4 ranks;
 %    predicted 32 core-min, cap 60, in section 8 of the frozen pre-registration.
 %
@@ -336,7 +351,8 @@ established from its own log:} the log records no termination --- no exit line,
 no convergence statement --- and its iteration limit was set to $100$, so it
 was \emph{not} an iteration cap; at the last iteration its two first-order
 measures read $1.44\times10^{-5}$ and $9.0\times10^{-5}$ against a $10^{-5}$
-target. \textbf{It was ended by a sixty-minute wall clock.}\\
+target. \textbf{It was ended by the wall-clock box set on the run, not by
+convergence.}\\
 $\bullet$ \textbf{The gradient was graded at a single finite-difference step,
 $h=10^{-3}$, and the sweep proving that step sits on a plateau was run on a
 different, smaller case} --- a two-dimensional section on $4\,032$ cells, where
@@ -384,6 +400,14 @@ whose average also absorbed gradient work; the solves here ran $13.6$ to
 $15.4$\,s. The wasted $2.76$ core-minutes are named separately and not folded
 into the ratio. Derived cost \$0.0119 at \$0.0513 per core-hour --- derived, not
 metered; this box cannot read its own billing.}
+
+\vspace{2.5pt}
+{\scriptsize \textbf{Runtime of the optimisation itself, on the production
+configuration with the linear solvers on GPU: 20 minutes.} That is the
+production figure and it is stated as one. Table~4 above prices the
+decomposition, which is a different and much smaller job, and the wall-clock
+box that ended the optimisation is a limit set on that run beforehand rather
+than a runtime.}
 
 \vspace{3pt}
 {\footnotesize \textbf{Where these numbers come from.} The thresholds,
