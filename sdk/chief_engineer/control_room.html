@@ -248,6 +248,10 @@
      foot exactly the height it had before this existed. */
   .viewport-caption { color: var(--dim); line-height: 1.5; }
   .viewport-caption:empty { display: none; }
+  /* Bullets on the caption surfaces reuse the house `.bline` block line the
+     conversation feed has used since 2026-07-24 — one bullet renderer, one
+     piece of CSS. Nothing new is introduced here on purpose: a second bullet
+     style would be a second thing to look at on camera. */
   /* THE STAGE BANNER. A banner is a STATE, not a beat: 635 of them arrive on
      this act and 614 carry a different string, because during the solve the
      banner IS the iteration counter. It therefore writes one element,
@@ -1607,12 +1611,65 @@ const stamp = at => at ? new Date(at * 1000).toISOString().slice(11, 19) : '';
 // Applied wherever narration renders (conversation feed, digest, route
 // rationale, channel notes). `suffix` (a verdict badge) rides the last line.
 const capBullet = s => /^[a-z]/.test(s) ? s[0].toUpperCase() + s.slice(1) : s;
+// ================= A BLOCK THE ACT DID NOT BULLET, BULLETED =================
+//
+// SANAA, 2026-09-01: "shorten the sentences and have them in bullet points",
+// binding on every screen surface, not only the ones an act remembered to write
+// with a "•" in them.
+//
+// So the renderer gains a SECOND way to find items. The first is unchanged and
+// still wins: a message carrying "•" is split on it, because that is the act
+// saying where its own items begin. Only a message with no "•" at all falls
+// through to sentence splitting, which finds items at the full stops and
+// semicolons the sentence already has.
+//
+// THE SHORTENING IS DONE BY SPLITTING, NEVER BY REWRITING, and the terminal
+// punctuation stays on. Every word on these surfaces is authored act-side and
+// swept by `assert_screen_safe` before it reaches the wire; a renderer that
+// reworded, trimmed or restyled a clause would put text on a filmed screen that
+// no never-list check has ever seen. Split AT a separator, never remove one, so
+// the bullets concatenate back to the string that arrived. (Measured cost of
+// getting this wrong: the first cut dropped the terminal full stop on house
+// style grounds and the pacing harness's caption-fidelity check failed inside
+// the minute — the screen was editing the act.)
+//
+// A LIST OF ONE IS NOT A LIST. A single sentence given a bullet reads as an
+// item torn off something longer and sends the eye hunting for the rest; it is
+// worse than the sentence. One clause renders as the line it always was.
+// SENTENCE BOUNDARIES ONLY, AND NARROWLY. Two decisions here were both made
+// after watching the loose version get them wrong on this act's own strings:
+//
+//   * SEMICOLONS ARE NOT SPLIT ON. "Grid 39,984 cells; y+ below 1 at the wall"
+//     split into a bullet ending in a bare semicolon, which reads as a line
+//     that got cut off. A semicolon is within-sentence punctuation; she asked
+//     for the SENTENCES to be bullets.
+//   * THE PERIOD MUST BE A SENTENCE END, not any dot. Two word characters must
+//     precede it and a capital or a digit must follow, so "0.15 m" and "e.g.
+//     the wall" are left alone. A decimal point split in half on camera is a
+//     number the screen invented.
+function clauseParts(text) {
+  return String(text ?? '')
+    .split(/(?<=\w\w\.)\s+(?=[A-Z0-9(])/)   // AT a sentence end, keeping the stop
+    .map(s => s.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
 function bulletHTML(message, suffix = '') {
   const msg = String(message ?? '');
-  if (!msg.includes('•')) return subScript(esc(msg)) + suffix;
-  const parts = msg.split('•').map(s => s.trim()).filter(Boolean);
+  // `capBullet` IS CONFINED TO THE "•" PATH, WHERE IT ALWAYS LIVED. Katie's
+  // rule is that an act's own bullet items open with a capital. Applying it to
+  // sentence-split clauses rewrote "y+ below 1 at the wall" as "Y+ below 1 at
+  // the wall" — a physics symbol changed by the renderer, on a filmed screen,
+  // to satisfy a typographic convention. Clauses cut at a sentence end already
+  // carry the capitalisation the act gave them, and it is not ours to change.
+  let parts, cap;
+  if (msg.includes('•')) {
+    parts = msg.split('•').map(s => s.trim()).filter(Boolean); cap = capBullet;
+  } else {
+    parts = clauseParts(msg); cap = s => s;
+    if (parts.length < 2) return subScript(esc(msg)) + suffix;
+  }
   return parts.map((s, i) =>
-    `<span class="bline">• ${subScript(esc(capBullet(s)))}${i === parts.length - 1 ? suffix : ''}</span>`
+    `<span class="bline">• ${subScript(esc(cap(s)))}${i === parts.length - 1 ? suffix : ''}</span>`
   ).join('');
 }
 function addEntry(p) {
@@ -1785,6 +1842,19 @@ function stageBegan(p) {
 function setStageBanner(p) {
   const text = (p && p.text) || '';
   const el = $('stageBanner'); if (!el) return;
+  // A BANNER THAT ONLY REPEATS ITS OWN STAGE NAME IS NOT A BANNER. Sanaa's
+  // list of strings standing on top of the geometry ends "results / 04 / field
+  // ... the top right is enough", and `results` is exactly this: the stage
+  // word, echoed into a pill beside a head that already carries the stage.
+  // Four of the nine stages echo themselves this way (results, meshing,
+  // solving, feasibility); the ones that say something the stage word does not
+  // — "forming team", "planning", "fleet at work" — are untouched, and so is
+  // the live counter, which reads "Solving, iteration N of M" and is the
+  // banner's real job during the solve.
+  const stage = String((p && p.stage) || '');
+  if (stage && text.trim().toLowerCase() === stage.trim().toLowerCase()) {
+    el.hidden = true; el.textContent = ''; return;
+  }
   if (!text) { el.hidden = true; el.textContent = ''; return; }
   el.hidden = false; el.textContent = text;
 }
@@ -1993,12 +2063,45 @@ function subScript(escaped) {
 }
 // The same typesetting for a plain-text surface: escape, typeset, and write as
 // markup. `subText` is how a textContent surface earns its subscripts.
-function subText(id, text) { $(id).innerHTML = subScript(esc(text ?? '')); }
+function subText(id, text) {
+  // One of these surfaces renders as a LIST rather than a line — see
+  // `BULLET_SURFACES` below for why the routing is here and not at the call
+  // sites. Every other id is written exactly as it always was.
+  $(id).innerHTML = BULLET_SURFACES.has(id)
+                  ? bulletHTML(text) : subScript(esc(text ?? ''));
+}
 // The same, for an element already in hand rather than one looked up by id,
 // and the one-liner for interpolating a value into a template literal. Every
 // screen string that can carry a variable goes through one of these three.
 function subNode(node, text) { if (node) node.innerHTML = subScript(esc(text ?? '')); }
 function subHTML(text) { return subScript(esc(text ?? '')); }
+// ============= ONE BULLET RENDERER FOR THE PAGE, NOT TWO ===================
+//
+// THE FIRST CUT OF THIS DEFINED A SECOND `bulletHTML` HERE AND IT WAS A
+// SHADOWING BUG THAT EVERY AUTOMATED CHECK PASSED. The page already had a house
+// bullet renderer (see `bulletHTML` above, Katie 2026-07-24) carrying a second
+// argument — the verdict badge that rides the last line — and a later function
+// declaration in the same scope silently replaces the earlier one. Four live
+// surfaces were rendering through the duplicate with the badge argument dropped
+// on the floor: the conversation feed, the digest, the routing rationale and
+// the uncertainty channel notes. The pacing harness reported ALL CHECKS PASSED
+// with the collision in place, which is the whole reason this note is this
+// long: a name collision inside one <script> has no error and no symptom the
+// harness can see, and the only thing that found it was reading the file for
+// the surfaces the sweep was supposed to reach.
+//
+// So there is ONE renderer, extended, and the caption surfaces call it.
+//: The `textContent` surfaces that render as bullets rather than a line.
+//: ROUTED INSIDE `subText`, NOT AT ITS CALL SITES, and that is a deliberate
+//: choice against the tidier one. Renaming the six caption
+//: call sites to a `setCaption` helper was the first cut; it de-aimed two
+//: PLANTED CONTROLS in the pacing harness, which mutate those exact source
+//: lines to prove the caption checks can fail. A control aimed at a line that
+//: no longer exists is a control that passes by absence (rule 3), and re-aiming
+//: it lives in a file this lane does not own. Routing here keeps every control
+//: live and gives rule-14 coverage for free: a caption call site added later
+//: gets bullets without anyone remembering to use a different helper.
+const BULLET_SURFACES = new Set(['viewportCaption']);
 // Canvas carries no markup, so a variable is drawn as two runs: the symbol at
 // the label's own size, then the index smaller and dropped below the baseline.
 // The runs are measured first so textAlign still means what it says.
@@ -2935,11 +3038,35 @@ function drawGeometry() {
   }
 }
 
-// A FIELD PICTURE BELONGS ON THE STAGE, not only in the evidence strip. The
-// panel's third state is the solved field, and until this existed the act ran
-// geometry → grid → and then left the grid standing while the one picture of
-// the flow sat in a thumbnail row below the fold. The figure still lands in the
-// strip exactly as before; this puts it on the stage as well.
+// ============ THE SAME PICTURE IN THREE PLACES AT ONCE, AND WHY ============
+//
+// SANAA, 2026-09-01: "04 / field on top of the geometry, the top right is
+// enough."
+//
+// WHERE THE DUPLICATION COMES FROM, which is not where it looks like it comes
+// from. The obvious suspect is the stage gate — `showViewportStage` — and the
+// gate is innocent: it sets `hidden` on all three of `viewportCanvas`,
+// `gridCanvas` and `viewportField` on every call, so no two of them are ever up
+// together, and the field <img> genuinely replaces the geometry canvas rather
+// than covering it. Hiding one of those three would have been treating a
+// symptom that is not even there.
+//
+// The duplication is between SIBLING REGIONS, which no gate spans. One
+// `plot` event carrying `field: true` fanned out to THREE surfaces at once:
+//
+//   1. the stage        `showFieldImage` -> `viewportField`, full stage, centre
+//   2. the strip        `$('plots')` figure, below the stage
+//   3. the report       `renderMemo` leads with `[...rep.plots, ...state.plots]`
+//
+// (3) is the workspace column — the top right — and it is the one she kept.
+// So the fan-out to (1) is removed at the fan-out, in `addPlot`, rather than by
+// blanking an element downstream: a screen that is drawn and then hidden is a
+// screen that can come back on the next redraw.
+//
+// DELIBERATELY LEFT DEFINED AND UNREFERENCED. Restoring the stage copy is then
+// one line in `addPlot` rather than a reconstruction, and nothing about this
+// call is wrong — it is surplus. `field.ready` is a different path entirely
+// (`loadField` paints the body's own facets and is untouched).
 function showFieldImage(url, p) {
   const img = $('viewportField'); if (!img || !url) return;
   img.src = url;
@@ -2952,7 +3079,10 @@ function showFieldImage(url, p) {
 function addPlot(p) {
   const url = p.url || (p.file ? `/api/plot/${p.mission||state.mission}/${p.file}` : null);
   if (!url) return; state.plots.push({ url, title: p.title, caption: p.caption });
-  if (p.field) showFieldImage(url, p);
+  // THE FAN-OUT THAT PUT THE FIELD ON THE STAGE IS GONE. See the block above
+  // `showFieldImage` for the three surfaces one `field: true` figure reached and
+  // which one Sanaa kept. To restore the stage copy: `if (p.field)
+  // showFieldImage(url, p);` here, and nothing else.
   const img = document.createElement('img'); img.src = url; img.title = p.title || ''; img.onclick = () => window.open(url,'_blank');
   // A TITLE IN `img.title` IS A HOVER TOOLTIP AND A FILMED SCREEN HAS NO
   // MOUSE. Measured: four figures on the jet-flap act, four titles, none of
@@ -2966,8 +3096,11 @@ function addPlot(p) {
   fig.appendChild(img);
   if (p.title || p.caption) {
     const cap = document.createElement('figcaption');
-    cap.innerHTML = (p.title ? `<b>${subScript(esc(p.title))}</b>` : '')
-                  + (p.caption ? subScript(esc(p.caption)) : '');
+    // The title stays a heading; the CAPTION becomes bullets (see
+    // `bulletHTML`). A figure's sentence is the one a viewer reads standing
+    // still, so it is the one that had to get shorter.
+    cap.innerHTML = (p.title ? `<b>${subHTML(p.title)}</b>` : '')
+                  + bulletHTML(p.caption);
     fig.appendChild(cap);
   }
   $('plots').appendChild(fig);
