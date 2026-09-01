@@ -198,6 +198,81 @@ def _sci(value: float, digits: int = 3) -> str:
 
 
 def main(request: str | None = None, params: dict | None = None, emit=None) -> int:
+    """THE DISPATCHED ENTRY POINT — DEMO MODE, the nine-stage sequencer.
+
+    Sanaa's DEMO MODE directive (``etc/sessions/2026-09-01T0340Z_sanaa_demo_
+    mode_binding.md``) makes the nine stages MANDATORY for this act: "every
+    stage renders in its normal place and its normal order". The router sends
+    intent ``jet-flap-display`` here, so here is where the act is walked.
+
+    THE CONNECTOR IS LOCAL, DELIBERATELY. The alternative was a branch in
+    ``chief_engineer.server._run_workflow``, which every other team's intent
+    also runs through; a shared dispatcher is the wrong place to carry one
+    act's special case, and the blast radius of an edit there is every route
+    on the box. Nothing outside this module changes, so every other intent
+    takes a byte-identical path by construction rather than by inspection.
+
+    SIGNATURE MAPPING, and what is dropped. The workflow contract is
+    ``main(request=, params=, emit=)``; the sequencer's is
+    ``run_act(key, emit=, script=)``.
+
+    * ``emit`` is passed straight through and IS the mission EventBus's
+      ``publish`` (``server._run_workflow`` calls with ``emit=record.bus.
+      publish``), so ``stage.banner`` and ``solve.frame`` reach the page.
+    * ``script`` is built here, because the sequencer's meshing, gates and
+      results stages publish their tables only when a script exists; with
+      ``script=None`` the three measured tables would silently not render.
+    * ``request`` sets the PROMPT LINE and nothing else, as
+      ``typed_prompt``. Measured before it was wired: with the act's
+      registered prompt shown unconditionally, a run driven with a reworded
+      prompt of the same intent still published Sanaa's exact registered
+      string, so the screen quoted a viewer words they had not typed, with no
+      mismatch shown. Echoing someone's own prompt back is not a wording
+      override; it is the one string on screen that is unambiguously theirs.
+      Everything else the screen says stays the act's, so a prompt still
+      cannot reword a display whose wording is fixed by directive.
+    * ``params`` is DROPPED, and that is a property of the act rather than an
+      oversight. The act reads every number off the landed run tree and
+      serves its own surface; there is no free parameter an uploaded filename
+      could set, so threading one in would change nothing and imply that it
+      had.
+    * Scope honesty is the dispatcher's and is already live for this intent:
+      ``scope.unmet_asks`` declares ``jet-flap-display`` as capable of
+      blowing, and MEASURED, it returns a scope-down on a prompt that also
+      asks this act for a temperature field, a time history or a design
+      search. It does not fire on a prompt that merely differs in wording or
+      asks for something outside its four-tag vocabulary, which is why the
+      prompt line itself has to be honest.
+
+    NO DEMO-MODE SWITCH IS INVENTED. There is no environment flag or runtime
+    toggle for DEMO MODE anywhere in the tree; the directive is unconditional
+    for this act, so a second switch would only add a way to be off.
+
+    A refusal is not caught here. ``SequencerRefused``, ``DemoContractError``
+    and ``ReaderRefused`` all propagate to ``_run_workflow``, which publishes
+    ``mission.failed`` with the reason. Swallowing one would put a silent
+    completion on screen in place of a screen that refused.
+
+    The pre-sequencer behaviour is kept whole and reachable as
+    :func:`legacy_main`.
+    """
+    from . import demo_sequencer
+    from . import jet_flap_act  # noqa: F401  registers the "jet-flap" act
+
+    script = make_transcript(LABEL, emit)
+    demo_sequencer.run_act("jet-flap", emit=emit, script=script,
+                           typed_prompt=request)
+    return 0
+
+
+def legacy_main(request: str | None = None, params: dict | None = None,
+                emit=None) -> int:
+    """The pre-DEMO-MODE jet-flap screen, unchanged and still callable.
+
+    Kept whole: it is the only path that renders this act as a single flat
+    transcript, and it is what a caller wanting the old screen calls. Nothing
+    dispatches to it now; :func:`main` walks the nine stages instead.
+    """
     params = dict(params or {})
     script = make_transcript(LABEL, emit)
 
