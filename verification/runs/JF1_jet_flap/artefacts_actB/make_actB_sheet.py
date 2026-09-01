@@ -12,6 +12,7 @@ and its comments are not part of the sheet.
 
 from __future__ import annotations
 
+import math
 import os
 import sys
 
@@ -179,6 +180,21 @@ def main() -> int:
     clip_lo = min(c["fraction"] for c in census)
     clip_hi = max(c["fraction"] for c in census)
     sixth_census = jf1num.bounded_k_census(SIXTH_CASE)
+
+    # ROUNDING DIRECTION ON AN ADVERSE QUANTITY. Clipping fraction is a "how
+    # bad" number: larger is worse. A plain :.0f printed the worst row, 97.325%,
+    # as "97" -- rounding an adverse figure DOWN, which is the same flattering
+    # shape as the settle column this sheet already repaired, at one more
+    # significant figure. The printed pair is a BOUND, not two measurements, so
+    # it is widened OUTWARD: the low end floors and the high end ceilings. A
+    # bound that is looser outward is always a true statement about the runs;
+    # one that is tighter inward is a claim the measurements do not support.
+    clip_lo_pct = math.floor(100 * clip_lo)
+    clip_hi_pct = math.ceil(100 * clip_hi)
+    # The companion figure is a POINT value, not a bound, so ceiling it would
+    # overstate 99.41% as 100%. A point value carries the digit instead, which
+    # answers the same objection without inventing a number.
+    sixth_pct = 100 * sixth_census["fraction"]
 
     tex = rf"""% ---------------------------------------------------------------
 % Blown trailing edge -- one-page result sheet.
@@ -370,10 +386,10 @@ still moving at the end of every run, by the amount in the movement column,
 which is why that column is quoted at all --- a settling indicator is not a
 converged one. In every one of the five conditions the solver also had to clip
 the turbulence energy back to zero wherever it went negative, on
-{100 * clip_lo:.0f} to {100 * clip_hi:.0f}\% of iterations and continuously
+{clip_lo_pct:d} to {clip_hi_pct:d}\% of iterations and continuously
 through the final one, so these fields are held non-negative by that clipping
 rather than converged free of it; on the companion mesh it is
-{100 * sixth_census['fraction']:.0f}\%. The finer companion mesh has completed,
+{sixth_pct:.1f}\%. The finer companion mesh has completed,
 and it does not close the mesh question: it is a different grid topology on a
 different reference area, run as a diagnostic, so it is not a refinement of the
 five and no grid-refinement study has been carried out. The mesh contribution

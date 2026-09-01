@@ -39,6 +39,18 @@ implementation, `verification/runs/JF1_jet_flap/jf1_display_numbers.py`. Two of
 them previously carried separate copies of the same dictionary, which is how
 one number becomes two numbers that disagree.
 
+**The clipping percentages rounded an adverse figure DOWN, and now widen
+outward.** The sheet stated the turbulence-clipping range under a plain `:.0f`,
+which printed the worst row's measured 97.325% as "97" — the same flattering
+shape as the Movement column repaired above, one significant figure further
+down. The printed pair is a BOUND, not two measurements, so it is now widened
+outward: the low end floors and the high end ceilings, giving "81 to 98%". A
+bound looser outward is always a true statement about the runs; one tighter
+inward is a claim the measurements do not support. The companion-mesh figure is
+a POINT value, not a bound, so ceiling it would have overstated 99.41% as 100%;
+it carries the digit instead and reads "99.4%". Page count and the page-two word
+count were re-measured after the change and are unmoved at 2 and 428.
+
 **Wall spacing on the sweep grid now reports the worst of the five, not the
 one rendered.** Asset 3 stated "largest 0.256", which is the Cμ = 0.10
 calculation, on a page captioned as the grid all five ran on. The sweep
@@ -64,7 +76,7 @@ the `.pdf` unless the control room needs a raster.
 6. `/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/artefacts/jet_flap_2_chordwise_pressure.pdf` — THE PRESSURE FIGURE. Cp vs x/c, full scale, nothing clipped, upper and lower separated (generator `plot_jf1_actB_cp_span.py`).
 7. `/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/artefacts/jet_flap_3_flow_field.pdf` — the flow picture, finer mesh, flow-picture only (generator `plot_jf1_actB_demo.py`).
 8. `/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/artefacts/jet_flap_4_jet_path.pdf` — the jet trajectory (generator `plot_jf1_actB_demo.py`).
-9. `/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/artefacts_actB/blown_trailing_edge_result_sheet.pdf` — the one-page result sheet. LENGTH-CRITICAL: it must stay at exactly 1 page; check `pdfinfo` after any edit to `make_actB_sheet.py` (generator `artefacts_actB/make_actB_sheet.py`, then `pdflatex`).
+9. `/home/ubuntu/Certonomous/verification/runs/JF1_jet_flap/artefacts_actB/blown_trailing_edge_result_sheet.pdf` — the result sheet, **2 pages** (measured 2026-09-01: `pdfinfo` reports 2; page two carries 428 words). It grew from 1 page to 2 by ADDING candour, not padding: page two is the disclosure — the turbulence-clipping census on all five conditions, the "not checked" statement, and the figure notes. **Do not cut disclosure to restore a 1-page sheet.** Check `pdfinfo` after any edit to `make_actB_sheet.py` and expect 2; a jump to 3 is the thing to catch (generator `artefacts_actB/make_actB_sheet.py`, then `pdflatex` twice).
 
 Capture order above follows the arc in the demo standard v2 §2 (geometry and
 mesh, then the cheap check, then results). It is read off that arc, NOT off a
