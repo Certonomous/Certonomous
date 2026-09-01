@@ -299,3 +299,135 @@ path shas as recorded on the artifact's own face: `analyse_t23g.py`
 `314a2b82b85cd1c620f26d37c1a2613cf76838d6`, `mark_done_t23.py`
 `ecd457ac87dbdab83498c6a9c0334226c3e66863` — the fourth entry recorded for the
 first time by REPAIR R2 under the §2d.1 grant.*
+
+<!-- END OF T23G RESULTS v1.0 -->
+
+---
+
+## 11. ADDENDUM — SANAA'S CONVERGENCE-PREREQUISITE DOCTRINE, AND THE FOUR CAUSE CANDIDATES FOR THIS CASE
+
+*Appended 2026-09-01 by a heat-transfer `lab-lane`. **Results document v1.1.***
+
+**Lines whose number changed above this section: 0.** Verified, not assumed:
+this addendum was appended at the foot and §§1–10 were compared line-for-line
+against the committed blob before the commit — every line above this heading
+holds the number it held at v1.0.
+
+**⛔ THIS ADDENDUM CHANGES NO VERDICT.** The rung's verdict remains
+`NOT A RESULT` on all three quantities, on the grounds §4 states. Nothing below
+re-grades anything, and no number in §4 becomes quotable because of it. This
+section records **procedure for the successor**, which is a different thing from
+a finding about this rung.
+
+### 11.1 THE DOCTRINE, AND WHERE IT COMES FROM
+
+Sanaa's directive of **2026-09-01 ~15:45Z**, captured verbatim at
+`etc/sessions/2026-09-01T1545Z_sanaa_convergence_prerequisite_doctrine.md`
+(commit `f4c8e466`). Her header: *"Cost is not a constraint. Every gated case
+runs its grid convergence study automatically; a case without one is not a
+result."* This rung's `p = 0.375` is what her §1 responds to.
+
+**§0 — the automatic convergence study, a pipeline stage on every gated case,
+run without being asked:**
+
+1. **Three geometrically similar meshes from ONE parametric script** — same
+   topology, same layer structure, uniform `r` between 1.5 and 2.0 in every
+   direction (`r = 1.3` the floor; larger `r` gives a cleaner order). Near-wall
+   spacing scales with `r`; `y+` under 1 on every wall-resolved level.
+2. **All three to TIGHT iterative convergence** — *the iterative change in the
+   graded quantity must be at least 10× smaller than the difference between
+   consecutive mesh levels*, or the observed order is noise rather than
+   discretisation. Tighten residuals (1e-8) and the stationarity window
+   **before** concluding anything about the grid.
+3. **Observed order `p` and GCI**, accepted within 0.5 of the formal order
+   (second order → 1.5 to 2.5). Report `p` and the band.
+4. **If `p` is outside the range, DO NOT STOP** — automatically re-check step 2
+   on the finest level, verify mesh similarity (cell-count ratios, layer counts,
+   growth ratios: the F28 lesson), add a fourth finer level at the same `r` and
+   recompute `p` on the finest three, repeating for up to two more levels. **A
+   quantity sampled at a single cell (a max) may need a smoother companion
+   quantity for the order study** (integrated heat flux, integrated force): use
+   it for `p`, apply the band to the reported max, **and say so**.
+5. **Only then is the case gradable, and the band goes on every number.**
+
+> **"Do not stop" means keep measuring — not keep going until the number becomes
+> usable.** A non-`CONVERGING` triple is `NOT A RESULT` throughout
+> (`CLAUDE.md` rule 5), and a successor that runs four more levels and still
+> lands outside the band has produced a better-instrumented `NOT A RESULT`.
+> That is the procedure succeeding.
+
+### 11.2 HER FOUR CAUSE CANDIDATES FOR THIS CASE, IN HER ORDER
+
+From her §1, *"MOTOR IN DUCT (Act A): p = 0.375 means 'not yet in range', so go
+there"*. Checked in this order:
+
+| # | candidate | what she prescribes |
+|---|---|---|
+| **(a)** | **iterative convergence too loose relative to the level-to-level difference in `T_max`** | tighten the energy residual to **1e-9** and `T_max` stationarity to **0.005 K over 2000 iterations** on every level, then re-read `p` |
+| **(b)** | **mesh similarity** | confirm the wall-layer count and growth ratio are **identical** across levels and only the spacing scaled; *"if L1 had fewer layers, it is not similar: rebuild"* |
+| **(c)** | **coarsest level outside the asymptotic range** | add **L4 at `r = 1.5` from L3** (about 130k cells), then L5 if needed; take `p` from the **finest three** |
+| **(d)** | **the graded quantity is a single-cell max** | use the **core's volume-averaged temperature** and the **housing surface heat flux** as the order-study quantities; **apply their band to `T_max`** |
+
+Also registered by her for the successor: *"Run until `p` lands in 1.5 to 2.5.
+Then the sixteen points get their band (measured at 305 W / 20 m/s, applied to
+all, disclosed)"*, and *"record `y+` on every level; the 3.5 mm wall must keep
+8+ cells at L1."*
+
+### 11.3 ⚠ A NON-BINDING READING OF CANDIDATE (a) FROM THIS RECORD'S OWN NUMBERS
+
+Her §1 (a) notes the inter-level differences *"may be of that size"* as the
+0.05 K `T_max` stationarity criterion. **On this rung's measured values they are
+not.** From §4, the tightest consecutive-level difference across all three
+quantities is **Q2's `M − F` = 1.337101851 K**; the widest is Q1's `C − M` =
+1.750226685 K. Against the registered 0.05 K stationarity criterion — taken as a
+*conservative upper bound* on the iterative change, since §2 records the actual
+plateau spreads as `0.000000 K` on every level — the ratio is **≈ 26.7× at its
+tightest, comfortably past the 10× the doctrine requires.**
+
+> **So the §0 point-2 ratio test PASSES on this rung, and candidate (a) is the
+> one this rung's existing artifacts already argue against.**
+
+**This is a reading, not a verdict, and it is explicitly non-binding.** It is
+arithmetic over §2 and §4 of this document, performed after the fact; the
+plateau window and *"the iterative change in the graded quantity"* are not
+proven here to be the identical construct, and the successor must compute the
+ratio **on its own instrument, under its own freeze**. It is recorded because
+the doctrine's value is that the ratio gets *computed* rather than assumed, and
+because it points the successor at (b), (c) and (d) — and at §6's unmeasured
+`y+` — before it spends compute on (a).
+
+**§6 remains the strongest lead in this record**: `y+` is `BLIND` on all three
+levels, and a ladder that does not share one wall treatment produces exactly
+this shape of sub-first-order rate. Restoring that instrument is prerequisite to
+candidate (b) meaning anything.
+
+### 11.4 THE SUCCESSOR — ORDERED, AND **NOT YET REGISTERED**
+
+**Sanaa's directive ORDERS a successor** (*"Run until `p` lands in 1.5 to 2.5"*;
+*"convergence studies launch in parallel on every case named above, starting
+now"*).
+
+> **⛔ AS OF THIS ADDENDUM, NO SUCCESSOR PRE-REGISTRATION EXISTS ON DISK FOR
+> T23G.** Checked, and the check is named so it can be repeated:
+> `docs/campaigns/T-family/` and `verification/campaign/` were listed, and no
+> file registers a T23G successor. **A directive orders; it does not register.**
+
+Under `CLAUDE.md` rule 2 the successor freezes **its own** pre-registration, by
+sha, **before any compute** — gate, threshold, cap and label committed before the
+solver starts. Nothing in this results document registers anything, however
+clearly §10 and §11.2 name the levers, and **no compute is authorised by this
+addendum.**
+
+### 11.5 FILED AS A LESSON
+
+The transferable content is filed as **`L-429`** in `docs/LESSONS.md`, commit
+**`f83a403e`** — the 10× ratio test as the discriminator between *"the grid is
+not converging"* and *"we did not iterate hard enough to tell"*; the single-cell
+maximum as a poor order-study quantity needing a smoother companion with the
+band transfer disclosed; mesh similarity as a precondition (the F28
+cell-volume-jump failure in another family); and the standing clause that a
+non-`CONVERGING` triple stays `NOT A RESULT` throughout.
+
+**SUBMISSIONS PARKED** (rule 7). **Permanently private** (rule 8).
+
+<!-- END OF T23G RESULTS v1.1 -->
