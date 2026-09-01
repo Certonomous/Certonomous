@@ -57,5 +57,11 @@
  "verdict_rule": "registered before the run: live cell-by-cell meshing on camera is viable only if total mesh wall time <= 60 s (Sanaa's own 'seconds to a minute').",
  "verdict": "PASS",
  "verdict_reading": "The real mesher builds Act D's exact 38,304-cell grid in 8.02 s. Live meshing is viable for this act at Sanaa's stated pace, with margin.",
- "what_this_does_NOT_say": "This is not a measurement of meshing an STL. The mesher's input is a CGNS surface mesh. Whether snappyHexMesh could build a comparable grid from mach_tutorial_wing.stl, and how long that would take, was not measured and no number for it is reported."
+ "what_this_does_NOT_say": "This is not a measurement of meshing an STL. The mesher's input is a CGNS surface mesh. Whether snappyHexMesh could build a comparable grid from mach_tutorial_wing.stl, and how long that would take, was not measured and no number for it is reported.",
+ "addendum_2026_09_01": {
+  "what": "A caveat on the scope of the verdict. Adds nothing to and removes nothing from the gate, threshold, cap or label registered at 6e911354; those are closed.",
+  "the_gap": "This measured THE MESHER. Sanaa's stage description is 'the real mesher on the uploaded STL, the computational grid drawn cell by cell, wall-layer zoom, slot/wall resolution table'. The 8.021 s covers the mesher only. DRAWING 38,304 cells one at a time in the viewport is a rendering cost in the browser, and it was NOT measured here and is not covered by this PASS.",
+  "why_it_matters": "A cell-by-cell draw of 38,304 cells at, say, 60 frames per second and one cell per frame would take about 10 minutes. The drawing rate is a display choice (cells per frame), not a solver fact, so it is the GUI's to set -- but nobody should read this PASS as saying the whole meshing STAGE fits in 8 seconds. It says the MESH does.",
+  "what_would_close_it": "A measurement of the viewport's own draw rate for this grid, taken by cfd in the GUI pipeline, against whatever cells-per-frame the stage chooses. Not measured by this lane and not estimated here."
+ }
 }
