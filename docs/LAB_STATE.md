@@ -4788,9 +4788,71 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:29:42Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T05:50:25Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24m — **`D19O` COMPLETE: `GATE REACHED`, BOTH ROWS, AND THE CEILING EARNED ITS PLACE — BOTH ROWS COMPOSED RAW `PASS` AND WERE CAPPED. THE FINDING THE ITEM WAS BOUGHT FOR: THE SHIPPED ADJOINT IS 44.87 % WRONG AT THE BASELINE AND **0.0232 %** RIGHT AT THE OPTIMUM ON THE SAME COMPONENT AND THE SAME GROUND. VERIFIED BY ME FROM THE GRADE ARTEFACT** (2026-09-01T05:50:25Z, `date -u` at write)
+
+###### 1. THE VERDICT, AND THE CEILING DOING PRECISELY WHAT IT WAS BUILT FOR
+
+**Item `GATE REACHED`. Seven arms of seven, all `rc=0`, `chain_rc=0`, `grader_rc=0`. 16.184 core-min against 24.10 predicted and a 145.0 ceiling.** Results `19039aec`; calibration row `C-20260901T054637.462483Z-6c843833`. Grade artefact `D19O_grade_20260901T054304Z.json`, written by `c55a0151dc8eab4740ee1169cb9202ae`.
+
+**⚠ READ BY ME FROM THE ARTEFACT, NOT RELAYED:**
+```
+row PATCHED: verdict=GATE REACHED  raw=PASS  capped=True  why="every gate passed"
+row SHIPPED: verdict=GATE REACHED  raw=PASS  capped=True  why="every gate passed"
+capped_by_ceiling_anywhere=True   rows_capped=['SHIPPED','PATCHED']
+```
+**EVERY GATE PASSED. BOTH OPTIMISERS PRINTED `Optimal Solution Found.` BOTH ENDPOINT FD TABLES PASSED BAND D AND BAND E. BOTH ROWS COMPOSED RAW `PASS` AND WERE CAPPED.** **Without the ceiling this item would be publishing a compressible `PASS` on a gradient that has never been graded.** The `shape[7]` plateau failure is why the ceiling was registered, and this is the night it paid for itself.
+
+**Birth register on the REAL run: 8 readers, 8 born, 0 not born, 5 of them readers whose zero passes a gate** — the live control fired inside both real `FE` arms in both directions. **The gap I refused to let past is closed on measured evidence, not on a suite.**
+
+###### 2. ⚠⚠ THE FINDING THAT MOVES MORE THAN THIS ITEM — **VERIFIED BY ME, COMPONENT BY COMPONENT**
+
+**`D15` measured the SHIPPED adjoint `44.8738 %` wrong on `shape[6]` at the BASELINE, on this exact ground, where `shape[6]` carries `76.414 %` of the gradient norm.**
+
+**At the ENDPOINT, from the grade artefact, read by me:**
+| row | `shape[6]` adjoint | FD at s\* | **rel err** | verdict |
+|---|---|---|---|---|
+| SHIPPED | −0.02807645256 | −0.02806993949 | **0.023203 %** | PASS |
+| PATCHED | −0.02808950326 | −0.02807382638 | **0.055842 %** | PASS |
+
+**44.87 % wrong at the baseline; 0.0232 % right at the optimum. Same component, same ground, same image.**
+
+**The mechanism is §9's own and it PREDICTS this:** the IDWarp degenerate branch fires when `axisMag = 1e-15 < sqrt(eps)`, which is **certain at every non-corner node of an UNDEFORMED mesh and false at a deformed one.** **So on this ground the defect is BASELINE-ONLY — which means EVERY PRIOR FD TABLE HERE WAS MEASURED IN THE ONE CONFIGURATION WHERE THE DEFECT IS GUARANTEED PRESENT.**
+
+**⚠ THE HONEST LIMITS, IN THE RECORD AND NOT SOFTENED: one case, one Mach, np=1, four graded components, and the two rows landed on NEARLY THE SAME OPTIMUM — so this is a WEAKER test of the difference than two distant optima would be. IT DOES NOT RETIRE THE PATCH.**
+
+**AND IT IS NOT FILED, NOT SENT, NOT DRAFTED UPSTREAM.** The defect records carry `NOT FILED ANYWHERE` and **that is unchanged tonight.** This is a finding about what OUR OWN records mean; **filing is Sanaa's alone** (rule 7, `DAFOAM_CHARTER` §10).
+
+###### 3. `shape[7]`: ITS NEAR-NULLITY IS A PROPERTY OF THE BASELINE, NOT OF THE COMPONENT — **AND IT WAS STILL NOT PROMOTED**
+
+**|dCD/dshape[7]| at the optimum: `5.887e-03` SHIPPED, `5.824e-03` PATCHED, against `2.099e-04` at the baseline — a factor of 28.0 and 27.7.** **And its plateau CLOSES on both rows: `plateau_two_sided = True`**, agreeing to **0.16818 %** and **0.12437 %**.
+
+**⚠ AND `G-PLAT7` STILL RETURNS `NOT A RESULT` ON BOTH ROWS, SET FROM THE LIST, WHATEVER VALUE IT RETURNS.** The lane's own words, and they are exactly right: *"I do not get to promote it after seeing a good number; that is a successor's registration to make."* **THAT IS THE WHOLE DISCIPLINE IN ONE SENTENCE.** The exclusion is by name in `excluded_from_aggregate`, published beside the aggregate and never instead of it.
+
+###### 4. THREE PREDICTIONS WRONG — AND THEY ARE **ONE** FAILURE
+
+**`P5`, `P6` and `P7` all predicted the two rows would differ. They do not.** **Every one was reasoned from `D15`'s BASELINE number** — the single configuration §2 now shows is the unrepresentative one. **`P7` is the same shape as SO-3's `P6` miss, and the lane's own §13.1 had warned it "may miss the same way": the warning did not make the prediction right, it made the miss LEGIBLE.** `P1`–`P4`, `P8`–`P10` and `P_COST` all HIT.
+
+**Both aggregates are BELOW the harness floor** — `0.042993 %` and `0.052679 %` against 2.5–5 %, **58× and 47× below its lower edge. Reported, never gated, labelled a claim about the harness**, and corroborated as this ground's normal by D19R's own np=1 patched aggregate of 0.055341 %.
+
+###### 5. COST — MY CORRECTION VINDICATED, AND THE LANE'S OWN `R5` IS THE REMAINING MISS
+
+**Expected-major pricing WORKED: 13 and 10 rows against an expectation of 12**, so the 0.6715 ratio is a **RATE** error, not a major-count error — **nothing like SO-3's 0.126×.** **The rate miss is exactly what `R5` named in advance: the compressible penalty on a MAJOR is `1.059×`, not the `1.6086×` the PRIMAL shows.** Measured twice at **0.4154** and **0.4217** core-min/major, agreeing to 1.5 %. **Forward rule now in the ledger: ≈0.42 core-min/major for a compressible optimiser major on A1 at np=1. Waste: none.** **`R3` and `R2` are retired by measurement.**
+
+###### 6. ONE NEW DEFECT, FOUND BY RUNNING IT — `D19O-DRIVER-DEF-1`, NOT REPAIRED, AND THAT IS CORRECT
+
+The frozen driver writes its pre-launch selftest output into the **git working tree (`$HERE`)** instead of the run root, leaving four untracked `.selftest.out` files beside the frozen instruments. **No verdict changes, no pin breaks.** **Not repaired because the driver is PINNED and the item has had FIRST COMPUTE**, and the files are left unswept **because deleting them removes the only on-disk evidence the four suites ran before staging.** **I upheld both calls. The repair goes into the NEXT driver — `$BASE/`, not `$HERE/` — where it is free.**
+
+###### 7. NEXT — SANAA'S FIRST BRANCH IS NOW LIVE
+
+`D19O` completing triggers **`055376a0`'s first branch**: *"the compressible multipoint should also be queued if the compresible single pt was ran."* **It has run. The compressible multipoint is dispatched to build, register and QUEUE tonight.**
+
+**I adjudicated the one gate-design question that could have blocked it: BOTH ROWS, exactly as `D19O` and `SO-3` did.** Someone could argue that since the rows now agree at the endpoint the multipoint should feed a single gradient row. **It must not.** The rows agree **at an optimum** and diverge **at a baseline** — **collapsing to one row would bake in an agreement this very item shows is configuration-dependent, and would destroy the only instrument able to detect it.** `shape[7]`'s registration carries forward **unchanged**; its plateau closing here is evidence for a FUTURE registration that says so in advance, not licence to grade it now.
+
+**Two follow-ons named and boarded, not folded in:** the forward-AD/complex-step reference, now with a sharper target since the component differs by 28× between the two points; and **a successor evaluating the shipped adjoint at a DELIBERATELY DISPLACED design point away from BOTH optima — the test this item could not perform, and the one that would actually settle whether the defect is baseline-only.**
 
 ##### UPDATE S-24l — **`MODE O` WORKED ON ITS FIRST EXECUTION: `R3` IS RETIRED BY MEASUREMENT. THE SHIPPED OPTIMISER CONVERGED — WHICH IS A REGISTERED PREDICTION **MISS** — AND THE CEILING IS DOING EXACTLY THE WORK IT WAS REGISTERED FOR. THE COMPRESSIBLE PENALTY ON A MAJOR IS **1.059×**, NOT THE 1.6086× CARRIED FROM THE PRIMAL** (2026-09-01T05:29:42Z, `date -u` at write)
 
