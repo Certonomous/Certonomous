@@ -5,8 +5,10 @@ A PY_COMPILE IS NOT A WITNESS. This drives the act through the shared stage
 sequencer on an injected clock, captures every payload that would reach a
 screen, and asserts against the record the act reads from rather than against
 anything written here. It launches nothing: the solver stage advances the
-recorded run's own monitors, and the mesh stage never invokes a mesher (the
-shared sequencer does not read ``MeshPlan.command`` at all).
+recorded run's own monitors, and the mesh stage invokes no mesher HERE --
+the shared sequencer does now read ``MeshPlan.command``, but it refuses to
+point a mesher at a work directory that looks like a landed case tree, and
+Act D's is exactly that, so the stage publishes ``meshed: false``.
 
 What it asserts, and every one of them is a thing that would be wrong on
 camera if it failed:
@@ -88,7 +90,7 @@ def run_checks() -> tuple[dict, bool]:
     SAME checks under a deliberately broken act. A control that ran a
     different, gentler set of checks would prove nothing about these ones.
     """
-    from workflows.demo_mode import STAGES, validate_act
+    from workflows.demo_mode import SCREEN_COMPUTE_UNIT, STAGES, validate_act
     from workflows import adjoint_act
 
     problems = validate_act(adjoint_act.ACT)
@@ -197,8 +199,27 @@ def run_checks() -> tuple[dict, bool]:
 
     # ---- 6. geometry, mesh, gates, results -------------------------------
     geometry = _of(events, "demo.geometry")[0]
+    # SECOND STALE LITERAL OF THE SAME CLASS, found by driving this file rather
+    # than by reading it. This spelled out "Solved on this geometry" -- a past
+    # participle -- while its own name says PRESENT TENSE. Sanaa's ~04:20Z
+    # order, quoted verbatim in this team's own
+    # docs/dafoam/demo/check_actD_sheet_face.py:13, is "no internal
+    # information, no past tense, no long sentences"; demo_mode dropped the
+    # leading verb to comply, and this literal then demanded the very string
+    # the order forbids. So the wording is IMPORTED from the act's own geometry
+    # contract instead of spelled, and what is asserted is the load-bearing
+    # content: the measurement AGREES (the sentence is refused outright when it
+    # does not), the sequencer published that contract sentence unaltered, and
+    # it names the measured cell count. Tense itself is not re-litigated here;
+    # every rendered string already goes through the act's screen checker,
+    # which is check 8 below.
+    geom = adjoint_act.ACT.geometry()
+    cells_measured = adjoint_act.ACT.mesh_plan().cell_count
     check("the geometry stage states the solved case in the present tense",
-          geometry["statement"].startswith("Solved on this geometry"),
+          geom.is_solved_geometry()
+          and geometry["statement"] == geom.solved_geometry_sentence(
+              cells_measured)
+          and cells_measured.on_screen() in geometry["statement"],
           geometry["statement"])
     check("no surface loaded never appears",
           not any("no surface" in json.dumps(e).lower() for e in events),
@@ -211,8 +232,30 @@ def run_checks() -> tuple[dict, bool]:
     check("the header names the solver of the source run",
           results["solver"].startswith("Solver: DAFoam DARhoSimpleFoam"),
           results["solver"])
+    # The load-bearing parts of that sentence are the NUMBER, its BASIS and
+    # the word "derived" -- not the noun the screen gives the unit. 240.1 is
+    # not a literal anywhere: it is computed at ``adjoint_act:595`` as
+    # ``core_minutes(wall, ranks)`` off the record's own wall time and rank
+    # count, so it is a MEASURED cost, and S-24i caught a PREDICTED cost about
+    # to go on camera as what the run cost in four places. That is what this
+    # check exists to keep impossible. The unit noun is demo_mode's to choose
+    # -- it renamed core-minutes to processor-minutes for the customer surface
+    # without touching the arithmetic -- so it is IMPORTED rather than spelled
+    # here: a future rename moves both sides together, and a rendered line that
+    # DIVERGES from the constant still goes red.
+    cost = results["cost"]
     check("the cost line is this run's own cost",
-          "240.1 core-minutes" in results["cost"], results["cost"])
+          f"240.1 {SCREEN_COMPUTE_UNIT}" in cost
+          and ("(gross)" in cost or "(cleaned)" in cost)
+          and "derived" in cost,
+          cost)
+    # The mesh beat is narrated, so what it publishes is a camera string. The
+    # sequencer's guard refuses to point a live mesher at a landed graded run
+    # (``_run_mesher`` -> ``_unsafe_work_dir``) and Act D's work dir is that
+    # run, so nothing is meshed live and the script says so. If that ever
+    # flips, the script is wrong on camera and this must go red first.
+    check("nothing is meshed live and the stage says so",
+          mesh["meshed"] is False and "meshed_cells" not in mesh, mesh)
 
     # ---- 7. the standing prohibitions ------------------------------------
     camera = json.dumps([e["payload"] for e in events]).lower()
@@ -235,8 +278,10 @@ def run_checks() -> tuple[dict, bool]:
                   "reads from."),
         "_driver": "cases/dafoam/drive_actd_demo_mode.py",
         "_act": "sdk/workflows/adjoint_act.py",
-        "nothing_launched": ("no solver and no mesher ran; the shared "
-                             "sequencer does not read MeshPlan.command and "
+        "nothing_launched": ("no solver and no mesher ran; the sequencer does "
+                             "read MeshPlan.command now, but its guard refuses "
+                             "to mesh into a landed case tree and Act D's work "
+                             "dir is one, so the stage published meshed=false; "
                              "the solver stage reads committed records"),
         "stages_published": published,
         "events_emitted": len(events),

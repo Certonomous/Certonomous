@@ -2,7 +2,7 @@
  "_what": "Act D driven end to end through DEMO MODE: what the sequencer published, checked against the record the act reads from.",
  "_driver": "cases/dafoam/drive_actd_demo_mode.py",
  "_act": "sdk/workflows/adjoint_act.py",
- "nothing_launched": "no solver and no mesher ran; the shared sequencer does not read MeshPlan.command and the solver stage reads committed records",
+ "nothing_launched": "no solver and no mesher ran; the sequencer does read MeshPlan.command now, but its guard refuses to mesh into a landed case tree and Act D's work dir is one, so the stage published meshed=false; the solver stage reads committed records",
  "stages_published": [
   "prompt",
   "restatement",
@@ -173,7 +173,7 @@
   {
    "check": "the geometry stage states the solved case in the present tense",
    "held": true,
-   "detail": "Solved on this geometry, 38304 cells."
+   "detail": "This geometry, 38304 cells."
   },
   {
    "check": "no surface loaded never appears",
@@ -187,6 +187,7 @@
     "stage": "meshing",
     "cells": "38304 cells",
     "zoom": "the first of the 39 layers marched from the wing surface",
+    "meshed": false,
     "drawn": false,
     "banner": "meshing"
    }
@@ -199,7 +200,19 @@
   {
    "check": "the cost line is this run's own cost",
    "held": true,
-   "detail": "Compute used: 240.1 core-minutes (gross), about $0.21, derived at the recorded rate."
+   "detail": "Compute used: 240.1 processor-minutes (gross), about $0.21, derived at the recorded rate."
+  },
+  {
+   "check": "nothing is meshed live and the stage says so",
+   "held": true,
+   "detail": {
+    "stage": "meshing",
+    "cells": "38304 cells",
+    "zoom": "the first of the 39 layers marched from the wing surface",
+    "meshed": false,
+    "drawn": false,
+    "banner": "meshing"
+   }
   },
   {
    "check": "the act never says the optimizer converged",

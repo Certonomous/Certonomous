@@ -20,7 +20,7 @@
   ],
   "strings_checked_by_the_act_itself": 80
  },
- "camera_strings_scanned": 2371,
+ "camera_strings_scanned": 2374,
  "wiring_strings_scanned": 161,
  "camera_hits": [],
  "wiring_hits": [
@@ -1526,14 +1526,14 @@
    "kind": "path",
    "why": "absolute home path",
    "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
-   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (0.97s)",
+   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (1.05s)",
    "where": "stdout:42"
   },
   {
    "kind": "path",
    "why": "relative path with a separator",
    "match": "/home/ubuntu/Certonomous/mission-output/adjoint-optimization",
-   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (0.97s)",
+   "context": "Artifacts in /home/ubuntu/Certonomous/mission-output/adjoint-optimization (1.05s)",
    "where": "stdout:42"
   }
  ],
