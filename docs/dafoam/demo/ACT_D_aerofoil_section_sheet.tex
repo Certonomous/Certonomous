@@ -1,12 +1,22 @@
 % ---------------------------------------------------------------------------
-% ACT D -- MULTIPOINT SHAPE OPTIMISATION (INCOMPRESSIBLE) -- one-page
-% customer-facing result sheet.  Written under the DEMO STANDARD v2 output
-% rules R1-R10.
+% ACT D (AEROFOIL SECTION) -- MULTIPOINT SHAPE OPTIMISATION (INCOMPRESSIBLE)
+% -- one-page customer-facing result sheet.  Written under the DEMO STANDARD v2
+% output rules R1-R10.
+%
+% RENAMED 2026-09-01 from ACT_D_shape_optimisation_sheet.tex, for
+% disambiguation only.  NO NUMBER, TABLE, FIGURE OR CLAIM ON THIS SHEET WAS
+% TOUCHED BY THAT RENAME.  Two different subjects were both called "Act D" and
+% the generic old filename had already misled a reader:
+%   this one : 2D NACA0012 section, 4,032 cells, 10 m/s, SO-3aR2 run root,
+%              gradients verified and NO OPTIMISER HAS RUN.
+%   the other: ACT_D_reference_wing_sheet.tex -- three-dimensional reference
+%              wing, 38,304 cells, 47 major iterations, 28.3% drag reduction.
+% Their numbers belong to different cases and must never be merged.
 %
 % Self-contained: no external figure file, no packages beyond a base TeX Live
 % install (no tikz/pgfplots on this box).  All three figures are native LaTeX
 % picture environments, so the output is vector at any zoom.
-% Compile: pdflatex ACT_D_shape_optimisation_sheet.tex
+% Compile: pdflatex ACT_D_aerofoil_section_sheet.tex
 %
 % PROVENANCE OF EVERY USER-VISIBLE NUMBER (not rendered; for the lab only).
 %   Angle sweep, coefficients, residuals:
