@@ -297,6 +297,26 @@ def _mmss(seconds: float) -> str:
 # The act
 # =========================================================================
 
+# ---- the freestream this act was solved at, READ FROM THE RUN SCRIPT -------
+# Typed here ONLY as the values the run script sets, with the file named, so a
+# reader can check them against the case rather than against this module's
+# opinion. `A2-mach-wing/runScript.py`: U0 100.0, p0 101325.0, T0 300.0,
+# A0 45.5, aoa0 4.65; `constant/thermophysicalProperties`: mu 1.8e-05,
+# Cp 1005, molWeight 28.97. Mach follows from that Cp and molWeight, not from
+# an assumed speed of sound.
+_actd_U0 = 100.0
+_actd_P0 = 101325.0
+_actd_T0 = 300.0
+_actd_MU = 1.8e-05
+_actd_A0 = 45.5
+_actd_AOA0 = 4.65
+_actd_MACH = 0.2881
+#: Measured off the stored surface record, not declared.
+_actd_SPAN = 14.041881
+_actd_CHORD_ROOT = 4.999999
+_actd_CHORD_TIP = 1.540599
+
+
 class AdjointWingAct(DemoAct):
     """The adjoint wing, fed from the landed optimisation."""
 
@@ -373,6 +393,190 @@ class AdjointWingAct(DemoAct):
             cost_estimate=Measured(round(budget, 1), "core-minutes",
                                    _actd.HISTORY_FILE, "derived"))
 
+
+
+    def _check_assumption_constants(self) -> dict:
+        """Every number in the assumptions table, against the file it came from."""
+        import re as _re
+        run = Path(self._history()["_source_dir"])
+        script, thermo = run / "runScript.py", run / "constant" / "thermophysicalProperties"
+        if not (script.exists() and thermo.exists()):
+            return {"verdict": "SKIPPED",
+                    "why": f"the run root {run} is not on this machine, so the "
+                           f"typed constants could not be checked against it"}
+        src, th = script.read_text(), thermo.read_text()
+
+        def num(pattern: str, text: str):
+            m = _re.search(pattern, text, _re.M)
+            return float(m.group(1)) if m else None
+
+        frames = _load(_LADDER / "A2_shape_frames.json")
+        pairs = [
+            ("U0", _actd_U0, num(r"^U0\s*=\s*([\d.eE+-]+)", src)),
+            ("p0", _actd_P0, num(r"^p0\s*=\s*([\d.eE+-]+)", src)),
+            ("T0", _actd_T0, num(r"^T0\s*=\s*([\d.eE+-]+)", src)),
+            ("A0", _actd_A0, num(r"^A0\s*=\s*([\d.eE+-]+)", src)),
+            ("aoa0", _actd_AOA0, num(r"^aoa0\s*=\s*([\d.eE+-]+)", src)),
+            ("mu", _actd_MU, num(r"^\s*mu\s+([\d.eE+-]+);", th)),
+            ("span", _actd_SPAN, frames.get("span_m")),
+            ("chord_root", _actd_CHORD_ROOT, frames.get("chord_root_m")),
+            ("chord_tip", _actd_CHORD_TIP, frames.get("chord_tip_m")),
+        ]
+        bad = [f"{n}: table says {t!r}, the run says {a!r}"
+               for n, t, a in pairs
+               if a is None or abs(t - a) > max(abs(a) * 1e-9, 1e-9)]
+        if bad:
+            raise DemoContractError(
+                "the assumptions table does not match the run it describes: "
+                + "; ".join(bad))
+        return {"verdict": "PASS", "checked": len(pairs)}
+
+
+    # -- stage 4's discussion ------------------------------------------------
+    def discussions(self):
+        """The three specialists, on decisions ACTUALLY taken.
+
+        THE SHEET HAD THESE VOICES AND THE WIRE DID NOT. The reference-wing
+        sheet has carried Lead Researcher, Lead Engineer and Lead Numericist
+        since it was written; the ACT published one voice. That is the same
+        sheet-versus-wire split that left the convergence-study line fixed on
+        four sheets and absent from the screen, and it is the third form of one
+        disease: what we authored was true, and what a viewer received was not
+        the thing we fixed.
+
+        EVERY NUMBER HERE IS READ AND EVERY DECISION WAS TAKEN. The closure
+        model, the ranks and the solver come from the run record; the cell count
+        from the mesh plan; the freestream constants from the run script, each
+        asserted against it in `_check_assumption_constants`. Nothing is typed
+        beside a claim.
+
+        THE NUMERICIST BEAT IS WHERE THE USER/LAB SPLIT IS SPOKEN, and it is
+        deliberately the unflattering direction: the request fixes four things
+        and this lab supplies seven, every one of which moves the answer.
+        """
+        record = self._record()
+        cells = self.mesh_plan().cell_count
+        rho = _actd_P0 / _actd_T0 / 287.0
+        return {
+            "assumption": [
+                ("researcher", [
+                    f"Steady compressible RANS, closed with Spalart-Allmaras.",
+                    f"One equation, calibrated for attached aerofoil flow "
+                    f"-- which is the regime this wing is trimmed in.",
+                    f"It is not a separated-flow model and nothing here asks "
+                    f"it to be one.",
+                ]),
+                ("numericist", [
+                    f"What the request fixes: the wing, lift held fixed, the "
+                    f"adjoint, and grading the gradient before spending it.",
+                    f"This lab supplies the rest -- free stream "
+                    f"{_actd_U0:g} m/s, {_actd_P0:g} Pa, {_actd_T0:g} K, "
+                    f"constant viscosity {_actd_MU:g} Pa s, density "
+                    f"{rho:.4f} kg/m3, reference area {_actd_A0:g} m2, and "
+                    f"the lift value {_actd.CL_TARGET:g} itself.",
+                    f"Seven lab numbers, and every one of them moves the "
+                    f"answer. The table beside this says which is which.",
+                ]),
+            ],
+            "meshing": [
+                ("engineer", [
+                    # Leads with a word, not a digit: the transcript refuses a
+                    # bullet that does not start with a capital, and it was
+                    # right to -- a bullet opening on a bare number reads as a
+                    # fragment of the line above it.
+                    f"One grid: {cells.on_screen()}.",
+                    f"Every number this act reports is relative to it.",
+                    f"The grid convergence study for this case is running; "
+                    f"the band lands in your inbox with the certificate.",
+                ]),
+            ],
+            "gates": [
+                ("numericist", [
+                    f"The gradient is graded against the flow solver itself "
+                    f"before any of it is spent.",
+                    f"Run on {record['mpi_ranks']} ranks, and the check is "
+                    f"self-consistency rather than validation: no wind tunnel "
+                    f"data exists for this wing.",
+                ]),
+            ],
+        }
+
+    # -- stage 3's table ----------------------------------------------------
+    def _assumptions_table(self) -> Table:
+        """WHO CHOSE WHAT, built to the READ-ALONE TEST.
+
+        Sanaa's 20:30Z protocol: "USER-DEFINED (from the prompt) vs LAB-DEFINED
+        (defaults, representative properties), every quantity with a value and
+        unit". This is the one screen where a viewer learns which numbers were
+        theirs.
+
+        THE READ-ALONE TEST, AND IT IS WHY THE QUANTITY CELLS ARE WORDY. A TABLE
+        CELL IS CONSUMED ALONE. The same class of defect has now bitten this
+        family three times in one day -- a claim in a caption with its angle in
+        the frame LABEL, a compliance fix applied to four SHEETS while the WIRE
+        still said the opposite, and a qualifier in bullet [0] with its number
+        in bullet [1]. Each artefact was true as a whole, which is exactly what
+        makes the class invisible. So every cell below carries the noun that
+        makes its number true:
+
+          * viscosity says CONSTANT, because `transport const` is not Sutherland
+            and a bare "1.8e-05 Pa s" does not say which;
+          * density and Mach say DERIVED and name what they were derived from;
+          * the reference area says REFERENCE, because 45.5 m2 is not a measured
+            planform;
+          * the grid says SINGLE, because one mesh is the whole discretisation
+            story of this act and a bare cell count implies nothing about that.
+
+        THE SPLIT IS UNFLATTERING AND THAT IS THE POINT. Her prompt sets the
+        wing, the fixed-lift constraint, the adjoint, the gradient grading and
+        the baseline to report against. IT DOES NOT SET THE LIFT VALUE -- 0.5 is
+        the lab's -- nor the free stream, the pressure, the temperature, the
+        viscosity, the reference area, the mesh or the starting incidence. Seven
+        lab-set numbers move the answer and the table says so.
+
+        NO REYNOLDS NUMBER IS PUBLISHED HERE, DELIBERATELY. The run script
+        registers no reference length, so a Reynolds number would require this
+        method to CHOOSE one -- root chord, mean chord, or A0/span each give a
+        different answer -- and a number whose basis the author picked is not a
+        measurement. The span and the two chords are given instead, measured off
+        the stored surface, so a viewer can form whichever they want and see
+        which they formed.
+        """
+        rho = _actd_P0 / _actd_T0 / 287.0
+        return Table(
+            title="What the request set, and what the lab set",
+            headers=["Quantity", "Value", "Unit", "Set by"],
+            rows=[
+                ["Wing, as uploaded", "as uploaded", "", "the request"],
+                ["Lift held fixed while drag falls", "yes", "", "the request"],
+                ["Gradient graded before it is spent", "yes", "", "the request"],
+                ["Target lift coefficient (the request set FIXED lift, "
+                 "not this value)", f"{_actd.CL_TARGET:g}", "", "the lab"],
+                ["Shape design variables", f"{_actd.N_DV}", "", "the lab"],
+                ["Free-stream speed", f"{_actd_U0:g}", "m/s", "the lab"],
+                ["Static pressure", f"{_actd_P0:g}", "Pa", "the lab"],
+                ["Static temperature", f"{_actd_T0:g}", "K", "the lab"],
+                ["Dynamic viscosity, CONSTANT (not Sutherland)",
+                 f"{_actd_MU:g}", "Pa s", "the lab"],
+                ["Density, derived from p/RT at R=287",
+                 f"{rho:.6f}", "kg/m3", "the lab"],
+                ["Mach, derived from the case's own Cp and molWeight",
+                 f"{_actd_MACH:.4f}", "", "the lab"],
+                ["Reference area (a REFERENCE, not a measured planform)",
+                 f"{_actd_A0:g}", "m2", "the lab"],
+                ["Span, measured off the solved surface",
+                 f"{_actd_SPAN:.4f}", "m", "the lab"],
+                ["Root chord, measured off the solved surface",
+                 f"{_actd_CHORD_ROOT:.4f}", "m", "the lab"],
+                ["Tip chord, measured off the solved surface",
+                 f"{_actd_CHORD_TIP:.4f}", "m", "the lab"],
+                ["Starting incidence, before the trim",
+                 f"{_actd_AOA0:g}", "degrees", "the lab"],
+                ["Grid, the SINGLE mesh this act's numbers are relative to",
+                 f"{self.mesh_plan().cell_count.value}", "cells", "the lab"],
+            ],
+            table_id="actd_assumptions", role="NUMERICIST")
+
     def assumption(self) -> Assumption:
         """The one user-assumption check, and it is the trap of this case.
 
@@ -385,7 +589,8 @@ class AdjointWingAct(DemoAct):
                 assumption=("The request treats the reduction as the work of "
                             "the twist the optimizer added."),
                 finding=("The breakdown that would settle it is not available "
-                         "in this session, so nothing is claimed about it."))
+                         "in this session, so nothing is claimed about it."),
+                assumptions_table=self._assumptions_table())
         shares = decomp["shares"]
         return Assumption(
             assumption=("The request treats the drag reduction as the work of "
@@ -397,7 +602,8 @@ class AdjointWingAct(DemoAct):
                      f"reduction."),
             correction=("The reduction is measured against the untwisted "
                         "baseline at the same lift, so none of it comes from "
-                        "flying the wing at a different angle."))
+                        "flying the wing at a different angle."),
+            assumptions_table=self._assumptions_table())
 
     # -- stage 4 ------------------------------------------------------------
     def geometry(self) -> Geometry:
@@ -813,6 +1019,20 @@ class AdjointWingAct(DemoAct):
                 "the solver header this act publishes is not the sentence the "
                 "act's own builder produces; one of the two has drifted")
 
+        # THE ASSUMPTIONS TABLE'S NUMBERS ARE ASSERTED AGAINST THE RUN, not
+        # trusted to my transcription. Nine constants are typed in this module
+        # for readability and every one is checked here against the file it was
+        # read from: seven against the run script and its thermophysical
+        # properties, three against the stored surface record. A typo in a
+        # table cell is a wrong number on a filmed screen, and the only thing
+        # standing between the two is this loop.
+        #
+        # A MISSING RUN ROOT IS REPORTED, NEVER SILENTLY PASSED. If the case is
+        # not on this machine the check cannot run, and saying "skipped" is the
+        # honest answer; returning as though it had passed is how a guard
+        # becomes decoration.
+        table_checked = self._check_assumption_constants()
+
         # THE CONVERGENCE PROMISE CANNOT FORK EITHER. Two acts publish the
         # same stage-8 sentence and a paraphrase in one of them would leave the
         # gate matching by meaning while the two screens said different things.
@@ -826,6 +1046,7 @@ class AdjointWingAct(DemoAct):
         # The standing prohibitions, checked over the same strings.
         return {"strings_checked": checked,
                 "solver_header_matches_builder": True,
+                "assumption_constants": table_checked,
                 "plant_control": _plant_control()}
 
     # -- which sequencer walks this act -------------------------------------
