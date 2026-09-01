@@ -46,10 +46,15 @@ const replayFiles = [];
 // caption checks below prove PRESENCE AND PLACEMENT ONLY, on a synthetic
 // string; the identity of the rendered text against the backend constant is
 // asserted by tests/test_control_room_pacing.py, which owns the import.
+// --docket carries the REAL research docket in from the server module at run
+// time, for the same reason: the id sweep proves more on the live wording
+// than on a synthetic stand-in, and this file holds no copy of either.
 let captionArg = null;
+let docketArg = null;
 for (let i = 1; i < argv.length; i++) {
   if (argv[i] === '--replay') replayFiles.push(argv[++i]);
   else if (argv[i] === '--caption') captionArg = argv[++i];
+  else if (argv[i] === '--docket') docketArg = argv[++i];
 }
 
 // ---- extract the page script -------------------------------------------
@@ -243,7 +248,7 @@ function newPage(src = source) {
   try {
     const names = Object.keys(sandbox);
     const fn = new Function(...names,
-      src + '\n;return { dispatch, resetMission, state, revealQ, '
+      src + '\n;return { dispatch, resetMission, state, revealQ, renderAgendaDocket, '
           + 'uploadSurface, launchMission, resumeMission };');
     api = fn(...names.map(n => sandbox[n]));
   } catch (err) {
@@ -1071,6 +1076,188 @@ const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, ''
           'PLANTED CONTROL DEAD: removing the static-replay caption writer left ' +
           'a caption in the capture window, so the filmed-path check is not ' +
           'testing the static block');
+  }
+
+  // -------------------------------------------- agenda wall curation (GUI)
+  // The research agenda rendered EVERY proposal the server sent as a full
+  // card. Measured on the live docket: 320 proposals, 123 done and 15
+  // dismissed, so 138 decided cards carrying no action stood in front of the
+  // work, with all 182 open ones listed underneath as digest rows.
+  //
+  // Curation is display-only: the docket is served whole, nothing is edited
+  // and nothing is deleted. What is asserted here is that the screen shows a
+  // bounded, current view AND says truthfully what it is not showing. A wall
+  // that quietly dropped items would be worse than the wall.
+  const proposal = (id, status, objective) => ({
+    id, status, objective, rationale: 'why', expected_knowledge_gain: 'gain',
+    est_core_min: 1, cost_basis: 'estimate', citations: [],
+  });
+  const renderDocket = (p, proposals) =>
+    p.api.renderAgendaDocket({ proposals });
+  const cardsIn = html => (html.match(/class="rp-card"/g) || []).length;
+
+  {
+    const p = newPage();
+    // 12 open, 9 decided: enough of each to prove both halves.
+    const props = [];
+    for (let i = 0; i < 12; i++) props.push(proposal('open-' + i, 'proposed', 'Open item ' + i));
+    for (let i = 0; i < 6; i++) props.push(proposal('done-' + i, 'done', 'Decided item ' + i));
+    for (let i = 0; i < 3; i++) props.push(proposal('drop-' + i, 'dismissed', 'Dropped item ' + i));
+    const html = renderDocket(p, props);
+
+    check(!/Decided item|Dropped item/.test(html),
+          'a decided proposal is still rendered as a card: the wall is showing ' +
+          'history that carries no action and no buttons');
+    // 6 open cards + the digest card + the "what is not shown" card.
+    check(cardsIn(html) === 8,
+          `the agenda wall rendered ${cardsIn(html)} cards, expected 8 ` +
+          `(six open proposals, the digest, and the line saying what is not shown)`);
+    check(/6 more proposals are open/.test(html),
+          `the wall does not say how many open proposals it is not showing: ` +
+          `12 open, 6 shown, so 6 must be named. Got: ` +
+          JSON.stringify((html.match(/\d+ more proposal[^<]*/) || [''])[0]));
+    check(/9 already decided and kept on the record/.test(html),
+          `the wall does not say the decided proposals are kept: 9 were ` +
+          `decided and the record must be named, not silently dropped`);
+  }
+  // -- THE NEGATIVE ARM: a small, entirely current docket must be shown in
+  //    full, with no "not showing" line invented for it.
+  {
+    const p = newPage();
+    const props = [proposal('a', 'proposed', 'First'), proposal('b', 'proposed', 'Second')];
+    const html = renderDocket(p, props);
+    check(/First/.test(html) && /Second/.test(html),
+          'a small docket lost a proposal that should have been shown in full');
+    check(!/more proposal/.test(html) && !/already decided/.test(html),
+          'a docket with nothing hidden still claims it is hiding something: ' +
+          JSON.stringify((html.match(/(\d+ more proposal|\d+ already decided)[^<]*/) || [''])[0]));
+    check(cardsIn(html) === 3,
+          `a two-proposal docket rendered ${cardsIn(html)} cards, expected 3 ` +
+          `(both proposals and the digest, and no remainder line)`);
+  }
+  // -- NO INTERNAL ID SURVIVES ONTO A VISIBLE CARD.
+  //    The card renderer interpolated the citation VALUES straight into the
+  //    wall: `from the record · demo-output/website/hlpw6/FEASIBILITY_PROBE.md`.
+  //    Internal paths, rung ids and lesson ids never belong on a filmed
+  //    surface. The phrase stays because it is the honest claim that the
+  //    proposal came from a record; the values are gone.
+  //
+  //    Asserted on the RENDERED TEXT, not on the source. Tags are stripped
+  //    first, so `data-id="..."` on the buttons is correctly out of scope: it
+  //    is an attribute, never on camera. And the reader is proven able to see
+  //    a non-zero before its zero is believed.
+  const visibleText = html => html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+  const ID_SHAPED = new RegExp(
+    ['\\b[A-Z]{1,3}\\d+[a-z]?\\b',            // rung ids: R5, T1b, F14, K0c
+     '\\bL-\\d+\\b', '\\bD\\d{3,}\\b',        // lesson and docket ids
+     '\\bm-[0-9a-f]{6,}\\b',                  // mission ids
+     '[\\w./-]*\\.(?:py|md|json|jsonl|html)\\b',        // file names
+     '\\b(?:docs|sdk|cases|verification|scripts|demo-output)/[\\w./-]+',
+     'https?://'].join('|'), 'g');
+  const idsIn = html => [...new Set(visibleText(html).match(ID_SHAPED) || [])];
+
+  {
+    // A docket whose citations are exactly the internal paths the live one
+    // carries. None of them may reach the screen.
+    const p = newPage();
+    const withCites = [0, 1, 2, 3, 4, 5].map(i => Object.assign(
+      proposal('c-' + i, 'proposed', 'A plainly worded objective ' + i),
+      { citations: ['demo-output/website/hlpw6/FEASIBILITY_PROBE.md',
+                    'docs/LESSONS.md L-186', 'https://autocfd.org/dates/'] }));
+    const html = renderDocket(p, withCites);
+    check(/from the record/.test(html),
+          'the "from the record" line was dropped entirely. The phrase is the ' +
+          'credibility claim and must stay; only the id values go');
+    check(idsIn(html).length === 0,
+          `an internal id reached a visible card: ${JSON.stringify(idsIn(html))}`);
+
+    // PLANTED CONTROL FOR THE READER ITSELF. A zero from a reader not shown
+    // able to see a non-zero is not evidence. The page now WITHHOLDS a card
+    // whose wording carries an id, so planting one on the real page proves
+    // nothing about the reader: it renders nothing and the reader correctly
+    // reports nothing. Turning the withholding OFF is what puts a leaking
+    // card on screen, and only then does the reader's zero mean something.
+    const leaky = mutate('const sayable = p => !INTERNAL_ID.test(',
+                         'const sayable = p => true || !INTERNAL_ID.test(');
+    if (leaky) {
+      const planted = renderDocket(newPage(leaky), [Object.assign(
+        proposal('p-0', 'proposed', 'Regrade T1b against docs/LESSONS.md L-186'),
+        { citations: ['demo-output/website/hlpw6/FEASIBILITY_PROBE.md'] })]);
+      const seen = idsIn(planted);
+      check(seen.length >= 2 && seen.some(s => /T1b|L-186|LESSONS/.test(s)),
+            `PLANTED CONTROL DEAD: with the withholding turned off, a card ` +
+            `deliberately carrying "T1b" and "docs/LESSONS.md L-186" rendered ` +
+            `and the id reader still saw only ${JSON.stringify(seen)}. Its zero ` +
+            `on the real cards is therefore worth nothing`);
+      // And the same mutant proves the WITHHOLDING is what keeps them off.
+      check(/T1b/.test(planted),
+            'PLANTED CONTROL DEAD: turning the withholding off did not put the ' +
+            'id-carrying card on screen, so the withholding checks test nothing');
+    }
+  }
+  // -- A CARD WHOSE OWN WORDING CARRIES AN ID IS WITHHELD, NOT REWORDED, and
+  //    is still counted. Measured on the live docket: 27 of 131 open
+  //    proposals name a rung, a lesson or a file in their own text, none in
+  //    today's top six, so the wall was clean only by luck of the ranking.
+  {
+    const p = newPage();
+    const props = [
+      proposal('a', 'proposed', 'Solve the transonic wing and report the drag'),
+      proposal('b', 'proposed', 'Regrade F5c against docs/LESSONS.md'),
+      proposal('c', 'proposed', 'Check the mesh independence of the cooling duct'),
+    ];
+    const html = renderDocket(p, props);
+    check(!/Regrade|F5c|LESSONS/.test(html),
+          'a proposal naming an internal rung and a repository file was rendered ' +
+          'on a visible card instead of being withheld');
+    check(/transonic wing/.test(html) && /cooling duct/.test(html),
+          'withholding one card took clean cards down with it');
+    // Withheld is still COUNTED: 3 open, 2 sayable, so exactly 1 is not shown.
+    check(/1 more proposal is open/.test(html),
+          `a withheld card vanished from the count as well as the wall. Got: ` +
+          JSON.stringify((html.match(/\d+ more proposal[^<]*/) || [''])[0]));
+  }
+  // -- THE NEGATIVE ARM ON THE FILTER ITSELF. A guard that withholds the
+  //    demo's own subjects is worse than the exposure it prevents: "ONERA M6"
+  //    and "B52" are letter-digit tokens and must survive.
+  {
+    const p = newPage();
+    const legit = ['ONERA M6 wing at Mach 0.84', 'NACA 0012 finite wing',
+                   'B52 external aerodynamics', 'Mach 3 cone at Re 5e6',
+                   'A 25 degree Ahmed body', 'CRM wing-body at y+ below 1'];
+    const html = renderDocket(p, legit.map((o, i) => proposal('L' + i, 'proposed', o)));
+    for (const o of legit) {
+      check(html.includes(o),
+            `the id filter withheld legitimate demo wording: ${JSON.stringify(o)}. ` +
+            `A filter that hides the real work is worse than the exposure it prevents`);
+    }
+    check(!/more proposal/.test(html),
+          'six clean proposals should all be shown with nothing withheld');
+  }
+
+  // -- The live docket, when the python driver hands it in: the same zero, on
+  //    the real wording rather than on a synthetic stand-in.
+  if (docketArg != null) {
+    const live = JSON.parse(fs.readFileSync(docketArg, 'utf8'));
+    const html = renderDocket(newPage(), live.proposals || live);
+    check(idsIn(html).length === 0,
+          `an internal id reached a visible card on the LIVE docket: ` +
+          `${JSON.stringify(idsIn(html).slice(0, 8))}`);
+  }
+
+  // -- PLANTED CONTROL: restore the uncurated wall and the checks must go red.
+  const uncurated = mutate(
+    "    + digest + shown.map(card).join('')",
+    "    + digest + props.map(card).join('')");
+  if (uncurated) {
+    const p = newPage(uncurated);
+    const props = [];
+    for (let i = 0; i < 12; i++) props.push(proposal('open-' + i, 'proposed', 'Open item ' + i));
+    for (let i = 0; i < 6; i++) props.push(proposal('done-' + i, 'done', 'Decided item ' + i));
+    const html = renderDocket(p, props);
+    check(/Decided item/.test(html) && cardsIn(html) > 8,
+          'PLANTED CONTROL DEAD: restoring the uncurated wall did not bring the ' +
+          'decided cards back, so the curation checks are not testing the wall');
   }
 
   // ---------------------------------------------------------------- report

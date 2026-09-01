@@ -2480,7 +2480,41 @@ function renderAgendaDocket(docket) {
   const cost = p => p.est_core_min != null
     ? `est ${+p.est_core_min} core-min · ${p.cost_basis || 'estimate'}`
     : `cost: ${p.cost_basis || 'estimate'}`;
-  const digestRows = open.map(p =>
+  // CURATION, DISPLAY LAYER ONLY. The docket is served whole and is never
+  // edited from here: every proposal stays on the record, and Approve and
+  // Dismiss still resolve any id the server knows. What is curated is how
+  // much of it stands on screen.
+  //
+  // Before this, the wall rendered EVERY proposal as a full card: measured at
+  // 320, of which 123 were already done and 15 already dismissed. A decided
+  // proposal carries no action and no buttons, so 138 cards were history
+  // standing in front of the work. The digest listed all 182 open ones as
+  // rows underneath.
+  //
+  // Nothing is hidden silently. Whatever is not shown is counted and said, in
+  // plain words, so the screen never implies the docket is smaller than it is.
+  const SHOWN = 6;
+  const decided = props.length - open.length;
+  // A CARD WHOSE OWN WORDING CARRIES AN INTERNAL ID IS NOT SHOWN AT ALL.
+  // Measured on the live docket: 27 of 131 open proposals name a rung, a
+  // lesson or a file in their objective or rationale. None is in the top six
+  // today, so the wall is clean by luck of the ranking, and the ranking moves
+  // with the data. Rewording them here is not an option: a blurred objective
+  // on camera is worse than an absent one, because absent is honest and
+  // blurred is a claim nobody can check. So the card is withheld, and the
+  // counted line below still counts it among the open proposals.
+  //
+  // THE PATTERN IS DELIBERATELY NARROW. A wider one that caught any short
+  // letter-digit token would hide "ONERA M6" and "B52", which are the demo's
+  // own subjects: a filter that withholds the real work is worse than the
+  // exposure it prevents. Only things that cannot plausibly be a customer's
+  // word are matched: file names, repository paths, lesson and docket ids,
+  // mission ids, urls, and rung ids carrying a lowercase suffix.
+  const INTERNAL_ID = /[\w./-]+\.(?:md|py|json|jsonl|html)\b|\b(?:docs|sdk|cases|verification|scripts|demo-output)\/[\w./-]+|\bL-\d+\b|\bD\d{3,}\b|\bm-[0-9a-f]{6,}\b|https?:\/\/|\b[A-Z]{1,3}\d+[a-z]\b/;
+  const sayable = p => !INTERNAL_ID.test(
+    `${p.objective || ''} ${p.rationale || ''} ${p.expected_knowledge_gain || ''}`);
+  const shown = open.filter(sayable).slice(0, SHOWN);
+  const digestRows = shown.map(p =>
     `<div class="rp-geo"><span class="rp-geo-name">${subHTML(p.objective)}</span>`
     + `<span class="rp-geo-detail">${esc(p.expected_knowledge_gain || '')}`
     + ` · ${esc(cost(p))}</span></div>`).join('');
@@ -2512,15 +2546,36 @@ function renderAgendaDocket(docket) {
           ? `<div class="rp-body">Expected gain: ${subHTML(p.expected_knowledge_gain)}.</div>` : '')
       + `<div class="rp-nums">${esc(cost(p))}</div>`
       + decided
+      // THE PHRASE STAYS, THE IDS GO. "from the record" is the honest signal
+      // that these proposals are DERIVED FROM the lab's own records rather
+      // than invented, which is the most credible thing on this wall. The
+      // citation VALUES are internal paths and ids, which never belong on a
+      // filmed surface, and they were being interpolated verbatim into a
+      // visible card. Dropping the whole line to remove them would have
+      // thrown away the credibility claim to fix the jargon. A card with no
+      // citations still shows nothing, exactly as before, so the phrase only
+      // ever appears where a record really does back it. The values remain in
+      // the payload and are untouched: this is display, not data.
       + ((p.citations || []).length
-          ? `<div class="rp-src">from the record · ${p.citations.map(esc).join(' · ')}</div>` : '')
+          ? `<div class="rp-src">from the record</div>` : '')
       + buttons + `</div>`;
   };
   return `<div class="cred-subhead"><span class="eyebrow">Research agenda</span>`
     + `<div class="cred-src">Missions the lab proposes from its own records. `
     + `Approve launches through the ordinary mission path once the compute `
     + `audit clears it; Dismiss archives with your reason.</div></div>`
-    + digest + props.map(card).join('');
+    + digest + shown.map(card).join('')
+    + ((open.length > shown.length || decided)
+        ? `<div class="rp-card"><div class="rp-body">`
+          + (open.length > shown.length
+              ? `${open.length - shown.length} more proposal${open.length - shown.length === 1 ? ' is' : 's are'} `
+                + `open and waiting for your call. `
+              : '')
+          + (decided
+              ? `${decided} already decided and kept on the record.`
+              : '')
+          + `</div></div>`
+        : '');
 }
 // AGENDA-RENDER-END
 // The click flow: Approve may launch a real mission (the server routes the
