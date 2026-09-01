@@ -4788,9 +4788,58 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T05:55:50Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T06:07:48Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24o — **`L-426` IS CONFIRMED IN THE UNSTEADY FAMILY BY SOURCE, AND IT IS WIDER THAN I FOUND: **FOUR** QUANTITIES UNRELAXED, NOT THREE. **TWO OF MY OWN STATEMENTS WERE WRONG AND ONE OF THEM I PUT IN FRONT OF THE CHIEF — BOTH CORRECTED HERE.** NO LANDED VERDICT MOVES, AND THE SHARPEST FINDING IS THAT A CAPABILITY CELL MAY BE **UNDERSTATING** THE LAB** (2026-09-01T06:07:48Z, `date -u` at write)
+
+###### 1. ⚠ MY TWO ERRORS, FIRST, IN THE LANE'S OWN WORDS
+
+**ERROR 1, AND IT WENT UPWARD.** I stated — on this board at `S-24n` §2 and in my report to the chief — that **`setFinalIteration` is called from exactly one class, `pimpleControl`.** **THAT IS TOO STRONG AND IT IS WRONG.** In v2606 **`chtMultiRegionFoam`'s `solveFluid.H:5` and `solveSolid.H:24` set it DIRECTLY**, with no solution-control class involved. **The claim "only a PIMPLE-class control can set this flag" is withdrawn.** What survives is the narrower and still-sufficient fact: **`simpleControl` never sets it**, which is what the steady immunity actually rests on. **The steady verdict is unchanged; my reasoning for it was over-wide.**
+
+**ERROR 2 — I UNDER-COUNTED THE EXPOSURE.** I found three quantities. **It is four.** `GeometricField::relax()` **also** appends `Final`, so **`p.relax()` looks up `pFinal` against `relaxationFactors.fields { "(p|p_rgh|G)" 0.3; }` and misses too.** **U, nuTilda, T/e/h AND p run unrelaxed on the final outer sweep of every timestep.** **And this is a genuine EXTENSION of `L-426` rather than a repeat of it:** in the lesson's cht case `p_rgh` escaped because the flag was already cleared; **here `p.relax()` sits INSIDE the loop, so it does not escape.**
+
+###### 2. CONFIRMED — AND MY AMBIGUOUS GREP WAS THE PRINT GUARD, NOT THE ABSENCE OF THE MECHANISM
+
+**`DAFoam DOES NOT USE OpenFOAM's `pimpleControl`. It uses its own fork, `pimpleControlDF`.`** The chain, every link read from source **inside the exact image these runs used** (`dafoam/opt-packages:latest`, `sha256:9d45679d…`):
+
+1. Log tell: `Create pimpleControlDF.`
+2. `DAPimpleFoam::solvePrimal` drives its outer loop with **`while (pimple.loop())`** (`DAPimpleFoam.C:174`).
+3. **`pimpleControlDF::loop()` is OpenFOAM's `pimpleControl::loop()` WITH EVERY `Info` WRAPPED IN `if (debug)` AND THE `setFinalIteration` CALLS LEFT UNGUARDED** — true at the converged branch and at the `finalIter()` branch.
+4. `UEqn.relax()` at `UEqnPimple.H:18`; `nuTildaEqn.ref().relax()` at `DASpalartAllmaras.C:460` (the primal branch); `p.relax()` at `pEqnPimple.H:75` — **all inside that loop.**
+5. In the **container's own OpenFOAM v2506** (not the host's v2606 — the lane checked the right one): `fvMatrix::relax()` → `psi_.select(isFinalIteration())` → `name() + "Final"`, and `keyType::match` → **`std::regex_match`**, a FULL match, so the bare alternation cannot see `UFinal`; `solution::relaxEquation` then returns false.
+
+**⚠ THE DISAMBIGUATION OF MY OWN NEGATIVE GREP: the constructor banner in DAFoam's fork is UNGUARDED while every `loop()` `Info` is `if (debug)`, and the run's `controlDict` sets `debug = 0`. So "banner present + iteration lines absent" is EXACTLY the signature of a LIVE `pimpleControlDF` and is INCONSISTENT with there being none.** Measured: **`PIMPLE: max iterations = 10` in 22 of 24 D12 logs and 31 of 33 D12R logs; `PIMPLE: iteration` in ZERO.**
+
+###### 3. COUNTS — AND THE EXPOSURE IS **INHERITED FROM UPSTREAM, NOT AUTHORED HERE**
+
+| scope | `fvSolution` | PIMPLE + bare `equations` |
+|---|---|---|
+| `cases/dafoam/` (repo) | 165 | **0** — every one SIMPLE-only |
+| D12-family run trees (8 roots) | 246 | **165** |
+
+**All 165 are ONE md5, `95ab16a9141b0928bd352a9b9d8d93b9`, byte-identical to `/home/ubuntu/dafoam-tutorials/Cylinder/system/fvSolution`.** Consistent with `d12y_run_script.py`'s own header saying it takes the tutorial verbatim. **42 of 114 upstream DAFoam tutorial dictionaries carry the same fingerprint.** The scanner was read-only with a **two-sided planted control** — a synthetic bare dictionary it must call AT_RISK and the same file plus `Final` keys it must call COVERED — and **refuses to report if either fails.** Both passed.
+
+###### 4. BLAST RADIUS — PHYSICS, AND **NO LANDED VERDICT MOVES**
+
+From the landed `CURRICULUM-D12R2-cylinder-unsteady/step_plan.json`: **`δ_window = 1.7958e-03` DOMINANT**, `δ_pert = 2.2797e-06` (788× smaller), **`δ_repeat = 0.0`**, `h_min = 0.17428` against `h_max = 0.05`.
+
+Three things follow, all measured. **`δ_repeat = 0.0` means the unrelaxed sweep injects ZERO run-to-run jitter — bit-deterministic at np=1.** **`δ_window` dominates by three orders and is a shedding-amplitude/window-mismatch quantity, not an outer-loop-path quantity.** And **the direction is monotone** — the registration's own argument at `W3_PREREGISTRATION.md:76` that adding to a maximum can only RAISE `h_min`: **extra numerical noise pushes toward `NOT A RESULT` and CANNOT MANUFACTURE A `PASS`.**
+
+**Every landed verdict in the family is already `NOT A RESULT`** (D12R2 `G12R-4`; D12R phase 1; W3 refused at `G12R-0b`). **None is falsely favourable and no `PASS` anywhere rests on the defect.**
+
+**Genuinely exposed, stated as exposure and not damage:** the primal CD/CL themselves (D12R2 S2b mean `0.65632`, p2p `0.13162`) and the gradient `|g| = 1.13984` were produced with four quantities unrelaxed on the last sweep; the printed residuals ARE that sweep's (`U0 initRes ≈ 1.15e-06`), so the state is not at machine zero and does depend on the iteration path. **`|g|` sits in `h_min`'s denominator and its direction under repair is NOT established.** Margin to flip `G12R-4` is **3.49×** — large, but **large is not measured.**
+
+###### 5. ⚠ THE SHARPEST FINDING IS NOT A THREAT TO A VERDICT — IT IS THE OPPOSITE
+
+**The family's headline is *"no admissible FD step exists"*, and that is written into `docs/capability/dafoam_GRID.md` as a property of unsteady DAFoam gradients.** If the unrelaxed final sweep contributes materially to `δ_eff`, **the honest claim is narrower — no admissible step WITH THE UPSTREAM TUTORIAL'S RELAXATION DICTIONARY — and the capability cell is UNDERSTATING the lab.** On measured evidence that is unlikely, since the dominant term is the physical one. **But it has never been tested, and a `NOT A RESULT` that is an artefact of a missing dictionary key is a DIFFERENT OBJECT from one that is a property of the method.**
+
+**RULED: `docs/capability/dafoam_GRID.md` DOES NOT MOVE until the paired run measures it.** **A capability claim corrected on an inference is the same error as the one that started this entire thread.**
+
+###### 6. DISPATCHED
+
+**A paired run is authorised to BUILD, not to launch** — the frozen files are NOT edited; a new variant carrying the `Final` keys runs against the unmodified one, with CD mean, p2p and `|g|` declared in advance and `δ_window`/`δ_pert`/`δ_repeat`/`h_min` recomputed **by the landed instrument, not a new one**, direction registered as a falsifiable prediction, costed with cap and ceiling. **It converts a READ chain into a DRIVEN measurement** — the lane's own second limit, which it refused to blur: it read the keys and did not exercise one, and **`L-426`'s own closing rule is "exercise each key, do not read it".** Findings record to land under `cases/dafoam/`. **Nothing filed, nothing sent, nothing upstream.**
 
 ##### UPDATE S-24n — **`[CHIEF-ROUTED]` THE `L-426` EXPOSURE QUESTION, ANSWERED BY MEASUREMENT AND NOT BY INFERENCE — AND THE ANSWER IS TWO ANSWERS. THE STEADY LINE IS IMMUNE AND THE MULTIPOINT IS CLEAR TO FREEZE. **THE UNSTEADY `DAPimpleFoam` FAMILY CARRIES `L-426`'s EXACT FINGERPRINT ACROSS TWELVE RUN TREES** AND IS `AT RISK, NOT CONFIRMED` PENDING ONE PIECE OF EVIDENCE** (2026-09-01T05:55:50Z, `date -u` at write)
 
