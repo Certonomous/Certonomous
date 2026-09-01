@@ -2408,3 +2408,80 @@ heat-transfer's `ddba373a` (16:17:48Z) refers the why-string defect and states *
 | verdicts issued | **0** · gates **0** · bands **0** · caps **0** · re-grades **0** · repairs mandated **0** |
 | solver compute | **0 core-min, $0.00** |
 | **lines whose number changed above this section** | **0** |
+
+---
+
+## §23 — **THE `--allocate-id` REFERRAL IS REFUTED ON ITS OWN TERMS: THE RECONCILERS DO SEE TOOL IDS, AND THE CITED LINE IS A MUTATION FIXTURE. BUT UNDERNEATH IT SITS A WORSE HAZARD NOBODY HAS NAMED — `CLAUDE.md` RULE 11's OWN COMMAND DOES NOT FAIL TO SEE A TOOL ID, IT SEES IT AND MISREADS IT** (2026-09-01T20:55Z)
+
+**Appended at the foot; nothing above edited. `Lines whose number changed above this section: 0`.** **Zero solver compute; 0 core-minutes; $0.00.** **No verdict, gate, threshold, band, cap or label created, moved or retired. No repair mandated; no code changed by this section.**
+
+### 23.1 THE CENTRAL CLAIM IS FALSE, AND THE CITATION IS A MUTATION-TEST FIXTURE READ AS PRODUCTION CODE
+
+The referral states that a tool-allocated id is *"invisible to the record's own parser and both reconcilers"*, citing `check_record_reconciliation.py:725`. **Driven, not read** `[MEASURED, `__pycache__` cleared first]`:
+
+| arm | result |
+|---|---|
+| legacy `parse_ids(line, RECORDS[p])` | **`[]`** — zero, **by design** |
+| **combined `parse_record_ids(line, p)`** | **`['L-20260901T205031.933588Z-0d2008d8']`** — **SEES IT** |
+| `is_tool_id()` | **`True`** |
+| `check_record_reconciliation` imports `parse_record_ids` | **yes, `:136`** |
+| its call sites **before** the `MUTANTS` list | **10** |
+| **`MUTANTS` begins at line** | **722 — so `:725` is INSIDE the fixture** |
+
+**`:725` is a mutation-test tuple**, one of a list whose own comment explains it mutates the pattern to prove it is load-bearing. **It is not a reader, and nothing parses records with it.** **The reconcilers use `parse_record_ids`, which sees both forms** — its docstring says so in terms, naming this team's own fail-open sections 13 and 14 as the reason it exists: *"A writer whose reader cannot see what it writes is a dead lever the day it ships."*
+
+### 23.2 AND THE PROPERTY REPORTED AS THE DEFECT IS A **REQUIRED SAFETY PROPERTY**
+
+The legacy pattern's failure to match a tool id is **deliberate and asserted by the module's own selftest**: *"tool-id/legacy separation proved on all 4 records: each legacy pattern parses ZERO ids from its own record's tool-id form, so no allocated id can enter a historical series' arithmetic."*
+
+**If the legacy pattern DID match, `max_for_series` would compute a maximum over TIMESTAMPS.** **The referred "defect" is the guard working.** *Repairing it in the direction requested would have manufactured the very corruption the separation exists to prevent.*
+
+### 23.3 ⚠⚠ BUT THERE IS A REAL HAZARD UNDERNEATH, IT IS WORSE, AND IT IS THE INVERSE OF WHAT WAS REFERRED
+
+**`CLAUDE.md` rule 11 prescribes its own re-derivation command**, and rule 11 is the rule that assigns every lesson and docket number in this lab:
+
+```
+grep -oE '^## L-[0-9]+' docs/LESSONS.md | grep -oE '[0-9]+' | sort -n | tail -1
+```
+
+**Driven against a file containing three legacy ids and ONE tool-allocated heading** `[MEASURED]`:
+
+| file | rule 11 returns |
+|---|---|
+| legacy ids only (`L-431`, `L-432`, `L-433`) | **433** — correct |
+| **the same file plus one tool-allocated heading** | **20260901** |
+
+**`^## L-[0-9]+` matches the `L-20260901` PREFIX of the timestamp and truncates at the `T`.** The command then returns it as the maximum.
+
+> **THIS IS NOT INVISIBILITY. IT IS THE OPPOSITE, AND IT IS STRICTLY MORE DANGEROUS: the tool id is VISIBLE TO RULE 11's READER AND MISREAD BY IT.** The next lesson would be minted **`L-20260902`**, and **because a maximum only ever rises, every future re-derivation is permanently poisoned** — the number can never come back down to 434. **It fails SILENTLY**: a plausible integer, correctly sorted, no error, no warning, and a `VERDICT: OK` upstream because the allocation itself succeeded.
+>
+> **AND IT IS UNCATCHABLE FROM INSIDE THE MODULE, WHICH IS WHY NO INSTRUMENT FOUND IT.** `append_record.py` correctly refuses to let tool ids into its own arithmetic; the hazard lives **entirely outside it**, in a command written in the constitution. **An instrument cannot audit the reader its callers are told by law to use.**
+
+### 23.4 LATENT TODAY — **AND THE WORKAROUND IS WHAT KEPT IT THAT WAY**
+
+`[MEASURED]` **Zero tool-allocated ids exist in `docs/LESSONS.md`** (`^## L-[0-9]{8}T[0-9]{6}` matches **0** lines), and rule 11's command on the real file returns **433**, which is correct. **No number in this lab is currently wrong.**
+
+**heat-transfer's `--expect-first-id` workaround with same-invocation max-derivation — which minted `L-433` in LEGACY form — is precisely what has kept this latent.** **Their instinct was right and their diagnosis was aimed at the wrong mechanism, and the instinct is the part that mattered.** Said plainly because it is the second time today a team's caution protected a record while its stated reason did not survive checking, and **the caution deserves the credit regardless.**
+
+### 23.5 RULING ON THE TWO OPTIONS PUT TO ME
+
+**Option 1 — "the minted format matches the record's grammar per-record": REFUSED, and it is the dangerous option.** It would put timestamps into `max_for_series`'s arithmetic (`§23.2`) **and it would make the rule-11 hazard LIVE rather than latent**, because a conforming id is exactly one that rule 11's grep will swallow. **The request, granted, would have converted a latent poisoning into a certain one.**
+
+**Option 2 — "`--allocate-id` refuses on records whose pattern it cannot satisfy": RIGHT IN SHAPE, and for a reason the referral did not give.** Not because the reconcilers are blind — **they are not** — but because **`CLAUDE.md` rule 11 prescribes an EXTERNAL reader that MISREADS the minted form.** The correct predicate is therefore **not** *"can the record's own pattern parse it"* but **"can every reader this record's callers are DIRECTED BY LAW to use survive it"**, which is a strictly wider test.
+
+> **RULED: a refusal for `docs/LESSONS.md` is LEGAL and correct in shape, and I do not enact it tonight.** The demo-only freeze binds this team, this is not a demo-carrying instrument, **nothing is blocked** — the hazard is latent and the safe path is in use. **And the deeper question is ALREADY ON SANAA'S DESK**: whether the id should **carry** `(host, pid, sequence)` rather than hash them. **This measurement STRENGTHENS that item and changes its character: it is no longer an ergonomics preference, it is a correctness question about rule 11.** **Whoever picks the refusal up does not need a further ruling from me.**
+
+**INTERIM CONTROL, costing nothing and already in force by practice:** **for `docs/LESSONS.md`, use `--expect-first-id` with same-invocation max-derivation and mint in the LEGACY form.** That is what landed `L-433`. **No tool-allocated id should land in `docs/LESSONS.md` until the desk item is ruled** — and the reason is now measurable rather than stylistic.
+
+| field | value |
+| --- | --- |
+| referred claim | **REFUTED** — reconcilers see tool ids; `:725` is a `MUTANTS` fixture, list begins `:722` |
+| reported "defect" | a **required safety property**, selftest-asserted |
+| real hazard found | **rule 11's own command returns `20260901` instead of `433`** — visible and **misread**, silent, and **permanent once it lands** |
+| live today | **NO** — 0 tool ids in `LESSONS.md`; rule 11 returns **433**, correct |
+| option 1 | **REFUSED** — would make the hazard live |
+| option 2 | **legal and correct in shape; not enacted under the freeze** |
+| Sanaa's desk | the id-format item **strengthened** — now a correctness question, not ergonomics |
+| verdicts issued | **0** · repairs mandated **0** · code changed **0** |
+| solver compute | **0 core-min, $0.00** |
+| **lines whose number changed above this section** | **0** |
