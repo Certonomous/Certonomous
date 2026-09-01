@@ -265,3 +265,156 @@ added with `promotes=["*"]` (`:104`).
 called mid-sequence, only once at the start of a run. It is used only by rows **B1** and
 **B2**, which execute **after** both gate rows. A failure there costs the Path B rows and
 leaves Path A and both gates intact and gradeable.
+
+---
+
+# RESULTS — 2026-09-01, dated addendum after first compute
+
+Gates, thresholds, cap, label and predictions above are **unchanged**; nothing in
+sections 1-8 is edited. Launched 01:06:21Z on the supervisor's go, completed 01:09:49Z.
+Run root `/home/ubuntu/certonomous-runs/ACTD-a2-decomposition`; log `decomp.log`;
+`RUN_RC.txt`, `cost.txt`, `instrument_sha256.txt` and `driver_vs_pristine.diff` beside it.
+The instrument sha256s in the run match §7 exactly and the diff reads 72 added, 0 deleted.
+
+## R1. Every row, with its lift beside its drag
+
+| row | CD | CL | AoA deg | thickness min/max | volcon | worst final residual |
+|---|---|---|---|---|---|---|
+| A0 baseline | 0.02962051221 | 0.49999960578 | 4.32613 | 1.000000 / 1.000000 | 1.00000000 | 4.219e-07 |
+| A1 twist only | 0.02639394999 | 0.45966586124 | 4.32613 | 0.999860 / 1.000000 | 0.99995450 | 4.414e-07 |
+| A2 twist+shape | 0.03721004402 | 0.72193449611 | 4.32613 | 0.500101 / 1.727944 | 1.00007830 | 4.466e-07 |
+| A3 AoA only | 0.01640870103 | 0.25705454116 | 1.10766 | 1.000000 / 1.000000 | 1.00000000 | 5.341e-07 |
+| A4 final | 0.02124478277 | 0.49994884178 | 1.10766 | 0.500101 / 1.727944 | 1.00007830 | 6.020e-07 |
+| B1 twist only @ CL 0.5 | 0.02969750247 | 0.49999947121 | 4.90933 | 0.999860 / 1.000000 | 0.99995450 | 4.153e-07 |
+| **B2 twist+shape @ CL 0.5** | — | — | — | — | — | **NOT A RESULT** |
+
+## R2. Gates
+
+| gate | measured | verdict |
+|---|---|---|
+| G1 reproduction | A0 within **0.00296%** of 0.029619634; A4 within **0.01543%** of 0.021241506 (band 0.5%) | **PASS** |
+| G2 geometry control | A0 thickness 1.000000000/1.000000000; A4 0.500101380/1.727944397 — the history's own values to every extracted digit | **PASS** |
+| G3 trim tolerance | B1 \|CL-0.5\| = **5.29e-07** (band 5e-4) | **PASS** |
+| G4 completion | six rows `rc`-clean, residuals 4.15e-07 to 6.02e-07, same order as the published converged baseline; **B2 did not complete** | **PASS on six rows; B2 NOT A RESULT** |
+| G5 falsifier | **could not be evaluated — B2 produced no value** | **UNGRADED** |
+| G6 trap test | baseline CL 0.49999960578, final CL 0.49994884178 (band 1e-3) | **PASS** |
+
+**Planted-zero control 1:** DV set/readback deviation was **0.000e+00 on all seven rows**,
+twist, shape and patchV alike. **Control 2:** thickness read 1.0 exactly at A0 and
+0.500101380/1.727944397 at A4 — the reader was shown able to see the non-zero, and did.
+
+## R3. B2 failed — triage, because a crash is a finding until triage says otherwise
+
+`openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class
+DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!` — raised inside
+the lift-trim search, after **3 primal solves**, at 2.76 core-min.
+
+**This is not a defect in the driver.** The identical code path succeeded on B1 minutes
+earlier and trimmed it to within 5.29e-07 of the target. The difference is the starting
+point: B1 began 0.040 of lift from its target and converged; B2 began at CL 0.72193, a
+**0.222 excursion**, and its search stalled — its own printed lift values sit at
+0.7219356 / 0.7219896 without advancing toward 0.5 — before a primal diverged. This is
+the exact failure whose blast radius amendment 1 disclosed in advance.
+
+**What it costs, stated without rescue.** G5 was the registered falsifier for §3's
+structural argument that the angle-of-attack share is zero at matched lift. **It did not
+run, so that argument is NOT confirmed by the test registered for it.** It retains the
+support of G6 (both endpoints measured at CL = 0.500) and of the problem's own equality
+constraint, and no more. **B2 is NOT A RESULT and is reported, not dropped.**
+
+**And B2 was a weaker falsifier than §3 assumed — recorded against my own design.**
+Started far away it diverges; started at the final angle of attack it begins at CL 0.49995
+and would confirm A4 almost tautologically. A genuine independent test would start from a
+third angle of attack, offset from both. **That is a change to a frozen row's input after
+first compute and is therefore not mine to make** — it is offered to the supervisor as an
+option costed at ~5 core-min, not taken here.
+
+**One inference, flagged as an inference, on how much the missing row would have moved.**
+A4 sits 5.12e-05 of lift below 0.500. Using this run's own lift-to-drag slope from A0 and
+A3 (0.054382 drag per unit lift), correcting A4 to exactly CL = 0.500 adds ~2.8e-06 to its
+drag — **+0.013%**, moving the headline from 28.2768% to ~28.2675%. Immaterial. This is
+arithmetic on measured rows, not a substitute for the gate that did not run.
+
+## R4. The decomposition — at matched lift, the only basis a number may be quoted from
+
+| stage | CD | CL | AoA deg | share of the reduction |
+|---|---|---|---|---|
+| baseline | 0.02962051221 | 0.500000 | 4.32613 | — |
+| twist only | 0.02969750247 | 0.499999 | 4.90933 | **-0.92%** |
+| twist + shape (= final) | 0.02124478277 | 0.499949 | 1.10766 | **+100.92%** |
+| angle-of-attack retrim | — | — | — | **0%, by construction** |
+
+**Total reduction 28.2768%.** Against the registered predictions of §5 — twist **+2%**
+(band -5% to +8%) and shape **~98%** (band 92% to 105%) — **both measured shares land
+inside their registered bands.**
+
+**The answer to the question asked: essentially all of it is section shape.** Twist alone,
+at matched lift, makes drag **0.26% worse** (0.02969750 against 0.02962051); it pays only
+in combination with the section change. The angle-of-attack retrim contributes nothing,
+because lift is pinned at 0.500 at both ends.
+
+**The trap is absent, and A3 shows what it would have looked like.** Flying the *unmodified*
+wing at the final incidence gives drag 0.01640870 — a **44.6% "reduction"** — at CL 0.2571,
+having thrown away **48.6% of the lift**. That row is the failure mode Sanaa named, measured
+on this very case, and this optimisation is not it.
+
+**A2 is the lift artefact predicted in §4 and it is why the CL column is mandatory.** At
+frozen incidence, twist+shape reads 0.03721004 — **25.6% worse than baseline** — solely
+because it sits at CL 0.722. Published without its lift, that row would read as "the shape
+change made it worse", which is false.
+
+## R5. Prediction scorecard, including the miss
+
+| row | registered | measured | |
+|---|---|---|---|
+| A1 | CD 0.0255-0.0290, CL 0.44-0.49 | 0.02639395, 0.45966586 | inside |
+| A2 | CD 0.045-0.075, CL 0.70-0.90 | 0.03721004, 0.72193450 | **CD MISSED — outside the band**; CL inside |
+| A3 | CD 0.013-0.019, CL 0.16-0.26 | 0.01640870, 0.25705454 | inside |
+| B1 | CD 0.0290-0.0310, AoA above 4.326 | 0.02969750, 4.90933 | inside |
+| twist share | +2% (-5% to +8%) | **-0.92%** | inside |
+| shape share | ~98% (92% to 105%) | **+100.92%** | inside |
+
+**The A2 drag prediction is a miss and is recorded as one**, not rounded into its band:
+predicted at least 0.045, measured 0.03721. Direction right, magnitude over-predicted.
+
+**The twist-sign question §2 refused to answer from the design variable is settled by
+measurement:** at frozen incidence, twist alone drops lift 0.500 -> 0.460, so it is
+**washout**. `rot_z` sign convention resolved by experiment, not assumption.
+
+## R6. Cost — rule 12 calibration
+
+| | core-min | basis |
+|---|---|---|
+| predicted (§8) | **32** | 16 primals at 24.7 s x 4 ranks |
+| **actual, gross** | **13.87** | wall 208 s x 4 ranks, `t0`/`t1` ledger, includes mesh build and container start |
+| waste, **named separately, never absorbed** | **2.76** | B2's 3 primals, which produced no value |
+| actual, cleaned of that waste | **11.11** | |
+| **ratio, gross/predicted** | **0.43x** | |
+
+**Gap attribution: misprediction, one cause, cleanly identified.** The primal *count* was
+predicted well (16 registered, 14 executed). The **per-primal time was over-priced by 1.8x**:
+§8 took 24.7 s/evaluation from the optimisation's 3606 s / 146 evaluations, but that average
+also absorbed 47 gradient computations. The primals here ran **13.6-15.4 s** of solver time
+each. **Calibration lesson: a per-evaluation rate taken from an optimisation log prices
+primal-plus-gradient work and must not be reused for primal-only runs — divide it out, or
+measure one primal first.** No contention (box idle, zero other containers at launch); no
+stall (208 s against the 3600-s rule); the cap was never approached (23% of 60 core-min).
+
+Dollars **DERIVED, NOT MEASURED**: 13.87 core-min = 0.2312 core-h -> **$0.0119**, at
+$0.0513/core-h c7a.4xlarge, **reported-by-owner** (Sanaa 2026-08-21/22; the box cannot read
+its own billing, `COMPUTE_BUDGET_CHARTER.md` §5). Predicted $0.027.
+
+## R7. Grading path — disclosed weakness
+
+The gates and thresholds applied above are quoted verbatim from §6, frozen before the run at
+blob `899352ae5c9f81a90b47d75d6642d80c8364b3bf`. The script that applies them,
+`cases/dafoam/grade_a2_decomposition.py`, was **written after first compute** and therefore
+carries no independent authority: it is a mechanical reader of §6 and nothing in it may be
+treated as a threshold. Any reader can re-derive every verdict from §6 and the log by hand.
+
+## R8. Standing
+
+The lift-matched decomposition (baseline, twist-only, twist+shape) **PASSES** its registered
+predictions, on rows that passed G1, G2, G3, G4 and G6 with both planted controls clean.
+The angle-of-attack-share-is-zero claim is **structurally argued and G6-supported, with its
+registered independent falsifier UNGRADED** because B2 did not run. **B2: NOT A RESULT.**
