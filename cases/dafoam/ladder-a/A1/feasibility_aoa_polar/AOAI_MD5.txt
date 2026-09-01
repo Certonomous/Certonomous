@@ -1,0 +1,12 @@
+# AOAI -- GRADING PATH PINNED AT THE PRE-REGISTRATION COMMIT
+# Rule 2: verify the frozen file IS the file that ran by hashing it
+# against the committed blob. Generated 2026-09-01T16:22:16Z.
+
+727c41e46dc242628a77f70817cecb39  aoa_runScript_incomp.py
+0a3bf0bb5a21c8fe3345ae2887ce3bb0  aoa_read.py
+03b8894a7375bae4e3207279fff1cb59  aoa_cmd.sh
+8c57e20f6b32804b9029e5bc11a49d7d  aoa_run_arm.sh
+8b6b80aee73e85030df6819b659fcedd  aoa_run_arm_selftest.sh
+
+# D19M physics block, extracted between its own markers (AOAC only):
+c66504acc57bd9ef009599e883d2ef3b  D19M_PHYSICS_BLOCK
