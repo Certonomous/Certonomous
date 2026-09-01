@@ -79,32 +79,48 @@ RESULT_VOICE = re.compile(
     r"demonstrat(?:es|ing)|prov(?:es|ing)|because the flow)\b", re.I)
 
 # ---------------------------------------------------------------------------
-#: THE APPROVED CAPTIONS. Every one describes WHAT IS DRAWN and WHERE IT CAME
-#: FROM, and none explains it.
+#: THE APPROVED CAPTIONS, to Sanaa's caption rule (2026-09-01, newest of her
+#: directives by GIT COMMIT ORDER -- the filename timestamps invert across the
+#: 2006Z naming boundary and are not the authority): captions carry NUMBERS,
+#: SYMBOLS AND UNITS, never English sentences; short and bulleted.
+#:
+#: HER RULE AND THE HONESTY CONSTRAINT POINT THE SAME WAY, which is why the flat
+#: English sentence this file first carried is gone with nothing lost. A number
+#: cannot assert a mechanism. "alpha = 18 deg, iter 1000/1000" makes no claim
+#: about separation, shedding or stall, and it cannot be read as one.
+#:
+#: WHAT IS NOT QUOTED, AND WHY. The residual for this point is NOT given as a
+#: number, because `AOA_POINTS.json` records `achieved_min_residual: None` for
+#: alpha = 18 -- DAFoam printed no satisfaction line, so there is no measured
+#: residual to quote. `1e-8` is the REGISTERED tolerance and the mark says it
+#: was not met; that is a verdict, not a measurement, and the caption does not
+#: dress it as one.
 CAPTIONS: dict[str, str] = {
     "polar_field_alpha18_not_converged": (
-        "Velocity magnitude on the last iterate at the angle the platform "
-        "declined to report. The solver did not meet its own residual "
-        "tolerance here, so no number is read from this state."),
+        "alpha = 18 deg  |  iter 1000/1000  |  tol 1e-8 not met  |  9/19 converged"),
     "section_grid": (
-        "The grid every angle in the sweep is solved on: 4,032 cells, counted "
-        "from the mesh rather than quoted."),
+        "4032 cells  |  8316 points  |  O-grid"),
     "section_grid_leading_edge": (
-        "The same grid at the leading edge, all cells in view."),
+        "leading edge  |  4032 cells  |  y+ 16.7-92.4"),
 }
 
-#: THE REFUSAL CAPTION IS THE ACT'S OWN SENTENCE and it states the ground of the
-#: refusal, which is the residual verdict and not the picture.
-REFUSAL_LINE = (
-    "Ten of the nineteen angles did not meet the residual tolerance, so the "
-    "platform reports them as not converged rather than as physics. The "
-    "wall-resolved study that settles whether the boundary is physical is "
-    "running now.")
+#: Per-frame caption for the progressive grid reveal. Both numbers are MEASURED
+#: per frame: the radius is the clip the frame was rendered at and the cell
+#: count is what ParaView reported it kept, not an estimate.
+REVEAL_CAPTION = "r = {radius:.2f} m  |  {kept}/{total} cells"
+
+#: The refusal, in numbers. Bulleted, no sentence.
+REFUSAL_BULLETS = [
+    "19 angles run  |  9 converged  |  10 not converged",
+    "tol 1e-8  |  cap 1000 iter",
+    "wall-resolved study: running",
+]
 
 # ---------------------------------------------------------------------------
-#: MUST BE REJECTED. Each is a mechanism claim a viewer might think the picture
-#: licenses, and EVERY ONE OF THEM PASSES `G-STALL` UNTOUCHED.
-FORBIDDEN_PLANTS = [
+#: MUST BE REJECTED, WITHOUT AN ANGLE IN THE STRING. These are the OLD prose
+#: caption shape, where the angle sat in the frame label and the claim sat in the
+#: caption. EVERY ONE OF THEM PASSES `G-STALL` UNTOUCHED.
+FORBIDDEN_NO_ANGLE = [
     "The flow separates over the upper surface here.",
     "The wake is shedding behind the section.",
     "You can see the boundary layer separating.",
@@ -115,15 +131,52 @@ FORBIDDEN_PLANTS = [
     "The wake is turbulent here.",
 ]
 
-#: MUST BE ACCEPTED. Descriptive, provenance-carrying, mechanism-free. Without
-#: this arm a guard that rejected everything would score full marks.
-ALLOWED_PLANTS = [
-    "Velocity magnitude on the last iterate at a refused angle.",
-    "The grid the section is solved on, 4,032 cells.",
-    "Colour is velocity magnitude in metres per second.",
-    "The same grid at the leading edge, all cells in view.",
+#: MUST BE REJECTED, WITH AN ANGLE IN THE STRING. These are the NEW numeric
+#: caption shape. `G-STALL` DOES catch these, and that is the interaction the
+#: caption directive produced without anybody designing it: moving the angle
+#: into the caption puts the stall word and the angle in ONE string, which is
+#: the only arrangement `G-STALL` can see. MEASURED, both ways:
+#:
+#:   "The flow separates over the upper surface here."   G-STALL SILENT
+#:   "alpha = 18 deg | stall | 9/19"                     G-STALL FIRES
+#:
+#: The mechanism guard STAYS PRIMARY regardless: it needs no angle, so it is
+#: unaffected by where the angle lives, and it is the only one of the two that
+#: covers a caption carrying no number at all.
+#: ...BUT ONLY FOR THE VOCABULARY `G-STALL` ALREADY HAS. These carry a word from
+#: its own list (`stall`, `separation onset`) beside an angle, and it fires.
+FORBIDDEN_WITH_ANGLE = [
+    "alpha = 18 deg  |  stall  |  9/19",
+    "18 deg  |  separation onset  |  10/19",
 ]
 
+#: AND HERE IS THE HALF THAT SURVIVES THE FORMAT CHANGE, found when an arm went
+#: red on an overclaim of mine. I first put "wake shedding" in the list above,
+#: expecting the numeric format to make G-STALL catch it. IT DOES NOT, and it
+#: never could: `shedding` is not in G-STALL's vocabulary at all, and neither
+#: are `separates`, `recirculation` or `turbulent`.
+#:
+#: SO THE FORMAT CHANGE RESTORES COVERAGE ONLY FOR THE WORDS G-STALL ALREADY
+#: KNOWS. A mechanism claim outside its vocabulary is invisible to it in EITHER
+#: format, with or without an angle. That is the precise reason the mechanism
+#: guard stays primary rather than becoming redundant.
+FORBIDDEN_WITH_ANGLE_OUTSIDE_GSTALL_VOCAB = [
+    "alpha = 18 deg  |  wake shedding  |  9/19",
+    "18 deg  |  flow separates  |  10/19",
+    "alpha = 18 deg  |  turbulent wake  |  9/19",
+]
+
+FORBIDDEN_PLANTS = (FORBIDDEN_NO_ANGLE + FORBIDDEN_WITH_ANGLE
+                    + FORBIDDEN_WITH_ANGLE_OUTSIDE_GSTALL_VOCAB)
+
+#: MUST BE ACCEPTED. Numeric, provenance-carrying, mechanism-free. Without this
+#: arm a guard that rejected everything would score full marks.
+ALLOWED_PLANTS = [
+    "alpha = 18 deg  |  iter 1000/1000  |  9/19 converged",
+    "4032 cells  |  8316 points  |  O-grid",
+    "r = 0.19 m  |  118/4032 cells",
+    "leading edge  |  4032 cells  |  y+ 16.7-92.4",
+]
 
 def caption_hits(text: str) -> list[str]:
     """Every reason this caption may not go on a frame."""
@@ -153,22 +206,56 @@ def check() -> int:
                          f"-> {caption_hits(p)}")
 
     # ---- THE GAP, MEASURED AND ASSERTED RATHER THAN DESCRIBED --------------
-    # This arm exists so the claim in the docstring cannot rot: if a successor
-    # widens G-STALL to cover these, this arm goes red and the docstring gets
-    # corrected instead of quietly becoming false.
-    evade = [p for p in FORBIDDEN_PLANTS if not STALL_CLAIM.search(p)]
+    # These arms exist so this file's central factual claim cannot rot: if a
+    # successor widens G-STALL, they go red and the claim gets CORRECTED rather
+    # than quietly becoming false.
+    #
+    # ⚠ AND HERE IS THE LIMIT OF THAT PATTERN, WRITTEN DOWN BECAUSE IT WAS
+    # DISCOVERED RATHER THAN DESIGNED. These arms assert the claim against
+    # G-STALL'S BEHAVIOUR, so they fire when the INSTRUMENT changes. They did
+    # NOT fire when the caption FORMAT changed -- and that change is what
+    # actually moved the claim, because numeric captions put the angle in the
+    # caption where G-STALL can finally see it. The guard never moved; the
+    # SUBJECT moved.
+    #
+    # A rot-arm catches the instrument changing under a document. It does not
+    # catch the world changing under it. That is the honest boundary of the
+    # pattern, and the mitigation here is that the claim is now stated
+    # CONDITIONALLY -- "of captions carrying no angle" -- so a format change
+    # narrows its scope rather than falsifying it.
+    evade = [q for q in FORBIDDEN_NO_ANGLE if not STALL_CLAIM.search(q)]
     n += 1
-    if len(evade) != len(FORBIDDEN_PLANTS):
+    if len(evade) != len(FORBIDDEN_NO_ANGLE):
         blind.append(
             "the premise of this file has changed: G-STALL now catches "
-            f"{len(FORBIDDEN_PLANTS) - len(evade)} of the forbidden captions. "
-            "Rewrite the docstring rather than leaving it stale.")
+            f"{len(FORBIDDEN_NO_ANGLE) - len(evade)} of the angle-less "
+            "captions. Rewrite the docstring rather than leaving it stale.")
+    caught = [q for q in FORBIDDEN_WITH_ANGLE if STALL_CLAIM.search(q)]
+    n += 1
+    if len(caught) != len(FORBIDDEN_WITH_ANGLE):
+        blind.append(
+            "G-STALL no longer catches numeric captions carrying one of its "
+            "OWN vocabulary words beside an angle; the caption-format "
+            "interaction this file records has changed.")
+    # The other half of that finding, asserted so it cannot be forgotten: an
+    # angle does NOT save G-STALL from a mechanism word it does not know.
+    outside = [q for q in FORBIDDEN_WITH_ANGLE_OUTSIDE_GSTALL_VOCAB
+               if not STALL_CLAIM.search(q)]
+    n += 1
+    if len(outside) != len(FORBIDDEN_WITH_ANGLE_OUTSIDE_GSTALL_VOCAB):
+        blind.append(
+            "G-STALL's vocabulary has widened to cover mechanism words it did "
+            "not have; the claim that the mechanism guard is primary needs "
+            "re-checking rather than assuming.")
     n += 1
     if not STALL_CLAIM.search("the stall angle is 13.0 deg"):
         blind.append("G-STALL no longer fires on its own control C7")
 
     # ---- the published captions themselves ---------------------------------
-    for tag, text in list(CAPTIONS.items()) + [("refusal line", REFUSAL_LINE)]:
+    published = list(CAPTIONS.items()) + [
+        (f"refusal bullet {i}", b) for i, b in enumerate(REFUSAL_BULLETS)] + [
+        ("reveal caption", REVEAL_CAPTION.format(radius=0.19, kept=118, total=4032))]
+    for tag, text in published:
         n += 1
         hits = caption_hits(text)
         if hits:
@@ -177,7 +264,7 @@ def check() -> int:
     # ---- and through the act's own camera-string checker --------------------
     try:
         from workflows.demo_mode import check_demo_language
-        for tag, text in list(CAPTIONS.items()) + [("refusal", REFUSAL_LINE)]:
+        for tag, text in published:
             n += 1
             try:
                 check_demo_language(text, zone="screen")
@@ -187,8 +274,11 @@ def check() -> int:
         blind.append(f"could not load the camera-string checker: {exc}")
 
     print(f"CAPTION CONTROL: {n - len(blind)}/{n} arms behaved")
-    print(f"  {len(evade)}/{len(FORBIDDEN_PLANTS)} forbidden captions evade "
-          f"G-STALL entirely -- that gap is why this file exists")
+    print(f"  {len(evade)}/{len(FORBIDDEN_NO_ANGLE)} angle-less captions evade "
+          f"G-STALL; {len(caught)}/{len(FORBIDDEN_WITH_ANGLE)} numeric captions "
+          f"using ITS OWN vocabulary are caught; "
+          f"{len(outside)}/{len(FORBIDDEN_WITH_ANGLE_OUTSIDE_GSTALL_VOCAB)} "
+          f"outside its vocabulary still evade it even WITH an angle")
     if blind:
         print("REFUSE:")
         for b in blind:

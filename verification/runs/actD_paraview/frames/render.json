@@ -2,7 +2,7 @@
  "_what": "Act D ParaView render pass: geometry, meshes and fields",
  "_preregistration": "cases/dafoam/ACTD_PARAVIEW_RENDER_PASS_PREREGISTRATION.md v1.1",
  "_scope": "pictures of numbers already on disk; no new physical result",
- "_utc": "2026-09-01T20:00:58Z",
+ "_utc": "2026-09-01T20:17:37Z",
  "frames": [
   {
    "tag": "section_grid",
@@ -53,7 +53,7 @@
     "verdict": null
    },
    "rc": 0,
-   "wall_s": 1.826,
+   "wall_s": 1.824,
    "core_min": 0.0304,
    "exists": true,
    "read_back": {
@@ -91,8 +91,8 @@
     "verdict": "NOT CONVERGED"
    },
    "rc": 0,
-   "wall_s": 1.832,
-   "core_min": 0.0305,
+   "wall_s": 1.808,
+   "core_min": 0.0301,
    "exists": true,
    "read_back": {
     "cells": 4032.0,
@@ -120,13 +120,901 @@
    "verdict": "PASS"
   },
   {
+   "tag": "section_grid_reveal_00",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.19,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.785,
+   "core_min": 0.0297,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 636.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_00.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 5618,
+    "modal_share": 0.9860537634408603,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_01",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.20657,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.787,
+   "core_min": 0.0298,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 724.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_01.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 6742,
+    "modal_share": 0.9827974910394265,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_02",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.22458,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.813,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 724.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_02.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 8054,
+    "modal_share": 0.9788136200716846,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_03",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.24417,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.813,
+   "core_min": 0.0302,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 800.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_03.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 9517,
+    "modal_share": 0.9740394265232974,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_04",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.26546,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.817,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 862.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_04.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 11291,
+    "modal_share": 0.96831541218638,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_05",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.28861,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.829,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 994.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_05.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 13086,
+    "modal_share": 0.961410394265233,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_06",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.31378,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.849,
+   "core_min": 0.0308,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1064.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_06.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 15243,
+    "modal_share": 0.9530913978494624,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_07",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.34115,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.821,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1254.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_07.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 17325,
+    "modal_share": 0.9430931899641577,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_08",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.3709,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.852,
+   "core_min": 0.0309,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1320.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_08.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 18643,
+    "modal_share": 0.9313494623655914,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_09",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.40324,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.819,
+   "core_min": 0.0303,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1454.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_09.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 16531,
+    "modal_share": 0.9168709677419354,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_10",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.43841,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.834,
+   "core_min": 0.0306,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1654.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_10.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 15261,
+    "modal_share": 0.8996057347670251,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_11",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.47664,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.839,
+   "core_min": 0.0307,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1704.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_11.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 17025,
+    "modal_share": 0.8788279569892473,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_12",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.51821,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.833,
+   "core_min": 0.0306,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1842.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_12.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 18985,
+    "modal_share": 0.854268817204301,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_13",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.5634,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.822,
+   "core_min": 0.0304,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 1964.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_13.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 22927,
+    "modal_share": 0.8252347670250896,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_14",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.61253,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.832,
+   "core_min": 0.0305,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2138.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_14.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 25995,
+    "modal_share": 0.7905627240143369,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_15",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.66595,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.87,
+   "core_min": 0.0312,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2202.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_15.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 27590,
+    "modal_share": 0.7501057347670251,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_16",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.72403,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.848,
+   "core_min": 0.0308,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2226.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_16.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 28828,
+    "modal_share": 0.7013978494623656,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_17",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.78717,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.872,
+   "core_min": 0.0312,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2248.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_17.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 30177,
+    "modal_share": 0.6448243727598566,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_18",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.85582,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.875,
+   "core_min": 0.0313,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2266.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_18.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 31127,
+    "modal_share": 0.5776379928315413,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_19",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 0.93045,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.898,
+   "core_min": 0.0316,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2420.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_19.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 31961,
+    "modal_share": 0.4976379928315412,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_20",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 1.01159,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.891,
+   "core_min": 0.0315,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2372.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_20.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 31839,
+    "modal_share": 0.41427419354838707,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_21",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 1.09981,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.848,
+   "core_min": 0.0308,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2476.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_21.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 31743,
+    "modal_share": 0.3347293906810036,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_22",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 1.19572,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.847,
+   "core_min": 0.0308,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2464.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_22.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 31741,
+    "modal_share": 0.252163082437276,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
+   "tag": "section_grid_reveal_23",
+   "provenance": {
+    "run_root": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible",
+    "case": "/home/ubuntu/certonomous-runs/CURRICULUM-AOAI-a1-naca0012-alpha-polar-incompressible/case",
+    "time_dir": "constant/polyMesh",
+    "reveal_radius_m": 1.3,
+    "note": "the solved mesh revealed; no mesher ran"
+   },
+   "rc": 0,
+   "wall_s": 1.862,
+   "core_min": 0.031,
+   "exists": true,
+   "read_back": {
+    "cells": 4032.0,
+    "kept": 2536.0,
+    "camscale": 0.95
+   },
+   "script": "/home/ubuntu/Certonomous/verification/runs/actD_paraview/frames/_scripts/section_grid_reveal_23.py",
+   "stderr_tail": [],
+   "G-PV7a": {
+    "pixels": 558000,
+    "distinct_colours": 31517,
+    "modal_share": 0.1674247311827957,
+    "size": [
+     900,
+     620
+    ],
+    "verdict": "PASS"
+   },
+   "G-PV4": {
+    "paraview_cells": 4032,
+    "checkmesh_cells": 4032,
+    "verdict": "PASS"
+   },
+   "verdict": "PASS"
+  },
+  {
    "tag": "wing_skin_mesh",
    "provenance": {
     "source": "/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2_shape_frames.json",
     "surface": "baseline stored vertices"
    },
    "rc": 0,
-   "wall_s": 1.807,
+   "wall_s": 1.808,
    "core_min": 0.0301,
    "exists": true,
    "read_back": {
@@ -155,8 +1043,8 @@
     "field": "gradient (stored)"
    },
    "rc": 0,
-   "wall_s": 1.83,
-   "core_min": 0.0305,
+   "wall_s": 1.85,
+   "core_min": 0.0308,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -167,8 +1055,8 @@
    "stderr_tail": [],
    "G-PV7a": {
     "pixels": 558000,
-    "distinct_colours": 4637,
-    "modal_share": 0.6811039426523298,
+    "distinct_colours": 4640,
+    "modal_share": 0.681094982078853,
     "size": [
      900,
      620
@@ -185,8 +1073,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.805,
-   "core_min": 0.0301,
+   "wall_s": 1.813,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -215,8 +1103,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.824,
-   "core_min": 0.0304,
+   "wall_s": 1.877,
+   "core_min": 0.0313,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -245,8 +1133,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.835,
-   "core_min": 0.0306,
+   "wall_s": 1.848,
+   "core_min": 0.0308,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -275,8 +1163,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.83,
-   "core_min": 0.0305,
+   "wall_s": 1.838,
+   "core_min": 0.0306,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -305,8 +1193,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.819,
-   "core_min": 0.0303,
+   "wall_s": 1.829,
+   "core_min": 0.0305,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -335,8 +1223,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.815,
-   "core_min": 0.0303,
+   "wall_s": 1.864,
+   "core_min": 0.0311,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -365,8 +1253,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.804,
-   "core_min": 0.0301,
+   "wall_s": 1.831,
+   "core_min": 0.0305,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -395,8 +1283,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.8,
-   "core_min": 0.03,
+   "wall_s": 1.807,
+   "core_min": 0.0301,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -425,8 +1313,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.826,
-   "core_min": 0.0304,
+   "wall_s": 1.813,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -455,8 +1343,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.815,
-   "core_min": 0.0303,
+   "wall_s": 1.855,
+   "core_min": 0.0309,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -485,8 +1373,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.798,
-   "core_min": 0.03,
+   "wall_s": 1.805,
+   "core_min": 0.0301,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -515,8 +1403,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.812,
-   "core_min": 0.0302,
+   "wall_s": 1.804,
+   "core_min": 0.0301,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -545,7 +1433,7 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.812,
+   "wall_s": 1.813,
    "core_min": 0.0302,
    "exists": true,
    "read_back": {
@@ -575,8 +1463,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.839,
-   "core_min": 0.0306,
+   "wall_s": 1.816,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -605,8 +1493,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.799,
-   "core_min": 0.03,
+   "wall_s": 1.838,
+   "core_min": 0.0306,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -635,8 +1523,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.793,
-   "core_min": 0.0299,
+   "wall_s": 1.809,
+   "core_min": 0.0301,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -665,8 +1553,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.808,
-   "core_min": 0.0301,
+   "wall_s": 1.834,
+   "core_min": 0.0306,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -695,8 +1583,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.816,
-   "core_min": 0.0303,
+   "wall_s": 1.847,
+   "core_min": 0.0308,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -725,8 +1613,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.837,
-   "core_min": 0.0306,
+   "wall_s": 1.86,
+   "core_min": 0.031,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -755,8 +1643,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.806,
-   "core_min": 0.0301,
+   "wall_s": 1.818,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -785,8 +1673,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.824,
-   "core_min": 0.0304,
+   "wall_s": 1.82,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -815,8 +1703,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.833,
-   "core_min": 0.0306,
+   "wall_s": 1.812,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -845,8 +1733,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.827,
-   "core_min": 0.0305,
+   "wall_s": 1.822,
+   "core_min": 0.0304,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -875,8 +1763,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.826,
-   "core_min": 0.0304,
+   "wall_s": 1.819,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -905,8 +1793,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.852,
-   "core_min": 0.0309,
+   "wall_s": 1.81,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -935,8 +1823,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.796,
-   "core_min": 0.0299,
+   "wall_s": 1.846,
+   "core_min": 0.0308,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -965,8 +1853,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.817,
-   "core_min": 0.0303,
+   "wall_s": 1.811,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -995,8 +1883,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.814,
-   "core_min": 0.0302,
+   "wall_s": 1.826,
+   "core_min": 0.0304,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1025,8 +1913,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.846,
-   "core_min": 0.0308,
+   "wall_s": 1.815,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1055,8 +1943,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.803,
-   "core_min": 0.0301,
+   "wall_s": 1.827,
+   "core_min": 0.0304,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1085,8 +1973,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.817,
-   "core_min": 0.0303,
+   "wall_s": 1.845,
+   "core_min": 0.0308,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1115,8 +2003,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.812,
-   "core_min": 0.0302,
+   "wall_s": 1.856,
+   "core_min": 0.0309,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1145,8 +2033,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.828,
-   "core_min": 0.0305,
+   "wall_s": 1.814,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1175,8 +2063,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.826,
-   "core_min": 0.0304,
+   "wall_s": 1.845,
+   "core_min": 0.0307,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1205,8 +2093,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.83,
-   "core_min": 0.0305,
+   "wall_s": 1.82,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1235,8 +2123,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.825,
-   "core_min": 0.0304,
+   "wall_s": 1.839,
+   "core_min": 0.0306,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1265,8 +2153,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.84,
-   "core_min": 0.0307,
+   "wall_s": 1.821,
+   "core_min": 0.0303,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1295,8 +2183,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.849,
-   "core_min": 0.0308,
+   "wall_s": 1.813,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1325,8 +2213,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.857,
-   "core_min": 0.031,
+   "wall_s": 1.837,
+   "core_min": 0.0306,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1355,8 +2243,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.826,
-   "core_min": 0.0304,
+   "wall_s": 1.83,
+   "core_min": 0.0305,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1385,7 +2273,7 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.82,
+   "wall_s": 1.819,
    "core_min": 0.0303,
    "exists": true,
    "read_back": {
@@ -1445,8 +2333,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.812,
-   "core_min": 0.0302,
+   "wall_s": 1.85,
+   "core_min": 0.0308,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1475,8 +2363,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.813,
-   "core_min": 0.0302,
+   "wall_s": 1.868,
+   "core_min": 0.0311,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1505,8 +2393,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.798,
-   "core_min": 0.03,
+   "wall_s": 1.855,
+   "core_min": 0.0309,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1535,8 +2423,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.808,
-   "core_min": 0.0301,
+   "wall_s": 1.823,
+   "core_min": 0.0304,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1565,8 +2453,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.831,
-   "core_min": 0.0305,
+   "wall_s": 1.812,
+   "core_min": 0.0302,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1595,8 +2483,8 @@
     "surface": "stored, not interpolated"
    },
    "rc": 0,
-   "wall_s": 1.816,
-   "core_min": 0.0303,
+   "wall_s": 1.809,
+   "core_min": 0.0301,
    "exists": true,
    "read_back": {
     "points": 1031.0,
@@ -1639,7 +2527,7 @@
   "iter0_reproduces_baseline_m": 1e-09,
   "no_exaggeration": "Every coordinate in this file is at true scale. No displacement is amplified anywhere."
  },
- "core_min_total": 1.609,
+ "core_min_total": 2.352,
  "VERDICT": "PASS",
  "_not_rendered": [
   "A converged-angle field for the polar act. The sweep re-solves IN PLACE, so only the final angle's field survives on disk; the converged branch's fields were overwritten. Rendering a neighbouring angle and labelling it converged would be a fabricated provenance, so the gap is reported instead."

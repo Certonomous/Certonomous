@@ -37,54 +37,92 @@ have not measured it. The act may not say.**
 
 **The frame is a CORRELATE of a refused state, never a MECHANISM for it.** The
 refusal rests on the solver's own residual verdict and on nothing in the picture.
-The honest sentence is *"this is what the solver's last iterate looks like at a
-point the platform refused"*. Forbidden: *"you can see the flow separating"*,
-*"the wake is shedding"*, and every relative of them.
 
-## 4. ⚠⚠ AND THE HOLE THIS OPENS, MEASURED
+**Sanaa's caption rule and this constraint point the same way, which is why the
+published caption is now numbers only:**
 
-`aoa_read.G-STALL` is the guard that stops us binding a stall word to a numeric
-angle. It is fail-closed, it carries two-sided controls (C7/C7b) and it **passed
-on both arms**. But **it reads STRINGS**, and it requires the stall word and the
-angle to sit in one string within sixty characters of each other:
+    alpha = 18 deg  |  iter 1000/1000  |  tol 1e-8 not met  |  9/19 converged
+
+**A number cannot assert a mechanism.** Forbidden: *"you can see the flow
+separating"*, *"the wake is shedding"*, and every relative of them.
+
+**What is deliberately NOT quoted:** a residual value. `AOA_POINTS.json` records
+`achieved_min_residual: None` for α = 18° — DAFoam printed no satisfaction line,
+so there is no measured residual to give. `1e-8` is the **registered tolerance**
+and the caption says it was not met; that is a verdict, not a measurement, and
+the caption does not dress it as one.
+
+## 4. ⚠⚠ THE HOLE THIS OPENS, MEASURED — AND HOW THE CAPTION RULE CHANGED IT
+
+`aoa_read.G-STALL` stops us binding a stall word to a numeric angle. It is
+fail-closed, carries two-sided controls (C7/C7b) and **passed on both arms**. But
+**it reads STRINGS**, and needs the stall word and the angle within sixty
+characters **of one string**.
+
+### Under the original prose captions, it could not see them
 
 | string | `G-STALL` |
 |---|---|
 | `the stall angle is 13.0 deg` (control C7) | **FIRES** |
-| `At 18 deg the flow stalls over the upper surface.` | **FIRES** |
 | `The flow separates over the upper surface here.` | **does not fire** |
 | `The wake is shedding behind the section.` | **does not fire** |
 
-**On a rendered frame the ANGLE is in the frame label and the CLAIM is in the
-caption. Two channels. The regex cannot see them together.** So a caption may
-assert a mechanism the run never measured and every existing instrument in this
-lab stays green.
+**The ANGLE was in the frame label and the CLAIM was in the caption. Two
+channels — the regex could never see them together, however it were tuned.**
 
-*No gate reads prose* was already this family's known hazard. **No gate reads
-pictures either — and this is the first time we have put a picture where an
-argument used to be.**
+### Sanaa's caption rule moved the angle into the caption, and partly closed it
 
-### The guard that closes it
+Her caption directive (newest of her directives **by git commit order**; the
+filename timestamps invert across the `2006Z` naming boundary and are not the
+authority) requires captions of numbers, symbols and units. That puts the angle
+**in the caption**, so a stall word now sits beside it in one string:
 
-`cases/dafoam/ladder-a/A1/polar_frame_captions.py`. It holds the approved
-captions, a **mechanism** pattern deliberately carrying words `G-STALL` does not
-have at all (`separates`, `shedding`, `recirculation`, `reattach`, `turbulent`)
-and requiring **no angle anywhere**, and a **result-voice** pattern for captions
-that present a refused iterate as a flow result.
+| numeric caption | `G-STALL` |
+|---|---|
+| `alpha = 18 deg \| stall \| 9/19` | **FIRES** |
+| `18 deg \| separation onset \| 10/19` | **FIRES** |
+| `alpha = 18 deg \| wake shedding \| 9/19` | **does not fire** |
+| `18 deg \| flow separates \| 10/19` | **does not fire** |
 
-**22/22 arms, both directions**: eight forbidden captions must be rejected, four
-honest ones must be accepted, every published caption is swept, and each also
-goes through the act's own camera-string checker `demo_mode.check_demo_language`.
+**⚠ THE COVERAGE IS RESTORED ONLY FOR THE VOCABULARY `G-STALL` ALREADY HAS.**
+`shedding`, `separates`, `recirculation` and `turbulent` are not in its word list
+at all, so a mechanism claim using them is invisible to it **in either format,
+with or without an angle.**
 
-Two arms exist only to stop this memo rotting: one asserts that **8/8 of the
-forbidden captions still evade `G-STALL`**, so if a successor widens that guard
-this file goes red and the claim above gets corrected rather than quietly
-becoming false; the other asserts `G-STALL` still fires on its own control C7.
+That correction came from an arm going red on an overclaim in this memo's own
+supporting file: `wake shedding` was first filed as a string the new format
+would catch, and it is not.
 
-**One defect it caught in itself on the first run:** the mechanism pattern
-carried `turbulent wake` and *"The wake is turbulent here."* walked straight
-through it. Found by the plant, not by reading. **A phrase pattern is only as
-good as the word order its author imagined.**
+**So the mechanism guard stays PRIMARY and is not weakened on the strength of
+`G-STALL` now seeing more.** It requires no angle and carries the vocabulary
+`G-STALL` lacks.
+
+### The guard
+
+`cases/dafoam/ladder-a/A1/polar_frame_captions.py` — **35/35 arms, both
+directions**: eight angle-less captions must be rejected and must evade
+`G-STALL`; two numeric captions in its own vocabulary must be rejected and must
+be caught by it; three numeric captions outside its vocabulary must be rejected
+and must still evade it; four honest numeric captions must be accepted; every
+published caption is swept, and each also goes through
+`demo_mode.check_demo_language`.
+
+### ⚠ The limit of the rot-arms, written down because it was discovered
+
+The arms assert this memo's claim against **`G-STALL`'s behaviour**, so they fire
+when the **instrument** changes. **They did not fire when the caption FORMAT
+changed** — and that is what actually moved the claim. The guard never moved; the
+**subject** moved.
+
+**A rot-arm catches the instrument changing under a document. It does not catch
+the world changing under it.** The mitigation is that the claim is now stated
+**conditionally** — *"of captions carrying no angle"* — so a format change
+narrows its scope instead of falsifying it.
+
+**One defect the guard caught in itself on its first run:** the mechanism pattern
+carried `turbulent wake` and *"The wake is turbulent here."* walked through it.
+Found by the plant, not by reading. **A phrase pattern is only as good as the
+word order its author imagined.**
 
 ## 5. WHAT THE ACT MAY NOT DO
 

@@ -224,6 +224,57 @@ print("SENTINEL_SAVE_OK", flush=True)
 '''
 
 
+#: THE PROGRESSIVE GRID REVEAL -- Sanaa's stage 5 asks for the grid drawn "cell
+#: by cell", and the 21:10Z directive accepts frame sequencing as the mechanism.
+#: This reveals the REAL 4,032-cell mesh outward from the wall, which is also the
+#: order a hyperbolic extrusion actually builds it in, so the sequence is not an
+#: arbitrary animation over a finished object.
+#:
+#: NO MESHER RUNS DURING A SHOOT AND THE ACT MAY NOT IMPLY ONE DOES. This is the
+#: mesh the numbers came from, revealed; it is not a mesher's live output. The
+#: distinction matters because a live `blockMesh` producing a grid that is NOT
+#: the grid the results came from would be a false visual -- the same class as
+#: an interpolated morph frame, and refused for the same reason.
+GRID_REVEAL = '''
+print("SENTINEL_PY_OK", flush=True)
+from paraview.simple import *
+print("SENTINEL_IMPORT_OK", flush=True)
+r = OpenFOAMReader(FileName=CASE)
+r.MeshRegions = ["internalMesh"]
+r.UpdatePipeline()
+info = r.GetDataInformation()
+print("CELLS", info.GetNumberOfCells(), flush=True)
+clip = Clip(Input=r)
+clip.ClipType = "Sphere"
+clip.ClipType.Center = [CENTRE[0], CENTRE[1], 0.0]
+clip.ClipType.Radius = RADIUS
+clip.Invert = 1
+clip.UpdatePipeline()
+kept = clip.GetDataInformation().GetNumberOfCells()
+print("KEPT", kept, flush=True)
+v = CreateRenderView()
+v.ViewSize = SIZE
+v.Background = [0.12, 0.14, 0.18]
+v.OrientationAxesVisibility = 0
+d = Show(clip, v)
+d.Representation = "Surface With Edges"
+Render(v)
+v.CameraParallelProjection = 1
+v.CameraPosition = [CENTRE[0], 0.0, 3.0]
+v.CameraFocalPoint = [CENTRE[0], 0.0, 0.0]
+v.CameraViewUp = [0.0, 1.0, 0.0]
+v.CameraParallelScale = PSCALE
+Render(v)
+got = float(v.CameraParallelScale)
+print("CAMSCALE", got, flush=True)
+if abs(got - PSCALE) > 1e-9:
+    raise SystemExit("REFUSE: the camera did not take (%r vs %r)" % (got, PSCALE))
+print("SENTINEL_RENDER_OK", flush=True)
+SaveScreenshot(OUT, v)
+print("SENTINEL_SAVE_OK", flush=True)
+'''
+
+
 def run_render(tag: str, body: str, consts: dict, out: Path) -> dict:
     OUT_ROOT.mkdir(parents=True, exist_ok=True)
     scripts = OUT_ROOT / "_scripts"
@@ -241,7 +292,7 @@ def run_render(tag: str, body: str, consts: dict, out: Path) -> dict:
     for ln in r.stdout.split("\n"):
         parts = ln.split()
         if len(parts) == 2 and parts[0] in ("CELLS", "POINTS", "FACES",
-                                            "CAMSCALE", "TIME"):
+                                            "CAMSCALE", "TIME", "KEPT"):
             got[parts[0].lower()] = float(parts[1])
     return {"rc": r.returncode, "wall_s": round(wall, 3),
             "core_min": round(wall / 60.0, 4), "exists": out.exists(),
@@ -302,6 +353,35 @@ def main() -> int:
                 "field": field,
                 "alpha_deg": POLAR_ALPHA_DEG if field else None,
                 "verdict": POLAR_VERDICT if field else None},
+        })
+
+    # ---- the progressive grid reveal, on the real mesh ---------------------
+    # Radii are LOG-SPACED so the near-wall cells -- the ones a viewer actually
+    # wants to see resolved -- get most of the frames, rather than the sequence
+    # spending twenty frames on far-field cells that all look alike.
+    import math as _math
+    # r0 IS SET BY THE GATE, NOT BY TASTE. The first run started at 0.09 m and
+    # G-PV7a refused six frames as blank -- measured: r = 0.16082 gives modal
+    # share 0.9911 (fails 0.99), r = 0.18062 gives 0.9878 (passes). A revealed
+    # annulus that small against a fixed camera is 99 % background and shows a
+    # viewer nothing, so the gate and the eye agree here. 0.19 takes the first
+    # passing radius with a margin rather than sitting on the threshold.
+    n_reveal = 24
+    r0, r1 = 0.19, 1.30
+    for i in range(n_reveal):
+        frac = i / (n_reveal - 1)
+        radius = r0 * (r1 / r0) ** frac
+        jobs.append({
+            "tag": f"section_grid_reveal_{i:02d}", "body": GRID_REVEAL,
+            "kind": "foam", "case": str(SECTION), "expect_cells": section_cells,
+            "reveal": True,
+            "consts": {"CASE": foam, "SIZE": [900, 620], "PSCALE": 0.95,
+                       "CENTRE": [0.42, 0.0], "RADIUS": round(radius, 5)},
+            "provenance": {"run_root": str(SECTION.parent),
+                           "case": str(SECTION),
+                           "time_dir": "constant/polyMesh",
+                           "reveal_radius_m": round(radius, 5),
+                           "note": "the solved mesh revealed; no mesher ran"},
         })
 
     # ---- the wing: skin, and the graded gradient painted on it -------------
@@ -396,9 +476,17 @@ def main() -> int:
                              f"{job['expect_cells']}")
         entry["verdict"] = "PASS" if not is_blank(c) else "NOT A RESULT"
         rec["frames"].append(entry)
-        if not job.get("morph"):
+        if not job.get("morph") and not job.get("reveal"):
             print(f"  [ok  ] {job['tag']:<38} {c['distinct_colours']:>6} colours, "
                   f"modal {c['modal_share']:.4f}")
+
+    reveal = [f for f in rec["frames"] if f["tag"].startswith("section_grid_reveal_")]
+    if reveal:
+        good = sum(1 for f in reveal if f.get("verdict") == "PASS")
+        print(f"  [ok  ] section_grid_reveal                   "
+              f"{good}/{len(reveal)} frames, real mesh revealed outward")
+        if good != len(reveal):
+            fails.append(f"grid reveal: {len(reveal) - good} frame(s) failed")
 
     morph = [f for f in rec["frames"] if f["tag"].startswith("wing_morph_")]
     if morph:
