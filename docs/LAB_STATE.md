@@ -4788,9 +4788,57 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
-**Section last written:** 2026-09-01T04:16:58Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
+**Section last written:** 2026-09-01T04:25:09Z by dafoam-supervisor (TWENTY-FIFTH session, re-formed after the ~04:10Z subscription-switch fleet kill; stamp from `date -u` in the committing invocation).
 
 *Formatting repair in the same commit, disclosed: **19 sub-headings inside this section were demoted from `## ` to `##### `.** `scripts/check_harness.py` splits the board on `^## `, so every one of them was read as a NEW TOP-LEVEL SECTION and truncated dafoam's body at the first of them — the harness was seeing **191 of this section's 3,991 lines (4.8 %)**, which is also why the missing stamp went unnoticed: the stamp that DID exist sat far below the cut. **No heading's TEXT changed — asserted mechanically, 0 of 19 differ by anything but the hash prefix — and nothing outside this section changed.** Two of the 19 are the eighteenth session's; its blocks are still carried byte-for-byte in CONTENT, and the heading level is the only byte touched. Cause was mine: I wrote `## 1.`-style sub-headings in four blocks today without checking them against the parser.*
+
+##### UPDATE S-24b — **ACT D IS `HALF-WIRED` AND THE MISSING PIECES ARE ALL cfd's: `adjoint-wing` IS REGISTERED AND UNREACHABLE, AND EVERY ACT D FIGURE RESOLVES TO THE WRONG NAMESPACE — WHICH IS FATAL TO SANAA'S 04:20Z "ALL PLOTS LATEXFIED". ALSO: I STRIKE ONE OF MY OWN BOARD ITEMS A LANE MEASURED AS STALE, AND MY BRIEF TO THAT LANE CONTAINED A FALSE PREMISE I AM RECORDING RATHER THAN QUIETLY DROPPING** (2026-09-01T04:25:09Z, `date -u` at write)
+
+###### 1. THE INTEGRATION VERDICT: `HALF-WIRED`, DEMONSTRATED BY A RUN
+
+`e3964db0` (04:00:48Z) landed five files: `sdk/workflows/adjoint_act.py` (new, 925 lines, registration at `:905`, `ACT = register_act("adjoint-wing", AdjointWingAct())`), `cases/dafoam/drive_actd_demo_mode.py` (new, 353), `cases/dafoam/ladder-a/A2_demo_mode_drive.json` (new, 271), `cases/dafoam/actd_language_sweep.py` (+31), `cases/dafoam/ladder-a/A2_language_sweep.json` (+127/−4).
+
+**The act and the connector run TOGETHER — demonstrated, not inferred.** `drive_actd_demo_mode.py` `rc=0`, 1.42 s wall, 1 rank = **0.024 core-min**; **23/23 checks held, 347 events over 9 stages** in `demo_mode.STAGES` order; **all four mutation controls went red** (a dropped iteration is refused before publishing; clock parts, a bent objective and a stretched time axis each turn a named check red). Record at `cases/dafoam/ladder-a/A2_demo_mode_drive.json`.
+
+**But no user action reaches it, so it is not WIRED.** `sdk/chief_engineer/router.py:903-904` maps intent `ADJOINT_OPTIMIZATION` to module `workflows.adjoint_optimization`. **I verified personally** (`SUPERVISION_CHARTER` §3 check 3, not relayed) that the only `demo_*` name anywhere under `sdk/chief_engineer/` is a `check_demo_language` import at `replay_stage.py:411` — no `demo_sequencer`, no `run_act`, no `adjoint_act`. **The Act D prompt in the control room therefore runs the LEGACY workflow, and `adjoint-wing` is registered and unreachable.**
+
+###### 2. THREE EDGES, ALL IN cfd's FILES — ESCALATED, NOT PATCHED BY ME
+
+| # | defect | site | consequence |
+|---|---|---|---|
+| 1 | no router edge to demo mode | `sdk/chief_engineer/router.py:903-904` | `adjoint-wing` registered and unreachable; the GUI runs the legacy workflow |
+| 2 | `demo_sequencer` never reads `MeshPlan.command` | `.command` occurs once in the pair, `demo_mode.py:758`, inside its own validator | **Sanaa's "meshing runs live" stage invokes no mesher.** Live meshing is VIABLE at 8.021 s and NOT WIRED |
+| 3 | plot namespace hardcoded | `demo_sequencer.py:352`, `announce_plot(self._guarded(emit), "results", …)` — **verified by me personally** | every figure serves as `/api/plot/results/<name>` whatever act published it. **Act D's figures live under `cases/dafoam/ladder-a/figures/` and will NOT resolve** |
+
+**⚠ DEFECT 3 IS THE URGENT ONE AND ITS URGENCY IS NEW AS OF 04:20Z.** Sanaa's overnight order requires **ALL PLOTS LATEXFIED**. With `"results"` hardcoded, **a perfectly latexfied Act D figure still does not render.** The fix is one string in another team's file; the figures are the long pole. **My lane is instructed to latexfy them anyway so they are ready the moment the string lands** — I am not having dafoam wait on a one-token edit, and I am not having dafoam make it.
+
+###### 3. I STRIKE ONE OF MY OWN BOARD ITEMS — THE LANE MEASURED IT STALE AND THE LANE IS RIGHT
+
+**`S-2x` §5's "four unguarded publication sites" hole is CLOSED and that board item is STRUCK, not routed.** All five helper call sites in `demo_sequencer.py` pass `self._guarded(emit)` — lines **257, 279, 321, 336, 352, 356** — and `_guarded` is defined at `:156` and **arrived with the file itself at `2636812a`**. A supervisor's board item that a lane measures as stale gets struck. It was never a live hole; my board was describing a state that the file never shipped in.
+
+###### 4. ⚠ MY OWN BRIEF CARRIED A FALSE PREMISE, AND THE TRAP IS GENERAL
+
+**I told the lane that `cases/dafoam/drive_actd_demo_mode.py` and `cases/dafoam/ladder-a/A2_demo_mode_drive.json` had been DELETED and staged, and asked it to find out who did it. NOBODY DID IT. THERE IS NO DELETION.** I read `D ` off a `git status` snapshot and believed the letter.
+
+**What is actually true, measured by the lane and correct:** the shared `.git/index` LAGS `HEAD`, which is **the by-design divergence of the private-index protocol** — `update-ref` moves `refs/heads/main` and never refreshes `.git/index`. For all five `e3964db0` paths, **index blob == `HEAD` blob == on-disk blob**, and `git diff --cached HEAD` is **empty repo-wide**. No reset occurred: `ORIG_HEAD` dates **2026-08-16 23:16** and every reflog entry carries an empty reason, which is `update-ref`'s signature. Corroborated across three teams — `T25R_PREREGISTRATION.md` (added `1a7bae7c`, 04:02Z), the compressible-queue capture (`055376a0`, 04:06Z), `actA_temperature_field.png` (`d0fea770`, 04:09Z).
+
+**THE GENERAL FORM, and it will bite every team on this box:** under the private-index protocol, **a `D ` in `git status` is the DEFAULT EXPECTED STATE for any file added by a commit landed since the index was last refreshed.** A deletion must be proved by comparing blobs — never read off the status letter. This sits beside the already-known `git status reads stale under concurrency` trap and is a *different* mechanism.
+
+**And the contrast that makes it usable:** the **unstaged** worktree deletions under `verification/queue/` ARE genuine on-disk removals by the queue daemon (`verification/queue/cfd/F26D.json` absent on disk, present at `HEAD`). So the letter is not always lying — which is exactly why the blob comparison, not a rule of thumb, is the method. **The lane is writing this up as a `LESSONS.md` entry, number re-derived as max+1 from the tail at commit time.** Nothing was reverted and nothing restored, per rule 10.
+
+###### 5. TWENTY MINUTES IS **NOT MEASURED ON THIS BOX**, AND THE RECORD MUST SAY SO WHILE THE DEMO SHOWS IT
+
+**Measured:** run wall **3601 s** (process wall 3600.79 s), pacing ratio **3.0006618690490723**. **Displayed:** `display_s = wall_s / ratio`, parts **18:25** (1105.225 s) + **1:35** (94.775 s) = **1200.000 s exactly**. All four figures out of `cases/dafoam/ladder-a/A2_demo_mode_drive.json`.
+
+**The 20:00 clock rests on Sanaa's direct order `68b10335` — verbatim, "So everywhre on the dafoam demo it should say 20 mins not 60" — and on her `2bd3fd92` projection for a production configuration with the linear solvers on GPU. NO GPU RUN EXISTS ON THIS BOX.** The reading is EVERY on-screen time figure including the replay monitor's elapsed clock, superseding `4905abdd`'s "elapsed time shown is the run's real wall time" **for Act D only**.
+
+**The split I have ruled and instructed:** **the demo displays her figure; the ledger keeps the measurement.** The 3601 s stays untouched in the run records and the cost ledger, and the two do not contaminate each other in either direction. **This is not mine to reinterpret** — it is her explicit order, and the honest thing available to me is to make sure the measured number survives beside it, which it does.
+
+**`cases/dafoam/ACTD_MESH_TIME_PREREGISTRATION.md` IS NOT the 20-minute pre-registration** and must not be cited as one. It freezes a **mesh-time** gate; result at `cases/dafoam/ladder-a/A2_mesh_time.json` — mesh-only **8.021 s**, pyHyp 5.547 s = 69.15 %, identity assert holds at **38,304 cells**, **0.1462 core-min** at 1 rank against a 40 core-min cap, **`PASS`** against the registered 60 s rule. **Its registered 20–300 s band is recorded FALSIFIED in the file itself**, and its own addendum names the gap honestly: it timed the MESHER, not the viewport's cell-by-cell draw.
+
+###### 6. `[VERIFY]` FOR MY SUCCESSOR
+
+Verified by me personally this invocation: the router table and the `sdk/chief_engineer/` grep (§1), and `demo_sequencer.py:352` (§2 defect 3). **NOT independently verified by me, taken on the lane's demonstrated run:** the 23/23 checks, the 347 events, the four mutation controls, the blob comparisons of §4 and the four timing figures of §5. The lane demonstrated each by a run or a measurement and named its own limit — **it has NOT run the control room**, so "the GUI would not reach demo mode" rests on the router table and the grep rather than on a live server transaction. That limit is fair and I did not ask it to close it.
 
 ##### UPDATE S-24a — **`SO-3` IS SETTLED AND IT IS A REAL `PASS`: BOTH ROWS, FD TABLE AT THE FINAL DESIGN POINT, PLATEAU PROVED PER PAIR — AND MY OWN S-23z BLOCK'S "FE-P IN FLIGHT, DO NOT RESTART" WAS TRUE FOR NINETY SECONDS AND IS NOW SUPERSEDED. THE DRAG REDUCTION WAS BOUGHT WITH LIFT AND THE ITEM'S OWN GRADER FORBIDS QUOTING IT ALONE** (2026-09-01T04:16:58Z, `date -u` at write)
 
