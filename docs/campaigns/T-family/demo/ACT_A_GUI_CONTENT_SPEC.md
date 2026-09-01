@@ -544,6 +544,17 @@ Clause 1 was first reported as *"no `.rc.*` file exists — NOT MEASURED"*, with
 ruling attached invoking Sanaa's 2026-08-26 bookkeeping rule to treat the
 missing exit code as an infrastructure gap, disclosed but not fatal.
 
+> **⛔ THAT RULING IS WITHDRAWN IN FULL AND IS NOT PRECEDENT. IT IS RECORDED
+> HERE ONLY AS THE ERROR IT WAS.**
+> Nothing about clause 1 needed deciding: the exit code is recorded and the
+> clause is met. **Sanaa's 2026-08-26 universal rule is NOT exercised on this
+> rung**, and the K2bU precedent is **not** cited here — each stands on its own
+> facts, untouched by this case.
+> A successor who finds this paragraph by searching for that rule should read it
+> as a worked example of a false negative, **never as authority for excusing a
+> completion clause**. Citing it that way would be citing a case in which the
+> clause was plainly satisfied.
+
 **The exit code was never missing.** It is in `STATUS.T23G2_L1`, which a search
 for `*.rc.*` cannot match. The file records:
 
