@@ -32,12 +32,12 @@
 \newcommand{\rolesig}[1]{\textbf{\footnotesize#1}}
 
 \begin{document}
-\fontsize{8}{9.5}\selectfont
+\fontsize{8}{9.0}\selectfont
 \enlargethispage{30pt}
 
 % ---------------------------------------------------------------- title -----
 {\fontsize{14}{16}\selectfont\bfseries Motor in a cooling duct: thermal envelope}\\[1.5pt]
-{\fontsize{8.8}{10}\selectfont Peak housing temperature over 16 solved operating
+{\fontsize{8.8}{10}\selectfont Peak core temperature over 16 solved operating
 points --- 4 heat loads $\times$ 4 airspeeds}\\[2pt]
 {\color{rulegrey}\rule{\textwidth}{0.9pt}}\\[1pt]
 {\footnotesize\textbf{Solver:} OpenFOAM \texttt{chtMultiRegionSimpleFoam},
@@ -48,9 +48,9 @@ $200\,^{\circ}\mathrm{C}$ (customer-stated).}
 
 % ---------------------------------------------------------------- table 1 ---
 \vspace{2pt}
-\textbf{Table 1 --- Peak housing temperature $T_{\max}$, $^{\circ}\mathrm{C}$.}
-Sixteen solved points; all values read from the solution at full write
-precision.
+\textbf{Table 1 --- Peak core temperature
+$T_{\max,\mathrm{core}}$, $^{\circ}\mathrm{C}$.} The core is the hotter solid
+and carries the body's peak. Sixteen solved points, at full write precision.
 
 \vspace{2pt}
 \begin{tabular}{r rrrr l}
@@ -60,46 +60,45 @@ precision.
 \textbf{Heat load $P$, W} & \textbf{10} & \textbf{20} & \textbf{30} & \textbf{40}
  & \textbf{Numerical uncertainty on every value in the row} \\
 \midrule
-\textbf{80}  &  38.1374 &  29.0795 & 25.5462 & 23.5897 & not quantified (single mesh level) \\
-\textbf{155} &  59.9609 &  42.3896 & 35.5104 & 31.6747 & not quantified (single mesh level) \\
-\textbf{230} &  81.7844 &  55.6997 & 45.4746 & 39.7598 & not quantified (single mesh level) \\
-\textbf{305} & 103.6078 &  69.0098 & 55.4389 & 47.8448 & not quantified (single mesh level) \\
+\textbf{80} &  39.2049 &  30.1565 &  26.6287 &  24.6762 & not quantified (single mesh level) \\
+\textbf{155} &  62.0291 &  44.4762 &  37.6077 &  33.7797 & not quantified (single mesh level) \\
+\textbf{230} &  84.8533 &  58.7959 &  48.5866 &  42.8832 & not quantified (single mesh level) \\
+\textbf{305} & 107.6775 &  73.1156 &  59.5656 &  51.9867 & not quantified (single mesh level) \\
 \bottomrule
 \end{tabular}
 
 \vspace{1.5pt}
-{\footnotesize Every point sits on one mesh level. An error bar needs the same
-point on two further meshes. None is quoted for these sixteen numbers.}
+{\footnotesize One mesh level per point. No error bar is quoted.}
 
 \vspace{2pt}
-\textbf{Table 2 --- Margin to the $200\,^{\circ}\mathrm{C}$ limit, at the
-worst airspeed $10\,\mathrm{m\,s^{-1}}$.} Margin is the limit minus the
-solved peak.
+\textbf{Table 2 --- Both solids, and the margin, at the worst airspeed
+$10\,\mathrm{m\,s^{-1}}$.} Margin is the limit minus the \emph{core} peak,
+because the core is hotter at every solved point.
 
-\vspace{2pt}
-{\fontsize{7.2}{8.5}\selectfont
-\begin{tabular}{r r r l}
+\vspace{1.5pt}
+{\fontsize{6.7}{7.7}\selectfont
+\begin{tabular}{r r r r r l}
 \toprule
-Heat load $P$, W & Peak $T_{\max}$, $^{\circ}\mathrm{C}$ &
-Margin, K & Reading \\
+Heat load & Peak core & Peak housing & Core above & Margin on & Reading \\
+$P$, W & $^{\circ}\mathrm{C}$ & $^{\circ}\mathrm{C}$ & housing, K &
+core, K & \\
 \midrule
-80  &  38.1374 & 161.8626 & clears the limit \\
-155 &  59.9609 & 140.0391 & clears the limit \\
-230 &  81.7844 & 118.2156 & clears the limit \\
-\textbf{305} & \textbf{103.6078} & \textbf{96.3922} & worst solved point \\
+80 & 39.2049 & 38.1374 & 1.0675 & 160.7951 & clears the limit \\
+155 & 62.0291 & 59.9609 & 2.0682 & 137.9709 & clears the limit \\
+230 & 84.8533 & 81.7844 & 3.0689 & 115.1467 & clears the limit \\
+\textbf{305} & \textbf{107.6775} & \textbf{103.6078} & \textbf{4.0697} & \textbf{92.3225} & worst solved point \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1.5pt}
-{\footnotesize The coolest point is $23.5897\,^{\circ}\mathrm{C}$, at
-$80\,\mathrm{W}$ and $40\,\mathrm{m\,s^{-1}}$. Margins carry no error bar,
-for the same reason as Table 1.}
+{\footnotesize Coolest core peak $24.6762\,^{\circ}\mathrm{C}$, at
+$80\,\mathrm{W}$ and $40\,\mathrm{m\,s^{-1}}$. Margins carry no error bar.}
 
 % ------------------------------------------------- plot + assumption beat ---
 \vspace{1.5pt}
 \begin{minipage}[t]{0.485\textwidth}
-\textbf{Figure 1 --- Operating envelope.} Peak housing temperature against
-airspeed, one curve per heat load. Shaded band is below the limit.
+\textbf{Figure 1 --- Operating envelope.} Peak \emph{core} temperature
+against airspeed, one curve per heat load. Shaded band is below the limit.
 
 \vspace{2pt}
 \setlength{\unitlength}{1mm}
@@ -117,7 +116,7 @@ airspeed, one curve per heat load. Shaded band is below the limit.
   \put(-2.2,25.77){\makebox(0,0)[r]{\scriptsize 100}}
   \put(-2.2,39.10){\makebox(0,0)[r]{\scriptsize 150}}
   \put(-2.2,52.43){\makebox(0,0)[r]{\scriptsize 200}}
-  \put(-7.0,30){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize $T_{\max}$, $^{\circ}\mathrm{C}$}}}
+  \put(-7.0,30){\makebox(0,0)[c]{\rotatebox{90}{\scriptsize $T_{\max,\mathrm{core}}$, $^{\circ}\mathrm{C}$}}}
   % ---- x ticks and labels, m/s -------------------------------------------
   \multiput(28,0)(28,0){3}{\line(0,-1){1.4}}
   \put(0,-4.2){\makebox(0,0)[c]{\scriptsize 10}}
@@ -129,35 +128,35 @@ airspeed, one curve per heat load. Shaded band is below the limit.
   \linethickness{0.7pt}
   \multiput(0,53.33)(4,0){21}{{\color{limit}\rule{2.2mm}{0.6pt}}}
   \put(2,55.0){\makebox(0,0)[l]{{\color{limit}\scriptsize
-      $200\,^{\circ}\mathrm{C}$ housing limit (customer-stated)}}}
+      $200\,^{\circ}\mathrm{C}$ limit (customer-stated)}}}
   \put(2,49.3){\makebox(0,0)[l]{\scriptsize safe region}}
   % ---- curves: 4 measured samples joined by straight segments -------------
   \linethickness{0.5pt}
-  % 80 W  -> 10.17 7.75 6.81 6.29
-  \qbezier(0,10.17)(14,8.96)(28,7.75)
-  \qbezier(28,7.75)(42,7.28)(56,6.81)
-  \qbezier(56,6.81)(70,6.55)(84,6.29)
-  \put(0,10.17){\circle*{1.1}}\put(28,7.75){\circle*{1.1}}
-  \put(56,6.81){\circle*{1.1}}\put(84,6.29){\circle*{1.1}}
-  % 155 W -> 15.99 11.30 9.47 8.45
-  \qbezier(0,15.99)(14,13.65)(28,11.30)
-  \qbezier(28,11.30)(42,10.39)(56,9.47)
-  \qbezier(56,9.47)(70,8.96)(84,8.45)
-  \put(0,15.99){\circle*{1.1}}\put(28,11.30){\circle*{1.1}}
-  \put(56,9.47){\circle*{1.1}}\put(84,8.45){\circle*{1.1}}
-  % 230 W -> 21.81 14.85 12.13 10.60
-  \qbezier(0,21.81)(14,18.33)(28,14.85)
-  \qbezier(28,14.85)(42,13.49)(56,12.13)
-  \qbezier(56,12.13)(70,11.37)(84,10.60)
-  \put(0,21.81){\circle*{1.1}}\put(28,14.85){\circle*{1.1}}
-  \put(56,12.13){\circle*{1.1}}\put(84,10.60){\circle*{1.1}}
-  % 305 W -> 27.63 18.40 14.78 12.76
+  % 80 W core -> 10.45 8.04 7.10 6.58
+  \qbezier(0.00,10.45)(14,9.25)(28.00,8.04)
+  \qbezier(28.00,8.04)(42,7.57)(56.00,7.10)
+  \qbezier(56.00,7.10)(70,6.84)(84.00,6.58)
+  \put(0.00,10.45){\circle*{1.1}}\put(28.00,8.04){\circle*{1.1}}
+  \put(56.00,7.10){\circle*{1.1}}\put(84.00,6.58){\circle*{1.1}}
+  % 155 W core -> 16.54 11.86 10.03 9.01
+  \qbezier(0.00,16.54)(14,14.20)(28.00,11.86)
+  \qbezier(28.00,11.86)(42,10.94)(56.00,10.03)
+  \qbezier(56.00,10.03)(70,9.52)(84.00,9.01)
+  \put(0.00,16.54){\circle*{1.1}}\put(28.00,11.86){\circle*{1.1}}
+  \put(56.00,10.03){\circle*{1.1}}\put(84.00,9.01){\circle*{1.1}}
+  % 230 W core -> 22.63 15.68 12.96 11.43
+  \qbezier(0.00,22.63)(14,19.15)(28.00,15.68)
+  \qbezier(28.00,15.68)(42,14.32)(56.00,12.96)
+  \qbezier(56.00,12.96)(70,12.20)(84.00,11.43)
+  \put(0.00,22.63){\circle*{1.1}}\put(28.00,15.68){\circle*{1.1}}
+  \put(56.00,12.96){\circle*{1.1}}\put(84.00,11.43){\circle*{1.1}}
+  % 305 W core -> 28.71 19.50 15.88 13.86
   \linethickness{0.9pt}
-  \qbezier(0,27.63)(14,23.02)(28,18.40)
-  \qbezier(28,18.40)(42,16.59)(56,14.78)
-  \qbezier(56,14.78)(70,13.77)(84,12.76)
-  \put(0,27.63){\circle*{1.3}}\put(28,18.40){\circle*{1.3}}
-  \put(56,14.78){\circle*{1.3}}\put(84,12.76){\circle*{1.3}}
+  \qbezier(0.00,28.71)(14,24.10)(28.00,19.50)
+  \qbezier(28.00,19.50)(42,17.69)(56.00,15.88)
+  \qbezier(56.00,15.88)(70,14.87)(84.00,13.86)
+  \put(0.00,28.71){\circle*{1.3}}\put(28.00,19.50){\circle*{1.3}}
+  \put(56.00,15.88){\circle*{1.3}}\put(84.00,13.86){\circle*{1.3}}
   % ---- legend, inside the axes where there is white space ----------------
   \put(55,45.5){\makebox(0,0)[l]{\scriptsize Heat load $P$:}}
   \linethickness{0.9pt}\qbezier(55,41.5)(58,41.5)(61,41.5)
@@ -178,10 +177,11 @@ them; nothing between the four airspeeds is claimed. No uncertainty band is
 drawn, because none exists at a single mesh level.}
 \end{minipage}\hfill
 \begin{minipage}[t]{0.485\textwidth}
-\textbf{Table 3 --- Your resistance estimate against the solved answer, at
-$305\,\mathrm{W}$.} Temperatures in $^{\circ}\mathrm{C}$. The ratio is taken on
-the temperature \emph{rise} above the $288\,\mathrm{K}$ air, which is common to
-both.
+\textbf{Table 3 --- Your resistance estimate against the solved
+\emph{housing} temperature, at $305\,\mathrm{W}$.} The comparison is on the
+housing because both closed forms are surface-convection correlations for the
+wall. The ratio is taken on the temperature \emph{rise} above the
+$288\,\mathrm{K}$ air.
 
 \vspace{2pt}
 {\fontsize{7.2}{8.5}\selectfont
@@ -190,7 +190,7 @@ both.
 $U_{\infty}$ & \multicolumn{2}{c}{Hand estimate, $^{\circ}\mathrm{C}$} &
 Solved & \multicolumn{2}{c}{Overprediction, $\times$} \\
 \cmidrule(lr){2-3}\cmidrule(lr){5-6}
-m\,s$^{-1}$ & duct corr. & flat plate & $^{\circ}\mathrm{C}$ & duct & flat plate \\
+m\,s$^{-1}$ & duct corr. & flat plate & housing, $^{\circ}\mathrm{C}$ & duct & flat plate \\
 \midrule
 10 & 329.1 & 195.1 & 103.6078 & \textbf{3.541} & \textbf{2.031} \\
 20 & 197.3 & 120.3 &  69.0098 & 3.369 & 1.947 \\
@@ -219,17 +219,17 @@ $20\,\mathrm{m\,s^{-1}}$.}
 Reading & Heat load, W & Basis \\
 \midrule
 Solved and demonstrated        & \textbf{305} & solved \\
-Implied to reach $120\,^{\circ}\mathrm{C}$ & 592 & extrapolated \\
-Implied to reach $200\,^{\circ}\mathrm{C}$ & 1043 & extrapolated \\
+Implied to reach $120\,^{\circ}\mathrm{C}$ core & 550 & extrapolated \\
+Implied to reach $200\,^{\circ}\mathrm{C}$ core & 969 & extrapolated \\
 \bottomrule
 \end{tabular}}
 
 \vspace{1.5pt}
-{\footnotesize The two implied loads are arithmetic beyond the highest load ever
-solved ($305\,\mathrm{W}$), on a proportionality checked only inside
-$80$--$305\,\mathrm{W}$. \textbf{They are not measurements.} The demonstrated
+{\footnotesize The two implied loads are arithmetic beyond the highest load
+solved, on a proportionality checked only inside $80$--$305\,\mathrm{W}$.
+\textbf{They are not measurements.} The demonstrated
 statement is the first row: at least $305\,\mathrm{W}$ at every airspeed tested,
-with at least $96.4\,\mathrm{K}$ of margin at the worst point.}
+with at least $92.3\,\mathrm{K}$ of core margin at the worst point.}
 \end{minipage}
 
 % -------------------------------------------------------- verification ------
@@ -272,10 +272,9 @@ $\bullet$ Material properties are representative values, not measured for your
 parts.\\
 $\bullet$ The duct is treated as an axisymmetric sector; no circumferential
 features are represented.\\
-$\bullet$ Near-wall mesh resolution meets its target at $10$ and
-$20\,\mathrm{m\,s^{-1}}$, and exceeds it at $30$ and $40\,\mathrm{m\,s^{-1}}$.
-That limits what may be said about surface heat-transfer coefficients. The
-temperature bound above is unaffected.\\
+$\bullet$ Near-wall resolution meets its target at $10$ and
+$20\,\mathrm{m\,s^{-1}}$, and exceeds it at $30$ and $40$. That limits claims
+about surface heat-transfer coefficients, not the temperature bound.\\
 $\bullet$ Nothing is claimed between the four airspeeds solved.}
 \end{minipage}}
 \end{minipage}
@@ -292,20 +291,18 @@ machine's owner rather than metered here.}
 
 \vspace{1pt}
 {\footnotesize
-\rolesig{Lead Researcher.} The result worth your attention is the correction to
-the sizing method, not the map. A lumped resistance estimate of this duct runs
-high by two to three and a half times at every airspeed, worst at the low-speed
-end.
+\rolesig{Lead Researcher.} The result worth your attention is the correction
+to the sizing method. A lumped resistance estimate of this duct runs high by two
+to three and a half times, worst at the low-speed end.
 
-\rolesig{Lead Engineer.} At $305\,\mathrm{W}$ and $10\,\mathrm{m\,s^{-1}}$ the
-housing sits $96.4\,\mathrm{K}$ below your $200\,^{\circ}\mathrm{C}$ limit, and
-the whole $80$--$305\,\mathrm{W}$ range clears it at all four airspeeds. Scale
-by proportion within that range; do not read between the airspeeds, and do not
-treat Table 4's extrapolated loads as a rating.
+\rolesig{Lead Engineer.} At $305\,\mathrm{W}$ and $10\,\mathrm{m\,s^{-1}}$
+the core, the hotter solid, sits $92.3\,\mathrm{K}$ below your
+$200\,^{\circ}\mathrm{C}$ limit, and the whole $80$--$305\,\mathrm{W}$ range
+clears it. Do not read between the airspeeds, and do not treat Table 4 as a
+rating.
 
 \rolesig{Lead Numericist.} The uncertainty column of Table 1 is empty on
-purpose: one mesh level supports no error bar, and none is invented. A
-quantified numerical uncertainty here is a mesh-refinement study.}
+purpose: one mesh level supports no error bar, and none is invented.}
 
 \vspace{1pt}
 {\color{rulegrey}\rule{\textwidth}{0.4pt}}\\[0.5pt]
