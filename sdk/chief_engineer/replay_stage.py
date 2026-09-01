@@ -291,15 +291,22 @@ class ReplayStage:
             "stage": self.stage_id,
             "wall_s_per_point": per_point,
             "wall_clock_span_s": history.wall_clock_span_s,
+            # PRESENT TENSE, 2026-09-01, and it is a ruling rather than a
+            # style choice. Sanaa's 03:40Z rule is zone-aware ("past tense for
+            # results"); her 04:20Z order says flatly "no past tense". Two of
+            # her own directives disagree. Present is the intersection: it
+            # satisfies the later prohibition outright and is at worst a mild
+            # shift of register under the earlier one, where past tense
+            # satisfies one and violates the other. No number moves.
             "wall_clock_span_basis": (
-                "the span of a sweep whose points ran concurrently"
+                "the span of a sweep whose points run concurrently"
                 if history.concurrent else
                 "the span from the first start to the last end"),
             "ran_concurrently": history.concurrent,
             "elapsed_note": (
                 "each point's elapsed figure is that run's own measured wall "
                 "time" + (
-                    "; the points ran concurrently, so no single sweep total "
+                    "; the points run concurrently, so no single sweep total "
                     "is published as a duration"
                     if history.concurrent else "")),
             "core_min_measured": round(history.core_min_total, 4),

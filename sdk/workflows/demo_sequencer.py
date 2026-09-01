@@ -669,7 +669,7 @@ class Sequencer:
 
 
 def make_act_entry(key: str, *, act_module: str, label: str | None = None,
-                   driver: str | None = None):
+                   driver: str | None = None, use_act=None, fallback=None):
     """THE ONE WAY AN ACT IS REACHED FROM THE DISPATCHER. Returns its ``main``.
 
     A workflow module adopts DEMO MODE in one line::
@@ -726,6 +726,24 @@ def make_act_entry(key: str, *, act_module: str, label: str | None = None,
     def main(request: str | None = None, params: dict | None = None,
              emit=None) -> int:
         from . import make_transcript
+
+        # THE FORK: ONE INTENT MAY SERVE MORE THAN ONE ACT, and only some of
+        # them are built. The thermal intent covers two, and only one has an
+        # act module; the other must keep reaching the surface that serves it
+        # today, UNCHANGED, until its act exists. This is the "legacy stays
+        # reachable" rule generalised from one module to the mechanism -- put
+        # in each act's module instead, it would reintroduce exactly the
+        # per-act duplication this factory removes.
+        #
+        # No ``use_act`` means this entry always walks the stages, which is
+        # the single-act case and the common one.
+        if use_act is not None and not use_act(params, request):
+            if fallback is None:
+                raise SequencerRefused(
+                    f"this request does not select the {key!r} act and no "
+                    f"other surface is wired to serve it, so nothing is shown "
+                    f"rather than the wrong act being shown")
+            return fallback(request=request, params=params, emit=emit)
 
         module = importlib.import_module(act_module)
         script = make_transcript(label or key, emit)

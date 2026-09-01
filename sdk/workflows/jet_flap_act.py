@@ -272,17 +272,34 @@ class JetFlapAct(DemoAct):
             cases=cases,
             # The ELAPSED figure, which is a different quantity: these points
             # ran concurrently, so their durations do not add.
-            # PAST TENSE HERE IS CORRECT AND IS LEFT ALONE. This string was
-            # put up for rewriting as narrative past tense. Sanaa's language
-            # rule is zone-aware, not a blanket ban: "Progressive tense while
-            # running, past tense for results." This line is published after
-            # the replay finishes, carries `finished: true`, and reports a
-            # completed span. It is a results line, so past tense is what she
-            # asked for, and stripping it would have satisfied a rule she
-            # never wrote.
+            # THE ARGUMENT BELOW WAS SOUND AND IS SUPERSEDED, 2026-09-01. It
+            # read: past tense is correct here and is left alone, because
+            # Sanaa's language rule is zone-aware rather than a blanket ban --
+            # "Progressive tense while running, past tense for results" --
+            # and this line publishes after the replay finishes, carries
+            # `finished: true`, and reports a completed span, so it is a
+            # results line and past tense is what she asked for.
+            #
+            # WHAT CHANGED IS NOT THE REASONING BUT THE INSTRUCTION. Her
+            # 04:20Z overnight order says, flatly and in her own words, "no
+            # past tense". That is LATER than the 03:40Z zone rule and it is
+            # not zone-aware. Two of her own directives disagree, forty
+            # minutes apart, and resolving that is hers.
+            #
+            # PRESENT TENSE IS THE INTERSECTION AND IS THEREFORE SAFE UNDER
+            # EITHER READING: it satisfies the later prohibition outright, and
+            # against the earlier rule it is at worst a mild shift of register
+            # on a results line. Past tense satisfies one directive and
+            # violates the other. When hers disagree, take what is defensible
+            # under both.
+            #
+            # No number moves: this is one string, and the span, its basis and
+            # its source are untouched. Nothing enforces tense mechanically,
+            # deliberately -- a regex here would hard-code an unresolved
+            # decision of hers into a guard.
             elapsed_clock=ElapsedClock(
                 seconds=span, measured=True,
-                basis=("The span of a sweep whose points ran concurrently."),
+                basis=("The span of a sweep whose points run concurrently."),
                 source=Path(statuses[0]["path"])))
 
     @staticmethod

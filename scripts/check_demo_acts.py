@@ -66,12 +66,37 @@ def _problems() -> dict:
     """
     from workflows.demo_mode import validate_act
 
+    from workflows.demo_sequencer import Sequencer
+
     out = {}
     for key, act in _load_acts().items():
         try:
-            out[key] = list(validate_act(act))
+            problems = list(validate_act(act))
         except Exception as exc:                   # noqa: BLE001 - reported
             out[key] = [f"validation raised {type(exc).__name__}: {exc}"]
+            continue
+        # A SILENT SKIP BECOMES A PERMANENT SKIP. At runtime, an act whose
+        # mesh work_dir is a real case tree simply does not mesh -- the
+        # non-destructive choice, and the one that keeps a working screen up.
+        # But an act that quietly publishes "nothing was meshed" forever is an
+        # act whose mesh stage nobody ever fixes, because nothing ever
+        # complains. So the runtime skips and THIS reports. Different
+        # surfaces, different severities.
+        try:
+            plan = act.mesh_plan()
+            unsafe = Sequencer(act=act)._unsafe_work_dir(plan.work_dir)
+        except Exception as exc:                   # noqa: BLE001 - reported
+            problems.append(
+                f"the mesh plan could not be read, so its working directory "
+                f"could not be checked: {type(exc).__name__}: {exc}")
+        else:
+            if unsafe is not None:
+                problems.append(
+                    f"meshing: this act's mesher is aimed at a directory that "
+                    f"must not be meshed into ({unsafe}). The live stage will "
+                    f"SKIP meshing rather than risk it, so the screen shows no "
+                    f"grid; repoint work_dir at a scratch directory.")
+        out[key] = problems
     return out
 
 
@@ -91,15 +116,14 @@ def check(verbose: bool = True) -> int:
               "vacuously and must not")
         return 2
 
+    # ONE READING, RENDERED. check() used to call validate_act itself, so it
+    # and _problems() were two implementations of "what is wrong with the
+    # acts" and could disagree -- exactly the drift the sequencer's own
+    # invariant 1 exists to prevent, reappearing in a gate.
+    findings = _problems()
     bad = 0
     for key in sorted(acts):
-        try:
-            problems = validate_act(acts[key])
-        except Exception as exc:                   # noqa: BLE001 - reported
-            print(f"  {key}: CANNOT START -- validation itself raised "
-                  f"{type(exc).__name__}: {exc}")
-            bad += 1
-            continue
+        problems = findings.get(key, [])
         if problems:
             bad += 1
             print(f"  {key}: CANNOT START -- {len(problems)} problem(s)")
